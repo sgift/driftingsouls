@@ -63,6 +63,7 @@ import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
+import net.driftingsouls.ds2.server.entities.Feeding;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.Sector;
@@ -108,7 +109,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @BatchSize(size=50)
 @Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
-public class Ship implements Locatable,Transfering {
+public class Ship implements Locatable,Transfering,Feeding {
 	private static final Log log = LogFactory.getLog(Ship.class);
 	
 	/**
@@ -366,18 +367,22 @@ public class Ship implements Locatable,Transfering {
 	}
 	
 	/**
-	 * Gibt die aktuelle Nahrungsmenge im Nahrungslager zurueck.
-	 * @return Die Nahrungsmenge
+	 * @return The current amount of food on the object.
 	 */
-	public long getNahrungCargo() {
+	@Override
+	public long getNahrungCargo() 
+	{
 		return this.nahrungcargo;
 	}
 	
 	/**
-	 * Setzt die aktuelle Nahrungsmenge im Nahrungslager.
-	 * @param nahrungcargo die Nahrungsmenge
+	 * Updates the amount of food on the object.
+	 * 
+	 * @param newFood The new amount of food.
 	 */
-	public void setNahrungCargo(long nahrungcargo) {
+	@Override
+	public void setNahrungCargo(long nahrungcargo) 
+	{
 		this.nahrungcargo = nahrungcargo;
 	}
 	

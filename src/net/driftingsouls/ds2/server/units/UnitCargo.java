@@ -514,7 +514,7 @@ public class UnitCargo implements Cloneable {
 		for(UnitCargoEntry aunit : units)
 		{
 			UnitType unittype = aunit.getUnitType();
-			nahrungsverbrauch += unittype.getNahrungCost()* aunit.getAmount();
+			nahrungsverbrauch += unittype.getNahrungCost() * aunit.getAmount();
 		}
 		
 		return (int)Math.ceil(nahrungsverbrauch);

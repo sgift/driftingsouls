@@ -1436,10 +1436,6 @@
 		INSERT INTO `config` (`name`, `value`, `description`, `version`) VALUES ('maxverhungern', '100', 'Prozentsatz der Crew die maximal pro Tick verhungert', '0');
 	]]></update>
 	<update><![CDATA[
-		ALTER TABLE unit_types CHANGE nahrungcost nahrungcost float (0) NOT NULL;
-		ALTER TABLE unit_types CHANGE recost recost float (0) NOT NULL;
-	]]></update>
-	<update><![CDATA[
 		ALTER TABLE cargo_entries_units CHANGE descid destid int(11) NOT NULL;
 	]]></update>
 	<update><![CDATA[
@@ -1458,6 +1454,10 @@
 		CREATE INDEX idx_nebulatype ON nebel(type);
 	]]></update>
 	<update><![CDATA[
+		ALTER TABLE unit_types CHANGE nahrungcost nahrungcost float (0) NOT NULL;
+		ALTER TABLE unit_types CHANGE recost recost float (0) NOT NULL;
+	]]></update>
+	<update><![CDATA[
 		CREATE TABLE `ds2`.`ship_script_data` (
 			`shipid` INT NOT NULL ,
 			`script` TEXT NULL ,
@@ -1468,5 +1468,8 @@
 		ALTER TABLE ship_script_data ADD CONSTRAINT script_data_fk_ship FOREIGN KEY (shipid) REFERENCES ships (id);
 		
 		INSERT INTO ship_script_data (shipid,script,scriptexedata) SELECT id, script, scriptexedata FROM ships;
+	]]></update>
+	<update><![CDATA[
+		UPDATE unit_types SET nahrungcost = nahrungcost/10;
 	]]></update>
 </updates>

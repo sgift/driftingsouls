@@ -53,6 +53,7 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.entities.Feeding;
 import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -83,7 +84,7 @@ import org.hibernate.classic.Lifecycle;
 @Table(name="bases")
 @Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 @BatchSize(size=50)
-public class Base implements Cloneable, Lifecycle, Locatable, Transfering
+public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feeding
 {
 	@Id @GeneratedValue
 	private int id;
@@ -1280,6 +1281,29 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering
 		
 		assert false;
 		return null;
+	}
+	
+	/**
+	 * @return The current amount of food on the object.
+	 */
+	@Override
+	public long getNahrungCargo() 
+	{
+		Cargo cargo = this.getCargo();
+		return cargo.getResourceCount(Resources.NAHRUNG);
+	}
+
+	/**
+	 * Updates the amount of food on the object.
+	 * 
+	 * @param newFood The new amount of food.
+	 */
+	@Override
+	public void setNahrungCargo(long newFood) 
+	{
+		Cargo cargo = this.getCargo();
+		cargo.setResource(Resources.NAHRUNG, newFood);
+		this.setCargo(cargo);
 	}
 	
 	/**

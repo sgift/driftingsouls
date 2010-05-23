@@ -34,6 +34,7 @@ import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
+import net.driftingsouls.ds2.server.entities.Feeding;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
@@ -53,8 +54,7 @@ import org.hibernate.Transaction;
 
 /**
  * Berechnung des Ticks fuer Schiffe.
- * @author Christopher Jung
- *
+ * @author Drifting-Souls Team
  */
 public class SchiffsTick extends TickController {
 	private Map<String,ResourceID> esources;
@@ -73,36 +73,28 @@ public class SchiffsTick extends TickController {
 
 	/**
 	 * Consumes food from the given cargo.
-	 * @param ship Das Schiff von dem aus versorgt werden soll
-	 * @param crewToFeed Die zu versorgende Crew
-	 * @param scaleFactor Der Skalierungsfaktor beim Nahrungsverbrauch
+	 * @param feeder The feeding object.
+	 * @param crewToFeed Crew which must be feed.
+	 * @param scaleFactor A scaling factor for the food consumption.
 	 * @return Crew that couldn't be feed.
 	 */
-	private int consumeFood(Ship ship, int crewToFeed, double scaleFactor) {
-
+	private int consumeFood(Feeding feeder, int crewToFeed, double scaleFactor) 
+	{
 		int crewThatCouldBeFeed = 0;
-		if( crewToFeed > ship.getNahrungCargo()*scaleFactor ) {
-			crewThatCouldBeFeed = (int)(ship.getNahrungCargo()*scaleFactor);
+		if( crewToFeed > feeder.getNahrungCargo()*scaleFactor ) 
+		{
+			crewThatCouldBeFeed = (int)(feeder.getNahrungCargo()*scaleFactor);
 			crewToFeed -= crewThatCouldBeFeed;
-			if(versorgerlist.containsKey(ship.getLocation()))
-			{
-				if(versorgerlist.get(ship.getLocation()).contains(ship))
-				{
-					versorgerlist.get(ship.getLocation()).remove(ship);
-					if(versorgerlist.get(ship.getLocation()).isEmpty())
-					{
-						versorgerlist.remove(ship.getLocation());
-					}
-				}
-			}
 		}
-		else {
+		else 
+		{
 			crewThatCouldBeFeed = crewToFeed;
 			crewToFeed = 0;
 		}
+		
 		int tmp = (int)Math.ceil(crewThatCouldBeFeed/scaleFactor);
-		ship.setNahrungCargo(ship.getNahrungCargo() - tmp);
-		this.log(tmp+" von "+ship.getId()+" verbraucht");
+		feeder.setNahrungCargo(feeder.getNahrungCargo() - tmp);
+		this.log(tmp+" von "+feeder.getId()+" verbraucht");
 
 		return crewToFeed;
 	}
@@ -174,45 +166,40 @@ public class SchiffsTick extends TickController {
 	{
 		if(versorgerlist.containsKey(loc))
 		{
-			return versorgerlist.get(loc).get(0);
+			Ship ship = versorgerlist.get(loc).get(0);
+			while(ship != null && ship.getNahrungCargo() == 0)
+			{
+				versorgerlist.get(loc).remove(0);
+				if(versorgerlist.get(loc).isEmpty())
+				{
+					versorgerlist.remove(loc);
+					ship = null;
+				}
+				else
+				{
+					ship = versorgerlist.get(loc).get(0);
+				}
+			}
 		}
+		
 		return null;
 	}
 
 	private void tickShip( org.hibernate.Session db, Ship shipd, Map<Location, List<Base>> feedingBases) 
 	{
 		this.log(shipd.getName()+" ("+shipd.getId()+"):");
-	//	boolean recalc = false;
 
 		ShipTypeData shiptd = shipd.getTypeData();
 
 		Cargo shipc = shipd.getCargo();
 
 		this.log("\tAlt: crew "+shipd.getCrew()+" e "+shipd.getEnergy() +" speicher "+shipd.getNahrungCargo());
-		
-		long neededFood = shiptd.getNahrungCargo() - shipd.getNahrungCargo();
-		if(neededFood > 0)
+				
+		//Eigene Basen im selben Sektor
+		List<Base> bases = feedingBases.get(shipd.getLocation());
+		if(bases == null)
 		{
-			List<Base> bases = feedingBases.get(shipd.getLocation());
-			if(bases != null && bases.size() > 0)
-			{
-				for(Base base: bases)
-				{
-					Cargo baseCargo = base.getCargo();
-					
-					long baseFood = baseCargo.getResourceCount(Resources.NAHRUNG);
-					long takenFood = Math.min(baseFood, neededFood);
-					baseCargo.substractResource(Resources.NAHRUNG, takenFood);
-					neededFood = neededFood - takenFood;
-					shipd.setNahrungCargo(shipd.getNahrungCargo() + takenFood);
-					base.setCargo(baseCargo);
-					
-					if(neededFood == 0)
-					{
-						break;
-					}
-				}
-			}
+			bases = new ArrayList<Base>();
 		}
 
 		//Mein Mutterschiff - relevant bei gedockten Schiffen
@@ -226,7 +213,16 @@ public class SchiffsTick extends TickController {
 		double scaleFactor = shipd.getAlertScaleFactor();
 
 		Ship versorger = getVersorger(shipd.getLocation());
-		//VersorgerCargo, Basisschiffcargo, eigener Cargo - Leerfuttern in der Reihenfolge
+		//Basencargo, VersorgerCargo, Basisschiffcargo, eigener Cargo - Leerfuttern in der Reihenfolge
+		for(Base feedingBase: bases)
+		{
+			crewToFeed = consumeFood(feedingBase, crewToFeed, scaleFactor);
+			if(crewToFeed == 0)
+			{
+				break;
+			}
+		}
+		
 		while(versorger != null && crewToFeed > 0)
 		{
 			crewToFeed = consumeFood(versorger ,crewToFeed, scaleFactor);
@@ -244,13 +240,14 @@ public class SchiffsTick extends TickController {
 		if(crewToFeed > 0) 
 		{
 			this.log("Crew verhungert - ");
-			if(crewToFeed >= (int)Math.ceil(shipd.getUnits().getNahrung() / 10.0)){
+			if(crewToFeed >= shipd.getUnits().getNahrung())
+			{
 				crewToFeed = crewToFeed - (int)Math.ceil(shipd.getUnits().getNahrung() / 10.0);
 				shipd.setUnits(new UnitCargo());
 				ConfigValue maxverhungern = (ConfigValue)db.get(ConfigValue.class, "maxverhungern");
 				int maxverhungernfactor = Integer.parseInt(maxverhungern.getValue());
 				int maxverhungernvalue = (int)(shiptd.getCrew() * (maxverhungernfactor/100.0));
-				if( crewToFeed > maxverhungernvalue/10.0)
+				if( crewToFeed > maxverhungernvalue/10)
 				{
 					crewToFeed = maxverhungernvalue/10;
 				}
@@ -281,9 +278,33 @@ public class SchiffsTick extends TickController {
 					shipd.setCrew(crew);
 				}
 			}
-			else {
+			else 
+			{
 				shipd.getUnits().fleeUnits(crewToFeed*10);
 				crewToFeed = 0;
+			}
+		}
+		else
+		{
+			long neededFood = shiptd.getNahrungCargo() - shipd.getNahrungCargo();
+			if(neededFood > 0)
+			{
+				for(Base base: bases)
+				{
+					Cargo baseCargo = base.getCargo();
+					
+					long baseFood = baseCargo.getResourceCount(Resources.NAHRUNG);
+					long takenFood = Math.min(baseFood, neededFood);
+					baseCargo.substractResource(Resources.NAHRUNG, takenFood);
+					neededFood = neededFood - takenFood;
+					shipd.setNahrungCargo(shipd.getNahrungCargo() + takenFood);
+					base.setCargo(baseCargo);
+					
+					if(neededFood == 0)
+					{
+						break;
+					}
+				}
 			}
 		}
 		
@@ -398,7 +419,6 @@ public class SchiffsTick extends TickController {
 		this.log("\tEnergie:");
 		int e = shipd.getEnergy();
 		
-		
 		if(shiptd.getShipClass() != ShipClasses.GESCHUETZ.ordinal()) 
 		{
 			e -= shipd.getAlertEnergyCost();
@@ -407,8 +427,8 @@ public class SchiffsTick extends TickController {
 			}	
 		}	
 
-		if( e < shiptd.getEps() ) {
-	//		recalc = true;
+		if( e < shiptd.getEps() ) 
+		{
 			int rm = shiptd.getRm();
 			if( shiptd.getCrew() > 0 ) {
 				rm = (int)(rm * shipd.getCrew() / (double)shiptd.getCrew());
@@ -549,12 +569,6 @@ public class SchiffsTick extends TickController {
 		shipd.setCargo(shipc);
 		
 		this.slog("\tNeu: crew "+shipd.getCrew()+" e "+e+" speicher "+shipd.getNahrungCargo()+" status: <");
-		/*
-		if(recalc || shipd.getTypeData().hasFlag(ShipTypes.SF_VERSORGER))
-		{
-			shipd.recalculateShipStatus();
-		}
-		*/
 		this.slog(shipd.getStatus());
 		
 
