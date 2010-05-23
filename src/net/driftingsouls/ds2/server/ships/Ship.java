@@ -378,7 +378,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	/**
 	 * Updates the amount of food on the object.
 	 * 
-	 * @param newFood The new amount of food.
+	 * @param nahrungscargo The new amount of food.
 	 */
 	@Override
 	public void setNahrungCargo(long nahrungcargo) 
