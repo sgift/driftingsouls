@@ -1200,41 +1200,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 			versorgernahrung = (Long)versorger;
 		}
 		
-		/*
-		List<Ship> ships = Common.cast(db.createQuery("from Ship as s left join fetch s.modules left join fetch s.shiptype where s.owner=? and s.system=? and s.x=? and s.y=? and s.id > 0")
-				.setEntity(0, this.owner)
-				.setInteger(1, this.system)
-				.setInteger(2, this.x)
-				.setInteger(3, this.y)
-				.list());
-		List<Base> bases = Common.cast(db.createQuery("from Base WHERE owner=? and system=? and x=? and y=? and isfeeding=1")
-				.setEntity(0, this.owner)
-				.setInteger(1, this.system)
-				.setInteger(2, this.x)
-				.setInteger(3, this.y)
-				.list());
-		long versorgernahrung = 0;
-		long crewtofeed = 0;
-		for(Iterator<Ship> iter=ships.iterator(); iter.hasNext();)
+		if(nahrungtofeed == 0)
 		{
-			Ship ship = iter.next();
-			if(ship.getTypeData().isVersorger() && ship.isFeeding())
-			{
-				versorgernahrung += ship.getNahrungCargo();
-			}
-			crewtofeed += ship.getNettoFoodConsumption();
-		}
-		for(Iterator<Base> iter=bases.iterator(); iter.hasNext(); )
-		{
-			Base base = iter.next();
-			versorgernahrung += base.getCargo().getResourceCount(Resources.NAHRUNG);
+			return Long.MAX_VALUE;
 		}
 		
-		if(crewtofeed == 0)
-		{
-			crewtofeed = 1;
-		}
-		*/
 		return versorgernahrung / nahrungtofeed;
 	}
 	
