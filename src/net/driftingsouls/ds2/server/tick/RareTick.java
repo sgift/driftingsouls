@@ -40,35 +40,8 @@ public class RareTick extends AbstractTickExecuter
 	@Override
 	protected void executeTicks()
 	{
-		TimeoutChecker timeout = null;
 		try
 		{
-			timeout = new TimeoutChecker(20*60*1000)
-			{
-				private Thread main = Thread.currentThread();
-				
-				@Override
-				public void timeout()
-				{
-					StackTraceElement[] stack = main.getStackTrace();
-					// Falls der Stack 0 Elemente lang ist, ist der Thread nun doch fertig geworden
-					if( stack.length == 0 )
-					{
-						return;
-					}
-					StringBuilder stacktrace = new StringBuilder();
-					for( int i=0; i < stack.length; i++ )
-					{
-						stacktrace.append(stack[i]+"\n");
-					}
-					System.out.println("Timeout");
-					System.out.println(stacktrace);
-					Common.mailThrowable(new Exception("Rare Tick Timeout"), "RareTick Timeout", "Status: "+getStatus()+"\nStackTrace: "+stacktrace);
-				}
-			};
-			
-			timeout.start();
-
 			File lockFile = new File(this.getConfiguration().get("LOXPATH")+"/raretick.lock");
 			lockFile.createNewFile();
 			try
@@ -90,13 +63,6 @@ public class RareTick extends AbstractTickExecuter
 		{
 			log.error("Fehler beim Ausfuehren der Ticks", e);
 			Common.mailThrowable(e, "RareTick Exception", null);
-		}
-		finally
-		{
-			if( timeout != null )
-			{
-				timeout.interrupt();
-			}
 		}
 	}
 

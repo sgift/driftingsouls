@@ -56,35 +56,8 @@ public class RegularTick extends AbstractTickExecuter
 	{
 		log("Starte regular tick.");
 		
-		TimeoutChecker timeout = null;
 		try
 		{
-			timeout = new TimeoutChecker(20*60*1000)
-			{
-				private Thread main = Thread.currentThread();
-				
-				@Override
-				public void timeout()
-				{
-					StackTraceElement[] stack = main.getStackTrace();
-					// Falls der Stack 0 Elemente lang ist, ist der Thread nun doch fertig geworden
-					if( stack.length == 0 )
-					{
-						return;
-					}
-					StringBuilder stacktrace = new StringBuilder();
-					for( int i=0; i < stack.length; i++ )
-					{
-						stacktrace.append(stack[i]+"\n");
-					}
-					System.out.println("Timeout");
-					System.out.println(stacktrace);
-					Common.mailThrowable(new Exception("Regular Tick Timeout"), "RegularTick Timeout", "Status: "+getStatus()+"\nStackTrace: "+stacktrace);
-				}
-			};
-			
-			timeout.start();
-			
 			File lockFile = new File(this.getConfiguration().get("LOXPATH")+"/regulartick.lock");
 			lockFile.createNewFile();
 			log("Blockiere Accounts");
@@ -137,8 +110,6 @@ public class RegularTick extends AbstractTickExecuter
 				}
 			}
 			
-			timeout.interrupt();
-			
 			this.mailTickStatistics();
 		}
 		catch( Throwable e )
@@ -146,13 +117,7 @@ public class RegularTick extends AbstractTickExecuter
 			log.error("Fehler beim Ausfuehren der Ticks", e);
 			Common.mailThrowable(e, "RegularTick Exception", null);
 		}
-		finally
-		{
-			if( timeout != null )
-			{
-				timeout.interrupt();
-			}
-		}
+		
 		log("Regulartick beendet");
 	}
 
