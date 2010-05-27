@@ -104,8 +104,10 @@ public class WerftKomplex extends WerftObject {
 		}
 	}
 	
-	private void loadData() {
-		if( werften == null ) {
+	private void loadData() 
+	{
+		if( werften == null ) 
+		{
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
 			List<WerftObject> werftList = Common.cast(db.createQuery("from WerftObject where linkedWerft=? order by id")
@@ -118,7 +120,8 @@ public class WerftKomplex extends WerftObject {
 			{
 				// Sicherheitshalber eine weitere Pruefung, da ggf eine Werft gerade dabei
 				// ist den Komplex zu verlassen (aber die Daten noch nicht geschrieben sind)
-				if( aWerft.getKomplex().getWerftID() == this.getWerftID() ) {
+				if(aWerft.getKomplex() != null && aWerft.getKomplex().getWerftID() == this.getWerftID() ) 
+				{
 					werften.add(aWerft);
 				}
 			}
