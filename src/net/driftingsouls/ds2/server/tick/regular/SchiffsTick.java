@@ -59,7 +59,6 @@ import org.hibernate.Transaction;
 public class SchiffsTick extends TickController {
 	private Map<String,ResourceID> esources;
 	private Map<Location,List<Ship>> versorgerlist;
-	private boolean calledByBattle=false;
 	private int unflushedShips = 0;
 	
 	@Override
@@ -194,6 +193,8 @@ public class SchiffsTick extends TickController {
 		Cargo shipc = shipd.getCargo();
 
 		this.log("\tAlt: crew "+shipd.getCrew()+" e "+shipd.getEnergy() +" speicher "+shipd.getNahrungCargo());
+		
+		boolean isBattle = shipd.getBattle() != null;
 				
 		//Eigene Basen im selben Sektor
 		List<Base> bases = feedingBases.get(shipd.getLocation());
@@ -309,50 +310,52 @@ public class SchiffsTick extends TickController {
 		}
 		
 		//Damage ships which don't have enough crew
-		int crew = shipd.getCrew();
-		int minCrew = shiptd.getMinCrew();
-		User user = shipd.getOwner();
-		this.log("Crew " + crew);
-		this.log("MinCrew " + minCrew);
-		if(crew < minCrew && !user.hasFlag(User.FLAG_NO_HULL_DECAY))
+		if(!isBattle)
 		{
-	//		recalc = true;
-			this.log("Schiff hat nicht genug Crew; beschaedige Huelle.");
-			ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "nocrewhulldamagescale");
-			double scale = Double.parseDouble(value.getValue());
-			double damageFactor = (1.0 - (((double)crew) / ((double)minCrew))) / scale;
-			this.log("Damage factor is: " + damageFactor);
-			
-			int oldArmor = shipd.getAblativeArmor();
-			if(oldArmor > 0)
+			int crew = shipd.getCrew();
+			int minCrew = shiptd.getMinCrew();
+			User user = shipd.getOwner();
+			this.log("Crew " + crew);
+			this.log("MinCrew " + minCrew);
+			if(crew < minCrew && !user.hasFlag(User.FLAG_NO_HULL_DECAY))
 			{
-				int damage = (int)Math.ceil(shiptd.getAblativeArmor()*damageFactor);
-				int newArmor = oldArmor - damage;
-				if(newArmor < 0)
+				this.log("Schiff hat nicht genug Crew; beschaedige Huelle.");
+				ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "nocrewhulldamagescale");
+				double scale = Double.parseDouble(value.getValue());
+				double damageFactor = (1.0 - (((double)crew) / ((double)minCrew))) / scale;
+				this.log("Damage factor is: " + damageFactor);
+				
+				int oldArmor = shipd.getAblativeArmor();
+				if(oldArmor > 0)
 				{
-					this.log("Ablative Panzerung zerstoert.");
-					shipd.setAblativeArmor(0);
+					int damage = (int)Math.ceil(shiptd.getAblativeArmor()*damageFactor);
+					int newArmor = oldArmor - damage;
+					if(newArmor < 0)
+					{
+						this.log("Ablative Panzerung zerstoert.");
+						shipd.setAblativeArmor(0);
+					}
+					else
+					{
+						this.log("Ablative Panzerung beschaedigt - neu: " + newArmor);
+						shipd.setAblativeArmor(newArmor);
+					}
 				}
 				else
 				{
-					this.log("Ablative Panzerung beschaedigt - neu: " + newArmor);
-					shipd.setAblativeArmor(newArmor);
-				}
-			}
-			else
-			{
-				int damage = (int)Math.ceil(shiptd.getHull()*damageFactor);
-				int newHull = shipd.getHull() - damage;
-				if(newHull > 0)
-				{
-					this.log("Huelle beschaedigt - neu: " + newHull);
-					shipd.setHull(newHull);
-				}
-				else
-				{
-					this.log("Schiff zerstoert.");
-					shipd.setStatus("destroy");
-					return;
+					int damage = (int)Math.ceil(shiptd.getHull()*damageFactor);
+					int newHull = shipd.getHull() - damage;
+					if(newHull > 0)
+					{
+						this.log("Huelle beschaedigt - neu: " + newHull);
+						shipd.setHull(newHull);
+					}
+					else
+					{
+						this.log("Schiff zerstoert.");
+						shipd.setStatus("destroy");
+						return;
+					}
 				}
 			}
 		}
@@ -488,64 +491,78 @@ public class SchiffsTick extends TickController {
 		int[] sub = new int[] {shipd.getEngine(),shipd.getWeapons(),shipd.getComm(),shipd.getSensors()};
 
 		// Schiff bei Bedarf und falls moeglich reparieren
-		if( (shipd.getBattle() == null) && (shipd.getStatus().indexOf("lowmoney") == -1) &&
+		if(!isBattle && (shipd.getStatus().indexOf("lowmoney") == -1) &&
 				( (shipd.getEngine() < 100) || (shipd.getWeapons() < 100) || (shipd.getComm() < 100) || (shipd.getSensors() < 100) ) &&
 				(Ships.getNebula(shipd.getLocation()) != 6)  ) {
 
 			Offizier offizier = Offizier.getOffizierByDest('s', shipd.getId());
 
-			for( int a=0; a<=3; a++ ) {
+			for( int a=0; a<=3; a++ ) 
+			{
 				int old = sub[a];
-				if( shipd.getCrew() == shiptd.getCrew() ) {
+				if( shipd.getCrew() == shiptd.getCrew() ) 
+				{
 					sub[a] += 20;
 				}
-				else if( shipd.getCrew() > shiptd.getCrew()/2 ) {
+				else if( shipd.getCrew() > shiptd.getCrew()/2 ) 
+				{
 					sub[a] += 15;
 				}
-				else if( shipd.getCrew() == shiptd.getCrew()/2 ) {
+				else if( shipd.getCrew() == shiptd.getCrew()/2 ) 
+				{
 					sub[a] += 10;
 				}
-				else if( shipd.getCrew() < shiptd.getCrew()/2 ) {
+				else if( shipd.getCrew() < shiptd.getCrew()/2 ) 
+				{
 					sub[a] += 5;
 				}
 
-				if( offizier != null ) {
+				if( offizier != null ) 
+				{
 					sub[a] += (int)(offizier.getAbility(Offizier.Ability.ING) / 3d );
 
-					if( sub[a] > 40 + (int)(offizier.getAbility(Offizier.Ability.ING)/4d) ) {
+					if( sub[a] > 40 + (int)(offizier.getAbility(Offizier.Ability.ING)/4d) ) 
+					{
 						sub[a] = 40 + (int)(offizier.getAbility(Offizier.Ability.ING)/4d);
 					}
 				} 
-				else if( sub[a] > 40 ) {
+				else if( sub[a] > 40 ) 
+				{
 					sub[a] = 40;
 				}
-				if( old > sub[a] ) {
+				if( old > sub[a] ) 
+				{
 					sub[a] = old;
 				}
-				if( sub[a] > 100 ) {
+				if( sub[a] > 100 ) 
+				{
 					sub[a] = 100;
 				}
 			}
 		}
 
 		// Evt. Deuterium sammeln
-		if( shipd.getAutoDeut() && (shiptd.getDeutFactor() != 0) && (shipd.getCrew() >= shiptd.getCrew()/2) && (e > 0) && (shipc.getMass() < shiptd.getCargo()) ) {
+		if(!isBattle && shipd.getAutoDeut() && (shiptd.getDeutFactor() != 0) && (shipd.getCrew() >= shiptd.getCrew()/2) && (e > 0) && (shipc.getMass() < shiptd.getCargo()) ) 
+		{
 			this.slog("\tS. Deut: ");
-	//		recalc = true;
 			int nebel = Ships.getNebula(shipd.getLocation());
 
-			if( (nebel >= 0) && (nebel <= 2) ) {
+			if( (nebel >= 0) && (nebel <= 2) ) 
+			{
 				int tmpe = e;
 
 				int deutfactor = shiptd.getDeutFactor();
-				if( nebel == 1 ) {
+				if( nebel == 1 ) 
+				{
 					deutfactor--;
 				}
-				else if( nebel == 2 ) {
+				else if( nebel == 2 ) 
+				{
 					deutfactor++;
 				}
 
-				if( Cargo.getResourceMass( Resources.DEUTERIUM, tmpe * deutfactor ) > (shiptd.getCargo() - shipc.getMass()) ) {
+				if( Cargo.getResourceMass( Resources.DEUTERIUM, tmpe * deutfactor ) > (shiptd.getCargo() - shipc.getMass()) ) 
+				{
 					tmpe = (int)( (shiptd.getCargo()-shipc.getMass())/(deutfactor*Cargo.getResourceMass( Resources.DEUTERIUM, 1 )) );
 					this.slog("[maxcargo]");
 				}
@@ -555,7 +572,8 @@ public class SchiffsTick extends TickController {
 				e -= tmpe;
 				this.log(tmpe+" Deuterium");
 			}
-			else {
+			else 
+			{
 				this.log("kpn");
 			}
 		}
@@ -575,7 +593,7 @@ public class SchiffsTick extends TickController {
 		this.log(">");
 	}
 
-	private void tickUser(org.hibernate.Session db, User auser, String battle) 
+	private void tickUser(org.hibernate.Session db, User auser) 
 	{
 		Map<Location, List<Base>> feedingBases = new HashMap<Location, List<Base>>();
 		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "corruption");
@@ -607,7 +625,7 @@ public class SchiffsTick extends TickController {
 		ScrollableResults ships = db.createQuery(
 				"from Ship as s fetch all properties" +
 				" where s.id>0 and s.owner=? " +
-				" and system!=0 and "+battle +
+				" and system!=0 " + 
 				"order by s.shiptype.versorger DESC, " +
 				" s.modules.versorger DESC, s.shiptype.jDocks DESC," +
 				"s.modules.jDocks DESC,s.shiptype ASC")
@@ -634,47 +652,15 @@ public class SchiffsTick extends TickController {
 	}
 
 	@Override
-	protected void tick() {
+	protected void tick() 
+	{
 		org.hibernate.Session db = getDB();
-		
-		String battle = "";
-		
-		List<User> userList = new ArrayList<User>();
-
 		Transaction transaction = db.beginTransaction();
-		// Wurden wir von einer Schlacht aufgerufen? (Parameter '--battle $schlachtid')
-		int battleid = getContext().getRequest().getParameterInt("battle");
-		if( battleid != 0 ) 
-		{
-			this.calledByBattle = true;
-			battle = "s.battle="+battleid;
-
-			List<?> users = db.createQuery("select distinct owner from Ship where battle=?")
-							  .setInteger(0, battleid)
-							  .list();
-			for( Iterator<?> iter=users.iterator(); iter.hasNext(); ) 
-			{
-				User auser = (User)iter.next();
-				userList.add(auser);
-			}
-		}
-		else 
-		{
-			this.calledByBattle = false;
-			battle = "s.battle is null ";
-		}
-		transaction.commit();
-
-		transaction = db.beginTransaction();
 		try
 		{
-			// Ueberhitzung
-			if( !this.calledByBattle ) 
-			{
-				db.createQuery("update Ship set heat=heat-(case when heat>=70 then 70 else heat end) " +
+			db.createQuery("update Ship set heat=heat-(case when heat>=70 then 70 else heat end) " +
 				"where heat>0 and owner in (from User where vaccount=0 or wait4vac>0) and id>0 and system!=0 and battle is null")
 				.executeUpdate();
-			}
 			transaction.commit();
 		}
 		catch (Exception e) 
@@ -688,38 +674,25 @@ public class SchiffsTick extends TickController {
 		db.setCacheMode(CacheMode.IGNORE);
 
 		transaction = db.beginTransaction();
-		List<User> users;
-		if(!userList.isEmpty())
-		{
-			users = userList;
-		}
-		else
-		{
-			users = Common.cast(db.createQuery("from User where id!=0 and (vaccount=0 or wait4vac>0) order by id asc")
+		List<User> users = Common.cast(db.createQuery("from User where id!=0 and (vaccount=0 or wait4vac>0) order by id asc")
 						  .list());
-		}
 		
 		for(User auser: users)
 		{
 			try 
 			{
-				this.tickUser(db, auser, battle);
+				this.tickUser(db, auser);
 				transaction.commit();
 				transaction = getDB().beginTransaction();
 			}
 			catch( RuntimeException e ) 
 			{
-				if( calledByBattle ) 
-				{
-					throw e;
-				}
-				
 				transaction.rollback();
 				transaction = getDB().beginTransaction();
 				
 				this.log("User "+auser.getId()+" failed: "+e);
 				e.printStackTrace();
-				Common.mailThrowable(e, "ShipTick Exception", "User: "+auser.getId()+"\nBattle: "+battle);
+				Common.mailThrowable(e, "ShipTick Exception", "User: "+auser.getId());
 			}
 			
 			final int SHIP_FLUSH_SIZE = 50;
@@ -749,10 +722,6 @@ public class SchiffsTick extends TickController {
 			this.log("Shiptick: Resetting of crew to zero failed.");
 		}
 
-		if( this.calledByBattle ) {
-			return;
-		}			
-
 		/*
 			Schiffe mit destroy-tag im status-Feld entfernen
 		 */
@@ -763,9 +732,9 @@ public class SchiffsTick extends TickController {
 		try
 		{
 			List<?> ships = db.createQuery("from Ship where id>0 and locate('destroy',status)!=0").list();
-			for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
+			for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) 
+			{
 				Ship aship = (Ship)iter.next();
-	
 				this.log("\tEntferne "+aship.getId());
 				aship.destroy();
 			}
@@ -824,15 +793,6 @@ public class SchiffsTick extends TickController {
 		catch(Exception e)
 		{
 			transaction.rollback();
-		}
-	}
-	
-	@Override
-	public void dispose() 
-	{
-		if(!calledByBattle)
-		{
-			super.dispose();
 		}
 	}
 }

@@ -63,8 +63,6 @@ import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
-import net.driftingsouls.ds2.server.tick.TickController;
-import net.driftingsouls.ds2.server.tick.regular.SchiffsTick;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
@@ -1508,7 +1506,8 @@ public class Battle implements Locatable {
 	 * @return <code>true</code>, falls die Schlacht weiterhin existiert. <code>false</code>, falls sie beendet wurde.
 	 * 
 	 */
-	public boolean endTurn( boolean calledByUser ) {
+	public boolean endTurn( boolean calledByUser ) 
+	{
 		Context context = ContextMap.getContext();
 			
 		List<List<BattleShip>> sides = new ArrayList<List<BattleShip>>();
@@ -1547,13 +1546,15 @@ public class Battle implements Locatable {
 					aship.getShip().setSensors(aship.getSensors());
 					aship.setAction(aship.getAction() ^ BS_HIT);
 				}
-				else if( (aship.getAction() & BS_DESTROYED) != 0 ) {	
-					if( config.getInt("DESTROYABLE_SHIPS") != 0 ) {
-						//destroyList.add(aship);
+				else if( (aship.getAction() & BS_DESTROYED) != 0 ) 
+				{	
+					if( config.getInt("DESTROYABLE_SHIPS") != 0 ) 
+					{
 						destroyShip(aship);
 						continue;
 					}
-					else {
+					else 
+					{
 						aship.setAction(aship.getAction() ^ BS_DESTROYED);
 						continue; //Das Schiff kann nicht zerstoert werden
 					}
@@ -1564,36 +1565,39 @@ public class Battle implements Locatable {
 				if( (aship.getAction() & BS_FLUCHT) != 0 ) 
 				{
 					ShipTypeData ashipType = aship.getTypeData();
-					if( ashipType.getCost() > 0 ) {
-						//fluchtReposList.add(aship);
+					if( ashipType.getCost() > 0 ) 
+					{
 						removeShip(aship, true);
 					}
-					else {
-						//fluchtList.add(aship);
+					else 
+					{
 						removeShip(aship, false);
 					}
-	
-					//continue;
 				}
 				
-				if( (aship.getAction() & BS_SHOT) != 0 ) {
+				if( (aship.getAction() & BS_SHOT) != 0 ) 
+				{
 					aship.setAction(aship.getAction() ^ BS_SHOT);
 				}
 				
-				if( (aship.getAction() & BS_SECONDROW_BLOCKED) != 0 ) {
+				if( (aship.getAction() & BS_SECONDROW_BLOCKED) != 0 ) 
+				{
 					aship.setAction(aship.getAction() ^ BS_SECONDROW_BLOCKED);
 				}
 				
-				if( (aship.getAction() & BS_BLOCK_WEAPONS) != 0 ) {
+				if( (aship.getAction() & BS_BLOCK_WEAPONS) != 0 ) 
+				{
 					aship.setAction(aship.getAction() ^ BS_BLOCK_WEAPONS);
 				}
 				
 				if( (i == 0) && this.hasFlag(FLAG_DROP_SECONDROW_0) && 
-						(aship.getAction() & BS_SECONDROW) != 0 ) {
+						(aship.getAction() & BS_SECONDROW) != 0 ) 
+				{
 					aship.setAction(aship.getAction() ^ BS_SECONDROW);	
 				}
 				else if( (i == 1) && this.hasFlag(FLAG_DROP_SECONDROW_1) && 
-						(aship.getAction() & BS_SECONDROW) != 0 ) {
+						(aship.getAction() & BS_SECONDROW) != 0 ) 
+				{
 					aship.setAction(aship.getAction() ^ BS_SECONDROW);	
 				}
 				
@@ -1609,22 +1613,19 @@ public class Battle implements Locatable {
 	
 				Map<String,String> heat = Weapons.parseWeaponList(aship.getWeaponHeat());
 	
-				for( String weaponName : heat.keySet() ) {
+				for( String weaponName : heat.keySet() ) 
+				{
 					heat.put(weaponName, "0");
 				}
 				
-				if( (aship.getAction() & BS_FLUCHTNEXT) != 0 ) {
+				if( (aship.getAction() & BS_FLUCHTNEXT) != 0 ) 
+				{
 					aship.setAction((aship.getAction() ^ BS_FLUCHTNEXT) | BS_FLUCHT);
 				}
 				
 				aship.getShip().setWeaponHeat(Weapons.packWeaponList(heat));
 				aship.getShip().setBattleAction(false);
 			}
-			
-			//Remove destroyed and fleeing ships
-			//this.destroyShips(destroyList);
-			//this.removeShips(fluchtList, false);
-			//this.removeShips(fluchtReposList, true);
 		}
 		
 		// Ist die Schlacht zuende (weil keine Schiffe mehr vorhanden sind?)
@@ -1754,21 +1755,6 @@ public class Battle implements Locatable {
 			this.setFlag(FLAG_DROP_SECONDROW_1, false);
 			this.setFlag(FLAG_BLOCK_SECONDROW_1, true);
 		}		
-		
-		// Schiffstick ausfuehren
-		context.getRequest().setParameter("battle", Integer.toString(this.id));
-		
-		TickController schiffstick = new SchiffsTick();
-		try
-		{
-			schiffstick.addLogTarget(TickController.STDOUT, true);
-		}
-		catch( IOException e )
-		{
-			log.warn("", e);
-		}
-		schiffstick.execute();
-		schiffstick.dispose();
 		
 		return true;
 	}
