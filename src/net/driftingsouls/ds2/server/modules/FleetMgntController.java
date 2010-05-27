@@ -531,13 +531,21 @@ public class FleetMgntController extends TemplateGenerator {
 				Ship coords = (Ship)db.createQuery("from Ship where owner=? and fleet=?")
 					.setEntity(0, newowner)
 					.setEntity(1, this.fleet)
-					.iterate().next();
+					.setMaxResults(1)
+					.uniqueResult();
 				
-				PM.send(user, newowner.getId(), "Flotte &uuml;bergeben", "Ich habe dir die Flotte "+Common._plaintitle(this.fleet.getName())+" &uuml;bergeben. Sie steht bei "+coords.getLocation().displayCoordinates(false));
-		
-				t.setVar("fleetmgnt.message", ShipFleet.MESSAGE.getMessage()+"Die Flotte wurde &uuml;bergeben");
+				if(coords != null)
+				{
+					PM.send(user, newowner.getId(), "Flotte &uuml;bergeben", "Ich habe dir die Flotte "+Common._plaintitle(this.fleet.getName())+" &uuml;bergeben. Sie steht bei "+coords.getLocation().displayCoordinates(false));
+					t.setVar("fleetmgnt.message", ShipFleet.MESSAGE.getMessage()+"Die Flotte wurde &uuml;bergeben");
+				}
+				else
+				{
+					t.setVar("fleetmgnt.message", ShipFleet.MESSAGE.getMessage()+"Flotten&uuml;bergabe gescheitert");
+				}
 			}
-			else {
+			else 
+			{
 				t.setVar("fleetmgnt.message", ShipFleet.MESSAGE.getMessage()+"Flotten&uuml;bergabe gescheitert");
 			}
 		}
