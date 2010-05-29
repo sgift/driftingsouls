@@ -188,6 +188,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	@JoinColumn(name="destid", nullable=true)
 	@BatchSize(size=50)
 	@Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
+	@NotFound(action = NotFoundAction.IGNORE)
 	private List<ShipUnitCargoEntry> units;
 	@OneToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="id", nullable=true)

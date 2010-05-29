@@ -72,6 +72,8 @@ import org.hibernate.Session;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.Type;
 import org.hibernate.classic.Lifecycle;
 
@@ -128,6 +130,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	@OneToMany(fetch=FetchType.LAZY, targetEntity=net.driftingsouls.ds2.server.bases.BaseUnitCargoEntry.class)
 	@JoinColumn(name="destid", nullable=true)
 	@BatchSize(size=50)
+	@NotFound(action = NotFoundAction.IGNORE)
 	private List<BaseUnitCargoEntry> units;
 	@Version
 	private int version;
