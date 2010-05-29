@@ -88,7 +88,8 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 @BatchSize(size=50)
-public class Battle implements Locatable {
+public class Battle implements Locatable 
+{
 	private static final Log log = LogFactory.getLog(Battle.class);
 	
 	private static final int LOGFORMAT = 2;
@@ -1024,49 +1025,59 @@ public class Battle implements Locatable {
 	 * 
 	 * @return <code>true</code>, falls der Beitritt erfolgreich war
 	 */
-	public boolean addShip( int id, int shipid ) {
+	public boolean addShip( int id, int shipid ) 
+	{
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		
 		Ship shipd = (Ship)db.get(Ship.class, shipid);
 	
-		if( (shipd == null) || (shipd.getId() < 0) ) {
+		if( (shipd == null) || (shipd.getId() < 0) ) 
+		{
 			context.addError("Das angegebene Schiff existiert nicht!");
 			return false;
 		}
-		if( shipd.getOwner().getId() != id ) {
+		if( shipd.getOwner().getId() != id ) 
+		{
 			context.addError("Das angegebene Schiff geh&ouml;rt nicht ihnen!");
 			return false;
 		}
-		if( shipd.getLock() != null && shipd.getLock().length() > 0 ) {
+		if( shipd.getLock() != null && shipd.getLock().length() > 0 ) 
+		{
 			context.addError("Das Schiff ist an ein Quest gebunden");
 			return false;
 		}
-		if( !new Location(this.system,this.x,this.y).sameSector(0, shipd.getLocation(), 0) ) {
+		if( !new Location(this.system,this.x,this.y).sameSector(0, shipd.getLocation(), 0) ) 
+		{
 			context.addError("Das angegebene Schiff befindet sich nicht im selben Sektor wie die Schlacht!");
 			return false;
 		}
-		if( shipd.getBattle() != null ) {
+		if( shipd.getBattle() != null ) 
+		{
 			context.addError("Das angegebene Schiff befindet sich bereits in einer Schlacht!");
 			return false;
 		}
 		
-		if( this.visibility != null ) {
+		if( this.visibility != null ) 
+		{
 			Integer[] visibility = Common.explodeToInteger(",",this.visibility);
-			if( !Common.inArray(id,visibility) ) {
+			if( !Common.inArray(id,visibility) ) 
+			{
 				context.addError("Sie k&ouml;nnen dieser Schlacht nicht beitreten!");
 				return false;
 			}
 		}
 		
 		User userobj = (User)context.getDB().get(User.class, id);
-		if( userobj.isNoob() ) {
+		if( userobj.isNoob() ) 
+		{
 			context.addError("Sie stehen unter GCP-Schutz und k&ouml;nnen daher keine Schiffe in diese Schlacht schicken!<br />Hinweis: der GCP-Schutz kann unter Optionen vorzeitig beendet werden");
 			return false;
 		}
 		
 		ShipTypeData shiptype = shipd.getTypeData();
-		if( (shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal() ) && !shipd.isDocked() ) {
+		if( (shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal() ) && !shipd.isDocked() ) 
+		{
 			context.addError("<span style=\"color:red\">Gesch&uuml;tze k&ouml;nnen einer Schlacht nicht beitreten!</span>");
 			return false;
 		}
@@ -1151,11 +1162,13 @@ public class Battle implements Locatable {
 					.list();
 		}
 		
-		for( Iterator<?> iter=sid.iterator(); iter.hasNext(); ) {
+		for( Iterator<?> iter=sid.iterator(); iter.hasNext(); ) 
+		{
 			Ship aship = (Ship)iter.next();
 			
 			shiptype = aship.getTypeData();
-			if( shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal() && !aship.isDocked()) {
+			if( shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal() && !aship.isDocked()) 
+			{
 				continue;
 			}
 			
@@ -1167,11 +1180,13 @@ public class Battle implements Locatable {
 				.setString(1, "l "+aship.getId())
 				.list();
 			
-			for( Iterator<?> iter2=docked.iterator(); iter2.hasNext(); ) {
+			for( Iterator<?> iter2=docked.iterator(); iter2.hasNext(); ) 
+			{
 				Ship sid2 = (Ship)iter2.next();
 				
 				ShipTypeData stype = sid2.getTypeData();
-				if( stype.getShipClass() == ShipClasses.GESCHUETZ.ordinal() ) {
+				if( stype.getShipClass() == ShipClasses.GESCHUETZ.ordinal() ) 
+				{
 					sid2.setDocked("");
 					continue;
 				}
@@ -1182,7 +1197,8 @@ public class Battle implements Locatable {
 				
 				// Das neue Schiff in die Liste der eigenen Schiffe eintragen
 				if( !shiptype.hasFlag(ShipTypes.SF_INSTANT_BATTLE_ENTER) && 
-					!stype.hasFlag(ShipTypes.SF_INSTANT_BATTLE_ENTER) ) {
+					!stype.hasFlag(ShipTypes.SF_INSTANT_BATTLE_ENTER) ) 
+				{
 					sid2Action = BS_JOIN;
 				}
 				
@@ -1202,7 +1218,8 @@ public class Battle implements Locatable {
 			int sidAction = 0; 
 			
 			// Das neue Schiff in die Liste der eigenen Schiffe eintragen
-			if( !shiptype.hasFlag(ShipTypes.SF_INSTANT_BATTLE_ENTER) ) {
+			if( !shiptype.hasFlag(ShipTypes.SF_INSTANT_BATTLE_ENTER) ) 
+			{
 				sidAction = BS_JOIN;
 			}
 
@@ -1221,12 +1238,14 @@ public class Battle implements Locatable {
 		
 		int tick = context.get(ContextCommon.class).getTick();
 		
-		if( shiplist.size() > 1 ) {
+		if( shiplist.size() > 1 ) 
+		{
 			int addedShips = shiplist.size()-1;
 			this.logenemy("<action side=\""+this.ownSide+"\" time=\""+Common.time()+"\" tick=\""+tick+"\"><![CDATA[\nDie "+log_shiplink(shipd)+" ist zusammen mit "+addedShips+" weiteren Schiffen der Schlacht beigetreten\n]]></action>\n");
 			this.logme( "Die "+log_shiplink(shipd)+" ist zusammen mit "+addedShips+" weiteren Schiffen der Schlacht beigetreten\n\n" );
 		}
-		else {
+		else 
+		{
 			this.logenemy("<action side=\""+this.ownSide+"\" time=\""+Common.time()+"\" tick=\""+tick+"\"><![CDATA[\nDie "+log_shiplink(shipd)+" ist der Schlacht beigetreten\n]]></action>\n");
 			this.logme("Die "+log_shiplink(shipd)+" ist der Schlacht beigetreten\n\n");
 		
