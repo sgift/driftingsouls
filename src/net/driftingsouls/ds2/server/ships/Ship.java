@@ -2593,7 +2593,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * @param knode <code>true</code>, falls es sich um einen "Knossos"-Sprungpunkt handelt
 	 * @return <code>true</code>, falls ein Fehler aufgetreten ist
 	 */
-	public boolean jump(int nodeID, boolean knode) {
+	public boolean jump(int nodeID, boolean knode) 
+	{
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 
@@ -2603,6 +2604,12 @@ public class Ship implements Locatable,Transfering,Feeding {
 		String nodetarget = "";
 
 		User user = this.owner;
+		
+		if(this.getBattle() != null)
+		{
+			outputbuffer.append("Fehler: Sie k&ouml;nnen nicht mit einem Schiff springen, dass in einem Kampf ist.<br />\n");
+			return true;
+		}
 
 		//
 		// Daten der Sprungpunkte laden
@@ -2751,7 +2758,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		List<Ship> shiplist = new ArrayList<Ship>();
 		// Falls vorhanden die Schiffe der Flotte einfuegen
 		if( this.fleet != null ) {
-			List<?> fleetships = db.createQuery("from Ship where id>0 and fleet=? AND x=? AND y=? AND system=? and docked=''")
+			List<?> fleetships = db.createQuery("from Ship where id>0 and fleet=? AND x=? AND y=? AND system=? and docked='' AND battle is null")
 			.setEntity(0, this.fleet)
 			.setInteger(1, this.x)
 			.setInteger(2, this.y)

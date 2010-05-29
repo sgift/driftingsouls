@@ -1016,7 +1016,7 @@ public class Battle implements Locatable {
 
 		return battle;
 	}
-
+	
 	/**
 	 * Laesst eines oder mehrere Schiffe (in einer Flotte) der Schlacht beitreten.
 	 * @param id Die ID des Besitzers der Schiffe

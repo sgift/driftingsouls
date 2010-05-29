@@ -157,12 +157,14 @@ public class SchiffController extends TemplateGenerator {
 		int shipid = getInteger("ship");
 		
 		ship = (Ship)db.get(Ship.class, shipid);
-		if( (ship == null) || (ship.getId() < 0) || (ship.getOwner() != user) ) {
+		if( (ship == null) || (ship.getId() < 0) || (ship.getOwner() != user) ) 
+		{
 			addError("Das angegebene Schiff existiert nicht", Common.buildUrl("default","module", "schiffe") );
 			return false;
 		}
 
-		if( ship.getBattle() != null ) {
+		if( ship.getBattle() != null ) 
+		{
 			addError("Das Schiff ist in einen Kampf verwickelt (hier klicken um zu diesem zu gelangen)!", Common.buildUrl("default", "module", "angriff", "battle", ship.getBattle().getId(), "ship", shipid) );
 			return false;
 		}
