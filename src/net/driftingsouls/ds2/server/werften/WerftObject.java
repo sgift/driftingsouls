@@ -65,6 +65,7 @@ import net.driftingsouls.ds2.server.config.items.effects.IEModule;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DSObject;
@@ -960,9 +961,107 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * 
 	 * @return Die Reparaturkosten
 	 */
-	public RepairCosts getRepairCosts( Ship ship ) {
-		ShipTypeData shiptype = ship.getTypeData();
+	public RepairCosts getRepairCosts( Ship ship ) 
+	{
+		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
+		ShipTypeData shiptype = ship.getTypeData();
+		RepairCosts repairCosts = new RepairCosts();
+		
+		Cargo materialCosts = new Cargo();
+		ShipBaubar buildable = (ShipBaubar)db.createQuery("from ShipBaubar where type=?")
+											 .setInteger(0, ship.getType())
+											 .setMaxResults(1)
+											 .uniqueResult();
+		
+		if(buildable != null)
+		{
+			double ablativeDamageFactor = 0.0;
+			if(shiptype.getAblativeArmor() > 0)
+			{
+				ablativeDamageFactor = 1 -  ship.getAblativeArmor() / (double)shiptype.getAblativeArmor();
+			}
+			
+			double hullDamageFactor = 1 -  ship.getHull() / (double)shiptype.getHull();
+			double systemDamageFactor = 1 - (ship.getEngine() / 100.0 + ship.getComm() / 100.0 + ship.getWeapons() / 100.0 + ship.getSensors() / 100.0) / 4.0;
+			
+			double outerDamageFactor = (ablativeDamageFactor + hullDamageFactor) / 2.0;
+			double innerDamageFactor = (hullDamageFactor + systemDamageFactor) / 2.0;
+			
+			double damageFactor = outerDamageFactor * 0.7 + innerDamageFactor * 0.3;
+			
+			ConfigValue dampening = (ConfigValue)db.get(ConfigValue.class, "repaircostdampeningfactor");
+			double dampeningFactor = Double.parseDouble(dampening.getValue());
+			
+			Cargo buildCosts = new Cargo(buildable.getCosts());
+			ResourceList buildCostList = buildCosts.getResourceList();
+			Iterator<ResourceEntry> resources = buildCostList.iterator();
+			double costFactor = damageFactor * dampeningFactor;
+			while(resources.hasNext())
+			{
+				ResourceEntry resource = resources.next();
+				materialCosts.addResource(resource.getId(), (long)(Math.abs(resource.getCount1()) * costFactor));
+			}
+			
+			repairCosts.e = (int)(buildable.getEKosten() * costFactor);
+		}
+		else
+		{
+			//Kosten berechnen
+			int htr = shiptype.getHull()-ship.getHull();
+			int htrsub = (int)Math.round(shiptype.getHull()*0.5d);
+			int ablativeArmorToRepair = shiptype.getAblativeArmor() - ship.getAblativeArmor();
+			
+			if( htr > htrsub ) {
+				htrsub = htr;
+			}
+			
+			materialCosts.addResource( Resources.KUNSTSTOFFE, (long)(htr/55d) );
+			materialCosts.addResource( Resources.TITAN, (long)(htr/20d) );
+			materialCosts.addResource( Resources.ADAMATIUM, (long)(htr/40d) );
+			materialCosts.addResource( Resources.PLATIN, 
+					(long)(htrsub/100d*(
+							Math.floor(100-ship.getEngine()) + 
+							Math.floor((100-ship.getSensors())/4d) + 
+							Math.floor((100-ship.getComm())/4d) + 
+							Math.floor(100-ship.getWeapons())/2d
+						)/106d) );
+			materialCosts.addResource( Resources.SILIZIUM, 
+					(long)(htrsub/100d*(
+							(100-ship.getEngine())/3 + 
+							(100-ship.getSensors())/2 + 
+							(100-ship.getComm())/2 + 
+							(100-ship.getWeapons())/5
+						)/72d) );
+			materialCosts.addResource( Resources.KUNSTSTOFFE, 
+					(long)((
+							materialCosts.getResourceCount(Resources.SILIZIUM)+
+							materialCosts.getResourceCount(Resources.PLATIN)/2d+
+							materialCosts.getResourceCount(Resources.TITAN)/3d
+						)*0.5d) );
+			int energie = (int)Math.round(
+					((long)(
+							materialCosts.getResourceCount(Resources.SILIZIUM)+
+							materialCosts.getResourceCount(Resources.PLATIN)/2d+
+							materialCosts.getResourceCount(Resources.TITAN)/2d
+					)*1.5d));
+			
+			if( energie > 900 ) {
+				energie = 900;
+			}
+			
+			materialCosts.addResource(Resources.URAN, ablativeArmorToRepair/100);
+			materialCosts.addResource(Resources.TITAN, ablativeArmorToRepair/100);
+			materialCosts.addResource(Resources.ADAMATIUM, ablativeArmorToRepair/200);
+			
+			repairCosts.e = energie;
+		}
+		
+		repairCosts.cost = materialCosts;
+		
+		return repairCosts;
+		
+		/*
 		//Kosten berechnen
 		int htr = shiptype.getHull()-ship.getHull();
 		int htrsub = (int)Math.round(shiptype.getHull()*0.5d);
@@ -1016,6 +1115,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		rc.cost = cost;
 		
 		return rc;
+		*/
 	}
 	
 	/**

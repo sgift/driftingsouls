@@ -1472,4 +1472,7 @@
 	<update><![CDATA[
 		UPDATE unit_types SET nahrungcost = nahrungcost/10;
 	]]></update>
+	<update><![CDATA[
+		INSERT INTO `config` (`name`, `value`, `description`, `version`) VALUES ('repaircostdampeningfactor', '0.3', 'Limitiert die Reperaturkosten auf die Baukosten * faktor.', '0');	
+	]]></update>
 </updates>
