@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.units;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.driftingsouls.ds2.server.bases.BaseUnitCargoEntry;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -186,10 +187,27 @@ public class UnitCargo implements Cloneable {
 						.setInteger("destid", this.destid)
 						.executeUpdate();
 		
+		Map<Integer, UnitCargoEntry> unitMapping = new HashMap<Integer, UnitCargoEntry>();
+		
+		//Manchmal kann es passieren, dass der selbe UnitTyp mehrmals in Cargo landet, statt addiert zu werden
+		//z.B. wenn Zieltyp und Zielid noch nicht gesetzt wurden
 		for( UnitCargoEntry entry : units)
 		{
-			entry.setTyp(this.type);
-			entry.setDestId(this.destid);
+			if(!unitMapping.containsKey(entry.getUnitTypeId()))
+			{
+				entry.setTyp(this.type);
+				entry.setDestId(this.destid);
+				unitMapping.put(entry.getUnitTypeId(), entry);
+			}
+			else
+			{
+				UnitCargoEntry oldEntry = unitMapping.get(entry.getUnitTypeId());
+				oldEntry.setAmount(oldEntry.getAmount() + entry.getAmount());
+			}
+		}
+		
+		for(UnitCargoEntry entry: unitMapping.values())
+		{
 			db.persist(entry);
 		}
 	}
