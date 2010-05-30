@@ -1108,8 +1108,8 @@ public class ErsteigernController extends TemplateGenerator
 				if(tradepost == null)
 				{
 					db.delete(kurse);
-					db.createQuery("delete from ResourceLimit where shipid = :shipid").setParameter(0, shipid).executeUpdate();
-					db.createQuery("delete from SellLimit where shipid = :shipid").setParameter(0, shipid).executeUpdate();
+					db.createQuery("delete from ResourceLimit where shipid = :shipid").setParameter("shipid", shipid).executeUpdate();
+					db.createQuery("delete from SellLimit where shipid = :shipid").setParameter("shipid", shipid).executeUpdate();
 					continue;
 				}
 				if(!tradepost.isTradepostVisible(user, relationlist))
