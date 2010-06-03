@@ -952,7 +952,12 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	public String getScript() 
 	{
-		return scriptData.getScript();
+		if(scriptData != null)
+		{
+			return scriptData.getScript();
+		}
+		
+		return "";
 	}
 
 	/**
@@ -961,6 +966,14 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	public void setScript(String script) 
 	{
+		if(scriptData == null)
+		{
+			ShipScriptData data = new ShipScriptData();
+			data.setShipid(this.getId());
+			org.hibernate.Session db = ContextMap.getContext().getDB();
+			db.persist(data);
+			scriptData = data;
+		}
 		scriptData.setScript(script);
 	}
 	
@@ -970,7 +983,12 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	public Blob getScriptExeData() 
 	{
-		return scriptData.getScriptexedata();
+		if(scriptData != null)
+		{
+			return scriptData.getScriptexedata();
+		}
+		
+		return null;
 	}
 
 	/**
@@ -979,6 +997,14 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	public void setScriptExeData(Blob scriptexedata) 
 	{
+		if(scriptData == null)
+		{
+			ShipScriptData data = new ShipScriptData();
+			data.setShipid(this.getId());
+			org.hibernate.Session db = ContextMap.getContext().getDB();
+			db.persist(data);
+			scriptData = data;
+		}
 		scriptData.setScriptexedata(scriptexedata);
 	}
 
