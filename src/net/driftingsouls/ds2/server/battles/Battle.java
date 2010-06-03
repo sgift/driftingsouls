@@ -2325,7 +2325,8 @@ public class Battle implements Locatable
 			.setString(1, "l "+ship.getId())
 			.iterate().next();
 
-		if( !ship.getShip().isDestroyed() ) {
+		if( !ship.getShip().isDestroyed() ) 
+		{
 			db.delete(ship);
 			ship.getShip().destroy();
 		}

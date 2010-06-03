@@ -3577,6 +3577,14 @@ public class Ship implements Locatable,Transfering,Feeding {
 		{
 			db.delete(scriptData);
 		}
+		
+		if(units != null)
+		{
+			for(UnitCargoEntry unit: units)
+			{
+				db.delete(unit);
+			}
+		}
 
 		db.delete(this);
 		
