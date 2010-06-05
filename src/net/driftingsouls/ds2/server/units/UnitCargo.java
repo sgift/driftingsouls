@@ -187,24 +187,9 @@ public class UnitCargo implements Cloneable {
 						.setInteger("destid", this.destid)
 						.executeUpdate();
 		
-		Map<Integer, UnitCargoEntry> unitMapping = new HashMap<Integer, UnitCargoEntry>();
+		db.flush();
 		
-		//Manchmal kann es passieren, dass der selbe UnitTyp mehrmals in Cargo landet, statt addiert zu werden
-		//z.B. wenn Zieltyp und Zielid noch nicht gesetzt wurden
-		for( UnitCargoEntry entry : units)
-		{
-			if(!unitMapping.containsKey(entry.getUnitTypeId()))
-			{
-				entry.setTyp(this.type);
-				entry.setDestId(this.destid);
-				unitMapping.put(entry.getUnitTypeId(), entry);
-			}
-			else
-			{
-				UnitCargoEntry oldEntry = unitMapping.get(entry.getUnitTypeId());
-				oldEntry.setAmount(oldEntry.getAmount() + entry.getAmount());
-			}
-		}
+		Map<Integer, UnitCargoEntry> unitMapping = new HashMap<Integer, UnitCargoEntry>();
 		
 		for(UnitCargoEntry entry: unitMapping.values())
 		{
