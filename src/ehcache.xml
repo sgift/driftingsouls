@@ -29,7 +29,7 @@
     		eternal="false"
     		overflowToDisk="true"
     />
-    
+
     <cache name="net.driftingsouls.ds2.server.bases.Base"
     		maxElementsInMemory="500"
     		eternal="false"

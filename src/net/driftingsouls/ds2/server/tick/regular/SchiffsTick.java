@@ -103,14 +103,41 @@ public class SchiffsTick extends TickController {
 		Map<Location,List<Ship>> versorgerlist = new HashMap<Location,List<Ship>>();
 		this.log("Berechne Versorger");
 		List<Ship> ships = Common.cast(db.createQuery("from Ship as s left join fetch s.modules" +
-				" where s.id>0 and s.owner=? and system!=0 and (s.shiptype.versorger=1 or s.modules.versorger=1)" +
+				" where s.id>0 and s.owner=? and system!=0 and (s.shiptype.versorger=1 or s.modules.versorger=1) " +
+				" and s.isfeeding=1 and s.nahrungcargo>0" +
 				"order by s.nahrungcargo DESC")
 				.setEntity(0, user)
 				.list());
 		this.log(ships.size()+" Versorger gefunden");
 		for( Ship ship : ships)
 		{
-			if(ship.isFeeding() && ship.getNahrungCargo() > 0)
+			Location loc = ship.getLocation();
+			if(versorgerlist.containsKey(loc))
+			{
+				versorgerlist.get(loc).add(ship);
+			}
+			else
+			{
+				List<Ship> shiplist = new ArrayList<Ship>();
+				shiplist.add(ship);
+				versorgerlist.put(loc, shiplist);
+			}
+		}
+		
+		if(user.getAlly() != null)
+		{
+			this.log("Berechne Allianzversorger");
+			ships = Common.cast(db.createQuery("from Ship as s left join fetch s.modules" +
+					" where s.id>0 and s.owner!=? and s.owner.ally=? and (s.owner.vaccount=0 or" +
+					" s.owner.wait4vac!=0) and system!=0 and" +
+					" (s.shiptype.versorger=1 or s.modules.versorger=1) and" +
+					" s.isfeeding=1 and s.isallyfeeding=1 and s.nahrungcargo>0" +
+					" order by s.nahrungcargo DESC")
+					.setEntity(0, user)
+					.setEntity(1, user.getAlly())
+					.list());
+			this.log(ships.size()+" Schiffe gefunden");
+			for( Ship ship : ships)
 			{
 				Location loc = ship.getLocation();
 				if(versorgerlist.containsKey(loc))
@@ -122,38 +149,6 @@ public class SchiffsTick extends TickController {
 					List<Ship> shiplist = new ArrayList<Ship>();
 					shiplist.add(ship);
 					versorgerlist.put(loc, shiplist);
-				}
-			}
-		}
-		
-		if(user.getAlly() != null)
-		{
-			this.log("Berechne Allianzversorger");
-			ships = Common.cast(db.createQuery("from Ship as s left join fetch s.modules" +
-					" where s.id>0 and s.owner!=? and s.owner.ally=? and (s.owner.vaccount=0 or" +
-					" s.owner.wait4vac!=0) and system!=0 and" +
-					" (s.shiptype.versorger=1 or s.modules.versorger=1) and" +
-					" s.isfeeding=1 and s.isallyfeeding=1" +
-					" order by s.nahrungcargo DESC")
-					.setEntity(0, user)
-					.setEntity(1, user.getAlly())
-					.list());
-			this.log(ships.size()+" Schiffe gefunden");
-			for( Ship ship : ships)
-			{
-				if(ship.isFeeding() && ship.isAllyFeeding() && ship.getNahrungCargo() > 0)
-				{
-					Location loc = ship.getLocation();
-					if(versorgerlist.containsKey(loc))
-					{
-						versorgerlist.get(loc).add(ship);
-					}
-					else
-					{
-						List<Ship> shiplist = new ArrayList<Ship>();
-						shiplist.add(ship);
-						versorgerlist.put(loc, shiplist);
-					}
 				}
 			}
 		}
@@ -588,8 +583,6 @@ public class SchiffsTick extends TickController {
 		
 		this.slog("\tNeu: crew "+shipd.getCrew()+" e "+e+" speicher "+shipd.getNahrungCargo()+" status: <");
 		this.slog(shipd.getStatus());
-		
-
 		this.log(">");
 	}
 
@@ -625,8 +618,8 @@ public class SchiffsTick extends TickController {
 		ScrollableResults ships = db.createQuery(
 				"from Ship as s fetch all properties" +
 				" where s.id>0 and s.owner=? " +
-				" and system!=0 " + 
-				"order by s.shiptype.versorger DESC, " +
+				" and s.system!=0 " + 
+				" order by s.shiptype.versorger DESC, " +
 				" s.modules.versorger DESC, s.shiptype.jDocks DESC," +
 				"s.modules.jDocks DESC,s.shiptype ASC")
 				.setEntity(0, auser)
