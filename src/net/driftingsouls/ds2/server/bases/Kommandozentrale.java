@@ -47,6 +47,7 @@ import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.werften.BaseWerft;
 
 /**
  * Die Kommandozentrale.
@@ -69,10 +70,13 @@ public class Kommandozentrale extends DefaultBuilding {
 		
 		org.hibernate.Session db = context.getDB();
 		
+		// Loesche alle GTU-Aktionen
 		base.setAutoGTUActs(new ArrayList<AutoGTUAction>());
+		// Setze Besitzer auf 0
 		User nullUser = (User)context.getDB().get(User.class, 0);
 		User oldUser = base.getOwner();
 		base.setOwner(nullUser);
+		// Fahre Basis runter
 		Integer[] active = base.getActive();
 		for(int i = 0; i < active.length; i++)
 		{
@@ -82,14 +86,22 @@ public class Kommandozentrale extends DefaultBuilding {
 		base.setActive(active);
 		base.setCoreActive(false);
 		
+		// Ueberstelle Offiziere
 		db.createQuery("update Offizier set owner=:owner where dest=:dest")
 		  .setEntity("owner", nullUser)
 		  .setString("dest", "b " + base.getId())
 		  .executeUpdate();
-				
+		
+		// Loesche Verbindungen
 		db.createQuery("update ShipWerft set linked=null where linked=:base")
 			.setEntity("base", base)
 			.executeUpdate();
+		
+		// Loesche Eintraege der Basiswerft
+		BaseWerft werft = (BaseWerft)db.createQuery("from BaseWerft where base=:base")
+										.setEntity("base", base)
+										.uniqueResult();
+		werft.clearQueue();
 		
 		//Check if we need to change the drop zone of the player to another system
 		Set<Integer> systems = oldUser.getAstiSystems();
