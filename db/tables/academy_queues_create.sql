@@ -7,4 +7,4 @@ CREATE TABLE `academy_queues` (
   `scheduled` tinyint(1) default NULL,
   `position` int(6) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=22 DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;

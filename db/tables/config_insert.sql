@@ -60,4 +60,6 @@ VALUES (
 	'gtudefaultdropzone', '75', 'Standard-Dropzone der GTU. Kann von jedem genutzt werden, egal, ob er Asteroiden im System hat.', '0'
 ), (
 	'maxverhungern', '100', 'Prozentsatz der Crew die maximal pro Tick verhungert', '0'
+), (
+	'repaircostdampeningfactor', '0.3', 'Limitiert die Reperaturkosten auf die Baukosten * faktor.', '0'
 );
