@@ -1164,7 +1164,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
 		Ship versorger = (Ship)db.createQuery("from Ship as s left join fetch s.modules" +
-								" where s.shiptype.versorger!=0 or (s.modules is not null and s.modules.versorger!=0)" +
+								" where (s.shiptype.versorger!=0 or s.modules.versorger!=0)" +
 								" and s.owner=? and s.system=? and s.x=? and s.y=? and s.nahrungcargo > 0 and s.isfeeding != 0 ORDER BY s.nahrungcargo DESC")
 								.setEntity(0, this.owner)
 								.setInteger(1, this.system)
@@ -1182,7 +1182,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		
 		org.hibernate.Session db = context.getDB();
 		
-		Object unitsnahrung = db.createQuery("select sum(e.amount*t.nahrungcost+s.crew) from UnitCargoEntry as e,UnitType as t, Ship as s where e.key.unittype = t.id and e.key.destid = s.id and e.key.type = 2 and s.system=:system and s.x=:x and s.y=:y and s.owner = :user")
+		Object unitsnahrung = db.createQuery("select sum(e.amount*t.nahrungcost) from UnitCargoEntry as e,UnitType as t, Ship as s where e.key.unittype = t.id and e.key.destid = s.id and e.key.type = 2 and s.system=:system and s.x=:x and s.y=:y and s.owner = :user")
 									.setInteger("system", this.system)
 									.setInteger("x", this.x)
 									.setInteger("y", this.y)
@@ -1211,9 +1211,16 @@ public class Ship implements Locatable,Transfering,Feeding {
 			crewtofeed = (Long)crewnahrung;
 		}
 		
-		long nahrungtofeed = (long)Math.ceil((unitstofeed + crewtofeed)/10.0);
+		long nahrungtofeed = (long)Math.ceil(unitstofeed + crewtofeed/10.0);
 		
-		Object versorger = db.createQuery("select sum(s.nahrungcargo) from Ship as s where s.system=:system and s.x=:x and s.y=:y and s.owner=:user and (s.modules.versorger=1 or s.shiptype.versorger=1) and s.isfeeding=1")
+		if(nahrungtofeed == 0)
+		{
+			return Long.MAX_VALUE;
+		}
+		
+		Object versorger = db.createQuery("select sum(s.nahrungcargo) from Ship as s left join s.modules" +
+								" where (s.shiptype.versorger!=0 or s.modules.versorger!=0)" +
+								" and s.owner=:user and s.system=:system and s.x=:x and s.y=:y and s.isfeeding != 0")
 						.setInteger("system", this.system)
 						.setInteger("x", this.x)
 						.setInteger("y", this.y)
@@ -1227,12 +1234,20 @@ public class Ship implements Locatable,Transfering,Feeding {
 			versorgernahrung = (Long)versorger;
 		}
 		
-		if(nahrungtofeed == 0)
+		List<Base> bases = Common.cast(db.createQuery("from Base where owner=:user and system=:system and x=:x and y=:y and isfeeding=1")
+						.setEntity("user", this.owner)
+						.setInteger("system", this.system)
+						.setInteger("x", this.x)
+						.setInteger("y", this.y)
+						.list());
+		
+		int basenahrung = 0;
+		for(Base base : bases)
 		{
-			return Long.MAX_VALUE;
+			basenahrung += base.getCargo().getResourceCount(Resources.NAHRUNG);
 		}
 		
-		return versorgernahrung / nahrungtofeed;
+		return (versorgernahrung+basenahrung) / nahrungtofeed;
 	}
 	
 	private boolean lackOfFood() {
@@ -1274,7 +1289,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 		
 		Ship versorger = getVersorger();
-						
+
 		//Den Nahrungsverbrauch berechnen - Ist nen Versorger da ists cool
 		if( versorger != null || isBaseInSector()) {
 			// Sind wir selbst ein Versorger werden wir ja mit berechnet.
@@ -1522,6 +1537,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		shipModules.setPickingCost(type.getPickingCost());
 		shipModules.setScanCost(type.getScanCost());
 		shipModules.setMinCrew(type.getMinCrew());
+		shipModules.setVersorger(type.isVersorger());
 	}
 
 	/**

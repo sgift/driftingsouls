@@ -103,7 +103,7 @@ public class SchiffsTick extends TickController {
 		Map<Location,List<Ship>> versorgerlist = new HashMap<Location,List<Ship>>();
 		this.log("Berechne Versorger");
 		List<Ship> ships = Common.cast(db.createQuery("from Ship as s left join fetch s.modules" +
-				" where s.id>0 and s.owner=? and system!=0 and (s.shiptype.versorger=1 or s.modules.versorger=1) " +
+				" where s.id>0 and s.owner=? and s.system!=0 and (s.shiptype.versorger=1 or s.modules.versorger=1) " +
 				" and s.isfeeding=1 and s.nahrungcargo>0" +
 				"order by s.nahrungcargo DESC")
 				.setEntity(0, user)

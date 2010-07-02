@@ -103,7 +103,7 @@ public class KSDischargeBatteriesAllAction extends BasicKSAction {
 			battle.logme( aship.getName()+": "+batterien+" Reservebatterien entladen\n" );
 			ebattslog.append(Battle.log_shiplink(aship.getShip())+": Reservebatterien entladen\n");
 			
-			aship.getShip().recalculateShipStatus();
+			//aship.getShip().recalculateShipStatus();
 			shipcount++;
 		}
 

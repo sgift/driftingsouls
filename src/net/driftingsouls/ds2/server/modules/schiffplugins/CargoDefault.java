@@ -255,7 +255,7 @@ public class CargoDefault implements SchiffPlugin {
 					"schiff.cargo.versorger",				shiptype.hasFlag(ShipTypes.SF_VERSORGER),
 					"schiff.cargo.versorger.isfeeding",		ship.isFeeding(),
 					"schiff.cargo.versorger.isallyfeeding",	ship.isAllyFeeding(),
-					"schiff.cargo.mangel_nahrung",			(ship.getStatus().indexOf("mangel_nahrung") > 1),
+					"schiff.cargo.mangel_nahrung",			(ship.getStatus().indexOf("mangel_nahrung") > -1),
 					"schiff.cargo.speicher",				(shiptype.getNahrungCargo() > 0),
 					"schiff.cargo.speicher.amount",			Common.ln(ship.getNahrungCargo()),
 					"schiff.cargo.speicher.maxamount",		Common.ln(shiptype.getNahrungCargo()),
