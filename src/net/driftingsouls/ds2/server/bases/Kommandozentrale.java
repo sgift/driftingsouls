@@ -39,6 +39,7 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.Ally;
+import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.StatVerkaeufe;
 import net.driftingsouls.ds2.server.entities.User;
@@ -85,6 +86,15 @@ public class Kommandozentrale extends DefaultBuilding {
 		
 		base.setActive(active);
 		base.setCoreActive(false);
+		
+		// Loesche Forschung
+		Forschungszentrum zentrum = (Forschungszentrum)db.get(Forschungszentrum.class, base.getId());
+		
+		if(zentrum != null)
+		{
+			zentrum.setForschung(null);
+			zentrum.setDauer(0);
+		}
 		
 		// Ueberstelle Offiziere
 		db.createQuery("update Offizier set owner=:owner where dest=:dest")

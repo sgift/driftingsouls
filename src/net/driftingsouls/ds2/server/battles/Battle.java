@@ -1076,9 +1076,9 @@ public class Battle implements Locatable
 		}
 		
 		ShipTypeData shiptype = shipd.getTypeData();
-		if( (shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal() ) && !shipd.isDocked() ) 
+		if( (shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal() ) ) 
 		{
-			context.addError("<span style=\"color:red\">Gesch&uuml;tze k&ouml;nnen einer Schlacht nicht beitreten!</span>");
+			context.addError("<span style=\"color:red\">Gesch&uuml;tze k&ouml;nnen einer Schlacht nicht beitreten!<br />Diese m&uuml;ssen von Frachtern mitgenommen werden!</span>");
 			return false;
 		}
 		
@@ -1167,7 +1167,7 @@ public class Battle implements Locatable
 			Ship aship = (Ship)iter.next();
 			
 			shiptype = aship.getTypeData();
-			if( shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal() && !aship.isDocked()) 
+			if( shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal()) 
 			{
 				continue;
 			}
@@ -1184,22 +1184,23 @@ public class Battle implements Locatable
 			{
 				Ship sid2 = (Ship)iter2.next();
 				
+				int sid2Action = 0;
+				
 				ShipTypeData stype = sid2.getTypeData();
 				if( stype.getShipClass() == ShipClasses.GESCHUETZ.ordinal() ) 
 				{
-					sid2.setDocked("");
-					continue;
+					sid2Action = BS_BLOCK_WEAPONS;
 				}
 				
 				shiplist.add(sid2.getId());
 					
-				int sid2Action = 0;
+				
 				
 				// Das neue Schiff in die Liste der eigenen Schiffe eintragen
 				if( !shiptype.hasFlag(ShipTypes.SF_INSTANT_BATTLE_ENTER) && 
 					!stype.hasFlag(ShipTypes.SF_INSTANT_BATTLE_ENTER) ) 
 				{
-					sid2Action = BS_JOIN;
+					sid2Action = sid2Action | BS_JOIN;
 				}
 				
 				BattleShip sid2bs = new BattleShip(this, sid2);
@@ -1606,7 +1607,10 @@ public class Battle implements Locatable
 				
 				if( (aship.getAction() & BS_BLOCK_WEAPONS) != 0 ) 
 				{
-					aship.setAction(aship.getAction() ^ BS_BLOCK_WEAPONS);
+					if( !((aship.getTypeData().getShipClass() == ShipClasses.GESCHUETZ.ordinal() ) && aship.getShip().isDocked()) ) 
+					{
+						aship.setAction(aship.getAction() ^ BS_BLOCK_WEAPONS);
+					}
 				}
 				
 				if( (i == 0) && this.hasFlag(FLAG_DROP_SECONDROW_0) && 
