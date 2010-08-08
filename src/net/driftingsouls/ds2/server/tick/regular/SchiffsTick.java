@@ -93,7 +93,7 @@ public class SchiffsTick extends TickController {
 		
 		int tmp = (int)Math.ceil(crewThatCouldBeFeed/scaleFactor);
 		feeder.setNahrungCargo(feeder.getNahrungCargo() - tmp);
-		this.log(tmp+" von "+feeder.getId()+" verbraucht");
+		this.slog(tmp+"@"+feeder.getId()+",");
 
 		return crewToFeed;
 	}
@@ -231,11 +231,12 @@ public class SchiffsTick extends TickController {
 		}
 		
 		crewToFeed = consumeFood(shipd, crewToFeed, scaleFactor);
+		this.slog("\n");
 		
 		//Crew die nicht versorgt werden konnte verhungern lassen
 		if(crewToFeed > 0) 
 		{
-			this.log("Crew verhungert - ");
+			this.log("\tCrew verhungert - ");
 			if(crewToFeed >= shipd.getUnits().getNahrung())
 			{
 				crewToFeed = crewToFeed - (int)Math.ceil(shipd.getUnits().getNahrung() / 10.0);
@@ -251,7 +252,7 @@ public class SchiffsTick extends TickController {
 				if(crew < 0)
 				{
 					shipd.setCrew(0);
-					this.log("Gedockte Schiffe verhungern.");
+					this.log("\tGedockte Schiffe verhungern.");
 					crew = Math.abs(crew);
 					List<Ship> dockedShips = shipd.getLandedShips();
 					for(Iterator<Ship> iter=dockedShips.iterator();iter.hasNext();)
@@ -310,15 +311,14 @@ public class SchiffsTick extends TickController {
 			int crew = shipd.getCrew();
 			int minCrew = shiptd.getMinCrew();
 			User user = shipd.getOwner();
-			this.log("Crew " + crew);
-			this.log("MinCrew " + minCrew);
+			this.log("\tCrew " + crew + "("+minCrew+")");
 			if(crew < minCrew && !user.hasFlag(User.FLAG_NO_HULL_DECAY))
 			{
-				this.log("Schiff hat nicht genug Crew; beschaedige Huelle.");
+				this.log("\tSchiff hat nicht genug Crew; beschaedige Huelle.");
 				ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "nocrewhulldamagescale");
 				double scale = Double.parseDouble(value.getValue());
 				double damageFactor = (1.0 - (((double)crew) / ((double)minCrew))) / scale;
-				this.log("Damage factor is: " + damageFactor);
+				this.log("\tDamage factor is: " + damageFactor);
 				
 				int oldArmor = shipd.getAblativeArmor();
 				if(oldArmor > 0)
@@ -327,12 +327,12 @@ public class SchiffsTick extends TickController {
 					int newArmor = oldArmor - damage;
 					if(newArmor < 0)
 					{
-						this.log("Ablative Panzerung zerstoert.");
+						this.log("\tAblative Panzerung zerstoert.");
 						shipd.setAblativeArmor(0);
 					}
 					else
 					{
-						this.log("Ablative Panzerung beschaedigt - neu: " + newArmor);
+						this.log("\tAblative Panzerung beschaedigt - neu: " + newArmor);
 						shipd.setAblativeArmor(newArmor);
 					}
 				}
@@ -342,12 +342,12 @@ public class SchiffsTick extends TickController {
 					int newHull = shipd.getHull() - damage;
 					if(newHull > 0)
 					{
-						this.log("Huelle beschaedigt - neu: " + newHull);
+						this.log("\tHuelle beschaedigt - neu: " + newHull);
 						shipd.setHull(newHull);
 					}
 					else
 					{
-						this.log("Schiff zerstoert.");
+						this.log("\tSchiff zerstoert.");
 						shipd.setStatus("destroy");
 						return;
 					}
@@ -359,7 +359,6 @@ public class SchiffsTick extends TickController {
 		int reCost = shipd.getBalance();
 		if(reCost > 0)
 		{
-			this.log("Zahle Sold und Wartungskosten");
 			User owner = shipd.getOwner();
 			BigInteger account = owner.getKonto();
 			BigInteger reCostHelp = BigInteger.valueOf(reCost);
@@ -367,7 +366,7 @@ public class SchiffsTick extends TickController {
 			//Account is balanced
 			if(account.compareTo(reCostHelp) >= 0)
 			{
-				this.log("Bezahlter Betrag: " + reCost);
+				this.log("\tKosten: " + reCost);
 				User nobody = (User)db.get(User.class, -1);
 				nobody.transferMoneyFrom(owner.getId(), reCost);
 			}
@@ -377,7 +376,7 @@ public class SchiffsTick extends TickController {
 				// Wartungskosten koennen aufgebracht werden.
 				if(account.compareTo(reCostHelper) >= 0)
 				{
-					this.log("Konto nicht gedeckt; Besatzung meutert.");
+					this.log("\tKonto nicht gedeckt; Besatzung meutert.");
 					
 					// Sammel alle Daten zusammmen
 					User pirate = (User)db.get(User.class, Faction.PIRATE);
@@ -407,7 +406,7 @@ public class SchiffsTick extends TickController {
 					shipd.setOwner(pirate);
 					owner.setKonto(BigInteger.ZERO);
 					
-					this.log("Konto nicht gedeckt; Schiff desertiert zum Piraten.");
+					this.log("\tKonto nicht gedeckt; Schiff desertiert zum Piraten.");
 					PM.send(pirate, owner.getId(), "Schiff desertiert", "Die " + shipd.getName() + " ist desertiert, nachdem Sie den Sold der Crew nicht aufbringen konnten. (" + shipd.getLocation().displayCoordinates(false) + ")");
 				}
 			}
@@ -475,7 +474,7 @@ public class SchiffsTick extends TickController {
 						this.log("\t   verbrenne "+counter+" "+Cargo.getResourceName(resid));
 					} 
 					else {
-						this.log(" kein "+Cargo.getResourceName(resid)+" vorhanden");
+						this.log("\t   kein "+Cargo.getResourceName(resid)+" vorhanden");
 					}
 				}
 
@@ -565,11 +564,11 @@ public class SchiffsTick extends TickController {
 
 				shipc.addResource( Resources.DEUTERIUM, saugdeut );
 				e -= tmpe;
-				this.log(tmpe+" Deuterium");
+				this.slog(tmpe+" Deuterium\n");
 			}
 			else 
 			{
-				this.log("kpn");
+				this.slog("kpn\n");
 			}
 		}
 
@@ -607,7 +606,7 @@ public class SchiffsTick extends TickController {
 			feedingBases.get(location).add(base);
 		}
 		
-		int balance = auser.getFullBalance()[1];
+		int balance = auser.getReBalance();
 		
 		if(balance > 0 && corruption > 0)
 		{
@@ -667,12 +666,13 @@ public class SchiffsTick extends TickController {
 		db.setCacheMode(CacheMode.IGNORE);
 
 		transaction = db.beginTransaction();
-		List<User> users = Common.cast(db.createQuery("from User where id!=0 and (vaccount=0 or wait4vac>0) order by id asc")
+		List<User> users = Common.cast(db.createQuery("select distinct u from User u left join fetch u.researches where u.id!=0 and (u.vaccount=0 or u.wait4vac>0) order by u.id asc")
 						  .list());
 		
 		for(User auser: users)
 		{
-			try 
+			this.log("###### User "+auser.getId()+" ######");
+			try
 			{
 				this.tickUser(db, auser);
 				transaction.commit();

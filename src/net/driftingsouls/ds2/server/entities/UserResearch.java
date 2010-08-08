@@ -91,4 +91,55 @@ public class UserResearch {
 	public User getOwner() {
 		return owner;
 	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((owner == null) ? 0 : owner.hashCode());
+		result = prime * result + ((research == null) ? 0 : research.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if( this == obj )
+		{
+			return true;
+		}
+		if( obj == null )
+		{
+			return false;
+		}
+		if( getClass() != obj.getClass() )
+		{
+			return false;
+		}
+		UserResearch other = (UserResearch)obj;
+		if( owner == null )
+		{
+			if( other.owner != null )
+			{
+				return false;
+			}
+		}
+		else if( !owner.equals(other.owner) )
+		{
+			return false;
+		}
+		if( research == null )
+		{
+			if( other.research != null )
+			{
+				return false;
+			}
+		}
+		else if( !research.equals(other.research) )
+		{
+			return false;
+		}
+		return true;
+	}
 }

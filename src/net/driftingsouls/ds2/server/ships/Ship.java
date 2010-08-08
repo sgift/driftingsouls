@@ -190,8 +190,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 	@Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 	@NotFound(action = NotFoundAction.IGNORE)
 	private List<ShipUnitCargoEntry> units;
-	@OneToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="id", nullable=true)
+	@OneToOne(fetch=FetchType.LAZY, optional=false)
+	@JoinColumn(name="id", nullable=false)
 	@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 	private ShipScriptData scriptData;
 	
