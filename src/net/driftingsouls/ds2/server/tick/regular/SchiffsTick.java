@@ -615,7 +615,7 @@ public class SchiffsTick extends TickController {
 		
 		// Schiffe berechnen
 		ScrollableResults ships = db.createQuery(
-				"from Ship as s fetch all properties" +
+				"from Ship as s join fetch s.shiptype left join fetch s.modules" +
 				" where s.id>0 and s.owner=? " +
 				" and s.system!=0 " + 
 				" order by s.shiptype.versorger DESC, " +
