@@ -2,7 +2,9 @@ package net.driftingsouls.ds2.server.framework.db;
 
 import java.io.File;
 import java.net.URL;
+import java.util.SortedMap;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -10,10 +12,13 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.dialect.function.SQLFunctionTemplate;
 import org.hibernate.dialect.function.StandardSQLFunction;
+import org.hibernate.engine.CollectionKey;
+import org.hibernate.engine.EntityKey;
 import org.scannotation.AnnotationDB;
 import org.scannotation.ClasspathUrlFinder;
 
@@ -88,4 +93,33 @@ public class HibernateUtil
     
     private static Log log = LogFactory.getLog(HibernateUtil.class);
     private static final SessionFactory sessionFactory;
+    
+    /**
+     * Gibt den momentanen Inhalt der Session, aufgelistet nach Entitynamen/Collectionrolle und der zugehoerigen Anzahl
+     * an Eintraegen in der Session zurueck.
+     * @param db Die Session zu der die Daten ermittelt werden sollen
+     * @return Die Daten, wobei der Schluessel der Entityname/die Collectionrolle ist
+     */
+    public static SortedMap<String,Integer> getSessionContentStatistics(Session db) {
+    	SortedMap<String,Integer> counter = new TreeMap<String,Integer>();
+		for( Object obj : db.getStatistics().getEntityKeys() ) {
+			EntityKey key = (EntityKey)obj;
+			if( !counter.containsKey(key.getEntityName()) ) {
+				counter.put(key.getEntityName(), 1);
+			}
+			else {
+				counter.put(key.getEntityName(), counter.get(key.getEntityName())+1);
+			}
+		}
+		for( Object obj : db.getStatistics().getCollectionKeys() ) {
+			CollectionKey key = (CollectionKey)obj;
+			if( !counter.containsKey(key.getRole()) ) {
+				counter.put(key.getRole(), 1);
+			}
+			else {
+				counter.put(key.getRole(), counter.get(key.getRole())+1);
+			}
+		}
+		return counter;
+    }
 }
