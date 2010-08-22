@@ -9,8 +9,6 @@ import java.util.TreeSet;
 
 import net.driftingsouls.ds2.server.framework.Configuration;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -91,7 +89,6 @@ public class HibernateUtil
         return sessionFactory;
     }
     
-    private static Log log = LogFactory.getLog(HibernateUtil.class);
     private static final SessionFactory sessionFactory;
     
     /**
@@ -100,23 +97,30 @@ public class HibernateUtil
      * @param db Die Session zu der die Daten ermittelt werden sollen
      * @return Die Daten, wobei der Schluessel der Entityname/die Collectionrolle ist
      */
-    public static SortedMap<String,Integer> getSessionContentStatistics(Session db) {
+    public static SortedMap<String,Integer> getSessionContentStatistics(Session db)
+    {
     	SortedMap<String,Integer> counter = new TreeMap<String,Integer>();
-		for( Object obj : db.getStatistics().getEntityKeys() ) {
+		for( Object obj : db.getStatistics().getEntityKeys() )
+		{
 			EntityKey key = (EntityKey)obj;
-			if( !counter.containsKey(key.getEntityName()) ) {
+			if( !counter.containsKey(key.getEntityName()) )
+			{
 				counter.put(key.getEntityName(), 1);
 			}
-			else {
+			else
+			{
 				counter.put(key.getEntityName(), counter.get(key.getEntityName())+1);
 			}
 		}
-		for( Object obj : db.getStatistics().getCollectionKeys() ) {
+		for( Object obj : db.getStatistics().getCollectionKeys() )
+		{
 			CollectionKey key = (CollectionKey)obj;
-			if( !counter.containsKey(key.getRole()) ) {
+			if( !counter.containsKey(key.getRole()) )
+			{
 				counter.put(key.getRole(), 1);
 			}
-			else {
+			else
+			{
 				counter.put(key.getRole(), counter.get(key.getRole())+1);
 			}
 		}
