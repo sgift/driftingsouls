@@ -34,6 +34,7 @@ import net.driftingsouls.ds2.server.ships.ShipUnitCargoEntry;
 
 import org.hibernate.annotations.DiscriminatorFormula;
 import org.hibernate.annotations.ForceDiscriminator;
+import org.hibernate.proxy.HibernateProxy;
 
 /**
  * Diese Klasse repraesentiert alle UnitCargo-Eintraege.
@@ -149,6 +150,52 @@ public abstract class UnitCargoEntry
 		public void setUnitType(UnitType unittype)
 		{
 			setUnitType(unittype.getId());
+		}
+
+		@Override
+		public int hashCode()
+		{
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + destid;
+			result = prime * result + type;
+			result = prime * result + unittype;
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj)
+		{
+			if( this == obj )
+			{
+				return true;
+			}
+			if( obj == null )
+			{
+				return false;
+			}
+			if( obj instanceof HibernateProxy )
+			{
+				obj = ((HibernateProxy)obj).getHibernateLazyInitializer().getImplementation();
+			}
+			if( getClass() != obj.getClass() )
+			{
+				return false;
+			}
+			UnitCargoEntryKey other = (UnitCargoEntryKey)obj;
+			if( destid != other.destid )
+			{
+				return false;
+			}
+			if( type != other.type )
+			{
+				return false;
+			}
+			if( unittype != other.unittype )
+			{
+				return false;
+			}
+			return true;
 		}
 	}
 	
@@ -286,9 +333,49 @@ public abstract class UnitCargoEntry
 		{
 			return new BaseUnitCargoEntry(getTyp(),getDestId(),getUnitTypeId(),getAmount());
 		}
-		else
+		return new ShipUnitCargoEntry(getTyp(),getDestId(),getUnitTypeId(),getAmount());
+	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((key == null) ? 0 : key.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if( this == obj )
 		{
-			return new ShipUnitCargoEntry(getTyp(),getDestId(),getUnitTypeId(),getAmount());
+			return true;
 		}
+		if( obj == null )
+		{
+			return false;
+		}
+		if( obj instanceof HibernateProxy )
+		{
+			obj = ((HibernateProxy)obj).getHibernateLazyInitializer().getImplementation();
+		}
+		if( getClass() != obj.getClass() )
+		{
+			return false;
+		}
+		UnitCargoEntry other = (UnitCargoEntry)obj;
+		if( key == null )
+		{
+			if( other.key != null )
+			{
+				return false;
+			}
+		}
+		else if( !key.equals(other.key) )
+		{
+			return false;
+		}
+		return true;
 	}
 }

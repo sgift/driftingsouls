@@ -29,6 +29,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.proxy.HibernateProxy;
 
 /**
  * Repraesentiert eine durch einen Spieler erforschte Technologie.
@@ -112,6 +113,10 @@ public class UserResearch {
 		if( obj == null )
 		{
 			return false;
+		}
+		if( obj instanceof HibernateProxy )
+		{
+			obj = ((HibernateProxy)obj).getHibernateLazyInitializer().getImplementation();
 		}
 		if( getClass() != obj.getClass() )
 		{
