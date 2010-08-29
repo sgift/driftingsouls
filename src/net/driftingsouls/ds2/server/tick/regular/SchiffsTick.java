@@ -20,11 +20,14 @@ package net.driftingsouls.ds2.server.tick.regular;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.Offizier;
@@ -47,18 +50,22 @@ import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo.Crew;
 
 import org.hibernate.CacheMode;
+import org.hibernate.FetchMode;
 import org.hibernate.FlushMode;
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
 import org.hibernate.Transaction;
+import org.hibernate.criterion.Restrictions;
 
 /**
  * Berechnung des Ticks fuer Schiffe.
  * @author Drifting-Souls Team
  */
 public class SchiffsTick extends TickController {
+	private static final int SHIP_FLUSH_SIZE = 150;
+	
 	private Map<String,ResourceID> esources;
-	private Map<Location,List<Ship>> versorgerlist;
+	private Map<Location,SortedSet<Ship>> versorgerlist;
+	
+	private List<User> unflushedUsers = new ArrayList<User>(5);
 	private int unflushedShips = 0;
 	
 	@Override
@@ -98,19 +105,33 @@ public class SchiffsTick extends TickController {
 		return crewToFeed;
 	}
 	
-	private Map<Location,List<Ship>> getLocationVersorgerList(org.hibernate.Session db,User user)
+	private Map<Location,SortedSet<Ship>> getLocationVersorgerList(org.hibernate.Session db,User user)
 	{
-		Map<Location,List<Ship>> versorgerlist = new HashMap<Location,List<Ship>>();
+		Comparator<Ship> comparator = new Comparator<Ship>() {
+
+			@Override
+			public int compare(Ship o1, Ship o2)
+			{
+				long diff = o1.getNahrungCargo()-o2.getNahrungCargo();
+				return diff < 0 ? -1 : (diff > 0 ? 1 : 0);
+			}
+			
+		};
+		
+		Map<Location,SortedSet<Ship>> versorgerlist = new HashMap<Location,SortedSet<Ship>>();
 		this.log("Berechne Versorger");
-		List<Ship> ships = Common.cast(db.createQuery("from Ship as s left join fetch s.modules" +
-				" where s.id>0 and s.owner=? and s.system!=0 and (s.shiptype.versorger=1 or s.modules.versorger=1) " +
-				" and s.isfeeding=1 and s.nahrungcargo>0" +
-				"order by s.nahrungcargo DESC")
-				.setEntity(0, user)
-				.list());
-		this.log(ships.size()+" Versorger gefunden");
-		for( Ship ship : ships)
+		
+		int versorgerCount = 0;
+		
+		for( Ship ship : user.getShips())
 		{
+			if( ship.getId() <= 0 || ship.getLocation().getSystem() == 0 || !ship.isFeeding() || 
+					!ship.getTypeData().isVersorger() || ship.getNahrungCargo() <= 0 )
+			{
+				continue;
+			}
+			
+			versorgerCount++;
 			Location loc = ship.getLocation();
 			if(versorgerlist.containsKey(loc))
 			{
@@ -118,16 +139,18 @@ public class SchiffsTick extends TickController {
 			}
 			else
 			{
-				List<Ship> shiplist = new ArrayList<Ship>();
+				SortedSet<Ship> shiplist = new TreeSet<Ship>(comparator);
 				shiplist.add(ship);
 				versorgerlist.put(loc, shiplist);
 			}
 		}
 		
+		this.log(versorgerCount+" Versorger gefunden");
+		
 		if(user.getAlly() != null)
 		{
 			this.log("Berechne Allianzversorger");
-			ships = Common.cast(db.createQuery("from Ship as s left join fetch s.modules" +
+			List<Ship> ships = Common.cast(db.createQuery("from Ship as s left join fetch s.modules" +
 					" where s.id>0 and s.owner!=? and s.owner.ally=? and (s.owner.vaccount=0 or" +
 					" s.owner.wait4vac!=0) and system!=0 and" +
 					" (s.shiptype.versorger=1 or s.modules.versorger=1) and" +
@@ -146,7 +169,7 @@ public class SchiffsTick extends TickController {
 				}
 				else
 				{
-					List<Ship> shiplist = new ArrayList<Ship>();
+					SortedSet<Ship> shiplist = new TreeSet<Ship>(comparator);
 					shiplist.add(ship);
 					versorgerlist.put(loc, shiplist);
 				}
@@ -160,7 +183,7 @@ public class SchiffsTick extends TickController {
 	{
 		if(versorgerlist.containsKey(loc))
 		{
-			Ship ship = versorgerlist.get(loc).get(0);
+			Ship ship = versorgerlist.get(loc).first();
 			while(ship != null && ship.getNahrungCargo() == 0)
 			{
 				versorgerlist.get(loc).remove(0);
@@ -171,7 +194,7 @@ public class SchiffsTick extends TickController {
 				}
 				else
 				{
-					ship = versorgerlist.get(loc).get(0);
+					ship = versorgerlist.get(loc).first();
 				}
 			}
 		}
@@ -187,7 +210,7 @@ public class SchiffsTick extends TickController {
 
 		Cargo shipc = shipd.getCargo();
 
-		this.log("\tAlt: crew "+shipd.getCrew()+" e "+shipd.getEnergy() +" speicher "+shipd.getNahrungCargo());
+		this.log("\tAlt: crew "+shipd.getCrew()+" e "+shipd.getEnergy() +" nc "+shipd.getNahrungCargo());
 		
 		boolean isBattle = shipd.getBattle() != null;
 				
@@ -208,7 +231,6 @@ public class SchiffsTick extends TickController {
 		//Faktor fuer den Verbrauch
 		double scaleFactor = shipd.getAlertScaleFactor();
 
-		Ship versorger = getVersorger(shipd.getLocation());
 		//Basencargo, VersorgerCargo, Basisschiffcargo, eigener Cargo - Leerfuttern in der Reihenfolge
 		for(Base feedingBase: bases)
 		{
@@ -219,10 +241,13 @@ public class SchiffsTick extends TickController {
 			}
 		}
 		
-		while(versorger != null && crewToFeed > 0)
-		{
-			crewToFeed = consumeFood(versorger ,crewToFeed, scaleFactor);
-			versorger = getVersorger(shipd.getLocation());
+		if( crewToFeed > 0 ) {
+			Ship versorger = getVersorger(shipd.getLocation());
+			while(versorger != null && crewToFeed > 0)
+			{
+				crewToFeed = consumeFood(versorger ,crewToFeed, scaleFactor);
+				versorger = getVersorger(shipd.getLocation());
+			}
 		}
 
 		if(baseShip != null)
@@ -580,7 +605,7 @@ public class SchiffsTick extends TickController {
 		shipd.setWeaponHeat("");
 		shipd.setCargo(shipc);
 		
-		this.slog("\tNeu: crew "+shipd.getCrew()+" e "+e+" speicher "+shipd.getNahrungCargo()+" status: <");
+		this.slog("\tNeu: crew "+shipd.getCrew()+" e "+e+" nc "+shipd.getNahrungCargo()+" : <");
 		this.slog(shipd.getStatus());
 		this.log(">");
 	}
@@ -591,13 +616,11 @@ public class SchiffsTick extends TickController {
 		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "corruption");
 		double corruption = Double.valueOf(value.getValue()) + auser.getCorruption();
 
-		List<Base> bases = Common.cast(db.createQuery("from Base where owner=? and isfeeding=?")
-										 .setEntity(0,auser)
-										 .setInteger(1, 1)
-										 .list());
-		
-		for(Base base: bases)
+		for(Base base: auser.getBases())
 		{
+			if( !base.isFeeding() ) {
+				continue;
+			}
 			Location location = base.getLocation();
 			if(!feedingBases.containsKey(location))
 			{
@@ -613,22 +636,39 @@ public class SchiffsTick extends TickController {
 			auser.setKonto(auser.getKonto().subtract(BigInteger.valueOf((long)(balance * corruption))));
 		}
 		
-		// Schiffe berechnen
-		ScrollableResults ships = db.createQuery(
-				"from Ship as s join fetch s.shiptype left join fetch s.modules" +
-				" where s.id>0 and s.owner=? " +
-				" and s.system!=0 " + 
-				" order by s.shiptype.versorger DESC, " +
-				" s.modules.versorger DESC, s.shiptype.jDocks DESC," +
-				"s.modules.jDocks DESC,s.shiptype ASC")
-				.setEntity(0, auser)
-				.scroll(ScrollMode.FORWARD_ONLY);
-		
 		versorgerlist = getLocationVersorgerList(db, auser);
 		
-		while(ships.next())
+		// Schiffe berechnen	
+		SortedSet<Ship> ships = new TreeSet<Ship>(new Comparator<Ship>() {
+			@Override
+			public int compare(Ship arg0, Ship arg1)
+			{
+				final ShipTypeData typeData0 = arg0.getTypeData();
+				final ShipTypeData typeData1 = arg1.getTypeData();
+				if( typeData0.isVersorger() != typeData1.isVersorger() ) {
+					return typeData0.isVersorger() ? -1 : 1;
+				}
+				int diff = typeData0.getJDocks()-typeData1.getJDocks();
+				if( diff != 0 ) {
+					return diff;
+				}
+				return arg0.getId()-arg1.getId();
+			}
+			
+		});
+		
+		ships.addAll(auser.getShips());
+		
+		for( Ship ship : ships )
 		{
-			Ship ship = (Ship)ships.get(0);
+			if( ship.getId() <= 0 )
+			{
+				continue;
+			}
+			if( ship.getSystem() == 0 )
+			{
+				continue;
+			}
 			try 
 			{
 				this.tickShip(db, ship, feedingBases);
@@ -647,6 +687,12 @@ public class SchiffsTick extends TickController {
 	protected void tick() 
 	{
 		org.hibernate.Session db = getDB();
+		
+		FlushMode flushMode = db.getFlushMode();
+		CacheMode cacheMode = db.getCacheMode();
+		db.setFlushMode(FlushMode.MANUAL);
+		db.setCacheMode(CacheMode.IGNORE);
+		
 		Transaction transaction = db.beginTransaction();
 		try
 		{
@@ -659,21 +705,31 @@ public class SchiffsTick extends TickController {
 		{
 			transaction.rollback();
 		}
-		
-		FlushMode flushMode = db.getFlushMode();
-		CacheMode cacheMode = db.getCacheMode();
-		db.setFlushMode(FlushMode.MANUAL);
-		db.setCacheMode(CacheMode.IGNORE);
 
 		transaction = db.beginTransaction();
-		List<User> users = Common.cast(db.createQuery("select distinct u from User u left join fetch u.researches where u.id!=0 and (u.vaccount=0 or u.wait4vac>0) order by u.id asc")
-						  .list());
 		
-		for(User auser: users)
+		List<Integer> userIds = Common.cast(db.createQuery("select distinct u.id " +
+				"from User u "+
+				"where u.id!=0 and (u.vaccount=0 or u.wait4vac>0) order by u.id asc")
+				.list());
+		
+		for( Integer userId : userIds )
 		{
-			this.log("###### User "+auser.getId()+" ######");
+			this.log("###### User "+userId+" ######");
+					
+			User auser = (User)db.createCriteria(User.class)
+				.add(Restrictions.idEq(userId))
+				.setFetchMode("researches", FetchMode.JOIN)
+				.setFetchMode("bases", FetchMode.JOIN)
+				.setFetchMode("bases.units", FetchMode.SELECT)
+				.setFetchMode("ships", FetchMode.SELECT)
+				.setFetchMode("ships.units", FetchMode.SELECT)
+				.setFetchMode("ships.modules", FetchMode.JOIN)
+				.uniqueResult();
+			
 			try
 			{
+				this.unflushedUsers.add(auser);
 				this.tickUser(db, auser);
 				transaction.commit();
 				transaction = getDB().beginTransaction();
@@ -688,20 +744,27 @@ public class SchiffsTick extends TickController {
 				Common.mailThrowable(e, "ShipTick Exception", "User: "+auser.getId());
 			}
 			
-			final int SHIP_FLUSH_SIZE = 50;
-			if(unflushedShips / SHIP_FLUSH_SIZE > 0)
+			if( unflushedShips > SHIP_FLUSH_SIZE )
 			{
 				db.flush();
-				db.clear();
+				//db.clear();
+				for( User user : unflushedUsers ) {
+					db.evict(user);
+				}
+				unflushedUsers.clear();
 				unflushedShips = 0;
+				
+				/*SortedMap<String,Integer> counter = HibernateUtil.getSessionContentStatistics(db);
+				this.log("Sessiondaten:");
+				for( Map.Entry<String,Integer> entry : counter.entrySet() ) {
+					this.log(entry.getKey()+" -> "+entry.getValue());
+				}*/
 			}
 		}
 		
 		transaction.commit();
 		
 		db.flush();
-		db.setCacheMode(cacheMode);
-		db.setFlushMode(flushMode);
 
 		transaction = db.beginTransaction();
 		try
@@ -787,5 +850,8 @@ public class SchiffsTick extends TickController {
 		{
 			transaction.rollback();
 		}
+		
+		db.setCacheMode(cacheMode);
+		db.setFlushMode(flushMode);
 	}
 }
