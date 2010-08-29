@@ -139,9 +139,7 @@ public class BuildController extends TemplateGenerator {
 		
 		if( building instanceof Werft)
 		{
-			BaseWerft werft = (BaseWerft)db.createQuery("from BaseWerft where col=?")
-				.setEntity(0, base)
-				.uniqueResult();
+			BaseWerft werft = base.getWerft();
 			if( werft != null)
 			{
 				addError("Sie k&ouml;nnen maximal eine Werft pro Asteroid bauen");

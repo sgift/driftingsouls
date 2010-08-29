@@ -72,6 +72,8 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		
 		Forschungszentrum fz = new Forschungszentrum(base);
 		db.persist(fz);
+		
+		base.setForschungszentrum(fz);
 	}
 
 	@Override
@@ -96,9 +98,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 
 	@Override
 	public boolean isActive(Base base, int status, int field) {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
-		Forschungszentrum fz = (Forschungszentrum)db.get(Forschungszentrum.class, base.getId());
+		Forschungszentrum fz = base.getForschungszentrum();
 		if( (fz != null) && (fz.getDauer() > 0) ) {
 			return true;
 		}
@@ -110,10 +110,8 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 
 	@Override
 	public String echoShortcut(Context context, Base base, int field, int building) {
-		org.hibernate.Session db = context.getDB();
-
 		StringBuilder result = new StringBuilder(100);
-		Forschungszentrum fz = (Forschungszentrum)db.get(Forschungszentrum.class, base.getId());
+		Forschungszentrum fz = base.getForschungszentrum();
 		if( fz != null ) {
 			if( fz.getDauer() == 0 ) {
 				result.append("<a class=\"back\" href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"\">[F]</a>");
@@ -392,7 +390,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		
 		StringBuilder echo = new StringBuilder(2000);
 		
-		Forschungszentrum fz = (Forschungszentrum)db.get(Forschungszentrum.class, base.getId());
+		Forschungszentrum fz = base.getForschungszentrum();
 		if( fz == null ) {
 			echo.append("<span style=\"color:red\">Fehler: Dieses Forschungszentrum hat keinen Datenbank-Eintrag</span>\n");
 			return echo.toString();

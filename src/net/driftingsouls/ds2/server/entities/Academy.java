@@ -23,9 +23,9 @@ import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
@@ -43,10 +43,9 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 @Entity
 @Table(name="academy")
 public class Academy {
-	@Id
-	private int col;
-	@OneToOne(fetch=FetchType.LAZY)
-	@PrimaryKeyJoinColumn
+	@Id @GeneratedValue
+	private int id;
+	@OneToOne(fetch=FetchType.LAZY, mappedBy="academy")
 	private Base base;
 	private boolean train;
 	@Version
@@ -65,7 +64,6 @@ public class Academy {
 	 * @param base Die Basis auf der die Akademie steht
 	 */
 	public Academy(Base base) {
-		this.col = base.getId();
 		this.base = base;
 	}
 
@@ -86,11 +84,11 @@ public class Academy {
 	}
 
 	/**
-	 * Gibt die ID der Basis zurueck, auf der sich die Akademie befindet.
-	 * @return Die ID der Basis
+	 * Gibt die ID zurueck.
+	 * @return Die ID
 	 */
-	public int getBaseId() {
-		return col;
+	public int getId() {
+		return id;
 	}
 	
 	/**

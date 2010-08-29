@@ -88,7 +88,7 @@ public class Kommandozentrale extends DefaultBuilding {
 		base.setCoreActive(false);
 		
 		// Loesche Forschung
-		Forschungszentrum zentrum = (Forschungszentrum)db.get(Forschungszentrum.class, base.getId());
+		Forschungszentrum zentrum = base.getForschungszentrum();
 		
 		if(zentrum != null)
 		{
@@ -108,9 +108,7 @@ public class Kommandozentrale extends DefaultBuilding {
 			.executeUpdate();
 		
 		// Loesche Eintraege der Basiswerft
-		BaseWerft werft = (BaseWerft)db.createQuery("from BaseWerft where base=:base")
-										.setEntity("base", base)
-										.uniqueResult();
+		BaseWerft werft = base.getWerft();
 		werft.clearQueue();
 		
 		//Check if we need to change the drop zone of the player to another system
@@ -365,7 +363,7 @@ public class Kommandozentrale extends DefaultBuilding {
 			int count = context.getRequest().getParameterInt("count");
 			
 			if( (actid >= 0) && (actid <= 1 ) && (count != 0 || (actid == 1)) ) {
-				BaseStatus basedata = Base.getStatus(context, base.getId());
+				BaseStatus basedata = Base.getStatus(base);
 				Cargo stat = (Cargo)basedata.getProduction().clone();
 				stat.setResource(Resources.NAHRUNG, 0);
 				
@@ -548,7 +546,7 @@ public class Kommandozentrale extends DefaultBuilding {
 				t.parse("autogtu.acts.list", "autogtu.acts.listitem", true);
 			}
 			
-			BaseStatus basedata = Base.getStatus(context, base.getId());
+			BaseStatus basedata = Base.getStatus(base);
 			Cargo stat = (Cargo)basedata.getProduction().clone();
 			stat.setResource( Resources.NAHRUNG, 0 );
 			stat.setOption( Cargo.Option.NOHTML, true );

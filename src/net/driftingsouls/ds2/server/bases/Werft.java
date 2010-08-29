@@ -65,32 +65,28 @@ public class Werft extends DefaultBuilding {
 		
 		BaseWerft werft = new BaseWerft(base);
 		ContextMap.getContext().getDB().persist(werft);
+		base.setWerft(werft);
 	}
 
 
 	@Override
 	public void cleanup(Context context, Base base, int building) {
 		super.cleanup(context, base, building);
-		
-		org.hibernate.Session db = context.getDB();
-		BaseWerft werft = (BaseWerft)db.createQuery("from BaseWerft where col=?")
-			.setEntity(0, base)
-			.uniqueResult();
+
+		BaseWerft werft = base.getWerft();
 	
 		if( werft != null ) {
 			werft.destroy();
 		}
+		
+		base.setWerft(null);
 	}
 
 	@Override
 	public String echoShortcut(Context context, Base base, int field, int building) {
-		org.hibernate.Session db = context.getDB();
-
 		StringBuilder result = new StringBuilder(200);
 		
-		BaseWerft werft = (BaseWerft)db.createQuery("from BaseWerft where col=?")
-			.setEntity(0, base)
-			.uniqueResult();
+		BaseWerft werft = base.getWerft();
 		if( werft != null ) {
 			werft.setBaseField(field);
 			if( !werft.isBuilding() ) {
@@ -158,11 +154,7 @@ public class Werft extends DefaultBuilding {
 
 	@Override
 	public boolean isActive(Base base, int status, int field) {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
-		BaseWerft werft = (BaseWerft)db.createQuery("from BaseWerft where col=?")
-			.setEntity(0, base)
-			.uniqueResult();
+		BaseWerft werft = base.getWerft();
 		if( werft != null ) {
 			werft.setBaseField(field);
 			return (werft.isBuilding() ? true : false);
@@ -173,13 +165,9 @@ public class Werft extends DefaultBuilding {
 
 	@Override
 	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
-		org.hibernate.Session db = context.getDB();
-
 		StringBuilder response = new StringBuilder(500);
 				
-		BaseWerft werft = (BaseWerft)db.createQuery("from BaseWerft where col=?")
-			.setEntity(0, base)
-			.uniqueResult();
+		BaseWerft werft = base.getWerft();
 		if( werft == null ) {
 	   		response.append("<a href=\"./ds?module=basen\"><span style=\"color:#ff0000; font-weight:bold\">Fehler: Die angegebene Kolonie hat keine Werft</span></a>\n");
 			return response.toString();

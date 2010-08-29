@@ -344,7 +344,7 @@ public class UeberController extends TemplateGenerator {
 			Base base = (Base)iter.next();
 			bases++;
 			
-			BaseStatus basedata = Base.getStatus(getContext(), base);
+			BaseStatus basedata = Base.getStatus(base);
 			
 			Cargo cargo = new Cargo(base.getCargo());
 			cargo.addResource(Resources.RE, user.getKonto().longValue());

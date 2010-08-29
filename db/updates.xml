@@ -1475,4 +1475,29 @@
 	<update><![CDATA[
 		INSERT INTO `config` (`name`, `value`, `description`, `version`) VALUES ('repaircostdampeningfactor', '0.3', 'Limitiert die Reperaturkosten auf die Baukosten * faktor.', '0');	
 	]]></update>
+	<update type="structure" datum="2010-08-22"><![CDATA[
+		ALTER TABLE factory ADD UNIQUE col_buildingid_idx (col, buildingid);
+		ALTER TABLE factory ADD CONSTRAINT factory_fk_bases FOREIGN KEY (col) REFERENCES bases(id);
+		ALTER TABLE bases ADD academy_id INT;
+		UPDATE bases SET academy_id = (SELECT col FROM academy where col=bases.id);
+		ALTER TABLE academy DROP FOREIGN KEY academy_fk_bases;
+		ALTER TABLE academy CHANGE col id INT NOT NULL auto_increment;
+		ALTER TABLE bases ADD CONSTRAINT FOREIGN KEY bases_fk_academy (academy_id) REFERENCES academy(id);
+		
+		ALTER TABLE bases ADD forschungszentrum_id INT;
+		UPDATE bases SET forschungszentrum_id = (SELECT col FROM fz where col=bases.id);
+		ALTER TABLE fz DROP FOREIGN KEY fz_fk_bases;
+		ALTER TABLE fz CHANGE col id INT NOT NULL auto_increment;
+		ALTER TABLE bases ADD CONSTRAINT FOREIGN KEY bases_fk_fz (forschungszentrum_id) REFERENCES fz(id);
+		
+		ALTER TABLE bases ADD werft_id INT;
+		UPDATE bases SET werft_id = (SELECT id FROM werften where col=bases.id);
+		ALTER TABLE werften DROP FOREIGN KEY werften_fk_bases2;
+		ALTER TABLE bases ADD CONSTRAINT FOREIGN KEY bases_fk_werften (werft_id) REFERENCES werften(id);
+		ALTER TABLE werften DROP col;
+		ALTER TABLE werften ADD COLUMN `werfttype` CHAR(1) NOT NULL;
+		UPDATE werften SET werfttype='K' where komplex != 0;
+		UPDATE werften SET werfttype='S' where shipid IS NOT NULL;
+		UPDATE werften SET werfttype='B' where id IN (SELECT werft_id FROM bases); 
+	]]>
 </updates>

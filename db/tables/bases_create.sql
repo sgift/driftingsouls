@@ -28,6 +28,9 @@ CREATE TABLE `bases` (
   `spawnressavailable` text,
   `isloading` tinyint(1) NOT NULL default '1',
   `isfeeding` tinyint(1) NOT NULL default '1',
+  academy_id INT,
+  forschungszentrum_id INT,
+  werft_id INT,
   PRIMARY KEY  (`id`),
   KEY `owner` (`owner`,`id`),
   KEY `coords` (`x`,`y`,`system`)

@@ -31,6 +31,9 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import javax.persistence.Column;
+import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorType;
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -79,7 +82,6 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.hibernate.annotations.DiscriminatorFormula;
 
 /**
  * Basisklasse fuer alle Werfttypen in DS.
@@ -89,7 +91,8 @@ import org.hibernate.annotations.DiscriminatorFormula;
 @Entity
 @Table(name="werften")
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
-@DiscriminatorFormula("case when komplex!=0 then 'komplex' when col is not null then 'base' else 'ship' end")
+@DiscriminatorColumn(name="werfttype",discriminatorType=DiscriminatorType.CHAR)
+@DiscriminatorValue("O")
 public abstract class WerftObject extends DSObject implements Locatable {
 	@Id @GeneratedValue
 	private int id;

@@ -61,7 +61,7 @@ public class ForschungsTick extends TickController {
 					Base base = fz.getBase();
 					User user = base.getOwner();
 	
-					log("fz "+fz.getBaseId());
+					log("fz "+fz.getId());
 					log("\tforschung: "+fz.getForschung());
 					Forschung forschung = fz.getForschung();
 						
@@ -91,9 +91,9 @@ public class ForschungsTick extends TickController {
 				{
 					transaction.rollback();
 					transaction = db.beginTransaction();
-					this.log("Forschungszentrum "+fz.getBaseId()+" failed: "+e);
+					this.log("Forschungszentrum "+fz.getId()+" failed: "+e);
 					e.printStackTrace();
-					Common.mailThrowable(e, "ForschungsTick Exception", "Forschungszentrum: "+fz.getBaseId());
+					Common.mailThrowable(e, "ForschungsTick Exception", "Forschungszentrum: "+fz.getId());
 					
 					throw e;
 				}

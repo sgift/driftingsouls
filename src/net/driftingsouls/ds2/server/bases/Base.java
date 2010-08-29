@@ -26,8 +26,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -36,6 +38,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
@@ -53,12 +56,14 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.entities.Academy;
+import net.driftingsouls.ds2.server.entities.Factory;
 import net.driftingsouls.ds2.server.entities.Feeding;
+import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.units.UnitCargo;
@@ -127,11 +132,25 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	private String spawnressavailable;
 	private boolean isloading;
 	private boolean isfeeding;
-	@OneToMany(fetch=FetchType.LAZY, targetEntity=net.driftingsouls.ds2.server.bases.BaseUnitCargoEntry.class)
+	
+	@OneToOne(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
+	@JoinColumn
+	private Academy academy;
+	@OneToOne(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
+	@JoinColumn
+	private Forschungszentrum forschungszentrum;
+	@OneToOne(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
+	@JoinColumn
+	private BaseWerft werft;
+	@OneToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
+	@JoinColumn(name="col")
+	private Set<Factory> factories;
+	
+	@OneToMany(fetch=FetchType.LAZY, targetEntity=net.driftingsouls.ds2.server.bases.BaseUnitCargoEntry.class, cascade=CascadeType.ALL)
 	@JoinColumn(name="destid", nullable=true)
 	@BatchSize(size=50)
 	@NotFound(action = NotFoundAction.IGNORE)
-	private List<BaseUnitCargoEntry> units;
+	private Set<BaseUnitCargoEntry> units;
 	@Version
 	private int version;
 	
@@ -914,27 +933,13 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		
 		return stat;
 	}
-	
-	/**
-	 * Generiert den aktuellen Verbrauch/Produktion-Status einer Basis.
-	 * @param context Der aktuelle Kontext
-	 * @param base die ID der Basis
-	 * @return der aktuelle Verbrauchs/Produktions-Status
-	 */
-	public static BaseStatus getStatus( Context context, int base )
-	{
-		org.hibernate.Session db = context.getDB();
-		
-		return getStatus(context, (Base)db.get(Base.class, base));
-	}
 		
 	/**
 	 * Generiert den aktuellen Verbrauch/Produktion-Status einer Basis.
-	 * @param context Der aktuelle Kontext
 	 * @param base die Basis
 	 * @return der aktuelle Verbrauchs/Produktions-Status
 	 */
-	public static BaseStatus getStatus( Context context, Base base )
+	public static BaseStatus getStatus( Base base )
 	{
 		Cargo stat = new Cargo();
 		int e = 0;
@@ -996,7 +1001,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	
 	private BaseStatus getStatus()
 	{
-		return Base.getStatus(ContextMap.getContext(), this);
+		return Base.getStatus(this);
 	}
 	
 	@Override
@@ -1202,10 +1207,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 */
 	public BaseWerft getShipyard()
 	{
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		return (BaseWerft)db.createQuery("from BaseWerft where base=:base")
-							.setParameter("base", this)
-							.uniqueResult();
+		return this.getWerft();
 	}
 	
 	/**
@@ -1215,10 +1217,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 */
 	public boolean hasShipyard()
 	{
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		return ((Long)db.createQuery("select count(id) from BaseWerft where base=:base")
-					    .setParameter("base", this)
-					    .uniqueResult()) != 0;
+		return getShipyard() != null;
 	}
 	
 	/**
@@ -1314,9 +1313,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 */
 	public long getBalance()
 	{
-		Context context = ContextMap.getContext();
-		
-		BaseStatus status = getStatus(context, getId() );
+		BaseStatus status = getStatus(this );
 		
 		Cargo produktion = status.getProduction();
 		
@@ -1328,9 +1325,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 */
 	public long getNahrungsBalance()
 	{
-		Context context = ContextMap.getContext();
-		
-		BaseStatus status = getStatus(context, getId() );
+		BaseStatus status = getStatus(this );
 		
 		Cargo produktion = status.getProduction();
 		
@@ -1370,6 +1365,78 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		return savenahrung;
 	}
 	
+	/**
+	 * Gibt alle auf der Basis vorhandenen Fabriken zurueck.
+	 * @return Die Fabriken
+	 */
+	public Set<Factory> getFactories()
+	{
+		return this.factories;
+	}
+	
+	/**
+	 * Setzt alle auf der Basis vorhandenen Fabriken.
+	 * @param factories Die Fabriken
+	 */
+	public void setFactories(Set<Factory> factories)
+	{
+		this.factories = factories;
+	}
+	
+	/**
+	 * Gibt eine evt vorhandene Akademie zurueck.
+	 * @return Die Akademie oder <code>null</code>
+	 */
+	public Academy getAcademy()
+	{
+		return academy;
+	}
+
+	/**
+	 * Setzt die Akademie auf der Basis.
+	 * @param academy die Akademie
+	 */
+	public void setAcademy(Academy academy)
+	{
+		this.academy = academy;
+	}
+
+	/**
+	 * Gibt ein evt vorhandenes Forschungszentrum zurueck.
+	 * @return das Forschungszentrum oder <code>null</code>
+	 */
+	public Forschungszentrum getForschungszentrum()
+	{
+		return forschungszentrum;
+	}
+
+	/**
+	 * Setzt das Forschungszentrum auf der Basis.
+	 * @param forschungszentrum Das Forschungszentrum
+	 */
+	public void setForschungszentrum(Forschungszentrum forschungszentrum)
+	{
+		this.forschungszentrum = forschungszentrum;
+	}
+
+	/**
+	 * Gibt eine evt vorhandene Werft zurueck.
+	 * @return Die Werft oder <code>null</code>
+	 */
+	public BaseWerft getWerft()
+	{
+		return werft;
+	}
+
+	/**
+	 * Setzt die Werft auf der Basis.
+	 * @param werft Die Werft
+	 */
+	public void setWerft(BaseWerft werft)
+	{
+		this.werft = werft;
+	}
+
 	/**
 	 * Laesst die Basis ticken.
 	 * 
@@ -1543,6 +1610,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	/**
 	 * Enforces the maximum cargo rules.
 	 * 
+	 * @param state Der Status der Basis
 	 * @return The money for resource sales.
 	 */
 	private long forcedSale(BaseStatus state)
@@ -1584,7 +1652,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 
 	/**
 	 * Calculates the money using the current gtu price for base sales.
-	 * 
+	 * @param resource Die ID der Ressource
+	 * @param count Die Anzahl
 	 * @return The money for a base sale of the resource.
 	 */
 	private long getSalePrice(ResourceID resource, long count)
@@ -1796,6 +1865,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 * Tries to feed hungry people.
 	 * 
 	 * @param hungryPeople People, which should be feed.
+	 * @param baseCargo Der Cargo aus dem die Bewohner versorgt werden sollen
 	 * @return People, which got no food.
 	 */
 	private int feedPeople(int hungryPeople, Cargo baseCargo)

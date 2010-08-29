@@ -83,6 +83,8 @@ public class AcademyBuilding extends DefaultBuilding {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
 		db.persist(academy);
+		
+		base.setAcademy(academy);
 	}
 
 	@Override
@@ -100,20 +102,21 @@ public class AcademyBuilding extends DefaultBuilding {
 		super.cleanup(context, base, building);
 		org.hibernate.Session db = context.getDB();
 		
-		// Bereinige Queue Eintraege
-		Academy academy = (Academy)db.get(Academy.class, base.getId());
+		
+		Academy academy = base.getAcademy();
 		if( academy != null )
 		{
+			// Bereinige Queue Eintraege
 			AcademyQueueEntry[] entries = academy.getQueueEntries();
-			for( AcademyQueueEntry entry : entries ) {
+			for( AcademyQueueEntry entry : entries )
+			{
 				entry.deleteQueueEntry();
 			}
+			
+			db.delete(academy);
+			base.setAcademy(null);
 		}
-		
-		// Bereinige Akademie
-		db.createQuery("delete from Academy where base=?")
-			.setEntity(0, base)
-			.executeUpdate();
+				
 		
 		// Entlasse Offiziere aus der Akademie
 		db.createQuery("update Offizier set dest=? where dest=?")
@@ -124,9 +127,7 @@ public class AcademyBuilding extends DefaultBuilding {
 
 	@Override
 	public boolean isActive(Base base, int status, int field) {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
-		Academy academy = (Academy)db.get(Academy.class, base.getId());
+		Academy academy = base.getAcademy();
 		if( (academy != null) && (academy.getTrain()) ) {
 			return true;
 		}
@@ -185,11 +186,9 @@ public class AcademyBuilding extends DefaultBuilding {
 	
 	@Override
 	public String echoShortcut(Context context, Base base, int field, int building) {
-		org.hibernate.Session db = context.getDB();
-
 		StringBuilder result = new StringBuilder(200);
 		
-		Academy acc = (Academy)db.get(Academy.class, base.getId());
+		Academy acc = base.getAcademy();
 		if( acc != null ) {
 			if( !acc.getTrain() ) {
 				result.append("<a class=\"back\" href=\"./ds?module=building");
@@ -292,7 +291,7 @@ public class AcademyBuilding extends DefaultBuilding {
 			return "";
 		}
 
-		Academy academy = (Academy)db.get(Academy.class, base.getId());
+		Academy academy = base.getAcademy();
 		if( academy == null ) {
 			context.addError("Diese Akademie verf&uuml;gt &uuml;ber keinen Akademie-Eintrag in der Datenbank");
 			return "";

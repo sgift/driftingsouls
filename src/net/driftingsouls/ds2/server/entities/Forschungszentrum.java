@@ -20,11 +20,11 @@ package net.driftingsouls.ds2.server.entities;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
@@ -38,10 +38,9 @@ import net.driftingsouls.ds2.server.bases.Base;
 @Entity
 @Table(name="fz")
 public class Forschungszentrum {
-	@Id
-	private int col;
-	@OneToOne(fetch=FetchType.LAZY)
-	@PrimaryKeyJoinColumn
+	@Id @GeneratedValue
+	private int id;
+	@OneToOne(fetch=FetchType.LAZY, mappedBy="forschungszentrum")
 	private Base base;
 	private int type;
 	@ManyToOne(fetch=FetchType.LAZY)
@@ -66,7 +65,6 @@ public class Forschungszentrum {
 	 */
 	public Forschungszentrum(Base base) {
 		this.base = base;
-		this.col = base.getId();
 	}
 
 	/**
@@ -82,7 +80,6 @@ public class Forschungszentrum {
 	 * @param base Die Basis
 	 */
 	public void setBase(Base base) {
-		this.col = base.getId();
 		this.base = base;
 	}
 
@@ -135,11 +132,11 @@ public class Forschungszentrum {
 	}
 
 	/**
-	 * Gibt die ID der Basis zurueck, auf der das Forschungszentrum steht.
-	 * @return Die ID Der Basis
+	 * Gibt die ID zurueck.
+	 * @return Die ID
 	 */
-	public int getBaseId() {
-		return col;
+	public int getId() {
+		return id;
 	}
 
 	/**

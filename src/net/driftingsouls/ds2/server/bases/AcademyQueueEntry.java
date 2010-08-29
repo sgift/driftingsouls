@@ -227,7 +227,7 @@ public class AcademyQueueEntry {
 		int training = this.trainingtype;
 		User owner = this.base.getOwner();
 		Base base = this.base;
-		Academy academy = (Academy)db.get(Academy.class, base.getId());
+		Academy academy = base.getAcademy();
 		int race = owner.getRace();
 		int position = this.position;
 		

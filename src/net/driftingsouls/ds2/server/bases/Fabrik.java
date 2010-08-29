@@ -158,7 +158,8 @@ public class Fabrik extends DefaultBuilding {
 			thisitemslist.add(entry);
 		}
 		
-		Factory wf = (Factory)db.createQuery("from Factory where col="+base.getId()+" and buildingid="+buildingid).uniqueResult();
+		Factory wf = loadFactoryEntity(base, buildingid);
+		
 		if( wf == null ) {
 			vars.allvars.get(buildingid).usedcapacity.put(base.getId(), BigDecimal.valueOf(-1));
 			
@@ -223,6 +224,18 @@ public class Fabrik extends DefaultBuilding {
 		return wfreason.toString();
 	}
 
+	private Factory loadFactoryEntity(Base base, int buildingid)
+	{
+		for( Factory factory : base.getFactories() )
+		{
+			if( factory.getBuildingID() == buildingid )
+			{
+				return factory;
+			}
+		}
+		return null;
+	}
+
 	private void loadOwnerBase(User user, AllContextVars vars, int buildingid) {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
@@ -253,7 +266,7 @@ public class Fabrik extends DefaultBuilding {
 		super.build(base,buildingid);
 		
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		Factory wf = (Factory)db.createQuery("from Factory where col="+base.getId()+" and buildingid="+buildingid).uniqueResult();
+		Factory wf = loadFactoryEntity(base, buildingid);
 		
 		if( wf != null ) {
 			wf.setCount(wf.getCount()+1);
@@ -261,6 +274,7 @@ public class Fabrik extends DefaultBuilding {
 		else {
 			wf = new Factory(base, buildingid);
 			db.persist(wf);
+			base.getFactories().add(wf);
 		}
 	}
 
@@ -278,7 +292,7 @@ public class Fabrik extends DefaultBuilding {
 	public void cleanup(Context context, Base base, int buildingid) {
 		org.hibernate.Session db = context.getDB();
 		
-		Factory wf = (Factory)db.createQuery("from Factory where col="+base.getId()+" and buildingid="+buildingid).uniqueResult();
+		Factory wf = loadFactoryEntity(base, buildingid);
 		if( wf == null ) {
 			return;
 		}
@@ -343,7 +357,7 @@ public class Fabrik extends DefaultBuilding {
 		
 		if( vars.allvars.get(building).usedcapacity.get(base.getId()).doubleValue() > 0)
 		{
-			Factory wf = (Factory)db.createQuery("from Factory where col="+base.getId()+" and buildingid="+building).uniqueResult();
+			Factory wf = loadFactoryEntity(base, building);
 			Factory.Task[] prodlist = wf.getProduces();
 			
 			StringBuilder popup = new StringBuilder(200);
@@ -470,7 +484,7 @@ public class Fabrik extends DefaultBuilding {
 		
 		StringBuilder echo = new StringBuilder(2000);
 		
-		Factory wf = (Factory)db.createQuery("from Factory where col="+base.getId()+" and buildingid="+building).uniqueResult();
+		Factory wf = loadFactoryEntity(base, building);
 		
 		if( wf == null ) {
 			echo.append("<div style=\"color:red\">FEHLER: Diese Fabrik besitzt keinen Eintrag<br /></div>\n");

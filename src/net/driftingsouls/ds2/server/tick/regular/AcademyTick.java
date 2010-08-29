@@ -82,7 +82,7 @@ public class AcademyTick extends TickController {
 			{
 				Base base = acc.getBase();
 
-				log("Akademie "+acc.getBaseId()+":");
+				log("Akademie "+acc.getId()+":");
 				
 				boolean build;
 				
@@ -145,9 +145,9 @@ public class AcademyTick extends TickController {
 			catch( RuntimeException e ) 
 			{
 				transaction.rollback();
-				this.log("Bearbeitung der Akademie "+acc.getBaseId()+" fehlgeschlagen: "+e);
+				this.log("Bearbeitung der Akademie "+acc.getId()+" fehlgeschlagen: "+e);
 				e.printStackTrace();
-				Common.mailThrowable(e, "Academy Tick Exception", "Academy: "+acc.getBaseId());
+				Common.mailThrowable(e, "Academy Tick Exception", "Academy: "+acc.getId());
 
 				throw e;
 			}

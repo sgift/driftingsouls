@@ -298,7 +298,7 @@ public class BaseController extends TemplateGenerator {
 					"base.cargo.height",	(mapheight < 280 ? "280" : mapheight),
 					"base.cargo.empty",		Common.ln(base.getMaxCargo() - base.getCargo().getMass()) );
 					
-		BaseStatus basedata = Base.getStatus(getContext(), base.getId());
+		BaseStatus basedata = Base.getStatus(base);
 					
 		//------------------
 		// Core

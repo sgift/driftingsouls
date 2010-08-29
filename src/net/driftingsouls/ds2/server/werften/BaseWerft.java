@@ -21,7 +21,6 @@ package net.driftingsouls.ds2.server.werften;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
@@ -40,10 +39,9 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
  *
  */
 @Entity
-@DiscriminatorValue("base")
+@DiscriminatorValue("B")
 public class BaseWerft extends WerftObject {
-	@OneToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="col", nullable=false)
+	@OneToOne(fetch=FetchType.LAZY, mappedBy="werft")
 	private Base base;
 	
 	@Transient

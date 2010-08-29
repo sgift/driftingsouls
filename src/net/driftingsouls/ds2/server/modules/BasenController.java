@@ -136,7 +136,7 @@ public class BasenController extends TemplateGenerator {
 			.list();
 		for( Iterator<?> iter = list.iterator(); iter.hasNext(); ) {
 			Base base = (Base)iter.next();
-			BaseStatus basedata = Base.getStatus(getContext(),base);
+			BaseStatus basedata = Base.getStatus(base);
 			
 			t.setVar( "base.id"		, base.getId(),
 					"base.klasse"	, base.getKlasse(),

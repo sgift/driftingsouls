@@ -21,15 +21,15 @@ package net.driftingsouls.ds2.server.entities;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
-import org.apache.commons.lang.StringUtils;
-
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.framework.Common;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Eine Fabrik auf einer Basis.
@@ -90,9 +90,8 @@ public class Factory {
 	@SuppressWarnings("unused")
 	@Id
 	private int id;
-	private int col;
 	@OneToOne(fetch=FetchType.LAZY)
-	@PrimaryKeyJoinColumn
+	@JoinColumn(name="col")
 	private Base base;
 	private int count;
 	private String produces;
@@ -105,7 +104,7 @@ public class Factory {
 	 * Konstruktor.
 	 *
 	 */
-	public Factory() {
+	protected Factory() {
 		// EMPTY
 	}
 	
@@ -116,7 +115,6 @@ public class Factory {
 	 * @param buildingid Die ID des Gebauedes
 	 */
 	public Factory(Base base, int buildingid) {
-		this.col = base.getId();
 		this.base = base;
 		this.count = 1;
 		this.produces = "";
@@ -176,14 +174,6 @@ public class Factory {
 	 */
 	public void setProduces(Task[] produces) {
 		this.produces = Common.implode(";", produces);
-	}
-
-	/**
-	 * Gibt die ID der Basis zurueck.
-	 * @return Die ID der Basis
-	 */
-	public int getId() {
-		return col;
 	}
 
 	/**
