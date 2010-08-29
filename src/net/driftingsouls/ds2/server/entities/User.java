@@ -54,9 +54,6 @@ import net.driftingsouls.ds2.server.werften.ShipWerft;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.CacheMode;
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
@@ -231,6 +228,17 @@ public class User extends BasicUser {
 	@JoinColumn(name="owner")
 	private Set<UserResearch> researches;
 	
+	@OneToMany(cascade=CascadeType.ALL)
+	@JoinColumn(name="owner")
+	// Explizit nur die Bases eines Users laden - sonst kommt Hibernate von Zeit zu Zeit auf die Idee die Bases von User 0 mitzuladen...
+	@BatchSize(size=1)
+	private Set<Base> bases;
+	
+	@OneToMany(cascade=CascadeType.ALL)
+	@JoinColumn(name="owner")
+	@BatchSize(size=1)
+	private Set<Ship> ships;
+	
 	@Transient
 	private Context context;
 	@Transient
@@ -346,6 +354,42 @@ public class User extends BasicUser {
 				pre+"knownItems", this.knownItems,
 				pre+"vaccount", this.vaccount,
 				pre+"wait4vac", this.wait4vac);
+	}
+	
+	/**
+	 * Gibt alle Basen des Benutzers zurueck.
+	 * @return Die Basen
+	 */
+	public Set<Base> getBases()
+	{
+		return this.bases;
+	}
+	
+	/**
+	 * Setzt die Basen des Benutzers.
+	 * @param bases Die Basen
+	 */
+	public void setBases(Set<Base> bases)
+	{
+		this.bases = bases;
+	}
+	
+	/**
+	 * Gibt alle Schiffe des Benutzers zurueck.
+	 * @return Die Schiffe
+	 */
+	public Set<Ship> getShips()
+	{
+		return this.ships;
+	}
+	
+	/**
+	 * Setzt die Schiffe des Benutzers.
+	 * @param ships Die Schiffe
+	 */
+	public void setShips(Set<Ship> ships)
+	{
+		this.ships = ships;
 	}
 	
 	/**
@@ -1245,13 +1289,8 @@ public class User extends BasicUser {
 		int[] balance = new int[2];
 		balance[0] = 0;
 		balance[1] = 0;
-		
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<Base> bases = Common.cast(db.createQuery("from Base where owner=:owner")
-										 .setParameter("owner", this)
-										 .list());
-		
-		for(Base base: bases)
+
+		for(Base base: this.bases)
 		{
 			if( includeFood ) {
 				balance[0] += base.getNahrungsBalance();
@@ -1259,25 +1298,35 @@ public class User extends BasicUser {
 			balance[1] += base.getBalance();
 		}
 		
-		long count = (Long)db.createQuery("select count(*) from Ship s where s.owner=:owner")
-			.setParameter("owner", this)
-			.uniqueResult();
-		
-		if( count > 0 ) {
-			// Eigentliche Abfrage nur ausfuehren, wenn auch Schiffe vorhanden
-			// Grund: Hibernate mag kein scroll+join fetch auf collections wenn es keine Ergebnisse gibt (#HHH-2293)
-			ScrollableResults ships = db.createQuery("select distinct s from Ship s left join fetch s.units where s.owner=:owner and s.id>0 and s.battle is null")
-			 							.setParameter("owner", this)
-			 							.setCacheMode(CacheMode.IGNORE)
-			 							.scroll(ScrollMode.FORWARD_ONLY);
-			while(ships.next())
-			{
-				Ship ship = (Ship)ships.get(0);
-				if( includeFood ) {
-					balance[0] -= ship.getNahrungsBalance();
-				}
-				balance[1] -= ship.getBalance();
+		// Eigentliche Abfrage nur ausfuehren, wenn auch Schiffe vorhanden
+		// Grund: Hibernate mag kein scroll+join fetch auf collections wenn es keine Ergebnisse gibt (#HHH-2293)
+		/*ScrollableResults ships = db.createQuery("select distinct s from Ship s left join fetch s.units where s.owner=:owner and s.id>0 and s.battle is null")
+		 							.setParameter("owner", this)
+		 							.setCacheMode(CacheMode.IGNORE)
+		 							.scroll(ScrollMode.FORWARD_ONLY);
+		while(ships.next())
+		{
+			Ship ship = (Ship)ships.get(0);
+			if( includeFood ) {
+				balance[0] -= ship.getNahrungsBalance();
 			}
+			balance[1] -= ship.getBalance();
+		}*/
+		for( Ship ship : this.ships )
+		{
+			if( ship.getId() <= 0 )
+			{
+				continue;
+			}
+			if( ship.getBattle() != null )
+			{
+				continue;
+			}
+			if( includeFood )
+			{
+				balance[0] -= ship.getNahrungsBalance();
+			}
+			balance[1] -= ship.getBalance();
 		}
 		
 		return balance;
@@ -1289,12 +1338,8 @@ public class User extends BasicUser {
 	 */
 	public Set<Integer> getAstiSystems()
 	{
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<Base> bases = Common.cast(db.createQuery("from Base where owner=:owner")
-				 .setParameter("owner", this)
-				 .list());
 		Set<Integer> systemlist = new HashSet<Integer>();
-		for(Base base: bases)
+		for(Base base: this.bases)
 		{
 			int basesystem = base.getSystem();
 			if (!systemlist.contains(basesystem))
