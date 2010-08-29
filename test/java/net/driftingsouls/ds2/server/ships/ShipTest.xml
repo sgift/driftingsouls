@@ -28,4 +28,10 @@
 		x="1" y="1" system="1" crew="30" e="150" hull="30000" heat="" history="" />
 	<ships id="5" owner="1" name="Jaeger2" type="2" cargo=""
 		x="1" y="1" system="1" crew="30" e="150" hull="30000" heat="" history="" />
+		
+	<ship_script_data shipid="1" />
+	<ship_script_data shipid="2" />
+	<ship_script_data shipid="3" />
+	<ship_script_data shipid="4" />
+	<ship_script_data shipid="5" />
 </dataset>

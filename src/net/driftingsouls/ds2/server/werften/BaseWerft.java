@@ -233,4 +233,12 @@ public class BaseWerft extends WerftObject {
 	{
 		return 1d;
 	}
+
+	@Override
+	public void destroy()
+	{
+		this.base.setWerft(null);
+		
+		super.destroy();
+	}
 }

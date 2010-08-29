@@ -155,7 +155,8 @@ public class RTCTick extends TickController {
 					ship.setSensors(100);
 					ship.setNahrungCargo(shiptype.getNahrungCargo());
 					
-					db.save(ship);
+					int id = (Integer)db.save(ship);
+					ship.getScriptData().setShipid(id);
 					
 					if( shiptype.getWerft() != 0 ) 
 					{
@@ -333,7 +334,8 @@ public class RTCTick extends TickController {
 				ship.setComm(100);
 				ship.setSensors(100);
 				
-				db.save(ship);
+				int id = (Integer)db.save(ship);
+				ship.getScriptData().setShipid(id);
 		
 				this.slog("\t* Es wurden ");
 				ResourceList reslist = cargo.getResourceList();
@@ -375,7 +377,8 @@ public class RTCTick extends TickController {
 					ship.setComm(100);
 					ship.setSensors(100);
 					
-					db.save(ship);
+					int shipid = (Integer)db.save(ship);
+					ship.getScriptData().setShipid(shipid);
 					
 					if( shipd.getWerft() != 0 ) 
 					{

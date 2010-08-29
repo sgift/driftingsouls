@@ -93,6 +93,7 @@ import org.hibernate.ObjectNotFoundException;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
@@ -191,7 +192,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 	@Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 	@NotFound(action = NotFoundAction.IGNORE)
 	private Set<ShipUnitCargoEntry> units;
-	@OneToOne(fetch=FetchType.LAZY, optional=false, cascade=CascadeType.ALL)
+	@OneToOne(fetch=FetchType.LAZY, optional=false)
+	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH,org.hibernate.annotations.CascadeType.MERGE})
 	@JoinColumn(name="id", nullable=false)
 	@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 	private ShipScriptData scriptData;
@@ -945,6 +947,15 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	public void setOnMove(String onmove) {
 		this.onmove = onmove;
+	}
+	
+	/**
+	 * Gibt die Scriptdaten zum Schiff zurueck.
+	 * @return Die Daten
+	 */
+	public ShipScriptData getScriptData()
+	{
+		return this.scriptData;
 	}
 
 	/**

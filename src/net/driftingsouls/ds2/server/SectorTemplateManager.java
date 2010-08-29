@@ -179,6 +179,7 @@ public class SectorTemplateManager {
 			int shipid = db.insertID();*/
 			
 			int shipid = newship.getId();
+			newship.getScriptData().setShipid(shipid);
 			
 			idtable.put(ship.getId(), shipid);
 			

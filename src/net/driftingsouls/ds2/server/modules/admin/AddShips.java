@@ -335,7 +335,8 @@ public class AddShips implements AdminPlugin {
 					
 					ship.setId(shipid);
 				}
-				db.save(ship);
+				int id = (Integer)db.save(ship);
+				ship.getScriptData().setShipid(id);
 
 				if( shiptype.getWerft() != 0 ) {
 					ShipWerft werft = new ShipWerft(ship);
