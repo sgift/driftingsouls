@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -120,7 +121,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	@Id @GeneratedValue(generator="ds-shipid")
 	@GenericGenerator(name="ds-shipid", strategy = "net.driftingsouls.ds2.server.ships.ShipIdGenerator")
 	private int id;
-	@OneToOne
+	@OneToOne(cascade=CascadeType.ALL)
 	@JoinColumn(name="modules", nullable=true)
 	@BatchSize(size=50)
 	@NotFound(action = NotFoundAction.IGNORE)
@@ -184,13 +185,13 @@ public class Ship implements Locatable,Transfering,Feeding {
 	private int showtradepost;
 	private boolean isfeeding;
 	private boolean isallyfeeding;
-	@OneToMany(fetch=FetchType.LAZY, targetEntity=net.driftingsouls.ds2.server.ships.ShipUnitCargoEntry.class)
+	@OneToMany(fetch=FetchType.LAZY, targetEntity=net.driftingsouls.ds2.server.ships.ShipUnitCargoEntry.class, cascade=CascadeType.ALL)
 	@JoinColumn(name="destid", nullable=true)
-	@BatchSize(size=50)
+	@BatchSize(size=500)
 	@Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 	@NotFound(action = NotFoundAction.IGNORE)
-	private List<ShipUnitCargoEntry> units;
-	@OneToOne(fetch=FetchType.LAZY, optional=false)
+	private Set<ShipUnitCargoEntry> units;
+	@OneToOne(fetch=FetchType.LAZY, optional=false, cascade=CascadeType.ALL)
 	@JoinColumn(name="id", nullable=false)
 	@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 	private ShipScriptData scriptData;
@@ -1049,7 +1050,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * @return die Typen-Daten
 	 */
 	public ShipTypeData getTypeData() {	
-		return getShipType(this.shiptype.getId(), this.modules, false);
+		return getShipType(this.shiptype, this.modules, false);
 	}
 	
 	private static final int MANGEL_TICKS = 9;
@@ -1468,7 +1469,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		//rebuild
 		moduletbl.add(new ModuleEntry(slot, moduleid, data ));
 
-		ShipTypeData type = Ship.getShipType( this.shiptype.getId(), null, true );
+		ShipTypeData type = Ship.getShipType( this.shiptype, null, true );
 
 		Map<Integer,String[]>slotlist = new HashMap<Integer,String[]>();
 		String[] tmpslotlist = StringUtils.splitPreserveAllTokens(type.getTypeModules(), ';');
@@ -1565,7 +1566,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		//check modules
 
 		//rebuild	
-		ShipTypeData type = Ship.getShipType( this.shiptype.getId(), null, true );
+		ShipTypeData type = Ship.getShipType( this.shiptype, null, true );
 
 		Map<Integer,String[]>slotlist = new HashMap<Integer,String[]>();
 		String[] tmpslotlist = StringUtils.split(type.getTypeModules(), ';');
@@ -1628,7 +1629,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		//check modules
 
 		//rebuild	
-		ShipTypeData type = Ship.getShipType( this.shiptype.getId(), null, true );
+		ShipTypeData type = Ship.getShipType( this.shiptype, null, true );
 
 		Map<Integer,String[]>slotlist = new HashMap<Integer,String[]>();
 		String[] tmpslotlist = StringUtils.split(type.getTypeModules(), ';');
@@ -3786,17 +3787,13 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * @return die Typen-Daten
 	 */
 	public static ShipTypeData getShipType( int shiptype ) {
-		return getShipType(shiptype, null, false);
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		
+		return getShipType((ShipType)db.get(ShipType.class, shiptype), null, false);
 	}
 
-	private static ShipTypeData getShipType( int shiptype, ShipModules shipdata, boolean plaindata ) {	
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+	private static ShipTypeData getShipType( ShipType type, ShipModules shipdata, boolean plaindata ) {	
 		if( !plaindata ) {
-			ShipType type = (ShipType)db.get(ShipType.class, shiptype);
-			if( type == null ) {
-				throw new NoSuchShipTypeException("Der Schiffstyp "+shiptype+" existiert nicht");
-			}
-			
 			String picture = "";
 			if( shipdata == null ) {
 				picture = type.getPicture();
@@ -3811,11 +3808,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		if( shipdata != null ) {
 			return shipdata;
-		}
-		
-		ShipType type = (ShipType)db.get(ShipType.class, shiptype);
-		if( type == null ) {
-			throw new NoSuchShipTypeException("Der Schiffstyp "+shiptype+" existiert nicht");
 		}
 		
 		return type;
