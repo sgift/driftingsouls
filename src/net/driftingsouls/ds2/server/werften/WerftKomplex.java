@@ -48,6 +48,9 @@ public class WerftKomplex extends WerftObject {
 	@SuppressWarnings("unused")
 	private boolean komplex = true;
 	
+	@Transient
+	private boolean exists = true;
+	
 	/**
 	 * Konstruktor.
 	 */
@@ -127,6 +130,12 @@ public class WerftKomplex extends WerftObject {
 			}
 			
 			this.werften = werften.toArray(new WerftObject[werften.size()]);
+			if( werften.isEmpty())
+			{
+				this.werften = null;
+				db.delete(this);
+				this.exists = false;
+			}
 		}
 	}
 	
@@ -181,6 +190,11 @@ public class WerftKomplex extends WerftObject {
 	public String getFormHidden() {
 		loadData();
 		
+		if (!isExistant())
+		{
+			return "";
+		}
+		
 		return werften[0].getFormHidden();
 	}
 
@@ -219,6 +233,11 @@ public class WerftKomplex extends WerftObject {
 	public User getOwner() {
 		loadData();
 		
+		if (!isExistant())
+		{
+			return null;
+		}
+		
 		return werften[0].getOwner();
 	}
 
@@ -226,12 +245,22 @@ public class WerftKomplex extends WerftObject {
 	public int getSystem() {
 		loadData();
 		
+		if (!isExistant())
+		{
+			return 0;
+		}
+		
 		return werften[0].getSystem();
 	}
 
 	@Override
 	public String getUrlBase() {
 		loadData();
+		
+		if (!isExistant())
+		{
+			return "";
+		}
 		
 		return werften[0].getUrlBase();
 	}
@@ -244,6 +273,11 @@ public class WerftKomplex extends WerftObject {
 	@Override
 	public String getWerftPicture() {
 		loadData();
+		
+		if (!isExistant())
+		{
+			return "";
+		}
 		
 		return werften[0].getWerftPicture();
 	}
@@ -263,12 +297,22 @@ public class WerftKomplex extends WerftObject {
 	public int getX() {
 		loadData();
 		
+		if (!isExistant())
+		{
+			return 0;
+		}
+		
 		return werften[0].getX();
 	}
 
 	@Override
 	public int getY() {
 		loadData();
+		
+		if (!isExistant())
+		{
+			return 0;
+		}
 		
 		return werften[0].getY();
 	}
@@ -499,6 +543,11 @@ public class WerftKomplex extends WerftObject {
 	public String getObjectUrl() {
 		loadData();
 		
+		if (!isExistant())
+		{
+			return "";
+		}
+		
 		return werften[0].getObjectUrl();
 	}
 
@@ -513,5 +562,15 @@ public class WerftKomplex extends WerftObject {
 			value += werften[i].getWorkerPercentageAvailable();
 		}
 		return value / werften.length;
+	}
+	
+	/**
+	 * Gibt zurueck, ob dieser Werftkomplex noch existiert.
+	 * Wird vom WerftTick verwendet, falls Werftkomplexe ohne Werften vorhanden sind
+	 * @return <code>true</code>, falls der Werftkomplex existiert
+	 */
+	public boolean isExistant()
+	{
+		return exists;
 	}
 }

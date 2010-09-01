@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
+import net.driftingsouls.ds2.server.werften.WerftKomplex;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 
@@ -99,6 +100,10 @@ public class WerftTick extends TickController {
 			}
 			
 			User owner = werft.getOwner();
+			if( (werft instanceof WerftKomplex) && !((WerftKomplex)werft).isExistant())
+			{
+				return;
+			}
 			if( (owner.getVacationCount() > 0) && (owner.getWait4VacationCount() == 0) ) 
 			{
 				this.log("xxx Ignoriere Werft "+werft.getWerftID()+" [VAC]");
