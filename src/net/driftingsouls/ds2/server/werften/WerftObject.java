@@ -2022,6 +2022,8 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		
 		werft.entries = null;
 		
+		db.flush();
+		
 		this.linkedWerft.rescheduleQueue();
 	}
 	

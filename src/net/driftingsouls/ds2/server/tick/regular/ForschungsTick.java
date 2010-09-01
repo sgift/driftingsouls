@@ -101,7 +101,7 @@ public class ForschungsTick extends TickController {
 	
 			int count = db.createQuery("update Forschungszentrum as f " +
 					"set f.dauer=f.dauer-1 " +
-					"where f.dauer!=0 and f.col in (select id from Base where id=f.col and (owner.vaccount=0 or owner.wait4vac!=0))")
+					"where f.dauer!=0 and f.id in (select forschungszentrum.id from Base where forschungszentrum != NULL and (owner.vaccount=0 or owner.wait4vac!=0))")
 				.executeUpdate();
 			
 			log("Laufende Forschungen: "+count);

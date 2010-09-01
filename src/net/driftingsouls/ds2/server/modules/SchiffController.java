@@ -1027,7 +1027,7 @@ public class SchiffController extends TemplateGenerator {
 			return;
 		}
 		
-		db.refresh(ship);
+	//	db.refresh(ship);
 		shiptype = ship.getTypeData();
 		
 		if( ship.getBattle() != null ) {

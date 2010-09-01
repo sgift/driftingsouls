@@ -46,6 +46,7 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.ships.Ships;
+import net.driftingsouls.ds2.server.werften.BaseWerft;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -233,19 +234,25 @@ public class SensorsDefault implements SchiffPlugin {
 						t.setVar("base.offiziere.transfer",1);
 					}
 
-					boolean entry = db.createQuery("from BaseWerft where col=?")
-						.setEntity(0, base)
-						.iterate().hasNext();
-					if( entry ) {
-						//Werftfeld suchen
-						int i=0;
-						for( i=0; i < base.getBebauung().length; i++ ) {
-							if( (base.getBebauung()[i] != 0) && (Building.getBuilding(base.getBebauung()[i]) instanceof Werft) ) {
-								break;	
+					BaseWerft werft = base.getWerft();
+					if( werft != null) {
+						if( werft.getBaseField() == -1)
+						{
+							//Werftfeld suchen
+							int i=0;
+							for( i=0; i < base.getBebauung().length; i++ ) {
+								if( (base.getBebauung()[i] != 0) && (Building.getBuilding(base.getBebauung()[i]) instanceof Werft) ) {
+									break;	
+								}
 							}
+							t.setVar(	"base.action.repair",	1,
+										"base.werft.field",		i );
 						}
-						t.setVar(	"base.action.repair",	1,
-									"base.werft.field",		i );
+						else
+						{
+							t.setVar(	"base.action.repair",	1,
+										"base.werft.field",		werft.getBaseField() );
+						}
 					}
 				}
 

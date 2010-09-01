@@ -258,13 +258,18 @@ public class SchiffsTick extends TickController {
 		crewToFeed = consumeFood(shipd, crewToFeed, scaleFactor);
 		this.slog("\n");
 		
+		if( shipd.getNahrungCargo() > shiptd.getNahrungCargo())
+		{
+			shipd.setNahrungCargo(shiptd.getNahrungCargo());
+		}
+		
 		//Crew die nicht versorgt werden konnte verhungern lassen
 		if(crewToFeed > 0) 
 		{
 			this.log("\tCrew verhungert - ");
 			if(crewToFeed >= shipd.getUnits().getNahrung())
 			{
-				crewToFeed = crewToFeed - (int)Math.ceil(shipd.getUnits().getNahrung() / 10.0);
+				crewToFeed = crewToFeed - (int)Math.ceil(shipd.getUnits().getNahrung());
 				shipd.setUnits(new UnitCargo());
 				ConfigValue maxverhungern = (ConfigValue)db.get(ConfigValue.class, "maxverhungern");
 				int maxverhungernfactor = Integer.parseInt(maxverhungern.getValue());
@@ -302,7 +307,7 @@ public class SchiffsTick extends TickController {
 			}
 			else 
 			{
-				shipd.getUnits().fleeUnits(crewToFeed*10);
+				shipd.getUnits().fleeUnits(crewToFeed);
 				crewToFeed = 0;
 			}
 		}
@@ -777,7 +782,7 @@ public class SchiffsTick extends TickController {
 			transaction.rollback();
 			this.log("Shiptick: Resetting of crew to zero failed.");
 		}
-
+		
 		/*
 			Schiffe mit destroy-tag im status-Feld entfernen
 		 */
