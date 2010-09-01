@@ -222,7 +222,6 @@ public class User extends BasicUser {
 	private String knownItems;
 	private int vacpoints;
 	private int specializationPoints;
-	private double corruption;
 	
 	@OneToMany(cascade=CascadeType.ALL)
 	@JoinColumn(name="owner")
@@ -1414,23 +1413,5 @@ public class User extends BasicUser {
 		
 		db.delete(userResearch);
 		this.researches.remove(userResearch);
-	}
-	
-	/**
-	 * Gibt die Korruption speziell fuer diesen Spieler zurueck.
-	 * @return Die Kooruption (0=0%, 1=100%)
-	 */
-	public double getCorruption()
-	{
-		return corruption;
-	}
-	
-	/**
-	 * Setzt die Korruption speziell fuer diesen Spieler.
-	 * @param corruption Die Korruption (0=0%, 1=100%)
-	 */
-	public void setCorruption(double corruption)
-	{
-		this.corruption = corruption;
 	}
 }

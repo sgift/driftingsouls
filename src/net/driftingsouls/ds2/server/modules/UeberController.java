@@ -47,7 +47,6 @@ import net.driftingsouls.ds2.server.entities.IntTutorial;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -235,14 +234,8 @@ public class UeberController extends TemplateGenerator {
 		}
 		
 		int ticks = getContext().get(ContextCommon.class).getTick();
-		ConfigValue value = (ConfigValue)getDB().get(ConfigValue.class, "corruption");
-		double corruption = Double.valueOf(value.getValue()) + user.getCorruption();
-
+		
 		int[] fullbalance = user.getFullBalance();
-		if(fullbalance[1] > 0 && corruption > 0)
-		{
-			fullbalance[1] *= 1-corruption;
-		}
 				
 		t.setVar(	"user.name",				Common._title(user.getName()),
 				  	"user.race",				race,

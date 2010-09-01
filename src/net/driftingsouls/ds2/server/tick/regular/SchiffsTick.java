@@ -618,9 +618,7 @@ public class SchiffsTick extends TickController {
 	private void tickUser(org.hibernate.Session db, User auser) 
 	{
 		Map<Location, List<Base>> feedingBases = new HashMap<Location, List<Base>>();
-		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "corruption");
-		double corruption = Double.valueOf(value.getValue()) + auser.getCorruption();
-
+		
 		for(Base base: auser.getBases())
 		{
 			if( !base.isFeeding() ) {
@@ -632,13 +630,6 @@ public class SchiffsTick extends TickController {
 				feedingBases.put(location, new ArrayList<Base>());
 			}
 			feedingBases.get(location).add(base);
-		}
-		
-		int balance = auser.getReBalance();
-		
-		if(balance > 0 && corruption > 0)
-		{
-			auser.setKonto(auser.getKonto().subtract(BigInteger.valueOf((long)(balance * corruption))));
 		}
 		
 		versorgerlist = getLocationVersorgerList(db, auser);
