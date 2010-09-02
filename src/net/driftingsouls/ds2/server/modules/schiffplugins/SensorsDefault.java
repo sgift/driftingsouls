@@ -245,6 +245,7 @@ public class SensorsDefault implements SchiffPlugin {
 									break;	
 								}
 							}
+							werft.setBaseField(i);
 							t.setVar(	"base.action.repair",	1,
 										"base.werft.field",		i );
 						}

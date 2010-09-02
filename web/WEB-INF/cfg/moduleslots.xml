@@ -24,24 +24,24 @@
 	<slot id="misc" name="Diverses" />
 	<slot id="misc_large" name="Diverses [grosse Schiffe]" parent="misc" />
 	<slot id="misctanker" name="Diverses [Tanker]" parent="misc" />
-	<slot id="misc_weapon" name="Bewaffnung" parent="misc" />
+	<slot id="misc_weapon" name="Bewaffnung" />
 	<slot id="misc_large_weapon" name="Bewaffnung" parent="misc_weapon" />
-	<slot id="misc_station" name="Rüststlot Station" parent="misc" />
+	<slot id="misc_station" name="Rüststlot Station" />
 	
 	<slot id="weapon_ganystation" name="Bewaffnung Ganymed-Station" />
-	<slot id="misc_ganystation" name="Rüstslot Ganymed-Station" parent="misc" />
+	<slot id="misc_ganystation" name="Rüstslot Ganymed-Station" />
 
-	<slot id="misc_shipyard" name="Werftpack" parent="misc" />
+	<slot id="misc_shipyard" name="Werftpack" />
 	<slot id="misc_scanner" name="Diverses [Scanner]" parent="misc" />
 
 	<slot id="misc_kottos" name="Diverses [Kottos]" parent="misc" />
 
-	<slot id="paladin_misc" name="Rüstslot Paladin" parent="misc" />
+	<slot id="paladin_misc" name="Rüstslot Paladin" />
 	
 	<!-- 
 		Ein paar weitere Slots
 	 -->	
-	<slot id="miscawacs" name="Scanner" parent="misc" />
+	<slot id="miscawacs" name="Scanner" />
 	<slot id="armour" name="Panzerung" />
 	
 	<!-- 

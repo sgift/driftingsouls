@@ -45,7 +45,7 @@ public class BaseWerft extends WerftObject {
 	private Base base;
 	
 	@Transient
-	private int fieldid;
+	private int fieldid = -1;
 
 	/**
 	 * Konstruktor.
