@@ -63,7 +63,7 @@ public class SchiffsTick extends TickController {
 	private static final int SHIP_FLUSH_SIZE = 150;
 	
 	private Map<String,ResourceID> esources;
-	private Map<Location,SortedSet<Ship>> versorgerlist;
+	private Map<Location,List<Ship>> versorgerlist;
 	
 	private List<User> unflushedUsers = new ArrayList<User>(5);
 	private int unflushedShips = 0;
@@ -105,7 +105,7 @@ public class SchiffsTick extends TickController {
 		return crewToFeed;
 	}
 	
-	private Map<Location,SortedSet<Ship>> getLocationVersorgerList(org.hibernate.Session db,User user)
+	private Map<Location,List<Ship>> getLocationVersorgerList(org.hibernate.Session db,User user)
 	{
 		Comparator<Ship> comparator = new Comparator<Ship>() {
 
@@ -122,7 +122,7 @@ public class SchiffsTick extends TickController {
 			
 		};
 		
-		Map<Location,SortedSet<Ship>> versorgerlist = new HashMap<Location,SortedSet<Ship>>();
+		Map<Location,SortedSet<Ship>> versorgerMap = new HashMap<Location,SortedSet<Ship>>();
 		this.log("Berechne Versorger");
 		
 		int versorgerCount = 0;
@@ -137,15 +137,15 @@ public class SchiffsTick extends TickController {
 			
 			versorgerCount++;
 			Location loc = ship.getLocation();
-			if(versorgerlist.containsKey(loc))
+			if(versorgerMap.containsKey(loc))
 			{
-				versorgerlist.get(loc).add(ship);
+				versorgerMap.get(loc).add(ship);
 			}
 			else
 			{
 				SortedSet<Ship> shiplist = new TreeSet<Ship>(comparator);
 				shiplist.add(ship);
-				versorgerlist.put(loc, shiplist);
+				versorgerMap.put(loc, shiplist);
 			}
 		}
 		
@@ -167,30 +167,35 @@ public class SchiffsTick extends TickController {
 			for( Ship ship : ships)
 			{
 				Location loc = ship.getLocation();
-				if(versorgerlist.containsKey(loc))
+				if(versorgerMap.containsKey(loc))
 				{
-					versorgerlist.get(loc).add(ship);
+					versorgerMap.get(loc).add(ship);
 				}
 				else
 				{
 					SortedSet<Ship> shiplist = new TreeSet<Ship>(comparator);
 					shiplist.add(ship);
-					versorgerlist.put(loc, shiplist);
+					versorgerMap.put(loc, shiplist);
 				}
 			}
 		}
 		
-		return versorgerlist;
+		Map<Location,List<Ship>> versorgerList = new HashMap<Location,List<Ship>>();
+		for( Map.Entry<Location,SortedSet<Ship>> entry : versorgerMap.entrySet() ) {
+			versorgerList.put(entry.getKey(), new ArrayList<Ship>(entry.getValue()));
+		}
+		
+		return versorgerList;
 	}
 	
 	private Ship getVersorger(Location loc)
 	{
 		if(versorgerlist.containsKey(loc))
 		{
-			Ship ship = versorgerlist.get(loc).first();
+			Ship ship = versorgerlist.get(loc).get(0);
 			while(ship != null && ship.getNahrungCargo() == 0)
 			{
-				versorgerlist.get(loc).remove(ship);
+				versorgerlist.get(loc).remove(0);
 				if(versorgerlist.get(loc).isEmpty())
 				{
 					versorgerlist.remove(loc);
@@ -198,7 +203,7 @@ public class SchiffsTick extends TickController {
 				}
 				else
 				{
-					ship = versorgerlist.get(loc).first();
+					ship = versorgerlist.get(loc).get(0);
 				}
 			}
 		}
