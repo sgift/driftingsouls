@@ -113,7 +113,11 @@ public class SchiffsTick extends TickController {
 			public int compare(Ship o1, Ship o2)
 			{
 				long diff = o1.getNahrungCargo()-o2.getNahrungCargo();
-				return diff < 0 ? -1 : (diff > 0 ? 1 : 0);
+				if( diff == 0 ) {
+					// Bei gleicher Nahrungsmenge auf Basis der ID sortieren - sonst werden Schiffe aus dem Set eliminiert
+					return o1.getId()-o2.getId();
+				}
+				return diff < 0 ? -1 : 1;
 			}
 			
 		};
@@ -186,7 +190,7 @@ public class SchiffsTick extends TickController {
 			Ship ship = versorgerlist.get(loc).first();
 			while(ship != null && ship.getNahrungCargo() == 0)
 			{
-				versorgerlist.get(loc).remove(0);
+				versorgerlist.get(loc).remove(ship);
 				if(versorgerlist.get(loc).isEmpty())
 				{
 					versorgerlist.remove(loc);
