@@ -41,6 +41,7 @@ public class MapController extends TemplateGenerator
 
 	private boolean showSystem;
 	private StarSystem system;
+	private int sys;
 	private Configuration config;
 
 	/**
@@ -118,7 +119,7 @@ public class MapController extends TemplateGenerator
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
-		int sys = getInteger("sys");
+		sys = getInteger("sys");
 
 		showSystem = true;
 
@@ -133,23 +134,10 @@ public class MapController extends TemplateGenerator
 			sys = 1;
 			showSystem = false; //Zeige das System nicht an
 		}
-		else if( system == null ) {
-			t.setVar("map.message", "&Uuml;ber dieses System liegen keine Informationen vor");
-			sys = 1;
-			showSystem = false; //Zeige das System nicht an
-		}
-
-		if( (system.getAccess() == StarSystem.AC_ADMIN) && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) ) {
-			t.setVar("map.message", "Sie haben keine entsprechenden Karten - Ihnen sind bekannt:");
-			sys = 1;
-			showSystem = false; //Zeige das System nicht an
-		} 
-		else if( (system.getAccess() == StarSystem.AC_NPC) && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) && !user.hasFlag( User.FLAG_VIEW_SYSTEMS ) ) {
-			t.setVar("map.message", "Sie haben keine entsprechenden Karten - Ihnen sind bekannt:");
-			sys = 1;
-			showSystem = false; //Zeige das System nicht an
-		}
-		else if( !system.isStarmapVisible() && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS )) {
+		else if( system == null ||
+				( (system.getAccess() == StarSystem.AC_ADMIN) && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) ) ||
+				( (system.getAccess() == StarSystem.AC_NPC) && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) && !user.hasFlag( User.FLAG_VIEW_SYSTEMS ) ) ||
+				( !system.isStarmapVisible() && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ))) {
 			t.setVar("map.message", "Sie haben keine entsprechenden Karten - Ihnen sind bekannt:");
 			sys = 1;
 			showSystem = false; //Zeige das System nicht an
@@ -198,7 +186,7 @@ public class MapController extends TemplateGenerator
 			t.setVar(	"system.name",		system.getName(),
 						"system.id",		system.getID(),
 						"system.addinfo",	systemAddInfo,
-						"system.selected",	(system.getID() == this.system.getID()) );
+						"system.selected",	(system.getID() == sys) );
 
 			t.parse("systems.list", "systems.listitem", true);
 		}
