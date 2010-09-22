@@ -883,6 +883,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 			
 			Building building = Building.getBuilding(bebauung[o]);
 
+			bebon[o] = building.isActive( this, bebon[o], o ) ? 1 : 0;
+			
 			if( bebon[o] == 0 )
 			{
 				continue;
@@ -921,6 +923,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 			
 			Building building = Building.getBuilding(bebauung[o]);
 
+			bebon[o] = building.isActive( this, bebon[o], o ) ? 1 : 0;
+			
 			if( bebon[o] == 0 )
 			{
 				continue;
