@@ -74,11 +74,10 @@ public class RecalcShips extends DSApplication {
 		log("\nBeginne:");
 
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		Transaction transaction = db.beginTransaction();
-
 		if( shipid == null ) {
 			int lastsid = 0;
 			while( true ) {
+				Transaction transaction = db.beginTransaction();
 				// TODO: Support fuer Schiffe mit negativer ID einbauen
 				final List<Ship> shipList = Common.cast(db.createQuery("from Ship where id>:minid order by id asc")
 					.setInteger("minid", lastsid)
@@ -116,6 +115,7 @@ public class RecalcShips extends DSApplication {
 			}
 		}
 		else {
+			Transaction transaction = db.beginTransaction();
 			log("sid: "+shipid+"\n");
 			Ship ship = (Ship)db.get(Ship.class, shipid);
 			if( ship != null ) {
@@ -125,6 +125,7 @@ public class RecalcShips extends DSApplication {
 			else {
 				log("-> Schiff existiert nicht");
 			}
+			transaction.commit();
 		}
 	}
 
