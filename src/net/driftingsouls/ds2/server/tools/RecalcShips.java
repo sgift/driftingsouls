@@ -20,13 +20,10 @@ package net.driftingsouls.ds2.server.tools;
 
 import java.util.List;
 
-import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DSApplication;
 import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipModules;
-import net.driftingsouls.ds2.server.werften.ShipWerft;
 
 import org.hibernate.Transaction;
 
