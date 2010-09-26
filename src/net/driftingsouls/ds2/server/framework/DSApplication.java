@@ -28,6 +28,7 @@ import java.util.Map;
 
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
+import net.driftingsouls.ds2.server.tick.TickContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -66,16 +67,16 @@ public abstract class DSApplication {
 			log.fatal("", e);
 			throw new Exception(e);
 		}
+		db = HibernateUtil.getSessionFactory().openSession();
 		
 		SimpleResponse response = new SimpleResponse();
-		this.context = new BasicContext(request, response);
+		
+		this.context = new TickContext(db, request, response);
 		
 		logTargets = new HashMap<Integer,Writer>();
 		handleCounter = 0;
 		
 		logTargets.put(-1, new OutputStreamWriter(System.out));
-		
-		db = HibernateUtil.getSessionFactory().openSession();
 	}
 	
 	/**

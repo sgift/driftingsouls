@@ -1458,7 +1458,7 @@
 		ALTER TABLE unit_types CHANGE recost recost float (0) NOT NULL;
 	]]></update>
 	<update><![CDATA[
-		CREATE TABLE `ds2`.`ship_script_data` (
+		CREATE TABLE `ship_script_data` (
 			`shipid` INT NOT NULL ,
 			`script` TEXT NULL ,
 			`scriptexedata` BLOB NULL ,
@@ -1499,5 +1499,5 @@
 		UPDATE werften SET werfttype='K' where komplex != 0;
 		UPDATE werften SET werfttype='S' where shipid IS NOT NULL;
 		UPDATE werften SET werfttype='B' where id IN (SELECT werft_id FROM bases); 
-	]]>
+	]]></update>
 </updates>
