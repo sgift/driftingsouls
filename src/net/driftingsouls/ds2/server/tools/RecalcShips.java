@@ -20,11 +20,17 @@ package net.driftingsouls.ds2.server.tools;
 
 import java.util.List;
 
+import net.driftingsouls.ds2.server.Offizier;
+import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DSApplication;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipModules;
 
+import org.hibernate.CacheMode;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
 import org.hibernate.Transaction;
 
 /**
@@ -72,39 +78,38 @@ public class RecalcShips extends DSApplication {
 
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		Transaction transaction = db.beginTransaction();
-		if( shipid == null ) {
-			int lastsid = 0;
-			while( true ) {
-				// TODO: Support fuer Schiffe mit negativer ID einbauen
-				final List<Ship> shipList = Common.cast(db.createQuery("from Ship where id>:minid order by id asc")
-					.setInteger("minid", lastsid)
-					.setMaxResults(100)
-					.list());
-				
-				if( shipList.isEmpty() ) {
-					break;
-				}
-				
-				for( Ship ship : shipList )
+		if( shipid == null ) 
+		{
+			ScrollableResults ships = db.createQuery("from Ship as s left join fetch s.modules " +
+			 										 "where s.id>0 order by s.owner,s.docked,s.shiptype asc")
+			 										 .setCacheMode(CacheMode.IGNORE)
+			 										 .scroll(ScrollMode.FORWARD_ONLY);
+			
+			int count = 0;
+			while(ships.next())
+			{
+				Ship ship = (Ship) ships.get(0);
+				try
 				{
-					
-					try {
-						// Es kann Luecken in der Liste der Schiffids geben (...,97,98,103,...)
-						// Daher die Zusatzpruefung mit lastsid
-						if( (ship.getId() % 100 == 0) || (ship.getId() % 100 < lastsid % 100) ) {
-							log("sid: "+ship.getId()+"");
-						}
-						lastsid = ship.getId();
-						ship.recalculateShipStatus();
-						ship.recalculateModules();
-					}
-					catch( Exception e ) {
-						log("WARNUNG: Konnte Schiff "+ship.getId()+" nicht neu berechnen\n"+e);
-						e.printStackTrace();
+					ship.recalculateModules();
+					ship.recalculateShipStatus();
+					if(count%100 == 0)
+					{
+						log("sid: "+ship.getId()+"");
 					}
 				}
-				
-				db.flush();
+				catch (Exception e) 
+				{
+					log("WARNUNG: Konnte Schiff "+ship.getId()+" nicht neu berechnen\n"+e);
+					e.printStackTrace();
+				}
+				count++;
+			
+				if(count % 50 == 0)
+				{
+					db.flush();
+					db.clear();
+				}
 			}
 		}
 		else {
