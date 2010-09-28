@@ -487,7 +487,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			return;
 		}
 		
-		ShipTypeData shiptype = ship.getBaseType();
+		ShipTypeData shiptype = ship.getTypeData();
 		
 		String[] aslot = null;
 		
@@ -551,7 +551,11 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 		
 		if( ship.getAblativeArmor() != shiptype.getAblativeArmor() ) {
-			double factor = ship.getAblativeArmor() / (double)oldshiptype.getAblativeArmor();
+			double factor = 1;
+			if(oldshiptype.getAblativeArmor() != 0)
+			{
+				factor = ship.getAblativeArmor() / (double)oldshiptype.getAblativeArmor();
+			}
 			ship.setAblativeArmor((int)(shiptype.getAblativeArmor() * factor));	
 		}
 		
@@ -674,7 +678,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		Cargo cargo = this.getCargo(false);
 		List<ItemCargoEntry> itemlist = cargo.getItemsWithEffect( ItemEffect.Type.MODULE );
 		
-		ShipTypeData shiptype = ship.getBaseType();
+		ShipTypeData shiptype = ship.getTypeData();
 		
 		String[] aslot = null;
 		
