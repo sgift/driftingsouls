@@ -80,6 +80,8 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 	public void cleanup(Context context, Base base, int building) {
 		super.cleanup(context, base, building);
 		
+		base.setForschungszentrum(null);
+		
 		org.hibernate.Session db = context.getDB();
 		db.createQuery("delete from Forschungszentrum where base=?")
 			.setEntity(0, base)
@@ -378,8 +380,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 
 	@Override
 	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
-		org.hibernate.Session db = context.getDB();
-
+		
 		int research 	= context.getRequest().getParameterInt("res");
 		String confirm 	= context.getRequest().getParameterString("conf");
 		String kill 		= context.getRequest().getParameterString("kill");

@@ -113,8 +113,8 @@ public class AcademyBuilding extends DefaultBuilding {
 				entry.deleteQueueEntry();
 			}
 			
-			db.delete(academy);
 			base.setAcademy(null);
+			db.delete(academy);
 		}
 				
 		
