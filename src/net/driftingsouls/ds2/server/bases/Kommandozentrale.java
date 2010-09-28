@@ -38,9 +38,12 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.entities.Academy;
 import net.driftingsouls.ds2.server.entities.Ally;
+import net.driftingsouls.ds2.server.entities.Factory;
 import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
+import net.driftingsouls.ds2.server.entities.Kaserne;
 import net.driftingsouls.ds2.server.entities.StatVerkaeufe;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -109,7 +112,36 @@ public class Kommandozentrale extends DefaultBuilding {
 		
 		// Loesche Eintraege der Basiswerft
 		BaseWerft werft = base.getWerft();
-		werft.clearQueue();
+		
+		if( werft != null)
+		{
+			werft.clearQueue();
+		}
+		
+		// Fabriken abschalten
+		Set<Factory> factories = base.getFactories();
+		
+		for(Factory factory : factories)
+		{
+			factory.setProduces(null);
+		}
+		
+		// Auftraege der Kaserne loeschen
+		Kaserne kaserne = (Kaserne)db.createQuery("from Kaserne where col=?")
+			.setEntity(0, base)
+			.uniqueResult();
+		
+		if( kaserne != null ) {
+			db.createQuery("DELETE from KaserneEntry WHERE kaserne=:kaserne").setInteger("kaserne", kaserne.getId()).executeUpdate();
+		}
+	
+		// Auftraege der Akademie loeschen
+		Academy academy = base.getAcademy();
+		
+		if( academy != null)
+		{
+			db.createQuery("DELETE from AcademyQueueEntry WHERE base=:base").setInteger("base", base.getId()).executeUpdate();
+		}
 		
 		//Check if we need to change the drop zone of the player to another system
 		Set<Integer> systems = oldUser.getAstiSystems();
