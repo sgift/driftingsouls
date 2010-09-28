@@ -93,7 +93,7 @@ public class AcademyTick extends TickController {
 				{
 					log("\tAusbildung laeuft");
 					
-					AcademyQueueEntry[] entries = acc.getScheduledQueueEntries();
+					List<AcademyQueueEntry> entries = acc.getScheduledQueueEntries();
 					
 					msg = "Die Ausbildung von<br />"; 
 					

@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -119,19 +120,23 @@ public class Academy {
 	 * Gibt die aktuell ausgebildeten Offiziere zurueck.
 	 * @return Die Liste der zur Ausbildung vorgesehenen Bauschlangeneintraege
 	 */
-	public AcademyQueueEntry[] getScheduledQueueEntries() {
+	public List<AcademyQueueEntry> getScheduledQueueEntries() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<?> list = db.createQuery("from AcademyQueueEntry where base=:base and scheduled=:scheduled order by position")
-		.setParameter("base", this.getBase())
-		.setParameter("scheduled", true)
-		.list();
-		AcademyQueueEntry[] entries = new AcademyQueueEntry[list.size()];
-		int index = 0;
+		List<AcademyQueueEntry> list = Common.cast(db.createQuery("from AcademyQueueEntry where base=:base order by position ASC")
+				.setParameter("base", this.getBase())
+				.list());
+		
+		List<AcademyQueueEntry> queuelist = new ArrayList<AcademyQueueEntry>();
+		
 		for( Iterator<?> iter=list.iterator(); iter.hasNext(); ) {
-			entries[index++] = (AcademyQueueEntry)iter.next();
+			AcademyQueueEntry entry = (AcademyQueueEntry)iter.next();
+			if(entry.isScheduled())
+			{
+				queuelist.add(entry);
+			}
 		}
-	
-		return entries;
+		
+		return queuelist;
 	}
 	
 	/**
@@ -139,30 +144,19 @@ public class Academy {
 	 * @return Die Anzahl der aktuellen Ausbildungsvorhaben
 	 */
 	public int getNumberScheduledQueueEntries() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<?> list = db.createQuery("from AcademyQueueEntry where base=:base and scheduled=:scheduled order by position")
-		.setParameter("base", this.getBase())
-		.setParameter("scheduled", true)
-		.list();
-		return list.size();
+		return getScheduledQueueEntries().size();
 	}
 	
 	/**
 	 * Gibt die komplette Bauschlange zurueck.
 	 * @return Die Bauschlange
 	 */
-	public AcademyQueueEntry[] getQueueEntries() {
+	public List<AcademyQueueEntry> getQueueEntries() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<?> list = db.createQuery("from AcademyQueueEntry where base=:base order by position")
-		.setParameter("base", this.getBase())
-		.list();
-		AcademyQueueEntry[] entries = new AcademyQueueEntry[list.size()];
-		int index = 0;
-		for( Iterator<?> iter=list.iterator(); iter.hasNext(); ) {
-			entries[index++] = (AcademyQueueEntry)iter.next();
-		}
-	
-		return entries;
+		List<AcademyQueueEntry> list = Common.cast(db.createQuery("from AcademyQueueEntry where base=:base order by position ASC")
+			.setParameter("base", this.getBase())
+			.list());
+		return list;
 	}
 	
 	/**
@@ -176,10 +170,14 @@ public class Academy {
 		double maxoffstotrain = Double.valueOf(maxoffstotrainConfig.getValue());
 		int trainingoffs = 0;
 		
-		AcademyQueueEntry[] queue = this.getQueueEntries();
+		List<AcademyQueueEntry> queue = this.getQueueEntries();
 		
-		for( AcademyQueueEntry entry : queue )  {
+		for( AcademyQueueEntry entry : queue ) 
+		{
 			entry.setScheduled(false);
+		}
+		for( AcademyQueueEntry entry : queue ) 
+		{
 			if( trainingoffs < maxoffstotrain && !this.isOffizierScheduled(entry.getTraining()) ) {
 				entry.setScheduled(true);
 				trainingoffs = trainingoffs+1;
@@ -193,11 +191,10 @@ public class Academy {
 	 * @return <code>true</code> wenn der Offizier aktuell ausgebildet wird, ansonsten <code>false</code>
 	 */
 	public boolean isOffizierScheduled(int offID) {
-		
-		AcademyQueueEntry[] entries = this.getScheduledQueueEntries();
 		if( offID < 0 ){
 			return false;
 		}
+		List<AcademyQueueEntry> entries = this.getScheduledQueueEntries();
 		for ( AcademyQueueEntry entry : entries ) {
 			if( entry.getTraining() == offID ) {
 				return true;
@@ -234,7 +231,7 @@ public class Academy {
 	 */
 	public AcademyQueueEntry getQueueEntryById(int id) {
 		
-		AcademyQueueEntry[] entries = this.getQueueEntries();
+		List<AcademyQueueEntry> entries = this.getQueueEntries();
 		
 		for( AcademyQueueEntry entry : entries ) {
 			if( entry.getId() == id )

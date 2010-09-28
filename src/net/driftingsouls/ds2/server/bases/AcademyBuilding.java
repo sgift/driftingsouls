@@ -107,7 +107,7 @@ public class AcademyBuilding extends DefaultBuilding {
 		if( academy != null )
 		{
 			// Bereinige Queue Eintraege
-			AcademyQueueEntry[] entries = academy.getQueueEntries();
+			List<AcademyQueueEntry> entries = academy.getQueueEntries();
 			for( AcademyQueueEntry entry : entries )
 			{
 				entry.deleteQueueEntry();
@@ -165,7 +165,7 @@ public class AcademyBuilding extends DefaultBuilding {
 		double dauerfactor = Double.valueOf(dauerfactorConfig.getValue());
 		
 		int plus = 0;
-		AcademyQueueEntry[] entries = acc.getQueueEntries();
+		List<AcademyQueueEntry> entries = acc.getQueueEntries();
 		for( AcademyQueueEntry entry : entries ) {
 			if( entry.getTraining() == offizier.getID() && entry.getTrainingType() == train )
 			{
@@ -201,7 +201,7 @@ public class AcademyBuilding extends DefaultBuilding {
 			else {	
 				StringBuilder popup = new StringBuilder(200);
 				popup.append(Common.tableBegin(300, "left").replace('"', '\''));
-				AcademyQueueEntry[] entries = acc.getScheduledQueueEntries();
+				List<AcademyQueueEntry> entries = acc.getScheduledQueueEntries();
 				for( AcademyQueueEntry entry : entries )
 				{
 					if( entry.getTraining() < 0 ) {
@@ -297,6 +297,14 @@ public class AcademyBuilding extends DefaultBuilding {
 			return "";
 		}
 		
+
+		t.setVar(	
+				"base.name",	base.getName(),
+				"base.id",		base.getId(),
+				"base.field",	field,
+				"academy.actualbuilds", academy.getNumberScheduledQueueEntries(),
+				"academy.maxbuilds", (int)maxoffstotrain);
+		
 		//--------------------------------
 		// Als erstes ueberpruefen wir, ob eine Aktion durchgefuehrt wurde
 		//--------------------------------
@@ -349,14 +357,7 @@ public class AcademyBuilding extends DefaultBuilding {
 				academy.setTrain(false);
 			}
 		}
-				
-		t.setVar(	
-				"base.name",	base.getName(),
-				"base.id",		base.getId(),
-				"base.field",	field,
-				"academy.actualbuilds", academy.getNumberScheduledQueueEntries(),
-				"academy.maxbuilds", (int)maxoffstotrain);
-		
+						
 		//---------------------------------
 		// Einen neuen Offizier ausbilden
 		//---------------------------------
@@ -473,7 +474,10 @@ public class AcademyBuilding extends DefaultBuilding {
 		// Dann berechnen wir die Ausbildungsschlange neu
 		//--------------------------------
 		academy.rescheduleQueue();
+
+		t.setVar("academy.actualbuilds", academy.getNumberScheduledQueueEntries());
 		
+		db.flush();
 		//-----------------------------------------------
 		// werden gerade Offiziere ausgebildet? Bauschlange anzeigen!
 		//-----------------------------------------------
@@ -484,7 +488,7 @@ public class AcademyBuilding extends DefaultBuilding {
 			
 			t.setBlock("_BUILDING", "academy.training.listitem", "academy.training.list");
 			
-			AcademyQueueEntry[] entries = academy.getQueueEntries();
+			List<AcademyQueueEntry> entries = academy.getQueueEntries();
 			for( AcademyQueueEntry entry : entries )
 			{	
 				if( entry.getTraining() > 0 ) 
