@@ -71,7 +71,6 @@ public class Kommandozentrale extends DefaultBuilding {
 	@Override
 	public void cleanup(Context context, Base base, int building) {
 		super.cleanup(context, base, building);
-		
 		org.hibernate.Session db = context.getDB();
 		
 		// Loesche alle GTU-Aktionen
@@ -123,7 +122,7 @@ public class Kommandozentrale extends DefaultBuilding {
 		
 		for(Factory factory : factories)
 		{
-			factory.setProduces(null);
+			factory.setProduces(new Factory.Task[0]);
 		}
 		
 		// Auftraege der Kaserne loeschen
