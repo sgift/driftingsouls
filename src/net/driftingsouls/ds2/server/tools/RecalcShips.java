@@ -87,6 +87,7 @@ public class RecalcShips extends DSApplication {
 				{
 					ship.recalculateModules();
 					ship.recalculateShipStatus();
+					db.saveOrUpdate(ship);
 					if(count%100 == 0)
 					{
 						log("sid: "+ship.getId()+"");
