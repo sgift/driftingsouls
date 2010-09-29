@@ -142,7 +142,7 @@ public class CommController extends TemplateGenerator {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void deleteAction() {
-		org.hibernate.Session db = getDB();
+		org.hibernate.Session db = getContext().getDB();
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		
@@ -154,6 +154,7 @@ public class CommController extends TemplateGenerator {
 		int result = 0;
 		if( (ordner != null) && (delete == 0) ) {
 			result = ordner.deleteOrdner();
+			db.flush();
 		}
 		else {
 			PM pm = (PM)db.get(PM.class, delete);
@@ -165,6 +166,7 @@ public class CommController extends TemplateGenerator {
 			}
 			if( pm.getEmpfaenger() == user ) {
 				result = pm.delete();
+				db.flush();
 			}
 		}
 
