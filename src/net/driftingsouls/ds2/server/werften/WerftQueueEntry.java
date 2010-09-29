@@ -358,7 +358,7 @@ public class WerftQueueEntry {
 		int id = (Integer)db.save(ship);
 		
 		ship.getScriptData().setShipid(id);
-
+		
 		if( shipd.getWerft() != 0 ) {
 			ShipWerft awerft = new ShipWerft(ship);
 			db.persist(awerft);
@@ -431,6 +431,7 @@ public class WerftQueueEntry {
 		}
 		
 		db.delete(this);
+		
 		final Iterator<?> entryIter = db.createQuery("from WerftQueueEntry where werft=? and position>? order by position")
 			.setEntity(0, this.werft)
 			.setInteger(1, this.position)
@@ -439,7 +440,8 @@ public class WerftQueueEntry {
 			WerftQueueEntry entry = (WerftQueueEntry)entryIter.next();
 			entry.setPosition(entry.getPosition()-1);
 		}
-	
+		db.flush();
+		
 		this.werft.onFinishedBuildProcess(id);
 		
 		return id;

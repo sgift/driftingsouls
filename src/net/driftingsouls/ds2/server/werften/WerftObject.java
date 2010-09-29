@@ -266,7 +266,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		final WerftQueueEntry[] entries = getBuildQueue();
 		for( int i=0; i < entries.length; i++ ) {
 			final WerftQueueEntry entry = entries[i];
-			
 			// Falls ein Item benoetigt wird pruefen, ob es vorhanden ist
 			if( entry.getRequiredItem() != -1 ) {
 				List<ItemCargoEntry> itemlist = cargo.getItem(entry.getRequiredItem());

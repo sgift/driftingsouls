@@ -87,9 +87,9 @@ public class SchiffsTick extends TickController {
 	private int consumeFood(Feeding feeder, int crewToFeed, double scaleFactor) 
 	{
 		int crewThatCouldBeFeed = 0;
-		if( crewToFeed > feeder.getNahrungCargo()*scaleFactor ) 
+		if( crewToFeed*scaleFactor > feeder.getNahrungCargo() ) 
 		{
-			crewThatCouldBeFeed = (int)(feeder.getNahrungCargo()*scaleFactor);
+			crewThatCouldBeFeed = (int)(feeder.getNahrungCargo()/scaleFactor);
 			crewToFeed -= crewThatCouldBeFeed;
 		}
 		else 
@@ -98,7 +98,7 @@ public class SchiffsTick extends TickController {
 			crewToFeed = 0;
 		}
 		
-		int tmp = (int)Math.ceil(crewThatCouldBeFeed/scaleFactor);
+		int tmp = (int)Math.ceil(crewThatCouldBeFeed*scaleFactor);
 		feeder.setNahrungCargo(feeder.getNahrungCargo() - tmp);
 		this.slog(tmp+"@"+feeder.getId()+",");
 
