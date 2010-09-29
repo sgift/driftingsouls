@@ -190,9 +190,10 @@ public class SchiffsTick extends TickController {
 	
 	private Ship getVersorger(Location loc)
 	{
+		Ship ship = null;
 		if(versorgerlist.containsKey(loc))
 		{
-			Ship ship = versorgerlist.get(loc).get(0);
+			ship = versorgerlist.get(loc).get(0);
 			while(ship != null && ship.getNahrungCargo() == 0)
 			{
 				versorgerlist.get(loc).remove(0);
@@ -208,7 +209,7 @@ public class SchiffsTick extends TickController {
 			}
 		}
 		
-		return null;
+		return ship;
 	}
 
 	private void tickShip( org.hibernate.Session db, Ship shipd, Map<Location, List<Base>> feedingBases) 
