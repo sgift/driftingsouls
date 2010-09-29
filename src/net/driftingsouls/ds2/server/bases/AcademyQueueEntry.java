@@ -242,7 +242,7 @@ public class AcademyQueueEntry {
 		{
 			entry.setPosition(entry.getPosition() - 1);
 		}
-		
+		db.flush();
 		academy.rescheduleQueue();
 		
 		if(training == 0)
