@@ -223,17 +223,17 @@ public class User extends BasicUser {
 	private int vacpoints;
 	private int specializationPoints;
 	
-	@OneToMany(cascade=CascadeType.ALL)
+	@OneToMany(cascade=CascadeType.REFRESH)
 	@JoinColumn(name="owner")
 	private Set<UserResearch> researches;
 	
-	@OneToMany(cascade=CascadeType.ALL)
+	@OneToMany(cascade=CascadeType.REFRESH)
 	@JoinColumn(name="owner")
 	// Explizit nur die Bases eines Users laden - sonst kommt Hibernate von Zeit zu Zeit auf die Idee die Bases von User 0 mitzuladen...
 	@BatchSize(size=1)
 	private Set<Base> bases;
 	
-	@OneToMany(cascade=CascadeType.ALL)
+	@OneToMany(cascade=CascadeType.REFRESH)
 	@JoinColumn(name="owner")
 	@BatchSize(size=1)
 	private Set<Ship> ships;
