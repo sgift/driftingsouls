@@ -274,6 +274,7 @@ public class Fabrik extends DefaultBuilding {
 		else {
 			wf = new Factory(base, buildingid);
 			db.persist(wf);
+			db.flush();
 			base.getFactories().add(wf);
 		}
 	}
@@ -343,6 +344,7 @@ public class Fabrik extends DefaultBuilding {
 		} 
 		else {
 			db.delete(wf);
+			db.flush();
 			base.getFactories().remove(wf);
 		}
 	}

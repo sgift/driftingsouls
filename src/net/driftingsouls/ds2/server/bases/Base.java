@@ -142,7 +142,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	@OneToOne(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
 	@JoinColumn
 	private BaseWerft werft;
-	@OneToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
+	@OneToMany(fetch=FetchType.LAZY,cascade=CascadeType.REFRESH)
 	@JoinColumn(name="col")
 	private Set<Factory> factories;
 	
