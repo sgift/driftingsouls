@@ -58,6 +58,7 @@ import org.hibernate.Session;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cascade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -223,17 +224,20 @@ public class User extends BasicUser {
 	private int vacpoints;
 	private int specializationPoints;
 	
-	@OneToMany(cascade=CascadeType.REFRESH)
+	@OneToMany
+	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH})
 	@JoinColumn(name="owner")
 	private Set<UserResearch> researches;
 	
-	@OneToMany(cascade=CascadeType.REFRESH)
+	@OneToMany
+	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH})
 	@JoinColumn(name="owner")
 	// Explizit nur die Bases eines Users laden - sonst kommt Hibernate von Zeit zu Zeit auf die Idee die Bases von User 0 mitzuladen...
 	@BatchSize(size=1)
 	private Set<Base> bases;
 	
-	@OneToMany(cascade=CascadeType.REFRESH)
+	@OneToMany
+	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH})
 	@JoinColumn(name="owner")
 	@BatchSize(size=1)
 	private Set<Ship> ships;
@@ -1411,7 +1415,7 @@ public class User extends BasicUser {
 			dropResearch(dependentResearch);
 		}
 		
-		db.delete(userResearch);
 		this.researches.remove(userResearch);
+		db.delete(userResearch);
 	}
 }

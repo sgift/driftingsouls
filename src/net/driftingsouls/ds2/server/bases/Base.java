@@ -77,6 +77,7 @@ import org.hibernate.Session;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.Type;
@@ -142,7 +143,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	@OneToOne(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
 	@JoinColumn
 	private BaseWerft werft;
-	@OneToMany(fetch=FetchType.LAZY,cascade=CascadeType.REFRESH)
+	@OneToMany(fetch=FetchType.LAZY)
+	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH})
 	@JoinColumn(name="col")
 	private Set<Factory> factories;
 	

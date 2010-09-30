@@ -79,6 +79,7 @@ public class Kommandozentrale extends DefaultBuilding {
 		User nullUser = (User)context.getDB().get(User.class, 0);
 		User oldUser = base.getOwner();
 		base.setOwner(nullUser);
+		oldUser.getBases().remove(base);
 		// Fahre Basis runter
 		Integer[] active = base.getActive();
 		for(int i = 0; i < active.length; i++)

@@ -124,16 +124,8 @@ public class ColonizeController extends TemplateGenerator {
 		Integer[] bebauung = base.getBebauung();
 		Integer[] bebon = base.getActive();
 		
-		for(int i = 0; i < bebon.length; i++)
-		{
-			bebon[i] = 0;
-		}
-		
-		base.setActive(bebon);
-		base.setCoreActive(false);
-		
 		Map<Integer,Integer> bases = new HashMap<Integer,Integer>();
-		bases.put(base.getSystem(), 0);
+		bases.put(base.getSystem(), 1);
 		int basecount = 0;
 		
 		final List<?> baseList = db.createQuery("from Base where owner=?")
@@ -202,6 +194,8 @@ public class ColonizeController extends TemplateGenerator {
 				(ownerBuildingCount.get(building) + 1 > problematicBuildings.get(building)) ) {
 				bebauung[index] = 0;
 				bebon[index] = 0;
+				Building gebaeude = Building.getBuilding(building);
+				gebaeude.cleanup(getContext(), base, building);
 			}
 			if( !ownerBuildingCount.containsKey(building) ) {
 				ownerBuildingCount.put(building, 0);
