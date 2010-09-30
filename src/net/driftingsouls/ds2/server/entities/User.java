@@ -1415,7 +1415,6 @@ public class User extends BasicUser {
 			dropResearch(dependentResearch);
 		}
 		
-		this.researches.remove(userResearch);
 		db.delete(userResearch);
 	}
 }

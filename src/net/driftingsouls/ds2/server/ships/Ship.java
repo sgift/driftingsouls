@@ -236,7 +236,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 		this.weaponHeat = "";
 		this.autodeut = 1;
 		this.scriptData = new ShipScriptData();
-		owner.getShips().add(this);
 	}
 	
 	/**
@@ -271,7 +270,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 		this.setComm(100);
 		this.setSensors(100);
 		this.scriptData = new ShipScriptData();
-		owner.getShips().add(this);
 	}
 	
     /**
