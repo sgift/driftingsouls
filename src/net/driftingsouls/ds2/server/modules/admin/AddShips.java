@@ -337,6 +337,7 @@ public class AddShips implements AdminPlugin {
 				}
 				int id = (Integer)db.save(ship);
 				ship.getScriptData().setShipid(id);
+				db.save(ship.getScriptData());
 
 				if( shiptype.getWerft() != 0 ) {
 					ShipWerft werft = new ShipWerft(ship);
@@ -423,7 +424,9 @@ public class AddShips implements AdminPlugin {
 							
 							jaeger.setId(shouldId);
 						}
-						db.save(jaeger);
+						id = (Integer)db.save(jaeger);
+						jaeger.getScriptData().setShipid(id);
+						db.save(jaeger.getScriptData());
 						
 						jaeger.recalculateShipStatus();
 					

@@ -358,6 +358,7 @@ public class WerftQueueEntry {
 		int id = (Integer)db.save(ship);
 		
 		ship.getScriptData().setShipid(id);
+		db.save(ship.getScriptData());
 		
 		if( shipd.getWerft() != 0 ) {
 			ShipWerft awerft = new ShipWerft(ship);
