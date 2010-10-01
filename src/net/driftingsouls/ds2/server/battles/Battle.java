@@ -1543,14 +1543,13 @@ public class Battle implements Locatable
 		//
 		// Zuerst die Schiffe berechnen
 		//
-
 		for( int i=0; i < 2; i++ ) 
 		{
-			// Liste kopieren um Probleme beim Entfernen von Schffen aus der Ursprungsliste zu vermeiden
+			// Liste kopieren um Probleme beim Entfernen von Schiffen aus der Ursprungsliste zu vermeiden
 			List<BattleShip> shiplist = new ArrayList<BattleShip>(sides.get(i));
 			for( int key=0; key < shiplist.size(); key++ ) {
 				BattleShip aship = shiplist.get(key);
-
+				
 				if( (aship.getNewCount() > 0) && (aship.getNewCount() != aship.getCount()) ) {
 					aship.setCount(aship.getNewCount());
 					aship.setNewCount((byte)0);
@@ -1650,6 +1649,8 @@ public class Battle implements Locatable
 				aship.getShip().setBattleAction(false);
 			}
 		}
+		
+		context.getDB().flush();
 		
 		// Ist die Schlacht zuende (weil keine Schiffe mehr vorhanden sind?)
 		int owncount = this.ownShips.size();

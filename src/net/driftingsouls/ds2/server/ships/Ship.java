@@ -122,7 +122,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 	@Id @GeneratedValue(generator="ds-shipid")
 	@GenericGenerator(name="ds-shipid", strategy = "net.driftingsouls.ds2.server.ships.ShipIdGenerator")
 	private int id;
-	@OneToOne(cascade=CascadeType.ALL)
+	@OneToOne
+	@Cascade({org.hibernate.annotations.CascadeType.REFRESH, org.hibernate.annotations.CascadeType.EVICT})
 	@JoinColumn(name="modules", nullable=true)
 	@BatchSize(size=50)
 	@NotFound(action = NotFoundAction.IGNORE)
