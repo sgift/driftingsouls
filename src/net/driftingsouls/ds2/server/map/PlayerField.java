@@ -28,7 +28,6 @@ public class PlayerField
 	 * @param db Ein aktives Hibernate Sessionobjekt.
 	 * @param user Der Spieler fuer den die Sicht gelten soll.
 	 * @param position Der gesuchte Sektor.
-	 * @param map Die Map des Sternensystems in dem dieses Feld ist.
 	 */
 	public PlayerField(Session db, User user, Location position)
 	{
