@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 /**
  * Zeigt die Sternenkarte eines Systems an.
  * 
- * @author Sebastian Gift
+ * @author Drifting-Souls Team
  */
 @Configurable
 public class MapController extends TemplateGenerator 
@@ -106,10 +106,8 @@ public class MapController extends TemplateGenerator
 		if( !getDisableDefaultCSS() ) { 
 			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"format.css\" />\n");
 		}
-		sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+url+"data/css/jquery.ui.darkness.css\" />\n");
-
+		sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"data/css/starmap.css\" />\n");
 		sb.append("<script src=\""+url+"data/javascript/jquery.js\" type=\"text/javascript\"></script>\n");
-		sb.append("<script src=\""+url+"data/javascript/jquery.ui.js\" type=\"text/javascript\"></script>\n");
 		sb.append("<script src=\""+url+"data/javascript/starmap.js\" type=\"text/javascript\"></script>\n");
 		sb.append("</head>\n");
 	}
@@ -283,8 +281,7 @@ public class MapController extends TemplateGenerator
 				if(scannable)
 				{
 					map.append(sectorImage);
-					//map.append("\" alt=\"" + x + "/" + y + "\"/ class=\"scan, showsector\" onClick=\"showSector("+this.system.getID()+","+x+","+y+")\">");
-					map.append("\" alt=\"" + x + "/" + y + "\"/ class=\"scan, showsector\">");
+					map.append("\" alt=\"" + x + "/" + y + "\"/ class=\"scan, showsector\" onClick=\"showSector("+this.system.getID()+","+x+","+y+")\">");
 				}
 				else
 				{
@@ -301,9 +298,40 @@ public class MapController extends TemplateGenerator
 		}
 
 		printXLegend(map, xStart, xEnd);
-
 		map.append("</table>");
-		map.append("<div id=\"sectors\"></div>");
+		
+		String url = config.get("URL")+"/";
+		if( user != null ) 
+		{
+			url = user.getImagePath();
+		}
+		map.append("<table class=\"invisible\" id=\"sectortable\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"noBorderX\" width=\"400\">");
+		map.append("<tr>");
+		map.append("<td class=\"noBorderXnBG\" style=\"width:19px\">");
+		map.append("<img src=\""+url+"data/interface/border/border_topleft.gif\" alt=\"\" />");
+		map.append("</td>");
+		map.append("<td class=\"noBorderXnBG\" style=\"background-image:url("+url+"data/interface/border/border_top.gif); background-repeat:repeat-x\">");
+		map.append("</td>");
+		map.append("<td class=\"noBorderXnBG\" style=\"width:19px\">");
+		map.append("<img src=\""+url+"data/interface/border/border_topright.gif\" alt=\"\" />");
+		map.append("</td>");
+		map.append("</tr>");
+		map.append("<tr>");
+		map.append("<td class=\"noBorderXnBG\" rowspan=\"1\" style=\"width:19px; background-image:url("+url+"data/interface/border/border_left.gif); background-repeat:repeat-y\"></td>");
+		map.append("<td id=\"sectorview\" class=\"noBorderX\" colspan=\"1\" style=\"background-image: url("+url+"data/interface/border/border_background.gif);\" align=\"left\">");
+		//Text is inserted here - using javascript
+		map.append("</td>");
+		map.append("<td class=\"noBorderXnBG\" rowspan=\"1\" style=\"width:19px; background-image:url("+url+"data/interface/border/border_right.gif); background-repeat:repeat-y\">");
+		map.append("</td>");
+		map.append("</tr>");
+		map.append("<tr>");
+		map.append("<td class=\"noBorderXnBG\" style=\"width:19px\">");
+		map.append("<img src=\""+url+"data/interface/border/border_bottomleft.gif\" alt=\"\" />");
+		map.append("</td>");
+		map.append("<td class=\"noBorderXnBG\" colspan=\"1\" style=\"background-image:url("+url+"data/interface/border/border_bottom.gif); background-repeat:repeat-x\"></td><td class=\"noBorderXnBG\" style=\"width:19px\"><img src=\""+url+"data/interface/border/border_bottomright.gif\" alt=\"\" />");
+		map.append("</td>");
+		map.append("</tr>");
+		map.append("</table>");
 	}
 	
 	/**

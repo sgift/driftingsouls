@@ -1,0 +1,9 @@
+.invisible{
+	display:none;
+}
+
+table#sectortable{
+	position: fixed;
+	top: 200px;
+	left: 500px;
+}

@@ -1,5 +1,7 @@
 function showSector(system, x, y) 
-{ 
+{
+	$('#sectorview').html('Lade Sektor ' + system + ':' + x + '/' + y);
+	$('#sectortable').removeClass('invisible');
 	$.getJSON('ds', 
 			 {sys: system, x: x, y: y, module: 'map', action:'sector'}, 
 			 function(data)
@@ -10,15 +12,16 @@ function showSector(system, x, y)
 
 function openSector(system, x, y, data)
 {
-	var id = system+'-'+x+'-'+y;
-	var dialog = '<div id="'+id+'"><div id="users">';
+	var sector = $('#sectorview');
+	var dialog = '<span>Sektor ' + system + ':' + x + '/' + y + '</span><a onClick="closeSector()" style="float:right;color:red;">(x)</a><br><br>';
 	$.each(data.ships, function()
 	{
-		dialog += '<h3><a href="#">'+this.name+' ('+this.shiptypes.length+')</a></h3>';
-		dialog += '<div><p>Hier koennte auch ihr Text stehen.</p></div>';
+		dialog += '<span>'+this.name+'</span><span style="float:right;">'+this.shiptypes.length+'</span><br>';
 	});
-	dialog += '</div></div>';
-	$('#sectors').append(dialog);
-	$('#'+id).dialog();
-	$('#'+id).find('#users').accordion();
+	sector.html(dialog);
+}
+
+function closeSector()
+{
+	$('#sectortable').addClass('invisible');
 }
