@@ -1500,4 +1500,7 @@
 		UPDATE werften SET werfttype='S' where shipid IS NOT NULL;
 		UPDATE werften SET werfttype='B' where id IN (SELECT werft_id FROM bases); 
 	]]></update>
+	<update type="data" datum="2010-10-03"><![CDATA[
+		INSERT INTO `config` (`name`, `value`, `description`, `version`) VALUES ('starmapsecret', 'irgendeinZufallswert', '', '0');
+	]]></update>
 </updates>

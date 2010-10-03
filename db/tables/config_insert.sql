@@ -62,4 +62,6 @@ VALUES (
 	'maxverhungern', '100', 'Prozentsatz der Crew die maximal pro Tick verhungert', '0'
 ), (
 	'repaircostdampeningfactor', '0.3', 'Limitiert die Reperaturkosten auf die Baukosten * faktor.', '0'
+), (
+	'starmapsecret', 'irgendeinZufallswert', 'Wird benutzt, um Anfragen an die Sternenkarte zu checken. Nicht grundlos aendern!', '0'
 );

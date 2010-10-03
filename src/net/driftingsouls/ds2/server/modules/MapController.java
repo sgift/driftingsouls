@@ -347,8 +347,7 @@ public class MapController extends TemplateGenerator
 		int x = getInteger("x");
 		int y = getInteger("y");
 		
-		PlayerStarmap map = new PlayerStarmap(db, user, system);
-		PlayerField field = new PlayerField(db, user, new Location(system, x, y), map);
+		PlayerField field = new PlayerField(db, user, new Location(system, x, y));
 		
 		JSONObject json = new JSONObject();
 		JSONArray users = new JSONArray();

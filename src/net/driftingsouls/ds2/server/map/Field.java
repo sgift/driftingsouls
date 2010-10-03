@@ -17,7 +17,7 @@ import org.hibernate.Session;
  * Das Feld wird intern von diversen Sichten verwendet, um
  * auf die enthaltenen Objekte zuzugreifen.
  * 
- * @author Sebastian Gift
+ * @author Drifting-Souls Team
  */
 class Field
 {
