@@ -2,6 +2,7 @@ package net.driftingsouls.ds2.server.framework;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Map;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -9,6 +10,7 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
 import net.driftingsouls.ds2.server.framework.authentication.TickInProgressException;
 import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeException;
@@ -84,7 +86,27 @@ public class ErrorHandlerFilter implements Filter
 			while(ex != null);
 			
 			printBoxedErrorMessage(response, "Ein genereller Fehler ist aufgetreten. Die Entwickler arbeiten daran ihn zu beheben.");
-			Common.mailThrowable(e, "Unexpected exception", "");
+			
+			StringBuilder infos = new StringBuilder(100);
+			HttpServletRequest req = (HttpServletRequest)request;
+			Map<String, String[]> params = req.getParameterMap();
+			for(Map.Entry<String, String[]> param: params.entrySet())
+			{
+				infos.append(param.getKey());
+				infos.append(" => ");
+				String[] values = param.getValue();
+				for(int i = 0; i < values.length; i++)
+				{
+					infos.append(values[i]);
+					if(i != values.length - 1)
+					{
+						infos.append(" || ");
+					}
+				}
+				infos.append("\n");
+			}
+			
+			Common.mailThrowable(e, "Unexpected exception", infos.toString());
 			e.printStackTrace();
 		}
 	}
