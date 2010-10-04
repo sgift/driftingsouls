@@ -15,6 +15,7 @@ import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeExc
 
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.StaleStateException;
+import org.hibernate.exception.ExceptionUtils;
 import org.hibernate.exception.GenericJDBCException;
 
 /**
@@ -39,7 +40,6 @@ public class ErrorHandlerFilter implements Filter
 			Throwable ex = e;
 			do
 			{
-				System.err.println(ex.getClass());
 				if(ex instanceof TickInProgressException)
 				{
 					printBoxedErrorMessage(response, "Der Tick l&auml;uft. Bitte etwas Geduld.");
@@ -79,10 +79,9 @@ public class ErrorHandlerFilter implements Filter
 					}
 					return;
 				}
-				ex = ex.getCause();
+				ex = ExceptionUtils.getCause(ex);
 			}
 			while(ex != null);
-			System.err.println("------------------");
 			
 			printBoxedErrorMessage(response, "Ein genereller Fehler ist aufgetreten. Die Entwickler arbeiten daran ihn zu beheben.");
 			Common.mailThrowable(e, "Unexpected exception", "");
