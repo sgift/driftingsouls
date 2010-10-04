@@ -39,6 +39,7 @@ public class ErrorHandlerFilter implements Filter
 			Throwable ex = e;
 			do
 			{
+				System.err.println(ex.getClass());
 				if(ex instanceof TickInProgressException)
 				{
 					printBoxedErrorMessage(response, "Der Tick l&auml;uft. Bitte etwas Geduld.");
@@ -81,6 +82,7 @@ public class ErrorHandlerFilter implements Filter
 				ex = ex.getCause();
 			}
 			while(ex != null);
+			System.err.println("------------------");
 			
 			printBoxedErrorMessage(response, "Ein genereller Fehler ist aufgetreten. Die Entwickler arbeiten daran ihn zu beheben.");
 			Common.mailThrowable(e, "Unexpected exception", "");
