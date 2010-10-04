@@ -148,7 +148,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	@JoinColumn(name="col")
 	private Set<Factory> factories;
 	
-	@OneToMany(fetch=FetchType.LAZY, targetEntity=net.driftingsouls.ds2.server.bases.BaseUnitCargoEntry.class, cascade=CascadeType.ALL)
+	@OneToMany(fetch=FetchType.LAZY, targetEntity=net.driftingsouls.ds2.server.bases.BaseUnitCargoEntry.class)
+	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH,org.hibernate.annotations.CascadeType.MERGE})
 	@JoinColumn(name="destid", nullable=true)
 	@BatchSize(size=50)
 	@NotFound(action = NotFoundAction.IGNORE)

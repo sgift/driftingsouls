@@ -27,6 +27,7 @@ import net.driftingsouls.ds2.server.bases.BaseUnitCargoEntry;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipUnitCargoEntry;
 
 import org.apache.commons.logging.Log;
@@ -182,16 +183,19 @@ public class UnitCargo implements Cloneable {
 			return;
 		}
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		db.createQuery("delete from UnitCargoEntry where key.type = :type and key.destid = :destid")
+		List<UnitCargoEntry> entries = Common.cast(db.createQuery("from UnitCargoEntry where key.type = :type and key.destid = :destid")
 						.setInteger("type", this.type)
 						.setInteger("destid", this.destid)
-						.executeUpdate();
+						.list());
+		
+		for(UnitCargoEntry entry: entries)
+		{
+			db.delete(entry);
+		}
 		
 		db.flush();
 		
-		Map<Integer, UnitCargoEntry> unitMapping = new HashMap<Integer, UnitCargoEntry>();
-		
-		for(UnitCargoEntry entry: unitMapping.values())
+		for(UnitCargoEntry entry: units)
 		{
 			db.persist(entry);
 		}

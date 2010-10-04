@@ -187,7 +187,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 	private int showtradepost;
 	private boolean isfeeding;
 	private boolean isallyfeeding;
-	@OneToMany(fetch=FetchType.LAZY, targetEntity=net.driftingsouls.ds2.server.ships.ShipUnitCargoEntry.class, cascade=CascadeType.ALL)
+	@OneToMany(fetch=FetchType.LAZY, targetEntity=net.driftingsouls.ds2.server.ships.ShipUnitCargoEntry.class)
+	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH,org.hibernate.annotations.CascadeType.MERGE})
 	@JoinColumn(name="destid", nullable=true)
 	@BatchSize(size=500)
 	@Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
