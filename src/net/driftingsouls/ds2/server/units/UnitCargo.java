@@ -21,13 +21,11 @@ package net.driftingsouls.ds2.server.units;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import net.driftingsouls.ds2.server.bases.BaseUnitCargoEntry;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipUnitCargoEntry;
 
 import org.apache.commons.logging.Log;
