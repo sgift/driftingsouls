@@ -1940,6 +1940,8 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			this.entries = null;
 			
 			db.delete(komplex);
+			db.flush();
+			largest.rescheduleQueue();
 		}
 		else {
 			WerftKomplex komplex = this.linkedWerft;
