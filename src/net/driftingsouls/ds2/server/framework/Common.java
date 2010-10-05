@@ -34,11 +34,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Stack;
 import java.util.TimeZone;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,6 +51,7 @@ import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -1102,32 +1102,13 @@ public class Common {
 		if( Configuration.getSetting("EXCEPTION_MAIL") == null ) {
 			return;
 		}
-		
+
 		StringBuilder msg = new StringBuilder(100);
 		if( (addInfo != null) && (addInfo.length() > 0) ) {
 			msg.append(addInfo);
 			msg.append("\n\n------------------------------\n");
 		}
-		
-		// Zuerst das innerste nested Throwable ausgeben.
-		// Das aeusserste hingegen zuletzt
-		Stack<Throwable> nestedThrowables = new Stack<Throwable>();
-		do {
-			nestedThrowables.push(t);
-		}
-		while( (t = t.getCause()) != null );
-		
-		while( !nestedThrowables.isEmpty() ) {
-			t = nestedThrowables.pop();
-			
-			msg.append("\nThrowable: \n");
-			msg.append(t+"\n");
-			StackTraceElement[] st = t.getStackTrace();
-			for( int i=0; i < st.length; i++ ) {
-				msg.append(st[i].toString()+"\n");
-			}
-			msg.append("\n");
-		}
+		msg.append(ExceptionUtils.getFullStackTrace(t));
 		
 		sendMailToAdmins(title, msg.toString());
 	}
