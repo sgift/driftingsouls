@@ -679,6 +679,8 @@ public class Battle implements Locatable
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		
+		db.flush();
+		
 		log.info("battle: "+id+" :: "+ownShipID+" :: "+enemyShipID);
 		// Kann der Spieler ueberhaupt angreifen (Noob-Schutz?)
 		User user = (User)context.getDB().get(User.class, id);
@@ -1014,6 +1016,8 @@ public class Battle implements Locatable
 				euser.setRelation(auser.getId(), User.Relation.ENEMY);
 			}
 		}
+		
+		db.flush();
 
 		return battle;
 	}
@@ -1029,6 +1033,8 @@ public class Battle implements Locatable
 	{
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
+		
+		db.flush();
 		
 		Ship shipd = (Ship)db.get(Ship.class, shipid);
 	
