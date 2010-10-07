@@ -3614,7 +3614,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 				db.delete(unit);
 			}
 		}
-
+		db.flush(); //Damit auch wirklich alle Daten weg sind und Hibernate nicht auf dumme Gedanken kommt *sfz*
 		db.delete(this);
 		
 		this.destroyed = true;
