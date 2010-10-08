@@ -134,13 +134,16 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	private boolean isloading;
 	private boolean isfeeding;
 	
-	@OneToOne(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
+	@OneToOne(fetch=FetchType.LAZY)
+	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH})
 	@JoinColumn
 	private Academy academy;
-	@OneToOne(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
+	@OneToOne(fetch=FetchType.LAZY)
+	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH})
 	@JoinColumn
 	private Forschungszentrum forschungszentrum;
-	@OneToOne(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
+	@OneToOne(fetch=FetchType.LAZY)
+	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH})
 	@JoinColumn
 	private BaseWerft werft;
 	@OneToMany(fetch=FetchType.LAZY)

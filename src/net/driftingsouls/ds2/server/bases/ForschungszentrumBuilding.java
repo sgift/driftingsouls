@@ -81,8 +81,8 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		super.cleanup(context, base, building);
 		
 		base.setForschungszentrum(null);
-		
 		org.hibernate.Session db = context.getDB();
+		db.flush();
 		db.createQuery("delete from Forschungszentrum where base=?")
 			.setEntity(0, base)
 			.executeUpdate();
