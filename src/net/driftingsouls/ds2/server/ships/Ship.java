@@ -190,7 +190,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH,org.hibernate.annotations.CascadeType.MERGE})
 	@JoinColumn(name="destid", nullable=true)
 	@BatchSize(size=500)
-	@Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 	@NotFound(action = NotFoundAction.IGNORE)
 	private Set<ShipUnitCargoEntry> units;
 	@OneToOne(fetch=FetchType.LAZY, optional=false)
