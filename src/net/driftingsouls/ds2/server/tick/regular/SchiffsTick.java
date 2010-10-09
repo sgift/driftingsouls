@@ -705,6 +705,7 @@ public class SchiffsTick extends TickController {
 			db.createQuery("update Ship set heat=heat-(case when heat>=70 then 70 else heat end) " +
 				"where heat>0 and owner in (from User where vaccount=0 or wait4vac>0) and id>0 and system!=0 and battle is null")
 				.executeUpdate();
+			db.flush();
 			transaction.commit();
 		}
 		catch (Exception e) 
@@ -767,15 +768,14 @@ public class SchiffsTick extends TickController {
 				}*/
 			}
 		}
-		
-		transaction.commit();
-		
 		db.flush();
+		transaction.commit();
 
 		transaction = db.beginTransaction();
 		try
 		{
 			db.createQuery("update Ship set crew=0 where id>0 and crew<0").executeUpdate();
+			db.flush();
 			transaction.commit();
 		}
 		catch(Exception e)
@@ -800,6 +800,7 @@ public class SchiffsTick extends TickController {
 				this.log("\tEntferne "+aship.getId());
 				aship.destroy();
 			}
+			db.flush();
 			transaction.commit();
 		}
 		catch(Exception e)
@@ -850,6 +851,7 @@ public class SchiffsTick extends TickController {
 				ship.setSensors(sub[3]);
 				ship.setHull(hull);
 			}
+			db.flush();
 			transaction.commit();
 		}
 		catch(Exception e)
