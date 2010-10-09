@@ -52,7 +52,7 @@ public class WerftTick extends TickController {
 	protected void tick() {
 		org.hibernate.Session db = getDB();
 		FlushMode oldMode = db.getFlushMode();
-		db.setFlushMode(FlushMode.COMMIT);
+		db.setFlushMode(FlushMode.MANUAL);
 		Transaction transaction = db.beginTransaction();
 		final User sourceUser = (User)db.get(User.class, -1);
 		
