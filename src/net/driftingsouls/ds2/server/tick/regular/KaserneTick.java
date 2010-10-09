@@ -95,8 +95,6 @@ public class KaserneTick extends TickController {
 					// Nachricht versenden
 					PM.send(sourceUser, base.getOwner().getId(), "Ausbildung abgeschlossen", msg);
 				}
-				transaction.commit();
-				transaction = db.beginTransaction();
 			}
 			catch( RuntimeException e ) 
 			{
@@ -114,10 +112,13 @@ public class KaserneTick extends TickController {
 			if(count%MAX_UNFLUSHED_OBJECTS == 0)
 			{
 				db.flush();
+				transaction.commit();
+				transaction = db.beginTransaction();
 			}
 		}
 		
 		db.flush();
+		transaction.commit();
 		db.clear();
 		db.setFlushMode(oldMode);
 	}

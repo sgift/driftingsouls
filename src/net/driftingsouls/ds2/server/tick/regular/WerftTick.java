@@ -68,8 +68,6 @@ public class WerftTick extends TickController {
 			try
 			{
 				processWerft(sourceUser, (WerftObject)iter.next());
-				transaction.commit();
-				transaction = db.beginTransaction();
 			}
 			catch(Exception e)
 			{
@@ -82,10 +80,12 @@ public class WerftTick extends TickController {
 			if(count%MAX_UNFLUSHED_OBJECTS == 0)
 			{
 				db.flush();
+				transaction.commit();
+				transaction = db.beginTransaction();
 			}
 		}
-		transaction.commit();
 		db.flush();
+		transaction.commit();
 		db.setFlushMode(oldMode);
 	}
 
