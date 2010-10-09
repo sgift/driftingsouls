@@ -110,9 +110,8 @@ public class BaseTick extends TickController
 	protected void tick() 
 	{
 		FlushMode oldMode = getDB().getFlushMode();
-		getDB().setFlushMode(FlushMode.MANUAL);
+		getDB().setFlushMode(FlushMode.COMMIT);
 		tickBases();
-		getDB().flush();
 		getDB().clear();
 		getDB().setFlushMode(oldMode);
 	}
