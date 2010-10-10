@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
+import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
@@ -381,6 +382,13 @@ public class AngriffController extends TemplateGenerator {
 								"ammo.count",	item.getCount() );
 					t.parse("shipinfo.ammo.list","shipinfo.ammo.listitem",true);
 				}
+			}
+			if(mycargo.hasResource(Resources.BATTERIEN))
+			{
+				t.setVar( "ammo.image", Cargo.getResourceImage(Resources.BATTERIEN),
+						  "ammo.name",  Cargo.getResourceName(Resources.BATTERIEN),
+						  "ammo.count", mycargo.getResourceCount(Resources.BATTERIEN));
+				t.parse("shipinfo.ammo.list", "shipinfo.ammo.listitem", true);
 			}
 			
 			// Einheiten
