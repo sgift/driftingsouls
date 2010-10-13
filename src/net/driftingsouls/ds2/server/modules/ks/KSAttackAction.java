@@ -312,7 +312,7 @@ public class KSAttackAction extends BasicKSAction {
 		// Nun die TrefferWS anteilig senken, wenn Crew/Sensoren nicht auf 100 sind
 		trefferWS *= (this.ownShip.getShip().getSensors()/100d);
 		if( (ownShipType.getMinCrew() > 0) && (this.ownShip.getCrew() < ownShipType.getMinCrew()) ) {
-			trefferWS *= this.ownShip.getCrew()/(double)ownShipType.getCrew();
+			trefferWS *= this.ownShip.getCrew()/(double)ownShipType.getMinCrew();
 		}
 
 		// Und nun die TrefferWS anteilig steigern, wenn die Gegnerische Crew/Antrie nicht auf 100 sind
@@ -1385,7 +1385,7 @@ public class KSAttackAction extends BasicKSAction {
 				int navskill = ownShip.getNavigationalValue();
 				int defensivskill = enemyShip.getDefensiveValue();
 				
-				if( this.ownShip.getOwner().hasFlag( User.FLAG_KS_DEBUG )) {
+				if( battle.getCommander(ownShip.getSide()).hasFlag( User.FLAG_KS_DEBUG )) {
 					battle.logme( "Offensivskill: "+offensivskill+"\n" );
 					battle.logme( "Navskill: "+navskill+"\n" );
 					battle.logme( "Defensivskill: "+defensivskill+"\n" );
@@ -1410,7 +1410,7 @@ public class KSAttackAction extends BasicKSAction {
 					trefferWS = this.getTrefferWS( battle, this.localweapon.getInt("deftrefferws"), this.enemyShip, enemyShipType, defensivskill, navskill );
 				}
 				
-				if( this.ownShip.getOwner().hasFlag( User.FLAG_KS_DEBUG )) {
+				if( battle.getCommander(ownShip.getSide()).hasFlag( User.FLAG_KS_DEBUG )) {
 					battle.logme( "Basis-TrefferWS: "+ trefferWS +"%\n");
 					battle.logme( "FighterDef: "+ fighterdef +"%\n");
 					battle.logme( "AntitorpTrefferWS: "+ antitorptrefferws +"%\n");
@@ -1427,7 +1427,7 @@ public class KSAttackAction extends BasicKSAction {
 				else {
 					trefferWS -= fighterdef;
 				}
-				if( this.ownShip.getOwner().hasFlag( User.FLAG_KS_DEBUG )) {
+				if( battle.getCommander(ownShip.getSide()).hasFlag( User.FLAG_KS_DEBUG )) {
 					battle.logme( "TrefferWS: "+ trefferWS +"%\n" );
 				}
 				else
@@ -1443,7 +1443,7 @@ public class KSAttackAction extends BasicKSAction {
 				if( this.localweapon.getInt("subdamage") > 0 )
 				{
 					int subWS = this.getTrefferWS( battle, this.localweapon.getInt("subws"), this.enemyShip, enemyShipType, defensivskill, navskill );
-					if( this.ownShip.getOwner().hasFlag( User.FLAG_KS_DEBUG )) {
+					if( battle.getCommander(ownShip.getSide()).hasFlag( User.FLAG_KS_DEBUG )) {
 						battle.logme( "SubsystemTWS: "+ subWS +"%\n" );
 					}
 					else
@@ -1486,7 +1486,7 @@ public class KSAttackAction extends BasicKSAction {
 				for( int i=1; i <= this.localweapon.getInt("count")*this.localweapon.getInt("shotsPerShot"); i++)
 				{
 					int rnd = RandomUtils.nextInt(101);
-					if( this.ownShip.getOwner().hasFlag( User.FLAG_KS_DEBUG )) {
+					if( battle.getCommander(ownShip.getSide()).hasFlag( User.FLAG_KS_DEBUG )) {
 						battle.logme( i + ". Schuss: " + rnd + "%\n");
 					}
 					if( rnd <= trefferWS )

@@ -236,7 +236,7 @@ public class SchiffsTick extends TickController {
 
 		this.slog("\tCrew: ");
 		//Crew die noch gefuettert werden muss
-		int crewToFeed = shipd.getNettoFoodConsumption();
+		int crewToFeed = shipd.getFoodConsumption();
 
 		//Faktor fuer den Verbrauch
 		double scaleFactor = shipd.getAlertScaleFactor();

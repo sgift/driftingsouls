@@ -1295,7 +1295,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			return baseShip.timeUntilLackOfFood();
 		}
 		
-		int foodConsumption = getNettoFoodConsumption();
+		int foodConsumption = getFoodConsumption();
 		if( foodConsumption <= 0 ) {
 			return Long.MAX_VALUE;
 		}
@@ -1319,41 +1319,26 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 	/**
 	 * Calculates the amount of food a ship consumes.
-	 * @see #getFoodConsumption(boolean forceshow)
+	 * The calculation is done with respect to hydros / shiptype.
+	 * The calculation is done with respect to docked ships
+	 * 
 	 * @return Amount of food this ship consumes
 	 */
 	public int getFoodConsumption() {
-		return getFoodConsumption(false);
-	}
-	
-	/**
-	 * Calculates the amount of food a ship consumes.
-	 * The calculation is done with respect to hydros / shiptype.
-	 * 
-	 * @param forceshow <code>true</code>, wenn der Verbrauch zurueckgegeben werden soll.
-	 * @return Amount of food this ship consumes
-	 */
-	public int getFoodConsumption(boolean forceshow) {
-		ShipTypeData shiptype = this.getTypeData();
-		if(shiptype.hasFlag(ShipTypes.SF_JAEGER) && isLanded() && !forceshow)
+		if(this.isLanded() || this.isDocked())
 		{
 			return 0;
 		}
-		int scaledCrew = getScaledCrew();
-		int production = shiptype.getHydro();
-		return scaledCrew-production;
-	}
-	
-	/**
-	 * Calculates the amound of food the ship consumes with respect to docked ships.
-	 * 
-	 * @return The amount this ship consumes with respect to docked ships.
-	 */
-	public int getNettoFoodConsumption() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		int foodConsumption = getFoodConsumption();
+		ShipTypeData shiptype = this.getTypeData();
+		int scaledcrew = this.getScaledCrew();
+		int scaledunits = this.getScaledUnits();
+		int hydro = shiptype.getHydro();
+		int dockedcrew = 0;
+		int dockedunits = 0;
+		int dockedhydro = 0;
 		
-		if( getTypeData().getJDocks() > 0 ) {
+		if( shiptype.getJDocks() > 0 || shiptype.getADocks() > 0 ) {
 			//Angehaengte Schiffe beruecksichtigen
 			List<?> dockedShips = db.createQuery("from Ship as ship where ship.docked in (?,?)")
 				.setString(0, Integer.toString(this.id))
@@ -1361,11 +1346,14 @@ public class Ship implements Locatable,Transfering,Feeding {
 				.list();
 			for( Iterator<?> iter=dockedShips.iterator(); iter.hasNext(); ) {
 				Ship dockedShip = (Ship)iter.next();
-					
-				foodConsumption += dockedShip.getFoodConsumption(true);
+
+				dockedcrew += dockedShip.getScaledCrew();
+				dockedunits += dockedShip.getScaledUnits();
+				dockedhydro += dockedShip.getTypeData().getHydro();
 			}
 		}
-		return foodConsumption;
+		
+		return (int)Math.ceil((scaledcrew+dockedcrew)/10.0)+scaledunits+dockedunits-hydro-dockedhydro;
 	}
 	
 	/**
@@ -1388,11 +1376,22 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	private int getScaledCrew() {
 		double scale = getAlertScaleFactor();
-		if(this.getUnits() != null)
+		return (int)Math.ceil(this.crew*scale);
+	}
+	
+	/**
+	 * Returns the units scaled by a factor according to alert.
+	 * Ships with active alert consume more food.
+	 * 
+	 * @return Units scaled by a factor according to shiptype.
+	 */
+	private int getScaledUnits() {
+		if(getUnits() != null)
 		{
-			return (int)Math.ceil((this.crew*scale/10.0+this.getUnits().getNahrung())*scale);
+			double scale = getAlertScaleFactor();
+			return (int)Math.ceil(this.getUnits().getNahrung()*scale);
 		}
-		return (int)Math.ceil(this.crew*scale/10.0);
+		return 0;
 	}
 
 	/**
