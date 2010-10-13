@@ -21,6 +21,8 @@ package net.driftingsouls.ds2.server.modules;
 import java.util.Iterator;
 import java.util.List;
 
+import org.hibernate.FlushMode;
+
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.entities.User;

@@ -29,9 +29,9 @@ public class HibernateSessionRequestFilter implements Filter
         try 
         {
             log.debug("Starting a database transaction");
-            sf.getCurrentSession().setFlushMode(FlushMode.COMMIT);
             sf.getCurrentSession().beginTransaction();
- 
+           // sf.getCurrentSession().setFlushMode(FlushMode.COMMIT);
+            
             // Call the next filter (continue request processing)
             chain.doFilter(request, response);
  
