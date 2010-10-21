@@ -157,6 +157,7 @@ public class RTCTick extends TickController {
 					
 					int id = (Integer)db.save(ship);
 					ship.getScriptData().setShipid(id);
+					db.save(ship.getScriptData());
 					
 					if( shiptype.getWerft() != 0 ) 
 					{
@@ -336,6 +337,7 @@ public class RTCTick extends TickController {
 				
 				int id = (Integer)db.save(ship);
 				ship.getScriptData().setShipid(id);
+				db.save(ship.getScriptData());
 		
 				this.slog("\t* Es wurden ");
 				ResourceList reslist = cargo.getResourceList();
@@ -379,6 +381,7 @@ public class RTCTick extends TickController {
 					
 					int shipid = (Integer)db.save(ship);
 					ship.getScriptData().setShipid(shipid);
+					db.save(ship.getScriptData());
 					
 					if( shipd.getWerft() != 0 ) 
 					{
