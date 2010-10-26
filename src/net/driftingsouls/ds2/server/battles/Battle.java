@@ -75,6 +75,7 @@ import org.hibernate.ScrollableResults;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.OptimisticLockType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -84,6 +85,7 @@ import org.springframework.beans.factory.annotation.Configurable;
  *
  */
 @Entity
+@org.hibernate.annotations.Entity(optimisticLock=OptimisticLockType.DIRTY)
 @Table(name="battles")
 @Configurable
 @Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
