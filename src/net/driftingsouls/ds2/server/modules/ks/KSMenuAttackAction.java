@@ -135,57 +135,6 @@ public class KSMenuAttackAction extends BasicKSMenuAction {
 		return attmode;
 	}
 	
-	private int getAttCount() {
-		Context context = ContextMap.getContext();
-		int attcount = context.getRequest().getParameterInt("attcount");
-		
-		int userattcount = 0;
-		
-		if( attcount == 0 ) {
-			User user = (User)context.getActiveUser();
-			String attCountStr = user.getUserValue("TBLORDER/ks/attackcount");
-			attcount = userattcount = (attCountStr.length() > 0 ? Integer.parseInt(attCountStr) : 0);
-		}
-		
-		if( attcount <= 0 || attcount > 3 ) {
-			attcount = 3;
-		}
-		
-		if( attcount != userattcount ) {
-			User user = (User)context.getActiveUser();
-			user.setUserValue("TBLORDER/ks/attackcount", Integer.toString(attcount));
-		}
-		
-		return attcount;	
-	}
-	
-	private int attCountForShip( BattleShip ownShip, ShipTypeData ownShipType, int attcount ) {
-		int count = 0;
-		if( attcount == 3 ) {
-			count = ownShipType.getShipCount();
-		}
-		else if( attcount == 2 ) {
-			count = (int)Math.ceil( ownShipType.getShipCount()*0.5d );
-		}
-		else {
-			count = 1;
-		}
-		if( count > ownShip.getCount() ) {
-			count = ownShip.getCount();
-		}
-		return count;
-	}
-	
-	private int nextAttCount( int attcount ) {
-		if( attcount == 3 ) {
-			attcount = 1;
-		}
-		else {
-			attcount++;
-		}
-		return attcount;
-	}
-	
 	@Override
 	public int execute(Battle battle) throws IOException {
 		int result = super.execute(battle);
@@ -215,27 +164,13 @@ public class KSMenuAttackAction extends BasicKSMenuAction {
 		
 		ShipTypeData ownShipType = ownShip.getTypeData();
 		ShipTypeData enemyShipType = enemyShip.getTypeData();
-				
-		int attcount = this.getAttCount();		
-							
+									
 		menuEntry( "<span style=\"font-size:3px\">&nbsp;<br /></span>Feuermodus: "+ATTMODES.get(attmode)+"<br /> "+
 							"<span style=\"font-size:12px\">&lt; Klicken um Feuermodus zu wechseln &gt;</span><span style=\"font-size:4px\"><br />&nbsp;</span>",
 							"ship",		ownShip.getId(),
 						 	"attack",	enemyShip.getId(),
 						 	"ksaction",	"attack",
-						 	"attmode",	NEXTATTMODES.get(attmode),
-						 	"attcount",	attcount );
-						 			
-		if( ownShip.getCount() > 1 ) {
-			this.menuEntry( "<span style=\"font-size:3px\">&nbsp;<br /></span>Schiffsanzahl: "+this.attCountForShip(ownShip, ownShipType, attcount)+"<br /> "+
-							"<span style=\"font-size:12px\">&lt; Klicken um Anzahl zu wechseln &gt;</span><span style=\"font-size:4px\"><br />&nbsp;</span>",
-							"ship",		ownShip.getId(),
-						 	"attack",	enemyShip.getId(),
-						 	"ksaction",	"attack",
-						 	"attmode",	attmode,
-						 	"attcount",	nextAttCount(attcount) );
-		}
-						 			
+						 	"attmode",	NEXTATTMODES.get(attmode));			 			
 	
 		String ask = "";
 		if( battle.getBetakStatus(battle.getOwnSide()) && !enemyShipType.isMilitary() ) {
@@ -257,8 +192,6 @@ public class KSMenuAttackAction extends BasicKSMenuAction {
 			
 			Weapon weapon = Weapons.get().weapon(weaponname);
 			
-			weaponcount = (int)(weaponcount/(double)ownShipType.getShipCount()*this.attCountForShip(ownShip, ownShipType, attcount));
-				
 			if( (ownShip.getAction() & Battle.BS_SECONDROW) != 0 &&
 				!weapon.hasFlag(Weapon.Flags.LONG_RANGE) &&
 				!weapon.hasFlag(Weapon.Flags.VERY_LONG_RANGE) ) {
@@ -299,8 +232,7 @@ public class KSMenuAttackAction extends BasicKSMenuAction {
 						 					"attack",	enemyShip.getId(),
 						 					"ksaction",	action,
 						 					"weapon",	weaponname, 
-						 					"attmode",	attmode,
-						 					"attcount",	attcount },
+						 					"attmode",	attmode, },
 						 			ask);
 			}
 			else {
@@ -311,8 +243,7 @@ public class KSMenuAttackAction extends BasicKSMenuAction {
 						 			"attack",	enemyShip.getId(),
 						 			"ksaction",	action,
 						 			"weapon",	weaponname, 
-						 			"attmode",	attmode,
-						 			"attcount",	attcount );
+						 			"attmode",	attmode);
 			}
 		}
 	

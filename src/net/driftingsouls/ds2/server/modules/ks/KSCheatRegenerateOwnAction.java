@@ -88,8 +88,6 @@ public class KSCheatRegenerateOwnAction extends BasicKSAction {
 		ownShip.setWeapons(100);
 		ownShip.setSensors(100);
 		ownShip.setComm(100);
-		ownShip.setCount(ownShipType.getShipCount());
-		ownShip.setNewCount(0);
 		ownShip.setAction(0);
 		
 		battle.logme( "CHEAT: Gegnerisches Schiff regeneriert\n" );

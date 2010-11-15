@@ -224,12 +224,6 @@ public interface ShipTypeData extends Cloneable {
 	public int getShipClass();
 
 	/**
-	 * Gibt die Anzahl an Schiffen pro Schiff zurueck.
-	 * @return Die Schiffsanzahl
-	 */
-	public int getShipCount();
-	
-	/**
 	 * Gibt die Schiffsgroesse zurueck.
 	 * @return Die Groesse
 	 */

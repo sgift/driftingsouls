@@ -206,11 +206,6 @@ public abstract class AbstractShipTypeDataWrapper implements ShipTypeData {
 	}
 
 	@Override
-	public int getShipCount() {
-		return inner.getShipCount();
-	}
-
-	@Override
 	public int getSize() {
 		return inner.getSize();
 	}

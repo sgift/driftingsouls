@@ -402,7 +402,6 @@ public class SchiffInfoController extends TemplateGenerator {
 					"shiptype.torpedodef",	ship.getTorpedoDef(),
 					"shiptype.moduleslots",	modulelist.length,
 					"shiptype.moduleslots.desc",	moduletooltip,
-					"shiptype.count",		ship.getShipCount(),
 					"shiptype.werftslots",	ship.getWerft() );
 
 		if( ship.getDescrip().length() == 0 ) {

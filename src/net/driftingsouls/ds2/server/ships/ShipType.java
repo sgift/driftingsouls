@@ -85,7 +85,6 @@ public class ShipType implements ShipTypeData {
 	private int oneWayWerft;
 	private int chance4Loot;
 	private String modules;
-	private int shipCount;
 	private boolean hide;
 	private int ablativeArmor;
 	private boolean srs;
@@ -272,11 +271,6 @@ public class ShipType implements ShipTypeData {
 	@Override
 	public int getShipClass() {
 		return shipClass;
-	}
-
-	@Override
-	public int getShipCount() {
-		return shipCount;
 	}
 
 	@Override
@@ -635,14 +629,6 @@ public class ShipType implements ShipTypeData {
 	 */
 	public void setShipClass(int shipClass) {
 		this.shipClass = shipClass;
-	}
-
-	/**
-	 * Setzt die Anzahl der Schiffe, die von einem Schiff repraesentiert werden.
-	 * @param shipCount Die Anzahl
-	 */
-	public void setShipCount(int shipCount) {
-		this.shipCount = shipCount;
 	}
 
 	/**

@@ -227,9 +227,6 @@
 					{/endif}
 						<a class="noborder" onmouseover="return overlib('{shipinfo.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" target="_blank" href="./ds?module=schiffinfo&amp;ship={shipinfo.type}">
 						<img src="{shipinfo.type.image}" alt="" style="float:right; margin-right:5px; margin-left:15px;margin-bottom:10px" /></a>
-						{if shipinfo.count}
-							Anzahl: {shipinfo.count} {if shipinfo.tmp.count}({shipinfo.tmp.count}){/endif}<br />
-						{/endif}
 						Zustand:
 						{if shipinfo.ablativeArmor.bad}<span style="color:#ff0000">{/endif}
 						{if shipinfo.ablativeArmor.normal}<span style="color:#ffff00">{/endif}

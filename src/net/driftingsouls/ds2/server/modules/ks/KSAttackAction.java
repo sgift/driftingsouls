@@ -34,17 +34,14 @@ import net.driftingsouls.ds2.server.config.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.config.items.effects.IEAmmo;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
-import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.Ammo;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
-import net.driftingsouls.ds2.server.ships.ShipLost;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
@@ -109,60 +106,17 @@ public class KSAttackAction extends BasicKSAction {
 		this.config = config;
 	}
 
-	private int attCountForShip( BattleShip ownShip, ShipTypeData ownShipType, int attcount ) {
-		int count = 0;
-		if( attcount == 3 ) {
-			count = ownShipType.getShipCount();
-		}
-		else if( attcount == 2 ) {
-			count = (int)Math.ceil( ownShipType.getShipCount()*0.5d );
-		}
-		else {
-			count = 1;
-		}
-		if( count > ownShip.getCount() ) {
-			count = ownShip.getCount();
-		}
-		return count;
-	}
-
 	private int destroyShipOnly(int id, Battle battle, BattleShip eShip, boolean generateLoot, boolean generateStats) {
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
-		User eUser = eShip.getOwner();
-		UserFlagschiffLocation loc = eUser.getFlagschiff();
-
+		
 		//
 		// Schiff als zerstoert makieren
 		//
-		BattleShip ownShip = battle.getOwnShip();
-		User oUser = ownShip.getOwner();
-
-		int masterid = 0;
-		if( generateStats ) {
-			ShipLost lost = new ShipLost(eShip.getShip());
-			lost.setDestAlly(oUser.getAlly());
-			lost.setDestOwner(oUser);
-			lost.setBattleLog(config.get("LOXPATH")+"battles/battle_id"+battle.getId()+".log");
-
-			masterid = (Integer)db.save(lost);
-		}
+		
 		int remove = 1; // Anzahl der zerstoerten Schiffe
 
 		eShip.setAction(eShip.getAction() | Battle.BS_DESTROYED);
-
-		// ggf. den Flagschiffstatus zuruecksetzen
-		if( (loc != null) && (loc.getType() == UserFlagschiffLocation.Type.SHIP) && 
-				(loc.getID() == eShip.getId()) ) {
-			eUser.setFlagschiff(null);
-		}
-
-		if( generateLoot ) {
-			// Loot generieren
-			eShip.getShip().generateLoot( ownShip.getOwner().getId() );
-		}
-
+		eShip.setDestroyer(id);
+		
 		//
 		// Ueberpruefen, ob weitere (angedockte) Schiffe zerstoert wurden
 		//
@@ -173,29 +127,9 @@ public class KSAttackAction extends BasicKSAction {
 
 			if(s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == eShip.getId())
 			{
-				if( generateStats ) {
-					ShipLost lost = new ShipLost(s.getShip());
-					lost.setDestAlly(oUser.getAlly());
-					lost.setDestOwner(oUser);
-					lost.setDocked(masterid);
-					lost.setBattleLog(config.get("LOXPATH")+"battles/battle_id"+battle.getId()+".log");
-
-					db.persist(lost);
-				}
-
 				remove++;
 				s.setAction(s.getAction() | Battle.BS_DESTROYED);
-
-				// ggf. den Flagschiffstatus zuruecksetzen
-				if( (loc != null) && (loc.getType() == UserFlagschiffLocation.Type.SHIP) && 
-						(loc.getID() == s.getId()) ) {
-					eUser.setFlagschiff(null);
-				}
-
-				if( generateLoot ) {
-					// Loot generieren
-					s.getShip().generateLoot(ownShip.getOwner().getId());
-				}
+				s.setDestroyer(id);
 			}
 		}
 
@@ -203,36 +137,14 @@ public class KSAttackAction extends BasicKSAction {
 	}
 
 	private void destroyShip(int id, Battle battle, BattleShip eShip) {	
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
+		
 		int remove = this.destroyShipOnly(id, battle, eShip, true, true);
-
-		BattleShip ownShip = battle.getOwnShip();
 
 		// Wurde mehr als ein Schiff zerstoert?
 		if( remove > 1 ) {
 			battle.logenemy( (remove-1)+" gedockte/gelandete Schiffe wurden bei der Explosion zerst&ouml;rt\n" );
 			battle.logme( (remove-1)+" gedockte/gelandete Schiffe wurden bei der Explosion zerst&ouml;rt\n" );
 		}
-
-		//
-		// Verluste verbuchen (zerstoerte/verlorene Schiffe)
-		//
-
-		if( battle.getAlly(battle.getOwnSide()) != 0 ) {
-			Ally destroyerAlly = (Ally)db.get(Ally.class, battle.getAlly(battle.getOwnSide()));
-			destroyerAlly.setDestroyedShips(destroyerAlly.getDestroyedShips()+remove);
-		} 
-		User destroyer = ownShip.getOwner();
-		destroyer.setDestroyedShips(destroyer.getDestroyedShips()+remove);
-
-		if( battle.getAlly(battle.getEnemySide()) != 0 ) {
-			Ally looserAlly = (Ally)db.get(Ally.class, battle.getAlly(battle.getEnemySide()));
-			looserAlly.setLostShips(looserAlly.getLostShips()+remove);
-		}
-		User looser = eShip.getOwner();
-		looser.setLostShips(looser.getLostShips()+remove);
 	}
 
 	private int getTrefferWS( Battle battle, int defTrefferWS, BattleShip eShip, ShipTypeData eShipType, int defensivskill, int navskill ) {
@@ -560,22 +472,6 @@ public class KSAttackAction extends BasicKSAction {
 					}
 					ship_intact = true;
 				}
-				if( eShip.getNewCount() == 0 ) {
-					eShip.setNewCount(eShip.getCount());
-				}
-				if( eShip.getNewCount() > 1 ) {
-					eShip.setNewCount(eShip.getNewCount()-1);
-					battle.logme( "[color=red]+ "+eShip.getNewCount()+" Schiffe verbleiben[/color]\n" );
-					battle.logenemy( "[color=red]+ "+eShip.getNewCount()+" Schiffe verbleiben[/color]\n" );
-
-					eShip.setHull(eShipType.getHull());
-					eShip.setShields(eShipType.getShields());
-					eShip.setEngine(100);
-					eShip.setWeapons(100);
-					eShip.setComm(100);
-					eShip.setSensors(100);
-					ship_intact = true;					
-				}
 			}
 		}
 
@@ -640,8 +536,6 @@ public class KSAttackAction extends BasicKSAction {
 		Map<String,String> weapons = Weapons.parseWeaponList(ownShipType.getWeapons());
 		int weaponCount = Integer.parseInt(weapons.get(weaponName));
 
-		weaponCount = (int)(weaponCount/(double)ownShipType.getShipCount()*this.attCountForShip(this.ownShip, ownShipType, this.attcount));
-
 		Ammo ammo = null;
 		ItemCargoEntry ammoitem = null;
 
@@ -701,7 +595,7 @@ public class KSAttackAction extends BasicKSAction {
 			}
 		}
 
-		weaponCount = (int)(weaponCount*this.ownShip.getCount()/(double)ownShipType.getShipCount());
+		weaponCount = (int)(weaponCount);
 
 		if( ammoitem.getCount() <  weaponCount*this.weapon.getSingleShots() ) {
 			battle.logme( this.weapon.getName()+" k&ouml;nnen nicht abgefeuert werden, da nicht genug Munition f&uuml;r alle Gesch&uuml;tze vorhanden ist.\n" );
@@ -1131,12 +1025,6 @@ public class KSAttackAction extends BasicKSAction {
 		if( heatList.containsKey(weaponName) )
 		{
 			heat = Integer.parseInt(heatList.get(weaponName));
-		}
-
-		weapons = (int)(weapons/(double)ownShipType.getShipCount())*this.attCountForShip(this.ownShip, ownShipType, this.attcount);
-		if( ownShipType.getShipCount() > this.ownShip.getCount() )
-		{
-			maxheat = (int)(maxheat*this.ownShip.getCount()/(double)ownShipType.getShipCount());
 		}
 
 		// Feststellen wie oft wird welchen Feuerloop durchlaufen sollen

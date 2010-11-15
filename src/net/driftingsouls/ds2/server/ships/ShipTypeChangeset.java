@@ -1223,10 +1223,6 @@ public class ShipTypeChangeset {
 			return inner.getShipClass();
 		}
 
-		public int getShipCount() {
-			return inner.getShipCount();
-		}
-
 		public int getSize() {
 			if( getType().getSize() > ShipType.SMALL_SHIP_MAXSIZE ) {
 				int value = inner.getSize() + ShipTypeChangeset.this.getSize();

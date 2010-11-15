@@ -66,8 +66,7 @@ public class BattleShip {
 	private int comm;
 	private int sensors;
 	private int action;
-	private int count;
-	private int newcount;
+	private int destroyer;
 	private int ablativeArmor;
 	@Version
 	private int version;
@@ -94,9 +93,8 @@ public class BattleShip {
 		this.weapons = ship.getWeapons();
 		this.comm = ship.getComm();
 		this.sensors = ship.getSensors();
-		this.count = ship.getTypeData().getShipCount();
 		this.ablativeArmor = ship.getAblativeArmor();
-		this.newcount = 0;
+		this.destroyer = 0;
 	}
 
 	/**
@@ -260,35 +258,19 @@ public class BattleShip {
 	}
 
 	/**
-	 * Gibt die Anzahl an Schiffen zurueck, welche in diesem Schiff enthalten sind ("Staffeln").
-	 * @return Die Anzahl an Schiffen
+	 * Gibt die ID des Spielers zurueck, der dieses Schiff zerstoert hat.
+	 * @return Die ID des Spielers
 	 */
-	public int getCount() {
-		return count;
+	public int getDestroyer() {
+		return destroyer;
 	}
 
 	/**
-	 * Setzt die Anzahl an Schiffen, welche in diesem Schiff enthalten sind ("Staffeln").
-	 * @param count Die Anzahl an Schiffen
+	 * Setzt setzt die ID des Spielers der dieses Schiff zerstoert hat.
+	 * @param id Die ID des Spielers
 	 */
-	public void setCount(int count) {
-		this.count = count;
-	}
-
-	/**
-	 * Gibt die Anzahl an Schiffen zurueck, welche am Ende der Runde in diesem Schiff enthalten sein werden ("Staffeln").
-	 * @return Die Anzahl an Schiffen
-	 */
-	public int getNewCount() {
-		return newcount;
-	}
-
-	/**
-	 * Setzt die Anzahl an Schiffen, welche am Ende der Runde in diesem Schiff enthalten sein werden ("Staffeln").
-	 * @param newcount Die Anzahl an Schiffen
-	 */
-	public void setNewCount(int newcount) {
-		this.newcount = newcount;
+	public void setDestroyer(int id) {
+		this.destroyer = id;
 	}
 
 	/**

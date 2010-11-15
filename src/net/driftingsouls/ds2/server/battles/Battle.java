@@ -60,6 +60,7 @@ import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.Quests;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
+import net.driftingsouls.ds2.server.ships.ShipLost;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
@@ -1537,6 +1538,7 @@ public class Battle implements Locatable
 	public boolean endTurn( boolean calledByUser ) 
 	{
 		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
 			
 		List<List<BattleShip>> sides = new ArrayList<List<BattleShip>>();
 		if( this.ownSide == 0 ) {
@@ -1558,11 +1560,6 @@ public class Battle implements Locatable
 			for( int key=0; key < shiplist.size(); key++ ) {
 				BattleShip aship = shiplist.get(key);
 				
-				if( (aship.getNewCount() > 0) && (aship.getNewCount() != aship.getCount()) ) {
-					aship.setCount(aship.getNewCount());
-					aship.setNewCount((byte)0);
-				}
-				
 				if( (aship.getAction() & BS_HIT) != 0 ) {
 					aship.getShip().setAblativeArmor(aship.getAblativeArmor());
 					aship.getShip().setHull(aship.getHull());
@@ -1577,6 +1574,29 @@ public class Battle implements Locatable
 				{	
 					if( config.getInt("DESTROYABLE_SHIPS") != 0 ) 
 					{
+						//
+						// Verluste verbuchen (zerstoerte/verlorene Schiffe)
+						//
+						User destroyer = (User)db.get(User.class,aship.getDestroyer());
+						Ally destroyerAlly = destroyer.getAlly();
+						if( destroyerAlly!= null ) {
+							destroyerAlly.setDestroyedShips(destroyerAlly.getDestroyedShips()+1);
+						} 
+						destroyer.setDestroyedShips(destroyer.getDestroyedShips()+1);
+
+						Ally looserAlly = aship.getOwner().getAlly();
+						if( looserAlly != null ) {
+							looserAlly.setLostShips(looserAlly.getLostShips()+1);
+						}
+						User looser = aship.getOwner();
+						looser.setLostShips(looser.getLostShips()+1);
+						
+						ShipLost lost = new ShipLost(aship.getShip());
+						lost.setDestAlly(destroyerAlly);
+						lost.setDestOwner(destroyer);
+						lost.setBattleLog(config.get("LOXPATH")+"battles/battle_id"+getId()+".log");
+						db.save(lost);
+						
 						destroyShip(aship);
 						continue;
 					}
@@ -2333,11 +2353,6 @@ public class Battle implements Locatable
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		
-		long dockcount = (Long)db.createQuery("select count(*) from Ship where docked in (?,?)")
-			.setString(0, Integer.toString(ship.getId()))
-			.setString(1, "l "+ship.getId())
-			.iterate().next();
-
 		if( !ship.getShip().isDestroyed() ) 
 		{
 			db.delete(ship);
@@ -2348,7 +2363,6 @@ public class Battle implements Locatable
 		// Feststellen in welcher der beiden Listen sich das Schiff befindet und dieses daraus entfernen
 		//
 
-		boolean found = false;
 		List<BattleShip> shiplist = this.ownShips;
 		
 		if( ship.getSide() != this.ownSide ) {
@@ -2362,23 +2376,6 @@ public class Battle implements Locatable
 				shiplist.remove(i);
 				i--; // Arraypositionen haben sich nach dem Entfernen veraendert. Daher Index aktuallisieren
 				
-				found = true;
-			}
-			// Evt ist das Schiff an das gerade zerstoerte gedockt
-			// In diesem Fall muss es ebenfalls entfernt werden
-			else if(dockcount > 0 && aship.getShip().getBaseShip() != null && aship.getShip().getBaseShip().getId() == ship.getId()) {
-				shiplist.remove(i);
-				i--; // Arraypositionen haben sich nach dem Entfernen veraendert. Daher Index aktuallisieren
-				
-				dockcount--;
-				
-				if( !aship.getShip().isDestroyed() ) {
-					db.delete(aship);
-					aship.getShip().destroy();
-				}
-			}
-			
-			if( found && (dockcount == 0) ) {
 				break;
 			}
 		}

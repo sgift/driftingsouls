@@ -550,12 +550,7 @@ public class ShipModules implements ShipTypeData {
 	public String getTypeModules() {
 		return getShip().getBaseType().getModules();
 	}
-	
-	@Override
-	public int getShipCount() {
-		return getShip().getBaseType().getShipCount();
-	}
-	
+		
 	@Override
 	public String getDescrip() {
 		return getShip().getBaseType().getDescrip();

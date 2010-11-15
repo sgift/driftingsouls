@@ -27,7 +27,8 @@ import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigValue;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 
 /**
  * Ein in einer Schlacht zerstoertes Schiff.
@@ -44,14 +45,13 @@ public class ShipLost {
 	private int id;
 	private int type;
 	private String name;
-	private long time;
+	private int tick;
 	private int owner;
 	private int ally;
 	@Column(name="destowner")
 	private int destOwner;
 	@Column(name="destally")
 	private int destAlly;
-	private int docked;
 	private int battle;
 	@Column(name="battlelog")
 	private String battleLog;
@@ -73,18 +73,16 @@ public class ShipLost {
 	 * @param ship Das Schiff, fuer das der Eintrag angelegt werden soll
 	 */
 	public ShipLost(Ship ship) {
+		ConfigValue value = (ConfigValue)ContextMap.getContext().getDB().get(ConfigValue.class, "ticks");
+		
 		this.type = ship.getType();
 		this.name = ship.getName();
-		this.time = Common.time();
+		this.tick = Integer.valueOf(value.getValue());
 		this.owner = ship.getOwner().getId();
 		if( ship.getOwner().getAlly() != null ) {
 			this.ally = ship.getOwner().getAlly().getId();
 		}
 		
-		Ship baseShip = ship.getBaseShip();
-		if( baseShip != null ) {
-			setDocked(baseShip.getId());
-		}
 		if( ship.getBattle() != null ) {
 			setBattle(ship.getBattle().getId());
 		}
@@ -171,22 +169,6 @@ public class ShipLost {
 	}
 
 	/**
-	 * Gibt zurueck, an welches Schiff das Schiff bei der Zerstoerung gedockt war.
-	 * @return das Schiff
-	 */
-	public int getDocked() {
-		return docked;
-	}
-
-	/**
-	 * Setzt das Schiff an das das Schiff bei seiner Zerstoerung gedockt war.
-	 * @param docked Das Schiff
-	 */
-	public void setDocked(int docked) {
-		this.docked = docked;
-	}
-
-	/**
 	 * Gibt den Namen des Schiffes zurueck.
 	 * @return Der Name
 	 */
@@ -219,19 +201,19 @@ public class ShipLost {
 	}
 
 	/**
-	 * Gibt den Zeitpunkt der Zerstoerung zurueck.
+	 * Gibt den Zeitpunkt (Tick) der Zerstoerung zurueck.
 	 * @return Der Zeitpunkt
 	 */
 	public long getTime() {
-		return time;
+		return tick;
 	}
 
 	/**
-	 * Setzt den Zeitpunkt der Zerstoerung.
+	 * Setzt den Zeitpunkt (Tick) der Zerstoerung.
 	 * @param time Der Zeitpunkt
 	 */
-	public void setTime(long time) {
-		this.time = time;
+	public void setTime(int time) {
+		this.tick = time;
 	}
 
 	/**

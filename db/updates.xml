@@ -1503,4 +1503,13 @@
 	<update type="data" datum="2010-10-03"><![CDATA[
 		INSERT INTO `config` (`name`, `value`, `description`, `version`) VALUES ('starmapsecret', 'irgendeinZufallswert', '', '0');
 	]]></update>
+	<update type="structure" datum="2010-11-13"><![CDATA[
+		ALTER TABLE battles_ships DROP count;
+		ALTER TABLE battles_ships DROP newcount;
+		ALTER TABLE battles_ships ADD destroyer INT default '0';
+		ALTER TABLE ship_types DROP shipcount;
+		UPDATE ships_lost SET time = 0;
+		ALTER TABLE ships_lost CHANGE time tick INT default '0';
+		ALTER TABLE ships_lost DROP docked;
+	]]></update>
 </updates>

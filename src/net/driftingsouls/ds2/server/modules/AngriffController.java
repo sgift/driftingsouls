@@ -220,12 +220,6 @@ public class AngriffController extends TemplateGenerator {
 					"shipinfo.tmp.panzerung",	(int)Math.round(shipType.getPanzerung()*ship.getHull()/(double)shipType.getHull()), 
 					"shipinfo.tmp.ablativeArmor", ((ship.getAction() & Battle.BS_DESTROYED) != 0 ? 0 : Common.ln(ship.getAblativeArmor())));
 
-		// Anzahl
-		if( shipType.getShipCount() > 1 ) {
-			t.setVar(	"shipinfo.count",		ship.getCount(),
-						"shipinfo.tmp.count",	ship.getNewCount() );
-		}
-		
 		// Ablative Panzerung
 		if(ship.getShip().getAblativeArmor() < shipType.getAblativeArmor()/2)
 		{
@@ -353,12 +347,6 @@ public class AngriffController extends TemplateGenerator {
 			Map<String,String> maxheat = Weapons.parseWeaponList(shipType.getMaxHeat());
 
 			for( String weaponName : weapons.keySet() ) {
-				if( shipType.getShipCount() > ship.getCount() ) {
-					maxheat.put(weaponName, Integer.toString(
-							(int)(Integer.parseInt(maxheat.get(weaponName))*ship.getCount()/(double)shipType.getShipCount())
-							));
-				}
-
 				t.setVar(	"shipinfo.weapon.name",		Weapons.get().weapon(weaponName).getName(),
 							"shipinfo.weapon.heat",		heat.containsKey(weaponName) ? Integer.parseInt(heat.get(weaponName)) : 0,
 							"shipinfo.weapon.maxheat",	maxheat.get(weaponName) );
@@ -525,13 +513,6 @@ public class AngriffController extends TemplateGenerator {
 		}
 		
 		return true;
-	}
-	
-	private String modifyShipImg( ShipTypeData shiptype, int count ) {
-		if( shiptype.getShipCount() > 1 ) {
-			return StringUtils.replace(shiptype.getPicture(), ".png","$"+count+".png");
-		}
-		return shiptype.getPicture();
 	}
 
 	private static class GroupEntry {
@@ -720,7 +701,7 @@ public class AngriffController extends TemplateGenerator {
 					"ownship.type",				ownShip.getShip().getType(),
 					"ownship.coordinates",		ownShip.getShip().getLocation().displayCoordinates(false),
 					"ownship.type.name",		ownShipType.getNickname(),
-					"ownship.type.image",		modifyShipImg(ownShipType,ownShip.getCount()),
+					"ownship.type.image",		ownShipType.getPicture(),
 					"ownship.owner.name",		Common._title(oUser.getName()),
 					"ownship.owner.id",			ownShip.getOwner().getId(),
 					"ownship.action.hit",		ownShip.getAction() & Battle.BS_HIT,
@@ -736,7 +717,7 @@ public class AngriffController extends TemplateGenerator {
 					"enemyship.name",			enemyShip.getName(),
 					"enemyship.type",			enemyShip.getShip().getType(),
 					"enemyship.type.name",		enemyShipType.getNickname(),
-					"enemyship.type.image",		modifyShipImg(enemyShipType,enemyShip.getCount()),
+					"enemyship.type.image",		enemyShipType.getPicture(),
 					"enemyship.owner.name",		Common._title(eUser.getName()),
 					"enemyship.owner.id",		enemyShip.getOwner().getId(),
 					"enemyship.action.hit",		enemyShip.getAction() & Battle.BS_HIT,
@@ -923,7 +904,7 @@ public class AngriffController extends TemplateGenerator {
 							"ship.name",			aship.getName(),
 							"ship.type",			aship.getShip().getType(),
 							"ship.type.name",		aShipType.getNickname(),
-							"ship.type.image",		modifyShipImg(aShipType,aship.getCount()),
+							"ship.type.image",		aShipType.getPicture(),
 							"ship.owner.name",		Common._title(aUser.getName()),
 							"ship.owner.id",		aship.getOwner().getId(),
 							"ship.energy",			energy,
@@ -1155,7 +1136,7 @@ public class AngriffController extends TemplateGenerator {
 							"ship.name",			aship.getName(),
 							"ship.type",			aship.getShip().getType(),
 							"ship.type.name",		aShipType.getNickname(),
-							"ship.type.image",		modifyShipImg(aShipType,aship.getCount()),
+							"ship.type.image",		aShipType.getPicture(),
 							"ship.owner.name",		Common._title(aUser.getName()),
 							"ship.owner.id",		aship.getOwner().getId(),
 							"ship.active",			(aship == enemyShip),

@@ -41,8 +41,8 @@ public class StatOwnKampf implements Statistic {
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		User user = (User)context.getActiveUser();
-		Database db = context.getDatabase();
-
+		Database database = context.getDatabase();
+		
 		Writer echo = context.getResponse().getWriter();
 	
 		/////////////////////////////
@@ -53,10 +53,10 @@ public class StatOwnKampf implements Statistic {
 	
 		int destpos = context.getRequest().getParameterInt("destpos");
 	
-		int destcount = db.first("SELECT count(*) count FROM ships_lost WHERE destowner=",user.getId()).getInt("count");
+		int destcount = database.first("SELECT count(distinct tick) as count FROM ships_lost WHERE destowner=",user.getId()).getInt("count");
 		if( destcount > 0 ) {
 			if( destpos > destcount ) {
-				destpos = destcount - 8;
+				destpos = destcount - 10;
 			}
 	
 			if( destpos < 0 ) {
@@ -65,58 +65,71 @@ public class StatOwnKampf implements Statistic {
 	
 			echo.append("Zerst&ouml;rte Schiffe:<br />");
 			echo.append("<table class=\"noBorderX\" cellpadding=\"3\" width=\"100%\">\n");
-			SQLQuery s = db.query("SELECT name,type,time,owner FROM ships_lost WHERE destowner=",user.getId()," ORDER BY time DESC LIMIT ",destpos,",8");
-			while( s.next() ) {
+			SQLQuery t = database.query("SELECT distinct tick FROM ships_lost WHERE destowner=",user.getId()," ORDER BY tick DESC LIMIT ",destpos,",10");
+			while( t.next() ) {
+				int tick = t.getInt("tick");
+				SQLQuery s = database.query("SELECT distinct count(*) as count,type,owner FROM ships_lost WHERE destowner=",user.getId()," AND tick=",tick," GROUP BY type,owner");
+				
 				if( counter == 0 ) {
 					echo.append("<tr>");
 				}
 				counter++;
 				
-				ShipTypeData shiptype = Ship.getShipType( s.getInt("type") );
+
+				echo.append("<td class=\"noBorderX\" style=\"vertical-align:top; text-align:center\">");
+				echo.append(Common.getIngameTime(tick)+"<br />");
 				
-				echo.append("<td class=\"noBorderX\" style=\"width:100px; vertical-align:top; text-align:center\">");
-				echo.append(Common._plaintitle(s.getString("name"))+"<br />");
-				
-				if( shiptype != null ) {
-					echo.append("<a onmouseover=\"return overlib('"+Common._plaintitle(shiptype.getNickname())+"',TIMEOUT,0,DELAY,400,WIDTH,100);\" " +
-							"onmouseout=\"return nd();\" target=\"_blank\" " +
-							"href=\"./ds?module=schiffinfo&ship="+s.getInt("type")+"\">" +
-							"<img border=\"0\" src=\""+shiptype.getPicture()+"\"></a><br />");
+				while( s.next() )
+				{
+					ShipTypeData shiptype = Ship.getShipType( s.getInt("type") );
+					
+					int count = s.getInt("count");
+					
+					echo.append(count+" ");
+					if( shiptype != null ) {
+						echo.append("<a target=\"_blank\" " +
+								"href=\"./ds?module=schiffinfo&ship="+s.getInt("type")+"\">" +
+								shiptype.getNickname()+"</a>");
+					}
+					else
+					{
+						echo.append(s.getString("type"));
+					}
+					
+					User auser = (User)context.getDB().get(User.class, s.getInt("owner"));
+					if( auser != null ) {
+						echo.append(" von: "+auser.getProfileLink()+"<br />");
+					}
+					else {
+						echo.append("von: Unbekannter Spieler ("+s.getInt("owner")+")<br />");
+					}
 				}
-				
-				User auser = (User)context.getDB().get(User.class, s.getInt("owner"));
-				if( auser != null ) {
-					echo.append(auser.getProfileLink()+"<br />");
-				}
-				else {
-					echo.append("Unbekannter Spieler ("+s.getInt("owner")+")<br />");
-				}
-				echo.append(Common.date("d.m.Y H:i:s",s.getLong("time")));
 				echo.append("</td>\n");
 				
-				if( (counter % 4) == 0 ) {
+				if( (counter % 5) == 0 ) {
 					echo.append("</tr>\n<tr>");
 				}
+				s.free();
 			}
-			s.free();
+			t.free();
 			
-			while( counter % 4 != 0 ) {
-				echo.append("<td class=\"noBorderX\" style=\"width:100px\">&nbsp;</td>");
+			while( counter % 5 != 0 ) {
+				echo.append("<td class=\"noBorderX\">&nbsp;</td>");
 				counter++;
 			}
 			
 			echo.append("</tr>\n");
 			echo.append("<tr><td class=\"noBorderX\" align=\"left\" colspan=\"2\">\n");
-			if( destpos-8 >= 0 ) {
-				echo.append("<a class=\"forschinfo\" href=\""+Common.buildUrl("default", "show", 4, "destpos", destpos-8)+"\">zur&uuml;ck</a>\n");
+			if( destpos-10 >= 0 ) {
+				echo.append("<a class=\"forschinfo\" href=\""+Common.buildUrl("default", "show", 4, "destpos", destpos-10)+"\">zur&uuml;ck</a>\n");
 			}
 			else {
 				echo.append("zur&uuml;ck");	
 			}
 			echo.append("</td>");
 			echo.append("<td class=\"noBorderX\" align=\"right\" colspan=\"3\">\n");
-			if( destpos+8 < destcount ) {
-				echo.append("<a class=\"forschinfo\" href=\""+Common.buildUrl("default", "show", 4, "destpos", destpos+8)+"\">vor</a>\n");
+			if( destpos+10 < destcount ) {
+				echo.append("<a class=\"forschinfo\" href=\""+Common.buildUrl("default", "show", 4, "destpos", destpos+10)+"\">vor</a>\n");
 			}
 			else {
 				echo.append("vor");	
@@ -133,10 +146,10 @@ public class StatOwnKampf implements Statistic {
 	
 		int lostpos = context.getRequest().getParameterInt("lostpos");
 	
-		int lostcount = db.first("SELECT count(*) count FROM ships_lost WHERE owner=",user.getId()).getInt("count");
+		int lostcount = database.first("SELECT count(distinct tick) as count FROM ships_lost WHERE owner=",user.getId()).getInt("count");
 		if( lostcount > 0 ) {
 			if( lostpos > lostcount ) {
-				lostpos = lostcount - 8;
+				lostpos = lostcount - 10;
 			}
 	
 			if( lostpos < 0 ) {
@@ -149,55 +162,69 @@ public class StatOwnKampf implements Statistic {
 	
 			echo.append("<br />Verlorene Schiffe:<br />");
 			echo.append("<table class=\"noBorderX\" cellpadding=\"3\" width=\"100%\">\n");
-			SQLQuery s = db.query("SELECT name,type,time,owner,destowner FROM ships_lost WHERE owner=",user.getId()," ORDER BY time DESC LIMIT ",lostpos,",8");
-			while( s.next() ) {
+			SQLQuery t = database.query("SELECT distinct tick FROM ships_lost WHERE owner=",user.getId()," ORDER BY tick DESC LIMIT ",lostpos,",10");
+			while( t.next() ) {
+				int tick = t.getInt("tick");
 				if( counter == 0 ) {
 					echo.append("<tr>");
 				}
 				counter++;
 				
-				ShipTypeData shiptype = Ship.getShipType( s.getInt("type") );
-				if( shiptype != null ) {
-					echo.append("<td class=\"noBorderX\" style=\"width:100px; text-align:center; vertical-align:top\">");
-					echo.append(Common._plaintitle(s.getString("name"))+"<br />");
-					echo.append("<a onmouseover=\"return overlib('"+Common._plaintitle(shiptype.getNickname())+"',TIMEOUT,0,DELAY,400,WIDTH,100);\" " +
-							"onmouseout=\"return nd();\" target=\"_blank\" " +
-							"href=\"./ds?module=schiffinfo&ship="+s.getInt("type")+"\">" +
-							"<img border=\"0\" src=\""+shiptype.getPicture()+"\"></a><br />");
-				}
-				User auser = (User)context.getDB().get(User.class, s.getInt("destowner"));
-
-				if( auser != null ) {
-					echo.append(auser.getProfileLink()+"<br />");
-				}
-				else {
-					echo.append("Unbekannter Spieler ("+s.getInt("destowner")+")<br />");
-				}
+				echo.append("<td class=\"noBorderX\" style=\"vertical-align:top; text-align:center\">");
+				echo.append(Common.getIngameTime(tick)+"<br />");
 				
-				echo.append(Common.date("d.m.Y H:i:s",s.getLong("time")));
+				
+				SQLQuery s = database.query("SELECT count(*) as count,type,destowner FROM ships_lost WHERE owner=",user.getId()," AND tick=",tick," GROUP BY type,destowner");
+				
+				while( s.next() )
+				{
+					ShipTypeData shiptype = Ship.getShipType( s.getInt("type") );
+					int count = s.getInt("count");
+					
+					echo.append(count+" ");
+					if( shiptype != null ) {
+						echo.append("<a target=\"_blank\" " +
+								"href=\"./ds?module=schiffinfo&ship="+s.getInt("type")+"\">" +
+								shiptype.getNickname()+"</a>");
+					}
+					else
+					{
+						echo.append(s.getString("type"));
+					}
+					
+					User auser = (User)context.getDB().get(User.class, s.getInt("destowner"));
+	
+					if( auser != null ) {
+						echo.append(auser.getProfileLink()+"<br />");
+					}
+					else {
+						echo.append("Unbekannter Spieler ("+s.getInt("destowner")+")<br />");
+					}
+				}
 				echo.append("</td>\n");
 				
-				if( (counter % 4) == 0 ) {
+				if( (counter % 5) == 0 ) {
 					echo.append("</tr>\n<tr>");
 				}
+				s.free();
 			}
-			s.free();
-			while( counter % 4 != 0 ) {
-				echo.append("<td class=\"noBorderX\" style=\"width:100px\">&nbsp;</td>");
+			t.free();
+			while( counter % 5 != 0 ) {
+				echo.append("<td class=\"noBorderX\">&nbsp;</td>");
 				counter++;
 			}
 			echo.append("</tr>\n");
 			echo.append("<tr><td class=\"noBorderX\" align=\"left\" colspan=\"2\">\n");
-			if( lostpos-8 >= 0 ) {
-				echo.append("<a class=\"forschinfo\" href=\""+Common.buildUrl("default", "show", 4, "lostpos", lostpos-8)+"\">zur&uuml;ck</a>\n");
+			if( lostpos-10 >= 0 ) {
+				echo.append("<a class=\"forschinfo\" href=\""+Common.buildUrl("default", "show", 4, "lostpos", lostpos-10)+"\">zur&uuml;ck</a>\n");
 			}
 			else {
 				echo.append("zur&uuml;ck");	
 			}
 			echo.append("</td>");
 			echo.append("<td class=\"noBorderX\" align=\"right\" colspan=\"3\">");
-			if( lostpos+8 < lostcount ) {
-				echo.append("<a class=\"forschinfo\" href=\""+Common.buildUrl("default", "show", 4, "lostpos", lostpos+8)+"\">vor</a>\n");
+			if( lostpos+10 < lostcount ) {
+				echo.append("<a class=\"forschinfo\" href=\""+Common.buildUrl("default", "show", 4, "lostpos", lostpos+10)+"\">vor</a>\n");
 			}
 			else {
 				echo.append("vor");	

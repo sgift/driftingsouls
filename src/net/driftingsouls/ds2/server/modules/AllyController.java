@@ -1137,7 +1137,7 @@ public class AllyController extends TemplateGenerator {
 					"show.destpos.back",				destpos-10,
 					"show.destpos.forward",				destpos+10 );
 
-		List<?> sList = db.createQuery("from ShipLost where destAlly=? order by time desc")
+		List<?> sList = db.createQuery("from ShipLost where destAlly=? order by tick desc")
 			.setInteger(0, this.ally.getId())
 			.setMaxResults(10)
 			.setFirstResult((int)destpos)
@@ -1162,7 +1162,7 @@ public class AllyController extends TemplateGenerator {
 						"show.destships.type",			s.getType(),
 						"show.destships.type.picture",	shiptype.getPicture(),
 						"show.destships.owner",			Common._title(ownername),
-						"show.destships.time",			Common.date("d.m.Y H:i:s",s.getTime()),
+						"show.destships.time",			s.getTime(),
 						"show.destships.newrow",		(counter % 5) == 0 );
 			
 			t.parse( "show.destships.list", "show.destships.listitem", true );
@@ -1196,7 +1196,7 @@ public class AllyController extends TemplateGenerator {
 		t.setVar(	"show.lostpos.back",	lostpos-10,
 					"show.lostpos.forward",	lostpos+10 );
 
-		sList = db.createQuery("from ShipLost where ally=? order by time desc")
+		sList = db.createQuery("from ShipLost where ally=? order by tick desc")
 			.setInteger(0, this.ally.getId())
 			.setMaxResults(10)
 			.setFirstResult((int)lostpos)
@@ -1232,7 +1232,7 @@ public class AllyController extends TemplateGenerator {
 						"show.lostships.type.picture",	shiptype.getPicture(),
 						"show.lostships.owner",			Common._title(destownername),
 						"show.lostships.destroyer",		Common._title(ownername),
-						"show.lostships.time",			Common.date("d.m.Y H:i:s",s.getTime()),
+						"show.lostships.time",			s.getTime(),
 						"show.lostships.newrow",		(counter % 5) == 0 );
 			
 			t.parse( "show.lostships.list", "show.lostships.listitem", true );

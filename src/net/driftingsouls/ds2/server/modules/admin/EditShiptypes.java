@@ -121,7 +121,6 @@ public class EditShiptypes implements AdminPlugin
 			int oneWayWerft = request.getParameterInt("onewaydockyard");
 			int chance4Loot = request.getParameterInt("chanceforloot");
 			String modules = request.getParameter("modules");
-			int shipCount = request.getParameterInt("shipcount");
 			boolean hide = request.getParameterString("hide").trim().toLowerCase().equals("true");
 			boolean srs = request.getParameter("srs").trim().toLowerCase().equals("true");
 			int scanCost = request.getParameterInt("scancosts");
@@ -173,7 +172,6 @@ public class EditShiptypes implements AdminPlugin
 			shiptype.setOneWayWerft(oneWayWerft);
 			shiptype.setChance4Loot(chance4Loot);
 			shiptype.setModules(modules);
-			shiptype.setShipCount(shipCount);
 			shiptype.setHide(hide);
 			shiptype.setSrs(srs);
 			shiptype.setScanCost(scanCost);
@@ -399,7 +397,6 @@ public class EditShiptypes implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderS\">Einmalwerft: </td><td><input type=\"text\" name=\"onewaydockyard\" value=\"" + ship.getOneWayWerft() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Loot-Chance: </td><td><input type=\"text\" name=\"chanceforloot\" value=\"" + ship.getChance4Loot() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Module: </td><td><input type=\"text\" name=\"modules\" value=\"" + ship.getModules() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Schiffsz&auml;hler: </td><td><input type=\"text\" name=\"shipcount\" value=\"" + ship.getShipCount() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Verstecken: </td><td><input type=\"text\" name=\"hide\" value=\"" + ship.isHide() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Ablative Panzerung: </td><td><input type=\"text\" name=\"ablativearmor\" value=\"" + ship.getAblativeArmor() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Besitzt SRS: </td><td><input type=\"text\" name=\"srs\" value=\"" + ship.hasSrs() + "\"></td></tr>\n");
