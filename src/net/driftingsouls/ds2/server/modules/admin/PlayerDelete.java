@@ -366,7 +366,7 @@ public class PlayerDelete implements AdminPlugin
 
 		echo.append("L&ouml;sche Sessioneintrag...");
 		count = db.createQuery("delete from PermanentSession where userId=:userId")
-			.setEntity("userId", user.getId())
+			.setInteger("userId", user.getId())
 			.executeUpdate();
 		echo.append(count+"<br />\n");
 
