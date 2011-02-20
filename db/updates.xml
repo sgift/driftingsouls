@@ -1512,4 +1512,7 @@
 		ALTER TABLE ships_lost CHANGE time tick INT default '0';
 		ALTER TABLE ships_lost DROP docked;
 	]]></update>
+	<update type="structure" datum="2011-02-20"><![CDATA[
+		DROP TABLE stats_user_unitcargo;
+	]]></update>
 </updates>
