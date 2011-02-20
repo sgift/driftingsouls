@@ -76,10 +76,6 @@
 	<mapping class="net.driftingsouls.ds2.server.entities.StatShips" />
 	<mapping class="net.driftingsouls.ds2.server.entities.StatUserCargo" />
 	<mapping class="net.driftingsouls.ds2.server.entities.StatVerkaeufe" />
-	<!-- survey_entries -->
-	<!-- survey_results -->
-	<!-- survey_voted -->
-	<!-- surveys -->
 	<mapping class="net.driftingsouls.ds2.server.tasks.Task" />
 	<mapping class="net.driftingsouls.ds2.server.entities.ResourceLimit" /> 
 	<mapping class="net.driftingsouls.ds2.server.comm.PM" /> 

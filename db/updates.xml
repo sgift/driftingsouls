@@ -1515,4 +1515,10 @@
 	<update type="structure" datum="2011-02-20"><![CDATA[
 		DROP TABLE stats_user_unitcargo;
 	]]></update>
+	<update type="structure" datum="2011-02-20"><![CDATA[
+		DROP TABLE survey_voted;
+		DROP TABLE survey_results;
+		DROP TABLE survey_entries;
+		DROP TABLE surveys;
+	]]></update>
 </updates>
