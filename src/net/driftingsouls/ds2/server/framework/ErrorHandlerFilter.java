@@ -2,7 +2,6 @@ package net.driftingsouls.ds2.server.framework;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
 import javax.servlet.Filter;
