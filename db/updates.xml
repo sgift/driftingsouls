@@ -1512,4 +1512,21 @@
 		ALTER TABLE ships_lost CHANGE time tick INT default '0';
 		ALTER TABLE ships_lost DROP docked;
 	]]></update>
+	<update type="structure" datum="2011-02-20"><![CDATA[
+		DROP TABLE stats_user_unitcargo;
+	]]></update>
+	<update type="structure" datum="2011-02-20"><![CDATA[
+		DROP TABLE survey_voted;
+		DROP TABLE survey_results;
+		DROP TABLE survey_entries;
+		DROP TABLE surveys;
+	]]></update>
+	<update type="structure" datum="2011-02-21"><![CDATA[
+		ALTER TABLE battles DROP com1Points;
+		ALTER TABLE battles DROP com2Points;
+		ALTER TABLE battles DROP com1Msg;
+		ALTER TABLE battles DROP com2Msg;
+		ALTER TABLE battles DROP inakt;
+		ALTER TABLE battles DROP quest;
+	]]></update>
 </updates>

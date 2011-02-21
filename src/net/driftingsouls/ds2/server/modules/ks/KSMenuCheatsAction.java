@@ -65,12 +65,7 @@ public class KSMenuCheatsAction extends BasicKSMenuAction {
 		
 		BattleShip ownShip = battle.getOwnShip();
 		BattleShip enemyShip = battle.getEnemyShip();
-
-		this.menuEntry("+100 AP",	
-				"ship",		ownShip.getId(),
-				"attack",	enemyShip.getId(),
-				"ksaction",	"cheat_ap" );
-											
+			
 		this.menuEntry("Schiff regenerieren",
 				"ship",		ownShip.getId(),
 				"attack",	enemyShip.getId(),

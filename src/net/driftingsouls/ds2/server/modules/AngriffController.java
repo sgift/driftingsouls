@@ -398,30 +398,7 @@ public class AngriffController extends TemplateGenerator {
 		BattleShip enemyShip = battle.getEnemyShip();
 		
 		// TODO: evt sollte das hier in ne eigene Action ausgelagert werden?
-		if( action.toString().equals("showbattlelog") && (battle.getComMessageBuffer(battle.getOwnSide()).length() > 0) && battle.isCommander(user,battle.getOwnSide()) ) {
-			BBCodeParser bbcodeparser = BBCodeParser.getNewInstance();
-			try {
-				bbcodeparser.registerHandler( "tooltip", 2, "<a onmouseover=\"return overlib('$2',TIMEOUT,0,DELAY,400,WIDTH,100,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\"aloglink\" href=\"#\">$1</a>" );
-			}
-			catch( Exception e ) {
-				log.warn("Registrierung des BBCode-Handlers tooltip gescheitert", e);
-			}
-		
-			String msgbuffer = battle.getComMessageBuffer(battle.getOwnSide());
-			msgbuffer = StringUtils.replace(msgbuffer, "<![CDATA[", "");
-			msgbuffer = StringUtils.replace(msgbuffer, "]]>","");
-			msgbuffer = StringUtils.replace(msgbuffer, "<br />", "\n");
-			msgbuffer = Common._stripHTML(msgbuffer);
-			
-			t.setVar( "battle.msg", StringUtils.replace(bbcodeparser.parse(msgbuffer), "\n", "<br />") );
-		
-			battle.clearComMessageBuffer(battle.getOwnSide());
-			
-			t.setVar(	"global.ksaction",	"",
-						"battle.msginfo",	"" );
-			action.setLength(0);
-		}
-		else if( battle.getOwnLog(true).length() == 0 ) {
+		if( battle.getOwnLog(true).length() == 0 ) {
 			if( battle.isCommander(user,battle.getOwnSide()) ) {
 				if( battle.getTakeCommand(battle.getOwnSide()) != 0 ) {
 					User auser = (User)getContext().getDB().get(User.class, battle.getTakeCommand(battle.getOwnSide()));
@@ -692,7 +669,6 @@ public class AngriffController extends TemplateGenerator {
 					"global.ownshipgroup",		battle.getOwnShipGroup(),
 					"global.enemyshipgroup",	battle.getEnemyShipGroup(),
 					"global.weapon",			getString("weapon"),
-					"battle.msginfo",			(battle.getComMessageBuffer(battle.getOwnSide()).length() > 0 && battle.isCommander(user,battle.getOwnSide())),
 					"battle.id",				battle.getId(),
 					"ownside.secondrow.stable",	battle.isSecondRowStable(battle.getOwnSide()),
 					"enemyside.secondrow.stable",	battle.isSecondRowStable(battle.getEnemySide()),

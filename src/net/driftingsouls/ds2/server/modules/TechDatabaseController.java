@@ -128,25 +128,6 @@ public class TechDatabaseController extends TemplateGenerator {
 	}
 	
 	/**
-	 * Zeigt die Schiffsliste an.
-	 *
-	 */
-	@Action(ActionType.DEFAULT)
-	public void schiffslisteAction() {
-		Database db = getDatabase();
-		TemplateEngine t = getTemplateEngine();
-
-		SQLResultRow article = db.first("SELECT title,author,article FROM portal_articles WHERE id="+config.get("ARTICLE_SCHIFFSLISTE"));
-
-		String text = Common._text(article.getString("article"));
-		
-		t.setVar(	"show.shiplist",	1,
-					"shiplist.text",	text,
-					"shiplist.author",	article.getString("author"),
-					"shiplist.title",	article.getString("title") );
-	}
-	
-	/**
 	 * Zeigt das Tutorial an.
 	 *
 	 */

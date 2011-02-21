@@ -178,8 +178,6 @@ public class Battle implements Locatable
 	private User commander2;
 	private boolean ready1;
 	private boolean ready2;
-	private String com1Msg = "";
-	private String com2Msg = "";
 	private boolean com1BETAK = true;
 	private boolean com2BETAK = true;
 	private int takeCommand1;
@@ -414,48 +412,6 @@ public class Battle implements Locatable
 		else if( (this.flags & flag) != 0 ) {
 			this.flags ^= flag;	
 		}
-	}
-	
-	/**
-	 * Fuegt dem Nachrichtenpuffer einer Seite eine Nachricht hinzu.
-	 * @param side Die Seite
-	 * @param text Der hinzuzufuegende Text
-	 */
-	public void addComMessage( int side, String text ) {
-		if( side == 0 ) {
-			this.com1Msg += text;
-			this.com1Msg = StringUtils.right(this.com1Msg, 10000);
-		}
-		else {
-			this.com2Msg += text;
-			this.com2Msg = StringUtils.right(this.com2Msg, 10000);
-		}
-	}
-	
-	/**
-	 * Leert den Nachrichtenpuffer fuer die angegebene Seite.
-	 * @param side Die Seite oder <code>-1</code> fuer die eigene Seite
-	 */
-	public void clearComMessageBuffer( int side ) {
-		if( side == -1 ) {
-			side = this.ownSide;
-		}
-
-		if( side == 0 ) {
-			this.com1Msg = "";
-		}
-		else {
-			this.com2Msg = "";
-		}
-	}
-	
-	/**
-	 * Gibt den Inhalt des Nachrichtenpuffers der angegebenen Seite zurueck.
-	 * @param side Die Seite
-	 * @return Der Nachrichtenpuffer
-	 */
-	public String getComMessageBuffer( int side ) {
-		return side == 0 ? this.com1Msg : this.com2Msg;
 	}
 
 	/**
@@ -877,8 +833,6 @@ public class Battle implements Locatable
 		battle.lastaction = Common.time();
 		battle.lastturn = Common.time();
 		battle.flags = FLAG_FIRSTROUND;
-		battle.com1Msg = "";
-		battle.com2Msg = "";
 		db.save(battle);
 		
 		//
@@ -1822,8 +1776,6 @@ public class Battle implements Locatable
 				Common.writeLog("battles/battle_id"+this.id+".log", this.getEnemyLog(true));
 			}
 		}
-
-		this.addComMessage(this.ownSide, this.getEnemyLog(false));
 	}
 	
 	@Transient
