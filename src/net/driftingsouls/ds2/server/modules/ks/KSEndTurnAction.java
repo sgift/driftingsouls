@@ -41,23 +41,22 @@ public class KSEndTurnAction extends BasicKSAction {
 		}
 		
 		Context context = ContextMap.getContext();
-		User user = (User)context.getActiveUser();
-
-		if( battle.isReady(battle.getEnemySide()) ) {
+		
+		if( battle.isReady(battle.getEnemySide()) )
+		{
 			if( !battle.endTurn(true) ) {
 				return RESULT_HALT;
 			}
 
 			battle.logenemy("<endturn type=\"all\" side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\" />\n");
 			battle.logme( "++++ Runde beendet ++++" );
-			battle.addComMessage(battle.getEnemySide(), "++++ "+Common._titleNoFormat(user.getName())+" hat die Runde beendet ++++\n\n");
 			
 		}
-		else {
+		else
+		{
 			battle.logenemy("<endturn type=\"own\" side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\" />\n");
 
 			battle.logme("Zug beendet - warte auf Gegner");
-			battle.addComMessage(battle.getEnemySide(), Common._titleNoFormat(user.getName())+" hat seinen Zug beendet\n\n");
 			
 			battle.setReady(battle.getOwnSide(), true);
 		}

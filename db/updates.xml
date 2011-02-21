@@ -1521,4 +1521,12 @@
 		DROP TABLE survey_entries;
 		DROP TABLE surveys;
 	]]></update>
+	<update type="structure" datum="2011-02-21"><![CDATA[
+		ALTER TABLE battles DROP com1Points;
+		ALTER TABLE battles DROP com2Points;
+		ALTER TABLE battles DROP com1Msg;
+		ALTER TABLE battles DROP com2Msg;
+		ALTER TABLE battles DROP inakt;
+		ALTER TABLE battles DROP quest;
+	]]></update>
 </updates>

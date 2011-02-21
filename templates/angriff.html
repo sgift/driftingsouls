@@ -43,7 +43,6 @@
 		{/endif}
 		<span style="color:red">
 			Feindliche Schiffe
-			{if battle.msginfo}<a href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction=showbattlelog{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}"><img border="0" src="{URL}data/interface/ks/info.gif" alt="" /></a>{/endif}
 		</span>
 	</td>
 </tr>
@@ -64,21 +63,6 @@
 		<a class="profile" href="./ds?module=userprofile&amp;user={ownship.owner.id}">{ownship.owner.name}</a><br />
 	</td>
 	<td rowspan="2" style="vertical-align:top;width:30%" class="schiffData">
-		{if battle.msg}
-			<table border="0" cellspacing="1" cellpadding="1" width="100%" class="nav">
-			<tr>
-				<td class="angrifflog">
-					<div style="text-align:center"><span class="smallfont" style="color:black">Kampfbericht</span></div>
-					<div style="height:180px; overflow:auto">
-						<br />
-						{battle.msg}
-					</div>
-					<br />
-					<div style="text-align:center">[ <a href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">ok</a> ]</div>
-				</td>
-			</tr>
-			</table>
-		{/endif}
 		{if battle.logoutput}
 			<table border="0" cellspacing="1" cellpadding="1" width="100%" class="nav">
 			<tr>
