@@ -936,9 +936,6 @@ public class KSAttackAction extends BasicKSAction {
 	}
 
 	private void calcADStep( Battle battle, int trefferWS, int navskill, BattleShip aeShip, int hit, int schaden, int shieldSchaden, double damagemod ) {
-		Context context = ContextMap.getContext();
-		User user = (User)context.getActiveUser();	
-
 		battle.logme("\n"+aeShip.getName()+" ("+aeShip.getId()+"):\n");
 		battle.logenemy("\n"+aeShip.getName()+" ("+aeShip.getId()+"):\n");
 
@@ -968,7 +965,7 @@ public class KSAttackAction extends BasicKSAction {
 
 		boolean mydamage = this.calcDamage( battle, aeShip, aeShipType, hit, (int)(shieldSchaden*damagemod), (int)(schaden*damagemod), tmpsubdmgs, "" );
 		if( !mydamage && (config.getInt("DESTROYABLE_SHIPS") != 0) ) {
-			this.destroyShip(user.getId(), battle, aeShip);
+			this.destroyShip(this.ownShip.getOwner().getId(), battle, aeShip);
 		}
 	}
 
@@ -989,8 +986,6 @@ public class KSAttackAction extends BasicKSAction {
 	{
 		Context context = ContextMap.getContext();
 		Session db = context.getDB();
-
-		User user = (User)context.getActiveUser();	
 
 		int result = super.execute(battle);
 		if( result != RESULT_OK )
@@ -1481,7 +1476,7 @@ public class KSAttackAction extends BasicKSAction {
 				 */
 				if( !savedamage && (config.getInt("DESTROYABLE_SHIPS") != 0) )
 				{
-					this.destroyShip(user.getId(), battle, this.enemyShip);
+					this.destroyShip(this.ownShip.getOwner().getId(), battle, this.enemyShip);
 					int newindex = battle.getNewTargetIndex();
 					if(newindex != -1)
 					{
@@ -1504,7 +1499,7 @@ public class KSAttackAction extends BasicKSAction {
 
 					if( config.getInt("DESTROYABLE_SHIPS") != 0 )
 					{
-						this.destroyShipOnly(user.getId(), battle, this.ownShip, false, false);
+						this.destroyShipOnly(this.ownShip.getOwner().getId(), battle, this.ownShip, false, false);
 
 						breakFlag = true;
 						break;
