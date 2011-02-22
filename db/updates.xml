@@ -1529,4 +1529,8 @@
 		ALTER TABLE battles DROP inakt;
 		ALTER TABLE battles DROP quest;
 	]]></update>
+	<update type="structure" datum="2011-02-21"><![CDATA[
+		ALTER TABLE ships DROP script;
+		ALTER TABLE ships DROP scriptexedata;
+	]]></update>
 </updates>
