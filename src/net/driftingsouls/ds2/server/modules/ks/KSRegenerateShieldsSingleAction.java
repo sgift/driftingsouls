@@ -42,9 +42,9 @@ public class KSRegenerateShieldsSingleAction extends BasicKSAction {
 	}
 
 	@Override
-	public int execute(Battle battle) throws IOException {
-		int result = super.execute(battle);
-		if( result != RESULT_OK ) {
+	public Result execute(Battle battle) throws IOException {
+		Result result = super.execute(battle);
+		if( result != Result.OK ) {
 			return result;
 		}
 		
@@ -54,17 +54,17 @@ public class KSRegenerateShieldsSingleAction extends BasicKSAction {
 		
 		if( ownShip.getShip().getEnergy() < 1 ) {
 			battle.logme( "Keine Energie um die Schilde zu laden\n" );
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		if( ownShipType.getShields() < 1 ) {
 			battle.logme( "Das Schiff besitzt keine Schilde\n" );
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		if( ownShip.getShip().getShields() >= ownShipType.getShields() ) {
 			battle.logme( "Die Schilde sind bereits vollst&auml;ndig aufgeladen\n" );
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 
 		int shieldfactor = 10;
@@ -105,6 +105,6 @@ public class KSRegenerateShieldsSingleAction extends BasicKSAction {
 		
 		ownShip.getShip().recalculateShipStatus();
 			
-		return RESULT_OK;
+		return Result.OK;
 	}
 }

@@ -36,7 +36,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypes;
  */
 public class KSMenuShieldsAction extends BasicKSMenuAction {
 	@Override
-	public int validate(Battle battle) {
+	public Result validate(Battle battle) {
 		boolean showshields = false;
 		List<BattleShip> ownShips = battle.getOwnShips();
 		for( int i=0; i < ownShips.size(); i++ ) {
@@ -51,21 +51,21 @@ public class KSMenuShieldsAction extends BasicKSMenuAction {
 
 		//Schilde aufladen
 		if( showshields ) {
-			return RESULT_OK;
+			return Result.OK;
 		}
-		return RESULT_ERROR;
+		return Result.ERROR;
 	}
 
 	@Override
-	public int execute(Battle battle) throws IOException {
-		int result = super.execute(battle);
-		if( result != RESULT_OK ) {
+	public Result execute(Battle battle) throws IOException {
+		Result result = super.execute(battle);
+		if( result != Result.OK ) {
 			return result;
 		}
 		
-		if( this.validate(battle) != RESULT_OK ) {
+		if( this.validate(battle) != Result.OK ) {
 			battle.logme("Die Aktion kann nicht ausgef&uuml;hrt werden");
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		BattleShip ownShip = battle.getOwnShip();
@@ -123,6 +123,6 @@ public class KSMenuShieldsAction extends BasicKSMenuAction {
 				"attack",	enemyShip.getId(),
 				"ksaction",	"other" );
 												
-		return RESULT_OK;
+		return Result.OK;
 	}
 }

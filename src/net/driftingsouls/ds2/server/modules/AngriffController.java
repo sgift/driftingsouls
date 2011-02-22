@@ -438,11 +438,11 @@ public class AngriffController extends TemplateGenerator {
 							BasicKSMenuAction actionobj = MENUACTIONS.get(action.toString()).newInstance();
 							actionobj.setController(this);
 							
-							int result = actionobj.execute(battle);
-							if( result == BasicKSAction.RESULT_HALT ) {
+							BasicKSAction.Result result = actionobj.execute(battle);
+							if( result == BasicKSAction.Result.HALT ) {
 								return false;
 							}
-							else if( result == BasicKSAction.RESULT_ERROR ) {
+							else if( result == BasicKSAction.Result.ERROR ) {
 								action.setLength(0);
 							}
 						}
@@ -471,7 +471,7 @@ public class AngriffController extends TemplateGenerator {
 				historyobj.setText("<div style=\"text-align:center\">Nur der Oberkommandierende einer Seite kann Befehle erteilen.</div>\n");
 				historyobj.showOK(false);
 					
-				if( historyobj.execute(battle) == BasicKSAction.RESULT_HALT ) {
+				if( historyobj.execute(battle) == BasicKSAction.Result.HALT ) {
 					return false;
 				}
 			}
@@ -625,7 +625,7 @@ public class AngriffController extends TemplateGenerator {
 				BasicKSAction actionobj = ACTIONS.get(action).newInstance();
 				actionobj.setController(this);
 				
-				if( actionobj.execute(battle) == BasicKSAction.RESULT_HALT ) {
+				if( actionobj.execute(battle) == BasicKSAction.Result.HALT ) {
 					this.setTemplate("");
 					return;	
 				}

@@ -41,9 +41,9 @@ public class KSStopTakeCommandAction extends BasicKSAction {
 	}
 	
 	@Override
-	public int execute(Battle battle) throws IOException {
-		int result = super.execute(battle);
-		if( result != RESULT_OK ) {
+	public Result execute(Battle battle) throws IOException {
+		Result result = super.execute(battle);
+		if( result != Result.OK ) {
 			return result;
 		}
 		
@@ -54,13 +54,13 @@ public class KSStopTakeCommandAction extends BasicKSAction {
 		if( battle.getTakeCommand(battle.getOwnSide()) == 0 ) {
 			battle.logme( "Es versucht niemand das Kommando zu &uuml;bernehmen\n" );
 			
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		PM.send( user, battle.getTakeCommand(battle.getOwnSide()), "Schlacht-&uuml;bergabe abgelehnt", "Die &Uuml;bergabe es Kommandos der Schlacht bei "+battle.getLocation()+" wurde abgelehnt");
 
 		battle.setTakeCommand(battle.getOwnSide(), 0);
 
-		return RESULT_OK;
+		return Result.OK;
 	}
 }

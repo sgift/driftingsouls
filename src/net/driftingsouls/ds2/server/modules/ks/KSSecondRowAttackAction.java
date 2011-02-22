@@ -44,17 +44,17 @@ public class KSSecondRowAttackAction extends BasicKSAction {
 	}
 	
 	@Override
-	public int validate(Battle battle) {
+	public Result validate(Battle battle) {
 		if( battle.hasFlag(Battle.FLAG_FIRSTROUND) ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		if( (battle.getOwnSide() == 0) && battle.hasFlag(Battle.FLAG_DROP_SECONDROW_1) ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		if( (battle.getOwnSide() == 1) && battle.hasFlag(Battle.FLAG_DROP_SECONDROW_0) ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		//The attacker needs a destroyer
@@ -74,27 +74,27 @@ public class KSSecondRowAttackAction extends BasicKSAction {
 		}
 		
 		if( !hasDestroyer ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		if(battle.getBattleValue(Side.OWN) < battle.getBattleValue(Side.ENEMY)*2)
 		{
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
-		return RESULT_OK;
+		return Result.OK;
 	}
 
 	@Override
-	public int execute(Battle battle) throws IOException {
-		int result = super.execute(battle);
-		if( result != RESULT_OK ) {
+	public Result execute(Battle battle) throws IOException {
+		Result result = super.execute(battle);
+		if( result != Result.OK ) {
 			return result;
 		}
 		
-		if( this.validate(battle) != RESULT_OK ) {
+		if( this.validate(battle) != Result.OK ) {
 			battle.logme("Die Aktion kann nicht ausgef&uuml;hrt werden");
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		Context context = ContextMap.getContext();
@@ -111,6 +111,6 @@ public class KSSecondRowAttackAction extends BasicKSAction {
 		battle.logenemy("Die feindlichen Schiffe r&uuml;cken unter schwerem Feuer langsam vor und dr&auml;ngen trotz heftigsten Widerstands die Linien zur&uuml;ck\n");
 		battle.logenemy("]]></action>\n");	
 		
-		return RESULT_OK;
+		return Result.OK;
 	}
 }

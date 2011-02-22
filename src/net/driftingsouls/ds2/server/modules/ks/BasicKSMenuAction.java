@@ -101,7 +101,7 @@ public abstract class BasicKSMenuAction extends BasicKSAction {
 	 * @param action Die Aktion
 	 * @return Der Rueckgabewert
 	 */
-	protected int isPossible( Battle battle, BasicKSAction action ) {
+	protected Result isPossible( Battle battle, BasicKSAction action ) {
 		action.setController(this.getController());
 		return action.validate(battle);
 	}

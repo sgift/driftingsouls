@@ -43,9 +43,9 @@ public class KSTakeCommandAction extends BasicKSAction {
 	}
 	
 	@Override
-	public int execute(Battle battle) throws IOException {
-		int result = super.execute(battle);
-		if( result != RESULT_OK ) {
+	public Result execute(Battle battle) throws IOException {
+		Result result = super.execute(battle);
+		if( result != Result.OK ) {
 			return result;
 		}
 		
@@ -57,18 +57,18 @@ public class KSTakeCommandAction extends BasicKSAction {
 			((user.getAlly() != null) && (battle.getAlly(battle.getOwnSide()) != user.getAlly().getId())) ) {
 			
 			battle.logme( "Sie geh&ouml;ren nicht der kommandierenden Allianz an\n" );
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		if( battle.getTakeCommand(battle.getOwnSide()) != 0 ) {
 			battle.logme( "Es versucht bereits ein anderer Spieler das Kommando zu &uuml;bernehmen\n" );
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		/*
 		User oldCommander = battle.getCommander(battle.getOwnSide());
 		if( oldCommander.getInactivity() <= 0 ) {
 			battle.logme( "Der kommandierende Spieler ist noch anwesend\n" );
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		*/
 		battle.setCommander(battle.getOwnSide(), user);
@@ -76,6 +76,6 @@ public class KSTakeCommandAction extends BasicKSAction {
 		battle.logenemy("[userprofile="+user.getId()+",profile_alog]"+Common._titleNoFormat(user.getName())+"[/userprofile] hat die Schlacht &uuml;bernommen\n\n");
 		battle.logenemy("]]></action>\n");
 		
-		return RESULT_OK;		
+		return Result.OK;		
 	}
 }

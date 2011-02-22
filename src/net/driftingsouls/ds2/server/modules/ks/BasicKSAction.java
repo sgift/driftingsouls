@@ -33,17 +33,25 @@ import net.driftingsouls.ds2.server.modules.AngriffController;
  */
 public abstract class BasicKSAction {
 	/**
-	 * Das Ergebnis "Ok".
+	 * Das Ergebnis einer KS-Aktion. Dies entscheidet darueber wie das KS nach der Aktion weiter
+	 * verfaehrt.
+	 *
 	 */
-	public static final int RESULT_OK = 1;
-	/**
-	 * Das Ergebnis "nicht kritischer Fehler".
-	 */
-	public static final int RESULT_ERROR = 0;
-	/**
-	 * Das Ergebnis "kritischer Fehler".
-	 */
-	public static final int RESULT_HALT = -1;
+	public static enum Result
+	{
+		/**
+		 * Das Ergebnis "Ok".
+		 */
+		OK,
+		/**
+		 * Das Ergebnis "nicht kritischer Fehler".
+		 */
+		ERROR,
+		/**
+		 * Das Ergebnis "kritischer Fehler".
+		 */
+		HALT;
+	}
 	
 	private boolean requireCommander;
 	private boolean requireActive;
@@ -54,7 +62,8 @@ public abstract class BasicKSAction {
 	 * Konstruktor.
 	 *
 	 */
-	public BasicKSAction() {
+	public BasicKSAction()
+	{
 		this.controller = null;
 		
 		this.requireCommander(true);
@@ -66,7 +75,8 @@ public abstract class BasicKSAction {
 	 * Setzt den KS-Controller.
 	 * @param controller Der KS-Controller
 	 */
-	public void setController(AngriffController controller) {
+	public void setController(AngriffController controller)
+	{
 		this.controller = controller;	
 	}
 	
@@ -74,19 +84,23 @@ public abstract class BasicKSAction {
 	 * Gibt den assoziierten KS-Controller zurueck.
 	 * @return Der KS-Controller
 	 */
-	public AngriffController getController() {
+	public AngriffController getController()
+	{
 		return this.controller;	
 	}
 	
-	protected void requireCommander( boolean value ) {
+	protected void requireCommander( boolean value )
+	{
 		this.requireCommander = value;
 	}
 	
-	protected void requireActive( boolean value ) {
+	protected void requireActive( boolean value )
+	{
 		this.requireActive = value;
 	}
 	
-	protected void requireOwnShipReady( boolean value ) {
+	protected void requireOwnShipReady( boolean value )
+	{
 		this.requireOwnShipReady = value;
 	}
 	
@@ -96,8 +110,9 @@ public abstract class BasicKSAction {
 	 * @param battle Die Schlacht
 	 * @return Das Ergebnis
 	 */
-	public int validate( Battle battle ) {
-		return RESULT_OK;
+	public Result validate( Battle battle )
+	{
+		return Result.OK;
 	} 
 	
 	/**
@@ -106,20 +121,21 @@ public abstract class BasicKSAction {
 	 * @return Das Ergebnis
 	 * @throws IOException 
 	 */
-	public int execute( Battle battle ) throws IOException {
+	public Result execute( Battle battle ) throws IOException
+	{
 		User user = (User)ContextMap.getContext().getActiveUser();
 		
 		if( this.requireCommander ) {
 			if( !battle.isCommander(user, battle.getOwnSide()) ) {
 				battle.logme( "Sie k&ouml;nnen diese Aktion nicht durchf&uuml;hren, da sie ihre Seite nicht kommandieren\n" );
-				return RESULT_ERROR;
+				return Result.ERROR;
 			}
 		}
 		
 		if( this.requireActive ) {
 			if( battle.isReady(battle.getOwnSide()) ) {
 				battle.logme( "Sie haben ihren Zug bereits beendet\n" );
-				return RESULT_ERROR;
+				return Result.ERROR;
 			}
 		}
 		
@@ -128,15 +144,15 @@ public abstract class BasicKSAction {
 	
 			if( (ownShip.getAction() & Battle.BS_FLUCHT) != 0 ) {
 				battle.logme( "Das Schiff flieht gerade\n" );
-				return RESULT_ERROR;
+				return Result.ERROR;
 			}
 	
 			if( (ownShip.getAction() & Battle.BS_JOIN) != 0 ) {
 				battle.logme( "Das Schiff tritt erst gerade der Schlacht bei\n" );
-				return RESULT_ERROR;
+				return Result.ERROR;
 			}	
 		}
 		
-		return RESULT_OK;
+		return Result.OK;
 	}
 }

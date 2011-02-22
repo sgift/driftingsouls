@@ -33,7 +33,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
  */
 public class KSEndBattleCivilAction extends BasicKSAction {
 	@Override
-	public int validate(Battle battle) {
+	public Result validate(Battle battle) {
 		/*
 		if( battle.getBetakStatus(battle.getOwnSide()) ) {
 			boolean onlyCivil = true;
@@ -49,23 +49,23 @@ public class KSEndBattleCivilAction extends BasicKSAction {
 				}
 			}
 			if( onlyCivil ) {
-				return RESULT_OK;
+				return Result.OK;
 			}
 		}
 		*/
-		return RESULT_ERROR;
+		return Result.ERROR;
 	}
 
 	@Override
-	public int execute(Battle battle) throws IOException {
-		int result = super.execute(battle);
-		if( result != RESULT_OK ) {
+	public Result execute(Battle battle) throws IOException {
+		Result result = super.execute(battle);
+		if( result != Result.OK ) {
 			return result;
 		}
 		
-		if( this.validate(battle) != RESULT_OK ) {
+		if( this.validate(battle) != Result.OK ) {
 			battle.logme("Die Aktion kann nicht ausgef&uuml;hrt werden");
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 
 		Context context = ContextMap.getContext();
@@ -79,6 +79,6 @@ public class KSEndBattleCivilAction extends BasicKSAction {
 		battle.endTurn(true);
 		battle.endBattle( 1, -1, true );
 
-		return RESULT_HALT;
+		return Result.HALT;
 	}
 }

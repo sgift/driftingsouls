@@ -320,9 +320,9 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 	}
 	
 	@Override
-	public int execute(Battle battle) throws IOException {
-		int result = super.execute(battle);
-		if( result != RESULT_OK ) {
+	public Result execute(Battle battle) throws IOException {
+		Result result = super.execute(battle);
+		if( result != Result.OK ) {
 			return result;
 		}
 		
@@ -387,7 +387,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 			File ksLog = new File(config.get("LOXPATH")+"battles/battle_id"+battle.getId()+".log");
 			if( !ksLog.isFile() ) {
 				t.setVar( "global.showlog.log", "Fehler: Konnte Kampflog nicht &ouml;ffnen");
-				return RESULT_ERROR;
+				return Result.ERROR;
 			}
 			
 			parseLog(ksLog);
@@ -412,7 +412,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 			log.error("", e);
 		}
 		
-		return RESULT_OK;
+		return Result.OK;
 	}
 
 	private void parseLog(File ksLog) throws SAXException, IOException

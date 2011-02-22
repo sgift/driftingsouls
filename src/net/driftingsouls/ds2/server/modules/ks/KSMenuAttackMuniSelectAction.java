@@ -68,34 +68,34 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 	}
 	
 	@Override
-	public int validate(Battle battle) {
+	public Result validate(Battle battle) {
 		BattleShip ownShip = battle.getOwnShip();
 		BattleShip enemyShip = battle.getEnemyShip();
 	
 		if( (ownShip.getAction() & Battle.BS_JOIN) != 0 ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		if( (enemyShip.getAction() & Battle.BS_JOIN) != 0 ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		if( (enemyShip.getAction() & Battle.BS_DESTROYED) != 0 ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		if(ownShip.getShip().isLanded()) 
 		{
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		if( (ownShip.getAction() & Battle.BS_FLUCHT) != 0 ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		ShipTypeData ownShipType = ownShip.getTypeData();
 		
 		if( (enemyShip.getAction() & Battle.BS_FLUCHT) != 0 &&	!ownShipType.hasFlag(ShipTypes.SF_ABFANGEN) ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		boolean gotone = true;			
@@ -113,10 +113,10 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 		}
 						
 		if( !gotone ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
-		return RESULT_OK;	
+		return Result.OK;	
 	}
 	
 	private String getAttMode() {
@@ -143,9 +143,9 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 	}
 	
 	@Override
-	public int execute(Battle battle) throws IOException {
-		int result = super.execute(battle);
-		if( result != RESULT_OK ) {
+	public Result execute(Battle battle) throws IOException {
+		Result result = super.execute(battle);
+		if( result != Result.OK ) {
 			return result;
 		}
 		
@@ -163,23 +163,23 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 			!Weapons.get().weapon(weapon).hasFlag(Weapon.Flags.LONG_RANGE) &&
 			!Weapons.get().weapon(weapon).hasFlag(Weapon.Flags.VERY_LONG_RANGE) ) {
 			battle.logme("Diese Waffe hat nicht die notwendige Reichweite um aus der zweiten Reihe heraus abgefeuert zu werden\n");
-			return RESULT_ERROR;	
+			return Result.ERROR;	
 		}
 		
 		if( (enemyShip.getAction() & Battle.BS_SECONDROW) != 0 && 
 			!Weapons.get().weapon(weapon).hasFlag(Weapon.Flags.VERY_LONG_RANGE)	) {
 			battle.logme("Diese Waffe hat nicht die notwendige Reichweite um in die zweiten Reihe des Gegners abgefeuert zu werden\n");
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		if( (ownShip.getAction() & Battle.BS_BLOCK_WEAPONS) != 0 ) {
 			battle.logme( "Sie k&ouml;nnen in dieser Runde keine Waffen mehr abfeuern\n" );
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		if( (ownShip.getAction() & Battle.BS_DISABLE_WEAPONS) != 0 ) {
 			battle.logme( "Das Schiff kann seine Waffen in diesem Kampf nicht mehr abfeuern\n" );
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		/*
@@ -235,6 +235,6 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 									"ksaction",	"attack",
 									"attmode",	attmode );
 		
-		return RESULT_OK;
+		return Result.OK;
 	}
 }

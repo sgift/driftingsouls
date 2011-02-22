@@ -43,9 +43,9 @@ public class KSFluchtSingleAction extends BasicKSAction {
 	}
 	
 	@Override
-	public int execute(Battle battle) throws IOException {
-		int result = super.execute(battle);
-		if( result != RESULT_OK ) {
+	public Result execute(Battle battle) throws IOException {
+		Result result = super.execute(battle);
+		if( result != Result.OK ) {
 			return result;
 		}
 		
@@ -56,29 +56,29 @@ public class KSFluchtSingleAction extends BasicKSAction {
 	
 		if( (ownShip.getAction() & Battle.BS_DESTROYED) != 0 ) {
 			battle.logme( "Dieses Schiff explodiert am Ende der Runde\n" );
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 	
 		if( ownShip.getShip().getEngine() == 0 ) {
 			battle.logme( "Das Schiff kann nicht fliehen, da der Antrieb zerst&ouml;rt ist\n" );
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		if( ownShip.getShip().isDocked() || ownShip.getShip().isLanded()) {
 			battle.logme( "Sie k&ouml;nnen nicht mit gedockten/gelandeten Schiffen fliehen\n" );
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 	
 		if( ownShip.getEngine() <= 0 ) {
 			battle.logme( "Das Schiff kann nicht fliehen, da der Antrieb zerst&ouml;rt ist\n" );
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		ShipTypeData ownShipType = ownShip.getTypeData();
 		 
 		if( (ownShipType.getCrew() > 0) && (ownShip.getCrew() < (int)(ownShipType.getCrew()/4d)) ) {
 			battle.logme( "Nicht genug Crew um zu fliehen\n" );
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}		
 		
 		boolean gotone = false;
@@ -99,7 +99,7 @@ public class KSFluchtSingleAction extends BasicKSAction {
 		
 		if( !gotone ) {
 			battle.logme( "Sie ben&ouml;tigen ein Drohnen-Kontrollschiff um fliehen zu k&ouml;nnen\n" );
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		
@@ -125,6 +125,6 @@ public class KSFluchtSingleAction extends BasicKSAction {
 			battle.logme( (remove-1)+" an "+ownShip.getName()+" gedockte Schiffe werden n&auml;chste Runde fliehen\n" );
 		}
 	
-		return RESULT_OK;
+		return Result.OK;
 	}
 }

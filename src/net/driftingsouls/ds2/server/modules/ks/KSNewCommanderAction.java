@@ -44,9 +44,9 @@ public class KSNewCommanderAction extends BasicKSAction {
 	}
 	
 	@Override
-	public int execute(Battle battle) throws IOException {
-		int result = super.execute(battle);
-		if( result != RESULT_OK ) {
+	public Result execute(Battle battle) throws IOException {
+		Result result = super.execute(battle);
+		if( result != Result.OK ) {
 			return result;
 		}
 		
@@ -58,7 +58,7 @@ public class KSNewCommanderAction extends BasicKSAction {
 		
 		if( user.getId() == com.getId() ) {
 			battle.logme( "Sie k&ouml;nnen die Leitung der Schlacht nicht an sich selbst &uuml;bertragen\n" );
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		if( (battle.getAlly(battle.getOwnSide()) == 0) || 
@@ -74,13 +74,13 @@ public class KSNewCommanderAction extends BasicKSAction {
 			}
 			if( !found ) {
 				battle.logme( "Sie k&ouml;nnen diesem Spieler nicht die Leitung der Schlacht &uuml;bertragen!\n" );
-				return RESULT_ERROR;
+				return Result.ERROR;
 			}
 		}
 		
 		if( (com.getVacationCount() != 0) && (com.getWait4VacationCount() == 0) ) {
 			battle.logme( "Der Spieler befindet sich im Vacation-Modus!\n" );
-			return RESULT_ERROR;
+			return Result.ERROR;
 		} 
 
 		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
@@ -97,6 +97,6 @@ public class KSNewCommanderAction extends BasicKSAction {
 
 		battle.setTakeCommand(battle.getOwnSide(), 0);
 		
-		return RESULT_OK;
+		return Result.OK;
 	}
 }

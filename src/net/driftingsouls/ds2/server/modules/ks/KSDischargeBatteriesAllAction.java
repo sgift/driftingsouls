@@ -56,9 +56,9 @@ public class KSDischargeBatteriesAllAction extends BasicKSAction {
 	}
 
 	@Override
-	public final int execute(Battle battle) throws IOException {
-		int result = super.execute(battle);
-		if( result != RESULT_OK ) {
+	public final Result execute(Battle battle) throws IOException {
+		Result result = super.execute(battle);
+		if( result != Result.OK ) {
 			return result;
 		}
 		
@@ -113,6 +113,6 @@ public class KSDischargeBatteriesAllAction extends BasicKSAction {
 			battle.logenemy("]]></action>\n");
 		}
 
-		return RESULT_OK;
+		return Result.OK;
 	}
 }

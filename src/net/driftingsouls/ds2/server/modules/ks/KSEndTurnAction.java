@@ -33,9 +33,9 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
  */
 public class KSEndTurnAction extends BasicKSAction {
 	@Override
-	public int execute(Battle battle) throws IOException {
-		int result = super.execute(battle);
-		if( result != RESULT_OK ) {
+	public Result execute(Battle battle) throws IOException {
+		Result result = super.execute(battle);
+		if( result != Result.OK ) {
 			return result;
 		}
 		
@@ -44,7 +44,7 @@ public class KSEndTurnAction extends BasicKSAction {
 		if( battle.isReady(battle.getEnemySide()) )
 		{
 			if( !battle.endTurn(true) ) {
-				return RESULT_HALT;
+				return Result.HALT;
 			}
 
 			battle.logenemy("<endturn type=\"all\" side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\" />\n");
@@ -60,6 +60,6 @@ public class KSEndTurnAction extends BasicKSAction {
 			battle.setReady(battle.getOwnSide(), true);
 		}
 		
-		return RESULT_OK;
+		return Result.OK;
 	}
 }

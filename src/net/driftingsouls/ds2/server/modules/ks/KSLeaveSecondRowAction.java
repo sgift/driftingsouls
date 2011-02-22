@@ -45,31 +45,31 @@ public class KSLeaveSecondRowAction extends BasicKSAction {
 	}
 	
 	@Override
-	public int validate(Battle battle) {
+	public Result validate(Battle battle) {
 		BattleShip ownShip = battle.getOwnShip();
 		
 		if( (ownShip.getAction() & Battle.BS_SECONDROW) == 0 || (ownShip.getAction() & Battle.BS_DESTROYED) != 0 ||
 			( ownShip.getAction() == 0 ) || ownShip.getShip().isLanded() || ownShip.getShip().isDocked() || (ownShip.getAction() & Battle.BS_FLUCHT) != 0 ||
 			( ownShip.getAction() & Battle.BS_JOIN ) != 0 ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		if( (ownShip.getAction() & Battle.BS_SECONDROW_BLOCKED) != 0 ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 
 		if( ownShip.getEngine() <= 0 ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		ShipTypeData ownShipType = ownShip.getTypeData();
 		
 		if( ownShipType.getCost() == 0 ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		 
 		if( (ownShipType.getCrew() > 0) && (ownShip.getCrew() == 0) ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		boolean gotone = false;
@@ -89,22 +89,22 @@ public class KSLeaveSecondRowAction extends BasicKSAction {
 		}
 		
 		if( !gotone ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
-		return RESULT_OK;
+		return Result.OK;
 	}
 
 	@Override
-	public int execute(Battle battle) throws IOException {
-		int result = super.execute(battle);
-		if( result != RESULT_OK ) {
+	public Result execute(Battle battle) throws IOException {
+		Result result = super.execute(battle);
+		if( result != Result.OK ) {
 			return result;
 		}
 		
-		if( this.validate(battle) != RESULT_OK ) {
+		if( this.validate(battle) != Result.OK ) {
 			battle.logme("Die Aktion kann nicht ausgef&uuml;hrt werden");
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		Context context = ContextMap.getContext();
@@ -139,6 +139,6 @@ public class KSLeaveSecondRowAction extends BasicKSAction {
 		
 		battle.logenemy("]]></action>\n");
 	
-		return RESULT_OK;
+		return Result.OK;
 	}
 }

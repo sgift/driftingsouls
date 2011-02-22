@@ -38,32 +38,32 @@ import org.hibernate.Session;
  */
 public class KSEndBattleEqualAction extends BasicKSAction {
 	@Override
-	public int validate(Battle battle) {
+	public Result validate(Battle battle) {
 		/*
 		//Check ob man nicht der Angreifer ist
 		if( battle.getOwnSide() == 0 ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		*/
 		ConfigValue endTieModifier = (ConfigValue)getDB().get(ConfigValue.class, "endtiemodifier");
 		if((battle.getBattleValue(Side.ENEMY) == 0) || (battle.getBattleValue(Side.OWN) > (battle.getBattleValue(Side.ENEMY) * Integer.valueOf(endTieModifier.getValue())))) 
 		{
-			return RESULT_OK;
+			return Result.OK;
 		}
 
-		return RESULT_ERROR;
+		return Result.ERROR;
 	}
 
 	@Override
-	public int execute(Battle battle) throws IOException {
-		int result = super.execute(battle);
-		if( result != RESULT_OK ) {
+	public Result execute(Battle battle) throws IOException {
+		Result result = super.execute(battle);
+		if( result != Result.OK ) {
 			return result;
 		}
 		
-		if( this.validate(battle) != RESULT_OK ) {
+		if( this.validate(battle) != Result.OK ) {
 			battle.logme("Die Aktion kann nicht ausgef&uuml;hrt werden");
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		List<BattleShip> shiplist = battle.getShips(Side.OWN);
@@ -71,7 +71,7 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 		for( int key=0; key < shiplist.size(); key++ ) {
 			BattleShip aship = shiplist.get(key);
 			
-			if( this.validate(battle) == RESULT_OK )
+			if( this.validate(battle) == Result.OK )
 			{
 				if(battle.getBattleValue(Side.OWN) - aship.getBattleValue() > 0)
 				{	
@@ -86,11 +86,11 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 			else
 			{
 				battle.logenemy("]]></action>\n");
-				return RESULT_OK;
+				return Result.OK;
 			}
 		}
 		battle.logenemy("]]></action>\n");
-		return RESULT_OK;
+		return Result.OK;
 		
 	}
 	

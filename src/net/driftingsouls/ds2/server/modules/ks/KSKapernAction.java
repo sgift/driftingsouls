@@ -61,13 +61,13 @@ public class KSKapernAction extends BasicKSAction {
 	}
 
 	@Override
-	public int validate(Battle battle) {
+	public Result validate(Battle battle) {
 		BattleShip ownShip = battle.getOwnShip();
 		BattleShip enemyShip = battle.getEnemyShip();
 
 		if( (ownShip.getAction() & Battle.BS_SECONDROW) != 0 ||
 				(enemyShip.getAction() & Battle.BS_SECONDROW) != 0 ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 
 		Context context = ContextMap.getContext();
@@ -76,7 +76,7 @@ public class KSKapernAction extends BasicKSAction {
 				(ownShip.getCrew() <= 0) || (ownShip.getAction() & Battle.BS_FLUCHT) != 0 ||
 				(ownShip.getAction() & Battle.BS_JOIN) != 0 || (enemyShip.getAction() & Battle.BS_FLUCHT) != 0 ||
 				(enemyShip.getAction() & Battle.BS_JOIN) != 0 || (enemyShip.getAction() & Battle.BS_DESTROYED) != 0 ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 
 		ShipTypeData enemyShipType = enemyShip.getTypeData();
@@ -85,23 +85,23 @@ public class KSKapernAction extends BasicKSAction {
 		if( (enemyShipType.getShipClass() == ShipClasses.GESCHUETZ.ordinal() ) || 
 				((enemyShipType.getCost() != 0) && (enemyShip.getShip().getEngine() != 0) && (enemyShip.getCrew() != 0)) ||
 				(ownShip.getCrew() == 0) || enemyShipType.hasFlag(ShipTypes.SF_NICHT_KAPERBAR) ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 
 		if( enemyShipType.getCrew() == 0 ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 
 		if(enemyShip.getShip().isDocked() || enemyShip.getShip().isLanded()) 
 		{
 			if(enemyShip.getShip().isLanded()) 
 			{
-				return RESULT_ERROR;
+				return Result.ERROR;
 			} 
 
 			Ship mastership = enemyShip.getShip().getBaseShip();
 			if( (mastership.getEngine() != 0) && (mastership.getCrew() != 0) ) {
-				return RESULT_ERROR;
+				return Result.ERROR;
 			}
 		}
 
@@ -109,7 +109,7 @@ public class KSKapernAction extends BasicKSAction {
 		boolean disableIFF = enemyShip.getShip().getStatus().indexOf("disable_iff") > -1;	
 
 		if( disableIFF ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 
 		//Flagschiff?
@@ -120,16 +120,16 @@ public class KSKapernAction extends BasicKSAction {
 
 		if( !ownuser.hasFlagschiffSpace() && (flagschiffstatus != null) && 
 				(flagschiffstatus.getID() == enemyShip.getId()) ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 
-		return RESULT_OK;
+		return Result.OK;
 	}
 
 	@Override
-	public int execute(Battle battle) throws IOException {
-		int result = super.execute(battle);
-		if( result != RESULT_OK ) {
+	public Result execute(Battle battle) throws IOException {
+		Result result = super.execute(battle);
+		if( result != Result.OK ) {
 			return result;
 		}
 		Context context = ContextMap.getContext();
@@ -139,9 +139,9 @@ public class KSKapernAction extends BasicKSAction {
 		BattleShip ownShip = battle.getOwnShip();
 		BattleShip enemyShip = battle.getEnemyShip();
 
-		if( this.validate(battle) != RESULT_OK ) {
+		if( this.validate(battle) != Result.OK ) {
 			battle.logme( "Sie k&ouml;nnen dieses Schiff nicht kapern" );
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 
 		ShipTypeData enemyShipType = enemyShip.getTypeData();
@@ -403,7 +403,7 @@ public class KSKapernAction extends BasicKSAction {
 				context.getResponse().getWriter().append("Du hast das letzte gegnerische Schiff gekapert und somit die Schlacht gewonnen!");
 				PM.send(commander, battle.getCommander(battle.getEnemySide()).getId(), "Schlacht verloren", "Du hast die Schlacht bei "+battle.getLocation().displayCoordinates(false)+" gegen "+user.getName()+" verloren, da dein letztes Schiff gekapert wurde!");
 
-				return RESULT_HALT;
+				return Result.HALT;
 			}
 
 			if( !battle.isValidTarget() ) {
@@ -426,6 +426,6 @@ public class KSKapernAction extends BasicKSAction {
 
 		ownShip.getShip().recalculateShipStatus();
 
-		return RESULT_OK;
+		return Result.OK;
 	}
 }

@@ -982,20 +982,20 @@ public class KSAttackAction extends BasicKSAction {
 	}
 
 	@Override
-	public int execute(Battle battle) throws IOException
+	public Result execute(Battle battle) throws IOException
 	{
 		Context context = ContextMap.getContext();
 		Session db = context.getDB();
 
-		int result = super.execute(battle);
-		if( result != RESULT_OK )
+		Result result = super.execute(battle);
+		if( result != Result.OK )
 		{
 			return result;
 		}
 
 		if( this.weapon == null )
 		{
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 
 		// Schiff laden
@@ -1011,7 +1011,7 @@ public class KSAttackAction extends BasicKSAction {
 		if( !weaponList.containsKey(weaponName) )
 		{
 			battle.logme("Ihr Schiff besitzt keine Waffen des Typs "+this.weapon.getName());
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 
 		int weapons = Integer.parseInt(weaponList.get(weaponName));
@@ -1073,19 +1073,19 @@ public class KSAttackAction extends BasicKSAction {
 		if( (ownShipType.getMinCrew() > 0) && (this.ownShip.getCrew() < ownShipType.getMinCrew()/2d) )
 		{
 			battle.logme( "Nicht genug Crew um mit der Waffe "+this.weapon.getName()+" zu feuern\n" );
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 
 		if( (this.ownShip.getAction() & Battle.BS_DISABLE_WEAPONS) != 0 )
 		{
 			battle.logme( "Das Schiff kann seine Waffen in diesem Kampf nicht mehr abfeuern\n" );
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 
 		if( (this.ownShip.getAction() & Battle.BS_BLOCK_WEAPONS) != 0 )
 		{
 			battle.logme( "Sie k&ouml;nnen in dieser Runde keine Waffen mehr abfeuern\n" );
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 
 		boolean gotone = false;
@@ -1111,25 +1111,25 @@ public class KSAttackAction extends BasicKSAction {
 		if( !gotone )
 		{
 			battle.logme( "Sie ben&ouml;tigen ein Drohnen-Kontrollschiff um feuern zu k&ouml;nnen\n" );
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 
 		if( weapons <= 0 )
 		{
 			battle.logme( "Das Schiff verf&uuml;gt nicht &uuml;ber die von ihnen gew&auml;hlte Waffe ("+weaponName+")\n" );
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 
 		if( this.ownShip.getShip().getEnergy() < this.weapon.getECost()*weapons )
 		{
 			battle.logme( "Nicht genug Energie um mit der Waffe "+this.weapon.getName()+" zu feuern\n" );
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 
 		if(this.ownShip.getShip().isLanded())
 		{
 			battle.logme( "Sie k&ouml;nnen nicht mit gelandeten Schiffen feuern\n" );
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 
 		int oldenemyship = battle.getEnemyShipIndex();
@@ -1538,7 +1538,7 @@ public class KSAttackAction extends BasicKSAction {
 
 		this.ownShip.getShip().recalculateShipStatus();
 
-		return RESULT_OK;
+		return Result.OK;
 	}
 
 	private String getTWSText(int chance)

@@ -42,24 +42,24 @@ public class KSSecondRowEngageAction extends BasicKSAction {
 	}
 	
 	@Override
-	public int validate(Battle battle) {
+	public Result validate(Battle battle) {
 		if( battle.isSecondRowStable(battle.getEnemySide()) ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}  
 		
-		return RESULT_OK;
+		return Result.OK;
 	}
 
 	@Override
-	public int execute(Battle battle) throws IOException {
-		int result = super.execute(battle);
-		if( result != RESULT_OK ) {
+	public Result execute(Battle battle) throws IOException {
+		Result result = super.execute(battle);
+		if( result != Result.OK ) {
 			return result;
 		}
 		
-		if( this.validate(battle) != RESULT_OK ) {
+		if( this.validate(battle) != Result.OK ) {
 			battle.logme("Die Aktion kann nicht ausgef&uuml;hrt werden");
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		Context context = ContextMap.getContext();
@@ -85,6 +85,6 @@ public class KSSecondRowEngageAction extends BasicKSAction {
 			battle.setFlag(Battle.FLAG_BLOCK_SECONDROW_0, true);
 		}
 		
-		return RESULT_OK;
+		return Result.OK;
 	}
 }

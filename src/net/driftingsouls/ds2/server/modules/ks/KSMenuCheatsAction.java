@@ -50,9 +50,9 @@ public class KSMenuCheatsAction extends BasicKSMenuAction {
     }
 	
 	@Override
-	public int execute(Battle battle) throws IOException {
-		int result = super.execute(battle);
-		if( result != RESULT_OK ) {
+	public Result execute(Battle battle) throws IOException {
+		Result result = super.execute(battle);
+		if( result != Result.OK ) {
 			return result;
 		}
 		
@@ -60,7 +60,7 @@ public class KSMenuCheatsAction extends BasicKSMenuAction {
 		
 		if( config.getInt("ENABLE_CHEATS") == 0 ) {
 			context.addError("Cheats sind deaktiviert!");
-			return RESULT_HALT;
+			return Result.HALT;
 		}
 		
 		BattleShip ownShip = battle.getOwnShip();
@@ -81,6 +81,6 @@ public class KSMenuCheatsAction extends BasicKSMenuAction {
 				"attack",	enemyShip.getId(),
 				"ksaction",	"other" );
 
-		return RESULT_OK;		
+		return Result.OK;		
 	}
 }

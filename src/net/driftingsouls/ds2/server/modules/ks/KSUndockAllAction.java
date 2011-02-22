@@ -44,7 +44,7 @@ public class KSUndockAllAction extends BasicKSAction {
 	}
 	
 	@Override
-	public int validate(Battle battle) {
+	public Result validate(Battle battle) {
 		BattleShip ownShip = battle.getOwnShip();
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
@@ -54,21 +54,21 @@ public class KSUndockAllAction extends BasicKSAction {
 			.iterate().hasNext();
 		
 		if( dock ) {
-			return RESULT_OK;
+			return Result.OK;
 		}
-		return RESULT_ERROR;	
+		return Result.ERROR;	
 	}
 
 	@Override
-	public int execute(Battle battle) throws IOException {
-		int result = super.execute(battle);
-		if( result != RESULT_OK ) {
+	public Result execute(Battle battle) throws IOException {
+		Result result = super.execute(battle);
+		if( result != Result.OK ) {
 			return result;
 		}
 		
-		if( this.validate(battle) != RESULT_OK ) {
+		if( this.validate(battle) != Result.OK ) {
 			battle.logme( "Validation failed\n" );
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		Context context = ContextMap.getContext();
@@ -108,6 +108,6 @@ public class KSUndockAllAction extends BasicKSAction {
 
 		ownShip.getShip().recalculateShipStatus();
 		
-		return RESULT_OK;
+		return Result.OK;
 	}
 }

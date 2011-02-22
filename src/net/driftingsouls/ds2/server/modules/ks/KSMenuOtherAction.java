@@ -48,9 +48,9 @@ public class KSMenuOtherAction extends BasicKSMenuAction {
     }
 	
 	@Override
-	public int execute(Battle battle) throws IOException {
-		int result = super.execute(battle);
-		if( result != RESULT_OK ) {
+	public Result execute(Battle battle) throws IOException {
+		Result result = super.execute(battle);
+		if( result != Result.OK ) {
 			return result;
 		}
 		
@@ -65,7 +65,7 @@ public class KSMenuOtherAction extends BasicKSMenuAction {
 		}
 
 		//Alle Abdocken
-		if( this.isPossible(battle, new KSUndockAllAction()) == RESULT_OK ) {
+		if( this.isPossible(battle, new KSUndockAllAction()) == Result.OK ) {
 			menuEntry("Alle Abdocken", 
 						"ship",		ownShip.getId(),
 						"attack",	enemyShip.getId(),
@@ -73,14 +73,14 @@ public class KSMenuOtherAction extends BasicKSMenuAction {
 		}
 
 		//Schilde aufladen
-		if( this.isPossible(battle, new KSMenuShieldsAction()) == RESULT_OK ) {
+		if( this.isPossible(battle, new KSMenuShieldsAction()) == Result.OK ) {
 			menuEntry("Schilde aufladen",
 						"ship",			ownShip.getId(),
 						"attack",		enemyShip.getId(),
 						"ksaction",		"shields" );
 		}
 
-		if( this.isPossible(battle, new KSMenuBatteriesAction()) == RESULT_OK ) {
+		if( this.isPossible(battle, new KSMenuBatteriesAction()) == Result.OK ) {
 			menuEntry("Batterien entladen",
 						"ship",			ownShip.getId(),
 						"attack",		enemyShip.getId(),
@@ -100,6 +100,6 @@ public class KSMenuOtherAction extends BasicKSMenuAction {
 		menuEntry("zur&uuml;ck",	"ship",		ownShip.getId(),
 									"attack",	enemyShip.getId() );
 		
-		return RESULT_OK;
+		return Result.OK;
 	}
 }

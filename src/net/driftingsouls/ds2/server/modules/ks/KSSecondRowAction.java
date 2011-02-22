@@ -46,55 +46,55 @@ public class KSSecondRowAction extends BasicKSAction {
 	}
 	
 	@Override
-	public int validate(Battle battle) {
+	public Result validate(Battle battle) {
 		BattleShip ownShip = battle.getOwnShip();
 		
 		if( (ownShip.getAction() & Battle.BS_SECONDROW) != 0 || (ownShip.getAction() & Battle.BS_DESTROYED) != 0 ||
 			( ownShip.getShip().getEngine() == 0 ) || ownShip.getShip().isLanded() || ownShip.getShip().isLanded() || (ownShip.getAction() & Battle.BS_FLUCHT) != 0 ||
 			( ownShip.getAction() & Battle.BS_JOIN ) != 0 ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		if( (ownShip.getAction() & Battle.BS_SECONDROW_BLOCKED) != 0 ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		if( (battle.getOwnSide() == 0) && battle.hasFlag(Battle.FLAG_DROP_SECONDROW_0) ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		if( (battle.getOwnSide() == 1) && battle.hasFlag(Battle.FLAG_DROP_SECONDROW_1) ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		if( (battle.getOwnSide() == 0) && battle.hasFlag(Battle.FLAG_BLOCK_SECONDROW_0) ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		if( (battle.getOwnSide() == 1) && battle.hasFlag(Battle.FLAG_BLOCK_SECONDROW_1) ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		if( ownShip.getShip().isBattleAction() ) {
-			return RESULT_ERROR;	
+			return Result.ERROR;	
 		}
 	
 		if( ownShip.getEngine() <= 0 ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		} 
 		
 		ShipTypeData ownShipType = ownShip.getTypeData();
 		
 		if( !ownShipType.hasFlag(ShipTypes.SF_SECONDROW) ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		if( ownShipType.getCost() == 0 ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		 
 		if( (ownShipType.getCrew() > 0) && (ownShip.getCrew() == 0) ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		boolean gotone = false;
@@ -114,7 +114,7 @@ public class KSSecondRowAction extends BasicKSAction {
 		}
 		
 		if( !gotone ) {
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		//Does a first row exist without this ship?
@@ -122,23 +122,23 @@ public class KSSecondRowAction extends BasicKSAction {
 		{
 			if(!ship.equals(ownShip) && !ship.isSecondRow())
 			{
-				return RESULT_OK;
+				return Result.OK;
 			}
 		}
 				
-		return RESULT_ERROR;
+		return Result.ERROR;
 	}
 
 	@Override
-	public int execute(Battle battle) throws IOException {
-		int result = super.execute(battle);
-		if( result != RESULT_OK ) {
+	public Result execute(Battle battle) throws IOException {
+		Result result = super.execute(battle);
+		if( result != Result.OK ) {
 			return result;
 		}
 		
-		if( this.validate(battle) != RESULT_OK ) {
+		if( this.validate(battle) != Result.OK ) {
 			battle.logme("Die Aktion kann nicht ausgef&uuml;hrt werden");
-			return RESULT_ERROR;
+			return Result.ERROR;
 		}
 		
 		Context context = ContextMap.getContext();
@@ -175,6 +175,6 @@ public class KSSecondRowAction extends BasicKSAction {
 		
 		battle.logenemy("]]></action>\n");
 	
-		return RESULT_OK;
+		return Result.OK;
 	}
 }

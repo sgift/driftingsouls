@@ -38,9 +38,9 @@ import net.driftingsouls.ds2.server.ships.ShipTypes;
  */
 public class KSMenuFluchtAction extends BasicKSMenuAction {
 	@Override
-	public int execute(Battle battle) throws IOException {
-		int result = super.execute(battle);
-		if( result != RESULT_OK ) {
+	public Result execute(Battle battle) throws IOException {
+		Result result = super.execute(battle);
+		if( result != Result.OK ) {
 			return result;
 		}
 		
@@ -154,6 +154,6 @@ public class KSMenuFluchtAction extends BasicKSMenuAction {
 				"ship",		ownShip.getId(),
 				"attack",	enemyShip.getId() );
 												
-		return RESULT_OK;
+		return Result.OK;
 	}
 }
