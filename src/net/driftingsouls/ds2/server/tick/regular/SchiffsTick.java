@@ -785,6 +785,8 @@ public class SchiffsTick extends TickController {
 		catch(Exception e)
 		{
 			transaction.rollback();
+			e.printStackTrace();
+			Common.mailThrowable(e, "ShipTick Exception", "Crew reset");
 			this.log("Shiptick: Resetting of crew to zero failed.");
 		}
 		
@@ -810,6 +812,8 @@ public class SchiffsTick extends TickController {
 		catch(Exception e)
 		{
 			transaction.rollback();
+			e.printStackTrace();
+			Common.mailThrowable(e, "ShipTick Exception", "Schiffe mit destroy-Status");
 		}
 
 		/*
@@ -861,6 +865,8 @@ public class SchiffsTick extends TickController {
 		catch(Exception e)
 		{
 			transaction.rollback();
+			e.printStackTrace();
+			Common.mailThrowable(e, "ShipTick Exception", "Schadensnebel");
 		}
 		
 		db.setCacheMode(cacheMode);
