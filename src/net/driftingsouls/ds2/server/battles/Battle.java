@@ -1129,6 +1129,10 @@ public class Battle implements Locatable
 		{
 			Ship aship = (Ship)iter.next();
 			
+			if( db.get(BattleShip.class, aship.getId()) != null ) {
+				continue;
+			}
+			
 			shiptype = aship.getTypeData();
 			if( shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal()) 
 			{
@@ -1146,6 +1150,10 @@ public class Battle implements Locatable
 			for( Iterator<?> iter2=docked.iterator(); iter2.hasNext(); ) 
 			{
 				Ship sid2 = (Ship)iter2.next();
+				
+				if( db.get(BattleShip.class, sid2.getId()) != null ) {
+					continue;
+				}
 				
 				int sid2Action = 0;
 				
