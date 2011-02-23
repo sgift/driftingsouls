@@ -1533,4 +1533,8 @@
 		ALTER TABLE ships DROP script;
 		ALTER TABLE ships DROP scriptexedata;
 	]]></update>
+	<update type="structure" datum="2011-02-23"><![CDATA[
+		DROP TABLE portal_links;
+		DROP TABLE portal_downloads;
+	]]></update>
 </updates>
