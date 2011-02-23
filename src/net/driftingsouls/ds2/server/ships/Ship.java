@@ -3596,9 +3596,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 			db.createQuery("delete from SellLimit where shipid=:shipid").setParameter("shipid", this.id).executeUpdate();
 		}
 		
-		db.createQuery("delete from ShipModules where id=?")
-			.setInteger(0, this.id)
-			.executeUpdate();
+		if( this.modules != null )
+		{
+			db.delete(this.modules);
+		}
 		
 		if(scriptData != null)
 		{
