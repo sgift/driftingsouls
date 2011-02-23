@@ -36,6 +36,7 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.tick.TickController;
 
 import org.hibernate.Hibernate;
+import org.hibernate.StaleObjectStateException;
 import org.hibernate.Transaction;
 
 /**
@@ -154,6 +155,14 @@ public class NPCScriptTick extends TickController {
 					this.log("[FEHLER] Kann Script auf Schiff "+ship.getId()+" nicht ausfuehren: "+e);
 					e.printStackTrace();
 					Common.mailThrowable(e, "[DS2J] NPCScriptTick Exception", "Schiff: "+ship.getId()+"\nUser: "+ship.getOwner().getId());
+					
+					if( e instanceof StaleObjectStateException ) {
+						StaleObjectStateException sose = (StaleObjectStateException)e;
+						db.evict(db.get(sose.getEntityName(), sose.getIdentifier()));
+					}
+					else {
+						db.evict(ship);
+					}
 				}
 			}
 		}

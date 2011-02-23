@@ -52,6 +52,7 @@ import net.driftingsouls.ds2.server.units.UnitCargo.Crew;
 import org.hibernate.CacheMode;
 import org.hibernate.FetchMode;
 import org.hibernate.FlushMode;
+import org.hibernate.StaleObjectStateException;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 
@@ -753,6 +754,14 @@ public class SchiffsTick extends TickController {
 				this.log("User "+auser.getId()+" failed: "+e);
 				e.printStackTrace();
 				Common.mailThrowable(e, "ShipTick Exception", "User: "+auser.getId());
+				
+				if( e instanceof StaleObjectStateException ) {
+					StaleObjectStateException sose = (StaleObjectStateException)e;
+					db.evict(db.get(sose.getEntityName(), sose.getIdentifier()));
+				}
+				else {
+					db.evict(auser);
+				}
 			}
 			
 			if( unflushedShips > SHIP_FLUSH_SIZE )
@@ -774,6 +783,8 @@ public class SchiffsTick extends TickController {
 		}
 		db.flush();
 		transaction.commit();
+		
+		db.setFlushMode(flushMode);
 
 		transaction = db.beginTransaction();
 		try
@@ -788,6 +799,11 @@ public class SchiffsTick extends TickController {
 			e.printStackTrace();
 			Common.mailThrowable(e, "ShipTick Exception", "Crew reset");
 			this.log("Shiptick: Resetting of crew to zero failed.");
+			
+			if( e instanceof StaleObjectStateException ) {
+				StaleObjectStateException sose = (StaleObjectStateException)e;
+				db.evict(db.get(sose.getEntityName(), sose.getIdentifier()));
+			}
 		}
 		
 		/*
@@ -814,6 +830,11 @@ public class SchiffsTick extends TickController {
 			transaction.rollback();
 			e.printStackTrace();
 			Common.mailThrowable(e, "ShipTick Exception", "Schiffe mit destroy-Status");
+			
+			if( e instanceof StaleObjectStateException ) {
+				StaleObjectStateException sose = (StaleObjectStateException)e;
+				db.evict(db.get(sose.getEntityName(), sose.getIdentifier()));
+			}
 		}
 
 		/*
@@ -867,9 +888,13 @@ public class SchiffsTick extends TickController {
 			transaction.rollback();
 			e.printStackTrace();
 			Common.mailThrowable(e, "ShipTick Exception", "Schadensnebel");
+			
+			if( e instanceof StaleObjectStateException ) {
+				StaleObjectStateException sose = (StaleObjectStateException)e;
+				db.evict(db.get(sose.getEntityName(), sose.getIdentifier()));
+			}
 		}
 		
 		db.setCacheMode(cacheMode);
-		db.setFlushMode(flushMode);
 	}
 }

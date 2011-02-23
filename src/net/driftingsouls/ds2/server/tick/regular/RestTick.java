@@ -51,6 +51,7 @@ import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import net.driftingsouls.ds2.server.tick.TickController;
 
 import org.apache.commons.lang.math.RandomUtils;
+import org.hibernate.StaleObjectStateException;
 import org.hibernate.Transaction;
 
 /**
@@ -105,6 +106,11 @@ public class RestTick extends TickController {
 			this.log("Fehler beim Verarbeiten der Sprungantriebe: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RestTick Exception", "doJumps failed");
+			
+			if( e instanceof StaleObjectStateException ) {
+				StaleObjectStateException sose = (StaleObjectStateException)e;
+				db.evict(db.get(sose.getEntityName(), sose.getIdentifier()));
+			}
 		}
 	}
 	
@@ -133,6 +139,11 @@ public class RestTick extends TickController {
 			this.log("Fehler beim Anlegen der Statistiken: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RestTick Exception", "doStatistics failed");
+			
+			if( e instanceof StaleObjectStateException ) {
+				StaleObjectStateException sose = (StaleObjectStateException)e;
+				db.evict(db.get(sose.getEntityName(), sose.getIdentifier()));
+			}
 		}
 	}
 
@@ -240,6 +251,11 @@ public class RestTick extends TickController {
 			this.log("Fehler beim Verarbeiten der Vacationdaten: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RestTick Exception", "doVacation failed");
+			
+			if( e instanceof StaleObjectStateException ) {
+				StaleObjectStateException sose = (StaleObjectStateException)e;
+				db.evict(db.get(sose.getEntityName(), sose.getIdentifier()));
+			}
 		}
 	}
 	
@@ -289,6 +305,11 @@ public class RestTick extends TickController {
 			this.log("Fehler beim Aufheben des Noobschutzes: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RestTick Exception", "doNoobProtecttion failed");
+			
+			if( e instanceof StaleObjectStateException ) {
+				StaleObjectStateException sose = (StaleObjectStateException)e;
+				db.evict(db.get(sose.getEntityName(), sose.getIdentifier()));
+			}
 		}
 	}
 	
@@ -492,6 +513,11 @@ public class RestTick extends TickController {
 			this.log("Fehler beim Bearbeiten der Tasks: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RestTick Exception", "doTasks failed");
+			
+			if( e instanceof StaleObjectStateException ) {
+				StaleObjectStateException sose = (StaleObjectStateException)e;
+				getDB().evict(getDB().get(sose.getEntityName(), sose.getIdentifier()));
+			}
 		}
 	}
 	

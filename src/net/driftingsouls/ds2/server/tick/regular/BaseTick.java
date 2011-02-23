@@ -27,6 +27,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.tick.TickController;
 
 import org.hibernate.FlushMode;
+import org.hibernate.StaleObjectStateException;
 import org.hibernate.Transaction;
 
 /**
@@ -95,6 +96,14 @@ public class BaseTick extends TickController
 				transaction.rollback();
 				e.printStackTrace();
 				Common.mailThrowable(e, "BaseTick Exception", "Base: " + base.getId());
+				
+				if( e instanceof StaleObjectStateException ) {
+					StaleObjectStateException sose = (StaleObjectStateException)e;
+					db.evict(db.get(sose.getEntityName(), sose.getIdentifier()));
+				}
+				else {
+					db.evict(base);
+				}
 			}
 		}
 		

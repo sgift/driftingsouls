@@ -30,6 +30,7 @@ import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.tick.TickController;
 
 import org.hibernate.Session;
+import org.hibernate.StaleObjectStateException;
 import org.hibernate.Transaction;
 
 /**
@@ -142,11 +143,20 @@ public class UserTick extends TickController
 			catch( Exception e )
 			{
 				transaction.rollback();
-				transaction = db.beginTransaction();
 				
 				this.log("User Tick - User #"+user.getId()+" failed: "+e);
 				e.printStackTrace();
 				Common.mailThrowable(e, "UserTick - User #"+user.getId()+" Exception", "");
+				
+				transaction = db.beginTransaction();
+				
+				if( e instanceof StaleObjectStateException ) {
+					StaleObjectStateException sose = (StaleObjectStateException)e;
+					db.evict(db.get(sose.getEntityName(), sose.getIdentifier()));
+				}
+				else {
+					db.evict(user);
+				}
 			}
 		}
 	}

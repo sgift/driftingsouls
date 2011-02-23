@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.tick.TickController;
 
+import org.hibernate.StaleObjectStateException;
 import org.hibernate.Transaction;
 
 /**
@@ -83,6 +84,14 @@ public class BattleTick extends TickController {
 				transaction = db.beginTransaction();
 				e.printStackTrace();
 				Common.mailThrowable(e, "BattleTick Exception", "Battle tick for Battle " + battle.getId() +  " failed.");
+				
+				if( e instanceof StaleObjectStateException ) {
+					StaleObjectStateException sose = (StaleObjectStateException)e;
+					db.evict(db.get(sose.getEntityName(), sose.getIdentifier()));
+				}
+				else {
+					db.evict(battle);
+				}
 			}
 		}
 		transaction.commit();
