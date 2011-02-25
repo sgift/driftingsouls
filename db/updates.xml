@@ -1537,4 +1537,8 @@
 		DROP TABLE portal_links;
 		DROP TABLE portal_downloads;
 	]]></update>
+	<update type="structure" datum="2011-02-25"><![CDATA[
+		ALTER TABLE academy DROP remain;
+		ALTER TABLE academy DROP upgrade;
+	]]></update>
 </updates>
