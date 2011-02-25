@@ -21,15 +21,6 @@ package net.driftingsouls.ds2.server.ships;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.driftingsouls.ds2.server.framework.BasicUser;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  * Diverse Funktionen rund um Schiffstypen.
  *  TODO: Ja, ich weiss, das ist nicht besonders schoen. Besser waeren richtige Schiffstypenobjekte...
@@ -37,8 +28,6 @@ import org.apache.commons.logging.LogFactory;
  *
  */
 public class ShipTypes {
-	private static final Log log = LogFactory.getLog(ShipTypes.class);
-	
 	/**
 	 * Kennzeichnet das Schiff als Jaeger.
 	 */
@@ -226,21 +215,7 @@ public class ShipTypes {
 		}
 		return shipTypeFlagDescs.get(flag);
 	}
-	
-	/**
-	 * Testet, ob ein Schiffstyp ein bestimmtes Schiffstypen-Flag (SF_*) hat.
-	 * @param shiptype Schiffstypenarray
-	 * @param flag Das Schiffstypen-Flag (SF_*)
-	 * 
-	 * @return true, wenn der Schiffstyp das Flag besitzt
-	 */
-	public static boolean hasShipTypeFlag(SQLResultRow shiptype, String flag) {
-		if( shiptype.getString("flags").indexOf(flag) > -1 ) {
-			return true;
-		}
-		return false;
-	}
-	
+		
 	/**
 	 * Gibt die zu einer Schiffsklassen-ID gehoerende Schiffsklasse
 	 * zurueck.
@@ -249,103 +224,5 @@ public class ShipTypes {
 	 */
 	public static ShipClasses getShipClass(int classid) {
 		return ShipClasses.values()[classid];
-	}
-
-	private static Map<Integer,SQLResultRow> shiptypes = new HashMap<Integer,SQLResultRow>();
-
-	private static String buildShipPicturePath( SQLResultRow type, boolean forceServer ) {
-		String picture = type.getString("picture");
-		Context context = ContextMap.getContext();
-		
-		if( (context != null) && !forceServer && !type.getBoolean("hide") && (context.getActiveUser() != null) ) {
-			picture = context.getActiveUser().getImagePath()+picture;	
-		}
-		else {
-			picture = BasicUser.getDefaultImagePath()+picture;
-		}
-		
-		return picture;
-	}
-
-	/**
-	 * Gibt die Typen-Daten des angegebenen Schiffs zurueck.
-	 * @param shipdata Eine SQL-Ergebniszeile mit den daten des Schiffes
-	 * @return die Typen-Daten
-	 */
-	public static SQLResultRow getShipType( SQLResultRow shipdata ) {
-		return getShipType(shipdata, false);
-	}
-
-	/**
-	 * Gibt die Typen-Daten des angegebenen Schiffs zurueck.
-	 * @param shipdata Eine SQL-Ergebniszeile mit den daten des Schiffes
-	 * @param plaindata Sollen die Bildpfade angepasst werden (<code>false</code>) oder so zurueckgegeben werden,
-	 * wie sie in der DB stehen (<code>true</code>)?
-	 * @return die Typen-Daten
-	 */
-	public static SQLResultRow getShipType( SQLResultRow shipdata, boolean plaindata ) {
-		if( !shipdata.containsKey("type") || !shipdata.containsKey("status") ) {
-			Database db = ContextMap.getContext().getDatabase();
-			shipdata = db.first("SELECT * FROM ships WHERE id="+shipdata.getInt("id"));
-			log.warn("getShipType: type oder status fehlen in den Schiffsdaten", new Throwable());
-		}
-		
-		int shiptype = shipdata.getInt("type");
-		
-		if( !shipdata.containsKey("modules") || (shipdata.getInt("modules") != 0) ) {
-			Database db = ContextMap.getContext().getDatabase();
-			shipdata = db.prepare("SELECT nickname,picture,ru,rd,ra,rm,eps,cost,hull,panzerung,cargo,heat,crew,weapons,maxheat,torpedodef,shields,size,jdocks,adocks,sensorrange,hydro,deutfactor,recost,flags,werft,ow_werft " +
-					"FROM ships_modules " +
-					"WHERE id>0 AND id= ? ")
-				.first(shipdata.getInt("id"));
-			
-			if( shipdata.isEmpty() ) {
-				shipdata = null;
-			}
-		}
-		else {
-			shipdata = null;
-		}
-		
-		return getShipType(shiptype, shipdata, plaindata);
-	}
-
-	private static SQLResultRow getShipType( int shiptype, SQLResultRow shipdata, boolean plaindata ) {
-		synchronized (shiptypes) {
-			if( !shiptypes.containsKey(shiptype) ) {
-				Database db = ContextMap.getContext().getDatabase();
-				SQLResultRow row = db.prepare("SELECT *,LOCATE('=',weapons) as military FROM ship_types WHERE id= ? ")
-					.first(shiptype);
-				
-				if( row.isEmpty() ) {
-					throw new NoSuchShipTypeException("Unbekannter Schiffstyp '"+shiptype+"'");
-				}
-				
-				shiptypes.put(shiptype, row);
-			}
-		}
-		
-		SQLResultRow type = (SQLResultRow)shiptypes.get(shiptype).clone();
-		if( shipdata != null ) {
-			for( String key : shipdata.keySet() ) {
-				if( !"".equals(shipdata.get(key)) ) {
-					type.put(key, shipdata.get(key));
-				}
-			}
-		}
-		
-		if( !plaindata ) {
-			String picture = "";
-			if( (shipdata == null) || !shipdata.containsKey("picture") ) {
-				picture = shiptypes.get(shiptype).getString("picture");
-			}
-			else {
-				picture = shipdata.getString("picture");
-			}
-	
-			type.put("picture", buildShipPicturePath(type, (!shiptypes.get(shiptype).getString("picture").equals(picture) ? true : false) ));
-		}
-		
-		return type;
 	}
 }
