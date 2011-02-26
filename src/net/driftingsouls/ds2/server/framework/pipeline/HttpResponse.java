@@ -57,7 +57,8 @@ public class HttpResponse implements Response {
 	 * @param response Die HttpServletResponse, welche die gesendeten Daten erhalten soll
 	 */
 	public HttpResponse(HttpServletRequest request, HttpServletResponse response) {
-		response.setHeader("Content-Type", "text/html; charset=UTF-8");
+		response.setContentType("text/html");
+		response.setCharacterEncoding("UTF-8");
 		this.charSet = "UTF-8";
 		this.cacheOutput = request.isRequestedSessionIdFromURL();
 		if( this.cacheOutput ) {
@@ -70,13 +71,14 @@ public class HttpResponse implements Response {
 
 	@Override
 	public void setContentType(String contentType) {
-		response.setHeader("Content-Type", contentType);
+		response.setContentType(contentType);
 	}
 
 	@Override
 	public void setContentType(String contentType, String charSet) {
 		this.charSet = charSet;
-		response.setHeader("Content-Type", contentType+"; charset="+charSet);
+		response.setContentType(contentType);
+		response.setCharacterEncoding(charSet);
 	}
 
 	@Override
