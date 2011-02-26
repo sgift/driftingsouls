@@ -47,8 +47,6 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.werften.BaseWerft;
-import net.driftingsouls.ds2.server.werften.ShipWerft;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -214,7 +212,6 @@ public class User extends BasicUser {
 	private AllyPosten allyposten;
 	private int gtudropzone;
 	private String npcorderloc;
-	private Integer flagschiff;
 	private short lostBattles;
 	private short wonBattles;
 	private int destroyedShips;
@@ -243,8 +240,6 @@ public class User extends BasicUser {
 	
 	@Transient
 	private Context context;
-	@Transient
-	private UserFlagschiffLocation flagschiffObj = null;
 	
 	@Transient
 	private Configuration config;
@@ -348,7 +343,6 @@ public class User extends BasicUser {
 				pre+"allyposten", this.allyposten,
 				pre+"gtudropzone", this.gtudropzone,
 				pre+"npcorderloc", this.npcorderloc,
-				pre+"flagschiff", this.flagschiff,
 				pre+"lostBattles", this.lostBattles,
 				pre+"wonBattles", this.wonBattles,
 				pre+"destroyedShips", this.destroyedShips,
@@ -415,69 +409,6 @@ public class User extends BasicUser {
 	 */
 	public String getProfileLink() {
 		return getProfileLink("");
-	}
-	
-	/**
-	 * Stellt fest, ob noch Platz fuer ein Flagschiff vorhanden ist.
-	 * 
-	 * @return true, falls noch Platz vorhanden ist
-	 */
-	public boolean hasFlagschiffSpace() {
-		return getFlagschiff() == null;
-	}
-	
-	/**
-	 * Liefert den Aufenthaltsort des Flagschiffs dieses Spielers.
-	 * Der Typ Aufenthaltsort kann entweder ein Schiff (normal), eine Basiswerft
-	 * oder eine Schiffswerft sein (in beiden Faellen wird das Schiff noch gebaut).
-	 * 
-	 * @return Infos zum Aufenthaltsort
-	 */
-	public UserFlagschiffLocation getFlagschiff() {
-		org.hibernate.Session db = context.getDB();
-
-		if( this.flagschiffObj != null ) {
-			return (UserFlagschiffLocation)this.flagschiffObj.clone();	
-		}
-
-		if( this.flagschiff == null ) {
-			ShipWerft swerft = (ShipWerft)db.createQuery("from ShipWerft as sw left join fetch sw.linkedWerft " +
-					"where (sw.buildFlagschiff=1 or (sw.linkedWerft is not null and sw.linkedWerft.buildFlagschiff=1)) and sw.ship.owner=?")
-				.setEntity(0, this)
-				.setMaxResults(1)
-				.uniqueResult();
-			
-			if( swerft == null ) {
-				BaseWerft bwerft = (BaseWerft)db.createQuery("from BaseWerft as bw left join fetch bw.linkedWerft " +
-						"where (bw.buildFlagschiff=1 or (bw.linkedWerft is not null and bw.linkedWerft.buildFlagschiff=1)) and bw.base.owner=?")
-					.setEntity(0, this)
-					.setMaxResults(1)
-					.uniqueResult();
-				if( bwerft != null ) {
-					flagschiffObj = new UserFlagschiffLocation(UserFlagschiffLocation.Type.WERFT_BASE, bwerft.getBaseID());
-				}
-			}
-			else {
-				flagschiffObj = new UserFlagschiffLocation(UserFlagschiffLocation.Type.WERFT_SHIP, swerft.getShipID());
-			}
-		}
-		else {
-			flagschiffObj = new UserFlagschiffLocation(UserFlagschiffLocation.Type.SHIP, this.flagschiff);
-		}
-	
-		if( flagschiffObj != null ) {
-			return (UserFlagschiffLocation)flagschiffObj.clone();
-		}
-		return null;
-	}
-	
-	/**
-	 * Setzt die Schiffs-ID des Flagschiffs. Falls diese 0 ist, besitzt der Spieler kein Flagschiff mehr.
-	 * 
-	 * @param shipid Die Schiffs-ID des Flagschiffs
-	 */
-	public void setFlagschiff(Integer shipid) {
-		this.flagschiff = shipid;
 	}
 	
 	@Transient

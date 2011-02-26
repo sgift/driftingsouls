@@ -45,7 +45,6 @@ import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.IntTutorial;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -59,8 +58,6 @@ import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.werften.WerftObject;
-import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -251,60 +248,6 @@ public class UeberController extends TemplateGenerator {
 				  	"global.ticks",				ticks,
 				  	"global.ticktime",			ticktime );
 				  
-		UserFlagschiffLocation flagschiff = user.getFlagschiff();
-		if( flagschiff != null ) {
-			switch( flagschiff.getType() ) {
-			case SHIP:
-				Ship ship = (Ship)db.get(Ship.class, flagschiff.getID());
-				if( ship == null ) {
-					user.setFlagschiff(null);
-				} 
-				else {
-					t.setVar(	"flagschiff.id",	flagschiff.getID(),
-								"flagschiff.name",	ship.getName() ) ;
-				}
-				break;
-			
-			case WERFT_SHIP: {
-				WerftObject werft = (WerftObject)db.createQuery("from ShipWerft where ship=?")
-					.setInteger(0, flagschiff.getID())
-					.uniqueResult();
-				
-				if( werft.getKomplex() != null ) {
-					werft = werft.getKomplex();
-				}
-				
-				WerftQueueEntry[] entries = werft.getBuildQueue();
-				for( int i=0; i < entries.length; i++ ) {
-					if( entries[i].isBuildFlagschiff() ) {
-						t.setVar("flagschiff.dauer", werft.getTicksTillFinished(entries[i]));
-						break;
-					}
-				}
-				
-				break;
-			}
-			case WERFT_BASE: {
-				WerftObject werft = (WerftObject)db.createQuery("from BaseWerft where base=?")
-					.setInteger(0, flagschiff.getID())
-					.uniqueResult();
-				
-				if( werft.getKomplex() != null ) {
-					werft = werft.getKomplex();
-				}
-				
-				WerftQueueEntry[] entries = werft.getBuildQueue();
-				for( int i=0; i < entries.length; i++ ) {
-					if( entries[i].isBuildFlagschiff() ) {
-						t.setVar("flagschiff.dauer", werft.getTicksTillFinished(entries[i]));
-						break;
-					}
-				}
-				break;
-			}
-			}
-		}
-
     
 		//
 		// Ingame-Zeit setzen

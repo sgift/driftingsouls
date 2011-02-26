@@ -1193,15 +1193,8 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		User owner = this.getOwner();
 		
 		Set<ShipType> shipTypes = new HashSet<ShipType>();
-		boolean flagshipAllowed = owner.hasFlagschiffSpace();
-		
-		String query = "from ShipBaubar where werftslots <= ? and ";
-		if(!flagshipAllowed) {
-			query += "flagschiff=false and ";
-		}
-		query += "1=1";
-		query = query.trim();
-		List<ShipBaubar> buildableShips = db.createQuery(query).setInteger(0, this.getWerftSlots()).list();
+
+		List<ShipBaubar> buildableShips = db.createQuery("from ShipBaubar where werftslots <= ?").setInteger(0, this.getWerftSlots()).list();
 		
 		//Allowed by draft
 		Set<IEDraftShip> drafts = getUsableShipDrafts();
@@ -1297,10 +1290,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 				continue;
 			}
 
-			if( !owner.hasFlagschiffSpace() && draft.isFlagschiff() ) {
-				continue;
-			}
-	
 			if(!owner.hasResearched(draft.getTechReq(1)) || !owner.hasResearched(draft.getTechReq(2)) || !owner.hasResearched(draft.getTechReq(3))) {
 				continue;
 			}
@@ -1336,14 +1325,9 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		
 		User user = this.getOwner();
 	
-		String fsquery = "";
-		if( !user.hasFlagschiffSpace() ) {
-			fsquery = "AND t1.flagschiff=0";
-		}
-		
 		String query = "SELECT t1.id,t1.race,t1.type,t1.dauer,t1.costs,t1.ekosten,t1.crew,t1.tr1,t1.tr2,t1.tr3,t1.flagschiff " +
 			"FROM ships_baubar t1 JOIN ship_types t2 ON t1.type=t2.id " +
-			"WHERE t1.werftslots<="+this.getWerftSlots()+" "+fsquery+" " +
+			"WHERE t1.werftslots<="+this.getWerftSlots()+" "+
 			"ORDER BY t2.nickname";
 			
 	
@@ -1408,10 +1392,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 				continue;
 			}
 
-			if( !user.hasFlagschiffSpace() && effect.isFlagschiff() ) {
-				continue;
-			}
-	
 			//Forschungen checken
 			if(!user.hasResearched(effect.getTechReq(1)) || !user.hasResearched(effect.getTechReq(2)) || !user.hasResearched(effect.getTechReq(3))) {
 				continue;
@@ -1447,10 +1427,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 				continue;
 			}
 
-			if( !user.hasFlagschiffSpace() && effect.isFlagschiff() ) {
-				continue;
-			}
-	
 			//Forschungen checken
 			if(!user.hasResearched(effect.getTechReq(1)) || !user.hasResearched(effect.getTechReq(2)) || !user.hasResearched(effect.getTechReq(3))) {
 				continue;
@@ -1652,14 +1628,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		if( shipdata.getWerftSlots() > this.getWerftSlots() ) {
 			output.append("Dieses Werft ist nicht gro&szlig; genug f&uuml;r das Schiff");
 			return false;
-		}
-	
-		if( shipdata.isFlagschiff() ) {
-			boolean space = user.hasFlagschiffSpace();
-			if( !space ) {
-				output.append("Sie k&ouml;nnen lediglich ein Flagschiff besitzen");				
-				return false;
-			}
 		}
 	
 		//Resourcenbedarf angeben

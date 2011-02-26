@@ -68,7 +68,6 @@ import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.Sector;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -3551,11 +3550,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 			}
 		}
 
-		// Wenn es das Flagschiff ist -> Flagschiff auf null setzen
-		if( (this.owner.getFlagschiff() != null) && (this.id == this.owner.getFlagschiff().getID()) ) {
-			this.owner.setFlagschiff(null);
-		}
-
 		// Evt. gedockte Schiffe abdocken
 		ShipTypeData type = this.getTypeData();
 		if( type.getADocks() != 0 ) {
@@ -3669,18 +3663,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 			return true;
 		}
 
-		UserFlagschiffLocation flagschiff = this.owner.getFlagschiff();
-
-		boolean result = true;		
-		if( (flagschiff != null) && (flagschiff.getID() == this.id) ) {
-			result = newowner.hasFlagschiffSpace();
-		}
-
-		if( !result  ) {
-			MESSAGE.get().append("Die "+this.name+" ("+this.id+") kann nicht &uuml;bergeben werden, da der Spieler bereits &uuml;ber ein Flagschiff verf&uuml;gt");
-			return true;
-		}
-
 		User oldOwner = this.owner;
 
 		if( !testonly ) {	
@@ -3704,12 +3686,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 				.setString(1, "s "+this.id)
 				.executeUpdate();
 
-			if( (flagschiff != null) && (flagschiff.getType() == UserFlagschiffLocation.Type.SHIP) && 
-					(flagschiff.getID() == this.id) ) {
-				oldOwner.setFlagschiff(null);
-				newowner.setFlagschiff(this.id);
-			}
-			
 			if( getTypeData().getWerft() != 0 ) {
 				ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=?")
 					.setEntity(0, this)

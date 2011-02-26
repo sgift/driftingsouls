@@ -32,7 +32,6 @@ import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -44,8 +43,8 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.units.UnitCargo;
-import net.driftingsouls.ds2.server.units.UnitType;
 import net.driftingsouls.ds2.server.units.UnitCargo.Crew;
+import net.driftingsouls.ds2.server.units.UnitType;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 
 import org.apache.commons.lang.math.RandomUtils;
@@ -228,19 +227,7 @@ public class KapernController extends TemplateGenerator {
 			return;
 		}
 		
-		boolean flagschiffspace = user.hasFlagschiffSpace();
-		
 		User targetUser = (User)getDB().get(User.class, this.targetShip.getOwner().getId());
-		UserFlagschiffLocation flagschiffstatus = targetUser.getFlagschiff();
-
-		if( !flagschiffspace && (flagschiffstatus != null) && 
-			(flagschiffstatus.getID() == this.targetShip.getId()) ) {
-			addError("Sie d&uuml;rfen lediglich ein Flagschiff besitzen");
-			t.setVar("kapern.showkaperreport", 0);
-			
-			this.redirect();
-			return;
-		} 
 				
 		String kapermessage = "<div align=\"center\">Die Einheiten st&uuml;rmen die "+this.targetShip.getName()+"</div><br />";
 		StringBuilder msg = new StringBuilder();
@@ -488,15 +475,6 @@ public class KapernController extends TemplateGenerator {
 					}
 					werft.setLink(null);
 				}
-
-				// Flagschiffeintraege aktualisieren?
-				flagschiffstatus = this.targetShip.getOwner().getFlagschiff();
-
-				if( (flagschiffstatus != null) && (flagschiffstatus.getType() == UserFlagschiffLocation.Type.SHIP) && 
-						(this.targetShip.getId() == flagschiffstatus.getID()) ) {
-					this.targetShip.getOwner().setFlagschiff(null);
-					user.setFlagschiff(this.targetShip.getId());
-				}
 			} 
 		}
 		// Falls keine Crew auf dem Zielschiff vorhanden ist
@@ -533,14 +511,6 @@ public class KapernController extends TemplateGenerator {
 			
 			if( this.targetShip.getTypeData().getWerft() > 0 ) {
 				db.createQuery("UPDATE WerftObject SET linked=null,linkedWerft=null WHERE shipid="+this.targetShip.getId());
-			}
-			
-			// Flagschiffeintraege aktuallisieren
-			if( (flagschiffstatus != null) && 
-				(flagschiffstatus.getType() == UserFlagschiffLocation.Type.SHIP) && 
-				(this.targetShip.getId() == flagschiffstatus.getID()) ) {
-				targetUser.setFlagschiff(0);
-				user.setFlagschiff(this.targetShip.getId());
 			}
 		}	
 

@@ -366,11 +366,6 @@ public class WerftQueueEntry {
 			MESSAGE.get().append("\tWerft '"+shipd.getWerft()+"' in Liste der Werften eingetragen\n");
 		}
 		
-		if( this.isBuildFlagschiff() ) {
-			auser.setFlagschiff(id);
-			MESSAGE.get().append("\tFlagschiff eingetragen\n");
-		}
-		
 		// Item benutzen
 		if( this.getRequiredItem() > -1 ) {
 			Cargo cargo = this.werft.getCargo(true);

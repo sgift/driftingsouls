@@ -33,8 +33,8 @@ import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.MutableLocation;
 import net.driftingsouls.ds2.server.Offizier;
-import net.driftingsouls.ds2.server.SectorTemplateManager;
 import net.driftingsouls.ds2.server.Offizier.Ability;
+import net.driftingsouls.ds2.server.SectorTemplateManager;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -47,7 +47,6 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.entities.VersteigerungResource;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -263,11 +262,6 @@ public class QuestFunctions {
 				}
 				else if( value[1].equals("offizier") ) {
 					val = Offizier.getOffizierByDest('s', ship.getId());
-				}
-				else if( value[1].equals("flagschiff") ) {
-					User owner = ship.getOwner();
-					UserFlagschiffLocation flagschiff = owner.getFlagschiff();
-					val = (flagschiff != null) && (flagschiff.getID() == ship.getId());
 				}
 				else if( value[1].equals("id") ) {
 					val = ship.getId();	
