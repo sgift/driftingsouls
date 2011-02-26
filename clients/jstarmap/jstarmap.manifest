@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Main-Class: JStarmap
-
-Name: DS2/JStarmap 
-Bundle-SymbolicName: net.driftingsouls.ds2.starmap
-Bundle-Version: 0.1
-Bundle-Name: JStarmap
-Bundle-Vendor: drifting-souls.net
-Bundle-Activator: net.driftingsouls.ds2.jstarmap.JStarmap

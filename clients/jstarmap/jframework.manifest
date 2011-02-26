@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-
-Name: DS2/JFramework 
-Bundle-SymbolicName: net.driftingsouls.ds2.framework
-Bundle-Version: 0.1
-Bundle-Name: JFramework
-Bundle-Vendor: drifting-souls.net
-Bundle-Activator: JFramework
