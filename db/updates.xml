@@ -1542,4 +1542,7 @@
 		ALTER TABLE academy DROP upgrade;
 		DROP TABLE portal_articles;
 	]]></update>
+	<update type="structure" datum="2011-02-26"><![CDATA[
+		DROP TABLE portal_facts;
+	]]></update>
 </updates>

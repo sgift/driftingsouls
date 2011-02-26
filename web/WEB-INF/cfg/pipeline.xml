@@ -153,9 +153,6 @@
 		<module name="tc">
 			<generator class="net.driftingsouls.ds2.server.modules.TCController" />
 		</module>
-		<module name="techdatabase">
-			<generator class="net.driftingsouls.ds2.server.modules.TechDatabaseController" />
-		</module>
 		<module name="techliste">
 			<generator class="net.driftingsouls.ds2.server.modules.TechListeController" />
 		</module>
