@@ -40,6 +40,7 @@
 	<property name="templates.srchome" value="${build.home}/templates"/>
 	<property name="templates.compiledir" value="${templates.srchome}/net/driftingsouls/ds2/server/templates" />
 	<property name="jetty.contextpath" value="/driftingsouls"/>
+	<property name="jetty.jvmargs" value="-DdummyDaLeereArgsNichtFunktionieren"/>
 
 	<!--  ==================== Compilation Control Options ==================== -->
 
@@ -322,6 +323,7 @@
 		<java classname="org.mortbay.start.Main" classpathref="ant.classpath" fork="true">
 			<arg value="build-utils/jetty/jetty.xml"/>
 			<jvmarg value="-javaagent:web/WEB-INF/lib/spring-agent.jar" />
+			<jvmarg value="${jetty.jvmargs}" />
 			<jvmarg value="-Dcom.sun.management.jmxremote" />
 			<jvmarg value="-Dcom.sun.management.jmxremote.authenticate=false" />
 			<jvmarg value="-Dcom.sun.management.jmxremote.port=8008" />
