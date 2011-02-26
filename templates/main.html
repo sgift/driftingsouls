@@ -143,7 +143,11 @@
 			link.className='currentPage';
 		}
 		else if( title != 'null' ) {
-			$('page_currentpage').firstChild.nodeValue = title;
+			var reducedTitle = title;
+			if( reducedTitle.length > 16 ) {
+				reducedTitle = reducedTitle.substring(0,16)+"...";
+			}
+			$('page_currentpage').firstChild.nodeValue = reducedTitle;
 			$('page_currentpage').style.display='inline';
 			$('page_currentpage_dropdown').style.display = 'none';
 		}

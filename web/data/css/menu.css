@@ -131,6 +131,11 @@ div.gfxbox > div > div > div {
 	top:0px;
 	left:0px;
 }
+
+#menu li#currentpage {
+	width:130px;
+}
+
 #menu li.statusfield {
 	float:left;
 	padding:6px 3px 3px 0px;
@@ -156,7 +161,7 @@ div.gfxbox > div > div > div {
 	margin:0px 1px 0px 0px;
 	position:relative;
 	width:110px;
-	height:15px;
+	height:22px;
 	z-index:100;
 }
 #menu li dl {
