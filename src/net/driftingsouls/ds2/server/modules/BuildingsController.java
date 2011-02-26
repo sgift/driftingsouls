@@ -75,7 +75,7 @@ public class BuildingsController extends TemplateGenerator {
 		parameterNumber("col");	
 		parameterNumber("field");
 		
-		setPageTitle("Geb&auml;ude");
+		setPageTitle("Gebäude");
 	}
 	
 	@Override

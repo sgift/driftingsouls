@@ -93,7 +93,7 @@ public class BaseController extends TemplateGenerator {
 		
 		base.getCargo().setOption( Cargo.Option.LINKCLASS, "schiffwaren" );
 		
-		setPageTitle(Common._plaintitle(base.getName()));
+		setPageTitle(base.getName());
 		
 		return true;	
 	}
