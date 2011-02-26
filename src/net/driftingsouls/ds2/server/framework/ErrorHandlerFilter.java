@@ -61,7 +61,7 @@ public class ErrorHandlerFilter implements Filter
 				{
 					if(!isAutomaticAccess(request))
 					{
-						printBoxedErrorMessage(response, "Du musst eingeloggt sein, um diese Seite zu sehen.");
+						redirectToPortal(response, "Du musst eingeloggt sein, um diese Seite zu sehen.");
 					}
 					return;
 				}
@@ -123,6 +123,22 @@ public class ErrorHandlerFilter implements Filter
 	@Override
 	public void destroy() 
 	{}
+	
+	private void redirectToPortal(ServletResponse response, String message) throws IOException
+	{
+		Writer sb = response.getWriter();
+		sb.append("<script type=\"text/javascript\">\n");
+		sb.append("var url=parent.location.href;\n");
+		sb.append("parent.location.href=url.substring(0,url.indexOf('?'));");
+		sb.append("</script>");
+		sb.append("<div id=\"error-box\" align=\"center\">\n");
+		sb.append(Common.tableBegin(430,"left"));
+		sb.append("<ul>");
+		sb.append("<li><span style=\"font-size:14px; color:red\">"+ message +"</span></li>\n");
+		sb.append("</url>");
+		sb.append(Common.tableEnd());
+		sb.append("</div>\n");
+	}
 	
 	private void printBoxedErrorMessage(ServletResponse response, String message) throws IOException
 	{
