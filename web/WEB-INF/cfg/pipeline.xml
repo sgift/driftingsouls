@@ -264,29 +264,6 @@
 				<urlparameter name="module" />
 			</execute-module>
 		</match>
-		<match pattern="/soap/[0-9a-f]*/.*">
-			<execute-reader>
-				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.WSDDReader" />
-				<file file="WEB-INF/cfg/soap.wsdd" />
-			</execute-reader>
-			<config>
-				<base-path value="/soap/[0-9a-f]*" />
-			</config>
-			<parameter-map>
-				<parameter name="sess">
-					<urldirectory number="-2" />
-				</parameter>
-			</parameter-map>
-		</match>
-		<match pattern="/soap/.*">
-			<execute-reader>
-				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.WSDDReader" />
-				<file file="WEB-INF/cfg/soap.wsdd" />
-			</execute-reader>
-			<config>
-				<base-path value="/soap" />
-			</config>
-		</match>
 		<match pattern="/[^/]+/?">
 			<execute-module>
 				<urldirectory number="-1" />
