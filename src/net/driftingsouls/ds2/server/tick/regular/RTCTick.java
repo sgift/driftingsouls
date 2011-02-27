@@ -21,18 +21,14 @@ package net.driftingsouls.ds2.server.tick.regular;
 import java.util.Iterator;
 import java.util.List;
 
-import org.hibernate.Transaction;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
-import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
-import net.driftingsouls.ds2.server.entities.PaketVersteigerung;
 import net.driftingsouls.ds2.server.entities.StatGtu;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.Versteigerung;
@@ -44,17 +40,14 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 
+import org.hibernate.Transaction;
+
 /**
  * Berechnung des Ticks fuer GTU-Versteigerungen.
  * @author Christopher Jung
  *
  */
 public class RTCTick extends TickController {
-	// TODO: Umstellung Pakete auf GtuZwischenlager
-
-	private static final int CARGO_TRANSPORTER = 9; //ID des Transportertyps
-	private static final int CARGO_TRANSPORTER_LARGE = 50;
-	
 	private int ticks;
 	private String currentTime;
 	private User gtuuser;
@@ -267,154 +260,6 @@ public class RTCTick extends TickController {
 				this.log("Versteigerung "+entry.getId()+" failed: "+e);
 				e.printStackTrace();
 				Common.mailThrowable(e, "RTCTick Exception", "versteigerung: "+entry.getId());
-				
-				throw e;
-			}
-		}
-		
-		/*
-			GTU-Pakete
-		*/
-		
-		entries = db.createQuery("from PaketVersteigerung where tick<= :tick order by id")
-			.setInteger("tick", this.ticks)
-			.list();
-		for( Iterator<?> iter=entries.iterator(); iter.hasNext(); ) 
-		{
-			PaketVersteigerung paket = (PaketVersteigerung)iter.next();
-			
-			try 
-			{
-				if( paket.getBieter() == this.gtuuser ) 
-				{
-					this.log("Die Versteigerung eines GTU-Paketes (id: "+paket.getId()+") wurde um 5 Runden verlaengert");
-					paket.setTick(this.ticks+5);
-					
-					continue;
-				}
-				
-				User winner = paket.getBieter();
-				ShipType[] ships = paket.getShipTypes();
-				Cargo cargo = paket.getCargo();
-
-				int dropzone = winner.getGtuDropZone();
-				StarSystem system = (StarSystem)db.get(StarSystem.class, dropzone);
-				
-				Location loc = system.getDropZone();
-	
-				if( loc == null ) 
-				{
-					system = (StarSystem)db.get(StarSystem.class, dropzone);
-					
-					loc = system.getDropZone();
-				}
-				
-				this.log("[GTU-Paket] BEGIN");
-		
-				ShipType shipd = (ShipType)db.get(ShipType.class, CARGO_TRANSPORTER);
-				
-				if( cargo.getMass() > shipd.getCargo() ) 
-				{		
-					shipd = (ShipType)db.get(ShipType.class, CARGO_TRANSPORTER_LARGE);
-					
-					this.log("\t% Es wird der grosse Transporter verwendet");
-				}
-			
-				String history = "Indienststellung am "+this.currentTime+" durch "+this.gtuuser.getName()+" (Versteigerung) f&uuml;r "+winner.getName()+" ("+winner.getId()+")\n";
-
-				Ship ship = new Ship(winner, shipd, loc.getSystem(), loc.getX(), loc.getY());
-				ship.setName("Verkauft");
-				ship.setCrew(shipd.getCrew());
-				ship.setEnergy(shipd.getEps());
-				ship.setHull(shipd.getHull());
-				ship.setCargo(cargo);
-				ship.setNahrungCargo(shipd.getCrew()*7*3);
-				ship.setHistory(history);
-				ship.setEngine(100);
-				ship.setWeapons(100);
-				ship.setComm(100);
-				ship.setSensors(100);
-				
-				int id = (Integer)db.save(ship);
-				ship.getScriptData().setShipid(id);
-				db.save(ship.getScriptData());
-		
-				this.slog("\t* Es wurden ");
-				ResourceList reslist = cargo.getResourceList();
-				int index = 1;
-				
-				for( ResourceEntry res : reslist ) 
-				{
-					this.slog(res.getCount1()+" "+Cargo.getResourceName( res.getId() ));
-					if( index < reslist.size() ) 
-					{
-						this.slog(", ");
-					}
-					
-					index++;
-				}
-				this.log(" von ID "+winner.getId()+" ersteigert");
-						
-				ship.recalculateShipStatus();
-		
-				for( int i=0; i < ships.length; i++ ) 
-				{
-					ShipType type = ships[i];
-					
-					this.log("\t* Es wurde eine "+type.getNickname()+" von ID "+winner.getId()+" ersteigert");
-					
-					cargo = new Cargo();
-					
-					history = "Indienststellung am "+this.currentTime+" durch "+this.gtuuser.getName()+" (Versteigerung) f&uuml;r "+winner.getName()+" ("+winner.getId()+")\n";
-					
-					ship = new Ship(winner, shipd, loc.getSystem(), loc.getX(), loc.getY());
-					ship.setName("Verkauft");
-					ship.setCrew(type.getCrew());
-					ship.setEnergy(type.getEps());
-					ship.setHull(type.getHull());
-					ship.setCargo(cargo);
-					ship.setHistory(history);
-					ship.setEngine(100);
-					ship.setWeapons(100);
-					ship.setComm(100);
-					ship.setSensors(100);
-					
-					int shipid = (Integer)db.save(ship);
-					ship.getScriptData().setShipid(shipid);
-					db.save(ship.getScriptData());
-					
-					if( shipd.getWerft() != 0 ) 
-					{
-						ShipWerft werft = new ShipWerft(ship);
-						db.persist(werft);
-						
-						this.log("\tWerft '"+shipd.getWerft()+"' in Liste der Werften eingetragen");
-					}
-					
-					ship.recalculateShipStatus();
-				}
-		
-				this.log("[GTU-Paket] END");
-		
-				String msg = "Sie haben ein GTU-Paket f&uuml;r "+Common.ln(paket.getPreis())+" RE ersteigert.\nEs steht bei "+loc.displayCoordinates(false)+" f&uuml;r sie bereit.\nJack Miller\nHan Ronalds";
-				PM.send(gtuuser, winner.getId(), "GTU-Paket ersteigert", msg);
-		
-				msg = "Ein GTU-Paket wurde versteigert.\nEs steht bei "+loc.displayCoordinates(false)+" f&uuml;r "+winner.getId()+" zum Preis von "+Common.ln(paket.getPreis())+" RE bereit.";
-				PM.send(sourceUser, Faction.GTU, "GTU-Paket versteigert", msg);
-		
-				StatGtu stat = new StatGtu(paket);
-				db.persist(stat);
-				
-				db.delete(paket);
-				transaction.commit();
-				transaction = db.beginTransaction();
-			}
-			catch( RuntimeException e )
-			{
-				transaction.rollback();
-				this.log("Paket "+paket.getId()+" failed: "+e);
-				e.printStackTrace();
-				Common.mailThrowable(e, "RTCTick Exception", "paket: "+paket.getId());
 				
 				throw e;
 			}

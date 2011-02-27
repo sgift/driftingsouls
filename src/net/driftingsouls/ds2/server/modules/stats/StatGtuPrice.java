@@ -80,29 +80,6 @@ public class StatGtuPrice extends AbstractStatistic implements Statistic {
 					
 				name = ( resource.getCount1() > 1 ? resource.getCount1()+"x " : "" )+Cargo.getResourceName(resource.getId());
 			}
-			else if( gebot.getInt("mtype") == 3 ) {
-				String[] type = StringUtils.split(gebot.getString("type"), '/');
-				int[] ships = Common.explodeToInt("|", type[1]);
-				
-				Cargo cargo = new Cargo( Cargo.Type.STRING, type[0] );
-				
-				StringBuilder text = new StringBuilder();
-				
-				ResourceList reslist = cargo.getResourceList();
-				for( ResourceEntry res : reslist ) {
-					if( res.getCount1() > 1 ) {
-						text.append(res.getCount1()+"x ");	
-					}
-					text.append(Cargo.getResourceName( res.getId() )+"<br />");
-				}
-	
-				for( int i=0; i < ships.length; i++ ) {
-					ShipTypeData shiptype = Ship.getShipType(ships[i]);
-					text.append(shiptype.getNickname()+"<br />");
-				}
-	
-				name = "<a class=\"forschinfo\" href=\"#\" onmouseover=\"return overlib('"+text+"');\" onmouseout=\"return nd();\">GTU-Paket</a>";
-			}
 	
 	   		echo.append("<tr><td class=\"noBorderX\" style=\"width:40px\">"+a+".</td>\n");
 	   		echo.append("<td class=\"noBorderX\"><a class=\"profile\" href=\""+url+gebot.getInt("userid")+"\">"+Common._title(gebot.getString("username"))+" ("+gebot.getInt("userid")+")</td>");

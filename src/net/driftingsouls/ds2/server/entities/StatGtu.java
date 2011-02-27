@@ -25,10 +25,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
-import net.driftingsouls.ds2.server.config.Faction;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.ships.ShipType;
-
 /**
  * Ein Statistikeintrag fuer ein in der Gtu versteigertes Objekt.
  * @author Christopher Jung
@@ -85,33 +81,6 @@ public class StatGtu {
 		}
 		else {
 			throw new UnsupportedOperationException("Die Gtu-Statistik unterstuetzt "+entry.getClass().getName()+" nicht");
-		}
-	}
-	
-	/**
-	 * Erstellt einen neuen Statistikeintrag fuer die angegebene Paketversteigerung.
-	 * @param entry Die Versteigerung
-	 */
-	public StatGtu(PaketVersteigerung entry) {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
-		this.username = entry.getBieter().getName();
-		this.userId = entry.getBieter().getId();
-		this.preis = entry.getPreis();
-		
-		User gtuuser = (User)db.get(User.class, Faction.GTU);
-		this.owner = gtuuser.getId();
-		this.ownername = gtuuser.getName();
-		this.gtuGew = 100;
-		
-		this.mType = 3;
-		this.type = entry.getCargo().save()+"/";
-		ShipType[] types = entry.getShipTypes();
-		for( int i=0; i < types.length; i++ ) {
-			if( i > 0 ) {
-				this.type += "|";
-			}
-			this.type += types[i].getTypeId();
 		}
 	}
 
