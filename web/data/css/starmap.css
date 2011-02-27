@@ -7,3 +7,13 @@ table#sectortable{
 	top: 200px;
 	left: 500px;
 }
+
+table#starmap td {
+	width:25px;
+	height:25px;
+}
+
+table#starmap td img {
+	width:25px;
+	height:25px;
+}
