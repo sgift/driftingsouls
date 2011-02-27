@@ -257,6 +257,13 @@ public class MapController extends TemplateGenerator
 		{
 			xEnd = width;
 		}
+		
+		t.setVar(
+				"map.minx",	xStart,
+				"map.miny",	yStart,
+				"map.maxx",	xEnd,
+				"map.maxy", yEnd
+				);
 
 		Writer map = getContext().getResponse().getWriter();
 		
@@ -271,24 +278,33 @@ public class MapController extends TemplateGenerator
 			map.append("</td>");
 			for(int x = xStart; x <= xEnd; x++)
 			{
-				map.append("<td>");
-				map.append("<img src=\"").append(dataPath);
-
 				Location position = new Location(this.system.getID(), x, y);
 				boolean scannable = content.isScannable(position);
-				String sectorImage = content.getSectorImage(position);
+				String sectorImage = content.getSectorBaseImage(position);
+				String sectorOverlayImage = content.getSectorOverlayImage(position);
 				
+				if( sectorOverlayImage != null )
+				{
+					map.append("<td style=\"background-image:url('"+dataPath+sectorImage+"')\" class=\""+(scannable ? "scan" : "noscan")+"\">");
+					sectorImage = sectorOverlayImage;
+				}
+				else
+				{
+					map.append("<td class=\""+(scannable ? "scan" : "noscan")+"\">");
+				}
+				
+				map.append("<img src=\"").append(dataPath);
 				if(scannable)
 				{
 					map.append(sectorImage);
 					map.append("\" alt=\"").append(Integer.toString(x)).append("/").append(Integer.toString(y)).append("\" ")
-						.append("class=\"scan, showsector\" ")
+						.append("class=\"showsector\" ")
 						.append("onClick=\"showSector(").append(Integer.toString(this.system.getID())).append(",").append(Integer.toString(x)).append(",").append(Integer.toString(y)).append(")\">");
 				}
 				else
 				{
 					map.append(sectorImage);
-					map.append("\" alt=\"").append(Integer.toString(x)).append("/").append(Integer.toString(y)).append("\" class=\"noscan\"/>");
+					map.append("\" alt=\"").append(Integer.toString(x)).append("/").append(Integer.toString(y)).append("\"/>");
 				}
 				
 				map.append("</td>");
@@ -373,7 +389,7 @@ public class MapController extends TemplateGenerator
 			jsonUser.accumulate("shiptypes", shiptypes);
 			users.add(jsonUser);
 		}
-		json.accumulate("ships", users);
+		json.accumulate("users", users);
 		
 		getResponse().getWriter().append(json.toString());
 	}

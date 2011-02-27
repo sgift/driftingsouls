@@ -157,10 +157,16 @@ public class ScanController extends TemplateGenerator {
 					"global.baserange", range);
 		}
 		
-		this.getTemplateEngine().setVar(	"global.ship.id",	shipID,
-											"global.range",		this.range+1,
-											"global.scan.x",	ship.getX(),
-											"global.scan.y",	ship.getY() );
+		this.getTemplateEngine().setVar(
+				"global.ship.id",	shipID,
+				"global.range",		this.range+1,
+				"global.scan.x",	ship.getX(),
+				"global.scan.y",	ship.getY(),
+				"global.scan.sys",	ship.getSystem(),
+				"global.scan.minx",	Math.max(ship.getX()-this.range,1),
+				"global.scan.miny",	Math.max(ship.getY()-this.range,1),
+				"global.scan.maxx",	ship.getX()+this.range,
+				"global.scan.maxy",	ship.getY()+this.range);
 		
 		return true;	
 	}
