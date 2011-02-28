@@ -254,7 +254,6 @@ public class UeberController extends TemplateGenerator {
 				  	"global.ticks",				ticks,
 				  	"global.ticktime",			ticktime );
 
-    
 		//
 		// Ingame-Zeit setzen
 		//

@@ -33,7 +33,6 @@ import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.UserFlagschiffLocation;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -42,8 +41,8 @@ import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.units.UnitCargo;
-import net.driftingsouls.ds2.server.units.UnitType;
 import net.driftingsouls.ds2.server.units.UnitCargo.Crew;
+import net.driftingsouls.ds2.server.units.UnitType;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 
 /**
@@ -70,8 +69,6 @@ public class KSKapernAction extends BasicKSAction {
 			return Result.ERROR;
 		}
 
-		Context context = ContextMap.getContext();
-		
 		if( (ownShip.getShip().getWeapons() == 0) || (ownShip.getShip().getEngine() == 0) || 
 				(ownShip.getCrew() <= 0) || (ownShip.getAction() & Battle.BS_FLUCHT) != 0 ||
 				(ownShip.getAction() & Battle.BS_JOIN) != 0 || (enemyShip.getAction() & Battle.BS_FLUCHT) != 0 ||
@@ -112,17 +109,6 @@ public class KSKapernAction extends BasicKSAction {
 			return Result.ERROR;
 		}
 
-		//Flagschiff?
-		User ownuser = (User)context.getActiveUser();
-		User enemyuser = enemyShip.getOwner();
-
-		UserFlagschiffLocation flagschiffstatus = enemyuser.getFlagschiff();
-
-		if( !ownuser.hasFlagschiffSpace() && (flagschiffstatus != null) && 
-				(flagschiffstatus.getID() == enemyShip.getId()) ) {
-			return Result.ERROR;
-		}
-
 		return Result.OK;
 	}
 
@@ -146,8 +132,6 @@ public class KSKapernAction extends BasicKSAction {
 
 		ShipTypeData enemyShipType = enemyShip.getTypeData();
 
-		User euser = enemyShip.getOwner();
-		
 		Crew dcrew = new UnitCargo.Crew(enemyShip.getCrew());
 		UnitCargo ownUnits = ownShip.getUnits();
 		UnitCargo enemyUnits = enemyShip.getUnits();
@@ -366,15 +350,6 @@ public class KSKapernAction extends BasicKSAction {
 					werft.removeFromKomplex();
 				}
 				werft.setLink(null);
-			}
-
-			// Flagschiffeintraege aktualisieren?
-			UserFlagschiffLocation flagschiffstatus = euser.getFlagschiff();
-
-			if( (flagschiffstatus != null) && (flagschiffstatus.getType() == UserFlagschiffLocation.Type.SHIP) && 
-					(enemyShip.getId() == flagschiffstatus.getID()) ) {
-				euser.setFlagschiff(null);
-				user.setFlagschiff(enemyShip.getId());
 			}
 
 			// TODO: Das Entfernen eines Schiffes aus der Liste sollte in Battle 

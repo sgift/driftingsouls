@@ -24,14 +24,6 @@
 				{/endif}
 				<br />
 				<img src="{URL}data/interface/forschung/specpoints.gif" alt="Spezialisierungspunkte" />{user.specpoints} / {user.maxspecpoints}
-				<br />
-				{if flagschiff.id}
-					Flagschiff: {!link_to $flagschiff.name, default, module:schiff, ship:$flagschiff.id} ({flagschiff.id})<br />
-				{else}	
-					{if flagschiff.dauer}
-						Flagschiff: <img src="{URL}data/interface/time.gif" alt="" />{flagschiff.dauer} Runden
-					{/endif}
-				{/endif}
 			</td>
 			<td class="noBorderS" style="width:180px; text-align:center">
 				<table class="noBorder">
