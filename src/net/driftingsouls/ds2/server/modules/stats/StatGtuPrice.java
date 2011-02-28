@@ -23,7 +23,6 @@ import java.io.Writer;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
-import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -32,8 +31,6 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.StatsController;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-
-import org.apache.commons.lang.StringUtils;
 
 /**
  * Zeigt die Liste hoechsten Gebote (welche zur Ersteigerung fuehrten) in der GTU.
@@ -79,29 +76,6 @@ public class StatGtuPrice extends AbstractStatistic implements Statistic {
 				ResourceEntry resource = mycargo.getResourceList().iterator().next();
 					
 				name = ( resource.getCount1() > 1 ? resource.getCount1()+"x " : "" )+Cargo.getResourceName(resource.getId());
-			}
-			else if( gebot.getInt("mtype") == 3 ) {
-				String[] type = StringUtils.split(gebot.getString("type"), '/');
-				int[] ships = Common.explodeToInt("|", type[1]);
-				
-				Cargo cargo = new Cargo( Cargo.Type.STRING, type[0] );
-				
-				StringBuilder text = new StringBuilder();
-				
-				ResourceList reslist = cargo.getResourceList();
-				for( ResourceEntry res : reslist ) {
-					if( res.getCount1() > 1 ) {
-						text.append(res.getCount1()+"x ");	
-					}
-					text.append(Cargo.getResourceName( res.getId() )+"<br />");
-				}
-	
-				for( int i=0; i < ships.length; i++ ) {
-					ShipTypeData shiptype = Ship.getShipType(ships[i]);
-					text.append(shiptype.getNickname()+"<br />");
-				}
-	
-				name = "<a class=\"forschinfo\" href=\"#\" onmouseover=\"return overlib('"+text+"');\" onmouseout=\"return nd();\">GTU-Paket</a>";
 			}
 	
 	   		echo.append("<tr><td class=\"noBorderX\" style=\"width:40px\">"+a+".</td>\n");

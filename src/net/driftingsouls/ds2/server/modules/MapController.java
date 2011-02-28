@@ -257,6 +257,13 @@ public class MapController extends TemplateGenerator
 		{
 			xEnd = width;
 		}
+		
+		t.setVar(
+				"map.minx",	xStart,
+				"map.miny",	yStart,
+				"map.maxx",	xEnd,
+				"map.maxy", yEnd
+				);
 
 		Writer map = getContext().getResponse().getWriter();
 		
@@ -266,33 +273,44 @@ public class MapController extends TemplateGenerator
 		for(int y = yStart; y <= yEnd; y++)
 		{
 			map.append("<tr>");
-			map.append("<td width=\"25\" height=\"25\">");
-			map.append("" + y);
+			map.append("<td>");
+			map.append(Integer.toString(y));
 			map.append("</td>");
 			for(int x = xStart; x <= xEnd; x++)
 			{
-				map.append("<td width=\"25\" height=\"25\">");
-				map.append("<img width=\"25\" height=\"25\" src=\"" + dataPath);
-
 				Location position = new Location(this.system.getID(), x, y);
 				boolean scannable = content.isScannable(position);
-				String sectorImage = dataPath + content.getSectorImage(position);
+				String sectorImage = content.getSectorBaseImage(position);
+				String sectorOverlayImage = content.getSectorOverlayImage(position);
 				
+				if( sectorOverlayImage != null )
+				{
+					map.append("<td style=\"background-image:url('"+dataPath+sectorImage+"')\" class=\""+(scannable ? "scan" : "noscan")+"\">");
+					sectorImage = sectorOverlayImage;
+				}
+				else
+				{
+					map.append("<td class=\""+(scannable ? "scan" : "noscan")+"\">");
+				}
+				
+				map.append("<img src=\"").append(dataPath);
 				if(scannable)
 				{
 					map.append(sectorImage);
-					map.append("\" alt=\"" + x + "/" + y + "\"/ class=\"scan, showsector\" onClick=\"showSector("+this.system.getID()+","+x+","+y+")\">");
+					map.append("\" alt=\"").append(Integer.toString(x)).append("/").append(Integer.toString(y)).append("\" ")
+						.append("class=\"showsector\" ")
+						.append("onClick=\"showSector(").append(Integer.toString(this.system.getID())).append(",").append(Integer.toString(x)).append(",").append(Integer.toString(y)).append(")\">");
 				}
 				else
 				{
 					map.append(sectorImage);
-					map.append("\" alt=\"" + x + "/" + y + "\" class=\"noscan\"/>");
+					map.append("\" alt=\"").append(Integer.toString(x)).append("/").append(Integer.toString(y)).append("\"/>");
 				}
 				
 				map.append("</td>");
 			}
-			map.append("<td width=\"25\" height=\"25\">");
-			map.append("" + y);
+			map.append("<td>");
+			map.append(Integer.toString(y));
 			map.append("</td>");
 			map.append("</tr>");
 		}
@@ -371,7 +389,7 @@ public class MapController extends TemplateGenerator
 			jsonUser.accumulate("shiptypes", shiptypes);
 			users.add(jsonUser);
 		}
-		json.accumulate("ships", users);
+		json.accumulate("users", users);
 		
 		getResponse().getWriter().append(json.toString());
 	}
@@ -379,10 +397,10 @@ public class MapController extends TemplateGenerator
 	private void printXLegend(Writer map, int start, int end) throws IOException
 	{
 		map.append("<tr>");
-		map.append("<td width=\"25\" height=\"25\">x/y</td>");
+		map.append("<td>x/y</td>");
 		for(int x = start; x <= end; x++)
 		{
-			map.append("<td width=\"25\" height=\"25\">");
+			map.append("<td>");
 			map.append("" + x);
 			map.append("</td>");
 		}

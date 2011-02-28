@@ -36,6 +36,11 @@ class Field
 		return nebula != null;
 	}
 	
+	Nebel getNebula()
+	{
+		return this.nebula;
+	}
+	
 	List<Ship> getShips()
 	{
 		return Collections.unmodifiableList(ships);
@@ -62,11 +67,9 @@ class Field
 		{
 			return true;
 		}
-		else
-		{
-			Nebel.Types type = Nebel.Types.getType(nebula.getType());
-			return type.getMinScansize() <= ship.getTypeData().getSize();
-		}
+		
+		Nebel.Types type = Nebel.Types.getType(nebula.getType());
+		return type.getMinScansize() <= ship.getTypeData().getSize();
 	}
 	
 	private List<Ship> ships;

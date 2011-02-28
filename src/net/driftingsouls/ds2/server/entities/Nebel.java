@@ -227,4 +227,31 @@ public class Nebel implements Locatable {
 	{
 		return Types.DAMAGE == Types.getType(type);
 	}
+	
+	/**
+	 * Gibt die Mindestgroesse eines Schiffs zurueck, ab der es via LRS im Nebel geortet werden kann.
+	 * @return Die Mindestgroesse
+	 */
+	public int getMinScanableShipSize()
+	{
+		Types nebula = Types.getType(type);
+		
+		if (nebula == Types.LOW_DEUT )
+		{
+			return 5;
+		}
+		else if (nebula == Types.MEDIUM_DEUT )
+		{
+			return 7;
+		}
+		else if (nebula == Types.STRONG_DEUT)
+		{
+			return 11;
+		}
+		else if (nebula == Types.DAMAGE)
+		{
+			return 9;
+		}
+		return 0;
+	}
 }

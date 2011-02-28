@@ -14,9 +14,14 @@ function openSector(system, x, y, data)
 {
 	var sector = $('#sectorview');
 	var dialog = '<span>Sektor ' + system + ':' + x + '/' + y + '</span><a onClick="closeSector()" style="float:right;color:red;">(x)</a><br><br>';
-	$.each(data.ships, function()
+	$.each(data.users, function()
 	{
-		dialog += '<span>'+this.name+'</span><span style="float:right;">'+this.shiptypes.length+'</span><br>';
+		var shipcount = 0;
+		$.each(this.shiptypes, function()
+		{
+			shipcount += this.ships.length;
+		});
+		dialog += '<span>'+this.name+'</span><span style="float:right;">'+shipcount+'</span><br>';
 	});
 	sector.html(dialog);
 }

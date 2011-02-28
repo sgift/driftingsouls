@@ -44,7 +44,6 @@ import net.driftingsouls.ds2.server.entities.FactionShopEntry;
 import net.driftingsouls.ds2.server.entities.FactionShopOrder;
 import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
-import net.driftingsouls.ds2.server.entities.PaketVersteigerung;
 import net.driftingsouls.ds2.server.entities.UpgradeInfo;
 import net.driftingsouls.ds2.server.entities.UpgradeJob;
 import net.driftingsouls.ds2.server.entities.UpgradeMaxValues;
@@ -65,7 +64,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenera
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.JumpNodeRouter;
 import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
@@ -584,9 +582,6 @@ public class ErsteigernController extends TemplateGenerator
 
 		this.ticks = getContext().get(ContextCommon.class).getTick();
 
-		boolean hasPaket = db.createQuery("from PaketVersteigerung").iterate().hasNext();
-		t.setVar("gtu.paket", hasPaket);
-
 		return true;
 	}
 
@@ -762,101 +757,6 @@ public class ErsteigernController extends TemplateGenerator
 		}
 
 		redirect();
-	}
-
-	/**
-	 * Gibt ein Gebot auf die Versteigerung eines Pakets ab bzw zeigt, falls kein Gebot angegeben
-	 * wurde, die angegebene Versteigerung an.
-	 * 
-	 * @urlparam Integer bid Der gebotene Betrag oder 0
-	 * @urlparam Integer auk Die Auktion auf die geboten werden soll
-	 * 
-	 */
-	@Action(ActionType.DEFAULT)
-	public void bidPaketAction()
-	{
-		if( !Faction.get(faction).getPages().hasPage("paket") )
-		{
-			redirect();
-			return;
-		}
-
-		User user = (User)getUser();
-		TemplateEngine t = getTemplateEngine();
-		org.hibernate.Session db = getDB();
-
-		parameterNumber("bid");
-		long bid = getInteger("bid");
-
-		parameterNumber("auk");
-		int auk = getInteger("auk");
-
-		PaketVersteigerung paket = (PaketVersteigerung)db.get(PaketVersteigerung.class, auk);
-		if( paket == null )
-		{
-			redirect("paket");
-			return;
-		}
-
-		long cost = paket.getPreis() + (long)(paket.getPreis() / 20d);
-		if( cost == paket.getPreis() )
-		{
-			cost++;
-		}
-
-		// Wenn noch kein Gebot abgegeben wurde -> Versteigerung anzeigen
-		if( bid == 0 )
-		{
-			t.setVar("show.bid.paket", 1, "bid.price", cost, "bid.id", auk);
-
-			return;
-		}
-		// Gebot bestaetigt -> Versteigerung aktuallisieren
-		else if( bid > 0 )
-		{
-			if( (bid >= cost)
-					&& (user.getKonto().compareTo(new BigDecimal(bid).toBigInteger()) >= 0) )
-			{
-				if( paket.getBieter().getId() != faction )
-				{
-					User bieter = paket.getBieter();
-					User factionUser = (User)db.get(User.class, faction);
-
-					PM
-							.send(
-									factionUser,
-									bieter.getId(),
-									"Bei Versteigerung um das GTU-Paket &uuml;berboten",
-									"Sie wurden bei der Versteigerung um das GTU-Paket &ueberboten. Die von ihnen gebotenen RE in H&ouml;he von "
-											+ Common.ln(paket.getPreis())
-											+ " wurden auf ihr Konto zur&uuml;ck&uuml;berwiesen.\n\nGaltracorp Unlimited");
-
-					bieter.transferMoneyFrom(faction, paket.getPreis(),
-							"R&uuml;ck&uuml;berweisung Gebot #9" + paket.getId() + " 'GTU-Paket'",
-							false, User.TRANSFER_SEMIAUTO);
-				}
-
-				if( paket.getTick() < ticks + 3 )
-				{
-					paket.setTick(ticks + 3);
-				}
-				paket.setBieter(user);
-				paket.setPreis(bid);
-
-				User gtu = (User)db.get(User.class, faction);
-				gtu.transferMoneyFrom(user.getId(), bid, "&Uuml;berweisung Gebot #9" + auk
-						+ " 'GTU-Paket'", false, User.TRANSFER_SEMIAUTO);
-
-				user.setTemplateVars(t);
-				t.setVar("user.konto", Common.ln(user.getKonto()), "show.highestbid", 1);
-			}
-			else
-			{
-				t.setVar("show.lowres", 1);
-			}
-		}
-
-		redirect("paket");
 	}
 
 	/**
@@ -1190,93 +1090,6 @@ public class ErsteigernController extends TemplateGenerator
 		{
 			count++;
 			t.parse("angebote.list", "angebote.emptyitem", true);
-		}
-	}
-
-	/**
-	 * Zeigt das zur Versteigerung angebotene Paket an.
-	 * 
-	 */
-	@Action(ActionType.DEFAULT)
-	public void paketAction()
-	{
-		if( !Faction.get(faction).getPages().hasPage("paket") )
-		{
-			redirect();
-			return;
-		}
-
-		TemplateEngine t = getTemplateEngine();
-		org.hibernate.Session db = getDB();
-		User user = (User)getUser();
-
-		PaketVersteigerung paket = (PaketVersteigerung)db.createQuery("from PaketVersteigerung")
-				.setMaxResults(1).uniqueResult();
-		t.setVar("show.pakete", 1);
-
-		if( paket != null )
-		{
-			User bieter = paket.getBieter();
-
-			String bietername = "";
-
-			if( bieter.getId() == Faction.GTU )
-			{
-				bietername = bieter.getName();
-			}
-			else if( bieter.getId() == user.getId() )
-			{
-				bietername = bieter.getName();
-			}
-			else if( user.getAccessLevel() > 20 )
-			{
-				bietername = bieter.getName();
-			}
-			else if( (bieter.getAlly() != null) && (bieter.getAlly() == user.getAlly()) )
-			{
-				if( bieter.getAlly().getShowGtuBieter() )
-				{
-					bietername = bieter.getName();
-				}
-			}
-
-			t.setVar("paket.id", paket.getId(), "paket.dauer", paket.getTick() - this.ticks,
-					"paket.bieter", Common._title(bietername), "paket.bieter.id", bieter.getId(),
-					"paket.preis", Common.ln(paket.getPreis()));
-
-			t.setBlock("_ERSTEIGERN", "paket.reslistitem", "paket.reslist");
-			t.setBlock("_ERSTEIGERN", "paket.shiplistitem", "paket.shiplist");
-
-			if( !paket.getCargo().isEmpty() )
-			{
-				Cargo cargo = new Cargo(paket.getCargo());
-				cargo.setOption(Cargo.Option.SHOWMASS, false);
-				cargo.setOption(Cargo.Option.LARGEIMAGES, true);
-
-				ResourceList reslist = cargo.getResourceList();
-				for( ResourceEntry res : reslist )
-				{
-					t.setVar("res.image", res.getImage(), "res.name", res.getName(),
-							"res.fixedsize", !res.showLargeImages(), "res.count",
-							(res.getCount1() > 1 ? res.getCount1() : 0));
-
-					t.parse("paket.reslist", "paket.reslistitem", true);
-				}
-			}
-
-			if( paket.getShipTypes().length > 0 )
-			{
-				ShipType[] shiplist = paket.getShipTypes();
-				for( int i = 0; i < shiplist.length; i++ )
-				{
-					ShipType shiptype = shiplist[i];
-
-					t.setVar("ship.type.image", shiptype.getPicture(), "ship.type.name", shiptype
-							.getNickname(), "ship.type", shiptype.getId());
-
-					t.parse("paket.shiplist", "paket.shiplistitem", true);
-				}
-			}
 		}
 	}
 

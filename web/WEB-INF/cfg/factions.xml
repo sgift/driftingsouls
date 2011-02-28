@@ -20,7 +20,6 @@
 <factions>
 	<faction id="-2" menusize="630">
 		<page id="versteigerung" />
-		<page id="paket" />
 		<page id="shop" />
 		<page id="other" />
 	</faction>

@@ -1546,4 +1546,8 @@
 		ALTER TABLE users DROP flagschiff;
 		DROP TABLE portal_facts;
 	]]></update>
+	<update type="structure" datum="2011-02-27"><![CDATA[
+		DELETE FROM stats_gtu WHERE mtype=3;
+		DROP TABLE versteigerungen_pakete;
+	]]></update>
 </updates>

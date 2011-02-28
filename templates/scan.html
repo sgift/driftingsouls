@@ -165,11 +165,15 @@
 					<td align="center" valign="middle">{map.border.y}</td>
 					<!-- BEGIN map.listitem -->
 						{if map.showsector}
-							<td valign="center" align="center">
-								<a {map.linkclass} {map.tooltip} href="javascript:scanSector({map.x},{map.y})">
+							{if map.fleet}
+								<td valign="center" {map.tooltip} align="center" onclick="javascript:scanSector({map.x},{map.y})" style="background:url('{URL}data/starmap/{map.image}.png') no-repeat;width:25px;height:25px;cursor:pointer">
+									<img src="{URL}data/starmap/fleet/fleet{map.fleet}.png" alt="{map.image.name}" width="25" height="25" />
+								</td>
+							{else}
+								<td valign="center" {map.tooltip} onclick="javascript:scanSector({map.x},{map.y})" align="center" style="width:25px;height:25px;cursor:pointer">
 									<img src="{URL}data/starmap/{map.image}{map.fleet}.png" alt="{map.image.name}" width="25" height="25" />
-								</a>
-							</td>
+								</td>
+							{/endif}
 							{if map.show.rightborder}
 								<tr><td align="center" valign="middle">{map.border.y}</td>
 							{/endif}
@@ -188,7 +192,8 @@
 
 			<br />
 			<div align="center">
-				{!link_to neu scannen, default, ship:$global.ship.id, admin:$global.admin, baseloc:$global.baseloc, range:$global.baserange, css_class:back} | 
+				{!link_to neu scannen, default, ship:$global.ship.id, admin:$global.admin, baseloc:$global.baseloc, range:$global.baserange, css_class:back} |
+				{!link_to zur Sternenkarte, default, module:map, loadmap:1, sys:$global.scan.sys, xstart:$global.scan.minx, xend:$global.scan.maxx, ystart:$global.scan.miny, yend:$global.scan.maxy, css_class:back} | 
 				{!link_to zur&uuml;ck, default, css_class:back, module:schiff, ship:$global.ship.id}
 			</div>
 		</td>

@@ -21,13 +21,6 @@
 		{if faction.versteigerung}
 			{!link_to Versteigerungen, versteigerung, faction:$global.faction}
 		{/endif}
-		{if faction.paket}
-			{if gtu.paket}
-				&nbsp;&nbsp;|&nbsp;&nbsp;{!link_to Paket, paket, faction:$global.faction}
-			{else}
-				&nbsp;&nbsp;|&nbsp;&nbsp;<span style="font-weight:bold; font-size:16px">Paket</span>
-			{/endif}
-		{/endif}
 		{if faction.angebote}
 			&nbsp;&nbsp;|&nbsp;&nbsp;{!link_to Angebote, angebote, faction:$global.faction}
 		{/endif}
@@ -102,19 +95,6 @@
 			</td>
 		</tr>
 		</table>
-		</form>
-	{!table_end}
-{/endif}
-
-{if show.bid.paket}
-	{!table_begin 350,center}
-		<form action="./ds" method="post">
-			<div>
-				<div style="text-align:center;font-weight:bold; font-size:14px">&gt;&gt;Paket&lt;&lt;</div><br /><br />
-				Bieten: <input name="bid" type"text" size="15" value="{bid.price}" />
-				{!form_create_hidden bidPaket, auk:$bid.id, faction:$global.faction}
-				<input type="submit" value="bieten" />
-			</div>
 		</form>
 	{!table_end}
 {/endif}
@@ -195,48 +175,6 @@
 			<input type="submit" value="speichern" />
 		</div>
 	</form>
-{/endif}
-{if show.pakete}
-	{if paket.id}
-		{!table_begin 530,center}
-			<table class="noBorderX">
-			<tr>
-				<td class="noBorderX">H&ouml;chstbietender:</td>
-				{if paket.bieter}
-					<td class="noBorderX">&nbsp;&nbsp;{!link_to $paket.bieter,default,module:userprofile,css_class:profile,user:$paket.bieter.id}</td>
-				{else}
-					<td class="noBorderX">&nbsp;&nbsp;?</td>
-				{/endif}
-			</tr>
-			<tr><td class="noBorderX" align="right">Dauer:</td><td class="noBorderX">&nbsp;&nbsp;{paket.dauer}</td></tr>
-			<tr><td class="noBorderX" align="right">Preis:</td><td class="noBorderX">&nbsp;&nbsp;{paket.preis} RE</td></tr>
-			<tr><td class="noBorderX" colspan="2" align="center">{!link_to &gt;&gt;&gt; &uuml;berbieten &lt;&lt;&lt;, bidPaket, auk:$paket.id, bid:0, faction:$global.faction}</td></tr>
-			</table>
-		{!table_end}
-		<br />
-		{!table_begin 360,center}
-			<table class="noBorderX" cellspacing="3" cellpadding="3" width="100%">
-			<tr><td class="noBorderX" align="center">Typ</td><td style="width:150px" class="noBorderX">Name</td></tr>
-			<!-- BEGIN paket.reslistitem -->
-				<tr>
-					<td class="noBorderX" align="right">
-						{if res.count}{res.count}x {/endif}
-						<img style="vertical-align:middle; border:0px" src="{res.image}" {if res.fixedsize}height="50" width="50"{/endif} alt="" />
-					</td>
-					<td class="noBorderX">{res.name}</td>
-				</tr>
-			<!-- END paket.reslistitem -->
-			<!-- BEGIN paket.shiplistitem -->
-				<tr><td class="noBorderX"><a class="noborder" href="./ds?module=schiffinfo&amp;ship={ship.type}"><img style="border:0px" src="{ship.type.image}" alt="" /></a></td>
-				<td class="noBorderX">{ship.type.name}</td></tr>
-			<!-- END paket.shiplistitem -->
-			</table>
-		{!table_end}
-	{else}
-		{!table_begin 530,center}
-			Aktuell wird kein Paket angeboten
-		{!table_end}	
-	{/endif}
 {/endif}
 {if show.angebote}
 	<div class="smallfont">

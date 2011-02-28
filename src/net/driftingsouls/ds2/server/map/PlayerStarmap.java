@@ -91,7 +91,42 @@ public class PlayerStarmap
 	 */
 	public String getSectorImage(Location location)
 	{
-		return getBaseImage(location) + getShipImage(location);
+		final String baseImage = getBaseImage(location);
+		final String shipImage = getShipImage(location);
+		return baseImage + (shipImage != null ? shipImage : "") + ".png";
+	}
+	
+	/**
+	 * Gibt das Basisbild des Sektors zurueck. Das Bild enthaelt
+	 * keine Flottenmarkierungen.
+	 * @param location Der Sektor
+	 * @return Das Bild als String ohne den Pfad zum Data-Verzeichnis.
+	 */
+	public String getSectorBaseImage(Location location)
+	{
+		return getBaseImage(location)+".png";
+	}
+	
+	/**
+	 * Gibt das Overlay-Bild des Sektors zurueck. Dieses
+	 * enthaelt ausschliesslich spielerspezifische Markierungen
+	 * und keinerlei Hintergrundelemente. Der Hintergrund
+	 * des Bilds ist transparent.
+	 * 
+	 * Falls keine Overlay-Daten fuer den Sektor angezeigt werden sollen
+	 * wird <code>null</code> zurueckgegeben.
+	 * 
+	 * @param location Der Sektor
+	 * @return Das Bild als String ohne den Pfad zum Data-Verzeichnis oder <code>null</code>
+	 */
+	public String getSectorOverlayImage(Location location)
+	{
+		final String shipImage = getShipImage(location);
+		if( shipImage == null )
+		{
+			return null;
+		}
+		return "fleet/fleet"+shipImage+".png";
 	}
 	
 	private boolean isNebula(Location location)
@@ -108,6 +143,7 @@ public class PlayerStarmap
 		int alliedShips = 0;
 		int enemyShips = 0;
 		int unscannableEnemyShips = 0;
+		Nebel nebula = map.getNebulaMap().get(location);
 
 		if(sectorShips != null && !sectorShips.isEmpty())
 		{
@@ -129,7 +165,28 @@ public class PlayerStarmap
 					}
 					else
 					{
-						if(ship.getTypeData().hasFlag(ShipTypes.SF_SEHR_KLEIN))
+						boolean scannable = true;
+						
+						if(ship.getTypeData().hasFlag(ShipTypes.SF_SEHR_KLEIN) )
+						{
+							scannable = false;
+						}
+						
+						if( scannable && nebula != null && nebula.getMinScanableShipSize() > ship.getTypeData().getSize() )
+						{
+							scannable = false;
+						}
+						
+						if( scannable && ship.isDocked() )
+						{
+							Ship mship = ship.getBaseShip();
+							if( mship.getTypeData().hasFlag(ShipTypes.SF_SEHR_KLEIN)) 
+							{
+								scannable = false;
+							}
+						}
+						
+						if( !scannable )
 						{
 							unscannableEnemyShips++;
 						}
@@ -166,7 +223,12 @@ public class PlayerStarmap
 			}
 		}
 		
-		return imageName += ".png";
+		if( imageName.isEmpty() )
+		{
+			return null;
+		}
+		
+		return imageName;
 	}
 	
 	/**

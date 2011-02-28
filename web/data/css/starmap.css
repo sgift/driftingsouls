@@ -7,3 +7,40 @@ table#sectortable{
 	top: 200px;
 	left: 500px;
 }
+
+table#starmap
+{
+	table-layout: fixed;
+	border-width: 0px;
+	padding: 0px;
+	margin: 0px;
+	border-spacing: 0px;
+	border-style: none;
+}
+
+table#starmap td
+{
+	border-width: 0px;
+	padding: 0px;
+	margin: 0px;
+	border-spacing: 0px;
+	border-style: none;
+	width:25px;
+	height:25px;
+	background-position:0px 0px;
+	background-repeat:no-repeat;
+}
+
+#starmap td img {
+	width:25px;
+	height:25px;
+}
+
+td.scan
+{
+}
+
+td.noscan
+{
+	opacity: 0.4;
+}
