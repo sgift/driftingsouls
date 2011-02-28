@@ -31,6 +31,10 @@ table#starmap td
 	background-repeat:no-repeat;
 }
 
+#starmap .border {
+	font-size:9px;
+}
+
 #starmap td img {
 	width:25px;
 	height:25px;

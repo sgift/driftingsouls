@@ -273,7 +273,7 @@ public class MapController extends TemplateGenerator
 		for(int y = yStart; y <= yEnd; y++)
 		{
 			map.append("<tr>");
-			map.append("<td>");
+			map.append("<td class=\"border\">");
 			map.append(Integer.toString(y));
 			map.append("</td>");
 			for(int x = xStart; x <= xEnd; x++)
@@ -309,7 +309,7 @@ public class MapController extends TemplateGenerator
 				
 				map.append("</td>");
 			}
-			map.append("<td>");
+			map.append("<td class=\"border\">");
 			map.append(Integer.toString(y));
 			map.append("</td>");
 			map.append("</tr>");
@@ -396,7 +396,7 @@ public class MapController extends TemplateGenerator
 
 	private void printXLegend(Writer map, int start, int end) throws IOException
 	{
-		map.append("<tr>");
+		map.append("<tr class=\"border\">");
 		map.append("<td>x/y</td>");
 		for(int x = start; x <= end; x++)
 		{
