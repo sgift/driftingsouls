@@ -1482,23 +1482,22 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 			}
 			else
 			{
-				long automaticSale = automaticSale();
-				long forcedSale = forcedSale(state);
-				long money = automaticSale + forcedSale;
+				long money = automaticSale();
+				boolean overfullCargo = clearOverfullCargo(state);
 				if(money > 0)
 				{
 					getOwner().transferMoneyFrom(Faction.GTU, money, "Automatischer Warenverkauf Asteroid " + getName(), false, User.TRANSFER_AUTO);	
 				}
 				
-				if(automaticSale > 0)
+				if(money > 0)
 				{
-					message += "Ihnen wurden " + automaticSale + " RE f&uuml;r automatische Verk&auml;ufe gut geschrieben.\n";
+					message += "Ihnen wurden " + money + " RE f&uuml;r automatische Verk&auml;ufe gut geschrieben.\n";
 					usefullMessage = true;
 				}
 				
-				if(forcedSale > 0)
+				if(overfullCargo)
 				{
-					message += "Ihnen wurden " + forcedSale + " RE f&uuml;r erzwungene Verk&auml;ufe gut geschrieben.\n";
+					message += "Wegen uuml;berfuuml;llten Lagerr&auml;umen wurde ein Teil der Produktion vernichtet.\n";
 					usefullMessage = true;
 				}
 			}
@@ -1622,41 +1621,50 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 * @param state Der Status der Basis
 	 * @return The money for resource sales.
 	 */
-	private long forcedSale(BaseStatus state)
+	private boolean clearOverfullCargo(BaseStatus state)
 	{
-		final int RESOURCE_MINIMUM = 200;
-		
-		long money = 0;
 		long maxCargo = getMaxCargo();
-		long currentCargo = cargo.getMass();
+		long surplus = cargo.getMass() - maxCargo;
 		
-		if(currentCargo > maxCargo)
+		if(surplus > 0)
 		{
 			ResourceList production = state.getProduction().getResourceList();
 			production.sortByCargo(true);
 			for(ResourceEntry resource: production)
 			{
-				//If we sell resources, which are consumed we 
-				//enforce production problems
-				if(resource.getCount1() < 0)
+				//Only sell produced resources, not consumed
+				long resourceCount = resource.getCount1();
+				if(resourceCount < 0)
 				{
 					continue;
 				}
 				
-				long sell = cargo.getResourceCount(resource.getId()) - RESOURCE_MINIMUM;
-				if(sell > 0)
+				//Remove only as much as needed, not more
+				long productionMass = Cargo.getResourceMass(resource.getId(), resourceCount);
+				long toSell;
+				if(productionMass <= surplus)
 				{
-					cargo.substractResource(resource.getId(), sell);
-					money += getSalePrice(resource.getId(), sell);
+					toSell = resourceCount;
 				}
+				else
+				{
+					long resourceMass = Cargo.getResourceMass(resource.getId(), 1);
+					toSell = (long)Math.ceil((double)surplus/(double)resourceMass);
+				}
+				
+				cargo.substractResource(resource.getId(), toSell);
+				surplus = cargo.getMass() - maxCargo;
+				
 				if(cargo.getMass() <= maxCargo)
 				{
-					return money;
+					return true;
 				}
 			}
+			
+			return true;
 		}
 		
-		return money;
+		return false;
 	}
 
 	/**
