@@ -947,7 +947,6 @@ public class Battle implements Locatable
 				calcedallys.add(auser.getAlly().getId());
 			}
 		}
-		calcedallys = null;
 		
 		for( User auser : ownUsers ) {
 			for( User euser : enemyUsers ) {
@@ -1037,42 +1036,40 @@ public class Battle implements Locatable
 		List<User> ownUsers = new ArrayList<User>();
 		ownUsers.add(userobj);
 		Set<User> enemyUsers = new HashSet<User>();
-		
-		User curuser = userobj;
-		if( curuser.getAlly() != null ) {
-			List<User> users = curuser.getAlly().getMembers();
+
+        if( userobj.getAlly() != null ) {
+			List<User> users = userobj.getAlly().getMembers();
 			for( User auser : users ) {
-				if( auser.getId() == curuser.getId() ) {
+				if( auser.getId() == userobj.getId() ) {
 					continue;
 				}
 				ownUsers.add(auser);	
 			}
 		}
 		
-		List<?> users = db.createQuery("select distinct bs.ship.owner " +
+		List<User> users = Common.cast(db.createQuery("select distinct bs.ship.owner " +
 				"from BattleShip bs " +
 				"where bs.battle= :battleId and bs.side= :sideId")
 			.setInteger("battleId", this.id)
 			.setInteger("sideId", this.enemySide)
-			.list();
+			.list());
 
-		for( Iterator<?> iter=users.iterator(); iter.hasNext(); ) {
-			User euser = (User)iter.next();
-			
-			enemyUsers.add(euser);
+        for(User euser: users)
+        {
+            enemyUsers.add(euser);
 
-			if( (euser.getAlly() != null) && !calcedallys.contains(euser.getAlly()) ) {
-				List<User> allyusers = euser.getAlly().getMembers();
-				for( User auser : allyusers ) {
-					if( auser.getId() == euser.getId() ) {
-						continue;
-					}
-					enemyUsers.add(auser);	
-				}
-				
-				calcedallys.add(euser.getAlly().getId());
-			}
-		}
+            if ((euser.getAlly() != null) && !calcedallys.contains(euser.getAlly())) {
+                List<User> allyusers = euser.getAlly().getMembers();
+                for (User auser : allyusers) {
+                    if (auser.getId() == euser.getId()) {
+                        continue;
+                    }
+                    enemyUsers.add(auser);
+                }
+
+                calcedallys.add(euser.getAlly().getId());
+            }
+        }
 		
 		for( int i=0; i < ownUsers.size(); i++ ) {
 			User auser = ownUsers.get(i);
