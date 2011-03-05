@@ -1048,11 +1048,11 @@ public class Battle implements Locatable
 		}
 		
 		List<User> users = Common.cast(db.createQuery("select distinct bs.ship.owner " +
-				"from BattleShip bs " +
-				"where bs.battle= :battleId and bs.side= :sideId")
-			.setInteger("battleId", this.id)
-			.setInteger("sideId", this.enemySide)
-			.list());
+                "from BattleShip bs " +
+                "where bs.battle= :battleId and bs.side= :sideId")
+                .setInteger("battleId", this.id)
+                .setInteger("sideId", this.enemySide)
+                .list());
 
         for(User euser: users)
         {
@@ -1070,122 +1070,110 @@ public class Battle implements Locatable
                 calcedallys.add(euser.getAlly().getId());
             }
         }
-		
-		for( int i=0; i < ownUsers.size(); i++ ) {
-			User auser = ownUsers.get(i);
-			
-			for( User euser : enemyUsers ) {
-				auser.setRelation(euser.getId(), User.Relation.ENEMY);
-				euser.setRelation(auser.getId(), User.Relation.ENEMY);
-			}
-		}
-		
-		calcedallys = null;
+
+        for (User auser : ownUsers)
+        {
+            for (User euser : enemyUsers)
+            {
+                auser.setRelation(euser.getId(), User.Relation.ENEMY);
+                euser.setRelation(auser.getId(), User.Relation.ENEMY);
+            }
+        }
 
 		List<Integer> shiplist = new ArrayList<Integer>();
 		
-		List<?> sid = null;
-		
+		List<Ship> sid;
 		// Handelt es sich um eine Flotte?
 		if( shipd.getFleet() != null ) {
-			sid = db.createQuery("from Ship as s where s.id>0 and s.fleet=? and s.battle is null and s.x=? and s.y=? and s.system=? and s.lock is null")
-					.setEntity(0, shipd.getFleet())
-					.setInteger(1, shipd.getX())
-					.setInteger(2, shipd.getY())
-					.setInteger(3, shipd.getSystem())
-					.list();
+			sid = Common.cast(db.createQuery("from Ship as s where s.id>0 and s.fleet=? and s.battle is null and s.x=? and s.y=? and s.system=? and s.lock is null")
+                    .setEntity(0, shipd.getFleet())
+                    .setInteger(1, shipd.getX())
+                    .setInteger(2, shipd.getY())
+                    .setInteger(3, shipd.getSystem())
+                    .list());
 		}
 		else {
-			sid = db.createQuery("from Ship as s where s.id>0 and s.id=? and s.battle is null and s.x=? and s.y=? and s.system=? and s.lock is null")
-					.setInteger(0, shipd.getId())
-					.setInteger(1, shipd.getX())
-					.setInteger(2, shipd.getY())
-					.setInteger(3, shipd.getSystem())
-					.list();
+			sid = Common.cast(db.createQuery("from Ship as s where s.id>0 and s.id=? and s.battle is null and s.x=? and s.y=? and s.system=? and s.lock is null")
+                    .setInteger(0, shipd.getId())
+                    .setInteger(1, shipd.getX())
+                    .setInteger(2, shipd.getY())
+                    .setInteger(3, shipd.getSystem())
+                    .list());
 		}
-		
-		for( Iterator<?> iter=sid.iterator(); iter.hasNext(); ) 
-		{
-			Ship aship = (Ship)iter.next();
-			
-			if( db.get(BattleShip.class, aship.getId()) != null ) {
-				continue;
-			}
-			
-			shiptype = aship.getTypeData();
-			if( shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal()) 
-			{
-				continue;
-			}
-			
-			shiplist.add(aship.getId());
-				
-			// ggf. gedockte Schiffe auch beruecksichtigen
-			List<?> docked = db.createQuery("from Ship where id>0 and battle is null and docked in (?,?)")
-				.setString(0, Integer.toString(aship.getId()))
-				.setString(1, "l "+aship.getId())
-				.list();
-			
-			for( Iterator<?> iter2=docked.iterator(); iter2.hasNext(); ) 
-			{
-				Ship sid2 = (Ship)iter2.next();
-				
-				if( db.get(BattleShip.class, sid2.getId()) != null ) {
-					continue;
-				}
-				
-				int sid2Action = 0;
-				
-				ShipTypeData stype = sid2.getTypeData();
-				if( stype.getShipClass() == ShipClasses.GESCHUETZ.ordinal() ) 
-				{
-					sid2Action = BS_BLOCK_WEAPONS;
-				}
-				
-				shiplist.add(sid2.getId());
-					
-				
-				
-				// Das neue Schiff in die Liste der eigenen Schiffe eintragen
-				if( !shiptype.hasFlag(ShipTypes.SF_INSTANT_BATTLE_ENTER) && 
-					!stype.hasFlag(ShipTypes.SF_INSTANT_BATTLE_ENTER) ) 
-				{
-					sid2Action = sid2Action | BS_JOIN;
-				}
-				
-				BattleShip sid2bs = new BattleShip(this, sid2);
-				sid2bs.setAction(sid2Action);
-				sid2bs.setSide(this.ownSide);
-				
-				getOwnShips().add(sid2bs);
-	
-				Common.safeIntInc(shipcounts, sid2.getType());
-				
-				db.persist(sid2bs);
-				
-				sid2.setBattle(this);
-			}
-		
-			int sidAction = 0; 
-			
-			// Das neue Schiff in die Liste der eigenen Schiffe eintragen
-			if( !shiptype.hasFlag(ShipTypes.SF_INSTANT_BATTLE_ENTER) ) 
-			{
-				sidAction = BS_JOIN;
-			}
 
-			BattleShip aBattleShip = new BattleShip(this, aship);
-			aBattleShip.setAction(sidAction);
-			aBattleShip.setSide(side);
-			
-			getOwnShips().add(aBattleShip);
-		
-			Common.safeIntInc(shipcounts, aship.getType());
-			
-			db.persist(aBattleShip);
-			
-			aship.setBattle(this);
-		}
+        for(Ship aship : sid)
+        {
+            if (db.get(BattleShip.class, aship.getId()) != null) {
+                continue;
+            }
+
+            shiptype = aship.getTypeData();
+            if (shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal()) {
+                continue;
+            }
+
+            shiplist.add(aship.getId());
+
+            // ggf. gedockte Schiffe auch beruecksichtigen
+            List<Ship> docked = Common.cast(db.createQuery("from Ship where id>0 and battle is null and docked in (?,?)")
+                    .setString(0, Integer.toString(aship.getId()))
+                    .setString(1, "l " + aship.getId())
+                    .list());
+
+            for(Ship dockedShip : docked)
+            {
+                if (db.get(BattleShip.class, dockedShip.getId()) != null) {
+                    continue;
+                }
+
+                int sid2Action = 0;
+
+                ShipTypeData stype = dockedShip.getTypeData();
+                if (stype.getShipClass() == ShipClasses.GESCHUETZ.ordinal()) {
+                    sid2Action = BS_BLOCK_WEAPONS;
+                }
+
+                shiplist.add(dockedShip.getId());
+
+
+                // Das neue Schiff in die Liste der eigenen Schiffe eintragen
+                if (!shiptype.hasFlag(ShipTypes.SF_INSTANT_BATTLE_ENTER) &&
+                        !stype.hasFlag(ShipTypes.SF_INSTANT_BATTLE_ENTER)) {
+                    sid2Action = sid2Action | BS_JOIN;
+                }
+
+                BattleShip sid2bs = new BattleShip(this, dockedShip);
+                sid2bs.setAction(sid2Action);
+                sid2bs.setSide(this.ownSide);
+
+                getOwnShips().add(sid2bs);
+
+                Common.safeIntInc(shipcounts, dockedShip.getType());
+
+                db.persist(sid2bs);
+
+                dockedShip.setBattle(this);
+            }
+
+            int sidAction = 0;
+
+            // Das neue Schiff in die Liste der eigenen Schiffe eintragen
+            if (!shiptype.hasFlag(ShipTypes.SF_INSTANT_BATTLE_ENTER)) {
+                sidAction = BS_JOIN;
+            }
+
+            BattleShip aBattleShip = new BattleShip(this, aship);
+            aBattleShip.setAction(sidAction);
+            aBattleShip.setSide(side);
+
+            getOwnShips().add(aBattleShip);
+
+            Common.safeIntInc(shipcounts, aship.getType());
+
+            db.persist(aBattleShip);
+
+            aship.setBattle(this);
+        }
 		
 		int tick = context.get(ContextCommon.class).getTick();
 		
@@ -1330,38 +1318,34 @@ public class Battle implements Locatable
 		this.ownShipTypeCount.clear();
 		this.enemyShipTypeCount.clear();
 
-		List<?> ships = db.createQuery("from BattleShip bs inner join fetch bs.ship as s " +
-				    			"where s.id>0 and bs.battle=? " +
-								"order by s.shiptype,s.id")
-						.setEntity(0, this)
-						.list();
-	
-		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
-			BattleShip aship = (BattleShip)iter.next();
-			
-			if( aship.getSide() == this.ownSide ) {
-				this.ownShips.add(aship);
-				if( !this.guest || !aship.getShip().isLanded() ) {
-					if( ownShipTypeCount.containsKey(aship.getShip().getType()) ) {
-						ownShipTypeCount.put(aship.getShip().getType(), ownShipTypeCount.get(aship.getShip().getType())+1);
-					}
-					else {
-						ownShipTypeCount.put(aship.getShip().getType(), 1);
-					}
-				}
-			}
-			else if( aship.getSide() == this.enemySide ) {
-				this.enemyShips.add(aship);
-				if( !aship.getShip().isLanded() ) {
-					if( enemyShipTypeCount.containsKey(aship.getShip().getType()) ) {
-						enemyShipTypeCount.put(aship.getShip().getType(), enemyShipTypeCount.get(aship.getShip().getType())+1);
-					}
-					else {
-						enemyShipTypeCount.put(aship.getShip().getType(), 1);
-					}
-				}
-			}
-		}
+		List<BattleShip> ships = Common.cast(db.createQuery("from BattleShip bs inner join fetch bs.ship as s " +
+                "where s.id>0 and bs.battle=? " +
+                "order by s.shiptype, s.id")
+                .setEntity(0, this)
+                .list());
+
+        for (BattleShip ship : ships) {
+
+            if (ship.getSide() == this.ownSide) {
+                this.ownShips.add(ship);
+                if (!this.guest || !ship.getShip().isLanded()) {
+                    if (ownShipTypeCount.containsKey(ship.getShip().getType())) {
+                        ownShipTypeCount.put(ship.getShip().getType(), ownShipTypeCount.get(ship.getShip().getType()) + 1);
+                    } else {
+                        ownShipTypeCount.put(ship.getShip().getType(), 1);
+                    }
+                }
+            } else if (ship.getSide() == this.enemySide) {
+                this.enemyShips.add(ship);
+                if (!ship.getShip().isLanded()) {
+                    if (enemyShipTypeCount.containsKey(ship.getShip().getType())) {
+                        enemyShipTypeCount.put(ship.getShip().getType(), enemyShipTypeCount.get(ship.getShip().getType()) + 1);
+                    } else {
+                        enemyShipTypeCount.put(ship.getShip().getType(), 1);
+                    }
+                }
+            }
+        }
 		
 		if(this.ownShips.isEmpty() || this.enemyShips.isEmpty())
 		{
@@ -1498,125 +1482,108 @@ public class Battle implements Locatable
 		{
 			// Liste kopieren um Probleme beim Entfernen von Schiffen aus der Ursprungsliste zu vermeiden
 			List<BattleShip> shiplist = new ArrayList<BattleShip>(sides.get(i));
-			for( int key=0; key < shiplist.size(); key++ ) {
-				BattleShip aship = shiplist.get(key);
-				
-				if( (aship.getAction() & BS_HIT) != 0 ) {
-					aship.getShip().setAblativeArmor(aship.getAblativeArmor());
-					aship.getShip().setHull(aship.getHull());
-					aship.getShip().setShields(aship.getShields());
-					aship.getShip().setEngine(aship.getEngine());
-					aship.getShip().setWeapons(aship.getWeapons());
-					aship.getShip().setComm(aship.getComm());
-					aship.getShip().setSensors(aship.getSensors());
-					aship.setAction(aship.getAction() ^ BS_HIT);
-				}
-				else if( (aship.getAction() & BS_DESTROYED) != 0 ) 
-				{	
-					if( config.getInt("DESTROYABLE_SHIPS") != 0 ) 
-					{
-						//
-						// Verluste verbuchen (zerstoerte/verlorene Schiffe)
-						//
-						User destroyer = (User)db.get(User.class,aship.getDestroyer());
-						Ally destroyerAlly = destroyer.getAlly();
-						if( destroyerAlly!= null ) {
-							destroyerAlly.setDestroyedShips(destroyerAlly.getDestroyedShips()+1);
-						} 
-						destroyer.setDestroyedShips(destroyer.getDestroyedShips()+1);
+            for (BattleShip ship : shiplist)
+            {
+                if ((ship.getAction() & BS_HIT) != 0)
+                {
+                    ship.getShip().setAblativeArmor(ship.getAblativeArmor());
+                    ship.getShip().setHull(ship.getHull());
+                    ship.getShip().setShields(ship.getShields());
+                    ship.getShip().setEngine(ship.getEngine());
+                    ship.getShip().setWeapons(ship.getWeapons());
+                    ship.getShip().setComm(ship.getComm());
+                    ship.getShip().setSensors(ship.getSensors());
+                    ship.setAction(ship.getAction() ^ BS_HIT);
+                }
+                else if ((ship.getAction() & BS_DESTROYED) != 0)
+                {
+                    if (config.getInt("DESTROYABLE_SHIPS") != 0)
+                    {
+                        //
+                        // Verluste verbuchen (zerstoerte/verlorene Schiffe)
+                        //
+                        User destroyer = (User) db.get(User.class, ship.getDestroyer());
+                        Ally destroyerAlly = destroyer.getAlly();
+                        if (destroyerAlly != null) {
+                            destroyerAlly.setDestroyedShips(destroyerAlly.getDestroyedShips() + 1);
+                        }
+                        destroyer.setDestroyedShips(destroyer.getDestroyedShips() + 1);
 
-						Ally looserAlly = aship.getOwner().getAlly();
-						if( looserAlly != null ) {
-							looserAlly.setLostShips(looserAlly.getLostShips()+1);
-						}
-						User looser = aship.getOwner();
-						looser.setLostShips(looser.getLostShips()+1);
-						
-						ShipLost lost = new ShipLost(aship.getShip());
-						lost.setDestAlly(destroyerAlly);
-						lost.setDestOwner(destroyer);
-						lost.setBattleLog(config.get("LOXPATH")+"battles/battle_id"+getId()+".log");
-						db.save(lost);
-						
-						destroyShip(aship);
-						continue;
-					}
-					else 
-					{
-						aship.setAction(aship.getAction() ^ BS_DESTROYED);
-						continue; //Das Schiff kann nicht zerstoert werden
-					}
-				}
-				
-				
-				
-				if( (aship.getAction() & BS_FLUCHT) != 0 ) 
-				{
-					ShipTypeData ashipType = aship.getTypeData();
-					if( ashipType.getCost() > 0 ) 
-					{
-						removeShip(aship, true);
-					}
-					else 
-					{
-						removeShip(aship, false);
-					}
-				}
-				
-				if( (aship.getAction() & BS_SHOT) != 0 ) 
-				{
-					aship.setAction(aship.getAction() ^ BS_SHOT);
-				}
-				
-				if( (aship.getAction() & BS_SECONDROW_BLOCKED) != 0 ) 
-				{
-					aship.setAction(aship.getAction() ^ BS_SECONDROW_BLOCKED);
-				}
-				
-				if( (aship.getAction() & BS_BLOCK_WEAPONS) != 0 ) 
-				{
-					if( !((aship.getTypeData().getShipClass() == ShipClasses.GESCHUETZ.ordinal() ) && aship.getShip().isDocked()) ) 
-					{
-						aship.setAction(aship.getAction() ^ BS_BLOCK_WEAPONS);
-					}
-				}
-				
-				if( (i == 0) && this.hasFlag(FLAG_DROP_SECONDROW_0) && 
-						(aship.getAction() & BS_SECONDROW) != 0 ) 
-				{
-					aship.setAction(aship.getAction() ^ BS_SECONDROW);	
-				}
-				else if( (i == 1) && this.hasFlag(FLAG_DROP_SECONDROW_1) && 
-						(aship.getAction() & BS_SECONDROW) != 0 ) 
-				{
-					aship.setAction(aship.getAction() ^ BS_SECONDROW);	
-				}
-				
-				if( (aship.getAction() & BS_JOIN) != 0 ) 
-				{
-					ShipTypeData ashipType = aship.getTypeData();
-					if( ashipType.hasFlag(ShipTypes.SF_SECONDROW) && 
-						this.isSecondRowStable(i, aship) ) {
-						aship.setAction(aship.getAction() | BS_SECONDROW);
-					}
-					aship.setAction(aship.getAction() ^ BS_JOIN);
-				}
-	
-				Map<String,String> heat = Weapons.parseWeaponList(aship.getWeaponHeat());
-	
-				for( String weaponName : heat.keySet() ) 
-				{
-					heat.put(weaponName, "0");
-				}
-				
-				if( (aship.getAction() & BS_FLUCHTNEXT) != 0 ) 
-				{
-					aship.setAction((aship.getAction() ^ BS_FLUCHTNEXT) | BS_FLUCHT);
-				}
-				
-				aship.getShip().setWeaponHeat(Weapons.packWeaponList(heat));
-				aship.getShip().setBattleAction(false);
-			}
+                        Ally looserAlly = ship.getOwner().getAlly();
+                        if (looserAlly != null) {
+                            looserAlly.setLostShips(looserAlly.getLostShips() + 1);
+                        }
+                        User looser = ship.getOwner();
+                        looser.setLostShips(looser.getLostShips() + 1);
+
+                        ShipLost lost = new ShipLost(ship.getShip());
+                        lost.setDestAlly(destroyerAlly);
+                        lost.setDestOwner(destroyer);
+                        lost.setBattleLog(config.get("LOXPATH") + "battles/battle_id" + getId() + ".log");
+                        db.save(lost);
+
+                        destroyShip(ship);
+                        continue;
+                    } else {
+                        ship.setAction(ship.getAction() ^ BS_DESTROYED);
+                        continue; //Das Schiff kann nicht zerstoert werden
+                    }
+                }
+
+
+                if ((ship.getAction() & BS_FLUCHT) != 0) {
+                    ShipTypeData ashipType = ship.getTypeData();
+                    if (ashipType.getCost() > 0) {
+                        removeShip(ship, true);
+                    } else {
+                        removeShip(ship, false);
+                    }
+                }
+
+                if ((ship.getAction() & BS_SHOT) != 0) {
+                    ship.setAction(ship.getAction() ^ BS_SHOT);
+                }
+
+                if ((ship.getAction() & BS_SECONDROW_BLOCKED) != 0) {
+                    ship.setAction(ship.getAction() ^ BS_SECONDROW_BLOCKED);
+                }
+
+                if ((ship.getAction() & BS_BLOCK_WEAPONS) != 0) {
+                    if (!((ship.getTypeData().getShipClass() == ShipClasses.GESCHUETZ.ordinal()) && ship.getShip().isDocked())) {
+                        ship.setAction(ship.getAction() ^ BS_BLOCK_WEAPONS);
+                    }
+                }
+
+                if ((i == 0) && this.hasFlag(FLAG_DROP_SECONDROW_0) &&
+                        (ship.getAction() & BS_SECONDROW) != 0) {
+                    ship.setAction(ship.getAction() ^ BS_SECONDROW);
+                } else if ((i == 1) && this.hasFlag(FLAG_DROP_SECONDROW_1) &&
+                        (ship.getAction() & BS_SECONDROW) != 0) {
+                    ship.setAction(ship.getAction() ^ BS_SECONDROW);
+                }
+
+                if ((ship.getAction() & BS_JOIN) != 0) {
+                    ShipTypeData ashipType = ship.getTypeData();
+                    if (ashipType.hasFlag(ShipTypes.SF_SECONDROW) &&
+                            this.isSecondRowStable(i, ship)) {
+                        ship.setAction(ship.getAction() | BS_SECONDROW);
+                    }
+                    ship.setAction(ship.getAction() ^ BS_JOIN);
+                }
+
+                Map<String, String> heat = Weapons.parseWeaponList(ship.getWeaponHeat());
+
+                for (String weaponName : heat.keySet()) {
+                    heat.put(weaponName, "0");
+                }
+
+                if ((ship.getAction() & BS_FLUCHTNEXT) != 0) {
+                    ship.setAction((ship.getAction() ^ BS_FLUCHTNEXT) | BS_FLUCHT);
+                }
+
+                ship.getShip().setWeaponHeat(Weapons.packWeaponList(heat));
+                ship.getShip().setBattleAction(false);
+            }
 		}
 		
 		context.getDB().flush();
@@ -1638,8 +1605,10 @@ public class Battle implements Locatable
 			if( calledByUser ) {
 				try
 				{
-					context.getResponse().getWriter().append("Du hast die Schlacht gegen "+Common._title( this.getCommanders()[this.enemySide].getName())+" mit einem Unendschieden beendet!");
-				}
+                    context.getResponse().getWriter().append("Du hast die Schlacht gegen ");
+                    context.getResponse().getWriter().append(Common._title(this.getCommanders()[this.enemySide].getName()));
+                    context.getResponse().getWriter().append(" mit einem Unentschieden beendet!");
+                }
 				catch( IOException e )
 				{
 					throw new RuntimeException(e);
@@ -1666,8 +1635,10 @@ public class Battle implements Locatable
 			if( calledByUser ) {
 				try
 				{
-					context.getResponse().getWriter().append("Du hast die Schlacht gegen "+Common._title(this.getCommanders()[this.enemySide].getName())+" verloren!");
-				}
+                    context.getResponse().getWriter().append("Du hast die Schlacht gegen ");
+                    context.getResponse().getWriter().append(Common._title(this.getCommanders()[this.enemySide].getName()));
+                    context.getResponse().getWriter().append(" verloren!");
+                }
 				catch( IOException e )
 				{
 					throw new RuntimeException(e);
@@ -1693,8 +1664,10 @@ public class Battle implements Locatable
 			if( calledByUser ) {
 				try
 				{
-					context.getResponse().getWriter().append("Du hast die Schlacht gegen "+Common._title(this.getCommanders()[this.enemySide].getName())+" gewonnen!");
-				}
+                    context.getResponse().getWriter().append("Du hast die Schlacht gegen ");
+                    context.getResponse().getWriter().append(Common._title(this.getCommanders()[this.enemySide].getName()));
+                    context.getResponse().getWriter().append(" gewonnen!");
+                }
 				catch( IOException e )
 				{
 					throw new RuntimeException(e);
