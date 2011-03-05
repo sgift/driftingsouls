@@ -743,7 +743,8 @@ public class Battle implements Locatable
                 {
                     battle.ownShips.add(battleShip);
                 }
-            } else if (((tmpEnemyShip.getOwner().getAlly() != null) && (tmpUser.getAlly() == tmpEnemyShip.getOwner().getAlly())) || (tmpEnemyShip.getOwner().getId() == tmpUser.getId())) {
+            }
+            else if (((tmpEnemyShip.getOwner().getAlly() != null) && (tmpUser.getAlly() == tmpEnemyShip.getOwner().getAlly())) || (tmpEnemyShip.getOwner().getId() == tmpUser.getId())) {
                 enemyUsers.add(tmpUser);
                 battleShip.setSide(1);
 
@@ -1326,7 +1327,8 @@ public class Battle implements Locatable
                         ownShipTypeCount.put(ship.getShip().getType(), 1);
                     }
                 }
-            } else if (ship.getSide() == this.enemySide) {
+            }
+            else if (ship.getSide() == this.enemySide) {
                 this.enemyShips.add(ship);
                 if (!ship.getShip().isLanded()) {
                     if (enemyShipTypeCount.containsKey(ship.getShip().getType())) {
@@ -1555,7 +1557,8 @@ public class Battle implements Locatable
                 if ((i == 0) && this.hasFlag(FLAG_DROP_SECONDROW_0) &&
                         (ship.getAction() & BS_SECONDROW) != 0) {
                     ship.setAction(ship.getAction() ^ BS_SECONDROW);
-                } else if ((i == 1) && this.hasFlag(FLAG_DROP_SECONDROW_1) &&
+                }
+                else if ((i == 1) && this.hasFlag(FLAG_DROP_SECONDROW_1) &&
                         (ship.getAction() & BS_SECONDROW) != 0) {
                     ship.setAction(ship.getAction() ^ BS_SECONDROW);
                 }
@@ -1672,7 +1675,7 @@ public class Battle implements Locatable
 				{
 					throw new RuntimeException(e);
 				}
-			} 
+			}
 			return false;
 		}
 		
