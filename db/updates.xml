@@ -1550,4 +1550,7 @@
 		DELETE FROM stats_gtu WHERE mtype=3;
 		DROP TABLE versteigerungen_pakete;
 	]]></update>
+	<update type="structure" datum="2011-0305"><![CDATA[
+		DROP TABLE config_vacmodes;
+	]]></update>
 </updates>

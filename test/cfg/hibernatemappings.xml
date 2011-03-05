@@ -24,7 +24,6 @@
 	<!-- config -->
 	<!-- config_felsbrocken -->
 	<!-- config_felsbrocken_systems -->
-	<!-- config_vacmodes -->
 	<mapping class="net.driftingsouls.ds2.server.bases.Core" />
 	<mapping class="net.driftingsouls.ds2.server.bases.DefaultCore" />
 	<mapping class="net.driftingsouls.ds2.server.entities.FactionOffer" />

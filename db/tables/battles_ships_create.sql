@@ -10,8 +10,6 @@ CREATE TABLE `battles_ships` (
   `comm` tinyint(3) unsigned NOT NULL default '0',
   `sensors` tinyint(3) unsigned NOT NULL default '0',
   `action` smallint(5) unsigned NOT NULL default '0',
-  `count` tinyint(3) unsigned NOT NULL default '1',
-  `newcount` tinyint(3) unsigned NOT NULL default '0',
   `version` int(10) unsigned not null default '0',
   PRIMARY KEY  (`shipid`),
   KEY `battleid` (`battleid`)
