@@ -26,10 +26,19 @@ import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.*;
+import net.driftingsouls.ds2.server.framework.BasicUser;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Configuration;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.Quests;
-import net.driftingsouls.ds2.server.ships.*;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
+import net.driftingsouls.ds2.server.ships.ShipLost;
+import net.driftingsouls.ds2.server.ships.ShipType;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -45,14 +54,29 @@ import org.hibernate.annotations.OptimisticLockType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.Version;
 import javax.persistence.Version;
 import javax.script.ScriptEngine;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Repraesentiert eine Schlacht in DS.
@@ -299,7 +323,8 @@ public class Battle implements Locatable
 		if( side == this.ownSide ) {
 			shiplist = getOwnShips();
 		}
-		else {
+		else
+        {
 			shiplist = getEnemyShips();
 		}
 		
@@ -316,7 +341,9 @@ public class Battle implements Locatable
                 if (!aship.getShip().isDocked() && !aship.getShip().isLanded()) {
                     secondrowcaps += size;
                 }
-            } else {
+            }
+            else
+            {
                 if (size > ShipType.SMALL_SHIP_MAXSIZE) {
                     double countedSize = size;
                     if (type.getCrew() > 0) {
@@ -394,7 +421,8 @@ public class Battle implements Locatable
 		if( side == 0 ) {
 			this.com1BETAK = status;
 		}
-		else {
+		else
+        {
 			this.com2BETAK = status;
 		}
 	}
@@ -710,7 +738,9 @@ public class Battle implements Locatable
 
                 if ((ownShipID != 0) && (aShip.getId() == ownShipID)) {
                     ownBattleShip = battleShip;
-                } else {
+                }
+                else
+                {
                     battle.ownShips.add(battleShip);
                 }
             } else if (((tmpEnemyShip.getOwner().getAlly() != null) && (tmpUser.getAlly() == tmpEnemyShip.getOwner().getAlly())) || (tmpEnemyShip.getOwner().getId() == tmpUser.getId())) {
@@ -719,17 +749,24 @@ public class Battle implements Locatable
 
                 if ((enemyShipID != 0) && (aShip.getId() == enemyShipID)) {
                     enemyBattleShip = battleShip;
-                } else {
+                }
+                else
+                {
                     battle.enemyShips.add(battleShip);
                 }
             }
 
             if (shiptype.hasFlag(ShipTypes.SF_SECONDROW)) {
                 secondRowShips.add(battleShip);
-            } else {
-                if (ownShip) {
+            }
+            else
+            {
+                if(ownShip)
+                {
                     firstRowExists = true;
-                } else {
+                }
+                else
+                {
                     firstRowEnemyExists = true;
                 }
             }
@@ -856,7 +893,8 @@ public class Battle implements Locatable
                 writer.append(String.valueOf(ownBattleShip.getOwner().getAlly().getId()));
                 writer.append("\" />\n");
             }
-			else {
+			else
+            {
                 writer.append("<side1 commander=\"");
                 writer.append(String.valueOf(ownBattleShip.getOwner().getId()));
                 writer.append("\" />\n");
@@ -869,7 +907,8 @@ public class Battle implements Locatable
                 writer.append(String.valueOf(enemyBattleShip.getOwner().getAlly().getId()));
                 writer.append("\" />\n");
             }
-			else {
+			else
+            {
                 writer.append("<side2 commander=\"");
                 writer.append(String.valueOf(enemyBattleShip.getOwner().getId()));
                 writer.append("\" />\n");
@@ -1066,7 +1105,8 @@ public class Battle implements Locatable
                     .setInteger(3, shipd.getSystem())
                     .list());
 		}
-		else {
+		else
+        {
 			sid = Common.cast(db.createQuery("from Ship as s where s.id>0 and s.id=? and s.battle is null and s.x=? and s.y=? and s.system=? and s.lock is null")
                     .setInteger(0, shipd.getId())
                     .setInteger(1, shipd.getX())
@@ -1207,7 +1247,8 @@ public class Battle implements Locatable
 				if( aship != null ) {
 					forceSide = aship.getSide();
 				}
-				else {
+				else
+                {
 					//Mehr ueber den Spieler herausfinden
 					if( user.getAccessLevel() > 20 ) {
 						this.guest = true;
@@ -1215,7 +1256,8 @@ public class Battle implements Locatable
 					else if( user.hasFlag(User.FLAG_VIEW_BATTLES) ) {
 						this.guest = true;
 					}
-					else {
+					else
+                    {
 						long shipcount = ((Number)db.createQuery("select count(*) from Ship " +
 								"where owner= :user and x= :x and y= :y and system= :sys and " +
 									"battle is null and shiptype.shipClass in (11,13)")
@@ -1227,7 +1269,8 @@ public class Battle implements Locatable
 						if( shipcount > 0 ) {
 							this.guest = true;
 						}
-						else {
+						else
+                        {
 							context.addError("Sie verf&uuml;gen &uuml;ber kein geeignetes Schiff im Sektor um die Schlacht zu verfolgen");
 							return false;
 						}
@@ -1235,7 +1278,8 @@ public class Battle implements Locatable
 				}
 			}
 		}
-		else {
+		else
+        {
 			forceSide = forcejoin - 1;
 		}
 	
@@ -1276,7 +1320,9 @@ public class Battle implements Locatable
                 if (!this.guest || !ship.getShip().isLanded()) {
                     if (ownShipTypeCount.containsKey(ship.getShip().getType())) {
                         ownShipTypeCount.put(ship.getShip().getType(), ownShipTypeCount.get(ship.getShip().getType()) + 1);
-                    } else {
+                    }
+                    else
+                    {
                         ownShipTypeCount.put(ship.getShip().getType(), 1);
                     }
                 }
@@ -1285,7 +1331,9 @@ public class Battle implements Locatable
                 if (!ship.getShip().isLanded()) {
                     if (enemyShipTypeCount.containsKey(ship.getShip().getType())) {
                         enemyShipTypeCount.put(ship.getShip().getType(), enemyShipTypeCount.get(ship.getShip().getType()) + 1);
-                    } else {
+                    }
+                    else
+                    {
                         enemyShipTypeCount.put(ship.getShip().getType(), 1);
                     }
                 }
@@ -1415,7 +1463,8 @@ public class Battle implements Locatable
 			sides.add(this.ownShips);
 			sides.add(this.enemyShips);
 		}
-		else {
+		else
+        {
 			sides.add(this.enemyShips);
 			sides.add(this.ownShips);
 		}
@@ -1469,7 +1518,9 @@ public class Battle implements Locatable
 
                         destroyShip(ship);
                         continue;
-                    } else {
+                    }
+                    else
+                    {
                         ship.setAction(ship.getAction() ^ BS_DESTROYED);
                         continue; //Das Schiff kann nicht zerstoert werden
                     }
@@ -1480,7 +1531,9 @@ public class Battle implements Locatable
                     ShipTypeData ashipType = ship.getTypeData();
                     if (ashipType.getCost() > 0) {
                         removeShip(ship, true);
-                    } else {
+                    }
+                    else
+                    {
                         removeShip(ship, false);
                     }
                 }
@@ -1569,7 +1622,8 @@ public class Battle implements Locatable
 			if( this.ownSide == 0 ) {
 				this.endBattle(-1,1, true);
 			}
-			else {
+			else
+            {
 				this.endBattle(1,-1, true);
 			}
 
@@ -1599,7 +1653,8 @@ public class Battle implements Locatable
 			if( this.ownSide == 0 ) {
 				this.endBattle(1,-1, true);
 			}
-			else {
+			else
+            {
 				this.endBattle(-1,1, true);
 			}
 
@@ -1715,7 +1770,8 @@ public class Battle implements Locatable
 						scriptparser.getContext().setErrorWriter(new NullLogger());
 					}
 				}
-				else {
+				else
+                {
 					scriptparser.getContext().setErrorWriter(new NullLogger());
 				}
 				
@@ -1753,14 +1809,16 @@ public class Battle implements Locatable
 				if( points[i] > 0 ) {
 					ally.setWonBattles((short)(ally.getWonBattles()+points[i]));
 				} 
-				else {
+				else
+                {
 					ally.setLostBattles((short)(ally.getLostBattles()-points[i]));
 				}
 			}
 			if( points[i] > 0 ) {
 				 this.getCommanders()[i].setWonBattles((short)( this.getCommanders()[i].getWonBattles()+points[i]));
 			} 
-			else {
+			else
+            {
 				 this.getCommanders()[i].setLostBattles((short)( this.getCommanders()[i].getLostBattles()-points[i]));
 			}
 		}
@@ -1780,7 +1838,8 @@ public class Battle implements Locatable
 		if( visibility.length() > 0 ) {
 			visibility += ","+userid;
 		}
-		else {
+		else
+        {
 			visibility = Integer.toString(userid);
 		}
 	}
@@ -1949,7 +2008,8 @@ public class Battle implements Locatable
 		if( side == 0 ) {
 			this.commander1 = user;
 		}
-		else {
+		else
+        {
 			this.commander2 = user;
 		}
 	}
@@ -1976,7 +2036,8 @@ public class Battle implements Locatable
 		if( side == 0 ) {
 			this.ready1 = ready;
 		}
-		else {
+		else
+        {
 			this.ready2 = ready;
 		}
 	}
@@ -2000,7 +2061,8 @@ public class Battle implements Locatable
 		if( side == 0 ) {
 			this.takeCommand1 = id;
 		}
-		else {
+		else
+        {
 			this.takeCommand2 = id;
 		}
 	}

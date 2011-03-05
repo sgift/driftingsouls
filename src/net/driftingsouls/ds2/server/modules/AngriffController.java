@@ -927,10 +927,13 @@ public class AngriffController extends TemplateGenerator {
                 int shipAction = aship.getAction();
 
                 GroupEntry data;
-                if (!groupdata.containsKey(key)) {
+                if (!groupdata.containsKey(key))
+                {
                     data = new GroupEntry();
                     groupdata.put(key, data);
-                } else {
+                }
+                else
+                {
                     data = groupdata.get(key);
                 }
 
@@ -1156,10 +1159,13 @@ public class AngriffController extends TemplateGenerator {
                 int shipAction = aship.getAction();
 
                 GroupEntry data;
-                if (!groupdata.containsKey(key)) {
+                if (!groupdata.containsKey(key))
+                {
                     data = new GroupEntry();
                     groupdata.put(key, data);
-                } else {
+                }
+                else
+                {
                     data = groupdata.get(key);
                 }
 
