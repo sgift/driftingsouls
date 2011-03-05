@@ -926,7 +926,7 @@ public class Battle implements Locatable
 		Set<Integer> calcedallys = new HashSet<Integer>();
 		
 		for( User auser : new ArrayList<User>(ownUsers) ) {
-			if( (auser.getAlly() != null) && !calcedallys.contains(auser.getAlly()) ) {
+			if( (auser.getAlly() != null) && !calcedallys.contains(auser.getAlly().getId()) ) {
 				List<User> allyusers = Common.cast(db.createQuery("from User u where u.ally=:ally and (u not in (:ownUsers))")
 					.setEntity("ally", auser.getAlly())
 					.setParameterList("ownUsers", ownUsers)
@@ -938,7 +938,7 @@ public class Battle implements Locatable
 		}
 
 		for( User auser : new ArrayList<User>(enemyUsers) ) {
-			if( (auser.getAlly() != null) && !calcedallys.contains(auser.getAlly()) ) {
+			if( (auser.getAlly() != null) && !calcedallys.contains(auser.getAlly().getId()) ) {
 				List<User> allyusers = Common.cast(db.createQuery("from User u where ally=:ally and (u not in (:enemyUsers))")
 					.setEntity("ally", auser.getAlly())
 					.setParameterList("enemyUsers", enemyUsers)
