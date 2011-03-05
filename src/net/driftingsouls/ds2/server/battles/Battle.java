@@ -18,31 +18,6 @@
  */
 package net.driftingsouls.ds2.server.battles;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.Version;
-import javax.script.ScriptEngine;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
@@ -51,20 +26,10 @@ import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.BasicUser;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.*;
 import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.Quests;
-import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipClasses;
-import net.driftingsouls.ds2.server.ships.ShipLost;
-import net.driftingsouls.ds2.server.ships.ShipType;
-import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
-
+import net.driftingsouls.ds2.server.ships.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -79,6 +44,15 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.OptimisticLockType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+
+import javax.persistence.*;
+import javax.persistence.Version;
+import javax.script.ScriptEngine;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Repraesentiert eine Schlacht in DS.
@@ -1193,36 +1167,7 @@ public class Battle implements Locatable
 		
 		return true;
 	}
-	
-	/**
-	 * Laedt eine Schlacht aus der Datenbank.
-	 * @param battleId die ID der Schlacht
-	 * @param user Der aktive Spieler
-	 * @param ownShip Das auszuwaehlende eigene Schiff (oder <code>null</code>)
-	 * @param enemyShip Das auszuwaehlende gegnerische Schiff (oder <code>null</code>)
-	 * @param forcejoin Die ID einer Seite (1 oder 2), welche als die eigene zu waehlen ist. Falls 0 wird automatisch eine gewaehlt
-	 * 
-	 * @return Die Schlacht oder <code>null</code>
-	 */
-	public static Battle loadBattle(int battleId, User user, Ship ownShip, Ship enemyShip, int forcejoin) {
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-		
-		Battle battle = (Battle)db.get(Battle.class, battleId);
-		if( battle == null ) {
-			db.createQuery("update Ship set battle=null where id>0 and battle=?")
-				.setInteger(0, battleId)
-				.executeUpdate();
-		
-			context.addError("Die Schlacht ist bereits zuende!");
-			return null;
-		}
-		
-		battle.load(user, ownShip, enemyShip, forcejoin);
-		
-		return battle;
-	}
-	
+
 	/**
 	 * Laedt weitere Schlachtdaten aus der Datenbank.
 	 * @param user Der aktive Spieler
@@ -1858,25 +1803,7 @@ public class Battle implements Locatable
 		}
 		return true;
 	}
-	
-	/**
-	 * Gibt den Blockcount der Schlacht zurueck. Der Blockcount
-	 * bestimmt, wieviele Ticks eine Schlacht ueberspringen darf bevor
-	 * ein Rundenwechsel erzwungen wird.
-	 * @return Der Blockcount
-	 */
-	public int getBlockCount() {
-		return this.blockcount;
-	}
-	
-	/**
-	 * Gibt den Zeitpunkt des letzten Rundenwechsels zurueck.
-	 * @return Der Zeitpunkt
-	 */
-	public long getLastTurn() {
-		return this.lastturn;
-	}
-	
+
 	/**
 	 * Prueft, ob ein Spieler Kommandant der Schlacht ist.
 	 * @param user Der Spieler
@@ -2203,8 +2130,6 @@ public class Battle implements Locatable
 			
 			if( aship == ship ) {
 				shiplist.remove(i);
-				i--; // Arraypositionen haben sich nach dem Entfernen veraendert. Daher Index aktuallisieren
-				
 				break;
 			}
 		}
@@ -2262,15 +2187,13 @@ public class Battle implements Locatable
 			if( ship.getSide() != this.ownSide ) {
 				shiplist = this.enemyShips;
 			}
-			
-			for( int i=0; i < shiplist.size(); i++ ) {
-				BattleShip aship = shiplist.get(i);
-				
-				if( aship.getId() == masterid ) {
-					removeShip(aship, relocate);
-					return;
-				}
-			}
+
+            for (BattleShip aship : shiplist) {
+                if (aship.getId() == masterid) {
+                    removeShip(aship, relocate);
+                    return;
+                }
+            }
 		}
 		
 		long dockcount = (Long)db.createQuery("select count(*) from Ship where docked IN (?,?)")

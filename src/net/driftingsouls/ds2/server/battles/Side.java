@@ -32,5 +32,5 @@ public enum Side
 	/**
 	 * Die gegnerische Seite.
 	 */
-	ENEMY;
+	ENEMY
 }

@@ -303,8 +303,7 @@ public class BattleShip {
 	/**
 	 * Setzt die Einheiten auf dem Schiff.
 	 * @param unitcargo Die neuen Einheiten
-	 * @see net.driftingsouls.ds2.server.ships.Ship#setUnits()
-	 */
+     */
 	public void setUnits(UnitCargo unitcargo) {
 		ship.setUnits(unitcargo);
 	}
@@ -466,7 +465,7 @@ public class BattleShip {
 		Offizier officer = ship.getOffizier();
 		if(officer != null)
 		{
-			double value = officer.getDefensiveSkill() / Double.valueOf(getTypeData().getSize());
+			double value = officer.getDefensiveSkill() / (double)getTypeData().getSize();
 			return Math.max(1, (int)Math.round(value));
 		}
 		
