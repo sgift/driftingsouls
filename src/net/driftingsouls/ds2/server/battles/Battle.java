@@ -1058,7 +1058,7 @@ public class Battle implements Locatable
         {
             enemyUsers.add(euser);
 
-            if ((euser.getAlly() != null) && !calcedallys.contains(euser.getAlly())) {
+            if ((euser.getAlly() != null) && !calcedallys.contains(euser.getAlly().getId())) {
                 List<User> allyusers = euser.getAlly().getMembers();
                 for (User auser : allyusers) {
                     if (auser.getId() == euser.getId()) {
