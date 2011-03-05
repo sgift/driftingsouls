@@ -2538,18 +2538,11 @@ public class Battle implements Locatable
 			.setCacheMode(CacheMode.IGNORE)
 			.scroll(ScrollMode.FORWARD_ONLY);
 
-		int count = 0;
 		while(ships.next())
 		{
 			Ship ship = (Ship)ships.get(0);
 			balance -= ship.getNahrungsBalance();
-			count++;
-
-			if(count%20 == 0)
-			{
-				db.flush();
-				db.clear();
-			}
+            db.evict(ship);
 		}
 
 		return balance;
@@ -2571,18 +2564,11 @@ public class Battle implements Locatable
 			.setCacheMode(CacheMode.IGNORE)
 			.scroll(ScrollMode.FORWARD_ONLY);
 
-		int count = 0;
 		while(ships.next())
 		{
 			Ship ship = (Ship)ships.get(0);
 			balance -= ship.getBalance();
-			count++;
-
-			if(count%20 == 0)
-			{
-				db.flush();
-				db.clear();
-			}
+			db.evict(ship);
 		}
 
 		return balance;
