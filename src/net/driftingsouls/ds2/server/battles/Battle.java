@@ -321,7 +321,7 @@ public class Battle implements Locatable
 	 * @return <code>true</code>, falls die zweite Reihe unter den Bedingungen stabil ist
 	 */
 	public boolean isSecondRowStable( int side, BattleShip ... added ) {
-		List<BattleShip> shiplist = null;
+		List<BattleShip> shiplist;
 		if( side == this.ownSide ) {
 			shiplist = getOwnShips();
 		}
@@ -331,57 +331,45 @@ public class Battle implements Locatable
 		
 		double owncaps = 0;
 		double secondrowcaps = 0;
-		for( int i=0; i < shiplist.size(); i++ ) 
-		{
-			BattleShip aship = shiplist.get(i);
-			
-			if( (aship.getAction() & BS_JOIN) != 0) {
-				continue;	
-			}
-			ShipTypeData type = aship.getTypeData();
-			
-			double size = type.getSize();
-			if( (aship.getAction() & BS_SECONDROW) != 0 ) {
-				if( !aship.getShip().isDocked() && !aship.getShip().isLanded() ) {
-					secondrowcaps += size;
-				}
-			}
-			else {
-				if( size > ShipType.SMALL_SHIP_MAXSIZE ) {
-					double countedSize = size;
-					if( type.getCrew() > 0 ) {
-						countedSize *= (aship.getCrew()/((double)type.getCrew()));
-					}
-					owncaps += countedSize;
-				}
-			}
-		}
+        for (BattleShip aship : shiplist) {
+            if ((aship.getAction() & BS_JOIN) != 0) {
+                continue;
+            }
+            ShipTypeData type = aship.getTypeData();
+
+            double size = type.getSize();
+            if ((aship.getAction() & BS_SECONDROW) != 0) {
+                if (!aship.getShip().isDocked() && !aship.getShip().isLanded()) {
+                    secondrowcaps += size;
+                }
+            } else {
+                if (size > ShipType.SMALL_SHIP_MAXSIZE) {
+                    double countedSize = size;
+                    if (type.getCrew() > 0) {
+                        countedSize *= (aship.getCrew() / ((double) type.getCrew()));
+                    }
+                    owncaps += countedSize;
+                }
+            }
+        }
 		
 		if( added != null ) {
-			for( int i=0; i < added.length; i++ ) {
-				BattleShip aship = added[i];
-				
-				ShipTypeData type = aship.getTypeData();
-				
-				if( !type.hasFlag(ShipTypes.SF_SECONDROW) ) {
-					continue;
-				}
-				
-				if( !aship.getShip().isDocked() && !aship.getShip().isLanded() ) {
-					secondrowcaps += type.getSize();
-				}	
-			}
+            for (BattleShip aship : added) {
+                ShipTypeData type = aship.getTypeData();
+
+                if (!type.hasFlag(ShipTypes.SF_SECONDROW)) {
+                    continue;
+                }
+
+                if (!aship.getShip().isDocked() && !aship.getShip().isLanded()) {
+                    secondrowcaps += type.getSize();
+                }
+            }
 		}
 
-		if( Double.valueOf(secondrowcaps).intValue() == 0 ) {
-			return true;	
-		}
-				
-		if( Double.valueOf(owncaps).intValue() <= Double.valueOf(secondrowcaps).intValue()*2 ) {
-			return false;
-		}
-		return true;
-	}
+        return Double.valueOf(secondrowcaps).intValue() == 0 || Double.valueOf(owncaps).intValue() > Double.valueOf(secondrowcaps).intValue() * 2;
+
+    }
 	
 	/**
 	 * Prueft, ob die Schlacht ueber das angegebene Flag verfuegt.
@@ -468,14 +456,8 @@ public class Battle implements Locatable
 	 * @return <code>true</code>, falls das Ziel gueltig ist
 	 */
 	public boolean isValidTarget() {
-		if( this.activeSEnemy >= this.enemyShips.size() ) {
-			return false;
-		}
-		if( this.activeSEnemy < 0 ) {
-			return false;
-		}
-		return true;
-	}
+        return this.activeSEnemy < this.enemyShips.size() && this.activeSEnemy >= 0;
+    }
 	
 	/**
 	 * Liefert den Index des naechsten feindlichen Schiffes nach dem aktuell ausgewaehlten. 
@@ -562,27 +544,8 @@ public class Battle implements Locatable
 		}
 		this.activeSEnemy = index;
 	}
-	
-	/**
-	 * Gibt den Index des aktuell ausgewaehlten eigenen Schiffes zurueck.
-	 * @return Der Index des aktuell ausgewaehlten eigenen Schiffes
-	 */
-	public int getOwnShipIndex() {
-		return this.activeSOwn;
-	}
-	
-	/**
-	 * Setzt den Index des aktuell ausgewaehlten eigenen Schiffes.
-	 * @param index Der neue Index
-	 */
-	public void setOwnShipIndex(int index) {
-		if( index >= this.ownShips.size() ) {
-			throw new IndexOutOfBoundsException("Schiffsindex fuer eigene Schiffe '"+index+"' > als das das vorhandene Maximum ("+this.ownShips.size()+")");
-		}
-		this.activeSOwn = index;
-	}
-	
-	/**
+
+    /**
 	 * Erstellt eine neue Schlacht.
 	 * @param id Die ID des Spielers, der die Schlacht beginnt
 	 * @param ownShipID Die ID des Schiffes des Spielers, der angreift
@@ -602,22 +565,19 @@ public class Battle implements Locatable
 		Set<Integer> addedships = new TreeSet<Integer>();
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
-		for( int i=0; i < ships.size(); i++ ) {
-			BattleShip ship = ships.get(i);
-			
-			Ship baseShip = ship.getShip().getBaseShip();
-			if(baseShip != null && ship.getShip().isLanded() && baseShip.startFighters()) 
-			{
-				ship.getShip().setDocked("");
-				startlist.add(ship.getId());
-			}
-			idlist.add(ship.getId());
-			addedships.add(ship.getShip().getId());
-			
-			ship.getShip().setBattle(battle);
-			ship.setBattle(battle);
-			db.persist(ship);
-		}
+        for (BattleShip ship : ships) {
+            Ship baseShip = ship.getShip().getBaseShip();
+            if (baseShip != null && ship.getShip().isLanded() && baseShip.startFighters()) {
+                ship.getShip().setDocked("");
+                startlist.add(ship.getId());
+            }
+            idlist.add(ship.getId());
+            addedships.add(ship.getShip().getId());
+
+            ship.getShip().setBattle(battle);
+            ship.setBattle(battle);
+            db.persist(ship);
+        }
 		
 		//Set Parameter doesn't work for in (cast problem string/integer)
 		db.createQuery("update Ship set battle=:battle where id in (:shipIds)")
@@ -625,6 +585,70 @@ public class Battle implements Locatable
 		  .setParameterList("shipIds", addedships)
 		  .executeUpdate();
 	}
+
+    private static boolean checkBattleConditions(User user, User enemyUser, Ship ownShip, Ship enemyShip)
+    {
+        Context context = ContextMap.getContext();
+
+        // Kann der Spieler ueberhaupt angreifen (Noob-Schutz?)
+		if( user.isNoob() ) {
+			context.addError("Sie stehen unter GCP-Schutz und k&ouml;nnen daher keinen Gegner angreifen!<br />Hinweis: der GCP-Schutz kann unter Optionen vorzeitig beendet werden");
+			return false;
+		}
+
+		if( (ownShip == null) || (ownShip.getId() < 0) || (ownShip.getOwner() != user) ) {
+			context.addError("Das angreifende Schiff existiert nicht oder untersteht nicht ihrem Kommando!");
+			return false;
+		}
+
+		if( (enemyShip == null) || (enemyShip.getId() < 0) ) {
+			context.addError("Das angegebene Zielschiff existiert nicht!");
+			return false;
+		}
+
+		if( !ownShip.getLocation().sameSector(0,enemyShip.getLocation(),0) ) {
+			context.addError("Die beiden Schiffe befinden sich nicht im selben Sektor");
+			return false;
+		}
+
+		//
+		// Kann der Spieler angegriffen werden (NOOB-Schutz?/Vac-Mode?)
+		//
+
+		if( enemyUser.isNoob() ) {
+			context.addError("Der Gegner steht unter GCP-Schutz und kann daher nicht angegriffen werden!");
+			return false;
+		}
+
+		if( enemyUser.getVacationCount() != 0 && enemyUser.getWait4VacationCount() == 0 ) {
+			context.addError("Der Gegner befindet sich im Vacation-Modus und kann daher nicht angegriffen werden!");
+			return false;
+		}
+
+		//
+		// IFF-Stoersender?
+		//
+		boolean disable_iff = enemyShip.getStatus().indexOf("disable_iff") > -1;
+		if( disable_iff ) {
+			context.addError("Dieses Schiff kann nicht angegriffen werden (egal wieviel du mit der URL rumspielt!)");
+			return false;
+		}
+
+		//
+		// Questlock?
+		//
+		if( ownShip.getLock() != null && ownShip.getLock().length() > 0 ) {
+			context.addError("Ihr Schiff ist an ein Quest gebunden");
+			return false;
+		}
+
+		if( enemyShip.getLock() != null && enemyShip.getLock().length() > 0 ) {
+			context.addError("Das gegnerische Schiff ist an ein Quest gebunden");
+			return false;
+		}
+
+        return true;
+    }
 
 	/**
 	 * Erstellt eine neue Schlacht.
@@ -641,67 +665,16 @@ public class Battle implements Locatable
 		db.flush();
 		
 		log.info("battle: "+id+" :: "+ownShipID+" :: "+enemyShipID);
-		// Kann der Spieler ueberhaupt angreifen (Noob-Schutz?)
-		User user = (User)context.getDB().get(User.class, id);
-		if( user.isNoob() ) {
-			context.addError("Sie stehen unter GCP-Schutz und k&ouml;nnen daher keinen Gegner angreifen!<br />Hinweis: der GCP-Schutz kann unter Optionen vorzeitig beendet werden");
-			return null;
-		}
-		
-		Ship tmpOwnShip = (Ship)db.get(Ship.class, ownShipID);
+
+        User user = (User)context.getDB().get(User.class, id);
+        Ship tmpOwnShip = (Ship)db.get(Ship.class, ownShipID);
 		Ship tmpEnemyShip = (Ship)db.get(Ship.class, enemyShipID);
+        User enemyUser = tmpEnemyShip.getOwner();
 
-		if( (tmpOwnShip == null) || (tmpOwnShip.getId() < 0) || (tmpOwnShip.getOwner() != user) ) {
-			context.addError("Das angreifende Schiff existiert nicht oder untersteht nicht ihrem Kommando!");
-			return null;
-		}
-		
-		if( (tmpEnemyShip == null) || (tmpEnemyShip.getId() < 0) ) {
-			context.addError("Das angegebene Zielschiff existiert nicht!");
-			return null;
-		}
-		
-		if( !tmpOwnShip.getLocation().sameSector(0,tmpEnemyShip.getLocation(),0) ) {
-			context.addError("Die beiden Schiffe befinden sich nicht im selben Sektor");
-			return null;
-		}
-
-		//
-		// Kann der Spieler angegriffen werden (NOOB-Schutz?/Vac-Mode?)
-		//
-
-		User enemyUser = tmpEnemyShip.getOwner();
-		if( enemyUser.isNoob() ) {
-			context.addError("Der Gegner steht unter GCP-Schutz und kann daher nicht angegriffen werden!");
-			return null;
-		}
-		
-		if( enemyUser.getVacationCount() != 0 && enemyUser.getWait4VacationCount() == 0 ) {
-			context.addError("Der Gegner befindet sich im Vacation-Modus und kann daher nicht angegriffen werden!");
-			return null;
-		}
-		
-		//
-		// IFF-Stoersender?
-		// 
-		boolean disable_iff = tmpEnemyShip.getStatus().indexOf("disable_iff") > -1;
-		if( disable_iff ) {
-			context.addError("Dieses Schiff kann nicht angegriffen werden (egal wieviel du mit der URL rumspielt!)");
-			return null;	
-		}
-		
-		//
-		// Questlock?
-		// 
-		if( tmpOwnShip.getLock() != null && tmpOwnShip.getLock().length() > 0 ) {
-			context.addError("Ihr Schiff ist an ein Quest gebunden");
-			return null;
-		}
-		
-		if( tmpEnemyShip.getLock() != null && tmpEnemyShip.getLock().length() > 0 ) {
-			context.addError("Das gegnerische Schiff ist an ein Quest gebunden");
-			return null;
-		}
+        if(!checkBattleConditions(user, enemyUser, tmpOwnShip, tmpEnemyShip))
+        {
+            return null;
+        }
 
 		//
 		// Schiffsliste zusammenstellen
@@ -716,86 +689,77 @@ public class Battle implements Locatable
 		
 		Set<User> ownUsers = new HashSet<User>();
 		Set<User> enemyUsers = new HashSet<User>();
-		List<?> shiplist = db.createQuery("from Ship as s inner join fetch s.owner as u "+
-				"where s.id>:minid and s.x=:x and s.y=:y and " +
-				"s.system=:system and s.battle is null and " +
-				"(ncp(u.ally,:ally1)=1 or " + 
-				"ncp(u.ally,:ally2)=1) and " +
-				"locate('disable_iff',s.status)=0 and s.lock is null and (u.vaccount=0 or u.wait4vac > 0)")
-			.setInteger("minid", 0)
-			.setInteger("x", tmpOwnShip.getX())
-			.setInteger("y", tmpOwnShip.getY())
-			.setInteger("system", tmpOwnShip.getSystem())
-			.setParameter("ally1", tmpOwnShip.getOwner().getAlly())
-			.setParameter("ally2", tmpEnemyShip.getOwner().getAlly())
-			.list();
+		List<Ship> shiplist = Common.cast(db.createQuery("from Ship as s inner join fetch s.owner as u " +
+                "where s.id>:minid and s.x=:x and s.y=:y and " +
+                "s.system=:system and s.battle is null and " +
+                "(ncp(u.ally,:ally1)=1 or " +
+                "ncp(u.ally,:ally2)=1) and " +
+                "locate('disable_iff',s.status)=0 and s.lock is null and (u.vaccount=0 or u.wait4vac > 0)")
+                .setInteger("minid", 0)
+                .setInteger("x", tmpOwnShip.getX())
+                .setInteger("y", tmpOwnShip.getY())
+                .setInteger("system", tmpOwnShip.getSystem())
+                .setParameter("ally1", tmpOwnShip.getOwner().getAlly())
+                .setParameter("ally2", tmpEnemyShip.getOwner().getAlly())
+                .list());
 			
 		
 		Set<BattleShip> secondRowShips = new HashSet<BattleShip>();
 		boolean firstRowExists = false;
 		boolean firstRowEnemyExists = false;
-		
-		for( Iterator<?> iter=shiplist.iterator(); iter.hasNext(); ) {
-			Ship aShip = (Ship)iter.next();
-			// Loot-Truemmer sollten in keine Schlacht wandern... (nicht schoen, gar nicht schoen geloest)
-			if( (aShip.getOwner().getId() == -1) && (aShip.getType() == Configuration.getIntSetting("CONFIG_TRUEMMER")) ) {
-				continue;
-			}
-			User tmpUser = aShip.getOwner();
-					
-			if( tmpUser.isNoob() ) {
-				continue;
-			}
-			
-			BattleShip battleShip = new BattleShip(null, aShip);
-			
-			ShipTypeData shiptype = aShip.getBaseType();
 
-			
-			boolean ownShip = false;
-			if( (shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal()) && (aShip.isDocked() || aShip.isLanded()) ) {
-				battleShip.setAction(battleShip.getAction() | BS_DISABLE_WEAPONS);
-			}
-			
-			if( ( (tmpOwnShip.getOwner().getAlly() != null) && (tmpUser.getAlly() == tmpOwnShip.getOwner().getAlly()) ) || (id == tmpUser.getId()) ) {
-				ownUsers.add(tmpUser);
-				battleShip.setSide(0);
-				ownShip = true;
-				
-				if( (ownShipID != 0) && (aShip.getId() == ownShipID) ) {
-					ownBattleShip = battleShip;
-				} 
-				else {
-					battle.ownShips.add(battleShip);
-				}
-			} 
-			else if( ( (tmpEnemyShip.getOwner().getAlly() != null) && (tmpUser.getAlly() == tmpEnemyShip.getOwner().getAlly()) ) || (tmpEnemyShip.getOwner().getId() == tmpUser.getId()) ) {
-				enemyUsers.add(tmpUser);
-				battleShip.setSide(1);
-				
-				if( (enemyShipID != 0) && (aShip.getId() == enemyShipID) ) {
-					enemyBattleShip = battleShip;
-				} 
-				else {
-					battle.enemyShips.add(battleShip);
-				}
-			}
-			
-			if( shiptype.hasFlag(ShipTypes.SF_SECONDROW) ) {
-				secondRowShips.add(battleShip);
-			}
-			else
-			{
-				if(ownShip)
-				{
-					firstRowExists = true;
-				}
-				else
-				{
-					firstRowEnemyExists = true;
-				}
-			}
-		}
+        for (Ship aShip : shiplist) {
+            // Loot-Truemmer sollten in keine Schlacht wandern... (nicht schoen, gar nicht schoen geloest)
+            if ((aShip.getOwner().getId() == -1) && (aShip.getType() == Configuration.getIntSetting("CONFIG_TRUEMMER"))) {
+                continue;
+            }
+            User tmpUser = aShip.getOwner();
+
+            if (tmpUser.isNoob()) {
+                continue;
+            }
+
+            BattleShip battleShip = new BattleShip(null, aShip);
+
+            ShipTypeData shiptype = aShip.getBaseType();
+
+
+            boolean ownShip = false;
+            if ((shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal()) && (aShip.isDocked() || aShip.isLanded())) {
+                battleShip.setAction(battleShip.getAction() | BS_DISABLE_WEAPONS);
+            }
+
+            if (((tmpOwnShip.getOwner().getAlly() != null) && (tmpUser.getAlly() == tmpOwnShip.getOwner().getAlly())) || (id == tmpUser.getId())) {
+                ownUsers.add(tmpUser);
+                battleShip.setSide(0);
+                ownShip = true;
+
+                if ((ownShipID != 0) && (aShip.getId() == ownShipID)) {
+                    ownBattleShip = battleShip;
+                } else {
+                    battle.ownShips.add(battleShip);
+                }
+            } else if (((tmpEnemyShip.getOwner().getAlly() != null) && (tmpUser.getAlly() == tmpEnemyShip.getOwner().getAlly())) || (tmpEnemyShip.getOwner().getId() == tmpUser.getId())) {
+                enemyUsers.add(tmpUser);
+                battleShip.setSide(1);
+
+                if ((enemyShipID != 0) && (aShip.getId() == enemyShipID)) {
+                    enemyBattleShip = battleShip;
+                } else {
+                    battle.enemyShips.add(battleShip);
+                }
+            }
+
+            if (shiptype.hasFlag(ShipTypes.SF_SECONDROW)) {
+                secondRowShips.add(battleShip);
+            } else {
+                if (ownShip) {
+                    firstRowExists = true;
+                } else {
+                    firstRowEnemyExists = true;
+                }
+            }
+        }
 		
 		addToSecondRow(secondRowShips, firstRowExists, firstRowEnemyExists);
 
@@ -891,10 +855,6 @@ public class Battle implements Locatable
 			battle.logme(startlist.size()+" J&auml;ger sind automatisch gestartet\n");
 			battle.logenemy("<action side=\"0\" time=\""+Common.time()+"\" tick=\""+tick+"\"><![CDATA[\n"+startlist.size()+" J&auml;ger sind automatisch gestartet\n]]></action>\n");
 		}
-		startlist = null;
-
-		idlist = null;
-		
 		battle.ownShips.add(ownBattleShip);
 		battle.activeSOwn = battle.ownShips.size()-1;
 
@@ -907,24 +867,46 @@ public class Battle implements Locatable
 			writer.append("<?xml version='1.0' encoding='UTF-8'?>\n");
 			writer.append("<battle>\n");
 			writer.append("<fileinfo format=\""+LOGFORMAT+"\" />\n");
-			writer.append("<coords x=\""+ownShip.getX()+"\" y=\""+ownShip.getY()+"\" system=\""+ownShip.getSystem()+"\" />\n");
-	
-			if( ownBattleShip.getOwner().getAlly() != null ) {
-				writer.append("<side1 commander=\""+ownBattleShip.getOwner().getId()+"\" ally=\""+ownBattleShip.getOwner().getAlly().getId()+"\" />\n");
-			}
+            writer.append("<coords x=\"");
+            writer.append(String.valueOf(ownShip.getX()));
+            writer.append("\" y=\"");
+            writer.append(String.valueOf(ownShip.getY()));
+            writer.append("\" system=\"");
+            writer.append(String.valueOf(ownShip.getSystem()));
+            writer.append("\" />\n");
+
+            if( ownBattleShip.getOwner().getAlly() != null ) {
+                writer.append("<side1 commander=\"");
+                writer.append(String.valueOf(ownBattleShip.getOwner().getId()));
+                writer.append("\" ally=\"");
+                writer.append(String.valueOf(ownBattleShip.getOwner().getAlly().getId()));
+                writer.append("\" />\n");
+            }
 			else {
-				writer.append("<side1 commander=\""+ownBattleShip.getOwner().getId()+"\" />\n");
-			}
+                writer.append("<side1 commander=\"");
+                writer.append(String.valueOf(ownBattleShip.getOwner().getId()));
+                writer.append("\" />\n");
+            }
 	
 			if( enemyBattleShip.getOwner().getAlly() != null ) {
-				writer.append("<side2 commander=\""+enemyBattleShip.getOwner().getId()+"\" ally=\""+enemyBattleShip.getOwner().getAlly().getId()+"\" />\n");
-			}
+                writer.append("<side2 commander=\"");
+                writer.append(String.valueOf(enemyBattleShip.getOwner().getId()));
+                writer.append("\" ally=\"");
+                writer.append(String.valueOf(enemyBattleShip.getOwner().getAlly().getId()));
+                writer.append("\" />\n");
+            }
 			else {
-				writer.append("<side2 commander=\""+enemyBattleShip.getOwner().getId()+"\" />\n");
-			}
-	
-			writer.append("<startdate tick=\""+tick+"\" time=\""+Common.time()+"\" />\n");
-			writer.close();
+                writer.append("<side2 commander=\"");
+                writer.append(String.valueOf(enemyBattleShip.getOwner().getId()));
+                writer.append("\" />\n");
+            }
+
+            writer.append("<startdate tick=\"");
+            writer.append(String.valueOf(tick));
+            writer.append("\" time=\"");
+            writer.append(String.valueOf(Common.time()));
+            writer.append("\" />\n");
+            writer.close();
 			
 			if( SystemUtils.IS_OS_UNIX ) {
 				Runtime.getRuntime().exec("chmod 0666 "+Configuration.getSetting("LOXPATH")+"battles/battle_id"+battle.id+".log");
