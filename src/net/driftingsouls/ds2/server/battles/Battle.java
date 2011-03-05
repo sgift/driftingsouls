@@ -63,7 +63,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
-import javax.persistence.Version;
 import javax.script.ScriptEngine;
 import java.io.BufferedWriter;
 import java.io.File;
