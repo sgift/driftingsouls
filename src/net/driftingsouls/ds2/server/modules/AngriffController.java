@@ -359,18 +359,16 @@ public class AngriffController extends TemplateGenerator {
 			
 			t.setVar("shipinfo.ammo.list","");
 			List<ItemCargoEntry> itemlist = mycargo.getItemsWithEffect( ItemEffect.Type.AMMO );
-			for( int i=0; i < itemlist.size(); i++ ) {
-				ItemCargoEntry item = itemlist.get(i);
-				
-				if( item.getCount() > 0 ) {
-					Item itemobject = item.getItemObject();
-					
-					t.setVar(	"ammo.image",	itemobject.getPicture(),
-								"ammo.name",	itemobject.getName(),
-								"ammo.count",	item.getCount() );
-					t.parse("shipinfo.ammo.list","shipinfo.ammo.listitem",true);
-				}
-			}
+            for (ItemCargoEntry item : itemlist) {
+                if (item.getCount() > 0) {
+                    Item itemobject = item.getItemObject();
+
+                    t.setVar("ammo.image", itemobject.getPicture(),
+                            "ammo.name", itemobject.getName(),
+                            "ammo.count", item.getCount());
+                    t.parse("shipinfo.ammo.list", "shipinfo.ammo.listitem", true);
+                }
+            }
 			if(mycargo.hasResource(Resources.BATTERIEN))
 			{
 				t.setVar( "ammo.image", Cargo.getResourceImage(Resources.BATTERIEN),
@@ -565,15 +563,14 @@ public class AngriffController extends TemplateGenerator {
 		
 		boolean battleCreated = false;
 		
-		Battle battle = null;
+		Battle battle;
 		if( battleID == 0 ) {
 			battle = Battle.create(user.getId(), ownShipID, enemyShipID);
 			if( battle == null ) {
 				this.setTemplate("");
-				
+
 				return;
 			}
-			battleID = battle.getId();
 			battleCreated = true;
 		}
 		else {
@@ -602,8 +599,6 @@ public class AngriffController extends TemplateGenerator {
 		//
 		if( (!battleCreated) && addShipID != 0 && !battle.isGuest() ) {
 			if( !battle.addShip( user.getId(), addShipID ) ) {
-				addShipID = 0;
-		
 				// Wenn das Schiff offenbar von jemandem ausserhalb der Kriegfhrenden Allys stammt - Laden abbrechen bei fehlschlag
 				if( forcejoin != 0 ) {
 					this.setTemplate("");
@@ -759,7 +754,7 @@ public class AngriffController extends TemplateGenerator {
 		t.setBlock("ship.info","shipinfo.ammo.listitem","shipinfo.ammo.list");
 		t.setBlock("ship.info","shipinfo.weapons.listitem","shipinfo.weapons.list");
 		t.setBlock("ship.info","shipinfo.units.listitem","shipinfo.units.list");
-		showInfo("ownship.info", ownShip, (!battle.isGuest() ? false:true), "Own", scan.equals("own") );
+		showInfo("ownship.info", ownShip, battle.isGuest(), "Own", scan.equals("own") );
 		showInfo("enemyship.info", enemyShip, true, "Enemy", scan.equals("enemy") );
 		
 		if( scan.equals("own") ) {
@@ -863,15 +858,15 @@ public class AngriffController extends TemplateGenerator {
 				if(aship.getShip().isDocked() || aship.getShip().isLanded())
 				{
 					int shipid = aship.getShip().getBaseShip().getId();
-					
-					for( int j=0; j < ownShips.size(); j++) {
-						if( ownShips.get(j).getId() == shipid ) {
-							t.setVar(	"ship.docked.name",	ownShips.get(j).getName(),
-										"ship.docked.id",	shipid );
-							
-							break;
-						}
-					}
+
+                    for (BattleShip ownShip1 : ownShips) {
+                        if (ownShip1.getId() == shipid) {
+                            t.setVar("ship.docked.name", ownShip1.getName(),
+                                    "ship.docked.id", shipid);
+
+                            break;
+                        }
+                    }
 				}
 	
 				User aUser = aship.getOwner();
@@ -892,8 +887,8 @@ public class AngriffController extends TemplateGenerator {
 							"ship.action.secondrow",	aship.getAction() & Battle.BS_SECONDROW,
 							"ship.action.fluchtnext",	(!battle.isGuest() ? aship.getAction() & Battle.BS_FLUCHTNEXT : 0),
 							"ship.action.shot",			(!battle.isGuest() ? aship.getAction() & Battle.BS_SHOT : 0),
-							"ship.mangelnahrung",		(!battle.isGuest() ? aship.getShip().getStatus().indexOf("mangel_nahrung") > -1 : false),
-							"ship.mangelreaktor",		(!battle.isGuest() ? aship.getShip().getStatus().indexOf("mangel_reaktor") > -1 : false) );
+                            "ship.mangelnahrung",       !battle.isGuest() && (aship.getShip().getStatus().indexOf("mangel_nahrung") > -1),
+							"ship.mangelreaktor",       !battle.isGuest() && aship.getShip().getStatus().indexOf("mangel_reaktor") > -1);
 	
 				if( firstEntry ) {
 					firstEntry = false;
@@ -922,55 +917,53 @@ public class AngriffController extends TemplateGenerator {
 			Map<Integer,Integer> shiptypegroupcount = new HashMap<Integer,Integer>();
 			
 			List<BattleShip> ownShips = battle.getOwnShips();
-			for( int i=0; i < ownShips.size(); i++ ) {
-				BattleShip aship = ownShips.get(i);
-				
-				Common.safeIntInc(shiptypegroupcount, aship.getShip().getType());
-				
-				groupoffset = (shiptypegroupcount.get(aship.getShip().getType())-1) / SHIPGROUPSIZE;
-				
-				final String key = aship.getShip().getType()+":"+groupoffset;
-				int shipAction = aship.getAction();
-				
-				GroupEntry data = null;
-				if( !groupdata.containsKey(key) ) {
-					data = new GroupEntry();
-					groupdata.put(key, data);
-				}
-				else {
-					data = groupdata.get(key);
-				}
-				
-				if( (shipAction & Battle.BS_DESTROYED) != 0 ) {
-					data.destcount++;
-				}
-				if( (shipAction & Battle.BS_HIT) != 0 ) {
-					data.hitcount++;
-				}
-				if( (shipAction & Battle.BS_FLUCHT) != 0 ) {
-					data.fluchtcount++;
-				}
-				if( (shipAction & Battle.BS_JOIN) != 0 ) {
-					data.joincount++;
-				}
-				if( (shipAction & Battle.BS_SECONDROW) != 0 ) {
-					data.srcount++;
-				}
-				if( !battle.isGuest() ) {
-					if( (shipAction & Battle.BS_SHOT) != 0 )  {
-						data.shotcount++;
-					}
-					if( (shipAction & Battle.BS_FLUCHTNEXT) != 0 )  {
-						data.fluchtnextcount++;
-					}
-					if( aship.getShip().getStatus().indexOf("mangel_nahrung") > -1 )  {
-						data.mangelnahrungcount++;
-					}
-					if( aship.getShip().getStatus().indexOf("mangel_reaktor") > -1 )  {
-						data.mangelreaktorcount++;
-					}
-				}
-			}
+            for (BattleShip aship : ownShips)
+            {
+                Common.safeIntInc(shiptypegroupcount, aship.getShip().getType());
+
+                groupoffset = (shiptypegroupcount.get(aship.getShip().getType()) - 1) / SHIPGROUPSIZE;
+
+                final String key = aship.getShip().getType() + ":" + groupoffset;
+                int shipAction = aship.getAction();
+
+                GroupEntry data;
+                if (!groupdata.containsKey(key)) {
+                    data = new GroupEntry();
+                    groupdata.put(key, data);
+                } else {
+                    data = groupdata.get(key);
+                }
+
+                if ((shipAction & Battle.BS_DESTROYED) != 0) {
+                    data.destcount++;
+                }
+                if ((shipAction & Battle.BS_HIT) != 0) {
+                    data.hitcount++;
+                }
+                if ((shipAction & Battle.BS_FLUCHT) != 0) {
+                    data.fluchtcount++;
+                }
+                if ((shipAction & Battle.BS_JOIN) != 0) {
+                    data.joincount++;
+                }
+                if ((shipAction & Battle.BS_SECONDROW) != 0) {
+                    data.srcount++;
+                }
+                if (!battle.isGuest()) {
+                    if ((shipAction & Battle.BS_SHOT) != 0) {
+                        data.shotcount++;
+                    }
+                    if ((shipAction & Battle.BS_FLUCHTNEXT) != 0) {
+                        data.fluchtnextcount++;
+                    }
+                    if (aship.getShip().getStatus().indexOf("mangel_nahrung") > -1) {
+                        data.mangelnahrungcount++;
+                    }
+                    if (aship.getShip().getStatus().indexOf("mangel_reaktor") > -1) {
+                        data.mangelreaktorcount++;
+                    }
+                }
+            }
 			
 			Map<Integer,Integer> shipTypes = battle.getShipTypeCount(battle.getOwnSide());
 			for( Map.Entry<Integer, Integer> entry : shipTypes.entrySet() ) {
@@ -1096,14 +1089,14 @@ public class AngriffController extends TemplateGenerator {
 				// Ist das Schiff gedockt?
 				if( aship.getShip().isDocked() ) {
 					int shipid = aship.getShip().getBaseShip().getId();
-	
-					for( int j=0; j < enemyShips.size(); j++ ) {
-						if( enemyShips.get(j).getId() == shipid ) {
-							t.setVar("ship.docked.name", enemyShips.get(j).getName());
-							
-							break;
-						}
-					}						
+
+                    for (BattleShip enemyShip1 : enemyShips) {
+                        if (enemyShip1.getId() == shipid) {
+                            t.setVar("ship.docked.name", enemyShip1.getName());
+
+                            break;
+                        }
+                    }
 				}
 				
 				User aUser = aship.getOwner();
@@ -1150,45 +1143,42 @@ public class AngriffController extends TemplateGenerator {
 			Map<Integer,Integer> shiptypegroupcount = new HashMap<Integer,Integer>();
 		
 			List<BattleShip> enemyShips = battle.getEnemyShips();
-			for( int i=0; i < enemyShips.size(); i++ ) {
-				BattleShip aship = enemyShips.get(i);
-				
-				if( aship.getShip().isLanded() ) {
-					continue;
-				}
-				
-				Common.safeIntInc(shiptypegroupcount, aship.getShip().getType());
-				
-				groupoffset = (shiptypegroupcount.get(aship.getShip().getType())-1) / SHIPGROUPSIZE;
-			
-				final String key = aship.getShip().getType()+":"+groupoffset;
-				int shipAction = aship.getAction();
-				
-				GroupEntry data = null;
-				if( !groupdata.containsKey(key) ) {
-					data = new GroupEntry();
-					groupdata.put(key, data);
-				}
-				else {
-					data = groupdata.get(key);
-				}
-				
-				if( (shipAction & Battle.BS_DESTROYED) != 0 ) {
-					data.destcount++;
-				}
-				if( (shipAction & Battle.BS_HIT) != 0 ) {
-					data.hitcount++;
-				}
-				if( (shipAction & Battle.BS_FLUCHT) != 0 ) {
-					data.fluchtcount++;
-				}
-				if( (shipAction & Battle.BS_JOIN) != 0 ) {
-					data.joincount++;
-				}
-				if( (shipAction & Battle.BS_SECONDROW) != 0 ) {
-					data.srcount++;
-				}
-			}
+            for (BattleShip aship : enemyShips) {
+                if (aship.getShip().isLanded()) {
+                    continue;
+                }
+
+                Common.safeIntInc(shiptypegroupcount, aship.getShip().getType());
+
+                groupoffset = (shiptypegroupcount.get(aship.getShip().getType()) - 1) / SHIPGROUPSIZE;
+
+                final String key = aship.getShip().getType() + ":" + groupoffset;
+                int shipAction = aship.getAction();
+
+                GroupEntry data;
+                if (!groupdata.containsKey(key)) {
+                    data = new GroupEntry();
+                    groupdata.put(key, data);
+                } else {
+                    data = groupdata.get(key);
+                }
+
+                if ((shipAction & Battle.BS_DESTROYED) != 0) {
+                    data.destcount++;
+                }
+                if ((shipAction & Battle.BS_HIT) != 0) {
+                    data.hitcount++;
+                }
+                if ((shipAction & Battle.BS_FLUCHT) != 0) {
+                    data.fluchtcount++;
+                }
+                if ((shipAction & Battle.BS_JOIN) != 0) {
+                    data.joincount++;
+                }
+                if ((shipAction & Battle.BS_SECONDROW) != 0) {
+                    data.srcount++;
+                }
+            }
 		
 			Map<Integer,Integer> shipTypes = battle.getShipTypeCount(battle.getEnemySide());
 			for( Map.Entry<Integer, Integer> entry: shipTypes.entrySet() ) {
