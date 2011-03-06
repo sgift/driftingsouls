@@ -2,7 +2,6 @@ package net.driftingsouls.ds2.server.modules;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -165,13 +164,20 @@ public class MapController extends TemplateGenerator
         {
             String systemAddInfo = " ";
 
-            if ((system.getAccess() == StarSystem.AC_ADMIN) && user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS)) {
+            if ((system.getAccess() == StarSystem.AC_ADMIN) && user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS))
+            {
                 systemAddInfo += "[admin]";
-            } else if ((system.getAccess() == StarSystem.AC_NPC) && (user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS) || user.hasFlag(User.FLAG_VIEW_SYSTEMS))) {
+            }
+            else if ((system.getAccess() == StarSystem.AC_NPC) && (user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS) || user.hasFlag(User.FLAG_VIEW_SYSTEMS)))
+            {
                 systemAddInfo += "[hidden]";
-            } else if ((system.getAccess() == StarSystem.AC_ADMIN) || (system.getAccess() == StarSystem.AC_NPC)) {
+            }
+            else if ((system.getAccess() == StarSystem.AC_ADMIN) || (system.getAccess() == StarSystem.AC_NPC))
+            {
                 continue;
-            } else if (!system.isStarmapVisible() && !user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS)) {
+            }
+            else if (!system.isStarmapVisible() && !user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS))
+            {
                 continue;
             }
 
