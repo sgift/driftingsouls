@@ -367,6 +367,7 @@ public class MapController extends TemplateGenerator
 		{
 			JSONObject jsonUser = new JSONObject();
 			jsonUser.accumulate("name", Common._text(owner.getKey().getNickname()));
+            jsonUser.accumulate("id", owner.getKey().getId());
 			JSONArray shiptypes = new JSONArray();
 			for(Map.Entry<ShipType, List<Ship>> shiptype: owner.getValue().entrySet())
 			{

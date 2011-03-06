@@ -48,3 +48,8 @@ td.noscan
 {
 	opacity: 0.4;
 }
+
+#sectorview ul
+{
+    list-style-type: none;
+}
