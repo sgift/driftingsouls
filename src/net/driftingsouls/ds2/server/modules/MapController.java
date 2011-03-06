@@ -103,31 +103,29 @@ public class MapController extends TemplateGenerator
 		sb.append("<head>\n");
 		sb.append("<title>Drifting Souls 2</title>\n");
 		sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n");
-		if( !getDisableDefaultCSS() ) { 
-			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"format.css\" />\n");
+		if( !getDisableDefaultCSS() ) {
+            sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(config.get("URL")).append("format.css\" />\n");
 		}
-		sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"data/css/starmap.css\" />\n");
-		sb.append("<script src=\""+url+"data/javascript/jquery.js\" type=\"text/javascript\"></script>\n");
-		sb.append("<script src=\""+url+"data/javascript/starmap.js\" type=\"text/javascript\"></script>\n");
+        sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(config.get("URL")).append("data/css/starmap.css\" />\n");
+        sb.append("<script src=\"").append(url).append("data/javascript/jquery.js\" type=\"text/javascript\"></script>\n");
+        sb.append("<script src=\"").append(url).append("data/javascript/starmap.js\" type=\"text/javascript\"></script>\n");
 		sb.append("</head>\n");
 	}
 
 	@Override
-	protected boolean validateAndPrepare(String action) {
+	protected boolean validateAndPrepare(String action)
+    {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 		sys = getInteger("sys");
 
-		showSystem = true;
-
-		if( this.getInteger("loadmap") == 0 ) {
-			showSystem = false;	
-		}
+        showSystem = this.getInteger("loadmap") != 0;
 		
 		StarSystem system = (StarSystem)db.get(StarSystem.class, sys);
 		
-		if( sys == 0 ) {
+		if( sys == 0 )
+        {
 			t.setVar("map.message", "Bitte w&auml;hlen Sie ein System aus:" );
 			sys = 1;
 			showSystem = false; //Zeige das System nicht an
@@ -135,7 +133,8 @@ public class MapController extends TemplateGenerator
 		else if( system == null ||
 				( (system.getAccess() == StarSystem.AC_ADMIN) && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) ) ||
 				( (system.getAccess() == StarSystem.AC_NPC) && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) && !user.hasFlag( User.FLAG_VIEW_SYSTEMS ) ) ||
-				( !system.isStarmapVisible() && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ))) {
+				( !system.isStarmapVisible() && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS )))
+        {
 			t.setVar("map.message", "Sie haben keine entsprechenden Karten - Ihnen sind bekannt:");
 			sys = 1;
 			showSystem = false; //Zeige das System nicht an
@@ -143,8 +142,7 @@ public class MapController extends TemplateGenerator
 
 		this.system = system;
 
-		t.setVar(	"map.showsystem",	showSystem,
-				"map.system",		sys );
+		t.setVar("map.showsystem",	showSystem, "map.system", sys);
 
 		return true;
 	}
@@ -162,32 +160,28 @@ public class MapController extends TemplateGenerator
 
 		t.setBlock("_MAP", "systems.listitem", "systems.list");
 
-		List<?> systems = db.createQuery("from StarSystem order by id asc").list();
-		for( Iterator<?> iter = systems.iterator(); iter.hasNext(); )
-		{
-			StarSystem system = (StarSystem)iter.next();
-			String systemAddInfo = " ";
+		List<StarSystem> systems = Common.cast(db.createQuery("from StarSystem order by id asc").list());
+        for(StarSystem system: systems)
+        {
+            String systemAddInfo = " ";
 
-			if( (system.getAccess() == StarSystem.AC_ADMIN) && user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) ) {
-				systemAddInfo += "[admin]";
-			}
-			else if( (system.getAccess() == StarSystem.AC_NPC) && (user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) || user.hasFlag( User.FLAG_VIEW_SYSTEMS ) ) ) {
-				systemAddInfo += "[hidden]";		
-			} 
-			else if( (system.getAccess() == StarSystem.AC_ADMIN) || (system.getAccess() == StarSystem.AC_NPC) ) {
-				continue;
-			}
-			else if( !system.isStarmapVisible() && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS )) {
-				continue;
-			}
+            if ((system.getAccess() == StarSystem.AC_ADMIN) && user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS)) {
+                systemAddInfo += "[admin]";
+            } else if ((system.getAccess() == StarSystem.AC_NPC) && (user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS) || user.hasFlag(User.FLAG_VIEW_SYSTEMS))) {
+                systemAddInfo += "[hidden]";
+            } else if ((system.getAccess() == StarSystem.AC_ADMIN) || (system.getAccess() == StarSystem.AC_NPC)) {
+                continue;
+            } else if (!system.isStarmapVisible() && !user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS)) {
+                continue;
+            }
 
-			t.setVar(	"system.name",		system.getName(),
-						"system.id",		system.getID(),
-						"system.addinfo",	systemAddInfo,
-						"system.selected",	(system.getID() == sys) );
+            t.setVar("system.name", system.getName(),
+                    "system.id", system.getID(),
+                    "system.addinfo", systemAddInfo,
+                    "system.selected", (system.getID() == sys));
 
-			t.parse("systems.list", "systems.listitem", true);
-		}
+            t.parse("systems.list", "systems.listitem", true);
+        }
 
 		t.setBlock("_MAP", "jumpnodes.listitem", "jumpnodes.list");
 
@@ -285,12 +279,12 @@ public class MapController extends TemplateGenerator
 				
 				if( sectorOverlayImage != null )
 				{
-					map.append("<td style=\"background-image:url('"+dataPath+sectorImage+"')\" class=\""+(scannable ? "scan" : "noscan")+"\">");
+                    map.append("<td style=\"background-image:url('").append(dataPath).append(sectorImage).append("')\" class=\"").append(scannable ? "scan" : "noscan").append("\">");
 					sectorImage = sectorOverlayImage;
 				}
 				else
 				{
-					map.append("<td class=\""+(scannable ? "scan" : "noscan")+"\">");
+                    map.append("<td class=\"").append(scannable ? "scan" : "noscan").append("\">");
 				}
 				
 				map.append("<img src=\"").append(dataPath);
@@ -326,27 +320,27 @@ public class MapController extends TemplateGenerator
 		map.append("<table class=\"invisible\" id=\"sectortable\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"noBorderX\" width=\"400\">");
 		map.append("<tr>");
 		map.append("<td class=\"noBorderXnBG\" style=\"width:19px\">");
-		map.append("<img src=\""+url+"data/interface/border/border_topleft.gif\" alt=\"\" />");
+        map.append("<img src=\"").append(url).append("data/interface/border/border_topleft.gif\" alt=\"\" />");
 		map.append("</td>");
-		map.append("<td class=\"noBorderXnBG\" style=\"background-image:url("+url+"data/interface/border/border_top.gif); background-repeat:repeat-x\">");
+        map.append("<td class=\"noBorderXnBG\" style=\"background-image:url(").append(url).append("data/interface/border/border_top.gif); background-repeat:repeat-x\">");
 		map.append("</td>");
 		map.append("<td class=\"noBorderXnBG\" style=\"width:19px\">");
-		map.append("<img src=\""+url+"data/interface/border/border_topright.gif\" alt=\"\" />");
+        map.append("<img src=\"").append(url).append("data/interface/border/border_topright.gif\" alt=\"\" />");
 		map.append("</td>");
 		map.append("</tr>");
 		map.append("<tr>");
-		map.append("<td class=\"noBorderXnBG\" rowspan=\"1\" style=\"width:19px; background-image:url("+url+"data/interface/border/border_left.gif); background-repeat:repeat-y\"></td>");
-		map.append("<td id=\"sectorview\" class=\"noBorderX\" colspan=\"1\" style=\"background-image: url("+url+"data/interface/border/border_background.gif);\" align=\"left\">");
+        map.append("<td class=\"noBorderXnBG\" rowspan=\"1\" style=\"width:19px; background-image:url(").append(url).append("data/interface/border/border_left.gif); background-repeat:repeat-y\"></td>");
+        map.append("<td id=\"sectorview\" class=\"noBorderX\" colspan=\"1\" style=\"background-image: url(").append(url).append("data/interface/border/border_background.gif);\" align=\"left\">");
 		//Text is inserted here - using javascript
 		map.append("</td>");
-		map.append("<td class=\"noBorderXnBG\" rowspan=\"1\" style=\"width:19px; background-image:url("+url+"data/interface/border/border_right.gif); background-repeat:repeat-y\">");
+        map.append("<td class=\"noBorderXnBG\" rowspan=\"1\" style=\"width:19px; background-image:url(").append(url).append("data/interface/border/border_right.gif); background-repeat:repeat-y\">");
 		map.append("</td>");
 		map.append("</tr>");
 		map.append("<tr>");
 		map.append("<td class=\"noBorderXnBG\" style=\"width:19px\">");
-		map.append("<img src=\""+url+"data/interface/border/border_bottomleft.gif\" alt=\"\" />");
+        map.append("<img src=\"").append(url).append("data/interface/border/border_bottomleft.gif\" alt=\"\" />");
 		map.append("</td>");
-		map.append("<td class=\"noBorderXnBG\" colspan=\"1\" style=\"background-image:url("+url+"data/interface/border/border_bottom.gif); background-repeat:repeat-x\"></td><td class=\"noBorderXnBG\" style=\"width:19px\"><img src=\""+url+"data/interface/border/border_bottomright.gif\" alt=\"\" />");
+        map.append("<td class=\"noBorderXnBG\" colspan=\"1\" style=\"background-image:url(").append(url).append("data/interface/border/border_bottom.gif); background-repeat:repeat-x\"></td><td class=\"noBorderXnBG\" style=\"width:19px\"><img src=\"").append(url).append("data/interface/border/border_bottomright.gif\" alt=\"\" />");
 		map.append("</td>");
 		map.append("</tr>");
 		map.append("</table>");
@@ -401,7 +395,7 @@ public class MapController extends TemplateGenerator
 		for(int x = start; x <= end; x++)
 		{
 			map.append("<td>");
-			map.append("" + x);
+            map.append(String.valueOf(x));
 			map.append("</td>");
 		}
 		map.append("</tr>");
