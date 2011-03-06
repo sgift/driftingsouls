@@ -81,18 +81,28 @@ public class ChoffController extends TemplateGenerator {
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void renameAction() {
+	public void renameAction()
+    {
 		TemplateEngine t = getTemplateEngine();
 
 		parameterString("name");
 		
 		String name = getString("name");
-		if( name.length() != 0 ) {
-			offizier.setName(name);
-			
-			t.setVar("choff.message", "Der Name wurde in "+Common._plaintitle(name)+" ge&auml;ndert");
+		if( name.length() != 0 )
+        {
+            int MAX_NAME_LENGTH = 60; //See db/offiziere_create.sql
+            if(name.length() > MAX_NAME_LENGTH)
+            {
+                t.setVar("choff.message", "<span style=\"color:red\">Der eingegebene Name ist zu lang (maximal "+ MAX_NAME_LENGTH +" Zeichen)</span>");
+            }
+            else
+            {
+                offizier.setName(name);
+                t.setVar("choff.message", "Der Name wurde in "+Common._plaintitle(name)+" ge&auml;ndert");
+            }
 		}
-		else {
+		else
+        {
 			t.setVar("choff.message", "<span style=\"color:red\">Sie m&uuml;ssen einen Namen angeben</span>");
 		}
 	
@@ -118,5 +128,6 @@ public class ChoffController extends TemplateGenerator {
 					"base.id",				(dest[0].equals("b") || dest[0].equals("t") ? dest[1] : 0),
 					"ship.id",				(dest[0].equals("s") ? dest[1] : 0) );
 	}
+
 
 }
