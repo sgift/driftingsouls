@@ -154,6 +154,10 @@ public class User extends BasicUser {
 	 * Die Schiffe des Spielers werden nicht beschaedigt, wenn sie zu wenig Crew haben.
 	 */
 	public static final String FLAG_NO_HULL_DECAY = "nohulldecay";
+	/**
+	 * Die Schiffe des Spielers laufen nicht zur Ratte ueber, wenn zu wenig Geld auf dem Konto ist.
+	 */
+	public static final String FLAG_NO_DESERTEUR = "nodeserteur";
 	
 	/**
 	 * Die Arten von Beziehungen zwischen zwei Spielern.

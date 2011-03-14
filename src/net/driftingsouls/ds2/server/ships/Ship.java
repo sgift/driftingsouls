@@ -3663,8 +3663,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 			return true;
 		}
 
-		User oldOwner = this.owner;
-
 		if( !testonly ) {	
 			this.history += "&Uuml;bergeben am [tick="+ContextMap.getContext().get(ContextCommon.class).getTick()+"] an "+newowner.getName()+" ("+newowner.getId()+")\n";
 			

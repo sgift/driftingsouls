@@ -415,7 +415,7 @@ public class SchiffsTick extends TickController {
 				User nobody = (User)db.get(User.class, -1);
 				nobody.transferMoneyFrom(owner.getId(), reCost);
 			}
-			else if(owner.getId() != Faction.PIRATE)
+			else if(!owner.hasFlag(User.FLAG_NO_DESERTEUR))
 			{
 				BigInteger reCostHelper = BigInteger.valueOf(shiptd.getReCost());
 				// Wartungskosten koennen aufgebracht werden.
@@ -433,7 +433,7 @@ public class SchiffsTick extends TickController {
 					{
 						shipd.setCrew(dcrew.getValue());
 						shipd.setUnits(meuterer);
-						shipd.setOwner(pirate);
+						shipd.consign(pirate, false);
 						
 						PM.send(pirate, owner.getId(), "Besatzung meutert", "Die Besatzung der " + shipd.getName() + " meutert, nachdem Sie den Sold der Einheiten nicht aufbringen konnten. (" + shipd.getLocation().displayCoordinates(false) + ")");
 					}
@@ -448,7 +448,7 @@ public class SchiffsTick extends TickController {
 				else
 				{
 					User pirate = (User)db.get(User.class, Faction.PIRATE);
-					shipd.setOwner(pirate);
+					shipd.consign(pirate, false);
 					owner.setKonto(BigInteger.ZERO);
 					
 					this.log("\tKonto nicht gedeckt; Schiff desertiert zum Piraten.");
