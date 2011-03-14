@@ -214,6 +214,7 @@ public class TradeController extends TemplateGenerator {
 	public void sellAction() {
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
+		int MIN_TICKS_TO_SURVIVE = 7;
 		
 		int tick = getContext().get(ContextCommon.class).getTick();
 		
@@ -268,12 +269,28 @@ public class TradeController extends TemplateGenerator {
 				if(tmp*resourceMass > freeSpace) {
 					tmp = freeSpace/resourceMass;
 				}
+
+				long get = (long)(tmp*res.getCount1()/1000d);
+			
+				//Aufpassen das ich nicht das Konto leerfresse
+				BigInteger konto = posten.getOwner().getKonto();
+				int production = posten.getOwner().getFullBalance()[1];
+				if(production < 0)
+				{
+					production *= -1;
+					int ticks = konto.subtract(BigInteger.valueOf(get)).divide(BigInteger.valueOf(production)).intValue();
+					if(ticks <= MIN_TICKS_TO_SURVIVE)
+					{
+						//Konto reicht mit Verkauf nur noch fuer weniger als 7 Ticks => begrenzen.
+						tmp = konto.subtract(BigInteger.valueOf(MIN_TICKS_TO_SURVIVE*production)).multiply(BigInteger.valueOf(1000)).divide(BigInteger.valueOf(res.getCount1())).intValue();
+					}
+				}
 			
 				if( tmp <= 0 ) {
 					continue;
 				}
-			
-				long get = (long)(tmp*res.getCount1()/1000d);
+
+				get = (long)(tmp*res.getCount1()/1000d);
 			
 				t.setVar(	"waren.count",	tmp,
 							"waren.name",	res.getName(),
@@ -289,7 +306,7 @@ public class TradeController extends TemplateGenerator {
 				statsCargo.addResource( res.getId(), tmp );
 				tpcargo.addResource( res.getId(), tmp );
 				//Freien Platz korrigieren
-				freeSpace -= tmp;
+				freeSpace -= tmp*resourceMass;
 			}
 		}
 		
@@ -398,7 +415,7 @@ public class TradeController extends TemplateGenerator {
 		else
 		{
 			t.setVar(	"deny",		true,
-						"deny.msg",	"Dieser Handelsposten handelt nicht mit Ihnen. Für die AUfnahme von Handelsbeziehungen setzen Sie sich mit dem Eigner in Verbindung.");
+						"deny.msg",	"Dieser Handelsposten handelt nicht mit Ihnen. Für die Aufnahme von Handelsbeziehungen setzen Sie sich mit dem Eigner in Verbindung.");
 		}
 	}
 }
