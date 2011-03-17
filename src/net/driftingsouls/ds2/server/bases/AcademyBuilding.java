@@ -318,43 +318,55 @@ public class AcademyBuilding extends DefaultBuilding {
 			else
 			{
 				AcademyQueueEntry thisentry = academy.getQueueEntryById(queueid);
-				AcademyQueueEntry upperentry = academy.getQueueEntryByPosition(thisentry.getPosition()-1);
-				thisentry.setPosition(thisentry.getPosition()-1);
-				upperentry.setPosition(upperentry.getPosition()+1);
+				if(thisentry != null)
+				{
+					AcademyQueueEntry upperentry = academy.getQueueEntryByPosition(thisentry.getPosition()-1);
+					thisentry.setPosition(thisentry.getPosition()-1);
+					upperentry.setPosition(upperentry.getPosition()+1);
+				}
 			}
 		}
 		if( down == 1 && queueid > 0 ) 
 		{
 			AcademyQueueEntry thisentry = academy.getQueueEntryById(queueid );
-			if( thisentry.isLastPosition() ) {
-				t.setVar(
-						"academy.message", "<font color=\"red\">Vielen Dank fuer diesen URL-Hack.<br />Ihre Anfrage wurde soeben mitsamt Ihrer Spieler-ID an die Admins geschickt.<br />Wir wuenschen noch einen angenehmen Tag!</font>"
-						);
-			}
-			else
+			//Es kann ja sein, dass der Eintrag gar nicht mehr existiert.
+			if(thisentry != null)
 			{
-				AcademyQueueEntry upperentry = academy.getQueueEntryByPosition(thisentry.getPosition()+1);
-				thisentry.setPosition(thisentry.getPosition()+1);
-				upperentry.setPosition(upperentry.getPosition()-1);
+				if( thisentry.isLastPosition() ) {
+					t.setVar(
+							"academy.message", "<font color=\"red\">Vielen Dank fuer diesen URL-Hack.<br />Ihre Anfrage wurde soeben mitsamt Ihrer Spieler-ID an die Admins geschickt.<br />Wir wuenschen noch einen angenehmen Tag!</font>"
+							);
+				}
+				else
+				{
+					AcademyQueueEntry upperentry = academy.getQueueEntryByPosition(thisentry.getPosition()+1);
+					thisentry.setPosition(thisentry.getPosition()+1);
+					upperentry.setPosition(upperentry.getPosition()-1);
+				}
 			}
 		}
 		if( cancel == 1 && queueid > 0 )
 		{
-			int offid = academy.getQueueEntryById(queueid).getTraining();
-			academy.getQueueEntryById(queueid).deleteQueueEntry();
-			academy.rescheduleQueue();
-			if(offid > 0 )
+			AcademyQueueEntry thisentry = academy.getQueueEntryById(queueid);
+			//Es kann ja sein, dass der Eintrag gar nicht mehr existiert.
+			if(thisentry != null)
 			{
-				if( !academy.isOffizierScheduled(offid))
+				int offid = thisentry.getTraining();
+				thisentry.deleteQueueEntry();
+				academy.rescheduleQueue();
+				if(offid > 0 )
 				{
-					db.createQuery("update Offizier set dest=:dest where id=:id")
-					.setParameter("dest", "b "+base.getId())
-					.setParameter("id", offid)
-					.executeUpdate();	
+					if( !academy.isOffizierScheduled(offid))
+					{
+						db.createQuery("update Offizier set dest=:dest where id=:id")
+						.setParameter("dest", "b "+base.getId())
+						.setParameter("id", offid)
+						.executeUpdate();	
+					}
 				}
-			}
-			if( academy.getNumberScheduledQueueEntries() == 0 ) {
-				academy.setTrain(false);
+				if( academy.getNumberScheduledQueueEntries() == 0 ) {
+					academy.setTrain(false);
+				}
 			}
 		}
 						
@@ -395,77 +407,81 @@ public class AcademyBuilding extends DefaultBuilding {
 		
 		if( (train != 0) && (off != 0) ) {			
 			Offizier offizier = Offizier.getOffizierByID(off);
-			if( offizier.getDest()[0].equals("b") && offizier.getDest()[1].equals(Integer.toString(base.getId())) || offizier.getDest()[0].equals("t") && offizier.getDest()[1].equals(Integer.toString(base.getId())) ) {					
-				Map<Integer,Offizier.Ability> dTrain = new HashMap<Integer,Offizier.Ability>();
-				dTrain.put(1, Offizier.Ability.ING);
-				dTrain.put(2, Offizier.Ability.WAF);
-				dTrain.put(3, Offizier.Ability.NAV);
-				dTrain.put(4, Offizier.Ability.SEC);
-				dTrain.put(5, Offizier.Ability.COM);
-								 
-				int sk = getUpgradeCosts(context, academy, 0, offizier, train);
-				int nk = getUpgradeCosts(context, academy, 1, offizier, train);
-				int dauer = getUpgradeCosts(context, academy, 2, offizier, train);
-				
-				t.setVar(
-						"academy.show.trainoffi", 1,
-						"trainoffi.id",			offizier.getID(),
-						"trainoffi.trainid",	train,
-						"offizier.name",		Common._plaintext(offizier.getName()),
-						"offizier.train.dauer",		dauer,
-						"offizier.train.nahrung", 	nk,
-						"offizier.train.silizium",	sk,
-						"resource.nahrung.image",	Cargo.getResourceImage(Resources.NAHRUNG),
-						"resource.silizium.image",	Cargo.getResourceImage(Resources.SILIZIUM));
-				
-				if( train == 1 ) {
-					t.setVar("offizier.train.ability", "Technik");
-				} 
-				else if( train == 2 ) {
-					t.setVar("offizier.train.ability", "Waffen");
-				} 
-				else if( train == 3 ) {
-					t.setVar("offizier.train.ability", "Navigation");
-				}
-				else if( train == 4 ) {
-					t.setVar("offizier.train.ability", "Sicherheit");
-				} 
-				else if( train == 5 ) {
-					t.setVar("offizier.train.ability", "Kommandoeffizienz");
-				}
-				
-				Cargo cargo = new Cargo(base.getCargo());
-					boolean ok = true;
-				if( cargo.getResourceCount( Resources.SILIZIUM ) < sk) {
-						t.setVar("trainoffi.error", "Nicht genug Silizium"); 
-					ok = false;
-				}
-				if( cargo.getResourceCount( Resources.NAHRUNG ) < nk ) {
-					t.setVar("trainoffi.error", "Nicht genug Nahrung"); 
-					ok = false;
-				}
-	
-				if( !conf.equals("ok") ) {
-					t.setVar("trainoffi.conf",	1);
-					t.parse( "OUT", "_BUILDING" );	
-					return t.getVar("OUT");
-				}
-	
-				if( ok ) {
-					t.setVar("trainoffi.train", 1);
-	
-					cargo.substractResource( Resources.SILIZIUM, sk );
-	
-					AcademyQueueEntry entry = new AcademyQueueEntry(base,offizier.getID(),dauer,train);
+			//Auch hier kann es sein dass der Offizier nicht existiert.
+			if(offizier != null)
+			{
+				if( offizier.getDest()[0].equals("b") && offizier.getDest()[1].equals(Integer.toString(base.getId())) || offizier.getDest()[0].equals("t") && offizier.getDest()[1].equals(Integer.toString(base.getId())) ) {					
+					Map<Integer,Offizier.Ability> dTrain = new HashMap<Integer,Offizier.Ability>();
+					dTrain.put(1, Offizier.Ability.ING);
+					dTrain.put(2, Offizier.Ability.WAF);
+					dTrain.put(3, Offizier.Ability.NAV);
+					dTrain.put(4, Offizier.Ability.SEC);
+					dTrain.put(5, Offizier.Ability.COM);
+									 
+					int sk = getUpgradeCosts(context, academy, 0, offizier, train);
+					int nk = getUpgradeCosts(context, academy, 1, offizier, train);
+					int dauer = getUpgradeCosts(context, academy, 2, offizier, train);
 					
-					offizier.setDest("t", base.getId());
-					base.setCargo(cargo);
-					db.save(entry);
-					academy.setTrain(true);
-					academy.rescheduleQueue();
+					t.setVar(
+							"academy.show.trainoffi", 1,
+							"trainoffi.id",			offizier.getID(),
+							"trainoffi.trainid",	train,
+							"offizier.name",		Common._plaintext(offizier.getName()),
+							"offizier.train.dauer",		dauer,
+							"offizier.train.nahrung", 	nk,
+							"offizier.train.silizium",	sk,
+							"resource.nahrung.image",	Cargo.getResourceImage(Resources.NAHRUNG),
+							"resource.silizium.image",	Cargo.getResourceImage(Resources.SILIZIUM));
 					
-					t.parse( "OUT", "_BUILDING" );	
-					return t.getVar("OUT");
+					if( train == 1 ) {
+						t.setVar("offizier.train.ability", "Technik");
+					} 
+					else if( train == 2 ) {
+						t.setVar("offizier.train.ability", "Waffen");
+					} 
+					else if( train == 3 ) {
+						t.setVar("offizier.train.ability", "Navigation");
+					}
+					else if( train == 4 ) {
+						t.setVar("offizier.train.ability", "Sicherheit");
+					} 
+					else if( train == 5 ) {
+						t.setVar("offizier.train.ability", "Kommandoeffizienz");
+					}
+					
+					Cargo cargo = new Cargo(base.getCargo());
+						boolean ok = true;
+					if( cargo.getResourceCount( Resources.SILIZIUM ) < sk) {
+							t.setVar("trainoffi.error", "Nicht genug Silizium"); 
+						ok = false;
+					}
+					if( cargo.getResourceCount( Resources.NAHRUNG ) < nk ) {
+						t.setVar("trainoffi.error", "Nicht genug Nahrung"); 
+						ok = false;
+					}
+		
+					if( !conf.equals("ok") ) {
+						t.setVar("trainoffi.conf",	1);
+						t.parse( "OUT", "_BUILDING" );	
+						return t.getVar("OUT");
+					}
+		
+					if( ok ) {
+						t.setVar("trainoffi.train", 1);
+		
+						cargo.substractResource( Resources.SILIZIUM, sk );
+		
+						AcademyQueueEntry entry = new AcademyQueueEntry(base,offizier.getID(),dauer,train);
+						
+						offizier.setDest("t", base.getId());
+						base.setCargo(cargo);
+						db.save(entry);
+						academy.setTrain(true);
+						academy.rescheduleQueue();
+						
+						t.parse( "OUT", "_BUILDING" );	
+						return t.getVar("OUT");
+					}
 				}
 			}
 		}
