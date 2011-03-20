@@ -3773,8 +3773,12 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	public static ShipTypeData getShipType( int shiptype ) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
-		return getShipType((ShipType)db.get(ShipType.class, shiptype), null, false);
+		ShipType type = (ShipType)db.get(ShipType.class, shiptype);
+		if(type != null)
+		{
+			return getShipType(type, null, false);
+		}
+		return null;
 	}
 
 	private static ShipTypeData getShipType( ShipType type, ShipModules shipdata, boolean plaindata ) {	
