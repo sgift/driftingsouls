@@ -1642,7 +1642,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 				//Remove only as much as needed, not more
 				long productionMass = Cargo.getResourceMass(resource.getId(), resourceCount);
 				long toSell;
-				if(productionMass <= surplus)
+				if(productionMass > 0 && productionMass <= surplus)
 				{
 					toSell = resourceCount;
 				}
