@@ -76,7 +76,7 @@ public class KSFluchtSingleAction extends BasicKSAction {
 		
 		ShipTypeData ownShipType = ownShip.getTypeData();
 		 
-		if( (ownShipType.getCrew() > 0) && (ownShip.getCrew() < (int)(ownShipType.getCrew()/4d)) ) {
+		if( (ownShipType.getMinCrew() > 0) && (ownShip.getCrew() < (int)(ownShipType.getMinCrew()/4d)) ) {
 			battle.logme( "Nicht genug Crew um zu fliehen\n" );
 			return Result.ERROR;
 		}		

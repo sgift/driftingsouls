@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.battles.Side;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 import org.hibernate.Session;
 
@@ -70,12 +71,22 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+ContextMap.getContext().get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
 		for( int key=0; key < shiplist.size(); key++ ) {
 			BattleShip aship = shiplist.get(key);
+			ShipTypeData ashiptype = aship.getShip().getTypeData();
 			
 			if( this.validate(battle) == Result.OK )
 			{
 				if(battle.getBattleValue(Side.OWN) - aship.getBattleValue() > 0)
 				{	
-					if (((aship.getAction() & Battle.BS_SECONDROW_BLOCKED) == 0) && ((aship.getAction() & Battle.BS_SHOT) == 0) && ((aship.getAction() & Battle.BS_SECONDROW) == 0) && (aship.getEngine() > 0 ) && ((aship.getAction() & Battle.BS_DESTROYED) == 0 ) && !aship.getShip().isLanded() && !aship.getShip().isDocked() && ((aship.getAction() & Battle.BS_JOIN) == 0) && ((aship.getAction() & Battle.BS_FLUCHT) == 0) )  
+					if (((aship.getAction() & Battle.BS_SECONDROW_BLOCKED) == 0) && 
+							((aship.getAction() & Battle.BS_SHOT) == 0) && 
+							((aship.getAction() & Battle.BS_SECONDROW) == 0) && 
+							(aship.getEngine() > 0 ) && 
+							((aship.getAction() & Battle.BS_DESTROYED) == 0 ) && 
+							!aship.getShip().isLanded() && 
+							!aship.getShip().isDocked() && 
+							((aship.getAction() & Battle.BS_JOIN) == 0) && 
+							((aship.getAction() & Battle.BS_FLUCHT) == 0) && 
+							((ashiptype.getMinCrew() == 0) || (aship.getCrew() >= ashiptype.getMinCrew()/2d)) ) 
 					{
 						battle.removeShip(aship, false);
 						battle.logme(Battle.log_shiplink(aship.getShip()) + "ist durchgebrochen\n");
