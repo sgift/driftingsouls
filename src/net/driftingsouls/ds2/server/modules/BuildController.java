@@ -25,11 +25,13 @@ import java.util.Map;
 
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
+import net.driftingsouls.ds2.server.bases.ForschungszentrumBuilding;
 import net.driftingsouls.ds2.server.bases.Werft;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -143,6 +145,18 @@ public class BuildController extends TemplateGenerator {
 			if( werft != null)
 			{
 				addError("Sie k&ouml;nnen maximal eine Werft pro Asteroid bauen");
+				
+				redirect();
+				return;
+			}
+		}
+		
+		if( building instanceof ForschungszentrumBuilding)
+		{
+			Forschungszentrum fz = base.getForschungszentrum();
+			if( fz != null)
+			{
+				addError("Sie k&ouml;nnen maximal ein Forschungszentrum pro Asteroid bauen");
 				
 				redirect();
 				return;
