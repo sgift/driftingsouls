@@ -239,6 +239,8 @@ public class TradeController extends TemplateGenerator {
 	
 		ResourceList reslist = this.kurse.getResourceList();
 		long freeSpace = posten.getTypeData().getCargo() - posten.getCargo().getMass();
+		int reconsumption = -1 * posten.getOwner().getFullBalance()[1];
+		BigInteger konto = posten.getOwner().getKonto();
 		for( ResourceEntry res : reslist ) {
 			parameterNumber( res.getId()+"to" );
 			long tmp = getInteger( res.getId()+"to" );
@@ -273,16 +275,13 @@ public class TradeController extends TemplateGenerator {
 				long get = (long)(tmp*res.getCount1()/1000d);
 			
 				//Aufpassen das ich nicht das Konto leerfresse
-				BigInteger konto = posten.getOwner().getKonto();
-				int production = posten.getOwner().getFullBalance()[1];
-				if(production < 0)
+				if(reconsumption > 0)
 				{
-					production *= -1;
-					int ticks = konto.subtract(BigInteger.valueOf(get)).divide(BigInteger.valueOf(production)).intValue();
+					int ticks = konto.subtract(BigInteger.valueOf(get)).divide(BigInteger.valueOf(reconsumption)).intValue();
 					if(ticks <= MIN_TICKS_TO_SURVIVE)
 					{
 						//Konto reicht mit Verkauf nur noch fuer weniger als 7 Ticks => begrenzen.
-						tmp = konto.subtract(BigInteger.valueOf(MIN_TICKS_TO_SURVIVE*production)).multiply(BigInteger.valueOf(1000)).divide(BigInteger.valueOf(res.getCount1())).intValue();
+						tmp = konto.subtract(BigInteger.valueOf(MIN_TICKS_TO_SURVIVE*reconsumption)).multiply(BigInteger.valueOf(1000)).divide(BigInteger.valueOf(res.getCount1())).intValue();
 					}
 				}
 			
@@ -307,6 +306,7 @@ public class TradeController extends TemplateGenerator {
 				tpcargo.addResource( res.getId(), tmp );
 				//Freien Platz korrigieren
 				freeSpace -= tmp*resourceMass;
+				konto.subtract(BigInteger.valueOf(get));
 			}
 		}
 		
