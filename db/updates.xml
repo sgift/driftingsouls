@@ -1553,4 +1553,7 @@
 	<update type="structure" datum="2011-0305"><![CDATA[
 		DROP TABLE config_vacmodes;
 	]]></update>
+	<update type="structure" datum="2011-04-19"><![CDATA[
+		ALTER TABLE unit_types ADD hidden tinyint(1) default '0';
+	]]></update>
 </updates>

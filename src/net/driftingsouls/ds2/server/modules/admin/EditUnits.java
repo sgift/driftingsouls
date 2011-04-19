@@ -73,6 +73,7 @@ public class EditUnits implements AdminPlugin
 			unit.setSize(context.getRequest().getParameterInt("size"));
 			unit.setDescription(context.getRequest().getParameterString("description"));
 			unit.setRes(context.getRequest().getParameterInt("forschung"));
+			unit.setHidden(context.getRequest().getParameterString("hidden").equals("true") ? true : false );
 			
 			Cargo cargo = new Cargo();
 			
@@ -112,6 +113,7 @@ public class EditUnits implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderS\">Beschreibung: </td><td><input type=\"text\" name=\"description\" value=\"" + unit.getDescription() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Ben&ouml;tigte Forschung: </td><td><input type=\"text\" name=\"forschung\" value=\"" + unit.getRes() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Dauer: </td><td><input type=\"text\" name=\"dauer\" value=\"" + unit.getDauer() + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Hidden: </td><td><input type=\"text\" name=\"hidden\" value=\"" + unit.isHidden() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\"></td><td class=\"noBorderS\">Menge</td><td class=\"noBorderS\">Nutzungen</td></tr>");
 			for(Item item: itemlist)
 			{

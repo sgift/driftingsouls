@@ -47,6 +47,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.units.UnitCargo;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -1350,5 +1351,42 @@ public class User extends BasicUser {
 		}
 		
 		db.delete(userResearch);
+	}
+
+	/**
+	 * Gibt zurueck, ob der Einheitentyp dem User bekannt ist.
+	 * @param id Die ID des Einheitentyps
+	 * @return <code>true</code>, falls die Einheit dem User bekannt ist, sonst <code>false</code>
+	 */
+	public boolean isKnownUnit(int id) {
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		User user = (User)ContextMap.getContext().getActiveUser();
+		long baseunit = 0;
+		long shipunit = 0;
+		
+		Object baseunitsuserobject = db.createQuery("select sum(e.amount) from UnitCargoEntry as e, Base as b where e.key.type=:type and e.key.unittype=:unittype and e.key.destid = b.id and b.owner=:user")
+				.setInteger("type", UnitCargo.CARGO_ENTRY_BASE)
+				.setInteger("unittype", id)
+				.setEntity("user", user)
+				.iterate()
+				.next();
+			if( baseunitsuserobject != null)
+		{
+			baseunit = (Long)baseunitsuserobject;
+		}
+		
+		Object shipunitsuserobject = db.createQuery("select sum(e.amount) from UnitCargoEntry as e, Ship as s where e.key.type=:type and e.key.unittype=:unittype and e.key.destid = s.id and s.owner=:user")
+				.setInteger("type", UnitCargo.CARGO_ENTRY_SHIP)
+				.setInteger("unittype", id)
+				.setEntity("user", user)
+				.iterate()
+				.next();
+		
+		if( shipunitsuserobject != null)
+		{
+			shipunit = (Long)shipunitsuserobject;
+		}
+		
+		return baseunit+shipunit > 0 || user.isAdmin();
 	}
 }

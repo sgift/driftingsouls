@@ -35,9 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
- * Zeigt die insgesamt vorkommenden sowie die eigenen Waren an. Bei Items werden zudem,
- * falls vorhanden, die Aufenthaltsorte angezeigt.
- * @author Christopher Jung
+ * Zeigt die insgesamt vorkommenden sowie die eigenen Einheiten an.
  *
  */
 @Configurable
@@ -129,16 +127,24 @@ public class StatEinheiten implements Statistic {
 				shipunitsuser = (Long)shipunitsuserobject;
 			}
 			
-			
-			// Daten zur Einheit ausgeben
-      		echo.append("<tr>\n");
-      		echo.append("<td class=\"noBorderX\" style=\"white-space:nowrap\"><img style=\"vertical-align:middle\" src=\""+unittype.getPicture()+"\" alt=\"\"><a href=\""+Common.buildUrl("default", "module", "unitinfo", "unit", unittype.getId())+"\" >"+unittype.getName()+"</a></td>\n");
-      		echo.append("<td class=\"noBorderX\">"+(baseunits+shipunits)+"</td>\n");
-      		echo.append("<td class=\"noBorderX\">&nbsp;</td>\n");
-      		echo.append("<td class=\"noBorderX\">"+(baseunitsuser+shipunitsuser)+"</td>\n");
-      		echo.append("<td class=\"noBorderX\">&nbsp;</td>\n");
+			// Daten ausgeben, wenn der Spieler sehen darf oder selber welche besitzt
+			if( !unittype.isHidden() || user.isAdmin() || baseunitsuser + shipunitsuser > 0)
+			{
+				// Daten zur Einheit ausgeben
+	      		echo.append("<tr>\n");
+	      		echo.append("<td class=\"noBorderX\" style=\"white-space:nowrap\"><img style=\"vertical-align:middle\" src=\""+unittype.getPicture()+"\" alt=\"\"><a href=\""+Common.buildUrl("default", "module", "unitinfo", "unit", unittype.getId())+"\" >"+unittype.getName()+"</a>");
+	      		if( unittype.isHidden() && user.isAdmin())
+	      		{
+	      			echo.append("[hidden]");
+	      		}
+	      		echo.append("</td>\n");
+	      		echo.append("<td class=\"noBorderX\">"+(baseunits+shipunits)+"</td>\n");
+	      		echo.append("<td class=\"noBorderX\">&nbsp;</td>\n");
+	      		echo.append("<td class=\"noBorderX\">"+(baseunitsuser+shipunitsuser)+"</td>\n");
+	      		echo.append("<td class=\"noBorderX\">&nbsp;</td>\n");
+			}
       		
-		} // Ende: Resourcenliste*/
+		} // Ende: Einheitenliste
 		echo.append("</table><br /><br />\n");
 	}
 

@@ -50,12 +50,14 @@ public class UnitType {
 	private int resid;
 	private int dauer;
 	private String picture;
+	private boolean hidden;
 	
 	/**
 	 * Konstruktor.
 	 *
 	 */
-	public UnitType() {
+	public UnitType() 
+	{
 		// EMPTY
 	}
 
@@ -63,7 +65,8 @@ public class UnitType {
 	 * Gibt die Beschreibung des Einheitentyps zurueck.
 	 * @return Die Beschreibung
 	 */
-	public String getDescription() {
+	public String getDescription()
+	{
 		return description;
 	}
 
@@ -71,7 +74,8 @@ public class UnitType {
 	 * Gibt die ID des Einheitentyps zurueck.
 	 * @return Die ID
 	 */
-	public int getId() {
+	public int getId() 
+	{
 		return id;
 	}
 
@@ -79,7 +83,8 @@ public class UnitType {
 	 * Gibt den Namen des Einheitentyps zurueck.
 	 * @return Der Name
 	 */
-	public String getName() {
+	public String getName() 
+	{
 		return name;
 	}
 	
@@ -87,7 +92,8 @@ public class UnitType {
 	 * Gibt die RE-Kosten des Einheitentyps zurueck.
 	 * @return Die RE-Kosten
 	 */
-	public double getReCost() {
+	public double getReCost() 
+	{
 		return recost;
 	}
 
@@ -95,7 +101,8 @@ public class UnitType {
 	 * Gibt die Nahrungskosten des Einheitentyps zurueck.
 	 * @return Die Nahrungskosten
 	 */
-	public double getNahrungCost() {
+	public double getNahrungCost() 
+	{
 		return nahrungcost;
 	}
 	
@@ -103,7 +110,8 @@ public class UnitType {
 	 * Gibt die Groesze des Einheitentyps zurueck.
 	 * @return Die Groesze
 	 */
-	public int getSize() {
+	public int getSize() 
+	{
 		return size;
 	}
 
@@ -111,7 +119,8 @@ public class UnitType {
 	 * Gibt den Kaper-Wert des Einheitentyps zurueck.
 	 * @return Der Kaper-Wert
 	 */
-	public int getKaperValue() {
+	public int getKaperValue() 
+	{
 		return kapervalue;
 	}
 	
@@ -119,7 +128,8 @@ public class UnitType {
 	 * Gibt die Kosten dieser Einheit zurueck.
 	 * @return Die Kosten
 	 */
-	public Cargo getBuildCosts() {
+	public Cargo getBuildCosts() 
+	{
 		return buildcosts;
 	}
 	
@@ -127,7 +137,8 @@ public class UnitType {
 	 * Gibt die Forschung zu dieser Einheit zurueck.
 	 * @return Die Forschung
 	 */
-	public int getRes() {
+	public int getRes() 
+	{
 		return resid;
 	}
 	
@@ -135,7 +146,8 @@ public class UnitType {
 	 * Gibt die Ausbildungsdauer dieser Einheit zurueck.
 	 * @return Die Dauer
 	 */
-	public int getDauer() {
+	public int getDauer() 
+	{
 		return dauer;
 	}
 	
@@ -143,15 +155,26 @@ public class UnitType {
 	 * Gibt das Bild des Einheitentyps zurueck.
 	 * @return Das Bild
 	 */
-	public String getPicture() {
+	public String getPicture() 
+	{
 		return picture;
+	}
+	
+	/**
+	 * Gibt an, ob der Einheitentyp standardmaessig sichtbar ist.
+	 * @return <code>true</code>, falls die Einheit unsichtbar sein soll, sonst <code>false</code>
+	 */
+	public boolean isHidden()
+	{
+		return hidden;
 	}
 	
 	/**
 	 * Setzt die Beschreibung des Einheitentyps.
 	 * @param description Die Beschreibung
 	 */
-	public void setDescription(String description) {
+	public void setDescription(String description) 
+	{
 		this.description = description;
 	}
 
@@ -159,7 +182,8 @@ public class UnitType {
 	 * Setzt den Namen des Einheitentyps.
 	 * @param nickname Der Name
 	 */
-	public void setName(String nickname) {
+	public void setName(String nickname) 
+	{
 		this.name = nickname;
 	}
 
@@ -167,7 +191,8 @@ public class UnitType {
 	 * Setzt die RE-Kosten.
 	 * @param reCost Die Kosten
 	 */
-	public void setReCost(double reCost) {
+	public void setReCost(double reCost) 
+	{
 		this.recost = reCost;
 	}
 
@@ -175,14 +200,16 @@ public class UnitType {
 	 * Setzt die Nahrungskosten des Einheitentyps.
 	 * @param nahrungcost Die Nahrungskosten
 	 */
-	public void setNahrungCost(double nahrungcost) {
+	public void setNahrungCost(double nahrungcost) 
+	{
 		this.nahrungcost = nahrungcost;
 	}
 	/**
 	 * Setzt die Groesse des Einheitentyps.
 	 * @param size Die Groesse
 	 */
-	public void setSize(int size) {
+	public void setSize(int size) 
+	{
 		this.size = size;
 	}
 
@@ -190,7 +217,8 @@ public class UnitType {
 	 * Setzt den Kaper-Wert des Einheitentyps.
 	 * @param kapervalue Der Kaper-Wert
 	 */
-	public void setKaperValue(int kapervalue) {
+	public void setKaperValue(int kapervalue) 
+	{
 		this.kapervalue = kapervalue;
 	}
 	
@@ -198,7 +226,8 @@ public class UnitType {
 	 * Setzt die Baukosten dieser Einheit auf den uebergebenen Cargo.
 	 * @param buildcosts Die neuen Baukosten
 	 */
-	public void setBuildCosts(Cargo buildcosts) {
+	public void setBuildCosts(Cargo buildcosts) 
+	{
 		this.buildcosts = buildcosts;
 	}
 	
@@ -206,7 +235,8 @@ public class UnitType {
 	 * Setzt die benoetigte Forschung.
 	 * @param resid Die Forschung
 	 */
-	public void setRes(int resid) {
+	public void setRes(int resid) 
+	{
 		this.resid = resid;
 	}
 	
@@ -214,7 +244,8 @@ public class UnitType {
 	 * Setzt die Ausbildungsdauer dieses Einheitentyps.
 	 * @param dauer Die Dauer
 	 */
-	public void setDauer(int dauer) {
+	public void setDauer(int dauer) 
+	{
 		this.dauer = dauer;
 	}
 	
@@ -222,7 +253,17 @@ public class UnitType {
 	 * Setzt das Bild des Einheitentyps.
 	 * @param picture Das Bild
 	 */
-	public void setPicture(String picture) {
+	public void setPicture(String picture) 
+	{
 		this.picture = picture;
+	}
+	
+	/**
+	 * Setzt die Sichtbarkeit des Einheitentyps.
+	 * @param hidden Die Sichtbarkeit
+	 */
+	public void setHidden(boolean hidden)
+	{
+		this.hidden = hidden;
 	}
 }

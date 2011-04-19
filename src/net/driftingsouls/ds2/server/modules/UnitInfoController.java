@@ -65,6 +65,7 @@ public class UnitInfoController extends TemplateGenerator {
 	public void listAction() {
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
+		User user = (User)ContextMap.getContext().getActiveUser();
 		List<UnitType> unitlist = Common.cast(db.createQuery("from UnitType").list());
 		
 		t.setVar( "unitinfo.list", 1);
@@ -73,12 +74,15 @@ public class UnitInfoController extends TemplateGenerator {
 		
 		for( UnitType unit : unitlist)
 		{
-			t.setVar(	"unit.id",		unit.getId(),
-						"unit.name", 	unit.getName(),
-						"unit.groesse",	unit.getSize(),
-						"unit.picture",	unit.getPicture() );
-			
-			t.parse("unitinfo.unitlist.list", "unitinfo.unitlist.listitem", true);
+			if( !unit.isHidden() || user.isKnownUnit(unit.getId()) )
+			{
+				t.setVar(	"unit.id",		unit.getId(),
+							"unit.name", 	unit.getName() + ((unit.isHidden() && user.isAdmin()) ? "[hidden]" : ""),
+							"unit.groesse",	unit.getSize(),
+							"unit.picture",	unit.getPicture() );
+				
+				t.parse("unitinfo.unitlist.list", "unitinfo.unitlist.listitem", true);
+			}
 		}
 	}
 	
@@ -90,6 +94,7 @@ public class UnitInfoController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
+		User user = (User)ContextMap.getContext().getActiveUser();
 		org.hibernate.Session db = getDB();
 
 		parameterNumber("unit");
@@ -102,6 +107,12 @@ public class UnitInfoController extends TemplateGenerator {
 		
 			return;
 		}
+		if(unittype.isHidden() && !user.isKnownUnit(unittype.getId()))
+		{
+			t.setVar("unitinfo.message", "Es ist keine Einheit mit dieser Identifikationsnummer bekannt");
+			
+			return;
+		}
 		String buildcosts = "";
 		buildcosts = buildcosts+"<img style=\"vertical-align:middle\" src=\"data/interface/time.gif\" alt=\"\" />"+unittype.getDauer();
 		
@@ -110,7 +121,6 @@ public class UnitInfoController extends TemplateGenerator {
 			buildcosts = buildcosts+"<img style=\"vertical-align:middle\" src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1();
 		}
 		
-		User user = (User)ContextMap.getContext().getActiveUser();
 		Forschung forschung = Forschung.getInstance(unittype.getRes());
 		String forschungstring = "";
 		
@@ -131,7 +141,7 @@ public class UnitInfoController extends TemplateGenerator {
 		
 		t.setVar(	"unitinfo.details",	1,
 					"unit.picture",		unittype.getPicture(),
-					"unit.name",		name,
+					"unit.name",		name + ((unittype.isHidden() && user.isAdmin()) ? "[hidden]" : ""),
 					"unit.size",		unittype.getSize(),
 					"unit.nahrungcost",	unittype.getNahrungCost(),
 					"unit.recost",		unittype.getReCost(),
