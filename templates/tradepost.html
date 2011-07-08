@@ -1,5 +1,5 @@
 {if ship.tradepost}
-	{!table_begin 600,left}
+	{!table_begin 1000,left}
 	{if tradepost.update}
 	{else}
 	<form action="./ds" method="post" id='transfermode_form'>
@@ -26,6 +26,20 @@
 					</select>
 				{/endif}
 			</td>
+			<td class="noBorderS" valign="top">
+				{if tradepost.update}
+				{else}
+				Die ersten 3 Spalten dieser Konfiguration bestimmen den Einkauf des Handelspostens.<br />
+				Die letzten 3 Spalten dieser Konfiguration bestimmen den Verkauf des Handelspostens.<br />
+				Ist das H&auml;ckchen gesetzt wird die entsprechende Ressource nicht ge-/verkauft.<br />
+				Die Spalte Ankaufsmenge bestimmt bis zu welchem Limit der Handelsposten die Ressource ankauft.<br />
+				Die Spalte Verkaufsmenge bestimmt bis zu welchem Limit der Handelsposten die Ressource verkauft.<br />
+				Die Spalten Ankaufs-/Verkaufspreis bestimmen den Preis pro Einheit dieser Ressource.
+				Die Anzeigeeinstellung betrifft NUR die Anzeige unter Fraktionen->Sonstiges.<br />
+				Sie hindert die Leute nicht daran an diesem Handelsposten zu handeln.<br />
+				Dies wird durch die Einstellung zu den Spielern get&auml;tigt. Nur Feinde k&ouml;nnen nicht handeln.<br />
+				{/endif}
+			</td>
 		</tr>
 	</table>
 	{!table_end}
@@ -40,16 +54,20 @@
 					<td class="noBorderX">Ware</td>
 					<td class="noBorderX">Ankaufsmenge</td>
 					<td class="noBorderX">Ankaufspreis</td>
+					<td class="noBorderX"></td>
 					<td class="noBorderX">Verkaufsmenge</td>
 					<td class="noBorderX">Verkaufspreis</td>
+					<td class="noBorderX"></td>
 				</tr>
 				<!-- BEGIN tradepost.list -->
 				<tr>
 					<td class="noBorderX"><img src="{item.picture}" alt="" />{item.name}</td>
 					<td class="noBorderX"><input name="{item.buylimit.parameter}" type="text" size="15" maxlength="15" value="{item.buylimit}"></td>
 					<td class="noBorderX"><input name="{item.buyprice.parameter}" type="text" size="15" maxlength="15" value="{item.buyprice}"></td>
+					<td class="noBorderX"><input name="{item.buybool.parameter}" type="checkbox" value="1" {if item.buybool}checked="checked"{/endif}></td>
 					<td class="noBorderX"><input name="{item.saleslimit.parameter}" type="text" size="15" maxlength="15" value="{item.saleslimit}"></td>
 					<td class="noBorderX"><input name="{item.salesprice.parameter}" type="text" size="15" maxlength="15" value="{item.salesprice}"></td>
+					<td class="noBorderX"><input name="{item.salebool.parameter}" type="checkbox" value="1" {if item.salebool}checked="checked"{/endif}></td>
 				</tr>
 				<!-- END tradepost.list -->
 				<tr>

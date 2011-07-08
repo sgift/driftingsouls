@@ -16,6 +16,7 @@ import net.driftingsouls.ds2.server.entities.ResourceLimit.ResourceLimitKey;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -192,10 +193,14 @@ public class TradepostController extends TemplateGenerator {
 						"item.buyprice",	buyprice,
 						"item.saleslimit",	saleslimit,
 						"item.buylimit",	buylimit,
+						"item.salebool",		!selllistmap.containsKey(itemid * -1),
+						"item.buybool",		!buylistmap.containsKey(itemid * -1),
 						"item.salesprice.parameter",	"i"+aitem.getID()+"salesprice",
 						"item.buyprice.parameter",	"i"+aitem.getID()+"buyprice",
 						"item.saleslimit.parameter",	"i"+aitem.getID()+"saleslimit",
-						"item.buylimit.parameter",	"i"+aitem.getID()+"buylimit" );
+						"item.buylimit.parameter",	"i"+aitem.getID()+"buylimit",
+						"item.salebool.parameter",	"i"+aitem.getID()+"salebool",
+						"item.buybool.parameter",	"i"+aitem.getID()+"buybool" );
 			
 			t.parse("tradepost.post", "tradepost.list", true);
 		}
@@ -320,6 +325,8 @@ public class TradepostController extends TemplateGenerator {
 			long buyprice = 0;
 			long saleslimit = 0;
 			long buylimit = 0;
+			boolean salebool = false;
+			boolean buybool = false;
 			
 			// read new values for item
 			parameterNumber("i"+aitem.getID()+"salesprice");
@@ -330,6 +337,8 @@ public class TradepostController extends TemplateGenerator {
 			buyprice = getInteger("i"+aitem.getID()+"buyprice");
 			saleslimit = getInteger("i"+aitem.getID()+"saleslimit");
 			buylimit = getInteger("i"+aitem.getID()+"buylimit");
+			salebool = (ContextMap.getContext().getRequest().getParameterInt("i"+aitem.getID()+"salebool") == 1 ? true : false);
+			buybool = (ContextMap.getContext().getRequest().getParameterInt("i"+aitem.getID()+"buybool") == 1 ? true : false);
 			
 			// check if values are positive and set to zero if not
 			if(salesprice < 0)
@@ -351,42 +360,59 @@ public class TradepostController extends TemplateGenerator {
 			
 			SellLimit itemsell = null;
 			ResourceLimit itembuy = null;
-			// check if the List of items to sell contains current item
-			if(selllistmap.containsKey(itemid * -1))
+			// check if we dont want to sell the resource any more
+			if(salebool)
 			{
-				itemsell = selllistmap.get(itemid * -1);
-				itemsell.setPrice(salesprice);
-				itemsell.setLimit(saleslimit);
+				if(selllistmap.containsKey(itemid * -1))
+				{
+					itemsell = selllistmap.get(itemid * -1);
+					db.delete(itemsell);
+				}
 			}
 			else
 			{
-				// create new object, if we have to set a price or a limit
-				if(salesprice != 0 || saleslimit != 0)
-					{
+				// check if the List of items to sell contains current item
+				if(selllistmap.containsKey(itemid * -1))
+				{
+					itemsell = selllistmap.get(itemid * -1);
+					itemsell.setPrice(salesprice);
+					itemsell.setLimit(saleslimit);
+				}
+				else
+				{
+					// create new object
 					itemsell = new SellLimit(resourcekey, salesprice, saleslimit);
 					db.persist(itemsell);
 				}
 			}
-			// check if the List of items to buy contains current item
-			if(buylistmap.containsKey(itemid * -1))
+			// check if we dont want to buy the resource any more
+			if(buybool)
 			{
-				itembuy = buylistmap.get(itemid * -1);
-				buylistgtu.setResource(itemidobejct , buyprice * 1000);
-				kurse.setKurse(buylistgtu);
-				itembuy.setLimit(buylimit);
+				if(buylistmap.containsKey(itemid * -1))
+				{
+					itembuy = buylistmap.get(itemid * -1);
+					db.delete(itembuy);
+				}
 			}
 			else
 			{
-				// create new object, if we have to set a price or a limit
-				if(buyprice != 0 || buylimit != 0)
+				// check if the List of items to buy contains current item
+				if(buylistmap.containsKey(itemid * -1))
 				{
+					itembuy = buylistmap.get(itemid * -1);
+					buylistgtu.setResource(itemidobejct , buyprice * 1000);
+					kurse.setKurse(buylistgtu);
+					itembuy.setLimit(buylimit);
+				}
+				else
+				{
+					// create new object
 					itembuy = new ResourceLimit(resourcekey, buylimit);
 					buylistgtu.setResource(itemidobejct , buyprice * 1000);
 					kurse.setKurse(buylistgtu);
 					db.persist(itembuy);
 				}
 			}
-			
 			t.setVar(	"tradepost.update", "1",
 						"tradepost.update.message", "Die Einstellungen wurden &uuml;bernommen.",
 						"tradepost.id",	shipid );
