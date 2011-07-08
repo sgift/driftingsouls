@@ -131,12 +131,27 @@
 									<option value="{item.id}">{item.name}</option>
 								<!-- END slot.items.listitem -->
 							</select>
+							{if ws.modules.fleet}
+							<br />Flotte ausr&uuml;sten:<input type="checkbox" name="fleet" value="1" checked="checked"/>
+							<br />
+							{/endif}
 							<input type="submit" value="einbauen" />
 							</form>
 						{/endif}
 					{else}
 						{slot.module.name}
-						<a class="error" href="{werftgui.urlbase}&amp;ws={ship.id}&amp;werftact=module&amp;slot={slot.id}&amp;moduleaction=ausbauen">ausbauen</a>
+						<form action="./ds" method="post">
+							{werftgui.formhidden}
+							<input type="hidden" name="werftact" value="module" />
+							<input type="hidden" name="ws" value="{ship.id}" />
+							<input type="hidden" name="slot" value="{slot.id}" />
+							<input type="hidden" name="moduleaction" value="ausbauen" />
+							{if ws.modules.fleet}
+							Flotte ausr&uuml;sten:<input type="checkbox" name="fleet" value="1" checked="checked"/>
+							<br />
+							{/endif}
+							<input type="submit" value="ausbauen" />
+						</form>
 					{/endif}
 					<br />
 				<!-- END ws.modules.slots.listitem -->

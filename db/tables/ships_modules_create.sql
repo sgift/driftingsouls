@@ -1,9 +1,10 @@
 CREATE TABLE `ships_modules` (
-  `id` int(10) NOT NULL default '0',
+  `id` int(10) NOT NULL auto_increment,
   `modules` text NOT NULL,
   `nametype` varchar(40) NOT NULL default '',
   `nickname` varchar(30) NOT NULL default '',
   `picture` varchar(100) NOT NULL default '',
+  `shiptype` int(11) NOT NULL,
   `ru` int(11) NOT NULL default '0',
   `rd` int(11) NOT NULL default '0',
   `ra` int(11) NOT NULL default '0',
@@ -41,4 +42,4 @@ CREATE TABLE `ships_modules` (
   `unitspace` int (11) NOT NULL default '0',
   `versorger` tinyint(1) NOT NULL default '0',
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='modifizierte Schiffstypenwerte fuer "jedes" Schiff'; 
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='modifizierte Schiffstypenwerte'; 
