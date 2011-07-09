@@ -21,12 +21,15 @@ package net.driftingsouls.ds2.server.ships;
 import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -1449,6 +1452,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 		return result.toArray(new ModuleEntry[result.size()]);
 	}
 	
+	/**
+	 * Gibt das Modul-Objekt des Schiffes zurueck.
+	 * @return Das Modul-Objekt
+	 */
 	public ShipModules getRealModules()
 	{
 		return this.modules;
@@ -1487,7 +1494,29 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		List<Module> moduleobjlist = new ArrayList<Module>();
-		List<String> moduleSlotData = new ArrayList<String>(); 
+		SortedSet<String> moduleSlotData = new TreeSet<String>(
+		new Comparator<String>() {
+			@Override
+			public int compare(String arg0, String arg1)
+			{
+				for(int i=0; i < Math.min(arg0.length(), arg1.length());i++)
+				{
+					if(arg0.charAt(i) < arg1.charAt(i))
+					{
+						return -1;
+					}
+					else if(arg0.charAt(i) > arg1.charAt(i))
+					{
+						return 1;
+					}
+				}
+				if(arg0.length() <= arg1.length())
+				{
+					return -1;
+				}
+				return 1;
+			}
+		}); 
 
 		for( int i=0; i < moduletbl.size(); i++ ) {
 			ModuleEntry module = moduletbl.get(i);
