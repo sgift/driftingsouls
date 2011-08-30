@@ -17,23 +17,26 @@ import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
  * 
  * @author Drifting-Souls Team
  */
-public class TickFilter implements Filter 
+public class TickFilter extends DSFilter
 {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException 
 	{
-		org.hibernate.Session db = HibernateUtil.getSessionFactory().getCurrentSession();
-		ConfigValue tick = (ConfigValue)db.get(ConfigValue.class, "tick");
-	    int tickState = Integer.valueOf(tick.getValue());
-	    boolean isTick = tickState == 1;
-	    if(isTick)
-	    {
-	    	String module = request.getParameter("module");
-	    	if(module != null && !module.equals("portal"))
-	    	{
-	    		throw new TickInProgressException();
-	    	}
-	    }
+        if(!isStaticRequest(request))
+        {
+            org.hibernate.Session db = HibernateUtil.getSessionFactory().getCurrentSession();
+            ConfigValue tick = (ConfigValue)db.get(ConfigValue.class, "tick");
+            int tickState = Integer.valueOf(tick.getValue());
+            boolean isTick = tickState == 1;
+            if(isTick)
+            {
+                String module = request.getParameter("module");
+                if(module != null && !module.equals("portal"))
+                {
+                    throw new TickInProgressException();
+                }
+            }
+        }
 	    
 	    chain.doFilter(request, response);
 	}

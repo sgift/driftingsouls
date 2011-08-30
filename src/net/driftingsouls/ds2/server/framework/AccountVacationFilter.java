@@ -26,7 +26,7 @@ public class AccountVacationFilter extends SessionBasedFilter
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException 
 	{
 		User user = (User)ContextMap.getContext().getActiveUser();
-		if(isSessionNeededByModule(request))
+		if(!isStaticRequest(request) && isSessionNeededByModule(request))
 		{
 			if(!user.isAdmin())
 			{

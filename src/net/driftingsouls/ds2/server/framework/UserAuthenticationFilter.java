@@ -27,18 +27,25 @@ public class UserAuthenticationFilter extends SessionBasedFilter
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException 
 	{
 		boolean authenticatedUser = false;
-		if(manager != null)
-		{
-			String automaticAccessParameter = request.getParameter("autoAccess");
-			if(automaticAccessParameter != null && automaticAccessParameter.equals("true"))
-			{
-				authenticatedUser = manager.authenticateCurrentSession(true);
-			}
-			else
-			{
-				authenticatedUser = manager.authenticateCurrentSession(false);
-			}
-		}
+        if(!isStaticRequest(request))
+        {
+            if(manager != null)
+            {
+                String automaticAccessParameter = request.getParameter("autoAccess");
+                if(automaticAccessParameter != null && automaticAccessParameter.equals("true"))
+                {
+                    authenticatedUser = manager.authenticateCurrentSession(true);
+                }
+                else
+                {
+                    authenticatedUser = manager.authenticateCurrentSession(false);
+                }
+            }
+        }
+        else
+        {
+            authenticatedUser = true;
+        }
 		
 		if(authenticatedUser)
 		{

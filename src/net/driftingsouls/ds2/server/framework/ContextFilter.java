@@ -27,7 +27,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Response;
  * 
  * @author Drifting-Souls Team
  */
-public class ContextFilter implements Filter 
+public class ContextFilter extends DSFilter
 {
 	@Override
 	public void destroy() 

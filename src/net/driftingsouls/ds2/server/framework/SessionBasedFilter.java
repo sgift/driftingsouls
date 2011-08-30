@@ -13,7 +13,7 @@ import javax.servlet.ServletRequest;
  * 
  * @author Drifting-Souls Team
  */
-public abstract class SessionBasedFilter implements Filter 
+public abstract class SessionBasedFilter extends DSFilter
 {
 	@Override
 	public void init(FilterConfig arg0) throws ServletException 
