@@ -159,6 +159,10 @@ public class User extends BasicUser {
 	 * Die Schiffe des Spielers laufen nicht zur Ratte ueber, wenn zu wenig Geld auf dem Konto ist.
 	 */
 	public static final String FLAG_NO_DESERTEUR = "nodeserteur";
+    /**
+     * Kann alle Kaempfe uebernehmen, egal wer sie gerade kommandiert
+     */
+    public static final String FLAG_KS_TAKE_BATTLES = "cantakeallbattles";
 	
 	/**
 	 * Die Arten von Beziehungen zwischen zwei Spielern.
@@ -1064,6 +1068,16 @@ public class User extends BasicUser {
 	{
 		return getAccessLevel() >= 30;
 	}
+
+    /**
+     * Gibt an, ob der Spieler ein NPC ist.
+     *
+     * @return <code>true</code> fuer NPCs.
+     */
+    public boolean isNPC()
+    {
+        return getId() < 0;
+    }
 	
 	/**
 	 * Gibt zur angegebenen Forschung die Forschungsdaten des Benutzers zurueck.

@@ -51,14 +51,17 @@ public class KSTakeCommandAction extends BasicKSAction {
 		
 		Context context = ContextMap.getContext();
 		
-		User user = (User)context.getActiveUser();	
-		
-		if( (battle.getAlly(battle.getOwnSide()) == 0) || 
-			((user.getAlly() != null) && (battle.getAlly(battle.getOwnSide()) != user.getAlly().getId())) ) {
-			
-			battle.logme( "Sie geh&ouml;ren nicht der kommandierenden Allianz an\n" );
-			return Result.ERROR;
-		}
+		User user = (User)context.getActiveUser();
+
+        if(!user.hasFlag(User.FLAG_KS_TAKE_BATTLES))
+        {
+            if( (battle.getAlly(battle.getOwnSide()) == 0) ||
+                ((user.getAlly() != null) && (battle.getAlly(battle.getOwnSide()) != user.getAlly().getId())) ) {
+
+                battle.logme( "Sie geh&ouml;ren nicht der kommandierenden Allianz an\n" );
+                return Result.ERROR;
+            }
+        }
 		
 		if( battle.getTakeCommand(battle.getOwnSide()) != 0 ) {
 			battle.logme( "Es versucht bereits ein anderer Spieler das Kommando zu &uuml;bernehmen\n" );

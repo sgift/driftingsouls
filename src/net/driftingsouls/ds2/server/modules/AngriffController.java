@@ -465,6 +465,11 @@ public class AngriffController extends TemplateGenerator {
 						historyobj.showTakeCommand(true);
 					}
 				}
+
+                if(user.hasFlag(User.FLAG_KS_TAKE_BATTLES) && (battle.getTakeCommand(battle.getOwnSide()) == 0))
+                {
+                    historyobj.showTakeCommand(true);
+                }
 					
 				historyobj.setText("<div style=\"text-align:center\">Nur der Oberkommandierende einer Seite kann Befehle erteilen.</div>\n");
 				historyobj.showOK(false);
