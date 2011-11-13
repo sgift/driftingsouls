@@ -580,6 +580,8 @@ public class SchiffsTick extends TickController {
 			}
 		}
 
+        db.evict(Offizier.class);
+
 		// Evt. Deuterium sammeln
 		if(!isBattle && shipd.getAutoDeut() && (shiptd.getDeutFactor() != 0) && (shipd.getCrew() >= shiptd.getCrew()/2) && (e > 0) && (shipc.getMass() < shiptd.getCargo()) ) 
 		{
