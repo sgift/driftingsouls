@@ -106,6 +106,31 @@ a:visited
 	background-image: url(../interface/text_back.png);
 }
 
+
+/* Freunde Bannerseite */
+
+#links{
+	clear: both;
+	min-height: 500px;
+	margin: 15px;
+	padding: 10px;
+}
+
+#links .links{
+	float: left;
+	width: 45%;
+	margin-left: 25px;
+	}
+	
+#links .rechts{
+	float: right; 
+	width: 45%;
+	margin-right: 25px;
+	}
+
+
+/* ende Banner */
+
 #screenshots
 {
 	margin-left: 2em;
@@ -159,6 +184,14 @@ li.newsitem > p.newstext
 {
 	padding-top: 0px;
 	margin-top: 0.5em;
+}
+
+li a.portallink{
+	clear: both;
+	}
+
+#news{
+clear: both;
 }
 
 li#lostpass

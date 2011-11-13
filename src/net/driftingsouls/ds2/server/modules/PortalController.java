@@ -180,6 +180,16 @@ public class PortalController extends TemplateGenerator {
 		}
 	}
 
+
+	/**
+	 * Zeigt die Banner Seite an an.
+	 *
+	 */
+	@Action(ActionType.DEFAULT)
+	public void bannerAction() {
+		getTemplateEngine().setVar("show.banner",1);
+	}
+
 	/**
 	 * Zeigt die AGB an.
 	 *
