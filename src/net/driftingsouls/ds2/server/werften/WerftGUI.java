@@ -1014,13 +1014,32 @@ public class WerftGUI {
 	
 	private boolean fleetissameshiptype(Ship ship)
 	{
-		if (ship == null || ship.getFleet() == null){ return false;}
+		if (ship == null || ship.getFleet() == null) return false;
 		
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		if(ship.getRealModules() == null)
+		List<Ship> shiplist = Common.cast(db.createQuery("from Ship where fleet = :fleet").setEntity("fleet",ship.getFleet()).list());
+		Iterator<Ship> iter = shiplist.iterator();
+		for(; iter.hasNext(); )
 		{
-			return (db.createQuery("select distinct modules from Ship where fleet = :fleet").setEntity("fleet",ship.getFleet()).list().size() == 0);
+			Ship aship = iter.next();
+			
+			if( aship.getRealModules() == null && ship.getRealModules() != null)
+			{
+				return false;
+			}
+			if( aship.getRealModules() != null && ship.getRealModules() == null)
+			{
+				return false;
+			}
+			if( aship.getRealModules() != null && ship.getRealModules() != null && aship.getRealModules().getId() != ship.getRealModules().getId())
+			{
+				return false;
+			}
+			if( aship.getBaseType().getId() != ship.getBaseType().getId())
+			{
+				return false;
+			}
 		}
-		return (db.createQuery("from Ship where fleet = :fleet and modules = :modules").setEntity("fleet",ship.getFleet()).setEntity("modules", ship.getRealModules()).list().size() == db.createQuery("from Ship where fleet = :fleet").setEntity("fleet",ship.getFleet()).list().size());	
+		return true;
 	}
 }
