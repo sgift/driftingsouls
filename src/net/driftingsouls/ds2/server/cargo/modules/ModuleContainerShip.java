@@ -23,8 +23,6 @@ import java.util.List;
 import net.driftingsouls.ds2.server.ships.AbstractShipTypeDataWrapper;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
-import org.apache.commons.lang.StringUtils;
-
 /**
  * Repraesentiert einen gedockten Frachtcontainer in DS.
  * @author Christopher Jung
@@ -33,13 +31,10 @@ import org.apache.commons.lang.StringUtils;
 public class ModuleContainerShip extends Module {
 	private int slot;
 	private long cargo;
-	private int shipid;
 	
 	protected ModuleContainerShip(int slot, String data) {
 		this.slot = slot;
-		String[] owndata = StringUtils.split(data, '_');
-		this.cargo = Long.parseLong(owndata[1]);
-		this.shipid = Integer.parseInt(owndata[0]);	
+		this.cargo = Long.parseLong(data);
 	}
 	
 	@Override
@@ -50,9 +45,7 @@ public class ModuleContainerShip extends Module {
 		else if( moduleid != Modules.MODULE_CONTAINER_SHIP ) {
 			return false;	
 		}
-		String[] dataArray = StringUtils.split(data, '_');
-
-		if( Integer.parseInt(dataArray[0]) != this.shipid ) {
+		if( Long.parseLong(data) != this.cargo ) {
 			return false;	
 		}
 		return true;
