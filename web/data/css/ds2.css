@@ -19,11 +19,12 @@ a#registerlink
 	color: #00ff00;
 	text-decoration: none;
 	font-weight: bold;
+	font-size: 20px;
 }
 
 h1
 {
-	font-size: 17px;
+	font-size: 19px;
 }
 
 p
@@ -128,16 +129,75 @@ a:visited
 	margin-right: 25px;
 	}
 
-
+#eigenes-banner{
+	clear: both;
+	width: 600px;
+	margin-left: 25%;
+	margin-right: 25%;
+	text-align: center;
+	border-style: dashed;
+	border-width: thin;
+	}
+	
 /* ende Banner */
+
+/* beginn Portalseite Beschreibung*/
+
+#portal-breite{
+	clear: both;
+	width: 90%;
+	}
+	
+#wasistds{
+
+margin: 20px;
+padding: 20px;
+}
+
+#wasistds ul li{
+	list-style: none;
+	margin:50px;
+	padding: 30px;
+}	
 
 #screenshots
 {
-	margin-left: 2em;
-	margin-top: 3em;
-	margin-bottom: 3em;
+	margin-right: 25px;
+	margin-left: 10px;
+	margin-top: 30px;
+	margin-bottom: 10px; 
 }
 
+img.border{
+	margin-top: 50px;
+	margin-right: 50px;
+	border-color: red;
+	border: 5px;
+      
+	border-top-left-radius: 100px;
+  -moz-border-radius-topleft: 100px;
+  -webkit-border-top-left-radius: 100px;
+  
+	
+	}	
+
+p.bildrechts{
+	float: right;
+	margin-top: 20px;
+	margin-right: 50px;
+	margin-bottom: 20px;
+	margin-left: 50px;
+	}	
+	
+p.bildlinks{
+	float: left;
+	}
+/* ende meins */	
+/* anmeldung unten portalseite */
+#anmeldung-unten{
+	text-align: center;
+	}
+	
 #teaser
 {
 	padding-top: 0.8em;
@@ -147,7 +207,10 @@ a:visited
 {
 	border-color: #a4a8b7;
 	border-style: double;
-	margin: 1em;
+	margin-top: 20px;
+	margin-right: 50px;
+	margin-bottom: 20px;
+	margin-left: 50px;
 }
 
 #votes
@@ -190,9 +253,13 @@ li a.portallink{
 	clear: both;
 	}
 
+#newslink{
+	clear:both;
+	}
+	
 #news{
-clear: both;
-}
+	clear: both;
+	}
 
 li#lostpass
 {
@@ -202,6 +269,6 @@ li#lostpass
 li#lostpass > a
 {
 	color: #ff0000;
-	font-size: 0.5em;
+	font-size: 1.0em;
 	font-style: italic;
 }
