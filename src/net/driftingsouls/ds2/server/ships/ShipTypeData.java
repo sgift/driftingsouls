@@ -18,12 +18,20 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
+import java.math.BigInteger;
+
 /**
  * Interface fuer Schiffstypendaten eines Schiffes.
  * @author Christopher Jung
  *
  */
 public interface ShipTypeData extends Cloneable {
+
+    /**
+     * @return Wieviel Kopfgeld erhaelt ein Spieler dafuer diesen Schiffstyp zu kapern?
+     */
+    public BigInteger getBounty();
+
 	/**
 	 * Gibt die Anzahl an externen Docks zurueck.
 	 * @return Die externen Docks

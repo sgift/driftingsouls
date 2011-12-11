@@ -163,6 +163,10 @@ public class User extends BasicUser {
      * Kann alle Kaempfe uebernehmen, egal wer sie gerade kommandiert
      */
     public static final String FLAG_KS_TAKE_BATTLES = "cantakeallbattles";
+    /**
+     * Dieser Spieler setzt nie automatisch Kopfgeld aus.
+     */
+    public static final String FLAG_NO_AUTO_BOUNTY = "noautobounty";
 	
 	/**
 	 * Die Arten von Beziehungen zwischen zwei Spielern.
@@ -181,7 +185,7 @@ public class User extends BasicUser {
 		/**
 		 * Freundlich.
 		 */
-		FRIEND;		// 2
+		FRIEND		// 2
 	}
 
 	/**
@@ -228,6 +232,7 @@ public class User extends BasicUser {
 	private String knownItems;
 	private int vacpoints;
 	private int specializationPoints;
+    private BigInteger bounty;
 	
 	@OneToMany
 	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH})
@@ -700,6 +705,16 @@ public class User extends BasicUser {
 	public void transferMoneyFrom( int fromID, long count, String text ) {
 		transferMoneyFrom( fromID, count, text, false );
 	}
+
+    public void addBounty(BigInteger add)
+    {
+        this.bounty.add(add);
+    }
+
+    public BigInteger getBounty()
+    {
+        return this.bounty;
+    }
 	
 	private int vaccount;
 	private int wait4vac;

@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -31,8 +32,11 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.entities.ComNetChannel;
+import net.driftingsouls.ds2.server.entities.ComNetEntry;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -233,6 +237,28 @@ public class KapernController extends TemplateGenerator {
 		StringBuilder msg = new StringBuilder();
 		
 		boolean ok = false;
+
+        //Trying to steal a ship already costs bounty or one could help another player to get a ship without any penalty
+        if(!targetUser.hasFlag(User.FLAG_NO_AUTO_BOUNTY))
+        {
+            BigInteger account = targetUser.getKonto();
+            BigInteger shipBounty = this.targetShip.getTypeData().getBounty();
+            shipBounty = account.multiply(new BigInteger("0.1")).min(shipBounty);
+
+
+            if(shipBounty.compareTo(new BigInteger("0")) != 0)
+            {
+                user.addBounty(shipBounty);
+                //Make it public that there's a new bounty on a player, so others can go to hunt
+                ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "vacpointspervactick");
+                int bountyChannel = Integer.valueOf(value.getValue());
+                ComNetChannel channel = (ComNetChannel)db.get(ComNetChannel.class, bountyChannel);
+                ComNetEntry entry = new ComNetEntry(user, channel);
+                entry.setHead("Kopfgeld");
+                entry.setText("Gesuchter: " + user.getNickname() + "[BR]Wegen: Diebstahl von Schiffen[BR]Betrag: " + shipBounty);
+                db.persist(entry);
+            }
+        }
 		
 		// Falls Crew auf dem Zielschiff vorhanden ist
 		if( this.targetShip.getCrew() != 0 || !this.targetShip.getUnits().isEmpty() ) {

@@ -27,6 +27,8 @@ import javax.persistence.Version;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import java.math.BigInteger;
+
 /**
  * Ein Schiffstyp.
  * @author Christopher Jung
@@ -95,6 +97,7 @@ public class ShipType implements ShipTypeData {
 	private int maxunitsize;
 	private int unitspace;
 	private boolean versorger;
+    private BigInteger bounty;
 	
 	@Version
 	private int version;
@@ -106,6 +109,12 @@ public class ShipType implements ShipTypeData {
 	public ShipType() {
 		// EMPTY
 	}
+
+    @Override
+    public BigInteger getBounty()
+    {
+        return bounty;
+    }
 
 	@Override
 	public int getADocks() {
