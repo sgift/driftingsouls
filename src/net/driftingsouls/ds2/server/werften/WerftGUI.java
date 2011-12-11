@@ -681,8 +681,7 @@ public class WerftGUI {
 		int itemid = context.getRequest().getParameterInt("item");
 		int slot = context.getRequest().getParameterInt("slot");
 		String moduleaction = context.getRequest().getParameterString("moduleaction");
-		boolean fleet = context.getRequest().getParameterInt("fleet") == 1 ? true : false;
-		
+	
 		//Gehoert das Schiff dem User?
 		if( (ship == null) || (ship.getId() < 0) || ((ship.getOwner() != user) && (user.getAccessLevel() < 100)) ) {
 			context.addError("Das Schiff existiert nicht oder geh&ouml;rt nicht ihnen", werft.getUrlBase());
@@ -702,48 +701,20 @@ public class WerftGUI {
 		t.setBlock("ws.modules.slots.listitem", "slot.items.listitem", "slot.items.list");
 		
 		t.setVar(	"werftgui.ws.modules",	1,
-					"ship.type.image",		shiptype.getPicture());
+					"ship.type.image",		shiptype.getPicture() );
 			
 		// Modul einbauen
 		if( (itemid != 0) && (slot != 0) ) {
 			Item item = (Item)db.get(Item.class, itemid);
 			if( item != null) {
-				if( fleet && fleetissameshiptype(ship))
-				{
-					List<Ship> shiplist = Common.cast(db.createQuery("from Ship where fleet = :fleet").setEntity("fleet", ship.getFleet()).list());
-					Iterator<Ship> iter = shiplist.iterator();
-					for(; iter.hasNext(); )
-					{
-						Ship aship = iter.next();
-						werft.addModule(aship, slot, itemid);
-					}
-				}
-				else
-				{
-					werft.addModule( ship, slot, itemid );
-				}
+				werft.addModule( ship, slot, itemid );
 				t.setVar("ws.modules.msg", Common._plaintext(werft.MESSAGE.getMessage()));
 			}
 		}
 		else if( moduleaction.equals("ausbauen") && (slot != 0) ) {
-			if( fleet && fleetissameshiptype(ship))
-			{
-				List<Ship> shiplist = Common.cast(db.createQuery("from Ship where fleet = :fleet").setEntity("fleet", ship.getFleet()).list());
-				Iterator<Ship> iter = shiplist.iterator();
-				for(; iter.hasNext(); )
-				{
-					Ship aship = iter.next();
-					werft.removeModule( aship, slot );
-				}
-			}
-			else
-			{
-				werft.removeModule( ship, slot );
-			}
+			werft.removeModule( ship, slot );
 			t.setVar("ws.modules.msg", Common._plaintext(werft.MESSAGE.getMessage()));
 		}
-		
-		t.setVar( "ws.modules.fleet", fleetissameshiptype(ship));
 		
 		Ship.ModuleEntry[] modules = ship.getModules();
 		Map<Integer,Integer> usedslots = new HashMap<Integer,Integer>();
@@ -1010,36 +981,5 @@ public class WerftGUI {
 		}
 		
 		return;   
-	}
-	
-	private boolean fleetissameshiptype(Ship ship)
-	{
-		if (ship == null || ship.getFleet() == null) return false;
-		
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<Ship> shiplist = Common.cast(db.createQuery("from Ship where fleet = :fleet").setEntity("fleet",ship.getFleet()).list());
-		Iterator<Ship> iter = shiplist.iterator();
-		for(; iter.hasNext(); )
-		{
-			Ship aship = iter.next();
-			
-			if( aship.getRealModules() == null && ship.getRealModules() != null)
-			{
-				return false;
-			}
-			if( aship.getRealModules() != null && ship.getRealModules() == null)
-			{
-				return false;
-			}
-			if( aship.getRealModules() != null && ship.getRealModules() != null && aship.getRealModules().getId() != ship.getRealModules().getId())
-			{
-				return false;
-			}
-			if( aship.getBaseType().getId() != ship.getBaseType().getId())
-			{
-				return false;
-			}
-		}
-		return true;
 	}
 }

@@ -20,12 +20,11 @@ package net.driftingsouls.ds2.server.ships;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Version;
-
-import net.driftingsouls.ds2.server.framework.ContextMap;
 
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
@@ -41,12 +40,14 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @BatchSize(size=50)
 public class ShipModules implements ShipTypeData {
-	@Id @GeneratedValue
+	@Id
 	private int id;
+	@OneToOne
+	@PrimaryKeyJoinColumn
+	private Ship ship;
 	private String modules;
 	private String nickname;
 	private String picture;
-	private int shiptype;
 	private int ru;
 	private int rd;
 	private int ra;
@@ -95,10 +96,21 @@ public class ShipModules implements ShipTypeData {
 	private int version;
 	
 	/**
-	 * <p>Konstruktor.</p>
-	 * Erstellt einen neuen Schiffsmoduleintrag
+	 * Konstruktor.
+	 *
 	 */
 	public ShipModules() {
+		// EMPTY
+	}
+	
+	/**
+	 * <p>Konstruktor.</p>
+	 * Erstellt einen neuen Schiffsmoduleintrag fuer das angegebene Schiff
+	 * @param ship Das Schiff
+	 */
+	public ShipModules(Ship ship) {
+		this.id = ship.getId();
+		this.ship = ship;
 		this.flags = "";
 		this.weapons = "";
 		this.maxHeat = "";
@@ -108,20 +120,11 @@ public class ShipModules implements ShipTypeData {
 	}
 	
 	/**
-	 * Gibt den Schiffstyp zurueck, zu dem der Eintrag gehoert.
-	 * @return Der Schiffstyp
+	 * Gibt das Schiff zurueck, zu dem der Eintrag gehoert.
+	 * @return Das Schiff
 	 */
-	public int getShipType() {
-		return shiptype;
-	}
-	
-	/**
-	 * Setzt den Schiffstyp dieses Eintrags.
-	 * @param shiptype Der Schiffstyp
-	 */
-	public void setShipType(int shiptype)
-	{
-		this.shiptype = shiptype;
+	public Ship getShip() {
+		return ship;
 	}
 
 	@Override
@@ -540,38 +543,32 @@ public class ShipModules implements ShipTypeData {
 	
 	@Override
 	public int getGroupwrap() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		return ((ShipType)db.get(ShipType.class, getShipType())).getGroupwrap();
+		return getShip().getBaseType().getGroupwrap();
 	}
 	
 	@Override
 	public String getTypeModules() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		return ((ShipType)db.get(ShipType.class, getShipType())).getModules();
+		return getShip().getBaseType().getModules();
 	}
 		
 	@Override
 	public String getDescrip() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		return ((ShipType)db.get(ShipType.class, getShipType())).getDescrip();
+		return getShip().getBaseType().getDescrip();
 	}
 	
 	@Override
 	public boolean isHide() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		return ((ShipType)db.get(ShipType.class, getShipType())).isHide();
+		return getShip().getBaseType().isHide();
 	}
 	
 	@Override
 	public int getShipClass() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		return ((ShipType)db.get(ShipType.class, getShipType())).getShipClass();
+		return getShip().getBaseType().getShipClass();
 	}
 	
 	@Override
 	public int getChance4Loot() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		return ((ShipType)db.get(ShipType.class, getShipType())).getChance4Loot();
+		return getShip().getBaseType().getChance4Loot();
 	}
 	
 	@Override
@@ -596,13 +593,12 @@ public class ShipModules implements ShipTypeData {
 	
 	@Override
 	public int getTypeId() {
-		return getShipType();
+		return getShip().getBaseType().getId();
 	}
 
 	@Override
 	public ShipTypeData getType() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		return ((ShipType)db.get(ShipType.class, getShipType()));
+		return getShip().getBaseType();
 	}
 	
 	@Override

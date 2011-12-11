@@ -192,24 +192,20 @@ public class ItemManipulator extends DSApplication {
 			
 			for( Iterator<?> iter=moduleships.iterator(); iter.hasNext(); ) {
 				ShipModules shipModules = (ShipModules)iter.next();
-				List<Ship> shiplist = Common.cast(db.createQuery("from Ship WHERE modules = :modules").setEntity("modules", shipModules).list());
-				for( Iterator<?> shipiter = shiplist.iterator(); iter.hasNext(); )
-				{
-					Ship ship = (Ship)shipiter.next();
-					
-					Ship.ModuleEntry[] modules = ship.getModules();
-					for( int i=0; i < modules.length; i++ ) {
-						Ship.ModuleEntry module = modules[i];
-						if( (module.moduleType == Modules.MODULE_ITEMMODULE) && (Integer.parseInt(module.data) == itemid) ) {
-							ship.removeModule(module.slot, module.moduleType, module.data);
-							if( recount != 0 ) {
-								awardRE(userlist, ship.getOwner().getId(), recount);
-							}
-							if( replaceid != 0  ) {
-								ship.addModule(module.slot, module.moduleType, Integer.toString(replaceid));
-							}
-							log("\t- modifiziere "+ship.getId()+": slot "+module.slot);
+				Ship ship = shipModules.getShip();
+				
+				Ship.ModuleEntry[] modules = ship.getModules();
+				for( int i=0; i < modules.length; i++ ) {
+					Ship.ModuleEntry module = modules[i];
+					if( (module.moduleType == Modules.MODULE_ITEMMODULE) && (Integer.parseInt(module.data) == itemid) ) {
+						ship.removeModule(module.slot, module.moduleType, module.data);
+						if( recount != 0 ) {
+							awardRE(userlist, ship.getOwner().getId(), recount);
 						}
+						if( replaceid != 0  ) {
+							ship.addModule(module.slot, module.moduleType, Integer.toString(replaceid));
+						}
+						log("\t- modifiziere "+ship.getId()+": slot "+module.slot);
 					}
 				}
 			}

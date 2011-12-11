@@ -1448,11 +1448,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		return result.toArray(new ModuleEntry[result.size()]);
 	}
-	
-	public ShipModules getRealModules()
-	{
-		return this.modules;
-	}
 
 	/**
 	 * Fuegt ein Modul in das Schiff ein.
@@ -1468,7 +1463,13 @@ public class Ship implements Locatable,Transfering,Feeding {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		ShipModules shipModules = this.modules;
-		
+		if( shipModules == null ) {
+			shipModules = new ShipModules(this);
+			db.persist(shipModules);
+
+			this.modules = shipModules;
+		}
+
 		List<ModuleEntry> moduletbl = new ArrayList<ModuleEntry>();
 		moduletbl.addAll(Arrays.asList(getModules()));
 
@@ -1501,42 +1502,13 @@ public class Ship implements Locatable,Transfering,Feeding {
 				moduleSlotData.add(module.slot+":"+module.moduleType+":"+module.data);
 			}
 		}
-		
-		String modulestring = Common.implode(";",moduleSlotData);
-		int typeid = this.getType();
-		
-		ShipModules module = (ShipModules)db.createQuery("from ShipModules where modules = :modules AND shiptype = :shiptype")
-				.setString("modules", modulestring)
-				.setInteger("shiptype", typeid).uniqueResult();
-		
-		ShipModules oldmodule = this.modules;
-		
-		if(module == null)
-		{
-			for( int i=0; i < moduleobjlist.size(); i++ ) {
-				type = moduleobjlist.get(i).modifyStats( type, moduleobjlist );		
-			}
-			
-			shipModules = new ShipModules();
 
-			shipModules.setModules(Common.implode(";",moduleSlotData));
-			writeTypeToShipModule(shipModules, type);
-			shipModules.setShipType(typeid);
-			db.persist(shipModules);
-			this.modules = shipModules;
+		for( int i=0; i < moduleobjlist.size(); i++ ) {
+			type = moduleobjlist.get(i).modifyStats( type, moduleobjlist );		
 		}
-		else
-		{
-			this.modules = module;
-		}
-		
-		if(oldmodule != null)
-		{
-			if(db.createQuery("from Ship where modules = :module").setEntity("module",oldmodule).list().size() == 0)
-			{
-				db.delete(oldmodule);
-			}
-		}
+
+		shipModules.setModules(Common.implode(";",moduleSlotData));
+		writeTypeToShipModule(shipModules, type);
 	}
 
 	private void writeTypeToShipModule(ShipModules shipModules, ShipTypeData type) {
@@ -1586,9 +1558,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	public void removeModule( int slot, int moduleid, String data ) {	
 		if( this.id < 0 ) {
-			throw new UnsupportedOperationException("removeModules kann nur bei Schiffen mit positiver ID ausgefuhert werden!");
+			throw new UnsupportedOperationException("addModules kann nur bei Schiffen mit positiver ID ausgefuhert werden!");
 		}
-		
+
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		if( this.modules == null ) {
@@ -1601,8 +1573,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		moduletbl.addAll(Arrays.asList(getModules()));
 
 		//check modules
-		boolean gotit = false;
-		
+
 		//rebuild	
 		ShipTypeData type = Ship.getShipType( this.shiptype, null, true );
 
@@ -1615,18 +1586,14 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		List<Module> moduleobjlist = new ArrayList<Module>();
 		List<String> moduleSlotData = new ArrayList<String>(); 
-		
+
 		for( int i=0; i < moduletbl.size(); i++ ) {
 			ModuleEntry module = moduletbl.get(i);
 			if( module.moduleType != 0 ) {
 				Module moduleobj = Modules.getShipModule( module );
-				
+
 				if( moduleobj.isSame(slot, moduleid, data) ) {
-					if(!gotit)
-					{
-						gotit = true;
-						continue;
-					}
+					continue;
 				}
 
 				if( (module.slot > 0) && (slotlist.get(module.slot).length > 2) ) {
@@ -1637,47 +1604,21 @@ public class Ship implements Locatable,Transfering,Feeding {
 				moduleSlotData.add(module.slot+":"+module.moduleType+":"+module.data);
 			}
 		}
-		
-		ShipModules oldmodule = this.modules;
-		
-		if( moduleSlotData.size() > 0 ) {
-			
-			String modulestring = Common.implode(";",moduleSlotData);
-			int typeid = this.getType();
-			
-			ShipModules module = (ShipModules)db.createQuery("from ShipModules where modules LIKE :modules AND shiptype = :shiptype")
-					.setString("modules", modulestring)
-					.setInteger("shiptype", typeid).uniqueResult();
-			
-			if(module == null)
-			{
-				for( int i=0; i < moduleobjlist.size(); i++ ) {
-					type = moduleobjlist.get(i).modifyStats( type, moduleobjlist );		
-				}
-				
-				shipModules = new ShipModules();
 
-				shipModules.setModules(Common.implode(";",moduleSlotData));
-				writeTypeToShipModule(shipModules, type);
-				shipModules.setShipType(typeid);
-				db.persist(shipModules);
-				this.modules = shipModules;
-			}
-			else
-			{
-				this.modules = module;
-			}
+		for( int i=0; i < moduleobjlist.size(); i++ ) {
+			type = moduleobjlist.get(i).modifyStats( type, moduleobjlist );		
+		}
+
+		if( moduleSlotData.size() > 0 ) {
+			shipModules.setModules(Common.implode(";",moduleSlotData));
+			writeTypeToShipModule(shipModules, type);
 		}
 		else {
+			db.delete(shipModules);
+			
 			this.modules = null;
 		}
-		
-		if(db.createQuery("from Ship where modules = :module").setEntity("module", oldmodule).list().size() == 0)
-		{
-			db.delete(oldmodule);
-		}
 	}
-
 
 	/**
 	 * Berechnet die durch Module verursachten Effekte des Schiffes neu.
@@ -3143,8 +3084,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 		  	}
 			gotmodule = true;
 		  
-			aship.removeModule( 0, Modules.MODULE_CONTAINER_SHIP, Long.toString(-aship.getBaseType().getCargo()) );		
-			this.removeModule( 0, Modules.MODULE_CONTAINER_SHIP, Long.toString(aship.getBaseType().getCargo()) );
+			aship.removeModule( 0, Modules.MODULE_CONTAINER_SHIP, Integer.toString(aship.getId()) );		
+			this.removeModule( 0, Modules.MODULE_CONTAINER_SHIP, Integer.toString(aship.getId()) );
 		}
 		  
 		if( gotmodule ) 
@@ -3299,8 +3240,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 				aship.setCargo(emptycargo);
 			}
 		  
-			aship.addModule( 0, Modules.MODULE_CONTAINER_SHIP, Long.toString(-type.getCargo()) );
-			this.addModule( 0, Modules.MODULE_CONTAINER_SHIP, Long.toString(type.getCargo()) );
+			aship.addModule( 0, Modules.MODULE_CONTAINER_SHIP, aship.getId()+"_"+(-type.getCargo()) );
+			this.addModule( 0, Modules.MODULE_CONTAINER_SHIP, aship.getId()+"_"+type.getCargo() );
 		}
 		  
 		this.cargo = cargo;

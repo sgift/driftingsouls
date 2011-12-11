@@ -475,7 +475,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * 
 	 */
 	public void removeModule( Ship ship, int slot ) {
-		
 		Map<Integer,Integer> usedslots = new HashMap<Integer,Integer>();
 		Ship.ModuleEntry[] modules = ship.getModules();
 		for( int i=0; i < modules.length; i++ ) {

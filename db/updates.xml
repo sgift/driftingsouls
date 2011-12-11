@@ -1556,9 +1556,4 @@
 	<update type="structure" datum="2011-04-19"><![CDATA[
 		ALTER TABLE unit_types ADD hidden tinyint(1) default '0';
 	]]></update>
-	<update type="structure" datum="2011-04-19"><![CDATA[
-		ALTER TABLE ships_modules DROP FOREIGN KEY ships_modules_fk_ships;
-		ALTER TABLE ships_modules ADD shiptype int(11) NOT NULL;
-		ALTER TABLE ships_modules CHANGE id id int(11) auto_increment;
-	]]></update>
 </updates>
