@@ -232,9 +232,6 @@ public class SchiffsTick extends TickController {
 			bases = new ArrayList<Base>();
 		}
 
-		//Mein Mutterschiff - relevant bei gedockten Schiffen
-		Ship baseShip = shipd.getBaseShip();
-
 		this.slog("\tCrew: ");
 		//Crew die noch gefuettert werden muss
 		int crewToFeed = shipd.getFoodConsumption();
@@ -264,6 +261,8 @@ public class SchiffsTick extends TickController {
                 }
             }
 
+            //Mein Mutterschiff - relevant bei gedockten Schiffen
+            Ship baseShip = shipd.getBaseShip();
             if(baseShip != null)
             {
                 crewToFeed = consumeFood(baseShip, crewToFeed, scaleFactor);
