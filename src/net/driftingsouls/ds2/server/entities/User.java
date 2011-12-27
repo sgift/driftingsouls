@@ -167,8 +167,12 @@ public class User extends BasicUser {
      * Dieser Spieler setzt nie automatisch Kopfgeld aus.
      */
     public static final String FLAG_NO_AUTO_BOUNTY = "noautobounty";
-	
-	/**
+    /**
+     * Dieser Spieler braucht keine Nahrung.
+     */
+    public static String FLAG_NO_FOOD_CONSUMPTION = "nofoodconsumption";
+
+    /**
 	 * Die Arten von Beziehungen zwischen zwei Spielern.
 	 * @author Christopher Jung
 	 *
