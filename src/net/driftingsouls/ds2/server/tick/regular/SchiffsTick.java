@@ -239,116 +239,120 @@ public class SchiffsTick extends TickController {
 		//Crew die noch gefuettert werden muss
 		int crewToFeed = shipd.getFoodConsumption();
 
-		//Faktor fuer den Verbrauch
-		double scaleFactor = shipd.getAlertScaleFactor();
+        //Potentiell teure Berechnungen sparen, wenn wir sowieso nichts zu versorgen haben
+        if(crewToFeed > 0)
+        {
+            //Faktor fuer den Verbrauch
+            double scaleFactor = shipd.getAlertScaleFactor();
 
-		//Basencargo, VersorgerCargo, Basisschiffcargo, eigener Cargo - Leerfuttern in der Reihenfolge
-		for(Base feedingBase: bases)
-		{
-			crewToFeed = consumeFood(feedingBase, crewToFeed, scaleFactor);
-			if(crewToFeed == 0)
-			{
-				break;
-			}
-		}
-		
-		if( crewToFeed > 0 ) {
-			Ship versorger = getVersorger(shipd.getLocation());
-			while(versorger != null && crewToFeed > 0)
-			{
-				crewToFeed = consumeFood(versorger ,crewToFeed, scaleFactor);
-				versorger = getVersorger(shipd.getLocation());
-			}
-		}
+            //Basencargo, VersorgerCargo, Basisschiffcargo, eigener Cargo - Leerfuttern in der Reihenfolge
+            for(Base feedingBase: bases)
+            {
+                crewToFeed = consumeFood(feedingBase, crewToFeed, scaleFactor);
+                if(crewToFeed == 0)
+                {
+                    break;
+                }
+            }
 
-		if(baseShip != null)
-		{
-			crewToFeed = consumeFood(baseShip, crewToFeed, scaleFactor);
-		}
-		
-		crewToFeed = consumeFood(shipd, crewToFeed, scaleFactor);
-		this.slog("\n");
-		
-		if( shipd.getNahrungCargo() > shiptd.getNahrungCargo())
-		{
-			shipd.setNahrungCargo(shiptd.getNahrungCargo());
-		}
-		
-		//Crew die nicht versorgt werden konnte verhungern lassen
-		if(crewToFeed > 0) 
-		{
-			this.log("\tCrew verhungert - ");
-			if(crewToFeed >= shipd.getUnits().getNahrung())
-			{
-				crewToFeed = crewToFeed - (int)Math.ceil(shipd.getUnits().getNahrung());
-				shipd.setUnits(new UnitCargo());
-				ConfigValue maxverhungern = (ConfigValue)db.get(ConfigValue.class, "maxverhungern");
-				int maxverhungernfactor = Integer.parseInt(maxverhungern.getValue());
-				int maxverhungernvalue = (int)Math.ceil(shiptd.getCrew() * (maxverhungernfactor/100.0));
-				int crew = shipd.getCrew();
-				if( crewToFeed*10 > maxverhungernvalue)
-				{
-					crew = crew - maxverhungernvalue;
-				}
-				else
-				{
-					crew = crew - crewToFeed*10;
-				}
-				if(crew < 0)
-				{
-					shipd.setCrew(0);
-					this.log("\tGedockte Schiffe verhungern.");
-					crew = Math.abs(crew);
-					List<Ship> dockedShips = shipd.getLandedShips();
-					for(Iterator<Ship> iter=dockedShips.iterator();iter.hasNext();)
-					{
-						Ship dockShip = iter.next();
-						if(crew > dockShip.getCrew())
-						{
-							crew -= dockShip.getCrew();
-							dockShip.setCrew(0);
-						}
-						else
-						{
-							dockShip.setCrew(dockShip.getCrew()-crew);
-							break;
-						}
-					}
-				}
-				else
-				{
-					shipd.setCrew(crew);
-				}
-			}
-			else 
-			{
-				shipd.getUnits().fleeUnits(crewToFeed);
-				crewToFeed = 0;
-			}
-		}
-		else
-		{
-			long neededFood = shiptd.getNahrungCargo() - shipd.getNahrungCargo();
-			if(neededFood > 0)
-			{
-				for(Base base: bases)
-				{
-					Cargo baseCargo = base.getCargo();
-					
-					long baseFood = baseCargo.getResourceCount(Resources.NAHRUNG);
-					long takenFood = Math.min(baseFood, neededFood);
-					baseCargo.substractResource(Resources.NAHRUNG, takenFood);
-					neededFood = neededFood - takenFood;
-					shipd.setNahrungCargo(shipd.getNahrungCargo() + takenFood);
-					base.setCargo(baseCargo);
-					
-					if(neededFood == 0)
-					{
-						break;
-					}
-				}
-			}
-		}
+            if( crewToFeed > 0 ) {
+                Ship versorger = getVersorger(shipd.getLocation());
+                while(versorger != null && crewToFeed > 0)
+                {
+                    crewToFeed = consumeFood(versorger ,crewToFeed, scaleFactor);
+                    versorger = getVersorger(shipd.getLocation());
+                }
+            }
+
+            if(baseShip != null)
+            {
+                crewToFeed = consumeFood(baseShip, crewToFeed, scaleFactor);
+            }
+
+            crewToFeed = consumeFood(shipd, crewToFeed, scaleFactor);
+            this.slog("\n");
+
+            if( shipd.getNahrungCargo() > shiptd.getNahrungCargo())
+            {
+                shipd.setNahrungCargo(shiptd.getNahrungCargo());
+            }
+
+            //Crew die nicht versorgt werden konnte verhungern lassen
+            if(crewToFeed > 0)
+            {
+                this.log("\tCrew verhungert - ");
+                if(crewToFeed >= shipd.getUnits().getNahrung())
+                {
+                    crewToFeed = crewToFeed - (int)Math.ceil(shipd.getUnits().getNahrung());
+                    shipd.setUnits(new UnitCargo());
+                    ConfigValue maxverhungern = (ConfigValue)db.get(ConfigValue.class, "maxverhungern");
+                    int maxverhungernfactor = Integer.parseInt(maxverhungern.getValue());
+                    int maxverhungernvalue = (int)Math.ceil(shiptd.getCrew() * (maxverhungernfactor/100.0));
+                    int crew = shipd.getCrew();
+                    if( crewToFeed*10 > maxverhungernvalue)
+                    {
+                        crew = crew - maxverhungernvalue;
+                    }
+                    else
+                    {
+                        crew = crew - crewToFeed*10;
+                    }
+                    if(crew < 0)
+                    {
+                        shipd.setCrew(0);
+                        this.log("\tGedockte Schiffe verhungern.");
+                        crew = Math.abs(crew);
+                        List<Ship> dockedShips = shipd.getLandedShips();
+                        for(Iterator<Ship> iter=dockedShips.iterator();iter.hasNext();)
+                        {
+                            Ship dockShip = iter.next();
+                            if(crew > dockShip.getCrew())
+                            {
+                                crew -= dockShip.getCrew();
+                                dockShip.setCrew(0);
+                            }
+                            else
+                            {
+                                dockShip.setCrew(dockShip.getCrew()-crew);
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        shipd.setCrew(crew);
+                    }
+                }
+                else
+                {
+                    shipd.getUnits().fleeUnits(crewToFeed);
+                    crewToFeed = 0;
+                }
+            }
+            else
+            {
+                long neededFood = shiptd.getNahrungCargo() - shipd.getNahrungCargo();
+                if(neededFood > 0)
+                {
+                    for(Base base: bases)
+                    {
+                        Cargo baseCargo = base.getCargo();
+
+                        long baseFood = baseCargo.getResourceCount(Resources.NAHRUNG);
+                        long takenFood = Math.min(baseFood, neededFood);
+                        baseCargo.substractResource(Resources.NAHRUNG, takenFood);
+                        neededFood = neededFood - takenFood;
+                        shipd.setNahrungCargo(shipd.getNahrungCargo() + takenFood);
+                        base.setCargo(baseCargo);
+
+                        if(neededFood == 0)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
 		
 		//Damage ships which don't have enough crew
 		if(!isBattle)

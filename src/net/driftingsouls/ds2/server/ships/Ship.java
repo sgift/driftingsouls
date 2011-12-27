@@ -1324,7 +1324,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * @return Amount of food this ship consumes
 	 */
 	public int getFoodConsumption() {
-		if(this.isLanded() || this.isDocked())
+		if(this.getOwner().hasFlag(User.FLAG_NO_FOOD_CONSUMPTION) || this.isLanded() || this.isDocked())
 		{
 			return 0;
 		}
