@@ -391,6 +391,14 @@ public class ShipType implements ShipTypeData {
 		aDocks = docks;
 	}
 
+    /**
+     * @param bounty Setzt das Kopfgeld fuer den Abschuss dieses Schiffes.
+     */
+    public void setBounty(BigInteger bounty)
+    {
+        this.bounty = bounty;
+    }
+
 	/**
 	 * Setzt den vorhandenen Cargo.
 	 * @param cargo Der Cargo

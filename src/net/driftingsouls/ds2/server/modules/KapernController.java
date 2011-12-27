@@ -250,7 +250,7 @@ public class KapernController extends TemplateGenerator {
             {
                 user.addBounty(shipBounty);
                 //Make it public that there's a new bounty on a player, so others can go to hunt
-                ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "vacpointspervactick");
+                ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "bountychannel");
                 int bountyChannel = Integer.valueOf(value.getValue());
                 ComNetChannel channel = (ComNetChannel)db.get(ComNetChannel.class, bountyChannel);
                 ComNetEntry entry = new ComNetEntry(user, channel);
