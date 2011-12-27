@@ -34,6 +34,7 @@ CREATE TABLE `users` (
   `vacpoints` int NOT NULL DEFAULT '0',
   `specializationPoints` INT NOT NULL DEFAULT '0',
   `corruption` float NOT NULL DEFAULT '0',
+  `bounty` bigint(20) unsigned NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `ally` (`ally`),
   KEY `vaccount` (`vaccount`,`wait4vac`),
