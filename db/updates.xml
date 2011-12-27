@@ -1558,6 +1558,7 @@
 	]]></update>
     <update type="structure" datum="2011-12-27"><![CDATA[
         ALTER TABLE ships ADD `bounty` bigint(20) unsigned NOT NULL default '0';
+        ALTER TABLE ships_modules ADD `bounty` bigint(20) unsigned NOT NULL default '0';
         ALTER TABLE users ADD `bounty` bigint(20) unsigned NOT NULL default '0';
     ]]></update>
 </updates>

@@ -40,5 +40,6 @@ CREATE TABLE `ships_modules` (
   `maxunitsize` tinyint (4) NOT NULL default '1',
   `unitspace` int (11) NOT NULL default '0',
   `versorger` tinyint(1) NOT NULL default '0',
+  `bounty` bigint(20) unsigned NOT NULL default '0',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='modifizierte Schiffstypenwerte fuer "jedes" Schiff'; 
