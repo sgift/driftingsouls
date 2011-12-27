@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
+import java.math.BigInteger;
+
 /**
  * Basisklasse fuer ShipTypeData-Wrapper.
  * @author Christopher Jung
@@ -59,6 +61,11 @@ public abstract class AbstractShipTypeDataWrapper implements ShipTypeData {
 	public int getADocks() {
 		return inner.getADocks();
 	}
+
+    public BigInteger getBounty()
+    {
+        return inner.getBounty();
+    }
 
 	@Override
 	public long getCargo() {

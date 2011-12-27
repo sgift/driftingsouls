@@ -30,6 +30,8 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import java.math.BigInteger;
+
 /**
  * Die Moduldaten eines Schiffes.
  * @author Christopher Jung
@@ -91,6 +93,7 @@ public class ShipModules implements ShipTypeData {
 	private int maxunitsize;
 	private int unitspace;
 	private boolean versorger;
+    private BigInteger bounty;
 	
 	@Version
 	private int version;
@@ -701,6 +704,23 @@ public class ShipModules implements ShipTypeData {
 	{
 		this.lostInEmpChance = lostInEmpChance;
 	}
+
+    /**
+     * @param bounty Kopfgeld fuer den Abschuss von Schiffen mit diesem Modul.
+     */
+    public void setBounty(BigInteger bounty)
+    {
+        this.bounty = bounty;
+    }
+
+    /**
+     * @return Kopfgeld fuer das Kapern/zerstoeren eines Objekts mit diesem Modul
+     */
+    @Override
+    public BigInteger getBounty()
+    {
+        return this.bounty;
+    }
 
 	/**
 	 * Gibt die Versionsnummer zurueck.

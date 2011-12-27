@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.ships;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -79,6 +80,7 @@ public class ShipTypeChangeset {
 	private double lostInEmpChance;
 	private int maxunitsize;
 	private int unitspace;
+    private BigInteger bounty;
 	
 	/**
 	 * Leerer Konstruktor.
@@ -257,6 +259,10 @@ public class ShipTypeChangeset {
 			{
 				this.lostInEmpChance = Double.parseDouble(changeset[1]);
 			}
+            else if(changeset[0].equals("bounty"))
+            {
+                this.bounty = new BigInteger(changeset[1]);
+            }
 			else
 			{
 				throw new RuntimeException("Unbekannte Changeset-Eigenschaft '"+changeset[0]+"'");
@@ -357,6 +363,7 @@ public class ShipTypeChangeset {
 		this.pickingCost = context.getRequest().getParameterInt("pickingcost"+addict);
 		this.minCrew = context.getRequest().getParameterInt("mincrew"+addict);
 		this.lostInEmpChance = context.getRequest().getParameterInt("lostinempchance"+addict);
+        this.bounty = new BigInteger(context.getRequest().getParameterString("bounty"+addict));
 	}
 
 	/**
@@ -366,6 +373,11 @@ public class ShipTypeChangeset {
 	public int getADocks() {
 		return aDocks;
 	}
+
+    public BigInteger getBounty()
+    {
+        return bounty;
+    }
 
 	/**
 	 * Gibt zurueck, um wieviel der Cargo modifiziert wird.
@@ -1322,6 +1334,11 @@ public class ShipTypeChangeset {
 		{
 			return ShipTypeChangeset.this.getMinCrew() + inner.getMinCrew();
 		}
+
+        public BigInteger getBounty()
+        {
+            return ShipTypeChangeset.this.getBounty().add(inner.getBounty());
+        }
 		
 		/**
 		 * Wahrscheinlichkeit, dass das Schiff sich in einem EMP-Nebel verfliegt.
