@@ -1559,6 +1559,17 @@
     <update type="structure" datum="2011-12-27"><![CDATA[
         ALTER TABLE ships ADD `bounty` bigint(20) unsigned NOT NULL default '0';
         ALTER TABLE ships_modules ADD `bounty` bigint(20) unsigned NOT NULL default '0';
+        ALTER TABLE ship_types ADD `bounty` bigint(20) unsigned NOT NULL default'0';
         ALTER TABLE users ADD `bounty` bigint(20) unsigned NOT NULL default '0';
+    ]]></update>
+    <update type="structure" datum="2012-03-01"><![CDATA[
+        CREATE TABLE `ship_flags` (
+          `id` int(11) NOT NULL AUTO_INCREMENT,
+          `flagType` int(11) NOT NULL,
+          `ship` int(11) NOT NULL,
+          `remaining` int(11) NOT NULL,
+          `version` int(11) NOT NULL DEFAULT '0',
+          PRIMARY KEY (`id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1;
     ]]></update>
 </updates>

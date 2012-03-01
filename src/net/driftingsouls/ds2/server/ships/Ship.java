@@ -18,32 +18,6 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
-import java.sql.Blob;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.Version;
-import javax.script.Bindings;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
@@ -51,29 +25,15 @@ import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
-import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
-import net.driftingsouls.ds2.server.cargo.ResourceID;
-import net.driftingsouls.ds2.server.cargo.Resources;
-import net.driftingsouls.ds2.server.cargo.Transfer;
-import net.driftingsouls.ds2.server.cargo.Transfering;
+import net.driftingsouls.ds2.server.cargo.*;
 import net.driftingsouls.ds2.server.cargo.modules.Module;
 import net.driftingsouls.ds2.server.cargo.modules.Modules;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
-import net.driftingsouls.ds2.server.entities.Feeding;
-import net.driftingsouls.ds2.server.entities.JumpNode;
-import net.driftingsouls.ds2.server.entities.Nebel;
-import net.driftingsouls.ds2.server.entities.Sector;
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ConfigValue;
-import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
-import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.entities.*;
+import net.driftingsouls.ds2.server.framework.*;
 import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.Quests;
 import net.driftingsouls.ds2.server.scripting.ShipScriptData;
@@ -82,22 +42,24 @@ import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargoEntry;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.ObjectNotFoundException;
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+
+import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.Version;
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import java.sql.Blob;
+import java.util.*;
 
 /**
  * Repraesentiert ein Schiff in DS.
@@ -196,6 +158,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 	@JoinColumn(name="id", nullable=false)
 	@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 	private ShipScriptData scriptData;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "ship")
+    private Set<ShipFlag> flags;
 	
 	@Transient
 	private Offizier offizier;
@@ -210,6 +175,13 @@ public class Ship implements Locatable,Transfering,Feeding {
 	
 	@Transient
 	private Configuration config;
+    
+    
+    
+    //Ship flags, no enum as this doesn't work very well with hibernate
+
+    /** Das Schiff wurde vor kurzem repariert und kann aktuell nicht erneut repariert werden. */
+    public static final int FLAG_RECENTLY_REPAIRED = 1;
 	
 	/**
 	 * Konstruktor.
@@ -270,6 +242,14 @@ public class Ship implements Locatable,Transfering,Feeding {
 		this.setSensors(100);
 		this.scriptData = new ShipScriptData();
 	}
+
+    /**
+     * @param flags Die Flags des Schiffes
+     */
+    public void setFlags(Set<ShipFlag> flags)
+    {
+        this.flags = flags;
+    }
 	
     /**
      * Injiziert die DS-Konfiguration.
@@ -4214,4 +4194,80 @@ public class Ship implements Locatable,Transfering,Feeding {
 	        	 return false;
 		}
 	}
+
+    /**
+     * Prüft, ob das Schiff ein Statusflag hat.
+     * 
+     * @param flag Das Flag auf das geprüft wird.
+     * @return <code>true</code>, wenn es das Flag gibt, <code>false</code> ansonsten.
+     */
+    public boolean hasFlag(int flag)
+    {
+        ShipFlag shipFlag = new ShipFlag(flag, this, -1);
+        return flags.contains(shipFlag);
+    }
+    
+    /**
+     * Fuegt dem Schiff ein neues Flag hinzu.
+     * Wenn das Schiff das Flag bereits hat und die neue verbleibende Zeit groesser ist als die Alte wird sie aktualisiert.
+     * 
+     * @param flag Flagcode.
+     * @param remaining Wieviele Ticks soll das Flag bestand haben? -1 fuer unendlich.
+     */
+    public void addFlag(int flag, int remaining)
+    {
+        ShipFlag oldFlag = getFlag(flag);
+        
+        if(oldFlag != null)
+        {
+            if(oldFlag.getRemaining() != -1 && oldFlag.getRemaining() < remaining)
+            {
+                oldFlag.setRemaining(remaining);
+            }
+        }
+        else
+        {
+            ShipFlag shipFlag = new ShipFlag(flag, this, remaining);
+
+            org.hibernate.Session db = ContextMap.getContext().getDB();
+            db.persist(shipFlag);
+
+            flags.add(shipFlag);
+        }
+    }
+
+    /**
+     * Entfernt das Flag vom Schiff.
+     * Es ist irrelevant, ob das Schiff das Flag hatte.
+     *
+     * @param flag Das zu entfernende Flag.
+     */
+    public void deleteFlag(int flag)
+    {
+        ShipFlag shipFlag = getFlag(flag);
+        
+        if(shipFlag != null)
+        {
+            flags.remove(shipFlag);
+
+            org.hibernate.Session db = ContextMap.getContext().getDB();
+            db.delete(shipFlag);
+        }
+    }
+    
+    private ShipFlag getFlag(int flag)
+    {
+        ShipFlag shipFlag = null;
+        //Not really efficient, but we don't plan to have too many flags
+        for(ShipFlag candidate: flags)
+        {
+            if(candidate.getFlagType() == flag)
+            {
+                shipFlag = candidate;
+                break;
+            }
+        }
+        
+        return shipFlag;
+    }
 }

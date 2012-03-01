@@ -1136,14 +1136,20 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * @return true, wenn kein Fehler aufgetreten ist
 	 */
 	public boolean repairShip(Ship ship, boolean testonly) {
+        if(ship.hasFlag(Ship.FLAG_RECENTLY_REPAIRED))
+        {
+            MESSAGE.get().append("Das Schiff wurde k&uuml;rzlich repariert und kann derzeit nicht repariert werden.");
+            return false;
+        }
+        
 		ShipTypeData shiptype = ship.getTypeData();
 		
 		Cargo cargo = this.getCargo(false);
-	
+	    boolean ok = true;
 		RepairCosts rc = this.getRepairCosts(ship);
 		
+
 		Cargo newcargo = (Cargo) cargo.clone();
-		boolean ok = true;
 		int newe = this.getEnergy();
 	
 		//Kosten ausgeben
@@ -1177,6 +1183,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			ship.setSensors(100);
 			ship.setComm(100);
 			ship.setWeapons(100);
+            ship.addFlag(Ship.FLAG_RECENTLY_REPAIRED, 7);
 		}
 		return true;
 	}
