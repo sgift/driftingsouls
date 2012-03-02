@@ -53,6 +53,7 @@ import net.driftingsouls.ds2.server.tick.TickController;
 import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.Transaction;
+import org.springframework.core.style.ValueStyler;
 
 /**
  * Berechnet sonstige Tick-Aktionen, welche keinen eigenen TickController haben.
@@ -395,6 +396,8 @@ public class RestTick extends TickController {
 						db.update("INSERT INTO ships (id,name,type,owner,x,y,system,hull,crew,cargo,heat,docked,destcom,jumptarget,history,status) ",
 									"VALUES (",shouldId,",'Felsbrocken',",aloadout.getInt("shiptype"),",-1,",x,",",y,",",system.getInt("system"),",",shiptype.getHull(),",",shiptype.getCrew(),",'",cargo.save(),"','','','','','','')");
 						this.log("");
+
+                        db.update("INSERT INTO ship_script_data (shipid,script,scriptexedata) VALUES (",shouldId,",NULL,NULL)");
 						
 						shipcount++;
 						

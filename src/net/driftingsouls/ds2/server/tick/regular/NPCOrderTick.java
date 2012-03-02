@@ -155,6 +155,7 @@ public class NPCOrderTick extends TickController {
 					
 					id = (Integer)db.save(ship);
 					ship.getScriptData().setShipid(id);
+                    db.persist(ship.getScriptData());
 					
 					if( shipd.getWerft() != 0 ) {
 						ShipWerft awerft = new ShipWerft(ship);
