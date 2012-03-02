@@ -1422,4 +1422,41 @@ public class User extends BasicUser {
 		
 		return baseunit+shipunit > 0 || user.isAdmin();
 	}
+
+    /**
+     * Aktualisiert den Rang des Spielers bei einem Ranggeber.
+     *
+     * @param rankGiver Jemand der Raenge vergeben kann.
+     * @param rank Der neue Rang
+     */
+    public void setRank(User rankGiver, int rank)
+    {
+        UserRank.UserRankKey key = new UserRank.UserRankKey(this, rankGiver);
+
+        org.hibernate.Session db = ContextMap.getContext().getDB();
+        UserRank userRank = (UserRank)db.get(UserRank.class, key);
+        if(userRank == null)
+        {
+            userRank = new UserRank(key, rank);
+            db.persist(userRank);
+        }
+        else
+        {
+            userRank.setRank(rank);
+        }
+    }
+    
+    public UserRank getRank(User rankGiver)
+    {
+        UserRank.UserRankKey key = new UserRank.UserRankKey(this, rankGiver);
+
+        org.hibernate.Session db = ContextMap.getContext().getDB();
+        UserRank userRank = (UserRank)db.get(UserRank.class, key);
+        if(userRank == null)
+        {
+            userRank = new UserRank(key, 0); //Working with null is inconvenient for external classes
+        }
+
+        return userRank;
+    }
 }

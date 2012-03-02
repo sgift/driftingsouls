@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import net.driftingsouls.ds2.server.entities.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -16,11 +17,6 @@ import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.config.Rassen;
-import net.driftingsouls.ds2.server.entities.FactionShopOrder;
-import net.driftingsouls.ds2.server.entities.Order;
-import net.driftingsouls.ds2.server.entities.OrderOffizier;
-import net.driftingsouls.ds2.server.entities.OrderShip;
-import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -242,85 +238,47 @@ public class NPCOrderController extends TemplateGenerator {
 		
 		this.redirect("medals");
 	}
-	
+
 	/**
 	 * Befoerdert/Degradiert einen Spieler.
 	 * @urlparam Integer edituser Die ID des zu bearbeitenden Spielers
-	 * @urlparam Integer rang Der neue Rang
+	 * @urlparam Integer rank Der neue Rang
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeRangAction() {
-		TemplateEngine t = this.getTemplateEngine();
+	public void changeRankAction() {
 		User user = (User)this.getUser();
-		
+
 		if( !this.isHead ) {
 			addError( "Sie sind nicht berechtigt auf dieses Men&uuml; zuzugreifen" );
-			
+
 			this.redirect();
-			return;	
-		}	
-		
+			return;
+		}
+
 		this.parameterNumber("edituser");
-		this.parameterNumber("rang");
+		this.parameterNumber("rank");
 		int edituserID = this.getInteger("edituser");
-		byte rang = (byte)this.getInteger("rang");
-		
+		int rank = this.getInteger("rank");
+
 		User edituser = (User)getContext().getDB().get(User.class, edituserID);
-			
+
 		if( edituser == null ) {
 			addError( "Der angegebene Spieler existiert nicht" );
 			this.redirect("medals");
 			
 			return;	
 		}
-		
-		if( user.getRang() <= edituser.getRang() ) {
-			addError( "Sie k&ouml;nnen diesen Spieler weder bef&ouml;rdern noch degradieren" );
-			this.redirect("medals");
-			
-			return;
-		}
-		
-		if( rang > user.getRang()-1 ) {
-			addError( "Sie k&ouml;nnen diesen Spieler nicht soweit bef&ouml;rdern" );
-			this.redirect("medals");
-			
-			return;
-		}
-		
-		if( rang < 0 ) {
+
+		if( rank < 0 ) {
 			addError( "Sie k&ouml;nnen diesen Spieler nicht soweit degradieren" );
 			this.redirect("medals");
 			
 			return;
 		}
-		
-		if( rang > edituser.getRang()+1 ) {
-			addError( "Sie k&ouml;nnen diesen Spieler nicht so schnell bef&ouml;rdern" );
-			this.redirect("medals");
-			
-			return;
-		}
-		
-		if( rang < edituser.getRang()-1 ) {
-			addError( "Sie k&ouml;nnen diesen Spieler nicht so schnell degradieren" );
-			this.redirect("medals");
-			
-			return;
-		}
-		
-		int ticks = getContext().get(ContextCommon.class).getTick();
-		
-		edituser.addHistory(Common.getIngameTime(ticks)+": Von "+user.getName()+" zum [img]"+
-				config.get("URL")+"data/interface/medals/rang"+rang+"+png[/img] ["+
-				Medals.get().rang(rang).getName()+"] "+( rang > edituser.getRang() ? "bef&ouml;rdert" : "degradiert"));
-		
-		t.setVar( "npcorder.message", "Der Spieler wurde zum "+Medals.get().rang(rang).getName()+" "+
-				( rang > edituser.getRang() ? "bef&ouml;rdert" : "degradiert") );
-		
-		edituser.setRang(rang);
-		
+
+        edituser.setRank(user, rank);
+
 		this.redirect("medals");
 	}
 
@@ -355,15 +313,11 @@ public class NPCOrderController extends TemplateGenerator {
 		}
 		
 		edituser.setTemplateVars(t, "edituser");
-		
-		boolean canEditRang = user.getRang() > edituser.getRang();
-		
-		t.setVar(	"edituser.name",			Common._title(edituser.getName() ),
-					"edituser.rang.name",		Medals.get().rang(edituser.getRang()).getName(),
-					"edituser.rang.next",		(edituser.getRang() < user.getRang()-1 ? edituser.getRang()+1 : 0),
-					"edituser.rang.next.name",	(edituser.getRang() < user.getRang()-1 ? Medals.get().rang(edituser.getRang()+1) : 0),
-					"edituser.rang.prev",		(canEditRang && (edituser.getRang() > 0) ? edituser.getRang()-1 : 0),
-					"edituser.rang.prev.name",	(canEditRang && (edituser.getRang() > 0) ? Medals.get().rang(edituser.getRang()-1) : 0) );
+
+        UserRank rank = edituser.getRank(user);
+        
+		t.setVar(	"edituser.name",	Common._title(edituser.getName() ),
+					"edituser.rank",	rank.getRank());
 			
 		int i = 8;
 							

@@ -23,6 +23,7 @@ public class ShipFlag
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="ship", nullable = false)
     private Ship ship;
+    @Version
     private int version;
 
     public ShipFlag()
