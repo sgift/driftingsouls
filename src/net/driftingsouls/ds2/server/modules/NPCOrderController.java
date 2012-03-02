@@ -249,13 +249,6 @@ public class NPCOrderController extends TemplateGenerator {
 	public void changeRankAction() {
 		User user = (User)this.getUser();
 
-		if( !this.isHead ) {
-			addError( "Sie sind nicht berechtigt auf dieses Men&uuml; zuzugreifen" );
-
-			this.redirect();
-			return;
-		}
-
 		this.parameterNumber("edituser");
 		this.parameterNumber("rank");
 		int edituserID = this.getInteger("edituser");
@@ -291,14 +284,7 @@ public class NPCOrderController extends TemplateGenerator {
 	public void medalsAction() {
 		TemplateEngine t = this.getTemplateEngine();
 		User user = (User)this.getUser();
-		
-		if( !this.isHead ) {
-			addError( "Sie sind nicht berechtigt auf dieses Men&uuml; zuzugreifen" );
-			
-			redirect();
-			return;	
-		}	
-		
+
 		parameterNumber("edituser");
 		int edituserID = getInteger("edituser");
 		

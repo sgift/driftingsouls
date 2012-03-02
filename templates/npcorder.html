@@ -5,10 +5,8 @@
 	<td class="noBorder">
 		{!table_begin 400,center}
 			{!link_to Ordermen&uuml;, default}
-			{if npcorder.factionhead}
-				&nbsp;|&nbsp;
-				{!link_to Orden &amp; R&auml;nge, medals}
-			{/endif}
+            &nbsp;|&nbsp;
+            {!link_to Orden &amp; R&auml;nge, medals}
 			{if npcorder.shop}
 				&nbsp;|&nbsp;
 				{!link_to Gany-Transport, viewTransports}
@@ -113,30 +111,20 @@
 					</div>
 					<br />
 					<table width="100%" class="noBorderX">
-					<tr>
-						<td class="noBorderX" width="30">Rang:</td>
-						<td class="noBorderX">
-							<img align="middle" {!overlib $edituser.rang.name, mo, width:100} src="{URL}data/interface/medals/rang{edituser.rang}.png" alt="" />
-						</td>
-					</tr>
-					{if edituser.rang.next}
-						<tr>
-							<td class="noBorderX" align="center" colspan="2">
-								<a class="forschinfo" href="./ds?module=npcorder&action=changeRang&edituser={edituser.id}&rang={edituser.rang.next}">
-									Zum <img border="0" align="middle" {!overlib $edituser.rang.next.name, mo, width:100} src="{URL}data/interface/medals/rang{edituser.rang.next}.png" alt="" /> bef&ouml;rdern
-								</a>
-							</td>
-						</tr>
-					{/endif}
-					{if edituser.rang.prev}
-						<tr>
-							<td class="noBorderX" align="center" colspan="2">
-								<a class="forschinfo" href="./ds?module=npcorder&action=changeRang&edituser={edituser.id}&rang={edituser.rang.prev}">
-									Zum <img border="0" align="middle" {!overlib $edituser.rang.prev.name, mo, width:100} src="{URL}data/interface/medals/rang{edituser.rang.prev}.png" alt="" /> degradieren
-								</a>
-							</td>
-						</tr>
-					{/endif}
+                        <form action="./ds" method="post">
+                            <tr>
+                                <td class="noBorderX" width="30">Rang:</td>
+                                <td class="noBorderX" align="center" colspan="2">
+                                    <input type="text" name="rank" value="{edituser.rank}">
+                                </td>
+                            </tr>
+                            <tr>
+                                    <td class="noBorderX" align="center" colspan="2">
+                                        {!form_create_hidden changeRank, edituser:$edituser.id}
+                                        <input type="submit" value="Aktualisieren">
+                                    </td>
+                            </tr>
+                        </form>
 					</table>
 					<hr noshade="noshade" size="1" style="color:#cccccc" />
 					<form action="./ds" method="post">
