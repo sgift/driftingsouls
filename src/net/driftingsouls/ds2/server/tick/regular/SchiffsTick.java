@@ -726,10 +726,6 @@ public class SchiffsTick extends TickController {
 			transaction.rollback();
 		}
 
-        //TEST TEST TEST
-        if(true)
-            return;
-
 		transaction = db.beginTransaction();
 		
 		List<Integer> userIds = Common.cast(db.createQuery("select distinct u.id " +
