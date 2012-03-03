@@ -93,7 +93,7 @@ public class ShipModules implements ShipTypeData {
 	private int maxunitsize;
 	private int unitspace;
 	private boolean versorger;
-    private BigInteger bounty;
+    private BigInteger bounty = BigInteger.ZERO;
 	
 	@Version
 	private int version;
