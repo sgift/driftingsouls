@@ -39,17 +39,7 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.FactionPages;
 import net.driftingsouls.ds2.server.config.StarSystem;
-import net.driftingsouls.ds2.server.entities.FactionOffer;
-import net.driftingsouls.ds2.server.entities.FactionShopEntry;
-import net.driftingsouls.ds2.server.entities.FactionShopOrder;
-import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
-import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
-import net.driftingsouls.ds2.server.entities.UpgradeInfo;
-import net.driftingsouls.ds2.server.entities.UpgradeJob;
-import net.driftingsouls.ds2.server.entities.UpgradeMaxValues;
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
-import net.driftingsouls.ds2.server.entities.Versteigerung;
+import net.driftingsouls.ds2.server.entities.*;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -1713,6 +1703,22 @@ public class ErsteigernController extends TemplateGenerator
 			return;
 		}
 
+        if(!shopentry.canBuy(user))
+        {
+            t.setVar("show.message",
+                     "<span style=\"color:red\">Es existiert kein passendes Angebot</span>");
+            redirect("shop");
+            return;
+        }
+
+        if(shopentry.getAvailability() == 2)
+        {
+            t.setVar("show.message",
+                     "<span style=\"color:red\">Das Angebot ist nicht verf&uuml;gbar</span>");
+            redirect("shop");
+            return;
+        }
+
 		// Ganymed-Transporte verarbeiten
 		if( shopentry.getType() == 2 )
 		{
@@ -2374,6 +2380,9 @@ public class ErsteigernController extends TemplateGenerator
 
 			t.parse("shop.list", "shop.listitem", true);
 		}
+        
+        User owner = (User)db.get(User.class, this.faction);
+        UserRank rank = user.getRank(owner);
 
 		// Nun den normalen Shop ausgeben
 		List<?> shopentryList = db.createQuery(
@@ -2382,6 +2391,10 @@ public class ErsteigernController extends TemplateGenerator
 		for( Iterator<?> iter = shopentryList.iterator(); iter.hasNext(); )
 		{
 			FactionShopEntry shopentry = (FactionShopEntry)iter.next();
+            if(!shopentry.canBuy(user))
+            {
+                continue;
+            }
 
 			ShopEntry shopEntryObj = null;
 			if( shopentry.getType() == 1 )

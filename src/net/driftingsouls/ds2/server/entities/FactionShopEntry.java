@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import net.driftingsouls.ds2.server.framework.ContextMap;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -41,6 +43,8 @@ public class FactionShopEntry {
 	private String resource;
 	private long price;
 	private int availability;
+    @Column(name="min_rank")
+    private int minRank;
 	
 	@Version
 	private int version;
@@ -152,6 +156,17 @@ public class FactionShopEntry {
 	public int getId() {
 		return id;
 	}
+
+    /**
+     * @return <code>true</code>, wenn der Spieler die Ware kaufen kann, <code>false</code> ansonsten.
+     */
+    public boolean canBuy(User buyer)
+    {
+        org.hibernate.Session db = ContextMap.getContext().getDB();
+        User owner = (User)db.get(User.class, this.faction);
+        UserRank rank = buyer.getRank(owner);
+        return rank.getRank() >= minRank;
+    }
 
 	/**
 	 * Gibt die Versionsnummer zurueck.

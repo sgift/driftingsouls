@@ -1580,5 +1580,6 @@
           `version` int(11) NOT NULL DEFAULT '0',
           PRIMARY KEY (`owner`,`rank_giver`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+        ALTER TABLE  `factions_shop_entries` ADD  `min_rank` INT NOT NULL DEFAULT  '0' AFTER  `availability`;
     ]]></update>
 </updates>
