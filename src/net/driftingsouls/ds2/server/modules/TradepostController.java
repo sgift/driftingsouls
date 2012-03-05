@@ -108,6 +108,8 @@ public class TradepostController extends TemplateGenerator {
 			t.setVar("tradepost.message", "Dieses Schiff ist kein Handelsposten. Bitte bestellen Sie die entsprechende Software beim Handelsunternehmen Ihres vertrauens");
 			return;
 		}
+        
+        t.setVar("ship.owner.isnpc", user.isNPC());
 				
 		// get all SellLimits of this ship
 		List<SellLimit> selllimitlist = Common.cast(db.createQuery("from SellLimit where shipid=:shipid").setParameter("shipid", shipid).list());
@@ -164,6 +166,8 @@ public class TradepostController extends TemplateGenerator {
 			long buyprice = 0;
 			long saleslimit = 0;
 			long buylimit = 0;
+            int salesrank = 0;
+            int buyrank = 0;
 						
 			// read actual values of limits
 			// check if the List of items to sell contains current item
@@ -171,12 +175,14 @@ public class TradepostController extends TemplateGenerator {
 			{
 				salesprice = selllistmap.get(itemid * -1).getPrice();
 				saleslimit = selllistmap.get(itemid * -1).getLimit();
+                salesrank = selllistmap.get(itemid * -1).getMinRank();
 			}
 			// check if the List of items to buy contains current item
 			if(buylistmap.containsKey(itemid * -1))
 			{
 				buylimit = buylistmap.get(itemid * -1).getLimit();
-				buyprice = buylistgtu.getResourceCount(itemidobejct) / 1000 ;
+				buyprice = buylistgtu.getResourceCount(itemidobejct) / 1000;
+                buyrank = buylistmap.get(itemid * -1).getMinRank();
 			}
 			
 			// hier wollte ich einen intelligenten kommentar einfuegen
@@ -193,12 +199,16 @@ public class TradepostController extends TemplateGenerator {
 						"item.buyprice",	buyprice,
 						"item.saleslimit",	saleslimit,
 						"item.buylimit",	buylimit,
+                        "item.sellrank", salesrank,
+                        "item.buyrank", buyrank,
 						"item.salebool",		!selllistmap.containsKey(itemid * -1),
 						"item.buybool",		!buylistmap.containsKey(itemid * -1),
 						"item.salesprice.parameter",	"i"+aitem.getID()+"salesprice",
 						"item.buyprice.parameter",	"i"+aitem.getID()+"buyprice",
 						"item.saleslimit.parameter",	"i"+aitem.getID()+"saleslimit",
 						"item.buylimit.parameter",	"i"+aitem.getID()+"buylimit",
+                        "item.sellrank.parameter", "i"+aitem.getID()+"sellrank",
+                        "item.buyrank.parameter", "i"+aitem.getID()+"buyrank",
 						"item.salebool.parameter",	"i"+aitem.getID()+"salebool",
 						"item.buybool.parameter",	"i"+aitem.getID()+"buybool" );
 			
@@ -325,6 +335,8 @@ public class TradepostController extends TemplateGenerator {
 			long buyprice = 0;
 			long saleslimit = 0;
 			long buylimit = 0;
+            int sellRank = 0;
+            int buyRank = 0;
 			boolean salebool = false;
 			boolean buybool = false;
 			
@@ -333,10 +345,14 @@ public class TradepostController extends TemplateGenerator {
 			parameterNumber("i"+aitem.getID()+"buyprice");
 			parameterNumber("i"+aitem.getID()+"saleslimit");
 			parameterNumber("i"+aitem.getID()+"buylimit");
+            parameterNumber("i"+aitem.getID()+"sellrank");
+            parameterNumber("i"+aitem.getID()+"buyrank");
 			salesprice = getInteger("i"+aitem.getID()+"salesprice");
 			buyprice = getInteger("i"+aitem.getID()+"buyprice");
 			saleslimit = getInteger("i"+aitem.getID()+"saleslimit");
 			buylimit = getInteger("i"+aitem.getID()+"buylimit");
+            sellRank = getInteger("i"+aitem.getID()+"sellrank");
+            buyRank = getInteger("i"+aitem.getID()+"buyrank");
 			salebool = (ContextMap.getContext().getRequest().getParameterInt("i"+aitem.getID()+"salebool") == 1 ? true : false);
 			buybool = (ContextMap.getContext().getRequest().getParameterInt("i"+aitem.getID()+"buybool") == 1 ? true : false);
 			
@@ -357,6 +373,16 @@ public class TradepostController extends TemplateGenerator {
 			{
 				buylimit = 0;
 			}
+            
+            if(sellRank < 0)
+            {
+                sellRank = 0;
+            }
+            
+            if(buyRank < 0)
+            {
+                buyRank = 0;
+            }
 			
 			SellLimit itemsell = null;
 			ResourceLimit itembuy = null;
@@ -377,11 +403,12 @@ public class TradepostController extends TemplateGenerator {
 					itemsell = selllistmap.get(itemid * -1);
 					itemsell.setPrice(salesprice);
 					itemsell.setLimit(saleslimit);
+                    itemsell.setMinRank(sellRank);
 				}
 				else
 				{
 					// create new object
-					itemsell = new SellLimit(resourcekey, salesprice, saleslimit);
+					itemsell = new SellLimit(resourcekey, salesprice, saleslimit, sellRank);
 					db.persist(itemsell);
 				}
 			}
@@ -403,11 +430,12 @@ public class TradepostController extends TemplateGenerator {
 					buylistgtu.setResource(itemidobejct , buyprice * 1000);
 					kurse.setKurse(buylistgtu);
 					itembuy.setLimit(buylimit);
+                    itembuy.setMinRank(buyRank);
 				}
 				else
 				{
 					// create new object
-					itembuy = new ResourceLimit(resourcekey, buylimit);
+					itembuy = new ResourceLimit(resourcekey, buylimit, buyRank);
 					buylistgtu.setResource(itemidobejct , buyprice * 1000);
 					kurse.setKurse(buylistgtu);
 					db.persist(itembuy);

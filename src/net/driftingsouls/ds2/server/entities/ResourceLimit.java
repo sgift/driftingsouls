@@ -75,6 +75,8 @@ public class ResourceLimit {
 	private ResourceLimitKey resourceLimitKey;
 	@Column(name="maximum")
 	private long limit;
+    @Column(name="min_rank")
+    private int minRank;
 	
 	@Version
 	private int version;
@@ -91,9 +93,10 @@ public class ResourceLimit {
 	 * @param resourcelimitkey the key of the resourcelimit
 	 * @param limit the limit of this kind of resources
 	 */
-	public ResourceLimit(ResourceLimitKey resourcelimitkey, long limit) {
+	public ResourceLimit(ResourceLimitKey resourcelimitkey, long limit, int rank) {
 		this.setResourceLimitKey(resourcelimitkey);
 		this.setLimit(limit);
+        
 	}
 
 	private void setResourceLimitKey(ResourceLimitKey resourcelimitkey) {
@@ -131,4 +134,31 @@ public class ResourceLimit {
 	public void setLimit(long limit) {
 		this.limit = limit;
 	}
+
+    /**
+     * @param rank The rank a player needs with the seller to buy this resource.
+     */
+    public void setMinRank(int rank)
+    {
+        this.minRank = rank;
+    }
+
+    /**
+     * @return The rank a player needs with the seller to buy this resource.
+     */
+    public int getMinRank()
+    {
+        return this.minRank;
+    }
+
+    /**
+     * @param buyer The owner of the trade post.
+     * @param seller The user who wants to buy the resource.
+     * @return <code>true</code>, if the seller can sell the resource to the buyer.
+     */
+    public boolean willBuy(User buyer, User seller)
+    {
+        int rank = seller.getRank(buyer).getRank();
+        return rank >= this.minRank;
+    }
 }

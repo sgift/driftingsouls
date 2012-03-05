@@ -156,6 +156,12 @@ public class TradeController extends TemplateGenerator {
 			if(limit == null) {
 				continue;
 			}
+
+            //The seller lacks the rank needed to sell this resource
+            if(!limit.willSell(this.posten.getOwner(), user))
+            {
+                continue;
+            }
 			
 			long amountOnPost = tradepostCargo.getResourceCount(resource.getId()) - limit.getLimit();
 			if( amountOnPost <= 0 ) {
@@ -214,6 +220,7 @@ public class TradeController extends TemplateGenerator {
 	public void sellAction() {
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
+        User user = (User)getUser();
 		int MIN_TICKS_TO_SURVIVE = 7;
 		
 		int tick = getContext().get(ContextCommon.class).getTick();
@@ -255,6 +262,12 @@ public class TradeController extends TemplateGenerator {
 				//Wir wollen eventuell nur bis zu einem Limit ankaufen
 				ResourceLimitKey resourceLimitKey = new ResourceLimitKey(posten, res.getId());
 				ResourceLimit resourceLimit = (ResourceLimit) db.get(ResourceLimit.class, resourceLimitKey);
+
+                //Do we want to buy this resource from this player?
+                if(!resourceLimit.willBuy(this.posten.getOwner(), user))
+                {
+                    continue;
+                }
 				
 				long limit = Long.MAX_VALUE;
 				if(resourceLimit != null) {
@@ -317,8 +330,7 @@ public class TradeController extends TemplateGenerator {
 			this.ship.setCargo(this.shipCargo);
 	
 			this.ship.recalculateShipStatus();
-	
-			User user = (User)getUser();
+
 			user.transferMoneyFrom(this.posten.getOwner().getId(), totalRE, "Warenverkauf Handelsposten bei "+this.posten.getLocation().displayCoordinates(false), false, User.TRANSFER_SEMIAUTO );
 		}
 		
@@ -362,6 +374,15 @@ public class TradeController extends TemplateGenerator {
 					if( !this.shipCargo.hasResource( res.getId() ) ) {
 						continue;	
 					}
+
+                    ResourceLimitKey resourceLimitKey = new ResourceLimitKey(posten, res.getId());
+                    ResourceLimit limit = (ResourceLimit)db.get(ResourceLimit.class, resourceLimitKey);
+                    
+                    //Kaufen wir diese Ware vom Spieler?
+                    if(limit != null && !limit.willBuy(this.posten.getOwner(), user))
+                    {
+                        continue;
+                    }
 					
 					String preis = "";
 					if( res.getCount1() < 50) {
@@ -397,6 +418,11 @@ public class TradeController extends TemplateGenerator {
 				if(limit == null) {
 					continue;
 				}
+                
+                if(!limit.willSell(this.posten.getOwner(), user))
+                {
+                    continue;
+                }
 				
 				long buyable = this.posten.getCargo().getResourceCount(resource.getId()) - limit.getLimit();
 				if(buyable <= 0) {

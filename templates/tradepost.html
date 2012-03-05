@@ -54,9 +54,15 @@
 					<td class="noBorderX">Ware</td>
 					<td class="noBorderX">Ankaufsmenge</td>
 					<td class="noBorderX">Ankaufspreis</td>
+                    {if ship.owner.isnpc}
+                        <td class="noBorderX">Mindestrang</td>
+                    {/endif}
 					<td class="noBorderX"></td>
 					<td class="noBorderX">Verkaufsmenge</td>
 					<td class="noBorderX">Verkaufspreis</td>
+                    {if ship.owner.isnpc}
+                        <td class="noBorderX">Mindestrang</td>
+                    {/endif}
 					<td class="noBorderX"></td>
 				</tr>
 				<!-- BEGIN tradepost.list -->
@@ -64,9 +70,15 @@
 					<td class="noBorderX"><img src="{item.picture}" alt="" />{item.name}</td>
 					<td class="noBorderX"><input name="{item.buylimit.parameter}" type="text" size="15" maxlength="15" value="{item.buylimit}"></td>
 					<td class="noBorderX"><input name="{item.buyprice.parameter}" type="text" size="15" maxlength="15" value="{item.buyprice}"></td>
-					<td class="noBorderX"><input name="{item.buybool.parameter}" type="checkbox" value="1" {if item.buybool}checked="checked"{/endif}></td>
+                    {if ship.owner.isnpc}
+                        <td class="noBorderX"><input name="{item.buyrank.parameter}" type="text" size="15" maxlength="15" value="{item.buyrank}"></td>
+                    {/endif}
+                    <td class="noBorderX"><input name="{item.buybool.parameter}" type="checkbox" value="1" {if item.buybool}checked="checked"{/endif}></td>
 					<td class="noBorderX"><input name="{item.saleslimit.parameter}" type="text" size="15" maxlength="15" value="{item.saleslimit}"></td>
 					<td class="noBorderX"><input name="{item.salesprice.parameter}" type="text" size="15" maxlength="15" value="{item.salesprice}"></td>
+                    {if ship.owner.isnpc}
+                        <td class="noBorderX"><input name="{item.sellrank.parameter}" type="text" size="15" maxlength="15" value="{item.sellrank}"></td>
+                    {/endif}
 					<td class="noBorderX"><input name="{item.salebool.parameter}" type="checkbox" value="1" {if item.salebool}checked="checked"{/endif}></td>
 				</tr>
 				<!-- END tradepost.list -->
