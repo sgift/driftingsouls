@@ -315,6 +315,7 @@ public class User extends BasicUser {
 		newUserId++;
 		setId(newUserId);
 		this.knownItems = "";
+        bounty = BigInteger.ZERO;
 		db.persist(this);
 		Ordner trash = Ordner.createNewOrdner("Papierkorb", Ordner.getOrdnerByID(0, this), this);
 		trash.setFlags(Ordner.FLAG_TRASH);
