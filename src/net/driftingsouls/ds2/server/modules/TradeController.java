@@ -262,15 +262,15 @@ public class TradeController extends TemplateGenerator {
 				//Wir wollen eventuell nur bis zu einem Limit ankaufen
 				ResourceLimitKey resourceLimitKey = new ResourceLimitKey(posten, res.getId());
 				ResourceLimit resourceLimit = (ResourceLimit) db.get(ResourceLimit.class, resourceLimitKey);
-
-                //Do we want to buy this resource from this player?
-                if(!resourceLimit.willBuy(this.posten.getOwner(), user))
-                {
-                    continue;
-                }
 				
 				long limit = Long.MAX_VALUE;
 				if(resourceLimit != null) {
+                    //Do we want to buy this resource from this player?
+                    if(!resourceLimit.willBuy(this.posten.getOwner(), user))
+                    {
+                        continue;
+                    }
+
 					limit = resourceLimit.getLimit();
 					//Bereits gelagerte Bestaende abziehen
 					limit -= posten.getCargo().getResourceCount(res.getId());
