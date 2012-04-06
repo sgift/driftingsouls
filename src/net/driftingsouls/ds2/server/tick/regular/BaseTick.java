@@ -24,11 +24,8 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.tick.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
-
-import org.hibernate.FlushMode;
-import org.hibernate.StaleObjectStateException;
-import org.hibernate.Transaction;
 
 /**
  * <h1>Berechnung des Ticks fuer Basen.</h1>
@@ -37,91 +34,53 @@ import org.hibernate.Transaction;
  */
 public class BaseTick extends TickController 
 {
-	private StringBuilder pmcache;
-	private int lastowner;
-	
 	@Override
 	protected void prepare() 
 	{
-		this.pmcache = new StringBuilder();
-		this.lastowner = 0;
 	}
 
 	private void tickBases() 
 	{
 		org.hibernate.Session db = getDB();
-		Transaction transaction = db.beginTransaction();
-		User sourceUser = (User)db.get(User.class, -1);
 		
-		// Get all bases, take everything with them - we need it all.
-		List<Base> bases = Common.cast(db.createQuery("from Base b fetch all properties where b.owner!=0 and (b.owner.vaccount=0 or b.owner.wait4vac!=0) order by b.owner").setFetchSize(5000).list());
-		transaction.commit();	
+		List<Integer> userIds = Common.cast(db.createQuery("select u.id from User u where u.id != 0 and (u.vaccount=0 or u.wait4vac>0) order by u.id").list());
 		
-		String messages = "";
-		int count = 0;
-		for(Base base: bases)
+		new EvictableUnitOfWork<Integer>("Base Tick")
 		{
-			transaction = db.beginTransaction();
-			try
+			@Override
+			public void doWork(Integer userId) throws Exception
 			{
-				// Muessen ggf noch alte Userdaten geschrieben und neue geladen werden?
-				if( base.getOwner().getId() != this.lastowner ) 
-				{
-					log(base.getOwner().getId()+":");
-					if( this.pmcache.length() != 0 ) 
-					{
-						this.pmcache.setLength(0);
-					}
+				// Get all bases, take everything with them - we need it all.
+				List<Base> bases = Common.cast(getDB().createQuery("from Base b fetch all properties where b.owner=:owner")
+						.setInteger("owner", userId)
+						.setFetchSize(5000)
+						.list());	
+				
+				log(userId+":");
+
+				String messages = "";
+				for(Base base: bases)
+				{						
+					messages += base.tick();
 				}
 				
-				if(this.lastowner != base.getOwner().getId() && !messages.trim().equals(""))
+				if(!messages.trim().equals(""))
 				{
-					PM.send(sourceUser, this.lastowner, "Basis-Tick", messages);
+					User sourceUser = (User)getDB().get(User.class, -1);
+					
+					PM.send(sourceUser, userId, "Basis-Tick", messages);
 					messages = "";
 				}
-				
-				this.lastowner = base.getOwner().getId();
-				messages += base.tick();
-				transaction.commit();
-				count++;
-				final int UNFLUSHED_OBJECTS_SIZE = 50;
-				if(count%UNFLUSHED_OBJECTS_SIZE == 0)
-				{
-					//No db.clear here or the session cannot lazy-load the user objects
-					db.flush();
-				}
-			}
-			catch(Exception e)
-			{
-				transaction.rollback();
-				e.printStackTrace();
-				Common.mailThrowable(e, "BaseTick Exception", "Base: " + base.getId());
-				
-				if( e instanceof StaleObjectStateException ) {
-					StaleObjectStateException sose = (StaleObjectStateException)e;
-					db.evict(db.get(sose.getEntityName(), sose.getIdentifier()));
-				}
-				else {
-					db.evict(base);
-				}
 			}
 		}
-		
-		transaction = db.beginTransaction();
-		if(!messages.isEmpty())
-		{
-			PM.send(sourceUser, this.lastowner, "Basis-Tick", messages);
-		}
-		transaction.commit();
+		.setFlushSize(10)
+		.executeFor(userIds);
 	}
 
 	@Override
 	protected void tick() 
 	{
-		FlushMode oldMode = getDB().getFlushMode();
-		getDB().setFlushMode(FlushMode.COMMIT);
 		tickBases();
 		getDB().clear();
-		getDB().setFlushMode(oldMode);
 	}
 }
