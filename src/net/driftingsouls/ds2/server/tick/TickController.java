@@ -151,7 +151,7 @@ public abstract class TickController {
 	 * Loggt eine Zeile. Fuer den Zeilenumbruch wird automatisch gesorgt
 	 * @param string Die zu loggende Zeile
 	 */
-	protected void log(String string) {
+	public void log(String string) {
 		slog(string+"\n");
 	}
 	

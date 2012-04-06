@@ -53,7 +53,7 @@ public class UserTick extends TickController
 		final long deleteThreshould = Common.time() - 60*60*24*14;
 		log("DeleteThreshould is " + deleteThreshould);
 		
-		List<Integer> users = Common.cast(db.createQuery("from User").list());
+		List<Integer> users = Common.cast(db.createQuery("select id from User").list());
 		new EvictableUnitOfWork<Integer>("User Tick")
 		{
 
