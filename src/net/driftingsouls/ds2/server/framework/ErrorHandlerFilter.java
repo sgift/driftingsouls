@@ -67,7 +67,7 @@ public class ErrorHandlerFilter implements Filter
 				}
 				else if(ex instanceof AccountInVacationModeException)
 				{
-					AccountInVacationModeException vacException = (AccountInVacationModeException)e;
+					AccountInVacationModeException vacException = (AccountInVacationModeException)ex;
 					if(!isAutomaticAccess(request))
 					{
 						if(vacException.getDauer() > 1)
