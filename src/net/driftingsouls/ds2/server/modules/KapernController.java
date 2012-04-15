@@ -18,7 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -241,12 +243,13 @@ public class KapernController extends TemplateGenerator {
         //Trying to steal a ship already costs bounty or one could help another player to get a ship without any penalty
         if(!targetUser.hasFlag(User.FLAG_NO_AUTO_BOUNTY))
         {
-            BigInteger account = targetUser.getKonto();
+            BigDecimal account = new BigDecimal(targetUser.getKonto());
+            account = account.movePointLeft(1).setScale(0, RoundingMode.HALF_EVEN);
+            
             BigInteger shipBounty = this.targetShip.getTypeData().getBounty();
-            shipBounty = account.multiply(new BigInteger("0.1")).min(shipBounty);
-
-
-            if(shipBounty.compareTo(new BigInteger("0")) != 0)
+            shipBounty = account.toBigIntegerExact().min(shipBounty);
+ 
+            if(shipBounty.compareTo(BigInteger.ZERO) != 0)
             {
                 user.addBounty(shipBounty);
                 //Make it public that there's a new bounty on a player, so others can go to hunt
