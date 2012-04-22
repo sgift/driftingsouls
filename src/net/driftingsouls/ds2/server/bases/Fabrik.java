@@ -113,8 +113,13 @@ public class Fabrik extends DefaultBuilding {
 		
 		AllContextVars vars = context.get(AllContextVars.class);
 		Integer lastUser = (Integer)context.getVariable(getClass(), "last_user");
+		if( lastUser != null && user.getId() != lastUser.intValue() )
+		{
+			vars.allvars.clear();
+		}
 		
-		if( !vars.allvars.containsKey(buildingid) || (vars.allvars.get(buildingid).init == false) ||(user.getId() != lastUser.intValue()) ) {
+		if( !vars.allvars.containsKey(buildingid) || (vars.allvars.get(buildingid).init == false) ) 
+		{
 			vars.allvars.put(buildingid, new ContextVars());
 			vars.allvars.get(buildingid).init = true;
 			context.putVariable(getClass(), "last_user", user.getId());

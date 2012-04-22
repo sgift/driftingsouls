@@ -27,11 +27,10 @@ import net.driftingsouls.ds2.server.entities.Handel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
+import net.driftingsouls.ds2.server.tick.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
 
 import org.hibernate.Session;
-import org.hibernate.StaleObjectStateException;
-import org.hibernate.Transaction;
 
 /**
  * Tick fuer Aktionen, die sich auf den gesamten Account beziehen.
@@ -51,15 +50,20 @@ public class UserTick extends TickController
 	@Override
 	protected void tick()
 	{
-		long deleteThreshould = Common.time() - 60*60*24*14;
+		final long deleteThreshould = Common.time() - 60*60*24*14;
 		log("DeleteThreshould is " + deleteThreshould);
 		
-		Transaction transaction = db.beginTransaction();
-		List<User> users = Common.cast(db.createQuery("from User").list());
-		for(User user: users)
+		List<Integer> users = Common.cast(db.createQuery("select id from User").list());
+		new EvictableUnitOfWork<Integer>("User Tick")
 		{
-			try 
-			{	
+
+			@Override
+			public void doWork(Integer userID) throws Exception
+			{
+				org.hibernate.Session db = getDB();
+				
+				User user = (User)db.get(User.class, userID);
+				
 				if(user.isInVacation())
 				{
 					//Set vacation points
@@ -137,27 +141,10 @@ public class UserTick extends TickController
 					}
 				}
 				
-				transaction.commit();
-				transaction = db.beginTransaction();
 			}
-			catch( Exception e )
-			{
-				transaction.rollback();
-				
-				this.log("User Tick - User #"+user.getId()+" failed: "+e);
-				e.printStackTrace();
-				Common.mailThrowable(e, "UserTick - User #"+user.getId()+" Exception", "");
-				
-				transaction = db.beginTransaction();
-				
-				if( e instanceof StaleObjectStateException ) {
-					StaleObjectStateException sose = (StaleObjectStateException)e;
-					db.evict(db.get(sose.getEntityName(), sose.getIdentifier()));
-				}
-				else {
-					db.evict(user);
-				}
-			}
+			
 		}
+		.setFlushSize(10)
+		.executeFor(users);
 	}
 }
