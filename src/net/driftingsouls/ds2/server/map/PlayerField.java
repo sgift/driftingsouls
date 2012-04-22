@@ -26,20 +26,21 @@ import org.hibernate.Session;
  */
 public class PlayerField 
 {
-	private User user;
-	
-	/**
+    /**
 	 * Legt eine neue Sicht an.
 	 * 
 	 * @param db Ein aktives Hibernate Sessionobjekt.
 	 * @param user Der Spieler fuer den die Sicht gelten soll.
 	 * @param position Der gesuchte Sektor.
+     * @param scanShip Schiff mit dem der Spieler den Sektor scannt.
 	 */
-	public PlayerField(Session db, User user, Location position)
+	public PlayerField(Session db, User user, Location position, Ship scanShip)
 	{
 		this.field = new Field(db, position);
 		this.user = user;
+        this.scanShip = scanShip;
 		this.db = db;
+        this.location = position;
 	}
 	
 	/**
@@ -48,7 +49,14 @@ public class PlayerField
 	public Map<User, Map<ShipType, List<Ship>>> getShips()
 	{
 		Map<User, Map<ShipType, List<Ship>>> ships = new HashMap<User, Map<ShipType,List<Ship>>>();
-		if( this.field.isNebula() && !this.field.getNebula().allowsScan() )
+        if(!canUse())
+        {
+            return ships;
+        }
+
+        boolean shipInSector = scanShip.getLocation().sameSector(0, this.location, 0);
+
+		if(!shipInSector && this.field.isNebula() && !this.field.getNebula().allowsScan() )
 		{
 			return ships;
 		}
@@ -89,22 +97,27 @@ public class PlayerField
 			
 			if( enemy )
 			{
-				if( type.hasFlag(ShipTypes.SF_SEHR_KLEIN) )
-				{
-					continue;
-				}
-				if( viewableShip.isDocked() )
-				{
-					Ship mship = viewableShip.getBaseShip();
-					if( mship.getTypeData().hasFlag(ShipTypes.SF_SEHR_KLEIN)) 
-					{
-						continue;
-					}
-				}
-				if( this.field.isNebula() && this.field.getNebula().getMinScanableShipSize() > type.getSize() )
-				{
-					continue;
-				}
+                if(!shipInSector)
+                {
+                    if(type.hasFlag(ShipTypes.SF_SEHR_KLEIN) )
+                    {
+                        continue;
+                    }
+
+                    if( viewableShip.isDocked() )
+                    {
+                        Ship mship = viewableShip.getBaseShip();
+                        if( mship.getTypeData().hasFlag(ShipTypes.SF_SEHR_KLEIN))
+                        {
+                            continue;
+                        }
+                    }
+
+                    if( this.field.isNebula() && this.field.getNebula().getMinScanableShipSize() > type.getSize() )
+                    {
+                        continue;
+                    }
+                }
 			}
 					
 			if(!ships.containsKey(owner))
@@ -122,43 +135,37 @@ public class PlayerField
 		
 		return ships;
 	}
-	
-	/**
-	 * Prueft, ob der Spieler oder einer seiner Verbuendeten ein Schiff im Sektor hat.
-	 * 
-	 * @return <code>true</code>, wenn es so ein Schiff gibt, sonst <code>false</code>.
-	 */
-	/*
-	private boolean hasShipInSector()
-	{
-		return Iterators.any(field.getShips().iterator(), new Predicate<Ship>()
-		{
-			@Override
-			public boolean apply(Ship ship) 
-			{
-				if(ship.getOwner().equals(user))
-				{
-					return true;
-				}
-				
-				if(ship.getOwner().getAlly().equals(user.getAlly()))
-				{
-					return true;
-				}
-				
-				Relations relations = user.getRelations();
-				if(relations.toOther.get(ship.getOwner()) == Relation.FRIEND && relations.fromOther.get(ship.getOwner()) == Relation.FRIEND)
-				{
-					return true;
-				}
-				
-				return false;
-			}
-		});
-	}
-	*/
+
+    /**
+     * @return <code>true</code>, wenn der Spieler das Schiff zum Scannen nutzen darf, <code>false</code> ansonsten.
+     */
+    private boolean canUse()
+    {
+        User owner = scanShip.getOwner();
+        if(owner.getId() == user.getId())
+        {
+            return true;
+        }
+        
+        Ally userAlly = user.getAlly();
+        Ally ownerAlly = owner.getAlly();
+        if(userAlly.getId() == ownerAlly.getId())
+        {
+            return true;
+        }
+        
+        Relations relations = user.getRelations();
+        if(relations.fromOther.get(owner) == Relation.FRIEND && relations.toOther.get(owner) == Relation.FRIEND)
+        {
+            return true;
+        }
+
+        return false;
+    }
 
 	private final Session db;
 	private final Field field;
-	//private final User user;
+    private final User user;
+    private final Ship scanShip;
+    private final Location location;
 }

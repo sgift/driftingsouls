@@ -1,9 +1,9 @@
-function showSector(system, x, y) 
+function showSector(system, x, y, scanShip)
 {
 	$('#sectorview').html('Lade Sektor ' + system + ':' + x + '/' + y);
 	$('#sectortable').removeClass('invisible');
 	$.getJSON('ds', 
-			 {sys: system, x: x, y: y, module: 'map', action:'sector'}, 
+			 {sys: system, x: x, y: y, scanship: scanShip, module: 'map', action:'sector'},
 			 function(data)
 			 {
 				 openSector(system, x, y, data);
