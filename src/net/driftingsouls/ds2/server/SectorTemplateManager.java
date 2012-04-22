@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.scripting.ShipScriptData;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.Ship.ModuleEntry;
@@ -133,9 +134,13 @@ public class SectorTemplateManager {
 			int newx = location.getX() + ship.getX() - res.getX();
 			int newy = location.getY() + ship.getY() - res.getY();
 			
-			Ship newship = new Ship(user, ship.getBaseType(), location.getSystem(), newx, newy);
+			Ship newship = new Ship(user, ship.getBaseType(), location.getSystem(), newx, newy); 
 			
 			db.persist(newship);
+
+            ShipScriptData scriptData = new ShipScriptData();
+            scriptData.setShipid(newship.getId());
+            db.persist(scriptData);
 			
 			ModuleEntry[] modules = ship.getModules();
 			for( ModuleEntry entry : modules)
@@ -338,6 +343,8 @@ public class SectorTemplateManager {
 					 " '",ship.getInt("destx"),"','",ship.getInt("desty"),"','",ship.getInt("destsystem"),"','",ship.getString("destcom"),"', ",
 					 " '",ship.getInt("bookmark"),"','",ship.get("jumptarget"),"','",ship.getInt("autodeut"),"','",ship.getString("history"),"','",ship.getString("ablativeArmor"),"','",ship.getInt("nahrungcargo"),"')");
 			int shipid = db.insertID();
+            
+            db.update("INSERT INTO ship_script_data (shipid) VALUES (" + shipid + ")");
 			
 			idtable.put(ship.getInt("id"), shipid);
 			
