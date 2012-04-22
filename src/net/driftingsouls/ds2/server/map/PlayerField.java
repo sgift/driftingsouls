@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.MutableLocation;
 import net.driftingsouls.ds2.server.entities.Ally;
+import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.User.Relation;
 import net.driftingsouls.ds2.server.entities.User.Relations;
@@ -15,6 +17,7 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
+import net.driftingsouls.ds2.server.ships.Ships;
 import org.hibernate.Session;
 
 /**
@@ -50,6 +53,22 @@ public class PlayerField
 	{
 		Map<User, Map<ShipType, List<Ship>>> ships = new HashMap<User, Map<ShipType,List<Ship>>>();
         if(!canUse())
+        {
+            return ships;
+        }
+
+        int scanRange = scanShip.getEffectiveScanRange();
+        Nebel nebula = (Nebel)db.get(Nebel.class, new MutableLocation(scanShip.getLocation()));
+        if(nebula != null)
+        {
+            scanRange /= 2;
+            if(!nebula.allowsScan())
+            {
+                return ships;
+            }
+        }
+
+        if(!scanShip.getLocation().sameSector(scanRange, location, 0))
         {
             return ships;
         }
