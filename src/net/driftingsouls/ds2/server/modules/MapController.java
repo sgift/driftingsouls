@@ -52,6 +52,7 @@ public class MapController extends TemplateGenerator
 	{
 		super(context);
 
+        parameterNumber("scanship");
 		parameterNumber("sys");
 		parameterNumber("x");
 		parameterNumber("y");
@@ -296,10 +297,11 @@ public class MapController extends TemplateGenerator
 				map.append("<img src=\"").append(dataPath);
 				if(scannable)
 				{
+                    int scannerId = content.getSectorScanner(position).getId();
 					map.append(sectorImage);
 					map.append("\" alt=\"").append(Integer.toString(x)).append("/").append(Integer.toString(y)).append("\" ")
 						.append("class=\"showsector\" ")
-						.append("onClick=\"showSector(").append(Integer.toString(this.system.getID())).append(",").append(Integer.toString(x)).append(",").append(Integer.toString(y)).append(")\">");
+						.append("onClick=\"showSector(").append(Integer.toString(this.system.getID())).append(",").append(Integer.toString(x)).append(",").append(Integer.toString(y)).append(",").append(Integer.toString(scannerId)).append(")\">");
 				}
 				else
 				{
@@ -364,8 +366,11 @@ public class MapController extends TemplateGenerator
 		int system = getInteger("sys");
 		int x = getInteger("x");
 		int y = getInteger("y");
-		
-		PlayerField field = new PlayerField(db, user, new Location(system, x, y));
+        int shipId = getInteger("scanship");
+
+
+		Ship scanShip = (Ship)db.get(Ship.class, shipId);
+		PlayerField field = new PlayerField(db, user, new Location(system, x, y),);
 		
 		JSONObject json = new JSONObject();
 		JSONArray users = new JSONArray();

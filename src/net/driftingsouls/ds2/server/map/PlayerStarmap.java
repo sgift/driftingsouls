@@ -1,11 +1,6 @@
 package net.driftingsouls.ds2.server.map;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
@@ -79,8 +74,18 @@ public class PlayerStarmap
 	 */
 	public boolean isScannable(Location location)
 	{
-		return this.scannableLocations.contains(location);
+		return this.scannableLocations.containsKey(location);
 	}
+
+    /**
+     * @param location Der Sektor, der gescannt werden soll.
+     *
+     * @return Das Schiff, dass diesen Sektor scannt.
+     */
+    public Ship getSectorScanner(Location location)
+    {
+        return this.scannableLocations.get(location);
+    }
 	
 	/**
 	 * Gibt das Bild des Sektors zurueck.
@@ -249,7 +254,7 @@ public class PlayerStarmap
 		List<JumpNode> positionNodes = map.getNodeMap().get(location);
 		if(positionNodes != null && !positionNodes.isEmpty())
 		{
-			if(scannableLocations.contains(location))
+			if(scannableLocations.containsKey(location))
 			{
 				return "jumpnode/jumpnode";
 			}
@@ -266,11 +271,11 @@ public class PlayerStarmap
 		return "space/space";
 	}
 	
-	private Set<Location> buildScannableLocations(User user, Map<Location, List<Ship>> locatedShips, Map<Location, Nebel> nebulas)
+	private Map<Location, Ship> buildScannableLocations(User user, Map<Location, List<Ship>> locatedShips, Map<Location, Nebel> nebulas)
 	{
 		Ally ally = user.getAlly();
 		Relations relations = user.getRelations();
-		Set<Location> scannableLocations = new HashSet<Location>();
+		Map<Location, Ship> scannableLocations = new HashMap<Location, Ship>();
 
 		for(Map.Entry<Location, List<Ship>> sectorShips: locatedShips.entrySet())
 		{
@@ -278,6 +283,7 @@ public class PlayerStarmap
 			List<Ship> ships = sectorShips.getValue();
 
 			int scanRange = -1;
+            Ship scanShip = null;
 			//Find ship with best scanrange
 			for(Ship ship: ships)
 			{
@@ -312,6 +318,7 @@ public class PlayerStarmap
 				if(shipScanRange > scanRange)
 				{
 					scanRange = shipScanRange;
+                    scanShip = ship;
 				}
 			}
 			
@@ -349,7 +356,7 @@ public class PlayerStarmap
 					//No nebula scan
 					if(!nebulas.containsKey(loc))
 					{
-						scannableLocations.add(loc);
+						scannableLocations.put(loc, scanShip);
 					}
 					else
 					{
@@ -358,17 +365,20 @@ public class PlayerStarmap
 							Nebel nebula = nebulas.get(position);
 							if(!nebula.isEmp())
 							{
-								scannableLocations.add(loc);
+								scannableLocations.put(loc, scanShip);
 							}
 						}
 					}
 				}
 			}
+
+            //Ships in sector always get priority for this sector to ensure best scan result for sector scans
+            scannableLocations.put(scanShip.getLocation(), scanShip);
 		}
 		return scannableLocations;
 	}
 	
 	private final Starmap map;
-	private final Set<Location> scannableLocations;
+	private final Map<Location, Ship> scannableLocations;
 	private final User user;
 }
