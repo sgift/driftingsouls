@@ -370,7 +370,7 @@ public class MapController extends TemplateGenerator
 
 
 		Ship scanShip = (Ship)db.get(Ship.class, shipId);
-		PlayerField field = new PlayerField(db, user, new Location(system, x, y),);
+		PlayerField field = new PlayerField(db, user, new Location(system, x, y), scanShip);
 		
 		JSONObject json = new JSONObject();
 		JSONArray users = new JSONArray();
