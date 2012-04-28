@@ -2,10 +2,11 @@
 	display:none;
 }
 
-table#sectortable{
+#sectortable{
 	position: fixed;
 	top: 200px;
-	left: 500px;
+	margin-left:auto;
+	margin-right:auto;
 }
 
 table#starmap
@@ -16,6 +17,9 @@ table#starmap
 	margin: 0px;
 	border-spacing: 0px;
 	border-style: none;
+	position:absolute;
+	left:10px;
+	top:10px;
 }
 
 table#starmap td
@@ -29,6 +33,8 @@ table#starmap td
 	height:25px;
 	background-position:0px 0px;
 	background-repeat:no-repeat;
+	text-align:center;
+	vertical-align:middle;
 }
 
 #starmap .border {
@@ -40,11 +46,37 @@ table#starmap td
 	height:25px;
 }
 
+#tiles {
+	position:absolute;
+	top:35px;
+	left:35px;
+	overflow:hidden;
+	opacity:0.4;
+}
+
+#tiles div {
+	width:500px;
+	height:500px;
+	position:absolute;
+}
+
+#tileOverlay {
+	position:absolute;
+	top:35px;
+	left:35px;
+	overflow:hidden;
+}
+
+#tileOverlay div {
+	width:25px;
+	height:25px;
+	position:absolute;
+}
+
 td.scan
 {
 }
-
-td.noscan
+.noscan
 {
 	opacity: 0.4;
 }

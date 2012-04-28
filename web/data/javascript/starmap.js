@@ -25,7 +25,7 @@ function openSector(system, x, y, data)
 			shipcount += this.ships.length;
 		});
         shiptypes += '</ul>';
-		dialog += '<span onClick="toggleShowShipClasses(\''+shipclassId+'\')">'+this.name+'</span><span style="float:right;">'+shipcount+'</span><br>';
+		dialog += '<span onClick="toggleShowShipClasses(\''+shipclassId+'\')"><span id="'+shipclassId+'Toggle">+</span> '+this.name+'</span><span style="float:right;">'+shipcount+'</span><br>';
         dialog += shiptypes;
 	});
 	sector.html(dialog);
@@ -34,6 +34,15 @@ function openSector(system, x, y, data)
 function toggleShowShipClasses(shipclassId)
 {
     $('#' + shipclassId).toggleClass('invisible');
+    var node = $('#' + shipclassId+'Toggle');
+    if( node.text() == '+' )
+    {
+    	node.text('-');
+    }
+    else
+    {
+    	node.text('+');
+    }
 }
 
 function closeSector()

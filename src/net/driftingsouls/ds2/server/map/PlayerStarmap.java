@@ -21,7 +21,7 @@ import org.hibernate.Session;
  * 
  * @author Sebastian Gift
  */
-public class PlayerStarmap
+public class PlayerStarmap extends PublicStarmap
 {
 	/**
 	 * Legt eine neue Sicht an.
@@ -32,12 +32,7 @@ public class PlayerStarmap
 	 */
 	public PlayerStarmap(Session db, User user, int system)
 	{
-		this.map = (Starmap)db.get(Starmap.class, system);
-		if(this.map == null)
-		{
-			throw new IllegalArgumentException("The given system " + system + " does not exist.");
-		}
-		this.map.init();
+		super(db, system);
 		
 		this.user = user;
 		if(this.user == null)
@@ -46,24 +41,6 @@ public class PlayerStarmap
 		}
 		
 		this.scannableLocations = buildScannableLocations(user, map.getShipMap(), map.getNebulaMap());
-	}
-	
-	/**
-	 * @return Alle fuer den Spieler oeffentlich sichtbaren Jumpnodes.
-	 */
-	public List<JumpNode> getPublicNodes()
-	{
-		List<JumpNode> publicNodes = new ArrayList<JumpNode>();
-		Collection<JumpNode> nodes = map.getJumpNodes();
-		for(JumpNode node: nodes)
-		{
-			if(!node.isHidden())
-			{
-				publicNodes.add(node);
-			}
-		}
-		
-		return publicNodes;
 	}
 	
 	/**
@@ -102,14 +79,40 @@ public class PlayerStarmap
 	}
 	
 	/**
-	 * Gibt das Basisbild des Sektors zurueck. Das Bild enthaelt
-	 * keine Flottenmarkierungen.
+	 * Gibt ein evt. abweichendes Basisbild des Sektors aus Sicht des Benutzers zurueck. Das Bild enthaelt
+	 * keine Flottenmarkierungen. Falls kein abweichendes Basisbild existiert
+	 * wird <code>null</code> zurueckgegeben.
 	 * @param location Der Sektor
-	 * @return Das Bild als String ohne den Pfad zum Data-Verzeichnis.
+	 * @return Das Bild als String ohne den Pfad zum Data-Verzeichnis oder <code>null</code>.
 	 */
-	public String getSectorBaseImage(Location location)
+	public String getUserSectorBaseImage(Location location)
 	{
-		return getBaseImage(location)+".png";
+		List<Base> positionBases = map.getBaseMap().get(location);
+		if(positionBases != null && !positionBases.isEmpty())
+		{
+			Base base = positionBases.get(0);
+			String img = base.getOverlayImage(location, user, isScannable(location));
+			if( img != null ) {
+				return img+".png";
+			}
+		}
+		
+		List<JumpNode> positionNodes = map.getNodeMap().get(location);
+		if(positionNodes != null && !positionNodes.isEmpty())
+		{
+			if(scannableLocations.containsKey(location))
+			{
+				for(JumpNode node: positionNodes)
+				{
+					if(node.isHidden())
+					{
+						return "jumpnode/jumpnode";
+					}
+				}
+			}
+		}
+		
+		return null;
 	}
 	
 	/**
@@ -132,11 +135,6 @@ public class PlayerStarmap
 			return null;
 		}
 		return "fleet/fleet"+shipImage+".png";
-	}
-	
-	private boolean isNebula(Location location)
-	{
-		return map.isNebula(location);
 	}
 	
 	private String getShipImage(Location location)
@@ -234,41 +232,6 @@ public class PlayerStarmap
 		}
 		
 		return imageName;
-	}
-	
-	/**
-	 * @return Das Bild passend zum Grundtyp des Sektors, ohne Dateiendung (z.B. "space/space")
-	 */
-	private String getBaseImage(Location location)
-	{
-		if(isNebula(location))
-		{
-			return map.getNebulaMap().get(location).getImage();
-		}
-		List<Base> positionBases = map.getBaseMap().get(location);
-		if(positionBases != null && !positionBases.isEmpty())
-		{
-			Base base = positionBases.get(0);
-			return base.getImage(location, user, isScannable(location));
-		}
-		List<JumpNode> positionNodes = map.getNodeMap().get(location);
-		if(positionNodes != null && !positionNodes.isEmpty())
-		{
-			if(scannableLocations.containsKey(location))
-			{
-				return "jumpnode/jumpnode";
-			}
-			for(JumpNode node: positionNodes)
-			{
-				if(!node.isHidden())
-				{
-					return "jumpnode/jumpnode";
-				}
-			}
-			
-			return "space/space";
-		}
-		return "space/space";
 	}
 	
 	private Map<Location, Ship> buildScannableLocations(User user, Map<Location, List<Ship>> locatedShips, Map<Location, Nebel> nebulas)
@@ -378,7 +341,6 @@ public class PlayerStarmap
 		return scannableLocations;
 	}
 	
-	private final Starmap map;
 	private final Map<Location, Ship> scannableLocations;
 	private final User user;
 }

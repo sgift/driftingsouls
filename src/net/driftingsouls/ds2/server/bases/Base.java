@@ -1230,24 +1230,60 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	}
 	
 	/**
-	 * Gibt das Bild der Basis zurueck.
-	 * Dabei werden Ausdehnung und Besitzer beruecksichtigt.
+	 * Gibt das userspezifische Bild der Basis zurueck. Falls es kein spezielles Bild
+	 * fuer den angegebenen Benutzer gibt wird <code>null</code> zurueckgegeben.
 	 * 
 	 * @param location Koordinate fuer die das Bild der Basis ermittelt werden soll.
 	 * @param user Aktueller Spieler.
 	 * @param scanned <code>true</code>, wenn die Basis derzeit von einem Schiff des Spielers gescannt werden kann.
-	 * @return Der Bildstring der Basis oder einen Leerstring, wenn die Basis die Koordinaten nicht schneidet
+	 * @return Der Bildstring der Basis oder <code>null</code>
 	 */
-	public String getImage(Location location, User user, boolean scanned)
+	public String getOverlayImage(Location location, User user, boolean scanned)
 	{
 		if(!location.sameSector(0, getLocation(), size))
 		{
-			return "";
+			return null;
 		}
 		
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		User nobody = (User)db.get(User.class, -1);
 		User zero = (User)db.get(User.class, 0);
+		
+		if(size > 0)
+		{
+			return null;
+		}
+		else if(getOwner().getId() == user.getId())
+		{
+			return "asti_own/asti_own";
+		}
+		else if((getOwner().getId() != 0) && (user.getAlly() != null) && (getOwner().getAlly() == user.getAlly()) && user.getAlly().getShowAstis())
+		{
+			return "asti_ally/asti_ally";
+		}
+		else if(scanned && !getOwner().equals(nobody) && !getOwner().equals(zero))
+		{
+			return "asti_enemy/asti_enemy";
+		}
+		else
+		{
+			return null;
+		}
+	}
+	
+	/**
+	 * Gibt das Bild der Basis zurueck.
+	 * Dabei werden Ausdehnung und Besitzer beruecksichtigt.
+	 * 
+	 * @param location Koordinate fuer die das Bild der Basis ermittelt werden soll.
+	 * @return Der Bildstring der Basis oder einen Leerstring, wenn die Basis die Koordinaten nicht schneidet
+	 */
+	public String getBaseImage(Location location)
+	{
+		if(!location.sameSector(0, getLocation(), size))
+		{
+			return "";
+		}
 		
 		if(size > 0)
 		{
@@ -1272,18 +1308,6 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 					imgcount++;
 				}
 			}
-		}
-		else if(getOwner().getId() == user.getId())
-		{
-			return "asti_own/asti_own";
-		}
-		else if((getOwner().getId() != 0) && (user.getAlly() != null) && (getOwner().getAlly() == user.getAlly()) && user.getAlly().getShowAstis())
-		{
-			return "asti_ally/asti_ally";
-		}
-		else if(scanned && !getOwner().equals(nobody) && !getOwner().equals(zero))
-		{
-			return "asti_enemy/asti_enemy";
 		}
 		else
 		{

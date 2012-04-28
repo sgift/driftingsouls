@@ -34,23 +34,9 @@ class Starmap
 	Starmap()
 	{}
 	
-	/**
-	 * Initialisiert die Karte.
-	 * Diese Methode muss vor allen anderen aufgerufen werden.
-	 * Der Code kann nicht in den Konstruktor verlegt werden,
-	 * weil Hibernate die Variablen erst nach Ablauf des Konstruktors setzt.
-	 */
-	void init()
-	{
-		shipMap = buildShipMap();
-		nebulaMap = buildNebulaMap();
-		nodeMap = buildNodeMap();
-		baseMap = buildBaseMap();
-	}
-	
 	boolean isNebula(Location location)
 	{
-		return nebulaMap.containsKey(location);
+		return getNebulaMap().containsKey(location);
 	}
 	
 	/**
@@ -79,6 +65,9 @@ class Starmap
 	 */
 	Map<Location, List<Ship>> getShipMap()
 	{
+		if( this.shipMap == null ) {
+			this.shipMap = buildShipMap();
+		}
 		return Collections.unmodifiableMap(this.shipMap);
 	}
 	
@@ -87,6 +76,9 @@ class Starmap
 	 */
 	Map<Location, List<Base>> getBaseMap()
 	{
+		if( this.baseMap == null ) {
+			this.baseMap = buildBaseMap();
+		}
 		return Collections.unmodifiableMap(this.baseMap);
 	}
 	
@@ -95,6 +87,9 @@ class Starmap
 	 */
 	Map<Location, List<JumpNode>> getNodeMap()
 	{
+		if( this.nodeMap == null ) {
+			this.nodeMap = buildNodeMap();
+		}
 		return Collections.unmodifiableMap(this.nodeMap);
 	}
 	
@@ -103,6 +98,9 @@ class Starmap
 	 */
 	Map<Location, Nebel> getNebulaMap()
 	{
+		if( this.nebulaMap == null ) {
+			this.nebulaMap = buildNebulaMap();
+		}
 		return Collections.unmodifiableMap(this.nebulaMap);
 	}
 	
