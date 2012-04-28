@@ -39,10 +39,6 @@ public class AbsolutePathCheck implements Checkable {
 			throw new CheckFailedException("ABSOLUTE_PATH endet nicht auf /");
 		}
 		
-		if( !new File(absolutePath+"format.css").isFile() ) {
-			throw new CheckFailedException("ABSOLUTE_PATH enthaelt keine format.css");
-		}
-		
 		if( !new File(absolutePath+"data").isDirectory() ) {
 			throw new CheckFailedException("ABSOLUTE_PATH enthaelt kein data-Verzeichnis");
 		}
