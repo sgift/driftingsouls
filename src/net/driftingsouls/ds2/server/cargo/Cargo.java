@@ -1152,7 +1152,7 @@ public class Cargo implements Cloneable {
 					items.remove(aitem);
 					i--;
 				}
-				else {
+				else if( item.getCargo() > 0 ) {
 					Long[] newitem = aitem.clone();
 					newitem[1] = (mass-currentmass)/item.getCargo();
 					aitem[1] -= newitem[1];
