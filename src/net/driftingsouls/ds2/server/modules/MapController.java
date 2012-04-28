@@ -368,12 +368,18 @@ public class MapController extends TemplateGenerator
 		int y = getInteger("y");
         int shipId = getInteger("scanship");
 
-
-		Ship scanShip = (Ship)db.get(Ship.class, shipId);
-		PlayerField field = new PlayerField(db, user, new Location(system, x, y), scanShip);
-		
 		JSONObject json = new JSONObject();
 		JSONArray users = new JSONArray();
+
+		Ship scanShip = (Ship)db.get(Ship.class, shipId);
+		if( scanShip == null )
+		{
+			json.accumulate("users", users);
+			getResponse().getWriter().append(json.toString());
+			return;
+		}
+		
+		PlayerField field = new PlayerField(db, user, new Location(system, x, y), scanShip);
 		for(Map.Entry<User, Map<ShipType, List<Ship>>> owner: field.getShips().entrySet())
 		{
 			JSONObject jsonUser = new JSONObject();
