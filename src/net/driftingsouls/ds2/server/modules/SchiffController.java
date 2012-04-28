@@ -978,30 +978,36 @@ public class SchiffController extends TemplateGenerator {
 	
 	private static final Map<String,String> moduleOutputList = new HashMap<String,String>();
 	
-	static {
+	private static synchronized void initModuleOutputList() {
+		if( !moduleOutputList.isEmpty() ) {
+			return;
+		}
 		final String url = Configuration.getSetting("URL");
 		
+		Map<String,String> mo = new HashMap<String,String>();
 		// Nur Number-Spalten!
-		moduleOutputList.put("getRu", "<img align='middle' src='"+Cargo.getResourceImage(Resources.URAN)+"' alt='' />Reaktor ");
-		moduleOutputList.put("getRd", "<img align='middle' src='"+Cargo.getResourceImage(Resources.DEUTERIUM)+"' alt='' />Reaktor ");
-		moduleOutputList.put("getRa", "<img align='middle' src='"+Cargo.getResourceImage(Resources.ANTIMATERIE)+"' alt='' />Reaktor ");
-		moduleOutputList.put("getRm", "<img align='middle' src='"+url+"data/interface/energie.gif' alt='' />Reaktor ");
-		moduleOutputList.put("getCargo", "<img align='middle' src='"+url+"data/interface/leer.gif' alt='' />Cargo ");
-		moduleOutputList.put("getEps", "<img align='middle' src='"+url+"data/interface/energie.gif' alt='' />Energiespeicher ");
-		moduleOutputList.put("getHull", "<img align='middle' src='"+url+"data/interface/schiffe/panzerplatte.png' alt='' />H&uuml;lle ");
-		moduleOutputList.put("getShields", "Shields ");
-		moduleOutputList.put("getCost", "Flugkosten ");
-		moduleOutputList.put("getHeat", "&Uuml;berhitzung ");
-		moduleOutputList.put("getPanzerung", "<img align='middle' src='"+url+"data/interface/schiffe/panzerplatte.png' alt='' />Panzerung ");
-		moduleOutputList.put("getTorpedoDef", "Torpedoabwehr ");
-		moduleOutputList.put("getCrew", "<img align='middle' src='"+url+"data/interface/besatzung.gif' alt='' />Crew ");
-		moduleOutputList.put("getHydro", "<img align='middle' src='"+Cargo.getResourceImage(Resources.NAHRUNG)+"' alt='' />Produktion ");
-		moduleOutputList.put("getSensorRange", "<img align='middle' src='"+url+"data/interface/schiffe/sensorrange.png' alt='' />Sensorreichweite ");
-		moduleOutputList.put("getDeutFactor", "Tanker: <img align='middle' src='"+Cargo.getResourceImage(Resources.DEUTERIUM)+"' alt='' />");
-		moduleOutputList.put("getReCost", "Wartungskosten ");
-		moduleOutputList.put("getADocks", "Externe Docks ");
-		moduleOutputList.put("getJDocks", "J&auml;gerdocks ");
-		moduleOutputList.put("getAblativeArmor", "Ablative Panzerung ");
+		mo.put("getRu", "<img align='middle' src='"+Cargo.getResourceImage(Resources.URAN)+"' alt='' />Reaktor ");
+		mo.put("getRd", "<img align='middle' src='"+Cargo.getResourceImage(Resources.DEUTERIUM)+"' alt='' />Reaktor ");
+		mo.put("getRa", "<img align='middle' src='"+Cargo.getResourceImage(Resources.ANTIMATERIE)+"' alt='' />Reaktor ");
+		mo.put("getRm", "<img align='middle' src='"+url+"data/interface/energie.gif' alt='' />Reaktor ");
+		mo.put("getCargo", "<img align='middle' src='"+url+"data/interface/leer.gif' alt='' />Cargo ");
+		mo.put("getEps", "<img align='middle' src='"+url+"data/interface/energie.gif' alt='' />Energiespeicher ");
+		mo.put("getHull", "<img align='middle' src='"+url+"data/interface/schiffe/panzerplatte.png' alt='' />H&uuml;lle ");
+		mo.put("getShields", "Shields ");
+		mo.put("getCost", "Flugkosten ");
+		mo.put("getHeat", "&Uuml;berhitzung ");
+		mo.put("getPanzerung", "<img align='middle' src='"+url+"data/interface/schiffe/panzerplatte.png' alt='' />Panzerung ");
+		mo.put("getTorpedoDef", "Torpedoabwehr ");
+		mo.put("getCrew", "<img align='middle' src='"+url+"data/interface/besatzung.gif' alt='' />Crew ");
+		mo.put("getHydro", "<img align='middle' src='"+Cargo.getResourceImage(Resources.NAHRUNG)+"' alt='' />Produktion ");
+		mo.put("getSensorRange", "<img align='middle' src='"+url+"data/interface/schiffe/sensorrange.png' alt='' />Sensorreichweite ");
+		mo.put("getDeutFactor", "Tanker: <img align='middle' src='"+Cargo.getResourceImage(Resources.DEUTERIUM)+"' alt='' />");
+		mo.put("getReCost", "Wartungskosten ");
+		mo.put("getADocks", "Externe Docks ");
+		mo.put("getJDocks", "J&auml;gerdocks ");
+		mo.put("getAblativeArmor", "Ablative Panzerung ");
+		
+		moduleOutputList.putAll(mo);
 	}
 	
 	/**
@@ -1216,6 +1222,7 @@ public class SchiffController extends TemplateGenerator {
 				type = moduleObjList.get(i).modifyStats( type, moduleObjList );
 			}
 			
+			initModuleOutputList();
 			for( String method : moduleOutputList.keySet() ) {
 				try {
 					Method m = type.getClass().getMethod(method);
