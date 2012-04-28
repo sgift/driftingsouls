@@ -85,8 +85,6 @@ public class ErrorHandlerFilter implements Filter
 			}
 			while(ex != null);
 			
-			printBoxedErrorMessage(response, "Ein genereller Fehler ist aufgetreten. Die Entwickler arbeiten daran ihn zu beheben.");
-			
 			StringBuilder infos = new StringBuilder(100);
 			HttpServletRequest req = (HttpServletRequest)request;
 			Map<String, String[]> params = req.getParameterMap();
@@ -113,6 +111,8 @@ public class ErrorHandlerFilter implements Filter
 			
 			Common.mailThrowable(mailThrowable, "Unexpected exception", infos.toString());
 			e.printStackTrace();
+			
+			printBoxedErrorMessage(response, "Ein genereller Fehler ist aufgetreten. Die Entwickler arbeiten daran ihn zu beheben.");
 		}
 	}
 

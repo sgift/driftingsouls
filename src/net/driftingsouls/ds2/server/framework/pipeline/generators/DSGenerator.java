@@ -170,7 +170,7 @@ public abstract class DSGenerator extends Generator {
 			sb.append("<title>Drifting Souls 2</title>\n");
 			sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n");
 			if( !getDisableDefaultCSS() ) { 
-				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"format.css\" />\n");
+				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"data/css/format.css\" />\n");
 			}
 			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+url+"data/css/ui-darkness/jquery.ui.darkness.css\" />\n");
 			
@@ -302,6 +302,19 @@ public abstract class DSGenerator extends Generator {
 			for( Error error : getContext().getErrorList() ) {
 				sb.append("ERROR: "+error.getDescription().replaceAll("\n"," ")+"\n");
 			}
+		}
+	}
+	
+	/**
+	 * Ausgabeklasse fuer Binary-Antworten.
+	 */
+	protected static class BinaryOutputHelper extends OutputHelper {
+		@Override
+		public void printHeader() {}
+		@Override
+		public void printFooter() {}
+		@Override
+		public void printErrorList() throws IOException {
 		}
 	}
 	
@@ -466,10 +479,9 @@ public abstract class DSGenerator extends Generator {
 	 */
 	protected void redirect( String action ) 
 	{
-		String callAction = action + actionType.getActionExt();
 		try 
 		{
-			Method method = getClass().getMethod(callAction);
+			Method method = getMethodForAction(action);
 			method.setAccessible(true);
 			method.invoke(this);
 		}
@@ -708,7 +720,10 @@ public abstract class DSGenerator extends Generator {
 		}
 		else if( type == ActionType.AJAX ) {
 			actionTypeHandler = new AjaxOutputHelper();
-		}	
+		}
+		else if( type == ActionType.BINARY ) {
+			actionTypeHandler = new BinaryOutputHelper();
+		}
 		
 		actionType = type;
 	}

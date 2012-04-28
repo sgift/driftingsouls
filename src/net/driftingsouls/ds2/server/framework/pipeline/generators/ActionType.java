@@ -22,28 +22,23 @@ package net.driftingsouls.ds2.server.framework.pipeline.generators;
  * Die verschiedenen Aufrufarten.
  *
  */
-public enum ActionType {
+public enum ActionType
+{
 	/**
 	 * Eine normale HTTP-Request mit HTML-Anwort.
 	 */
-	DEFAULT("Action"),
+	DEFAULT,
 	/**
 	 * Eine Ajax-Request.
 	 */
-	AJAX("AjaxAct");
-	
-	private String type;
-	
-	private ActionType(String type) {
-		this.type = type;
-	}
-	
+	AJAX,
 	/**
-	 * Gibt den Postfix der Aktionsmethoden zurueck.
-	 * @return Der Postfix der Aktionsmethoden
+	 * Eine Request mit Blob-Antwort (z.B. ein Bild).
 	 */
-	public String getActionExt() {
-		return type;
+	BINARY;
+	
+	private ActionType()
+	{
 	}
 	
 	/**
@@ -51,9 +46,12 @@ public enum ActionType {
 	 * @param execType Der Ausfuehrungsmodus
 	 * @return Der Aktionstyp
 	 */
-	public static ActionType getByExecType(String execType) {
-		for( int i=0; i < values().length; i++ ) {
-			if( values()[i].name().equalsIgnoreCase(execType) ) {
+	public static ActionType getByExecType(String execType)
+	{
+		for( int i=0; i < values().length; i++ )
+		{
+			if( values()[i].name().equalsIgnoreCase(execType) )
+			{
 				return values()[i];
 			}
 		}
