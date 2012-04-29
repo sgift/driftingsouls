@@ -1,89 +1,67 @@
-{!table_begin 600,left}
-	<table class="noBorderX">
-	<tr>
-		<td class="noBorderX" valign="top">
-			<form action="./ds" method="post">
-			<table class="noBorderX" cellpadding="3">
-			{if map.message}
-				<tr><td class="noBorderX">{map.message}</td></tr>
-			{/endif}
-			<tr>
-				<td class="noBorderX">
-					System<br />
-					<select size="1" name="sys">
-						<!-- BEGIN systems.listitem -->
-							<option {if system.selected}selected="selected"{/endif} value="{system.id}">{system.name} ({system.id}){system.addinfo}</option>
-						<!-- END systems.listitem -->
-					</select>
-				</td>
-			</tr>
-			<tr>
-				<td class="noBorderX">
-					Von
-				</td>
-				<td class="noBorderX">
-					x:
-				</td>
-				<td class="noBorderX">
-					<input type="text" name="xstart" size="3" value="{map.minx}" />
-				</td>
-				<td class="noBorderX">
-					y:
-				</td>
-				<td class="noBorderX">
-					<input type="text" name="ystart" size="3" value="{map.miny}" />
-				</td>
-			</tr>
-			<tr>
-				<td class="noBorderX">
-					Bis
-				</td>
-				<td class="noBorderX">
-					x:
-				</td>
-				<td class="noBorderX">
-					<input type="text" name="xend" size="3" value="{map.maxx}" />
-				</td>
-				<td class="noBorderX">
-					y:
-				</td>
-				<td class="noBorderX">
-					<input type="text" name="yend" size="3" value="{map.maxy}" />
-				</td>
-			</tr>			
-			<tr>
-				<td class="noBorderX">
-					{!form_create_hidden default, loadmap:1}
-					<input type="submit" value="Sternenkarte laden" />
-				</td>
-			</tr>
-			</table>
-			</form>
-		</td>
-		<td class="noBorderX">&nbsp;</td>
-		{if map.showsystem}
-			<td class="noBorderX" valign="top">
-				<table class="noBorderX">
-				<tr>
-					<td colspan="3" class="noBorderX">Sprungpunkte:</td>
-				</tr>
-				<!-- BEGIN jumpnodes.listitem -->
-					<tr>
-						<td class="noBorderX" valign="top"><span class="nobr">{jumpnode.x}/{jumpnode.y}</span></td>
-						<td class="noBorderX">nach</td>
-						<td class="noBorderX"><span class="nobr">{jumpnode.name} ({jumpnode.systemout}){jumpnode.blocked}</span></td>
-					</tr>
-				<!-- END jumpnodes.listitem -->
-				</table>
+<div id="mapmenubar" class="gfxbox"><div><div><div class="content">
+	<a id="showSystemauswahl" title="System auswählen" href="#" onclick="Starmap.showSystemSelection()"><img src="{URL}data/interface/impobjects.gif" alt="?" /></a>
+	<a id="showJumpnodeList" title="Sprungpunkte anzeigen" href="#" onclick="Starmap.showJumpnodeList()"><img src="{URL}data/interface/jumpnode.png" alt="?" /></a>
+</div></div></div></div>
+
+<div id="mapcontent"></div>
+
+<div id="jumpnodebox" class="gfxbox invisible"><div><div><div>
+	<h3>Sprungpunkte</h3>
+	<div id="jumpnodelist">
+		<span>Kein System ausgewählt.</span>
+	</div>
+	<button onclick="Starmap.hideJumpnodeList()">schließen</button>
+</div></div></div></div>
+
+<div id="systemauswahl" class="gfxbox"><div><div><div>
+	<h3>Bitte Kartenausschnitt auswählen</h3>
+	<form action="./ds" method="post" name="mapform" onsubmit="Starmap.load();return false;">
+		<table class="noBorderX" cellpadding="3">
+		<tr>
+			<td class="noBorderX" colspan="5">
+				System<br />
+				<select size="1" name="sys">
+					<!-- BEGIN systems.listitem -->
+						<option {if system.selected}selected="selected"{/endif} value="{system.id}">{system.name} ({system.id}){system.addinfo}</option>
+					<!-- END systems.listitem -->
+				</select>
 			</td>
-			</tr>
-			</table>
-		{else}
-			</tr>
-			</table>
-		{/endif}
-{!table_end}
-{if map.showsystem}
-	{map.fields}
-	<br />
-{/endif}
+		</tr>
+		<tr>
+			<td class="noBorderX">
+				Von
+			</td>
+			<td class="noBorderX">
+				x:
+			</td>
+			<td class="noBorderX">
+				<input type="text" name="xstart" size="3" value="{map.minx}" />
+			</td>
+			<td class="noBorderX">
+				y:
+			</td>
+			<td class="noBorderX">
+				<input type="text" name="ystart" size="3" value="{map.miny}" />
+			</td>
+		</tr>
+		<tr>
+			<td class="noBorderX">
+				Bis
+			</td>
+			<td class="noBorderX">
+				x:
+			</td>
+			<td class="noBorderX">
+				<input type="text" name="xend" size="3" value="{map.maxx}" />
+			</td>
+			<td class="noBorderX">
+				y:
+			</td>
+			<td class="noBorderX">
+				<input type="text" name="yend" size="3" value="{map.maxy}" />
+			</td>
+		</tr>			
+		</table>
+		<input type="submit" value="Sternenkarte laden"/>
+	</form>
+</div></div></div></div>
