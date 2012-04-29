@@ -339,25 +339,23 @@ public class MapController extends TemplateGenerator
 				int posy = (y-yStart)*SECTOR_IMAGE_SIZE;
 				boolean endTag = false;
 				
-				if( sectorOverlayImage != null && sectorImage != null )
+				if( sectorImage != null )
 				{
 					endTag = true;
-					map.append("<div style=\"top:"+posy+"px;left:"+posx+"px;background-image:url('").append(dataPath).append(sectorImage).append("')\" ").append(scannable ? "" : "class=\"noscan\"").append(">");
+					map.append("<div style=\"top:"+posy+"px;left:"+posx+"px;background-image:url('").append(dataPath).append(sectorImage).append("')\" ").append(">");
 					sectorImage = sectorOverlayImage;
 				}
 				else if( scannable )
 				{
 					endTag = true;
 					map.append("<div style=\"top:"+posy+"px;left:"+posx+"px;background-image:url('").append(dataPath).append(content.getSectorBaseImage(position)).append("')\">");
+					sectorImage = sectorOverlayImage;
 				}
 				else if( sectorOverlayImage != null )
 				{
 					endTag = true;
-					map.append("<div style=\"top:"+posy+"px;left:"+posx+"px\" class=\"noscan\">");
-					if( sectorImage == null )
-					{
-						sectorImage = sectorOverlayImage;
-					}
+					map.append("<div style=\"top:"+posy+"px;left:"+posx+"px\">");
+					sectorImage = sectorOverlayImage;
 				}
 				
 				if( sectorImage != null )
