@@ -23,6 +23,7 @@ import java.io.IOException;
 
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.Version;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
@@ -77,6 +78,8 @@ public abstract class TemplateGenerator extends DSGenerator {
 		}
 		
 		templateEngine.setVar( "global.module", getString("module") );
+		
+		templateEngine.setVar( "global.version", new Version().getHgVersion());
 	}
 	
 	/**

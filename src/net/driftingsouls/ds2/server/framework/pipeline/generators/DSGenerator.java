@@ -170,7 +170,7 @@ public abstract class DSGenerator extends Generator {
 			sb.append("<title>Drifting Souls 2</title>\n");
 			sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n");
 			if( !getDisableDefaultCSS() ) { 
-				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"data/css/format.css\" />\n");
+				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"data/css/format.css?"+version.getHgVersion()+"\" />\n");
 			}
 			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+url+"data/css/ui-darkness/jquery.ui.darkness.css\" />\n");
 			
@@ -192,10 +192,10 @@ public abstract class DSGenerator extends Generator {
 			sb.append("<script type=\"text/javascript\" src=\""+url+"data/javascript/overlibmws.js\"><!-- overLIB (c) Erik Bosrup -->\n");
 			sb.append("</script>");
 			if( usegfxpak ) {
-				sb.append("<script src=\""+url+"data/javascript/gfxpakversion.js\" type=\"text/javascript\"></script>\n");
+				sb.append("<script src=\""+url+"data/javascript/gfxpakversion.js?"+version.getHgVersion()+"\" type=\"text/javascript\"></script>\n");
 			}
-			sb.append("<script src=\""+url+"data/javascript/prototype.js\" type=\"text/javascript\"></script>\n");
-			sb.append("<script src=\""+url+"data/javascript/scriptaculous.js\" type=\"text/javascript\"></script>\n");
+			sb.append("<script src=\""+url+"data/javascript/prototype.js?"+version.getHgVersion()+"\" type=\"text/javascript\"></script>\n");
+			sb.append("<script src=\""+url+"data/javascript/scriptaculous.js?"+version.getHgVersion()+"\" type=\"text/javascript\"></script>\n");
 			sb.append("<script type=\"text/javascript\">\n");
 			sb.append("<!--\n");
 			sb.append("OLpageDefaults(TEXTPADDING,0,TEXTFONTCLASS,'tooltip',FGCLASS,'tooltip',BGCLASS,'tooltip');");
