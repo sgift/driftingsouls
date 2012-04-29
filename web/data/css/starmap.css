@@ -1,3 +1,57 @@
+#mapmenubar {
+	position:fixed;
+	left:-20px;
+	top:200px;
+	width:45px;
+}
+
+#mapmenubar .content {
+	padding-left:30px;
+}
+
+#mapmenubar .content a {
+	display:block;
+	margin-bottom:8px;
+}
+
+#systemauswahl {
+	position:fixed;
+	top:200px;
+	margin-left:auto;
+	margin-right:auto;
+	z-index:95;
+	left:0px;
+	right:0px;
+	width:400px;
+	text-align:center;
+}
+
+#systemauswahl table {
+	margin-left:auto;
+	margin-right:auto;
+	text-align:left;
+	margin-bottom:10px;
+	margin-top:5px;
+}
+
+#jumpnodebox {
+	position:fixed;
+	top:200px;
+	margin-left:auto;
+	margin-right:auto;
+	z-index:100;
+	left:0px;
+	right:0px;
+	width:400px;
+	text-align:center;
+}
+
+#jumpnodebox #jumpnodelist {
+	text-align:left;
+	margin-top:5px;
+	margin-bottom:10px;
+}
+
 .invisible{
 	display:none;
 }
@@ -12,7 +66,12 @@
 	right:0px;
 }
 
-table#starmap
+#mapcontent {
+	position:relative;
+	left:30px;
+}
+
+#legend
 {
 	table-layout: fixed;
 	border-width: 0px;
@@ -25,7 +84,7 @@ table#starmap
 	top:10px;
 }
 
-table#starmap td
+#legend td
 {
 	border-width: 0px;
 	padding: 0px;
@@ -40,13 +99,8 @@ table#starmap td
 	vertical-align:middle;
 }
 
-#starmap .border {
+#legend .border {
 	font-size:9px;
-}
-
-#starmap td img {
-	width:25px;
-	height:25px;
 }
 
 #tiles {
@@ -54,7 +108,7 @@ table#starmap td
 	top:35px;
 	left:35px;
 	overflow:hidden;
-	opacity:0.4;
+	opacity:0.5;
 }
 
 #tiles div {
@@ -75,16 +129,16 @@ table#starmap td
 	height:25px;
 	position:absolute;
 }
-
-td.scan
-{
-}
-.noscan
-{
-	opacity: 0.4;
-}
-
 #sectorview ul
 {
     list-style-type: none;
+}
+
+#sectorview .loader {
+	text-align:center;
+}
+#sectorview .loader img {
+	margin-top:10px;
+	width:200px;
+	height:22px;
 }

@@ -24,6 +24,7 @@ import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.Version;
 import net.driftingsouls.ds2.server.framework.pipeline.Response;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
@@ -58,6 +59,7 @@ public class MapController extends TemplateGenerator
 	private StarSystem system;
 	private int sys;
 	private Configuration config;
+	private Version version;
 
 	/**
 	 * Legt den MapController an.
@@ -83,6 +85,8 @@ public class MapController extends TemplateGenerator
 		setTemplate("map.html");
 
 		setPageTitle("Sternenkarte");
+		
+		setDisableDebugOutput(true);
 	}
 
 	/**
@@ -92,6 +96,15 @@ public class MapController extends TemplateGenerator
 	@Autowired
 	public void setConfiguration(Configuration config) {
 		this.config = config;
+	}
+	
+	/**
+	 * Injiziert die DS-Version.
+	 * @param version Die DS-Version
+	 */
+	@Autowired
+	public void setVersion(Version version) {
+		this.version = version;
 	}
 
 	@Override
@@ -122,11 +135,19 @@ public class MapController extends TemplateGenerator
 		sb.append("<title>Drifting Souls 2</title>\n");
 		sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n");
 		if( !getDisableDefaultCSS() ) { 
-			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(config.get("URL")).append("data/css/format.css\" />\n");
+			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(config.get("URL")).append("data/css/format.css?").append(version.getHgVersion()).append("\" />\n");
 		}
 		sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(config.get("URL")).append("data/css/starmap.css\" />\n");
-        sb.append("<script src=\"").append(url).append("data/javascript/jquery.js\" type=\"text/javascript\"></script>\n");
-        sb.append("<script src=\"").append(url).append("data/javascript/starmap.js\" type=\"text/javascript\"></script>\n");
+        sb.append("<script src=\"").append(url).append("data/javascript/jquery.js?").append(version.getHgVersion()).append("\" type=\"text/javascript\"></script>\n");
+        sb.append("<script src=\"").append(url).append("data/javascript/starmap.js?").append(version.getHgVersion()).append("\" type=\"text/javascript\"></script>\n");
+        
+        sb.append("<script type=\"text/javascript\">\n");
+		sb.append("if( parent && parent.setCurrentPage ) {\n");
+		sb.append("parent.setCurrentPage('map','Sternenkarte');\n");
+		sb.append("parent.completePage();");
+		sb.append("}\n");
+		sb.append("</script>");
+        
 		sb.append("</head>\n");
 	}
 
@@ -209,186 +230,6 @@ public class MapController extends TemplateGenerator
 
 			t.parse("systems.list", "systems.listitem", true);
 		}
-
-		t.setBlock("_MAP", "jumpnodes.listitem", "jumpnodes.list");
-
-		if( !this.showSystem ) 
-		{
-			return;
-		}
-
-		
-		PlayerStarmap content = new PlayerStarmap(db, user, system.getID());
-		List<JumpNode> publicNodes = content.getPublicNodes();
-		for(JumpNode node: publicNodes)
-		{
-			String blocked = "";
-			if( node.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn(0) )
-			{
-				blocked = " - blockiert";
-			}
-
-			t.setVar(	"jumpnode.x",			node.getX(),
-						"jumpnode.y",			node.getY(),
-						"jumpnode.name",		node.getName(),
-						"jumpnode.systemout",	node.getSystemOut(),
-						"jumpnode.blocked",		blocked );
-
-			t.parse("jumpnodes.list", "jumpnodes.listitem", true);
-		}
-
-		int width = this.system.getWidth();
-		int height = this.system.getHeight();
-		
-		String dataPath = templateEngine.getVar("global.datadir") + "data/starmap/";
-
-		int xStart = getInteger("xstart");
-		int xEnd = getInteger("xend");
-		int yStart = getInteger("ystart");
-		int yEnd = getInteger("yend");
-
-		//Limit width and height to map size
-		if(xStart < 1)
-		{
-			xStart = 1;
-		}
-
-		if(xEnd > width)
-		{
-			xEnd = width;
-		}
-
-		if(yStart < 1)
-		{
-			yStart = 1;
-		}
-
-		if(yEnd > height)
-		{
-			yEnd = height;
-		}
-
-		//Use sensible defaults in case of useless input
-		if(yEnd <= yStart)
-		{
-			yEnd = height;
-		}
-
-		if(xEnd <= xStart)
-		{
-			xEnd = width;
-		}
-		
-		t.setVar(
-				"map.minx",	xStart,
-				"map.miny",	yStart,
-				"map.maxx",	xEnd,
-				"map.maxy", yEnd
-				);
-
-		Writer map = getContext().getResponse().getWriter();
-		
-		map.append("<div id='mapcontent' style='height:"+((yEnd-(yStart-1))*SECTOR_IMAGE_SIZE+80)+"px'>");
-		map.append("<div id=\"tiles\" style=\"width:"+(xEnd-(xStart-1))*SECTOR_IMAGE_SIZE+"px;height:"+(yEnd-(yStart-1))*SECTOR_IMAGE_SIZE+"px\">");
-		for( int y=(yStart-1)/TILE_SIZE; y <= (yEnd-1)/TILE_SIZE; y++ )
-		{
-			for( int x=(xStart-1)/TILE_SIZE; x <= (xEnd-1)/TILE_SIZE; x++ )
-			{
-				int xOffset = ((x-(xStart-1)/TILE_SIZE)*TILE_SIZE-(xStart-1)%TILE_SIZE)*SECTOR_IMAGE_SIZE;
-				int yOffset = ((y-(yStart-1)/TILE_SIZE)*TILE_SIZE-(yStart-1)%TILE_SIZE)*SECTOR_IMAGE_SIZE;
-				map.append("<div style=\"left:"+xOffset+"px;top:"+yOffset+"px;background-image:url('"+Common.buildUrl("tile", "sys", this.sys, "tileX", x, "tileY", y)+"')\"></div>");
-			}
-		}
-		
-		map.append("</div>");
-		
-		map.append("<table id=\"starmap\" style='width:"+((xEnd-(xStart-1))*SECTOR_IMAGE_SIZE+50)+"px;height:"+((yEnd-(yStart-1))*SECTOR_IMAGE_SIZE+50)+"px'>");
-		printXLegend(map, xStart, xEnd);
-		boolean contentTd = false;
-		
-		for(int y = yStart; y <= yEnd; y++)
-		{
-			map.append("<tr>");
-			map.append("<td class=\"border\">");
-			map.append(Integer.toString(y));
-			map.append("</td>");
-			if( !contentTd ) {
-				map.append("<td colspan='"+(xEnd-xStart+1)+"' rowspan='"+(yEnd-yStart+1)+"' />");
-				contentTd = true;
-			}
-			map.append("<td class=\"border\">");
-			map.append(Integer.toString(y));
-			map.append("</td>");
-			map.append("</tr>");
-		}
-
-		printXLegend(map, xStart, xEnd);
-		map.append("</table>");
-		
-		map.append("<div id='tileOverlay' style=\"width:"+(xEnd-(xStart-1))*SECTOR_IMAGE_SIZE+"px;height:"+(yEnd-(yStart-1))*SECTOR_IMAGE_SIZE+"px\">");
-		for(int y = yStart; y <= yEnd; y++)
-		{
-			for(int x = xStart; x <= xEnd; x++)
-			{
-				Location position = new Location(this.system.getID(), x, y);
-				boolean scannable = content.isScannable(position);			
-				String sectorImage = content.getUserSectorBaseImage(position);
-				String sectorOverlayImage = content.getSectorOverlayImage(position);
-				
-				int posx = (x-xStart)*SECTOR_IMAGE_SIZE;
-				int posy = (y-yStart)*SECTOR_IMAGE_SIZE;
-				boolean endTag = false;
-				
-				if( sectorImage != null )
-				{
-					endTag = true;
-					map.append("<div style=\"top:"+posy+"px;left:"+posx+"px;background-image:url('").append(dataPath).append(sectorImage).append("')\" ").append(">");
-					sectorImage = sectorOverlayImage;
-				}
-				else if( scannable )
-				{
-					endTag = true;
-					map.append("<div style=\"top:"+posy+"px;left:"+posx+"px;background-image:url('").append(dataPath).append(content.getSectorBaseImage(position)).append("')\">");
-					sectorImage = sectorOverlayImage;
-				}
-				else if( sectorOverlayImage != null )
-				{
-					endTag = true;
-					map.append("<div style=\"top:"+posy+"px;left:"+posx+"px\">");
-					sectorImage = sectorOverlayImage;
-				}
-				
-				if( sectorImage != null )
-				{
-					map.append("<img src=\"").append(dataPath);
-					if(scannable)
-					{
-						int scannerId = content.getSectorScanner(position).getId();
-						map.append(sectorImage);
-						map.append("\" alt=\"").append(Integer.toString(x)).append("/").append(Integer.toString(y)).append("\" ")
-							.append("class=\"showsector\" ")
-							.append("onClick=\"showSector(").append(Integer.toString(this.system.getID())).append(",").append(Integer.toString(x)).append(",").append(Integer.toString(y)).append(",").append(Integer.toString(scannerId)).append(")\">");
-					}
-					else
-					{
-						map.append(sectorImage);
-						map.append("\" alt=\"").append(Integer.toString(x)).append("/").append(Integer.toString(y)).append("\"/>");
-					}
-				}
-				
-				if( endTag ) {
-					map.append("</div>");
-				}
-			}
-		}
-		map.append("</div>");
-				
-		map.append("<div class='invisible gfxbox' id='sectortable' style='width:400px'><div><div>");
-		map.append("<div id='sectorview'>");
-		//Text is inserted here - using javascript
-		map.append("</div>");
-		map.append("</div></div></div>");
-		map.append("</div>");
 	}
 	
 	/**
@@ -492,6 +333,158 @@ public class MapController extends TemplateGenerator
 			pb.buildPalette();
 			return pb.getIndexedImage();
 		}
+	}
+	
+	/**
+	 * Gibt die Kartendaten des gewaehlten Ausschnitts als JSON-Response zurueck.
+	 * @throws IOException
+	 */
+	@Action(ActionType.AJAX)
+	public void mapAction() throws IOException {
+		JSONObject json = new JSONObject();
+		
+		if( !this.showSystem ) 
+		{
+			getResponse().getWriter().append(json.toString());
+			return;
+		}
+		
+		json.accumulate("system", this.system.getID());
+		
+		org.hibernate.Session db = getDB();
+		User user = (User)getUser();
+		
+		PlayerStarmap content = new PlayerStarmap(db, user, system.getID());
+
+		JSONArray publicNodeArray = new JSONArray();
+		for(JumpNode node: content.getPublicNodes())
+		{
+			String blocked = "";
+			if( node.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn(0) )
+			{
+				blocked = " - blockiert";
+			}
+
+			JSONObject nodeObj = new JSONObject();
+			nodeObj.accumulate("x", node.getX());
+			nodeObj.accumulate("y", node.getY());
+			nodeObj.accumulate("name", node.getName());
+			nodeObj.accumulate("systemout", node.getSystemOut());
+			nodeObj.accumulate("blocked", blocked);
+			
+			publicNodeArray.add(nodeObj);
+		}
+		json.accumulate("jumpnodes", publicNodeArray);
+
+		int width = this.system.getWidth();
+		int height = this.system.getHeight();
+		
+		String dataPath = templateEngine.getVar("global.datadir") + "data/starmap/";
+		json.accumulate("dataPath", dataPath);
+
+		int xStart = getInteger("xstart");
+		int xEnd = getInteger("xend");
+		int yStart = getInteger("ystart");
+		int yEnd = getInteger("yend");
+
+		//Limit width and height to map size
+		if(xStart < 1)
+		{
+			xStart = 1;
+		}
+
+		if(xEnd > width)
+		{
+			xEnd = width;
+		}
+
+		if(yStart < 1)
+		{
+			yStart = 1;
+		}
+
+		if(yEnd > height)
+		{
+			yEnd = height;
+		}
+
+		//Use sensible defaults in case of useless input
+		if(yEnd <= yStart)
+		{
+			yEnd = height;
+		}
+
+		if(xEnd <= xStart)
+		{
+			xEnd = width;
+		}
+		
+		JSONObject sizeObj = new JSONObject();
+		sizeObj.accumulate("minx", xStart);
+		sizeObj.accumulate("miny", yStart);
+		sizeObj.accumulate("maxx", xEnd);
+		sizeObj.accumulate("maxy", yEnd);
+		
+		json.accumulate("size", sizeObj);
+	
+		JSONArray locationArray = new JSONArray();
+		for(int y = yStart; y <= yEnd; y++)
+		{
+			for(int x = xStart; x <= xEnd; x++)
+			{
+				Location position = new Location(this.system.getID(), x, y);
+				boolean scannable = content.isScannable(position);			
+				String sectorImage = content.getUserSectorBaseImage(position);
+				String sectorOverlayImage = content.getSectorOverlayImage(position);
+				
+				boolean endTag = false;
+				
+				JSONObject posObj = new JSONObject();
+				posObj.accumulate("x", x);
+				posObj.accumulate("y", y);
+				posObj.accumulate("scan", scannable);
+				
+				if( sectorImage != null )
+				{
+					endTag = true;
+					posObj.accumulate("bg", sectorImage);
+					sectorImage = sectorOverlayImage;
+				}
+				else if( scannable )
+				{
+					endTag = true;
+					posObj.accumulate("bg", content.getSectorBaseImage(position));
+					sectorImage = sectorOverlayImage;
+				}
+				else if( sectorOverlayImage != null )
+				{
+					endTag = true;
+					sectorImage = sectorOverlayImage;
+				}
+				
+				if( sectorImage != null )
+				{
+					if(scannable)
+					{
+						int scannerId = content.getSectorScanner(position).getId();
+						
+						posObj.accumulate("fg", sectorImage);
+						posObj.accumulate("scanner", scannerId);						
+					}
+					else
+					{
+						posObj.accumulate("fg", sectorImage);
+					}
+				}
+				
+				if( endTag ) {
+					locationArray.add(posObj);
+				}
+			}
+		}
+		json.accumulate("locations", locationArray);
+		
+		getResponse().getWriter().append(json.toString());
 	}
 	
 	/**

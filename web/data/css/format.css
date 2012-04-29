@@ -246,6 +246,26 @@ div.gfxbox > div > div > div {
 	padding: 0px 0px 20px 20px;
 }
 
+.gfxbox h2 {font-size:16px; font-weight:bold; text-decoration:none; color:#FFFFFF; margin-top:1px; margin-left:0px; margin-right:0px; margin-bottom:2px}
+.gfxbox h3 {font-size:14px; font-weight:bold; text-decoration:none; color:#FEB626; margin-top:1px; margin-left:0px; margin-right:0px; margin-bottom:2px}
+.gfxbox button, .gfxbox input[type=submit] {
+	border: 1px #A7A7A7 solid;
+	margin: 0px;
+	color: #FEB626;
+	font-size:13px;
+	background-color: #202020;
+	padding:1px;
+}
+
+.gfxbox input, .gfxbox select {
+	border: 1px #A7A7A7 solid;
+	margin: 0px;
+	color: #C7C7C7;
+	font-size:13px;
+	background-color: #202020;
+	padding:1px;
+}
+
 .kursbox {
 	width:250px;
 	margin-right:25px;
