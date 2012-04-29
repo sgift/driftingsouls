@@ -217,12 +217,6 @@ td.inboxOrdnerHover	{background-color:#36413A; background-image:none }
 
 /* Grafische Box */
 div.gfxbox {
-	position:absolute;
-	z-index:90;
-	top:80px;
-	left:0px;
-	right:0px;
-	margin: 0px auto 0px auto;
 	background: url('./data/interface/border/topleft.gif') top left no-repeat;
 	padding:0px;
 	color: #C7C7C7;
@@ -250,4 +244,16 @@ div.gfxbox > div > div > div {
 	position:relative;
 	left: -20px;
 	padding: 0px 0px 20px 20px;
+}
+
+.kursbox {
+	width:250px;
+	margin-right:25px;
+	margin-bottom:20px;
+	float:left;
+}
+
+.kursbox .content {
+	max-height:300px;
+	overflow-y:auto;
 }
