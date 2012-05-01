@@ -122,7 +122,7 @@ var Starmap = {
 			{
 				var xOffset = ((x-startTileX)*this.__TILE_SIZE-(data.size.minx-1)%this.__TILE_SIZE)*this.__SECTOR_IMAGE_SIZE;
 				var yOffset = ((y-startTileY)*this.__TILE_SIZE-(data.size.miny-1)%this.__TILE_SIZE)*this.__SECTOR_IMAGE_SIZE;
-				tiles += "<div style=\"left:"+xOffset+"px;top:"+yOffset+"px;background-image:url('./ds?module=map&action=tile&sys="+data.system+"&tileX="+x+"&tileY="+y+"\" />";
+				tiles += "<div style=\"left:"+xOffset+"px;top:"+yOffset+"px;background-image:url('./ds?module=map&action=tile&sys="+data.system+"&tileX="+x+"&tileY="+y+"')\" />";
 			}
 		}
 		tiles += "</div>";
