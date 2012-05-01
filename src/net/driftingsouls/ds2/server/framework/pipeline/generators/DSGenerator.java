@@ -172,7 +172,7 @@ public abstract class DSGenerator extends Generator {
 			if( !getDisableDefaultCSS() ) { 
 				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"data/css/format.css?"+version.getHgVersion()+"\" />\n");
 			}
-			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+url+"data/css/ui-darkness/jquery.ui-1.8.20.css\" />\n");
+			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+url+"data/css/ui-darkness/jquery-ui-1.8.20.css\" />\n");
 			
 			
 			
