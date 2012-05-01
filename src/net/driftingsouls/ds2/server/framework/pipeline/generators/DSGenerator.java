@@ -200,7 +200,7 @@ public abstract class DSGenerator extends Generator {
 			sb.append("<script src=\""+url+"data/javascript/jquery-ui-1.8.20.min.js?"+version.getHgVersion()+"\" type=\"text/javascript\"></script>\n");
 			sb.append("<script type=\"text/javascript\">\n");
 			sb.append("<!--\n");
-			sb.append("jQuery.noConflict()");
+			sb.append("jQuery.noConflict();");
 			sb.append("OLpageDefaults(TEXTPADDING,0,TEXTFONTCLASS,'tooltip',FGCLASS,'tooltip',BGCLASS,'tooltip');");
 			sb.append("function ask(text,url) {\n");
 			sb.append("if( confirm(text) ) {\n");
