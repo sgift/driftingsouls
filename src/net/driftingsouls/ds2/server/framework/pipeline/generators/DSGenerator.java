@@ -172,7 +172,7 @@ public abstract class DSGenerator extends Generator {
 			if( !getDisableDefaultCSS() ) { 
 				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"data/css/format.css?"+version.getHgVersion()+"\" />\n");
 			}
-			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+url+"data/css/ui-darkness/jquery.ui.darkness.css\" />\n");
+			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+url+"data/css/ui-darkness/jquery.ui-1.8.20.css\" />\n");
 			
 			
 			
@@ -196,8 +196,11 @@ public abstract class DSGenerator extends Generator {
 			}
 			sb.append("<script src=\""+url+"data/javascript/prototype.js?"+version.getHgVersion()+"\" type=\"text/javascript\"></script>\n");
 			sb.append("<script src=\""+url+"data/javascript/scriptaculous.js?"+version.getHgVersion()+"\" type=\"text/javascript\"></script>\n");
+			sb.append("<script src=\""+url+"data/javascript/jquery-1.7.2.min.js?"+version.getHgVersion()+"\" type=\"text/javascript\"></script>\n");
+			sb.append("<script src=\""+url+"data/javascript/jquery-ui-1.8.20.min.js?"+version.getHgVersion()+"\" type=\"text/javascript\"></script>\n");
 			sb.append("<script type=\"text/javascript\">\n");
 			sb.append("<!--\n");
+			sb.append("jQuery.noConflict()");
 			sb.append("OLpageDefaults(TEXTPADDING,0,TEXTFONTCLASS,'tooltip',FGCLASS,'tooltip',BGCLASS,'tooltip');");
 			sb.append("function ask(text,url) {\n");
 			sb.append("if( confirm(text) ) {\n");
