@@ -138,7 +138,7 @@ public class MapController extends TemplateGenerator
 			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(config.get("URL")).append("data/css/format.css?").append(version.getHgVersion()).append("\" />\n");
 		}
 		sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(config.get("URL")).append("data/css/starmap.css\" />\n");
-        sb.append("<script src=\"").append(url).append("data/javascript/jquery.js?").append(version.getHgVersion()).append("\" type=\"text/javascript\"></script>\n");
+        sb.append("<script src=\"").append(url).append("data/javascript/jquery-1.7.2.min.js?").append(version.getHgVersion()).append("\" type=\"text/javascript\"></script>\n");
         sb.append("<script src=\"").append(url).append("data/javascript/starmap.js?").append(version.getHgVersion()).append("\" type=\"text/javascript\"></script>\n");
         
         sb.append("<script type=\"text/javascript\">\n");
@@ -349,7 +349,11 @@ public class MapController extends TemplateGenerator
 			return;
 		}
 		
-		json.accumulate("system", this.system.getID());
+		JSONObject sysObj = new JSONObject();
+		sysObj.accumulate("id", this.system.getID());
+		sysObj.accumulate("width", this.system.getWidth());
+		sysObj.accumulate("height", this.system.getHeight());
+		json.accumulate("system", sysObj);
 		
 		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
@@ -538,18 +542,5 @@ public class MapController extends TemplateGenerator
 		json.accumulate("users", users);
 		
 		getResponse().getWriter().append(json.toString());
-	}
-
-	private void printXLegend(Writer map, int start, int end) throws IOException
-	{
-		map.append("<tr class=\"border\">");
-		map.append("<td>x/y</td>");
-		for(int x = start; x <= end; x++)
-		{
-			map.append("<td>");
-			map.append(String.valueOf(x));
-			map.append("</td>");
-		}
-		map.append("</tr>");
 	}
 }
