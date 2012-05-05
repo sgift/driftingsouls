@@ -186,6 +186,12 @@ public abstract class DSGenerator extends Generator {
 				sb.append(this.getAttribute("header").toString());
 			}
 			
+			boolean customJS = false;
+			if( this.getAttribute("customjs") != null && this.getAttribute("module") != null )
+			{
+				customJS = (Boolean)this.getAttribute("customjs");
+			}
+			
 			sb.append("</head>\n");
 			sb.append("<body "+getOnLoadText()+" "+getBodyParameters()+" >\n");
 			sb.append("<div id=\"overDiv\" style=\"position:absolute; visibility:hidden; z-index:1000;\"></div>\n");
@@ -198,6 +204,10 @@ public abstract class DSGenerator extends Generator {
 			sb.append("<script src=\""+url+"data/javascript/scriptaculous.js?"+version.getHgVersion()+"\" type=\"text/javascript\"></script>\n");
 			sb.append("<script src=\""+url+"data/javascript/jquery-1.7.2.min.js?"+version.getHgVersion()+"\" type=\"text/javascript\"></script>\n");
 			sb.append("<script src=\""+url+"data/javascript/jquery-ui-1.8.20.min.js?"+version.getHgVersion()+"\" type=\"text/javascript\"></script>\n");
+			if( customJS )
+			{
+				sb.append("<script src=\""+url+"data/javascript/"+this.getAttribute("module")+".js?"+version.getHgVersion()+"\" type=\"text/javascript\"></script>\n");
+			}
 			sb.append("<script type=\"text/javascript\">\n");
 			sb.append("<!--\n");
 			sb.append("jQuery.noConflict();");
@@ -345,6 +355,7 @@ public abstract class DSGenerator extends Generator {
 	private String pageTitle;
 	private List<PageMenuEntry> pageMenuEntries;
 	private boolean disablePageMenu;
+	private boolean customJavascript;
 	
 	/**
 	 * Konstruktor.
@@ -374,6 +385,8 @@ public abstract class DSGenerator extends Generator {
 		this.pageTitle = null;
 		this.pageMenuEntries = new ArrayList<PageMenuEntry>();
 		this.disablePageMenu = false;
+		
+		this.customJavascript = false;
 
 		setActionType(ActionType.DEFAULT);
 	}
@@ -591,6 +604,7 @@ public abstract class DSGenerator extends Generator {
 			actionTypeHandler.setAttribute("module", getString("module"));
 			actionTypeHandler.setAttribute("pagetitle", this.pageTitle);
 			actionTypeHandler.setAttribute("pagemenu", this.pageMenuEntries.toArray(new PageMenuEntry[this.pageMenuEntries.size()]));
+			actionTypeHandler.setAttribute("customjs", this.customJavascript);
 		}
 		
 		actionTypeHandler.printHeader();
@@ -598,6 +612,16 @@ public abstract class DSGenerator extends Generator {
 	
 	protected void printFooter( String action ) throws IOException {
 		actionTypeHandler.printFooter();
+	}
+	
+	/**
+	 * Setzt, ob fuer das Modul eine eigene Javascript-Datei vorliegt ([modulname].js)
+	 * und diese eingebunden werden soll (Default: false).
+	 * @param value <code>true</code>, falls eine solche Datei eingebunden werden soll
+	 */
+	public void setCustomJavascript(boolean value)
+	{
+		this.customJavascript = value;
 	}
 	
 	/**
