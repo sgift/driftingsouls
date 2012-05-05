@@ -104,6 +104,7 @@ public class SchiffController extends TemplateGenerator {
 		parameterNumber("ship");
 		
 		setPageTitle("Schiff");
+		setCustomJavascript(true);
 	}
 	
     /**
@@ -1047,16 +1048,11 @@ public class SchiffController extends TemplateGenerator {
 		
 		ship.recalculateShipStatus();
 		offizier = ship.getOffizier();
-		
-		StringBuilder tooltiptext = new StringBuilder(100);
-		tooltiptext.append(Common.tableBegin(340, "center").replace('"', '\'') );
-		tooltiptext.append("<iframe src='"+Common.buildUrl("default", "module", "impobjects", "system", ship.getSystem())+"' name='sector' width='320' height='300' scrolling='auto' marginheight='0' marginwidth='0' frameborder='0'>Ihr Browser unterst&uuml;tzt keine iframes</iframe>");
-		tooltiptext.append(Common.tableEnd().replace('"', '\'') );
-		String tooltiptextStr = StringEscapeUtils.escapeJavaScript(tooltiptext.toString().replace(">", "&gt;").replace("<", "&lt;"));
-
+	
 		t.setVar(	"ship.showui",			1,
 					"ship.islanded",		ship.isLanded(),
 					"ship.id",				ship.getId(),
+					"ship.location.system",	ship.getLocation().getSystem(),
 					"ship.name",			Common._plaintitle(ship.getName()),
 					"ship.location",		ship.getLocation().displayCoordinates(false),
 					"ship.type",			ship.getType(),
@@ -1092,7 +1088,6 @@ public class SchiffController extends TemplateGenerator {
 					"ship.fleet",			ship.getFleet() != null ? ship.getFleet().getId() : 0,
 					"ship.lock",			ship.getLock(),
 					"shiptype.werft",		shiptype.getWerft(),
-					"tooltip.systeminfo",	tooltiptextStr,
 					"ship.showalarm",		!noob && (shiptype.getShipClass() != ShipClasses.GESCHUETZ.ordinal()) && shiptype.isMilitary() );
 		
 		if( ship.getHeat() >= 100 ) {
@@ -1160,7 +1155,7 @@ public class SchiffController extends TemplateGenerator {
 		
 		// Tooltip: Schiffsstatusfeld
 		if( user.isAdmin() ) {
-			tooltiptext = new StringBuilder(100);
+			StringBuilder tooltiptext = new StringBuilder(100);
 			tooltiptext.append(Common.tableBegin(200, "left").replace('"', '\''));
 			tooltiptext.append("<span style='text-decoration:underline'>Schiffsstatus:</span><br />"+ship.getStatus().trim().replace(" ", "<br />"));
 			if( (ship.getLock() != null) && (ship.getLock().length() > 0) ) {
@@ -1325,7 +1320,7 @@ public class SchiffController extends TemplateGenerator {
 				}
 			}
 
-			tooltiptext = new StringBuilder(100);
+			StringBuilder tooltiptext = new StringBuilder(100);
 			tooltiptext.append(Common.tableBegin(400,"left").replace('"', '\''));
 			if( tooltiplines.size() > 15 ) {
 				tooltiptext.append("<div style='height:300px; overflow:auto'>");

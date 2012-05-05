@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -33,6 +34,8 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 /**
  * Zeigt alle wichtigen Objekte in einem System an wie z.B.
@@ -84,6 +87,94 @@ public class ImpObjectsController extends TemplateGenerator {
 		system = thissystem;
 		
 		return true;	
+	}
+	
+	@Action(ActionType.AJAX)
+	public void jsonAction() throws IOException
+	{
+		org.hibernate.Session db = getDB();
+		JSONObject json = new JSONObject();
+		
+		JSONObject sysObj = new JSONObject();
+		sysObj.accumulate("name", system.getName());
+		sysObj.accumulate("id", system.getID());
+		json.accumulate("system", sysObj);
+
+		JSONArray jnListObj = new JSONArray();
+		JSONArray postenListObj = new JSONArray();
+		if( viewableSystem )
+		{	 			
+			/*
+				Sprungpunkte
+			*/
+		
+			List<?> jnList = db.createQuery("from JumpNode where system=?  and hidden=0")
+				.setInteger(0, system.getID())
+				.list();
+			for( Iterator<?> iter=jnList.iterator(); iter.hasNext(); )
+			{
+				JumpNode node = (JumpNode)iter.next();
+				
+				StarSystem systemout = (StarSystem)db.get(StarSystem.class, node.getSystemOut());
+				
+				JSONObject jn = new JSONObject();
+				jn.accumulate("x", node.getX());
+				jn.accumulate("y", node.getY());
+				jn.accumulate("name", node.getName());
+				jn.accumulate("target", node.getSystemOut());
+				jn.accumulate("targetname", systemout.getName());
+				
+				jnListObj.add(jn);
+			}
+		
+			/*
+				Handelsposten
+			*/
+		
+			List<?> postenList = db.createQuery("from Ship where id>0 and owner=? and system=? and locate('tradepost',status)!=0")
+				.setInteger(0, Faction.GTU)
+				.setInteger(1, system.getID())
+				.list();
+			for( Iterator<?> iter=postenList.iterator(); iter.hasNext(); )
+			{
+				Ship posten = (Ship)iter.next();
+				
+				JSONObject postenObj = new JSONObject();
+				postenObj.accumulate("x", posten.getX());
+				postenObj.accumulate("y", posten.getY());
+				postenObj.accumulate("name", posten.getName());
+				
+				postenListObj.add(postenObj);
+			}
+		}
+		
+		json.accumulate("jumpnodes", jnListObj);
+		json.accumulate("posten", postenListObj);
+	
+		/*
+			Basen
+		*/
+		JSONArray baseListObj = new JSONArray();
+		
+		List<?> baseList = db.createQuery("from Base where owner=? and system=?")
+			.setEntity(0, getUser())
+			.setInteger(1, system.getID())
+			.list();
+		for( Iterator<?> iter=baseList.iterator(); iter.hasNext(); )
+		{
+			Base base = (Base)iter.next();
+			
+			JSONObject baseObj = new JSONObject();
+			baseObj.accumulate("x", base.getX());
+			baseObj.accumulate("y", base.getY());
+			baseObj.accumulate("name", base.getName());
+			
+			baseListObj.add(baseObj);
+		}
+		
+		json.accumulate("bases", baseListObj);
+		
+		getResponse().getWriter().append(json.toString());
 	}
 
 	@Override

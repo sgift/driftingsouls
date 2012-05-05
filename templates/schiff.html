@@ -32,6 +32,10 @@
 {/endif}
 </div>
 {if ship.showui}
+	<div id="impobjectsbox" class="gfxbox"><div><div><div>
+		<div class="content"></div>
+		<button onclick="Schiff.closeImpObjects()">schließen</button>
+	</div></div></div></div>
 	<table class="show" cellspacing="3" cellpadding="3">
 	<tr>
 		<td class="schiff">
@@ -39,7 +43,7 @@
 		</td>
 		<td class="schiff">Navigation</td>
 		<td class="schiff" style="width:10px" align="right">
-			<a id="systeminfo" name="systeminfo" class="noborder" onclick="javascript:overlib('{tooltip.systeminfo}',REF,'systeminfo', REFC,'LL',REFP,'UR',FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip',NOCLOSE,STICKY);" onmouseout="return nd();" href="#">
+			<a id="systeminfo" name="systeminfo" class="noborder" onclick="Schiff.openImpObjects({ship.location.system})" href="#">
 				<img src="{URL}data/interface/impobjects.gif" alt="?" />
 			</a>
 		</td>

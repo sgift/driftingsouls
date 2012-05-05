@@ -254,7 +254,7 @@ div.gfxbox > div > div > div {
 	color: #FEB626;
 	font-size:13px;
 	background-color: #202020;
-	padding:1px;
+	padding:2px;
 }
 
 .gfxbox input, .gfxbox select {
@@ -264,6 +264,23 @@ div.gfxbox > div > div > div {
 	font-size:13px;
 	background-color: #202020;
 	padding:1px;
+}
+
+.gfxbox a:link,
+.gfxbox a:visited {
+	color: #0060F0;
+	font-weight: normal;
+	text-decoration: none
+}
+.gfxbox a:hover {
+	color: #F0A000;
+	font-weight: normal;
+	text-decoration: none
+}
+.gfxbox a:active {
+	color: #0000FF;
+	font-weight: normal;
+	text-decoration: none
 }
 
 .kursbox {
@@ -276,4 +293,47 @@ div.gfxbox > div > div > div {
 .kursbox .content {
 	max-height:300px;
 	overflow-y:auto;
+}
+
+#impobjectsbox {
+	position:fixed;
+	top:200px;
+	margin-left:auto;
+	margin-right:auto;
+	z-index:100;
+	left:0px;
+	right:0px;
+	width:360px;
+	display:none;
+	text-align:center;
+}
+
+#impobjectsbox .content {
+	text-align: left;
+	height:350px;
+	overflow-y:auto;
+	margin-right:3px;
+}
+#impobjectsbox ul {
+	padding-left:5px;
+}
+#impobjectsbox li {
+	list-style-type:none;
+	clear:both;
+	margin-bottom:5px;
+	margin-top:5px;
+	color:#FEB626;
+}
+#impobjectsbox dl {
+	font-size:12px;
+	color:#C7C7C7;
+}
+#impobjectsbox dt {
+	float:left;
+	width:65px;
+	text-align:center;
+}
+#impobjectsbox dd {
+	margin-left:70px;
+	margin-bottom:5px;
 }
