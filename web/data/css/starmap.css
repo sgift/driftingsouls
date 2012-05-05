@@ -1,3 +1,7 @@
+body {
+	margin:0px;
+}
+
 #mapmenubar {
 	position:fixed;
 	left:-20px;
@@ -67,8 +71,11 @@
 }
 
 #mapcontent {
-	position:relative;
-	left:30px;
+	position:absolute;
+	left:45px;
+	top:5px;
+	right:5px;
+	bottom:5px;
 }
 
 #legend
@@ -80,8 +87,10 @@
 	border-spacing: 0px;
 	border-style: none;
 	position:absolute;
-	left:10px;
-	top:10px;
+	left:0px;
+	top:0px;
+	right:0px;
+	bottom:0px;
 	z-index:5;
 	font-size:9px;
 }
@@ -183,8 +192,10 @@
 
 #mapview {
 	position:absolute;
-	top:35px;
-	left:35px;
+	top:25px;
+	left:25px;
+	right:25px;
+	bottom:25px;
 	overflow:hidden;
 	z-index:10;
 }
