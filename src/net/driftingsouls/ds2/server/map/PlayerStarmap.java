@@ -1,6 +1,8 @@
 package net.driftingsouls.ds2.server.map;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
@@ -23,6 +25,9 @@ import org.hibernate.Session;
  */
 public class PlayerStarmap extends PublicStarmap
 {
+	private final Map<Location, Ship> scannableLocations;
+	private final User user;
+	
 	/**
 	 * Legt eine neue Sicht an.
 	 * 
@@ -30,19 +35,34 @@ public class PlayerStarmap extends PublicStarmap
 	 * @param user Der Spieler fuer den die Sicht gelten soll.
 	 * @param system Die ID des zu Grunde liegenden Sternensystems.
 	 */
-	public PlayerStarmap(Session db, User user, int system)
+	public PlayerStarmap(Session db, User user, int system) {
+		this(db, user, system, null);
+	}
+	
+	/**
+	 * Legt eine neue Sicht an.
+	 * 
+	 * @param db Ein aktives Hibernate Sessionobjekt.
+	 * @param user Der Spieler fuer den die Sicht gelten soll.
+	 * @param system Die ID des zu Grunde liegenden Sternensystems.
+	 * @param ausschnitt Der Ausschnitt (x, y, w, h) auf den die Sicht beschraenkt werden soll.
+	 */
+	public PlayerStarmap(Session db, User user, int system, int[] ausschnitt)
 	{
 		super(db, system);
 		
+		if( ausschnitt != null ) {
+			this.map = new ClippedStarmap(db, user, this.map, ausschnitt);
+		}
 		this.user = user;
 		if(this.user == null)
 		{
 			throw new IllegalArgumentException("User may not be null.");
 		}
 		
-		this.scannableLocations = buildScannableLocations(user, map.getShipMap(), map.getNebulaMap());
+		this.scannableLocations = buildScannableLocations(user);
 	}
-	
+
 	/**
 	 * Gibt an, ob der Spieler einen bestimmten Sektor scannen kann.
 	 * 
@@ -141,12 +161,12 @@ public class PlayerStarmap extends PublicStarmap
 	{
 		String imageName = "";
 		//Fleet attachment
-		List<Ship> sectorShips = map.getShipMap().get(location);
+		List<Ship> sectorShips = this.map.getShipMap().get(location);
 		int ownShips = 0;
 		int alliedShips = 0;
 		int enemyShips = 0;
 		int unscannableEnemyShips = 0;
-		Nebel nebula = map.getNebulaMap().get(location);
+		Nebel nebula = this.map.getNebulaMap().get(location);
 
 		if(sectorShips != null && !sectorShips.isEmpty())
 		{
@@ -234,13 +254,14 @@ public class PlayerStarmap extends PublicStarmap
 		return imageName;
 	}
 	
-	private Map<Location, Ship> buildScannableLocations(User user, Map<Location, List<Ship>> locatedShips, Map<Location, Nebel> nebulas)
+	private Map<Location, Ship> buildScannableLocations(User user)
 	{
+		Map<Location, Nebel> nebulas = this.map.getNebulaMap();
 		Ally ally = user.getAlly();
 		Relations relations = user.getRelations();
 		Map<Location, Ship> scannableLocations = new HashMap<Location, Ship>();
 
-		for(Map.Entry<Location, List<Ship>> sectorShips: locatedShips.entrySet())
+		for(Map.Entry<Location, List<Ship>> sectorShips: this.map.getShipMap().entrySet())
 		{
 			Location position = sectorShips.getKey();
 			List<Ship> ships = sectorShips.getValue();
@@ -340,7 +361,4 @@ public class PlayerStarmap extends PublicStarmap
 		}
 		return scannableLocations;
 	}
-	
-	private final Map<Location, Ship> scannableLocations;
-	private final User user;
 }

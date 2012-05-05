@@ -39,6 +39,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.io.IOUtils;
+import org.hibernate.FlushMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -349,146 +350,158 @@ public class MapController extends TemplateGenerator
 			return;
 		}
 		
-		JSONObject sysObj = new JSONObject();
-		sysObj.accumulate("id", this.system.getID());
-		sysObj.accumulate("width", this.system.getWidth());
-		sysObj.accumulate("height", this.system.getHeight());
-		json.accumulate("system", sysObj);
-		
 		org.hibernate.Session db = getDB();
-		User user = (User)getUser();
-		
-		PlayerStarmap content = new PlayerStarmap(db, user, system.getID());
-
-		JSONArray publicNodeArray = new JSONArray();
-		for(JumpNode node: content.getPublicNodes())
-		{
-			String blocked = "";
-			if( node.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn(0) )
-			{
-				blocked = " - blockiert";
-			}
-
-			JSONObject nodeObj = new JSONObject();
-			nodeObj.accumulate("x", node.getX());
-			nodeObj.accumulate("y", node.getY());
-			nodeObj.accumulate("name", node.getName());
-			nodeObj.accumulate("systemout", node.getSystemOut());
-			nodeObj.accumulate("blocked", blocked);
+		// Flushmode aendern um autoflushes auf den grossen geladenen Datenmengen zu vermeiden.
+		FlushMode oldFlushMode = db.getFlushMode();
+		db.setFlushMode(FlushMode.MANUAL);
+		try {
+			User user = (User)getUser();
 			
-			publicNodeArray.add(nodeObj);
-		}
-		json.accumulate("jumpnodes", publicNodeArray);
-
-		int width = this.system.getWidth();
-		int height = this.system.getHeight();
+			JSONObject sysObj = new JSONObject();
+			sysObj.accumulate("id", this.system.getID());
+			sysObj.accumulate("width", this.system.getWidth());
+			sysObj.accumulate("height", this.system.getHeight());
+			json.accumulate("system", sysObj);
 		
-		String dataPath = templateEngine.getVar("global.datadir") + "data/starmap/";
-		json.accumulate("dataPath", dataPath);
-
-		int xStart = getInteger("xstart");
-		int xEnd = getInteger("xend");
-		int yStart = getInteger("ystart");
-		int yEnd = getInteger("yend");
-
-		//Limit width and height to map size
-		if(xStart < 1)
-		{
-			xStart = 1;
-		}
-
-		if(xEnd > width)
-		{
-			xEnd = width;
-		}
-
-		if(yStart < 1)
-		{
-			yStart = 1;
-		}
-
-		if(yEnd > height)
-		{
-			yEnd = height;
-		}
-
-		//Use sensible defaults in case of useless input
-		if(yEnd <= yStart)
-		{
-			yEnd = height;
-		}
-
-		if(xEnd <= xStart)
-		{
-			xEnd = width;
-		}
+			int width = this.system.getWidth();
+			int height = this.system.getHeight();
 		
-		JSONObject sizeObj = new JSONObject();
-		sizeObj.accumulate("minx", xStart);
-		sizeObj.accumulate("miny", yStart);
-		sizeObj.accumulate("maxx", xEnd);
-		sizeObj.accumulate("maxy", yEnd);
-		
-		json.accumulate("size", sizeObj);
+			int xStart = getInteger("xstart");
+			int xEnd = getInteger("xend");
+			int yStart = getInteger("ystart");
+			int yEnd = getInteger("yend");
 	
-		JSONArray locationArray = new JSONArray();
-		for(int y = yStart; y <= yEnd; y++)
-		{
-			for(int x = xStart; x <= xEnd; x++)
+			//Limit width and height to map size
+			if(xStart < 1)
 			{
-				Location position = new Location(this.system.getID(), x, y);
-				boolean scannable = content.isScannable(position);			
-				String sectorImage = content.getUserSectorBaseImage(position);
-				String sectorOverlayImage = content.getSectorOverlayImage(position);
-				
-				boolean endTag = false;
-				
-				JSONObject posObj = new JSONObject();
-				posObj.accumulate("x", x);
-				posObj.accumulate("y", y);
-				posObj.accumulate("scan", scannable);
-				
-				if( sectorImage != null )
+				xStart = 1;
+			}
+	
+			if(xEnd > width)
+			{
+				xEnd = width;
+			}
+	
+			if(yStart < 1)
+			{
+				yStart = 1;
+			}
+	
+			if(yEnd > height)
+			{
+				yEnd = height;
+			}
+	
+			//Use sensible defaults in case of useless input
+			if(yEnd <= yStart)
+			{
+				yEnd = height;
+			}
+	
+			if(xEnd <= xStart)
+			{
+				xEnd = width;
+			}
+			
+			PlayerStarmap content = new PlayerStarmap(db, user, system.getID(), new int[] {xStart,yStart,xEnd-xStart,yEnd-yStart});
+	
+			JSONArray publicNodeArray = new JSONArray();
+			for(JumpNode node: content.getPublicNodes())
+			{
+				String blocked = "";
+				if( node.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn(0) )
 				{
-					endTag = true;
-					posObj.accumulate("bg", sectorImage);
-					sectorImage = sectorOverlayImage;
+					blocked = " - blockiert";
 				}
-				else if( scannable )
-				{
-					endTag = true;
-					posObj.accumulate("bg", content.getSectorBaseImage(position));
-					sectorImage = sectorOverlayImage;
-				}
-				else if( sectorOverlayImage != null )
-				{
-					endTag = true;
-					sectorImage = sectorOverlayImage;
-				}
+	
+				JSONObject nodeObj = new JSONObject();
+				nodeObj.accumulate("x", node.getX());
+				nodeObj.accumulate("y", node.getY());
+				nodeObj.accumulate("name", node.getName());
+				nodeObj.accumulate("systemout", node.getSystemOut());
+				nodeObj.accumulate("blocked", blocked);
 				
-				if( sectorImage != null )
+				publicNodeArray.add(nodeObj);
+			}
+			json.accumulate("jumpnodes", publicNodeArray);
+	
+			
+			String dataPath = templateEngine.getVar("global.datadir") + "data/starmap/";
+			json.accumulate("dataPath", dataPath);
+			
+			JSONObject sizeObj = new JSONObject();
+			sizeObj.accumulate("minx", xStart);
+			sizeObj.accumulate("miny", yStart);
+			sizeObj.accumulate("maxx", xEnd);
+			sizeObj.accumulate("maxy", yEnd);
+			
+			json.accumulate("size", sizeObj);
+		
+			JSONArray locationArray = new JSONArray();
+			for(int y = yStart; y <= yEnd; y++)
+			{
+				for(int x = xStart; x <= xEnd; x++)
 				{
-					if(scannable)
+					Location position = new Location(this.system.getID(), x, y);
+					boolean scannable = content.isScannable(position);			
+					String sectorImage = content.getUserSectorBaseImage(position);
+					String sectorOverlayImage = content.getSectorOverlayImage(position);
+					
+					boolean endTag = false;
+					
+					JSONObject posObj = new JSONObject();
+					posObj.accumulate("x", x);
+					posObj.accumulate("y", y);
+					posObj.accumulate("scan", scannable);
+					
+					if( sectorImage != null )
 					{
-						int scannerId = content.getSectorScanner(position).getId();
-						
-						posObj.accumulate("fg", sectorImage);
-						posObj.accumulate("scanner", scannerId);						
+						endTag = true;
+						posObj.accumulate("bg", sectorImage);
+						sectorImage = sectorOverlayImage;
 					}
-					else
+					else if( scannable )
 					{
-						posObj.accumulate("fg", sectorImage);
+						endTag = true;
+						posObj.accumulate("bg", content.getSectorBaseImage(position));
+						sectorImage = sectorOverlayImage;
 					}
-				}
-				
-				if( endTag ) {
-					locationArray.add(posObj);
+					else if( sectorOverlayImage != null )
+					{
+						endTag = true;
+						sectorImage = sectorOverlayImage;
+					}
+					
+					if( sectorImage != null )
+					{
+						if(scannable)
+						{
+							int scannerId = content.getSectorScanner(position).getId();
+							
+							posObj.accumulate("fg", sectorImage);
+							posObj.accumulate("scanner", scannerId);						
+						}
+						else
+						{
+							posObj.accumulate("fg", sectorImage);
+						}
+					}
+					
+					if( endTag ) {
+						locationArray.add(posObj);
+					}
 				}
 			}
+			json.accumulate("locations", locationArray);
+			
+			getResponse().getWriter().append(json.toString());
+			
+			// Das Anzeigen sollte keine DB-Aenderungen verursacht haben
+			db.clear();
 		}
-		json.accumulate("locations", locationArray);
-		
-		getResponse().getWriter().append(json.toString());
+		finally {
+			db.setFlushMode(oldFlushMode);
+		}
 	}
 	
 	/**

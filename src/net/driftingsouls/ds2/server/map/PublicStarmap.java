@@ -36,7 +36,7 @@ import org.hibernate.Session;
 public class PublicStarmap
 {
 
-	protected final Starmap map;
+	protected Starmap map;
 
 	/**
 	 * Konstruktor.
@@ -45,11 +45,17 @@ public class PublicStarmap
 	 */
 	public PublicStarmap(Session db, int system)
 	{
-		this.map = (Starmap)db.get(Starmap.class, system);
-		if(this.map == null)
+		this.map = createMap(db, system);
+	}
+
+	private Starmap createMap(Session db, int system)
+	{
+		Starmap map = (Starmap)db.get(Starmap.class, system);
+		if(map == null)
 		{
 			throw new IllegalArgumentException("The given system " + system + " does not exist.");
 		}
+		return map;
 	}
 
 	/**
