@@ -63,7 +63,6 @@ import org.apache.commons.logging.LogFactory;
 public class Common {
 	private static final Log log = LogFactory.getLog(Common.class);
 	
-	private static NumberFormat numberFormat;
 	private static Locale locale;
 	
 	/**
@@ -73,7 +72,6 @@ public class Common {
 	
 	static {
 		locale = Locale.GERMAN;
-		numberFormat = NumberFormat.getInstance(Locale.GERMAN);
 	}
 	
 	private Common() {
@@ -160,7 +158,7 @@ public class Common {
 	 * @return das aktuell verwendete <code>NumberFormat</code>
 	 */
 	public static NumberFormat getNumberFormat() {
-		return numberFormat;
+		return NumberFormat.getInstance(Common.locale);
 	}
 	
 	/**
@@ -177,7 +175,6 @@ public class Common {
 	 */
 	static void setLocale( Locale locale ) {
 		Common.locale = locale;
-		numberFormat = NumberFormat.getInstance(locale);
 	}
 	
 	/**
@@ -186,7 +183,7 @@ public class Common {
 	 * @return Die formatierte Zahl
 	 */
 	public static String ln( Number number ) {
-		return numberFormat.format(number);
+		return getNumberFormat().format(number);
 	}
 	
 	/**
