@@ -62,7 +62,7 @@ public class StatBiggestAsteroid extends AbstractStatistic implements Statistic 
 		int count = 0;
 		while( tmp.next() ) {
 	   		echo.append("<tr><td class=\"noBorderX\" style=\"width:40px\">"+(count+1)+".</td>\n");
-			echo.append("<td class=\"noBorderX\"><a class=\"profile\" href=\""+url+tmp.getInt("id")+"\">"+Common._title(tmp.getString("name"))+" ("+tmp.getInt("id")+")</a></td>\n");
+			echo.append("<td class=\"noBorderX\"><a class=\"profile\" href=\""+url+tmp.getInt("owner")+"\">"+Common._title(tmp.getString("name"))+" ("+tmp.getInt("owner")+")</a></td>\n");
 			echo.append("<td class=\"noBorderX\">&nbsp;-&nbsp;</td>\n");
 			echo.append("<td class=\"noBorderX\">"+tmp.getString("astiname")+" ("+tmp.getInt("id")+")</td>\n");
 			echo.append("<td class=\"noBorderX\">&nbsp;-&nbsp;</td>\n");
