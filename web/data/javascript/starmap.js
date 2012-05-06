@@ -201,7 +201,7 @@ var StarmapLegend = function(screen, mapSize) {
 		}
 		
 		if( this.__currentShiftOffset[1] >= Starmap.__SECTOR_IMAGE_SIZE ) {
-			this.__currentShiftOffset[1] -= cnt*Starmap.__SECTOR_IMAGE_SIZE;
+			this.__currentShiftOffset[1] -= Starmap.__SECTOR_IMAGE_SIZE;
 			
 			vbar.prepend("<div>"+(this.__size.miny-1)+"</div>");
 			this.__size.miny -= 1;
@@ -237,6 +237,8 @@ var StarmapTiles = function(systemId, screenSize, mapSize) {
 	this.__size = {minx:mapSize.minx, maxx:mapSize.maxx, miny:mapSize.miny, maxy:mapSize.maxy};
 	this.__systemId = systemId;
 	this.__renderedTiles = [];
+	this.__startPos = [Math.floor((mapSize.minx-1)/this.__TILE_SIZE), Math.floor((mapSize.miny-1)/this.__TILE_SIZE)];
+	this.__startSectorPos = [mapSize.minx, mapSize.miny];
 	
 	this.__renderTiles = function(mapSize)
 	{
@@ -260,16 +262,19 @@ var StarmapTiles = function(systemId, screenSize, mapSize) {
 	
 	this.prepareShift = function(moveX, moveY) {
 		var tiles = $('#tiles');
+		if( isNaN(moveX) || isNaN(this.__currentShiftOffset[0]) ) {
+			throw "NaN";
+		}
 			
 		this.__currentShiftOffset = [this.__currentShiftOffset[0]-moveX, this.__currentShiftOffset[1]-moveY];
 		
 		var realSize = {minx:this.__size.minx, maxx:this.__size.maxx, miny:this.__size.miny, maxy:this.__size.maxy};
 		
 		var mod = false;
-		if( this.__currentShiftOffset[0] >= this.__TILE_SIZE ) {
-			var cnt = Math.max(this.__currentShiftOffset[0] / this.__TILE_SIZE);
-			this.__currentShiftOffset[0] -= cnt*this.__SECTOR_IMAGE_SIZE;
-			realSize.minx -= cnt;
+		if( this.__currentShiftOffset[0] >= Starmap.__SECTOR_IMAGE_SIZE ) {
+			var cnt = Math.ceil(this.__currentShiftOffset[0] / Starmap.__SECTOR_IMAGE_SIZE);
+			//this.__currentShiftOffset[0] -= cnt*Starmap.__SECTOR_IMAGE_SIZE;
+			realSize.minx = this.__startSectorPos[0]-cnt;
 			mod = true;
 		}
 		else if( this.__currentShiftOffset[0] + (this.__size.maxx-this.__size.minx)*this.__TILE_SIZE < this.__screen.width() ) {
@@ -279,9 +284,9 @@ var StarmapTiles = function(systemId, screenSize, mapSize) {
 		}
 		
 		if( this.__currentShiftOffset[1] >= Starmap.__SECTOR_IMAGE_SIZE ) {
-			var cnt = Math.max(this.__currentShiftOffset[1] / this.__TILE_SIZE);
-			this.__currentShiftOffset[1] -= cnt*Starmap.__SECTOR_IMAGE_SIZE;
-			realSize.miny -= cnt;
+			var cnt = Math.ceil(this.__currentShiftOffset[1] / Starmap.__SECTOR_IMAGE_SIZE);
+			//this.__currentShiftOffset[1] -= cnt*Starmap.__SECTOR_IMAGE_SIZE;
+			realSize.miny = this.__startSectorPos[1]-cnt;
 			mod = true;
 		}
 		else if( this.__currentShiftOffset[1] + (this.__size.maxy-this.__size.miny)*this.__TILE_SIZE < this.__screen.height() ) {
@@ -295,6 +300,9 @@ var StarmapTiles = function(systemId, screenSize, mapSize) {
 			var url = Starmap.__getDsUrl();
 			var startTileY = Math.floor((realSize.miny-1)/this.__TILE_SIZE);
 			var startTileX = Math.floor((realSize.minx-1)/this.__TILE_SIZE);
+			if( startTileX < 0 ) {
+				throw "OutOfRange";
+			}
 			for( var y=startTileY; y <= Math.floor((realSize.maxy-1)/this.__TILE_SIZE); y++ )
 			{
 				for( var x=startTileX; x <= Math.floor((realSize.maxx-1)/this.__TILE_SIZE); x++ )
@@ -302,8 +310,8 @@ var StarmapTiles = function(systemId, screenSize, mapSize) {
 					if( typeof this.__renderedTiles[x+"/"+y] !== "undefined" ) {
 						continue;
 					}
-					var xOffset = ((x-startTileX)*this.__TILE_SIZE-(realSize.minx-1)%this.__TILE_SIZE)*Starmap.__SECTOR_IMAGE_SIZE;
-					var yOffset = ((y-startTileY)*this.__TILE_SIZE-(realSize.miny-1)%this.__TILE_SIZE)*Starmap.__SECTOR_IMAGE_SIZE;
+					var xOffset = ((x-this.__startPos[0])*this.__TILE_SIZE-(this.__startSectorPos[0]-1)%this.__TILE_SIZE)*Starmap.__SECTOR_IMAGE_SIZE;
+					var yOffset = ((y-this.__startPos[1])*this.__TILE_SIZE-(this.__startSectorPos[1]-1)%this.__TILE_SIZE)*Starmap.__SECTOR_IMAGE_SIZE;
 					newTiles += "<img style=\"left:"+xOffset+"px;top:"+yOffset+"px;\" src=\""+url+"?module=map&action=tile&sys="+this.__systemId+"&tileX="+x+"&tileY="+y+"\" />";
 					this.__renderedTiles[x+"/"+y] = true;
 				}
@@ -585,8 +593,8 @@ var Starmap = {
 			newOff[0] = -(this.__currentSystem.width*this.__SECTOR_IMAGE_SIZE-this.__screen.width());
 		}
 		
-		if( newOff[1] > (this.__currentSize.minx-1)*this.__SECTOR_IMAGE_SIZE ) {
-			newOff[1] = (this.__currentSize.minx-1)*this.__SECTOR_IMAGE_SIZE;
+		if( newOff[1] > (this.__currentSize.miny-1)*this.__SECTOR_IMAGE_SIZE ) {
+			newOff[1] = (this.__currentSize.miny-1)*this.__SECTOR_IMAGE_SIZE;
 		}
 		else if( newOff[1] < 0 && -newOff[1] > this.__currentSystem.height*this.__SECTOR_IMAGE_SIZE-this.__screen.height() ) {
 			newOff[1] = -(this.__currentSystem.height*this.__SECTOR_IMAGE_SIZE-this.__screen.height());
