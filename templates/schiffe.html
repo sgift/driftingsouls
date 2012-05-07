@@ -15,11 +15,6 @@
 	</td>
 </tr>
 <tr>
-	<td class="noBorderS">
-		{!link_to Cargo, changeMode, only:$global.only, low:$global.low, crewless:$global.crewless, kampf_only:$global.kampf_only, mode:carg}
-		 - 
-		{!link_to Norm, changeMode, only:$global.only, low:$global.low, crewless:$global.crewless, kampf_only:$global.kampf_only, mode:norm}
-	</td>
 	{if only.tank}
 		<td class="noBorderS" align="right">{!link_to Sammelbefehl an alle Tanker, default, module:deutall, css_class:ok}</td>
 	{/endif}

@@ -168,7 +168,6 @@ public class SchiffeController extends TemplateGenerator {
 				  	"user.race",		user.getRace());
 		
 		String ord = user.getUserValue("TBLORDER/schiffe/order");
-		String mode = user.getUserValue("TBLORDER/schiffe/mode");
 		String showjaeger = user.getUserValue("TBLORDER/schiffe/showjaeger");
 		
 		Map<String,String> ordermapper = new HashMap<String,String>();
@@ -286,8 +285,6 @@ public class SchiffeController extends TemplateGenerator {
 				t.setVar("schiffe.nextoffset", listoffset + MAX_SHIPS_PER_PAGE);
 				break;	
 			}
-			
-			ResourceID[] normwarenlist = {Resources.NAHRUNG,Resources.URAN,Resources.DEUTERIUM,Resources.ANTIMATERIE,Resources.BATTERIEN};
 			
 			ShipTypeData shiptype = ship.getTypeData();
 			
@@ -487,10 +484,6 @@ public class SchiffeController extends TemplateGenerator {
 						}
 					}
 					
-					if( mode.equals("norm") && !Common.inArray( res.getId(), normwarenlist) && !res.getId().isItem() ) {
-						continue;
-					}
-					
 					t.setVar(	"res.image",		res.getImage(),
 								"res.color",		color,
 								"res.count",		res.getCargo1(),
@@ -499,7 +492,7 @@ public class SchiffeController extends TemplateGenerator {
 					t.parse("schiffe.reslist","schiffe.resitem",true);
 				}
 				
-				if( mode.equals("carg") && (shiptype.getCargo() != 0) ) {
+				if( shiptype.getCargo() != 0 ) {
 					t.setVar(	"ship.restcargo",	Common.ln(shiptype.getCargo() - cargo.getMass()),
 								"ship.restcargo.show", 1 );
 				}
