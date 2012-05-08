@@ -116,7 +116,7 @@ public class ClippedStarmap extends Starmap
 		// sich komplett im Ausschnitt befinden.
 		// TODO: Die Menge der Schiffe laesst sich sicherlich noch weiter eingrenzen
 		List<?> shipList = db.createQuery("from Ship as s left join fetch s.modules" +
-				" where s.system=:sys and " +
+				" where s.system=:sys and s.docked not like 'l %' and " +
 				"((s.x between :minx-s.shiptype.sensorRange and :maxx+s.shiptype.sensorRange) or" +
 				"(s.x between :minx-s.modules.sensorRange and :maxx+s.modules.sensorRange)) and " +
 				"((s.y between :miny-s.shiptype.sensorRange and :maxy+s.shiptype.sensorRange) or" +
