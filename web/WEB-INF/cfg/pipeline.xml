@@ -233,6 +233,12 @@
 		
 		<!-- Grafiken -->
 		
+		<match pattern="/data/(javascript|css)/v[a-fA-F0-9]*/.*\.(js|css)">
+			<execute-reader>
+				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.FileReader" />
+				<file pattern="/data/([^/]*)/v.*/(.*)" file="data/$1/$2" />
+			</execute-reader>
+		</match>
 		<match pattern="/.*data/.*\.(gif|png|jpg|css|js)">
 			<execute-reader>
 				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.FileReader" />

@@ -170,7 +170,7 @@ public abstract class DSGenerator extends Generator {
 			sb.append("<title>Drifting Souls 2</title>\n");
 			sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n");
 			if( !getDisableDefaultCSS() ) { 
-				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"data/css/format.css?"+version.getHgVersion()+"\" />\n");
+				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"data/css/v"+version.getHgVersion()+"/format.css\" />\n");
 			}
 			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+url+"data/css/ui-darkness/jquery-ui-1.8.20.css\" />\n");
 			
@@ -200,13 +200,13 @@ public abstract class DSGenerator extends Generator {
 			if( usegfxpak ) {
 				sb.append("<script src=\""+url+"data/javascript/gfxpakversion.js?"+version.getHgVersion()+"\" type=\"text/javascript\"></script>\n");
 			}
-			sb.append("<script src=\""+url+"data/javascript/prototype.js?"+version.getHgVersion()+"\" type=\"text/javascript\"></script>\n");
-			sb.append("<script src=\""+url+"data/javascript/scriptaculous.js?"+version.getHgVersion()+"\" type=\"text/javascript\"></script>\n");
-			sb.append("<script src=\""+url+"data/javascript/jquery-1.7.2.min.js?"+version.getHgVersion()+"\" type=\"text/javascript\"></script>\n");
-			sb.append("<script src=\""+url+"data/javascript/jquery-ui-1.8.20.min.js?"+version.getHgVersion()+"\" type=\"text/javascript\"></script>\n");
+			sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/prototype.js\" type=\"text/javascript\"></script>\n");
+			sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/scriptaculous.js\" type=\"text/javascript\"></script>\n");
+			sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/jquery-1.7.2.min.js\" type=\"text/javascript\"></script>\n");
+			sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/jquery-ui-1.8.20.min.js\" type=\"text/javascript\"></script>\n");
 			if( customJS )
 			{
-				sb.append("<script src=\""+url+"data/javascript/"+this.getAttribute("module")+".js?"+version.getHgVersion()+"\" type=\"text/javascript\"></script>\n");
+				sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/"+this.getAttribute("module")+".js\" type=\"text/javascript\"></script>\n");
 			}
 			sb.append("<script type=\"text/javascript\">\n");
 			sb.append("<!--\n");

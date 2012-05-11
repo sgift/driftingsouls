@@ -136,11 +136,11 @@ public class MapController extends TemplateGenerator
 		sb.append("<title>Drifting Souls 2</title>\n");
 		sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n");
 		if( !getDisableDefaultCSS() ) { 
-			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(config.get("URL")).append("data/css/format.css?").append(version.getHgVersion()).append("\" />\n");
+			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(config.get("URL")).append("data/css/v").append(version.getHgVersion()).append("/format.css\" />\n");
 		}
-		sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(config.get("URL")).append("data/css/starmap.css\" />\n");
-        sb.append("<script src=\"").append(url).append("data/javascript/jquery-1.7.2.min.js?").append(version.getHgVersion()).append("\" type=\"text/javascript\"></script>\n");
-        sb.append("<script src=\"").append(url).append("data/javascript/starmap.js?").append(version.getHgVersion()).append("\" type=\"text/javascript\"></script>\n");
+		sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(config.get("URL")).append("data/css/v").append(version.getHgVersion()).append("/starmap.css\" />\n");
+        sb.append("<script src=\"").append(url).append("data/javascript/v").append(version.getHgVersion()).append("/jquery-1.7.2.min.js\" type=\"text/javascript\"></script>\n");
+        sb.append("<script src=\"").append(url).append("data/javascript/v").append(version.getHgVersion()).append("/starmap.js\" type=\"text/javascript\"></script>\n");
         
         sb.append("<script type=\"text/javascript\">\n");
 		sb.append("if( parent && parent.setCurrentPage ) {\n");
