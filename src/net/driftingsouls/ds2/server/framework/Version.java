@@ -36,8 +36,8 @@ public class Version
 {
 	private static final Log log = LogFactory.getLog(Version.class);
 	
-	private String HG_VERSION = null;
-	private String BUILD_TIME = null;
+	private String HG_VERSION = "000000000000";
+	private String BUILD_TIME = "1970-01-01 00:00";
 	
 	/**
 	 * Konstruktor.
