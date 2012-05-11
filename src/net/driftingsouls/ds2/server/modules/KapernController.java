@@ -23,7 +23,6 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -235,10 +234,8 @@ public class KapernController extends TemplateGenerator {
 		
 		User targetUser = (User)getDB().get(User.class, this.targetShip.getOwner().getId());
 				
-		String kapermessage = "<div align=\"center\">Die Einheiten st&uuml;rmen die "+this.targetShip.getName()+"</div><br />";
+		String kapermessage = "<div align=\"center\">Die Einheiten st&uuml;rmen die "+this.targetShip.getName()+".</div><br />";
 		StringBuilder msg = new StringBuilder();
-		
-		boolean ok = false;
 
         //Trying to steal a ship already costs bounty or one could help another player to get a ship without any penalty
         if(!targetUser.hasFlag(User.FLAG_NO_AUTO_BOUNTY))
@@ -263,6 +260,8 @@ public class KapernController extends TemplateGenerator {
             }
         }
 		
+        boolean ok = false;
+        
 		// Falls Crew auf dem Zielschiff vorhanden ist
 		if( this.targetShip.getCrew() != 0 || !this.targetShip.getUnits().isEmpty() ) {
 			if( this.targetShip.getTypeData().getCrew() == 0 ) {
@@ -273,129 +272,157 @@ public class KapernController extends TemplateGenerator {
 			}	
 			
 			if( this.targetShip.getTypeData().getShipClass() == ShipClasses.STATION.ordinal() ) {
-				List<Integer> ownerlist = new ArrayList<Integer>();
-				if( targetUser.getAlly() != null ) {
-					for( User uid : targetUser.getAlly().getMembers() ) {
-						ownerlist.add(uid.getId());
-					}
-				}		
-				else {
-					ownerlist.add(targetUser.getId());
-				}
-				
-				int shipcount = 0;
-				List<Ship> shiplist = Common.cast(db.createQuery("SELECT t1.id,t1.status,t1.shiptype " + 
-								"FROM Ship t1 left join fetch ShipType t2 " + 
-							 	"WHERE t1.x="+this.targetShip.getX()+" AND t1.y="+this.targetShip.getY()+" AND t1.system="+this.targetShip.getSystem()+" AND " + 
-							 		"t1.owner IN ("+Common.implode(",",ownerlist)+") AND t1.id>0 AND t1.battle is null AND  " +
-									" t1.shiptype=t2.id").list());
-				Iterator<Ship> iter = shiplist.iterator();			
-				while( iter.hasNext() ) {
-					Ship ship = iter.next();
-					if( ship.getTypeData().isMilitary() && ship.getCrew() > 0 ) {
-						shipcount++;	
-					}
-				}
-				
-				if( shipcount > 0 ) {
-					double ws = -Math.pow(0.7,shipcount/3d)+1;
-					ws *= 100;
-					
-					boolean found = false;
-					for( int i=1; i <= shipcount; i++ ) {
-						if( RandomUtils.nextInt(101) > ws ) {
-							continue;
-						}
-						found = true;
-						break;
-					}	
-					if( found ) {
-						User source = (User)getDB().get(User.class, -1);
-						PM.send( source, this.targetShip.getOwner().getId(), "Kaperversuch entdeckt", "Ihre Schiffe haben einen Kaperversuch bei "+this.targetShip.getLocation().displayCoordinates(false)+" vereitelt und den Gegner angegriffen" );
-						
-						Battle battle = Battle.create( this.targetShip.getOwner().getId(), this.targetShip.getId() , this.ownShip.getId(), true);
-												
-						t.setVar(
-							"kapern.message",	"Ihr Kaperversuch wurde entdeckt und einige gegnerischen Schiffe haben das Feuer er&ouml;ffnet",
-							"kapern.battle",	battle.getId() );
-			
-						return;
-					}
+				if( !checkAlliedShipsReaction(db, t, targetUser) ) {
+					return;
 				}
 			}
 			
 			msg.append("Die Einheiten der "+this.ownShip.getName()+" ("+this.ownShip.getId()+"), eine "+this.ownShip.getTypeData().getNickname()+", st&uuml;rmt die "+this.targetShip.getName()+" ("+this.targetShip.getId()+"), eine "+this.targetShip.getTypeData().getNickname()+", bei "+this.targetShip.getLocation().displayCoordinates(false)+"\n\n");
 	
-
-			Crew dcrew = new UnitCargo.Crew(this.targetShip.getCrew());
-			UnitCargo ownUnits = this.ownShip.getUnits();
-			UnitCargo enemyUnits = this.targetShip.getUnits();
+			StringBuilder kapernLog = new StringBuilder();
+			ok = doFighting(db, kapernLog);
 			
-			UnitCargo saveunits = ownUnits.trimToMaxSize(targetShip.getTypeData().getMaxUnitSize());
-
-
-			int attmulti = 1;
-			int defmulti = 1;
+			msg.append(kapernLog);
 			
-			Offizier defoffizier = Offizier.getOffizierByDest('s', this.targetShip.getId());
-			if( defoffizier != null ) {
-				defmulti = defoffizier.getKaperMulti(true);
+			t.setVar("kapern.message", kapermessage+kapernLog.toString().replace("\n", "<br />"));
+			
+		}
+		// Falls keine Crew auf dem Zielschiff vorhanden ist
+		else {
+			ok = true;
+			
+			t.setVar("kapern.message", kapermessage+"Das Schiff wird widerstandslos &uuml;bernommen");
+			
+			msg.append("Das Schiff "+this.targetShip.getName()+"("+this.targetShip.getId()+"), eine "+this.targetShip.getTypeData().getNickname()+", wird bei "+this.targetShip.getLocation().displayCoordinates(false)+" an "+this.ownShip.getName()+" ("+this.ownShip.getId()+") &uuml;bergeben\n");
+		}
+		
+		// Transmisson
+		PM.send( user, targetUser.getId(), "Kaperversuch", msg.toString() );
+		
+		// Wurde das Schiff gekapert?
+		if( ok ) {
+			// Evt unbekannte Items bekannt machen
+			processUnknownItems(user);
+			
+			transferShipToNewOwner(db, user);
+		}	
+
+		this.ownShip.recalculateShipStatus();
+		this.targetShip.recalculateShipStatus();
+	}
+
+	private void transferShipToNewOwner(org.hibernate.Session db, User user)
+	{
+		String currentTime = Common.getIngameTime(ContextMap.getContext().get(ContextCommon.class).getTick());
+
+		this.targetShip.setHistory(this.targetShip.getHistory()+"Gekapert am "+currentTime+" durch "+user.getName()+" ("+user.getId()+")\n");
+
+		this.targetShip.removeFromFleet();
+		this.targetShip.setOwner(user);
+
+		List<Integer> kaperlist = new ArrayList<Integer>();
+		kaperlist.add(this.targetShip.getId());
+
+		List<Ship> docked = Common.cast(db.createQuery("from Ship where id>0 and docked in (?,?)")
+				.setString(0, Integer.toString(this.targetShip.getId()))
+				.setString(1, "l "+this.targetShip.getId())
+				.list());
+		for( Ship dockShip : docked )
+		{
+			dockShip.removeFromFleet();
+			dockShip.setOwner(user);
+			
+			db.createQuery("update Offizier set userid=? where dest=?")
+			.setEntity(0, user)
+			.setString(1, "s "+dockShip.getId())
+			.executeUpdate();
+			if( dockShip.getTypeData().getWerft() != 0 ) {
+				ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=?")
+				.setEntity(0, dockShip)
+				.uniqueResult();
+
+				if( werft.getKomplex() != null ) {
+					werft.removeFromKomplex();
+				}
+				werft.setLink(null);
 			}
-			Offizier attoffizier = Offizier.getOffizierByDest('s', this.ownShip.getId());
-			if( attoffizier != null)
+
+		}
+
+		db.createQuery("update Offizier set userid=? where dest=?")
+		.setEntity(0, user)
+		.setString(1, "s "+this.targetShip.getId())
+		.executeUpdate();
+		if( this.targetShip.getTypeData().getWerft() != 0 ) {
+			ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=?")
+			.setEntity(0, this.targetShip)
+			.uniqueResult();
+
+			if( werft.getKomplex() != null ) {
+				werft.removeFromKomplex();
+			}
+			werft.setLink(null);
+		}
+	}
+
+	private void processUnknownItems(User user)
+	{
+		Cargo cargo = this.targetShip.getCargo();
+
+		List<ItemCargoEntry> itemlist = cargo.getItems();
+		for( int i=0; i < itemlist.size(); i++ ) {
+			ItemCargoEntry item = itemlist.get(i);
+
+			Item itemobject = item.getItemObject();
+			if( itemobject.isUnknownItem() ) {
+				user.addKnownItem(item.getItemID());
+			}
+		}
+	}
+
+	private boolean doFighting(org.hibernate.Session db, StringBuilder msg)
+	{
+		boolean ok = false;
+
+		Crew dcrew = new UnitCargo.Crew(this.targetShip.getCrew());
+		UnitCargo ownUnits = this.ownShip.getUnits();
+		UnitCargo enemyUnits = this.targetShip.getUnits();
+		
+		UnitCargo saveunits = ownUnits.trimToMaxSize(targetShip.getTypeData().getMaxUnitSize());
+
+
+		int attmulti = 1;
+		int defmulti = 1;
+		
+		Offizier defoffizier = Offizier.getOffizierByDest('s', this.targetShip.getId());
+		if( defoffizier != null ) {
+			defmulti = defoffizier.getKaperMulti(true);
+		}
+		Offizier attoffizier = Offizier.getOffizierByDest('s', this.ownShip.getId());
+		if( attoffizier != null)
+		{
+			attmulti = attoffizier.getKaperMulti(false);
+		}
+
+		if( !ownUnits.isEmpty() && !(enemyUnits.isEmpty() && this.targetShip.getCrew() == 0 ) ) {
+			
+			UnitCargo toteeigeneUnits = new UnitCargo();
+			UnitCargo totefeindlicheUnits = new UnitCargo();
+			
+			if(ownUnits.kapern(enemyUnits, toteeigeneUnits, totefeindlicheUnits, dcrew, attmulti, defmulti ))
 			{
-				attmulti = attoffizier.getKaperMulti(false);
-			}
-
-			if( !ownUnits.isEmpty() && !(enemyUnits.isEmpty() && this.targetShip.getCrew() == 0 ) ) {
-				
-				UnitCargo toteeigeneUnits = new UnitCargo();
-				UnitCargo totefeindlicheUnits = new UnitCargo();
-				
-				if(ownUnits.kapern(enemyUnits, toteeigeneUnits, totefeindlicheUnits, dcrew, attmulti, defmulti ))
+				ok = true;
+				if(toteeigeneUnits.isEmpty() && totefeindlicheUnits.isEmpty())
 				{
-					ok = true;
-					if(toteeigeneUnits.isEmpty() && totefeindlicheUnits.isEmpty())
+					if( attoffizier != null)
 					{
-						if( attoffizier != null)
-						{
-							attoffizier.gainExperience(Offizier.Ability.COM, 5);
-						}
-						msg.append("Das Schiff ist kampflos verloren.\n");
+						attoffizier.gainExperience(Offizier.Ability.COM, 5);
 					}
-					else
-					{
-						msg.append("Das Schiff ist verloren.\n");
-						HashMap<Integer, Long> ownunitlist = toteeigeneUnits.getUnitList();
-						HashMap<Integer, Long> enemyunitlist = totefeindlicheUnits.getUnitList();
-						
-						if(!ownunitlist.isEmpty())
-						{
-							for(Entry<Integer, Long> unit : ownunitlist.entrySet())
-							{
-								UnitType unittype = (UnitType)db.get(UnitType.class, unit.getKey());
-								msg.append("Angreifer:\n"+unit.getValue()+" "+unittype.getName()+" erschossen\n");
-							}
-						}
-						
-						if(!enemyunitlist.isEmpty())
-						{
-							for(Entry<Integer, Long> unit : enemyunitlist.entrySet())
-							{
-								UnitType unittype = (UnitType)db.get(UnitType.class, unit.getKey());
-								msg.append("Verteidiger:\n"+unit.getValue()+" "+unittype.getName()+" gefallen\n");
-							}
-						}
-						
-						if( attoffizier != null)
-						{
-							attoffizier.gainExperience(Offizier.Ability.COM, 3);
-						}
-					}
+					msg.append("Das Schiff ist kampflos verloren.\n");
 				}
 				else
 				{
-					msg.append("Angreifer flieht.\n");
+					msg.append("Das Schiff ist verloren.\n");
 					HashMap<Integer, Long> ownunitlist = toteeigeneUnits.getUnitList();
 					HashMap<Integer, Long> enemyunitlist = totefeindlicheUnits.getUnitList();
 					
@@ -417,134 +444,112 @@ public class KapernController extends TemplateGenerator {
 						}
 					}
 					
-					if( defoffizier != null)
+					if( attoffizier != null)
 					{
-						defoffizier.gainExperience(Offizier.Ability.SEC, 5);
+						attoffizier.gainExperience(Offizier.Ability.COM, 3);
 					}
 				}
-			} 
-			else if( !ownUnits.isEmpty() ) {
-				ok = true;
-				if(attoffizier != null)
-				{
-					attoffizier.gainExperience(Offizier.Ability.COM, 5);
-				}
-				msg.append("Schiff wird widerstandslos &uuml;bernommen\n");
 			}
-
-			ownUnits.addCargo(saveunits);
-			
-			this.ownShip.setUnits(ownUnits);
+			else
+			{
+				msg.append("Angreifer flieht.\n");
+				HashMap<Integer, Long> ownunitlist = toteeigeneUnits.getUnitList();
+				HashMap<Integer, Long> enemyunitlist = totefeindlicheUnits.getUnitList();
 				
-			this.targetShip.setUnits(enemyUnits);
-			this.targetShip.setCrew(dcrew.getValue());
-
-			// Wurde das Schiff gekapert?
-			if( ok ) {
-				// Unbekannte Items bekannt machen
-				Cargo cargo = this.targetShip.getCargo();
-
-				List<ItemCargoEntry> itemlist = cargo.getItems();
-				for( int i=0; i < itemlist.size(); i++ ) {
-					ItemCargoEntry item = itemlist.get(i);
-
-					Item itemobject = item.getItemObject();
-					if( itemobject.isUnknownItem() ) {
-						user.addKnownItem(item.getItemID());
-					}
-				}
-
-				String currentTime = Common.getIngameTime(ContextMap.getContext().get(ContextCommon.class).getTick());
-
-				this.targetShip.setHistory(this.targetShip.getHistory()+"Gekapert am "+currentTime+" durch "+user.getName()+" ("+user.getId()+")\n");
-
-				this.targetShip.removeFromFleet();
-				this.targetShip.setOwner(user);
-
-				List<Integer> kaperlist = new ArrayList<Integer>();
-				kaperlist.add(this.targetShip.getId());
-
-				List<Ship> docked = Common.cast(db.createQuery("from Ship where id>0 and docked in (?,?)")
-						.setString(0, Integer.toString(this.targetShip.getId()))
-						.setString(1, "l "+this.targetShip.getId())
-						.list());
-				for( Ship dockShip : docked )
+				if(!ownunitlist.isEmpty())
 				{
-					dockShip.removeFromFleet();
-					dockShip.setOwner(user);
-					
-					db.createQuery("update Offizier set userid=? where dest=?")
-					.setEntity(0, user)
-					.setString(1, "s "+dockShip.getId())
-					.executeUpdate();
-					if( dockShip.getTypeData().getWerft() != 0 ) {
-						ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=?")
-						.setEntity(0, dockShip)
-						.uniqueResult();
-
-						if( werft.getKomplex() != null ) {
-							werft.removeFromKomplex();
-						}
-						werft.setLink(null);
+					for(Entry<Integer, Long> unit : ownunitlist.entrySet())
+					{
+						UnitType unittype = (UnitType)db.get(UnitType.class, unit.getKey());
+						msg.append("Angreifer:\n"+unit.getValue()+" "+unittype.getName()+" erschossen\n");
 					}
-
 				}
-
-				db.createQuery("update Offizier set userid=? where dest=?")
-				.setEntity(0, user)
-				.setString(1, "s "+this.targetShip.getId())
-				.executeUpdate();
-				if( this.targetShip.getTypeData().getWerft() != 0 ) {
-					ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=?")
-					.setEntity(0, this.targetShip)
-					.uniqueResult();
-
-					if( werft.getKomplex() != null ) {
-						werft.removeFromKomplex();
+				
+				if(!enemyunitlist.isEmpty())
+				{
+					for(Entry<Integer, Long> unit : enemyunitlist.entrySet())
+					{
+						UnitType unittype = (UnitType)db.get(UnitType.class, unit.getKey());
+						msg.append("Verteidiger:\n"+unit.getValue()+" "+unittype.getName()+" gefallen\n");
 					}
-					werft.setLink(null);
 				}
-			} 
-		}
-		// Falls keine Crew auf dem Zielschiff vorhanden ist
-		else {
+				
+				if( defoffizier != null)
+				{
+					defoffizier.gainExperience(Offizier.Ability.SEC, 5);
+				}
+			}
+		} 
+		else if( !ownUnits.isEmpty() ) {
 			ok = true;
+			if(attoffizier != null)
+			{
+				attoffizier.gainExperience(Offizier.Ability.COM, 5);
+			}
+			msg.append("Schiff wird widerstandslos &uuml;bernommen\n");
+		}
+
+		ownUnits.addCargo(saveunits);
+		
+		this.ownShip.setUnits(ownUnits);
 			
-			t.setVar("kapern.message", kapermessage+"Das Schiff wird widerstandslos &uuml;bernommen");
-			
-			msg.append("Das Schiff "+this.targetShip.getName()+"("+this.targetShip.getId()+"), eine "+this.targetShip.getTypeData().getNickname()+", wird bei "+this.targetShip.getLocation().displayCoordinates(false)+" an "+this.ownShip.getName()+" ("+this.ownShip.getId()+") &uuml;bergeben\n");
+		this.targetShip.setUnits(enemyUnits);
+		this.targetShip.setCrew(dcrew.getValue());
+		return ok;
+	}
+
+	private boolean checkAlliedShipsReaction(org.hibernate.Session db, TemplateEngine t,
+			User targetUser)
+	{
+		List<User> ownerlist = new ArrayList<User>();
+		if( targetUser.getAlly() != null ) {
+			ownerlist.addAll(targetUser.getAlly().getMembers());
+		}		
+		else {
+			ownerlist.add(targetUser);
 		}
 		
-		// Transmisson
-		PM.send( user, targetUser.getId(), "Kaperversuch", msg.toString() );
+		int shipcount = 0;
+		List<Ship> shiplist = Common.cast(
+				db.createQuery("from Ship where x=:x and y=:y and system=:system and owner in (:ownerlist) and id>0 and battle is null")
+					.setInteger("x", this.targetShip.getX())
+					.setInteger("y", this.targetShip.getY())
+					.setInteger("system", this.targetShip.getSystem())
+					.setParameterList("ownerlist", ownerlist)
+					.list());
+		for( Ship ship : shiplist ) {
+			if( ship.getTypeData().isMilitary() && ship.getCrew() > 0 ) {
+				shipcount++;	
+			}
+		}
 		
-		// Wurde das Schiff gekapert?
-		if( ok ) {
-			// Evt unbekannte Items bekannt machen
-			Cargo cargo = new Cargo( this.targetShip.getCargo() );
-
-			List<ItemCargoEntry> itemlist = cargo.getItems();
-			for( int i=0; i < itemlist.size(); i++ ) {
-				ItemCargoEntry item = itemlist.get(i);
-				Item itemobject = item.getItemObject();
-				if( itemobject.isUnknownItem() ) {
-					user.addKnownItem(item.getItemID());
+		if( shipcount > 0 ) {
+			double ws = -Math.pow(0.7,shipcount/3d)+1;
+			ws *= 100;
+			
+			boolean found = false;
+			for( int i=1; i <= shipcount; i++ ) {
+				if( RandomUtils.nextInt(101) > ws ) {
+					continue;
 				}
-			}
-			
-			String currentTime = Common.getIngameTime(getContext().get(ContextCommon.class).getTick());
-			
-			// Schiff uebereignen
-			this.targetShip.setHistory(this.targetShip.getHistory()+"Gekapert am "+currentTime+" durch "+user.getName()+" ("+user.getId()+")\n");
-			this.targetShip.setOwner(this.ownShip.getOwner());
-			
-			if( this.targetShip.getTypeData().getWerft() > 0 ) {
-				db.createQuery("UPDATE WerftObject SET linked=null,linkedWerft=null WHERE shipid="+this.targetShip.getId());
-			}
-		}	
+				found = true;
+				break;
+			}	
+			if( found ) {
+				User source = (User)getDB().get(User.class, -1);
+				PM.send( source, this.targetShip.getOwner().getId(), "Kaperversuch entdeckt", "Ihre Schiffe haben einen Kaperversuch bei "+this.targetShip.getLocation().displayCoordinates(false)+" vereitelt und den Gegner angegriffen" );
+				
+				Battle battle = Battle.create( this.targetShip.getOwner().getId(), this.targetShip.getId() , this.ownShip.getId(), true);
+										
+				t.setVar(
+					"kapern.message",	"Ihr Kaperversuch wurde entdeckt und einige gegnerischen Schiffe haben das Feuer er&ouml;ffnet",
+					"kapern.battle",	battle.getId() );
 
-		this.ownShip.recalculateShipStatus();
-		this.targetShip.recalculateShipStatus();
+				return false;
+			}
+		}
+		
+		return true;
 	}
 
 	/**
