@@ -753,21 +753,18 @@ public class UnitCargo implements Cloneable {
 	public UnitCargo trimToMaxSize(int maxsize)
 	{
 		UnitCargo trimedUnits = new UnitCargo();
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
+
 		if(isEmpty())
 		{
 			return trimedUnits;
 		}
 		
-		List<UnitType> unitlist = Common.cast(db.createQuery("from UnitType").list());
-		
-		for(UnitType unit : unitlist)
+		for(UnitCargoEntry unit : this.units)
 		{
-			if(unit.getSize() > maxsize)
+			if(unit.getUnitType().getSize() > maxsize)
 			{
-				trimedUnits.addUnit(unit.getId(), getUnitCount(unit.getId()));
-				setUnit(unit.getId(), 0);
+				trimedUnits.addUnit(unit.getUnitType().getId(), unit.getAmount());
+				unit.setAmount(0);
 			}
 		}
 		
