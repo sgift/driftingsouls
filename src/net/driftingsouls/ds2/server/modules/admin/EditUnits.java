@@ -57,7 +57,7 @@ public class EditUnits implements AdminPlugin
 		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 		echo.append("<input type=\"text\" name=\"unitid\" value=\""+ unitid +"\" />\n");
-		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\"");
+		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
 		echo.append("</form>");
 		
 		if(update && unitid != 0)

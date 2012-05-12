@@ -44,7 +44,7 @@ public class EditCore implements AdminPlugin
 			echo.append("<option value=\"" + core.getId() + "\" " + (core.getId() == coreId ? "selected=\"selected\"" : "") + ">" + core.getName() + "</option>");
 		}
 		echo.append("</select>");
-		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\"");
+		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
 		echo.append("</form>");
 		
 		if(update && coreId > 0)

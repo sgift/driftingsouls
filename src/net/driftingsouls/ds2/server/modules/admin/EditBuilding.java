@@ -48,7 +48,7 @@ public class EditBuilding implements AdminPlugin
 			echo.append("<option value=\"" + building.getId() + "\" " + (building.getId() == buildingId ? "selected=\"selected\"" : "") + ">" + building.getName() + "</option>");
 		}
 		echo.append("</select>");
-		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\"");
+		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
 		echo.append("</form>");
 
 

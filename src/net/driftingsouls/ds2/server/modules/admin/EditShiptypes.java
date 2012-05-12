@@ -78,7 +78,7 @@ public class EditShiptypes implements AdminPlugin
 			echo.append("<option value=\"" + shiptype.getId() + "\" " + (shiptype.getId() == shiptypeId ? "selected=\"selected\"" : "") + ">" + shiptype.getNickname() + "</option>");
 		}
 		echo.append("</select>");
-		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\"");
+		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
 		echo.append("</form>");
 
 		if (update && shiptypeId > 0)

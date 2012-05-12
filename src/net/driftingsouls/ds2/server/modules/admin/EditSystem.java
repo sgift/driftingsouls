@@ -70,7 +70,7 @@ public class EditSystem implements AdminPlugin
 			echo.append("<option value=\"" + system.getID() + "\" " + (system.getID() == systemid ? "selected=\"selected\"" : "") + ">" + system.getName() + " (" + system.getID() + ")</option>");
 		}
 		echo.append("</select>");
-		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\"");
+		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
 		echo.append("</form>");
 
 		if (update && systemid > 0)

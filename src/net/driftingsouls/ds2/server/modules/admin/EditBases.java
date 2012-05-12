@@ -60,7 +60,7 @@ public class EditBases implements AdminPlugin
 		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 		echo.append("Basis: <input type=\"text\" name=\"baseid\" value=\""+ baseid +"\" />\n");
-		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\"");
+		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
 		echo.append("</form>");
 		echo.append(Common.tableEnd());
 		

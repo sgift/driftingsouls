@@ -64,7 +64,7 @@ public class EditShip implements AdminPlugin
 		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 		echo.append("<input type=\"text\" name=\"shipid\" value=\""+ shipid +"\" />\n");
-		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\"");
+		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
 		echo.append("</form>");
 		
 		if(update && shipid != 0)

@@ -81,7 +81,7 @@ public class EditAmmo implements AdminPlugin
 			echo.append("<option value=\"" + ammo.getId() + "\" " + (ammo.getId() == ammoId ? "selected=\"selected\"" : "") + ">" + ammo.getName() + "</option>");
 		}
 		echo.append("</select>");
-		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\"");
+		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
 		echo.append("</form>");
 
 		// Anzeige editieren
