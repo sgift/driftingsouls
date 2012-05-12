@@ -20,7 +20,7 @@ CREATE TABLE `users` (
   `allyposten` int(11) default NULL,
   `gtudropzone` tinyint(3) unsigned NOT NULL default '2',
   `npcorderloc` varchar(12) NOT NULL default '',
-  `imgpath` varchar(200) NOT NULL default 'http://localhost/ds2/',
+  `imgpath` varchar(200) default NULL,
   `disabled` tinyint(3) unsigned NOT NULL default '0',
   `flags` tinytext NOT NULL,
   `vaccount` smallint(5) unsigned NOT NULL default '0',

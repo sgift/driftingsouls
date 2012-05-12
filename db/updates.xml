@@ -1587,4 +1587,9 @@
         ALTER TABLE  `tradepost_buy_limit` ADD  `min_rank` INT NOT NULL DEFAULT  '0' AFTER  `maximum`;
         ALTER TABLE  `tradepost_sell` ADD  `min_rank` INT NOT NULL DEFAULT  '0' AFTER  `minimum`;
     ]]></update>
+    <update type="structure" datum="2012-05-12"><![CDATA[
+    	ALTER TABLE users MODIFY imgpath varchar(200) DEFAULT NULL;
+    	UPDATE users SET imgpath=null WHERE imgpath='http://localhost/ds2/';
+    ]]>
+    </update>
 </updates>

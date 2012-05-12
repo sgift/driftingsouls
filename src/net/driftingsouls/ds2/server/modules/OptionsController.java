@@ -484,7 +484,7 @@ public class OptionsController extends TemplateGenerator {
 		
 		String imagepath = user.getUserImagePath();
 			
-		if( imagepath.equals(BasicUser.getDefaultImagePath()) ) {
+		if( BasicUser.getDefaultImagePath().equals(imagepath) ) {
 			imagepath = "";
 		}
 

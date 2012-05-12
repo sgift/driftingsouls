@@ -159,7 +159,7 @@ public abstract class DSGenerator extends Generator {
 			boolean usegfxpak = false;
 			final BasicUser user = getContext().getActiveUser();
 			if( user != null ) {
-				if( !user.getUserImagePath().equals(BasicUser.getDefaultImagePath()) ) {
+				if( !BasicUser.getDefaultImagePath().equals(user.getUserImagePath()) ) {
 					usegfxpak = true;
 				}
 				url = user.getImagePath();

@@ -28,7 +28,6 @@ import javax.persistence.Transient;
 import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import org.apache.commons.lang.StringUtils;
@@ -163,8 +162,10 @@ public abstract class BasicUser {
 	 */
 	public static String getDefaultImagePath() {
 		if( defaultImagePath == null ) {
-			Database db = ContextMap.getContext().getDatabase();
-			defaultImagePath = db.first("SHOW FIELDS FROM users LIKE 'imgpath'").getString("Default");
+			defaultImagePath = Configuration.getSetting("IMAGE_URL");
+			if( defaultImagePath == null ) {
+				defaultImagePath = Configuration.getSetting("URL");
+			}
 		}
 		return defaultImagePath;
 	}
@@ -439,7 +440,7 @@ public abstract class BasicUser {
 	 * @return Der Image-Pfad des Spielers
 	 */
 	public String getImagePath() {
-		if( !this.forceDefaultImgPath ) {
+		if( !this.forceDefaultImgPath && this.imgpath != null ) {
 			return this.imgpath;
 		}
 		

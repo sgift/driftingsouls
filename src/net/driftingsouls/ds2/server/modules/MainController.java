@@ -126,7 +126,7 @@ public class MainController extends TemplateGenerator {
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 		
-		if( !user.getUserImagePath().equals(BasicUser.getDefaultImagePath()) ) {
+		if( !BasicUser.getDefaultImagePath().equals(user.getUserImagePath()) ) {
 			parameterNumber("gfxpakversion");
 			int gfxpakversion = getInteger("gfxpakversion");
 			if( (gfxpakversion != 0) && (gfxpakversion != config.getInt("GFXPAK_VERSION")) ) {

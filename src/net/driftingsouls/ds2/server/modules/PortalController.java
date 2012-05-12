@@ -680,7 +680,7 @@ public class PortalController extends TemplateGenerator {
 		t.setVar( "show.login.msg.ok", 1 );
 		
 		// Ueberpruefen ob das gfxpak noch aktuell ist
-		if( !user.getImagePath().equals(BasicUser.getDefaultImagePath()) ) {
+		if( !BasicUser.getDefaultImagePath().equals(user.getImagePath()) ) {
 			t.setVar(	"login.checkgfxpak", 1,
 						"login.checkgfxpak.path", user.getUserImagePath() );
 		}

@@ -28,6 +28,7 @@
 	<setting type="string" name="SMTP-SERVER" value="localhost" />
 	<setting type="number" name="AUTOLOGOUT_TIME" value="3600" />
 	<setting type="string" name="URL" value="http://localhost:8080/driftingsouls/" />
+	<!-- [Optional; default <URL>] <setting type="string" name="IMAGE_URL" value="http://localhost:8080/driftingsouls/" /> -->
 	<setting type="string" name="ABSOLUTE_PATH" value="/home/bktheg/Projects/dsj/web/" />
 	<setting type="string" name="TICKPATH" value="/home/bktheg/public_html/ds2/tick/" />
 	<setting type="string" name="QUESTPATH" value="/home/bktheg/public_html/ds2/quests/" />
