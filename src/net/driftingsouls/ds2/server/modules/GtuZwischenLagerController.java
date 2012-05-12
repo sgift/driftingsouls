@@ -25,7 +25,6 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
-import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
 import net.driftingsouls.ds2.server.entities.User;
@@ -93,12 +92,11 @@ public class GtuZwischenLagerController extends TemplateGenerator {
 			return false;
 		}
 
-		Ship handel = (Ship)db.createQuery("from Ship where id>0 and owner=? and locate('tradepost',status)!=0 and " +
+		Ship handel = (Ship)db.createQuery("from Ship where id>0 and owner<0 and locate('tradepost',status)!=0 and " +
 				"system=? and x=? and y=?")
-			.setInteger(0, Faction.GTU)
-			.setInteger(1, ship.getSystem())
-			.setInteger(2, ship.getX())
-			.setInteger(3, ship.getY())
+			.setInteger(0, ship.getSystem())
+			.setInteger(1, ship.getX())
+			.setInteger(2, ship.getY())
 			.setMaxResults(1)
 			.uniqueResult();
 		if( handel == null ) {
