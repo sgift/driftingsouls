@@ -367,8 +367,8 @@ public class OptionsController extends TemplateGenerator {
 		
 		String gfxpak = getString("gfxpak");
 
-		if( gfxpak.length() == 0 ) {
-			user.setImagePath(BasicUser.getDefaultImagePath());
+		if( gfxpak.length() == 0  || gfxpak.trim().equals(BasicUser.getDefaultImagePath()) ) {
+			user.setImagePath(null);
 			
 			t.setVar( "options.message", "Pfad zum Grafikpak zur&uuml;ckgesetzt<br />\n" );
 		} 
