@@ -297,9 +297,33 @@
 
 	<target name="run">
 		<mkdir dir="jetty-temp" />
-		<java classname="org.mortbay.start.Main" classpathref="ant.classpath" fork="true">
-			<arg value="build-utils/jetty/jetty.xml"/>
-			<jvmarg value="-javaagent:web/WEB-INF/lib/spring-agent.jar" />
+		<mkdir dir="${build.home}/embedded" />
+		
+		<javac srcdir="${basedir}/build-utils/jetty/src"
+			destdir="${build.home}/embedded"
+			debug="${compile.debug}"
+			deprecation="${compile.deprecation}"
+			optimize="${compile.optimize}"
+			source="1.6"
+			target="1.6"
+			encoding="UTF-8"
+			verbose="true">
+			<classpath>
+				<fileset dir="${basedir}/build-utils/jetty/lib">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+		
+		<java classname="net.driftingsouls.ds2.server.embedded.RunEmbedded" fork="true">
+			<classpath>
+				<fileset dir="${basedir}/build-utils/jetty/lib">
+					<include name="**/*.jar" />
+				</fileset>
+				<pathelement path="${build.home}/embedded"/>
+			</classpath>
+			<arg value="${build.home}" />
+			<jvmarg value="-javaagent:${basedir}/web/WEB-INF/lib/spring-agent.jar" />
 			<jvmarg value="${jetty.jvmargs}" />
 			<jvmarg value="-Dcom.sun.management.jmxremote" />
 			<jvmarg value="-Dcom.sun.management.jmxremote.authenticate=false" />
