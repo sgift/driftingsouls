@@ -27,12 +27,10 @@ import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
-import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -44,7 +42,7 @@ import net.sf.json.JSONObject;
  *
  * @urlparam Integer system Die ID des Sternensystems
  */
-public class ImpObjectsController extends TemplateGenerator {
+public class ImpObjectsController extends DSGenerator {
 	private StarSystem system;
 	private boolean viewableSystem;
 	
@@ -56,11 +54,6 @@ public class ImpObjectsController extends TemplateGenerator {
 		super(context);
 		
 		this.viewableSystem = true;
-		
-		setTemplate("impobjects.html");
-		
-		addBodyParameter("style", "background-image: url('"+Configuration.getSetting("URL")+"data/interface/border/border_background.gif')");
-		setDisableDebugOutput(true);
 		
 		parameterNumber("system");
 	}
@@ -89,6 +82,10 @@ public class ImpObjectsController extends TemplateGenerator {
 		return true;	
 	}
 	
+	/**
+	 * Liefert alle wichtigen Objekte im System als JSON-Objekt zurueck.
+	 * @throws IOException
+	 */
 	@Action(ActionType.AJAX)
 	public void jsonAction() throws IOException
 	{
@@ -178,75 +175,8 @@ public class ImpObjectsController extends TemplateGenerator {
 	}
 
 	@Override
-	@Action(ActionType.DEFAULT)
-	public void defaultAction() {		
-		TemplateEngine t = getTemplateEngine();
-		org.hibernate.Session db = getDB();
-		
-		t.setVar(	"global.sysname",	system.getName(),
-				 	"global.sysid",		system.getID() );
-		
-		t.setBlock("_IMPOBJECTS", "jn.listitem", "jn.list");				 			
-		t.setBlock("_IMPOBJECTS", "gtuposten.listitem", "gtuposten.list");
-		
-		if( viewableSystem ) {	 			
-			/*
-				Sprungpunkte
-			*/
-		
-			List<?> jnList = db.createQuery("from JumpNode where system=?  and hidden=0")
-				.setInteger(0, system.getID())
-				.list();
-			for( Iterator<?> iter=jnList.iterator(); iter.hasNext(); ) {
-				JumpNode node = (JumpNode)iter.next();
-				
-				StarSystem systemout = (StarSystem)db.get(StarSystem.class, node.getSystemOut());
-				
-				t.setVar(	"jn.x",			node.getX(),
-						  	"jn.y",			node.getY(),
-						  	"jn.name",		node.getName(),
-						 	"jn.target",	node.getSystemOut(),
-							"jn.targetname",	systemout.getName() );
-
-				t.parse("jn.list", "jn.listitem", true);
-			}
-		
-			/*
-				Handelsposten
-			*/
-		
-			List<?> postenList = db.createQuery("from Ship where id>0 and owner=? and system=? and locate('tradepost',status)!=0")
-				.setInteger(0, Faction.GTU)
-				.setInteger(1, system.getID())
-				.list();
-			for( Iterator<?> iter=postenList.iterator(); iter.hasNext(); ) {
-				Ship posten = (Ship)iter.next();
-				
-				t.setVar(	"gtuposten.x",		posten.getX(),
-							"gtuposten.y",		posten.getY(),
-							"gtuposten.name",	posten.getName() );
-
-				t.parse("gtuposten.list", "gtuposten.listitem", true);
-			}
-		}
-		
-		/*
-			Basen
-		*/
-		t.setBlock("_IMPOBJECTS", "base.listitem", "base.list");
-		
-		List<?> baseList = db.createQuery("from Base where owner=? and system=?")
-			.setEntity(0, getUser())
-			.setInteger(1, system.getID())
-			.list();
-		for( Iterator<?> iter=baseList.iterator(); iter.hasNext(); ) {
-			Base base = (Base)iter.next();
-			
-			t.setVar(	"base.x",		base.getX(),
-						"base.y",		base.getY(),
-						"base.name",	base.getName() );
-
-			t.parse("base.list", "base.listitem", true);
-		}
+	@Action(ActionType.AJAX)
+	public void defaultAction() throws IOException {	
+		jsonAction();
 	}
 }
