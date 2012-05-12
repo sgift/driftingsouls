@@ -24,6 +24,7 @@ import java.util.List;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 
 import org.hibernate.Session;
@@ -43,17 +44,17 @@ public class PublicStarmap
 	 * @param db Die DB-Verbindung
 	 * @param system Die ID des Systems
 	 */
-	public PublicStarmap(Session db, int system)
+	public PublicStarmap(Session db, StarSystem system)
 	{
 		this.map = createMap(db, system);
 	}
 
-	private Starmap createMap(Session db, int system)
+	private Starmap createMap(Session db, StarSystem system)
 	{
-		Starmap map = (Starmap)db.get(Starmap.class, system);
+		Starmap map = (Starmap)db.get(Starmap.class, system.getID());
 		if(map == null)
 		{
-			throw new IllegalArgumentException("The given system " + system + " does not exist.");
+			throw new IllegalArgumentException("The given system " + system.getID() + " does not exist.");
 		}
 		return map;
 	}

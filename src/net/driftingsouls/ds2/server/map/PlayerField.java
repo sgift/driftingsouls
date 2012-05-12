@@ -8,6 +8,7 @@ import java.util.Map;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.MutableLocation;
+import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
@@ -17,7 +18,6 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
-import net.driftingsouls.ds2.server.ships.Ships;
 import org.hibernate.Session;
 
 /**
@@ -46,15 +46,55 @@ public class PlayerField
         this.location = position;
 	}
 	
-	/**
-	 * @return Die Schiffe, die der Spieler sehen kann.
-	 */
-	public Map<User, Map<ShipType, List<Ship>>> getShips()
+	public List<Base> getBases()
 	{
-		Map<User, Map<ShipType, List<Ship>>> ships = new HashMap<User, Map<ShipType,List<Ship>>>();
-        if(!canUse())
+		if(!isInScanRange())
         {
-            return ships;
+            return new ArrayList<Base>();
+        }
+
+        boolean shipInSector = scanShip.getLocation().sameSector(0, this.location, 0);
+
+        List<Base> bases = new ArrayList<Base>();
+		for( Base base : this.field.getBases() )
+		{
+			if( base.getOwner().getId() == this.user.getId() )
+			{
+				bases.add(base);
+				continue;
+			}
+			if( this.user.getAlly() != null && user.getAlly().equals(base.getOwner().getAlly()) )
+			{
+				bases.add(base);
+				continue;
+			}
+		}
+        
+		boolean nebula = !shipInSector && this.field.isNebula() && !this.field.getNebula().allowsScan();
+		if( nebula )
+		{
+			nebula = bases.isEmpty();
+		}
+		
+		if( !nebula )
+		{
+			for( Base base : this.field.getBases() ) 
+			{
+				if( !bases.contains(base) )
+				{
+					bases.add(base);
+				}
+			}
+		}
+		
+		return bases;
+	}
+	
+	private boolean isInScanRange()
+	{
+		if(!canUse())
+        {
+            return false;
         }
 
         int scanRange = scanShip.getEffectiveScanRange();
@@ -64,11 +104,24 @@ public class PlayerField
             scanRange /= 2;
             if(!nebula.allowsScan())
             {
-                return ships;
+                return false;
             }
         }
 
         if(!scanShip.getLocation().sameSector(scanRange, location, 0))
+        {
+            return false;
+        }
+        return true;
+	}
+	
+	/**
+	 * @return Die Schiffe, die der Spieler sehen kann.
+	 */
+	public Map<User, Map<ShipType, List<Ship>>> getShips()
+	{
+		Map<User, Map<ShipType, List<Ship>>> ships = new HashMap<User, Map<ShipType,List<Ship>>>();
+        if(!isInScanRange())
         {
             return ships;
         }

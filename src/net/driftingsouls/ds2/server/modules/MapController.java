@@ -16,11 +16,11 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -123,13 +123,6 @@ public class MapController extends TemplateGenerator
 		response.setContentType("text/html", "UTF-8");
 		Writer sb = response.getWriter();
 
-		String url = config.get("URL")+"/";
-		final BasicUser user = getContext().getActiveUser();
-		if( user != null ) 
-		{
-			url = user.getImagePath();
-		}
-
 		sb.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n");
 		sb.append("<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"de\" lang=\"de\">\n");
 		sb.append("<head>\n");
@@ -139,8 +132,8 @@ public class MapController extends TemplateGenerator
 			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(config.get("URL")).append("data/css/v").append(version.getHgVersion()).append("/format.css\" />\n");
 		}
 		sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(config.get("URL")).append("data/css/v").append(version.getHgVersion()).append("/starmap.css\" />\n");
-        sb.append("<script src=\"").append(url).append("data/javascript/v").append(version.getHgVersion()).append("/jquery-1.7.2.min.js\" type=\"text/javascript\"></script>\n");
-        sb.append("<script src=\"").append(url).append("data/javascript/v").append(version.getHgVersion()).append("/starmap.js\" type=\"text/javascript\"></script>\n");
+        sb.append("<script src=\"").append(config.get("URL")).append("data/javascript/v").append(version.getHgVersion()).append("/jquery-1.7.2.min.js\" type=\"text/javascript\"></script>\n");
+        sb.append("<script src=\"").append(config.get("URL")).append("data/javascript/v").append(version.getHgVersion()).append("/starmap.js\" type=\"text/javascript\"></script>\n");
         
         sb.append("<script type=\"text/javascript\">\n");
 		sb.append("if( parent && parent.setCurrentPage ) {\n");
@@ -249,6 +242,14 @@ public class MapController extends TemplateGenerator
 		int tileX = getInteger("tileX");
 		int tileY = getInteger("tileY");
 		
+		if( tileX < 0 )
+		{
+			tileX = 0;
+		}
+		if( tileY < 0 )
+		{
+			tileY = 0;
+		}
 		final File cacheDir = new File(this.config.get("ABSOLUTE_PATH")+"data/starmap/_tilecache/");
 		if( !cacheDir.isDirectory() ) {
 			cacheDir.mkdir();
@@ -281,7 +282,7 @@ public class MapController extends TemplateGenerator
 	{
 		org.hibernate.Session db = getDB();
 		
-		PublicStarmap content = new PublicStarmap(db, system.getID());
+		PublicStarmap content = new PublicStarmap(db, this.system);
 	
 		BufferedImage img = new BufferedImage(TILE_SIZE*25,TILE_SIZE*25,BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = img.createGraphics();
@@ -403,7 +404,7 @@ public class MapController extends TemplateGenerator
 				xEnd = width;
 			}
 			
-			PlayerStarmap content = new PlayerStarmap(db, user, system.getID(), new int[] {xStart,yStart,xEnd-xStart,yEnd-yStart});
+			PlayerStarmap content = new PlayerStarmap(db, user, system, new int[] {xStart,yStart,xEnd-xStart,yEnd-yStart});
 	
 			JSONArray publicNodeArray = new JSONArray();
 			for(JumpNode node: content.getPublicNodes())
@@ -472,19 +473,15 @@ public class MapController extends TemplateGenerator
 						sectorImage = sectorOverlayImage;
 					}
 					
+					if( scannable && (content.isHasSectorContent(position)) ) {
+						int scannerId = content.getSectorScanner(position).getId();
+						
+						posObj.accumulate("scanner", scannerId);
+					}
+					
 					if( sectorImage != null )
 					{
-						if(scannable)
-						{
-							int scannerId = content.getSectorScanner(position).getId();
-							
-							posObj.accumulate("fg", sectorImage);
-							posObj.accumulate("scanner", scannerId);						
-						}
-						else
-						{
-							posObj.accumulate("fg", sectorImage);
-						}
+						posObj.accumulate("fg", sectorImage);
 					}
 					
 					if( endTag ) {
@@ -530,7 +527,9 @@ public class MapController extends TemplateGenerator
 			return;
 		}
 		
-		PlayerField field = new PlayerField(db, user, new Location(system, x, y), scanShip);
+		final Location loc = new Location(system, x, y);
+		
+		PlayerField field = new PlayerField(db, user, loc, scanShip);
 		for(Map.Entry<User, Map<ShipType, List<Ship>>> owner: field.getShips().entrySet())
 		{
 			JSONObject jsonUser = new JSONObject();
@@ -553,6 +552,21 @@ public class MapController extends TemplateGenerator
 			users.add(jsonUser);
 		}
 		json.accumulate("users", users);
+		
+		JSONArray baseListObj = new JSONArray();
+		for( Base base : field.getBases() )
+		{
+			JSONObject baseObj = new JSONObject();
+			baseObj.accumulate("id", base.getId());
+			baseObj.accumulate("name", base.getName());
+			baseObj.accumulate("username", Common._title(base.getOwner().getName()));
+			baseObj.accumulate("image", base.getBaseImage(loc));
+			baseObj.accumulate("klasse", base.getKlasse());
+			
+			baseListObj.add(baseObj);
+		}
+		
+		json.accumulate("bases", baseListObj);
 		
 		getResponse().getWriter().append(json.toString());
 	}

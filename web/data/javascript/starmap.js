@@ -490,6 +490,7 @@ var Starmap = {
 	__starmapLegend:null,
 	__starmapTiles:null,
 	__starmapOverlay:null,
+	__dataPath:null,
 	__getDsUrl : function() {
 		var url = location.href;
 		if( url.indexOf('?') > -1 ) {
@@ -559,6 +560,7 @@ var Starmap = {
 	},
 	renderMap : function(data)
 	{
+		this.__dataPath = data.dataPath;
 		this.__currentSize = data.size;
 		this.__currentSystem = data.system;
 		this.__screen = new StarmapScreen('#mapview', this.__currentSystem);
@@ -682,7 +684,16 @@ var Starmap = {
 	openSector : function (system, x, y, data)
 	{
 		var sector = $('#sectorview');
-		var dialog = '<span>Sektor ' + system + ':' + x + '/' + y + '</span><a onclick="Starmap.closeSector()" style="float:right;color:#ff0000;">(x)</a><br><br>';
+		var dialog = '<div class="content"><span>Sektor ' + system + ':' + x + '/' + y + '</span><a onclick="Starmap.closeSector()" style="float:right;color:#ff0000;">(x)</a>';
+		if( data.bases.length > 0 ) {
+			var self = this;
+			dialog += "<ul class='bases'>";
+			$.each(data.bases, function() {
+				dialog+= "<li><img src='"+self.__dataPath+"kolonie"+this.klasse+"_srs.png' /><div class='name'>"+this.name+"</div><div class='owner'>"+this.username+"</div></li>";
+			});
+			dialog += "</ul>";
+		}
+		dialog += "<div class='ships'>"
 		$.each(data.users, function()
 		{
 			var shipcount = 0;
@@ -697,6 +708,7 @@ var Starmap = {
 			dialog += '<span onclick="Starmap.toggleShowShipClasses(\''+shipclassId+'\')"><span id="'+shipclassId+'Toggle">+</span> '+this.name+'</span><span style="float:right;">'+shipcount+'</span><br>';
 			dialog += shiptypes;
 		});
+		dialog += '</div></div>';
 		sector.html(dialog);
 	},
 

@@ -235,9 +235,35 @@ body {
 	height:25px;
 	position:absolute;
 }
+
+#sectorview .content {
+	padding-right:3px;
+	max-height:400px;
+	overflow-y:auto;
+}
 #sectorview ul
 {
     list-style-type: none;
+}
+
+#sectorview .bases {
+	margin-top:8px;
+	margin-left:0px;
+	padding-left:0px;
+}
+
+#sectorview .bases img {
+	float:left;
+	margin-right:8px;
+}
+
+#sectorview .bases li,
+#sectorview .ships {
+	clear:both;
+}
+
+#sectorview .ships {
+	padding-top:8px;
 }
 
 #sectorview .loader {

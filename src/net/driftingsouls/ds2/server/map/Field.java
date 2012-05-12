@@ -28,6 +28,11 @@ class Field
 							  .setParameter("x", position.getX())
 							  .setParameter("y", position.getY())
 							  .list());
+		bases = Common.cast(db.createQuery("from Base where system=:system and x=:x and y=:y")
+				  .setParameter("system", position.getSystem())
+				  .setParameter("x", position.getX())
+				  .setParameter("y", position.getY())
+				  .list());
 		this.position = position;
 	}
 	

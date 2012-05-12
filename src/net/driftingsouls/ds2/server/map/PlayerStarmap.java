@@ -6,6 +6,7 @@ import java.util.Map;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
@@ -35,7 +36,7 @@ public class PlayerStarmap extends PublicStarmap
 	 * @param user Der Spieler fuer den die Sicht gelten soll.
 	 * @param system Die ID des zu Grunde liegenden Sternensystems.
 	 */
-	public PlayerStarmap(Session db, User user, int system) {
+	public PlayerStarmap(Session db, User user, StarSystem system) {
 		this(db, user, system, null);
 	}
 	
@@ -47,7 +48,7 @@ public class PlayerStarmap extends PublicStarmap
 	 * @param system Die ID des zu Grunde liegenden Sternensystems.
 	 * @param ausschnitt Der Ausschnitt (x, y, w, h) auf den die Sicht beschraenkt werden soll.
 	 */
-	public PlayerStarmap(Session db, User user, int system, int[] ausschnitt)
+	public PlayerStarmap(Session db, User user, StarSystem system, int[] ausschnitt)
 	{
 		super(db, system);
 		
@@ -360,5 +361,22 @@ public class PlayerStarmap extends PublicStarmap
             scannableLocations.put(scanShip.getLocation(), scanShip);
 		}
 		return scannableLocations;
+	}
+
+	/**
+	 * Gibt zurueck, ob der Sektor einen fuer den Spieler theoretisch sichtbaren Inhalt besitzt.
+	 * Es spielt dabei einzig der Inhalt des Sektors eine Rolle. Nicht gerpueft wird,
+	 * ob sich ein entsprechendes Schiff in scanreichweite befindet.
+	 * @param position Die Position
+	 * @return <code>true</code>, falls der Sektor sichtbaren Inhalt aufweist.
+	 */
+	public boolean isHasSectorContent(Location position)
+	{
+		List<Base> bases = map.getBaseMap().get(position);
+		if( bases != null && !bases.isEmpty() )
+		{
+			return true;
+		}
+		return this.getShipImage(position) != null;
 	}
 }
