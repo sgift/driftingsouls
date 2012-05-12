@@ -30,6 +30,7 @@ import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -56,6 +57,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
  * 
  */
 // TODO: Die ID des Handelspostens sollte per URL spezifiziert werden
+@Module(name="gtuzwischenlager")
 public class GtuZwischenLagerController extends TemplateGenerator {
 	private Ship ship;
 	private int handel;

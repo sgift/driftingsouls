@@ -5,6 +5,7 @@ import java.io.Writer;
 
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
@@ -17,6 +18,7 @@ import net.driftingsouls.ds2.server.uilibs.PlayerList;
  * @urlparam Integer compopup != 0, falls die Spielerliste als Popup der PM-Verwaltung dient
  *
  */
+@Module(name="plist")
 public class PListController extends DSGenerator {
 
 	/**

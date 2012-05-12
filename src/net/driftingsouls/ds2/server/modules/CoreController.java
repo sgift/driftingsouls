@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -39,6 +40,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  * 
  * @urlparam Integer col Die ID des Asteroiden, dessen Core verwaltet werden soll
  */
+@Module(name="core")
 public class CoreController extends TemplateGenerator {
 	private Base base = null;
 	

@@ -81,6 +81,7 @@ import org.springframework.beans.factory.annotation.Configurable;
  *
  */
 @Configurable
+@net.driftingsouls.ds2.server.framework.pipeline.Module(name="schiff")
 public class SchiffController extends TemplateGenerator {
 	private Log log = LogFactory.getLog(SchiffController.class);
 	

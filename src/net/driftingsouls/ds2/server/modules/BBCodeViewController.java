@@ -23,6 +23,7 @@ import java.util.List;
 
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -34,6 +35,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  * @author Christian Peltz
  *
  */
+@Module(name="bbcodeview")
 public class BBCodeViewController extends TemplateGenerator {
 	private static List<String> codes = new ArrayList<String>();
 	static {

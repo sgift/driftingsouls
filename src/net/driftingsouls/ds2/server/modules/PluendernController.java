@@ -26,6 +26,7 @@ import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -42,6 +43,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypes;
  * @urlparam Integer from Die ID des Schiffes, mit dem ein anderes Schiff gepluendert werden soll
  * @urlparam Integer to Die ID des zu pluendernden Schiffes
  */
+@Module(name="pluendern")
 public class PluendernController extends TemplateGenerator {
 	private Ship shipFrom;
 	private Ship shipTo;

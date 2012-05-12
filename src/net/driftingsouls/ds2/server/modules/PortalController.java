@@ -50,6 +50,7 @@ import net.driftingsouls.ds2.server.framework.authentication.AuthenticationManag
 import net.driftingsouls.ds2.server.framework.authentication.LoginDisabledException;
 import net.driftingsouls.ds2.server.framework.authentication.TickInProgressException;
 import net.driftingsouls.ds2.server.framework.authentication.WrongPasswordException;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -69,6 +70,7 @@ import org.springframework.beans.factory.annotation.Required;
  *
  */
 @Configurable
+@Module(name="portal", defaultModule=true)
 public class PortalController extends TemplateGenerator {
 	private AuthenticationManager authManager;
 	private Configuration config;

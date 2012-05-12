@@ -26,6 +26,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -38,6 +39,7 @@ import net.driftingsouls.ds2.server.ships.Ship;
  *
  * @urlparam String search Der Suchbegriff
  */
+@Module(name="search")
 public class SearchController extends TemplateGenerator {
 	private static final int MAX_OBJECTS = 25;
 	

@@ -35,6 +35,7 @@ import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -48,6 +49,7 @@ import net.driftingsouls.ds2.server.werften.BaseWerft;
  * @urlparam Integer col Die Bases, auf der das Gebaeude gebaut werden soll 
  * @urlparam Integer field Die ID des Feldes, auf dem das Gebaeude gebaut werden soll
  */
+@Module(name="build")
 public class BuildController extends TemplateGenerator {
 	private Base base;
 	

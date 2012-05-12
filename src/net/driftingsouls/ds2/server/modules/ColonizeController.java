@@ -32,6 +32,7 @@ import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -48,6 +49,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypes;
  * @urlparam Integer col Die Basis-ID des zu kolonisierenden Asteroiden
  *
  */
+@Module(name="colonize")
 public class ColonizeController extends TemplateGenerator {
 	private Ship ship;
 	private Base base;

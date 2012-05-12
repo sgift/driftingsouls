@@ -34,6 +34,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -65,6 +66,7 @@ import org.springframework.beans.factory.annotation.Configurable;
  * 
  */
 @Configurable
+@Module(name="schiffe")
 public class SchiffeController extends TemplateGenerator {
 	private static final Log log = LogFactory.getLog(SchiffeController.class);
 	

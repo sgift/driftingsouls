@@ -32,6 +32,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -50,6 +51,7 @@ import org.apache.commons.lang.mutable.MutableLong;
  * Transfer von Einheiten zwischen Basen und Schiffen.
  *
  */
+@Module(name="unittausch")
 public class UnitTauschController extends TemplateGenerator {
 	private static class MultiTarget {
 		private String name;

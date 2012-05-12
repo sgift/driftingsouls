@@ -40,6 +40,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -61,6 +62,7 @@ import org.apache.commons.lang.math.RandomUtils;
  * @urlparam Integer ship Die ID des Schiffes, mit dem der Spieler kapern moechte
  * @urlparam Integer tar Die ID des zu kapernden/pluendernden Schiffes
  */
+@Module(name="kapern")
 public class KapernController extends TemplateGenerator {
 	private Ship ownShip;
 	private Ship targetShip;

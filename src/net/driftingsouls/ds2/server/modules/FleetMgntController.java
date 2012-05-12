@@ -34,6 +34,7 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -58,6 +59,7 @@ import org.apache.commons.lang.StringUtils;
  * @urlparam Integer count Die Anzahl der maximal zu ermittelnden Schiffe
  *
  */
+@Module(name="fleetmgnt")
 public class FleetMgntController extends TemplateGenerator {
 	private ShipFleet fleet = null;
 

@@ -34,6 +34,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -57,6 +58,7 @@ import org.springframework.beans.factory.annotation.Configurable;
  * @author Christopher Jung
  */
 @Configurable
+@Module(name="ally")
 public class AllyController extends TemplateGenerator {
 	private static final Log log = LogFactory.getLog(AllyController.class);
 	private static final double MAX_POSTENCOUNT = 0.3;

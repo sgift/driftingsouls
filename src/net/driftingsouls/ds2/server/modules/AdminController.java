@@ -32,6 +32,7 @@ import java.util.TreeSet;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
@@ -50,6 +51,7 @@ import org.scannotation.ClasspathUrlFinder;
  * @urlparam Integer cleanpage Falls != 0 werden keine zusaetzlichen GUI-Elemente angezeigt
  * @urlparam String namedplugin Der Name des Plugins, welches angezeigt werden soll (Alternative zu Seiten- und Aktions-ID)
  */
+@Module(name="admin")
 public class AdminController extends DSGenerator {
 	private static final List<Class<? extends AdminPlugin>> plugins = new ArrayList<Class<? extends AdminPlugin>>();
 	static

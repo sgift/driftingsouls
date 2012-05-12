@@ -21,9 +21,6 @@ package net.driftingsouls.ds2.server.modules;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -33,9 +30,13 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Die Gebaeudeansicht.
@@ -46,6 +47,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenera
  *
  */
 @Configurable
+@Module(name="building")
 public class BuildingController extends TemplateGenerator {
 	private Base base;
 	private Building building;

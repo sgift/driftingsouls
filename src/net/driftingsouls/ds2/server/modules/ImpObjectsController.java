@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
@@ -42,6 +43,7 @@ import net.sf.json.JSONObject;
  *
  * @urlparam Integer system Die ID des Sternensystems
  */
+@Module(name="impobjects")
 public class ImpObjectsController extends DSGenerator {
 	private StarSystem system;
 	private boolean viewableSystem;

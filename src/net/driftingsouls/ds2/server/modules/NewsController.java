@@ -10,6 +10,7 @@ import net.driftingsouls.ds2.server.entities.NewsEntry;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -35,6 +36,7 @@ import com.sun.syndication.io.SyndFeedOutput;
  * @author Sebastian Gift
  */
 @Configurable
+@Module(name="news")
 public class NewsController extends TemplateGenerator 
 {	
 	/**

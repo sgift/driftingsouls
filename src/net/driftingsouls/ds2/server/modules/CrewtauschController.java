@@ -22,6 +22,7 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -37,6 +38,7 @@ import net.driftingsouls.ds2.server.ships.Ship;
  * @urlparam String mode Der Transfermodus. Entweder ss (Schiff zu Schiff) oder sb (Schiff zu Basis) 
  *
  */
+@Module(name="crewtausch")
 public class CrewtauschController extends TemplateGenerator {
 	/**
 	 * Das Ziel fuer einen Crewtransfer.

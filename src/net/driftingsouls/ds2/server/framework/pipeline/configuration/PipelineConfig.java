@@ -18,8 +18,12 @@
  */
 package net.driftingsouls.ds2.server.framework.pipeline.configuration;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -27,13 +31,15 @@ import javax.annotation.PostConstruct;
 
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.Pipeline;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.scannotation.AnnotationDB;
+import org.scannotation.ClasspathUrlFinder;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
@@ -50,11 +56,6 @@ public class PipelineConfig {
 	private ModuleSetting defaultModule = null;
 	private List<Rule> rules = new CopyOnWriteArrayList<Rule>();
 	private Configuration configuration;
-	
-	private ModuleSetting readModuleSetting( Node moduleNode ) throws Exception {
-		return new ModuleSetting( 
-				XMLUtils.getStringByXPath(moduleNode, "generator/@class"));
-	}
 	
 	ModuleSetting getModuleSettingByName(String name) throws Exception {
 		ModuleSetting moduleSetting = (ModuleSetting)defaultModule.clone();
@@ -73,6 +74,37 @@ public class PipelineConfig {
 		this.configuration = config;
 	}
 	
+	private void scanForModules() throws IOException {
+		URL[] urls = ClasspathUrlFinder.findResourceBases("META-INF/ds.marker");
+		AnnotationDB db = new AnnotationDB();
+		db.scanArchives(urls);
+		SortedSet<String> entityClasses = new TreeSet<String>(db.getAnnotationIndex().get(Module.class.getName()));
+		for( String cls : entityClasses ) 
+		{
+			try 
+			{
+				Class<?> clsObject = Class.forName(cls);
+				Module modConfig = clsObject.getAnnotation(Module.class);
+				if( modConfig.defaultModule() )
+				{
+					if( this.defaultModule != null )
+					{
+						log.error("Multiple Default-Modules detected: "+this.defaultModule.getClass().getName()+" and "+cls);
+					}
+					this.defaultModule = new ModuleSetting(cls);
+				}
+				else
+				{
+					this.modules.put(modConfig.name(), new ModuleSetting(cls));
+				}
+			}
+			catch( ClassNotFoundException e ) 
+			{
+				// Not all classes are always available - ignore
+			}
+		}
+	}
+	
 	/**
 	 * Liesst die Konfiguration aus der Pipeline-Konfigurationsdatei ein.
 	 * @throws Exception
@@ -85,19 +117,12 @@ public class PipelineConfig {
 		log.info("Reading "+this.configuration.get("configdir")+"pipeline.xml");
 		
 		Document doc = XMLUtils.readFile(this.configuration.get("configdir")+"pipeline.xml");
+	
 		// Module
-		Node moduleNode = XMLUtils.getNodeByXPath(doc, "/pipeline/modules");
-		defaultModule = readModuleSetting(moduleNode);
-		
-		
-		NodeList nodes = XMLUtils.getNodesByXPath(moduleNode, "module");
-		for( int i=0; i < nodes.getLength(); i++ ) {
-			String moduleName = nodes.item(i).getAttributes().getNamedItem("name").getNodeValue();
-			modules.put( moduleName, readModuleSetting(nodes.item(i)) );
-		}
+		scanForModules();
 		
 		// Regeln
-		nodes = XMLUtils.getNodesByXPath(doc, "/pipeline/rules/*");
+		NodeList nodes = XMLUtils.getNodesByXPath(doc, "/pipeline/rules/*");
 		for( int i=0; i < nodes.getLength(); i++ ) {
 			if( nodes.item(i).getNodeName() == "match" ) {
 				rules.add(new MatchRule(this, nodes.item(i)));

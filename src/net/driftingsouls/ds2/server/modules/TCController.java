@@ -26,6 +26,7 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -46,6 +47,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypes;
  * @urlparam Integer off Die ID des zu transferierenden Offiziers, falls mehr als ein Offizier zur Auswahl steht
  *
  */
+@Module(name="tc")
 public class TCController extends TemplateGenerator {
 	private Ship ship = null;
 	

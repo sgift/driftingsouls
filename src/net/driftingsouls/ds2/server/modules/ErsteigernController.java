@@ -39,7 +39,18 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.FactionPages;
 import net.driftingsouls.ds2.server.config.StarSystem;
-import net.driftingsouls.ds2.server.entities.*;
+import net.driftingsouls.ds2.server.entities.FactionOffer;
+import net.driftingsouls.ds2.server.entities.FactionShopEntry;
+import net.driftingsouls.ds2.server.entities.FactionShopOrder;
+import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
+import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
+import net.driftingsouls.ds2.server.entities.UpgradeInfo;
+import net.driftingsouls.ds2.server.entities.UpgradeJob;
+import net.driftingsouls.ds2.server.entities.UpgradeMaxValues;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
+import net.driftingsouls.ds2.server.entities.UserRank;
+import net.driftingsouls.ds2.server.entities.Versteigerung;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -48,6 +59,7 @@ import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -72,6 +84,7 @@ import org.springframework.beans.factory.annotation.Required;
  * @urlparam Integer faction Die ID der anzuzeigenden Fraktion
  * 
  */
+@Module(name="ersteigern")
 public class ErsteigernController extends TemplateGenerator
 {
 	/**

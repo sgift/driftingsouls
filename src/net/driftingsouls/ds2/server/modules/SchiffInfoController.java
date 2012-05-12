@@ -37,6 +37,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserResearch;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -54,6 +55,7 @@ import org.apache.commons.lang.StringUtils;
  * @author Christopher Jung
  *
  */
+@Module(name="schiffinfo")
 public class SchiffInfoController extends TemplateGenerator {
 	private int shipID = 0;
 	private ShipTypeData ship = null;

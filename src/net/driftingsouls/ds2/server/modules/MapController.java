@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.Version;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.Response;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
@@ -51,6 +52,7 @@ import com.sun.imageio.plugins.common.PaletteBuilder;
  * @author Drifting-Souls Team
  */
 @Configurable
+@Module(name="map")
 public class MapController extends TemplateGenerator 
 {
 	private static final int TILE_SIZE = 20;

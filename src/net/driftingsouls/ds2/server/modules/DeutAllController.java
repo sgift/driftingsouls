@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -42,6 +43,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
  * @author Christopher Jung
  *
  */
+@Module(name="deutall")
 public class DeutAllController extends TemplateGenerator {
 
 	/**

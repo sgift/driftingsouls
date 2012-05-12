@@ -32,6 +32,7 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -48,6 +49,7 @@ import org.apache.commons.lang.ArrayUtils;
  * @urlparam Integer order Falls == 1 wird absteigend sortiert
  *
  */
+@Module(name="basen")
 public class BasenController extends TemplateGenerator {
 	@SuppressWarnings("unchecked")
 	private static final Map<String,String> ordmapper = ArrayUtils.toMap( new String[][]

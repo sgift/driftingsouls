@@ -33,6 +33,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -49,6 +50,7 @@ import org.springframework.beans.factory.annotation.Configurable;
  * @urlparam Integer col Die ID der Basis
  */
 @Configurable
+@Module(name="base")
 public class BaseController extends TemplateGenerator {
 	private Base base;
 	

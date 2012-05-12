@@ -30,6 +30,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
@@ -61,6 +62,7 @@ import org.apache.commons.lang.StringUtils;
  * @urlparam Integer stat Die ID der Statistik in der ausgewaehlten Kategorie
  * @urlparam Integer show die ID der ausgeaehlten Kategorie
  */
+@Module(name="stats")
 public class StatsController extends DSGenerator {
 	/**
 	 * Die minimale User/Ally-ID um in den Statistiken beruecksichtigt zu werden.
