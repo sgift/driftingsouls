@@ -30,6 +30,7 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.ships.Ship;
 
 import org.hibernate.Session;
@@ -115,7 +116,7 @@ public class ClippedStarmap extends Starmap
 		// Nur solche Schiffe laden, deren LRS potentiell in den Ausschnitt hinein ragen oder die
 		// sich komplett im Ausschnitt befinden.
 		// TODO: Die Menge der Schiffe laesst sich sicherlich noch weiter eingrenzen
-		List<?> shipList = db.createQuery("from Ship as s left join fetch s.modules" +
+		List<Ship> shipList = Common.cast(db.createQuery("from Ship as s left join fetch s.modules" +
 				" where s.system=:sys and s.docked not like 'l %' and " +
 				"((s.x between :minx-s.shiptype.sensorRange and :maxx+s.shiptype.sensorRange) or" +
 				"(s.x between :minx-s.modules.sensorRange and :maxx+s.modules.sensorRange)) and " +
@@ -126,23 +127,9 @@ public class ClippedStarmap extends Starmap
 				.setInteger("maxx", this.ausschnitt[0]+this.ausschnitt[2])
 				.setInteger("miny", this.ausschnitt[1])
 				.setInteger("maxy", this.ausschnitt[1]+this.ausschnitt[3])
-				.list();
+				.list());
 		
-		Map<Location, List<Ship>> locatedShips = new HashMap<Location, List<Ship>>();
-
-		for(Object o: shipList)
-		{
-			Ship ship = (Ship)o;
-			Location position = ship.getLocation();
-			if(!locatedShips.containsKey(position))
-			{
-				locatedShips.put(position, new ArrayList<Ship>());
-			}
-
-			locatedShips.get(position).add(ship);
-		}
-		
-		return locatedShips;
+		return this.buildShipMap(shipList);
 	}
 	
 	private Map<Location, Nebel> buildClippedNebulaMap(User user2)
@@ -175,7 +162,7 @@ public class ClippedStarmap extends Starmap
 			}
 		}
 		
-		List<?> nebelList = db.createQuery("from Nebel " +
+		List<Nebel> nebelList = Common.cast(db.createQuery("from Nebel " +
 				"where system=:sys and " +
 				"x between :minx and :maxx and " +
 				"y between :miny and :maxy")
@@ -184,21 +171,14 @@ public class ClippedStarmap extends Starmap
 			.setInteger("miny", load[1])
 			.setInteger("maxx", load[2])
 			.setInteger("maxy", load[3])
-			.list();
+			.list());
 		
-		Map<Location,Nebel> clippedNebelMap = new HashMap<Location,Nebel>();
-		
-		for( Object o : nebelList )
-		{
-			Nebel n = (Nebel)o;
-			clippedNebelMap.put(n.getLocation(), n);
-		}
-		return clippedNebelMap;
+		return this.buildNebulaMap(nebelList);
 	}
 	
 	private Map<Location, List<Base>> buildClippedBaseMap()
 	{
-		List<?> baseList = db.createQuery("from Base "+
+		List<Base> baseList = Common.cast(db.createQuery("from Base "+
 				"where system=:sys and " +
 				"x between :minx and :maxx and " +
 				"y between :miny and :maxy")
@@ -207,22 +187,8 @@ public class ClippedStarmap extends Starmap
 			.setInteger("miny", this.ausschnitt[1])
 			.setInteger("maxx", this.ausschnitt[0]+this.ausschnitt[2])
 			.setInteger("maxy", this.ausschnitt[1]+this.ausschnitt[3])
-			.list();
+			.list());
 		
-		Map<Location, List<Base>> locatedBases = new HashMap<Location, List<Base>>();
-
-		for(Object o: baseList)
-		{
-			Base ship = (Base)o;
-			Location position = ship.getLocation();
-			if(!locatedBases.containsKey(position))
-			{
-				locatedBases.put(position, new ArrayList<Base>());
-			}
-
-			locatedBases.get(position).add(ship);
-		}
-		
-		return locatedBases;
+		return this.buildBaseMap(baseList);
 	}
 }

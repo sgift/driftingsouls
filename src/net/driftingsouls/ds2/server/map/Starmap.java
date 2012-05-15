@@ -66,7 +66,7 @@ class Starmap
 	Map<Location, List<Ship>> getShipMap()
 	{
 		if( this.shipMap == null ) {
-			this.shipMap = buildShipMap();
+			this.shipMap = buildShipMap(this.ships);
 		}
 		return Collections.unmodifiableMap(this.shipMap);
 	}
@@ -77,7 +77,7 @@ class Starmap
 	Map<Location, List<Base>> getBaseMap()
 	{
 		if( this.baseMap == null ) {
-			this.baseMap = buildBaseMap();
+			this.baseMap = buildBaseMap(this.bases);
 		}
 		return Collections.unmodifiableMap(this.baseMap);
 	}
@@ -88,7 +88,7 @@ class Starmap
 	Map<Location, List<JumpNode>> getNodeMap()
 	{
 		if( this.nodeMap == null ) {
-			this.nodeMap = buildNodeMap();
+			this.nodeMap = buildNodeMap(this.nodes);
 		}
 		return Collections.unmodifiableMap(this.nodeMap);
 	}
@@ -99,12 +99,12 @@ class Starmap
 	Map<Location, Nebel> getNebulaMap()
 	{
 		if( this.nebulaMap == null ) {
-			this.nebulaMap = buildNebulaMap();
+			this.nebulaMap = buildNebulaMap(this.nebulas);
 		}
 		return Collections.unmodifiableMap(this.nebulaMap);
 	}
 	
-	private Map<Location, List<Ship>> buildShipMap()
+	protected Map<Location, List<Ship>> buildShipMap(List<Ship> ships)
 	{
 		Map<Location, List<Ship>> shipMap = new HashMap<Location, List<Ship>>();
 
@@ -122,7 +122,7 @@ class Starmap
 		return shipMap;
 	}
 	
-	private Map<Location, Nebel> buildNebulaMap()
+	protected Map<Location, Nebel> buildNebulaMap(List<Nebel> nebulas)
 	{
 		Map<Location, Nebel> nebulaMap = new HashMap<Location, Nebel>();
 
@@ -134,7 +134,7 @@ class Starmap
 		return nebulaMap;
 	}
 	
-	private Map<Location, List<JumpNode>> buildNodeMap()
+	protected Map<Location, List<JumpNode>> buildNodeMap(List<JumpNode> nodes)
 	{
 		Map<Location, List<JumpNode>> nodeMap = new HashMap<Location, List<JumpNode>>();
 
@@ -153,7 +153,7 @@ class Starmap
 		return nodeMap;		
 	}
 	
-	private Map<Location, List<Base>> buildBaseMap()
+	protected Map<Location, List<Base>> buildBaseMap(List<Base> bases)
 	{
 		Map<Location, List<Base>> baseMap = new HashMap<Location, List<Base>>();
 
@@ -172,7 +172,7 @@ class Starmap
 				{
 					for(int x = base.getX() - size; x <= base.getX() + size; x++)
 					{
-						Location loc = new Location(system, x, y);
+						Location loc = new Location(position.getSystem(), x, y);
 
 						if( !position.sameSector( 0, loc, base.getSize() ) ) {
 							continue;	
