@@ -253,8 +253,11 @@ public class SchiffsTick extends TickController {
             }
 
             if( crewToFeed > 0 ) {
+            	// Unter bestimmten (unklaren) umstaenden kann es zu einer Endlossschleife
+            	// kommen. Daher vorerst auf 1000 Iterationen beschraenken.
+            	int maxsteps = 1000;
                 Ship versorger = getVersorger(shipd.getLocation());
-                while(versorger != null && crewToFeed > 0)
+                while(versorger != null && crewToFeed > 0 && --maxsteps >= 0)
                 {
                     crewToFeed = consumeFood(versorger ,crewToFeed, scaleFactor);
                     versorger = getVersorger(shipd.getLocation());
