@@ -76,9 +76,9 @@
 		<!--
 			function transfermode_change( mode ) {
 				var elements = mode.split(':');
-				$('transfermode_from').value = elements[0];
-				$('transfermode_to').value = elements[1];
-				$('transfermode_form').submit();
+				document.getElementById('transfermode_from').value = elements[0];
+				document.getElementById('transfermode_to').value = elements[1];
+				document.getElementById('transfermode_form').submit();
 			}
 		// -->
 		</script>

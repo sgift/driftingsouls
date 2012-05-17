@@ -21,28 +21,28 @@
 
 	function checkPMStatus() {
 		var url = getDsUrl();
-		var params = 'module={global.module}&action=hasNewPm&autoAccess=true';
+		var params = {
+				module:'{global.module}', 
+				action:'hasNewPm',
+				autoAccess:true
+		};
 
-		var myAjax = new Ajax.Request( url, {
-				method: 'get', 
-				parameters: params, 
-				onComplete: updatePMStatus
-			});
+		jQuery.get( url, params, updatePMStatus );
 	}
 	
 	function updatePMStatus( originalRequest ) {
-		var response = originalRequest.responseText;
+		var response = originalRequest;
 		
 		if( response.indexOf('nicht eingeloggt') > -1 ) {
 			checkPMStatusExecuter.stop();
 			return;
 		}
 		
-		if( originalRequest.responseText == '1' ) {
-			$('mailicon').style.display='inline';
+		if( originalRequest == '1' ) {
+			document.getElementById('mailicon').style.display='inline';
 		}
 		else {
-			$('mailicon').style.display='none';
+			document.getElementById('mailicon').style.display='none';
 		}
 	}
 
@@ -53,11 +53,11 @@
 	*/
 	
 	function boxClose(box) {
-		$(box).style.display = 'none';
+		document.getElementById(box).style.display = 'none';
 	}
 	
 	function boxOpen(box) {
-		$(box).style.display = 'block';
+		document.getElementById(box).style.display = 'block';
 		
 		if( box == 'helpbox' ) {
 			helpBox.fetchHelpText();
@@ -66,52 +66,54 @@
 	
 	var helpBox = {
 		isVisible : function() {
-			if( $('helpbox').style.display == 'block' ) {
+			if( document.getElementById('helpbox').style.display == 'block' ) {
 				return true;
 			}
 			return false;
 		},
 		fetchHelpText : function() {
-			$('helpboxtext').innerHTML = '';
-			
-			var myAjax = new Ajax.Request( getDsUrl(),  {
-				method: 'get', 
-				parameters: 'module={global.module}&action=getHelpText&page='+currentModule, 
-				onComplete: helpBox.updateHelpText
-			});
+			document.getElementById('helpboxtext').innerHTML = '';
+			var params = {
+					module:'{global.module}', 
+					action:'getHelpText', 
+					page:currentModule
+			};
+			jQuery.get( getDsUrl(), params, helpBox.updateHelpText );
 		},
 		updateHelpText : function( originalRequest ) {
-			var response = originalRequest.responseText;
+			var response = originalRequest;
 			
 			if( response.indexOf('Sie muessen sich einloggen') > -1 ) {
 				location.href = getDsUrl()+"?module=portal&action=login";
 				return;
 			}
 			
-			$('helpboxtext').innerHTML = response;
+			document.getElementById('helpboxtext').innerHTML = response;
 		}
 	}
 	
 	var adminBox = {
 		execute : function() {
-			var cmd = $('adminConsoleCommand').value;
-			$('adminConsoleResponse').innerHTML = '';
-			var myAjax = new Ajax.Request( getDsUrl(),  {
-				method: 'get', 
-				parameters: 'module=admin&action=ajax&namedplugin=net.driftingsouls.ds2.server.modules.admin.AdminConsole&responseOnly=1&cmd='+encodeURIComponent(cmd), 
-				onComplete: adminBox.showResponse
-			});
+			var command = document.getElementById('adminConsoleCommand').value;
+			document.getElementById('adminConsoleResponse').innerHTML = '';
+			var params = {
+					module:'admin', 
+					action:'ajax', 
+					namedplugin:'net.driftingsouls.ds2.server.modules.admin.AdminConsole', 
+					responseOnly:'1', 
+					cmd:command};
+			jQuery.get(getDsUrl(), params, adminBox.showResponse);
 		},
 		
 		showResponse : function( originalRequest ) {
-			var response = originalRequest.responseText;
+			var response = originalRequest;
 			
 			if( response.indexOf('Sie muessen sich einloggen') > -1 ) {
 				location.href = getDsUrl()+"?module=portal&action=login";
 				return;
 			}
 			
-			$('adminConsoleResponse').innerHTML = response;
+			document.getElementById('adminConsoleResponse').innerHTML = response;
 		}
 	}
 	
@@ -122,15 +124,15 @@
 	var currentTitle;
 	
 	function setCurrentPage(module, title) {
-		var link = $('page_'+currentModule);
+		var link = document.getElementById('page_'+currentModule);
 		if( link ) {
 			link.className='';
 		}
 		else {
-			$('page_currentpage').style.display='none';
+			document.getElementById('page_currentpage').style.display='none';
 			
 			// Submenue leeren
-			var currentPageLi = $('currentpage');
+			var currentPageLi = document.getElementById('currentpage');
 			var dl = currentPageLi.getElementsByTagName('dl')[0];
 			var dds = dl.getElementsByTagName('dd');
 			while( dds.length > 0 ) {
@@ -138,7 +140,7 @@
 			}
 		}
 	
-		var link = $('page_'+module);
+		var link = document.getElementById('page_'+module);
 		if( link ) {
 			link.className='currentPage';
 		}
@@ -147,9 +149,9 @@
 			if( reducedTitle.length > 16 ) {
 				reducedTitle = reducedTitle.substring(0,16)+"...";
 			}
-			$('page_currentpage').firstChild.nodeValue = reducedTitle;
-			$('page_currentpage').style.display='inline';
-			$('page_currentpage_dropdown').style.display = 'none';
+			document.getElementById('page_currentpage').firstChild.nodeValue = reducedTitle;
+			document.getElementById('page_currentpage').style.display='inline';
+			document.getElementById('page_currentpage_dropdown').style.display = 'none';
 		}
 		
 		var oldModule = currentModule;
@@ -163,7 +165,7 @@
 	}
 	
 	function addPageMenuEntry(title, url) {
-		var currentPageLi = $('currentpage');
+		var currentPageLi = document.getElementById('currentpage');
 		
 		var dl = currentPageLi.getElementsByTagName('dl')[0];
 		var dd = document.createElement('dd');
@@ -174,11 +176,11 @@
 		dd.appendChild(a);
 		dl.appendChild(dd);
 		
-		$('page_currentpage_dropdown').style.display = 'inline';
+		document.getElementById('page_currentpage_dropdown').style.display = 'inline';
 	}
 	
 	function completePage() {
-		var currentPageLi = $('currentpage');
+		var currentPageLi = document.getElementById('currentpage');
 		var dds = currentPageLi.getElementsByTagName('dd');
 		
 		if( dds.length > 0 ) {

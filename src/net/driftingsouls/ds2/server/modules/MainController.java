@@ -25,7 +25,6 @@ import java.util.List;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.entities.GuiHelpText;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -128,7 +127,7 @@ public class MainController extends TemplateGenerator {
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 		
-		if( !BasicUser.getDefaultImagePath().equals(user.getUserImagePath()) ) {
+		if( user.getUserImagePath() != null ) {
 			parameterNumber("gfxpakversion");
 			int gfxpakversion = getInteger("gfxpakversion");
 			if( (gfxpakversion != 0) && (gfxpakversion != config.getInt("GFXPAK_VERSION")) ) {
