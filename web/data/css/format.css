@@ -215,6 +215,21 @@ tooltip1		{color: #FFFFFF; background-color: #cccccc}
 */
 td.inboxOrdnerHover	{background-color:#36413A; background-image:none }
 
+div.gfxbox2 {
+	border: 2px solid green;
+	-webkit-border-image: url('./data/interface/border/border.gif') 18 19 repeat;
+	-moz-border-image: url('./data/interface/border/border.gif') 18 19 repeat;
+	-o-border-image: url('./data/interface/border/border.gif') 18 19 repeat;
+	-ms-border-image: url('./data/interface/border/border.gif') 18 19 repeat;
+	border-image: url('./data/interface/border/border.gif') 18 19 repeat;
+	
+	border-top:18px;
+	border-left:19px;
+	border-bottom:18px;
+	border-right:19px;
+	background-image:url('./data/interface/border/border_background.gif');
+}
+
 /* Grafische Box */
 div.gfxbox {
 	background: url('./data/interface/border/topleft.gif') top left no-repeat;
@@ -246,9 +261,32 @@ div.gfxbox > div > div > div {
 	padding: 0px 0px 20px 20px;
 }
 
-.gfxbox h2 {font-size:16px; font-weight:bold; text-decoration:none; color:#FFFFFF; margin-top:1px; margin-left:0px; margin-right:0px; margin-bottom:2px}
-.gfxbox h3 {font-size:14px; font-weight:bold; text-decoration:none; color:#FEB626; margin-top:1px; margin-left:0px; margin-right:0px; margin-bottom:2px}
-.gfxbox button, .gfxbox input[type=submit] {
+.gfxbox h2, 
+.gfxbox2 h2 {
+	font-size:16px; 
+	font-weight:bold; 
+	text-decoration:none; 
+	color:#FFFFFF; 
+	margin-top:1px; 
+	margin-left:0px; 
+	margin-right:0px; 
+	margin-bottom:2px
+}
+.gfxbox h3,
+.gfxbox2 h3 {
+	font-size:14px; 
+	font-weight:bold; 
+	text-decoration:none; 
+	color:#FEB626; 
+	margin-top:1px; 
+	margin-left:0px; 
+	margin-right:0px; 
+	margin-bottom:2px
+}
+.gfxbox button, 
+.gfxbox input[type=submit],
+.gfxbox2 button,
+.gfxbox2 input[type=submit] {
 	border: 1px #A7A7A7 solid;
 	margin: 0px;
 	color: #FEB626;
@@ -257,7 +295,10 @@ div.gfxbox > div > div > div {
 	padding:2px;
 }
 
-.gfxbox input, .gfxbox select {
+.gfxbox input, 
+.gfxbox select,
+.gfxbox2 input,
+.gfxbox2 select {
 	border: 1px #A7A7A7 solid;
 	margin: 0px;
 	color: #C7C7C7;
@@ -267,17 +308,21 @@ div.gfxbox > div > div > div {
 }
 
 .gfxbox a:link,
-.gfxbox a:visited {
+.gfxbox a:visited,
+.gfxbox2 a:link,
+.gfxbox2 a:visited {
 	color: #0060F0;
 	font-weight: normal;
 	text-decoration: none
 }
-.gfxbox a:hover {
+.gfxbox a:hover,
+.gfxbox2 a:hover {
 	color: #F0A000;
 	font-weight: normal;
 	text-decoration: none
 }
-.gfxbox a:active {
+.gfxbox a:active,
+.gfxbox2 a:active {
 	color: #0000FF;
 	font-weight: normal;
 	text-decoration: none
