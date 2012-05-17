@@ -130,9 +130,8 @@ public class ImpObjectsController extends DSGenerator {
 				Handelsposten
 			*/
 		
-			List<?> postenList = db.createQuery("from Ship where id>0 and owner=? and system=? and locate('tradepost',status)!=0")
-				.setInteger(0, Faction.GTU)
-				.setInteger(1, system.getID())
+			List<?> postenList = db.createQuery("from Ship where id>0 and system=:sys and locate('tradepost',status)!=0")
+				.setInteger("sys", system.getID())
 				.list();
 			for( Iterator<?> iter=postenList.iterator(); iter.hasNext(); )
 			{
