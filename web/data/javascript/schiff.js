@@ -1,7 +1,13 @@
 var Schiff = {
 	openImpObjects : function(system) {
 		var el = jQuery("#impobjectsbox");
-		el.css('display','block');
+		var button = jQuery("#systeminfo");
+		el.css({
+			display:'block',
+			left:(button.offset().left+button.width())+"px",
+			top:(button.offset().top+button.height())+"px"
+		});
+		el.draggable();
 		
 		var self = this;
 		var url = getDsUrl();

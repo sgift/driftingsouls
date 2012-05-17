@@ -216,18 +216,20 @@ tooltip1		{color: #FFFFFF; background-color: #cccccc}
 td.inboxOrdnerHover	{background-color:#36413A; background-image:none }
 
 div.gfxbox2 {
-	border: 2px solid green;
-	-webkit-border-image: url('./data/interface/border/border.gif') 18 19 repeat;
-	-moz-border-image: url('./data/interface/border/border.gif') 18 19 repeat;
-	-o-border-image: url('./data/interface/border/border.gif') 18 19 repeat;
-	-ms-border-image: url('./data/interface/border/border.gif') 18 19 repeat;
-	border-image: url('./data/interface/border/border.gif') 18 19 repeat;
+	border: 19px ridge #26312a; /* Fallback alte Browser */
 	
-	border-top:18px;
-	border-left:19px;
-	border-bottom:18px;
-	border-right:19px;
+	-webkit-border-image: url('./data/interface/border/border.gif') 18 19 18 19 repeat;
+	-moz-border-image: url('./data/interface/border/border.gif') 18 19 repeat;
+	-o-border-image: url('./data/interface/border/border.gif') 18 19 18 19 repeat;
+	-ms-border-image: url('./data/interface/border/border.gif') 18 19 18 19 repeat;
+	border-image: url('./data/interface/border/border.gif') 18 19 18 19 repeat;
+	
+	border-top-width:18px;
+	border-left-width:19px;
+	border-bottom-width:18px;
+	border-right-width:19px;
 	background-image:url('./data/interface/border/border_background.gif');
+	background-clip:padding-box;
 }
 
 /* Grafische Box */
@@ -340,7 +342,7 @@ div.gfxbox > div > div > div {
 	overflow-y:auto;
 }
 
-#impobjectsbox {
+/*#impobjectsbox {
 	position:fixed;
 	top:200px;
 	margin-left:auto;
@@ -350,6 +352,12 @@ div.gfxbox > div > div > div {
 	right:0px;
 	width:360px;
 	display:none;
+	text-align:center;
+}*/
+#impobjectsbox {
+	position:absolute;
+	display:none;
+	width:360px;
 	text-align:center;
 }
 
