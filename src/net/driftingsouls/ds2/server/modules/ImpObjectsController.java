@@ -23,7 +23,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.User;
@@ -93,6 +92,7 @@ public class ImpObjectsController extends DSGenerator {
 	{
 		org.hibernate.Session db = getDB();
 		JSONObject json = new JSONObject();
+		User user = (User)getUser();
 		
 		JSONObject sysObj = new JSONObject();
 		sysObj.accumulate("name", system.getName());
@@ -136,6 +136,11 @@ public class ImpObjectsController extends DSGenerator {
 			for( Iterator<?> iter=postenList.iterator(); iter.hasNext(); )
 			{
 				Ship posten = (Ship)iter.next();
+				
+				if( !posten.isTradepostVisible(user, user.getRelations()) )
+				{
+					continue;
+				}
 				
 				JSONObject postenObj = new JSONObject();
 				postenObj.accumulate("x", posten.getX());

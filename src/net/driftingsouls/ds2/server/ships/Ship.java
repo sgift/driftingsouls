@@ -18,6 +18,33 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
+import java.sql.Blob;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.Version;
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
@@ -25,15 +52,29 @@ import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
-import net.driftingsouls.ds2.server.cargo.*;
+import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
+import net.driftingsouls.ds2.server.cargo.ResourceID;
+import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.cargo.Transfer;
+import net.driftingsouls.ds2.server.cargo.Transfering;
 import net.driftingsouls.ds2.server.cargo.modules.Module;
 import net.driftingsouls.ds2.server.cargo.modules.Modules;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
-import net.driftingsouls.ds2.server.entities.*;
-import net.driftingsouls.ds2.server.framework.*;
+import net.driftingsouls.ds2.server.entities.Feeding;
+import net.driftingsouls.ds2.server.entities.JumpNode;
+import net.driftingsouls.ds2.server.entities.Nebel;
+import net.driftingsouls.ds2.server.entities.Sector;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigValue;
+import net.driftingsouls.ds2.server.framework.Configuration;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.Quests;
 import net.driftingsouls.ds2.server.scripting.ShipScriptData;
@@ -42,24 +83,22 @@ import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargoEntry;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.ObjectNotFoundException;
-import org.hibernate.annotations.*;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.Type;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
-
-import javax.persistence.*;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.Version;
-import javax.script.Bindings;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-import java.sql.Blob;
-import java.util.*;
 
 /**
  * Repraesentiert ein Schiff in DS.
@@ -144,7 +183,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	private String onmove;
 	private int ablativeArmor;
 	private boolean startFighters;
-	private int showtradepost;
+	private TradepostVisibility showtradepost;
 	private boolean isfeeding;
 	private boolean isallyfeeding;
 	@OneToMany(fetch=FetchType.LAZY, targetEntity=net.driftingsouls.ds2.server.ships.ShipUnitCargoEntry.class)
@@ -207,6 +246,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		this.weaponHeat = "";
 		this.autodeut = 1;
 		this.scriptData = new ShipScriptData();
+		this.showtradepost = TradepostVisibility.ALL;
 	}
 	
 	/**
@@ -229,6 +269,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		this.docked = "";
 		this.weaponHeat = "";
 		this.autodeut = 1;
+		this.showtradepost = TradepostVisibility.ALL;
 		this.setName(name);
 		this.setBaseType(shiptype);
 		this.setX(x);
@@ -4114,7 +4155,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * returns who can see the tradepost entry in factions.
 	 * @return The variable who can see the post
 	 */
-	public int getShowtradepost()
+	@Enumerated
+	public TradepostVisibility getShowtradepost()
 	{
 		return showtradepost;
 	}
@@ -4128,7 +4170,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * 4 nobody except owner is able to see the tradepost.
 	 * @param showtradepost the value who can see the tradepost.
 	 */
-	public void setShowtradepost(int showtradepost)
+	public void setShowtradepost(TradepostVisibility showtradepost)
 	{
 		this.showtradepost = showtradepost;
 	}
@@ -4146,14 +4188,14 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	public boolean isTradepostVisible(User observer, User.Relations relationlist)
 	{
-		int tradepostvisibility = this.getShowtradepost();
+		TradepostVisibility tradepostvisibility = this.getShowtradepost();
 		int ownerid = this.getOwner().getId();
 		int observerid = observer.getId();
 		switch (tradepostvisibility)
 		{
-	        case 0:  
+	        case ALL:  
 	        	 return true;
-	        case 1:
+	        case NEUTRAL_AND_FRIENDS:
 	        	// check wether we are an enemy of the owner
 	        	 if( relationlist.fromOther.get(ownerid) == User.Relation.ENEMY )
 	        	 {
@@ -4162,7 +4204,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	        	 }
 	        	 // hey fine, we're allowed to see the tradepost
 	        	 return true;
-	        case 2:
+	        case FRIENDS:
 	        	// check wether we are a friend of the owner
 	        	 if( (relationlist.fromOther.get(ownerid) == User.Relation.FRIEND) || (ownerid == observerid) )
 	        	 {
@@ -4171,7 +4213,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	        	 }
 				// damn it, we're not friends, no tradepost for us
 				 return false;
-	        case 3:
+	        case ALLY:
 	        	// check if we are members of the same ally and if the owner has an ally
 	        	 if( ((this.getOwner().getAlly() != null) && observer.getAlly() != null && (this.getOwner().getAlly().getId() == observer.getAlly().getId() )) || (ownerid == observerid) )
 	        	 {
@@ -4180,7 +4222,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	        	 }
 				// no tradepost for us
 				 return false;
-	        case 4:
+	        case NONE:
 	        	// check if we are the owner of the tradepost
 	        	 if(ownerid == observerid)
 	        	 {

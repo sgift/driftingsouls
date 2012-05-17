@@ -23,6 +23,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.TradepostVisibility;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -218,13 +219,12 @@ public class TradepostController extends TemplateGenerator {
 		}
 		
 		t.setBlock("_TRADEPOST", "tradepostvisibility.list", "tradepostvisibility.post");
-		// set the tradepostvisibility
-		// first we need an array of descriptional text
-		String[] description = { "Allen zugänglich", "Feinde ausnehmen", "Auf Freunde begrenzen", "Auf die Allianz begrenzen", "Niemandem zugänglich" };
 		// now we cycle through the possible values and insert them into the template
-		for( int i = 0; i <= 4; i++ )
+		for( TradepostVisibility visibility : TradepostVisibility.values() )
 		{
-			t.setVar("tradepostvisibility.id", i, "tradepostvisibility.descripton", description[i], "tradepostvisibility.selected", (ship.getShowtradepost() == i));
+			t.setVar("tradepostvisibility.id", visibility.name(), 
+					"tradepostvisibility.descripton", visibility.getLabel(), 
+					"tradepostvisibility.selected", (ship.getShowtradepost() == visibility));
 			t.parse("tradepostvisibility.post", "tradepostvisibility.list", true);
 		}
 		
@@ -315,9 +315,9 @@ public class TradepostController extends TemplateGenerator {
 				"tradepost.koords", new Location(ship.getSystem(), ship.getX(), ship.getY()).displayCoordinates(false) );	
 		
 		// read possible new value of tradepostvisibility and write to ship
-		parameterNumber("tradepostvisibility");
-		int tradepostvisibility = getInteger("tradepostvisibility");
-		ship.setShowtradepost(tradepostvisibility);
+		parameterString("tradepostvisibility");
+		String tradepostvisibility = getString("tradepostvisibility");
+		ship.setShowtradepost(TradepostVisibility.valueOf(tradepostvisibility));
 		
 		// build form
 		for( Item aitem : itemlist ) {
