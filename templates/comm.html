@@ -203,7 +203,12 @@
 			document.getElementById("inbox_waiter").style.display = "block";
 			
 			var url = getDsUrl();
-			var params = {module:'{global.module}', action:'move', ordner:'{ordner.parent}', moveto:ordnerid};
+			var params = {
+					module:'{global.module}', 
+					action:'move', 
+					ordner:'{ordner.parent}', 
+					moveto:ordnerid
+			};
 			params['pm_'+pmid] = pmid;
 			
 			jQuery.get( url, params, finishMovePM );
