@@ -172,15 +172,11 @@ public abstract class DSGenerator extends Generator {
 			if( !getDisableDefaultCSS() ) { 
 				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"data/css/v"+version.getHgVersion()+"/format.css\" />\n");
 			}
-			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+url+"data/css/ui-darkness/jquery-ui-1.8.20.css\" />\n");
+			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"data/css/ui-darkness/jquery-ui-1.8.20.css\" />\n");
 			
-			
-			
-			/*
 			sb.append("<!--[if IE]>\n");
-			sb.append("<style type=\"text/css\">@import url("+config.get("URL")+"format_fuer_den_dummen_ie.css);</style>\n");
+			sb.append("<style type=\"text/css\">@import url("+config.get("URL")+"data/css/v"+version.getHgVersion()+"/format_fuer_den_dummen_ie.css);</style>\n");
 			sb.append("<![endif]-->\n");
-			*/
 
 			if( this.getAttribute("header") != null ) {
 				sb.append(this.getAttribute("header").toString());
