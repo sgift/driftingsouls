@@ -220,16 +220,16 @@ public class PlayerList {
 					echo.append("<td class=\"noBorderX\">"+Common._title(aUser.getName()));
 				}
 				if( aUser.hasFlag(User.FLAG_HIDE) ) {
-					echo.append(" <span style=\"color:red;font-style:italic\">[h]</span>");
+					echo.append(" <span style=\"color:red;font-style:italic\" title=\"hidden\">[h]</span>");
 				}
 				if( (user != null) && (user.getAccessLevel() > 20 ) && aUser.hasFlag(User.FLAG_VIEW_BATTLES) ) {
-					echo.append(" <span style=\"color:red;font-style:italic\">[vb]</span>");
+					echo.append(" <span style=\"color:red;font-style:italic\" title=\"view battles\">[vb]</span>");
 				}
 				if( (user != null) && (user.getAccessLevel() > 20 ) && aUser.hasFlag(User.FLAG_ORDER_MENU) ) {
-					echo.append(" <span style=\"color:red;font-style:italic\">[om]</span>");
+					echo.append(" <span style=\"color:red;font-style:italic\" title=\"order menu\">[om]</span>");
 				}
 				if( (user != null) && (user.getAccessLevel() > 20 ) && aUser.hasFlag(User.FLAG_EXEC_NOTES) ) {
-					echo.append(" <span style=\"color:red;font-style:italic\">[en]</span>");
+					echo.append(" <span style=\"color:red;font-style:italic\" title=\"exec notes\">[en]</span>");
 				}
 				echo.append("</span></td>\n");
 				
