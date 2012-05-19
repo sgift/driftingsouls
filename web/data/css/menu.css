@@ -89,9 +89,7 @@ div.gfxbox {
 	z-index:90;
 	top:80px;
 	left:0px;
-	right:0px;
 	display:none;
-	margin: 0px auto 0px auto;
 	background: url('./data/interface/border/topleft.gif') top left no-repeat;
 	padding:0px;
 }
