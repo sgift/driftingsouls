@@ -130,6 +130,7 @@ public class MapController extends TemplateGenerator
 		sb.append("<head>\n");
 		sb.append("<title>Drifting Souls 2</title>\n");
 		sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n");
+		sb.append("<meta http-equiv=\"X-UA-Compatible\" content=\"IE=9\">\n");
 		if( !getDisableDefaultCSS() ) { 
 			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(config.get("URL")).append("data/css/v").append(version.getHgVersion()).append("/format.css\" />\n");
 		}
@@ -137,6 +138,10 @@ public class MapController extends TemplateGenerator
         sb.append("<script src=\"").append(config.get("URL")).append("data/javascript/v").append(version.getHgVersion()).append("/jquery-1.7.2.min.js\" type=\"text/javascript\"></script>\n");
         sb.append("<script src=\"").append(config.get("URL")).append("data/javascript/v").append(version.getHgVersion()).append("/starmap.js\" type=\"text/javascript\"></script>\n");
         
+        sb.append("<!--[if IE]>\n");
+		sb.append("<style type=\"text/css\">@import url("+config.get("URL")+"data/css/v"+version.getHgVersion()+"/format_fuer_den_dummen_ie.css);</style>\n");
+		sb.append("<![endif]-->\n");
+		
         sb.append("<script type=\"text/javascript\">\n");
 		sb.append("if( parent && parent.setCurrentPage ) {\n");
 		sb.append("parent.setCurrentPage('map','Sternenkarte');\n");

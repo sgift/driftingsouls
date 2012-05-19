@@ -169,6 +169,7 @@ public abstract class DSGenerator extends Generator {
 			sb.append("<head>\n");
 			sb.append("<title>Drifting Souls 2</title>\n");
 			sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n");
+			sb.append("<meta http-equiv=\"X-UA-Compatible\" content=\"IE=9\">\n");
 			if( !getDisableDefaultCSS() ) { 
 				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"data/css/v"+version.getHgVersion()+"/format.css\" />\n");
 			}
