@@ -11,7 +11,14 @@
 		Mail Check
 	*/
 
+	var checkPMStatusCanceled = false;
 	function checkPMStatus() {
+		if( !checkPMStatusCanceled ) {
+			setTimeout(function() {
+				checkPMStatus()
+				}, 30000
+			);
+		}
 		var url = getDsUrl();
 		var params = {
 				module:'{global.module}', 
@@ -26,6 +33,7 @@
 		var response = originalRequest;
 		
 		if( response != null && response.indexOf('nicht eingeloggt') > -1 ) {
+			checkPMStatusCanceled = true;
 			return;
 		}
 		
@@ -35,11 +43,6 @@
 		else {
 			document.getElementById('mailicon').style.display='none';
 		}
-		
-		setTimeout(function() {
-			checkPMStatus()
-			}, 30000
-		);
 	}
 	
 	/*

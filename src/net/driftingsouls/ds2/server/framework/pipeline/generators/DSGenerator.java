@@ -159,7 +159,7 @@ public abstract class DSGenerator extends Generator {
 			boolean usegfxpak = false;
 			final BasicUser user = getContext().getActiveUser();
 			if( user != null ) {
-				if( !BasicUser.getDefaultImagePath().equals(user.getUserImagePath()) ) {
+				if( user.getUserImagePath() != null ) {
 					usegfxpak = true;
 				}
 				url = user.getImagePath();
@@ -197,8 +197,8 @@ public abstract class DSGenerator extends Generator {
 			if( usegfxpak ) {
 				sb.append("<script src=\""+url+"data/javascript/gfxpakversion.js?"+version.getHgVersion()+"\" type=\"text/javascript\"></script>\n");
 			}
-			sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/prototype.js\" type=\"text/javascript\"></script>\n");
-			sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/scriptaculous.js\" type=\"text/javascript\"></script>\n");
+			//sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/prototype.js\" type=\"text/javascript\"></script>\n");
+			//sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/scriptaculous.js\" type=\"text/javascript\"></script>\n");
 			sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/jquery-1.7.2.min.js\" type=\"text/javascript\"></script>\n");
 			sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/jquery-ui-1.8.20.min.js\" type=\"text/javascript\"></script>\n");
 			if( customJS )

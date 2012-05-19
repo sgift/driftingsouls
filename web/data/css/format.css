@@ -213,7 +213,10 @@ tooltip1		{color: #FFFFFF; background-color: #cccccc}
 /*
 	Inbox Ordner Hover
 */
-td.inboxOrdnerHover	{background-color:#36413A; background-image:none }
+.inboxOrdnerHover td {
+	background-color:#557755;
+	background-image:none;
+}
 
 div.gfxbox2 {
 	border: 19px ridge #26312a; /* Fallback alte Browser */

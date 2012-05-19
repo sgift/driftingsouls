@@ -214,33 +214,6 @@
 			jQuery.get( url, params, finishMovePM );
 		}
 		
-		var oldHoverStyles = new Array();
-		
-		function ordnerHover(drag, drop, overlap) {
-			nodes = drop.childNodes;
-			for( i=0; i < nodes.length; i++ ) {
-				if( nodes[i].nodeName.toUpperCase() != 'TD' ) {
-					continue;
-				}
-				oldHoverStyles['ordner'] = new Array();
-				oldHoverStyles['ordner']['bgcolor'] = nodes[i].style.backgroundColor;
-				oldHoverStyles['ordner']['bgimage'] = nodes[i].style.backgroundImage;
-				nodes[i].style.backgroundColor = '#557755';
-				nodes[i].style.backgroundImage = "none";
-			}
-		}
-		
-		function ordnerExit(drop) {
-			nodes = drop.childNodes;
-			for( i=0; i < nodes.length; i++ ) {
-				if( nodes[i].nodeName.toUpperCase() != 'TD' ) {
-					continue;
-				}
-				nodes[i].style.backgroundColor = oldHoverStyles['ordner']['bgcolor'];
-				nodes[i].style.backgroundImage = oldHoverStyles['ordner']['bgimage'];
-			}
-		}
-		
 		var draggablePms = new Array();
 	// -->
 	</script>
@@ -270,13 +243,12 @@
 					<tr id="inbox_ordner{ordner.id}">
 						<td class="noBorderX">
 							<script type="text/javascript" language="javascript">
-								Droppables.add('inbox_ordner{ordner.id}', {
-										accept: 'inbox_pm',
-										hoverclass: 'inboxOrdnerHover',
-										onDrop: function(element) 
-										{  movePM(element.id,{ordner.id}); },
-										onHover: ordnerHover,
-										onExit: ordnerExit
+								jQuery('#inbox_ordner{ordner.id}').droppable({
+									hoverClass:'inboxOrdnerHover',
+									accept:'.inbox_pm',
+									drop: function(event,ui) {
+										movePM(jQuery(ui.draggable).attr('id'), {ordner.id});
+									}
 								});
 							</script>
 							
@@ -445,7 +417,7 @@
 	<script type="text/javascript">
 	<!--		
 		for( var i=0; i < draggablePms.length; i++ ) {
-			new Draggable('inbox_pm'+draggablePms[i],{ revert:true });
+			jQuery('#inbox_pm'+draggablePms[i]).draggable({ revert:true });
 		}
 		draggablePms = null;
 	//-->
