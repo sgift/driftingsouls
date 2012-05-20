@@ -136,7 +136,8 @@ public class MapController extends TemplateGenerator
 		}
 		sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(config.get("URL")).append("data/css/v").append(version.getHgVersion()).append("/starmap.css\" />\n");
         sb.append("<script src=\"").append(config.get("URL")).append("data/javascript/v").append(version.getHgVersion()).append("/jquery-1.7.2.min.js\" type=\"text/javascript\"></script>\n");
-        sb.append("<script src=\"").append(config.get("URL")).append("data/javascript/v").append(version.getHgVersion()).append("/starmap.js\" type=\"text/javascript\"></script>\n");
+        sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/ds.js\" type=\"text/javascript\"></script>\n");
+		sb.append("<script src=\"").append(config.get("URL")).append("data/javascript/v").append(version.getHgVersion()).append("/starmap.js\" type=\"text/javascript\"></script>\n");
         
         sb.append("<!--[if IE]>\n");
 		sb.append("<style type=\"text/css\">@import url("+config.get("URL")+"data/css/v"+version.getHgVersion()+"/format_fuer_den_dummen_ie.css);</style>\n");

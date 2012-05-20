@@ -183,13 +183,13 @@ public abstract class DSGenerator extends Generator {
 				sb.append(this.getAttribute("header").toString());
 			}
 			
+			sb.append("</head>\n");
+			
 			boolean customJS = false;
 			if( this.getAttribute("customjs") != null && this.getAttribute("module") != null )
 			{
 				customJS = (Boolean)this.getAttribute("customjs");
 			}
-			
-			sb.append("</head>\n");
 			sb.append("<body "+getOnLoadText()+" "+getBodyParameters()+" >\n");
 			sb.append("<div id=\"overDiv\" style=\"position:absolute; visibility:hidden; z-index:1000;\"></div>\n");
 			sb.append("<script type=\"text/javascript\" src=\""+url+"data/javascript/overlibmws.js\"><!-- overLIB (c) Erik Bosrup -->\n");
@@ -197,32 +197,16 @@ public abstract class DSGenerator extends Generator {
 			if( usegfxpak ) {
 				sb.append("<script src=\""+url+"data/javascript/gfxpakversion.js?"+version.getHgVersion()+"\" type=\"text/javascript\"></script>\n");
 			}
-			//sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/prototype.js\" type=\"text/javascript\"></script>\n");
-			//sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/scriptaculous.js\" type=\"text/javascript\"></script>\n");
 			sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/jquery-1.7.2.min.js\" type=\"text/javascript\"></script>\n");
 			sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/jquery-ui-1.8.20.min.js\" type=\"text/javascript\"></script>\n");
+			sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/ds.js\" type=\"text/javascript\"></script>\n");
 			if( customJS )
 			{
 				sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/"+this.getAttribute("module")+".js\" type=\"text/javascript\"></script>\n");
 			}
-			sb.append("<script type=\"text/javascript\">\n");
-			sb.append("<!--\n");
-			sb.append("jQuery.noConflict();");
-			sb.append("OLpageDefaults(TEXTPADDING,0,TEXTFONTCLASS,'tooltip',FGCLASS,'tooltip',BGCLASS,'tooltip');");
-			sb.append("function ask(text,url) {\n");
-			sb.append("if( confirm(text) ) {\n");
-			sb.append("window.location.href = url;\n");
-			sb.append("}\n");
-			sb.append("}\n");
-			sb.append("function getDsUrl() {\n");
-			sb.append("var url = location.href;\n");
-			sb.append("if( url.indexOf('?') > -1 ) {\n");
-			sb.append("url = url.substring(0,url.indexOf('?'));\n");
-			sb.append("}\n");
-			sb.append("return url;\n");
-			sb.append("}\n");
-			
 			if( this.getAttribute("module") != null ) {
+				sb.append("<script type=\"text/javascript\">\n");
+				sb.append("<!--\n");
 				sb.append("if( parent && parent.setCurrentPage ) {\n");
 				sb.append("parent.setCurrentPage('"+this.getAttribute("module")+"','"+this.getAttribute("pagetitle")+"');\n");
 				PageMenuEntry[] entries = (PageMenuEntry[])this.getAttribute("pagemenu");
@@ -233,15 +217,9 @@ public abstract class DSGenerator extends Generator {
 				}
 				sb.append("parent.completePage();");
 				sb.append("}\n");
+				sb.append("// -->\n");
+				sb.append("</script>\n");
 			}
-
-			sb.append("// -->\n");
-			sb.append("</script>\n");
-			/*
-			sb.append("<script src=\""+url+"data/javascript/jquery.js\" type=\"text/javascript\"></script>\n");
-			sb.append("<script src=\""+url+"data/javascript/jquery.ui.js\" type=\"text/javascript\"></script>\n");
-			sb.append("<script src=\""+url+"data/javascript/jquery.blockUI.js\" type=\"text/javascript\"></script>\n");
-			*/
 			sb.append("<div id=\"error-placeholder\" />\n");
 		}
 		
