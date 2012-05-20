@@ -383,14 +383,14 @@ public class ItemInfoController extends TemplateGenerator {
 			}
 			else if( shiptype.isHide() ) {
         		if( user.getAccessLevel() > 20 ) {
-        			data.append("<a class=\"forschinfo\" href=\""+Common.buildUrl("default", "module", "schiffinfo", "ship", effect.getShipType())+"\">"+shiptype.getNickname()+"</a><br /><span style=\"font-style:italic;color:red\" class=\"verysmallfont\">[unsichtbar]</span>\n");
+        			data.append("<a class=\"forschinfo\" onclick='ShiptypeBox.show("+effect.getShipType()+");return false;' href=\""+Common.buildUrl("default", "module", "schiffinfo", "ship", effect.getShipType())+"\">"+shiptype.getNickname()+"</a><br /><span style=\"font-style:italic;color:red\" class=\"verysmallfont\">[unsichtbar]</span>\n");
 	        	} 
 	        	else {
     	    		data.append("Unbekannt");
         		}
 			}	
 			else {
-				data.append("<a class=\"forschinfo\" href=\""+Common.buildUrl("default", "module", "schiffinfo", "ship", effect.getShipType())+"\">"+shiptype.getNickname()+"</a>\n");
+				data.append("<a class=\"forschinfo\" onclick='ShiptypeBox.show("+effect.getShipType()+");return false;' href=\""+Common.buildUrl("default", "module", "schiffinfo", "ship", effect.getShipType())+"\">"+shiptype.getNickname()+"</a>\n");
 			}
 			
 			t.setVar(	"entry.name",	"Schiffstyp",
@@ -483,7 +483,7 @@ public class ItemInfoController extends TemplateGenerator {
 			
 			ShipTypeData shiptype = Ship.getShipType( effect.getShipType() );
 			if( shiptype != null ) {
-				t.setVar("entry.data", "<a class=\"forschinfo\" href=\""+Common.buildUrl("default","module", "schiffinfo", "ship", effect.getShipType())+"\">"+shiptype.getNickname()+"</a>" );
+				t.setVar("entry.data", "<a class=\"forschinfo\" onclick='ShiptypeBox.show("+effect.getShipType()+");return false;' href=\""+Common.buildUrl("default","module", "schiffinfo", "ship", effect.getShipType())+"\">"+shiptype.getNickname()+"</a>" );
 			}
 			else {
 				t.setVar("entry.data", "<span style=\"color:red\">Unbekannter Schiffstyp</span>");

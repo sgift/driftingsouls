@@ -48,7 +48,8 @@
 								{!link_to $ship.name, order, order:$ship.type} ({!link_to 5x, order, order:$ship.type, count:5}, {!link_to 10x, order, order:$ship.type, count:10})
 							</td>
 							<td class="noBorderX">
-								{!link_to ?, default, module:schiffinfo, ship:$ship.type}
+								<a class="forschinfo" onclick="ShiptypeBox.show({ship.type});return false;"
+									href="./ds?module=schiffinfo&amp;ship={ship.type}">?</a>
 							</td>
 							<td class="noBorderX" align="center">{ship.cost}</td>
 							{if ship.ordercount}

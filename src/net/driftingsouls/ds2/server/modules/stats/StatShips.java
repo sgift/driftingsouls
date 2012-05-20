@@ -49,7 +49,10 @@ public class StatShips implements Statistic {
 				"GROUP BY st.id,st.nickname " +
 				"ORDER BY st.nickname");
 		while( tmp.next() ) {
-      		echo.append("<tr><td class=\"noBorderX\">"+Common.ln(tmp.getInt("count"))+" "+tmp.getString("nickname")+" <a class=\"forschinfo\" href=\"./ds?module=schiffinfo&ship="+tmp.getInt("id")+"\">(?)</a></td></tr>\n");
+      		echo.append("<tr><td class=\"noBorderX\">"+
+      				Common.ln(tmp.getInt("count"))+" "+tmp.getString("nickname")+
+      				" <a class=\"forschinfo\" onclick='ShiptypeBox.show("+tmp.getInt("id")+");return false;' href=\"./ds?module=schiffinfo&ship="+tmp.getInt("id")+"\">(?)</a>" +
+      			"</td></tr>\n");
 		}
 		tmp.free();
 		echo.append("</table><br /><br />");

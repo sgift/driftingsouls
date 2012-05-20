@@ -87,7 +87,7 @@ public class StatOwnKampf implements Statistic {
 					
 					echo.append(count+" ");
 					if( shiptype != null ) {
-						echo.append("<a target=\"_blank\" " +
+						echo.append("<a target=\"_blank\" onclick='ShiptypeBox.show("+s.getInt("type")+");return false;' " +
 								"href=\"./ds?module=schiffinfo&ship="+s.getInt("type")+"\">" +
 								shiptype.getNickname()+"</a>");
 					}
@@ -183,7 +183,7 @@ public class StatOwnKampf implements Statistic {
 					
 					echo.append(count+" ");
 					if( shiptype != null ) {
-						echo.append("<a target=\"_blank\" " +
+						echo.append("<a target=\"_blank\" onclick='ShiptypeBox.show("+s.getInt("type")+");return false;' " +
 								"href=\"./ds?module=schiffinfo&ship="+s.getInt("type")+"\">" +
 								shiptype.getNickname()+"</a>");
 					}
