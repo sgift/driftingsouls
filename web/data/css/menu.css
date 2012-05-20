@@ -317,15 +317,17 @@ div.gfxbox > div > div > div {
 
 /* Hilfebox */
 #helpbox {
-	width:350px;
+	width:550px;
 }
 
-#helpbox div {
+#helpbox {
 	text-align:center;
 }
 #helpboxtext {
-	height: 300px;
+	height: 400px;
 	overflow:auto;
+	text-align:left;
+	padding-right:3px;
 }
 
 /* Suchen */
