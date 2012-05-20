@@ -59,7 +59,12 @@
 		{if ownship.mangelnahrung}<img src="{URL}data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />{/endif}
 		{if ownship.mangelreaktor}<img src="{URL}data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}		
 		<br />
-		<a class="noborder" onmouseover="return overlib('{ownship.type.name}{ownship.energy}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" target="_blank" href="./ds?module=schiffinfo&amp;ship={ownship.type}"><img src="{ownship.type.image}" alt="" /></a><br />
+		<a class="noborder" onmouseover="return overlib('{ownship.type.name}{ownship.energy}',TIMEOUT,0,DELAY,400,WIDTH,100);" 
+			onmouseout="return nd();" target="_blank" 
+			onclick="ShiptypeBox.show({ownship.type});return false;"
+			href="./ds?module=schiffinfo&amp;ship={ownship.type}">
+			<img src="{ownship.type.image}" alt="" />
+		</a><br />
 		<a class="profile" href="./ds?module=userprofile&amp;user={ownship.owner.id}">{ownship.owner.name}</a><br />
 	</td>
 	<td rowspan="2" style="vertical-align:top;width:30%" class="schiffData">
@@ -209,7 +214,10 @@
 					{else}
 						<div id="stats{shipinfo.jscriptid}Ship" style="position:absolute; top:0px; left:0px; visibility:hidden;">
 					{/endif}
-						<a class="noborder" onmouseover="return overlib('{shipinfo.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" target="_blank" href="./ds?module=schiffinfo&amp;ship={shipinfo.type}">
+						<a class="noborder" onmouseover="return overlib('{shipinfo.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" 
+							onmouseout="return nd();" target="_blank" 
+							onclick="ShiptypeBox.show({shipinfo.type});return false;"
+							href="./ds?module=schiffinfo&amp;ship={shipinfo.type}">
 						<img src="{shipinfo.type.image}" alt="" style="float:right; margin-right:5px; margin-left:15px;margin-bottom:10px" /></a>
 						Zustand:
 						{if shipinfo.ablativeArmor.bad}<span style="color:#ff0000">{/endif}
@@ -327,7 +335,12 @@
 		{if enemyship.action.join}<img src="{URL}data/interface/ks/join.gif" alt="" title="tritt der Schlacht bei" />{/endif}
 		{if enemyship.action.secondrow}<img src="{URL}data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />{/endif}
 		<br />
-		<a class="noborder" onmouseover="return overlib('{enemyship.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" target="_blank" href="./ds?module=schiffinfo&amp;ship={enemyship.type}"><img src="{enemyship.type.image}" alt="" /></a><br />
+		<a class="noborder" onmouseover="return overlib('{enemyship.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" 
+			onmouseout="return nd();" target="_blank" 
+			onclick="ShiptypeBox.show({enemyship.type});return false;"
+			href="./ds?module=schiffinfo&amp;ship={enemyship.type}">
+			<img src="{enemyship.type.image}" alt="" />
+		</a><br />
 		<a class="profile" href="./ds?module=userprofile&amp;user={enemyship.owner.id}">{enemyship.owner.name}</a><br />
 	</td>
 </tr>
@@ -344,7 +357,11 @@
 	{if shiptypelist.mangelnahrungcount}&nbsp;<img src="{URL}data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />&nbsp;{shiptypelist.mangelnahrungcount}{/endif}
 	{if shiptypelist.mangelreaktorcount}&nbsp;<img src="{URL}data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{shiptypelist.mangelreaktorcount}{/endif}
 	<br />
-	<a class="noborder" target="_blank" href="./ds?module=schiffinfo&amp;ship={shiptypelist.id}"><img src="{shiptypelist.image}" alt="" /></a><br />
+	<a class="noborder" target="_blank" 
+		onclick="ShiptypeBox.show({shiptypelist.id});return false;"
+		href="./ds?module=schiffinfo&amp;ship={shiptypelist.id}">
+		<img src="{shiptypelist.image}" alt="" />
+	</a><br />
 <!-- END ships.typelist.item -->
 <tr>
 	<td class="schiffData" style="vertical-align:top;width:30%">
@@ -363,7 +380,12 @@
 				{if ship.mangelnahrung}<img src="{URL}data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />{/endif}
 				{if ship.mangelreaktor}<img src="{URL}data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
 				<br />
-				<a class="noborder" onmouseover="return overlib('{ship.type.name}{ship.energy}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" target="_blank" href="./ds?module=schiffinfo&amp;ship={ship.type}"><img src="{ship.type.image}" alt="" /></a><br />
+				<a class="noborder" onmouseover="return overlib('{ship.type.name}{ship.energy}',TIMEOUT,0,DELAY,400,WIDTH,100);" 
+					onmouseout="return nd();" target="_blank" 
+					onclick="ShiptypeBox.show({ship.type});return false;"
+					href="./ds?module=schiffinfo&amp;ship={ship.type}">
+					<img src="{ship.type.image}" alt="" />
+				</a><br />
 				<a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
 				{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
 			<!-- END ownShips.listitem -->
@@ -382,7 +404,12 @@
 				{if ship.action.join}<img src="{URL}data/interface/ks/join.gif" alt="" title="tritt der Schlacht bei" />{/endif}
 				{if ship.action.secondrow}<img src="{URL}data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />{/endif}
 				<br />
-				<a class="noborder" onmouseover="return overlib('{ship.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" target="_blank" href="./ds?module=schiffinfo&amp;ship={ship.type}"><img src="{ship.type.image}" alt="" /></a><br />
+				<a class="noborder" onmouseover="return overlib('{ship.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" 
+					onmouseout="return nd();" target="_blank" 
+					onclick="ShiptypeBox.show({ship.type});return false;"
+					href="./ds?module=schiffinfo&amp;ship={ship.type}">
+					<img src="{ship.type.image}" alt="" />
+				</a><br />
 				<a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
 				{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
 			<!-- END enemyShips.listitem -->

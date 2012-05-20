@@ -296,6 +296,10 @@ div.gfxbox {
 	text-decoration: none
 }
 
+.gfxbox .content {
+	text-align:left;
+}
+
 .kursbox {
 	width:250px;
 	margin-right:25px;
@@ -316,7 +320,6 @@ div.gfxbox {
 }
 
 #impobjectsbox .content {
-	text-align: left;
 	height:350px;
 	overflow-y:auto;
 	margin-right:3px;
@@ -343,4 +346,22 @@ div.gfxbox {
 #impobjectsbox dd {
 	margin-left:70px;
 	margin-bottom:5px;
+}
+
+#shiptypeBox {
+	width:700px;
+	position:fixed;
+	top:10px;
+	margin-left:auto;
+	margin-right:auto;
+	z-index:95;
+	left:0px;
+	right:0px;
+	text-align:center;
+}
+
+#shiptypeBox .content {
+	height:600px;
+	overflow-y:auto;
+	margin-right:3px;
 }

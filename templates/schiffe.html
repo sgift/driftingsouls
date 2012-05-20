@@ -100,7 +100,14 @@
 			<br />{!link_to [scan], default, module:scan, css_class:nonbold, css_style:color:#CCAA33, ship:$ship.id}	
 		{/endif}
 		</td>
-		<td class="schiffData"><a onmouseover="return overlib('{ship.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" class="noborder" href="./ds?module=schiffinfo&amp;sess={global.sess}&amp;ship={ship.type}"><img src="{ship.image}" alt="" /></a></td>
+		<td class="schiffData">
+			<a onmouseover="return overlib('{ship.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" 
+				onmouseout="return nd();" class="noborder" 
+				onclick="ShiptypeBox.show({ship.type});return false;"
+				href="./ds?module=schiffinfo&amp;sess={global.sess}&amp;ship={ship.type}">
+					<img src="{ship.image}" alt="" />
+			</a>
+		</td>
 		<td class="schiffData">{ship.location}</td>
 		<td class="schiffData"><span style="color:{ship.hullcolor}">{ship.hull}</span>
 		{if ship.ablativearmor}

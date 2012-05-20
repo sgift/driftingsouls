@@ -178,7 +178,12 @@
 				{/endif}		
 				<td class="show2"><span class="smallfont">{sshipgroup.name}</span></td>
 				<td class="show2">
-					<a onmouseover="return overlib('{sshipgroup.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" class="noborder" target="_blank" href="./ds?module=schiffinfo&amp;ship={sshipgroup.type.id}"><img src="{sshipgroup.type.image}" alt="" /></a>
+					<a onmouseover="return overlib('{sshipgroup.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" 
+						onmouseout="return nd();" class="noborder" target="_blank" 
+						onclick="ShiptypeBox.show({sshipgroup.type.id});return false;"
+						href="./ds?module=schiffinfo&amp;ship={sshipgroup.type.id}">
+						<img src="{sshipgroup.type.image}" alt="" />
+					</a>
 				</td>
 				<td class="show2"><span class="smallfont">-</span></td>
 				<td class="show2" align="left">
@@ -233,7 +238,12 @@
 					</span>
 				</td>
 				<td class="show2">
-					<a onmouseover="return overlib('{sships.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" class="noborder" target="_blank" href="./ds?module=schiffinfo&amp;ship={sships.type.id}"><img src="{sships.type.image}" alt="" /></a>
+					<a onmouseover="return overlib('{sships.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" 
+						onmouseout="return nd();" class="noborder" target="_blank" 
+						onclick="ShiptypeBox.show({sships.type.id});return false;"
+						href="./ds?module=schiffinfo&amp;ship={sships.type.id}">
+						<img src="{sships.type.image}" alt="" />
+					</a>
 				</td>
 				<td class="show2">
 					<span class="smallfont">

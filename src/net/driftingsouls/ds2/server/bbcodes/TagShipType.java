@@ -59,8 +59,9 @@ public class TagShipType implements BBCodeFunction
 
 		return "<a target=\"main\" onmouseover=\"return overlib('"
 				+ shiptype.getNickname()
-				+ "',TIMEOUT,0,DELAY,400,WIDTH,150);\" onmouseout=\"return nd();\" class=\"noborder\" href=\""
-				+ url + "\"><img align=\"middle\" border=\"0\" src=\"" + shiptype.getPicture()
+				+ "',TIMEOUT,0,DELAY,400,WIDTH,150);\" onmouseout=\"return nd();\" class=\"noborder\" " +
+				"onclick='ShiptypeBox.show("+shiptype.getTypeId()+");return false;' " +
+				"href=\"" + url + "\"><img align=\"middle\" border=\"0\" src=\"" + shiptype.getPicture()
 				+ "\" alt=\"\" /></a>";
 	}
 

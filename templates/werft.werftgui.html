@@ -18,7 +18,8 @@
 		<tr>
 			<td class="noBorderX" valign="top">
 			{if werftgui.ws.showinfo}
-				<a target="_blank" class="noborder" href="./ds?module=schiffinfo&amp;ship={ship.type.id}">
+				<a target="_blank" class="noborder" onclick="ShiptypeBox.show({ship.type.id});return false;"
+					href="./ds?module=schiffinfo&amp;ship={ship.type.id}">
 					<img src="{ship.type.picture}" alt="{ship.type.name}" title="{ship.type.name}" style="border:0px; float:right; margin-right:5px; margin-left:15px;margin-bottom:10px" />
 				</a>
 				H&uuml;lle: <span style="color:{ship.hull.color}">{ship.hull}/{ship.type.hull}</span><br />
@@ -331,7 +332,10 @@
 								<img style="vertical-align:middle;width:64px" src="{buildship.type.image}" alt="" />
 							</td>
 							<td class="noBorderX">
-								<a class="forschinfo" href="./ds?module=schiffinfo&amp;ship={buildship.type.id}">{buildship.type.name}</a>
+								<a class="forschinfo" onclick="ShiptypeBox.show({buildship.type.id});return false;"
+									href="./ds?module=schiffinfo&amp;ship={buildship.type.id}">
+									{buildship.type.name}
+								</a>
 							</td>
 							<td class="noBorderX">
 								<!-- BEGIN buildship.res.listitem -->
@@ -391,7 +395,10 @@
 								<img style="vertical-align:middle;width:64px" src="{queueship.type.image}" alt="" />
 							</td>
 							<td class="noBorderX">
-								<a class="forschinfo" href="./ds?module=schiffinfo&amp;ship={queueship.type.id}">{queueship.type.name}</a>
+								<a class="forschinfo" onclick="ShiptypeBox.show({queueship.type.id});return false;"
+									href="./ds?module=schiffinfo&amp;ship={queueship.type.id}">
+									{queueship.type.name}
+								</a>
 							</td>
 							<td class="noBorderX">
 								Fertigstellung in: <img vertical-align="middle" src="{URL}data/interface/time.gif" alt="Dauer" title="Dauer" />{queueship.remainingtotal}<br />

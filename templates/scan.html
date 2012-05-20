@@ -118,7 +118,10 @@
 						</span>
 					</td>
 					<td class="show2">
-						<a target="main" class="noborder" onmouseover="return overlib('{ship.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" target="_blank" href="./ds?module=schiffinfo&ship={ship.type}">
+						<a target="main" class="noborder" onmouseover="return overlib('{ship.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" 
+							onmouseout="return nd();" target="_blank" 
+							onclick="ShiptypeBox.show({ship.type});return false;"
+							href="./ds?module=schiffinfo&ship={ship.type}">
 							<img src="{global.user.imagepath}{ship.type.picture}" alt="">
 						</a>
 					</td>

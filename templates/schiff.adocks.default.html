@@ -14,7 +14,10 @@
 	{if docks.entry.id}
 		<td class="schiffData" valign="top" width="{docks.width}%" align="center">
 			<a class="forschinfo" href="./ds?module=schiff&amp;ship={docks.entry.id}">{docks.entry.name} ({docks.entry.id})</a><br />
-			<a class="noborder" target="_blank" href="./ds?module=schiffinfo&amp;ship={docks.entry.type}"><img src="{docks.entry.image}" alt="" /></a><br />
+			<a class="noborder" target="_blank" onclick="ShiptypeBox.show({docks.entry.type});return false;"
+				href="./ds?module=schiffinfo&amp;ship={docks.entry.type}">
+				<img src="{docks.entry.image}" alt="" />
+			</a><br />
 			<a class="forschinfo" href="./ds?module=schiff&amp;ship={ship.id}&amp;action=abladen&amp;tar={docks.entry.id}">abdocken</a><br>
 		</td>
 	{else}

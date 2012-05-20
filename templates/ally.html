@@ -440,7 +440,10 @@
 		<!-- BEGIN show.destships.listitem -->
 			<td class="schiffWaren" style="width:100px">
 				{show.destships.name}<br />
-				<a onmouseover="return overlib('{show.destships.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" target="_blank" href="./ds?module=schiffinfo&amp;ship={show.destships.type}">
+				<a onmouseover="return overlib('{show.destships.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" 
+					onmouseout="return nd();" target="_blank" 
+					onclick="ShiptypeBox.show({show.destships.type});return false;"
+					href="./ds?module=schiffinfo&amp;ship={show.destships.type}">
 					<img src="{show.destships.type.picture}" alt="" />
 				</a><br />
 				{show.destships.owner}<br />
@@ -473,7 +476,10 @@
 		<!-- BEGIN show.lostships.listitem -->
 			<td class="schiffWaren" style="width:100px">
 				{show.lostships.name}<br />
-				<a onmouseover="return overlib('{show.lostships.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" target="_blank" href="./ds?module=schiffinfo&amp;ship={show.lostships.type}">
+				<a onmouseover="return overlib('{show.lostships.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" 
+					onmouseout="return nd();" target="_blank" 
+					onclick="ShiptypeBox.show({show.lostships.type});return false;"
+					href="./ds?module=schiffinfo&amp;ship={show.lostships.type}">
 					<img src="{show.lostships.type.picture}" alt="" />
 				</a><br />
 				{show.lostships.owner}<br />
