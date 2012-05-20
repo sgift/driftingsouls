@@ -1,4 +1,4 @@
-jQuery.noConflict();
+//jQuery.noConflict();
 
 if( typeof OLpageDefaults !== 'undefined' ) {
 	OLpageDefaults(TEXTPADDING,0,TEXTFONTCLASS,'tooltip',FGCLASS,'tooltip',BGCLASS,'tooltip');
