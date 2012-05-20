@@ -6,11 +6,11 @@ body {
 	position:fixed;
 	left:-20px;
 	top:200px;
-	width:45px;
+	width:25px;
 }
 
 #mapmenubar .content {
-	padding-left:30px;
+	padding-left:10px;
 }
 
 #mapmenubar .content a {

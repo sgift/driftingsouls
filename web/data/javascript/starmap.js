@@ -646,11 +646,11 @@ var Starmap = {
 	{
 		if( $('#sectortable').size() == 0 )
 		{
-			var sectorview = "<div class='invisible gfxbox' id='sectortable' style='width:400px'><div><div>";
+			var sectorview = "<div class='invisible gfxbox' id='sectortable' style='width:400px'>";
 			sectorview += "<div id='sectorview'>";
 			//Text is inserted here - using javascript
 			sectorview += "</div>";
-			sectorview += "</div></div></div>";
+			sectorview += "</div>";
 			sectorview += "</div>";
 			$('#mapcontent').append(sectorview);
 		}

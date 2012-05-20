@@ -16,3 +16,12 @@
  *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
+div.gfxbox {
+	border:4px solid #26312a;
+	padding-left:8px;
+	padding-right:3px;
+	padding-top:5px;
+	padding-bottom:5px;
+	background-image:url('./data/interface/border/border_background.gif');
+	background-clip:border-box;
+}

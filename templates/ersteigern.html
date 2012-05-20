@@ -433,7 +433,7 @@
 	</div>
 
 	<!-- BEGIN kurse.listitem -->
-		<div class="gfxbox kursbox"><div><div><div><div class="content">
+		<div class="gfxbox kursbox"><div class="content">
 			<span style="text-decoration:underline">{posten.name}:</span><br />			
 			{!link_to $posten.owner.name, default, css_class:profile, module:userprofile, user:$posten.owner.id}<br />
 			{posten.koords.system}:{posten.koords.x}/{posten.koords.y}<br />
@@ -441,7 +441,7 @@
 				<a class="noborder" onmouseover="return overlib('&lt;span class=\'nobr\'&gt;&lt;span class=\'libwarentt\'&gt;&lt;img align=\'left\' src=\'{ware.image}\' alt=\'{ware.plainname}\' /&gt;{ware.plainname}&lt;/span&gt;&lt;/span&gt;',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');" onmouseout="return nd();" class="forschinfo" href="./ds?module=iteminfo&amp;itemlist={ware.id}"><img src="{ware.image}" /></a>					
 				{if ware.preis}{ware.preis} RE{else}Kein bedarf{/endif}<br />
 			<!-- END kurse.waren.listitem -->
-		</div></div></div></div></div>
+		</div></div>
 	<!-- END kurse.listitem -->
 {/endif}
 {if show.general}

@@ -218,8 +218,8 @@ tooltip1		{color: #FFFFFF; background-color: #cccccc}
 	background-image:none;
 }
 
-div.gfxbox2 {
-	border: 19px ridge #26312a; /* Fallback alte Browser */
+div.gfxbox {
+	border-style: none;
 	
 	-webkit-border-image: url('./data/interface/border/border.gif') 18 19 18 19 repeat;
 	-moz-border-image: url('./data/interface/border/border.gif') 18 19 repeat;
@@ -233,41 +233,13 @@ div.gfxbox2 {
 	border-right-width:19px;
 	background-image:url('./data/interface/border/border_background.gif');
 	background-clip:padding-box;
-}
-
-/* Grafische Box */
-div.gfxbox {
-	background: url('./data/interface/border/topleft.gif') top left no-repeat;
-	padding:0px;
+	
 	color: #C7C7C7;
-    font-family: arial,helvetica;
+	font-family: arial,helvetica;
     font-size: 14px;
 }
 
-div.gfxbox > div {
-	background: url('./data/interface/border/topright.gif') top right no-repeat;
-	position:relative;
-	right:-20px;
-	padding:0px;
-	margin:0px;
-}
-
-div.gfxbox > div > div {
-	background: url('./data/interface/border/bottomright.gif') bottom right no-repeat;
-	position:relative;
-	bottom: -18px;
-	margin:0px;
-}
-
-div.gfxbox > div > div > div {
-	background: url('./data/interface/border/bottomleft.gif') bottom left no-repeat;
-	position:relative;
-	left: -20px;
-	padding: 0px 0px 20px 20px;
-}
-
-.gfxbox h2, 
-.gfxbox2 h2 {
+.gfxbox h2 {
 	font-size:16px; 
 	font-weight:bold; 
 	text-decoration:none; 
@@ -277,8 +249,7 @@ div.gfxbox > div > div > div {
 	margin-right:0px; 
 	margin-bottom:2px
 }
-.gfxbox h3,
-.gfxbox2 h3 {
+.gfxbox h3 {
 	font-size:14px; 
 	font-weight:bold; 
 	text-decoration:none; 
@@ -289,9 +260,7 @@ div.gfxbox > div > div > div {
 	margin-bottom:2px
 }
 .gfxbox button, 
-.gfxbox input[type=submit],
-.gfxbox2 button,
-.gfxbox2 input[type=submit] {
+.gfxbox input[type=submit] {
 	border: 1px #A7A7A7 solid;
 	margin: 0px;
 	color: #FEB626;
@@ -301,9 +270,7 @@ div.gfxbox > div > div > div {
 }
 
 .gfxbox input, 
-.gfxbox select,
-.gfxbox2 input,
-.gfxbox2 select {
+.gfxbox select {
 	border: 1px #A7A7A7 solid;
 	margin: 0px;
 	color: #C7C7C7;
@@ -313,21 +280,17 @@ div.gfxbox > div > div > div {
 }
 
 .gfxbox a:link,
-.gfxbox a:visited,
-.gfxbox2 a:link,
-.gfxbox2 a:visited {
+.gfxbox a:visited {
 	color: #0060F0;
 	font-weight: normal;
 	text-decoration: none
 }
-.gfxbox a:hover,
-.gfxbox2 a:hover {
+.gfxbox a:hover {
 	color: #F0A000;
 	font-weight: normal;
 	text-decoration: none
 }
-.gfxbox a:active,
-.gfxbox2 a:active {
+.gfxbox a:active {
 	color: #0000FF;
 	font-weight: normal;
 	text-decoration: none
@@ -345,18 +308,6 @@ div.gfxbox > div > div > div {
 	overflow-y:auto;
 }
 
-/*#impobjectsbox {
-	position:fixed;
-	top:200px;
-	margin-left:auto;
-	margin-right:auto;
-	z-index:100;
-	left:0px;
-	right:0px;
-	width:360px;
-	display:none;
-	text-align:center;
-}*/
 #impobjectsbox {
 	position:absolute;
 	display:none;

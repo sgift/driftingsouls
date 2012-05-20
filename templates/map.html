@@ -1,19 +1,19 @@
-<div id="mapmenubar" class="gfxbox"><div><div><div class="content">
+<div id="mapmenubar" class="gfxbox"><div class="content">
 	<a id="showSystemauswahl" title="System auswählen" href="#" onclick="Starmap.showSystemSelection()"><img src="{URL}data/interface/impobjects.gif" alt="?" /></a>
 	<a id="showJumpnodeList" title="Sprungpunkte anzeigen" href="#" onclick="Starmap.showJumpnodeList()"><img src="{URL}data/interface/jumpnode.png" alt="?" /></a>
-</div></div></div></div>
+</div></div>
 
 <div id="mapcontent"></div>
 
-<div id="jumpnodebox" class="gfxbox invisible"><div><div><div>
+<div id="jumpnodebox" class="gfxbox invisible">
 	<h3>Sprungpunkte</h3>
 	<div id="jumpnodelist">
 		<span>Kein System ausgewählt.</span>
 	</div>
 	<button onclick="Starmap.hideJumpnodeList()">schließen</button>
-</div></div></div></div>
+</div>
 
-<div id="systemauswahl" class="gfxbox"><div><div><div>
+<div id="systemauswahl" class="gfxbox">
 	<h3>Bitte Kartenausschnitt auswählen</h3>
 	<form action="./ds" method="post" name="mapform" onsubmit="Starmap.load();return false;">
 		<table class="noBorderX" cellpadding="3">
@@ -40,4 +40,4 @@
 		</table>
 		<input type="submit" value="Sternenkarte laden"/>
 	</form>
-</div></div></div></div>
+</div>
