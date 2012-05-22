@@ -60,7 +60,7 @@ public class JumpdriveShivan implements SchiffPlugin
 			String subaction = controller.getString("subaction");
 			
 			
-			if( subaction.equals("set") && (system.getID() != 0) && (system != null) )
+			if( "set".equals(subaction) && (system != null && system.getID() != 0) )
 			{
 				final Location targetLoc = new Location(system.getID(),x,y);
 				
@@ -99,7 +99,7 @@ public class JumpdriveShivan implements SchiffPlugin
 					}
 				}
 			}
-			else if ( subaction.equals("newtarget") && (system.getID() != 0) && (system != null) )
+			else if ( "newtarget".equals(subaction) && (system != null && system.getID() != 0) )
 			{
 				Jump jump = (Jump)db.createQuery("from Jump where shipid=?")
 					.setEntity(0, ship)
@@ -151,7 +151,7 @@ public class JumpdriveShivan implements SchiffPlugin
 					}
 				}
 			}	
-			else if ( subaction.equals("cancel") )
+			else if ( "cancel".equals(subaction) )
 			{
 				Jump jump = (Jump)db.createQuery("from Jump where shipid=?")
 					.setEntity(0, ship)
