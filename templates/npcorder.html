@@ -97,50 +97,47 @@
 	{if npcorder.medalsmenu}
 		<br />
 		<div align="center" style="width:780px">
-			{!table_begin 400, center}
+			<div class="gfxbox" style="width:400px">
 				<form action="./ds" method="post">
 					Spieler bearbeiten: <input type="text" name="edituser" value="{edituser.id}" style="width:50px" />
  					{!form_create_hidden medals}
  					<input type="submit" value="bearbeiten" />
 				</form>
-			{!table_end}
+			</div>
 			{if edituser.id}
 				<br />
-				{!table_begin 700, left}
+				<div class="gfxbox" style="width:700px;text-align:left">
 					<div align="center">
 						{!link_to $edituser.name, default, css_class:profile, module:userprofile, user:$edituser.id}<br />
 					</div>
 					<br />
 					<table width="100%" class="noBorderX">
-                        <form action="./ds" method="post">
-                            <tr>
-                                <td class="noBorderX" width="30">Rang:</td>
-                                <td class="noBorderX" align="center" colspan="2">
-                                    <input type="text" name="rank" value="{edituser.rank}">
-                                </td>
-                            </tr>
-                            <tr>
-                                    <td class="noBorderX" align="center" colspan="2">
-                                        {!form_create_hidden changeRank, edituser:$edituser.id}
-                                        <input type="submit" value="Aktualisieren">
-                                    </td>
-                            </tr>
-                        </form>
+						<form action="./ds" method="post">
+							<tr>
+								<td class="noBorderX">Rang bei Ihnen:</td>
+								<td class="noBorderX" align="center" colspan="2">
+									<select name="rank" size="1">
+										<!-- BEGIN ranks.listitem -->
+											<option value="{rank.id}" {if rank.active}selected="selected"{/endif}>{rank.name}</option>
+										<!-- END ranks.listitem -->
+									</select>
+								</td>
+							</tr>
+ 							<tr>
+ 								<td class="noBorderX" align="center" colspan="2">
+									{!form_create_hidden changeRank, edituser:$edituser.id}
+									<input type="submit" value="Aktualisieren">
+								</td>
+							</tr>
+						</form>
 					</table>
 					<hr noshade="noshade" size="1" style="color:#cccccc" />
 					<form action="./ds" method="post">
-						<table class="noBorderX" width="100%">
 						<!-- BEGIN medals.listitem -->
-							{if medal.newrow}
-								<tr>
-							{/endif}
-							<td class="noBorderX" align="center">
+							<div style="float:left;width:120px;min-height:160px;margin:5px;text-align:center">
 								<img src="{URL}data/{medal.image}" alt="" /><br />
 								<input type="radio" name="medal" id="_medal{medal.id}" value="{medal.id}" /><label for="_medal{medal.id}">{medal.name}</label>
-							</td>
-							{if medal.endrow}
-								</tr>
-							{/endif}
+							</div>
 						<!-- END medals.listitem -->
 						<tr>
 							<td class="noBorderX" colspan="8" align="center">
@@ -152,12 +149,12 @@
 						</tr>
 						</table>
 					</form> 
-				{!table_end}
+				</div>
 			{/endif}
 		</div>
 	{/endif}
 	{if npcorder.transports}
-		{!table_begin 700, center}
+		<div class="gfxbox" style="width:700px">
 			<table class="noBorderX" width="100%">
 			<tr>
 				<td class="noBorderX" style="text-align:center" colspan="2">Frachter</td>
@@ -177,6 +174,6 @@
 				</tr>
 			<!-- END transports.listitem -->
 			</table>
-		{!table_end}
+		</div>
 	{/endif}
 </span>

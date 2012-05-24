@@ -12,6 +12,7 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Medals;
+import net.driftingsouls.ds2.server.config.Rang;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.FactionShopOrder;
 import net.driftingsouls.ds2.server.entities.Order;
@@ -309,11 +310,19 @@ public class NPCOrderController extends TemplateGenerator {
 
         UserRank rank = edituser.getRank(user);
         
+        t.setBlock("_NPCORDER", "ranks.listitem", "ranks.list");
+        for( Rang rang : Medals.get().raenge().values() )
+        {
+        	t.setVar("rank.id", rang.getID(),
+        			"rank.name", rang.getName(),
+        			"rank.active", rang.getID() == rank.getRank());
+        	
+        	t.parse("ranks.list", "ranks.listitem", true);
+        }
+        
 		t.setVar(	"edituser.name",	Common._title(edituser.getName() ),
 					"edituser.rank",	rank.getRank());
-			
-		int i = 8;
-							
+					
 		t.setBlock("_NPCORDER", "medals.listitem", "medals.list");
 		for( Medal medal : Medals.get().medals().values() ) {
 			if( medal.isAdminOnly() ) {
@@ -322,12 +331,9 @@ public class NPCOrderController extends TemplateGenerator {
 			
 			t.setVar(	"medal.name",	medal.getName(),
 						"medal.id",		medal.getID(),
-						"medal.image",	medal.getImage(Medal.IMAGE_NORMAL),
-						"medal.newrow",	(i % 8) == 0,
-						"medal.endrow",	(i + 1 % 8) == 0 );
+						"medal.image",	medal.getImage(Medal.IMAGE_NORMAL) );
 								
-			i++;
-			
+
 			t.parse("medals.list", "medals.listitem", true);				
 		}
 	}
