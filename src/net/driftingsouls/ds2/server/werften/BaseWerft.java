@@ -115,7 +115,11 @@ public class BaseWerft extends WerftObject {
 	}
 	
 	@Override
-	public void setCrew(int crew) {	
+	public void setCrew(int crew) {
+		if( crew < 0 )
+		{
+			throw new IllegalArgumentException("Crew < 0 (ist "+crew+")");
+		}
 		int bewohner = crew + base.getArbeiter();
 		base.setBewohner(bewohner);
 	}

@@ -215,6 +215,10 @@ public class ShipWerft extends WerftObject {
 	
 	@Override
 	public void setCrew(int crew) {
+		if( crew < 0 )
+		{
+			throw new IllegalArgumentException("Crew < 0 (ist "+crew+")");
+		}
 		if( crew > this.getMaxCrew() ) {
 			crew = getMaxCrew();
 		}
