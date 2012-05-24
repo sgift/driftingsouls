@@ -1,7 +1,7 @@
 {if userprofile.message}
 	{userprofile.message}<br /><br />
 {/endif}
-{!table_begin 800,left}
+<div class="gfxbox" style="width:840px;text-align:left">
 	<table class="noBorderX" width="100%">
 	<tr>
 		<td class="noBorderX" width="75" align="left">
@@ -42,11 +42,11 @@
 		</td>
 	</tr>
 	</table>
-{!table_end}
+</div>
 <table class="noBorderS">
 <tr>
 	<td class="noBorderS" width="395" valign="top">
-		{!table_begin 395,left}
+		<div class="gfxbox" style="width:395px;text-align:left">
 			<div style="height:102px; overflow:auto">
 				Rasse: {user.rasse.name}<br />
 				{if user.ally}
@@ -56,19 +56,24 @@
 					Position: {user.ally.position}<br />
 				{/endif}
 				Beziehung zu Ihnen: <span style="color:{user.relation.color}">{user.relation}</span><br />
-				Fraktion: {user.faction}<br />
-				Rang: <img align="middle" {!overlib $user.rang.name, mo, width:100} src="{URL}data/interface/medals/rang{user.rang}.png" alt="" />
+				{if user.faction}
+					Fraktion: {user.faction}<br />
+				{/endif}
+				Rang: <img align="middle" {!overlib $user.rang.name, mo, width:100} src="{URL}data/interface/medals/rang{user.rang}.png" alt="" /><br />
+				<!-- BEGIN user.npcrang -->
+					Rang bei {npcrang.npc}: <img align="middle" {!overlib $npcrang.name, mo, width:100} src="{URL}data/interface/medals/rang{npcrang}.png" alt="" /><br />
+				<!-- END user.npcrang -->
 			</div>
-		{!table_end}
-		{!table_begin 395,left}
+		</div>
+		<div class="gfxbox" style="width:395px;text-align:left">
 			<div style="height:102px; overflow:auto">
 				Dabei seit: {user.signupdate}<br />
 				Vac-Status: {user.vacstatus}<br />
 			</div>
-		{!table_end}
+		</div>
 	</td>
 	<td class="noBorderS" align="right" width="398" valign="top">
-		{!table_begin 398,left}
+		<div class="gfxbox" style="width:398px;text-align:left">
 			<div style="height:240px; overflow:auto; font-size:11px">
 				<ul style="width:323px; list-style-position:outside; padding-left:15px; text-align:justify">
 				<!-- BEGIN history.listitem -->
@@ -76,7 +81,7 @@
 				<!-- END history.listitem -->
 				</ul>
 			</div>
-		{!table_end}
+		</div>
 	</td>
 </tr>
 </table>
@@ -93,7 +98,7 @@
 	}
 -->
 </script>
-{!table_begin 800,left}
+<div class="gfxbox" style="width:840px;text-align:left">
 	<div style="width:760px; height:124px; overflow:auto">
 		<!-- BEGIN medals.listitem -->
 			<script type="text/javascript" language="JavaScript">
@@ -108,4 +113,4 @@
 				src="{URL}data/{medal.image}" alt="" />
 		<!-- END medals.listitem -->
 	</div>
-{!table_end}
+</div>

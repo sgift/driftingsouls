@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.Ally;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserRank;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
@@ -220,6 +221,23 @@ public class UserProfileController extends TemplateGenerator {
 					"user.rang.name",	Medals.get().rang(this.user.getRang()).getName(),
 					"user.signupdate",	(this.user.getSignup() > 0 ? Common.date("d.m.Y H:i:s",this.user.getSignup()) : "schon immer" ));
 		
+		t.setBlock("_USERPROFILE", "user.npcrang", "user.npcrang.list");
+		if( this.user.getId() == user.getId() )
+		{
+			for( UserRank rang : user.getOwnRanks() )
+			{
+				if( rang.getRank() < 0 )
+				{
+					continue;
+				}
+				t.setVar( "npcrang", rang.getRank(),
+						"npcrang.name", Medals.get().rang(rang.getRank()).getName(),
+						"npcrang.npc", Common._title(rang.getRankGiver().getName()));
+				
+				t.parse("user.npcrang.list", "user.npcrang", true);	
+			}
+		}
+		
 		// Beziehung		
 		String relname = "neutral";
 		String relcolor = "#c7c7c7";
@@ -247,6 +265,9 @@ public class UserProfileController extends TemplateGenerator {
 		if(vaccount > 0 && wait4vac <= 0)
 		{
 			t.setVar("user.vacstatus", "aktiv");	
+		}
+		else {
+			t.setVar("user.vacstatus", "-");
 		}
 		
 		// Faction

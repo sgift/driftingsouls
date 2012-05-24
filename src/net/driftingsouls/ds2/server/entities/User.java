@@ -237,6 +237,8 @@ public class User extends BasicUser {
 	private int vacpoints;
 	private int specializationPoints;
     private BigInteger bounty;
+    @OneToMany(mappedBy="userRankKey.owner")
+    private Set<UserRank> userRanks;
 	
 	@OneToMany
 	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH})
@@ -1404,7 +1406,7 @@ public class User extends BasicUser {
 				.setEntity("user", user)
 				.iterate()
 				.next();
-			if( baseunitsuserobject != null)
+		if( baseunitsuserobject != null)
 		{
 			baseunit = (Long)baseunitsuserobject;
 		}
@@ -1424,40 +1426,59 @@ public class User extends BasicUser {
 		return baseunit+shipunit > 0 || user.isAdmin();
 	}
 
-    /**
-     * Aktualisiert den Rang des Spielers bei einem Ranggeber.
-     *
-     * @param rankGiver Jemand der Raenge vergeben kann.
-     * @param rank Der neue Rang
-     */
-    public void setRank(User rankGiver, int rank)
-    {
-        UserRank.UserRankKey key = new UserRank.UserRankKey(this, rankGiver);
+	/**
+	 * Aktualisiert den Rang des Spielers bei einem Ranggeber.
+	 * 
+	 * @param rankGiver
+	 *            Jemand der Raenge vergeben kann.
+	 * @param rank
+	 *            Der neue Rang
+	 */
+	public void setRank(User rankGiver, int rank)
+	{
+		for (UserRank rang : this.userRanks)
+		{
+			if (rang.getRankGiver().getId() == rankGiver.getId())
+			{
+				rang.setRank(rank);
+				return;
+			}
+		}
+		
+		UserRank.UserRankKey key = new UserRank.UserRankKey(this, rankGiver);
 
-        org.hibernate.Session db = ContextMap.getContext().getDB();
-        UserRank userRank = (UserRank)db.get(UserRank.class, key);
-        if(userRank == null)
-        {
-            userRank = new UserRank(key, rank);
-            db.persist(userRank);
-        }
-        else
-        {
-            userRank.setRank(rank);
-        }
-    }
-    
-    public UserRank getRank(User rankGiver)
-    {
-        UserRank.UserRankKey key = new UserRank.UserRankKey(this, rankGiver);
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		UserRank userRank = new UserRank(key, rank);
+		db.persist(userRank);
+	}
 
-        org.hibernate.Session db = ContextMap.getContext().getDB();
-        UserRank userRank = (UserRank)db.get(UserRank.class, key);
-        if(userRank == null)
-        {
-            userRank = new UserRank(key, 0); //Working with null is inconvenient for external classes
-        }
+	/**
+	 * Gibt den Rang eines Benutzers bei einem bestimmten NPC zurueck.
+	 * Falls kein Rang vorhanden ist wird der niederigste moegliche Rang
+	 * zurueckgegeben.
+	 * @param rankGiver Der NPC
+	 * @return Der Rang
+	 */
+	public UserRank getRank(User rankGiver)
+	{
+		for (UserRank rang : this.userRanks)
+		{
+			if (rang.getRankGiver().getId() == rankGiver.getId())
+			{
+				return rang;
+			}
+		}
+		UserRank.UserRankKey key = new UserRank.UserRankKey(this, rankGiver);
 
-        return userRank;
-    }
+		return new UserRank(key, 0); // Working with null is inconvenient for external classes
+	}
+
+	/**
+	 * Gibt alle NPC-spezifischen Raenge des Benutzers zurueck.
+	 * @return Die Raenge
+	 */
+	public Set<UserRank> getOwnRanks()
+	{
+		return this.userRanks;
+	}
 }
