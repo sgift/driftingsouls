@@ -1,103 +1,117 @@
 {if ship.tradepost}
-	{!table_begin 1000,left}
 	{if tradepost.update}
+		<div id="tradepost-info" class="gfxbox">
+			<img class="shiptype" src="{tradepost.image}"
+					alt="Handelsposten" />
+			<div class="info">
+				{tradepost.name} - {tradepost.koords}
+			</div>
+			<div class="help">{tradepost.update.message}<br /></div>
+		</div>
+		<span class="smallfont">
+			<a class="back" href="./ds?module=schiff&ship={tradepost.id}">zur&uuml;ck</a>
+		</span>
 	{else}
-	<form action="./ds" method="post" id='transfermode_form'>
-		<input type="hidden" name="ship" id="tradepost_id" value="{tradepost.id}" />
-		<input type="hidden" name="update" id="tradepost_update" value="1" />
-	{/endif}
-	<table class="noBorder" style="height:300px">
-		<tr>
-			<td class="noBorderS" valign="top">
-				<img style="vertical-align:middle; border:0px" src="{tradepost.image}" alt="Handelsposten" />			
-			</td>
-			<td class="noBorderS" valign="top">
-				{tradepost.name} - {tradepost.koords}				
-				{if tradepost.update}
-					
-				{else}
-					<br>
-					Anzeige f&uuml;r:
-					<br>
-					 <select name="tradepostvisibility" size="1">
-					<!-- BEGIN tradepostvisibility.list -->
-					<option value="{tradepostvisibility.id}" {if tradepostvisibility.selected}selected="selected"{/endif}>{tradepostvisibility.descripton}</option>
-					<!-- END tradepostvisibility.list -->
-					</select>
-				{/endif}
-			</td>
-			<td class="noBorderS" valign="top">
-				{if tradepost.update}
-				{else}
-				Die ersten 3 Spalten dieser Konfiguration bestimmen den Einkauf des Handelspostens.<br />
-				Die letzten 3 Spalten dieser Konfiguration bestimmen den Verkauf des Handelspostens.<br />
-				Ist das H&auml;ckchen gesetzt wird die entsprechende Ressource nicht ge-/verkauft.<br />
-				Die Spalte Ankaufsmenge bestimmt bis zu welchem Limit der Handelsposten die Ressource ankauft.<br />
-				Die Spalte Verkaufsmenge bestimmt bis zu welchem Limit der Handelsposten die Ressource verkauft.<br />
-				Die Spalten Ankaufs-/Verkaufspreis bestimmen den Preis pro Einheit dieser Ressource.
-				Die Anzeigeeinstellung betrifft NUR die Anzeige unter Fraktionen->Sonstiges.<br />
-				Sie hindert die Leute nicht daran an diesem Handelsposten zu handeln.<br />
-				Dies wird durch die Einstellung zu den Spielern get&auml;tigt. Nur Feinde k&ouml;nnen nicht handeln.<br />
-				{/endif}
-			</td>
-		</tr>
-	</table>
-	{!table_end}
-	{if tradepost.update}
-		{tradepost.update.message}<br />
-	{else}
-	
-			{!form_create_hidden update}
-			
-			<table class="noBorderX" border="0" style="border:0px; width:80%">
-				<tr>
-					<td class="noBorderX">Ware</td>
-					<td class="noBorderX">Ankaufsmenge</td>
-					<td class="noBorderX">Ankaufspreis</td>
-                    {if ship.owner.isnpc}
-                        <td class="noBorderX">Mindestrang</td>
-                    {/endif}
-					<td class="noBorderX"></td>
-					<td class="noBorderX">Verkaufsmenge</td>
-					<td class="noBorderX">Verkaufspreis</td>
-                    {if ship.owner.isnpc}
-                        <td class="noBorderX">Mindestrang</td>
-                    {/endif}
-					<td class="noBorderX"></td>
-				</tr>
-				<!-- BEGIN tradepost.list -->
-				<tr>
-					<td class="noBorderX"><img src="{item.picture}" alt="" />{item.name}</td>
-					<td class="noBorderX"><input name="{item.buylimit.parameter}" type="text" size="15" maxlength="15" value="{item.buylimit}"></td>
-					<td class="noBorderX"><input name="{item.buyprice.parameter}" type="text" size="15" maxlength="15" value="{item.buyprice}"></td>
-                    {if ship.owner.isnpc}
-                        <td class="noBorderX"><input name="{item.buyrank.parameter}" type="text" size="15" maxlength="15" value="{item.buyrank}"></td>
-                    {/endif}
-                    <td class="noBorderX"><input name="{item.buybool.parameter}" type="checkbox" value="1" {if item.buybool}checked="checked"{/endif}></td>
-					<td class="noBorderX"><input name="{item.saleslimit.parameter}" type="text" size="15" maxlength="15" value="{item.saleslimit}"></td>
-					<td class="noBorderX"><input name="{item.salesprice.parameter}" type="text" size="15" maxlength="15" value="{item.salesprice}"></td>
-                    {if ship.owner.isnpc}
-                        <td class="noBorderX"><input name="{item.sellrank.parameter}" type="text" size="15" maxlength="15" value="{item.sellrank}"></td>
-                    {/endif}
-					<td class="noBorderX"><input name="{item.salebool.parameter}" type="checkbox" value="1" {if item.salebool}checked="checked"{/endif}></td>
-				</tr>
-				<!-- END tradepost.list -->
-				<tr>
-					<td class="noBorderX" colspan="5">
-						<hr noshade="noshade" size="1" style="color:#cccccc" />
-					</td>
-				</tr>
-				<tr>
-					<td class="noBorderX" colspan="5" align="center"><br />
-						<input type="submit" value="Update" style="width:150px" />
-					</td>
-				</tr>
-			</table>	
+		<form action="./ds" method="post" id='transfermode_form'>
+			<input type="hidden" name="module" value="tradepost" />
+			<input type="hidden" name="action" value="update" />
+			<input type="hidden" name="ship" value="{tradepost.id}" />
+
+			<div id="tradepost-info" class="gfxbox">
+				<img class="shiptype" src="{tradepost.image}"
+					alt="Handelsposten" />
+				<div class="info">
+					{tradepost.name} - {tradepost.koords}
+						<br>
+						Anzeige f&uuml;r:
+						<br>
+						<select name="tradepostvisibility" size="1">
+						<!-- BEGIN tradepostvisibility.list -->
+							<option value="{tradepostvisibility.id}" {if tradepostvisibility.selected}selected="selected"{/endif}>{tradepostvisibility.descripton}</option>
+						<!-- END tradepostvisibility.list -->
+						</select>
+				</div>
+				<div class="help">
+					Die ersten 3 Spalten dieser Konfiguration bestimmen den Einkauf des Handelspostens.<br />
+					Die letzten 3 Spalten dieser Konfiguration bestimmen den Verkauf des Handelspostens.<br />
+					Ist das H&auml;ckchen gesetzt wird die entsprechende Ressource ge- order verkauft.<br />
+					Die Spalte Ankaufsmenge bestimmt bis zu welchem Limit der Handelsposten die Ressource ankauft.<br />
+					Die Spalte Verkaufsmenge bestimmt bis zu welchem Limit der Handelsposten die Ressource verkauft.<br />
+					Die Spalten Ankaufs-/Verkaufspreis bestimmen den Preis pro Einheit dieser Ressource.
+					Die Anzeigeeinstellung betrifft NUR die Anzeige unter Fraktionen->Sonstiges.<br />
+					Sie hindert die Leute nicht daran an diesem Handelsposten zu handeln.<br />
+					Dies wird durch die Einstellung zu den Spielern get&auml;tigt. Nur Feinde k&ouml;nnen nicht handeln.<br />
+				</div>
+			</div>
+			<div id="tradepost-waren" class="gfxbox">
+				<div class="content">
+					<table>
+						<thead>
+							<tr>
+								<th>Waren</th>
+								<th colspan="{if ship.owner.isnpc}4{else}3{/endif}">Ankauf</th>
+								<th colspan="{if ship.owner.isnpc}4{else}3{/endif}">Verkauf</th>
+							</tr>
+							<tr>
+								<th>Ware</th>
+								<th>Menge</th>
+								<th>Preis</th>
+								{if ship.owner.isnpc}
+									<th>Mindestrang</th>
+								{/endif}
+								<th>Handeln</th>
+								<th>Menge</th>
+								<th>Preis</th>
+								{if ship.owner.isnpc}
+									<th>Mindestrang</th>
+								{/endif}
+								<th>Handeln</th>
+							</tr>
+						<thead>
+						<tbody>
+							<!-- BEGIN tradepost.list -->
+							<tr>
+								<td><img src="{item.picture}" alt="" />{item.name}</td>
+								<td><input name="{item.paramid}buylimit" type="text" size="15" maxlength="15" value="{item.buylimit}"></td>
+								<td>
+									<input name="{item.paramid}buyprice" type="text" size="15" maxlength="15" value="{item.buyprice}">
+								</td>
+								{if ship.owner.isnpc}
+									<td><input name="{item.paramid}buyrank" type="text" size="15" maxlength="15" value="{item.buyrank}"></td>
+								{/endif}
+								<td><input name="{item.paramid}buybool" type="checkbox" value="1" {if item.buybool}checked="checked"{/endif}></td>
+								<td><input name="{item.paramid}saleslimit" type="text" size="15" maxlength="15" value="{item.saleslimit}"></td>
+								<td><input name="{item.paramid}salesprice" type="text" size="15" maxlength="15" value="{item.salesprice}"></td>
+								{if ship.owner.isnpc}
+										<td><input name="{item.paramid}sellrank" type="text" size="15" maxlength="15" value="{item.sellrank}"></td>
+								{/endif}
+								<td><input name="{item.paramid}salebool" type="checkbox" value="1" {if item.salebool}checked="checked"{/endif}></td>
+							</tr>
+							<!-- END tradepost.list -->
+						</tbody>
+						<tfoot>
+							<tr>
+								<td colspan="1">Ware hinzufügen</td>
+								<td colspan="{if ship.owner.isnpc}8{else}6{/endif}">
+									<input type="hidden" id="isnpc" value="{ship.owner.isnpc}" />
+									<select id="itemlist" size="1">
+										<!-- BEGIN tradepost.items.entry -->
+											<option value="{item.paramid}" itemid="{item.id}" picture="{item.picture}">{item.name}</option>
+										<!-- END tradepost.items.entry -->
+									</select>
+									<input type="button" value="hinzufügen" onclick="Tradepost.addSelectedItem();return false;" />
+								</td>
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+				<input type="submit" value="Update" style="width:150px" />
+			</div>
 		</form>
+		<span class="smallfont">
+			<a class="back" href="./ds?module=schiff&ship={tradepost.id}">zur&uuml;ck</a>
+		</span>
 	{/endif}
-	<span class="smallfont">
-		<a class="back" href="./ds?module=schiff&ship={tradepost.id}">zur&uuml;ck</a>
-	</span>
 {else}
 	{tradepost.message}<br />
 {/endif}

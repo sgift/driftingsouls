@@ -45,27 +45,28 @@ public class TradepostController extends TemplateGenerator {
 	 */
 	public TradepostController(Context context) {
 		super(context);
-		
+
 		setTemplate("tradepost.html");
-		
+
 		setPageTitle("Tradepost");
+		setCustomJavascript(true);
 	}
-	
+
     /**
      * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
-    public void setConfiguration(Configuration config) 
+    public void setConfiguration(Configuration config)
     {
     	this.config = config;
     }
-	
+
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		return true;
 	}
-		
+
 	/**
 	 * shows configuration site for a single tradepost.
 	 * @urlparam String ship the ship-id
@@ -77,9 +78,10 @@ public class TradepostController extends TemplateGenerator {
 		User user = (User)getUser();
 		org.hibernate.Session db = getDB();
 		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
-		
+
 		t.setBlock("_TRADEPOST", "tradepost.list", "tradepost.post");
-		
+		t.setBlock("_TRADEPOST", "tradepost.items.entry", "tradepost.items.list");
+
 		// get variables
 		parameterNumber("ship");
 		int shipid = getInteger("ship");
@@ -91,14 +93,14 @@ public class TradepostController extends TemplateGenerator {
 			addError("Das angegebene Schiff existiert nicht");
 			return;
 		}
-		
+
 		// security check
 		if(!getUser().equals(ship.getOwner()))
 		{
 			addError("Allgemeine Richtlinienverletzung.");
 			return;
 		}
-		
+
 		// check is ship is tradepost
 		if(ship.isTradepost())
 		{
@@ -111,12 +113,12 @@ public class TradepostController extends TemplateGenerator {
 			t.setVar("tradepost.message", "Dieses Schiff ist kein Handelsposten. Bitte bestellen Sie die entsprechende Software beim Handelsunternehmen Ihres vertrauens");
 			return;
 		}
-        
+
         t.setVar("ship.owner.isnpc", user.isNPC());
-				
+
 		// get all SellLimits of this ship
 		List<SellLimit> selllimitlist = Common.cast(db.createQuery("from SellLimit where shipid=:shipid").setParameter("shipid", shipid).list());
-		
+
 		// get all ResourceLimits of this ship
 		List<ResourceLimit> buylimitlist = Common.cast(db.createQuery("from ResourceLimit where shipid=:shipid").setParameter("shipid", shipid).list());
 		// get GtuWarenKurse cause of fucking database structure
@@ -131,9 +133,9 @@ public class TradepostController extends TemplateGenerator {
 		}
 		else
 		{
-			buylistgtu = kurse.getKurse();	
+			buylistgtu = kurse.getKurse();
 		}
-		
+
 		// generate Maps which contain the SellLimits and den ResourceLimits of the Tradepost
 		Map<Integer,SellLimit> selllistmap = new LinkedHashMap<Integer,SellLimit>();
 		Map<Integer,ResourceLimit> buylistmap = new LinkedHashMap<Integer,ResourceLimit>();
@@ -147,23 +149,23 @@ public class TradepostController extends TemplateGenerator {
 			// add a specific buylimit to the map at position of his id
 			buylistmap.put(limit.getId().getResourceId(), limit);
 		}
-		
+
 		t.setVar(	"tradepost.id",	shipid,
 					"tradepost.image", ship.getTypeData().getPicture(),
 					"tradepost.name", ship.getName(),
 					"tradepost.koords", new Location(ship.getSystem(), ship.getX(), ship.getY()).displayCoordinates(false) );
-		
+
 		// build form
 		for( Item aitem : itemlist ) {
 			int itemid = aitem.getID();
 			ItemID itemidobejct = new ItemID(aitem.getID());
-			
+
 			// check if user is allowed to see the item and go to next item if not
 			if( !user.canSeeItem(aitem))
 			{
 				continue;
 			}
-			
+
 			// initiate starting values
 			long salesprice = 0;
 			long buyprice = 0;
@@ -171,7 +173,7 @@ public class TradepostController extends TemplateGenerator {
 			long buylimit = 0;
             int salesrank = 0;
             int buyrank = 0;
-						
+
 			// read actual values of limits
 			// check if the List of items to sell contains current item
 			if(selllistmap.containsKey(itemid * -1))
@@ -187,49 +189,50 @@ public class TradepostController extends TemplateGenerator {
 				buyprice = buylistgtu.getResourceCount(itemidobejct) / 1000;
                 buyrank = buylistmap.get(itemid * -1).getMinRank();
 			}
-			
+
 			// hier wollte ich einen intelligenten kommentar einfuegen
 			String name = Common._plaintitle(aitem.getName());
 			if( aitem.getQuality().color().length() > 0 ) {
-				name = "<span style=\"color:"+aitem.getQuality().color()+"\">"+name+"</span>";	
+				name = "<span style=\"color:"+aitem.getQuality().color()+"\">"+name+"</span>";
 			}
-			
+
 			t.setVar(	"item.picture",	aitem.getPicture(),
-						"item.id",		itemid,
-						"item.name",	name,
-						"item.cargo",	Common.ln(aitem.getCargo()),
-						"item.salesprice",	salesprice,
-						"item.buyprice",	buyprice,
-						"item.saleslimit",	saleslimit,
-						"item.buylimit",	buylimit,
-                        "item.sellrank", salesrank,
-                        "item.buyrank", buyrank,
-						"item.salebool",		!selllistmap.containsKey(itemid * -1),
-						"item.buybool",		!buylistmap.containsKey(itemid * -1),
-						"item.salesprice.parameter",	"i"+aitem.getID()+"salesprice",
-						"item.buyprice.parameter",	"i"+aitem.getID()+"buyprice",
-						"item.saleslimit.parameter",	"i"+aitem.getID()+"saleslimit",
-						"item.buylimit.parameter",	"i"+aitem.getID()+"buylimit",
-                        "item.sellrank.parameter", "i"+aitem.getID()+"sellrank",
-                        "item.buyrank.parameter", "i"+aitem.getID()+"buyrank",
-						"item.salebool.parameter",	"i"+aitem.getID()+"salebool",
-						"item.buybool.parameter",	"i"+aitem.getID()+"buybool" );
-			
-			t.parse("tradepost.post", "tradepost.list", true);
+					"item.id",		itemid,
+					"item.name",	name,
+					"item.cargo",	Common.ln(aitem.getCargo()),
+					"item.paramid", "i"+aitem.getID());
+
+			if( selllistmap.containsKey(itemid*-1) || buylistmap.containsKey(itemid*-1) )
+			{
+				t.setVar(	"item.salesprice",	salesprice,
+							"item.buyprice",	buyprice,
+							"item.saleslimit",	saleslimit,
+							"item.buylimit",	buylimit,
+	                        "item.sellrank", salesrank,
+	                        "item.buyrank", buyrank,
+							"item.salebool",	selllistmap.containsKey(itemid * -1),
+							"item.buybool",		buylistmap.containsKey(itemid * -1) );
+
+				t.parse("tradepost.post", "tradepost.list", true);
+			}
+			else
+			{
+				t.parse("tradepost.items.list", "tradepost.items.entry", true);
+			}
 		}
-		
+
 		t.setBlock("_TRADEPOST", "tradepostvisibility.list", "tradepostvisibility.post");
 		// now we cycle through the possible values and insert them into the template
 		for( TradepostVisibility visibility : TradepostVisibility.values() )
 		{
-			t.setVar("tradepostvisibility.id", visibility.name(), 
-					"tradepostvisibility.descripton", visibility.getLabel(), 
+			t.setVar("tradepostvisibility.id", visibility.name(),
+					"tradepostvisibility.descripton", visibility.getLabel(),
 					"tradepostvisibility.selected", (ship.getShowtradepost() == visibility));
 			t.parse("tradepostvisibility.post", "tradepostvisibility.list", true);
 		}
-		
+
 	}
-	
+
 	/**
 	 * shows configuration site for a single tradepost.
 	 * @urlparam String ship the ship-id
@@ -242,7 +245,7 @@ public class TradepostController extends TemplateGenerator {
 		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
 
 		t.setBlock("_TRADEPOST", "tradepost.list", "tradepost.post");
-		
+
 		// get variables
 		parameterNumber("ship");
 		int shipid = getInteger("ship");
@@ -254,14 +257,14 @@ public class TradepostController extends TemplateGenerator {
 			addError("Das angegebene Schiff existiert nicht");
 			return;
 		}
-		
+
 		// security check
 		if(!getUser().equals(ship.getOwner()))
 		{
 			addError("Allgemeine Richtlinienverletzung.");
 			return;
 		}
-		
+
 		// check is ship is tradepost
 		if(ship.isTradepost())
 		{
@@ -274,10 +277,10 @@ public class TradepostController extends TemplateGenerator {
 			t.setVar("tradepost.message", "Dieses Schiff ist kein Handelsposten. Bitte bestellen Sie die entsprechende Software beim Handelsunternehmen Ihres vertrauens");
 			return;
 		}
-				
+
 		// get all SellLimits of this ship
 		List<SellLimit> selllimitlist = Common.cast(db.createQuery("from SellLimit where shipid=:shipid").setParameter("shipid", shipid).list());
-		
+
 		// get all ResourceLimits of this ship
 		List<ResourceLimit> buylimitlist = Common.cast(db.createQuery("from ResourceLimit where shipid=:shipid").setParameter("shipid", shipid).list());
 		// get GtuWarenKurse cause of fucking database structure
@@ -292,9 +295,9 @@ public class TradepostController extends TemplateGenerator {
 		}
 		else
 		{
-			buylistgtu = kurse.getKurse();	
+			buylistgtu = kurse.getKurse();
 		}
-		
+
 		// generate Maps which contain the SellLimits and den ResourceLimits of the Tradepost
 		Map<Integer,SellLimit> selllistmap = new LinkedHashMap<Integer,SellLimit>();
 		Map<Integer,ResourceLimit> buylistmap = new LinkedHashMap<Integer,ResourceLimit>();
@@ -308,30 +311,30 @@ public class TradepostController extends TemplateGenerator {
 			// add a specific buylimit to the map at position of his id
 			buylistmap.put(limit.getId().getResourceId(), limit);
 		}
-		
+
 		t.setVar(	"tradepost.id",	shipid,
 				"tradepost.image", ship.getTypeData().getPicture(),
 				"tradepost.name", ship.getName(),
-				"tradepost.koords", new Location(ship.getSystem(), ship.getX(), ship.getY()).displayCoordinates(false) );	
-		
+				"tradepost.koords", new Location(ship.getSystem(), ship.getX(), ship.getY()).displayCoordinates(false) );
+
 		// read possible new value of tradepostvisibility and write to ship
 		parameterString("tradepostvisibility");
 		String tradepostvisibility = getString("tradepostvisibility");
 		ship.setShowtradepost(TradepostVisibility.valueOf(tradepostvisibility));
-		
+
 		// build form
 		for( Item aitem : itemlist ) {
 			int itemid = aitem.getID();
 			ItemID itemidobejct = new ItemID(aitem.getID());
-			
+
 			ResourceLimitKey resourcekey = new ResourceLimitKey(ship, itemidobejct);
-			
+
 			// check if user is allowed to see the item and go to next item if not
 			if( !user.canSeeItem(aitem))
 			{
 				continue;
 			}
-			
+
 			// initiate starting values
 			long salesprice = 0;
 			long buyprice = 0;
@@ -341,7 +344,7 @@ public class TradepostController extends TemplateGenerator {
             int buyRank = 0;
 			boolean salebool = false;
 			boolean buybool = false;
-			
+
 			// read new values for item
 			parameterNumber("i"+aitem.getID()+"salesprice");
 			parameterNumber("i"+aitem.getID()+"buyprice");
@@ -357,7 +360,7 @@ public class TradepostController extends TemplateGenerator {
             buyRank = getInteger("i"+aitem.getID()+"buyrank");
 			salebool = (ContextMap.getContext().getRequest().getParameterInt("i"+aitem.getID()+"salebool") == 1 ? true : false);
 			buybool = (ContextMap.getContext().getRequest().getParameterInt("i"+aitem.getID()+"buybool") == 1 ? true : false);
-			
+
 			// check if values are positive and set to zero if not
 			if(salesprice < 0)
 			{
@@ -375,21 +378,21 @@ public class TradepostController extends TemplateGenerator {
 			{
 				buylimit = 0;
 			}
-            
-            if(sellRank < 0)
+
+            if(sellRank < 0 || !ship.getOwner().isNPC())
             {
                 sellRank = 0;
             }
-            
-            if(buyRank < 0)
+
+            if(buyRank < 0 || !ship.getOwner().isNPC() )
             {
                 buyRank = 0;
             }
-			
+
 			SellLimit itemsell = null;
 			ResourceLimit itembuy = null;
 			// check if we dont want to sell the resource any more
-			if(salebool)
+			if(!salebool)
 			{
 				if(selllistmap.containsKey(itemid * -1))
 				{
@@ -415,7 +418,7 @@ public class TradepostController extends TemplateGenerator {
 				}
 			}
 			// check if we dont want to buy the resource any more
-			if(buybool)
+			if(!buybool)
 			{
 				if(buylistmap.containsKey(itemid * -1))
 				{
@@ -446,7 +449,7 @@ public class TradepostController extends TemplateGenerator {
 			t.setVar(	"tradepost.update", "1",
 						"tradepost.update.message", "Die Einstellungen wurden &uuml;bernommen.",
 						"tradepost.id",	shipid );
-						
+
 			t.parse("tradepost.post", "tradepost.list", true);
 		}
 	}

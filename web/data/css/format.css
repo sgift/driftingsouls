@@ -220,46 +220,46 @@ tooltip1		{color: #FFFFFF; background-color: #cccccc}
 
 div.gfxbox {
 	border-style: none;
-	
+
 	-webkit-border-image: url('./data/interface/border/border.gif') 18 19 18 19 repeat;
 	-moz-border-image: url('./data/interface/border/border.gif') 18 19 repeat;
 	-o-border-image: url('./data/interface/border/border.gif') 18 19 18 19 repeat;
 	-ms-border-image: url('./data/interface/border/border.gif') 18 19 18 19 repeat;
 	border-image: url('./data/interface/border/border.gif') 18 19 18 19 repeat;
-	
+
 	border-top-width:18px;
 	border-left-width:19px;
 	border-bottom-width:18px;
 	border-right-width:19px;
 	background-image:url('./data/interface/border/border_background.gif');
 	background-clip:padding-box;
-	
+
 	color: #C7C7C7;
 	font-family: arial,helvetica;
     font-size: 14px;
 }
 
 .gfxbox h2 {
-	font-size:16px; 
-	font-weight:bold; 
-	text-decoration:none; 
-	color:#FFFFFF; 
-	margin-top:1px; 
-	margin-left:0px; 
-	margin-right:0px; 
+	font-size:16px;
+	font-weight:bold;
+	text-decoration:none;
+	color:#FFFFFF;
+	margin-top:1px;
+	margin-left:0px;
+	margin-right:0px;
 	margin-bottom:2px
 }
 .gfxbox h3 {
-	font-size:14px; 
-	font-weight:bold; 
-	text-decoration:none; 
-	color:#FEB626; 
-	margin-top:1px; 
-	margin-left:0px; 
-	margin-right:0px; 
+	font-size:14px;
+	font-weight:bold;
+	text-decoration:none;
+	color:#FEB626;
+	margin-top:1px;
+	margin-left:0px;
+	margin-right:0px;
 	margin-bottom:2px
 }
-.gfxbox button, 
+.gfxbox button,
 .gfxbox input[type=submit] {
 	border: 1px #A7A7A7 solid;
 	margin: 0px;
@@ -269,7 +269,7 @@ div.gfxbox {
 	padding:2px;
 }
 
-.gfxbox input, 
+.gfxbox input,
 .gfxbox select {
 	border: 1px #A7A7A7 solid;
 	margin: 0px;
@@ -364,4 +364,32 @@ div.gfxbox {
 	height:600px;
 	overflow-y:auto;
 	margin-right:3px;
+}
+
+#tradepost-info {
+	width:1000px;
+}
+
+#tradepost-info .shiptype {
+	float:left;
+}
+#tradepost-info .info {
+	float:left;
+}
+#tradepost-info .help {
+	clear:both;
+}
+#tradepost-waren {
+	width:1000px;
+	text-align:center;
+}
+#tradepost-waren table {
+	width:80%;
+	border:0px;
+}
+#tradepost-waren th {
+	text-align:center;
+}
+#tradepost-waren input[type=text] {
+	width:80px;
 }
