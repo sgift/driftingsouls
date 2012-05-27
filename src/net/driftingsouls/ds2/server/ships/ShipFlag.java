@@ -10,7 +10,8 @@ import javax.persistence.*;
 @Table(name="ship_flags")
 public class ShipFlag
 {
-    @Id
+    @SuppressWarnings("unused")
+	@Id
     private int id;
 
     /* One of the flag types defined in Ship.java */
@@ -18,17 +19,28 @@ public class ShipFlag
 
     /* How many ticks until the flag is removed? -1 means infinite */
     private int remaining;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @SuppressWarnings("unused")
+	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="ship", nullable = false)
     private Ship ship;
-    @Version
+    @SuppressWarnings("unused")
+	@Version
     private int version;
 
+    /**
+     * Konstruktor.
+     */
     public ShipFlag()
     {
         //Hibernate
     }
 
+    /**
+     * Konstruktor.
+     * @param flagType Der Flag-Typ
+     * @param ship Das betroffene Schiff
+     * @param remaining Die Anzahl der Ticks bis das Flag entfernt wird (-1 fuer unendlich)
+     */
     public ShipFlag(int flagType, Ship ship, int remaining)
     {
         this.flagType = flagType;

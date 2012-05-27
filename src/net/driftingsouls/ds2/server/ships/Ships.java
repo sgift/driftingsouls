@@ -121,9 +121,9 @@ public class Ships {
 		// mehrfach durchgefuehrt. Daher wird in der Session vermerkt, welche
 		// Positionen bereits geprueft wurden
 		
-		Map map = (Map)context.getVariable(Ships.class, "getNebula(Location)#Nebel");
+		Map<Location,Boolean> map = (Map<Location,Boolean>)context.getVariable(Ships.class, "getNebula(Location)#Nebel");
 		if( map == null ) {
-			map = new HashMap();
+			map = new HashMap<Location,Boolean>();
 			context.putVariable(Ships.class, "getNebula(Location)#Nebel", map);
 		}
 		if( !map.containsKey(loc) ) {
@@ -137,7 +137,7 @@ public class Ships {
 			return nebel.getType();		
 		}
 		
-		Boolean val = (Boolean)map.get(loc);
+		Boolean val = map.get(loc);
 		if(val) {
 			Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(loc));
 			return nebel.getType();

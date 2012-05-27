@@ -58,7 +58,6 @@ public class KSFluchtAllAction extends BasicKSAction {
 
 		String fluchtmode = context.getRequest().getParameterString("fluchtmode");
 
-		int shipcount = 0;
 		Boolean gotone = null;
 		
 		int fluchtflag = Battle.BS_FLUCHTNEXT;
@@ -138,7 +137,6 @@ public class KSFluchtAllAction extends BasicKSAction {
 			if( remove > 1 ) {
 				battle.logme( (remove-1)+" an "+aship.getName()+" gedockte Schiffe fliehen n&auml;chste Runde\n" );
 			}
-			shipcount += remove;
 		}
 		
 		return Result.OK;	

@@ -46,6 +46,10 @@ public class PlayerField
         this.location = position;
 	}
 	
+	/**
+	 * Gibt die Liste aller Basen in dem Feld zurueck.
+	 * @return Die Basenliste
+	 */
 	public List<Base> getBases()
 	{
 		if(!isInScanRange())

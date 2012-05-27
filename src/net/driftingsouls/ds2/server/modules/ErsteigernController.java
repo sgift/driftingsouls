@@ -49,7 +49,6 @@ import net.driftingsouls.ds2.server.entities.UpgradeJob;
 import net.driftingsouls.ds2.server.entities.UpgradeMaxValues;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
-import net.driftingsouls.ds2.server.entities.UserRank;
 import net.driftingsouls.ds2.server.entities.Versteigerung;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
@@ -2394,9 +2393,6 @@ public class ErsteigernController extends TemplateGenerator
 			t.parse("shop.list", "shop.listitem", true);
 		}
         
-        User owner = (User)db.get(User.class, this.faction);
-        UserRank rank = user.getRank(owner);
-
 		// Nun den normalen Shop ausgeben
 		List<?> shopentryList = db.createQuery(
 				"from FactionShopEntry where faction = :faction and type!=2").setInteger("faction",

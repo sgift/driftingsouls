@@ -595,8 +595,6 @@ public class KSAttackAction extends BasicKSAction {
 			}
 		}
 
-		weaponCount = (int)(weaponCount);
-
 		if( ammoitem.getCount() <  weaponCount*this.weapon.getSingleShots() ) {
 			battle.logme( this.weapon.getName()+" k&ouml;nnen nicht abgefeuert werden, da nicht genug Munition f&uuml;r alle Gesch&uuml;tze vorhanden ist.\n" );
 			return null;
@@ -756,7 +754,7 @@ public class KSAttackAction extends BasicKSAction {
 			{
 				docks = (int)Math.floor(docks * (fighter / docksuse));
 			}
-			fighterdefcount = (int)Math.floor( ( (double)fighterdefcount / (double)fighter ) * (double)docks );
+			fighterdefcount = (int)Math.floor( ( (double)fighterdefcount / (double)fighter ) * docks );
 		}
 		int fighterdef = (int)Math.round( (double)(fighterdefcount + gksdefcount ) / (double)defcount );
 		if( fighterdef > 100 )
@@ -909,15 +907,11 @@ public class KSAttackAction extends BasicKSAction {
 	private int[] getSubDamages( int subPanzerung, int trefferWS, int subWS, double damageMod ) {
 		int subDamage = (int)Math.round(this.localweapon.getInt("subdamage")*((10-subPanzerung)/10d)*damageMod);
 
-		int hit=0;
 		int[] tmpSubDmgs = new int[this.localweapon.getInt("count")*this.localweapon.getInt("shotsPerShot")];
 		int totalSize = 0;
 
 		for( int i=1; i <= this.localweapon.getInt("count")*this.localweapon.getInt("shotsPerShot"); i++) {
 			int rnd = RandomUtils.nextInt(101);
-			if( rnd <= trefferWS ) {
-				hit++;
-			}
 
 			if( rnd <= subWS ) {
 				tmpSubDmgs[totalSize++] = (int)Math.round((rnd/(double)subWS)*subDamage);

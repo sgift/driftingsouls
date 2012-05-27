@@ -53,7 +53,6 @@ public class NullCompFunction implements SQLFunction {
 		return true;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public String render(List args, SessionFactoryImplementor factory) throws QueryException {
 		final String param = (String)args.get(0);
