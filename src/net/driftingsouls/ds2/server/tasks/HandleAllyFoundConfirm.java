@@ -29,6 +29,7 @@ package net.driftingsouls.ds2.server.tasks;
  */
 class HandleAllyFoundConfirm implements TaskHandler {
 
+	@Override
 	public void handleEvent(Task task, String event) {	
 		String mastertaskid = task.getData1();
 		Taskmanager tm = Taskmanager.getInstance();

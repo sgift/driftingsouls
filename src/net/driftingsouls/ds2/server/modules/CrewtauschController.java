@@ -93,30 +93,37 @@ public class CrewtauschController extends TemplateGenerator {
 			this.ship = ship;
 		}
 
+		@Override
 		public void finishTransfer() {
 			ship.recalculateShipStatus();
 		}
 
+		@Override
 		public int getCrew() {
 			return ship.getCrew();
 		}
 		
+		@Override
 		public int getId() {
 			return ship.getId();
 		}
 
+		@Override
 		public String getName() {
 			return ship.getName();
 		}
 
+		@Override
 		public void setCrew(int crew) {
 			ship.setCrew(crew);
 		}
 		
+		@Override
 		public int getMaxCrew() {
 			return ship.getTypeData().getCrew();
 		}
 		
+		@Override
 		public User getOwner() {
 			return ship.getOwner();
 		}
@@ -133,30 +140,37 @@ public class CrewtauschController extends TemplateGenerator {
 			this.base = base;
 		}
 
+		@Override
 		public void finishTransfer() {
 			// EMPTY
 		}
 
+		@Override
 		public int getCrew() {
 			return base.getBewohner()-base.getArbeiter();
 		}
 
+		@Override
 		public int getId() {
 			return base.getId();
 		}
 
+		@Override
 		public String getName() {
 			return base.getName();
 		}
 
+		@Override
 		public void setCrew(int crew) {
 			base.setBewohner(base.getArbeiter()+crew);
 		}
 
+		@Override
 		public int getMaxCrew() {
 			return -1;
 		}
 
+		@Override
 		public User getOwner() {
 			return base.getOwner();
 		}

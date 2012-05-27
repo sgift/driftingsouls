@@ -30,6 +30,7 @@ class RoleDefinitionImpl implements RoleDefinition {
 	private String roleName;
 	private Map<String,Object> attributes = new HashMap<String,Object>();
 	
+	@Override
 	public String getRoleName() {
 		return roleName;
 	}
@@ -42,6 +43,7 @@ class RoleDefinitionImpl implements RoleDefinition {
 		this.roleName = roleName;
 	}
 
+	@Override
 	public Object getAttribute(String name) {
 		return attributes.get(name);
 	}

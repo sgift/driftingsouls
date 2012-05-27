@@ -1,7 +1,5 @@
 package net.driftingsouls.ds2.server.ships;
 
-import org.hibernate.annotations.Fetch;
-
 import javax.persistence.*;
 
 /**

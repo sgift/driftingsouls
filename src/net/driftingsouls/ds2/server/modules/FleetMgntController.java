@@ -932,6 +932,7 @@ public class FleetMgntController extends TemplateGenerator {
 			this.text = text;
 		}
 		
+		@Override
 		public String next() {
 			return text;
 		}
@@ -944,6 +945,7 @@ public class FleetMgntController extends TemplateGenerator {
 			// EMPTY
 		}
 		
+		@Override
 		public String next() {
 			return Integer.toString(counter++);
 		}
@@ -961,6 +963,7 @@ public class FleetMgntController extends TemplateGenerator {
 			// EMPTY
 		}
 		
+		@Override
 		public String next() {
 			int number = counter++;
 			
@@ -1244,6 +1247,7 @@ public class FleetMgntController extends TemplateGenerator {
 		if(!buildableShips.isEmpty()) {
 			t.setBlock("_FLEETMGNT", "buildableships.listitem", "buildableships.list");
 			PriorityQueue<ShipType> sortedBuildableShips = new PriorityQueue<ShipType>(11, new Comparator<ShipType>() {
+					@Override
 					public int compare(ShipType o1, ShipType o2) {
 						if(o1.getId() == o2.getId()) {
 							return 0;

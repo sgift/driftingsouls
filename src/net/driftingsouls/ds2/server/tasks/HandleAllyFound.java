@@ -54,6 +54,7 @@ class HandleAllyFound implements TaskHandler {
     	this.config = config;
     }
 
+	@Override
 	public void handleEvent(Task task, String event) {	
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();

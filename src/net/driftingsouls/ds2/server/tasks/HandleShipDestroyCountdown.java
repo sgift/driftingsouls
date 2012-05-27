@@ -33,6 +33,7 @@ import net.driftingsouls.ds2.server.ships.Ship;
  */
 class HandleShipDestroyCountdown implements TaskHandler {
 
+	@Override
 	public void handleEvent(Task task, String event) {	
 		if( event.equals("tick_timeout") ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();

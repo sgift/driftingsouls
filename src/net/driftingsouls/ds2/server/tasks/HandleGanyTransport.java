@@ -46,6 +46,7 @@ import org.apache.commons.lang.StringUtils;
  *  @author Christopher Jung
  */
 class HandleGanyTransport implements TaskHandler {
+	@Override
 	public void handleEvent(Task task, String event) {	
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();

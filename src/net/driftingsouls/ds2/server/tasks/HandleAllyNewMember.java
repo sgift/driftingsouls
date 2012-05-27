@@ -42,6 +42,7 @@ import org.apache.commons.lang.StringUtils;
  */
 class HandleAllyNewMember implements TaskHandler {
 
+	@Override
 	public void handleEvent(Task task, String event) {	
 		Context context = ContextMap.getContext();
 		User user = (User)context.getActiveUser();

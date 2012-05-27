@@ -53,7 +53,6 @@ import net.driftingsouls.ds2.server.tick.TickController;
 import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.Transaction;
-import org.springframework.core.style.ValueStyler;
 
 /**
  * Berechnet sonstige Tick-Aktionen, welche keinen eigenen TickController haben.

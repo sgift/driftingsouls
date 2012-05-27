@@ -177,6 +177,7 @@ public class QuestFunctions {
 	Map<String,QuestAnswer> dialogAnswers = new LinkedHashMap<String,QuestAnswer>();
 	
 	class LoadDialog implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
@@ -202,6 +203,7 @@ public class QuestFunctions {
 	}
 	
 	class InitDialog implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			BBCodeParser bbcodeparser = BBCodeParser.getInstance();
 			
@@ -228,6 +230,7 @@ public class QuestFunctions {
 	}
 	
 	static class CopyVar implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			Database database = ContextMap.getContext().getDatabase();
@@ -452,6 +455,7 @@ public class QuestFunctions {
 	}
 	
 	class AddAnswer implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
@@ -502,6 +506,7 @@ public class QuestFunctions {
 	}
 	
 	class SetAnswerURL implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			String internalid = command[1];
 			String answerurl = command[2];
@@ -518,6 +523,7 @@ public class QuestFunctions {
 	}
 	
 	static class SaveVar implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			Database database = ContextMap.getContext().getDatabase();
@@ -627,6 +633,7 @@ public class QuestFunctions {
 	}
 	
 	class SetDialogTextVar implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			String myvar = command[1];
 			String replace = command[2];
@@ -641,6 +648,7 @@ public class QuestFunctions {
 	}
 	
 	static class InitQuest implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
@@ -681,6 +689,7 @@ public class QuestFunctions {
 	}
 	
 	static class EndQuest implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
@@ -725,6 +734,7 @@ public class QuestFunctions {
 	}
 	
 	static class GetQuestID implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
@@ -748,6 +758,7 @@ public class QuestFunctions {
 	}
 	
 	static class InstallHandler implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -890,6 +901,7 @@ public class QuestFunctions {
 	}
 	
 	static class RemoveHandler implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1021,6 +1033,7 @@ public class QuestFunctions {
 	}
 	
 	static class AddUninstallCmd implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
@@ -1076,6 +1089,7 @@ public class QuestFunctions {
 	}
 	
 	static class CompleteQuest implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1103,6 +1117,7 @@ public class QuestFunctions {
 	}
 	
 	static class HasQuestCompleted implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1134,6 +1149,7 @@ public class QuestFunctions {
 	}
 	
 	static class SetQuestUIStatus implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1165,6 +1181,7 @@ public class QuestFunctions {
 	}
 	
 	static class SaveOutput implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			// Funktioniert nur mit StringWriter und co.
 			scriptparser.setRegister("_OUTPUT",scriptparser.getContext().getWriter().toString());
@@ -1176,6 +1193,7 @@ public class QuestFunctions {
 	class LoadQuestContext implements SPFunction {
 		private final Log log = LogFactory.getLog(LoadQuestContext.class);
 		
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1228,6 +1246,7 @@ public class QuestFunctions {
 	class SaveQuestContext implements SPFunction {
 		private final Log log = LogFactory.getLog(SaveQuestContext.class);
 		
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1278,6 +1297,7 @@ public class QuestFunctions {
 	 ----------------------------------------------*/
 	
 	static class AddQuestItem implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1326,6 +1346,7 @@ public class QuestFunctions {
 	}
 	
 	static class HasQuestItem implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1370,6 +1391,7 @@ public class QuestFunctions {
 	}
 	
 	static class AddItem implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			scriptparser.log("cargo: "+command[1]+"\n");
 			Object cargoObj = scriptparser.getRegisterObject(command[1]);
@@ -1400,6 +1422,7 @@ public class QuestFunctions {
 	}
 	
 	static class HasResource implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			scriptparser.log("cargo: "+command[1]+"\n");
 			Object cargoObj = scriptparser.getRegisterObject(command[1]);
@@ -1425,6 +1448,7 @@ public class QuestFunctions {
 	}
 	
 	static class GetResource implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			scriptparser.log("cargo: "+command[1]+"\n");
 			Object cargoObj = scriptparser.getRegisterObject(command[1]);
@@ -1447,6 +1471,7 @@ public class QuestFunctions {
 	}
 	
 	static class AddResource implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			scriptparser.log("cargo: "+command[1]+"\n");
 			Object cargoObj = scriptparser.getRegisterObject(command[1]);
@@ -1476,6 +1501,7 @@ public class QuestFunctions {
 	}
 	
 	static class TransferWholeCargo implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			scriptparser.log("cargo(target): "+command[1]+"\n");
 			Object cargotarObj = scriptparser.getRegisterObject(command[1]);
@@ -1502,6 +1528,7 @@ public class QuestFunctions {
 	 ----------------------------------------------*/
 	
 	static class LockShip implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1583,6 +1610,7 @@ public class QuestFunctions {
 	}
 	
 	static class UnlockShip implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1645,6 +1673,7 @@ public class QuestFunctions {
 	}
 	
 	static class AddQuestShips implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1712,6 +1741,7 @@ public class QuestFunctions {
 	}
 	
 	static class AddShips implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1739,6 +1769,7 @@ public class QuestFunctions {
 	}
 	
 	static class RemoveShip implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
@@ -1750,6 +1781,7 @@ public class QuestFunctions {
 	}
 	
 	static class MoveShip implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			int shipid = Value.Int(command[1]);
@@ -1776,6 +1808,7 @@ public class QuestFunctions {
 	}
 	
 	static class IsShipDestroyed implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1807,6 +1840,7 @@ public class QuestFunctions {
 	}
 	
 	static class AddLootTable implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1881,6 +1915,7 @@ public class QuestFunctions {
 	}
 	
 	static class DeleteLootTable implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -1902,6 +1937,7 @@ public class QuestFunctions {
 	 ----------------------------------------------*/
 	
 	static class Msg implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			int from = Integer.parseInt(command[1]);
 			int to = Integer.parseInt(command[2]);
@@ -1923,6 +1959,7 @@ public class QuestFunctions {
 	}
 	
 	static class AddMoney implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			int userid = Value.Int(command[1]);
 			scriptparser.log("userid: "+userid+"\n");
@@ -1953,6 +1990,7 @@ public class QuestFunctions {
 	}
 	
 	static class GetMoney implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			int userid = Value.Int(command[1]);
 			scriptparser.log("userid: "+userid+"\n");
@@ -1965,6 +2003,7 @@ public class QuestFunctions {
 	}
 	
 	static class CloneOffizier implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
@@ -2014,6 +2053,7 @@ public class QuestFunctions {
 	}
 	
 	static class RemoveOffizier implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
@@ -2038,6 +2078,7 @@ public class QuestFunctions {
 	}
 	
 	static class AddBattleVisibility implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
@@ -2056,6 +2097,7 @@ public class QuestFunctions {
 	
 	
 	static class EndBattle implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
@@ -2081,6 +2123,7 @@ public class QuestFunctions {
 	
 	
 	static class GetNoobStatus implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			int userid = Integer.parseInt(command[1]);
 			scriptparser.log("userid: "+userid+"\n");
@@ -2100,6 +2143,7 @@ public class QuestFunctions {
 	
 	
 	static class GetUserValue implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			int userid = Integer.parseInt(command[1]);
 			scriptparser.log("userid: "+userid+"\n");
@@ -2126,6 +2170,7 @@ public class QuestFunctions {
 	
 	
 	static class SetUserValue implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			int userid = Integer.parseInt(command[1]);
 			scriptparser.log("userid: "+userid+"\n");
@@ -2145,6 +2190,7 @@ public class QuestFunctions {
 	
 	
 	static class GetSectorProperty implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			Database database = ContextMap.getContext().getDatabase();
@@ -2219,6 +2265,7 @@ public class QuestFunctions {
 	
 	
 	static class GetSystemProperty implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -2248,6 +2295,7 @@ public class QuestFunctions {
 	}
 	
 	static class GtuAuctionShip implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Database db = ContextMap.getContext().getDatabase();
 			
@@ -2277,6 +2325,7 @@ public class QuestFunctions {
 	}
 	
 	static class GtuAuctionCargo implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
@@ -2331,6 +2380,7 @@ public class QuestFunctions {
 			f.execute(scriptparser, command);
 		}
 		
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
@@ -2413,6 +2463,7 @@ public class QuestFunctions {
 			f.execute(scriptparser, command);
 		}
 		
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
@@ -2478,6 +2529,7 @@ public class QuestFunctions {
 			f.execute(scriptparser, command);
 		}
 		
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			

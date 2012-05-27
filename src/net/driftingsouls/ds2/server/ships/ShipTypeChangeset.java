@@ -908,6 +908,7 @@ public class ShipTypeChangeset {
 			return clone;
 		}
 
+		@Override
 		public int getADocks() {
 			int value = inner.getADocks() + ShipTypeChangeset.this.getADocks();
 			if( value < 0 ) {
@@ -916,6 +917,7 @@ public class ShipTypeChangeset {
 			return value;
 		}
 
+		@Override
 		public long getCargo() {
 			long value = inner.getCargo() + ShipTypeChangeset.this.getCargo();
 			if( value < 0 ) {
@@ -924,6 +926,7 @@ public class ShipTypeChangeset {
 			return value;
 		}
 		
+		@Override
 		public long getNahrungCargo() {
 			long value = inner.getNahrungCargo() + ShipTypeChangeset.this.getNahrungCargo();
 			if( value < 0) {
@@ -932,10 +935,12 @@ public class ShipTypeChangeset {
 			return value;
 		}
 
+		@Override
 		public int getChance4Loot() {
 			return inner.getChance4Loot();
 		}
 
+		@Override
 		public int getCost() {
 			if( getType().getCost() > 0 ) {
 				int value = inner.getCost() + ShipTypeChangeset.this.getCost();
@@ -947,6 +952,7 @@ public class ShipTypeChangeset {
 			return inner.getCost();
 		}
 
+		@Override
 		public int getCrew() {
 			if( getType().getCrew() > 0 ) {
 				int value = inner.getCrew() + ShipTypeChangeset.this.getCrew();
@@ -958,6 +964,7 @@ public class ShipTypeChangeset {
 			return inner.getCrew();
 		}
 		
+		@Override
 		public int getMaxUnitSize() {
 			if( getType().getMaxUnitSize() > 0 ) {
 				int value = inner.getMaxUnitSize() + ShipTypeChangeset.this.getMaxUnitSize();
@@ -969,6 +976,7 @@ public class ShipTypeChangeset {
 			return inner.getMaxUnitSize();
 		}
 
+		@Override
 		public int getUnitSpace() {
 			if( getType().getUnitSpace() > 0 ) {
 				int value = inner.getUnitSpace() + ShipTypeChangeset.this.getUnitSpace();
@@ -980,10 +988,12 @@ public class ShipTypeChangeset {
 			return inner.getUnitSpace();
 		}
 		
+		@Override
 		public String getDescrip() {
 			return inner.getDescrip();
 		}
 
+		@Override
 		public int getDeutFactor() {
 			int value = inner.getDeutFactor() + ShipTypeChangeset.this.getDeutFactor();
 			if( value < 0 ) {
@@ -992,6 +1002,7 @@ public class ShipTypeChangeset {
 			return value;
 		}
 
+		@Override
 		public int getEps() {
 			int value = inner.getEps() + ShipTypeChangeset.this.getEps();
 			if( value < 0 ) {
@@ -1000,6 +1011,7 @@ public class ShipTypeChangeset {
 			return value;
 		}
 
+		@Override
 		public String getFlags() {
 			if( this.flags == null ) {
 				String flags = inner.getFlags();
@@ -1021,10 +1033,12 @@ public class ShipTypeChangeset {
 			return flags;
 		}
 
+		@Override
 		public int getGroupwrap() {
 			return inner.getGroupwrap();
 		}
 
+		@Override
 		public int getHeat() {
 			if( getType().getHeat() > 0 ) {
 				int value = inner.getHeat() + ShipTypeChangeset.this.getHeat();
@@ -1036,6 +1050,7 @@ public class ShipTypeChangeset {
 			return inner.getHeat();
 		}
 
+		@Override
 		public int getHull() {
 			int value = inner.getHull() + ShipTypeChangeset.this.getHull();
 			if( value < 1 ) {
@@ -1044,6 +1059,7 @@ public class ShipTypeChangeset {
 			return value;
 		}
 
+		@Override
 		public int getHydro() {
 			int value = inner.getHydro() + ShipTypeChangeset.this.getHydro();
 			if( value < 0 ) {
@@ -1052,6 +1068,7 @@ public class ShipTypeChangeset {
 			return value;
 		}
 
+		@Override
 		public int getJDocks() {
 			int value = inner.getJDocks() + ShipTypeChangeset.this.getJDocks();
 			if( value < 0 ) {
@@ -1139,6 +1156,7 @@ public class ShipTypeChangeset {
 			this.maxheat = Weapons.packWeaponList(heatlist);
 		}
 		
+		@Override
 		public String getMaxHeat() {
 			if( (this.maxheat == null) || !inner.getMaxHeat().equals(baseHeat) ) {
 				calcWeaponData();
@@ -1146,6 +1164,7 @@ public class ShipTypeChangeset {
 			return this.maxheat;
 		}
 
+		@Override
 		public String getNickname() {
 			if( ShipTypeChangeset.this.getNickname() == null ) {
 				return inner.getNickname();
@@ -1153,6 +1172,7 @@ public class ShipTypeChangeset {
 			return ShipTypeChangeset.this.getNickname();
 		}
 
+		@Override
 		public int getOneWayWerft() {
 			if( ShipTypeChangeset.this.getOneWayWerft() == 0 ) {
 				return inner.getOneWayWerft();
@@ -1160,6 +1180,7 @@ public class ShipTypeChangeset {
 			return ShipTypeChangeset.this.getOneWayWerft();
 		}
 
+		@Override
 		public int getPanzerung() {
 			int value = inner.getPanzerung() + ShipTypeChangeset.this.getPanzerung();
 			if( value < 0 ) {
@@ -1168,6 +1189,7 @@ public class ShipTypeChangeset {
 			return value;
 		}
 
+		@Override
 		public String getPicture() {
 			if( ShipTypeChangeset.this.getPicture() == null ) {
 				return inner.getPicture();
@@ -1175,6 +1197,7 @@ public class ShipTypeChangeset {
 			return ShipTypeChangeset.this.getPicture();
 		}
 
+		@Override
 		public int getRa() {
 			int value = inner.getRa() + ShipTypeChangeset.this.getRa();
 			if( value < 0 ) {
@@ -1183,6 +1206,7 @@ public class ShipTypeChangeset {
 			return value;
 		}
 
+		@Override
 		public int getRd() {
 			int value = inner.getRd() + ShipTypeChangeset.this.getRd();
 			if( value < 0 ) {
@@ -1191,6 +1215,7 @@ public class ShipTypeChangeset {
 			return value;
 		}
 
+		@Override
 		public int getReCost() {
 			int value = inner.getReCost() + ShipTypeChangeset.this.getReCost();
 			if( value < 0 ) {
@@ -1199,6 +1224,7 @@ public class ShipTypeChangeset {
 			return value;
 		}
 
+		@Override
 		public int getRm() {
 			int value = inner.getRm() + ShipTypeChangeset.this.getRm();
 			if( value < 0 ) {
@@ -1207,6 +1233,7 @@ public class ShipTypeChangeset {
 			return value;
 		}
 
+		@Override
 		public int getRu() {
 			int value = inner.getRu() + ShipTypeChangeset.this.getRu();
 			if( value < 0 ) {
@@ -1215,6 +1242,7 @@ public class ShipTypeChangeset {
 			return value;
 		}
 
+		@Override
 		public int getSensorRange() {
 			int value = inner.getSensorRange() + ShipTypeChangeset.this.getSensorRange();
 			if( value < 0 ) {
@@ -1223,6 +1251,7 @@ public class ShipTypeChangeset {
 			return value;
 		}
 
+		@Override
 		public int getShields() {
 			int value = inner.getShields() + ShipTypeChangeset.this.getShields();
 			if( value < 0 ) {
@@ -1231,10 +1260,12 @@ public class ShipTypeChangeset {
 			return value;
 		}
 
+		@Override
 		public int getShipClass() {
 			return inner.getShipClass();
 		}
 
+		@Override
 		public int getSize() {
 			if( getType().getSize() > ShipType.SMALL_SHIP_MAXSIZE ) {
 				int value = inner.getSize() + ShipTypeChangeset.this.getSize();
@@ -1254,6 +1285,7 @@ public class ShipTypeChangeset {
 			return value;
 		}
 
+		@Override
 		public int getTorpedoDef() {
 			int value = inner.getTorpedoDef() + ShipTypeChangeset.this.getTorpedoDef();
 			if( value < 0 ) {
@@ -1262,14 +1294,17 @@ public class ShipTypeChangeset {
 			return value;
 		}
 
+		@Override
 		public int getTypeId() {
 			return inner.getTypeId();
 		}
 
+		@Override
 		public String getTypeModules() {
 			return inner.getTypeModules();
 		}
 
+		@Override
 		public String getWeapons() {
 			if( (this.weapons == null) || !inner.getWeapons().equals(baseWeapons) ) {
 				calcWeaponData();
@@ -1278,6 +1313,7 @@ public class ShipTypeChangeset {
 			return this.weapons;
 		}
 
+		@Override
 		public int getWerft() {
 			int value = inner.getWerft() + ShipTypeChangeset.this.getWerft();
 			if( value < 0 ) {
@@ -1286,26 +1322,32 @@ public class ShipTypeChangeset {
 			return value;
 		}
 
+		@Override
 		public boolean hasFlag(String flag) {
 			return getFlags().indexOf(flag) > -1;
 		}
 
+		@Override
 		public boolean isHide() {
 			return inner.isHide();
 		}
 
+		@Override
 		public boolean isMilitary() {
 			return getWeapons().indexOf('=') > -1;
 		}
 		
+		@Override
 		public boolean isVersorger() {
 			return inner.isVersorger();
 		}
 
+		@Override
 		public ShipTypeData getType() {
 			return inner.getType();
 		}
 
+		@Override
 		public int getAblativeArmor() {
 			int value = inner.getAblativeArmor() + ShipTypeChangeset.this.getAblativeArmor();
 			if( value < 0 ) {
@@ -1314,6 +1356,7 @@ public class ShipTypeChangeset {
 			return value;
 		}
 
+		@Override
 		public boolean hasSrs() {
 			if( ShipTypeChangeset.this.hasSrs() == null ) {
 				return inner.hasSrs();
@@ -1321,21 +1364,25 @@ public class ShipTypeChangeset {
 			return inner.hasSrs() && ShipTypeChangeset.this.hasSrs();
 		}
 		
+		@Override
 		public int getPickingCost() {
 			return ShipTypeChangeset.this.getPickingCost() + inner.getPickingCost();
 		}
  
 
+		@Override
 		public int getScanCost() {
 			return ShipTypeChangeset.this.getScanCost() + inner.getScanCost();
 		}
 		
+		@Override
 		public int getMinCrew()
 		{
 			return ShipTypeChangeset.this.getMinCrew() + inner.getMinCrew();
 		}
 
-        public BigInteger getBounty()
+        @Override
+		public BigInteger getBounty()
         {
             return ShipTypeChangeset.this.getBounty().add(inner.getBounty());
         }
@@ -1345,6 +1392,7 @@ public class ShipTypeChangeset {
 		 * 
 		 * @return Zahl zwischen 0 und 1.
 		 */
+		@Override
 		public double getLostInEmpChance()
 		{
 			return ShipTypeChangeset.this.getLostInEmpChance() + inner.getLostInEmpChance();

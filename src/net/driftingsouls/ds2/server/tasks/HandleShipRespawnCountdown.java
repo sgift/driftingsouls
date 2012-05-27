@@ -42,6 +42,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
  */
 class HandleShipRespawnCountdown implements TaskHandler {
 
+	@Override
 	public void handleEvent(Task task, String event) {	
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();

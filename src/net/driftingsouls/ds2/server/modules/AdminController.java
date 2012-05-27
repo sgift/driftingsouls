@@ -90,6 +90,7 @@ public class AdminController extends DSGenerator {
 			this.name = name;
 		}
 
+		@Override
 		public int compareTo(MenuEntry o)
 		{
 			return name.compareTo(o.name);

@@ -62,7 +62,8 @@ public abstract class AbstractShipTypeDataWrapper implements ShipTypeData {
 		return inner.getADocks();
 	}
 
-    public BigInteger getBounty()
+    @Override
+	public BigInteger getBounty()
     {
         return inner.getBounty();
     }

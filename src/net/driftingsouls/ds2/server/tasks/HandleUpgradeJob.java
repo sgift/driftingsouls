@@ -52,6 +52,7 @@ class HandleUpgradeJob implements TaskHandler
 	private static final int ITEM_BBS = 182;
 	private static final int ITEM_RE = 6;
 	
+	@Override
 	public void handleEvent(Task task, String event)
 	{
 		Context context = ContextMap.getContext();

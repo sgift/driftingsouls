@@ -59,6 +59,7 @@ public class ActionFunctions {
 	}
 	
 	static class ShipMove implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Ship ship = scriptparser.getShip();
 			
@@ -92,6 +93,7 @@ public class ActionFunctions {
 	}
 	
 	static class Wait implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			Ship ship = scriptparser.getShip();
@@ -136,6 +138,7 @@ public class ActionFunctions {
 	}
 	
 	static class KJump implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Ship ship = scriptparser.getShip();
 			
@@ -157,6 +160,7 @@ public class ActionFunctions {
 	}
 	
 	static class NJump implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Ship ship = scriptparser.getShip();
 			
@@ -178,6 +182,7 @@ public class ActionFunctions {
 	}
 	
 	static class Msg implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			int to = Integer.parseInt(command[1]);
 			
@@ -211,6 +216,7 @@ public class ActionFunctions {
 			this.mode = mode;
 		}
 		
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			Ship ship = scriptparser.getShip();
@@ -236,6 +242,7 @@ public class ActionFunctions {
 	}
 	
 	static class GetResource implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
@@ -265,6 +272,7 @@ public class ActionFunctions {
 	}
 	
 	static class TransferCargo implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			String transferType = command[1].toLowerCase();
 			
@@ -319,6 +327,7 @@ public class ActionFunctions {
 	}
 	
 	static class Attack implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			
@@ -350,6 +359,7 @@ public class ActionFunctions {
 	}
 	
 	static class ResetScript implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			Ship ship = scriptparser.getShip();
 			
@@ -363,6 +373,7 @@ public class ActionFunctions {
 	}
 	
 	static class ExecuteTask implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			String taskid = command[1];
 			scriptparser.log("taskid: "+taskid+"\n");
@@ -378,6 +389,7 @@ public class ActionFunctions {
 	}
 	
 	static class GetShipOwner implements SPFunction {
+		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			int shipid = Integer.parseInt(command[1]);

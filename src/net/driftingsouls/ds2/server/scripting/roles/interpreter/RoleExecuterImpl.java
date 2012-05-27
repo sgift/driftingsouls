@@ -58,10 +58,12 @@ class RoleExecuterImpl implements RoleExecuter {
 		}
 	}
 	
+	@Override
 	public Role getRole() {
 		return this.role;
 	}
 
+	@Override
 	public void execute(ScriptContext context) throws ScriptException {
 		this.role.execute(context);
 	}

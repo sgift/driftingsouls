@@ -36,6 +36,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
  */
 class HandleAllyLowMember implements TaskHandler {
 
+	@Override
 	public void handleEvent(Task task, String event) {	
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();

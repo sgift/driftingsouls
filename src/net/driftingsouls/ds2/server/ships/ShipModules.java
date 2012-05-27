@@ -582,6 +582,7 @@ public class ShipModules implements ShipTypeData {
 	/**
 	 * @return <code>true</code>, falls es ein Versorger ist.
 	 */
+	@Override
 	public boolean isVersorger() {
 		return versorger;
 	}
@@ -690,6 +691,7 @@ public class ShipModules implements ShipTypeData {
 	 * 
 	 * @return Zahl zwischen 0 und 1.
 	 */
+	@Override
 	public double getLostInEmpChance()
 	{
 		return lostInEmpChance;

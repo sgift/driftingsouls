@@ -325,6 +325,7 @@ public class ShipType implements ShipTypeData {
 	/**
 	 * @return <code>true</code>, wenn dieses Schiff ein Versorger ist.
 	 */
+	@Override
 	public boolean isVersorger() {
 		return versorger;
 	}
@@ -715,6 +716,7 @@ public class ShipType implements ShipTypeData {
 	/**
 	 * @return Crewwert bei dem das Schiff noch normal funktioniert.
 	 */
+	@Override
 	public int getMinCrew()
 	{
 		return minCrew;
@@ -733,6 +735,7 @@ public class ShipType implements ShipTypeData {
 	 * 
 	 * @return Zahl zwischen 0 und 1.
 	 */
+	@Override
 	public double getLostInEmpChance()
 	{
 		return lostInEmpChance;

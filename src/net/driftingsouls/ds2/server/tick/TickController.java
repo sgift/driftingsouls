@@ -182,10 +182,6 @@ public abstract class TickController {
 			}
 			w = new FileWriter(f, append);
 		}
-	
-		if( w == null ) {
-			return;
-		}
 		
 		logTargets.put(file, w);
 	}
