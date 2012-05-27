@@ -194,7 +194,7 @@ public class MapController extends TemplateGenerator
 	 * Zeigt die Sternenkarte an.
 	 */
 	@Override
-	@Action(ActionType.DEFAULT)
+	@Action(value=ActionType.DEFAULT, readOnly=true)
 	public void defaultAction() throws IOException
 	{
 		User user = (User)getUser();
@@ -238,7 +238,7 @@ public class MapController extends TemplateGenerator
 	 * Gibt eine einzelne Tile zurueck, entweder aus dem Cache oder, falls nicht vorhanden, neu generiert.
 	 * @throws IOException Speicherfehler
 	 */
-	@Action(ActionType.BINARY)
+	@Action(value=ActionType.BINARY, readOnly=true)
 	public void tileAction() throws IOException
 	{
 		if( this.system == null )
@@ -349,7 +349,7 @@ public class MapController extends TemplateGenerator
 	 * Gibt die Kartendaten des gewaehlten Ausschnitts als JSON-Response zurueck.
 	 * @throws IOException
 	 */
-	@Action(ActionType.AJAX)
+	@Action(value=ActionType.AJAX, readOnly=true)
 	public void mapAction() throws IOException {
 		JSONObject json = new JSONObject();
 		
@@ -513,7 +513,7 @@ public class MapController extends TemplateGenerator
 	 * Zeigt einen einzelnen Sektor mit allen Details an.
 	 * @throws IOException 
 	 */
-	@Action(ActionType.AJAX)
+	@Action(value=ActionType.AJAX, readOnly=true)
 	public void sectorAction() throws IOException
 	{
 		User user = (User)getUser();

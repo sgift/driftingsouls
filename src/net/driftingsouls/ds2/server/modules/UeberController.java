@@ -62,7 +62,6 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.FlushMode;
 import org.hibernate.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -221,7 +220,7 @@ public class UeberController extends TemplateGenerator {
 	 * Zeigt die Uebersicht an.
 	 */
 	@Override
-	@Action(ActionType.DEFAULT)
+	@Action(value=ActionType.DEFAULT, readOnly=true)
 	public void defaultAction() {
 		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
@@ -234,12 +233,7 @@ public class UeberController extends TemplateGenerator {
 		}
 		
 		int ticks = getContext().get(ContextCommon.class).getTick();
-		
-		final FlushMode oldMode = db.getFlushMode();
-		// Annahme: Keine Aenderungen der DB, daher auch kein Flush notwendig.
-		// Da die Uebersichtsseite mit sehr grossen Datenmengen operiert waere Auto-Flush sehr aufwendig.
-		db.setFlushMode(FlushMode.MANUAL);
-		
+			
 		int[] fullbalance = user.getFullBalance();
 		
 		t.setVar(	"user.name",				Common._title(user.getName()),
@@ -548,8 +542,6 @@ public class UeberController extends TemplateGenerator {
 								
 			t.parse("quests.list", "quests.listitem", true);
 		}
-		
-		db.setFlushMode(oldMode);
 	}
 
 	private String getTickTime() {
