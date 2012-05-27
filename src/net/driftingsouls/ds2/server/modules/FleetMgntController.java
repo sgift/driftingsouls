@@ -1216,7 +1216,7 @@ public class FleetMgntController extends TemplateGenerator {
 			.setEntity(1, this.fleet)
 			.list();
 		
-		Set<ShipType> buildableShips = new HashSet<ShipType>();
+		Set<WerftObject> werften = new HashSet<WerftObject>();
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship ship = (Ship)iter.next();
 			
@@ -1224,9 +1224,17 @@ public class FleetMgntController extends TemplateGenerator {
 			Location loc = ship.getLocation();
 			
 			//Find shipyards
-			if(shiptype.getWerft() > 0) {
+			if(shiptype.getWerft() > 0)
+			{
 				WerftObject werft = (WerftObject)db.createQuery("from WerftObject where shipid=?").setInteger(0, ship.getId()).uniqueResult();
-				buildableShips.addAll(werft.getBuildableShips());
+				if( werft.getKomplex() != null )
+				{
+					werften.add(werft.getKomplex());
+				}
+				else
+				{
+					werften.add(werft);
+				}
 			}
 			
 			t.setVar(	"ship.id",			ship.getId(),
@@ -1241,6 +1249,12 @@ public class FleetMgntController extends TemplateGenerator {
 			}
 			
 			t.parse("ships.list", "ships.listitem", true);
+		}
+		
+		Set<ShipType> buildableShips = new HashSet<ShipType>();
+		for( WerftObject werft : werften )
+		{
+			buildableShips.addAll(werft.getBuildableShips());
 		}
 		
 		//List of buildable ships
