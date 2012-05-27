@@ -38,6 +38,8 @@ import net.driftingsouls.ds2.server.framework.pipeline.Response;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.FlushMode;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -473,6 +475,10 @@ public abstract class DSGenerator extends Generator {
 		try 
 		{
 			Method method = getMethodForAction(action);
+			
+			final Action actionDescriptor = method.getAnnotation(Action.class);
+			doActionOptimizations(actionDescriptor);
+			
 			method.setAccessible(true);
 			method.invoke(this);
 		}
@@ -528,7 +534,8 @@ public abstract class DSGenerator extends Generator {
 	
 		try {
 			Method method = getMethodForAction(action);
-			setActionType(method.getAnnotation(Action.class).value());
+			final Action actionDescriptor = method.getAnnotation(Action.class);
+			setActionType(actionDescriptor.value());
 			
 			if( (getErrorList().length != 0) || !validateAndPrepare(action) ) {
 				printErrorListOnly();
@@ -537,6 +544,8 @@ public abstract class DSGenerator extends Generator {
 			}
 			
 			printHeader( action );
+			
+			doActionOptimizations(actionDescriptor);
 			
 			method.setAccessible(true);
 			method.invoke(this);
@@ -556,6 +565,21 @@ public abstract class DSGenerator extends Generator {
 		printErrorList();
 			
 		printFooter( action );
+	}
+
+	private void doActionOptimizations(final Action actionDescriptor)
+	{
+		final Session db = this.getDB();
+		if( actionDescriptor.readOnly() )
+		{
+			// Nur lesender Zugriff -> flushes deaktivieren
+			db.flush();
+			db.setFlushMode(FlushMode.MANUAL);
+		}
+		else 
+		{
+			db.setFlushMode(FlushMode.AUTO);
+		}
 	}
 
 	protected void printErrorList() throws IOException

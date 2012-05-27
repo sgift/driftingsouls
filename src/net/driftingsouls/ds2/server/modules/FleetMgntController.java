@@ -1185,7 +1185,7 @@ public class FleetMgntController extends TemplateGenerator {
 	}
 	
 	@Override
-	@Action(ActionType.DEFAULT)
+	@Action(value=ActionType.DEFAULT, readOnly=true)
 	public void defaultAction() {
 		org.hibernate.Session db = getDB();
 		User user = (User)getUser();

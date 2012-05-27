@@ -37,4 +37,9 @@ public @interface Action {
 	 * Der Typ der Action.
 	 */
 	ActionType value();
+	/**
+	 * Marktiert die Aktion als nur lesend. Dies erlaubt
+	 * dem Datenbanksystem einige Optimierungen (z.B. keine flushes usw).
+	 */
+	boolean readOnly() default false;
 }

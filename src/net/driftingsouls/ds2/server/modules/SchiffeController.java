@@ -153,7 +153,7 @@ public class SchiffeController extends TemplateGenerator {
 	private static final int MAX_SHIPS_PER_PAGE = 250;
 	
 	@Override
-	@Action(ActionType.DEFAULT)
+	@Action(value=ActionType.DEFAULT, readOnly=true)
 	public void defaultAction() {		
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
