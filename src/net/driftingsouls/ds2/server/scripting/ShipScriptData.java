@@ -3,6 +3,7 @@ package net.driftingsouls.ds2.server.scripting;
 import java.sql.Blob;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -15,10 +16,18 @@ import javax.persistence.Table;
 @Table(name="ship_script_data")
 public class ShipScriptData 
 {
-	@Id
+	@Id @GeneratedValue
 	private int shipid;
 	private String script;
 	private Blob scriptexedata;
+	
+	/**
+	 * Konstruktor.
+	 */
+	public ShipScriptData()
+	{
+		// EMPTY
+	}
 	
 	/**
 	 * @return Die ID des dazugehoerigen Schiffes.

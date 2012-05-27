@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS `ships` (
   `nahrungcargo` int(11) NOT NULL DEFAULT '0',
   `isfeeding` tinyint(1) NOT NULL DEFAULT '1',
   `isallyfeeding` tinyint(1) NOT NULL DEFAULT '0',
+  `scriptData_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `bookmark` (`bookmark`),
   KEY `coords` (`system`,`x`,`y`),

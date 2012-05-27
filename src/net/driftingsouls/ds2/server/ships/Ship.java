@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
@@ -192,9 +193,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 	@BatchSize(size=500)
 	@NotFound(action = NotFoundAction.IGNORE)
 	private Set<ShipUnitCargoEntry> units;
-	@OneToOne(fetch=FetchType.LAZY, optional=false)
-	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH,org.hibernate.annotations.CascadeType.MERGE})
-	@JoinColumn(name="id", nullable=false)
+	
+	@OneToOne(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
+	@Cascade(org.hibernate.annotations.CascadeType.EVICT)
+	@JoinColumn(name="scriptData_id")
 	@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 	private ShipScriptData scriptData;
 
@@ -245,7 +247,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 		this.docked = "";
 		this.weaponHeat = "";
 		this.autodeut = 1;
-		this.scriptData = new ShipScriptData();
 		this.showtradepost = TradepostVisibility.ALL;
 	}
 	
@@ -281,7 +282,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 		this.setWeapons(100);
 		this.setComm(100);
 		this.setSensors(100);
-		this.scriptData = new ShipScriptData();
 	}
 
     /**
@@ -306,6 +306,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * Gibt die ID des Schiffes zurueck.
 	 * @return Die ID des Schiffes
 	 */
+	@Override
 	public int getId() {
 		return id;
 	}
@@ -322,6 +323,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * Gibt den Besitzer des Schiffes zurueck.
 	 * @return Der Besitzer
 	 */
+	@Override
 	public User getOwner() {
 		return this.owner;
 	}
@@ -378,6 +380,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * Gibt den Cargo des Schiffes zurueck.
 	 * @return Der Cargo
 	 */
+	@Override
 	public Cargo getCargo() {
 		return new Cargo(this.cargo);
 	}
@@ -386,6 +389,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * Setzt den Cargo des Schiffes.
 	 * @param cargo Der neue Cargo
 	 */
+	@Override
 	public void setCargo(Cargo cargo) {
 		this.cargo = new Cargo(cargo);
 	}
@@ -998,15 +1002,24 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	public void setScript(String script) 
 	{
-		if(scriptData == null)
+		if( script != null && !script.trim().isEmpty() )
 		{
-			ShipScriptData data = new ShipScriptData();
-			data.setShipid(this.getId());
-			org.hibernate.Session db = ContextMap.getContext().getDB();
-			db.persist(data);
-			scriptData = data;
+			if(scriptData == null)
+			{
+				ShipScriptData data = new ShipScriptData();
+				data.setShipid(this.getId());
+				org.hibernate.Session db = ContextMap.getContext().getDB();
+				db.persist(data);
+				scriptData = data;
+			}
+			scriptData.setScript(script);
 		}
-		scriptData.setScript(script);
+		else if( scriptData != null )
+		{
+			org.hibernate.Session db = ContextMap.getContext().getDB();
+			db.delete(scriptData);
+			scriptData = null;
+		}
 	}
 	
 	/**
@@ -3859,6 +3872,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * Gibt den maximalen Cargo, den das Schiff aufnehmen kann, zurueck.
 	 * @return Der maximale Cargo
 	 */
+	@Override
 	public long getMaxCargo() {
 		return getTypeData().getCargo();
 	}

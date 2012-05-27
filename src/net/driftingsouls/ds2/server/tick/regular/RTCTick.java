@@ -148,9 +148,7 @@ public class RTCTick extends TickController {
 					ship.setSensors(100);
 					ship.setNahrungCargo(Math.min(shiptype.getNahrungCargo(), ship.getFoodConsumption() * 3));
 					
-					int id = (Integer)db.save(ship);
-					ship.getScriptData().setShipid(id);
-					db.save(ship.getScriptData());
+					db.save(ship);
 					
 					if( shiptype.getWerft() != 0 ) 
 					{

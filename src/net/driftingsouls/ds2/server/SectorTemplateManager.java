@@ -29,7 +29,6 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.scripting.ShipScriptData;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.Ship.ModuleEntry;
@@ -138,10 +137,6 @@ public class SectorTemplateManager {
 			
 			db.persist(newship);
 
-            ShipScriptData scriptData = new ShipScriptData();
-            scriptData.setShipid(newship.getId());
-            db.persist(scriptData);
-			
 			ModuleEntry[] modules = ship.getModules();
 			for( ModuleEntry entry : modules)
 			{
@@ -184,7 +179,6 @@ public class SectorTemplateManager {
 			int shipid = db.insertID();*/
 			
 			int shipid = newship.getId();
-			newship.getScriptData().setShipid(shipid);
 			
 			idtable.put(ship.getId(), shipid);
 			

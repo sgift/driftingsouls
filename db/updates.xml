@@ -1592,4 +1592,11 @@
     	UPDATE users SET imgpath=null WHERE imgpath='http://localhost/ds2/';
     ]]>
     </update>
+    <update type="structure" datum="2012-05-27"><![CDATA[
+    	ALTER TABLE ships ADD COLUMN scriptData_id INT;
+    	ALTER TABLE ships ADD CONSTRAINT ships_fk_ship_script_data FOREIGN KEY (scriptData_id) REFERENCES ship_script_data(shipid);
+    	DELETE FROM ship_script_data WHERE script IS NULL or script="" or shipid NOT IN (SELECT id FROM ships);
+    	UPDATE ships s SET s.scriptData_id=s.id WHERE s.id IN (SELECT shipid FROM ship_script_data);
+    ]]>
+    </update>
 </updates>

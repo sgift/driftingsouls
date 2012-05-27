@@ -84,6 +84,7 @@ public class CreateObjects implements AdminPlugin {
 			this.desc = desc;
 		}
 		
+		@Override
 		public String toHtml(Request request) {
 			String out = "<tr><td class=\"noBorderX\">"+this.title+"</td>\n";
 			out += "<td class=\"noBorderX\">"+StringUtils.replace(this.desc, "\n", "<br />")+"</td></tr>\n";
@@ -105,6 +106,7 @@ public class CreateObjects implements AdminPlugin {
 			this.defaultValue = defaultValue;
 		}
 		
+		@Override
 		public String toHtml(Request request) {
 			String out = "<tr><td class=\"noBorderX\">"+this.title+"</td>\n";
 			
@@ -370,8 +372,6 @@ public class CreateObjects implements AdminPlugin {
 				shipObj.setComm(100);
 				shipObj.setSensors(100);
 				int id = (Integer)db.save(shipObj);
-				shipObj.getScriptData().setShipid(id);
-				shipObj.recalculateShipStatus();
 				
 				// Offizier
 				Element offiElement = (Element)XMLUtils.firstNodeByTagName(ship, "offizier");

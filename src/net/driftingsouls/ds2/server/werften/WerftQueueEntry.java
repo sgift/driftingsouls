@@ -356,10 +356,7 @@ public class WerftQueueEntry {
 		ship.setAblativeArmor(shipd.getAblativeArmor());
 		
 		int id = (Integer)db.save(ship);
-		
-		ship.getScriptData().setShipid(id);
-		db.save(ship.getScriptData());
-		
+				
 		if( shipd.getWerft() != 0 ) {
 			ShipWerft awerft = new ShipWerft(ship);
 			db.persist(awerft);
@@ -436,7 +433,7 @@ public class WerftQueueEntry {
 			WerftQueueEntry entry = (WerftQueueEntry)entryIter.next();
 			entry.setPosition(entry.getPosition()-1);
 		}
-		db.flush();
+		//db.flush();
 		
 		this.werft.onFinishedBuildProcess(id);
 		
