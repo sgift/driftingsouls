@@ -39,6 +39,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
@@ -176,7 +177,12 @@ public class Ship implements Locatable,Transfering,Feeding {
 	private boolean battleAction;
 	private String jumptarget;
 	private byte autodeut;
-	private String history;
+	
+	@OneToOne(fetch=FetchType.LAZY, optional=false, cascade={CascadeType.MERGE,CascadeType.REFRESH,CascadeType.REMOVE})
+	@Cascade(org.hibernate.annotations.CascadeType.EVICT)
+	@PrimaryKeyJoinColumn(name="id", referencedColumnName="id")
+	private ShipHistory history;
+	
 	private String oncommunicate;
 	@Column(name="`lock`")
 	private String lock;
@@ -227,7 +233,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	/**
 	 * Konstruktor.
 	 */
-	public Ship() {
+	protected Ship() {
 		// EMPTY
 	}
 	
@@ -243,7 +249,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		this.name = "";
 		this.status = "";
 		this.jumptarget = "";
-		this.history = "";
+		this.history = new ShipHistory(this);
 		this.docked = "";
 		this.weaponHeat = "";
 		this.autodeut = 1;
@@ -266,7 +272,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		this.name = "";
 		this.status = "";
 		this.jumptarget = "";
-		this.history = "";
+		this.history = new ShipHistory(this);
 		this.docked = "";
 		this.weaponHeat = "";
 		this.autodeut = 1;
@@ -907,22 +913,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	public void setJumpTarget(String jumptarget) {
 		this.jumptarget = jumptarget;
-	}
-
-	/**
-	 * Gibt die Schiffshistorie zurueck.
-	 * @return Die Schiffshistorie
-	 */
-	public String getHistory() {
-		return history;
-	}
-
-	/**
-	 * Setzt die Schiffshistorie.
-	 * @param history Die neue Schiffshistorie
-	 */
-	public void setHistory(String history) {
-		this.history = history;
 	}
 
 	/**
@@ -3445,37 +3435,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		// History analysieren (Alle Schiffe die erst kuerzlich uebergeben wurden, haben kein Loot)
-		// TODO: Das funktioniert im Moment nur, weil im Log nur Uebergaben stehen...
-		String[] history = StringUtils.split(this.history.trim(), '\n');
-		if( history.length > 0 ) {
-			String lastHistory = history[history.length-1].trim();
-
-			final int length = "&Uuml;bergeben am [tick=".length();
-
-			if( lastHistory.startsWith("&Uuml;bergeben am [tick=") ) {
-				int endIndex = lastHistory.indexOf("] an ",length);
-				if( endIndex > -1 ) {				
-					try {
-						int date = Integer.parseInt(
-								lastHistory.substring(
-										length,
-										endIndex
-								)
-						);
-
-						if( ContextMap.getContext().get(ContextCommon.class).getTick() - date < 49 ) {
-							return;
-						}
-					}
-					catch( StringIndexOutOfBoundsException e ) {
-						log.warn("[Ships.generateLoot] Fehler beim Parsen des Schiffshistoryeintrags '"+lastHistory+"' - "+length+", "+endIndex);
-					}
-				}
-				else {
-					log.warn("[Ships.generateLoot] Fehler beim Parsen des Schiffshistoryeintrags '"+lastHistory+"'");
-				}
-			}
-		}	
+		long lastUebergabeTick = this.history.getLastUebergabeTick();
+		if( lastUebergabeTick > -1 && ContextMap.getContext().get(ContextCommon.class).getTick() - lastUebergabeTick < 49 )
+		{
+			return;
+		}
 
 		// Moeglichen Loot zusammensuchen
 		List<ShipLoot> loot = new ArrayList<ShipLoot>();
@@ -3539,6 +3503,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 		truemmer.setHull(config.getInt("CONFIG_TRUEMMER_HUELLE"));
 		truemmer.setVisibility(destroyer);
 		int id = (Integer)db.save(truemmer);
+		db.save(truemmer.getHistory());
+		
 
 		Taskmanager.getInstance().addTask(Taskmanager.Types.SHIP_DESTROY_COUNTDOWN, 21, Integer.toString(id), "", "" );
 
@@ -3629,11 +3595,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 			db.delete(this.modules);
 		}
 		
-		if(scriptData != null)
-		{
-			db.delete(scriptData);
-		}
-		
 		if(units != null)
 		{
 			for(UnitCargoEntry unit: units)
@@ -3641,6 +3602,16 @@ public class Ship implements Locatable,Transfering,Feeding {
 				db.delete(unit);
 			}
 		}
+		
+		if( this.scriptData != null )
+		{
+			db.delete(this.scriptData);
+			this.scriptData = null;
+		}
+		
+		db.delete(this.history);
+		this.history = null;
+		
 		db.flush(); //Damit auch wirklich alle Daten weg sind und Hibernate nicht auf dumme Gedanken kommt *sfz*
 		db.delete(this);
 		
@@ -3698,7 +3669,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		if( !testonly ) {	
-			this.history += "&Uuml;bergeben am [tick="+ContextMap.getContext().get(ContextCommon.class).getTick()+"] an "+newowner.getName()+" ("+newowner.getId()+")\n";
+			this.history.addHistory("&Uuml;bergeben am [tick="+ContextMap.getContext().get(ContextCommon.class).getTick()+"] an "+newowner.getName()+" ("+newowner.getId()+")");
 			
 			this.removeFromFleet();
 			this.owner = newowner;
@@ -4325,5 +4296,14 @@ public class Ship implements Locatable,Transfering,Feeding {
         }
         
         return shipFlag;
+    }
+    
+    /**
+     * Gibt die Historieninformationen zum Schiff zurueck.
+     * @return Die Historieninformationen
+     */
+    public ShipHistory getHistory()
+    {
+    	return this.history;
     }
 }

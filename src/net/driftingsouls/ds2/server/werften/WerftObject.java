@@ -1642,7 +1642,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		
 		int e = this.getEnergy();
 		
-		Cargo shipdataCosts = new Cargo((Cargo)shipdata.getCosts());
+		Cargo shipdataCosts = new Cargo(shipdata.getCosts());
 		
 		if( !costsPerTick ) {
 			// Abzug der sofort anfallenden Baukosten
@@ -1698,15 +1698,15 @@ public abstract class WerftObject extends DSObject implements Locatable {
 				ShipType newtype = (ShipType)db.get(ShipType.class, this.getOneWayFlag());
 
 				String currentTime = Common.getIngameTime(context.get(ContextCommon.class).getTick());
-				String history = "Baubeginn am "+currentTime+" durch "+user.getName()+" ("+user.getId()+"\n";
+				String history = "Baubeginn am "+currentTime+" durch "+user.getName()+" ("+user.getId()+")";
 				
 				Ship ship = werft.getShip();
+				ship.getHistory().addHistory(history);
 				ship.setName("Baustelle");
 				ship.setBaseType(newtype);
 				ship.setHull(newtype.getHull());
 				ship.setEnergy(newtype.getEps());
 				ship.setOwner(user);
-				ship.setHistory(history);
 
 				this.type = 2;
 	

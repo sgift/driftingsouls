@@ -317,7 +317,7 @@ public class KapernController extends TemplateGenerator {
 	{
 		String currentTime = Common.getIngameTime(ContextMap.getContext().get(ContextCommon.class).getTick());
 
-		this.targetShip.setHistory(this.targetShip.getHistory()+"Gekapert am "+currentTime+" durch "+user.getName()+" ("+user.getId()+")\n");
+		this.targetShip.getHistory().addHistory("Gekapert am "+currentTime+" durch "+user.getName()+" ("+user.getId()+")");
 
 		this.targetShip.removeFromFleet();
 		this.targetShip.setOwner(user);

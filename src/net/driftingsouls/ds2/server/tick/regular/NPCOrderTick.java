@@ -138,15 +138,15 @@ public class NPCOrderTick extends TickController {
 					cargo.addResource( Resources.ANTIMATERIE, shipd.getRa()*10 );
 				
 					User auser = (User)getDB().get(User.class, owner);	
-					String history = "Indienststellung am "+this.currentTime+" durch "+auser.getName()+" ("+auser.getId()+") [hide]NPC-Order[/hide]\n";
+					String history = "Indienststellung am "+this.currentTime+" durch "+auser.getName()+" ("+auser.getId()+") [hide]NPC-Order[/hide]";
 					
 					Ship ship = new Ship(user, (ShipType)db.get(ShipType.class, type), loc.getSystem(), loc.getX(), loc.getY());
+					ship.getHistory().addHistory(history);
 					ship.setName("noname");
 					ship.setCrew(shipd.getCrew());
 					ship.setHull(shipd.getHull());
 					ship.setEnergy(shipd.getEps());
 					ship.setCargo(cargo);
-					ship.setHistory(history);
 					ship.setEngine(100);
 					ship.setWeapons(100);
 					ship.setComm(100);
@@ -154,6 +154,7 @@ public class NPCOrderTick extends TickController {
 					ship.setAblativeArmor(shipd.getAblativeArmor());
 					
 					id = (Integer)db.save(ship);
+					db.save(ship.getHistory());
 					
 					if( shipd.getWerft() != 0 ) {
 						ShipWerft awerft = new ShipWerft(ship);

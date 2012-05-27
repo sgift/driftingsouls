@@ -136,6 +136,7 @@ public class SectorTemplateManager {
 			Ship newship = new Ship(user, ship.getBaseType(), location.getSystem(), newx, newy); 
 			
 			db.persist(newship);
+			db.save(newship.getHistory());
 
 			ModuleEntry[] modules = ship.getModules();
 			for( ModuleEntry entry : modules)
@@ -162,7 +163,7 @@ public class SectorTemplateManager {
 			newship.setBookmark(ship.isBookmark());
 			newship.setJumpTarget(ship.getJumpTarget());
 			newship.setAutoDeut(ship.getAutoDeut());
-			newship.setHistory(ship.getHistory());
+			newship.getHistory().setHistory(ship.getHistory().getHistory());
 			newship.setAblativeArmor(ship.getAblativeArmor());
 			newship.setNahrungCargo(ship.getNahrungCargo());
 			

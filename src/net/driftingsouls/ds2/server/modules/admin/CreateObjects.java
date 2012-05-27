@@ -366,12 +366,13 @@ public class CreateObjects implements AdminPlugin {
 				shipObj.setEnergy(type.getEps());
 				shipObj.setHull(type.getHull());
 				shipObj.setShields(type.getShields());
-				shipObj.setHistory("Indienststellung am "+Common.getIngameTime(context.get(ContextCommon.class).getTick())+"\n");
+				shipObj.getHistory().addHistory("Indienststellung am "+Common.getIngameTime(context.get(ContextCommon.class).getTick()));
 				shipObj.setEngine(100);
 				shipObj.setWeapons(100);
 				shipObj.setComm(100);
 				shipObj.setSensors(100);
 				int id = (Integer)db.save(shipObj);
+				db.save(shipObj.getHistory());
 				
 				// Offizier
 				Element offiElement = (Element)XMLUtils.firstNodeByTagName(ship, "offizier");

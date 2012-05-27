@@ -32,7 +32,6 @@ CREATE TABLE IF NOT EXISTS `ships` (
   `battleAction` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `jumptarget` varchar(100) NOT NULL DEFAULT '',
   `autodeut` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `history` text NOT NULL,
   `oncommunicate` text,
   `lock` varchar(9) DEFAULT NULL,
   `visibility` mediumint(9) DEFAULT NULL,

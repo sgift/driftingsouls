@@ -305,9 +305,10 @@ public class AddShips implements AdminPlugin {
 			}
 			for( int i=0; i < count; i++ ) {
 				User auser = (User)context.getDB().get(User.class, ownerId);	
-				String history = "Indienststellung am "+currentTime+" durch "+auser.getName()+" ("+auser.getId()+") [hide]Admin: "+user.getId()+"[/hide]\n";
+				String history = "Indienststellung am "+currentTime+" durch "+auser.getName()+" ("+auser.getId()+") [hide]Admin: "+user.getId()+"[/hide]";
 				
 				Ship ship = new Ship(auser, shiptype, system, x, y);
+				ship.getHistory().addHistory(history);
 				ship.setName(name);
 				ship.setHull(shiptype.getHull());
 				ship.setEnergy(shiptype.getEps());
@@ -315,7 +316,6 @@ public class AddShips implements AdminPlugin {
 				ship.setShields(shiptype.getShields());
 				ship.setCargo(cargo);
 				ship.setNahrungCargo(shiptype.getNahrungCargo());
-				ship.setHistory(history);
 				ship.setAblativeArmor(shiptype.getAblativeArmor());
 				ship.setEngine(100);
 				ship.setWeapons(100);
@@ -336,6 +336,7 @@ public class AddShips implements AdminPlugin {
 					ship.setId(shipid);
 				}
 				db.save(ship);
+				db.save(ship.getHistory());
 				
 				if( shiptype.getWerft() != 0 ) {
 					ShipWerft werft = new ShipWerft(ship);
@@ -395,9 +396,11 @@ public class AddShips implements AdminPlugin {
 					}
 
 					for( int j=1; j <= shiptype.getJDocks(); j++ ) {
-						history = "Indienststellung am "+currentTime+" durch "+auser.getName()+" ("+auser.getId()+") [hide]Admin: "+user.getId()+"[/hide]\n";
+						history = "Indienststellung am "+currentTime+" durch "+auser.getName()+" ("+auser.getId()+") [hide]Admin: "+user.getId()+"[/hide]";
 						
 						Ship jaeger = new Ship(auser, jshiptype, system, x, y);
+						jaeger.getHistory().addHistory(history);
+						
 						jaeger.setName(name+" "+j);
 						jaeger.setHull(jshiptype.getHull());
 						jaeger.setEnergy(jshiptype.getEps());
@@ -406,7 +409,6 @@ public class AddShips implements AdminPlugin {
 						jaeger.setDocked("l "+ship.getId());
 						jaeger.setFleet(fleet);
 						jaeger.setCargo(jcargo);
-						jaeger.setHistory(history);
 						jaeger.setAblativeArmor(jshiptype.getAblativeArmor());
 						jaeger.setEngine(100);
 						jaeger.setWeapons(100);
@@ -423,6 +425,7 @@ public class AddShips implements AdminPlugin {
 							jaeger.setId(shouldId);
 						}
 						db.save(jaeger);
+						db.save(jaeger.getHistory());
 						
 						jaeger.recalculateShipStatus();
 					

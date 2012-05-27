@@ -340,14 +340,14 @@ public class WerftQueueEntry {
 		User auser = this.werft.getOwner();
 		
 		String currentTime = Common.getIngameTime(context.get(ContextCommon.class).getTick());
-		String history = "Indienststellung am "+currentTime+" durch "+auser.getName()+" ("+auser.getId()+")\n";
+		String history = "Indienststellung am "+currentTime+" durch "+auser.getName()+" ("+auser.getId()+")";
 		
 		Ship ship = new Ship(auser, (ShipType)db.get(ShipType.class, shipd.getTypeId()), system, x, y);
+		ship.getHistory().addHistory(history);
 		ship.setCrew(shipd.getCrew());
 		ship.setHull(shipd.getHull());
 		ship.setCargo(new Cargo());
 		ship.setEnergy(shipd.getEps());
-		ship.setHistory(history);
 		ship.setName(shipd.getNickname());
 		ship.setEngine(100);
 		ship.setWeapons(100);
@@ -356,6 +356,7 @@ public class WerftQueueEntry {
 		ship.setAblativeArmor(shipd.getAblativeArmor());
 		
 		int id = (Integer)db.save(ship);
+		db.save(ship.getHistory());
 				
 		if( shipd.getWerft() != 0 ) {
 			ShipWerft awerft = new ShipWerft(ship);

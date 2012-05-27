@@ -130,18 +130,18 @@ public class RTCTick extends TickController {
 						
 					this.log("Es wurde "+entryname+" (shipid: "+shiptype.getTypeId()+") von ID "+winner+" fuer "+price+" RE ersteigert");
 					
-					String history = "Indienststellung am "+this.currentTime+" durch "+this.gtuuser.getName()+" (Versteigerung) f&uuml;r "+winner.getName()+" ("+winner.getId()+")\n";
+					String history = "Indienststellung am "+this.currentTime+" durch "+this.gtuuser.getName()+" (Versteigerung) f&uuml;r "+winner.getName()+" ("+winner.getId()+")";
 					
 					Cargo cargo = new Cargo();
 					cargo = cargo.cutCargo(shiptype.getCargo());
 					
 					Ship ship = new Ship(winner, shiptype, loc.getSystem(), loc.getX(), loc.getY());
+					ship.getHistory().addHistory(history);
 					ship.setName("Verkauft");
 					ship.setCrew(shiptype.getCrew());
 					ship.setEnergy(shiptype.getEps());
 					ship.setHull(shiptype.getHull());
 					ship.setCargo(cargo);
-					ship.setHistory(history);
 					ship.setEngine(100);
 					ship.setWeapons(100);
 					ship.setComm(100);
@@ -149,6 +149,7 @@ public class RTCTick extends TickController {
 					ship.setNahrungCargo(Math.min(shiptype.getNahrungCargo(), ship.getFoodConsumption() * 3));
 					
 					db.save(ship);
+					db.save(ship.getHistory());
 					
 					if( shiptype.getWerft() != 0 ) 
 					{

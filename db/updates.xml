@@ -1597,6 +1597,16 @@
     	ALTER TABLE ships ADD CONSTRAINT ships_fk_ship_script_data FOREIGN KEY (scriptData_id) REFERENCES ship_script_data(shipid);
     	DELETE FROM ship_script_data WHERE script IS NULL or script="" or shipid NOT IN (SELECT id FROM ships);
     	UPDATE ships s SET s.scriptData_id=s.id WHERE s.id IN (SELECT shipid FROM ship_script_data);
+    	
+    	CREATE TABLE ship_history (
+    		id INT NOT NULL,
+    		history TEXT,
+    		PRIMARY KEY (id)
+    	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+    	ALTER TABLE ship_history ADD CONSTRAINT ship_history_fk_ships FOREIGN KEY (id) REFERENCES ships(id); 
+    	
+    	INSERT INTO ship_history SELECT id,history FROM ships;
+    	ALTER TABLE ships DROP COLUMN history;
     ]]>
     </update>
 </updates>

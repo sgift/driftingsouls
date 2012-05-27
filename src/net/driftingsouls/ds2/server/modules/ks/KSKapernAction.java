@@ -296,7 +296,7 @@ public class KSKapernAction extends BasicKSAction {
 
 			String currentTime = Common.getIngameTime(context.get(ContextCommon.class).getTick());
 
-			enemyShip.getShip().setHistory(enemyShip.getShip().getHistory()+"Im Kampf gekapert am "+currentTime+" durch "+user.getName()+" ("+user.getId()+")\n");
+			enemyShip.getShip().getHistory().addHistory("Im Kampf gekapert am "+currentTime+" durch "+user.getName()+" ("+user.getId()+")");
 
 			enemyShip.getShip().removeFromFleet();
 			enemyShip.getShip().setOwner(user);
