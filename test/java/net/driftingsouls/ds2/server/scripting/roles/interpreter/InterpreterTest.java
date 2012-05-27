@@ -57,6 +57,7 @@ public class InterpreterTest {
 		
 		protected boolean executed = false;
 
+		@Override
 		public void execute(ScriptContext context) throws ScriptException {
 			this.executed = true;
 		}
@@ -85,6 +86,7 @@ public class InterpreterTest {
 	public void setUp() {
 		dummyRole = new RoleDefinition() {
 
+			@Override
 			public Object getAttribute(String name) {
 				if( "Attribute1".equals(name) ) {
 					return "Test";
@@ -95,16 +97,19 @@ public class InterpreterTest {
 				return null;
 			}
 
+			@Override
 			public String getRoleName() {
 				return "DummyRole";
 			}
 		};
 		unknownRole = new RoleDefinition() {
 
+			@Override
 			public Object getAttribute(String name) {
 				return null;
 			}
 
+			@Override
 			public String getRoleName() {
 				return "UnknownRole";
 			}
@@ -169,10 +174,12 @@ public class InterpreterTest {
 	@Test
 	public void testNopRolePresent() {
 		RoleDefinition nopRole = new RoleDefinition() {
+			@Override
 			public Object getAttribute(String name) {
 				return null;
 			}
 			
+			@Override
 			public String getRoleName() {
 				return "NopRole";
 			}

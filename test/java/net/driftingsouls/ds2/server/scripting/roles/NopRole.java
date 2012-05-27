@@ -27,6 +27,7 @@ import javax.script.ScriptException;
  *
  */
 public class NopRole implements Role {
+	@Override
 	public void execute(ScriptContext context) throws ScriptException {
 		// Nichts
 	}

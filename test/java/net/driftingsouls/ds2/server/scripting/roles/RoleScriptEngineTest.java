@@ -55,6 +55,7 @@ public class RoleScriptEngineTest {
 		
 		protected static boolean executed = false;
 
+		@Override
 		public void execute(ScriptContext context) throws ScriptException {
 			assertThat(executed, is(false));
 			
