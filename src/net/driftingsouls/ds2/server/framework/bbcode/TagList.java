@@ -36,6 +36,7 @@ class TagList implements BBCodeFunction {
 		this.type = type;
 	}
 	
+	@Override
 	public String handleMatch(String list, String ... options) {
 		String type = "";
 		

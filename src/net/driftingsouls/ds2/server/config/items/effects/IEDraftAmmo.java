@@ -108,6 +108,7 @@ public class IEDraftAmmo extends ItemEffect {
 	 * @param echo Der Writer des Adminmenues
 	 * @throws IOException Exception falls ein fehler auftritt
 	 */
+	@Override
 	public void getAdminTool(Writer echo) throws IOException {
 		
 		echo.append("<input type=\"hidden\" name=\"type\" value=\"draft-ammo\" >");
@@ -119,6 +120,7 @@ public class IEDraftAmmo extends ItemEffect {
 	 * Gibt den Itemeffect als String aus.
 	 * @return der Effect als String
 	 */
+	@Override
 	public String toString() {
 		String itemstring = "draft-ammo:" + ammoId + "&" + hasAllyEffect();
 		return itemstring;

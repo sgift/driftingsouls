@@ -250,6 +250,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	 * 
 	 * @return <code>true</code> if ds remembers the player, <code>false</code> otherwise.
 	 */
+	@Override
 	public boolean isRemembered()
 	{
 		return getPermanentSession() != null;

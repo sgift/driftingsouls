@@ -46,6 +46,7 @@ public class ResourceList implements Iterable<ResourceEntry> {
 			this.comp = new ResourceIDComparator(descending);
 		}
 		
+		@Override
 		public int compare(ResourceEntry o1, ResourceEntry o2) {
 			return comp.compare(o1.getId(), o2.getId());
 		}
@@ -66,6 +67,7 @@ public class ResourceList implements Iterable<ResourceEntry> {
 			this.descending = descending;
 		}
 		
+		@Override
 		public int compare(ResourceEntry o1, ResourceEntry o2) {
 			if( o1.getCount1() > o2.getCount1() ) {
 				return (descending ? -1 : 1);
@@ -89,14 +91,17 @@ public class ResourceList implements Iterable<ResourceEntry> {
 			this.iter = inner;
 		}
 		
+		@Override
 		public boolean hasNext() {
 			return iter.hasNext();
 		}
 
+		@Override
 		public ResourceEntry next() {
 			return iter.next();
 		}
 
+		@Override
 		public void remove() {
 			throw new UnsupportedOperationException("Das entfernen von Resourcen-Eintraegen ist nicht moeglich");
 		}

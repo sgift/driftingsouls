@@ -38,6 +38,7 @@ class TagURL implements BBCodeFunction {
 	
 	private static final Pattern protocol = Pattern.compile("[a-z]+:\\/\\/");
 	
+	@Override
 	public String handleMatch(String title, String ... options) {
 		String url = title;
 		

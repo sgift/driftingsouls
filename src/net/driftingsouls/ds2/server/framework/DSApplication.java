@@ -120,10 +120,6 @@ public abstract class DSApplication {
 		}
 		Writer w = new FileWriter(f, append);
 	
-		if( w == null ) {
-			return -1;
-		}
-		
 		logTargets.put(handleCounter, w);
 		
 		handleCounter++;

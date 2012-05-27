@@ -128,6 +128,7 @@ public class IEModule extends ItemEffect {
 	 * @param echo Der Writer des Adminmenues
 	 * @throws IOException Exception falls ein fehler auftritt
 	 */
+	@Override
 	public void getAdminTool(Writer echo) throws IOException {
 		
 		echo.append("<input type=\"hidden\" name=\"type\" value=\"module\" >");
@@ -140,6 +141,7 @@ public class IEModule extends ItemEffect {
 	 * Gibt den Itemeffect als String aus.
 	 * @return der Effect als String
 	 */
+	@Override
 	public String toString() {
 		String itemstring = "module:" + Common.implode(";", getSlots()) + "&" + getSetID() + "&" + getMods().toString();
 		return itemstring;

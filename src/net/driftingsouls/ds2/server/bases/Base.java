@@ -200,6 +200,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 * Gibt die ID der Basis zurueck.
 	 * @return die ID der Basis
 	 */
+	@Override
 	public int getId()
 	{
 		return this.id;
@@ -264,6 +265,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 * 
 	 * @return Der Besitzer
 	 */
+	@Override
 	public User getOwner()
 	{
 		return this.owner;
@@ -344,6 +346,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 * @return Der Cargo
 	 */
 	// TODO: UnmodifiableCargos zurueckgeben (zuerst alle Verwendungen checken und umbauen) 
+	@Override
 	public Cargo getCargo()
 	{
 		return cargo;
@@ -382,6 +385,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 * Setzt den Cargo des Basisobjekts.
 	 * @param cargo Der neue Cargo
 	 */
+	@Override
 	public void setCargo(Cargo cargo) 
 	{
 		this.cargo = cargo;
@@ -485,6 +489,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 * Gibt die maximale Masse an Cargo zurueck, die auf der Basis gelagert werden kann.
 	 * @return Der Max-Cargo
 	 */
+	@Override
 	public long getMaxCargo()
 	{
 		return this.maxCargo;

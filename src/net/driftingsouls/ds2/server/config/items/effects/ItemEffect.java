@@ -125,6 +125,7 @@ public abstract class ItemEffect {
 	 * Gibt den Itemeffect als String aus.
 	 * @return der Effect als String
 	 */
+	@Override
 	public String toString() {
 		return null;
 	}

@@ -3,7 +3,6 @@ package net.driftingsouls.ds2.server.framework;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;

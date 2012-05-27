@@ -126,6 +126,7 @@ public class Item {
 		 * Gibt die Qualitaet als String zurueck.
 		 * @return Die Qualitaet als String
 		 */
+		@Override
 		public String toString() {
 			if( id() == 0) {
 				return "common";

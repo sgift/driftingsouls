@@ -65,6 +65,7 @@ class SimpleBBCodeFunction implements BBCodeFunction {
 		max = Math.max(this.parts.length, this.indexParts.length);
 	}
 
+	@Override
 	public String handleMatch(String paramText, String ... values) {
 		if( paramText == null ) {
 			return replace;

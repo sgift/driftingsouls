@@ -94,6 +94,7 @@ public class IEAmmo extends ItemEffect {
 	 * @param echo Der Writer des Adminmenues
 	 * @throws IOException Exception falls ein fehler auftritt
 	 */
+	@Override
 	public void getAdminTool(Writer echo) throws IOException {
 		
 		echo.append("<input type=\"hidden\" name=\"type\" value=\"ammo\" >");
@@ -104,6 +105,7 @@ public class IEAmmo extends ItemEffect {
 	 * Gibt den Itemeffect als String aus.
 	 * @return der Effect als String
 	 */
+	@Override
 	public String toString() {
 		String itemstring = "ammo:" + ammoId;
 		return itemstring;

@@ -37,6 +37,7 @@ class ResourceIDComparator implements Comparator<ResourceID>, Serializable
 		this.descending = descending;
 	}
 	
+	@Override
 	public int compare(ResourceID o1, ResourceID o2)
 	{
 		int val = compareEntries(o1, o2);

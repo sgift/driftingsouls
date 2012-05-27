@@ -103,6 +103,7 @@ public class IEDisableShip extends ItemEffect {
 	 * @param echo Der Writer des Adminmenues
 	 * @throws IOException Exception falls ein fehler auftritt
 	 */
+	@Override
 	public void getAdminTool(Writer echo) throws IOException {
 		
 		echo.append("<input type=\"hidden\" name=\"type\" value=\"disable-ship\" >");
@@ -114,6 +115,7 @@ public class IEDisableShip extends ItemEffect {
 	 * Gibt den Itemeffect als String aus.
 	 * @return der Effect als String
 	 */
+	@Override
 	public String toString() {
 		return "disable-ship:" + getShipType() + "&" + hasAllyEffect();
 	}

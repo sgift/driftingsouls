@@ -181,6 +181,7 @@ public class Nebel implements Locatable {
 	 * Gibt die Position des Nebels zurueck.
 	 * @return Die Position
 	 */
+	@Override
 	public Location getLocation() {
 		return loc.getLocation();
 	}
