@@ -52,6 +52,10 @@ public abstract class DriftingSoulsDBTestCase implements DBTestable {
 		db = HibernateUtil.getSessionFactory().openSession();
 	}
 	
+	/**
+	 * Gibt die DB-Instanz zurueck.
+	 * @return Die DB-Instanz
+	 */
 	public Session getDB()
 	{
 		return db;
