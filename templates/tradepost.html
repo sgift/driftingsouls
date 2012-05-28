@@ -66,26 +66,32 @@
 									<th>Mindestrang</th>
 								{/endif}
 								<th>Handeln</th>
+								{if ship.owner.isnpc}
+									<th>Auffüllen</th>
+								{/endif}
 							</tr>
 						<thead>
 						<tbody>
 							<!-- BEGIN tradepost.list -->
 							<tr>
 								<td><img src="{item.picture}" alt="" />{item.name}</td>
-								<td><input name="{item.paramid}buylimit" type="text" size="15" maxlength="15" value="{item.buylimit}"></td>
+								<td><input name="{item.paramid}buylimit" type="text" size="15" maxlength="15" value="{item.buylimit}"/></td>
 								<td>
-									<input name="{item.paramid}buyprice" type="text" size="15" maxlength="15" value="{item.buyprice}">
+									<input name="{item.paramid}buyprice" type="text" size="15" maxlength="15" value="{item.buyprice}"/>
 								</td>
 								{if ship.owner.isnpc}
-									<td><input name="{item.paramid}buyrank" type="text" size="15" maxlength="15" value="{item.buyrank}"></td>
+									<td><input name="{item.paramid}buyrank" type="text" size="15" maxlength="15" value="{item.buyrank}"/></td>
 								{/endif}
-								<td><input name="{item.paramid}buybool" type="checkbox" value="1" {if item.buybool}checked="checked"{/endif}></td>
-								<td><input name="{item.paramid}saleslimit" type="text" size="15" maxlength="15" value="{item.saleslimit}"></td>
-								<td><input name="{item.paramid}salesprice" type="text" size="15" maxlength="15" value="{item.salesprice}"></td>
+								<td><input name="{item.paramid}buybool" type="checkbox" value="1" {if item.buybool}checked="checked"{/endif}/></td>
+								<td><input name="{item.paramid}saleslimit" type="text" size="15" maxlength="15" value="{item.saleslimit}"/></td>
+								<td><input name="{item.paramid}salesprice" type="text" size="15" maxlength="15" value="{item.salesprice}"/></td>
 								{if ship.owner.isnpc}
-										<td><input name="{item.paramid}sellrank" type="text" size="15" maxlength="15" value="{item.sellrank}"></td>
+									<td><input name="{item.paramid}sellrank" type="text" size="15" maxlength="15" value="{item.sellrank}"/></td>
 								{/endif}
-								<td><input name="{item.paramid}salebool" type="checkbox" value="1" {if item.salebool}checked="checked"{/endif}></td>
+								<td><input name="{item.paramid}salebool" type="checkbox" value="1" {if item.salebool}checked="checked"{/endif}/></td>
+								{if ship.owner.isnpc}
+									<td><input name="{item.paramid}fill" type="checkbox" value="1"/></td>
+								{/endif}
 							</tr>
 							<!-- END tradepost.list -->
 						</tbody>
