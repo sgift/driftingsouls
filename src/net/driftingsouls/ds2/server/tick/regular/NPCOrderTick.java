@@ -32,6 +32,8 @@ import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.npcorders.Order;
+import net.driftingsouls.ds2.server.entities.npcorders.OrderOffizier;
+import net.driftingsouls.ds2.server.entities.npcorders.OrderShip;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderableOffizier;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.namegenerator.NameGenerator;
@@ -100,14 +102,14 @@ public class NPCOrderTick extends TickController {
 				lastowner = owner;
 			
 				int type = OFFIZIERSSCHIFF;
-				if( order.getType() > 0 ) 
+				if( order instanceof OrderShip ) 
 				{
-					type = order.getType();
+					type = ((OrderShip)order).getType();
 				}
 			
 				ShipTypeData shipd = Ship.getShipType( type );
 			
-				if( order.getType() > 0 ) 
+				if( order instanceof OrderShip ) 
 				{
 					this.log("* Order "+order.getId()+" ready: "+shipd.getNickname()+" ("+type+") wird zu User "+order.getUser()+" geliefert");
 				}
@@ -130,7 +132,7 @@ public class NPCOrderTick extends TickController {
 				
 				this.log("  Lieferung erfolgt bei "+loc);
 				// Falls ein Schiff geordert wurde oder keine Basis fuer den Offizier existiert (und er braucht somit ein Schiff)...
-				if( (order.getType() > 0) || base == null ) 
+				if( (order instanceof OrderShip) || base == null ) 
 				{
 					Cargo cargo = new Cargo();
 					cargo.addResource( Resources.DEUTERIUM, shipd.getRd()*10 );
@@ -163,9 +165,9 @@ public class NPCOrderTick extends TickController {
 				}
 			
 				// Es handelt sich um einen Offizier...
-				if( order.getType() < 0 ) 
+				if( order instanceof OrderOffizier ) 
 				{
-					OrderableOffizier offizier = (OrderableOffizier)db.get(OrderableOffizier.class, (-order.getType()));
+					OrderableOffizier offizier = (OrderableOffizier)db.get(OrderableOffizier.class, ((OrderOffizier)order).getType());
 					int special = RandomUtils.nextInt(6)+1;
 
 					Offizier offi = new Offizier(user, this.getOffiName(user));
@@ -205,7 +207,7 @@ public class NPCOrderTick extends TickController {
 						pmcache.append(") im Sektor ");
 					}
 					
-					pmcache.append(loc);
+					pmcache.append(loc.displayCoordinates(false));
 					pmcache.append("\n\n");
 				}
 				// Es wurde nur ein Schiff geordert
@@ -214,7 +216,7 @@ public class NPCOrderTick extends TickController {
 					pmcache.append("Die von ihnen bestellte ");
 					pmcache.append(shipd.getNickname());
 					pmcache.append(" wurde geliefert\nSie steht bei ");
-					pmcache.append(loc);
+					pmcache.append(loc.displayCoordinates(false));
 					pmcache.append("\n\n");
 				}
 				

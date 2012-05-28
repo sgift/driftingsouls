@@ -1,4 +1,5 @@
 CREATE TABLE `orders` (
+  ordertype VARCHAR(32) NOT NULL,
   `id` int(11) NOT NULL auto_increment,
   `type` int(11) NOT NULL default '0',
   `tick` int(11) NOT NULL default '0',

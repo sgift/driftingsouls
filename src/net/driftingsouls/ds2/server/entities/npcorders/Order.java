@@ -1,8 +1,11 @@
 package net.driftingsouls.ds2.server.entities.npcorders;
 
+import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
@@ -13,10 +16,11 @@ import javax.persistence.Version;
  */
 @Entity
 @Table(name="orders")
-public class Order {
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name="ordertype")
+public abstract class Order {
 	@Id @GeneratedValue
 	private int id;
-	private int type;
 	private int tick;
 	private int user;
 	
@@ -34,11 +38,9 @@ public class Order {
 	/**
 	 * Konstruktor.
 	 * @param user Der User, fuer den der Auftrag abgewickelt werden soll
-	 * @param type Der Typ, der abgewickelt werden soll
 	 */
-	public Order(int user, int type) {
+	public Order(int user) {
 		setUser(user);
-		setType(type);
 	}
 
 	/**
@@ -55,22 +57,6 @@ public class Order {
 	 */
 	public void setTick(int tick) {
 		this.tick = tick;
-	}
-
-	/**
-	 * Gibt den abzuwickelnden Auftragstyp an.
-	 * @return Der Auftragstyp
-	 */
-	public int getType() {
-		return type;
-	}
-
-	/**
-	 * Setzt den abzuwickelnden Auftragstyp.
-	 * @param type Der Typ
-	 */
-	public final void setType(final int type) {
-		this.type = type;
 	}
 
 	/**

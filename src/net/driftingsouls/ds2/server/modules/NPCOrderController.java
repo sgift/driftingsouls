@@ -19,6 +19,8 @@ import net.driftingsouls.ds2.server.entities.FactionShopOrder;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserRank;
 import net.driftingsouls.ds2.server.entities.npcorders.Order;
+import net.driftingsouls.ds2.server.entities.npcorders.OrderOffizier;
+import net.driftingsouls.ds2.server.entities.npcorders.OrderShip;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderableOffizier;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderableShip;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -421,7 +423,7 @@ public class NPCOrderController extends TemplateGenerator {
 				costs += count*ship.getCost();
 				
 				for( int i=0; i < count; i++ ) {
-					Order orderObj = new Order(user.getId(), ship.getId());
+					Order orderObj = new OrderShip(user.getId(), ship.getId());
 					orderObj.setTick(3);
 					orderList.add(orderObj);
 				}
@@ -495,7 +497,7 @@ public class NPCOrderController extends TemplateGenerator {
 				ordermessage = "Offizier(e) zugeteilt - wird/werden in 3 Ticks eintreffen";
 				
 				for( int i=0; i < count; i++ ) {
-					Order orderObj = new Order(user.getId(), order);
+					Order orderObj = new OrderOffizier(user.getId(), -order);
 					orderObj.setTick(3);
 					db.persist(orderObj);
 				}
@@ -522,7 +524,8 @@ public class NPCOrderController extends TemplateGenerator {
 		TemplateEngine t = this.getTemplateEngine();
 		User user = (User)this.getUser();
 		
-		Map<Integer,Integer> orders = new HashMap<Integer,Integer>();
+		Map<Integer,Integer> shiporders = new HashMap<Integer,Integer>();
+		Map<Integer,Integer> offiorders = new HashMap<Integer,Integer>();
 		
 		t.setVar( "npcorder.ordermenu", 1 );
 
@@ -531,7 +534,14 @@ public class NPCOrderController extends TemplateGenerator {
 			.list();
 		for( Iterator<?> iter=orderList.iterator(); iter.hasNext(); ) {
 			Order order = (Order)iter.next();
-			Common.safeIntInc(orders, order.getType());
+			if( order instanceof OrderShip )
+			{
+				Common.safeIntInc(shiporders, ((OrderShip)order).getType());
+			}
+			else if( order instanceof OrderOffizier )
+			{
+				Common.safeIntInc(offiorders, ((OrderOffizier)order).getType());
+			}
 		}
 
 		/*
@@ -555,14 +565,14 @@ public class NPCOrderController extends TemplateGenerator {
 				oldclass = ship.getShipType().getShipClass();
 			}
 			
-			if( !orders.containsKey(ship.getId()) ) {
-				orders.put(ship.getId(), 0);
+			if( !shiporders.containsKey(ship.getId()) ) {
+				shiporders.put(ship.getId(), 0);
 			}
 			
 			t.setVar(	"ship.name",		ship.getShipType().getNickname(),
 						"ship.type",		ship.getId(),
 						"ship.cost",		ship.getCost(),
-						"ship.ordercount",	orders.get(ship.getId()) );
+						"ship.ordercount",	shiporders.get(ship.getId()) );
 								
 			t.parse("ships.list", "ships.listitem", true);
 			
@@ -580,15 +590,15 @@ public class NPCOrderController extends TemplateGenerator {
 		for( Iterator<?> iter=offizierOrders.iterator(); iter.hasNext(); ) {
 			OrderableOffizier offizier = (OrderableOffizier)iter.next();
 			
-			if( !orders.containsKey(-offizier.getId()) ) {
-				orders.put(-offizier.getId(), 0);
+			if( !offiorders.containsKey(-offizier.getId()) ) {
+				offiorders.put(-offizier.getId(), 0);
 			}
 			
 			t.setVar(	"offizier.name",		offizier.getName(),
 						"offizier.rang",		offizier.getRang(),
 						"offizier.cost",		offizier.getCost(),
 						"offizier.id",			-offizier.getId(),
-						"offizier.ordercount",	orders.get(offizier.getId()) );
+						"offizier.ordercount",	offiorders.get(offizier.getId()) );
 								
 			t.parse("offiziere.list", "offiziere.listitem", true);
 		}
