@@ -2003,7 +2003,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		int chance = RandomUtils.nextInt(99) + 1;
 		Integer[] spawnress = spawnableress.get(chance);
 		int item = spawnress[0];
-		int maxvalue = RandomUtils.nextInt((int)spawnress[1]-1)+1;
+		int maxvalue = RandomUtils.nextInt(spawnress[1]-1)+1;
 		
 		setSpawnableRessAmount(item, maxvalue);
 		

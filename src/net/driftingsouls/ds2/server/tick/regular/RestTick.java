@@ -45,7 +45,7 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
 import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import net.driftingsouls.ds2.server.tick.TickController;
@@ -324,7 +324,10 @@ public class RestTick extends TickController {
 		org.hibernate.Session database = getDB();
 		Transaction transaction = database.beginTransaction();
 		try 
-		{			
+		{
+			User owner = (User)database.get(User.class, -1);
+			String currentTime = Common.getIngameTime(getContext().get(ContextCommon.class).getTick());
+			
 			this.log("");
 			this.log("Fuege Felsbrocken ein");
 				
@@ -368,10 +371,6 @@ public class RestTick extends TickController {
 							continue;
 						}
 						
-						// ID ermitteln
-						shouldId++;
-						shouldId = db.first("SELECT newIntelliShipID( "+shouldId+" ) AS sid").getInt("sid");
-						
 						StarSystem thissystem = (StarSystem)database.get(StarSystem.class, system.getInt("system"));
 						
 						// Koords ermitteln
@@ -381,23 +380,37 @@ public class RestTick extends TickController {
 						this.log("\t*System "+system.getInt("system")+": Fuege Felsbrocken "+shouldId+" ein");
 						
 						// Ladung einfuegen
-						this.log("\t- Loadout: ");					
+						this.log("\t- Loadout: ");
 						Cargo cargo = new Cargo(Cargo.Type.STRING, aloadout.getString("cargo"));
 						ResourceList reslist = cargo.getResourceList();
 						for( ResourceEntry res : reslist ) 
 						{
-							this.log("\t   *"+res.getName()+" => "+res.getCount1());
+							this.log("\t   *"+res.getPlainName()+" => "+res.getCount1());
 						}
 						
-						ShipTypeData shiptype = Ship.getShipType(aloadout.getInt("shiptype"));
+						ShipType shiptype = (ShipType)database.get(ShipType.class, aloadout.getInt("shiptype"));
+						
+						Ship brocken = new Ship(owner, shiptype, system.getInt("system"), x, y);
+						brocken.getHistory().addHistory("Indienststellung als Felsbrocken am "+currentTime+" durch den Tick");
+						brocken.setName("Felsbrocken");
+						brocken.setId(shouldId++);
+						brocken.setHull(shiptype.getHull());
+						brocken.setCrew(shiptype.getCrew());
+						brocken.setCargo(cargo);
+						brocken.setHeat(0);
+						brocken.setEngine(100);
+						brocken.setWeapons(100);
+						brocken.setComm(100);
+						brocken.setSensors(100);
+						brocken.setAblativeArmor(shiptype.getAblativeArmor());
+						brocken.setEnergy(shiptype.getEps());
 						
 						// Schiffseintrag einfuegen
-						db.update("INSERT INTO ships (id,name,type,owner,x,y,system,hull,crew,cargo,heat,docked,destcom,jumptarget,history,status) ",
-									"VALUES (",shouldId,",'Felsbrocken',",aloadout.getInt("shiptype"),",-1,",x,",",y,",",system.getInt("system"),",",shiptype.getHull(),",",shiptype.getCrew(),",'",cargo.save(),"','','','','','','')");
+						database.save(brocken);
+						database.save(brocken.getHistory());
+						
 						this.log("");
 
-                        db.update("INSERT INTO ship_script_data (shipid,script,scriptexedata) VALUES (",shouldId,",NULL,NULL)");
-						
 						shipcount++;
 						
 						break;
