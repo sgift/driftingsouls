@@ -18,6 +18,7 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
+import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
@@ -324,133 +325,153 @@ public class TradepostController extends TemplateGenerator {
 
 		// build form
 		for( Item aitem : itemlist ) {
-			int itemid = aitem.getID();
-			ItemID itemidobejct = new ItemID(aitem.getID());
-
-			ResourceLimitKey resourcekey = new ResourceLimitKey(ship, itemidobejct);
-
-			// check if user is allowed to see the item and go to next item if not
-			if( !user.canSeeItem(aitem))
-			{
-				continue;
-			}
-
-			// initiate starting values
-			long salesprice = 0;
-			long buyprice = 0;
-			long saleslimit = 0;
-			long buylimit = 0;
-            int sellRank = 0;
-            int buyRank = 0;
-			boolean salebool = false;
-			boolean buybool = false;
-
-			// read new values for item
-			parameterNumber("i"+aitem.getID()+"salesprice");
-			parameterNumber("i"+aitem.getID()+"buyprice");
-			parameterNumber("i"+aitem.getID()+"saleslimit");
-			parameterNumber("i"+aitem.getID()+"buylimit");
-            parameterNumber("i"+aitem.getID()+"sellrank");
-            parameterNumber("i"+aitem.getID()+"buyrank");
-			salesprice = getInteger("i"+aitem.getID()+"salesprice");
-			buyprice = getInteger("i"+aitem.getID()+"buyprice");
-			saleslimit = getInteger("i"+aitem.getID()+"saleslimit");
-			buylimit = getInteger("i"+aitem.getID()+"buylimit");
-            sellRank = getInteger("i"+aitem.getID()+"sellrank");
-            buyRank = getInteger("i"+aitem.getID()+"buyrank");
-			salebool = (ContextMap.getContext().getRequest().getParameterInt("i"+aitem.getID()+"salebool") == 1 ? true : false);
-			buybool = (ContextMap.getContext().getRequest().getParameterInt("i"+aitem.getID()+"buybool") == 1 ? true : false);
-
-			// check if values are positive and set to zero if not
-			if(salesprice < 0)
-			{
-				salesprice = 0;
-			}
-			if(buyprice < 0)
-			{
-				buyprice = 0;
-			}
-			if(saleslimit < 0)
-			{
-				saleslimit = 0;
-			}
-			if(buylimit < 0)
-			{
-				buylimit = 0;
-			}
-
-            if(sellRank < 0 || !ship.getOwner().isNPC())
-            {
-                sellRank = 0;
-            }
-
-            if(buyRank < 0 || !ship.getOwner().isNPC() )
-            {
-                buyRank = 0;
-            }
-
-			SellLimit itemsell = null;
-			ResourceLimit itembuy = null;
-			// check if we dont want to sell the resource any more
-			if(!salebool)
-			{
-				if(selllistmap.containsKey(itemid * -1))
-				{
-					itemsell = selllistmap.get(itemid * -1);
-					db.delete(itemsell);
-				}
-			}
-			else
-			{
-				// check if the List of items to sell contains current item
-				if(selllistmap.containsKey(itemid * -1))
-				{
-					itemsell = selllistmap.get(itemid * -1);
-					itemsell.setPrice(salesprice);
-					itemsell.setLimit(saleslimit);
-                    itemsell.setMinRank(sellRank);
-				}
-				else
-				{
-					// create new object
-					itemsell = new SellLimit(resourcekey, salesprice, saleslimit, sellRank);
-					db.persist(itemsell);
-				}
-			}
-			// check if we dont want to buy the resource any more
-			if(!buybool)
-			{
-				if(buylistmap.containsKey(itemid * -1))
-				{
-					itembuy = buylistmap.get(itemid * -1);
-					db.delete(itembuy);
-				}
-			}
-			else
-			{
-				// check if the List of items to buy contains current item
-				if(buylistmap.containsKey(itemid * -1))
-				{
-					itembuy = buylistmap.get(itemid * -1);
-					buylistgtu.setResource(itemidobejct , buyprice * 1000);
-					kurse.setKurse(buylistgtu);
-					itembuy.setLimit(buylimit);
-                    itembuy.setMinRank(buyRank);
-				}
-				else
-				{
-					// create new object
-					itembuy = new ResourceLimit(resourcekey, buylimit, buyRank);
-					buylistgtu.setResource(itemidobejct , buyprice * 1000);
-					kurse.setKurse(buylistgtu);
-					db.persist(itembuy);
-				}
-			}
-			t.setVar(	"tradepost.update", "1",
-						"tradepost.update.message", "Die Einstellungen wurden &uuml;bernommen.",
-						"tradepost.id",	shipid );
-
-			t.parse("tradepost.post", "tradepost.list", true);
+			processItem(user, kurse, selllistmap, buylistmap, aitem);
 		}
+	}
+
+	private void processItem(User user, GtuWarenKurse kurse, Map<Integer,SellLimit> selllistmap, Map<Integer,ResourceLimit> buylistmap, Item aitem)
+	{
+		TemplateEngine t = getTemplateEngine();
+		org.hibernate.Session db = getDB();
+		
+		int itemid = aitem.getID();
+		final ItemID rid = new ItemID(aitem.getID());
+
+		ResourceLimitKey resourcekey = new ResourceLimitKey(ship, rid);
+
+		// check if user is allowed to see the item and go to next item if not
+		if( !user.canSeeItem(aitem))
+		{
+			return;
+		}
+
+		// read new values for item
+		parameterNumber("i"+aitem.getID()+"salesprice");
+		parameterNumber("i"+aitem.getID()+"buyprice");
+		parameterNumber("i"+aitem.getID()+"saleslimit");
+		parameterNumber("i"+aitem.getID()+"buylimit");
+        parameterNumber("i"+aitem.getID()+"sellrank");
+        parameterNumber("i"+aitem.getID()+"buyrank");
+        
+		long salesprice = getInteger("i"+aitem.getID()+"salesprice");
+		long buyprice = getInteger("i"+aitem.getID()+"buyprice");
+		long saleslimit = getInteger("i"+aitem.getID()+"saleslimit");
+		long buylimit = getInteger("i"+aitem.getID()+"buylimit");
+        int sellRank = getInteger("i"+aitem.getID()+"sellrank");
+        int buyRank = getInteger("i"+aitem.getID()+"buyrank");
+        
+		final Request request = ContextMap.getContext().getRequest();
+		boolean salebool = (request.getParameterInt("i"+aitem.getID()+"salebool") == 1 ? true : false);
+		boolean buybool = (request.getParameterInt("i"+aitem.getID()+"buybool") == 1 ? true : false);
+		boolean fill = (request.getParameterInt("i"+aitem.getID()+"fill") == 1 ? true : false);
+
+		// check if values are positive and set to zero if not
+		if(salesprice < 0)
+		{
+			salesprice = 0;
+		}
+		if(buyprice < 0)
+		{
+			buyprice = 0;
+		}
+		if(saleslimit < 0)
+		{
+			saleslimit = 0;
+		}
+		if(buylimit < 0)
+		{
+			buylimit = 0;
+		}
+
+        if(sellRank < 0 || !ship.getOwner().isNPC())
+        {
+            sellRank = 0;
+        }
+
+        if(buyRank < 0 || !ship.getOwner().isNPC() )
+        {
+            buyRank = 0;
+        }
+        
+        if( !ship.getOwner().isNPC() )
+        {
+        	fill = false;
+        }
+
+		SellLimit itemsell = null;
+		ResourceLimit itembuy = null;
+		// check if we dont want to sell the resource any more
+		if(!salebool)
+		{
+			if(selllistmap.containsKey(itemid * -1))
+			{
+				itemsell = selllistmap.get(itemid * -1);
+				db.delete(itemsell);
+			}
+		}
+		else
+		{
+			// check if the List of items to sell contains current item
+			if(selllistmap.containsKey(itemid * -1))
+			{
+				itemsell = selllistmap.get(itemid * -1);
+				itemsell.setPrice(salesprice);
+				itemsell.setLimit(saleslimit);
+                itemsell.setMinRank(sellRank);
+			}
+			else
+			{
+				// create new object
+				itemsell = new SellLimit(resourcekey, salesprice, saleslimit, sellRank);
+				db.persist(itemsell);
+			}
+			
+			if( fill )
+			{
+				Cargo cargo = ship.getCargo();
+				long cnt = cargo.getResourceCount(rid);
+				final long mincount = Math.max(saleslimit*5,1000);
+				if( cnt < mincount )
+				{
+					cargo.setResource(rid, mincount);
+					ship.setCargo(cargo);
+				}
+			}
+		}
+		
+		// check if we dont want to buy the resource any more
+		if(!buybool)
+		{
+			if(buylistmap.containsKey(itemid * -1))
+			{
+				itembuy = buylistmap.get(itemid * -1);
+				db.delete(itembuy);
+			}
+		}
+		else
+		{
+			// check if the List of items to buy contains current item
+			if(buylistmap.containsKey(itemid * -1))
+			{
+				itembuy = buylistmap.get(itemid * -1);
+				
+				itembuy.setLimit(buylimit);
+                itembuy.setMinRank(buyRank);
+			}
+			else
+			{
+				// create new object
+				itembuy = new ResourceLimit(resourcekey, buylimit, buyRank);
+				db.persist(itembuy);
+			}
+			Cargo kcargo = kurse.getKurse();
+			kcargo.setResource(rid , buyprice * 1000);
+			kurse.setKurse(kcargo);
+		}
+		t.setVar(	"tradepost.update", "1",
+					"tradepost.update.message", "Die Einstellungen wurden &uuml;bernommen.",
+					"tradepost.id",	ship.getId() );
+
+		t.parse("tradepost.post", "tradepost.list", true);
 	}
 }

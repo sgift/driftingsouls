@@ -209,7 +209,7 @@ img.noborder:active 	{ border-style: solid; border: 0px ;border-color: #000000}
 /*img 		{ border-style: solid; border: 0px; border-color: #000000; color: #000000;}*/
 
 tooltip1		{color: #FFFFFF; background-color: #cccccc}
-
+.tooltip .ttcontent {display:none}
 /*
 	Inbox Ordner Hover
 */
@@ -384,7 +384,7 @@ div.gfxbox {
 	text-align:center;
 }
 #tradepost-waren table {
-	width:80%;
+	width:95%;
 	border:0px;
 }
 #tradepost-waren th {
