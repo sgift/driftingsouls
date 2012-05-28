@@ -69,6 +69,7 @@ public class SearchController extends TemplateGenerator {
 	public void defaultAction() {		
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
+		User user = (User)getUser();
 
 		final String search = getString("search");
 		
@@ -139,16 +140,16 @@ public class SearchController extends TemplateGenerator {
 			/*
 				User
 			*/
-			List<?> userList = db.createQuery("from User where (plainname like :search or id like :searchid)")
+			List<?> userList = db.createQuery("from User where "+(user.getAccessLevel() > 20 ? "" : "locate('hide',flags)=0 and ")+" (plainname like :search or id like :searchid)")
 				.setString("search", "%"+search+"%")
 				.setString("searchid", search+"%")
 				.setMaxResults(MAX_OBJECTS-count)
 				.list();
 			for( Iterator<?> iter=userList.iterator(); iter.hasNext(); ) {
-				User user = (User)iter.next();
+				User auser = (User)iter.next();
 				
-				t.setVar(	"user.id",		user.getId(),
-							"user.name",	Common._title(user.getName()));
+				t.setVar(	"user.id",		auser.getId(),
+							"user.name",	Common._title(auser.getName()));
 		
 				t.parse("objects.list", "user.listitem", true);
 				
