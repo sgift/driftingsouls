@@ -26,6 +26,7 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Rasse;
@@ -130,7 +131,7 @@ public class NPCOrderTick extends TickController {
 				
 				int id = 0;
 				
-				this.log("  Lieferung erfolgt bei "+loc);
+				this.log("  Lieferung erfolgt bei "+loc.getSystem()+":"+loc.getX()+"/"+loc.getY());
 				// Falls ein Schiff geordert wurde oder keine Basis fuer den Offizier existiert (und er braucht somit ein Schiff)...
 				if( (order instanceof OrderShip) || base == null ) 
 				{
@@ -155,6 +156,17 @@ public class NPCOrderTick extends TickController {
 					ship.setSensors(100);
 					ship.setAblativeArmor(shipd.getAblativeArmor());
 					
+					if( order instanceof OrderShip )
+					{
+						final String flags = ((OrderShip)order).getFlags();
+						ship.setStatus(flags);
+						if( flags.contains("disable_iff") ) {
+							Cargo scargo = ship.getCargo();
+							scargo.addResource(new ItemID(2), 1); // IFF-Stoersender
+							ship.setCargo(scargo);
+						}
+					}
+					
 					id = (Integer)db.save(ship);
 					db.save(ship.getHistory());
 					
@@ -162,6 +174,8 @@ public class NPCOrderTick extends TickController {
 						ShipWerft awerft = new ShipWerft(ship);
 						db.persist(awerft);
 					}
+					
+					this.log("Schiff "+id+" erzeugt");
 				}
 			
 				// Es handelt sich um einen Offizier...

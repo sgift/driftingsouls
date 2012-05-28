@@ -1614,7 +1614,8 @@
     	UPDATE orders SET ordertype='ship' WHERE type >= 0;
     	UPDATE orders SET ordertype='offizier' WHERE type < 0;
     	ALTER TABLE orders MODIFY ordertype VARCHAR(32) NOT NULL;
-    	UPDATE orders SET type = -type WHERE type<0; 
+    	UPDATE orders SET type = -type WHERE type<0;
+    	ALTER TABLE orders ADD COLUMN flags VARCHAR(256);
     ]]>
     </update>
 </updates>

@@ -406,6 +406,11 @@ public class NPCOrderController extends TemplateGenerator {
 		TemplateEngine t = this.getTemplateEngine();
 		User user = (User)this.getUser();
 		
+		parameterNumber("shipflag_disableiff");
+		parameterNumber("shipflag_handelsposten");
+		boolean flagDisableIff = getInteger("shipflag_disableiff") == 1;
+		boolean flagHandelsposten = getInteger("shipflag_handelsposten") == 1;
+		
 		int costs = 0;
 		
 		List<Order> orderList = new ArrayList<Order>();
@@ -423,8 +428,19 @@ public class NPCOrderController extends TemplateGenerator {
 				costs += count*ship.getCost();
 				
 				for( int i=0; i < count; i++ ) {
-					Order orderObj = new OrderShip(user.getId(), ship.getId());
+					OrderShip orderObj = new OrderShip(user.getId(), ship.getId());
 					orderObj.setTick(3);
+					if( flagDisableIff )
+					{
+						orderObj.addFlag("disable_iff");
+						costs += 5;
+					}
+					if( flagHandelsposten )
+					{
+						orderObj.addFlag("tradepost");
+						costs += 5;
+					}
+					
 					orderList.add(orderObj);
 				}
 			}

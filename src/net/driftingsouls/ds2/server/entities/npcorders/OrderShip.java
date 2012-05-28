@@ -31,6 +31,7 @@ import javax.persistence.Entity;
 public class OrderShip extends Order
 {
 	private int type;
+	private String flags;
 	
 	protected OrderShip()
 	{
@@ -46,6 +47,7 @@ public class OrderShip extends Order
 	{
 		setUser(user);
 		setType(type);
+		this.flags = "";
 	}
 	
 	/**
@@ -66,4 +68,28 @@ public class OrderShip extends Order
 		this.type = type;
 	}
 
+	/**
+	 * Gibt alle Flags als konkatenierten String zurueck.
+	 * @return Die Flags
+	 */
+	public String getFlags()
+	{
+		return flags;
+	}
+	
+	/**
+	 * Fuegt ein Flag zur Flagliste hinzu.
+	 * @param flag Das Flag
+	 */
+	public void addFlag(String flag)
+	{
+		if( flags.length() == 0 )
+		{
+			flags = flag;
+		}
+		else
+		{
+			flags += " "+flag;
+		}
+	}
 }

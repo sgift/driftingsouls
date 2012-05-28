@@ -5,5 +5,6 @@ CREATE TABLE `orders` (
   `tick` int(11) NOT NULL default '0',
   `user` int(11) NOT NULL default '0',
   `version` int(10) unsigned not null default '0',
+  flags VARCHAR(256),
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
