@@ -16,7 +16,7 @@
  *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.driftingsouls.ds2.server.entities;
+package net.driftingsouls.ds2.server.entities.npcorders;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -37,7 +37,7 @@ import org.hibernate.annotations.Immutable;
 @Entity
 @Table(name="orders_ships")
 @Immutable
-public class OrderShip {
+public class OrderableShip {
 	@Id
 	private int type;
 	@OneToOne(fetch=FetchType.LAZY)
@@ -49,7 +49,7 @@ public class OrderShip {
 	 * Konstruktor.
 	 *
 	 */
-	public OrderShip() {
+	public OrderableShip() {
 		// EMPTY
 	}
 

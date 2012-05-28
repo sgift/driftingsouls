@@ -16,7 +16,7 @@
  *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.driftingsouls.ds2.server.entities;
+package net.driftingsouls.ds2.server.entities.npcorders;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -33,7 +33,7 @@ import org.hibernate.annotations.Immutable;
 @Entity
 @Table(name="orders_offiziere")
 @Immutable
-public class OrderOffizier {
+public class OrderableOffizier {
 	@Id @GeneratedValue
 	private int id;
 	private String name;
@@ -49,7 +49,7 @@ public class OrderOffizier {
 	 * Konstruktor.
 	 *
 	 */
-	public OrderOffizier() {
+	public OrderableOffizier() {
 		// EMPTY
 	}
 

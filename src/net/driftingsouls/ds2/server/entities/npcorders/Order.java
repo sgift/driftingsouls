@@ -1,4 +1,4 @@
-package net.driftingsouls.ds2.server.entities;
+package net.driftingsouls.ds2.server.entities.npcorders;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

@@ -30,9 +30,9 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
-import net.driftingsouls.ds2.server.entities.Order;
-import net.driftingsouls.ds2.server.entities.OrderOffizier;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.npcorders.Order;
+import net.driftingsouls.ds2.server.entities.npcorders.OrderableOffizier;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.namegenerator.NameGenerator;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -165,7 +165,7 @@ public class NPCOrderTick extends TickController {
 				// Es handelt sich um einen Offizier...
 				if( order.getType() < 0 ) 
 				{
-					OrderOffizier offizier = (OrderOffizier)db.get(OrderOffizier.class, (-order.getType()));
+					OrderableOffizier offizier = (OrderableOffizier)db.get(OrderableOffizier.class, (-order.getType()));
 					int special = RandomUtils.nextInt(6)+1;
 
 					Offizier offi = new Offizier(user, this.getOffiName(user));

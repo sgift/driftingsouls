@@ -35,8 +35,8 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.NoSuchWeaponException;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.entities.Ammo;
-import net.driftingsouls.ds2.server.entities.OrderOffizier;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.npcorders.OrderableOffizier;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -193,9 +193,9 @@ public class AddShips implements AdminPlugin {
 			echo.append("<td class=\"noBorderX\">\n");
 			echo.append("<select name=\"offitype\" size=\"1\">\n");
 			echo.append("<option value=\"-1\" selected=\"selected\">keiner</option>\n");
-			List<?> orderOffiList = db.createQuery("from OrderOffizier").list();
+			List<?> orderOffiList = db.createQuery("from OrderableOffizier").list();
 			for( Iterator<?> iter=orderOffiList.iterator(); iter.hasNext(); ) {
-				OrderOffizier offi = (OrderOffizier)iter.next();
+				OrderableOffizier offi = (OrderableOffizier)iter.next();
 				echo.append("<option value=\""+offi.getId()+"\">"+offi.getName()+"</option>\n");
 			}
 			echo.append("</select>\n");
@@ -349,7 +349,7 @@ public class AddShips implements AdminPlugin {
 				if( (offitype > 0) && (offiname.length() > 0) && 
 						((ship.getTypeData().getSize() > ShipType.SMALL_SHIP_MAXSIZE) || 
 								ship.getTypeData().getShipClass() == ShipClasses.RETTUNGSKAPSEL.ordinal()) ) {
-					OrderOffizier offi = (OrderOffizier)db.get(OrderOffizier.class, offitype);
+					OrderableOffizier offi = (OrderableOffizier)db.get(OrderableOffizier.class, offitype);
 					if( offi != null ) {
 						Offizier offizier = new Offizier(auser, offiname);
 						offizier.setRang(offi.getRang());

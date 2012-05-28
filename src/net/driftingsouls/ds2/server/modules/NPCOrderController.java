@@ -16,11 +16,11 @@ import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.config.Rang;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.FactionShopOrder;
-import net.driftingsouls.ds2.server.entities.Order;
-import net.driftingsouls.ds2.server.entities.OrderOffizier;
-import net.driftingsouls.ds2.server.entities.OrderShip;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserRank;
+import net.driftingsouls.ds2.server.entities.npcorders.Order;
+import net.driftingsouls.ds2.server.entities.npcorders.OrderableOffizier;
+import net.driftingsouls.ds2.server.entities.npcorders.OrderableShip;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -408,10 +408,10 @@ public class NPCOrderController extends TemplateGenerator {
 		
 		List<Order> orderList = new ArrayList<Order>();
 		
-		List<?> shipOrders = db.createQuery("from OrderShip order by shipType.shipClass,shipType").list();
+		List<?> shipOrders = db.createQuery("from OrderableShip order by shipType.shipClass,shipType").list();
 		for( Iterator<?> iter=shipOrders.iterator(); iter.hasNext(); )
 		{
-			OrderShip ship = (OrderShip)iter.next();
+			OrderableShip ship = (OrderableShip)iter.next();
 			
 			parameterNumber("ship"+ship.getShipType().getId()+"_count");
 			
@@ -477,7 +477,7 @@ public class NPCOrderController extends TemplateGenerator {
 		}
 		
 		if( order < 0 ) {
-			OrderOffizier orderOffi = (OrderOffizier)db.get(OrderOffizier.class, -order);
+			OrderableOffizier orderOffi = (OrderableOffizier)db.get(OrderableOffizier.class, -order);
 			costs = count*orderOffi.getCost();
 		}
 		else
@@ -542,9 +542,9 @@ public class NPCOrderController extends TemplateGenerator {
 
 		t.setBlock("_NPCORDER", "ships.listitem", "ships.list");
 
-		List<?> shipOrders = db.createQuery("from OrderShip order by shipType.shipClass,shipType").list();
+		List<?> shipOrders = db.createQuery("from OrderableShip order by shipType.shipClass,shipType").list();
 		for( Iterator<?> iter=shipOrders.iterator(); iter.hasNext(); ) {
-			OrderShip ship = (OrderShip)iter.next();
+			OrderableShip ship = (OrderableShip)iter.next();
 			
 			t.start_record();
 			
@@ -576,9 +576,9 @@ public class NPCOrderController extends TemplateGenerator {
 		
 		t.setBlock("_NPCORDER", "offiziere.listitem", "offiziere.list");
 		
-		List<?> offizierOrders = db.createQuery("from OrderOffizier where cost > 0 order by id").list();
+		List<?> offizierOrders = db.createQuery("from OrderableOffizier where cost > 0 order by id").list();
 		for( Iterator<?> iter=offizierOrders.iterator(); iter.hasNext(); ) {
-			OrderOffizier offizier = (OrderOffizier)iter.next();
+			OrderableOffizier offizier = (OrderableOffizier)iter.next();
 			
 			if( !orders.containsKey(-offizier.getId()) ) {
 				orders.put(-offizier.getId(), 0);

@@ -32,9 +32,9 @@ import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.entities.Forschung;
-import net.driftingsouls.ds2.server.entities.OrderShip;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserResearch;
+import net.driftingsouls.ds2.server.entities.npcorders.OrderableShip;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
@@ -226,7 +226,7 @@ public class SchiffInfoController extends TemplateGenerator {
 		}
 
 		if( (user != null) && (user.getAccessLevel() >= 10) ) {
-			OrderShip order = (OrderShip)db.get(OrderShip.class, shipID);
+			OrderableShip order = (OrderableShip)db.get(OrderableShip.class, shipID);
 			
 			if( order != null ) {
 				t.setVar(	"shiptype.showorderable",	1,
