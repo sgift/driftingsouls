@@ -1,5 +1,6 @@
 package net.driftingsouls.ds2.server.modules;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -391,9 +392,69 @@ public class NPCOrderController extends TemplateGenerator {
 		this.redirect();
 	}
 	
+	
+	/**
+	 * Ordert eine Menge von Schiffen.
+	 *
+	 */
+	@Action(ActionType.DEFAULT)
+	public void orderShipsAction()
+	{
+		org.hibernate.Session db = getDB();
+		TemplateEngine t = this.getTemplateEngine();
+		User user = (User)this.getUser();
+		
+		int costs = 0;
+		
+		List<Order> orderList = new ArrayList<Order>();
+		
+		List<?> shipOrders = db.createQuery("from OrderShip order by shipType.shipClass,shipType").list();
+		for( Iterator<?> iter=shipOrders.iterator(); iter.hasNext(); )
+		{
+			OrderShip ship = (OrderShip)iter.next();
+			
+			parameterNumber("ship"+ship.getShipType().getId()+"_count");
+			
+			int count = getInteger("ship"+ship.getShipType().getId()+"_count");
+			if( count > 0 )
+			{
+				costs += count*ship.getCost();
+				
+				for( int i=0; i < count; i++ ) {
+					Order orderObj = new Order(user.getId(), ship.getId());
+					orderObj.setTick(3);
+					orderList.add(orderObj);
+				}
+			}
+		}
+		
+		String ordermessage = "";
+
+		if( costs > 0 ) {
+			if( user.getNpcPunkte() < costs ) {
+				ordermessage = "<span style=\"color:red\">Nicht genug Kommandopunkte</span>";
+			} 
+			else {
+				ordermessage = orderList.size()+" Schiff(e) zugeteilt - wird/werden in 3 Ticks eintreffen";
+				for( Order order : orderList ) {
+					db.persist(order);
+				}
+				
+				user.setNpcPunkte( user.getNpcPunkte() - costs );
+			}
+		} 
+		else {
+			ordermessage = "Sorry, aber umsonst bekommst du hier nichts...\n";
+		}
+		
+		t.setVar("npcorder.message", ordermessage);
+		
+		this.redirect();
+	}
+	
 	/**
 	 * Ordert eine Menge von Schiffen/Offizieren.
-	 * @urlparam Integer order Das zu ordernde Objekt (positiv, dann Schiff; negativ, dann offizier)
+	 * @urlparam Integer order Das zu ordernde Objekt (negativ: offizier)
 	 * @urlparam Integer count Die Menge der zu ordernden Objekte
 	 *
 	 */
@@ -415,13 +476,13 @@ public class NPCOrderController extends TemplateGenerator {
 			count = 1;	
 		}
 		
-		if( order > 0 ) {
-			OrderShip orderShip = (OrderShip)db.get(OrderShip.class, order);
-			costs = count*orderShip.getCost();
-		}
-		else if( order < 0 ) {
+		if( order < 0 ) {
 			OrderOffizier orderOffi = (OrderOffizier)db.get(OrderOffizier.class, -order);
 			costs = count*orderOffi.getCost();
+		}
+		else
+		{
+			throw new IllegalArgumentException("Unbekannte ID");
 		}
 		
 		String ordermessage = "";
@@ -431,12 +492,8 @@ public class NPCOrderController extends TemplateGenerator {
 				ordermessage = "<span style=\"color:red\">Nicht genug Kommandopunkte</span>";
 			} 
 			else {
-				if( order > 0 ) {
-					ordermessage = "Schiff(e) zugeteilt - wird/werden in 3 Ticks eintreffen";
-				} 
-				else {
-					ordermessage = "Offizier(e) zugeteilt - wird/werden in 3 Ticks eintreffen";
-				}
+				ordermessage = "Offizier(e) zugeteilt - wird/werden in 3 Ticks eintreffen";
+				
 				for( int i=0; i < count; i++ ) {
 					Order orderObj = new Order(user.getId(), order);
 					orderObj.setTick(3);

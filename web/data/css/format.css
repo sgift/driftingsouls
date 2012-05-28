@@ -393,3 +393,18 @@ div.gfxbox {
 #tradepost-waren input[type=text] {
 	width:80px;
 }
+
+.npcorderbox {
+	width:500px;
+	text-align:left;
+	margin-right:20px;
+	float:left;
+}
+.npcorderbox table {
+	width:100%;
+}
+.npcorderbox table thead,
+.npcorderbox table tfoot {
+	text-align:center;
+	font-weight:bold;
+}
