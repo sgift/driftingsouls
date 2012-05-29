@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <updates>
-	<!-- Beispiel 
-		Aenderungen, die die Struktur der Datenbank aendern, sollten getrennt von reinen 
+	<!-- Beispiel
+		Aenderungen, die die Struktur der Datenbank aendern, sollten getrennt von reinen
 		Aenderungen an den Daten gehalten werden. Dies erleichtert das aktualliseren des Servers
-		und auch eigener Datenbestaende, die man ggf angepasst hat. 
+		und auch eigener Datenbestaende, die man ggf angepasst hat.
 		Ausgenommen sind Aenderungen an den Daten, die in Folge von Strukturaenderungen zwingend notwendig
 		sind. Diese sollten jedoch generisch formuliert sein, so dass sie nicht nur auf den Beispiedaten
 		funktionieren.
-		Die Identifikation erfolgt ueber das Attribut type, das entweder den Wert "structure", "data" 
+		Die Identifikation erfolgt ueber das Attribut type, das entweder den Wert "structure", "data"
 		oder "text" annehmen kann ("text" bezeichnet Updates, zu denen kein SQL-Kommando sondern nur eine
 		Beschreibung existiert)
 		Zusaetzlich verfuegt jedes update ueber ein Datum in der Form "JJJJ-MM-TT".
-		
+
 		<update type="structure" datum="2006-10-31"><![CDATA[
 			ALTER TABLE academy ...;
 			CREATE TABLE irgendwas (....);
 		]]></update>
-		
+
 		<update type="data" datum="2006-11-01"><![CDATA[
 			INSERT INTO ammo (name) VALUES ("Meine ganz tolle neue Supermunition");
 			UPDATE ship_types SET crew=1 WHERE crew > 1;
 		]]></update>
-		 
+
 	-->
 	<update type="data" datum="2006-11-11"><![CDATA[
-		UPDATE users SET ally=0 WHERE id=-15;									
+		UPDATE users SET ally=0 WHERE id=-15;
 	]]></update>
 	<update type="data" datum="2006-11-11"><![CDATA[
 		UPDATE users SET passwort='98f6bcd4621d373cade4e832627b4f6' WHERE passwort='098f6bcd4621d373cade4e832627b4f6';
 	]]></update>
-	<update type="structure" datum="2006-11-11"><![CDATA[	
+	<update type="structure" datum="2006-11-11"><![CDATA[
 		CREATE TABLE `werften` (
   			`id` int(11) NOT NULL auto_increment,
   			`type` smallint(6) NOT NULL default '0',
@@ -45,14 +45,14 @@
   			KEY `shipid` (`shipid`)
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 	]]></update>
-	<update type="structure" datum="2006-11-26"><![CDATA[	
+	<update type="structure" datum="2006-11-26"><![CDATA[
 		CREATE TABLE `config_vacmodes` (
 		  `id` int(11) NOT NULL auto_increment,
 		  `dauer` int(10) unsigned NOT NULL default '1',
 		  `vorlauf` int(10) unsigned NOT NULL default '1',
 		  PRIMARY KEY  (`id`)
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-		
+
 		INSERT INTO `config_vacmodes` (`id`, `dauer`, `vorlauf`) VALUES (1, 35, 14),
 		(2, 49, 14),
 		(3, 98, 14),
@@ -76,7 +76,7 @@
 		  `count` int(11) NOT NULL default '1',
 		  PRIMARY KEY  (`system`)
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-		
+
 		INSERT INTO `config_felsbrocken_systems` (`system`, `count`) VALUES (7, 130);
 
 		CREATE TABLE `config_felsbrocken` (
@@ -89,12 +89,12 @@
 		  KEY `system` (`system`),
 		  KEY `fk_config_felsbrocken_shiptype` (`shiptype`)
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Die verschiedenen Felsbrockenbestueckungen';
-		
+
 		INSERT INTO `config_felsbrocken` (`id`, `shiptype`, `system`, `chance`, `cargo`) VALUES (1, 77, 7, 55, '0,0,0,0,0,0,0,0,0,4,0,0,0,0,7,0,0,0,'),
 		(2, 77, 7, 28, '0,0,0,3,0,0,0,0,0,0,0,0,0,0,3,0,0,0,'),
 		(3, 77, 7, 15, '0,0,0,0,0,0,0,6,0,0,0,0,0,0,20,0,0,0,'),
 		(4, 77, 7, 2, '0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,1,0,0,');
-		
+
 		ALTER TABLE `config_felsbrocken`
 		  ADD CONSTRAINT `fk_config_felsbrocken_system` FOREIGN KEY (`system`) REFERENCES `config_felsbrocken_systems` (`system`) ON DELETE NO ACTION ON UPDATE NO ACTION,
 		  ADD CONSTRAINT `fk_config_felsbrocken_shiptype` FOREIGN KEY (`shiptype`) REFERENCES `ship_types` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
@@ -117,7 +117,7 @@
 		  DECLARE done,sid,shouldId INT DEFAULT 0;
 		  DECLARE cur1 CURSOR FOR SELECT DISTINCT abs(id) iid FROM ships WHERE abs(id)>=minid ORDER BY iid;
 		  DECLARE CONTINUE HANDLER FOR SQLSTATE '02000' SET done = 1;
-		
+
 		  OPEN cur1;
 		  set shouldId = minid;
 		  REPEAT
@@ -130,7 +130,7 @@
 		      set shouldId = shouldId+1;
 		    END IF;
 		  UNTIL done END REPEAT;
-		
+
 		  CLOSE cur1;
 		  RETURN shouldId;
 		END;
@@ -262,15 +262,15 @@
 		INSERT INTO `user_values` (`id`, `user_id`, `name`, `value`) VALUES (974, 0, 'PMS/signature', '');
 	]]></update>
 	<update type="structure" datum="2007-08-04"><![CDATA[
-		ALTER TABLE `ships_lost` CHANGE `ally` `ally` SMALLINT( 5 ) NOT NULL DEFAULT '0';										 
+		ALTER TABLE `ships_lost` CHANGE `ally` `ally` SMALLINT( 5 ) NOT NULL DEFAULT '0';
 	]]></update>
 	<update type="structure" datum="2008-02-03"><![CDATA[
 		ALTER TABLE user_moneytransfer CHANGE `count` `count` bigint(20) unsigned NOT NULL default '0';
-		
+
 		ALTER TABLE ammo CHANGE replaces replaces int(11) unsigned NULL;
 		UPDATE ammo SET replaces=NULL WHERE replaces=0;
 		ALTER TABLE ammo ADD CONSTRAINT ammo_fk_ammo FOREIGN KEY (replaces) REFERENCES ammo(id);
-		
+
 		ALTER TABLE users CHANGE allyposten allyposten INT( 11 ) NULL;
 		UPDATE users SET allyposten=NULL WHERE allyposten=0;
 		ALTER TABLE users ADD CONSTRAINT users_fk_ally_posten FOREIGN KEY (allyposten) REFERENCES ally_posten(id);
@@ -279,32 +279,32 @@
 		ALTER TABLE users CHANGE ally ally int DEFAULT NULL;
 		UPDATE users SET ally=NULL WHERE ally=0;
 		ALTER TABLE users ADD CONSTRAINT users_fk_ally FOREIGN KEY (ally) REFERENCES ally(id);
-		
+
 		ALTER TABLE users CHANGE flagschiff flagschiff INT NULL DEFAULT NULL;
 		UPDATE users SET flagschiff=NULL WHERE flagschiff=0;
 		ALTER TABLE users ADD CONSTRAINT users_fk_ships FOREIGN KEY (flagschiff) REFERENCES ships(id);
-		
+
 		ALTER TABLE `academy` DROP `id`;
 		ALTER TABLE `academy` ADD PRIMARY KEY ( `col` );
 		ALTER TABLE `academy` DROP INDEX `col`;
-		
+
 		alter table `bases` add `marines` int unsigned not null default '0';
 		ALTER TABLE bases ADD COLUMN version INT NOT NULL DEFAULT '0';
 	]]></update>
 	<update type="structure" datum="2008-02-10"><![CDATA[
 		ALTER TABLE `transmissionen` CHANGE `title` `title` VARCHAR( 100 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
-	
+
 		ALTER TABLE `weaponfactory` DROP `id`;
 		ALTER TABLE `weaponfactory` ADD PRIMARY KEY ( `col` );
 		ALTER TABLE `weaponfactory` DROP INDEX `col`;
-		
+
 		ALTER TABLE `fz` DROP `id`;
 		ALTER TABLE `fz` ADD PRIMARY KEY ( `col` );
 		ALTER TABLE `fz` DROP INDEX `col`;
-		
+
 		UPDATE buildings SET module='net.driftingsouls.ds2.server.bases.AcademyBuilding' WHERE module='net.driftingsouls.ds2.server.bases.Academy';
 		UPDATE buildings SET module='net.driftingsouls.ds2.server.bases.ForschungszentrumBuilding' WHERE module='net.driftingsouls.ds2.server.bases.Forschungszentrum';
-		
+
 		ALTER TABLE `ship_types` ADD `ablativeArmor` INT UNSIGNED NOT NULL AFTER `panzerung`;
 		ALTER TABLE `ships_modules` ADD `ablativeArmor` INT UNSIGNED NOT NULL AFTER `panzerung`;
 		ALTER TABLE `ship_types` ADD `srs` TINYINT NOT NULL DEFAULT '1';
@@ -315,47 +315,47 @@
 		ALTER TABLE `ship_types` ADD `pickingCost` INT NOT NULL ;
 		alter table `ship_types` add `marines` int unsigned not null default '0';
 		alter table `ships_modules` add `marines` int unsigned not null default '0';
-		
+
 		CREATE TABLE `gui_help` (
 		  `page` varchar(30) NOT NULL,
 		  `text` text,
 		  PRIMARY KEY  (`page`)
-		) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 	]]></update>
 	<update type="structure" datum="2008-02-16"><![CDATA[
 		ALTER TABLE `ships` ADD `modules` INT AFTER `type`;
 		UPDATE ships SET modules=(SELECT id FROM ships_modules WHERE ships_modules.id=ships.id);
-		
+
 		ALTER TABLE `ships` CHANGE `battle` `battle` SMALLINT UNSIGNED NULL DEFAULT NULL;
 		UPDATE ships SET battle=NULL WHERE battle=0;
 		ALTER TABLE ships ADD CONSTRAINT ships_fk_battles FOREIGN KEY (battle) REFERENCES battles(id);
-		
+
 		alter table `ships` add `marines` int unsigned not null default '0',
 			ADD `startFighters` TINYINT( 3 ) UNSIGNED NOT NULL DEFAULT '1',
 			ADD `ablativeArmor` INT UNSIGNED NOT NULL AFTER `shields`,
 			CHANGE fleet fleet int DEFAULT NULL;
-			
+
 		UPDATE ships SET fleet=NULL WHERE fleet=0;
 		ALTER TABLE ships ADD CONSTRAINT ships_fk_ship_fleets FOREIGN KEY (fleet) REFERENCES ship_fleets(id);
-		
+
 		ALTER TABLE `battles_ships` ADD `ablativeArmor` INT UNSIGNED NOT NULL AFTER `shields`;
-		
+
 		ALTER TABLE `nebel` DROP `id`;
 		ALTER TABLE `nebel` ADD PRIMARY KEY ( `system` , `x` , `y` );
 		ALTER TABLE `nebel` DROP INDEX `coords`;
-		
+
 		ALTER TABLE werften CHANGE linked linked int DEFAULT NULL;
 		UPDATE werften SET linked=NULL WHERE linked=0;
 		ALTER TABLE werften ADD CONSTRAINT werften_fk_bases FOREIGN KEY (linked) REFERENCES bases(id);
-		
+
 		ALTER TABLE werften CHANGE col col int DEFAULT NULL;
 		UPDATE werften SET col=NULL WHERE col=0;
 		ALTER TABLE werften ADD CONSTRAINT werften_fk_bases2 FOREIGN KEY (col) REFERENCES bases(id);
-		
+
 		ALTER TABLE werften CHANGE shipid shipid int DEFAULT NULL;
 		UPDATE werften SET shipid=NULL WHERE shipid=0;
 		ALTER TABLE werften ADD CONSTRAINT werften_fk_ships FOREIGN KEY (shipid) REFERENCES ships(id);
-		
+
 		CREATE TABLE `werft_queues` (
 		  werft int NOT NULL,
 		  `position` int NOT NULL,
@@ -365,47 +365,47 @@
 		  `flagschiff` tinyint(1) unsigned NOT NULL default '0',
 		  PRIMARY KEY  (`werft`,`position`)
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-		
+
 		ALTER TABLE werft_queues ADD CONSTRAINT werft_queues_fk_werften FOREIGN KEY (werft) REFERENCES werften(id);
 		ALTER TABLE werft_queues ADD CONSTRAINT werft_queues_fk_ship_types FOREIGN KEY (building) REFERENCES ship_types(id);
-		
+
 		ALTER TABLE `werft_queues` ADD COLUMN costsPerTick varchar(300) NOT NULL default '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,';
 		ALTER TABLE `werft_queues` ADD COLUMN energyPerTick int NOT NULL default '0';
-		
+
 		ALTER TABLE `werft_queues` ADD `slots` INT NOT NULL DEFAULT '1',
 			ADD `scheduled` TINYINT( 1 ) NOT NULL DEFAULT '0';
-			
+
 		ALTER TABLE `werften` ADD `linkedWerft` INT NULL;
 		ALTER TABLE werften ADD CONSTRAINT werften_fk_werften FOREIGN KEY (linkedWerft) REFERENCES werften(id) ON DELETE SET NULL;
 		ALTER TABLE `werften` ADD `komplex` TINYINT( 1 ) NOT NULL DEFAULT '0';
-		
+
 		ALTER TABLE `werft_queues` ADD INDEX ( `werft` );
 		ALTER TABLE `werft_queues` DROP PRIMARY KEY;
 		ALTER TABLE `werft_queues` ADD `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
-		
+
 		ALTER TABLE `ships_baubar` DROP `linfactor`;
 		ALTER TABLE `ships_baubar` ADD `werftslots` INT NOT NULL DEFAULT '1' AFTER `tr3` ;
 		UPDATE ships_baubar SET werftslots=case when LOCATE('pwerft',werftreq) then 6 else 7 end;
 		ALTER TABLE `ships_baubar` DROP `werftreq`;
-		
+
 		ALTER TABLE `ship_types` ADD COLUMN werftint INT NOT NULL DEFAULT '0';
 		UPDATE ship_types SET werftint=case when LOCATE('pwerft',werft) then 6 when LOCATE('ganymed',werft) then 7 else 0 end;
 		ALTER TABLE ship_types DROP werft;
 		ALTER TABLE `ship_types` CHANGE `werftint` `werft` INT NOT NULL DEFAULT '0';
-		
+
 		ALTER TABLE `ships_modules` ADD COLUMN werftint INT NOT NULL DEFAULT '0';
 		UPDATE ships_modules SET werftint=case when LOCATE('pwerft',werft) then 6 when LOCATE('ganymed',werft) then 7 else 0 end;
 		ALTER TABLE ships_modules DROP werft;
 		ALTER TABLE `ships_modules` CHANGE `werftint` `werft` INT NOT NULL DEFAULT '0';
-		
+
 		INSERT INTO werft_queues (werft,position,building,item,remaining,flagschiff,slots,scheduled)
 			SELECT id,0,building,item,remaining,flagschiff,CASE WHEN col is not null THEN 6 ELSE 7 END, 1 FROM werften WHERE building!=0;
-		
+
 		ALTER TABLE `werften`
   			DROP `building`,
   			DROP `item`,
 			DROP `remaining`;
-			
+
 		alter table ships change ablativeArmor ablativeArmor int(10) unsigned not null default '0';
 		alter table ships_modules change ablativeArmor ablativeArmor int(10) unsigned not null default '0';
 		ALTER TABLE `battles_ships` change `ablativeArmor` ablativeArmor INT UNSIGNED NOT NULL default '0';
@@ -418,16 +418,16 @@
 		  `limit` int(11) NOT NULL,
 		  PRIMARY KEY  (`shipid`,`resourceid`)
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-		
+
 		ALTER TABLE tradepost_sell ADD CONSTRAINT tradepost_sell_fk_ships FOREIGN KEY (shipid) REFERENCES ships(id);
-		
+
 		CREATE TABLE `tradepost_buy_limit` (
 		  `shipid` int(11) NOT NULL,
 		  `resourceid` int(11) NOT NULL,
 		  `limit` int(11) NOT NULL,
 		  PRIMARY KEY  (`shipid`,`resourceid`)
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-		
+
 		ALTER TABLE tradepost_buy_limit ADD CONSTRAINT tradepost_buy_limit_fk_ships FOREIGN KEY (shipid) REFERENCES ships(id);
 	]]></update>
 	<update type="structure" datum="2008-04-29"><![CDATA[
@@ -486,10 +486,10 @@
 	]]></update>
 	<update type="data" datum="2008-05-22"><![CDATA[
 		set sql_mode = NO_AUTO_VALUE_ON_ZERO;
-		
+
 		INSERT INTO `forschungen` (`id`, `name`, `req1`, `req2`, `req3`, `time`, `costs`, `descrip`, `race`, `visibility`, `flags`) VALUES (-1, '(nicht erfuellbar)', -1, -1, -1, 0, '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,', '', 0, 2, '');
 		INSERT INTO `forschungen` (`id`, `name`, `req1`, `req2`, `req3`, `time`, `costs`, `descrip`, `race`, `visibility`, `flags`) VALUES (0, '(immer erfuellt)', -1, -1, -1, 0, '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,', '', 0, 2, '');
-		
+
 		DELIMITER //
 		DROP PROCEDURE IF EXISTS `convert_f`//
 		DROP PROCEDURE IF EXISTS `convert_f_user`//
@@ -499,33 +499,33 @@
 			DECLARE selectQuery CHAR(255);
 			DECLARE rValue INT DEFAULT 0;
 			DECLARE rCount INT DEFAULT 0;
-		
+
 			SET rid=0;
 			WHILE rid <= 100 DO
 				SELECT count(*) INTO rCount FROM forschungen WHERE id=rid;
-				IF rCount > 0 THEN 
+				IF rCount > 0 THEN
 					SET selectQuery = CONCAT("SELECT r",rid," into @rValue from user_f where id=",uid);
 					SET @qry = selectQuery;
-		
+
 					PREPARE stmt FROM @qry;
 					EXECUTE stmt;
 					DEALLOCATE PREPARE stmt;
-		
+
 					IF @rValue > 0 THEN
 						INSERT INTO userresearch (owner,research) VALUES (uid,rid);
 					END IF;
-		
+
 				END IF;
 				SET rid=rid+1;
 			END WHILE;
 		END;
-		
+
 		CREATE PROCEDURE convert_f()
 		BEGIN
 			DECLARE done,uid INT DEFAULT 0;
 			DECLARE cur1 CURSOR FOR SELECT id FROM users;
 			DECLARE CONTINUE HANDLER FOR SQLSTATE '02000' SET done = 1;
-		
+
 			OPEN cur1;
 			REPEAT
 				FETCH cur1 INTO uid;
@@ -533,9 +533,9 @@
 			UNTIL done END REPEAT;
 			CLOSE cur1;
 		END;
-		// 
+		//
 		DELIMITER ;
-		
+
 		CALL convert_f();
 		DROP PROCEDURE `convert_f`;
 		DROP PROCEDURE `convert_f_user`;
@@ -556,7 +556,7 @@
 		  `ore` int(11) NOT NULL default '0',
 		  PRIMARY KEY  (`id`)
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-		
+
 		INSERT INTO `upgrade_info` (`id`, `type`, `mod`, `cargo`, `price`, `miningexplosive`, `ore`) VALUES ( 1, 1,       0, false,        0,    0,    0);
 		INSERT INTO `upgrade_info` (`id`, `type`, `mod`, `cargo`, `price`, `miningexplosive`, `ore`) VALUES ( 2, 1,      10, false,  1250000,  125, 1250);
 		INSERT INTO `upgrade_info` (`id`, `type`, `mod`, `cargo`, `price`, `miningexplosive`, `ore`) VALUES ( 3, 1,      20, false,  2500000,  250, 2500);
@@ -596,7 +596,7 @@
 		INSERT INTO `upgrade_info` (`id`, `type`, `mod`, `cargo`, `price`, `miningexplosive`, `ore`) VALUES (38, 3,  180000,  true,  2400000,  480,  3200);
 		INSERT INTO `upgrade_info` (`id`, `type`, `mod`, `cargo`, `price`, `miningexplosive`, `ore`) VALUES (39, 3,  240000,  true,  3000000,  600,  4000);
 		INSERT INTO `upgrade_info` (`id`, `type`, `mod`, `cargo`, `price`, `miningexplosive`, `ore`) VALUES (40, 3,  300000,  true,  3600000,  720,  4800);
-		
+
 		CREATE TABLE `upgrade_job` (
 		  `id` int(11) NOT NULL auto_increment,
 		  `baseid` int(11) NOT NULL default '0',
@@ -609,7 +609,7 @@
 		  `started` int(11) NOT NULL default '0',
 		  PRIMARY KEY  (`id`)
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-		
+
 		ALTER TABLE upgrade_job ADD CONSTRAINT upgrade_job_fk_base FOREIGN KEY (baseid) REFERENCES bases(id);
 		ALTER TABLE upgrade_job ADD CONSTRAINT upgrade_job_fk_user FOREIGN KEY (userid) REFERENCES users(id);
 		ALTER TABLE upgrade_job ADD CONSTRAINT upgrade_job_fk_ships FOREIGN KEY (colonizerid) REFERENCES ships(id);
@@ -620,26 +620,26 @@
 		update upgrade_info set type=4 where type=3;
 		update upgrade_info set type=3 where type=2;
 		update upgrade_info set type=3 where id=15;
-		
+
 		CREATE TABLE `upgrade_maxvalues` (
 		  `type` int(11) NOT NULL,
 		  `maxtiles` int(11) NOT NULL default '1',
 		  `maxcargo` int(11) NOT NULL default '1',
 		  PRIMARY KEY  (`type`)
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-		
+
 		INSERT INTO `upgrade_maxvalues` (`type`, `maxcargo`, `maxtiles`) VALUES ( 1, 750000,  80);
 		INSERT INTO `upgrade_maxvalues` (`type`, `maxcargo`, `maxtiles`) VALUES ( 3, 1120000,  120);
 		INSERT INTO `upgrade_maxvalues` (`type`, `maxcargo`, `maxtiles`) VALUES ( 4, 360000,  40);
-		
+
 		ALTER TABLE upgrade_job ADD `end` int(11) NOT NULL default '0';
 		ALTER TABLE upgrade_job DROP `started`;
 		ALTER TABLE upgrade_job MODIFY `colonizerid` int(11);
 	]]></update>
-	
+
 	<update type="structure" datum="2008-10-04"><![CDATA[
 		RENAME TABLE config TO config_old;
-		
+
 		CREATE TABLE config (
 			`name` VARCHAR( 25 ) NOT NULL ,
 			`value` TEXT NOT NULL ,
@@ -647,12 +647,12 @@
 			`version` INT NOT NULL DEFAULT 0,
 			PRIMARY KEY (`name`)
 		) ENGINE = InnoDB DEFAULT CHARSET = utf8;
-				
+
 		INSERT INTO config (
 			`name` ,
 			`value` ,
 			`description` ,
-			`version` 
+			`version`
 			)
 			VALUES (
 			'ticks', '2774', 'Der aktuelle Tick', '0'
@@ -663,15 +663,15 @@
 			), (
 			'keys', '*', 'Schluessel mit denen man sich registrieren kann, wenn der Wert * ist braucht man keinen Schluessel zum registrieren', '0'
 		);
-			
+
 		UPDATE config SET value=(SELECT ticks FROM config_old) WHERE name='ticks';
 		UPDATE config SET value=(SELECT disablelogin FROM config_old) WHERE name='disablelogin';
 		UPDATE config SET value=(SELECT disableregister FROM config_old) WHERE name='disableregister';
 		UPDATE config SET value=(SELECT `keys` FROM config_old) WHERE name='keys';
-		
+
 		DROP TABLE config_old;
 	]]></update>
-	<update type="data" datum="2008-10-04"><![CDATA[	
+	<update type="data" datum="2008-10-04"><![CDATA[
 		INSERT INTO `config` (`name`,`value`,`description`,`version`)
 		VALUES ('foodpooldegeneration', '0', 'Prozent des Pools, die pro Tick verfaulen.', '0');
 	]]></update>
@@ -683,7 +683,7 @@
 			`name` ,
 			`value` ,
 			`description` ,
-			`version` 
+			`version`
 		)
 		VALUES (
 			'bvsizemodifier', 1, 'Faktor fuer die Groesse bei der Battle Value Formel', '0'
@@ -696,7 +696,7 @@
 	<update type="structure" datum="2008-12-21"><![CDATA[
 		ALTER TABLE users ADD `vacpoints` int NOT NULL DEFAULT '0';
 		INSERT INTO config (`name` , `value` , `description` , `version`) VALUES
-			('vacpointspervactick', 7, 'Vacationpunkte, die ein Tick im Vac kostet', '0'), 
+			('vacpointspervactick', 7, 'Vacationpunkte, die ein Tick im Vac kostet', '0'),
 			('vacpointsperplayedtick', 1, 'Vacationpunkte, die ein gespielter Tick bringt', '0');
 	]]></update>
 	<update type="structure" datum="2009-01-03"><![CDATA[
@@ -720,7 +720,7 @@
 			`name` ,
 			`value` ,
 			`description` ,
-			`version` 
+			`version`
 			)
 			VALUES (
 			'tax', '2', 'Steuern (RE), die ein Arbeiter produziert', '0'
@@ -733,7 +733,7 @@
 			`name` ,
 			`value` ,
 			`description` ,
-			`version` 
+			`version`
 			)
 			VALUES (
 			'desertedmeetingpoint', '1:15/15', 'Treffpunkt, bei dem alle desertierten Schiffe landen.', '0'
@@ -751,7 +751,7 @@
 			`name` ,
 			`value` ,
 			`description` ,
-			`version` 
+			`version`
 			)
 			VALUES (
 			'adcost', '10', 'Preis, den ein Handelsinserat pro Tick kostet.', '0'
@@ -762,7 +762,7 @@
 			`name` ,
 			`value` ,
 			`description` ,
-			`version` 
+			`version`
 			)
 			VALUES (
 			'immigrationfactor', '1', 'Wert zwischen 0 und 1, der angibt welcher Anteil des freien Platzes maximal von neuen Einwanderern belegt wird.', '0'
@@ -771,11 +771,11 @@
 			`name` ,
 			`value` ,
 			`description` ,
-			`version` 
+			`version`
 			)
 			VALUES (
 			'randomizeimmigration', 'false', 'Zufallswert zwischen 0 und dem Maximum an Einwanderern waehlen.', '0'
-			);	
+			);
 	]]></update>
 	<update type="structure" datum="2009-04-23"><![CDATA[
 		ALTER TABLE `portal_news` ADD `shortDescription` TEXT NOT NULL;
@@ -783,7 +783,7 @@
 	<update type="structure" datum="2009-04-27"><![CDATA[
 		CREATE TABLE `starmap` (
 			`system` INT NOT NULL ,
-			PRIMARY KEY ( `system` ) 
+			PRIMARY KEY ( `system` )
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 	]]></update>
 	<update type="structure" datum="2009-05-03"><![CDATA[
@@ -795,7 +795,7 @@
 			`name` ,
 			`value` ,
 			`description` ,
-			`version` 
+			`version`
 			)
 			VALUES (
 			'maxoffstotrain', '20', 'Laenge der Offiziersbauschlange', '0'
@@ -804,7 +804,7 @@
 			`name` ,
 			`value` ,
 			`description` ,
-			`version` 
+			`version`
 			)
 			VALUES (
 			'newoffsiliziumcosts', '20', 'Siliziumkosten fuer einen neuen Offizier', '0'
@@ -813,7 +813,7 @@
 			`name` ,
 			`value` ,
 			`description` ,
-			`version` 
+			`version`
 			)
 			VALUES (
 			'newoffnahrungcosts', '30', 'Nahrungskosten fuer einen neuen Offizier', '0'
@@ -822,7 +822,7 @@
 			`name` ,
 			`value` ,
 			`description` ,
-			`version` 
+			`version`
 			)
 			VALUES (
 			'offdauercosts', '8', 'Laenge der Offiziersausbildung', '0'
@@ -836,7 +836,7 @@
 			`name` ,
 			`value` ,
 			`description` ,
-			`version` 
+			`version`
 			)
 			VALUES (
 			'offnahrungfactor', '1.5', 'Faktor fuer die Nahrungskosten beim Offizierstraining.', '0'
@@ -845,13 +845,13 @@
 			`name` ,
 			`value` ,
 			`description` ,
-			`version` 
+			`version`
 			)
 			VALUES (
 			'offsiliziumfactor', '1', 'Faktor fuer Siliziumkosten beim Offizierstraining.', '0'
 			), (
 			'offdauerfactor', '0.25', 'Faktor fuer die Zeitdauer beim Offizierstraining.', '0'
-			);				
+			);
 	]]></update>
 	<update type="data" datum="2009-07-04"><![CDATA[
 		CREATE TABLE offi_tmp_update (
@@ -861,18 +861,18 @@
 			base_id INT(11),
 			primary key(ship_id)
 		);
-		
-		INSERT INTO offi_tmp_update SELECT CONCAT('s ',id), id, owner, null AS base_id FROM ships 
+
+		INSERT INTO offi_tmp_update SELECT CONCAT('s ',id), id, owner, null AS base_id FROM ships
 			WHERE status LIKE "%offizier%" AND type IN (SELECT id FROM ship_types WHERE size<=3 AND class!=18);
-			
+
 		UPDATE offi_tmp_update SET base_id=(SELECT id FROM bases WHERE bases.owner=offi_tmp_update.ship_owner LIMIT 1);
-			
-		UPDATE offiziere,offi_tmp_update 
+
+		UPDATE offiziere,offi_tmp_update
 			SET offiziere.dest=CONCAT('b ',offi_tmp_update.base_id) WHERE offiziere.dest=offi_tmp_update.dest;
-			
-		UPDATE ships SET status=REPLACE(REPLACE(REPLACE(status,'offizier ',''),' offizier',''),'offizier','') 
+
+		UPDATE ships SET status=REPLACE(REPLACE(REPLACE(status,'offizier ',''),' offizier',''),'offizier','')
 			WHERE id IN (SELECT ship_id FROM offi_tmp_update);
-		
+
 		DROP TABLE offi_tmp_update;
 	]]></update>
 	<update type="structure" datum="2009-08-01"><![CDATA[
@@ -881,14 +881,14 @@
 		  DROP `lastaction`,
 		  DROP `actioncounter`,
 		  DROP `attach`;
-		  
-		ALTER TABLE `sessions` 
-			CHANGE `session` `token` VARCHAR( 36 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;		  
-	
+
+		ALTER TABLE `sessions`
+			CHANGE `session` `token` VARCHAR( 36 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
+
 		ALTER TABLE `sessions` ADD `userId` INT NOT NULL AFTER `id`;
-		
+
 		ALTER TABLE `sessions` CHANGE `tick` `tick` INT UNSIGNED NOT NULL DEFAULT '0';
-		
+
 		ALTER TABLE `sessions` CHANGE `usegfxpak` `usegfxpack` TINYINT( 3 ) UNSIGNED NOT NULL DEFAULT '1';
 	]]></update>
 	<update type="data" datum="2009-08-16"><![CDATA[
@@ -896,7 +896,7 @@
 			`name` ,
 			`value` ,
 			`description`,
-			`version` 
+			`version`
 			)
 			VALUES (
 			'tick', '0', 'Sperrt Accounts waehrend des Ticks. 0 fuer keine Sperre, 1 fuer Sperre.', '0'
@@ -1249,7 +1249,7 @@
   			`spawnableress` text,
   			PRIMARY KEY  (`id`)
 		);
-		
+
 		ALTER TABLE `buildings` ADD `terrain` text;
 	]]></update>
 	<update><![CDATA[
@@ -1273,10 +1273,10 @@
 			`picture` varchar (120),
 			PRIMARY KEY  (`id`)
 		);
-			
-		INSERT INTO items_build (id, name, description, res1, res2, res3, itemid, dauer, buildcosts, buildingid, picture) 
+
+		INSERT INTO items_build (id, name, description, res1, res2, res3, itemid, dauer, buildcosts, buildingid, picture)
  			 SELECT id, name, description, res1, res2, res3, itemid, dauer, buildcosts, 22, picture from ammo;
- 		
+
  		CREATE TABLE `factory` (
   			`id` int(11) NOT NULL auto_increment,
   			`col` int(11) NOT NULL default '0',
@@ -1286,10 +1286,10 @@
   			`buildingid` int(11) NOT NULL,
   			PRIMARY KEY  (`id`)
 		) COMMENT = "Die Fabriken";
-		
+
 		INSERT INTO factory (id, col, count, produces, version, buildingid)
 			SELECT NULL, col, count, produces, version, 22 from weaponfactory;
- 		
+
  		ALTER TABLE ammo DROP res1;
 		ALTER TABLE ammo DROP res2;
 		ALTER TABLE ammo DROP res3;
@@ -1297,7 +1297,7 @@
 		ALTER TABLE ammo DROP dauer;
 		ALTER TABLE ammo DROP buildcosts;
 		ALTER TABLE ammo DROP replaces;
-		
+
 		UPDATE buildings SET module="net.driftingsouls.ds2.server.bases.Fabrik" WHERE module LIKE "net.driftingsouls.ds2.server.bases.Waffenfabrik";
 	]]></update>
 	<update><![CDATA[
@@ -1305,9 +1305,9 @@
 	]]></update>
 	<update><![CDATA[
 		ALTER TABLE items_build ADD produce varchar(120) NOT NULL default '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,';
-		
+
 		UPDATE items_build SET produce = CONCAT(produce, CONCAT(itemid, "|1|0|0"));
-		
+
 		ALTER TABLE items_build DROP description;
 		ALTER TABLE items_build DROP itemid;
 		ALTER TABLE items_build DROP picture;
@@ -1328,33 +1328,33 @@
   			`picture` varchar(50),
   			PRIMARY KEY  (`id`)
 		);
-		
+
 		INSERT INTO unit_types (id, name, size, description, recost, nahrungcost, kapervalue, buildcosts, dauer, resid, picture)
 			VALUES( NULL, "Marine", 1, "Ein Marine", 10, 1, 1, '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6|1000|0|0;16|1|0|0', 10, 74, 'data/interface/arbeitslos.gif');
-		
+
 		INSERT INTO unit_types (id, name, size, description, recost, nahrungcost, kapervalue, buildcosts, dauer, resid, picture)
 			VALUES( NULL, "Panzer", 3, "Ein Panzer", 100, 5, 5, '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6|5000|0|0;16|10|0|0', 20, 74, 'data/interface/arbeitslos.gif');
-		
+
 		ALTER TABLE ships CHANGE marines unitcargo varchar (120);
 		UPDATE ships set unitcargo = NULL;
-		
+
 		ALTER TABLE ship_types ADD maxunitsize tinyint (4) NOT NULL default '1';
 		ALTER TABLE ship_types ADD unitspace int (11) NOT NULL default '0';
 		ALTER TABLE ship_types DROP marines;
-		
+
 		ALTER TABLE ships_modules ADD maxunitsize tinyint (4) NOT NULL default '1';
 		ALTER TABLE ships_modules ADD unitspace int (11) NOT NULL default '0';
 		ALTER TABLE ships_modules DROP marines;
-		
+
 		ALTER TABLE bases CHANGE marines unitcargo varchar (120);
 		UPDATE bases SET unitcargo = NULL;
-		
+
 		CREATE TABLE `kaserne` (
 			`id` int(11) unsigned NOT NULL auto_increment,
 			`col` int(11) unsigned NOT NULL,
 			PRIMARY KEY (`id`)
 		);
-		
+
 		CREATE TABLE `kaserne_queues` (
 			`id` int(11) unsigned NOT NULL auto_increment,
 			`kaserne` int(11) unsigned NOT NULL,
@@ -1372,7 +1372,7 @@
 		ALTER TABLE ships ADD isallyfeeding tinyint(1) NOT NULL default '0';
 		ALTER TABLE bases ADD isloading tinyint(1) NOT NULL default '1';
 		ALTER TABLE bases ADD isfeeding tinyint(1) NOT NULL default '1';
-		
+
 		UPDATE ship_types SET nahrungcargo = (crew+unitspace)/10 * 7 * 14;
 		UPDATE ships SET nahrungcargo = (SELECT nahrungcargo FROM ship_types WHERE ship_types.id = ships.type);
 		UPDATE users SET cargo = '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,';
@@ -1393,7 +1393,7 @@
 			`name` ,
 			`value` ,
 			`description`,
-			`version` 
+			`version`
 			)
 			VALUES (
 			'corruption', '0', 'Prozentsatz der Korruption aufs Nettoeinkommen', '0'
@@ -1408,15 +1408,15 @@
   			`unitcargo` text NOT NULL,
   			`version` int(10) unsigned not null default '0',
   			PRIMARY KEY  (`tick`)
-		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Die UnitCargo-Statistik (Gesamtcargo)'; 
-		
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Die UnitCargo-Statistik (Gesamtcargo)';
+
 		CREATE TABLE `stats_user_unitcargo` (
   			`user_id` int(11) NOT NULL default '0',
   			`unitcargo` text NOT NULL,
   			`version` int(10) unsigned not null default '0',
   			PRIMARY KEY  (`user_id`)
-		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Die User-UnitCargo-Stats'; 
-		
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Die User-UnitCargo-Stats';
+
 		ALTER TABLE stats_user_unitcargo ADD CONSTRAINT stats_user_unitcargo_fk_user_id FOREIGN KEY (user_id) REFERENCES users(id);
 	]]></update>
 	<update><![CDATA[
@@ -1430,7 +1430,7 @@
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 	]]></update>
 	<update><![CDATA[
-		INSERT INTO `config` (`name`, `value`, `description`, `version`) VALUES ('gtudefaultdropzone', '2', 'Standard-Dropzone der GTU. Kann von jedem genutzt werden, egal, ob er Asteroiden im System hat.', '0');	
+		INSERT INTO `config` (`name`, `value`, `description`, `version`) VALUES ('gtudefaultdropzone', '2', 'Standard-Dropzone der GTU. Kann von jedem genutzt werden, egal, ob er Asteroiden im System hat.', '0');
 	]]></update>
 	<update><![CDATA[
 		INSERT INTO `config` (`name`, `value`, `description`, `version`) VALUES ('maxverhungern', '100', 'Prozentsatz der Crew die maximal pro Tick verhungert', '0');
@@ -1445,12 +1445,12 @@
 	<update><![CDATA[
 		DELETE FROM userresearch WHERE owner NOT IN (select id from users);
 		ALTER TABLE userresearch ADD CONSTRAINT userresearch_fk_users FOREIGN KEY (owner) REFERENCES users (id);
-		
+
 		CREATE INDEX idx_feeding ON ships(isfeeding);
 		CREATE INDEX idx_allyfeeding ON ships(isallyfeeding);
-		
+
 		CREATE INDEX idx_feeding ON bases(isfeeding);
-		
+
 		CREATE INDEX idx_nebulatype ON nebel(type);
 	]]></update>
 	<update><![CDATA[
@@ -1462,18 +1462,18 @@
 			`shipid` INT NOT NULL ,
 			`script` TEXT NULL ,
 			`scriptexedata` BLOB NULL ,
-			PRIMARY KEY ( `shipid` ) 
+			PRIMARY KEY ( `shipid` )
 		) ENGINE = InnoDB;
-		
+
 		ALTER TABLE ship_script_data ADD CONSTRAINT script_data_fk_ship FOREIGN KEY (shipid) REFERENCES ships (id);
-		
+
 		INSERT INTO ship_script_data (shipid,script,scriptexedata) SELECT id, script, scriptexedata FROM ships;
 	]]></update>
 	<update><![CDATA[
 		UPDATE unit_types SET nahrungcost = nahrungcost/10;
 	]]></update>
 	<update><![CDATA[
-		INSERT INTO `config` (`name`, `value`, `description`, `version`) VALUES ('repaircostdampeningfactor', '0.3', 'Limitiert die Reperaturkosten auf die Baukosten * faktor.', '0');	
+		INSERT INTO `config` (`name`, `value`, `description`, `version`) VALUES ('repaircostdampeningfactor', '0.3', 'Limitiert die Reperaturkosten auf die Baukosten * faktor.', '0');
 	]]></update>
 	<update type="structure" datum="2010-08-22"><![CDATA[
 		ALTER TABLE factory ADD UNIQUE col_buildingid_idx (col, buildingid);
@@ -1483,13 +1483,13 @@
 		ALTER TABLE academy DROP FOREIGN KEY academy_fk_bases;
 		ALTER TABLE academy CHANGE col id INT NOT NULL auto_increment;
 		ALTER TABLE bases ADD CONSTRAINT FOREIGN KEY bases_fk_academy (academy_id) REFERENCES academy(id);
-		
+
 		ALTER TABLE bases ADD forschungszentrum_id INT;
 		UPDATE bases SET forschungszentrum_id = (SELECT col FROM fz where col=bases.id);
 		ALTER TABLE fz DROP FOREIGN KEY fz_fk_bases;
 		ALTER TABLE fz CHANGE col id INT NOT NULL auto_increment;
 		ALTER TABLE bases ADD CONSTRAINT FOREIGN KEY bases_fk_fz (forschungszentrum_id) REFERENCES fz(id);
-		
+
 		ALTER TABLE bases ADD werft_id INT;
 		UPDATE bases SET werft_id = (SELECT id FROM werften where col=bases.id);
 		ALTER TABLE werften DROP FOREIGN KEY werften_fk_bases2;
@@ -1498,7 +1498,7 @@
 		ALTER TABLE werften ADD COLUMN `werfttype` CHAR(1) NOT NULL;
 		UPDATE werften SET werfttype='K' where komplex != 0;
 		UPDATE werften SET werfttype='S' where shipid IS NOT NULL;
-		UPDATE werften SET werfttype='B' where id IN (SELECT werft_id FROM bases); 
+		UPDATE werften SET werfttype='B' where id IN (SELECT werft_id FROM bases);
 	]]></update>
 	<update type="data" datum="2010-10-03"><![CDATA[
 		INSERT INTO `config` (`name`, `value`, `description`, `version`) VALUES ('starmapsecret', 'irgendeinZufallswert', '', '0');
@@ -1597,14 +1597,14 @@
     	ALTER TABLE ships ADD CONSTRAINT ships_fk_ship_script_data FOREIGN KEY (scriptData_id) REFERENCES ship_script_data(shipid);
     	DELETE FROM ship_script_data WHERE script IS NULL or script="" or shipid NOT IN (SELECT id FROM ships);
     	UPDATE ships s SET s.scriptData_id=s.id WHERE s.id IN (SELECT shipid FROM ship_script_data);
-    	
+
     	CREATE TABLE ship_history (
     		id INT NOT NULL,
     		history TEXT,
     		PRIMARY KEY (id)
     	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-    	ALTER TABLE ship_history ADD CONSTRAINT ship_history_fk_ships FOREIGN KEY (id) REFERENCES ships(id); 
-    	
+    	ALTER TABLE ship_history ADD CONSTRAINT ship_history_fk_ships FOREIGN KEY (id) REFERENCES ships(id);
+
     	INSERT INTO ship_history SELECT id,history FROM ships;
     	ALTER TABLE ships DROP COLUMN history;
     ]]>
@@ -1618,4 +1618,7 @@
     	ALTER TABLE orders ADD COLUMN flags VARCHAR(256);
     ]]>
     </update>
+    <update type="data" datum="2012-05-29"><![CDATA[
+    	insert into items values (442, 'Versiegelte Andockklappen', 'data/items/open.gif', null, 5, 'module:misc&0&flags,nicht_kaperbar', 'ultra-rare', 'Versiegelte Andockklappen blockieren jeden ernsthaften Kaperversuch.', 0, 5, 0, 0);
+    ]]></update>
 </updates>
