@@ -31,32 +31,32 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 public class ModuleShipPicture extends Module {
 	private int slot;
 	private String picture;
-	
+
 	protected ModuleShipPicture( int slot, String data ) {
 		this.slot = slot;
 		this.picture = data;
 	}
-	
+
 	@Override
-	public boolean isSame( int slot, int moduleid, String data ) {
+	public boolean isSame( int slot, Modules moduleid, String data ) {
 		if( slot != this.slot ) {
-			return false;	
-		}	
-		else if( moduleid != Modules.MODULE_SHIP_PICTURE ) {
-			return false;	
+			return false;
 		}
-		
+		else if( moduleid != Modules.SHIP_PICTURE ) {
+			return false;
+		}
+
 		if( !this.picture.equals(data) ) {
-			return false;	
+			return false;
 		}
 		return true;
 	}
-	
+
 	@Override
-	public String getName() { 
-		return "Schiffsbild"; 
+	public String getName() {
+		return "Schiffsbild";
 	}
-	
+
 	@Override
 	public ShipTypeData modifyStats(ShipTypeData stats, List<Module> moduleobjlist) {
 		return new ShipTypeDataPictureWrapper(stats, this.picture);
@@ -69,7 +69,7 @@ public class ModuleShipPicture extends Module {
 
 	private static class ShipTypeDataPictureWrapper extends AbstractShipTypeDataWrapper {
 		private String picture;
-		
+
 		ShipTypeDataPictureWrapper(ShipTypeData inner, String picture) {
 			super(inner);
 			this.picture = picture;

@@ -43,12 +43,12 @@ import org.apache.commons.logging.LogFactory;
  */
 public class ModuleItemModule extends Module {
 	private static final Log log = LogFactory.getLog(ModuleItemModule.class);
-	
+
 	private int slot;
 	private int itemid;
 	private String[] weaponrepl;
 	private boolean calculateSetEffect;
-	
+
 	protected ModuleItemModule( int slot, String data ) {
 		this.slot = slot;
 
@@ -56,12 +56,12 @@ public class ModuleItemModule extends Module {
 		this.weaponrepl = new String[0];
 		this.calculateSetEffect = true;
 	}
-	
+
 	@Override
 	public ShipTypeData modifyStats(ShipTypeData stats, List<Module> moduleobjlist) {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
-		
+
 		Item item = (Item)db.get(Item.class, this.itemid);
 		ItemEffect itemEffect = item.getEffect();
 		if( itemEffect.getType() != ItemEffect.Type.MODULE ) {
@@ -69,59 +69,59 @@ public class ModuleItemModule extends Module {
 			return stats;
 		}
 		IEModule effect = (IEModule)itemEffect;
-		
+
 		stats = effect.getMods().applyTo(stats, this.weaponrepl);
-		
+
 		if( calculateSetEffect && (effect.getSetID() != 0) ) {
 			// Set-Item-Count ausrechnen
 			List<Integer> gotitems = new ArrayList<Integer>();
 			int count = 0;
-			
+
 			for( Module moduleobj : moduleobjlist ) {
 				if( !(moduleobj instanceof ModuleItemModule) ) {
 					continue;
 				}
 				ModuleItemModule itemModule = (ModuleItemModule)moduleobj;
-				
+
 				Item ModuleItem = (Item)db.get(Item.class, itemModule.getItemID().getItemID());
-				
+
 				if( ((IEModule)ModuleItem.getEffect()).getSetID() != effect.getSetID() ) {
 					continue;
 				}
-				
+
 				itemModule.disableSetEffect();
-				
+
 				if( gotitems.contains(itemModule.getItemID().getItemID()) ) {
 					continue;
 				}
-				
+
 				gotitems.add(itemModule.getItemID().getItemID());
 				count++;
 			}
-			
+
 			Item effectSet = (Item)db.get(Item.class, effect.getSetID());
 			ShipTypeChangeset[] mods = ((IEModuleSetMeta)effectSet.getEffect()).getCombo(count);
 			for( int i=0; i < mods.length; i++ ) {
 				stats = mods[i].applyTo(stats, this.weaponrepl);
 			}
 		}
-				
+
 		return stats;
 	}
 
 	@Override
-	public boolean isSame(int slot, int moduleid, String data) {
+	public boolean isSame(int slot, Modules moduleid, String data) {
 		if( slot != this.slot ) {
-			return false;	
-		}	
-		else if( moduleid != Modules.MODULE_ITEMMODULE ) {
-			return false;	
+			return false;
 		}
-				
+		else if( moduleid != Modules.ITEMMODULE ) {
+			return false;
+		}
+
 		if( this.itemid != Integer.parseInt(data) ) {
-			return false;	
+			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -129,26 +129,26 @@ public class ModuleItemModule extends Module {
 	public void setSlotData(String data) {
 		this.weaponrepl = StringUtils.split(data,',');
 	}
-	
+
 	@Override
 	public String getName() {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
-		
+
 		Item item = (Item)db.get(Item.class, this.itemid);
 		if(item == null) {
 			return "Noname";
 		}
-		
+
 		return "<a class=\"forschinfo\" href=\"./ds?module=iteminfo&amp;action=details&amp;item="+this.itemid+"\">"+item.getName()+"</a>";
 	}
-	
+
 	/**
 	 * Gibt die ID des zum ItemModul gehoerenden Items zurueck.
 	 * @return die Item-ID des Moduls
 	 */
 	public ResourceID getItemID() {
-		return new ItemID(itemid, 0, 0);	
+		return new ItemID(itemid, 0, 0);
 	}
 
 	/**

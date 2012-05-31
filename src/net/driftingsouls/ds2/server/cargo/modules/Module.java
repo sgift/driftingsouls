@@ -34,8 +34,8 @@ public abstract class Module {
 	 * @param moduleobjlist Liste aller Module in diesem Schiff
 	 * @return die modifizierten Schiffstypen-Daten
 	 */
-	public abstract ShipTypeData modifyStats( ShipTypeData stats, List<Module> moduleobjlist );	
-	
+	public abstract ShipTypeData modifyStats( ShipTypeData stats, List<Module> moduleobjlist );
+
 	/**
 	 * Prueft, ob die angegebenen Daten das selbe Modul kennzeichnen die das aktuelle.
 	 * @param slot Die Slot-Nummer
@@ -43,18 +43,18 @@ public abstract class Module {
 	 * @param data Weitere Modul-Typ spezifische Daten
 	 * @return <code>true</code>, falls die Daten zum Modul passen
 	 */
-	public boolean isSame( int slot, int moduleid, String data ) {
+	public boolean isSame( int slot, Modules moduleid, String data ) {
 		return false;
 	}
-	
+
 	/**
 	 * Gibt den Namen des Moduls zurueck.
 	 * @return der Name
 	 */
-	public String getName() { 
-		return "Noname"; 
+	public String getName() {
+		return "Noname";
 	}
-	
+
 	/**
 	 * Setzt Modul-Typ spezifische Daten.
 	 * @param data Die Daten

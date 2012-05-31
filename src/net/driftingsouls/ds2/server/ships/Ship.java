@@ -114,12 +114,12 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 public class Ship implements Locatable,Transfering,Feeding {
 	private static final Log log = LogFactory.getLog(Ship.class);
-	
+
 	/**
 	 * Objekt mit Funktionsmeldungen.
 	 */
 	public static final ContextLocalMessage MESSAGE = new ContextLocalMessage();
-	
+
 	@Id @GeneratedValue(generator="ds-shipid")
 	@GenericGenerator(name="ds-shipid", strategy = "net.driftingsouls.ds2.server.ships.ShipIdGenerator")
 	private int id;
@@ -138,7 +138,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	@JoinColumn(name="type", nullable=false)
 	@BatchSize(size=50)
 	@Cache(usage=CacheConcurrencyStrategy.READ_ONLY)
-	private ShipType shiptype; 
+	private ShipType shiptype;
 	@Type(type="cargo")
 	@BatchSize(size=50)
 	private Cargo cargo;
@@ -177,12 +177,12 @@ public class Ship implements Locatable,Transfering,Feeding {
 	private boolean battleAction;
 	private String jumptarget;
 	private byte autodeut;
-	
+
 	@OneToOne(fetch=FetchType.LAZY, optional=false, cascade={CascadeType.MERGE,CascadeType.REFRESH,CascadeType.REMOVE})
 	@Cascade(org.hibernate.annotations.CascadeType.EVICT)
 	@PrimaryKeyJoinColumn(name="id", referencedColumnName="id")
 	private ShipHistory history;
-	
+
 	private String oncommunicate;
 	@Column(name="`lock`")
 	private String lock;
@@ -199,7 +199,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	@BatchSize(size=500)
 	@NotFound(action = NotFoundAction.IGNORE)
 	private Set<ShipUnitCargoEntry> units;
-	
+
 	@OneToOne(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
 	@Cascade(org.hibernate.annotations.CascadeType.EVICT)
 	@JoinColumn(name="scriptData_id")
@@ -208,35 +208,35 @@ public class Ship implements Locatable,Transfering,Feeding {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "ship")
     private Set<ShipFlag> flags;
-	
+
 	@Transient
 	private Offizier offizier;
-	
+
 	@Version
 	private int version;
-	
+
 	@Transient
 	private boolean destroyed = false;
 	@Transient
 	private UnitCargo unitcargo = null;
-	
+
 	@Transient
 	private Configuration config;
-    
-    
-    
+
+
+
     //Ship flags, no enum as this doesn't work very well with hibernate
 
     /** Das Schiff wurde vor kurzem repariert und kann aktuell nicht erneut repariert werden. */
     public static final int FLAG_RECENTLY_REPAIRED = 1;
-	
+
 	/**
 	 * Konstruktor.
 	 */
 	protected Ship() {
 		// EMPTY
 	}
-	
+
 	/**
 	 * Erstellt ein neues Schiff.
 	 * @param owner Der Besitzer
@@ -255,7 +255,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		this.autodeut = 1;
 		this.showtradepost = TradepostVisibility.ALL;
 	}
-	
+
 	/**
 	 * Erstellt ein neues Schiff.
 	 * @param owner Der Besitzer
@@ -297,13 +297,13 @@ public class Ship implements Locatable,Transfering,Feeding {
     {
         this.flags = flags;
     }
-	
+
     /**
      * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
-    public void setConfiguration(Configuration config) 
+    public void setConfiguration(Configuration config)
     {
     	this.config = config;
     }
@@ -316,7 +316,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public int getId() {
 		return id;
 	}
-	
+
 	/**
 	 * Setzt die ID des Schiffes.
 	 * @param id Die ID
@@ -324,7 +324,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public void setId(int id) {
 		this.id = id;
 	}
-	
+
 	/**
 	 * Gibt den Besitzer des Schiffes zurueck.
 	 * @return Der Besitzer
@@ -333,7 +333,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public User getOwner() {
 		return this.owner;
 	}
-	
+
 	/**
 	 * Setzt den Besitzer des Schiffes.
 	 * @param owner Der Besitzer des Schiffes
@@ -341,7 +341,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public void setOwner(User owner) {
 		this.owner = owner;
 	}
-	
+
 	/**
 	 * Gibt den Namen des Schiffes zurueck.
 	 * @return Der Name
@@ -349,7 +349,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public String getName() {
 		return this.name;
 	}
-	
+
 	/**
 	 * Setzt den Namen des Schiffes.
 	 * @param name Der neue Name
@@ -357,7 +357,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+
 	/**
 	 * Gibt den Typ des Schiffes zurueck.
 	 * @return Der Typ
@@ -365,7 +365,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public int getType() {
 		return this.shiptype.getId();
 	}
-	
+
 	/**
 	 * Gibt das zugrunde liegende Schiffstypen-Objekt zurueck.
 	 * @return Das Schiffstypen-Objekt
@@ -373,7 +373,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public ShipType getBaseType() {
 		return this.shiptype;
 	}
-	
+
 	/**
 	 * Setzt den Typ des Schiffes.
 	 * @param type Der neue Typ
@@ -381,7 +381,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public void setBaseType(ShipType type) {
 		this.shiptype = type;
 	}
-	
+
 	/**
 	 * Gibt den Cargo des Schiffes zurueck.
 	 * @return Der Cargo
@@ -390,7 +390,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public Cargo getCargo() {
 		return new Cargo(this.cargo);
 	}
-	
+
 	/**
 	 * Setzt den Cargo des Schiffes.
 	 * @param cargo Der neue Cargo
@@ -399,27 +399,27 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public void setCargo(Cargo cargo) {
 		this.cargo = new Cargo(cargo);
 	}
-	
+
 	/**
 	 * @return The current amount of food on the object.
 	 */
 	@Override
-	public long getNahrungCargo() 
+	public long getNahrungCargo()
 	{
 		return this.nahrungcargo;
 	}
-	
+
 	/**
 	 * Updates the amount of food on the object.
-	 * 
+	 *
 	 * @param nahrungcargo The new amount of food.
 	 */
 	@Override
-	public void setNahrungCargo(long nahrungcargo) 
+	public void setNahrungCargo(long nahrungcargo)
 	{
 		this.nahrungcargo = nahrungcargo;
 	}
-	
+
 	/**
 	 * Gibt die X-Koordinate des Schiffes zurueck.
 	 * @return Die X-Koordinate
@@ -427,7 +427,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public int getX() {
 		return this.x;
 	}
-	
+
 	/**
 	 * Setzt die X-Koordinate des Schiffes.
 	 * @param x Die X-Koordinate
@@ -435,7 +435,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public void setX(int x) {
 		this.x = x;
 	}
-	
+
 	/**
 	 * Gibt die Y-Koordinate des Schiffes zurueck.
 	 * @return Die Y-Koordinate
@@ -443,7 +443,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public int getY() {
 		return this.y;
 	}
-	
+
 	/**
 	 * Setzt die Y-Koordinate des Schiffes.
 	 * @param y Die Y-Koordinate
@@ -451,7 +451,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public void setY(int y) {
 		this.y = y;
 	}
-	
+
 	/**
 	 * Gibt das Sternensystem des Schiffes zurueck.
 	 * @return Das Sternensystem
@@ -459,7 +459,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public int getSystem() {
 		return this.system;
 	}
-	
+
 	/**
 	 * Setzt das Sternensystem des Schiffes.
 	 * @param system Das Sternensystem
@@ -609,7 +609,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		unitcargo.setDestId(id);
 		unitcargo.save();
 	}
-	
+
 	/**
 	 * Gibt die Energiemenge auf dem Schiff zurueck.
 	 * @return Die Energiemenge
@@ -681,7 +681,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public String getWeaponHeat() {
 		return this.weaponHeat;
 	}
-	
+
 	/**
 	 * Setzt die Waffenhitze.
 	 * @param heat Die neue Waffenhitze
@@ -777,7 +777,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public String getStatus() {
 		return status;
 	}
-	
+
 	/**
 	 * Returns true if Ship is a tradepost.
 	 * @return tradepoststatus
@@ -799,7 +799,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	{
 		return isfeeding;
 	}
-	
+
 	/**
 	 * Setzt, ob dieser Versorger aktuell versorgen soll.
 	 * @param feeding <code>true</code>, falls der Versorger versorgen soll
@@ -808,7 +808,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	{
 		this.isfeeding = feeding;
 	}
-	
+
 	/**
 	 * Gibt zuruecl, ob dieser Versorger Allianzschiffe mit versorgt.
 	 * @return <code>true</code>, falls dieser Versorger Allianzschiffe versorgt
@@ -817,7 +817,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	{
 		return isallyfeeding;
 	}
-	
+
 	/**
 	 * Setzt, ob dieser Versorger Allianzschiffe mit versorgt.
 	 * @param feeding <code>true</code>, falls dieser Versorger Allianzschiffe versorgen soll
@@ -826,7 +826,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	{
 		this.isallyfeeding = feeding;
 	}
-	
+
 	/**
 	 * Setzt das Statusfeld des Schiffes.
 	 * @param status das neue Statusfeld
@@ -962,7 +962,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public void setOnMove(String onmove) {
 		this.onmove = onmove;
 	}
-	
+
 	/**
 	 * Gibt die Scriptdaten zum Schiff zurueck.
 	 * @return Die Daten
@@ -976,13 +976,13 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * Gibt das Script des Schiffes zurueck.
 	 * @return Das Script
 	 */
-	public String getScript() 
+	public String getScript()
 	{
 		if(scriptData != null)
 		{
 			return scriptData.getScript();
 		}
-		
+
 		return "";
 	}
 
@@ -990,7 +990,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * Setzt das Script des Schiffes.
 	 * @param script Das neue Script
 	 */
-	public void setScript(String script) 
+	public void setScript(String script)
 	{
 		if( script != null && !script.trim().isEmpty() )
 		{
@@ -1011,18 +1011,18 @@ public class Ship implements Locatable,Transfering,Feeding {
 			scriptData = null;
 		}
 	}
-	
+
 	/**
 	 * Gibt die Scriptausfuehrungsdaten zurueck.
 	 * @return Die Scriptausfuehrungsdaten
 	 */
-	public Blob getScriptExeData() 
+	public Blob getScriptExeData()
 	{
 		if(scriptData != null)
 		{
 			return scriptData.getScriptexedata();
 		}
-		
+
 		return null;
 	}
 
@@ -1030,38 +1030,17 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * Setzt die Scriptausfuehrungsdaten.
 	 * @param scriptexedata Die neuen Ausfuehrungsdaten
 	 */
-	public void setScriptExeData(Blob scriptexedata) 
+	public void setScriptExeData(Blob scriptexedata)
 	{
 		if(scriptData == null)
 		{
 			ShipScriptData data = new ShipScriptData();
-			data.setShipid(this.getId());
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			db.persist(data);
 			scriptData = data;
 		}
 		scriptData.setScriptexedata(scriptexedata);
 	}
-
-	/**
-	 * Gibt die Scriptausfuehrungsdaten zurueck.
-	 * @return Die Scriptausfuehrungsdaten
-	 */
-	/*
-	public Blob getScriptExeData() {
-		return scriptexedata;
-	}
-	*/
-
-	/**
-	 * Setzt die Scriptausfuehrungsdaten.
-	 * @param scriptexedata Die neuen Ausfuehrungsdaten
-	 */
-	/*
-	public void setScriptExeData(Blob scriptexedata) {
-		this.scriptexedata = scriptexedata;
-	}
-	*/
 
 	/**
 	 * Gibt die Sichtbarkeitsdaten zurueck.
@@ -1078,17 +1057,17 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public void setVisibility(Integer visibility) {
 		this.visibility = visibility;
 	}
-	
+
 	/**
 	 * Gibt die Typen-Daten des Schiffs zurueck.
 	 * @return die Typen-Daten
 	 */
-	public ShipTypeData getTypeData() {	
+	public ShipTypeData getTypeData() {
 		return getShipType(this.shiptype, this.modules, false);
 	}
-	
+
 	private static final int MANGEL_TICKS = 9;
-	
+
 	/**
 	 * Berechnet das Status-Feld des Schiffes neu. Diese Aktion sollte nach jeder
 	 * Operation angewendet werden, die das Schiff in irgendeiner Weise veraendert.
@@ -1098,59 +1077,59 @@ public class Ship implements Locatable,Transfering,Feeding {
 		if( this.id < 0 ) {
 			throw new UnsupportedOperationException("recalculateShipStatus kann nur bei Schiffen mit positiver ID ausgefuhert werden!");
 		}
-		
+
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
+
 		ShipTypeData type = this.getTypeData();
-		
+
 		Cargo cargo = this.cargo;
-		
+
 		List<String> status = new ArrayList<String>();
-		
+
 		// Alten Status lesen und ggf Elemente uebernehmen
 		String[] oldstatus = StringUtils.split(this.status, ' ');
-		
+
 		if( oldstatus.length > 0 ) {
 			for( int i=0; i < oldstatus.length; i++ ) {
 				String astatus = oldstatus[i];
-				
+
 				// deprecated -- vorlaeufig automatisch rausfiltern
 				if( astatus.equals("tblmodules") || astatus.equals("nebel") ) {
 					continue;
 				}
-				
+
 				// Aktuelle Statusflags rausfiltern
-				if( !astatus.equals("disable_iff") && !astatus.equals("mangel_nahrung") && 
-						!astatus.equals("mangel_reaktor") && !astatus.equals("offizier") && 
+				if( !astatus.equals("disable_iff") && !astatus.equals("mangel_nahrung") &&
+						!astatus.equals("mangel_reaktor") && !astatus.equals("offizier") &&
 						!astatus.equals("nocrew") ) {
 					status.add(astatus);
 				}
 			}
 		}
-		
+
 		// Treibstoffverbrauch berechnen
 		if( type.getRm() > 0 ) {
-			long ep = cargo.getResourceCount( Resources.URAN ) * type.getRu() + 
-			cargo.getResourceCount( Resources.DEUTERIUM ) * type.getRd() + 
+			long ep = cargo.getResourceCount( Resources.URAN ) * type.getRu() +
+			cargo.getResourceCount( Resources.DEUTERIUM ) * type.getRd() +
 			cargo.getResourceCount( Resources.ANTIMATERIE ) * type.getRa();
 			long er = ep/type.getRm();
-			
+
 			int turns = 2;
 			if( (this.alarm != Alert.GREEN.getCode()) && (type.getShipClass() != ShipClasses.GESCHUETZ.ordinal()) ) {
-				turns = 4;	
+				turns = 4;
 			}
-			
+
 			if( er <= MANGEL_TICKS/turns ) {
 				status.add("mangel_reaktor");
 			}
 		}
-		
+
 		// Die Items nach IFF und Hydros durchsuchen
-		
+
 		if( cargo.getItemWithEffect(ItemEffect.Type.DISABLE_IFF) != null ) {
 			status.add("disable_iff");
 		}
-		
+
 		// Ist ein Offizier an Bord?
 		Offizier offi = getOffizier();
 		if( offi != null ) {
@@ -1178,7 +1157,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=?")
 				.setEntity(0, this)
 				.uniqueResult();
-			
+
 			if( (werft != null) && (werft.getKomplex() != null) ) {
 				werft.getKomplex().checkWerftLocations();
 			}
@@ -1186,7 +1165,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 				log.error("Das Schiff "+this.id+" besitzt keinen Werfteintrag");
 			}
 		}
-		
+
 		return this.status;
 	}
 
@@ -1197,7 +1176,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	private Ship getVersorger()
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
+
 		Ship versorger = (Ship)db.createQuery("from Ship as s left join fetch s.modules" +
 								" where (s.shiptype.versorger!=0 or s.modules.versorger!=0)" +
 								" and s.owner=? and s.system=? and s.x=? and s.y=? and s.nahrungcargo > 0 and s.isfeeding != 0 ORDER BY s.nahrungcargo DESC")
@@ -1207,16 +1186,16 @@ public class Ship implements Locatable,Transfering,Feeding {
 								.setInteger(3, this.y)
 								.setMaxResults(1)
 								.uniqueResult();
-		
+
 		return versorger;
 	}
-	
+
 	private long getSectorTimeUntilLackOfFood()
 	{
 		Context context = ContextMap.getContext();
-		
+
 		org.hibernate.Session db = context.getDB();
-		
+
 		Object unitsnahrung = db.createQuery("select sum(e.amount*t.nahrungcost) from UnitCargoEntry as e,UnitType as t, Ship as s where e.key.unittype = t.id and e.key.destid = s.id and e.key.type = 2 and s.system=:system and s.x=:x and s.y=:y and s.owner = :user")
 									.setInteger("system", this.system)
 									.setInteger("x", this.x)
@@ -1224,14 +1203,14 @@ public class Ship implements Locatable,Transfering,Feeding {
 									.setEntity("user", this.owner)
 									.iterate()
 									.next();
-		
+
 		// Die bloeden Abfragen muessen sein weil die Datenbank meint NULL anstatt 0 zurueckgeben zu muessen.
 		double unitstofeed = 0;
 		if(unitsnahrung != null)
 		{
 			unitstofeed = (Double)unitsnahrung;
 		}
-		
+
 		Object crewnahrung = db.createQuery("select sum(crew) from Ship where system=:system and x=:x and y=:y and owner=:user")
 							.setInteger("system", this.system)
 							.setInteger("x", this.x)
@@ -1239,20 +1218,20 @@ public class Ship implements Locatable,Transfering,Feeding {
 							.setEntity("user", this.owner)
 							.iterate()
 							.next();
-		
+
 		long crewtofeed = 0;
 		if( crewnahrung != null)
 		{
 			crewtofeed = (Long)crewnahrung;
 		}
-		
+
 		long nahrungtofeed = (long)Math.ceil(unitstofeed + crewtofeed/10.0);
-		
+
 		if(nahrungtofeed == 0)
 		{
 			return Long.MAX_VALUE;
 		}
-		
+
 		Object versorger = db.createQuery("select sum(s.nahrungcargo) from Ship as s left join s.modules" +
 								" where (s.shiptype.versorger!=0 or s.modules.versorger!=0)" +
 								" and s.owner=:user and s.system=:system and s.x=:x and s.y=:y and s.isfeeding != 0")
@@ -1262,29 +1241,29 @@ public class Ship implements Locatable,Transfering,Feeding {
 						.setEntity("user", this.owner)
 						.iterate()
 						.next();
-		
+
 		long versorgernahrung = 0;
 		if( versorger != null)
 		{
 			versorgernahrung = (Long)versorger;
 		}
-		
+
 		List<Base> bases = Common.cast(db.createQuery("from Base where owner=:user and system=:system and x=:x and y=:y and isfeeding=1")
 						.setEntity("user", this.owner)
 						.setInteger("system", this.system)
 						.setInteger("x", this.x)
 						.setInteger("y", this.y)
 						.list());
-		
+
 		int basenahrung = 0;
 		for(Base base : bases)
 		{
 			basenahrung += base.getCargo().getResourceCount(Resources.NAHRUNG);
 		}
-		
+
 		return (versorgernahrung+basenahrung) / nahrungtofeed;
 	}
-	
+
 	private boolean lackOfFood() {
 		long ticks = timeUntilLackOfFood();
 		if( ticks <= MANGEL_TICKS && ticks >= 0) {
@@ -1296,33 +1275,33 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 	private boolean isBaseInSector() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
+
 		List<?> bases = db.createQuery("from Base where owner=? and system=? and x=? and y=?")
 							.setEntity(0, this.owner)
 							.setInteger(1, this.system)
 							.setInteger(2, this.x)
 							.setInteger(3, this.y)
 							.list();
-		
+
 		if(bases.size() > 0)
 		{
 			return true;
 		}
 		return false;
 	}
-	
-	private long timeUntilLackOfFood() {		
+
+	private long timeUntilLackOfFood() {
 		//Basisschiff beruecksichtigen
 		Ship baseShip = getBaseShip();
 		if( baseShip != null ) {
 			return baseShip.timeUntilLackOfFood();
 		}
-		
+
 		int foodConsumption = getFoodConsumption();
 		if( foodConsumption <= 0 ) {
 			return Long.MAX_VALUE;
 		}
-		
+
 		Ship versorger = getVersorger();
 
 		//Den Nahrungsverbrauch berechnen - Ist nen Versorger da ists cool
@@ -1335,7 +1314,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			// Ansonsten schmeissen wir noch das drauf was selbst da ist.
 			return getSectorTimeUntilLackOfFood() + this.nahrungcargo / foodConsumption;
 		}
-		
+
 		// OK muss alles selbst haben *schnueff*
 		return this.nahrungcargo / foodConsumption;
 	}
@@ -1344,7 +1323,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * Calculates the amount of food a ship consumes.
 	 * The calculation is done with respect to hydros / shiptype.
 	 * The calculation is done with respect to docked ships
-	 * 
+	 *
 	 * @return Amount of food this ship consumes
 	 */
 	public int getFoodConsumption() {
@@ -1360,7 +1339,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		int dockedcrew = 0;
 		int dockedunits = 0;
 		int dockedhydro = 0;
-		
+
 		if( shiptype.getJDocks() > 0 || shiptype.getADocks() > 0 ) {
 			//Angehaengte Schiffe beruecksichtigen
 			List<?> dockedShips = db.createQuery("from Ship as ship where ship.docked in (?,?)")
@@ -1375,37 +1354,37 @@ public class Ship implements Locatable,Transfering,Feeding {
 				dockedhydro += dockedShip.getTypeData().getHydro();
 			}
 		}
-		
+
 		return (int)Math.ceil((scaledcrew+dockedcrew)/10.0)+scaledunits+dockedunits-hydro-dockedhydro;
 	}
-	
+
 	/**
 	 * Gibt den Skalierungsfaktor fuer aktiven Alarm zurueck.
-	 * 
+	 *
 	 * @return Skalierungsfaktor, je nach Alarmstufe.
 	 */
 	public double getAlertScaleFactor()
 	{
 		double[] factors = new double[] { 1, 1.1, 1.1 };
-		
+
 		return factors[getAlarm()];
 	}
 
 	/**
 	 * Returns the crew scaled by a factor according to alert.
 	 * Ships with active alert consume more food.
-	 * 
+	 *
 	 * @return Crew scaled by a factor according to shiptype.
 	 */
 	private int getScaledCrew() {
 		double scale = getAlertScaleFactor();
 		return (int)Math.ceil(this.crew*scale);
 	}
-	
+
 	/**
 	 * Returns the units scaled by a factor according to alert.
 	 * Ships with active alert consume more food.
-	 * 
+	 *
 	 * @return Units scaled by a factor according to shiptype.
 	 */
 	private int getScaledUnits() {
@@ -1418,7 +1397,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	}
 
 	/**
-	 * Repraesentiert ein in ein Schiff eingebautes Modul (oder vielmehr die Daten, 
+	 * Repraesentiert ein in ein Schiff eingebautes Modul (oder vielmehr die Daten,
 	 * die hinterher verwendet werden um daraus ein Modul zu rekonstruieren).
 	 */
 	public static class ModuleEntry {
@@ -1430,13 +1409,13 @@ public class Ship implements Locatable,Transfering,Feeding {
 		 * Der Modultyp.
 		 * @see net.driftingsouls.ds2.server.cargo.modules.Module
 		 */
-		public final int moduleType;
+		public final Modules moduleType;
 		/**
 		 * Weitere Modultyp-spezifische Daten.
 		 */
 		public final String data;
 
-		protected ModuleEntry(int slot, int moduleType, String data) {
+		protected ModuleEntry(int slot, Modules moduleType, String data) {
 			this.slot = slot;
 			this.moduleType = moduleType;
 			this.data = data;
@@ -1465,7 +1444,12 @@ public class Ship implements Locatable,Transfering,Feeding {
 			if( modulelist.length != 0 ) {
 				for( int i=0; i < modulelist.length; i++ ) {
 					String[] module = StringUtils.split(modulelist[i], ':');
-					result.add(new ModuleEntry(Integer.parseInt(module[0]), Integer.parseInt(module[1]), module[2]));	
+					Modules modType = Modules.fromOrdinal(Integer.parseInt(module[1]));
+					if( modType == null )
+					{
+						continue;
+					}
+					result.add(new ModuleEntry(Integer.parseInt(module[0]), modType, module[2]));
 				}
 			}
 		}
@@ -1479,7 +1463,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * @param moduleid Die Typen-ID des Modultyps
 	 * @param data Weitere Daten, welche das Modul identifizieren
 	 */
-	public void addModule(int slot, int moduleid, String data ) {
+	public void addModule(int slot, Modules moduleid, String data ) {
 		if( this.id < 0 ) {
 			throw new UnsupportedOperationException("addModules kann nur bei Schiffen mit positiver ID ausgefuhert werden!");
 		}
@@ -1512,23 +1496,23 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		List<Module> moduleobjlist = new ArrayList<Module>();
-		List<String> moduleSlotData = new ArrayList<String>(); 
+		List<String> moduleSlotData = new ArrayList<String>();
 
 		for( int i=0; i < moduletbl.size(); i++ ) {
 			ModuleEntry module = moduletbl.get(i);
-			if( module.moduleType != 0 ) {
+			if( module.moduleType != null ) {
 				Module moduleobj = Modules.getShipModule( module );
 				if( (module.slot > 0) && (slotlist.get(module.slot).length > 2) ) {
 					moduleobj.setSlotData(slotlist.get(module.slot)[2]);
 				}
 				moduleobjlist.add(moduleobj);
 
-				moduleSlotData.add(module.slot+":"+module.moduleType+":"+module.data);
+				moduleSlotData.add(module.slot+":"+module.moduleType.getOrdinal()+":"+module.data);
 			}
 		}
 
 		for( int i=0; i < moduleobjlist.size(); i++ ) {
-			type = moduleobjlist.get(i).modifyStats( type, moduleobjlist );		
+			type = moduleobjlist.get(i).modifyStats( type, moduleobjlist );
 		}
 
 		shipModules.setModules(Common.implode(";",moduleSlotData));
@@ -1580,7 +1564,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * @param moduleid Die Typen-ID des Modultyps
 	 * @param data Weitere Daten, welche das Modul identifizieren
 	 */
-	public void removeModule( int slot, int moduleid, String data ) {	
+	public void removeModule( int slot, Modules moduleid, String data ) {
 		if( this.id < 0 ) {
 			throw new UnsupportedOperationException("addModules kann nur bei Schiffen mit positiver ID ausgefuhert werden!");
 		}
@@ -1598,7 +1582,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		//check modules
 
-		//rebuild	
+		//rebuild
 		ShipTypeData type = Ship.getShipType( this.shiptype, null, true );
 
 		Map<Integer,String[]>slotlist = new HashMap<Integer,String[]>();
@@ -1609,11 +1593,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		List<Module> moduleobjlist = new ArrayList<Module>();
-		List<String> moduleSlotData = new ArrayList<String>(); 
+		List<String> moduleSlotData = new ArrayList<String>();
 
 		for( int i=0; i < moduletbl.size(); i++ ) {
 			ModuleEntry module = moduletbl.get(i);
-			if( module.moduleType != 0 ) {
+			if( module.moduleType != null ) {
 				Module moduleobj = Modules.getShipModule( module );
 
 				if( moduleobj.isSame(slot, moduleid, data) ) {
@@ -1625,12 +1609,12 @@ public class Ship implements Locatable,Transfering,Feeding {
 				}
 				moduleobjlist.add(moduleobj);
 
-				moduleSlotData.add(module.slot+":"+module.moduleType+":"+module.data);
+				moduleSlotData.add(module.slot+":"+module.moduleType.getOrdinal()+":"+module.data);
 			}
 		}
 
 		for( int i=0; i < moduleobjlist.size(); i++ ) {
-			type = moduleobjlist.get(i).modifyStats( type, moduleobjlist );		
+			type = moduleobjlist.get(i).modifyStats( type, moduleobjlist );
 		}
 
 		if( moduleSlotData.size() > 0 ) {
@@ -1639,7 +1623,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 		else {
 			db.delete(shipModules);
-			
+
 			this.modules = null;
 		}
 	}
@@ -1661,7 +1645,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		//check modules
 
-		//rebuild	
+		//rebuild
 		ShipTypeData type = Ship.getShipType( this.shiptype, null, true );
 
 		Map<Integer,String[]>slotlist = new HashMap<Integer,String[]>();
@@ -1672,11 +1656,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		List<Module> moduleobjlist = new ArrayList<Module>();
-		List<String> moduleSlotData = new ArrayList<String>(); 
+		List<String> moduleSlotData = new ArrayList<String>();
 
 		for( int i=0; i < moduletbl.size(); i++ ) {
 			ModuleEntry module = moduletbl.get(i);
-			if( module.moduleType != 0 ) {
+			if( module.moduleType != null ) {
 				Module moduleobj = Modules.getShipModule( module );
 
 				if( (module.slot > 0) && (slotlist.get(module.slot).length > 2) ) {
@@ -1684,19 +1668,19 @@ public class Ship implements Locatable,Transfering,Feeding {
 				}
 				moduleobjlist.add(moduleobj);
 
-				moduleSlotData.add(module.slot+":"+module.moduleType+":"+module.data);
+				moduleSlotData.add(module.slot+":"+module.moduleType.getOrdinal()+":"+module.data);
 			}
 		}
 
 		for( int i=0; i < moduleobjlist.size(); i++ ) {
-			type = moduleobjlist.get(i).modifyStats( type, moduleobjlist );		
+			type = moduleobjlist.get(i).modifyStats( type, moduleobjlist );
 		}
 
 		shipModules.setModules(Common.implode(";",moduleSlotData));
 		writeTypeToShipModule(shipModules, type);
 	}
 
-	private void handleAlert() 
+	private void handleAlert()
 	{
 		User owner = this.owner;
 		List<Ship> attackShips = alertCheck(owner, this.getLocation()).values().iterator().next();
@@ -1705,7 +1689,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		{
 			return;
 		}
-		
+
 		for(Ship ship: attackShips)
 		{
 			if(ship.getBattle() != null)
@@ -1720,28 +1704,28 @@ public class Ship implements Locatable,Transfering,Feeding {
 						.setString(0, Integer.toString(this.id))
 						.iterate().next()).intValue();
 
-				if(docked != 0) 
+				if(docked != 0)
 				{
 					List<Ship> dlist = Common.cast(db.createQuery("from Ship where docked=?")
 													 .setString(0, Integer.toString(this.id))
 													 .list());
-					
-					for(Ship aship: dlist) 
+
+					for(Ship aship: dlist)
 					{
 						battle.addShip(this.owner.getId(), aship.getId());
 					}
 				}
 				battle.addShip(this.owner.getId(), this.id);
 
-				if( battle.getEnemyLog(true).length() != 0 ) 
+				if( battle.getEnemyLog(true).length() != 0 )
 				{
 					battle.writeLog();
 				}
-				
+
 				return;
 			}
 		}
-		
+
 		Ship ship = attackShips.get(0); //Take some ship .. no special mechanism here.
 		Battle.create(ship.getOwner().getId(), ship.getId(), this.id, true);
 	}
@@ -1759,18 +1743,18 @@ public class Ship implements Locatable,Transfering,Feeding {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		boolean[] results = new boolean[locs.length];
-		
+
 		User user = (User)db.get(User.class, userid);
 
 		Map<Location,List<Ship>> result = alertCheck(user, locs);
-		
+
 		for( int i=0; i < locs.length; i++ ) {
 			results[i] = !result.get(locs[i]).isEmpty();
 		}
 		return results;
 	}
 
-	private static Map<Location,List<Ship>> alertCheck( User user, Location ... locs ) 
+	private static Map<Location,List<Ship>> alertCheck( User user, Location ... locs )
 	{
 		Map<Location,List<Ship>> results = new HashMap<Location,List<Ship>>();
 		Set<Location> locations = new HashSet<Location>();
@@ -1779,22 +1763,22 @@ public class Ship implements Locatable,Transfering,Feeding {
 			results.put(location, new ArrayList<Ship>());
 			locations.add(location);
 		}
-		
+
 		if(locations.isEmpty())
 		{
 			return results;
 		}
-		
+
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		
+
 		List<Ship> ships = Common.cast(db.createQuery("from Ship s inner join fetch s.owner where s.e > 0 and s.alarm!=:green and s.lock is null and s.docked='' and s.crew!=0 and s.system=:system and s.owner!=:owner")
 							 			 .setParameter("green", Alert.GREEN.getCode())
 							 			 .setParameter("system", locs[0].getSystem())
 							 			 .setParameter("owner", user)
 							 			 .list());
-		
-		User.Relations relationlist = user.getRelations();	
+
+		User.Relations relationlist = user.getRelations();
 		for(Ship ship: ships)
 		{
 			Location location = ship.getLocation();
@@ -1802,7 +1786,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			{
 				continue;
 			}
-			
+
 			User owner = ship.getOwner();
 			int alert = ship.getAlarm();
 			boolean attack = false;
@@ -1824,7 +1808,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 					attack = true;
 				}
 			}
-			
+
 			if(attack)
 			{
 				results.get(location).add(ship);
@@ -1833,7 +1817,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		return results;
 	}
-	
+
 	/**
 	 * Die verschiedenen Zustaende, die zum Ende eines Fluges gefuehrt haben koennen.
 	 */
@@ -1855,10 +1839,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 		 */
 		SHIP_FAILURE
 	}
-	
+
 	/**
 	 * Die verschiedenen Alarmstufen eines Schiffes.
-	 * 
+	 *
 	 * @author Sebastian Gift
 	 */
 	public static enum Alert
@@ -1866,21 +1850,21 @@ public class Ship implements Locatable,Transfering,Feeding {
 		/**
 		 * Keine Reaktion.
 		 */
-		GREEN(0), 
+		GREEN(0),
 		/**
 		 * Reaktion bei feindlichen Schiffen.
 		 */
-		YELLOW(1), 
+		YELLOW(1),
 		/**
 		 * Reaktion bei Schiffen, die nicht freundlich eingestellt sind.
 		 */
 		RED(2);
-		
+
 		private Alert(int code)
 		{
 			this.code = code;
 		}
-		
+
 		/**
 		 * @return Der zugehoerige Code als int.
 		 */
@@ -1888,7 +1872,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		{
 			return this.code;
 		}
-		
+
 		private final int code;
 	}
 
@@ -1935,11 +1919,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 		// Antrieb teilweise beschaedigt?
 		if( ship.getEngine() < 20 ) {
 			newe -= 4;
-		} 
+		}
 		else if( ship.getEngine() < 40 ) {
 			newe -= 2;
-		} 
-		else if( ship.getEngine() < 60 ) { 
+		}
+		else if( ship.getEngine() < 60 ) {
 			newe -= 1;
 		}
 
@@ -1955,7 +1939,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			return new MovementResult(distance, moved, MovementStatus.SHIP_FAILURE);
 		}
 
-		if( offizier != null ) {			
+		if( offizier != null ) {
 			// Flugkosten
 			int success = offizier.useAbility( Offizier.Ability.NAV, 200 );
 			if( success > 0 ) {
@@ -2013,11 +1997,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		StarSystem sys = (StarSystem)db.get(StarSystem.class, ship.getSystem());
 
-		if( x > sys.getWidth()) { 
+		if( x > sys.getWidth()) {
 			x = sys.getWidth();
 			distance = 0;
 		}
-		if( y > sys.getHeight()) { 
+		if( y > sys.getHeight()) {
 			y = sys.getHeight();
 			distance = 0;
 		}
@@ -2158,7 +2142,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			else {
 				int dockedcount = 0;
 				int adockedcount = 0;
-				if( (shiptype.getJDocks() > 0) || (shiptype.getADocks() > 0) ) { 
+				if( (shiptype.getJDocks() > 0) || (shiptype.getADocks() > 0) ) {
 					int docks = ((Number)db.createQuery("select count(*) from Ship where id>0 and docked in (?,?)")
 							.setString(0, "l "+fleetship.getId())
 							.setString(1, Integer.toString(fleetship.getId()))
@@ -2166,8 +2150,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 					dockedcount = docks;
 					if( shiptype.getADocks() > 0 ) {
-						adockedcount = (int)fleetship.getDockedCount();	
-					} 
+						adockedcount = (int)fleetship.getDockedCount();
+					}
 				}
 
 				if( fleetship.getStatus().indexOf("offizier") > -1 ) {
@@ -2201,7 +2185,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			if(verbose) {
 				out.append("<tr>\n");
 				out.append("<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange; font-size:12px\"> "+fleetship.getName()+" ("+fleetship.getId()+"):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n");
-			}	
+			}
 			Offizier offizierf = fleetdata.offiziere.get(fleetship.getId());
 
 			ShipTypeData shiptype = fleetship.getTypeData();
@@ -2226,7 +2210,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		return status;
 	}
 
-	private static void saveFleetShips() {	
+	private static void saveFleetShips() {
 		Context context = ContextMap.getContext();
 		FleetMovementData fleetdata = (FleetMovementData)context.getVariable(Ships.class, "fleetdata");
 
@@ -2246,7 +2230,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 				}
 
 			}
-			
+
 			for( Map.Entry<Location, List<String>> entry : shipDockIds.entrySet() ) {
 				final Location loc = entry.getKey();
 				List<?> dockedList = db.createQuery("from Ship s left join fetch s.modules where s.id>0 and s.docked in (:dockedIds)")
@@ -2263,13 +2247,13 @@ public class Ship implements Locatable,Transfering,Feeding {
 		context.putVariable(Ships.class, "fleetships", null);
 		context.putVariable(Ships.class, "fleetoffiziere", null);
 	}
-	
+
 	/**
 	 * <p>Fliegt eine Flugroute entlang. Falls das Schiff einer Flotte angehoert, fliegt
 	 * diese ebenfalls n Felder in diese Richtung.</p>
 	 * <p>Der Flug wird abgebrochen sobald eines der Schiffe nicht mehr weiterfliegen kann</p>
 	 * Die Flugrouteninformationen werden waehrend des Fluges modifiziert.
-	 * 
+	 *
 	 * @param route Die Flugroute
 	 * @param forceLowHeat Soll bei Ueberhitzung sofort abgebrochen werden?
 	 * @param disableQuests Sollen Questhandler ignoriert werden?
@@ -2284,12 +2268,12 @@ public class Ship implements Locatable,Transfering,Feeding {
 			out.append("Fehler: Das Schiff ist an ein Quest gebunden\n");
 			return MovementStatus.SHIP_FAILURE;
 		}
-		
+
 		//We want to fly the slowest ship first, so the fleet cannot be seperated
 		if(this.fleet != null && route.size() > 1)
 		{
 			Ship moving = this;
-			
+
 			List<Ship> ships = Common.cast(db.createQuery("from Ship where fleet=:fleet")
 											 .setParameter("fleet", this.fleet)
 											 .list());
@@ -2300,7 +2284,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 					moving = ship;
 				}
 			}
-			
+
 			//We have used references instead of copies, so we can compare by != here
 			if(moving != this)
 			{
@@ -2309,7 +2293,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 				{
 					route = route.subList(0, moving.getSafeTravelDistance());
 				}
-				
+
 				return moving.move(route, forceLowHeat, disableQuests);
 			}
 		}
@@ -2402,7 +2386,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 				Sector sector = (Sector)iter.next();
 				sectorlist.put(sector.getLocation(), sector);
 			}
-			
+
 			List<Ship> sectorList = Common.cast(db.createQuery("from Ship " +
 			"where owner!=:owner and system=:system and x between :lowerx and :upperx and y between :lowery and :uppery")
 			.setEntity("owner", this.owner)
@@ -2412,13 +2396,13 @@ public class Ship implements Locatable,Transfering,Feeding {
 			.setInteger("lowery", waypoint.direction <= 3 ? this.y-waypoint.distance : this.y )
 			.setInteger("uppery", waypoint.direction >= 7 ? this.y+waypoint.distance : this.y )
 			.list());
-			
+
 			List<Location> locations = new ArrayList<Location>();
 			for(Ship ship: sectorList)
 			{
 				locations.add(ship.getLocation());
 			}
-			
+
 			Map<Location, List<Ship>> alertList = alertCheck(owner, locations.toArray(new Location[0]));
 
 			// Alle potentiell relevanten Sektoren mit EMP-Nebeln (ok..und ein wenig ueberfluessiges Zeug bei schraegen Bewegungen) auslesen
@@ -2453,7 +2437,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			// Und nun fliegen wir mal ne Runde....
 			while( waypoint.distance > 0 ) {
 				final Location nextLocation = new Location(this.system,this.x+xoffset, this.y+yoffset);
-												
+
 				if(alertList.containsKey(nextLocation) && user.isNoob()){
 					List<Ship> attackers = alertCheck(user, nextLocation)
 						.values().iterator().next();
@@ -2464,7 +2448,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 						break;
 					}
 				}
-				
+
 				// Schauen wir mal ob wir vor Alarm warnen muessen
 				if( (startdistance > 1) && alertList.containsKey(nextLocation) ) {
 					List<Ship> attackers = alertCheck(user, nextLocation)
@@ -2477,7 +2461,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 						break;
 					}
 				}
-				
+
 				if( (startdistance > 1) && nebulaemplist.containsKey(nextLocation) ) {
 					out.append("<span style=\"color:#ff0000\">EMP-Nebel im n&auml;chsten Sektor geortet</span><br />\n");
 					out.append("<span style=\"color:#ff0000\">Autopilot bricht ab</span><br />\n");
@@ -2489,7 +2473,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 				int olddirection = waypoint.direction;
 
 				// ACHTUNG: Ob das ganze hier noch sinnvoll funktioniert, wenn distance > 1 ist, ist mehr als fraglich...
-				if( nebulaemplist.containsKey(nextLocation) && 
+				if( nebulaemplist.containsKey(nextLocation) &&
 						(RandomUtils.nextDouble() < getTypeData().getLostInEmpChance()) ) {
 					int nebel = Ships.getNebula(getLocation());
 					if( nebel == 5 ) {
@@ -2526,7 +2510,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 								Sector sector = (Sector)iter.next();
 								sectorlist.put(sector.getLocation(), sector);
 							}
-							
+
 							alertList.putAll(alertCheck(owner, new Location[] { new Location(this.system, this.x+tmpxoff, this.y+tmpyoff) }));
 						}
 					}
@@ -2539,7 +2523,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 				waypoint.distance = result.distance;
 
 				if( result.moved ) {
-					// Jetzt, da sich unser Schiff korrekt bewegt hat, fliegen wir auch die Flotte ein stueck weiter	
+					// Jetzt, da sich unser Schiff korrekt bewegt hat, fliegen wir auch die Flotte ein stueck weiter
 					if( this.fleet != null ) {
 						MovementStatus fleetResult = moveFleet(waypoint.direction, forceLowHeat, false);
 						if( fleetResult != MovementStatus.SUCCESS  ) {
@@ -2557,10 +2541,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 						if( sectorlist.containsKey(loc) ) {
 							sector = sectorlist.get(loc);
 						}
-						else if( sectorlist.containsKey(loc.setX(-1)) ) { 
+						else if( sectorlist.containsKey(loc.setX(-1)) ) {
 							sector = sectorlist.get(loc.setX(-1));
 						}
-						else if( sectorlist.containsKey(loc.setY(-1)) ) { 
+						else if( sectorlist.containsKey(loc.setY(-1)) ) {
 							sector = sectorlist.get(loc.setY(-1));
 						}
 
@@ -2579,7 +2563,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 							ScriptEngine scriptparser = ContextMap.getContext().get(ContextCommon.class).getScriptParser("DSQuestScript");
 							final Bindings engineBindings = scriptparser.getContext().getBindings(ScriptContext.ENGINE_SCOPE);
-							
+
 							engineBindings.put("_SHIP", this);
 							if( !user.hasFlag(User.FLAG_SCRIPT_DEBUGGING) ) {
 								scriptparser.getContext().setErrorWriter(new NullLogger());
@@ -2600,7 +2584,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 							}
 
 							if( Quests.executeEvent(scriptparser, sector.getOnEnter(), this.owner, "", false ) ) {
-								if( scriptparser.getContext().getWriter().toString().length()!= 0 ) {							
+								if( scriptparser.getContext().getWriter().toString().length()!= 0 ) {
 									waypoint.distance = 0;
 								}
 							}
@@ -2621,7 +2605,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 						saveFleetShips();
 
 
-						this.handleAlert();	
+						this.handleAlert();
 					}
 				}
 
@@ -2665,12 +2649,12 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * Sprungpunkt) sein.</p>
 	 * <p>Bei letzterem kann der Sprung scheitern, wenn keine Sprungberechtigung
 	 * vorliegt.</p>
-	 * 
+	 *
 	 * @param nodeID Die ID des Sprungpunkts/Des Schiffes mit dem Sprungpunkt
 	 * @param knode <code>true</code>, falls es sich um einen "Knossos"-Sprungpunkt handelt
 	 * @return <code>true</code>, falls ein Fehler aufgetreten ist
 	 */
-	public boolean jump(int nodeID, boolean knode) 
+	public boolean jump(int nodeID, boolean knode)
 	{
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
@@ -2681,7 +2665,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		String nodetarget = "";
 
 		User user = this.owner;
-		
+
 		if(this.getBattle() != null)
 		{
 			outputbuffer.append("Fehler: Sie k&ouml;nnen nicht mit einem Schiff springen, dass in einem Kampf ist.<br />\n");
@@ -2721,7 +2705,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			/* Behandlung Knossosportale:
 			 *
 			 * Ziel wird mit ships.jumptarget festgelegt - Format: art|koords/id|user/ally/gruppe
-			 * Beispiele: 
+			 * Beispiele:
 			 * fix|2:35/35|all:
 			 * ship|id:10000|ally:1
 			 * base|id:255|group:-15,455,1200
@@ -2737,7 +2721,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 			nodetypename = shipNode.getTypeData().getNickname();
 
-			/* 
+			/*
 			 * Ermittlung der Zielkoordinaten
 			 * geprueft wird bei Schiffen und Basen das Vorhandensein der Gegenstation
 			 * existiert keine, findet kein Sprung statt
@@ -2748,7 +2732,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 				outLoc = Location.fromString(target[1]);
 
 				nodetarget = target[1];
-			} 
+			}
 			else if( target[0].equals("ship") ) {
 				String[] shiptarget = StringUtils.split(target[1], ':');
 				Ship jmptarget = (Ship)db.get(Ship.class, Integer.valueOf(shiptarget[1]));
@@ -2759,7 +2743,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 				outLoc = new Location(jmptarget.getSystem(), jmptarget.getX(), jmptarget.getY());
 				nodetarget = outLoc.getSystem()+":"+outLoc.getX()+"/"+outLoc.getY();
-			}	
+			}
 			else if( target[0].equals("base") ) {
 				String[] shiptarget = StringUtils.split(target[1], ':');
 				Base jmptarget = (Base)db.get(Base.class, Integer.valueOf(shiptarget[1]));
@@ -2772,14 +2756,14 @@ public class Ship implements Locatable,Transfering,Feeding {
 				nodetarget = outLoc.toString();
 			}
 
-			// Einmalig das aktuelle Schiff ueberpruefen. 
+			// Einmalig das aktuelle Schiff ueberpruefen.
 			// Evt vorhandene Schiffe in einer Flotte werden spaeter separat gecheckt
 			if( shipNode.getId() == this.id ) {
 				outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen nicht mit dem "+nodetypename+" durch sich selbst springen</span><br />\n");
 				return true;
 			}
 
-			/* 
+			/*
 			 * Ermittlung der Sprungberechtigten
 			 */
 			String[] jmpnodeuser = StringUtils.split(target[2], ':'); // Format art:ids aufgespalten
@@ -2787,9 +2771,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 			if( jmpnodeuser[0].equals("all") ) {
 				// Keine Einschraenkungen
 			}
-			// die alte variante 
+			// die alte variante
 			else if( jmpnodeuser[0].equals("default") || jmpnodeuser[0].equals("ownally") ){
-				if( ( (user.getAlly() != null) && (shipNode.getOwner().getAlly() != user.getAlly()) ) || 
+				if( ( (user.getAlly() != null) && (shipNode.getOwner().getAlly() != user.getAlly()) ) ||
 						( user.getAlly() == null && (shipNode.getOwner() != user) ) ) {
 					outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes "+nodetypename+" benutzen - default</span><br />\n");
 					return true;
@@ -2871,7 +2855,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 			// Liste der gedockten Schiffe laden
 			List<Ship> docked = new ArrayList<Ship>();
-			if( (shiptype.getADocks() > 0) || (shiptype.getJDocks() > 0) ) { 
+			if( (shiptype.getADocks() > 0) || (shiptype.getJDocks() > 0) ) {
 				List<?> line = db.createQuery("from Ship where id>0 and docked in (?,?)")
 					.setString(0, Integer.toString(ship.getId()))
 					.setString(1, "l "+ship.getId())
@@ -2899,7 +2883,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 							ShipTypeData checktype = aship.getTypeData();
 							if( checktype.isMilitary() ) {
 								wpnfound = true;
-								break;	
+								break;
 							}
 						}
 
@@ -2953,11 +2937,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 		 */
 		START;
 	}
-	
+
 	/**
 	 * Jaeger landen.
 	 * Der Vorgang wird mit den Berechtigungen des Besitzers des Traegers ausgefuehrt.
-	 * 
+	 *
 	 * @param dockships Eine Liste mit Schiffen, die landen sollen.
 	 * @return <code>true</code>, falls ein Fehler aufgetreten ist
 	 */
@@ -2967,7 +2951,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		{
 			throw new IllegalArgumentException("Keine Schiffe zum landen gewaehlt.");
 		}
-		
+
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		StringBuilder outputbuffer = MESSAGE.get();
@@ -2980,36 +2964,36 @@ public class Ship implements Locatable,Transfering,Feeding {
 			errors = true;
 		}
 		dockships = help;
-		
+
 		if(dockships.length == 0)
 		{
 			return errors;
 		}
-		
+
 		//Check for type fighter
 		List<Ship> ships = Common.cast(
 			db.createQuery("from Ship s where locate(:fighter, shiptype.flags) > -1 and s in (:dockships)")
 				.setParameterList("dockships", dockships)
 				.setParameter("fighter", ShipTypes.SF_JAEGER)
 				.list());
-		
+
 		if(ships.size() < dockships.length)
 		{
 			//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
 			dockships = ships.toArray(new Ship[0]);
 			errors = true;
 		}
-		
+
 		long landedShips = (Long)db.createQuery("select count(*) from Ship where docked=?")
 			.setParameter(0, "l "+getId())
 			.uniqueResult();
 		if(landedShips + dockships.length > this.getTypeData().getJDocks())
 		{
 			outputbuffer.append("<span style=\"color:red\">Fehler: Nicht gen&uuml;gend freier Landepl&auml;tze vorhanden</span><br />\n");
-			
+
 			//Shorten list to max allowed size
 			int maxDockShips = this.getTypeData().getJDocks() - (int)landedShips;
-			if( maxDockShips < 0 ) 
+			if( maxDockShips < 0 )
 			{
 				maxDockShips = 0;
 			}
@@ -3017,32 +3001,32 @@ public class Ship implements Locatable,Transfering,Feeding {
 			System.arraycopy(dockships, 0, help, 0, maxDockShips);
 			dockships = help;
 		}
-		
+
 		if(dockships.length == 0)
 		{
 			return errors;
 		}
-		
+
 		db.createQuery("update Ship s set docked=:docked where s in (:dockships) and battle is null")
 			.setParameterList("dockships", dockships)
 			.setParameter("docked", "l "+this.getId())
 			.executeUpdate();
-		
+
 		// Die Query aktualisiert leider nicht die bereits im Speicher befindlichen Objekte...
 		for( Ship ship : dockships ) {
 			if ( ship.getBattle() == null ){
 				ship.setDocked("l "+this.getId());
 			}
 		}
-		
+
 		return errors;
 	}
-	
+
 	/**
 	 * Jaeger starten. Der Vorgang wird mit den Berechtigungen des Besitzers des Traegers ausgefuehrt.
-	 * <b>Warnung:</b> Beim starten aller Schiffe werden die Objekte der Session - sofern sie vorhanden sind - 
+	 * <b>Warnung:</b> Beim starten aller Schiffe werden die Objekte der Session - sofern sie vorhanden sind -
 	 * momentan nicht aktualisiert.
-	 * 
+	 *
 	 * @param dockships Eine Liste mit Schiffen, die starten sollen. Keine Angabe bewirkt das alle Schiffe gestartet werden.
 	 */
 	public void start(Ship... dockships)
@@ -3059,7 +3043,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			  .executeUpdate();
 		}
 		else
-		{	
+		{
 			db.createQuery("update Ship s set docked='', system=:system, x=:x, y=:y where docked=:docked and s in (:dockships)")
 				.setParameterList("dockships", dockships)
 				.setParameter("system", system)
@@ -3067,7 +3051,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 				.setParameter("y", y)
 				.setParameter("docked", "l "+this.getId())
 				.executeUpdate();
-			
+
 			for( Ship dockship : dockships ) {
 				dockship.setDocked("");
 				dockship.setX(x);
@@ -3076,11 +3060,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 			}
 		}
 	}
-	
+
 	/**
 	 * Schiffe abdocken.
 	 * Der Vorgang wird mit den Berechtigungen des Besitzers des Traegers ausgefuehrt.
-	 * 
+	 *
 	 * @param dockships Eine Liste mit Schiffen, die abgedockt werden sollen. Keine Angabe bewirkt das alle Schiffe abgedockt werden.
 	 */
 	public void undock(Ship... dockships)
@@ -3089,58 +3073,58 @@ public class Ship implements Locatable,Transfering,Feeding {
 			List<Ship> dockshipList = getDockedShips();
 			dockships = dockshipList.toArray(new Ship[dockshipList.size()]);
 		}
-		
+
 		boolean gotmodule = false;
-		for( Ship aship : dockships ) 
+		for( Ship aship : dockships )
 		{
 			if(aship.getBaseShipId() != this.getId())
 			{
 				//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
 				continue;
 			}
-			
+
 			aship.setDocked("");
-		  
+
 			ShipTypeData type = aship.getTypeData();
-		  
+
 			if( type.getShipClass() != ShipClasses.CONTAINER.ordinal() ) {
 				continue;
 		  	}
 			gotmodule = true;
-		  
-			aship.removeModule( 0, Modules.MODULE_CONTAINER_SHIP, Integer.toString(aship.getId()) );		
-			this.removeModule( 0, Modules.MODULE_CONTAINER_SHIP, Integer.toString(aship.getId()) );
+
+			aship.removeModule( 0, Modules.CONTAINER_SHIP, Integer.toString(aship.getId()) );
+			this.removeModule( 0, Modules.CONTAINER_SHIP, Integer.toString(aship.getId()) );
 		}
-		  
-		if( gotmodule ) 
+
+		if( gotmodule )
 		{
 			Cargo cargo = this.cargo;
-		  
+
 			// Schiffstyp neu abholen, da sich der Maxcargo geaendert hat
 			ShipTypeData shiptype = this.getTypeData();
-		  
+
 			Cargo newcargo = cargo;
-			if( cargo.getMass() > shiptype.getCargo() ) 
+			if( cargo.getMass() > shiptype.getCargo() )
 			{
-				newcargo = cargo.cutCargo( shiptype.getCargo() );	
+				newcargo = cargo.cutCargo( shiptype.getCargo() );
 			}
-			else 
+			else
 			{
-				cargo = new Cargo();	
+				cargo = new Cargo();
 			}
-		  
-			for( int i=0; i < dockships.length && cargo.getMass() > 0; i++ ) 
+
+			for( int i=0; i < dockships.length && cargo.getMass() > 0; i++ )
 			{
 				Ship aship = dockships[i];
 				ShipTypeData ashiptype = aship.getTypeData();
 
-				if( (ashiptype.getShipClass() == ShipClasses.CONTAINER.ordinal()) && (cargo.getMass() > 0) ) 
+				if( (ashiptype.getShipClass() == ShipClasses.CONTAINER.ordinal()) && (cargo.getMass() > 0) )
 				{
 					Cargo acargo = cargo.cutCargo( ashiptype.getCargo() );
-					if( !acargo.isEmpty() ) 
+					if( !acargo.isEmpty() )
 					{
 						aship.setCargo(acargo);
-					}	
+					}
 				}
 			}
 			this.cargo = newcargo;
@@ -3159,7 +3143,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			.list());
 		return dockshipList;
 	}
-	
+
 	/**
 	 * Gibt die Liste aller auf diesem Schiff gelandeten Schiffe zurueck.
 	 * @return Die Liste der Schiffe
@@ -3172,7 +3156,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 				.list());
 		return landedshipsList;
 	}
-	
+
 	/**
 	 * Dockt eine Menge von Schiffen an dieses Schiff an.
 	 * @param dockships Die anzudockenden Schiffe
@@ -3184,13 +3168,13 @@ public class Ship implements Locatable,Transfering,Feeding {
 		{
 			throw new IllegalArgumentException("Keine Schiffe zum landen gewaehlt.");
 		}
-		
-		
+
+
 		boolean superdock = owner.hasFlag(User.FLAG_SUPER_DOCK);
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		StringBuilder outputbuffer = MESSAGE.get();
-		
+
 		Ship[] help = performLandingChecks(outputbuffer, superdock, dockships);
 		boolean errors = false;
 		if(help.length < dockships.length)
@@ -3198,12 +3182,12 @@ public class Ship implements Locatable,Transfering,Feeding {
 			errors = true;
 		}
 		dockships = help;
-		
+
 		if(dockships.length == 0)
 		{
 			return errors;
 		}
-		
+
 		long dockedShips = (Long)db.createQuery("select count(*) from Ship where docked=?")
 			.setParameter(0, ""+getId())
 			.uniqueResult();
@@ -3215,7 +3199,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 					.setParameterList("dockships", dockships)
 					.setParameter("maxsize", ShipType.SMALL_SHIP_MAXSIZE)
 					.list());
-			
+
 			if(ships.size() < dockships.length)
 			{
 				//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
@@ -3223,11 +3207,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 				errors = true;
 			}
 		}
-		
+
 		if(dockedShips + dockships.length > this.getTypeData().getADocks())
 		{
 			outputbuffer.append("<span style=\"color:red\">Fehler: Nicht gen&uuml;gend freier Andockplatz vorhanden</span><br />\n");
-			
+
 			//Shorten list to max allowed size
 			int maxDockShips = this.getTypeData().getADocks() - (int)dockedShips;
 			if( maxDockShips < 0 ) {
@@ -3237,47 +3221,47 @@ public class Ship implements Locatable,Transfering,Feeding {
 			System.arraycopy(dockships, 0, help, 0, maxDockShips);
 			dockships = help;
 		}
-		
+
 		if(dockships.length == 0)
 		{
 			return errors;
 		}
-		
+
 		Cargo cargo = this.cargo;
 		final Cargo emptycargo = new Cargo();
-		  
-		for(Ship aship: dockships) 
+
+		for(Ship aship: dockships)
 		{
 			aship.setDocked(Integer.toString(this.id));
 			ShipTypeData type = aship.getTypeData();
-		  
-			if( type.getShipClass() != ShipClasses.CONTAINER.ordinal() ) 
+
+			if( type.getShipClass() != ShipClasses.CONTAINER.ordinal() )
 			{
 				continue;
 			}
-		  
+
 			Cargo dockcargo = aship.getCargo();
 			cargo.addCargo( dockcargo );
-		  
-			if( !dockcargo.isEmpty() ) 
+
+			if( !dockcargo.isEmpty() )
 			{
 				aship.setCargo(emptycargo);
 			}
-		  
-			aship.addModule( 0, Modules.MODULE_CONTAINER_SHIP, aship.getId()+"_"+(-type.getCargo()) );
-			this.addModule( 0, Modules.MODULE_CONTAINER_SHIP, aship.getId()+"_"+type.getCargo() );
+
+			aship.addModule( 0, Modules.CONTAINER_SHIP, aship.getId()+"_"+(-type.getCargo()) );
+			this.addModule( 0, Modules.CONTAINER_SHIP, aship.getId()+"_"+type.getCargo() );
 		}
-		  
+
 		this.cargo = cargo;
-		
+
 		return errors;
 	}
-	
+
 	/**
 	 * Checks, die sowohl fuers landen, als auch fuers andocken durchgefuehrt werden muessen.
-	 * 
+	 *
 	 * @param outputbuffer Puffer fuer Fehlermeldungen.
-	 * @param superdock <code>true</code>, falls im Superdock-Modus 
+	 * @param superdock <code>true</code>, falls im Superdock-Modus
 	 * 			(Keine Ueberpruefung von Groesse/Besitzer) gedockt/gelandet werden soll
 	 * @param dockships Schiffe auf die geprueft werden soll.
 	 * @return Die Liste der zu dockenden/landenden Schiffe
@@ -3288,19 +3272,19 @@ public class Ship implements Locatable,Transfering,Feeding {
 		{
 			return dockships;
 		}
-		
+
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
-		
+
 		//Enforce position
-		List<Ship> ships = Common.cast( 
+		List<Ship> ships = Common.cast(
 			db.createQuery("from Ship s where system=:system and x=:x and y=:y and s in (:dockships)")
 				.setParameterList("dockships", dockships)
 				.setParameter("system", system)
 				.setParameter("x", x)
 				.setParameter("y", y)
 				.list());
-		
+
 		if(ships.size() < dockships.length)
 		{
 			//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
@@ -3311,8 +3295,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 				return dockships;
 			}
 		}
-		
-		
+
+
 		/*
 		//Check quests
 		ships = (List<Ship>)db.createQuery("from Ship where (lock is :lock or lock=:lock2) and id in ("+ ids +")")
@@ -3320,41 +3304,41 @@ public class Ship implements Locatable,Transfering,Feeding {
 							  .setParameter("lock2", "")
 							  .list();
 		*/
-		
+
 		ships = Common.cast(
 			db.createQuery("from Ship s where (lock is null or lock = '') and s in (:dockships)")
 				.setParameterList("dockships", dockships)
 				.list());
-		
+
 		if(ships.size() < dockships.length)
 		{
 			outputbuffer.append("<span style=\"color:red\">Fehler: Mindestens ein Schiff ist an ein Quest gebunden</span><br />\n");
 			dockships = ships.toArray(new Ship[0]);
-			
+
 			if(dockships.length == 0)
 			{
 				return dockships;
 			}
 		}
-		
-		
+
+
 		//Check already docked
 		ships = Common.cast(
 			db.createQuery("from Ship s where docked='' and s in (:dockships)")
 				.setParameterList("dockships", dockships)
 				.list());
-		
+
 		if(ships.size() < dockships.length)
 		{
 			//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
 			dockships = ships.toArray(new Ship[0]);
-			
+
 			if(dockships.length == 0)
 			{
 				return dockships;
 			}
 		}
-		
+
 		//Enforce owner
 		if(!superdock)
 		{
@@ -3363,57 +3347,57 @@ public class Ship implements Locatable,Transfering,Feeding {
 					.setParameterList("dockships", dockships)
 					.setParameter("owner", owner)
 					.list());
-			
+
 			if(ships.size() < dockships.length)
 			{
 				//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
 				dockships = ships.toArray(new Ship[0]);
-				
+
 				if(dockships.length == 0)
 				{
 					return dockships;
 				}
 			}
 		}
-		
+
 		return dockships;
 	}
-		  
+
 	/**
 	 * Schiffe an/abdocken sowie Jaeger landen/starten. Der Dockvorgang wird mit den Berechtigungen
 	 * des Schiffsbesitzers ausgefuehrt.
-	 * Diese Methode sollte der Uebersichtlichkeit halber nur verwendet werden, 
+	 * Diese Methode sollte der Uebersichtlichkeit halber nur verwendet werden,
 	 * wenn die Aktion (docken, abdocken, etc.) nicht im Voraus bestimmt werden kann.
-	 * 
+	 *
 	 * @param mode Der Dock-Modus (Andocken, Abdocken usw)
 	 * @param dockships eine Liste mit Schiffen, welche (ab)docken oder landen/starten sollen. Keine Angabe bewirkt das alle Schiffe abgedockt/gestartet werden
 	 * @return <code>true</code>, falls ein Fehler aufgetreten ist
 	 */
-	public boolean dock(DockMode mode, Ship ... dockships) 
-	{		
+	public boolean dock(DockMode mode, Ship ... dockships)
+	{
 		if(mode == DockMode.DOCK)
 		{
 			return this.dock(dockships);
 		}
-		
+
 		if(mode == DockMode.LAND)
 		{
 			return this.land(dockships);
 		}
-		
+
 		if(mode == DockMode.START)
 		{
 			this.start(dockships);
 		}
-		
+
 		if(mode == DockMode.UNDOCK)
 		{
 			this.undock(dockships);
 		}
-	
+
   		return false;
   	}
-	  
+
 
 
 	/**
@@ -3460,11 +3444,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		if( loot.size() == 0 ) {
-			return;	
+			return;
 		}
 
 		ConfigValue truemmerMaxItems = (ConfigValue)db.get(ConfigValue.class, "truemmer_maxitems");
-		
+
 		// Und nun den Loot generieren
 		Cargo cargo = new Cargo();
 
@@ -3475,11 +3459,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 				ShipLoot aloot = loot.get(j);
 				if( aloot.getChance() + currentchance > rnd ) {
 					if( aloot.getTotalMax() > 0 ) {
-						aloot.setTotalMax(aloot.getTotalMax()-1);	
+						aloot.setTotalMax(aloot.getTotalMax()-1);
 					}
 					cargo.addResource( Resources.fromString(aloot.getResource()), aloot.getCount() );
-					break;	
-				}	
+					break;
+				}
 
 				currentchance += aloot.getChance();
 			}
@@ -3504,7 +3488,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		truemmer.setVisibility(destroyer);
 		int id = (Integer)db.save(truemmer);
 		db.save(truemmer.getHistory());
-		
+
 
 		Taskmanager.getInstance().addTask(Taskmanager.Types.SHIP_DESTROY_COUNTDOWN, 21, Integer.toString(id), "", "" );
 
@@ -3524,7 +3508,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			.iterate().next();
 			if( fleetcount <= 2 ) {
 				final ShipFleet fleet = this.fleet;
-				
+
 				final Iterator<?> shipIter = db.createQuery("from Ship where fleet=?")
 					.setEntity(0, this.fleet)
 					.iterate();
@@ -3532,7 +3516,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 					Ship aship = (Ship)shipIter.next();
 					aship.setFleet(null);
 				}
-				
+
 				db.delete(fleet);
 			}
 		}
@@ -3553,17 +3537,17 @@ public class Ship implements Locatable,Transfering,Feeding {
 		// Evt. gedockte Schiffe abdocken
 		ShipTypeData type = this.getTypeData();
 		if( type.getADocks() != 0 ) {
-			undock();	
+			undock();
 		}
 		if( type.getJDocks() != 0 ) {
-			start();	
+			start();
 		}
 
 		// Gibts bereits eine Loesch-Task? Wenn ja, dann diese entfernen
 		Taskmanager taskmanager = Taskmanager.getInstance();
 		Task[] tasks = taskmanager.getTasksByData( Taskmanager.Types.SHIP_DESTROY_COUNTDOWN, Integer.toString(this.id), "*", "*");
 		for( int i=0; i < tasks.length; i++ ) {
-			taskmanager.removeTask(tasks[i].getTaskID());	
+			taskmanager.removeTask(tasks[i].getTaskID());
 		}
 
 		// Und nun loeschen wir es...
@@ -3582,19 +3566,19 @@ public class Ship implements Locatable,Transfering,Feeding {
 		if( werft != null ) {
 			werft.destroy();
 		}
-		
+
 		// Delete Trade Limits if necessary
 		if (this.isTradepost())
 		{
 			db.createQuery("delete from ResourceLimit where shipid=:shipid").setParameter("shipid", this.id).executeUpdate();
 			db.createQuery("delete from SellLimit where shipid=:shipid").setParameter("shipid", this.id).executeUpdate();
 		}
-		
+
 		if( this.modules != null )
 		{
 			db.delete(this.modules);
 		}
-		
+
 		if(units != null)
 		{
 			for(UnitCargoEntry unit: units)
@@ -3602,19 +3586,19 @@ public class Ship implements Locatable,Transfering,Feeding {
 				db.delete(unit);
 			}
 		}
-		
+
 		if( this.scriptData != null )
 		{
 			db.delete(this.scriptData);
 			this.scriptData = null;
 		}
-		
+
 		db.delete(this.history);
 		this.history = null;
-		
+
 		db.flush(); //Damit auch wirklich alle Daten weg sind und Hibernate nicht auf dumme Gedanken kommt *sfz*
 		db.delete(this);
-		
+
 		this.destroyed = true;
 	}
 
@@ -3628,7 +3612,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public boolean isDestroyed() {
 		return this.destroyed;
 	}
-	
+
 	/**
 	 * Uebergibt ein Schiff an einen anderen Spieler. Gedockte/Gelandete Schiffe
 	 * werden, falls moeglich, mituebergeben.
@@ -3668,22 +3652,22 @@ public class Ship implements Locatable,Transfering,Feeding {
 			return true;
 		}
 
-		if( !testonly ) {	
+		if( !testonly ) {
 			this.history.addHistory("&Uuml;bergeben am [tick="+ContextMap.getContext().get(ContextCommon.class).getTick()+"] an "+newowner.getName()+" ("+newowner.getId()+")");
-			
+
 			this.removeFromFleet();
 			this.owner = newowner;
-			
+
 			if(this.isLanded())
 			{
 				this.getBaseShip().start(this);
 			}
-			
+
 			if(this.isDocked())
 			{
 				this.getBaseShip().undock(this);
 			}
-			
+
 			db.createQuery("update Offizier set userid=? where dest=?")
 				.setEntity(0, newowner)
 				.setString(1, "s "+this.id)
@@ -3693,14 +3677,14 @@ public class Ship implements Locatable,Transfering,Feeding {
 				ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=?")
 					.setEntity(0, this)
 					.uniqueResult();
-				
+
 				if(werft != null)
 				{
 					if(werft.isLinked())
 					{
 						werft.resetLink();
 					}
-					
+
 					if(werft.getKomplex() != null)
 					{
 						werft.removeFromKomplex();
@@ -3719,7 +3703,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			int oldlength = message.length();
 			boolean tmp = aship.consign(newowner, testonly );
 			if( tmp && !testonly ) {
-				this.dock( aship.isLanded() ? DockMode.START : DockMode.UNDOCK, aship);			
+				this.dock( aship.isLanded() ? DockMode.START : DockMode.UNDOCK, aship);
 			}
 
 			if( (oldlength > 0) && (oldlength != message.length()) ) {
@@ -3740,7 +3724,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	}
 
 	/**
-	 * Entfernt das Schiff aus der Flotte. 
+	 * Entfernt das Schiff aus der Flotte.
 	 */
 	public void removeFromFleet() {
 		if( this.id < 0 ) {
@@ -3752,7 +3736,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		this.fleet.removeShip(this);
-		
+
 		MESSAGE.get().append(ShipFleet.MESSAGE.getMessage());
 	}
 
@@ -3786,7 +3770,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		return null;
 	}
 
-	private static ShipTypeData getShipType( ShipType type, ShipModules shipdata, boolean plaindata ) {	
+	private static ShipTypeData getShipType( ShipType type, ShipModules shipdata, boolean plaindata ) {
 		if( !plaindata ) {
 			String picture = "";
 			if( shipdata == null ) {
@@ -3796,14 +3780,14 @@ public class Ship implements Locatable,Transfering,Feeding {
 				picture = shipdata.getPicture();
 			}
 
-			return new ShipTypeDataPictureWrapper(shipdata != null ? shipdata : type, 
+			return new ShipTypeDataPictureWrapper(shipdata != null ? shipdata : type,
 					!type.getPicture().equals(picture) ? true : false);
 		}
 
 		if( shipdata != null ) {
 			return shipdata;
 		}
-		
+
 		return type;
 	}
 
@@ -3830,7 +3814,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		if( this.docked.charAt(0) == 'l' ) {
 			return Integer.parseInt(this.docked.substring(2));
 		}
-		
+
 		return Integer.parseInt(this.docked);
 	}
 
@@ -3847,7 +3831,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public long getMaxCargo() {
 		return getTypeData().getCargo();
 	}
-	
+
 	/**
 	 * Gibt den Wert der ablativen Panzerung des Schiffes zurueck.
 	 * @return Der Panzerungswert
@@ -3879,17 +3863,17 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public void setStartFighters(boolean startFighters) {
 		this.startFighters = startFighters;
 	}
-	
+
 	/**
 	 * Bestimmt, ob ein Schiff sein SRS nutzen kann.
-	 * 
+	 *
 	 * @return <code>False</code>, wenn das Schiff kein SRS hat oder gelandet ist. <code>True</code> ansonsten.
 	 */
 	public boolean canUseSrs() {
 		if(!getTypeData().hasSrs()) {
 			return false;
 		}
-		
+
 		return !isLanded();
 	}
 
@@ -3902,12 +3886,12 @@ public class Ship implements Locatable,Transfering,Feeding {
 			return 0;
 		}
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
+
 		return (Long)db.createQuery("select count(*) from Ship where id>0 AND docked=?")
 			.setString(0, Integer.toString(this.id))
 			.iterate().next();
 	}
-	
+
 	/**
 	 * Gibt die Anzahl der gelandeten Schiffe zurueck.
 	 * @return Die Anzahl
@@ -3917,22 +3901,22 @@ public class Ship implements Locatable,Transfering,Feeding {
 			return 0;
 		}
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
+
 		return (Long)db.createQuery("select count(*) from Ship where id>0 AND docked=?")
 			.setString(0, "l "+this.id)
 			.iterate().next();
 	}
-	
+
 	/**
 	 * Gibt den Offizier des Schiffes zurueck.
 	 * @return Der Offizier
 	 */
 	public Offizier getOffizier() {
-		if( this.getTypeData().getSize() <= ShipType.SMALL_SHIP_MAXSIZE && 
+		if( this.getTypeData().getSize() <= ShipType.SMALL_SHIP_MAXSIZE &&
 				this.getTypeData().getShipClass() != ShipClasses.RETTUNGSKAPSEL.ordinal() ) {
 			return null;
 		}
-		
+
 		if( this.offizier == null ) {
 			this.offizier = Offizier.getOffizierByDest('s', this.id);
 		}
@@ -3952,43 +3936,43 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public int getVersion() {
 		return this.version;
 	}
-	
+
 	/**
 	 * Gibt zurueck, ob das Schiff beschaedigt ist.
-	 * 
+	 *
 	 * @return <code>true</code>, wenn das Schiff beschaedigt ist, ansonsten <code>false</code>
 	 */
 	public boolean isDamaged() {
 		if(this.getAblativeArmor() < this.getTypeData().getAblativeArmor()) {
 			return true;
 		}
-		
+
 		if(this.getHull() < this.getTypeData().getHull()) {
 			return true;
 		}
-		
+
 		if(this.getEngine() < 100) {
 			return true;
 		}
-		
+
 		if(this.getSensors() < 100) {
 			return true;
 		}
-		
+
 		if(this.getComm() < 100) {
 			return true;
 		}
-		
+
 		if(this.getWeapons() < 100) {
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * Transfers crew from the ship to an asteroid.
-	 * 
+	 *
 	 * @param base Base that sends the crew.
 	 * @param amount People that should be transfered.
 	 * @return People that where transfered.
@@ -3998,18 +3982,18 @@ public class Ship implements Locatable,Transfering,Feeding {
 		if(base.getSystem() != getSystem() || base.getX() != getX() || base.getY() != getY()) {
 			return 0;
 		}
-		
+
 		setCrew(getCrew() - amount);
 		base.setBewohner(base.getBewohner() + amount);
-		
+
 		recalculateShipStatus();
-		
+
 		return amount;
 	}
-	
+
 	/**
 	 * Greift ein gegnerisches Schiff an.
-	 * 
+	 *
 	 * @param enemy Das Schiff, dass angegriffen werden soll.
 	 * @return Den Kampf oder null, falls kein Kampf erstellt werden konnte.
 	 */
@@ -4017,10 +4001,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 	{
 		return Battle.create(this.getOwner().getId(), this.getId(), enemy.getId());
 	}
-	
+
 	/**
 	 * Greift ein gegnerisches Schiff an.
-	 * 
+	 *
 	 * @param enemy Das Schiff, dass angegriffen werden soll.
 	 * @param startOwn <code>true</code>, wenn die eigenen Jaeger starten sollen
 	 * @return Den Kampf oder null, falls kein Kampf erstellt werden konnte.
@@ -4032,24 +4016,24 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 	/**
 	 * Gibt an, ob das Schiff auf einem anderen Schiff gelandet ist.
-	 * 
+	 *
 	 * @return <code>true</code>, wenn das Schiff gelandet ist, sonst <code>false</code>
 	 */
 	public boolean isLanded()
 	{
 		return getDocked() != null && getDocked().startsWith("l");
 	}
-	
+
 	/**
 	 * Gibt an, ob das Schiff an einem anderen Schiff angedockt ist.
-	 * 
+	 *
 	 * @return <code>true</code>, wenn das Schiff gedockt ist, sonst <code>false</code>
 	 */
 	public boolean isDocked()
 	{
 		return !getDocked().trim().equals("") && !isLanded();
 	}
-	
+
 	/**
 	 * @return Die Bilanz des Schiffes.
 	 */
@@ -4059,34 +4043,34 @@ public class Ship implements Locatable,Transfering,Feeding {
 		{
 			return 0;
 		}
-		
+
 		if(getUnits() != null)
 		{
 			return getTypeData().getReCost() + getUnits().getRE();
 		}
-		
+
 		return getTypeData().getReCost();
 	}
 
 	/**
-	 * 
+	 *
 	 * @return The effective scan range caused by sensors subsystem
 	 */
 	public int getEffectiveScanRange() {
 		double scanrange = this.getTypeData().getSensorRange() * ( this.getSensors()/100d);
 		return (int) Math.floor(scanrange);
 	}
-	
+
 	/**
 	 * Gibt an, ob das Schiff selbstzerstoert werden kann.
-	 * 
+	 *
 	 * @return <code>true</code>, wenn das Schiff nicht selbstzerstoert werden kann, sonst <code>false</code>
 	 */
 	public boolean isNoSuicide()
 	{
 		return this.getStatus().contains("nosuicide");
 	}
-	
+
 	/**
 	 * @return Die Nahrungsbilanz des Schiffes.
 	 */
@@ -4094,20 +4078,20 @@ public class Ship implements Locatable,Transfering,Feeding {
 	{
 			return getFoodConsumption();
 	}
-	
+
 	/**
 	 * @return Die Felder, die das Schiff zuruecklegen kann ohne zu ueberhitzen / keine Energie mehr zu haben.
 	 */
 	public int getSafeTravelDistance()
 	{
-		
+
 		int energy = getEnergy();
 		int heat = getHeat();
-		
+
 		ShipTypeData typeData = getTypeData();
 		int consumption = typeData.getCost();
 		int heatBuildup = typeData.getHeat();
-		
+
 		if(consumption == 0 || heatBuildup == 0)
 		{
 			if(isDocked() || isLanded())
@@ -4116,23 +4100,23 @@ public class Ship implements Locatable,Transfering,Feeding {
 			}
 			return 0;
 		}
-		
+
 		int distance = Math.min(energy/consumption, (100-heat)/heatBuildup);
 		if(distance < 0)
 		{
 			distance = 0;
 		}
-		
+
 		return distance;
 	}
-	
+
 	/**
 	 * @return A factor for the energy costs.
 	 */
 	public int getAlertEnergyCost()
 	{
 		double[] alertFactor = new double[] { 0, 0.5d, 0.75d };
-		
+
 		return (int)Math.ceil(this.getTypeData().getRm() * alertFactor[getAlarm()]);
 	}
 
@@ -4159,7 +4143,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	{
 		this.showtradepost = showtradepost;
 	}
-	
+
 	/**
 	 * returns wether the tradepost is visible or not.
 	 * 0 everybody is able to see the tradepost.
@@ -4178,7 +4162,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		int observerid = observer.getId();
 		switch (tradepostvisibility)
 		{
-	        case ALL:  
+	        case ALL:
 	        	 return true;
 	        case NEUTRAL_AND_FRIENDS:
 	        	// check wether we are an enemy of the owner
@@ -4224,7 +4208,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
     /**
      * Prüft, ob das Schiff ein Statusflag hat.
-     * 
+     *
      * @param flag Das Flag auf das geprüft wird.
      * @return <code>true</code>, wenn es das Flag gibt, <code>false</code> ansonsten.
      */
@@ -4233,18 +4217,18 @@ public class Ship implements Locatable,Transfering,Feeding {
         ShipFlag shipFlag = new ShipFlag(flag, this, -1);
         return flags.contains(shipFlag);
     }
-    
+
     /**
      * Fuegt dem Schiff ein neues Flag hinzu.
      * Wenn das Schiff das Flag bereits hat und die neue verbleibende Zeit groesser ist als die Alte wird sie aktualisiert.
-     * 
+     *
      * @param flag Flagcode.
      * @param remaining Wieviele Ticks soll das Flag bestand haben? -1 fuer unendlich.
      */
     public void addFlag(int flag, int remaining)
     {
         ShipFlag oldFlag = getFlag(flag);
-        
+
         if(oldFlag != null)
         {
             if(oldFlag.getRemaining() != -1 && oldFlag.getRemaining() < remaining)
@@ -4272,7 +4256,7 @@ public class Ship implements Locatable,Transfering,Feeding {
     public void deleteFlag(int flag)
     {
         ShipFlag shipFlag = getFlag(flag);
-        
+
         if(shipFlag != null)
         {
             flags.remove(shipFlag);
@@ -4281,7 +4265,7 @@ public class Ship implements Locatable,Transfering,Feeding {
             db.delete(shipFlag);
         }
     }
-    
+
     private ShipFlag getFlag(int flag)
     {
         ShipFlag shipFlag = null;
@@ -4294,10 +4278,10 @@ public class Ship implements Locatable,Transfering,Feeding {
                 break;
             }
         }
-        
+
         return shipFlag;
     }
-    
+
     /**
      * Gibt die Historieninformationen zum Schiff zurueck.
      * @return Die Historieninformationen

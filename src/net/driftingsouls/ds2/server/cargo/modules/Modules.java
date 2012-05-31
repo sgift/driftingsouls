@@ -19,29 +19,66 @@
 package net.driftingsouls.ds2.server.cargo.modules;
 
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.Ship.ModuleEntry;
 
 /**
  * Allgmeine (Schiffs)Modulfunktionen und Konstanten.
  * @author Christopher Jung
  *
  */
-public class Modules {
+public enum Modules {
 	/**
 	 * Ein Frachtkontainer-Modul.
 	 * @see ModuleContainerShip
 	 */
-	public static final int MODULE_CONTAINER_SHIP = 1;
+	CONTAINER_SHIP(1) {
+		@Override
+		protected Module createModule(ModuleEntry moduledata)
+		{
+			return new ModuleContainerShip( moduledata.slot, moduledata.data );
+		}
+	},
 	/**
 	 * Ein Schiffsbild-Modul.
 	 * @see ModuleShipPicture
 	 */
-	public static final int MODULE_SHIP_PICTURE = 2;
+	SHIP_PICTURE(2) {
+		@Override
+		protected Module createModule(ModuleEntry moduledata)
+		{
+			return new ModuleShipPicture( moduledata.slot, moduledata.data );
+		}
+	},
 	/**
 	 * Ein Item-Modul.
 	 * @see ModuleItemModule
 	 */
-	public static final int MODULE_ITEMMODULE = 3;
-	
+	ITEMMODULE(3) {
+		@Override
+		protected Module createModule(ModuleEntry moduledata)
+		{
+			return new ModuleItemModule( moduledata.slot, moduledata.data );
+		}
+	};
+
+	private final int ordinal;
+
+	private Modules(int ordinal)
+	{
+		this.ordinal = ordinal;
+	}
+
+	/**
+	 * Gibt die Ordinal (interne ID) zurueck.
+	 * @return Die Ordinal
+	 */
+	public int getOrdinal()
+	{
+		return this.ordinal;
+	}
+
+	protected abstract Module createModule(Ship.ModuleEntry moduledata);
+
 	/**
 	 * Gibt zu den Moduldaten eines Slots auf einem Schiff eine passende Modul-Instanz
 	 * zurueck.
@@ -49,15 +86,24 @@ public class Modules {
 	 * @return eine Modul-Instanz oder <code>null</code>, falls keine passende Instanz erzeugt werden konnte
 	 */
 	public static Module getShipModule( Ship.ModuleEntry moduledata ){
-		switch( moduledata.moduleType ) {
-		case MODULE_CONTAINER_SHIP:
-			return new ModuleContainerShip( moduledata.slot, moduledata.data );
-		case MODULE_SHIP_PICTURE:
-			return new ModuleShipPicture( moduledata.slot, moduledata.data );
-		case MODULE_ITEMMODULE:
-			return new ModuleItemModule( moduledata.slot, moduledata.data );
-		default:
-			throw new RuntimeException("Unknown Module >"+moduledata.moduleType+"< in "+moduledata);
+		return moduledata.moduleType.createModule(moduledata);
+	}
+
+	/**
+	 * Gibt zu einer Ordinal den zugenoerigen Modultyp zurueck. Falls
+	 * die Ordinal unbekannt ist wird <code>null</code> zurueckgegeben.
+	 * @param ordinal Die Ordinal
+	 * @return Der Modultyp oder <code>null</code>
+	 */
+	public static Modules fromOrdinal(int ordinal)
+	{
+		for( Modules m : values() )
+		{
+			if( m.ordinal == ordinal )
+			{
+				return m;
+			}
 		}
+		return null;
 	}
 }

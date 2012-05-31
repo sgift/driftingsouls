@@ -34,35 +34,35 @@ public class ModuleContainerShip extends Module {
 	private int slot;
 	private long cargo;
 	private int shipid;
-	
+
 	protected ModuleContainerShip(int slot, String data) {
 		this.slot = slot;
 		String[] owndata = StringUtils.split(data, '_');
 		this.cargo = Long.parseLong(owndata[1]);
-		this.shipid = Integer.parseInt(owndata[0]);	
+		this.shipid = Integer.parseInt(owndata[0]);
 	}
-	
+
 	@Override
-	public boolean isSame( int slot, int moduleid, String data ) {
+	public boolean isSame( int slot, Modules moduleid, String data ) {
 		if( slot != this.slot ) {
-			return false;	
-		}	
-		else if( moduleid != Modules.MODULE_CONTAINER_SHIP ) {
-			return false;	
+			return false;
+		}
+		else if( moduleid != Modules.CONTAINER_SHIP ) {
+			return false;
 		}
 		String[] dataArray = StringUtils.split(data, '_');
 
 		if( Integer.parseInt(dataArray[0]) != this.shipid ) {
-			return false;	
+			return false;
 		}
 		return true;
 	}
-	
+
 	@Override
-	public String getName() { 
-		return "Schiffscontainer"; 
+	public String getName() {
+		return "Schiffscontainer";
 	}
-	
+
 	@Override
 	public ShipTypeData modifyStats(ShipTypeData stats, List<Module> moduleobjlist) {
 		return new ShipTypeDataCargoWrapper(stats, this.cargo);
@@ -75,7 +75,7 @@ public class ModuleContainerShip extends Module {
 
 	private static class ShipTypeDataCargoWrapper extends AbstractShipTypeDataWrapper {
 		private long cargo;
-		
+
 		ShipTypeDataCargoWrapper(ShipTypeData inner, long cargo) {
 			super(inner);
 			this.cargo = cargo;
