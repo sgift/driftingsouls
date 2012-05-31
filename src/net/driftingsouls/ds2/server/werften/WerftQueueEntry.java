@@ -61,7 +61,7 @@ public class WerftQueueEntry {
 	 */
 	@Transient
 	public final ContextLocalMessage MESSAGE = new ContextLocalMessage();
-		
+
 	@Id @GeneratedValue
 	private int id;
 	@ManyToOne(fetch=FetchType.EAGER)
@@ -71,10 +71,10 @@ public class WerftQueueEntry {
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="building", nullable=false)
 	private ShipType building;
-	
+
 	@Column(name="item")
 	private int buildItem = -1;
-	
+
 	@Column(name="flagschiff")
 	private boolean buildFlagschiff = false;
 	private int remaining = 0;
@@ -91,7 +91,7 @@ public class WerftQueueEntry {
 	public WerftQueueEntry() {
 		// EMPTY
 	}
-	
+
 	/**
 	 * Erstellt einen neuen Bauschlangeneintrag.
 	 * @param werft Die Werft
@@ -108,7 +108,7 @@ public class WerftQueueEntry {
 		this.costsPerTick = new Cargo();
 		this.slots = slots;
 	}
-	
+
 	/**
 	 * Erstellt einen neuen Bauschlangeneintrag.
 	 * @param werft Die Werft
@@ -121,20 +121,20 @@ public class WerftQueueEntry {
 		this(werft, building, remaining, slots);
 		this.buildItem = buildItem;
 	}
-	
+
 	private static int getNextEmptyPosition(WerftObject werft) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
+
 		Integer position = (Integer)db.createQuery("select max(wq.position) from WerftQueueEntry as wq where wq.werft=?")
 			.setInteger(0, werft.getWerftID())
 			.iterate().next();
-		
+
 		if( position == null ) {
 			return 1;
 		}
 		return position+1;
 	}
-	
+
 	/**
 	 * Gibt die Id zurueck.
 	 * @return Die Id
@@ -142,7 +142,7 @@ public class WerftQueueEntry {
 	public int getId() {
 		return this.id;
 	}
-	
+
 	/**
 	 * Kopiert den Inhalt dieses Bauschlangeneintrags in einen neuen Eintrag einer anderen Werft.
 	 * Dieser Bauschlangeneintrag wird dabei weder modifiziert noch geloescht.
@@ -154,13 +154,13 @@ public class WerftQueueEntry {
 		entry.costsPerTick = this.costsPerTick;
 		entry.energyPerTick = this.energyPerTick;
 		entry.buildFlagschiff = this.buildFlagschiff;
-		
+
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		db.persist(entry);
-		
+
 		return entry;
 	}
-	
+
 	/**
 	 * Gibt die Werft zurueck, zu der die Bauschlange gehoert.
 	 * @return Die Werft
@@ -168,7 +168,7 @@ public class WerftQueueEntry {
 	public WerftObject getWerft() {
 		return this.werft;
 	}
-	
+
 	/**
 	 * Gibt die Position des Eintrags innerhalb der Bauschlange zurueck.
 	 * @return Die Position
@@ -185,7 +185,7 @@ public class WerftQueueEntry {
 	public void setPosition(int position) {
 		this.position = position;
 	}
-	
+
 	/**
 	 * Gibt zurueck, ob es sich bei dem Bau um ein Flagschiff handelt.
 	 * @return <code>true</code>, falls es ein Flagschiff ist
@@ -266,7 +266,7 @@ public class WerftQueueEntry {
 	public void setCostsPerTick(Cargo costsPerTick) {
 		this.costsPerTick = costsPerTick;
 	}
-	
+
 	/**
 	 * Gibt die Energiekosten pro Tick zurueck.
 	 * @return Die Energiekosten pro Tick
@@ -314,34 +314,34 @@ public class WerftQueueEntry {
 	public void setSlots(int slots) {
 		this.slots = slots;
 	}
-	
+
 	/**
 	 * Beendet den Bauprozess dieses Bauschlangeneintrags erfolgreich.
 	 * Sollte dies nicht moeglich sein, wird 0 zurueckgegeben.
-	 * 
+	 *
 	 * @return die ID des gebauten Schiffes oder 0
 	 */
 	public int finishBuildProcess() {
 		MESSAGE.get().setLength(0);
-		
+
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
-		
+
 		if( !this.isScheduled() ) {
 			return 0;
 		}
-		
+
 		ShipTypeData shipd = this.getBuildShipType();
 
 		int x = this.werft.getX();
 		int y = this.werft.getY();
 		int system = this.werft.getSystem();
-					
+
 		User auser = this.werft.getOwner();
-		
+
 		String currentTime = Common.getIngameTime(context.get(ContextCommon.class).getTick());
 		String history = "Indienststellung am "+currentTime+" durch "+auser.getName()+" ("+auser.getId()+")";
-		
+
 		Ship ship = new Ship(auser, (ShipType)db.get(ShipType.class, shipd.getTypeId()), system, x, y);
 		ship.getHistory().addHistory(history);
 		ship.setCrew(shipd.getCrew());
@@ -354,16 +354,16 @@ public class WerftQueueEntry {
 		ship.setComm(100);
 		ship.setSensors(100);
 		ship.setAblativeArmor(shipd.getAblativeArmor());
-		
+
 		int id = (Integer)db.save(ship);
 		db.save(ship.getHistory());
-				
+
 		if( shipd.getWerft() != 0 ) {
 			ShipWerft awerft = new ShipWerft(ship);
 			db.persist(awerft);
 			MESSAGE.get().append("\tWerft '"+shipd.getWerft()+"' in Liste der Werften eingetragen\n");
 		}
-		
+
 		// Item benutzen
 		if( this.getRequiredItem() > -1 ) {
 			Cargo cargo = this.werft.getCargo(true);
@@ -375,10 +375,10 @@ public class WerftQueueEntry {
 					break;
 				}
 			}
-			
+
 			if( !ok ) {
 				User user = this.werft.getOwner();
-				
+
 				Cargo allyitems = null;
 				if( user.getAlly() != null ) {
 					allyitems = new Cargo( Cargo.Type.ITEMSTRING, user.getAlly().getItems() );
@@ -390,7 +390,7 @@ public class WerftQueueEntry {
 						}
 					}
 				}
-				
+
 				if( !ok ) {
 					ItemCargoEntry item = null;
 					String source = "";
@@ -402,9 +402,9 @@ public class WerftQueueEntry {
 						item = cargo.getItem(this.getRequiredItem()).get(0);
 						source = "local";
 					}
-					
+
 					item.useItem();
-					
+
 					if( source.equals("local") ) {
 						this.werft.setCargo(cargo, true);
 					}
@@ -417,15 +417,15 @@ public class WerftQueueEntry {
 				}
 			}
 		}
-		
+
 		ship.recalculateShipStatus();
-		
+
 		if( this.isBuildFlagschiff() ) {
 			this.werft.setBuildFlagschiff(false);
 		}
-		
+
 		db.delete(this);
-		
+
 		final Iterator<?> entryIter = db.createQuery("from WerftQueueEntry where werft=? and position>? order by position")
 			.setEntity(0, this.werft)
 			.setInteger(1, this.position)
@@ -434,41 +434,42 @@ public class WerftQueueEntry {
 			WerftQueueEntry entry = (WerftQueueEntry)entryIter.next();
 			entry.setPosition(entry.getPosition()-1);
 		}
-		//db.flush();
-		
+
+		db.flush();
+
 		this.werft.onFinishedBuildProcess(id);
-		
+
 		return id;
 	}
-	
+
 	/**
 	 * Gibt zurueck, ob alle Voraussetzungen fuer eine Weiterfuehrung
 	 * des Bauprozesses erfuellt sind. Wenn nichts gebaut wird,
 	 * wird ebenfalls true zurueckgegeben.
-	 * 
+	 *
 	 * @return <code>true</code>, falls alle Voraussetzungen erfuellt sind
 	 */
 	public boolean isBuildContPossible() {
 		if( !this.isScheduled() ) {
 			return true;
 		}
-			
+
 		// Pruefen, ob ein evt notwendiges Item vorhanden ist
 		if( this.getRequiredItem() > -1 ) {
 			Cargo cargo = new Cargo(this.werft.getCargo(true));
 			User user = this.werft.getOwner();
-			
+
 			if( user.getAlly() != null ) {
 				Cargo allyitems = new Cargo( Cargo.Type.ITEMSTRING, user.getAlly().getItems() );
 				cargo.addCargo( allyitems );
 			}
-			
+
 			List<ItemCargoEntry> itemlist = cargo.getItem(this.getRequiredItem());
 			if( itemlist.size() == 0 ) {
 				return false;
 			}
 		}
-		
+
 		// Pruefen, ob die anfallenden Baukosten bezahlt werden koennen
 		if( !this.getCostsPerTick().isEmpty() ) {
 			Cargo cargo = new Cargo(this.werft.getCargo(false));
@@ -479,28 +480,28 @@ public class WerftQueueEntry {
 				}
 			}
 		}
-		
+
 		if( this.getEnergyPerTick() != 0 ) {
 			if( this.werft.getEnergy() < this.getEnergyPerTick() ) {
 				return false;
 			}
 		}
-	
+
 		return true;
 	}
-	
+
 	private void substractBuildCosts() {
-		if( !this.getCostsPerTick().isEmpty() ) {	
+		if( !this.getCostsPerTick().isEmpty() ) {
 			Cargo cargo = this.werft.getCargo(false);
 			cargo.substractCargo(this.getCostsPerTick());
 			this.werft.setCargo(cargo, false);
 		}
-		
+
 		if( this.getEnergyPerTick() != 0 ) {
 			this.werft.setEnergy(this.werft.getEnergy() - this.getEnergyPerTick());
 		}
 	}
-	
+
 	/**
 	 * Dekrementiert die verbliebene Bauzeit um 1.
 	 */
@@ -508,10 +509,10 @@ public class WerftQueueEntry {
 		if( this.getRemainingTime() <= 0 ) {
 			return;
 		}
-		
+
 		this.setRemainingTime(this.getRemainingTime()-1);
 	}
-	
+
 	/**
 	 * <p>Setzt den Bau fort. Dies umfasst u.a. das Dekrementieren
 	 * der verbleibenden Bauzeit um 1 sowie des Abzugs der pro Tick
