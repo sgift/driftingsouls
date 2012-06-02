@@ -38,15 +38,15 @@ public class ModuleShipPicture extends Module {
 	}
 
 	@Override
-	public boolean isSame( int slot, Modules moduleid, String data ) {
-		if( slot != this.slot ) {
+	public boolean isSame( ModuleEntry entry ) {
+		if( entry.getSlot() != this.slot ) {
 			return false;
 		}
-		else if( moduleid != Modules.SHIP_PICTURE ) {
+		else if( entry.getModuleType() != ModuleType.SHIP_PICTURE ) {
 			return false;
 		}
 
-		if( !this.picture.equals(data) ) {
+		if( !this.picture.equals(entry.getData()) ) {
 			return false;
 		}
 		return true;

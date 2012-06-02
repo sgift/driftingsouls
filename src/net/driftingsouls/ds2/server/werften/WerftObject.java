@@ -57,8 +57,9 @@ import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.cargo.modules.Module;
+import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleItemModule;
-import net.driftingsouls.ds2.server.cargo.modules.Modules;
+import net.driftingsouls.ds2.server.cargo.modules.ModuleType;
 import net.driftingsouls.ds2.server.config.ModuleSlots;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.items.Item;
@@ -476,9 +477,9 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 */
 	public void removeModule( Ship ship, int slot ) {
 		Map<Integer,Integer> usedslots = new HashMap<Integer,Integer>();
-		Ship.ModuleEntry[] modules = ship.getModules();
+		ModuleEntry[] modules = ship.getModules();
 		for( int i=0; i < modules.length; i++ ) {
-			usedslots.put(modules[i].slot, i);
+			usedslots.put(modules[i].getSlot(), i);
 		}
 
 		if( !usedslots.containsKey(slot) ) {
@@ -513,8 +514,8 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			oldshiptype = shiptype;
 		}
 
-		Ship.ModuleEntry module = modules[usedslots.get(slot)];
-		Module moduleobj = Modules.getShipModule( module );
+		ModuleEntry module = modules[usedslots.get(slot)];
+		Module moduleobj = module.createModule();
 		if( aslot.length > 2 ) {
 			moduleobj.setSlotData(aslot[2]);
 		}
@@ -525,7 +526,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			ResourceID itemid = ((ModuleItemModule)moduleobj).getItemID();
 			cargo.addResource( itemid, 1 );
 		}
-		ship.removeModule( module.slot, module.moduleType, module.data );
+		ship.removeModule( module );
 
 		moduleUpdateShipData(ship, oldshiptype, cargo);
 
@@ -661,12 +662,12 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 */
 	public void addModule( Ship ship, int slot, int itemid ) {
 		Map<Integer,Integer> usedslots = new HashMap<Integer,Integer>();
-		Ship.ModuleEntry[] modules = ship.getModules();
+		ModuleEntry[] modules = ship.getModules();
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 
 		for( int i=0; i < modules.length; i++ ) {
-			usedslots.put(modules[i].slot, i);
+			usedslots.put(modules[i].getSlot(), i);
 		}
 
 		if( usedslots.containsKey(slot) ) {
@@ -729,7 +730,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			oldshiptype = shiptype;
 		}
 
-		ship.addModule( slot, Modules.ITEMMODULE, Integer.toString(itemid) );
+		ship.addModule( slot, ModuleType.ITEMMODULE, Integer.toString(itemid) );
 		cargo.substractResource( myitem.getResourceID(), 1 );
 
 		moduleUpdateShipData(ship, oldshiptype, cargo);

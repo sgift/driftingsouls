@@ -40,8 +40,9 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.cargo.modules.Module;
+import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleItemModule;
-import net.driftingsouls.ds2.server.cargo.modules.Modules;
+import net.driftingsouls.ds2.server.cargo.modules.ModuleType;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.entities.User;
@@ -1173,7 +1174,7 @@ public class SchiffController extends TemplateGenerator {
 		}
 
 		// Tooltip: Module
-		final Ship.ModuleEntry[] modulelist = ship.getModules();
+		final ModuleEntry[] modulelist = ship.getModules();
 		if( (modulelist.length > 0) && shiptype.getTypeModules().length() > 0 ) {
 			List<String> tooltiplines = new ArrayList<String>();
 			tooltiplines.add("<span style='text-decoration:underline'>Module:</span><br />");
@@ -1192,11 +1193,11 @@ public class SchiffController extends TemplateGenerator {
 			boolean itemmodules = false;
 
 			for( int i=0; i < modulelist.length; i++ ) {
-				Ship.ModuleEntry module = modulelist[i];
-				if( module.moduleType != null ) {
-					Module moduleobj = Modules.getShipModule( module );
-					if( (module.slot > 0) && (slotlist.get(module.slot).length > 2) ) {
-						moduleobj.setSlotData(slotlist.get(module.slot)[2]);
+				ModuleEntry module = modulelist[i];
+				if( module.getModuleType() != null ) {
+					Module moduleobj = module.createModule();
+					if( (module.getSlot() > 0) && (slotlist.get(module.getSlot()).length > 2) ) {
+						moduleobj.setSlotData(slotlist.get(module.getSlot())[2]);
 					}
 
 					moduleObjList.add(moduleobj);

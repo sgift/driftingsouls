@@ -43,14 +43,14 @@ public class ModuleContainerShip extends Module {
 	}
 
 	@Override
-	public boolean isSame( int slot, Modules moduleid, String data ) {
-		if( slot != this.slot ) {
+	public boolean isSame( ModuleEntry entry ) {
+		if( entry.getSlot() != this.slot ) {
 			return false;
 		}
-		else if( moduleid != Modules.CONTAINER_SHIP ) {
+		else if( entry.getModuleType() != ModuleType.CONTAINER_SHIP ) {
 			return false;
 		}
-		String[] dataArray = StringUtils.split(data, '_');
+		String[] dataArray = StringUtils.split(entry.getData(), '_');
 
 		if( Integer.parseInt(dataArray[0]) != this.shipid ) {
 			return false;

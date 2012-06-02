@@ -110,15 +110,15 @@ public class ModuleItemModule extends Module {
 	}
 
 	@Override
-	public boolean isSame(int slot, Modules moduleid, String data) {
-		if( slot != this.slot ) {
+	public boolean isSame(ModuleEntry entry) {
+		if( entry.getSlot() != this.slot ) {
 			return false;
 		}
-		else if( moduleid != Modules.ITEMMODULE ) {
+		else if( entry.getModuleType() != ModuleType.ITEMMODULE ) {
 			return false;
 		}
 
-		if( this.itemid != Integer.parseInt(data) ) {
+		if( this.itemid != Integer.parseInt(entry.getData()) ) {
 			return false;
 		}
 

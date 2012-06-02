@@ -61,7 +61,8 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.cargo.Transfer;
 import net.driftingsouls.ds2.server.cargo.Transfering;
 import net.driftingsouls.ds2.server.cargo.modules.Module;
-import net.driftingsouls.ds2.server.cargo.modules.Modules;
+import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
+import net.driftingsouls.ds2.server.cargo.modules.ModuleType;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.items.Item;
@@ -1397,42 +1398,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 	}
 
 	/**
-	 * Repraesentiert ein in ein Schiff eingebautes Modul (oder vielmehr die Daten,
-	 * die hinterher verwendet werden um daraus ein Modul zu rekonstruieren).
-	 */
-	public static class ModuleEntry {
-		/**
-		 * Der Slot in den das Modul eingebaut ist.
-		 */
-		public final int slot;
-		/**
-		 * Der Modultyp.
-		 * @see net.driftingsouls.ds2.server.cargo.modules.Module
-		 */
-		public final Modules moduleType;
-		/**
-		 * Weitere Modultyp-spezifische Daten.
-		 */
-		public final String data;
-
-		protected ModuleEntry(int slot, Modules moduleType, String data) {
-			this.slot = slot;
-			this.moduleType = moduleType;
-			this.data = data;
-		}
-
-		@Override
-		public String toString() {
-			return "ModuleEntry: "+slot+":"+moduleType+":"+data;
-		}
-	}
-
-	/**
 	 * Gibt die Moduleintraege des Schiffes zurueck.
 	 * @return Eine Liste von Moduleintraegen
 	 */
 	public ModuleEntry[] getModules() {
-		List<Ship.ModuleEntry> result = new ArrayList<ModuleEntry>();
+		List<ModuleEntry> result = new ArrayList<ModuleEntry>();
 
 		if( this.modules == null ) {
 			return new ModuleEntry[0];
@@ -1441,16 +1411,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 		ShipModules moduletbl = this.modules;
 		if( moduletbl.getModules().length() != 0 ) {
 			String[] modulelist = StringUtils.split(moduletbl.getModules(), ';');
-			if( modulelist.length != 0 ) {
-				for( int i=0; i < modulelist.length; i++ ) {
-					String[] module = StringUtils.split(modulelist[i], ':');
-					Modules modType = Modules.fromOrdinal(Integer.parseInt(module[1]));
-					if( modType == null )
-					{
-						continue;
-					}
-					result.add(new ModuleEntry(Integer.parseInt(module[0]), modType, module[2]));
-				}
+			for( int i=0; i < modulelist.length; i++ ) {
+				result.add(ModuleEntry.unserialize(modulelist[i]));
 			}
 		}
 
@@ -1463,7 +1425,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * @param moduleid Die Typen-ID des Modultyps
 	 * @param data Weitere Daten, welche das Modul identifizieren
 	 */
-	public void addModule(int slot, Modules moduleid, String data ) {
+	public void addModule(int slot, ModuleType moduleid, String data ) {
 		if( this.id < 0 ) {
 			throw new UnsupportedOperationException("addModules kann nur bei Schiffen mit positiver ID ausgefuhert werden!");
 		}
@@ -1500,14 +1462,14 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		for( int i=0; i < moduletbl.size(); i++ ) {
 			ModuleEntry module = moduletbl.get(i);
-			if( module.moduleType != null ) {
-				Module moduleobj = Modules.getShipModule( module );
-				if( (module.slot > 0) && (slotlist.get(module.slot).length > 2) ) {
-					moduleobj.setSlotData(slotlist.get(module.slot)[2]);
+			if( module.getModuleType() != null ) {
+				Module moduleobj = module.createModule();
+				if( (module.getSlot() > 0) && (slotlist.get(module.getSlot()).length > 2) ) {
+					moduleobj.setSlotData(slotlist.get(module.getSlot())[2]);
 				}
 				moduleobjlist.add(moduleobj);
 
-				moduleSlotData.add(module.slot+":"+module.moduleType.getOrdinal()+":"+module.data);
+				moduleSlotData.add(module.serialize());
 			}
 		}
 
@@ -1560,11 +1522,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 	/**
 	 * Entfernt ein Modul aus dem Schiff.
-	 * @param slot Der Slot, aus dem das Modul entfernt werden soll
-	 * @param moduleid Die Typen-ID des Modultyps
-	 * @param data Weitere Daten, welche das Modul identifizieren
+	 * @param moduleEntry Der zu entfernende Moduleintrag
 	 */
-	public void removeModule( int slot, Modules moduleid, String data ) {
+	public void removeModule( ModuleEntry moduleEntry ) {
 		if( this.id < 0 ) {
 			throw new UnsupportedOperationException("addModules kann nur bei Schiffen mit positiver ID ausgefuhert werden!");
 		}
@@ -1597,19 +1557,19 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		for( int i=0; i < moduletbl.size(); i++ ) {
 			ModuleEntry module = moduletbl.get(i);
-			if( module.moduleType != null ) {
-				Module moduleobj = Modules.getShipModule( module );
+			if( module.getModuleType() != null ) {
+				Module moduleobj = module.createModule();
 
-				if( moduleobj.isSame(slot, moduleid, data) ) {
+				if( moduleobj.isSame(moduleEntry) ) {
 					continue;
 				}
 
-				if( (module.slot > 0) && (slotlist.get(module.slot).length > 2) ) {
-					moduleobj.setSlotData(slotlist.get(module.slot)[2]);
+				if( (module.getSlot() > 0) && (slotlist.get(module.getSlot()).length > 2) ) {
+					moduleobj.setSlotData(slotlist.get(module.getSlot())[2]);
 				}
 				moduleobjlist.add(moduleobj);
 
-				moduleSlotData.add(module.slot+":"+module.moduleType.getOrdinal()+":"+module.data);
+				moduleSlotData.add(module.serialize());
 			}
 		}
 
@@ -1660,15 +1620,15 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		for( int i=0; i < moduletbl.size(); i++ ) {
 			ModuleEntry module = moduletbl.get(i);
-			if( module.moduleType != null ) {
-				Module moduleobj = Modules.getShipModule( module );
+			if( module.getModuleType() != null ) {
+				Module moduleobj = module.createModule();
 
-				if( (module.slot > 0) && (slotlist.get(module.slot).length > 2) ) {
-					moduleobj.setSlotData(slotlist.get(module.slot)[2]);
+				if( (module.getSlot() > 0) && (slotlist.get(module.getSlot()).length > 2) ) {
+					moduleobj.setSlotData(slotlist.get(module.getSlot())[2]);
 				}
 				moduleobjlist.add(moduleobj);
 
-				moduleSlotData.add(module.slot+":"+module.moduleType.getOrdinal()+":"+module.data);
+				moduleSlotData.add(module.serialize());
 			}
 		}
 
@@ -3092,8 +3052,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 		  	}
 			gotmodule = true;
 
-			aship.removeModule( 0, Modules.CONTAINER_SHIP, Integer.toString(aship.getId()) );
-			this.removeModule( 0, Modules.CONTAINER_SHIP, Integer.toString(aship.getId()) );
+			ModuleEntry moduleEntry = new ModuleEntry(0, ModuleType.CONTAINER_SHIP, Integer.toString(aship.getId()));
+			aship.removeModule( moduleEntry );
+			this.removeModule( moduleEntry );
 		}
 
 		if( gotmodule )
@@ -3248,8 +3209,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 				aship.setCargo(emptycargo);
 			}
 
-			aship.addModule( 0, Modules.CONTAINER_SHIP, aship.getId()+"_"+(-type.getCargo()) );
-			this.addModule( 0, Modules.CONTAINER_SHIP, aship.getId()+"_"+type.getCargo() );
+			aship.addModule( 0, ModuleType.CONTAINER_SHIP, aship.getId()+"_"+(-type.getCargo()) );
+			this.addModule( 0, ModuleType.CONTAINER_SHIP, aship.getId()+"_"+type.getCargo() );
 		}
 
 		this.cargo = cargo;

@@ -18,24 +18,22 @@
  */
 package net.driftingsouls.ds2.server.cargo.modules;
 
-import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.Ship.ModuleEntry;
 
 /**
  * Allgmeine (Schiffs)Modulfunktionen und Konstanten.
  * @author Christopher Jung
  *
  */
-public enum Modules {
+public enum ModuleType {
 	/**
 	 * Ein Frachtkontainer-Modul.
 	 * @see ModuleContainerShip
 	 */
 	CONTAINER_SHIP(1) {
 		@Override
-		protected Module createModule(ModuleEntry moduledata)
+		public Module createModule(ModuleEntry moduledata)
 		{
-			return new ModuleContainerShip( moduledata.slot, moduledata.data );
+			return new ModuleContainerShip( moduledata.getSlot(), moduledata.getData() );
 		}
 	},
 	/**
@@ -44,9 +42,9 @@ public enum Modules {
 	 */
 	SHIP_PICTURE(2) {
 		@Override
-		protected Module createModule(ModuleEntry moduledata)
+		public Module createModule(ModuleEntry moduledata)
 		{
-			return new ModuleShipPicture( moduledata.slot, moduledata.data );
+			return new ModuleShipPicture( moduledata.getSlot(), moduledata.getData() );
 		}
 	},
 	/**
@@ -55,15 +53,15 @@ public enum Modules {
 	 */
 	ITEMMODULE(3) {
 		@Override
-		protected Module createModule(ModuleEntry moduledata)
+		public Module createModule(ModuleEntry moduledata)
 		{
-			return new ModuleItemModule( moduledata.slot, moduledata.data );
+			return new ModuleItemModule( moduledata.getSlot(), moduledata.getData() );
 		}
 	};
 
 	private final int ordinal;
 
-	private Modules(int ordinal)
+	private ModuleType(int ordinal)
 	{
 		this.ordinal = ordinal;
 	}
@@ -77,17 +75,7 @@ public enum Modules {
 		return this.ordinal;
 	}
 
-	protected abstract Module createModule(Ship.ModuleEntry moduledata);
-
-	/**
-	 * Gibt zu den Moduldaten eines Slots auf einem Schiff eine passende Modul-Instanz
-	 * zurueck.
-	 * @param moduledata Die Moduldaten fuer einen Slot
-	 * @return eine Modul-Instanz oder <code>null</code>, falls keine passende Instanz erzeugt werden konnte
-	 */
-	public static Module getShipModule( Ship.ModuleEntry moduledata ){
-		return moduledata.moduleType.createModule(moduledata);
-	}
+	public abstract Module createModule(ModuleEntry moduledata);
 
 	/**
 	 * Gibt zu einer Ordinal den zugenoerigen Modultyp zurueck. Falls
@@ -95,9 +83,9 @@ public enum Modules {
 	 * @param ordinal Die Ordinal
 	 * @return Der Modultyp oder <code>null</code>
 	 */
-	public static Modules fromOrdinal(int ordinal)
+	public static ModuleType fromOrdinal(int ordinal)
 	{
-		for( Modules m : values() )
+		for( ModuleType m : values() )
 		{
 			if( m.ordinal == ordinal )
 			{

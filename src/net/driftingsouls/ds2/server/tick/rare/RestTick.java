@@ -31,8 +31,9 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.modules.Module;
+import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleItemModule;
-import net.driftingsouls.ds2.server.cargo.modules.Modules;
+import net.driftingsouls.ds2.server.cargo.modules.ModuleType;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
 import net.driftingsouls.ds2.server.entities.StatCargo;
@@ -57,18 +58,18 @@ import org.hibernate.Transaction;
  */
 public class RestTick extends TickController {
 	private int tick;
-	
+
 	@Override
-	protected void prepare() 
+	protected void prepare()
 	{
 		this.tick = ContextMap.getContext().get(ContextCommon.class).getTick();
 	}
-	
+
 	@Override
-	protected void tick() 
+	protected void tick()
 	{
 		org.hibernate.Session db = getContext().getDB();
-		
+
 		Transaction transaction = db.beginTransaction();
 		try
 		{
@@ -76,12 +77,12 @@ public class RestTick extends TickController {
 			Cargo cargo = new Cargo();
 			Map<User,Cargo> usercargos = new HashMap<User,Cargo>();
 			Map<User,Map<Integer,Set<String>>> useritemlocations = new HashMap<User, Map<Integer, Set<String>>>();
-			
+
 			int counter = 0;
 			long baseCount = (Long)db.createQuery("select count(*) from Base where owner!=0").iterate().next();
-			
+
 			this.log("\tLese "+baseCount+" Basen ein");
-			
+
 			while(counter < baseCount)
 			{
 				List<?> bases = db.createQuery("from Base as b inner join fetch b.owner where b.owner!=0")
@@ -91,22 +92,22 @@ public class RestTick extends TickController {
 					.list();
 				for( Iterator<?> iter=bases.iterator(); iter.hasNext(); ) {
 					Base base = (Base)iter.next();
-					
+
 					counter++;
-					
+
 					Cargo bcargo = base.getCargo();
 					if( base.getOwner().getId() > 0 ) {
 						cargo.addCargo( bcargo );
 					}
-								
+
 					if( !usercargos.containsKey(base.getOwner()) ) {
 						usercargos.put(base.getOwner(), new Cargo(bcargo));
 					}
 					else {
 						usercargos.get(base.getOwner()).addCargo( bcargo );
 					}
-					
-					
+
+
 					List<ItemCargoEntry> itemlist = bcargo.getItems();
 					for( int i=0; i < itemlist.size(); i++ ) {
 						ItemCargoEntry aitem = itemlist.get(i);
@@ -119,18 +120,18 @@ public class RestTick extends TickController {
 								itemlocs.put(aitem.getItemID(), new HashSet<String>());
 							}
 							itemlocs.get(aitem.getItemID()).add("b"+base.getId());
-						}	
+						}
 					}
-					
+
 					db.evict(base);
 				}
 			}
 			long shipCount = (Long)db.createQuery("select count(*) from Ship where id>0")
 				.iterate()
 				.next();
-			
+
 			counter = 0;
-			
+
 			this.log("\tLese "+shipCount+" Schiffe ein");
 			while( counter < shipCount ) {
 				List<?> ships = db.createQuery("from Ship as s left join fetch s.modules where s.id>0")
@@ -140,25 +141,25 @@ public class RestTick extends TickController {
 					.list();
 				for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 					Ship ship = (Ship)iter.next();
-					
+
 					counter++;
-					
+
 					if( counter % 10000 == 0 ) {
 						this.log("\t\t* "+ship.getId());
 					}
-					
+
 					Cargo scargo = ship.getCargo();
 					if( ship.getOwner().getId() > 0 ) {
 						cargo.addCargo( scargo );
 					}
-					
+
 					if( !usercargos.containsKey(ship.getOwner()) ) {
 						usercargos.put(ship.getOwner(), new Cargo(scargo));
 					}
 					else {
 						usercargos.get(ship.getOwner()).addCargo( scargo );
 					}
-					
+
 					List<ItemCargoEntry> itemlist = scargo.getItems();
 					for( int i=0; i < itemlist.size(); i++ ) {
 						ItemCargoEntry aitem = itemlist.get(i);
@@ -171,15 +172,15 @@ public class RestTick extends TickController {
 								itemlocs.put(aitem.getItemID(), new HashSet<String>());
 							}
 							itemlocs.get(aitem.getItemID()).add("s"+ship.getId());
-						}	
+						}
 					}
-					
-					Ship.ModuleEntry[] modulelist = ship.getModules();
-					
+
+					ModuleEntry[] modulelist = ship.getModules();
+
 					for( int i=0; i < modulelist.length; i++ ) {
-						Ship.ModuleEntry amodule = modulelist[i];
-						
-						Module shipmodule = Modules.getShipModule(amodule);
+						ModuleEntry amodule = modulelist[i];
+
+						Module shipmodule = amodule.createModule();
 						if( shipmodule instanceof ModuleItemModule ) {
 							ModuleItemModule itemmodule = (ModuleItemModule)shipmodule;
 							if( ship.getOwner().getId() > 0 ) {
@@ -200,26 +201,26 @@ public class RestTick extends TickController {
 					db.evict(ShipModules.class);
 				}
 			}
-	
+
 			this.log("\tLese Zwischenlager ein");
 			ScrollableResults entrylist = db.createQuery("from GtuZwischenlager")
 				.setCacheMode(CacheMode.GET)
 				.scroll(ScrollMode.FORWARD_ONLY);
 			while( entrylist.next() ) {
 				GtuZwischenlager entry = (GtuZwischenlager)entrylist.get(0);
-				
+
 				Cargo acargo = entry.getCargo1();
 				if( entry.getUser1().getId() > 0 ) {
 					cargo.addCargo( acargo );
 				}
-					
+
 				if( !usercargos.containsKey(entry.getUser1()) ) {
 					usercargos.put(entry.getUser1(), new Cargo(acargo));
 				}
 				else {
 					usercargos.get(entry.getUser1()).addCargo( acargo );
 				}
-	
+
 				List<ItemCargoEntry> itemlist = acargo.getItems();
 				for( int i=0; i < itemlist.size(); i++ ) {
 					ItemCargoEntry aitem = itemlist.get(i);
@@ -234,7 +235,7 @@ public class RestTick extends TickController {
 						itemlocs.get(aitem.getItemID()).add("g"+entry.getPosten().getId());
 					}
 				}
-				
+
 				acargo = entry.getCargo2();
 				if( entry.getUser2().getId() > 0 ) {
 					cargo.addCargo( acargo );
@@ -245,7 +246,7 @@ public class RestTick extends TickController {
 				else {
 					usercargos.get(entry.getUser2()).addCargo( acargo );
 				}
-				
+
 				itemlist = acargo.getItems();
 				for( int i=0; i < itemlist.size(); i++ ) {
 					ItemCargoEntry aitem = itemlist.get(i);
@@ -258,19 +259,19 @@ public class RestTick extends TickController {
 							itemlocs.put(aitem.getItemID(), new HashSet<String>());
 						}
 						itemlocs.get(aitem.getItemID()).add("g"+entry.getPosten().getId());
-					}	
+					}
 				}
 			}
-			
+
 			StatCargo stat = new StatCargo(this.tick, cargo);
 			db.persist(stat);
 			transaction.commit();
 			transaction = db.beginTransaction();
-			
+
 			this.log("\t"+cargo.save());
 			this.log("Speichere User-Cargo-Stats");
 			db.createQuery("delete from StatUserCargo").executeUpdate();
-			
+
 			for( Map.Entry<User, Cargo> entry: usercargos.entrySet() ) {
 				User owner = entry.getKey();
 				Cargo userCargo = entry.getValue();
@@ -278,34 +279,34 @@ public class RestTick extends TickController {
 				this.log(owner.getId()+":"+userCargo.save());
 				db.persist(userstat);
 			}
-			
+
 			transaction.commit();
 			transaction = db.beginTransaction();
-			
+
 			this.log("Speichere Module-Location-Stats");
 			db.createQuery("delete from StatItemLocations").executeUpdate();
-			
+
 			for( Map.Entry<User, Map<Integer, Set<String>>> entry: useritemlocations.entrySet() ) {
 				User owner = entry.getKey();
 				for( Map.Entry<Integer, Set<String>> innerEntry: entry.getValue().entrySet() ) {
 					Set<String> locations = innerEntry.getValue();
 					int itemid = innerEntry.getKey();
-					
+
 					List<String>locationlist = new ArrayList<String>();
 					for( String loc : locations ) {
 						locationlist.add(loc);
-						
+
 						// Bei einer durchschnittlichen Zeichenkettenlaenge von 8 passen nicht mehr 10 Orte rein
 						if( locationlist.size() >= 10 ) {
-							break;	
+							break;
 						}
 					}
-					
+
 					StatItemLocations itemstat = new StatItemLocations(owner, itemid, Common.implode(";",locationlist));
 					db.persist(itemstat);
 				}
 			}
-			
+
 			transaction.commit();
 		}
 		catch(Exception e)

@@ -28,7 +28,8 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.ItemID;
-import net.driftingsouls.ds2.server.cargo.modules.Modules;
+import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
+import net.driftingsouls.ds2.server.cargo.modules.ModuleType;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
 import net.driftingsouls.ds2.server.entities.User;
@@ -194,18 +195,18 @@ public class ItemManipulator extends DSApplication {
 				ShipModules shipModules = (ShipModules)iter.next();
 				Ship ship = shipModules.getShip();
 
-				Ship.ModuleEntry[] modules = ship.getModules();
+				ModuleEntry[] modules = ship.getModules();
 				for( int i=0; i < modules.length; i++ ) {
-					Ship.ModuleEntry module = modules[i];
-					if( (module.moduleType == Modules.ITEMMODULE) && (Integer.parseInt(module.data) == itemid) ) {
-						ship.removeModule(module.slot, module.moduleType, module.data);
+					ModuleEntry module = modules[i];
+					if( (module.getModuleType() == ModuleType.ITEMMODULE) && (Integer.parseInt(module.getData()) == itemid) ) {
+						ship.removeModule(module);
 						if( recount != 0 ) {
 							awardRE(userlist, ship.getOwner().getId(), recount);
 						}
 						if( replaceid != 0  ) {
-							ship.addModule(module.slot, module.moduleType, Integer.toString(replaceid));
+							ship.addModule(module.getSlot(), module.getModuleType(), Integer.toString(replaceid));
 						}
-						log("\t- modifiziere "+ship.getId()+": slot "+module.slot);
+						log("\t- modifiziere "+ship.getId()+": slot "+module.getSlot());
 					}
 				}
 			}

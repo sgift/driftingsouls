@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
 import net.driftingsouls.ds2.server.entities.GlobalSectorTemplate;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -31,7 +32,6 @@ import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
-import net.driftingsouls.ds2.server.ships.Ship.ModuleEntry;
 
 /**
  * <h1>Die Sektor-Template-Verwaltung.</h1>
@@ -141,7 +141,7 @@ public class SectorTemplateManager {
 			ModuleEntry[] modules = ship.getModules();
 			for( ModuleEntry entry : modules)
 			{
-				newship.addModule(entry.slot, entry.moduleType, entry.data);
+				newship.addModule(entry.getSlot(), entry.getModuleType(), entry.getData());
 			}
 			newship.setName(ship.getName());
 			newship.setStatus(ship.getStatus());

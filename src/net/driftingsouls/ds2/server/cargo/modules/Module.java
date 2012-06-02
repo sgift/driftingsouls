@@ -38,12 +38,10 @@ public abstract class Module {
 
 	/**
 	 * Prueft, ob die angegebenen Daten das selbe Modul kennzeichnen die das aktuelle.
-	 * @param slot Die Slot-Nummer
-	 * @param moduleid Der Modul-Typ
-	 * @param data Weitere Modul-Typ spezifische Daten
+	 * @param entry Der Moduleintrag
 	 * @return <code>true</code>, falls die Daten zum Modul passen
 	 */
-	public boolean isSame( int slot, Modules moduleid, String data ) {
+	public boolean isSame( ModuleEntry entry ) {
 		return false;
 	}
 

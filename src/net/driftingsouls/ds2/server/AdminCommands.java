@@ -42,7 +42,7 @@ import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.Resources;
-import net.driftingsouls.ds2.server.cargo.modules.Modules;
+import net.driftingsouls.ds2.server.cargo.modules.ModuleType;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
@@ -311,7 +311,7 @@ public class AdminCommands {
 				return "Das Item passt nicht";
 			}
 
-			ship.addModule( slot, Modules.ITEMMODULE, Integer.toString(itemid) );
+			ship.addModule( slot, ModuleType.ITEMMODULE, Integer.toString(itemid) );
 
 			ShipTypeData shiptype = ship.getTypeData();
 
