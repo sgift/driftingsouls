@@ -37,48 +37,52 @@ import org.w3c.dom.NodeList;
  */
 public class Faction {
 	private static final Log log = LogFactory.getLog(Faction.class);
-	
+
 	private static Map<Integer,Faction> factionList = new LinkedHashMap<Integer,Faction>();
-	
+
 	/**
 	 * Die Spieler-ID der GTU.
 	 */
 	public static final int GTU = -2;
-	
+	/**
+	 * Die Rassen-ID der GTU.
+	 */
+	public static final int GTU_RASSE = 8;
+
 	/**
 	 * Die Spieler-ID der Bank der Lost Lands.
 	 */
 	public static final int BANK = -8;
-	
+
 	/**
 	 * Die Spieler-ID von Demolition Inc.
 	 */
 	public static final int DI = -19;
-	
+
 	/**
 	 * Die Spieler-ID von Ito.
 	 */
 	public static final int ITO = -26;
-	
+
 	/**
 	 * Die Spieler-ID des Piraten-Accounts.
 	 */
 	public static final int PIRATE = -15;
-	
+
 	/**
 	 * Die Spieler-ID des Regulus Syndikats.
 	 */
 	public static final int XR = -32;
-		
+
 	/**
 	 * Gibt die angegebene Fraktion zurueck. Sollte keine passende Fraktion existieren, so wird <code>null</code> zurueckgegeben.
-	 * @param id Die ID der Fraktion 
+	 * @param id Die ID der Fraktion
 	 * @return Die angegebene Fraktion oder <code>null</code>
 	 */
 	public static Faction get(int id) {
 		return factionList.get(id);
 	}
-	
+
 	/**
 	 * Gibt die Liste aller bekannten Fraktionen zurueck.
 	 * @return Die Liste der bekannten Fraktionen
@@ -86,14 +90,14 @@ public class Faction {
 	public static Map<Integer,Faction> getFactions() {
 		return Collections.unmodifiableMap(factionList);
 	}
-	
+
 	private FactionPages pages = null;
 	private int id = 0;
-	
+
 	private Faction(int id) {
 		this.id = id;
 	}
-	
+
 	/**
 	 * Gibt die Beschreibung der Fraktionsseite zurueck.
 	 * @return Die Fraktionsseite
@@ -101,7 +105,7 @@ public class Faction {
 	public FactionPages getPages() {
 		return pages;
 	}
-	
+
 	/**
 	 * Gibt die ID der Fraktion zurueck.
 	 * @return Die ID
@@ -109,19 +113,19 @@ public class Faction {
 	public int getID() {
 		return this.id;
 	}
-	
+
 	static {
 		/*
 		 * factions.xml parsen
 		 */
-		try {	
+		try {
 			Document doc = XMLUtils.readFile(Configuration.getSetting("configdir")+"factions.xml");
 			NodeList nodes = XMLUtils.getNodesByXPath(doc, "factions/faction");
 			for( int i=0; i < nodes.getLength(); i++ ) {
 				FactionPages fp = FactionPages.fromXML(nodes.item(i));
 				Faction fac = new Faction(fp.getID());
 				fac.pages = fp;
-				
+
 				factionList.put(fac.getID(), fac);
 			}
 		}
