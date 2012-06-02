@@ -408,3 +408,12 @@ div.gfxbox {
 	text-align:center;
 	font-weight:bold;
 }
+.npcorderbox table ul {
+	list-style:none;
+	margin:0px;
+	padding:0px;
+}
+.npcorderbox table ul li {
+	margin-top:5px;
+	margin-bottom:5px;
+}

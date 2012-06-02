@@ -10,7 +10,7 @@
 			{if npcorder.shop}
 				&nbsp;|&nbsp;
 				{!link_to Gany-Transport, viewTransports}
-			{/endif}			
+			{/endif}
 		</div>
 	</td>
 </tr>
@@ -45,7 +45,7 @@
 							</tr>
 						{/endif}
 						<tr>
-							<td>	
+							<td>
 								<a class="forschinfo" onclick="ShiptypeBox.show({ship.type});return false;"
 									href="./ds?module=schiffinfo&amp;ship={ship.type}">{ship.name}</a>
 							</td>
@@ -62,17 +62,23 @@
 					<tfoot>
 						<tr>
 							<td colspan="4">
-								<input type="checkbox" name="shipflag_disableiff" value="1" /><label for="shipflag_disableiff">IFF deaktiviert (+5 Punkte/Schiff)</label>
-							</td>
-						</tr>
-						<tr>
-							<td colspan="4">
-								<input type="checkbox" name="shipflag_handelsposten" value="1" /><label for="shipflag_handelsposten">Handelsposten (+5 Punkte/Schiff)</label>
-							</td>
-						</tr>
-						<tr>
-							<td colspan="4">
-								<input type="submit" value="bestellen" />
+								<ul>
+									<li>
+										<input type="checkbox" name="shipflag_disableiff" value="1" />
+										<label for="shipflag_disableiff">IFF deaktiviert (+5 Punkte/Schiff)</label>
+									</li>
+									<li>
+										<input type="checkbox" name="shipflag_nichtkaperbar" value="1" />
+										<label for="shipflag_nichtkaperbar">Nicht kaperbar (+5 Punkte/Schiff)</label>
+									</li>
+									<li>
+										<input type="checkbox" name="shipflag_handelsposten" value="1" />
+										<label for="shipflag_handelsposten">Handelsposten (+5 Punkte/Schiff)</label>
+									</li>
+									<li>
+										<input type="submit" value="bestellen" />
+									</li>
+								</ul>
 							</td>
 						</tr>
 					</tfoot>
@@ -164,7 +170,7 @@
 							</td>
 						</tr>
 						</table>
-					</form> 
+					</form>
 				</div>
 			{/endif}
 		</div>

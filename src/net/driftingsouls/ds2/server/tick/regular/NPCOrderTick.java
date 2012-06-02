@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.cargo.modules.ModuleType;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
@@ -49,18 +50,18 @@ import org.hibernate.Transaction;
 
 /**
  * Berechnet NPC-Bestellungen.
- * 
+ *
  * @author Christopher Jung
  *
  */
 public class NPCOrderTick extends TickController {
 	private static final int OFFIZIERSSCHIFF = 71;
 	private static final Location DEFAULT_LOCATION = new Location(2,30,35);
-	
+
 	private StringBuilder pmcache;
 	private int lastowner;
 	private String currentTime;
-	
+
 	@Override
 	protected void prepare() {
 		this.pmcache = new StringBuilder();
@@ -68,7 +69,7 @@ public class NPCOrderTick extends TickController {
 
 		this.currentTime = Common.getIngameTime(getContext().get(ContextCommon.class).getTick());
 	}
-	
+
 	private String getOffiName(User user) {
 		NameGenerator generator = Rassen.get().rasse(user.getRace()).getNameGenerator(Rasse.GeneratorType.PERSON);
 		if( generator != null ) {
@@ -79,70 +80,70 @@ public class NPCOrderTick extends TickController {
 	}
 
 	@Override
-	protected void tick() 
+	protected void tick()
 	{
 		org.hibernate.Session db = getDB();
 
 		Transaction transaction = db.beginTransaction();
 		final User sourceUser = (User)db.get(User.class, -1);
-		
+
 		List<?> orders = db.createQuery("from Order where tick=1 order by user").list();
-		for( Iterator<?> iter=orders.iterator(); iter.hasNext(); ) 
+		for( Iterator<?> iter=orders.iterator(); iter.hasNext(); )
 		{
 			Order order = (Order)iter.next();
-			try 
+			try
 			{
 				int owner = order.getUser();
 				User user = (User)getDB().get(User.class, owner);
-					
-				if( (owner != this.lastowner) && this.pmcache.length() > 0 ) 
+
+				if( (owner != this.lastowner) && this.pmcache.length() > 0 )
 				{
 					PM.send(sourceUser, this.lastowner, "NPC-Lieferservice", this.pmcache.toString());
 					pmcache.setLength(0);
 				}
 				lastowner = owner;
-			
+
 				int type = OFFIZIERSSCHIFF;
-				if( order instanceof OrderShip ) 
+				if( order instanceof OrderShip )
 				{
 					type = ((OrderShip)order).getType();
 				}
-			
+
 				ShipTypeData shipd = Ship.getShipType( type );
-			
-				if( order instanceof OrderShip ) 
+
+				if( order instanceof OrderShip )
 				{
 					this.log("* Order "+order.getId()+" ready: "+shipd.getNickname()+" ("+type+") wird zu User "+order.getUser()+" geliefert");
 				}
-				else 
+				else
 				{
 					this.log("* Order "+order.getId()+" ready: Offizier wird mittels "+shipd.getNickname()+" ("+type+") wird zu User "+order.getUser()+" geliefert");
 				}
-			
+
 				Base base = (Base)db.createQuery("from Base where owner=?")
 					.setEntity(0, user)
 					.setMaxResults(1)
 					.uniqueResult();
 				Location loc = DEFAULT_LOCATION;
-				if( base != null ) 
+				if( base != null )
 				{
 					loc = base.getLocation();
 				}
-				
+
 				int id = 0;
-				
+
 				this.log("  Lieferung erfolgt bei "+loc.getSystem()+":"+loc.getX()+"/"+loc.getY());
 				// Falls ein Schiff geordert wurde oder keine Basis fuer den Offizier existiert (und er braucht somit ein Schiff)...
-				if( (order instanceof OrderShip) || base == null ) 
+				if( (order instanceof OrderShip) || base == null )
 				{
 					Cargo cargo = new Cargo();
 					cargo.addResource( Resources.DEUTERIUM, shipd.getRd()*10 );
 					cargo.addResource( Resources.URAN, shipd.getRu()*10 );
 					cargo.addResource( Resources.ANTIMATERIE, shipd.getRa()*10 );
-				
-					User auser = (User)getDB().get(User.class, owner);	
+
+					User auser = (User)getDB().get(User.class, owner);
 					String history = "Indienststellung am "+this.currentTime+" durch "+auser.getName()+" ("+auser.getId()+") [hide]NPC-Order[/hide]";
-					
+
 					Ship ship = new Ship(user, (ShipType)db.get(ShipType.class, type), loc.getSystem(), loc.getX(), loc.getY());
 					ship.getHistory().addHistory(history);
 					ship.setName("noname");
@@ -155,31 +156,38 @@ public class NPCOrderTick extends TickController {
 					ship.setComm(100);
 					ship.setSensors(100);
 					ship.setAblativeArmor(shipd.getAblativeArmor());
-					
+					id = (Integer)db.save(ship);
+					db.save(ship.getHistory());
+
 					if( order instanceof OrderShip )
 					{
 						final String flags = ((OrderShip)order).getFlags();
-						ship.setStatus(flags);
-						if( flags.contains("disable_iff") ) {
+						if( flags.contains("tradepost") )
+						{
+							ship.setStatus("tradepost");
+						}
+						if( flags.contains("disable_iff") )
+						{
 							Cargo scargo = ship.getCargo();
 							scargo.addResource(new ItemID(2), 1); // IFF-Stoersender
 							ship.setCargo(scargo);
 						}
+						if( flags.contains("nicht_kaperbar") )
+						{
+							ship.addModule(0, ModuleType.ITEMMODULE, "442");
+						}
 					}
-					
-					id = (Integer)db.save(ship);
-					db.save(ship.getHistory());
-					
+
 					if( shipd.getWerft() != 0 ) {
 						ShipWerft awerft = new ShipWerft(ship);
 						db.persist(awerft);
 					}
-					
+
 					this.log("Schiff "+id+" erzeugt");
 				}
-			
+
 				// Es handelt sich um einen Offizier...
-				if( order instanceof OrderOffizier ) 
+				if( order instanceof OrderOffizier )
 				{
 					OrderableOffizier offizier = (OrderableOffizier)db.get(OrderableOffizier.class, ((OrderOffizier)order).getType());
 					int special = RandomUtils.nextInt(6)+1;
@@ -191,23 +199,23 @@ public class NPCOrderTick extends TickController {
 					offi.setAbility(Offizier.Ability.NAV, offizier.getNav());
 					offi.setAbility(Offizier.Ability.SEC, offizier.getSec());
 					offi.setAbility(Offizier.Ability.COM, offizier.getCom());
-					if( base != null ) 
+					if( base != null )
 					{
 						offi.setDest("b", base.getId());
 					}
-					else 
+					else
 					{
 						offi.setDest("s", id);
 					}
 					offi.setSpecial(Offizier.Special.values()[special]);
-					
+
 					db.persist(offi);
-			
+
 					// PM-Nachricht erstellen
 					pmcache.append("Der von ihnen bestellte ");
 					pmcache.append(offizier.getName());
 					pmcache.append(" wurde geliefert.\nEr befindet sich auf ");
-					
+
 					if( base == null ) {
 						pmcache.append("einer ");
 						pmcache.append(shipd.getNickname());
@@ -220,12 +228,12 @@ public class NPCOrderTick extends TickController {
 						pmcache.append(base.getId());
 						pmcache.append(") im Sektor ");
 					}
-					
+
 					pmcache.append(loc.displayCoordinates(false));
 					pmcache.append("\n\n");
 				}
 				// Es wurde nur ein Schiff geordert
-				else 
+				else
 				{
 					pmcache.append("Die von ihnen bestellte ");
 					pmcache.append(shipd.getNickname());
@@ -233,39 +241,39 @@ public class NPCOrderTick extends TickController {
 					pmcache.append(loc.displayCoordinates(false));
 					pmcache.append("\n\n");
 				}
-				
-				if( id != 0 ) 
+
+				if( id != 0 )
 				{
 					Ship ship = (Ship)db.get(Ship.class, id);
 					ship.recalculateShipStatus();
 				}
-			
+
 				db.delete(order);
 				transaction.commit();
 				transaction = db.beginTransaction();
 			}
-			catch( RuntimeException e ) 
+			catch( RuntimeException e )
 			{
 				transaction.rollback();
 				this.log("Order "+order.getId()+" failed: "+e);
 				e.printStackTrace();
 				Common.mailThrowable(e, "NPCOrderTick Exception", "order: "+order.getId());
-				
+
 				throw e;
 			}
 		}
-		
-		if( pmcache.length() > 0 ) 
+
+		if( pmcache.length() > 0 )
 		{
 			PM.send(sourceUser, lastowner, "NPC-Lieferservice", pmcache.toString());
 		}
-		
+
 		this.log("Verringere Wartezeit um 1...");
 		db.createQuery("update Order set tick=tick-1").executeUpdate();
-		
+
 		this.log("Verteile NPC-Punkte...");
 		db.createQuery("update User set npcpunkte=npcpunkte+1 where locate('ordermenu',flags)!=0");
-		
+
 		transaction.commit();
 	}
 

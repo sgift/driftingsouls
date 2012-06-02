@@ -50,55 +50,55 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Module(name="npcorder")
 public class NPCOrderController extends TemplateGenerator {
 	private boolean isHead = false;
-	
+
 	private Configuration config;
-	
+
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public NPCOrderController(Context context) {
 		super(context);
-		
+
 		setTemplate("npcorder.html");
-		
+
 		setPageTitle("NPC-Menue");
 	}
-	
+
     /**
      * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
-    public void setConfiguration(Configuration config) 
+    public void setConfiguration(Configuration config)
     {
     	this.config = config;
     }
-	
+
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		User user = (User)this.getUser();
 		TemplateEngine t = this.getTemplateEngine();
-		
+
 		if( !user.hasFlag( User.FLAG_ORDER_MENU ) ) {
 			addError("Nur NPCs k&ouml;nnen dieses Script nutzen", Common.buildUrl("default", "module", "ueber") );
-			
+
 			return false;
 		}
-		
+
 		if( Rassen.get().rasse(user.getRace()).isHead(user.getId()) ) {
 			t.setVar( "npcorder.factionhead", 1 );
-								
-			this.isHead = true;	
+
+			this.isHead = true;
 		}
-		
+
 		if( Faction.get(user.getId()) != null && Faction.get(user.getId()).getPages().hasPage("shop") ) {
-			t.setVar("npcorder.shop", 1);	
+			t.setVar("npcorder.shop", 1);
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Zeigt den aktuellen Status aller fuer Ganymede-Transporte reservierten Transporter an.
 	 *
@@ -108,7 +108,7 @@ public class NPCOrderController extends TemplateGenerator {
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = this.getTemplateEngine();
 		User user = (User)this.getUser();
-		
+
 		if( Faction.get(user.getId()) == null || !Faction.get(user.getId()).getPages().hasPage("shop") ) {
 			addError("Sie verf&uuml;gen &uuml;ber keinen Shop und k&ouml;nnen daher diese Seite nicht aufrufen");
 			redirect();
@@ -116,29 +116,29 @@ public class NPCOrderController extends TemplateGenerator {
 		}
 		t.setVar("npcorder.transports", 1);
 		t.setBlock("_NPCORDER", "transports.listitem", "transports.list");
-		
+
 		List<?> ships = db.createQuery("from Ship where owner=? and locate('#!/tm gany_transport',destcom)!=0")
 			.setEntity(0, user)
 			.list();
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship aship = (Ship)iter.next();
 			ShipTypeData ashiptype = aship.getTypeData();
-			
+
 			t.setVar(	"transport.ship",		Common._plaintitle(aship.getName()),
 						"transport.ship.id",	aship.getId(),
 						"transport.ship.picture",	ashiptype.getPicture(),
 						"transport.status",		"langeweile",
 						"transport.assignment",	"-" );
-								
+
 			Taskmanager taskmanager = Taskmanager.getInstance();
 			Task[] tasks = taskmanager.getTasksByData(Taskmanager.Types.GANY_TRANSPORT, "*", Integer.toString(aship.getId()), "*");
 			if( tasks.length == 0 ) {
 				t.parse("transports.list", "transports.listitem", true);
 				continue;
 			}
-			
+
 			Task task = tasks[0];
-			
+
 			String status = "";
 			if( task.getData3().equals("1") ) {
 				status = "verschiebt gany";
@@ -147,29 +147,29 @@ public class NPCOrderController extends TemplateGenerator {
 				status = "r&uuml;ckflug";
 			}
 			else {
-				status = "anreise";	
+				status = "anreise";
 			}
-			
+
 			t.setVar("transport.status", status);
-			
-			FactionShopOrder order = (FactionShopOrder)db.get(FactionShopOrder.class, Integer.parseInt(task.getData1())); 
-			
+
+			FactionShopOrder order = (FactionShopOrder)db.get(FactionShopOrder.class, Integer.parseInt(task.getData1()));
+
 			if( order == null)
 			{
 				db.delete(task);
 				continue;
 			}
-			
+
 			User orderuser = order.getUser();
-			
+
 			if(orderuser == null)
 			{
 				orderuser =  new User();
 				orderuser.setName("deleted user");
 			}
-			
+
 			t.setVar("transport.assignment", order.getId()+": "+Common._title(orderuser.getName())+"<br />"+order.getAddData());
-							
+
 			t.parse("transports.list", "transports.listitem", true);
 		}
 	}
@@ -185,68 +185,68 @@ public class NPCOrderController extends TemplateGenerator {
 	public void awardMedalAction() {
 		TemplateEngine t = this.getTemplateEngine();
 		User user = (User)this.getUser();
-		
+
 		if( !this.isHead ) {
 			addError( "Sie sind nicht berechtigt auf dieses Men&uuml; zuzugreifen" );
-			
+
 			this.redirect();
-			return;	
-		}	
-		
+			return;
+		}
+
 		this.parameterNumber("edituser");
 		this.parameterNumber("medal");
 		this.parameterString("reason");
 		int edituserID = this.getInteger("edituser");
 		int medal = this.getInteger("medal");
 		String reason = this.getString("reason");
-		
+
 		User edituser = (User)getContext().getDB().get(User.class, edituserID);
-			
+
 		if( edituser == null ) {
 			addError( "Der angegebene Spieler existiert nicht" );
 			this.redirect("medals");
-			
-			return;	
+
+			return;
 		}
-		
+
 		if( Medals.get().medal(medal) == null ) {
 			addError( "Der angegebene Orden ist nicht vorhanden" );
 			this.redirect("medals");
-			
-			return;	
+
+			return;
 		}
-		
+
 		if( Medals.get().medal(medal).isAdminOnly() ) {
 			addError( "Diesen Orden k&ouml;nnen sie nicht verleihen" );
 			this.redirect("medals");
-			
-			return;	
+
+			return;
 		}
-		
+
 		if( reason.length() == 0 ) {
 			addError( "Sie m&uuml;ssen einen Grund angeben" );
 			this.redirect("medals");
-			
-			return;	
+
+			return;
 		}
-		
+
 		String medallist = edituser.getMedals();
 		edituser.setMedals(medallist.trim().length() > 0 ? medallist+";"+medal : Integer.toString(medal));
-		
+
 		int ticks = getContext().get(ContextCommon.class).getTick();
-		
+
 		edituser.addHistory(Common.getIngameTime(ticks)+": Der Orden [img]"+
 				config.get("URL")+"data/"+Medals.get().medal(medal).getImage(Medal.IMAGE_SMALL)+"[/img]"+
 				Medals.get().medal(medal).getName()+" wurde von [userprofile="+user.getId()+"]"+
 				user.getName()+"[/userprofile] verliehen Aufgrund der "+reason);
-		
-		PM.send(user, edituser.getId(), "Orden '"+Medals.get().medal(medal).getName()+"' verliehen", 
+
+		PM.send(user, edituser.getId(), "Orden '"+Medals.get().medal(medal).getName()+"' verliehen",
 				"Ich habe dir den Orden [img]"+config.get("URL")+
 				"data/"+Medals.get().medal(medal).getImage(Medal.IMAGE_SMALL)+"[/img]'"+
 				Medals.get().medal(medal).getName()+"' verliehen Aufgrund deiner "+reason);
-		
+
 		t.setVar( "npcorder.message", "Dem Spieler wurde der Orden '"+Medals.get().medal(medal).getName()+"' verliehen" );
-		
+
 		this.redirect("medals");
 	}
 
@@ -270,14 +270,14 @@ public class NPCOrderController extends TemplateGenerator {
 		if( edituser == null ) {
 			addError( "Der angegebene Spieler existiert nicht" );
 			this.redirect("medals");
-			
-			return;	
+
+			return;
 		}
 
 		if( rank < 0 ) {
 			addError( "Sie k&ouml;nnen diesen Spieler nicht soweit degradieren" );
 			this.redirect("medals");
-			
+
 			return;
 		}
 
@@ -298,49 +298,49 @@ public class NPCOrderController extends TemplateGenerator {
 
 		parameterNumber("edituser");
 		int edituserID = getInteger("edituser");
-		
+
 		t.setVar("npcorder.medalsmenu", 1);
-		
+
 		User edituser = (User)getDB().get(User.class, edituserID);
-			
+
 		if( edituser == null ) {
 			t.setVar("edituser.id", 0);
-			
-			return;	
+
+			return;
 		}
-		
+
 		edituser.setTemplateVars(t, "edituser");
 
         UserRank rank = edituser.getRank(user);
-        
+
         t.setBlock("_NPCORDER", "ranks.listitem", "ranks.list");
         for( Rang rang : Medals.get().raenge().values() )
         {
         	t.setVar("rank.id", rang.getID(),
         			"rank.name", rang.getName(),
         			"rank.active", rang.getID() == rank.getRank());
-        	
+
         	t.parse("ranks.list", "ranks.listitem", true);
         }
-        
+
 		t.setVar(	"edituser.name",	Common._title(edituser.getName() ),
 					"edituser.rank",	rank.getRank());
-					
+
 		t.setBlock("_NPCORDER", "medals.listitem", "medals.list");
 		for( Medal medal : Medals.get().medals().values() ) {
 			if( medal.isAdminOnly() ) {
 				continue;
 			}
-			
+
 			t.setVar(	"medal.name",	medal.getName(),
 						"medal.id",		medal.getID(),
 						"medal.image",	medal.getImage(Medal.IMAGE_NORMAL) );
-								
 
-			t.parse("medals.list", "medals.listitem", true);				
+
+			t.parse("medals.list", "medals.listitem", true);
 		}
 	}
-	
+
 	/**
 	 * Setzt die Order-Koordinaten, an denen georderte Objekte erscheinen sollen.
 	 *
@@ -352,14 +352,14 @@ public class NPCOrderController extends TemplateGenerator {
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = this.getTemplateEngine();
 		User user = (User)this.getUser();
-		
+
 		parameterString("orderloc");
 		String orderloc = getString("orderloc");
-		
+
 		Location loc = Location.fromString(orderloc);
-		
+
 		String ordermessage = "";
-	
+
 		Ship ship = (Ship)db.createQuery("from Ship as s " +
 				"where s.shiptype.shipClass= :cls AND s.id>0 " +
 					"and s.x= :x and s.y= :y and s.system= :sys and s.owner= :user")
@@ -370,7 +370,7 @@ public class NPCOrderController extends TemplateGenerator {
 			.setInteger("sys", loc.getSystem())
 			.setMaxResults(1)
 			.uniqueResult();
-		
+
 		Base base = (Base)db.createQuery("from Base where owner= :user and " +
 				"x= :x and y= :y and system= :sys")
 			.setEntity("user", user)
@@ -379,22 +379,22 @@ public class NPCOrderController extends TemplateGenerator {
 			.setInteger("sys", loc.getSystem())
 			.setMaxResults(1)
 			.uniqueResult();
-		
+
 		if( (base != null) || (ship != null) ) {
 			user.setNpcOrderLocation(loc.toString());
-			
+
 			ordermessage = "Neue Lieferkoordinaten gespeichert";
 		}
 		else {
 			ordermessage = "Keine Lieferung nach "+loc+" m&ouml;glich\n";
 		}
-		
+
 		t.setVar("npcorder.message", ordermessage);
-		
+
 		this.redirect();
 	}
-	
-	
+
+
 	/**
 	 * Ordert eine Menge von Schiffen.
 	 *
@@ -405,28 +405,30 @@ public class NPCOrderController extends TemplateGenerator {
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = this.getTemplateEngine();
 		User user = (User)this.getUser();
-		
+
 		parameterNumber("shipflag_disableiff");
 		parameterNumber("shipflag_handelsposten");
+		parameterNumber("shipflag_nichtkaperbar");
 		boolean flagDisableIff = getInteger("shipflag_disableiff") == 1;
 		boolean flagHandelsposten = getInteger("shipflag_handelsposten") == 1;
-		
+		boolean flagNichtKaperbar = getInteger("shipflag_nichtkaperbar") == 1;
+
 		int costs = 0;
-		
+
 		List<Order> orderList = new ArrayList<Order>();
-		
+
 		List<?> shipOrders = db.createQuery("from OrderableShip order by shipType.shipClass,shipType").list();
 		for( Iterator<?> iter=shipOrders.iterator(); iter.hasNext(); )
 		{
 			OrderableShip ship = (OrderableShip)iter.next();
-			
+
 			parameterNumber("ship"+ship.getShipType().getId()+"_count");
-			
+
 			int count = getInteger("ship"+ship.getShipType().getId()+"_count");
 			if( count > 0 )
 			{
 				costs += count*ship.getCost();
-				
+
 				for( int i=0; i < count; i++ ) {
 					OrderShip orderObj = new OrderShip(user.getId(), ship.getId());
 					orderObj.setTick(3);
@@ -435,41 +437,46 @@ public class NPCOrderController extends TemplateGenerator {
 						orderObj.addFlag("disable_iff");
 						costs += 5;
 					}
+					if( flagNichtKaperbar )
+					{
+						orderObj.addFlag("nicht_kaperbar");
+						costs += 5;
+					}
 					if( flagHandelsposten )
 					{
 						orderObj.addFlag("tradepost");
 						costs += 5;
 					}
-					
+
 					orderList.add(orderObj);
 				}
 			}
 		}
-		
+
 		String ordermessage = "";
 
 		if( costs > 0 ) {
 			if( user.getNpcPunkte() < costs ) {
 				ordermessage = "<span style=\"color:red\">Nicht genug Kommandopunkte</span>";
-			} 
+			}
 			else {
 				ordermessage = orderList.size()+" Schiff(e) zugeteilt - wird/werden in 3 Ticks eintreffen";
 				for( Order order : orderList ) {
 					db.persist(order);
 				}
-				
+
 				user.setNpcPunkte( user.getNpcPunkte() - costs );
 			}
-		} 
+		}
 		else {
 			ordermessage = "Sorry, aber umsonst bekommst du hier nichts...\n";
 		}
-		
+
 		t.setVar("npcorder.message", ordermessage);
-		
+
 		this.redirect();
 	}
-	
+
 	/**
 	 * Ordert eine Menge von Schiffen/Offizieren.
 	 * @urlparam Integer order Das zu ordernde Objekt (negativ: offizier)
@@ -481,19 +488,19 @@ public class NPCOrderController extends TemplateGenerator {
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = this.getTemplateEngine();
 		User user = (User)this.getUser();
-		
+
 		parameterNumber("order");
 		parameterNumber("count");
-		
+
 		int costs = 0;
-		
+
 		int order = getInteger("order");
 		int count = getInteger("count");
-		
+
 		if( count <= 0 ) {
-			count = 1;	
+			count = 1;
 		}
-		
+
 		if( order < 0 ) {
 			OrderableOffizier orderOffi = (OrderableOffizier)db.get(OrderableOffizier.class, -order);
 			costs = count*orderOffi.getCost();
@@ -502,31 +509,31 @@ public class NPCOrderController extends TemplateGenerator {
 		{
 			throw new IllegalArgumentException("Unbekannte ID");
 		}
-		
+
 		String ordermessage = "";
 
 		if( costs > 0 ) {
 			if( user.getNpcPunkte() < costs ) {
 				ordermessage = "<span style=\"color:red\">Nicht genug Kommandopunkte</span>";
-			} 
+			}
 			else {
 				ordermessage = "Offizier(e) zugeteilt - wird/werden in 3 Ticks eintreffen";
-				
+
 				for( int i=0; i < count; i++ ) {
 					Order orderObj = new OrderOffizier(user.getId(), -order);
 					orderObj.setTick(3);
 					db.persist(orderObj);
 				}
-				
+
 				user.setNpcPunkte( user.getNpcPunkte() - costs );
 			}
-		} 
+		}
 		else {
 			ordermessage = "Sorry, aber umsonst bekommst du hier nichts...\n";
 		}
-		
+
 		t.setVar("npcorder.message", ordermessage);
-		
+
 		this.redirect();
 	}
 
@@ -539,10 +546,10 @@ public class NPCOrderController extends TemplateGenerator {
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = this.getTemplateEngine();
 		User user = (User)this.getUser();
-		
+
 		Map<Integer,Integer> shiporders = new HashMap<Integer,Integer>();
 		Map<Integer,Integer> offiorders = new HashMap<Integer,Integer>();
-		
+
 		t.setVar( "npcorder.ordermenu", 1 );
 
 		List<?> orderList = db.createQuery("from Order where user= :user")
@@ -563,7 +570,7 @@ public class NPCOrderController extends TemplateGenerator {
 		/*
 			Schiffe
 		*/
-		
+
 		int oldclass = 0;
 
 		t.setBlock("_NPCORDER", "ships.listitem", "ships.list");
@@ -571,51 +578,51 @@ public class NPCOrderController extends TemplateGenerator {
 		List<?> shipOrders = db.createQuery("from OrderableShip order by shipType.shipClass,shipType").list();
 		for( Iterator<?> iter=shipOrders.iterator(); iter.hasNext(); ) {
 			OrderableShip ship = (OrderableShip)iter.next();
-			
+
 			t.start_record();
-			
+
 			if( ship.getShipType().getShipClass() != oldclass ) {
 				t.setVar(	"ship.newclass",		1,
 							"ship.newclass.name",	ShipTypes.getShipClass(ship.getShipType().getShipClass()).getSingular() );
-				
+
 				oldclass = ship.getShipType().getShipClass();
 			}
-			
+
 			if( !shiporders.containsKey(ship.getId()) ) {
 				shiporders.put(ship.getId(), 0);
 			}
-			
+
 			t.setVar(	"ship.name",		ship.getShipType().getNickname(),
 						"ship.type",		ship.getId(),
 						"ship.cost",		ship.getCost(),
 						"ship.ordercount",	shiporders.get(ship.getId()) );
-								
+
 			t.parse("ships.list", "ships.listitem", true);
-			
+
 			t.stop_record();
 			t.clear_record();
 		}
-		
+
 		/*
 			Offiziere
 		*/
-		
+
 		t.setBlock("_NPCORDER", "offiziere.listitem", "offiziere.list");
-		
+
 		List<?> offizierOrders = db.createQuery("from OrderableOffizier where cost > 0 order by id").list();
 		for( Iterator<?> iter=offizierOrders.iterator(); iter.hasNext(); ) {
 			OrderableOffizier offizier = (OrderableOffizier)iter.next();
-			
+
 			if( !offiorders.containsKey(-offizier.getId()) ) {
 				offiorders.put(-offizier.getId(), 0);
 			}
-			
+
 			t.setVar(	"offizier.name",		offizier.getName(),
 						"offizier.rang",		offizier.getRang(),
 						"offizier.cost",		offizier.getCost(),
 						"offizier.id",			-offizier.getId(),
 						"offizier.ordercount",	offiorders.get(offizier.getId()) );
-								
+
 			t.parse("offiziere.list", "offiziere.listitem", true);
 		}
 	}
