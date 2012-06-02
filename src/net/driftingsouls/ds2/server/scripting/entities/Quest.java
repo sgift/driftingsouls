@@ -35,7 +35,7 @@ public class Quest {
 	private int id;
 	private String name;
 	private String qid;
-	
+
 	/**
 	 * Konstruktor.
 	 *
@@ -43,7 +43,7 @@ public class Quest {
 	public Quest() {
 		// EMPTY
 	}
-	
+
 	/**
 	 * Erstellt ein neues Quest.
 	 * @param name Der Name des Quests
@@ -93,5 +93,11 @@ public class Quest {
 	 */
 	public int getId() {
 		return id;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "Quest [id: "+this.id+" name: "+this.name+"]";
 	}
 }

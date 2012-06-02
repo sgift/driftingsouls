@@ -19,9 +19,9 @@
 package net.driftingsouls.ds2.server.tick.regular;
 
 import java.sql.Blob;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
@@ -33,17 +33,18 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.config.ConfigFelsbrocken;
+import net.driftingsouls.ds2.server.config.ConfigFelsbrockenSystem;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Jump;
 import net.driftingsouls.ds2.server.entities.StatShips;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
+import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
+import net.driftingsouls.ds2.server.scripting.entities.Script;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.tasks.Task;
@@ -320,12 +321,11 @@ public class RestTick extends TickController {
 	*/
 	private void doFelsbrocken()
 	{
-		Database db = getDatabase();
-		org.hibernate.Session database = getDB();
-		Transaction transaction = database.beginTransaction();
+		org.hibernate.Session db = getDB();
+		Transaction transaction = db.beginTransaction();
 		try
 		{
-			User owner = (User)database.get(User.class, -1);
+			User owner = (User)db.get(User.class, -1);
 			String currentTime = Common.getIngameTime(getContext().get(ContextCommon.class).getTick());
 
 			this.log("");
@@ -333,68 +333,67 @@ public class RestTick extends TickController {
 
 			int shouldId = 9999;
 
-			SQLQuery system = db.query("SELECT system,count," +
-					"(SELECT count(*) FROM ships WHERE system=config_felsbrocken_systems.system AND type IN " +
-					"	(SELECT shiptype FROM config_felsbrocken WHERE system=config_felsbrocken_systems.system)" +
-					") present " +
-					"FROM config_felsbrocken_systems ORDER BY system");
-			while( system.next() )
+			List<?> systemList = db
+				.createQuery("from ConfigFelsbrockenSystem cfs")
+				.list();
+			for( Object obj : systemList )
 			{
-				int shipcount = system.getInt("present");
+				ConfigFelsbrockenSystem cfs = (ConfigFelsbrockenSystem)obj;
 
-				this.log("\tSystem "+system.getInt("system")+": "+shipcount+" / "+system.getInt("count")+" Felsbrocken");
+				long shipcount = (Long)db.createQuery("select count(*) " +
+						"from Ship s " +
+						"where s.system=:system and " +
+							"s.shiptype in (select shiptype from ConfigFelsbrocken where system=:cfs)")
+					.setInteger("system", cfs.getSystem())
+					.setEntity("cfs", cfs)
+					.iterate().next();
 
-				if( system.getInt("count") < shipcount )
+				this.log("\tSystem "+cfs.getSystem()+": "+shipcount+" / "+cfs.getCount()+" Felsbrocken");
+
+				if( cfs.getCount() < shipcount )
 				{
 					continue;
 				}
 
-				List<SQLResultRow> loadout = new ArrayList<SQLResultRow>();
-				SQLQuery aLoadOut = db.query("SELECT * FROM config_felsbrocken WHERE system=",system.getInt("system"));
-				while( aLoadOut.next() )
-				{
-					loadout.add(aLoadOut.getRow());
-				}
-				aLoadOut.free();
+				Set<ConfigFelsbrocken> loadout = cfs.getFelsbrocken();
 
-				while( shipcount < system.getInt("count") )
+				while( shipcount < cfs.getCount() )
 				{
 					int rnd = RandomUtils.nextInt(100)+1;
 					int currnd = 0;
-					for( int i=0; i < loadout.size(); i++ )
+					for( ConfigFelsbrocken aloadout : loadout )
 					{
-						SQLResultRow aloadout = loadout.get(i);
-						currnd += aloadout.getInt("chance");
+						currnd += aloadout.getChance();
 
 						if( currnd < rnd )
 						{
 							continue;
 						}
 
-						StarSystem thissystem = (StarSystem)database.get(StarSystem.class, system.getInt("system"));
+						StarSystem thissystem = (StarSystem)db.get(StarSystem.class, cfs.getSystem());
 
 						// Koords ermitteln
 						int x = RandomUtils.nextInt(thissystem.getWidth())+1;
 						int y = RandomUtils.nextInt(thissystem.getHeight())+1;
 
-						shouldId = (Integer)database.createSQLQuery("select newIntelliShipId( ? )")
+						shouldId = (Integer)db.createSQLQuery("select newIntelliShipId( ? )")
 							.setInteger(0, ++shouldId)
 							.uniqueResult();
 
-						this.log("\t*System "+system.getInt("system")+": Fuege Felsbrocken "+shouldId+" ein");
+						this.log("\t*System "+cfs.getSystem()+": Fuege Felsbrocken "+shouldId+" ein");
 
 						// Ladung einfuegen
 						this.log("\t- Loadout: ");
-						Cargo cargo = new Cargo(Cargo.Type.STRING, aloadout.getString("cargo"));
+						Cargo cargo = aloadout.getCargo();
 						ResourceList reslist = cargo.getResourceList();
 						for( ResourceEntry res : reslist )
 						{
 							this.log("\t   *"+res.getPlainName()+" => "+res.getCount1());
 						}
 
-						ShipType shiptype = (ShipType)database.get(ShipType.class, aloadout.getInt("shiptype"));
+						ShipType shiptype = aloadout.getShiptype();
 
-						Ship brocken = new Ship(owner, shiptype, system.getInt("system"), x, y);
+						Ship brocken = new Ship(owner, shiptype, cfs.getSystem(), x, y);
 						brocken.getHistory().addHistory("Indienststellung als Felsbrocken am "+currentTime+" durch den Tick");
 						brocken.setName("Felsbrocken");
 						brocken.setId(shouldId);
@@ -410,8 +409,8 @@ public class RestTick extends TickController {
 						brocken.setEnergy(shiptype.getEps());
 
 						// Schiffseintrag einfuegen
-						database.save(brocken);
-						database.save(brocken.getHistory());
+						db.save(brocken);
+						db.save(brocken.getHistory());
 
 						this.log("");
 
@@ -439,23 +438,22 @@ public class RestTick extends TickController {
 	{
 		try
 		{
-			Database db = getDatabase();
+			org.hibernate.Session db = getDB();
 
 			this.log("Bearbeite Quests [ontick]");
-			SQLQuery rquest = db.query("SELECT * FROM quests_running WHERE ontick IS NOT NULL ORDER BY questid");
-			if( rquest.numRows() == 0 )
-			{
-				rquest.free();
-				return;
-			}
+			List<?> runningQuestList = db
+				.createQuery("from RunningQuest where onTick is not null order by questid")
+				.list();
+
 			ScriptEngine scriptparser = getContext().get(ContextCommon.class).getScriptParser("DSQuestScript");
 			scriptparser.getContext().setErrorWriter(new NullLogger());
 
-			while( rquest.next() )
+			for( Object obj : runningQuestList )
 			{
+				RunningQuest rquest = (RunningQuest)obj;
 				try
 				{
-					Blob execdata = rquest.getBlob("execdata");
+					Blob execdata = rquest.getExecData();
 					if( (execdata != null) && (execdata.length() > 0) )
 					{
 						scriptparser.setContext(ScriptParserContext.fromStream(execdata.getBinaryStream()));
@@ -465,35 +463,33 @@ public class RestTick extends TickController {
 						scriptparser.setContext(new ScriptParserContext());
 					}
 
-					this.log("* quest: "+rquest.getInt("questid")+" - user:"+rquest.getInt("userid")+" - script: "+rquest.getInt("ontick"));
+					this.log("* quest: "+rquest.getQuest()+" - user:"+rquest.getUser()+" - script: "+rquest.getOnTick());
 
-					String script = db.first("SELECT script FROM scripts WHERE id='"+rquest.getInt("ontick")+"'").getString("script");
+					Script script = (Script)db.get(Script.class, rquest.getOnTick());
 
 					final Bindings engineBindings = scriptparser.getContext().getBindings(ScriptContext.ENGINE_SCOPE);
 
-					engineBindings.put("USER", Integer.toString(rquest.getInt("userid")) );
-					engineBindings.put("QUEST", "r"+rquest.getInt("id"));
-					engineBindings.put("SCRIPT", Integer.toString(rquest.getInt("ontick")) );
+					engineBindings.put("USER", Integer.toString(rquest.getUser().getId()) );
+					engineBindings.put("QUEST", "r"+rquest.getId());
+					engineBindings.put("SCRIPT", Integer.toString(rquest.getOnTick()) );
 					engineBindings.put("_PARAMETERS", "0");
-					scriptparser.eval(script);
+					scriptparser.eval(script.getScript());
 
 					int usequest = Integer.parseInt((String)engineBindings.get("QUEST"));
 
 					if( usequest != 0 )
 					{
 						ScriptParserContext.toStream(scriptparser.getContext(), execdata.setBinaryStream(1));
-						db.prepare("UPDATE quests_running SET execdata=? WHERE id=? ")
-							.update(execdata, rquest.getInt("id"));
+						rquest.setExecData(execdata);
 					}
 				}
 				catch( Exception e )
 				{
-					this.log("[FEHLER] Konnte Quest-Tick fuehr Quest "+rquest.getInt("questid")+" (Running-ID: "+rquest.getInt("id")+") nicht ausfuehren."+e);
+					this.log("[FEHLER] Konnte Quest-Tick fuehr Quest "+rquest.getQuest()+" (Running-ID: "+rquest.getId()+") nicht ausfuehren."+e);
 					e.printStackTrace();
-					Common.mailThrowable(e, "RestTick Exception", "Quest failed: "+rquest.getInt("questid")+"\nRunning-ID: "+rquest.getInt("id"));
+					Common.mailThrowable(e, "RestTick Exception", "Quest failed: "+rquest.getQuest()+"\nRunning-ID: "+rquest.getId());
 				}
 			}
-			rquest.free();
 		}
 		catch( RuntimeException e )
 		{
