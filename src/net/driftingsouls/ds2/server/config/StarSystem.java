@@ -29,12 +29,13 @@ import javax.persistence.Transient;
 import org.apache.commons.lang.StringUtils;
 
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.entities.User;
 
 /**
  * Repraesentiert ein Sternensystem in DS.
- * 
+ *
  * <p>Order-Locations: Geben Positionen an, in deren Umgebung neue Spieler nach der Registrierung "spawnen" koennen.</p>
- * 
+ *
  * @author Christopher Jung
  *
  */
@@ -53,7 +54,7 @@ public class StarSystem {
 	 * Admin Zugriffslevel - Nur Admins koennen das System sehen.
 	 */
 	public static final int AC_ADMIN = 3;
-	
+
 	@Column(name="Name")
 	private String name = "";
 	@Id
@@ -72,17 +73,17 @@ public class StarSystem {
 	@Column(name="starmap")
 	private boolean isStarmapVisible = false;
 	private String spawnableress = "";
-	
+
 	@Transient
 	private ArrayList<Location> orderlocs = new ArrayList<Location>();
-	
+
 	/**
 	 * Standardkonstruktor.
 	 */
 	public StarSystem() {
 		//Empty
 	}
-	
+
 	/**
 	 * Der Konstruktor.
 	 * @param id Die ID des neuen Systems
@@ -90,7 +91,7 @@ public class StarSystem {
 	public StarSystem(int id) {
 		this.id = id;
 	}
-	
+
 	/**
 	 * Schreibt alle Locations aus dem Array in einen String.
 	 */
@@ -109,7 +110,7 @@ public class StarSystem {
 			}
 		}
 	}
-	
+
 	/**
 	 * Schreibt den String in die Locations um.
 	 */
@@ -125,26 +126,26 @@ public class StarSystem {
 			}
 		}
 	}
-	
+
 	protected void addOrderLocation( Location orderloc ) {
 		this.orderlocs.add(orderloc);
 		locationstoString();
 	}
-	
+
 	protected void removeOrderLocation( Location orderloc) {
 		this.orderlocs.remove(orderloc);
 		locationstoString();
 	}
-	
+
 	/**
 	 * Gibt die Liste aller Order-Locations im System zurueck.
 	 * @return die Liste aller Order-Locations
 	 */
 	public Location[] getOrderLocations() {
 		StringtoLocations();
-		return orderlocs.toArray(new Location[orderlocs.size()]);	
+		return orderlocs.toArray(new Location[orderlocs.size()]);
 	}
-	
+
 	/**
 	 * Setzt die Liste aller Order-Locations im System.
 	 * @param locations Die Liste der Order Locations.
@@ -153,7 +154,7 @@ public class StarSystem {
 		this.orderloc = locations;
 		StringtoLocations();
 	}
-	
+
 	/**
 	 * Gibt die anhand der ID spezifizierte Order-Location zurueck.
 	 * @param locid die ID der Order-Location
@@ -161,9 +162,9 @@ public class StarSystem {
 	 */
 	public Location getOrderLocation( int locid ) {
 		StringtoLocations();
-		return orderlocs.get(locid);	
+		return orderlocs.get(locid);
 	}
-	
+
 	/**
 	 * Gibt die Order-Locations als String zurueck.
 	 * @return Die Locations als String
@@ -174,7 +175,7 @@ public class StarSystem {
 		}
 		return this.orderloc;
 	}
-	
+
 	/**
 	 * Setzt die Location der DropZone.
 	 * @param dropZone Die Location der DropZone
@@ -186,10 +187,10 @@ public class StarSystem {
 		}
 		else
 		{
-			gtuDropZone = dropZone.getX() + "/" + dropZone.getY();	
+			gtuDropZone = dropZone.getX() + "/" + dropZone.getY();
 		}
 	}
-	
+
 	/**
 	 * Liefert die Position der GTU-Dropzone im System.
 	 * @return die Position der GTU-Dropzone
@@ -198,9 +199,9 @@ public class StarSystem {
 		if(gtuDropZone == null) {
 			return null;
 		}
-		return Location.fromString(gtuDropZone).setSystem(id);	
+		return Location.fromString(gtuDropZone).setSystem(id);
 	}
-	
+
 	/**
 	 * Liefert die Position der Dropzone als String.
 	 * @return Die Position als String
@@ -211,23 +212,23 @@ public class StarSystem {
 		}
 		return this.gtuDropZone;
 	}
-	
+
 	/**
 	 * Setzt die maximale Anzahl an Kolonien in diesem System.
 	 * @param maxColonies Die Anzahl der maximalen Kolonien (-1 fuer keine Begrenzung)
 	 */
 	public void setMaxColonies( int maxColonies ) {
-		this.maxColonies = maxColonies;	
+		this.maxColonies = maxColonies;
 	}
-	
+
 	/**
 	 * Gibt an, ob militaerische Einheiten im System zugelassen sind.
 	 * @return <code>true</code>, falls militaerische Einheiten zugelassen sind
 	 */
 	public boolean isMilitaryAllowed() {
-		return this.allowMilitary;	
+		return this.allowMilitary;
 	}
-	
+
 	/**
 	 * Setzt, ob militaerische Einheiten im System zugelassen sind.
 	 * @param allowed <code>true</code> wenn erlaubt, ansonsten <code>false</code>
@@ -235,27 +236,27 @@ public class StarSystem {
 	public void setMilitaryAllowed(boolean allowed) {
 		this.allowMilitary = allowed;
 	}
-	
+
 	/**
 	 * Gibt die maximale zulaessige Anzahl an Kolonien
-	 * innerhalb dieses Sternensystems zurueck. Sollte keine 
+	 * innerhalb dieses Sternensystems zurueck. Sollte keine
 	 * Begrenzung existieren, wird <code>-1</code> zurueckgegeben.
-	 * 
+	 *
 	 * @return Die max. Anzahl an Kolonien oder <code>-1</code>
 	 */
 	public int getMaxColonies() {
-		return this.maxColonies;	
+		return this.maxColonies;
 	}
-	
+
 	/**
 	 * Gibt den Zugriffslevel zurueck, ab dem das Sternensystem sichtbar ist.
 	 * Der Zugriffslevel wird ueber entsprechende User-Flags festgelegt.
 	 * @return Der Zugriffslevel
 	 */
 	public int getAccess() {
-		return this.starmap;	
+		return this.starmap;
 	}
-	
+
 	/**
 	 * Setzt den Zugriffslevel, ab dem das Sternensystem sichtbar ist.
 	 * @param access Der Zugriffslevel
@@ -263,15 +264,15 @@ public class StarSystem {
 	public void setAccess(int access) {
 		this.starmap = access;
 	}
-	
+
 	/**
 	 * Gibt die Breite in Feldern des Sternensystems zurueck.
 	 * @return die Breite in Feldern
 	 */
 	public int getWidth() {
-		return this.width;	
+		return this.width;
 	}
-	
+
 	/**
 	 * Setzt die Breite in Feldern des Sternensystems.
 	 * @param width Die Breite in Feldern
@@ -279,15 +280,15 @@ public class StarSystem {
 	public void setWidth(int width) {
 		this.width = width;
 	}
-	
+
 	/**
 	 * Gibt die Hoehe in Feldern des Sternensystems zurueck.
 	 * @return die Hoehe
 	 */
 	public int getHeight() {
-		return this.height;	
+		return this.height;
 	}
-	
+
 	/**
 	 * Setzt die Hoehe in Feldern des Sternensystems.
 	 * @param height Die Hoehe
@@ -295,15 +296,15 @@ public class StarSystem {
 	public void setHeight(int height) {
 		this.height = height;
 	}
-	
+
 	/**
 	 * Gibt den Namen des Sternensystems zurueck.
 	 * @return der Name
 	 */
 	public String getName() {
-		return this.name;	
+		return this.name;
 	}
-	
+
 	/**
 	 * Setzt den Namen des Sternensystems.
 	 * @param name Der neue Name des Sternensystems
@@ -311,15 +312,15 @@ public class StarSystem {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+
 	/**
 	 * Gibt die ID des Sternensystems zurueck.
 	 * @return die ID des Sternensystems
 	 */
 	public int getID() {
-		return this.id;	
+		return this.id;
 	}
-	
+
 	/**
 	 * Gibt die Beschreibung des Sternensystems zurueck.
 	 * @return Die Beschreibung
@@ -330,7 +331,7 @@ public class StarSystem {
 		}
 		return this.description;
 	}
-	
+
 	/**
 	 * Setzt die Beschreibung des Sternensystems.
 	 * @param text Der neue Berschreibungstext
@@ -338,7 +339,7 @@ public class StarSystem {
 	public void setDescription( String text ) {
 		this.description = text;
 	}
-	
+
 	/**
 	 * Gibt zurueclk ob dieses System per Sternenkarte angesehen werden kann.
 	 * @return <code>true</code> falls dieses System auf der Sternenkarte angesehen werden kann, ansonsten <code>false</code>
@@ -346,7 +347,7 @@ public class StarSystem {
 	public boolean isStarmapVisible() {
 		return this.isStarmapVisible;
 	}
-	
+
 	/**
 	 * Setzt, ob dieses System auf der Sternenkarte angeschaut werden kann.
 	 * @param visible <code>true</code> falls es angeschaut werden können soll, ansonsten <code>false</code>
@@ -354,7 +355,7 @@ public class StarSystem {
 	public void setStarmapVisible(boolean visible) {
 		this.isStarmapVisible = visible;
 	}
-	
+
 	/**
 	 * Gibt einen String mit Ressourcen zurueck, die in diesem System vorkommen koennen.
 	 * @return Die vorkommenden Ressourcen (itemid,chance,maxmenge)
@@ -366,12 +367,34 @@ public class StarSystem {
 		}
 		return this.spawnableress;
 	}
-	
+
 	/**
 	 * Setzt einen String mit Ressourcen, die in diesem System vorkommen koennen.
 	 * @param spawnableress Die vorkommenden Ressourcen
 	 */
 	public void setSpawnableRess(String spawnableress) {
 		this.spawnableress = spawnableress;
+	}
+
+	/**
+	 * Gibt zurueck, ob der angegebene Spieler das Sternensystem (als Karte) sehen kann.
+	 * @param user Der Spieler
+	 * @return <code>true</code>, falls er das System sehen darf
+	 */
+	public boolean isVisibleFor(User user)
+	{
+		if( user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS) )
+		{
+			return true;
+		}
+		if( this.starmap == AC_ADMIN )
+		{
+			return false;
+		}
+		if( this.starmap == AC_NPC )
+		{
+			return user.hasFlag(User.FLAG_VIEW_SYSTEMS);
+		}
+		return this.isStarmapVisible;
 	}
 }
