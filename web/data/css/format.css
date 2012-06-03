@@ -332,6 +332,17 @@ div.gfxbox {
 	text-align:left;
 }
 
+.popupbox {
+	position:absolute;
+	display:none;
+	text-align:center;
+}
+
+.popupbox .content {
+	overflow-y:auto;
+	margin-right:3px;
+}
+
 .kursbox {
 	width:250px;
 	margin-right:25px;
@@ -448,4 +459,11 @@ div.gfxbox {
 .npcorderbox table ul li {
 	margin-top:5px;
 	margin-bottom:5px;
+}
+
+#scriptBox {
+	width:400px;
+}
+#scriptBox .content {
+	height:270px;
 }

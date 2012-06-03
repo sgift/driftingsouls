@@ -42,7 +42,6 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.cargo.modules.Module;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleItemModule;
-import net.driftingsouls.ds2.server.cargo.modules.ModuleType;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.entities.User;
@@ -66,7 +65,6 @@ import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -1150,8 +1148,6 @@ public class SchiffController extends TemplateGenerator {
 			script = StringUtils.replace(script,"\"", "\\\"");
 
 			t.setVar(	"tooltip.execnotes",		1,
-						"tooltip.execnotes.begin",	StringUtils.replaceChars(Common.tableBegin(400, "center"),'"', '\''),
-						"tooltip.execnotes.end",	StringUtils.replaceChars(Common.tableEnd(),'"', '\''),
 						"tooltip.execnotes.script",	script );
 		}
 
