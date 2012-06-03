@@ -14,7 +14,11 @@
 	<tr>
 		<td style="width:90px; text-align:center; vertical-align:top" class="noBorderX">
 			{!link_to $post.name, default, module:userprofile, css_class:profile, user:$post.id}
-			<img align="middle" {!overlib $user.rang.name, mo, width:100} src="{URL}data/interface/medals/rang{user.rang}.png" alt="" />
+			<img align="middle" class="tooltip" src="{URL}data/interface/medals/rang{user.rang}.png" alt="">
+				<span class="ttcontent">
+					{user.rang.name}
+				</span>
+			</img>
 			{if user.id < 0}
 				[NPC]
 			{/endif}
@@ -226,7 +230,11 @@
 		<tr>
 			<td style="width:90px; text-align:center; vertical-align:top" class="noBorderX">
 				{!link_to $post.name, default, module:userprofile, css_class:profile, user:$post.user.id}<br />
-				<img align="middle" {!overlib $post.user.rang.name, mo, width:100} src="{URL}data/interface/medals/rang{post.user.rang}.png" alt="" />
+				<img align="middle" class="tooltip" src="{URL}data/interface/medals/rang{post.user.rang}.png" alt="">
+					<span class="ttcontent">
+						{post.user.rang.name}
+					</span>
+				</img>
 				{if post.user.id < 0}
 					<br />[NPC]
 				{/endif}

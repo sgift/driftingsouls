@@ -116,36 +116,19 @@ public class Werft extends DefaultBuilding {
 				}
 				
 				StringBuilder popup = new StringBuilder(100);
-				popup.append(Common.tableBegin(420, "left").replace( '"', '\'') );
 				popup.append("Belegte Werftslots: <img style='vertical-align:middle;border:0px' src='"+config.get("URL")+"data/interface/schiffinfo/werftslots.png' alt='' />"+usedSlots+"/"+totalSlots+"<br />");
 				popup.append("Im Bau: "+buildingCount+" Schiffe<br />");
 				popup.append("In der Warteschlange: "+(entries.length - buildingCount));
 				popup.append(imBau);
-				popup.append(Common.tableEnd().replace( '"', '\'' ));
-				String popupStr = StringEscapeUtils.escapeJavaScript(popup.toString().replace(">", "&gt;").replace("<", "&lt;"));
-				
-				result.append("<a name=\"p");
-				result.append(base.getId());
-				result.append("_");
-				result.append(field);
-				result.append("\" id=\"p");
-				result.append(base.getId());
-				result.append("_");
-				result.append(field);
-				result.append("\" class=\"error\" onmouseover=\"return overlib('<span style=\\'font-size:13px\\'>");
-				result.append(popupStr);
-				result.append("</span>',REF,'p");
-				result.append(base.getId());
-				result.append("_");
-				result.append(field);
-				result.append("',REFY,22,NOJUSTY,FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip',TIMEOUT,0,DELAY,150,WIDTH,430);\" onmouseout=\"return nd();\" href=\"./ds?module=building");
+
+				result.append("<a class=\"error tooltip\" href=\"./ds?module=building");
 				result.append("&amp;col=");
 				result.append(base.getId());
 				result.append("&amp;field=");
 				result.append(field);
 				result.append("\">[W]<span style=\"font-weight:normal\">");
 				result.append(entries.length);
-				result.append("</span></a>");
+				result.append("</span><span class='ttcontent'>"+popup+"</span></a>");
 			}
 		}
 		

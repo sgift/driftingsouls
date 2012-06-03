@@ -191,7 +191,8 @@
 					<td class="noBorderX" style="width:100px;text-align:right">{res.cargo.available}</td>
 					<td class="noBorderX" style="width:50px;text-align:right">
 						{if res.cargo.mangel}
-					 		<a class="error" onmouseover="return overlib('&lt;span style=\'font-size:13px\'&gt;Mehrbedarf:<br />{res.cargo.mangel} Einheiten&lt;/span&gt;',TIMEOUT,0,DELAY,300,WIDTH,100);" onmouseout="return nd();" href="#">
+					 		<a class="error tooltip" href="#">
+					 			<span class="ttcontent">Mehrbedarf:<br />{res.cargo.mangel} Einheiten</span>
 						{/endif}
 						{res.cargo.needed}
 						{if res.cargo.mangel}

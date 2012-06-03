@@ -214,65 +214,7 @@ public class TemplateCompiler {
 			return new TCFLinkTo().process(params); 
 		}	
 	}
-	
-	private static class TCFOverlib implements TemplateCompileFunction {
-		TCFOverlib() {
-			// EMPTY
-		}
-		@Override
-		public String process(List<String> parameter) {
-			String text = parameter.get(0);
-			
-			if( text.charAt(0) == '$' ) {
-				text = text.substring(1);
-				text = "\"); str.append(templateEngine.getVar(\""+text+"\")); str.append(\"";
-			}
-			else {
-				text = StringUtils.replace(StringEscapeUtils.escapeJavaScript(text.replaceAll("<", "&lt;").replaceAll(">", "&gt;")), "\\", "\\\\");	
-			}
-			
-			String event = parameter.get(1);
-			
-			Map<String,String> paramlist = new LinkedHashMap<String,String>();
-			paramlist.put("TIMEOUT", "0");
-			paramlist.put("DELAY", "400");
-			paramlist.put("WIDTH", "300");
-						
-			for( int i=2; i < parameter.size(); i++ ) {
-				String arg = parameter.get(i);
-				int pos = arg.indexOf(':');
-				if( pos != -1 ) {
-					String pname = arg.substring(0, pos).trim();
-					String param = arg.substring(pos+1).trim();
-					if( param.charAt(0) == '$' ) {
-						param = param.substring(1);
-						param = "\"); str.append(templateEngine.getVar(\""+param+"\")); str.append(\"";
-					}
-					if( paramlist.containsKey(pname.toUpperCase()) ) {
-						paramlist.put(pname.toUpperCase(), param);
-					}
-					else {
-						paramlist.put(pname, param);
-					}
-				}
-			}
-			
-			List<String> paramtext = new ArrayList<String>();
-			for( Map.Entry<String, String> entry: paramlist.entrySet() ) {
-				paramtext.add(entry.getKey()+','+entry.getValue());
-			}
-				
-			if( event.equals("mo") ) {
-				text = "onmouseover=\\\"return overlib(\\'"+text+"\\',"+Common.implode(",",paramtext)+");\\\" onmouseout=\\\"return nd();\\\"";		
-			}
-			else if( event.equals("md") ) {
-				text = "onclick=\\\"return overlib(\\'"+text+"\\',"+Common.implode(",",paramtext)+");\\\" onmouseout=\\\"return nd();\\\"";
-			}
-			
-			return text;
-		}	
-	}
-	
+		
 	private static class TCFFormCreateHidden implements TemplateCompileFunction {
 		TCFFormCreateHidden() {
 			// EMPTY
@@ -345,7 +287,6 @@ public class TemplateCompiler {
 		COMPILE_FUNCTIONS.put("table_end", new TCFTableEnd());
 		COMPILE_FUNCTIONS.put("image_link_to", new TCFImageLinkTo());
 		COMPILE_FUNCTIONS.put("link_to", new TCFLinkTo());
-		COMPILE_FUNCTIONS.put("overlib", new TCFOverlib());
 		COMPILE_FUNCTIONS.put("form_create_hidden", new TCFFormCreateHidden());
 		COMPILE_FUNCTIONS.put("checkbox", new TCFCheckbox());
 	}

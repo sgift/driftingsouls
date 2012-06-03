@@ -365,9 +365,7 @@ public class Fabrik extends DefaultBuilding {
 			Factory.Task[] prodlist = wf.getProduces();
 			
 			StringBuilder popup = new StringBuilder(200);
-			
-			popup.append(Common.tableBegin(350, "left").replace('"', '\'') );
-			
+
 			Building buildingobj = (Building)db.get(Building.class, building);
 			popup.append(buildingobj.getName()+"<br /><br />");
 			
@@ -389,13 +387,9 @@ public class Fabrik extends DefaultBuilding {
 				}
 			}
 			
-			popup.append(Common.tableEnd().replace('"', '\'') );
 			
-			result.append("<a name=\"p"+base.getId()+"_"+field+"\" id=\"p"+base.getId()+"_"+field+"\" " +
-					"class=\"error\" " +
-					"onmouseover=\"return overlib('<span style=\\'font-size:13px\\'>"+StringEscapeUtils.escapeJavaScript(popup.toString())+"</span>',REF,'p"+base.getId()+"_"+field+"',REFY,22,NOJUSTY,TIMEOUT,0,DELAY,150,WIDTH,260,BGCLASS,'gfxtooltip',FGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip');\" " +
-					"onmouseout=\"return nd();\" " +
-					"href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"\">[FA]</a>");
+			result.append("<a class=\"error tooltip\" " +
+					"href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"\">[FA]<span class='ttcontent'>"+popup+"</span></a>");
 		}
 		else
 		{

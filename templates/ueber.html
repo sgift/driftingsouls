@@ -118,7 +118,12 @@
 			</div>
 			<div style="height:260px; width:390px; overflow:auto; padding:4px; font-size:13px">
 				<!-- BEGIN bookmarks.listitem -->
-					<a style="font-size:13px" class="forschinfo"  onmouseover="return overlib('&lt;span style=\'font-size:13px\'&gt;{bookmark.description}&lt;/span&gt;',TIMEOUT,0,DELAY,400,WIDTH,300);" onmouseout="return nd();" href="./ds?module=schiff&amp;ship={bookmark.shipid}">{bookmark.shipname}</a> ({bookmark.shipid})
+					<a style="font-size:13px" class="forschinfo tooltip" href="./ds?module=schiff&amp;ship={bookmark.shipid}">
+						{bookmark.shipname}
+						<div class="ttcontent">
+							<span style="font-size:13px">{bookmark.description}</span>
+						</div>
+					</a> ({bookmark.shipid})
 					- {bookmark.shiptype} - {bookmark.location}<br />
 				<!-- END bookmarks.listitem -->
 			</div>
@@ -141,7 +146,7 @@
 </tr>
 <tr>
 	<td class="noBorderS" colspan="2" valign="top" align="center" style="font-size:17px">
-			<a class="error" href="./ds?module=schiffe&amp;low=9" {!overlib <span style='font-size:13px'>Schiffe mit Vorr&auml;ten f&uuml;r weniger als 10 Runden</span>, mo, delay:300}>
+			<a title="Schiffe mit Vorr&auml;ten f&uuml;r weniger als 10 Runden" class="error" href="./ds?module=schiffe&amp;low=9">
 				{if schiffe.mangel}
 					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_mangel.gif" alt="" />
 				{else}
@@ -150,7 +155,7 @@
 			</a> 
 			{schiffe.mangel}
 			 - 
-			<a class="error" href="./ds?module=schiffe&amp;crewless=1" {!overlib <span style='font-size:13px'>Schiffe ohne volle Crew</span>, mo, delay:300, width:150}>
+			<a title="Schiffe ohne volle Crew" class="error" href="./ds?module=schiffe&amp;crewless=1">
 				{if schiffe.nocrew}
 					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_nocrew.gif" alt="" />
 				{else}
@@ -159,7 +164,7 @@
 			</a> 
 			{schiffe.nocrew}
 			 - 
-			<a class="error" href="./ds?module=basen" {!overlib <span style='font-size:13px'>Asteroiden mit Vorr&auml;ten welche f&uuml;r weniger als 10 Runden reichen</span>, mo, delay:300, width:300}>
+			<a title="Asteroiden mit Vorr&auml;ten welche f&uuml;r weniger als 10 Runden reichen" class="error" href="./ds?module=basen">
 				{if astis.mangel}
 					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_mangel_asti.gif" alt="" />
 				{else}
@@ -168,7 +173,7 @@
 			</a> 
 			{astis.mangel}
 			 - 
-			<a class="error" href="./ds?module=comm&amp;action=showInbox" {!overlib <span style='font-size:13px'>Neue ungelesene PMs</span>, mo, delay:300, width:150}>
+			<a title="Neue ungelesene PMs" class="error" href="./ds?module=comm&amp;action=showInbox">
 				{if user.newmsgs}
 					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_pm.gif" alt="" />
 				{else}
@@ -177,22 +182,22 @@
 			</a> 
 			{user.newmsgs}
 			 - 
-			<a class="error" href="#" {!overlib <span style='font-size:13px'>Schlachten die du verloren hast</span>, mo, delay:300, width:200}>
+			<a title="Schlachten die du verloren hast" class="error" href="#">
 				<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_battle_lost.gif" alt="" />
 			</a> 
 			{user.lostBattles}
 			 - 
-			<a class="error" href="#" {!overlib <span style='font-size:13px'>Schlachten die du gewonnen hast</span>, mo, delay:300, width:200}>
+			<a title="Schlachten die du gewonnen hast" class="error" href="#">
 				<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_battle_won.gif" alt="" />
 			</a> 
 			{user.wonBattles}
 			 - 
-			<a class="error" href="#" {!overlib <span style='font-size:13px'>Schiffe die du verloren hast</span>, mo, delay:300, width:300}>
+			<a title="Schiffe die du verloren hast" class="error" href="#">
 				<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_lost_ships.gif" alt="" />
 			</a> 
 			{user.lostShips}
 			 - 
-			<a class="error" href="#" {!overlib <span style='font-size:13px'>Schiffe die von deinen Schiffen zerst&ouml;rt wurden</span>, mo, delay:300, width:300}>
+			<a title="Schiffe die von deinen Schiffen zerst&ouml;rt wurden" class="error" href="#">
 				<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_destroyed_ships.gif" alt="" />
 			</a> 
 			{user.destroyedShips}

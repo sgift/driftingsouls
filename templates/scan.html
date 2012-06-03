@@ -118,11 +118,11 @@
 						</span>
 					</td>
 					<td class="show2">
-						<a target="main" class="noborder" onmouseover="return overlib('{ship.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" 
-							onmouseout="return nd();" target="_blank" 
+						<a target="main" class="noborder tooltip" target="_blank" 
 							onclick="ShiptypeBox.show({ship.type});return false;"
 							href="./ds?module=schiffinfo&ship={ship.type}">
 							<img src="{global.user.imagepath}{ship.type.picture}" alt="">
+							<span class="ttcontent">{ship.type.name}</span>
 						</a>
 					</td>
 				</tr>
@@ -169,12 +169,18 @@
 					<!-- BEGIN map.listitem -->
 						{if map.showsector}
 							{if map.fleet}
-								<td valign="center" {map.tooltip} align="center" onclick="javascript:scanSector({map.x},{map.y})" style="background:url('{URL}data/starmap/{map.image}.png') no-repeat;width:25px;height:25px;cursor:pointer">
+								<td class="tooltip" valign="center" align="center" onclick="javascript:scanSector({map.x},{map.y})" style="background:url('{URL}data/starmap/{map.image}.png') no-repeat;width:25px;height:25px;cursor:pointer">
 									<img src="{URL}data/starmap/fleet/fleet{map.fleet}.png" alt="{map.image.name}" width="25" height="25" />
+									{if map.tooltip}
+										<span class="ttcontent">{map.tooltip}</span>
+									{/endif}
 								</td>
 							{else}
-								<td valign="center" {map.tooltip} onclick="javascript:scanSector({map.x},{map.y})" align="center" style="width:25px;height:25px;cursor:pointer">
+								<td class="tooltip" valign="center" onclick="javascript:scanSector({map.x},{map.y})" align="center" style="width:25px;height:25px;cursor:pointer">
 									<img src="{URL}data/starmap/{map.image}{map.fleet}.png" alt="{map.image.name}" width="25" height="25" />
+									{if map.tooltip}
+										<span class="ttcontent">{map.tooltip}</span>
+									{/endif}
 								</td>
 							{/endif}
 							{if map.show.rightborder}

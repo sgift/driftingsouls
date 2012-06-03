@@ -89,8 +89,11 @@
 			{if ship.werft.building}
 				<br />
 				<img src="{URL}data/interface/schiffinfo/werftslots.png" alt="Werft" title="Werft" />
-				<a style="color:#CCAA33" class="nonbold" onmouseover="return overlib('&lt;span style=\'font-size:13px\'&gt;{ship.werft.popup}&lt;/span&gt;',TIMEOUT,0,DELAY,150,WIDTH,420,FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip');" onmouseout="return nd();" href="./ds?module=werft&amp;sess={global.sess}&amp;ship={ship.id}">
+				<a style="color:#CCAA33" class="nonbold tooltip" href="./ds?module=werft&amp;sess={global.sess}&amp;ship={ship.id}">
 					[{ship.werft.entries}]
+					<span class="ttcontent">
+						{ship.werft.popup}
+					</span>
 				</a>
 			{else}
 				<br />{!link_to [frei], default, module:werft, css_class:nonbold, css_style:color:#CCAA33, ship:$ship.id}
@@ -101,11 +104,12 @@
 		{/endif}
 		</td>
 		<td class="schiffData">
-			<a onmouseover="return overlib('{ship.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" 
-				onmouseout="return nd();" class="noborder" 
-				onclick="ShiptypeBox.show({ship.type});return false;"
+			<a class="tooltip" onclick="ShiptypeBox.show({ship.type});return false;"
 				href="./ds?module=schiffinfo&amp;sess={global.sess}&amp;ship={ship.type}">
-					<img src="{ship.image}" alt="" />
+				<img src="{ship.image}" alt="" />
+				<span class="ttcontent">
+					{ship.type.name}
+				</span>
 			</a>
 		</td>
 		<td class="schiffData">{ship.location}</td>

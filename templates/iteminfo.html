@@ -99,7 +99,10 @@
 				<td class="noBorderX">
 					{if item.count}
 						{if item.locationtext}
-							<a style="forschinfo" name="module{item.id}_popup" id="module{item.id}_popup" class="forschinfo" onmouseover="javascript:overlib('{item.locationtext}', REF,'module{item.id}_popup', REFY,22,REFX,-150,FGCLASS,'gfxtooltip',BGCLASS,'gfxclass',TEXTFONTCLASS,'gfxclass',TIMEOUT,0,NOCLOSE,STICKY);" onmouseout="return nd();" href="#">{item.count}</a>
+							<a name="module{item.id}_popup" id="module{item.id}_popup" class="forschinfo tooltip" href="#">
+								{item.count}
+								<span class="ttcontent">{item.locationtext}</span>
+							</a>
 						{else}
 							{item.count}
 						{/endif}

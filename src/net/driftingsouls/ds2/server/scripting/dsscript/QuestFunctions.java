@@ -592,9 +592,6 @@ public class QuestFunctions {
 				else if( value[1].equals("sensors") ) {
 					ship.setSensors(Value.Int(val.toString()));	
 				}
-				else if( value[1].equals("docked") ) {
-					ship.setDocked(val.toString());	
-				}
 				else if( value[1].equals("alarm") ) {
 					ship.setAlarm(Value.Int(val.toString()));	
 				}

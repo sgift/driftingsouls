@@ -264,10 +264,8 @@ public class Cargo implements Cloneable {
 					myitems = StringUtils.splitPreserveAllTokens(mycargo[Resources.ITEMS.getID()],';');
 				}
 				
-				int itemcount = 0;
 				for( int i=0; i < myitems.length; i++ ) {
 					if( !myitems[i].equals("") ) { 
-						itemcount++;
 						items.add(parseItems(myitems[i]));
 					}
 				}
@@ -284,10 +282,8 @@ public class Cargo implements Cloneable {
 					orgitems = source;
 					
 					String[] myitems = StringUtils.splitPreserveAllTokens(source, ';');
-					int itemcount = 0;
 					for( int i=0; i < myitems.length; i++ ) {
 						if( !myitems[i].equals("") ) { 
-							itemcount++;
 							items.add(parseItems(myitems[i]));
 						}
 					}
@@ -689,17 +685,17 @@ public class Cargo implements Cloneable {
 						style = "style=\""+style+"\"";	
 					}
 										
-					String tooltiptext = "&lt;span class=\\'nobr\\'&gt;&lt;span class=\\'libwarentt\\'&gt;&lt;img align=\\'left\\' src=\\'"+itemType.getPicture()+"\\' alt=\\'\\' /&gt;"+itemType.getName()+"&lt;/span&gt;&lt;/span&gt;";
+					String tooltiptext = "<img align=\"left\" src=\""+itemType.getPicture()+"\" alt=\"\" />"+itemType.getName();
 					if( item[3] != 0 ) {
-						tooltiptext += "&lt;br /&gt;&lt;span class=\\'verysmallfont\\'&gt;Questgegenstand&lt;/span&gt;";
+						tooltiptext += "<br /><span class=\"verysmallfont\">Questgegenstand</span>";
 					}
 					if( item[2] != 0 ) {
 						name = "<span style=\"font-style:italic\">"+name+"</span>";
-						tooltiptext += "&lt;br /&gt;&lt;span class=\\'verysmallfont\\'&gt;Benutzungen: "+item[2]+"&lt;/span&gt;";
+						tooltiptext += "<br /><span class=\"verysmallfont\">Benutzungen: "+item[2]+"</span>";
 					}
 					
-					name = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./ds?module=iteminfo&amp;itemlist="+buildItemID(item)+"\">"+name+"</a>";				
-					fcount = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./ds?module=iteminfo&amp;itemlist="+buildItemID(item)+"\">"+fcount+"</a>";
+					name = "<a "+style+" class=\"tooltip "+linkclass+"\" href=\"./ds?module=iteminfo&amp;itemlist="+buildItemID(item)+"\">"+name+" <span class=\"ttcontent\">"+tooltiptext+"</span></a>";				
+					fcount = "<a "+style+" class=\"tooltip "+linkclass+"\" href=\"./ds?module=iteminfo&amp;itemlist="+buildItemID(item)+"\">"+fcount+" <span class=\"ttcontent\">"+tooltiptext+"</span></a>";
 				}
 				else {
 					if( item[3] != 0 ) {
@@ -870,18 +866,18 @@ public class Cargo implements Cloneable {
 						style = "style='"+style+"'";	
 					}
 					
-					tooltiptext = "&lt;span class=\\'nobr\\'&gt;&lt;span "+StringEscapeUtils.escapeJavaScript(style)+" class=\\'libwarentt\\'&gt;&lt;img align=\\'left\\' src=\\'"+item.getPicture()+"\\' alt=\\'\\' /&gt;"+item.getName()+"&lt;/span&gt;&lt;/span&gt;";
+					tooltiptext = "<img align=\"left\" src=\""+item.getPicture()+"\" alt=\"\" /><span "+StringEscapeUtils.escapeJavaScript(style)+">"+item.getName()+"</span>";
 					
 					if( aitem.getQuest() != 0 ) {
 						name = "<span style=\"text-decoration:underline\">"+name+"</span>";
-						tooltiptext += "&lt;br /&gt;&lt;span class=\\'verysmallfont\\'&gt;Questgegenstand&lt;/span&gt;";	
+						tooltiptext += "<br /><span class=\"verysmallfont\">Questgegenstand</span>";	
 					}
 					if( aitem.getUses() != 0 ) {
 						name = "<span style=\"font-style:italic\">"+name+"</span>";	
-						tooltiptext += "&lt;br /&gt;&lt;span class=\\'verysmallfont\\'&gt;Benutzungen: "+aitem.getUses()+"&lt;/span&gt;";	
+						tooltiptext += "<br /><span class=\"verysmallfont\">Benutzungen: "+aitem.getUses()+"</span>";	
 					}
 					
-					name = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+name+"</a>";
+					name = "<a "+style+" class=\"tooltip "+linkclass+"\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+name+"<span class=\"ttcontent\">"+tooltiptext+"</span></a>";
 				}
 				else {
 					if( aitem.getQuest() != 0 ) {
@@ -918,27 +914,34 @@ public class Cargo implements Cloneable {
 					}
 				}
 				
-				if( !nohtml ) {			
-          if(diff > 0 && baukosten) {
-            fcargo1 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\"error\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo1+"</a>";
-          } 
-          else if(diff <= 0 && baukosten) {
-            fcargo1 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\"ok\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo1+"</a>";
-          } 
-          else {
-					  fcargo1 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo1+"</a>";
-          }
-          if(cargo2 > 0 && basis) {
-            fcargo2 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\"ok\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo2+"</a>";
-          }
-          else if(cargo2 < 0 && basis) {
-            fcargo2 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\"error\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo2+"</a>";
-          }
-          else {
-					  fcargo2 = "<a "+style+" onmouseover=\"return overlib('"+tooltiptext+"',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\""+linkclass+"\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo2+"</a>";
-				  }
-        }
-        
+				if( !nohtml )
+				{
+					if( diff > 0 && baukosten )
+					{
+						fcargo1 = "<a "+style+" class=\"error tooltip\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo1+"<span class=\"ttcontent\">"+tooltiptext+"</span></a>";
+					}
+					else if( diff <= 0 && baukosten )
+					{
+						fcargo1 = "<a "+style+" class=\"ok tooltip\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo1+"<span class=\"ttcontent\">"+tooltiptext+"</span></a>";
+					}
+					else
+					{
+						fcargo1 = "<a "+style+" class=\""+linkclass+" tooltip\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo1+"<span class=\"ttcontent\">"+tooltiptext+"</span></a>";
+					}
+					if( cargo2 > 0 && basis )
+					{
+						fcargo2 = "<a "+style+" class=\"ok tooltip\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo2+"<span class=\"ttcontent\">"+tooltiptext+"</span></a>";
+					}
+					else if( cargo2 < 0 && basis )
+					{
+						fcargo2 = "<a "+style+" class=\"error tooltip\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo2+"<span class=\"ttcontent\">"+tooltiptext+"</span></a>";
+					}
+					else
+					{
+						fcargo2 = "<a "+style+" class=\""+linkclass+" tooltip\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">" + fcargo2 + "<span class=\"ttcontent\">"+tooltiptext+"</span></a>";
+					}
+				}
+
 				ResourceEntry entry = new ResourceEntry(aitem, name, plainname, image, fcargo1, fcargo2, cargo1, cargo2, diff);
 				if( large ) {
 					entry.setLargeImages(large);
@@ -1478,7 +1481,6 @@ public class Cargo implements Cloneable {
 		return true;
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public int hashCode() {
 		long hash = 37;
@@ -1490,7 +1492,8 @@ public class Cargo implements Cloneable {
 		
 		// Items in eine Sortierung bringen, damit zwei Cargos mit gleichen Items aber
 		// unterschiedlicher Reihenfolge den selben hashCode haben
-		Comparator comp = new Comparator<Long[]>() {
+		Comparator<Long[]> comp = new Comparator<Long[]>() {
+			@Override
 			public int compare(Long[] o1, Long[] o2) {
 				// IDs vergleichen
 				if( !o1[0].equals(o2[0]) ) {

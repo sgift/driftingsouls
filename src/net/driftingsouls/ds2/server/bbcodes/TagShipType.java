@@ -57,9 +57,7 @@ public class TagShipType implements BBCodeFunction
 
 		ShipTypeData shiptype = Ship.getShipType(Integer.parseInt(content));
 
-		return "<a target=\"main\" onmouseover=\"return overlib('"
-				+ shiptype.getNickname()
-				+ "',TIMEOUT,0,DELAY,400,WIDTH,150);\" onmouseout=\"return nd();\" class=\"noborder\" " +
+		return "<a target=\"main\" title=\""+shiptype.getNickname()+"\" class=\"noborder\" " +
 				"onclick='ShiptypeBox.show("+shiptype.getTypeId()+");return false;' " +
 				"href=\"" + url + "\"><img align=\"middle\" border=\"0\" src=\"" + shiptype.getPicture()
 				+ "\" alt=\"\" /></a>";

@@ -206,10 +206,42 @@ img.noborder:visited	{ border-style: solid; border: 0px ;border-color: #000000}
 img.noborder:hover 		{ border-style: solid; border: 1px ;border-color: #F0A000}
 img.noborder:active 	{ border-style: solid; border: 0px ;border-color: #000000}
 
-/*img 		{ border-style: solid; border: 0px; border-color: #000000; color: #000000;}*/
-
-tooltip1		{color: #FFFFFF; background-color: #cccccc}
+/*
+	Tooltips
+*/
 .tooltip .ttcontent {display:none}
+#tt_div {
+	display:none;
+	position:absolute;
+	min-width:100px;
+	max-width:400px;
+	z-index:1000;
+	
+	padding:4px 3px 4px 3px;
+	
+	border:2px solid #26312a;
+	
+	background-color: #0f1513;
+	color: #C7C7C7;
+	font-family: arial, helvetica; 
+	font-size: 12px;
+	box-shadow: 5px 5px 10px #031103;
+}
+#tt_div > img {
+	padding-right:3px;
+}
+
+#tt_div h1 {
+	font-size:13px;
+	font-weight:bold;
+	text-decoration:none;
+	color:#FEB626;
+	margin-top:1px;
+	margin-left:2px;
+	margin-right:2px;
+	margin-bottom:2px
+}
+
 /*
 	Inbox Ordner Hover
 */

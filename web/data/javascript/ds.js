@@ -1,5 +1,3 @@
-//jQuery.noConflict();
-
 if( typeof OLpageDefaults !== 'undefined' ) {
 	OLpageDefaults(TEXTPADDING,0,TEXTFONTCLASS,'tooltip',FGCLASS,'tooltip',BGCLASS,'tooltip');
 }
@@ -56,6 +54,7 @@ var ShiptypeBox = {
 			return;
 		}
 		boxContent.append(table);
+		DsTooltip.update(boxContent);
 	},
 	hide : function()
 	{
@@ -67,3 +66,88 @@ var ShiptypeBox = {
 		content.append("<div>Lade...</div>");
 	}
 };
+
+var DsTooltip = {
+	create : function() {
+		var ttdiv = $('#tt_div');
+		if( ttdiv.size() == 0 ) {
+			$("body").append('<div id="tt_div" />');
+		}
+	},
+	show : function(event) {
+		var target = $(event.currentTarget);
+		var content = target.find('.ttcontent');
+		if( content.size() == 0 ) {
+			return;
+		}
+		
+		var offset = target.offset();
+		
+		var ttdiv = $('#tt_div');
+		ttdiv.empty();
+		ttdiv.append(content.html());
+		
+		var height = target.height();
+		
+		// Inline-Elemente nehmen nicht die Hoehe ihrer innenliegenden Bilder an.
+		// Daher die Hoehe des ersten Bildes nehmen (Annahnme: es gibt im Regelfall nur ein Bild
+		// und das ist das Groesste)
+		var img = target.find('img');
+		if( img.size() > 0 ) {
+			height = Math.max(height, target.find('img').height());
+		}
+		
+		if( height < 40 ) {
+			$(document).unbind('mousemove', DsTooltip._move);
+			
+			// Die berechnete Hoehe darf nicht(!) fuer die Positionierung
+			// verwendet werden
+			ttdiv.css({
+				display:'block',
+				top : (offset.top+target.height()+5)+'px',
+				left : (offset.left+5)+"px"
+			});
+		}
+		else {
+			ttdiv.css({
+				display:'block',
+				top : (event.pageY+8)+'px',
+				left : (event.pageY+8)+"px"
+			});
+			
+			$(document).bind('mousemove', DsTooltip._move);
+		}
+	},
+	hide : function(event) {
+		var ttdiv = $('#tt_div');
+		ttdiv.empty();
+		ttdiv.css('display','none');
+		
+		$(document).unbind('mousemove', DsTooltip._move);
+	},
+	_move : function(event) {
+		var ttdiv = $('#tt_div');
+		ttdiv.css({
+			top : (event.pageY+8)+'px',
+			left : (event.pageX+8)+"px"
+		});
+	},
+	update : function(root) {
+		root.find('.tooltip')
+			.bind({
+				mouseover : function(event) {
+					DsTooltip.show(event); 
+					return false;
+				},
+				mouseout :  function(event) {
+					DsTooltip.hide(event);
+					return false;
+				}
+			});
+	}
+};
+
+$(document).ready(function() {
+	DsTooltip.create();
+	DsTooltip.update($("body"));
+});

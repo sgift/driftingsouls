@@ -368,15 +368,12 @@ public class SchiffeController extends TemplateGenerator {
 						}
 						
 						StringBuilder popup = new StringBuilder(100);
-						popup.append(Common.tableBegin(420, "left").replace( '"', '\'') );
 						popup.append("Belegte Werftslots: <img style='vertical-align:middle;border:0px' src='"+config.get("URL")+"data/interface/schiffinfo/werftslots.png' alt='' />"+usedSlots+"/"+totalSlots+"<br />");
 						popup.append("Im Bau: "+buildingCount+" Schiffe<br />");
 						popup.append("In der Warteschlange: "+(entries.length - buildingCount));
 						popup.append(imBau);
-						popup.append(Common.tableEnd().replace( '"', '\'' ));
-						String popupStr = StringEscapeUtils.escapeJavaScript(popup.toString().replace(">", "&gt;").replace("<", "&lt;"));
-	
-						t.setVar(	"ship.werft.popup",		popupStr,
+
+						t.setVar(	"ship.werft.popup",		popup.toString(),
 									"ship.werft.entries",	entries.length,
 									"ship.werft.building",	1 );
 					}
@@ -417,22 +414,14 @@ public class SchiffeController extends TemplateGenerator {
 				
 				if( ship.isDocked() ) {
 					Ship master = ship.getBaseShip();
-					if( master == null ) {
-				 		// Notwendig bis ein Foreign Key fuer Docked exisitert (Ship.dock funktioniert hier nicht mehr)
-				 		ship.setDocked("");
-				 	}
-				 	else {
+					if( master != null ) {
 						t.setVar(	"ship.docked.name",	master.getName(),
 									"ship.docked.id",	master.getId() );
 				 	}
 				}
 				else if(ship.isLanded()) {
 				 	Ship master = ship.getBaseShip();
-				 	if( master == null ) {
-				 		// Notwendig bis ein Foreign Key fuer Docked exisitert (Ship.dock funktioniert hier nicht mehr)
-				 		ship.setDocked("");
-				 	}
-				 	else {
+				 	if( master != null ) {
 				 		t.setVar(	"ship.landed.name",	master.getName(),
 				 					"ship.landed.id",	master.getId() );
 				 	}

@@ -755,7 +755,7 @@ public class ScanController extends TemplateGenerator {
 						String fleetStr = "";
 						if( own+ally+enemy > 0 )
 						{
-							tooltip = "onmouseover=\"return overlib('<span class=\\'smallfont\\'>"+(own != 0 ? "Eigene: "+own+"<br />":"")+(ally != 0 ? "Ally: "+ally+"<br />":"")+(enemy != 0 ? "Feindliche: "+enemy+"<br />":"")+"</span>',TIMEOUT,0,DELAY,400,WIDTH,120);\" onmouseout=\"return nd();\"";
+							tooltip = "<span class='smallfont'>"+(own != 0 ? "Eigene: "+own+"<br />":"")+(ally != 0 ? "Ally: "+ally+"<br />":"")+(enemy != 0 ? "Feindliche: "+enemy+"<br />":"")+"</span>";
 							fleetStr = Common.implode("", fleet);
 						}
 					

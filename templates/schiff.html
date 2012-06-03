@@ -1,28 +1,11 @@
 <script type="text/javascript">
 <!--
-	/*
-		1 -> Flottenpopup
-		2 -> Wichtige Objekte
-	*/
-	function PopupWnd(popupnr,params)
+	function PopupWnd(params)
 	{
-		var script;
-		var title;
-		if( popupnr == 1 ) {
-			script = "./ds?module=fleetmgnt";
-			title = "Flotten";
-		}
+		var script = getDsUrl()+"?module=fleetmgnt";
+		var title = "Flotten";
 
-		F1 = window.open(script + "&sess={global.sess}" + params, title,
-							 "width=370,height=400,locationbar=0,menubar=0,scrollbars=1,statusbar=0,toolbar=0,resizeable=yes,directories=0");
-	}
-
-	function helpme(helpstring)	{
-		{if user.tooltips}
-			return overlib(helpstring,TIMEOUT,0,DELAY,400,WIDTH,100);
-		{else}
-			return false;
-		{/endif}
+		F1 = window.open(script + params, title, "width=370,height=400,locationbar=0,menubar=0,scrollbars=1,statusbar=0,toolbar=0,resizeable=yes,directories=0");
 	}
 // -->
 </script>
@@ -122,7 +105,7 @@
 				<br />
 			{/endif}
 			{if ship.fleet}
-				Flotte: <a class="forschinfo" href="javascript:PopupWnd(1,'&amp;fleet={fleet.id}&amp;act=show')">{fleet.name}</a> 
+				Flotte: <a class="forschinfo" href="javascript:PopupWnd('&amp;fleet={fleet.id}&amp;act=show')">{fleet.name}</a> 
 				{if ! ship.lock}
 					{!link_to (X), join, css_class:error, ship:$ship.id}
 				{/endif}
@@ -137,8 +120,9 @@
 				</a>
 			{/endif}
 			{if sector.handel}
-				<a class="noborder" onmouseover="return helpme('mit {sector.handel.name} handeln');" onmouseout="return nd();" href="./ds?module=trade&amp;sess={global.sess}&amp;ship={ship.id}&amp;tradepost={sector.handel}">
+				<a class="noborder tooltip" href="./ds?module=trade&amp;sess={global.sess}&amp;ship={ship.id}&amp;tradepost={sector.handel}">
 					<img src="{URL}data/interface/schiffe/schiff_handel.gif" alt="Handeln" />
+					<span class="ttcontent">mit {sector.handel.name} handeln</span>
 				</a>
 			{/endif}
 			{if tooltip.execnotes}
@@ -168,28 +152,35 @@
 				</a>
 			{/endif}
 			{if tooltip.admin}
-				<a id="shipstatustip" name="shipstatustip" class="noborder" onmouseover="javascript:overlib('{tooltip.admin}',REF,'shipstatustip', REFC,'LR',REFP,'UL',FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip',TIMEOUT,0);" onmouseout="return nd();" href="#">
+				<a id="shipstatustip" class="noborder tooltip" href="#">
 					<img src="{URL}data/interface/admin.png" alt="?" />
+					<span class="ttcontent">{tooltip.admin}</span>
 				</a>
 			{/endif}
 			{if ship.npcislandlink}
-				<a class="noborder" onmouseover="return helpme('zur Insel');" onmouseout="return nd();" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=insel">
+				<a class="noborder tooltip" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=insel">
 					<img src="{URL}data/interface/schiffe/tunnel.png" alt="Insel der Gl&uuml;cksehligkeit" />
+					<span class="ttcontent">
+						zur Insel
+					</span>
 				</a>
 			{/endif}
 			{if tooltip.module}
-				<a id="shipmoduletip" name="shipmoduleetip" class="noborder" onmouseover="javascript:overlib('{tooltip.module}',REF,'shipmoduletip', REFC,'LR',REFP,'UL',FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip',TIMEOUT,0);" onmouseout="return nd();" href="#">
+				<a class="noborder tooltip" href="#">
 					<img src="{URL}data/interface/info.png" alt="?" />
+					<span class="ttcontent">{tooltip.module}</span>
 				</a>
 			{/endif}
 			{if tooltip.moduleext}
-				<a id="shipmoduletip" name="shipmoduleetip" class="noborder" onmouseover="javascript:overlib('{tooltip.moduleext}',REF,'shipmoduletip', REFC,'LR',REFP,'UL',FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip',TIMEOUT,0,STICKY,NOCLOSE);" onmouseout="return nd();" href="#">
+				<a class="noborder tooltip" href="#">
 					<img src="{URL}data/interface/info.png" alt="?" />
+					<span class="ttcontent">{tooltip.moduleext}</span>
 				</a>
 			{/endif}
 			{if tooltip.tradepost}
-				<a class="noborder" onmouseover="return helpme('Konfiguration des Handelspostens');" onmouseout="return nd();" href="./ds?module=tradepost&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=default">
+				<a class="noborder tooltip" href="./ds?module=tradepost&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=default">
 					<img src="{URL}data/interface/hppref.png" alt="Handelsposten" />
+					<span class="ttcontent">Konfiguration des Handelspostens</span>
 				</a>
 			{/endif}
 			<br />

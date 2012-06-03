@@ -91,7 +91,12 @@
 		<!-- BEGIN shiptype.weapons.listitem -->
 			<tr>
 				<td class="noBorderX" width="150">
-					<a class="forschinfo" href="#" onmouseover="return overlib('{shiptype.weapon.description}',TIMEOUT,0,DELAY,400,WIDTH,200);" onmouseout="return nd();">{shiptype.weapon.name}</a>
+					<a class="tooltip forschinfo" href="#">
+						{shiptype.weapon.name}
+						<span class="ttcontent">
+							{shiptype.weapon.description}
+						</span>
+					</a>
 				</td>
 				<td class="noBorderX">{shiptype.weapon.count}</td>
 			</tr>
@@ -115,7 +120,15 @@
 	        Externe Dockinganlage (Kapazit&auml;t: {shiptype.adocks})<br />
 		{/endif}
 		{if shiptype.moduleslots}
-			{shiptype.moduleslots} Modulsteckpl&auml;tze <a href="#" class="forschinfo" onmouseover="return overlib('&lt;div align=\'center\' style=\'font-size:13px; text-decoration:underline\'&gt;Modulsteckpl&auml;tze&lt;/div&gt;&lt;span style=\'font-size:13px\'&gt;{shiptype.moduleslots.desc}&lt;/span&gt;',TIMEOUT,0,DELAY,300,WIDTH,150);" onmouseout="return nd();"><img border="0" src="{URL}data/interface/schiffinfo/info.gif" alt="i" style="vertical-align:middle" /></a><br />
+			{shiptype.moduleslots} Modulsteckpl&auml;tze 
+			<a href="#" class="forschinfo tooltip">
+				<img border="0" src="{URL}data/interface/schiffinfo/info.gif" alt="i" style="vertical-align:middle" />
+				<span class="ttcontent">
+					<h1>Modulsteckpl&auml;tze</h1>
+					{shiptype.moduleslots.desc}
+				</span>
+			</a>
+			<br />
 		{/endif}
 		{if shiptype.werftslots}
 			{shiptype.werftslots} Werftslots<br />
@@ -145,11 +158,26 @@
 			Betriebskosten: {shiptype.recost} RE<br />
 		{/endif}
 		<!-- BEGIN shiptypeflags.listitem -->
-			{shiptypeflag.name} {if shiptypeflag.description}<a href="#" class="forschinfo" onmouseover="return overlib('&lt;span style=\'font-size:13px\'&gt;{shiptypeflag.description}&lt;/span&gt;',TIMEOUT,0,DELAY,300,WIDTH,330);" onmouseout="return nd();"><img border="0" src="{URL}data/interface/schiffinfo/info.gif" alt="i" style="vertical-align:middle" /></a>{/endif}<br />
+			{shiptypeflag.name} 
+			{if shiptypeflag.description}
+				<a href="#" class="forschinfo tooltip">
+					<img border="0" src="{URL}data/interface/schiffinfo/info.gif" alt="i" style="vertical-align:middle" />
+					<span class="ttcontent">
+						{shiptypeflag.description}
+					</span>
+				</a>
+			{/endif}<br />
 		<!-- END shiptypeflags.listitem -->
 		{if shiptype.flagschiff}
 			<span style="color:#EECC44">Flagschiff</span>
-			<a href="#" class="forschinfo" onmouseover="return overlib('&lt;span style=\'font-size:13px\'&gt;Ein Flagschiff ist das Zentrum einer gesamten Flotte.&lt;br /&gt;Es ist deutlich St&auml;rker als andere Schiffe. Daher darf&lt;br /&gt;jeder Spieler &lt;span style=\'text-decoration:underline\'&gt;nur ein einziges Flagschiff&lt;/span&gt; besitzen.&lt;/span&gt;',TIMEOUT,0,DELAY,300,WIDTH,330);" onmouseout="return nd();"><img border="0" src="{URL}data/interface/schiffinfo/info.gif" alt="i" style="vertical-align:middle" /></a>
+			<a href="#" class="forschinfo tooltip">
+				<img border="0" src="{URL}data/interface/schiffinfo/info.gif" alt="i" style="vertical-align:middle" />
+				<span class="ttcontent">
+					Ein Flagschiff ist das Zentrum einer gesamten Flotte.<br />
+					Es ist deutlich St&auml;rker als andere Schiffe. Daher darf<br />
+					jeder Spieler <span style="text-decoration:underline">nur ein einziges Flagschiff</span> besitzen.
+				</span>
+			</a>
 			<br />
 		{/endif}
 	</td>

@@ -740,7 +740,6 @@ public class ItemInfoController extends TemplateGenerator {
 			String tooltip = "";
 			if( reslocations.containsKey(itemid) ) {				
 				StringBuilder tooltiptext = new StringBuilder(200);
-				tooltiptext.append(StringUtils.replaceChars(Common.tableBegin(350, "left"), '"', '\'') );
 				tooltiptext.append("<table class='noBorderX'>");
 				String[] locations = reslocations.get(itemid);
 				for( int i=0; i < locations.length; i++ ) {
@@ -780,8 +779,7 @@ public class ItemInfoController extends TemplateGenerator {
 					tooltiptext.append("</tr>");
 				}
 				tooltiptext.append("</table>");
-				tooltiptext.append(StringUtils.replaceChars(Common.tableEnd(), '"', '\'') );
-				tooltip = StringEscapeUtils.escapeJavaScript(StringUtils.replace(StringUtils.replace(tooltiptext.toString(), ">", "&gt;"), "<", "&lt;"));
+				tooltip = tooltiptext.toString();
 			}
 		
 			t.setVar(	"item.picture",	aitem.getPicture(),

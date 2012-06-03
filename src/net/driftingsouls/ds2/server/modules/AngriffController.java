@@ -485,7 +485,7 @@ public class AngriffController extends TemplateGenerator {
 		if( battle.getOwnLog(true).length() > 0 ) {
 			BBCodeParser bbcodeparser = BBCodeParser.getNewInstance();
 			try {
-				bbcodeparser.registerHandler( "tooltip", 2, "<a onmouseover=\"return overlib('$2',TIMEOUT,0,DELAY,400,WIDTH,100,TEXTFONTCLASS,'smallTooltip');\" onmouseout=\"return nd();\" class=\"aloglink\" href=\"#\">$1</a>" );
+				bbcodeparser.registerHandler( "tooltip", 2, "<a class=\"aloglink tooltip\" href=\"#\">$1<span class='ttcontent'>$2</span></a>" );
 			}
 			catch( Exception e ) {
 				log.warn("Registrierung des BBCode-Handlers tooltip gescheitert", e);

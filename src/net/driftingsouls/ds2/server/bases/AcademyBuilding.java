@@ -200,7 +200,6 @@ public class AcademyBuilding extends DefaultBuilding {
 			} 
 			else {	
 				StringBuilder popup = new StringBuilder(200);
-				popup.append(Common.tableBegin(300, "left").replace('"', '\''));
 				List<AcademyQueueEntry> entries = acc.getScheduledQueueEntries();
 				for( AcademyQueueEntry entry : entries )
 				{
@@ -228,32 +227,15 @@ public class AcademyBuilding extends DefaultBuilding {
 					}
 					popup.append("<br />");
 				}
-				popup.append(Common.tableEnd().replace('"', '\''));
 				
-				String popupStr = StringEscapeUtils.escapeJavaScript(popup.toString());
-				
-				result.append("<a name=\"p");
-				result.append(base.getId());
-				result.append("_");
-				result.append(field);
-				result.append("\" id=\"p");
-				result.append(base.getId());
-				result.append("_");
-				result.append(field);
-				result.append("\" class=\"error\" onmouseover=\"return overlib('<span style=\\'font-size:13px\\'>");
-				result.append(popupStr);
-				result.append("</span>',REF,'p");
-				result.append(base.getId());
-				result.append("_");
-				result.append(field);
-				result.append("',REFY,22,NOJUSTY,TIMEOUT,0,DELAY,150,WIDTH,300,BGCLASS,'gfxtooltip',FGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip');\" onmouseout=\"return nd();\" href=\"./ds?module=building");
+				result.append("<a class=\"error tooltip\" href=\"./ds?module=building");
 				result.append("&amp;col=");
 				result.append(base.getId());
 				result.append("&amp;field=");
 				result.append(field);
 				result.append("\">[A]<span style=\"font-weight:normal\">");
 				result.append(acc.getNumberScheduledQueueEntries());
-				result.append("</span></a>");
+				result.append("</span><span class='ttcontent'>"+popup+"</span></a>");
 			}
 		}
 		else {

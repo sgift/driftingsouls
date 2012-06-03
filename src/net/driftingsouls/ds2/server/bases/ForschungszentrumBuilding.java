@@ -119,18 +119,18 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 				result.append("<a class=\"back\" href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"\">[F]</a>");
 			}
 			else {
-				StringBuilder popup = new StringBuilder(Common.tableBegin( 350, "left" ).replace("\"", "'") );
+				StringBuilder popup = new StringBuilder();
 				Forschung forschung = fz.getForschung();
 				popup.append("<img align='left' border='0' src='"+config.get("URL")+"data/tech/"+fz.getForschung().getID()+".gif' alt='' />");
 				popup.append(forschung.getName()+"<br />");
 				popup.append("Dauer: noch <img src='"+config.get("URL")+"data/interface/time.gif' alt='noch ' />"+fz.getDauer()+"<br />");
-				popup.append( Common.tableEnd().replace("\"", "'") );
 
-				result.append("<a name=\"p"+base.getId()+"_"+field+"\" id=\"p"+base.getId()+"_"+field+"\" " +
-						"class=\"error\" " +
-						"onmouseover=\"return overlib('<span style=\\'font-size:13px\\'>"+StringEscapeUtils.escapeJavaScript(popup.toString())+"</span>',REF,'p"+base.getId()+"_"+field+"',REFY,22,NOJUSTY,TIMEOUT,0,DELAY,150,WIDTH,280,BGCLASS,'gfxtooltip',FGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip');\" " +
-						"onmouseout=\"return nd();\" " +
-						"href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"\">[F]<span style=\"font-weight:normal\">"+fz.getDauer()+"</span></a>");
+				result.append(
+						"<a class=\"error tooltip\" " +
+							"href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"\">" +
+								"[F]<span style=\"font-weight:normal\">"+fz.getDauer()+"</span>" +
+								"<span class='ttcontent'>"+popup+"</span>" +
+						"</a>");
 			}
 		}
 		else {

@@ -79,8 +79,9 @@
 				{if entry.count > 1}
 					<span style="font-size:12px">{entry.count}x</span>
 				{/endif}
-				<a class="noborder" onmouseover="return overlib('{entry.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();"  href="{entry.link}">
+				<a class="noborder tooltip" href="{entry.link}">
 					<img style="vertical-align:middle; border:0px; {if entry.width}width:{entry.width}px; {/endif} {if entry.height}height:{entry.height}px{/endif}" src="{entry.type.image}" alt="" />
+					<span class="ttcontent">{entry.type.name}</span>
 				</a>
 			</td>
 			{if bid.player}
@@ -122,15 +123,21 @@
 					{if entry.count > 1}
 						<span style="font-size:12px">{entry.count}x</span>
 					{/endif}
-					<a class="noborder" onmouseover="return overlib('{entry.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" href="{entry.link}">
+					<a class="noborder tooltip" href="{entry.link}">
 						<img style="vertical-align:middle; border:0px" {if entry.width}width="{entry.width}"{/endif} {if entry.height}height="{entry.height}"{/endif} src="{entry.type.image}" alt="" />
+						<span class="ttcontent">
+							{entry.type.name}
+						</span>
 					</a>
 				</span>
 			</td>
 			<td class="noBorderX">
 				{if entry.user}
-					<span style="color:yellow" onmouseover="return overlib('Diese Versteigerung wird von einem Spieler durchgef&uuml;hrt',TIMEOUT,0,DELAY,400,WIDTH,200);" onmouseout="return nd();">
+					<span style="color:yellow" class="tooltip">
 						{entry.preis}
+						<span class="ttcontent">
+							Diese Versteigerung wird von einem Spieler durchgef&uuml;hrt
+						</span>
 					</span>
 				{else}
 					{entry.preis}
@@ -438,7 +445,12 @@
 			{!link_to $posten.owner.name, default, css_class:profile, module:userprofile, user:$posten.owner.id}<br />
 			{posten.koords.system}:{posten.koords.x}/{posten.koords.y}<br />
 			<!-- BEGIN kurse.waren.listitem -->
-				<a class="noborder" onmouseover="return overlib('&lt;span class=\'nobr\'&gt;&lt;span class=\'libwarentt\'&gt;&lt;img align=\'left\' src=\'{ware.image}\' alt=\'{ware.plainname}\' /&gt;{ware.plainname}&lt;/span&gt;&lt;/span&gt;',TIMEOUT,0,DELAY,400,TEXTFONTCLASS,'smallTooltip');" onmouseout="return nd();" class="forschinfo" href="./ds?module=iteminfo&amp;itemlist={ware.id}"><img src="{ware.image}" /></a>					
+				<a class="noborder" class="tooltip forschinfo" href="./ds?module=iteminfo&amp;itemlist={ware.id}">
+					<img src="{ware.image}" />
+					<span class="ttcontent">
+						<span class="libwarentt"><img align="left" src="{ware.image}" alt="{ware.plainname}" />{ware.plainname}</span>
+					</span>
+				</a>					
 				{if ware.preis}{ware.preis} RE{else}Kein bedarf{/endif}<br />
 			<!-- END kurse.waren.listitem -->
 		</div></div>
@@ -641,8 +653,11 @@
 			<!-- BEGIN shop.orderlist.listitem -->
 				<tr>
 				<td style="text-align:center" class="noBorderX">
-					<div style="background-color:{orderentry.bgcolor};height:40px;width:20px"  onmouseover="return overlib('{orderentry.status}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();">
+					<div style="background-color:{orderentry.bgcolor};height:40px;width:20px" class="tooltip">
 						&nbsp;&nbsp;
+						<span class="ttcontent">
+							{orderentry.status}
+						</span>
 					</div>
 				</td>
 				<td class="noBorderX">
@@ -685,8 +700,11 @@
 			<!-- BEGIN shop.shopownerlist.listitem -->
 				<tr>
 				<td style="text-align:center" class="noBorderX">
-					<div style="background-color:{orderentry.bgcolor};height:40px;width:20px"  onmouseover="return overlib('{orderentry.status.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();">
+					<div style="background-color:{orderentry.bgcolor};height:40px;width:20px" class="tooltip">
 						&nbsp;&nbsp;
+						<span class="ttcontent">
+							{orderentry.status.name}
+						</span>
 					</div>
 				</td>
 				<td class="noBorderX" style="width:20px;text-align:center">
@@ -736,8 +754,11 @@
 		<!-- BEGIN shop.listitem -->
 			<tr>
 				<td style="text-align:left;width:30px" class="noBorderX">
-					<div style="background-color:{entry.availability.color};height:40px;width:20px"  onmouseover="return overlib('{entry.availability.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();">
+					<div style="background-color:{entry.availability.color};height:40px;width:20px" class="tooltip">
 						&nbsp;&nbsp;
+						<span class="ttcontent">
+							{entry.availability.name}
+						</span>
 					</div>
 				</td>
 				<td class="noBorderX">

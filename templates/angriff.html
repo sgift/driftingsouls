@@ -59,11 +59,11 @@
 		{if ownship.mangelnahrung}<img src="{URL}data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />{/endif}
 		{if ownship.mangelreaktor}<img src="{URL}data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}		
 		<br />
-		<a class="noborder" onmouseover="return overlib('{ownship.type.name}{ownship.energy}',TIMEOUT,0,DELAY,400,WIDTH,100);" 
-			onmouseout="return nd();" target="_blank" 
+		<a class="noborder tooltip" target="_blank" 
 			onclick="ShiptypeBox.show({ownship.type});return false;"
 			href="./ds?module=schiffinfo&amp;ship={ownship.type}">
 			<img src="{ownship.type.image}" alt="" />
+			<span class="ttcontent">{ownship.type.name}{ownship.energy}</span>
 		</a><br />
 		<a class="profile" href="./ds?module=userprofile&amp;user={ownship.owner.id}">{ownship.owner.name}</a><br />
 	</td>
@@ -143,11 +143,6 @@
 						<!-- END global.showlog.turnlist.item -->
 					</div>
 					<div id="ks-log" style="height:220px; overflow:auto">
-						<script type="text/javascript">
-							function ov(name) {
-								return overlib(name,TIMEOUT,0,DELAY,400,WIDTH,100,TEXTFONTCLASS,'smallTooltip');
-							}
-						</script>
 						{global.showlog.log}
 					</div>
 					{if global.showlog.okbutton}
@@ -214,11 +209,12 @@
 					{else}
 						<div id="stats{shipinfo.jscriptid}Ship" style="position:absolute; top:0px; left:0px; visibility:hidden;">
 					{/endif}
-						<a class="noborder" onmouseover="return overlib('{shipinfo.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" 
-							onmouseout="return nd();" target="_blank" 
+						<a class="noborder tooltip" target="_blank" 
 							onclick="ShiptypeBox.show({shipinfo.type});return false;"
 							href="./ds?module=schiffinfo&amp;ship={shipinfo.type}">
-						<img src="{shipinfo.type.image}" alt="" style="float:right; margin-right:5px; margin-left:15px;margin-bottom:10px" /></a>
+							<img src="{shipinfo.type.image}" alt="" style="float:right; margin-right:5px; margin-left:15px;margin-bottom:10px" />
+							<span class="ttcontent">{shipinfo.type.name}</span>
+						</a>
 						Zustand:
 						{if shipinfo.ablativeArmor.bad}<span style="color:#ff0000">{/endif}
 						{if shipinfo.ablativeArmor.normal}<span style="color:#ffff00">{/endif}
@@ -310,7 +306,9 @@
 						{else}
 							Munition:
 							<!-- BEGIN shipinfo.ammo.listitem -->
-								<img onmouseover="return overlib('{ammo.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" onmouseout="return nd();" src="{ammo.image}" alt="{ammo.name}" />{ammo.count}
+								<img class="tooltip" src="{ammo.image}" alt="{ammo.name}">
+									<span class="ttcontent">{ammo.name}</span>
+								</img>{ammo.count}
 							<!-- END shipinfo.ammo.listitem -->
 						{/endif}
 						{if shipinfo.enemy}
@@ -335,11 +333,11 @@
 		{if enemyship.action.join}<img src="{URL}data/interface/ks/join.gif" alt="" title="tritt der Schlacht bei" />{/endif}
 		{if enemyship.action.secondrow}<img src="{URL}data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />{/endif}
 		<br />
-		<a class="noborder" onmouseover="return overlib('{enemyship.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" 
-			onmouseout="return nd();" target="_blank" 
+		<a class="noborder tooltip" target="_blank" 
 			onclick="ShiptypeBox.show({enemyship.type});return false;"
 			href="./ds?module=schiffinfo&amp;ship={enemyship.type}">
 			<img src="{enemyship.type.image}" alt="" />
+			<span class="ttcontent">{enemyship.type.name}</span>
 		</a><br />
 		<a class="profile" href="./ds?module=userprofile&amp;user={enemyship.owner.id}">{enemyship.owner.name}</a><br />
 	</td>
@@ -380,11 +378,11 @@
 				{if ship.mangelnahrung}<img src="{URL}data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />{/endif}
 				{if ship.mangelreaktor}<img src="{URL}data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
 				<br />
-				<a class="noborder" onmouseover="return overlib('{ship.type.name}{ship.energy}',TIMEOUT,0,DELAY,400,WIDTH,100);" 
-					onmouseout="return nd();" target="_blank" 
+				<a class="noborder tooltip" target="_blank" 
 					onclick="ShiptypeBox.show({ship.type});return false;"
 					href="./ds?module=schiffinfo&amp;ship={ship.type}">
 					<img src="{ship.type.image}" alt="" />
+					<span class="ttcontent">{ship.type.name}{ship.energy}</span>
 				</a><br />
 				<a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
 				{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
@@ -404,11 +402,11 @@
 				{if ship.action.join}<img src="{URL}data/interface/ks/join.gif" alt="" title="tritt der Schlacht bei" />{/endif}
 				{if ship.action.secondrow}<img src="{URL}data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />{/endif}
 				<br />
-				<a class="noborder" onmouseover="return overlib('{ship.type.name}',TIMEOUT,0,DELAY,400,WIDTH,100);" 
-					onmouseout="return nd();" target="_blank" 
+				<a class="noborder tooltip" target="_blank" 
 					onclick="ShiptypeBox.show({ship.type});return false;"
 					href="./ds?module=schiffinfo&amp;ship={ship.type}">
 					<img src="{ship.type.image}" alt="" />
+					<span class="ttcontent">{ship.type.name}</span>
 				</a><br />
 				<a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
 				{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}

@@ -393,7 +393,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 			parseLog(ksLog);
 			
 			BBCodeParser bbcodeparser = BBCodeParser.getNewInstance();
-			bbcodeparser.registerHandler( "tooltip", 2, "<a onmouseover=\"return ov('$2');\" onmouseout=\"return nd();\" href=\"#\">$1</a>" );
+			bbcodeparser.registerHandler( "tooltip", 2, "<a class='tooltip' href=\"#\">$1<span class='ttcontent'>$2</span></a>" );
 		
 			for( int i=0; i <= this.historyMaxpage; i++ ) {
 				t.setVar(	"global.showlog.turnlist.pageid",	i,

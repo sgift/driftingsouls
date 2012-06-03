@@ -137,7 +137,6 @@ public class StatWaren implements Statistic {
 			if( res.getId().isItem() && reslocationlist.containsKey(res.getId().getItemID()) ) {
 				// Die Darstellung erfolgt als Tooltip
 				StringBuilder tooltip = new StringBuilder();
-				tooltip.append(StringUtils.replaceChars(Common.tableBegin(350, "left"), '"', '\''));
 				tooltip.append("<table class='noBorderX'>");
 				
 				// Alle Positionen durchgehen
@@ -204,14 +203,10 @@ public class StatWaren implements Statistic {
 					tooltip.append("</tr>");
 				}
 				tooltip.append("</table>");
-				tooltip.append(StringUtils.replaceChars(Common.tableEnd(), '"', '\''));
-				String tooltipStr = StringEscapeUtils.escapeJavaScript(StringUtils.replace(StringUtils.replace(tooltip.toString(), "<", "&lt;"), ">", "&gt;"));
+				
 
 				// Linkt mit Tooltip ausgeben
-				echo.append("<a style=\"forschinfo\" name=\"module"+res.getId().getItemID()+"_popup\" " +
-						"id=\"module"+res.getId().getItemID()+"_popup\" class=\"forschinfo\" " +
-						"onmouseover=\"javascript:overlib('"+tooltipStr+"', REF,'module"+res.getId().getItemID()+"_popup', REFY,22,REFX,-150,FGCLASS,'gfxtooltip',BGCLASS,'gfxclass',TEXTFONTCLASS,'gfxclass',TIMEOUT,0,NOCLOSE,STICKY);\" " +
-						"onmouseout=\"return nd();\" href=\"#\">Wo?</a>\n");
+				echo.append("<a class=\"forschinfo tooltip\" href=\"#\">Wo?<span class='ttcontent'>"+tooltip+"</span></a>\n");
 				
 			} // Ende: Itempositionen
 			

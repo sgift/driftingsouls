@@ -1158,15 +1158,12 @@ public class SchiffController extends TemplateGenerator {
 		// Tooltip: Schiffsstatusfeld
 		if( user.isAdmin() ) {
 			StringBuilder tooltiptext = new StringBuilder(100);
-			tooltiptext.append(Common.tableBegin(200, "left").replace('"', '\''));
 			tooltiptext.append("<span style='text-decoration:underline'>Schiffsstatus:</span><br />"+ship.getStatus().trim().replace(" ", "<br />"));
 			if( (ship.getLock() != null) && (ship.getLock().length() > 0) ) {
 				tooltiptext.append("<br /><span style='text-decoration:underline'>Lock:</span><br />"+ship.getLock()+"<br />");
 			}
-			tooltiptext.append(Common.tableEnd().replace( '"', '\''));
-			String tooltipStr = StringEscapeUtils.escapeJavaScript(tooltiptext.toString().replace(">", "&gt;").replace("<", "&lt;"));
 
-			t.setVar("tooltip.admin", tooltipStr );
+			t.setVar("tooltip.admin", tooltiptext.toString() );
 		}
 
 		if( user.hasFlag( User.FLAG_NPC_ISLAND ) ) {
@@ -1177,7 +1174,7 @@ public class SchiffController extends TemplateGenerator {
 		final ModuleEntry[] modulelist = ship.getModules();
 		if( (modulelist.length > 0) && shiptype.getTypeModules().length() > 0 ) {
 			List<String> tooltiplines = new ArrayList<String>();
-			tooltiplines.add("<span style='text-decoration:underline'>Module:</span><br />");
+			tooltiplines.add("<h1>Module</h1>");
 
 			ShipTypeData type = Ship.getShipType( ship.getType() );
 			ShipTypeData basetype = type;
@@ -1323,7 +1320,6 @@ public class SchiffController extends TemplateGenerator {
 			}
 
 			StringBuilder tooltiptext = new StringBuilder(100);
-			tooltiptext.append(Common.tableBegin(400,"left").replace('"', '\''));
 			if( tooltiplines.size() > 15 ) {
 				tooltiptext.append("<div style='height:300px; overflow:auto'>");
 			}
@@ -1331,14 +1327,12 @@ public class SchiffController extends TemplateGenerator {
 			if( tooltiplines.size() > 15 ) {
 				tooltiptext.append("</div>");
 			}
-			tooltiptext.append(Common.tableEnd().replace('"', '\'') );
-			String tooltipStr = StringEscapeUtils.escapeJavaScript(tooltiptext.toString().replace(">", "&gt;").replace("<", "&lt;"));
-
+			
 			if( tooltiplines.size() > 15 ) {
-				t.setVar("tooltip.moduleext", tooltipStr);
+				t.setVar("tooltip.moduleext", tooltiptext.toString());
 			}
 			else {
-				t.setVar("tooltip.module", tooltipStr);
+				t.setVar("tooltip.module", tooltiptext.toString());
 			}
 		}
 

@@ -6,7 +6,7 @@
 		 	- <a class="forschinfo" href="./ds?module=schiff&amp;ship={ship.id}&amp;action=plugin&amp;plugin={global.pluginid}&amp;jdocks_ops[act]=unload">Alle Entladen</a>
 			- <a class="forschinfo" href="./ds?module=schiff&amp;ship={ship.id}&amp;action=start&amp;shiplist={ship.docklist}">Alle J&auml;ger starten</a>
 			{if ship.docklist.nofleet}
-				- <a class="forschinfo" href="javascript:PopupWnd(1,'&shiplist={ship.docklist}&action=create')">Flotte bilden</a>
+				- <a class="forschinfo" href="javascript:PopupWnd('&shiplist={ship.docklist}&action=create')">Flotte bilden</a>
 			{/endif}
 		{/endif}
 	</td>
