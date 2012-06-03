@@ -62,13 +62,13 @@ import org.springframework.beans.factory.annotation.Configurable;
 @AdminMenuEntry(category="Schiffe", name="hinzuf&uuml;gen")
 public class AddShips implements AdminPlugin {
 	private Configuration config;
-	
+
     /**
      * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
-    public void setConfiguration(Configuration config) 
+    public void setConfiguration(Configuration config)
     {
     	this.config = config;
     }
@@ -79,28 +79,28 @@ public class AddShips implements AdminPlugin {
 		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
 		User user = (User)context.getActiveUser();
-		
+
 		int shipTypeId = context.getRequest().getParameterInt("ship");
 		int count = context.getRequest().getParameterInt("count");
 
 		if( shipTypeId == 0 ) {
 			List<ShipType> stlist = new ArrayList<ShipType>();
-			
+
 			echo.append("<script type=\"text/javascript\">\n");
 			echo.append("<!--\n");
 			echo.append("var shipdata = new Array();\n");
-			
+
 			Set<String> knownwpntypes = new HashSet<String>();
-			
-			final Iterator<?> shipTypeIter = db.createQuery("from ShipType").iterate(); 
+
+			final Iterator<?> shipTypeIter = db.createQuery("from ShipType order by id").iterate();
 			while( shipTypeIter.hasNext() ) {
 				ShipType st = (ShipType)shipTypeIter.next();
-				
+
 				stlist.add(st);
 				echo.append("shipdata["+st.getId()+"] = Array();\n");
 				echo.append("shipdata["+st.getId()+"][0] = "+st.getJDocks()+";\n");
 				echo.append("shipdata["+st.getId()+"][1] = Array();\n");
-				
+
 				Set<String> thisammolist = new HashSet<String>();
 				int i = 0;
 				Map<String,String> weapons = Weapons.parseWeaponList(st.getWeapons());
@@ -111,9 +111,9 @@ public class AddShips implements AdminPlugin {
 					catch( NoSuchWeaponException e ) {
 						continue;
 					}
-					
+
 					if( Weapons.get().weapon(weapon).getAmmoType().length == 0 ) {
-						continue;	
+						continue;
 					}
 					String[] ammotypes = Weapons.get().weapon(weapon).getAmmoType();
 					for( int j=0; i < ammotypes.length; i++ ) {
@@ -131,11 +131,11 @@ public class AddShips implements AdminPlugin {
 			for( String ammo : knownwpntypes ) {
 				echo.append("ammodata["+(i++)+"] = \""+ammo+"\"\n");
 			}
-			
+
 			echo.append("-->\n");
 			echo.append("</script>\n");
 			echo.append("<script src=\""+config.get("URL")+"data/javascript/admin.addships.js\" type=\"text/javascript\"></script>\n");
-			
+
 			echo.append(Common.tableBegin(520,"left"));
 			echo.append("<form action=\"./ds\" method=\"post\">\n");
 			echo.append("<table class=\"noBorderX\" width=\"100%\">\n");
@@ -185,7 +185,7 @@ public class AddShips implements AdminPlugin {
 				echo.append("</select>\n");
 				echo.append("</div>\n");
 			}
-			echo.append("</div>\n");	
+			echo.append("</div>\n");
 			echo.append("</td>\n");
 			echo.append("</tr>\n");
 			echo.append("<tr>\n");
@@ -235,7 +235,7 @@ public class AddShips implements AdminPlugin {
 				echo.append("</select>\n");
 				echo.append("</div>\n");
 			}
-			echo.append("</div>\n");	
+			echo.append("</div>\n");
 			echo.append("</td>\n");
 			echo.append("</tr>\n");
 			echo.append("<tr>\n");
@@ -281,32 +281,32 @@ public class AddShips implements AdminPlugin {
 			int inteliid = context.getRequest().getParameterInt("inteliid");
 			int lowid = context.getRequest().getParameterInt("lowid");
 			int jlowid = context.getRequest().getParameterInt("jlowid");
-			
+
 			String currentTime = Common.getIngameTime(context.get(ContextCommon.class).getTick());
-			
+
 			ShipType shiptype = (ShipType)db.get(ShipType.class, shipTypeId);
 			Cargo cargo = new Cargo();
 			cargo.addResource( Resources.DEUTERIUM, shiptype.getRd()*10 );
 			cargo.addResource( Resources.URAN, shiptype.getRu()*10 );
 			cargo.addResource( Resources.ANTIMATERIE, shiptype.getRa()*10 );
-			
+
 			Map<String,String> weapons = Weapons.parseWeaponList(shiptype.getWeapons());
 			for( String weapon : weapons.keySet() ) {
 				if( Weapons.get().weapon(weapon).getAmmoType().length > 0 ) {
 					String[] ammotypes = Weapons.get().weapon(weapon).getAmmoType();
 					for( int i=0; i < ammotypes.length; i++ ) {
 						if( context.getRequest().getParameterInt("ammo_"+ammotypes[i]) > 0 )	{
-							cargo.addResource( 
-									new ItemID(context.getRequest().getParameterInt("ammo_"+ammotypes[i])), 
+							cargo.addResource(
+									new ItemID(context.getRequest().getParameterInt("ammo_"+ammotypes[i])),
 									Integer.parseInt(weapons.get(weapon))*10 );
 						}
 					}
 				}
 			}
 			for( int i=0; i < count; i++ ) {
-				User auser = (User)context.getDB().get(User.class, ownerId);	
+				User auser = (User)context.getDB().get(User.class, ownerId);
 				String history = "Indienststellung am "+currentTime+" durch "+auser.getName()+" ("+auser.getId()+") [hide]Admin: "+user.getId()+"[/hide]";
-				
+
 				Ship ship = new Ship(auser, shiptype, system, x, y);
 				ship.getHistory().addHistory(history);
 				ship.setName(name);
@@ -321,33 +321,33 @@ public class AddShips implements AdminPlugin {
 				ship.setWeapons(100);
 				ship.setComm(100);
 				ship.setSensors(100);
-				
+
 				// Schiff erstellen
 				if( inteliid != 0 ) {
 					int shouldId = 10000;
 					if( lowid != 0 ) {
 						shouldId = 1;
 					}
-					
+
 					int shipid = (Integer)db.createSQLQuery("select newIntelliShipId( ? )")
 						.setInteger(0, shouldId)
 						.uniqueResult();
-					
+
 					ship.setId(shipid);
 				}
 				db.save(ship);
 				db.save(ship.getHistory());
-				
+
 				if( shiptype.getWerft() != 0 ) {
 					ShipWerft werft = new ShipWerft(ship);
 					db.persist(werft);
 				}
-				
+
 				echo.append("Schiff ("+ship.getId()+") hinzugef&uuml;gt<br />");
-				
+
 				// Offizier einfuegen
-				if( (offitype > 0) && (offiname.length() > 0) && 
-						((ship.getTypeData().getSize() > ShipType.SMALL_SHIP_MAXSIZE) || 
+				if( (offitype > 0) && (offiname.length() > 0) &&
+						((ship.getTypeData().getSize() > ShipType.SMALL_SHIP_MAXSIZE) ||
 								ship.getTypeData().getShipClass() == ShipClasses.RETTUNGSKAPSEL.ordinal()) ) {
 					OrderableOffizier offi = (OrderableOffizier)db.get(OrderableOffizier.class, offitype);
 					if( offi != null ) {
@@ -361,13 +361,13 @@ public class AddShips implements AdminPlugin {
 						offizier.setDest("s", ship.getId());
 						offizier.setSpecial(Offizier.Special.values()[RandomUtils.nextInt(Offizier.Special.values().length)]);
 						db.persist(offizier);
-						
+
 						echo.append("Offizier '"+offiname+"' hinzugef&uuml;gt<br />\n");
 					}
 				}
-				
+
 				ship.recalculateShipStatus();
-				
+
 				// Jaeger einfuegen
 				if( (jaegerTypeId > 0) && (shiptype.getJDocks()>0) ) {
 					echo.append("F&uuml;ge J&auml;ger ein:<br />\n");
@@ -375,20 +375,20 @@ public class AddShips implements AdminPlugin {
 
 					ShipFleet fleet = new ShipFleet(name+"-Staffel");
 					db.persist(fleet);
-					
+
 					Cargo jcargo = new Cargo();
 					jcargo.addResource( Resources.DEUTERIUM, jshiptype.getRd()*10 );
 					jcargo.addResource( Resources.URAN, jshiptype.getRu()*10 );
 					jcargo.addResource( Resources.ANTIMATERIE, jshiptype.getRa()*10 );
-					
+
 					weapons = Weapons.parseWeaponList(jshiptype.getWeapons());
 					for( String weapon : weapons.keySet() ) {
 						if( Weapons.get().weapon(weapon).getAmmoType().length > 0 ) {
 							String[] ammotypes = Weapons.get().weapon(weapon).getAmmoType();
 							for( int j=0; j < ammotypes.length; j++ ) {
 								if( context.getRequest().getParameterInt("jaeger_ammo_"+ammotypes[j]) > 0 )	{
-									jcargo.addResource( 
-											new ItemID(context.getRequest().getParameterInt("jaeger_ammo_"+ammotypes[j])), 
+									jcargo.addResource(
+											new ItemID(context.getRequest().getParameterInt("jaeger_ammo_"+ammotypes[j])),
 											Integer.parseInt(weapons.get(weapon))*10 );
 								}
 							}
@@ -397,10 +397,10 @@ public class AddShips implements AdminPlugin {
 
 					for( int j=1; j <= shiptype.getJDocks(); j++ ) {
 						history = "Indienststellung am "+currentTime+" durch "+auser.getName()+" ("+auser.getId()+") [hide]Admin: "+user.getId()+"[/hide]";
-						
+
 						Ship jaeger = new Ship(auser, jshiptype, system, x, y);
 						jaeger.getHistory().addHistory(history);
-						
+
 						jaeger.setName(name+" "+j);
 						jaeger.setHull(jshiptype.getHull());
 						jaeger.setEnergy(jshiptype.getEps());
@@ -414,25 +414,25 @@ public class AddShips implements AdminPlugin {
 						jaeger.setWeapons(100);
 						jaeger.setComm(100);
 						jaeger.setSensors(100);
-						
+
 						// Jaeger erstellen
 						if( inteliid != 0 ) {
 							int shouldId = 10000;
 							if( jlowid != 0 ) {
 								shouldId = 1;
 							}
-							
+
 							jaeger.setId(shouldId);
 						}
 						db.save(jaeger);
 						db.save(jaeger.getHistory());
-						
+
 						jaeger.recalculateShipStatus();
-					
+
 						echo.append("J&auml;ger ("+jaeger.getId()+") hinzugef&uuml;gt<br />");
 					} // For jdocks
 				} // if Jaeger
-				
+
 			} // For Schiffe
 		} // if Schiffe erstellen
 	}
