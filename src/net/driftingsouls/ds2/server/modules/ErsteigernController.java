@@ -44,6 +44,7 @@ import net.driftingsouls.ds2.server.entities.FactionShopEntry;
 import net.driftingsouls.ds2.server.entities.FactionShopOrder;
 import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
+import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.UpgradeInfo;
 import net.driftingsouls.ds2.server.entities.UpgradeJob;
 import net.driftingsouls.ds2.server.entities.UpgradeMaxValues;
@@ -55,7 +56,6 @@ import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.PreparedQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
@@ -77,20 +77,20 @@ import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Zeigt die Fraktionsseiten an.
- * 
+ *
  * @author Christopher Jung
- * 
+ *
  * @urlparam Integer faction Die ID der anzuzeigenden Fraktion
- * 
+ *
  */
 @Module(name="ersteigern")
 public class ErsteigernController extends TemplateGenerator
 {
 	/**
 	 * Ein Eintrag im Shop.
-	 * 
+	 *
 	 * @author Christopher Jung
-	 * 
+	 *
 	 */
 	private abstract static class ShopEntry
 	{
@@ -103,7 +103,7 @@ public class ErsteigernController extends TemplateGenerator
 
 		/**
 		 * Konstruktor.
-		 * 
+		 *
 		 * @param data Die SQL-Ergebniszeile zum Eintrag
 		 */
 		public ShopEntry(FactionShopEntry data)
@@ -118,7 +118,7 @@ public class ErsteigernController extends TemplateGenerator
 
 		/**
 		 * Gibt die ID des Eintrags zurueck.
-		 * 
+		 *
 		 * @return Die ID
 		 */
 		public int getID()
@@ -128,7 +128,7 @@ public class ErsteigernController extends TemplateGenerator
 
 		/**
 		 * Gibt die ID der Fraktion zurueck, der der Eintrag gehoert.
-		 * 
+		 *
 		 * @return Die ID der Fraktion
 		 */
 		@SuppressWarnings("unused")
@@ -139,7 +139,7 @@ public class ErsteigernController extends TemplateGenerator
 
 		/**
 		 * Gibt den Typ des Eintrags zurueck.
-		 * 
+		 *
 		 * @return Der Typ
 		 */
 		public int getType()
@@ -149,28 +149,28 @@ public class ErsteigernController extends TemplateGenerator
 
 		/**
 		 * Gibt den Namen des Eintrags zurueck.
-		 * 
+		 *
 		 * @return Der Name
 		 */
 		public abstract String getName();
 
 		/**
 		 * Gibt das zum Eintrag gehoerende Bild zurueck.
-		 * 
+		 *
 		 * @return Das Bild
 		 */
 		public abstract String getImage();
 
 		/**
 		 * Gibt einen zum Eintrag gehoerenden Link zurueck.
-		 * 
+		 *
 		 * @return Der Link
 		 */
 		public abstract String getLink();
 
 		/**
 		 * Gibt die Verfuegbarkeit des Eintrags zurueck.
-		 * 
+		 *
 		 * @return Die Verfuegbarkeit
 		 */
 		public int getAvailability()
@@ -180,7 +180,7 @@ public class ErsteigernController extends TemplateGenerator
 
 		/**
 		 * Gibt die Verfuegbarkeit des Eintrags als Text zurueck.
-		 * 
+		 *
 		 * @return Die Verfuegbarkeit als Text
 		 */
 		public String getAvailabilityName()
@@ -199,7 +199,7 @@ public class ErsteigernController extends TemplateGenerator
 
 		/**
 		 * Gibt die mit der Verfuegbarkeit assoziierte Farbe zurueck.
-		 * 
+		 *
 		 * @return Die Farbe der Verfuegbarkeit
 		 */
 		public String getAvailabilityColor()
@@ -218,7 +218,7 @@ public class ErsteigernController extends TemplateGenerator
 
 		/**
 		 * Soll die Verkaufsmenge angezeigt werden?
-		 * 
+		 *
 		 * @return <code>true</code>, falls die Verkaufsmenge angezeigt werden soll
 		 */
 		public boolean showAmountInput()
@@ -228,7 +228,7 @@ public class ErsteigernController extends TemplateGenerator
 
 		/**
 		 * Gibt den Kaufpreis zurueck.
-		 * 
+		 *
 		 * @return Der Kaufpreis
 		 */
 		public long getPrice()
@@ -238,7 +238,7 @@ public class ErsteigernController extends TemplateGenerator
 
 		/**
 		 * Gibt den Kaufpreis als Text zurueck.
-		 * 
+		 *
 		 * @return Der Kaufpreis als Text
 		 */
 		public String getPriceAsText()
@@ -249,7 +249,7 @@ public class ErsteigernController extends TemplateGenerator
 		/**
 		 * Gibt den Verkaufsinhalt, den der Eintrag enthaelt, zurueck. Der Typ ist Abhaengig vom
 		 * Typen des Eintrags.
-		 * 
+		 *
 		 * @return Der Verkaufsinhalt
 		 */
 		public String getResource()
@@ -260,9 +260,9 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Repraesentiert ein Shopeintrag, welcher ein Schiff enthaelt.
-	 * 
+	 *
 	 * @author Christopher Jung
-	 * 
+	 *
 	 */
 	private static class ShopShipEntry extends ShopEntry
 	{
@@ -270,7 +270,7 @@ public class ErsteigernController extends TemplateGenerator
 
 		/**
 		 * Konstruktor.
-		 * 
+		 *
 		 * @param data Die SQL-Ergebniszeile des Shopeintrags
 		 */
 		public ShopShipEntry(FactionShopEntry data)
@@ -301,9 +301,9 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Repraesentiert ein Shopeintrag, welcher eine Resource enthaelt.
-	 * 
+	 *
 	 * @author Christopher Jung
-	 * 
+	 *
 	 */
 	private static class ShopResourceEntry extends ShopEntry
 	{
@@ -311,7 +311,7 @@ public class ErsteigernController extends TemplateGenerator
 
 		/**
 		 * Konstruktor.
-		 * 
+		 *
 		 * @param data Die SQL-Ergebniszeile des Shopeintrags
 		 */
 		public ShopResourceEntry(FactionShopEntry data)
@@ -362,9 +362,9 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Repraesentiert ein Shopeintrag, welcher einen Ganymede-Transport enthaelt.
-	 * 
+	 *
 	 * @author Christopher Jung
-	 * 
+	 *
 	 */
 	@Configurable
 	private static class ShopGanyTransportEntry extends ShopEntry
@@ -378,10 +378,10 @@ public class ErsteigernController extends TemplateGenerator
 		private long maxprice = Long.MIN_VALUE;
 		private int ganytransid;
 		private Configuration config;
-		
+
 		/**
 		 * Konstruktor.
-		 * 
+		 *
 		 * @param data Die SQL-Ergebniszeile des Shopeintrags
 		 */
 		public ShopGanyTransportEntry(FactionShopEntry[] data)
@@ -401,7 +401,7 @@ public class ErsteigernController extends TemplateGenerator
 				this.ganytransid = data[0].getId();
 			}
 		}
-		
+
 		/**
 		 * Injiziert die DS-Konfiguration.
 		 * @param config Die DS-Konfiguration
@@ -468,7 +468,7 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Konstruktor.
-	 * 
+	 *
 	 * @param context Der zu verwendende Kontext
 	 */
 	public ErsteigernController(Context context)
@@ -589,10 +589,10 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Aendert das System, in dem ersteigerte Dinge gespawnt werden sollen.
-	 * 
+	 *
 	 * @urlparam Integer favsys Die ID des neuen Systems, in dem ersteigerte Dinge gespawnt werden
 	 *           sollen
-	 * 
+	 *
 	 */
 	@Action(ActionType.DEFAULT)
 	public void changeDropZoneAction()
@@ -623,10 +623,10 @@ public class ErsteigernController extends TemplateGenerator
 	/**
 	 * Gibt ein Gebot auf eine Versteigerung ab bzw zeigt, falls kein Gebot angegeben wurde, die
 	 * angegebene Versteigerung an.
-	 * 
+	 *
 	 * @urlparam Integer bid Der gebotene Betrag oder 0
 	 * @urlparam Integer auk Die Auktion auf die geboten werden soll
-	 * 
+	 *
 	 */
 	@Action(ActionType.DEFAULT)
 	public void bidEntryAction()
@@ -764,11 +764,11 @@ public class ErsteigernController extends TemplateGenerator
 	/**
 	 * Ueberweist einen bestimmten Geldbetrag an einen anderen Spieler. Wenn die Ueberweisung noch
 	 * nicht explizit bestaetigt wurde, wird die Bestaetigung erfragt.
-	 * 
+	 *
 	 * @urlparam Integer to Die ID des Spielers, der Ziel der Ueberweisung sein soll
 	 * @urlparam String ack <code>yes</code> um die Ueberweisung zu bestaetigen
 	 * @urlparam Integer count Die zu ueberweisende Geldmenge
-	 * 
+	 *
 	 */
 	@Action(ActionType.DEFAULT)
 	public void ueberweisenAction()
@@ -835,9 +835,9 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Aendert den Anzeigetyp fuer Kontotransaktionen.
-	 * 
+	 *
 	 * @urlparam Integer type Der neue Anzeigetyp (0-2)
-	 * 
+	 *
 	 */
 	@Action(ActionType.DEFAULT)
 	public void showKontoTransactionTypeAction()
@@ -877,7 +877,7 @@ public class ErsteigernController extends TemplateGenerator
 		User user = (User)this.getUser();
 
 		t.setVar("show.bank", 1);
-		
+
 		// ueberweisungen
 		t.setBlock("_ERSTEIGERN", "ueberweisen.listitem", "ueberweisen.list");
 
@@ -965,12 +965,12 @@ public class ErsteigernController extends TemplateGenerator
 
 			t.parse("moneytransfer.list", "moneytransfer.listitem", true);
 		}
-		
+
 	}
-	
+
 	/**
 	 * Zeigt die Seite mit diversen weiteren Infos an.
-	 * 
+	 *
 	 */
 	@Action(ActionType.DEFAULT)
 	public void otherAction()
@@ -984,7 +984,7 @@ public class ErsteigernController extends TemplateGenerator
 		TemplateEngine t = this.getTemplateEngine();
 		org.hibernate.Session db = getDB();
 		User user = (User)this.getUser();
-		
+
 		User.Relations relationlist = null;
 		relationlist = user.getRelations();
 
@@ -998,7 +998,7 @@ public class ErsteigernController extends TemplateGenerator
 		for( Iterator<?> iter = kurseList.iterator(); iter.hasNext(); )
 		{
 			GtuWarenKurse kurse = (GtuWarenKurse)iter.next();
-			
+
 			Cargo kurseCargo = new Cargo(kurse.getKurse());
 			kurseCargo.setOption(Cargo.Option.SHOWMASS, false);
 
@@ -1018,7 +1018,7 @@ public class ErsteigernController extends TemplateGenerator
 				{
 					continue;
 				}
-				
+
 				t.setVar("posten.name", tradepost.getName(), "kurse.waren.list", "");
 				t.setVar(	"posten.owner.name", Common._title(tradepost.getOwner().getName()),
 							"posten.owner.id", tradepost.getOwner().getId(),
@@ -1053,7 +1053,7 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Zeigt die Angebote der Fraktion an.
-	 * 
+	 *
 	 */
 	@Action(ActionType.DEFAULT)
 	public void angeboteAction()
@@ -1097,7 +1097,7 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Zeigt die laufenden Versteigerungen an.
-	 * 
+	 *
 	 */
 	@Action(ActionType.DEFAULT)
 	public void versteigerungAction()
@@ -1162,8 +1162,8 @@ public class ErsteigernController extends TemplateGenerator
 
 			String objectname = entry.getObjectName();
 			String entryname = StringUtils.replaceChars(objectname, '"', '\'');
-			//String entryname = StringEscapeUtils.escapeJavaScript(replaceobjectname);			
-			
+			//String entryname = StringEscapeUtils.escapeJavaScript(replaceobjectname);
+
 			int entrywidth = entry.isObjectFixedImageSize() ? 50 : 0;
 
 			String bietername = "";
@@ -1196,30 +1196,30 @@ public class ErsteigernController extends TemplateGenerator
 				ownername = Common._title(entry.getOwner().getName());
 			}
 
-			t.setVar("entry.link", entry.getObjectUrl(), 
+			t.setVar("entry.link", entry.getObjectUrl(),
 					"entry.type.name", entryname,
-					"entry.type.image", entry.getObjectPicture(), 
-					"entry.preis", Common.ln(entry.getPreis()), 
+					"entry.type.image", entry.getObjectPicture(),
+					"entry.preis", Common.ln(entry.getPreis()),
 					"entry.bieter", Common._title(bietername),
-					"entry.bieter.id", entry.getBieter().getId(), 
-					"entry.dauer", entry.getTick() - this.ticks, 
-					"entry.aukid", entry.getId(), 
+					"entry.bieter.id", entry.getBieter().getId(),
+					"entry.dauer", entry.getTick() - this.ticks,
+					"entry.aukid", entry.getId(),
 					"entry.width", entrywidth,
-					"entry.height", entrywidth, 
+					"entry.height", entrywidth,
 					"entry.count", entry.getObjectCount(),
-					"entry.user.name", ownername, 
+					"entry.user.name", ownername,
 					"entry.user.id", entry.getOwner().getId(),
-					"entry.user", (entry.getOwner().getId() != faction), 
+					"entry.user", (entry.getOwner().getId() != faction),
 					"entry.ownauction", (entry.getOwner() == user));
 
 			t.parse("entry.list", "entry.listitem", true);
 		}
 
 		t.setBlock("_ERSTEIGERN", "gtu.dropzones.listitem", "gtu.dropzones.list");
-		
+
 		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "gtudefaultdropzone");
 		int defaultDropZone = Integer.valueOf(value.getValue());
-		
+
 		List<?> systems = db.createQuery("from StarSystem order by id asc").list();
 		for( Iterator<?> iter = systems.iterator(); iter.hasNext(); )
 		{
@@ -1236,7 +1236,7 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Zeigt den Fraktionstext an.
-	 * 
+	 *
 	 */
 	@Action(ActionType.DEFAULT)
 	public void generalAction()
@@ -1257,7 +1257,7 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Berechnet die Kosten eines Transportauftrags und speichert ihn in der Datenbank.
-	 * 
+	 *
 	 * @urlparam Integer sourcesystem Das Ausgangssystem
 	 * @urlparam Integer ganymedeid Die ID der zu transportierenden Ganymede
 	 * @urlparam Integer targetsystem Die ID des Zielsystems
@@ -1265,15 +1265,15 @@ public class ErsteigernController extends TemplateGenerator
 	 * @urlparam Integer targety Die Ziel-Y-Koordinate
 	 * @urlparam Integer transport Sofert der Wert <code>1</code>, wird der Transportauftrag
 	 *           bestaetigt und abgespeichert
-	 * 
+	 *
 	 */
 	@Action(ActionType.DEFAULT)
 	public void shopOrderGanymedeSummaryAction()
 	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
-		Database db = getDatabase();
-		org.hibernate.Session database = getDB();
+		Database database = getDatabase();
+		org.hibernate.Session db = getDB();
 
 		if( !Faction.get(faction).getPages().hasPage("shop") )
 		{
@@ -1281,9 +1281,13 @@ public class ErsteigernController extends TemplateGenerator
 			return;
 		}
 
-		SQLResultRow shopentry = db.first("SELECT id FROM factions_shop_entries WHERE faction_id=",
-				this.faction, " AND type=2");
-		if( shopentry.isEmpty() )
+		FactionShopEntry shopentry = (FactionShopEntry)db
+			.createQuery("from FactionShopEntry where faction=:faction and type=2")
+			.setInteger("faction", this.faction)
+			.setMaxResults(1)
+			.uniqueResult();
+
+		if( shopentry == null )
 		{
 			this.redirect();
 			return;
@@ -1303,10 +1307,12 @@ public class ErsteigernController extends TemplateGenerator
 		int targety = getInteger("targety");
 		int transport = getInteger("transport");
 
-		SQLResultRow gany = db.first("SELECT id,x,y,name FROM ships WHERE id=", ganymedeid,
-				" AND owner=", user.getId(), " AND type=",
-				ShopGanyTransportEntry.SHIPTYPE_GANYMEDE, " AND system=", sourcesystem);
-		if( gany.isEmpty() )
+		Ship gany = (Ship)db.get(Ship.class, ganymedeid);
+
+		if( gany == null ||
+				gany.getOwner().getId() != user.getId() ||
+				gany.getSystem() != sourcesystem ||
+				gany.getType() != ShopGanyTransportEntry.SHIPTYPE_GANYMEDE )
 		{
 			addError("Die angegebene Ganymede konnte im Ausgangssystem nicht lokalisiert werden");
 			unsetParameter("sourcesystem");
@@ -1316,8 +1322,8 @@ public class ErsteigernController extends TemplateGenerator
 			return;
 		}
 
-		SQLResultRow sameorder = db.first("SELECT id FROM factions_shop_orders WHERE user_id=",
-				user.getId(), " AND adddata LIKE \"", gany.getInt("id"), "@%\" AND status<4");
+		SQLResultRow sameorder = database.first("SELECT id FROM factions_shop_orders WHERE user_id=",
+				user.getId(), " AND adddata LIKE \"", gany.getId(), "@%\" AND status<4");
 		if( !sameorder.isEmpty() )
 		{
 			addError("Es existiert bereits ein Transport-Auftrag f&uuml;r diese Ganymede");
@@ -1328,7 +1334,7 @@ public class ErsteigernController extends TemplateGenerator
 			return;
 		}
 
-		StarSystem system = (StarSystem)database.get(StarSystem.class, targetsystem);
+		StarSystem system = (StarSystem)db.get(StarSystem.class, targetsystem);
 		if( (system.getAccess() == StarSystem.AC_ADMIN)
 				&& !user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS) )
 		{
@@ -1361,24 +1367,26 @@ public class ErsteigernController extends TemplateGenerator
 		}
 
 		// Weg finden und Preis ausrechnen
-		Map<Integer, List<SQLResultRow>> jumpnodes = new HashMap<Integer, List<SQLResultRow>>();
-		Map<Integer, SQLResultRow> jumpnodeindex = new HashMap<Integer, SQLResultRow>();
-		SQLQuery jnRow = db.query("SELECT * FROM jumpnodes WHERE hidden=0 AND (systemout!=",
-				sourcesystem, " OR system=", sourcesystem, ")");
-		while( jnRow.next() )
+		Map<Integer, List<JumpNode>> jumpnodes = new HashMap<Integer, List<JumpNode>>();
+		Map<Integer, JumpNode> jumpnodeindex = new HashMap<Integer, JumpNode>();
+		List<?> jnList = db.createQuery("from JumpNode where hidden=0 and (systemOut!=:source or system=:source)")
+			.setInteger("source", sourcesystem)
+			.list();
+
+		for( Object obj : jnList )
 		{
-			if( !jumpnodes.containsKey(jnRow.getInt("system")) )
+			JumpNode jn = (JumpNode)obj;
+			if( !jumpnodes.containsKey(jn.getSystem()) )
 			{
-				jumpnodes.put(jnRow.getInt("system"), new ArrayList<SQLResultRow>());
+				jumpnodes.put(jn.getSystem(), new ArrayList<JumpNode>());
 			}
-			jumpnodes.get(jnRow.getInt("system")).add(jnRow.getRow());
-			jumpnodeindex.put(jnRow.getInt("id"), jnRow.getRow());
+			jumpnodes.get(jn.getSystem()).add(jn);
+			jumpnodeindex.put(jn.getId(), jn);
 		}
-		jnRow.free();
 
 		long totalcost = 0;
-		JumpNodeRouter.Result shortestpath = new JumpNodeRouter(jumpnodes).locateShortestJNPath(
-				sourcesystem, gany.getInt("x"), gany.getInt("y"), targetsystem, targetx, targety);
+		JumpNodeRouter.Result shortestpath = new JumpNodeRouter(jumpnodes)
+			.locateShortestJNPath(sourcesystem, gany.getX(), gany.getY(), targetsystem, targetx, targety);
 		if( shortestpath == null )
 		{
 			transport = 0;
@@ -1387,7 +1395,7 @@ public class ErsteigernController extends TemplateGenerator
 		else
 		{
 			Map<String, Long> costindex = new HashMap<String, Long>();
-			SQLQuery entry = db.query("SELECT * FROM factions_shop_entries WHERE faction_id=",
+			SQLQuery entry = database.query("SELECT * FROM factions_shop_entries WHERE faction_id=",
 					this.faction, " AND type=2");
 			while( entry.next() )
 			{
@@ -1399,8 +1407,8 @@ public class ErsteigernController extends TemplateGenerator
 			systemlist.add(sourcesystem);
 			for( int i = 0; i < shortestpath.path.size(); i++ )
 			{
-				SQLResultRow jn = shortestpath.path.get(i);
-				systemlist.add(jn.getInt("systemout"));
+				JumpNode jn = shortestpath.path.get(i);
+				systemlist.add(jn.getSystemOut());
 			}
 
 			for( Integer sys : systemlist )
@@ -1435,64 +1443,61 @@ public class ErsteigernController extends TemplateGenerator
 
 		if( transport == 0 )
 		{
-			t.setVar("show.shopOrderGanymedeSummary", 1, "ganymede.id", gany.getInt("id"),
-					"ganymede.name", gany.getString("name"), "source.system", sourcesystem,
-					"source.x", gany.getInt("x"), "source.y", gany.getInt("y"), "target.system",
-					targetsystem, "target.x", targetx, "target.y", targety);
+			t.setVar("show.shopOrderGanymedeSummary", 1,
+					"ganymede.id", gany.getId(),
+					"ganymede.name", gany.getName(),
+					"source.system", sourcesystem,
+					"source.x", gany.getX(),
+					"source.y", gany.getY(),
+					"target.system", targetsystem,
+					"target.x", targetx,
+					"target.y", targety);
 		}
 		else
 		{
-			db.tBegin();
+			database.tBegin();
 
 			User faction = (User)getDB().get(User.class, this.faction);
 			faction.transferMoneyFrom(user.getId(), totalcost,
-					"&Uuml;berweisung Bestellung #ganytransXX" + gany.getInt("id"));
+					"&Uuml;berweisung Bestellung #ganytransXX" + gany.getId());
 
 			StringBuilder waypoints = new StringBuilder(300);
-			waypoints.append("Start: " + sourcesystem + ":" + gany.getInt("x") + "/"
-					+ gany.getInt("y") + "\n");
+			waypoints.append("Start: " + sourcesystem + ":" + gany.getX() + "/"
+					+ gany.getY() + "\n");
 			for( int i = 0; i < shortestpath.path.size(); i++ )
 			{
-				SQLResultRow jn = shortestpath.path.get(i);
+				JumpNode jn = shortestpath.path.get(i);
 
-				waypoints.append(jn.getInt("system") + ":" + jn.getInt("x") + "/" + jn.getInt("y")
+				waypoints.append(jn.getSystem() + ":" + jn.getX() + "/" + jn.getY()
 						+ " -> ");
-				waypoints.append(jn.getInt("systemout") + ":" + jn.getInt("xout") + "/"
-						+ jn.getInt("yout") + " ");
-				waypoints.append("[ID: " + jn.getInt("id") + "]\n");
+				waypoints.append(jn.getSystemOut() + ":" + jn.getXOut() + "/"
+						+ jn.getYOut() + " ");
+				waypoints.append("[ID: " + jn.getId() + "]\n");
 			}
 			waypoints.append("Ziel: " + targetsystem + ":" + targetx + "/" + targety + "\n");
 
 			PM.send(user, this.faction, "[auto] Shop-Bestellung [Ganymede]",
 					"Besteller: [userprofile=" + user.getId() + "]" + user.getName() + " ("
-							+ user.getId() + ")[/userprofile]\nObjekt: " + gany.getString("name")
-							+ " (" + gany.getInt("id") + ")\nPreis: " + Common.ln(totalcost)
+							+ user.getId() + ")[/userprofile]\nObjekt: " + gany.getName()
+							+ " (" + gany.getId() + ")\nPreis: " + Common.ln(totalcost)
 							+ "\nZeitpunkt: " + Common.date("d.m.Y H:i:s")
 							+ "\n\n[b][u]Pfad[/u][/b]:\n" + waypoints);
 
-			String adddataStr = gany.getInt("id") + "@" + sourcesystem + ":" + gany.getInt("x")
-					+ "/" + gany.getInt("y") + "->" + targetsystem + ":" + targetx + "/" + targety;
+			String adddataStr = gany.getId() + "@" + sourcesystem + ":" + gany.getX()
+					+ "/" + gany.getY() + "->" + targetsystem + ":" + targetx + "/" + targety;
 
-			PreparedQuery stmt = db.prepare("INSERT INTO factions_shop_orders ",
-					"(shopentry_id,user_id,price,date,adddata) VALUES ", "( ?, ?, ?, ?, ?)");
-			stmt.update(shopentry.getInt("id"), user.getId(), totalcost, Common.time(), adddataStr);
+
+			FactionShopOrder newOrder = new FactionShopOrder(shopentry, user);
+			newOrder.setPrice(totalcost);
+			newOrder.setAddData(adddataStr);
+			db.persist(newOrder);
 
 			Taskmanager taskmanager = Taskmanager.getInstance();
-			taskmanager.addTask(Taskmanager.Types.GANY_TRANSPORT, 1, Integer.toString(stmt
-					.insertID()), "", "");
-
-			stmt.close();
-
-			if( !db.tCommit() )
-			{
-				addError("Die Bestellung konnte nicht korrekt verarbeitet werden. Bitte versuchen sie es erneut.");
-				redirect("shop");
-				return;
-			}
+			taskmanager.addTask(Taskmanager.Types.GANY_TRANSPORT, 1, Integer.toString(newOrder.getId()), "", "");
 
 			t.setVar("show.message", "Bestellung &uuml;ber 1 Ganymede-Transport des Objekts "
-					+ gany.getInt("id") + " von " + sourcesystem + ":" + gany.getInt("x") + "/"
-					+ gany.getInt("y") + " nach " + targetsystem + ":" + targetx + "/" + targety
+					+ gany.getId() + " von " + sourcesystem + ":" + gany.getX() + "/"
+					+ gany.getY() + " nach " + targetsystem + ":" + targetx + "/" + targety
 					+ " f&uuml;r " + Common.ln(totalcost)
 					+ " erhalten und vom System best&auml;tigt.<br />Einen angenehmen Tag noch!");
 
@@ -1503,13 +1508,13 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Zeigt die GUI zur Erstellung eines Ganymede-Transportauftrags.
-	 * 
+	 *
 	 * @urlparam Integer sourcesystem Das Ausgangssystem
 	 * @urlparam Integer ganymedeid Die ID der zu transportierenden Ganymede
 	 * @urlparam Integer targetsystem Die ID des Zielsystems
 	 * @urlparam Integer targetx Die Ziel-X-Koordinate
 	 * @urlparam Integer targety Die Ziel-Y-Koordinate
-	 * 
+	 *
 	 */
 	@Action(ActionType.DEFAULT)
 	public void shopOrderGanymedeAction()
@@ -1525,9 +1530,13 @@ public class ErsteigernController extends TemplateGenerator
 			return;
 		}
 
-		SQLResultRow shopentry = db.first("SELECT id FROM factions_shop_entries WHERE faction_id=",
-				this.faction, " AND type=2");
-		if( shopentry.isEmpty() )
+		FactionShopEntry entry = (FactionShopEntry)database
+			.createQuery("from FactionShopEntry where faction=:faction and type=2")
+			.setInteger("faction", this.faction)
+			.setMaxResults(1)
+			.uniqueResult();
+
+		if( entry == null )
 		{
 			this.redirect();
 			return;
@@ -1635,7 +1644,7 @@ public class ErsteigernController extends TemplateGenerator
 			{
 				t.setVar("ganymede.selected", 0);
 			}
-			t.setVar("ganymede.id", agany.getInt("id"), 
+			t.setVar("ganymede.id", agany.getInt("id"),
 					"ganymede.name", Common._plaintitle(agany.getString("name")));
 
 			t.parse("ganytrans.ganymedes.list", "ganytrans.ganymedes.listitem", true);
@@ -1643,7 +1652,7 @@ public class ErsteigernController extends TemplateGenerator
 		agany.free();
 
 		List<StarSystem> systems = Common.cast(database.createQuery("from StarSystem").list());
-		
+
 		// Zielsysteme ausgeben
 		first = true;
 		for( StarSystem system : systems )
@@ -1679,13 +1688,13 @@ public class ErsteigernController extends TemplateGenerator
 	/**
 	 * Fuehrt eine Bestellung im Shop aus. Der User muss dazu eine gewuenschte Lieferposition
 	 * angeben. Wenn diese noch nicht angegeben wurde, wird sie erfragt.
-	 * 
+	 *
 	 * @urlparam Integer shopentry Die ID des Shopeintrags, der bestellt werden soll
 	 * @urlparam Integer ordercount Die Liefermenge
 	 * @urlparam Integer ordersys Das Liefersystem
 	 * @urlparam Integer orderx Die X-Komponente der Lieferkoordinate
 	 * @urlparam Integer ordery Die Y-Komponente der Lieferkoordinate
-	 * 
+	 *
 	 */
 	@Action(ActionType.DEFAULT)
 	public void shopOrderAction()
@@ -1780,9 +1789,9 @@ public class ErsteigernController extends TemplateGenerator
 
 		if( ordersys == 0 || orderx == 0 || ordery == 0 )
 		{
-			t.setVar("show.shopOrderLocation", 1, 
-					"order.count", ordercount, 
-					"order.name", entry.getName(), 
+			t.setVar("show.shopOrderLocation", 1,
+					"order.count", ordercount,
+					"order.name", entry.getName(),
 					"order.entry", entry.getID());
 		}
 		else
@@ -1822,10 +1831,10 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Aendert die Verfuegbarkeit eines Shopeintrags.
-	 * 
+	 *
 	 * @urlparam Integer shopentry Die ID des Shopeintrags
 	 * @urlparam Integer availability Die neue Verfuegbarkeit
-	 * 
+	 *
 	 */
 	@Action(ActionType.DEFAULT)
 	public void shopChangeAvailabilityAction()
@@ -1872,10 +1881,10 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Aendert den Auftragsstatus einer Bestellung.
-	 * 
+	 *
 	 * @urlparam Integer orderentry Die ID des Auftrags
 	 * @urlparam Integer orderstatus Der neue Auftragsstatus
-	 * 
+	 *
 	 */
 	@Action(ActionType.DEFAULT)
 	public void changeShopOrderStatusAction()
@@ -1958,13 +1967,13 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Zeigt die GUI für den Asti-Asubau an.
-	 * 
+	 *
 	 * @urlparam Integer astiid Die ID des auszubauenden Asteroiden
 	 * @urlparam Integer colonizerid Die ID des auszubauenden Asteroiden
 	 * @urlparam Integer felder Die ID des auszubauenden Asteroiden
 	 * @urlparam Integer cargo Die ID des auszubauenden Asteroiden
 	 * @urlparam Integer bar Gibt die Zahlungsmethode an
-	 * 
+	 *
 	 */
 	@SuppressWarnings("unchecked")
 	@Action(ActionType.DEFAULT)
@@ -2184,7 +2193,7 @@ public class ErsteigernController extends TemplateGenerator
 
 		for( Ship colonizer : colonizers )
 		{
-			t.setVar("colonizer.id", colonizer.getId(), 
+			t.setVar("colonizer.id", colonizer.getId(),
 					"colonizer.name", colonizer.getName());
 			t.parse("ausbau.colonizer.list", "ausbau.colonizer.listitem", true);
 		}
@@ -2203,9 +2212,9 @@ public class ErsteigernController extends TemplateGenerator
 				if( selectedBase.getMaxCargo() + info.getMod() <= maxvalues.getMaxCargo() )
 				{
 					t.setVar("cargo.mod", info.getMod(),
-							"cargo.id", info.getId(), 
-							"cargo.preis", info.getPrice(), 
-							"cargo.bbs", info.getMiningExplosive(), 
+							"cargo.id", info.getId(),
+							"cargo.preis", info.getPrice(),
+							"cargo.bbs", info.getMiningExplosive(),
 							"cargo.erz", info.getOre());
 					t.parse("ausbau.cargo.list", "ausbau.cargo.listitem", true);
 				}
@@ -2214,10 +2223,10 @@ public class ErsteigernController extends TemplateGenerator
 			{ // Es handelt sich um ein Felder Ausbau
 				if( selectedBase.getMaxTiles() + info.getMod() <= maxvalues.getMaxTiles() )
 				{
-					t.setVar("felder.mod", info.getMod(), 
+					t.setVar("felder.mod", info.getMod(),
 							"felder.id", info.getId(),
-							"felder.preis", info.getPrice(), 
-							"felder.bbs", info.getMiningExplosive(), 
+							"felder.preis", info.getPrice(),
+							"felder.bbs", info.getMiningExplosive(),
 							"felder.erz", info.getOre());
 					t.parse("ausbau.felder.list", "ausbau.felder.listitem", true);
 				}
@@ -2227,7 +2236,7 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Zeigt den Shop der Fraktion an.
-	 * 
+	 *
 	 */
 	@Action(ActionType.DEFAULT)
 	public void shopAction()
@@ -2345,14 +2354,14 @@ public class ErsteigernController extends TemplateGenerator
 
 				User ownerobj = order.getUser();
 
-				t.setVar("orderentry.name", shopEntryObj.getName(), 
-						"orderentry.adddata", entryadddata, 
+				t.setVar("orderentry.name", shopEntryObj.getName(),
+						"orderentry.adddata", entryadddata,
 						"orderentry.owner", order.getUser().getId(),
 						"orderentry.owner.name", Common._title(ownerobj.getName()),
-						"orderentry.link", shopEntryObj.getLink(), 
+						"orderentry.link", shopEntryObj.getLink(),
 						"orderentry.id", order.getId(),
-						"orderentry.price", Common.ln(order.getPrice()), 
-						"orderentry.count", Common.ln(order.getCount()), 
+						"orderentry.price", Common.ln(order.getPrice()),
+						"orderentry.count", Common.ln(order.getCount()),
 						"orderentry.status", order.getStatus(),
 						"orderentry.status.name", getStatusName(order.getStatus()),
 						"orderentry.bgcolor", getStatusColor(order.getStatus()));
@@ -2380,19 +2389,19 @@ public class ErsteigernController extends TemplateGenerator
 		{
 			ShopEntry shopEntryObj = new ShopGanyTransportEntry(ganytransport);
 
-			t.setVar("entry.type.image", shopEntryObj.getImage(), 
-					"entry.name", shopEntryObj.getName(), 
-					"entry.link", shopEntryObj.getLink(), 
-					"entry.id", shopEntryObj.getID(), 
+			t.setVar("entry.type.image", shopEntryObj.getImage(),
+					"entry.name", shopEntryObj.getName(),
+					"entry.link", shopEntryObj.getLink(),
+					"entry.id", shopEntryObj.getID(),
 					"entry.availability.name", shopEntryObj.getAvailabilityName(),
 					"entry.availability.color", shopEntryObj.getAvailabilityColor(),
-					"entry.availability", shopEntryObj.getAvailability(), 
+					"entry.availability", shopEntryObj.getAvailability(),
 					"entry.price", shopEntryObj.getPriceAsText(),
 					"entry.showamountinput", shopEntryObj.showAmountInput());
 
 			t.parse("shop.list", "shop.listitem", true);
 		}
-        
+
 		// Nun den normalen Shop ausgeben
 		List<?> shopentryList = db.createQuery(
 				"from FactionShopEntry where faction = :faction and type!=2").setInteger("faction",
@@ -2415,14 +2424,14 @@ public class ErsteigernController extends TemplateGenerator
 				shopEntryObj = new ShopResourceEntry(shopentry);
 			}
 
-			t.setVar("entry.type.image", shopEntryObj.getImage(), 
-					"entry.name", shopEntryObj.getName(), 
-					"entry.link", shopEntryObj.getLink(), 
-					"entry.id", shopEntryObj.getID(), 
+			t.setVar("entry.type.image", shopEntryObj.getImage(),
+					"entry.name", shopEntryObj.getName(),
+					"entry.link", shopEntryObj.getLink(),
+					"entry.id", shopEntryObj.getID(),
 					"entry.availability.name", shopEntryObj.getAvailabilityName(),
 					"entry.availability.color", shopEntryObj.getAvailabilityColor(),
-					"entry.availability", shopEntryObj.getAvailability(), 
-					"entry.price", shopEntryObj.getPriceAsText(), 
+					"entry.availability", shopEntryObj.getAvailability(),
+					"entry.price", shopEntryObj.getPriceAsText(),
 					"entry.showamountinput", shopEntryObj.showAmountInput());
 
 			t.parse("shop.list", "shop.listitem", true);
