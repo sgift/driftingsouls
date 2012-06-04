@@ -216,14 +216,14 @@ img.noborder:active 	{ border-style: solid; border: 0px ;border-color: #000000}
 	min-width:100px;
 	max-width:400px;
 	z-index:1000;
-	
+
 	padding:4px 3px 4px 3px;
-	
+
 	border:2px solid #26312a;
-	
+
 	background-color: #0f1513;
 	color: #C7C7C7;
-	font-family: arial, helvetica; 
+	font-family: arial, helvetica;
 	font-size: 12px;
 	box-shadow: 5px 5px 10px #031103;
 }
@@ -271,6 +271,7 @@ div.gfxbox {
     font-size: 14px;
 }
 
+.gfxbox h1,
 .gfxbox h2 {
 	font-size:16px;
 	font-weight:bold;

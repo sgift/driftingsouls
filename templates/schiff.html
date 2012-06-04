@@ -41,7 +41,7 @@
 				href="./ds?module=schiffinfo&amp;sess={global.sess}&amp;ship={ship.type}">
 				<img src="{shiptype.picture}" alt="{shiptype.name}" style="float:right; margin-right:5px; margin-left:15px;margin-bottom:5px" />
 			</a>
-			Zustand: 
+			Zustand:
 			<span style="color:{ship.hull.color}">
 				{ship.hull}/{shiptype.hull}
 			</span>
@@ -58,7 +58,7 @@
 				<span style="color:{ship.shields.color}">
 					{ship.shields}/{shiptype.shields}
 				</span>
-			{/endif} 
+			{/endif}
 			<br />Subsysteme:<br />
 			{if shiptype.cost}
 				+ Antrieb:
@@ -105,7 +105,7 @@
 				<br />
 			{/endif}
 			{if ship.fleet}
-				Flotte: <a class="forschinfo" href="javascript:PopupWnd('&amp;fleet={fleet.id}&amp;act=show')">{fleet.name}</a> 
+				Flotte: <a class="forschinfo" href="javascript:PopupWnd('&amp;fleet={fleet.id}&amp;act=show')">{fleet.name}</a>
 				{if ! ship.lock}
 					{!link_to (X), join, css_class:error, ship:$ship.id}
 				{/endif}
@@ -137,7 +137,7 @@
 						.bind('closed', function() {
 							$('#scriptBox form').submit();
 						});
-					}		
+					}
 				// -->
 				</script>
 				<div id="scriptBox" style="display:none">
@@ -153,7 +153,7 @@
 						</div>
 					</form>
 				</div>
-			
+
 				<a id="shipscripttip" name="shipscripttip" class="noborder" onclick="scripttooltip();" href="#">
 					<img src="{URL}data/interface/computer.png" alt="?" />
 				</a>
@@ -179,9 +179,16 @@
 				</a>
 			{/endif}
 			{if tooltip.moduleext}
-				<a class="noborder tooltip" href="#">
+				<div id="moduleextBox">{tooltip.moduleext}</div>
+				<script type="text/javascript">
+					$('#moduleextBox').dsBox({
+						centerX:true,
+						width:300,
+						height:300
+					});
+				</script>
+				<a class="noborder" onclick="$('#moduleextBox').dsBox('show')" href="#">
 					<img src="{URL}data/interface/info.png" alt="?" />
-					<span class="ttcontent">{tooltip.moduleext}</span>
 				</a>
 			{/endif}
 			{if tooltip.tradepost}
@@ -216,7 +223,7 @@
 					</div>
 				</form>
 			{/endif}
-			
+
 			<form action="./ds" method="post">
 				<div>
 					<label for="newname">Name:</label>
@@ -225,7 +232,7 @@
 					<input type="submit" value="rename" />
 				</div>
 			</form>
-					
+
 			{if ship.consignable}
 				<form action="./ds" method="post">
 					<div>
@@ -235,7 +242,7 @@
 						<input type="submit" value="&uuml;bergeben" />
 					</div>
 				</form>
-			{/endif}	
+			{/endif}
 		</td>
 		<td class="schiff" style="width:230px" valign="top" align="center" colspan="2">
 			{plugin.navigation}
@@ -252,7 +259,7 @@
 	</table>
 	<div>
 		<br />
-	
+
 	{if ship.scriptparseroutput}
 		{!table_begin 850,left}
 			{ship.scriptparseroutput}

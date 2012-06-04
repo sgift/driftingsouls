@@ -2,17 +2,17 @@ if( typeof OLpageDefaults !== 'undefined' ) {
 	OLpageDefaults(TEXTPADDING,0,TEXTFONTCLASS,'tooltip',FGCLASS,'tooltip',BGCLASS,'tooltip');
 }
 
-function ask(text,url) 
+function ask(text,url)
 {
 	if( confirm(text) ) {
 		window.location.href = url;
 	}
 }
 
-function getDsUrl() 
+function getDsUrl()
 {
 	var url = location.href;
-	if( url.indexOf('?') > -1 ) 
+	if( url.indexOf('?') > -1 )
 	{
 		url = url.substring(0,url.indexOf('?'));
 	}
@@ -24,18 +24,18 @@ function getDsUrl()
 		init : function(options) {
 			var content = this.html();
 			this.empty();
-			
+
 			this.addClass('gfxbox');
 			this.addClass('popupbox');
 			this.append("<div class='content'></div><button class='closebox'>schließen</button>");
 			var contentEl = this.find('.content');
 			contentEl.append(content);
-			
+
 			var self = this;
 			this.find('button.closebox').bind('click.dsbox', function() {
 				methods.hide.apply(self, arguments);
 			});
-			
+
 			if( typeof options !== 'undefined' ) {
 				if( typeof options.draggable !== 'undefined' && options.draggable ) {
 					this.draggable();
@@ -71,12 +71,18 @@ function getDsUrl()
 			this.trigger('closed');
 		}
 	};
-	
+
 	$.fn.dsBox = function(method) {
 		if( !this.hasClass('gfxbox') )	{
-			methods.init.apply( this, Array.prototype.slice.call( arguments, 1 ) );
+			alert(arguments.length);
+			if( arguments.length > 1 ) {
+				methods.init.apply( this, Array.prototype.slice.call( arguments, 1 ) );
+			}
+			else {
+				methods.init.apply( this, arguments );
+			}
 		}
-				
+
 		if ( methods[method] ) {
 			methods[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ));
 		}
@@ -86,7 +92,7 @@ function getDsUrl()
 		return this;
 	};
 })( jQuery );
-			
+
 var ShiptypeBox = {
 	show : function(shiptypeId)
 	{
@@ -99,12 +105,12 @@ var ShiptypeBox = {
 			var self = this;
 			box.find('button.closebox').bind('click', function() {self.hide()});
 		}
-		
+
 		box.css('display', 'block');
-		
+
 		var url = getDsUrl();
 		var params = {
-				module:'schiffinfo', 
+				module:'schiffinfo',
 				action:'default',
 				ship:shiptypeId
 		};
@@ -115,7 +121,7 @@ var ShiptypeBox = {
 	{
 		var boxContent = jQuery('#shiptypeBox .content');
 		boxContent.children().remove();
-		
+
 		var table = jQuery(result).find('#infotable');
 		if( table.size() == 0 ) {
 			boxContent.append('<div>Fehler bei Ermittlung der Schiffsdaten.</div>');
@@ -127,7 +133,7 @@ var ShiptypeBox = {
 	hide : function()
 	{
 		var box = jQuery('#shiptypeBox');
-		
+
 		box.css('display', 'none');
 		var content = box.find('.content');
 		content.children().remove();
@@ -148,15 +154,15 @@ var DsTooltip = {
 		if( content.size() == 0 ) {
 			return;
 		}
-		
+
 		var offset = target.offset();
-		
+
 		var ttdiv = $('#tt_div');
 		ttdiv.empty();
 		ttdiv.append(content.html());
-		
+
 		var height = target.height();
-		
+
 		// Inline-Elemente nehmen nicht die Hoehe ihrer innenliegenden Bilder an.
 		// Daher die Hoehe des ersten Bildes nehmen (Annahnme: es gibt im Regelfall nur ein Bild
 		// und das ist das Groesste)
@@ -164,10 +170,10 @@ var DsTooltip = {
 		if( img.size() > 0 ) {
 			height = Math.max(height, target.find('img').height());
 		}
-		
+
 		if( height < 40 ) {
 			$(document).unbind('mousemove', DsTooltip._move);
-			
+
 			// Die berechnete Hoehe darf nicht(!) fuer die Positionierung
 			// verwendet werden
 			ttdiv.css({
@@ -182,7 +188,7 @@ var DsTooltip = {
 				top : (event.pageY+8)+'px',
 				left : (event.pageY+8)+"px"
 			});
-			
+
 			$(document).bind('mousemove', DsTooltip._move);
 		}
 	},
@@ -190,7 +196,7 @@ var DsTooltip = {
 		var ttdiv = $('#tt_div');
 		ttdiv.empty();
 		ttdiv.css('display','none');
-		
+
 		$(document).unbind('mousemove', DsTooltip._move);
 	},
 	_move : function(event) {
@@ -204,7 +210,7 @@ var DsTooltip = {
 		root.find('.tooltip')
 			.bind({
 				mouseover : function(event) {
-					DsTooltip.show(event); 
+					DsTooltip.show(event);
 					return false;
 				},
 				mouseout :  function(event) {
