@@ -1621,4 +1621,7 @@
     <update type="data" datum="2012-05-29"><![CDATA[
     	insert into items values (442, 'Versiegelte Andockklappen', 'data/items/open.gif', null, 5, 'module:misc&0&flags,nicht_kaperbar', 'ultra-rare', 'Versiegelte Andockklappen blockieren jeden ernsthaften Kaperversuch.', 0, 5, 0, 0);
     ]]></update>
+    <update type="structure" datum="2012-06-05"><![CDATA[
+    	ALTER TABLE ship_script_data MODIFY shipid INT NOT NULL auto_increment;
+    ]]></update>
 </updates>
