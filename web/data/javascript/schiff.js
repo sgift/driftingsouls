@@ -1,14 +1,14 @@
 var Schiff = {
 	openImpObjects : function(system) {
-		var el = jQuery("#impobjectsbox");
+		var el = $("#impobjectsbox");
 		var button = jQuery("#systeminfo");
-		el.css({
-			display:'block',
-			left:(button.offset().left+button.width())+"px",
-			top:(button.offset().top+button.height())+"px"
+
+		el.dsBox('show', {
+			x:button.offset().left+button.width(),
+			y:button.offset().top+button.height(),
+			draggable:true
 		});
-		el.draggable();
-		
+
 		var self = this;
 		var url = getDsUrl();
 		jQuery.getJSON(url,
@@ -24,8 +24,8 @@ var Schiff = {
 	},
 	__renderImpObjects : function(data) {
 		var content = jQuery('#impobjectsbox .content');
-		content.children().remove();
-		
+		content.empty();
+
 		var text = "<h3>Wichtige Objekte in "+data.system.name+" ("+data.system.id+")</h3>";
 		text += "<ul>";
 		if( data.jumpnodes.length > 0 ) {
@@ -56,9 +56,5 @@ var Schiff = {
 			text += "</dl></li>";
 		}
 		content.append(text);
-	},
-	closeImpObjects : function() {
-		var el = jQuery("#impobjectsbox");
-		el.css('display', 'none');
 	}
 };

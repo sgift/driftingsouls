@@ -15,10 +15,8 @@
 {/endif}
 </div>
 {if ship.showui}
-	<div id="impobjectsbox" class="gfxbox">
-		<div class="content"></div>
-		<button onclick="Schiff.closeImpObjects()">schließen</button>
-	</div>
+	<div id="impobjectsbox"></div>
+
 	<table class="show" cellspacing="3" cellpadding="3">
 	<tr>
 		<td class="schiff">
@@ -184,7 +182,8 @@
 					$('#moduleextBox').dsBox({
 						centerX:true,
 						width:300,
-						height:300
+						height:300,
+						draggable:true
 					});
 				</script>
 				<a class="noborder" onclick="$('#moduleextBox').dsBox('show')" href="#">

@@ -74,7 +74,6 @@ function getDsUrl()
 
 	$.fn.dsBox = function(method) {
 		if( !this.hasClass('gfxbox') )	{
-			alert(arguments.length);
 			if( arguments.length > 1 ) {
 				methods.init.apply( this, Array.prototype.slice.call( arguments, 1 ) );
 			}
