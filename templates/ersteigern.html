@@ -1,11 +1,12 @@
+
 <table class="show" cellspacing="2" cellpadding="2">
 <tr>
 <td class="noBorderS">
 	<div align="center">
 		<span class="verysmallfont">
 			<a style="font-size:12px" class="profile" name="factionmenu" id="factionmenu"
-				onclick="javascript:overlib('{global.factionmenu}', REF,'factionmenu', REFY,22,FGCLASS,'gfxtooltip',BGCLASS,'gfxclass',TEXTFONTCLASS,'gfxclass',NOCLOSE,STICKY);" 
-				onmouseout="return nd();" 
+				onclick="javascript:overlib('{global.factionmenu}', REF,'factionmenu', REFY,22,FGCLASS,'gfxtooltip',BGCLASS,'gfxclass',TEXTFONTCLASS,'gfxclass',NOCLOSE,STICKY);"
+				onmouseout="return nd();"
 				href="#">{global.faction.name}<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_dropdown.gif" alt="" /></a>
 			<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
 			{user.konto} RE
@@ -54,7 +55,7 @@
 	{if show.newcoords}
 		Neue Lieferkoordinate gespeichert<br /><br />
 	{/endif}
-	
+
 	{if show.message}
 		{show.message}<br /><br />
 	{/endif}
@@ -112,7 +113,7 @@
 		{!table_end}
 		<br />
 	{/endif}
-	
+
 	{!table_begin 630,left}
 		<table class="noBorderX" cellspacing="3" cellpadding="3" width="100%">
 		<tr><td class="noBorderX" align="center" style="width:170px">Typ</td><td class="noBorderX">Gebot</td><td class="noBorderX">H&ouml;chstbietender</td><td class="noBorderX">Dauer</td></tr>
@@ -157,7 +158,7 @@
 			<td class="noBorderX">{entry.dauer}</td>
 			<td class="noBorderX" align="center">
 				{if entry.ownauction}
-					<span style="color:yellow">Eigene Versteigerung</span> 
+					<span style="color:yellow">Eigene Versteigerung</span>
 				{else}
 					{!link_to &uuml;berbieten, bidEntry, auk:$entry.aukid, bid:0, faction:$global.faction}
 				{/endif}
@@ -205,7 +206,7 @@
 		<tr>
 		{/endif}
 		<!-- END angebote.item -->
-		
+
 		<!-- BEGIN angebote.emptyitem -->
 			<td class="noBorderS" width="25%">&nbsp;</td>
 		<!-- END angebote.emptyitem -->
@@ -433,7 +434,7 @@
 		</div>
 	{!table_end}
 {/endif}
-{if show.other}	
+{if show.other}
 	<div class="smallfont">
 		<br />
 		<br />Kurse:<br />
@@ -441,17 +442,19 @@
 
 	<!-- BEGIN kurse.listitem -->
 		<div class="gfxbox kursbox"><div class="content">
-			<span style="text-decoration:underline">{posten.name}:</span><br />			
-			{!link_to $posten.owner.name, default, css_class:profile, module:userprofile, user:$posten.owner.id}<br />
-			{posten.koords.system}:{posten.koords.x}/{posten.koords.y}<br />
+			<span style="text-decoration:underline">{posten.name}:</span><br />
+			{if posten.owner.id}{!link_to $posten.owner.name, default, css_class:profile, module:userprofile, user:$posten.owner.id}<br />{/endif}
+			{if posten.koords.system}{posten.koords.system}:{posten.koords.x}/{posten.koords.y}<br />{/endif}
+			<br />
 			<!-- BEGIN kurse.waren.listitem -->
-				<a class="noborder" class="tooltip forschinfo" href="./ds?module=iteminfo&amp;itemlist={ware.id}">
+				<a class="tooltip" href="./ds?module=iteminfo&amp;itemlist={ware.id}">
 					<img src="{ware.image}" />
+					{if ware.preis}{ware.preis} RE{else}Kein bedarf{/endif}
 					<span class="ttcontent">
 						<span class="libwarentt"><img align="left" src="{ware.image}" alt="{ware.plainname}" />{ware.plainname}</span>
 					</span>
-				</a>					
-				{if ware.preis}{ware.preis} RE{else}Kein bedarf{/endif}<br />
+				</a>
+				<br />
 			<!-- END kurse.waren.listitem -->
 		</div></div>
 	<!-- END kurse.listitem -->
@@ -542,7 +545,7 @@
 			<form name="form_ganytrans" action="./ds" method="post">
 				<div style="text-align:center">
 					{!form_create_hidden shopOrderGanymede, faction:$global.faction}
-		
+
 					<table class="noBorderX" width="90%">
 					<tr>
 						<td class="noBorderX" style="width:150px; text-align:right">
@@ -632,7 +635,7 @@
 			<div style="text-align:center">
 				{!form_create_hidden shopOrder, faction:$global.faction, shopentry:$order.entry, ordercount:$order.count}
 				<input type="text" name="ordersys" size="4" value="0" /> :
-				<input type="text" name="orderx" size="4" value="0" /> / 
+				<input type="text" name="orderx" size="4" value="0" /> /
 				<input type="text" name="ordery" size="4" value="0" />
 				<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
 				<input type="submit" value="bestellen" style="width:150px" />
@@ -711,7 +714,7 @@
 					{!link_to $orderentry.owner.name,default,module:userprofile,css_class:profile,user:$orderentry.owner}
 				</td>
 				<td class="noBorderX">
-					&nbsp;{orderentry.count}x 
+					&nbsp;{orderentry.count}x
 					<a class="forschinfo" href="{orderentry.link}">
 						{orderentry.name}
 					</a>
