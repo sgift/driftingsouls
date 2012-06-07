@@ -1075,8 +1075,10 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		for( int i=0; i < autogtuacts.length; i++ )
 		{
 			String[] split = StringUtils.split(autogtuacts[i],":");
-			
-			acts.add(new AutoGTUAction(Resources.fromString(split[0]), Integer.parseInt(split[1]), Long.parseLong(split[2])) );
+			ResourceID rid = Resources.fromString(split[0]);
+			if( rid != null ) {
+				acts.add(new AutoGTUAction(rid, Integer.parseInt(split[1]), Long.parseLong(split[2])) );
+			}
 		}
 		this.autoGtuActsObj = acts;
 		

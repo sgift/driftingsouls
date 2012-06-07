@@ -134,7 +134,7 @@ public abstract class UnitOfWork<T>
 								// Parsen der Fehlermeldung nicht moeglich - normal weiter machen 
 							}
 						}
-						
+						e.printStackTrace();
 						Common.mailThrowable(e, this.name+" Exception", "on flush");
 					}
 					
@@ -183,6 +183,7 @@ public abstract class UnitOfWork<T>
 				db.evict(workObject);
 			}
 			
+			e.printStackTrace();
 			Common.mailThrowable(e, name+" Exception", "Object: " + workObject);
 			
 			return false;
