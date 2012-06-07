@@ -4,7 +4,7 @@
 	{!table_end}
 	<br />
 	{if kapern.battle}
-		{!link_to ur Schlacht, default, module:angriff, css_class:error, battle:$kapern.battle} 
+		{!link_to ur Schlacht, default, module:angriff, css_class:error, battle:$kapern.battle}
 	{else}
 		{!link_to Zur&uuml;ck zur Schiffsliste, default, module:schiffe, css_class:back} |
 		{!link_to Zur&uuml;ck zum Schiff, default, css_class:back, module:schiff, ship:$ownship.id}<br />
@@ -13,7 +13,7 @@
 {if kapern.showmenu}
 	{targetship.name} ist {targetship.status}<br /><br />
 	{if menu.showpluendern}
-		{!link_to Schiff pl&uuml;ndern, default, module:pluendern, from:$ownship.id, to:$targetship.id}<br />
+		{!link_to Schiff pl&uuml;ndern, default, module:pluendern, from:$ownship.id, to:$targetship.id, fromkapern:1}<br />
 	{/endif}
 	{if menu.showkapern}
 		{!link_to Schiff kapern, erobern, ship:$ownship.id, tar:$targetship.id}<br />
