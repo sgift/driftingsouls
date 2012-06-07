@@ -494,7 +494,7 @@ public abstract class BasicUser {
 	 * Setzt die Email-Adresse des Spielers.
 	 * @param email Die Email
 	 */
-	protected void setEmail(String email) {
+	public void setEmail(String email) {
 		this.email = email;
 	}
 
@@ -527,7 +527,7 @@ public abstract class BasicUser {
 	 * Setzt den Zugriffslevel den Users auf Adminfunktionen.
 	 * @param accesslevel Der Level
 	 */
-	protected void setAccesslevel(int accesslevel) {
+	public void setAccesslevel(int accesslevel) {
 		this.accesslevel = accesslevel;
 	}
 

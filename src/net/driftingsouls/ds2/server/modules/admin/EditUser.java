@@ -36,7 +36,7 @@ import net.driftingsouls.ds2.server.modules.AdminController;
 
 /**
  * Aktualisierungstool fuer die Werte eines Spielers.
- * 
+ *
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Spieler", name = "Spieler editieren")
@@ -48,7 +48,7 @@ public class EditUser implements AdminPlugin
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
-		
+
 		int userid = context.getRequest().getParameterInt("userid");
 
 		// Update values?
@@ -63,15 +63,15 @@ public class EditUser implements AdminPlugin
 		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
 		echo.append("</form>");
 		echo.append(Common.tableEnd());
-		
+
 		if(update && userid != 0)
 		{
 			User user = (User)db.get(User.class, userid);
-			
+
 			boolean disableAccount = context.getRequest().getParameterInt("blockuser") == 1 ? true : false;
-			
+
 			user.setDisabled(disableAccount);
-			
+
 			user.setNickname(context.getRequest().getParameterString("name"));
 			user.setRace(context.getRequest().getParameterInt("race"));
 			user.setVacationCount(context.getRequest().getParameterInt("vacation"));
@@ -84,16 +84,18 @@ public class EditUser implements AdminPlugin
 			user.setMedals(context.getRequest().getParameterString("medals"));
 			user.setVacpoints(context.getRequest().getParameterInt("vacationpoints"));
 			user.setSpecializationPoints(context.getRequest().getParameterInt("specializationpoints"));
-			
+			user.setEmail(context.getRequest().getParameterString("email"));
+			user.setAccesslevel(context.getRequest().getParameterInt("accesslevel"));
+
 			doVacation(user);
-			
+
 			echo.append("<p>Update abgeschlossen.</p>");
 		}
-		
+
 		if(userid != 0)
 		{
 			User user = (User)db.get(User.class, userid);
-			
+
 			if(user == null)
 			{
 				return;
@@ -107,12 +109,14 @@ public class EditUser implements AdminPlugin
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("<input type=\"hidden\" name=\"userid\" value=\"" + userid + "\" />\n");
 			echo.append("<tr><td class=\"noBorderX\">Name: </td><td><input type=\"text\" size=\"40\" name=\"name\" value=\"" + user.getNickname() + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderX\">Email: </td><td><input type=\"text\" size=\"40\" name=\"email\" value=\"" + user.getEmail() + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderX\">Accesslevel: </td><td><input type=\"text\" size=\"40\" name=\"accesslevel\" value=\"" + user.getAccessLevel() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\">Rasse: </td><td><select size=\"1\" name=\"race\" \">");
 			for(Rasse race: Rassen.get())
 			{
 				echo.append("<option value=\""+ race.getID() +"\" " + (race.getID() == user.getRace() ? "selected=\"selected\"" : "") + " />"+race.getName()+"</option>");
 			}
-			echo.append("</select></td></tr>\n");	
+			echo.append("</select></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\">Vacation: </td><td><input type=\"text\" size=\"40\" name=\"vacation\" value=\"" + user.getVacationCount() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\">Wait4Vac: </td><td><input type=\"text\" size=\"40\" name=\"wait4vac\" value=\"" + user.getWait4VacationCount() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\">Konto: </td><td><input type=\"text\" size=\"40\" name=\"account\" value=\"" + user.getKonto() + "\"></td></tr>\n");
@@ -143,7 +147,7 @@ public class EditUser implements AdminPlugin
 			echo.append(Common.tableEnd());
 		}
 	}
-	
+
 	private void doVacation(User user)
 	{
 		if(user.getVacationCount() == 0)
@@ -156,14 +160,14 @@ public class EditUser implements AdminPlugin
 			//Code geklaut aus RestTick - ueberarbeiten
 			String name = user.getName();
 			String nickname = user.getNickname();
-			
+
 			if( name.length() > 249 ) {
 				name = name.substring(0, 249);
 			}
 			if( nickname.length() > 249 ) {
 				nickname = nickname.substring(0, 249);
 			}
-			
+
 			user.setName(name+" [VAC]");
 			user.setNickname(nickname+" [VAC]");
 		}
