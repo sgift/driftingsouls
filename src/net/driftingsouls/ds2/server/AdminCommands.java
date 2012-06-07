@@ -235,6 +235,21 @@ public class AdminCommands {
 			}
 			ship.setHeat(Integer.parseInt(command[3]));
 		}
+		else if( command[2].equals("engine") ) {
+			if( !NumberUtils.isNumber(command[3]) ) {
+				return "Antrieb ungueltig";
+			}
+			ship.setEngine(Integer.parseInt(command[3]));
+		}
+		else if( command[2].equals("weapons") ) {
+			if( !NumberUtils.isNumber(command[3]) ) {
+				return "Waffen ungueltig";
+			}
+			ship.setWeapons(Integer.parseInt(command[3]));
+		}
+		else if( command[2].equals("jumptarget") ) {
+			ship.setJumpTarget(command[3]);
+		}
 		else if( command[2].equals("e") ) {
 			if( !NumberUtils.isNumber(command[3]) ) {
 				return "Energie ungueltig";
