@@ -55,33 +55,31 @@ public class TagResource implements BBCodeFunction {
 			}
 			
 			
-			if( rid.isItem() ) {			
-				String unknstr = "Unbekannter Gegenstand";
-				if( count != 0 ) {
-					unknstr = Common.ln(count)+"x "+unknstr;
-				}
-				
-				Item item = (Item)db.get(Item.class, rid.getItemID());
-				
-				if( item == null ) {
-					return unknstr;	
-				}
-				
-				User user = (User)context.getActiveUser();
-				if( (user == null) && (item.getAccessLevel() > 0 || item.isUnknownItem() )) {
+			String unknstr = "Unbekannter Gegenstand";
+			if( count != 0 ) {
+				unknstr = Common.ln(count)+"x "+unknstr;
+			}
+			
+			Item item = (Item)db.get(Item.class, rid.getItemID());
+			
+			if( item == null ) {
+				return unknstr;	
+			}
+			
+			User user = (User)context.getActiveUser();
+			if( (user == null) && (item.getAccessLevel() > 0 || item.isUnknownItem() )) {
+				return unknstr;
+			}
+			else if( user != null ){
+				if( item.getAccessLevel() > user.getAccessLevel() ) {		
 					return unknstr;
 				}
-				else if( user != null ){
-					if( item.getAccessLevel() > user.getAccessLevel() ) {		
-						return unknstr;
-					}
-				
-					if( item.isUnknownItem() && !user.isKnownItem(item.getID()) && (user.getAccessLevel() < 15) ) {
-						return unknstr;
-					}
-				}	
-			}
-	
+			
+				if( item.isUnknownItem() && !user.isKnownItem(item.getID()) && (user.getAccessLevel() < 15) ) {
+					return unknstr;
+				}
+			}	
+
 			Cargo cargo = new Cargo();
 			if( count != 0 ) {
 				cargo.addResource(rid, count);

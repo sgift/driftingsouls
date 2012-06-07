@@ -57,7 +57,7 @@ public class GtuPrices implements AdminPlugin {
 					"GROUP BY type ORDER BY avprice DESC" );
 		while( rt.next() ) {
 			echo.append("<tr><td class=\"noBorderS\">");
-			Cargo cargo = new Cargo( Cargo.Type.STRING, rt.getString("type"));
+			Cargo cargo = new Cargo( Cargo.Type.AUTO, rt.getString("type"));
 			cargo.setOption( Cargo.Option.SHOWMASS, false );
 			ResourceEntry res = cargo.getResourceList().iterator().next();
 				

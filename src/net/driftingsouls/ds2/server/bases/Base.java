@@ -1766,26 +1766,23 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		for(ResourceEntry entry : nettoproduction.getResourceList())
 		{
 			// Auf Spawn Resource pruefen und ggf Produktion anpassen
-			if(entry.getId().isItem()) 
-			{
-				Item item = (Item)db.get(Item.class,entry.getId().getItemID());
-				if(item.isSpawnableRess()) {
-					// Genug auf dem Asteroiden vorhanden
-					// und abziehen
-					if(getSpawnableRessAmount(item.getID()) > nettoproduction.getResourceCount(entry.getId())) {
-						setSpawnableRessAmount(item.getID(), getSpawnableRessAmount(item.getID()) - nettoproduction.getResourceCount(entry.getId()));
-					}
-					// Ueberhaupt nichts auf dem Asteroiden vorhanden
-					else if (getSpawnableRessAmount(item.getID()) == 0) {
-						// Dann ziehen wir die Production eben ab
-						nettoproduction.setResource(entry.getId(), 0);
-					}
-					// Es kann nicht mehr die volle Produktion gefoerdert werden
-					else {
-						// Produktion drosseln und neue Ressource spawnen
-						nettoproduction.setResource(entry.getId(), getSpawnableRessAmount(item.getID()));
-						respawnRess(item.getID());
-					}
+			Item item = (Item)db.get(Item.class,entry.getId().getItemID());
+			if(item.isSpawnableRess()) {
+				// Genug auf dem Asteroiden vorhanden
+				// und abziehen
+				if(getSpawnableRessAmount(item.getID()) > nettoproduction.getResourceCount(entry.getId())) {
+					setSpawnableRessAmount(item.getID(), getSpawnableRessAmount(item.getID()) - nettoproduction.getResourceCount(entry.getId()));
+				}
+				// Ueberhaupt nichts auf dem Asteroiden vorhanden
+				else if (getSpawnableRessAmount(item.getID()) == 0) {
+					// Dann ziehen wir die Production eben ab
+					nettoproduction.setResource(entry.getId(), 0);
+				}
+				// Es kann nicht mehr die volle Produktion gefoerdert werden
+				else {
+					// Produktion drosseln und neue Ressource spawnen
+					nettoproduction.setResource(entry.getId(), getSpawnableRessAmount(item.getID()));
+					respawnRess(item.getID());
 				}
 			}
 		}

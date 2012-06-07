@@ -35,7 +35,6 @@ import java.util.regex.Pattern;
 
 import net.driftingsouls.ds2.server.framework.Common;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

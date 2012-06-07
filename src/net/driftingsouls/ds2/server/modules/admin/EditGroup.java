@@ -27,8 +27,6 @@ import java.util.Map;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemID;
-import net.driftingsouls.ds2.server.cargo.WarenID;
-import net.driftingsouls.ds2.server.config.ResourceConfig;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -132,12 +130,6 @@ public class EditGroup implements AdminPlugin
 				
 				Cargo cargo = new Cargo();
 				
-				for(ResourceConfig.Entry resource: ResourceConfig.getResources())
-				{
-					long amount = context.getRequest().getParameterInt(""+resource.getId());
-					cargo.addResource(new WarenID(resource.getId()), amount);
-				}
-				
 				for(Item item: itemlist)
 				{
 					long amount = context.getRequest().getParameterInt("i"+item.getID());
@@ -202,11 +194,6 @@ public class EditGroup implements AdminPlugin
 				echo.append("<option value=\""+ alarm.getKey() +"\"/>"+alarm.getValue()+"</option>");
 			}
 			echo.append("</select></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\"></td><td class=\"noBorderS\">Menge</td></tr>");
-			for(ResourceConfig.Entry resource: ResourceConfig.getResources())
-			{
-				echo.append("<tr><td class=\"noBorderS\"><img src=\""+resource.getImage()+"\" alt=\"\" />"+resource.getName()+": </td><td><input type=\"text\" name=\""+resource.getId()+"\"></td></tr>");
-			}
 			echo.append("<tr><td class=\"noBorderS\"></td><td class=\"noBorderS\">Menge</td><td class=\"noBorderS\">Nutzungen</td></tr>");
 			for(Item item: itemlist)
 			{

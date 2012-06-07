@@ -340,23 +340,14 @@ public class ErsteigernController extends TemplateGenerator
 		@Override
 		public String getLink()
 		{
-			if( resourceEntry.getId().isItem() )
-			{
-				return Common.buildUrl("details", "module", "iteminfo", "item", resourceEntry
-						.getId().getItemID());
-			}
-
-			return "#";
+			return Common.buildUrl("details", "module", "iteminfo", "item", resourceEntry
+					.getId().getItemID());
 		}
 
 		@Override
 		public String getAvailabilityName()
 		{
-			if( resourceEntry.getId().isItem() || (this.getAvailability() != 1) )
-			{
-				return super.getAvailabilityName();
-			}
-			return "Nur noch wenige Einheiten vorhanden";
+			return super.getAvailabilityName();
 		}
 	}
 

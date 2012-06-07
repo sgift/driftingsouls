@@ -235,7 +235,7 @@ class HandleUpgradeJob implements TaskHandler
 			}
 		}
 		message += "[*] Es müssen [resource=i"+ITEM_BBS+"|0|0]"+(order.getTiles().getMiningExplosive() + order.getCargo().getMiningExplosive())+"[/resource] "+
-			"und [resource="+Resources.ERZ.getID()+"]"+(order.getTiles().getOre()+order.getCargo().getOre())+"[/resource] auf dem Asteroiden vorhanden sein.\n";
+			"und [resource="+Resources.ERZ.toString()+"]"+(order.getTiles().getOre()+order.getCargo().getOre())+"[/resource] auf dem Asteroiden vorhanden sein.\n";
 		
 		message += "[/list]\n";
 		message += "Bitte erfüllen sie die genannten Bedingungen zeitnah, da andernfalls ihre Bestellung storniert werden muss.\n\n";

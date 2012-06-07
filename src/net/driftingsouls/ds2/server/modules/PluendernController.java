@@ -271,7 +271,7 @@ public class PluendernController extends TemplateGenerator {
 				}
 
 				// Falls es sich um ein unbekanntes Item handelt, dann dem Besitzer des Zielschiffes bekannt machen
-				if( (transt > 0) && res.getId().isItem() ) {
+				if( transt > 0 ) {
 					int itemid = res.getId().getItemID();
 					Item item = (Item)db.get(Item.class, itemid);
 					if( item.isUnknownItem() ) {
@@ -314,7 +314,7 @@ public class PluendernController extends TemplateGenerator {
 				}
 
 				// Falls es sich um ein unbekanntes Item handelt, dann dieses dem Spieler bekannt machen
-				if( (transf > 0) && res.getId().isItem() ) {
+				if( transf > 0 ) {
 					int itemid = res.getId().getItemID();
 					Item item = (Item)db.get(Item.class, itemid);
 					if( item.isUnknownItem() ) {

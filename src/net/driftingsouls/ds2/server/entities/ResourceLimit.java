@@ -44,14 +44,7 @@ public class ResourceLimit {
 		 */
 		public ResourceLimitKey(Ship ship, ResourceID resourceId) {
 			this.shipid = ship.getId();
-			if(resourceId.isItem())
-			{
-				this.resourceid = -1 * resourceId.getItemID();
-			}
-			else
-			{
-				this.resourceid = resourceId.getID();
-			}
+			this.resourceid = -1 * resourceId.getItemID();
 		}
 
 		/**

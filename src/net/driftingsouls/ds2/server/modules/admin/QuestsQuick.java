@@ -359,7 +359,7 @@ public class QuestsQuick implements AdminPlugin {
 				tsCode.append("!COPYVAR #ship shipsource.cargo<br />\n");
 				ResourceList reslist = qquest.getReqItems().getResourceList();
 				for( ResourceEntry res : reslist ) {
-					if( res.getId().isItem() && (res.getId().getQuest() != 0) ) {
+					if( res.getId().getQuest() != 0 ) {
 						tsCode.append("!HASQUESTITEM #ship "+res.getId().getItemID()+" "+res.getCount1()+"<br />\n");
 						tsCode.append("!JLE "+qquest.getQid()+"_finish_notyet<br />\n");
 						tsCode.append("!ADDQUESTITEM #ship "+res.getId().getItemID()+" -"+res.getCount1()+"<br />\n");
@@ -385,7 +385,7 @@ public class QuestsQuick implements AdminPlugin {
 				tsCode.append("!COPYVAR #ship shipsource.cargo<br />\n");
 				ResourceList reslist = qquest.getReqItems().getResourceList();
 				for( ResourceEntry res : reslist ) {
-					if( res.getId().isItem() && (res.getId().getQuest() != 0) ) {
+					if( res.getId().getQuest() != 0 ) {
 						tsCode.append("!ADDQUESTITEM #ship "+res.getId().getItemID()+" -"+res.getCount1()+"<br />\n");
 					}
 					else {
@@ -531,7 +531,7 @@ public class QuestsQuick implements AdminPlugin {
 				
 				ResourceList reslist = qquest.getStartItems().getResourceList();
 				for( ResourceEntry res : reslist ) {
-					if( res.getId().isItem() && (res.getId().getQuest() != 0) ) {
+					if( res.getId().getQuest() != 0 ) {
 						echo.append("!ADDQUESTITEM #ship "+res.getId().getItemID()+" "+res.getCount1()+"<br />\n");
 					}
 					else {

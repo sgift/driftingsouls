@@ -50,30 +50,17 @@ class ResourceIDComparator implements Comparator<ResourceID>, Serializable
 	
 	private int compareEntries(ResourceID id1, ResourceID id2)
 	{
-		// Falls es Waren sind...
-		if( !id1.isItem() && !id2.isItem() )
+		// IDs vergleichen
+		if( id1.getItemID() != id2.getItemID() )
 		{
-			return id1.getID() > id2.getID() ? 1 : (id1.getID() == id2.getID() ? 0 : -1);
+			return id1.getItemID() > id2.getItemID() ? 1 : -1;
 		}
-		
-		// Items...
-		if( id1.isItem() && id2.isItem() )
+		// Quests vergleichen
+		if( id1.getQuest() != id2.getQuest() )
 		{
-			// IDs vergleichen
-			if( id1.getItemID() != id2.getItemID() )
-			{
-				return id1.getItemID() > id2.getItemID() ? 1 : -1;
-			}
-			// Quests vergleichen
-			if( id1.getQuest() != id2.getQuest() )
-			{
-				return id1.getQuest() > id2.getQuest() ? 1 : -1;
-			}
-			// Benutzungen vergleichen
-			return id1.getUses() > id2.getUses() ? 1 : (id1.getUses() == id2.getUses() ? 0 : -1);
+			return id1.getQuest() > id2.getQuest() ? 1 : -1;
 		}
-		
-		// Einmal Ware und einmal Item...
-		return id1.isItem() ? 1 : -1;
+		// Benutzungen vergleichen
+		return id1.getUses() > id2.getUses() ? 1 : (id1.getUses() == id2.getUses() ? 0 : -1);
 	}
 }

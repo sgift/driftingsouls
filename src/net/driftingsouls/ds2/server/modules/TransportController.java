@@ -717,7 +717,7 @@ public class TransportController extends TemplateGenerator {
 							transfer = true;
 							
 							// Evt unbekannte Items bekannt machen
-							if( res.getId().isItem() && (getUser().getId() != to.getOwner()) ) {
+							if( getUser().getId() != to.getOwner() ) {
 								Item item = (Item)db.get(Item.class, res.getId().getItemID());
 								if( item.isUnknownItem() ) {
 									User auser = (User)getDB().get(User.class, to.getOwner());

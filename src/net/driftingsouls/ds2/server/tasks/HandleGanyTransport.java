@@ -93,10 +93,6 @@ class HandleGanyTransport implements TaskHandler
 
 		FactionShopEntry entry = order.getShopEntry();
 		if( entry.getType() != 2 ) {
-			order = null;
-		}
-
-		if( order != null ) {
 			String[] tmp = StringUtils.split(order.getAddData(), '@');
 			int ganyid = Integer.parseInt(tmp[0]);
 			tmp = StringUtils.split(tmp[1], "->");

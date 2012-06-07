@@ -26,8 +26,6 @@ import java.util.Map;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemID;
-import net.driftingsouls.ds2.server.cargo.WarenID;
-import net.driftingsouls.ds2.server.config.ResourceConfig;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -101,12 +99,6 @@ public class EditShip implements AdminPlugin
 			
 			Cargo cargo = new Cargo();
 			
-			for(ResourceConfig.Entry resource: ResourceConfig.getResources())
-			{
-				long amount = context.getRequest().getParameterInt(""+resource.getId());
-				cargo.addResource(new WarenID(resource.getId()), amount);
-			}
-			
 			for(Item item: itemlist)
 			{
 				long amount = context.getRequest().getParameterInt("i"+item.getID());
@@ -178,12 +170,6 @@ public class EditShip implements AdminPlugin
 			}
 			echo.append("</select></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Flags: </td><td><input type=\"text\" name=\"status\" value=\"" + ship.getStatus() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\"></td><td class=\"noBorderS\">Menge</td></tr>");
-			for(ResourceConfig.Entry resource: ResourceConfig.getResources())
-			{
-				long amount = ship.getCargo().getResourceCount(new WarenID(resource.getId()));
-				echo.append("<tr><td class=\"noBorderS\"><img src=\""+resource.getImage()+"\" alt=\"\" />"+resource.getName()+": </td><td><input type=\"text\" name=\""+resource.getId()+"\" value=\"" + amount + "\"></td></tr>");
-			}
 			echo.append("<tr><td class=\"noBorderS\"></td><td class=\"noBorderS\">Menge</td><td class=\"noBorderS\">Nutzungen</td></tr>");
 			for(Item item: itemlist)
 			{

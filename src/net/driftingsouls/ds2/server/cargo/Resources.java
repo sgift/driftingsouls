@@ -33,11 +33,6 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  */
 public class Resources {
 	/**
-	 * Die Spezialresource Items.
-	 */
-	public static final ResourceID ITEMS = new WarenID(18);
-	
-	/**
 	 * Die Resource Nahrung.
 	 */
 	public static final ResourceID NAHRUNG = new ItemID(16);
@@ -143,11 +138,6 @@ public class Resources {
 		org.hibernate.Session db = context.getDB();
 		Cargo resList = new Cargo();
 		
-		for( int i=0; i < Cargo.MAX_RES; i++ ) 
-		{
-			resList.addResource(new WarenID(i), 1);
-		}
-		
 		List<Item> items = Common.cast(db.createQuery("from Item").list());
 		
 		for( Item item : items )
@@ -173,11 +163,7 @@ public class Resources {
 			return null;
 		}
 		ResourceID res = ItemID.fromString(rid);
-		if( res != null ) {
-			return res;
-		}
-
-		return new WarenID(Integer.parseInt(rid));
+		return res;
 	}
 	
 	/**

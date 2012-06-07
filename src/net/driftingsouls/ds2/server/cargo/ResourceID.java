@@ -25,19 +25,6 @@ package net.driftingsouls.ds2.server.cargo;
  */
 public interface ResourceID {
 	/**
-	 * Gibt die Nummer der Resource zurueck. Bei Items ist dies nicht die
-	 * ID des Items, sondern der zugeordneten Ware.
-	 * @return Die ID der Resource
-	 */
-	public int getID();
-
-	/**
-	 * Prueft, ob es sich bei der Resource um ein Item handelt.
-	 * @return <code>true</code>, falls es ein Item ist
-	 */
-	public boolean isItem();
-
-	/**
 	 * Gibt die ID des Items zurueck, falls es sich um ein Item handelt.
 	 * @return Die ID des Items
 	 */

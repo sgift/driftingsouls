@@ -26,7 +26,7 @@ import net.driftingsouls.ds2.server.framework.Common;
  * @author Christopher Jung
  *
  */
-public class ItemID extends WarenID
+public class ItemID implements ResourceID
 {
 	private int itemid;
 	private int uses;
@@ -39,7 +39,6 @@ public class ItemID extends WarenID
 	 */
 	public ItemID(int itemid)
 	{
-		super(Resources.ITEMS.getID());
 		this.itemid = itemid;
 	}
 	
@@ -55,12 +54,6 @@ public class ItemID extends WarenID
 		this(itemid);
 		this.uses = uses;
 		this.quest = quest;
-	}
-	
-	@Override
-	public boolean isItem()
-	{
-		return true;
 	}
 	
 	@Override
@@ -148,7 +141,7 @@ public class ItemID extends WarenID
 		}
 		ItemID id = (ItemID)obj;
 		
-		return (id.getID() == getID()) && (id.getItemID() == getItemID()) && (id.getUses() == getUses()) && (id.getQuest() == getQuest());
+		return (id.getItemID() == getItemID()) && (id.getUses() == getUses()) && (id.getQuest() == getQuest());
 	}
 	
 	@Override

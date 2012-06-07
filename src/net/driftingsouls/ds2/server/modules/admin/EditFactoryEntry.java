@@ -64,11 +64,11 @@ public class EditFactoryEntry implements AdminPlugin
 			FactoryEntry entry = (FactoryEntry)db.get(FactoryEntry.class, entryid);
 			
 			if(entry != null) {
-				entry.setBuildCosts(new Cargo(Cargo.Type.STRING, context.getRequest().getParameterString("buildcosts")));
+				entry.setBuildCosts(new Cargo(Cargo.Type.AUTO, context.getRequest().getParameterString("buildcosts")));
 				entry.setRes1(context.getRequest().getParameterInt("res1"));
 				entry.setRes2(context.getRequest().getParameterInt("res2"));
 				entry.setRes3(context.getRequest().getParameterInt("res3"));
-				entry.setProduce(new Cargo(Cargo.Type.STRING, context.getRequest().getParameterString("produce")));
+				entry.setProduce(new Cargo(Cargo.Type.AUTO, context.getRequest().getParameterString("produce")));
 				entry.setDauer(BigDecimal.valueOf(Double.parseDouble(context.getRequest().getParameterString("dauer"))));
 				entry.setBuildingIds(context.getRequest().getParameterString("buildingids"));
 				

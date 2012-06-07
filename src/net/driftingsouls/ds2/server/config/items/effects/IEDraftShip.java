@@ -151,7 +151,7 @@ public class IEDraftShip extends ItemEffect {
 		draft.e = Integer.parseInt(effects[4]);
 		draft.dauer = Integer.parseInt(effects[5]);
 		draft.werftslots = Integer.parseInt(effects[6]);
-		draft.buildcosts = new UnmodifiableCargo(new Cargo(Cargo.Type.STRING, effects[7]));
+		draft.buildcosts = new UnmodifiableCargo(new Cargo(Cargo.Type.AUTO, effects[7]));
 		String[] techs = StringUtils.split(effects[8], ",");
 		draft.techs = new int[techs.length];
 		for(int i = 0; i < techs.length; i++) {
@@ -184,7 +184,7 @@ public class IEDraftShip extends ItemEffect {
 		draft.e = context.getRequest().getParameterInt("energie");
 		draft.dauer = context.getRequest().getParameterInt("dauer");
 		draft.werftslots = context.getRequest().getParameterInt("werftslots");
-		draft.buildcosts = new UnmodifiableCargo(new Cargo(Cargo.Type.STRING, context.getRequest().getParameterString("buildcosts")));
+		draft.buildcosts = new UnmodifiableCargo(new Cargo(Cargo.Type.AUTO, context.getRequest().getParameterString("buildcosts")));
 		String[] techs = StringUtils.split(context.getRequest().getParameterString("techs"), ",");
 		draft.techs = new int[techs.length];
 		for(int i = 0; i < techs.length; i++) {

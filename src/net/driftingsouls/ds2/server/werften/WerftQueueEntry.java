@@ -410,7 +410,7 @@ public class WerftQueueEntry {
 					}
 					else {
 						db.createQuery("update Ally as a set a.items=? where a.id=?")
-							.setString(0, allyitems.getData(Cargo.Type.ITEMSTRING))
+							.setString(0, allyitems.save())
 							.setInteger(1, this.werft.getOwner().getAlly().getId())
 							.executeUpdate();
 					}

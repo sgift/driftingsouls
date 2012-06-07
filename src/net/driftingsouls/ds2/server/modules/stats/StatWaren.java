@@ -39,7 +39,6 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.StatsController;
 import net.driftingsouls.ds2.server.ships.Ship;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -109,18 +108,16 @@ public class StatWaren implements Statistic {
 		ResourceList reslist = cargo.compare(ownCargo, false);
 		for( ResourceEntry res : reslist ) {
 			// Wenn die Resource ein Item ist, dann pruefen, ob dieses angezeigt werden darf
-			if( res.getId().isItem() ) {
-				int itemid = res.getId().getItemID();
-				Item item = (Item)db.get(Item.class, itemid);
-				if( item == null ) {
-					continue;
-				}
-				if( item.getAccessLevel() > user.getAccessLevel() ) {
-					continue;
-				}
-				if( item.isUnknownItem() && !user.isKnownItem(itemid) && (user.getAccessLevel() < 15) ) {
-					continue;
-				}
+			int itemid = res.getId().getItemID();
+			Item item = (Item)db.get(Item.class, itemid);
+			if( item == null ) {
+				continue;
+			}
+			if( item.getAccessLevel() > user.getAccessLevel() ) {
+				continue;
+			}
+			if( item.isUnknownItem() && !user.isKnownItem(itemid) && (user.getAccessLevel() < 15) ) {
+				continue;
 			}
 			
 			// Daten zur Resource ausgeben
@@ -134,7 +131,7 @@ public class StatWaren implements Statistic {
 			
       		// Wenn es sich um ein Item handelt und einige Positionsangaben fuer dieses Item beim Spieler
       		// vorliegen -> diese anzeigen!
-			if( res.getId().isItem() && reslocationlist.containsKey(res.getId().getItemID()) ) {
+			if( reslocationlist.containsKey(res.getId().getItemID()) ) {
 				// Die Darstellung erfolgt als Tooltip
 				StringBuilder tooltip = new StringBuilder();
 				tooltip.append("<table class='noBorderX'>");

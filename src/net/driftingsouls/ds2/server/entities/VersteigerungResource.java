@@ -70,7 +70,7 @@ public class VersteigerungResource extends Versteigerung {
 	 * @return Der Cargo
 	 */
 	public Cargo getCargo() {
-		return new Cargo(Cargo.Type.STRING, type);
+		return new Cargo(Cargo.Type.AUTO, type);
 	}
 	
 	/**
@@ -86,7 +86,7 @@ public class VersteigerungResource extends Versteigerung {
 	}
 	
 	private ResourceEntry getEntry() {
-		Cargo cargo = new Cargo(Cargo.Type.STRING, type);
+		Cargo cargo = new Cargo(Cargo.Type.AUTO, type);
 		cargo.setOption( Cargo.Option.SHOWMASS, false );
 		cargo.setOption( Cargo.Option.LARGEIMAGES, true );
 		ResourceList reslist = cargo.getResourceList();
@@ -111,11 +111,7 @@ public class VersteigerungResource extends Versteigerung {
 	@Override
 	public String getObjectUrl() {
 		ResourceID res = getEntry().getId();
-		if( res.isItem() ) {
-			return Common.buildUrl("details", "module", "iteminfo", "item", res.getItemID() );
-		}
-		
-		return "#";	
+		return Common.buildUrl("details", "module", "iteminfo", "item", res.getItemID() );
 	}
 
 	@Override

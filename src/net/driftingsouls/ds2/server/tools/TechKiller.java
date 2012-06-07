@@ -92,7 +92,7 @@ public class TechKiller extends DSApplication {
 		SQLResultRow techdata = database.first("SELECT * FROM forschungen WHERE id="+techid);
 		log("["+techdata.getString("name")+"]");
 		
-		Cargo techcargo = new Cargo( Cargo.Type.STRING, techdata.getString("costs") );
+		Cargo techcargo = new Cargo( Cargo.Type.AUTO, techdata.getString("costs") );
 
 		Cargo emptycargo = new Cargo();
 		

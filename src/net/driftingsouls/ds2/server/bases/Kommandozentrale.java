@@ -374,7 +374,7 @@ public class Kommandozentrale extends DefaultBuilding {
 				allyitems.addResource( new ItemID(itemid), 1 );
 				cargo.substractResource( new ItemID(itemid), 1 );
 		
-				ally.setItems(allyitems.getData( Cargo.Type.ITEMSTRING ));
+				ally.setItems(allyitems.save());
 				base.setCargo(cargo);
 						
 				String msg = "Ich habe das Item \""+item.getName()+"\" der Allianz zur Verf&uuml;gung gestellt.";

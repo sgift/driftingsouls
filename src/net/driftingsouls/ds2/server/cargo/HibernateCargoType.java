@@ -39,7 +39,7 @@ public class HibernateCargoType implements UserType {
 		if( cached == null ) {
 			return null;
 		}
-		return new Cargo(Cargo.Type.STRING, (String)cached);
+		return new Cargo(Cargo.Type.AUTO, (String)cached);
 	}
 
 	@Override
@@ -82,7 +82,7 @@ public class HibernateCargoType implements UserType {
 		if( (value == null) || value.isEmpty() ) {
 			return new Cargo();
 		}
-		return new Cargo(Cargo.Type.STRING, value);
+		return new Cargo(Cargo.Type.AUTO, value);
 	}
 
 	@Override

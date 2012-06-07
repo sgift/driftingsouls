@@ -7,8 +7,6 @@ import java.util.List;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemID;
-import net.driftingsouls.ds2.server.cargo.WarenID;
-import net.driftingsouls.ds2.server.config.ResourceConfig;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -54,13 +52,7 @@ public class EditBuilding implements AdminPlugin
 
 		if(update && buildingId > 0)
 		{
-			Cargo buildcosts = new Cargo();
-			for(ResourceConfig.Entry resource: ResourceConfig.getResources())
-			{
-				long amount = context.getRequest().getParameterInt("build"+resource.getId());
-				buildcosts.addResource(new WarenID(resource.getId()), amount);
-			}
-			
+			Cargo buildcosts = new Cargo();		
 			for(Item item: itemlist )
 			{
 				long amount = context.getRequest().getParameterInt("buildi"+item.getID());
@@ -70,21 +62,7 @@ public class EditBuilding implements AdminPlugin
 			}
 
 			Cargo produces = new Cargo();
-			Cargo consumes = new Cargo();
-			for(ResourceConfig.Entry resource: ResourceConfig.getResources())
-			{
-				long amount = context.getRequest().getParameterInt("prod"+resource.getId());
-				if(amount < 0)
-				{
-					amount = -1*amount;
-					consumes.addResource(new WarenID(resource.getId()), amount);
-				}
-				else
-				{
-					produces.addResource(new WarenID(resource.getId()), amount);
-				}
-			}
-			
+			Cargo consumes = new Cargo();		
 			for(Item item: itemlist)
 			{
 				long amount = context.getRequest().getParameterInt("i"+item.getID());
@@ -169,12 +147,6 @@ public class EditBuilding implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderS\">Terrain: </td><td><input type=\"text\" name=\"terrain\" value=\"" + building.getTerrain() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Auto Abschalten: </td><td><input type=\"text\" name=\"shutdown\" value=\"" + building.isShutDown() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">ChanceRess: </td><td><input type=\"text\" name=\"chanceress\" value=\"" + building.getChanceRess() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\"><b>Baukosten</b></td><td class=\"noBorderS\">Menge</td></tr>");
-			for(ResourceConfig.Entry resource: ResourceConfig.getResources())
-			{
-				long amount = building.getBuildCosts().getResourceCount(new WarenID(resource.getId()));
-				echo.append("<tr><td class=\"noBorderS\"><img src=\""+resource.getImage()+"\" alt=\"\" />"+resource.getName()+": </td><td><input type=\"text\" name=\"build"+resource.getId()+"\" value=\"" + amount + "\"></td></tr>");
-			}
 			echo.append("<tr><td class=\"noBorderS\"></td><td class=\"noBorderS\">Menge</td><td class=\"noBorderS\">Nutzungen</td></tr>");
 			for(Item item: itemlist)
 			{
@@ -186,12 +158,6 @@ public class EditBuilding implements AdminPlugin
 				}
 				
 				echo.append("<tr><td class=\"noBorderS\"><img src=\""+item.getPicture()+"\" alt=\"\" />"+item.getName()+": </td><td><input type=\"text\" name=\"buildi"+item.getID()+"\" value=\"" + amount + "\"></td><td><input type=\"text\" name=\"buildi"+item.getID()+"uses\" value=\"" + uses + "\"></td></tr>");
-			}
-			echo.append("<tr><td class=\"noBorderS\"><b>Produktion</b></td><td class=\"noBorderS\">Menge</td></tr>");
-			for(ResourceConfig.Entry resource: ResourceConfig.getResources())
-			{
-				long amount = -1*building.getConsumes().getResourceCount(new WarenID(resource.getId())) +  building.getProduces().getResourceCount(new WarenID(resource.getId()));
-				echo.append("<tr><td class=\"noBorderS\"><img src=\""+resource.getImage()+"\" alt=\"\" />"+resource.getName()+": </td><td><input type=\"text\" name=\"prod"+resource.getId()+"\" value=\"" + amount + "\"></td></tr>");
 			}
 			echo.append("<tr><td class=\"noBorderS\"></td><td class=\"noBorderS\">Menge</td><td class=\"noBorderS\">Nutzungen</td></tr>");
 			for(Item item: itemlist)

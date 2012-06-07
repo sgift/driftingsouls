@@ -76,7 +76,7 @@ public class EditBases implements AdminPlugin
 			base.setSystem(context.getRequest().getParameterInt("system"));
 			base.setEnergy(context.getRequest().getParameterInt("energie"));
 			base.setMaxEnergy(context.getRequest().getParameterInt("maxenergie"));
-			base.setCargo(new Cargo(Cargo.Type.STRING, context.getRequest().getParameterString("cargo")));
+			base.setCargo(new Cargo(Cargo.Type.AUTO, context.getRequest().getParameterString("cargo")));
 			base.setMaxCargo(context.getRequest().getParameterInt("maxcargo"));
 			base.setCore(context.getRequest().getParameterInt("core"));
 			base.setKlasse(context.getRequest().getParameterInt("klasse"));

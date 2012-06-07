@@ -5,9 +5,6 @@ import java.io.Writer;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.bases.Core;
-import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.WarenID;
-import net.driftingsouls.ds2.server.config.ResourceConfig;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -47,55 +44,6 @@ public class EditCore implements AdminPlugin
 		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
 		echo.append("</form>");
 		
-		if(update && coreId > 0)
-		{
-			Cargo buildcosts = new Cargo();
-			for(ResourceConfig.Entry resource: ResourceConfig.getResources())
-			{
-				long amount = context.getRequest().getParameterInt("build"+resource.getId());
-				buildcosts.addResource(new WarenID(resource.getId()), amount);
-			}
-			
-			Cargo produces = new Cargo();
-			Cargo consumes = new Cargo();
-			for(ResourceConfig.Entry resource: ResourceConfig.getResources())
-			{
-				long amount = context.getRequest().getParameterInt("prod"+resource.getId());
-				if(amount < 0)
-				{
-					amount = -1*amount;
-					consumes.addResource(new WarenID(resource.getId()), amount);
-				}
-				else
-				{
-					produces.addResource(new WarenID(resource.getId()), amount);
-				}
-				
-				Core core = (Core)db.get(Core.class, coreId);
-				core.setName(context.getRequest().getParameterString("name"));
-				core.setArbeiter(context.getRequest().getParameterInt("worker"));
-				int energy = context.getRequest().getParameterInt("energy");
-				if(energy < 0)
-				{
-					energy = -1 * energy;
-					core.setEVerbrauch(energy);
-					core.setEProduktion(0);
-				}
-				else
-				{
-					core.setEProduktion(energy);
-					core.setEVerbrauch(0);
-				}
-				core.setEps(context.getRequest().getParameterInt("eps"));
-				core.setBewohner(context.getRequest().getParameterInt("room"));
-				core.setTechReq(context.getRequest().getParameterInt("tech"));
-				core.setBuildcosts(buildcosts);
-				core.setProduces(produces);
-				core.setConsumes(consumes);
-				core.setShutDown(context.getRequest().getParameterString("shutdown").equals("true") ? true : false);
-			}
-		}
-		
 		if(coreId > 0)
 		{
 			Core core = (Core)db.get(Core.class, coreId);
@@ -127,18 +75,6 @@ public class EditCore implements AdminPlugin
 				echo.append("<option value=\"" + research.getID() + "\" " + (research.getID() == core.getTechRequired() ? "selected=\"selected\"" : "") + ">" + research.getName() + "</option>");
 			}
 			echo.append("</select>");
-			echo.append("<tr><td class=\"noBorderS\">Baukosten</td><td class=\"noBorderS\">Menge</td></tr>");
-			for(ResourceConfig.Entry resource: ResourceConfig.getResources())
-			{
-				long amount = core.getBuildCosts().getResourceCount(new WarenID(resource.getId()));
-				echo.append("<tr><td class=\"noBorderS\"><img src=\""+resource.getImage()+"\" alt=\"\" />"+resource.getName()+": </td><td><input type=\"text\" name=\"build"+resource.getId()+"\" value=\"" + amount + "\"></td></tr>");
-			}
-			echo.append("<tr><td class=\"noBorderS\">Produktion</td><td class=\"noBorderS\">Menge</td></tr>");
-			for(ResourceConfig.Entry resource: ResourceConfig.getResources())
-			{
-				long amount = -1*core.getConsumes().getResourceCount(new WarenID(resource.getId())) + core.getProduces().getResourceCount(new WarenID(resource.getId()));
-				echo.append("<tr><td class=\"noBorderS\"><img src=\""+resource.getImage()+"\" alt=\"\" />"+resource.getName()+": </td><td><input type=\"text\" name=\"prod"+resource.getId()+"\" value=\"" + amount + "\"></td></tr>");
-			}
 			echo.append("<tr><td class=\"noBorderS\"></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
 			echo.append("</table>");
 			echo.append("</form>\n");

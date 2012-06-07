@@ -466,7 +466,7 @@ public class PortalController extends TemplateGenerator {
 	 	base.setWidth(basetype.getWidth());
 	 	base.setHeight(basetype.getHeight());
 	 	base.setMaxCargo(basetype.getCargo());
-	 	base.setCargo(new Cargo(Cargo.Type.STRING, this.config.get("REGISTER_BASECARGO")));
+	 	base.setCargo(new Cargo(Cargo.Type.AUTO, this.config.get("REGISTER_BASECARGO")));
 	 	base.setCore(0);
 	 	base.setUnits(new UnitCargo());
 	 	base.setCoreActive(false);

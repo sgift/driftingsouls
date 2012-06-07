@@ -25,7 +25,6 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
-import net.driftingsouls.ds2.server.config.ResourceConfig;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.Handel;
 import net.driftingsouls.ds2.server.entities.User;
@@ -125,19 +124,11 @@ public class HandelController extends TemplateGenerator {
 		for( ResourceEntry res : reslist ) {
 			String name = "";
 			
-			if( res.getId().isItem() ) {
-				Item item = (Item)db.get(Item.class, res.getId().getItemID());
-				if( !item.getHandel() ) {
-					continue;
-				}
-				name = "i"+res.getId().getItemID();
+			Item item = (Item)db.get(Item.class, res.getId().getItemID());
+			if( !item.getHandel() ) {
+				continue;
 			}
-			else {
-				if( ResourceConfig.getResourceHidden(res.getId().getID()) ) {
-					continue;
-				}
-				name = Integer.toString(res.getId().getID());
-			}
+			name = "i"+res.getId().getItemID();
 					
 			parameterNumber(name+"need");			
 			needcount = getInteger(name+"need");
@@ -187,19 +178,12 @@ public class HandelController extends TemplateGenerator {
 		
 		ResourceList reslist = Resources.getResourceList().getResourceList();
 		for( ResourceEntry res : reslist ) {
-			if( res.getId().isItem() ) {
-				Item item = (Item)db.get(Item.class, res.getId().getItemID());
-				if( !item.getHandel() ) {
-					continue;
-				}
-			}
-			else {
-				if( ResourceConfig.getResourceHidden(res.getId().getID()) ) {
-					continue;
-				}
+			Item item = (Item)db.get(Item.class, res.getId().getItemID());
+			if( !item.getHandel() ) {
+				continue;
 			}
 			
-			t.setVar(	"res.id",		(res.getId().isItem() ? "i"+res.getId().getItemID() : res.getId().getID()),
+			t.setVar(	"res.id",		"i"+res.getId().getItemID(),
 						"res.name",		res.getName(),
 						"res.image",	res.getImage() );
 			
@@ -267,7 +251,7 @@ public class HandelController extends TemplateGenerator {
 				String line = (i == 1 ? entry.getBietet() : entry.getSucht());
 				
 				if( !line.equals("-1") ) {
-					Cargo cargo = new Cargo( Cargo.Type.STRING, line );
+					Cargo cargo = new Cargo( Cargo.Type.AUTO, line );
 					cargo.setOption( Cargo.Option.SHOWMASS, false );
 					cargo.setOption( Cargo.Option.LINKCLASS, "handelwaren");
 					

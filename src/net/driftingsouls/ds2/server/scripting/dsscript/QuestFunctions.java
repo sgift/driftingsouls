@@ -419,7 +419,7 @@ public class QuestFunctions {
 					val = base;
 				}
 				else if( value[1].equals("cargo") ) {
-					val = new Cargo( Cargo.Type.STRING, base.getString("cargo") );
+					val = new Cargo( Cargo.Type.AUTO, base.getString("cargo") );
 				}
 				else {
 					val = base.get(value[1].trim());	
@@ -1855,18 +1855,16 @@ public class QuestFunctions {
 			
 			ResourceID resourceid = Resources.fromString(command[4]);
 			scriptparser.log("resourceid: "+resourceid+"\n");
-			if( resourceid.isItem() ) {
-				if( resourceid.getQuest() == 1 ) {
-					int qid = 0;
-					if( questid.charAt(0) != 'r' ) {
-						qid = db.first("SELECT id FROM quests_running WHERE questid="+Value.Int(questid)+" AND userid="+userid).getInt("id");
-					}
-					else {
-						qid = Value.Int(questid.substring(1));
-					}
-					
-					resourceid = new ItemID(resourceid.getItemID(), resourceid.getUses(), qid);
+			if( resourceid.getQuest() == 1 ) {
+				int qid = 0;
+				if( questid.charAt(0) != 'r' ) {
+					qid = db.first("SELECT id FROM quests_running WHERE questid="+Value.Int(questid)+" AND userid="+userid).getInt("id");
 				}
+				else {
+					qid = Value.Int(questid.substring(1));
+				}
+				
+				resourceid = new ItemID(resourceid.getItemID(), resourceid.getUses(), qid);
 			}
 			
 			long count = Value.Long(command[5]);
@@ -2696,19 +2694,11 @@ public class QuestFunctions {
 					
 					ResourceList reslist = qquest.getStartItems().getResourceList();
 					for( ResourceEntry res : reslist ) {
-						if( res.getId().isItem() ) {
-							if( res.getId().getQuest() != 0 ) {
-								call( new AddQuestItem(), scriptparser, 
-										"#ship",
-										res.getId().getItemID(),
-										res.getCount1() );
-							}
-							else {
-								call( new AddResource(), scriptparser, 
-										"#ship",
-										res.getId().toString(),
-										res.getCount1() );
-							}
+						if( res.getId().getQuest() != 0 ) {
+							call( new AddQuestItem(), scriptparser, 
+									"#ship",
+									res.getId().getItemID(),
+									res.getCount1() );
 						}
 						else {
 							call( new AddResource(), scriptparser, 
@@ -2790,7 +2780,7 @@ public class QuestFunctions {
 					
 					ResourceList reslist = qquest.getReqItems().getResourceList();
 					for( ResourceEntry res : reslist ) {
-						if( res.getId().isItem() && (res.getId().getQuest() != 0) ) {
+						if( res.getId().getQuest() != 0 ) {
 							call( new HasQuestItem(), scriptparser, 
 									"#ship",
 									res.getId().getItemID(),
@@ -2833,7 +2823,7 @@ public class QuestFunctions {
 						
 						ResourceList reslist = qquest.getReqItems().getResourceList();
 						for( ResourceEntry res : reslist ) {						
-							if( res.getId().isItem() && (res.getId().getQuest() != 0) ) {
+							if( res.getId().getQuest() != 0 ) {
 								call( new AddQuestItem(), scriptparser, 
 										"#ship",
 										res.getId().getItemID(),

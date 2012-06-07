@@ -1381,7 +1381,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 			SQLResultRow shipdata = shipdataRow.getRow();
 
-			Cargo costs = new Cargo( Cargo.Type.STRING, shipdata.getString("costs") );
+			Cargo costs = new Cargo( Cargo.Type.AUTO, shipdata.getString("costs") );
 
 			shipdata.put("costs", costs);
 			shipdata.put("_item", false);

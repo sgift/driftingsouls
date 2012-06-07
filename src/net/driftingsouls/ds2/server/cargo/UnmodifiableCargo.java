@@ -80,16 +80,6 @@ public class UnmodifiableCargo extends Cargo {
 	}
 
 	@Override
-	public String getData(Type type, boolean orginalCargo) {
-		return innerCargo.getData(type, orginalCargo);
-	}
-
-	@Override
-	public String getData(Type type) {
-		return innerCargo.getData(type);
-	}
-
-	@Override
 	public List<ItemCargoEntry> getItem(int itemid) {
 		return innerCargo.getItem(itemid);
 	}
@@ -177,11 +167,6 @@ public class UnmodifiableCargo extends Cargo {
 	@Override
 	public void substractItem(ItemCargoEntry item) {
 		throw new UnsupportedOperationException("substractResourceObject nicht erlaubt");
-	}
-
-	@Override
-	protected long[] getCargoArray() {
-		return innerCargo.getCargoArray().clone();
 	}
 
 	@Override
