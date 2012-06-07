@@ -105,14 +105,14 @@
 				<li onmouseover="Base.highlightBuilding({building.id})" onmouseout="Base.noBuildingHighlight()">
 					{building.name}
 					{if building.allowoff}
-						<a title="Gebäude deaktivieren" class="action" href="ds?module=base&action=changeBuildingStatus&col={base.id}buildingonoff={building.id}&act=0">
+						<a title="Gebäude deaktivieren" class="action" href="ds?module=base&action=changeBuildingStatus&col={base.id}&buildingonoff={building.id}&act=0">
 							<img alt="" src="data/interface/nenergie.gif">
 						</a>
 					{/endif}
 					{if building.allowon}
-						<a title="Gebäude aktivieren" class="action" href="ds?module=base&action=changeBuildingStatus&col={base.id}buildingonoff={building.id}&act=1">
+						<a title="Gebäude aktivieren" class="action" href="ds?module=base&action=changeBuildingStatus&col={base.id}&buildingonoff={building.id}&act=1">
 							<img alt="" src="data/interface/energie.gif">
-						</a> 
+						</a>
 					{/endif}
 				</li>
 			<!-- END base.massonoff.listitem -->
@@ -147,7 +147,7 @@
 		{/endif}
 		<div class="gfxbox">
 			Aktuelle Energie: {base.e}<br />
-			Bilanz: {base.estat} 
+			Bilanz: {base.estat}
 			<!-- BEGIN base.estat.listitem --><img style="vertical-align:middle" src="{estat.image}" alt="" /><!-- END base.estat.listitem -->
 			<br />
 			Bev&ouml;lkerung: {base.bewohner}<br />
