@@ -24,7 +24,7 @@ import java.util.List;
 
 import net.driftingsouls.ds2.server.AdminCommands;
 import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.entities.Ally;
+import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;

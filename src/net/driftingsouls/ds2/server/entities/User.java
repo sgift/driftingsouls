@@ -39,6 +39,8 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.comm.Ordner;
 import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.entities.ally.Ally;
+import net.driftingsouls.ds2.server.entities.ally.AllyPosten;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
