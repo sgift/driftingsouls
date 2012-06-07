@@ -337,6 +337,7 @@ div.gfxbox {
 	position:absolute;
 	display:none;
 	text-align:center;
+	z-index:9999;
 }
 
 .popupbox .content {

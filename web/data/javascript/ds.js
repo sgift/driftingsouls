@@ -40,6 +40,12 @@ function getDsUrl()
 				if( typeof options.draggable !== 'undefined' && options.draggable ) {
 					this.draggable();
 				}
+				if( typeof options.width !== 'undefined' ) {
+					this.css('width', options.width);
+				}
+				if( typeof options.height !== 'undefined' ) {
+					contentEl.css('height', options.height);
+				}
 				if( typeof options.x !== 'undefined' ) {
 					this.css('left', options.x);
 				}
@@ -49,14 +55,16 @@ function getDsUrl()
 				if( typeof options.y !== 'undefined' ) {
 					this.css('top', options.y);
 				}
+				
+				if( typeof options.center !== 'undefined' && options.center ) {
+					this.css({
+						left : Math.floor($("body").width()/2-this.width()/2)+"px",
+						top : $(window).scrollTop()+Math.max(Math.floor(($(window).height()-this.height())/2),10)+"px"
+					});
+				}
+				
 				if( typeof options.closeButton !== 'undefined' && !options.closeButton ) {
 					this.find('button.closebox').remove();
-				}
-				if( typeof options.width !== 'undefined' ) {
-					this.css('width', options.width);
-				}
-				if( typeof options.height !== 'undefined' ) {
-					contentEl.css('height', options.height);
 				}
 				if( typeof options.closeButtonLabel !== 'undefined' ) {
 					this.find('button.closebox').text(options.closeButtonLabel);
