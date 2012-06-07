@@ -172,10 +172,10 @@ public abstract class DSGenerator extends Generator {
 			sb.append("<title>Drifting Souls 2</title>\n");
 			sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n");
 			sb.append("<meta http-equiv=\"X-UA-Compatible\" content=\"IE=9\">\n");
+			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"data/css/ui-darkness/jquery-ui-1.8.20.css\" />\n");
 			if( !getDisableDefaultCSS() ) { 
 				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"data/css/v"+version.getHgVersion()+"/format.css\" />\n");
 			}
-			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"data/css/ui-darkness/jquery-ui-1.8.20.css\" />\n");
 			
 			sb.append("<!--[if IE]>\n");
 			sb.append("<style type=\"text/css\">@import url("+config.get("URL")+"data/css/v"+version.getHgVersion()+"/format_fuer_den_dummen_ie.css);</style>\n");

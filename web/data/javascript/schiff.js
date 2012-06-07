@@ -56,5 +56,15 @@ var Schiff = {
 			text += "</dl></li>";
 		}
 		content.append(text);
+	},
+	initRemaining : function() {
+		$('#newowner').autocomplete({
+			source : DsAutoComplete.users,
+			html:true
+		});
 	}
 };
+
+$(document).ready(function() {
+	Schiff.initRemaining();
+});

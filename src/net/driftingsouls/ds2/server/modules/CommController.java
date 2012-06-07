@@ -85,6 +85,8 @@ public class CommController extends TemplateGenerator {
 		addPageMenuEntry("Neue Nachricht", Common.buildUrl("default", "to", 0));
 		addPageMenuEntry("Posteingang", Common.buildUrl("showInbox"));
 		addPageMenuEntry("Postausgang", Common.buildUrl("showOutbox"));
+		
+		this.setCustomJavascript(true);
 	}
 	
 	@Override
