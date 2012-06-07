@@ -468,3 +468,52 @@ div.gfxbox {
 #scriptBox .content {
 	height:270px;
 }
+
+/*
+	Basis
+*/
+
+#baseMap {
+	z-index:2; 
+	position:relative; 
+	top:0px; 
+	overflow:auto;
+	left:0px; 
+}
+
+#baseMap.fade .tile,
+#baseMap.fade .overlay {
+	opacity:.5;
+	-webkit-filter: grayscale(100%);
+	filter:grayscale(100%);
+}
+#baseMap.fade .highlight {
+	opacity:1;
+	-webkit-filter:grayscale(0%);
+	filter:grayscale(0%);
+}
+.buildingActions {
+	margin:0px;
+	padding:10px 6px;
+	list-style:none;
+	font-size:13px;
+}
+.buildingActions li {
+	margin:0px;
+	padding: 1px 0px 2px 0px;
+}
+.buildingActions .action {
+	float:right; 
+}
+
+.baseActions {
+	margin:0px;
+	padding:10px 6px;
+	list-style:none;
+	border-top:1px solid #606060;
+	text-align:center;
+}
+.baseActions li {
+	margin:0px;
+	padding: 1px 0px 2px 0px;
+}

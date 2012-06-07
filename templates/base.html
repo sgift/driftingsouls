@@ -47,13 +47,14 @@
 </tr>
 <tr>
 	<td class="schiffData" style="vertical-align:top; width:{base.map.width}px">
-		<div style="z-index:2; position:relative; top:0px; left:0px; width:{base.map.width}px; height:{base.cargo.height}px; overflow:auto">
+		<div id="baseMap" style="width:{base.map.width}px; height:{base.cargo.height}px;">
 		<!-- +START+ Karte -->
 		<!-- BEGIN base.map.listitem -->
-			<div class="p{tile.id}">
+			<div class="p{tile.id} tile {if tile.building}building{tile.building.id}{/endif}">
 				{if ! tile.overlay}
 					{if tile.building}
-						<a title="{tile.building.name}" href="./ds?module=building&amp;col={base.id}&amp;field={tile.field}">
+						<a class="tooltip" href="./ds?module=building&amp;col={base.id}&amp;field={tile.field}">
+							<span class="ttcontent">{tile.building.name}</span>
 					{else}
 						<a href="./ds?module=build&amp;col={base.id}&amp;field={tile.field}">
 					{/endif}
@@ -62,9 +63,10 @@
 				{if ! tile.overlay}</a>{/endif}
 			</div>
 			{if tile.overlay}
-				<div class="o{tile.id}">
+				<div class="o{tile.id} overlay">
 					{if tile.building}
-						<a title="{tile.building.name}" href="./ds?module=building&amp;col={base.id}&amp;field={tile.field}">
+						<a class="tooltip" href="./ds?module=building&amp;col={base.id}&amp;field={tile.field}">
+							<span class="ttcontent">{tile.building.name}</span>
 					{else}
 						<a href="./ds?module=build&amp;col={base.id}&amp;field={tile.field}">
 					{/endif}
@@ -98,58 +100,52 @@
 	</td>
 	<td class="noBorder" style="width:5px">&nbsp;</td>
 	<td style="vertical-align:top; width:240px" class="schiffWaren">
-		<div style="padding:5px">
-			<table class="noBorderS">
-				<!-- BEGIN base.massonoff.listitem -->
-					<tr>
-						<td class="noBorderS" style="font-size:13px">{building.name}</td>
-						<td class="noBorderS" align="right">
-							{if building.allowoff}
-								{!image_link_to interface/nenergie.gif, changeBuildingStatus, css_class:noborder, col:$base.id, buildingonoff:$building.id, act:0}
-							{/endif}
-							{if building.allowon} 
-								{!image_link_to interface/energie.gif, changeBuildingStatus, css_class:noborder, col:$base.id, buildingonoff:$building.id, act:1}
-							{/endif}
-						</td>
-					</tr>
-				<!-- END base.massonoff.listitem -->
-			<tr>
-				<td colspan="2" class="noBorderS" align="center">
-					<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
-					{!link_to Alles aktivieren, default, css_style:font-size:14px, css_class:ok, module:activateall, col:$base.id}<br />
-					{!link_to Alles deaktivieren, default, css_style:font-size:14px, css_class:error, module:activateall, col:$base.id, deaconly:1}<br />
-				</td>
-			</tr>
-			<tr>
-				<td colspan="2" class="noBorderS" align="center">
-					<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
-					{if base.isfeeding}
-					{!link_to Versorgung abschalten, changeFeeding, css_style:font-size:14px, css_class:ok, module:base, col:$base.id, feeding:0}<br />
-						{if base.isloading}
-						{!link_to Auff&uuml;llen abschalten, changeFeeding, css_style:font-size:14px, css_class:ok, module:base, col:$base.id, feeding:2}<br />
-						{else}
-						{!link_to Auff&uuml;llen anschalten, changeFeeding, css_style:font-size:14px, css_class:error, module:base, col:$base.id, feeding:3}<br />
-						{/endif}
-					{else}
-					{!link_to Versorgung anschalten, changeFeeding, css_style:font-size:14px, css_class:error, module:base, col:$base.id, feeding:1}<br />
+		<ul class="buildingActions">
+			<!-- BEGIN base.massonoff.listitem -->
+				<li onmouseover="Base.highlightBuilding({building.id})" onmouseout="Base.noBuildingHighlight()">
+					{building.name}
+					{if building.allowoff}
+						<a title="Gebäude deaktivieren" class="action" href="ds?module=base&action=changeBuildingStatus&col={base.id}buildingonoff={building.id}&act=0">
+							<img alt="" src="data/interface/nenergie.gif">
+						</a>
 					{/endif}
-				</td>
-			</tr>
-			</table>
-		</div>
+					{if building.allowon}
+						<a title="Gebäude aktivieren" class="action" href="ds?module=base&action=changeBuildingStatus&col={base.id}buildingonoff={building.id}&act=1">
+							<img alt="" src="data/interface/energie.gif">
+						</a> 
+					{/endif}
+				</li>
+			<!-- END base.massonoff.listitem -->
+		</ul>
+		<ul class="baseActions">
+			<li>{!link_to Alles aktivieren, default, css_style:font-size:14px, css_class:ok, module:activateall, col:$base.id}</li>
+			<li>{!link_to Alles deaktivieren, default, css_style:font-size:14px, css_class:error, module:activateall, col:$base.id, deaconly:1}</li>
+		</ul>
+		<ul class="baseActions">
+			{if base.isfeeding}
+				<li>{!link_to Versorgung abschalten, changeFeeding, css_style:font-size:14px, css_class:ok, module:base, col:$base.id, feeding:0}</li>
+				{if base.isloading}
+					<li>{!link_to Auff&uuml;llen abschalten, changeFeeding, css_style:font-size:14px, css_class:ok, module:base, col:$base.id, feeding:2}</li>
+				{else}
+					<li>{!link_to Auff&uuml;llen anschalten, changeFeeding, css_style:font-size:14px, css_class:error, module:base, col:$base.id, feeding:3}</li>
+				{/endif}
+			{else}
+				<li>{!link_to Versorgung anschalten, changeFeeding, css_style:font-size:14px, css_class:error, module:base, col:$base.id, feeding:1}</li>
+			{/endif}
+		</ul>
 	</td>
 </tr>
 <tr>
 	<td colspan="5" class="noBorderS">
 		<br />
 		{if base.marines}
-			{!table_begin 100%,left}
+			<div class="gfxbox">
 				<!-- BEGIN base.units.listitem -->
 				<img style="vertical-align:middle" src="{res.picture}" alt="" />{!link_to $res.name, default, module:unitinfo, unit:$res.id} {res.count}<br />
 				<!-- END base.units.listitem -->
-			{!table_end}
+			</div>
 		{/endif}
-		{!table_begin 100%,left}
+		<div class="gfxbox">
 			Aktuelle Energie: {base.e}<br />
 			Bilanz: {base.estat} 
 			<!-- BEGIN base.estat.listitem --><img style="vertical-align:middle" src="{estat.image}" alt="" /><!-- END base.estat.listitem -->
@@ -159,7 +155,7 @@
 			Wohnraum: {base.wohnraum}<br />
 			<!-- BEGIN base.bev.listitem --><img style="border:0px" src=" {URL}data/interface/{bev.image}" alt="" /><!-- END base.bev.listitem -->
 			<br /><br />
-		{!table_end}
+		</div>
 	</td>
 </tr>
 </table>

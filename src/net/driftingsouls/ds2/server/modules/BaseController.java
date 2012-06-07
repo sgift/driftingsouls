@@ -78,6 +78,8 @@ public class BaseController extends TemplateGenerator {
 		parameterNumber("col");
 		
 		setPageTitle("Basis");
+		
+		this.setCustomJavascript(true);
 	}
 	
 	@Override
@@ -353,7 +355,8 @@ public class BaseController extends TemplateGenerator {
 				}
 
 				t.setVar(	"tile.building",		1,
-							"tile.building.name", Common._plaintitle(building.getName()) );
+							"tile.building.name", Common._plaintitle(building.getName()),
+							"tile.building.id", building.getId());
 			}
 			
 			t.setVar(	"tile.field",			i,
