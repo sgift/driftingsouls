@@ -158,6 +158,8 @@ public class FactionShopEntry {
 	}
 
     /**
+     * Gibt zurueck, ob der angegebene Spieler die Ware kaufen kann.
+     * @param buyer Der Spieler, der die Ware kaufen moechte
      * @return <code>true</code>, wenn der Spieler die Ware kaufen kann, <code>false</code> ansonsten.
      */
     public boolean canBuy(User buyer)

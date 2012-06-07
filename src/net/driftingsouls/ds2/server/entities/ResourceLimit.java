@@ -85,15 +85,13 @@ public class ResourceLimit {
 	 * generates an new ResourceLimit with key and limit as parameters.
 	 * @param resourcelimitkey the key of the resourcelimit
 	 * @param limit the limit of this kind of resources
+	 * @param rank Der minimale Rang ab dem die Ressource verkauft werden darf
 	 */
 	public ResourceLimit(ResourceLimitKey resourcelimitkey, long limit, int rank) {
-		this.setResourceLimitKey(resourcelimitkey);
-		this.setLimit(limit);
-        
-	}
-
-	private void setResourceLimitKey(ResourceLimitKey resourcelimitkey) {
 		this.resourceLimitKey = resourcelimitkey;
+		this.limit = limit;
+		this.minRank = rank;
+        
 	}
 
 	/**

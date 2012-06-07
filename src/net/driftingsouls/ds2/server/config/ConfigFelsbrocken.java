@@ -99,7 +99,7 @@ public class ConfigFelsbrocken implements Comparable<ConfigFelsbrocken>
 	/**
 	 * Gibt die Wahrscheinlichkeit zurueck, dass diese
 	 * Felsbrocken-Konfiguration spawnt.
-	 * @return Die Wahrscheinlichkeit
+	 * @param chance Die Wahrscheinlichkeit
 	 */
 	public void setChance(int chance)
 	{

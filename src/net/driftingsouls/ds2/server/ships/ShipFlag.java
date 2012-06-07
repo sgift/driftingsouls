@@ -1,6 +1,12 @@
 package net.driftingsouls.ds2.server.ships;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Version;
 
 /**
  * Ein Schiffsflag, dass an einem bestimmten Schiff haengt.

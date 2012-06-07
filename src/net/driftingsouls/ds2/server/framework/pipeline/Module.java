@@ -36,13 +36,11 @@ public @interface Module
 {
 	/**
 	 * Der Name des Moduls unter dem es in URLs/in der Pipeline angesprochen werden kann.
-	 * @return Der Name
 	 */
 	String name();
 	/**
 	 * <code>true</code>, falls es das Default-Module ist, welches beim Fehlen einer Modulangabe
 	 * verwendet werden soll. Es darf zu jedem Zeitpunkt nur ein Default-Module geben.
-	 * @return <code>true</code>, falls es das Default-Module ist
 	 */
 	boolean defaultModule() default false;
 }

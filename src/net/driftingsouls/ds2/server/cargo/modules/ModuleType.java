@@ -75,6 +75,11 @@ public enum ModuleType {
 		return this.ordinal;
 	}
 
+	/**
+	 * Erstellt aus dem Moduleintrag eine Modulrepraesentation.
+	 * @param moduledata Der Moduleintrag
+	 * @return Das Modul
+	 */
 	public abstract Module createModule(ModuleEntry moduledata);
 
 	/**

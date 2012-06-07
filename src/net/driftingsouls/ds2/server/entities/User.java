@@ -147,7 +147,7 @@ public class User extends BasicUser {
 	 */
 	public static final String FLAG_NO_DESERTEUR = "nodeserteur";
     /**
-     * Kann alle Kaempfe uebernehmen, egal wer sie gerade kommandiert
+     * Kann alle Kaempfe uebernehmen, egal wer sie gerade kommandiert.
      */
     public static final String FLAG_KS_TAKE_BATTLES = "cantakeallbattles";
     /**
@@ -707,7 +707,7 @@ public class User extends BasicUser {
 
     /**
 	 * Gibt das auf den Spieler ausgesetzte Kopfgeld in RE zurueck.
-	 * @param add Das Kopfgeld
+	 * @return Das Kopfgeld
 	 */
     public BigInteger getBounty()
     {

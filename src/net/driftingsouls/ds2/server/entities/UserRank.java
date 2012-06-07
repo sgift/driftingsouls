@@ -18,6 +18,11 @@ import javax.persistence.Version;
 @Table(name = "user_rank")
 public class UserRank
 {
+	/**
+	 * Die ID eines User-Rangs.
+	 * @author Christopher Jung
+	 *
+	 */
     @Embeddable
     public static class UserRankKey implements Serializable
     {
@@ -32,11 +37,19 @@ public class UserRank
         @JoinColumn(name="rank_giver")
         private User rankGiver;
         
+        /**
+         * Konstruktor.
+         */
         public UserRankKey()
         {
             //Hibernate
         }
         
+        /**
+         * Konstruktor.
+         * @param owner Der User
+         * @param rankGiver Der NPC, der den Rang vergeben hat
+         */
         public UserRankKey(User owner, User rankGiver)
         {
             this.owner = owner;

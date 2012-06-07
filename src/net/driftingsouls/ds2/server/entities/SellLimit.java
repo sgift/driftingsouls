@@ -57,16 +57,13 @@ public class SellLimit {
 	 * @param resourcelimitkey the key of the limit
 	 * @param price the price for this kind of resource
 	 * @param limit the limit for this kind of resource
+	 * @param sellRank Der Mindestrang, ab dem die Ressource gekauft werden kann
 	 */
 	public SellLimit(ResourceLimitKey resourcelimitkey, long price, long limit, int sellRank) {
-		this.setResourceLimitKey(resourcelimitkey);
-		this.setPrice(price);
-		this.setLimit(limit);
-        this.setMinRank(sellRank);
-	}
-
-	private void setResourceLimitKey(ResourceLimitKey resourcelimitkey) {
-		this.resourceLimitKey = resourcelimitkey;		
+		this.resourceLimitKey = resourcelimitkey;
+		this.price = price;
+		this.limit = limit;
+        this.minRank = sellRank;
 	}
 
 	/**

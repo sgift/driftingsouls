@@ -374,6 +374,10 @@ public class ShipTypeChangeset {
 		return aDocks;
 	}
 
+	/**
+	 * Gibt das auf das Schiff ausgesetzte Kopfgeld in RE zurueck.
+	 * @return Das Kopfgeld
+	 */
     public BigInteger getBounty()
     {
         return bounty;
