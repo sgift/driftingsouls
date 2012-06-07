@@ -31,6 +31,7 @@ import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
 import net.driftingsouls.ds2.server.entities.StatGtu;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.entities.Versteigerung;
 import net.driftingsouls.ds2.server.entities.VersteigerungResource;
 import net.driftingsouls.ds2.server.entities.VersteigerungSchiff;
@@ -223,7 +224,9 @@ public class RTCTick extends TickController {
 
 				if( entry.getOwner() != this.gtuuser )
 				{
-					targetuser.transferMoneyFrom( Faction.GTU, price-(long)Math.ceil(price*gtucost/100d), "Gewinn Versteigerung #2"+entry.getId()+" abzgl. "+gtucost+"% Auktionskosten", false, User.TRANSFER_AUTO );
+					targetuser.transferMoneyFrom( Faction.GTU, price-(long)Math.ceil(price*gtucost/100d), 
+							"Gewinn Versteigerung #2"+entry.getId()+" abzgl. "+gtucost+"% Auktionskosten", 
+							false, UserMoneyTransfer.Transfer.AUTO );
 				}
 
 				StatGtu stat = new StatGtu(entry, gtucost);

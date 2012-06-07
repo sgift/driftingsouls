@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import net.driftingsouls.ds2.server.ContextCommon;
@@ -31,6 +32,7 @@ import net.driftingsouls.ds2.server.entities.SellLimit;
 import net.driftingsouls.ds2.server.entities.StatVerkaeufe;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.User.Relation;
+import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
@@ -138,7 +140,7 @@ public class TradeController extends TemplateGenerator {
 		Cargo tradepostCargo = this.posten.getCargo();
 		User user = (User)getUser();
 		BigInteger moneyOfBuyer = user.getKonto();
-		long totalRE = 0;
+		BigInteger totalRE = BigInteger.ZERO;
 		
 		log.info("Warenkauf an HP "+posten.getId()+" durch Schiff "+ship.getId()+" [User: "+user.getId()+"]");
 		
@@ -189,7 +191,7 @@ public class TradeController extends TemplateGenerator {
 				price = amountToBuy * limit.getPrice();
 			}
 			log.info("Verkaufe "+amountToBuy+"x "+resource.getId()+" fuer gesamt "+price);
-			totalRE += price;
+			totalRE = totalRE.add(BigInteger.valueOf(price));
 			
 			if(amountToBuy <= 0) {
 				continue;
@@ -204,11 +206,11 @@ public class TradeController extends TemplateGenerator {
 		this.ship.recalculateShipStatus();
 		this.posten.recalculateShipStatus();
 
-		if( totalRE > 0 ) {
+		if( totalRE.compareTo(BigInteger.ZERO) > 0 ) {
 			this.posten.getOwner()
 				.transferMoneyFrom(user.getId(), totalRE, 
 						"Warenkauf Handelsposten bei "+this.posten.getLocation().displayCoordinates(false), 
-						false, User.TRANSFER_SEMIAUTO);
+						false, UserMoneyTransfer.Transfer.SEMIAUTO);
 		}
 		redirect();
 	}
@@ -243,7 +245,7 @@ public class TradeController extends TemplateGenerator {
 		
 		Cargo tpcargo = this.posten.getCargo();
 	
-		long totalRE = 0;
+		BigInteger totalRE = BigInteger.ZERO;
 		boolean changed = false;
 	
 		ResourceList reslist = this.kurse.getResourceList();
@@ -287,12 +289,12 @@ public class TradeController extends TemplateGenerator {
 					tmp = freeSpace/resourceMass;
 				}
 
-				long get = (long)(tmp*res.getCount1()/1000d);
+				BigDecimal get = BigDecimal.valueOf(tmp).multiply(new BigDecimal(res.getCount1()/1000d));
 			
 				//Aufpassen das ich nicht das Konto leerfresse
 				if(reconsumption > 0)
 				{
-					int ticks = konto.subtract(BigInteger.valueOf(get)).divide(BigInteger.valueOf(reconsumption)).intValue();
+					int ticks = konto.subtract(get.toBigInteger()).divide(BigInteger.valueOf(reconsumption)).intValue();
 					if(ticks <= MIN_TICKS_TO_SURVIVE)
 					{
 						//Konto reicht mit Verkauf nur noch fuer weniger als 7 Ticks => begrenzen.
@@ -304,7 +306,7 @@ public class TradeController extends TemplateGenerator {
 					continue;
 				}
 
-				get = (long)(tmp*res.getCount1()/1000d);
+				get = BigDecimal.valueOf(tmp).multiply(new BigDecimal(res.getCount1()/1000d));
 			
 				t.setVar(	"waren.count",	tmp,
 							"waren.name",	res.getName(),
@@ -313,7 +315,7 @@ public class TradeController extends TemplateGenerator {
 								
 				t.parse("msgs.list","msgs.listitem",true);
 			
-				totalRE += get;
+				totalRE = totalRE.add(get.toBigInteger());
 				changed = true;
 				shipCargo.substractResource( res.getId(), tmp );
 	
@@ -321,7 +323,7 @@ public class TradeController extends TemplateGenerator {
 				tpcargo.addResource( res.getId(), tmp );
 				//Freien Platz korrigieren
 				freeSpace -= tmp*resourceMass;
-				konto.subtract(BigInteger.valueOf(get));
+				konto.subtract(get.toBigInteger());
 			}
 		}
 		
@@ -333,7 +335,9 @@ public class TradeController extends TemplateGenerator {
 	
 			this.ship.recalculateShipStatus();
 
-			user.transferMoneyFrom(this.posten.getOwner().getId(), totalRE, "Warenverkauf Handelsposten bei "+this.posten.getLocation().displayCoordinates(false), false, User.TRANSFER_SEMIAUTO );
+			user.transferMoneyFrom(this.posten.getOwner().getId(), totalRE, 
+					"Warenverkauf Handelsposten bei "+this.posten.getLocation().displayCoordinates(false), false, 
+					UserMoneyTransfer.Transfer.SEMIAUTO );
 		}
 		
 		redirect();

@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.bases;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -46,6 +48,7 @@ import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.Kaserne;
 import net.driftingsouls.ds2.server.entities.StatVerkaeufe;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -211,7 +214,7 @@ public class Kommandozentrale extends DefaultBuilding {
 		 */
 	
 		if( baction.equals("sell") ) {
-			long totalRE = 0;
+			BigInteger totalRE = BigInteger.ZERO;
 		
 			int tick = context.get(ContextCommon.class).getTick();
 			int system = base.getSystem();
@@ -241,10 +244,10 @@ public class Kommandozentrale extends DefaultBuilding {
 						continue;
 					}
 					
-					long get = (long)(tmp*(double)res.getCount1()/1000d);
+					BigDecimal get = BigDecimal.valueOf(tmp).multiply(new BigDecimal(res.getCount1()/1000d));
 					
 					message.append("<img src=\""+res.getImage()+"\" alt=\"\" />"+Common.ln(tmp)+" f&uuml;r "+Common.ln(get)+" RE verkauft<br />\n");
-					totalRE += get;
+					totalRE = totalRE.add(get.toBigInteger());
 					
 					changed = true;
 					cargo.substractResource(res.getId(), tmp);
@@ -262,7 +265,7 @@ public class Kommandozentrale extends DefaultBuilding {
 				}
 				
 				base.setCargo(cargo);
-				user.transferMoneyFrom(Faction.GTU, totalRE, "Warenverkauf Asteroid "+base.getId()+" - "+base.getName(), false, User.TRANSFER_SEMIAUTO );
+				user.transferMoneyFrom(Faction.GTU, totalRE, "Warenverkauf Asteroid "+base.getId()+" - "+base.getName(), false, UserMoneyTransfer.Transfer.SEMIAUTO );
 				
 				message.append("<br />");
 			}

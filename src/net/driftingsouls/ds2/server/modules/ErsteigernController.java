@@ -726,7 +726,7 @@ public class ErsteigernController extends TemplateGenerator
 
 					bieter.transferMoneyFrom(faction, entry.getPreis(),
 							"R&uuml;ck&uuml;berweisung Gebot #2" + entry.getId() + " '" + entryname
-									+ "'", false, User.TRANSFER_SEMIAUTO);
+									+ "'", false, UserMoneyTransfer.Transfer.SEMIAUTO);
 				}
 
 				if( entry.getTick() < ticks + 3 )
@@ -738,7 +738,7 @@ public class ErsteigernController extends TemplateGenerator
 
 				User gtu = (User)db.get(User.class, this.faction);
 				gtu.transferMoneyFrom(user.getId(), bid, "&Uuml;berweisung Gebot #2"
-						+ entry.getId() + " '" + entryname + "'", false, User.TRANSFER_SEMIAUTO);
+						+ entry.getId() + " '" + entryname + "'", false, UserMoneyTransfer.Transfer.SEMIAUTO);
 
 				user.setTemplateVars(t);
 				t.setVar("user.konto", Common.ln(user.getKonto()), "show.highestbid", 1);

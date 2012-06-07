@@ -73,20 +73,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @BatchSize(size=50)
 public class User extends BasicUser {
 	private static final Log log = LogFactory.getLog(User.class);
-	
-	/**
-	 * Geldtransfer - Der Transfer ist manuell vom Spieler durchgefuerht worden.
-	 */
-	public static final int TRANSFER_NORMAL = 0;
-	/**
-	 * Geldtransfer - Der Transfer ist in direkter Folge einer Spieleraktion ausgefuehrt worden.
-	 */
-	public static final int TRANSFER_SEMIAUTO = 1;
-	/**
-	 * Geldtransfer - Der Transfer ist automatisch erfolgt.
-	 */
-	public static final int TRANSFER_AUTO = 2;
-	
+
 	/**
 	 * Der Spieler taucht in der Spielerliste nicht auf.
 	 */
@@ -623,11 +610,9 @@ public class User extends BasicUser {
 	 * @param text Der Hinweistext, welcher im "Kontoauszug" angezeigt werden soll
 	 * @param faketransfer Handelt es sich um einen "gefakten" Geldtransfer (<code>true</code>)?
 	 * @param transfertype Der Transfertyp (Kategorie)
-	 * @see #TRANSFER_AUTO
-	 * @see #TRANSFER_SEMIAUTO
-	 * @see #TRANSFER_NORMAL
+	 * @see UserMoneyTransfer.Transfer
 	 */
-	public void transferMoneyFrom( int fromID, long count, String text, boolean faketransfer, int transfertype) {
+	public void transferMoneyFrom( int fromID, long count, String text, boolean faketransfer, UserMoneyTransfer.Transfer transfertype) {
 		transferMoneyFrom(fromID,BigInteger.valueOf(count), text, faketransfer, transfertype);
 	}
 	
@@ -664,11 +649,9 @@ public class User extends BasicUser {
 	 * @param text Der Hinweistext, welcher im "Kontoauszug" angezeigt werden soll
 	 * @param faketransfer Handelt es sich um einen "gefakten" Geldtransfer (<code>true</code>)?
 	 * @param transfertype Der Transfertyp (Kategorie)
-	 * @see #TRANSFER_AUTO
-	 * @see #TRANSFER_SEMIAUTO
-	 * @see #TRANSFER_NORMAL
+	 * @see UserMoneyTransfer.Transfer
 	 */
-	public void transferMoneyFrom( int fromID, BigInteger count, String text, boolean faketransfer, int transfertype) {
+	public void transferMoneyFrom( int fromID, BigInteger count, String text, boolean faketransfer, UserMoneyTransfer.Transfer transfertype) {
 		org.hibernate.Session db = context.getDB();
 		
 		if( !count.equals(BigInteger.ZERO) ) {
@@ -681,7 +664,7 @@ public class User extends BasicUser {
 		
 			UserMoneyTransfer log = new UserMoneyTransfer(fromUser, this, count, text);
 			log.setFake(faketransfer);
-			log.setType(UserMoneyTransfer.Transfer.values()[transfertype]);
+			log.setType(transfertype);
 			db.persist(log);
 		}
 	}
@@ -694,10 +677,10 @@ public class User extends BasicUser {
 	 * @param count Die zu transferierende Geldmenge
 	 * @param text Der Hinweistext, welcher im "Kontoauszug" angezeigt werden soll
 	 * @param faketransfer Handelt es sich um einen "gefakten" Geldtransfer (<code>true</code>)?
-	 * @see #transferMoneyFrom(int, long, String, boolean, int)
+	 * @see #transferMoneyFrom(int, long, String, boolean, UserMoneyTransfer.Transfer)
 	 */
 	public void transferMoneyFrom( int fromID, long count, String text, boolean faketransfer) {
-		transferMoneyFrom( fromID, count, text, faketransfer, TRANSFER_NORMAL );
+		transferMoneyFrom( fromID, count, text, faketransfer, UserMoneyTransfer.Transfer.NORMAL );
 	}
 	
 	/**
@@ -713,11 +696,19 @@ public class User extends BasicUser {
 		transferMoneyFrom( fromID, count, text, false );
 	}
 
+	/**
+	 * Erhoeht das auf den Spieler ausgesetzte Kopfgeld um den genannten RE-Betrag.
+	 * @param add Der Betrag
+	 */
     public void addBounty(BigInteger add)
     {
         this.bounty.add(add);
     }
 
+    /**
+	 * Gibt das auf den Spieler ausgesetzte Kopfgeld in RE zurueck.
+	 * @param add Das Kopfgeld
+	 */
     public BigInteger getBounty()
     {
         return this.bounty;

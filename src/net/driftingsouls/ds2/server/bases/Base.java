@@ -61,6 +61,7 @@ import net.driftingsouls.ds2.server.entities.Feeding;
 import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -1517,7 +1518,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 				boolean overfullCargo = clearOverfullCargo(state);
 				if(money > 0)
 				{
-					getOwner().transferMoneyFrom(Faction.GTU, money, "Automatischer Warenverkauf Asteroid " + getName(), false, User.TRANSFER_AUTO);	
+					getOwner().transferMoneyFrom(Faction.GTU, money, "Automatischer Warenverkauf Asteroid " + getName(), false, UserMoneyTransfer.Transfer.AUTO);	
 				}
 				
 				if(money > 0)

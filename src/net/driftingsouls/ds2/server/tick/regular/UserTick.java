@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.comm.Ordner;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.Handel;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.tick.EvictableUnitOfWork;
@@ -137,7 +138,9 @@ public class UserTick extends TickController
 						
 						log("Geld f&uuml;r Handelsinserate " + costs);
 						User nobody = (User)db.get(User.class, -1);
-						nobody.transferMoneyFrom(user.getId(), costs, "Kosten f&uuml;r Handelsinserate - User: " + user.getName() + " (" + user.getId() + ")", false, User.TRANSFER_AUTO);
+						nobody.transferMoneyFrom(user.getId(), costs, 
+								"Kosten f&uuml;r Handelsinserate - User: " + user.getName() + " (" + user.getId() + ")", 
+								false, UserMoneyTransfer.Transfer.AUTO);
 					}
 				}
 				
