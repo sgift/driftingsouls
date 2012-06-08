@@ -23,6 +23,8 @@ import java.io.Writer;
 import java.math.BigInteger;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.config.Rang;
@@ -72,7 +74,17 @@ public class EditUser implements AdminPlugin
 
 			user.setDisabled(disableAccount);
 
-			user.setNickname(context.getRequest().getParameterString("name"));
+			String name = context.getRequest().getParameterString("name");
+			user.setNickname(name);
+			String newname = name;
+			if( user.getAlly() != null ) {
+				String allytag = user.getAlly().getAllyTag();
+				newname = allytag;
+				newname = StringUtils.replace(newname, "[name]", name);
+			}
+			user.setName(newname);
+
+
 			user.setRace(context.getRequest().getParameterInt("race"));
 			user.setVacationCount(context.getRequest().getParameterInt("vacation"));
 			user.setWait4VacationCount(context.getRequest().getParameterInt("wait4vac"));
