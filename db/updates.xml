@@ -1624,4 +1624,7 @@
     <update type="structure" datum="2012-06-05"><![CDATA[
     	ALTER TABLE ship_script_data MODIFY shipid INT NOT NULL auto_increment;
     ]]></update>
+    <update type="structure" datum="2012-06-08"><![CDATA[
+    	ALTER TABLE ship_script_data DROP FOREIGN KEY script_data_fk_ship;
+    ]]></update>
 </updates>
