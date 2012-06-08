@@ -41,16 +41,16 @@ public class KSTakeCommandAction extends BasicKSAction {
 		this.requireActive(false);
 		this.requireCommander(false);
 	}
-	
+
 	@Override
 	public Result execute(Battle battle) throws IOException {
 		Result result = super.execute(battle);
 		if( result != Result.OK ) {
 			return result;
 		}
-		
+
 		Context context = ContextMap.getContext();
-		
+
 		User user = (User)context.getActiveUser();
 
         if(!user.hasFlag(User.FLAG_KS_TAKE_BATTLES))
@@ -62,7 +62,7 @@ public class KSTakeCommandAction extends BasicKSAction {
                 return Result.ERROR;
             }
         }
-		
+
 		if( battle.getTakeCommand(battle.getOwnSide()) != 0 ) {
 			battle.logme( "Es versucht bereits ein anderer Spieler das Kommando zu &uuml;bernehmen\n" );
 			return Result.ERROR;
@@ -78,7 +78,8 @@ public class KSTakeCommandAction extends BasicKSAction {
 		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
 		battle.logenemy("[userprofile="+user.getId()+",profile_alog]"+Common._titleNoFormat(user.getName())+"[/userprofile] hat die Schlacht &uuml;bernommen\n\n");
 		battle.logenemy("]]></action>\n");
-		
-		return Result.OK;		
+		battle.logenemy("<side"+(battle.getOwnSide()+1)+" commander=\""+battle.getCommander(battle.getOwnSide()).getId()+"\" ally=\""+battle.getAlly(battle.getOwnSide())+"\" />\n");
+
+		return Result.OK;
 	}
 }
