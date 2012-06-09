@@ -11,6 +11,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
+import net.driftingsouls.ds2.server.config.Medals;
+
 /**
  * Der Rang eines Spielers bei einem anderen Spieler.
  */
@@ -28,14 +30,13 @@ public class UserRank
     {
 		private static final long serialVersionUID = -296524516236609133L;
 		
-		@SuppressWarnings("unused")
 		@ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name="owner")
-        private User owner;
+        protected User owner;
 		
         @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name="rank_giver")
-        private User rankGiver;
+        protected User rankGiver;
         
         /**
          * Konstruktor.
@@ -109,5 +110,19 @@ public class UserRank
     public void setRank(int rank)
     {
         this.rank = rank;
+    }
+    
+    /**
+     * Gibt den Anzeigenamen des Rangs zurueck.
+     * @return Der Anzeigename
+     */
+    public String getName()
+    {
+    	String rangName = Medals.get().rang(this.rank).getName();
+		if( this.userRankKey.rankGiver.getAlly() != null )
+		{
+			rangName = this.userRankKey.rankGiver.getAlly().getRangName(rank);
+		}
+		return rangName;
     }
 }

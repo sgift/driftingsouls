@@ -312,9 +312,9 @@ public class NPCOrderController extends TemplateGenerator {
 		edituser.setTemplateVars(t, "edituser");
 
         UserRank rank = edituser.getRank(user);
-
+        
         t.setBlock("_NPCORDER", "ranks.listitem", "ranks.list");
-        for( Rang rang : Medals.get().raenge().values() )
+        for( Rang rang : user.getAlly() != null ? user.getAlly().getFullRangNameList() : Medals.get().raenge().values() )
         {
         	t.setVar("rank.id", rang.getID(),
         			"rank.name", rang.getName(),

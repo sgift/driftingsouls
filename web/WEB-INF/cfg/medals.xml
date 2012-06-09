@@ -31,8 +31,13 @@
 		<rang id="9" name="Flottenadmiral" />
 		<rang id="10" name="Sternenadmiral" />
 		<rang id="11" name="Oberkommandierender" />
-		<rang id="12" name="Admin" />
-		<rang id="13" name="Gott" />
+		<rang id="12" name="Oberkommandierender" />
+		<rang id="13" name="Oberkommandierender" />
+		<rang id="14" name="Oberkommandierender" />
+		<rang id="15" name="Oberkommandierender" />
+		<rang id="16" name="Oberkommandierender" />
+		<rang id="99" name="Admin" />
+		<rang id="100" name="Gott" />
 	</raenge>
 	<medal id="0" name="Orden der Tapferkeit">
 		<image>interface/medals/tapferkeit1.png</image>

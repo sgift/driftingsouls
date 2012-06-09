@@ -67,14 +67,18 @@ public class Medals {
 	
 	/**
 	 * Gibt den Rang mit der angegebenen ID zurueck.
-	 * Falls kein Rang mit der ID existiert wird <code>null</code>
-	 * zurueckgegeben.
+	 * Falls kein Rang mit der ID existiert wird der 
+	 * Standardrang zurueckgegeben
 	 * 
 	 * @param id Die ID des gewuenschten Ranges
-	 * @return Der Rang oder <code>null</code>
+	 * @return Der Rang oder der Standardrang
 	 */
 	public Rang rang( int id ) {
-		return raenge.get(id);
+		Rang rang = raenge.get(id);
+		if( rang == null ) {
+			return raenge.get(0);
+		}
+		return rang;
 	}
 	
 	/**

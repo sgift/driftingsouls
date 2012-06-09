@@ -23,7 +23,7 @@ package net.driftingsouls.ds2.server.config;
  * @author Christopher Jung
  *
  */
-public class Rang {
+public class Rang implements Comparable<Rang> {
 	private int id;
 	private String name;	
 	
@@ -32,7 +32,7 @@ public class Rang {
 	 * @param id die ID des Ranges
 	 * @param name der Name des Ranges
 	 */
-	protected Rang(int id, String name) {
+	public Rang(int id, String name) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -52,5 +52,35 @@ public class Rang {
 	 */
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	public int compareTo(Rang o)
+	{
+		return this.id - o.id;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + id;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if( this == obj )
+			return true;
+		if( obj == null )
+			return false;
+		if( getClass() != obj.getClass() )
+			return false;
+		Rang other = (Rang)obj;
+		if( id != other.id )
+			return false;
+		return true;
 	}
 }

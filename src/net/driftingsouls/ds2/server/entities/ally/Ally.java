@@ -23,28 +23,35 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Version;
-
-import org.hibernate.Query;
-import org.hibernate.annotations.BatchSize;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.config.Medals;
+import net.driftingsouls.ds2.server.config.Rang;
 import net.driftingsouls.ds2.server.entities.ComNetChannel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
+
+import org.hibernate.Query;
+import org.hibernate.annotations.BatchSize;
 
 /**
  * Repraesentiert eine Allianz in DS.
@@ -76,6 +83,10 @@ public class Ally {
 	private short wonBattles;
 	private int destroyedShips;
 	private int lostShips;
+	
+	@OneToMany(mappedBy="ally", cascade=CascadeType.ALL)
+	@OrderBy("rang")
+	private Set<AllyRangDescriptor> rangDescriptors;
 	
 	@Version
 	private int version;
@@ -546,12 +557,62 @@ public class Ally {
 			}
 		}
 	}
-
+	
 	/**
 	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {
 		return this.version;
+	}
+	
+	/**
+	 * Gibt alle fuer die Allianz hinterlegte Rangbezeichnungen fuer NPC-Raenge zurueck.
+	 * @return Die Liste
+	 */
+	public Set<AllyRangDescriptor> getRangDescriptors()
+	{
+		return this.rangDescriptors;
+	}
+	
+	/**
+	 * Gibt die Liste aller bekannten Raenge dieser Allianz zurueck. Dies umfasst sowohl
+	 * die spezifischen Raenge dieser Allianz als auch alle allgemeinen Raenge ({@link Medals#raenge()}).
+	 * @return Die nach Rangnummer sortierte Liste der Rangbezeichnungen
+	 */
+	public SortedSet<Rang> getFullRangNameList()
+	{
+		SortedSet<Rang> result = new TreeSet<Rang>();
+		for( AllyRangDescriptor rang : this.rangDescriptors )
+		{
+			result.add(new Rang(rang.getRang(), rang.getName()));
+		}
+		
+		for( Rang rang : Medals.get().raenge().values() )
+		{
+			result.add(rang);
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Gibt den Anzeigenamen fuer die angegebene Rangnummer zurueck.
+	 * Sofern die Allianz ueber eine eigene Bezeichnung verfuegt wird diese zurueckgegeben.
+	 * Andernfalls wird die globale Bezeichnung verwendet.
+	 * @param rangNr Die Rangnummer
+	 * @return Der Anzeigename
+	 */
+	public String getRangName(int rangNr)
+	{
+		for( AllyRangDescriptor rang : this.rangDescriptors )
+		{
+			if( rang.getRang() == rangNr )
+			{
+				return rang.getName();
+			}
+		}
+		
+		return Medals.get().rang(rangNr).getName();
 	}
 }

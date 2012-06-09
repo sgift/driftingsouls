@@ -231,7 +231,7 @@ public class UserProfileController extends TemplateGenerator {
 					continue;
 				}
 				t.setVar( "npcrang", rang.getRank(),
-						"npcrang.name", Medals.get().rang(rang.getRank()).getName(),
+						"npcrang.name", rang.getName(),
 						"npcrang.npc", Common._title(rang.getRankGiver().getName()));
 				
 				t.parse("user.npcrang.list", "user.npcrang", true);	
