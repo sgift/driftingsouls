@@ -6,202 +6,6 @@
 	{if show.gfxpakwarning}
 		alert('Die von ihnen verwendete Version des Grafikpaks ist veraltet. Die Benutzung des Grafikpaks wurde daher deaktiviert.\nBitte laden sie sich die neuste Version des Grafikpaks herunter!');
 	{/endif}
-	
-	/*
-		Mail Check
-	*/
-
-	var checkPMStatusCanceled = false;
-	function checkPMStatus() {
-		if( !checkPMStatusCanceled ) {
-			setTimeout(function() {
-				checkPMStatus()
-				}, 30000
-			);
-		}
-		var url = getDsUrl();
-		var params = {
-				module:'{global.module}', 
-				action:'hasNewPm',
-				autoAccess:true
-		};
-
-		jQuery.get( url, params, updatePMStatus );
-	}
-	
-	function updatePMStatus( originalRequest ) {
-		var response = originalRequest;
-		
-		if( response != null && response.indexOf('nicht eingeloggt') > -1 ) {
-			checkPMStatusCanceled = true;
-			return;
-		}
-		
-		if( originalRequest == '1' ) {
-			document.getElementById('mailicon').style.display='inline';
-		}
-		else {
-			document.getElementById('mailicon').style.display='none';
-		}
-	}
-	
-	/*
-		Boxfunktionen
-	*/
-	
-	function boxClose(box) {
-		document.getElementById(box).style.display = 'none';
-	}
-	
-	function boxOpen(box) {
-		var boxEl = jQuery(box);
-		if( boxEl.css('left') == '0px' ) {
-			boxEl.css('left', Math.ceil(jQuery("body").width()/2-boxEl.width()/2)+"px");
-		}
-		boxEl.css('display', 'block');
-		
-		if( box.indexOf('helpbox') > -1 ) {
-			helpBox.fetchHelpText();
-		}
-	}
-	
-	var helpBox = {
-		isVisible : function() {
-			if( document.getElementById('helpbox').style.display == 'block' ) {
-				return true;
-			}
-			return false;
-		},
-		fetchHelpText : function() {
-			document.getElementById('helpboxtext').innerHTML = '';
-			var params = {
-					module:'{global.module}', 
-					action:'getHelpText', 
-					page:currentModule
-			};
-			jQuery.get( getDsUrl(), params, helpBox.updateHelpText );
-		},
-		updateHelpText : function( originalRequest ) {
-			var response = originalRequest;
-			
-			if( response.indexOf('Sie muessen sich einloggen') > -1 ) {
-				location.href = getDsUrl()+"?module=portal&action=login";
-				return;
-			}
-			
-			document.getElementById('helpboxtext').innerHTML = response;
-		}
-	}
-	
-	var adminBox = {
-		execute : function() {
-			var command = document.getElementById('adminConsoleCommand').value;
-			document.getElementById('adminConsoleResponse').innerHTML = '';
-			var params = {
-					module:'admin', 
-					action:'ajax', 
-					namedplugin:'net.driftingsouls.ds2.server.modules.admin.AdminConsole', 
-					responseOnly:'1', 
-					cmd:command};
-			jQuery.get(getDsUrl(), params, adminBox.showResponse);
-		},
-		
-		showResponse : function( originalRequest ) {
-			var response = originalRequest;
-			
-			if( response.indexOf('Sie muessen sich einloggen') > -1 ) {
-				location.href = getDsUrl()+"?module=portal&action=login";
-				return;
-			}
-			
-			document.getElementById('adminConsoleResponse').innerHTML = response;
-		}
-	}
-	
-	/*
-		Page-Funktionen
-	*/
-	var currentModule;
-	var currentTitle;
-	
-	function setCurrentPage(module, title) {
-		var link = document.getElementById('page_'+currentModule);
-		if( link ) {
-			link.className='';
-		}
-		else {
-			document.getElementById('page_currentpage').style.display='none';
-			
-			// Submenue leeren
-			var currentPageLi = document.getElementById('currentpage');
-			var dl = currentPageLi.getElementsByTagName('dl')[0];
-			var dds = dl.getElementsByTagName('dd');
-			while( dds.length > 0 ) {
-				dl.removeChild(dds[0]);
-			}
-		}
-	
-		var link = document.getElementById('page_'+module);
-		if( link ) {
-			link.className='currentPage';
-		}
-		else if( title != 'null' ) {
-			var reducedTitle = title;
-			if( reducedTitle.length > 16 ) {
-				reducedTitle = reducedTitle.substring(0,16)+"...";
-			}
-			document.getElementById('page_currentpage').firstChild.nodeValue = reducedTitle;
-			document.getElementById('page_currentpage').style.display='inline';
-			document.getElementById('page_currentpage_dropdown').style.display = 'none';
-		}
-		
-		var oldModule = currentModule;
-		
-		currentModule = module;
-		currentTitle = title;
-		
-		if( helpBox.isVisible() && oldModule != currentModule ) {
-			helpBox.fetchHelpText();
-		}
-	}
-	
-	function addPageMenuEntry(title, url) {
-		var currentPageLi = document.getElementById('currentpage');
-		
-		var dl = currentPageLi.getElementsByTagName('dl')[0];
-		var dd = document.createElement('dd');
-		var a = document.createElement('a');
-		a.href = url;
-		a.appendChild(document.createTextNode(title));
-		a.target = 'main';
-		dd.appendChild(a);
-		dl.appendChild(dd);
-		
-		document.getElementById('page_currentpage_dropdown').style.display = 'inline';
-	}
-	
-	function completePage() {
-		var currentPageLi = document.getElementById('currentpage');
-		var dds = currentPageLi.getElementsByTagName('dd');
-		
-		if( dds.length > 0 ) {
-			var dl = currentPageLi.getElementsByTagName('dl')[0];
-			var dd = document.createElement('dd');
-			dd.className = 'lastelement';
-			
-			var span = document.createElement('span');
-			dd.appendChild(span);
-			dl.appendChild(dd);
-		}
-	}
-	
-	jQuery(document).ready(function() {
-		checkPMStatus();
-		jQuery('#noticebox').draggable();
-		jQuery('#adminconsolebox').draggable();
-		jQuery('#helpbox').draggable();
-		jQuery('#searchbox').draggable({iframeFix:true});
-	});
 -->
 </script>
 <ul id="menu">
@@ -241,7 +45,7 @@
 		{/endif}
 	</dl>
 </li>
-<li>	
+<li>
 	<dl>
 		<dt>
 			<a id="page_schiffe" href="./ds?module=schiffe" target="main">Schiffe</a>
@@ -386,7 +190,7 @@
 		</dd>
 	</dl>
 </li>
-<li>	
+<li>
 	<dl>
 		<dt>
 			Kommunikation <img src="{global.datadir}/data/interface/menubar/submenu.png" alt="" />
@@ -426,14 +230,14 @@
 		</dd>
 	</dl>
 </li>
-<li>	
+<li>
 	<dl>
-		<dt> 	
+		<dt>
 			Datenbank <img src="{global.datadir}/data/interface/menubar/submenu.png" alt="" />
 		</dt>
 		<dd>
 			<a href="./ds?module=map&amp;sys=1&amp;loadmap=0" target="main">Sternenkarte</a>
-		</dd>	
+		</dd>
 		<dd>
 			<a href="./ds?module=stats" target="main">Statistik</a>
 		</dd>
@@ -467,7 +271,7 @@
 		</dd>
 	</dl>
 </li>
-<li>	
+<li>
 	<dl>
 		<dt>
 			Optionen <img src="{global.datadir}/data/interface/menubar/submenu.png" alt="" />
@@ -498,9 +302,9 @@
 	</dl>
 </li>
 {if user.npc}
-	<li>	
+	<li>
 		<dl>
-			<dt> 	
+			<dt>
 				Spezial <img src="{global.datadir}/data/interface/menubar/submenu.png" alt="" />
 			</dt>
 			<dd>
@@ -518,9 +322,9 @@
 	</li>
 {else}
 	{if user.admin}
-		<li>	
+		<li>
 			<dl>
-				<dt> 	
+				<dt>
 					Spezial <img src="{global.datadir}/data/interface/menubar/submenu.png" alt="" />
 				</dt>
 				<dd>
@@ -582,13 +386,12 @@
 
 <!-- Suche -->
 <div id="searchbox" class="gfxbox"><div><div><div>
-	<h3>Suchen</h3>
-	<form action="./ds" method="post" target="search">
-		<input type="text" name="search" style="width:300px" />
-		<input class="submit" type="submit" value="Suchen" style="width:60px" />
-		{!form_create_hidden default, module:search}
-	</form>
-	<iframe id="searchframe" name="search" scrolling="auto" frameborder="0" src="./ds?module=search"></iframe>
+	<div class="content">
+		<h3>Suchen</h3>
+		<input id="searchInput" type="text" name="search" style="width:300px" />
+		<button class="submit" type="button" style="width:60px" onclick="SearchBox.execute()">Suchen</button>
+		<div id="searchResult"></div>
+	</div>
 	<button type="button" onclick="boxClose('searchbox')" value="Schlie&szlig;en">Schlie&szlig;en</button>
 </div></div></div></div>
 

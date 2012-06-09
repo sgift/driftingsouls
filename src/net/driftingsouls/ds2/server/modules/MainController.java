@@ -48,19 +48,20 @@ public class MainController extends TemplateGenerator {
 	private static final String SCRIPT_FORUM = "http://forum.drifting-souls.net/phpbb3/";
 
 	private Configuration config;
-	
+
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public MainController(Context context) {
 		super(context);
-		
+
 		this.setTemplate("main.html");
 		setDisableDefaultCSS(true);
 		setDisableDebugOutput(true);
+		this.setCustomJavascript(true);
 	}
-	
+
 	/**
 	 * Injiziert die DS-Konfiguration.
 	 * @param config Die DS-Konfiguration
@@ -73,20 +74,20 @@ public class MainController extends TemplateGenerator {
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		getTemplateEngine().setVar("SCRIPT_FORUM", SCRIPT_FORUM);
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Prueft, ob der Spieler eine neue PM hat, welche noch nicht gelesen wurde.
-	 * @throws IOException 
+	 * @throws IOException
 	 *
 	 */
 	@Action(ActionType.AJAX)
 	public void hasNewPmAjaxAct() throws IOException {
 		User user = (User)this.getUser();
 		org.hibernate.Session db = getDB();
-		
+
 		int pmcount = ((Number)db.createQuery("select count(*) from PM where empfaenger= :user and gelesen=0")
 			.setEntity("user", user)
 			.iterate().next()).intValue();
@@ -97,26 +98,26 @@ public class MainController extends TemplateGenerator {
 			getResponse().getWriter().append("0");
 		}
 	}
-	
+
 	/**
 	 * Gibt zu einer Seite den Hilfetext zurueck.
-	 * @throws IOException 
+	 * @throws IOException
 	 *
 	 */
 	@Action(ActionType.AJAX)
 	public void getHelpText() throws IOException {
 		org.hibernate.Session db = getDB();
 		parameterString("page");
-		
+
 		final String page = getString("page");
-		
+
 		GuiHelpText text = (GuiHelpText)db.get(GuiHelpText.class, page);
-		
+
 		if( text != null ) {
 			getResponse().getWriter().append(Common._text(text.getText()));
 		}
 	}
-	
+
 	/**
 	 * Generiert das Hauptframe.
 	 */
@@ -126,7 +127,7 @@ public class MainController extends TemplateGenerator {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
-		
+
 		if( user.getUserImagePath() != null ) {
 			parameterNumber("gfxpakversion");
 			int gfxpakversion = getInteger("gfxpakversion");
@@ -134,26 +135,26 @@ public class MainController extends TemplateGenerator {
 				t.setVar("show.gfxpakwarning", true);
 			}
 		}
-		
+
 		t.setVar(
 				"user.npc"		, user.hasFlag( User.FLAG_ORDER_MENU ),
 				"user.admin"	, (user.isAdmin()),
 				"admin.showconsole",	user.getUserValue("TBLORDER/admin/show_cmdline"));
-		
+
 		t.setBlock("_MAIN", "bases.listitem", "bases.list");
-		
+
 		List<?> baseList = db.createQuery("from Base where owner= :user order by system,x,y")
 			.setEntity("user", user)
 			.list();
 		for( Iterator<?> iter=baseList.iterator(); iter.hasNext(); ) {
 			Base base = (Base)iter.next();
-			
+
 			t.setVar(
 					"base.id",	base.getId(),
 					"base.name",	base.getName(),
 					"base.klasse",	base.getKlasse(),
 					"base.location",	base.getLocation());
-			
+
 			t.parse("bases.list", "bases.listitem", true);
 		}
 	}

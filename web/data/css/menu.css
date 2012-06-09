@@ -116,9 +116,28 @@ div.gfxbox > div > div > div {
 	padding: 0px 0px 20px 20px;
 }
 
+
+.gfxbox a:link,
+.gfxbox a:visited {
+	color: #0060F0;
+	font-weight: normal;
+	text-decoration: none
+}
+.gfxbox a:hover {
+	color: #F0A000;
+	font-weight: normal;
+	text-decoration: none
+}
+.gfxbox a:active {
+	color: #0000FF;
+	font-weight: normal;
+	text-decoration: none
+}
+
+
 /* Menueleiste */
 
-#menu { 
+#menu {
 	list-style-type:none;
 	padding:0px 5px 0px 5px;
 	margin:0px;
@@ -144,7 +163,7 @@ div.gfxbox > div > div > div {
 	z-index:100;
 }
 #menu li.actionfield {
-	float:right; 
+	float:right;
 	padding:6px 10px 3px 0px;
 	margin:0 1px 0 0;
 	position:relative;
@@ -312,7 +331,7 @@ div.gfxbox > div > div > div {
 
 #adminConsoleResponse {
 	height:200px;
-	overflow:auto;	
+	overflow:auto;
 }
 
 /* Hilfebox */
@@ -339,9 +358,34 @@ div.gfxbox > div > div > div {
 	text-align:center;
 }
 
-#searchframe {
-	width:400px;
+#searchbox .content {
+	height:400px;
+	overflow-y:auto;
+}
+
+#searchbox table {
+	width:100%;
 	margin:0px auto 0px auto;
 	padding:0px 0px 0px 0px;
-	height:400px;
+	border-style:none;
+	border-width:0px;
+	font-size:14px;
+}
+
+#searchbox td {
+	color:#c7c7c7;
+	border-width:0px;
+	padding: 0px 2px;
+}
+
+#searchbox tbody td:first-child {
+	width:35px;
+}
+
+#searchbox tbody td {
+	text-align:left;
+}
+
+#searchbox tfoot td {
+	text-align:center;
 }

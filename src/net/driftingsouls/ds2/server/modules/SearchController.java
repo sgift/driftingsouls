@@ -25,13 +25,11 @@ import java.util.List;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
-import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -43,9 +41,9 @@ import net.sf.json.JSONObject;
  * @urlparam String search Der Suchbegriff
  */
 @Module(name="search")
-public class SearchController extends TemplateGenerator {
+public class SearchController extends DSGenerator {
 	private static final int MAX_OBJECTS = 25;
-	
+
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
@@ -53,18 +51,12 @@ public class SearchController extends TemplateGenerator {
 	public SearchController(Context context) {
 		super(context);
 
-		setTemplate("search.html");
-		
-		addBodyParameter("style", "background-image: url('"+Configuration.getSetting("URL")+"data/interface/border/border_background.gif')");
-		setDisableDebugOutput(true);
-		setDisablePageMenu(true);
-		
 		parameterString("search");
 	}
-	
+
 	@Override
 	protected boolean validateAndPrepare(String action) {
-		return true;	
+		return true;
 	}
 
 	/**
@@ -75,7 +67,7 @@ public class SearchController extends TemplateGenerator {
 	public void searchAction() throws IOException {
 		org.hibernate.Session db = getDB();
 		JSONObject json = new JSONObject();
-		
+
 		parameterString("only");
 		parameterNumber("max");
 		final String only = getString("only");
@@ -84,169 +76,94 @@ public class SearchController extends TemplateGenerator {
 		if( max <= 0 || max > MAX_OBJECTS ) {
 			max = MAX_OBJECTS;
 		}
-		
+
 		if( search.length() < 1 ) {
 			getResponse().getWriter().append(json.toString());
 			return;
 		}
-		
+
 		int count = 0;
-		
+
 		if( only.isEmpty() || "bases".equals(only) ) {
 			JSONArray baseListObj = new JSONArray();
-			
+
 			List<?> baseList = findBases(db, search, max-count);
 			for( Iterator<?> iter=baseList.iterator(); iter.hasNext(); ) {
 				Base base = (Base)iter.next();
 				JSONObject baseObj = new JSONObject();
-				
+
 				baseObj.accumulate("id", base.getId());
 				baseObj.accumulate("name", Common._plaintitle(base.getName()));
 				baseObj.accumulate("location", base.getLocation().displayCoordinates(false));
-				
+
 				baseListObj.add(baseObj);
-				
+
 				count++;
 			}
-			
+
 			json.accumulate("bases", baseListObj);
 		}
-		
+
 		if( only.isEmpty() || "ships".equals(only) ) {
 			if( count < max ) {
 				JSONArray shipListObj = new JSONArray();
-				
+
 				List<?> shipList = findShips(db, search, max-count);
 				for( Iterator<?> iter=shipList.iterator(); iter.hasNext(); ) {
 					Ship ship = (Ship)iter.next();
-					
+
 					JSONObject shipObj = new JSONObject();
-					
+
 					shipObj.accumulate("id", ship.getId());
 					shipObj.accumulate("name", Common._plaintitle(ship.getName()));
 					shipObj.accumulate("location", ship.getLocation().displayCoordinates(false));
-					
+
 					JSONObject typeObj = new JSONObject();
 					typeObj.accumulate("name", ship.getTypeData().getNickname());
-					typeObj.accumulate("picture", ship.getTypeData().getNickname());
-					
+					typeObj.accumulate("picture", ship.getTypeData().getPicture());
+
 					shipObj.accumulate("type", typeObj);
 
 					shipListObj.add(shipObj);
-					
+
 					count++;
 				}
-				
+
 				json.accumulate("ships", shipListObj);
 			}
 		}
-		
+
 		if( only.isEmpty() || "users".equals(only) ) {
 			if( count < max ) {
 				JSONArray userListObj = new JSONArray();
-			
+
 				List<?> userList = findUsers(db, search, max-count);
 				for( Iterator<?> iter=userList.iterator(); iter.hasNext(); ) {
 					User auser = (User)iter.next();
-					
+
 					JSONObject userObj = new JSONObject();
 					userObj.accumulate("id", auser.getId());
 					userObj.accumulate("name", Common._title(auser.getName()));
 					userObj.accumulate("plainname", auser.getPlainname());
-					
+
 					userListObj.add(userObj);
-					
+
 					count++;
 				}
-				
+
 				json.accumulate("users", userListObj);
 			}
 		}
-		
+
+		json.accumulate("maxObjects", count >= max );
+
 		getResponse().getWriter().append(json.toString());
 	}
-	
+
 	@Override
-	@Action(ActionType.DEFAULT)
-	public void defaultAction() {		
-		TemplateEngine t = getTemplateEngine();
-		org.hibernate.Session db = getDB();
-
-		final String search = getString("search");
-		
-		if( search.isEmpty() ) {
-			return;
-		}
-		
-		if( search.length() < 2 ) {
-			t.setVar("objects.termtoshort", 1);
-			return;
-		}
-		
-		t.setVar("search", search);
-		
-		t.setBlock("_SEARCH", "base.listitem", "none");				 			
-		t.setBlock("_SEARCH", "ship.listitem", "none");
-		t.setBlock("_SEARCH", "user.listitem", "none");
-
-		int count = 0;
-		
-		/*
-			Basen
-		*/
-		List<?> baseList = findBases(db, search, MAX_OBJECTS-count);
-		for( Iterator<?> iter=baseList.iterator(); iter.hasNext(); ) {
-			Base base = (Base)iter.next();
-			
-			t.setVar(	"base.id",		base.getId(),
-						"base.name",	Common._plaintitle(base.getName()),
-						"base.location",	base.getLocation().displayCoordinates(false));
-
-			t.parse("objects.list", "base.listitem", true);
-			
-			count++;
-		}
-		
-		if( count < MAX_OBJECTS ) {
-			/*
-				Schiffe
-			*/
-			List<?> shipList = findShips(db, search, MAX_OBJECTS-count);
-			for( Iterator<?> iter=shipList.iterator(); iter.hasNext(); ) {
-				Ship ship = (Ship)iter.next();
-				
-				t.setVar(	"ship.id",		ship.getId(),
-							"ship.name",	Common._plaintitle(ship.getName()),
-							"ship.type.name",	ship.getTypeData().getNickname(),
-							"ship.type.picture",	ship.getTypeData().getPicture(),
-							"ship.location",	ship.getLocation().displayCoordinates(false));
-		
-				t.parse("objects.list", "ship.listitem", true);
-				
-				count++;
-			}
-		}
-		
-		if( count < MAX_OBJECTS ) {
-			/*
-				User
-			*/
-			List<?> userList = findUsers(db, search, MAX_OBJECTS-count);
-			for( Iterator<?> iter=userList.iterator(); iter.hasNext(); ) {
-				User auser = (User)iter.next();
-				
-				t.setVar(	"user.id",		auser.getId(),
-							"user.name",	Common._title(auser.getName()));
-		
-				t.parse("objects.list", "user.listitem", true);
-				
-				count++;
-			}
-		}
-		
-		if( count >= MAX_OBJECTS ) {
-			t.setVar("objects.tomany", 1);
-		}
+	@Action(ActionType.AJAX)
+	public void defaultAction() throws IOException {
+		searchAction();
 	}
 
 	private List<?> findUsers(org.hibernate.Session db, final String search, int count)
