@@ -62,7 +62,6 @@ public class MapController extends TemplateGenerator
 	private StarSystem system;
 	private int sys;
 	private Configuration config;
-	private Version version;
 
 	/**
 	 * Legt den MapController an.
@@ -90,6 +89,7 @@ public class MapController extends TemplateGenerator
 		setPageTitle("Sternenkarte");
 
 		setDisableDebugOutput(true);
+		this.setCustomJavascript(true);
 	}
 
 	/**
@@ -99,58 +99,6 @@ public class MapController extends TemplateGenerator
 	@Autowired
 	public void setConfiguration(Configuration config) {
 		this.config = config;
-	}
-
-	/**
-	 * Injiziert die DS-Version.
-	 * @param version Die DS-Version
-	 */
-	@Autowired
-	public void setVersion(Version version) {
-		this.version = version;
-	}
-
-	@Override
-	protected void printHeader(String action) throws IOException
-	{
-		if(getActionType() != ActionType.DEFAULT)
-		{
-			return;
-		}
-
-		//The map uses jquery instead of the default javascript libraries, so
-		//we disable the default header and print our own header here
-
-		Response response = getContext().getResponse();
-		response.setContentType("text/html", "UTF-8");
-		Writer sb = response.getWriter();
-
-		sb.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n");
-		sb.append("<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"de\" lang=\"de\">\n");
-		sb.append("<head>\n");
-		sb.append("<title>Drifting Souls 2</title>\n");
-		sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n");
-		sb.append("<meta http-equiv=\"X-UA-Compatible\" content=\"IE=9\">\n");
-		if( !getDisableDefaultCSS() ) {
-			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(config.get("URL")).append("data/css/v").append(version.getHgVersion()).append("/format.css\" />\n");
-		}
-		sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(config.get("URL")).append("data/css/v").append(version.getHgVersion()).append("/starmap.css\" />\n");
-        sb.append("<script src=\"").append(config.get("URL")).append("data/javascript/v").append(version.getHgVersion()).append("/jquery-1.7.2.min.js\" type=\"text/javascript\"></script>\n");
-        sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/ds.js\" type=\"text/javascript\"></script>\n");
-		sb.append("<script src=\"").append(config.get("URL")).append("data/javascript/v").append(version.getHgVersion()).append("/starmap.js\" type=\"text/javascript\"></script>\n");
-
-        sb.append("<!--[if IE]>\n");
-		sb.append("<style type=\"text/css\">@import url("+config.get("URL")+"data/css/v"+version.getHgVersion()+"/format_fuer_den_dummen_ie.css);</style>\n");
-		sb.append("<![endif]-->\n");
-
-        sb.append("<script type=\"text/javascript\">\n");
-		sb.append("if( parent && parent.setCurrentPage ) {\n");
-		sb.append("parent.setCurrentPage('map','Sternenkarte');\n");
-		sb.append("parent.completePage();");
-		sb.append("}\n");
-		sb.append("</script>");
-
-		sb.append("</head>\n");
 	}
 
 	@Override
