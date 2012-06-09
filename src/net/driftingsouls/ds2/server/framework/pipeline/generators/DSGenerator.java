@@ -193,9 +193,6 @@ public abstract class DSGenerator extends Generator {
 				customJS = (Boolean)this.getAttribute("customjs");
 			}
 			sb.append("<body "+getOnLoadText()+" "+getBodyParameters()+" >\n");
-			sb.append("<div id=\"overDiv\" style=\"position:absolute; visibility:hidden; z-index:1000;\"></div>\n");
-			sb.append("<script type=\"text/javascript\" src=\""+url+"data/javascript/overlibmws.js\"><!-- overLIB (c) Erik Bosrup -->\n");
-			sb.append("</script>");
 			if( usegfxpak ) {
 				sb.append("<script src=\""+url+"data/javascript/gfxpakversion.js?"+version.getHgVersion()+"\" type=\"text/javascript\"></script>\n");
 			}
