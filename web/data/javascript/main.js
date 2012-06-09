@@ -150,8 +150,35 @@ var SearchBox = {
 
 
 var adminBox = {
+	init : function() {
+		$('#adminconsolebox').draggable();
+		
+		$('#adminConsoleCommand').autocomplete({
+			source : adminBox.__autoComplete,
+			minLength : 0
+		});
+	},
+	__autoComplete : function(pattern, response) {
+		var url = getDsUrl();
+		var params = {
+				module:'admin',
+				action:'ajax',
+				namedplugin:'net.driftingsouls.ds2.server.modules.admin.AdminConsole',
+				responseOnly:'1',
+				autoComplete:'1',
+				cmd:pattern.term
+		};
+
+		jQuery.getJSON( url, params, function(result) {
+			var data = [];
+			for( var i=0; i < result.length; i++ ) {
+				data.push({label: result[i], value:result[i]});
+			}
+			response(data);
+		});
+	},
 	execute : function() {
-		var command = document.getElementById('adminConsoleCommand').value;
+		var command = $('#adminConsoleCommand').val();
 		document.getElementById('adminConsoleResponse').innerHTML = '';
 		var params = {
 				module:'admin',
@@ -253,7 +280,7 @@ function completePage() {
 $(document).ready(function() {
 	checkPMStatus();
 	$('#noticebox').draggable();
-	$('#adminconsolebox').draggable();
 	$('#helpbox').draggable();
 	$('#searchbox').draggable();
+	adminBox.init();
 });

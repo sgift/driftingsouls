@@ -26,6 +26,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AdminController;
+import net.sf.json.JSONArray;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -46,6 +47,16 @@ public class AdminConsole implements AdminPlugin {
 		int responseOnly = context.getRequest().getParameterInt("responseOnly");
 
 		if( responseOnly == 1 ) {
+			int autoComplete = context.getRequest().getParameterInt("autoComplete");
+			if( autoComplete == 1 ) {
+				JSONArray result = new JSONArray();
+				for( String ac : new AdminCommands().autoComplete(cmd) ) {
+					result.add(ac);
+				}
+				echo.append(result.toString());
+				return;
+			}
+			
 			echo.append(StringUtils.replace( new AdminCommands().executeCommand(cmd), "\n", "<br />" ));
 			return;
 		}
