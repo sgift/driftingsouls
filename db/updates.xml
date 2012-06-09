@@ -1627,4 +1627,17 @@
     <update type="structure" datum="2012-06-08"><![CDATA[
     	ALTER TABLE ship_script_data DROP FOREIGN KEY script_data_fk_ship;
     ]]></update>
+    <update type="structure" datum="2012-06-09"><![CDATA[
+    	CREATE TABLE ally_rangdescriptors (
+    		id INT NOT NULL auto_increment,
+    		version INT NOT NULL DEFAULT 0,
+    		ally_id INT NOT NULL,
+    		rang INT NOT NULL DEFAULT 0,
+    		name VARCHAR(255) NOT NULL DEFAULT "",
+    		PRIMARY KEY(id)
+    	) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_bin;
+    	ALTER TABLE ally_rangdescriptors ADD CONSTRAINT ally_rangdescriptors_fk_ally FOREIGN KEY (ally_id) REFERENCES ally(id);
+    	UPDATE users SET rang=99 WHERE rang=12;
+    	UPDATE users SET rang=100 WHERE rang>12;
+    ]]></update>
 </updates>
