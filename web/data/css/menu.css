@@ -21,120 +21,6 @@ img {
 	vertical-align:middle;
 }
 
-button {
-	border: 1px #A7A7A7 solid;
-	margin: 0px;
-	color: #FEB626;
-	font-size:13px;
-	background-color: #202020;
-	padding:1px;
-}
-
-input {
-	border: 1px #A7A7A7 solid;
-	margin: 0px;
-	color: #C7C7C7;
-	font-size:13px;
-	background-color: #202020;
-	padding:1px;
-}
-
-input.submit {
-	border: 1px #A7A7A7 solid;
-	margin: 0px;
-	color: #FEB626;
-	font-size:13px;
-	background-color: #202020;
-	padding:1px;
-}
-
-textarea {
-	border: 1px #A7A7A7 solid;
-	margin: 0px;
-	color: #C7C7C7;
-	font-size:13px;
-	background-color: #202020;
-	padding:0px;
-}
-
-table.tooltip {
-	color: white;
-	font-family: arial;
-	font-size: 16px;
-	border-style: none;
-	border-width: 0px;
-}
-
-td.tooltip {
-	background-color: transparent;
-	color: white;
-	font-family: arial;
-	font-size: 16px;
-	border-style: none;
-	border-width: 0px;
-}
-
-font.tooltip {
-	color: white;
-	font-family: arial;
-	font-size: 16px;
-}
-
-h2 {font-size:16px; font-weight:bold; text-decoration:none; color:#FFFFFF; margin-top:1px; margin-left:0px; margin-right:0px; margin-bottom:2px}
-h3 {font-size:14px; font-weight:bold; text-decoration:none; color:#FEB626; margin-top:1px; margin-left:0px; margin-right:0px; margin-bottom:2px}
-
-/* Grafische Box */
-div.gfxbox {
-	position:absolute;
-	z-index:90;
-	top:80px;
-	left:0px;
-	display:none;
-	background: url('./data/interface/border/topleft.gif') top left no-repeat;
-	padding:0px;
-}
-
-div.gfxbox > div {
-	background: url('./data/interface/border/topright.gif') top right no-repeat;
-	position:relative;
-	right:-20px;
-	padding:0px;
-	margin:0px;
-}
-
-div.gfxbox > div > div {
-	background: url('./data/interface/border/bottomright.gif') bottom right no-repeat;
-	position:relative;
-	bottom: -18px;
-	margin:0px;
-}
-
-div.gfxbox > div > div > div {
-	background: url('./data/interface/border/bottomleft.gif') bottom left no-repeat;
-	position:relative;
-	left: -20px;
-	padding: 0px 0px 20px 20px;
-}
-
-
-.gfxbox a:link,
-.gfxbox a:visited {
-	color: #0060F0;
-	font-weight: normal;
-	text-decoration: none
-}
-.gfxbox a:hover {
-	color: #F0A000;
-	font-weight: normal;
-	text-decoration: none
-}
-.gfxbox a:active {
-	color: #0000FF;
-	font-weight: normal;
-	text-decoration: none
-}
-
-
 /* Menueleiste */
 
 #menu {
@@ -354,38 +240,16 @@ div.gfxbox > div > div > div {
 	width:450px;
 }
 
-#searchbox div {
-	text-align:center;
-}
-
 #searchbox .content {
 	height:400px;
-	overflow-y:auto;
+	text-align:center;
 }
 
-#searchbox table {
+#searchbox .datatable {
 	width:100%;
 	margin:0px auto 0px auto;
-	padding:0px 0px 0px 0px;
-	border-style:none;
-	border-width:0px;
-	font-size:14px;
 }
 
-#searchbox td {
-	color:#c7c7c7;
-	border-width:0px;
-	padding: 0px 2px;
-}
-
-#searchbox tbody td:first-child {
+#searchbox .datatable tbody td:first-child {
 	width:35px;
-}
-
-#searchbox tbody td {
-	text-align:left;
-}
-
-#searchbox tfoot td {
-	text-align:center;
 }

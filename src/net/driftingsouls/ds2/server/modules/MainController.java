@@ -57,7 +57,6 @@ public class MainController extends TemplateGenerator {
 		super(context);
 
 		this.setTemplate("main.html");
-		setDisableDefaultCSS(true);
 		setDisableDebugOutput(true);
 		this.setCustomJavascript(true);
 	}

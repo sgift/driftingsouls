@@ -1,7 +1,7 @@
 <style type="text/css">
 	@import url("{global.datadir}data/css/menu.css");
 </style>
-<script type="text/javascript" language="JavaScript">
+<script type="text/javascript">
 <!--
 	{if show.gfxpakwarning}
 		alert('Die von ihnen verwendete Version des Grafikpaks ist veraltet. Die Benutzung des Grafikpaks wurde daher deaktiviert.\nBitte laden sie sich die neuste Version des Grafikpaks herunter!');
@@ -360,40 +360,46 @@
 </ul>
 
 <!-- Notizbox -->
-<div id="noticebox" class="gfxbox"><div><div><div>
+<div id="noticebox" class="gfxbox popupbox">
 	<h3>Notizen</h3>
-	<textarea rows="15" cols="50">Deine Notizen</textarea>
+	<div class="content">
+		<textarea rows="15" cols="50">Deine Notizen</textarea>
+	</div>
 	<button type="button" onclick="boxClose('noticebox')" value="Schlie&szlig;en">Schlie&szlig;en</button>
-</div></div></div></div>
+</div>
 
 <!-- Hilfebox -->
-<div id="helpbox" class="gfxbox"><div><div><div>
+<div id="helpbox" class="gfxbox popupbox">
 	<h3>Hilfe</h3>
-	<div id="helpboxtext"></div>
+	<div class="content">
+		<div id="helpboxtext"></div>
+	</div>
 	<button type="button" onclick="boxClose('helpbox')" value="Schlie&szlig;en">Schlie&szlig;en</button>
-</div></div></div></div>
+</div>
 
 {if admin.showconsole}
 	<!-- Adminconsole -->
-	<div id="adminconsolebox" class="gfxbox"><div><div><div>
+	<div id="adminconsolebox" class="gfxbox popupbox">
 		<h3>Adminconsole</h3>
-		<input id="adminConsoleCommand" type="text" name="search" style="width:300px" />
-		<button type="button" onclick="adminBox.execute()" style="width:80px">ausf&uuml;hren</button>
-		<div id="adminConsoleResponse"> </div>
+		<div class="content">
+			<input id="adminConsoleCommand" type="text" name="search" style="width:300px" />
+			<button type="button" onclick="adminBox.execute()" style="width:80px">ausf&uuml;hren</button>
+			<div id="adminConsoleResponse"> </div>
+		</div>
 		<button type="button" onclick="boxClose('adminconsolebox')" value="Schlie&szlig;en">Schlie&szlig;en</button>
-	</div></div></div></div>
+	</div>
 {/endif}
 
 <!-- Suche -->
-<div id="searchbox" class="gfxbox"><div><div><div>
+<div id="searchbox" class="gfxbox popupbox">
+	<h3>Suchen</h3>
 	<div class="content">
-		<h3>Suchen</h3>
 		<input id="searchInput" type="text" name="search" style="width:300px" />
 		<button class="submit" type="button" style="width:60px" onclick="SearchBox.execute()">Suchen</button>
 		<div id="searchResult"></div>
 	</div>
 	<button type="button" onclick="boxClose('searchbox')" value="Schlie&szlig;en">Schlie&szlig;en</button>
-</div></div></div></div>
+</div>
 
 <!-- Frame -->
 <iframe id="mainframe" name="main" scrolling="auto" frameborder="0" src="./ds?module=ueber">

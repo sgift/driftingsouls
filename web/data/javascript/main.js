@@ -46,9 +46,12 @@ function boxClose(box) {
 }
 
 function boxOpen(box) {
-	var boxEl = jQuery(box);
-	if( boxEl.css('left') == '0px' ) {
-		boxEl.css('left', Math.ceil(jQuery("body").width()/2-boxEl.width()/2)+"px");
+	var boxEl = $(box);
+	if( boxEl.css('left') == '0px' || boxEl.css('left') == 'auto' ) {
+		boxEl.css({
+			left : Math.ceil($("body").width()/2-boxEl.width()/2)+"px",
+			top : "80px"
+		});
 	}
 	boxEl.css('display', 'block');
 
@@ -103,12 +106,13 @@ var SearchBox = {
 		var resultDiv = $('#searchResult');
 		resultDiv.empty();
 
-		if( response.users.length == 0 && response.ships.length == 0 && response.bases.length == 0 ) {
+		if( typeof response.users === 'undefined' || 
+				(response.users.length == 0 && response.ships.length == 0 && response.bases.length == 0) ) {
 			resultDiv.append("Keine Objekte gefunden");
 			return;
 		}
 
-		var out = '<table><tbody>';
+		var out = '<table class="datatable"><tbody>';
 
 		for( var i=0; i < response.bases.length; i++ ) {
 			var base = response.bases[i];

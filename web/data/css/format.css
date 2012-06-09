@@ -308,7 +308,7 @@ div.gfxbox {
 	font-size:16px;
 	font-weight:bold;
 	text-decoration:none;
-	color:#FFFFFF;
+	color:#FEB626;
 	margin-top:1px;
 	margin-left:0px;
 	margin-right:0px;
@@ -359,6 +359,34 @@ div.gfxbox {
 	color: #0000FF;
 	font-weight: normal;
 	text-decoration: none
+}
+
+.gfxbox .datatable {
+	margin:0px;
+	padding:0px;
+	border-style:none;
+	border-width:0px;
+	font-size:14px;
+}
+
+.gfxbox .datatable td {
+	color:#c7c7c7;
+	border-width:0px;
+	padding: 0px 2px;
+}
+
+.gfxbox .datatable tbody td {
+	text-align:left;
+}
+
+.gfxbox .datatable tfoot td,
+.gfxbox .datatable thead td {
+	text-align:center;
+}
+
+.gfxbox .datatable thead td {
+	font-weight:bold;
+	color:#FEB626;
 }
 
 .gfxbox .content {
