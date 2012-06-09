@@ -31,6 +31,7 @@ import net.driftingsouls.ds2.server.entities.ComNetChannel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.entities.ally.AllyPosten;
+import net.driftingsouls.ds2.server.entities.ally.AllyRangDescriptor;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -105,6 +106,7 @@ public class AllyController extends TemplateGenerator {
 			t.setVar(
 					"ally.name",		Common._title( this.ally.getName() ),
 					"user.president",	(user.getId() == this.ally.getPresident().getId()),
+					"user.president.npc", (user.getId() == this.ally.getPresident().getId() && user.isNPC()),
 					"ally.id",			this.ally.getId() );
 			
 			addPageMenuEntry("Allgemeines", Common.buildUrl("default"));
@@ -330,6 +332,98 @@ public class AllyController extends TemplateGenerator {
 		t.setVar( "ally.statusmessage", "Der Aufnahmeantrag wurde weitergeleitet. Die Bearbeitung kann jedoch abh&auml;ngig von der Allianz l&auml;ngere Zeit in anspruch nehmen. Sollten sie aufgenommen werden, wird automatisch eine PM an sie gesendet." );
 			
 		return;
+	}
+	
+	/**
+	 * Loescht einen Rangn.
+	 * @urlparam Integer rangid Die ID des zu loeschenden Rangs
+	 *
+	 */
+	@Action(ActionType.DEFAULT)
+	public void deleteRangAction() {
+		TemplateEngine t = getTemplateEngine();
+		User user = (User)getUser();
+
+		if( this.ally.getPresident().getId() != user.getId() || !user.isNPC() ) {
+			t.setVar("ally.message","Fehler: Nur der Pr&auml;sident einer NPC-Allianz kann diese Aktion durchf&uuml;hren");
+			redirect("showPosten");
+			
+			return;
+		}
+		
+		parameterNumber("rangnr");
+		int rangnr = getInteger("rangnr");
+
+		AllyRangDescriptor rang = null;
+		for( AllyRangDescriptor desc : this.ally.getRangDescriptors() )
+		{
+			if( desc.getRang() == rangnr )
+			{
+				rang = desc;
+				break;
+			}
+		}
+
+		if( rang != null )
+		{
+			getDB().delete(rang);
+			this.ally.getRangDescriptors().remove(rang);
+			
+			t.setVar( "ally.statusmessage", "Rang gel&ouml;scht");
+		}
+		
+		redirect("showRaenge");
+	}
+	
+	/**
+	 * Erstellt einen neuen Rang oder modifiziert einen Bereits vorhandenen (bei Gleichheit der Rangnummer).
+	 */
+	@Action(ActionType.DEFAULT)
+	public void addOrEditRangAction() {
+		TemplateEngine t = getTemplateEngine();
+		User user = (User)getUser();
+
+		if( this.ally.getPresident().getId() != user.getId() || !user.isNPC() ) {
+			t.setVar("ally.message","Fehler: Nur der Pr&auml;sident einer NPC-Allianz kann diese Aktion durchf&uuml;hren");
+			redirect("showPosten");
+			
+			return;
+		}
+		
+		parameterString("rangname");
+		parameterNumber("rangnr");
+		String rangname = Common._plaintitle(getString("rangname"));
+		int rangnr = getInteger("rangnr");
+
+		if( rangname.length() == 0 || rangnr < 0 ) {
+			t.setVar( "ally.message", "Fehler: Sie m&uuml;ssen g&uuml;ltige Angaben machen." );
+			this.redirect("showPosten");
+			return;
+		}
+		
+		AllyRangDescriptor rang = null;
+		for( AllyRangDescriptor desc : this.ally.getRangDescriptors() )
+		{
+			if( desc.getRang() == rangnr )
+			{
+				rang = desc;
+				break;
+			}
+		}
+
+		if( rang == null )
+		{
+			rang = new AllyRangDescriptor(this.ally, rangnr, rangname);
+			getDB().persist(rang);
+			this.ally.getRangDescriptors().add(rang);
+		}
+		else
+		{
+			rang.setName(rangname);
+		}
+
+		t.setVar( "ally.statusmessage", "Der Rang "+rangname+" wurde erstellt und zugewiesen" );
+		redirect("showRaenge");
 	}
 	
 	/**
@@ -1012,6 +1106,40 @@ public class AllyController extends TemplateGenerator {
 		}
 	}
 
+	/**
+	 * Zeigt die Rangliste der Allianz an.
+	 */
+	@Action(ActionType.DEFAULT)
+	public void showRaengeAction() {
+		if( this.ally == null ) {
+			this.redirect("defaultNoAlly");
+			return;	
+		}
+		
+		User user = (User)getUser();
+		if( this.ally.getPresident().getId() != user.getId() || !user.isNPC() )
+		{
+			this.redirect("default");
+			return;
+		}
+		
+		TemplateEngine t = getTemplateEngine();
+
+		t.setVar(	"show.raenge",				1,
+					"show.raenge.modify.list",	"" );
+							
+		t.setBlock( "_ALLY", "show.raenge.modify.listitem", "show.raenge.modify.list" );
+		
+		for( AllyRangDescriptor allyRang : this.ally.getRangDescriptors() ) {
+
+			t.setVar(
+					"show.raenge.modify.rangname", allyRang.getName(),
+					"show.raenge.modify.rangnr", allyRang.getRang() );
+			
+			t.parse( "show.raenge.modify.list", "show.raenge.modify.listitem", true );
+		}
+	}
+	
 	/**
 	 * Zeigt die Postenliste der Allianz an.
 	 * 

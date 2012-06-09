@@ -115,6 +115,7 @@ public class Ally {
 		this.showGtuBieter = 0;
 		this.showlrs = 1;
 		this.items = "";
+		this.rangDescriptors = new TreeSet<AllyRangDescriptor>();
 		
 		this.name = name;
 		this.plainname = Common._titleNoFormat(name);

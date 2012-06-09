@@ -105,4 +105,13 @@ public class AllyRangDescriptor implements Comparable<AllyRangDescriptor>
 		
 		return this.rang - o.getRang();
 	}
+
+	/**
+	 * Setzt den Anzeigenamen des Rangs.
+	 * @param rangname Der Anzeigename
+	 */
+	public void setName(String rangname)
+	{
+		this.name = rangname;
+	}
 }
