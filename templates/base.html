@@ -13,12 +13,10 @@
 		{base.message}<br /><br />
 	</div>
 {/endif}
-<script type="text/javascript">
-	var basename = "{base.name}";
-</script>
+<input type="hidden" id="baseId" value="{base.id}" />
 <div>
-	{base.system}:{base.x}/{base.y} - {base.name} ({base.id})
-	<a class="noborder" id="changename" name="changename" onclick="javascript:overlib('{base.renametooltip}',REF,'changename', WIDTH,'300',REFC,'UL',REFP,'UL',FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'tooltip',NOCLOSE,STICKY);" onmouseout="return nd();" href="#">
+	{base.system}:{base.x}/{base.y} - <span id="baseName">{base.name}</span> ({base.id})
+	<a class="noborder" id="changename" name="changename" onclick="Base.changeName()" href="#">
 		<img style="vertical-align:middle; border:0px" src="{URL}data/interface/pen.gif" alt="Namen &auml;ndern" />
 	</a>
 	<br />

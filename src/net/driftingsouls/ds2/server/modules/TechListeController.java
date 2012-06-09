@@ -41,7 +41,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -106,8 +105,7 @@ public class TechListeController extends TemplateGenerator {
 		}
 
 		StringBuilder rassenliste = new StringBuilder(100);
-		rassenliste.append(Common.tableBegin(300,"center").replace('"', '\''));
-		
+
 		for( Rasse aRasse : Rassen.get() ) {
 			if( aRasse.isExtPlayable() ) {
 				rassenliste.append("<a href='"+Common.buildUrl("default", "rasse", aRasse.getID())+"'>");
@@ -115,9 +113,8 @@ public class TechListeController extends TemplateGenerator {
 				rassenliste.append("</a>");		
 			}
 		}
-		rassenliste.append(Common.tableEnd().replace('"', '\''));
-		
-		String rassenlisteStr = StringEscapeUtils.escapeJavaScript(rassenliste.toString().replace(">", "&gt;").replace("<", "&lt;"));
+
+		String rassenlisteStr = rassenliste.toString();
 		
 		t.setVar(	"race.name",	Rassen.get().rasse(rasse).getName(),
 					"race.list",	rassenlisteStr );

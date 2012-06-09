@@ -282,6 +282,118 @@ img.noborder:active 	{ border-style: solid; border: 0px ;border-color: #000000}
 	background-image:none;
 }
 
+/*
+	Menu Dropdown
+*/
+
+.dropdown {
+	padding:0;
+	position:relative;
+	z-index:100;
+	height:16px;
+	display:inline-block;
+	vertical-align:text-bottom;
+}
+.dropdown dl {
+	top:0px;
+	left:0px;
+	padding-bottom:0px;
+	padding-top:5px;
+	margin:0px; 
+	padding:0px; 
+	background: transparent;
+	width:100%;
+	position:absolute;
+}
+.dropdown a, 
+.dropdown a:visited {
+	text-decoration:none;
+}
+.dropdown dd {
+	display:none;
+}
+.dropdown a:hover {
+	border:0px;
+}
+.dropdown:hover dd, 
+.dropdown a:hover dd {
+	display:block;
+}
+.dropdown dt {
+	margin:0px;
+	padding: 0px 0px 5px 0px;
+	font-size:13px;
+}
+.dropdown dd {
+	margin:0px;
+	padding:0px;
+	-webkit-border-image: url('./data/interface/border/border.gif') 18 19 18 19 repeat;
+	-moz-border-image: url('./data/interface/border/border.gif') 18 19 repeat;
+	-o-border-image: url('./data/interface/border/border.gif') 18 19 18 19 repeat;
+	-ms-border-image: url('./data/interface/border/border.gif') 18 19 18 19 repeat;
+	border-image: url('./data/interface/border/border.gif') 18 19 18 19 repeat;
+	border-width:0px 18px 0px 19px;
+	
+	background-image:url('./data/interface/border/border_background.gif');
+	background-clip:padding-box;
+	font-size:13px;
+}
+
+.dropdown dd:first-of-type {
+	border-top-width:18px;
+}
+
+.gfxbox .dropdown dd:first-of-type {
+	border-top-width:0px;
+}
+
+.dropdown dd:last-child {
+	border-bottom-width:18px;
+}
+
+.dropdown dd span, 
+.dropdown dd > a {
+	display:block;
+	padding:2px 0px 2px 0px;
+	margin:0px -10px 0px -10px;
+	text-align:center;
+}
+
+.dropdown dd:first-of-type span, 
+.dropdown dd:first-of-type > a {
+	padding-top:0px;
+}
+
+.dropdown dt a:link	 {
+	color: #c7c7c7; 
+	font-size:13px; 
+	font-weight: normal; 
+	text-decoration: none;
+}
+.dropdown dt a:visited	{
+	color: #c7c7c7;
+	font-size:13px;
+	font-weight: normal;
+	text-decoration: none;
+}
+.dropdown dt a:hover {
+	color: #719bef;
+	font-size:13px;
+	font-weight: normal;
+	text-decoration: none;
+}
+.dropdown dt a:active {
+	color: #719bef;
+	font-size:13px;
+	font-weight: normal;
+	text-decoration: none;
+}
+
+
+/*
+	GFX Box
+*/
+
 div.gfxbox {
 	border-style: none;
 
@@ -404,6 +516,10 @@ div.gfxbox {
 	overflow-y:auto;
 	margin-right:3px;
 }
+
+/*
+	Sonstiges
+*/
 
 .kursbox {
 	width:250px;

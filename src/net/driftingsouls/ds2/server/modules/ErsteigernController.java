@@ -532,10 +532,10 @@ public class ErsteigernController extends TemplateGenerator
 
 		this.faction = faction;
 
-		// Fraktionsmenue generieren
-		StringBuilder factionmenu = new StringBuilder(200);
-		factionmenu.append(StringUtils.replaceChars(Common.tableBegin(250, "center"), '"', '\''));
+		// Fraktionsmenue
 
+		t.setBlock( "_ERSTEIGERN", "global.factionmenu.listitem", "global.factionmenu.list" );
+		
 		Map<Integer, Faction> factions = Faction.getFactions();
 		for( Faction factionObj : factions.values() )
 		{
@@ -543,35 +543,24 @@ public class ErsteigernController extends TemplateGenerator
 			{
 				continue;
 			}
+			
 			User aFactionUser = (User)db.get(User.class, factionObj.getID());
-
-			if( (user.getRelation(factionObj.getID()) == User.Relation.ENEMY)
-					|| (relationlist.fromOther.get(factionObj.getID()) == User.Relation.ENEMY) )
-			{
-				factionmenu.append("<span style='color:red;font-size:14px'>"
-						+ StringUtils
-								.replaceChars(Common._title(aFactionUser.getName()), '"', '\'')
-						+ "</span><br />");
-			}
-			else
-			{
-				factionmenu.append("<a style='font-size:14px' class='profile' href='"
-						+ Common.buildUrl("default", "faction", factionObj.getID())
-						+ "'>"
-						+ StringUtils
-								.replaceChars(Common._title(aFactionUser.getName()), '"', '\'')
-						+ "</a><br />");
-			}
+			t.setVar(
+					"item.faction.name", Common._title(aFactionUser.getName()),
+					"item.faction.id", factionObj.getID(),
+					"item.enemy", (user.getRelation(factionObj.getID()) == User.Relation.ENEMY)	|| 
+						(relationlist.fromOther.get(factionObj.getID()) == User.Relation.ENEMY));
+			
+			t.parse( "global.factionmenu.list", "global.factionmenu.listitem", true );
 		}
-		factionmenu.append(StringUtils.replaceChars(Common.tableEnd(), '"', '\''));
-		String factionmenuStr = StringEscapeUtils.escapeJavaScript(StringUtils.replace(StringUtils
-				.replace(factionmenu.toString(), "<", "&lt;"), ">", "&gt;"));
 
 		User factionuser = (User)db.get(User.class, faction);
 
-		t.setVar("user.konto", Common.ln(user.getKonto()), "global.faction", faction,
-				"global.faction.name", Common._title(factionuser.getName()), "global.menusize",
-				pages.getMenuSize(), "global.factionmenu", factionmenuStr);
+		t.setVar(
+				"user.konto", Common.ln(user.getKonto()), 
+				"global.faction", faction,
+				"global.faction.name", Common._title(factionuser.getName()), 
+				"global.menusize", pages.getMenuSize());
 
 		this.ticks = getContext().get(ContextCommon.class).getTick();
 

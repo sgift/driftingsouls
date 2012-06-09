@@ -1,7 +1,10 @@
 <div class="smallfont">
-{!table_begin 300,left}
-	Rasse: <a id="racelink" name="racelink" class="forschinfo" onclick="return overlib('&lt;div style=\'text-align:center\'&gt;{race.list}&lt;/div&gt;',TIMEOUT,0,WIDTH,270,REF,'racelink', REFC,'LR',REFP,'UL',NOCLOSE,STICKY,FGCLASS,'gfxtooltip',BGCLASS,'gfxtooltip',TEXTFONTCLASS,'gfxtooltip');" onmouseout="return nd();" href="#">{race.name}</a>	
-{!table_end}
+<div class="gfxbox" style="width:300px;">
+	Rasse: <a id="racelink" name="racelink" class="forschinfo" onclick="$('#raceBox').dsBox('show')" href="#">{race.name}</a>	
+</div>
+<div id="raceBox" style="display:none">
+	{race.list}
+</div>
 <br />
 </div>
 <div>

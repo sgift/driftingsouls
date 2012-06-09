@@ -52,9 +52,6 @@ import net.driftingsouls.ds2.server.modules.stats.StatShips;
 import net.driftingsouls.ds2.server.modules.stats.StatWaren;
 import net.driftingsouls.ds2.server.modules.stats.Statistic;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-
 /**
  * Die Statistikseite.
  * @author Christopher Jung
@@ -117,7 +114,7 @@ public class StatsController extends DSGenerator {
 		registerStat( "Allianzen", new StatBiggestPopulation(true), "Die gr&ouml;&szlig;ten V&ouml;lker", 30 );
 		registerStat( "Allianzen", new StatMemberCount(), "Die gr&ouml;&szlig;ten Allianzen", 30 );
 
-		registerStat( "Sonstiges", new StatPopulationDensity(), "Besiedlungsdichte", 0 );
+		registerStat( "Sonstiges", new StatPopulationDensity(), "Siedlungsdichte", 0 );
 		registerStat( "Sonstiges", new StatShips(), "Schiffe", 0 );
 		registerStat( "Sonstiges", new StatWaren(), "Waren", 0 );
 		registerStat( "Sonstiges", new StatEinheiten(), "Einheiten", 0);
@@ -154,32 +151,36 @@ public class StatsController extends DSGenerator {
 
 		for( int listkey : this.statslist.keySet() ) {
 			StringBuilder builder = new StringBuilder();
-			builder.append(StringUtils.replaceChars(Common.tableBegin(300, "left"), '"', '\''));
 			
 			List<StatEntry> alist = this.statslist.get(listkey);
 			for( int i=0; i < alist.size(); i++ ) {
-				builder.append("<a style='font-size:12px;font-weight:normal' class='back' href='"+Common.buildUrl("default", "show", listkey, "stat", i)+"'>"+alist.get(i).name+"</a><br />");
+				builder.append("<dd><a style='font-size:12px;font-weight:normal' class='back' href='"+Common.buildUrl("default", "show", listkey, "stat", i)+"'>"+alist.get(i).name+"</a></dd>");
 			}
 	
-			builder.append(StringUtils.replaceChars(Common.tableEnd(), '"', '\''));
-			lists.put(listkey, StringEscapeUtils.escapeJavaScript(StringUtils.replace(StringUtils.replace(builder.toString(), "<", "&lt;"), ">", "&gt;")));
+			lists.put(listkey, builder.toString());
 		}
 
 		int catsize = this.catlist.size();
 		int catpos = 0;
 
-		echo.append(Common.tableBegin(750, "center"));
+		echo.append("<div class='gfxbox' style='width:780px;text-align:center'>");
 		for( String catkey : this.catlist.keySet() ) {
 			int cat = this.catlist.get(catkey);
-			echo.append("<a ");
-			if( this.show == cat ) {
-				echo.append("style=\"text-decoration:underline\"");
-			}
 			
 			if( this.statslist.containsKey(cat) && (this.statslist.get(cat).size() > 1) ) {
-				echo.append(" name=\"m"+cat+"_popup\" id=\"m"+cat+"_popup\" class=\"forschinfo\" onclick=\"javascript:overlib('"+lists.get(cat)+"', REF,'m"+cat+"_popup', REFY,22,FGCLASS,'gfxtooltip',BGCLASS,'gfxclass',TEXTFONTCLASS,'gfxclass',NOCLOSE,STICKY);\" onmouseout=\"return nd();\" href=\"#\">"+catkey+"</a>\n");
+				echo.append("<div class='dropdown' style='width:110px'><dl><dt ");
+				if( this.show == cat ) {
+					echo.append("style=\"text-decoration:underline\"");
+				}
+				echo.append(">"+catkey+"<img style='vertical-align:middle; border:0px' src='./data/interface/uebersicht/icon_dropdown.gif' alt='' /></dt>\n");
+				echo.append(lists.get(cat));
+				echo.append("</dl></div>");
 			}
 			else {
+				echo.append("<a ");
+				if( this.show == cat ) {
+					echo.append("style=\"text-decoration:underline\"");
+				}
 				echo.append(" class=\"forschinfo\" href=\""+Common.buildUrl("default", "show", cat)+"\">"+catkey+"</a>\n");
 			}
 	
@@ -188,7 +189,7 @@ public class StatsController extends DSGenerator {
 			}
 			catpos++;
 		}
-		echo.append(Common.tableEnd());
+		echo.append("</div>");
 		echo.append("<div><br /><br /></div>\n");
 	}
 

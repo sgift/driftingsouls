@@ -1,17 +1,26 @@
 
 <table class="show" cellspacing="2" cellpadding="2">
 <tr>
-<td class="noBorderS">
-	<div align="center">
-		<span class="verysmallfont">
-			<a style="font-size:12px" class="profile" name="factionmenu" id="factionmenu"
-				onclick="javascript:overlib('{global.factionmenu}', REF,'factionmenu', REFY,22,FGCLASS,'gfxtooltip',BGCLASS,'gfxclass',TEXTFONTCLASS,'gfxclass',NOCLOSE,STICKY);"
-				onmouseout="return nd();"
-				href="#">{global.faction.name}<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_dropdown.gif" alt="" /></a>
-			<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
-			{user.konto} RE
-		</span>
-	</div>
+<td class="noBorderS" align="center" style="width:160px;text-align:center">
+	<span class="verysmallfont">
+		<div class="dropdown" style="width:160px">
+			<dl>
+				<dt>{global.faction.name}<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_dropdown.gif" alt="" /></dt>
+				<!-- BEGIN global.factionmenu.listitem -->
+					<dd>
+						{if item.enemy}
+							<span style='color:red;'>{item.faction.name}</span>
+						{else}
+							<a class='profile' href='./ds?module=ersteigern&action=default&faction={item.faction.id}'>{item.faction.name}</a>
+						{/endif}
+					</dd>
+				<!-- END global.factionmenu.listitem -->
+				{global.factionmenu}
+			</dl>
+		</div>
+		<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+		{user.konto} RE
+	</span>
 </td>
 <td class="noBorder">&nbsp;</td>
 <td class="noBorder">

@@ -50,8 +50,9 @@ public class StatPopulationDensity implements Statistic {
 
 		Writer echo = context.getResponse().getWriter();
 	
+		echo.append("Siedlungsdichte:<br />");
 		echo.append("<table class=\"noBorderX\" cellspacing=\"1\" cellpadding=\"1\" width=\"100%\">\n");
-		echo.append("<tr><td class=\"noBorderX\" align=\"left\" colspan=\"2\">Besiedlungsdichte:</td></tr>\n");
+		echo.append("<tr><td class=\"noBorderX\">System</td><td class=\"noBorderX\">Asteroiden</td><td class=\"noBorderX\">%</td><td class=\"noBorderX\">Bewohner</td><td class=\"noBorderX\">Bewohner / Asteroid</td><td class=\"noBorderX\">Bewohner / besiedelter Asteroid</td></tr>\n");
 	
 		long insbew=0;
 		int instotal = 0;
@@ -113,12 +114,11 @@ public class StatPopulationDensity implements Statistic {
 			echo.append("<tr><td class=\"noBorderX\" style=\"vertical-align:top\">"+
 					systemAddInfo+system.getName()+" ("+system.getID()+")</td>\n");
 			
-			echo.append("<td class=\"noBorderX\">" +
-					"<span class=\"nobr\">"+Common.ln(used)+"/"+Common.ln(total)+" - "+Common.ln(percentUsed)+" %  besiedelt; </span>" +
-					"<span class=\"nobr\">"+Common.ln(bew)+" Bewohner;</span>" +
-					"<span class=\"nobr\"> "+Common.ln(bewPerAsti)+" / Asteroid; </span>" +
-					"<span class=\"nobr\">"+Common.ln(bewPerUsedAsti)+" / besiedelter Asteroid</span>" +
-					"<br /><br /></td>\n");
+			echo.append("<td class=\"noBorderX\">"+Common.ln(used)+"/"+Common.ln(total)+"</td>" +
+					"<td class=\"noBorderX\">"+Common.ln(percentUsed)+" %</td>" +
+					"<td class=\"noBorderX\">"+Common.ln(bew)+"</td>" +
+					"<td class=\"noBorderX\">"+Common.ln(bewPerAsti)+"</td>" +
+					"<td class=\"noBorderX\">"+Common.ln(bewPerUsedAsti)+"</td>\n");
 			echo.append("</tr>");
 		}
 		
@@ -133,21 +133,21 @@ public class StatPopulationDensity implements Statistic {
 		if( insused > 0 ) {
 			bewPerUsedAsti = (long)(insbew/(double)insused);
 		}
-		echo.append("<tr><td class=\"noBorderX\" colspan=\"2\">" +
+		echo.append("<tr><td class=\"noBorderX\" colspan=\"6\">" +
 				"<hr noshade=\"noshade\" size=\"1\" style=\"color:#cccccc\" /></td></tr>\n");
 		
 		echo.append("<tr><td class=\"noBorderX\" style=\"vertical-align:top\">Insgesamt</td>" +
-				"<td class=\"noBorderX\">&nbsp;" +
-				"<span class=\"nobr\">"+Common.ln(insused)+"/"+Common.ln(instotal)+" - "+Common.ln(percentUsed)+" %  besiedelt; </span>" +
-				"<span class=\"nobr\">"+Common.ln(insbew)+" Bewohner; </span>" +
-				"<span class=\"nobr\">"+Common.ln(bewPerAsti)+" / Asteroid; </span>" +
-				"<span class=\"nobr\">"+Common.ln(bewPerUsedAsti)+" / besiedelter Asteroid</span>" +
-				"<br /><br /></td></tr>\n");
+				"<td class=\"noBorderX\">"+Common.ln(insused)+"/"+Common.ln(instotal)+"</td>" +
+				"<td class=\"noBorderX\">"+Common.ln(percentUsed)+" %</td>" +
+				"<td class=\"noBorderX\">"+Common.ln(insbew)+"</td>" +
+				"<td class=\"noBorderX\">"+Common.ln(bewPerAsti)+"</td>" +
+				"<td class=\"noBorderX\">"+Common.ln(bewPerUsedAsti)+"</td>" +
+				"</tr>\n");
 	
 		long crew = db.first("SELECT sum(crew) sum FROM ships WHERE id>0 AND owner>"+StatsController.MIN_USER_ID).getLong("sum");
 		long tw = crew + insbew;
 	
-		echo.append("<tr><td class=\"noBorderX\" colspan=\"2\">" +
+		echo.append("<tr><td class=\"noBorderX\" colspan=\"6\">" +
 				"+ "+Common.ln(crew)+" Crew auf Schiffen = "+Common.ln(tw)+" Bev&ouml;lkerung insgesamt" +
 				"</td></tr>\n");
 		echo.append("</table><br /><br />");

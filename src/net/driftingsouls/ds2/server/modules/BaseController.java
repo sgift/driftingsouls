@@ -39,7 +39,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -266,26 +265,6 @@ public class BaseController extends TemplateGenerator {
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
 		
-		StringBuilder tooltiptext = new StringBuilder(50);
-		tooltiptext.append(Common.tableBegin(300, "center").replace('"', '\''));
-		tooltiptext.append("<form action='./ds' method='post'>");
-		tooltiptext.append("Name: <input name='newname' type='text' size='15' maxlength='50' value='");
-		StringBuilder tooltiptext2 = new StringBuilder(50);
-		tooltiptext2.append("' />");
-		tooltiptext2.append("<input name='col' type='hidden' value='"+base.getId()+"' />");
-		tooltiptext2.append("<input name='module' type='hidden' value='base' />");
-		tooltiptext2.append("<input name='action' type='hidden' value='changeName' />");
-		tooltiptext2.append("&nbsp;<input type='submit' value='rename' /><br />");
-		tooltiptext2.append("</form>");
-		tooltiptext2.append(Common.tableEnd().replace('"', '\''));
-
-		String tooltip = StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(tooltiptext.toString()))+
-			"'+basename+'"+
-			StringEscapeUtils.escapeJavaScript( StringEscapeUtils.escapeHtml(tooltiptext2.toString()) );
-		
-		tooltip = tooltip.replace("<","&lt;");
-		tooltip = tooltip.replace(">","&gt;");
-		
 		int mapheight = (1 + base.getHeight() * 2) * 22+25;
 		
 		t.setVar(	"base.id",				base.getId(),
@@ -293,7 +272,6 @@ public class BaseController extends TemplateGenerator {
 					"base.x",				base.getX(),
 					"base.y",				base.getY(),
 					"base.system",			base.getSystem(),
-					"base.renametooltip",	tooltip,
 					"base.core",			base.getCore(),
 					"base.core.active",		base.isCoreActive(),
 					"base.isfeeding",		base.isFeeding(),
