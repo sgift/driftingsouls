@@ -105,9 +105,9 @@ public class SearchController extends DSGenerator {
 		}
 
 		if( only.isEmpty() || "ships".equals(only) ) {
-			if( count < max ) {
-				JSONArray shipListObj = new JSONArray();
+			JSONArray shipListObj = new JSONArray();
 
+			if( count < max ) {			
 				List<?> shipList = findShips(db, search, max-count);
 				for( Iterator<?> iter=shipList.iterator(); iter.hasNext(); ) {
 					Ship ship = (Ship)iter.next();
@@ -128,15 +128,14 @@ public class SearchController extends DSGenerator {
 
 					count++;
 				}
-
-				json.accumulate("ships", shipListObj);
 			}
+			json.accumulate("ships", shipListObj);
 		}
 
 		if( only.isEmpty() || "users".equals(only) ) {
-			if( count < max ) {
-				JSONArray userListObj = new JSONArray();
+			JSONArray userListObj = new JSONArray();
 
+			if( count < max ) {
 				List<?> userList = findUsers(db, search, max-count);
 				for( Iterator<?> iter=userList.iterator(); iter.hasNext(); ) {
 					User auser = (User)iter.next();
@@ -150,9 +149,8 @@ public class SearchController extends DSGenerator {
 
 					count++;
 				}
-
-				json.accumulate("users", userListObj);
 			}
+			json.accumulate("users", userListObj);
 		}
 
 		json.accumulate("maxObjects", count >= max );
