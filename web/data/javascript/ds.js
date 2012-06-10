@@ -15,6 +15,37 @@ function getDsUrl()
 	return url;
 }
 
+var DS = {
+	getJSON : function(params, resultFunction) {
+		var url = this.getUrl();
+
+		params.FORMAT = 'JSON';
+
+		jQuery.getJSON( url, params, resultFunction);
+	},
+	get : function(params, resultFunction) {
+		var url = this.getUrl();
+
+		jQuery.get( url, params, resultFunction);
+	},
+	ask : function(text,url)
+	{
+		if( confirm(text) ) {
+			window.location.href = url;
+		}
+	},
+
+	getUrl : function()
+	{
+		var url = location.href;
+		if( url.indexOf('?') > -1 )
+		{
+			url = url.substring(0,url.indexOf('?'));
+		}
+		return url;
+	}
+};
+
 (function( $ ) {
 	var methods = {
 		init : function(options) {
@@ -51,14 +82,14 @@ function getDsUrl()
 				if( typeof options.y !== 'undefined' ) {
 					this.css('top', options.y);
 				}
-				
+
 				if( typeof options.center !== 'undefined' && options.center ) {
 					this.css({
 						left : Math.floor($("body").width()/2-this.width()/2)+"px",
 						top : $(window).scrollTop()+Math.max(Math.floor(($(window).height()-this.height())/2),10)+"px"
 					});
 				}
-				
+
 				if( typeof options.closeButton !== 'undefined' && !options.closeButton ) {
 					this.find('button.closebox').remove();
 				}

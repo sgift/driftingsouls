@@ -44,114 +44,114 @@ import org.springframework.beans.factory.annotation.Configurable;
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.DigBuilding")
 @Configurable
 public class DigBuilding extends DefaultBuilding {
-	
+
 	/**
 	 * Erstellt eine neue Buddelstaetten-Instanz.
 	 */
 	public DigBuilding() {
 		// EMPTY
 	}
-	
+
 	@Override
 	public boolean classicDesign() {
 		return true;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private Cargo getProzentProduces()
 	{
 		Cargo production = new Cargo();
 		Map<Integer, Double> productions = new HashMap<Integer, Double>();
-		
+
 		String digbuilding = getChanceRess();
-		
+
 		if(digbuilding == null || digbuilding.equals(""))
 		{
 			return production;
 		}
-		
+
 		String[] digs = StringUtils.split(digbuilding, "|");
 		for(String dig : digs)
 		{
 			String[] thisdig = StringUtils.split(dig, ";");
 			productions.put(Integer.valueOf(thisdig[0]), Double.valueOf(thisdig[1]));
 		}
-		
+
 		if(productions.isEmpty())
 		{
 			return production;
 		}
-		
+
 		for( Iterator<?> iter = productions.entrySet().iterator(); iter.hasNext(); )
 		{
 			Entry<Integer, Double> entry = (Entry<Integer, Double>) iter.next();
 			production.addResource(new ItemID(entry.getKey()), entry.getValue().longValue());
 		}
-		
+
 		return production;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Cargo getAllProduces()
 	{
 		Cargo production = new Cargo();
 		Map<Integer, Double> productions = new HashMap<Integer, Double>();
-		
+
 		String digbuilding = getChanceRess();
-		
+
 		if(digbuilding == null || digbuilding.equals(""))
 		{
 			return production;
 		}
-		
+
 		String[] digs = StringUtils.split(digbuilding, "|");
 		for(String dig : digs)
 		{
 			String[] thisdig = StringUtils.split(dig, ";");
 			productions.put(Integer.valueOf(thisdig[0]), 1d);
 		}
-		
+
 		if(productions.isEmpty())
 		{
 			return production;
 		}
-		
+
 		for( Iterator<?> iter = productions.entrySet().iterator(); iter.hasNext(); )
 		{
 			Entry<Integer, Double> entry = (Entry<Integer, Double>) iter.next();
 			production.addResource(new ItemID(entry.getKey()), entry.getValue().longValue());
 		}
-		
+
 		return production;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Cargo getProduces()
 	{
 		Cargo production = new Cargo();
 		Map<Integer, Double> productions = new HashMap<Integer, Double>();
-		
+
 		String digbuilding = getChanceRess();
-		
+
 		if(digbuilding == null || digbuilding.equals(""))
 		{
 			return production;
 		}
-		
+
 		String[] digs = StringUtils.split(digbuilding, "|");
 		for(String dig : digs)
 		{
 			String[] thisdig = StringUtils.split(dig, ";");
 			productions.put(Integer.valueOf(thisdig[0]), Double.valueOf(thisdig[1]));
 		}
-		
+
 		if(productions.isEmpty())
 		{
 			return production;
 		}
-		
+
 		for( Iterator<?> iter = productions.entrySet().iterator(); iter.hasNext(); )
 		{
 			Entry<Integer, Double> entry = (Entry<Integer, Double>) iter.next();
@@ -161,10 +161,10 @@ public class DigBuilding extends DefaultBuilding {
 				production.addResource(new ItemID(entry.getKey()), 1l);
 			}
 		}
-		
+
 		return production;
 	}
-	
+
 	@Override
 	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
 		StringBuilder buffer = new StringBuilder();
@@ -174,7 +174,7 @@ public class DigBuilding extends DefaultBuilding {
 		buffer.append("<br />\n");
 		buffer.append("Verbraucht:<br />\n");
 		buffer.append("<div align=\"center\">\n");
-		
+
 		boolean entry = false;
 		ResourceList reslist = getConsumes().getResourceList();
 		for( ResourceEntry res : reslist )
@@ -182,7 +182,7 @@ public class DigBuilding extends DefaultBuilding {
 			buffer.append("<img src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1()+" ");
 			entry = true;
 		}
-	
+
 		if( getEVerbrauch() > 0 )
 		{
 			buffer.append("<img src=\""+this.config.get("URL")+"data/interface/energie.gif\" alt=\"\" />"+getEVerbrauch()+" ");
@@ -192,12 +192,12 @@ public class DigBuilding extends DefaultBuilding {
 		{
 			buffer.append("-");
 		}
-		
+
 		buffer.append("</div>\n");
-		
+
 		buffer.append("Produziert:<br />\n");
 		buffer.append("<div align=\"center\">\n");
-		
+
 		entry = false;
 		reslist = getProzentProduces().getResourceList();
 		for( ResourceEntry res : reslist )
@@ -205,18 +205,24 @@ public class DigBuilding extends DefaultBuilding {
 			buffer.append("<img src=\""+res.getImage()+"\" alt=\"\" />"+res.getCount1()+"% ");
 			entry = true;
 		}
-		
+
 		if( getEProduktion() > 0 )
 		{
 			buffer.append("<img src=\""+this.config.get("URL")+"data/interface/energie.gif\" alt=\"\" />"+getEProduktion());
 			entry = true;
 		}
-	
-		if( !entry ) 
-		{ 
+
+		if( !entry )
+		{
 			buffer.append("-");
 		}
 		buffer.append("</div><br />\n");
 		return buffer.toString();
+	}
+
+	@Override
+	public boolean isSupportsJson()
+	{
+		return false;
 	}
 }

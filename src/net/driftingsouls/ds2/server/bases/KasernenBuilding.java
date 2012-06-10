@@ -66,7 +66,7 @@ public class KasernenBuilding extends DefaultBuilding {
 	@Override
 	public void build(Base base, int building) {
 		super.build(base, building);
-		
+
 		Kaserne kaserne = new Kaserne(base);
 		ContextMap.getContext().getDB().persist(kaserne);
 	}
@@ -75,12 +75,12 @@ public class KasernenBuilding extends DefaultBuilding {
 	@Override
 	public void cleanup(Context context, Base base, int building) {
 		super.cleanup(context, base, building);
-		
+
 		org.hibernate.Session db = context.getDB();
 		Kaserne kaserne = (Kaserne)db.createQuery("from Kaserne where col=?")
 			.setEntity(0, base)
 			.uniqueResult();
-	
+
 		if( kaserne != null ) {
 			kaserne.destroy();
 		}
@@ -91,7 +91,7 @@ public class KasernenBuilding extends DefaultBuilding {
 		org.hibernate.Session db = context.getDB();
 
 		StringBuilder result = new StringBuilder(200);
-		
+
 		Kaserne kaserne = (Kaserne)db.createQuery("from Kaserne where col=?")
 			.setEntity(0, base)
 			.uniqueResult();
@@ -103,16 +103,16 @@ public class KasernenBuilding extends DefaultBuilding {
 				result.append("&amp;field=");
 				result.append(field);
 				result.append("\">[B]</a>");
-			} 
+			}
 			else {
 				StringBuilder popup = new StringBuilder(100);
-				
+
 				KaserneEntry[] entries = kaserne.getQueueEntries();
 				for( int i=0; i < entries.length; i++ ) {
 					UnitType unittype = (UnitType)db.get(UnitType.class, entries[i].getUnitId());
 					popup.append("<br />Aktuell im Bau: "+entries[i].getCount()+"x "+unittype.getName()+" <img src='"+config.get("URL")+"data/interface/time.gif' alt='Dauer: ' />"+entries[i].getRemaining());
 				}
-				
+
 				result.append("<a class=\"error tooltip\" href=\"./ds?module=building");
 				result.append("&amp;col=");
 				result.append(base.getId());
@@ -123,22 +123,22 @@ public class KasernenBuilding extends DefaultBuilding {
 				result.append("</span><span class='ttcontent'>"+popup+"</span></a>");
 			}
 		}
-		
+
 		return result.toString();
 	}
 
 	@Override
 	public boolean isActive(Base base, int status, int field) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
+
 		Kaserne kaserne = (Kaserne)db.createQuery("from Kaserne where col=?")
 			.setEntity(0, base)
 			.uniqueResult();
 		if( kaserne != null ) {
 			return kaserne.isBuilding();
 		}
-		
-		return false;	
+
+		return false;
 	}
 
 	@Override
@@ -148,14 +148,14 @@ public class KasernenBuilding extends DefaultBuilding {
 		Kaserne kaserne = (Kaserne)db.createQuery("from Kaserne where col=?")
 			.setEntity(0, base)
 			.uniqueResult();
-		
+
 		User owner = base.getOwner();
-		
+
 		int cancel = context.getRequest().getParameterInt("cancel");
 		int queueid = context.getRequest().getParameterInt("queueid");
 		int newunit = context.getRequest().getParameterInt("unitid");
 		int newcount = context.getRequest().getParameterInt("count");
-		
+
 		if( !t.setFile( "_BUILDING", "buildings.kaserne.html" ) ) {
 			context.addError("Konnte das Template-Engine nicht initialisieren");
 			return "";
@@ -165,7 +165,7 @@ public class KasernenBuilding extends DefaultBuilding {
 			context.addError("Diese Kaserne verf&uuml;gt &uuml;ber keinen Kaernen-Eintrag in der Datenbank");
 			return "";
 		}
-		
+
 		if( cancel == 1 && queueid > 0 )
 		{
 			KaserneEntry entry = (KaserneEntry)db.get(KaserneEntry.class, queueid);
@@ -182,28 +182,28 @@ public class KasernenBuilding extends DefaultBuilding {
 				db.delete(entry);
 				t.setVar("kaserne.message", "Eintrag entfernt.");
 			}
-			
+
 		}
-				
-		t.setVar(	
+
+		t.setVar(
 				"base.name",	base.getName(),
 				"base.id",		base.getId(),
 				"base.field",	field );
-		
+
 		//---------------------------------
 		// Eine neue Einheit ausbilden
 		//---------------------------------
-		
+
 		if( newunit != 0 && newcount > 0) {
 			UnitType unittype = (UnitType)db.get(UnitType.class, newunit);
-			
+
 			Cargo cargo = new Cargo(base.getCargo());
 			Cargo buildcosts = unittype.getBuildCosts();
 			BigInteger konto = owner.getKonto();
 			String msg = "";
-			
+
 			boolean ok = true;
-			
+
 			for(ResourceEntry res : buildcosts.getResourceList())
 			{
 				// Wenn nicht alles im eigenen Cargo da ist
@@ -225,7 +225,7 @@ public class KasernenBuilding extends DefaultBuilding {
 							ok = false;
 							msg += "Sie haben nicht genug "+res.getPlainName()+"<br />";
 						}
-					
+
 					}
 					else
 					{
@@ -239,82 +239,88 @@ public class KasernenBuilding extends DefaultBuilding {
 					cargo.substractResource(res.getId(), res.getCount1()*newcount);
 				}
 			}
-			
+
 			if( ok ) {
 				msg += newcount+" "+unittype.getName()+" werden ausgebildet.";
-				
+
 				base.setCargo(cargo);
 				owner.setKonto(konto);
-				
+
 				kaserne.addEntry(unittype, newcount);
-			} 
+			}
 			if(!msg.equals(""))
 			{
 				t.setVar( "kaserne.message",msg);
 			}
 		}
-		
+
 		//-----------------------------------------------
 		// werden gerade Einheiten ausgebildet? Bauschlange anzeigen!
 		//-----------------------------------------------
-		
+
 		if( kaserne.isBuilding() ) {
-			t.setVar(	
+			t.setVar(
 					"kaserne.show.training", 1);
-			
+
 			t.setBlock("_BUILDING", "kaserne.training.listitem", "kaserne.training.list");
-			
+
 			KaserneEntry[] entries = kaserne.getQueueEntries();
 			for( KaserneEntry entry : entries )
-			{	
+			{
 				UnitType unittype = (UnitType)db.get(UnitType.class, entry.getUnitId());
-				
+
 				if(unittype == null)
 				{
 					t.setVar("kaserne.message", "Unbekannte Einheit gefunden");
 				}
-				
+
 				t.setVar(	"trainunit.id", 		unittype.getId(),
 							"trainunit.name", 		unittype.getName(),
 							"trainunit.menge", 		entry.getCount(),
 							"trainunit.remaining",	entry.getRemaining(),
 							"trainunit.queue.id",	entry.getId() );
-				
+
 				t.parse("kaserne.training.list", "kaserne.training.listitem", true);
 			}
 		}
-		
+
 		//--------------------------------------------------
 		// Ausbildbare Einheiten anzeigen
 		//--------------------------------------------------
-		
+
 		t.setBlock("_BUILDING", "kaserne.unitlist.listitem", "kaserne.unitlist.list");
-		
+
 		List<UnitType> unitlist = Common.cast(db.createQuery("from UnitType").list());
-		
+
 		for(UnitType unittype : unitlist)
 		{
 			if(owner.hasResearched(unittype.getRes()))
 			{
-				String buildingcosts = "";			
+				String buildingcosts = "";
 				Cargo buildcosts = unittype.getBuildCosts();
-				
+
 				for(ResourceEntry res : buildcosts.getResourceList())
 				{
 					buildingcosts = buildingcosts+"<img align=\"middle\" src=\""+res.getImage()+"\" alt=\""+res.getPlainName()+"\" title=\""+res.getPlainName()+"\" />"+res.getCargo1();
 				}
-				
+
 				t.setVar( 	"unit.id", 			unittype.getId(),
 						"unit.name", 		unittype.getName(),
 						"unit.picture", 	unittype.getPicture(),
 						"unit.dauer", 		unittype.getDauer(),
 						"unit.buildcosts", 	buildingcosts);
-				
+
 				t.parse("kaserne.unitlist.list", "kaserne.unitlist.listitem", true);
 			}
 		}
-		
-		t.parse( "OUT", "_BUILDING" );	
+
+		t.parse( "OUT", "_BUILDING" );
 		return t.getVar("OUT");
+	}
+
+	@Override
+	public boolean isSupportsJson()
+	{
+		return false;
 	}
 }

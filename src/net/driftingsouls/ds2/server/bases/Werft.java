@@ -60,7 +60,7 @@ public class Werft extends DefaultBuilding {
 	@Override
 	public void build(Base base, int building) {
 		super.build(base, building);
-		
+
 		BaseWerft werft = new BaseWerft(base);
 		ContextMap.getContext().getDB().persist(werft);
 		base.setWerft(werft);
@@ -72,18 +72,18 @@ public class Werft extends DefaultBuilding {
 		super.cleanup(context, base, building);
 
 		BaseWerft werft = base.getWerft();
-	
+
 		if( werft != null ) {
 			werft.destroy();
 		}
-		
+
 		base.setWerft(null);
 	}
 
 	@Override
 	public String echoShortcut(Context context, Base base, int field, int building) {
 		StringBuilder result = new StringBuilder(200);
-		
+
 		BaseWerft werft = base.getWerft();
 		if( werft != null ) {
 			werft.setBaseField(field);
@@ -94,7 +94,7 @@ public class Werft extends DefaultBuilding {
 				result.append("&amp;field=");
 				result.append(field);
 				result.append("\">[W]</a>");
-			} 
+			}
 			else {
 				WerftObject werftObj = werft;
 				if( werftObj.getKomplex() != null ) {
@@ -112,7 +112,7 @@ public class Werft extends DefaultBuilding {
 						imBau = imBau+"<br />Aktuell im Bau: "+entries[i].getBuildShipType().getNickname()+" <img src='"+config.get("URL")+"data/interface/time.gif' alt='Dauer: ' />"+entries[i].getRemainingTime();
 					}
 				}
-				
+
 				StringBuilder popup = new StringBuilder(100);
 				popup.append("Belegte Werftslots: <img style='vertical-align:middle;border:0px' src='"+config.get("URL")+"data/interface/schiffinfo/werftslots.png' alt='' />"+usedSlots+"/"+totalSlots+"<br />");
 				popup.append("Im Bau: "+buildingCount+" Schiffe<br />");
@@ -129,7 +129,7 @@ public class Werft extends DefaultBuilding {
 				result.append("</span><span class='ttcontent'>"+popup+"</span></a>");
 			}
 		}
-		
+
 		return result.toString();
 	}
 
@@ -140,26 +140,32 @@ public class Werft extends DefaultBuilding {
 			werft.setBaseField(field);
 			return (werft.isBuilding() ? true : false);
 		}
-		
-		return false;	
+
+		return false;
 	}
 
 	@Override
 	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
 		StringBuilder response = new StringBuilder(500);
-				
+
 		BaseWerft werft = base.getWerft();
 		if( werft == null ) {
 	   		response.append("<a href=\"./ds?module=basen\"><span style=\"color:#ff0000; font-weight:bold\">Fehler: Die angegebene Kolonie hat keine Werft</span></a>\n");
 			return response.toString();
 		}
-		
+
 		werft.setBaseField(field);
-				
+
 		WerftGUI werftgui = new WerftGUI( context, t );
 		response.append(werftgui.execute( werft ));
-		
+
 		response.append("<br /></div>\n");
 		return response.toString();
+	}
+
+	@Override
+	public boolean isSupportsJson()
+	{
+		return false;
 	}
 }

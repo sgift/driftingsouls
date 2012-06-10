@@ -51,7 +51,8 @@
 			<div class="p{tile.id} tile {if tile.building}building{tile.building.id}{/endif}">
 				{if ! tile.overlay}
 					{if tile.building}
-						<a class="tooltip" href="./ds?module=building&amp;col={base.id}&amp;field={tile.field}">
+						<a class="tooltip" {if tile.building.json}onclick="Base.showBuilding({tile.field});return false;"{/endif}
+							href="./ds?module=building&amp;col={base.id}&amp;field={tile.field}">
 							<span class="ttcontent">{tile.building.name}</span>
 					{else}
 						<a href="./ds?module=build&amp;col={base.id}&amp;field={tile.field}">
@@ -63,7 +64,8 @@
 			{if tile.overlay}
 				<div class="o{tile.id} overlay">
 					{if tile.building}
-						<a class="tooltip" href="./ds?module=building&amp;col={base.id}&amp;field={tile.field}">
+						<a class="tooltip" {if tile.building.json}onclick="Base.showBuilding({tile.field});return false;"{/endif}
+							href="./ds?module=building&amp;col={base.id}&amp;field={tile.field}">
 							<span class="ttcontent">{tile.building.name}</span>
 					{else}
 						<a href="./ds?module=build&amp;col={base.id}&amp;field={tile.field}">
@@ -78,7 +80,7 @@
 	</td>
 	<td class="noBorder" style="width:5px">&nbsp;</td>
 	<td style="vertical-align:top; width:280px" class="schiffWaren">
-		<div style="padding:5px; height:{base.cargo.height}px; overflow:auto">
+		<div id="cargoBox" style="padding:5px; height:{base.cargo.height}px; overflow:auto">
 			<!-- +START+ Cargo -->
 			<!-- BEGIN base.cargo.listitem -->
 				{if res.plaincount2 > 0}
@@ -143,7 +145,7 @@
 				<!-- END base.units.listitem -->
 			</div>
 		{/endif}
-		<div class="gfxbox">
+		<div class="gfxbox" id="statsBox">
 			Aktuelle Energie: {base.e}<br />
 			Bilanz: {base.estat}
 			<!-- BEGIN base.estat.listitem --><img style="vertical-align:middle" src="{estat.image}" alt="" /><!-- END base.estat.listitem -->

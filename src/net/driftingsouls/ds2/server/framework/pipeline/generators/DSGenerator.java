@@ -50,7 +50,7 @@ import org.springframework.beans.factory.annotation.Configurable;
  */
 public abstract class DSGenerator extends Generator {
 	private static final Log log = LogFactory.getLog(DSGenerator.class);
-	
+
 	/**
 	 * Basisklasse fuer Objekte zur Ausgabe von Header, Footer und Fehlern.
 	 *
@@ -58,7 +58,7 @@ public abstract class DSGenerator extends Generator {
 	protected abstract static class OutputHelper {
 		private Context context = null;
 		private Map<String,Object> attributes = new HashMap<String,Object>();
-		
+
 		/**
 		 * Konstruktor.
 		 *
@@ -66,26 +66,26 @@ public abstract class DSGenerator extends Generator {
 		public OutputHelper() {
 			context = ContextMap.getContext();
 		}
-		
+
 		/**
 		 * Gibt den Header aus.
-		 * @throws IOException 
+		 * @throws IOException
 		 *
 		 */
 		public abstract void printHeader() throws IOException;
 		/**
 		 * Gibt den Footer aus.
-		 * @throws IOException 
+		 * @throws IOException
 		 *
 		 */
 		public abstract void printFooter() throws IOException;
 		/**
 		 * Gibt die Fehlerliste aus.
-		 * @throws IOException 
+		 * @throws IOException
 		 *
 		 */
 		public abstract void printErrorList() throws IOException;
-		
+
 		/**
 		 * Setzt ein Attribut.
 		 * @param key Der Schluessel
@@ -94,7 +94,7 @@ public abstract class DSGenerator extends Generator {
 		public final void setAttribute(String key, Object value) {
 			this.attributes.put(key, value);
 		}
-		
+
 		/**
 		 * Gibt das Attribut mit dem angegebenen Schluessel zurueck.
 		 * @param key Der Schluessel
@@ -103,7 +103,7 @@ public abstract class DSGenerator extends Generator {
 		public final Object getAttribute(String key) {
 			return this.attributes.get(key);
 		}
-		
+
 		/**
 		 * Gibt den aktuellen Kontext zurueck.
 		 * @return Der Kontext
@@ -112,7 +112,7 @@ public abstract class DSGenerator extends Generator {
 			return this.context;
 		}
 	}
-	
+
 	/**
 	 * <p>Ausgabehilfe fuer HTML.</p>
 	 * Attribute:
@@ -128,7 +128,7 @@ public abstract class DSGenerator extends Generator {
 	protected class HtmlOutputHelper extends OutputHelper {
 		private Configuration config;
 		private Version version;
-		
+
 		/**
 		 * Injiziert die DS-Konfiguration.
 		 * @param config Die DS-Konfiguration
@@ -137,7 +137,7 @@ public abstract class DSGenerator extends Generator {
 		public void setConfiguration(Configuration config) {
 			this.config = config;
 		}
-		
+
 		/**
 		 * Injiziert die momentane DS-Version.
 		 * @param version Die DS-Version
@@ -146,13 +146,13 @@ public abstract class DSGenerator extends Generator {
 		public void setVersion(Version version) {
 			this.version = version;
 		}
-		
+
 		@Override
 		public void printHeader() throws IOException {
 			Response response = getContext().getResponse();
-			
+
 			response.setContentType("text/html", "UTF-8");
-			
+
 			if( getContext().getRequest().getParameterString("_style").equals("xml") ) {
 				return;
 			}
@@ -173,10 +173,10 @@ public abstract class DSGenerator extends Generator {
 			sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n");
 			sb.append("<meta http-equiv=\"X-UA-Compatible\" content=\"IE=9\">\n");
 			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"data/css/ui-darkness/jquery-ui-1.8.20.css\" />\n");
-			if( !getDisableDefaultCSS() ) { 
+			if( !getDisableDefaultCSS() ) {
 				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"data/css/v"+version.getHgVersion()+"/format.css\" />\n");
 			}
-			
+
 			sb.append("<!--[if IE]>\n");
 			sb.append("<style type=\"text/css\">@import url("+config.get("URL")+"data/css/v"+version.getHgVersion()+"/format_fuer_den_dummen_ie.css);</style>\n");
 			sb.append("<![endif]-->\n");
@@ -184,9 +184,9 @@ public abstract class DSGenerator extends Generator {
 			if( this.getAttribute("header") != null ) {
 				sb.append(this.getAttribute("header").toString());
 			}
-			
+
 			sb.append("</head>\n");
-			
+
 			boolean customJS = false;
 			if( this.getAttribute("customjs") != null && this.getAttribute("module") != null )
 			{
@@ -221,7 +221,7 @@ public abstract class DSGenerator extends Generator {
 			}
 			sb.append("<div id=\"error-placeholder\" />\n");
 		}
-		
+
 		@Override
 		public void printFooter() throws IOException
 		{
@@ -252,7 +252,7 @@ public abstract class DSGenerator extends Generator {
 			sb.append("<div id=\"error-box\" align=\"center\">\n");
 			sb.append(Common.tableBegin(430,"left"));
 			sb.append("<div style=\"text-align:center; font-size:14px; font-weight:bold\">Es sind Fehler aufgetreten:</div><ul>\n");
-					
+
 			for( Error error : getContext().getErrorList() ) {
 				if( error.getUrl() == null ) {
 					sb.append("<li><span style=\"font-size:14px; color:red\">"+error.getDescription().replaceAll("\n","<br />")+"</span></li>\n");
@@ -261,7 +261,7 @@ public abstract class DSGenerator extends Generator {
 					sb.append("<li><a class=\"error\" style=\"font-size:14px; font-weight:normal\" href=\""+error.getUrl()+"\">"+error.getDescription().replaceAll("\n","<br />")+"</a></li>\n");
 				}
 			}
-					
+
 			sb.append("</ul>\n");
 			sb.append(Common.tableEnd());
 			sb.append("</div>\n");
@@ -273,7 +273,7 @@ public abstract class DSGenerator extends Generator {
 			sb.append("</script>");
 		}
 	}
-	
+
 	/**
 	 * Ausgabeklasse fuer AJAX-Antworten.
 	 */
@@ -291,7 +291,7 @@ public abstract class DSGenerator extends Generator {
 			}
 		}
 	}
-	
+
 	/**
 	 * Ausgabeklasse fuer Binary-Antworten.
 	 */
@@ -304,20 +304,20 @@ public abstract class DSGenerator extends Generator {
 		public void printErrorList() throws IOException {
 		}
 	}
-	
+
 	private static class PageMenuEntry {
 		String title;
 		String url;
-		
+
 		PageMenuEntry(String title, String url) {
 			this.title = title;
 			this.url = url;
 		}
 	}
-	
+
 	private ActionType actionType;
 	private OutputHelper actionTypeHandler;
-	
+
 	private boolean disableDefaultCSS;
 	private boolean disableDebugOutput;
 	private long startTime;
@@ -330,48 +330,48 @@ public abstract class DSGenerator extends Generator {
 	private List<PageMenuEntry> pageMenuEntries;
 	private boolean disablePageMenu;
 	private boolean customJavascript;
-	
+
 	/**
 	 * Konstruktor.
 	 * @param context Der Kontext
 	 */
 	public DSGenerator(Context context) {
 		super(context);
-		
+
 		this.parameter = new HashMap<String,Object>();
 		this.subParameter = "";
-		
+
 		parameterString("module");
 		parameterString("action");
 		parameterString("_style");
-		
+
 		this.startTime = System.currentTimeMillis();
-		
+
 		this.disableDebugOutput = false;
 		this.disableDefaultCSS = false;
-		
+
 		this.onLoadFunctions = new ArrayList<String>();
 		this.bodyParameters = new HashMap<String,String>();
-		
+
 		this.preloadUserValues = new ArrayList<String>();
 		this.preloadUserValues.add("id");
-		
+
 		this.pageTitle = null;
 		this.pageMenuEntries = new ArrayList<PageMenuEntry>();
 		this.disablePageMenu = false;
-		
+
 		this.customJavascript = false;
 
 		setActionType(ActionType.DEFAULT);
 	}
-		
+
 	private Object getParameter( String parameter ) {
 		if( subParameter.equals("") ) {
 			return this.parameter.get(parameter);
 		}
 		return this.parameter.get(subParameter+"["+parameter+"]");
 	}
-	
+
 	/**
 	 * Gibt einen als Zahl registrierten Parameter in Form eines
 	 * <code>int</code> zurueck.
@@ -381,7 +381,7 @@ public abstract class DSGenerator extends Generator {
 	public int getInteger(String parameter) {
 		return ((Number)getParameter(parameter)).intValue();
 	}
-	
+
 	/**
 	 * Gibt einen als Zahl registrierten Parameter in Form eines
 	 * <code>double</code> zurueck.
@@ -391,7 +391,7 @@ public abstract class DSGenerator extends Generator {
 	public double getDouble(String parameter) {
 		return ((Number)getParameter(parameter)).doubleValue();
 	}
-	
+
 	/**
 	 * Gibt einen als String registrierten parameter zurueck.
 	 * @param parameter Der Name des Parameters
@@ -400,7 +400,7 @@ public abstract class DSGenerator extends Generator {
 	public String getString(String parameter) {
 		return (String)getParameter(parameter);
 	}
-	
+
 	/**
 	 * Entfernt einen Parameter. Bei einer anschliessenden
 	 * Registrierung des Parameters, ist der Wert leer.
@@ -413,11 +413,11 @@ public abstract class DSGenerator extends Generator {
 		getRequest().setParameter(parameter,null);
 		this.parameter.remove(parameter);
 	}
-	
+
 	protected void parseSubParameter( String subparam ) {
 		subParameter = subparam;
 	}
-	
+
 	/**
 	 * Registriert einen Parameter im System als Zahl. Der Parameter
 	 * kann anschliessend ueber entsprechende Funktionen erfragt werden.
@@ -445,7 +445,7 @@ public abstract class DSGenerator extends Generator {
 			this.parameter.put(parameter, 0d);
 		}
 	}
-	
+
 	/**
 	 * Registriert einen Parameter im System als String. Der Parameter
 	 * kann anschliessend ueber entsprechende Funktionen erfragt werden.
@@ -462,29 +462,29 @@ public abstract class DSGenerator extends Generator {
 			this.parameter.put(parameter,"");
 		}
 	}
-	
+
 	/**
 	 * Fuehrt eine Aktion aus. Die zur Aktion gehoerende Funktion wird aufgerufen.
 	 * @param action Der Name der Aktion
 	 */
-	protected void redirect( String action ) 
+	protected void redirect( String action )
 	{
-		try 
+		try
 		{
 			Method method = getMethodForAction(action);
-			
+
 			final Action actionDescriptor = method.getAnnotation(Action.class);
 			doActionOptimizations(actionDescriptor);
-			
+
 			method.setAccessible(true);
 			method.invoke(this);
 		}
-		catch( Exception e ) 
+		catch( Exception e )
 		{
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	/**
 	 * Ruft die Standardaktion auf.
 	 *
@@ -492,7 +492,7 @@ public abstract class DSGenerator extends Generator {
 	protected void redirect() {
 		redirect("default");
 	}
-	
+
 	private Method getMethodForAction(String action) throws NoSuchMethodException {
 		Method[] methods = getClass().getMethods();
 		for( int i=0; i < methods.length; i++ ) {
@@ -500,67 +500,71 @@ public abstract class DSGenerator extends Generator {
 			if( actionAnnotation == null ) {
 				continue;
 			}
-			
+
 			if( methods[i].getName().equals(action+"Action") ) {
 				return methods[i];
 			}
-			
+
 			if( methods[i].getName().equals(action+"AjaxAct") ) {
 				return methods[i];
 			}
-			
+
 			if( methods[i].getName().equals(action) ) {
 				return methods[i];
 			}
 		}
-		
+
 		throw new NoSuchMethodException();
 	}
-	
+
 	@Override
 	public void handleAction( String action ) throws IOException {
 		if( (action == null) || action.isEmpty() ) {
 			action = "default";
 		}
-		
+
 		if( getErrorList().length != 0 ) {
 			printErrorListOnly();
-			
+
 			return;
 		}
-	
+
 		try {
 			Method method = getMethodForAction(action);
 			final Action actionDescriptor = method.getAnnotation(Action.class);
 			setActionType(actionDescriptor.value());
-			
+
 			if( (getErrorList().length != 0) || !validateAndPrepare(action) ) {
 				printErrorListOnly();
-				
+
 				return;
 			}
-			
+
 			printHeader( action );
-			
+
 			doActionOptimizations(actionDescriptor);
-			
+
 			method.setAccessible(true);
-			method.invoke(this);
+			Object result = method.invoke(this);
+			if( result != null )
+			{
+				getResponse().getWriter().append(result.toString());
+			}
 		}
-		catch( NoSuchMethodException e ) 
+		catch( NoSuchMethodException e )
 		{
 			log.error("", e);
 			addError("Die Aktion '"+action+"' existiert nicht!");
 		}
-		catch( Exception e ) 
+		catch( Exception e )
 		{
 			throw new RuntimeException(e);
 		}
-		
+
 		parseSubParameter("");
-		
+
 		printErrorList();
-			
+
 		printFooter( action );
 	}
 
@@ -573,7 +577,7 @@ public abstract class DSGenerator extends Generator {
 			db.flush();
 			db.setFlushMode(FlushMode.MANUAL);
 		}
-		else 
+		else
 		{
 			db.setFlushMode(FlushMode.AUTO);
 		}
@@ -589,12 +593,12 @@ public abstract class DSGenerator extends Generator {
 	private void printErrorListOnly() throws IOException
 	{
 		actionTypeHandler.printHeader();
-		
+
 		printErrorList();
-		
+
 		actionTypeHandler.printFooter();
 	}
-	
+
 	protected void printHeader( String action ) throws IOException {
 		if( !this.disablePageMenu ) {
 			actionTypeHandler.setAttribute("module", getString("module"));
@@ -602,14 +606,14 @@ public abstract class DSGenerator extends Generator {
 			actionTypeHandler.setAttribute("pagemenu", this.pageMenuEntries.toArray(new PageMenuEntry[this.pageMenuEntries.size()]));
 			actionTypeHandler.setAttribute("customjs", this.customJavascript);
 		}
-		
+
 		actionTypeHandler.printHeader();
 	}
-	
+
 	protected void printFooter( String action ) throws IOException {
 		actionTypeHandler.printFooter();
 	}
-	
+
 	/**
 	 * Setzt, ob fuer das Modul eine eigene Javascript-Datei vorliegt ([modulname].js)
 	 * und diese eingebunden werden soll (Default: false).
@@ -619,7 +623,7 @@ public abstract class DSGenerator extends Generator {
 	{
 		this.customJavascript = value;
 	}
-	
+
 	/**
 	 * (De)aktiviert die Debug-Ausgaben.
 	 * @param value <code>true</code> zur Deaktivierung
@@ -627,15 +631,15 @@ public abstract class DSGenerator extends Generator {
 	public void setDisableDebugOutput( boolean value ) {
 		disableDebugOutput = value;
 	}
-	
+
 	/**
 	 * Gibt zurueck, ob die Debugausgabe deaktiviert ist.
 	 * @return <code>true</code>, falls sie deaktiviert ist
 	 */
 	public boolean getDisableDebugOutput() {
-		return disableDebugOutput;	
+		return disableDebugOutput;
 	}
-	
+
 	/**
 	 * (De)aktiviert die Default-CSS-Stile.
 	 * @param value <code>true</code> zur Deaktivierung
@@ -643,15 +647,15 @@ public abstract class DSGenerator extends Generator {
 	public void setDisableDefaultCSS( boolean value ) {
 		disableDefaultCSS = value;
 	}
-	
+
 	/**
 	 * Gibt zurueck, ob die Default-CSS-Stile deaktiviert sind.
 	 * @return <code>true</code>, falls sie deaktiviert sind
 	 */
 	public boolean getDisableDefaultCSS() {
-		return disableDefaultCSS;	
+		return disableDefaultCSS;
 	}
-	
+
 	/**
 	 * Setzt die Bezeichnung der aktuellen Seite.
 	 * @param title Die Bezeichnung
@@ -659,7 +663,7 @@ public abstract class DSGenerator extends Generator {
 	public void setPageTitle(String title) {
 		this.pageTitle = title;
 	}
-	
+
 	/**
 	 * Fuegt dem Seitenmenue einen Eintrag hinzu.
 	 * @param title Die Titel des Eintrags
@@ -668,7 +672,7 @@ public abstract class DSGenerator extends Generator {
 	public void addPageMenuEntry(String title, String url) {
 		this.pageMenuEntries.add(new PageMenuEntry(title, url));
 	}
-	
+
 	/**
 	 * Setzt, ob das Seitenmenue nicht verwendet werden soll.
 	 * @param value <code>true</code>, falls es nicht verwendet werden soll
@@ -676,7 +680,7 @@ public abstract class DSGenerator extends Generator {
 	public void setDisablePageMenu(boolean value) {
 		this.disablePageMenu = value;
 	}
-	
+
 	/**
 	 * Gibt den Startzeitpunkt der Verarbeitung zurueck.
 	 * @return Der Startzeitpunkt der Verarbeitung
@@ -694,13 +698,13 @@ public abstract class DSGenerator extends Generator {
 			StringBuilder sb = new StringBuilder("onLoad=\"");
 			sb.append(Common.implode(" ", onLoadFunctions));
 			sb.append("\"");
-			
+
 			return sb.toString();
 		}
-		
-		return "";	
+
+		return "";
 	}
-	
+
 	/**
 	 * Fuegt eine Javascript-Funktion zum <code>onLoad</code>-Aufruf des Body-Tags hinzu.
 	 * @param func Der Javascript-Funktionsaufruf
@@ -708,7 +712,7 @@ public abstract class DSGenerator extends Generator {
 	public void addOnLoadFunction( String func ) {
 		onLoadFunctions.add(func);
 	}
-	
+
 	/**
 	 * Gibt weitere HTML-Body-Tag-Attribute zurueck.
 	 * @return Weitere HTML-Body-Tag-Attribute
@@ -716,16 +720,16 @@ public abstract class DSGenerator extends Generator {
 	 */
 	public String getBodyParameters() {
 		StringBuilder text = new StringBuilder();
-		
+
 		if( bodyParameters.size() > 0 ) {
 			for( String key : bodyParameters.keySet() ) {
 				text.append(key+"=\""+bodyParameters.get(key)+"\" ");
 			}
 		}
-		
-		return text.toString();	
+
+		return text.toString();
 	}
-	
+
 	/**
 	 * Fuegt ein weiteres HTML-Body-Tag-Attribut hinzu.
 	 * Sollte das Attribut bereits gesetzt seit, so wird es
@@ -736,7 +740,7 @@ public abstract class DSGenerator extends Generator {
 	public void addBodyParameter( String parameter, String value ) {
 		bodyParameters.put(parameter,value);
 	}
-	
+
 	protected void setActionType( ActionType type ) {
 		if( type == ActionType.DEFAULT ) {
 			actionTypeHandler = new HtmlOutputHelper();
@@ -747,10 +751,10 @@ public abstract class DSGenerator extends Generator {
 		else if( type == ActionType.BINARY ) {
 			actionTypeHandler = new BinaryOutputHelper();
 		}
-		
+
 		actionType = type;
 	}
-	
+
 	/**
 	 * Gibt den aktuellen Aktionstyp zurueck.
 	 * @return Der Aktionstyp
@@ -758,7 +762,7 @@ public abstract class DSGenerator extends Generator {
 	protected ActionType getActionType() {
 		return actionType;
 	}
-	
+
 	/**
 	 * Gibt die Ausgabehilfe zurueck.
 	 * @return Die Ausgabehilfe
@@ -766,21 +770,21 @@ public abstract class DSGenerator extends Generator {
 	protected OutputHelper getOutputHelper() {
 		return actionTypeHandler;
 	}
-	
+
 	protected abstract boolean validateAndPrepare(String action);
-	
+
 	/**
 	 * Die Default-Ajax-Aktion.
-	 * @throws IOException 
+	 * @throws IOException
 	 *
 	 */
 	public void defaultAjaxAct() throws IOException {
-		defaultAction();	
+		defaultAction();
 	}
-	
+
 	/**
 	 * Die Default-HTML-Aktion.
-	 * @throws IOException 
+	 * @throws IOException
 	 *
 	 */
 	public void defaultAction() throws IOException {

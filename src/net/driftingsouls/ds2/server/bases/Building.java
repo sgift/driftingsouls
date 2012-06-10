@@ -31,6 +31,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.sf.json.JSONObject;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -40,7 +41,7 @@ import org.hibernate.annotations.Type;
 // TODO: Warum Verbrauch/Produktion unterscheiden?
 /**
  * Basisklasse fuer alle Gebaeudetypen.
- * 
+ *
  * @author Christopher Jung
  *
  */
@@ -55,20 +56,20 @@ public abstract class Building {
 	 * Die ID des Kommandozentralen-Gebaeudes.
 	 */
 	public static final int KOMMANDOZENTRALE = 1;
-	
+
 	/**
 	 * Gibt eine Instanz der Gebaudeklasse des angegebenen Gebaeudetyps zurueck.
 	 * Sollte kein passender Gebaeudetyp existieren, wird <code>null</code> zurueckgegeben.
-	 * 
+	 *
 	 * @param id Die ID des Gebaudetyps
 	 * @return Eine Instanz der zugehoerigen Gebaeudeklasse
 	 */
 	public static Building getBuilding(int id) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
+
 		return (Building)db.get(Building.class, id);
 	}
-	
+
 	@Id
 	private int id;
 	@SuppressWarnings("unused")
@@ -102,7 +103,7 @@ public abstract class Building {
 	private boolean shutdown;
 	private String terrain;
 	private String chanceress;
-	
+
 	/**
 	 * Konstruktor.
 	 *
@@ -118,7 +119,7 @@ public abstract class Building {
 	public int getId() {
 		return this.id;
 	}
-	
+
 	/**
 	 * Gibt den Namen des Gebaeudetyps zurueck.
 	 * @return Der Name
@@ -126,7 +127,7 @@ public abstract class Building {
 	public String getName() {
 		return name;
 	}
-	
+
 	/**
 	 * Gibt das zum Gebaeudetyp gehoerende Bild zurueck.
 	 * @return Das Bild
@@ -134,7 +135,7 @@ public abstract class Building {
 	public String getPicture() {
 		return picture;
 	}
-	
+
 	/**
 	 * Gibt die fuer das Gebaeude anfallenden Baukosten zurueck.
 	 * @return Die Baukosten
@@ -142,7 +143,7 @@ public abstract class Building {
 	public Cargo getBuildCosts() {
 		return new UnmodifiableCargo(buildCosts);
 	}
-	
+
 	/**
 	 * Gibt die Ressourcen zurueck die zufaellig gespawnt werden.
 	 * @return die Zufalls-Ressourcen
@@ -154,7 +155,7 @@ public abstract class Building {
 		}
 		return chanceress;
 	}
-	
+
 	/**
 	 * Gibt die Produktion des Gebaeudes pro Tick zurueck.
 	 * @return Die Produktion
@@ -162,7 +163,7 @@ public abstract class Building {
 	public Cargo getProduces() {
 		return new UnmodifiableCargo(produces);
 	}
-	
+
 	/**
 	 * Gibt die Produktion des Gebaeudes pro Tick zurueck. (Extra Funktion fuer Buddelstaetten).
 	 * @return Die Produktion
@@ -170,7 +171,7 @@ public abstract class Building {
 	public Cargo getAllProduces() {
 		return getProduces();
 	}
-	
+
 	/**
 	 * Gibt den Verbrauch des Gebaeudes pro Tick zurueck.
 	 * @return Der Verbrauch
@@ -178,7 +179,7 @@ public abstract class Building {
 	public Cargo getConsumes() {
 		return new UnmodifiableCargo(consumes);
 	}
-	
+
 	/**
 	 * Gibt die Anzahl Wohnraum zurueck, die das Gebaeude schafft.
 	 * @return Der Wohnraum
@@ -186,7 +187,7 @@ public abstract class Building {
 	public int getBewohner() {
 		return bewohner;
 	}
-	
+
 	/**
 	 * Gibt die Anzahl der Arbeiter zurueck, die das Gebaeude fuer den Betrieb benoetigt.
 	 * @return Die Anzahl der Arbeiter
@@ -194,7 +195,7 @@ public abstract class Building {
 	public int getArbeiter() {
 		return arbeiter;
 	}
-	
+
 	/**
 	 * Gibt den Energieverbrauch des Gebaeudes pro Tick zurueck.
 	 * @return Der Energieverbrauch
@@ -202,7 +203,7 @@ public abstract class Building {
 	public int getEVerbrauch() {
 		return eVerbrauch;
 	}
-	
+
 	/**
 	 * Gibt die Energieproduktion des Gebaeudes pro Tick zurueck.
 	 * @return die Energieproduktion
@@ -210,7 +211,7 @@ public abstract class Building {
 	public int getEProduktion() {
 		return eProduktion;
 	}
-	
+
 	/**
 	 * Gibt die ID der zum Bau benoetigten Forschung zurueck.
 	 * @return die benoetigte Forschung
@@ -218,7 +219,7 @@ public abstract class Building {
 	public int getTechRequired() {
 		return techReq;
 	}
-	
+
 	/**
 	 * Gibt zureuck, ob das Gebaeude bei nicht vorhandenen Voraussetzungen abschaltet.
 	 * @return <code>true</code>, wenn das Gebaeude abschaltet
@@ -226,7 +227,7 @@ public abstract class Building {
 	public boolean isShutDown() {
 		return shutdown;
 	}
-	
+
 	/**
 	 * Setzt, ob das Gebaeude bei nicht vorhandenen Voraussetzungen abschaltet.
 	 * @param shutdown <code>true</code> wenn das Gebaeude abschalten soll
@@ -234,7 +235,7 @@ public abstract class Building {
 	public void setShutDown(boolean shutdown) {
 		this.shutdown = shutdown;
 	}
-	
+
 	/**
 	 * Unbekannt (?????) - Wird aber auch nicht verwendet.
 	 * @return ????
@@ -242,7 +243,7 @@ public abstract class Building {
 	public int getEPS() {
 		return eps;
 	}
-	
+
 	/**
 	 * Gibt die maximale Anzahl des Gebaeudes pro Basis zurueck.
 	 * Sollte es keine Beschraenkung geben, so wird 0 zurueckgegeben.
@@ -251,7 +252,7 @@ public abstract class Building {
 	public int getPerPlanetCount() {
 		return perPlanet;
 	}
-	
+
 	/**
 	 * Gibt die maximale Anzahl des Gebaeudes pro Benutzer zurueck.
 	 * Sollte es keine Beschraenkung geben, so wird 0 zurueckgegeben.
@@ -260,7 +261,7 @@ public abstract class Building {
 	public int getPerUserCount() {
 		return perOwner;
 	}
-	
+
 	/**
 	 * Gibt die ID der Kategorie des Gebaeudes zurueck.
 	 * @return die ID der Kategorie
@@ -268,7 +269,7 @@ public abstract class Building {
 	public int getCategory() {
 		return category;
 	}
-	
+
 	/**
 	 * Gibt <code>true</code> zurueck, falls das Gebaeude ein unterirdischer Komplex ist.
 	 * @return <code>true</code>, falls es ein unterirdischer Komplex ist
@@ -276,7 +277,7 @@ public abstract class Building {
 	public boolean isUComplex() {
 		return ucomplex;
 	}
-	
+
 	/**
 	 * Gibt <code>true</code> zurueck, falls das Gebaeude eine Fabrik ist.
 	 * @return <code>true</code>, falls es sich um eine Fabrik handelt
@@ -284,7 +285,7 @@ public abstract class Building {
 	public boolean isFabrik() {
 		return (this instanceof Fabrik);
 	}
-	
+
 	/**
 	 * Gibt <code>true</code> zurueck, falls das Gebaeude deaktivierbar ist.
 	 * @return <code>true</code>, falls das Gebaeude deaktivierbar ist
@@ -300,10 +301,10 @@ public abstract class Building {
 	public int getRace() {
 		return race;
 	}
-	
+
 	/**
 	 * Setzt die Id.
-	 * 
+	 *
 	 * @param id id
 	 */
 	public void setId(int id)
@@ -313,7 +314,7 @@ public abstract class Building {
 
 	/**
 	 * Setzt den Wohnraum.
-	 * 
+	 *
 	 * @param bewohner Wohnraum
 	 */
 	public void setBewohner(int bewohner)
@@ -323,7 +324,7 @@ public abstract class Building {
 
 	/**
 	 * Setzt die Arbeiter.
-	 * 
+	 *
 	 * @param arbeiter Arbeiter
 	 */
 	public void setArbeiter(int arbeiter)
@@ -333,7 +334,7 @@ public abstract class Building {
 
 	/**
 	 * Setzt den Namen.
-	 * 
+	 *
 	 * @param name Name
 	 */
 	public void setName(String name)
@@ -343,7 +344,7 @@ public abstract class Building {
 
 	/**
 	 * Setzt den Pfad zum Bild.
-	 * 
+	 *
 	 * @param picture Bildpfad
 	 */
 	public void setPicture(String picture)
@@ -353,7 +354,7 @@ public abstract class Building {
 
 	/**
 	 * Setzt die Baukosten..
-	 * 
+	 *
 	 * @param buildCosts Baukosten
 	 */
 	public void setBuildCosts(Cargo buildCosts)
@@ -369,10 +370,10 @@ public abstract class Building {
 	{
 		this.chanceress = chanceress;
 	}
-	
+
 	/**
 	 * Setzt die Produktion.
-	 * 
+	 *
 	 * @param produces Produktion
 	 */
 	public void setProduces(Cargo produces)
@@ -382,7 +383,7 @@ public abstract class Building {
 
 	/**
 	 * Setzt den Verbrauch.
-	 * 
+	 *
 	 * @param consumes Verbrauch
 	 */
 	public void setConsumes(Cargo consumes)
@@ -392,7 +393,7 @@ public abstract class Building {
 
 	/**
 	 * Setzt den Energieverbrauch.
-	 * 
+	 *
 	 * @param verbrauch Energieverbrauch
 	 */
 	public void setEVerbrauch(int verbrauch)
@@ -402,7 +403,7 @@ public abstract class Building {
 
 	/**
 	 * Setzt die Energieproduktion.
-	 * 
+	 *
 	 * @param produktion Energieproduktion
 	 */
 	public void setEProduktion(int produktion)
@@ -412,17 +413,17 @@ public abstract class Building {
 
 	/**
 	 * Setzt die notwendige Forschung.
-	 * 
+	 *
 	 * @param techReq Forschung
 	 */
 	public void setTechReq(int techReq)
 	{
 		this.techReq = techReq;
 	}
-	
+
 	/**
 	 * Setzt den Energiespeicher.
-	 * 
+	 *
 	 * @param eps Energiespeicher
 	 */
 	public void setEps(int eps)
@@ -432,7 +433,7 @@ public abstract class Building {
 
 	/**
 	 * Setzt die max. Anzahl pro Planet.
-	 * 
+	 *
 	 * @param perPlanet max. Anzahl pro Planet
 	 */
 	public void setPerPlanet(int perPlanet)
@@ -442,7 +443,7 @@ public abstract class Building {
 
 	/**
 	 * Setzt die max. Anzahl pro Spieler
-	 * 
+	 *
 	 * @param perOwner max. Anzahl pro Spieler
 	 */
 	public void setPerOwner(int perOwner)
@@ -452,7 +453,7 @@ public abstract class Building {
 
 	/**
 	 * Setzt die Kategorie.
-	 * 
+	 *
 	 * @param category Kategorie
 	 */
 	public void setCategory(int category)
@@ -462,7 +463,7 @@ public abstract class Building {
 
 	/**
 	 * Setzt, ob das Gebaeude ein unterirdischer Komplex ist.
-	 * 
+	 *
 	 * @param ucomplex 0 nein, 1 ja
 	 */
 	public void setUcomplex(boolean ucomplex)
@@ -472,7 +473,7 @@ public abstract class Building {
 
 	/**
 	 * Setzt, ob das Gebaeude abgeschaltet werden kann.
-	 * 
+	 *
 	 * @param deakable Abschaltbar
 	 */
 	public void setDeakable(boolean deakable)
@@ -482,7 +483,7 @@ public abstract class Building {
 
 	/**
 	 * Setzt die Spezieszugehoerigkeit.
-	 * 
+	 *
 	 * @param race Spezies
 	 */
 	public void setRace(int race)
@@ -502,7 +503,7 @@ public abstract class Building {
 		}
 		return this.terrain;
 	}
-	
+
 	/**
 	 * Setzt die Terrainarten auf denen das Gebaeude baubar ist.
 	 * @param terrain die Terrainarten auf denen das Gebaeude baubar ist
@@ -511,7 +512,7 @@ public abstract class Building {
 	{
 		this.terrain = terrain;
 	}
-	
+
 	/**
 	 * Prueft, ob das Gebaeude auf dem Terrain baubar ist.
 	 * @param type der Terraintyp auf den geprueft werden soll
@@ -524,7 +525,7 @@ public abstract class Building {
 			return true;
 		}
 		int[] terrains = Common.explodeToInt(";", this.terrain);
-		
+
 		for(int i = 0; i < terrains.length; i++)
 		{
 			if(terrains[i] == type)
@@ -532,17 +533,17 @@ public abstract class Building {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * Wird aufgerufen, wenn das Gebaeude auf einer Basis gebaut wurde.
 	 * @param base Die Basis
 	 * @param buildingid Die ID des Gebaeudes auf dem Feld
 	 */
 	public abstract void build( Base base, int buildingid );
-	
+
 	/**
 	 * Wird aufgerufen, wenn das Gebaeude auf einer Basis abgerissen wurde.
 	 * @param context Der aktive Kontext
@@ -550,7 +551,7 @@ public abstract class Building {
 	 * @param buildingid Die Id des Gebaeudes an der Stelle
 	 */
 	public abstract void cleanup( Context context, Base base, int buildingid );
-	
+
 	/**
 	 * Modifiziert das stats-objekt der Basis um die Stats dieses Gebaeudes.
 	 * @param base Die Basis
@@ -559,7 +560,7 @@ public abstract class Building {
 	 * @return Warnungen fuer den Benutzer/Fuers Log
 	 */
 	public abstract String modifyStats( Base base, Cargo stats, int building );
-	
+
 	/**
 	 * Modifiziert das stats-objekt der Basis um die Produktion dieses Gebaeudes.
 	 * @param base Die Basis
@@ -568,7 +569,7 @@ public abstract class Building {
 	 * @return Warnungen fuer den Benutzer/Fuers Log
 	 */
 	public abstract String modifyProductionStats( Base base, Cargo stats, int building );
-	
+
 	/**
 	 * Modifiziert das stats-objekt der Basis um den Verbrauch dieses Gebaeudes.
 	 * @param base Die Basis
@@ -577,7 +578,7 @@ public abstract class Building {
 	 * @return Warnungen fuer den Bnutzer/Fuers Log
 	 */
 	public abstract String modifyConsumptionStats(Base base, Cargo stats, int building );
-	
+
 	/**
 	 * Gibt <code>true</code> zurueck, wenn das Gebaeude aktiv ist.
 	 * @param base Die Basis
@@ -586,9 +587,9 @@ public abstract class Building {
 	 * @return <code>true</code>, falls das Gebaeude aktiv ist
 	 */
 	public abstract boolean isActive( Base base, int status, int field );
-	
+
 	/**
-	 * Generiert einen Shortcut-Link (String) sofern notwendig. Sollte das Gebaeude keinen haben 
+	 * Generiert einen Shortcut-Link (String) sofern notwendig. Sollte das Gebaeude keinen haben
 	 * wird ein leerer String zurueckgegeben.
 	 * @param context der aktive Kontext
 	 * @param base Die Basis
@@ -597,20 +598,20 @@ public abstract class Building {
 	 * @return Ein HTML-String, welcher den Shortcut enthaelt
 	 */
 	public abstract String echoShortcut( Context context, Base base, int field, int building );
-	
+
 	/**
 	 * Gibt <code>true</code> zurueck, wenn eine Kopfzeile ausgegeben werden soll (Enthaelt den Namen des Gebaeudes und ggf dessen Bild.
 	 * Dies ist jedoch von {@link #classicDesign()} abhaengig).
 	 * @return <code>true</code>, falls der Header ausgegeben werden soll
 	 */
 	public abstract boolean printHeader();
-	
+
 	/**
 	 * Gibt <code>true</code> zurueck, wenn das klassische Design fuer die Gebaeudeseite verwendet werden soll.
 	 * @return <code>true</code>,falls das klassische Design verwendet werden soll
 	 */
 	public abstract boolean classicDesign();
-	
+
 	/**
 	 * Gibt die eigendliche UI des Gebaeudes aus.
 	 * @param context Der aktive Kontext
@@ -621,4 +622,24 @@ public abstract class Building {
 	 * @return Ein HTML-String, der die Gebaeudeseite einhaelt
 	 */
 	public abstract String output( Context context, TemplateEngine t, Base base, int field, int building );
+
+	/**
+	 * Gibt zurueck, ob das Gebaeude die Darstellung via Javascript/Json unterstuetzt.
+	 * @return <code>true</code> falls dem so ist
+	 */
+	public abstract boolean isSupportsJson();
+
+	/**
+	 * Gibt alle zur jeweiligen Anzeige relevanten Informationen als JSON-Objekt zurueck.
+	 * @param context Der aktive Kontext
+	 * @param base Die ID der Basis
+	 * @param field Das Feld, auf dem das Gebaeude steht
+	 * @param building die ID des Gebaeudetyps
+	 * @return Ein HTML-String, der die Gebaeudeseite einhaelt
+	 * @see #isSupportsJson()
+	 */
+	public JSONObject outputJson(Context context, Base base, int field, int building)
+	{
+		throw new UnsupportedOperationException();
+	}
 }

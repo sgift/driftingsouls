@@ -25,13 +25,16 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import net.driftingsouls.ds2.server.framework.JSONSupport;
+import net.sf.json.JSONArray;
+
 /**
  * Liste von Resourcen aus einem Cargo.
  * @author Christopher Jung
  * @see ResourceEntry
  *
  */
-public class ResourceList implements Iterable<ResourceEntry> {
+public class ResourceList implements Iterable<ResourceEntry>, JSONSupport {
 	/**
 	 * Vergleichsklasse fuer Resourcen-IDs.
 	 * @author Christopher Jung
@@ -39,19 +42,19 @@ public class ResourceList implements Iterable<ResourceEntry> {
 	 */
 	private static class IDComparator implements Comparator<ResourceEntry>, Serializable {
 		private static final long serialVersionUID = 4261849413786052732L;
-		
+
 		private ResourceIDComparator comp;
-		
+
 		IDComparator(boolean descending) {
 			this.comp = new ResourceIDComparator(descending);
 		}
-		
+
 		@Override
 		public int compare(ResourceEntry o1, ResourceEntry o2) {
 			return comp.compare(o1.getId(), o2.getId());
 		}
 	}
-	
+
 	/**
 	 * Vergleichsklasse fuer Resourcen-IDs. Verglichen wird auf Basis.
 	 * der vorhandenen Resourcenmenge
@@ -60,13 +63,13 @@ public class ResourceList implements Iterable<ResourceEntry> {
 	 */
 	private static class CargoComparator implements Comparator<ResourceEntry>, Serializable {
 		private static final long serialVersionUID = -2109193189213155880L;
-		
+
 		private boolean descending;
-		
+
 		CargoComparator(boolean descending) {
 			this.descending = descending;
 		}
-		
+
 		@Override
 		public int compare(ResourceEntry o1, ResourceEntry o2) {
 			if( o1.getCount1() > o2.getCount1() ) {
@@ -78,7 +81,7 @@ public class ResourceList implements Iterable<ResourceEntry> {
 			return 0;
 		}
 	}
-	
+
 	/**
 	 * Iterator ueber die Resourceneintraege in der Liste.
 	 * @author Christopher Jung
@@ -86,11 +89,11 @@ public class ResourceList implements Iterable<ResourceEntry> {
 	 */
 	private static class ResourceIterator implements Iterator<ResourceEntry> {
 		private Iterator<ResourceEntry> iter = null;
-		
+
 		protected ResourceIterator(Iterator<ResourceEntry> inner) {
 			this.iter = inner;
 		}
-		
+
 		@Override
 		public boolean hasNext() {
 			return iter.hasNext();
@@ -106,13 +109,13 @@ public class ResourceList implements Iterable<ResourceEntry> {
 			throw new UnsupportedOperationException("Das entfernen von Resourcen-Eintraegen ist nicht moeglich");
 		}
 	}
-	
+
 	private List<ResourceEntry> list = new ArrayList<ResourceEntry>();
-	
+
 	protected ResourceList() {
 		// EMPTY
 	}
-	
+
 	/**
 	 * Fuegt einen neuen Resourceneintrag zur Resourcenliste hinzu.
 	 * @param entry Der Resourceneintrag
@@ -121,7 +124,7 @@ public class ResourceList implements Iterable<ResourceEntry> {
 		list.add(entry);
     this.sortByID(false);
 	}
-	
+
 	/**
 	 * Sortiert die Liste auf Basis der Resourcen-ID.
 	 * @param descending Soll die Liste absteigend sortiert werden (<code>true</code>)?
@@ -137,7 +140,7 @@ public class ResourceList implements Iterable<ResourceEntry> {
 	public void sortByCargo( boolean descending ) {
 		Collections.sort(list, new CargoComparator(descending));
 	}
-	
+
 	/**
 	 * Gibt die Anzahl der Resourceneintraege in der Resourcenliste an.
 	 * @return Die Anzahl der Resourceneintraege
@@ -149,5 +152,16 @@ public class ResourceList implements Iterable<ResourceEntry> {
 	@Override
 	public Iterator<ResourceEntry> iterator() {
 		return new ResourceIterator(list.iterator());
+	}
+
+	@Override
+	public JSONArray toJSON()
+	{
+		JSONArray a = new JSONArray();
+		for( ResourceEntry entry : list )
+		{
+			a.add(entry.toJSON());
+		}
+		return a;
 	}
 }

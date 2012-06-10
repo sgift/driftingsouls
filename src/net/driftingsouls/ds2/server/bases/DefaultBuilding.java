@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.sf.json.JSONObject;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -45,14 +46,14 @@ import org.springframework.beans.factory.annotation.Configurable;
 public class DefaultBuilding extends Building {
 	@Transient
 	protected Configuration config;
-	
+
 	/**
 	 * Erstellt eine neue Gebaeude-Instanz.
 	 */
 	public DefaultBuilding() {
 		// EMPTY
 	}
-	
+
 	/**
 	 * Injiziert die DS-Konfiguration.
 	 * @param config Die DS-Konfiguration
@@ -77,13 +78,13 @@ public class DefaultBuilding extends Building {
 		// EMPTY
 		return "";
 	}
-	
+
 	@Override
 	public String modifyProductionStats(Base base, Cargo stats, int building) {
 		// EMPTY
 		return "";
 	}
-	
+
 	@Override
 	public String modifyConsumptionStats(Base base, Cargo stats, int building) {
 		// EMPTY
@@ -115,7 +116,7 @@ public class DefaultBuilding extends Building {
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("Verbraucht:<br />\n");
 		buffer.append("<div align=\"center\">\n");
-		
+
 		boolean entry = false;
 		ResourceList reslist = getConsumes().getResourceList();
 		for( ResourceEntry res : reslist )
@@ -123,7 +124,7 @@ public class DefaultBuilding extends Building {
 			buffer.append("<img src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1()+" ");
 			entry = true;
 		}
-	
+
 		if( getEVerbrauch() > 0 )
 		{
 			buffer.append("<img src=\""+this.config.get("URL")+"data/interface/energie.gif\" alt=\"\" />"+getEVerbrauch()+" ");
@@ -133,12 +134,12 @@ public class DefaultBuilding extends Building {
 		{
 			buffer.append("-");
 		}
-		
+
 		buffer.append("</div>\n");
-		
+
 		buffer.append("Produziert:<br />\n");
 		buffer.append("<div align=\"center\">\n");
-		
+
 		entry = false;
 		reslist = getProduces().getResourceList();
 		for( ResourceEntry res : reslist )
@@ -146,18 +147,46 @@ public class DefaultBuilding extends Building {
 			buffer.append("<img src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1()+" ");
 			entry = true;
 		}
-		
+
 		if( getEProduktion() > 0 )
 		{
 			buffer.append("<img src=\""+this.config.get("URL")+"data/interface/energie.gif\" alt=\"\" />"+getEProduktion());
 			entry = true;
 		}
-	
-		if( !entry ) 
-		{ 
+
+		if( !entry )
+		{
 			buffer.append("-");
 		}
 		buffer.append("</div><br />\n");
 		return buffer.toString();
+	}
+
+	@Override
+	public boolean isSupportsJson()
+	{
+		return true;
+	}
+
+	@Override
+	public JSONObject outputJson(Context context, Base base, int field, int building)
+	{
+		JSONObject gui = new JSONObject();
+		JSONObject consumes = new JSONObject();
+		JSONObject produces = new JSONObject();
+
+		ResourceList reslist = getConsumes().getResourceList();
+		consumes.accumulate("cargo", reslist.toJSON());
+		consumes.accumulate("e", getEVerbrauch());
+
+		reslist = getProduces().getResourceList();
+		produces.accumulate("cargo", reslist.toJSON());
+		produces.accumulate("e", getEProduktion());
+
+		gui.accumulate("consumes", consumes);
+		gui.accumulate("produces", produces);
+
+
+		return gui;
 	}
 }

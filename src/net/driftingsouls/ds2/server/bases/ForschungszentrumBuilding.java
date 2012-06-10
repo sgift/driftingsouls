@@ -51,7 +51,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 public class ForschungszentrumBuilding extends DefaultBuilding {
 	private static final Log log = LogFactory.getLog(ForschungszentrumBuilding.class);
-	
+
 	/**
 	 * Erstellt eine neue Forschungszentrum-Instanz.
 	 */
@@ -62,23 +62,23 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 	@Override
 	public void build(Base base, int building) {
 		super.build(base, building);
-		
+
 		Context context = ContextMap.getContext();
 		if( context == null ) {
 			throw new RuntimeException("No Context available");
 		}
 		org.hibernate.Session db = context.getDB();
-		
+
 		Forschungszentrum fz = new Forschungszentrum(base);
 		db.persist(fz);
-		
+
 		base.setForschungszentrum(fz);
 	}
 
 	@Override
 	public void cleanup(Context context, Base base, int building) {
 		super.cleanup(context, base, building);
-		
+
 		base.setForschungszentrum(null);
 		org.hibernate.Session db = context.getDB();
 		db.flush();
@@ -86,7 +86,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 			.setEntity(0, base)
 			.executeUpdate();
 	}
-	
+
 	@Override
 	public boolean classicDesign() {
 		return true;
@@ -137,22 +137,22 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		}
 		return result.toString();
 	}
-	
+
 	private void possibleResearch(Context context, StringBuilder echo, Forschungszentrum fz, int field) {
 		org.hibernate.Session db = context.getDB();
 
 		User user = (User)context.getActiveUser();
-	
+
 		echo.append("M&ouml;gliche Forschungen: <br />\n");
 		echo.append("<table class=\"noBorderX\" width=\"100%\">\n");
 		echo.append("<tr>\n");
 		echo.append("<td class=\"noBorderX\">Name</td>\n");
 		echo.append("<td class=\"noBorderX\">Kosten</td>\n");
 		echo.append("</tr>\n");
-	
+
 		Base base = fz.getBase();
 		Cargo cargo = base.getCargo();
-	
+
 		List<Integer> researches = new ArrayList<Integer>();
 		List<?> researchList = db.createQuery("from Forschungszentrum " +
 				"where forschung is not null and base.owner=?")
@@ -160,20 +160,20 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 				.list();
 		for( Iterator<?> iter=researchList.iterator(); iter.hasNext(); ) {
 			Forschungszentrum aFz = (Forschungszentrum)iter.next();
-			
+
 			if( aFz.getForschung() != null ) {
 				researches.add(aFz.getForschung().getID());
 			}
 		}
-		
+
 		boolean first = true;
-	
+
 		List<?> forschungen = db.createQuery("from Forschung order by name").list();
 		for( Iterator<?> iter=forschungen.iterator(); iter.hasNext(); ) {
 			Forschung tech = (Forschung)iter.next();
-			
+
 			if( !Rassen.get().rasse(user.getRace()).isMemberIn(tech.getRace()) ) {
-				continue;	
+				continue;
 			}
 			if( researches.contains(tech.getID()) ) {
 				continue;
@@ -181,20 +181,20 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 			if( user.hasResearched(tech.getID())  ) {
 				continue;
 			}
-			
+
 			if(user.getFreeSpecializationPoints() < tech.getSpecializationCosts())
 			{
 				continue;
 			}
-			
+
 			boolean ok = true;
-			
+
 			for( int k = 1; k <= 3; k++ ) {
 				if( (tech.getRequiredResearch(k) != 0) && !user.hasResearched(tech.getRequiredResearch(k)) ) {
 					ok = false;
 				}
 			}
-			
+
 			if( ok ) {
 				if( !first ) {
 					echo.append("<tr><td colspan=\"2\" class=\"noBorderX\"><hr style=\"height:1px; border:0px; background-color:#606060; color:#606060\" /></td></tr>\n");
@@ -202,7 +202,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 				else {
 					first = false;
 				}
-				
+
 				echo.append("<tr>\n");
 				echo.append("<td class=\"noBorderX\" style=\"width:60%\">\n");
 				if( !user.isNoob() || !tech.hasFlag(Forschung.FLAG_DROP_NOOB_PROTECTION) ) {
@@ -218,14 +218,14 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 				echo.append("<a class=\"forschinfo\" href=\"./ds?module=forschinfo&amp;res="+tech.getID()+"\"><img style=\"border:0px;vertical-align:middle\" src=\""+config.get("URL")+"data/interface/forschung/info.gif\" alt=\"?\" /></a>\n");
 				echo.append("&nbsp;&nbsp;");
 				echo.append("</td>\n");
-				
+
 				echo.append("<td class=\"noBorderX\">");
 				echo.append("<img style=\"vertical-align:middle\" src=\""+config.get("URL")+"data/interface/time.gif\" alt=\"Dauer\" />"+tech.getTime()+" ");
 				echo.append("<img style=\"vertical-align:middle\" src=\""+config.get("URL")+"data/interface/forschung/specpoints.gif\" alt=\"Spezialisierungskosten\" />"+tech.getSpecializationCosts()+" ");
-				
+
 				Cargo costs = tech.getCosts();
 				costs.setOption( Cargo.Option.SHOWMASS, false );
-				
+
 				ResourceList reslist = costs.compare( cargo, false, false, true );
 				for( ResourceEntry res : reslist ) {
 					if( res.getDiff() > 0 ) {
@@ -235,26 +235,26 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 						echo.append("<img style=\"vertical-align:middle\" src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1()+" ");
 					}
 				}
-	
+
 				echo.append("</td></tr>\n");
 			}
 		}
-	
+
 		echo.append("</table><br />\n");
 	}
-	
+
 	private void alreadyResearched( Context context, StringBuilder echo ) {
 		org.hibernate.Session db = context.getDB();
 
 		User user = (User)context.getActiveUser();
-		
+
 		echo.append("<table class=\"noBorderX\">");
 		echo.append("<tr><td class=\"noBorderX\" align=\"left\">Bereits erforscht:</td></tr>\n");
-	
+
 		final Iterator<?> forschungIter = db.createQuery("from Forschung order by id").iterate();
 		while( forschungIter.hasNext() ) {
 			Forschung tech = (Forschung)forschungIter.next();
-			
+
 			if( tech.isVisibile(user) && user.hasResearched(tech.getID()) ) {
 				echo.append("<tr><td class=\"noBorderX\">\n");
 				echo.append("<a class=\"forschinfo\" href=\"./ds?module=forschinfo&amp;res="+tech.getID()+"\">"+Common._plaintitle(tech.getName())+"</a>");
@@ -264,7 +264,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		}
 		echo.append("</table><br />");
 	}
-	
+
 	private boolean currentResearch(Context context, StringBuilder echo, Forschungszentrum fz, int field ) {
 		Forschung tech = fz.getForschung();
 		if( tech != null ) {
@@ -274,10 +274,10 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 			echo.append("Dauer: noch <img style=\"vertical-align:middle\" src=\""+config.get("URL")+"data/interface/time.gif\" alt=\"\" />"+fz.getDauer()+" Runden\n");
 			echo.append("<br /><br />\n");
 			return true;
-		} 
+		}
 		return false;
 	}
-	
+
 	private void killResearch(Context context, StringBuilder echo, Forschungszentrum fz, int field, String conf) {
 		if( !conf.equals("ok") ) {
 			echo.append("<div style=\"text-align:center\">\n");
@@ -287,31 +287,31 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 			echo.append("</div>\n");
 			return;
 		}
-		
+
 		fz.setForschung(null);
 		fz.setDauer(0);
-		
+
 		echo.append("<div style=\"text-align:center;color:red;font-weight:bold\">\n");
 		echo.append("Forschung abgebrochen<br />\n");
 		echo.append("</div>");
 	}
-	
+
 	private void doResearch(Context context, StringBuilder echo, Forschungszentrum fz, int researchid, int field, String conf) {
 		User user = (User)context.getActiveUser();
 
 		Base base = fz.getBase();
-		
+
 		Forschung tech = Forschung.getInstance(researchid);
 		boolean ok = true;
-	
+
 		if( !Rassen.get().rasse(user.getRace()).isMemberIn(tech.getRace()) ) {
 			echo.append("<a class=\"error\" href=\"./ds?module=base&amp;col="+base.getId()+"\">Fehler: Diese Forschung kann von ihrer Rasse nicht erforscht werden</a>\n");
 			return;
 		}
-		
+
 		Cargo techCosts = tech.getCosts();
 		techCosts.setOption( Cargo.Option.SHOWMASS, false );
-	
+
 		// Muss der User die Forschung noch best?tigen?
 		if( !conf.equals("ok") ) {
 			echo.append("<div style=\"text-align:center\">\n");
@@ -321,19 +321,19 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 			for( ResourceEntry res : reslist ) {
 				echo.append("<img style=\"vertical-align:middle\" src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1()+" ");
 			}
-			
+
 			echo.append("<br /><br />\n");
 			echo.append("<a class=\"ok\" href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"&amp;res="+researchid+"&amp;conf=ok\">Erforschen</a></span><br />\n");
 			echo.append("</div>\n");
-			
+
 			return;
 		}
-	
+
 		// Wird bereits im Forschungszentrum geforscht?
 		if( fz.getForschung() != null ) {
 			ok = false;
 		}
-	
+
 		// Besitzt der Spieler alle fuer die Forschung noetigen Forschungen?
 		for( int i=1; i <= 3; i++ ) {
 			if( !user.hasResearched(tech.getRequiredResearch(i)) ) {
@@ -341,21 +341,21 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 				break;
 			}
 		}
-		
+
 		if(user.getFreeSpecializationPoints() < tech.getSpecializationCosts())
 		{
 			ok = false;
 		}
-	
+
 		if( !ok ) {
 			echo.append("<a class=\"error\" href=\"./ds?module=base&amp;col="+base.getId()+"\">Fehler: Forschung kann nicht durchgef&uuml;hrt werden</a>\n");
 			return;
 		}
-	
+
 		// Alles bis hierhin ok -> nun zu den Resourcen!
 		Cargo cargo = new Cargo(base.getCargo());
 		ok = true;
-		
+
 		ResourceList reslist = techCosts.compare( cargo, false, false, true );
 		for( ResourceEntry res : reslist ) {
 			if( res.getDiff() > 0 ) {
@@ -363,14 +363,14 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 				ok = false;
 			}
 		}
-	
+
 		// Alles OK -> Forschung starten!!!
 		if( ok ) {
 			cargo.substractCargo( techCosts );
 			echo.append("<div style=\"text-align:center;color:green\">\n");
 			echo.append(Common._plaintitle(tech.getName())+" wird erforscht<br />\n");
 			echo.append("</div>\n");
-			
+
 			fz.setForschung(tech);
 			fz.setDauer(tech.getTime());
 			base.setCargo(cargo);
@@ -379,7 +379,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 
 	@Override
 	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
-		
+
 		int research 	= context.getRequest().getParameterInt("res");
 		String confirm 	= context.getRequest().getParameterString("conf");
 		String kill 		= context.getRequest().getParameterString("kill");
@@ -387,26 +387,26 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		if( !show.equals("oldres") ) {
 			show = "newres";
 		}
-		
+
 		StringBuilder echo = new StringBuilder(2000);
-		
+
 		Forschungszentrum fz = base.getForschungszentrum();
 		if( fz == null ) {
 			echo.append("<span style=\"color:red\">Fehler: Dieses Forschungszentrum hat keinen Datenbank-Eintrag</span>\n");
 			return echo.toString();
 		}
-		
+
 		echo.append("<table class=\"show\" cellspacing=\"2\" cellpadding=\"2\">\n");
 		echo.append("<tr><td class=\"noBorderS\" style=\"text-align:center;font-size:12px\">Forschungszentrum<br />"+base.getName()+"</td><td class=\"noBorder\">&nbsp;</td>\n");
-		
+
 		//Neue Forschung & Bereits erforscht
 		echo.append("<td class=\"noBorderS\">\n");
-	
+
 		echo.append(Common.tableBegin( 440, "center" ));
-		
+
 		echo.append("<a class=\"forschinfo\" href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"&amp;show=newres\">Neue Forschung</a>&nbsp;\n");
 		echo.append("&nbsp;|&nbsp;&nbsp;<a class=\"forschinfo\" href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"&amp;show=oldres\">Bereits erforscht</a>\n");
-		
+
 		echo.append(Common.tableEnd());
 
 		echo.append("</td>\n");
@@ -414,9 +414,9 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		echo.append("<tr>\n");
 		echo.append("<td colspan=\"3\" class=\"noBorderS\">\n");
 		echo.append("<br />\n");
-		
+
 		echo.append(Common.tableBegin( 570, "left" ));
-		
+
 		if( (kill.length() != 0) || (research != 0) ) {
 			if( kill.length() != 0 ) {
 				killResearch( context, echo, fz, field, confirm);
@@ -429,18 +429,24 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 			if( !currentResearch( context, echo, fz, field ) ) {
 				possibleResearch( context, echo, fz, field );
 			}
-		} 
+		}
 		else {
 			alreadyResearched( context, echo );
 		}
-		
+
 		echo.append(Common.tableEnd());
 
 		echo.append("<br />\n");
 		echo.append("</td>\n");
 		echo.append("</tr>\n");
-	
+
 		echo.append("</table>");
 		return echo.toString();
+	}
+
+	@Override
+	public boolean isSupportsJson()
+	{
+		return false;
 	}
 }

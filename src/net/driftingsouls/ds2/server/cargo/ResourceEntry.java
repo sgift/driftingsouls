@@ -18,14 +18,17 @@
  */
 package net.driftingsouls.ds2.server.cargo;
 
+import net.driftingsouls.ds2.server.framework.JSONSupport;
+import net.sf.json.JSONObject;
+
 /**
  * Ein Eintrag innerhalb einer Resourcen-Liste.
- * 
+ *
  * @author Christopher Jung
  * @see ResourceList
  *
  */
-public class ResourceEntry {
+public class ResourceEntry implements JSONSupport {
 	private ResourceID id;
 	private String name;
 	private String plainName;
@@ -36,7 +39,7 @@ public class ResourceEntry {
 	private String cargo1;
 	private String cargo2 = null;
 	private boolean largeImages = false;
-	
+
 	/**
 	 * Konstruktor.
 	 * @param id Die Resourcen-ID
@@ -54,7 +57,7 @@ public class ResourceEntry {
 		this.count1 = count;
 		this.cargo1 = cargo;
 	}
-	
+
 	/**
 	 * Konstruktor, falls zwei Cargos verglichen werden.
 	 * @param id Die ID der Resource
@@ -73,7 +76,7 @@ public class ResourceEntry {
 		this.count2 = count2;
 		this.diff = diff;
 	}
-	
+
 	protected void setLargeImages( boolean value ) {
 		largeImages = value;
 	}
@@ -157,6 +160,25 @@ public class ResourceEntry {
 	public boolean showLargeImages() {
 		return largeImages;
 	}
-	
 
+	@Override
+	public JSONObject toJSON()
+	{
+		JSONObject obj = new JSONObject();
+		obj.accumulate("count1", this.count1);
+		obj.accumulate("cargo1", this.cargo1);
+		obj.accumulate("image", this.image);
+		obj.accumulate("name", this.name);
+		obj.accumulate("plainname", this.plainName);
+		obj.accumulate("id", this.id.toString());
+
+		if( this.cargo2 != null )
+		{
+			obj.accumulate("count2", this.count2);
+			obj.accumulate("diff", this.diff);
+			obj.accumulate("cargo2", this.cargo2);
+		}
+
+		return obj;
+	}
 }
