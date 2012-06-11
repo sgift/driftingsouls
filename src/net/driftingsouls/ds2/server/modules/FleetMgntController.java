@@ -1021,6 +1021,7 @@ public class FleetMgntController extends TemplateGenerator {
 				}
 				else {
 					nameParts.add(new StringNamePatternElement(name));
+					name = "";
 					break;
 				}
 			}
