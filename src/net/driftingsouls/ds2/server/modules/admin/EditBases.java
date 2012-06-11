@@ -36,7 +36,7 @@ import net.driftingsouls.ds2.server.modules.AdminController;
 
 /**
  * Aktualisierungstool fuer die Werte eines Spielers.
- * 
+ *
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Asteroiden", name = "Basis editieren")
@@ -48,7 +48,7 @@ public class EditBases implements AdminPlugin
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
-		
+
 		int baseid = context.getRequest().getParameterInt("baseid");
 
 		// Update values?
@@ -63,11 +63,11 @@ public class EditBases implements AdminPlugin
 		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
 		echo.append("</form>");
 		echo.append(Common.tableEnd());
-		
+
 		if(update && baseid != 0)
 		{
 			Base base = (Base)db.get(Base.class, baseid);
-			
+
 			base.setName(context.getRequest().getParameterString("name"));
 			User newowner = (User)db.get(User.class, context.getRequest().getParameterInt("owner"));
 			base.setOwner(newowner);
@@ -84,9 +84,11 @@ public class EditBases implements AdminPlugin
 			base.setHeight(context.getRequest().getParameterInt("height"));
 			base.setMaxTiles(context.getRequest().getParameterInt("maxtiles"));
 			base.setSize(context.getRequest().getParameterInt("size"));
-			base.setTerrain(Common.explodeToInteger("|", context.getRequest().getParameterString("terrain")));
-			base.setBebauung(Common.explodeToInteger("|", context.getRequest().getParameterString("bebauung")));
-			base.setActive(Common.explodeToInteger("|", context.getRequest().getParameterString("active")));
+
+			int size = base.getWidth()*base.getHeight();
+			base.setTerrain(convertAndCapTileList(size, context.getRequest().getParameterString("terrain")));
+			base.setBebauung(convertAndCapTileList(size, context.getRequest().getParameterString("bebauung")));
+			base.setActive(convertAndCapTileList(size, context.getRequest().getParameterString("active")));
 			base.setCoreActive(context.getRequest().getParameterString("coreactive").equals("true") ? true : false);
 			base.setSpawnableRess(context.getRequest().getParameterString("spawnableress"));
 			base.setAvailableSpawnableRess(context.getRequest().getParameterString("availableress"));
@@ -95,18 +97,18 @@ public class EditBases implements AdminPlugin
 			for( int i=0; i < autogtuacts.length; i++ )
 			{
 				String[] split = StringUtils.split(autogtuacts[i],":");
-				
+
 				acts.add(new AutoGTUAction(Resources.fromString(split[0]), Integer.parseInt(split[1]), Long.parseLong(split[2])) );
 			}
 			base.setAutoGTUActs(acts);
-			
+
 			echo.append("<p>Update abgeschlossen.</p>");
 		}
-		
+
 		if(baseid != 0)
 		{
 			Base base = (Base)db.get(Base.class, baseid);
-			
+
 			if(base == null)
 			{
 				return;
@@ -146,5 +148,16 @@ public class EditBases implements AdminPlugin
 			echo.append("</form>\n");
 			echo.append(Common.tableEnd());
 		}
+	}
+
+	private Integer[] convertAndCapTileList(int max, String str)
+	{
+		Integer[] tiles = Common.explodeToInteger("|", str);
+		if( tiles.length > max ) {
+			Integer[] newTiles = new Integer[max];
+			System.arraycopy(tiles, 0, newTiles, 0, max);
+			return newTiles;
+		}
+		return tiles;
 	}
 }
