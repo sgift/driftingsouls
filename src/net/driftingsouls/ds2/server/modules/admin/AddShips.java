@@ -134,7 +134,7 @@ public class AddShips implements AdminPlugin {
 
 			echo.append("-->\n");
 			echo.append("</script>\n");
-			echo.append("<script src=\""+config.get("URL")+"data/javascript/admin.addships.js\" type=\"text/javascript\"></script>\n");
+			echo.append("<script src=\""+config.get("URL")+"data/javascript/modules/admin.addships.js\" type=\"text/javascript\"></script>\n");
 
 			echo.append(Common.tableBegin(520,"left"));
 			echo.append("<form action=\"./ds\" method=\"post\">\n");
