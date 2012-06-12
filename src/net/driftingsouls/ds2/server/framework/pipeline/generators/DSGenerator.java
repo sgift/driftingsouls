@@ -196,12 +196,12 @@ public abstract class DSGenerator extends Generator {
 			if( usegfxpak ) {
 				sb.append("<script src=\""+url+"data/javascript/gfxpakversion.js?"+version.getHgVersion()+"\" type=\"text/javascript\"></script>\n");
 			}
-			sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/jquery-1.7.2.min.js\" type=\"text/javascript\"></script>\n");
-			sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/jquery-ui-1.8.20.min.js\" type=\"text/javascript\"></script>\n");
-			sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/ds.js\" type=\"text/javascript\"></script>\n");
+			sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/libs/jquery-1.7.2.min.js\" type=\"text/javascript\"></script>\n");
+			sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/libs/jquery-ui-1.8.20.min.js\" type=\"text/javascript\"></script>\n");
+			sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/common/ds.js\" type=\"text/javascript\"></script>\n");
 			if( customJS )
 			{
-				sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/"+this.getAttribute("module")+".js\" type=\"text/javascript\"></script>\n");
+				sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/modules/"+this.getAttribute("module")+".js\" type=\"text/javascript\"></script>\n");
 			}
 			if( this.getAttribute("module") != null ) {
 				sb.append("<script type=\"text/javascript\">\n");
