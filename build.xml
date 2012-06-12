@@ -102,6 +102,8 @@
 				<exclude name="**/data/**" />
 			</fileset>
 		</delete>
+		<delete failonerror="false" dir="${build.home}/data/javascript" />
+		<delete failonerror="false" dir="${build.home}/data/css" />
 		<delete failonerror="false" dir="${build.home}/WEB-INF" />
 		<delete failonerror="false" dir="${dist.home}"/>
 		<delete failonerror="false" dir="${templates.compiledir}" />
