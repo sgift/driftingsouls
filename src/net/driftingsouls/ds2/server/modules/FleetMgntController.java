@@ -317,6 +317,10 @@ public class FleetMgntController extends TemplateGenerator {
 
 			for( int i=0; i < shiplistInt.length; i++ ) {
 				Ship s = (Ship)db.get(Ship.class, shiplistInt[i]);
+				if( s == null )
+				{
+					continue;
+				}
 				s.setFleet(fleet);
 			}
 
