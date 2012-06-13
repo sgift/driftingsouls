@@ -54,24 +54,24 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Ermoeglicht das Einloggen in einen anderen Account ohne Passwort.
- * 
+ *
  * @author Christopher Jung
- * 
+ *
  */
 @Configurable
 @AdminMenuEntry(category = "Spieler", name = "Spieler l&ouml;schen")
 public class PlayerDelete implements AdminPlugin
 {
 	private static final Log log = LogFactory.getLog(PlayerDelete.class);
-	
+
 	private Configuration config;
-	
+
     /**
      * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
-    public void setConfiguration(Configuration config) 
+    public void setConfiguration(Configuration config)
     {
     	this.config = config;
     }
@@ -105,7 +105,7 @@ public class PlayerDelete implements AdminPlugin
 
 			return;
 		}
-		
+
 		log.info("Loesche Spieler "+userid);
 
 		echo.append(Common.tableBegin(500, "left"));
@@ -197,7 +197,7 @@ public class PlayerDelete implements AdminPlugin
 			}
 			echo.append("<br />\n");
 		}
-		
+
 		echo.append("Entferne GTU Zwischenlager...<br />\n");
 		db.createQuery("delete from GtuZwischenlager where user1=?")
 			.setInteger(0, userid)
@@ -205,7 +205,7 @@ public class PlayerDelete implements AdminPlugin
 		db.createQuery("delete from GtuZwischenlager where user2=?")
 			.setInteger(0, userid)
 			.executeUpdate();
-		
+
 		echo.append("Entferne User-Values...");
 		count = db.createQuery("delete from UserValue where user=?")
 			.setInteger(0, userid)
@@ -223,7 +223,7 @@ public class PlayerDelete implements AdminPlugin
 			.setInteger(0, userid)
 			.executeUpdate();
 		echo.append(count+"<br />\n");
-		
+
 		echo.append("Entferne user-forschungen...");
 		count = db.createQuery("delete from UserResearch where owner=?")
 			.setInteger(0, userid)
@@ -301,10 +301,6 @@ public class PlayerDelete implements AdminPlugin
 			.executeUpdate();
 
 		db.createQuery("update Versteigerung set owner=-2 where owner=?")
-			.setInteger(0, userid)
-			.executeUpdate();
-
-		db.createQuery("update PaketVersteigerung set bieter=-2 where bieter=?")
 			.setInteger(0, userid)
 			.executeUpdate();
 
