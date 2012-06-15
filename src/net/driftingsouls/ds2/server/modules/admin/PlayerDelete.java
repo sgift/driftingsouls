@@ -367,6 +367,7 @@ public class PlayerDelete implements AdminPlugin
 		echo.append(count+"<br />\n");
 
 		echo.append("L&ouml;sche Usereintrag...<br />\n");
+		db.flush();
 		db.delete(user);
 
 		echo.append("<br />Spieler " + userid + " gel&ouml;scht!<br />\n");
