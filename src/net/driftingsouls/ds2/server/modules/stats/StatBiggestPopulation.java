@@ -39,31 +39,31 @@ public class StatBiggestPopulation extends AbstractStatistic implements Statisti
 	public StatBiggestPopulation(boolean allys) {
 		this.allys = allys;
 	}
-	
+
 	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Database db = getContext().getDatabase();
 
 		String url = null;
-		
+
 		SQLQuery tmp = null;
 		if( !allys ) {
 			tmp = db.query("SELECT u.id, tb.res count, u.name " +
 					"FROM tmpbev tb JOIN users u ON tb.id=u.id " +
 					"ORDER BY count DESC LIMIT "+size);
-			
+
 			url = getUserURL();
 		}
 		else {
 			tmp = db.query("SELECT a.id, tb.res count, a.name " +
 					"FROM tmpbev tb JOIN ally a ON tb.id=a.id " +
 					"ORDER BY count DESC LIMIT "+size);
-		
+
 			url = getAllyURL();
 		}
-	
-		this.generateStatistic("Die gr&ouml;&szlig;ten V&ouml;lker:", tmp, url);
-		
+
+		this.generateStatistic("Die gr&ouml;&szlig;ten V&ouml;lker:", tmp, url, false);
+
 		tmp.free();
 	}
 
@@ -71,7 +71,7 @@ public class StatBiggestPopulation extends AbstractStatistic implements Statisti
 	public boolean generateAllyData() {
 		return allys;
 	}
-	
+
 	@Override
 	public int getRequiredData() {
 		return Statistic.DATA_CREW;
