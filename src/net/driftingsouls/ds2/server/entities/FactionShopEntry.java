@@ -18,14 +18,15 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
-import net.driftingsouls.ds2.server.framework.ContextMap;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Version;
+
+import net.driftingsouls.ds2.server.framework.ContextMap;
 
 /**
  * Ein Eintrag im Shop einer Fraktion.
@@ -35,20 +36,28 @@ import javax.persistence.Version;
 @Entity
 @Table(name="factions_shop_entries")
 public class FactionShopEntry {
+	public enum Type
+	{
+		ITEM,
+		SHIP,
+		TRANSPORT
+	}
+
 	@Id @GeneratedValue
 	private int id;
 	@Column(name="faction_id")
 	private int faction;
-	private int type;
+	@Enumerated
+	private Type type;
 	private String resource;
 	private long price;
 	private int availability;
     @Column(name="min_rank")
     private int minRank;
-	
+
 	@Version
 	private int version;
-	
+
 	/**
 	 * Konstruktor.
 	 *
@@ -56,17 +65,17 @@ public class FactionShopEntry {
 	public FactionShopEntry() {
 		// EMPTY
 	}
-	
+
 	/**
 	 * Konstruktor.
 	 * @param faction Die Fraktion, zu deren Shop der Eintrag gehoert
 	 * @param type Der Typ des Eintrags
 	 * @param resource Die Eintragsdaten
 	 */
-	public FactionShopEntry(int faction, int type, String resource) {
-		setFaction(faction);
-		setType(type);
-		setResource(resource);
+	public FactionShopEntry(int faction, Type type, String resource) {
+		this.faction = faction;
+		this.type = type;
+		this.resource = resource;
 	}
 
 	/**
@@ -137,7 +146,7 @@ public class FactionShopEntry {
 	 * Gibt den Typ des Produkts zurueck.
 	 * @return Der Typ
 	 */
-	public int getType() {
+	public Type getType() {
 		return type;
 	}
 
@@ -145,7 +154,7 @@ public class FactionShopEntry {
 	 * Setzt den Typ des Produkts.
 	 * @param type Der Typ
 	 */
-	public final void setType(final int type) {
+	public final void setType(final Type type) {
 		this.type = type;
 	}
 
@@ -157,6 +166,26 @@ public class FactionShopEntry {
 		return id;
 	}
 
+	/**
+	 * Gibt den Mindestrang bei dem Shopbesitzer zurueck, den ein Spieler fuer den
+	 * Kauf dieser Ware haben muss.
+	 * @return Der Rang
+	 */
+	public int getMinRank()
+	{
+		return this.minRank;
+	}
+
+	/**
+	 * Setzt den Mindestrang bei dem Shopbesitzer, den ein Spieler fuer den
+	 * Kauf dieser Ware haben muss.
+	 * @param minRank Der Rang
+	 */
+	public void setMinRank(int minRank)
+	{
+		this.minRank = minRank;
+	}
+
     /**
      * Gibt zurueck, ob der angegebene Spieler die Ware kaufen kann.
      * @param buyer Der Spieler, der die Ware kaufen moechte
@@ -164,6 +193,10 @@ public class FactionShopEntry {
      */
     public boolean canBuy(User buyer)
     {
+    	if( buyer.getId() == this.faction )
+    	{
+    		return true;
+    	}
         org.hibernate.Session db = ContextMap.getContext().getDB();
         User owner = (User)db.get(User.class, this.faction);
         UserRank rank = buyer.getRank(owner);

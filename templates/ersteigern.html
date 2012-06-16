@@ -654,7 +654,7 @@
 {/endif}
 {if show.shop}
 	{if shop.orderlist.list}
-		{!table_begin 630,center}
+		<div class="gfxbox" style="width:670px;text-align:center">
 			<table class="noBorderX" width="100%">
 			<tr>
 				<td class="noBorderX"></td>
@@ -696,11 +696,11 @@
 				</tr>
 			<!-- END shop.orderlist.listitem -->
 			</table>
-		{!table_end}
+		</div>
 		<br />
 	{/endif}
 	{if shop.shopownerlist.list}
-		{!table_begin 630,center}
+		<div class="gfxbox" style="width:670px;text-align:center">
 			<table class="noBorderX" width="100%">
 			<tr>
 				<td class="noBorderX"></td>
@@ -736,8 +736,8 @@
 					{orderentry.price}
 				</td>
 				<td class="noBorderX" style="text-align:center">
-					<form action="./ds" method="post">
-						<select name="orderstatus" size="1">
+					<form action="./ds" method="post" style="display:inline">
+						<select name="orderstatus" size="1" style="width:100px">
 							<option value="0" {if orderentry.status == 0}selected="selected"{/endif}>Neu</option>
 							<option value="1" {if orderentry.status == 1}selected="selected"{/endif}>In Bearbeitung</option>
 							<option value="2" {if orderentry.status == 2}selected="selected"{/endif}>Auslieferung</option>
@@ -752,17 +752,23 @@
 				</tr>
 			<!-- END shop.shopownerlist.listitem -->
 			</table>
-		{!table_end}
+		</div>
 		<br />
 	{/endif}
-	{!table_begin 630,center}
+	<div class="gfxbox" style="width:670px;text-align:center">
 		<table class="noBorderX" width="100%">
+		<thead>
 		<tr>
 			<td class="noBorderX" colspan="3" style="text-align:center">Typ</td>
 			<td class="noBorderX"></td>
+			{if shop.owner}
+				<td class="noBorderX" style="text-align:center">Rang</td>
+			{/endif}
 			<td class="noBorderX" style="text-align:center">Preis</td>
 			<td class="noBorderX"></td>
 		</tr>
+		</thead>
+		<tbody>
 		<!-- BEGIN shop.listitem -->
 			<tr>
 				<td style="text-align:left;width:30px" class="noBorderX">
@@ -784,30 +790,66 @@
 				<td class="noBorderX" style="width:20px">
 					&nbsp;
 				</td>
+				{if shop.owner}
+					<td class="noBorderX">
+						<form action="./ds" method="post" style="display:inline">
+							<input type="text" size="3" name="entryRang" value="{entry.rang}" />
+							{!form_create_hidden shopChangeEntryRang, shopentry:$entry.id, faction:$global.faction}
+							<input type="submit" value="&auml;ndern" />
+						</form>
+					</td>
+				{/endif}
 				<td class="noBorderX">
 					{entry.price}
 				</td>
 				<td class="noBorderX">
-					<form action="./ds" method="post">
 						{if shop.owner}
-							<select name="availability" size="1">
-								<option value="0" {if entry.availability == 0}selected="selected"{/endif}>normal</option>
-								<option value="1" {if entry.availability == 1}selected="selected"{/endif}>1-3</option>
-								<option value="2" {if entry.availability == 2}selected="selected"{/endif}>nichts</option>
-							</select>
-							{!form_create_hidden shopChangeAvailability, shopentry:$entry.id, faction:$global.faction}
-							<input type="submit" value="&auml;ndern" />
+							<form action="./ds" method="post" style="display:inline">
+								<select name="availability" size="1" style="width:100px">
+									<option value="0" {if entry.availability == 0}selected="selected"{/endif}>normal</option>
+									<option value="1" {if entry.availability == 1}selected="selected"{/endif}>1-3</option>
+									<option value="2" {if entry.availability == 2}selected="selected"{/endif}>nichts</option>
+								</select>
+								{!form_create_hidden shopChangeAvailability, shopentry:$entry.id, faction:$global.faction}
+								<input type="submit" value="&auml;ndern" />
+							</form>
+							<form action="./ds" method="post" style="display:inline">
+								{!form_create_hidden deleteShopEntry, shopentry:$entry.id, faction:$global.faction}
+							<input type="submit" value="Löschen" />
 						{else}
-							{if entry.showamountinput}
-								<input type="text" name="ordercount" size="6" value="0" />
-							{/endif}
-							{!form_create_hidden shopOrder, shopentry:$entry.id, faction:$global.faction}
-							<input type="submit" value="bestellen" />
+							<form action="./ds" method="post">
+								{if entry.showamountinput}
+									<input type="text" name="ordercount" size="6" value="0" />
+								{/endif}
+								{!form_create_hidden shopOrder, shopentry:$entry.id, faction:$global.faction}
+								<input type="submit" value="bestellen" />
+							</form>
 						{/endif}
 					</form>
 				</td>
 			</tr>
 		<!-- END shop.listitem -->
+		</tbody>
+		{if shop.owner}
+			<tfoot>
+				<tr>
+					<td colspan="7" class="noBorderX">
+						<form action="./ds" method="post">
+							<select name="entryType" size="1">
+								<option value="item" selected="selected">Gegenstand</option>
+								<option value="ship">Schiff</option>
+								<option value="transport">Ganymede-Transport</option>
+							</select>
+							<input type="text" name="entryTypeId" id="entryTypeId" value="" size="15"/>
+							für
+							<input type="text" name="entryCost" id="entryCost" value="" size="10"/>RE
+							{!form_create_hidden shopEntryCreate, faction:$global.faction}
+							<input type="submit" value="erstellen" />
+						</form>
+					</td>
+				</tr>
+			</tfoot>
+		{/endif}
 		</table>
-	{!table_end}
+	</div>
 {/endif}

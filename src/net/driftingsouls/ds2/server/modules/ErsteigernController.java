@@ -71,6 +71,7 @@ import net.driftingsouls.ds2.server.tasks.Taskmanager;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Required;
@@ -96,7 +97,7 @@ public class ErsteigernController extends TemplateGenerator
 	{
 		private int id;
 		private int factionID;
-		private int type;
+		private FactionShopEntry.Type type;
 		private String resource;
 		private long price;
 		private int availability;
@@ -142,7 +143,7 @@ public class ErsteigernController extends TemplateGenerator
 		 *
 		 * @return Der Typ
 		 */
-		public int getType()
+		public FactionShopEntry.Type getType()
 		{
 			return this.type;
 		}
@@ -535,7 +536,7 @@ public class ErsteigernController extends TemplateGenerator
 		// Fraktionsmenue
 
 		t.setBlock( "_ERSTEIGERN", "global.factionmenu.listitem", "global.factionmenu.list" );
-		
+
 		Map<Integer, Faction> factions = Faction.getFactions();
 		for( Faction factionObj : factions.values() )
 		{
@@ -543,23 +544,23 @@ public class ErsteigernController extends TemplateGenerator
 			{
 				continue;
 			}
-			
+
 			User aFactionUser = (User)db.get(User.class, factionObj.getID());
 			t.setVar(
 					"item.faction.name", Common._title(aFactionUser.getName()),
 					"item.faction.id", factionObj.getID(),
-					"item.enemy", (user.getRelation(factionObj.getID()) == User.Relation.ENEMY)	|| 
+					"item.enemy", (user.getRelation(factionObj.getID()) == User.Relation.ENEMY)	||
 						(relationlist.fromOther.get(factionObj.getID()) == User.Relation.ENEMY));
-			
+
 			t.parse( "global.factionmenu.list", "global.factionmenu.listitem", true );
 		}
 
 		User factionuser = (User)db.get(User.class, faction);
 
 		t.setVar(
-				"user.konto", Common.ln(user.getKonto()), 
+				"user.konto", Common.ln(user.getKonto()),
 				"global.faction", faction,
-				"global.faction.name", Common._title(factionuser.getName()), 
+				"global.faction.name", Common._title(factionuser.getName()),
 				"global.menusize", pages.getMenuSize());
 
 		this.ticks = getContext().get(ContextCommon.class).getTick();
@@ -1704,24 +1705,24 @@ public class ErsteigernController extends TemplateGenerator
 			return;
 		}
 
-        if(!shopentry.canBuy(user))
-        {
-            t.setVar("show.message",
-                     "<span style=\"color:red\">Es existiert kein passendes Angebot</span>");
-            redirect("shop");
-            return;
-        }
+		if(!shopentry.canBuy(user))
+		{
+			t.setVar("show.message",
+					 "<span style=\"color:red\">Es existiert kein passendes Angebot</span>");
+			redirect("shop");
+			return;
+		}
 
-        if(shopentry.getAvailability() == 2)
-        {
-            t.setVar("show.message",
-                     "<span style=\"color:red\">Das Angebot ist nicht verf&uuml;gbar</span>");
-            redirect("shop");
-            return;
-        }
+		if(shopentry.getAvailability() == 2)
+		{
+			t.setVar("show.message",
+					 "<span style=\"color:red\">Das Angebot ist nicht verf&uuml;gbar</span>");
+			redirect("shop");
+			return;
+		}
 
 		// Ganymed-Transporte verarbeiten
-		if( shopentry.getType() == 2 )
+		if( shopentry.getType() == FactionShopEntry.Type.TRANSPORT )
 		{
 			redirect("shopOrderGanymede");
 
@@ -1744,11 +1745,11 @@ public class ErsteigernController extends TemplateGenerator
 
 		ShopEntry entry = null;
 
-		if( shopentry.getType() == 1 )
+		if( shopentry.getType() == FactionShopEntry.Type.SHIP )
 		{ // Schiff
 			entry = new ShopShipEntry(shopentry);
 		}
-		else if( shopentry.getType() == 0 )
+		else if( shopentry.getType() == FactionShopEntry.Type.ITEM )
 		{ // Cargo
 			entry = new ShopResourceEntry(shopentry);
 		}
@@ -1810,6 +1811,76 @@ public class ErsteigernController extends TemplateGenerator
 	}
 
 	/**
+	 * Erstellt einen neuen Shop-Eintrag.
+	 */
+	@Action(ActionType.DEFAULT)
+	public void shopEntryCreate()
+	{
+		TemplateEngine t = getTemplateEngine();
+		org.hibernate.Session db = getDB();
+		User user = (User)getUser();
+
+		if( !Faction.get(faction).getPages().hasPage("shop") )
+		{
+			redirect();
+			return;
+		}
+
+		if( this.faction == user.getId() )
+		{
+			parameterString("entryType");
+			parameterString("entryTypeId");
+			parameterNumber("entryCost");
+
+			String entryType = getString("entryType");
+			String entryTypeId = getString("entryTypeId");
+			int entryCost = getInteger("entryCost");
+
+			FactionShopEntry.Type type = null;
+			if( "ship".equals(entryType) )
+			{
+				type = FactionShopEntry.Type.SHIP;
+				if( !NumberUtils.isNumber(entryTypeId) )
+				{
+					t.setVar("show.message", "<span style=\"color:red\">Format ungueltig</span>");
+					redirect("shop");
+					return;
+				}
+			}
+			else if( "item".equals(entryType) )
+			{
+				type = FactionShopEntry.Type.ITEM;
+				if( ItemID.fromString(entryTypeId) == null )
+				{
+					t.setVar("show.message", "<span style=\"color:red\">Format ungueltig</span>");
+
+					redirect("shop");
+					return;
+				}
+			}
+			else if( "transport".equals(entryType) )
+			{
+				type = FactionShopEntry.Type.TRANSPORT;
+				if( !NumberUtils.isNumber(entryTypeId) && !"*".equals(entryTypeId) )
+				{
+					t.setVar("show.message", "<span style=\"color:red\">Format ungueltig</span>");
+
+					redirect("shop");
+					return;
+				}
+			}
+
+			FactionShopEntry entry = new FactionShopEntry(this.faction, type, entryTypeId);
+			entry.setAvailability(0);
+			entry.setPrice(entryCost);
+
+			db.persist(entry);
+		}
+
+		redirect("shop");
+	}
+
+	/**
 	 * Aendert die Verfuegbarkeit eines Shopeintrags.
 	 *
 	 * @urlparam Integer shopentry Die ID des Shopeintrags
@@ -1855,6 +1926,91 @@ public class ErsteigernController extends TemplateGenerator
 			entry.setAvailability(availability);
 
 			t.setVar("show.message", "Neuer Status erfolgreich zugewiesen");
+		}
+		redirect("shop");
+	}
+
+	/**
+	 * Aendert den Mindestrang fuer einen Shopeintrag.
+	 *
+	 * @urlparam Integer shopentry Die ID des Eintrags
+	 * @urlparam Integer entryRang Der Rang
+	 *
+	 */
+	@Action(ActionType.DEFAULT)
+	public void shopChangeEntryRang()
+	{
+		TemplateEngine t = getTemplateEngine();
+		org.hibernate.Session db = getDB();
+		User user = (User)getUser();
+
+		if( !Faction.get(faction).getPages().hasPage("shop") )
+		{
+			redirect();
+			return;
+		}
+
+		if( this.faction == user.getId() )
+		{
+			parameterNumber("shopentry");
+			parameterNumber("entryRang");
+
+			int orderentryID = getInteger("shopentry");
+			int rang = getInteger("entryRang");
+
+			FactionShopEntry order = (FactionShopEntry)db.get(FactionShopEntry.class, orderentryID);
+
+			if( (order == null) || (order.getFaction() != this.faction) )
+			{
+				addError("Es konnte kein passender Shopeintrag gefunden werden");
+				redirect("shop");
+				return;
+			}
+
+			order.setMinRank(rang);
+
+			t.setVar("show.message", "Eintrag geändert");
+		}
+		redirect("shop");
+	}
+
+	/**
+	 * Loescht den angegebenen Shop-Eintrag.
+	 *
+	 * @urlparam Integer shopentry Die ID des Eintrags
+	 *
+	 */
+	@Action(ActionType.DEFAULT)
+	public void deleteShopEntry()
+	{
+		TemplateEngine t = getTemplateEngine();
+		org.hibernate.Session db = getDB();
+		User user = (User)getUser();
+
+		if( !Faction.get(faction).getPages().hasPage("shop") )
+		{
+			redirect();
+			return;
+		}
+
+		if( this.faction == user.getId() )
+		{
+			parameterNumber("shopentry");
+
+			int orderentryID = getInteger("shopentry");
+
+			FactionShopEntry order = (FactionShopEntry)db.get(FactionShopEntry.class, orderentryID);
+
+			if( (order == null) || (order.getFaction() != this.faction) )
+			{
+				addError("Es konnte kein passender Shopeintrag gefunden werden");
+				redirect("shop");
+				return;
+			}
+
+			db.delete(order);
+
+			t.setVar("show.message", "Eintrag gelöscht");
 		}
 		redirect("shop");
 	}
@@ -2252,15 +2408,15 @@ public class ErsteigernController extends TemplateGenerator
 				ShopEntry shopEntryObj = null;
 
 				String entryadddata = "";
-				if( shopentry.getType() == 1 )
+				if( shopentry.getType() == FactionShopEntry.Type.SHIP )
 				{ // Schiff
 					shopEntryObj = new ShopShipEntry(shopentry);
 				}
-				else if( shopentry.getType() == 0 )
+				else if( shopentry.getType() == FactionShopEntry.Type.ITEM)
 				{ // Cargo
 					shopEntryObj = new ShopResourceEntry(shopentry);
 				}
-				else if( shopentry.getType() == 2 )
+				else if( shopentry.getType() == FactionShopEntry.Type.TRANSPORT )
 				{ // Ganytransport
 					shopEntryObj = new ShopGanyTransportEntry(new FactionShopEntry[] { shopentry });
 
@@ -2310,18 +2466,18 @@ public class ErsteigernController extends TemplateGenerator
 				ShopEntry shopEntryObj = null;
 
 				String entryadddata = "";
-				if( shopentry.getType() == 1 )
+				if( shopentry.getType() == FactionShopEntry.Type.SHIP )
 				{ // Schiff
 					shopEntryObj = new ShopShipEntry(shopentry);
 
 					entryadddata = "LK: " + order.getAddData();
 				}
-				else if( shopentry.getType() == 0 )
+				else if( shopentry.getType() == FactionShopEntry.Type.ITEM )
 				{ // Cargo
 					shopEntryObj = new ShopResourceEntry(shopentry);
 					entryadddata = "LK: " + order.getAddData();
 				}
-				else if( shopentry.getType() == 2 )
+				else if( shopentry.getType() == FactionShopEntry.Type.TRANSPORT )
 				{ // Ganytransport
 					String[] tmp = StringUtils.split(order.getAddData(), "@");
 					int ganyid = Integer.parseInt(tmp[0]);
@@ -2389,17 +2545,17 @@ public class ErsteigernController extends TemplateGenerator
 		for( Iterator<?> iter = shopentryList.iterator(); iter.hasNext(); )
 		{
 			FactionShopEntry shopentry = (FactionShopEntry)iter.next();
-            if(!shopentry.canBuy(user))
-            {
-                continue;
-            }
+			if(!shopentry.canBuy(user))
+			{
+				continue;
+			}
 
 			ShopEntry shopEntryObj = null;
-			if( shopentry.getType() == 1 )
+			if( shopentry.getType() == FactionShopEntry.Type.SHIP )
 			{
 				shopEntryObj = new ShopShipEntry(shopentry);
 			}
-			else if( shopentry.getType() == 0 )
+			else if( shopentry.getType() == FactionShopEntry.Type.ITEM )
 			{
 				shopEntryObj = new ShopResourceEntry(shopentry);
 			}
@@ -2408,6 +2564,7 @@ public class ErsteigernController extends TemplateGenerator
 					"entry.name", shopEntryObj.getName(),
 					"entry.link", shopEntryObj.getLink(),
 					"entry.id", shopEntryObj.getID(),
+					"entry.rang", shopentry.getMinRank(),
 					"entry.availability.name", shopEntryObj.getAvailabilityName(),
 					"entry.availability.color", shopEntryObj.getAvailabilityColor(),
 					"entry.availability", shopEntryObj.getAvailability(),

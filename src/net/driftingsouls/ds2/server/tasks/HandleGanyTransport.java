@@ -92,7 +92,7 @@ class HandleGanyTransport implements TaskHandler
 		org.hibernate.Session db = context.getDB();
 
 		FactionShopEntry entry = order.getShopEntry();
-		if( entry.getType() != 2 ) {
+		if( entry.getType() == FactionShopEntry.Type.TRANSPORT ) {
 			String[] tmp = StringUtils.split(order.getAddData(), '@');
 			int ganyid = Integer.parseInt(tmp[0]);
 			tmp = StringUtils.split(tmp[1], "->");
