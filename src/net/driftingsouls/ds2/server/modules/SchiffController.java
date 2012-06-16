@@ -104,7 +104,6 @@ public class SchiffController extends TemplateGenerator {
 		parameterNumber("ship");
 
 		setPageTitle("Schiff");
-		setCustomJavascript(true);
 	}
 
     /**
@@ -1323,7 +1322,7 @@ public class SchiffController extends TemplateGenerator {
 			if( tooltiplines.size() > 15 ) {
 				tooltiptext.append("</div>");
 			}
-			
+
 			if( tooltiplines.size() > 15 ) {
 				t.setVar("tooltip.moduleext", tooltiptext.toString());
 			}

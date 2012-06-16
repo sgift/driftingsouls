@@ -50,7 +50,6 @@ public class TradepostController extends TemplateGenerator {
 		setTemplate("tradepost.html");
 
 		setPageTitle("Tradepost");
-		setCustomJavascript(true);
 	}
 
     /**
@@ -333,7 +332,7 @@ public class TradepostController extends TemplateGenerator {
 	{
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
-		
+
 		int itemid = aitem.getID();
 		final ItemID rid = new ItemID(aitem.getID());
 
@@ -352,14 +351,14 @@ public class TradepostController extends TemplateGenerator {
 		parameterNumber("i"+aitem.getID()+"buylimit");
         parameterNumber("i"+aitem.getID()+"sellrank");
         parameterNumber("i"+aitem.getID()+"buyrank");
-        
+
 		long salesprice = getInteger("i"+aitem.getID()+"salesprice");
 		long buyprice = getInteger("i"+aitem.getID()+"buyprice");
 		long saleslimit = getInteger("i"+aitem.getID()+"saleslimit");
 		long buylimit = getInteger("i"+aitem.getID()+"buylimit");
         int sellRank = getInteger("i"+aitem.getID()+"sellrank");
         int buyRank = getInteger("i"+aitem.getID()+"buyrank");
-        
+
 		final Request request = ContextMap.getContext().getRequest();
 		boolean salebool = (request.getParameterInt("i"+aitem.getID()+"salebool") == 1 ? true : false);
 		boolean buybool = (request.getParameterInt("i"+aitem.getID()+"buybool") == 1 ? true : false);
@@ -392,7 +391,7 @@ public class TradepostController extends TemplateGenerator {
         {
             buyRank = 0;
         }
-        
+
         if( !ship.getOwner().isNPC() )
         {
         	fill = false;
@@ -425,7 +424,7 @@ public class TradepostController extends TemplateGenerator {
 				itemsell = new SellLimit(resourcekey, salesprice, saleslimit, sellRank);
 				db.persist(itemsell);
 			}
-			
+
 			if( fill )
 			{
 				Cargo cargo = ship.getCargo();
@@ -438,7 +437,7 @@ public class TradepostController extends TemplateGenerator {
 				}
 			}
 		}
-		
+
 		// check if we dont want to buy the resource any more
 		if(!buybool)
 		{
@@ -454,7 +453,7 @@ public class TradepostController extends TemplateGenerator {
 			if(buylistmap.containsKey(itemid * -1))
 			{
 				itembuy = buylistmap.get(itemid * -1);
-				
+
 				itembuy.setLimit(buylimit);
                 itembuy.setMinRank(buyRank);
 			}

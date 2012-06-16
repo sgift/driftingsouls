@@ -86,7 +86,6 @@ public class MapController extends TemplateGenerator
 		setPageTitle("Sternenkarte");
 
 		setDisableDebugOutput(true);
-		this.setCustomJavascript(true);
 	}
 
 	/**

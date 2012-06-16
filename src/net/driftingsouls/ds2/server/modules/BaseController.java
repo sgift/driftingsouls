@@ -77,8 +77,6 @@ public class BaseController extends TemplateGenerator {
 		parameterNumber("col");
 
 		setPageTitle("Basis");
-
-		this.setCustomJavascript(true);
 	}
 
 	@Override

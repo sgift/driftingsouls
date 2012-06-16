@@ -59,15 +59,15 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Module(name="comm")
 public class CommController extends TemplateGenerator {
 	private static final Log log = LogFactory.getLog(CommController.class);
-	
+
 	private Configuration config;
-	
+
     /**
      * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
-    public void setConfiguration(Configuration config) 
+    public void setConfiguration(Configuration config)
     {
     	this.config = config;
     }
@@ -78,29 +78,27 @@ public class CommController extends TemplateGenerator {
 	 */
 	public CommController(Context context) {
 		super(context);
-		
+
 		setTemplate("comm.html");
-		
+
 		setPageTitle("PMs");
 		addPageMenuEntry("Neue Nachricht", Common.buildUrl("default", "to", 0));
 		addPageMenuEntry("Posteingang", Common.buildUrl("showInbox"));
 		addPageMenuEntry("Postausgang", Common.buildUrl("showOutbox"));
-		
-		this.setCustomJavascript(true);
 	}
-	
+
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		if( action.equals("showPm") ) {
 			addBodyParameter("style","background-image: url('"+config.get("URL")+"data/interface/border/border_background.gif');");
-			setDisableDebugOutput(true);	
+			setDisableDebugOutput(true);
 		}
 		else {
 			getTemplateEngine().setVar("show.menu", 1);
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Markiert alle PMs in einem Ordner als gelesen.
 	 * @urlparam Integer ordner Die ID des Ordners
@@ -112,14 +110,14 @@ public class CommController extends TemplateGenerator {
 
 		parameterNumber("ordner");
 		Ordner ordner = Ordner.getOrdnerByID(getInteger("ordner"), (User)getUser());
-		
+
 		ordner.markAllAsRead();
-		
+
 		t.setVar("show.message", "<span style=\"color:red\">Alle Nachrichten als gelesen markiert</span>");
-	
+
 		redirect("showInbox");
 	}
-	
+
 	/**
 	 * Loescht alle PMs in einem Ordner.
 	 * @urlparam Integer ordner Der Ordner, dessen PMs geloescht werden sollen
@@ -128,16 +126,16 @@ public class CommController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void deleteAllAction() {
 		TemplateEngine t = getTemplateEngine();
-		
+
 		parameterNumber("ordner");
 		Ordner ordner = Ordner.getOrdnerByID(getInteger("ordner"), (User)getUser());
 		ordner.deleteAllPms();
-		
+
 		t.setVar("show.message", "<span style=\"color:red\">Alle Nachrichten gel&ouml;scht</span>");
-	
+
 		redirect("showInbox");
 	}
-	
+
 	/**
 	 * Loescht einen Ordner/eine PM.
 	 * @urlparam Integer delete Falls eine PM zu loeschen ist, dann enthaelt dies die ID der PM. Andernfalls 0
@@ -149,7 +147,7 @@ public class CommController extends TemplateGenerator {
 		org.hibernate.Session db = getContext().getDB();
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		
+
 		parameterNumber("delete");
 		parameterNumber("delord");
 		int delete = getInteger("delete");
@@ -185,10 +183,10 @@ public class CommController extends TemplateGenerator {
 				addError("Fehler: L&ouml;schen "+(delete != 0 ? "der PM" : "des Ordners")+" ist fehlgeschlagen");
 				break;
 		}
-	
+
 		redirect("showInbox");
 	}
-	
+
 	/**
 	 * Erstellt einen neuen Ordner.
 	 * @urlparam Integer ordner Der Basisordner
@@ -202,7 +200,7 @@ public class CommController extends TemplateGenerator {
 		parameterNumber("ordner");
 		String name = getString("ordnername");
 		Ordner parent = Ordner.getOrdnerByID(getInteger("ordner"), user);
-		
+
 		if( parent == null ) {
 			redirect("showInbox");
 			return;
@@ -212,7 +210,7 @@ public class CommController extends TemplateGenerator {
 
 		redirect("showInbox");
 	}
-	
+
 	/**
 	 * Verschiebt alle PMs von einem Ordner in einen anderen.
 	 * @urlparam Integer ordner Der Ausgangsordner
@@ -235,7 +233,7 @@ public class CommController extends TemplateGenerator {
 
 		redirect("showInbox");
 	}
-	
+
 	/**
 	 * Benennt einen Ordner um.
 	 * @urlparam String ordnername Der neue Name des Ordners
@@ -245,7 +243,7 @@ public class CommController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void renameAction() {
 		User user = (User)getUser();
-		
+
 		parameterString("ordnername");
 		parameterNumber("subject");
 		String newname = getString("ordnername");
@@ -256,7 +254,7 @@ public class CommController extends TemplateGenerator {
 
 		redirect("showInbox");
 	}
-	
+
 	/**
 	 * Loescht alle PMs von einem bestimmten Spieler in einem Ordner.
 	 * @urlparam Integer playerid Die ID des Spielers
@@ -266,25 +264,25 @@ public class CommController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void deletePlayerAction() {
 		TemplateEngine t = getTemplateEngine();
-		
+
 		parameterNumber("playerid");
 		parameterNumber("ordner");
 		Ordner ordner = Ordner.getOrdnerByID(getInteger("ordner"), (User)getUser());
-		
+
 		User auser = (User)getContext().getDB().get(User.class, getInteger("playerid"));
-		
+
 		if( auser != null ) {
 			ordner.deletePmsByUser(auser);
-			
+
 			t.setVar("show.message", "<span style=\"color:red\">Alle Nachrichten von "+Common._title(auser.getName())+" gel&ouml;scht</span>");
 		}
 		else {
 			t.setVar("show.message", "<span style=\"color:red\">Der angegebene Spieler existiert nicht</span>");
 		}
-	
+
 		redirect("showInbox");
 	}
-	
+
 	/**
 	 * Markiert die ausgewaehlten Nachrichten als gelesen.
 	 * @urlparam Integer pm_$pmid Die ID einer als gelesen zu markierenden PM ($pmid gibt diese ebenfalls an)
@@ -295,13 +293,13 @@ public class CommController extends TemplateGenerator {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
-		
+
 		List<?> pmList = db.createQuery("from PM where empfaenger=:user and gelesen < 1")
 			.setEntity("user", user)
 			.list();
 		for( Iterator<?> iter=pmList.iterator(); iter.hasNext(); ) {
 			PM pm = (PM)iter.next();
-			
+
 			parameterNumber("pm_"+pm.getId());
 			int pmParam = getInteger("pm_"+pm.getId());
 
@@ -311,13 +309,13 @@ public class CommController extends TemplateGenerator {
 		}
 
 		t.setVar("show.message", "<span style=\"color:red\">Nachrichten als gelesen markiert</span>");
-				
+
 		redirect("showInbox");
 	}
-	
+
 	/**
 	 * Verschiebt die ausgewaehlten Nachrichten/Ordner von einem Basisordner in einen anderen.
-	 * @throws IOException 
+	 * @throws IOException
 	 * @urlparam Integer ordner Der Basisordner
 	 * @urlparam Integer moveto Die ID des Zielordners
 	 * @urlparam Integer ordner_$ordnerid Die ID eines zu verschiebenden Ordners ($ordnerid gibt diese ebenfalls an)
@@ -329,7 +327,7 @@ public class CommController extends TemplateGenerator {
 		User user = (User)getUser();
 		parameterNumber("moveto");
 		parameterNumber("ordner");
-		
+
 		Ordner moveto = Ordner.getOrdnerByID( getInteger("moveto"), user );
 		Ordner trash = Ordner.getTrash( user );
 		Ordner source = Ordner.getOrdnerByID(getInteger("ordner"), user);
@@ -343,7 +341,7 @@ public class CommController extends TemplateGenerator {
 			getContext().getResponse().getWriter().append("ERROR: Es duerfen keine Nachrichten/Ordner in den Papierkorb verschoben werden");
 			return;
 		}
-		
+
 		List<PM> pms = source.getPms();
 		List<Ordner> ordners = source.getChildren();
 
@@ -352,18 +350,18 @@ public class CommController extends TemplateGenerator {
 			if( ordners.get(i).hasFlag(Ordner.FLAG_TRASH) ) {
 				continue;
 			}
-			
+
 			parameterNumber("ordner_"+ordners.get(i).getId());
 			final int ordnerId = getInteger("ordner_"+ordners.get(i).getId());
 			if( ordnerId == 0 ) {
 				continue;
 			}
-			
+
 			Ordner tomove = Ordner.getOrdnerByID(ordnerId, user);
 			if( tomove == null ) {
 				continue;
 			}
-			
+
 			if( tomove.getAllChildren().contains(moveto)) {
 				getContext().getResponse().getWriter().append("ERROR: Es duerfen keine Ordner in ihre eignen Unterordner verschoben werden");
 				return;
@@ -375,7 +373,7 @@ public class CommController extends TemplateGenerator {
 				tomove.setParent(moveto);
 			}
 		}
-		
+
 		for( int i = 0; i < pms.size(); i++ ) {
 			parameterNumber("pm_"+pms.get(i).getId());
 			int pm = getInteger("pm_"+pms.get(i).getId());
@@ -384,11 +382,11 @@ public class CommController extends TemplateGenerator {
 				pms.get(i).setOrdner(moveto.getId());
 			}
 		}
-	
+
 		getContext().getResponse().getWriter().append(Integer.toString(counter));
 		return;
 	}
-	
+
 	/**
 	 * Verschiebt die ausgewaehlten Nachrichten/Ordner von einem Basisordner in einen anderen.
 	 * @urlparam Integer ordner Der Basisordner
@@ -404,7 +402,7 @@ public class CommController extends TemplateGenerator {
 
 		parameterNumber("moveto");
 		parameterNumber("ordner");
-		
+
 		Ordner moveto = Ordner.getOrdnerByID( getInteger("moveto"), user );
 		Ordner trash = Ordner.getTrash( user );
 		Ordner source = Ordner.getOrdnerByID(getInteger("ordner"), user);
@@ -414,7 +412,7 @@ public class CommController extends TemplateGenerator {
 			redirect("showInbox");
 			return;
 		}
-		
+
 		if( trash.getId() == moveto.getId()){
 			t.setVar("show.message", "<span style=\"color:red\">Es d&uuml;rfen keine Nachrichten/Ordner in den Papierkorb verschoben werden.</span>");
 			redirect("showInbox");
@@ -429,23 +427,23 @@ public class CommController extends TemplateGenerator {
 			if( ordners.get(i).hasFlag(Ordner.FLAG_TRASH) ) {
 				continue;
 			}
-			
+
 			parameterNumber("ordner_"+ordners.get(i).getId());
 			final int ordnerId = getInteger("ordner_"+ordners.get(i).getId());
 			if( ordnerId == 0 ) {
 				continue;
 			}
-			
+
 			Ordner tomove = Ordner.getOrdnerByID(ordnerId, user);
 			if( tomove == null ) {
 				continue;
 			}
-			
+
 			if(tomove.equals(ordners.get(i)))
 			{
 				continue;
 			}
-			
+
 			if( tomove.getAllChildren().contains(moveto)) {
 				t.setVar("show.message", "<span style=\"color:red\">Es d&uuml;rfen keine Ordner in ihre eignen Unterordner verschoben werden.</span>");
 				redirect("showInbox");
@@ -458,7 +456,7 @@ public class CommController extends TemplateGenerator {
 				tomove.setParent(moveto);
 			}
 		}
-		
+
 		for( int i = 0; i < pms.size(); i++ ) {
 			parameterNumber("pm_"+pms.get(i).getId());
 			int pm = getInteger("pm_"+pms.get(i).getId());
@@ -467,7 +465,7 @@ public class CommController extends TemplateGenerator {
 				pms.get(i).setOrdner(moveto.getId());
 			}
 		}
-	
+
 		redirect("showInbox");
 	}
 
@@ -488,18 +486,18 @@ public class CommController extends TemplateGenerator {
 
 		List<PM> pms = ordner.getPms();
 		List<Ordner> ordners = ordner.getChildren();
-		
+
 		for( int i = 0; i < ordners.size(); i++ ) {
 			if( ordners.get(i).hasFlag(Ordner.FLAG_TRASH) ) {
 				continue;
 			}
-			
+
 			parameterNumber("ordner_"+ordners.get(i).getId());
 			final int ordnerId = getInteger("ordner_"+ordners.get(i).getId());
 			if( ordnerId == 0 ) {
 				continue;
 			}
-			
+
 			Ordner delordner = Ordner.getOrdnerByID(ordnerId, user);
 
 			if( delordner.getId() == ordners.get(i).getId() ) {
@@ -518,19 +516,19 @@ public class CommController extends TemplateGenerator {
 				pms.get(i).delete();
 			}
 		}
-		
+
 		t.setVar("show.message", "<span style=\"color:red\">Nachrichten gel&ouml;scht</span>");
 
 		redirect("showInbox");
 	}
-	
+
 	/**
 	 * Versendet eine Nachricht.
 	 * @urlparam String to Der Empfaenger (Eine ID oder "task" oder "ally")
 	 * @urlparam Integer reply Falls != 0, dann die ID der Nachricht auf die geantwortet wird (Titel wird dann generiert)
 	 * @urlparam String msg Der Text der Nachricht
 	 * @urlparam String title Falls es sich nicht um eine Antwort handelt, dann der Titel der Nachricht
-	 * @urlparam String special Falls es sich nicht um eine Antwort handelt, dann das Spezialflag der Nachricht 
+	 * @urlparam String special Falls es sich nicht um eine Antwort handelt, dann das Spezialflag der Nachricht
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -538,24 +536,24 @@ public class CommController extends TemplateGenerator {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
-		
+
 		parameterString("to");
 		parameterNumber("reply");
 		parameterString("msg");
-		
+
 		String to = getString("to").trim();
 		int reply = getInteger("reply");
 		String msg = getString("msg");
-		
+
 		String title = null;
 		String special = null;
-		
+
 		if( reply > 0 ) {
 			PM pm = (PM)db.get(PM.class, reply);
 			if( (pm.getEmpfaenger().equals(user) || pm.getSender().equals(user)) && (pm.getGelesen() < 2) ) {
 				User iTo = pm.getSender();
 				if( iTo.equals(user) ) {
-					iTo = pm.getEmpfaenger();	
+					iTo = pm.getEmpfaenger();
 				}
 				to = Integer.toString(iTo.getId());
 				title = "RE: "+Common._plaintitle(pm.getTitle());
@@ -565,57 +563,57 @@ public class CommController extends TemplateGenerator {
 		else {
 			parameterString("title");
 			parameterString("special");
-			
+
 			title = getString("title");
 			special = getString("special");
 		}
-		
+
 		if( title.length() > 60 ) {
 			title = title.substring(0,60);
 		}
-		
+
 		if( special.equals("admin") && (user.getAccessLevel() < 30) ) {
 			special = "";
 		}
 		if( special.equals("official") && !Rassen.get().rasse(user.getRace()).isHead(user.getId()) ) {
-			special = "";	
+			special = "";
 		}
-		
+
 		int flags = 0;
-		
+
 		if( special.equals("admin") ) {
 			flags |= PM.FLAGS_ADMIN;
-			flags |= PM.FLAGS_IMPORTANT;	
+			flags |= PM.FLAGS_IMPORTANT;
 		}
 		else if( special.equals("official") ) {
-			flags |= PM.FLAGS_OFFICIAL;	
+			flags |= PM.FLAGS_OFFICIAL;
 		}
 
 		if( to.equals("task") ) {
 			t.setVar("show.message", "<span style=\"color:#00ff55\">Antwort verarbeitet</span>");
-			
+
 			PM.send(user, PM.TASK, title, msg, flags );
-		} 
+		}
 		else if( to.equals("ally") ) {
 			if( user.getAlly() == null ) {
 				t.setVar("show.message", "<span style=\"color:red; font-weight:bold\">Sie sind in keiner Allianz Mitglied</span>");
-				
+
 				return;
 			}
-			
-			t.setVar("show.message", 
+
+			t.setVar("show.message",
 					"<span style=\"color:#00ff55\">Nachricht versendet an</span> "+Common._title(user.getAlly().getName()));
 
 			PM.sendToAlly(user, user.getAlly(), title, msg, flags );
 		}
-		else {			
+		else {
 			if( (to.length() == 0) || (Integer.parseInt(to) == 0) ) {
 				t.setVar("show.message", "<span style=\"color:#ff0000\">Sie m&uuml;ssen einen Empf&auml;nger angeben</span>");
 				return;
 			}
-			
+
 			int iTo = Integer.parseInt(to);
-		
+
 			User auser = (User)getContext().getDB().get(User.class, iTo);
 			if( auser == null ) {
 				t.setVar("show.message", "<span style=\"color:#ff0000\">Der angegebene Empf&auml;ger ist ung&uuml;ltig</span>");
@@ -626,7 +624,7 @@ public class CommController extends TemplateGenerator {
 			PM.send(user, iTo, title, msg, flags );
 		}
 	}
-	
+
 	/**
 	 * Zeigt eine empfangene/gesendete PM an.
 	 * @urlparam Integer pmid Die ID der Nachricht
@@ -639,25 +637,25 @@ public class CommController extends TemplateGenerator {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		BBCodeParser bbcodeparser = BBCodeParser.getNewInstance();
-		
+
 		parameterNumber("pmid");
 		parameterNumber("ordner");
 		int pmid = getInteger("pmid");
 		int parent_id = getInteger("ordner");
-		
+
 		t.setVar("show.pm", 1);
-	
-		if( pmid == 0 ) {			
-			return;	
+
+		if( pmid == 0 ) {
+			return;
 		}
-	
+
 		PM pm = (PM)db.get(PM.class, pmid);
 		if( (pm == null) || (!user.equals(pm.getEmpfaenger()) && !user.equals(pm.getSender())) ) {
 			return;
 		}
-		
+
 		User sender = null;
-		
+
 		if( user.equals(pm.getSender()) ) {
 			try {
 				bbcodeparser.registerHandler( "_intrnlConfTask", 2, "<div style=\"text-align:center\"><table class=\"noBorderX\" width=\"500\"><tr><td class=\"BorderX\" align=\"center\">Entscheidungsm&ouml;glichkeit in der Orginal-PM</td></tr></table></div>");
@@ -666,11 +664,11 @@ public class CommController extends TemplateGenerator {
 				log.error("Register _intrnlConfTask failed", e);
 				addError("Fehler beim Darstellen der PM");
 			}
-			
+
 			if( user.equals(pm.getEmpfaenger()) && (pm.getGelesen() == 0) ) {
-				pm.setGelesen(1);	
+				pm.setGelesen(1);
 			}
-	
+
 			User empfaenger = pm.getEmpfaenger();
 			sender = user;
 			if(empfaenger != null) {
@@ -690,13 +688,13 @@ public class CommController extends TemplateGenerator {
 				log.error("Register _intrnlConfTask failed", e);
 				addError("Fehler beim Darstellen der PM");
 			}
-			
+
 			if( pm.getGelesen() == 0 ) {
-				pm.setGelesen(1);	
+				pm.setGelesen(1);
 			}
-			
+
 			sender = pm.getSender();
-			
+
 			if(sender != null)
 			{
 				t.setVar(	"pm.sender",		sender.getId(),
@@ -710,22 +708,22 @@ public class CommController extends TemplateGenerator {
 							"ordner.parent",	parent_id);
 			}
 		}
-	
+
 		String bgimg = "";
 
 		if( pm.hasFlag(PM.FLAGS_ADMIN) ) {
-			bgimg = "pm_adminbg.png";	
+			bgimg = "pm_adminbg.png";
 		}
 		else if( pm.hasFlag(PM.FLAGS_OFFICIAL) ) {
-			bgimg = "pm_"+Rassen.get().rasse(sender.getRace()).getName().toLowerCase()+"bg.png";	
+			bgimg = "pm_"+Rassen.get().rasse(sender.getRace()).getName().toLowerCase()+"bg.png";
 		}
-		
+
 		String text = pm.getInhalt();
 		text = bbcodeparser.parse(text);
 
 		text = StringUtils.replace(text, "\r\n", "<br />");
 		text = StringUtils.replace(text, "\n", "<br />");
-		
+
 		t.setVar(	"pm.id",			pm.getId(),
 					"pm.title",			Common._plaintitle(pm.getTitle()),
 					"pm.flags.admin", 	pm.hasFlag(PM.FLAGS_ADMIN),
@@ -734,7 +732,7 @@ public class CommController extends TemplateGenerator {
 					"pm.text", 			Smilie.parseSmilies(text),
 					"pm.kommentar", 	Smilie.parseSmilies(Common._text(pm.getKommentar())) );
 	}
-	
+
 	/**
 	 * Stellt eine Nachricht aus dem Papierkorb wieder her.
 	 * @urlparam Integer recover Die wiederherzustellende Nachricht
@@ -746,14 +744,14 @@ public class CommController extends TemplateGenerator {
 
 		parameterNumber("recover");
 		PM pm = (PM)getDB().get(PM.class, getInteger("recover"));
-	
+
 		if( pm.getEmpfaenger() == user ) {
 			pm.recover();
 		}
-		
+
 		redirect("showInbox");
 	}
-	
+
 	/**
 	 * Stellt alle geloeschten Nachrichten aus dem Papierkorb wieder her.
 	 *
@@ -762,14 +760,14 @@ public class CommController extends TemplateGenerator {
 	public void recoverAllAction() {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-	
+
 		PM.recoverAll( user );
-		
+
 		t.setVar("show.message", "<span style=\"color:red\">Nachrichten wiederhergestellt</span>");
 
 		redirect("showInbox");
 	}
-	
+
 	/**
 	 * Zeigt die Liste aller empfangenen Nachrichten an.
 	 * @urlparam Integer Der anzuzeigende Ordner (0 ist die oberste Ebene)
@@ -780,23 +778,23 @@ public class CommController extends TemplateGenerator {
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
-		
+
 		parameterNumber("ordner");
 		final Ordner ordner = Ordner.getOrdnerByID(getInteger("ordner"), user);
 
 		t.setVar(
 				"show.inbox", 1,
 				"currentordner.id", ordner.getId());
-		
+
 		t.setBlock("_COMM", "pms.listitem", "pms.list");
 		t.setBlock("_COMM", "ordner.listitem", "ordner.list");
 		t.setBlock("_COMM", "availordner.listitem", "availordner.list");
-		
+
 		// Liste aller vorhandenen Ordner generieren
 
 		t.setVar(	"availordner.id",	0,
 					"availordner.name",	"Hauptverzeichnis" );
-			
+
 		t.parse("availordner.list", "availordner.listitem", true);
 
 		List<?> ordnerList = db.createQuery("from Ordner where owner= :user order by name asc")
@@ -804,13 +802,13 @@ public class CommController extends TemplateGenerator {
 			.list();
 		for( Iterator<?> iter=ordnerList.iterator(); iter.hasNext(); ) {
 			Ordner aOrdner = (Ordner)iter.next();
-			
+
 			t.setVar(	"availordner.id",	aOrdner.getId(),
 						"availordner.name",	aOrdner.getName() );
-			
+
 			t.parse("availordner.list", "availordner.listitem", true);
 		}
-		
+
 		// Link zum uebergeordneten Ordner erstellen
 		if( ordner.getId() != 0 ) {
 			t.setVar(	"ordner.id",			ordner.getParent().getId(),
@@ -820,24 +818,24 @@ public class CommController extends TemplateGenerator {
 						"ordner.flags.up",		1,
 						"ordner.flags.trash",	(ordner.getFlags() & Ordner.FLAG_TRASH),
 						"ordner.name.real",		ordner.getName());
-			
+
 			t.parse("ordner.list", "ordner.listitem", true);
 		}
 
 		Map<Ordner,Integer> ordners = ordner.getPmCountPerSubOrdner();
-		
+
 		// Ordnerliste im aktuellen Ordner ausgeben
 		List<Ordner> children = ordner.getChildren();
 		for( Ordner aOrdner : children ) {
 			Integer count = ordners.get(aOrdner);
-			
+
 			t.setVar(	"ordner.id",			aOrdner.getId(),
 						"ordner.name",			aOrdner.getName(),
 						"ordner.parent",		aOrdner.getParent().getId(),
 						"ordner.pms",			count != null ? count.intValue() : 0,
 						"ordner.flags.up",		0,
 						"ordner.flags.trash",	aOrdner.hasFlag(Ordner.FLAG_TRASH) );
-			
+
 			t.parse("ordner.list", "ordner.listitem", true);
 		}
 
@@ -853,11 +851,11 @@ public class CommController extends TemplateGenerator {
 						"pm.time",			Common.date("j.n.Y G:i",pm.getTime()),
 						"pm.trash",			(pm.getGelesen() > 1) ? 1 : 0,
 						"pm.kommentar",		pm.getKommentar());
-			
+
 			t.parse("pms.list", "pms.listitem", true);
 		}
 	}
-	
+
 	/**
 	 * Zeigt die Liste aller versendeten und noch nicht geloeschten PMs.
 	 *
@@ -867,24 +865,24 @@ public class CommController extends TemplateGenerator {
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
-		
+
 		t.setVar("show.outbox", 1);
 		t.setBlock("_COMM", "pms.out.listitem", "pms.out.list");
-		
+
 		List<?> pms = db.createQuery("from PM as pm inner join fetch pm.empfaenger " +
 				"where pm.sender= :user order by pm.id desc")
 			.setEntity("user", user)
 			.list();
 		for( Iterator<?> iter=pms.iterator(); iter.hasNext(); ) {
 			PM pm = (PM)iter.next();
-			
+
 			t.setVar(	"pm.id",				pm.getId(),
 						"pm.flags.admin",		pm.hasFlag(PM.FLAGS_ADMIN),
 						"pm.title",				Common._plaintitle(pm.getTitle()),
 						"pm.empfaenger.name",	Common._title(pm.getEmpfaenger().getName()),
 						"pm.time",				Common.date("j.n.Y G:i",pm.getTime()),
 						"pm.empfaenger",		pm.getEmpfaenger().getId() );
-			
+
 			t.parse("pms.out.list", "pms.out.listitem", true);
 		}
 	}
@@ -901,7 +899,7 @@ public class CommController extends TemplateGenerator {
 	public void previewAction() {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
-	
+
 		parameterString("msg");
 		parameterString("to");
 		parameterString("title");
@@ -911,7 +909,7 @@ public class CommController extends TemplateGenerator {
 		String to = getString("to");
 		String title = getString("title");
 		String special = getString("special");
-		
+
 		Map<String,String> specialuilist = new HashMap<String,String>();
 		specialuilist.put("nichts", "");
 		if( user.getAccessLevel() >= 30 ) {
@@ -925,29 +923,29 @@ public class CommController extends TemplateGenerator {
 		if( special_key == null ) {
 			special = "";
 		}
-		
+
 		specialuilist.remove(special_key);
 		specialuilist.put(special_key, special);
-			
+
 		t.setBlock("_COMM", "write.specialui.listitem", "write.specialui.list");
 		for( Map.Entry<String, String> entry: specialuilist.entrySet() ) {
 			String currentspecial = entry.getValue();
 			t.setVar(	"specialui.name",	entry.getKey(),
 						"specialui.value",	currentspecial,
 						"specialui.selected",	special.equals(currentspecial) ? true : false);
-								
+
 			t.parse("write.specialui.list", "write.specialui.listitem", true);
 		}
-			
+
 		String bgimg = "";
 
 		if( special.equals("admin") ) {
-			bgimg = "pm_adminbg.png";	
+			bgimg = "pm_adminbg.png";
 		}
 		else if( special.equals("official") ) {
-			bgimg = "pm_"+Rassen.get().rasse(user.getRace()).getName()+"bg.png";	
+			bgimg = "pm_"+Rassen.get().rasse(user.getRace()).getName()+"bg.png";
 		}
-			
+
 		t.setVar(	"pm.text",			Smilie.parseSmilies(Common._text(msg)),
 					"pm.title",			title,
 					"pm.sender",		user.getId(),
@@ -960,7 +958,7 @@ public class CommController extends TemplateGenerator {
 					"show.preview",		1,
 					"show.write",		1 );
 	}
-	
+
 	/**
 	 * Zeigt die GUI zum anlegen/bearbeiten eines Kommentars zu einer Nachricht an.
 	 * @urlparam Integer pm Die Nachricht
@@ -972,7 +970,7 @@ public class CommController extends TemplateGenerator {
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
-	
+
 		parameterNumber("pm");
 		parameterNumber("ordner");
 		int pmid = getInteger("pm");
@@ -981,7 +979,7 @@ public class CommController extends TemplateGenerator {
 		PM pm = (PM)db.get(PM.class, pmid);
 		if( (pm != null) && pm.getEmpfaenger().equals(user) ) {
 			pm.setGelesen(1);
-			
+
 			t.setVar("show.comment", 1);
 			t.setVar("comment.text", pm.getKommentar());
 			t.setVar("pm.id", pmid);
@@ -994,7 +992,7 @@ public class CommController extends TemplateGenerator {
 			t.setVar("user.signature", user.getUserValue("PMS/signatur") );
 		}
 	}
-	
+
 	/**
 	 * Speichert einen Kommentar zu einer Nachricht.
 	 * @urlparam Integer pmid Die ID der Nachricht
@@ -1004,7 +1002,7 @@ public class CommController extends TemplateGenerator {
 	public void sendCommentAction() {
 		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
-	
+
 		parameterNumber("pmid");
 		parameterString("msg");
 		int pmid = getInteger("pmid");
@@ -1024,21 +1022,21 @@ public class CommController extends TemplateGenerator {
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
-		
+
 		parameterString("to");
 		parameterNumber("reply");
 		parameterString("msg");
-		
+
 		String toStr = getString("to");
 		int reply = getInteger("reply");
 		String msg = getString("msg");
-		
+
 		String title = "";
 		String special = "";
-		
+
 		if( reply != 0) {
 			PM pm = (PM)db.get(PM.class, reply);
-			
+
 			if( (pm != null) && (pm.getEmpfaenger().equals(user) || pm.getSender().equals(user)) ) {
 				User to = pm.getSender();
 				if( to.equals(user) ) {
@@ -1046,15 +1044,15 @@ public class CommController extends TemplateGenerator {
 				}
 				title = "RE: "+Common._plaintitle(pm.getTitle());
 				special = "";
-				
+
 				msg = "(Nachricht am "+Common.date("j.n.Y G:i",pm.getTime())+" empfangen.)\n";
-				
+
 				// Fuehrende > entfernen
 				msg += Pattern.compile("/\n>*/").matcher(pm.getInhalt()).replaceAll("\n");
-				
+
 				// Wegen der Einrueckung eingefuegte Umbrueche entfernen
-				msg = msg.replaceAll("\t\r\n", " "); 
-				
+				msg = msg.replaceAll("\t\r\n", " ");
+
 				// Reply-Verschachtelungstiefe ermitteln
 				int depth = 0;
 				Matcher match = Pattern.compile("/\\(Nachricht am \\d{1,2}\\.\\d{1,2}\\.\\d{4,4} \\d{1,2}:\\d{2,2} empfangen\\.\\)/").matcher(msg);
@@ -1065,7 +1063,7 @@ public class CommController extends TemplateGenerator {
 				String[] msg_lines = StringUtils.split(msg, '\n'); //Text Zeilenweise auftrennen
 				for( int i=0; i < msg_lines.length; i++ ){
 					msg_lines[i] = Common.wordwrap(msg_lines[i], 65 - depth, "\t\n");	//Zeilen umbrechen
-					
+
 					if(Pattern.compile("/\\(Nachricht am \\d{1,2}\\.\\d{1,2}\\.\\d{4,4} \\d{1,2}:\\d{2,2} empfangen\\.\\)/").matcher(msg_lines[i]).find() ){ //beginn einer neuen Verschachtelung
 						for( int j = i + 1; j < msg_lines.length; j++){	//in Jede zeile ein ">" am Anfang einfuegen
 							msg_lines[j] = ">"+msg_lines[j];
@@ -1074,29 +1072,29 @@ public class CommController extends TemplateGenerator {
 				}
 				msg = Common.implode("\n", msg_lines); //Text wieder zusammenfuegen
 				msg += "\n\n"; // Zwei Leerzeilen koennen am Ende nicht schaden...
-				
+
 				toStr = Integer.toString(to.getId());
 			}
 		}
 		else {
 			parameterString("title");
 			parameterString("special");
-			
+
 			title = getString("title");
 			special = getString("special");
 		}
-		
+
 		if( title.length() > 60 ) {
 			title = title.substring(0,60);
 		}
-		
+
 		if( special.equals("admin") && (user.getAccessLevel() < 30) ) {
-			special = "";	
+			special = "";
 		}
 		if( special.equals("official") && !Rassen.get().rasse(user.getRace()).isHead(user.getId()) ) {
-			special = "";	
+			special = "";
 		}
-		
+
 		Map<String,String> specialuilist = new HashMap<String,String>();
 		specialuilist.put("nichts", "");
 		if( user.getAccessLevel() >= 30 ) {
@@ -1105,19 +1103,19 @@ public class CommController extends TemplateGenerator {
 		if( Rassen.get().rasse(user.getRace()).isHead(user.getId()) ) {
 			specialuilist.put("Offizielle PM", "official");
 		}
-			
+
 		t.setVar(	"show.write", 1,
 					"write.title", title,
 					"write.message", msg,
 					"write.to", toStr,
 					"system.time", Common.getIngameTime(getContext().get(ContextCommon.class).getTick()),
 					"user.signature", user.getUserValue("PMS/signature") );
-		
+
 		t.setBlock("_COMM", "write.specialui.listitem", "write.specialui.list");
 		for( Map.Entry<String, String> entry: specialuilist.entrySet() ) {
 			t.setVar(	"specialui.name", entry.getKey(),
 						"specialui.value", entry.getKey() );
-								
+
 			t.parse("write.specialui.list", "write.specialui.listitem", true);
 		}
 	}

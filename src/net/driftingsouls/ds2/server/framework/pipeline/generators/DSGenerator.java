@@ -355,7 +355,6 @@ public abstract class DSGenerator extends Generator {
 	private String pageTitle;
 	private List<PageMenuEntry> pageMenuEntries;
 	private boolean disablePageMenu;
-	private boolean customJavascript;
 
 	/**
 	 * Konstruktor.
@@ -385,8 +384,6 @@ public abstract class DSGenerator extends Generator {
 		this.pageTitle = null;
 		this.pageMenuEntries = new ArrayList<PageMenuEntry>();
 		this.disablePageMenu = false;
-
-		this.customJavascript = false;
 
 		setActionType(ActionType.DEFAULT);
 	}
@@ -630,7 +627,6 @@ public abstract class DSGenerator extends Generator {
 			actionTypeHandler.setAttribute("module", getString("module"));
 			actionTypeHandler.setAttribute("pagetitle", this.pageTitle);
 			actionTypeHandler.setAttribute("pagemenu", this.pageMenuEntries.toArray(new PageMenuEntry[this.pageMenuEntries.size()]));
-			actionTypeHandler.setAttribute("customjs", this.customJavascript);
 		}
 
 		actionTypeHandler.printHeader();
@@ -638,16 +634,6 @@ public abstract class DSGenerator extends Generator {
 
 	protected void printFooter( String action ) throws IOException {
 		actionTypeHandler.printFooter();
-	}
-
-	/**
-	 * Setzt, ob fuer das Modul eine eigene Javascript-Datei vorliegt ([modulname].js)
-	 * und diese eingebunden werden soll (Default: false).
-	 * @param value <code>true</code>, falls eine solche Datei eingebunden werden soll
-	 */
-	public void setCustomJavascript(boolean value)
-	{
-		this.customJavascript = value;
 	}
 
 	/**
