@@ -1,6 +1,6 @@
 <div class="smallfont">
 <div class="gfxbox" style="width:300px;">
-	Rasse: <a id="racelink" name="racelink" class="forschinfo" onclick="$('#raceBox').dsBox('show')" href="#">{race.name}</a>	
+	Rasse: <a id="racelink" name="racelink" class="forschinfo" onclick="$('#raceBox').dsBox('show')" href="#">{race.name}</a>
 </div>
 <div id="raceBox" style="display:none">
 	{race.list}
@@ -13,7 +13,9 @@
 	<td class="noBorderX">{!link_to $tech.name, default, module:forschinfo, css_style:font-weight:bold, res:$tech.id}</td>
 	<td class="noBorderX">
 		<img style="vertical-align:middle" src="{URL}data/interface/time.gif" alt="Dauer" />{tech.dauer}&nbsp;
-		<img style="vertical-align:middle" src="{URL}data/interface/forschung/specpoints.gif" alt="Spezialisierungskosten" />{tech.specpoints}&nbsp;
+		{if tech.specpoints}
+			<img style="vertical-align:middle" src="{URL}data/interface/forschung/specpoints.gif" alt="Spezialisierungskosten" />{tech.specpoints}&nbsp;
+		{/endif}
 		<!-- BEGIN res.listitem -->
 			<img style="vertical-align:middle" src="{warenb}" alt="{waren}" />{tech.cost}{if tech.cost.space}&nbsp;{/endif}
 		<!-- END res.listitem -->
@@ -39,7 +41,9 @@
 		{if ! tech.remaining}
 			<img style="vertical-align:middle" src="{URL}data/interface/time.gif" alt="Dauer" />{tech.dauer}<br />
 		{/endif}
-			<img style="vertical-align:middle" src="{URL}data/interface/forschung/specpoints.gif" alt="Spezialisierungskosten" />{tech.specpoints} 
+		{if tech.specpoints}
+			<img style="vertical-align:middle" src="{URL}data/interface/forschung/specpoints.gif" alt="Spezialisierungskosten" />{tech.specpoints}
+		{/endif}
 		{res.list}
 		<br />
 		<br />
@@ -51,59 +55,59 @@
 <!-- END tech.researchable.listitem -->
 
 {if tech.researchable.list}
-	{!table_begin 700,center}
-	<span style="color:yellow">Erforschbar</span><br />
-	<table class="noBorderX" width="100%">
-	<tr>
-		{tech.researchable.list}
-	</tr>
-	</table>
-	{!table_end}
+	<div class="gfxbox" style="width:740px">
+		<span style="color:yellow">Erforschbar</span><br />
+		<table class="noBorderX" width="100%">
+		<tr>
+			{tech.researchable.list}
+		</tr>
+		</table>
+	</div>
 	<br />
 {/endif}
 
 {if tech.notResearchable.list}
-	{!table_begin 700,center}
-	<span style="color:red">Noch nicht erforschbar</span><br />
-	<table class="noBorderX" width="100%">
-	<tr>
-		<td class="noBorderX" style="font-weight:bold">Name</td>
-		<td class="noBorderX">Kosten</td>
-		<td class="noBorderX">Vorraussetzungen</td>
-	</tr>
-	{tech.notResearchable.list}
-	</table>
-	{!table_end}
+	<div class="gfxbox" style="width:740px">
+		<span style="color:red">Noch nicht erforschbar</span><br />
+		<table class="noBorderX" width="100%">
+		<tr>
+			<td class="noBorderX" style="font-weight:bold">Name</td>
+			<td class="noBorderX">Kosten</td>
+			<td class="noBorderX">Vorraussetzungen</td>
+		</tr>
+		{tech.notResearchable.list}
+		</table>
+	</div>
 	<br />
 {/endif}
 
 {if tech.invisible.list}
-	{!table_begin 700,center}
-	<span style="color:grey">Unsichtbar</span><br />
-	<table class="noBorderX" width="100%">
-	<tr>
-		<td class="noBorderX" style="font-weight:bold">Name</td>
-		<td class="noBorderX">Kosten</td>
-		<td class="noBorderX">Vorraussetzungen</td>
-	</tr>
-		{tech.invisible.list}
-	</table>
-	{!table_end}
+	<div class="gfxbox" style="width:740px">
+		<span style="color:grey">Unsichtbar</span><br />
+		<table class="noBorderX" width="100%">
+		<tr>
+			<td class="noBorderX" style="font-weight:bold">Name</td>
+			<td class="noBorderX">Kosten</td>
+			<td class="noBorderX">Vorraussetzungen</td>
+		</tr>
+			{tech.invisible.list}
+		</table>
+	</div>
 	<br />
 {/endif}
 
 {if tech.researched.list}
-	{!table_begin 700,center}
-	<span style="color:green">Bereits erforscht</span><br />
-	<table class="noBorderX" width="100%">
-	<tr>
-		<td class="noBorderX" style="font-weight:bold">Name</td>
-		<td class="noBorderX">Kosten</td>
-		<td class="noBorderX">Vorraussetzungen</td>
-	</tr>
-	{tech.researched.list}
-	</table>
-	{!table_end}
+	<div class="gfxbox" style="width:740px">
+		<span style="color:green">Bereits erforscht</span><br />
+		<table class="noBorderX" width="100%">
+		<tr>
+			<td class="noBorderX" style="font-weight:bold">Name</td>
+			<td class="noBorderX">Kosten</td>
+			<td class="noBorderX">Vorraussetzungen</td>
+		</tr>
+		{tech.researched.list}
+		</table>
+	</div>
 	<br />
 {/endif}
 </div>
