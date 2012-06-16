@@ -6,7 +6,7 @@ var StarmapScreen = function(selector, system) {
 	this.__currentSystem = system;
 	this.__max = [this.__currentSystem.width*Starmap.__SECTOR_IMAGE_SIZE, this.__currentSystem.height*Starmap.__SECTOR_IMAGE_SIZE];
 	this.__selector = selector;
-	
+
 	this.width = function() {
 		return Math.min(this.__screen[0], this.__max[0]);
 	};
@@ -33,12 +33,12 @@ var StarmapScreen = function(selector, system) {
 		}
 		return 0;
 	};
-	
+
 	this.update = function() {
 		var el = $(this.__selector);
 		this.__screen = [el.width(),el.height()];
 	};
-	
+
 	this.update();
 };
 /**
@@ -48,77 +48,77 @@ var StarmapScreen = function(selector, system) {
  */
 var StarmapActionOverlay = function(options){
 	this.__lastDrag = [];
-	
+
 	this.create = function()
 	{
 		var overlay = "<div id='actionOverlay' />";
-		
+
 		$('#mapview').append(overlay);
-		
+
 		var self = this;
-		$('#actionOverlay').bind('click', function(e) 
+		$('#actionOverlay').bind('click', function(e)
 		{
 			document.body.focus();
 			document.onselectstart = function () { return false; };
-			
+
 			var offset = $(e.target).offset();
 			var x = e.pageX - offset.left;
 			var y = e.pageY - offset.top;
-			
+
 			e.stopPropagation();
-			
+
 			self.onClick(x, y);
 		});
-		
+
 		$('#actionOverlay').bind('mousedown', function(e) {
 			if( e.which != 1 ) {
 				return;
 			}
 			e.stopPropagation();
 			self.__lastDrag = [e.pageX, e.pageY];
-			
+
 			e.target.ondragstart = function() { return false; };
 			document.body.focus();
 			document.onselectstart = function () { return false; };
-			
+
 			self.onDragStart();
 		});
-		
+
 		$('#actionOverlay').bind('mouseup mouseout', function(e) {
 			self.__lastDrag = [];
 			e.stopPropagation();
-			
+
 			self.onDragStop();
 		});
-		
-		$('#actionOverlay').bind('mousemove', function(e) 
+
+		$('#actionOverlay').bind('mousemove', function(e)
 		{
 			var drag = self.__lastDrag;
 			if( typeof drag === "undefined" || drag.length == 0 ) {
 				return;
 			}
-			
+
 			document.body.focus();
 			document.onselectstart = function () { return false; };
-			
+
 			e.stopPropagation();
-			
+
 			var moveX = drag[0] - e.pageX;
 			var moveY = drag[1] - e.pageY;
-			
+
 			self.onDrag(moveX, moveY);
-		
+
 			self.__lastDrag = [e.pageX, e.pageY];
 		});
 	};
-	
+
 	this.create();
-	
+
 	this.onClick = options.onClick;
 	this.onDragStart = options.onDragStart;
 	this.onDrag = options.onDrag;
 	this.onDragStop = options.onDragStop;
-	
+
 	if( typeof this.onClick === "undefined" ) {
 		this.onDragClick = function() {};
 	}
@@ -142,8 +142,8 @@ var StarmapActionOverlay = function(options){
 var StarmapLegend = function(screen, mapSize) {
 	this.__screen = screen;
 	this.__currentShiftOffset = [0, 0];
-	this.__size = {minx:0, miny:0, maxy:0, maxy:0};
-	
+	this.__size = {minx:0, miny:0, maxx:0, maxy:0};
+
 	this.__renderLegend = function(mapSize)
 	{
 		this.__size = {minx:mapSize.minx, maxx:mapSize.maxx, miny:mapSize.miny, maxy:mapSize.maxy};
@@ -152,15 +152,15 @@ var StarmapLegend = function(screen, mapSize) {
 		legend += "<div class='corner'>x/y</div>";
 		legend += this.__printLegend("hbar", this.__size.minx, this.__size.maxx);
 		legend += "</div>";
-		
+
 		legend += "<div class='left'>";
 		legend += this.__printLegend("vbar", this.__size.miny, this.__size.maxy);
 		legend += "</div>";
-		
+
 		legend += "<div class='right'>";
 		legend += this.__printLegend("vbar", this.__size.miny, this.__size.maxy);
 		legend += "</div>";
-		
+
 		legend += "<div class='bottom'>";
 		legend += "<div class='corner'>x/y</div>";
 		legend += this.__printLegend("hbar", this.__size.minx, this.__size.maxx);
@@ -180,12 +180,12 @@ var StarmapLegend = function(screen, mapSize) {
 	this.prepareShift = function(moveX, moveY) {
 		var hbar = $('#legend .hbar .scroll');
 		var vbar = $('#legend .vbar .scroll');
-		
+
 		this.__currentShiftOffset = [this.__currentShiftOffset[0]-moveX, this.__currentShiftOffset[1]-moveY];
-		
+
 		if( this.__currentShiftOffset[0] >= Starmap.__SECTOR_IMAGE_SIZE ) {
 			this.__currentShiftOffset[0] -= Starmap.__SECTOR_IMAGE_SIZE;
-			
+
 			hbar.prepend("<div>"+(this.__size.minx-1)+"</div>");
 
 			this.__size.minx -= 1;
@@ -199,10 +199,10 @@ var StarmapLegend = function(screen, mapSize) {
 			hbar.append(content);
 			this.__size.maxx += cnt;
 		}
-		
+
 		if( this.__currentShiftOffset[1] >= Starmap.__SECTOR_IMAGE_SIZE ) {
 			this.__currentShiftOffset[1] -= Starmap.__SECTOR_IMAGE_SIZE;
-			
+
 			vbar.prepend("<div>"+(this.__size.miny-1)+"</div>");
 			this.__size.miny -= 1;
 		}
@@ -219,11 +219,11 @@ var StarmapLegend = function(screen, mapSize) {
 	this.storeShift = function() {
 		var hbar = $('#legend .hbar .scroll');
 		var vbar = $('#legend .vbar .scroll');
-		
+
 		hbar.css('left' , (this.__currentShiftOffset[0])+'px');
 		vbar.css('top' , (this.__currentShiftOffset[1])+'px');
 	};
-	
+
 	$('#mapcontent').append(this.__renderLegend(mapSize));
 };
 /**
@@ -239,7 +239,7 @@ var StarmapTiles = function(systemId, screenSize, mapSize) {
 	this.__renderedTiles = [];
 	this.__startPos = [Math.floor((mapSize.minx-1)/this.__TILE_SIZE), Math.floor((mapSize.miny-1)/this.__TILE_SIZE)];
 	this.__startSectorPos = [mapSize.minx, mapSize.miny];
-	
+
 	this.__renderTiles = function(mapSize)
 	{
 		var url = Starmap.__getDsUrl();
@@ -259,17 +259,17 @@ var StarmapTiles = function(systemId, screenSize, mapSize) {
 		tiles += "</div>";
 		return tiles;
 	};
-	
+
 	this.prepareShift = function(moveX, moveY) {
 		var tiles = $('#tiles');
 		if( isNaN(moveX) || isNaN(this.__currentShiftOffset[0]) ) {
 			throw "NaN";
 		}
-			
+
 		this.__currentShiftOffset = [this.__currentShiftOffset[0]-moveX, this.__currentShiftOffset[1]-moveY];
-		
+
 		var realSize = {minx:this.__size.minx, maxx:this.__size.maxx, miny:this.__size.miny, maxy:this.__size.maxy};
-		
+
 		var mod = false;
 		if( this.__currentShiftOffset[0] >= Starmap.__SECTOR_IMAGE_SIZE ) {
 			var cnt = Math.ceil(this.__currentShiftOffset[0] / Starmap.__SECTOR_IMAGE_SIZE);
@@ -282,7 +282,7 @@ var StarmapTiles = function(systemId, screenSize, mapSize) {
 			realSize.maxx += Math.ceil(gap / Starmap.__SECTOR_IMAGE_SIZE);
 			mod = true;
 		}
-		
+
 		if( this.__currentShiftOffset[1] >= Starmap.__SECTOR_IMAGE_SIZE ) {
 			var cnt = Math.ceil(this.__currentShiftOffset[1] / Starmap.__SECTOR_IMAGE_SIZE);
 			//this.__currentShiftOffset[1] -= cnt*Starmap.__SECTOR_IMAGE_SIZE;
@@ -294,7 +294,7 @@ var StarmapTiles = function(systemId, screenSize, mapSize) {
 			realSize.maxy += Math.ceil(gap / Starmap.__SECTOR_IMAGE_SIZE);
 			mod = true;
 		}
-		
+
 		if( mod ) {
 			var newTiles = "";
 			var url = Starmap.__getDsUrl();
@@ -316,9 +316,9 @@ var StarmapTiles = function(systemId, screenSize, mapSize) {
 					this.__renderedTiles[x+"/"+y] = true;
 				}
 			}
-			
+
 			tiles.append(newTiles);
-			
+
 			this.__size = realSize;
 		}
 	};
@@ -326,7 +326,7 @@ var StarmapTiles = function(systemId, screenSize, mapSize) {
 		var tiles = mapview.find('#tiles');
 		tiles.css({'left' : (this.__currentShiftOffset[0])+'px', 'top' : (this.__currentShiftOffset[1])+'px'});
 	};
-	
+
 	$('#mapview').append(this.__renderTiles(mapSize));
 };
 
@@ -341,16 +341,16 @@ var StarmapOverlay = function(data, screen) {
 	this.__reloadTriggered = false;
 	this.__currentSystem = data.system;
 	this.__currentLocations = data.locations;
-	
+
 	this.__reloadOverlay = function()
 	{
 		var realSize = {
-				minx:this.__currentSize.minx, 
-				maxx:this.__currentSize.maxx, 
-				miny:this.__currentSize.miny, 
+				minx:this.__currentSize.minx,
+				maxx:this.__currentSize.maxx,
+				miny:this.__currentSize.miny,
 				maxy:this.__currentSize.maxy};
 
-		
+
 		// Fehlende Bereiche identifieren und Ausschnitt vergroessern
 		var mod = false;
 		if( this.__currentShiftOffset[0] >= Starmap.__SECTOR_IMAGE_SIZE ) {
@@ -366,7 +366,7 @@ var StarmapOverlay = function(data, screen) {
 			realSize.minx = newmin;
 			mod = true;
 		}
-		
+
 		if( this.__currentShiftOffset[1] >= Starmap.__SECTOR_IMAGE_SIZE ) {
 			var cnt = Math.ceil(this.__currentShiftOffset[1] / Starmap.__SECTOR_IMAGE_SIZE);
 			realSize.miny -= cnt;
@@ -380,7 +380,7 @@ var StarmapOverlay = function(data, screen) {
 			realSize.miny = newmin;
 			mod = true;
 		}
-		
+
 		if( mod ) {
 			var self = this;
 			$.getJSON(Starmap.__getDsUrl(),
@@ -398,30 +398,30 @@ var StarmapOverlay = function(data, screen) {
 
 		this.__reloadTriggered = false;
 	};
-	
+
 	this.__updateShiftOffset = function(newSize) {
 		//if( newSize.minx > this.__currentSize.minx ) {
 			this.__currentShiftOffset[0] -= (this.__currentSize.minx-newSize.minx)*Starmap.__SECTOR_IMAGE_SIZE;
 		//}
 		this.__currentShiftOffset[1] -= (this.__currentSize.miny-newSize.miny)*Starmap.__SECTOR_IMAGE_SIZE;
 	};
-	
+
 	this.__renderOverlay = function(data)
 	{
 		var overlay = "<div id='tileOverlay' style='left:"+(this.__currentShiftOffset[0])+"px;top:"+(this.__currentShiftOffset[1])+"px'>";
 		for( var i=0; i < data.locations.length; i++ ) {
 			var loc = data.locations[i];
-			
+
 			var posx = (loc.x-this.__currentSize.minx)*Starmap.__SECTOR_IMAGE_SIZE;
 			var posy = (loc.y-this.__currentSize.miny)*Starmap.__SECTOR_IMAGE_SIZE;
-			
+
 			if( loc.bg != null ) {
 				overlay += "<div style=\"top:"+posy+"px;left:"+posx+"px;background-image:url('"+data.dataPath+loc.bg+"')\" >";
 			}
 			else if( loc.fg != null ) {
 				overlay += "<div style=\"top:"+posy+"px;left:"+posx+"px\" >";
 			}
-			
+
 			if( loc.fg != null ) {
 				overlay += "<img src=\""+data.dataPath+loc.fg;
 				if( loc.scanner != null ) {
@@ -431,22 +431,22 @@ var StarmapOverlay = function(data, screen) {
 					overlay += "\" alt=\""+loc.x+"/"+loc.y+"\" />";
 				}
 			}
-			
+
 			if( loc.fg != null || loc.bg != null ) {
 				overlay += "</div>";
 			}
 		}
 		overlay += "</div>";
-		
+
 		return overlay;
 	};
-	
+
 	this.onClick = function(x, y) {
 		x -= this.__currentShiftOffset[0];
 		y -= this.__currentShiftOffset[1];
 		var sectorX = this.__currentSize.minx+Math.floor(x / Starmap.__SECTOR_IMAGE_SIZE);
 		var sectorY = this.__currentSize.miny+Math.floor(y / Starmap.__SECTOR_IMAGE_SIZE);
-		
+
 		for( var i=0; i < this.__currentLocations.length; i++ )
 		{
 			var loc = this.__currentLocations[i];
@@ -460,22 +460,22 @@ var StarmapOverlay = function(data, screen) {
 			}
 		}
 	};
-	
+
 	this.prepareShift = function(moveX, moveY) {
 		this.__currentShiftOffset = [this.__currentShiftOffset[0]-moveX, this.__currentShiftOffset[1]-moveY];
-		
+
 		if( !this.__reloadTriggered ) {
 			this.__reloadTriggered = true;
 			var self = this;
 			setTimeout(function() {self.__reloadOverlay();}, 500);
 		}
 	};
-	
+
 	this.storeShift = function(cl) {
 		var overlay = cl.find('#tileOverlay');
 		overlay.css({'left' : (this.__currentShiftOffset[0])+'px', 'top' : (this.__currentShiftOffset[1])+'px'});
 	};
-	
+
 	var content = this.__renderOverlay(data);
 	$('#mapview').append(content);
 };
@@ -515,39 +515,39 @@ var Starmap = {
 		if( $('#mapview').size() == 0 ) {
 			$('#mapcontent').append('<div id="mapview" />');
 		}
-		
+
 		var sys = document.mapform.sys.value;
 		var x = document.mapform.xstart.value;
 		var y = document.mapform.ystart.value;
-	
+
 		var width = Math.floor(($('#mapview').width())/this.__SECTOR_IMAGE_SIZE);
 		var height = Math.floor(($('#mapview').height())/this.__SECTOR_IMAGE_SIZE);
-		
+
 		var xstart = Math.max(1, x-Math.floor(width/2));
 		var ystart = Math.max(1, y-Math.floor(height/2));
-		
+
 		this.hideSystemSelection();
 		this.showLoader();
 		this.clearMap();
-		
+
 		var self = this;
-		
+
 		$.getJSON(this.__getDsUrl(),
 			{'sys': sys, 'xstart' : xstart, 'xend' : xstart+width, 'ystart' : ystart, 'yend' : ystart+height, 'loadmap' : '1', 'module': 'map', 'action' : 'map'},
 			function(data) {
 				self.renderMap(data);
 				self.hideLoader();
 			});
-		
+
 		$(window).bind('resize', function() {
 			if( self.__screen === null ) {
 				return;
 			}
-			
+
 			self.__screen.update();
 			self.__onMove(0,0);
 		});
-		
+
 		return false;
 	},
 	clearMap : function()
@@ -564,13 +564,13 @@ var Starmap = {
 		this.__currentSize = data.size;
 		this.__currentSystem = data.system;
 		this.__screen = new StarmapScreen('#mapview', this.__currentSystem);
-		
+
 		var map = $('#mapcontent');
 
 		this.__starmapLegend = new StarmapLegend(this.__screen, this.__currentSize);
 		this.__starmapTiles = new StarmapTiles(this.__currentSystem.id, this.__screen, this.__currentSize);
 		this.__starmapOverlay = new StarmapOverlay(data, this.__screen);
-		
+
 		var self = this;
 		this.__actionOverlay = new StarmapActionOverlay({
 			onClick : function(x, y) {
@@ -587,14 +587,14 @@ var Starmap = {
 	},
 	__onMove : function(moveX, moveY) {
 		var newOff = [this.__currentShiftOffset[0]-moveX, this.__currentShiftOffset[1]-moveY];
-		
+
 		if( newOff[0] > (this.__currentSize.minx-1)*this.__SECTOR_IMAGE_SIZE ) {
 			newOff[0] = (this.__currentSize.minx-1)*this.__SECTOR_IMAGE_SIZE
 		}
 		else if( newOff[0] < 0 && -newOff[0] > (this.__currentSystem.width*this.__SECTOR_IMAGE_SIZE-this.__screen.width()) ) {
 			newOff[0] = -(this.__currentSystem.width*this.__SECTOR_IMAGE_SIZE-this.__screen.width());
 		}
-		
+
 		if( newOff[1] > (this.__currentSize.miny-1)*this.__SECTOR_IMAGE_SIZE ) {
 			newOff[1] = (this.__currentSize.miny-1)*this.__SECTOR_IMAGE_SIZE;
 		}
@@ -605,33 +605,33 @@ var Starmap = {
 		this.__starmapTiles.prepareShift(this.__currentShiftOffset[0]-newOff[0], this.__currentShiftOffset[1]-newOff[1]);
 		this.__starmapLegend.prepareShift(this.__currentShiftOffset[0]-newOff[0], this.__currentShiftOffset[1]-newOff[1]);
 		this.__starmapOverlay.prepareShift(this.__currentShiftOffset[0]-newOff[0], this.__currentShiftOffset[1]-newOff[1]);
-		
+
 		var cl = $('#mapview');//.clone(true);
-		
+
 		this.__starmapLegend.storeShift();
 		this.__starmapTiles.storeShift(cl);
 		this.__starmapOverlay.storeShift(cl);
-	
+
 		//$('#mapview').remove();
 		//$('#mapcontent').append(cl);
 		if( isNaN(newOff[0]) || isNaN(newOff[1]) ) {
 			throw "NaN";
 		}
-		
+
 		this.__currentShiftOffset = newOff;
 	},
-	
+
 	__updateJumpnodeList : function(data)
 	{
 		var listEl = $('#jumpnodelist');
 		listEl.children().remove();
-		
+
 		var jns = '<table class="noBorderX">';
-		
+
 		for( var i=0; i < data.jumpnodes.length; i++ )
 		{
 			var jn = data.jumpnodes[i];
-			
+
 			jns += '<tr>';
 			jns += '<td class="noBorderX" valign="top"><span class="nobr">'+jn.x+'/'+jn.y+'</span></td>';
 			jns += '<td class="noBorderX">nach</td>';
@@ -639,7 +639,7 @@ var Starmap = {
 			jns += '</tr>';
 		}
 		jns += '</table>';
-		
+
 		listEl.append(jns);
 	},
 	__createSectorView : function()
@@ -658,22 +658,22 @@ var Starmap = {
 	showLoader : function()
 	{
 		this.__createSectorView();
-		
+
 		$('#sectorview').html("<div class='loader'>Verbinde mit interplanetarem Überwachungsnetzwerk...<br /><img src='./data/interface/ajax-loader.gif' alt='Lade' /></div>");
 		$('#sectortable').removeClass('invisible');
 	},
-	hideLoader : function() 
+	hideLoader : function()
 	{
 		$('#sectortable').addClass('invisible');
 	},
 	showSector : function (system, x, y, scanShip)
 	{
 		this.__createSectorView();
-		
+
 		$('#sectorview').html('Lade Sektor ' + system.id + ':' + x + '/' + y);
 		$('#sectortable').removeClass('invisible');
 		var self = this;
-		$.getJSON(this.__getDsUrl(), 
+		$.getJSON(this.__getDsUrl(),
 			 {sys: system.id, x: x, y: y, scanship: scanShip, module: 'map', action:'sector'},
 			 function(data)
 			 {

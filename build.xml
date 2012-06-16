@@ -249,11 +249,43 @@
 			<fileset dir="${web.home}" followsymlinks="false"/>
 		</copy>
 
-		<mkdir  dir="${build.home}/WEB-INF/lib"/>
+		<mkdir dir="${build.home}/WEB-INF/lib"/>
 
 		<copy todir="${build.home}/WEB-INF/classes">
 			<fileset dir="${src.home}" excludes="**/*.java"/>
 		</copy>
+	</target>
+
+	<!-- ==================== Javascript Target ================================== -->
+
+	<target name="javascript" depends="prepare">
+		<concat destfile="${build.home}/data/javascript/ds_concat.js" append="false">
+			<!--Erst die sonstigen Libs, dann common und zum Schluss modules -
+				nach dem Komprimieren kommt JQuery an den Anfang (da bereits minimiert) -->
+			<fileset dir="${build.home}/data/javascript/libs"
+				includes="*.js"
+				excludes="jquery-1.7.2.min.js,jquery-ui-1.8.20.min.js"/>
+			<fileset dir="${build.home}/data/javascript/common"
+				includes="*.js"/>
+			<fileset dir="${build.home}/data/javascript/modules"
+				includes="*.js"/>
+		</concat>
+
+		<java jar="build-utils/requirejs/compiler.jar" fork="true" failonerror="true">
+			<arg value="--js" />
+			<arg value="${build.home}/data/javascript/ds_concat.js" />
+			<arg value="--js_output_file" />
+			<arg value="${build.home}/data/javascript/ds_compressed.js" />
+		</java>
+
+		<concat destfile="${build.home}/data/javascript/ds.js" append="false">
+			<fileset file="${build.home}/data/javascript/libs/jquery-1.7.2.min.js" />
+			<fileset file="${build.home}/data/javascript/libs/jquery-ui-1.8.20.min.js" />
+			<fileset file="${build.home}/data/javascript/ds_compressed.js" />
+		</concat>
+
+		<delete file="${build.home}/data/javascript/ds_concat.js" />
+		<delete file="${build.home}/data/javascript/ds_compressed.js" />
 	</target>
 
 	<!-- ==================== Template Target ================================== -->
@@ -284,18 +316,6 @@
 	</target>
 
 	<!-- ==================== Run Target ================================== -->
-
-	<!--<taskdef classpathref="ant.classpath" resource="tasks.properties" loaderref="jetty.loader" />
-
-	<target name="run">
-		<mkdir dir="jetty-temp" />
-		<jetty tempDirectory="jetty-temp">
-			<webapp name="ds2j-opensource" warfile="${build.home}" contextPath="/driftingsouls">
-				<lib dir="${build.home}/WEB-INF/lib" includes="*.jar" />
-			</webapp>
-		</jetty>
-		<delete dir="jetty-temp" />
-	</target>-->
 
 	<target name="run">
 		<mkdir dir="jetty-temp" />

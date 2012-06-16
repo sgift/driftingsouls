@@ -142,7 +142,7 @@ public class AddShips implements AdminPlugin {
 			echo.append("<tr>\n");
 			echo.append("<td class=\"noBorderX\" style=\"width:80px\">Schifftyp:</td>");
 			echo.append("<td class=\"noBorderX\">");
-			echo.append("<select name=\"ship\" size=\"1\" onchange=\"shipSelectChange(this.options[this.options.selectedIndex].value)\">");
+			echo.append("<select name=\"ship\" size=\"1\" onchange=\"Admin_AddShips.shipSelectChange(this.options[this.options.selectedIndex].value)\">");
 			for( i=0; i < stlist.size(); i++ ) {
 				echo.append("<option value=\""+stlist.get(i).getId()+"\">"+Common._plaintitle(stlist.get(i).getNickname())+" ("+stlist.get(i).getId()+")</option>\n");
 			}
@@ -205,7 +205,7 @@ public class AddShips implements AdminPlugin {
 			echo.append("<tr id=\"tbl_jaeger\" style=\"visibility:visible\">\n");
 			echo.append("<td class=\"noBorderX\">J&auml;ger:</td>\n");
 			echo.append("<td class=\"noBorderX\">\n");
-			echo.append("<select name=\"jaeger\" size=\"1\" onchange=\"jaegerSelectChange(this.options[this.options.selectedIndex].value)\">\n");
+			echo.append("<select name=\"jaeger\" size=\"1\" onchange=\"Admin_AddShips.jaegerSelectChange(this.options[this.options.selectedIndex].value)\">\n");
 			echo.append("<option id=\"0\">[Nichts]</option>\n");
 			final Iterator<?> jaegerIter = db.createQuery("from ShipType where locate(:jaeger, flags)!=0")
 				.setString("jaeger", ShipTypes.SF_JAEGER)
@@ -264,7 +264,7 @@ public class AddShips implements AdminPlugin {
 			echo.append("</form>\n");
 			echo.append("<script type=\"text/javascript\">\n");
 			echo.append("<!--\n");
-			echo.append("shipSelectChange(1);\n");
+			echo.append("Admin_AddShips.shipSelectChange(1);\n");
 			echo.append("-->\n");
 			echo.append("</script>\n");
 			echo.append(Common.tableEnd());

@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.framework.pipeline.generators;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Method;
@@ -187,21 +188,46 @@ public abstract class DSGenerator extends Generator {
 
 			sb.append("</head>\n");
 
-			boolean customJS = false;
-			if( this.getAttribute("customjs") != null && this.getAttribute("module") != null )
-			{
-				customJS = (Boolean)this.getAttribute("customjs");
-			}
 			sb.append("<body "+getOnLoadText()+" "+getBodyParameters()+" >\n");
+			sb.append("<input type='hidden' name='currentDsModule' id='currentDsModule' value='"+this.getAttribute("module")+"' />");
 			if( usegfxpak ) {
 				sb.append("<script src=\""+url+"data/javascript/gfxpakversion.js?"+version.getHgVersion()+"\" type=\"text/javascript\"></script>\n");
 			}
-			sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/libs/jquery-1.7.2.min.js\" type=\"text/javascript\"></script>\n");
-			sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/libs/jquery-ui-1.8.20.min.js\" type=\"text/javascript\"></script>\n");
-			sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/common/ds.js\" type=\"text/javascript\"></script>\n");
-			if( customJS )
+
+			final boolean prodMode = !"true".equals(this.config.get("PRODUCTION"));
+			if( prodMode )
 			{
-				sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/modules/"+this.getAttribute("module")+".js\" type=\"text/javascript\"></script>\n");
+				File jsdir = new File(this.config.get("ABSOLUTE_PATH")+"data/javascript/");
+				File libdir = new File(jsdir.getAbsolutePath()+"/libs");
+				File commondir = new File(jsdir.getAbsolutePath()+"/common");
+
+				sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/libs/jquery-1.7.2.min.js\" type=\"text/javascript\"></script>\n");
+				sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/libs/jquery-ui-1.8.20.min.js\" type=\"text/javascript\"></script>\n");
+				for( String filename : libdir.list() )
+				{
+					if( filename.startsWith("jquery-1") || filename.startsWith("jquery-ui-1") || !filename.endsWith(".js") )
+					{
+						continue;
+					}
+					sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/libs/"+filename+"\" type=\"text/javascript\"></script>\n");
+				}
+
+				for( String filename : commondir.list() )
+				{
+					if( !filename.endsWith(".js") )
+					{
+						continue;
+					}
+					sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/common/"+filename+"\" type=\"text/javascript\"></script>\n");
+				}
+				if( new File(jsdir.getAbsolutePath()+"/modules/"+this.getAttribute("module")+".js").isFile() )
+				{
+					sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/modules/"+this.getAttribute("module")+".js\" type=\"text/javascript\"></script>\n");
+				}
+			}
+			else
+			{
+				sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/ds.js\" type=\"text/javascript\"></script>\n");
 			}
 			if( this.getAttribute("module") != null ) {
 				sb.append("<script type=\"text/javascript\">\n");

@@ -22,7 +22,7 @@ function insertRealTime(){
 function appendZero(subject){
 	if(subject < 10){
 		subject = "0"+subject;
-	} 
+	}
 	return subject;
 }
 
@@ -34,10 +34,8 @@ function insertSignature(){
 
 function showpm(pmid) {
 	pmviewer.location.href = getDsUrl()+"?module=comm&action=showPm&pmid="+pmid;
-	
-	if( document.getElementById('pm'+pmid) != null ) {	
-		document.getElementById('pm'+pmid).firstChild.nodeValue = "";
-	}
+
+	$('#pm'+pmid).text('');
 }
 
 function setRenameAction(id) {
@@ -75,7 +73,7 @@ function actionSelectChange( newval ) {
 		document.getElementById('form_ordnername').style.display = "none";
 		document.getElementById('form_moveto').style.display = "none";
 	}
-	else{ 
+	else{
 		if (newval == "newOrdner"){
 			document.getElementById('form_playerid').style.display = "none";
 			document.getElementById('form_ordnername').style.display = "inline";
@@ -97,14 +95,13 @@ function actionSelectChange( newval ) {
 	document.getElementById('rename').disabled = true;
 }
 
-function showpm(pmid) {			
+function showpm(pmid) {
 	pmviewer.location.href = getDsUrl()+"?module=comm&action=showPm&pmid="+pmid;
 }
 
 $(document).ready(function() {
-	var toField = $('#pm_to');
-	if( toField.size() > 0 ) {
-		toField.autocomplete({
+	if( $('#currentDsModule').val() === 'comm' ) {
+		$('#pm_to').autocomplete({
 			source : function(pattern, response) {
 				DsAutoComplete.users(pattern, function(data) {
 					if( "ally".indexOf(pattern.term) !== -1 ) {

@@ -63,19 +63,19 @@ function boxOpen(box) {
 
 var helpBox = {
 	isVisible : function() {
-		if( document.getElementById('helpbox').style.display == 'block' ) {
+		if( $('#helpbox').css('display') == 'block' ) {
 			return true;
 		}
 		return false;
 	},
 	fetchHelpText : function() {
-		document.getElementById('helpboxtext').innerHTML = '';
+		$('#helpboxtext').empty();
 		var params = {
 				module:'main',
 				action:'getHelpText',
 				page:currentModule
 		};
-		jQuery.get( getDsUrl(), params, helpBox.updateHelpText );
+		$.get( getDsUrl(), params, helpBox.updateHelpText );
 	},
 	updateHelpText : function( originalRequest ) {
 		var response = originalRequest;
@@ -85,7 +85,7 @@ var helpBox = {
 			return;
 		}
 
-		document.getElementById('helpboxtext').innerHTML = response;
+		$('#helpboxtext').append(response);
 	}
 }
 
@@ -106,7 +106,7 @@ var SearchBox = {
 		var resultDiv = $('#searchResult');
 		resultDiv.empty();
 
-		if( typeof response.users === 'undefined' || 
+		if( typeof response.users === 'undefined' ||
 				(response.users.length == 0 && response.ships.length == 0 && response.bases.length == 0) ) {
 			resultDiv.append("Keine Objekte gefunden");
 			return;
@@ -152,7 +152,7 @@ var SearchBox = {
 var adminBox = {
 	init : function() {
 		$('#adminconsolebox').draggable();
-		
+
 		$('#adminConsoleCommand').autocomplete({
 			source : adminBox.__autoComplete,
 			minLength : 0
@@ -232,9 +232,10 @@ function setCurrentPage(module, title) {
 			if( reducedTitle.length > 16 ) {
 				reducedTitle = reducedTitle.substring(0,16)+"...";
 			}
-			document.getElementById('page_currentpage').firstChild.nodeValue = reducedTitle;
-			document.getElementById('page_currentpage').style.display='inline';
-			document.getElementById('page_currentpage_dropdown').style.display = 'none';
+			$('#page_currentpage')
+				.text(reducedTitle)
+				.css('display', 'inline');
+			$('#page_currentpage_dropdown').css('display', 'none');
 		}
 
 		var oldModule = currentModule;
@@ -250,18 +251,10 @@ function setCurrentPage(module, title) {
 
 function addPageMenuEntry(title, url) {
 	$(document).ready(function() {
-		var currentPageLi = document.getElementById('currentpage');
+		var dl = $('#currentpage dl:first-child');
+		dl.append('<dd><a target="main" href="'+url+'">'+title+'</a></dd>');
 
-		var dl = currentPageLi.getElementsByTagName('dl')[0];
-		var dd = document.createElement('dd');
-		var a = document.createElement('a');
-		a.href = url;
-		a.appendChild(document.createTextNode(title));
-		a.target = 'main';
-		dd.appendChild(a);
-		dl.appendChild(dd);
-
-		document.getElementById('page_currentpage_dropdown').style.display = 'inline';
+		$('#page_currentpage_dropdown').css('display', 'inline');
 	});
 }
 
@@ -278,9 +271,11 @@ function completePage() {
 }
 
 $(document).ready(function() {
-	checkPMStatus();
-	$('#noticebox').draggable();
-	$('#helpbox').draggable();
-	$('#searchbox').draggable();
-	adminBox.init();
+	if( $('#currentDsModule').val() === 'main' ) {
+		checkPMStatus();
+		$('#noticebox').draggable();
+		$('#helpbox').draggable();
+		$('#searchbox').draggable();
+		adminBox.init();
+	}
 });

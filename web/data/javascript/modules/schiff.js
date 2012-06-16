@@ -66,5 +66,7 @@ var Schiff = {
 };
 
 $(document).ready(function() {
-	Schiff.initRemaining();
+	if( $('#currentDsModule').val() === 'schiff' ) {
+		Schiff.initRemaining();
+	}
 });
