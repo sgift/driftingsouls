@@ -48,6 +48,7 @@ import net.driftingsouls.ds2.server.modules.stats.StatOwnOffiziere;
 import net.driftingsouls.ds2.server.modules.stats.StatPlayerList;
 import net.driftingsouls.ds2.server.modules.stats.StatPopulationDensity;
 import net.driftingsouls.ds2.server.modules.stats.StatRichestUser;
+import net.driftingsouls.ds2.server.modules.stats.StatShipCount;
 import net.driftingsouls.ds2.server.modules.stats.StatShips;
 import net.driftingsouls.ds2.server.modules.stats.StatWaren;
 import net.driftingsouls.ds2.server.modules.stats.Statistic;
@@ -69,12 +70,12 @@ public class StatsController extends DSGenerator {
 	 * Die groesste moegliche Forschungs-ID + 1.
 	 */
 	public static final int MAX_RESID = 100;
-	
+
 	private static class StatEntry {
 		Statistic stat;
 		String name;
 		int width;
-		
+
 		StatEntry( Statistic stat, String name, int width ) {
 			this.stat = stat;
 			this.name = name;
@@ -84,7 +85,7 @@ public class StatsController extends DSGenerator {
 	private Map<Integer,List<StatEntry>> statslist = new HashMap<Integer,List<StatEntry>>();
 	private Map<String,Integer> catlist = new LinkedHashMap<String,Integer>();
 	private int show = 0;
-	
+
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
@@ -94,10 +95,10 @@ public class StatsController extends DSGenerator {
 
 		parameterNumber("stat");
 		parameterNumber("show");
-		
+
 		setPageTitle("Statistik");
 	}
-	
+
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		registerStat( "Spieler", new StatOwnCiv(), "Meine Zivilisation", 0 );
@@ -116,34 +117,35 @@ public class StatsController extends DSGenerator {
 
 		registerStat( "Sonstiges", new StatPopulationDensity(), "Siedlungsdichte", 0 );
 		registerStat( "Sonstiges", new StatShips(), "Schiffe", 0 );
+		registerStat( "Sonstiges", new StatShipCount(), "Schiffsentwicklung", 0 );
 		registerStat( "Sonstiges", new StatWaren(), "Waren", 0 );
 		registerStat( "Sonstiges", new StatEinheiten(), "Einheiten", 0);
 		registerStat( "Sonstiges", new StatData(), "Diverse Daten", 0 );
-		
+
 		registerStat( "Eigene K&auml;mpfe", new StatOwnKampf(), "Eigene K&auml;mpfe", 0 );
 		registerStat( "Offiziere", new StatOwnOffiziere(), "Offiziere", 0 );
 		registerStat( "Spielerliste", new StatPlayerList(), "Spielerliste", 0 );
-		
+
 		int show = getInteger("show");
 		if( (show == 0) || !this.statslist.containsKey(show) ) {
 			show = 1;
 		}
 		this.show = show;
-		
+
 		return true;
 	}
-	
+
 	private void registerStat( String cat, Statistic stat, String name, int size ) {
 		if( !this.catlist.containsKey(cat) ) {
 			this.catlist.put(cat, this.catlist.size()+1);
 		}
-	
+
 		if( !this.statslist.containsKey(this.catlist.get(cat)) ) {
 			this.statslist.put(this.catlist.get(cat), new ArrayList<StatEntry>());
 		}
 		this.statslist.get(this.catlist.get(cat)).add(new StatEntry(stat, name, size));
 	}
-	
+
 	private void printMenu() throws IOException {
 		Writer echo = getContext().getResponse().getWriter();
 
@@ -151,24 +153,24 @@ public class StatsController extends DSGenerator {
 
 		for( int listkey : this.statslist.keySet() ) {
 			StringBuilder builder = new StringBuilder();
-			
+
 			List<StatEntry> alist = this.statslist.get(listkey);
 			for( int i=0; i < alist.size(); i++ ) {
 				builder.append("<dd><a style='font-size:12px;font-weight:normal' class='back' href='"+Common.buildUrl("default", "show", listkey, "stat", i)+"'>"+alist.get(i).name+"</a></dd>");
 			}
-	
+
 			lists.put(listkey, builder.toString());
 		}
 
 		int catsize = this.catlist.size();
 		int catpos = 0;
 
-		echo.append("<div class='gfxbox' style='width:780px;text-align:center'>");
+		echo.append("<div class='gfxbox' style='width:850px;text-align:center'>");
 		for( String catkey : this.catlist.keySet() ) {
 			int cat = this.catlist.get(catkey);
-			
+
 			if( this.statslist.containsKey(cat) && (this.statslist.get(cat).size() > 1) ) {
-				echo.append("<div class='dropdown' style='width:110px'><dl><dt ");
+				echo.append("<div class='dropdown' style='width:120px'><dl><dt ");
 				if( this.show == cat ) {
 					echo.append("style=\"text-decoration:underline\"");
 				}
@@ -183,7 +185,7 @@ public class StatsController extends DSGenerator {
 				}
 				echo.append(" class=\"forschinfo\" href=\""+Common.buildUrl("default", "show", cat)+"\">"+catkey+"</a>\n");
 			}
-	
+
 			if( catpos < catsize - 1 ) {
 				echo.append(" | \n");
 			}
@@ -195,22 +197,22 @@ public class StatsController extends DSGenerator {
 
 	/**
 	 * Anzeige der Statistiken.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)
 	public void defaultAction() throws IOException {
 		Database db = getDatabase();
 		org.hibernate.Session database = getDB();
-		
+
 		int stat = getInteger("stat");
 
 		if( this.statslist.get(show).size() <= stat ) {
 			stat = 1;
 		}
-		
+
 		StatEntry mystat = this.statslist.get(this.show).get(stat);
-		
+
 		printMenu();
 
 		// Groesste ID ermitteln
@@ -218,38 +220,32 @@ public class StatsController extends DSGenerator {
 		if( mystat.stat.getRequiredData() != 0 ) {
 			if( !mystat.stat.generateAllyData() ) {
 				maxid = (Integer)database.createQuery("SELECT max(id) FROM User").iterate().next();
-			} 
+			}
 			else {
 				maxid = (Integer)database.createQuery("SELECT max(id) FROM Ally").iterate().next();
 			}
 		}
-		
+
 		if( (mystat.stat.getRequiredData() & Statistic.DATA_SHIPS) != 0 ||
 			(mystat.stat.getRequiredData() & Statistic.DATA_CREW) != 0 ) {
 			generateShipAndCrewData(db, mystat, maxid);
 		}
 
-		
+
 		Writer echo = getContext().getResponse().getWriter();
 
-		// TODO: Hack entfernen
-		if( this.show == 3 ) {
-			echo.append(Common.tableBegin(820,"left"));
-		}
-		else {
-			echo.append(Common.tableBegin(700,"left"));
-		}
+		echo.append("<div class='gfxbox' style='width:850px'>");
 
 		mystat.stat.show(this, mystat.width);
 
-		echo.append(Common.tableEnd());
+		echo.append("</div>");
 	}
 
 	private void generateShipAndCrewData(Database db, StatEntry mystat, int maxid) {
 		Map<Integer,Integer> bev = new HashMap<Integer,Integer>();
 		Map<Integer,Integer> ships = new HashMap<Integer,Integer>();
 		Map<Integer,Integer> bevbase = new HashMap<Integer,Integer>();
-		
+
 		//Schiffe pro User; Besatzung pro User ermitteln
 		if( !mystat.stat.generateAllyData() ) {
 			SQLQuery tmp = db.query("SELECT count(*) shipcount, sum(crew) totalcrew, owner FROM ships WHERE id>0 AND owner>",MIN_USER_ID," GROUP BY owner");
@@ -258,7 +254,7 @@ public class StatsController extends DSGenerator {
 				bev.put(tmp.getInt("owner"), tmp.getInt("totalcrew"));
 			}
 			tmp.free();
-				
+
 			//Bevoelkerung (Basis) pro User ermitteln (+ zur Besatzung pro User addieren)
 			tmp = db.query("SELECT sum(bewohner) bewohner,owner FROM bases WHERE owner>",MIN_USER_ID," GROUP BY owner");
 			while( tmp.next() ){
@@ -281,7 +277,7 @@ public class StatsController extends DSGenerator {
 				bev.put(tmp.getInt("ally"), tmp.getInt("totalcrew"));
 			}
 			tmp.free();
-		
+
 			//Bevoelkerung (Basis) pro User ermitteln (+ zur Besatzung pro User addieren)
 			tmp = db.query("SELECT sum(s.bewohner) bewohner,u.ally " +
 					"FROM bases s JOIN users u ON s.owner=u.id " +
@@ -296,7 +292,7 @@ public class StatsController extends DSGenerator {
 				}
 			}
 			tmp.free();
-		} 
+		}
 
 		///////////////////////////////////////////
 
@@ -320,9 +316,9 @@ public class StatsController extends DSGenerator {
 					"PRIMARY KEY  (id), ",
 					"KEY ships(ships) ",
 					");");
-			
+
 			db.update("DELETE FROM tmpships");
-			
+
 			if( tmpships_query.size() > 0 ) {
 				db.update("INSERT INTO tmpships VALUES "+Common.implode(",", tmpships_query));
 			}
@@ -335,9 +331,9 @@ public class StatsController extends DSGenerator {
 					"PRIMARY KEY  (`id`), ",
 					"KEY res(res) ",
 					");");
-			
+
 			db.update("DELETE FROM tmpbev");
-			
+
 			if( tmpbev_query.size() > 0 ) {
 				db.update("INSERT INTO tmpbev VALUES "+Common.implode(",", tmpbev_query));
 			}

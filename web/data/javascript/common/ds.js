@@ -43,6 +43,31 @@ var DS = {
 			url = url.substring(0,url.indexOf('?'));
 		}
 		return url;
+	},
+
+	plot : function(id, data, options) {
+		if( typeof options === 'undefined' ) {
+			options = {};
+		}
+		if( typeof options.grid === 'undefined' ) {
+			options.grid = {};
+		}
+		if( typeof options.axesDefaults === 'undefined' ) {
+			options.axesDefaults = {};
+		}
+		if( typeof options.seriesColors === 'undefined' ) {
+			options.seriesColors = [
+					"#FEB626", "#c5b47f", "#EAA228", "#579575", "#839557", "#958c12",
+					"#953579", "#4b5de4", "#d8b83f", "#ff5800", "#0085cc"];
+		}
+
+		options.grid.background='#0f1513';
+		options.grid.borderColor='#243717';
+		options.grid.gridLineColor='#243717';
+		options.axesDefaults.labelRenderer = $.jqplot.CanvasAxisLabelRenderer;
+		options.axesDefaults.labelOptions = {textColor:'#c7c7c7'};
+
+		$.jqplot(id, data, options);
 	}
 };
 
