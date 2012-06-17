@@ -141,7 +141,7 @@ public class Medals {
 				int id = (int)XMLUtils.getLongAttribute(node, "id");
 				String name = XMLUtils.getStringAttribute(node, "name");
 				
-				Rang rang = new Rang(id, name);
+				Rang rang = new Rang(id, name, "data/interface/medals/rang"+id+".png");
 				
 				medalList.addRang(rang);
 			}

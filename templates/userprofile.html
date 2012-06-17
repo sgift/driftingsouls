@@ -59,9 +59,9 @@
 				{if user.faction}
 					Fraktion: {user.faction}<br />
 				{/endif}
-				Rang: <img align="middle" title="{user.rang.name}" src="{URL}data/interface/medals/rang{user.rang}.png" alt="" /><br />
+				Rang: <img align="middle" title="{user.rang.name}" src="{URL}{user.rang.image}" alt="" /><br />
 				<!-- BEGIN user.npcrang -->
-					Rang bei {npcrang.npc}: <img align="middle" title="{npcrang.name}" src="{URL}data/interface/medals/rang{npcrang}.png" alt="" /><br />
+					Rang bei {npcrang.npc}: <img align="middle" title="{npcrang.name}" src="{URL}{npcrang.image}" alt="" /><br />
 				<!-- END user.npcrang -->
 			</div>
 		</div>

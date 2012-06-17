@@ -4,5 +4,6 @@ CREATE TABLE ally_rangdescriptors (
 	ally_id INT NOT NULL,
 	rang INT NOT NULL DEFAULT 0,
 	name VARCHAR(255) NOT NULL DEFAULT "",
+	customImg VARCHAR(255) DEFAULT NULL,
 	PRIMARY KEY(id)
 ) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_bin;

@@ -217,8 +217,7 @@ public class UserProfileController extends TemplateGenerator {
 		
 		t.setVar(	"user.name",		Common._title(this.user.getName()),
 					"user.rasse.name",	Rassen.get().rasse(this.user.getRace()).getName(),
-					"user.rang",		this.user.getRang(),
-					"user.rang.name",	Medals.get().rang(this.user.getRang()).getName(),
+					"user.rang",	Medals.get().rang(this.user.getRang()),
 					"user.signupdate",	(this.user.getSignup() > 0 ? Common.date("d.m.Y H:i:s",this.user.getSignup()) : "schon immer" ));
 		
 		t.setBlock("_USERPROFILE", "user.npcrang", "user.npcrang.list");
@@ -230,8 +229,7 @@ public class UserProfileController extends TemplateGenerator {
 				{
 					continue;
 				}
-				t.setVar( "npcrang", rang.getRank(),
-						"npcrang.name", rang.getName(),
+				t.setVar( "npcrang", rang,
 						"npcrang.npc", Common._title(rang.getRankGiver().getName()));
 				
 				t.parse("user.npcrang.list", "user.npcrang", true);	

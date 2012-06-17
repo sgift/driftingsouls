@@ -22,6 +22,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
@@ -35,6 +36,7 @@ import net.driftingsouls.ds2.server.entities.ally.AllyRangDescriptor;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.DynamicContentManager;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
@@ -366,6 +368,10 @@ public class AllyController extends TemplateGenerator {
 
 		if( rang != null )
 		{
+			if( rang.getCustomImg() != null )
+			{
+				DynamicContentManager.remove(rang.getCustomImg());
+			}
 			getDB().delete(rang);
 			this.ally.getRangDescriptors().remove(rang);
 			
@@ -420,6 +426,23 @@ public class AllyController extends TemplateGenerator {
 		else
 		{
 			rang.setName(rangname);
+		}
+		
+		List<FileItem> list = getContext().getRequest().getUploadedFiles();
+		if( !list.isEmpty() )
+		{
+			if( rang.getCustomImg() != null )
+			{
+				DynamicContentManager.remove(rang.getCustomImg());
+				rang.setCustomImg(null);
+			}
+			try {
+				rang.setCustomImg(DynamicContentManager.add(list.get(0)));
+			}
+			catch( Exception e ) {
+				t.setVar("ally.statusmessage","Offenbar ging beim Upload etwas schief");
+				log.warn(e);
+			}
 		}
 
 		t.setVar( "ally.statusmessage", "Der Rang "+rangname+" wurde erstellt und zugewiesen" );
@@ -1134,7 +1157,8 @@ public class AllyController extends TemplateGenerator {
 
 			t.setVar(
 					"show.raenge.modify.rangname", allyRang.getName(),
-					"show.raenge.modify.rangnr", allyRang.getRang() );
+					"show.raenge.modify.rangnr", allyRang.getRang(),
+					"show.raenge.modify.rangimg", allyRang.getImage() );
 			
 			t.parse( "show.raenge.modify.list", "show.raenge.modify.listitem", true );
 		}

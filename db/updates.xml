@@ -1642,5 +1642,6 @@
     ]]></update>
     <update type="structure" datum="2012-06-17"><![CDATA[
     	ALTER TABLE user_rank ADD COLUMN lp int(11) NOT NULL DEFAULT 0;
+    	ALTER TABLE ally_rangdescriptors ADD COLUMN customImg VARCHAR(255) DEFAULT NULL;
     ]]></update>
 </updates>

@@ -439,7 +439,7 @@
 		{/endif}
 	{/endif}
 	{if show.raenge}
-		<div class="gfxbox" style="width:690px">
+		<div class="gfxbox" style="width:790px">
 			<table class="noBorderX" width="100%">
 			<tr>
 				<td colspan="2" class="noBorderX">Ränge bearbeiten:</td>
@@ -448,13 +448,18 @@
 				<td class="noBorderX" style="width:150px">Nummer</td>
 				<td class="noBorderX" style="width:250px">Rang</td>
 				<td class="noBorderX">&nbsp;</td>
+				<td class="noBorderX">&nbsp;</td>
 			</tr>
 			<!-- BEGIN show.raenge.modify.listitem -->
-				<form action="./ds" method="post">
+				<form action="./ds" method="post" enctype="multipart/form-data">
 				<tr>
 					<td class="noBorderX"><input type="text" name="rangnr" size="2" value="{show.raenge.modify.rangnr}"/></td>
 					<td class="noBorderX">
 						<input type="text" name="rangname" size="30" value="{show.raenge.modify.rangname}"/>
+					</td>
+					<td class="noBorderX">
+						<img src="{URL}data/dyncontent/{show.raenge.modify.rangimg}" alt="" /><br />
+						<input type="file" name="rangfile" />
 					</td>
 					<td class="noBorderX">
 						<span class="nobr">

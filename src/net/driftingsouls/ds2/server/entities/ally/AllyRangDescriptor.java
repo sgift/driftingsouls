@@ -50,6 +50,7 @@ public class AllyRangDescriptor implements Comparable<AllyRangDescriptor>
 	
 	private int rang;
 	private String name;
+	private String customImg;
 	
 	protected AllyRangDescriptor() {
 		// EMPTY
@@ -113,5 +114,37 @@ public class AllyRangDescriptor implements Comparable<AllyRangDescriptor>
 	public void setName(String rangname)
 	{
 		this.name = rangname;
+	}
+
+	/**
+	 * Setzt die ID des Bilds dieses Ranges (DynamicContent).
+	 * @param customImg Die ID
+	 */
+	public void setCustomImg(String customImg)
+	{
+		this.customImg = customImg;
+	}
+	
+	/**
+	 * Gibt, sofern vorhanden, die ID des Bilds dieses Ranges
+	 * zurueck (DynamicContent).
+	 * @return Die ID oder <code>null</code>
+	 */
+	public String getCustomImg()
+	{
+		return this.customImg;
+	}
+	
+	/**
+	 * Gibt das Bild (Pfad) des Ranges zurueck.
+	 * @return Der Bildpfad
+	 */
+	public String getImage()
+	{
+		if( customImg != null )
+		{
+			return "data/dynamicContent/"+this.customImg;
+		}
+		return "data/interface/medals/rang"+this.rang+".png";
 	}
 }

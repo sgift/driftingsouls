@@ -586,7 +586,7 @@ public class Ally {
 		SortedSet<Rang> result = new TreeSet<Rang>();
 		for( AllyRangDescriptor rang : this.rangDescriptors )
 		{
-			result.add(new Rang(rang.getRang(), rang.getName()));
+			result.add(new Rang(rang.getRang(), rang.getName(), rang.getImage()));
 		}
 		
 		for( Rang rang : Medals.get().raenge().values() )

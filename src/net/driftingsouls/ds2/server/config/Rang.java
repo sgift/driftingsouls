@@ -26,16 +26,19 @@ package net.driftingsouls.ds2.server.config;
 public class Rang implements Comparable<Rang> {
 	private int id;
 	private String name;	
+	private String image;
 	
 	/**
 	 * Erstellt einen neuen Rang.
 	 * @param id die ID des Ranges
 	 * @param name der Name des Ranges
+	 * @param image Das zum Rang gehoerende Bild
 	 */
-	public Rang(int id, String name) {
+	public Rang(int id, String name, String image) {
 		super();
 		this.id = id;
 		this.name = name;
+		this.image = image;
 	}
 	
 	/**
@@ -52,6 +55,15 @@ public class Rang implements Comparable<Rang> {
 	 */
 	public String getName() {
 		return name;
+	}
+	
+	/**
+	 * Gibt den Pfad zur Ranggrafik zurueck.
+	 * @return Der Pfad
+	 */
+	public String getImage()
+	{
+		return this.image;
 	}
 
 	@Override
