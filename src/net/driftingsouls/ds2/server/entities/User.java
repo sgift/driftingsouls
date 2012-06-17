@@ -1439,8 +1439,12 @@ public class User extends BasicUser {
 		}
 
 		UserRank.UserRankKey key = new UserRank.UserRankKey(this, rankGiver);
+
 		UserRank userRank = new UserRank(key, rank);
 		this.userRanks.add(userRank);
+
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		db.persist(userRank);
 	}
 
 	/**

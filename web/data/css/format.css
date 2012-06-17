@@ -450,7 +450,7 @@ img.noborder:active 	{ border-style: solid; border: 0px ;border-color: #000000}
 	border-bottom-width:18px;
 }
 
-.dropdown dd span,
+.dropdown dd > span,
 .dropdown dd > a {
 	display:block;
 	padding:2px 0px 2px 0px;
@@ -458,7 +458,7 @@ img.noborder:active 	{ border-style: solid; border: 0px ;border-color: #000000}
 	text-align:center;
 }
 
-.dropdown dd:first-of-type span,
+.dropdown dd:first-of-type > span,
 .dropdown dd:first-of-type > a {
 	padding-top:0px;
 }
@@ -627,6 +627,26 @@ div.gfxbox {
 .popupbox .content {
 	overflow-y:auto;
 	margin-right:3px;
+}
+
+.gfxbox .menu {
+	list-style:none;
+	margin:1px 5px;
+	padding:0px;
+}
+.gfxbox .menu > li {
+	display:inline;
+	padding:0px 4px;
+}
+
+.gfxbox .menu > li:before {
+	content: " | ";
+	padding:0px 6px;
+}
+
+.gfxbox .menu > li:first-child:before {
+	content : "";
+	padding:0px;
 }
 
 /*

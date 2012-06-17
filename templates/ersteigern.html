@@ -8,11 +8,7 @@
 				<dt>{global.faction.name}<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_dropdown.gif" alt="" /></dt>
 				<!-- BEGIN global.factionmenu.listitem -->
 					<dd>
-						{if item.enemy}
-							<span style='color:red;'>{item.faction.name}</span>
-						{else}
-							<a class='profile' href='./ds?module=ersteigern&action=default&faction={item.faction.id}'>{item.faction.name}</a>
-						{/endif}
+						<a class='profile' href='./ds?module=ersteigern&action=default&faction={item.faction.id}'>{item.faction.name}</a>
 					</dd>
 				<!-- END global.factionmenu.listitem -->
 				{global.factionmenu}
@@ -24,29 +20,31 @@
 </td>
 <td class="noBorder">&nbsp;</td>
 <td class="noBorder">
-	{!table_begin $global.menusize,center}
-		{if faction.general}
-			{!link_to Allgemeines, general, faction:$global.faction}
-		{/endif}
-		{if faction.versteigerung}
-			{!link_to Versteigerungen, versteigerung, faction:$global.faction}
-		{/endif}
-		{if faction.angebote}
-			&nbsp;&nbsp;|&nbsp;&nbsp;{!link_to Angebote, angebote, faction:$global.faction}
-		{/endif}
-		{if faction.shop}
-			&nbsp;&nbsp;|&nbsp;&nbsp;{!link_to Shop, shop, faction:$global.faction}
-		{/endif}
-		{if faction.ausbau}
-			&nbsp;&nbsp;|&nbsp;&nbsp;{!link_to Ausbau, ausbau, faction:$global.faction}
-		{/endif}
-		{if faction.bank}
-			&nbsp;&nbsp;|&nbsp;&nbsp;{!link_to Bank, bank, faction:$global.faction}
-		{/endif}
-		{if faction.other}
-			&nbsp;&nbsp;|&nbsp;&nbsp;{!link_to Sonstiges, other, faction:$global.faction}
-		{/endif}
-	{!table_end}
+	<div class="gfxbox">
+		<ul class="menu">
+			{if faction.general}
+				<li>{!link_to Allgemeines, general, faction:$global.faction}</li>
+			{/endif}
+			{if faction.versteigerung}
+				<li>{!link_to Versteigerungen, versteigerung, faction:$global.faction}</li>
+			{/endif}
+			{if faction.angebote}
+				<li>{!link_to Angebote, angebote, faction:$global.faction}</li>
+			{/endif}
+			{if faction.shop}
+				<li>{!link_to Shop, shop, faction:$global.faction}</li>
+			{/endif}
+			{if faction.ausbau}
+				<li>{!link_to Ausbau, ausbau, faction:$global.faction}</li>
+			{/endif}
+			{if faction.bank}
+				<li>{!link_to Bank, bank, faction:$global.faction}</li>
+			{/endif}
+			{if faction.other}
+				<li>{!link_to Sonstiges, other, faction:$global.faction}</li>
+			{/endif}
+		</ul>
+	</div>
 </td>
 </tr></table>
 <div class="smallfont">
@@ -169,7 +167,9 @@
 				{if entry.ownauction}
 					<span style="color:yellow">Eigene Versteigerung</span>
 				{else}
-					{!link_to &uuml;berbieten, bidEntry, auk:$entry.aukid, bid:0, faction:$global.faction}
+					{if entry.bidAllowed}
+						{!link_to &uuml;berbieten, bidEntry, auk:$entry.aukid, bid:0, faction:$global.faction}
+					{/endif}
 				{/endif}
 			</td>
 		</tr>
@@ -803,20 +803,22 @@
 					{entry.price}
 				</td>
 				<td class="noBorderX">
-						{if shop.owner}
-							<form action="./ds" method="post" style="display:inline">
-								<select name="availability" size="1" style="width:100px">
-									<option value="0" {if entry.availability == 0}selected="selected"{/endif}>normal</option>
-									<option value="1" {if entry.availability == 1}selected="selected"{/endif}>1-3</option>
-									<option value="2" {if entry.availability == 2}selected="selected"{/endif}>nichts</option>
-								</select>
-								{!form_create_hidden shopChangeAvailability, shopentry:$entry.id, faction:$global.faction}
-								<input type="submit" value="&auml;ndern" />
-							</form>
-							<form action="./ds" method="post" style="display:inline">
-								{!form_create_hidden deleteShopEntry, shopentry:$entry.id, faction:$global.faction}
+					{if shop.owner}
+						<form action="./ds" method="post" style="display:inline">
+							<select name="availability" size="1" style="width:100px">
+								<option value="0" {if entry.availability == 0}selected="selected"{/endif}>normal</option>
+								<option value="1" {if entry.availability == 1}selected="selected"{/endif}>1-3</option>
+								<option value="2" {if entry.availability == 2}selected="selected"{/endif}>nichts</option>
+							</select>
+							{!form_create_hidden shopChangeAvailability, shopentry:$entry.id, faction:$global.faction}
+							<input type="submit" value="&auml;ndern" />
+						</form>
+						<form action="./ds" method="post" style="display:inline">
+							{!form_create_hidden deleteShopEntry, shopentry:$entry.id, faction:$global.faction}
 							<input type="submit" value="Löschen" />
-						{else}
+						</form>
+					{else}
+						{if entry.orderable}
 							<form action="./ds" method="post">
 								{if entry.showamountinput}
 									<input type="text" name="ordercount" size="6" value="0" />
@@ -825,7 +827,7 @@
 								<input type="submit" value="bestellen" />
 							</form>
 						{/endif}
-					</form>
+					{/endif}
 				</td>
 			</tr>
 		<!-- END shop.listitem -->

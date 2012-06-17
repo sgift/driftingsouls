@@ -65,6 +65,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenera
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.JumpNodeRouter;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
@@ -457,6 +458,7 @@ public class ErsteigernController extends TemplateGenerator
 
 	private int ticks = 0;
 	private int faction = 0;
+	private boolean allowsTrade = true;
 
 	/**
 	 * Konstruktor.
@@ -521,8 +523,7 @@ public class ErsteigernController extends TemplateGenerator
 		if( (user.getRelation(faction) == User.Relation.ENEMY)
 				|| (relationlist.fromOther.get(faction) == User.Relation.ENEMY) )
 		{
-			addError("Die angegebene Fraktion weigert sich mit ihnen zu handeln solange die Beziehungen feindlich sind");
-			return false;
+			this.allowsTrade = false;
 		}
 
 		FactionPages pages = Faction.get(faction).getPages();
@@ -548,9 +549,7 @@ public class ErsteigernController extends TemplateGenerator
 			User aFactionUser = (User)db.get(User.class, factionObj.getID());
 			t.setVar(
 					"item.faction.name", Common._title(aFactionUser.getName()),
-					"item.faction.id", factionObj.getID(),
-					"item.enemy", (user.getRelation(factionObj.getID()) == User.Relation.ENEMY)	||
-						(relationlist.fromOther.get(factionObj.getID()) == User.Relation.ENEMY));
+					"item.faction.id", factionObj.getID());
 
 			t.parse( "global.factionmenu.list", "global.factionmenu.listitem", true );
 		}
@@ -614,6 +613,13 @@ public class ErsteigernController extends TemplateGenerator
 	{
 		if( !Faction.get(faction).getPages().hasPage("versteigerung") )
 		{
+			redirect();
+			return;
+		}
+
+		if( !this.allowsTrade )
+		{
+			addError("Die angegebene Fraktion weigert sich mit ihnen zu handeln solange die Beziehungen feindlich sind");
 			redirect();
 			return;
 		}
@@ -756,6 +762,13 @@ public class ErsteigernController extends TemplateGenerator
 	{
 		if( !Faction.get(faction).getPages().hasPage("bank") )
 		{
+			redirect();
+			return;
+		}
+
+		if( !this.allowsTrade )
+		{
+			addError("Die angegebene Fraktion weigert sich mit ihnen zu handeln solange die Beziehungen feindlich sind");
 			redirect();
 			return;
 		}
@@ -1191,6 +1204,7 @@ public class ErsteigernController extends TemplateGenerator
 					"entry.user.name", ownername,
 					"entry.user.id", entry.getOwner().getId(),
 					"entry.user", (entry.getOwner().getId() != faction),
+					"entry.bidAllowed", this.allowsTrade,
 					"entry.ownauction", (entry.getOwner() == user));
 
 			t.parse("entry.list", "entry.listitem", true);
@@ -1258,6 +1272,13 @@ public class ErsteigernController extends TemplateGenerator
 
 		if( !Faction.get(faction).getPages().hasPage("shop") )
 		{
+			redirect();
+			return;
+		}
+
+		if( !this.allowsTrade )
+		{
+			addError("Die angegebene Fraktion weigert sich mit ihnen zu handeln solange die Beziehungen feindlich sind");
 			redirect();
 			return;
 		}
@@ -1511,6 +1532,13 @@ public class ErsteigernController extends TemplateGenerator
 			return;
 		}
 
+		if( !this.allowsTrade )
+		{
+			addError("Die angegebene Fraktion weigert sich mit ihnen zu handeln solange die Beziehungen feindlich sind");
+			redirect();
+			return;
+		}
+
 		FactionShopEntry entry = (FactionShopEntry)database
 			.createQuery("from FactionShopEntry where faction=:faction and type=2")
 			.setInteger("faction", this.faction)
@@ -1690,6 +1718,13 @@ public class ErsteigernController extends TemplateGenerator
 			return;
 		}
 
+		if( !this.allowsTrade )
+		{
+			addError("Die angegebene Fraktion weigert sich mit ihnen zu handeln solange die Beziehungen feindlich sind");
+			redirect();
+			return;
+		}
+
 		parameterNumber("shopentry");
 		parameterNumber("ordercount");
 
@@ -1843,6 +1878,13 @@ public class ErsteigernController extends TemplateGenerator
 				if( !NumberUtils.isNumber(entryTypeId) )
 				{
 					t.setVar("show.message", "<span style=\"color:red\">Format ungueltig</span>");
+					redirect("shop");
+					return;
+				}
+				ShipType st = (ShipType)db.get(ShipType.class, Integer.parseInt(entryTypeId) );
+				if( st == null )
+				{
+					t.setVar("show.message", "<span style=\"color:red\">Kein bekannter Schiffstyp</span>");
 					redirect("shop");
 					return;
 				}
@@ -2569,7 +2611,8 @@ public class ErsteigernController extends TemplateGenerator
 					"entry.availability.color", shopEntryObj.getAvailabilityColor(),
 					"entry.availability", shopEntryObj.getAvailability(),
 					"entry.price", shopEntryObj.getPriceAsText(),
-					"entry.showamountinput", shopEntryObj.showAmountInput());
+					"entry.showamountinput", shopEntryObj.showAmountInput(),
+					"entry.orderable", this.allowsTrade);
 
 			t.parse("shop.list", "shop.listitem", true);
 		}
