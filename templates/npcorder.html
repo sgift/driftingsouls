@@ -133,8 +133,8 @@
 						{!link_to $edituser.name, default, css_class:profile, module:userprofile, user:$edituser.id}<br />
 					</div>
 					<br />
-					<table width="100%" class="noBorderX">
-						<form action="./ds" method="post">
+					<form action="./ds" method="post">
+						<table width="100%" class="noBorderX">
 							<tr>
 								<td class="noBorderX">Rang bei Ihnen:</td>
 								<td class="noBorderX" align="center" colspan="2">
@@ -144,15 +144,17 @@
 										<!-- END ranks.listitem -->
 									</select>
 								</td>
-							</tr>
- 							<tr>
- 								<td class="noBorderX" align="center" colspan="2">
-									{!form_create_hidden changeRank, edituser:$edituser.id}
-									<input type="submit" value="Aktualisieren">
+								<td class="noBorderX">LP:</td>
+								<td class="noBorderX" align="center" colspan="2">
+									<input type="text" name="lp" value="{edituser.lp}" />
 								</td>
 							</tr>
-						</form>
-					</table>
+						</table>
+						<div style="text-align:center">
+							{!form_create_hidden changeRank, edituser:$edituser.id}
+							<input type="submit" value="Aktualisieren">
+						</div>
+					</form>
 					<hr noshade="noshade" size="1" style="color:#cccccc" />
 					<form action="./ds" method="post">
 						<!-- BEGIN medals.listitem -->
@@ -161,15 +163,11 @@
 								<input type="radio" name="medal" id="_medal{medal.id}" value="{medal.id}" /><label for="_medal{medal.id}">{medal.name}</label>
 							</div>
 						<!-- END medals.listitem -->
-						<tr>
-							<td class="noBorderX" colspan="8" align="center">
-								<br />
-								Grund: [...Aufgrund der/deiner ]<input type="text" name="reason" value="" size="40" /><br />
-								{!form_create_hidden awardMedal, edituser:$edituser.id}<br />
-								<input type="submit" value="Spieler auszeichnen" />
-							</td>
-						</tr>
-						</table>
+						<div style="text-align:center;padding-top:10px;clear:both">
+							Grund: [...Aufgrund der/deiner ]<input type="text" name="reason" value="" size="40" /><br />
+							{!form_create_hidden awardMedal, edituser:$edituser.id}<br />
+							<input type="submit" value="Spieler auszeichnen" />
+						</div>
 					</form>
 				</div>
 			{/endif}

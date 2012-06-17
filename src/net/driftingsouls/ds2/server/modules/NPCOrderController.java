@@ -65,15 +65,15 @@ public class NPCOrderController extends TemplateGenerator {
 		setPageTitle("NPC-Menue");
 	}
 
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config)
-    {
-    	this.config = config;
-    }
+	/**
+	 * Injiziert die DS-Konfiguration.
+	 * @param config Die DS-Konfiguration
+	 */
+	@Autowired
+	public void setConfiguration(Configuration config)
+	{
+		this.config = config;
+	}
 
 	@Override
 	protected boolean validateAndPrepare(String action) {
@@ -262,8 +262,10 @@ public class NPCOrderController extends TemplateGenerator {
 
 		this.parameterNumber("edituser");
 		this.parameterNumber("rank");
+		this.parameterNumber("lp");
 		int edituserID = this.getInteger("edituser");
 		int rank = this.getInteger("rank");
+		int lp = this.getInteger("lp");
 
 		User edituser = (User)getContext().getDB().get(User.class, edituserID);
 
@@ -281,7 +283,10 @@ public class NPCOrderController extends TemplateGenerator {
 			return;
 		}
 
-        edituser.setRank(user, rank);
+		edituser.setRank(user, rank);
+
+		UserRank rangObj = edituser.getRank(user);
+		rangObj.setLP(lp);
 
 		this.redirect("medals");
 	}
@@ -311,20 +316,22 @@ public class NPCOrderController extends TemplateGenerator {
 
 		edituser.setTemplateVars(t, "edituser");
 
-        UserRank rank = edituser.getRank(user);
-        
-        t.setBlock("_NPCORDER", "ranks.listitem", "ranks.list");
-        for( Rang rang : user.getAlly() != null ? user.getAlly().getFullRangNameList() : Medals.get().raenge().values() )
-        {
-        	t.setVar("rank.id", rang.getID(),
-        			"rank.name", rang.getName(),
-        			"rank.active", rang.getID() == rank.getRank());
+		UserRank rank = edituser.getRank(user);
 
-        	t.parse("ranks.list", "ranks.listitem", true);
-        }
+		t.setBlock("_NPCORDER", "ranks.listitem", "ranks.list");
+		for( Rang rang : user.getAlly() != null ? user.getAlly().getFullRangNameList() : Medals.get().raenge().values() )
+		{
+			t.setVar("rank.id", rang.getID(),
+					"rank.name", rang.getName(),
+					"rank.active", rang.getID() == rank.getRank());
 
-		t.setVar(	"edituser.name",	Common._title(edituser.getName() ),
-					"edituser.rank",	rank.getRank());
+			t.parse("ranks.list", "ranks.listitem", true);
+		}
+
+		t.setVar(
+				"edituser.name", Common._title(edituser.getName() ),
+				"edituser.rank", rank.getRank(),
+				"edituser.lp", rank.getLP());
 
 		t.setBlock("_NPCORDER", "medals.listitem", "medals.list");
 		for( Medal medal : Medals.get().medals().values() ) {

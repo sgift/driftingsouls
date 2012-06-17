@@ -29,15 +29,15 @@ public class UserRank
     public static class UserRankKey implements Serializable
     {
 		private static final long serialVersionUID = -296524516236609133L;
-		
+
 		@ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name="owner")
         protected User owner;
-		
+
         @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name="rank_giver")
         protected User rankGiver;
-        
+
         /**
          * Konstruktor.
          */
@@ -45,7 +45,7 @@ public class UserRank
         {
             //Hibernate
         }
-        
+
         /**
          * Konstruktor.
          * @param owner Der User
@@ -65,6 +65,7 @@ public class UserRank
     @SuppressWarnings("unused")
 	@Version
     private int version;
+	private int lp;
 
     /**
      * Konstruktor.
@@ -84,7 +85,7 @@ public class UserRank
         this.userRankKey = key;
         this.rank = rank;
     }
-    
+
     /**
      * Gibt den Spieler zurueck, der den Rang verliehen hat.
      * @return Der Spieler
@@ -93,7 +94,7 @@ public class UserRank
     {
     	return this.userRankKey.rankGiver;
     }
-    
+
     /**
      * Gibt die ID des konkreten Ranges zurueck.
      * @return Die ID
@@ -102,7 +103,7 @@ public class UserRank
     {
         return this.rank;
     }
-    
+
     /**
      * Setzt die ID des konkreten Ranges.
      * @param rank Die ID
@@ -111,7 +112,17 @@ public class UserRank
     {
         this.rank = rank;
     }
-    
+
+    public void setLP(int lp)
+    {
+    	this.lp = lp;
+    }
+
+    public int getLP()
+    {
+    	return this.lp;
+    }
+
     /**
      * Gibt den Anzeigenamen des Rangs zurueck.
      * @return Der Anzeigename
