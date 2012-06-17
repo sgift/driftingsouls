@@ -54,7 +54,7 @@ public class Medals {
 	}
 	
 	private void addRang( Rang mrang ) {
-		raenge.put(mrang.getID(), mrang );
+		raenge.put(mrang.getId(), mrang );
 	}
 	
 	/**

@@ -38,6 +38,7 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.FactionPages;
+import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.FactionOffer;
 import net.driftingsouls.ds2.server.entities.FactionShopEntry;
@@ -2429,6 +2430,8 @@ public class ErsteigernController extends TemplateGenerator
 			return;
 		}
 
+		User factionUser = (User)db.get(User.class, this.faction);
+
 		t.setVar("show.shop", 1);
 
 		t.setBlock("_ERSTEIGERN", "shop.listitem", "shop.list");
@@ -2587,10 +2590,6 @@ public class ErsteigernController extends TemplateGenerator
 		for( Iterator<?> iter = shopentryList.iterator(); iter.hasNext(); )
 		{
 			FactionShopEntry shopentry = (FactionShopEntry)iter.next();
-			if(!shopentry.canBuy(user))
-			{
-				continue;
-			}
 
 			ShopEntry shopEntryObj = null;
 			if( shopentry.getType() == FactionShopEntry.Type.SHIP )
@@ -2612,7 +2611,8 @@ public class ErsteigernController extends TemplateGenerator
 					"entry.availability", shopEntryObj.getAvailability(),
 					"entry.price", shopEntryObj.getPriceAsText(),
 					"entry.showamountinput", shopEntryObj.showAmountInput(),
-					"entry.orderable", this.allowsTrade);
+					"entry.npcrang", factionUser.getOwnGrantableRank(shopentry.getMinRank()),
+					"entry.orderable", this.allowsTrade && shopentry.canBuy(user));
 
 			t.parse("shop.list", "shop.listitem", true);
 		}

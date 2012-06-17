@@ -42,7 +42,7 @@ public class Rang implements Comparable<Rang> {
 	 * Gibt die ID des Ranges zurueck.
 	 * @return die ID des Ranges
 	 */
-	public int getID() {
+	public int getId() {
 		return id;
 	}
 	

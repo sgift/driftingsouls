@@ -761,9 +761,7 @@
 		<tr>
 			<td class="noBorderX" colspan="3" style="text-align:center">Typ</td>
 			<td class="noBorderX"></td>
-			{if shop.owner}
-				<td class="noBorderX" style="text-align:center">Rang</td>
-			{/endif}
+			<td class="noBorderX" style="text-align:center">Benötigter Rang</td>
 			<td class="noBorderX" style="text-align:center">Preis</td>
 			<td class="noBorderX"></td>
 		</tr>
@@ -790,15 +788,17 @@
 				<td class="noBorderX" style="width:20px">
 					&nbsp;
 				</td>
-				{if shop.owner}
-					<td class="noBorderX">
+				<td class="noBorderX">
+					{if shop.owner}
 						<form action="./ds" method="post" style="display:inline">
 							<input type="text" size="3" name="entryRang" value="{entry.rang}" />
 							{!form_create_hidden shopChangeEntryRang, shopentry:$entry.id, faction:$global.faction}
 							<input type="submit" value="&auml;ndern" />
 						</form>
-					</td>
-				{/endif}
+					{else}
+						<img title="{entry.npcrang.name}" src="{URL}data/interface/medals/rang{entry.npcrang.id}.png" alt="" />
+					{/endif}
+				</td>
 				<td class="noBorderX">
 					{entry.price}
 				</td>

@@ -136,7 +136,7 @@ public class EditUser implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderX\">Rang: </td><td><select size=\"1\" name=\"rank\" \">");
 			for(Map.Entry<Integer, Rang> rank: Medals.get().raenge().entrySet())
 			{
-				echo.append("<option value=\""+ rank.getValue().getID() +"\" " + (rank.getValue().getID() == user.getRang() ? "selected=\"selected\"" : "") + " />"+rank.getValue().getName()+"</option>");
+				echo.append("<option value=\""+ rank.getValue().getId() +"\" " + (rank.getValue().getId() == user.getRang() ? "selected=\"selected\"" : "") + " />"+rank.getValue().getName()+"</option>");
 			}
 			echo.append("</select></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\">History: </td><td><textarea name=\"history\" rows=\"3\" cols=\"40\">" + user.getHistory() + "</textarea></td></tr>\n");

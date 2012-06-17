@@ -25,6 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -38,6 +40,8 @@ import javax.persistence.Transient;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.comm.Ordner;
+import net.driftingsouls.ds2.server.config.Medals;
+import net.driftingsouls.ds2.server.config.Rang;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.entities.ally.AllyPosten;
@@ -1475,5 +1479,32 @@ public class User extends BasicUser {
 	public Set<UserRank> getOwnRanks()
 	{
 		return this.userRanks;
+	}
+
+	/**
+	 * Gibt alle durch den NPC vergebbaren Raenge zurueck.
+	 * @return Die Raenge
+	 */
+	public SortedSet<Rang> getOwnGrantableRanks()
+	{
+		return this.ally != null ? this.ally.getFullRangNameList() : new TreeSet<Rang>(Medals.get().raenge().values());
+	}
+
+	/**
+	 * Gibt einen durch den NPC vergebbaren Rang zurueck. Falls der Rang unbekannt ist
+	 * wird <code>null</code> zurueckgegeben.
+	 * @param rank Die Nummer des Rangs
+	 * @return Der Rang oder <code>null</code>
+	 */
+	public Rang getOwnGrantableRank(int rank)
+	{
+		for( Rang r : this.getOwnGrantableRanks() )
+		{
+			if( r.getId() == rank )
+			{
+				return r;
+			}
+		}
+		return null;
 	}
 }
