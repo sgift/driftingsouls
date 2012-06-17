@@ -24,9 +24,11 @@ import java.io.Writer;
 import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -203,7 +205,7 @@ public abstract class DSGenerator extends Generator {
 
 				sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/libs/jquery-1.7.2.min.js\" type=\"text/javascript\"></script>\n");
 				sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/libs/jquery-ui-1.8.20.min.js\" type=\"text/javascript\"></script>\n");
-				for( String filename : libdir.list() )
+				for( String filename : new TreeSet<String>(Arrays.asList(libdir.list())) )
 				{
 					if( filename.startsWith("jquery-1") || filename.startsWith("jquery-ui-1") || !filename.endsWith(".js") )
 					{
@@ -212,7 +214,7 @@ public abstract class DSGenerator extends Generator {
 					sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/libs/"+filename+"\" type=\"text/javascript\"></script>\n");
 				}
 
-				for( String filename : commondir.list() )
+				for( String filename : new TreeSet<String>(Arrays.asList(commondir.list())) )
 				{
 					if( !filename.endsWith(".js") )
 					{
