@@ -166,7 +166,7 @@ var ShiptypeBox = {
 		{
 			$("body").append("<div id='shiptypeBox' class='gfxbox'><div class='content'><div>Lade...</div></div>"+
 					"<button class='closebox'>schließen</button></div>");
-			box = $ery('#shiptypeBox');
+			box = $('#shiptypeBox');
 			var self = this;
 			box.find('button.closebox').bind('click', function() {self.hide()});
 		}
