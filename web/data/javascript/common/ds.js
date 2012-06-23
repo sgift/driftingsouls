@@ -45,6 +45,12 @@ var DS = {
 		return url;
 	},
 
+	render : function(template, data, partials) {
+		data.URL = this.getUrl();
+
+		return Mustache.render(template, data, partials);
+	},
+
 	plot : function(id, data, options) {
 		if( typeof options === 'undefined' ) {
 			options = {};
@@ -155,33 +161,33 @@ var DS = {
 var ShiptypeBox = {
 	show : function(shiptypeId)
 	{
-		var box = jQuery('#shiptypeBox');
+		var box = $('#shiptypeBox');
 		if( box.size() == 0 )
 		{
-			jQuery("body").append("<div id='shiptypeBox' class='gfxbox'><div class='content'><div>Lade...</div></div>"+
+			$("body").append("<div id='shiptypeBox' class='gfxbox'><div class='content'><div>Lade...</div></div>"+
 					"<button class='closebox'>schließen</button></div>");
-			box = jQuery('#shiptypeBox');
+			box = $ery('#shiptypeBox');
 			var self = this;
 			box.find('button.closebox').bind('click', function() {self.hide()});
 		}
 
 		box.css('display', 'block');
 
-		var url = getDsUrl();
+		var url = DS.getUrl();
 		var params = {
 				module:'schiffinfo',
 				action:'default',
 				ship:shiptypeId
 		};
 
-		jQuery.get( url, params, this.__processResult );
+		$.get( url, params, this.__processResult );
 	},
 	__processResult : function(result)
 	{
-		var boxContent = jQuery('#shiptypeBox .content');
+		var boxContent = $('#shiptypeBox .content');
 		boxContent.children().remove();
 
-		var table = jQuery(result).find('#infotable');
+		var table = $(result).find('#infotable');
 		if( table.size() == 0 ) {
 			boxContent.append('<div>Fehler bei Ermittlung der Schiffsdaten.</div>');
 			return;
@@ -191,7 +197,7 @@ var ShiptypeBox = {
 	},
 	hide : function()
 	{
-		var box = jQuery('#shiptypeBox');
+		var box = $('#shiptypeBox');
 
 		box.css('display', 'none');
 		var content = box.find('.content');
@@ -282,7 +288,7 @@ var DsTooltip = {
 
 var DsAutoComplete = {
 	users : function(pattern, response) {
-		var url = getDsUrl();
+		var url = DS.getUrl();
 		var params = {
 				module:'search',
 				action:'search',
