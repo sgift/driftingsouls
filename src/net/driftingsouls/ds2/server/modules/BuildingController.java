@@ -34,6 +34,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -246,6 +247,56 @@ public class BuildingController extends TemplateGenerator {
 		}
 
 		redirect();
+	}
+
+	/**
+	 * Reisst das Gebaeude ab.
+	 *
+	 */
+	@Action(ActionType.AJAX)
+	public JSONObject demoAjaxAction() {
+		int field = getInteger("field");
+
+		JSONObject response = new JSONObject();
+		response.accumulate("col", base.getId());
+		response.accumulate("field", field);
+
+		Cargo buildcosts =(Cargo)building.getBuildCosts().clone();
+		buildcosts.multiply( 0.8, Cargo.Round.FLOOR );
+
+		ResourceList reslist = buildcosts.getResourceList();
+		Cargo addcargo = buildcosts.cutCargo(base.getMaxCargo()-base.getCargo().getMass());
+
+		JSONArray c = new JSONArray();
+
+		for( ResourceEntry res : reslist ) {
+			JSONObject resObj = res.toJSON();
+			if( !addcargo.hasResource(res.getId()) ) {
+				resObj.accumulate("spaceMissing", true);
+			}
+			c.add(resObj);
+		}
+
+		response.accumulate("demoCargo", c);
+
+		Cargo baseCargo = base.getCargo();
+		baseCargo.addCargo( addcargo );
+		base.setCargo(baseCargo);
+
+		Integer[] bebauung = base.getBebauung();
+
+		building.cleanup( getContext(), base, bebauung[field] );
+
+		bebauung[field] = 0;
+		base.setBebauung(bebauung);
+
+		Integer[] active = base.getActive();
+		active[field] = 0;
+		base.setActive(active);
+
+		response.accumulate("success", true);
+
+		return response;
 	}
 
 	/**

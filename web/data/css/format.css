@@ -847,6 +847,23 @@ div.gfxbox {
 #buildingBox .inaktiv {
 	color:red;
 }
+
+#buildingBox .message {
+	margin:15px 0px 10px 0px;
+}
+
+#buildingBox .confirm {
+	list-style:none;
+	margin:20px 0px 0px 0px;
+	padding:0px;
+	text-align:center;
+}
+
+#buildingBox .confirm li {
+	display:inline;
+	padding:0px 4px;
+}
+
 #buildingBox .aktionen {
 	list-style:none;
 	margin:20px 0px 0px 0px;

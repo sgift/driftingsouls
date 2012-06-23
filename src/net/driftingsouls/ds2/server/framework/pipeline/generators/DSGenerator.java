@@ -247,7 +247,7 @@ public abstract class DSGenerator extends Generator {
 				sb.append("// -->\n");
 				sb.append("</script>\n");
 			}
-			sb.append("<div id=\"error-placeholder\" />\n");
+			sb.append("<div id=\"error-placeholder\"></div>\n");
 		}
 
 		@Override
