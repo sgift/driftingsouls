@@ -175,16 +175,26 @@ public class DefaultBuilding extends Building {
 		JSONObject consumes = new JSONObject();
 		JSONObject produces = new JSONObject();
 
-		ResourceList reslist = getConsumes().getResourceList();
-		consumes.accumulate("cargo", reslist.toJSON());
-		consumes.accumulate("e", getEVerbrauch());
+		if( !getConsumes().isEmpty() || getEVerbrauch() > 0 ) {
+			ResourceList reslist = getConsumes().getResourceList();
+			consumes.accumulate("cargo", reslist.toJSON());
 
-		reslist = getProduces().getResourceList();
-		produces.accumulate("cargo", reslist.toJSON());
-		produces.accumulate("e", getEProduktion());
+			JSONObject cEnergy = new JSONObject();
+			cEnergy.accumulate("count", getEVerbrauch());
+			consumes.accumulate("energy", cEnergy);
+			gui.accumulate("consumes", consumes);
+		}
 
-		gui.accumulate("consumes", consumes);
-		gui.accumulate("produces", produces);
+		if( !getProduces().isEmpty() || getEProduktion() > 0 ) {
+			ResourceList reslist = getProduces().getResourceList();
+			produces.accumulate("cargo", reslist.toJSON());
+
+			JSONObject pEnergy = new JSONObject();
+			pEnergy.accumulate("count", getEProduktion());
+			produces.accumulate("energy", pEnergy);
+
+			gui.accumulate("produces", produces);
+		}
 
 
 		return gui;
