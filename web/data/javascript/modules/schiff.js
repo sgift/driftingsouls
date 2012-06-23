@@ -10,7 +10,7 @@ var Schiff = {
 		});
 
 		var self = this;
-		var url = getDsUrl();
+		var url = DS.getUrl();
 		jQuery.getJSON(url,
 			{'system': system, 'module': 'impobjects', 'action' : 'json'},
 			function(data) {

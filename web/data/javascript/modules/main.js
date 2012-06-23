@@ -10,7 +10,7 @@ function checkPMStatus() {
 			}, 30000
 		);
 	}
-	var url = getDsUrl();
+	var url = DS.getUrl();
 	var params = {
 			module:'main',
 			action:'hasNewPm',
@@ -75,13 +75,13 @@ var helpBox = {
 				action:'getHelpText',
 				page:currentModule
 		};
-		$.get( getDsUrl(), params, helpBox.updateHelpText );
+		$.get( DS.getUrl(), params, helpBox.updateHelpText );
 	},
 	updateHelpText : function( originalRequest ) {
 		var response = originalRequest;
 
 		if( response.indexOf('Sie muessen sich einloggen') > -1 ) {
-			location.href = getDsUrl()+"?module=portal&action=login";
+			location.href = DS.getUrl()+"?module=portal&action=login";
 			return;
 		}
 
@@ -100,7 +100,7 @@ var SearchBox = {
 				module:'search',
 				action:'search',
 				search:term};
-		$.getJSON(getDsUrl(), params, this.__processResponse);
+		$.getJSON(DS.getUrl(), params, this.__processResponse);
 	},
 	__processResponse : function(response) {
 		var resultDiv = $('#searchResult');
@@ -117,21 +117,21 @@ var SearchBox = {
 		for( var i=0; i < response.bases.length; i++ ) {
 			var base = response.bases[i];
 			out += '<tr><td><img src="./data/starmap/asti/asti.png" alt="Basis" title="Basis" /></td>';
-			out += '<td><a href="'+getDsUrl()+'?module=base&col='+base.id+'&action=default" target="main">'+base.name+'</a></td>';
+			out += '<td><a href="'+DS.getUrl()+'?module=base&col='+base.id+'&action=default" target="main">'+base.name+'</a></td>';
 			out += '<td>'+base.location+'</td></tr>';
 		}
 
 		for( var i=0; i < response.ships.length; i++ ) {
 			var ship = response.ships[i];
 			out += '<tr><td><img style="width:30px" src="'+ship.type.picture+'" alt="'+ship.type.name+'" title="'+ship.type.name+'" /></td>';
-			out += '<td><a href="'+getDsUrl()+'?module=schiff&ship='+ship.id+'&action=default" target="main">'+ship.name+'</a></td>';
+			out += '<td><a href="'+DS.getUrl()+'?module=schiff&ship='+ship.id+'&action=default" target="main">'+ship.name+'</a></td>';
 			out += '<td>'+ship.location+'</td></tr>';
 		}
 
 		for( var i=0; i < response.users.length; i++ ) {
 			var user = response.users[i];
 			out += '<tr><td><img src="./data/interface/menubar/usericon.png" alt="Spieler" title="Spieler" /></td>';
-			out += '<td><a href="'+getDsUrl()+'?module=userprofile&user='+user.id+'&action=default" target="main">'+user.name+' ('+user.id+')</a></td>';
+			out += '<td><a href="'+DS.getUrl()+'?module=userprofile&user='+user.id+'&action=default" target="main">'+user.name+' ('+user.id+')</a></td>';
 			out += '<td></td></tr>';
 		}
 
@@ -159,7 +159,7 @@ var adminBox = {
 		});
 	},
 	__autoComplete : function(pattern, response) {
-		var url = getDsUrl();
+		var url = DS.getUrl();
 		var params = {
 				module:'admin',
 				action:'ajax',
@@ -186,14 +186,14 @@ var adminBox = {
 				namedplugin:'net.driftingsouls.ds2.server.modules.admin.AdminConsole',
 				responseOnly:'1',
 				cmd:command};
-		jQuery.get(getDsUrl(), params, adminBox.showResponse);
+		jQuery.get(DS.getUrl(), params, adminBox.showResponse);
 	},
 
 	showResponse : function( originalRequest ) {
 		var response = originalRequest;
 
 		if( response.indexOf('Sie muessen sich einloggen') > -1 ) {
-			location.href = getDsUrl()+"?module=portal&action=login";
+			location.href = DS.getUrl()+"?module=portal&action=login";
 			return;
 		}
 

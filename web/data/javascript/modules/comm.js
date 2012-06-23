@@ -1,11 +1,11 @@
 function PlayerList() {
-	fenster1=window.open(getDsUrl()+"?module=plist&compopup=1",
+	fenster1=window.open(DS.getUrl()+"?module=plist&compopup=1",
 						 "Spielerliste",
 						 "width=350,height=400,locationbar=0,menubar=0,scrollbars=1,statusbar=0,toolbar=0,resizeable=yes,directories=0");
 }
 
 function BBCodeInfo() {
-	fenster2=window.open(getDsUrl()+"?module=bbcodeview",
+	fenster2=window.open(DS.getUrl()+"?module=bbcodeview",
 						 "BBCodes",
 						 "width=550,height=400,locationbar=0,menubar=0,scrollbars=1,statusbar=0,toolbar=0,resizeable=yes,directories=0");
 }
@@ -33,7 +33,7 @@ function insertSignature(){
 
 
 function showpm(pmid) {
-	pmviewer.location.href = getDsUrl()+"?module=comm&action=showPm&pmid="+pmid;
+	pmviewer.location.href = DS.getUrl()+"?module=comm&action=showPm&pmid="+pmid;
 
 	$('#pm'+pmid).text('');
 }
@@ -96,7 +96,7 @@ function actionSelectChange( newval ) {
 }
 
 function showpm(pmid) {
-	pmviewer.location.href = getDsUrl()+"?module=comm&action=showPm&pmid="+pmid;
+	pmviewer.location.href = DS.getUrl()+"?module=comm&action=showPm&pmid="+pmid;
 }
 
 $(document).ready(function() {

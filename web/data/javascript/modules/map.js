@@ -242,7 +242,7 @@ var StarmapTiles = function(systemId, screenSize, mapSize) {
 
 	this.__renderTiles = function(mapSize)
 	{
-		var url = Starmap.__getDsUrl();
+		var url = DS.getUrl();
 		var tiles = '<div id="tiles">';
 		var startTileY = Math.floor((mapSize.miny-1)/this.__TILE_SIZE);
 		var startTileX = Math.floor((mapSize.minx-1)/this.__TILE_SIZE);
@@ -297,7 +297,7 @@ var StarmapTiles = function(systemId, screenSize, mapSize) {
 
 		if( mod ) {
 			var newTiles = "";
-			var url = Starmap.__getDsUrl();
+			var url = DS.getUrl();
 			var startTileY = Math.floor((realSize.miny-1)/this.__TILE_SIZE);
 			var startTileX = Math.floor((realSize.minx-1)/this.__TILE_SIZE);
 			if( startTileX < 0 ) {
@@ -383,7 +383,7 @@ var StarmapOverlay = function(data, screen) {
 
 		if( mod ) {
 			var self = this;
-			$.getJSON(Starmap.__getDsUrl(),
+			$.getJSON(DS.getUrl(),
 					{'sys': this.__currentSystem.id, 'xstart' : realSize.minx, 'xend' : realSize.maxx, 'ystart' : realSize.miny, 'yend' : realSize.maxy, 'loadmap' : '1', 'module': 'map', 'action' : 'map'},
 					function(data) {
 						self.__updateShiftOffset(data.size);
@@ -491,13 +491,6 @@ var Starmap = {
 	__starmapTiles:null,
 	__starmapOverlay:null,
 	__dataPath:null,
-	__getDsUrl : function() {
-		var url = location.href;
-		if( url.indexOf('?') > -1 ) {
-			url = url.substring(0, url.indexOf('?'));
-		}
-		return url;
-	},
 	showSystemSelection : function() {
 		$('#systemauswahl').removeClass('invisible');
 	},
@@ -532,7 +525,7 @@ var Starmap = {
 
 		var self = this;
 
-		$.getJSON(this.__getDsUrl(),
+		$.getJSON(DS.getUrl(),
 			{'sys': sys, 'xstart' : xstart, 'xend' : xstart+width, 'ystart' : ystart, 'yend' : ystart+height, 'loadmap' : '1', 'module': 'map', 'action' : 'map'},
 			function(data) {
 				self.renderMap(data);
@@ -673,7 +666,7 @@ var Starmap = {
 		$('#sectorview').html('Lade Sektor ' + system.id + ':' + x + '/' + y);
 		$('#sectortable').removeClass('invisible');
 		var self = this;
-		$.getJSON(this.__getDsUrl(),
+		$.getJSON(DS.getUrl(),
 			 {sys: system.id, x: x, y: y, scanship: scanShip, module: 'map', action:'sector'},
 			 function(data)
 			 {
