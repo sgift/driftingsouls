@@ -25,8 +25,11 @@ import java.util.List;
 import net.driftingsouls.ds2.server.bases.BaseUnitCargoEntry;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.JSONSupport;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipUnitCargoEntry;
+import net.sf.json.JSON;
+import net.sf.json.JSONArray;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,7 +41,7 @@ import org.apache.commons.logging.LogFactory;
  * beruecksichtigt ob die Optionen gleich sind oder die Cargos bei der Initalisierung einen unterschiedlichen Inhalt hatten.</p>
  *
  */
-public class UnitCargo implements Cloneable {
+public class UnitCargo implements Cloneable, JSONSupport {
 	private static final Log log = LogFactory.getLog(UnitCargo.class);
 	/**
 	 * Variable zum erkennen eines Baseneintrags.
@@ -48,14 +51,14 @@ public class UnitCargo implements Cloneable {
 	 * Variable zum erkennen eines Schiffseintrags.
 	 */
 	public static final int CARGO_ENTRY_SHIP = 2;
-	
+
 	/**
 	 * Diese Klasse ist fuer das Kapern gedacht um die verbleibende Crew auf.
 	 * dem Schiff ueber Seiteneffekte zurueckgeben zu koennen
 	 */
 	public static class Crew {
 		int wert;
-		
+
 		/**
 		 * Konstruktor.
 		 */
@@ -63,7 +66,7 @@ public class UnitCargo implements Cloneable {
 		{
 			// EMPTY
 		}
-		
+
 		/**
 		 * Konstruktor.
 		 * @param wert der Wert
@@ -72,7 +75,7 @@ public class UnitCargo implements Cloneable {
 		{
 			this.wert = wert;
 		}
-		
+
 		/**
 		 * Gibt den Wert zurueck.
 		 * @return der aktuell enthaltene Wert
@@ -81,7 +84,7 @@ public class UnitCargo implements Cloneable {
 		{
 			return wert;
 		}
-		
+
 		/**
 		 * Setzt den Wert.
 		 * @param wert der neue Wert
@@ -91,24 +94,13 @@ public class UnitCargo implements Cloneable {
 			this.wert = wert;
 		}
 	}
-	
-	/**
-	 * Die verschiedenen Optionen des UnitCargo-Objekts.
-	 * @see UnitCargo#setOption(net.driftingsouls.ds2.server.units.UnitCargo.Option, Object)
-	 */
-	public enum Option {
-		/**
-		 * Soll die Masse, die einer Einheit verbraucht, angezeigt werden? (java.lang.Boolean)
-		 */
-		SHOWMASS,
-	};
-	
+
 	private List<UnitCargoEntry> units = new ArrayList<UnitCargoEntry>();
 	private int type;
 	private int destid;
-	
+
 	private boolean showmass = true;
-	
+
 	/**
 	 * Erstellt ein neues leeres UnitCargo-Objekt.
 	 *
@@ -116,24 +108,22 @@ public class UnitCargo implements Cloneable {
 	public UnitCargo() {
 		// Type.EMPTY
 	}
-	
+
 	/**
 	 * <p>Konstruktor.</p>
 	 * Erstellt einen neuen UnitCargo aus dem aktuellen UnitCargo sowie den Optionen eines anderen UnitCargo-Objekts.
 	 * @param unitcargo Der UnitCargo, dessen Daten genommen werden sollen
 	 */
 	public UnitCargo(UnitCargo unitcargo) {
-		
+
 		List<UnitCargoEntry> unitArray = unitcargo.getUnitArray();
 		for( int i=0; i < unitArray.size(); i++ ) {
 			UnitCargoEntry unit = unitArray.get(i);
-		
+
 			this.units.add(unit.clone());
 		}
-		
-		this.showmass = (Boolean)unitcargo.getOption(Option.SHOWMASS);
 	}
-	
+
 	/**
 	 * Konstruktor, Stellt einen EinheitenCargo des Zielobjekts zusammen.
 	 * @param type Der Typ des Eintrages
@@ -142,19 +132,19 @@ public class UnitCargo implements Cloneable {
 	public UnitCargo(int type, int destid)
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
+
 		this.units = Common.cast(db.createQuery("from UnitCargoEntry where key.type = :type and key.destid = :destid")
 													.setInteger("type", type)
 													.setInteger("destid", destid)
 													.list());
 		this.type = type;
 		this.destid = destid;
-		
+
 	}
-	
+
 	/**
 	 * Ein neuer UnitCargo.
-	 * 
+	 *
 	 * @param units Die Einheiten in diesem Cargo.
 	 * @param type Cargotyp (Schiff oder Basis).
 	 * @param destid Die Id des Zielobjekts.
@@ -165,15 +155,15 @@ public class UnitCargo implements Cloneable {
 		this.type = type;
 		this.destid = destid;
 	}
-	
+
 	protected List<UnitCargoEntry> getUnitArray() {
 		return units;
 	}
-	
+
 	/**
 	 * Speichert das aktuelle UnitCargoObjekt.
 	 */
-	public void save() 
+	public void save()
 	{
 		if( this.type == 0 || this.destid == 0)
 		{
@@ -185,20 +175,20 @@ public class UnitCargo implements Cloneable {
 						.setInteger("type", this.type)
 						.setInteger("destid", this.destid)
 						.list());
-		
+
 		for(UnitCargoEntry entry: entries)
 		{
 			db.delete(entry);
 		}
-		
+
 		db.flush();
-		
+
 		for(UnitCargoEntry entry: units)
 		{
 			db.persist(entry);
 		}
 	}
-	
+
 	/**
 	 * Setzt den Typ des UnitCargos.
 	 * @param type der Typ
@@ -216,7 +206,7 @@ public class UnitCargo implements Cloneable {
 	{
 		this.destid = destid;
 	}
-	
+
 	/**
 	 * Fuegt dem UnitCargo die angegebene Einheit in der angegebenen Hoehe hinzu.
 	 * @param unitid Die Einheit
@@ -242,7 +232,7 @@ public class UnitCargo implements Cloneable {
 		}
 		units.add(entry);
 	}
-	
+
 	/**
 	 * Verringert die angegebene Einheit im UnitCargo um den angegebenen Wert.
 	 * @param unitid Die Einheit
@@ -259,7 +249,7 @@ public class UnitCargo implements Cloneable {
 					return;
 			}
 		}
-		
+
 		UnitCargoEntry entry;
 		if(this.type == UnitCargo.CARGO_ENTRY_BASE)
 		{
@@ -269,11 +259,11 @@ public class UnitCargo implements Cloneable {
 		{
 			entry = new ShipUnitCargoEntry(this.type,this.destid,unitid,-count);
 		}
-	
+
 		// Diese Anweisung wird nur ausgefuerht, wenn das Item nicht im Cargo vorhanden ist
 		units.add(entry);
 	}
-	
+
 	/**
 	 * Ueberprueft ob eine Einheit vorhanden ist.
 	 * @param unitid Die Einheiten-ID
@@ -282,7 +272,7 @@ public class UnitCargo implements Cloneable {
 	public boolean hasUnit( int unitid ) {
 		return hasUnit(unitid, 0 );
 	}
-	
+
 	/**
 	 * Ueberprueft ob eine Einheit in mindestens der angegebenen Menge vorhanden ist.
 	 * @param unitid Die Einheiten-ID
@@ -299,7 +289,7 @@ public class UnitCargo implements Cloneable {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Gibt die Anzahl der vorhandenen Einheiten im UnitCargo zurueck.
 	 * @param unitid Die gewuenschte Eiheit
@@ -312,17 +302,17 @@ public class UnitCargo implements Cloneable {
 				return aunit.getAmount();
 			}
 		}
-		
+
 		return 0;
 	}
-	
+
 	/**
 	 * Gibt die Gesamtmasse aller Einheiten im <code>UnitCargo</code>-Objekt zurueck.
 	 * @return Die Gesamtmasse
 	 */
 	public long getMass() {
 		long tmp = 0;
-		
+
 		for( int i=0; i < units.size(); i++ ) {
 			UnitType unittype = units.get(i).getUnitType();
 			if( unittype == null ) {
@@ -330,45 +320,45 @@ public class UnitCargo implements Cloneable {
 				continue;
 			}
 			tmp += units.get(i).getAmount()*unittype.getSize();
-		} 
-		
+		}
+
 		return tmp;
 	}
-	
+
 	/**
 	 * Zieht vom UnitCargo den angegebenen UnitCargo ab.
-	 * 
+	 *
 	 * @param subcargo Der UnitCargo, um dessen Inhalt dieser UnitCargo verringert werden soll
 	 */
 	public void substractCargo( UnitCargo subcargo ) {
 
 		List<UnitCargoEntry> units = subcargo.getUnitArray();
 
-		if( !units.isEmpty() ) {			
+		if( !units.isEmpty() ) {
 			for( UnitCargoEntry unit : units ) {
 				substractUnit(unit.getUnitTypeId(), unit.getAmount());
 			}
 		}
 	}
-	
+
 	/**
 	 * Fuegt dem UnitCargo den angegebenen UnitCargo hinzu.
-	 * 
+	 *
 	 * @param addcargo Der UnitCargo, um dessen Inhalt dieser UnitCargo erhoeht werden soll
 	 */
 	public void addCargo( UnitCargo addcargo ) {
-		
+
 		List<UnitCargoEntry> units = addcargo.getUnitArray();
 
-		if( !units.isEmpty() ) {			
+		if( !units.isEmpty() ) {
 			for( UnitCargoEntry unit : units ) {
 				addUnit(unit.getUnitTypeId(),unit.getAmount());
 			}
 		}
 	}
-	
+
 	/**
-	 * Setzt die vorhandene Menge der angegebenen Einheit auf 
+	 * Setzt die vorhandene Menge der angegebenen Einheit auf
 	 * den angegebenen Wert.
 	 * @param unitid Die Einheiten-ID
 	 * @param count Die neue Menge
@@ -381,7 +371,7 @@ public class UnitCargo implements Cloneable {
 				return;
 			}
 		}
-		
+
 		UnitCargoEntry entry;
 		if(this.type == UnitCargo.CARGO_ENTRY_BASE)
 		{
@@ -393,7 +383,7 @@ public class UnitCargo implements Cloneable {
 		}
 		units.add(entry);
 	}
-	
+
 	/**
 	 * Prueft, ob der UnitCargo leer ist.
 	 * @return <code>true</code>, falls er leer ist
@@ -403,46 +393,19 @@ public class UnitCargo implements Cloneable {
 		{
 			return true;
 		}
-		
-		for( int i=0; i < units.size(); i++ ) 
+
+		for( int i=0; i < units.size(); i++ )
 		{
 			UnitCargoEntry aunit = units.get(i);
-			if( aunit.getAmount() > 0 ) 
+			if( aunit.getAmount() > 0 )
 			{
 				return false;
 			}
-		}	
-		
+		}
+
 		return true;
 	}
-	
-	/**
-	 * Setzt eine Option auf den angegebenen Wert.
-	 * @param option Die Option
-	 * @param data Der Wert
-	 */
-	public void setOption( Option option, Object data ) {
-		switch( option ) {
-		case SHOWMASS:
-			showmass = (Boolean)data;
-			break;
-		}
-	}
-	
-	/**
-	 * Gibt den Wert einer Option zurueck.
-	 * @param option Die Option
-	 * @return Der Wert
-	 */
-	public Object getOption( Option option ) {
-		switch( option ) {
-		case SHOWMASS:
-			return showmass;
-		
-		}
-		return null;
-	}
-	
+
 	@Override
 	public Object clone() {
 		try {
@@ -463,7 +426,7 @@ public class UnitCargo implements Cloneable {
 
 	/**
 	 * Gibt die Masse einer Einheit in einer bestimmten Menge zurueck.
-	 * 
+	 *
 	 * @param unitid Die Einheiten-ID
 	 * @param count Die Menge
 	 * @return Die Masse, die die Einheit in der Menge verbraucht
@@ -471,16 +434,16 @@ public class UnitCargo implements Cloneable {
 	public static long getUnitMass( int unitid, long count ) {
 		long tmp = 0;
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-	
+
 		UnitType unittype = (UnitType)db.get(UnitType.class, unitid);
-		
+
 		if( unittype != null ) {
 			tmp = count * unittype.getSize();
 		}
-		
+
 		return tmp;
 	}
-	
+
 	/**
 	 * Prueft, ob zwei UnitCargos im Moment den selben Inhalt haben.
 	 * Es wird nicht geprueft, ob die Optionen gleich sind!
@@ -493,17 +456,17 @@ public class UnitCargo implements Cloneable {
 			return false;
 		}
 		UnitCargo c = (UnitCargo)obj;
-		
+
 		if( this.units.size() != c.units.size() ) {
 			return false;
 		}
-		
+
 		UnitCargo tmpcargo = (UnitCargo)clone();
 		tmpcargo.substractCargo(c);
-		
+
 		return tmpcargo.isEmpty();
 	}
-	
+
 	/**
 	 * Gibt die Anzahl an verbrauchter Nahrung durch die Einheiten im UnitCargo zurueck.
 	 * @return Die Anzahl an verbrauchter Nahrung
@@ -514,17 +477,17 @@ public class UnitCargo implements Cloneable {
 		{
 			return 0;
 		}
-		
+
 		double nahrungsverbrauch = 0;
 		for(UnitCargoEntry aunit : units)
 		{
 			UnitType unittype = aunit.getUnitType();
 			nahrungsverbrauch += unittype.getNahrungCost() * aunit.getAmount();
 		}
-		
+
 		return (int)Math.ceil(nahrungsverbrauch);
 	}
-	
+
 	/**
 	 * Gibt die Anzahl an verbrauchten RE durch die Einheiten im UnitCargo zurueck.
 	 * @return Die Anzahl an verbrauchten RE
@@ -535,17 +498,17 @@ public class UnitCargo implements Cloneable {
 		{
 			return 0;
 		}
-		
+
 		double reverbrauch = 0;
 		for(UnitCargoEntry aunit : units)
 		{
 			UnitType unittype = aunit.getUnitType();
 			reverbrauch += unittype.getReCost() * aunit.getAmount();
 		}
-		
+
 		return (int)Math.ceil(reverbrauch);
 	}
-	
+
 	/**
 	 * Gibt den Kaperwert der Einheiten des UnitCargos zurueck.
 	 * @return Der Kaperwert
@@ -556,17 +519,17 @@ public class UnitCargo implements Cloneable {
 		{
 			return 0;
 		}
-		
+
 		int kapervalue = 0;
 		for(UnitCargoEntry aunit : units)
 		{
 			UnitType unittype = aunit.getUnitType();
 			kapervalue += unittype.getKaperValue() * aunit.getAmount();
 		}
-		
+
 		return kapervalue;
 	}
-	
+
 	/**
 	 * Es fliehen so viele Einheiten, wie keine Nahrung mehr vorhanden ist.
 	 * @param nahrung Die Nahrung die durch die Einheiten zu viel verbraucht wird
@@ -575,7 +538,7 @@ public class UnitCargo implements Cloneable {
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		List<UnitType> unittypes = Common.cast(db.createQuery("FROM UnitType ORDER BY nahrungcost DESC").list());
-	
+
 		for(UnitType unittype : unittypes)
 		{
 			if(hasUnit(unittype.getId()))
@@ -595,7 +558,7 @@ public class UnitCargo implements Cloneable {
 			}
 		}
 	}
-	
+
 	/**
 	 * Gibt die Einheitenliste via TemplateEngine aus.
 	 * @param t Das TemplateEngine
@@ -603,26 +566,26 @@ public class UnitCargo implements Cloneable {
 	 * @param templateitem Der Name eines Items des TemplateBlocks
 	 */
 	public void echoUnitList( TemplateEngine t, String templateblock, String templateitem ) {
-		
+
 		if(isEmpty())
 		{
 			return;
 		}
-		
+
 		t.setVar(templateblock,"");
-		
+
 		for( UnitCargoEntry aunit : units ) {
 			UnitType unittype = aunit.getUnitType();
-			
+
 			t.setVar(	"res.id", 			aunit.getUnitTypeId(),
 						"res.count",		Common.ln(aunit.getAmount()),
 						"res.name",			unittype.getName(),
 						"res.picture",		unittype.getPicture() );
-			
+
 			t.parse(templateblock,templateitem,true);
 		}
 	}
-	
+
 	/**
 	 * Vergleicht den aktuellen UnitCargo mit dem uebergebenen UnitCargo.
 	 * Und gibt dabei die Einheiten sowie die Anzahl der gefundenen Einheiten in beiden UnitCargos zurueck.
@@ -636,7 +599,7 @@ public class UnitCargo implements Cloneable {
 		{
 			unitlist.put(unit.getUnitTypeId(), new Long[] {unit.getAmount(), 0l});
 		}
-		
+
 		for(UnitCargoEntry unit : unitcargo.getUnitArray())
 		{
 			if(unitlist.containsKey(unit.getUnitTypeId()))
@@ -648,10 +611,10 @@ public class UnitCargo implements Cloneable {
 				unitlist.put(unit.getUnitTypeId(), new Long[] {0l, unit.getAmount()});
 			}
 		}
-		
+
 		return unitlist;
 	}
-	
+
 	/**
 	 * Gibt die Einheiten im Cargo als Liste zurueck.
 	 * @return Die Liste der Einheiten
@@ -666,12 +629,12 @@ public class UnitCargo implements Cloneable {
 				unitlist.put(unit.getUnitTypeId(), unit.getAmount());
 			}
 		}
-		
+
 		return unitlist;
 	}
-	
+
 	/**
-	 * Diese Methode fuehrt einen Kapervorgang aus. 
+	 * Diese Methode fuehrt einen Kapervorgang aus.
 	 * Dabei versuchen die Einheiten des aktuellen UnitCargos die Einheiten des uebergebenen UnitCargos zu kapern.
 	 * @param kaperunitcargo Der UnitCargo der gekapert werden soll
 	 * @param gefalleneeigeneUnits Ein UnitCargo mit den eigenen Einheiten die gefallen sind
@@ -683,7 +646,7 @@ public class UnitCargo implements Cloneable {
 	 */
 	public boolean kapern(UnitCargo kaperunitcargo, UnitCargo gefalleneeigeneUnits, UnitCargo gefallenefeindlicheUnits, Crew feindCrew, int amulti, int defmulti)
 	{
-		
+
 		if(getKaperValue()*amulti > (kaperunitcargo.getKaperValue()+10*feindCrew.getValue())*defmulti*3  )
 		{
 			return true;
@@ -708,7 +671,7 @@ public class UnitCargo implements Cloneable {
 		kaperunitcargo.reduziereKaperValue(totekapervalue, gefallenefeindlicheUnits);
 		return false;
 	}
-	
+
 	/**
 	 * Diese Methode reduziert diesen UnitCargo um die angegebene Menge an KaperValue.
 	 * Dabei werden zuerst Einheiten mit hoher KaperValue entfernt.
@@ -719,13 +682,13 @@ public class UnitCargo implements Cloneable {
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		List<UnitType> unitlist = Common.cast(db.createQuery("from UnitType ORDER BY kapervalue DESC").list());
-		
+
 		for(UnitType unit : unitlist)
 		{
 			if(getUnitCount(unit.getId()) > 0)
 			{
 				long unitcount = getUnitCount(unit.getId());
-				
+
 				// Reichen die Einheiten nicht aus um den Bedarf zu decken
 				if( unit.getKaperValue() * unitcount < totekapervalue)
 				{
@@ -744,7 +707,7 @@ public class UnitCargo implements Cloneable {
 			}
 		}
 	}
-	
+
 	/**
 	 * Filtert alle Einheiten aus diesem UnitCargo heraus, die groeszer als die angegebene MaximalGroesze sind.
 	 * @param maxsize Die Maximale Groesze die im UnitCargo verbleiben soll
@@ -758,7 +721,7 @@ public class UnitCargo implements Cloneable {
 		{
 			return trimedUnits;
 		}
-		
+
 		for(UnitCargoEntry unit : this.units)
 		{
 			if(unit.getUnitType().getSize() > maxsize)
@@ -767,10 +730,10 @@ public class UnitCargo implements Cloneable {
 				unit.setAmount(0);
 			}
 		}
-		
+
 		return trimedUnits;
 	}
-	
+
 	/**
 	 * Berechnet, wie viele Einheiten von der angegebenen Menge RE noch versorgt werden koennen.
 	 * Alle zusaetzlichen Einheiten werden aus dem aktuellen UnitCargo entfernt und als extra UnitCargo zurueckgegeben.
@@ -781,9 +744,9 @@ public class UnitCargo implements Cloneable {
 	{
 		UnitCargo meuterer = new UnitCargo();
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
+
 		List<UnitType> unitlist = Common.cast(db.createQuery("from UnitType").list());
-		
+
 		for(UnitType unit : unitlist)
 		{
 			if(hasUnit(unit.getId()))
@@ -802,7 +765,19 @@ public class UnitCargo implements Cloneable {
 				}
 			}
 		}
-		
+
 		return meuterer;
+	}
+
+	@Override
+	public JSON toJSON()
+	{
+		JSONArray list = new JSONArray();
+
+		for( UnitCargoEntry aunit : units ) {
+			list.add(aunit.toJSON());
+		}
+
+		return list;
 	}
 }

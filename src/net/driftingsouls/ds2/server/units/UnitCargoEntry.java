@@ -30,7 +30,10 @@ import javax.persistence.Table;
 
 import net.driftingsouls.ds2.server.bases.BaseUnitCargoEntry;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.JSONSupport;
 import net.driftingsouls.ds2.server.ships.ShipUnitCargoEntry;
+import net.sf.json.JSON;
+import net.sf.json.JSONObject;
 
 import org.hibernate.annotations.DiscriminatorFormula;
 import org.hibernate.annotations.ForceDiscriminator;
@@ -44,7 +47,7 @@ import org.hibernate.proxy.HibernateProxy;
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @DiscriminatorFormula(value="type")
 @ForceDiscriminator
-public abstract class UnitCargoEntry
+public abstract class UnitCargoEntry implements JSONSupport
 {
 	/**
 	 * Diese Klasse repraesentiert einen Primarschluessel fuer einen Cargo-Eintrag.
@@ -53,11 +56,11 @@ public abstract class UnitCargoEntry
 	public static class UnitCargoEntryKey implements Serializable
 	{
 		private static final long serialVersionUID = 1510394179895753873L;
-		
+
 		private int type;
 		private int destid;
 		private int unittype;
-		
+
 		/**
 		 * Konstruktor.
 		 */
@@ -65,7 +68,7 @@ public abstract class UnitCargoEntry
 		{
 			// EMPTY
 		}
-		
+
 		/**
 		 * Konstruktor.
 		 * @param type Der Typ des Eintrages
@@ -78,7 +81,7 @@ public abstract class UnitCargoEntry
 			this.destid = destid;
 			this.unittype = unittype;
 		}
-		
+
 		/**
 		 * Gibt den Typ des Eintrages zurueck.
 		 * @return der Typ
@@ -87,7 +90,7 @@ public abstract class UnitCargoEntry
 		{
 			return type;
 		}
-		
+
 		/**
 		 * Gibt die ZielId des Eintrages zurueck.
 		 * @return die ZielID
@@ -96,7 +99,7 @@ public abstract class UnitCargoEntry
 		{
 			return destid;
 		}
-		
+
 		/**
 		 * Gibt die ID des UnitTyps zurueck.
 		 * @return Die ID
@@ -105,7 +108,7 @@ public abstract class UnitCargoEntry
 		{
 			return unittype;
 		}
-		
+
 		/**
 		 * Gibt den UnitTyp zurueck.
 		 * @return der UnitTyp
@@ -115,7 +118,7 @@ public abstract class UnitCargoEntry
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			return (UnitType)db.get(UnitType.class, unittype);
 		}
-		
+
 		/**
 		 * Setzt den Eintrags-Typ.
 		 * @param type der Typ
@@ -124,7 +127,7 @@ public abstract class UnitCargoEntry
 		{
 			//this.type = type;
 		}
-		
+
 		/**
 		 * Setzt die ID des Zielobjekts.
 		 * @param destid Die ID
@@ -133,7 +136,7 @@ public abstract class UnitCargoEntry
 		{
 			this.destid = destid;
 		}
-		
+
 		/**
 		 * Setzt die ID des UnitTyps.
 		 * @param unittype Die ID
@@ -142,7 +145,7 @@ public abstract class UnitCargoEntry
 		{
 			this.unittype = unittype;
 		}
-		
+
 		/**
 		 * Setzt den UnitTyp.
 		 * @param unittype der UnitTyp
@@ -198,11 +201,11 @@ public abstract class UnitCargoEntry
 			return true;
 		}
 	}
-	
+
 	@Id
 	private UnitCargoEntryKey key;
 	private long amount;
-	
+
 	/**
 	 * Konstruktor.
 	 */
@@ -210,7 +213,7 @@ public abstract class UnitCargoEntry
 	{
 		// EMPTY
 	}
-	
+
 	/**
 	 * Konstruktor.
 	 * @param type Der Typ des Eintrages
@@ -223,7 +226,7 @@ public abstract class UnitCargoEntry
 		this.key = new UnitCargoEntryKey(type,destid,unittype);
 		this.amount = amount;
 	}
-	
+
 	/**
 	 * Konstruktor.
 	 * @param type Der Typ des Eintrages
@@ -235,7 +238,7 @@ public abstract class UnitCargoEntry
 	{
 		this(type,destid,unittype.getId(),amount);
 	}
-	
+
 	/**
 	 * Gibt den Typ des Eintrages zurueck.
 	 * @return Der Typ
@@ -244,7 +247,7 @@ public abstract class UnitCargoEntry
 	{
 		return this.key.getTyp();
 	}
-	
+
 	/**
 	 * Gibt die ID des Zielobjekts zurueck.
 	 * @return Die ID
@@ -253,7 +256,7 @@ public abstract class UnitCargoEntry
 	{
 		return this.key.getDestId();
 	}
-	
+
 	/**
 	 * Gibt die ID des Einheitentyps zurueck.
 	 * @return Die ID
@@ -262,7 +265,7 @@ public abstract class UnitCargoEntry
 	{
 		return this.key.getUnitTypeId();
 	}
-	
+
 	/**
 	 * Gibt den Einheitentyp zurueck.
 	 * @return Der Einheitentyp
@@ -271,7 +274,7 @@ public abstract class UnitCargoEntry
 	{
 		return this.key.getUnitType();
 	}
-	
+
 	/**
 	 * Gibt die Menge zurueck.
 	 * @return Die Menge
@@ -280,7 +283,7 @@ public abstract class UnitCargoEntry
 	{
 		return this.amount;
 	}
-	
+
 	/**
 	 * Setzt den Typ des Eintrages.
 	 * @param typ Der Typ
@@ -289,7 +292,7 @@ public abstract class UnitCargoEntry
 	{
 		this.key.setTyp(typ);
 	}
-	
+
 	/**
 	 * Setzt die ID des Zielobjekts.
 	 * @param destid Die ID
@@ -298,7 +301,7 @@ public abstract class UnitCargoEntry
 	{
 		this.key.setDestId(destid);
 	}
-	
+
 	/**
 	 * Setzt die ID des Einheitentyps.
 	 * @param unittype Die ID
@@ -307,7 +310,7 @@ public abstract class UnitCargoEntry
 	{
 		this.key.setUnitType(unittype);
 	}
-	
+
 	/**
 	 * Setzt den Einheitentyp.
 	 * @param unittype Der Einheitentyp
@@ -316,7 +319,7 @@ public abstract class UnitCargoEntry
 	{
 		this.key.setUnitType(unittype);
 	}
-	
+
 	/**
 	 * Setzt die Menge.
 	 * @param amount Die Menge
@@ -325,7 +328,7 @@ public abstract class UnitCargoEntry
 	{
 		this.amount = amount;
 	}
-	
+
 	@Override
 	public UnitCargoEntry clone()
 	{
@@ -377,5 +380,17 @@ public abstract class UnitCargoEntry
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public JSON toJSON()
+	{
+		JSONObject result = new JSONObject();
+		result.accumulate("id", this.key.getUnitTypeId())
+			.accumulate("count", amount)
+			.accumulate("name", this.key.getUnitType().getName())
+			.accumulate("picture", this.key.getUnitType().getPicture());
+
+		return result;
 	}
 }
