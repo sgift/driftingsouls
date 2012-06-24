@@ -38,6 +38,8 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -258,6 +260,130 @@ public class BaseController extends TemplateGenerator {
 	/**
 	 * Zeigt die Basis an.
 	 */
+	@Action(ActionType.AJAX)
+	public JSONObject ajaxAction() {
+
+		JSONObject response = new JSONObject();
+		response.accumulate("col", base.getId());
+
+		JSONObject baseObj = new JSONObject();
+		baseObj
+			.accumulate("id", base.getId())
+			.accumulate("name", Common._plaintitle(base.getName()))
+			.accumulate("x", base.getX())
+			.accumulate("y", base.getY())
+			.accumulate("system", base.getSystem())
+			.accumulate("feeding", base.isFeeding())
+			.accumulate("loading", base.isLoading())
+			.accumulate("width", base.getWidth());
+
+		if( base.getCore() > 0 ) {
+			Core core = Core.getCore(base.getCore());
+
+			JSONObject coreObj = new JSONObject()
+				.accumulate("id", core.getId())
+				.accumulate("name", Common._plaintitle(core.getName()))
+				.accumulate("active", base.isCoreActive());
+
+			baseObj.accumulate("core", coreObj);
+		}
+
+		BaseStatus basedata = Base.getStatus(base);
+
+		ResourceList reslist = base.getCargo().compare(basedata.getProduction(), true,true);
+		reslist.sortByID(false);
+
+		baseObj
+			.accumulate("cargo", reslist.toJSON())
+			.accumulate("cargoBilanz", -basedata.getProduction().getMass())
+			.accumulate("cargoFrei", base.getMaxCargo() - base.getCargo().getMass())
+			.accumulate("einheiten", base.getUnits().toJSON())
+			.accumulate("energyProduced", basedata.getEnergy())
+			.accumulate("energy", base.getEnergy())
+			.accumulate("bewohner", base.getBewohner())
+			.accumulate("arbeiter", base.getArbeiter())
+			.accumulate("arbeiterErforderlich", basedata.getArbeiter())
+			.accumulate("wohnraum", basedata.getLivingSpace());
+
+		response.accumulate("base", baseObj);
+
+		//----------------
+		// Karte
+		//----------------
+
+		JSONArray mapObj = new JSONArray();
+
+		Map<Integer,Integer> buildingonoffstatus = new LinkedHashMap<Integer,Integer>();
+
+		for( int i = 0; i < base.getWidth() * base.getHeight(); i++ ) {
+			JSONObject feld = new JSONObject();
+
+			//Leeres Feld
+			if( base.getBebauung()[i] != 0 ) {
+				JSONObject gebaeudeObj = new JSONObject();
+
+				Building building = Building.getBuilding(base.getBebauung()[i]);
+				base.getActive()[i] = basedata.getActiveBuildings()[i];
+
+				if( building.isDeakAble() ) {
+					if( !buildingonoffstatus.containsKey(base.getBebauung()[i]) ) {
+						buildingonoffstatus.put(base.getBebauung()[i], 0);
+					}
+					if( buildingonoffstatus.get(base.getBebauung()[i]) == 0 ) {
+						buildingonoffstatus.put( base.getBebauung()[i], base.getActive()[i] + 1 );
+					}
+					else if( buildingonoffstatus.get(base.getBebauung()[i]) != base.getActive()[i] + 1 ) {
+						buildingonoffstatus.put(base.getBebauung()[i],-1);
+					}
+				}
+
+				gebaeudeObj.accumulate("name", Common._plaintitle(building.getName()))
+					.accumulate("id", building.getId())
+					.accumulate("supportsJSON", building.isSupportsJson())
+					.accumulate("deaktiviert", building.isDeakAble() && (base.getActive()[i] == 0))
+					.accumulate("grafik", building.getPicture());
+
+				feld.accumulate("gebaeude", gebaeudeObj);
+			}
+
+			feld.accumulate("feld", i)
+				.accumulate("terrain", base.getTerrain()[i]);
+
+			mapObj.add(feld);
+		}
+
+		response.accumulate("karte", mapObj);
+
+		//----------------
+		// Aktionen
+		//----------------
+
+		JSONArray buildingStatus = new JSONArray();
+		for( int bid : buildingonoffstatus.keySet() ) {
+			int bstatus = buildingonoffstatus.get(bid);
+			if( bstatus == 0 ) {
+				continue;
+			}
+			Building building = Building.getBuilding(bid);
+
+			JSONObject buildingObj = new JSONObject();
+			buildingObj
+				.accumulate("name", Common._plaintitle(building.getName()))
+				.accumulate("id", bid)
+				.accumulate("aktivierbar", (bstatus == -1) || (bstatus == 1))
+				.accumulate("deaktivierbar", (bstatus == -1) || (bstatus == 2));
+
+			buildingStatus.add(buildingObj);
+		}
+
+		response.accumulate("gebaeudeStatus", buildingStatus);
+
+		return response;
+	}
+
+	/**
+	 * Zeigt die Basis an.
+	 */
 	@Override
 	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
@@ -374,11 +500,11 @@ public class BaseController extends TemplateGenerator {
 		long cstat = -basedata.getProduction().getMass();
 
 		t.setVar(	"base.cstat",		Common.ln(cstat),
-					"base.e",			base.getEnergy(),
-					"base.estat",		basedata.getEnergy(),
-					"base.bewohner",	base.getBewohner(),
-					"base.arbeiter.needed",	basedata.getArbeiter(),
-					"base.wohnraum",		basedata.getLivingSpace() );
+					"base.e",			Common.ln(base.getEnergy()),
+					"base.estat",		Common.ln(basedata.getEnergy()),
+					"base.bewohner",	Common.ln(base.getBewohner()),
+					"base.arbeiter.needed",	Common.ln(basedata.getArbeiter()),
+					"base.wohnraum",		Common.ln(basedata.getLivingSpace()) );
 
 		//----------------
 		// Aktionen
@@ -413,57 +539,26 @@ public class BaseController extends TemplateGenerator {
 			base.getUnits().echoUnitList(t, "base.units.list", "base.units.listitem");
 		}
 
-		String baseimg = config.get("URL")+"data/interface/energie2";
-		int e = basedata.getEnergy();
-
-		if( e < 0 ) {
-			baseimg = config.get("URL")+"data/interface/nenergie2";
-			e = -e;
-		}
-
-		int e_x = e / 10;
-		e %= 10;
-		int e_v = e / 5;
-		e %= 5;
-
-		t.setBlock("_BASE", "base.estat.listitem", "base.estat.list");
-
-		t.setVar("estat.image", baseimg+"_x.gif");
-		for( ;e_x > 0; e_x-- ) {
-			t.parse("base.estat.list", "base.estat.listitem", true);
-		}
-
-		t.setVar("estat.image", baseimg+"_v.gif");
-		for( ;e_v > 0; e_v-- ) {
-			t.parse("base.estat.list", "base.estat.listitem", true);
-		}
-		t.setVar("estat.image", baseimg+".gif");
-		for( ;e > 0; e-- ) {
-			t.parse("base.estat.list", "base.estat.listitem", true);
-		}
-
-		Map<Integer,String> bevstats = new LinkedHashMap<Integer,String>();
-
-		if( basedata.getLivingSpace() >= base.getBewohner() ) {
-			bevstats.put(basedata.getArbeiter()/10, "arbeiter.gif");
-			bevstats.put(bue/10, "arbeitslos.gif");
-			bevstats.put(wue/10, "frei.gif");
-		}
-		else {
-			int free = basedata.getLivingSpace()-basedata.getArbeiter();
-			bevstats.put(basedata.getArbeiter()/10, "arbeiter.gif");
-			bevstats.put(free/10, "arbeitslos.gif");
-			bevstats.put(bue/10, "narbeiter.gif");
-		}
-
-		t.setBlock("_BASE", "base.bev.listitem", "base.bev.list");
-
-		for( int bevstat : bevstats.keySet() ) {
-			String image = bevstats.get(bevstat);
-			t.setVar("bev.image", image);
-			for( ;bevstat > 0; bevstat-- ) {
-				t.parse("base.bev.list", "base.bev.listitem", true);
+		double summeWohnen = Math.max(base.getBewohner(),basedata.getLivingSpace());
+		long arbeiterProzent = Math.round(basedata.getArbeiter()/summeWohnen*100);
+		long arbeitslosProzent = Math.max(Math.round((base.getBewohner()-basedata.getArbeiter())/summeWohnen*100),0);
+		long wohnraumFreiProzent = Math.max(Math.round((basedata.getLivingSpace()-base.getBewohner())/summeWohnen*100),0);
+		long wohnraumFehltProzent = Math.max(Math.round((base.getBewohner()-basedata.getLivingSpace())/summeWohnen*100),0);
+		long prozent = arbeiterProzent+arbeitslosProzent+wohnraumFehltProzent+wohnraumFreiProzent;
+		if( prozent > 100 ) {
+			long remaining = prozent-100;
+			long diff = Math.min(remaining,arbeiterProzent);
+			arbeiterProzent -= diff;
+			remaining -= diff;
+			if( remaining > 0 ) {
+				arbeitslosProzent -= remaining;
 			}
 		}
+
+		t.setVar(
+			"arbeiterProzent", arbeiterProzent,
+			"arbeitslosProzent", arbeitslosProzent,
+			"wohnraumFreiProzent", wohnraumFreiProzent,
+			"wohnraumFehltProzent", wohnraumFehltProzent);
 	}
 }

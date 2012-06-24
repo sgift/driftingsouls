@@ -44,7 +44,7 @@
 	<td style="width:240px" class="Border">Aktionen</td>
 </tr>
 <tr>
-	<td class="schiffData" style="vertical-align:top; width:{base.map.width}px">
+	<td class="schiffData" style="vertical-align:top; width:{base.map.width}px;height:{base.cargo.height}px;">
 		<div id="baseMap" style="width:{base.map.width}px; height:{base.cargo.height}px;">
 		<!-- +START+ Karte -->
 		<!-- BEGIN base.map.listitem -->
@@ -79,38 +79,32 @@
 		</div>
 	</td>
 	<td class="noBorder" style="width:5px">&nbsp;</td>
-	<td style="vertical-align:top; width:280px" class="schiffWaren">
-		<div id="cargoBox" style="padding:5px; height:{base.cargo.height}px; overflow:auto">
+	<td style="vertical-align:top; width:280px;height:{base.cargo.height}px;" class="schiffWaren">
+		<ul id="cargoBox">
 			<!-- +START+ Cargo -->
 			<!-- BEGIN base.cargo.listitem -->
-				{if res.plaincount2 > 0}
-					<img style="vertical-align:middle" src="{res.image}" alt="" /><span style="color:#00ff00" class="ok">{res.name} {res.cargo1} +{res.cargo2}</span>
-				{/endif}
-				{if res.plaincount2 == 0}
-					<img style="vertical-align:middle" src="{res.image}" alt="" />{res.name} {res.cargo1}
-				{/endif}
-				{if res.plaincount2 < 0}
-					<img style="vertical-align:middle" src="{res.image}" alt="" /><span style="color:#ff0000" class="error">{res.name} {res.cargo1} {res.cargo2}</span>
-				{/endif}
-				<br />
+				<li>
+				<img src="{res.image}" alt="" />
+				{res.name} {res.cargo1} {res.cargo2}
+				</li>
 			<!-- END base.cargo.listitem -->
 			<img src="{URL}data/interface/leer.gif" alt="" />Leer {base.cargo.empty} {base.cstat}<br />
 			<!-- +END+ Cargo -->
-		</div>
+		</ul>
 	</td>
 	<td class="noBorder" style="width:5px">&nbsp;</td>
 	<td style="vertical-align:top; width:240px" class="schiffWaren">
 		<ul class="buildingActions">
 			<!-- BEGIN base.massonoff.listitem -->
-				<li onmouseover="Base.highlightBuilding({building.id})" onmouseout="Base.noBuildingHighlight()">
+				<li onmouseover="Base.highlightBuilding('building{building.id}')" onmouseout="Base.noBuildingHighlight()">
 					{building.name}
 					{if building.allowoff}
-						<a title="Gebäude deaktivieren" class="action" href="ds?module=base&action=changeBuildingStatus&col={base.id}&buildingonoff={building.id}&act=0">
+						<a title="Gebäude deaktivieren" class="action deaktivieren" href="ds?module=base&action=changeBuildingStatus&col={base.id}&buildingonoff={building.id}&act=0">
 							<img alt="" src="data/interface/nenergie.gif">
 						</a>
 					{/endif}
 					{if building.allowon}
-						<a title="Gebäude aktivieren" class="action" href="ds?module=base&action=changeBuildingStatus&col={base.id}&buildingonoff={building.id}&act=1">
+						<a title="Gebäude aktivieren" class="action aktivieren" href="ds?module=base&action=changeBuildingStatus&col={base.id}&buildingonoff={building.id}&act=1">
 							<img alt="" src="data/interface/energie.gif">
 						</a>
 					{/endif}
@@ -146,14 +140,16 @@
 			</div>
 		{/endif}
 		<div class="gfxbox" id="statsBox">
-			Aktuelle Energie: {base.e}<br />
-			Bilanz: {base.estat}
-			<!-- BEGIN base.estat.listitem --><img style="vertical-align:middle" src="{estat.image}" alt="" /><!-- END base.estat.listitem -->
+			Gespeicherte Energie: {base.e}<br />
+			Energiebilanz: {base.estat}<br />
 			<br />
 			Bev&ouml;lkerung: {base.bewohner}<br />
 			Arbeiter ben&ouml;tigt: {base.arbeiter.needed}<br />
 			Wohnraum: {base.wohnraum}<br />
-			<!-- BEGIN base.bev.listitem --><img style="border:0px" src=" {URL}data/interface/{bev.image}" alt="" /><!-- END base.bev.listitem -->
+			<div class="arbeiteranzeige" style="width:{arbeiterProzent}%"></div>
+			<div class="arbeitslosenanzeige" style="width:{arbeitslosProzent}%"></div>
+			<div class="wohnraumfreianzeige" style="width:{wohnraumFreiProzent}%"></div>
+			<div class="wohnraumfehltanzeige" style="width:{wohnraumFehltProzent}%"></div>
 			<br /><br />
 		</div>
 	</td>
