@@ -52,17 +52,17 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 public class StatWaren implements Statistic {
 	private Configuration config;
-	
+
     /**
      * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
-    public void setConfiguration(Configuration config) 
+    public void setConfiguration(Configuration config)
     {
     	this.config = config;
     }
-	
+
     @Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
@@ -70,10 +70,15 @@ public class StatWaren implements Statistic {
 		User user = (User)context.getActiveUser();
 
 		Writer echo = context.getResponse().getWriter();
-	
+
 		Cargo cargo = new Cargo((Cargo)db.createQuery("SELECT cargo FROM StatCargo ORDER BY tick DESC").setMaxResults(1).iterate().next());
-		
-		Cargo ownCargo = ((StatUserCargo)db.get(StatUserCargo.class, user.getId())).getCargo();
+
+		StatUserCargo userCargo = (StatUserCargo)db.get(StatUserCargo.class, user.getId());
+		Cargo ownCargo = null;
+		if( userCargo != null )
+		{
+			ownCargo = userCargo.getCargo();
+		}
 		if( ownCargo == null ) {
 			ownCargo = new Cargo();
 		}
@@ -88,22 +93,22 @@ public class StatWaren implements Statistic {
 		echo.append("<td class=\"noBorderX\" width=\"15\">&nbsp;</td>\n");
 		echo.append("<td class=\"noBorderX\">&nbsp;</td>\n");
 		echo.append("</tr>\n");
-		
+
 		// Itempositionen auslesen
 		Map<Integer,String[]> reslocationlist = new HashMap<Integer,String[]>();
 		List<StatModuleLocation> modules = Common.cast(db.createQuery("FROM StatModuleLocation WHERE user=:user").setEntity("user",user).list());
 		for( StatModuleLocation amodule : modules ) {
 			reslocationlist.put(amodule.getUser().getId(), StringUtils.split(amodule.getLocations(), ';'));
 		}
-		
+
 		// Caches fuer Schiffe und Basen
 		Map<Integer,Base> basecache = new HashMap<Integer,Base>();
 		Map<Integer,String> shipnamecache = new HashMap<Integer,String>();
-		
+
 		// Diese Grafiken kennzeichen bei Itempositionen den Typ der Position
 		final String shipimage = "<td class='noBorderX' style='text-align:right'><img style='vertical-align:middle' src='"+config.get("URL")+"data/interface/schiffe/"+user.getRace()+"/icon_schiff.gif' alt='' title='Schiff' /></td>";
 		final String baseimage = "<td class='noBorderX' style='text-align:right'><img style='vertical-align:middle;width:15px;height:15px' src='"+config.get("URL")+"data/starmap/asti/asti.png' alt='' title='Asteroid' /></td>";
-	
+
 		// Resourcenliste durchlaufen
 		ResourceList reslist = cargo.compare(ownCargo, false);
 		for( ResourceEntry res : reslist ) {
@@ -119,7 +124,7 @@ public class StatWaren implements Statistic {
 			if( item.isUnknownItem() && !user.isKnownItem(itemid) && (user.getAccessLevel() < 15) ) {
 				continue;
 			}
-			
+
 			// Daten zur Resource ausgeben
       		echo.append("<tr>\n");
       		echo.append("<td class=\"noBorderX\" style=\"white-space:nowrap\"><img style=\"vertical-align:middle\" src=\""+res.getImage()+"\" alt=\"\">"+res.getName()+"</td>\n");
@@ -128,22 +133,22 @@ public class StatWaren implements Statistic {
       		echo.append("<td class=\"noBorderX\">"+res.getCargo2()+"</td>\n");
       		echo.append("<td class=\"noBorderX\">&nbsp;</td>\n");
       		echo.append("<td class=\"noBorderX\">\n");
-			
+
       		// Wenn es sich um ein Item handelt und einige Positionsangaben fuer dieses Item beim Spieler
       		// vorliegen -> diese anzeigen!
 			if( reslocationlist.containsKey(res.getId().getItemID()) ) {
 				// Die Darstellung erfolgt als Tooltip
 				StringBuilder tooltip = new StringBuilder();
 				tooltip.append("<table class='noBorderX'>");
-				
+
 				// Alle Positionen durchgehen
 				String[] locations = reslocationlist.get(res.getId().getItemID());
 				for( int i=0; i < locations.length; i++ ) {
-					String alocation = locations[i]; 
-					
+					String alocation = locations[i];
+
 					// Das erste Zeichen ist der Typ der Position. Der Rest ist die ID
 					int objectid = Integer.parseInt(alocation.substring(1));
-					
+
 					tooltip.append("<tr>");
 					switch( alocation.charAt(0) ) {
 					// Positionstyp Schiff
@@ -162,7 +167,7 @@ public class StatWaren implements Statistic {
 								shipnamecache.get(objectid)+" ("+objectid+")</a></td>");
 						break;
 
-					// Positionstyp Basis 
+					// Positionstyp Basis
 					case 'b':
 						if( !basecache.containsKey(objectid) ) {
 							Base base = (Base)db.get(Base.class, objectid);
@@ -178,7 +183,7 @@ public class StatWaren implements Statistic {
 								basecache.get(objectid).getLocation().displayCoordinates(false)+
 								"</a></td>");
 						break;
-					
+
 					// Positionstyp Gtu-Zwischenlager
 					case 'g':
 						if( !shipnamecache.containsKey(objectid) ) {
@@ -191,25 +196,25 @@ public class StatWaren implements Statistic {
 						tooltip.append("<td colspan='2' class='noBorderX' style='font-size:14px'>"+
 								shipnamecache.get(objectid)+"</td>");
 						break;
-					
+
 					// Falls der Typ unbekannt ist: Warnmeldung ausgeben
 					default:
 						tooltip.append("<td colspan='2' class='noBorderX' style='font-size:14px'>Unbekanntes Objekt "+alocation+"</td>");
 					}
-					
+
 					tooltip.append("</tr>");
 				}
 				tooltip.append("</table>");
-				
+
 
 				// Linkt mit Tooltip ausgeben
 				echo.append("<a class=\"forschinfo tooltip\" href=\"#\">Wo?<span class='ttcontent'>"+tooltip+"</span></a>\n");
-				
+
 			} // Ende: Itempositionen
-			
+
 			echo.append("</td>");
 			echo.append("</tr>\n");
-			
+
 		} // Ende: Resourcenliste
 		echo.append("</table><br /><br />\n");
 	}
@@ -218,7 +223,7 @@ public class StatWaren implements Statistic {
 	public boolean generateAllyData() {
 		return false;
 	}
-	
+
     @Override
 	public int getRequiredData() {
 		return 0;
