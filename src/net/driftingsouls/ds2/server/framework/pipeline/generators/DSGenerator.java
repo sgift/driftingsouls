@@ -565,7 +565,10 @@ public abstract class DSGenerator extends Generator {
 				return;
 			}
 
-			printHeader( action );
+			if( actionDescriptor.value() == ActionType.DEFAULT )
+			{
+				printHeader( action );
+			}
 
 			doActionOptimizations(actionDescriptor);
 
