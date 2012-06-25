@@ -1243,7 +1243,7 @@ public class User extends BasicUser {
 	 */
 	public int[] getFullBalance()
 	{
-		return this.getFullBalance(true);
+		return this.getFullBalance(!this.hasFlag(FLAG_NO_FOOD_CONSUMPTION));
 	}
 
 	/**

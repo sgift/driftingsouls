@@ -588,13 +588,14 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public UnitCargo getUnits() {
 		if(unitcargo == null)
 		{
-			List<UnitCargoEntry> entries = new ArrayList<UnitCargoEntry>();
+			List<UnitCargoEntry> entries;
 			if(units != null)
 			{
-				for(UnitCargoEntry entry: units)
-				{
-					entries.add(entry);
-				}
+				entries = new ArrayList<UnitCargoEntry>(units);
+			}
+			else
+			{
+				entries = new ArrayList<UnitCargoEntry>();
 			}
 			unitcargo = new UnitCargo(entries, UnitCargo.CARGO_ENTRY_SHIP, id);
 		}
