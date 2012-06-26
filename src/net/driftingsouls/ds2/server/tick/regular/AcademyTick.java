@@ -19,11 +19,8 @@
 package net.driftingsouls.ds2.server.tick.regular;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import org.hibernate.Transaction;
 
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.bases.AcademyQueueEntry;
@@ -33,7 +30,11 @@ import net.driftingsouls.ds2.server.config.Offiziere;
 import net.driftingsouls.ds2.server.entities.Academy;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.tick.EvictableUnitOfWork;
+import net.driftingsouls.ds2.server.tick.SingleUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
+
+import org.hibernate.Transaction;
 
 /**
  * <h1>Berechnung des Ticks fuer Akademien.</h1>
@@ -49,7 +50,7 @@ public class AcademyTick extends TickController {
 	private static final Map<Integer,String> offis = new HashMap<Integer,String>();
 
 	@Override
-	protected void prepare() 
+	protected void prepare()
 	{
 		dTrain = new HashMap<Integer,Offizier.Ability>();
 		dTrain.put(1, Offizier.Ability.ING);
@@ -57,7 +58,7 @@ public class AcademyTick extends TickController {
 		dTrain.put(3, Offizier.Ability.NAV);
 		dTrain.put(4, Offizier.Ability.SEC);
 		dTrain.put(5, Offizier.Ability.COM);
-		
+
 		offis.put(1, "Ingenieur");
 		offis.put(2, "Navigator");
 		offis.put(3, "Sicherheitsexperte");
@@ -65,46 +66,46 @@ public class AcademyTick extends TickController {
 	}
 
 	@Override
-	protected void tick() 
+	protected void tick()
 	{
 		org.hibernate.Session db = getDB();
 
-		Transaction transaction = db.beginTransaction();
-		final User sourceUser = (User)db.get(User.class, -1);
+		List<Integer> accList = Common.cast(db.createQuery("select a.id from Academy a " +
+			"where a.train=1 and (a.base.owner.vaccount=0 or a.base.owner.wait4vac!=0)").list());
 
-		List<?> accList = db.createQuery("from Academy " +
-		"where train=1 and (base.owner.vaccount=0 or base.owner.wait4vac!=0)").list();
-		for( Iterator<?> iter=accList.iterator(); iter.hasNext(); ) 
+		new EvictableUnitOfWork<Integer>("Academy Tick")
 		{
-			Academy acc = (Academy)iter.next();
-
-			try 
+			@Override
+			public void doWork(Integer accId) throws Exception
 			{
+				org.hibernate.Session db = getDB();
+				Academy acc = (Academy)db.get(Academy.class, accId);
+
 				Base base = acc.getBase();
 
 				log("Akademie "+acc.getId()+":");
-				
+
 				boolean build;
-				
+
 				String msg = "";
-				
+
 				// Einen neuen Offizier ausbilden?
-				if( acc.getTrain() ) 
+				if( acc.getTrain() )
 				{
 					log("\tAusbildung laeuft");
-					
+
 					List<AcademyQueueEntry> entries = acc.getScheduledQueueEntries();
-					
-					msg = "Die Ausbildung von<br />"; 
-					
+
+					msg = "Die Ausbildung von<br />";
+
 					build = false;
-					
+
 					for( AcademyQueueEntry entry : entries )
-					{	
+					{
 						entry.decRemainingTime();
 
 						if( entry.getRemainingTime() <= 0 )
-						{	
+						{
 							build = true;
 
 							if( entry.getTraining() < 0 )
@@ -116,19 +117,20 @@ public class AcademyTick extends TickController {
 								msg = msg+Offizier.getOffizierByID(entry.getTraining()).getName()+" ("+dTrain.get(entry.getTrainingType())+")<br />";
 							}
 							entry.finishBuildProcess();
-							
+
 							log("\tOffizier Aus-/Weitergebildet");
 						}
 					}
 					msg = msg+" auf dem Asteroiden "+base.getName()+" wurde abgeschlossen.";
-					
+
 					if( build )
 					{
 						acc.rescheduleQueue();
 						// Nachricht versenden
+						final User sourceUser = (User)db.get(User.class, -1);
 						PM.send(sourceUser,base.getOwner().getId(), "Ausbildung abgeschlossen", msg);
 					}
-					
+
 					if( acc.getNumberScheduledQueueEntries() == 0 )
 					{
 						acc.setTrain(false);
@@ -138,33 +140,29 @@ public class AcademyTick extends TickController {
 				{
 					log("\tKeine Ausbildung vorhanden");
 				}
-
-				transaction.commit();
-				transaction = db.beginTransaction();
-			}
-			catch( RuntimeException e ) 
-			{
-				transaction.rollback();
-				this.log("Bearbeitung der Akademie "+acc.getId()+" fehlgeschlagen: "+e);
-				e.printStackTrace();
-				Common.mailThrowable(e, "Academy Tick Exception", "Academy: "+acc.getId());
-
-				throw e;
 			}
 		}
+		.setFlushSize(10)
+		.executeFor(accList);
 
 		//
 		// Raenge der Offiziere neu berechnen
 		//
-		int count = 0;
-		for( int i = Offiziere.MAX_RANG; i > 0; i-- ) {
-			count += db.createQuery("update Offizier " +
-					"set rang= :rang " +
-			"where rang < :rang and (ing+waf+nav+sec+com)/125 >= :rang")
-			.setInteger("rang", i)
-			.executeUpdate();
+		new SingleUnitOfWork("Academy Tick - Offiziere befoerdern") {
+			@Override
+			public void doWork() {
+				org.hibernate.Session db = getDB();
+				int count = 0;
+				for( int i = Offiziere.MAX_RANG; i > 0; i-- ) {
+					count += db.createQuery("update Offizier " +
+							"set rang= :rang " +
+					"where rang < :rang and (ing+waf+nav+sec+com)/125 >= :rang")
+					.setInteger("rang", i)
+					.executeUpdate();
+				}
+				log(count+" Offizier(e) befoerdert");
+			}
 		}
-		transaction.commit();
-		log(count+" Offizier(e) befoerdert");
+		.execute();
 	}
 }
