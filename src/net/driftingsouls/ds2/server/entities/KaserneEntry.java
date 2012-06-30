@@ -20,11 +20,14 @@ package net.driftingsouls.ds2.server.entities;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.units.UnitCargo;
+import net.driftingsouls.ds2.server.units.UnitType;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -37,11 +40,13 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Table(name="kaserne_queues")
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class KaserneEntry {
-	
+
 	@Id
 	private int id;
 	private int kaserne;
-	private int unitid;
+	@ManyToOne
+	@JoinColumn(name="unitid")
+	private UnitType unit;
 	private int count;
 	private int remaining;
 
@@ -49,7 +54,7 @@ public class KaserneEntry {
 	 * Konstruktor.
 	 *
 	 */
-	public KaserneEntry() 
+	public KaserneEntry()
 	{
 		// EMPTY
 	}
@@ -57,19 +62,19 @@ public class KaserneEntry {
 	/**
 	 * Der Konstruktor.
 	 * @param kaserne Die ID der Kaserne
-	 * @param unitid Die ID der zu bauenden Einheit
+	 * @param unitid Die zu bauenden Einheit
 	 */
-	public KaserneEntry(int kaserne, int unitid)
+	public KaserneEntry(int kaserne, UnitType unitid)
 	{
 		this.kaserne = kaserne;
-		this.unitid = unitid;
+		this.unit = unitid;
 	}
-	
+
 	/**
 	 * Gibt die ID zurueck.
 	 * @return Die ID
 	 */
-	public int getId() 
+	public int getId()
 	{
 		return id;
 	}
@@ -82,16 +87,16 @@ public class KaserneEntry {
 	{
 		return kaserne;
 	}
-	
+
 	/**
-	 * Gibt die Einheiten-ID der gebauten Einheit zurueck.
-	 * @return Die Einheiten-ID
+	 * Gibt die zu gebauten Einheit zurueck.
+	 * @return Die Einheit
 	 */
-	public int getUnitId()
+	public UnitType getUnit()
 	{
-		return unitid;
+		return unit;
 	}
-	
+
 	/**
 	 * Gibt die Menge der auszubildenden Einheiten zurueck.
 	 * @return Die Menge
@@ -100,7 +105,7 @@ public class KaserneEntry {
 	{
 		return count;
 	}
-	
+
 	/**
 	 * Gibt die Anzahl der verbleibenen Ticks bis zur Fertigstellung zurueck.
 	 * @return Die verbleibenden Ticks
@@ -109,7 +114,7 @@ public class KaserneEntry {
 	{
 		return remaining;
 	}
-	
+
 	/**
 	 * Setzt die Anzahl der zu bauenden Einheiten.
 	 * @param count Die neue Anzahl
@@ -118,7 +123,7 @@ public class KaserneEntry {
 	{
 		this.count = count;
 	}
-	
+
 	/**
 	 * Setzt die Anzahl der verbleibenden Ticks.
 	 * @param remaining Die neue Anzahl
@@ -127,7 +132,7 @@ public class KaserneEntry {
 	{
 		this.remaining = remaining;
 	}
-	
+
 	/**
 	 * Beendet diesen Ausbildungsauftrag.
 	 * @param base Die Basis auf der die zugehoerige Kaserne steht
@@ -135,13 +140,13 @@ public class KaserneEntry {
 	public void finishBuildProcess(Base base)
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
+
 		UnitCargo unitcargo = base.getUnits();
-		
-		unitcargo.addUnit(getUnitId(), getCount());
-		
+
+		unitcargo.addUnit(getUnit(), getCount());
+
 		base.setUnits(unitcargo);
-		
+
 		db.delete(this);
 	}
 }

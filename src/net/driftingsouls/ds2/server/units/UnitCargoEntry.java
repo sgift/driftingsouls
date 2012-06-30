@@ -26,6 +26,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import net.driftingsouls.ds2.server.bases.BaseUnitCargoEntry;
@@ -59,7 +61,9 @@ public abstract class UnitCargoEntry implements JSONSupport
 
 		private int type;
 		private int destid;
-		private int unittype;
+		@ManyToOne
+		@JoinColumn(name="unittype")
+		private UnitType unittype;
 
 		/**
 		 * Konstruktor.
@@ -75,7 +79,7 @@ public abstract class UnitCargoEntry implements JSONSupport
 		 * @param destid Die ID des Ziels
 		 * @param unittype Die ID des Einheitentyps
 		 */
-		public UnitCargoEntryKey(int type, int destid, int unittype)
+		public UnitCargoEntryKey(int type, int destid, UnitType unittype)
 		{
 			this.type = type;
 			this.destid = destid;
@@ -106,7 +110,7 @@ public abstract class UnitCargoEntry implements JSONSupport
 		 */
 		public int getUnitTypeId()
 		{
-			return unittype;
+			return unittype.getId();
 		}
 
 		/**
@@ -115,8 +119,7 @@ public abstract class UnitCargoEntry implements JSONSupport
 		 */
 		public UnitType getUnitType()
 		{
-			org.hibernate.Session db = ContextMap.getContext().getDB();
-			return (UnitType)db.get(UnitType.class, unittype);
+			return unittype;
 		}
 
 		/**
@@ -138,21 +141,12 @@ public abstract class UnitCargoEntry implements JSONSupport
 		}
 
 		/**
-		 * Setzt die ID des UnitTyps.
-		 * @param unittype Die ID
-		 */
-		public void setUnitType(int unittype)
-		{
-			this.unittype = unittype;
-		}
-
-		/**
 		 * Setzt den UnitTyp.
 		 * @param unittype der UnitTyp
 		 */
 		public void setUnitType(UnitType unittype)
 		{
-			setUnitType(unittype.getId());
+			this.unittype = unittype;
 		}
 
 		@Override
@@ -162,7 +156,7 @@ public abstract class UnitCargoEntry implements JSONSupport
 			int result = 1;
 			result = prime * result + destid;
 			result = prime * result + type;
-			result = prime * result + unittype;
+			result = prime * result + unittype.hashCode();
 			return result;
 		}
 
@@ -218,25 +212,13 @@ public abstract class UnitCargoEntry implements JSONSupport
 	 * Konstruktor.
 	 * @param type Der Typ des Eintrages
 	 * @param destid Die ID des Zielobjekts
-	 * @param unittype Die ID des Einheitentyps
-	 * @param amount Die Menge
-	 */
-	public UnitCargoEntry(int type, int destid, int unittype, long amount)
-	{
-		this.key = new UnitCargoEntryKey(type,destid,unittype);
-		this.amount = amount;
-	}
-
-	/**
-	 * Konstruktor.
-	 * @param type Der Typ des Eintrages
-	 * @param destid Die ID des Zielobjekts
-	 * @param unittype Der Einheitentyp
+	 * @param unittype Der Einheitentyps
 	 * @param amount Die Menge
 	 */
 	public UnitCargoEntry(int type, int destid, UnitType unittype, long amount)
 	{
-		this(type,destid,unittype.getId(),amount);
+		this.key = new UnitCargoEntryKey(type,destid,unittype);
+		this.amount = amount;
 	}
 
 	/**
@@ -303,15 +285,6 @@ public abstract class UnitCargoEntry implements JSONSupport
 	}
 
 	/**
-	 * Setzt die ID des Einheitentyps.
-	 * @param unittype Die ID
-	 */
-	public void setUnitType(int unittype)
-	{
-		this.key.setUnitType(unittype);
-	}
-
-	/**
 	 * Setzt den Einheitentyp.
 	 * @param unittype Der Einheitentyp
 	 */
@@ -334,9 +307,9 @@ public abstract class UnitCargoEntry implements JSONSupport
 	{
 		if(getTyp() == UnitCargo.CARGO_ENTRY_BASE)
 		{
-			return new BaseUnitCargoEntry(getTyp(),getDestId(),getUnitTypeId(),getAmount());
+			return new BaseUnitCargoEntry(getTyp(),getDestId(),getUnitType(),getAmount());
 		}
-		return new ShipUnitCargoEntry(getTyp(),getDestId(),getUnitTypeId(),getAmount());
+		return new ShipUnitCargoEntry(getTyp(),getDestId(),getUnitType(),getAmount());
 	}
 
 	@Override

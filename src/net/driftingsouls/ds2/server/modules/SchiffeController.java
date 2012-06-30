@@ -62,46 +62,46 @@ import org.springframework.beans.factory.annotation.Configurable;
  * @urlparam Integer crewless Falls != 0 werden alle Schiffe ohne Crew angezeigt
  * @urlparam Integer listoffset Der Offset innerhalb der Liste der Schiffe
  * @urlparam Integer kampf_only Falls != 0 werden nur Kriegsschiffe der Schiffsklasse mit der angegebenen ID angezeigt
- * 
+ *
  */
 @Configurable
 @Module(name="schiffe")
 public class SchiffeController extends TemplateGenerator {
 	private static final Log log = LogFactory.getLog(SchiffeController.class);
-	
+
 	private Configuration config;
-	
+
     /**
      * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
-    public void setConfiguration(Configuration config) 
+    public void setConfiguration(Configuration config)
     {
     	this.config = config;
     }
-	
+
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public SchiffeController(Context context) {
 		super(context);
-		
+
 		setTemplate("schiffe.html");
-		
+
 		parameterString("only");
 		parameterNumber("low");
 		parameterNumber("crewless");
 		parameterNumber("listoffset");
 		parameterNumber("kampf_only");
 	}
-	
+
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		return true;
 	}
-	
+
 	/**
 	 * Aendert den Anzeigemodus fuer den Cargo.
 	 * @urlparam String mode Der Anzeigemodus fuer den Cargo (<code>carg</code> oder <code>norm</code>)
@@ -110,15 +110,15 @@ public class SchiffeController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void changeModeAction() {
 		parameterString("mode");
-		
+
 		String mode = getString("mode");
 		if( mode.equals("carg") || mode.equals("norm") ) {
 			getUser().setUserValue("TBLORDER/schiffe/mode", mode);
 		}
-		
+
 		redirect();
 	}
-	
+
 	/**
 	 * Aendert den Sortierungsmodus fuer die Schiffe.
 	 * @urlparam String order Das neue Sortierkriterium
@@ -127,50 +127,50 @@ public class SchiffeController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void changeOrderAction() {
 		parameterString("order");
-		
+
 		String order = getString("order");
 		if( Common.inArray(order, new String[]{"id","name","type","sys","crew","hull","e"}) ) {
 			getUser().setUserValue("TBLORDER/schiffe/order", order);
 		}
-		
+
 		this.redirect();
 	}
-	
+
 	/**
 	 * Aendert den Anzeigemodus fuer gelandete Jaeger.
 	 * @urlparam Integer showLJaegder Falls != 0 werden gelandete Jaeger angezeigt
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeJDockedAction() {	
+	public void changeJDockedAction() {
 		parameterNumber("showLJaeger");
-		
+
 		this.getUser().setUserValue("TBLORDER/schiffe/showjaeger", Integer.toString(getInteger("showLJaeger")));
-		
+
 		this.redirect();
 	}
-	
+
 	private static final int MAX_SHIPS_PER_PAGE = 250;
-	
+
 	@Override
 	@Action(value=ActionType.DEFAULT, readOnly=true)
-	public void defaultAction() {		
+	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
-		
+
 		String only = getString("only");
 		int low = getInteger("low");
 		int crewless = getInteger("crewless");
 		int listoffset = getInteger("listoffset");
-		
+
 		t.setVar(	"global.low",		low,
 				  	"global.crewless",	crewless,
 				  	"global.only",		only,
 				  	"user.race",		user.getRace());
-		
+
 		String ord = user.getUserValue("TBLORDER/schiffe/order");
 		String showjaeger = user.getUserValue("TBLORDER/schiffe/showjaeger");
-		
+
 		Map<String,String> ordermapper = new HashMap<String,String>();
 		ordermapper.put("id", "s.id");
 		ordermapper.put("name", "s.name,s.id");
@@ -179,23 +179,23 @@ public class SchiffeController extends TemplateGenerator {
 		ordermapper.put("crew", "s.crew,s.id");
 		ordermapper.put("hull", "s.hull,s.id");
 		ordermapper.put("e", "s.e,s.id");
-		
+
 		String ow = ordermapper.get(ord);
-		
+
 		String query = "from Ship as s left join fetch s.modules "+
 			"where s.id>0 and s.owner=? and ";
-		
+
 		if( low != 0 ) {
 			query += "(locate('mangel_nahrung',s.status)!=0 or locate('mangel_reaktor',s.status)!=0) and locate('nocrew',s.status)=0 and ";
 		}
 		if( crewless != 0 ) {
 			query += "((s.modules is not null and s.crew < (select crew from ShipModules where id=s.modules)) or s.crew < (select crew from ShipType where id = s.shiptype)) and ";
 		}
-		
+
 		if( only.equals("kampf") && (showjaeger.equals("0")) ) {
 			query += "locate('l ',s.docked)=0 and ";
 		}
-		
+
 		if( only.equals("tank") )	{
 			query += "s.shiptype.shipClass=3 order by "+ow;
 		}
@@ -222,7 +222,7 @@ public class SchiffeController extends TemplateGenerator {
 		}
 		else if( only.equals("kampf") ) {
 			String sql_only = null;
-			
+
 			if( getInteger("kampf_only") == 0 ) {
 				sql_only = "s.shiptype.shipClass in (2,4,5,6,7,9,15,16,17)";
 			}
@@ -235,25 +235,25 @@ public class SchiffeController extends TemplateGenerator {
 		else {
 			query += "s.shiptype.shipClass > -1 order by "+ow;
 		}
-		
+
 		if( only.equals("tank") ) {
 			t.setVar("only.tank", 1);
-		} 
+		}
 		else if( only.equals("kampf") ) {
 			t.setVar(	"only.kampf", 1,
 				 		"only.kampf.showljaeger", (showjaeger.equals("1")? "checked=\"checked\"":"") );
-		
+
 			if( getInteger("kampf_only") == 0 ) {
 				t.setVar("only.kampf.selected-1","selected=\"selected\"");
 			}
 			else {
 				t.setVar("only.kampf.selected"+getInteger("kampf_only"), "selected=\"selected\"");
 			}
-		} 
+		}
 		else {
 			t.setVar("only.other",1);
 		}
-		
+
 		String[] alarms = {"green","yellow","red"};
 
 		int shiplistcount = 0;
@@ -261,14 +261,14 @@ public class SchiffeController extends TemplateGenerator {
 		t.setBlock("_SCHIFFE","schiffe.listitem","schiffe.list");
 		t.setBlock("schiffe.listitem","schiffe.resitem","schiffe.reslist");
 		t.setBlock("schiffe.listitem","schiffe.unititem","schiffe.unitlist");
-		
-		if(listoffset > 0) 
+
+		if(listoffset > 0)
 		{
 			//prefoffset is 0 for first page -> can't use it in if
 			t.setVar("schiffe.hasprevoffset", 1);
 			t.setVar("schiffe.prevoffset", listoffset - MAX_SHIPS_PER_PAGE);
 		}
-		
+
 		List<?> ships = db.createQuery(query)
 			.setEntity(0, user)
 			.setMaxResults(MAX_SHIPS_PER_PAGE+1)
@@ -276,28 +276,28 @@ public class SchiffeController extends TemplateGenerator {
 			.list();
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship ship = (Ship)iter.next();
-			
+
 			t.start_record();
-			
+
 			shiplistcount++;
-			
-			if( shiplistcount > MAX_SHIPS_PER_PAGE ) 
+
+			if( shiplistcount > MAX_SHIPS_PER_PAGE )
 			{
 				t.setVar("schiffe.nextoffset", listoffset + MAX_SHIPS_PER_PAGE);
-				break;	
+				break;
 			}
-			
+
 			ShipTypeData shiptype = ship.getTypeData();
-			
+
 			Cargo cargo = ship.getCargo();
-	
+
 			if( only.equals("zivil") && shiptype.isMilitary() ) {
-				continue;	
+				continue;
 			}
-			
+
 			int nr = 0;
 			int er = 0;
-			
+
 			boolean ok = false;
 			if( low != 0 ) {
 				if( ship.getStatus().indexOf("mangel_nahrung") > -1 ) {
@@ -306,24 +306,24 @@ public class SchiffeController extends TemplateGenerator {
 				else {
 					nr = low+1;
 				}
-		
+
 				if( ship.getStatus().indexOf("mangel_reaktor") > -1 ) {
 					er = low/2-1;
 				}
 				else {
 					er = low;
 				}
-			}	
-			
+			}
+
 			if( ok == false ) {
 				String offi = null;
-				
+
 				if( ship.getStatus().indexOf("offizier") > -1 ) {
 					Offizier offizier = Offizier.getOffizierByDest('s', ship.getId());
 					if( offizier != null ) {
 						offi = " <a class=\"forschinfo\" href=\""+Common.buildUrl("default", "module", "choff", "off", offizier.getID())+"\"><img style=\"vertical-align:middle\" src=\""+offizier.getPicture()+"\" alt=\"Rang "+offizier.getRang()+"\" /></a>";
 					}
-				} 
+				}
 
 				String crewcolor = "#ffffff";
 				if( ship.getCrew() < shiptype.getCrew()/2 ) {
@@ -352,7 +352,7 @@ public class SchiffeController extends TemplateGenerator {
 						if( werft.getKomplex() != null ) {
 							werft = werft.getKomplex();
 						}
-						
+
 						final WerftQueueEntry[] entries = werft.getBuildQueue();
 						final int totalSlots = werft.getWerftSlots();
 						int usedSlots = 0;
@@ -365,7 +365,7 @@ public class SchiffeController extends TemplateGenerator {
 								imBau = imBau+"<br />Aktuell im Bau: "+entries[i].getBuildShipType().getNickname()+" <img src='"+config.get("URL")+"data/interface/time.gif' alt='Dauer: ' />"+entries[i].getRemainingTime();
 							}
 						}
-						
+
 						StringBuilder popup = new StringBuilder(100);
 						popup.append("Belegte Werftslots: <img style='vertical-align:middle;border:0px' src='"+config.get("URL")+"data/interface/schiffinfo/werftslots.png' alt='' />"+usedSlots+"/"+totalSlots+"<br />");
 						popup.append("Im Bau: "+buildingCount+" Schiffe<br />");
@@ -406,11 +406,11 @@ public class SchiffeController extends TemplateGenerator {
 							"ship.docks",			shiptype.getADocks() + shiptype.getJDocks(),
 							"schiffe.reslist", "",
 							"schiffe.unitlist", "" 	);
-				
+
 				if( ship.getFleet() != null ) {
 					t.setVar("ship.fleet.name",Common._plaintitle(ship.getFleet().getName()) );
 				}
-				
+
 				if( ship.isDocked() ) {
 					Ship master = ship.getBaseShip();
 					if( master != null ) {
@@ -425,21 +425,21 @@ public class SchiffeController extends TemplateGenerator {
 				 					"ship.landed.id",	master.getId() );
 				 	}
 				}
-				
+
  				if( shiptype.getADocks() > 0 ) {
 					t.setVar("ship.adocks.docked",ship.getDockedCount());
  				}
-				
+
 				if( shiptype.getJDocks() > 0 ) {
 					t.setVar("ship.jdocks.docked",ship.getLandedCount());
  				}
-				
+
 				if( (shiptype.getShipClass() == ShipClasses.AWACS.ordinal()) || (shiptype.getShipClass() == ShipClasses.FORSCHUNGSKREUZER.ordinal()) ) {
 					t.setVar("ship.awac",1);
 				}
-				
+
 				int wa = 0;
-				
+
 				ResourceList reslist = cargo.getResourceList();
 				for( ResourceEntry res : reslist ) {
 					String color = "";
@@ -448,21 +448,21 @@ public class SchiffeController extends TemplateGenerator {
 							if( nr <= low ) {
 								color = "red";
 							}
-						} 
+						}
 						else if( Common.inArray(res.getId(),new ResourceID[] {Resources.URAN, Resources.DEUTERIUM, Resources.ANTIMATERIE}) ) {
 							wa++;
 							if( er <= low/2 ) {
 								color = "red";
 							}
 						}
-						if( res.getId().equals(Resources.BATTERIEN) ) { 
+						if( res.getId().equals(Resources.BATTERIEN) ) {
 							color = "";
-							wa--; 
+							wa--;
 						}
 						else if( !Common.inArray(res.getId(),new ResourceID[] {Resources.NAHRUNG,Resources.URAN,Resources.DEUTERIUM,Resources.ANTIMATERIE,Resources.BATTERIEN} ) ) {
 							color = "";
 						}
-						
+
 						if( (res.getId() == Resources.URAN) && (shiptype.getRu() <= 0) ) {
 							color = "";
 						}
@@ -473,7 +473,7 @@ public class SchiffeController extends TemplateGenerator {
 							color = "";
 						}
 					}
-					
+
 					t.setVar(	"res.image",		res.getImage(),
 								"res.color",		color,
 								"res.count",		res.getCargo1(),
@@ -481,7 +481,7 @@ public class SchiffeController extends TemplateGenerator {
 
 					t.parse("schiffe.reslist","schiffe.resitem",true);
 				}
-				
+
 				if( shiptype.getCargo() != 0 ) {
 					t.setVar(	"ship.restcargo",	Common.ln(shiptype.getCargo() - cargo.getMass()),
 								"ship.restcargo.show", 1 );
@@ -489,28 +489,28 @@ public class SchiffeController extends TemplateGenerator {
 				if( (wa == 0) && (low != 0) ) {
 					t.setVar("ship.e.none",1);
 				}
-				
+
 				UnitCargo unitcargo = ship.getUnits();
-				
+
 				if(unitcargo != null && !unitcargo.isEmpty())
 				{
-					for(Entry<Integer, Long> unit : unitcargo.getUnitList().entrySet())
+					for(Entry<UnitType, Long> unit : unitcargo.getUnitList().entrySet())
 					{
-						UnitType unittype = (UnitType)db.get(UnitType.class, unit.getKey());
-						
+						UnitType unittype = unit.getKey();
+
 						t.setVar(	"unit.id",			unittype.getId(),
 									"unit.picture",		unittype.getPicture(),
 									"unit.count",		unit.getValue(),
 									"unit.name",		unittype.getName() );
-						
+
 						t.parse("schiffe.unitlist", "schiffe.unititem", true);
 					}
-					
+
 					t.setVar( "ship.unitspace", shiptype.getUnitSpace() - unitcargo.getMass());
 				}
-				
+
 				t.parse("schiffe.list","schiffe.listitem",true);
-				
+
 			}
 			t.stop_record();
 			t.clear_record();

@@ -109,7 +109,7 @@ public class KasernenBuilding extends DefaultBuilding {
 
 				KaserneEntry[] entries = kaserne.getQueueEntries();
 				for( int i=0; i < entries.length; i++ ) {
-					UnitType unittype = (UnitType)db.get(UnitType.class, entries[i].getUnitId());
+					UnitType unittype = entries[i].getUnit();
 					popup.append("<br />Aktuell im Bau: "+entries[i].getCount()+"x "+unittype.getName()+" <img src='"+config.get("URL")+"data/interface/time.gif' alt='Dauer: ' />"+entries[i].getRemaining());
 				}
 
@@ -267,7 +267,7 @@ public class KasernenBuilding extends DefaultBuilding {
 			KaserneEntry[] entries = kaserne.getQueueEntries();
 			for( KaserneEntry entry : entries )
 			{
-				UnitType unittype = (UnitType)db.get(UnitType.class, entry.getUnitId());
+				UnitType unittype = entry.getUnit();
 
 				if(unittype == null)
 				{

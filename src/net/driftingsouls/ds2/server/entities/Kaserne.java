@@ -49,11 +49,11 @@ public class Kaserne {
 	 * Konstruktor.
 	 *
 	 */
-	public Kaserne() 
+	public Kaserne()
 	{
 		// EMPTY
 	}
-	
+
 	/**
 	 * Konstruktor.
 	 * @param base Die Basis, auf der diese Kaserne steht
@@ -62,7 +62,7 @@ public class Kaserne {
 	{
 		this.base = base;
 	}
-	
+
 	/**
 	 * Gibt die ID der Kaserne zurueck.
 	 * @return Die ID
@@ -71,7 +71,7 @@ public class Kaserne {
 	{
 		return id;
 	}
-	
+
 	/**
 	 * Gibt die Eintraege dieser Kaserne als Liste aus.
 	 * @return Die Eintrage der Kaserne
@@ -80,18 +80,18 @@ public class Kaserne {
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		List<KaserneEntry> entrylist = Common.cast(db.createQuery("from KaserneEntry WHERE kaserne=:kaserne").setInteger("kaserne", id).list());
-		
+
 		KaserneEntry[] entries = new KaserneEntry[entrylist.size()];
-		
+
 		int zaehler = 0;
 		for(KaserneEntry entry : entrylist)
 		{
 			entries[zaehler++] = entry;
 		}
-		
+
 		return entries;
 	}
-	
+
 	/**
 	 * Gibt die Basis zurueck, auf der diese Kaserne steht.
 	 * @return Die Basis
@@ -100,24 +100,24 @@ public class Kaserne {
 	{
 		return base;
 	}
-	
+
 	/**
 	 * Loescht alle Bauschlangeneintraege und danach sich selbst.
 	 */
 	public void destroy()
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
+
 		KaserneEntry[] entrylist = getQueueEntries();
-		
+
 		for(KaserneEntry entry : entrylist)
 		{
 			db.delete(entry);
 		}
-		
+
 		db.delete(this);
 	}
-	
+
 	/**
 	 * Gibt zurueck, ob in dieser Kaserne aktuell etwas gebaut wird.
 	 * @return <code>true</code>, falls etwas gebaut wird
@@ -130,7 +130,7 @@ public class Kaserne {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Fuegt den angegebenen Einheitentyp in der Angegebenen Menge der Produktion hinzu.
 	 * @param unittype Der Einheitentyp
@@ -141,17 +141,17 @@ public class Kaserne {
 		boolean found = false;
 		for( KaserneEntry entry : getQueueEntries())
 		{
-			if(entry.getUnitId() == unittype.getId() && entry.getRemaining() == unittype.getDauer())
+			if(entry.getUnit().getId() == unittype.getId() && entry.getRemaining() == unittype.getDauer())
 			{
 				entry.setCount(entry.getCount() + newcount);
 				found = true;
 				break;
 			}
 		}
-		
+
 		if(!found)
 		{
-			KaserneEntry newEntry = new KaserneEntry(id, unittype.getId());
+			KaserneEntry newEntry = new KaserneEntry(id, unittype);
 			newEntry.setRemaining(unittype.getDauer());
 			newEntry.setCount(newcount);
 			ContextMap.getContext().getDB().save(newEntry);

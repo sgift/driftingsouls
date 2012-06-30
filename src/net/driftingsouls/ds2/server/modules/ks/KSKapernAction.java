@@ -69,7 +69,7 @@ public class KSKapernAction extends BasicKSAction {
 			return Result.ERROR;
 		}
 
-		if( (ownShip.getShip().getWeapons() == 0) || (ownShip.getShip().getEngine() == 0) || 
+		if( (ownShip.getShip().getWeapons() == 0) || (ownShip.getShip().getEngine() == 0) ||
 				(ownShip.getCrew() <= 0) || (ownShip.getAction() & Battle.BS_FLUCHT) != 0 ||
 				(ownShip.getAction() & Battle.BS_JOIN) != 0 || (enemyShip.getAction() & Battle.BS_FLUCHT) != 0 ||
 				(enemyShip.getAction() & Battle.BS_JOIN) != 0 || (enemyShip.getAction() & Battle.BS_DESTROYED) != 0 ) {
@@ -79,7 +79,7 @@ public class KSKapernAction extends BasicKSAction {
 		ShipTypeData enemyShipType = enemyShip.getTypeData();
 
 		//		 Geschuetze sind nicht kaperbar
-		if( (enemyShipType.getShipClass() == ShipClasses.GESCHUETZ.ordinal() ) || 
+		if( (enemyShipType.getShipClass() == ShipClasses.GESCHUETZ.ordinal() ) ||
 				((enemyShipType.getCost() != 0) && (enemyShip.getShip().getEngine() != 0) && (enemyShip.getCrew() != 0)) ||
 				(ownShip.getCrew() == 0) || enemyShipType.hasFlag(ShipTypes.SF_NICHT_KAPERBAR) ) {
 			return Result.ERROR;
@@ -89,12 +89,12 @@ public class KSKapernAction extends BasicKSAction {
 			return Result.ERROR;
 		}
 
-		if(enemyShip.getShip().isDocked() || enemyShip.getShip().isLanded()) 
+		if(enemyShip.getShip().isDocked() || enemyShip.getShip().isLanded())
 		{
-			if(enemyShip.getShip().isLanded()) 
+			if(enemyShip.getShip().isLanded())
 			{
 				return Result.ERROR;
-			} 
+			}
 
 			Ship mastership = enemyShip.getShip().getBaseShip();
 			if( (mastership.getEngine() != 0) && (mastership.getCrew() != 0) ) {
@@ -103,7 +103,7 @@ public class KSKapernAction extends BasicKSAction {
 		}
 
 		// IFF-Stoersender
-		boolean disableIFF = enemyShip.getShip().getStatus().indexOf("disable_iff") > -1;	
+		boolean disableIFF = enemyShip.getShip().getStatus().indexOf("disable_iff") > -1;
 
 		if( disableIFF ) {
 			return Result.ERROR;
@@ -135,15 +135,15 @@ public class KSKapernAction extends BasicKSAction {
 		Crew dcrew = new UnitCargo.Crew(enemyShip.getCrew());
 		UnitCargo ownUnits = ownShip.getUnits();
 		UnitCargo enemyUnits = enemyShip.getUnits();
-		
+
 		UnitCargo saveunits = ownUnits.trimToMaxSize(enemyShipType.getMaxUnitSize());
 
 		boolean ok = false;
-		
+
 
 		int attmulti = 1;
 		int defmulti = 1;
-		
+
 		Offizier defoffizier = Offizier.getOffizierByDest('s', enemyShip.getId());
 		if( defoffizier != null ) {
 			defmulti = defoffizier.getKaperMulti(true);
@@ -161,7 +161,7 @@ public class KSKapernAction extends BasicKSAction {
 
 			UnitCargo toteeigeneUnits = new UnitCargo();
 			UnitCargo totefeindlicheUnits = new UnitCargo();
-			
+
 			if(ownUnits.kapern(enemyUnits, toteeigeneUnits, totefeindlicheUnits, dcrew, attmulti, defmulti ))
 			{
 				ok = true;
@@ -178,33 +178,33 @@ public class KSKapernAction extends BasicKSAction {
 				{
 					battle.logme("Angriff erfolgreich.\n");
 					msg += "Das Schiff ist verloren.\n";
-					HashMap<Integer, Long> ownunitlist = toteeigeneUnits.getUnitList();
-					HashMap<Integer, Long> enemyunitlist = totefeindlicheUnits.getUnitList();
-					
+					HashMap<UnitType, Long> ownunitlist = toteeigeneUnits.getUnitList();
+					HashMap<UnitType, Long> enemyunitlist = totefeindlicheUnits.getUnitList();
+
 					if(!ownunitlist.isEmpty())
 					{
 						battle.logme("Angreifer:\n");
 						msg += "Angreifer:\n";
-						for(Entry<Integer, Long> unit : ownunitlist.entrySet())
+						for(Entry<UnitType, Long> unit : ownunitlist.entrySet())
 						{
-							UnitType unittype = (UnitType)db.get(UnitType.class, unit.getKey());
+							UnitType unittype = unit.getKey();
 							battle.logme(unit.getValue()+" "+unittype.getName()+" gefallen\n");
 							msg += unit.getValue()+" "+unittype.getName()+" erschossen\n";
 						}
 					}
-					
+
 					if(!enemyunitlist.isEmpty())
 					{
 						battle.logme("Verteidiger:\n");
 						msg += "Verteidiger:\n";
-						for(Entry<Integer, Long> unit : enemyunitlist.entrySet())
+						for(Entry<UnitType, Long> unit : enemyunitlist.entrySet())
 						{
-							UnitType unittype = (UnitType)db.get(UnitType.class, unit.getKey());
+							UnitType unittype = unit.getKey();
 							battle.logme(unit.getValue()+" "+unittype.getName()+" erschossen\n");
 							msg += unit.getValue()+" "+unittype.getName()+" gefallen\n";
 						}
 					}
-					
+
 					if( attoffizier != null)
 					{
 						attoffizier.gainExperience(Offizier.Ability.COM, 3);
@@ -215,39 +215,39 @@ public class KSKapernAction extends BasicKSAction {
 			{
 				battle.logme("Angriff abgebrochen.\n");
 				msg += "Angreifer flieht.\n";
-				HashMap<Integer, Long> ownunitlist = toteeigeneUnits.getUnitList();
-				HashMap<Integer, Long> enemyunitlist = totefeindlicheUnits.getUnitList();
-				
+				HashMap<UnitType, Long> ownunitlist = toteeigeneUnits.getUnitList();
+				HashMap<UnitType, Long> enemyunitlist = totefeindlicheUnits.getUnitList();
+
 				if(!ownunitlist.isEmpty())
 				{
 					battle.logme("Angreifer:\n");
 					msg += "Angreifer:\n";
-					for(Entry<Integer, Long> unit : ownunitlist.entrySet())
+					for(Entry<UnitType, Long> unit : ownunitlist.entrySet())
 					{
-						UnitType unittype = (UnitType)db.get(UnitType.class, unit.getKey());
+						UnitType unittype = unit.getKey();
 						battle.logme(unit.getValue()+" "+unittype.getName()+" gefallen\n");
 						msg += unit.getValue()+" "+unittype.getName()+" erschossen\n";
 					}
 				}
-				
+
 				if(!enemyunitlist.isEmpty())
 				{
 					battle.logme("Verteidiger:\n");
 					msg += "Verteidiger:\n";
-					for(Entry<Integer, Long> unit : enemyunitlist.entrySet())
+					for(Entry<UnitType, Long> unit : enemyunitlist.entrySet())
 					{
-						UnitType unittype = (UnitType)db.get(UnitType.class, unit.getKey());
+						UnitType unittype = unit.getKey();
 						battle.logme(unit.getValue()+" "+unittype.getName()+" erschossen\n");
 						msg += unit.getValue()+" "+unittype.getName()+" gefallen\n";
 					}
 				}
-				
+
 				if( defoffizier != null)
 				{
 					defoffizier.gainExperience(Offizier.Ability.SEC, 5);
 				}
 			}
-		} 
+		}
 		else if( !ownUnits.isEmpty() ) {
 			ok = true;
 			if( attoffizier != null)
@@ -259,13 +259,13 @@ public class KSKapernAction extends BasicKSAction {
 		}
 
 		ownUnits.addCargo(saveunits);
-		
+
 		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
 		battle.logenemy(msg);
 		battle.logenemy("]]></action>\n");
 		ownShip.getShip().setBattleAction(true);
 		ownShip.setUnits(ownUnits);
-		
+
 		enemyShip.setUnits(enemyUnits);
 		enemyShip.getShip().setCrew(dcrew.getValue());
 
@@ -352,7 +352,7 @@ public class KSKapernAction extends BasicKSAction {
 				werft.setLink(null);
 			}
 
-			// TODO: Das Entfernen eines Schiffes aus der Liste sollte in Battle 
+			// TODO: Das Entfernen eines Schiffes aus der Liste sollte in Battle
 			// durchgefuehrt werden und den Zielindex automatisch anpassen
 			// (durch das Entfernen von Schiffen kann der Zielindex ungueltig geworden sein)
 
@@ -370,7 +370,7 @@ public class KSKapernAction extends BasicKSAction {
 				}
 			}
 
-			if( enemyShips.size() < 1 ) {		
+			if( enemyShips.size() < 1 ) {
 				battle.endBattle(1, 0, true);
 
 				User commander = battle.getCommander(battle.getOwnSide());
@@ -393,7 +393,7 @@ public class KSKapernAction extends BasicKSAction {
 			enemyShip.getShip().recalculateShipStatus();
 
 			enemyShip = battle.getEnemyShip();
-		} 
+		}
 		// Das Schiff konnte offenbar nicht gekapert werden....
 		else {
 			enemyShip.getShip().recalculateShipStatus();

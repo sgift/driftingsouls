@@ -36,16 +36,16 @@ import org.hibernate.Transaction;
  * <h1>Berechnung des Ticks fuer Kasernen.</h1>
  * Der Ausbildungscountdown wird reduziert und, wenn dieser abgelaufen ist,
  * die Ausbildung durchgefuehrt.
- * 
+ *
  */
 public class KaserneTick extends TickController {
-	
+
 	@Override
-	protected void prepare() 
+	protected void prepare()
 	{}
 
 	@Override
-	protected void tick() 
+	protected void tick()
 	{
 		org.hibernate.Session db = getDB();
 		FlushMode oldMode = db.getFlushMode();
@@ -58,45 +58,45 @@ public class KaserneTick extends TickController {
 		int count = 0;
 		for(Kaserne kaserne: kasernen)
 		{
-			try 
+			try
 			{
 				Base base = kaserne.getBase();
 
 				log("Kaserne "+base.getId()+":");
-				
+
 				boolean build = false;
-				
+
 				String msg = "";
-				
+
 				if(kaserne.isBuilding())
 				{
 					log("\tAusbildung laeuft");
 					KaserneEntry[] entries = kaserne.getQueueEntries();
-					
+
 					msg = "Die Ausbildung von<br />";
-					
+
 					for(KaserneEntry entry : entries)
 					{
 						entry.setRemaining(entry.getRemaining()-1);
 						if(entry.getRemaining() <= 0)
 						{
-							UnitType unittype = (UnitType)db.get(UnitType.class, entry.getUnitId());
+							UnitType unittype = entry.getUnit();
 							msg = msg+entry.getCount()+" "+unittype.getName()+"<br />";
 							entry.finishBuildProcess(base);
 							build = true;
 						}
 					}
 					msg = msg + "auf der Basis "+base.getName()+" ist abgeschlossen.";
-					
+
 				}
-				
+
 				if( build )
 				{
 					// Nachricht versenden
 					PM.send(sourceUser, base.getOwner().getId(), "Ausbildung abgeschlossen", msg);
 				}
 			}
-			catch( RuntimeException e ) 
+			catch( RuntimeException e )
 			{
 				transaction.rollback();
 				transaction = db.beginTransaction();
@@ -106,7 +106,7 @@ public class KaserneTick extends TickController {
 
 				throw e;
 			}
-			
+
 			count++;
 			final int MAX_UNFLUSHED_OBJECTS = 50;
 			if(count%MAX_UNFLUSHED_OBJECTS == 0)
@@ -116,7 +116,7 @@ public class KaserneTick extends TickController {
 				transaction = db.beginTransaction();
 			}
 		}
-		
+
 		db.flush();
 		transaction.commit();
 		db.clear();

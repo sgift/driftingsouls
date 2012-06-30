@@ -212,10 +212,10 @@ public class UnitCargo implements Cloneable, JSONSupport {
 	 * @param unitid Die Einheit
 	 * @param count Die Anzahl an hinzuzufuegenden Einheiten
 	 */
-	public void addUnit( int unitid, long count ) {
+	public void addUnit( UnitType unitid, long count ) {
 		for( int i=0; i < units.size(); i++ ) {
 			UnitCargoEntry aunit = units.get(i);
-			if( unitid == aunit.getUnitTypeId()) {
+			if( unitid.getId() == aunit.getUnitTypeId()) {
 				aunit.setAmount(aunit.getAmount()+count);
 				return;
 			}
@@ -238,10 +238,10 @@ public class UnitCargo implements Cloneable, JSONSupport {
 	 * @param unitid Die Einheit
 	 * @param count Die Anzahl an Einheiten, die abgezogen werden sollen
 	 */
-	public void substractUnit( int unitid, long count ) {
+	public void substractUnit( UnitType unitid, long count ) {
 		for( int i=0; i < units.size(); i++ ) {
 			UnitCargoEntry aunit = units.get(i);
-			if( unitid == aunit.getUnitTypeId()) {
+			if( unitid.getId() == aunit.getUnitTypeId()) {
 				aunit.setAmount(aunit.getAmount()-count);
 				if( aunit.getAmount() == 0 ) {
 					units.remove(i);
@@ -266,21 +266,21 @@ public class UnitCargo implements Cloneable, JSONSupport {
 
 	/**
 	 * Ueberprueft ob eine Einheit vorhanden ist.
-	 * @param unitid Die Einheiten-ID
+	 * @param unitid Der Einheitentyp
 	 * @return <code>true</code>, falls die Einheit vorhanden ist
 	 */
-	public boolean hasUnit( int unitid ) {
-		return hasUnit(unitid, 0 );
+	public boolean hasUnit( UnitType unit ) {
+		return hasUnit(unit, 0 );
 	}
 
 	/**
 	 * Ueberprueft ob eine Einheit in mindestens der angegebenen Menge vorhanden ist.
-	 * @param unitid Die Einheiten-ID
+	 * @param unit Der Einheitentyp
 	 * @param count Die Mindestmenge
 	 * @return <code>true</code>, falls die Einheit in der Menge vorhanden ist
 	 */
-	public boolean hasUnit( int unitid, long count ) {
-		long amount = getUnitCount(unitid);
+	public boolean hasUnit( UnitType unit, long count ) {
+		long amount = getUnitCount(unit);
 		if( count != 0 ) {
 			return (amount >= count);
 		}
@@ -292,13 +292,13 @@ public class UnitCargo implements Cloneable, JSONSupport {
 
 	/**
 	 * Gibt die Anzahl der vorhandenen Einheiten im UnitCargo zurueck.
-	 * @param unitid Die gewuenschte Eiheit
+	 * @param unit Die gewuenschte Einheit
 	 * @return die Anzahl der Einheiten
 	 */
-	public long getUnitCount( int unitid ) {
+	public long getUnitCount( UnitType unit ) {
 		for( int i=0; i < units.size(); i++ ) {
 			UnitCargoEntry aunit = units.get(i);
-			if( unitid == aunit.getUnitTypeId()) {
+			if( unit.getId() == aunit.getUnitTypeId()) {
 				return aunit.getAmount();
 			}
 		}
@@ -336,7 +336,7 @@ public class UnitCargo implements Cloneable, JSONSupport {
 
 		if( !units.isEmpty() ) {
 			for( UnitCargoEntry unit : units ) {
-				substractUnit(unit.getUnitTypeId(), unit.getAmount());
+				substractUnit(unit.getUnitType(), unit.getAmount());
 			}
 		}
 	}
@@ -352,7 +352,7 @@ public class UnitCargo implements Cloneable, JSONSupport {
 
 		if( !units.isEmpty() ) {
 			for( UnitCargoEntry unit : units ) {
-				addUnit(unit.getUnitTypeId(),unit.getAmount());
+				addUnit(unit.getUnitType(),unit.getAmount());
 			}
 		}
 	}
@@ -360,13 +360,13 @@ public class UnitCargo implements Cloneable, JSONSupport {
 	/**
 	 * Setzt die vorhandene Menge der angegebenen Einheit auf
 	 * den angegebenen Wert.
-	 * @param unitid Die Einheiten-ID
+	 * @param unitid Der Einheitentyp
 	 * @param count Die neue Menge
 	 */
-	public void setUnit( int unitid, long count ) {
+	public void setUnit( UnitType unitid, long count ) {
 		for( int i=0; i < units.size(); i++ ) {
 			UnitCargoEntry aunit = units.get(i);
-			if( unitid == aunit.getUnitTypeId()) {
+			if( unitid.getId() == aunit.getUnitTypeId()) {
 				aunit.setAmount(count);
 				return;
 			}
@@ -541,18 +541,18 @@ public class UnitCargo implements Cloneable, JSONSupport {
 
 		for(UnitType unittype : unittypes)
 		{
-			if(hasUnit(unittype.getId()))
+			if(hasUnit(unittype))
 			{
 				// Aktuelle Einheiten verbrauchen weniger Nahrung als weg muss
 				// Alle Einheiten wegpacken und Nahrung reduzieren.
-				if(getUnitCount(unittype.getId()) * unittype.getNahrungCost() < nahrung)
+				if(getUnitCount(unittype) * unittype.getNahrungCost() < nahrung)
 				{
-					nahrung -= getUnitCount(unittype.getId()) * unittype.getNahrungCost();
-					setUnit(unittype.getId(), 0);
+					nahrung -= getUnitCount(unittype) * unittype.getNahrungCost();
+					setUnit(unittype, 0);
 				}
 				else
 				{
-					setUnit(unittype.getId(), (long)(getUnitCount(unittype.getId()) - Math.ceil(nahrung / unittype.getNahrungCost())));
+					setUnit(unittype, (long)(getUnitCount(unittype) - Math.ceil(nahrung / unittype.getNahrungCost())));
 					nahrung = 0;
 				}
 			}
@@ -619,14 +619,14 @@ public class UnitCargo implements Cloneable, JSONSupport {
 	 * Gibt die Einheiten im Cargo als Liste zurueck.
 	 * @return Die Liste der Einheiten
 	 */
-	public HashMap<Integer, Long> getUnitList()
+	public HashMap<UnitType, Long> getUnitList()
 	{
-		HashMap<Integer, Long> unitlist = new HashMap<Integer, Long>();
+		HashMap<UnitType, Long> unitlist = new HashMap<UnitType, Long>();
 		for(UnitCargoEntry unit : units)
 		{
 			if(unit.getAmount() != 0)
 			{
-				unitlist.put(unit.getUnitTypeId(), unit.getAmount());
+				unitlist.put(unit.getUnitType(), unit.getAmount());
 			}
 		}
 
@@ -685,22 +685,22 @@ public class UnitCargo implements Cloneable, JSONSupport {
 
 		for(UnitType unit : unitlist)
 		{
-			if(getUnitCount(unit.getId()) > 0)
+			if(getUnitCount(unit) > 0)
 			{
-				long unitcount = getUnitCount(unit.getId());
+				long unitcount = getUnitCount(unit);
 
 				// Reichen die Einheiten nicht aus um den Bedarf zu decken
 				if( unit.getKaperValue() * unitcount < totekapervalue)
 				{
 					totekapervalue -= unit.getKaperValue() * unitcount;
-					toteUnits.addUnit(unit.getId(), unitcount);
-					setUnit(unit.getId(),0);
+					toteUnits.addUnit(unit, unitcount);
+					setUnit(unit,0);
 				}
 				// Die Einheiten reichen aus
 				else
 				{
-					toteUnits.addUnit(unit.getId(), (long)Math.ceil(totekapervalue / unit.getKaperValue()));
-					substractUnit(unit.getId(), (long)Math.ceil(totekapervalue / unit.getKaperValue()));
+					toteUnits.addUnit(unit, (long)Math.ceil(totekapervalue / unit.getKaperValue()));
+					substractUnit(unit, (long)Math.ceil(totekapervalue / unit.getKaperValue()));
 					totekapervalue = 0;
 					return;
 				}
@@ -726,7 +726,7 @@ public class UnitCargo implements Cloneable, JSONSupport {
 		{
 			if(unit.getUnitType().getSize() > maxsize)
 			{
-				trimedUnits.addUnit(unit.getUnitType().getId(), unit.getAmount());
+				trimedUnits.addUnit(unit.getUnitType(), unit.getAmount());
 				unit.setAmount(0);
 			}
 		}
@@ -749,19 +749,19 @@ public class UnitCargo implements Cloneable, JSONSupport {
 
 		for(UnitType unit : unitlist)
 		{
-			if(hasUnit(unit.getId()))
+			if(hasUnit(unit))
 			{
 				// Es koennen nicht mehr alle Einheiten versorgt werden
-				if(getUnitCount(unit.getId())*unit.getReCost() > restre)
+				if(getUnitCount(unit)*unit.getReCost() > restre)
 				{
 					long numunits = (long)Math.ceil(restre / unit.getReCost());
-					substractUnit(unit.getId(), numunits);
-					meuterer.addUnit(unit.getId(), numunits);
+					substractUnit(unit, numunits);
+					meuterer.addUnit(unit, numunits);
 					restre -= numunits * unit.getReCost();
 				}
 				else
 				{
-					restre -= (long)Math.ceil(getUnitCount(unit.getId()) * unit.getReCost());
+					restre -= (long)Math.ceil(getUnitCount(unit) * unit.getReCost());
 				}
 			}
 		}

@@ -58,7 +58,7 @@ import org.apache.commons.lang.math.RandomUtils;
 /**
  * Ermoeglicht das Kapern eines Schiffes sowie verlinkt auf das Pluendern des Schiffes.
  * @author Christopher Jung
- * 
+ *
  * @urlparam Integer ship Die ID des Schiffes, mit dem der Spieler kapern moechte
  * @urlparam Integer tar Die ID des zu kapernden/pluendernden Schiffes
  */
@@ -66,144 +66,144 @@ import org.apache.commons.lang.math.RandomUtils;
 public class KapernController extends TemplateGenerator {
 	private Ship ownShip;
 	private Ship targetShip;
-	
+
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public KapernController(Context context) {
 		super(context);
-		
+
 		setTemplate("kapern.html");
-		
+
 		parameterNumber("ship");
 		parameterNumber("tar");
 	}
-	
+
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		User user = (User)this.getUser();
-		
+
 		int ship = getInteger("ship");
 		if( ship < 0 ) {
 			ship = 0;
 		}
 		int tar = getInteger("tar");
 		if( tar < 0 ) {
-			tar = 0;	
+			tar = 0;
 		}
 
 		Ship aship = (Ship)db.get(Ship.class, ship);
 		Ship dship = (Ship)db.get(Ship.class, tar);
-		
+
 		if( aship == null || aship.getOwner().getId() != user.getId() ) {
 			addError("Das angegebene Schiff existiert nicht oder geh&ouml;rt nicht ihnen", Common.buildUrl("default", "module", "schiffe") );
-			
+
 			return false;
 		}
-		
+
 		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", ship);
-		
+
 		if( dship == null ) {
 			addError("Das angegebene Zielschiff existiert nicht", errorurl );
-			
+
 			return false;
 		}
 
 		if( user.isNoob() ) {
 			addError("Sie k&ouml;nnen weder kapern noch pl&uuml;ndern solange sie unter GCP-Schutz stehen<br />Hinweis: der GCP-Schutz kann unter Optionen vorzeitig beendet werden", errorurl );
-			
+
 			return false;
 		}
-		
+
 		User taruser = dship.getOwner();
 		if( taruser.isNoob() ) {
 			addError("Der Kolonist steht unter GCP-Schutz", errorurl );
-			
+
 			return false;
 		}
-		
+
 		if( (taruser.getVacationCount() != 0) && (taruser.getWait4VacationCount() == 0) ) {
 			addError("Sie k&ouml;nnen Schiffe dieses Spielers nicht kapern oder pl&uuml;ndern solange er sich im Vacation-Modus befindet", errorurl);
-					
+
 			return false;
 		}
-		
+
 		if( dship.getOwner().getId() == aship.getOwner().getId() ) {
 			addError("Sie k&ouml;nnen ihre eigenen Schiffe nicht kapern", errorurl);
-					
+
 			return false;
 		}
-		
+
 		if( (dship.getVisibility() != null) && (dship.getVisibility() != user.getId()) ) {
 			addError("Sie k&ouml;nnen nur kapern, was sie auch sehen", errorurl);
-					
+
 			return false;
 		}
 
 		if( !aship.getLocation().sameSector(0, dship.getLocation(), 0) ) {
 			addError("Das Zielschiff befindet sich nicht im selben Sektor", errorurl);
-					
+
 			return false;
 		}
 
 		if( (aship.getEngine() == 0) || (aship.getWeapons() == 0) ) {
 			addError("Diese Schrottm&uuml;hle wird nichts kapern k&ouml;nnen", errorurl);
-					
+
 			return false;
 		}
 
 		if( aship.getUnits().isEmpty() ) {
 			addError("Sie ben&ouml;tigen Einheiten um zu kapern", errorurl);
-					
+
 			return false;
 		}
-		
+
 		if( (dship.getTypeData().getCost() != 0) && (dship.getEngine() != 0) && (dship.getCrew() != 0 || !dship.getUnits().isEmpty()) ) {
 			addError("Das feindliche Schiff ist noch bewegungsf&auml;hig", errorurl);
-					
+
 			return false;
 		}
 
 		// Wenn das Ziel ein Geschtz (10) ist....
 		if( dship.getTypeData().getShipClass() == ShipClasses.GESCHUETZ.ordinal() ) {
 			addError("Sie k&ouml;nnen orbitale Verteidigungsanlagen weder kapern noch pl&uuml;ndern", errorurl);
-					
+
 			return false;
 		}
-		
+
 		if( dship.isDocked() || dship.isLanded() ) {
 			if( dship.isLanded() ) {
 				addError("Sie k&ouml;nnen gelandete Schiffe weder kapern noch pl&uuml;ndern", errorurl);
-					
+
 				return false;
-			} 
+			}
 
 			Ship mship = dship.getBaseShip();
 			if( (mship.getEngine() != 0) && (mship.getCrew() != 0 || !mship.getUnits().isEmpty()) ) {
 				addError("Das Schiff, an das das feindliche Schiff angedockt hat, ist noch bewegungsf&auml;hig", errorurl);
-				
+
 				return false;
 			}
 		}
-		
+
 		//In einem Kampf?
 		if( (aship.getBattle() != null) || (dship.getBattle() != null) ) {
 			addError("Eines der Schiffe ist zur Zeit in einen Kampf verwickelt", errorurl);
-					
+
 			return false;
 		}
-		
+
 		if( dship.getStatus().indexOf("disable_iff") > -1) {
 			addError("Das Schiff besitzt keine IFF-Kennung und kann daher nicht gekapert/gepl&uuml;ndert werden", errorurl);
-					
+
 			return false;
 		}
-		
+
 		this.ownShip = aship;
 		this.targetShip = dship;
-		
+
 		this.getTemplateEngine().setVar(
 				"ownship.id",		aship.getId(),
 				"ownship.name",		aship.getName(),
@@ -222,20 +222,20 @@ public class KapernController extends TemplateGenerator {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)this.getUser();
-		
+
 		t.setVar("kapern.showkaperreport", 1);
-		
+
 		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", this.ownShip.getId());
-	
+
 		if( targetShip.getTypeData().hasFlag(ShipTypes.SF_NICHT_KAPERBAR ) ) {
 			addError("Sie k&ouml;nnen dieses Schiff nicht kapern", errorurl);
 			this.setTemplate("");
-					
+
 			return;
 		}
-		
+
 		User targetUser = (User)getDB().get(User.class, this.targetShip.getOwner().getId());
-				
+
 		String kapermessage = "<div align=\"center\">Die Einheiten st&uuml;rmen die "+this.targetShip.getName()+".</div><br />";
 		StringBuilder msg = new StringBuilder();
 
@@ -244,10 +244,10 @@ public class KapernController extends TemplateGenerator {
         {
             BigDecimal account = new BigDecimal(targetUser.getKonto());
             account = account.movePointLeft(1).setScale(0, RoundingMode.HALF_EVEN);
-            
+
             BigInteger shipBounty = this.targetShip.getTypeData().getBounty();
             shipBounty = account.toBigIntegerExact().min(shipBounty);
- 
+
             if(shipBounty.compareTo(BigInteger.ZERO) != 0)
             {
                 user.addBounty(shipBounty);
@@ -261,53 +261,53 @@ public class KapernController extends TemplateGenerator {
                 db.persist(entry);
             }
         }
-		
+
         boolean ok = false;
-        
+
 		// Falls Crew auf dem Zielschiff vorhanden ist
 		if( this.targetShip.getCrew() != 0 || !this.targetShip.getUnits().isEmpty() ) {
 			if( this.targetShip.getTypeData().getCrew() == 0 ) {
 				addError("Dieses Schiff ist nicht kaperbar", errorurl);
 				this.setTemplate("");
-						
+
 				return;
-			}	
-			
+			}
+
 			if( this.targetShip.getTypeData().getShipClass() == ShipClasses.STATION.ordinal() ) {
 				if( !checkAlliedShipsReaction(db, t, targetUser) ) {
 					return;
 				}
 			}
-			
+
 			msg.append("Die Einheiten der "+this.ownShip.getName()+" ("+this.ownShip.getId()+"), eine "+this.ownShip.getTypeData().getNickname()+", st&uuml;rmt die "+this.targetShip.getName()+" ("+this.targetShip.getId()+"), eine "+this.targetShip.getTypeData().getNickname()+", bei "+this.targetShip.getLocation().displayCoordinates(false)+"\n\n");
-	
+
 			StringBuilder kapernLog = new StringBuilder();
 			ok = doFighting(db, kapernLog);
-			
+
 			msg.append(kapernLog);
-			
+
 			t.setVar("kapern.message", kapermessage+kapernLog.toString().replace("\n", "<br />"));
-			
+
 		}
 		// Falls keine Crew auf dem Zielschiff vorhanden ist
 		else {
 			ok = true;
-			
+
 			t.setVar("kapern.message", kapermessage+"Das Schiff wird widerstandslos &uuml;bernommen");
-			
+
 			msg.append("Das Schiff "+this.targetShip.getName()+"("+this.targetShip.getId()+"), eine "+this.targetShip.getTypeData().getNickname()+", wird bei "+this.targetShip.getLocation().displayCoordinates(false)+" an "+this.ownShip.getName()+" ("+this.ownShip.getId()+") &uuml;bergeben\n");
 		}
-		
+
 		// Transmisson
 		PM.send( user, targetUser.getId(), "Kaperversuch", msg.toString() );
-		
+
 		// Wurde das Schiff gekapert?
 		if( ok ) {
 			// Evt unbekannte Items bekannt machen
 			processUnknownItems(user);
-			
+
 			transferShipToNewOwner(db, user);
-		}	
+		}
 
 		this.ownShip.recalculateShipStatus();
 		this.targetShip.recalculateShipStatus();
@@ -333,7 +333,7 @@ public class KapernController extends TemplateGenerator {
 		{
 			dockShip.removeFromFleet();
 			dockShip.setOwner(user);
-			
+
 			db.createQuery("update Offizier set userid=? where dest=?")
 			.setEntity(0, user)
 			.setString(1, "s "+dockShip.getId())
@@ -389,13 +389,13 @@ public class KapernController extends TemplateGenerator {
 		Crew dcrew = new UnitCargo.Crew(this.targetShip.getCrew());
 		UnitCargo ownUnits = this.ownShip.getUnits();
 		UnitCargo enemyUnits = this.targetShip.getUnits();
-		
+
 		UnitCargo saveunits = ownUnits.trimToMaxSize(targetShip.getTypeData().getMaxUnitSize());
 
 
 		int attmulti = 1;
 		int defmulti = 1;
-		
+
 		Offizier defoffizier = Offizier.getOffizierByDest('s', this.targetShip.getId());
 		if( defoffizier != null ) {
 			defmulti = defoffizier.getKaperMulti(true);
@@ -407,10 +407,10 @@ public class KapernController extends TemplateGenerator {
 		}
 
 		if( !ownUnits.isEmpty() && !(enemyUnits.isEmpty() && this.targetShip.getCrew() == 0 ) ) {
-			
+
 			UnitCargo toteeigeneUnits = new UnitCargo();
 			UnitCargo totefeindlicheUnits = new UnitCargo();
-			
+
 			if(ownUnits.kapern(enemyUnits, toteeigeneUnits, totefeindlicheUnits, dcrew, attmulti, defmulti ))
 			{
 				ok = true;
@@ -425,27 +425,27 @@ public class KapernController extends TemplateGenerator {
 				else
 				{
 					msg.append("Das Schiff ist verloren.\n");
-					HashMap<Integer, Long> ownunitlist = toteeigeneUnits.getUnitList();
-					HashMap<Integer, Long> enemyunitlist = totefeindlicheUnits.getUnitList();
-					
+					HashMap<UnitType, Long> ownunitlist = toteeigeneUnits.getUnitList();
+					HashMap<UnitType, Long> enemyunitlist = totefeindlicheUnits.getUnitList();
+
 					if(!ownunitlist.isEmpty())
 					{
-						for(Entry<Integer, Long> unit : ownunitlist.entrySet())
+						for(Entry<UnitType, Long> unit : ownunitlist.entrySet())
 						{
-							UnitType unittype = (UnitType)db.get(UnitType.class, unit.getKey());
+							UnitType unittype = unit.getKey();
 							msg.append("Angreifer:\n"+unit.getValue()+" "+unittype.getName()+" erschossen\n");
 						}
 					}
-					
+
 					if(!enemyunitlist.isEmpty())
 					{
-						for(Entry<Integer, Long> unit : enemyunitlist.entrySet())
+						for(Entry<UnitType, Long> unit : enemyunitlist.entrySet())
 						{
-							UnitType unittype = (UnitType)db.get(UnitType.class, unit.getKey());
+							UnitType unittype = unit.getKey();
 							msg.append("Verteidiger:\n"+unit.getValue()+" "+unittype.getName()+" gefallen\n");
 						}
 					}
-					
+
 					if( attoffizier != null)
 					{
 						attoffizier.gainExperience(Offizier.Ability.COM, 3);
@@ -455,33 +455,33 @@ public class KapernController extends TemplateGenerator {
 			else
 			{
 				msg.append("Angreifer flieht.\n");
-				HashMap<Integer, Long> ownunitlist = toteeigeneUnits.getUnitList();
-				HashMap<Integer, Long> enemyunitlist = totefeindlicheUnits.getUnitList();
-				
+				HashMap<UnitType, Long> ownunitlist = toteeigeneUnits.getUnitList();
+				HashMap<UnitType, Long> enemyunitlist = totefeindlicheUnits.getUnitList();
+
 				if(!ownunitlist.isEmpty())
 				{
-					for(Entry<Integer, Long> unit : ownunitlist.entrySet())
+					for(Entry<UnitType, Long> unit : ownunitlist.entrySet())
 					{
-						UnitType unittype = (UnitType)db.get(UnitType.class, unit.getKey());
+						UnitType unittype = unit.getKey();
 						msg.append("Angreifer:\n"+unit.getValue()+" "+unittype.getName()+" erschossen\n");
 					}
 				}
-				
+
 				if(!enemyunitlist.isEmpty())
 				{
-					for(Entry<Integer, Long> unit : enemyunitlist.entrySet())
+					for(Entry<UnitType, Long> unit : enemyunitlist.entrySet())
 					{
-						UnitType unittype = (UnitType)db.get(UnitType.class, unit.getKey());
+						UnitType unittype = unit.getKey();
 						msg.append("Verteidiger:\n"+unit.getValue()+" "+unittype.getName()+" gefallen\n");
 					}
 				}
-				
+
 				if( defoffizier != null)
 				{
 					defoffizier.gainExperience(Offizier.Ability.SEC, 5);
 				}
 			}
-		} 
+		}
 		else if( !ownUnits.isEmpty() ) {
 			ok = true;
 			if(attoffizier != null)
@@ -492,9 +492,9 @@ public class KapernController extends TemplateGenerator {
 		}
 
 		ownUnits.addCargo(saveunits);
-		
+
 		this.ownShip.setUnits(ownUnits);
-			
+
 		this.targetShip.setUnits(enemyUnits);
 		this.targetShip.setCrew(dcrew.getValue());
 		return ok;
@@ -506,11 +506,11 @@ public class KapernController extends TemplateGenerator {
 		List<User> ownerlist = new ArrayList<User>();
 		if( targetUser.getAlly() != null ) {
 			ownerlist.addAll(targetUser.getAlly().getMembers());
-		}		
+		}
 		else {
 			ownerlist.add(targetUser);
 		}
-		
+
 		int shipcount = 0;
 		List<Ship> shiplist = Common.cast(
 				db.createQuery("from Ship where x=:x and y=:y and system=:system and owner in (:ownerlist) and id>0 and battle is null")
@@ -521,14 +521,14 @@ public class KapernController extends TemplateGenerator {
 					.list());
 		for( Ship ship : shiplist ) {
 			if( ship.getTypeData().isMilitary() && ship.getCrew() > 0 ) {
-				shipcount++;	
+				shipcount++;
 			}
 		}
-		
+
 		if( shipcount > 0 ) {
 			double ws = -Math.pow(0.7,shipcount/3d)+1;
 			ws *= 100;
-			
+
 			boolean found = false;
 			for( int i=1; i <= shipcount; i++ ) {
 				if( RandomUtils.nextInt(101) > ws ) {
@@ -536,13 +536,13 @@ public class KapernController extends TemplateGenerator {
 				}
 				found = true;
 				break;
-			}	
+			}
 			if( found ) {
 				User source = (User)getDB().get(User.class, -1);
 				PM.send( source, this.targetShip.getOwner().getId(), "Kaperversuch entdeckt", "Ihre Schiffe haben einen Kaperversuch bei "+this.targetShip.getLocation().displayCoordinates(false)+" vereitelt und den Gegner angegriffen" );
-				
+
 				Battle battle = Battle.create( this.targetShip.getOwner().getId(), this.targetShip.getId() , this.ownShip.getId(), true);
-										
+
 				t.setVar(
 					"kapern.message",	"Ihr Kaperversuch wurde entdeckt und einige gegnerischen Schiffe haben das Feuer er&ouml;ffnet",
 					"kapern.battle",	battle.getId() );
@@ -550,7 +550,7 @@ public class KapernController extends TemplateGenerator {
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
 
@@ -561,19 +561,19 @@ public class KapernController extends TemplateGenerator {
 	@Override
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
-		
+
 		t.setVar("kapern.showmenu", 1);
-		
+
 		if( (this.targetShip.getTypeData().getCost() != 0) && (this.targetShip.getEngine() != 0) ) {
 			if( this.targetShip.getCrew() == 0 && this.targetShip.getUnits().isEmpty()) {
 				t.setVar(	"targetship.status",	"verlassen",
 							"menu.showpluendern",	1,
 							"menu.showkapern",		!this.targetShip.getTypeData().hasFlag(ShipTypes.SF_NICHT_KAPERBAR ) );
-			} 
+			}
 			else {
 				t.setVar("targetship.status", "noch bewegungsf&auml;hig");
 			}
-		} 
+		}
 		else {
 			t.setVar(	"targetship.status",	"bewegungsunf&auml;hig",
 						"menu.showpluendern",	(this.targetShip.getCrew() == 0),
