@@ -34,8 +34,6 @@ import net.driftingsouls.ds2.server.tick.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.SingleUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
 
-import org.hibernate.Transaction;
-
 /**
  * <h1>Berechnung des Ticks fuer Akademien.</h1>
  * Der Ausbildungscountdown wird reduziert und, wenn dieser abgelaufen ist,
