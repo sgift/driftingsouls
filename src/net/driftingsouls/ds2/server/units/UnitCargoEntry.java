@@ -31,7 +31,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import net.driftingsouls.ds2.server.bases.BaseUnitCargoEntry;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.JSONSupport;
 import net.driftingsouls.ds2.server.ships.ShipUnitCargoEntry;
 import net.sf.json.JSON;
