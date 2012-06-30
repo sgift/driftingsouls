@@ -250,7 +250,7 @@ public class TradeController extends TemplateGenerator {
 
 		ResourceList reslist = this.kurse.getResourceList();
 		long freeSpace = posten.getTypeData().getCargo() - posten.getCargo().getMass();
-		int reconsumption = -1 * posten.getOwner().getFullBalance()[1];
+		long reconsumption = -1 * posten.getOwner().getReBalance();
 		BigInteger konto = posten.getOwner().getKonto();
 		for( ResourceEntry res : reslist ) {
 			parameterNumber( res.getId()+"to" );

@@ -1241,23 +1241,53 @@ public class User extends BasicUser {
 	 * Gibt die Nahrungs- und RE-Bilanz zurueck.
 	 * @return die Bilanzen
 	 */
-	public int[] getFullBalance()
+	public long[] getFullBalance()
 	{
-		return this.getFullBalance(!this.hasFlag(FLAG_NO_FOOD_CONSUMPTION));
+		if( !this.hasFlag(FLAG_NO_FOOD_CONSUMPTION) )
+		{
+			return this.getFullBalance(true);
+		}
+		return new long[] {0, getReBalance()};
 	}
 
 	/**
-	 * Gibt die RE-Bilanz zurueck.
-	 * @return die Bilanzen
+	 * Gibt die RE-Bilanz zurueck. Ein negativer Wert bedeutet,
+	 * dass der Benutzer jeden Tick RE Zahlen muss. Ein positiver,
+	 * dass er jeden Tick RE erwirtschaftet.
+	 * @return die Bilanzen in RE
 	 */
-	public int getReBalance()
+	public long getReBalance()
 	{
-		return this.getFullBalance(false)[1];
+		int baseRe = 0;
+		for(Base base: this.bases)
+		{
+			baseRe += base.getBalance();
+		}
+
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+
+		// Kosten der Schiffe ermitteln
+		Long schiffsKosten = (Long)db
+			.createQuery("select sum(coalesce(sm.reCost,st.reCost)) " +
+				"from Ship s join s.shiptype st left join s.modules sm " +
+				"where s.owner=:user and s.docked not like 'l %' and s.id>0 and s.battle is null")
+			.setParameter("user", this)
+			.iterate().next();
+
+		// Kosten der auf den Schiffen stationierten Einheiten ermitteln
+		Long einheitenKosten = (Long)db
+			.createQuery("select sum(ceil(u.amount*u.key.unittype.recost)) " +
+				"from Ship s join s.units u "+
+				"where s.owner=:user and s.docked not like 'l %' and s.id>0 and s.battle is null")
+			.setParameter("user", this)
+			.iterate().next();
+
+		return baseRe-schiffsKosten-einheitenKosten;
 	}
 
-	private int[] getFullBalance(boolean includeFood)
+	private long[] getFullBalance(boolean includeFood)
 	{
-		int[] balance = new int[2];
+		long[] balance = new long[2];
 		balance[0] = 0;
 		balance[1] = 0;
 
@@ -1269,20 +1299,6 @@ public class User extends BasicUser {
 			balance[1] += base.getBalance();
 		}
 
-		// Eigentliche Abfrage nur ausfuehren, wenn auch Schiffe vorhanden
-		// Grund: Hibernate mag kein scroll+join fetch auf collections wenn es keine Ergebnisse gibt (#HHH-2293)
-		/*ScrollableResults ships = db.createQuery("select distinct s from Ship s left join fetch s.units where s.owner=:owner and s.id>0 and s.battle is null")
-		 							.setParameter("owner", this)
-		 							.setCacheMode(CacheMode.IGNORE)
-		 							.scroll(ScrollMode.FORWARD_ONLY);
-		while(ships.next())
-		{
-			Ship ship = (Ship)ships.get(0);
-			if( includeFood ) {
-				balance[0] -= ship.getNahrungsBalance();
-			}
-			balance[1] -= ship.getBalance();
-		}*/
 		for( Ship ship : this.ships )
 		{
 			if( ship.getId() <= 0 )

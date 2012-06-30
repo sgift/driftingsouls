@@ -75,27 +75,27 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Module(name="ueber")
 public class UeberController extends TemplateGenerator {
 	private static final Log log = LogFactory.getLog(UeberController.class);
-	
+
 	private String box = "";
-	
+
 	private Configuration config;
-	
+
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public UeberController(Context context) {
 		super(context);
-		
+
 		setTemplate("ueber.html");
 	}
-	
+
     /**
      * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
-    public void setConfiguration(Configuration config) 
+    public void setConfiguration(Configuration config)
     {
     	this.config = config;
     }
@@ -106,7 +106,7 @@ public class UeberController extends TemplateGenerator {
 
 		return true;
 	}
-	
+
 	/**
 	 * Beendet den Vacation-Modus-Vorlauf.
 	 *
@@ -114,16 +114,16 @@ public class UeberController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void stopWait4VacAction() {
 		User user = (User)getUser();
-		
+
 		user.setVacationCount(0);
 		user.setWait4VacationCount(0);
-		
+
 		user.setTemplateVars(this.getTemplateEngine());
 		Common.writeLog("login.log", Common.date("j+m+Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getId()+") <"+user.getUN()+"> Abbruch Vac-Vorlauf Browser <"+getRequest().getUserAgent()+"> \n");
-				
+
 		redirect();
 	}
-	
+
 	/**
 	 * Wechselt die Tutorial-Seite bzw beendet das Tutorial.
 	 * @urlparam Integer tutorial 1, falls die naechste Tutorialseite angezeigt werden soll. Zum Beenden -1
@@ -131,10 +131,10 @@ public class UeberController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void tutorialAction() {
 		User user = (User)getUser();
-		
+
 		parameterNumber("tutorial");
 		int tutorial = getInteger("tutorial");
-		
+
 		if( tutorial == 1 ) {
 			int inttutorial = Integer.parseInt(user.getUserValue("TBLORDER/uebersicht/inttutorial"));
 
@@ -143,10 +143,10 @@ public class UeberController extends TemplateGenerator {
 		else if( tutorial == -1 ) {
 			user.setUserValue("TBLORDER/uebersicht/inttutorial","0");
 		}
-		
+
 		this.redirect();
 	}
-	
+
 	/**
 	 * Wechselt den Anzeigemodus der Flotten/Bookmark-Box.
 	 * @urlparam String box Der Name des neuen Anzeigemodus
@@ -155,17 +155,17 @@ public class UeberController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void boxAction() {
 		parameterString("box");
-		
+
 		String box = getString("box");
 
 		if( !box.equals(this.box) ) {
 			getUser().setUserValue("TBLORDER/uebersicht/box", box);
 			this.box = box;
 		}
-		
+
 		redirect();
 	}
-	
+
 	/**
 	 * Beendet das angegebene Quest.
 	 * @urlparam Integer questid Die ID des zu beendenden Quests
@@ -174,17 +174,17 @@ public class UeberController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void stopQuestAction() {
 		org.hibernate.Session db = getDB();
-		
+
 		parameterNumber("questid");
 		int questid = getInteger("questid");
-		
+
 		RunningQuest questdata = (RunningQuest)db.get(RunningQuest.class, questid);
 		if( (questdata == null) || (questdata.getUser().getId() != getUser().getId()) ) {
 			addError("Sie k&ouml;nnen dieses Quest nicht abbrechen");
 			redirect();
 			return;
 		}
-		
+
 		ScriptEngine scriptparser = new ScriptEngineManager().getEngineByName("DSQuestScript");
 		if( !getUser().hasFlag( User.FLAG_SCRIPT_DEBUGGING ) ) {
 			scriptparser.getContext().setErrorWriter(new NullLogger());
@@ -202,7 +202,7 @@ public class UeberController extends TemplateGenerator {
 			return;
 		}
 		final Bindings engineBindings = scriptparser.getContext().getBindings(ScriptContext.ENGINE_SCOPE);
-		
+
 		engineBindings.put("USER", Integer.toString(getUser().getId()));
 		engineBindings.put("QUEST", "r"+questid);
 		engineBindings.put("_PARAMETERS", "0");
@@ -212,10 +212,10 @@ public class UeberController extends TemplateGenerator {
 		catch( ScriptException e ) {
 			throw new RuntimeException(e);
 		}
-		
-		redirect();	
+
+		redirect();
 	}
-	
+
 	/**
 	 * Zeigt die Uebersicht an.
 	 */
@@ -231,11 +231,11 @@ public class UeberController extends TemplateGenerator {
 		if( Rassen.get().rasse(user.getRace()) != null ) {
 			race = Rassen.get().rasse(user.getRace()).getName();
 		}
-		
+
 		int ticks = getContext().get(ContextCommon.class).getTick();
-			
-		int[] fullbalance = user.getFullBalance();
-		
+
+		long[] fullbalance = user.getFullBalance();
+
 		t.setVar(	"user.name",				Common._title(user.getName()),
 				  	"user.race",				race,
 				  	"res.nahrung.image",		Cargo.getResourceImage(Resources.NAHRUNG),
@@ -253,9 +253,9 @@ public class UeberController extends TemplateGenerator {
 		//
 		// Ingame-Zeit setzen
 		//
-  
+
 		String curtime = Common.getIngameTime(ticks);
-  
+
 		t.setVar("time.current", curtime);
 
 		//------------------------------
@@ -280,12 +280,12 @@ public class UeberController extends TemplateGenerator {
 		for( Iterator<?> iter=basen.iterator(); iter.hasNext(); ) {
 			Base base = (Base)iter.next();
 			bases++;
-			
+
 			BaseStatus basedata = Base.getStatus(base);
-			
+
 			Cargo cargo = new Cargo(base.getCargo());
 			cargo.addResource(Resources.RE, user.getKonto().longValue());
-			
+
 			boolean mangel = false;
 
 			ResourceList reslist = basedata.getProduction().getResourceList();
@@ -295,12 +295,12 @@ public class UeberController extends TemplateGenerator {
 					break;
 				}
 			}
-			
+
 			if(basedata.getEnergy() < 0 && base.getEnergy() / -basedata.getEnergy() <=9)
 			{
 				mangel = true;
 			}
-			
+
 			if( mangel ) {
 				bw++;
 			}
@@ -325,14 +325,14 @@ public class UeberController extends TemplateGenerator {
 				" and ((s.modules is not null and s.crew < (select crew from ShipModules where id=s.modules)) or s.crew < (select crew from ShipType where id = s.shiptype))" )
 				.setEntity("user", user)
 				.iterate().next();
-						  
+
 		t.setVar(	"schiffe.mangel", Common.ln(sw),
 					"schiffe.nocrew", Common.ln(shipNoCrew) );
 
 		//------------------------------
 		// Schlachten anzeigen
 		//------------------------------
-		
+
 		StringBuilder battlelist = new StringBuilder();
 
 		// Ab hier beginnt das erste Bier
@@ -342,36 +342,36 @@ public class UeberController extends TemplateGenerator {
 			// Zwei separate Queries fuer alle Schlachten um einen sehr unvorteilhaften Join zu vermeiden
 			String query = "from Battle " +
 					"where commander1= :user or commander2= :user ";
-			
+
 			//hat der Benutzer eine ally, dann haeng das hier an
 			if(user.getAlly() != null) {
 				query += " or ally1 = :ally or ally2 = :ally";
 			}
 			// ach haengen wir mal den quest kram dran
 			if(user.hasFlag(User.FLAG_QUEST_BATTLES)){
-				query += " or quest is not null";	
+				query += " or quest is not null";
 			}
-			
+
 			Query battleQuery = db.createQuery(query)
 				.setEntity("user", user);
-			
+
 			if( user.getAlly() != null ) {
 				battleQuery = battleQuery.setInteger("ally", user.getAlly().getId());
 			}
-			
+
 			battles.addAll(Common.cast(battleQuery.list(), Battle.class));
-			
+
 			battles.addAll(Common.cast(
 				db.createQuery("select distinct battle from Ship where battle is not null and owner=:user")
 					.setEntity("user", user)
-					.list(),		
+					.list(),
 				Battle.class));
 		}
 		// Bei entsprechendem AccessLevel/Flag alle Schlachten anzeigen
 		else {
 			battles.addAll(Common.cast(db.createQuery("from Battle").list(), Battle.class));
 		}
-		
+
 		// Ab hier beginnt das zweite Bier
 		for( Battle battle : battles ) {
 			String eparty = "";
@@ -379,27 +379,27 @@ public class UeberController extends TemplateGenerator {
 			if( battle.getAlly(0) == 0 ) {
 				final User commander1 = battle.getCommander(0);
 				eparty = Common._title(commander1.getName());
-			} 
+			}
 			else {
 				final Ally ally = (Ally)db.get(Ally.class, battle.getAlly(0));
 				eparty = Common._title(ally.getName());
 			}
-			
+
 			if( battle.getAlly(1) == 0 ) {
 				final User commander2 = battle.getCommander(1);
 				eparty2 = Common._title(commander2.getName());
-			} 
+			}
 			else {
 				final Ally ally = (Ally)db.get(Ally.class, battle.getAlly(1));
 				eparty2 = Common._title(ally.getName());
 			}
-					
-			
+
+
 			battlelist.append("<a class=\"error\" href=\"ds?module=angriff&amp;battle="+battle.getId()+"\">Schlacht "+eparty+" vs "+eparty2+" bei "+battle.getLocation().displayCoordinates(false)+"</a>&nbsp;");
-			
+
 			// Nahrunganzeige der Schlacht
 			int nahrung = battle.getNahrungsBalance(user);
-			
+
 			if ( nahrung < 0 )
 			{
 				battlelist.append("<span style=\"color:red\">("+Common.ln(nahrung));
@@ -408,9 +408,9 @@ public class UeberController extends TemplateGenerator {
 			{
 				battlelist.append("<span style=\"color:green\">(+"+Common.ln(nahrung));
 			}
-			
+
 			battlelist.append(" <img src=\""+Cargo.getResourceImage(Resources.NAHRUNG)+"\" alt=\"Nahrung\" title=\"Nahrung\" />)</span>");
-			
+
 			// RE Anzeige der Schlacht
 			int re = battle.getBalance(user);
 
@@ -422,9 +422,9 @@ public class UeberController extends TemplateGenerator {
 			{
 				battlelist.append("&nbsp;<span style=\"color:green\">(+"+Common.ln(re));
 			}
-			
+
 			battlelist.append(" RE)</span>");
-			
+
 			battlelist.append("<br />\n");
 		}
 
@@ -480,7 +480,7 @@ public class UeberController extends TemplateGenerator {
 		// Flotten zusammenbauen
 		t.setVar("show.fleets",1);
 		boolean jdocked = false;
-		
+
 		List<?> fleets = db.createQuery("select count(*),s.fleet from Ship s " +
 				"where s.id>0 and s.owner= :user and s.fleet!=0 " +
 				"group by s.fleet " +
@@ -491,11 +491,11 @@ public class UeberController extends TemplateGenerator {
 			Object[] data = (Object[])iter.next();
 			long count = (Long)data[0];
 			ShipFleet fleet = (ShipFleet)data[1];
-			
+
 			Ship aship = (Ship)db.createQuery("from Ship where fleet=?")
 				.setEntity(0, fleet)
 				.iterate().next();
-			
+
 			if( !jdocked && aship.isLanded() ) {
 				jdocked = true;
 				t.setVar( "fleet.jaegerfleet", 1 );
@@ -503,13 +503,13 @@ public class UeberController extends TemplateGenerator {
 			else {
 				t.setVar( "fleet.jaegerfleet", 0 );
 			}
-			
+
 			Ship baseShip = aship.getBaseShip();
-			
+
 			String locationText;
 			if(baseShip == null)
 			{
-				locationText = aship.getLocation().displayCoordinates(false); 
+				locationText = aship.getLocation().displayCoordinates(false);
 			}
 			else
 			{
@@ -528,25 +528,25 @@ public class UeberController extends TemplateGenerator {
 		//------------------------------------
 		t.setBlock("_UEBER","quests.listitem","quests.list");
 		t.setVar("quests.list","");
-		
+
 		List<?> quests = db.createQuery("from RunningQuest rq inner join fetch rq.quest " +
 				"where rq.user= :user and rq.publish=1")
 			.setEntity("user", user)
 			.list();
 		for( Iterator<?> iter=quests.iterator(); iter.hasNext(); ) {
 			RunningQuest quest = (RunningQuest)iter.next();
-			
+
 			t.setVar(	"quest.name",		quest.getQuest().getName(),
 						"quest.statustext",	quest.getStatusText(),
 						"quest.id",			quest.getId());
-								
+
 			t.parse("quests.list", "quests.listitem", true);
 		}
 	}
 
 	private String getTickTime() {
 		String ticktime = "";
-		
+
 		// Letzten Tick ermitteln (Zeitpunkt)
 		try
 		{
@@ -565,7 +565,7 @@ public class UeberController extends TemplateGenerator {
 			System.err.println(e);
 			e.printStackTrace();
 		}
-		
+
 		if( ticktime == null )
 		{
 			ticktime = "";
@@ -577,7 +577,7 @@ public class UeberController extends TemplateGenerator {
 		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		
+
 		boolean reqname = false;
 		boolean reqship = false;
 		boolean reqbase = false;
@@ -593,11 +593,11 @@ public class UeberController extends TemplateGenerator {
 		if( bases > 0 ) {
 			reqbase = true;
 		}
-		
+
 		if( !reqship ) {
 			reqbase = true;
 		}
-		
+
 		if( !reqname ) {
 			reqship = true;
 			reqbase = true;
@@ -618,12 +618,12 @@ public class UeberController extends TemplateGenerator {
 				.setInteger("reqship", reqship ? 1 : 0)
 				.setMaxResults(1)
 				.uniqueResult();
-			
+
 			if( sheet == null ) {
 				user.setUserValue("TBLORDER/uebersicht/inttutorial", "0");
 				return;
 			}
-			
+
 			// Neue Tutorialseite speichern
 			inttutorial = sheet.getId();
 			user.setUserValue("TBLORDER/uebersicht/inttutorial", Integer.toString(inttutorial));
