@@ -43,7 +43,9 @@ public class KaserneEntry {
 
 	@Id
 	private int id;
-	private int kaserne;
+	@ManyToOne
+	@JoinColumn(name="kaserne")
+	private Kaserne kaserne;
 	@ManyToOne
 	@JoinColumn(name="unitid")
 	private UnitType unit;
@@ -61,10 +63,10 @@ public class KaserneEntry {
 
 	/**
 	 * Der Konstruktor.
-	 * @param kaserne Die ID der Kaserne
+	 * @param kaserne Die Kaserne
 	 * @param unitid Die zu bauenden Einheit
 	 */
-	public KaserneEntry(int kaserne, UnitType unitid)
+	public KaserneEntry(Kaserne kaserne, UnitType unitid)
 	{
 		this.kaserne = kaserne;
 		this.unit = unitid;
@@ -83,7 +85,7 @@ public class KaserneEntry {
 	 * Gibt die Kaserne zurueck, in der dieser Eintrag laeuft.
 	 * @return Die Kaserne
 	 */
-	public int getKaserne()
+	public Kaserne getKaserne()
 	{
 		return kaserne;
 	}

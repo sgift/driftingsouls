@@ -18,17 +18,18 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.units.UnitType;
 
@@ -45,11 +46,14 @@ public class Kaserne {
 	@JoinColumn(name="col", nullable=false)
 	private Base base;
 
+	@OneToMany(mappedBy="kaserne")
+	private List<KaserneEntry> entries;
+
 	/**
 	 * Konstruktor.
 	 *
 	 */
-	public Kaserne()
+	protected Kaserne()
 	{
 		// EMPTY
 	}
@@ -61,6 +65,7 @@ public class Kaserne {
 	public Kaserne(Base base)
 	{
 		this.base = base;
+		this.entries = new ArrayList<KaserneEntry>();
 	}
 
 	/**
@@ -76,20 +81,9 @@ public class Kaserne {
 	 * Gibt die Eintraege dieser Kaserne als Liste aus.
 	 * @return Die Eintrage der Kaserne
 	 */
-	public KaserneEntry[] getQueueEntries()
+	public List<KaserneEntry> getQueueEntries()
 	{
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<KaserneEntry> entrylist = Common.cast(db.createQuery("from KaserneEntry WHERE kaserne=:kaserne").setInteger("kaserne", id).list());
-
-		KaserneEntry[] entries = new KaserneEntry[entrylist.size()];
-
-		int zaehler = 0;
-		for(KaserneEntry entry : entrylist)
-		{
-			entries[zaehler++] = entry;
-		}
-
-		return entries;
+		return new ArrayList<KaserneEntry>(this.entries);
 	}
 
 	/**
@@ -108,12 +102,12 @@ public class Kaserne {
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		KaserneEntry[] entrylist = getQueueEntries();
-
-		for(KaserneEntry entry : entrylist)
+		for(KaserneEntry entry : this.entries)
 		{
 			db.delete(entry);
 		}
+
+		this.entries.clear();
 
 		db.delete(this);
 	}
@@ -124,11 +118,7 @@ public class Kaserne {
 	 */
 	public boolean isBuilding()
 	{
-		if(getQueueEntries().length > 0)
-		{
-			return true;
-		}
-		return false;
+		return !this.entries.isEmpty();
 	}
 
 	/**
@@ -139,7 +129,7 @@ public class Kaserne {
 	public void addEntry(UnitType unittype, int newcount)
 	{
 		boolean found = false;
-		for( KaserneEntry entry : getQueueEntries())
+		for( KaserneEntry entry : this.entries)
 		{
 			if(entry.getUnit().getId() == unittype.getId() && entry.getRemaining() == unittype.getDauer())
 			{
@@ -151,10 +141,12 @@ public class Kaserne {
 
 		if(!found)
 		{
-			KaserneEntry newEntry = new KaserneEntry(id, unittype);
+			KaserneEntry newEntry = new KaserneEntry(this, unittype);
 			newEntry.setRemaining(unittype.getDauer());
 			newEntry.setCount(newcount);
 			ContextMap.getContext().getDB().save(newEntry);
+
+			this.entries.add(newEntry);
 		}
 	}
 }

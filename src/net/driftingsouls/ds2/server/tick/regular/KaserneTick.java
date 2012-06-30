@@ -26,11 +26,9 @@ import net.driftingsouls.ds2.server.entities.Kaserne;
 import net.driftingsouls.ds2.server.entities.KaserneEntry;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.tick.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.units.UnitType;
-
-import org.hibernate.FlushMode;
-import org.hibernate.Transaction;
 
 /**
  * <h1>Berechnung des Ticks fuer Kasernen.</h1>
@@ -48,18 +46,19 @@ public class KaserneTick extends TickController {
 	protected void tick()
 	{
 		org.hibernate.Session db = getDB();
-		FlushMode oldMode = db.getFlushMode();
-		db.setFlushMode(FlushMode.MANUAL);
-		Transaction transaction = db.beginTransaction();
 
 		final User sourceUser = (User)db.get(User.class, -1);
 
-		List<Kaserne> kasernen = Common.cast(db.createQuery("from Kaserne").list());
-		int count = 0;
-		for(Kaserne kaserne: kasernen)
+		List<Integer> kasernen = Common.cast(
+				db.createQuery("select k.id from Kaserne k where k.entries is not empty").list()
+		);
+		new EvictableUnitOfWork<Integer>("Kasernen Tick")
 		{
-			try
+			@Override
+			public void doWork(Integer object) throws Exception
 			{
+				org.hibernate.Session db = getDB();
+				Kaserne kaserne = (Kaserne)db.get(Kaserne.class, object);
 				Base base = kaserne.getBase();
 
 				log("Kaserne "+base.getId()+":");
@@ -71,11 +70,10 @@ public class KaserneTick extends TickController {
 				if(kaserne.isBuilding())
 				{
 					log("\tAusbildung laeuft");
-					KaserneEntry[] entries = kaserne.getQueueEntries();
 
 					msg = "Die Ausbildung von<br />";
 
-					for(KaserneEntry entry : entries)
+					for(KaserneEntry entry : kaserne.getQueueEntries())
 					{
 						entry.setRemaining(entry.getRemaining()-1);
 						if(entry.getRemaining() <= 0)
@@ -96,30 +94,8 @@ public class KaserneTick extends TickController {
 					PM.send(sourceUser, base.getOwner().getId(), "Ausbildung abgeschlossen", msg);
 				}
 			}
-			catch( RuntimeException e )
-			{
-				transaction.rollback();
-				transaction = db.beginTransaction();
-				this.log("Bearbeitung der Kaserne "+kaserne.getBase().getId()+" fehlgeschlagen: "+e);
-				e.printStackTrace();
-				Common.mailThrowable(e, "Kaserne Tick Exception", "Kaserne: "+kaserne.getBase().getId());
-
-				throw e;
-			}
-
-			count++;
-			final int MAX_UNFLUSHED_OBJECTS = 50;
-			if(count%MAX_UNFLUSHED_OBJECTS == 0)
-			{
-				db.flush();
-				transaction.commit();
-				transaction = db.beginTransaction();
-			}
 		}
-
-		db.flush();
-		transaction.commit();
-		db.clear();
-		db.setFlushMode(oldMode);
+		.setFlushSize(10)
+		.executeFor(kasernen);
 	}
 }

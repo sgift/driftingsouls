@@ -107,10 +107,12 @@ public class KasernenBuilding extends DefaultBuilding {
 			else {
 				StringBuilder popup = new StringBuilder(100);
 
-				KaserneEntry[] entries = kaserne.getQueueEntries();
-				for( int i=0; i < entries.length; i++ ) {
-					UnitType unittype = entries[i].getUnit();
-					popup.append("<br />Aktuell im Bau: "+entries[i].getCount()+"x "+unittype.getName()+" <img src='"+config.get("URL")+"data/interface/time.gif' alt='Dauer: ' />"+entries[i].getRemaining());
+				for( KaserneEntry entry : kaserne.getQueueEntries() )
+				{
+					UnitType unittype = entry.getUnit();
+					popup.append("<br />Aktuell im Bau: "+entry.getCount()+"x "+unittype.getName()+
+							" <img src='"+config.get("URL")+"data/interface/time.gif' alt='Dauer: ' />"+
+							entry.getRemaining());
 				}
 
 				result.append("<a class=\"error tooltip\" href=\"./ds?module=building");
@@ -119,7 +121,7 @@ public class KasernenBuilding extends DefaultBuilding {
 				result.append("&amp;field=");
 				result.append(field);
 				result.append("\">[B]<span style=\"font-weight:normal\">");
-				result.append(entries.length);
+				result.append(kaserne.getQueueEntries().size());
 				result.append("</span><span class='ttcontent'>"+popup+"</span></a>");
 			}
 		}
@@ -173,7 +175,7 @@ public class KasernenBuilding extends DefaultBuilding {
 			{
 				t.setVar("kaserne.message", "Der Eintrag konnte nicht gel&ouml;scht werden, da nicht vorhanden.");
 			}
-			else if(entry.getKaserne() != kaserne.getId())
+			else if(entry.getKaserne().getId() != kaserne.getId())
 			{
 				t.setVar("kaserne.message", "Dieser Eintrag geh&ouml;rt nicht zu dieser Kaserne.");
 			}
@@ -231,6 +233,7 @@ public class KasernenBuilding extends DefaultBuilding {
 					{
 						// Es handelt sich nicht um Geld und wir haben nicht genug.
 						ok = false;
+						msg += "Sie haben nicht genug "+res.getName()+"<br />";
 					}
 				}
 				else
@@ -248,7 +251,7 @@ public class KasernenBuilding extends DefaultBuilding {
 
 				kaserne.addEntry(unittype, newcount);
 			}
-			if(!msg.equals(""))
+			if( !msg.isEmpty() )
 			{
 				t.setVar( "kaserne.message",msg);
 			}
@@ -264,8 +267,7 @@ public class KasernenBuilding extends DefaultBuilding {
 
 			t.setBlock("_BUILDING", "kaserne.training.listitem", "kaserne.training.list");
 
-			KaserneEntry[] entries = kaserne.getQueueEntries();
-			for( KaserneEntry entry : entries )
+			for( KaserneEntry entry : kaserne.getQueueEntries() )
 			{
 				UnitType unittype = entry.getUnit();
 
