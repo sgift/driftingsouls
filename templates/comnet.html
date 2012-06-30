@@ -14,11 +14,12 @@
 	<tr>
 		<td style="width:90px; text-align:center; vertical-align:top" class="noBorderX">
 			{!link_to $post.name, default, module:userprofile, css_class:profile, user:$post.id}
-			<img align="middle" class="tooltip" src="{URL}data/interface/medals/rang{user.rang}.png" alt="">
+			<span class="tooltip">
+				<img align="middle" src="{URL}data/interface/medals/rang{user.rang}.png" alt=""/>
 				<span class="ttcontent">
 					{user.rang.name}
 				</span>
-			</img>
+			</span>
 			{if user.id < 0}
 				[NPC]
 			{/endif}
@@ -42,7 +43,7 @@
 					<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
 					{post.text}
 				</td>
-			</tr>				
+			</tr>
 			</table>
 		</td>
 	</tr>
@@ -170,11 +171,11 @@
  			<tr>
  				<td class="noBorderS" style="width:10px">&nbsp;+</td>
 				<td class="noBorderS">{thischannel.name}
-		
+
 		{if thischannel.readable}
 			 - {!link_to Lesen, read, channel:$thischannel.id} - {!link_to Scannen, search, channel:$thischannel.id}
 		{/endif}
-		
+
 		{if thischannel.writeable}
 			 - {!link_to Senden, write, channel:$thischannel.id}
 		{/endif}
@@ -230,11 +231,12 @@
 		<tr>
 			<td style="width:90px; text-align:center; vertical-align:top" class="noBorderX">
 				{!link_to $post.name, default, module:userprofile, css_class:profile, user:$post.user.id}<br />
-				<img align="middle" class="tooltip" src="{URL}data/interface/medals/rang{post.user.rang}.png" alt="">
+				<span class="tooltip">
+					<img align="middle" src="{URL}data/interface/medals/rang{post.user.rang}.png" alt=""/>
 					<span class="ttcontent">
 						{post.user.rang.name}
 					</span>
-				</img>
+				</span>
 				{if post.user.id < 0}
 					<br />[NPC]
 				{/endif}
@@ -259,7 +261,7 @@
 						<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
 						{post.text}
 					</td>
-				</tr>				
+				</tr>
 				</table>
 			</td>
 		</tr>
