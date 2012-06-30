@@ -1282,6 +1282,15 @@ public class User extends BasicUser {
 			.setParameter("user", this)
 			.iterate().next();
 
+		if( schiffsKosten == null )
+		{
+			schiffsKosten = 0L;
+		}
+		if( einheitenKosten == null )
+		{
+			einheitenKosten = 0L;
+		}
+
 		return baseRe-schiffsKosten-einheitenKosten;
 	}
 
