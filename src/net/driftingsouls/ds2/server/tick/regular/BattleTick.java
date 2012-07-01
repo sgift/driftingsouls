@@ -23,10 +23,8 @@ import java.util.List;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.tick.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
-
-import org.hibernate.StaleObjectStateException;
-import org.hibernate.Transaction;
 
 /**
  * Fuehrt den Tick fuer Schlachten aus.
@@ -43,57 +41,47 @@ public class BattleTick extends TickController {
 	@Override
 	protected void tick() {
 		org.hibernate.Session db = getDB();
-		Transaction transaction = db.beginTransaction();
 
 		/*
 				Schlachten
 		 */
 
-		this.log("Schlachten: Aendere aktiven Kommandanten");
-		long lastacttime = Common.time()-1800;
+		final long lastacttime = Common.time()-1800;
 
-		db.createQuery("update Battle set blockcount=blockcount-1 where blockcount > 0 and lastturn<= ?")
-		  .setLong(0, lastacttime)
-		  .executeUpdate();
-
-		List<Battle> battles = Common.cast(db.createQuery("from Battle where blockcount<=0 or lastaction<= ?")
-											 .setLong(0, lastacttime)
+		List<Integer> battles = Common.cast(db.createQuery("select id from Battle")
 											 .list());
 
-		for(Battle battle: battles) 
+		new EvictableUnitOfWork<Integer>("Battle Tick")
 		{
-			try 
+			@Override
+			public void doWork(Integer battleId) throws Exception
 			{
-				this.log("+ Naechste Runde bei Schlacht "+battle.getId());
+				org.hibernate.Session db = getDB();
+				Battle battle = (Battle)db.get(Battle.class, battleId);
+
+				if( battle.getBlockCount() > 0 && battle.getLetzteRunde() <= lastacttime )
+				{
+					battle.decrementBlockCount();
+				}
+
+				if( battle.getBlockCount() > 0 && battle.getLetzteAktion() > lastacttime )
+				{
+					return;
+				}
+
+				log("+ Naechste Runde bei Schlacht "+battle.getId());
 				battle.load( battle.getCommander(0), null, null, 0 );
-	
-				if( battle.endTurn(false) ) 
+
+				if( battle.endTurn(false) )
 				{
 					// Daten nur aktualisieren, wenn die Schlacht auch weiterhin existiert
 					battle.logenemy("<endturn type=\"all\" side=\"-1\" time=\""+Common.time()+"\" tick=\""+getContext().get(ContextCommon.class).getTick()+"\" />\n");
-	
+
 					battle.writeLog();
-				}
-				
-				transaction.commit();
-				transaction = db.beginTransaction();
-			}
-			catch( RuntimeException e ) 
-			{
-				transaction.rollback();
-				transaction = db.beginTransaction();
-				e.printStackTrace();
-				Common.mailThrowable(e, "BattleTick Exception", "Battle tick for Battle " + battle.getId() +  " failed.");
-				
-				if( e instanceof StaleObjectStateException ) {
-					StaleObjectStateException sose = (StaleObjectStateException)e;
-					db.evict(db.get(sose.getEntityName(), sose.getIdentifier()));
-				}
-				else {
-					db.evict(battle);
 				}
 			}
 		}
-		transaction.commit();
+		.setFlushSize(1)
+		.executeFor(battles);
 	}
 }
