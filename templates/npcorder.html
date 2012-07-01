@@ -155,20 +155,22 @@
 							<input type="submit" value="Aktualisieren">
 						</div>
 					</form>
-					<hr noshade="noshade" size="1" style="color:#cccccc" />
-					<form action="./ds" method="post">
-						<!-- BEGIN medals.listitem -->
-							<div style="float:left;width:120px;min-height:160px;margin:5px;text-align:center">
-								<img src="{URL}data/{medal.image}" alt="" /><br />
-								<input type="radio" name="medal" id="_medal{medal.id}" value="{medal.id}" /><label for="_medal{medal.id}">{medal.name}</label>
+					{if npcorder.factionhead}
+						<hr noshade="noshade" size="1" style="color:#cccccc" />
+						<form action="./ds" method="post">
+							<!-- BEGIN medals.listitem -->
+								<div style="float:left;width:120px;min-height:160px;margin:5px;text-align:center">
+									<img src="{URL}data/{medal.image}" alt="" /><br />
+									<input type="radio" name="medal" id="_medal{medal.id}" value="{medal.id}" /><label for="_medal{medal.id}">{medal.name}</label>
+								</div>
+							<!-- END medals.listitem -->
+							<div style="text-align:center;padding-top:10px;clear:both">
+								Grund: [...Aufgrund der/deiner ]<input type="text" name="reason" value="" size="40" /><br />
+								{!form_create_hidden awardMedal, edituser:$edituser.id}<br />
+								<input type="submit" value="Spieler auszeichnen" />
 							</div>
-						<!-- END medals.listitem -->
-						<div style="text-align:center;padding-top:10px;clear:both">
-							Grund: [...Aufgrund der/deiner ]<input type="text" name="reason" value="" size="40" /><br />
-							{!form_create_hidden awardMedal, edituser:$edituser.id}<br />
-							<input type="submit" value="Spieler auszeichnen" />
-						</div>
-					</form>
+						</form>
+					{/endif}
 				</div>
 			{/endif}
 		</div>
