@@ -1,6 +1,7 @@
 package net.driftingsouls.ds2.server.tick;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Klasse zum Durchfuehren einer einzigen isolierten Aufgabe.
@@ -35,6 +36,8 @@ public abstract class SingleUnitOfWork extends UnitOfWork<Void>
 	 */
 	public void execute()
 	{
-		executeFor(new ArrayList<Void>());
+		List<Void> fakeParamList = new ArrayList<Void>();
+		fakeParamList.add(null);
+		executeFor(fakeParamList);
 	}
 }
