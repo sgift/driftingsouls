@@ -1,0 +1,94 @@
+/*
+	PMs
+*/
+.inboxOrdnerHover td {
+	background-color:#557755;
+	background-image:none;
+}
+
+/*
+	Fraktionen
+*/
+
+.kursbox {
+	width:250px;
+	margin-right:25px;
+	margin-bottom:20px;
+	float:left;
+}
+
+.kursbox .content {
+	max-height:300px;
+	overflow-y:auto;
+}
+
+/*
+	Schiff
+*/
+
+#scriptBox {
+	width:400px;
+}
+#scriptBox .content {
+	height:270px;
+}
+
+/*
+	Handelsposten
+*/
+
+#tradepost-info {
+	width:1000px;
+}
+
+#tradepost-info .shiptype {
+	float:left;
+}
+#tradepost-info .info {
+	float:left;
+}
+#tradepost-info .help {
+	clear:both;
+}
+#tradepost-waren {
+	width:1000px;
+	text-align:center;
+}
+#tradepost-waren table {
+	width:95%;
+	border:0px;
+}
+#tradepost-waren th {
+	text-align:center;
+}
+#tradepost-waren input[type=text] {
+	width:80px;
+}
+
+/*
+	NPC-Menue
+*/
+
+.npcorderbox {
+	width:500px;
+	text-align:left;
+	margin-right:20px;
+	float:left;
+}
+.npcorderbox table {
+	width:100%;
+}
+.npcorderbox table thead,
+.npcorderbox table tfoot {
+	text-align:center;
+	font-weight:bold;
+}
+.npcorderbox table ul {
+	list-style:none;
+	margin:0px;
+	padding:0px;
+}
+.npcorderbox table ul li {
+	margin-top:5px;
+	margin-bottom:5px;
+}

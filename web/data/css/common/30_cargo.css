@@ -1,0 +1,26 @@
+/*
+	Cargo
+*/
+
+.cargo1,
+.cargo2 {
+	font-weight:bold;
+	text-decoration:none;
+}
+.cargo1.positiv,
+.cargo2.positiv {
+	color:green;
+}
+.cargo1.negativ,
+.cargo2.negativ {
+	color:#E00000;
+}
+.cargo1:hover,
+.cargo2:hover {
+	color: #F0A000;
+}
+
+.cargo2.positiv:before {
+	content:"+";
+	color:green;
+}

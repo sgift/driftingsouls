@@ -1,0 +1,157 @@
+/*
+	Basis
+*/
+
+#baseMap {
+	z-index:2;
+	position:relative;
+	top:0px;
+	overflow:auto;
+	left:0px;
+}
+
+#baseMap .tile {
+	width:49px;
+	height:43px;
+	position:absolute;
+}
+
+#baseMap.fade .tile,
+#baseMap.fade .overlay {
+	opacity:.5;
+	-webkit-filter: grayscale(100%);
+	filter:grayscale(100%);
+}
+#baseMap.fade .highlight {
+	opacity:1;
+	-webkit-filter:grayscale(0%);
+	filter:grayscale(0%);
+}
+#cargoBox {
+	padding:5px;
+	height:99%;
+	overflow:auto;
+	margin:0px;
+	list-style:none;
+}
+#cargoBox li {
+	margin:0px;
+	padding:1px 0px;
+}
+#cargoBox img {
+	vertical-align:middle;
+}
+.buildingActions {
+	margin:0px;
+	padding:10px 6px;
+	list-style:none;
+	font-size:13px;
+}
+.buildingActions li {
+	margin:0px;
+	padding: 1px 0px 2px 0px;
+}
+.buildingActions .action {
+	float:right;
+}
+
+.baseActions {
+	margin:0px;
+	padding:10px 6px;
+	list-style:none;
+	border-top:1px solid #606060;
+	text-align:center;
+}
+.baseActions li {
+	margin:0px;
+	padding: 1px 0px 2px 0px;
+}
+
+#baseContent #statsBox {
+	width:900px;
+}
+
+#baseContent #statsBox .arbeiteranzeige,
+#baseContent #statsBox .arbeitslosenanzeige,
+#baseContent #statsBox .wohnraumfreianzeige,
+#baseContent #statsBox .wohnraumfehltanzeige {
+	float:left;
+	height:15px;
+	background-repeat:repeat-x;
+}
+#baseContent #statsBox .arbeiteranzeige {
+	background-image:url('../../interface/arbeiter.gif');
+}
+#baseContent #statsBox .arbeitslosenanzeige {
+	background-image:url('../../interface/arbeitslos.gif');
+}
+#baseContent #statsBox .wohnraumfreianzeige {
+	background-image:url('../../interface/frei.gif');
+}
+#baseContent #statsBox .wohnraumfehltanzeige {
+	background-image:url('../../interface/narbeiter.gif');
+}
+
+#buildingBox .content {
+	width:430px;
+	height:300px;
+}
+#buildingBox .head {
+	text-align:center;
+	margin-bottom:4px;
+}
+#buildingBox .head img {
+	vertical-align:middle;
+}
+#buildingBox .status {
+	margin-bottom:4px;
+}
+#buildingBox .aktiv {
+	color:green;
+}
+#buildingBox .inaktiv {
+	color:red;
+}
+
+#buildingBox .message {
+	margin:15px 0px 10px 0px;
+}
+
+#buildingBox .confirm {
+	list-style:none;
+	margin:20px 0px 0px 0px;
+	padding:0px;
+	text-align:center;
+}
+
+#buildingBox .confirm li {
+	display:inline;
+	padding:0px 4px;
+}
+
+#buildingBox .aktionen {
+	list-style:none;
+	margin:20px 0px 0px 0px;
+	padding:0px;
+}
+#buildingBox .aktionen li {
+	display:inline;
+}
+#buildingBox .aktionen li:after{
+	content:",";
+	padding-right:3px;
+}
+#buildingBox .aktionen li:last-child:after {
+	content:"";
+	padding-right:0px;
+}
+#buildingBox .defaultBuilding {
+	list-style:none;
+	margin:0px;
+	padding:0px;
+}
+#buildingBox .defaultBuilding dd {
+	text-align:center;
+	display:block;
+	margin-bottom:8px;
+}

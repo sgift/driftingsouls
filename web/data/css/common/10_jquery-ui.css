@@ -1,0 +1,31 @@
+/*
+	JQuery UI
+*/
+
+.ui-widget {
+	font-family: arial, helvetica;
+	color: #C7C7C7;
+	font-size: 12px;
+	border:2px solid #26312a;
+	box-shadow: 5px 5px 10px #031103;
+}
+
+.ui-widget-content {
+	background: #0f1513;
+}
+
+.ui-state-hover,
+.ui-widget-content .ui-state-hover,
+.ui-widget-header .ui-state-hover,
+.ui-state-focus,
+.ui-widget-content .ui-state-focus,
+.ui-widget-header .ui-state-focus {
+    background: #243717;
+    color: #FFFFFF;
+    font-weight: bold;
+    border:1px solid black;
+}
+
+.ui-corner-all {
+	border-radius:0px;
+}

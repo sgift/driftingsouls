@@ -288,6 +288,24 @@
 		<delete file="${build.home}/data/javascript/ds_compressed.js" />
 	</target>
 
+	<!-- ==================== Javascript Target ================================== -->
+
+	<target name="css" depends="prepare">
+		<concat destfile="${build.home}/data/css/format_concat.js" append="false">
+			<fileset dir="${build.home}/data/css/common" includes="*.css"/>
+		</concat>
+
+		<java jar="build-utils/yuicompressor/yuicompressor-2.4.7.jar" fork="true" failonerror="true">
+			<arg value="--type" />
+			<arg value="css" />
+			<arg value="-o" />
+			<arg value="${build.home}/data/css/format.css" />
+			<arg value="${build.home}/data/css/format_concat.js" />
+		</java>
+
+		<delete file="${build.home}/data/css/format_concat.js" />
+	</target>
+
 	<!-- ==================== Template Target ================================== -->
 
 	<target name="templates" depends="prepare,compile-framework">

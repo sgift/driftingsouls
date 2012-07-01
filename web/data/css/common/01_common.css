@@ -1,0 +1,12 @@
+body 	{background-color: #000000; color: white; font-family: arial, helvetica; }
+
+hr 		{color: white;}
+
+p 		{color: white; font-family: arial, helvetica; margin-left: 5px;}
+
+form br { /* Alle Zeilenumbrueche in Formularen auswaehlen */
+  clear: left; /* das floating der labels und inputs aufheben */
+}
+
+form	{ padding:1px; margin:0px }
+

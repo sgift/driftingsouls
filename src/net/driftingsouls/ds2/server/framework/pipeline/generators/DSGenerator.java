@@ -169,6 +169,8 @@ public abstract class DSGenerator extends Generator {
 				}
 				url = user.getImagePath();
 			}
+			final boolean devMode = !"true".equals(this.config.get("PRODUCTION"));
+
 			sb.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n");
 			sb.append("<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"de\" lang=\"de\">\n");
 			sb.append("<head>\n");
@@ -176,7 +178,12 @@ public abstract class DSGenerator extends Generator {
 			sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n");
 			sb.append("<meta http-equiv=\"X-UA-Compatible\" content=\"IE=9\">\n");
 			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"data/css/ui-darkness/jquery-ui-1.8.20.css\" />\n");
-			if( !getDisableDefaultCSS() ) {
+			if( devMode )
+			{
+				appendDevModeCss(sb);
+			}
+			else
+			{
 				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"data/css/v"+version.getHgVersion()+"/format.css\" />\n");
 			}
 
@@ -196,36 +203,9 @@ public abstract class DSGenerator extends Generator {
 				sb.append("<script src=\""+url+"data/javascript/gfxpakversion.js?"+version.getHgVersion()+"\" type=\"text/javascript\"></script>\n");
 			}
 
-			final boolean prodMode = !"true".equals(this.config.get("PRODUCTION"));
-			if( prodMode )
+			if( devMode )
 			{
-				File jsdir = new File(this.config.get("ABSOLUTE_PATH")+"data/javascript/");
-				File libdir = new File(jsdir.getAbsolutePath()+"/libs");
-				File commondir = new File(jsdir.getAbsolutePath()+"/common");
-
-				sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/libs/jquery-1.7.2.min.js\" type=\"text/javascript\"></script>\n");
-				sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/libs/jquery-ui-1.8.20.min.js\" type=\"text/javascript\"></script>\n");
-				for( String filename : new TreeSet<String>(Arrays.asList(libdir.list())) )
-				{
-					if( filename.startsWith("jquery-1") || filename.startsWith("jquery-ui-1") || !filename.endsWith(".js") )
-					{
-						continue;
-					}
-					sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/libs/"+filename+"\" type=\"text/javascript\"></script>\n");
-				}
-
-				for( String filename : new TreeSet<String>(Arrays.asList(commondir.list())) )
-				{
-					if( !filename.endsWith(".js") )
-					{
-						continue;
-					}
-					sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/common/"+filename+"\" type=\"text/javascript\"></script>\n");
-				}
-				if( new File(jsdir.getAbsolutePath()+"/modules/"+this.getAttribute("module")+".js").isFile() )
-				{
-					sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/modules/"+this.getAttribute("module")+".js\" type=\"text/javascript\"></script>\n");
-				}
+				appendDevModeJavascript(sb);
 			}
 			else
 			{
@@ -248,6 +228,47 @@ public abstract class DSGenerator extends Generator {
 				sb.append("</script>\n");
 			}
 			sb.append("<div id=\"error-placeholder\"></div>\n");
+		}
+
+		private void appendDevModeCss(Writer sb) throws IOException
+		{
+			File cssdir = new File(this.config.get("ABSOLUTE_PATH")+"data/css/common");
+
+			for( String filename : new TreeSet<String>(Arrays.asList(cssdir.list())) )
+			{
+				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"data/css/v"+version.getHgVersion()+"/common/"+filename+"\" />\n");
+			}
+		}
+
+		private void appendDevModeJavascript(Writer sb) throws IOException
+		{
+			File jsdir = new File(this.config.get("ABSOLUTE_PATH")+"data/javascript/");
+			File libdir = new File(jsdir.getAbsolutePath()+"/libs");
+			File commondir = new File(jsdir.getAbsolutePath()+"/common");
+
+			sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/libs/jquery-1.7.2.min.js\" type=\"text/javascript\"></script>\n");
+			sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/libs/jquery-ui-1.8.20.min.js\" type=\"text/javascript\"></script>\n");
+			for( String filename : new TreeSet<String>(Arrays.asList(libdir.list())) )
+			{
+				if( filename.startsWith("jquery-1") || filename.startsWith("jquery-ui-1") || !filename.endsWith(".js") )
+				{
+					continue;
+				}
+				sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/libs/"+filename+"\" type=\"text/javascript\"></script>\n");
+			}
+
+			for( String filename : new TreeSet<String>(Arrays.asList(commondir.list())) )
+			{
+				if( !filename.endsWith(".js") )
+				{
+					continue;
+				}
+				sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/common/"+filename+"\" type=\"text/javascript\"></script>\n");
+			}
+			if( new File(jsdir.getAbsolutePath()+"/modules/"+this.getAttribute("module")+".js").isFile() )
+			{
+				sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/modules/"+this.getAttribute("module")+".js\" type=\"text/javascript\"></script>\n");
+			}
 		}
 
 		@Override
@@ -346,7 +367,6 @@ public abstract class DSGenerator extends Generator {
 	private ActionType actionType;
 	private OutputHelper actionTypeHandler;
 
-	private boolean disableDefaultCSS;
 	private boolean disableDebugOutput;
 	private long startTime;
 	private List<String> onLoadFunctions;
@@ -375,7 +395,6 @@ public abstract class DSGenerator extends Generator {
 		this.startTime = System.currentTimeMillis();
 
 		this.disableDebugOutput = false;
-		this.disableDefaultCSS = false;
 
 		this.onLoadFunctions = new ArrayList<String>();
 		this.bodyParameters = new HashMap<String,String>();
@@ -655,22 +674,6 @@ public abstract class DSGenerator extends Generator {
 	 */
 	public boolean getDisableDebugOutput() {
 		return disableDebugOutput;
-	}
-
-	/**
-	 * (De)aktiviert die Default-CSS-Stile.
-	 * @param value <code>true</code> zur Deaktivierung
-	 */
-	public void setDisableDefaultCSS( boolean value ) {
-		disableDefaultCSS = value;
-	}
-
-	/**
-	 * Gibt zurueck, ob die Default-CSS-Stile deaktiviert sind.
-	 * @return <code>true</code>, falls sie deaktiviert sind
-	 */
-	public boolean getDisableDefaultCSS() {
-		return disableDefaultCSS;
 	}
 
 	/**
