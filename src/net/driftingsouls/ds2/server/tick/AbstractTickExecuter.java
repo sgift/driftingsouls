@@ -20,7 +20,7 @@ package net.driftingsouls.ds2.server.tick;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.ContextCommon;
@@ -37,9 +37,9 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Klasse zur Ausfuehrung von mehreren Ticks.
- * 
+ *
  * @author Christopher Jung
- * 
+ *
  */
 @Configurable
 public abstract class AbstractTickExecuter extends TickController
@@ -49,25 +49,25 @@ public abstract class AbstractTickExecuter extends TickController
 	private String loxpath = null;
 	private String name = "";
 	private String status = null;
-	private Map<Class<? extends TickController>, Long> tickTimes = new HashMap<Class<? extends TickController>, Long>();
+	private Map<Class<? extends TickController>, Long> tickTimes = new LinkedHashMap<Class<? extends TickController>, Long>();
 
 	private static BasicContext basicContext;
-	
+
 	private Configuration config;
-	
+
     /**
      * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
-    public final void setConfiguration(Configuration config) 
+    public final void setConfiguration(Configuration config)
     {
     	this.config = config;
     	if( this.loxpath == null ) {
     		this.loxpath = config.get("LOXPATH");
     	}
     }
-    
+
     /**
      * Gibt die DS-Konfiguration zurueck.
      * @return Die DS-Konfiguration
@@ -78,7 +78,7 @@ public abstract class AbstractTickExecuter extends TickController
 
 	/**
 	 * Gibt alle noch belegten Resourcen frei.
-	 * 
+	 *
 	 */
 	public static final void free()
 	{
@@ -87,7 +87,7 @@ public abstract class AbstractTickExecuter extends TickController
 
 	/**
 	 * Setzt den Namen des Ticks. Dieser wird in LOXPATH/tix.log festgehalten.
-	 * 
+	 *
 	 * @param name Name des Ticks
 	 */
 	protected void setName(String name)
@@ -97,7 +97,7 @@ public abstract class AbstractTickExecuter extends TickController
 
 	/**
 	 * Setzt den Basispfad fuer alle Logdateien. Default ist LOXPATH.
-	 * 
+	 *
 	 * @param path Basispfad fuer Logs
 	 */
 	protected void setLogPath(String path)
@@ -115,7 +115,7 @@ public abstract class AbstractTickExecuter extends TickController
 
 	/**
 	 * Fuehrt ein Tickscript aus.
-	 * 
+	 *
 	 * @param tickname Eine Instanz des Tickscripts
 	 * @param useSTDOUT Soll STDOUT oder eine Logdatei mit dem Namen des Ticks verwendet werden?
 	 */
@@ -123,7 +123,7 @@ public abstract class AbstractTickExecuter extends TickController
 	{
 		long start = System.currentTimeMillis();
 		try
-		{	
+		{
 			TickController tick = tickname.newInstance();
 
 			if( !useSTDOUT )
@@ -143,13 +143,13 @@ public abstract class AbstractTickExecuter extends TickController
 			// Alle Exceptions hier fangen und lediglich ausgeben
 			e.printStackTrace();
 		}
-		
+
 		this.tickTimes.put(tickname, System.currentTimeMillis()-start);
 	}
 
 	/**
 	 * Kopiert alle Logs im Tick-Log-Verzeichnis in ein Unterverzeichnis mit der Tick-Nr.
-	 * 
+	 *
 	 * @param ticknr Nummer des Ticks
 	 */
 	protected void copyLogs(int ticknr)
@@ -164,7 +164,7 @@ public abstract class AbstractTickExecuter extends TickController
 				{
 					String filename = files[i].getName();
 					log.info("Kopiere " + filename);
-	
+
 					if( filename.lastIndexOf('/') > -1 )
 					{
 						filename = filename.substring(filename.lastIndexOf('/') + 1);
@@ -178,7 +178,7 @@ public abstract class AbstractTickExecuter extends TickController
 	/**
 	 * Schreibt den aktuellen Status nach ticktime.log (befindet sich unter LOXPATH und nicht im
 	 * Basisverzeichnis der Tick-Logs!).
-	 * 
+	 *
 	 * @param status Der zu schreibende Status
 	 */
 	protected void publishStatus(String status)
@@ -200,7 +200,7 @@ public abstract class AbstractTickExecuter extends TickController
 	/**
 	 * Gibt den aktuell veroeffentlichten Status des Ticks zurueck. Wenn noch kein Status gesetzt
 	 * wurde, dann wird <code>null</code> zurueckgegeben
-	 * 
+	 *
 	 * @return Der aktuelle Status oder <code>null</code>
 	 */
 	protected String getStatus()
@@ -267,7 +267,7 @@ public abstract class AbstractTickExecuter extends TickController
 			System.err.println("Fehler bei der Ticknachbereitung: " + e);
 		}
 	}
-	
+
 	/**
 	 * Sendet die Tickstatistik, d.h. Daten ueber die Ausfuehrungsgeschwindigkeit
 	 * einzelner Tickteile an die Administratoren.
