@@ -51,18 +51,18 @@ public class HttpRequest implements Request {
 	private Map<String,String> parameters = new HashMap<String,String>();
 	private boolean isMultipart = false;
 	private List<?> uploadedFiles = null;
-	
+
 	/**
 	 * Konstruktor.
 	 * @param request Die Servlet-Request
 	 */
 	public HttpRequest(HttpServletRequest request) {
 		this.request = request;
-		
+
 		if( request.getSession(false) == null ) {
 			request.getSession(true);
 		}
-		
+
 		// Standard-Encoding ist UTF-8
 		if( request.getCharacterEncoding() == null ) {
 			try {
@@ -72,7 +72,7 @@ public class HttpRequest implements Request {
 				e1.printStackTrace();
 			}
 		}
-		
+
 		isMultipart = ServletFileUpload.isMultipartContent(request);
 		if( isMultipart ) {
 			FileItemFactory factory = new DiskFileItemFactory();
@@ -85,10 +85,15 @@ public class HttpRequest implements Request {
 					if( !item.isFormField() ) {
 						continue;
 					}
-				    parameters.put(item.getFieldName(), item.getString());
+				    parameters.put(item.getFieldName(), item.getString("UTF-8"));
 				}
 			}
 			catch( FileUploadException e ) {
+				log.error(e);
+			}
+			catch (UnsupportedEncodingException e)
+			{
+				// Sollte nie passieren
 				log.error(e);
 			}
 		}
@@ -139,22 +144,22 @@ public class HttpRequest implements Request {
 	public void setParameter(String parameter, String value) {
 		parameters.put(parameter, value);
 	}
-	
+
 	@Override
 	public String getHeader(String header) {
 		return request.getHeader(header);
 	}
-	
+
 	@Override
 	public String getRemoteAddress() {
 		return request.getRemoteAddr();
 	}
-	
+
 	@Override
 	public String getRequestURL() {
 		return request.getRequestURL().toString();
 	}
-	
+
 	@Override
 	public String getUserAgent() {
 		return request.getHeader("user-agent");
@@ -182,13 +187,13 @@ public class HttpRequest implements Request {
 		}
 		return str;
 	}
-	
+
 	@Override
 	public List<FileItem> getUploadedFiles() {
 		if( !isMultipart ) {
 			return new ArrayList<FileItem>();
 		}
-		
+
 		List<FileItem> result = new ArrayList<FileItem>();
 		List<?> items = uploadedFiles;
 		for( int i=0; i < items.size(); i++ ) {
@@ -200,15 +205,15 @@ public class HttpRequest implements Request {
 				result.add((FileItem)items.get(i));
 			}
 		}
-			
+
 		return result;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T getFromSession(Class<T> cls) {
 		HttpSession session = this.request.getSession(false);
-		
+
 		if( session == null ) {
 			return null;
 		}
@@ -241,23 +246,23 @@ public class HttpRequest implements Request {
 			return (T)obj;
 		}
 		log.error("getFromSession for "+cls.getName()+" failed - invalid type");
-		
+
 		return null;
 	}
-	
+
 	@Override
 	public void removeFromSession(Class<?> cls) {
 		HttpSession session = this.request.getSession(false);
-		
+
 		if( session == null ) {
 			return;
 		}
 		session.removeAttribute(getClass().getName()+"#"+cls.getName());
 	}
-	
-	
+
+
 	@Override
-	public String getCookie(String name) 
+	public String getCookie(String name)
 	{
 		if(request != null)
 		{
@@ -273,7 +278,7 @@ public class HttpRequest implements Request {
 				}
 			}
 		}
-		
+
 		return null;
 	}
 }
