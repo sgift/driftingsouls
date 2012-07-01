@@ -43,30 +43,30 @@ import org.hibernate.Session;
  */
 public abstract class TickController {
 	private static final Log log = LogFactory.getLog(TickController.class);
-	
+
 	/**
 	 * Log-Ziel: Standardausgabe.
 	 */
 	public static final String STDOUT = "java://STDOUT";
-			
+
 	private long exectime;
 	private Map<String,Writer> logTargets;
 	private Session db;
 	private Context context;
-	
+
 	/**
 	 * Erstellt eine neue Instanz.
 	 */
-	public TickController() 
+	public TickController()
 	{
 		logTargets = new HashMap<String,Writer>();
 		exectime = System.currentTimeMillis();
 		db = HibernateUtil.getSessionFactory().openSession();
-		
+
 		Context context = ContextMap.getContext();
 		this.context = new TickContext(db, context.getRequest(), context.getResponse());
 	}
-	
+
 	/**
 	 * Beendet den Tick und gibt alle Resourcen wieder frei.
 	 */
@@ -80,21 +80,21 @@ public abstract class TickController {
 				// EMPTY
 			}
 		}
-		
+
 		db.close();
 	}
-	
+
 	/**
 	 * Hier koennen Vorbereitungen getroffen werden.
 	 * Sollten Fehler auftreten wird der Tick hiernach abgebrochen.
 	 */
 	protected abstract void prepare();
-	
+
 	/**
 	 * Der eigendliche Tick...
 	 */
 	protected abstract void tick();
-	
+
 	/**
 	 * Startet die Tickausfuehrung.
 	 */
@@ -105,26 +105,26 @@ public abstract class TickController {
 			if( getErrorList().length == 0 ) {
 				tick();
 			}
-			
+
 			if( getErrorList().length > 0 ) {
 				log("");
 				log("Fehlerliste:");
-	
+
 				for( net.driftingsouls.ds2.server.framework.pipeline.Error error : getErrorList() ) {
 					slog("* ");
 					log(error.getDescription());
 				}
 			}
-			
+
 			log("");
-			log("Execution-Time: "+(System.currentTimeMillis()-exectime)+"s");
+			log("Execution-Time: "+(System.currentTimeMillis()-exectime)/1000d+"s");
 		}
 		catch( Exception e ) {
 			e.printStackTrace();
 			Common.mailThrowable(e, "Tickabbruch "+this.getClass().getSimpleName(), "");
 		}
 	}
-	
+
 	/**
 	 * Loggt einen String.
 	 * @param string Der zu loggende String
@@ -146,7 +146,7 @@ public abstract class TickController {
 			}
 		}
 	}
-	
+
 	/**
 	 * Loggt eine Zeile. Fuer den Zeilenumbruch wird automatisch gesorgt
 	 * @param string Die zu loggende Zeile
@@ -154,13 +154,13 @@ public abstract class TickController {
 	public void log(String string) {
 		slog(string+"\n");
 	}
-	
+
 	/**
 	 * Fuegt ein neues Ziel fuer geloggte Daten hinzu.
 	 * @param file Das Ziel, zu dem geloggt werden soll. Das Ziel muss schreibbar sein
 	 * @param append Sollen die Daten angehangen werden?
-	 * 
-	 * @throws IOException 
+	 *
+	 * @throws IOException
 	 */
 	public void addLogTarget( String file, boolean append ) throws IOException {
 		Writer w = null;
@@ -169,7 +169,7 @@ public abstract class TickController {
 		}
 		else {
 			log.info("Fuege Log-Ziel '"+file+"' hinzu");
-			
+
 			File f = new File(file);
 			if( !f.exists() ) {
 				try {
@@ -182,16 +182,16 @@ public abstract class TickController {
 			}
 			w = new FileWriter(f, append);
 		}
-		
+
 		logTargets.put(file, w);
 	}
-	
+
 	/**
 	 * Entfernt ein Ziel fuer geloggte Daten.
 	 * @param handle Die Datei/Das Logziel, zu dem bisher geloggt wurde
-	 * 
+	 *
 	 * @return true bei erfolgreichem entfernen
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public boolean removeLogTarget( String handle ) throws IOException {
 		// Auf keinen Fall System.out schiessen!
@@ -202,7 +202,7 @@ public abstract class TickController {
 
 		return true;
 	}
-	
+
 	/**
 	 * Gibt den aktuellen Context zurueck.
 	 * @return der Kontext
@@ -211,7 +211,7 @@ public abstract class TickController {
 	{
 		return context;
 	}
-	
+
 	/**
 	 * Gibt eine Datenbankinstanz des Kontexts zurueck.
 	 * @return eine Datenbankinstanz
@@ -221,16 +221,16 @@ public abstract class TickController {
 	public Database getDatabase() {
 		return new Database(getDB().connection());
 	}
-	
+
 	/**
 	 * Gibt die Hibernate DB-Session des Kontexts zurueck.
 	 * @return die DB-Session
 	 */
-	public Session getDB() 
+	public Session getDB()
 	{
 		return db;
 	}
-	
+
 	/**
 	 * Gibt die Fehlerliste des Kontexts zurueck.
 	 * @return die Fehlerliste

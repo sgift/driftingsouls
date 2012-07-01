@@ -49,7 +49,7 @@ public class Forschung {
 	 * der Spieler den Noob-Status.
 	 */
 	public static final String FLAG_DROP_NOOB_PROTECTION = "drop_noob";
-	
+
 	/**
 	 * Sichtbarkeiten von einzelnen Forschungen.
 	 */
@@ -66,16 +66,16 @@ public class Forschung {
 		 * Niemals sichtbar.
 		 */
 		NEVER(2, "Unsichtbar");
-		
-		
+
+
 		private int bit;
 		private String description;
-		
+
 		private Visibility(int bit, String description) {
 			this.bit = bit;
 			this.description = description;
 		}
-		
+
 		/**
 		 * Gibt das zum Flag gehoerende Bitmuster zurueck.
 		 * @return Das Bitmuster
@@ -83,13 +83,13 @@ public class Forschung {
 		public int getBits() {
 			return this.bit;
 		}
-		
+
 		@Override
 		public String toString() {
 			return description;
 		}
 	}
-	
+
 	/**
 	 * Gibt ein Forschungsobjekt fuer die angegebene Forschungs-ID zurueck.
 	 * Sollte keine solche Forschung existieren, so wird <code>null</code> zurueckgegeben.
@@ -100,7 +100,7 @@ public class Forschung {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		return (Forschung)db.get(Forschung.class, fid);
 	}
-	
+
 	@Id @GeneratedValue
 	private int id;
 	private String name;
@@ -116,7 +116,7 @@ public class Forschung {
 	private int visibility;
 	private String flags;
 	private int specializationCosts;
-	
+
 	/**
 	 * Konstruktor.
 	 *
@@ -124,7 +124,7 @@ public class Forschung {
 	public Forschung() {
 		// EMPTY
 	}
-	
+
 	/**
 	 * Gibt die ID der Forschung zurueck.
 	 * @return die ID
@@ -132,7 +132,7 @@ public class Forschung {
 	public int getID() {
 		return this.id;
 	}
-	
+
 	/**
 	 * Gibt den Namen der Forschung zurueck.
 	 * @return Der Name
@@ -140,7 +140,7 @@ public class Forschung {
 	public String getName() {
 		return this.name;
 	}
-	
+
 	/**
 	 * Gibt die ID einer der fuer diese Forschung benoetigten Forschungen zurueck.
 	 * @param number Die Nummer der benoetigten Forschung (1-3)
@@ -157,7 +157,7 @@ public class Forschung {
 		}
 		throw new RuntimeException("Ungueltiger Forschungsindex '"+number+"'");
 	}
-	
+
 	/**
 	 * Gibt die Forschungsdauer in Ticks zurueck.
 	 * @return Die Forschungsdauer
@@ -165,7 +165,7 @@ public class Forschung {
 	public int getTime() {
 		return this.time;
 	}
-	
+
 	/**
 	 * Gibt die Forschungskosten als nicht modifizierbarer Cargo zurueck.
 	 * @return Die Forschungskosten
@@ -173,7 +173,7 @@ public class Forschung {
 	public Cargo getCosts() {
 		return this.costs;
 	}
-	
+
 	/**
 	 * Gibt die Beschreibung der Forschung zurueck.
 	 * @return Die Beschreibung
@@ -181,7 +181,7 @@ public class Forschung {
 	public String getDescription() {
 		return this.description;
 	}
-	
+
 	/**
 	 * Gibt die ID der Rasse zurueck, der die Forschung zugeordnet ist.
 	 * @return Die ID der Rasse
@@ -189,7 +189,7 @@ public class Forschung {
 	public int getRace() {
 		return this.race;
 	}
-	
+
 	/**
 	 * Gibt zurueck, ob die Forschung die angegebene Sichtbarkeit hat.
 	 * @param visibility Die Sichtbarkeit
@@ -198,40 +198,40 @@ public class Forschung {
 	public boolean hasVisibility(Forschung.Visibility visibility) {
 		return (this.visibility & visibility.getBits()) != 0;
 	}
-	
+
 	/**
 	 * Prueft, ob die Forschung fuer den Spieler sichtbar ist.
 	 * Es werden nur die Werte von Forschung.Visibility beruecksichtigt.
 	 * @param user Der Spieler
-	 * 
+	 *
 	 * @return <code>true</code>, falls die Forschung sichtbar ist
 	 */
 	public boolean isVisibile(User user) {
 		if(hasVisibility(Forschung.Visibility.ALWAYS)) {
 			return true;
 		}
-		
+
 		if(hasVisibility(Forschung.Visibility.NEVER)) {
 			return false;
 		}
-		
+
 		if(user == null)
 		{
 			return false;
 		}
-		
+
 		for(int i = 1; i <= 3; i++) {
 			if(!user.hasResearched(getRequiredResearch(i))) {
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
 
 	/**
 	 * Setzte die Beschreibung der Forschung.
-	 * 
+	 *
 	 * @param description Die neue Beschreibung.
 	 */
 	public void setDescription(String description) {
@@ -240,7 +240,7 @@ public class Forschung {
 
 	/**
 	 * Setzt den Namen der Forschung.
-	 * 
+	 *
 	 * @param name Der neue Name.
 	 */
 	public void setName(String name) {
@@ -249,7 +249,7 @@ public class Forschung {
 
 	/**
 	 * Setzt die Rasse der Forschung.
-	 * 
+	 *
 	 * @param race vergleiche <code>Rassen</code>
 	 */
 	public void setRace(int race) {
@@ -264,7 +264,7 @@ public class Forschung {
 		this.req1 = req1;
 	}
 
-	/** 
+	/**
 	 * Setzt die zweite benoetigte Forschung .
 	 * @param req2 Die ID der Forschung.
 	 */
@@ -272,7 +272,7 @@ public class Forschung {
 		this.req2 = req2;
 	}
 
-	/** 
+	/**
 	 * Setzt die zweite benoetigte Forschung.
 	 * @param req3 Die ID der Forschung.
 	 */
@@ -291,7 +291,7 @@ public class Forschung {
 
 	/**
 	 * Setzt die Sichtbarkeit auf den angegebenen Wert.
-	 * 
+	 *
 	 * @param visibility Die neue Sichtbarkeitsstufe.
 	 */
 	public void setVisibility(int visibility) {
@@ -306,7 +306,7 @@ public class Forschung {
 	public boolean hasFlag( String flag ) {
 		return this.flags.indexOf(flag) > -1;
 	}
-	
+
 	/**
 	 * @return Die Spezialisierungskosten dieser Forschung.
 	 */
@@ -314,12 +314,18 @@ public class Forschung {
 	{
 		return this.specializationCosts;
 	}
-	
+
 	/**
 	 * @param specializationCosts Die Spezialisierungskosten dieser Forschung.
 	 */
 	public void setSpecializationCosts(int specializationCosts)
 	{
 		this.specializationCosts = specializationCosts;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "Forschung [id="+this.id+", name="+this.name+"]";
 	}
 }

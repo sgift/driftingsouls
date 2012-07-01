@@ -18,10 +18,7 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
-import java.util.Iterator;
 import java.util.List;
-
-import org.hibernate.Transaction;
 
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.comm.PM;
@@ -29,11 +26,12 @@ import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.tick.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
 
 /**
  * <h1>Der Forschungstick.</h1>
- * Bearbeitet die Forschungszentren und markiert erforschte Techs bei den 
+ * Bearbeitet die Forschungszentren und markiert erforschte Techs bei den
  * Spielern als erforscht.
  * @author Christopher Jung
  *
@@ -45,67 +43,57 @@ public class ForschungsTick extends TickController {
 	}
 
 	@Override
-	protected void tick() 
+	protected void tick()
 	{
-			org.hibernate.Session db = getDB();
-			Transaction transaction = db.beginTransaction();
-			final User sourceUser = (User)db.get(User.class, -1);
-			
-			List<?> fzList = db.createQuery("from Forschungszentrum where dauer<=1 and (base.owner.vaccount=0 or base.owner.wait4vac!=0) and forschung!=null").list();
-			for( Iterator<?> iter=fzList.iterator(); iter.hasNext(); ) 
+		org.hibernate.Session db = getDB();
+
+		List<Integer> fzList = Common.cast(db
+			.createQuery("select id from Forschungszentrum " +
+				"where (base.owner.vaccount=0 or base.owner.wait4vac!=0) and forschung!=null")
+			.list());
+		new EvictableUnitOfWork<Integer>("Forschungstick")
+		{
+			@Override
+			public void doWork(Integer fzId)
 			{
-				Forschungszentrum fz = (Forschungszentrum)iter.next();
-				
-				try 
+				org.hibernate.Session db = getDB();
+				Forschungszentrum fz = (Forschungszentrum)db.get(Forschungszentrum.class, fzId);
+
+				if( fz.getDauer() > 1 )
 				{
-					Base base = fz.getBase();
-					User user = base.getOwner();
-	
-					log("fz "+fz.getId());
-					log("\tforschung: "+fz.getForschung());
-					Forschung forschung = fz.getForschung();
-						
-					log("\t"+forschung.getName()+" ("+forschung.getID()+") erforscht");
-						
-					user.addResearch( forschung.getID() );
-						
-					String msg = "Das Forschungszentrum auf "+base.getName()+" hat die Forschungen an "+forschung.getName()+" abgeschlossen";
-						
-					if( forschung.hasFlag( Forschung.FLAG_DROP_NOOB_PROTECTION) && user.isNoob() ) 
-					{
-						msg += "\n\n[color=red]Durch die Erforschung dieser Technologie stehen sie nicht l&auml;nger unter GCP-Schutz.\nSie k&ouml;nnen nun sowohl angreifen als auch angegriffen werden![/color]";
-						user.setFlag( User.FLAG_NOOB, false );
-						
-						log("\t"+user.getId()+" steht nicht laenger unter gcp-schutz");
-					}
-						
-					PM.send(sourceUser, base.getOwner().getId(), "Forschung abgeschlossen", msg);
-					
-					fz.setForschung(null);
-					fz.setDauer(0);
-					
-					transaction.commit();
-					transaction = db.beginTransaction();
+					fz.setDauer(fz.getDauer()-1);
+					return;
 				}
-				catch( RuntimeException e ) 
+
+				Base base = fz.getBase();
+				User user = base.getOwner();
+
+				log("fz "+fz.getId());
+				log("\tforschung: "+fz.getForschung());
+				Forschung forschung = fz.getForschung();
+
+				log("\t"+forschung.getName()+" ("+forschung.getID()+") erforscht");
+
+				user.addResearch( forschung.getID() );
+
+				String msg = "Das Forschungszentrum auf "+base.getName()+" hat die Forschungen an "+forschung.getName()+" abgeschlossen";
+
+				if( forschung.hasFlag( Forschung.FLAG_DROP_NOOB_PROTECTION) && user.isNoob() )
 				{
-					transaction.rollback();
-					transaction = db.beginTransaction();
-					this.log("Forschungszentrum "+fz.getId()+" failed: "+e);
-					e.printStackTrace();
-					Common.mailThrowable(e, "ForschungsTick Exception", "Forschungszentrum: "+fz.getId());
-					
-					throw e;
+					msg += "\n\n[color=red]Durch die Erforschung dieser Technologie stehen sie nicht l&auml;nger unter GCP-Schutz.\nSie k&ouml;nnen nun sowohl angreifen als auch angegriffen werden![/color]";
+					user.setFlag( User.FLAG_NOOB, false );
+
+					log("\t"+user.getId()+" steht nicht laenger unter gcp-schutz");
 				}
+
+				final User sourceUser = (User)db.get(User.class, -1);
+				PM.send(sourceUser, base.getOwner().getId(), "Forschung abgeschlossen", msg);
+
+				fz.setForschung(null);
+				fz.setDauer(0);
 			}
-	
-			int count = db.createQuery("update Forschungszentrum as f " +
-					"set f.dauer=f.dauer-1 " +
-					"where f.dauer!=0 and f.id in (select forschungszentrum.id from Base where forschungszentrum != NULL and (owner.vaccount=0 or owner.wait4vac!=0))")
-				.executeUpdate();
-			
-			log("Laufende Forschungen: "+count);
-			
-			transaction.commit();
+		}
+		.setFlushSize(10)
+		.executeFor(fzList);
 	}
 }
