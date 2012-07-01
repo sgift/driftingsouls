@@ -1245,7 +1245,7 @@ public class User extends BasicUser {
 	{
 		if( !this.hasFlag(FLAG_NO_FOOD_CONSUMPTION) )
 		{
-			return this.getFullBalance(true);
+			return new long[] {this.getNahrungBalance(), getReBalance()};
 		}
 		return new long[] {0, getReBalance()};
 	}
@@ -1294,18 +1294,12 @@ public class User extends BasicUser {
 		return baseRe-schiffsKosten-einheitenKosten;
 	}
 
-	private long[] getFullBalance(boolean includeFood)
+	private long getNahrungBalance()
 	{
-		long[] balance = new long[2];
-		balance[0] = 0;
-		balance[1] = 0;
-
+		long balance = 0;
 		for(Base base: this.bases)
 		{
-			if( includeFood ) {
-				balance[0] += base.getNahrungsBalance();
-			}
-			balance[1] += base.getBalance();
+			balance += base.getNahrungsBalance();
 		}
 
 		for( Ship ship : this.ships )
@@ -1318,11 +1312,7 @@ public class User extends BasicUser {
 			{
 				continue;
 			}
-			if( includeFood )
-			{
-				balance[0] -= ship.getNahrungsBalance();
-			}
-			balance[1] -= ship.getBalance();
+			balance -= ship.getNahrungsBalance();
 		}
 
 		return balance;
