@@ -27,7 +27,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
 
-import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import org.apache.commons.lang.StringUtils;
@@ -300,7 +299,7 @@ public abstract class BasicUser {
 	 * @return <code>true</code>, wenn es ein Admin ist
 	 */
 	public boolean isAdmin() {
-		if( ((User)this).isAdmin())
+		if( getAccessLevel() >= 30 )
 		{
 			return true;
 		}

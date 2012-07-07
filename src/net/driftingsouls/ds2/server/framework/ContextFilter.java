@@ -23,17 +23,17 @@ import net.driftingsouls.ds2.server.framework.pipeline.Response;
  * Especially chain, request and response are not set here but in DefaultServletRequestFilter.
  * Still, the context set here can be used to access the database and perform checks,
  * before a page is shown or an action is executed.
- * 
+ *
  * @author Drifting-Souls Team
  */
 public class ContextFilter extends DSFilter
 {
 	@Override
-	public void destroy() 
+	public void destroy()
 	{}
 
 	@Override
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException 
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException
 	{
 		BasicContext context = null;
 		try
@@ -42,9 +42,9 @@ public class ContextFilter extends DSFilter
 			HttpServletResponse httpResponse = (HttpServletResponse)response;
 			Request dsRequest = new HttpRequest(httpRequest);
 			Response dsResponse = new HttpResponse(httpRequest, httpResponse);
-			context = new BasicContext(dsRequest, dsResponse);
+			context = new BasicContext(dsRequest, dsResponse, new EmptyPermissionResolver());
 			ContextMap.addContext(context);
-			
+
 			chain.doFilter(request, response);
 		}
 		finally
@@ -57,6 +57,6 @@ public class ContextFilter extends DSFilter
 	}
 
 	@Override
-	public void init(FilterConfig arg0) throws ServletException 
+	public void init(FilterConfig arg0) throws ServletException
 	{}
 }

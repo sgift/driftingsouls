@@ -42,17 +42,17 @@ import org.springframework.beans.factory.annotation.Configurable;
 public class StatEinheiten implements Statistic {
 	@SuppressWarnings("unused")
 	private Configuration config;
-	
+
     /**
      * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
-    public void setConfiguration(Configuration config) 
+    public void setConfiguration(Configuration config)
     {
     	this.config = config;
     }
-	
+
     @Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
@@ -60,8 +60,8 @@ public class StatEinheiten implements Statistic {
 		User user = (User)context.getActiveUser();
 
 		Writer echo = context.getResponse().getWriter();
-		
-		
+
+
 		List<UnitType> unitlist = Common.cast(db.createQuery("from UnitType").list());
 
 		// Ausgabe des Tabellenkopfs
@@ -72,26 +72,26 @@ public class StatEinheiten implements Statistic {
 		echo.append("<td class=\"noBorderX\" width=\"15\">&nbsp;</td>\n");
 		echo.append("<td class=\"noBorderX\">Eigene</td>\n");
 		echo.append("</tr>\n");
-		
+
 		// Einheitenliste durchlaufen
 		for( UnitType unittype : unitlist ) {
-			
+
 			long baseunits = 0;
 			long shipunits = 0;
 			long baseunitsuser = 0;
 			long shipunitsuser = 0;
-			
+
 			Object baseunitsobject = db.createQuery("select sum(e.amount) from UnitCargoEntry as e, Base as b where e.key.type=:type and e.key.unittype=:unittype and e.key.destid = b.id and b.owner > 0")
 										.setInteger("type", UnitCargo.CARGO_ENTRY_BASE)
 										.setInteger("unittype", unittype.getId())
 										.iterate()
 										.next();
-			
+
 			if( baseunitsobject != null)
 			{
 				baseunits = (Long)baseunitsobject;
 			}
-			
+
 			Object shipunitsobject = db.createQuery("select sum(e.amount) from UnitCargoEntry as e, Ship as s where e.key.type=:type and e.key.unittype=:unittype and e.key.destid = s.id and s.owner > 0")
 										.setInteger("type", UnitCargo.CARGO_ENTRY_SHIP)
 										.setInteger("unittype", unittype.getId())
@@ -102,38 +102,38 @@ public class StatEinheiten implements Statistic {
 			{
 				shipunits = (Long)shipunitsobject;
 			}
-			
+
 			Object baseunitsuserobject = db.createQuery("select sum(e.amount) from UnitCargoEntry as e, Base as b where e.key.type=:type and e.key.unittype=:unittype and e.key.destid = b.id and b.owner=:user")
 											.setInteger("type", UnitCargo.CARGO_ENTRY_BASE)
 											.setInteger("unittype", unittype.getId())
 											.setEntity("user", user)
 											.iterate()
 											.next();
-			
+
 			if( baseunitsuserobject != null)
 			{
 				baseunitsuser = (Long)baseunitsuserobject;
 			}
-			
+
 			Object shipunitsuserobject = db.createQuery("select sum(e.amount) from UnitCargoEntry as e, Ship as s where e.key.type=:type and e.key.unittype=:unittype and e.key.destid = s.id and s.owner=:user")
 											.setInteger("type", UnitCargo.CARGO_ENTRY_SHIP)
 											.setInteger("unittype", unittype.getId())
 											.setEntity("user", user)
 											.iterate()
 											.next();
-			
+
 			if( shipunitsuserobject != null)
 			{
 				shipunitsuser = (Long)shipunitsuserobject;
 			}
-			
+
 			// Daten ausgeben, wenn der Spieler sehen darf oder selber welche besitzt
-			if( !unittype.isHidden() || user.isAdmin() || baseunitsuser + shipunitsuser > 0)
+			if( !unittype.isHidden() || context.hasPermission("unit", "versteckteSichtbar") || baseunitsuser + shipunitsuser > 0)
 			{
 				// Daten zur Einheit ausgeben
 	      		echo.append("<tr>\n");
 	      		echo.append("<td class=\"noBorderX\" style=\"white-space:nowrap\"><img style=\"vertical-align:middle\" src=\""+unittype.getPicture()+"\" alt=\"\"><a href=\""+Common.buildUrl("default", "module", "unitinfo", "unit", unittype.getId())+"\" >"+unittype.getName()+"</a>");
-	      		if( unittype.isHidden() && user.isAdmin())
+	      		if( unittype.isHidden() && context.hasPermission("unit", "versteckteSichtbar"))
 	      		{
 	      			echo.append("[hidden]");
 	      		}
@@ -143,7 +143,7 @@ public class StatEinheiten implements Statistic {
 	      		echo.append("<td class=\"noBorderX\">"+(baseunitsuser+shipunitsuser)+"</td>\n");
 	      		echo.append("<td class=\"noBorderX\">&nbsp;</td>\n");
 			}
-      		
+
 		} // Ende: Einheitenliste
 		echo.append("</table><br /><br />\n");
 	}
@@ -152,7 +152,7 @@ public class StatEinheiten implements Statistic {
 	public boolean generateAllyData() {
 		return false;
 	}
-	
+
     @Override
 	public int getRequiredData() {
 		return 0;

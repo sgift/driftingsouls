@@ -67,7 +67,7 @@ public class UserProfileController extends TemplateGenerator {
 		User user = (User)getUser();
 
 		User auser = (User)getDB().get(User.class, getInteger("user"));
-		if( (auser == null) || (auser.hasFlag(User.FLAG_HIDE) && (user.getAccessLevel() < 20)) ) {
+		if( (auser == null) || (auser.hasFlag(User.FLAG_HIDE) && !hasPermission("user", "versteckteSichtbar")) ) {
 			addError( "Ihnen ist kein Benutzer unter der angegebenen ID bekannt", Common.buildUrl("default", "module", "ueber") );
 
 			return false;

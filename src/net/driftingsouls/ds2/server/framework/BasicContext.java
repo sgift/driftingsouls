@@ -36,9 +36,9 @@ import org.springframework.beans.factory.annotation.Configurable;
 /**
  * Eine einfache Klasse, welche das <code>Context</code>-Interface implementiert. Die Klasse
  * verwendet ein <code>Request</code> und <code>Response</code>-Objekt fuer Ein- und Ausgabe.
- * 
+ *
  * @author Christopher Jung
- * 
+ *
  */
 @Configurable
 public class BasicContext implements Context
@@ -52,20 +52,22 @@ public class BasicContext implements Context
 	private Map<Class<?>, Object> contextSingletons = new HashMap<Class<?>, Object>();
 	private Map<Class<?>, Map<String, Object>> variables = new HashMap<Class<?>, Map<String, Object>>();
 	private List<ContextListener> listener = new ArrayList<ContextListener>();
+	private PermissionResolver permissionResolver;
 
 	/**
 	 * Erstellt eine neue Instanz der Klasse unter Verwendung eines <code>Request</code> und einer
 	 * <code>Response</code>-Objekts.
-	 * 
+	 *
 	 * @param request Die mit dem Kontext zu verbindende <code>Request</code>
 	 * @param response Die mit dem Kontext zu verbindende <code>Response</code>
 	 */
-	public BasicContext(Request request, Response response)
+	public BasicContext(Request request, Response response, PermissionResolver presolver)
 	{
 		ContextMap.addContext(this);
 
 		this.request = request;
 		this.response = response;
+		this.permissionResolver = presolver;
 	}
 
 	@Override
@@ -137,7 +139,7 @@ public class BasicContext implements Context
 	/**
 	 * Gibt alle allokierten Resourcen wieder frei. Dieser Schritt sollte immer dann getaetigt
 	 * werden, wenn das Objekt nicht mehr benoetigt wird.
-	 * 
+	 *
 	 */
 	public void free()
 	{
@@ -259,5 +261,17 @@ public class BasicContext implements Context
 		{
 			this.request.removeFromSession(cls);
 		}
+	}
+
+	@Override
+	public boolean hasPermission(String category, String action)
+	{
+		return this.permissionResolver.hasPermission(category, action);
+	}
+
+	@Override
+	public void setPermissionResolver(PermissionResolver permissionResolver)
+	{
+		this.permissionResolver = permissionResolver;
 	}
 }

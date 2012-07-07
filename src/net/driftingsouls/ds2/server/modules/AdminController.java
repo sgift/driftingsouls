@@ -45,7 +45,7 @@ import org.scannotation.ClasspathUrlFinder;
 /**
  * Der Admin.
  * @author Christopher Jung
- * 
+ *
  * @urlparam Integer act Die auszufuehrende Aktions-ID (ein Plugin wird ueber Seiten- und Aktions-ID identifiziert)
  * @urlparam String page Die anzuzeigende Seite (ID der Seite)
  * @urlparam Integer cleanpage Falls != 0 werden keine zusaetzlichen GUI-Elemente angezeigt
@@ -78,13 +78,13 @@ public class AdminController extends DSGenerator {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	private static class MenuEntry implements Comparable<MenuEntry>
 	{
 		String name;
 		SortedSet<MenuEntry> actions = new TreeSet<MenuEntry>();
 		Class<? extends AdminPlugin> cls;
-		
+
 		MenuEntry( String name )
 		{
 			this.name = name;
@@ -95,7 +95,7 @@ public class AdminController extends DSGenerator {
 		{
 			return name.compareTo(o.name);
 		}
-		
+
 		@Override
 		public boolean equals(Object object)
 		{
@@ -103,26 +103,26 @@ public class AdminController extends DSGenerator {
 			{
 				return false;
 			}
-			
+
 			if(object.getClass() != this.getClass())
 			{
 				return false;
 			}
-			
+
 			MenuEntry other = (MenuEntry) object;
 			return this.name.equals(other.name);
 		}
-		
+
 		@Override
 		public int hashCode()
 		{
 			return this.name.hashCode();
 		}
 	}
-	
+
 	TreeMap<String,MenuEntry> menu = new TreeMap<String,MenuEntry>();
 	Set<String> validPlugins = new HashSet<String>();
-	
+
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
@@ -130,58 +130,59 @@ public class AdminController extends DSGenerator {
 	public AdminController(Context context)
 	{
 		super(context);
-		
+
 		parameterNumber("act");
 		parameterString("page");
 		parameterNumber("cleanpage");
-		parameterString("namedplugin");	
+		parameterString("namedplugin");
 	}
-	
+
 	private void addMenuEntry( Class<? extends AdminPlugin> cls, String menuentry, String submenuentry )
 	{
 		if( !this.menu.containsKey(menuentry) )
 		{
 			this.menu.put(menuentry, new MenuEntry(menuentry));
 		}
-		
+
 		MenuEntry entry = new MenuEntry(submenuentry);
 		entry.cls = cls;
 		this.menu.get(menuentry).actions.add(entry);
 	}
-	
+
 	@Override
 	protected boolean validateAndPrepare(String action)
 	{
-		User user = (User)this.getUser();
-		
-		if( !user.isAdmin() ) {
+		if( !hasPermission("admin", "sichtbar") ) {
 			addError("Sie sind nicht berechtigt diese Seite aufzurufen");
 			return false;
 		}
-		
+
 		for( Class<? extends AdminPlugin> cls : plugins )
 		{
-			
+
 			if( validPlugins.contains(cls.getName()) )
 			{
 				continue;
 			}
+			if( !hasPermission("admin", cls.getSimpleName()) ) {
+				continue;
+			}
 			validPlugins.add(cls.getName());
-					
+
 			AdminMenuEntry adminMenuEntry = cls.getAnnotation(AdminMenuEntry.class);
-				
+
 			addMenuEntry(cls, adminMenuEntry.category(), adminMenuEntry.name());
-		}	
-		
+		}
+
 		if( this.getInteger("cleanpage") > 0 )
 		{
 			this.setDisableDebugOutput(true);
 			this.setDisablePageMenu(true);
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Fuehrt ein Admin-Plugin aus.
 	 */
@@ -191,7 +192,7 @@ public class AdminController extends DSGenerator {
 		int act = getInteger("act");
 		String page = getString("page");
 		String namedplugin = getString("namedplugin");
-		
+
 		if( page.length() > 0 || namedplugin.length() > 0 )
 		{
 			if( act > 0 )
@@ -211,12 +212,12 @@ public class AdminController extends DSGenerator {
 	@Override
 	@Action(ActionType.DEFAULT)
 	public void defaultAction() throws IOException
-	{	
+	{
 		int cleanpage = getInteger("cleanpage");
 		int act = getInteger("act");
 		String page = getString("page");
 		String namedplugin = getString("namedplugin");
-		
+
 		Writer echo = getContext().getResponse().getWriter();
 		if( cleanpage == 0 )
 		{
@@ -240,13 +241,13 @@ public class AdminController extends DSGenerator {
 			echo.append(Common.tableEnd());
 			echo.append("</div><br />\n");
 		}
-		
+
 		if( page.length() > 0 || namedplugin.length() > 0 )
 		{
 			if( cleanpage == 0 )
 			{
 				echo.append("<table class=\"noBorder\"><tr><td class=\"noBorder\" valign=\"top\">\n");
-		
+
 				echo.append(Common.tableBegin( 220, "left" ));
 				echo.append("<table class=\"noBorderX\" width=\"100%\">\n");
 				echo.append("<tr><td align=\"center\" class=\"noBorderX\">Aktionen:</td></tr>\n");
@@ -261,7 +262,7 @@ public class AdminController extends DSGenerator {
 				}
 				echo.append("</table>\n");
 				echo.append(Common.tableEnd());
-		
+
 				echo.append("</td><td class=\"noBorder\" valign=\"top\" width=\"40\">&nbsp;&nbsp;&nbsp;</td>\n");
 				echo.append("<td class=\"noBorder\" valign=\"top\">\n");
 			}
@@ -286,7 +287,7 @@ public class AdminController extends DSGenerator {
 		try {
 			int act = 0;
 			String page = "";
-			
+
 			Class<? extends AdminPlugin> aClass = null;
 			for( String aPage : this.menu.keySet() )
 			{
@@ -311,13 +312,13 @@ public class AdminController extends DSGenerator {
 		catch( IOException e )
 		{
 			addError("Fehler beim Aufruf des Admin-Plugins: "+e);
-			
+
 			throw new RuntimeException(e);
 		}
 		catch( RuntimeException e )
 		{
 			addError("Fehler beim Aufruf des Admin-Plugins: "+e);
-			
+
 			throw e;
 		}
 		catch( InstantiationException e )
@@ -367,7 +368,7 @@ public class AdminController extends DSGenerator {
 				catch( IOException e )
 				{
 					addError("Fehler beim Aufruf des Admin-Plugins: "+e);
-					
+
 					throw new RuntimeException(e);
 				}
 			}

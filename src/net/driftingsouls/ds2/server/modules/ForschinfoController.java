@@ -96,7 +96,7 @@ public class ForschinfoController extends TemplateGenerator {
 			return false;
 		}
 
-		if( !data.isVisibile(user) && (user.getAccessLevel() < 20) ) {
+		if( !data.isVisibile(user) && !hasPermission("forschung", "allesSichtbar") ) {
 			addError("&Uuml;ber diese Forschung liegen aktuell keine Informationen vor");
 
 			return false;
@@ -214,7 +214,7 @@ public class ForschinfoController extends TemplateGenerator {
 
 				t.parse("tech.allows.list","tech.allows.listitem",true);
 			}
-			else if( (user.getAccessLevel() > 20) && !res.isVisibile(user) ) {
+			else if( hasPermission("forschung", "allesSichtbar") && !res.isVisibile(user) ) {
 				t.setVar(	"tech.allows.item.break",	entry,
 							"tech.allows.item.id",		res.getID(),
 							"tech.allows.item.name",	Common._plaintitle(res.getName()),

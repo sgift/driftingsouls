@@ -27,12 +27,13 @@ import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.PermissionResolver;
 
 /**
  * <p>Ein ComNet-Kanal.</p>
- * Die Berechtigungen fuer Lese- und Schreibrechte sind unabhaengig voneinander. Dies bedeutet, 
+ * Die Berechtigungen fuer Lese- und Schreibrechte sind unabhaengig voneinander. Dies bedeutet,
  * dass die Zugriffsberechtigten Spieler nicht die Liste der Spieler in einer zugriffsberechtigten
- * Allianz enthaelt. 
+ * Allianz enthaelt.
  * @author Christopher Jung
  *
  */
@@ -60,10 +61,10 @@ public class ComNetChannel {
 	private String readPlayer;
 	@Column(name="writeplayer")
 	private String writePlayer;
-	
+
 	@Version
 	private int version;
-	
+
 	/**
 	 * Konstruktor.
 	 *
@@ -71,7 +72,7 @@ public class ComNetChannel {
 	public ComNetChannel() {
 		// EMPTY
 	}
-	
+
 	/**
 	 * Erstellt einen neuen ComNet-Kanal.
 	 * @param name Der Name des Kanals
@@ -249,54 +250,56 @@ public class ComNetChannel {
 	public int getId() {
 		return id;
 	}
-	
+
 	/**
 	 * Prueft, ob der ComNet-Kanal fuer den angegebenen Benutzer lesbar ist.
 	 * @param user Der Benutzer
+	 * @param permissionResolver Der zu verwendende PermissionResolver
 	 * @return <code>true</code>, falls er lesbar ist
 	 */
-	public boolean isReadable( User user ) {
-		if( this.readAll || ((user.getId() < 0) && this.readNpc) || 
-			((user.getAlly() != null) && (this.readAlly == user.getAlly().getId())) || 
-			(user.getAccessLevel() >= 100) ) {
-				
+	public boolean isReadable( User user, PermissionResolver presolver ) {
+		if( this.readAll || ((user.getId() < 0) && this.readNpc) ||
+			((user.getAlly() != null) && (this.readAlly == user.getAlly().getId())) ||
+			presolver.hasPermission("comnet", "allesLesbar") ) {
+
 			return true;
 		}
-		
-		if( this.writeAll || ((user.getId() < 0) && this.writeNpc) || 
-			((user.getAlly() != null) && (this.writeAlly == user.getAlly().getId())) || 
-			(user.getAccessLevel() >= 100) ) {
-				
+
+		if( this.writeAll || ((user.getId() < 0) && this.writeNpc) ||
+			((user.getAlly() != null) && (this.writeAlly == user.getAlly().getId())) ||
+			presolver.hasPermission("comnet", "allesLesbar") ) {
+
 			return true;
 		}
-		
+
 		if( this.readPlayer.length() != 0 ) {
 			Integer[] playerlist = Common.explodeToInteger(",",this.readPlayer);
 			if( Common.inArray(user.getId(), playerlist) ) {
 				return true;
 			}
 		}
-		
+
 		if( this.writePlayer.length() != 0 ) {
 			Integer[] playerlist = Common.explodeToInteger(",",this.writePlayer);
 			if( Common.inArray(user.getId(), playerlist) ) {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * Prueft, ob der ComNet-Kanal fuer den angegebenen Benutzer schreibbar ist.
 	 * @param user Der Benutzer
+	 * @param presolver Der zu verwendende PermissionResolver
 	 * @return <code>true</code>, falls er schreibbar ist
 	 */
-	public boolean isWriteable( User user ) {
-		if( this.writeAll || ((user.getId() < 0) && this.writeNpc) || 
-				((user.getAlly() != null) && (this.writeAlly == user.getAlly().getId())) || 
-				(user.getAccessLevel() >= 100) ) {
-					
+	public boolean isWriteable( User user, PermissionResolver presolver ) {
+		if( this.writeAll || ((user.getId() < 0) && this.writeNpc) ||
+				((user.getAlly() != null) && (this.writeAlly == user.getAlly().getId())) ||
+				presolver.hasPermission("comnet", "allesSchreibbar") ) {
+
 				return true;
 			}
 
@@ -306,7 +309,7 @@ public class ComNetChannel {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -316,7 +319,7 @@ public class ComNetChannel {
 	 */
 	public int getPostCount() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
+
 		return ((Number)db.createQuery("select count(*) from ComNetEntry where channel= :channel")
 			.setEntity("channel", this)
 			.iterate().next()).intValue();

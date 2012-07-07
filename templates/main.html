@@ -310,7 +310,7 @@
 			<dd>
 				<a id="page_npcorder" href="./ds?module=npcorder" target="main">NPC</a>
 			</dd>
-			{if user.admin}
+			{if user.adminSichtbar}
 				<dd>
 					<a id="page_admin" href="./ds?module=admin" target="main">Admin</a>
 				</dd>
@@ -321,7 +321,7 @@
 		</dl>
 	</li>
 {else}
-	{if user.admin}
+	{if user.adminSichtbar}
 		<li>
 			<dl>
 				<dt>

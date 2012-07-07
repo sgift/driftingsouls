@@ -683,7 +683,7 @@ public class WerftGUI {
 		String moduleaction = context.getRequest().getParameterString("moduleaction");
 
 		//Gehoert das Schiff dem User?
-		if( (ship == null) || (ship.getId() < 0) || ((ship.getOwner() != user) && (user.getAccessLevel() < 100)) ) {
+		if( (ship == null) || (ship.getId() < 0) || (ship.getOwner() != user) ) {
 			context.addError("Das Schiff existiert nicht oder geh&ouml;rt nicht ihnen", werft.getUrlBase());
 			return;
 		}

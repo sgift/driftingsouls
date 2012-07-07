@@ -136,7 +136,7 @@ public class MainController extends TemplateGenerator {
 
 		t.setVar(
 				"user.npc"		, user.hasFlag( User.FLAG_ORDER_MENU ),
-				"user.admin"	, (user.isAdmin()),
+				"user.adminSichtbar"	, hasPermission("admin", "sichtbar"),
 				"admin.showconsole",	user.getUserValue("TBLORDER/admin/show_cmdline"));
 
 		t.setBlock("_MAIN", "bases.listitem", "bases.list");

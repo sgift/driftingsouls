@@ -84,7 +84,7 @@
 			<td class="noBorderX">Tutorial anzeigen:</td>
 			<td class="noBorderX"><input name="inttutorial" type="checkbox" value="1" {if user.inttutorial}checked="checked"{/endif} /></td>
 		</tr>
-		{if user.admin}
+		{if user.showScriptdebug}
 			<tr>
 				<td class="noBorderX">Scripts debuggen:</td>
 				<td class="noBorderX">
@@ -122,7 +122,7 @@
 		</tr>
 		</table>
 	{!table_end}
-	
+
 	</form>
 {/endif}
 
@@ -154,7 +154,7 @@
 				<td class="noBorderX"><img src="{URL}data/logos/ally/{user.ally}.gif" width="75" height="75" alt="Kein Allylogo vorhanden" /></td>
 			{/endif}
 		</tr>
-		</table>			
+		</table>
 		<br />
 		<form action="./ds" method="post" enctype="multipart/form-data">
 			<div>

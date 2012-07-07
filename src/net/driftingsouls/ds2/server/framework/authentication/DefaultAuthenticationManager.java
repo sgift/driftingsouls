@@ -48,67 +48,67 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		Request request = context.getRequest();
-		
+
 		checkLoginDisabled(context);
-		
+
 		String enc_pw = Common.md5(password);
 
 		BasicUser user = (BasicUser)db.createQuery("from BasicUser where un=:username")
 			.setString("username", username)
 			.uniqueResult();
-		
+
 		if( user == null ) {
 			Common.writeLog("login.log", Common.date("j.m.Y H:i:s")+": <"+request.getRemoteAddress()+"> ("+username+") <"+username+"> Password <"+password+"> ***UNGUELTIGER ACCOUNT*** von Browser <"+request.getUserAgent()+">\n");
-			
+
 			throw new WrongPasswordException();
 		}
 
 		if( !user.getPassword().equals(enc_pw) ) {
 			user.setLoginFailedCount(user.getLoginFailedCount()+1);
 			Common.writeLog("login.log", Common.date("j.m.Y H:i:s")+": <"+request.getRemoteAddress()+"> ("+user.getId()+") <"+username+"> Password <"+password+"> ***LOGIN GESCHEITERT*** von Browser <"+request.getUserAgent()+">\n");
-			
+
 			throw new WrongPasswordException();
 		}
-		
+
 		return finishLogin(user, useGfxPak, rememberMe);
 	}
-	
+
 	private BasicUser finishLogin(BasicUser user, boolean useGfxPack, boolean rememberMe) throws AuthenticationException
 	{
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		Request request = context.getRequest();
-		
+
 		checkDisabled(user);
-		
+
 		for( LoginEventListener listener : loginListenerList ) {
 			listener.onLogin(user);
 		}
 
 		log.info("Login "+user.getId());
 		Common.writeLog("login.log",Common.date( "j.m.Y H:i:s")+": <"+request.getRemoteAddress()+"> ("+user.getId()+") <"+user.getUN()+"> Login von Browser <"+request.getUserAgent()+">\n");
-		
+
 		JavaSession jsession = context.get(JavaSession.class);
 		jsession.setUser(user);
 		jsession.setUseGfxPak(useGfxPack);
 		jsession.setIP("<"+context.getRequest().getRemoteAddress()+">");
-		
+
 
 		if(rememberMe)
 		{
 			UUID uuid = UUID.randomUUID();
 			String value = user.getId() + "####" + uuid;
 			context.getResponse().setCookie("dsRememberMe", value, 157680000);
-			
+
 			PermanentSession permanentSession = new PermanentSession();
 			permanentSession.setTick(context.get(ContextCommon.class).getTick());
 			permanentSession.setToken(Common.md5(uuid.toString()));
 			permanentSession.setUserId(user.getId());
 			permanentSession.setUseGfxPack(useGfxPack);
-			
+
 			db.save(permanentSession);
 		}
-				
+
 		return user;
 	}
 
@@ -119,7 +119,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 			throw new LoginDisabledException(disablelogin);
 		}
 	}
-	
+
 	@Override
 	public void logout() {
 		Context context = ContextMap.getContext();
@@ -131,14 +131,14 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 			  .setParameter("userId", session.getUser().getId())
 			  .executeUpdate();
 		}
-		
+
 		context.remove(JavaSession.class);
 	}
 
 	@Override
 	public BasicUser adminLogin(BasicUser user, boolean attach) throws AuthenticationException {
 		Context context = ContextMap.getContext();
-		
+
 		BasicUser oldUser = context.getActiveUser();
 
 		JavaSession jsession = context.get(JavaSession.class);
@@ -148,27 +148,27 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		if( attach ) {
 			jsession.setAttach(oldUser);
 		}
-		
+
 		return user;
 	}
-	
+
 	@Override
 	public boolean authenticateCurrentSession(boolean automaticAccess) {
 		Context context = ContextMap.getContext();
-		
-		try 
+
+		try
 		{
 			checkLoginDisabled(context);
-		} 
-		catch (LoginDisabledException e) 
+		}
+		catch (LoginDisabledException e)
 		{
 			return false;
 		}
-		
+
 		JavaSession jsession = context.get(JavaSession.class);
-		
+
 		BasicUser user;
-		if( (jsession == null || jsession.getUser() == null) && !automaticAccess ) 
+		if( (jsession == null || jsession.getUser() == null) && !automaticAccess )
 		{
 			try
 			{
@@ -183,23 +183,23 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		{
 			user = jsession.getUser();
 		}
-		
+
 		if(user == null)
 		{
 			return false;
 		}
-		
+
 		try
 		{
 			checkDisabled(user);
 		}
-		catch (AccountDisabledException e) 
+		catch (AccountDisabledException e)
 		{
 			return false;
 		}
-				
+
 		user.setSessionData(jsession.getUseGfxPak());
-		
+
 		try {
 			for( AuthenticateEventListener listener : authListenerList ) {
 				listener.onAuthenticate(user);
@@ -213,25 +213,33 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		{
 			user.setInactivity(0);
 		}
-		
+
 		if( jsession.getAttach() != null ) {
 			user.attachToUser(jsession.getAttach());
 		}
-		
+
 		context.setActiveUser(user);
-		
+
+		int accessLevel = user.getAccessLevel();
+		if( jsession.getAttach() != null && accessLevel < jsession.getAttach().getAccessLevel() )
+		{
+			accessLevel = jsession.getAttach().getAccessLevel();
+		}
+
+		context.setPermissionResolver(new AccessLevelPermissionResolver(accessLevel));
+
 		return true;
 	}
-	
+
 	/**
 	 * Checks, if the user account has been disabled.
-	 * 
+	 *
 	 * @param user The current user account.
 	 */
 	public void checkDisabled(BasicUser user) throws AccountDisabledException
 	{
 		Context context = ContextMap.getContext();
-		if( user.getDisabled() ) 
+		if( user.getDisabled() )
 		{
 			Session db = context.getDB();
 			Request request = context.getRequest();
@@ -240,14 +248,14 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 			db.createQuery("delete from PermanentSession where user=?")
 				.setEntity(0, user)
 				.executeUpdate();
-			
+
 			throw new AccountDisabledException();
 		}
 	}
-	
+
 	/**
 	 * Checks, if the player is remembered by ds.
-	 * 
+	 *
 	 * @return <code>true</code> if ds remembers the player, <code>false</code> otherwise.
 	 */
 	@Override
@@ -255,53 +263,54 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	{
 		return getPermanentSession() != null;
 	}
-	
+
 	//Prueft, ob der User einen remember me Token hat, um automatisch neu authentifiziert zu werden
 	private BasicUser checkRememberMe() throws AuthenticationException
 	{
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
-		
+
 		PermanentSession session = getPermanentSession();
 		if(session == null)
 		{
 			return null;
 		}
-		
+
 		db.delete(session);
 		BasicUser user = (BasicUser)db.get(BasicUser.class, session.getUserId());
 		user.setSessionData(session.isUseGfxPack());
-		
+
 		return finishLogin(user, session.isUseGfxPack(), true);
 	}
-	
+
 	private PermanentSession getPermanentSession()
 	{
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		Request request = context.getRequest();
-		
+
 		String value = request.getCookie("dsRememberMe");
-		
+
 		if(value == null)
 		{
 			return null;
 		}
-		
+
 		if(!value.contains("####"))
 		{
 			return null;
 		}
-		
+
 		String[] parts = value.split("####");
 		int userId = Integer.parseInt(parts[0]);
 		String token = parts[1];
-		
-		PermanentSession session = (PermanentSession)db.createQuery("from PermanentSession where userId=:userId and token=:token")
-													   .setParameter("userId", userId)
-													   .setParameter("token", Common.md5(token))
-													   .uniqueResult();
-		
+
+		PermanentSession session = (PermanentSession)db
+			.createQuery("from PermanentSession where userId=:userId and token=:token")
+			.setParameter("userId", userId)
+			.setParameter("token", Common.md5(token))
+			.uniqueResult();
+
 		return session;
 	}
 }

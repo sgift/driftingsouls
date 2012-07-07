@@ -22,6 +22,7 @@ import java.io.IOException;
 
 import net.driftingsouls.ds2.server.framework.BasicContext;
 import net.driftingsouls.ds2.server.framework.CmdLineRequest;
+import net.driftingsouls.ds2.server.framework.EmptyPermissionResolver;
 import net.driftingsouls.ds2.server.framework.SimpleResponse;
 
 import org.quartz.JobExecutionContext;
@@ -41,7 +42,7 @@ public class ScheduledTick extends QuartzJobBean implements StatefulJob
 
 	/**
 	 * Injiziert den auszufuehrenden Tick (als Klassennamen).
-	 * 
+	 *
 	 * @param tick Der Klassenname des auszufuehrenden Ticks
 	 */
 	public void setTickExecuter(String tick)
@@ -54,18 +55,18 @@ public class ScheduledTick extends QuartzJobBean implements StatefulJob
 	{
 		CmdLineRequest request = new CmdLineRequest(new String[0]);
 		SimpleResponse response = new SimpleResponse();
-		BasicContext basicContext = new BasicContext(request, response);
+		BasicContext basicContext = new BasicContext(request, response, new EmptyPermissionResolver());
 
 		try
 		{
 			if( context.getMergedJobDataMap().containsKey("onlyTick") ) {
 				request.setParameter("only", ((Class<?>)context.getMergedJobDataMap().get("onlyTick")).getName());
 			}
-			
+
 			Class<? extends AbstractTickExecuter> cls = Class
 				.forName(tick)
 				.asSubclass(AbstractTickExecuter.class);
-			
+
 			AbstractTickExecuter tick = cls.newInstance();
 			tick.addLogTarget(TickController.STDOUT, false);
 			tick.execute();

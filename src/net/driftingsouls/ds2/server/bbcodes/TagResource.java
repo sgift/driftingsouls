@@ -42,7 +42,7 @@ public class TagResource implements BBCodeFunction {
 	public String handleMatch(String content, String... values) {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
-		
+
 		try {
 			long count = 0;
 			if( content.length() > 0 ) {
@@ -53,32 +53,32 @@ public class TagResource implements BBCodeFunction {
 			if( values.length > 1 ) {
 				format = values[1];
 			}
-			
-			
+
+
 			String unknstr = "Unbekannter Gegenstand";
 			if( count != 0 ) {
 				unknstr = Common.ln(count)+"x "+unknstr;
 			}
-			
+
 			Item item = (Item)db.get(Item.class, rid.getItemID());
-			
+
 			if( item == null ) {
-				return unknstr;	
+				return unknstr;
 			}
-			
+
 			User user = (User)context.getActiveUser();
 			if( (user == null) && (item.getAccessLevel() > 0 || item.isUnknownItem() )) {
 				return unknstr;
 			}
 			else if( user != null ){
-				if( item.getAccessLevel() > user.getAccessLevel() ) {		
+				if( item.getAccessLevel() > user.getAccessLevel() ) {
 					return unknstr;
 				}
-			
-				if( item.isUnknownItem() && !user.isKnownItem(item.getID()) && (user.getAccessLevel() < 15) ) {
+
+				if( item.isUnknownItem() && !user.isKnownItem(item.getID()) && !context.hasPermission("item", "unbekannteSichtbar") ) {
 					return unknstr;
 				}
-			}	
+			}
 
 			Cargo cargo = new Cargo();
 			if( count != 0 ) {
@@ -88,25 +88,25 @@ public class TagResource implements BBCodeFunction {
 				cargo.addResource(rid,1);
 			}
 			cargo.setOption( Cargo.Option.SHOWMASS, false );
-	
+
 			StringBuilder tmpString = new StringBuilder(30);
-			
+
 			ResourceList reslist = cargo.getResourceList();
 			Iterator<ResourceEntry> iter = reslist.iterator();
 			if( iter.hasNext() ) {
 				ResourceEntry res = iter.next();
-		
+
 				if( count != 0 ) {
 					tmpString.append(Common.ln(count));
 					tmpString.append("x ");
 				}
-		
+
 				if( format.indexOf('i') != -1 ) {
 					tmpString.append("<img align=\"middle\" border=\"0\" src=\"");
 					tmpString.append(res.getImage());
 					tmpString.append("\" alt=\"\" />");
 				}
-		
+
 				if( format.indexOf('n') != -1 ) {
 					tmpString.append(res.getName());
 				}

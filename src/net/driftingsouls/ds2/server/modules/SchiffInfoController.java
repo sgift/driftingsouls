@@ -60,36 +60,36 @@ public class SchiffInfoController extends TemplateGenerator {
 	private int shipID = 0;
 	private ShipTypeData ship = null;
 	private ShipBaubar shipBuildData = null;
-	
+
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public SchiffInfoController(Context context) {
 		super(context);
-		
+
 		parameterNumber("ship");
 
 		setTemplate("schiffinfo.html");
-		
+
 		setPageTitle("Schiffstyp");
 	}
-	
+
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		int ship = getInteger("ship");
-		
+
 		if( ship == 0 ) {
 			addError("Keine Schiffstypen-ID angegeben");
-			
+
 			return false;
 		}
-		
+
 		t.setVar( "global.login", (getUser() != null) );
-					
+
 		ShipTypeData data = null;
 		try {
 			data = Ship.getShipType(ship);
@@ -99,19 +99,19 @@ public class SchiffInfoController extends TemplateGenerator {
 		}
 
 		//Dummydata, falls eine ungueltige Schiffs-ID eingegeben wurde
-		if( (data == null) || 
-			(data.isHide() && ((user == null) || (user.getAccessLevel() < 10)) ) ) {
-			
+		if( (data == null) ||
+			(data.isHide() && ((user == null) || !hasPermission("schiffstyp", "versteckteSichtbar")) ) ) {
+
 			addError("&Uuml;ber diesen Schiffstyp liegen leider keine Daten vor");
-			
+
 			return false;
 		}
-		else if( data.isHide() && (user != null) && (user.getAccessLevel() >= 10) ) {
+		else if( data.isHide() && (user != null) && hasPermission("schiffstyp", "versteckteSichtbar") ) {
 			t.setVar("shiptype.showinvisible",1);
 		}
-		
+
 		ShipBaubar sw = null;
-		
+
 		if( ship != 0 ) {
 			//Daten fuer baubare Schiffe laden
 			sw = (ShipBaubar)db.createQuery("from ShipBaubar where type=?")
@@ -119,11 +119,11 @@ public class SchiffInfoController extends TemplateGenerator {
 				.setMaxResults(1)
 				.uniqueResult();
 		}
-		
+
 		this.shipID = ship;
 		this.ship = data;
-		this.shipBuildData = sw;	
-				
+		this.shipBuildData = sw;
+
 		return true;
 	}
 
@@ -136,7 +136,7 @@ public class SchiffInfoController extends TemplateGenerator {
 					User user = (User)getUser();
 					Forschung research = Forschung.getInstance(shipBuildData.getRes(i));
 					UserResearch userResearch = user.getUserResearch(research);
-					String cssClass = "error";				
+					String cssClass = "error";
 					//Has the user this research?
 					if(userResearch != null)
 					{
@@ -147,8 +147,8 @@ public class SchiffInfoController extends TemplateGenerator {
 								"shiptype.tr"+i+".name"	, Common._title(research.getName()),
 								"shiptype.tr"+i+".status", cssClass );
 				}
-			}	
-   		} 
+			}
+   		}
 		else {
 			for( int i=1; i <= 3; i++ ) {
 				if( shipBuildData.getRes(i) != 0 ) {
@@ -162,14 +162,14 @@ public class SchiffInfoController extends TemplateGenerator {
 		String race = "???";
 		if( shipBuildData.getRace() == -1 ) {
 			race = "Alle";
-		} 
+		}
 		else {
 			race = Rassen.get().rasse(shipBuildData.getRace()).getName();
 		}
 
 		t.setVar("shiptype.race",race);
 	}
-	
+
 	private void outShipCost() {
 		TemplateEngine t = getTemplateEngine();
 
@@ -179,7 +179,7 @@ public class SchiffInfoController extends TemplateGenerator {
 					"shiptype.cost.werftslots",		shipBuildData.getWerftSlots());
 
 		t.setBlock("_SCHIFFINFO","res.listitem","res.list");
-	
+
 		Cargo costs = shipBuildData.getCosts();
 		ResourceList reslist = costs.getResourceList();
 		for( ResourceEntry res  : reslist ) {
@@ -189,14 +189,14 @@ public class SchiffInfoController extends TemplateGenerator {
 			t.parse("res.list","res.listitem",true);
 		}
 	}
-	
+
 	@Override
 	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		
+
 		//Kann der User sehen, dass das Schiff baubar ist?
 		int visible = -1;
 
@@ -204,12 +204,12 @@ public class SchiffInfoController extends TemplateGenerator {
 			for( int i=1; i <= 3; i++ ) {
 				if( shipBuildData.getRes(i) != 0 ) {
 					Forschung research = Forschung.getInstance(shipBuildData.getRes(i));
-					
-					if( !research.isVisibile(user) && 
-						(user == null || !user.hasResearched(research.getRequiredResearch(1)) || 
-						 !user.hasResearched(research.getRequiredResearch(2)) || 
+
+					if( !research.isVisibile(user) &&
+						(user == null || !user.hasResearched(research.getRequiredResearch(1)) ||
+						 !user.hasResearched(research.getRequiredResearch(2)) ||
 						 !user.hasResearched(research.getRequiredResearch(3)) ) ) {
-						 	
+
 						visible = shipBuildData.getRes(i);
 					}
 				}
@@ -218,16 +218,16 @@ public class SchiffInfoController extends TemplateGenerator {
 
 		if( visible > 0 ) {
 			shipBuildData = null;
-			
-			if( (user != null) && user.getAccessLevel() >= 10 ) {
+
+			if( (user != null) && hasPermission("schiffstyp", "versteckteSichbar") ) {
 				t.setVar(	"shiptype.showbuildable",	1,
 							"shiptype.visibletech",		visible);
-			}	
+			}
 		}
 
-		if( (user != null) && (user.getAccessLevel() >= 10) ) {
+		if( (user != null) && hasPermission("schiffstyp", "npckostenSichtbar") ) {
 			OrderableShip order = (OrderableShip)db.get(OrderableShip.class, shipID);
-			
+
 			if( order != null ) {
 				t.setVar(	"shiptype.showorderable",	1,
 							"shiptype.ordercost",		order.getCost() );
@@ -236,12 +236,12 @@ public class SchiffInfoController extends TemplateGenerator {
 
 		Map<String,String> weapons = Weapons.parseWeaponList(ship.getWeapons());
 		Map<String,String> maxheat = Weapons.parseWeaponList(ship.getMaxHeat());
-		
+
 		t.setBlock("_SCHIFFINFO","shiptype.weapons.listitem","shiptype.weapons.list");
 		for( Map.Entry<String, String> entry: weapons.entrySet() ) {
 			int count = Integer.parseInt(entry.getValue());
 			String weaponname = entry.getKey();
-			
+
 			Weapon weapon = null;
 			try {
 				weapon = Weapons.get().weapon(weaponname);
@@ -252,7 +252,7 @@ public class SchiffInfoController extends TemplateGenerator {
 							"shiptype.weapon.description",	"" );
 
 				t.parse("shiptype.weapons.list","shiptype.weapons.listitem",true);
-				
+
 				continue;
 			}
 
@@ -301,25 +301,25 @@ public class SchiffInfoController extends TemplateGenerator {
 				descrip.append(weapon.getTorpTrefferWS());
 				descrip.append("<br />");
 			}
-			
+
 			if( weapon.getAreaDamage() != 0 ) {
 				descrip.append("Areadamage: ");
 				descrip.append(weapon.getAreaDamage());
-				descrip.append("<br />");	
+				descrip.append("<br />");
 			}
 			if( weapon.getDestroyable() ) {
-				descrip.append("Durch Abwehrfeuer zerst&ouml;rbar<br />");	
+				descrip.append("Durch Abwehrfeuer zerst&ouml;rbar<br />");
 			}
 			if( weapon.hasFlag(Weapon.Flags.DESTROY_AFTER) ) {
-				descrip.append("Beim Angriff zerst&ouml;rt<br />");	
+				descrip.append("Beim Angriff zerst&ouml;rt<br />");
 			}
 			if( weapon.hasFlag(Weapon.Flags.LONG_RANGE) ) {
-				descrip.append("Gro&szlig;e Reichweite<br />");	
+				descrip.append("Gro&szlig;e Reichweite<br />");
 			}
 			if( weapon.hasFlag(Weapon.Flags.VERY_LONG_RANGE) ) {
-				descrip.append("Sehr gro&szlig;e Reichweite<br />");	
+				descrip.append("Sehr gro&szlig;e Reichweite<br />");
 			}
-	
+
 			descrip.append("</span>");
 
 			t.setVar(	"shiptype.weapon.name",			weapon.getName(),
@@ -328,11 +328,11 @@ public class SchiffInfoController extends TemplateGenerator {
 
 			t.parse("shiptype.weapons.list","shiptype.weapons.listitem",true);
 		}
-		
+
 		if( weapons.isEmpty() ) {
 			t.setVar("shiptype.noweapons",1);
 		}
-		
+
 		// Flags auflisten
 		t.setBlock("_SCHIFFINFO", "shiptypeflags.listitem", "shiptypeflags.list");
 		t.setVar("shiptypeflags.list","");
@@ -341,20 +341,20 @@ public class SchiffInfoController extends TemplateGenerator {
 		Arrays.sort(flaglist);
 		for( int i=0; i < flaglist.length; i++ ) {
 			if( flaglist[i].length() == 0 ) {
-				continue;	
+				continue;
 			}
 			t.setVar(	"shiptypeflag.name", 			ShipTypes.getShipTypeFlagName(flaglist[i]),
 						"shiptypeflag.description",		ShipTypes.getShipTypeFlagDescription(flaglist[i]) );
-								
+
 			t.parse("shiptypeflags.list","shiptypeflags.listitem",true);
 		}
-	
+
 		// Module
 		StringBuilder moduletooltip = new StringBuilder();
 		String[] modulelist = new String[0];
 		if( ship.getTypeModules().length() != 0 ) {
 			modulelist = StringUtils.split( ship.getTypeModules(), ';' );
-			
+
 			for( int i=0; i < modulelist.length; i++ ) {
 				String[] amodule = StringUtils.split(modulelist[i],':');
 				try {
@@ -412,13 +412,13 @@ public class SchiffInfoController extends TemplateGenerator {
 		else {
 			t.setVar("shiptype.description", Common._text(ship.getDescrip()));
 		}
-		
+
 		if( ship.getUnitSpace() > 0)
 		{
 			t.setVar( 	"shiptype.units", true,
 						"shiptype.unitspace", 	Common.ln(ship.getUnitSpace()) );
 		}
-		
+
 		if( shipBuildData != null ) {
 			outPrerequisites();
 		}
@@ -427,6 +427,6 @@ public class SchiffInfoController extends TemplateGenerator {
 		if( shipBuildData != null ) {
 			outShipCost();
 		}
-		
+
 	}
 }

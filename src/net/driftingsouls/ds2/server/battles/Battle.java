@@ -1286,7 +1286,7 @@ public class Battle implements Locatable
 				else
                 {
 					//Mehr ueber den Spieler herausfinden
-					if( user.getAccessLevel() > 20 ) {
+					if( context.hasPermission("schlacht", "alleAufrufbar") ) {
 						this.guest = true;
 					}
 					else if( user.hasFlag(User.FLAG_VIEW_BATTLES) ) {

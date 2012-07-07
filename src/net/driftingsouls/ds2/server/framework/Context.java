@@ -29,50 +29,50 @@ import net.driftingsouls.ds2.server.framework.pipeline.Response;
  * hier abgerufen werden. Zudem kann die Ausgabe hier getaetigt werden.
  * Zudem verfuegt der Kontext noch ueber Caches fuer diverse Dinge, die direkt
  * an einen Aufruf gebunden sein muessen und nicht dauerhaft gecached werden koennen.
- * 
+ *
  * @author Christopher Jung
  *
  */
-public interface Context {
+public interface Context extends PermissionResolver {
 	/**
 	 * Liefert eine Instanz der Datenbank-Klasse zurueck.
-	 * 
+	 *
 	 * @return Eine Database-Instanz
 	 * @deprecated use getDB() (Hibernate)
 	 */
 	@Deprecated
 	public Database getDatabase();
-	
+
 	/**
 	 * Liefert eine Instanz der berwendeten DB-Session zurueck.
 	 * @return Die DB-Session
 	 */
 	public org.hibernate.Session getDB();
-	
+
 	/**
 	 * Liefert den gerade aktiven User.
-	 * 
+	 *
 	 * @return Das zum gerade aktiven User gehoerende User-Objekt
 	 */
 	public BasicUser getActiveUser();
 
 	/**
 	 * Setzt den gerade aktiven User auf das angebene User-Objekt.
-	 * 
+	 *
 	 * @param user Der neue aktive User
 	 */
 	public void setActiveUser(BasicUser user);
 
 	/**
 	 * Fuegt einen Fehler zur Fehlerliste hinzu.
-	 * 
+	 *
 	 * @param error Die Beschreibung des Fehlers
 	 */
 	public void addError(String error);
 
 	/**
 	 * Fuegt einen Fehler zur Fehlerliste hinzu und bietet zudem eine Ausweich-URL an.
-	 * 
+	 *
 	 * @param error Die Beschreibung des Fehlers
 	 * @param link Die Ausweich-URL
 	 */
@@ -80,9 +80,9 @@ public interface Context {
 
 	/**
 	 * Liefert den letzten Fehler zurueck.
-	 * 
+	 *
 	 * @return Der letzte Fehlers
-	 * 
+	 *
 	 * @see #addError(String, String)
 	 * @see #addError(String)
 	 */
@@ -90,46 +90,46 @@ public interface Context {
 
 	/**
 	 * Liefert eine Liste aller Fehler zurueck.
-	 * 
-	 * @return Eine Liste aller Fehlerbeschreibungen 
+	 *
+	 * @return Eine Liste aller Fehlerbeschreibungen
 	 */
 	public Error[] getErrorList();
-	
+
 	/**
 	 * Liefert die Request fuer diesen Aufruf.
 	 * @return Die Request des Aufrufs
 	 */
 	public Request getRequest();
-	
+
 	/**
 	 * Liefert die zum Aufruf gehoerende Response.
 	 * @return Die Response des Aufrufs
 	 */
 	public Response getResponse();
-	
+
 	/**
 	 * Setzt das zum Aufruf gehoerende Response-Objekt.
 	 * @param response Das Response-Objekt
 	 */
 	public void setResponse(Response response);
-	
+
 	/**
 	 * Liefert eine unter einem bestimmten Scope einmalige Instanz einer Klasse.
 	 * Sollte keine Instanz dieser Klasse im Scope vorhanden sein,
 	 * wird dieses erstellt.
-	 * 
+	 *
 	 * @param <T> Eine Klasse
 	 * @param cls Die gewuenschte Klasse
 	 * @return Eine Instanz der Klase
 	 */
 	public <T> T get(Class<T> cls);
-	
+
 	/**
 	 * Entfernt die unter einem bestimmten Scope gueltige Instanz dieser Klasse.
 	 * @param cls Die Klasse
 	 */
 	public void remove(Class<?> cls);
-	
+
 	/**
 	 * Setzt eine Kontext-lokale Variable auf einen angegebenen Wert.
 	 * @param cls Die Klasse, welche die Variable setzen moechte - fungiert als zusaetzlicher Schluessel
@@ -137,7 +137,7 @@ public interface Context {
 	 * @param value Der neue Wert der Variablen
 	 */
 	public void putVariable(Class<?> cls, String varname, Object value);
-	
+
 	/**
 	 * Liefert eine Kontext-lokale Variable zurueck.
 	 * @param cls Die Klasse, welche die Variable abrufen moechte - fungiert als zusaetzlicher Schluessel
@@ -145,11 +145,17 @@ public interface Context {
 	 * @return Die Variable oder <code>null</code>, falls die Variable nicht existiert
 	 */
 	public Object getVariable(Class<?> cls, String varname);
-	
+
 	/**
 	 * Registriert einen Kontext-Observer im Kontextobjekt. Der Observer wird
 	 * fortan ueber Ereignisse des Kontexts informiert
 	 * @param listener Der Listener
 	 */
 	public void registerListener(ContextListener listener);
+
+	/**
+	 * Setzt den vom Kontext verwendeten {@link PermissionResolver}.
+	 * @param permissionResolver Der PermissionResolver
+	 */
+	public void setPermissionResolver(PermissionResolver permissionResolver);
 }

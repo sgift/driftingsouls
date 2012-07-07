@@ -42,24 +42,24 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Module(name="unitinfo")
 public class UnitInfoController extends TemplateGenerator {
-	
+
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public UnitInfoController(Context context) {
 		super(context);
-		
+
 		setTemplate("unitinfo.html");
-		
+
 		setPageTitle("Einheit");
 	}
-	
+
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		return true;
 	}
-	
+
 	/**
 	 * Zeigt die Einheitenliste an.
 	 */
@@ -69,25 +69,25 @@ public class UnitInfoController extends TemplateGenerator {
 		org.hibernate.Session db = getDB();
 		User user = (User)ContextMap.getContext().getActiveUser();
 		List<UnitType> unitlist = Common.cast(db.createQuery("from UnitType").list());
-		
+
 		t.setVar( "unitinfo.list", 1);
-		
+
 		t.setBlock("_UNITINFO", "unitinfo.unitlist.listitem", "unitinfo.unitlist.list");
-		
+
 		for( UnitType unit : unitlist)
 		{
-			if( !unit.isHidden() || user.isKnownUnit(unit.getId()) )
+			if( !unit.isHidden() || user.isKnownUnit(unit) )
 			{
 				t.setVar(	"unit.id",		unit.getId(),
-							"unit.name", 	unit.getName() + ((unit.isHidden() && user.isAdmin()) ? "[hidden]" : ""),
+							"unit.name", 	unit.getName() + ((unit.isHidden() && hasPermission("unit", "versteckteSichtbar")) ? "[hidden]" : ""),
 							"unit.groesse",	unit.getSize(),
 							"unit.picture",	unit.getPicture() );
-				
+
 				t.parse("unitinfo.unitlist.list", "unitinfo.unitlist.listitem", true);
 			}
 		}
 	}
-	
+
 	/**
 	 * Zeigt Details zu einer Einheit an.
 	 * @urlparam Integer unitid Die ID der anzuzeigenden Einheit
@@ -101,31 +101,31 @@ public class UnitInfoController extends TemplateGenerator {
 
 		parameterNumber("unit");
 		int unitid = getInteger("unit");
-		
+
 		UnitType unittype = (UnitType)db.get(UnitType.class, unitid);
-				
+
 		if( unittype == null ) {
 			t.setVar("unitinfo.message", "Es ist keine Einheit mit dieser Identifikationsnummer bekannt");
-		
+
 			return;
 		}
-		if(unittype.isHidden() && !user.isKnownUnit(unittype.getId()))
+		if(unittype.isHidden() && !user.isKnownUnit(unittype))
 		{
 			t.setVar("unitinfo.message", "Es ist keine Einheit mit dieser Identifikationsnummer bekannt");
-			
+
 			return;
 		}
 		String buildcosts = "";
 		buildcosts = buildcosts+"<img style=\"vertical-align:middle\" src=\"data/interface/time.gif\" alt=\"\" />"+unittype.getDauer();
-		
+
 		for(ResourceEntry res : unittype.getBuildCosts().getResourceList())
 		{
 			buildcosts = buildcosts+"<img style=\"vertical-align:middle\" src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1();
 		}
-		
+
 		Forschung forschung = Forschung.getInstance(unittype.getRes());
 		String forschungstring = "";
-		
+
 		if(forschung != null && forschung.isVisibile(user))
 		{
 			forschungstring = forschung.getName();
@@ -133,17 +133,17 @@ public class UnitInfoController extends TemplateGenerator {
 		else if(forschung != null)
 		{
 			forschungstring = "Unbekannte Technologie";
-			if(user.getAccessLevel() > 19)
+			if( hasPermission("forschung", "allesSichtbar") )
 			{
 				forschungstring = forschungstring + " ["+forschung.getID()+"]";
 			}
 		}
-				
+
 		String name = Common._plaintitle(unittype.getName());
-		
+
 		t.setVar(	"unitinfo.details",	1,
 					"unit.picture",		unittype.getPicture(),
-					"unit.name",		name + ((unittype.isHidden() && user.isAdmin()) ? "[hidden]" : ""),
+					"unit.name",		name + ((unittype.isHidden() && hasPermission("unit", "versteckteSichtbar")) ? "[hidden]" : ""),
 					"unit.size",		unittype.getSize(),
 					"unit.nahrungcost",	unittype.getNahrungCost(),
 					"unit.recost",		unittype.getReCost(),

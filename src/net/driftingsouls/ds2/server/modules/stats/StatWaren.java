@@ -121,7 +121,7 @@ public class StatWaren implements Statistic {
 			if( item.getAccessLevel() > user.getAccessLevel() ) {
 				continue;
 			}
-			if( item.isUnknownItem() && !user.isKnownItem(itemid) && (user.getAccessLevel() < 15) ) {
+			if( item.isUnknownItem() && !user.isKnownItem(itemid) && !context.hasPermission("item", "unbekannteSichtbar") ) {
 				continue;
 			}
 

@@ -54,6 +54,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.units.UnitCargo;
+import net.driftingsouls.ds2.server.units.UnitType;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -1077,17 +1078,6 @@ public class User extends BasicUser {
 		this.wait4vac = value;
 	}
 
-	/**
-	 * Gibt an, ob der Spieler ein Admin ist.
-	 *
-	 * @return <code>true</code>, wenn der Spieler Admin ist, sonst <code>false</code>.
-	 */
-	@Override
-	public boolean isAdmin()
-	{
-		return getAccessLevel() >= 30;
-	}
-
     /**
      * Gibt an, ob der Spieler ein NPC ist.
      *
@@ -1406,27 +1396,38 @@ public class User extends BasicUser {
 	 * @param id Die ID des Einheitentyps
 	 * @return <code>true</code>, falls die Einheit dem User bekannt ist, sonst <code>false</code>
 	 */
-	public boolean isKnownUnit(int id) {
+	public boolean isKnownUnit(UnitType unitType) {
+		if( !unitType.isHidden() || ContextMap.getContext().hasPermission("unit", "versteckteSichtbar") )
+		{
+			return true;
+		}
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		User user = (User)ContextMap.getContext().getActiveUser();
 		long baseunit = 0;
 		long shipunit = 0;
 
-		Object baseunitsuserobject = db.createQuery("select sum(e.amount) from UnitCargoEntry as e, Base as b where e.key.type=:type and e.key.unittype=:unittype and e.key.destid = b.id and b.owner=:user")
+		Object baseunitsuserobject = db.createQuery("select sum(e.amount) " +
+				"from UnitCargoEntry as e, Base as b " +
+				"where e.key.type=:type and e.key.unittype=:unittype and e.key.destid = b.id and b.owner=:user")
 				.setInteger("type", UnitCargo.CARGO_ENTRY_BASE)
-				.setInteger("unittype", id)
-				.setEntity("user", user)
+				.setInteger("unittype", unitType.getId())
+				.setEntity("user", this)
 				.iterate()
 				.next();
 		if( baseunitsuserobject != null)
 		{
 			baseunit = (Long)baseunitsuserobject;
+			if( baseunit > 0 )
+			{
+				return true;
+			}
 		}
 
-		Object shipunitsuserobject = db.createQuery("select sum(e.amount) from UnitCargoEntry as e, Ship as s where e.key.type=:type and e.key.unittype=:unittype and e.key.destid = s.id and s.owner=:user")
+		Object shipunitsuserobject = db.createQuery("select sum(e.amount) " +
+				"from UnitCargoEntry as e, Ship as s " +
+				"where e.key.type=:type and e.key.unittype=:unittype and e.key.destid = s.id and s.owner=:user")
 				.setInteger("type", UnitCargo.CARGO_ENTRY_SHIP)
-				.setInteger("unittype", id)
-				.setEntity("user", user)
+				.setInteger("unittype", unitType.getId())
+				.setEntity("user", this)
 				.iterate()
 				.next();
 
@@ -1435,7 +1436,7 @@ public class User extends BasicUser {
 			shipunit = (Long)shipunitsuserobject;
 		}
 
-		return baseunit+shipunit > 0 || user.isAdmin();
+		return shipunit > 0;
 	}
 
 	/**

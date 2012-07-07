@@ -107,7 +107,7 @@ public class SearchController extends DSGenerator {
 		if( only.isEmpty() || "ships".equals(only) ) {
 			JSONArray shipListObj = new JSONArray();
 
-			if( count < max ) {			
+			if( count < max ) {
 				List<?> shipList = findShips(db, search, max-count);
 				for( Iterator<?> iter=shipList.iterator(); iter.hasNext(); ) {
 					Ship ship = (Ship)iter.next();
@@ -166,7 +166,7 @@ public class SearchController extends DSGenerator {
 
 	private List<?> findUsers(org.hibernate.Session db, final String search, int count)
 	{
-		List<?> userList = db.createQuery("from User where "+(getUser().getAccessLevel() > 20 ? "" : "locate('hide',flags)=0 and ")+
+		List<?> userList = db.createQuery("from User where "+(hasPermission("user", "versteckteSichtbar") ? "" : "locate('hide',flags)=0 and ")+
 				" (plainname like :search or id like :searchid)")
 			.setString("search", "%"+search+"%")
 			.setString("searchid", search+"%")

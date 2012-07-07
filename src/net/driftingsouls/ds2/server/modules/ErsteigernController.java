@@ -665,7 +665,7 @@ public class ErsteigernController extends TemplateGenerator
 			{
 				bietername = bieter.getName();
 			}
-			else if( user.getAccessLevel() > 20 )
+			else if( hasPermission("fraktionen", "bietername") )
 			{
 				bietername = bieter.getName();
 			}
@@ -1171,7 +1171,7 @@ public class ErsteigernController extends TemplateGenerator
 			{
 				bietername = bieter.getName();
 			}
-			else if( user.getAccessLevel() > 20 )
+			else if( hasPermission("fraktionen", "bietername") )
 			{
 				bietername = bieter.getName();
 			}
@@ -1185,7 +1185,7 @@ public class ErsteigernController extends TemplateGenerator
 
 			String ownername = "";
 
-			if( (user.getAccessLevel() >= 20) && (entry.getOwner().getId() != faction)
+			if( hasPermission("fraktionen", "anbietername") && (entry.getOwner().getId() != faction)
 					&& (entry.getOwner() != user) )
 			{
 				ownername = Common._title(entry.getOwner().getName());

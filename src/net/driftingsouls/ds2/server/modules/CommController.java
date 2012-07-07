@@ -572,7 +572,7 @@ public class CommController extends TemplateGenerator {
 			title = title.substring(0,60);
 		}
 
-		if( special.equals("admin") && (user.getAccessLevel() < 30) ) {
+		if( special.equals("admin") && !hasPermission("comm", "adminPM") ) {
 			special = "";
 		}
 		if( special.equals("official") && !Rassen.get().rasse(user.getRace()).isHead(user.getId()) ) {
@@ -912,7 +912,7 @@ public class CommController extends TemplateGenerator {
 
 		Map<String,String> specialuilist = new HashMap<String,String>();
 		specialuilist.put("nichts", "");
-		if( user.getAccessLevel() >= 30 ) {
+		if( hasPermission("comm", "adminPM") ) {
 			specialuilist.put("admin", "admin");
 		}
 		if( Rassen.get().rasse(user.getRace()).isHead(user.getId()) ) {
@@ -1088,7 +1088,7 @@ public class CommController extends TemplateGenerator {
 			title = title.substring(0,60);
 		}
 
-		if( special.equals("admin") && (user.getAccessLevel() < 30) ) {
+		if( special.equals("admin") && !hasPermission("comm", "adminPM") ) {
 			special = "";
 		}
 		if( special.equals("official") && !Rassen.get().rasse(user.getRace()).isHead(user.getId()) ) {
@@ -1097,7 +1097,7 @@ public class CommController extends TemplateGenerator {
 
 		Map<String,String> specialuilist = new HashMap<String,String>();
 		specialuilist.put("nichts", "");
-		if( user.getAccessLevel() >= 30 ) {
+		if( hasPermission("comm", "adminPM") ) {
 			specialuilist.put("admin", "admin");
 		}
 		if( Rassen.get().rasse(user.getRace()).isHead(user.getId()) ) {
@@ -1112,11 +1112,14 @@ public class CommController extends TemplateGenerator {
 					"user.signature", user.getUserValue("PMS/signature") );
 
 		t.setBlock("_COMM", "write.specialui.listitem", "write.specialui.list");
-		for( Map.Entry<String, String> entry: specialuilist.entrySet() ) {
-			t.setVar(	"specialui.name", entry.getKey(),
-						"specialui.value", entry.getKey() );
+		if( specialuilist.size() > 1 )
+		{
+			for( Map.Entry<String, String> entry: specialuilist.entrySet() ) {
+				t.setVar(	"specialui.name", entry.getKey(),
+							"specialui.value", entry.getKey() );
 
-			t.parse("write.specialui.list", "write.specialui.listitem", true);
+				t.parse("write.specialui.list", "write.specialui.listitem", true);
+			}
 		}
 	}
 }

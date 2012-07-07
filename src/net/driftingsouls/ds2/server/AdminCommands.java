@@ -145,7 +145,7 @@ public class AdminCommands {
 	public String executeCommand( String cmd ) {
 		Context context = ContextMap.getContext();
 		User user = (User)context.getActiveUser();
-		if( (user == null) || !user.isAdmin() ) {
+		if( (user == null) || !context.hasPermission("admin", "commands") ) {
 			return "-1";
 		}
 

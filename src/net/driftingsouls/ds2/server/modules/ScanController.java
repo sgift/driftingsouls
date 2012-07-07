@@ -49,9 +49,9 @@ import net.driftingsouls.ds2.server.ships.ShipTypes;
 /**
  * Zeigt die LRS-Scanner an.
  * @author Christopher Jung
- * 
+ *
  * @urlparam Integer ship Die ID des anzuzeigenden Schiffes
- * @urlparam Integer admin Falls != 0 und AccessLevel >= 30 kann via range und base* die Position und Scanreichweite eingestellt werden
+ * @urlparam Integer admin Falls != 0 und Admin kann via range und base* die Position und Scanreichweite eingestellt werden
  * @urlparam Integer range (Falls Admin-Modus) Die Scan-Reichweite
  * @urlparam Integer baseloc (Falls Admin-Modus) Die Koordinate, von der aus gescannt werden soll
  *
@@ -61,7 +61,7 @@ public class ScanController extends TemplateGenerator {
 	private Ship ship = null;
 	private int range = 0;
 	private boolean admin = false;
-	
+
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
@@ -73,92 +73,92 @@ public class ScanController extends TemplateGenerator {
 		parameterNumber("admin");
 		parameterNumber("range");
 		parameterString("baseloc");
-		
+
 		setTemplate("scan.html");
-		
+
 		setPageTitle("LRS");
 	}
-	
+
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		org.hibernate.Session db = getDB();
-		admin = getInteger("admin") != 0 && getUser().isAdmin();
+		admin = hasPermission("admin", "ScanArea") && getUser().isAdmin();
 		int shipID = -1;
-		
+
 		if( !admin ) {
 			shipID = getInteger("ship");
-			
+
 			Ship ship = (Ship)db.get(Ship.class, shipID);
-	
+
 			if( (ship == null) || (ship.getOwner().getId() != getUser().getId()) || (ship.getId() < 0) ) {
 				addError("Das angegebene Schiff existiert nicht oder geh&ouml;rt ihnen nicht", Common.buildUrl("default", "module", "schiffe") );
-				
+
 				return false;
 			}
-			
+
 			ShipTypeData shiptype = ship.getTypeData();
-			
+
 			if( shiptype.getScanCost() > ship.getEnergy()) {
 				addError("Nicht genug Energie vorhanden zum Scannen.");
 				return false;
 			}
-			
+
 			int range = shiptype.getSensorRange();
-	
+
 			// Sollte das Schiff in einem Nebel stehen -> halbe Scannerreichweite
 			Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(ship));
 			if( nebel != null ) {
 				switch( nebel.getType() ) {
 				// Norm. Deut, DMG
 				case 0:
-				case 6: 
+				case 6:
 					range = (int)Math.round(range/2d);
 					break;
-					
+
 				// L. Deut
 				case 1:
 					range = (int)Math.round(range*0.75d);
 					break;
-					
+
 				// H. Deut
 				case 2:
 					range = (int)Math.round(range/3d);
 					break;
-					
+
 				default:
 					addError("Der Nebel verhindert den Einsatz von Langstreckensensoren", Common.buildUrl("default", "module", "schiff", "ship", shipID));
-				
+
 					return false;
 				}
 			}
-	
+
 			if( ship.getCrew() < shiptype.getCrew()/3 ) {
 				addError("Es werden mindestens "+shiptype.getCrew()/3+" Crewmitglieder ben&ouml;tigt", Common.buildUrl("default", "module", "schiff", "ship", shipID));
-				
+
 				return false;
 			}
-			
+
 			range = (int)Math.round(range*(ship.getSensors()/100d));
-			
+
 			this.range = range;
 			this.ship = ship;
 		}
 		else {
 			this.range = getInteger("range");
 			Location loc = Location.fromString(getString("baseloc"));
-			
-			// Schiffstyp 1 ist zufaellig gewaehlt - wichtig ist nur, dass ein in der 
+
+			// Schiffstyp 1 ist zufaellig gewaehlt - wichtig ist nur, dass ein in der
 			// DB vorhandener Typ hier verwendet wird (sonst gibts Exceptions).
 			ShipType type = (ShipType)db.get(ShipType.class, 1);
 			this.ship = new Ship((User)getUser(), type, loc.getSystem(), loc.getX(), loc.getY());
 			this.ship.setEnergy(type.getPickingCost()*10);
 
-			this.getTemplateEngine().setVar(	
+			this.getTemplateEngine().setVar(
 					"global.admin",	1,
 					"global.baseloc", loc.getSystem()+":"+loc.getX()+"/"+loc.getY(),
 					"global.baserange", range);
 		}
-		
+
 		this.getTemplateEngine().setVar(
 				"global.ship.id",	shipID,
 				"global.range",		this.range+1,
@@ -169,10 +169,10 @@ public class ScanController extends TemplateGenerator {
 				"global.scan.miny",	Math.max(ship.getY()-this.range,1),
 				"global.scan.maxx",	ship.getX()+this.range,
 				"global.scan.maxy",	ship.getY()+this.range);
-		
-		return true;	
+
+		return true;
 	}
-	
+
 	/**
 	 * Zeigt den Inhalt eines Sektors innerhalb der LRS-Reichweite an.
 	 * @urlparam Integer scanx Die X-Koordinate des Sektors
@@ -184,46 +184,46 @@ public class ScanController extends TemplateGenerator {
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
-		
+
 		if(ship.getTypeData().getPickingCost() > ship.getEnergy())
 		{
 			return;
 		}
-		
+
 		ship.setEnergy(ship.getEnergy() - ship.getTypeData().getPickingCost());
-		
+
 		parameterNumber("scanx");
 		parameterNumber("scany");
-		
+
 		int scanx = getInteger("scanx");
 		int scany = getInteger("scany");
-		
+
 		final int system = this.ship.getSystem();
-		
+
 		t.setVar("global.scansector",1);
-		
+
 		StarSystem thissystem = (StarSystem)db.get(StarSystem.class, system);
-		
+
 		if( (scany < 1) || (scany > thissystem.getHeight()) ) {
 			return;
 		}
-		
+
 		if( (scanx < 1) || (scanx > thissystem.getWidth()) ) {
 			return;
 		}
-		
+
 		if( Math.round(Math.sqrt(Math.pow(scany-this.ship.getY(),2)+Math.pow(scanx-this.ship.getX(),2))) > this.range ) {
 			return;
 		}
-		
+
 		final Location scanLoc = new Location(system, scanx, scany);
-		
+
 		t.setVar("sector.isscanable",1);
-		
+
 		boolean scanableNebel = false;
-	
+
 		Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(scanLoc));
-		if( !this.admin && (nebel != null) && ((nebel.getType() < 3) || (nebel.getType() > 5)) ) 
+		if( !this.admin && (nebel != null) && ((nebel.getType() < 3) || (nebel.getType() > 5)) )
 		{
 			// Wenn kein EMP-Nebel, dann kann man ihn scannen
 			scanableNebel = true;
@@ -232,7 +232,7 @@ public class ScanController extends TemplateGenerator {
 		else if( this.admin ) {
 			scanableNebel = true;
 		}
-	
+
 		/*
 			Nebel
 		*/
@@ -250,7 +250,7 @@ public class ScanController extends TemplateGenerator {
 				Basen
 			*/
 			t.setBlock("_SCAN", "bases.listitem", "bases.list");
-			
+
 			List<?> bases = db.createQuery("from Base b inner join fetch b.owner " +
 					"where b.system= :sys and floor(sqrt(pow( :x - b.x,2)+pow( :y - b.y,2))) <= b.size " +
 					"order by b.id")
@@ -260,9 +260,9 @@ public class ScanController extends TemplateGenerator {
 				.list();
 			for( Iterator<?> iter=bases.iterator(); iter.hasNext(); ) {
 				Base base = (Base)iter.next();
-				
+
 				t.start_record();
-				
+
 				t.setVar(	"base.id",			base.getId(),
 							"base.isown",		(base.getOwner().getId() == user.getId()),
 							"base.owner.id",	base.getOwner().getId(),
@@ -270,19 +270,19 @@ public class ScanController extends TemplateGenerator {
 							"base.name",		Common._plaintitle(base.getName()),
 							"base.size",		base.getSize(),
 							"base.klasse",		base.getKlasse() );
-				
+
 				if( (base.getOwner().getId() != 0) && (base.getOwner().getId() != user.getId()) ) {
 					t.setVar("base.owner.link", 1);
 				}
-				
+
 				t.parse("bases.list", "bases.listitem", true);
 				t.stop_record();
 				t.clear_record();
 			}
-	
+
 			/*
 				Jumpnodes
-			*/	
+			*/
 			JumpNode node = (JumpNode)db.createQuery("from JumpNode where x= :x and y= :y and system= :sys")
 				.setInteger("x", scanLoc.getX())
 				.setInteger("y", scanLoc.getY())
@@ -294,13 +294,13 @@ public class ScanController extends TemplateGenerator {
 				if( node.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn( 0 ) ) {
 					blocked = "<br />-Blockiert-";
 				}
-				
+
 				t.setVar(	"sector.jumpnode",	1,
 							"jumpnode.id",		node.getId(),
 							"jumpnode.name",	node.getName(),
 							"jumpnode.blocked",	blocked );
 			}
-	
+
 			/*
 				Schlachten
 			*/
@@ -312,9 +312,9 @@ public class ScanController extends TemplateGenerator {
 				.list();
 			for( Iterator<?> iter=battleList.iterator(); iter.hasNext(); ) {
 				Battle battle = (Battle)iter.next();
-				
+
 				boolean questbattle = false;
-				
+
 				if( !battle.isVisibleToUser(user) ) {
 					questbattle = true;
 				}
@@ -323,32 +323,32 @@ public class ScanController extends TemplateGenerator {
 				if( battle.getAlly(0) == 0 ) {
 					final User commander1 = battle.getCommander(0);
 					party1 = Common._title(commander1.getName());
-				} 
+				}
 				else {
 					Ally ally = (Ally)db.get(Ally.class, battle.getAlly(0));
 					party1 = Common._title(ally.getName());
 				}
-	
+
 				String party2 = "";
 				if( battle.getAlly(1) == 0 ) {
 					final User commander2 = battle.getCommander(1);
 					party2 = Common._title(commander2.getName());
-				} 
+				}
 				else {
 					Ally ally = (Ally)db.get(Ally.class, battle.getAlly(1));
 					party2 = Common._title(ally.getName());
 				}
-					
+
 				long shipcount = (Long)db.createQuery("select count(*) from Ship where id>0 and battle= :battle")
 					.setEntity("battle", battle)
 					.iterate().next();
-				
+
 				t.setVar(	"battle.id",			battle.getId(),
 							"battle.isquestbattle",	questbattle,
 							"battle.party1",		party1,
 							"battle.party2",		party2,
-							"battle.shipcount",		shipcount ); 
-				
+							"battle.shipcount",		shipcount );
+
 				t.parse("battles.list", "battles.listitem", true);
 			}
 
@@ -368,12 +368,12 @@ public class ScanController extends TemplateGenerator {
 			/*
 				Schiffe
 			*/
-		
+
 			t.setBlock("_SCAN", "ships.listitem", "ships.list");
-		
+
 			List<Integer> verysmallshiptypes = new ArrayList<Integer>();
 			verysmallshiptypes.add(0); // Ein dummy-Wert, damit es keine SQL-Fehler gibt
-			
+
 			// Falls nicht im Admin-Modus und nicht das aktuelle Feld gescannt wird: Liste der kleinen Schiffe generieren
 			if( !this.admin && (scanx != this.ship.getX()) || (scany != this.ship.getY()) ) {
 				final Iterator<?> typeIter = db.createQuery("from ShipType where locate(:flag,flags)!=0")
@@ -384,7 +384,7 @@ public class ScanController extends TemplateGenerator {
 					verysmallshiptypes.add(type.getId());
 				}
 			}
-			
+
 			List<?> shiplist = db.createQuery("from Ship s inner join fetch s.owner " +
 					"where s.id>0 and s.x= :x and s.y= :y and s.system= :sys and s.battle is null and " +
 						"((s.shiptype not in ("+Common.implode(",",verysmallshiptypes)+")) or s.modules is not null) and " +
@@ -395,19 +395,19 @@ public class ScanController extends TemplateGenerator {
 					.setInteger("sys", scanLoc.getSystem())
 					.setInteger("user", user.getId())
 					.list();
-						
+
 			for( Iterator<?> iter=shiplist.iterator(); iter.hasNext(); ) {
 				Ship ship = (Ship)iter.next();
-				
+
 				boolean disableIFF = ship.getStatus().contains("disable_iff");
 				ShipTypeData shiptype = ship.getTypeData();
-				
+
 				// Falls nicht im Admin-Modus: Nur sehr kleine Schiffe im Feld des scannenden Schiffes anzeigen
 				if( !this.admin && ((scanx != this.ship.getX()) || (scany != this.ship.getY())) &&
 					shiptype.hasFlag(ShipTypes.SF_SEHR_KLEIN) ) {
-					continue;	
+					continue;
 				}
-				
+
 				if( !this.admin && ((scanx != this.ship.getX()) || (scany != this.ship.getY())) && ship.isDocked() )
 				{
 					Ship mship = ship.getBaseShip();
@@ -416,7 +416,7 @@ public class ScanController extends TemplateGenerator {
 						continue;
 					}
 				}
-				
+
 				boolean scanable = false;
 				if(nebel != null){
 					int nebeltype = nebel.getType();
@@ -446,7 +446,7 @@ public class ScanController extends TemplateGenerator {
 				{
 					scanable = true;
 				}
-				
+
 				if (scanable){
 					t.setVar(	"ship.id",				ship.getId(),
 								"ship.isown",			(ship.getOwner().getId() == user.getId()),
@@ -459,7 +459,7 @@ public class ScanController extends TemplateGenerator {
 								"ship.type",			ship.getType(),
 								"ship.type.picture",	shiptype.getPicture() );
 				}
-	
+
 				if( disableIFF || (ship.isDocked() && ship.getBaseShip().getStatus().contains("disable_iff"))) {
 					t.setVar(	"ship.owner.name",	"Unbekannt",
 								"ship.ownerlink",	0 );
@@ -488,13 +488,13 @@ public class ScanController extends TemplateGenerator {
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
-		
+
 		ship.setEnergy(ship.getEnergy() - ship.getTypeData().getScanCost());
-		
+
 		/*
 			Alle Objekte zusammensuchen, die fuer uns in Frage kommen
 		*/
-		
+
 		// Nebel
 		Map<Location,Integer> nebelmap = new HashMap<Location,Integer>();
 
@@ -511,7 +511,7 @@ public class ScanController extends TemplateGenerator {
 			Nebel nebel = (Nebel)iter.next();
 			nebelmap.put(nebel.getLocation(), nebel.getType());
 		}
-		
+
 		// Jumpnodes
 		Map<Location,Boolean> nodemap = new HashMap<Location,Boolean>();
 
@@ -532,7 +532,7 @@ public class ScanController extends TemplateGenerator {
 		// Schiffe
 		List<Integer> verysmallshiptypes = new ArrayList<Integer>();
 		verysmallshiptypes.add(0); // Ein dummy-Wert, damit es keine SQL-Fehler gibt
-		
+
 		// Im Admin-Modus sind alle Schiffe sichtbar
 		if( !this.admin ) {
 			final Iterator<?> typeIter = db.createQuery("from ShipType where locate(:flag,flags)!=0")
@@ -543,7 +543,7 @@ public class ScanController extends TemplateGenerator {
 				verysmallshiptypes.add(type.getId());
 			}
 		}
-		
+
 		Map<Location,List<Ship>> shipmap = new HashMap<Location,List<Ship>>();
 		Map<Location,Boolean> ownshipmap = new HashMap<Location,Boolean>();
 
@@ -561,36 +561,36 @@ public class ScanController extends TemplateGenerator {
 			.list();
 		for( Iterator<?> iter=shipList.iterator(); iter.hasNext(); ) {
 			Ship ship = (Ship)iter.next();
-			
+
 			ShipTypeData st = ship.getTypeData();
-			
+
 			// Im Admin-Modus sind alle Schiffe sichtbar
 			if( !this.admin && st.hasFlag(ShipTypes.SF_SEHR_KLEIN) ) {
-				continue;	
+				continue;
 			}
-			
+
 			if( !this.admin && ship.isDocked() )
 			{
 				Ship mship = ship.getBaseShip();
-				if( mship.getTypeData().hasFlag(ShipTypes.SF_SEHR_KLEIN)) 
+				if( mship.getTypeData().hasFlag(ShipTypes.SF_SEHR_KLEIN))
 				{
 					continue;
 				}
 			}
-			
+
 			Location loc = ship.getLocation();
 			if( !shipmap.containsKey(loc) ) {
 				shipmap.put(loc, new ArrayList<Ship>());
 			}
 			shipmap.get(loc).add(ship);
-				
-			if( (ship.getOwner().getId() == user.getId()) && (ship.getSensors()>30) && !ownshipmap.containsKey(loc) ) {			
+
+			if( (ship.getOwner().getId() == user.getId()) && (ship.getSensors()>30) && !ownshipmap.containsKey(loc) ) {
 				if( ship.getCrew() >= st.getCrew()/4 ) {
 					ownshipmap.put(loc, true);
 				}
 			}
 		}
-		
+
 		// Basen
 		Map<Location,BaseEntry> basemap = new HashMap<Location,BaseEntry>();
 
@@ -603,18 +603,18 @@ public class ScanController extends TemplateGenerator {
 			.setInteger("y", this.ship.getY())
 			.setInteger("range", this.range)
 			.list();
-						
+
 		for( Iterator<?> iter=baseList.iterator(); iter.hasNext(); ) {
 			Base base = (Base)iter.next();
-			
+
 			int imgcount = 0;
 			Location centerLoc = base.getLocation();
 			for( int by=base.getY()-base.getSize(); by <= base.getY()+base.getSize(); by++ ) {
 				for( int bx=base.getX()-base.getSize(); bx <= base.getX()+base.getSize(); bx++ ) {
 					Location loc = new Location(this.ship.getSystem(), bx, by);
-					
+
 					if( !centerLoc.sameSector( 0, loc, base.getSize() ) ) {
-						continue;	
+						continue;
 					}
 					BaseEntry entry = new BaseEntry();
 					entry.base = base;
@@ -626,56 +626,56 @@ public class ScanController extends TemplateGenerator {
 				}
 			}
 		}
-		
+
 		// Obere/Untere Koordinatenreihe
-		
+
 		t.setBlock("_SCAN", "mapborder.listitem", "mapborder.list");
-		
+
 		StarSystem system = (StarSystem)db.get(StarSystem.class, this.ship.getSystem());
-		
+
 		for( int x = this.ship.getX()-this.range; x <= this.ship.getX()+this.range; x++ ) {
 			if( (x > 0) && (x <= system.getWidth()) ) {
 				t.setVar("mapborder.x", x);
 				t.parse("mapborder.list", "mapborder.listitem", true);
 			}
 		}
-		
+
 		/*
 			Ausgabe der Karte
 		*/
-		
+
 		t.setBlock("_SCAN", "map.rowitem", "map.rowlist");
 		t.setBlock("map.rowitem", "map.listitem", "map.list");
-		
+
 		for( int y = this.ship.getY()-this.range; y <= this.ship.getY()+this.range; y++ ) {
 			if( (y < 1) || (y > system.getHeight()) ) {
 				continue;
 			}
-			
+
 			t.setVar(	"map.border.y",	y,
 						"map.list",		"" );
-	
+
 			// Einen einzelnen Sektor ausgeben
 			for( int x = this.ship.getX()-this.range; x <= this.ship.getX()+this.range; x++ ) {
 				if( (x < 1) || (x > system.getWidth()) ) {
 					continue;
 				}
 				Location loc = new Location(this.ship.getSystem(), x, y);
-				
+
 				t.start_record();
-	
+
 				String cssClass = "";
-				
+
 				if( (x != this.ship.getX()) || (y != this.ship.getY()) ) {
 					cssClass = "class=\"starmap\"";
 				}
-				
-				if( Math.round(Math.sqrt(Math.pow(y-this.ship.getY(),2)+Math.pow(x-this.ship.getX(),2))) <= this.range ) {				
+
+				if( Math.round(Math.sqrt(Math.pow(y-this.ship.getY(),2)+Math.pow(x-this.ship.getX(),2))) <= this.range ) {
 					t.setVar(	"map.x",			x,
 								"map.y",			y,
 								"map.linkclass",	cssClass,
 								"map.showsector",	1 );
-	
+
 					// Nebel
 					if (nebelmap.containsKey(loc) && ((nebelmap.get(loc) >=3) && (nebelmap.get(loc) <= 5)))
 					{
@@ -686,19 +686,19 @@ public class ScanController extends TemplateGenerator {
 						int own = 0;
 						int enemy = 0;
 						int ally = 0;
-						
+
 						// Schiffe
 						String[] fleet = new String[] {"", "", ""};
 						if( shipmap.containsKey(loc) ) {
 							List<Ship> myships = shipmap.get(loc);
 							for( int i=0; i < myships.size(); i++ ) {
 								Ship myship = myships.get(i);
-								
+
 								if( myship.getOwner().getId() == user.getId() ) {
 									if( !myship.isLanded() ) {
 										if( own == 0 ) {
 											fleet[0] = "_fo";
-										}	
+										}
 										own++;
 									}
 								}
@@ -709,7 +709,7 @@ public class ScanController extends TemplateGenerator {
 										if( ally == 0 )
 										{
 											fleet[1] = "_fa";
-										}	
+										}
 										ally++;
 									}
 								}
@@ -739,18 +739,18 @@ public class ScanController extends TemplateGenerator {
 									{
 										scan = true;
 									}
-									
+
 									if( !myship.isLanded() && scan == true )
 									{
 										if( enemy == 0 ) {
 											fleet[2] = "_fe";
-										}	
+										}
 										enemy++;
 									}
 								}
 							}
 						}
-	
+
 						String tooltip = "";
 						String fleetStr = "";
 						if( own+ally+enemy > 0 )
@@ -758,10 +758,10 @@ public class ScanController extends TemplateGenerator {
 							tooltip = "<span class='smallfont'>"+(own != 0 ? "Eigene: "+own+"<br />":"")+(ally != 0 ? "Ally: "+ally+"<br />":"")+(enemy != 0 ? "Feindliche: "+enemy+"<br />":"")+"</span>";
 							fleetStr = Common.implode("", fleet);
 						}
-					
+
 						t.setVar(	"map.tooltip",	tooltip,
 									"map.fleet",	fleetStr );
-					
+
 						// Nebel, Basen, Sprungpunkte
 						if( nebelmap.containsKey(loc) )
 						{
@@ -794,7 +794,7 @@ public class ScanController extends TemplateGenerator {
 							else
 							{
 								String astiimg = "kolonie"+entry.base.getKlasse()+"_lrs";
-								
+
 								t.setVar(	"map.image",		astiimg+"/"+astiimg,
 											"map.image.name",	"Asteroid" );
 							}
@@ -812,11 +812,11 @@ public class ScanController extends TemplateGenerator {
 					}
 				}
 				t.parse("map.list", "map.listitem", true);
-				
+
 				t.stop_record();
 				t.clear_record();
 			}
-			
+
 			t.parse("map.rowlist", "map.rowitem", true);
 		}
 	}

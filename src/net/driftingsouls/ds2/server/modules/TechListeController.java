@@ -143,7 +143,7 @@ public class TechListeController extends TemplateGenerator {
 				researchable.put(f.getID(), f);
 			}
 			else if( !f.isVisibile(user) ) {
-				if( user.getAccessLevel() >= 20 ) {
+				if( hasPermission("forschung", "allesSichtbar") ) {
 					invisible.put(f.getID(), f);
 				}
 			}
@@ -227,7 +227,7 @@ public class TechListeController extends TemplateGenerator {
 
 							resentry = true;
 						}
-						else if( (result.getRequiredResearch(i) < 0) && (user.getAccessLevel() >= 20) ) {
+						else if( (result.getRequiredResearch(i) < 0) && hasPermission("forschung", "allesSichtbar") ) {
 							t.setVar(	"tech.req"+i+".id",		"1",
 										"tech.req"+i+".name",	"<span style=\"color:#C7C7C7; font-weight:normal\">### Nicht erf&uuml;llbar</span>");
 

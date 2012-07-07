@@ -1151,7 +1151,7 @@ public class SchiffController extends TemplateGenerator {
 		}
 
 		// Tooltip: Schiffsstatusfeld
-		if( user.isAdmin() ) {
+		if( hasPermission("schiff", "statusFeld") ) {
 			StringBuilder tooltiptext = new StringBuilder(100);
 			tooltiptext.append("<span style='text-decoration:underline'>Schiffsstatus:</span><br />"+ship.getStatus().trim().replace(" ", "<br />"));
 			if( (ship.getLock() != null) && (ship.getLock().length() > 0) ) {

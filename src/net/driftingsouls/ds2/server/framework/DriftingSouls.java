@@ -32,17 +32,17 @@ import org.w3c.dom.NodeList;
  * Dient im Moment primaer dazu das die Hauptklassen zu initalisieren und in einen
  * vernuempfigen Zustand zu ueberfuehren.
  * Als erster Schritt in jedem Programm sollte zuerst diese Klasse instanziiert werden.
- * 
+ *
  * @author Christopher Jung
  *
  */
 public class DriftingSouls {
-	private Log LOG = null; 
+	private Log LOG = null;
 	/**
 	 * Startet eine neue Instanz von Drifting Souls.
 	 * Dabei werden Konfiguration und Datenbankverbindungen sowie
 	 * weitere bootbare Klassen initalisiert.
-	 * 
+	 *
 	 * @param log Logger, mit dem die Initalisierung protokolliert werden soll
 	 * @param configdir Das DS-Konfigurationsverzeichnis
 	 * @param boot Sollen die boot.xml abgearbeitet werden?
@@ -51,24 +51,27 @@ public class DriftingSouls {
 	public DriftingSouls(Log log, String configdir, boolean boot) throws Exception {
 		LOG = log;
 		LOG.info("----------- DS2 Startup "+new Date()+" -----------");
-		LOG.info("Reading "+configdir+"config.xml");		
+		LOG.info("Reading "+configdir+"config.xml");
 		Configuration.init(configdir);
-		
-		LOG.info("Setting up Boot Context...");
-		BasicContext context = new BasicContext(new CmdLineRequest(new String[0]), new SimpleResponse());
 
-		Common.setLocale(Locale.GERMAN); 
-		
+		LOG.info("Setting up Boot Context...");
+		BasicContext context = new BasicContext(
+				new CmdLineRequest(new String[0]),
+				new SimpleResponse(),
+				new EmptyPermissionResolver());
+
+		Common.setLocale(Locale.GERMAN);
+
 		if( boot ) {
 			LOG.info("Booting Classes...");
-	
+
 			Document doc = XMLUtils.readFile(Configuration.getSetting("configdir")+"boot.xml");
 			NodeList nodes = XMLUtils.getNodesByXPath(doc, "/bootlist/boot");
 			for( int i=0; i < nodes.getLength(); i++ ) {
 				String className = XMLUtils.getStringByXPath(nodes.item(i), "@class");
 				String type = XMLUtils.getStringByXPath(nodes.item(i), "@type");
 				LOG.info("["+type+"] Booting "+className);
-	
+
 				if( type.equals("static") ) {
 					Class.forName(className);
 				}

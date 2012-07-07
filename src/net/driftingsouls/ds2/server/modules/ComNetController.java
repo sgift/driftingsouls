@@ -45,7 +45,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 
 /**
- * Das ComNet - Alle Funktionalitaeten des ComNets befinden sich in 
+ * Das ComNet - Alle Funktionalitaeten des ComNets befinden sich in
  * dieser Klasse.
  * @author Christopher Jung
  *
@@ -55,58 +55,58 @@ import org.hibernate.Session;
 public class ComNetController extends TemplateGenerator {
 	private int activeChannel = 1;
 	private ComNetChannel activeChannelObj = null;
-	
+
 	private static final Log log = LogFactory.getLog(ComNetController.class);
-	
+
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public ComNetController(Context context) {
 		super(context);
-		
+
 		setTemplate("comnet.html");
-		
+
 		parameterNumber("channel");
-		
+
 		setPageTitle("Com-Net");
 	}
-	
+
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
-		
+
 		if( getInteger("channel") > activeChannel ) {
 			activeChannel = getInteger("channel");
 		}
-		
+
 		ComNetChannel tmp = (ComNetChannel)db.get(ComNetChannel.class, activeChannel);
 		if( tmp == null ) {
 			addError("Die angegebene Frequenz existiert nicht - es wird die Standardfrequenz benutzt");
-			
+
 			tmp = (ComNetChannel)db.get(ComNetChannel.class, 1);
 			activeChannel = 1;
 		}
-		
+
 		activeChannelObj = tmp;
-		
+
 		t.setVar(	"channel.id",	activeChannel,
 					"channel.name",	Common._title(activeChannelObj.getName()) );
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Sucht im aktuell ausgewaehlten ComNet-Kanal Posts nach bestimmten Kriterien.
 	 * Sollten keine Kriterien angegeben sein, so wird das Eingabefenster fuer die Suche angezeigt.
-	 * 
-	 * @urlparam Integer searchtype der Suchmodus. 
+	 *
+	 * @urlparam Integer searchtype der Suchmodus.
 	 * 		1 - Suchen nach Teilen eines Titels
 	 * 		2 - Suchen nach Teilen eines Posts
 	 * 		3 - Suchen nach Posts eines bestimmten Spielers auf Basis der Spieler-ID
 	 * @urlparam String/Integer search Der Suchbegriff, abhaengig vom Suchmodus
-	 * @urlparam Integer back Der Offset der anzuzeigenden Posts. Ein Offset 
+	 * @urlparam Integer back Der Offset der anzuzeigenden Posts. Ein Offset
 	 * 		von 0 bedeutet der neuste Post. Je groesser der Wert umso aelter der Post
 	 *
 	 */
@@ -115,40 +115,40 @@ public class ComNetController extends TemplateGenerator {
 		TemplateEngine t = getTemplateEngine();
 		Session db = getContext().getDB();
 		User user = (User)getUser();
-		
+
 		final int SCAN_TITLE = 1;
 		final int SCAN_CONTENT = 2;
 		final int SCAN_ID = 3;
-		
+
 		parameterString("search");
 		parameterNumber("searchtype");
 		parameterNumber("back");
-		
+
 		String search = getString("search");
 		int searchtype = getInteger("searchtype");
 		int back = getInteger("back");
-		
-		if( back < 0 ) { 
+
+		if( back < 0 ) {
 			back = 0;
 		}
-		
+
 		if( searchtype == 0 ) {
 			t.setVar("show.searchform", 1);
 			return;
 		}
-		
+
 		t.setVar("show.read",1);
-		if( !activeChannelObj.isReadable(user) ) {
+		if( !activeChannelObj.isReadable(user, this) ) {
 			addError( "Sie sind nicht berechtigt diese Frequenz zu empfangen", Common.buildUrl("default", "channel", activeChannel) );
 			setTemplate("");
-			
-			return;			
+
+			return;
 		}
-		
+
 		t.setVar("posts.action",	"search",
 				 "search.string",	search,
 				 "search.type",		searchtype);
-		
+
 		Object searchArgument = null;
 		if( searchtype == SCAN_ID )
 		{
@@ -166,17 +166,17 @@ public class ComNetController extends TemplateGenerator {
 		{
 			searchArgument =  "%"+search+"%";
 		}
-		
-		if( activeChannelObj.isWriteable(user) ) {
+
+		if( activeChannelObj.isWriteable(user, this) ) {
 			t.setVar("channel.writeable",1);
 		}
-		
+
 		ComNetVisit visit = (ComNetVisit)db.createQuery("from ComNetVisit where user=:user and channel=:channel")
 										   .setParameter("user", user)
 										   .setParameter("channel", activeChannelObj)
 										   .uniqueResult();
 		visit.setTime(Common.time());
-		
+
 		Query query = null;
 		if(searchtype == SCAN_TITLE)
 		{
@@ -190,7 +190,7 @@ public class ComNetController extends TemplateGenerator {
 		{
 			query = db.createQuery("from ComNetEntry entry where entry.user.id=:input and channel=:channel order by entry.post desc");
 		}
-		
+
 		if(query != null)
 		{
 			List<ComNetEntry> entries = Common.cast(query.setParameter("input", searchArgument)
@@ -198,33 +198,33 @@ public class ComNetController extends TemplateGenerator {
 														 .setFirstResult(back)
 														 .setMaxResults(10)
 														 .list());
-			
+
 			if(entries.isEmpty())
 			{
 				t.setVar("show.read", 0);
 				t.setVar("show.searcherror", 1);
 			}
-			
+
 			int channelPostCount = entries.size();
-			
+
 			int b = back + 10;
 			int v = back - 10;
-			if(b > channelPostCount) 
+			if(b > channelPostCount)
 			{
-				b = 0;	
+				b = 0;
 			}
-			
+
 			t.setVar("show.vor",	v,
 					 "show.back",	b );
- 
-			if( back > 0 ) 
+
+			if( back > 0 )
 			{
 				t.setVar("read.nextpossible",1);
 			}
-			
+
 			//t.setVar("posts.action","read");
 			t.setBlock("_COMNET","posts.listitem","posts.list");
-			
+
 			for(ComNetEntry entry: entries)
 			{
 				String head = entry.getHead();
@@ -236,9 +236,9 @@ public class ComNetController extends TemplateGenerator {
 				{
 					head = Common._title(head);
 				}
-				
+
 				String text = Smilie.parseSmilies(Common._text(entry.getText()));
-				
+
 				t.setVar("post.pic",			entry.getPic(),
 						 "post.postid",		entry.getPost(),
 						 "post.id",			entry.getUser().getId(),
@@ -248,7 +248,7 @@ public class ComNetController extends TemplateGenerator {
 						 "post.text",		text,
 						 "post.allypic",	entry.getAllyPic(),
 						 "post.ingametime",	Common.getIngameTime(entry.getTick()));
-				
+
 				t.parse("posts.list", "posts.listitem", true);
 				t.stop_record();
 				t.clear_record();
@@ -259,7 +259,7 @@ public class ComNetController extends TemplateGenerator {
 	/**
 	 * Zeigt den Inhalt des ausgewaehlten ComNet-Kanals an.
 	 * Es werden immer nur 10 Posts ab einem angegebenen Offset angezeigt.
-	 * @urlparam Integer back Der Offset der anzuzeigenden Posts. Ein Offset 
+	 * @urlparam Integer back Der Offset der anzuzeigenden Posts. Ein Offset
 	 * 	von 0 bedeutet der neuste Post. Je groesser der Wert umso aelter der Post
 	 *
 	 */
@@ -268,54 +268,54 @@ public class ComNetController extends TemplateGenerator {
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
-		
+
 		parameterNumber("back");
 		int back = getInteger("back");
-		
+
 		t.setVar("show.read",1);
-		if( !activeChannelObj.isReadable(user) ) {
+		if( !activeChannelObj.isReadable(user, this) ) {
 			addError( "Sie sind nicht berechtigt diesee Frequenz zu empfangen", Common.buildUrl("default", "channel", activeChannel) );
 			setTemplate("");
-			
-			return;			
+
+			return;
 		}
-	
-		if( activeChannelObj.isWriteable(user) ) {
+
+		if( activeChannelObj.isWriteable(user, this) ) {
 			t.setVar("channel.writeable",1);
 		}
-	
+
 		db.createQuery("update ComNetVisit set time= :time where user= :user and channel= :channel")
 			.setLong("time", Common.time())
 			.setEntity("user", user)
 			.setEntity("channel", this.activeChannelObj)
 			.executeUpdate();
-		
+
 		if( back < 0 ) {
 			back = 0;
 		}
-		
+
 		int channelPostCount = this.activeChannelObj.getPostCount();
-		
+
 		int b = back + 10;
 		int v = back - 10;
-		
+
 		if( b > channelPostCount ) {
-			b = 0;	
+			b = 0;
 		}
-		
+
 		t.setVar(	"show.vor",		v,
 					"show.back",	b );
 
 		if( back > 0 ) {
 			t.setVar("read.nextpossible",1);
 		}
-		
+
 		t.setVar("posts.action","read");
 
 		t.setBlock("_COMNET","posts.listitem","posts.list");
 
 		int i = 0;
-		
+
 		List<?> postList = db.createQuery("from ComNetEntry where channel= :channel order by post desc")
 			.setEntity("channel", this.activeChannelObj)
 			.setFirstResult(back)
@@ -323,7 +323,7 @@ public class ComNetController extends TemplateGenerator {
 			.list();
 		for( Iterator<?> iter=postList.iterator(); iter.hasNext(); ) {
 			ComNetEntry post = (ComNetEntry)iter.next();
-			
+
 			t.start_record();
 			int postNumber = channelPostCount - back - i;
 			String head = post.getHead();
@@ -354,7 +354,7 @@ public class ComNetController extends TemplateGenerator {
 			t.clear_record();
 		}
 	}
-	
+
 	/**
 	 * Postet einen ComNet-Post im aktuell ausgewaehlten ComNet-Kanal.
 	 * @urlparam String text Der Text des Posts
@@ -366,14 +366,14 @@ public class ComNetController extends TemplateGenerator {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
-		
-		if( !activeChannelObj.isWriteable(user) ) {
+
+		if( !activeChannelObj.isWriteable(user, this) ) {
 			addError( "Sie sind nicht berechtigt auf dieser Frequenz zu senden", Common.buildUrl("default", "channel", activeChannel) );
 			setTemplate("");
-			
-			return;			
+
+			return;
 		}
-		
+
 		parameterString("text");
 		parameterString("head");
 
@@ -385,12 +385,12 @@ public class ComNetController extends TemplateGenerator {
 		entry.setHead(head);
 		entry.setText(text);
 		db.persist(entry);
-		
+
 		t.setVar("show.submit",1);
 	}
-	
+
 	/**
-	 * Zeigt die Seite zum Verfassen eines neuen ComNet-Posts, im aktuell 
+	 * Zeigt die Seite zum Verfassen eines neuen ComNet-Posts, im aktuell
 	 * ausgewaehlten ComNet-Kanal, an.
 	 *
 	 */
@@ -398,19 +398,19 @@ public class ComNetController extends TemplateGenerator {
 	public void writeAction() {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		
-		if( !activeChannelObj.isWriteable(user) ) {
+
+		if( !activeChannelObj.isWriteable(user, this) ) {
 			addError( "Sie sind nicht berechtigt auf dieser Frequenz zu senden", Common.buildUrl("default", "channel", activeChannel) );
 			setTemplate("");
-			
-			return;			
+
+			return;
 		}
-		
+
 		t.setVar(	"show.inputform",	1,
 					"post.raw.title",	"",
 					"post.raw.text",	"" );
 	}
-	
+
 	/**
 	 * Zeigt eine Vorschau fuer einen geschriebenen, jedoch noch nicht geposteten, ComNet-Post an.
 	 * Nach einer Vorschau kann der Post im aktuell ausgewaehlten ComNet-Kanal gepostet werden.
@@ -422,26 +422,26 @@ public class ComNetController extends TemplateGenerator {
 	public void vorschauAction() {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		
-		if( !activeChannelObj.isWriteable(user) ) {
+
+		if( !activeChannelObj.isWriteable(user, this) ) {
 			addError( "Sie sind nicht berechtigt auf dieser Frequenz zu senden", Common.buildUrl("default", "channel", activeChannel) );
 			setTemplate("");
-			
-			return;			
+
+			return;
 		}
-		
+
 		parameterString("text");
 		parameterString("head");
 
 		String text = getString("text");
 		String head = getString("head");
-		
+
 		String tmpText = Smilie.parseSmilies(Common._text(text));
 		String tmpHead = Common._title(head);
-		
+
 		//Aktuellen Tick ermitteln
 		int tick = getContext().get(ContextCommon.class).getTick();
-		
+
 		Rang userRank = Medals.get().rang(user.getRang());
 		String userRankName = "";
 		if(userRank != null)
@@ -467,9 +467,9 @@ public class ComNetController extends TemplateGenerator {
 					"post.pic",			user.getId(),
 					"post.allypic",		user.getAlly() != null ? user.getAlly().getId() : 0,
 					"post.time",		Common.date("Y-m-d H:i:s"),
-					"post.ingametime",	Common.getIngameTime(tick) );	
+					"post.ingametime",	Common.getIngameTime(tick) );
 	}
-	
+
 	/**
 	 * Zeigt die Liste aller lesbaren ComNet-Kanaele an.
 	 */
@@ -479,16 +479,16 @@ public class ComNetController extends TemplateGenerator {
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
-		
+
 		ComNetChannel channel = activeChannelObj;
-		
+
 		t.setVar("show.channellist",1);
 
-		if( channel.isWriteable(user) ) {	
+		if( channel.isWriteable(user, this) ) {
 			t.setVar("channel.writeable", 1);
 		}
 
-		if( channel.isReadable(user) ) {
+		if( channel.isReadable(user, this) ) {
 			t.setVar("channel.readable",1);
 		}
 
@@ -506,37 +506,37 @@ public class ComNetController extends TemplateGenerator {
 		t.setBlock("_COMNET","channels.listitem","channels.list");
 
 		int lastowner = 0;
-		
+
 		Iterator<?> chnlIter = db.createQuery( "from ComNetChannel order by allyOwner" ).iterate();
 		while( chnlIter.hasNext() ) {
 			ComNetChannel achannel = (ComNetChannel)chnlIter.next();
-			
+
 			t.start_record();
-			
-			if( !achannel.isReadable(user) ) {
+
+			if( !achannel.isReadable(user, this) ) {
 				continue;
 			}
-			
+
 			t.setVar("thischannel.readable", 1);
-			
-			
-			if(achannel.isWriteable(user))
+
+
+			if(achannel.isWriteable(user, this))
 			{
 				t.setVar("thischannel.writeable", 1);
 			}
-			
+
 			if( (lastowner == 0) && (lastowner != achannel.getAllyOwner()) ) {
 				t.setVar("thischannel.showprivateinfo",1);
 				lastowner = achannel.getAllyOwner();
-			} 
-		
+			}
+
 			ComNetVisit visit = visits.get(achannel);
-		
+
 			if( visit == null ) {
 				visit = new ComNetVisit(user, achannel);
 				visit.setTime(0);
 				db.persist(visit);
-			}	
+			}
 
 			t.setVar(	"thischannel.id",	achannel.getId(),
 						"thischannel.name",	Common._title(achannel.getName()) );
@@ -548,7 +548,7 @@ public class ComNetController extends TemplateGenerator {
 			if( lastpost == null ) {
 				lastpost = 0L;
 			}
-			
+
 			if( achannel.getId() == channel.getId() ) {
 				t.setVar("thischannel.isactive",1);
 			}

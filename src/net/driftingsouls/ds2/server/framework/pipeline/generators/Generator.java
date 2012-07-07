@@ -22,6 +22,7 @@ import java.io.IOException;
 
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.PermissionResolver;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.pipeline.Error;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
@@ -30,25 +31,26 @@ import net.driftingsouls.ds2.server.framework.pipeline.Response;
 
 /**
  * Basisklasse fuer alle Controller.
- * 
+ *
  * @author Christopher Jung
  *
  */
-public abstract class Generator {
+public abstract class Generator implements PermissionResolver {
 	private Context context;
+
 	private String browser;
-	
+
 	/**
 	 * Konstruktor.
 	 * @param context Der Kontext
 	 */
 	public Generator(Context context) {
 		this.context = context;
-		
+
 		String browser = getRequest().getHeader("user-agent");
-		if( browser != null ) {		
+		if( browser != null ) {
 			browser = browser.toLowerCase();
-			
+
 			if( browser.indexOf("opera") > -1  ) {
 				browser = "opera";
 			}
@@ -64,10 +66,10 @@ public abstract class Generator {
 			this.browser = "unknown";
 		}
 	}
-	
+
 	/**
 	 * Liefert eine Instanz der Datenbank-Klasse zurueck.
-	 * 
+	 *
 	 * @return Eine Database-Instanz
 	 * @deprecated use getDB() (Hibernate)
 	 */
@@ -75,47 +77,47 @@ public abstract class Generator {
 	public final Database getDatabase() {
 		return context.getDatabase();
 	}
-	
+
 	/**
 	 * Fuegt einen Fehler zur Fehlerliste hinzu.
-	 * 
+	 *
 	 * @param error Die Beschreibung des Fehlers
 	 */
 	public final void addError( String error ) {
 		context.addError(error);
 	}
-	
+
 	/**
 	 * Fuegt einen Fehler zur Fehlerliste hinzu und bietet zudem eine Ausweich-URL an.
-	 * 
+	 *
 	 * @param error Die Beschreibung des Fehlers
 	 * @param link Die Ausweich-URL
 	 */
 	public final void addError( String error, String link ) {
 		context.addError(error, link);
 	}
-	
+
 	/**
 	 * Liefert den letzten Fehler zurueck.
-	 * 
+	 *
 	 * @return Der letzte Fehlers
-	 * 
+	 *
 	 * @see #addError(String, String)
 	 * @see #addError(String)
 	 */
 	public final Error getLastError() {
 		return context.getLastError();
 	}
-	
+
 	/**
 	 * Liefert eine Liste aller Fehler zurueck.
-	 * 
-	 * @return Eine Liste aller Fehlerbeschreibungen 
+	 *
+	 * @return Eine Liste aller Fehlerbeschreibungen
 	 */
 	public final Error[] getErrorList() {
 		return context.getErrorList();
 	}
-	
+
 	/**
 	 * Liefert die Request fuer diesen Aufruf.
 	 * @return Die Request des Aufrufs
@@ -131,7 +133,7 @@ public abstract class Generator {
 	public final Request getRequest() {
 		return context.getRequest();
 	}
-	
+
 	/**
 	 * Gibt den aktuellen Kontext zurueck.
 	 * @return Der Kontext
@@ -139,7 +141,7 @@ public abstract class Generator {
 	public final Context getContext() {
 		return context;
 	}
-	
+
 	/**
 	 * Gibt die aktuelle Hibernate-Session zurueck.
 	 * @return Die aktuelle Hibernate-Session
@@ -160,15 +162,21 @@ public abstract class Generator {
 	/**
 	 * Fueht die angegebene Aktion aus.
 	 * @param action Der Name der Aktion
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public abstract void handleAction( String action ) throws IOException;
-	
+
 	/**
 	 * Gibt den Identifikationsstring des Browsers des Spielers zurueck.
 	 * @return Der Identifikationsstring des Browsers
 	 */
 	public final String getBrowser() {
 		return browser;
+	}
+
+	@Override
+	public boolean hasPermission(String category, String action)
+	{
+		return this.context.hasPermission(category, action);
 	}
 }

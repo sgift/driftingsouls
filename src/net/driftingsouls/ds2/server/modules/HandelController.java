@@ -49,8 +49,8 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Module(name="handel")
 public class HandelController extends TemplateGenerator {
-	
-	
+
+
 	private Configuration config;
 
 	/**
@@ -59,24 +59,24 @@ public class HandelController extends TemplateGenerator {
 	 */
 	public HandelController(Context context) {
 		super(context);
-		
+
 		setTemplate("handel.html");
-		
+
 		setPageTitle("Handel");
 		addPageMenuEntry("Angebote", Common.buildUrl("default"));
 		addPageMenuEntry("neues Angebot", Common.buildUrl("add"));
 	}
-	
+
     /**
      * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
-    public void setConfiguration(Configuration config) 
+    public void setConfiguration(Configuration config)
     {
     	this.config = config;
     }
-	
+
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		return true;
@@ -92,53 +92,53 @@ public class HandelController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void enterAction() {
 		org.hibernate.Session db = getDB();
-		
+
 		parameterString("comm");
 		String comm = getString("comm");
-		
+
 		boolean needeverything = false;
 		boolean haveeverything = false;
 		Cargo need = new Cargo();
 		Cargo have = new Cargo();
 
-	
+
 		// Egal - "-1" (Spezialfall)
-		parameterNumber("-1need");			
+		parameterNumber("-1need");
 		long needcount = getInteger("-1need");
 		long havecount = 0;
-		
+
 		if( needcount <= 0 ) {
 			parameterNumber("-1have");
 			havecount = getInteger("-1have");
-			
+
 			if( havecount > 0 ) {
-				haveeverything = true; 
+				haveeverything = true;
 			}
 		}
 		else {
 			needeverything = true;
 		}
-		
-		
+
+
 		ResourceList reslist = Resources.getResourceList().getResourceList();
 		for( ResourceEntry res : reslist ) {
 			String name = "";
-			
+
 			Item item = (Item)db.get(Item.class, res.getId().getItemID());
 			if( !item.getHandel() ) {
 				continue;
 			}
 			name = "i"+res.getId().getItemID();
-					
-			parameterNumber(name+"need");			
+
+			parameterNumber(name+"need");
 			needcount = getInteger(name+"need");
 			havecount = 0;
-			
+
 			if( needcount <= 0 ) {
 				parameterNumber(name+"have");
 				havecount = getInteger(name+"have");
 			}
-						
+
 			if( needcount > 0 ) {
 				need.addResource(res.getId(), needcount);
 			}
@@ -146,23 +146,23 @@ public class HandelController extends TemplateGenerator {
 				have.addResource(res.getId(), havecount);
 			}
 		}
-		
+
 		Handel entry = new Handel((User)getUser());
 		entry.setKommentar(comm);
-		
+
 		if( !needeverything ) {
-			entry.setSucht(need.save());	
+			entry.setSucht(need.save());
 		}
-		
+
 		if( !haveeverything ) {
-			entry.setBietet(have.save());	
+			entry.setBietet(have.save());
 		}
 
 		db.persist(entry);
 
 		redirect();
 	}
-	
+
 	/**
 	 * Zeigt die Seite zur Eingabe eines Handelsangebots an.
 	 *
@@ -171,25 +171,25 @@ public class HandelController extends TemplateGenerator {
 	public void addAction() {
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
-		
+
 		t.setVar("handel.add", 1);
-		
+
 		t.setBlock("_HANDEL", "addresources.listitem", "addresources.list");
-		
+
 		ResourceList reslist = Resources.getResourceList().getResourceList();
 		for( ResourceEntry res : reslist ) {
 			Item item = (Item)db.get(Item.class, res.getId().getItemID());
 			if( !item.getHandel() ) {
 				continue;
 			}
-			
+
 			t.setVar(	"res.id",		"i"+res.getId().getItemID(),
 						"res.name",		res.getName(),
 						"res.image",	res.getImage() );
-			
+
 			t.parse("addresources.list", "addresources.listitem", true);
 		}
-		
+
 		ConfigValue runningcost = (ConfigValue)db.get(ConfigValue.class, "adcost");
 		t.setVar("trade.runningcost", runningcost.getValue());
 	}
@@ -204,40 +204,40 @@ public class HandelController extends TemplateGenerator {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
-		
+
 		parameterNumber("del");
 		int del = getInteger("del");
-		
+
 		Handel entry = (Handel)db.get(Handel.class, del);
-		if( (entry != null) && (entry.getWho().equals(user) || (user.getAccessLevel() >= 20) || user.hasFlag(User.FLAG_MODERATOR_HANDEL)) ) {
+		if( (entry != null) && (entry.getWho().equals(user) || hasPermission("handel", "angeboteLoeschen") || user.hasFlag(User.FLAG_MODERATOR_HANDEL)) ) {
 			db.delete(entry);
 			t.setVar("handel.message", "Angebot gel&ouml;scht");
-		} 
+		}
 		else {
 			addError("Sie haben keine Berechtigung das Angebot zu l&ouml;schen");
 		}
-		
+
 		redirect();
 	}
-	
+
 	/**
 	 * Zeigt die vorhandenen Handelsangebote an.
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() {		
+	public void defaultAction() {
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
-		
+
 		t.setVar("handel.view", 1);
-		
+
 		int count = 0;
-		
+
 		t.setBlock("_HANDEL", "angebote.listitem", "angebote.list");
 		t.setBlock("angebote.listitem", "angebot.want.listitem", "angebot.want.list");
 		t.setBlock("angebote.listitem", "angebot.need.listitem", "angebot.need.list");
-		
+
 		List<?> entryList = db.createQuery("from Handel " +
 				"where who.vaccount=0 or who.wait4vac!=0 order by time desc")
 			.list();
@@ -246,15 +246,15 @@ public class HandelController extends TemplateGenerator {
 
 			t.setVar(	"angebot.want.list",	"",
 						"angebot.need.list",	"" );
-			
+
 			for( int i = 0; i <= 1; i++ ) {
 				String line = (i == 1 ? entry.getBietet() : entry.getSucht());
-				
+
 				if( !line.equals("-1") ) {
 					Cargo cargo = new Cargo( Cargo.Type.AUTO, line );
 					cargo.setOption( Cargo.Option.SHOWMASS, false );
 					cargo.setOption( Cargo.Option.LINKCLASS, "handelwaren");
-					
+
 					ResourceList reslist = cargo.getResourceList();
 					if( i == 0 ) {
 						Resources.echoResList( t, reslist, "angebot.want.list");
@@ -275,7 +275,7 @@ public class HandelController extends TemplateGenerator {
 					}
 				}
 			}
-			
+
 			t.setVar(	"angebot.id",			entry.getId(),
 						"angebot.owner",		entry.getWho().getId(),
 						"angebot.owner.name",	Common._title(entry.getWho().getName()),
@@ -284,17 +284,17 @@ public class HandelController extends TemplateGenerator {
 						"angebot.description.overflow",	Common._text(entry.getKommentar()).length() > 220,
 						"angebot.newline",		(count % 3 == 0),
 						"angebot.endline",		(count % 3 == 0) && (count > 0),
-						"angebot.showdelete",	entry.getWho().equals(user) || (user.getAccessLevel() >= 20) || user.hasFlag(User.FLAG_MODERATOR_HANDEL) );
+						"angebot.showdelete",	entry.getWho().equals(user) || hasPermission("handel", "angeboteLoeschen") || user.hasFlag(User.FLAG_MODERATOR_HANDEL) );
 
 			count++;
 
 			t.parse("angebote.list","angebote.listitem", true);
 		}
-		
+
 		t.setBlock("_HANDEL", "emptyangebote.listitem", "emptyangebote.list");
 		while( count % 3 != 0 ) {
 			t.parse("emptyangebote.list", "emptyangebote.listitem", true);
 			count++;
-		}	
+		}
 	}
 }
