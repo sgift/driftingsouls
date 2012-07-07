@@ -31,6 +31,7 @@ import java.util.Map.Entry;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.Request;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -278,9 +279,10 @@ public class ShipTypeChangeset {
 	 */
 	public ShipTypeChangeset(Context context, String addict)
 	{
-		if( context.getRequest().getParameterString("weapons"+addict).length() > 0)
+		Request request = context.getRequest();
+		if( request.getParameterString("weapons"+addict).length() > 0)
 		{
-			String[] thisweapons = StringUtils.split(context.getRequest().getParameterString("weapons"+addict), ";");
+			String[] thisweapons = StringUtils.split(request.getParameterString("weapons"+addict), ";");
 
 			for(int i = 0; i < thisweapons.length; i++)
 			{
@@ -296,10 +298,10 @@ public class ShipTypeChangeset {
 		{
 			this.weapons = null;
 		}
-		if( context.getRequest().getParameterString("flags"+addict).length() > 0)
+		if( request.getParameterString("flags"+addict).length() > 0)
 		{
 			List<String> flagList = new ArrayList<String>();
-			String[] flags = StringUtils.split(context.getRequest().getParameterString("flags"+addict), " ");
+			String[] flags = StringUtils.split(request.getParameterString("flags"+addict), " ");
 			for( int j=0; j< flags.length; j++)
 			{
 				flagList.add(flags[j]);
@@ -310,60 +312,67 @@ public class ShipTypeChangeset {
 		{
 			this.flags = null;
 		}
-		if( context.getRequest().getParameterString("nickname"+addict).length() > 0) {
-			this.nickname = context.getRequest().getParameterString("nickname"+addict);
+		if( request.getParameterString("nickname"+addict).length() > 0) {
+			this.nickname = request.getParameterString("nickname"+addict);
 		}
 		else
 		{
 			this.nickname = null;
 		}
-		if( context.getRequest().getParameterString("picture"+addict).length() > 0 )
+		if( request.getParameterString("picture"+addict).length() > 0 )
 		{
-			this.picture = context.getRequest().getParameterString("picture"+addict);
+			this.picture = request.getParameterString("picture"+addict);
 		}
 		else
 		{
 			this.picture = null;
 		}
-		this.ru = context.getRequest().getParameterInt("ru"+addict);
-		this.rd = context.getRequest().getParameterInt("rd"+addict);
-		this.ra = context.getRequest().getParameterInt("ra"+addict);
-		this.rm = context.getRequest().getParameterInt("rm"+addict);
-		this.eps = context.getRequest().getParameterInt("eps"+addict);
-		this.cost = context.getRequest().getParameterInt("cost"+addict);
-		this.hull = context.getRequest().getParameterInt("hull"+addict);
-		this.panzerung = context.getRequest().getParameterInt("panzerung"+addict);
-		this.ablativeArmor = context.getRequest().getParameterInt("ablativearmor"+addict);
-		this.cargo = context.getRequest().getParameterInt("cargo"+addict);
-		this.nahrungcargo = context.getRequest().getParameterInt("nahrungcargo"+addict);
-		this.heat = context.getRequest().getParameterInt("heat"+addict);
-		this.crew = context.getRequest().getParameterInt("crew"+addict);
-		this.maxunitsize = context.getRequest().getParameterInt("maxunitsize"+addict);
-		this.unitspace = context.getRequest().getParameterInt("unitspace"+addict);
-		this.torpedoDef = context.getRequest().getParameterInt("torpdeff"+addict);
-		this.shields = context.getRequest().getParameterInt("shields"+addict);
-		this.size = context.getRequest().getParameterInt("size"+addict);
-		this.jDocks = context.getRequest().getParameterInt("jdocks"+addict);
-		this.aDocks = context.getRequest().getParameterInt("adocks"+addict);
-		this.sensorRange = context.getRequest().getParameterInt("sensorrange"+addict);
-		this.hydro = context.getRequest().getParameterInt("hydro"+addict);
-		this.deutFactor = context.getRequest().getParameterInt("deutfactor"+addict);
-		this.reCost = context.getRequest().getParameterInt("recost"+addict);
-		this.werft = context.getRequest().getParameterInt("werftslots"+addict);
-		this.oneWayWerft = context.getRequest().getParameterInt("onewaywerft"+addict);
-		if( context.getRequest().getParameterString("picturemod"+addict).length() > 0 ) {
-			this.pictureMod = context.getRequest().getParameterString("picturemod"+addict);
+		this.ru = request.getParameterInt("ru"+addict);
+		this.rd = request.getParameterInt("rd"+addict);
+		this.ra = request.getParameterInt("ra"+addict);
+		this.rm = request.getParameterInt("rm"+addict);
+		this.eps = request.getParameterInt("eps"+addict);
+		this.cost = request.getParameterInt("cost"+addict);
+		this.hull = request.getParameterInt("hull"+addict);
+		this.panzerung = request.getParameterInt("panzerung"+addict);
+		this.ablativeArmor = request.getParameterInt("ablativearmor"+addict);
+		this.cargo = request.getParameterInt("cargo"+addict);
+		this.nahrungcargo = request.getParameterInt("nahrungcargo"+addict);
+		this.heat = request.getParameterInt("heat"+addict);
+		this.crew = request.getParameterInt("crew"+addict);
+		// TODO: maxheat
+		this.torpedoDef = request.getParameterInt("torpdeff"+addict);
+		this.shields = request.getParameterInt("shields"+addict);
+		this.size = request.getParameterInt("size"+addict);
+		this.jDocks = request.getParameterInt("jdocks"+addict);
+		this.aDocks = request.getParameterInt("adocks"+addict);
+		this.sensorRange = request.getParameterInt("sensorrange"+addict);
+		this.hydro = request.getParameterInt("hydro"+addict);
+		this.deutFactor = request.getParameterInt("deutfactor"+addict);
+		this.reCost = request.getParameterInt("recost"+addict);
+		this.werft = request.getParameterInt("werftslots"+addict);
+		this.oneWayWerft = request.getParameterInt("onewaywerft"+addict);
+		if( request.getParameterString("picturemod"+addict).length() > 0 ) {
+			this.pictureMod = request.getParameterString("picturemod"+addict);
 		}
 		else
 		{
 			this.pictureMod = null;
 		}
-		this.srs = context.getRequest().getParameterString("srs"+addict).equals("true") ? true : false;
-		this.scanCost = context.getRequest().getParameterInt("scancost"+addict);
-		this.pickingCost = context.getRequest().getParameterInt("pickingcost"+addict);
-		this.minCrew = context.getRequest().getParameterInt("mincrew"+addict);
-		this.lostInEmpChance = context.getRequest().getParameterInt("lostinempchance"+addict);
-        this.bounty = new BigInteger(context.getRequest().getParameterString("bounty"+addict));
+		if( !"null".equals(request.getParameterString("srs"+addict)) )
+		{
+			this.srs = request.getParameterString("srs"+addict).equals("true") ? true : false;
+		}
+		this.scanCost = request.getParameterInt("scancost"+addict);
+		this.pickingCost = request.getParameterInt("pickingcost"+addict);
+		this.minCrew = request.getParameterInt("mincrew"+addict);
+		this.lostInEmpChance = request.getParameterInt("lostinempchance"+addict);
+		this.maxunitsize = request.getParameterInt("maxunitsize"+addict);
+		this.unitspace = request.getParameterInt("unitspace"+addict);
+		if( !"null".equals(request.getParameterString("bounty"+addict)) )
+		{
+			this.bounty = new BigInteger(request.getParameterString("bounty"+addict));
+		}
 	}
 
 	/**
@@ -724,8 +733,6 @@ public class ShipTypeChangeset {
 		echo.append("<tr><td class=\"noBorderS\">NahrungCargo: </td><td><input type=\"text\" name=\"nahrungcargo" +append+"\" value=\"" + getNahrungCargo() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Ueberhitzung: </td><td><input type=\"text\" name=\"heat" +append+"\" value=\"" + getHeat() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Crew: </td><td><input type=\"text\" name=\"crew" +append+"\" value=\"" + getCrew() + "\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">Maximale Einheitengr&puml;&suml;e: </td><td><input type=\"text\" name=\"maxunitsize" +append+"\" value=\"" + getMaxUnitSize() + "\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">Laderaum f&uml;r Einheiten: </td><td><input type=\"text\" name=\"unitspace" +append+"\" value=\"" + getUnitSpace() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Waffen: </td><td><input type=\"text\" name=\"weapons" +append+"\" value=\"" + weaponstring + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">TorpedoDeff: </td><td><input type=\"text\" name=\"torpdeff" +append+"\" value=\"" + getTorpedoDef() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Schilde: </td><td><input type=\"text\" name=\"shields" +append+"\" value=\"" + getShields() + "\"></td></tr>\n");
@@ -745,6 +752,10 @@ public class ShipTypeChangeset {
 		echo.append("<tr><td class=\"noBorderS\">Picking Kosten: </td><td><input type=\"text\" name=\"pickingcost" +append+"\" value=\"" + getPickingCost() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Mindestcrew: </td><td><input type=\"text\" name=\"mincrew" +append+"\" value=\"" + getMinCrew() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Lost in EMP: </td><td><input type=\"text\" name=\"lostinempchance" +append+"\" value=\"" + getLostInEmpChance() + "\"></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">Maximale Einheitengr&puml;&suml;e: </td><td><input type=\"text\" name=\"maxunitsize" +append+"\" value=\"" + getMaxUnitSize() + "\"></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">Laderaum f&uml;r Einheiten: </td><td><input type=\"text\" name=\"unitspace" +append+"\" value=\"" + getUnitSpace() + "\"></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">Bounty: </td><td><input type=\"text\" name=\"bounty" +append+"\" value=\"" + getBounty() + "\"></td></tr>\n");
+		// TODO: maxheat
 	}
 
 	/**
