@@ -168,7 +168,7 @@ public class TradepostController extends TemplateGenerator {
 
 			// initiate starting values
 			long salesprice = 0;
-			long buyprice = 0;
+			double buyprice = 0;
 			long saleslimit = 0;
 			long buylimit = 0;
             int salesrank = 0;
@@ -186,7 +186,7 @@ public class TradepostController extends TemplateGenerator {
 			if(buylistmap.containsKey(itemid * -1))
 			{
 				buylimit = buylistmap.get(itemid * -1).getLimit();
-				buyprice = buylistgtu.getResourceCount(itemidobejct) / 1000;
+				buyprice = buylistgtu.getResourceCount(itemidobejct) / 1000d;
                 buyrank = buylistmap.get(itemid * -1).getMinRank();
 			}
 
@@ -204,8 +204,8 @@ public class TradepostController extends TemplateGenerator {
 
 			if( selllistmap.containsKey(itemid*-1) || buylistmap.containsKey(itemid*-1) )
 			{
-				t.setVar(	"item.salesprice",	salesprice,
-							"item.buyprice",	buyprice,
+				t.setVar(	"item.salesprice",	Common.ln(salesprice),
+							"item.buyprice",	Common.ln(buyprice),
 							"item.saleslimit",	saleslimit,
 							"item.buylimit",	buylimit,
 	                        "item.sellrank", salesrank,
@@ -353,7 +353,7 @@ public class TradepostController extends TemplateGenerator {
         parameterNumber("i"+aitem.getID()+"buyrank");
 
 		long salesprice = getInteger("i"+aitem.getID()+"salesprice");
-		long buyprice = getInteger("i"+aitem.getID()+"buyprice");
+		double buyprice = getDouble("i"+aitem.getID()+"buyprice");
 		long saleslimit = getInteger("i"+aitem.getID()+"saleslimit");
 		long buylimit = getInteger("i"+aitem.getID()+"buylimit");
         int sellRank = getInteger("i"+aitem.getID()+"sellrank");
@@ -464,7 +464,7 @@ public class TradepostController extends TemplateGenerator {
 				db.persist(itembuy);
 			}
 			Cargo kcargo = kurse.getKurse();
-			kcargo.setResource(rid , buyprice * 1000);
+			kcargo.setResource(rid , Math.round(buyprice * 1000));
 			kurse.setKurse(kcargo);
 		}
 		t.setVar(	"tradepost.update", "1",
