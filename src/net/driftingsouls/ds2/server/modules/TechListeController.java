@@ -55,7 +55,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Module(name="techliste")
 public class TechListeController extends TemplateGenerator {
 	private Configuration config;
-	
+
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
@@ -63,28 +63,28 @@ public class TechListeController extends TemplateGenerator {
 	public TechListeController(Context context) {
 		super(context);
 		parameterNumber("rasse");
-		
+
 		setTemplate("techliste.html");
-		
+
 		setPageTitle("Forschungen");
 	}
-	
+
     /**
      * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
-    public void setConfiguration(Configuration config) 
+    public void setConfiguration(Configuration config)
     {
     	this.config = config;
     }
-	
+
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		// EMPTY
 		return true;
 	}
-	
+
 	/**
 	 * Zeigt die Techliste an.
 	 */
@@ -94,9 +94,9 @@ public class TechListeController extends TemplateGenerator {
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
-		
+
 		int rasse = getInteger("rasse");
-		
+
 		if( rasse == 0 ) {
 			rasse = user.getRace();
 		}
@@ -110,12 +110,12 @@ public class TechListeController extends TemplateGenerator {
 			if( aRasse.isExtPlayable() ) {
 				rassenliste.append("<a href='"+Common.buildUrl("default", "rasse", aRasse.getID())+"'>");
 				rassenliste.append("<img style='border:0px' src='"+config.get("URL")+"data/interface/rassen/"+aRasse.getID()+".png' />");
-				rassenliste.append("</a>");		
+				rassenliste.append("</a>");
 			}
 		}
 
 		String rassenlisteStr = rassenliste.toString();
-		
+
 		t.setVar(	"race.name",	Rassen.get().rasse(rasse).getName(),
 					"race.list",	rassenlisteStr );
 
@@ -129,19 +129,19 @@ public class TechListeController extends TemplateGenerator {
 			.iterate();
 		while( forschungIter.hasNext() ) {
 			Forschung f = (Forschung)forschungIter.next();
-			
+
 			if( !Rassen.get().rasse(rasse).isMemberIn(f.getRace()) ) {
-				continue;	
-			}	
+				continue;
+			}
 
 			// Status der Forschung (erforscht/verfuegbar/nicht verfuegbar) ermitteln
 			if( f.isVisibile(user) && user.hasResearched(f.getID()) ) {
 				researched.put(f.getID(), f);
-			} 
-			else if( f.isVisibile(user) && user.hasResearched(f.getRequiredResearch(1)) && user.hasResearched(f.getRequiredResearch(2)) && 
+			}
+			else if( f.isVisibile(user) && user.hasResearched(f.getRequiredResearch(1)) && user.hasResearched(f.getRequiredResearch(2)) &&
 					user.hasResearched(f.getRequiredResearch(3)) ) {
 				researchable.put(f.getID(), f);
-			} 
+			}
 			else if( !f.isVisibile(user) ) {
 				if( user.getAccessLevel() >= 20 ) {
 					invisible.put(f.getID(), f);
@@ -175,20 +175,21 @@ public class TechListeController extends TemplateGenerator {
 		for( Map.Entry<String, Map<Integer, Forschung>> entry: keys.entrySet() ) {
 			String mykey = entry.getKey();
 			Map<Integer,Forschung> var = entry.getValue();
-			
+
 			int count = 0;
-	
+
 			if( var.size() == 0 ) {
-				continue;	
+				continue;
 			}
-	
+
 			String prefix = "";
 			if( mykey.equals("researchable") ) {
-				prefix = "researchable.";	
+				prefix = "researchable.";
 			}
-	
+
 			for( Forschung result : var.values() ) {
 				t.setVar(	"tech.id",			result.getID(),
+							"tech.image",		result.getImage(),
 						  	"tech.name",		Common._title(result.getName()),
 						  	"tech.dauer",		result.getTime(),
 						  	"res.list",			"",
@@ -201,35 +202,35 @@ public class TechListeController extends TemplateGenerator {
 
 				ResourceList reslist = costs.getResourceList();
 				int respos = 0;
-		
+
 				for( ResourceEntry res : reslist ) {
 					t.setVar(	"waren",			"",
 								"warenb",			res.getImage(),
 								"tech.cost",		res.getCargo1(),
 							  	"tech.cost.space",	(respos < reslist.size() - 1 ? 1 : 0 ) );
-							  			
+
 					t.parse("res.list","res.listitem",true);
-			
+
 					respos++;
 				}
-	
+
 				boolean resentry = false;
-	
+
 				// Benoetigte Forschungen ausgeben
 				if( !mykey.equals("researchable") ) {
 					for( int i=1; i <= 3; i++ ) {
 						if( result.getRequiredResearch(i) > 0) {
 							String req = Forschung.getInstance(result.getRequiredResearch(i)).getName();
-							
+
 							t.setVar(	"tech.req"+i+".id",		result.getRequiredResearch(i),
 										"tech.req"+i+".name",	req );
-											  
+
 							resentry = true;
 						}
 						else if( (result.getRequiredResearch(i) < 0) && (user.getAccessLevel() >= 20) ) {
 							t.setVar(	"tech.req"+i+".id",		"1",
 										"tech.req"+i+".name",	"<span style=\"color:#C7C7C7; font-weight:normal\">### Nicht erf&uuml;llbar</span>");
-											  
+
 							resentry = true;
 						}
 						else {
@@ -238,20 +239,20 @@ public class TechListeController extends TemplateGenerator {
 						}
 					}
 				}
-				if( !resentry ) { 
+				if( !resentry ) {
 					t.setVar("tech.noreq",1);
 				}
 				else {
 					t.setVar("tech.noreq",0);
 				}
-		
+
 				count++;
-		
+
 				if( count % 3 == 0 ) {
-					t.setVar( "tech.newline", 1 );	
+					t.setVar( "tech.newline", 1 );
 				}
 				else {
-					t.setVar( "tech.newline", 0 );	
+					t.setVar( "tech.newline", 0 );
 				}
 
 				t.parse("tech."+mykey+".list","tech."+prefix+"listitem",true);

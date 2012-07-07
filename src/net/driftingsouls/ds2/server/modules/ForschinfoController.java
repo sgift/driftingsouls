@@ -55,58 +55,58 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Module(name="forschinfo")
 public class ForschinfoController extends TemplateGenerator {
 	private Forschung research = null;
-	
+
 	private Configuration config;
-	
+
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public ForschinfoController(Context context) {
 		super(context);
-		
+
 		setTemplate("forschinfo.html");
-		
+
 		parameterNumber("res");
-		
+
 		setPageTitle("Forschung");
 	}
-	
+
     /**
      * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
-    public void setConfiguration(Configuration config) 
+    public void setConfiguration(Configuration config)
     {
     	this.config = config;
     }
-	
+
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		User user = (User)getUser();
-		
+
 		int researchid = getInteger("res");
-		
+
 		Forschung data = Forschung.getInstance(researchid);
 
 		if( data == null ) {
 			addError("&Uuml;ber diese Forschung liegen aktuell keine Informationen vor");
-			
+
 			return false;
 		}
-		
+
 		if( !data.isVisibile(user) && (user.getAccessLevel() < 20) ) {
 			addError("&Uuml;ber diese Forschung liegen aktuell keine Informationen vor");
-			
+
 			return false;
 		}
-		
+
 		this.research = data;
 
 		return true;
 	}
-	
+
 	/**
 	 * Wirft eine Forschung - mit allen davon abhaengigen Forschungen - weg.
 	 */
@@ -118,7 +118,7 @@ public class ForschinfoController extends TemplateGenerator {
 		{
 			return;
 		}
-		
+
 		user.dropResearch(this.research);
 		redirect();
 	}
@@ -129,15 +129,16 @@ public class ForschinfoController extends TemplateGenerator {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
 		org.hibernate.Session db = getDB();
-		
+
 		// Name und Bild
 		t.setVar(	"tech.name",			Common._plaintitle(research.getName()),
 					"tech.race.notall",		(research.getRace() != -1),
 					"tech.id",				research.getID(),
+					"tech.image",			research.getImage(),
 					"tech.time",			research.getTime(),
 					"tech.speccosts",		research.getSpecializationCosts());
-					
-		// Rasse 
+
+		// Rasse
 		if( this.research.getRace() != -1 ) {
 			String rasse = "???";
 			if( Rassen.get().rasse(research.getRace()) != null ) {
@@ -147,7 +148,7 @@ public class ForschinfoController extends TemplateGenerator {
 			if( !Rassen.get().rasse(user.getRace()).isMemberIn( this.research.getRace() ) ) {
 				rasse = "<span style=\"color:red\">"+rasse+"</span>";
 			}
-	
+
 			t.setVar("tech.race.name",rasse);
 		}
 
@@ -155,41 +156,41 @@ public class ForschinfoController extends TemplateGenerator {
 		t.setBlock("_FORSCHINFO","tech.needs.listitem","tech.needs.list");
 		for( int i = 1; i <= 3; i++ ) {
 			t.start_record();
-	
-			if( (i > 1) && ((this.research.getRequiredResearch(i) > 0) || (this.research.getRequiredResearch(i) == -1)) ) {	
+
+			if( (i > 1) && ((this.research.getRequiredResearch(i) > 0) || (this.research.getRequiredResearch(i) == -1)) ) {
 				t.setVar("tech.needs.item.break",true);
 			}
-	
+
 			if( this.research.getRequiredResearch(i) > 0 ) {
 				Forschung dat = Forschung.getInstance(this.research.getRequiredResearch(i));
 
 				t.setVar(	"tech.needs.item.researchable",	true,
 							"tech.needs.item.id",			this.research.getRequiredResearch(i),
 							"tech.needs.item.name",			Common._plaintitle(dat.getName()) );
-							
+
 				t.parse("tech.needs.list","tech.needs.listitem",true);
 			}
 			else if( this.research.getRequiredResearch(i) == -1 ) {
 				t.setVar("tech.needs.item.researchable",false);
-				
+
 				t.parse("tech.needs.list","tech.needs.listitem",true);
 			}
-	
+
 			t.stop_record();
 			t.clear_record();
 		}
-		
+
 		// Kosten
 		Cargo costs = this.research.getCosts();
 		costs.setOption( Cargo.Option.SHOWMASS, false );
 
 		t.setBlock("_FORSCHINFO","tech.res.listitem","tech.res.list");
-		
+
 		ResourceList reslist = costs.getResourceList();
 		for( ResourceEntry res : reslist ) {
 			t.setVar(	"tech.res.item.image",	res.getImage(),
 						"tech.res.item.cargo",	res.getCargo1() );
-								
+
 			t.parse("tech.res.list","tech.res.listitem",true);
 		}
 
@@ -202,26 +203,26 @@ public class ForschinfoController extends TemplateGenerator {
 			.list();
 		for( Iterator<?> iter=results.iterator(); iter.hasNext(); ) {
 			Forschung res = (Forschung)iter.next();
-			
-			if( res.isVisibile(user) || 
+
+			if( res.isVisibile(user) ||
 				(!res.isVisibile(user) && user.hasResearched(res.getRequiredResearch(1)) && user.hasResearched(res.getRequiredResearch(2)) && user.hasResearched(res.getRequiredResearch(3))) ) {
 				t.setVar(	"tech.allows.item.break",	entry,
 							"tech.allows.item.id",		res.getID(),
 							"tech.allows.item.name",	Common._plaintitle(res.getName()),
 							"tech.allows.item.hidden",	false );
 				entry = true;
-				
+
 				t.parse("tech.allows.list","tech.allows.listitem",true);
-			}	
+			}
 			else if( (user.getAccessLevel() > 20) && !res.isVisibile(user) ) {
 				t.setVar(	"tech.allows.item.break",	entry,
 							"tech.allows.item.id",		res.getID(),
 							"tech.allows.item.name",	Common._plaintitle(res.getName()),
 							"tech.allows.item.hidden",	true );
 				entry = true;
-				
+
 				t.parse("tech.allows.list","tech.allows.listitem",true);
-			}	
+			}
 		}
 
 		// Beschreibung
@@ -232,8 +233,8 @@ public class ForschinfoController extends TemplateGenerator {
 			}
 			t.setVar(	"tech.descrip",			Common._text(this.research.getDescription()),
 						"tech.descrip.colspan",	colspan );
-		}	
-		
+		}
+
 		//
 		// Gebaeude
 		//
@@ -250,31 +251,31 @@ public class ForschinfoController extends TemplateGenerator {
 			.iterate();
 		for( ; buildingIter.hasNext(); ) {
 			Building building = (Building)buildingIter.next();
-			
+
 			t.start_record();
-	
+
 			t.setVar(	"tech.building.hr",			!firstentry,
 						"tech.building.picture",	building.getPicture(),
 						"tech.building.name",		Common._plaintitle(building.getName()),
 						"tech.building.arbeiter",	building.getArbeiter(),
 						"tech.building.bewohner",	building.getBewohner() );
-	
+
 			if( firstentry ) {
 				firstentry = false;
 			}
-	
+
 			reslist = building.getBuildCosts().getResourceList();
 			Resources.echoResList( t, reslist, "tech.building.buildcosts.list" );
-	
+
 			reslist = building.getConsumes().getResourceList();
 			Resources.echoResList( t, reslist, "tech.building.consumes.list" );
-	
+
 			if( building.getEVerbrauch() > 0 ) {
 				t.setVar(	"res.image",	config.get("URL")+"data/interface/energie.gif",
 							"res.cargo",	building.getEVerbrauch() );
-							
+
 				t.parse("tech.building.consumes.list","tech.building.consumes.listitem",true);
-			}	
+			}
 
 			reslist = building.getAllProduces().getResourceList();
 			Resources.echoResList( t, reslist, "tech.building.produces.list" );
@@ -282,7 +283,7 @@ public class ForschinfoController extends TemplateGenerator {
 			if( building.getEProduktion() > 0 ) {
 				t.setVar(	"res.image",	config.get("URL")+"data/interface/energie.gif",
 							"res.cargo",	building.getEProduktion() );
-									
+
 				t.parse("tech.building.produces.list","tech.building.produces.listitem",true);
 			}
 
@@ -307,29 +308,29 @@ public class ForschinfoController extends TemplateGenerator {
 			.iterate();
 		for( ; coreIter.hasNext(); ) {
 			Core core = (Core)coreIter.next();
-			
+
 			t.start_record();
-		
+
 			t.setVar(	"tech.core.astitype",	core.getAstiType(),
 						"tech.core.name",		Common._plaintitle(core.getName()),
 						"tech.core.hr",			!firstentry,
 						"tech.core.arbeiter",	core.getArbeiter(),
 						"tech.core.bewohner",	core.getBewohner() );
-							
+
 			if( firstentry ) {
 				firstentry = false;
 			}
 
 			reslist = core.getBuildCosts().getResourceList();
 			Resources.echoResList( t, reslist, "tech.core.buildcosts.list" );
-	
+
 			reslist = core.getConsumes().getResourceList();
 			Resources.echoResList( t, reslist, "tech.core.consumes.list" );
 
 			if( core.getEVerbrauch() > 0 ) {
 				t.setVar(	"res.image",	config.get("URL")+"data/interface/energie.gif",
 							"res.cargo",	core.getEVerbrauch() );
-							
+
 				t.parse("tech.core.consumes.list","tech.core.consumes.listitem",true);
 			}
 
@@ -339,17 +340,17 @@ public class ForschinfoController extends TemplateGenerator {
 			if( core.getEProduktion() > 0 ) {
 				t.setVar(	"res.image",	config.get("URL")+"data/interface/energie.gif",
 							"res.cargo",	core.getEProduktion() );
-							
+
 				t.parse("tech.core.produces.list","tech.core.produces.listitem",true);
 			}
-	
+
 			t.parse("tech.cores.list","tech.cores.listitem",true);
-	
+
 			t.stop_record();
 			t.clear_record();
 		}
-				
-				
+
+
 		//
 		// Schiffe
 		//
@@ -365,31 +366,31 @@ public class ForschinfoController extends TemplateGenerator {
 				.list();
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			ShipBaubar ship = (ShipBaubar)iter.next();
-			
+
 			boolean show = true;
 
 			//Schiff sichtbar???
 			for( int i=1; i <= 3; i++ ) {
 				if( ship.getRes(i) > 0 ) {
 					Forschung tmpres = Forschung.getInstance(ship.getRes(i));
-					if( !tmpres.isVisibile(user) && 
-						(!user.hasResearched(ship.getRes(i)) || !user.hasResearched(tmpres.getRequiredResearch(1)) || 
-								!user.hasResearched(tmpres.getRequiredResearch(2)) || !user.hasResearched(tmpres.getRequiredResearch(3)) 
+					if( !tmpres.isVisibile(user) &&
+						(!user.hasResearched(ship.getRes(i)) || !user.hasResearched(tmpres.getRequiredResearch(1)) ||
+								!user.hasResearched(tmpres.getRequiredResearch(2)) || !user.hasResearched(tmpres.getRequiredResearch(3))
 						) ) {
 						show = false;
 				 		break;
 					}
 				}
 			}
-			
+
 			if( !show ) {
 				continue;
 			}
-	
+
 			t.start_record();
 
 			ShipTypeData shiptype = ship.getType();
-			
+
 			t.setVar(	"tech.ship.id",			shiptype.getTypeId(),
 						"tech.ship.name",		Common._plaintitle(shiptype.getNickname()),
 						"tech.ship.picture",	shiptype.getPicture(),
@@ -397,22 +398,22 @@ public class ForschinfoController extends TemplateGenerator {
 						"tech.ship.dauer",		ship.getDauer(),
 						"tech.ship.ekosten",	ship.getEKosten(),
 						"tech.ship.crew",		ship.getCrew() );
-		
+
 			if( firstentry ) {
 				firstentry = false;
 			}
-		
+
 			costs = ship.getCosts();
-		
+
 			reslist = costs.getResourceList();
 			Resources.echoResList( t, reslist, "tech.ship.costs.list" );
-		
+
 			//Benoetigt dieses Schiff noch weitere Forschungen???
-			if( ((ship.getRes(1) != 0) && (ship.getRes(1) != this.research.getID())) || 
-				((ship.getRes(2) != 0) && (ship.getRes(2) != this.research.getID())) || 
+			if( ((ship.getRes(1) != 0) && (ship.getRes(1) != this.research.getID())) ||
+				((ship.getRes(2) != 0) && (ship.getRes(2) != this.research.getID())) ||
 				((ship.getRes(3) != 0) && (ship.getRes(3) != this.research.getID())) ) {
 				firstentry = true;
-				
+
 				//Es benoetigt weitere!
 				t.setVar("tech.ship.techs.list","");
 		      	for( int b = 1; b <= 3; b++ ) {
@@ -420,18 +421,18 @@ public class ForschinfoController extends TemplateGenerator {
          				t.setVar(	"tech.ship.tech.break",	!firstentry,
          							"tech.ship.tech.id",	ship.getRes(b),
          							"tech.ship.tech.name",	Forschung.getInstance(ship.getRes(b)).getName() );
-         							
+
 						if( firstentry ) {
 							firstentry = false;
 						}
-					
+
 						t.parse( "tech.ship.techs.list", "tech.ship.techs.listitem", true );
 	         		}
     	  		}
-			} 	
-		
+			}
+
 			t.parse( "tech.ships.list", "tech.ships.listitem", true );
-		
+
 			t.stop_record();
 			t.clear_record();
 		}
@@ -450,35 +451,35 @@ public class ForschinfoController extends TemplateGenerator {
 				"where res1= :fid or res2= :fid or res3= :fid")
 				.setInteger("fid", this.research.getID())
 				.list();
-		
+
 		for( Iterator<?> iter=entryList.iterator(); iter.hasNext(); ) {
 			FactoryEntry facentry = (FactoryEntry)iter.next();
 			t.start_record();
-	
+
 			t.setVar(	"tech.fac.hr",			!firstentry,
 						"tech.fac.dauer",		facentry.getDauer() );
-	
+
 			if( firstentry ) {
 				firstentry = false;
 			}
-			
+
 			Cargo buildcosts = facentry.getBuildCosts();
 			Cargo production = facentry.getProduce();
-			
-			// Produktionskosten	
+
+			// Produktionskosten
 			reslist = buildcosts.getResourceList();
 			Resources.echoResList( t, reslist, "tech.fac.buildcosts.list" );
 
 			// Produktion
 			reslist = production.getResourceList();
 			Resources.echoResList( t, reslist, "tech.fac.production.list" );
-			
+
 			t.parse( "tech.fac.list", "tech.fac.listitem", true );
-		
+
 			t.stop_record();
 			t.clear_record();
 		}
-		
+
 		if(this.research.getSpecializationCosts() > 0 && user.getUserResearch(this.research) != null)
 		{
 			t.setVar("tech.dropable", 1);

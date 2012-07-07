@@ -1644,4 +1644,10 @@
     	ALTER TABLE user_rank ADD COLUMN lp int(11) NOT NULL DEFAULT 0;
     	ALTER TABLE ally_rangdescriptors ADD COLUMN customImg VARCHAR(255) DEFAULT NULL;
     ]]></update>
+    <update type="structure" datum="2012-07-07"><![CDATA[
+    	ALTER TABLE forschungen ADD COLUMN image VARCHAR(255);
+    	UPDATE forschungen SET image = CONCAT("data/tech/",id,".gif");
+    	ALTER TABLE forschungen CHANGE descrip description text NOT NULL;
+    	ALTER TABLE forschungen MODIFY costs varchar(120) NOT NULL default '';
+    ]]></update>
 </updates>

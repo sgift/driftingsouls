@@ -5,18 +5,18 @@
 	{else}
 		<tr><td width="200" class="noBorderX">{tech.name}</td>
 	{/endif}
-		
+
 	<td class="noBorderX">Vorraussetzungen</td>
 	<td width="140" class="noBorderX">Kosten</td>
 	<td class="noBorderX">Erm&ouml;glicht</td>
 	</tr>
 
 	<tr>
-	<td class="noBorderX"><img src="{URL}data/tech/{tech.id}.gif" alt="Kein Bild vorhanden" /></td>
+	<td class="noBorderX"><img src="{URL}{tech.image}" alt="Kein Bild vorhanden" /></td>
 	{if tech.race.notall}
 		<td class="noBorderX" width="80">{tech.race.name}</td>
 	{/endif}
-		
+
 	<td class="noBorderX">
 	<!-- BEGIN tech.needs.listitem -->
 		{if tech.needs.item.break}
@@ -26,11 +26,11 @@
 			{!link_to $tech.needs.item.name, default, res:$tech.needs.item.id}
 		{else}
 			### Nicht erf&uuml;lbar
-		{/endif} 
+		{/endif}
 	<!-- END tech.needs.listitem -->
 	&nbsp;</td>
 	<td class="noBorderX">
-	<img style="vertical-align:middle" src="{URL}data/interface/time.gif" alt="Dauer" />{tech.time} 
+	<img style="vertical-align:middle" src="{URL}data/interface/time.gif" alt="Dauer" />{tech.time}
 	<img style="vertical-align:middle" src="{URL}data/interface/forschung/specpoints.gif" alt="Spezialisierungskosten" />{tech.speccosts}
 	<!-- BEGIN tech.res.listitem -->
 		<img style="vertical-align:middle" src="{tech.res.item.image}" alt="" />{tech.res.item.cargo}
@@ -120,7 +120,7 @@
 				{/endif}
 				</td>
 			</tr>
-		<!-- END tech.buildings.listitem -->				
+		<!-- END tech.buildings.listitem -->
 		</table>
 	{!table_end}
 <br />

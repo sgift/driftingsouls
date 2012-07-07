@@ -25,14 +25,14 @@ import java.util.UUID;
 import org.apache.commons.fileupload.FileItem;
 
 /**
- * Verwaltungsklasse fuer durch Spieler hochgeladene Dateien. 
+ * Verwaltungsklasse fuer durch Spieler hochgeladene Dateien.
  * @author Christopher Jung
  *
  */
 public class DynamicContentManager
 {
 	private static final long MAX_UPLOAD_SIZE= 1024*1024*2;
-	
+
 	/**
 	 * Speichert die angegebene Datei auf dem Server ab und gibt die ID der Datei
 	 * zurueck.
@@ -46,7 +46,7 @@ public class DynamicContentManager
 		{
 			throw new IOException("Datei zu gross");
 		}
-		
+
 		String id = UUID.randomUUID().toString();
 		String suffix = "";
 		if( "image/gif".equals(item.getContentType()) )
@@ -61,7 +61,7 @@ public class DynamicContentManager
 		{
 			suffix = item.getName().substring(item.getName().lastIndexOf('.'));
 		}
-		
+
 		String uploaddir = Configuration.getSetting("ABSOLUTE_PATH")+"data/dynamicContent/";
 		try {
 			File uploadedFile = new File(uploaddir+id+suffix);
@@ -72,13 +72,22 @@ public class DynamicContentManager
 		}
 		return id+suffix;
 	}
-	
+
 	/**
-	 * Entfernt eine Datei vom Server.
+	 * Entfernt eine Datei vom Server. Die Datei kann entweder nur mittels id
+	 * oder mittels Pfad und id angegeben werden.
 	 * @param id Die ID der Datei
 	 */
 	public static void remove(String id)
 	{
+		if( id == null )
+		{
+			return;
+		}
+		if( id.startsWith("data/dynamicContent/") )
+		{
+			id = id.substring("data/dynamicContent/".length());
+		}
 		String uploaddir = Configuration.getSetting("ABSOLUTE_PATH")+"data/dynamicContent/";
 		new File(uploaddir+id).delete();
 	}

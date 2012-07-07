@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 
-import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -32,12 +32,12 @@ import net.driftingsouls.ds2.server.modules.AdminController;
 import org.apache.commons.fileupload.FileItem;
 
 /**
- * Aktualisierungstool fuer Itemgrafiken.
+ * Aktualisierungstool fuer Forschungsgrafiken.
  *
  * @author Christopher Jung
  */
-@AdminMenuEntry(category = "Items", name = "Itemgrafik editieren")
-public class EditItemPicture implements AdminPlugin
+@AdminMenuEntry(category = "Techs", name = "Forschungsgrafik editieren")
+public class EditResearchPicture implements AdminPlugin
 {
 	@Override
 	public void output(AdminController controller, String page, int action) throws IOException
@@ -46,7 +46,7 @@ public class EditItemPicture implements AdminPlugin
 		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
 
-		int itemid = context.getRequest().getParameterInt("itemid");
+		int forschungid = context.getRequest().getParameterInt("forschungid");
 
 		// Update values?
 		boolean update = context.getRequest().getParameterString("change").equals("Aktualisieren");
@@ -55,56 +55,48 @@ public class EditItemPicture implements AdminPlugin
 		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
 		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-		echo.append("<select name=\"itemid\" size='1'>\n");
-		List<Item> items = Common.cast(db.createQuery("from Item order by id").list());
-		for( Item item : items )
+		echo.append("<select name=\"forschungid\" size='1'>\n");
+		List<Forschung> forschungen = Common.cast(db.createQuery("from Forschung order by id").list());
+		for( Forschung f : forschungen )
 		{
-			echo.append("<option value='"+item.getID()+"' "+
-					(item.getID()==itemid?"selected='selected'":"")+">"+
-					item.getName()+" ("+item.getID()+")</option>");
+			echo.append("<option value='"+f.getID()+"' "+
+					(f.getID()==forschungid?"selected='selected'":"")+">"+
+					f.getName()+" ("+f.getID()+")</option>");
 		}
 		echo.append("</select>");
 		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
 		echo.append("</form></div>");
 
-		if(update && itemid != 0)
+		if(update && forschungid != 0)
 		{
-			Item item = (Item)db.get(Item.class, itemid);
+			Forschung forschung = (Forschung)db.get(Forschung.class, forschungid);
 
-			if(item != null) {
+			if(forschung != null) {
 				for( FileItem file : context.getRequest().getUploadedFiles() )
 				{
-					if( "picture".equals(file.getFieldName()) && file.getSize() > 0 )
+					if( "image".equals(file.getFieldName()) && file.getSize() > 0 )
 					{
-						if( item.getPicture().startsWith("data/dynamicContent/") )
+						if( forschung.getImage().startsWith("data/dynamicContent/") )
 						{
-							DynamicContentManager.remove(item.getPicture());
+							DynamicContentManager.remove(forschung.getImage());
 						}
-						item.setPicture("data/dynamicContent/"+DynamicContentManager.add(file));
-					}
-					if( "largepicture".equals(file.getFieldName()) && file.getSize() > 0 )
-					{
-						if( item.getLargePicture() != null && item.getLargePicture().startsWith("data/dynamicContent/") )
-						{
-							DynamicContentManager.remove(item.getLargePicture());
-						}
-						item.setLargePicture("data/dynamicContent/"+DynamicContentManager.add(file));
+						forschung.setImage("data/dynamicContent/"+DynamicContentManager.add(file));
 					}
 				}
 
 				echo.append("<p>Update abgeschlossen.</p>");
 			}
 			else {
-				echo.append("<p>Kein Item gefunden.</p>");
+				echo.append("<p>Keine Forschung gefunden.</p>");
 			}
 
 		}
 
-		if(itemid != 0)
+		if(forschungid != 0)
 		{
-			Item item = (Item)db.get(Item.class, itemid);
+			Forschung forschung = (Forschung)db.get(Forschung.class, forschungid);
 
-			if(item == null)
+			if(forschung == null)
 			{
 				return;
 			}
@@ -114,26 +106,15 @@ public class EditItemPicture implements AdminPlugin
 			echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
 			echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-			echo.append("<input type=\"hidden\" name=\"itemid\" value=\"" + itemid + "\" />\n");
+			echo.append("<input type=\"hidden\" name=\"forschungid\" value=\"" + forschungid + "\" />\n");
 
 			echo.append("<table width=\"100%\">");
 			echo.append("<tr><td >Name: </td>" +
 					"<td></td>"+
-					"<td>"+item.getName()+"</td></tr>\n");
+					"<td>"+forschung.getName()+"</td></tr>\n");
 			echo.append("<tr><td>Bild: </td>" +
-					"<td><img src='"+item.getPicture()+"' /></td>" +
-					"<td><input type=\"file\" name=\"picture\"\"></td></tr>\n");
-
-			echo.append("<tr><td>Bild (gro&szlig;): </td>");
-			if( item.getLargePicture() != null )
-			{
-				echo.append("<td><img src='"+item.getLargePicture()+"' /></td>");
-			}
-			else
-			{
-				echo.append("<td></td>");
-			}
-			echo.append("<td><input type=\"file\" name=\"largepicture\" ></td></tr>\n");
+					"<td><img src='"+forschung.getImage()+"' /></td>" +
+					"<td><input type=\"file\" name=\"image\"\"></td></tr>\n");
 
 			echo.append("<tr><td></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
 			echo.append("</table>");

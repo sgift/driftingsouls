@@ -18,7 +18,6 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -104,13 +103,13 @@ public class Forschung {
 	@Id @GeneratedValue
 	private int id;
 	private String name;
+	private String image;
 	private int req1;
 	private int req2;
 	private int req3;
 	private int time;
 	@Type(type="cargo")
 	private Cargo costs;
-	@Column(name="descrip")
 	private String description;
 	private int race;
 	private int visibility;
@@ -321,6 +320,24 @@ public class Forschung {
 	public void setSpecializationCosts(int specializationCosts)
 	{
 		this.specializationCosts = specializationCosts;
+	}
+
+	/**
+	 * Gibt den Pfad zur Grafik zurueck.
+	 * @return Der Pfad
+	 */
+	public String getImage()
+	{
+		return image;
+	}
+
+	/**
+	 * Setzt den Pfad zur Grafik.
+	 * @param image Der Pfad
+	 */
+	public void setImage(String image)
+	{
+		this.image = image;
 	}
 
 	@Override
