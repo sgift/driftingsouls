@@ -1658,5 +1658,7 @@
     		PRIMARY KEY(id)
     	) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_bin;
     	ALTER TABLE permission ADD CONSTRAINT permission_fk_users FOREIGN KEY (user_id) REFERENCES users(id);
+
+    	alter table gtu_warenkurse MODIFY name VARCHAR(255) NOT NULL DEFAULT '';
     ]]></update>
 </updates>
