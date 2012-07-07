@@ -438,7 +438,7 @@ public class NPCOrderController extends TemplateGenerator {
 
 				for( int i=0; i < count; i++ ) {
 					OrderShip orderObj = new OrderShip(user.getId(), ship.getId());
-					orderObj.setTick(3);
+					orderObj.setTick(1);
 					if( flagDisableIff )
 					{
 						orderObj.addFlag("disable_iff");
@@ -467,7 +467,7 @@ public class NPCOrderController extends TemplateGenerator {
 				ordermessage = "<span style=\"color:red\">Nicht genug Kommandopunkte</span>";
 			}
 			else {
-				ordermessage = orderList.size()+" Schiff(e) zugeteilt - wird/werden in 3 Ticks eintreffen";
+				ordermessage = orderList.size()+" Schiff(e) zugeteilt - wird/werden in 1 Tick(s) eintreffen";
 				for( Order order : orderList ) {
 					db.persist(order);
 				}
@@ -524,11 +524,11 @@ public class NPCOrderController extends TemplateGenerator {
 				ordermessage = "<span style=\"color:red\">Nicht genug Kommandopunkte</span>";
 			}
 			else {
-				ordermessage = "Offizier(e) zugeteilt - wird/werden in 3 Ticks eintreffen";
+				ordermessage = "Offizier(e) zugeteilt - wird/werden in 1 Tick(s) eintreffen";
 
 				for( int i=0; i < count; i++ ) {
 					Order orderObj = new OrderOffizier(user.getId(), -order);
-					orderObj.setTick(3);
+					orderObj.setTick(1);
 					db.persist(orderObj);
 				}
 
