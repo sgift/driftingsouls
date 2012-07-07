@@ -1,0 +1,1 @@
+ALTER TABLE permission ADD CONSTRAINT permission_fk_users FOREIGN KEY (user_id) REFERENCES users(id);

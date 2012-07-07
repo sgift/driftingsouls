@@ -18,7 +18,9 @@
  */
 package net.driftingsouls.ds2.server.framework.authentication;
 
+import java.util.HashSet;
 import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.UUID;
 
 import net.driftingsouls.ds2.server.ContextCommon;
@@ -27,6 +29,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.Permission;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 
 import org.apache.commons.logging.Log;
@@ -221,12 +224,19 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		context.setActiveUser(user);
 
 		int accessLevel = user.getAccessLevel();
+		Set<Permission> permissions = new HashSet<Permission>(user.getPermissions());
 		if( jsession.getAttach() != null && accessLevel < jsession.getAttach().getAccessLevel() )
 		{
 			accessLevel = jsession.getAttach().getAccessLevel();
+			permissions.addAll(jsession.getAttach().getPermissions());
 		}
 
-		context.setPermissionResolver(new AccessLevelPermissionResolver(accessLevel));
+		context.setPermissionResolver(
+				new PermissionDelegatePermissionResolver(
+						new AccessLevelPermissionResolver(accessLevel),
+						permissions
+				)
+		);
 
 		return true;
 	}

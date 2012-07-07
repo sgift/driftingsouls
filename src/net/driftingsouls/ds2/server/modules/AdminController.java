@@ -29,8 +29,6 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -221,24 +219,13 @@ public class AdminController extends DSGenerator {
 		Writer echo = getContext().getResponse().getWriter();
 		if( cleanpage == 0 )
 		{
-			echo.append("<div align=\"center\">\n");
-			echo.append(Common.tableBegin( 700, "center" ));
-			echo.append("<table class=\"noBorderX\" width=\"700\"><tr><td align=\"center\" class=\"noBorderX\">\n");
-			boolean first = true;
+			echo.append("<div class='gfxbox' style='width:900px;text-align:center;margin:0px auto'>\n");
+			echo.append("<ui class='menu'>");
 			for( MenuEntry entry : this.menu.values() )
 			{
-				if( first )
-				{
-					echo.append("<a class=\"forschinfo\" href=\"./ds?module=admin&page="+entry.name+"\">"+entry.name+"</a>\n");
-					first = false;
-				}
-				else
-				{
-					echo.append(" | <a class=\"forschinfo\" href=\"./ds?module=admin&page="+entry.name+"\">"+entry.name+"</a>\n");
-				}
+				echo.append("<li><a class=\"forschinfo\" href=\"./ds?module=admin&page="+entry.name+"\">"+entry.name+"</a></li>\n");
 			}
-			echo.append("</td></tr></table>\n");
-			echo.append(Common.tableEnd());
+			echo.append("</ul>\n");
 			echo.append("</div><br />\n");
 		}
 
@@ -248,20 +235,20 @@ public class AdminController extends DSGenerator {
 			{
 				echo.append("<table class=\"noBorder\"><tr><td class=\"noBorder\" valign=\"top\">\n");
 
-				echo.append(Common.tableBegin( 220, "left" ));
-				echo.append("<table class=\"noBorderX\" width=\"100%\">\n");
-				echo.append("<tr><td align=\"center\" class=\"noBorderX\">Aktionen:</td></tr>\n");
+				echo.append("<div class='gfxbox' style='width:250px'>");
+				echo.append("<table width=\"100%\">\n");
+				echo.append("<tr><td align=\"center\">Aktionen:</td></tr>\n");
 				if( this.menu.containsKey(page) && (this.menu.get(page).actions.size() > 0) )
 				{
 					SortedSet<MenuEntry> actions = this.menu.get(page).actions;
 					int index = 1;
 					for( MenuEntry entry : actions )
 					{
-						echo.append("<tr><td align=\"left\" class=\"noBorderX\"><a class=\"forschinfo\" href=\"./ds?module=admin&page="+page+"&act="+(index++)+"\">"+entry.name+"</a></td></tr>\n");
+						echo.append("<tr><td align=\"left\"><a class=\"forschinfo\" href=\"./ds?module=admin&page="+page+"&act="+(index++)+"\">"+entry.name+"</a></td></tr>\n");
 					}
 				}
 				echo.append("</table>\n");
-				echo.append(Common.tableEnd());
+				echo.append("</div>");
 
 				echo.append("</td><td class=\"noBorder\" valign=\"top\" width=\"40\">&nbsp;&nbsp;&nbsp;</td>\n");
 				echo.append("<td class=\"noBorder\" valign=\"top\">\n");

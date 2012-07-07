@@ -18,11 +18,16 @@
  */
 package net.driftingsouls.ds2.server.framework;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
@@ -69,6 +74,8 @@ public abstract class BasicUser {
 	private String imgpath;
 	private byte disabled;
 	private String flags;
+	@OneToMany(mappedBy="user", cascade=CascadeType.ALL)
+	private Set<Permission> permissions;
 
 	@Version
 	private int version;
@@ -87,6 +94,7 @@ public abstract class BasicUser {
 	public BasicUser() {
 		context = ContextMap.getContext();
 		attachedUser = null;
+		this.permissions = new HashSet<Permission>();
 	}
 
 	/**
@@ -106,6 +114,15 @@ public abstract class BasicUser {
 	 */
 	public int getId() {
 		return id;
+	}
+
+	/**
+	 * Gibt alle expliziten Permissions dieses Nutzers zurueck.
+	 * @return Die Permissions
+	 */
+	public Set<Permission> getPermissions()
+	{
+		return this.permissions;
 	}
 
 	/**

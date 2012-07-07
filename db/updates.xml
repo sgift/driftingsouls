@@ -1649,5 +1649,14 @@
     	UPDATE forschungen SET image = CONCAT("data/tech/",id,".gif");
     	ALTER TABLE forschungen CHANGE descrip description text NOT NULL;
     	ALTER TABLE forschungen MODIFY costs varchar(120) NOT NULL default '';
+
+    	CREATE TABLE permission (
+    		id INT NOT NULL auto_increment,
+    		user_id INT NOT NULL,
+    		category VARCHAR(64) NOT NULL,
+    		action VARCHAR(255) NOT NULL,
+    		PRIMARY KEY(id)
+    	) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_bin;
+    	ALTER TABLE permission ADD CONSTRAINT permission_fk_users FOREIGN KEY (user_id) REFERENCES users(id);
     ]]></update>
 </updates>
