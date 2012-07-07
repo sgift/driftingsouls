@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.modules;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,7 +39,6 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.FactionPages;
-import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.FactionOffer;
 import net.driftingsouls.ds2.server.entities.FactionShopEntry;
@@ -1924,14 +1924,15 @@ public class ErsteigernController extends TemplateGenerator
 	}
 
 	/**
-	 * Aendert die Verfuegbarkeit eines Shopeintrags.
+	 * Aendert einen Shopeintrag.
 	 *
 	 * @urlparam Integer shopentry Die ID des Shopeintrags
 	 * @urlparam Integer availability Die neue Verfuegbarkeit
+	 * @urlparam Integer entryRang Der Rang
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void shopChangeAvailabilityAction()
+	public void shopChangeEntryAction()
 	{
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
@@ -1946,11 +1947,8 @@ public class ErsteigernController extends TemplateGenerator
 		if( this.faction == user.getId() )
 		{
 			parameterNumber("shopentry");
-			parameterNumber("availability");
 
 			int shopentryID = getInteger("shopentry");
-			int availability = getInteger("availability");
-
 			FactionShopEntry entry = (FactionShopEntry)db.get(FactionShopEntry.class, shopentryID);
 			if( (entry == null) || (entry.getFaction() != this.faction) )
 			{
@@ -1958,6 +1956,24 @@ public class ErsteigernController extends TemplateGenerator
 				redirect("shop");
 				return;
 			}
+
+			parameterString("operation");
+			if( "löschen".equalsIgnoreCase(getString("operation")) )
+			{
+				db.delete(entry);
+
+				t.setVar("show.message", "Eintrag gelöscht");
+				redirect("shop");
+				return;
+			}
+
+			parameterNumber("availability");
+			parameterNumber("entryRang");
+			parameterString("entryPrice");
+
+			String preis = getString("entryPrice");
+			int availability = getInteger("availability");
+			int rang = getInteger("entryRang");
 
 			if( availability < 0 || availability > 2 )
 			{
@@ -1967,93 +1983,17 @@ public class ErsteigernController extends TemplateGenerator
 			}
 
 			entry.setAvailability(availability);
-
-			t.setVar("show.message", "Neuer Status erfolgreich zugewiesen");
-		}
-		redirect("shop");
-	}
-
-	/**
-	 * Aendert den Mindestrang fuer einen Shopeintrag.
-	 *
-	 * @urlparam Integer shopentry Die ID des Eintrags
-	 * @urlparam Integer entryRang Der Rang
-	 *
-	 */
-	@Action(ActionType.DEFAULT)
-	public void shopChangeEntryRang()
-	{
-		TemplateEngine t = getTemplateEngine();
-		org.hibernate.Session db = getDB();
-		User user = (User)getUser();
-
-		if( !Faction.get(faction).getPages().hasPage("shop") )
-		{
-			redirect();
-			return;
-		}
-
-		if( this.faction == user.getId() )
-		{
-			parameterNumber("shopentry");
-			parameterNumber("entryRang");
-
-			int orderentryID = getInteger("shopentry");
-			int rang = getInteger("entryRang");
-
-			FactionShopEntry order = (FactionShopEntry)db.get(FactionShopEntry.class, orderentryID);
-
-			if( (order == null) || (order.getFaction() != this.faction) )
+			entry.setMinRank(rang);
+			try
 			{
-				addError("Es konnte kein passender Shopeintrag gefunden werden");
-				redirect("shop");
-				return;
+				entry.setPrice(Common.getNumberFormat().parse(preis).longValue());
+			}
+			catch (ParseException e)
+			{
+				// Ignorieren
 			}
 
-			order.setMinRank(rang);
-
-			t.setVar("show.message", "Eintrag geändert");
-		}
-		redirect("shop");
-	}
-
-	/**
-	 * Loescht den angegebenen Shop-Eintrag.
-	 *
-	 * @urlparam Integer shopentry Die ID des Eintrags
-	 *
-	 */
-	@Action(ActionType.DEFAULT)
-	public void deleteShopEntry()
-	{
-		TemplateEngine t = getTemplateEngine();
-		org.hibernate.Session db = getDB();
-		User user = (User)getUser();
-
-		if( !Faction.get(faction).getPages().hasPage("shop") )
-		{
-			redirect();
-			return;
-		}
-
-		if( this.faction == user.getId() )
-		{
-			parameterNumber("shopentry");
-
-			int orderentryID = getInteger("shopentry");
-
-			FactionShopEntry order = (FactionShopEntry)db.get(FactionShopEntry.class, orderentryID);
-
-			if( (order == null) || (order.getFaction() != this.faction) )
-			{
-				addError("Es konnte kein passender Shopeintrag gefunden werden");
-				redirect("shop");
-				return;
-			}
-
-			db.delete(order);
-
-			t.setVar("show.message", "Eintrag gelöscht");
+			t.setVar("show.message", "Eintrag geaendert");
 		}
 		redirect("shop");
 	}
@@ -2482,13 +2422,16 @@ public class ErsteigernController extends TemplateGenerator
 							+ shopentry.getType() + "'");
 				}
 
-				t.setVar("orderentry.name", shopEntryObj.getName(), "orderentry.adddata",
-						entryadddata, "orderentry.type.image", shopEntryObj.getImage(),
-						"orderentry.link", shopEntryObj.getLink(), "orderentry.id", order.getId(),
-						"orderentry.price", Common.ln(order.getPrice()), "orderentry.count", Common
-								.ln(order.getCount()), "orderentry.status", getStatusName(order
-								.getStatus()), "orderentry.bgcolor", getStatusColor(order
-								.getStatus()));
+				t.setVar(
+						"orderentry.name", shopEntryObj.getName(),
+						"orderentry.adddata", entryadddata,
+						"orderentry.type.image", shopEntryObj.getImage(),
+						"orderentry.link", shopEntryObj.getLink(),
+						"orderentry.id", order.getId(),
+						"orderentry.price", Common.ln(order.getPrice()),
+						"orderentry.count", Common.ln(order.getCount()),
+						"orderentry.status", getStatusName(order.getStatus()),
+						"orderentry.bgcolor", getStatusColor(order.getStatus()));
 
 				t.parse("shop.orderlist.list", "shop.orderlist.listitem", true);
 			}

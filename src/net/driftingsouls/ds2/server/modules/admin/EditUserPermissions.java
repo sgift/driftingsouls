@@ -133,6 +133,7 @@ public class EditUserPermissions implements AdminPlugin
 			echo.append("<input type=\"hidden\" name=\"userid\" value=\"" + userid + "\" />\n");
 			echo.append("<input type='submit' name='change' value='hinzufügen' />");
 			echo.append("</form>\n");
+			echo.append("</td></tr></tfoot></table>");
 			echo.append("</div>");
 		}
 	}
