@@ -59,6 +59,20 @@ public class CargoTest
 	}
 
 	@Test
+	public void testInvalidCargoFromString()
+	{
+		Cargo cargo = new Cargo(Cargo.Type.AUTO, "25|51||0;29|1|0|");
+		assertThat(cargo.getResourceCount(new ItemID(25)), is(51L));
+		assertThat(cargo.getResourceCount(new ItemID(29)), is(1L));
+		assertThat(cargo.getItemArray().size(), is(2));
+
+		Cargo cargo3 = new Cargo(Cargo.Type.AUTO, "25|51|;29|1|0");
+		assertThat(cargo3.getResourceCount(new ItemID(25)), is(51L));
+		assertThat(cargo3.getResourceCount(new ItemID(29)), is(1L));
+		assertThat(cargo3.getItemArray().size(), is(2));
+	}
+
+	@Test
 	public void testSave()
 	{
 		Cargo cargo = new Cargo(Cargo.Type.AUTO, "25|51|0|0;29|1|0|0");

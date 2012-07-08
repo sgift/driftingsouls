@@ -201,11 +201,23 @@ public class Cargo implements Cloneable {
 	}
 
 	private Long[] parseItems(String str) {
-		String[] items = StringUtils.split(str, '|');
-		if( items.length != 4 ) {
+		String[] items = StringUtils.splitPreserveAllTokens(str, '|');
+		if( items.length < 2 || items.length > 4 ) {
 			throw new RuntimeException("Ungueltiges Item '"+str+"'");
 		}
-		return new Long[] {Long.parseLong(items[0]), Long.parseLong(items[1]), Long.parseLong(items[2]), Long.parseLong(items[3])};
+		long id = Long.parseLong(items[0]);
+		long count = Long.parseLong(items[1]);
+		long quest = 0;
+		if( items.length > 2 && !items[2].isEmpty() )
+		{
+			quest = Long.parseLong(items[2]);
+		}
+		long uses = 0;
+		if( items.length > 3 && !items[3].isEmpty() )
+		{
+			uses = Long.parseLong(items[3]);
+		}
+		return new Long[] {id, count, quest, uses};
 	}
 
 	/**
