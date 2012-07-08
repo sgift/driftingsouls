@@ -20,15 +20,16 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.List;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
+import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.AdminController;
+import net.driftingsouls.ds2.server.ships.ShipType;
 
 /**
  * Zeigt an, was wie oft versteigert wurde und welche Durchschnittspreise erziehlt wurden.
@@ -42,52 +43,74 @@ public class GtuPrices implements AdminPlugin {
 	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
-		
-		Database db = context.getDatabase();
-		
-		echo.append("<table class=\"noBorder\">\n");
-		echo.append("<tr><td class=\"noBorder\" width=\"230\">Typ</td><td class=\"noBorder\" width=\"20\">Menge</td><td class=\"noBorder\" width=\"180\">Durchschnittspreis</td></tr>\n");
+
+		org.hibernate.Session db = context.getDB();
+
+		echo.append("<div class='gfxbox' style='width:700px'>");
+		echo.append("<table>\n");
+		echo.append("<thead>");
+		echo.append("<tr><td>Menge</td><td>Typ</td><td>Verkauft</td><td>Durchschnittspreis</td></tr>\n");
+		echo.append("</thead>");
 
 		// Resourcen
-		echo.append("<tr><td class=\"borderS\" colspan=\"4\">Artefakte</td></tr>\n");
-		
-		SQLQuery rt = db.query("SELECT type,sum(preis)/count(preis) as avprice, count(preis) as menge " +
-					"FROM stats_gtu " +
-					"WHERE mtype=2 " +
-					"GROUP BY type ORDER BY avprice DESC" );
-		while( rt.next() ) {
-			echo.append("<tr><td class=\"noBorderS\">");
-			Cargo cargo = new Cargo( Cargo.Type.AUTO, rt.getString("type"));
+		echo.append("<tbody>");
+		echo.append("<tr><td colspan=\"4\">Artefakte</td></tr>\n");
+
+		List<?> rt = db
+			.createQuery("select type,sum(preis)/count(preis) as avprice, count(preis) as menge " +
+					"from StatGtu " +
+					"where mType=2 " +
+					"group by type order by sum(preis)/count(preis) desc" )
+			.list();
+		for( Object obj : rt )
+		{
+			Object[] row = (Object[])obj;
+
+			echo.append("<tr><td>");
+			Cargo cargo = new Cargo( Cargo.Type.AUTO, (String)row[0]);
 			cargo.setOption( Cargo.Option.SHOWMASS, false );
-			ResourceEntry res = cargo.getResourceList().iterator().next();
-				
-			echo.append("<tr><td class=\"noBorderS\">");
-			echo.append(res.getCount1()+"x <img src=\""+res.getImage()+"\" alt=\"\" />"+res.getName());
+			ResourceList reslist = cargo.getResourceList();
+			if( reslist.size() == 0 )
+			{
+				continue;
+			}
+			ResourceEntry res = reslist.iterator().next();
+			double avprice = ((Number)row[1]).doubleValue();
+			long menge = ((Number)row[2]).longValue();
+
+			echo.append("<tr><td>");
+			echo.append(res.getCount1()+"x</td><td><img src=\""+res.getImage()+"\" alt=\"\" />"+res.getName());
 			echo.append("</td>\n");
-			echo.append("<td class=\"noBorderS\" width=\"180\">"+rt.getInt("menge")+"x</td>\n");
-			echo.append("<td class=\"noBorderS\" width=\"180\">"+Common.ln(rt.getDouble("avprice"))+" RE\n");
+			echo.append("<td>"+Common.ln(menge)+"x</td>\n");
+			echo.append("<td>"+Common.ln(avprice)+" RE\n");
 			if( res.getCount1() > 1 ) {
-				echo.append("&nbsp;&nbsp;~"+Common.ln(rt.getDouble("avprice")/res.getCount1())+"/E\n");
+				echo.append(" &#216;"+Common.ln(avprice/res.getCount1())+"/E\n");
 			}
 			echo.append("</td></tr>\n");
 		}
-		rt.free();
 
 		//Schiffe
-		echo.append("<tr><td class=\"borderS\" colspan=\"4\">Schiffe</td></tr>\n");
-		SQLQuery st = db.query("SELECT st.nickname,sg.type,sum(sg.preis)/count(sg.preis) as avprice, count(sg.preis) as menge "+
-					"FROM ship_types st JOIN stats_gtu sg ON st.id=sg.type "+
-					"WHERE sg.mtype=1 "+
-					"GROUP BY sg.type ORDER BY avprice DESC" );
-		while( st.next() ) {
-			echo.append("<tr><td class=\"noBorderS\"><a class=\"forschinfo\" " +
-					"href=\"./ds?module=schiffinfo&sess=$sess&ship="+st.getInt("type")+"\">"+
-					st.getString("nickname")+"</a> ("+st.getInt("type")+")</td>\n");
-			echo.append("<td class=\"noBorderS\" width=\"180\">"+st.getInt("menge")+"x</td>\n");
-			echo.append("<td class=\"noBorderS\" width=\"180\">"+Common.ln(st.getDouble("avprice"))+" RE</td></tr>\n");
+		echo.append("<tr><td colspan=\"4\">Schiffe</td></tr>\n");
+		List<?> st = db
+			.createQuery("select st,sum(sg.preis)/count(sg.preis) as avprice, count(sg.preis) as menge "+
+					"from ShipType st, StatGtu sg "+
+					"where st.id=sg.type and sg.mType=1 "+
+					"group by sg.type order by sum(sg.preis)/count(sg.preis) desc" )
+			.list();
+		for( Object obj : st )
+		{
+			Object[] row = (Object[])obj;
+			ShipType type = (ShipType)row[0];
+
+			echo.append("<tr><td></td><td><a class=\"forschinfo\" " +
+					"href=\"./ds?module=schiffinfo&sess=$sess&ship="+type.getId()+"\">"+
+					type.getNickname()+"</a> ("+type.getId()+")</td>\n");
+			echo.append("<td>"+row[2]+"x</td>\n");
+			echo.append("<td>"+Common.ln((Number)row[1])+" RE</td></tr>\n");
 		}
-		st.free();
-		
+
+		echo.append("</tbody>");
 		echo.append("</table>");
+		echo.append("</div>");
 	}
 }

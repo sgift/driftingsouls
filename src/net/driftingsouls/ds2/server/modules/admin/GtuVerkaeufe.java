@@ -32,9 +32,10 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AdminController;
+import net.driftingsouls.ds2.server.ships.Ship;
 
 /**
- * Ermoeglicht das Einfuegen von neuen Versteigerungen in die GTU. 
+ * Ermoeglicht das Einfuegen von neuen Versteigerungen in die GTU.
  * @author Christopher Jung
  *
  */
@@ -42,48 +43,65 @@ import net.driftingsouls.ds2.server.modules.AdminController;
 public class GtuVerkaeufe implements AdminPlugin
 {
 	@Override
-	public void output(AdminController controller, String page, int action) throws IOException 
+	public void output(AdminController controller, String page, int action) throws IOException
 	{
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
-		
+
 		int system = context.getRequest().getParameterInt("system");
 		String type = context.getRequest().getParameterString("type");
-		
+
 		List<StarSystem> systems = Common.cast(db.createQuery("from StarSystem").list());
-		
-		if( (system == 0) || (type.length() == 0)  ) 
+
+		if( type.length() == 0  )
 		{
-			echo.append(Common.tableBegin(400,"center"));
+			echo.append("<div class='gfxbox' style='width:450px'>");
 			echo.append("<form action=\"./ds\" method=\"post\">");
-			echo.append("<table class=\"noBorderX\" width=\"100%\">\n");
-			echo.append("<tr><td class=\"noBorderX\" style=\"width:60px\">System:</td><td class=\"noBorderX\">");
+			echo.append("<table width=\"100%\">\n");
+			echo.append("<tr><td style=\"width:60px\">System:</td><td>");
 			echo.append("<select name=\"system\" size=\"1\">\n");
-			
-			for( StarSystem sys : systems ) 
+
+			for( StarSystem sys : systems )
 			{
 				echo.append("<option value=\""+sys.getID()+"\">"+sys.getName()+" ("+sys.getID()+")</option>\n");
 			}
-			
+
 			echo.append("</select>\n");
 			echo.append("</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">Verkaufsort:</td><td class=\"noBorderX\">\n");
+			echo.append("<tr><td>Verkaufsort:</td><td>\n");
 			echo.append("<select name=\"type\" size=\"1\">\n");
 			echo.append("<option value=\"asti\">Basisverkauf</option>\n");
 			echo.append("<option value=\"tradepost\">Handelsposten</option>\n");
+			echo.append("<option>--------------</option>");
+			List<String> places = Common.cast(db
+				.createQuery("select distinct place from StatVerkaeufe where place not in ('asti','tradepost')")
+				.list());
+			for( String place : places )
+			{
+				if( !place.startsWith("p") )
+				{
+					continue;
+				}
+				Ship s = (Ship)db.get(Ship.class, Integer.valueOf(place.substring(1)));
+				if( s == null )
+				{
+					continue;
+				}
+				echo.append("<option value='"+place+"'>"+s.getName()+" ("+s.getLocation().displayCoordinates(false)+")</option>");
+			}
 			echo.append("</select>\n");
 			echo.append("</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\" colspan=\"2\" style=\"text-align:center\">\n");
+			echo.append("<tr><td colspan=\"2\" style=\"text-align:center\">\n");
 			echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("<input type=\"submit\" value=\"anzeigen\" style=\"width:100px\"/></td></tr>\n");
 			echo.append("</table>\n");
 			echo.append("</form>\n");
-			echo.append(Common.tableEnd());
+			echo.append("</div>");
 		}
-		else 
+		else
 		{
 			int entryCount = 0;
 			Cargo totalcargo = new Cargo();
@@ -98,37 +116,39 @@ public class GtuVerkaeufe implements AdminPlugin
 			for( StatVerkaeufe entry : entries )
 			{
 				Cargo ecargo = entry.getStats();
-				
+
 				totalcargo.addCargo(ecargo);
 				entryCount++;
-				
-				if( (entry.getTick() != tick) && (entry.getTick() >= tick-7) ) 
+
+				if( (entry.getTick() != tick) && (entry.getTick() >= tick-7) )
 				{
 					cargo.addCargo(ecargo);
 				}
 			}
 
-			echo.append(Common.tableBegin(300,"center"));
+			echo.append("<div class='gfxbox' style='width:400px'>");
 			echo.append("System: "+system+" - Type: "+type+"<br /><br />");
-			echo.append("<table class=\"noBorderX\" width=\"100%\">\n");
+			echo.append("<table width=\"100%\">\n");
 			echo.append("<tr>\n");
-			echo.append("<td class=\"noBorderX\">Durchschnitt</td>\n");
-			echo.append("<td class=\"noBorderX\">Zuletzt (7T)</td>\n");
+			echo.append("<td>Item</td>");
+			echo.append("<td>Durchschnitt pro Tick</td>\n");
+			echo.append("<td>Zuletzt (7 Ticks)</td>\n");
 			echo.append("</tr>\n");
-			
+
 			ResourceList reslist = totalcargo.getResourceList();
-			for( ResourceEntry res : reslist ) 
+			for( ResourceEntry res : reslist )
 			{
 				echo.append("<tr>\n");
-				echo.append("<td class=\"noBorderX\">\n");
-				echo.append("<img src=\""+res.getImage()+"\" alt=\"\" title=\""+res.getPlainName()+"\" />~"+Common.ln(Math.round(res.getCount1()/(double)entryCount))+"&nbsp;&nbsp;\n");
+				echo.append("<td>\n");
+				echo.append("<img src=\""+res.getImage()+"\" alt=\"\" title=\""+res.getPlainName()+"\" />"+res.getName()+"</td>");
+				echo.append("<td>&#216;"+Common.ln(Math.round(res.getCount1()/(double)entryCount))+"\n</td>");
 				echo.append("</td>\n");
-				echo.append("<td class=\"noBorderX\">");
+				echo.append("<td>");
 				echo.append(Common.ln(Math.round(cargo.getResourceCount(res.getId())/7d)));
 				echo.append("</td></tr>\n");
 			}
 			echo.append("</table>");
-			echo.append(Common.tableEnd());
+			echo.append("</div>");
 		}
 	}
 }
