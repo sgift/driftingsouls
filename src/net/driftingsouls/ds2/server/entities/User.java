@@ -90,10 +90,6 @@ public class User extends BasicUser {
 	 */
 	public static final String FLAG_MILITARY_JUMPS = "miljumps";
 	/**
-	 * Der Spieler kann alle Schlachten sehen.
-	 */
-	public static final String FLAG_VIEW_BATTLES = "viewbattles";
-	/**
 	 * Der Spieler hat Zugriff auf das NPC-Menue.
 	 */
 	public static final String FLAG_ORDER_MENU = "ordermenu";
@@ -137,10 +133,6 @@ public class User extends BasicUser {
 	 * Der Spieler kann jedes Schiff, egal welcher Besitzer und wie Gross andocken.
 	 */
 	public static final String FLAG_SUPER_DOCK = "superdock";
-	/**
-	 * Der Spieler hat Moderatorrechte im Handel.
-	 */
-	public static final String FLAG_MODERATOR_HANDEL = "moderator_handel";
 	/**
 	 * Der Spieler ist ein Noob.
 	 */

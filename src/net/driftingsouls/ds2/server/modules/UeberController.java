@@ -338,7 +338,7 @@ public class UeberController extends TemplateGenerator {
 		// Ab hier beginnt das erste Bier
 		Set<Battle> battles = new LinkedHashSet<Battle>();
 
-		if( !hasPermission("schlacht", "liste") && !user.hasFlag(User.FLAG_VIEW_BATTLES)) {
+		if( !hasPermission("schlacht", "liste") ) {
 			// Zwei separate Queries fuer alle Schlachten um einen sehr unvorteilhaften Join zu vermeiden
 			String query = "from Battle " +
 					"where commander1= :user or commander2= :user ";

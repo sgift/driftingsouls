@@ -1289,9 +1289,6 @@ public class Battle implements Locatable
 					if( context.hasPermission("schlacht", "alleAufrufbar") ) {
 						this.guest = true;
 					}
-					else if( user.hasFlag(User.FLAG_VIEW_BATTLES) ) {
-						this.guest = true;
-					}
 					else
                     {
 						long shipcount = ((Number)db.createQuery("select count(*) from Ship " +

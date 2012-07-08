@@ -1661,4 +1661,12 @@
 
     	alter table gtu_warenkurse MODIFY name VARCHAR(255) NOT NULL DEFAULT '';
     ]]></update>
+    <update type="data" datum="2012-07-08"><![CDATA[
+    	INSERT INTO permission SELECT null, id, 'handel', 'angeboteLoeschen' FROM users where flags LIKE "%moderator_handel%";
+    	UPDATE users set flags=replace(flags, 'moderator_handel','');
+
+    	INSERT INTO permission SELECT null, id, 'schlacht', 'liste' FROM users where flags LIKE "%viewbattles%";
+    	INSERT INTO permission SELECT null, id, 'schlacht', 'alleAufrufbar' FROM users where flags LIKE "%viewbattles%";
+    	UPDATE users set flags=replace(flags, 'viewbattles','');
+    ]]></update>
 </updates>

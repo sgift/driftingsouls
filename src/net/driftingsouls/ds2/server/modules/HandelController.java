@@ -209,7 +209,7 @@ public class HandelController extends TemplateGenerator {
 		int del = getInteger("del");
 
 		Handel entry = (Handel)db.get(Handel.class, del);
-		if( (entry != null) && (entry.getWho().equals(user) || hasPermission("handel", "angeboteLoeschen") || user.hasFlag(User.FLAG_MODERATOR_HANDEL)) ) {
+		if( (entry != null) && (entry.getWho().equals(user) || hasPermission("handel", "angeboteLoeschen")) ) {
 			db.delete(entry);
 			t.setVar("handel.message", "Angebot gel&ouml;scht");
 		}
@@ -284,7 +284,7 @@ public class HandelController extends TemplateGenerator {
 						"angebot.description.overflow",	Common._text(entry.getKommentar()).length() > 220,
 						"angebot.newline",		(count % 3 == 0),
 						"angebot.endline",		(count % 3 == 0) && (count > 0),
-						"angebot.showdelete",	entry.getWho().equals(user) || hasPermission("handel", "angeboteLoeschen") || user.hasFlag(User.FLAG_MODERATOR_HANDEL) );
+						"angebot.showdelete",	entry.getWho().equals(user) || hasPermission("handel", "angeboteLoeschen") );
 
 			count++;
 

@@ -222,9 +222,6 @@ public class PlayerList {
 				if( aUser.hasFlag(User.FLAG_HIDE) ) {
 					echo.append(" <span style=\"color:red;font-style:italic\" title=\"hidden\">[h]</span>");
 				}
-				if( (user != null) && context.hasPermission("statistik", "erweiterteSpielerliste") && aUser.hasFlag(User.FLAG_VIEW_BATTLES) ) {
-					echo.append(" <span style=\"color:red;font-style:italic\" title=\"view battles\">[vb]</span>");
-				}
 				if( (user != null) && context.hasPermission("statistik", "erweiterteSpielerliste") && aUser.hasFlag(User.FLAG_ORDER_MENU) ) {
 					echo.append(" <span style=\"color:red;font-style:italic\" title=\"order menu\">[om]</span>");
 				}
