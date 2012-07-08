@@ -17,13 +17,13 @@ import org.hibernate.StaleObjectStateException;
 /**
  * Ein Filter, um eine neue Session zu oeffnen fuer den Request.
  * Implementiert die SessionInView- und SessionPerRequest-Patterns von Hibernate.
- * 
+ *
  * @author Drifting-Souls Team
  */
 public class HibernateSessionRequestFilter extends DSFilter
 {
 	@Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException 
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException
     {
         if(!isStaticRequest(request))
         {
@@ -72,18 +72,18 @@ public class HibernateSessionRequestFilter extends DSFilter
             chain.doFilter(request, response);
         }
     }
- 
+
 	@Override
-    public void init(FilterConfig filterConfig) throws ServletException 
+    public void init(FilterConfig filterConfig) throws ServletException
     {
         log.debug("Initializing filter...");
         log.debug("Obtaining SessionFactory from static HibernateUtil singleton");
         sf = HibernateUtil.getSessionFactory();
     }
- 
+
 	@Override
     public void destroy() {}
- 
+
     private static Log log = LogFactory.getLog(HibernateSessionRequestFilter.class);
     private SessionFactory sf;
 }

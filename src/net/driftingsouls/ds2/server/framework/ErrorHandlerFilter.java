@@ -15,6 +15,8 @@ import javax.servlet.http.HttpServletRequest;
 import net.driftingsouls.ds2.server.framework.authentication.TickInProgressException;
 import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.StaleStateException;
 import org.hibernate.exception.ExceptionUtils;
@@ -23,15 +25,17 @@ import org.hibernate.exception.GenericJDBCException;
 /**
  * Filter, um zentral alle Fehler abzufangen.
  * Spezielle, bekannte Exceptions werden hier extra behandelt.
- * Allgemeine Exceptions werden per Mail an die Entwickler versendet. 
+ * Allgemeine Exceptions werden per Mail an die Entwickler versendet.
  * Die Spieler erhalten eine Fehlerseite.
- * 
+ *
  * @author Drifting-Souls Team
  */
-public class ErrorHandlerFilter implements Filter 
+public class ErrorHandlerFilter implements Filter
 {
+	private static Log log = LogFactory.getLog(ErrorHandlerFilter.class);
+
 	@Override
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException 
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException
 	{
 		try
 		{
@@ -52,7 +56,7 @@ public class ErrorHandlerFilter implements Filter
 					printBoxedErrorMessage(response, "Die Operation hat sich mit einer anderen &uumlberschnitten. Bitte probier es noch einmal.");
 					return;
 				}
-				else if((ex instanceof GenericJDBCException) && (((GenericJDBCException)ex).getSQLException().getMessage() != null) && ((GenericJDBCException)ex).getSQLException().getMessage().startsWith("Beim Warten auf eine Sperre wurde die") ) 
+				else if((ex instanceof GenericJDBCException) && (((GenericJDBCException)ex).getSQLException().getMessage() != null) && ((GenericJDBCException)ex).getSQLException().getMessage().startsWith("Beim Warten auf eine Sperre wurde die") )
 				{
 					printBoxedErrorMessage(response, "Die Operation hat sich mit einer anderen &uumlberschnitten. Bitte probier es noch einmal.");
 					return;
@@ -84,7 +88,7 @@ public class ErrorHandlerFilter implements Filter
 				ex = ExceptionUtils.getCause(ex);
 			}
 			while(ex != null);
-			
+
 			StringBuilder infos = new StringBuilder(100);
 			HttpServletRequest req = (HttpServletRequest)request;
 			Map<String, String[]> params = req.getParameterMap();
@@ -103,27 +107,27 @@ public class ErrorHandlerFilter implements Filter
 				}
 				infos.append("\n");
 			}
-			
+
 			Throwable mailThrowable = e;
 			while( ExceptionUtils.getCause(mailThrowable) != null ) {
 				mailThrowable = ExceptionUtils.getCause(mailThrowable);
 			}
-			
+
 			Common.mailThrowable(mailThrowable, "Unexpected exception", infos.toString());
-			e.printStackTrace();
-			
+			log.info("", e);
+
 			printBoxedErrorMessage(response, "Ein genereller Fehler ist aufgetreten. Die Entwickler arbeiten daran ihn zu beheben.");
 		}
 	}
 
 	@Override
-	public void init(FilterConfig arg0) throws ServletException 
+	public void init(FilterConfig arg0) throws ServletException
 	{}
 
 	@Override
-	public void destroy() 
+	public void destroy()
 	{}
-	
+
 	private void redirectToPortal(ServletResponse response, String message) throws IOException
 	{
 		Writer sb = response.getWriter();
@@ -139,7 +143,7 @@ public class ErrorHandlerFilter implements Filter
 		sb.append(Common.tableEnd());
 		sb.append("</div>\n");
 	}
-	
+
 	private void printBoxedErrorMessage(ServletResponse response, String message) throws IOException
 	{
 		Writer sb = response.getWriter();
@@ -151,7 +155,7 @@ public class ErrorHandlerFilter implements Filter
 		sb.append(Common.tableEnd());
 		sb.append("</div>\n");
 	}
-	
+
 	private boolean isAutomaticAccess(ServletRequest request)
 	{
 		String automaticAccessParameter = request.getParameter("autoAccess");
@@ -159,7 +163,7 @@ public class ErrorHandlerFilter implements Filter
 		{
 			return true;
 		}
-		
+
 		return false;
 	}
 }
