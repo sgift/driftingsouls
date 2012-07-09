@@ -219,7 +219,7 @@ public class SchiffInfoController extends TemplateGenerator {
 		if( visible > 0 ) {
 			shipBuildData = null;
 
-			if( (user != null) && hasPermission("schiffstyp", "versteckteSichbar") ) {
+			if( (user != null) && hasPermission("schiffstyp", "versteckteSichtbar") ) {
 				t.setVar(	"shiptype.showbuildable",	1,
 							"shiptype.visibletech",		visible);
 			}
