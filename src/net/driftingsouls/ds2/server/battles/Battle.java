@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -70,6 +69,7 @@ import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.CacheMode;
+import org.hibernate.FlushMode;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.annotations.BatchSize;
@@ -599,7 +599,6 @@ public class Battle implements Locatable
 			return;
 		}
 
-		Set<Integer> addedships = new TreeSet<Integer>();
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
         for (BattleShip ship : ships) {
@@ -609,18 +608,10 @@ public class Battle implements Locatable
                 startlist.add(ship.getId());
             }
             idlist.add(ship.getId());
-            addedships.add(ship.getShip().getId());
-
             ship.getShip().setBattle(battle);
             ship.setBattle(battle);
             db.persist(ship);
         }
-
-		//Set Parameter doesn't work for in (cast problem string/integer)
-		db.createQuery("update Ship set battle=:battle where id in (:shipIds)")
-		  .setParameter("battle", battle)
-		  .setParameterList("shipIds", addedships)
-		  .executeUpdate();
 	}
 
     private static boolean checkBattleConditions(User user, User enemyUser, Ship ownShip, Ship enemyShip)
@@ -808,7 +799,7 @@ public class Battle implements Locatable
             }
         }
 
-		addToSecondRow(secondRowShips, firstRowExists, firstRowEnemyExists);
+		addToSecondRow(battle, secondRowShips, firstRowExists, firstRowEnemyExists);
 
 		//
 		// Schauen wir mal ob wir was sinnvolles aus der DB gelesen haben
@@ -855,7 +846,6 @@ public class Battle implements Locatable
 		// * Gegnerische Schiffe in die Schlacht einfuegen
 		List<Integer> idlist = new ArrayList<Integer>();
 		List<Integer> startlist = new ArrayList<Integer>();
-
 		Ship enemyShip = enemyBattleShip.getShip();
 		if( enemyBattleShip.getShip().isLanded() )
 		{
@@ -878,7 +868,6 @@ public class Battle implements Locatable
 		}
 
 		startlist = new ArrayList<Integer>();
-
 		battle.enemyShips.add(enemyBattleShip);
 		battle.activeSEnemy = battle.enemyShips.size()-1;
 
@@ -2359,14 +2348,26 @@ public class Battle implements Locatable
 	 * Adds ships which have the second row flag to the second row.
 	 * If there is no first row no ship will be added to the second row.
 	 *
+	 * @param battle Die momentan in der Erstellung befindliche Schlacht
 	 * @param secondRowShips Ships to add.
 	 * @param firstRowExists True, if side one has a first row.
 	 * @param firstRowEnemyExists True, if side two has a first row.
 	 */
-	private static void addToSecondRow(Set<BattleShip> secondRowShips, boolean firstRowExists, boolean firstRowEnemyExists)
+	private static void addToSecondRow(Battle battle, Set<BattleShip> secondRowShips, boolean firstRowExists, boolean firstRowEnemyExists)
 	{
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
+		db.setFlushMode(FlushMode.COMMIT);
+
+		Map<Ship,BattleShip> battleShipMap = new HashMap<Ship,BattleShip>();
+		for( BattleShip ship : battle.ownShips )
+		{
+			battleShipMap.put(ship.getShip(), ship);
+		}
+		for( BattleShip ship : battle.enemyShips )
+		{
+			battleShipMap.put(ship.getShip(), ship);
+		}
 
 		for(BattleShip ship: secondRowShips)
 		{
@@ -2382,9 +2383,7 @@ public class Battle implements Locatable
 					List<Ship> landedShips = ship.getShip().getLandedShips();
 					for(Ship landedShip: landedShips)
 					{
-						BattleShip aship = (BattleShip)db.createQuery("from BattleShip where ship=:ship")
-														 .setEntity("ship", landedShip)
-														 .uniqueResult();
+						BattleShip aship = battleShipMap.get(landedShip);
 
 						if(aship != null)
 						{
@@ -2405,9 +2404,7 @@ public class Battle implements Locatable
 					List<Ship> landedShips = ship.getShip().getLandedShips();
 					for(Ship landedShip: landedShips)
 					{
-						BattleShip aship = (BattleShip)db.createQuery("from BattleShip where ship=:ship")
-														 .setEntity("ship", landedShip)
-														 .uniqueResult();
+						BattleShip aship = battleShipMap.get(landedShip);
 
 						if(aship != null)
 						{
@@ -2417,6 +2414,7 @@ public class Battle implements Locatable
 				}
 			}
 		}
+		db.setFlushMode(FlushMode.AUTO);
 	}
 
 	/**
