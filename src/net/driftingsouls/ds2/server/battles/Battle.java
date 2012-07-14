@@ -70,7 +70,6 @@ import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.CacheMode;
-import org.hibernate.FlushMode;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.annotations.BatchSize;
@@ -2368,7 +2367,6 @@ public class Battle implements Locatable
 	{
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
-		db.setFlushMode(FlushMode.COMMIT);
 
 		for(BattleShip ship: secondRowShips)
 		{
@@ -2419,7 +2417,6 @@ public class Battle implements Locatable
 				}
 			}
 		}
-		db.setFlushMode(FlushMode.AUTO);
 	}
 
 	/**
