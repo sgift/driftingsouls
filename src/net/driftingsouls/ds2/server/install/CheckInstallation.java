@@ -29,9 +29,6 @@ import net.driftingsouls.ds2.server.install.checks.ConfigXmlValidCheck;
 import net.driftingsouls.ds2.server.install.checks.ConfigXmlValidXmlCheck;
 import net.driftingsouls.ds2.server.install.checks.DatabaseConnectionCheck;
 import net.driftingsouls.ds2.server.install.checks.LoxPathCheck;
-import net.driftingsouls.ds2.server.install.checks.WebXmlConfigDirCheck;
-import net.driftingsouls.ds2.server.install.checks.WebXmlExistsCheck;
-import net.driftingsouls.ds2.server.install.checks.WebXmlValidXmlCheck;
 
 /**
  * Ueberprueft die Installation von Drifting Souls auf moegliche Probleme.
@@ -40,21 +37,18 @@ import net.driftingsouls.ds2.server.install.checks.WebXmlValidXmlCheck;
  */
 public class CheckInstallation {
 	private static final List<Checkable> checks = new ArrayList<Checkable>();
-	
+
 	static {
 		checks.add(new ConfigXmlExistsCheck());
 		checks.add(new ConfigXmlValidXmlCheck());
-		checks.add(new WebXmlExistsCheck());
-		checks.add(new WebXmlValidXmlCheck());
-		checks.add(new WebXmlConfigDirCheck());
 		checks.add(new ConfigXmlValidCheck());
-		
+
 		// Die Configuration ist zu diesem Zeitpunkt nun initalisiert
 		checks.add(new DatabaseConnectionCheck());
 		checks.add(new AbsolutePathCheck());
 		checks.add(new LoxPathCheck());
 	}
-	
+
 	/**
 	 * Bringt einen String auf eine feste Laenge. Zu lange Strings werden
 	 * abgeschnitten. Zu kurze mit Leerzeichen aufgefuellt.
@@ -69,7 +63,7 @@ public class CheckInstallation {
 		if( string.length() > length ) {
 			return string.substring(0, length);
 		}
-		
+
 		StringBuilder builder = new StringBuilder(length);
 		builder.append(string);
 		while( builder.length() < length ) {
@@ -77,7 +71,7 @@ public class CheckInstallation {
 		}
 		return builder.toString();
 	}
-	
+
 	/**
 	 * Die Main.
 	 * @param args Kommandozeilenargumente
@@ -87,7 +81,7 @@ public class CheckInstallation {
 		try {
 			for( int i=0; i < checks.size(); i++ ) {
 				final Checkable check = checks.get(i);
-				
+
 				System.out.print(toFixedLength(check.getDescription(), 40));
 				check.doCheck();
 				System.out.println("[OK]");

@@ -33,7 +33,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class DefaultServletContextListener implements ServletContextListener {
 	private static final Log log = LogFactory.getLog(DefaultServletContextListener.class);
-	
+
 	@Override
 	public void contextDestroyed(ServletContextEvent event) {
 	}
@@ -43,15 +43,15 @@ public class DefaultServletContextListener implements ServletContextListener {
 		ServletContext context = event.getServletContext();
 
 		log.info("Booting DS...");
-		
+
 		try {
-			new DriftingSouls(log, context.getInitParameter("configdir"), true);
+			new DriftingSouls(log, context.getRealPath("/WEB-INF/cfg")+"/", true);
 		}
 		catch( Throwable e ) {
 			log.fatal(e, e);
 			throw new RuntimeException(e);
 		}
-		
+
 		log.info("DS is now ready for service");
 	}
 }
