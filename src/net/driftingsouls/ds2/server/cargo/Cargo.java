@@ -576,6 +576,7 @@ public class Cargo implements Cloneable {
 					fcount += " ("+Common.ln(itemType.getCargo()*item[1])+")";
 				}
 
+				ResourceID itemId = buildItemID(item);
 				if( !nohtml ) {
 					String style = "";
 					if( item[3] != 0 ) {
@@ -602,8 +603,12 @@ public class Cargo implements Cloneable {
 						tooltiptext += "<br /><span class=\"verysmallfont\">Benutzungen: "+item[2]+"</span>";
 					}
 
-					name = "<a "+style+" class=\"tooltip "+linkclass+"\" href=\"./ds?module=iteminfo&amp;itemlist="+buildItemID(item)+"\">"+name+" <span class=\"ttcontent\">"+tooltiptext+"</span></a>";
-					fcount = "<a "+style+" class=\"tooltip "+linkclass+"\" href=\"./ds?module=iteminfo&amp;itemlist="+buildItemID(item)+"\">"+fcount+" <span class=\"ttcontent\">"+tooltiptext+"</span></a>";
+					name = "<a "+style+" class=\"tooltip "+linkclass+"\" href=\"./ds?module=iteminfo&amp;itemlist="+itemId+"\">"+
+						name+
+						" <span class=\"ttcontent ttitem\" ds-item-id=\""+itemId+"\">"+tooltiptext+"</span></a>";
+					fcount = "<a "+style+" class=\"tooltip "+linkclass+"\" href=\"./ds?module=iteminfo&amp;itemlist="+itemId+"\">"+
+						fcount+
+						" <span class=\"ttcontent ttitem\" ds-item-id=\""+itemId+"\">"+tooltiptext+"</span></a>";
 				}
 				else {
 					if( item[3] != 0 ) {
@@ -614,7 +619,7 @@ public class Cargo implements Cloneable {
 					}
 				}
 
-				ResourceEntry res = new ResourceEntry(buildItemID(item), name, plainname,
+				ResourceEntry res = new ResourceEntry(itemId, name, plainname,
 						image, fcount, item[1] );
 				res.setLargeImages(large);
 
@@ -756,7 +761,9 @@ public class Cargo implements Cloneable {
 						tooltiptext += "<br /><span class=\"verysmallfont\">Benutzungen: "+aitem.getUses()+"</span>";
 					}
 
-					name = "<a "+style+" class=\"tooltip "+linkclass+"\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+name+"<span class=\"ttcontent\">"+tooltiptext+"</span></a>";
+					name = "<a "+style+" class=\"tooltip "+linkclass+"\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem.toString()+"\">"+
+						name+
+						"<span class=\"ttcontent ttitem\" ds-item-id=\""+aitem.toString()+"\">"+tooltiptext+"</span></a>";
 				}
 				else {
 					if( aitem.getQuest() != 0 ) {
@@ -797,27 +804,39 @@ public class Cargo implements Cloneable {
 				{
 					if( diff > 0 && baukosten )
 					{
-						fcargo1 = "<a "+style+" class=\"cargo1 negativ tooltip\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo1+"<span class=\"ttcontent\">"+tooltiptext+"</span></a>";
+						fcargo1 = "<a "+style+" class=\"cargo1 negativ tooltip\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem.toString()+"\">"+
+							fcargo1+
+							"<span class=\"ttcontent ttitem\" ds-item-id=\""+aitem.toString()+"\">"+tooltiptext+"</span></a>";
 					}
 					else if( diff <= 0 && baukosten )
 					{
-						fcargo1 = "<a "+style+" class=\"cargo1 positiv tooltip\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo1+"<span class=\"ttcontent\">"+tooltiptext+"</span></a>";
+						fcargo1 = "<a "+style+" class=\"cargo1 positiv tooltip\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem.toString()+"\">"+
+							fcargo1+
+							"<span class=\"ttcontent ttitem\" ds-item-id=\""+aitem.toString()+"\">"+tooltiptext+"</span></a>";
 					}
 					else
 					{
-						fcargo1 = "<a "+style+" class=\"cargo1 "+linkclass+" tooltip\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo1+"<span class=\"ttcontent\">"+tooltiptext+"</span></a>";
+						fcargo1 = "<a "+style+" class=\"cargo1 "+linkclass+" tooltip\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem.toString()+"\">"+
+							fcargo1+
+							"<span class=\"ttcontent ttitem\" ds-item-id=\""+aitem.toString()+"\">"+tooltiptext+"</span></a>";
 					}
 					if( cargo2 > 0 && basis )
 					{
-						fcargo2 = "<a "+style+" class=\"cargo2 positiv tooltip\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo2+"<span class=\"ttcontent\">"+tooltiptext+"</span></a>";
+						fcargo2 = "<a "+style+" class=\"cargo2 positiv tooltip\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem.toString()+"\">"+
+							fcargo2+
+							"<span class=\"ttcontent ttitem\" ds-item-id=\""+aitem.toString()+"\">"+tooltiptext+"</span></a>";
 					}
 					else if( cargo2 < 0 && basis )
 					{
-						fcargo2 = "<a "+style+" class=\"cargo2 negativ tooltip\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">"+fcargo2+"<span class=\"ttcontent\">"+tooltiptext+"</span></a>";
+						fcargo2 = "<a "+style+" class=\"cargo2 negativ tooltip\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem.toString()+"\">"+
+							fcargo2+
+							"<span class=\"ttcontent ttitem\" ds-item-id=\""+aitem.toString()+"\">"+tooltiptext+"</span></a>";
 					}
 					else
 					{
-						fcargo2 = "<a "+style+" class=\"cargo2 "+linkclass+" tooltip\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem+"\">" + fcargo2 + "<span class=\"ttcontent\">"+tooltiptext+"</span></a>";
+						fcargo2 = "<a "+style+" class=\"cargo2 "+linkclass+" tooltip\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem.toString()+"\">" +
+							fcargo2 +
+							"<span class=\"ttcontent ttitem\" ds-item-id=\""+aitem.toString()+"\">"+tooltiptext+"</span></a>";
 					}
 				}
 

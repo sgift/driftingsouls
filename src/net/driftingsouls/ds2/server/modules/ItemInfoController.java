@@ -61,6 +61,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -323,10 +324,18 @@ public class ItemInfoController extends TemplateGenerator {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
 		org.hibernate.Session db = getDB();
-		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
 
-		parameterNumber("item");
-		int itemid = getInteger("item");
+		parameterString("item");
+		String itemStr = getString("item");
+		int itemid = -1;
+		if( ItemID.isItemRID(itemStr) )
+		{
+			itemid = ItemID.fromString(itemStr).getItemID();
+		}
+		else if( NumberUtils.isNumber(itemStr) )
+		{
+			itemid = Integer.parseInt(itemStr);
+		}
 
 		Item item = (Item)db.get(Item.class, itemid);
 
@@ -355,6 +364,7 @@ public class ItemInfoController extends TemplateGenerator {
 
 		t.setVar(	"iteminfo.details",	1,
 					"item.picture",		item.getPicture(),
+					"item.largePicture", item.getLargePicture() != null ? item.getLargePicture() : item.getPicture(),
 					"item.name",		name,
 					"item.cargo",		item.getCargo(),
 					"item.accesslevel",	item.getAccessLevel(),
@@ -520,6 +530,8 @@ public class ItemInfoController extends TemplateGenerator {
 			if( effect.getSetID() != 0 ) {
 				int setcount = 0;
 
+				List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
+
 				for( Item aitem : itemlist ) {
 					if( aitem.getEffect().getType() != ItemEffect.Type.MODULE ) {
 						continue;
@@ -658,6 +670,8 @@ public class ItemInfoController extends TemplateGenerator {
 				return;
 			}
 			Cargo setitemlist = new Cargo();
+
+			List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
 
 			for( Item thisitem : itemlist ) {
 				if( (thisitem.getEffect().getType() == ItemEffect.Type.MODULE) && (((IEModule)thisitem.getEffect()).getSetID() == itemid) ) {

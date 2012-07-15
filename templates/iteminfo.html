@@ -1,105 +1,106 @@
-{!table_begin 420,left}
+<div class="gfxbox" style="width:460px">
 	{if iteminfo.message}
 		{iteminfo.message}<br />
 	{/endif}
-	
+
 	{if iteminfo.details}
-		<table class="noBorderX" cellspacing="3" width="380">	
+		<div style="text-align:center;margin-bottom:5px;"><img src="{item.largePicture}" alt="" /></div>
+		<table cellspacing="3" style="width:100%">
 		<tr>
-			<td class="noBorderX" style="width:80px">Name</td>
-			<td class="noBorderX">
-				<img style="vertical-align:middle" src="{item.picture}" alt="" />{item.name}
+			<td style="width:80px">Name</td>
+			<td>
+				{item.name}
 			</td>
-		</tr>	
+		</tr>
 		<tr>
-			<td class="noBorderX" style="width:80px">Cargo</td>
-			<td class="noBorderX">{item.cargo}</td>
+			<td style="width:80px">Cargo</td>
+			<td>{item.cargo}</td>
 		</tr>
 		{if item.accesslevel}
 			<tr>
-				<td class="noBorderX" style="width:80px">Accesslevel</td>
-				<td class="noBorderX" style="color:red">{item.accesslevel}</td>
+				<td style="width:80px">Accesslevel</td>
+				<td style="color:red">{item.accesslevel}</td>
 			</tr>
 		{/endif}
 		{if item.allyitem}
 			<tr>
-				<td class="noBorderX" style="width:80px">Allyitem</td>
-				<td class="noBorderX">ja</td>
+				<td style="width:80px">Allyitem</td>
+				<td>ja</td>
 			</tr>
 		{/endif}
 		{if item.isspawnable}
 			<tr>
-				<td class="noBorderX" style="width:80px">Zusatz</td>
-				<td class="noBorderX">Das Vorkommen dieser Ressource ist regional begrenzt.</td>
+				<td style="width:80px">Zusatz</td>
+				<td>Das Vorkommen dieser Ressource ist regional begrenzt.</td>
 			</tr>
 		{/endif}
 		<tr>
-			<td class="noBorderX" style="width:80px">Typ</td>
-			<td class="noBorderX">{item.class}</td>
+			<td style="width:80px">Typ</td>
+			<td>{item.class}</td>
 		</tr>
 		<!-- BEGIN itemdetails.entry -->
 			<tr>
-				<td class="noBorderX" valign="top">{entry.name}</td>
-				<td class="noBorderX" valign="top">{entry.data}</td>
+				<td valign="top">{entry.name}</td>
+				<td valign="top">{entry.data}</td>
 			</tr>
-		<!-- END itemdetails.entry -->		
+		<!-- END itemdetails.entry -->
 		<tr>
-			<td class="noBorderX" colspan="2">
+			<td colspan="2">
 				<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
 			</td>
 		</tr>
 		<tr>
-			<td class="noBorderX" colspan="2">
+			<td colspan="2">
 				{item.description}
 			</td>
 		</tr>
 		</table>
 	{/endif}
-	
+
 	{if iteminfo.itemlist}
-		<table class="noBorderX" cellpadding="3">
+		<table cellpadding="3">
 		<tr>
-			<td class="noBorderX">&nbsp;</td>
-			<td class="noBorderX" style="width:300px;font-size:16px">Name</td>
-			<td class="noBorderX" style="width:100px;font-size:16px">Typ</td>
-			<td class="noBorderX" style="width:120px;font-size:16px">Gr&ouml;&szlig;e</td>
-			<td class="noBorderX" style="width:100px;font-size:16px">Menge</td>
+			<td>&nbsp;</td>
+			<td style="width:300px;font-size:16px">Name</td>
+			<td style="width:100px;font-size:16px">Typ</td>
+			<td style="width:120px;font-size:16px">Gr&ouml;&szlig;e</td>
+			<td style="width:100px;font-size:16px">Menge</td>
 		</tr>
 		<!-- BEGIN itemlist.listitem -->
 			<tr>
-				<td class="noBorderX"><img src="{item.picture}" alt="" /></td>
-				<td class="noBorderX">
+				<td><img src="{item.picture}" alt="" /></td>
+				<td>
 					{!link_to $item.name, details, item:$item.id}
 				</td>
-				<td class="noBorderX">{item.class}</td
-				<td class="noBorderX" align="center">{item.cargo}</td>
-				<td class="noBorderX">{item.count}</td>
+				<td>{item.class}</td>
+				<td align="center">{item.cargo}</td>
+				<td>{item.count}</td>
 			</tr>
 		<!-- END itemlist.listitem -->
 		</table>
 	{/endif}
-	
+
 	{if iteminfo.knownlist}
-		<table class="noBorderX" cellpadding="3">
+		<table cellpadding="3">
 		<tr>
-			<td class="noBorderX">&nbsp;</td>
-			<td class="noBorderX" style="width:300px;font-size:16px">Name</td>
-			<td class="noBorderX" style="width:100px;font-size:16px">Typ</td>
-			<td class="noBorderX" style="width:120px;font-size:16px">Gr&ouml;&szlig;e</td>
-			<td class="noBorderX" style="width:100px;font-size:16px">Menge</td>
+			<td>&nbsp;</td>
+			<td style="width:300px;font-size:16px">Name</td>
+			<td style="width:100px;font-size:16px">Typ</td>
+			<td style="width:120px;font-size:16px">Gr&ouml;&szlig;e</td>
+			<td style="width:100px;font-size:16px">Menge</td>
 		</tr>
 		<!-- BEGIN knownlist.listitem -->
 			<tr>
-				<td class="noBorderX"><img src="{item.picture}" alt="" /></td>
-				<td class="noBorderX">
+				<td><img src="{item.picture}" alt="" /></td>
+				<td>
 					{!link_to $item.name, details, item:$item.id}
 				</td>
-				<td class="noBorderX">{item.class}</td>
-				<td class="noBorderX" align="center">{item.cargo}</td>
-				<td class="noBorderX">
+				<td>{item.class}</td>
+				<td align="center">{item.cargo}</td>
+				<td>
 					{if item.count}
 						{if item.locationtext}
-							<a name="module{item.id}_popup" id="module{item.id}_popup" class="forschinfo tooltip" href="#">
+							<a class="forschinfo tooltip" href="#">
 								{item.count}
 								<span class="ttcontent">{item.locationtext}</span>
 							</a>
@@ -114,4 +115,4 @@
 		<!-- END knownlist.listitem -->
 		</table>
 	{/endif}
-{!table_end}
+</div>
