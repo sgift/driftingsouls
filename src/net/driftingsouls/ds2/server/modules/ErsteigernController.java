@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.ParseException;
@@ -28,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.bases.Base;
@@ -56,6 +58,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextInstance;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
@@ -750,6 +753,38 @@ public class ErsteigernController extends TemplateGenerator
 	}
 
 	/**
+	 * Der Container fuer Sicherheitstokens bei Ueberweisungsvorgaengen.
+	 */
+	@ContextInstance(ContextInstance.Scope.SESSION)
+	protected static class UeberweisungsTokenContainer implements Serializable {
+		private static final long serialVersionUID = 935839793552232133L;
+
+		private String token;
+
+		/**
+		 * Konstruktor.
+		 */
+		public UeberweisungsTokenContainer() {
+			this.token = UUID.randomUUID().toString();
+		}
+
+		/**
+		 * Erzeugt ein neues Token im Container.
+		 */
+		public void generateNewToken() {
+			this.token = UUID.randomUUID().toString();
+		}
+
+		/**
+		 * Gibt das Token als String zurueck.
+		 * @return Das Token
+		 */
+		public String getToken() {
+			return this.token;
+		}
+	}
+
+	/**
 	 * Ueberweist einen bestimmten Geldbetrag an einen anderen Spieler. Wenn die Ueberweisung noch
 	 * nicht explizit bestaetigt wurde, wird die Bestaetigung erfragt.
 	 *
@@ -798,14 +833,25 @@ public class ErsteigernController extends TemplateGenerator
 			return;
 		}
 
+		parameterString("token");
+		String requestToken = getString("token");
+
+		UeberweisungsTokenContainer token = getContext().get(UeberweisungsTokenContainer.class);
+
 		// Falls noch keine Bestaetigung vorliegt: Bestaetigung der Ueberweisung erfragen
-		if( !ack.equals("yes") )
+		if( !ack.equals("yes") || !token.getToken().equals(requestToken) )
 		{
 			User tmp = (User)db.get(User.class, to);
 
-			t.setVar("show.ueberweisen", 1, "ueberweisen.betrag", Common.ln(count),
-					"ueberweisen.betrag.plain", count, "ueberweisen.to.name", Common._title(tmp
-							.getName()), "ueberweisen.to", tmp.getId());
+			token.generateNewToken();
+
+			t.setVar(
+					"show.ueberweisen", 1,
+					"ueberweisen.betrag", Common.ln(count),
+					"ueberweisen.betrag.plain", count,
+					"ueberweisen.to.name", Common._title(tmp.getName()),
+					"ueberweisen.to", tmp.getId(),
+					"ueberweisen.token", token.getToken());
 
 			return;
 		}

@@ -70,7 +70,7 @@
 {if show.ueberweisen}
 	{!table_begin 400,center}
 		{ueberweisen.betrag} RE an {ueberweisen.to.name} ({ueberweisen.to}) &uuml;berweisen?<br />
-		{!link_to ja, ueberweisen, css_class:ok, to:$ueberweisen.to, count:$ueberweisen.betrag.plain, ack:yes, faction:$global.faction}&nbsp;|&nbsp;
+		{!link_to ja, ueberweisen, css_class:ok, to:$ueberweisen.to, count:$ueberweisen.betrag.plain, ack:yes, faction:$global.faction, token:$ueberweisen.token}&nbsp;|&nbsp;
 		{!link_to nein, bank, css_class:error, faction:$global.faction}<br />
 	{!table_end}
 	<br />
