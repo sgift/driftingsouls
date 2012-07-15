@@ -69,13 +69,6 @@ public class JumpdriveShivan implements SchiffPlugin
 			{
 				final Location targetLoc = new Location(system.getID(),x,y);
 
-				ShipTypeData mst = ship.getTypeData();
-				if( instant && Math.floor(mst.getEps() / 2d) > ship.getEnergy() )
-				{
-					output += ship.getName()+" hat nicht genug Energie<br />\n";
-					return output;
-				}
-
 				output += ship.getName()+" aktiviert den Sprungantrieb<br />\n";
 
 				List<Ship> ships = new ArrayList<Ship>();
@@ -102,16 +95,10 @@ public class JumpdriveShivan implements SchiffPlugin
 
 						output += "<tr>";
 						output += "<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange;font-size:12px\"> "+aship.getName()+" ("+aship.getId()+"):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n";
-						if( instant && Math.floor(st.getEps() / 2d) > aship.getEnergy() )
-						{
-							output += "Nicht genug Energie";
-						}
-						else
-						{
-							output += "Das Schiff aktiviert den Sprungantrieb";
+						
+						output += "Das Schiff aktiviert den Sprungantrieb";
 
-							ships.add(aship);
-						}
+						ships.add(aship);
 
 						output += "</span></td></tr>\n";
 					}
@@ -121,7 +108,6 @@ public class JumpdriveShivan implements SchiffPlugin
 				{
 					for( Ship aship : ships )
 					{
-						aship.setEnergy(aship.getEnergy()-(int)Math.floor(aship.getTypeData().getEps()/2));
 						aship.setSystem(system.getID());
 						aship.setX(x);
 						aship.setY(y);
