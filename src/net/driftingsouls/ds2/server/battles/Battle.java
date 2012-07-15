@@ -963,6 +963,8 @@ public class Battle implements Locatable
 		// berechnen ggf die Userlisten neu
 		Set<Integer> calcedallys = new HashSet<Integer>();
 
+		db.setFlushMode(FlushMode.COMMIT);
+		
 		for( User auser : new ArrayList<User>(ownUsers) ) {
 			if( (auser.getAlly() != null) && !calcedallys.contains(auser.getAlly().getId()) ) {
 				List<User> allyusers = Common.cast(db.createQuery("from User u where u.ally=:ally and (u not in (:ownUsers))")
@@ -992,8 +994,8 @@ public class Battle implements Locatable
 				euser.setRelation(auser.getId(), User.Relation.ENEMY);
 			}
 		}
-
-		db.flush();
+		
+		db.setFlushMode(FlushMode.AUTO);
 
 		return battle;
 	}
