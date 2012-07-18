@@ -543,7 +543,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		if(unitcargo == null)
 		{
 			List<UnitCargoEntry> entries;
-			if(units != null)
+			if(getTypeData().getUnitSpace() > 0 && units != null)
 			{
 				entries = new ArrayList<UnitCargoEntry>(units);
 			}
