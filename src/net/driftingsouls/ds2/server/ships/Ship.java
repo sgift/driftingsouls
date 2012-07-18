@@ -3440,6 +3440,12 @@ public class Ship implements Locatable,Transfering,Feeding {
 		db.delete(this.history);
 		this.history = null;
 
+		if( this.einstellungen != null )
+		{
+			db.delete(this.einstellungen);
+			this.einstellungen = null;
+		}
+
 		db.flush(); //Damit auch wirklich alle Daten weg sind und Hibernate nicht auf dumme Gedanken kommt *sfz*
 		db.delete(this);
 
