@@ -161,7 +161,7 @@ public class SchiffsTick extends TickController {
 					" where s.id>0 and s.owner!=? and s.owner.ally=? and (s.owner.vaccount=0 or" +
 					" s.owner.wait4vac!=0) and system!=0 and" +
 					" (s.shiptype.versorger=1 or s.modules.versorger=1) and" +
-					" s.isfeeding=1 and s.isallyfeeding=1 and s.nahrungcargo>0" +
+					" s.einstellungen.isfeeding=1 and s.isallyfeeding=1 and s.nahrungcargo>0" +
 					" order by s.nahrungcargo DESC")
 					.setEntity(0, user)
 					.setEntity(1, user.getAlly())
