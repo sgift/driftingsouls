@@ -23,6 +23,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.ships.SchiffEinstellungen;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.TradepostVisibility;
 
@@ -227,7 +228,7 @@ public class TradepostController extends TemplateGenerator {
 		{
 			t.setVar("tradepostvisibility.id", visibility.name(),
 					"tradepostvisibility.descripton", visibility.getLabel(),
-					"tradepostvisibility.selected", (ship.getShowtradepost() == visibility));
+					"tradepostvisibility.selected", (ship.getEinstellungen().getShowtradepost() == visibility));
 			t.parse("tradepostvisibility.post", "tradepostvisibility.list", true);
 		}
 
@@ -320,7 +321,10 @@ public class TradepostController extends TemplateGenerator {
 		// read possible new value of tradepostvisibility and write to ship
 		parameterString("tradepostvisibility");
 		String tradepostvisibility = getString("tradepostvisibility");
-		ship.setShowtradepost(TradepostVisibility.valueOf(tradepostvisibility));
+
+		SchiffEinstellungen einstellungen = ship.getEinstellungen();
+		einstellungen.setShowtradepost(TradepostVisibility.valueOf(tradepostvisibility));
+		einstellungen.persistIfNecessary(this.ship);
 
 		// build form
 		for( Item aitem : itemlist ) {

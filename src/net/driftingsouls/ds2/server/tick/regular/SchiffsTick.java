@@ -62,15 +62,15 @@ import org.hibernate.criterion.Restrictions;
  */
 public class SchiffsTick extends TickController {
 	private static final int SHIP_FLUSH_SIZE = 150;
-	
+
 	private Map<String,ResourceID> esources;
 	private Map<Location,List<Ship>> versorgerlist;
-	
+
 	private List<User> unflushedUsers = new ArrayList<User>(5);
 	private int unflushedShips = 0;
-	
+
 	@Override
-	protected void prepare() 
+	protected void prepare()
 	{
 		esources = new LinkedHashMap<String,ResourceID>();
 		esources.put("a", Resources.ANTIMATERIE);
@@ -85,27 +85,27 @@ public class SchiffsTick extends TickController {
 	 * @param scaleFactor A scaling factor for the food consumption.
 	 * @return Crew that couldn't be feed.
 	 */
-	private int consumeFood(Feeding feeder, int crewToFeed, double scaleFactor) 
+	private int consumeFood(Feeding feeder, int crewToFeed, double scaleFactor)
 	{
 		int crewThatCouldBeFeed = 0;
-		if( crewToFeed*scaleFactor > feeder.getNahrungCargo() ) 
+		if( crewToFeed*scaleFactor > feeder.getNahrungCargo() )
 		{
 			crewThatCouldBeFeed = (int)(feeder.getNahrungCargo()/scaleFactor);
 			crewToFeed -= crewThatCouldBeFeed;
 		}
-		else 
+		else
 		{
 			crewThatCouldBeFeed = crewToFeed;
 			crewToFeed = 0;
 		}
-		
+
 		int tmp = (int)Math.ceil(crewThatCouldBeFeed*scaleFactor);
 		feeder.setNahrungCargo(feeder.getNahrungCargo() - tmp);
 		this.slog(tmp+"@"+feeder.getId()+",");
 
 		return crewToFeed;
 	}
-	
+
 	private Map<Location,List<Ship>> getLocationVersorgerList(org.hibernate.Session db,User user)
 	{
 		Comparator<Ship> comparator = new Comparator<Ship>() {
@@ -120,22 +120,24 @@ public class SchiffsTick extends TickController {
 				}
 				return diff < 0 ? -1 : 1;
 			}
-			
+
 		};
-		
+
 		Map<Location,SortedSet<Ship>> versorgerMap = new HashMap<Location,SortedSet<Ship>>();
 		this.log("Berechne Versorger");
-		
+
 		int versorgerCount = 0;
-		
+
 		for( Ship ship : user.getShips())
 		{
-			if( ship.getId() <= 0 || ship.getLocation().getSystem() == 0 || !ship.isFeeding() || 
-					!ship.getTypeData().isVersorger() || ship.getNahrungCargo() <= 0 )
+			if( ship.getId() <= 0 || ship.getLocation().getSystem() == 0 ||
+					!ship.getEinstellungen().isFeeding() ||
+					!ship.getTypeData().isVersorger() ||
+					ship.getNahrungCargo() <= 0 )
 			{
 				continue;
 			}
-			
+
 			versorgerCount++;
 			Location loc = ship.getLocation();
 			if(versorgerMap.containsKey(loc))
@@ -149,9 +151,9 @@ public class SchiffsTick extends TickController {
 				versorgerMap.put(loc, shiplist);
 			}
 		}
-		
+
 		this.log(versorgerCount+" Versorger gefunden");
-		
+
 		if(user.getAlly() != null)
 		{
 			this.log("Berechne Allianzversorger");
@@ -180,15 +182,15 @@ public class SchiffsTick extends TickController {
 				}
 			}
 		}
-		
+
 		Map<Location,List<Ship>> versorgerList = new HashMap<Location,List<Ship>>();
 		for( Map.Entry<Location,SortedSet<Ship>> entry : versorgerMap.entrySet() ) {
 			versorgerList.put(entry.getKey(), new ArrayList<Ship>(entry.getValue()));
 		}
-		
+
 		return versorgerList;
 	}
-	
+
 	private Ship getVersorger(Location loc)
 	{
 		Ship ship = null;
@@ -209,11 +211,11 @@ public class SchiffsTick extends TickController {
 				}
 			}
 		}
-		
+
 		return ship;
 	}
 
-	private void tickShip( org.hibernate.Session db, Ship shipd, Map<Location, List<Base>> feedingBases) 
+	private void tickShip( org.hibernate.Session db, Ship shipd, Map<Location, List<Base>> feedingBases)
 	{
 		this.log(shipd.getName()+" ("+shipd.getId()+"):");
 
@@ -222,9 +224,9 @@ public class SchiffsTick extends TickController {
 		Cargo shipc = shipd.getCargo();
 
 		this.log("\tAlt: crew "+shipd.getCrew()+" e "+shipd.getEnergy() +" nc "+shipd.getNahrungCargo());
-		
+
 		boolean isBattle = shipd.getBattle() != null;
-				
+
 		//Eigene Basen im selben Sektor
 		List<Base> bases = feedingBases.get(shipd.getLocation());
 		if(bases == null)
@@ -355,7 +357,7 @@ public class SchiffsTick extends TickController {
                 }
             }
         }
-		
+
 		//Damage ships which don't have enough crew
 		if(!isBattle)
 		{
@@ -370,7 +372,7 @@ public class SchiffsTick extends TickController {
 				double scale = Double.parseDouble(value.getValue());
 				double damageFactor = (1.0 - (((double)crew) / ((double)minCrew))) / scale;
 				this.log("\tDamage factor is: " + damageFactor);
-				
+
 				int oldArmor = shipd.getAblativeArmor();
 				if(oldArmor > 0)
 				{
@@ -405,7 +407,7 @@ public class SchiffsTick extends TickController {
 				}
 			}
 		}
-		
+
 		//Pay sold and maintenance
 		int reCost = shipd.getBalance();
 		if(reCost > 0)
@@ -413,7 +415,7 @@ public class SchiffsTick extends TickController {
 			User owner = shipd.getOwner();
 			BigInteger account = owner.getKonto();
 			BigInteger reCostHelp = BigInteger.valueOf(reCost);
-			
+
 			//Account is balanced
 			if(account.compareTo(reCostHelp) >= 0)
 			{
@@ -428,19 +430,19 @@ public class SchiffsTick extends TickController {
 				if(account.compareTo(reCostHelper) >= 0)
 				{
 					this.log("\tKonto nicht gedeckt; Besatzung meutert.");
-					
+
 					// Sammel alle Daten zusammmen
 					User pirate = (User)db.get(User.class, Faction.PIRATE);
 					UnitCargo unitcargo = shipd.getUnits();
 					UnitCargo meuterer = unitcargo.getMeuterer(account.intValue() - shiptd.getReCost());
 					Crew dcrew = new UnitCargo.Crew(shipd.getCrew());
-					
+
 					if(meuterer.kapern(unitcargo, new UnitCargo(), new UnitCargo(), dcrew, 1, 1))
 					{
 						shipd.setCrew(dcrew.getValue());
 						shipd.setUnits(meuterer);
 						shipd.consign(pirate, false);
-						
+
 						PM.send(pirate, owner.getId(), "Besatzung meutert", "Die Besatzung der " + shipd.getName() + " meutert, nachdem Sie den Sold der Einheiten nicht aufbringen konnten. (" + shipd.getLocation().displayCoordinates(false) + ")");
 					}
 					else
@@ -456,7 +458,7 @@ public class SchiffsTick extends TickController {
 					User pirate = (User)db.get(User.class, Faction.PIRATE);
 					shipd.consign(pirate, false);
 					owner.setKonto(BigInteger.ZERO);
-					
+
 					this.log("\tKonto nicht gedeckt; Schiff desertiert zum Piraten.");
 					PM.send(pirate, owner.getId(), "Schiff desertiert", "Die " + shipd.getName() + " ist desertiert, nachdem Sie den Sold der Crew nicht aufbringen konnten. (" + shipd.getLocation().displayCoordinates(false) + ")");
 				}
@@ -466,16 +468,16 @@ public class SchiffsTick extends TickController {
 		//Berechnung der Energie
 		this.log("\tEnergie:");
 		int e = shipd.getEnergy();
-		
-		if(shiptd.getShipClass() != ShipClasses.GESCHUETZ.ordinal()) 
+
+		if(shiptd.getShipClass() != ShipClasses.GESCHUETZ.ordinal())
 		{
 			e -= shipd.getAlertEnergyCost();
 			if( e < 0 ) {
 				e = 0;
-			}	
-		}	
+			}
+		}
 
-		if( e < shiptd.getEps() ) 
+		if( e < shiptd.getEps() )
 		{
 			int rm = shiptd.getRm();
 			if( shiptd.getCrew() > 0 ) {
@@ -510,7 +512,7 @@ public class SchiffsTick extends TickController {
 								if( maxenergie < reactres[index] ) {
 									e += maxenergie;
 									maxenergie = 0;
-								} 
+								}
 								else {
 									e += reactres[index];
 									maxenergie -= reactres[index];
@@ -523,7 +525,7 @@ public class SchiffsTick extends TickController {
 							}
 						}
 						this.log("\t   verbrenne "+counter+" "+Cargo.getResourceName(resid));
-					} 
+					}
 					else {
 						this.log("\t   kein "+Cargo.getResourceName(resid)+" vorhanden");
 					}
@@ -542,44 +544,44 @@ public class SchiffsTick extends TickController {
 
 			Offizier offizier = Offizier.getOffizierByDest('s', shipd.getId());
 
-			for( int a=0; a<=3; a++ ) 
+			for( int a=0; a<=3; a++ )
 			{
 				int old = sub[a];
-				if( shipd.getCrew() == shiptd.getCrew() ) 
+				if( shipd.getCrew() == shiptd.getCrew() )
 				{
 					sub[a] += 20;
 				}
-				else if( shipd.getCrew() > shiptd.getCrew()/2 ) 
+				else if( shipd.getCrew() > shiptd.getCrew()/2 )
 				{
 					sub[a] += 15;
 				}
-				else if( shipd.getCrew() == shiptd.getCrew()/2 ) 
+				else if( shipd.getCrew() == shiptd.getCrew()/2 )
 				{
 					sub[a] += 10;
 				}
-				else if( shipd.getCrew() < shiptd.getCrew()/2 ) 
+				else if( shipd.getCrew() < shiptd.getCrew()/2 )
 				{
 					sub[a] += 5;
 				}
 
-				if( offizier != null ) 
+				if( offizier != null )
 				{
 					sub[a] += (int)(offizier.getAbility(Offizier.Ability.ING) / 3d );
 
-					if( sub[a] > 40 + (int)(offizier.getAbility(Offizier.Ability.ING)/4d) ) 
+					if( sub[a] > 40 + (int)(offizier.getAbility(Offizier.Ability.ING)/4d) )
 					{
 						sub[a] = 40 + (int)(offizier.getAbility(Offizier.Ability.ING)/4d);
 					}
-				} 
-				else if( sub[a] > 40 ) 
+				}
+				else if( sub[a] > 40 )
 				{
 					sub[a] = 40;
 				}
-				if( old > sub[a] ) 
+				if( old > sub[a] )
 				{
 					sub[a] = old;
 				}
-				if( sub[a] > 100 ) 
+				if( sub[a] > 100 )
 				{
 					sub[a] = 100;
 				}
@@ -589,26 +591,28 @@ public class SchiffsTick extends TickController {
         db.evict(Offizier.class);
 
 		// Evt. Deuterium sammeln
-		if(!isBattle && shipd.getAutoDeut() && (shiptd.getDeutFactor() != 0) && (shipd.getCrew() >= shiptd.getCrew()/2) && (e > 0) && (shipc.getMass() < shiptd.getCargo()) ) 
+		if(!isBattle && shipd.getEinstellungen().getAutoDeut() && (shiptd.getDeutFactor() != 0) &&
+				(shipd.getCrew() >= shiptd.getCrew()/2) && (e > 0) &&
+				(shipc.getMass() < shiptd.getCargo()) )
 		{
 			this.slog("\tS. Deut: ");
 			int nebel = Ships.getNebula(shipd.getLocation());
 
-			if( (nebel >= 0) && (nebel <= 2) ) 
+			if( (nebel >= 0) && (nebel <= 2) )
 			{
 				int tmpe = e;
 
 				int deutfactor = shiptd.getDeutFactor();
-				if( nebel == 1 ) 
+				if( nebel == 1 )
 				{
 					deutfactor--;
 				}
-				else if( nebel == 2 ) 
+				else if( nebel == 2 )
 				{
 					deutfactor++;
 				}
 
-				if( Cargo.getResourceMass( Resources.DEUTERIUM, tmpe * deutfactor ) > (shiptd.getCargo() - shipc.getMass()) ) 
+				if( Cargo.getResourceMass( Resources.DEUTERIUM, tmpe * deutfactor ) > (shiptd.getCargo() - shipc.getMass()) )
 				{
 					tmpe = (int)( (shiptd.getCargo()-shipc.getMass())/(deutfactor*Cargo.getResourceMass( Resources.DEUTERIUM, 1 )) );
 					this.slog("[maxcargo]");
@@ -619,7 +623,7 @@ public class SchiffsTick extends TickController {
 				e -= tmpe;
 				this.slog(tmpe+" Deuterium\n");
 			}
-			else 
+			else
 			{
 				this.slog("kpn\n");
 			}
@@ -632,16 +636,16 @@ public class SchiffsTick extends TickController {
 		shipd.setEnergy(e);
 		shipd.setWeaponHeat("");
 		shipd.setCargo(shipc);
-		
+
 		this.slog("\tNeu: crew "+shipd.getCrew()+" e "+e+" nc "+shipd.getNahrungCargo()+" : <");
 		this.slog(shipd.getStatus());
 		this.log(">");
 	}
 
-	private void tickUser(org.hibernate.Session db, User auser) 
+	private void tickUser(org.hibernate.Session db, User auser)
 	{
 		Map<Location, List<Base>> feedingBases = new HashMap<Location, List<Base>>();
-		
+
 		for(Base base: auser.getBases())
 		{
 			if( !base.isFeeding() ) {
@@ -654,10 +658,10 @@ public class SchiffsTick extends TickController {
 			}
 			feedingBases.get(location).add(base);
 		}
-		
+
 		versorgerlist = getLocationVersorgerList(db, auser);
-		
-		// Schiffe berechnen	
+
+		// Schiffe berechnen
 		SortedSet<Ship> ships = new TreeSet<Ship>(new Comparator<Ship>() {
 			@Override
 			public int compare(Ship arg0, Ship arg1)
@@ -673,11 +677,11 @@ public class SchiffsTick extends TickController {
 				}
 				return arg0.getId()-arg1.getId();
 			}
-			
+
 		});
-		
+
 		ships.addAll(auser.getShips());
-		
+
 		for( Ship ship : ships )
 		{
 			if( ship.getId() <= 0 )
@@ -688,11 +692,11 @@ public class SchiffsTick extends TickController {
 			{
 				continue;
 			}
-			try 
+			try
 			{
 				this.tickShip(db, ship, feedingBases);
 			}
-			catch( RuntimeException e ) 
+			catch( RuntimeException e )
 			{
 				this.log("ship "+ship.getId()+" failed: "+e);
 				e.printStackTrace();
@@ -703,15 +707,15 @@ public class SchiffsTick extends TickController {
 	}
 
 	@Override
-	protected void tick() 
+	protected void tick()
 	{
 		org.hibernate.Session db = getDB();
-		
+
 		FlushMode flushMode = db.getFlushMode();
 		CacheMode cacheMode = db.getCacheMode();
 		db.setFlushMode(FlushMode.MANUAL);
 		db.setCacheMode(CacheMode.IGNORE);
-		
+
 		Transaction transaction = db.beginTransaction();
 		try
 		{
@@ -723,23 +727,23 @@ public class SchiffsTick extends TickController {
 			db.flush();
 			transaction.commit();
 		}
-		catch (Exception e) 
+		catch (Exception e)
 		{
             e.printStackTrace();
 			transaction.rollback();
 		}
 
 		transaction = db.beginTransaction();
-		
+
 		List<Integer> userIds = Common.cast(db.createQuery("select distinct u.id " +
 				"from User u "+
 				"where u.id!=0 and (u.vaccount=0 or u.wait4vac>0) order by u.id asc")
 				.list());
-		
+
 		for( Integer userId : userIds )
 		{
 			this.log("###### User "+userId+" ######");
-					
+
 			User auser = (User)db.createCriteria(User.class)
 				.add(Restrictions.idEq(userId))
 				.setFetchMode("researches", FetchMode.JOIN)
@@ -749,7 +753,7 @@ public class SchiffsTick extends TickController {
 				.setFetchMode("ships.units", FetchMode.SELECT)
 				.setFetchMode("ships.modules", FetchMode.JOIN)
 				.uniqueResult();
-			
+
 			try
 			{
 				this.unflushedUsers.add(auser);
@@ -757,15 +761,15 @@ public class SchiffsTick extends TickController {
 				transaction.commit();
 				transaction = getDB().beginTransaction();
 			}
-			catch( RuntimeException e ) 
+			catch( RuntimeException e )
 			{
 				transaction.rollback();
 				transaction = getDB().beginTransaction();
-				
+
 				this.log("User "+auser.getId()+" failed: "+e);
 				e.printStackTrace();
 				Common.mailThrowable(e, "ShipTick Exception", "User: "+auser.getId());
-				
+
 				if( e instanceof StaleObjectStateException ) {
 					StaleObjectStateException sose = (StaleObjectStateException)e;
 					db.evict(db.get(sose.getEntityName(), sose.getIdentifier()));
@@ -774,7 +778,7 @@ public class SchiffsTick extends TickController {
 					db.evict(auser);
 				}
 			}
-			
+
 			if( unflushedShips > SHIP_FLUSH_SIZE )
 			{
 				db.flush();
@@ -784,7 +788,7 @@ public class SchiffsTick extends TickController {
 				}
 				unflushedUsers.clear();
 				unflushedShips = 0;
-				
+
 				/*SortedMap<String,Integer> counter = HibernateUtil.getSessionContentStatistics(db);
 				this.log("Sessiondaten:");
 				for( Map.Entry<String,Integer> entry : counter.entrySet() ) {
@@ -794,7 +798,7 @@ public class SchiffsTick extends TickController {
 		}
 		db.flush();
 		transaction.commit();
-		
+
 		db.setFlushMode(flushMode);
 
 		transaction = db.beginTransaction();
@@ -810,13 +814,13 @@ public class SchiffsTick extends TickController {
 			e.printStackTrace();
 			Common.mailThrowable(e, "ShipTick Exception", "Crew reset");
 			this.log("Shiptick: Resetting of crew to zero failed.");
-			
+
 			if( e instanceof StaleObjectStateException ) {
 				StaleObjectStateException sose = (StaleObjectStateException)e;
 				db.evict(db.get(sose.getEntityName(), sose.getIdentifier()));
 			}
 		}
-		
+
 		/*
 			Schiffe mit destroy-tag im status-Feld entfernen
 		 */
@@ -827,7 +831,7 @@ public class SchiffsTick extends TickController {
 		try
 		{
 			List<?> ships = db.createQuery("from Ship where id>0 and locate('destroy',status)!=0").list();
-			for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) 
+			for( Iterator<?> iter=ships.iterator(); iter.hasNext(); )
 			{
 				Ship aship = (Ship)iter.next();
 				this.log("\tEntferne "+aship.getId());
@@ -841,7 +845,7 @@ public class SchiffsTick extends TickController {
 			transaction.rollback();
 			e.printStackTrace();
 			Common.mailThrowable(e, "ShipTick Exception", "Schiffe mit destroy-Status");
-			
+
 			if( e instanceof StaleObjectStateException ) {
 				StaleObjectStateException sose = (StaleObjectStateException)e;
 				db.evict(db.get(sose.getEntityName(), sose.getIdentifier()));
@@ -854,37 +858,37 @@ public class SchiffsTick extends TickController {
 		this.log("");
 		this.log("Behandle Schadensnebel");
 		transaction = db.beginTransaction();
-		
+
 		try
 		{
 			List<?> ships = db.createQuery("select s from Ship as s, Nebel as n " +
 			"where s.system=n.loc.system and s.x=n.loc.x and s.y=n.loc.y and n.type=6 and (s.owner.vaccount=0 or s.owner.wait4vac>0) and s.docked not like 'l %'").list();
-			for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) 
+			for( Iterator<?> iter=ships.iterator(); iter.hasNext(); )
 			{
 				Ship ship = (Ship)iter.next();
-	
+
 				this.log("* "+ship.getId());
 				int[] sub = new int[] {ship.getEngine(),ship.getWeapons(),ship.getComm(),ship.getSensors()};
-	
-				for( int i=0; i < sub.length; i++ ) 
+
+				for( int i=0; i < sub.length; i++ )
 				{
 					sub[i] -= 10;
-					if( sub[i] < 0 ) 
+					if( sub[i] < 0 )
 					{
 						sub[i] = 0;
 					}
 				}
-	
+
 				int hull = ship.getHull();
-				if( hull > 1 ) 
+				if( hull > 1 )
 				{
 					hull -= (int)(hull*0.05d);
-					if( hull < 1 ) 
+					if( hull < 1 )
 					{
 						hull = 1;
 					}
 				}
-	
+
 				ship.setEngine(sub[0]);
 				ship.setWeapons(sub[1]);
 				ship.setComm(sub[2]);
@@ -899,13 +903,13 @@ public class SchiffsTick extends TickController {
 			transaction.rollback();
 			e.printStackTrace();
 			Common.mailThrowable(e, "ShipTick Exception", "Schadensnebel");
-			
+
 			if( e instanceof StaleObjectStateException ) {
 				StaleObjectStateException sose = (StaleObjectStateException)e;
 				db.evict(db.get(sose.getEntityName(), sose.getIdentifier()));
 			}
 		}
-		
+
 		db.setCacheMode(cacheMode);
 	}
 }

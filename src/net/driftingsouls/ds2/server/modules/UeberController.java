@@ -464,7 +464,7 @@ public class UeberController extends TemplateGenerator {
 		// Bookmarks zusammenbauen
 		t.setVar("show.bookmarks",1);
 
-		List<?> bookmarks = db.createQuery("from Ship where id>0 and bookmark=1 and owner=? order by id desc")
+		List<?> bookmarks = db.createQuery("from Ship where id>0 and einstellungen.bookmark=1 and owner=? order by id desc")
 			.setEntity(0, user)
 			.list();
 		for( Iterator<?> iter=bookmarks.iterator(); iter.hasNext(); ) {
@@ -474,7 +474,7 @@ public class UeberController extends TemplateGenerator {
 						"bookmark.shipname",	bookmark.getName(),
 						"bookmark.location",	bookmark.getLocation().displayCoordinates(false),
 						"bookmark.shiptype",	shiptype.getNickname(),
-						"bookmark.description",	bookmark.getDestSystem()+":"+bookmark.getDestX()+"/"+bookmark.getDestY()+"<br />"+bookmark.getDestCom().replace("\r\n","<br />") );
+						"bookmark.description",	bookmark.getEinstellungen().getDestSystem()+":"+bookmark.getEinstellungen().getDestX()+"/"+bookmark.getEinstellungen().getDestY()+"<br />"+bookmark.getEinstellungen().getDestCom().replace("\r\n","<br />") );
 			t.parse("bookmarks.list","bookmarks.listitem",true);
 		}
 		// Flotten zusammenbauen

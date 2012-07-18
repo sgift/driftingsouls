@@ -392,7 +392,7 @@ public class SchiffeController extends TemplateGenerator {
 							"ship.nahrungcargo",	Common.ln(ship.getNahrungCargo()),
 							"ship.mangel_nahrung",	(ship.getStatus().indexOf("mangel_nahrung") > -1),
 							"ship.versorger",		shiptype.hasFlag(ShipTypes.SF_VERSORGER),
-							"ship.feedingstatus",	(ship.isFeeding() && !ship.isAllyFeeding()) ? 1 : (ship.isFeeding()) ? 2 : 3,
+							"ship.feedingstatus",	(ship.getEinstellungen().isFeeding() && !ship.getEinstellungen().isAllyFeeding()) ? 1 : (ship.getEinstellungen().isFeeding()) ? 2 : 3,
 							"ship.unitspace",		Common.ln(shiptype.getUnitSpace()),
 							"ship.alarm",			alarms[ship.getAlarm()],
 							"ship.offi",			offi,

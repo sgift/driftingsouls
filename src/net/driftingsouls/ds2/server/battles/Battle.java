@@ -603,7 +603,7 @@ public class Battle implements Locatable
 		org.hibernate.Session db = context.getDB();
         for (BattleShip ship : ships) {
             Ship baseShip = ship.getShip().getBaseShip();
-            if (baseShip != null && ship.getShip().isLanded() && baseShip.startFighters()) {
+            if (baseShip != null && ship.getShip().isLanded() && baseShip.getEinstellungen().startFighters()) {
                 ship.getShip().setDocked("");
                 startlist.add(ship.getId());
             }
@@ -964,7 +964,7 @@ public class Battle implements Locatable
 		Set<Integer> calcedallys = new HashSet<Integer>();
 
 		db.setFlushMode(FlushMode.COMMIT);
-		
+
 		for( User auser : new ArrayList<User>(ownUsers) ) {
 			if( (auser.getAlly() != null) && !calcedallys.contains(auser.getAlly().getId()) ) {
 				List<User> allyusers = Common.cast(db.createQuery("from User u where u.ally=:ally and (u not in (:ownUsers))")
@@ -994,7 +994,7 @@ public class Battle implements Locatable
 				euser.setRelation(auser.getId(), User.Relation.ENEMY);
 			}
 		}
-		
+
 		db.setFlushMode(FlushMode.AUTO);
 
 		return battle;

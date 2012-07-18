@@ -31,7 +31,6 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -162,22 +161,20 @@ public class Ship implements Locatable,Transfering,Feeding {
 	private int sensors;
 	private String docked;
 	private int alarm;
+	@OneToOne(fetch=FetchType.LAZY)
+	@BatchSize(size=100)
+	@JoinColumn
+	private SchiffEinstellungen einstellungen;
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="fleet", nullable=true)
 	@BatchSize(size=50)
 	private ShipFleet fleet;
-	private int destsystem;
-	private int destx;
-	private int desty;
-	private String destcom;
-	private boolean bookmark;
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="battle", nullable=true)
 	@BatchSize(size=50)
 	private Battle battle;
 	private boolean battleAction;
 	private String jumptarget;
-	private byte autodeut;
 
 	@OneToOne(fetch=FetchType.LAZY, optional=false, cascade={CascadeType.MERGE,CascadeType.REFRESH,CascadeType.REMOVE})
 	@Cascade(org.hibernate.annotations.CascadeType.EVICT)
@@ -190,10 +187,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 	private Integer visibility;
 	private String onmove;
 	private int ablativeArmor;
-	private boolean startFighters;
-	private TradepostVisibility showtradepost;
-	private boolean isfeeding;
-	private boolean isallyfeeding;
 	@OneToMany(fetch=FetchType.LAZY, targetEntity=net.driftingsouls.ds2.server.ships.ShipUnitCargoEntry.class)
 	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH,org.hibernate.annotations.CascadeType.MERGE})
 	@JoinColumn(name="destid", nullable=true)
@@ -246,15 +239,12 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public Ship(User owner) {
 		this.owner = owner;
 		this.cargo = new Cargo();
-		this.destcom = "";
 		this.name = "";
 		this.status = "";
 		this.jumptarget = "";
 		this.history = new ShipHistory(this);
 		this.docked = "";
 		this.weaponHeat = "";
-		this.autodeut = 1;
-		this.showtradepost = TradepostVisibility.ALL;
 	}
 
 	/**
@@ -269,26 +259,22 @@ public class Ship implements Locatable,Transfering,Feeding {
 	{
 		this.owner = owner;
 		this.cargo = new Cargo();
-		this.destcom = "";
 		this.name = "";
 		this.status = "";
 		this.jumptarget = "";
 		this.history = new ShipHistory(this);
 		this.docked = "";
 		this.weaponHeat = "";
-		this.autodeut = 1;
-		this.showtradepost = TradepostVisibility.ALL;
-		this.setName(name);
 		this.setBaseType(shiptype);
-		this.setX(x);
-		this.setY(y);
-		this.setSystem(system);
-		this.setHull(shiptype.getHull());
-		this.setAblativeArmor(shiptype.getAblativeArmor());
-		this.setEngine(100);
-		this.setWeapons(100);
-		this.setComm(100);
-		this.setSensors(100);
+		this.x = x;
+		this.y = y;
+		this.system = system;
+		this.hull = shiptype.getHull();
+		this.ablativeArmor = shiptype.getAblativeArmor();
+		this.engine = 100;
+		this.weapons = 100;
+		this.comm = 100;
+		this.sensors = 100;
 	}
 
     /**
@@ -486,22 +472,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 	}
 
 	/**
-	 * Gibt zurueck, ob das Schiff automatisch Deuterium sammeln soll oder nicht.
-	 * @return <code>true</code>, falls das Schiff automatisch Deuterium sammeln soll
-	 */
-	public boolean getAutoDeut() {
-		return autodeut != 0;
-	}
-
-	/**
-	 * Setzt das automatische Deuteriumsammeln.
-	 * @param autodeut <code>true</code>, falls das Schiff automatisch Deuterium sammeln soll
-	 */
-	public void setAutoDeut(boolean autodeut) {
-		this.autodeut = autodeut ? (byte)1 : 0;
-	}
-
-	/**
 	 * Gibt die Schlacht zurueck, in der dich das Schiff befindet.
 	 * @return Die Schlacht oder <code>null</code>
 	 */
@@ -531,22 +501,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	public void setBattleAction(boolean battleAction) {
 		this.battleAction = battleAction;
-	}
-
-	/**
-	 * Gibt zurueck, ob das Schiff gebookmarkt ist.
-	 * @return <code>true</code>, falls es ein Lesezeichen hat
-	 */
-	public boolean isBookmark() {
-		return bookmark;
-	}
-
-	/**
-	 * Setzt den Lesezeichenstatus fuer ein Schiff.
-	 * @param bookmark <code>true</code>, falls es ein Lesezeichen haben soll
-	 */
-	public void setBookmark(boolean bookmark) {
-		this.bookmark = bookmark;
 	}
 
 	/**
@@ -794,111 +748,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 	}
 
 	/**
-	 * Gibt zurueck, ob dieser Versorger aktuell versorgen soll.
-	 * @return <code>true</code>, falls er versorgen soll
-	 */
-	public boolean isFeeding()
-	{
-		return isfeeding;
-	}
-
-	/**
-	 * Setzt, ob dieser Versorger aktuell versorgen soll.
-	 * @param feeding <code>true</code>, falls der Versorger versorgen soll
-	 */
-	public void setFeeding(boolean feeding)
-	{
-		this.isfeeding = feeding;
-	}
-
-	/**
-	 * Gibt zuruecl, ob dieser Versorger Allianzschiffe mit versorgt.
-	 * @return <code>true</code>, falls dieser Versorger Allianzschiffe versorgt
-	 */
-	public boolean isAllyFeeding()
-	{
-		return isallyfeeding;
-	}
-
-	/**
-	 * Setzt, ob dieser Versorger Allianzschiffe mit versorgt.
-	 * @param feeding <code>true</code>, falls dieser Versorger Allianzschiffe versorgen soll
-	 */
-	public void setAllyFeeding(boolean feeding)
-	{
-		this.isallyfeeding = feeding;
-	}
-
-	/**
 	 * Setzt das Statusfeld des Schiffes.
 	 * @param status das neue Statusfeld
 	 */
 	public void setStatus(String status) {
 		this.status = status;
-	}
-
-	/**
-	 * Gibt den mit dem Schiff assoziierten Kommentar zurueck.
-	 * @return Der Kommentar
-	 */
-	public String getDestCom() {
-		return destcom;
-	}
-
-	/**
-	 * Setzt den Kommentar des Schiffes.
-	 * @param destcom Der Kommentar
-	 */
-	public void setDestCom(String destcom) {
-		this.destcom = destcom;
-	}
-
-	/**
-	 * Gibt das Zielsystem zurueck.
-	 * @return Das Zielsystem
-	 */
-	public int getDestSystem() {
-		return destsystem;
-	}
-
-	/**
-	 * Setzt das Zielsystem.
-	 * @param destsystem Das neue Zielsystem
-	 */
-	public void setDestSystem(int destsystem) {
-		this.destsystem = destsystem;
-	}
-
-	/**
-	 * Gibt die Ziel-X-Koordinate zurueck.
-	 * @return Die Ziel-X-Koordinate
-	 */
-	public int getDestX() {
-		return destx;
-	}
-
-	/**
-	 * Setzt die Ziel-X-Koordinate.
-	 * @param destx Die neue X-Koordinate
-	 */
-	public void setDestX(int destx) {
-		this.destx = destx;
-	}
-
-	/**
-	 * Gibt die Ziel-Y-Koordinate zurueck.
-	 * @return Die Ziel-Y-Koordinate
-	 */
-	public int getDestY() {
-		return desty;
-	}
-
-	/**
-	 * Setzt die Ziel-Y-Koordinate.
-	 * @param desty Die neue Y-Koordinate
-	 */
-	public void setDestY(int desty) {
-		this.desty = desty;
 	}
 
 	/**
@@ -1181,7 +1035,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		Ship versorger = (Ship)db.createQuery("from Ship as s left join fetch s.modules" +
 								" where (s.shiptype.versorger!=0 or s.modules.versorger!=0)" +
-								" and s.owner=? and s.system=? and s.x=? and s.y=? and s.nahrungcargo > 0 and s.isfeeding != 0 ORDER BY s.nahrungcargo DESC")
+								" and s.owner=? and s.system=? and s.x=? and s.y=? and s.nahrungcargo > 0 and s.einstellungen.isfeeding != 0 " +
+								"ORDER BY s.nahrungcargo DESC")
 								.setEntity(0, this.owner)
 								.setInteger(1, this.system)
 								.setInteger(2, this.x)
@@ -1190,6 +1045,33 @@ public class Ship implements Locatable,Transfering,Feeding {
 								.uniqueResult();
 
 		return versorger;
+	}
+
+	/**
+	 * Gibt die momentanen Einstellungen des Schiffs zurueck.
+	 * Sofern keine persistierten Einstellungen vorliegen wird
+	 * ein Default-Einstellungsobjekt zurueckgegeben. Bei
+	 * Aenderungen ist dieses durch den Aufrufer zu persistieren.
+	 * @return Die Einstellungen
+	 */
+	public SchiffEinstellungen getEinstellungen()
+	{
+		if( this.einstellungen != null )
+		{
+			return this.einstellungen;
+		}
+		return new SchiffEinstellungen();
+	}
+
+	/**
+	 * Setzt das Einstellungsobjekt des Schiffs.
+	 * Es sollte stattdessen besser {@link SchiffEinstellungen#persistIfNecessary(Ship)}
+	 * verwendet werden.
+	 * @param einstellungen Das Einstellungsobjekt
+	 */
+	protected void setEinstellungen(SchiffEinstellungen einstellungen)
+	{
+		this.einstellungen = einstellungen;
 	}
 
 	private long getSectorTimeUntilLackOfFood()
@@ -1236,7 +1118,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		Object versorger = db.createQuery("select sum(s.nahrungcargo) from Ship as s left join s.modules" +
 								" where (s.shiptype.versorger!=0 or s.modules.versorger!=0)" +
-								" and s.owner=:user and s.system=:system and s.x=:x and s.y=:y and s.isfeeding != 0")
+								" and s.owner=:user and s.system=:system and s.x=:x and s.y=:y and s.einstellungen.isfeeding != 0")
 						.setInteger("system", this.system)
 						.setInteger("x", this.x)
 						.setInteger("y", this.y)
@@ -1309,7 +1191,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		//Den Nahrungsverbrauch berechnen - Ist nen Versorger da ists cool
 		if( versorger != null || isBaseInSector()) {
 			// Sind wir selbst ein Versorger werden wir ja mit berechnet.
-			if( (getTypeData().isVersorger() || getBaseType().isVersorger()) && isFeeding())
+			if( (getTypeData().isVersorger() || getBaseType().isVersorger()) && getEinstellungen().isFeeding())
 			{
 				return getSectorTimeUntilLackOfFood();
 			}
@@ -3811,22 +3693,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 	}
 
 	/**
-	 * Gibt zurueck, ob Jaeger beim Kampfbeginn gestartet werden sollen.
-	 * @return <code>true</code>, falls sie gestartet werden sollen
-	 */
-	public boolean startFighters() {
-		return startFighters;
-	}
-
-	/**
-	 * Setzt, ob Jaeger beim Kampfbeginn gestartet werden sollen.
-	 * @param startFighters <code>true</code>, falls sie gestartet werden sollen
-	 */
-	public void setStartFighters(boolean startFighters) {
-		this.startFighters = startFighters;
-	}
-
-	/**
 	 * Bestimmt, ob ein Schiff sein SRS nutzen kann.
 	 *
 	 * @return <code>False</code>, wenn das Schiff kein SRS hat oder gelandet ist. <code>True</code> ansonsten.
@@ -4083,30 +3949,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 	}
 
 	/**
-	 * returns who can see the tradepost entry in factions.
-	 * @return The variable who can see the post
-	 */
-	@Enumerated
-	public TradepostVisibility getShowtradepost()
-	{
-		return showtradepost;
-	}
-
-	/**
-	 * Sets who can see the tradepost entry in factions.
-	 * 0 everybody is able to see the tradepost.
-	 * 1 everybody except enemys is able to see the tradepost.
-	 * 2 every friend is able to see the tradepost.
-	 * 3 the own allymembers are able to see the tradepost.
-	 * 4 nobody except owner is able to see the tradepost.
-	 * @param showtradepost the value who can see the tradepost.
-	 */
-	public void setShowtradepost(TradepostVisibility showtradepost)
-	{
-		this.showtradepost = showtradepost;
-	}
-
-	/**
 	 * returns wether the tradepost is visible or not.
 	 * 0 everybody is able to see the tradepost.
 	 * 1 everybody except enemys is able to see the tradepost.
@@ -4119,7 +3961,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	public boolean isTradepostVisible(User observer, User.Relations relationlist)
 	{
-		TradepostVisibility tradepostvisibility = this.getShowtradepost();
+		TradepostVisibility tradepostvisibility = this.getEinstellungen().getShowtradepost();
 		int ownerid = this.getOwner().getId();
 		int observerid = observer.getId();
 		switch (tradepostvisibility)
