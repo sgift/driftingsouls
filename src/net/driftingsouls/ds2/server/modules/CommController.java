@@ -715,7 +715,7 @@ public class CommController extends TemplateGenerator {
 			bgimg = "pm_adminbg.png";
 		}
 		else if( pm.hasFlag(PM.FLAGS_OFFICIAL) ) {
-			bgimg = "pm_"+Rassen.get().rasse(sender.getRace()).getName().toLowerCase()+"bg.png";
+			bgimg = "pm_"+Rassen.get().rasse(sender.getRace()).getName()+"bg.png";
 		}
 
 		String text = pm.getInhalt();
