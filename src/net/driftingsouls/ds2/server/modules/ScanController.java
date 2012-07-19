@@ -85,7 +85,7 @@ public class ScanController extends TemplateGenerator {
 		admin = hasPermission("admin", "ScanArea") && getUser().isAdmin();
 		int shipID = -1;
 
-		if( !admin ) {
+		if( !admin || getInteger("admin") != 1 ) {
 			shipID = getInteger("ship");
 
 			Ship ship = (Ship)db.get(Ship.class, shipID);
@@ -393,7 +393,6 @@ public class ScanController extends TemplateGenerator {
 					.setInteger("x", scanLoc.getX())
 					.setInteger("y", scanLoc.getY())
 					.setInteger("sys", scanLoc.getSystem())
-					.setInteger("user", user.getId())
 					.list();
 
 			for( Iterator<?> iter=shiplist.iterator(); iter.hasNext(); ) {
@@ -552,7 +551,6 @@ public class ScanController extends TemplateGenerator {
 				"x between :xmin and :xmax and " +
 				"y between :ymin and :ymax and " +
 				"((s.shiptype not in ("+Common.implode(",",verysmallshiptypes)+")) or s.modules is not null)")
-			.setInteger("user", user.getId())
 			.setInteger("system", this.ship.getSystem())
 			.setInteger("xmin", this.ship.getX()-this.range)
 			.setInteger("xmax", this.ship.getX()+this.range)

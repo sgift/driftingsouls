@@ -261,7 +261,6 @@ public class SensorsDefault implements SchiffPlugin {
 				.setInteger("x", ship.getX())
 				.setInteger("y", ship.getY())
 				.setInteger("sys", ship.getSystem())
-				.setInteger("user", user.getId())
 				.setInteger("showonly", this.showOnly)
 				.setInteger("showid", this.showId)
 				.setFlushMode(FlushMode.MANUAL)
@@ -284,7 +283,6 @@ public class SensorsDefault implements SchiffPlugin {
 					.setInteger("x", ship.getX())
 					.setInteger("y", ship.getY())
 					.setInteger("sys", ship.getSystem())
-					.setInteger("user", user.getId())
 					.setFlushMode(FlushMode.MANUAL)
 					.list();
 
@@ -305,7 +303,6 @@ public class SensorsDefault implements SchiffPlugin {
 				.setInteger("x", ship.getX())
 				.setInteger("y", ship.getY())
 				.setInteger("sys", ship.getSystem())
-				.setInteger("user", user.getId())
 				.setFlushMode(FlushMode.MANUAL)
 				.list();
 		}
