@@ -916,33 +916,29 @@ public class CommController extends TemplateGenerator {
 			specialuilist.put("admin", "admin");
 		}
 		if( Rassen.get().rasse(user.getRace()).isHead(user.getId()) ) {
-			specialuilist.put("Offizielle PM", "official");
+			specialuilist.put("official", "Offizielle PM");
 		}
 
-		String special_key = specialuilist.get(special);
-		if( special_key == null ) {
+		if( !specialuilist.containsKey(special) )
+		{
 			special = "";
 		}
 
-		specialuilist.remove(special_key);
-		specialuilist.put(special_key, special);
-
 		t.setBlock("_COMM", "write.specialui.listitem", "write.specialui.list");
 		for( Map.Entry<String, String> entry: specialuilist.entrySet() ) {
-			String currentspecial = entry.getValue();
-			t.setVar(	"specialui.name",	entry.getKey(),
-						"specialui.value",	currentspecial,
-						"specialui.selected",	special.equals(currentspecial) ? true : false);
+			t.setVar(	"specialui.name",	entry.getValue(),
+						"specialui.value",	entry.getKey(),
+						"specialui.selected",	special.equals(entry.getKey()) ? true : false);
 
 			t.parse("write.specialui.list", "write.specialui.listitem", true);
 		}
 
 		String bgimg = "";
 
-		if( special.equals("admin") ) {
+		if( "admin".equals(special) ) {
 			bgimg = "pm_adminbg.png";
 		}
-		else if( special.equals("official") ) {
+		else if( "official".equals(special) ) {
 			bgimg = "pm_"+Rassen.get().rasse(user.getRace()).getName()+"bg.png";
 		}
 
@@ -1116,7 +1112,7 @@ public class CommController extends TemplateGenerator {
 		{
 			for( Map.Entry<String, String> entry: specialuilist.entrySet() ) {
 				t.setVar(	"specialui.name", entry.getKey(),
-							"specialui.value", entry.getKey() );
+							"specialui.value", entry.getValue() );
 
 				t.parse("write.specialui.list", "write.specialui.listitem", true);
 			}
