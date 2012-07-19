@@ -115,12 +115,6 @@ public class PluendernController extends TemplateGenerator {
 			return false;
 		}
 
-		if( (shipTo.getVisibility() != null) && (shipTo.getVisibility() != user.getId()) ) {
-			addError("Sie k&ouml;nnen nur pl&uuml;ndern, was sie auch sehen", errorurl);
-
-			return false;
-		}
-
 		if( !shipFrom.getLocation().sameSector( 0, shipTo.getLocation(), 0) ) {
 			addError("Das zu pl&uuml;ndernde Schiff befindet sich nicht im selben Sektor", errorurl);
 

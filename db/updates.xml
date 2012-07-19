@@ -1716,4 +1716,7 @@
 			DROP COLUMN isallyfeeding,
 			DROP COLUMN showtradepost;
     ]]></update>
+    <update type="data" datum="2012-07-19"><![CDATA[
+    	ALTER TABLE ships DROP COLUMN visibility, DROP COLUMN `lock`, DROP COLUMN onmove;
+    ]]></update>
 </updates>

@@ -182,10 +182,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 	private ShipHistory history;
 
 	private String oncommunicate;
-	@Column(name="`lock`")
-	private String lock;
-	private Integer visibility;
-	private String onmove;
 	private int ablativeArmor;
 	@OneToMany(fetch=FetchType.LAZY, targetEntity=net.driftingsouls.ds2.server.ships.ShipUnitCargoEntry.class)
 	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH,org.hibernate.annotations.CascadeType.MERGE})
@@ -772,22 +768,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 	}
 
 	/**
-	 * Gibt den Status des Schiffslocks zurueck.
-	 * @return Das Schiffslock
-	 */
-	public String getLock() {
-		return lock;
-	}
-
-	/**
-	 * Setzt den Schiffslock.
-	 * @param lock Der neue Schiffslock
-	 */
-	public void setLock(String lock) {
-		this.lock = lock;
-	}
-
-	/**
 	 * Gibt die Daten des OnCommunicate-Ereignisses zurueck.
 	 * @return Die Ausfuehrungsdaten
 	 */
@@ -801,22 +781,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	public void setOnCommunicate(String oncommunicate) {
 		this.oncommunicate = oncommunicate;
-	}
-
-	/**
-	 * Gibt die Daten des OnMove-Ereignisses zurueck.
-	 * @return Die Ausfuehrungsdaten
-	 */
-	public String getOnMove() {
-		return onmove;
-	}
-
-	/**
-	 * Setzt die Ausfuehrungsdaten des OnMove-Ereignisses.
-	 * @param onmove Die neuen Ausfuehrungsdaten
-	 */
-	public void setOnMove(String onmove) {
-		this.onmove = onmove;
 	}
 
 	/**
@@ -896,22 +860,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 			scriptData = data;
 		}
 		scriptData.setScriptexedata(scriptexedata);
-	}
-
-	/**
-	 * Gibt die Sichtbarkeitsdaten zurueck.
-	 * @return Die Sichtbarkeitsdaten des Schiffes
-	 */
-	public Integer getVisibility() {
-		return visibility;
-	}
-
-	/**
-	 * Setzt die Sichtbarkeitsdaten des Schiffes.
-	 * @param visibility Die neuen Sichtbarkeitsdaten
-	 */
-	public void setVisibility(Integer visibility) {
-		this.visibility = visibility;
 	}
 
 	/**
@@ -1615,7 +1563,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 
-		List<Ship> ships = Common.cast(db.createQuery("from Ship s inner join fetch s.owner where s.e > 0 and s.alarm!=:green and s.lock is null and s.docked='' and s.crew!=0 and s.system=:system and s.owner!=:owner")
+		List<Ship> ships = Common.cast(db.createQuery("from Ship s inner join fetch s.owner where s.e > 0 and s.alarm!=:green and s.docked='' and s.crew!=0 and s.system=:system and s.owner!=:owner")
 							 			 .setParameter("green", Alert.GREEN.getCode())
 							 			 .setParameter("system", locs[0].getSystem())
 							 			 .setParameter("owner", user)
@@ -1960,12 +1908,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 			StringBuilder outpb = new StringBuilder();
 
-			if( (fleetship.getLock() != null) && (fleetship.getLock().length() != 0) ) {
-				outpb.append("<span style=\"color:red\">Fehler: Das Schiff ist an ein Quest gebunden</span>\n");
-				outpb.append("</span></td></tr>\n");
-				error = true;
-			}
-
 			if( shiptype.getCost() == 0 ) {
 				outpb.append("<span style=\"color:red\">Das Objekt kann nicht fliegen, da es keinen Antieb hat</span><br />");
 				error = true;
@@ -2106,11 +2048,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 		StringBuilder out = MESSAGE.get();
 
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-
-		if( (this.lock != null) && (this.lock.length() != 0) ) {
-			out.append("Fehler: Das Schiff ist an ein Quest gebunden\n");
-			return MovementStatus.SHIP_FAILURE;
-		}
 
 		//We want to fly the slowest ship first, so the fleet cannot be seperated
 		if(this.fleet != null && route.size() > 1)
@@ -2689,11 +2626,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 		// Jedes Schiff in der Liste springen lassen
 		//
 		for( Ship ship : shiplist ) {
-			if( (this.lock != null) && (this.lock.length() > 0) ) {
-				outputbuffer.append("<span style=\"color:red\">"+ship.getName()+" ("+ship.getId()+"): Das Schiff ist an ein Quest gebunden</span><br />\n");
-				return true;
-			}
-
 			ShipTypeData shiptype = ship.getTypeData();
 
 			// Liste der gedockten Schiffe laden
@@ -3140,32 +3072,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 			}
 		}
 
-
-		/*
-		//Check quests
-		ships = (List<Ship>)db.createQuery("from Ship where (lock is :lock or lock=:lock2) and id in ("+ ids +")")
-							  .setParameter("lock", null)
-							  .setParameter("lock2", "")
-							  .list();
-		*/
-
-		ships = Common.cast(
-			db.createQuery("from Ship s where (lock is null or lock = '') and s in (:dockships)")
-				.setParameterList("dockships", dockships)
-				.list());
-
-		if(ships.size() < dockships.length)
-		{
-			outputbuffer.append("<span style=\"color:red\">Fehler: Mindestens ein Schiff ist an ein Quest gebunden</span><br />\n");
-			dockships = ships.toArray(new Ship[0]);
-
-			if(dockships.length == 0)
-			{
-				return dockships;
-			}
-		}
-
-
 		//Check already docked
 		ships = Common.cast(
 			db.createQuery("from Ship s where docked='' and s in (:dockships)")
@@ -3329,7 +3235,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 		truemmer.setY(this.y);
 		truemmer.setSystem(this.system);
 		truemmer.setHull(config.getInt("CONFIG_TRUEMMER_HUELLE"));
-		truemmer.setVisibility(destroyer);
 		int id = (Integer)db.save(truemmer);
 		db.save(truemmer.getHistory());
 
@@ -3489,11 +3394,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		if( newowner.hasFlag( User.FLAG_NO_SHIP_CONSIGN ) ) {
 			MESSAGE.get().append("Sie k&ouml;nnen diesem Spieler keine Schiffe &uuml;bergeben");
-			return true;
-		}
-
-		if( this.lock != null ) {
-			MESSAGE.get().append("Die '"+this.name+"'("+this.id+") kann nicht &uuml;bergeben werden, da diese in ein Quest eingebunden ist");
 			return true;
 		}
 

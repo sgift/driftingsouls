@@ -342,9 +342,6 @@ public class AdminCommands {
 				}
 				ship.setCrew(Integer.parseInt(command[3]));
 			}
-			else if( command[2].equals("lock") ) {
-				ship.setLock(command[3].equals("null") ? null : command[3]);
-			}
 			else if( command[2].equals("info") ) {
 				ShipTypeData shiptype = ship.getTypeData();
 
@@ -359,7 +356,6 @@ public class AdminCommands {
 					output += "Schilde: "+ship.getShields()+"\n";
 				}
 				output += "Crew: "+ship.getCrew()+"\n";
-				output += "Lock: "+ship.getLock()+"\n";
 				output += "Status: "+ship.getStatus()+"\n";
 				output += "Battle: "+ship.getBattle()+"\n";
 			}
@@ -427,15 +423,12 @@ public class AdminCommands {
 				return Arrays.asList("<shipId> ...");
 			}
 			if( command.length == 2 ||
-					!Arrays.asList("heat","engine","weapons","jumptarget","e","pos","hull","shields","crew","lock","info","additemmodule").contains(command[2]) ) {
-				return Arrays.asList(command[1]+" <heat|engine|weapons|jumptarget|e|pos|hull|shields|crew|lock|info|additemmodule> ...");
+					!Arrays.asList("heat","engine","weapons","jumptarget","e","pos","hull","shields","crew","info","additemmodule").contains(command[2]) ) {
+				return Arrays.asList(command[1]+" <heat|engine|weapons|jumptarget|e|pos|hull|shields|crew|info|additemmodule> ...");
 			}
 
 			if( "pos".equals(command[2]) ) {
 				return Arrays.asList(command[1]+" "+command[2]+" <location>");
-			}
-			if( "lock".equals(command[2]) ) {
-				return Arrays.asList(command[1]+" "+command[2]+" <value|null>");
 			}
 			if( "info".equals(command[2]) ) {
 				return Arrays.asList(command[1]+" "+command[2]);

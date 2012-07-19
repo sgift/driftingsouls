@@ -63,32 +63,32 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 public class SensorsDefault implements SchiffPlugin {
 	private static final Log log = LogFactory.getLog(SensorsDefault.class);
-	
+
 	private int showOnly = 0;
 	private int showId = 0;
-	
+
 	private Configuration config;
-	
+
     /**
      * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
-    public void setConfiguration(Configuration config) 
+    public void setConfiguration(Configuration config)
     {
     	this.config = config;
     }
-	
+
     @Override
 	public String action(Parameters caller) {
 		SchiffController controller = caller.controller;
 		controller.parameterNumber("showonly");
 		controller.parameterNumber("showid");
 		controller.parameterString("order");
-		
+
 	 	showOnly = controller.getInteger("showonly");
 		showId = controller.getInteger("showid");
-		
+
 		String order = controller.getString("order");
 		if( !order.equals("") ) {
 			if( !order.equals("id") && !order.equals("name") && !order.equals("owner") && !order.equals("shiptype") ) {
@@ -96,7 +96,7 @@ public class SensorsDefault implements SchiffPlugin {
 			}
 			controller.getUser().setUserValue("TBLORDER/schiff/sensororder", order );
 		}
-		
+
 		return "";
 	}
 
@@ -106,13 +106,13 @@ public class SensorsDefault implements SchiffPlugin {
 		Ship ship = caller.ship;
 		ShipTypeData shiptype = caller.shiptype;
 		SchiffController controller = caller.controller;
-		
+
 		org.hibernate.Session db = controller.getDB();
 		User user = (User)controller.getUser();
 		TemplateEngine t = controller.getTemplateEngine();
-		
+
 		t.setFile("_PLUGIN_"+pluginid, "schiff.sensors.default.html");
-		
+
 		//Kein SRS oder nicht nutzbar? Ende Gelaende.
 		if(!ship.canUseSrs()) {
 			t.setVar("has.srs", false);
@@ -120,14 +120,14 @@ public class SensorsDefault implements SchiffPlugin {
 			return;
 		}
 		t.setVar("has.srs", true);
-		
+
 		t.setVar(	"global.ship",				ship.getId(),
 					"global.pluginid",			pluginid,
 					"ship.sensors.location",	ship.getLocation().displayCoordinates(true),
 					"global.awac",				shiptype.hasFlag(ShipTypes.SF_SRS_AWAC) );
-		
+
 		int sensorrange = Math.round(shiptype.getSensorRange()*(ship.getSensors()/100f));
-		
+
 		if ( ( sensorrange > 0 ) && ( ship.getCrew() >= shiptype.getMinCrew()/3 ) ) {
 			int nebel = Ships.getNebula(ship.getLocation());
 			if( (nebel < 3) || (nebel > 5) ) {
@@ -154,7 +154,7 @@ public class SensorsDefault implements SchiffPlugin {
 		t.setBlock("_SENSORS","sships.listitem","sships.list");
 		t.setBlock("_SENSORS","sshipgroup.listitem","none");
 		t.setVar("none","");
-		
+
 		/*
 			Asteroiden
 			-> Immer anzeigen, wenn die sensoren (noch so gerade) funktionieren
@@ -162,7 +162,7 @@ public class SensorsDefault implements SchiffPlugin {
 		if( ship.getSensors() > 0 ) {
 			outputBases(caller, db, user, t, order);
 		}
-		
+
 		//
 		// Nebel,Jumpnodes und Schiffe nur anzeigen, wenn genuegend crew vorhanden und die Sensoren funktionsfaehig sind (>30)
 		//
@@ -172,31 +172,31 @@ public class SensorsDefault implements SchiffPlugin {
 			*/
 
 			outputNebel(caller, db, t);
-			
+
 			/*
 				Jumpnodes
 			*/
-	
+
 			outputJumpnodes(caller, db, user, t);
-			
+
 			/*
 				Schlachten
 			*/
 			outputBattles(caller, db, user, t);
-			
+
 			/*
 				Subraumspalten (durch Sprungantriebe)
 			*/
-	
+
 			outputSubraumspalten(caller, db, t);
-			
+
 			/*
 				Schiffe
 			*/
-			
+
 			outputShips(caller, db, user, t, order);
 		}
-		
+
 		t.parse(caller.target,"_PLUGIN_"+pluginid);
 	}
 
@@ -207,10 +207,10 @@ public class SensorsDefault implements SchiffPlugin {
 		List<Integer> fleetlist = null;
 		ShipTypeData shiptype = caller.shiptype;
 		Ship ship = caller.ship;
-		
+
 		// Cache fuer Jaegerflotten. Key ist die Flotten-ID. Value die Liste der Schiffs-IDs der Flotte
 		Map<ShipFleet,List<Integer>> jaegerFleetCache = new HashMap<ShipFleet,List<Integer>>();
-		
+
 		// Die ID des Schiffes, an dem das aktuell ausgewaehlte Schiff angedockt ist
 		int currentDockID = 0;
 		Ship baseShip = ship.getBaseShip();
@@ -218,24 +218,24 @@ public class SensorsDefault implements SchiffPlugin {
 		{
 			currentDockID = baseShip.getId();
 		}
-		
+
 		int user_wrapfactor = Integer.parseInt(user.getUserValue("TBLORDER/schiff/wrapfactor"));
-		
+
 		// dockCount - die Anzahl der aktuell angedockten Schiffe
 		final long dockCount = ship.getDockedCount();
-		
+
 		// superdock - Kann der aktuelle Benutzer alles andocken?
 		boolean superdock = false;
-		if( shiptype.getADocks() > dockCount ) {	
+		if( shiptype.getADocks() > dockCount ) {
 			superdock = user.hasFlag( User.FLAG_SUPER_DOCK );
 		}
-		
+
 		// fullcount - Die Anzahl der freien Landeplaetze auf dem aktuell ausgewaehlten Traeger
 		final long fullcount = ship.getLandedCount();
-		
+
 		// spaceToLand - Ist ueberhaupt noch Platz auf dem aktuell ausgewaehlten Traeger?
 		final boolean spaceToLand = fullcount < shiptype.getJDocks();
-		
+
 		String thisorder = "s."+order;
 		if( order.equals("id") ) {
 			thisorder = "case when s.docked!='' then s.docked else s.id end";
@@ -243,17 +243,17 @@ public class SensorsDefault implements SchiffPlugin {
 		if( order.equals("type") ) {
 			thisorder = "s.shiptype";
 		}
-		
+
 		List<?> ships = null;
 		boolean firstentry = false;
 		Map<String,Long> types = new HashMap<String,Long>();
-		
+
 		// Soll nur ein bestimmter Schiffstyp angezeigt werden?
-		if( this.showOnly != 0 ) { 
+		if( this.showOnly != 0 ) {
 			// IF(t1.docked!='',t1.docked+0.1,t1.id) as myorder
 			ships = db.createQuery("from Ship s inner join fetch s.owner " +
 					"where s.id!= :id and s.id>0 and s.x= :x and s.y= :y and s.system= :sys and " +
-						"s.battle is null and (s.visibility is null or s.visibility= :user) and " +
+						"s.battle is null and " +
 						"locate('l ',s.docked)=0 and s.shiptype= :showonly and s.owner= :showid and " +
 						"locate('disable_iff',s.status)=0 "+
 					"order by "+thisorder+",case when s.docked!='' then s.docked else s.id end,fleet")
@@ -266,18 +266,18 @@ public class SensorsDefault implements SchiffPlugin {
 				.setInteger("showid", this.showId)
 				.setFlushMode(FlushMode.MANUAL)
 				.list();
-			
-			firstentry = true;								
-		} 
-		else { 
+
+			firstentry = true;
+		}
+		else {
 			// wenn wir kein Wrap wollen, koennen wir uns das hier auch sparen
-			
+
 			if( user_wrapfactor != 0 ) {
-				// herausfinden wieviele Schiffe welches Typs im Sektor sind		
+				// herausfinden wieviele Schiffe welches Typs im Sektor sind
 				List<?> typeList = db.createQuery("select count(*),s.shiptype,s.owner.id " +
 						"from Ship s " +
 						"where s.id!= :id and s.id>0 and s.x= :x and s.y= :y and s.system= :sys and s.battle is null and " +
-							"(s.visibility is null or s.visibility= :user ) and locate('disable_iff',s.status)=0 and " +
+							"locate('disable_iff',s.status)=0 and " +
 							"locate('l ',s.docked)=0 " +
 						"group by s.shiptype,s.owner")
 					.setInteger("id", ship.getId())
@@ -287,10 +287,10 @@ public class SensorsDefault implements SchiffPlugin {
 					.setInteger("user", user.getId())
 					.setFlushMode(FlushMode.MANUAL)
 					.list();
-				
+
 				for( Iterator<?> iter=typeList.iterator(); iter.hasNext(); ) {
 					Object[] data = (Object[])iter.next();
-					
+
 					Long count = (Long)data[0];
 					ShipType type = (ShipType)data[1];
 					int owner = (Integer)data[2];
@@ -299,7 +299,7 @@ public class SensorsDefault implements SchiffPlugin {
 			}
 			ships = db.createQuery("from Ship s inner join fetch s.owner " +
 					"where s.id!= :id and s.id>0 and s.x= :x and s.y=:y and s.system= :sys and " +
-						"s.battle is null and (s.visibility is null or s.visibility= :user ) and locate('l ',s.docked)=0 " +
+						"s.battle is null and locate('l ',s.docked)=0 " +
 					"order by "+thisorder+",case when s.docked!='' then s.docked else s.id end, fleet")
 				.setInteger("id", ship.getId())
 				.setInteger("x", ship.getX())
@@ -309,7 +309,7 @@ public class SensorsDefault implements SchiffPlugin {
 				.setFlushMode(FlushMode.MANUAL)
 				.list();
 		}
-		
+
 		final long fleetlesscount = (Long)db.createQuery("SELECT count(*) FROM Ship WHERE id > 0 AND system=:system AND x=:x AND y=:y AND owner=:owner AND shiptype=:shiptype AND LOCATE('l ',docked) = 0 AND LOCATE('disable_iff',status) = 0 AND fleet is null")
 				.setInteger("system", ship.getSystem())
 				.setInteger("x", ship.getX())
@@ -317,7 +317,7 @@ public class SensorsDefault implements SchiffPlugin {
 				.setEntity("owner", ship.getOwner())
 				.setEntity("shiptype", ship.getBaseType())
 				.iterate().next();
-		
+
 		final long ownfleetcount;
 		if( ship.getFleet() != null )
 		{
@@ -333,20 +333,20 @@ public class SensorsDefault implements SchiffPlugin {
 		else {
 			ownfleetcount = 0;
 		}
-		
+
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship aship = (Ship)iter.next();
 			ShipTypeData ashiptype = aship.getTypeData();
 			ShipTypeData mastertype = aship.getBaseType();
-			
+
 			final String typeGroupID = aship.getType()+"_"+aship.getOwner().getId();
 
 			// Schiff nur als/in Gruppe anzeigen
-			if( (this.showOnly == 0) && !aship.getStatus().contains("disable_iff") && 
-				(user_wrapfactor != 0) && (mastertype.getGroupwrap() != 0) && 
+			if( (this.showOnly == 0) && !aship.getStatus().contains("disable_iff") &&
+				(user_wrapfactor != 0) && (mastertype.getGroupwrap() != 0) &&
 				(types.get(typeGroupID) >= mastertype.getGroupwrap()*user_wrapfactor) )  {
-				
-				String groupidlist = ""; 				
+
+				String groupidlist = "";
 				if( aship.getOwner().getId() == user.getId() ) {
 					groupidlist = (String)db.createQuery("SELECT CONCAT(id, '|') FROM Ship WHERE id>0 AND system=:system AND x=:x AND y=:y AND owner=:owner AND shiptype=:shiptype AND LOCATE('l ',docked) = 0 AND LOCATE('disable_iff',status) = 0")
 										.setInteger("system", ship.getSystem())
@@ -356,8 +356,8 @@ public class SensorsDefault implements SchiffPlugin {
 										.setEntity("shiptype", aship.getBaseType())
 										.setFlushMode(FlushMode.MANUAL)
 										.iterate().next();
-				}		
-				
+				}
+
 				t.start_record();
 				t.setVar(	"sshipgroup.name",			types.get(typeGroupID)+" x "+mastertype.getNickname(),
 							"sshipgroup.idlist",		groupidlist,
@@ -365,7 +365,7 @@ public class SensorsDefault implements SchiffPlugin {
 							"sshipgroup.owner.id",		aship.getOwner().getId(),
 							"sshipgroup.owner.name",	Common._title(aship.getOwner().getName()),
 							"sshipgroup.type.name",		mastertype.getNickname(),
-							"sshipgroup.sublist",		0,																		
+							"sshipgroup.sublist",		0,
 							"sshipgroup.type.image",	mastertype.getPicture(),
 							"sshipgroup.own",			aship.getOwner().getId() == user.getId(),
 							"sshipgroup.count",			types.get(typeGroupID) + (ship.getType() == aship.getType() ? 1 : 0) - ownfleetcount,
@@ -379,35 +379,35 @@ public class SensorsDefault implements SchiffPlugin {
 				{
 					t.setVar("sshipgroup.ownship",0);
 				}
-								
+
 				t.parse("sships.list","sshipgroup.listitem",true);
 				t.stop_record();
-				t.clear_record();									
+				t.clear_record();
 				types.put(typeGroupID, -1L);	// einmal anzeigen reicht
-			} 
+			}
 			else if( (this.showOnly != 0) || !types.containsKey(typeGroupID) || (types.get(typeGroupID) != -1) ) {
 				if( (this.showOnly != 0) && firstentry ) {
-					int count = ships.size();		
-					
+					int count = ships.size();
+
 					t.setVar(	"sshipgroup.name",			count+" x "+mastertype.getNickname(),
 								"sshipgroup.type.id",		aship.getType(),
 								"sshipgroup.owner.id",		aship.getOwner().getId(),
 								"sshipgroup.owner.name", 	Common._title(aship.getOwner().getName()),
 								"sshipgroup.type.name",		mastertype.getNickname(),
-								"sshipgroup.sublist", 		1,																		
+								"sshipgroup.sublist", 		1,
 								"sshipgroup.type.image",	mastertype.getPicture(),
 								"sshipgroup.own",			aship.getOwner().getId() == user.getId(),
 								"sshipgroup.count",			count + (ship.getType() == aship.getType() ? 1 : 0) - ownfleetcount,
 								"sshipgroup.fleetlesscount",	fleetlesscount );
-			
+
 					if( aship.getOwner().getId() == user.getId() ) {
 						t.setVar("sshipgroup.ownship",1);
-					} 
+					}
 					else {
 						t.setVar("sshipgroup.ownship",0);
-					}			
-					t.parse("sships.list","sshipgroup.listitem",true);	
-					
+					}
+					t.parse("sships.list","sshipgroup.listitem",true);
+
 					firstentry = false;
 				}
 				t.start_record();
@@ -454,11 +454,11 @@ public class SensorsDefault implements SchiffPlugin {
 						t.setVar("sships.docked.name",master.getName());
 					}
 				}
-				
+
 				// Anzeige Heat (Standard)
 				if( shiptype.hasFlag(ShipTypes.SF_SRS_EXT_AWAC) ) {
 					t.setVar("sships.heat",aship.getHeat());
-					
+
 					// Anzeige Heat
 					if( aship.getHeat() == 0 ) {
 						t.setVar("sships.heat.none",1);
@@ -491,10 +491,10 @@ public class SensorsDefault implements SchiffPlugin {
 					{
 						t.setVar("sships.e",aship.getEnergy());
 					}
-				} 
+				}
 				else if( shiptype.hasFlag(ShipTypes.SF_SRS_AWAC) ) {
 					t.setVar("global.standartawac",1);
-					
+
 					if( aship.getHeat() > 100 )
 					{
 						t.setVar("sships.heat.high",1);
@@ -530,14 +530,14 @@ public class SensorsDefault implements SchiffPlugin {
 							String[] comentry = comlist[i].split(":");
 							if( Integer.parseInt(comentry[0]) == user.getId() ) {
 								found = true;
-								break;	
-							}	
+								break;
+							}
 						}
 					}
 					else {
-						found = true;	
+						found = true;
 					}
-					
+
 					if( found ) {
 						t.setVar("sships.action.communicate",1);
 					}
@@ -577,9 +577,9 @@ public class SensorsDefault implements SchiffPlugin {
 					}
 					else {
 						// Default: Selbe Allianz wie der Besitzer oder selbst der Besitzer
-						if( ( (user.getAlly() != null) && (aship.getOwner().getAlly() == user.getAlly()) ) || 
+						if( ( (user.getAlly() != null) && (aship.getOwner().getAlly() == user.getAlly()) ) ||
 							((user.getAlly() == null) && (aship.getOwner().getId() == user.getId())) ) {
-							
+
 							t.setVar("sships.action.jump",1);
 						}
 					}
@@ -589,10 +589,10 @@ public class SensorsDefault implements SchiffPlugin {
 				if (aship.isTradepost())
 				{
 					t.setVar("sships.action.trade",1);
-				} 
+				}
 				else if( !disableIFF && (aship.getOwner().getId() == -1) && (ashiptype.getShipClass() == ShipClasses.SCHROTT.ordinal() || ashiptype.getShipClass() == ShipClasses.FELSBROCKEN.ordinal()) ) {
 					t.setVar("sships.action.transferpluender",1);
-				} 
+				}
 				else if( !disableIFF || (aship.getOwner().getId() == user.getId()) ) {
 					t.setVar("sships.action.transfer",1);
 				}
@@ -630,12 +630,12 @@ public class SensorsDefault implements SchiffPlugin {
 								.setString(0, "s "+aship.getId())
 								.setFlushMode(FlushMode.MANUAL)
 								.iterate().next();
-							
+
 							if( officount >= ashiptype.getCrew() ) {
 								ok = false;
 							}
 						}
-						
+
 						if( ok ) {
 							t.setVar("sships.action.tcaptain",1);
 						}
@@ -648,7 +648,7 @@ public class SensorsDefault implements SchiffPlugin {
 				}
 
 				//Externe Docks: andocken
-				if( !aship.isDocked() && ( shiptype.getADocks() > dockCount ) && 
+				if( !aship.isDocked() && ( shiptype.getADocks() > dockCount ) &&
 					( (aship.getOwner().getId() == user.getId() ) || superdock) ) {
 					if( superdock || ( ashiptype.getSize() <= ShipType.SMALL_SHIP_MAXSIZE ) ) {
 						t.setVar("sships.action.aufladen",1);
@@ -667,7 +667,7 @@ public class SensorsDefault implements SchiffPlugin {
 								// Falls noch nicht geschehen die Flotte des Jaegers ermitteln
 								if( fleetlist == null ) {
 									fleetlist = new ArrayList<Integer>();
-									
+
 									List<?> tmpList = db.createQuery("from Ship where id>0 and fleet=?")
 										.setEntity(0, ship.getFleet())
 										.setFlushMode(FlushMode.MANUAL)
@@ -680,7 +680,7 @@ public class SensorsDefault implements SchiffPlugin {
 											break;
 										}
 										fleetlist.add(s.getId());
-									}		
+									}
 									if( !ok ) {
 										fleetlist.clear();
 									}
@@ -698,16 +698,16 @@ public class SensorsDefault implements SchiffPlugin {
 						}
 					}
 				}
-			
+
 				//Aktuellen Jaeger auf dem (ausgewaehlten) Traeger laden lassen
 				if( (aship.getOwner().getId() == user.getId()) && spaceToLand && ashiptype.hasFlag(ShipTypes.SF_JAEGER) ) {
 					t.setVar("sships.action.landthis",1);
-					
+
 					// Flotte des aktuellen Jaegers landen lassen
 					if( aship.getFleet() != null ) {
 						if( !jaegerFleetCache.containsKey(aship.getFleet())) {
 							List<Integer> thisFleetList = new ArrayList<Integer>();
-							
+
 							boolean ok = true;
 							List<?> tmpList = db.createQuery("from Ship where id>0 and fleet=?")
 								.setEntity(0, aship.getFleet())
@@ -716,22 +716,22 @@ public class SensorsDefault implements SchiffPlugin {
 							for( Iterator<?> iter2=tmpList.iterator(); iter2.hasNext(); ) {
 								Ship s = (Ship)iter2.next();
 								ShipTypeData tmptype = s.getTypeData();
-								
+
 								if( !tmptype.hasFlag(ShipTypes.SF_JAEGER) ) {
 									ok = false;
 									break;
 								}
 								thisFleetList.add(s.getId());
-							}		
+							}
 
 							if( !ok ) {
 								thisFleetList.clear();
 							}
-							
+
 							jaegerFleetCache.put(aship.getFleet(), thisFleetList);
 						}
 						List<Integer> thisFleetList = jaegerFleetCache.get(aship.getFleet());
-						
+
 						if( !thisFleetList.isEmpty() && (thisFleetList.size() <= shiptype.getJDocks()) ) {
 							if( fullcount + thisFleetList.size() <= shiptype.getJDocks() )
 							{
@@ -767,7 +767,7 @@ public class SensorsDefault implements SchiffPlugin {
 		final long dataOffizierCount = (Long)db.createQuery("select count(*) from Offizier where dest=?")
 				.setString(0, "s "+caller.ship.getId())
 				.iterate().next();
-		
+
 		Query baseQuery = null;
 		if( !order.equals("type") && !order.equals("shiptype") ) {
 			baseQuery = db.createQuery("from Base where system=? and floor(sqrt(pow(?-x,2)+pow(?-y,2))) <= size order by "+order+",id");
@@ -780,10 +780,10 @@ public class SensorsDefault implements SchiffPlugin {
 			.setInteger(1, caller.ship.getX())
 			.setInteger(2, caller.ship.getY())
 			.list();
-		
+
 		for( Iterator<?> iter=bases.iterator(); iter.hasNext(); ) {
 			Base base = (Base)iter.next();
-			
+
 			t.start_record();
 			t.setVar(	"base.id",			base.getId(),
 						"base.owner.id",	base.getOwner().getId(),
@@ -825,7 +825,7 @@ public class SensorsDefault implements SchiffPlugin {
 								ok = false;
 							}
 						}
-						
+
 						if( ok ) {
 							t.setVar("base.offiziere.set",1);
 						}
@@ -843,7 +843,7 @@ public class SensorsDefault implements SchiffPlugin {
 						int i=0;
 						for( i=0; i < base.getBebauung().length; i++ ) {
 							if( (base.getBebauung()[i] != 0) && (Building.getBuilding(base.getBebauung()[i]) instanceof Werft) ) {
-								break;	
+								break;
 							}
 						}
 						werft.setBaseField(i);
@@ -885,7 +885,7 @@ public class SensorsDefault implements SchiffPlugin {
 			.setInteger(1, ship.getY())
 			.setInteger(2, ship.getSystem())
 			.uniqueResult();
-		
+
 		if( node != null ) {
 			int blocked = 0;
 			if( node.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn( 0 ) ) {
@@ -895,7 +895,7 @@ public class SensorsDefault implements SchiffPlugin {
 			{
 				blocked = 0;
 			}
-						
+
 			t.setVar(	"node.id",		node.getId(),
 						"node.name",	node.getName(),
 						"node.blocked",	blocked );
@@ -907,22 +907,22 @@ public class SensorsDefault implements SchiffPlugin {
 	{
 		ShipTypeData shiptype = caller.shiptype;
 		Ship ship = caller.ship;
-		
+
 		List<Battle> battles = Common.cast(db.createQuery("FROM Battle WHERE x=:x AND y=:y AND system=:system")
 									.setInteger("x", ship.getX())
 									.setInteger("y", ship.getY())
 									.setInteger("system", ship.getSystem())
 									.list());
-		
+
 		for( Battle battle : battles ) {
 			Ally ownAlly = user.getAlly();
 			String party1 = null;
 			String party2 = null;
-			
+
 			if( battle.getAlly(0) == 0 ) {
 				User commander = battle.getCommander(0);
 				party1 = "<a class=\"profile\" href=\""+Common.buildUrl("default", "module", "userprofile", "user", commander.getId())+"\">"+Common._title(commander.getName())+"</a>";
-			} 
+			}
 			else {
 				Ally ally = (Ally)db.get(Ally.class, battle.getAlly(0));
 				party1 = "<a class=\"profile\" href=\""+Common.buildUrl("default", "module", "allylist", "details", ally.getId())+"\">"+Common._title(ally.getName())+"</a>";
@@ -931,15 +931,15 @@ public class SensorsDefault implements SchiffPlugin {
 			if( battle.getAlly(1) == 0 ) {
 				User commander = battle.getCommander(1);
 				party2 = "<a class=\"profile\" href=\""+Common.buildUrl("default", "module", "userprofile", "user", commander.getId() )+"\">"+Common._title(commander.getName())+"</a>";
-			} 
+			}
 			else {
 				Ally ally = (Ally)db.get(Ally.class, battle.getAlly(1));
 				party2 = "<a class=\"profile\" href=\""+Common.buildUrl("default", "module", "allylist", "details", ally.getId())+"\">"+Common._title(ally.getName())+"</a>";
 			}
 			boolean fixedjoin = false;
-			if( (battle.getCommander(0).getId() == user.getId()) || 
-				(battle.getCommander(1).getId() == user.getId()) || 
-				( (ownAlly != null) && (battle.getAlly(0) == ownAlly.getId()) ) || 
+			if( (battle.getCommander(0).getId() == user.getId()) ||
+				(battle.getCommander(1).getId() == user.getId()) ||
+				( (ownAlly != null) && (battle.getAlly(0) == ownAlly.getId()) ) ||
 				( (ownAlly != null) && (battle.getAlly(1) == ownAlly.getId()) ) ) {
 				fixedjoin = true;
 			}
@@ -947,16 +947,16 @@ public class SensorsDefault implements SchiffPlugin {
 			if( ((shiptype.getShipClass() == ShipClasses.FORSCHUNGSKREUZER.ordinal()) || (shiptype.getShipClass() == ShipClasses.AWACS.ordinal())) && !fixedjoin ) {
 				viewable = true;
 			}
-			
+
 			boolean joinable = true;
 			if( shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal() ) {
 				joinable = false;
 			}
-				
+
 			long shipcount = (Long)db.createQuery("select count(*) from Ship where id>0 and battle= :battle")
 				.setInteger("battle", battle.getId())
 				.iterate().next();
-				
+
 			t.setVar(	"battle.id",		battle.getId(),
 						"battle.party1",	party1,
 						"battle.party2",	party2,

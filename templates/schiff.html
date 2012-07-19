@@ -104,9 +104,7 @@
 			{/endif}
 			{if ship.fleet}
 				Flotte: <a class="forschinfo" href="javascript:PopupWnd('&amp;fleet={fleet.id}&amp;act=show')">{fleet.name}</a>
-				{if ! ship.lock}
-					{!link_to (X), join, css_class:error, ship:$ship.id}
-				{/endif}
+				{!link_to (X), join, css_class:error, ship:$ship.id}
 				<br />
 			{/endif}
 			<a class="noborder" href="./ds?module=schiff&amp;action=destroy&amp;sess={global.sess}&amp;ship={ship.id}">

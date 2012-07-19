@@ -136,12 +136,6 @@ public class KapernController extends TemplateGenerator {
 			return false;
 		}
 
-		if( (dship.getVisibility() != null) && (dship.getVisibility() != user.getId()) ) {
-			addError("Sie k&ouml;nnen nur kapern, was sie auch sehen", errorurl);
-
-			return false;
-		}
-
 		if( !aship.getLocation().sameSector(0, dship.getLocation(), 0) ) {
 			addError("Das Zielschiff befindet sich nicht im selben Sektor", errorurl);
 

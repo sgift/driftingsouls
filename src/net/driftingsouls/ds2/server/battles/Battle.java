@@ -662,20 +662,7 @@ public class Battle implements Locatable
 			return false;
 		}
 
-		//
-		// Questlock?
-		//
-		if( ownShip.getLock() != null && ownShip.getLock().length() > 0 ) {
-			context.addError("Ihr Schiff ist an ein Quest gebunden");
-			return false;
-		}
-
-		if( enemyShip.getLock() != null && enemyShip.getLock().length() > 0 ) {
-			context.addError("Das gegnerische Schiff ist an ein Quest gebunden");
-			return false;
-		}
-
-        return true;
+		return true;
     }
 
 	/**
@@ -722,7 +709,7 @@ public class Battle implements Locatable
                 "s.system=:system and s.battle is null and " +
                 "(ncp(u.ally,:ally1)=1 or " +
                 "ncp(u.ally,:ally2)=1) and " +
-                "locate('disable_iff',s.status)=0 and s.lock is null and (u.vaccount=0 or u.wait4vac > 0)")
+                "locate('disable_iff',s.status)=0 and (u.vaccount=0 or u.wait4vac > 0)")
                 .setInteger("minid", 0)
                 .setInteger("x", tmpOwnShip.getX())
                 .setInteger("y", tmpOwnShip.getY())
@@ -1026,11 +1013,6 @@ public class Battle implements Locatable
 			context.addError("Das angegebene Schiff geh&ouml;rt nicht ihnen!");
 			return false;
 		}
-		if( shipd.getLock() != null && shipd.getLock().length() > 0 )
-		{
-			context.addError("Das Schiff ist an ein Quest gebunden");
-			return false;
-		}
 		if( !new Location(this.system,this.x,this.y).sameSector(0, shipd.getLocation(), 0) )
 		{
 			context.addError("Das angegebene Schiff befindet sich nicht im selben Sektor wie die Schlacht!");
@@ -1125,7 +1107,7 @@ public class Battle implements Locatable
 		List<Ship> sid;
 		// Handelt es sich um eine Flotte?
 		if( shipd.getFleet() != null ) {
-			sid = Common.cast(db.createQuery("from Ship as s where s.id>0 and s.fleet=? and s.battle is null and s.x=? and s.y=? and s.system=? and s.lock is null")
+			sid = Common.cast(db.createQuery("from Ship as s where s.id>0 and s.fleet=? and s.battle is null and s.x=? and s.y=? and s.system=?")
                     .setEntity(0, shipd.getFleet())
                     .setInteger(1, shipd.getX())
                     .setInteger(2, shipd.getY())
@@ -1134,7 +1116,7 @@ public class Battle implements Locatable
 		}
 		else
         {
-			sid = Common.cast(db.createQuery("from Ship as s where s.id>0 and s.id=? and s.battle is null and s.x=? and s.y=? and s.system=? and s.lock is null")
+			sid = Common.cast(db.createQuery("from Ship as s where s.id>0 and s.id=? and s.battle is null and s.x=? and s.y=? and s.system=?")
                     .setInteger(0, shipd.getId())
                     .setInteger(1, shipd.getX())
                     .setInteger(2, shipd.getY())

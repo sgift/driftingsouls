@@ -174,17 +174,6 @@ public class SchiffController extends TemplateGenerator {
 
 		offizier = ship.getOffizier();
 
-		if( !action.equals("communicate") && !action.equals("onmove") && !action.equals("onenter") && (ship.getLock() != null) && !ship.getLock().equals("") ) {
-			ScriptEngine scriptparser = getContext().get(ContextCommon.class).getScriptParser("DSQuestScript");
-			scriptparser.getContext().setAttribute("_SHIP", ship, ScriptContext.ENGINE_SCOPE);
-
-			if( !user.hasFlag( User.FLAG_SCRIPT_DEBUGGING ) ) {
-				scriptparser.getContext().setErrorWriter(new NullLogger());
-			}
-
-			Quests.executeLock(scriptparser, ship.getLock(), user);
-		}
-
 		pluginMapper.put("navigation", getPluginByName("NavigationDefault"));
 		pluginMapper.put("cargo", getPluginByName("CargoDefault"));
 
@@ -325,11 +314,6 @@ public class SchiffController extends TemplateGenerator {
 	public void destroyAction() {
 		TemplateEngine t = getTemplateEngine();
 
-		if( (ship.getLock() != null) && (ship.getLock().length() > 0) ) {
-			t.setVar("ship.message", "<span style=\"color:red\">Dieses Schiff kann sich nicht selbstzerst&ouml;ren, da es in ein Quest eingebunden ist</span><br />");
-			redirect();
-			return;
-		}
 		if( ship.isNoSuicide() )
 		{
 			t.setVar("ship.message", "<span style=\"color:red\">Dieses Schiff kann sich nicht selbstzerst&ouml;ren.</span><br />");
@@ -633,13 +617,10 @@ public class SchiffController extends TemplateGenerator {
 		int join = getInteger("join");
 
 		// Austreten
-		if( (join == 0) && ((ship.getLock() == null) || (ship.getLock().length() == 0)) ) {
+		if( join == 0 ) {
 			ship.removeFromFleet();
 
 			t.setVar("ship.message", "<span style=\"color:green\">"+Ship.MESSAGE.getMessage()+"</span><br />");
-		}
-		else if( join == 0 ) {
-			t.setVar("ship.message", "<span style=\"color:red\">Dieses Schiff kann nicht aus der Flotte austreten, da diese in ein Quest eingebunden ist</span><br />");
 		}
 		// Beitreten
 		else {
@@ -654,13 +635,6 @@ public class SchiffController extends TemplateGenerator {
 			if( fleet == null ) {
 				t.setVar("ship.message", "<span style=\"color:red\">Sie m&uuml;ssen erst eine Flotte erstellen</span><br />");
 				redirect();
-				return;
-			}
-
-			if( ((fleetship.getLock() != null) && (fleetship.getLock().length() > 0)) || ((ship.getLock() != null) && (ship.getLock().length() > 0)) ) {
-				t.setVar("ship.message", "<span style=\"color:red\">Sie k&oumlnnen der Flotte nicht beitreten, solange entweder das Schiff oder die Flotte in ein Quest eingebunden ist</span><br />");
-				redirect();
-
 				return;
 			}
 
@@ -763,14 +737,6 @@ public class SchiffController extends TemplateGenerator {
 		parameterNumber("communicate");
 		int communicate = getInteger("communicate");
 
-		String[] lock = StringUtils.split(ship.getLock(), ':');
-
-		if( (lock != null) && ((lock.length > 2) && !lock[2].equals(Quests.EVENT_ONCOMMUNICATE)) ) {
-			redirect();
-
-			return;
-		}
-
 		ScriptEngine scriptparser = getContext().get(ContextCommon.class).getScriptParser("DSQuestScript");
 		final Bindings engineBindings = scriptparser.getContext().getBindings(ScriptContext.ENGINE_SCOPE);
 
@@ -795,161 +761,8 @@ public class SchiffController extends TemplateGenerator {
 			redirect();
 			return;
 		}
-		Quests.executeEvent( scriptparser, targetship.getOnCommunicate(), user, execparameter, lock != null && lock.length > 2 );
+		Quests.executeEvent( scriptparser, targetship.getOnCommunicate(), user, execparameter, false );
 
-		redirect();
-	}
-
-	/**
-	 * Behandelt ein OnMove-Ereigniss.
-	 * @urlparam String execparameter Weitere Ausfuehrungsdaten
-	 *
-	 */
-	@Action(ActionType.DEFAULT)
-	public void onmoveAction() {
-		TemplateEngine t = getTemplateEngine();
-		User user = (User)getUser();
-
-		String[] lock = StringUtils.split(ship.getLock(), ':');
-
-		if( (lock == null) || ((lock.length > 2) && !lock[2].equals(Quests.EVENT_ONMOVE)) ) {
-			redirect();
-
-			return;
-		}
-
-		ScriptEngine scriptparser = getContext().get(ContextCommon.class).getScriptParser("DSQuestScript");
-		scriptparser.getContext().setAttribute("_SHIP", ship, ScriptContext.ENGINE_SCOPE);
-
-		if( !user.hasFlag( User.FLAG_SCRIPT_DEBUGGING ) ) {
-			scriptparser.getContext().setErrorWriter(new NullLogger());
-		}
-
-		Quests.currentEventURL.set("&action=onmove");
-
-		parameterString("execparameter");
-		String execparameter = getString( "execparameter" );
-		if( execparameter.equals("") ) {
-			execparameter = "0";
-		}
-
-		if( (ship.getOnMove() == null) || ship.getOnMove().equals("") ) {
-			t.setVar("ship.message", "<span style=\"color:red\">Das angegebene Schiff verf&uuml;gt nicht &uuml;ber dieses Ereigniss</span><br />");
-			redirect();
-			return;
-		}
-
-		Quests.executeEvent( scriptparser, ship.getOnMove(), user, execparameter, lock.length > 2 );
-
-		redirect();
-	}
-
-	/**
-	 * Behandelt ein OnEnter-Ereignis.
-	 * @urlparam String execparameter Weitere Ausfuehrungsdaten
-	 *
-	 */
-	@Action(ActionType.DEFAULT)
-	public void onenterAction() {
-		TemplateEngine t = getTemplateEngine();
-		User user = (User)getUser();
-		org.hibernate.Session db = getDB();
-
-		String[] lock = StringUtils.split(ship.getLock(), ':');
-
-		if( (lock == null) || ((lock.length > 2) && !lock[2].equals(Quests.EVENT_ONENTER)) ) {
-			redirect();
-
-			return;
-		}
-
-		ScriptEngine scriptparser = getContext().get(ContextCommon.class).getScriptParser("DSQuestScript");
-		scriptparser.getContext().setAttribute("_SHIP", ship, ScriptContext.ENGINE_SCOPE);
-
-		if( !user.hasFlag( User.FLAG_SCRIPT_DEBUGGING ) ) {
-			scriptparser.getContext().setErrorWriter(new NullLogger());
-		}
-
-		// TODO: migrate to Quests.executeEvent
-
-		if( lock.length < 3 ) {
-			redirect();
-			return;
-		}
-
-		String usescript = lock[0];
-		String rquestid = lock[1].substring(1);
-
-		String usequest = lock[1];
-
-		if( usescript.equals("-1") ) {
-			t.setVar("ship.message", "Das angegebene Schiff antwortet auf ihre Funksignale nicht<br />");
-			redirect();
-			return;
-		}
-		parameterString("execparameter");
-		String execparameter = getString( "execparameter" );
-		if( execparameter.equals("") ) {
-			execparameter = "0";
-		}
-
-		Quests.currentEventURL.set("&action=onenter");
-
-		RunningQuest runningdata = (RunningQuest)db.get(RunningQuest.class, Integer.valueOf(rquestid));
-		Blob execdata = null;
-
-		if( runningdata == null ) {
-			t.setVar("ship.message", "FATAL QUEST ERROR: keine running-data gefunden!<br />");
-			redirect();
-			return;
-		}
-		try {
-			execdata = runningdata.getExecData();
-			if( (execdata != null) && (execdata.length() > 0) ) {
-				scriptparser.setContext(
-						ScriptParserContext.fromStream(execdata.getBinaryStream())
-				);
-			}
-		}
-		catch( Exception e ) {
-			log.warn("Setting Script-ExecData failed (Ship: "+ship.getId()+": ",e);
-			return;
-		}
-
-		final Bindings engineBindings = scriptparser.getContext().getBindings(ScriptContext.ENGINE_SCOPE);
-
-		Script script = (Script)db.get(Script.class, Integer.valueOf(usescript));
-		engineBindings.put("USER", Integer.toString(user.getId()));
-		if( !usequest.equals("") ) {
-			engineBindings.put("QUEST", "r"+runningdata.getId());
-		}
-		engineBindings.put("SCRIPT", usescript);
-		engineBindings.put("SECTOR", ship.getLocation().toString());
-		if( (lock.length > 2) ) {
-			engineBindings.put("LOCKEXEC", "1");
-		}
-
-		engineBindings.put("_PARAMETERS", execparameter);
-		try {
-			scriptparser.eval(script.getScript());
-		}
-		catch( ScriptException e ) {
-			throw new RuntimeException(e);
-		}
-
-		usequest = (String)engineBindings.get("QUEST");
-
-		if( !usequest.equals("") ) {
-			try {
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				ScriptParserContext.toStream(scriptparser.getContext(), out);
-				runningdata.setExecData(Hibernate.createBlob(out.toByteArray()));
-			}
-			catch( Exception e ) {
-				log.warn("Writing back Script-ExecData failed (Ship: "+ship.getId()+": ",e);
-				return;
-			}
-		}
 		redirect();
 	}
 
@@ -1085,7 +898,6 @@ public class SchiffController extends TemplateGenerator {
 					"ship.e.color",			genSubColor(ship.getEnergy(), shiptype.getEps()),
 					"ship.s",				ship.getHeat(),
 					"ship.fleet",			ship.getFleet() != null ? ship.getFleet().getId() : 0,
-					"ship.lock",			ship.getLock(),
 					"shiptype.werft",		shiptype.getWerft(),
 					"ship.showalarm",		!noob && (shiptype.getShipClass() != ShipClasses.GESCHUETZ.ordinal()) && shiptype.isMilitary() );
 
@@ -1154,9 +966,6 @@ public class SchiffController extends TemplateGenerator {
 		if( hasPermission("schiff", "statusFeld") ) {
 			StringBuilder tooltiptext = new StringBuilder(100);
 			tooltiptext.append("<span style='text-decoration:underline'>Schiffsstatus:</span><br />"+ship.getStatus().trim().replace(" ", "<br />"));
-			if( (ship.getLock() != null) && (ship.getLock().length() > 0) ) {
-				tooltiptext.append("<br /><span style='text-decoration:underline'>Lock:</span><br />"+ship.getLock()+"<br />");
-			}
 
 			t.setVar("tooltip.admin", tooltiptext.toString() );
 		}
@@ -1352,7 +1161,7 @@ public class SchiffController extends TemplateGenerator {
 			t.parse("ship.alarms.list", "ship.alarms.listitem", true);
 		}
 
-		if( (ship.getStatus().indexOf("noconsign") == -1) && ((ship.getLock() == null) || ship.getLock().equals("")) ) {
+		if( ship.getStatus().indexOf("noconsign") == -1 ) {
 			t.setVar("ship.consignable", 1);
 		}
 

@@ -45,7 +45,7 @@ import org.hibernate.Hibernate;
  */
 public class Quests {
 	private static final Log log = LogFactory.getLog(Quests.class);
-	
+
 	/**
 	 * Ereignis fuer einen Kommunikationsversuch zwischen zwei Schiffen.
 	 */
@@ -54,30 +54,21 @@ public class Quests {
 	 * Ereignis bei einem Tick.
 	 */
 	public static final String EVENT_RUNNING_ONTICK = "2";
-	/**
-	 * Ereignis bei Einflug eines (beliebigen) Schiffes in einen bestimmten Sektor.
-	 */
-	public static final String EVENT_ONENTER = "3";
-	/**
-	 * Ereignis beim Bewegen eines bestimmten Schiffes. Wird vor dem Bewegen ausgeloesst und kann
-	 * die Flugrichtung und die Anzahl der zu fliegenden Sektoren veraendern.
-	 */
-	public static final String EVENT_ONMOVE = "4";
-	
+
 	/**
 	 * Die fuer in Ereignissen produzierte Ausgabe zu verwendenden URL-Parameter.
 	 */
 	public static final ThreadLocal<String> currentEventURL = new ThreadLocal<String>() {
 		// EMPTY
 	};
-	
+
 	/**
 	 * Die fuer in Ereignissen produzierte Ausgabe zu verwendenden URL-Basis.
 	 */
 	public static final ThreadLocal<String> currentEventURLBase = new ThreadLocal<String>() {
 		// EMPTY
 	};
-	
+
 	/**
 	 * Baut eine URL fuer eine Antwort in einem Questscript.
 	 * @param answerid Die Antwort-ID
@@ -86,7 +77,7 @@ public class Quests {
 	public static String buildQuestURL( String answerid ) {
 		return currentEventURLBase.get()+currentEventURL.get()+"&execparameter="+answerid;
 	}
-	
+
 	/**
 	 * Fuehrt einen Lock-String aus (bzw das dem Lock-String zugeordnete Script, sofern vorhanden).
 	 * @param scriptparser Die ScriptEngine, mit dem der Lock ausgefuehrt werden soll
@@ -97,7 +88,7 @@ public class Quests {
 		if( lock == null ) {
 			return;
 		}
-		
+
 		String[] lockArray = StringUtils.split(lock, ':');
 		if( lockArray[0].length() == 0 || Integer.parseInt(lockArray[0]) <= 0 ) {
 			return;
@@ -105,15 +96,15 @@ public class Quests {
 
 		String usequest = lockArray[1];
 		int usescript = Integer.parseInt(lockArray[0]);
-		
+
 		if( usescript == 0 ) {
 			return;
 		}
 
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-	
-		String execparameter = "-1";	
-	
+
+		String execparameter = "-1";
+
 		RunningQuest runningdata = null;
 		if( usequest.charAt(0) != 'r' ) {
 			runningdata = (RunningQuest)db.createQuery("from RunningQuest where quest= :quest and user = :user")
@@ -125,14 +116,14 @@ public class Quests {
 			int rquestid = Integer.parseInt(usequest.substring(1));
 			runningdata = (RunningQuest)db.get(RunningQuest.class, rquestid);
 		}
-		
+
 		if( runningdata == null ) {
 			return;
 		}
-		
+
 		try {
 			Blob execdata = runningdata.getExecData();
-			if( (execdata != null) && (execdata.length() > 0) ) { 
+			if( (execdata != null) && (execdata.length() > 0) ) {
 				scriptparser.setContext(ScriptParserContext.fromStream(execdata.getBinaryStream()));
 			}
 		}
@@ -146,14 +137,14 @@ public class Quests {
 			log.error("Konnte Script '"+usescript+"' nicht finden");
 			return;
 		}
-		
+
 		final Bindings engineBindings = scriptparser.getContext().getBindings(ScriptContext.ENGINE_SCOPE);
-		
+
 		engineBindings.put("USER", Integer.toString(user.getId()));
 		if( usequest.length() > 0 ) {
 			engineBindings.put("QUEST", "r"+runningdata.getId());
 		}
-		engineBindings.put("SCRIPT", Integer.toString(usescript));	
+		engineBindings.put("SCRIPT", Integer.toString(usescript));
 		engineBindings.put("LOCKEXEC", "1");
 		engineBindings.put("_PARAMETERS", execparameter);
 		try {
@@ -163,7 +154,7 @@ public class Quests {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	/**
 	 * Fuehrt einen Ereignis-String aus (bzw das zugehoerige Script).
 	 * @param scriptparser Die ScriptEngine, mit dem das Ereignis ausgefuhert werden soll
@@ -178,10 +169,10 @@ public class Quests {
 			return false;
 		}
 		String[] handlerArray = StringUtils.split( handler, ';' );
-		
+
 		String usequest = "0";
 		int usescript = -1;
-		int usechance = -1; 
+		int usechance = -1;
 		boolean forcenew = false;
 		boolean breakme = false;
 		boolean parserest = false;
@@ -191,14 +182,14 @@ public class Quests {
 			if( hentry[0].equals(Integer.toString(user.getId())) ) {
 				usechance = -1;
 				forcenew = false;
-				
+
 				usescript = Integer.parseInt(hentry[1]);
 				if( hentry.length > 2 ) {
 					usequest = hentry[2];
 				}
 				breakme = true;
 				parserest = true;
-			}	
+			}
 			else if( hentry[0].equals("*") ) {
 				usescript = Integer.parseInt(hentry[1]);
 				if( hentry.length > 2 ) {
@@ -206,25 +197,25 @@ public class Quests {
 				}
 				parserest = true;
 			}
-			
+
 			// Optionale Parameter verarbeiten
 			if( parserest && hentry.length > 3 ) {
 				for( int j=3; j<hentry.length; j++ ) {
 					if( hentry[j].charAt(0) == '%' ) {
 						usechance = Integer.parseInt(hentry[j].substring(1));
-					}	
+					}
 					else if( hentry[j].charAt(0) == 'n' ) {
 						forcenew = true;
 					}
-				}	
+				}
 				parserest = false;
 			}
-			
+
 			if( breakme ) {
-				break;	
+				break;
 			}
 		}
-		
+
 		// %-Parameter verarbeiten
 		if( (usechance > -1) && (execparameter.length() > 0) && Integer.parseInt(execparameter) != 0 ) {
 			int random = new Random().nextInt(100)+1;
@@ -233,18 +224,18 @@ public class Quests {
 				return false;
 			}
 		}
-		
+
 		if( usescript == -1 ) {
 			return false;
 		}
-	
+
 		int runningID = 0;
-		
+
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
+
 		if( !usequest.equals("0") ) {
 			RunningQuest runningdata = null;
-			
+
 			if( !forcenew && (usequest.charAt(0) != 'r') ) {
 				runningdata = (RunningQuest)db.createQuery("from RunningQuest where quest= :quest and user = :user")
 					.setInteger("quest", Integer.parseInt(usequest))
@@ -255,12 +246,12 @@ public class Quests {
 				int rquestid = Integer.parseInt(usequest.substring(1));
 				runningdata = (RunningQuest)db.get(RunningQuest.class, rquestid);
 			}
-								
+
 			if( runningdata != null ) {
 				runningID = runningdata.getId();
 				try {
 					Blob execdata = runningdata.getExecData();
-					if( (execdata != null) && (execdata.length() > 0) ) { 
+					if( (execdata != null) && (execdata.length() > 0) ) {
 						scriptparser.setContext(ScriptParserContext.fromStream(execdata.getBinaryStream()));
 					}
 				}
@@ -279,28 +270,28 @@ public class Quests {
 				}
 				runningdata = new RunningQuest(quest, user);
 				db.save(runningdata);
-				
+
 				runningID = runningdata.getId();
 			}
 		}
-		
+
 		final Bindings engineBindings = scriptparser.getContext().getBindings(ScriptContext.ENGINE_SCOPE);
-		
+
 		Script script = (Script)db.get(Script.class, usescript);
 		if( script == null ) {
 			log.error("Konnte Script '"+usescript+"' nicht finden");
 			return false;
 		}
-		
+
 		if( locked ) {
 			engineBindings.put("LOCKEXEC", "1");
 		}
-		
+
 		engineBindings.put("USER", Integer.toString(user.getId()));
 		if( !usequest.equals("0") ) {
 			engineBindings.put("QUEST", "r"+runningID);
 		}
-		engineBindings.put("SCRIPT", Integer.toString(usescript));	
+		engineBindings.put("SCRIPT", Integer.toString(usescript));
 		engineBindings.put("_PARAMETERS", execparameter);
 		try {
 			scriptparser.eval(script.getScript());
@@ -308,7 +299,7 @@ public class Quests {
 		catch( ScriptException e ) {
 			throw new RuntimeException(e);
 		}
-		
+
 		usequest = (String)engineBindings.get("QUEST");
 
 		if( (usequest != null) && !usequest.isEmpty() && !usequest.equals("0") ) {

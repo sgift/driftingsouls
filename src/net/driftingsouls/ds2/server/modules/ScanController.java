@@ -388,7 +388,7 @@ public class ScanController extends TemplateGenerator {
 			List<?> shiplist = db.createQuery("from Ship s inner join fetch s.owner " +
 					"where s.id>0 and s.x= :x and s.y= :y and s.system= :sys and s.battle is null and " +
 						"((s.shiptype not in ("+Common.implode(",",verysmallshiptypes)+")) or s.modules is not null) and " +
-						"(s.visibility is null or s.visibility= :user) and locate('l ',s.docked)=0 " +
+						"locate('l ',s.docked)=0 " +
 						"order by s.id")
 					.setInteger("x", scanLoc.getX())
 					.setInteger("y", scanLoc.getY())
@@ -550,7 +550,7 @@ public class ScanController extends TemplateGenerator {
 		List<?> shipList = db.createQuery("from Ship s inner join fetch s.owner " +
 				"where s.id>0 and system=:system and " +
 				"x between :xmin and :xmax and " +
-				"y between :ymin and :ymax and (s.visibility is null or s.visibility= :user ) and " +
+				"y between :ymin and :ymax and " +
 				"((s.shiptype not in ("+Common.implode(",",verysmallshiptypes)+")) or s.modules is not null)")
 			.setInteger("user", user.getId())
 			.setInteger("system", this.ship.getSystem())

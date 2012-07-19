@@ -123,8 +123,6 @@ public class QuestFunctions {
 		parser.registerCommand( "TRANSFERWHOLECARGO", new TransferWholeCargo(), ScriptParser.Args.PLAIN, ScriptParser.Args.PLAIN );
 
 		// Schiffsfunktionen
-		parser.registerCommand( "LOCKSHIP", new LockShip(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN );
-		parser.registerCommand( "UNLOCKSHIP", new UnlockShip(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN );
 		parser.registerCommand( "ADDQUESTSHIPS", new AddQuestShips(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "ADDSHIPS", new AddShips(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "REMOVESHIP", new RemoveShip(), ScriptParser.Args.PLAIN_REG);
@@ -364,15 +362,6 @@ public class QuestFunctions {
 				}
 				else if( value[1].equals("oncommunicate") ) {
 					val = ship.getOnCommunicate();
-				}
-				else if( value[1].equals("lock") ) {
-					val = ship.getLock();
-				}
-				else if( value[1].equals("visibility") ) {
-					val = ship.getVisibility();
-				}
-				else if( value[1].equals("onmove") ) {
-					val = ship.getOnMove();
 				}
 			}
 			else if( value[0].equals("tick") ) {
@@ -1524,151 +1513,6 @@ public class QuestFunctions {
 	 *
 	 ----------------------------------------------*/
 
-	static class LockShip implements SPFunction {
-		@Override
-		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
-			Database db = ContextMap.getContext().getDatabase();
-
-			int ship = Value.Int(command[1]);
-			scriptparser.log("ship: "+ship+"\n" );
-
-			String event = command[2];
-			scriptparser.log("event: "+event+"\n" );
-
-			String nevent = null;
-
-			if( event.equals("oncommunicate") ) {
-				nevent = Quests.EVENT_ONCOMMUNICATE;
-			}
-			else if( event.equals("ontick[running]") ) {
-				nevent = Quests.EVENT_RUNNING_ONTICK;
-			}
-			else if( event.equals("onenter") ) {
-				nevent = Quests.EVENT_ONENTER;
-			}
-
-			String questid = scriptparser.getRegister("QUEST");
-			int userid = Value.Int(scriptparser.getRegister("USER"));
-			int scriptid = Value.Int(scriptparser.getRegister("SCRIPT"));
-
-			final String eventString = scriptid+":"+questid+":"+nevent;
-
-			SQLResultRow shipdata = db.first("SELECT fleet,`lock` FROM ships WHERE id>0 AND id="+ship);
-			if( eventString.equals(shipdata.getString("lock")) ) {
-				return CONTINUE;
-			}
-
-			db.prepare("UPDATE ships SET `lock`= ?,docked= ? " +
-					"WHERE id>0 AND id= ?")
-					.update(eventString, "", ship);
-
-			db.update("UPDATE ships SET `lock`='-1' " +
-					"WHERE id>0 AND docked IN ('"+ship+"','l "+ship+"')");
-
-			if( shipdata.getInt("fleet") != 0 ) {
-				SQLQuery sid = db.query("SELECT id FROM ships " +
-						"WHERE id>0 AND AND `lock`!='-1' AND " +
-							"fleet="+shipdata.getInt("fleet")+" AND id!="+ship);
-
-				while( sid.next() ) {
-					db.prepare("UPDATE ships SET `lock`= ?, docked=? " +
-							"WHERE id>0 AND id= ?")
-							.update(eventString, "", sid.getInt("id"));
-
-					db.update("UPDATE ships SET `lock`='-1' " +
-					   			"WHERE id>0 AND docked IN ('"+sid.getInt("id")+"','l "+sid.getInt("id")+"')");
-				}
-				sid.free();
-			}
-
-			final String removescript = "!UNLOCKSHIP "+ship+" "+event+"\n";
-
-			SQLResultRow runningdata = null;
-			if( questid.charAt(0) != 'r' ) {
-				runningdata = db.first("SELECT id,uninstall FROM quests_running " +
-						"WHERE questid="+Value.Int(questid)+" AND userid="+userid);
-			}
-			else {
-				int rquestid = Value.Int(questid.substring(1));
-				runningdata = db.first("SELECT id,uninstall FROM quests_running WHERE id="+rquestid);
-			}
-
-			String uninstall = runningdata.getString("uninstall");
-			if( uninstall.length() == 0 ) {
-				uninstall = ":0\n";
-			}
-			uninstall += removescript;
-
-			db.prepare("UPDATE quests_running SET uninstall=? WHERE id= ?")
-				.update(uninstall, runningdata.getInt("id"));
-
-			return CONTINUE;
-		}
-	}
-
-	static class UnlockShip implements SPFunction {
-		@Override
-		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
-			Database db = ContextMap.getContext().getDatabase();
-
-			int ship = Value.Int(command[1]);
-			scriptparser.log("ship: "+ship+"\n" );
-
-			String event = command[2];
-			scriptparser.log("event: "+event+"\n" );
-
-			String questid = scriptparser.getRegister("QUEST");
-			int userid = Value.Int(scriptparser.getRegister("USER"));
-
-			db.update("UPDATE ships SET `lock`=NULL WHERE id>0 AND id="+ship);
-			db.update("UPDATE ships SET `lock`=NULL WHERE id>0 AND docked IN ('"+ship+"','l "+ship+"')");
-
-			SQLResultRow shipdata = db.first("SELECT fleet FROM ships WHERE id>0 AND id="+ship);
-			if( shipdata.getInt("fleet") != 0 ) {
-				SQLQuery sid = db.query("SELECT id FROM ships " +
-						"WHERE id>0 AND AND fleet="+shipdata.getInt("fleet")+" AND id!="+ship);
-
-				while( sid.next() ) {
-					db.update("UPDATE ships SET `lock`=NULL " +
-							"WHERE id>0 AND id="+sid.getInt("id"));
-					db.update("UPDATE ships SET `lock`=NULL " +
-							"WHERE id>0 AND docked IN ('"+sid.getInt("id")+"','l "+sid.getInt("id")+"')");
-				}
-				sid.free();
-			}
-
-			final String removescript = "!UNLOCKSHIP "+ship+" "+event+"\n";
-
-			SQLResultRow runningdata = null;
-			if( questid.charAt(0) != 'r' ) {
-				runningdata = db.first("SELECT id,uninstall FROM quests_running " +
-						"WHERE questid="+Value.Int(questid)+" AND userid="+userid);
-			}
-			else {
-				int rquestid = Value.Int(questid.substring(1));
-				runningdata = db.first("SELECT id,uninstall FROM quests_running WHERE id="+rquestid);
-			}
-
-			String uninst = runningdata.getString("uninstall");
-			uninst = StringUtils.replace(uninst, "\r\n","\n");
-			String[] lines = StringUtils.split(uninst, '\n');
-
-			StringBuilder newuninst = new StringBuilder();
-			for( int i=0; i < lines.length; i++ ) {
-				if( !lines[i].trim().equals(removescript) ) {
-					newuninst.append(lines[i]);
-				}
-			}
-
-			db.prepare("UPDATE quests_running SET uninstall=? WHERE id= ?")
-				.update(uninst, runningdata.getInt("id"));
-
-			scriptparser.setRegister("_OUTPUT", "");
-
-			return CONTINUE;
-		}
-	}
-
 	static class AddQuestShips implements SPFunction {
 		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
@@ -1687,14 +1531,6 @@ public class QuestFunctions {
 
 			int owner = Value.Int(command[5]);
 			scriptparser.log("owner: "+owner+"\n");
-
-			boolean visibility = false;
-			if( command.length > 6 ) {
-				visibility = Value.Int(command[6]) != 0;
-				if( visibility ) {
-					scriptparser.log("visibile: true\n");
-				}
-			}
 
 			Integer[] shipids = stm.useTemplate(ContextMap.getContext().getDB(), stmid, loc, owner );
 
@@ -1727,11 +1563,6 @@ public class QuestFunctions {
 
 			db.prepare("UPDATE quests_running SET uninstall=? WHERE id= ?")
 				.update(uninstall, runningdata.getInt("id"));
-
-			if( !visibility ) {
-				db.update("UPDATE ships SET visibility='"+userid+"' " +
-						"WHERE id>0 AND id IN ("+Common.implode(",",shipids)+")");
-			}
 
 			return CONTINUE;
 		}

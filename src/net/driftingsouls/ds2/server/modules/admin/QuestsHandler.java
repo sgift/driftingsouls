@@ -21,14 +21,12 @@ package net.driftingsouls.ds2.server.modules.admin;
 import java.io.IOException;
 import java.io.Writer;
 
-import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.modules.AdminController;
 
 /**
@@ -42,23 +40,21 @@ public class QuestsHandler implements AdminPlugin {
 	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
-		
+
 		int save = context.getRequest().getParameterInt("save");
 		String event = context.getRequest().getParameterString("event");
 		String oid = context.getRequest().getParameterString("oid");
 		String handler = context.getRequest().getParameterString("handler");
-		
+
 		Database db = context.getDatabase();
-		
+
 		final String URLBASE = "./ds?module=admin&page="+page+"&act="+action;
-		
+
 		if( event.length() == 0 ) {
 			echo.append(Common.tableBegin(700, "center"));
 			echo.append("<form action=\"./ds\" method=\"post\">\n");
 			echo.append("<select size=\"1\" name=\"event\">\n");
 			echo.append("<option value=\"oncommunicate\">oncommunicate</option>\n");
-			echo.append("<option value=\"onenter\">onenter</option>\n");
-			echo.append("<option value=\"onmove\">onmove</option>\n");
 			echo.append("<option value=\"ontick_rquest\">ontick (rQuest)</option>\n");
 			echo.append("<option value=\"onendbattle\">onendbattle</option>\n");
 			echo.append("</select>\n");
@@ -68,13 +64,13 @@ public class QuestsHandler implements AdminPlugin {
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("<input type=\"submit\" value=\"bearbeiten\" />\n");
 			echo.append("</form>\n");
-			
-			echo.append(Common.tableEnd());	
-			
+
+			echo.append(Common.tableEnd());
+
 			echo.append("<br /><br />\n");
-			
+
 			echo.append(Common.tableBegin(700,"left"));
-			
+
 			echo.append("oncommunicate:<br />\n");
 			SQLQuery ship = db.query("SELECT id,name,owner " +
 					"FROM ships " +
@@ -82,44 +78,15 @@ public class QuestsHandler implements AdminPlugin {
 					"ORDER BY id");
 			while( ship.next() ) {
 				echo.append("* <a class=\"forschinfo\" href=\""+URLBASE+"&event=oncommunicate&oid="+ship.getInt("id")+"\">");
-				
+
 				User owner = (User)context.getDB().get(User.class, ship.getInt("owner"));
-				
+
 				echo.append(ship.getString("name")+" ("+ship.getInt("id")+") ["+Common._title(owner.getName())+"]");
-				
+
 				echo.append("</a><br />\n");
 			}
 			ship.free();
-			
-			echo.append("<br />onenter:<br />\n");
-			SQLQuery sector = db.query("SELECT system,x,y FROM sectors WHERE onenter IS NOT NULL ORDER BY system,x,y");
-			while( sector.next() ) {
-				String sys = sector.getInt("system")+":"+sector.getInt("x")+"/"+sector.getInt("y");
-				
-				echo.append("* <a class=\"forschinfo\" href=\""+URLBASE+"&event=onenter&oid="+sys+"\">");
-				
-				echo.append(sys);
-				
-				echo.append("</a><br />\n");
-			}
-			sector.free();
-			
-			echo.append("<br />onmove:<br />\n");
-			ship = db.query("SELECT id,name,owner " +
-					"FROM ships " +
-					"WHERE id>0 AND onmove IS NOT NULL " +
-					"ORDER BY id");
-			while( ship.next() ) {
-				echo.append("* <a class=\"forschinfo\" href=\""+URLBASE+"&event=onmove&oid="+ship.getInt("id")+"\">");
-				
-				User owner = (User)context.getDB().get(User.class, ship.getInt("owner"));
-				
-				echo.append(ship.getString("name")+" ("+ship.getInt("id")+") ["+Common._title(owner.getName())+"]");
-				
-				echo.append("</a><br />\n");
-			}
-			ship.free();
-			
+
 			echo.append("<br />ontick (rQuest):<br />\n");
 			SQLQuery rquest = db.query("SELECT qr.id,q.name,qr.userid " +
 					"FROM quests_running qr JOIN quests q ON qr.questid=q.id " +
@@ -127,15 +94,15 @@ public class QuestsHandler implements AdminPlugin {
 					"ORDER BY qr.userid");
 			while( rquest.next() ) {
 				echo.append("* <a class=\"forschinfo\" href=\""+URLBASE+"&event=ontick_rquest&oid="+rquest.getInt("id")+"\">");
-				
+
 				User owner = (User)context.getDB().get(User.class, rquest.getInt("userid"));
-				
+
 				echo.append(rquest.getString("name")+" ("+rquest.getInt("id")+") ["+Common._title(owner.getName())+"]");
-				
+
 				echo.append("</a><br />\n");
 			}
 			rquest.free();
-			
+
 			echo.append("<br />onendbattle:<br />\n");
 			SQLQuery battle = db.query("SELECT id,x,y,system,commander1,commander2 " +
 					"FROM battles " +
@@ -143,45 +110,37 @@ public class QuestsHandler implements AdminPlugin {
 					"ORDER BY system,x,y");
 			while( battle.next() ) {
 				echo.append("* <a class=\"forschinfo\" href=\""+URLBASE+"&event=onendbattle&oid="+battle.getInt("id")+"\">");
-				
+
 				User com1 = (User)context.getDB().get(User.class, battle.getInt("commander1"));
 				User com2 = (User)context.getDB().get(User.class, battle.getInt("commander2"));
-				
+
 				echo.append(battle.getInt("system")+":"+battle.getInt("x")+"/"+battle.getInt("y")+" ("+battle.getInt("id")+") ["+Common._title(com1.getName())+" vs "+Common._title(com2.getName())+"]");
-				
+
 				echo.append("</a><br />\n");
 			}
 			battle.free();
-			
+
 			echo.append(Common.tableEnd());
 		}
 		else if( save == 0 ) {
 			if( event.equals("oncommunicate") ) {
-				handler = db.first("SELECT oncommunicate FROM ships WHERE id>0 AND id="+Integer.parseInt(oid)).getString("oncommunicate");	
-			}
-			else if( event.equals("onmove") ) {
-				handler = db.first("SELECT onmove FROM ships WHERE id>0 AND id="+Integer.parseInt(oid)).getString("onmove");	
-			}
-			else if( event.equals("onenter") ) {
-				Location loc = Location.fromString(oid);
-
-				handler = db.first("SELECT onenter FROM sectors WHERE system="+loc.getSystem()+" AND x="+loc.getX()+" AND y="+loc.getY()).getString("onenter");	
+				handler = db.first("SELECT oncommunicate FROM ships WHERE id>0 AND id="+Integer.parseInt(oid)).getString("oncommunicate");
 			}
 			else if( event.equals("ontick_rquest") ) {
-				handler = db.first("SELECT ontick FROM quests_running WHERE id="+Integer.parseInt(oid)).getString("ontick");	
+				handler = db.first("SELECT ontick FROM quests_running WHERE id="+Integer.parseInt(oid)).getString("ontick");
 			}
 			else if( event.equals("onendbattle") ) {
-				handler = db.first("SELECT onend FROM battles WHERE id="+Integer.parseInt(oid)).getString("onend");	
+				handler = db.first("SELECT onend FROM battles WHERE id="+Integer.parseInt(oid)).getString("onend");
 			}
 			else {
 				echo.append("WARNUNG: Ung&uuml;ltiges Event &gt;"+event+"&lt; <br />\n");
 				handler = "";
 				event = "";
-				oid = "";	
+				oid = "";
 			}
-		
+
 			echo.append(Common.tableBegin(700,"left"));
-		
+
 			echo.append("<form action=\"./ds\" method=\"post\">\n");
 			echo.append("<input type=\"text\" name=\"handler\" size=\"50\" value=\""+handler+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"event\" value=\""+event+"\" />\n");
@@ -192,7 +151,7 @@ public class QuestsHandler implements AdminPlugin {
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("<input type=\"submit\" value=\"bearbeiten\" />\n");
 			echo.append("</form>\n");
-			
+
 			echo.append(Common.tableEnd());
 		}
 		else {
@@ -202,31 +161,7 @@ public class QuestsHandler implements AdminPlugin {
 				}
 				else {
 					db.update("UPDATE ships SET oncommunicate=NULL WHERE id>0 AND id="+Integer.parseInt(oid));
-				}	
-			}
-			else if( event.equals("onmove") ) {
-				if( handler.length() != 0 ) {
-					db.update("UPDATE ships SET onmove='"+handler+"' WHERE id>0 AND id="+Integer.parseInt(oid));
 				}
-				else {
-					db.update("UPDATE ships SET onmove=NULL WHERE id>0 AND id="+Integer.parseInt(oid));
-				}	
-			}
-			else if( event.equals("onenter") ) {
-				Location loc = Location.fromString(oid);
-				
-				if( handler.length() != 0 ) {
-					SQLResultRow myx = db.first("SELECT x FROM sectors WHERE system="+loc.getSystem()+" AND x="+loc.getX()+" AND y="+loc.getY());
-					if( myx.isEmpty() ) {
-						db.update("INSERT INTO sectors (system,x,y,onenter) VALUES ("+loc.getSystem()+","+loc.getX()+","+loc.getY()+",'"+handler+"')");
-					}
-					else {
-						db.update("UPDATE sectors SET onenter='"+handler+"' WHERE system="+loc.getSystem()+" AND x="+loc.getX()+" AND y="+loc.getY());
-					}
-				}
-				else {
-					db.update("DELETE FROM sectors WHERE system="+loc.getSystem()+" AND x="+loc.getX()+" AND y="+loc.getY());
-				}	
 			}
 			else if( event.equals("ontick_rquest") ) {
 				if( handler.length() != 0 ) {
@@ -242,10 +177,10 @@ public class QuestsHandler implements AdminPlugin {
 				}
 				else {
 					db.update("UPDATE battles SET onend=NULL WHERE id="+Integer.parseInt(oid));
-				}	
+				}
 			}
 			else {
-				echo.append("WARNUNG: Ung&uuml;ltiges Event &gt;"+event+"&lt; <br />\n");	
+				echo.append("WARNUNG: Ung&uuml;ltiges Event &gt;"+event+"&lt; <br />\n");
 			}
 			echo.append("&Auml;nderungen durchgef&uuml;hrt<br />");
 		}

@@ -21,11 +21,6 @@ package net.driftingsouls.ds2.server.modules.schiffplugins;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.script.Bindings;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.entities.JumpNode;
@@ -33,11 +28,8 @@ import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
-import net.driftingsouls.ds2.server.scripting.NullLogger;
-import net.driftingsouls.ds2.server.scripting.Quests;
 import net.driftingsouls.ds2.server.ships.RouteFactory;
 import net.driftingsouls.ds2.server.ships.SchiffEinstellungen;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -75,13 +67,7 @@ public class NavigationDefault implements SchiffPlugin {
 		Ship ship = caller.ship;
 		SchiffController controller = caller.controller;
 
-		User user = (User)controller.getUser();
-
 		String output = "";
-
-		if( (ship.getLock() != null) && !ship.getLock().equals("") ) {
-			return output;
-		}
 
 		controller.parameterString("setdest");
 		String setdest = controller.getString("setdest");
@@ -126,39 +112,6 @@ public class NavigationDefault implements SchiffPlugin {
 
 		if( (act > 9) || (act < 1) || count <= 0 ) {
 			return "Ung&uuml;ltige Flugparameter<br />\n";
-		}
-
-		if( (ship.getOnMove() != null) && (ship.getOnMove().length() > 0) &&
-			((targetx != 0) && (targety != 0)) || ((act != 5) && (act >= 1) && (act <= 9)) ) {
-			ScriptEngine scriptparser = ContextMap.getContext().get(ContextCommon.class).getScriptParser( "DSQuestScript" );
-
-			final Bindings engineBindings = scriptparser.getContext().getBindings(ScriptContext.ENGINE_SCOPE);
-
-			engineBindings.put("_SHIP", ship);
-			scriptparser.getContext().setErrorWriter(new NullLogger());
-			engineBindings.put("DIRECTION",Integer.toString(act));
-			engineBindings.put("MOVEMENTCOUNT",Integer.toString(count));
-			engineBindings.put("TARGETX",Integer.toString(targetx));
-			engineBindings.put("TARGETY",Integer.toString(targety));
-			engineBindings.put("SECTOR", ship.getLocation().toString());
-
-			Quests.currentEventURL.set("&action=onmove");
-
-			Quests.executeEvent( scriptparser, ship.getOnMove(), user, "0", false );
-			try {
-				act = Integer.parseInt((String)engineBindings.get("DIRECTION"));
-				count = Integer.parseInt((String)engineBindings.get("MOVEMENTCOUNT"));
-				targetx = Integer.parseInt((String)engineBindings.get("TARGETX"));
-				targety = Integer.parseInt((String)engineBindings.get("TARGETY"));
-			}
-			catch( NumberFormatException e ) {
-				log.warn("Illegales Zahlenformat nach Ausfuehrung von 'onmove'", e);
-			}
-
-
-			if( (act > 9) || (act < 1) || count <= 0 ) {
-				return "Ung&uuml;ltige Flugparameter<br />\n";
-			}
 		}
 
 		//Wir wollen nur beim Autopiloten lowheat erzwingen
@@ -221,10 +174,6 @@ public class NavigationDefault implements SchiffPlugin {
 		else if( datatype.getCost() == 0 )
 		{
 			t.setVar("schiff.navigation.showmessage","Dieses Objekt hat keinen Antrieb");
-		}
-		else if( (data.getLock() != null) && !data.getLock().equals("") )
-		{
-			t.setVar("schiff.navigation.showmessage","Fahren sie im Quest fort<br />um das Schiff wieder bewegen<br />zu k&ouml;nnen");
 		}
 		else
 		{
