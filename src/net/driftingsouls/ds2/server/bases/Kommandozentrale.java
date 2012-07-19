@@ -142,7 +142,10 @@ public class Kommandozentrale extends DefaultBuilding {
 
 		if( academy != null)
 		{
-			db.createQuery("DELETE from AcademyQueueEntry WHERE base=:base").setInteger("base", base.getId()).executeUpdate();
+			for( AcademyQueueEntry entry : academy.getQueueEntries() )
+			{
+				db.delete(entry);
+			}
 		}
 
 		//Check if we need to change the drop zone of the player to another system

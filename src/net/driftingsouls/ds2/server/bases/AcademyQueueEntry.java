@@ -19,12 +19,13 @@
 package net.driftingsouls.ds2.server.bases;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -34,7 +35,6 @@ import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.Academy;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -70,7 +70,9 @@ public class AcademyQueueEntry {
 		
 	@Id @GeneratedValue
 	private int id;
-	private Base base;
+	@ManyToOne
+	@JoinColumn
+	private Academy academy;
 	private int position;
 	private int training;
 	private int trainingtype = 0;
@@ -88,13 +90,13 @@ public class AcademyQueueEntry {
 	
 	/**
 	 * Erstellt einen neuen Bauschlangeneintrag.
-	 * @param base Die Basis
+	 * @param academy Die Akademie zu der die Bauschlange gehoert
 	 * @param training Der zu trainierende offz (id, bei neuen offizieren -1 bis -4)
 	 * @param remaining Die verbleibende Bauzeit
 	 */
-	public AcademyQueueEntry(Base base, int training, int remaining) 
+	public AcademyQueueEntry(Academy academy, int training, int remaining) 
 	{
-		this.base = base;
+		this.academy = academy;
 		this.position = getNextEmptyPosition();
 		this.training = training;
 		this.remaining = remaining;
@@ -102,28 +104,24 @@ public class AcademyQueueEntry {
 	
 	/**
 	 * Erstellt einen neuen Bauschlangeneintrag.
-	 * @param basis Die Basis
+	 * @param academy Die Akademie zu der die Bauschlange gehoert
 	 * @param training Der zu trainierende offz (id, bei neuen offizieren -1 bis -4)
 	 * @param remaining Die verbleibende Bauzeit
 	 * @param trainingtype Die Faehigkeit die ausgebildet wird
 	 */
-	public AcademyQueueEntry(Base basis, int training, int remaining, int trainingtype) {
-		this(basis,training,remaining);
+	public AcademyQueueEntry(Academy academy, int training, int remaining, int trainingtype) {
+		this(academy,training,remaining);
 		this.trainingtype = trainingtype;
 	}
 		
 	private int getNextEmptyPosition() 
 	{
-		Session db = ContextMap.getContext().getDB();
-		
-		AcademyQueueEntry last = (AcademyQueueEntry)db.createQuery("from AcademyQueueEntry where base=:base order by position desc").setParameter("base", this.base).setMaxResults(1).uniqueResult();
-		
-		if(last == null)
+		int maxpos = 0;
+		for( AcademyQueueEntry entry : this.academy.getQueueEntries() )
 		{
-			return 1;
+			maxpos = Math.max(entry.getPosition(), maxpos);
 		}
-		
-		return last.getPosition() + 1;
+		return maxpos+1;
 	}
 	
 	/**
@@ -138,8 +136,8 @@ public class AcademyQueueEntry {
 	 * Gibt die Basis zurueck, zu der die Bauschlange gehoert.
 	 * @return Die Basis
 	 */
-	public Base getBasis() {
-		return this.base;
+	public Academy getAcademy() {
+		return this.academy;
 	}
 	
 	/**
@@ -225,22 +223,20 @@ public class AcademyQueueEntry {
 		// Speichere alle wichtigen Daten
 		int offizier = this.training;
 		int training = this.trainingtype;
-		User owner = this.base.getOwner();
-		Base base = this.base;
-		Academy academy = base.getAcademy();
+		User owner = this.academy.getBase().getOwner();
 		int race = owner.getRace();
 		int position = this.position;
 		
 		// Loesche Eintrag und berechne Queue neu
 		db.delete(this);
-		List<AcademyQueueEntry> entries = Common.cast(db.createQuery("from AcademyQueueEntry where base=:base and position > :position order by position")
-				.setParameter("base", base)
-				.setParameter("position", position)
-				.list());
-
-		for(AcademyQueueEntry entry: entries)
+		this.academy.getQueueEntries().remove(this);
+		
+		for(AcademyQueueEntry entry: this.academy.getQueueEntries())
 		{
-			entry.setPosition(entry.getPosition() - 1);
+			if( entry.getPosition() > position )
+			{
+				entry.setPosition(entry.getPosition() - 1);
+			}
 		}
 		db.flush();
 		academy.rescheduleQueue();
@@ -271,7 +267,7 @@ public class AcademyQueueEntry {
 
 			offz.setSpecial(Offizier.Special.values()[spec-1]);
 
-			offz.setDest("b", base.getId());
+			offz.setDest("b", academy.getBase().getId());
 			id = (Integer)db.save(offz);
 		}
 		else
@@ -286,7 +282,7 @@ public class AcademyQueueEntry {
 			offz.setAbility(ability, offz.getAbility(ability)+2);
 			if( !academy.isOffizierScheduled(offz.getID()) )
 			{
-				offz.setDest("b", base.getId());
+				offz.setDest("b", academy.getBase().getId());
 			}
 			id = (Integer)db.save(offz);
 		}

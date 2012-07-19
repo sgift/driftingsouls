@@ -1718,5 +1718,11 @@
     ]]></update>
     <update type="data" datum="2012-07-19"><![CDATA[
     	ALTER TABLE ships DROP COLUMN visibility, DROP COLUMN `lock`, DROP COLUMN onmove;
+    	
+    	ALTER TABLE academy_queues ADD COLUMN academy_id INT, ADD CONSTRAINT academy_queues_fk_academy FOREIGN KEY (academy_id) REFERENCES academy(id);
+    	UPDATE academy_queues SET academy_id = (SELECT id FROM academy WHERE base=academy_queues.base LIMIT 1);
+    	DELETE FROM academy_queues WHERE academy_id IS NULL;
+    	ALTER TABLE academy_queues MODIFY academy_id INT NOT NULL;
+    	ALTER TABLE academy_queues DROP COLUMN base;
     ]]></update>
 </updates>

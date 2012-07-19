@@ -1,6 +1,6 @@
 CREATE TABLE `academy_queues` (
   `id` int(11) NOT NULL auto_increment,
-  `base` int(11) default NULL,
+  `academy_id` int(11) NOT NULL,
   `training` int(11) default NULL,
   `trainingtype` smallint(6) default NULL,
   `remaining` smallint(6) default NULL,

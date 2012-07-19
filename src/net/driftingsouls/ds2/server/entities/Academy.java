@@ -19,20 +19,20 @@
 package net.driftingsouls.ds2.server.entities;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.bases.AcademyQueueEntry;
 import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
@@ -52,6 +52,9 @@ public class Academy {
 	@Version
 	private int version;
 	
+	@OneToMany(mappedBy="academy",cascade=CascadeType.ALL)
+	private List<AcademyQueueEntry> queue;
+	
 	/**
 	 * Konstruktor.
 	 *
@@ -66,6 +69,7 @@ public class Academy {
 	 */
 	public Academy(Base base) {
 		this.base = base;
+		this.queue = new ArrayList<AcademyQueueEntry>();
 	}
 
 	/**
@@ -121,15 +125,9 @@ public class Academy {
 	 * @return Die Liste der zur Ausbildung vorgesehenen Bauschlangeneintraege
 	 */
 	public List<AcademyQueueEntry> getScheduledQueueEntries() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<AcademyQueueEntry> list = Common.cast(db.createQuery("from AcademyQueueEntry where base=:base order by position ASC")
-				.setParameter("base", this.getBase())
-				.list());
-		
 		List<AcademyQueueEntry> queuelist = new ArrayList<AcademyQueueEntry>();
 		
-		for( Iterator<?> iter=list.iterator(); iter.hasNext(); ) {
-			AcademyQueueEntry entry = (AcademyQueueEntry)iter.next();
+		for( AcademyQueueEntry entry : this.queue ) {
 			if(entry.isScheduled())
 			{
 				queuelist.add(entry);
@@ -148,15 +146,11 @@ public class Academy {
 	}
 	
 	/**
-	 * Gibt die komplette Bauschlange zurueck.
+	 * Gibt die komplette Bauschlange in unsortierter Form zurueck.
 	 * @return Die Bauschlange
 	 */
 	public List<AcademyQueueEntry> getQueueEntries() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<AcademyQueueEntry> list = Common.cast(db.createQuery("from AcademyQueueEntry where base=:base order by position ASC")
-			.setParameter("base", this.getBase())
-			.list());
-		return list;
+		return this.queue;
 	}
 	
 	/**
@@ -170,7 +164,7 @@ public class Academy {
 		double maxoffstotrain = Double.valueOf(maxoffstotrainConfig.getValue());
 		int trainingoffs = 0;
 		
-		List<AcademyQueueEntry> queue = this.getQueueEntries();
+		List<AcademyQueueEntry> queue = this.queue;
 		
 		for( AcademyQueueEntry entry : queue ) 
 		{
@@ -209,19 +203,14 @@ public class Academy {
 	 * @return Der Bauschlangeneintrag
 	 */
 	public AcademyQueueEntry getQueueEntryByPosition(int position) {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<AcademyQueueEntry> list = Common.cast(db.createQuery("from AcademyQueueEntry where base=:base and position=:position")
-											 .setParameter("base", this.getBase())
-											 .setParameter("position", position)
-											 .list());
-		
-		AcademyQueueEntry[] entries = new AcademyQueueEntry[list.size()];
-		for(int i = 0; i < entries.length; i++)
+		for( AcademyQueueEntry entry : this.queue )
 		{
-			entries[i] = list.get(i);
+			if( entry.getPosition() == position )
+			{
+				return entry;
+			}
 		}
-	
-		return entries[0];
+		return null;
 	}
 	
 	/**
@@ -240,5 +229,14 @@ public class Academy {
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * Fuegt einen neuen Eintrag zur Bauschlange hinzu.
+	 * @param entry Der Eintrag
+	 */
+	public void addQueueEntry(AcademyQueueEntry entry)
+	{
+		this.queue.add(entry);
 	}
 }

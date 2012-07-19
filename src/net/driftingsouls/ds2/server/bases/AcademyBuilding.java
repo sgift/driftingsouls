@@ -18,6 +18,9 @@
  */
 package net.driftingsouls.ds2.server.bases;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -106,8 +109,7 @@ public class AcademyBuilding extends DefaultBuilding {
 		if( academy != null )
 		{
 			// Bereinige Queue Eintraege
-			List<AcademyQueueEntry> entries = academy.getQueueEntries();
-			for( AcademyQueueEntry entry : entries )
+			for( AcademyQueueEntry entry : academy.getQueueEntries() )
 			{
 				entry.deleteQueueEntry();
 			}
@@ -376,9 +378,10 @@ public class AcademyBuilding extends DefaultBuilding {
 				cargo.substractResource( Resources.SILIZIUM, (int)siliziumcosts );
 				cargo.substractResource( Resources.NAHRUNG, (int)nahrungcosts );
 				academy.setTrain(true);
-				AcademyQueueEntry entry = new AcademyQueueEntry(base, -newo, (int)dauercosts);
+				AcademyQueueEntry entry = new AcademyQueueEntry(academy, -newo, (int)dauercosts);
 				base.setCargo(cargo);
 				db.save(entry);
+				academy.addQueueEntry(entry);
 			}
 		}
 
@@ -452,11 +455,12 @@ public class AcademyBuilding extends DefaultBuilding {
 
 						cargo.substractResource( Resources.SILIZIUM, sk );
 
-						AcademyQueueEntry entry = new AcademyQueueEntry(base,offizier.getID(),dauer,train);
+						AcademyQueueEntry entry = new AcademyQueueEntry(academy,offizier.getID(),dauer,train);
 
 						offizier.setDest("t", base.getId());
 						base.setCargo(cargo);
 						db.save(entry);
+						academy.addQueueEntry(entry);
 						academy.setTrain(true);
 						academy.rescheduleQueue();
 
@@ -485,7 +489,8 @@ public class AcademyBuilding extends DefaultBuilding {
 
 			t.setBlock("_BUILDING", "academy.training.listitem", "academy.training.list");
 
-			List<AcademyQueueEntry> entries = academy.getQueueEntries();
+			List<AcademyQueueEntry> entries = new ArrayList<AcademyQueueEntry>(academy.getQueueEntries());
+			Collections.sort(entries, new AcademyQueueEntryComparator());
 			for( AcademyQueueEntry entry : entries )
 			{
 				if( entry.getTraining() > 0 )
@@ -615,5 +620,14 @@ public class AcademyBuilding extends DefaultBuilding {
 	public boolean isSupportsJson()
 	{
 		return false;
+	}
+	
+	protected static class AcademyQueueEntryComparator implements Comparator<AcademyQueueEntry>
+	{
+		@Override
+		public int compare(AcademyQueueEntry o1, AcademyQueueEntry o2)
+		{
+			return o1.getPosition() - o2.getPosition();
+		}
 	}
 }
