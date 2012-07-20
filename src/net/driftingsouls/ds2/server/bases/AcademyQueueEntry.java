@@ -45,15 +45,15 @@ import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.Session;
 
 /**
- * 
+ *
  *
  */
 @Entity
 @Table(name="academy_queues")
 public class AcademyQueueEntry {
-	
+
 	private static Map<Integer,Offizier.Ability> dTrain = new HashMap<Integer,Offizier.Ability>();
-	
+
 	static {
 		dTrain.put(1, Offizier.Ability.ING);
 		dTrain.put(2, Offizier.Ability.WAF);
@@ -61,13 +61,13 @@ public class AcademyQueueEntry {
 		dTrain.put(4, Offizier.Ability.SEC);
 		dTrain.put(5, Offizier.Ability.COM);
 	}
-	
+
 	/**
 	 * Lognachrichten der zuletzt aufgerufenen Methoden. Die Nachrichten sind Thread-Lokal.
 	 */
 	@Transient
 	public final ContextLocalMessage MESSAGE = new ContextLocalMessage();
-		
+
 	@Id @GeneratedValue
 	private int id;
 	@ManyToOne
@@ -83,25 +83,25 @@ public class AcademyQueueEntry {
 	 * Konstruktor.
 	 *
 	 */
-	public AcademyQueueEntry() 
+	public AcademyQueueEntry()
 	{
 		// EMPTY
 	}
-	
+
 	/**
 	 * Erstellt einen neuen Bauschlangeneintrag.
 	 * @param academy Die Akademie zu der die Bauschlange gehoert
 	 * @param training Der zu trainierende offz (id, bei neuen offizieren -1 bis -4)
 	 * @param remaining Die verbleibende Bauzeit
 	 */
-	public AcademyQueueEntry(Academy academy, int training, int remaining) 
+	public AcademyQueueEntry(Academy academy, int training, int remaining)
 	{
 		this.academy = academy;
 		this.position = getNextEmptyPosition();
 		this.training = training;
 		this.remaining = remaining;
 	}
-	
+
 	/**
 	 * Erstellt einen neuen Bauschlangeneintrag.
 	 * @param academy Die Akademie zu der die Bauschlange gehoert
@@ -113,8 +113,8 @@ public class AcademyQueueEntry {
 		this(academy,training,remaining);
 		this.trainingtype = trainingtype;
 	}
-		
-	private int getNextEmptyPosition() 
+
+	private int getNextEmptyPosition()
 	{
 		int maxpos = 0;
 		for( AcademyQueueEntry entry : this.academy.getQueueEntries() )
@@ -123,7 +123,7 @@ public class AcademyQueueEntry {
 		}
 		return maxpos+1;
 	}
-	
+
 	/**
 	 * Gibt die Id zurueck.
 	 * @return Die Id
@@ -131,7 +131,7 @@ public class AcademyQueueEntry {
 	public int getId() {
 		return this.id;
 	}
-		
+
 	/**
 	 * Gibt die Basis zurueck, zu der die Bauschlange gehoert.
 	 * @return Die Basis
@@ -139,7 +139,7 @@ public class AcademyQueueEntry {
 	public Academy getAcademy() {
 		return this.academy;
 	}
-	
+
 	/**
 	 * Gibt die Position des Eintrags innerhalb der Bauschlange zurueck.
 	 * @return Die Position
@@ -180,7 +180,7 @@ public class AcademyQueueEntry {
 	public int getTraining() {
 		return this.training;
 	}
-	
+
 	/**
 	 * Gibt den Typ der Auusbildung zurueck.
 	 * @return Der Typ der Ausbildung (0 = neuer Offizier, 1-5 Aufgewertete Eigenschaft)
@@ -188,7 +188,7 @@ public class AcademyQueueEntry {
 	public int getTrainingType() {
 		return this.trainingtype;
 	}
-	
+
 	/**
 	 * Gibt zurueck, ob der Eintrag gerade zum Bau vorgesehen ist.
 	 * @return <code>true</code>, falls er gerade gebaut wird
@@ -207,7 +207,7 @@ public class AcademyQueueEntry {
 
 	/**
 	 * Beendet den Trainingsprozess dieses Bauschlangeneintrags erfolgreich.
-	 * 
+	 *
 	 * @return <code>true</code> wenn erfolgreich, ansonsten <code>false</code>
 	 */
 	public boolean finishBuildProcess() {
@@ -215,22 +215,22 @@ public class AcademyQueueEntry {
 
 		Context context = ContextMap.getContext();
 		Session db = context.getDB();
-		
+
 		if( !this.isScheduled() ) {
 			return false;
 		}
-		
+
 		// Speichere alle wichtigen Daten
 		int offizier = this.training;
 		int training = this.trainingtype;
 		User owner = this.academy.getBase().getOwner();
 		int race = owner.getRace();
 		int position = this.position;
-		
+
 		// Loesche Eintrag und berechne Queue neu
 		db.delete(this);
 		this.academy.getQueueEntries().remove(this);
-		
+
 		for(AcademyQueueEntry entry: this.academy.getQueueEntries())
 		{
 			if( entry.getPosition() > position )
@@ -240,7 +240,7 @@ public class AcademyQueueEntry {
 		}
 		db.flush();
 		academy.rescheduleQueue();
-		
+
 		if(training == 0)
 		{
 			/*
@@ -249,7 +249,7 @@ public class AcademyQueueEntry {
 			String offiname = getNewOffiName(race);
 
 			Offizier offz = new Offizier(owner, offiname);
-			
+
 			if( !Offiziere.LIST.containsKey(-offizier) ) {
 				offizier = -Offiziere.LIST.keySet().iterator().next();
 			}
@@ -275,9 +275,9 @@ public class AcademyQueueEntry {
 			/*
 			 * Offizier wurde weitergebildet
 			 */
-			
+
 			final Offizier.Ability ability = dTrain.get(training);
-			
+
 			final Offizier offz = Offizier.getOffizierByID(offizier);
 			offz.setAbility(ability, offz.getAbility(ability)+2);
 			if( !academy.isOffizierScheduled(offz.getID()) )
@@ -286,10 +286,10 @@ public class AcademyQueueEntry {
 			}
 			id = (Integer)db.save(offz);
 		}
-		
+
 		return true;
 	}
-		
+
 	/**
 	 * Dekrementiert die verbliebene Bauzeit um 1.
 	 */
@@ -297,7 +297,7 @@ public class AcademyQueueEntry {
 		if( this.getRemainingTime() <= 0 ) {
 			return;
 		}
-		
+
 		this.setRemainingTime(this.getRemainingTime()-1);
 	}
 
@@ -306,8 +306,8 @@ public class AcademyQueueEntry {
 	 * @param race Die Rasse aus der der Offiziersname generiert werden soll
 	 * @return Der Offiziersname
 	 */
-	private String getNewOffiName(int race) 
-	{		
+	private String getNewOffiName(int race)
+	{
 		String offiname = "Offizier";
 
 		NameGenerator generator = Rassen.get().rasse(race).getNameGenerator(Rasse.GeneratorType.PERSON);
@@ -317,15 +317,15 @@ public class AcademyQueueEntry {
 
 		return offiname;
 	}
-	
+
 	/**
 	 * Gibt zurueck ob es sich bei dem Eintrag um den letzten Eintrag der Bauschlange handelt.
 	 * @return <code>true</code> wenn es sich um den letzten Eintrag handelt, ansonsten <code>false</code>
 	 */
 	public boolean isLastPosition() {
-		
+
 		int lastposition = this.getNextEmptyPosition()-1;
-		
+
 		if( this.getPosition() == lastposition )
 		{
 			return true;
@@ -335,9 +335,10 @@ public class AcademyQueueEntry {
 
 	/**
 	 * Loescht den Eintrag aus der Bauschlange.
-	 */	
+	 */
 	public void deleteQueueEntry() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		db.delete(this);
+		this.getAcademy().getQueueEntries().remove(this);
 	}
 }

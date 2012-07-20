@@ -119,11 +119,10 @@ public class AcademyBuilding extends DefaultBuilding {
 		}
 
 
-		// Entlasse Offiziere aus der Akademie
-		db.createQuery("update Offizier set dest=? where dest=?")
-			.setString(0, "b "+base.getId())
-			.setString(1, "t "+base.getId())
-			.executeUpdate();
+		for( Offizier offizier : Offizier.getOffiziereByDest('t', base.getId()) )
+		{
+			offizier.setDest("b", base.getId());
+		}
 	}
 
 	@Override
@@ -341,10 +340,8 @@ public class AcademyBuilding extends DefaultBuilding {
 				{
 					if( !academy.isOffizierScheduled(offid))
 					{
-						db.createQuery("update Offizier set dest=:dest where id=:id")
-						.setParameter("dest", "b "+base.getId())
-						.setParameter("id", offid)
-						.executeUpdate();
+						Offizier offizier = Offizier.getOffizierByID(offid);
+						offizier.setDest("b", base.getId());
 					}
 				}
 				if( academy.getNumberScheduledQueueEntries() == 0 ) {
@@ -464,6 +461,8 @@ public class AcademyBuilding extends DefaultBuilding {
 						academy.setTrain(true);
 						academy.rescheduleQueue();
 
+						t.setVar("academy.actualbuilds", academy.getNumberScheduledQueueEntries());
+
 						t.parse( "OUT", "_BUILDING" );
 						return t.getVar("OUT");
 					}
@@ -495,17 +494,18 @@ public class AcademyBuilding extends DefaultBuilding {
 			{
 				if( entry.getTraining() > 0 )
 				{
+					Offizier offi = Offizier.getOffizierByID(entry.getTraining());
 					t.setVar(
 							"trainoffizier.id", entry.getTraining(),
-							"trainoffizier.name", Offizier.getOffizierByID(entry.getTraining()).getName(),
+							"trainoffizier.name", offi.getName(),
 							"trainoffizier.attribute", attributes.get(entry.getTrainingType()),
-							"trainoffizier.offi", true
+							"trainoffizier.offi", true,
+							"trainoffizier.picture", offi.getPicture()
 							);
 				}
 				else
 				{
 					t.setVar(
-							"trainoffizier.id", "",
 							"trainoffizier.attribute", "Neuer Offizier",
 							"trainoffizier.name", Common._plaintext(offis.get(-entry.getTraining())),
 							"trainoffizier.offi", false
@@ -621,7 +621,7 @@ public class AcademyBuilding extends DefaultBuilding {
 	{
 		return false;
 	}
-	
+
 	protected static class AcademyQueueEntryComparator implements Comparator<AcademyQueueEntry>
 	{
 		@Override
