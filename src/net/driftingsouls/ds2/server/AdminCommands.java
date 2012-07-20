@@ -94,7 +94,6 @@ public class AdminCommands {
 		cmds.put("destroyship", DestroyShipCommand.class);
 		cmds.put("buildimgs", BuildImgsCommand.class);
 		cmds.put("exectask", ExecTaskCommand.class);
-		cmds.put("clearcaches", ClearCachesCommand.class);
 		cmds.put("tick", TickCommand.class);
 	}
 
@@ -245,23 +244,6 @@ public class AdminCommands {
 		public List<String> autoComplete(String[] command)
 		{
 			return Arrays.asList("<regular|rare> run [TickClassName]");
-		}
-	}
-
-	protected static class ClearCachesCommand implements Command {
-		@Override
-		public String execute( Context context, String[] command ) {
-			String output = "Caches geleert";
-
-			CacheManager.getInstance().clearCaches();
-
-			return output;
-		}
-
-		@Override
-		public List<String> autoComplete(String[] command)
-		{
-			return new ArrayList<String>();
 		}
 	}
 
@@ -422,22 +404,64 @@ public class AdminCommands {
 			if( command.length == 1 ) {
 				return Arrays.asList("<shipId> ...");
 			}
+
+			List<String> validCommands = Arrays.asList(
+					"heat","engine","weapons",
+					"jumptarget","e","pos",
+					"hull","shields","crew",
+					"info","additemmodule");
+
 			if( command.length == 2 ||
-					!Arrays.asList("heat","engine","weapons","jumptarget","e","pos","hull","shields","crew","info","additemmodule").contains(command[2]) ) {
-				return Arrays.asList(command[1]+" <heat|engine|weapons|jumptarget|e|pos|hull|shields|crew|info|additemmodule> ...");
+					!validCommands.contains(command[2]) ) {
+				List<String> autoComplete = new ArrayList<String>();
+				for( String cmd : validCommands )
+				{
+					autoComplete.add(autoCompleteShip(command)+" "+cmd+" ... ");
+				}
+				return autoComplete;
 			}
 
 			if( "pos".equals(command[2]) ) {
-				return Arrays.asList(command[1]+" "+command[2]+" <location>");
+				return Arrays.asList(autoCompleteShip(command)+" "+command[2]+" <location>");
 			}
 			if( "info".equals(command[2]) ) {
-				return Arrays.asList(command[1]+" "+command[2]);
+				return Arrays.asList(autoCompleteShip(command)+" "+command[2]);
 			}
 			if( "additemmodule".equals(command[2]) ) {
-				return Arrays.asList(command[1]+" "+command[2]+" <slot> <itemID (Integer)>");
+				return Arrays.asList(autoCompleteShip(command)+" "+command[2]+" <slot> "+autoCompleteModuleItem(command));
 			}
 
-			return Arrays.asList(command[1]+" "+command[2]+" <value>");
+			return Arrays.asList(autoCompleteShip(command)+" "+command[2]+" <value>");
+		}
+
+		private String autoCompleteModuleItem(String[] command)
+		{
+			if( command.length < 5 || !NumberUtils.isNumber(command[4]) )
+			{
+				return "<itemId (Integer)>";
+			}
+			org.hibernate.Session db = ContextMap.getContext().getDB();
+			Item item = (Item)db.get(Item.class, Integer.valueOf(command[4]));
+			if( item == null )
+			{
+				return "<itemId (Integer)>";
+			}
+			return "<"+item.getName()+" ("+item.getID()+")>";
+		}
+
+		private String autoCompleteShip(String[] command)
+		{
+			String shipLabel = "<shipId>";
+			if( command.length > 1 && NumberUtils.isNumber(command[1]) )
+			{
+				org.hibernate.Session db = ContextMap.getContext().getDB();
+				Ship ship = (Ship)db.get(Ship.class, Integer.valueOf(command[1]));
+				if( ship != null )
+				{
+					shipLabel = "<"+ship.getName()+" ("+ship.getId()+")>";
+				}
+			}
+			return shipLabel;
 		}
 	}
 
@@ -497,10 +521,67 @@ public class AdminCommands {
 			return output;
 		}
 
+		private String getItemAutoComplete(String[] command)
+		{
+			if( command.length < 3 )
+			{
+				return "<resId>";
+			}
+
+			Item item = null;
+			try {
+				ResourceID resid = Resources.fromString(command[2]);
+				org.hibernate.Session db = ContextMap.getContext().getDB();
+				item = (Item)db.get(Item.class, resid.getItemID());
+			}
+			catch( RuntimeException e ) {
+				// EMPTY
+			}
+			if( item == null )
+			{
+				return "<resId>";
+			}
+			return "<"+item.getName()+" ("+item.getID()+")>";
+		}
+
+		private String getTargetAutoComplete(String[] command)
+		{
+			if( command.length < 2 || command[1].length() < 2 )
+			{
+				return "<(b|s)ObjektID>";
+			}
+			org.hibernate.Session db = ContextMap.getContext().getDB();
+
+			String id = command[1].substring(1);
+			if( !NumberUtils.isNumber(id) )
+			{
+				return "<(b|s)ObjektID>";
+			}
+			char c = command[1].charAt(0);
+
+			if( c == 'b' ) {
+				Base base = (Base)db.get(Base.class, Integer.parseInt(id));
+				if( base == null ) {
+					return "<(b|s)ObjektID>";
+				}
+				return "<Basis "+base.getName()+" ("+base.getId()+")>";
+			}
+			else if( c == 's' ){
+				Ship ship = (Ship)db.get(Ship.class, Integer.parseInt(id));
+				if( ship == null ) {
+					return "<(b|s)ObjektID>";
+				}
+				return "<Schiff "+ship.getName()+" ("+ship.getId()+")>";
+			}
+			else {
+				return "<(b|s)ObjektID>";
+			}
+		}
+
 		@Override
 		public List<String> autoComplete(String[] command)
 		{
-			return Arrays.asList("<(b|s)ObjektID> <resID> <Menge>");
+			return Arrays.asList(getTargetAutoComplete(command)+" "+getItemAutoComplete(command)+" <Menge>");
 		}
 	}
 
