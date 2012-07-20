@@ -37,37 +37,94 @@ import org.springframework.beans.factory.annotation.Configurable;
 public class PlayerStatistics implements AdminPlugin {
 
 	@Override
-	public void output(AdminController controller, String page, int action) throws IOException {
+	public void output(AdminController controller, String page, int action) throws IOException
+	{
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
 		Writer echo = context.getResponse().getWriter();
 
 		echo.write("<div class='gfxbox' style='width:700px'>");
+		echo.write("<script type='text/javascript'>$(document).ready(function(){");
+		echo.write("var data = [");
+		echo.write(
+			getJsValue(
+				"Aktive Spieler (<=49 Ticks)",
+				"select count(*) from User where inakt<=49 and id>4 and (vaccount=0 OR wait4vac>0)"));
+		echo.write(",");
+		echo.write(
+			getJsValue(
+				"tw. aktive Spieler (50 - 98 Ticks)",
+				"select count(*) from User where inakt>49 and inakt<=98 and id>4 and (vaccount=0 OR wait4vac>0)"));
+		echo.write(",");
+		echo.write(
+			getJsValue(
+				"tw. inaktive Spieler (99 - 299 Ticks)",
+				"select count(*) from User where inakt>98 and inakt<300 and id>4 and (vaccount=0 OR wait4vac>0)"));
+		echo.write(",");
+		echo.write(
+			getJsValue(
+				"Inaktive Spieler (>=300 Ticks)",
+				"select count(*) from User where inakt>=300 and id>4 and (vaccount=0 OR wait4vac>0)"));
+		echo.write(",");
+		echo.write(
+			getJsValue(
+				"Spieler in Vacation",
+				"select count(*) from User where id>4 and (vaccount>0 AND wait4vac=0)"));
+		echo.write("];\n");
+		echo.write("var plot = DS.plot('chart1', [data], { title:'Spieler', seriesDefaults : {");
+		echo.write("renderer: $.jqplot.PieRenderer, rendererOptions:{showDataLabels:true, dataLabels:'value', dataLabelThreshold:0}}, ");
+		echo.write("legend:{show:true, location:'e'},");
+		echo.write("highlighter: {show:true}");
+		echo.write("});");
+		echo.write("});</script>");
+		echo.write("<div id='chart1' style='height:300px'></div>");
+
+
 		echo.write("<table><thead><tr><th>Gruppe</th><th>Anzahl</th></tr></thead>");
 		echo.write("<tbody>");
 
-		long count = (Long)db
-			.createQuery("select count(*) from User where inakt<=49 and id>4 and (vaccount=0 OR wait4vac>0)")
-			.uniqueResult();
-		echo.write("<tr><td>Aktive Spieler (<=49 Ticks)</td><td>"+count+"</td></tr>");
+		addValue(echo,
+				"Spieler",
+				"select count(*) from User where id>4");
 
-		count = (Long)db
-			.createQuery("select count(*) from User where inakt>=300 and id>4 and (vaccount=0 OR wait4vac>0)")
-			.uniqueResult();
-		echo.write("<tr><td>Inaktive Spieler (>=300 Ticks)</td><td>"+count+"</td></tr>");
+		addValue(echo,
+				"NPCs",
+				"select count(*) from User where id<=4");
 
-		count = (Long)db
-			.createQuery("select count(*) from User where id>4 and (vaccount>0 AND wait4vac=0)")
-			.uniqueResult();
-		echo.write("<tr><td>Spieler in Vacation</td><td>"+count+"</td></tr>");
+		addValue(echo,
+				"Echte NPCs (id<0)",
+				"select count(*) from User where id<=0");
 
-		count = (Long)db
-			.createQuery("select count(*) from User where inakt<=49 and id<5 and (vaccount=0 OR wait4vac>0)")
-			.uniqueResult();
-		echo.write("<tr><td>Aktive NPCs (<=49 Ticks)</td><td>"+count+"</td></tr>");
+		addValue(echo,
+				"Aktive NPCs (<=49 Ticks)",
+				"select count(*) from User where inakt<=49 and id<5 and (vaccount=0 OR wait4vac>0)");
+
+		addValue(echo,
+				"Inaktive NPCs (>=300 Ticks)",
+				"select count(*) from User where inakt>=300 and id<5 and (vaccount=0 OR wait4vac>0)");
 
 		echo.write("</tbody></table>");
 		echo.write("</div>");
 	}
 
+	private String getJsValue(String label, String query) throws IOException
+	{
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+
+		long count = (Long)db
+			.createQuery(query)
+			.uniqueResult();
+		return "['"+label+"',"+count+"]";
+	}
+
+	private void addValue(Writer echo, String label, String query) throws IOException
+	{
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+
+		long count = (Long)db
+			.createQuery(query)
+			.uniqueResult();
+		echo.write("<tr><td>"+label+"</td><td>"+count+"</td></tr>");
+	}
 }

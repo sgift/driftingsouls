@@ -79,7 +79,7 @@ var DS = {
 		}
 		if( typeof options.seriesColors === 'undefined' ) {
 			options.seriesColors = [
-					"#FEB626", "#c5b47f", "#EAA228", "#579575", "#839557", "#958c12",
+					"#FEB626", "#c5b47f", "#FA9248", "#579575", "#A3B557", "#958c12",
 					"#953579", "#4b5de4", "#d8b83f", "#ff5800", "#0085cc"];
 		}
 
