@@ -51,20 +51,20 @@ public class ShipFleet {
 	 * Objekt mit Funktionsmeldungen.
 	 */
 	public static final ContextLocalMessage MESSAGE = new ContextLocalMessage();
-	
+
 	@Id @GeneratedValue
 	private int id;
 	private String name;
-	
+
 	@Version
 	private int version;
-	
+
 	@Transient
 	private boolean consignMode = false;
-	
+
 	@Transient
 	private final Logger log = Logger.getLogger(ShipFleet.class);
-	
+
 	/**
 	 * Konstruktor.
 	 *
@@ -72,7 +72,7 @@ public class ShipFleet {
 	public ShipFleet() {
 		// EMPTY
 	}
-	
+
 	/**
 	 * <p>Konstruktor.</p>
 	 * Erstellt eine neue Flotte
@@ -105,22 +105,22 @@ public class ShipFleet {
 	public int getId() {
 		return id;
 	}
-	
+
 	/**
 	 * Gibt den Besitzer der Flotte zurueck.
 	 * @return Der Besitzer
 	 */
 	public User getOwner() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
+
 		return (User)db.createQuery("select s.owner from Ship as s where s.id>0 and s.fleet=?")
 			.setEntity(0, this)
 			.setMaxResults(1)
 			.uniqueResult();
 	}
-	
+
 	/**
-	 * Sammelt alle Jaeger eines Typs auf und landet sie auf den Schiffen 
+	 * Sammelt alle Jaeger eines Typs auf und landet sie auf den Schiffen
 	 * der Flotte. Sollen alle Jaeger aufgesammelt werden, so muss als Typ
 	 * <code>0</code> angegeben werden.
 	 * @param user Der Besitzer der Flotte/Jaeger
@@ -128,15 +128,15 @@ public class ShipFleet {
 	 */
 	public void collectFightersByType(User user, int jaegertypeID) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
+
 		List<?> ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null" )
 			.setEntity(0, this)
 			.list();
-		
+
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship ship = (Ship)iter.next();
 			ShipTypeData shiptype = ship.getTypeData();
-			
+
 			if( shiptype.getJDocks() == 0 ) {
 				continue;
 			}
@@ -144,9 +144,9 @@ public class ShipFleet {
 			if( free == 0 ) {
 				continue;
 			}
-			
+
 			List<Ship>jaegerlist = new ArrayList<Ship>();
-			
+
 			Query jaegerListeQuery = db.createQuery("from Ship as s left join fetch s.modules " +
 					"where "+(jaegertypeID > 0 ? "s.shiptype=:shiptype and " : "")+"s.owner=:user and s.system=:system and " +
 							"s.x=:x and s.y=:y and s.docked='' and " +
@@ -158,16 +158,16 @@ public class ShipFleet {
 				.setInteger("x", ship.getX())
 				.setInteger("y", ship.getY())
 				.setString("jaegerFlag", ShipTypes.SF_JAEGER);
-			
+
 			if( jaegertypeID > 0 ) {
 				jaegerListeQuery.setInteger("shiptype", jaegertypeID);
 			}
 			List<Ship> jaegerliste = Common.cast(jaegerListeQuery.list());
-			
+
 			if( jaegerliste.isEmpty() ) {
 				break;
 			}
-			
+
 			jaegerlist = jaegerliste.subList(0, free > jaegerliste.size() ? jaegerliste.size() : free);
 			ship.land(jaegerlist.toArray(new Ship[jaegerlist.size()]));
 		}
@@ -179,18 +179,18 @@ public class ShipFleet {
 	 */
 	public void setAlarm(int alarm) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
+
 		List<?> ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null" )
 			.setEntity(0, this)
 			.list();
-		
+
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship ship = (Ship)iter.next();
-		
+
 			if( (ship.getTypeData().getShipClass() == ShipClasses.GESCHUETZ.ordinal()) || !ship.getTypeData().isMilitary() ) {
 				continue;
 			}
-			
+
 			ship.setAlarm(alarm);
 		}
 	}
@@ -201,12 +201,12 @@ public class ShipFleet {
 	 */
 	public void joinFleet(ShipFleet targetFleet) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
+
 		db.createQuery("update Ship set fleet=? where id>0 and fleet=?")
 			.setEntity(0, this)
 			.setEntity(1, targetFleet)
 			.executeUpdate();
-		
+
 		// Problem i<0 beruecksichtigen - daher nur loeschen, wenn die Flotte auch wirklich leer ist
 		long count = (Long)db.createQuery("select count(*) from Ship where fleet=?")
 			.setEntity(0, targetFleet)
@@ -222,7 +222,7 @@ public class ShipFleet {
 	 */
 	public void startFighters() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
+
 		List<?> ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null")
 			.setEntity(0, this)
 			.list();
@@ -238,25 +238,25 @@ public class ShipFleet {
 	 */
 	public void collectContainers(User user) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
+
 		List<?> ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null" )
 			.setEntity(0, this)
 			.list();
-		
+
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship ship = (Ship)iter.next();
 			ShipTypeData shiptype = ship.getTypeData();
-			
+
 			if( shiptype.getADocks() == 0 ) {
 				continue;
 			}
-	
+
 			int free = shiptype.getADocks() - (int)ship.getDockedCount();
 			if( free == 0 ) {
 				continue;
 			}
 			List<Ship> containerlist = new ArrayList<Ship>();
-			
+
 			List<?> containers = db.createQuery("from Ship as s " +
 					"where s.owner=? and s.system=? and s.x=? and s.y=? and s.docked='' and " +
 							"s.shiptype.shipClass=? and s.battle is null " +
@@ -267,11 +267,11 @@ public class ShipFleet {
 				.setInteger(3, ship.getY())
 				.setInteger(4, ShipClasses.CONTAINER.ordinal())
 				.list();
-			
+
 			if( containers.isEmpty() ) {
 				break;
 			}
-			
+
 			containerlist = Common.cast(containers,Ship.class).subList(0, free > containers.size() ? containers.size() : free);
 			ship.dock(containerlist.toArray(new Ship[containerlist.size()]));
 		}
@@ -283,7 +283,7 @@ public class ShipFleet {
 	 */
 	public void undockContainers() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
+
 		List<?> ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null")
 			.setEntity(0, this)
 			.list();
@@ -292,7 +292,7 @@ public class ShipFleet {
 			aship.undock();
 		}
 	}
-	
+
 	/**
 	 * Uebergibt alle Schiffe der Flotte an den angegebenen Spieler. Meldungen
 	 * werden dabei nach {@link #MESSAGE} geschrieben.
@@ -301,9 +301,9 @@ public class ShipFleet {
 	 */
 	public boolean consign(User newowner) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
+
 		int count = 0;
-		
+
 		this.consignMode = true;
 		try {
 			List<?> shiplist = db.createQuery("from Ship where fleet=? and battle is null" )
@@ -312,10 +312,10 @@ public class ShipFleet {
 			for( Iterator<?> iter=shiplist.iterator(); iter.hasNext(); ) {
 				Ship aship = (Ship)iter.next();
 				boolean tmp = aship.consign(newowner, false );
-			
+
 				String msg = Ship.MESSAGE.getMessage();
 				if( msg.length() > 0 ) {
-					MESSAGE.get().append(msg+"<br />");	
+					MESSAGE.get().append(msg+"<br />");
 				}
 				if( !tmp ) {
 					count++;
@@ -326,10 +326,10 @@ public class ShipFleet {
 		finally {
 			this.consignMode = false;
 		}
-		
+
 		return count > 0;
 	}
-	
+
 	/**
 	 * Entfernt ein Schiff aus der Flotte. Sollte die Flotte anschliessend zu wenige Schiffe haben
 	 * wird sie aufgeloesst.
@@ -339,9 +339,9 @@ public class ShipFleet {
 		if( !this.equals(ship.getFleet()) ) {
 			throw new IllegalArgumentException("Das Schiff gehoert nicht zu dieser Flotte");
 		}
-		
+
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
+
 		int fleetcount = ((Number)db.createQuery("select count(*) from Ship where fleet=? and id>0")
 				.setInteger(0, this.id)
 				.iterate().next()).intValue();
@@ -349,7 +349,7 @@ public class ShipFleet {
 		if( fleetcount > 2 || this.consignMode ) {
 			ship.setFleet(null);
 			MESSAGE.get().append("aus der Flotte ausgetreten");
-		} 
+		}
 		else {
 			final Iterator<?> shipIter = db.createQuery("from Ship where fleet=?")
 				.setEntity(0, this)
@@ -358,7 +358,7 @@ public class ShipFleet {
 				Ship aship = (Ship)shipIter.next();
 				aship.setFleet(null);
 			}
-			
+
 			db.delete(this);
 			MESSAGE.get().append("Flotte aufgel&ouml;&szlig;t");
 		}
@@ -384,10 +384,10 @@ public class ShipFleet {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Schickt die Flotte in die Werft zur Demontage.
-	 * 
+	 *
 	 * @param shipyard Werft, in der die Schiffe demontiert werden sollen.
 	 * @return <code>true</code>, wenn alle Schiffe demontiert wurden.
 	 */
@@ -408,10 +408,10 @@ public class ShipFleet {
 		{
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * Fuegt das angegebene Schiff zur Flotte hinzu.
 	 * @param ship Das Schiff das hinzugefuegt werden soll
@@ -427,5 +427,18 @@ public class ShipFleet {
 	 */
 	public int getVersion() {
 		return this.version;
+	}
+
+	/**
+	 * Gibt alle Schiffe der Flotte unabhaengig von Position/Besitzer zurueck.
+	 * @return Die Schiffe
+	 */
+	public List<Ship> getShips()
+	{
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		return Common.cast(db
+				.createQuery("from Ship where fleet=:fleet")
+	 			.setParameter("fleet", this)
+	 			.list());
 	}
 }

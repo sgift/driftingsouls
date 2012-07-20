@@ -31,6 +31,10 @@
 		</text>
 	</faction>
 
+	<faction id="-15" menusize="200">
+		<page id="shop" />
+	</faction>
+
 	<faction id="-19" menusize="630">
 		<page id="general" />
 		<page id="angebote" />

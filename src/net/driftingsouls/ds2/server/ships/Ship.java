@@ -2913,6 +2913,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	public List<Ship> getDockedShips()
 	{
+		if( this.getTypeData().getADocks() == 0 )
+		{
+			return new ArrayList<Ship>();
+		}
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		List<Ship> dockshipList = Common.cast(db.createQuery("from Ship where id>0 and docked= :docked")
 			.setString("docked", Integer.toString(this.id))
@@ -2926,6 +2930,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	public List<Ship> getLandedShips()
 	{
+		if( this.getTypeData().getJDocks() == 0 )
+		{
+			return new ArrayList<Ship>();
+		}
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		List<Ship> landedshipsList = Common.cast(db.createQuery("from Ship where id>0 and docked= :docked")
 				.setString("docked", "l "+this.id)

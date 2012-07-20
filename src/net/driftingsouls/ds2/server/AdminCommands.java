@@ -54,11 +54,11 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.caches.CacheManager;
 import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipModules;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
@@ -87,6 +87,7 @@ public class AdminCommands {
 	public AdminCommands()
 	{
 		cmds.put("editship", EditShipCommand.class);
+		cmds.put("editfleet", EditFleetCommand.class);
 		cmds.put("recalculateshipmodules", RecalcShipModulesCommand.class);
 		cmds.put("addresource", AddResourceCommand.class);
 		cmds.put("quest", QuestCommand.class);
@@ -247,6 +248,271 @@ public class AdminCommands {
 		}
 	}
 
+	protected static class EditFleetCommand implements Command {
+		@Override
+		public String execute( Context context, String[] command ) {
+			String output = "";
+			org.hibernate.Session db = context.getDB();
+
+			ShipFleet fleet = null;
+			if( NumberUtils.isNumber(command[1]) ) {
+				int fid = Integer.parseInt(command[1]);
+				fleet = (ShipFleet)db.get(ShipFleet.class, fid);
+			}
+			else if( command[1].length() > 1 && command[1].charAt(0) == 's' )
+			{
+				String id = command[1].substring(1);
+				if( NumberUtils.isNumber(id) )
+				{
+					Ship ship = (Ship)db.get(Ship.class, Integer.valueOf(id));
+					if( ship != null )
+					{
+						fleet = ship.getFleet();
+					}
+				}
+			}
+
+			if( fleet == null ) {
+				return "Flotte '"+command[1]+"' nicht gefunden";
+			}
+
+			if( command[2].equals("heat") ) {
+				if( !NumberUtils.isNumber(command[3]) ) {
+					return "Ueberhitzung ungueltig";
+				}
+				for( Ship ship : fleet.getShips() )
+				{
+					ship.setHeat(Integer.parseInt(command[3]));
+				}
+			}
+			else if( command[2].equals("engine") ) {
+				if( !NumberUtils.isNumber(command[3]) ) {
+					return "Antrieb ungueltig";
+				}
+				for( Ship ship : fleet.getShips() )
+				{
+					ship.setEngine(Integer.parseInt(command[3]));
+				}
+			}
+			else if( command[2].equals("weapons") ) {
+				if( !NumberUtils.isNumber(command[3]) ) {
+					return "Waffen ungueltig";
+				}
+				for( Ship ship : fleet.getShips() )
+				{
+					ship.setWeapons(Integer.parseInt(command[3]));
+				}
+			}
+			else if( command[2].equals("jumptarget") ) {
+				for( Ship ship : fleet.getShips() )
+				{
+					ship.setJumpTarget(command[3]);
+				}
+			}
+			else if( command[2].equals("e") ) {
+				if( !NumberUtils.isNumber(command[3]) ) {
+					return "Energie ungueltig";
+				}
+				for( Ship ship : fleet.getShips() )
+				{
+					ship.setEnergy(Integer.parseInt(command[3]));
+				}
+			}
+			else if( command[2].equals("pos") ) {
+				Location loc = Location.fromString(command[3]);
+
+				for( Ship ship : fleet.getShips() ) {
+					ship.setSystem(loc.getSystem());
+					ship.setX(loc.getX());
+					ship.setY(loc.getY());
+					for( Ship lship : ship.getLandedShips() )
+					{
+						lship.setSystem(loc.getSystem());
+						lship.setX(loc.getX());
+						lship.setY(loc.getY());
+					}
+					for( Ship lship : ship.getDockedShips() )
+					{
+						lship.setSystem(loc.getSystem());
+						lship.setX(loc.getX());
+						lship.setY(loc.getY());
+					}
+				}
+			}
+			else if( command[2].equals("hull") ) {
+				if( !NumberUtils.isNumber(command[3]) ) {
+					return "Huelle ungueltig";
+				}
+				for( Ship ship : fleet.getShips() )
+				{
+					ship.setHull(Integer.parseInt(command[3]));
+				}
+			}
+			else if( command[2].equals("shields") ) {
+				if( !NumberUtils.isNumber(command[3]) ) {
+					return "Schilde ungueltig";
+				}
+				for( Ship ship : fleet.getShips() )
+				{
+					ship.setShields(Integer.parseInt(command[3]));
+				}
+			}
+			else if( command[2].equals("crew") ) {
+				if( !NumberUtils.isNumber(command[3]) ) {
+					return "Crew ungueltig";
+				}
+				for( Ship ship : fleet.getShips() )
+				{
+					ship.setCrew(Integer.parseInt(command[3]));
+				}
+			}
+			else if( command[2].equals("info") ) {
+				output += "Flotte: "+fleet.getId()+"\n";
+				output += "Name: "+fleet.getName()+"\n";
+				output += "Schiffe: "+fleet.getShips().size()+"\n";
+			}
+			else if( command[2].equals("additemmodule") ) {
+				if( !NumberUtils.isNumber(command[3]) ) {
+					return "Slot ungueltig";
+				}
+				int slot = Integer.parseInt(command[3]);
+
+				if( !NumberUtils.isNumber(command[4]) ) {
+					return "Item-ID ungueltig";
+				}
+				int itemid = Integer.parseInt(command[4]);
+				Item item = (Item)db.get(Item.class, itemid);
+
+				if( (item == null) || (item.getEffect().getType() != ItemEffect.Type.MODULE) ) {
+					return "Das Item passt nicht";
+				}
+
+				for( Ship ship : fleet.getShips() ) {
+					ship.addModule( slot, ModuleType.ITEMMODULE, Integer.toString(itemid) );
+
+					ShipTypeData shiptype = ship.getTypeData();
+
+					if( ship.getHull() > shiptype.getHull() ) {
+						ship.setHull(shiptype.getHull());
+					}
+
+					if( ship.getShields() > shiptype.getShields() ) {
+						ship.setShields(shiptype.getShields());
+					}
+
+					if( ship.getEnergy() > shiptype.getEps() ) {
+						ship.setEnergy(shiptype.getEps());
+					}
+
+					if( ship.getCrew() > shiptype.getCrew() ) {
+						ship.setCrew(shiptype.getCrew());
+					}
+
+					if( shiptype.getWerft() != 0 ) {
+						ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where shipid=?")
+							.setInteger(0, ship.getId())
+							.uniqueResult();
+
+						if( werft == null ) {
+							werft = new ShipWerft(ship);
+							db.persist(werft);
+						}
+					}
+				}
+
+				output = "Modul '"+item.getName()+"'@"+slot+" eingebaut\n";
+			}
+			else {
+				output = "Unknown editship sub-command >"+command[2]+"<";
+			}
+			for( Ship ship : fleet.getShips() )
+			{
+				ship.recalculateShipStatus();
+			}
+
+			return output;
+		}
+
+		@Override
+		public List<String> autoComplete(String[] command)
+		{
+			if( command.length == 1 ) {
+				return Arrays.asList("<fleetId|s<ShipId>> ...");
+			}
+
+			List<String> validCommands = Arrays.asList(
+					"heat","engine","weapons",
+					"jumptarget","e","pos",
+					"hull","shields","crew",
+					"info","additemmodule");
+
+			if( command.length == 2 ||
+					!validCommands.contains(command[2]) ) {
+				List<String> autoComplete = new ArrayList<String>();
+				for( String cmd : validCommands )
+				{
+					autoComplete.add(autoCompleteFleet(command)+" "+cmd+" ... ");
+				}
+				return autoComplete;
+			}
+
+			if( "pos".equals(command[2]) ) {
+				return Arrays.asList(autoCompleteFleet(command)+" "+command[2]+" <location>");
+			}
+			if( "info".equals(command[2]) ) {
+				return Arrays.asList(autoCompleteFleet(command)+" "+command[2]);
+			}
+			if( "additemmodule".equals(command[2]) ) {
+				return Arrays.asList(autoCompleteFleet(command)+" "+command[2]+" <slot> "+autoCompleteModuleItem(command));
+			}
+
+			return Arrays.asList(autoCompleteFleet(command)+" "+command[2]+" <value>");
+		}
+
+		private String autoCompleteModuleItem(String[] command)
+		{
+			if( command.length < 5 || !NumberUtils.isNumber(command[4]) )
+			{
+				return "<itemId (Integer)>";
+			}
+			org.hibernate.Session db = ContextMap.getContext().getDB();
+			Item item = (Item)db.get(Item.class, Integer.valueOf(command[4]));
+			if( item == null )
+			{
+				return "<itemId (Integer)>";
+			}
+			return "<"+item.getName()+" ("+item.getID()+")>";
+		}
+
+		private String autoCompleteFleet(String[] command)
+		{
+			String fleetLabel = "<fleetId|s<shipId>>";
+			if( command.length > 1 && NumberUtils.isNumber(command[1]) )
+			{
+				org.hibernate.Session db = ContextMap.getContext().getDB();
+				ShipFleet fleet = (ShipFleet)db.get(ShipFleet.class, Integer.valueOf(command[1]));
+				if( fleet != null )
+				{
+					fleetLabel = "<"+fleet.getName()+" ("+fleet.getId()+")>";
+				}
+			}
+			else if( command.length > 1 && command[1].length() > 2 && command[1].charAt(0) == 's')
+			{
+				String id = command[1].substring(1);
+				if( NumberUtils.isNumber(id) )
+				{
+					org.hibernate.Session db = ContextMap.getContext().getDB();
+					Ship ship = (Ship)db.get(Ship.class, Integer.valueOf(id));
+					if( ship != null && ship.getFleet() != null )
+					{
+						fleetLabel = "<"+ship.getFleet().getName()+" ("+ship.getFleet().getId()+")>";
+					}
+				}
+			}
+			return fleetLabel;
+		}
+	}
+
 	protected static class EditShipCommand implements Command {
 		@Override
 		public String execute( Context context, String[] command ) {
@@ -298,13 +564,18 @@ public class AdminCommands {
 				ship.setX(loc.getX());
 				ship.setY(loc.getY());
 
-				db.createQuery("update Ship set system=?,x=?,y=? where id>0 and docked in (?,?)")
-					.setInteger(0, loc.getSystem())
-					.setInteger(1, loc.getX())
-					.setInteger(2, loc.getY())
-					.setString(3, Integer.toString(ship.getId()))
-					.setString(4, "l "+ship.getId())
-					.executeUpdate();
+				for( Ship lship : ship.getLandedShips() )
+				{
+					lship.setSystem(loc.getSystem());
+					lship.setX(loc.getX());
+					lship.setY(loc.getY());
+				}
+				for( Ship lship : ship.getDockedShips() )
+				{
+					lship.setSystem(loc.getSystem());
+					lship.setX(loc.getX());
+					lship.setY(loc.getY());
+				}
 			}
 			else if( command[2].equals("hull") ) {
 				if( !NumberUtils.isNumber(command[3]) ) {
