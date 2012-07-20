@@ -52,7 +52,7 @@ public class PlayerStatistics implements AdminPlugin {
 		echo.write("<tr><td>Aktive Spieler (<=49 Ticks)</td><td>"+count+"</td></tr>");
 
 		count = (Long)db
-			.createQuery("select count(*) from User where inakt>=300 and id>4 and (vaccount>0 AND wait4vac=0)")
+			.createQuery("select count(*) from User where inakt>=300 and id>4 and (vaccount=0 OR wait4vac>0)")
 			.uniqueResult();
 		echo.write("<tr><td>Inaktive Spieler (>=300 Ticks)</td><td>"+count+"</td></tr>");
 
