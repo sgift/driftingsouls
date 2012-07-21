@@ -445,7 +445,7 @@ public class ItemInfoController extends TemplateGenerator {
 				data.append("-");
 			}
 
-			t.setVar(	"entry.name",	"Ben&ouml;tigt",
+			t.setVar(	"entry.name",	"Ben&ouml;tigte Technologie",
 						"entry.data",	data );
 
 			t.parse("itemdetails.entrylist", "itemdetails.entry", true);
@@ -474,10 +474,12 @@ public class ItemInfoController extends TemplateGenerator {
 
 			t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 
-			t.setVar(	"entry.name",	"Flagschiff",
-						"entry.data",	(effect.isFlagschiff() ? "ja" : "nein") );
-
-			t.parse("itemdetails.entrylist", "itemdetails.entry", true);
+			if( effect.isFlagschiff() )
+			{
+				t.setVar(	"entry.name",	"Flagschiff",
+							"entry.data",	"ja" );
+				t.parse("itemdetails.entrylist", "itemdetails.entry", true);
+			}
 
 			break;
 		}
@@ -618,12 +620,12 @@ public class ItemInfoController extends TemplateGenerator {
 				}
 				if( ammo.getSubDamage() != 0 ) {
 					data.append(ammo.getSubDamage()+" Subsystemschaden<br />\n");
-					data.append(ammo.getSubWS()+"% Subsystem-Trefferws<br />\n");
+					data.append(ammo.getSubWS()+"% Subsystem-Trefferwahrscheinlichkeit<br />\n");
 				}
-				data.append(ammo.getSmallTrefferWS()+"% Trefferws (J&auml;ger)<br />\n");
-				data.append(ammo.getTrefferWS()+"% Trefferws (Capitals)\n");
+				data.append(ammo.getSmallTrefferWS()+"% Trefferwahrscheinlichkeit gegen J&auml;ger<br />\n");
+				data.append(ammo.getTrefferWS()+"% Trefferwahrscheinlichkeit gegen Capitals\n");
 				if( ammo.getTorpTrefferWS() != 0 ) {
-					data.append("<br />"+ammo.getTorpTrefferWS()+"% Trefferws (Torpedos)\n");
+					data.append("<br />"+ammo.getTorpTrefferWS()+"% Trefferwahrscheinlichkeit gegen Torpedos\n");
 				}
 				if( ammo.getAreaDamage() != 0 ) {
 					data.append("<br />Umgebungsschaden ("+ammo.getAreaDamage()+")\n");
@@ -652,7 +654,7 @@ public class ItemInfoController extends TemplateGenerator {
 					}
 				}
 				if( weapons.length() > 0 ) {
-					t.setVar(	"entry.name",	"Waffe",
+					t.setVar(	"entry.name",	"Passende Waffen",
 								"entry.data",	weapons );
 					t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 				}
