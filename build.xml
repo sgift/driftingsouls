@@ -52,6 +52,10 @@
 	<!-- ==================== Compilation Classpath =========================== -->
 
 	<path id="compile.classpath">
+		<fileset dir="build-utils/lib">
+			<include name="*.jar"/>
+		</fileset>
+
 		<fileset dir="web/WEB-INF/lib">
 			<include name="*.jar"/>
 		</fileset>
@@ -62,6 +66,10 @@
 	</path>
 
 	<path id="test.classpath">
+		<fileset dir="build-utils/lib">
+			<include name="*.jar"/>
+		</fileset>
+
 		<fileset dir="web/WEB-INF/lib">
 			<include name="*.jar"/>
 		</fileset>
@@ -79,12 +87,6 @@
 		</fileset>
 
 		 <pathelement location="${build.home}/WEB-INF/classes"/>
-	</path>
-
-	<path id="ant.classpath">
-		<fileset dir="build-utils/lib">
-			<include name="*.jar"/>
-		</fileset>
 	</path>
 
 	<!-- ================== Custom Ant Task Definitions ======================= -->
