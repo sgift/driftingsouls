@@ -19,8 +19,8 @@
 package net.driftingsouls.ds2.server.modules;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -575,7 +575,7 @@ public class CommController extends TemplateGenerator {
 		if( special.equals("admin") && !hasPermission("comm", "adminPM") ) {
 			special = "";
 		}
-		if( special.equals("official") && !Rassen.get().rasse(user.getRace()).isHead(user.getId()) ) {
+		if( special.equals("official") && !hasPermission("comm", "offiziellePM") ) {
 			special = "";
 		}
 
@@ -913,12 +913,12 @@ public class CommController extends TemplateGenerator {
 		String title = getString("title");
 		String special = getString("special");
 
-		Map<String,String> specialuilist = new HashMap<String,String>();
+		Map<String,String> specialuilist = new LinkedHashMap<String,String>();
 		specialuilist.put("nichts", "");
 		if( hasPermission("comm", "adminPM") ) {
 			specialuilist.put("admin", "admin");
 		}
-		if( Rassen.get().rasse(user.getRace()).isHead(user.getId()) ) {
+		if( hasPermission("comm", "offiziellePM") ) {
 			specialuilist.put("official", "Offizielle PM");
 		}
 
@@ -1090,16 +1090,16 @@ public class CommController extends TemplateGenerator {
 		if( special.equals("admin") && !hasPermission("comm", "adminPM") ) {
 			special = "";
 		}
-		if( special.equals("official") && !Rassen.get().rasse(user.getRace()).isHead(user.getId()) ) {
+		if( special.equals("official") && !hasPermission("comm", "offiziellePM") ) {
 			special = "";
 		}
 
-		Map<String,String> specialuilist = new HashMap<String,String>();
+		Map<String,String> specialuilist = new LinkedHashMap<String,String>();
 		specialuilist.put("nichts", "");
 		if( hasPermission("comm", "adminPM") ) {
 			specialuilist.put("admin", "admin");
 		}
-		if( Rassen.get().rasse(user.getRace()).isHead(user.getId()) ) {
+		if( hasPermission("comm", "offiziellePM") ) {
 			specialuilist.put("Offizielle PM", "official");
 		}
 
