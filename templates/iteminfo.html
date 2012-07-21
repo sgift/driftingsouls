@@ -1,9 +1,11 @@
-<div class="gfxbox" style="width:460px">
-	{if iteminfo.message}
-		{iteminfo.message}<br />
-	{/endif}
+{if iteminfo.message}
+	<div class="gfxbox" style="width:460px">
+	{iteminfo.message}<br />
+	</div>
+{/endif}
 
-	{if iteminfo.details}
+{if iteminfo.details}
+	<div class="gfxbox" style="width:460px">
 		<div style="text-align:center;margin-bottom:5px;"><img src="{item.largePicture}" alt="" /></div>
 		<table cellspacing="3" style="width:100%">
 		<tr>
@@ -55,17 +57,22 @@
 			</td>
 		</tr>
 		</table>
-	{/endif}
+	</div>
+{/endif}
 
-	{if iteminfo.itemlist}
+{if iteminfo.itemlist}
+	<div class="gfxbox" style="min-width:460px;display:inline-block">
 		<table cellpadding="3">
-		<tr>
-			<td>&nbsp;</td>
-			<td style="width:300px;font-size:16px">Name</td>
-			<td style="width:100px;font-size:16px">Typ</td>
-			<td style="width:120px;font-size:16px">Gr&ouml;&szlig;e</td>
-			<td style="width:100px;font-size:16px">Menge</td>
-		</tr>
+		<thead>
+			<tr>
+				<th>&nbsp;</th>
+				<th>Name</th>
+				<th>Typ</th>
+				<th>Gr&ouml;&szlig;e</th>
+				<th>Menge</th>
+			</tr>
+		</thead>
+		<tbody>
 		<!-- BEGIN itemlist.listitem -->
 			<tr>
 				<td><img src="{item.picture}" alt="" /></td>
@@ -77,18 +84,24 @@
 				<td>{item.count}</td>
 			</tr>
 		<!-- END itemlist.listitem -->
+		</tbody>
 		</table>
-	{/endif}
+	</div>
+{/endif}
 
-	{if iteminfo.knownlist}
+{if iteminfo.knownlist}
+	<div class="gfxbox" style="min-width:460px;display:inline-block">
 		<table cellpadding="3">
-		<tr>
-			<td>&nbsp;</td>
-			<td style="width:300px;font-size:16px">Name</td>
-			<td style="width:100px;font-size:16px">Typ</td>
-			<td style="width:120px;font-size:16px">Gr&ouml;&szlig;e</td>
-			<td style="width:100px;font-size:16px">Menge</td>
-		</tr>
+		<thead>
+			<tr>
+				<th>&nbsp;</th>
+				<th>Name</th>
+				<th>Typ</th>
+				<th>Gr&ouml;&szlig;e</th>
+				<th>Menge</th>
+			</tr>
+		</thead>
+		<tbody>
 		<!-- BEGIN knownlist.listitem -->
 			<tr>
 				<td><img src="{item.picture}" alt="" /></td>
@@ -113,6 +126,7 @@
 				</td>
 			</tr>
 		<!-- END knownlist.listitem -->
+		</tbody>
 		</table>
-	{/endif}
-</div>
+	</div>
+{/endif}
