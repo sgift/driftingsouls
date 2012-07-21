@@ -13,7 +13,7 @@
 	<tr>
 		<td class="noBorderS">Kommunikation</td>
 		<td class="noBorder">&nbsp;</td>
-		<td class="noBorder">	
+		<td class="noBorder">
 			{!table_begin 550,center}
 				{!link_to Nachricht schreiben, default, to:0}
 				&nbsp;&nbsp;|&nbsp;&nbsp;
@@ -38,7 +38,7 @@
 		<div style="position:relative; width:635px; height:240px; margin: 0px; position: relative; top: 0px; left: 0px; overflow:auto">
 			{if pm.bgimage}
 				<div style="position:absolute; top:0px; left:0px; margin:0px; padding:0px; width:570px; overflow:hidden; background-image: url('{URL}data/interface/pms/{pm.bgimage}');'">
-					 <img src="{URL}data/interface/pms/{pm.bgimage}" width="570" alt="" /> 
+					 <img src="{URL}data/interface/pms/{pm.bgimage}" width="570" alt="" />
 				</div>
 			{/endif}
 			<div style="width:570px; position:absolute; z-index:0; top:0px; left:0px; top:0px; left:0px; margin:0px; padding:0px;">
@@ -46,7 +46,7 @@
 					<table class="show2" style="width:500px; margin-left:auto; margin-right:auto">
 					{if pm.title}
 						<tr>
-							<td {if pm.flags.admin}style="color:orange"{/endif} class="BorderX" align="center">
+							<td {if pm.highlight}style="color:orange"{/endif} class="BorderX" align="center">
 								{pm.title}
 							</td>
 						</tr>
@@ -126,24 +126,24 @@
 	<!--
 		function movePM( pmid, ordnerid ) {
 			pmid = pmid.substr("inbox_pm".length);
-	
+
 			movePMID = pmid;
 			movePMToID = ordnerid;
-			
+
 			document.getElementById("inbox_waiter").style.display = "block";
-			
+
 			var url = getDsUrl();
 			var params = {
-					module:'{global.module}', 
-					action:'move', 
-					ordner:'{ordner.parent}', 
+					module:'{global.module}',
+					action:'move',
+					ordner:'{ordner.parent}',
 					moveto:ordnerid
 			};
 			params['pm_'+pmid] = pmid;
-			
+
 			jQuery.get( url, params, finishMovePM );
 		}
-	
+
 		var draggablePms = new Array();
 	// -->
 	</script>
@@ -181,7 +181,7 @@
 									}
 								});
 							</script>
-							
+
 							{if ! ordner.flags.trash}
 								{if ! ordner.flags.up}
 									<input type="checkbox" name="ordner_{ordner.id}" value="{ordner.id}" />
@@ -190,17 +190,17 @@
 						</td>
 						<td class="noBorderX">
 								<img style="border:0px" src="{URL}data/interface/pms/{if ! ordner.flags.trash}ordner{/endif}{if ordner.flags.trash}trash{if ordner.pms}-full{/endif}{/endif}.png" />
-							
+
 						</td>
 						<td class="noBorderX">
 							<a class="profile" href="./ds?module=comm&amp;action=showInbox&amp;ordner={ordner.id}">
 								{ordner.name}
 							</a>&nbsp;
 						</td>
-						<td class="noBorderX" {if pm.flags.admin}style="color:orange"{/endif}>
+						<td class="noBorderX" {if pm.highlight}style="color:orange"{/endif}>
 							<div id="inbox_ordner{ordner.id}_count" style="display:inline">{ordner.pms}</div>&nbsp;mails
 						</td>
-						<td class="noBorderX" {if pm.flags.admin}style="color:orange"{/endif}>
+						<td class="noBorderX" {if pm.highlight}style="color:orange"{/endif}>
 							{if ordner.name.real}
 								({ordner.name.real})
 							{/endif}
@@ -239,7 +239,7 @@
 						</td>
 						<td class="noBorderX">
 							<div id="inbox_pm{pm.id}" style=";width:100%" class="inbox_pm">
-								<a class="profile" {if pm.flags.admin}style="color:orange"{/endif} href="javascript:showpm({pm.id});">
+								<a class="profile" {if pm.highlight}style="color:orange"{/endif} href="javascript:showpm({pm.id});">
 									{pm.title}
 								</a>&nbsp;
 							</div>
@@ -247,10 +247,10 @@
 								draggablePms.push('{pm.id}');
 							</script>
 						</td>
-						<td class="noBorderX" {if pm.flags.admin}style="color:orange"{/endif}>
+						<td class="noBorderX" {if pm.highlight}style="color:orange"{/endif}>
 							{!link_to $pm.sender.name, default, css_class:profile, module:userprofile, user:$pm.sender.id}&nbsp;
 						</td>
-						<td class="noBorderX" {if pm.flags.admin}style="color:orange"{/endif}>
+						<td class="noBorderX" {if pm.highlight}style="color:orange"{/endif}>
 							{pm.time}&nbsp;
 						</td>
 						<td class="noBorderX">
@@ -312,9 +312,9 @@
 			Dein Browser unterst&uuml;tzt leider keine iframes. Am besten installierst du einen Browser neueren Datums wie z.B. den <a class="forschinfo" href="http://www.mozilla.org">Mozilla Firefox</a>
 		</iframe>
 	{!table_end}
-	
+
 	<script type="text/javascript">
-	<!--		
+	<!--
 		for( var i=0; i < draggablePms.length; i++ ) {
 			jQuery('#inbox_pm'+draggablePms[i]).draggable({ revert:true });
 		}
@@ -335,7 +335,7 @@
 			<!-- BEGIN pms.out.listitem -->
 				<tr>
 					<td class="noBorderX">
-						<a class="profile" {if pm.flags.admin}style="color:orange"{/endif} href="javascript:showpm({pm.id});">
+						<a class="profile" {if pm.highlight}style="color:orange"{/endif} href="javascript:showpm({pm.id});">
 							{pm.title}
 						</a>
 						&nbsp;
@@ -343,9 +343,9 @@
 					<td class="noBorderX">
 						{!link_to $pm.empfaenger.name, default, css_class:profile, module:userprofile, user:$pm.empfaenger}&nbsp;
 					</td>
-					<td class="noBorderX" {if pm.flags.admin}style="color:orange"{/endif}>
+					<td class="noBorderX" {if pm.highlight}style="color:orange"{/endif}>
 						{pm.time}&nbsp;
-					</td>		
+					</td>
 					<td class="noBorderX">
 						<a href="javascript:showpm({pm.id});">
 							<img style="border:0px" src="{URL}data/interface/text.png" alt="lesen" />
@@ -368,7 +368,7 @@
 {if show.pm}
 	{if pm.bgimage}
 		<div style="z-index:1; position:absolute; top:0px; left:0px; margin:0px; padding:0px; width:570px; overflow:hidden; background-image: url('{URL}data/interface/pms/{pm.bgimage}');'">
-			 <img src="{URL}data/interface/pms/{pm.bgimage}" width="570" alt="" /> 
+			 <img src="{URL}data/interface/pms/{pm.bgimage}" width="570" alt="" />
 		</div>
 	{/endif}
 	<table class="noBorderX" width="100%">
@@ -380,7 +380,7 @@
 						<table class="show2" style="width:500px; margin-left:auto; margin-right:auto">
 						{if pm.title}
 							<tr>
-								<td {if pm.flags.admin}style="color:orange"{/endif} class="BorderX" align="center">
+								<td {if pm.highlight}style="color:orange"{/endif} class="BorderX" align="center">
 									{pm.title}
 								</td>
 							</tr>
@@ -407,11 +407,11 @@
 					{/endif}
 				</div>
 			{else}
-				<div align="center">Keine Nachricht ausgew&auml;hlt</div>	
+				<div align="center">Keine Nachricht ausgew&auml;hlt</div>
 			{/endif}
 		</td>
 	</tr>
-	</table>	
+	</table>
 {/endif}
 {if show.comment}
 	{!table_begin 710,left}

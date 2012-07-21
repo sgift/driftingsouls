@@ -727,6 +727,7 @@ public class CommController extends TemplateGenerator {
 		t.setVar(	"pm.id",			pm.getId(),
 					"pm.title",			Common._plaintitle(pm.getTitle()),
 					"pm.flags.admin", 	pm.hasFlag(PM.FLAGS_ADMIN),
+					"pm.highlight",	pm.hasFlag(PM.FLAGS_ADMIN) || pm.hasFlag(PM.FLAGS_OFFICIAL),
 					"pm.bgimage", 		bgimg,
 					"pm.time", 			Common.date("j.n.Y G:i",pm.getTime()),
 					"pm.text", 			Smilie.parseSmilies(text),
@@ -845,6 +846,7 @@ public class CommController extends TemplateGenerator {
 			t.setVar(	"pm.id",			pm.getId(),
 						"pm.new",			pm.getGelesen() == 0,
 						"pm.flags.admin",	pm.hasFlag(PM.FLAGS_ADMIN),
+						"pm.highlight",	pm.hasFlag(PM.FLAGS_ADMIN) || pm.hasFlag(PM.FLAGS_OFFICIAL),
 						"pm.title",			Common._plaintitle(pm.getTitle()),
 						"pm.sender.name",	Common._title(pm.getSender().getName()),
 						"pm.sender.id",		pm.getSender().getId(),
@@ -878,6 +880,7 @@ public class CommController extends TemplateGenerator {
 
 			t.setVar(	"pm.id",				pm.getId(),
 						"pm.flags.admin",		pm.hasFlag(PM.FLAGS_ADMIN),
+						"pm.highlight",	pm.hasFlag(PM.FLAGS_ADMIN) || pm.hasFlag(PM.FLAGS_OFFICIAL),
 						"pm.title",				Common._plaintitle(pm.getTitle()),
 						"pm.empfaenger.name",	Common._title(pm.getEmpfaenger().getName()),
 						"pm.time",				Common.date("j.n.Y G:i",pm.getTime()),
