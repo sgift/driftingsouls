@@ -114,39 +114,40 @@ public class EditBases implements AdminPlugin
 				return;
 			}
 
-			echo.append(Common.tableBegin(650,"left"));
+			echo.append("<div class='gfxbox' style='width:600px'>");
 			echo.append("<form action=\"./ds\" method=\"post\">");
-			echo.append("<table class=\"noBorderX\" width=\"100%\">");
 			echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
 			echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("<input type=\"hidden\" name=\"baseid\" value=\"" + baseid + "\" />\n");
-			echo.append("<tr><td class=\"noBorderX\">Name: </td><td><input type=\"text\" size=\"40\" name=\"name\" value=\"" + base.getName() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">Besitzer: </td><td><input type=\"text\" size=\"40\" name=\"owner\" value=\"" + base.getOwner().getId() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">System: </td><td><input type=\"text\" size=\"40\" name=\"system\" value=\"" + base.getSystem() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">X-Koordinate: </td><td><input type=\"text\" size=\"40\" name=\"x\" value=\"" + base.getX() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">Y-Koordinate: </td><td><input type=\"text\" size=\"40\" name=\"y\" value=\"" + base.getY() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">Aktuelle Energie: </td><td><input type=\"text\" size=\"40\" name=\"energie\" value=\"" + base.getEnergy() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">Maximale Energie: </td><td><input type=\"text\" size=\"40\" name=\"maxenergie\" value=\"" + base.getMaxEnergy() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">Cargo (Cargo-String): </td><td><input type=\"text\" size=\"40\" name=\"cargo\" value=\"" + base.getCargo().toString() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">maximaler Cargo: </td><td><input type=\"text\" size=\"40\" name=\"maxcargo\" value=\"" + base.getMaxCargo() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">Core: </td><td><input type=\"text\" size=\"40\" name=\"core\" value=\"" + base.getCore() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">Klasse: </td><td><input type=\"text\" size=\"40\" name=\"klasse\" value=\"" + base.getKlasse() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">Breite: </td><td><input type=\"text\" size=\"40\" name=\"width\" value=\"" + base.getWidth() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">H&ouml;he: </td><td><input type=\"text\" size=\"40\" name=\"height\" value=\"" + base.getHeight() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">Feldergr&ouml;&szlig;e: </td><td><input type=\"text\" size=\"40\" name=\"maxtiles\" value=\"" + base.getMaxTiles() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">Gr&ouml;&szlig;e: </td><td><input type=\"text\" size=\"40\" name=\"size\" value=\"" + base.getSize() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">Terrain: </td><td><input type=\"text\" size=\"40\" name=\"terrain\" value=\"" + Common.implode("|", base.getTerrain()) + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">Bebauung: </td><td><input type=\"text\" size=\"40\" name=\"bebauung\" value=\"" + Common.implode("|", base.getBebauung()) + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">Active: </td><td><input type=\"text\" size=\"40\" name=\"active\" value=\"" + Common.implode("|", base.getActive()) + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">Core-Aktiv: </td><td><input type=\"text\" size=\"40\" name=\"coreactive\" value=\"" + base.isCoreActive() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">Zum Spawn freigegebene Ressourcen: </td><td><input type=\"text\" size=\"40\" name=\"spawnableress\" value=\"" + base.getSpawnableRess() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">Aktuell verf&uuml;gbare Ressourcen: </td><td><input type=\"text\" size=\"40\" name=\"availableress\" value=\"" + base.getAvailableSpawnableRess() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">AutoGTUActs: </td><td><input type=\"text\" size=\"40\" name=\"autogtuacts\" value=\"" + Common.implode(";" , base.getAutoGTUActs()) + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\"></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
+			echo.append("<table width=\"100%\">");
+			echo.append("<tr><td>Name: </td><td><input type=\"text\" size=\"40\" name=\"name\" value=\"" + base.getName() + "\"></td></tr>\n");
+			echo.append("<tr><td>Besitzer: </td><td><input type=\"text\" size=\"40\" name=\"owner\" value=\"" + base.getOwner().getId() + "\"></td></tr>\n");
+			echo.append("<tr><td>System: </td><td><input type=\"text\" size=\"40\" name=\"system\" value=\"" + base.getSystem() + "\"></td></tr>\n");
+			echo.append("<tr><td>X-Koordinate: </td><td><input type=\"text\" size=\"40\" name=\"x\" value=\"" + base.getX() + "\"></td></tr>\n");
+			echo.append("<tr><td>Y-Koordinate: </td><td><input type=\"text\" size=\"40\" name=\"y\" value=\"" + base.getY() + "\"></td></tr>\n");
+			echo.append("<tr><td>Aktuelle Energie: </td><td><input type=\"text\" size=\"40\" name=\"energie\" value=\"" + base.getEnergy() + "\"></td></tr>\n");
+			echo.append("<tr><td>Maximale Energie: </td><td><input type=\"text\" size=\"40\" name=\"maxenergie\" value=\"" + base.getMaxEnergy() + "\"></td></tr>\n");
+			echo.append("<tr><td>Cargo: </td><td><input type=\"hidden\" size=\"40\" id=\"cargo\" name=\"cargo\" value=\"" + base.getCargo().toString() + "\"></td></tr>\n");
+			echo.append("<tr><td>maximaler Cargo: </td><td><input type=\"text\" size=\"40\" name=\"maxcargo\" value=\"" + base.getMaxCargo() + "\"></td></tr>\n");
+			echo.append("<tr><td>Core: </td><td><input type=\"text\" size=\"40\" name=\"core\" value=\"" + base.getCore() + "\"></td></tr>\n");
+			echo.append("<tr><td>Klasse: </td><td><input type=\"text\" size=\"40\" name=\"klasse\" value=\"" + base.getKlasse() + "\"></td></tr>\n");
+			echo.append("<tr><td>Breite: </td><td><input type=\"text\" size=\"40\" name=\"width\" value=\"" + base.getWidth() + "\"></td></tr>\n");
+			echo.append("<tr><td>H&ouml;he: </td><td><input type=\"text\" size=\"40\" name=\"height\" value=\"" + base.getHeight() + "\"></td></tr>\n");
+			echo.append("<tr><td>Feldergr&ouml;&szlig;e: </td><td><input type=\"text\" size=\"40\" name=\"maxtiles\" value=\"" + base.getMaxTiles() + "\"></td></tr>\n");
+			echo.append("<tr><td>Gr&ouml;&szlig;e: </td><td><input type=\"text\" size=\"40\" name=\"size\" value=\"" + base.getSize() + "\"></td></tr>\n");
+			echo.append("<tr><td>Terrain: </td><td><input type=\"text\" size=\"40\" name=\"terrain\" value=\"" + Common.implode("|", base.getTerrain()) + "\"></td></tr>\n");
+			echo.append("<tr><td>Bebauung: </td><td><input type=\"text\" size=\"40\" name=\"bebauung\" value=\"" + Common.implode("|", base.getBebauung()) + "\"></td></tr>\n");
+			echo.append("<tr><td>Active: </td><td><input type=\"text\" size=\"40\" name=\"active\" value=\"" + Common.implode("|", base.getActive()) + "\"></td></tr>\n");
+			echo.append("<tr><td>Core-Aktiv: </td><td><input type=\"text\" size=\"40\" name=\"coreactive\" value=\"" + base.isCoreActive() + "\"></td></tr>\n");
+			echo.append("<tr><td>Zum Spawn freigegebene Ressourcen: </td><td><input type=\"text\" size=\"40\" name=\"spawnableress\" value=\"" + base.getSpawnableRess() + "\"></td></tr>\n");
+			echo.append("<tr><td>Aktuell verf&uuml;gbare Ressourcen: </td><td><input type=\"text\" size=\"40\" name=\"availableress\" value=\"" + base.getAvailableSpawnableRess() + "\"></td></tr>\n");
+			echo.append("<tr><td>AutoGTUActs: </td><td><input type=\"text\" size=\"40\" name=\"autogtuacts\" value=\"" + Common.implode(";" , base.getAutoGTUActs()) + "\"></td></tr>\n");
+			echo.append("<tr><td></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
 			echo.append("</table>");
+			echo.append("<script type='text/javascript'>$(document).ready(function() {new CargoEditor('#cargo');});</script>");
 			echo.append("</form>\n");
-			echo.append(Common.tableEnd());
+			echo.append("</div>");
 		}
 	}
 

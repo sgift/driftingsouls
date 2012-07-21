@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.ItemID;
-import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -38,7 +36,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
  * Aktualisierungstool fuer die Werte eines Schiffes.
- * 
+ *
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Schiffe", name = "Schiff editieren")
@@ -50,8 +48,7 @@ public class EditShip implements AdminPlugin
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
-		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
-		
+
 		int shipid = context.getRequest().getParameterInt("shipid");
 
 		// Update values?
@@ -64,11 +61,11 @@ public class EditShip implements AdminPlugin
 		echo.append("<input type=\"text\" name=\"shipid\" value=\""+ shipid +"\" />\n");
 		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
 		echo.append("</form>");
-		
+
 		if(update && shipid != 0)
 		{
 			Ship ship = (Ship)db.get(Ship.class, shipid);
-			
+
 			ship.setName(context.getRequest().getParameterString("name"));
 			User owner = (User)db.get(User.class, context.getRequest().getParameterInt("owner"));
 			if(owner != null)
@@ -96,94 +93,80 @@ public class EditShip implements AdminPlugin
 			ship.setHeat(context.getRequest().getParameterInt("heat"));
 			ship.setAlarm(context.getRequest().getParameterInt("alarm"));
 			ship.setStatus(context.getRequest().getParameter("status"));
-			
-			Cargo cargo = new Cargo();
-			
-			for(Item item: itemlist)
-			{
-				long amount = context.getRequest().getParameterInt("i"+item.getID());
-				int uses = context.getRequest().getParameterInt("i" + item.getID() + "uses");
-				cargo.addResource(new ItemID(item.getID(), uses, 0), amount);
-			}
-			
+
+			Cargo cargo = new Cargo(Cargo.Type.ITEMSTRING, context.getRequest().getParameter("cargo"));
+
 			ship.setCargo(cargo);
-			
+
 			echo.append("<p>Update abgeschlossen.</p>");
 		}
-		
+
 		if(shipid != 0)
 		{
 			Ship ship = (Ship)db.get(Ship.class, shipid);
-			
+
 			if(ship == null)
 			{
 				return;
 			}
-			
+
 			ShipTypeData type = ship.getTypeData();
-			
+
 			Map<Integer, String> alarms = new HashMap<Integer, String>();
 			alarms.put(0, "Gelb");
 			alarms.put(1, "Rot");
-			
-			
+
+
 			Map<Integer, String> shiptypes = new HashMap<Integer, String>();
 			List<ShipType> types = Common.cast(db.createQuery("from ShipType").list());
 			for(ShipType shiptype: types)
 			{
 				shiptypes.put(shiptype.getId(), shiptype.getNickname());
 			}
-			
-			
+
+			echo.append("<div class='gfxbox' style='width:600px'>");
 			echo.append("<form action=\"./ds\" method=\"post\">");
-			echo.append("<table class=\"noBorder\" width=\"100%\">");
 			echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
 			echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("<input type=\"hidden\" name=\"shipid\" value=\"" + shipid + "\" />\n");
-			echo.append("<tr><td class=\"noBorderS\">Name: </td><td><input type=\"text\" name=\"name\" value=\"" + ship.getName() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Besitzer: </td><td><input type=\"text\" name=\"owner\" value=\"" + ship.getOwner().getId() + "\"></td><td class=\"noBorderS\">"+ Common._title(ship.getOwner().getNickname()) +"</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">System: </td><td><input type=\"text\" name=\"system\" value=\"" + ship.getSystem() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">x: </td><td><input type=\"text\" name=\"x\" value=\"" + ship.getX() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">y: </td><td><input type=\"text\" name=\"y\" value=\"" + ship.getY() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Schiffstyp: </td><td><select size=\"1\" name=\"type\" \">");
+			echo.append("<table width=\"100%\">");
+			echo.append("<tr><td>Name: </td><td><input type=\"text\" name=\"name\" value=\"" + ship.getName() + "\"></td></tr>\n");
+			echo.append("<tr><td>Besitzer: </td><td><input type=\"text\" name=\"owner\" value=\"" + ship.getOwner().getId() + "\"></td><td>"+ Common._title(ship.getOwner().getNickname()) +"</td></tr>\n");
+			echo.append("<tr><td>System: </td><td><input type=\"text\" name=\"system\" value=\"" + ship.getSystem() + "\"></td></tr>\n");
+			echo.append("<tr><td>x: </td><td><input type=\"text\" name=\"x\" value=\"" + ship.getX() + "\"></td></tr>\n");
+			echo.append("<tr><td>y: </td><td><input type=\"text\" name=\"y\" value=\"" + ship.getY() + "\"></td></tr>\n");
+			echo.append("<tr><td>Schiffstyp: </td><td><select size=\"1\" name=\"type\" \">");
 			for(Map.Entry<Integer, String> shiptype: shiptypes.entrySet())
 			{
 				echo.append("<option value=\""+ shiptype.getKey() +"\" " + (shiptype.getKey().equals(ship.getBaseType().getId()) ? "selected=\"selected\"" : "") + " />"+shiptype.getValue()+"</option>");
 			}
 			echo.append("</select></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">H&uuml;lle: </td><td><input type=\"text\" name=\"hull\" value=\"" + ship.getHull() + "\"></td><td class=\"noBorderS\">/ "+type.getHull()+"</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Ablative Panzerung: </td><td><input type=\"text\" name=\"ablativearmor\" value=\"" + ship.getAblativeArmor() + "\"></td><td class=\"noBorderS\">/ "+type.getAblativeArmor()+"</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Schilde: </td><td><input type=\"text\" name=\"shields\" value=\"" + ship.getShields() + "\"></td><td class=\"noBorderS\">/ "+type.getShields()+"</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Crew: </td><td><input type=\"text\" name=\"crew\" value=\"" + ship.getCrew() + "\"></td><td class=\"noBorderS\">/ "+type.getCrew()+"</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Nahrungsspeicher: </td><td><input type=\"text\" name=\"nahrungcargo\" value=\"" + ship.getNahrungCargo() + "\"></td><td class=\"noBorderS\">/ "+type.getNahrungCargo()+"</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Energie: </td><td><input type=\"text\" name=\"energy\" value=\"" + ship.getEnergy() + "\"></td><td class=\"noBorderS\">/ "+type.getEps()+"</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Sensoren: </td><td><input type=\"text\" name=\"sensors\" value=\"" + ship.getSensors() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Antrieb: </td><td><input type=\"text\" name=\"engine\" value=\"" + ship.getEngine() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Kommunikation: </td><td><input type=\"text\" name=\"comm\" value=\"" + ship.getComm() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Waffen: </td><td><input type=\"text\" name=\"weapons\" value=\"" + ship.getWeapons() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Hitze: </td><td><input type=\"text\" name=\"heat\" value=\"" + ship.getHeat() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Alarm: </td><td><select size=\"1\" name=\"alarm\" \">");
+			echo.append("<tr><td>H&uuml;lle: </td><td><input type=\"text\" name=\"hull\" value=\"" + ship.getHull() + "\"></td><td>/ "+type.getHull()+"</td></tr>\n");
+			echo.append("<tr><td>Ablative Panzerung: </td><td><input type=\"text\" name=\"ablativearmor\" value=\"" + ship.getAblativeArmor() + "\"></td><td>/ "+type.getAblativeArmor()+"</td></tr>\n");
+			echo.append("<tr><td>Schilde: </td><td><input type=\"text\" name=\"shields\" value=\"" + ship.getShields() + "\"></td><td>/ "+type.getShields()+"</td></tr>\n");
+			echo.append("<tr><td>Crew: </td><td><input type=\"text\" name=\"crew\" value=\"" + ship.getCrew() + "\"></td><td>/ "+type.getCrew()+"</td></tr>\n");
+			echo.append("<tr><td>Nahrungsspeicher: </td><td><input type=\"text\" name=\"nahrungcargo\" value=\"" + ship.getNahrungCargo() + "\"></td><td>/ "+type.getNahrungCargo()+"</td></tr>\n");
+			echo.append("<tr><td>Energie: </td><td><input type=\"text\" name=\"energy\" value=\"" + ship.getEnergy() + "\"></td><td>/ "+type.getEps()+"</td></tr>\n");
+			echo.append("<tr><td>Sensoren: </td><td><input type=\"text\" name=\"sensors\" value=\"" + ship.getSensors() + "\"></td></tr>\n");
+			echo.append("<tr><td>Antrieb: </td><td><input type=\"text\" name=\"engine\" value=\"" + ship.getEngine() + "\"></td></tr>\n");
+			echo.append("<tr><td>Kommunikation: </td><td><input type=\"text\" name=\"comm\" value=\"" + ship.getComm() + "\"></td></tr>\n");
+			echo.append("<tr><td>Waffen: </td><td><input type=\"text\" name=\"weapons\" value=\"" + ship.getWeapons() + "\"></td></tr>\n");
+			echo.append("<tr><td>Hitze: </td><td><input type=\"text\" name=\"heat\" value=\"" + ship.getHeat() + "\"></td></tr>\n");
+			echo.append("<tr><td>Alarm: </td><td><select size=\"1\" name=\"alarm\" \">");
 			for(Map.Entry<Integer, String> alarm: alarms.entrySet())
 			{
 				echo.append("<option value=\""+ alarm.getKey() +"\" " + (alarm.getKey().equals(ship.getAlarm()) ? "selected=\"selected\"" : "") + " />"+alarm.getValue()+"</option>");
 			}
 			echo.append("</select></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Flags: </td><td><input type=\"text\" name=\"status\" value=\"" + ship.getStatus() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\"></td><td class=\"noBorderS\">Menge</td><td class=\"noBorderS\">Nutzungen</td></tr>");
-			for(Item item: itemlist)
-			{
-				long amount = ship.getCargo().getResourceCount(new ItemID(item.getID()));
-				int uses = 0;
-				if(!ship.getCargo().getItem(item.getID()).isEmpty())
-				{
-					uses = ship.getCargo().getItem(item.getID()).get(0).getMaxUses();
-				}
-				echo.append("<tr><td class=\"noBorderS\"><img src=\""+item.getPicture()+"\" alt=\"\" />"+item.getName()+": </td><td><input type=\"text\" name=\"i"+item.getID()+"\" value=\"" + amount + "\"></td><td><input type=\"text\" name=\"i"+item.getID()+"u\" value=\"" + uses + "\"></td></tr>");
-			}
-			echo.append("<tr><td class=\"noBorderS\"></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
+			echo.append("<tr><td>Flags: </td><td><input type=\"text\" name=\"status\" value=\"" + ship.getStatus() + "\"></td></tr>\n");
+			echo.append("<tr><td>Cargo</td><td><input type='hidden' name='cargo' id='cargo' value='"+ship.getCargo().toString()+"' /></td></tr>");
+			echo.append("<tr><td></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
 			echo.append("</table>");
 			echo.append("</form>\n");
+			echo.append("<script type='text/javascript'>$(document).ready(function() {new CargoEditor('#cargo');});</script>");
+
+			echo.append("</div>");
 		}
 	}
 }

@@ -1,0 +1,16 @@
+.cargoEditor {
+	border: 1px solid #A7A7A7;
+	padding:3px;
+	display:inline-block;
+}
+.cargoEditor .newEntry {
+	width:250px
+}
+.cargoEditor td.picture {
+	width:20px;
+}
+.cargoEditor table {
+	max-height:200px;
+	overflow-y:auto;
+	display:block;
+}

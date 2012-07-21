@@ -24,6 +24,9 @@ import javax.persistence.Table;
 
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffectFactory;
+import net.driftingsouls.ds2.server.framework.JSONSupport;
+import net.sf.json.JSON;
+import net.sf.json.JSONObject;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -43,7 +46,7 @@ public class Item {
 	 * @author Christopher Jung
 	 *
 	 */
-	public enum Quality {
+	public enum Quality implements JSONSupport {
 		/**
 		 * Gewoehnliches Item.
 		 */
@@ -144,6 +147,15 @@ public class Item {
 				return "artifact";
 			}
 			return "common";
+		}
+
+		@Override
+		public JSON toJSON()
+		{
+			JSONObject obj = new JSONObject();
+			obj.accumulate("name", toString());
+			obj.accumulate("color", this.color);
+			return obj;
 		}
 	}
 

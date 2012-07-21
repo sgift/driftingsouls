@@ -1212,11 +1212,17 @@ public class User extends BasicUser {
 	 * @return boolean, true if user  is able to see the item
 	 */
 	public boolean canSeeItem(Item aitem) {
-		boolean check = false;
-		if( aitem.getAccessLevel() <= this.getAccessLevel() ) {
-			check = true;
+		if( aitem.getAccessLevel() > this.getAccessLevel() )
+		{
+			return false;
 		}
-		return check;
+
+		if( aitem.isUnknownItem() && !this.isKnownItem(aitem.getID()) &&
+				!ContextMap.getContext().hasPermission("item", "unbekannteSichtbar") )
+		{
+			return false;
+		}
+		return true;
 	}
 
 	/**

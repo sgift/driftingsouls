@@ -6,8 +6,6 @@ import java.util.List;
 
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.ItemID;
-import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -16,7 +14,7 @@ import net.driftingsouls.ds2.server.modules.AdminController;
 
 /**
  * Editiert die Werte von Gebaeudetypen.
- * 
+ *
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Asteroiden", name = "Geb&auml;ude editieren")
@@ -28,7 +26,6 @@ public class EditBuilding implements AdminPlugin
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
-		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
 
 		int buildingId = context.getRequest().getParameterInt("building");
 		List<Building> buildings = Common.cast(db.createQuery("from Building").list());
@@ -52,31 +49,9 @@ public class EditBuilding implements AdminPlugin
 
 		if(update && buildingId > 0)
 		{
-			Cargo buildcosts = new Cargo();		
-			for(Item item: itemlist )
-			{
-				long amount = context.getRequest().getParameterInt("buildi"+item.getID());
-				int uses = context.getRequest().getParameterInt("buildi" + item.getID() + "uses");
-				
-				buildcosts.addResource(new ItemID(item.getID(), uses, 0), amount);
-			}
-
-			Cargo produces = new Cargo();
-			Cargo consumes = new Cargo();		
-			for(Item item: itemlist)
-			{
-				long amount = context.getRequest().getParameterInt("i"+item.getID());
-				int uses = context.getRequest().getParameterInt("i" + item.getID() + "uses");
-				if(amount < 0)
-				{
-					amount = -1*amount;
-					consumes.addResource(new ItemID(item.getID(), uses, 0), amount);
-				}
-				else
-				{
-					produces.addResource(new ItemID(item.getID(), uses, 0), amount);
-				}
-			}
+			Cargo buildcosts = new Cargo(Cargo.Type.ITEMSTRING,context.getRequest().getParameter("buildcosts"));
+			Cargo produces = new Cargo(Cargo.Type.ITEMSTRING,context.getRequest().getParameter("produces"));
+			Cargo consumes = new Cargo(Cargo.Type.ITEMSTRING,context.getRequest().getParameter("consumes"));
 
 			Building building = (Building)db.get(Building.class, buildingId);
 			building.setName(context.getRequest().getParameterString("name"));
@@ -121,63 +96,40 @@ public class EditBuilding implements AdminPlugin
 			List<Forschung> researchs = Common.cast(db.createQuery("from Forschung").list());
 
 			echo.append("<form action=\"./ds\" method=\"post\">");
-			echo.append("<table class=\"noBorder\" width=\"100%\">");
+			echo.append("<div class='gfxbox' style='width:600px'>");
 			echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
 			echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-			echo.append("<input type=\"hidden\" name=\"building\" value=\"" + buildingId + "\" />\n");		
-			echo.append("<tr><td class=\"noBorderS\">Name: </td><td><input type=\"text\" name=\"name\" value=\"" + building.getName() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Bild: </td><td><input type=\"text\" name=\"picture\" value=\"" + building.getPicture() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Arbeiter: </td><td><input type=\"text\" name=\"worker\" value=\"" + building.getArbeiter() + "\"></td></tr>\n");
+			echo.append("<input type=\"hidden\" name=\"building\" value=\"" + buildingId + "\" />\n");
+			echo.append("<table width=\"100%\">");
+			echo.append("<tr><td>Name: </td><td><input type=\"text\" name=\"name\" value=\"" + building.getName() + "\"></td></tr>\n");
+			echo.append("<tr><td>Bild: </td><td><input type=\"text\" name=\"picture\" value=\"" + building.getPicture() + "\"></td></tr>\n");
+			echo.append("<tr><td>Arbeiter: </td><td><input type=\"text\" name=\"worker\" value=\"" + building.getArbeiter() + "\"></td></tr>\n");
 			int energy = -1*building.getEVerbrauch() + building.getEProduktion();
-			echo.append("<tr><td class=\"noBorderS\">Energie: </td><td><input type=\"text\" name=\"energy\" value=\"" + energy  + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">EPS: </td><td><input type=\"text\" name=\"eps\" value=\"" + building.getEPS() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Wohnraum: </td><td><input type=\"text\" name=\"room\" value=\"" + building.getBewohner() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Forschung: </td><td><select size=\"1\" name=\"tech\">");
+			echo.append("<tr><td>Energie: </td><td><input type=\"text\" name=\"energy\" value=\"" + energy  + "\"></td></tr>\n");
+			echo.append("<tr><td>EPS: </td><td><input type=\"text\" name=\"eps\" value=\"" + building.getEPS() + "\"></td></tr>\n");
+			echo.append("<tr><td>Wohnraum: </td><td><input type=\"text\" name=\"room\" value=\"" + building.getBewohner() + "\"></td></tr>\n");
+			echo.append("<tr><td>Forschung: </td><td><select size=\"1\" name=\"tech\">");
 			for (Forschung research: researchs)
 			{
 				echo.append("<option value=\"" + research.getID() + "\" " + (research.getID() == building.getTechRequired() ? "selected=\"selected\"" : "") + ">" + research.getName() + "</option>");
 			}
 			echo.append("</select>");
-			echo.append("<tr><td class=\"noBorderS\">Untergrundkomplex: </td><td><input type=\"text\" name=\"undergroundbuilding\" value=\"" + building.isUComplex() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Max. pro Planet: </td><td><input type=\"text\" name=\"perplanet\" value=\"" + building.getPerPlanetCount() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Max. pro Spieler: </td><td><input type=\"text\" name=\"perowner\" value=\"" + building.getPerUserCount() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Abschaltbar: </td><td><input type=\"text\" name=\"deactivable\" value=\"" + building.isDeakAble() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Kategorie: </td><td><input type=\"text\" name=\"category\" value=\"" + building.getCategory() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Terrain: </td><td><input type=\"text\" name=\"terrain\" value=\"" + building.getTerrain() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Auto Abschalten: </td><td><input type=\"text\" name=\"shutdown\" value=\"" + building.isShutDown() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">ChanceRess: </td><td><input type=\"text\" name=\"chanceress\" value=\"" + building.getChanceRess() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\"></td><td class=\"noBorderS\">Menge</td><td class=\"noBorderS\">Nutzungen</td></tr>");
-			for(Item item: itemlist)
-			{
-				long amount = building.getBuildCosts().getResourceCount(new ItemID(item.getID()));
-				int uses = 0;
-				if(!building.getBuildCosts().getItem(item.getID()).isEmpty())
-				{
-					uses = building.getBuildCosts().getItem(item.getID()).get(0).getMaxUses();
-				}
-				
-				echo.append("<tr><td class=\"noBorderS\"><img src=\""+item.getPicture()+"\" alt=\"\" />"+item.getName()+": </td><td><input type=\"text\" name=\"buildi"+item.getID()+"\" value=\"" + amount + "\"></td><td><input type=\"text\" name=\"buildi"+item.getID()+"uses\" value=\"" + uses + "\"></td></tr>");
-			}
-			echo.append("<tr><td class=\"noBorderS\"></td><td class=\"noBorderS\">Menge</td><td class=\"noBorderS\">Nutzungen</td></tr>");
-			for(Item item: itemlist)
-			{
-				long amount = -1*building.getConsumes().getResourceCount(new ItemID(item.getID())) + building.getProduces().getResourceCount(new ItemID(item.getID()));
-				int uses = 0;
-				if(!building.getConsumes().getItem(item.getID()).isEmpty())
-				{
-					uses = building.getConsumes().getItem(item.getID()).get(0).getMaxUses();
-				}
-				
-				if(!building.getProduces().getItem(item.getID()).isEmpty())
-				{
-					uses = building.getProduces().getItem(item.getID()).get(0).getMaxUses();
-				}
-				
-				echo.append("<tr><td class=\"noBorderS\"><img src=\""+item.getPicture()+"\" alt=\"\" />"+item.getName()+": </td><td><input type=\"text\" name=\"i"+item.getID()+"\" value=\"" + amount + "\"></td><td><input type=\"text\" name=\"i"+item.getID()+"uses\" value=\"" + uses + "\"></td></tr>");
-			}
-			echo.append("<tr><td class=\"noBorderS\"></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
+			echo.append("<tr><td>Untergrundkomplex: </td><td><input type=\"text\" name=\"undergroundbuilding\" value=\"" + building.isUComplex() + "\"></td></tr>\n");
+			echo.append("<tr><td>Max. pro Planet: </td><td><input type=\"text\" name=\"perplanet\" value=\"" + building.getPerPlanetCount() + "\"></td></tr>\n");
+			echo.append("<tr><td>Max. pro Spieler: </td><td><input type=\"text\" name=\"perowner\" value=\"" + building.getPerUserCount() + "\"></td></tr>\n");
+			echo.append("<tr><td>Abschaltbar: </td><td><input type=\"text\" name=\"deactivable\" value=\"" + building.isDeakAble() + "\"></td></tr>\n");
+			echo.append("<tr><td>Kategorie: </td><td><input type=\"text\" name=\"category\" value=\"" + building.getCategory() + "\"></td></tr>\n");
+			echo.append("<tr><td>Terrain: </td><td><input type=\"text\" name=\"terrain\" value=\"" + building.getTerrain() + "\"></td></tr>\n");
+			echo.append("<tr><td>Auto Abschalten: </td><td><input type=\"text\" name=\"shutdown\" value=\"" + building.isShutDown() + "\"></td></tr>\n");
+			echo.append("<tr><td>ChanceRess: </td><td><input type=\"text\" name=\"chanceress\" value=\"" + building.getChanceRess() + "\"></td></tr>\n");
+			echo.append("<tr><td>Baukosten: </td><td><input type='hidden' id='buildcosts' name='buildcosts' value='"+building.getBuildCosts().save()+"'></td></tr>\n");
+			echo.append("<tr><td>Verbraucht: </td><td><input type='hidden' id='consumes' name='consumes' value='"+building.getConsumes().save()+"'></td></tr>\n");
+			echo.append("<tr><td>Produziert: </td><td><input type='hidden' id='produces' name='produces' value='"+building.getProduces().save()+"'></td></tr>\n");
+			echo.append("<tr><td></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
 			echo.append("</table>");
+			echo.append("<script type='text/javascript'>$(document).ready(function() {new CargoEditor('#buildcosts');new CargoEditor('#consumes');new CargoEditor('#produces');});</script>");
+			echo.append("</div>");
 			echo.append("</form>\n");
 		}
 	}

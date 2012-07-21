@@ -328,6 +328,10 @@ public class TradepostController extends TemplateGenerator {
 
 		// build form
 		for( Item aitem : itemlist ) {
+			if( !user.canSeeItem(aitem) )
+			{
+				continue;
+			}
 			processItem(user, kurse, selllistmap, buylistmap, aitem);
 		}
 	}

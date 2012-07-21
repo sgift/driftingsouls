@@ -33,7 +33,7 @@ import net.driftingsouls.ds2.server.units.UnitType;
 
 /**
  * Aktualisierungstool fuer die Einheiten.
- * 
+ *
  */
 @AdminMenuEntry(category = "Einheiten", name = "Einheit hinzuf&uuml;gen")
 public class AddUnit implements AdminPlugin
@@ -44,15 +44,14 @@ public class AddUnit implements AdminPlugin
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
-		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
-		
+
 		// Update values?
 		boolean update = context.getRequest().getParameterString("change").equals("Hinzufuegen");
 
 		if (update)
 		{
 			UnitType unit = new UnitType();
-			
+
 			unit.setName(context.getRequest().getParameterString("name"));
 			unit.setPicture(context.getRequest().getParameterString("picture"));
 			unit.setDauer(context.getRequest().getParameterInt("dauer"));
@@ -62,44 +61,35 @@ public class AddUnit implements AdminPlugin
 			unit.setSize(context.getRequest().getParameterInt("size"));
 			unit.setDescription(context.getRequest().getParameterString("description"));
 			unit.setRes(context.getRequest().getParameterInt("forschung"));
-			
-			Cargo cargo = new Cargo();
-			
-			for(Item item: itemlist)
-			{
-				long amount = context.getRequest().getParameterInt("i"+item.getID());
-				int uses = context.getRequest().getParameterInt("i" + item.getID() + "uses");
-				cargo.addResource(new ItemID(item.getID(), uses, 0), amount);
-			}
-			
+
+			Cargo cargo = new Cargo(Cargo.Type.ITEMSTRING, context.getRequest().getParameter("buildcosts"));
+
 			unit.setBuildCosts(cargo);
-			
+
 			db.save(unit);
-			
+
 			echo.append("Einheit hinzugefuegt");
 		}
 
+		echo.append("<div class='gfxbox' style='width:600px'>");
 		echo.append("<form action=\"./ds\" method=\"post\">");
-		echo.append("<table class=\"noBorder\" width=\"100%\">");
 		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
 		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-		echo.append("<tr><td class=\"noBorderS\">Name: </td><td><input type=\"text\" name=\"name\" value=\"Neue Einheit\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">Bild: </td><td><input type=\"text\" name=\"picture\" value=\"data/\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">Nahrungskosten: </td><td><input type=\"text\" name=\"nahrungcost\" value=\"1\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">RE Kosten: </td><td><input type=\"text\" name=\"recost\" value=\"1\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">Kaper-Wert: </td><td><input type=\"text\" name=\"kapervalue\" value=\"1\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">Gr&ouml;&szlig;e: </td><td><input type=\"text\" name=\"size\" value=\"1\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">Beschreibung: </td><td><input type=\"text\" name=\"description\" value=\"\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">Ben&ouml;tigte Forschung: </td><td><input type=\"text\" name=\"forschung\" value=\"0\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\"></td><td class=\"noBorderS\">Menge</td><td class=\"noBorderS\">Nutzungen</td></tr>");
-		for(Item item: itemlist)
-		{
-			echo.append("<tr><td class=\"noBorderS\"><img src=\""+item.getPicture()+"\" alt=\"\" />"+item.getName()+": </td><td><input type=\"text\" name=\"i"+item.getID()+"\" value=\"0\"></td><td><input type=\"text\" name=\"i"+item.getID()+"u\" value=\"0\"></td></tr>");
-		}
-		
-		echo.append("<tr><td class=\"noBorderS\"></td><td><input type=\"submit\" name=\"change\" value=\"Hinzufuegen\"></td></tr>\n");
+		echo.append("<table width=\"100%\">");
+		echo.append("<tr><td>Name: </td><td><input type=\"text\" name=\"name\" value=\"Neue Einheit\"></td></tr>\n");
+		echo.append("<tr><td>Bild: </td><td><input type=\"text\" name=\"picture\" value=\"data/\"></td></tr>\n");
+		echo.append("<tr><td>Nahrungskosten: </td><td><input type=\"text\" name=\"nahrungcost\" value=\"1\"></td></tr>\n");
+		echo.append("<tr><td>RE Kosten: </td><td><input type=\"text\" name=\"recost\" value=\"1\"></td></tr>\n");
+		echo.append("<tr><td>Kaper-Wert: </td><td><input type=\"text\" name=\"kapervalue\" value=\"1\"></td></tr>\n");
+		echo.append("<tr><td>Gr&ouml;&szlig;e: </td><td><input type=\"text\" name=\"size\" value=\"1\"></td></tr>\n");
+		echo.append("<tr><td>Beschreibung: </td><td><input type=\"text\" name=\"description\" value=\"\"></td></tr>\n");
+		echo.append("<tr><td>Ben&ouml;tigte Forschung: </td><td><input type=\"text\" name=\"forschung\" value=\"0\"></td></tr>\n");
+		echo.append("<tr><td>Baukosten:</td><td><input type='hidden' name='buildcosts' id='buildcosts' value='"+new Cargo().toString()+"' /></td></tr>");
+		echo.append("<tr><td></td><td><input type=\"submit\" name=\"change\" value=\"Hinzufuegen\"></td></tr>\n");
 		echo.append("</table>");
 		echo.append("</form>\n");
+		echo.append("<script type='text/javascript'>$(document).ready(function() {new CargoEditor('#buildcosts');});</script>");
+		echo.append("</div>");
 	}
 }

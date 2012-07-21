@@ -33,7 +33,7 @@ import net.driftingsouls.ds2.server.modules.AdminController;
 
 /**
  * Aktualisierungstool fuer die Werte eines Schiffes.
- * 
+ *
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Fabriken", name = "Fabrikeintraege editieren")
@@ -45,7 +45,7 @@ public class EditFactoryEntry implements AdminPlugin
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
-		
+
 		int entryid = context.getRequest().getParameterInt("entryid");
 
 		// Update values?
@@ -58,11 +58,11 @@ public class EditFactoryEntry implements AdminPlugin
 		echo.append("<input type=\"text\" name=\"entryid\" value=\""+ entryid +"\" />\n");
 		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
 		echo.append("</form>");
-		
+
 		if(update && entryid != 0)
 		{
 			FactoryEntry entry = (FactoryEntry)db.get(FactoryEntry.class, entryid);
-			
+
 			if(entry != null) {
 				entry.setBuildCosts(new Cargo(Cargo.Type.AUTO, context.getRequest().getParameterString("buildcosts")));
 				entry.setRes1(context.getRequest().getParameterInt("res1"));
@@ -71,59 +71,62 @@ public class EditFactoryEntry implements AdminPlugin
 				entry.setProduce(new Cargo(Cargo.Type.AUTO, context.getRequest().getParameterString("produce")));
 				entry.setDauer(BigDecimal.valueOf(Double.parseDouble(context.getRequest().getParameterString("dauer"))));
 				entry.setBuildingIds(context.getRequest().getParameterString("buildingids"));
-				
+
 				echo.append("<p>Update abgeschlossen.</p>");
 			}
 			else {
 				echo.append("<p>Kein Eintrag gefunden.</p>");
 			}
-			
+
 		}
-		
+
 		if(entryid != 0)
 		{
 			FactoryEntry entry = (FactoryEntry)db.get(FactoryEntry.class, entryid);
-			
+
 			if(entry == null)
 			{
 				return;
 			}
-			
+
 			List<Forschung> researchs = Common.cast(db.createQuery("from Forschung").list());
 
+			echo.append("<div class='gfxbox' style='width:600px'>");
 			echo.append("<form action=\"./ds\" method=\"post\" >");
-			echo.append("<table class=\"noBorder\" width=\"100%\">");
 			echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
 			echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("<input type=\"hidden\" name=\"entryid\" value=\"" + entryid + "\" />\n");
-			echo.append("<tr><td class=\"noBorderS\">Baukosten: </td><td><input type=\"text\" name=\"buildcosts\" value=\"" + entry.getBuildCosts() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Forschung1: </td><td><select size=\"1\" name=\"res1\">");
+			echo.append("<table class=\"noBorder\" width=\"100%\">");
+			echo.append("<tr><td>Baukosten: </td><td><input type=\"hidden\" id=\"buildcosts\" name=\"buildcosts\" value=\"" + entry.getBuildCosts().toString() + "\"></td></tr>\n");
+			echo.append("<tr><td>Forschung1: </td><td><select size=\"1\" name=\"res1\">");
 			for (Forschung research: researchs)
 			{
 				echo.append("<option value=\"" + research.getID() + "\" " + (research.getID() == entry.getRes1() ? "selected=\"selected\"" : "") + ">" + research.getName() + "</option>");
 			}
 			echo.append("</select>");
-			echo.append("<tr><td class=\"noBorderS\">Forschung2: </td><td><select size=\"1\" name=\"res2\">");
+			echo.append("<tr><td>Forschung2: </td><td><select size=\"1\" name=\"res2\">");
 			for (Forschung research: researchs)
 			{
 				echo.append("<option value=\"" + research.getID() + "\" " + (research.getID() == entry.getRes2() ? "selected=\"selected\"" : "") + ">" + research.getName() + "</option>");
 			}
 			echo.append("</select>");
-			echo.append("<tr><td class=\"noBorderS\">Forschung3: </td><td><select size=\"1\" name=\"res3\">");
+			echo.append("<tr><td>Forschung3: </td><td><select size=\"1\" name=\"res3\">");
 			for (Forschung research: researchs)
 			{
 				echo.append("<option value=\"" + research.getID() + "\" " + (research.getID() == entry.getRes3() ? "selected=\"selected\"" : "") + ">" + research.getName() + "</option>");
 			}
 			echo.append("</select>");
-			echo.append("<tr><td class=\"noBorderS\">Produktion: </td><td><input type=\"text\" name=\"produce\" value=\"" + entry.getProduce().toString() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Dauer: </td><td><input type=\"text\" name=\"dauer\" value=\"" + entry.getDauer() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">BuildingIDs: </td><td><input type=\"text\" name=\"buildingids\" value=\"" + entry.getBuildingIds() + "\"></td></tr>\n");
-			
-			
-			echo.append("<tr><td class=\"noBorderS\"></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
+			echo.append("<tr><td>Produktion: </td><td><input type=\"hidden\" id=\"produces\" name=\"produce\" value=\"" + entry.getProduce().toString() + "\"></td></tr>\n");
+			echo.append("<tr><td>Dauer: </td><td><input type=\"text\" name=\"dauer\" value=\"" + entry.getDauer() + "\"></td></tr>\n");
+			echo.append("<tr><td>BuildingIDs: </td><td><input type=\"text\" name=\"buildingids\" value=\"" + entry.getBuildingIds() + "\"></td></tr>\n");
+
+
+			echo.append("<tr><td></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
 			echo.append("</table>");
 			echo.append("</form>\n");
+			echo.append("<script type='text/javascript'>$(document).ready(function() {new CargoEditor('#buildcosts');new CargoEditor('#produces');});</script>");
+			echo.append("</div>");
 		}
 	}
 }

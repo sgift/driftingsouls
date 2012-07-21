@@ -24,12 +24,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
-import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.Forschung;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
@@ -42,14 +39,13 @@ import net.driftingsouls.ds2.server.ships.ShipBaubar;
 @AdminMenuEntry(category = "Schiffe", name = "Baukosten editieren")
 public class EditShipCosts implements AdminPlugin
 {
-	
+
 	@Override
 	public void output(AdminController controller, String page, int action) throws IOException
 	{
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
-		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
 
 		int shiptypeId = context.getRequest().getParameterInt("shiptype");
 
@@ -85,9 +81,9 @@ public class EditShipCosts implements AdminPlugin
 			int tr1 = request.getParameterInt("tr1");
 			int tr2 = request.getParameterInt("tr2");
 			int tr3 = request.getParameterInt("tr3");
-			
+
 			ShipBaubar shiptype = (ShipBaubar) db.createQuery("from ShipBaubar where id=?").setInteger(0, shiptypeId).uniqueResult();
-			
+
 			shiptype.setEKosten(ekosten);
 			shiptype.setCrew(crew);
 			shiptype.setDauer(dauer);
@@ -97,44 +93,41 @@ public class EditShipCosts implements AdminPlugin
 			shiptype.setRes1(tr1);
 			shiptype.setRes2(tr2);
 			shiptype.setRes3(tr3);
-			
-			Cargo cargo = new Cargo();
-			
-			for(Item item: itemlist)
-			{
-				long amount = context.getRequest().getParameterInt("i"+item.getID());
-				int uses = context.getRequest().getParameterInt("i" + item.getID() + "uses");
-				cargo.addResource(new ItemID(item.getID(), uses, 0), amount);
-			}
-			
+
+			Cargo cargo = new Cargo(Cargo.Type.ITEMSTRING, context.getRequest().getParameter("buildcosts"));
+
 			shiptype.setCosts(cargo);
-			
+
 			echo.append("<p>Update abgeschlossen.</p>");
 		}
 
 		// Ship choosen - get the values
 		if (shiptypeId > 0)
 		{
-			ShipBaubar ship = (ShipBaubar) db.createQuery("from ShipBaubar where id=?").setInteger(0, shiptypeId).uniqueResult();
+			ShipBaubar ship = (ShipBaubar) db
+				.createQuery("from ShipBaubar where id=?")
+				.setInteger(0, shiptypeId)
+				.uniqueResult();
 
+			echo.append("<div class='gfxbox' style='width:600px'>");
 			echo.append("<form action=\"./ds\" method=\"post\">");
-			echo.append("<table class=\"noBorder\" width=\"100%\">");
+			echo.append("<table width=\"100%\">");
 			echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
 			echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("<input type=\"hidden\" name=\"shiptype\" value=\"" + shiptypeId + "\" />\n");
-			echo.append("<tr><td class=\"noBorderS\">Energiekosten: </td><td><input type=\"text\" name=\"ekosten\" value=\"" + ship.getEKosten() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Crew: </td><td><input type=\"text\" name=\"crew\" value=\"" + ship.getCrew() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Dauer: </td><td><input type=\"text\" name=\"dauer\" value=\"" + ship.getDauer() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">Rasse: </td><td><select size=\"1\" name=\"race\" \">");
+			echo.append("<tr><td>Energiekosten: </td><td><input type=\"text\" name=\"ekosten\" value=\"" + ship.getEKosten() + "\"></td></tr>\n");
+			echo.append("<tr><td>Crew: </td><td><input type=\"text\" name=\"crew\" value=\"" + ship.getCrew() + "\"></td></tr>\n");
+			echo.append("<tr><td>Dauer: </td><td><input type=\"text\" name=\"dauer\" value=\"" + ship.getDauer() + "\"></td></tr>\n");
+			echo.append("<tr><td>Rasse: </td><td><select size=\"1\" name=\"race\" \">");
 			for(Rasse race: Rassen.get())
 			{
 				echo.append("<option value=\""+ race.getID() +"\" " + (race.getID() == ship.getRace() ? "selected=\"selected\"" : "") + " />"+race.getName()+"</option>");
 			}
 			echo.append("</select></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Ben&ouml;tigte Werftslots: </td><td><input type=\"text\" name=\"werftslots\" value=\"" + ship.getWerftSlots() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Flagschiff (true/false): </td><td><input type=\"text\" name=\"flagschiff\" value=\"" + ship.isFlagschiff() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Forschung 1: </td><td><select name=\"tr1\" size=\"1\" style=\"width:200px\">\n");
+			echo.append("<tr><td>Ben&ouml;tigte Werftslots: </td><td><input type=\"text\" name=\"werftslots\" value=\"" + ship.getWerftSlots() + "\"></td></tr>\n");
+			echo.append("<tr><td>Flagschiff (true/false): </td><td><input type=\"text\" name=\"flagschiff\" value=\"" + ship.isFlagschiff() + "\"></td></tr>\n");
+			echo.append("<tr><td>Forschung 1: </td><td><select name=\"tr1\" size=\"1\" style=\"width:200px\">\n");
 			List<?> researches = db.createQuery("from Forschung").list();
 			for( Iterator<?> iter=researches.iterator(); iter.hasNext(); )
 			{
@@ -142,35 +135,27 @@ public class EditShipCosts implements AdminPlugin
 				echo.append("<option value=\""+requirement.getID()+"\" "+(requirement.getID() == ship.getRes(1) ? "selected=\"selected\"" : "")+" \">"+requirement.getName()+"</option>\n");
 			}
 			echo.append("</select></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Forschung 2: </td><td><select name=\"tr2\" size=\"1\" style=\"width:200px\">\n");
+			echo.append("<tr><td>Forschung 2: </td><td><select name=\"tr2\" size=\"1\" style=\"width:200px\">\n");
 			researches = db.createQuery("from Forschung").list();
 			for( Iterator<?> iter=researches.iterator(); iter.hasNext(); )
 			{
 				Forschung requirement = (Forschung)iter.next();
 				echo.append("<option value=\""+requirement.getID()+"\" "+(requirement.getID() == ship.getRes(2) ? "selected=\"selected\"" : "")+" \">"+requirement.getName()+"</option>\n");
 			}
-			echo.append("<tr><td class=\"noBorderS\">Forschung 3: </td><td><select name=\"tr3\" size=\"1\" style=\"width:200px\">\n");
+			echo.append("<tr><td>Forschung 3: </td><td><select name=\"tr3\" size=\"1\" style=\"width:200px\">\n");
 			researches = db.createQuery("from Forschung").list();
 			for( Iterator<?> iter=researches.iterator(); iter.hasNext(); )
 			{
 				Forschung requirement = (Forschung)iter.next();
 				echo.append("<option value=\""+requirement.getID()+"\" "+(requirement.getID() == ship.getRes(3) ? "selected=\"selected\"" : "")+" \">"+requirement.getName()+"</option>\n");
 			}
-			echo.append("<tr><td class=\"noBorderS\"></td><td class=\"noBorderS\">Menge</td><td class=\"noBorderS\">Nutzungen</td></tr>");
-			for(Item item: itemlist)
-			{
-				long amount = ship.getCosts().getResourceCount(new ItemID(item.getID()));
-				int uses = 0;
-				if(!ship.getCosts().getItem(item.getID()).isEmpty())
-				{
-					uses = ship.getCosts().getItem(item.getID()).get(0).getMaxUses();
-				}
-				echo.append("<tr><td class=\"noBorderS\"><img src=\""+item.getPicture()+"\" alt=\"\" />"+item.getName()+": </td><td><input type=\"text\" name=\"i"+item.getID()+"\" value=\"" + amount + "\"></td><td><input type=\"text\" name=\"i"+item.getID()+"u\" value=\"" + uses + "\"></td></tr>");
-			}
-			
-			echo.append("<tr><td class=\"noBorderS\"></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
+			echo.append("<tr><td>Baukosten</td><td><input type='hidden' name='buildcosts' id='buildcosts' value='"+ship.getCosts().toString()+"' /></td></tr>");
+			echo.append("<tr><td></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
 			echo.append("</table>");
 			echo.append("</form>\n");
+			echo.append("<script type='text/javascript'>$(document).ready(function() {new CargoEditor('#buildcosts');});</script>");
+
+			echo.append("</div>");
 		}
 	}
 }

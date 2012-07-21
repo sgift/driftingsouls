@@ -59,6 +59,8 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeChangeset;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -542,7 +544,7 @@ public class ItemInfoController extends TemplateGenerator {
 						continue;
 					}
 					setcount++;
-					if( hasPermission("item", "unbekannteSichtbar") || user.isKnownItem(aitem.getID()) ) {
+					if( user.canSeeItem(aitem) ) {
 						setknowncount++;
 					}
 				}
@@ -676,7 +678,8 @@ public class ItemInfoController extends TemplateGenerator {
 			List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
 
 			for( Item thisitem : itemlist ) {
-				if( (thisitem.getEffect().getType() == ItemEffect.Type.MODULE) && (((IEModule)thisitem.getEffect()).getSetID() == itemid) ) {
+				if( (thisitem.getEffect().getType() == ItemEffect.Type.MODULE) &&
+						(((IEModule)thisitem.getEffect()).getSetID() == itemid) ) {
 					setitemlist.addResource(new ItemID(thisitem.getID()), 1);
 				}
 			}
@@ -740,11 +743,8 @@ public class ItemInfoController extends TemplateGenerator {
 
 			ItemEffect itemeffect = aitem.getEffect();
 
-			if( aitem.getAccessLevel() > user.getAccessLevel() ) {
-				continue;
-			}
-
-			if( aitem.isUnknownItem() && !user.isKnownItem(itemid) && !hasPermission("item", "unbekannteSichtbar") ) {
+			if( !user.canSeeItem(aitem) )
+			{
 				continue;
 			}
 
@@ -807,6 +807,45 @@ public class ItemInfoController extends TemplateGenerator {
 
 			t.parse("knownlist.list", "knownlist.listitem", true);
 		}
+	}
+
+	/**
+	 * Gibt alle fuer den Nutzer sichtbaren Items als JSON-Objekte zurueck.
+	 */
+	@Action(ActionType.AJAX)
+	public JSONObject ajaxAction()
+	{
+		User user = (User)getUser();
+		org.hibernate.Session db = getDB();
+		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
+
+		JSONObject json = new JSONObject();
+		JSONArray items = new JSONArray();
+
+		for( Item aitem : itemlist )
+		{
+			int itemid = aitem.getID();
+
+			ItemEffect itemeffect = aitem.getEffect();
+
+			if( !user.canSeeItem(aitem) ) {
+				continue;
+			}
+
+			JSONObject itemObj = new JSONObject();
+			itemObj.accumulate("picture", aitem.getPicture());
+			itemObj.accumulate("id", itemid);
+			itemObj.accumulate("name", Common._plaintitle(aitem.getName()));
+			itemObj.accumulate("quality", aitem.getQuality().toJSON());
+			itemObj.accumulate("effectName", itemeffect.getType().getName());
+			itemObj.accumulate("cargo", aitem.getCargo());
+
+			items.add(itemObj);
+		}
+
+		json.accumulate("items", items);
+
+		return json;
 	}
 
 	/**
