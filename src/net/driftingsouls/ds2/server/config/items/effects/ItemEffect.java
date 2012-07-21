@@ -37,7 +37,7 @@ public abstract class ItemEffect {
 		/**
 		 * Kein Effekt.
 		 */
-		NONE("Nichts"),
+		NONE("Ware"),
 		/**
 		 * Schiffsbauplan.
 		 */
@@ -68,13 +68,13 @@ public abstract class ItemEffect {
 		 * Modul-Set Metainformationen.
 		 */
 		MODULE_SET_META("Modul-Set");
-		
+
 		private String name = null;
-		
+
 		private Type(String name) {
 			this.name = name;
 		}
-		
+
 		/**
 		 * Gibt den umgangssprachlichen Namen der Modulklasse zurueck.
 		 * @return der Name
@@ -83,19 +83,19 @@ public abstract class ItemEffect {
 			return name;
 		}
 	}
-	
+
 	private Type type = null;
 	private boolean allyEffect = false;
-	
+
 	protected ItemEffect(Type type) {
 		this.type = type;
 	}
-	
+
 	protected ItemEffect(Type type, boolean allyEffect) {
 		this(type);
 		this.allyEffect = allyEffect;
 	}
-	
+
 	/**
 	 * Gibt den Typ des Item-Effekts zurueck.
 	 * @return Der Typ des Item-Effekts
@@ -103,24 +103,24 @@ public abstract class ItemEffect {
 	public Type getType() {
 		return this.type;
 	}
-	
+
 	/**
 	 * Gibt an, ob es sich bei dem Effekt um einen allianzweiten Effekt handelt.
 	 * Allianzweite Effekte wirken sich nur dann aus, wenn das Item an die Allianz uebergeben wurde.
-	 *  
+	 *
 	 * @return <code>true</code>, falls es sich um einen Allianzeffekt handelt.
 	 */
 	public boolean hasAllyEffect() {
 		return allyEffect;
 	}
-	
+
 	/**
 	 * Gibt das passende Fenster fuer das Adminmenue aus.
 	 * @param echo Der Writer des Adminmenues
 	 */
 	public void getAdminTool(Writer echo) throws IOException {
 	}
-	
+
 	/**
 	 * Gibt den Itemeffect als String aus.
 	 * @return der Effect als String
