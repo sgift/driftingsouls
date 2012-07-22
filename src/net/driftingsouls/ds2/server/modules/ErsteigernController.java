@@ -2567,7 +2567,8 @@ public class ErsteigernController extends TemplateGenerator
 					"entry.availability.color", shopEntryObj.getAvailabilityColor(),
 					"entry.availability", shopEntryObj.getAvailability(),
 					"entry.price", shopEntryObj.getPriceAsText(),
-					"entry.showamountinput", shopEntryObj.showAmountInput());
+					"entry.showamountinput", shopEntryObj.showAmountInput(),
+					"entry.orderable", this.allowsTrade);
 
 			t.parse("shop.list", "shop.listitem", true);
 		}
