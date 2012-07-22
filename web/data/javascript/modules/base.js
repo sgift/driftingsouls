@@ -8,7 +8,7 @@ function BaseView() {
 			'{{#cargo}}'+
 			'<li>'+
 			'<img src="{{image}}" alt="" />'+
-			'{{{name}}} {{{cargo1}}} {{{cargo2}}}'+
+			'{{{name}}} {{{cargo1}}} {{#count2}}{{{cargo2}}}{{/count2}}'+
 			'</li>'+
 			'{{/cargo}}'+
 			'<li><img src="./data/interface/leer.gif" alt="" />Leer {{cargoFrei}} {{cargoBilanz}}</li>'+

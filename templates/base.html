@@ -85,7 +85,7 @@
 			<!-- BEGIN base.cargo.listitem -->
 				<li>
 				<img src="{res.image}" alt="" />
-				{res.name} {res.cargo1} {res.cargo2}
+				{res.name} {res.cargo1} {if res.plaincount2}{res.cargo2}{/endif}
 				</li>
 			<!-- END base.cargo.listitem -->
 			<img src="{URL}data/interface/leer.gif" alt="" />Leer {base.cargo.empty} {base.cstat}<br />
