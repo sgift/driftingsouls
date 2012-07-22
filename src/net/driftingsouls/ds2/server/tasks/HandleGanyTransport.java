@@ -234,17 +234,16 @@ class HandleGanyTransport implements TaskHandler
 	{
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
-
 		List<Ship> shiptrans = Common.cast(db.createQuery("from Ship s " +
 				"WHERE s.owner= :owner AND s.system= :system AND " +
-						"s.scriptData is null AND LOCATE('#!/tm gany_transport',s.einstellungen.destcom)")
+						"s.scriptData is null AND locate('#!/tm gany_transport',s.einstellungen.destcom)!=0")
 				.setInteger("owner", entryowner.getFaction())
 				.setInteger("system", source.getSystem())
 				.list());
 		if( shiptrans.isEmpty() ) {
 			shiptrans = Common.cast(db.createQuery("from Ship s " +
 					"WHERE s.owner= :owner AND s.system= :system AND " +
-						"s.scriptData is null AND LOCATE('#!/tm gany_transport',s.einstellungen.destcom)")
+						"s.scriptData is null AND locate('#!/tm gany_transport',s.einstellungen.destcom)!=0")
 				.setInteger("owner", entryowner.getFaction())
 				.setInteger("system", target.getSystem())
 				.list());
@@ -252,7 +251,7 @@ class HandleGanyTransport implements TaskHandler
 		if( shiptrans.isEmpty() ) {
 			Common.cast(db.createQuery("from Ship s " +
 					"WHERE s.owner= :owner AND " +
-						"s.scriptData is null AND LOCATE('#!/tm gany_transport',s.einstellungen.destcom)")
+						"s.scriptData is null AND locate('#!/tm gany_transport',s.einstellungen.destcom)!=0")
 				.setInteger("owner", entryowner.getFaction())
 				.list());
 		}
