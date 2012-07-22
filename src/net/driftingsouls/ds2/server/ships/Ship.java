@@ -817,7 +817,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 			if(scriptData == null)
 			{
 				ShipScriptData data = new ShipScriptData();
-				data.setShipid(this.getId());
 				org.hibernate.Session db = ContextMap.getContext().getDB();
 				db.persist(data);
 				scriptData = data;
