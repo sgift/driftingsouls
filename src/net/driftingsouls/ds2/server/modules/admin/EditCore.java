@@ -5,19 +5,21 @@ import java.io.Writer;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.bases.Core;
+import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.modules.AdminController;
 
 /**
  * Editiert die Werte von Cores.
- * 
+ *
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Asteroiden", name = "Core editieren")
-public class EditCore implements AdminPlugin
+public class EditCore extends AbstractEditPlugin
 {
 	@Override
 	public void output(AdminController controller, String page, int action) throws IOException
@@ -25,17 +27,37 @@ public class EditCore implements AdminPlugin
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
-		
-		int coreId = context.getRequest().getParameterInt("core");
+
+		Request req = context.getRequest();
+		int coreId = req.getParameterInt("entityId");
+
+		if( this.isUpdateExecuted() )
+		{
+			Core core = (Core)db.get(Core.class, coreId);
+			core.setName(req.getParameterString("name"));
+			core.setAstiType(req.getParameterInt("asti"));
+			core.setArbeiter(req.getParameterInt("worker"));
+			core.setEVerbrauch(req.getParameterInt("everbrauch"));
+			core.setEProduktion(req.getParameterInt("eproduktion"));
+			core.setEps(req.getParameterInt("eps"));
+			core.setBewohner(req.getParameterInt("room"));
+			core.setShutDown("true".equals(req.getParameterString("shutdown")));
+			core.setTechReq(req.getParameterInt("tech"));
+			core.setBuildcosts(new Cargo(Cargo.Type.ITEMSTRING, req.getParameterString("buildcosts")));
+			core.setConsumes(new Cargo(Cargo.Type.ITEMSTRING, req.getParameterString("consumes")));
+			core.setProduces(new Cargo(Cargo.Type.ITEMSTRING, req.getParameterString("produces")));
+
+			echo.append("<p>Update abgeschlossen.</p>");
+		}
+
 		List<Core> cores = Common.cast(db.createQuery("from Core").list());
-		
-		boolean update = context.getRequest().getParameterString("change").equals("Aktualisieren");
-		
+
+		echo.append("<div class='gfxbox' style='width:300px'>");
 		echo.append("<form action=\"./ds\" method=\"post\">");
 		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
 		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-		echo.append("<select size=\"1\" name=\"core\">");
+		echo.append("<select size=\"1\" name=\"entityId\">");
 		for (Core core: cores)
 		{
 			echo.append("<option value=\"" + core.getId() + "\" " + (core.getId() == coreId ? "selected=\"selected\"" : "") + ">" + core.getName() + "</option>");
@@ -43,41 +65,33 @@ public class EditCore implements AdminPlugin
 		echo.append("</select>");
 		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
 		echo.append("</form>");
-		
+		echo.append("</div>");
+
 		if(coreId > 0)
 		{
 			Core core = (Core)db.get(Core.class, coreId);
-			
+
 			if(core == null)
 			{
 				return;
 			}
-			
-			List<Forschung> researchs = Common.cast(db.createQuery("from Forschung").list());
-			
-			echo.append("<form action=\"./ds\" method=\"post\">");
-			echo.append("<table class=\"noBorder\" width=\"100%\">");
-			echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
-			echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
-			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-			echo.append("<input type=\"hidden\" name=\"core\" value=\"" + coreId + "\" />\n");
-			echo.append("<tr><td class=\"noBorderS\">Name: </td><td><input type=\"text\" name=\"name\" value=\"" + core.getName() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Astitype: </td><td><input type=\"text\" name=\"asti\" value=\"" + core.getAstiType() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Arbeiter: </td><td><input type=\"text\" name=\"worker\" value=\"" + core.getArbeiter() + "\"></td></tr>\n");
-			int energy = -1*core.getEVerbrauch() + core.getEProduktion();
-			echo.append("<tr><td class=\"noBorderS\">Energie: </td><td><input type=\"text\" name=\"energy\" value=\"" + energy  + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">EPS: </td><td><input type=\"text\" name=\"eps\" value=\"" + core.getEPS() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Wohnraum: </td><td><input type=\"text\" name=\"room\" value=\"" + core.getBewohner() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Auto Abschalten: </td><td><input type=\"text\" name=\"shutdown\" value=\"" + core.isShutDown() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Forschung: </td><td><select size=\"1\" name=\"tech\">");
-			for (Forschung research: researchs)
-			{
-				echo.append("<option value=\"" + research.getID() + "\" " + (research.getID() == core.getTechRequired() ? "selected=\"selected\"" : "") + ">" + research.getName() + "</option>");
-			}
-			echo.append("</select>");
-			echo.append("<tr><td class=\"noBorderS\"></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
-			echo.append("</table>");
-			echo.append("</form>\n");
+
+			beginEditorTable(echo, page, action, coreId);
+
+			editField(echo, "Name", "name", String.class, core.getName());
+			editField(echo, "Astitype", "asti", Integer.class, core.getAstiType());
+			editField(echo, "Arbeiter", "worker", Integer.class, core.getArbeiter());
+			editField(echo, "Energieverbrauch", "everbrauch", Integer.class, core.getEVerbrauch());
+			editField(echo, "Energieproduktion", "eproduktion", Integer.class, core.getEProduktion());
+			editField(echo, "EPS", "eps", Integer.class, core.getEPS());
+			editField(echo, "Wohnraum", "room", Integer.class, core.getBewohner());
+			editField(echo, "Auto Abschalten", "shutdown", Boolean.class, core.isShutDown());
+			editField(echo, "Forschung", "tech", Forschung.class, core.getTechRequired());
+			editField(echo, "Baukosten", "buildcosts", Cargo.class, core.getBuildCosts());
+			editField(echo, "Verbrauch", "consumes", Cargo.class, core.getConsumes());
+			editField(echo, "Produktion", "produces", Cargo.class, core.getProduces());
+
+			endEditorTable(echo);
 		}
 	}
 }
