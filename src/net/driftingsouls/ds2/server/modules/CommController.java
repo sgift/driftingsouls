@@ -719,6 +719,7 @@ public class CommController extends TemplateGenerator {
 		}
 
 		String text = pm.getInhalt();
+		text = Common.escapeHTML(text);
 		text = bbcodeparser.parse(text);
 
 		text = StringUtils.replace(text, "\r\n", "<br />");
