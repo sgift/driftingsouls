@@ -29,10 +29,9 @@ import net.driftingsouls.ds2.server.entities.FactionShopEntry;
 import net.driftingsouls.ds2.server.entities.FactionShopOrder;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.ships.JumpNodeRouter;
 import net.driftingsouls.ds2.server.ships.Ship;
 
@@ -234,21 +233,32 @@ class HandleGanyTransport implements TaskHandler
 	private Ship findBestTransporter(FactionShopEntry entryowner, Location source, Location target)
 	{
 		Context context = ContextMap.getContext();
-		Database database = context.getDatabase();
 		org.hibernate.Session db = context.getDB();
 
-		SQLResultRow shiptrans = database.first("SELECT * FROM ships " +
-				"WHERE owner=",entryowner.getFaction()," AND system=",source.getSystem()," AND " +
-						"scriptData_id AND LOCATE('#!/tm gany_transport',destcom)");
+		List<Ship> shiptrans = Common.cast(db.createQuery("from Ship " +
+				"WHERE s.owner= :owner AND s.system= :system AND " +
+						"s.scriptData is null AND LOCATE('#!/tm gany_transport',s.einstellungen.destcom)")
+				.setInteger("owner", entryowner.getFaction())
+				.setInteger("system", source.getSystem())
+				.list());
 		if( shiptrans.isEmpty() ) {
-			shiptrans = database.first("SELECT * FROM ships WHERE owner=",entryowner.getFaction()," AND system=",target.getSystem()," AND scriptData_id AND LOCATE('#!/tm gany_transport',destcom)");
+			shiptrans = Common.cast(db.createQuery("from Ship " +
+					"WHERE s.owner= :owner AND s.system= :system AND " +
+						"s.scriptData is null AND LOCATE('#!/tm gany_transport',s.einstellungen.destcom)")
+				.setInteger("owner", entryowner.getFaction())
+				.setInteger("system", target.getSystem())
+				.list());
 		}
 		if( shiptrans.isEmpty() ) {
-			shiptrans = database.first("SELECT * FROM ships WHERE owner=",entryowner.getFaction()," AND scriptData_id AND LOCATE('#!/tm gany_transport',destcom)");
+			Common.cast(db.createQuery("from Ship " +
+					"WHERE s.owner= :owner AND " +
+						"s.scriptData is null AND LOCATE('#!/tm gany_transport',s.einstellungen.destcom)")
+				.setInteger("owner", entryowner.getFaction())
+				.list());
 		}
 		if( !shiptrans.isEmpty() )
 		{
-			return (Ship)db.get(Ship.class, shiptrans.getInt("id"));
+			return shiptrans.iterator().next();
 		}
 		return null;
 	}

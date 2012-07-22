@@ -117,7 +117,7 @@ public class NPCOrderController extends TemplateGenerator {
 		t.setVar("npcorder.transports", 1);
 		t.setBlock("_NPCORDER", "transports.listitem", "transports.list");
 
-		List<?> ships = db.createQuery("from Ship where owner=? and locate('#!/tm gany_transport',destcom)!=0")
+		List<?> ships = db.createQuery("from Ship s where s.owner=? and locate('#!/tm gany_transport',s.einstellungen.destcom)!=0")
 			.setEntity(0, user)
 			.list();
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
