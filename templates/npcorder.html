@@ -4,13 +4,14 @@
 	<td class="noBorder">&nbsp;</td>
 	<td class="noBorder">
 		<div class="gfxbox" style="width:400px;text-align:center">
-			{!link_to Ordermen&uuml;, default}
-            &nbsp;|&nbsp;
-            {!link_to Orden &amp; R&auml;nge, medals}
-			{if npcorder.shop}
-				&nbsp;|&nbsp;
-				{!link_to Gany-Transport, viewTransports}
-			{/endif}
+			<ul class="menu">
+				<li>{!link_to Ordermen&uuml;, default}</li>
+	            <li>{!link_to Orden &amp; R&auml;nge, medals}</li>
+	            <li>{!link_to Loyalitätspunkte, lp}</li>
+				{if npcorder.shop}
+					<li>{!link_to Gany-Transport, viewTransports}</li>
+				{/endif}
+			</ul>
 		</div>
 	</td>
 </tr>
@@ -144,10 +145,6 @@
 										<!-- END ranks.listitem -->
 									</select>
 								</td>
-								<td class="noBorderX">LP:</td>
-								<td class="noBorderX" align="center" colspan="2">
-									<input type="text" name="lp" value="{edituser.lp}" />
-								</td>
 							</tr>
 						</table>
 						<div style="text-align:center">
@@ -171,6 +168,69 @@
 							</div>
 						</form>
 					{/endif}
+				</div>
+			{/endif}
+		</div>
+	{/endif}
+	{if npcorder.lpmenu}
+		<div align="center" style="width:780px">
+			<div class="gfxbox" style="width:400px">
+				<form action="./ds" method="post">
+					Spieler bearbeiten: <input type="text" name="edituser" value="{edituser.id}" style="width:50px" />
+ 					{!form_create_hidden lp}
+ 					<input type="submit" value="bearbeiten" />
+				</form>
+			</div>
+			{if edituser.id}
+				<br />
+				<div class="gfxbox" style="width:700px;text-align:left">
+					<div align="center">
+						{!link_to $edituser.name, default, css_class:profile, module:userprofile, user:$edituser.id}<br />
+					</div>
+					<br />
+					<div>
+						Rang bei Ihnen: {edituser.rank.name}
+					</div>
+					<div style="margin-bottom:10px">
+						Loyalitätspunkte bei Ihnen: {edituser.lpBeiNpc}
+					</div>
+					<form action="./ds" method="post">
+						{!form_create_hidden editLp, edituser:$edituser.id}
+						<table width="100%">
+							<thead>
+								<tr>
+									<th>Zeitpunkt</th>
+									<th>durch</th>
+									<th>für</th>
+									<th>Anmerkungen</th>
+									<th>Punkte</th>
+								</tr>
+							</thead>
+							<tbody>
+								<!-- BEGIN lp.listitem -->
+									<tr>
+										<td>{lp.zeitpunkt}</td>
+										<td><a href="./ds?module=userprofile&amp;action=default;&amp;user={lp.verliehenDurch.id}">{lp.verliehenDurch.name}</a></td>
+										<td>{lp.grund}</td>
+										<td><textarea style="width:200px;height:30px">{lp.anmerkungen}</textarea></td>
+										<td>{lp.anzahlPunkte}</td>
+									</tr>
+								<!-- END lp.listitem -->
+							</tbody>
+							<tfoot>
+								<tr>
+									<td></td>
+									<td></td>
+									<td><input type="text" maxlength="255" size="30" name="grund" value="" /></td>
+									<td><textarea style="width:200px;height:30px" name="anmerkungen"></textarea></td>
+									<td>
+										<input type="text" size="4" name="punkte" value="0" />
+										<input type="submit" name="add" value="+" />
+									</td>
+								</tr>
+							</tfoot>
+						</table>
+					</form>
 				</div>
 			{/endif}
 		</div>

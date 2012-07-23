@@ -1716,13 +1716,30 @@
 			DROP COLUMN isallyfeeding,
 			DROP COLUMN showtradepost;
     ]]></update>
-    <update type="data" datum="2012-07-19"><![CDATA[
+    <update type="structure" datum="2012-07-19"><![CDATA[
     	ALTER TABLE ships DROP COLUMN visibility, DROP COLUMN `lock`, DROP COLUMN onmove;
-    	
+
     	ALTER TABLE academy_queues ADD COLUMN academy_id INT, ADD CONSTRAINT academy_queues_fk_academy FOREIGN KEY (academy_id) REFERENCES academy(id);
     	UPDATE academy_queues SET academy_id = (SELECT id FROM academy WHERE base=academy_queues.base LIMIT 1);
     	DELETE FROM academy_queues WHERE academy_id IS NULL;
     	ALTER TABLE academy_queues MODIFY academy_id INT NOT NULL;
     	ALTER TABLE academy_queues DROP COLUMN base;
+    ]]></update>
+    <update type="structure" datum="2012-07-23"><![CDATA[
+    	CREATE TABLE loyalitaetspunkte (
+			id INT NOT NULL auto_increment,
+			user_id INT NOT NULL,
+			grund VARCHAR(255) NOT NULL,
+			anmerkungen TEXT,
+			anzahlPunkte INT NOT NULL,
+			zeitpunkt DATETIME NOT NULL,
+			verliehenDurch_id INT NOT NULL,
+			PRIMARY KEY(id)
+		) ENGINE=InnoDB;
+
+		ALTER TABLE loyalitaetspunkte ADD CONSTRAINT loyalitaetspunkte_fk_users_1 FOREIGN KEY (user_id) REFERENCES users(id);
+		ALTER TABLE loyalitaetspunkte ADD CONSTRAINT loyalitaetspunkte_fk_users_2 FOREIGN KEY (verliehenDurch_id) REFERENCES users(id);
+   		INSERT INTO loyalitaetspunkte SELECT null, owner, 'Initiale LP', '[Automatische Konvertierung]', lp, NOW(), rank_giver FROM user_rank WHERE lp>0;
+ 		ALTER TABLE user_rank DROP COLUMN lp;
     ]]></update>
 </updates>

@@ -1,10 +1,13 @@
 package net.driftingsouls.ds2.server.modules;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
@@ -16,6 +19,7 @@ import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.config.Rang;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.FactionShopOrder;
+import net.driftingsouls.ds2.server.entities.Loyalitaetspunkte;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserRank;
 import net.driftingsouls.ds2.server.entities.npcorders.Order;
@@ -265,7 +269,6 @@ public class NPCOrderController extends TemplateGenerator {
 		this.parameterNumber("lp");
 		int edituserID = this.getInteger("edituser");
 		int rank = this.getInteger("rank");
-		int lp = this.getInteger("lp");
 
 		User edituser = (User)getContext().getDB().get(User.class, edituserID);
 
@@ -285,10 +288,98 @@ public class NPCOrderController extends TemplateGenerator {
 
 		edituser.setRank(user, rank);
 
-		UserRank rangObj = edituser.getRank(user);
-		rangObj.setLP(lp);
-
 		this.redirect("medals");
+	}
+
+	@Action(ActionType.DEFAULT)
+	public void editLpAction()
+	{
+		User user = (User)this.getUser();
+
+		parameterNumber("edituser");
+		int edituserID = getInteger("edituser");
+
+		User edituser = (User)getDB().get(User.class, edituserID);
+		if( edituser == null )
+		{
+			redirect("lp");
+			return;
+		}
+
+		parameterString("grund");
+		parameterString("anmerkungen");
+		parameterNumber("punkte");
+
+		String grund = getString("grund");
+		String anmerkungen = getString("anmerkungen");
+		int punkte = getInteger("punkte");
+
+		if( punkte == 0 || grund.isEmpty() )
+		{
+			addError( "Sie muessen den Grund und die Anzahl der Punkte angeben" );
+
+			redirect("lp");
+			return;
+		}
+
+		org.hibernate.Session db = getDB();
+
+		Loyalitaetspunkte lp = new Loyalitaetspunkte(edituser, user, grund, punkte);
+		lp.setAnmerkungen(anmerkungen);
+		user.getLoyalitaetspunkte().add(lp);
+
+		db.persist(lp);
+
+		redirect("lp");
+	}
+
+	/**
+	 * Zeigt die GUI fuer LP-Verwaltung an.
+	 *
+	 */
+	@Action(ActionType.DEFAULT)
+	public void lpAction()
+	{
+		TemplateEngine t = this.getTemplateEngine();
+		User user = (User)this.getUser();
+
+		parameterNumber("edituser");
+		int edituserID = getInteger("edituser");
+
+		t.setVar("npcorder.lpmenu", 1);
+
+		User edituser = (User)getDB().get(User.class, edituserID);
+
+		if( edituser == null ) {
+			t.setVar("edituser.id", 0);
+
+			return;
+		}
+
+		edituser.setTemplateVars(t, "edituser");
+
+		UserRank rank = edituser.getRank(user);
+
+		DateFormat format = new SimpleDateFormat("dd.MM.yy HH:mm");
+
+		t.setBlock("_NPCORDER", "lp.listitem", "lp.list");
+		for( Loyalitaetspunkte lp : new TreeSet<Loyalitaetspunkte>(edituser.getLoyalitaetspunkte()) )
+		{
+			t.setVar("lp.id", lp.getId(),
+					"lp.anmerkungen", lp.getAnmerkungen(),
+					"lp.anzahlPunkte", lp.getAnzahlPunkte(),
+					"lp.grund", lp.getGrund(),
+					"lp.verliehenDurch.name", Common._title(lp.getVerliehenDurch().getName()),
+					"lp.verliehenDurch.id", lp.getVerliehenDurch().getId(),
+					"lp.zeitpunkt", format.format(lp.getZeitpunkt()));
+
+			t.parse("lp.list", "lp.listitem", true);
+		}
+
+		t.setVar(
+				"edituser.name", Common._title(edituser.getName() ),
+				"edituser.rank", rank.getRank(),
+				"edituser.lpBeiNpc", edituser.getLoyalitaetspunkteTotalBeiNpc(user));
 	}
 
 	/**
@@ -330,8 +421,7 @@ public class NPCOrderController extends TemplateGenerator {
 
 		t.setVar(
 				"edituser.name", Common._title(edituser.getName() ),
-				"edituser.rank", rank.getRank(),
-				"edituser.lp", rank.getLP());
+				"edituser.rank", rank.getRank());
 
 		t.setBlock("_NPCORDER", "medals.listitem", "medals.list");
 		for( Medal medal : Medals.get().medals().values() ) {

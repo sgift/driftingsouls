@@ -1,0 +1,2 @@
+ALTER TABLE loyalitaetspunkte ADD CONSTRAINT loyalitaetspunkte_fk_users_1 FOREIGN KEY (user_id) REFERENCES users(id);
+ALTER TABLE loyalitaetspunkte ADD CONSTRAINT loyalitaetspunkte_fk_users_2 FOREIGN KEY (verliehenDurch_id) REFERENCES users(id);

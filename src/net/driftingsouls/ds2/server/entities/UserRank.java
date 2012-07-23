@@ -65,7 +65,6 @@ public class UserRank
     @SuppressWarnings("unused")
 	@Version
     private int version;
-	private int lp;
 
     /**
      * Konstruktor.
@@ -111,16 +110,6 @@ public class UserRank
     public void setRank(int rank)
     {
         this.rank = rank;
-    }
-
-    public void setLP(int lp)
-    {
-    	this.lp = lp;
-    }
-
-    public int getLP()
-    {
-    	return this.lp;
     }
 
     /**

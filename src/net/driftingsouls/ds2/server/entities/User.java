@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -225,6 +226,8 @@ public class User extends BasicUser {
     private BigInteger bounty;
     @OneToMany(mappedBy="userRankKey.owner")
     private Set<UserRank> userRanks;
+    @OneToMany(mappedBy="user", cascade=CascadeType.ALL)
+    private List<Loyalitaetspunkte> loyalitaetspunkte;
 
 	@OneToMany
 	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH})
@@ -1520,5 +1523,31 @@ public class User extends BasicUser {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Gibt alle an den Nutzer vergebenen Loyalitaetspunkte zurueck.
+	 * @return Die Liste
+	 */
+	public List<Loyalitaetspunkte> getLoyalitaetspunkte()
+	{
+		return this.loyalitaetspunkte;
+	}
+
+	/**
+	 * Gibt die Gesamtanzahl der Loyalitaetspunkte bei einem bestimmten NPC zurueck.
+	 * @return Die Gesamtanzahl
+	 */
+	public int getLoyalitaetspunkteTotalBeiNpc(User npc)
+	{
+		int total = 0;
+		for( Loyalitaetspunkte lp : this.loyalitaetspunkte )
+		{
+			if( lp.getVerliehenDurch().getId() == npc.getId() )
+			{
+				total += lp.getAnzahlPunkte();
+			}
+		}
+		return total;
 	}
 }
