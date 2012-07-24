@@ -292,6 +292,45 @@ public class NPCOrderController extends TemplateGenerator {
 	}
 
 	@Action(ActionType.DEFAULT)
+	public void deleteLpAction()
+	{
+		parameterNumber("edituser");
+		parameterNumber("lp");
+		int edituserID = getInteger("edituser");
+		int lpId = getInteger("lp");
+
+		User edituser = (User)getDB().get(User.class, edituserID);
+		if( edituser == null )
+		{
+			redirect("lp");
+			return;
+		}
+
+		Loyalitaetspunkte lp = null;
+		for( Loyalitaetspunkte alp : edituser.getLoyalitaetspunkte() )
+		{
+			if( alp.getId() == lpId )
+			{
+				lp = alp;
+				break;
+			}
+		}
+
+		if( lp == null )
+		{
+			redirect("lp");
+			return;
+		}
+
+		org.hibernate.Session db = getDB();
+
+		db.delete(lp);
+		edituser.getLoyalitaetspunkte().remove(lp);
+
+		redirect("lp");
+	}
+
+	@Action(ActionType.DEFAULT)
 	public void editLpAction()
 	{
 		User user = (User)this.getUser();

@@ -183,7 +183,7 @@
 			</div>
 			{if edituser.id}
 				<br />
-				<div class="gfxbox" style="width:700px;text-align:left">
+				<div class="gfxbox" style="width:900px;text-align:left">
 					<div align="center">
 						{!link_to $edituser.name, default, css_class:profile, module:userprofile, user:$edituser.id}<br />
 					</div>
@@ -196,7 +196,7 @@
 					</div>
 					<form action="./ds" method="post">
 						{!form_create_hidden editLp, edituser:$edituser.id}
-						<table width="100%">
+						<table width="100%" class="datatable">
 							<thead>
 								<tr>
 									<th>Zeitpunkt</th>
@@ -204,6 +204,7 @@
 									<th>für</th>
 									<th>Anmerkungen</th>
 									<th>Punkte</th>
+									<th></th>
 								</tr>
 							</thead>
 							<tbody>
@@ -214,6 +215,7 @@
 										<td>{lp.grund}</td>
 										<td><textarea style="width:200px;height:30px">{lp.anmerkungen}</textarea></td>
 										<td>{lp.anzahlPunkte}</td>
+										<td><a style="color:red" href="./ds?module=npcorder&amp;action=deleteLp&amp;edituser={edituser.id}&amp;lp={lp.id}">x</a></td>
 									</tr>
 								<!-- END lp.listitem -->
 							</tbody>
@@ -225,6 +227,8 @@
 									<td><textarea style="width:200px;height:30px" name="anmerkungen"></textarea></td>
 									<td>
 										<input type="text" size="4" name="punkte" value="0" />
+									</td>
+									<td>
 										<input type="submit" name="add" value="+" />
 									</td>
 								</tr>

@@ -55,7 +55,8 @@ div.gfxbox {
 }
 
 .gfxbox input,
-.gfxbox select {
+.gfxbox select,
+.gfxbox textarea {
 	border: 1px #A7A7A7 solid;
 	margin: 0px;
 	color: #C7C7C7;
@@ -113,11 +114,13 @@ div.gfxbox {
 }
 
 .gfxbox .datatable tfoot td,
-.gfxbox .datatable thead td {
+.gfxbox .datatable thead td,
+.gfxbox .datatable thead th {
 	text-align:center;
 }
 
-.gfxbox .datatable thead td {
+.gfxbox .datatable thead td,
+.gfxbox .datatable thead th {
 	font-weight:bold;
 	color:#FEB626;
 }
