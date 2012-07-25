@@ -56,6 +56,14 @@ class HandleGanyTransport implements TaskHandler
 		org.hibernate.Session db = context.getDB();
 		Taskmanager tm = Taskmanager.getInstance();
 
+		if( true )
+		{
+			// Vorerst automatischen Code deaktivieren
+			// Ganytransporte werden per Hand erledigt
+			tm.removeTask(task.getTaskID());
+			return;
+		}
+
 		int orderid = Integer.parseInt(task.getData1());
 		FactionShopOrder order = (FactionShopOrder)db.get(FactionShopOrder.class, orderid);
 
