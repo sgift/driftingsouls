@@ -61,14 +61,4 @@ public class StatShipCount implements Statistic {
 				"} )});");
 		echo.append("</script>");
 	}
-
-	@Override
-	public boolean generateAllyData() {
-		return false;
-	}
-
-	@Override
-	public int getRequiredData() {
-		return 0;
-	}
 }

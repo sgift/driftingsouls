@@ -19,9 +19,15 @@
 package net.driftingsouls.ds2.server.modules.stats;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.ally.Ally;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.modules.StatsController;
 
 /**
@@ -42,38 +48,93 @@ public class StatBiggestPopulation extends AbstractStatistic implements Statisti
 
 	@Override
 	public void show(StatsController contr, int size) throws IOException {
-		Database db = getContext().getDatabase();
-
-		String url = null;
-
-		SQLQuery tmp = null;
 		if( !allys ) {
-			tmp = db.query("SELECT u.id, tb.res count, u.name " +
-					"FROM tmpbev tb JOIN users u ON tb.id=u.id " +
-					"ORDER BY count DESC LIMIT "+size);
+			Map<User,Long> bevcounts = getUserPopulationData(contr);
+			SortedMap<User,Long> sortedBevCounts = new TreeMap<User,Long>(new MapValueDescComparator<User>(bevcounts));
+			sortedBevCounts.putAll(bevcounts);
 
-			url = getUserURL();
+			this.generateStatistic("Die größten Völker:", sortedBevCounts, USER_LINK_GENERATOR, false, size);
 		}
 		else {
-			tmp = db.query("SELECT a.id, tb.res count, a.name " +
-					"FROM tmpbev tb JOIN ally a ON tb.id=a.id " +
-					"ORDER BY count DESC LIMIT "+size);
+			Map<Ally,Long> bevcounts = getAllyPopulationData(contr);
+			SortedMap<Ally,Long> sortedBevCounts = new TreeMap<Ally,Long>(new MapValueDescComparator<Ally>(bevcounts));
+			sortedBevCounts.putAll(bevcounts);
 
-			url = getAllyURL();
+			this.generateStatistic("Die größten Völker:", sortedBevCounts, ALLY_LINK_GENERATOR, false, size);
+		}
+	}
+
+	public Map<User,Long> getUserPopulationData(StatsController contr)
+	{
+		org.hibernate.Session db = contr.getDB();
+
+		Map<User,Long> bev = new HashMap<User,Long>();
+
+		List<Object[]> rows = Common.cast(db
+			.createQuery("select sum(s.crew), s.owner from Ship s where s.id>0 and s.owner.id>:minid group by s.owner")
+			.setParameter("minid", StatsController.MIN_USER_ID)
+			.list());
+		for( Object[] row : rows )
+		{
+			bev.put((User)row[1], (Long)row[0]);
 		}
 
-		this.generateStatistic("Die gr&ouml;&szlig;ten V&ouml;lker:", tmp, url, false);
+		//Bevoelkerung (Basis) pro User ermitteln (+ zur Besatzung pro User addieren)
+		rows = Common.cast(db
+				.createQuery("select sum(b.bewohner), b.owner from Base b where b.owner.id>:minid group by b.owner")
+				.setParameter("minid", StatsController.MIN_USER_ID)
+				.list());
+		for( Object[] row : rows )
+		{
+			User user = (User)row[1];
+			Long sum = (Long)row[0];
+			if( !bev.containsKey(user) ) {
+				bev.put(user, sum);
+			}
+			else {
+				bev.put(user, bev.get(user)+sum);
+			}
+		}
 
-		tmp.free();
+		return bev;
 	}
 
-	@Override
-	public boolean generateAllyData() {
-		return allys;
-	}
+	public Map<Ally,Long> getAllyPopulationData(StatsController contr)
+	{
+		org.hibernate.Session db = contr.getDB();
+		Map<Ally,Long> bev = new HashMap<Ally,Long>();
 
-	@Override
-	public int getRequiredData() {
-		return Statistic.DATA_CREW;
+		List<Object[]> rows = Common.cast(db
+				.createQuery("select sum(s.crew), s.owner.ally " +
+						"from Ship s where s.id>0 and s.owner.id>:minid and s.owner.ally is not null " +
+						"group by s.owner.ally")
+				.setParameter("minid", StatsController.MIN_USER_ID)
+				.list());
+		for( Object[] row : rows )
+		{
+			Ally ally = (Ally)row[1];
+			bev.put(ally, (Long)row[0]);
+		}
+
+		//Bevoelkerung (Basis) pro User ermitteln (+ zur Besatzung pro User addieren)
+		rows = Common.cast(db
+				.createQuery("select sum(b.bewohner), b.owner.ally " +
+						"from Base b where b.owner.id>:minid and b.owner.ally is not null " +
+						"group by b.owner.ally")
+				.setParameter("minid", StatsController.MIN_USER_ID)
+				.list());
+		for( Object[] row : rows )
+		{
+			Ally ally = (Ally)row[1];
+			Long sum = (Long)row[0];
+			if( !bev.containsKey(ally) ) {
+				bev.put(ally, sum);
+			}
+			else {
+				bev.put(ally, bev.get(ally)+sum);
+			}
+		}
+
+		return bev;
 	}
 }

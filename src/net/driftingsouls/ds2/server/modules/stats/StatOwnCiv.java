@@ -44,11 +44,11 @@ public class StatOwnCiv implements Statistic {
 		Writer echo = context.getResponse().getWriter();
 		echo.append("<table class=\"noBorderX\" cellspacing=\"3\" cellpadding=\"3\" width=\"100%\">\n");
 		echo.append("<tr><td class=\"noBorderX\"colspan=\"2\" align=\"left\">Meine Zivilisation:</td></tr>\n");
-	
+
 		long crew = 0;
-		
+
 		echo.append("<tr><td class=\"noBorderX\" valign=\"top\">Schiffe:</td><td class=\"noBorderX\">\n");
-		
+
 		SQLQuery tmp = db.query("SELECT t1.type,t2.nickname,count(*) count,sum(t1.crew) sum " +
 				"FROM ships t1 JOIN ship_types t2 ON t1.type=t2.id " +
 				"WHERE t1.id>0 AND t1.owner=",user.getId()," GROUP BY t1.type,t2.nickname");
@@ -65,15 +65,5 @@ public class StatOwnCiv implements Statistic {
 		echo.append("<tr><td class=\"noBorderX\">Bewohner:</td><td class=\"noBorderX\">"+Common.ln(population)+"</td></tr>\n");
 		echo.append("<tr><td class=\"noBorderX\">Crew:</td><td class=\"noBorderX\">"+Common.ln(crew)+"</td></tr>\n");
 		echo.append("</table><br /><br />\n");
-	}
-
-	@Override
-	public boolean generateAllyData() {
-		return false;
-	}
-	
-	@Override
-	public int getRequiredData() {
-		return 0;
 	}
 }

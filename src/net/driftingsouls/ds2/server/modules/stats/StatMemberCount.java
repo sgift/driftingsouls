@@ -38,19 +38,14 @@ public class StatMemberCount extends AbstractStatistic implements Statistic {
 		Database db = context.getDatabase();
 
 		String url = getAllyURL();
-		
+
 		SQLQuery tmp = db.query("SELECT a.id, a.name, count(u.id) count " +
 				"FROM ally a JOIN users u ON a.id=u.ally " +
 				"WHERE a.id>",StatsController.MIN_USER_ID," " +
 				"GROUP BY a.id ORDER BY count DESC LIMIT "+size);
-	
-		this.generateStatistic("Die gr&ouml;&szlig;ten Allianzen:", tmp, url);
-		
-		tmp.free();
-	}
 
-	@Override
-	public boolean generateAllyData() {
-		return true;
+		this.generateStatistic("Die gr&ouml;&szlig;ten Allianzen:", tmp, url);
+
+		tmp.free();
 	}
 }

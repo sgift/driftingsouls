@@ -42,14 +42,14 @@ public class StatBiggestTrader extends AbstractStatistic implements Statistic {
 	public StatBiggestTrader(boolean allys) {
 		this.allys = allys;
 	}
-	
+
 	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
 
 		String url = null;
-		
+
 		SQLQuery tmp = null;
 		if( !allys ) {
 			tmp = db.query("SELECT SUM( (CASE WHEN t4.cargo IS NULL THEN t3.cargo ELSE t4.cargo END) * (t1.crew/CASE WHEN t4.crew IS NULL THEN t3.crew ELSE t4.crew END) * (t1.hull/CASE WHEN t4.hull IS NULL THEN t3.hull ELSE t4.hull END) * t1.hull ) count,t2.name,t2.id ",
@@ -65,17 +65,12 @@ public class StatBiggestTrader extends AbstractStatistic implements Statistic {
 						"WHERE s.id>0 AND s.owner>",StatsController.MIN_USER_ID," AND u.ally>0 AND (((sm.id IS NULL) AND st.cost>0) OR ((sm.id IS NOT NULL) AND sm.cost>0)) AND st.class in (1,12) ",
 						"GROUP BY u.ally ",
 						"ORDER BY count DESC,u.id ASC LIMIT ",size);
-		
+
 			url = getAllyURL();
 		}
-	
+
 		this.generateStatistic("Die groessten Handelsflotten:", tmp, url, false);
 
 		tmp.free();
-	}
-
-	@Override
-	public boolean generateAllyData() {
-		return allys;
 	}
 }

@@ -28,8 +28,6 @@ import java.util.Map;
 
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
@@ -202,9 +200,6 @@ public class StatsController extends DSGenerator {
 	@Override
 	@Action(ActionType.DEFAULT)
 	public void defaultAction() throws IOException {
-		Database db = getDatabase();
-		org.hibernate.Session database = getDB();
-
 		int stat = getInteger("stat");
 
 		if( this.statslist.get(show).size() <= stat ) {
@@ -215,23 +210,6 @@ public class StatsController extends DSGenerator {
 
 		printMenu();
 
-		// Groesste ID ermitteln
-		int maxid = 0;
-		if( mystat.stat.getRequiredData() != 0 ) {
-			if( !mystat.stat.generateAllyData() ) {
-				maxid = (Integer)database.createQuery("SELECT max(id) FROM User").iterate().next();
-			}
-			else {
-				maxid = (Integer)database.createQuery("SELECT max(id) FROM Ally").iterate().next();
-			}
-		}
-
-		if( (mystat.stat.getRequiredData() & Statistic.DATA_SHIPS) != 0 ||
-			(mystat.stat.getRequiredData() & Statistic.DATA_CREW) != 0 ) {
-			generateShipAndCrewData(db, mystat, maxid);
-		}
-
-
 		Writer echo = getContext().getResponse().getWriter();
 
 		echo.append("<div class='gfxbox' style='width:850px'>");
@@ -239,104 +217,5 @@ public class StatsController extends DSGenerator {
 		mystat.stat.show(this, mystat.width);
 
 		echo.append("</div>");
-	}
-
-	private void generateShipAndCrewData(Database db, StatEntry mystat, int maxid) {
-		Map<Integer,Integer> bev = new HashMap<Integer,Integer>();
-		Map<Integer,Integer> ships = new HashMap<Integer,Integer>();
-		Map<Integer,Integer> bevbase = new HashMap<Integer,Integer>();
-
-		//Schiffe pro User; Besatzung pro User ermitteln
-		if( !mystat.stat.generateAllyData() ) {
-			SQLQuery tmp = db.query("SELECT count(*) shipcount, sum(crew) totalcrew, owner FROM ships WHERE id>0 AND owner>",MIN_USER_ID," GROUP BY owner");
-			while( tmp.next() ) {
-				ships.put(tmp.getInt("owner"), tmp.getInt("shipcount"));
-				bev.put(tmp.getInt("owner"), tmp.getInt("totalcrew"));
-			}
-			tmp.free();
-
-			//Bevoelkerung (Basis) pro User ermitteln (+ zur Besatzung pro User addieren)
-			tmp = db.query("SELECT sum(bewohner) bewohner,owner FROM bases WHERE owner>",MIN_USER_ID," GROUP BY owner");
-			while( tmp.next() ){
-				bevbase.put(tmp.getInt("owner"), tmp.getInt("bewohner"));
-				if( !bev.containsKey(tmp.getInt("owner")) ) {
-					bev.put(tmp.getInt("owner"), tmp.getInt("bewohner"));
-				}
-				else {
-					bev.put(tmp.getInt("owner"), bev.get(tmp.getInt("owner"))+tmp.getInt("bewohner"));
-				}
-			}
-			tmp.free();
-		}
-		else {
-			SQLQuery tmp = db.query("SELECT sum(s.crew) totalcrew, s.owner, count(*) shipcount, u.ally " +
-					"FROM ships s JOIN users u ON s.owner=u.id " +
-					"WHERE s.id>0 AND s.owner>",MIN_USER_ID," AND u.ally IS NOT NULL GROUP BY u.ally");
-			while( tmp.next() ) {
-				ships.put(tmp.getInt("ally"), tmp.getInt("shipcount"));
-				bev.put(tmp.getInt("ally"), tmp.getInt("totalcrew"));
-			}
-			tmp.free();
-
-			//Bevoelkerung (Basis) pro User ermitteln (+ zur Besatzung pro User addieren)
-			tmp = db.query("SELECT sum(s.bewohner) bewohner,u.ally " +
-					"FROM bases s JOIN users u ON s.owner=u.id " +
-					"WHERE s.owner>",MIN_USER_ID," AND u.ally IS NOT NULL GROUP BY u.ally");
-			while( tmp.next() ){
-				bevbase.put(tmp.getInt("ally"), tmp.getInt("bewohner"));
-				if( !bev.containsKey(tmp.getInt("ally")) ) {
-					bev.put(tmp.getInt("ally"), tmp.getInt("bewohner"));
-				}
-				else {
-					bev.put(tmp.getInt("ally"), bev.get(tmp.getInt("ally"))+tmp.getInt("bewohner"));
-				}
-			}
-			tmp.free();
-		}
-
-		///////////////////////////////////////////
-
-		List<String> tmpships_query = new ArrayList<String>();
-		List<String> tmpbev_query = new ArrayList<String>();
-
-		for( int i=1; i <= maxid; i++ ) {
-			if( ships.containsKey(i) ) {
-				tmpships_query.add("("+i+","+ships.get(i)+")");
-			}
-
-			if( bev.containsKey(i) ) {
-				tmpbev_query.add("("+i+","+bev.get(i)+")");
-			}
-		}
-
-		if( (mystat.stat.getRequiredData() & Statistic.DATA_SHIPS) != 0 ) {
-			db.update("CREATE TEMPORARY TABLE IF NOT EXISTS tmpships ( ",
-					"id int(11) NOT NULL auto_increment, ",
-					"ships int(11) NOT NULL default '0', ",
-					"PRIMARY KEY  (id), ",
-					"KEY ships(ships) ",
-					");");
-
-			db.update("DELETE FROM tmpships");
-
-			if( tmpships_query.size() > 0 ) {
-				db.update("INSERT INTO tmpships VALUES "+Common.implode(",", tmpships_query));
-			}
-		}
-
-		if( (mystat.stat.getRequiredData() & Statistic.DATA_CREW) != 0 ) {
-			db.update("CREATE TEMPORARY TABLE IF NOT EXISTS tmpbev ( ",
-					"id int(11) NOT NULL auto_increment, ",
-					"res int(11) NOT NULL default '0', ",
-					"PRIMARY KEY  (`id`), ",
-					"KEY res(res) ",
-					");");
-
-			db.update("DELETE FROM tmpbev");
-
-			if( tmpbev_query.size() > 0 ) {
-				db.update("INSERT INTO tmpbev VALUES "+Common.implode(",", tmpbev_query));
-			}
-		}
 	}
 }

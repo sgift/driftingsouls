@@ -41,14 +41,14 @@ public class StatBiggestFleet extends AbstractStatistic implements Statistic {
 	public StatBiggestFleet(boolean allys) {
 		this.allys = allys;
 	}
-	
+
 	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
 
 		String url = null;
-		
+
 		SQLQuery tmp = null;
 		if( !allys ) {
 			tmp = db.query("SELECT SUM( (CASE WHEN t4.size IS NULL THEN t3.size*t3.size ELSE t4.size*t4.size END) * (t1.crew/CASE WHEN t4.crew IS NULL THEN t3.crew ELSE t4.crew END) * (t1.hull/CASE WHEN t4.hull IS NULL THEN t3.hull ELSE t4.hull END) * t1.hull ) count,t2.name,t2.id ",
@@ -64,17 +64,12 @@ public class StatBiggestFleet extends AbstractStatistic implements Statistic {
 						"WHERE s.id>0 AND s.owner>",StatsController.MIN_USER_ID," AND u.ally IS NOT NULL AND (((sm.id IS NULL) AND st.cost>0) OR ((sm.id IS NOT NULL) AND sm.cost>0)) AND st.class not in (0,1,3,12,14,18,19,20) ",
 						"GROUP BY u.ally ",
 						"ORDER BY count DESC,u.id ASC LIMIT ",size);
-		
+
 			url = getAllyURL();
 		}
-	
+
 		this.generateStatistic("Die groessten Flotten:", tmp, url, false);
 
 		tmp.free();
-	}
-
-	@Override
-	public boolean generateAllyData() {
-		return allys;
 	}
 }

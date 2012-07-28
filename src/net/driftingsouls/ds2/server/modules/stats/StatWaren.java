@@ -218,14 +218,4 @@ public class StatWaren implements Statistic {
 		} // Ende: Resourcenliste
 		echo.append("</table><br /><br />\n");
 	}
-
-    @Override
-	public boolean generateAllyData() {
-		return false;
-	}
-
-    @Override
-	public int getRequiredData() {
-		return 0;
-	}
 }

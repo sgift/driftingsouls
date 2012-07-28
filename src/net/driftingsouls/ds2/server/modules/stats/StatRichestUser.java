@@ -42,14 +42,14 @@ public class StatRichestUser extends AbstractStatistic implements Statistic {
 	public StatRichestUser(boolean allys) {
 		this.allys = allys;
 	}
-	
+
 	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		Database db = context.getDatabase();
 
 		String url = null;
-		
+
 		SQLQuery tmp = null;
 		if( !allys ) {
 			tmp = db.query("SELECT konto count,name,id ",
@@ -64,22 +64,12 @@ public class StatRichestUser extends AbstractStatistic implements Statistic {
 						"WHERE u.id>",StatsController.MIN_USER_ID," AND u.ally>0 ",
 						"GROUP BY u.ally ",
 						"ORDER BY count DESC,u.id ASC LIMIT ",size);
-		
+
 			url = getAllyURL();
 		}
-	
+
 		this.generateStatistic("Linked Markets Fortune List:", tmp, url, false);
 
 		tmp.free();
-	}
-
-	@Override
-	public boolean generateAllyData() {
-		return allys;
-	}
-	
-	@Override
-	public int getRequiredData() {
-		return 0;
 	}
 }

@@ -147,14 +147,4 @@ public class StatEinheiten implements Statistic {
 		} // Ende: Einheitenliste
 		echo.append("</table><br /><br />\n");
 	}
-
-    @Override
-	public boolean generateAllyData() {
-		return false;
-	}
-
-    @Override
-	public int getRequiredData() {
-		return 0;
-	}
 }

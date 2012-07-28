@@ -49,21 +49,21 @@ public class StatPopulationDensity implements Statistic {
 		org.hibernate.Session database = context.getDB();
 
 		Writer echo = context.getResponse().getWriter();
-	
+
 		echo.append("Siedlungsdichte:<br />");
 		echo.append("<table class=\"noBorderX\" cellspacing=\"1\" cellpadding=\"1\" width=\"100%\">\n");
 		echo.append("<tr><td class=\"noBorderX\">System</td><td class=\"noBorderX\">Asteroiden</td><td class=\"noBorderX\">%</td><td class=\"noBorderX\">Bewohner</td><td class=\"noBorderX\">Bewohner / Asteroid</td><td class=\"noBorderX\">Bewohner / besiedelter Asteroid</td></tr>\n");
-	
+
 		long insbew=0;
 		int instotal = 0;
 		int insused = 0;
-		
+
 		SQLQuery systemStats = db.query("SELECT system, count(*) total, " +
 				"sum(CASE WHEN owner!=0 THEN bewohner ELSE 0 END) bew, " +
 				"sum(CASE WHEN owner!=0 THEN 1 ELSE 0 END) used " +
 				"FROM bases " +
 				"GROUP BY system ORDER BY system");
-	
+
 		while( systemStats.next() ) {
 			String systemAddInfo = "";
 			StarSystem system = (StarSystem)database.get(StarSystem.class, systemStats.getInt("system"));
@@ -75,45 +75,45 @@ public class StatPopulationDensity implements Statistic {
 				systemAddInfo = "<span style=\"font-style:italic\">[admin]</span>";
 			}
 			else if( (system.getAccess() == StarSystem.AC_NPC) && (user.hasFlag(User.FLAG_VIEW_SYSTEMS) || user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS) ) ) {
-				systemAddInfo = "<span style=\"font-style:italic\">[hidden]</span>";		
-			} 
+				systemAddInfo = "<span style=\"font-style:italic\">[hidden]</span>";
+			}
 			else if( (system.getAccess() == StarSystem.AC_ADMIN) || (system.getAccess() == StarSystem.AC_NPC) ) {
 				continue;
 			}
 			if( systemAddInfo.length() > 0 ) {
 				systemAddInfo += " ";
 			}
-		
+
 			int total = 0;
 			int used = 0;
 			long bew = 0;
-	
+
 			bew = systemStats.getLong("bew");
 			used = systemStats.getInt("used");
 			total = systemStats.getInt("total");
-			
+
 			insbew += bew;
 	   		instotal += total;
 	   		insused += used;
-	
+
 			int percentUsed = 0;
 			if( total > 0 ) {
 				percentUsed = (int)(used*100d/total);
 			}
-			
+
 			long bewPerAsti = 0;
 			if( total > 0 ) {
 				bewPerAsti = (long)(bew/(double)total);
 			}
-					
+
 			long bewPerUsedAsti = 0;
 			if( used > 0 ) {
 				bewPerUsedAsti = (long)(bew/(double)used);
 			}
-			
+
 			echo.append("<tr><td class=\"noBorderX\" style=\"vertical-align:top\">"+
 					systemAddInfo+system.getName()+" ("+system.getID()+")</td>\n");
-			
+
 			echo.append("<td class=\"noBorderX\">"+Common.ln(used)+"/"+Common.ln(total)+"</td>" +
 					"<td class=\"noBorderX\">"+Common.ln(percentUsed)+" %</td>" +
 					"<td class=\"noBorderX\">"+Common.ln(bew)+"</td>" +
@@ -121,11 +121,11 @@ public class StatPopulationDensity implements Statistic {
 					"<td class=\"noBorderX\">"+Common.ln(bewPerUsedAsti)+"</td>\n");
 			echo.append("</tr>");
 		}
-		
+
 		int percentUsed = 0;
 		long bewPerAsti = 0;
 		long bewPerUsedAsti = 0;
-		
+
 		if( instotal > 0 ) {
 			percentUsed = (int)(insused*100d/instotal);
 			bewPerAsti = (long)(insbew/(double)instotal);
@@ -135,7 +135,7 @@ public class StatPopulationDensity implements Statistic {
 		}
 		echo.append("<tr><td class=\"noBorderX\" colspan=\"6\">" +
 				"<hr noshade=\"noshade\" size=\"1\" style=\"color:#cccccc\" /></td></tr>\n");
-		
+
 		echo.append("<tr><td class=\"noBorderX\" style=\"vertical-align:top\">Insgesamt</td>" +
 				"<td class=\"noBorderX\">"+Common.ln(insused)+"/"+Common.ln(instotal)+"</td>" +
 				"<td class=\"noBorderX\">"+Common.ln(percentUsed)+" %</td>" +
@@ -143,23 +143,13 @@ public class StatPopulationDensity implements Statistic {
 				"<td class=\"noBorderX\">"+Common.ln(bewPerAsti)+"</td>" +
 				"<td class=\"noBorderX\">"+Common.ln(bewPerUsedAsti)+"</td>" +
 				"</tr>\n");
-	
+
 		long crew = db.first("SELECT sum(crew) sum FROM ships WHERE id>0 AND owner>"+StatsController.MIN_USER_ID).getLong("sum");
 		long tw = crew + insbew;
-	
+
 		echo.append("<tr><td class=\"noBorderX\" colspan=\"6\">" +
 				"+ "+Common.ln(crew)+" Crew auf Schiffen = "+Common.ln(tw)+" Bev&ouml;lkerung insgesamt" +
 				"</td></tr>\n");
 		echo.append("</table><br /><br />");
-	}
-
-	@Override
-	public boolean generateAllyData() {
-		return false;
-	}
-	
-	@Override
-	public int getRequiredData() {
-		return 0;
 	}
 }

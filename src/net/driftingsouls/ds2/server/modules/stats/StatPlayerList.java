@@ -34,14 +34,4 @@ public class StatPlayerList implements Statistic {
 	public void show(StatsController contr, int size) throws IOException {
 		new PlayerList().draw(ContextMap.getContext());
 	}
-
-	@Override
-	public boolean generateAllyData() {
-		return false;
-	}
-	
-	@Override
-	public int getRequiredData() {
-		return 0;
-	}
 }

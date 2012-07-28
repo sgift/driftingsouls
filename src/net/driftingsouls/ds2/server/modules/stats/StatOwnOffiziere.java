@@ -120,14 +120,4 @@ public class StatOwnOffiziere implements Statistic {
 
 		echo.append("</table><div><br /><br /></div>\n");
 	}
-
-	@Override
-	public boolean generateAllyData() {
-		return false;
-	}
-
-	@Override
-	public int getRequiredData() {
-		return 0;
-	}
 }

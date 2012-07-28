@@ -92,3 +92,17 @@
 	margin-top:5px;
 	margin-bottom:5px;
 }
+
+/*
+	Statistik
+*/
+.stats {
+	width:100%;
+}
+
+.stats td:first-child {
+	width:40px;
+}
+.stats td:nth-child(3) {
+	padding-left:5px;
+}

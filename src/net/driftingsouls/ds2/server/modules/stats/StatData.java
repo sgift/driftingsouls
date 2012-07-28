@@ -146,14 +146,4 @@ public class StatData implements Statistic {
 		echo.append("</table><br /><br />");
 
 	}
-
-	@Override
-	public boolean generateAllyData() {
-		return false;
-	}
-
-	@Override
-	public int getRequiredData() {
-		return 0;
-	}
 }

@@ -40,7 +40,7 @@ public class StatShips implements Statistic {
 		Database db = context.getDatabase();
 
 		Writer echo = context.getResponse().getWriter();
-	
+
 		echo.append("<table class=\"noBorderX\" cellspacing=\"1\" cellpadding=\"1\" width=\"100%\">\n");
 		echo.append("<tr><td class=\"noBorderX\" align=\"left\">Schiffe:</td></tr>\n");
 		SQLQuery tmp = db.query("SELECT st.id,st.nickname,count(*) count " +
@@ -56,15 +56,5 @@ public class StatShips implements Statistic {
 		}
 		tmp.free();
 		echo.append("</table><br /><br />");
-	}
-
-	@Override
-	public boolean generateAllyData() {
-		return false;
-	}
-	
-	@Override
-	public int getRequiredData() {
-		return 0;
 	}
 }
