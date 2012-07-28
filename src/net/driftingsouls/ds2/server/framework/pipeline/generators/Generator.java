@@ -23,7 +23,6 @@ import java.io.IOException;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.PermissionResolver;
-import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.pipeline.Error;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.pipeline.Response;
@@ -65,17 +64,6 @@ public abstract class Generator implements PermissionResolver {
 		else {
 			this.browser = "unknown";
 		}
-	}
-
-	/**
-	 * Liefert eine Instanz der Datenbank-Klasse zurueck.
-	 *
-	 * @return Eine Database-Instanz
-	 * @deprecated use getDB() (Hibernate)
-	 */
-	@Deprecated
-	public final Database getDatabase() {
-		return context.getDatabase();
 	}
 
 	/**

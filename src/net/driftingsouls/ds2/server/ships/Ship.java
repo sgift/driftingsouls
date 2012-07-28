@@ -48,6 +48,7 @@ import javax.script.ScriptEngine;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.MutableLocation;
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
@@ -4020,5 +4021,63 @@ public class Ship implements Locatable,Transfering,Feeding {
     public ShipHistory getHistory()
     {
     	return this.history;
+    }
+
+    /**
+     * Laesst das Schiff im angegebenen Nebel Deuterium fuer einen bestimmten
+     * Energiebetrag sammeln. Falls der Energiebetrag kleiner 0 ist wird
+     * die komplette Schiffsenergie fuer das Sammeln verwendet.
+     * @param nebel Der Nebel
+     * @param energie Der zu verwendende Energiebetrag, falls negativ
+     * die gesammte Schiffsenergie
+     * @return Die Menge des gesammelten Deuteriums
+     */
+    public long sammelDeuterium(Nebel nebel, long energie)
+    {
+    	if( nebel == null || !nebel.getLocation().sameSector(0, this, 0) )
+    	{
+			return 0;
+		}
+    	if( nebel.getType() > 2 )
+    	{
+    		return 0;
+    	}
+    	ShipTypeData type = this.getTypeData();
+    	if( this.crew < (type.getCrew()/2) ) {
+    		return 0;
+    	}
+        if( type.getDeutFactor() <= 0 )
+    	{
+    		return 0;
+    	}
+    	if( energie > this.e || energie < 0 )
+    	{
+			energie = this.e;
+		}
+		Cargo shipCargo = this.cargo;
+		long cargo = shipCargo.getMass();
+
+		long deutfactor = shiptype.getDeutFactor();
+
+		if( nebel.getType() == 1 ) {
+			deutfactor--;
+		}
+		else if( nebel.getType() == 2 ) {
+			deutfactor++;
+		}
+
+		if( (energie * deutfactor)*Cargo.getResourceMass(Resources.DEUTERIUM, 1) > (getTypeData().getCargo() - cargo) ) {
+			energie = (type.getCargo()-cargo)/(deutfactor*Cargo.getResourceMass( Resources.DEUTERIUM, 1 ));
+		}
+
+		long saugdeut = e * deutfactor;
+
+		if( saugdeut > 0 ) {
+			shipCargo.addResource( Resources.DEUTERIUM, saugdeut );
+
+			this.e = (int)(this.e-energie);
+			this.recalculateShipStatus();
+		}
+		return saugdeut;
     }
 }

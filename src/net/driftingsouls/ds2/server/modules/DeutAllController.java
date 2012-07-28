@@ -103,8 +103,7 @@ public class DeutAllController extends TemplateGenerator {
 			t.setVar(	"ship.id",		ship.getId(),
 						"ship.name",	Common._plaintitle(ship.getName()) );
 
-			long e = ship.getEnergy();
-			if( e <= 0 ) {
+			if( ship.getEnergy() <= 0 ) {
 				t.setVar(	"ship.message",			"Keine Energie",
 							"ship.message.color",	"red" );
 			}
@@ -116,34 +115,17 @@ public class DeutAllController extends TemplateGenerator {
 				Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(ship));
 
 				if( (nebel != null) && (nebel.getType() < 3) ) {
-					Cargo shipCargo = ship.getCargo();
-					long cargo = shipCargo.getMass();
-
-					int deutfactor = shiptype.getDeutFactor();
-					if( nebel.getType() == 1 ) {
-						deutfactor--;
+					long saugdeut = ship.sammelDeuterium(nebel, -1);
+					if( saugdeut <= 0 )
+					{
+						t.setVar(	"ship.message",		"Es konnte kein weiteres Deuterium gesammelt werden",
+								"ship.message.color",	"#FF4444" );
 					}
-					else if( nebel.getType() == 2 ) {
-						deutfactor++;
-					}
-
-					if( (e * deutfactor)*Cargo.getResourceMass( Resources.DEUTERIUM, 1 ) > (shiptype.getCargo() - cargo) ) {
-						e = (shiptype.getCargo()-cargo)/(deutfactor*Cargo.getResourceMass( Resources.DEUTERIUM, 1 ));
-
-						t.setVar(	"ship.message",			"Kein Platz mehr im Frachtraum",
-									"ship.message.color",	"#FF4444" );
-					}
-
-					long saugdeut = e * deutfactor;
-
-					t.setVar(	"ship.saugdeut",	saugdeut,
+					else
+					{
+						t.setVar(	"ship.saugdeut",	saugdeut,
 								"deuterium.image",	Cargo.getResourceImage(Resources.DEUTERIUM) );
-					shipCargo.addResource( Resources.DEUTERIUM, saugdeut );
-
-					ship.setEnergy((int)(ship.getEnergy()-e));
-					ship.setCargo(shipCargo);
-
-					ship.recalculateShipStatus();
+					}
 				}
 				else {
 					t.setVar(	"ship.message",			"Kein Nebel",

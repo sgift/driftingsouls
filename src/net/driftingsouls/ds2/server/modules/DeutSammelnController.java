@@ -18,6 +18,10 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import net.driftingsouls.ds2.server.MutableLocation;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
@@ -32,6 +36,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,9 +51,8 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Module(name="deutsammeln")
 public class DeutSammelnController extends TemplateGenerator {
-	private Ship ship = null;
+	private List<Ship> ships = null;
 	private Nebel nebel = null;
-	private ShipTypeData shiptype = null;
 
 	private Configuration config;
 
@@ -62,6 +66,7 @@ public class DeutSammelnController extends TemplateGenerator {
 		setTemplate("deutsammeln.html");
 
 		parameterNumber("ship");
+		parameterNumber("fleet");
 
 		setPageTitle("Deut. sammeln");
 	}
@@ -81,48 +86,79 @@ public class DeutSammelnController extends TemplateGenerator {
 		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 
+		List<Ship> ships = new ArrayList<Ship>();
 		int shipID = getInteger("ship");
+		int fleetId = getInteger("fleet");
 
-		Ship ship = (Ship)db.get(Ship.class, shipID);
-		if( (ship == null) || (ship.getOwner() != user) ) {
-			addError("Das angegebene Schiff existiert nicht", Common.buildUrl("default", "module", "schiffe") );
+		if( fleetId == 0 )
+		{
+			Ship ship = (Ship)db.get(Ship.class, shipID);
+			if( (ship == null) || (ship.getOwner() != user) ) {
+				addError("Das angegebene Schiff existiert nicht", Common.buildUrl("default", "module", "schiffe") );
 
-			return false;
+				return false;
+			}
+
+			ships.add(ship);
+		}
+		else
+		{
+			ShipFleet fleet = (ShipFleet)db.get(ShipFleet.class, fleetId);
+			if( fleet == null || fleet.getOwner() != user )
+			{
+				addError("Die angegebene Flotte existiert nicht", Common.buildUrl("default", "module", "schiffe") );
+
+				return false;
+			}
+			ships.addAll(fleet.getShips());
 		}
 
-		ShipTypeData shiptype = ship.getTypeData();
+		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", ships.get(0).getId());
 
-		Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(ship));
-
-		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", shipID);
-
-		if( nebel == null || !nebel.getLocation().sameSector(0, ship, 0) ) {
+		Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(ships.get(0)));
+		if( nebel == null ) {
 			addError("Der Nebel befindet sich nicht im selben Sektor wie das Schiff", errorurl );
 
 			return false;
 		}
-
 		if( nebel.getType() > 2 )  {
 			addError("In diesem Nebel k&ouml;nnen sie kein Deuterium sammeln", errorurl );
 
 			return false;
 		}
 
-		if( shiptype.getDeutFactor() <= 0 )  {
-			addError("Dieser Schiffstyp kann kein Deuterium sammeln", errorurl );
+		String lastError = null;
+		for( Iterator<Ship> iter=ships.iterator(); iter.hasNext();)
+		{
+			Ship ship = iter.next();
+			if( !nebel.getLocation().sameSector(0, ship, 0) ) {
+				lastError = "Der Nebel befindet sich nicht im selben Sektor wie das Schiff";
+				iter.remove();
+				continue;
+			}
 
+			ShipTypeData shiptype = ship.getTypeData();
+			if( shiptype.getDeutFactor() <= 0 )  {
+				lastError = "Dieser Schiffstyp kann kein Deuterium sammeln";
+				iter.remove();
+				continue;
+			}
+
+			if( ship.getCrew() < (shiptype.getCrew()/2) ) {
+				lastError = "Sie haben nicht genug Crew um Deuterium zu sammeln";
+				iter.remove();
+				continue;
+			}
+		}
+
+		if( ships.isEmpty() )
+		{
+			addError(lastError, errorurl);
 			return false;
 		}
 
-		if( ship.getCrew() < (shiptype.getCrew()/2) ) {
-			addError("Sie haben nicht genug Crew um Deuterium zu sammeln", errorurl );
-
-			return false;
-		}
-
-		this.ship = ship;
+		this.ships = ships;
 		this.nebel = nebel;
-		this.shiptype = shiptype;
 
 		return true;
 	}
@@ -139,37 +175,22 @@ public class DeutSammelnController extends TemplateGenerator {
 		parameterNumber("e");
 		long e = getInteger("e");
 
-		if( e > ship.getEnergy() ) {
-			e = ship.getEnergy();
-		}
-		Cargo shipCargo = ship.getCargo();
-		long cargo = shipCargo.getMass();
-
-		long deutfactor = shiptype.getDeutFactor();
-		if( nebel.getType() == 1 ) {
-			deutfactor--;
-		}
-		else if( nebel.getType() == 2 ) {
-			deutfactor++;
-		}
-
 		String message = "";
 
-		if( (e * deutfactor)*Cargo.getResourceMass(Resources.DEUTERIUM, 1) > (shiptype.getCargo() - cargo) ) {
-			e = (shiptype.getCargo()-cargo)/(deutfactor*Cargo.getResourceMass( Resources.DEUTERIUM, 1 ));
-			message += "Kein Platz mehr im Frachtraum<br />";
-		}
+		for( Ship ship : this.ships )
+		{
+			message += Common._plaintitle(ship.getName())+" ("+ship.getId()+"): ";
 
-		long saugdeut = e * deutfactor;
-
-		message += "<img src=\""+Cargo.getResourceImage(Resources.DEUTERIUM)+"\" alt=\"\" />"+saugdeut+" f&uuml;r <img src=\""+config.get("URL")+"data/interface/energie.gif\" alt=\"Energie\" />"+e+" gesammelt<br />";
-
-		if( saugdeut > 0 ) {
-			shipCargo.addResource( Resources.DEUTERIUM, saugdeut );
-
-			ship.setEnergy((int)(ship.getEnergy()-e));
-			ship.setCargo(shipCargo);
-			ship.recalculateShipStatus();
+			long saugdeut = ship.sammelDeuterium(nebel, e);
+			if( saugdeut <= 0 )
+			{
+				message += "Es konnte kein weiteres Deuterium gesammelt werden<br />";
+			}
+			else {
+				message += "<img src=\""+Cargo.getResourceImage(Resources.DEUTERIUM)+"\" alt=\"\" />"+saugdeut+
+					" f&uuml;r <img src=\""+config.get("URL")+"data/interface/energie.gif\" alt=\"Energie\" />"+e+
+					" gesammelt<br />";
+			}
 		}
 
 		t.setVar("deutsammeln.message", message);
@@ -186,17 +207,28 @@ public class DeutSammelnController extends TemplateGenerator {
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
 
-		int deutfactor = shiptype.getDeutFactor();
-		if( nebel.getType() == 1 ) {
-			deutfactor--;
-		}
-		else if( nebel.getType() == 2 ) {
-			deutfactor++;
+		int deutfactorSum = 0;
+		int maxE = 0;
+		for( Ship ship : ships )
+		{
+			int deutfactor = ship.getTypeData().getDeutFactor();
+			if( nebel.getType() == 1 ) {
+				deutfactor--;
+			}
+			else if( nebel.getType() == 2 ) {
+				deutfactor++;
+			}
+			deutfactorSum += deutfactor;
+			if( maxE  < ship.getEnergy() )
+			{
+				maxE = ship.getEnergy();
+			}
 		}
 
 		t.setVar(	"deuterium.image",		Cargo.getResourceImage(Resources.DEUTERIUM),
-					"ship.type.deutfactor",	deutfactor,
-					"ship.id",				ship.getId(),
-					"ship.e",				ship.getEnergy() );
+					"ship.type.deutfactor",	Common.ln(deutfactorSum/(double)ships.size()),
+					"ship.id",				this.ships.get(0).getId(),
+					"fleet.id",				this.ships.size() > 1 ? this.ships.get(0).getFleet().getId() : 0,
+					"ship.e",				maxE );
 	}
 }
