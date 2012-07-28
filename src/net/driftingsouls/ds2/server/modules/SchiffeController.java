@@ -182,7 +182,7 @@ public class SchiffeController extends TemplateGenerator {
 
 		String ow = ordermapper.get(ord);
 
-		String query = "from Ship as s left join s.modules m "+
+		String query = "select s from Ship as s left join s.modules m "+
 			"where s.id>0 and s.owner=:owner and ";
 
 		if( low != 0 ) {

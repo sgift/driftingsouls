@@ -173,7 +173,7 @@ public class SchiffsTick extends TickController {
 		if(user.getAlly() != null)
 		{
 			this.log("Berechne Allianzversorger");
-			List<Ship> allyShips = Common.cast(db.createQuery("from Ship as s left join s.modules m " +
+			List<Ship> allyShips = Common.cast(db.createQuery("select s from Ship as s left join s.modules m " +
 					" where s.id>0 and s.owner!=:owner and s.owner.ally=:ally and (s.owner.vaccount=0 or" +
 					" s.owner.wait4vac!=0) and system!=0 and" +
 					" (s.shiptype.versorger=1 or m.versorger=1) and" +

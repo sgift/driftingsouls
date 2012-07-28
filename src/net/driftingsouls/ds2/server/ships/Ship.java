@@ -979,7 +979,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		Ship versorger = (Ship)db.createQuery("from Ship as s left join s.modules m" +
+		Ship versorger = (Ship)db.createQuery("select s from Ship as s left join s.modules m" +
 								" where (s.shiptype.versorger!=0 or m.versorger!=0)" +
 								" and s.owner=:owner and s.system=:sys and s.x=:x and s.y=:y and s.nahrungcargo > 0 and s.einstellungen.isfeeding != 0 " +
 								"ORDER BY s.nahrungcargo DESC")
