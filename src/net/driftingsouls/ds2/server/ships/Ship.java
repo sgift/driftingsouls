@@ -979,8 +979,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		Ship versorger = (Ship)db.createQuery("from Ship as s left join fetch s.modules" +
-								" where (s.shiptype.versorger!=0 or s.modules.versorger!=0)" +
+		Ship versorger = (Ship)db.createQuery("from Ship as s left join s.modules m" +
+								" where (s.shiptype.versorger!=0 or m.versorger!=0)" +
 								" and s.owner=:owner and s.system=:sys and s.x=:x and s.y=:y and s.nahrungcargo > 0 and s.einstellungen.isfeeding != 0 " +
 								"ORDER BY s.nahrungcargo DESC")
 								.setEntity("owner", this.owner)
@@ -1062,8 +1062,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 			return Long.MAX_VALUE;
 		}
 
-		Object versorger = db.createQuery("select sum(s.nahrungcargo) from Ship as s left join s.modules" +
-								" where (s.shiptype.versorger!=0 or s.modules.versorger!=0)" +
+		Object versorger = db.createQuery("select sum(s.nahrungcargo) from Ship as s left join s.modules m " +
+								" where (s.shiptype.versorger!=0 or m.versorger!=0)" +
 								" and s.owner=:user and s.system=:system and s.x=:x and s.y=:y and s.einstellungen.isfeeding != 0")
 						.setInteger("system", this.system)
 						.setInteger("x", this.x)

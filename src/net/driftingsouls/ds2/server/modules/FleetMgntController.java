@@ -572,7 +572,8 @@ public class FleetMgntController extends TemplateGenerator {
 		org.hibernate.Session db = getDB();
 
 		StringBuilder message = new StringBuilder(100);
-		List<?> ships = db.createQuery("from Ship as s left join fetch s.modules where s.fleet=:fleet and (s.shields < s.shiptype.shields or s.shields < s.modules.shields) and s.battle is null")
+		List<?> ships = db.createQuery("from Ship as s left join s.modules m " +
+				"where s.fleet=:fleet and (s.shields < s.shiptype.shields or s.shields < m.shields) and s.battle is null")
 			.setEntity("fleet", this.fleet)
 			.list();
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
@@ -613,8 +614,8 @@ public class FleetMgntController extends TemplateGenerator {
 
 		StringBuilder message = new StringBuilder(100);
 
-		List<?> ships = db.createQuery("from Ship as s left join fetch s.modules " +
-				"where s.fleet=:fleet and (s.e < s.shiptype.eps or s.e < s.modules.eps) and s.battle is null")
+		List<?> ships = db.createQuery("from Ship as s left join s.modules m " +
+				"where s.fleet=:fleet and (s.e < s.shiptype.eps or (s.e < m.eps)) and s.battle is null")
 			.setEntity("fleet", this.fleet)
 			.list();
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {

@@ -147,10 +147,10 @@ public class ShipFleet {
 
 			List<Ship>jaegerlist = new ArrayList<Ship>();
 
-			Query jaegerListeQuery = db.createQuery("from Ship as s left join fetch s.modules " +
+			Query jaegerListeQuery = db.createQuery("from Ship as s left join s.modules m " +
 					"where "+(jaegertypeID > 0 ? "s.shiptype=:shiptype and " : "")+"s.owner=:user and s.system=:system and " +
 							"s.x=:x and s.y=:y and s.docked='' and " +
-							"(locate(:jaegerFlag,s.shiptype.flags)!=0 or locate(:jaegerFlag,s.modules.flags)!=0) and " +
+							"(locate(:jaegerFlag,s.shiptype.flags)!=0 or locate(:jaegerFlag,m.flags)!=0) and " +
 							"s.battle is null " +
 					"order by s.fleet,s.shiptype ")
 				.setEntity("user", user)

@@ -49,7 +49,7 @@ public class ClippedStarmap extends Starmap
 	private Map<Location, Nebel> clippedNebulaMap;
 	private Map<Location, List<Base>> clippedBaseMap;
 	private Session db;
-	
+
 	/**
 	 * Konstruktor.
 	 * @param db Die DB-Verbindung
@@ -108,37 +108,37 @@ public class ClippedStarmap extends Starmap
 	{
 		return Collections.unmodifiableMap(this.clippedNebulaMap);
 	}
-	
+
 	private Map<Location, List<Ship>> buildClippedShipMap(User user2)
 	{
 		// Nur solche Schiffe laden, deren LRS potentiell in den Ausschnitt hinein ragen oder die
 		// sich komplett im Ausschnitt befinden.
 		// TODO: Die Menge der Schiffe laesst sich sicherlich noch weiter eingrenzen
-		List<Ship> shipList = Common.cast(db.createQuery("from Ship as s left join fetch s.modules" +
+		List<Ship> shipList = Common.cast(db.createQuery("from Ship as s left join s.modules m" +
 				" where s.system=:sys and s.docked not like 'l %' and " +
 				"((s.x between :minx-s.shiptype.sensorRange and :maxx+s.shiptype.sensorRange) or" +
-				"(s.x between :minx-s.modules.sensorRange and :maxx+s.modules.sensorRange)) and " +
+				"(s.x between :minx-m.sensorRange and :maxx+m.sensorRange)) and " +
 				"((s.y between :miny-s.shiptype.sensorRange and :maxy+s.shiptype.sensorRange) or" +
-				"(s.x between :miny-s.modules.sensorRange and :maxy+s.modules.sensorRange))")
+				"(s.x between :miny-m.sensorRange and :maxy+m.sensorRange))")
 				.setInteger("sys", this.inner.getSystem())
 				.setInteger("minx", this.ausschnitt[0])
 				.setInteger("maxx", this.ausschnitt[0]+this.ausschnitt[2])
 				.setInteger("miny", this.ausschnitt[1])
 				.setInteger("maxy", this.ausschnitt[1]+this.ausschnitt[3])
 				.list());
-		
+
 		return this.buildShipMap(shipList);
 	}
-	
+
 	private Map<Location, Nebel> buildClippedNebulaMap(User user2)
 	{
 		int[] load = new int[] {
-				this.ausschnitt[0], 
-				this.ausschnitt[1], 
-				this.ausschnitt[0]+this.ausschnitt[2], 
+				this.ausschnitt[0],
+				this.ausschnitt[1],
+				this.ausschnitt[0]+this.ausschnitt[2],
 				this.ausschnitt[1]+this.ausschnitt[3]
 		};
-		
+
 		for( Location loc : this.clippedShipMap.keySet() )
 		{
 			if( loc.getX() < load[0] )
@@ -149,7 +149,7 @@ public class ClippedStarmap extends Starmap
 			{
 				load[2] = loc.getX();
 			}
-			
+
 			if( loc.getY() < load[1] )
 			{
 				load[1] = loc.getY();
@@ -159,7 +159,7 @@ public class ClippedStarmap extends Starmap
 				load[3] = loc.getY();
 			}
 		}
-		
+
 		List<Nebel> nebelList = Common.cast(db.createQuery("from Nebel " +
 				"where system=:sys and " +
 				"x between :minx and :maxx and " +
@@ -170,10 +170,10 @@ public class ClippedStarmap extends Starmap
 			.setInteger("maxx", load[2])
 			.setInteger("maxy", load[3])
 			.list());
-		
+
 		return this.buildNebulaMap(nebelList);
 	}
-	
+
 	private Map<Location, List<Base>> buildClippedBaseMap()
 	{
 		List<Base> baseList = Common.cast(db.createQuery("from Base "+
@@ -186,7 +186,7 @@ public class ClippedStarmap extends Starmap
 			.setInteger("maxx", this.ausschnitt[0]+this.ausschnitt[2])
 			.setInteger("maxy", this.ausschnitt[1]+this.ausschnitt[3])
 			.list());
-		
+
 		return this.buildBaseMap(baseList);
 	}
 }

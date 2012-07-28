@@ -182,7 +182,7 @@ public class SchiffeController extends TemplateGenerator {
 
 		String ow = ordermapper.get(ord);
 
-		String query = "from Ship as s left join fetch s.modules "+
+		String query = "from Ship as s left join s.modules m "+
 			"where s.id>0 and s.owner=:owner and ";
 
 		if( low != 0 ) {
@@ -200,7 +200,7 @@ public class SchiffeController extends TemplateGenerator {
 			query += "s.shiptype.shipClass=3 order by "+ow;
 		}
 		else if( only.equals("versorger")) {
-			query += "(locate('versorger',s.shiptype.flags)!=0 or (s.modules is not null and locate('versorger',s.modules.flags)!=0)) order by "+ow;
+			query += "(locate('versorger',s.shiptype.flags)!=0 or (s.modules is not null and locate('versorger',m.flags)!=0)) order by "+ow;
 		}
 		else if( only.equals("def") )	{
 			query += "s.shiptype.shipClass=10 order by "+ow;
@@ -218,7 +218,7 @@ public class SchiffeController extends TemplateGenerator {
 			query += "s.shiptype.shipClass=1 order by "+ow;
 		}
 		else if( only.equals("zivil") ) 	{
-			query += "(locate('=',s.shiptype.weapons)=0 and (s.modules is null or locate('=',s.modules.weapons)=0)) order by "+ow;
+			query += "(locate('=',s.shiptype.weapons)=0 and (s.modules is null or locate('=',m.weapons)=0)) order by "+ow;
 		}
 		else if( only.equals("kampf") ) {
 			String sql_only = null;
