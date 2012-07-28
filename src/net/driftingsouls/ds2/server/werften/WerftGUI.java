@@ -266,11 +266,11 @@ public class WerftGUI {
 						t.parse("komplexpart.linkedbase.list", "komplexpart.linkedbase.listitem", true);
 
 						List<?> bases = db.createQuery("from Base " +
-									"where x=? and y=? and system=? and owner=? order by id")
-									.setInteger(0, member.getX())
-									.setInteger(1, member.getY())
-									.setInteger(2, member.getSystem())
-									.setEntity(3, member.getOwner())
+									"where x=:x and y=:y and system=:sys and owner=:owner order by id")
+									.setInteger("x", member.getX())
+									.setInteger("y", member.getY())
+									.setInteger("sys", member.getSystem())
+									.setEntity("owner", member.getOwner())
 									.list();
 						for( Iterator<?> iter=bases.iterator(); iter.hasNext(); ) {
 							Base base = (Base)iter.next();
@@ -294,11 +294,11 @@ public class WerftGUI {
 
 			// Hier wird davon ausgegangen, dass nur Schiffswerften Werftkomplexe bilden
 			List<?> werften = db.createQuery("from ShipWerft " +
-				"where ship.x=? and ship.y=? and ship.system=? and ship.owner=? order by ship.id")
-				.setInteger(0, werft.getX())
-				.setInteger(1, werft.getY())
-				.setInteger(2, werft.getSystem())
-				.setEntity(3, werft.getOwner())
+				"where ship.x=:x and ship.y=:y and ship.system=:sys and ship.owner=:owner order by ship.id")
+				.setInteger("x", werft.getX())
+				.setInteger("y", werft.getY())
+				.setInteger("sys", werft.getSystem())
+				.setEntity("owner", werft.getOwner())
 				.list();
 			for( Iterator<?> iter=werften.iterator(); iter.hasNext(); ) {
 				ShipWerft shipwerft = (ShipWerft)iter.next();
@@ -335,11 +335,11 @@ public class WerftGUI {
 				}
 
 				List<?> bases = db.createQuery("from Base " +
-							"where x=? and y=? and system=? and owner=? order by id")
-							.setInteger(0, werft.getX())
-							.setInteger(1, werft.getY())
-							.setInteger(2, werft.getSystem())
-							.setEntity(3, werft.getOwner())
+							"where x=:x and y=:y and system=:sys and owner=:owner order by id")
+							.setInteger("x", werft.getX())
+							.setInteger("y", werft.getY())
+							.setInteger("sys", werft.getSystem())
+							.setEntity("owner", werft.getOwner())
 							.list();
 				for( Iterator<?> iter=bases.iterator(); iter.hasNext(); ) {
 					Base base = (Base)iter.next();
@@ -360,13 +360,13 @@ public class WerftGUI {
 		t.setBlock("_WERFT.WERFTGUI", "wsshiplist.listitem", "wsshiplist.list");
 
 		List<?> ships = db.createQuery("from Ship s inner join fetch s.owner as u left join fetch s.modules " +
-								"where s.id>0 and (s.x between ? and ?) and (s.y between ? and ?) and s.system=? and " +
+								"where s.id>0 and (s.x between :x1 and :x2) and (s.y between :y1 and :y2) and s.system=:sys and " +
 								"locate('l ',s.docked)=0 and s.battle is null order by u.id,s.id")
-								.setInteger(0, werft.getX()-werft.getSize())
-								.setInteger(1, werft.getX()+werft.getSize())
-								.setInteger(2, werft.getY()-werft.getSize())
-								.setInteger(3, werft.getY()+werft.getSize())
-								.setInteger(4, werft.getSystem())
+								.setInteger("x1", werft.getX()-werft.getSize())
+								.setInteger("x2", werft.getX()+werft.getSize())
+								.setInteger("y1", werft.getY()-werft.getSize())
+								.setInteger("y2", werft.getY()+werft.getSize())
+								.setInteger("sys", werft.getSystem())
 								.list();
 
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {

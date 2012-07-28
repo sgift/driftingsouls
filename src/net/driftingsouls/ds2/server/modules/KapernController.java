@@ -319,22 +319,22 @@ public class KapernController extends TemplateGenerator {
 		List<Integer> kaperlist = new ArrayList<Integer>();
 		kaperlist.add(this.targetShip.getId());
 
-		List<Ship> docked = Common.cast(db.createQuery("from Ship where id>0 and docked in (?,?)")
-				.setString(0, Integer.toString(this.targetShip.getId()))
-				.setString(1, "l "+this.targetShip.getId())
+		List<Ship> docked = Common.cast(db.createQuery("from Ship where id>0 and docked in (:docked,:landed)")
+				.setString("docked", Integer.toString(this.targetShip.getId()))
+				.setString("landed", "l "+this.targetShip.getId())
 				.list());
 		for( Ship dockShip : docked )
 		{
 			dockShip.removeFromFleet();
 			dockShip.setOwner(user);
 
-			db.createQuery("update Offizier set userid=? where dest=?")
-			.setEntity(0, user)
-			.setString(1, "s "+dockShip.getId())
+			db.createQuery("update Offizier set userid=:owner where dest=:dest")
+			.setEntity("owner", user)
+			.setString("dest", "s "+dockShip.getId())
 			.executeUpdate();
 			if( dockShip.getTypeData().getWerft() != 0 ) {
-				ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=?")
-				.setEntity(0, dockShip)
+				ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=:ship")
+				.setEntity("ship", dockShip)
 				.uniqueResult();
 
 				if( werft.getKomplex() != null ) {
@@ -345,13 +345,13 @@ public class KapernController extends TemplateGenerator {
 
 		}
 
-		db.createQuery("update Offizier set userid=? where dest=?")
-		.setEntity(0, user)
-		.setString(1, "s "+this.targetShip.getId())
+		db.createQuery("update Offizier set userid=:owner where dest=:dest")
+		.setEntity("owner", user)
+		.setString("dest", "s "+this.targetShip.getId())
 		.executeUpdate();
 		if( this.targetShip.getTypeData().getWerft() != 0 ) {
-			ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=?")
-			.setEntity(0, this.targetShip)
+			ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=:ship")
+			.setEntity("ship", this.targetShip)
 			.uniqueResult();
 
 			if( werft.getKomplex() != null ) {

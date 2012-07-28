@@ -1107,20 +1107,20 @@ public class Battle implements Locatable
 		List<Ship> sid;
 		// Handelt es sich um eine Flotte?
 		if( shipd.getFleet() != null ) {
-			sid = Common.cast(db.createQuery("from Ship as s where s.id>0 and s.fleet=? and s.battle is null and s.x=? and s.y=? and s.system=?")
-                    .setEntity(0, shipd.getFleet())
-                    .setInteger(1, shipd.getX())
-                    .setInteger(2, shipd.getY())
-                    .setInteger(3, shipd.getSystem())
+			sid = Common.cast(db.createQuery("from Ship as s where s.id>0 and s.fleet=:fleet and s.battle is null and s.x=:x and s.y=:y and s.system=:sys")
+                    .setEntity("fleet", shipd.getFleet())
+                    .setInteger("x", shipd.getX())
+                    .setInteger("y", shipd.getY())
+                    .setInteger("sys", shipd.getSystem())
                     .list());
 		}
 		else
         {
-			sid = Common.cast(db.createQuery("from Ship as s where s.id>0 and s.id=? and s.battle is null and s.x=? and s.y=? and s.system=?")
-                    .setInteger(0, shipd.getId())
-                    .setInteger(1, shipd.getX())
-                    .setInteger(2, shipd.getY())
-                    .setInteger(3, shipd.getSystem())
+			sid = Common.cast(db.createQuery("from Ship as s where s.id>0 and s.id=:id and s.battle is null and s.x=:x and s.y=:y and s.system=:sys")
+                    .setInteger("id", shipd.getId())
+                    .setInteger("x", shipd.getX())
+                    .setInteger("y", shipd.getY())
+                    .setInteger("sys", shipd.getSystem())
                     .list());
 		}
 
@@ -1138,9 +1138,9 @@ public class Battle implements Locatable
             shiplist.add(aship.getId());
 
             // ggf. gedockte Schiffe auch beruecksichtigen
-            List<Ship> docked = Common.cast(db.createQuery("from Ship where id>0 and battle is null and docked in (?,?)")
-                    .setString(0, Integer.toString(aship.getId()))
-                    .setString(1, "l " + aship.getId())
+            List<Ship> docked = Common.cast(db.createQuery("from Ship where id>0 and battle is null and docked in (:docked,:landed)")
+                    .setString("docked", Integer.toString(aship.getId()))
+                    .setString("landed", "l " + aship.getId())
                     .list());
 
             for(Ship dockedShip : docked)
@@ -1247,9 +1247,9 @@ public class Battle implements Locatable
 				( (user.getAlly() == null) && !this.isCommander(user) ) ) {
 
 				// Hat der Spieler ein Schiff in der Schlacht
-				BattleShip aship = (BattleShip)db.createQuery("from BattleShip where id>0 and ship.owner=? and battle=?")
-					.setEntity(0, user)
-					.setEntity(1, this)
+				BattleShip aship = (BattleShip)db.createQuery("from BattleShip where id>0 and ship.owner=:user and battle=:battle")
+					.setEntity("user", user)
+					.setEntity("battle", this)
 					.setMaxResults(1)
 					.uniqueResult();
 
@@ -1314,9 +1314,9 @@ public class Battle implements Locatable
 		this.enemyShipTypeCount.clear();
 
 		List<BattleShip> ships = Common.cast(db.createQuery("from BattleShip bs inner join fetch bs.ship as s " +
-                "where s.id>0 and bs.battle=? " +
+                "where s.id>0 and bs.battle=:battle " +
                 "order by s.shiptype, s.id")
-                .setEntity(0, this)
+                .setEntity("battle", this)
                 .list());
 
         for (BattleShip ship : ships) {
@@ -1791,11 +1791,11 @@ public class Battle implements Locatable
 			}
 		}
 
-		db.createQuery("delete from BattleShip where battle=?")
-			.setEntity(0, this)
+		db.createQuery("delete from BattleShip where battle=:battle")
+			.setEntity("battle", this)
 			.executeUpdate();
-		db.createQuery("update Ship set battle=null,battleAction=0 where id>0 and battle=?")
-			.setEntity(0, this)
+		db.createQuery("update Ship set battle=null,battleAction=0 where id>0 and battle=:battle")
+			.setEntity("battle", this)
 			.executeUpdate();
 
 		Common.writeLog("battles/battle_id"+this.id+".log", "</battle>");
@@ -1804,9 +1804,9 @@ public class Battle implements Locatable
 		new File(config.get("LOXPATH")+"battles/battle_id"+this.id+".log")
 			.renameTo(new File(newlog));
 
-		db.createQuery("update ShipLost set battle=0,battleLog=? where battle=?")
-			.setString(0, newlog)
-			.setEntity(1, this)
+		db.createQuery("update ShipLost set battle=0,battleLog=:log where battle=:battle")
+			.setString("log", newlog)
+			.setEntity("battle", this)
 			.executeUpdate();
 
 		int[] points = new int[] {side1points, side2points};
@@ -2266,9 +2266,9 @@ public class Battle implements Locatable
             }
 		}
 
-		long dockcount = (Long)db.createQuery("select count(*) from Ship where docked IN (?,?)")
-			.setString(0, Integer.toString(ship.getId()))
-			.setString(1, "l "+ship.getId())
+		long dockcount = (Long)db.createQuery("select count(*) from Ship where docked IN (:docked,:landed)")
+			.setString("docked", Integer.toString(ship.getId()))
+			.setString("landed", "l "+ship.getId())
 			.iterate().next();
 
 		ship.getShip().setBattle(null);

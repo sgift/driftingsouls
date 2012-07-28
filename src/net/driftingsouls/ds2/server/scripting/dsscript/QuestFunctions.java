@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.scripting.dsscript;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.Blob;
 import java.util.ArrayList;
@@ -889,7 +890,8 @@ public class QuestFunctions {
 	static class RemoveHandler implements SPFunction {
 		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
-			Database db = ContextMap.getContext().getDatabase();
+			Database database = ContextMap.getContext().getDatabase();
+			org.hibernate.Session db = ContextMap.getContext().getDB();
 
 			String event = command[1];
 			scriptparser.log("event: "+event+"\n");
@@ -928,12 +930,12 @@ public class QuestFunctions {
 				scriptparser.log("questid: "+questid+"\n");
 
 				if( event.equals("oncommunicate") ) {
-					SQLResultRow ship = db.first("SELECT id,oncommunicate FROM ships " +
-							"WHERE id>0 AND id="+Value.Int(objid));
-					if( !ship.isEmpty()  ) {
+					Ship ship = (Ship)db.get(Ship.class, Value.Int(objid));
+
+					if( ship != null && ship.getId() > 0  ) {
 						List<String> newcom = new ArrayList<String>();
 
-						String[] com = StringUtils.split(ship.getString("oncommunicate"), ';');
+						String[] com = StringUtils.split(ship.getOnCommunicate(), ';');
 						for( int i=0; i < com.length; i++ ) {
 							String[] tmp = StringUtils.split(com[i], ':');
 							int usr = Value.Int(tmp[0]);
@@ -945,18 +947,17 @@ public class QuestFunctions {
 						}
 
 						if( newcom.size() > 0 ) {
-							db.prepare("UPDATE ships SET oncommunicate=? WHERE id>0 AND id= ?")
-								.update(Common.implode(";", newcom), Value.Int(objid));
+							ship.setOnCommunicate(Common.implode(";", newcom));
 						}
 						else {
-							db.update("UPDATE ships SET oncommunicate=NULL WHERE id>0 AND id="+Value.Int(objid));
+							ship.setOnCommunicate(null);
 						}
 					}
 				}
 				else {
 					Location loc = Location.fromString(objid);
 
-					SQLResultRow sector = db.first("SELECT system,x,y,onenter FROM sectors " +
+					SQLResultRow sector = database.first("SELECT system,x,y,onenter FROM sectors " +
 							"WHERE system="+loc.getSystem()+" AND x="+loc.getX()+" AND y="+loc.getY());
 					if( !sector.isEmpty() ) {
 						List<String> newenter = new ArrayList<String>();
@@ -973,16 +974,16 @@ public class QuestFunctions {
 						}
 
 						if( newenter.size() > 0 ) {
-							db.prepare("UPDATE sectors SET onenter= ? WHERE system= ? AND x= ? AND y= ?")
+							database.prepare("UPDATE sectors SET onenter= ? WHERE system= ? AND x= ? AND y= ?")
 								.update(Common.implode(";", newenter), loc.getSystem(), loc.getX(), loc.getY());
 						}
 						else if( sector.getInt("objects") != 0 ) {
-							db.update("UPDATE ships SET onenter=NULL " +
+							database.update("UPDATE ships SET onenter=NULL " +
 									"WHERE system="+loc.getSystem()+" " +
 											"AND x="+loc.getX()+" AND y="+loc.getY());
 						}
 						else {
-							db.update("DELETE FROM sectors " +
+							database.update("DELETE FROM sectors " +
 									"WHERE system="+loc.getSystem()+" " +
 									"AND x="+loc.getX()+" AND y="+loc.getY());
 						}
@@ -1005,12 +1006,12 @@ public class QuestFunctions {
 				scriptparser.log("questid: "+questid+"\n");
 
 				if( questid.charAt(0) != 'r' ) {
-					db.update("UPDATE quests_running SET ontick=NULL " +
+					database.update("UPDATE quests_running SET ontick=NULL " +
 							"WHERE questid="+Value.Int(questid)+" AND userid="+userid);
 				}
 				else {
 					int rquestid = Value.Int(questid.substring(1));
-					db.update("UPDATE quests_running SET ontick=NULL WHERE id="+rquestid);
+					database.update("UPDATE quests_running SET ontick=NULL WHERE id="+rquestid);
 				}
 			}
 
@@ -1234,43 +1235,40 @@ public class QuestFunctions {
 
 		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
-			Database db = ContextMap.getContext().getDatabase();
+			org.hibernate.Session db = ContextMap.getContext().getDB();
 
 			String questid = command[1];
 			scriptparser.log("QuestID: "+questid+"\n");
 
-			SQLQuery questdata = null;
+			RunningQuest questdata = null;
 			if( questid.charAt(0) != 'r' ) {
 				int user = Value.Int(scriptparser.getRegister("USER"));
 
-				questdata = db.query("SELECT id,execdata " +
-						"FROM quests_running " +
-						"HERE questid="+Integer.parseInt(questid)+" AND userid="+user);
+				questdata = (RunningQuest)db.createQuery("from RunningQuest where quest=:quest and user=:user")
+					.setParameter("quest", Integer.parseInt(questid))
+					.setParameter("user", user)
+					.uniqueResult();
 			}
 			else {
 				String rquestid = questid.substring(1);
-				questdata = db.query("SELECT id,execdata " +
-						"FROM quests_running " +
-						"WHERE id="+Integer.parseInt(rquestid));
+				questdata = (RunningQuest)db.get(RunningQuest.class, Integer.parseInt(rquestid));
 			}
 
-			if( !questdata.next() ) {
+			if( questdata == null ) {
 				scriptparser.log("Warnung: Kein passendes laufendes Quest gefunden\n");
 			}
 			else {
 				try {
-					Blob blob = questdata.getBlob("execdata");
-					ScriptParserContext.toStream(scriptparser.getContext(), blob.setBinaryStream(1));
-					db.prepare("UPDATE quests_running SET execdata=? WHERE id=? ")
-						.update(blob, questdata.getInt("id"));
+					ByteArrayOutputStream blob = new ByteArrayOutputStream();
+					ScriptParserContext.toStream(scriptparser.getContext(), blob);
+					questdata.setExecData(blob.toByteArray());
 				}
 				catch( Exception e ) {
 					scriptparser.log("Fehler: Konnte Questdaten nicht schreiben: "+e+"\n");
-					scriptparser.setRegister("QUEST","r"+questdata.getInt("id"));
+					scriptparser.setRegister("QUEST","r"+questdata.getId());
 					log.warn("Fehler beim Schreiben der Questdaten (Quest: "+questid+"): "+e,e);
 				}
 			}
-			questdata.free();
 
 			return CONTINUE;
 		}
@@ -1516,7 +1514,7 @@ public class QuestFunctions {
 	static class AddQuestShips implements SPFunction {
 		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
-			Database db = ContextMap.getContext().getDatabase();
+			org.hibernate.Session db = ContextMap.getContext().getDB();
 
 			SectorTemplateManager stm = SectorTemplateManager.getInstance();
 
@@ -1545,24 +1543,25 @@ public class QuestFunctions {
 				removescript.append("!REMOVESHIP "+shipids[i]+"\n");
 			}
 
-			SQLResultRow runningdata = null;
+			RunningQuest runningdata = null;
 			if( questid.charAt(0) != 'r' ) {
-				runningdata = db.first("SELECT id,uninstall FROM quests_running " +
-						"WHERE questid="+Value.Int(questid)+" AND userid="+userid);
+				runningdata = (RunningQuest)db.createQuery("from RunningQuest where quest=:quest and user=:user")
+					.setParameter("quest", Value.Int(questid))
+					.setParameter("user", userid)
+					.uniqueResult();
 			}
 			else {
 				int rquestid = Value.Int(questid.substring(1));
-				runningdata = db.first("SELECT id,uninstall FROM quests_running WHERE id="+rquestid);
+				runningdata = (RunningQuest)db.get(RunningQuest.class, rquestid);
 			}
 
-			String uninstall = runningdata.getString("uninstall");
+			String uninstall = runningdata.getUninstall();
 			if( uninstall.length() == 0 ) {
 				uninstall = ":0\n";
 			}
 			uninstall += removescript.toString();
 
-			db.prepare("UPDATE quests_running SET uninstall=? WHERE id= ?")
-				.update(uninstall, runningdata.getInt("id"));
+			runningdata.setUninstall(uninstall);
 
 			return CONTINUE;
 		}

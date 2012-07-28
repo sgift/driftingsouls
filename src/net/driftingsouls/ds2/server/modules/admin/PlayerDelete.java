@@ -199,42 +199,42 @@ public class PlayerDelete implements AdminPlugin
 		}
 
 		echo.append("Entferne GTU Zwischenlager...<br />\n");
-		db.createQuery("delete from GtuZwischenlager where user1=?")
-			.setInteger(0, userid)
+		db.createQuery("delete from GtuZwischenlager where user1=:user")
+			.setInteger("user", userid)
 			.executeUpdate();
-		db.createQuery("delete from GtuZwischenlager where user2=?")
-			.setInteger(0, userid)
+		db.createQuery("delete from GtuZwischenlager where user2=:user")
+			.setInteger("user", userid)
 			.executeUpdate();
 
 		echo.append("Entferne User-Values...");
-		count = db.createQuery("delete from UserValue where user=?")
-			.setInteger(0, userid)
+		count = db.createQuery("delete from UserValue where user=:user")
+			.setInteger("user", userid)
 			.executeUpdate();
 		echo.append(count+"<br />\n");
 
 		echo.append("Entferne comnet-visits...");
-		count = db.createQuery("delete from ComNetVisit where user=?")
-			.setInteger(0, userid)
+		count = db.createQuery("delete from ComNetVisit where user=:user")
+			.setInteger("user", userid)
 			.executeUpdate();
 		echo.append(count+"<br />\n");
 
 		echo.append("Ordne Comnet-Posts ID 0 zu...");
-		count = db.createQuery("update ComNetEntry set user=0 where user=?")
-			.setInteger(0, userid)
+		count = db.createQuery("update ComNetEntry set user=0 where user=:user")
+			.setInteger("user", userid)
 			.executeUpdate();
 		echo.append(count+"<br />\n");
 
 		echo.append("Entferne user-forschungen...");
-		count = db.createQuery("delete from UserResearch where owner=?")
-			.setInteger(0, userid)
+		count = db.createQuery("delete from UserResearch where owner=:user")
+			.setInteger("user", userid)
 			.executeUpdate();
 		echo.append(count+"<br />\n");
 
 		// Schiffe
 		echo.append("Entferne Schiffe...\n");
 
-		List<?> ships = db.createQuery("from Ship where owner=?")
-			.setEntity(0, user)
+		List<?> ships = db.createQuery("from Ship where owner=:user")
+			.setEntity("user", user)
 			.list();
 		for( Iterator<?> iter = ships.iterator(); iter.hasNext(); )
 		{
@@ -248,8 +248,8 @@ public class PlayerDelete implements AdminPlugin
 		// Basen
 		List<Base> baselist = new ArrayList<Base>();
 
-		List<?> baseList = db.createQuery("from Base where owner=?")
-			.setInteger(0, userid)
+		List<?> baseList = db.createQuery("from Base where owner=:user")
+			.setInteger("user", userid)
 			.list();
 		for( Iterator<?> iter = baseList.iterator(); iter.hasNext(); )
 		{
@@ -292,18 +292,18 @@ public class PlayerDelete implements AdminPlugin
 		echo.append(baselist.size() + " Basen bearbeitet<br />\n");
 
 		echo.append("Entferne Handelseintr&auml;ge...");
-		count = db.createQuery("delete from Handel where who=?")
-			.setInteger(0, userid)
+		count = db.createQuery("delete from Handel where who=:user")
+			.setInteger("user", userid)
 			.executeUpdate();
 		echo.append(count+"<br />\n");
 
 		echo.append("&Uuml;berstelle GTU-Gebote an die GTU (-2)...<br />");
-		db.createQuery("update Versteigerung set bieter=-2 where bieter=?")
-			.setInteger(0, userid)
+		db.createQuery("update Versteigerung set bieter=-2 where bieter=:user")
+			.setInteger("user", userid)
 			.executeUpdate();
 
-		db.createQuery("update Versteigerung set owner=-2 where owner=?")
-			.setInteger(0, userid)
+		db.createQuery("update Versteigerung set owner=-2 where owner=:user")
+			.setInteger("user", userid)
 			.executeUpdate();
 
 		echo.append("L&ouml;sche PM's...");
@@ -317,15 +317,15 @@ public class PlayerDelete implements AdminPlugin
 			.executeUpdate();
 
 		echo.append("L&ouml;sche PM-Ordner...");
-		count = db.createQuery("delete from Ordner where owner=?")
-			.setInteger(0, userid)
+		count = db.createQuery("delete from Ordner where owner=:user")
+			.setInteger("user", userid)
 			.executeUpdate();
 		echo.append(count + "<br />");
 
 		echo.append("L&ouml;sche Diplomatieeintr&auml;ge...");
-		count = db.createQuery("delete from UserRelation where user=? or target=?")
-			.setInteger(0, userid)
-			.setInteger(1, userid)
+		count = db.createQuery("delete from UserRelation where user=:user1 or target=:user2")
+			.setInteger("user1", userid)
+			.setInteger("user2", userid)
 			.executeUpdate();
 		echo.append(count+"<br />\n");
 
@@ -339,26 +339,26 @@ public class PlayerDelete implements AdminPlugin
 				.delete();
 
 		echo.append("L&ouml;sche Offiziere...");
-		count = db.createQuery("delete from Offizier where owner=?")
-			.setInteger(0, userid)
+		count = db.createQuery("delete from Offizier where owner=:user")
+			.setInteger("user", userid)
 			.executeUpdate();
 		echo.append(count + "<br />");
 
 		echo.append("L&ouml;sche Shop-Auftraege...");
-		count = db.createQuery("delete from FactionShopOrder where user=?")
-			.setInteger(0, userid)
+		count = db.createQuery("delete from FactionShopOrder where user=:user")
+			.setInteger("user", userid)
 			.executeUpdate();
 		echo.append(count+"<br />\n");
 
 		echo.append("L&ouml;sche Statistik 'Item-Locations'...");
-		count = db.createQuery("delete from StatItemLocations where user=?")
-			.setInteger(0, userid)
+		count = db.createQuery("delete from StatItemLocations where user=:user")
+			.setInteger("user", userid)
 			.executeUpdate();
 		echo.append(count+"<br />\n");
 
 		echo.append("L&ouml;sche Statistik 'User-Cargo'...");
-		count = db.createQuery("delete from StatUserCargo where user=?")
-			.setInteger(0, userid)
+		count = db.createQuery("delete from StatUserCargo where user=:user")
+			.setInteger("user", userid)
 			.executeUpdate();
 		echo.append(count+"<br />\n");
 

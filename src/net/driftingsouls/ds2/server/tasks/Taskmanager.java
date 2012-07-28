@@ -43,22 +43,22 @@ public class Taskmanager {
 		ALLY_NEW_MEMBER(1, new HandleAllyNewMember()),
 		/**
 		 * Gruendung einer Allianz.
-		 * 
+		 *
 		 * data1 - der Name der Allianz
 		 * data2 - die Anzahl der noch fehlenden Unterstuetzungen (vgl. TASK_ALLY_FOUND_CONFIRM)
-		 * data3 - die Spieler, die in die neu gegruendete Allianz sollen, jeweils durch ein , getrennt (Pos: 0 -> Praesident/Gruender)  
+		 * data3 - die Spieler, die in die neu gegruendete Allianz sollen, jeweils durch ein , getrennt (Pos: 0 -> Praesident/Gruender)
 		 */
 		ALLY_FOUND(2, new HandleAllyFound()),
 		/**
 		 *  Ein Unterstuetzungsantrag fuer eine Allianzgruendung.
-		 * 
+		 *
 		 * 	data1 - die TaskID der zugehoerigen TASK_ALLY_FOUND-Task
 		 *  data2 - die ID des angeschriebenen Spielers (um dessen Unterstuetzung gebeten wurde)
 		 */
 		ALLY_FOUND_CONFIRM(3, new HandleAllyFoundConfirm()),
 		/**
 		 * Eine Allianz hat weniger als 3 Mitglieder (Praesi eingerechnet) und ist daher von der Aufloesung bedroht.
-		 * 
+		 *
 		 * data1 - die ID der betroffenen Allianz
 		 */
 		ALLY_LOW_MEMBER(4, new HandleAllyLowMember()),
@@ -69,13 +69,13 @@ public class Taskmanager {
 		SHIP_DESTROY_COUNTDOWN(5, new HandleShipDestroyCountdown()),
 		/**
 		 * Ein Countdown bis zum Respawn des Schiffes.
-		 * 
+		 *
 		 * data1 - die ID des betroffenen Schiffes (neg. id!)
 		 */
 		SHIP_RESPAWN_COUNTDOWN(6, new HandleShipRespawnCountdown()),
 		/**
 		 * Ein Gany-Transportauftrag.
-		 * 
+		 *
 		 * data1 - die Order-ID des Auftrags
 		 * data2 - Schiffs-ID [Wird von der Task selbst gesetzt!]
 		 * data3 - Status [autom. gesetzt: Nichts = Warte auf Schiff od. flug zur Ganymede; 1 = Gany-Transport; 2 = Rueckweg]
@@ -88,15 +88,15 @@ public class Taskmanager {
 		 * data2 - Die Anzahl der bisherigen Versuche den Task durchzuführen
 		 */
 		UPGRADE_JOB(8, new HandleUpgradeJob());
-		
+
 		private int typeID;
 		private TaskHandler cls;
-		
+
 		private Types( int typeID, TaskHandler cls ) {
 			this.typeID = typeID;
 			this.cls = cls;
 		}
-		
+
 		/**
 		 * Gibt die Typen-ID der Task zurueck.
 		 * @return Die Typen-ID
@@ -104,7 +104,7 @@ public class Taskmanager {
 		public int getTypeID() {
 			return typeID;
 		}
-		
+
 		/**
 		 * Gibt die Instanz einer Klasse zurueck, die fuer die Verarbeitung von Ereignissen zustaendig ist.
 		 * @return die Ereignisverarbeitungsklasseninstanz
@@ -112,7 +112,7 @@ public class Taskmanager {
 		protected TaskHandler getHandlerClass() {
 			return cls;
 		}
-		
+
 		/**
 		 * Gibt den Typ zu einer Typ-ID zurueck.
 		 * @param id Die Typ-ID
@@ -128,11 +128,11 @@ public class Taskmanager {
 		}
 	}
 	private static Taskmanager instance = null;
-	
+
 	private Taskmanager() {
 		// EMPTY
 	}
-	
+
 	/**
 	 * Gibt eine Instanz des Taskmanagers zurueck.
 	 * @return Eine Instanz des Taskmanagers
@@ -160,13 +160,13 @@ public class Taskmanager {
 		task.setData1(data1);
 		task.setData2(data2);
 		task.setData3(data3);
-		
+
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		db.persist(task);
-		
+
 		return task.getTaskID();
 	}
-	
+
 	/**
 	 * Modifiziert die Datenfelder einer Task.
 	 * @param taskid Die ID der Task
@@ -180,7 +180,7 @@ public class Taskmanager {
 		task.setData2(data2);
 		task.setData3(data3);
 	}
-	
+
 	/**
 	 * Setzt den Timeout einer Task.
 	 * @param taskid Die Task-ID
@@ -190,7 +190,7 @@ public class Taskmanager {
 		Task task = getTaskByID(taskid);
 		task.setTimeout(timeout);
 	}
-	
+
 	/**
 	 * Inkrementiert den Timeout einer Task um einen Tick.
 	 * @param taskid Die ID der Task
@@ -199,7 +199,7 @@ public class Taskmanager {
 		Task task = getTaskByID(taskid);
 		task.setTimeout(task.getTimeout()+1);
 	}
-	
+
 	/**
 	 * Gibt die Task mit der angegebenen ID zurueck. Wenn keine solche Task existiert,
 	 * so wird <code>null</code> zurueckgegeben.
@@ -208,10 +208,10 @@ public class Taskmanager {
 	 */
 	public Task getTaskByID( String taskid ) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
+
 		return (Task)db.get(Task.class, taskid);
 	}
-	
+
 	/**
 	 * Gibt alle Tasks zurueck, deren Timeout den angegebenen Wert hat.
 	 * @param timeout das gesuchte Timeout
@@ -220,13 +220,13 @@ public class Taskmanager {
 	public Task[] getTasksByTimeout( int timeout ) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		List<Task> tasks = Common.cast(db.createQuery("from Task where timeout=? order by time asc")
-			.setInteger(0, timeout)
+		List<Task> tasks = Common.cast(db.createQuery("from Task where timeout=:timeout order by time asc")
+			.setInteger("timeout", timeout)
 			.list());
-				
+
 		return tasks.toArray(new Task[tasks.size()]);
 	}
-	
+
 	/**
 	 * Ermittelt alle Tasks eines Typs deren Datenfelder einen bestimmten Inhalt enthalten.
 	 * Als Platzhalter fuer beliebigen Inhalt kann das <code>*</code> verwendet werden.
@@ -239,35 +239,34 @@ public class Taskmanager {
 	public Task[] getTasksByData( Types type, String data1, String data2, String data3 ) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		String query = "from Task where type=?";
+		String query = "from Task where type=:type";
 		if( !data1.equals("*") ) {
-			query += " and data1=?";	
+			query += " and data1=:d1";
 		}
 		if( !data2.equals("*") ) {
-			query += " and data2=?";	
+			query += " and data2=:d2";
 		}
 		if( !data3.equals("*")) {
-			query += " and data3=?";	
+			query += " and data3=:d3";
 		}
 		query += " order by time asc";
 		Query q = db.createQuery(query);
-		int index=0;
-		q.setInteger(index++, type.getTypeID());
+		q.setInteger("type", type.getTypeID());
 		if( !data1.equals("*") ) {
-			q.setString(index++, data1);
+			q.setString("d1", data1);
 		}
 		if( !data2.equals("*") ) {
-			q.setString(index++, data2);	
+			q.setString("d2", data2);
 		}
 		if( !data3.equals("*")) {
-			q.setString(index++, data3);
+			q.setString("d3", data3);
 		}
-		
+
 		List<Task> tasks = Common.cast(q.list());
-		
+
 		return tasks.toArray(new Task[tasks.size()]);
 	}
-	
+
 	/**
 	 * Fuehrt fuer eine Task ein Ereignis aus.
 	 * @param taskid Die ID der Task
@@ -282,33 +281,35 @@ public class Taskmanager {
 			}
 		}
 	}
-	
+
 	/**
 	 * Loescht die Task mit der angegebenen ID.
 	 * @param taskid Die ID der Task
 	 */
 	public void removeTask( String taskid ) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		db.createQuery("delete from Task where taskid=?")
-			.setString(0, taskid)
-			.executeUpdate();
+		Task task = getTaskByID(taskid);
+		if( task != null )
+		{
+			db.delete(task);
+		}
 	}
-	
+
 	/**
 	 * Reduziert den Timeout aller Tasks um den angegebenen Wert.
 	 * @param step Die Menge um die das Timeout reduziert werden soll
 	 */
 	public void reduceTimeout( int step ) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
-		db.createQuery("update Task set timeout=timeout-? where timeout>?")
-			.setInteger(0, step)
-			.setInteger(1, step-1)
+
+		db.createQuery("update Task set timeout=timeout-:timeout where timeout>:timeout2")
+			.setInteger("timeout", step)
+			.setInteger("timeout2", step-1)
 			.executeUpdate();
-		
-		if( step > 1 ) { 
-			db.createQuery("update Task set timeout=0 where timeout<=?")
-				.setInteger(0, step-1)
+
+		if( step > 1 ) {
+			db.createQuery("update Task set timeout=0 where timeout<=:timeout")
+				.setInteger("timeout", step-1)
 				.executeUpdate();
 		}
 	}

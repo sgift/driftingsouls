@@ -83,21 +83,21 @@ public class Ally {
 	private short wonBattles;
 	private int destroyedShips;
 	private int lostShips;
-	
+
 	@OneToMany(mappedBy="ally", cascade=CascadeType.ALL)
 	@OrderBy("rang")
 	private Set<AllyRangDescriptor> rangDescriptors;
-	
+
 	@Version
 	private int version;
-	
+
 	/**
 	 * Konstruktor.
 	 */
 	public Ally() {
 		// EMPTY
 	}
-	
+
 	/**
 	 * Erstellt eine neue Allianz. Als Gruendungszeitpunkt
 	 * wird der aktuelle Zeitpunkt eingetragen.
@@ -116,7 +116,7 @@ public class Ally {
 		this.showlrs = 1;
 		this.items = "";
 		this.rangDescriptors = new TreeSet<AllyRangDescriptor>();
-		
+
 		this.name = name;
 		this.plainname = Common._titleNoFormat(name);
 		this.president = president;
@@ -209,7 +209,7 @@ public class Ally {
 	public String getItems() {
 		return items;
 	}
-	
+
 	/**
 	 * Setzt die Allianzitems.
 	 * @param items Der neue Itemstring
@@ -394,7 +394,7 @@ public class Ally {
 	public int getId() {
 		return id;
 	}
-	
+
 	/**
 	 * Gibt die Liste aller Mitglieder zurueck, welche Minister und/oder Praesident sind.
 	 * @return Die Liste aller Spieler mit Minister-/Praesidentenposten
@@ -408,7 +408,7 @@ public class Ally {
 			.setInteger("allyId", this.getId())
 			.list();
 	}
-	
+
 	/**
 	 * Gibt die Liste aller Mitglieder zurueck.
 	 * @return Die Liste aller Spieler der Allianz
@@ -420,7 +420,7 @@ public class Ally {
 			.setEntity("ally", this)
 			.list();
 	}
-	
+
 	/**
 	 * Gibt die Anzahl an Allymitgliedern zurueck.
 	 * @return Die Anzahl der Allymitglieder
@@ -432,39 +432,39 @@ public class Ally {
 			.iterate()
 			.next();
 	}
-	
+
 	/**
 	 * Loescht die Allianz.
 	 *
 	 */
 	public void destroy() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
-		List<?> chnList = db.createQuery("from ComNetChannel where allyOwner=?")
-			.setInteger(0, this.id)
+
+		List<?> chnList = db.createQuery("from ComNetChannel where allyOwner=:owner")
+			.setInteger("owner", this.id)
 			.list();
 		for( Iterator<?> iter=chnList.iterator(); iter.hasNext(); ) {
 			ComNetChannel channel = (ComNetChannel)iter.next();
-			
-			db.createQuery("delete from ComNetVisit where channel=?")
-				.setEntity(0, channel)
+
+			db.createQuery("delete from ComNetVisit where channel=:channel")
+				.setEntity("channel", channel)
 				.executeUpdate();
-			
-			db.createQuery("delete from ComNetEntry where channel=?")
-				.setEntity(0, channel)
+
+			db.createQuery("delete from ComNetEntry where channel=:channel")
+				.setEntity("channel", channel)
 				.executeUpdate();
-			
+
 			db.delete(channel);
 		}
-		
+
 		int tick = ContextMap.getContext().get(ContextCommon.class).getTick();
-		
-		List<?> uids = db.createQuery("from User where ally=?")
-			.setEntity(0, this)
+
+		List<?> uids = db.createQuery("from User where ally=:ally")
+			.setEntity("ally", this)
 			.list();
 		for( Iterator<?> iter=uids.iterator(); iter.hasNext(); ) {
 			User auser = (User)iter.next();
-			
+
 			auser.addHistory(Common.getIngameTime(tick)+": Verlassen der Allianz "+this.name+" im Zuge der Aufl&ouml;sung dieser Allianz");
 			auser.setAlly(null);
 			if( auser.getAllyPosten() != null ) {
@@ -474,22 +474,20 @@ public class Ally {
 			}
 			auser.setName(auser.getNickname());
 		}
-		
-		db.createQuery("delete from AllyPosten where ally=?")
-			.setEntity(0, this)
+
+		db.createQuery("delete from AllyPosten where ally=:ally")
+			.setEntity("ally", this)
 			.executeUpdate();
-		
+
 		// Delete Ally from running Battles
 		Set<Battle> battles = new LinkedHashSet<Battle>();
-		
-		String query = "from Battle " +
-		"where ally1 = :ally or ally2 = :ally";
 
-		Query battleQuery = db.createQuery(query)
+		Query battleQuery = db.createQuery("from Battle " +
+				"where ally1 = :ally or ally2 = :ally")
 			.setInteger("ally", this.getId());
 
 		battles.addAll(Common.cast(battleQuery.list(), Battle.class));
-		
+
 		for( Battle battle : battles ) {
 			if(battle.getAlly(0) == this.getId())
 			{
@@ -497,13 +495,13 @@ public class Ally {
 			}
 			if (battle.getAlly(1) == this.getId())
 			{
-				battle.setAlly(1, 0);	
+				battle.setAlly(1, 0);
 			}
 		}
-		
+
 		db.delete(this);
 	}
-	
+
 	/**
 	 * Entfernt einen Spieler aus der Allianz.
 	 * @param user Der Spieler
@@ -511,27 +509,27 @@ public class Ally {
 	public void removeUser(User user) {
 		final Context context = ContextMap.getContext();
 		final org.hibernate.Session db = context.getDB();
-		
+
 		user.setAlly(null);
 		user.setAllyPosten(null);
 		user.setName(user.getNickname());
-		
+
 		db.createQuery("update Battle set ally1=0 where commander1= :user and ally1= :ally")
 			.setEntity("user", user)
 			.setInteger("ally", this.id)
 			.executeUpdate();
-	
+
 		db.createQuery("update Battle set ally2=0 where commander2= :user and ally2= :ally")
 			.setEntity("user", user)
 			.setInteger("ally", this.id)
 			.executeUpdate();
-		
+
 		int tick = context.get(ContextCommon.class).getTick();
 		user.addHistory(Common.getIngameTime(tick)+": Verlassen der Allianz "+this.name);
 
 		checkForLowMemberCount();
 	}
-	
+
 	/**
 	 * Prueft, ob die Allianz noch genug Mitglieder hat um ihr
 	 * Fortbestehen zu sichern. Falls dies nicht mehr der Fall ist
@@ -541,24 +539,24 @@ public class Ally {
 	 */
 	public void checkForLowMemberCount() {
 		final org.hibernate.Session db = ContextMap.getContext().getDB();
-		
+
 		// Ist der Praesident kein NPC (negative ID) ?
 		if( this.president.getId() > 0 ) {
 			long count = this.getMemberCount();
 			if( count < 3 ) {
 				Taskmanager.getInstance().addTask(Taskmanager.Types.ALLY_LOW_MEMBER, 21, Integer.toString(this.id), "", "" );
-			
+
 				final User nullUser = (User)db.get(User.class, 0);
-				
+
 				List<User> supermembers = this.getSuperMembers();
 				for( User supermember : supermembers ) {
-					PM.send(nullUser, supermember.getId(), "Drohende Allianzaufl&oum;sung", 
+					PM.send(nullUser, supermember.getId(), "Drohende Allianzaufl&oum;sung",
 							"[Automatische Nachricht]\nAchtung!\nDurch den j&uuml;ngsten Weggang eines Allianzmitglieds hat deine Allianz zu wenig Mitglieder um weiterhin zu bestehen. Du hast nun 21 Ticks Zeit diesen Zustand zu &auml;ndern. Andernfalls wird die Allianz aufgel&ouml;&szlig;t.");
 				}
 			}
 		}
 	}
-	
+
 	/**
 	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
@@ -566,7 +564,7 @@ public class Ally {
 	public int getVersion() {
 		return this.version;
 	}
-	
+
 	/**
 	 * Gibt alle fuer die Allianz hinterlegte Rangbezeichnungen fuer NPC-Raenge zurueck.
 	 * @return Die Liste
@@ -575,7 +573,7 @@ public class Ally {
 	{
 		return this.rangDescriptors;
 	}
-	
+
 	/**
 	 * Gibt die Liste aller bekannten Raenge dieser Allianz zurueck. Dies umfasst sowohl
 	 * die spezifischen Raenge dieser Allianz als auch alle allgemeinen Raenge ({@link Medals#raenge()}).
@@ -588,15 +586,15 @@ public class Ally {
 		{
 			result.add(new Rang(rang.getRang(), rang.getName(), rang.getImage()));
 		}
-		
+
 		for( Rang rang : Medals.get().raenge().values() )
 		{
 			result.add(rang);
 		}
-		
+
 		return result;
 	}
-	
+
 	/**
 	 * Gibt den Anzeigenamen fuer die angegebene Rangnummer zurueck.
 	 * Sofern die Allianz ueber eine eigene Bezeichnung verfuegt wird diese zurueckgegeben.
@@ -613,7 +611,7 @@ public class Ally {
 				return rang.getName();
 			}
 		}
-		
+
 		return Medals.get().rang(rangNr).getName();
 	}
 }

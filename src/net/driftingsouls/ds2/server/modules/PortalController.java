@@ -434,12 +434,10 @@ public class PortalController extends TemplateGenerator {
 	 		}
 	 	}
 
-	 	Base base = (Base)db.createQuery("from Base where klasse=1 and owner=0 and system=? order by sqrt((?-x)*(?-x)+(?-y)*(?-y)) ")
-	 		.setInteger(0, system)
-	 		.setInteger(1, orderloc.getX())
-	 		.setInteger(2, orderloc.getX())
-	 		.setInteger(3, orderloc.getY())
-	 		.setInteger(4, orderloc.getY())
+	 	Base base = (Base)db.createQuery("from Base where klasse=1 and owner=0 and system=:sys order by sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y)) ")
+	 		.setInteger("sys", system)
+	 		.setInteger("x", orderloc.getX())
+	 		.setInteger("y", orderloc.getY())
 	 		.setMaxResults(1)
 	 		.uniqueResult();
 
@@ -472,10 +470,10 @@ public class PortalController extends TemplateGenerator {
 	 	base.setCoreActive(false);
 	 	base.setAutoGTUActs(new ArrayList<AutoGTUAction>());
 
-	 	db.createQuery("update Offizier set userid=? where dest in (?, ?)")
-	 		.setInteger(0, base.getOwner().getId())
-	 		.setString(1, "b "+base.getId())
-	 		.setString(2, "t "+base.getId())
+	 	db.createQuery("update Offizier set userid=:owner where dest in (:destb, :destt)")
+	 		.setInteger("owner", base.getOwner().getId())
+	 		.setString("destb", "b "+base.getId())
+	 		.setString("destt", "t "+base.getId())
 	 		.executeUpdate();
 
 	 	for( int i=0; i < baselayout.length; i++ ) {
@@ -485,12 +483,10 @@ public class PortalController extends TemplateGenerator {
 			}
 		}
 
-	 	Nebel nebel = (Nebel)db.createQuery("from Nebel where loc.system=? and type<3 order by sqrt((?-loc.x)*(?-loc.x)+(?-loc.y)*(?-loc.y))*(mod(type+1,3)+1)*3")
-	 		.setInteger(0, system)
-	 		.setInteger(1, base.getX())
-	 		.setInteger(2, base.getX())
-	 		.setInteger(3, base.getY())
-	 		.setInteger(4, base.getY())
+	 	Nebel nebel = (Nebel)db.createQuery("from Nebel where loc.system=:sys and type<3 order by sqrt((:x-loc.x)*(:x-loc.x)+(:y-loc.y)*(:y-loc.y))*(mod(type+1,3)+1)*3")
+	 		.setInteger("sys", system)
+	 		.setInteger("x", base.getX())
+	 		.setInteger("y", base.getY())
 	 		.setMaxResults(1)
 	 		.uniqueResult();
 

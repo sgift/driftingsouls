@@ -284,8 +284,8 @@ public class ShipFleet {
 	public void undockContainers() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		List<?> ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null")
-			.setEntity(0, this)
+		List<?> ships = db.createQuery("from Ship where id>0 and fleet=:fleet and battle is null")
+			.setEntity("fleet", this)
 			.list();
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship aship = (Ship)iter.next();

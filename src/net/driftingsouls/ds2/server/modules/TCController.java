@@ -38,9 +38,9 @@ import net.driftingsouls.ds2.server.ships.ShipTypes;
 
 /**
  * Transferiert Offiziere von und zu Schiffen/Basen.
- * 
+ *
  * @author Christopher Jung
- * 
+ *
  * @urlparam Integer ship Die ID des Schiffes, das Ausgangspunkt des Transfers ist.
  * @urlparam Integer target Die ID des Ziels des Transfers
  * @urlparam String conf "ok", falls eine Sicherheitsabfrage bestaetigt werden soll
@@ -50,53 +50,53 @@ import net.driftingsouls.ds2.server.ships.ShipTypes;
 @Module(name="tc")
 public class TCController extends TemplateGenerator {
 	private Ship ship = null;
-	
+
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public TCController(Context context) {
 		super(context);
-		
-		setTemplate("tc.html");	
-		
+
+		setTemplate("tc.html");
+
 		parameterNumber("ship");
 		parameterNumber("target");
 		parameterString("conf");
 		parameterNumber("off");
-		
+
 		setPageTitle("Offizierstransfer");
 	}
-	
+
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
-		
+
 		int shipId = getInteger("ship");
-		
+
 		t.setVar( "global.shipid", shipId );
 
 		ship = (Ship)db.get(Ship.class, shipId);
 
 		if( (ship == null) || (ship.getOwner() != getUser()) || (ship.getId() < 0) ) {
 			addError("Das angegebene Schiff existiert nicht oder geh&ouml;rt ihnen nicht",  Common.buildUrl("default", "module", "schiffe") );
-			
+
 			return false;
 		}
-		
+
 		if( ship.getBattle() != null ) {
 			addError("Das angegebene Schiff befindet sich in einer Schlacht", Common.buildUrl("default", "module", "schiffe" ) );
-			
+
 			return false;
 		}
 
 		return true;
 	}
-	
+
 	/**
 	 * Offiziersliste eines Objekts ausgeben.
-	 * 
+	 *
 	 * @param mode	Transfermodus (shipToShip, baseToShip usw)
 	 * @param dest	Typ des Aufenthaltsort der Offiziere (s,b usw)
 	 * @param destid ID des Aufenthaltsortes
@@ -106,9 +106,9 @@ public class TCController extends TemplateGenerator {
 
 		t.setVar(	"tc.selectoffizier",	1,
 					"tc.mode",				mode );
-				
+
 		t.setBlock( "_TC", "tc.offiziere.listitem", "tc.offiziere.list" );
-		
+
 		List<Offizier> offiList = Offizier.getOffiziereByDest(dest, destid);
 		for( Offizier offi : offiList ) {
 			t.setVar(	"tc.offizier.picture",		offi.getPicture(),
@@ -120,7 +120,7 @@ public class TCController extends TemplateGenerator {
 						"tc.offizier.ability.sec",	offi.getAbility( Offizier.Ability.SEC ),
 						"tc.offizier.ability.com",	offi.getAbility( Offizier.Ability.COM ),
 						"tc.offizier.special",		offi.getSpecial().getName() );
-				
+
 			t.parse( "tc.offiziere.list", "tc.offiziere.listitem", true );
 		}
 	}
@@ -134,69 +134,69 @@ public class TCController extends TemplateGenerator {
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
-		
+
 		String conf = getString("conf");
 		int off = getInteger("off");
-		
+
 		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", ship.getId());
-		
+
 		Ship tarShip = (Ship)db.get(Ship.class, getInteger("target"));
 		if( (tarShip == null) || (tarShip.getId() < 0) ) {
 			addError("Das angegebene Zielschiff existiert nicht", errorurl);
 			setTemplate("");
-			
+
 			return;
 		}
-	
+
 		t.setVar( 	"tc.ship",			ship.getId(),
 					"tc.target",		tarShip.getId(),
 					"tc.target.name",	tarShip.getName(),
 					"tc.target.isown",	(tarShip.getOwner() == user),
 					"tc.stos",			1,
 					"tc.mode",			"shipToShip" );
-	
+
 		if( !ship.getLocation().sameSector(0, tarShip.getLocation(), 0) ) {
 			addError( "Die beiden Schiffe befinden sich nicht im selben Sektor", errorurl );
 			setTemplate("");
-			
+
 			return;
 		}
-		
+
 		if( tarShip.getBattle() != null ) {
 			addError("Das Zielschiff befindet sich in einer Schlacht", Common.buildUrl("default","module", "schiffe" ) );
-			
+
 			return;
 		}
-	
-		long officount = ((Number)db.createQuery("select count(*) from Offizier where dest=? AND userid=?")
-				.setString(0, "s "+ship.getId())
-				.setEntity(1, user)
+
+		long officount = ((Number)db.createQuery("select count(*) from Offizier where dest=:dest AND userid=:owner")
+				.setString("dest", "s "+ship.getId())
+				.setEntity("owner", user)
 				.iterate().next()
 			).longValue();
-		
+
 		if( officount == 0 ) {
 			addError("Das Schiff hat keinen Offizier an Bord", errorurl );
 			setTemplate("");
-			
+
 			return;
 		}
-	
+
 		//IFF-Check
 		boolean disableIFF = (tarShip.getStatus().indexOf("disable_iff") > -1);
 		if( disableIFF ) {
 			addError("Sie k&ouml;nnen keinen Offizier zu diesem Schiff transferieren", errorurl);
 			setTemplate("");
-			
+
 			return;
 		}
 
 		ShipTypeData tarShipType = tarShip.getTypeData();
-		
+
 		// Schiff gross genug?
 		if( tarShipType.getSize() <= ShipType.SMALL_SHIP_MAXSIZE ) {
 			addError("Das Schiff ist zu klein f&uuml;r einen Offizier", errorurl);
 			setTemplate("");
-			
+
 			return;
 		}
 
@@ -205,25 +205,25 @@ public class TCController extends TemplateGenerator {
 		if( tarShipType.hasFlag(ShipTypes.SF_OFFITRANSPORT) ) {
 			maxoffis = tarShipType.getCrew();
 		}
-		
-		long tarOffiCount = ((Number)db.createQuery("select count(*) from Offizier where dest=? AND userid=?")
-				.setString(0, "s "+tarShip.getId())
-				.setEntity(1, tarShip.getOwner())
+
+		long tarOffiCount = ((Number)db.createQuery("select count(*) from Offizier where dest=:dest AND userid=:owner")
+				.setString("dest", "s "+tarShip.getId())
+				.setEntity("owner", tarShip.getOwner())
 				.iterate().next()
 			).longValue();
 		if( tarOffiCount >= maxoffis ) {
 			addError("Das Schiff hat bereits die maximale Anzahl Offiziere an Bord", errorurl );
 			setTemplate("");
-			
+
 			return;
 		}
-	
+
 		// Offiziersliste bei bedarf ausgeben
 		if( (officount > 1) && (off == 0) ) {
 			echoOffiList("shipToShip", 's', ship.getId());
 			return;
 		}
-		
+
 		// Offizier laden
 		Offizier offizier = null;
 		if( off != 0 ) {
@@ -232,41 +232,41 @@ public class TCController extends TemplateGenerator {
 		else {
 			offizier = Offizier.getOffizierByDest('s', ship.getId());
 		}
-		
+
 		if( (offizier == null) || (offizier.getOwner() != user) ) {
 			addError("Der angegebene Offizier existiert nicht oder geh&ouml;rt nicht ihnen", errorurl);
 			setTemplate("");
-			
+
 			return;
 		}
-			
+
 		String[] dest = offizier.getDest();
 		if( !dest[0].equals("s") || (Integer.parseInt(dest[1]) != ship.getId()) ) {
 			addError("Der angegebene Offizier befindet sich nicht auf dem Schiff", errorurl);
 			setTemplate("");
-			
+
 			return;
 		}
-	
+
 		t.setVar( "tc.offizier.name", Common._plaintitle(offizier.getName()) );
-		
+
 		// Confirm?
 		if( (tarShip.getOwner() != user) && !conf.equals("ok") ) {
 			t.setVar("tc.confirm",1);
-			
+
 			return;
 		}
-	
+
 		User tarUser = tarShip.getOwner();
-		
+
 		// Transfer!
 		offizier.setDest( "s", tarShip.getId() );
 		offizier.setOwner( tarUser );
-	
+
 		ship.recalculateShipStatus();
 		tarShip.recalculateShipStatus();
 	}
-	
+
 	/**
 	 * Transferiert einen Offizier von einem Schiff zu einer Basis.
 	 *
@@ -276,46 +276,46 @@ public class TCController extends TemplateGenerator {
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
-		
+
 		String conf = getString("conf");
 		int off = getInteger("off");
-		
+
 		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", ship.getId());
-		
+
 		Base tarBase = (Base)db.get(Base.class, getInteger("target"));
-	
+
 		t.setVar(	"tc.ship",			ship.getId(),
 					"tc.target",		tarBase.getId(),
 					"tc.target.name",	tarBase.getName(),
 					"tc.target.isown",	(tarBase.getOwner() == user),
 					"tc.stob",			1,
 					"tc.mode",			"shipToBase" );
-	
+
 		if( !ship.getLocation().sameSector(0, tarBase.getLocation(), tarBase.getSize()) ) {
 			addError( "Schiff und Basis befinden sich nicht im selben Sektor", errorurl );
 			setTemplate("");
-			
+
 			return;
 		}
-	
-		long officount = ((Number)db.createQuery("select count(*) from Offizier where dest=? AND userid=?")
-				.setString(0, "s "+ship.getId())
-				.setEntity(1, user)
+
+		long officount = ((Number)db.createQuery("select count(*) from Offizier where dest=:dest AND userid=:owner")
+				.setString("dest", "s "+ship.getId())
+				.setEntity("owner", user)
 				.iterate().next()
 			).longValue();
 		if( officount == 0 ) {
 			addError("Das Schiff hat keinen Offizier an Bord", errorurl);
 			setTemplate("");
-			
+
 			return;
 		}
-		
+
 		// bei bedarf offiliste ausgeben
 		if( (officount > 1) && (off == 0) ) {
 			echoOffiList("shipToBase", 's', ship.getId());
 			return;
 		}
-		
+
 		// Offi laden
 		Offizier offizier = null;
 		if( off != 0 ) {
@@ -328,36 +328,36 @@ public class TCController extends TemplateGenerator {
 		if( (offizier == null) || (offizier.getOwner() != user) ) {
 			addError("Der angegebene Offizier existiert nicht oder geh&ouml;rt nicht ihnen", errorurl);
 			setTemplate("");
-			
+
 			return;
 		}
-			
+
 		String[] dest = offizier.getDest();
 		if( !dest[0].equals("s") || (Integer.parseInt(dest[1]) != ship.getId()) ) {
 			addError("Der angegebene Offizier befindet sich nicht auf dem Schiff", errorurl);
 			setTemplate("");
-			
+
 			return;
 		}
-		
+
 		t.setVar( "tc.offizier.name", Common._plaintitle(offizier.getName()) );
-	
+
 		// Confirm ?
 		if( (tarBase.getOwner() != user) && (conf != "ok") ) {
 			t.setVar( "tc.confirm", 1 );
-			
+
 			return;
 		}
-		
+
 		User tarUser = tarBase.getOwner();
 
 		// Transfer !
 		offizier.setDest( "b", tarBase.getId() );
 		offizier.setOwner( tarUser );
-	
+
 		ship.recalculateShipStatus();
 	}
-	
+
 	/**
 	 * Transfieriert Offiziere (sofern genug vorhanden) Offiziere von einer Basis
 	 * zu einer Flotte.
@@ -368,48 +368,48 @@ public class TCController extends TemplateGenerator {
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
-		
+
 		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", ship.getId());
-		
+
 		t.setVar( "tc.ship", ship.getId() );
-	
+
 		Base upBase = (Base)db.get(Base.class, getInteger("target"));
 		if( (upBase == null) || (upBase.getOwner() != user) ) {
 			addError("Die angegebene Basis existiert nicht oder geh&ouml;rt nicht ihnen", errorurl);
 			setTemplate("");
-			
+
 			return;
 		}
-		
+
 		if( !ship.getLocation().sameSector(0, upBase.getLocation(), upBase.getSize()) ) {
 			addError("Schiff und Basis befinden sich nicht im selben Sektor", errorurl);
 			setTemplate("");
-			
+
 			return;
 		}
-		
+
 		if( ship.getFleet() == null ) {
 			addError("Das Schiff befinden sich in keiner Flotte", errorurl);
 			setTemplate("");
-			
+
 			return;
 		}
-	
+
 		t.setVar(	"tc.captainzuweisen",	1,
 					"tc.ship",				ship.getId(),
 					"tc.target",			upBase.getId() );
-							
+
 		List<Offizier> offilist = Offizier.getOffiziereByDest('b', upBase.getId());
 
 		int shipcount = 0;
-	
-		List<?> shiplist = db.createQuery("from Ship where fleet=? and owner=? and system=? and x=? and y=? and " +
+
+		List<?> shiplist = db.createQuery("from Ship where fleet=:fleet and owner=:owner and system=:sys and x=:x and y=:y and " +
 				"locate('offizier',status)=0")
-			.setEntity(0, this.ship.getFleet())
-			.setEntity(1, user)
-			.setInteger(2, this.ship.getSystem())
-			.setInteger(3, this.ship.getX())
-			.setInteger(4, this.ship.getY())
+			.setEntity("fleet", this.ship.getFleet())
+			.setEntity("owner", user)
+			.setInteger("sys", this.ship.getSystem())
+			.setInteger("x", this.ship.getX())
+			.setInteger("y", this.ship.getY())
 			.setMaxResults(offilist.size())
 			.list();
 		for( Iterator<?> iter=shiplist.iterator(); iter.hasNext(); ) {
@@ -418,18 +418,18 @@ public class TCController extends TemplateGenerator {
 			if( shipType.getSize() <= ShipType.SMALL_SHIP_MAXSIZE ) {
 				continue;
 			}
-			
+
 			Offizier offi = offilist.remove(0);
 			offi.setDest( "s", aship.getId() );
-			
+
 			aship.recalculateShipStatus();
-			
+
 			shipcount++;
 		}
-		
+
 		t.setVar("tc.message", shipcount+" Offiziere wurden transferiert" );
 	}
-	
+
 	/**
 	 * Transfieriert Offiziere von einer Basis zu einem Schiff.
 	 *
@@ -439,36 +439,36 @@ public class TCController extends TemplateGenerator {
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
-		
+
 		int off = getInteger("off");
-		
+
 		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", ship.getId());
-		
+
 		t.setVar( "tc.ship", ship.getId() );
-	
+
 		Base upBase = (Base)db.get(Base.class,getInteger("target"));
 		if( (upBase == null) || (upBase.getOwner() != user) ) {
 			addError("Die angegebene Basis existiert nicht oder geh&ouml;rt nicht ihnen");
 			setTemplate("");
-			
+
 			return;
 		}
-		
+
 		if( !ship.getLocation().sameSector(0, upBase.getLocation(), upBase.getSize()) ) {
 			addError("Schiff und Basis befinden sich nicht im selben Sektor", errorurl);
 			setTemplate("");
-			
+
 			return;
 		}
-		
+
 		ShipTypeData shipType = ship.getTypeData();
 		if( shipType.getSize() <= ShipType.SMALL_SHIP_MAXSIZE ) {
 			addError("Das Schiff ist zu klein f&uuml;r einen Offizier", errorurl);
 			setTemplate("");
-			
+
 			return;
 		}
-	
+
 		t.setVar(	"tc.captainzuweisen",	1,
 					"tc.offizier",			off,
 					"tc.ship",				ship.getId(),
@@ -477,69 +477,69 @@ public class TCController extends TemplateGenerator {
 		// Wenn noch kein Offizier ausgewaehlt wurde -> Liste der Offiziere in der Basis anzeigen
 		if( off == 0 ) {
 			echoOffiList("baseToShip", 'b', upBase.getId());
-			
+
 			if( ship.getFleet() != null ) {
-				long count = ((Number)db.createQuery("select count(*) from Ship where fleet=? and owner=? and system=? and x=? and " +
-						"y=? and locate('offizier',status)=0")
-						.setEntity(0, ship.getFleet())
-						.setEntity(1, user)
-						.setInteger(2, ship.getSystem())
-						.setInteger(3, ship.getX())
-						.setInteger(4, ship.getY())
+				long count = ((Number)db.createQuery("select count(*) from Ship where fleet=:fleet and owner=:owner and system=:sys and x=:x and " +
+						"y=:y and locate('offizier',status)=0")
+						.setEntity("fleet", ship.getFleet())
+						.setEntity("owner", user)
+						.setInteger("sys", ship.getSystem())
+						.setInteger("x", ship.getX())
+						.setInteger("y", ship.getY())
 						.iterate().next()
 					).longValue();
 				if( count > 1 ) {
 					t.setVar(	"show.fleetupload",	1,
 								"tc.fleetmode",		"baseToFleet");
-				}	
+				}
 			}
-		} 
+		}
 		//ein Offizier wurde ausgewaehlt -> transferieren
 		else {
 			Offizier offizier = (Offizier)getDB().get(Offizier.class, off);
 			if( offizier == null ) {
 				addError("Der angegebene Offizier existiert nicht", errorurl);
 				setTemplate("");
-				
+
 				return;
 			}
-			
+
 			String[] dest = offizier.getDest();
 			if( !dest[0].equals("b") || (Integer.parseInt(dest[1]) != upBase.getId()) ) {
 				addError("Der angegebene Offizier ist nicht in der Basis stationiert", errorurl);
 				setTemplate("");
-				
+
 				return;
 			}
-			
+
 			// Check ob noch fuer einen weiteren Offi platz ist
 			ShipTypeData tarShipType = ship.getTypeData();
-	
-			long offi = ((Number)getDB().createQuery("select count(*) from Offizier where dest=?")
-					.setString(0, "s "+ship.getId())
+
+			long offi = ((Number)getDB().createQuery("select count(*) from Offizier where dest=:dest")
+					.setString("dest", "s "+ship.getId())
 					.iterate().next()
 				).longValue();
-			
+
 			int maxoffis = 1;
 			if( tarShipType.hasFlag(ShipTypes.SF_OFFITRANSPORT) ) {
 				maxoffis = tarShipType.getCrew();
 			}
-			
+
 			if( offi >= maxoffis ) {
 				addError("Das Schiff hat bereits die maximale Anzahl Offiziere an Bord", errorurl );
 				setTemplate("");
-			
+
 				return;
 			}
-			
+
 			t.setVar("tc.offizier.name",Common._plaintitle(offizier.getName()));
-				
+
 			offizier.setDest( "s", ship.getId() );
-			
+
 			ship.recalculateShipStatus();
 		}
 	}
-	
+
 	@Override
 	@Action(ActionType.DEFAULT)
 	public void defaultAction() {

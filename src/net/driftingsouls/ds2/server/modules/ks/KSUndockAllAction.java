@@ -42,21 +42,21 @@ public class KSUndockAllAction extends BasicKSAction {
 	 */
 	public KSUndockAllAction() {
 	}
-	
+
 	@Override
 	public Result validate(Battle battle) {
 		BattleShip ownShip = battle.getOwnShip();
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
-		boolean dock = db.createQuery("from Ship where docked in (?,?)")
-			.setString(0, "l "+ownShip.getId())
-			.setString(1, Integer.toString(ownShip.getId()))
+
+		boolean dock = db.createQuery("from Ship where docked in (:docked,:landed)")
+			.setString("landed", "l "+ownShip.getId())
+			.setString("docked", Integer.toString(ownShip.getId()))
 			.iterate().hasNext();
-		
+
 		if( dock ) {
 			return Result.OK;
 		}
-		return Result.ERROR;	
+		return Result.ERROR;
 	}
 
 	@Override
@@ -65,30 +65,30 @@ public class KSUndockAllAction extends BasicKSAction {
 		if( result != Result.OK ) {
 			return result;
 		}
-		
+
 		if( this.validate(battle) != Result.OK ) {
 			battle.logme( "Validation failed\n" );
 			return Result.ERROR;
 		}
-		
+
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		BattleShip ownShip = battle.getOwnShip();
-		
+
 		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
 
 		ownShip.getShip().setBattleAction(true);
-		
-		int counter = db.createQuery("update Ship set battleaction=? where docked in (?,?)")
-			.setParameter(0, true)
-			.setString(1, "l " + ownShip.getId())
-			.setString(2, "" + ownShip.getId())
+
+		int counter = db.createQuery("update Ship set battleaction=:act where docked in (:docked,:landed)")
+			.setParameter("act", true)
+			.setString("landed", "l " + ownShip.getId())
+			.setString("docked", "" + ownShip.getId())
 			.executeUpdate();
-		
+
 		List<BattleShip> ownShips = battle.getOwnShips();
 		for( int i=0; i < ownShips.size(); i++ ) {
 			BattleShip s = ownShips.get(i);
-			
+
 			if(s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == ownShip.getId())
 			{
 				if( (s.getAction() & Battle.BS_SECONDROW) != 0 && !s.getTypeData().hasFlag(ShipTypes.SF_SECONDROW))
@@ -107,7 +107,7 @@ public class KSUndockAllAction extends BasicKSAction {
 		battle.logenemy("]]></action>\n");
 
 		ownShip.getShip().recalculateShipStatus();
-		
+
 		return Result.OK;
 	}
 }

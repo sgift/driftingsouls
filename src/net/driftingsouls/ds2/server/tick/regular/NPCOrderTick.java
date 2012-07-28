@@ -103,8 +103,8 @@ public class NPCOrderTick extends TickController {
 				int owner = order.getUser();
 				User user = (User)getDB().get(User.class, owner);
 
-				Base base = (Base)db.createQuery("from Base where owner=?")
-					.setEntity(0, user)
+				Base base = (Base)db.createQuery("from Base where owner=:base")
+					.setEntity("base", user)
 					.setMaxResults(1)
 					.uniqueResult();
 				Location loc = DEFAULT_LOCATION;

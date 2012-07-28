@@ -409,8 +409,8 @@ public class AdminCommands {
 					}
 
 					if( shiptype.getWerft() != 0 ) {
-						ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where shipid=?")
-							.setInteger(0, ship.getId())
+						ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where shipid=:ship")
+							.setInteger("ship", ship.getId())
 							.uniqueResult();
 
 						if( werft == null ) {
@@ -649,8 +649,8 @@ public class AdminCommands {
 				}
 
 				if( shiptype.getWerft() != 0 ) {
-					ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where shipid=?")
-						.setInteger(0, ship.getId())
+					ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where shipid=:ship")
+						.setInteger("ship", ship.getId())
 						.uniqueResult();
 
 					if( werft == null ) {

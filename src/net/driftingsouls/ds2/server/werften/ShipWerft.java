@@ -48,7 +48,7 @@ public class ShipWerft extends WerftObject {
 	@OneToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="shipid", nullable=false)
 	private Ship ship;
-	
+
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="linked", nullable=true)
 	private Base linked;
@@ -60,7 +60,7 @@ public class ShipWerft extends WerftObject {
 	public ShipWerft() {
 		// EMPTY
 	}
-	
+
 	/**
 	 * Erstellt eine neue Schiffswerft.
 	 * @param ship Das Schiff auf dem sich die Werft befinden soll
@@ -69,12 +69,12 @@ public class ShipWerft extends WerftObject {
 		this.ship = ship;
 		this.linked = null;
 	}
-	
+
 	@Override
 	public int getOneWayFlag() {
 		return this.ship.getTypeData().getOneWayWerft();
 	}
-	
+
 	/**
 	 * Gibt zurueck, ob die Werft mit einer Basis verbunden ist.
 	 * @return true, falls eine Verbindung existiert
@@ -82,7 +82,7 @@ public class ShipWerft extends WerftObject {
 	public boolean isLinked() {
 		return linked != null;
 	}
-	
+
 	/**
 	 * Gibt die verbundenen Basis zurueck.
 	 * @return Die Basis
@@ -98,7 +98,7 @@ public class ShipWerft extends WerftObject {
 	public void resetLink() {
 		setLink(null);
 	}
-	
+
 	/**
 	 * Erstellt eine Verbindung mit einer angegebenen Basis.
 	 * @param base Die Basis
@@ -114,14 +114,14 @@ public class ShipWerft extends WerftObject {
 				if( members[i].getWerftID() == this.getWerftID() ) {
 					continue;
 				}
-				
+
 				ShipWerft member = (ShipWerft)members[i];
 				if( member.getLinkedBase() == base ) {
 					return;
 				}
 			}
 		}
-		
+
 		linked = base;
 	}
 
@@ -132,7 +132,7 @@ public class ShipWerft extends WerftObject {
 	public int getShipID() {
 		return ship.getId();
 	}
-	
+
 	/**
 	 * Gibt das Schiff zurueck, auf dem sich die Werft befindet.
 	 * @return Das Schiff
@@ -144,7 +144,7 @@ public class ShipWerft extends WerftObject {
 	@Override
 	public Cargo getCargo(boolean localonly) {
 		Cargo cargo = ship.getCargo();
-		
+
 		if( linked != null && !localonly ) {
 			Cargo basecargo = linked.getCargo();
 
@@ -153,7 +153,7 @@ public class ShipWerft extends WerftObject {
 		}
 		return cargo;
 	}
-	
+
 	@Override
 	public void setCargo(Cargo cargo, boolean localonly) {
 		if( (this.linked != null) && !localonly ) {
@@ -162,7 +162,7 @@ public class ShipWerft extends WerftObject {
 			Cargo basecargo = this.linked.getCargo();
 
 			cargo.substractCargo( basecargo );
-			
+
 			ResourceList reslist = cargo.getResourceList();
 			for( ResourceEntry res : reslist ) {
 				if( res.getCount1() < 0 ) {
@@ -173,8 +173,8 @@ public class ShipWerft extends WerftObject {
 
 			// Ueberpruefen, ob wir nun zu viel Cargo auf dem Schiff haben
 			long cargocount = cargo.getMass();
-			
-			if( cargocount > shiptype.getCargo() ) {			
+
+			if( cargocount > shiptype.getCargo() ) {
 				Cargo shipcargo = cargo.cutCargo(shiptype.getCargo());
 				basecargo.addCargo(cargo);
 				cargo = shipcargo;
@@ -184,7 +184,7 @@ public class ShipWerft extends WerftObject {
 
 		this.ship.setCargo(cargo);
 	}
-	
+
 	@Override
 	public long getMaxCargo( boolean localonly ) {
 		ShipTypeData shiptype = this.ship.getTypeData();
@@ -194,7 +194,7 @@ public class ShipWerft extends WerftObject {
 		}
 		return cargo;
 	}
-	
+
 	@Override
 	public int getCrew() {
 		int crew = this.ship.getCrew();
@@ -203,7 +203,7 @@ public class ShipWerft extends WerftObject {
 		}
 		return crew;
 	}
-	
+
 	@Override
 	public int getMaxCrew() {
 		if( this.linked == null ) {
@@ -212,7 +212,7 @@ public class ShipWerft extends WerftObject {
 		}
 		return 99999;
 	}
-	
+
 	@Override
 	public void setCrew(int crew) {
 		if( crew < 0 )
@@ -243,7 +243,7 @@ public class ShipWerft extends WerftObject {
 					basecrew += crew-1;
 					crew = 0;
 				}
-				
+
 				if( crew > shiptype.getCrew() ) {
 					basecrew += crew-shiptype.getCrew();
 					crew = shiptype.getCrew();
@@ -260,7 +260,7 @@ public class ShipWerft extends WerftObject {
 		}
 		this.ship.setCrew(shipcrew);
 	}
-	
+
 	@Override
 	public int getEnergy() {
 		int e = this.ship.getEnergy();
@@ -271,7 +271,7 @@ public class ShipWerft extends WerftObject {
 
 		return e;
 	}
-	
+
 	@Override
 	public void setEnergy(int e) {
 		if( e < 0 ) {
@@ -287,20 +287,20 @@ public class ShipWerft extends WerftObject {
 				basee += e;
 				e = 0;
 			}
-			
+
 			this.linked.setEnergy(basee);
 		}
 
 		this.ship.setEnergy(e);
 	}
-	
+
 	@Override
 	public int canTransferOffis() {
 		if( this.linked == null ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
-			
-			int officount = ((Number)db.createQuery("select count(*) from Offizier where dest=?")
-				.setString(0, "s "+this.ship.getId())
+
+			int officount = ((Number)db.createQuery("select count(*) from Offizier where dest=:dest")
+				.setString("dest", "s "+this.ship.getId())
 				.iterate().next()).intValue();
 			int maxoffis = 1;
 			ShipTypeData shiptype = this.ship.getTypeData();
@@ -309,12 +309,12 @@ public class ShipWerft extends WerftObject {
 			}
 			if( officount >= maxoffis ) {
 				return 0;
-			} 
+			}
 			return maxoffis-officount;
 		}
 		return 99999;
 	}
-	
+
 	@Override
 	public void transferOffi(int offi)
 	{
@@ -324,7 +324,7 @@ public class ShipWerft extends WerftObject {
 		}
 
 		Offizier offizier = Offizier.getOffizierByID(offi);
-		
+
 		if( this.linked == null )
 		{
 			offizier.setDest("s", this.ship.getId());
@@ -342,7 +342,7 @@ public class ShipWerft extends WerftObject {
 			}
 		}
 	}
-	
+
 	@Override
 	public String getUrlBase() {
 		return "./ds?module=werft&amp;ship="+this.ship.getId();
@@ -358,7 +358,7 @@ public class ShipWerft extends WerftObject {
 	public int getWerftSlots() {
 		return this.ship.getTypeData().getWerft();
 	}
-	
+
 	@Override
 	public int getX() {
 		return this.ship.getX();
@@ -368,66 +368,66 @@ public class ShipWerft extends WerftObject {
 	public int getY() {
 		return this.ship.getY();
 	}
-	
+
 	@Override
 	public int getSystem() {
 		return this.ship.getSystem();
 	}
-	
+
 	@Override
 	public String getName() {
 		return this.ship.getName();
 	}
-	
+
 	@Override
 	public User getOwner() {
 		return this.ship.getOwner();
 	}
-	
+
 	@Override
 	public void onFinishedBuildProcess(int shipid) {
 		super.onFinishedBuildProcess(shipid);
-		
+
 		// Falls es sich um eine Einwegwerft handelt, dann diese zerstoeren
 		if( getType() == 2 ) {
 			getShip().destroy();
 		}
 	}
-	
+
 	@Override
 	public boolean repairShip(Ship ship, boolean testonly) {
 		boolean result = super.repairShip(ship, testonly);
-		
+
 		this.ship.recalculateShipStatus();
 		return result;
 	}
-	
+
 	@Override
 	public void removeModule( Ship ship, int slot ) {
 		super.removeModule( ship, slot );
-		
+
 		this.ship.recalculateShipStatus();
 	}
-	
+
 	@Override
 	public void addModule( Ship ship, int slot, int item ) {
 		super.addModule( ship, slot, item );
-		
+
 		this.ship.recalculateShipStatus();
 	}
-	
+
 	@Override
-	public boolean dismantleShip(Ship ship, boolean testonly) {	
+	public boolean dismantleShip(Ship ship, boolean testonly) {
 		boolean result = super.dismantleShip(ship, testonly);
-		
+
 		this.ship.recalculateShipStatus();
 		return result;
 	}
-	
+
 	@Override
 	public boolean buildShip( int build, int item, boolean costsPerTick, boolean testonly ) {
 		boolean result = super.buildShip(build, item, costsPerTick, testonly);
-		
+
 		this.ship.recalculateShipStatus();
 		return result;
 	}
@@ -455,7 +455,7 @@ public class ShipWerft extends WerftObject {
 	@Override
 	public void addToKomplex(WerftKomplex linkedWerft) {
 		super.addToKomplex(linkedWerft);
-		
+
 		// Falls notwendig den Link auf die Basis entfernen - in einem Komplex darf eine Basis
 		// nur einmal vorkommen
 		if( this.linked != null ) {
@@ -467,7 +467,7 @@ public class ShipWerft extends WerftObject {
 				if( members[i].getWerftID() == this.getWerftID() ) {
 					continue;
 				}
-				
+
 				ShipWerft member = (ShipWerft)members[i];
 				if( member.getLinkedBase() == this.getLinkedBase() ) {
 					this.setLink(null);
@@ -480,7 +480,7 @@ public class ShipWerft extends WerftObject {
 	@Override
 	public void createKomplexWithWerft(WerftObject werft) {
 		super.createKomplexWithWerft(werft);
-		
+
 		// Falls notwendig den Link auf die Basis entfernen - in einem Komplex darf eine Basis
 		// nur einmal vorkommen
 		if( this.linked != null ) {
@@ -492,7 +492,7 @@ public class ShipWerft extends WerftObject {
 				if( members[i].getWerftID() == this.getWerftID() ) {
 					continue;
 				}
-				
+
 				ShipWerft member = (ShipWerft)members[i];
 				if( member.getLinkedBase() == this.getLinkedBase() ) {
 					this.setLink(null);

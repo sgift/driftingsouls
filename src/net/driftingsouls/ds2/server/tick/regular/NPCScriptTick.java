@@ -91,9 +91,10 @@ public class NPCScriptTick extends TickController {
 			}
 
 			this.log("+++++++++ User: "+user.getId()+" +++++++++");
-			List<Ship> ships = Common.cast(db.createQuery("from Ship where id>0 and owner=? and battle is null and scriptData is not null and scriptData.script is not null")
-													   .setEntity(0, user)
-													   .list());
+			List<Ship> ships = Common.cast(db
+					.createQuery("from Ship where id>0 and owner=:owner and battle is null and scriptData is not null and scriptData.script is not null")
+					.setEntity("owner", user)
+					.list());
 			for(Ship ship: ships)
 			{
 				try

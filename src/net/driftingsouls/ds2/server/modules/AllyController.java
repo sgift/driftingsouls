@@ -621,8 +621,8 @@ public class AllyController extends TemplateGenerator {
 			return;
 		}
 
-		int count = ((Number)db.createQuery("select count(*) from ComNetChannel where allyOwner=?")
-			.setInteger(0, this.ally.getId())
+		int count = ((Number)db.createQuery("select count(*) from ComNetChannel where allyOwner=:owner")
+			.setInteger("owner", this.ally.getId())
 			.iterate().next()).intValue();
 
 		if( count >= 2 ) {
@@ -800,12 +800,12 @@ public class AllyController extends TemplateGenerator {
 			return;
 		}
 
-		db.createQuery("delete from ComNetVisit where channel=?")
-			.setEntity(0, channel)
+		db.createQuery("delete from ComNetVisit where channel=:channel")
+			.setEntity("channel", channel)
 			.executeUpdate();
 
-		db.createQuery("delete from ComNetEntry where channel=?")
-			.setEntity(0, channel)
+		db.createQuery("delete from ComNetEntry where channel=:channel")
+			.setEntity("channel", channel)
 			.executeUpdate();
 
 		db.delete(channel);
@@ -1266,8 +1266,8 @@ public class AllyController extends TemplateGenerator {
 		this.parameterNumber("destpos");
 		long destpos = getInteger("destpos");
 
-		long destcount = (Long)db.createQuery("select count(*) from ShipLost where destAlly=?")
-			.setInteger(0, this.ally.getId())
+		long destcount = (Long)db.createQuery("select count(*) from ShipLost where destAlly=:ally")
+			.setInteger("ally", this.ally.getId())
 			.iterate().next();
 		if( destpos > destcount ) {
 			destpos = destcount - 10;
@@ -1290,8 +1290,8 @@ public class AllyController extends TemplateGenerator {
 					"show.destpos.back",				destpos-10,
 					"show.destpos.forward",				destpos+10 );
 
-		List<?> sList = db.createQuery("from ShipLost where destAlly=? order by tick desc")
-			.setInteger(0, this.ally.getId())
+		List<?> sList = db.createQuery("from ShipLost where destAlly=:ally order by tick desc")
+			.setInteger("ally", this.ally.getId())
 			.setMaxResults(10)
 			.setFirstResult((int)destpos)
 			.list();
@@ -1335,8 +1335,8 @@ public class AllyController extends TemplateGenerator {
 		parameterNumber("lostpos");
 		long lostpos = getInteger("lostpos");
 
-		long lostcount = (Long)db.createQuery("select count(*) from ShipLost where ally=?")
-			.setInteger(0, this.ally.getId())
+		long lostcount = (Long)db.createQuery("select count(*) from ShipLost where ally=:ally")
+			.setInteger("ally", this.ally.getId())
 			.iterate().next();
 		if( lostpos > lostcount ) {
 			lostpos = lostcount - 10;
@@ -1349,8 +1349,8 @@ public class AllyController extends TemplateGenerator {
 		t.setVar(	"show.lostpos.back",	lostpos-10,
 					"show.lostpos.forward",	lostpos+10 );
 
-		sList = db.createQuery("from ShipLost where ally=? order by tick desc")
-			.setInteger(0, this.ally.getId())
+		sList = db.createQuery("from ShipLost where ally=:ally order by tick desc")
+			.setInteger("ally", this.ally.getId())
 			.setMaxResults(10)
 			.setFirstResult((int)lostpos)
 			.list();
@@ -1431,8 +1431,8 @@ public class AllyController extends TemplateGenerator {
 
 		// Zuerst alle vorhandenen Channels dieser Allianz auslesen (max 2)
 		List<ComNetChannel> channels = new ArrayList<ComNetChannel>();
-		List<?> channelList = db.createQuery("from ComNetChannel where allyOwner=?")
-			.setInteger(0, this.ally.getId())
+		List<?> channelList = db.createQuery("from ComNetChannel where allyOwner=:ally")
+			.setInteger("ally", this.ally.getId())
 			.setMaxResults(2)
 			.list();
 		for( Iterator<?> iter=channelList.iterator(); iter.hasNext(); ) {
@@ -1496,8 +1496,8 @@ public class AllyController extends TemplateGenerator {
 		t.setBlock( "_ALLY", "show.members.listitem", "show.members.list" );
 
 		//Mitglieder auflisten
-		List<?> memberList = db.createQuery("from User where ally=? order by name")
-			.setEntity(0, this.ally)
+		List<?> memberList = db.createQuery("from User where ally=:ally order by name")
+			.setEntity("ally", this.ally)
 			.list();
 		for( Iterator<?> iter=memberList.iterator(); iter.hasNext(); ) {
 			User member = (User)iter.next();

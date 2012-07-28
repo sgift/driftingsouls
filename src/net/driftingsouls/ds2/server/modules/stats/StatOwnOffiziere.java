@@ -26,13 +26,13 @@ import java.util.List;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.Offizier;
+import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.modules.StatsController;
+import net.driftingsouls.ds2.server.ships.Ship;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,46 +49,45 @@ public class StatOwnOffiziere implements Statistic {
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		User user = (User)context.getActiveUser();
-		Database db = context.getDatabase();
-
+		org.hibernate.Session db = context.getDB();
 		Writer echo = context.getResponse().getWriter();
-	
-		List<?> offiziere = context.getDB().createQuery("from Offizier where userid=? order by ing+nav+waf+sec+com desc")
-			.setInteger(0, user.getId())
+
+		List<?> offiziere = db.createQuery("from Offizier where userid=:user order by ing+nav+waf+sec+com desc")
+			.setInteger("user", user.getId())
 			.list();
-					
+
 		if( offiziere.size() == 0 ) {
 			echo.append("<div align=\"center\">Sie verf&uuml;gen &uuml;ber keine Offiziere</div>\n");
-			
-			return;	
+
+			return;
 		}
-					
+
 		echo.append("<table class=\"noBorderX\" cellspacing=\"2\" cellpadding=\"3\">\n");
 		echo.append("<tr><td class=\"noBorderX\" align=\"left\" colspan=\"2\">Offizier</td><td class=\"noBorderX\">Auf</td><td class=\"noBorderX\">Technik</td><td class=\"noBorderX\">Navigation</td><td class=\"noBorderX\">Waffen</td><td class=\"noBorderX\">Sicherheit</td><td class=\"noBorderX\">Kommando</td><td class=\"noBorderX\">Spezial</td></tr>\n");
-		
+
 		Map<Integer,String> ships = new HashMap<Integer,String>();
 		Map<Integer,String> bases = new HashMap<Integer,String>();
-		
+
 		for( Iterator<?> iter=offiziere.iterator(); iter.hasNext(); ) {
 			Offizier offizier = (Offizier)iter.next();
-			
+
 		   	echo.append("<tr>\n");
 			echo.append("<td class=\"noBorderX\"><img src=\""+offizier.getPicture()+"\" alt=\"Rang "+offizier.getRang()+"\" /> <a class=\"forschinfo\" href=\""+Common.buildUrl("default", "module", "choff", "off", offizier.getID())+"\">"+Common._title(offizier.getName())+"</a> ("+offizier.getID()+")</td>\n");
 			echo.append("<td class=\"noBorderX\">&nbsp;</td>\n");
-	
+
 			String[] dest = offizier.getDest();
 			int destid = Integer.parseInt(dest[1]);
-	
+
 			if( dest[0].equals("s") ) {
 				if( !ships.containsKey(destid) ) {
 					if( destid > 0 ) {
-						SQLResultRow ship = db.first("SELECT name FROM ships WHERE id>0 AND id=",destid);
-						if( ship.isEmpty() ) {
+						Ship ship = (Ship)db.get(Ship.class, destid);
+						if( ship != null && ship.getId() > 0 ) {
 							log.warn("Offizier '"+offizier.getID()+"' befindet sich auf einem ungueltigen Schiff: "+destid);
 							ships.put(destid, "");
 						}
 						else {
-							ships.put(destid, ship.getString("name"));
+							ships.put(destid, ship.getName());
 						}
 					}
 					else {
@@ -100,12 +99,16 @@ public class StatOwnOffiziere implements Statistic {
 			}
 			else {
 				if( !bases.containsKey(destid) ) {
-					bases.put(destid, db.first("SELECT name FROM bases WHERE id=",destid).getString("name"));
+					Base base = (Base)db.get(Base.class, destid);
+					if( base != null )
+					{
+						bases.put(destid, base.getName());
+					}
 				}
 				String basename = bases.get(destid);
 				echo.append("<td class=\"noBorderX\"><a class=\"forschinfo\" href=\""+Common.buildUrl("default", "module", "base", "col", dest[1])+"\">"+basename+"</a> "+(dest[0].equals("t") ? "(A)" : "")+"</td>\n");
 			}
-			
+
 			echo.append("<td class=\"noBorderX\">"+offizier.getAbility(Offizier.Ability.ING)+"</td>\n");
 			echo.append("<td class=\"noBorderX\">"+offizier.getAbility(Offizier.Ability.NAV)+"</td>\n");
 			echo.append("<td class=\"noBorderX\">"+offizier.getAbility(Offizier.Ability.WAF)+"</td>\n");
@@ -114,7 +117,7 @@ public class StatOwnOffiziere implements Statistic {
 			echo.append("<td class=\"noBorderX\">"+offizier.getSpecial().getName()+"</td>\n");
 			echo.append("</tr>\n");
 		}
-	
+
 		echo.append("</table><div><br /><br /></div>\n");
 	}
 
@@ -122,7 +125,7 @@ public class StatOwnOffiziere implements Statistic {
 	public boolean generateAllyData() {
 		return false;
 	}
-	
+
 	@Override
 	public int getRequiredData() {
 		return 0;

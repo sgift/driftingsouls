@@ -174,13 +174,13 @@ public class SchiffsTick extends TickController {
 		{
 			this.log("Berechne Allianzversorger");
 			List<Ship> allyShips = Common.cast(db.createQuery("from Ship as s left join fetch s.modules" +
-					" where s.id>0 and s.owner!=? and s.owner.ally=? and (s.owner.vaccount=0 or" +
+					" where s.id>0 and s.owner!=:owner and s.owner.ally=:ally and (s.owner.vaccount=0 or" +
 					" s.owner.wait4vac!=0) and system!=0 and" +
 					" (s.shiptype.versorger=1 or s.modules.versorger=1) and" +
 					" s.einstellungen.isfeeding=1 and s.einstellungen.isallyfeeding=1 and s.nahrungcargo>0" +
 					" order by s.nahrungcargo DESC")
-					.setEntity(0, user)
-					.setEntity(1, user.getAlly())
+					.setEntity("owner", user)
+					.setEntity("ally", user.getAlly())
 					.list());
 			this.log(allyShips.size()+" Schiffe gefunden");
 			for( Ship ship : allyShips)
@@ -240,7 +240,7 @@ public class SchiffsTick extends TickController {
 		Cargo shipc = shipd.getCargo();
 
 		this.log("\tAlt: crew "+shipd.getCrew()+" e "+shipd.getEnergy() +" nc "+shipd.getNahrungCargo());
-		
+
 		if( shipd.getHeat() > 0 && shipd.getBattle() == null )
 		{
 			shipd.setHeat(shipd.getHeat()-Math.min(shipd.getHeat(),70));
@@ -293,7 +293,7 @@ public class SchiffsTick extends TickController {
 		{
 			shipd.setCrew(0);
 		}
-		
+
 		this.slog("\tNeu: crew "+shipd.getCrew()+" e "+e+" nc "+shipd.getNahrungCargo()+" : <");
 		this.slog(shipd.getStatus());
 		this.log(">");
@@ -412,7 +412,7 @@ public class SchiffsTick extends TickController {
 		{
 			bases = new ArrayList<Base>();
 		}
-		
+
 		this.slog("\tCrew: ");
 		//Crew die noch gefuettert werden muss
 		int crewToFeed = shipd.getFoodConsumption();
@@ -661,7 +661,7 @@ public class SchiffsTick extends TickController {
 		{
 			return;
 		}
-		
+
 		if( (shipd.getStatus().indexOf("lowmoney") == -1) &&
 				( (shipd.getEngine() < 100) || (shipd.getWeapons() < 100) || (shipd.getComm() < 100) || (shipd.getSensors() < 100) ) &&
 				(Ships.getNebula(shipd.getLocation()) != 6)  ) {
@@ -729,7 +729,7 @@ public class SchiffsTick extends TickController {
 			}
 			feedingBases.get(location).add(base);
 		}
-		
+
 		List<Ship> ships = buildSortedShipList(auser);
 
 		versorgerlist = getLocationVersorgerList(db, ships, auser);
@@ -778,7 +778,7 @@ public class SchiffsTick extends TickController {
 		doUsers(db);
 
 		doDestroyStatus(db);
-		
+
 		doSchadensnebel(db);
 
 		db.setCacheMode(cacheMode);
@@ -804,9 +804,9 @@ public class SchiffsTick extends TickController {
 			public void doWork(Integer shipId) throws Exception
 			{
 				org.hibernate.Session db = getDB();
-				
+
 				Ship ship = (Ship)db.get(Ship.class, shipId);
-				
+
 				log("* "+ship.getId());
 				int[] sub = new int[] {ship.getEngine(),ship.getWeapons(),ship.getComm(),ship.getSensors()};
 
@@ -855,12 +855,12 @@ public class SchiffsTick extends TickController {
 			public void doWork(Integer shipId) throws Exception
 			{
 				org.hibernate.Session db = getDB();
-				
+
 				Ship aship = (Ship)db.get(Ship.class, shipId);
 				log("\tEntferne "+aship.getId());
 				aship.destroy();
 			}
-			
+
 		}
 		.executeFor(shipIds);
 	}
@@ -878,7 +878,7 @@ public class SchiffsTick extends TickController {
 			public void doWork(Integer userId) throws Exception
 			{
 				org.hibernate.Session db = getDB();
-				
+
 				log("###### User "+userId+" ######");
 
 				User auser = (User)db.createCriteria(User.class)
@@ -910,13 +910,13 @@ public class SchiffsTick extends TickController {
 			public void doWork(ShipFlag flag) throws Exception
 			{
 				org.hibernate.Session db = getDB();
-				
+
 				flag.setRemaining(flag.getRemaining()-1);
 				if( flag.getRemaining() <= 0 )
 				{
 					db.delete(flag);
 				}
-			}	
+			}
 		}
 		.setFlushSize(30)
 		.executeFor(flags);

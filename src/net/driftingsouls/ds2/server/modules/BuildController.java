@@ -20,7 +20,6 @@ package net.driftingsouls.ds2.server.modules;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import net.driftingsouls.ds2.server.bases.Base;
@@ -45,48 +44,48 @@ import net.driftingsouls.ds2.server.werften.BaseWerft;
 /**
  * Der Gebaeudebau.
  * @author Christopher Jung
- * 
- * @urlparam Integer col Die Bases, auf der das Gebaeude gebaut werden soll 
+ *
+ * @urlparam Integer col Die Bases, auf der das Gebaeude gebaut werden soll
  * @urlparam Integer field Die ID des Feldes, auf dem das Gebaeude gebaut werden soll
  */
 @Module(name="build")
 public class BuildController extends TemplateGenerator {
 	private Base base;
-	
+
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public BuildController(Context context) {
 		super(context);
-		
+
 		setTemplate("build.html");
-		
+
 		parameterNumber("col");
 		parameterNumber("field");
-		
+
 		setPageTitle("Bauen");
 	}
-	
+
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		
+
 		int col = getInteger("col");
 		int field = getInteger("field");
-		
+
 		base = (Base)getDB().get(Base.class, col);
 		if( (base == null) || (base.getOwner() != user) ) {
 			addError("Die angegebene Kolonie existiert nicht", Common.buildUrl("default", "module", "basen"));
-			
+
 			return false;
 		}
 
 		t.setVar(	"base.id",		base.getId(),
 					"base.name",	Common._plaintitle(base.getName()),
 					"global.field",	field );
-		
+
 		return true;
 	}
 
@@ -99,27 +98,26 @@ public class BuildController extends TemplateGenerator {
 	public void buildAction() {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		org.hibernate.Session db = getDB();
-		
+
 		parameterNumber("build");
 		int build = getInteger("build");
-		
+
 		int field = getInteger("field");
-		
+
 		Building building = Building.getBuilding(build);
-				
+
 		if( building == null ) {
 			addError("Das angegebene Geb&auml;ude existiert nicht");
-			
+
 			redirect();
 			return;
 		}
-		
+
 		//Darf das Gebaeude ueberhaupt gebaut werden?
-		
+
 		if( field >= base.getWidth() * base.getHeight() ) {
 			addError("Und das elfte Gebot lautet: Du sollst nicht exploiten deines Spieles URL's");
-			
+
 			redirect();
 			return;
 		}
@@ -132,95 +130,91 @@ public class BuildController extends TemplateGenerator {
 					buildingcount++;
 				}
 			}
-			
+
 			if( building.getPerPlanetCount() <= buildingcount ) {
 				addError("Sie k&ouml;nnen dieses Geb&auml;de maximal "+building.getPerPlanetCount()+" Mal pro Asteroid bauen");
-			
+
 				redirect();
 				return;
 			}
 		}
-		
+
 		if( building instanceof Werft)
 		{
 			BaseWerft werft = base.getWerft();
 			if( werft != null)
 			{
 				addError("Sie k&ouml;nnen maximal eine Werft pro Asteroid bauen");
-				
+
 				redirect();
 				return;
 			}
 		}
-		
+
 		if( building instanceof ForschungszentrumBuilding)
 		{
 			Forschungszentrum fz = base.getForschungszentrum();
 			if( fz != null)
 			{
 				addError("Sie k&ouml;nnen maximal ein Forschungszentrum pro Asteroid bauen");
-				
+
 				redirect();
 				return;
 			}
 		}
-	
+
 		//Anzahl der Gebaeude pro Spieler berechnen
 		if( building.getPerUserCount() != 0 ) {
 			int ownerbuildingcount = 0;
-		
-			List<?> bases = db.createQuery("from Base where owner=?")
-				.setEntity(0, user)
-				.list();
-			for( Iterator<?> iter=bases.iterator(); iter.hasNext(); ) {
-				Base abase = (Base)iter.next();
+
+			for( Base abase : user.getBases() ) {
 				for( int bid : abase.getBebauung() ) {
 					if( bid == building.getId() ) {
 						ownerbuildingcount++;
 					}
 				}
 			}
-			
+
 			if( building.getPerUserCount() <= ownerbuildingcount ) {
 				addError("Sie k&ouml;nnen dieses Geb&auml;de maximal "+building.getPerUserCount()+" Mal insgesamt bauen");
-			
+
 				redirect();
 				return;
 			}
 		}
-		
+
 		// Pruefe auf richtiges Terrain
 		if( !building.hasTerrain(base.getTerrain()[field]) )
 		{
 			addError("Dieses Geb&auml;ude ist nicht auf diesem Terrainfeld baubar.");
-			
+
 			redirect();
 			return;
 		}
-		
+
 		if( base.getBebauung()[field] != 0 ) {
 			addError("Es existiert bereits ein Geb&auml;ude an dieser Stelle");
-			
+
 			redirect();
 			return;
 		}
 
 		if( building.isUComplex() ) {
 			int c = 0;
-			for( int i =0; i <= base.getWidth() * base.getHeight() -1 ; i++ ) 
+			for( int i =0; i <= base.getWidth() * base.getHeight() -1 ; i++ )
 			{
 				Building currentBuilding = Building.getBuilding(base.getBebauung()[i]);
-				if(currentBuilding != null && currentBuilding.isUComplex()) 
+				if(currentBuilding != null && currentBuilding.isUComplex())
 				{
 					c++;
 				}
 			}
-	
+
 			int grenze = (base.getWidth() * base.getHeight())/8;
-	
+
 			if( c > grenze-1 ) {
 				addError("Es ist nicht m&ouml;glich, hier mehr als "+grenze+" Unterirdische Komplexe zu installieren");
-			
+
 				redirect();
 				return;
 			}
@@ -228,35 +222,35 @@ public class BuildController extends TemplateGenerator {
 		if( !Rassen.get().rasse(user.getRace()).isMemberIn(building.getRace()) ) {
 			addError("Sie geh&ouml;ren der falschen Spezies an und k&ouml;nnen dieses Geb&auml;ude nicht selbst errichten.");
 			redirect();
-			return;	
+			return;
 		}
 		if( !user.hasResearched(building.getTechRequired()) ) {
 			addError("Sie verf&uuml;gen nicht &uuml;ber alle n&ouml;tigen Forschungen um dieses Geb&auml;ude zu bauen");
-			
+
 			redirect();
 			return;
 		}
-		
+
 		t.setVar("show.build", 1);
-		
+
 		boolean ok = true;
-		
+
 		//noetige Resourcen berechnen/anzeigen
 		Cargo basecargo = base.getCargo();
-		
+
 		t.setBlock("_BUILD", "build.res.listitem", "build.res.list");
-		
+
 		ResourceList compreslist = building.getBuildCosts().compare(basecargo, false);
 		for( ResourceEntry compres : compreslist ) {
 			t.setVar(	"res.image",		compres.getImage(),
 						"res.owncargo",		compres.getCargo2(),
 						"res.needcargo",	compres.getCargo1(),
 						"res.diff",			compres.getDiff() );
-			
+
 			if( compres.getDiff() > 0 ) {
 				ok = false;
-			} 
-			
+			}
+
 			t.parse("build.res.list", "build.res.listitem", true);
 		}
 
@@ -272,24 +266,24 @@ public class BuildController extends TemplateGenerator {
 				active[field] = 0;
 
 				t.setVar("build.lowworker", 1);
-			} 
+			}
 			else {
 				active[field] = 1;
 			}
 
 			// Resourcen abziehen
 			basecargo.substractCargo( building.getBuildCosts() );
-			
+
 			base.setCargo(basecargo);
 			base.setArbeiter(base.getArbeiter()+building.getArbeiter());
 			base.setActive(active);
-		
+
 			// Evt. muss das Gebaeude selbst noch ein paar Dinge erledigen
 			building.build(base, build);
 		}
-		
+
 	}
-	
+
 	/**
 	 * Zeigt die Liste der baubaren Gebaeude, sortiert nach Kategorien, an.
 	 * @urlparam Integer cat Die anzuzeigende Kategorie
@@ -300,15 +294,15 @@ public class BuildController extends TemplateGenerator {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
 		org.hibernate.Session db = getDB();
-		
+
 		parameterNumber("cat");
-		
+
 		int cat = getInteger("cat");
 		int field = getInteger("field");
 		if( (cat < 0) || (cat > 4) ) {
-			cat = 0;	
-		} 
-		
+			cat = 0;
+		}
+
 		t.setVar("show.buildinglist", 1);
 
 		//Anzahl der Gebaeude berechnen
@@ -316,27 +310,26 @@ public class BuildController extends TemplateGenerator {
 		for( int building : base.getBebauung() ) {
 			Common.safeIntInc(buildingcount, building);
 		}
-	
+
 		//Anzahl der Gebaeude pro Spieler berechnen
 		Map<Integer,Integer> ownerbuildingcount = new HashMap<Integer,Integer>(buildingcount);
-		
-		List<?> bases = db.createQuery("from Base where owner=? and id!=?")
-			.setEntity(0, user)
-			.setInteger(1, base.getId())
-			.list();
-		for( Iterator<?> iter=bases.iterator(); iter.hasNext(); ) {
-			Base abase = (Base)iter.next();
+
+		for( Base abase : user.getBases() ) {
+			if( abase.getId() == this.base.getId() )
+			{
+				continue;
+			}
 			for( int bid : abase.getBebauung() ) {
 				Common.safeIntInc(ownerbuildingcount, bid);
 			}
 		}
 
 		Cargo basecargo = base.getCargo();
-	
+
 		//Max UComplex-Gebaeude-Check
 		int grenze = (base.getWidth() * base.getHeight())/8;
 		int c = 0;
-		
+
 		Iterator<?> ucBuildingIter = db.createQuery("from Building where ucomplex=1").iterate();
 		for( ; ucBuildingIter.hasNext(); ) {
 			Building building = (Building)ucBuildingIter.next();
@@ -349,24 +342,24 @@ public class BuildController extends TemplateGenerator {
 
 		t.setBlock("_BUILD", "buildings.listitem", "buildings.list");
 		t.setBlock("buildings.listitem", "buildings.res.listitem", "buildings.res.list");
-		
+
 		//Alle Gebaeude ausgeben
-		Iterator<?> buildingIter = db.createQuery("from Building where category=? order by name")
-			.setInteger(0, cat)
+		Iterator<?> buildingIter = db.createQuery("from Building where category=:cat order by name")
+			.setInteger("cat", cat)
 			.iterate();
 		for( ; buildingIter.hasNext(); ) {
 			Building building = (Building)buildingIter.next();
 			//Existiert bereits die max. Anzahl dieses Geb. Typs auf dem Asti?
-			if( (building.getPerPlanetCount() != 0) && buildingcount.containsKey(building.getId()) && 
+			if( (building.getPerPlanetCount() != 0) && buildingcount.containsKey(building.getId()) &&
 				(building.getPerPlanetCount() <= buildingcount.get(building.getId())) ) {
 				continue;
 			}
-		
-			if( (building.getPerUserCount() != 0) && ownerbuildingcount.containsKey(building.getId()) && 
+
+			if( (building.getPerUserCount() != 0) && ownerbuildingcount.containsKey(building.getId()) &&
 				(building.getPerUserCount() <= ownerbuildingcount.get(building.getId())) ) {
 				continue;
 			}
-		
+
 			if( !ucomplex && building.isUComplex() ) {
 				continue;
 			}
@@ -375,15 +368,15 @@ public class BuildController extends TemplateGenerator {
 				continue;
 			}
 			if( !Rassen.get().rasse(user.getRace()).isMemberIn(building.getRace()) ) {
-				continue;	
+				continue;
 			}
 			if( !building.hasTerrain(base.getTerrain()[field]) ) {
 				continue;
 			}
 			Cargo buildcosts = building.getBuildCosts();
-			
+
 			boolean ok = true;
-			
+
 			ResourceList compreslist = buildcosts.compare(basecargo, false, true);
 			for( ResourceEntry compres : compreslist ) {
 				if( compres.getDiff() > 0 ) {
@@ -403,7 +396,7 @@ public class BuildController extends TemplateGenerator {
 							"res.cargo",		compres.getCargo1(),
 							"res.diff",			compres.getDiff(),
 							"res.plainname",	compres.getPlainName() );
-				
+
 				t.parse("buildings.res.list", "buildings.res.listitem", true);
 			}
 

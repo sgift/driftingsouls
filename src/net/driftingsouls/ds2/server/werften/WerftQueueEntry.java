@@ -125,8 +125,8 @@ public class WerftQueueEntry {
 	private static int getNextEmptyPosition(WerftObject werft) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		Integer position = (Integer)db.createQuery("select max(wq.position) from WerftQueueEntry as wq where wq.werft=?")
-			.setInteger(0, werft.getWerftID())
+		Integer position = (Integer)db.createQuery("select max(wq.position) from WerftQueueEntry as wq where wq.werft=:werft")
+			.setInteger("werft", werft.getWerftID())
 			.iterate().next();
 
 		if( position == null ) {
@@ -409,10 +409,7 @@ public class WerftQueueEntry {
 						this.werft.setCargo(cargo, true);
 					}
 					else {
-						db.createQuery("update Ally as a set a.items=? where a.id=?")
-							.setString(0, allyitems.save())
-							.setInteger(1, this.werft.getOwner().getAlly().getId())
-							.executeUpdate();
+						this.werft.getOwner().getAlly().setItems(allyitems.save());
 					}
 				}
 			}
@@ -426,9 +423,9 @@ public class WerftQueueEntry {
 
 		db.delete(this);
 
-		final Iterator<?> entryIter = db.createQuery("from WerftQueueEntry where werft=? and position>? order by position")
-			.setEntity(0, this.werft)
-			.setInteger(1, this.position)
+		final Iterator<?> entryIter = db.createQuery("from WerftQueueEntry where werft=:werft and position>:pos order by position")
+			.setEntity("werft", this.werft)
+			.setInteger("pos", this.position)
 			.iterate();
 		while( entryIter.hasNext() ) {
 			WerftQueueEntry entry = (WerftQueueEntry)entryIter.next();

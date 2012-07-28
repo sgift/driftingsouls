@@ -53,7 +53,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
  * wurde die PM geloescht. Ihr gelesen-Status steigt dann jeden Tick um 1
  * bis ein Schwellenwert ueberschritten und die PM endgueltig geloescht wird.</p>
  * <p>Zudem steht ein Kommentarfeld fuer Anmerkungen sowie eine Reihe von Flags zur
- * Verfuegung.</p>  
+ * Verfuegung.</p>
  * @author Christopher Jung
  * @author Christian Peltz
  *
@@ -73,7 +73,7 @@ public class PM {
 	/**
 	 * Die PM wurde durch den Tick versendet.
 	 */
-	public static final int FLAGS_TICK = 4; 
+	public static final int FLAGS_TICK = 4;
 	/**
 	 * Die PM hat einen rassenspezifischen Hintergrund.
 	 */
@@ -82,15 +82,15 @@ public class PM {
 	 * Die PM muss gelesen werden bevor sie geloescht werden kann.
 	 */
 	public static final int FLAGS_IMPORTANT = 16;	// Muss "absichtlich" gelesen werden
-	
+
 	/**
 	 * Der PM-Empfaenger des Taskmanagers.
 	 */
 	public static final int TASK = Integer.MIN_VALUE;
-	
+
 	@Version
 	private int version;
-	
+
 	@Transient
 	private static Log log = LogFactory.getLog(PM.class);
 
@@ -104,7 +104,7 @@ public class PM {
 	public static void send( User from, int to, String title, String txt ) {
 		send( from, to, title, txt, 0);
 	}
-	
+
 	/**
 	 * Sendet eine PM von einem Spieler zu einer Allianz.
 	 * @param from Der versendende Spieler
@@ -115,7 +115,7 @@ public class PM {
 	public static void sendToAlly( User from, Ally to, String title, String txt ) {
 		sendToAlly( from, to, title, txt, 0);
 	}
-	
+
 	/**
 	 * Sendet eine PM von einem Spieler zu einer Allianz.
 	 * @param from Der versendende Spieler
@@ -129,23 +129,23 @@ public class PM {
 		org.hibernate.Session db = context.getDB();
 
 		String msg = "an Allianz "+to.getName()+"\n"+txt;
-	
+
 		if( title.length() > 100 ) {
 			title = title.substring(0,100);
 		}
-		
-		List<?> members = db.createQuery("from User where ally=?")
-			.setEntity(0, to)
+
+		List<?> members = db.createQuery("from User where ally=:ally")
+			.setEntity("ally", to)
 			.list();
 		for( Iterator<?> iter=members.iterator(); iter.hasNext(); ) {
 			User member = (User)iter.next();
-			
+
 			PM pm = new PM(from, member, title, msg);
 			pm.setFlags(flags);
 			db.persist(pm);
 		}
 	}
-	
+
 	/**
 	 * Sendet eine PM von einem Spieler zu einem anderen Spieler.
 	 * @param from Der versendende Spieler
@@ -161,31 +161,31 @@ public class PM {
 		/*
 		 *  Normale PM
 		 */
-		
-		if( to != TASK ) {	
+
+		if( to != TASK ) {
 			if( title.length() > 100 ) {
 				title = title.substring(0,100);
 			}
 			if( txt.length() > 5000 ) {
-				txt = txt.substring(0,5000); 
+				txt = txt.substring(0,5000);
 			}
-		
+
 			User user = (User)db.get(User.class, to);
 			if( user != null ) {
 				PM pm = new PM(from, user, title, txt);
 				pm.setFlags(flags);
 				db.persist(pm);
-									
+
 				String forward = user.getUserValue("TBLORDER/pms/forward");
 				if( !"".equals(forward) && (Integer.parseInt(forward) != 0) ) {
-					send(user, Integer.parseInt(forward), "Fwd: "+title, 
+					send(user, Integer.parseInt(forward), "Fwd: "+title,
 							"[align=center][color=green]- Folgende Nachricht ist soeben eingegangen -[/color][/align]\n" +
 							"[b]Absender:[/b] [userprofile="+from.getId()+"]"+from.getName()+"[/userprofile] ("+from.getId()+")\n\n"+
 							txt, flags);
 				}
-			} 
+			}
 			else {
-				context.addError("Transmission an Spieler "+to+" fehlgeschlagen");	
+				context.addError("Transmission an Spieler "+to+" fehlgeschlagen");
 			}
 		}
 		/*
@@ -194,18 +194,18 @@ public class PM {
 		else {
 			String taskid = title;
 			String taskcmd = txt;
-			
+
 			Taskmanager taskmanager = Taskmanager.getInstance();
-			
+
 			if( taskcmd.equals("handletm") ) {
 				taskmanager.handleTask( taskid, "pm_yes" );
 			}
 			else {
-				taskmanager.handleTask( taskid, "pm_no" );	
+				taskmanager.handleTask( taskid, "pm_no" );
 			}
 		}
 	}
-	
+
 	/**
 	 * Sendet eine PM an alle Admins (spezifiziert durch den Konfigurationseintrag <code>ADMIN_PMS_ACCOUT</code>).
 	 * @param from Der versendende Spieler
@@ -229,13 +229,13 @@ public class PM {
 	 */
 	public static int deleteAllInOrdner( Ordner ordner, User user ) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
-		List<?> pms = db.createQuery("from PM where ordner=?")
-			.setInteger(0, ordner.getId())
+
+		List<?> pms = db.createQuery("from PM where ordner=:ordner")
+			.setInteger("ordner", ordner.getId())
 			.list();
 		for( Iterator<?> iter=pms.iterator(); iter.hasNext(); ) {
 			PM pm = (PM)iter.next();
-			
+
 			if( pm.getEmpfaenger().getId() != user.getId() ) {
 				return 2;
 			}
@@ -257,15 +257,15 @@ public class PM {
 	public static void moveAllToOrdner( Ordner source, Ordner dest , User user) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		Ordner trash = Ordner.getTrash( user );
-		
-		List<?> pms = db.createQuery("from PM where ordner=? and empfaenger=?")
-			.setInteger(0, source.getId())
-			.setEntity(1, user)
+
+		List<?> pms = db.createQuery("from PM where ordner=:ordner and empfaenger=:user")
+			.setInteger("ordner", source.getId())
+			.setEntity("user", user)
 			.list();
 		for( Iterator<?> iter=pms.iterator(); iter.hasNext(); ) {
 			PM pm = (PM)iter.next();
 			int gelesen = (trash == source) ? 1 : pm.getGelesen();
-			
+
 			pm.setGelesen((trash == dest) ? 2 : gelesen);
 			pm.setOrdner(dest.getId());
 		}
@@ -278,12 +278,12 @@ public class PM {
 	public static void recoverAll( User user ) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		int trash = Ordner.getTrash( user ).getId();
-	
-		db.createQuery("update PM set ordner=0,gelesen=1 where ordner=?")
-			.setInteger(0, trash)
+
+		db.createQuery("update PM set ordner=0,gelesen=1 where ordner=:ordner")
+			.setInteger("ordner", trash)
 			.executeUpdate();
 	}
-	
+
 	@Id @GeneratedValue
 	private int id;
 	private int gelesen;
@@ -300,7 +300,7 @@ public class PM {
 	private int flags;
 	private String inhalt;
 	private String kommentar;
-	
+
 	/**
 	 * Konstruktor.
 	 *
@@ -308,7 +308,7 @@ public class PM {
 	public PM() {
 		// EMPTY
 	}
-	
+
 	/**
 	 * Erstellt eine neue PM.
 	 * @param sender Der Sender der PM
@@ -351,7 +351,7 @@ public class PM {
 	public int getFlags() {
 		return flags;
 	}
-	
+
 	/**
 	 * Prueft, ob die Nachricht das angegebene Flag hat.
 	 * @param flag Das Flag
@@ -488,7 +488,7 @@ public class PM {
 	public int getId() {
 		return id;
 	}
-	
+
 	/**
 	 * Stellt eine geloeschte PM wieder her.
 	 */
@@ -496,7 +496,7 @@ public class PM {
 		if( this.gelesen <= 1 ) {
 			return;
 		}
-		
+
 		int trash = Ordner.getTrash( this.empfaenger ).getId();
 		if( this.ordner != trash ) {
 			return;
@@ -504,7 +504,7 @@ public class PM {
 		this.gelesen = 1;
 		this.ordner = 0;
 	}
-	
+
 	/**
 	 * Loescht die PM.
 	 * @return 0, falls der Vorgang erfolgreich war. 1, wenn ein Fehler aufgetreten ist und 2, falls nicht alle PMs gelesen wurden
@@ -513,7 +513,7 @@ public class PM {
 		if( this.gelesen > 1 ) {
 			return 2;
 		}
-		
+
 		Ordner trashCan = Ordner.getTrash(this.empfaenger);
 		int trash = -1;
 		if(trashCan != null)
@@ -537,7 +537,7 @@ public class PM {
 		}
 		this.gelesen = 2;
 		this.ordner = trash;
-		
+
 		return 0;	//geloescht
 	}
 

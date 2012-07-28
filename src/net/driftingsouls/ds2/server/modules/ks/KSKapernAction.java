@@ -306,9 +306,9 @@ public class KSKapernAction extends BasicKSAction {
 			List<Integer> kaperlist = new ArrayList<Integer>();
 			kaperlist.add(enemyShip.getId());
 
-			List<Ship> docked = Common.cast(db.createQuery("from Ship where id>0 and docked in (?,?)")
-					.setString(0, Integer.toString(enemyShip.getId()))
-					.setString(1, "l "+enemyShip.getId())
+			List<Ship> docked = Common.cast(db.createQuery("from Ship where id>0 and docked in (:docked,:landed)")
+					.setString("docked", Integer.toString(enemyShip.getId()))
+					.setString("landed", "l "+enemyShip.getId())
 					.list());
 			for( Ship dockShip : docked )
 			{
@@ -319,13 +319,13 @@ public class KSKapernAction extends BasicKSAction {
 				BattleShip bDockShip = (BattleShip)db.get(BattleShip.class, dockShip.getId());
 				bDockShip.setSide(battle.getOwnSide());
 
-				db.createQuery("update Offizier set userid=? where dest=?")
-				.setEntity(0, user)
-				.setString(1, "s "+dockShip.getId())
+				db.createQuery("update Offizier set userid=:user where dest=:dest")
+				.setEntity("user", user)
+				.setString("dest", "s "+dockShip.getId())
 				.executeUpdate();
 				if( dockShip.getTypeData().getWerft() != 0 ) {
-					ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=?")
-					.setEntity(0, dockShip)
+					ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=:ship")
+					.setEntity("ship", dockShip)
 					.uniqueResult();
 
 					if( werft.getKomplex() != null ) {
@@ -337,13 +337,13 @@ public class KSKapernAction extends BasicKSAction {
 				kaperlist.add(bDockShip.getId());
 			}
 
-			db.createQuery("update Offizier set userid=? where dest=?")
-			.setEntity(0, user)
-			.setString(1, "s "+enemyShip.getId())
+			db.createQuery("update Offizier set userid=:user where dest=:dest")
+			.setEntity("user", user)
+			.setString("dest", "s "+enemyShip.getId())
 			.executeUpdate();
 			if( enemyShipType.getWerft() != 0 ) {
-				ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=?")
-				.setEntity(0, enemyShip)
+				ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=:ship")
+				.setEntity("ship", enemyShip)
 				.uniqueResult();
 
 				if( werft.getKomplex() != null ) {

@@ -40,7 +40,7 @@ import org.hibernate.ScrollableResults;
 
 /**
  * Aktualisierungstool fuer die Systeme.
- * 
+ *
  */
 @AdminMenuEntry(category = "Systeme", name = "System editieren")
 public class EditSystem implements AdminPlugin
@@ -76,11 +76,11 @@ public class EditSystem implements AdminPlugin
 		if (update && systemid > 0)
 		{
 			Request request = context.getRequest();
-			
+
 			String name = request.getParameterString("name");
 			int width = request.getParameterInt("width");
 			int height = request.getParameterInt("height");
-			boolean military = request.getParameterString("military").equals("true") ? true : false; 
+			boolean military = request.getParameterString("military").equals("true") ? true : false;
 			int maxcolonies = request.getParameterInt("maxcolonies");
 			boolean starmap = request.getParameterString("starmap").equals("true") ? true : false;
 			String orderloc = request.getParameterString("orderloc");
@@ -88,9 +88,9 @@ public class EditSystem implements AdminPlugin
 			int access = request.getParameterInt("access");
 			String descrip = request.getParameterString("descrip");
 			String spawnableress = request.getParameterString("spawnableress");
-			
-			StarSystem system = (StarSystem) db.createQuery("from StarSystem where id=?").setInteger(0, systemid).uniqueResult();
-			
+
+			StarSystem system = (StarSystem) db.get(StarSystem.class, systemid);
+
 			system.setName(name);
 			system.setWidth(width);
 			system.setHeight(height);
@@ -108,7 +108,7 @@ public class EditSystem implements AdminPlugin
 			system.setAccess(access);
 			system.setDescription(descrip);
 			system.setSpawnableRess(spawnableress);
-			
+
 			// Update ships
 			int count = 0;
 
@@ -129,12 +129,12 @@ public class EditSystem implements AdminPlugin
 					HibernateUtil.getSessionFactory().getCurrentSession().evict(Ship.class);
 				}
 			}
-			
+
 			ScrollableResults battles = db.createQuery("from Battle where system = :system").setInteger("system", system.getID()).setCacheMode(CacheMode.IGNORE).scroll(ScrollMode.FORWARD_ONLY);
 			while (battles.next())
 			{
 				Battle battle = (Battle) battles.get(0);
-				if(battle.getX() > system.getWidth()) 
+				if(battle.getX() > system.getWidth())
 				{
 					battle.setX(system.getWidth());
 				}
@@ -145,7 +145,7 @@ public class EditSystem implements AdminPlugin
 				db.flush();
 				HibernateUtil.getSessionFactory().getCurrentSession().evict(Battle.class);
 			}
-			
+
 			ScrollableResults bases = db.createQuery("from Base where system = :system").setInteger("system", system.getID()).setCacheMode(CacheMode.IGNORE).scroll(ScrollMode.FORWARD_ONLY);
 			while(bases.next())
 			{
@@ -161,14 +161,14 @@ public class EditSystem implements AdminPlugin
 				db.flush();
 				HibernateUtil.getSessionFactory().getCurrentSession().evict(Base.class);
 			}
-			
+
 			echo.append("<p>Update abgeschlossen.</p>");
 		}
 
 		// Ship choosen - get the values
 		if (systemid > 0)
 		{
-			StarSystem system = (StarSystem) db.createQuery("from StarSystem where id=?").setInteger(0, systemid).uniqueResult();
+			StarSystem system = (StarSystem) db.get(StarSystem.class, systemid);
 
 			echo.append("<form action=\"./ds\" method=\"post\">");
 			echo.append("<table class=\"noBorder\" width=\"100%\">");
@@ -184,7 +184,7 @@ public class EditSystem implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderS\">In Sternenkarte sichtbar: </td><td><input type=\"text\" name=\"starmap\" value=\"" + system.isStarmapVisible() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">OrderLocations(Form: x/y|x/y): </td><td><input type=\"text\" name=\"orderloc\" value=\"" + system.getOrderLocationString() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">GTU Dropzone(Form: x/y): </td><td><input type=\"text\" name=\"gtuDropZone\" value=\"" + (system.getDropZone() != null ? (system.getDropZone().equals(new Location( 0, 0, 0 )) ? "" : system.getDropZoneString()) : "") + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Zugriffsrechte(1=Jeder;2=NPC;3=Admin): </td><td><input type=\"text\" name=\"access\" value=\"" + system.getAccess() + "\"></td></tr>\n");		
+			echo.append("<tr><td class=\"noBorderS\">Zugriffsrechte(1=Jeder;2=NPC;3=Admin): </td><td><input type=\"text\" name=\"access\" value=\"" + system.getAccess() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Beschreibung: </td><td><textarea cols=\"50\" rows=\"10\" name=\"descrip\">" + system.getDescription() + "</textarea></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Ressourcenvorkommen: </td><td><input type=\"text\" name=\"spawnableress\" value=\"" + system.getSpawnableRess() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\"></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");

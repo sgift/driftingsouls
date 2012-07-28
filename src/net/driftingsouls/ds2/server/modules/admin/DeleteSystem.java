@@ -30,7 +30,7 @@ import net.driftingsouls.ds2.server.modules.AdminController;
 
 /**
  * Loeschtool fuer die Systeme.
- * 
+ *
  */
 @AdminMenuEntry(category = "Systeme", name = "System loeschen")
 public class DeleteSystem implements AdminPlugin
@@ -65,10 +65,10 @@ public class DeleteSystem implements AdminPlugin
 
 		if (update && systemid > 0)
 		{
-			StarSystem system = (StarSystem) db.createQuery("from StarSystem where id=?").setInteger(0, systemid).uniqueResult();
-			
+			StarSystem system = (StarSystem) db.get(StarSystem.class, systemid);
+
 			db.delete(system);
-			
+
 			echo.append("<p>System geloescht.</p>");
 		}
 	}

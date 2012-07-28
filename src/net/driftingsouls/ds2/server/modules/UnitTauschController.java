@@ -139,11 +139,11 @@ public class UnitTauschController extends TemplateGenerator {
 					Location loc = handler.getLocation();
 
 					List<?> fleetlist = db.createQuery("from Ship " +
-							"where id>0 and fleet=? and x=? and y=? and system=?")
-							.setEntity(0, handler.getFleet())
-							.setInteger(1, loc.getX())
-							.setInteger(2, loc.getY())
-							.setInteger(3, loc.getSystem())
+							"where id>0 and fleet=:fleet and x=:x and y=:y and system=:sys")
+							.setEntity("fleet", handler.getFleet())
+							.setInteger("x", loc.getX())
+							.setInteger("y", loc.getY())
+							.setInteger("sys", loc.getSystem())
 							.list();
 					for( Iterator<?> iter=fleetlist.iterator(); iter.hasNext(); ) {
 						ShipTransportTarget shiphandler = new ShipTransportTarget();

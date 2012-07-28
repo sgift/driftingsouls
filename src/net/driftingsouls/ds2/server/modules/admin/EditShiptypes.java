@@ -45,14 +45,14 @@ import org.hibernate.ScrollableResults;
 
 /**
  * Aktualisierungstool fuer die Werte von Schiffstypen.
- * 
+ *
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Schiffe", name = "Typen editieren")
 public class EditShiptypes implements AdminPlugin
 {
 	private static final Log log = LogFactory.getLog(EditShiptypes.class);
-	
+
 	@Override
 	public void output(AdminController controller, String page, int action) throws IOException
 	{
@@ -128,14 +128,14 @@ public class EditShiptypes implements AdminPlugin
 			int minCrew = request.getParameterInt("mincrew");
 			double lostInEmpChance = Double.parseDouble(request.getParameter("lostinempchance"));
 
-			ShipType shiptype = (ShipType) db.createQuery("from ShipType where id=?").setInteger(0, shiptypeId).uniqueResult();
+			ShipType shiptype = (ShipType) db.get(ShipType.class, shiptypeId);
 			int oldeps = shiptype.getEps();
 			int oldhull = shiptype.getHull();
 			int oldcrew = shiptype.getCrew();
 			int oldshields = shiptype.getShields();
 			int oldablativearmor = shiptype.getAblativeArmor();
 			long oldnahrungcargo = shiptype.getNahrungCargo();
-			
+
 			shiptype.setRu(ru);
 			shiptype.setRd(rd);
 			shiptype.setRa(ra);
@@ -191,7 +191,7 @@ public class EditShiptypes implements AdminPlugin
 				Map<String, Double> factor = new HashMap<String, Double>();
 				if( type.getEps() == eps ) { // Schiff ohne Module
 					factor.put("eps", ship.getEnergy() / (double) oldeps);
-				} 
+				}
 				else {// Schiff mit Modulen
 					factor.put("eps", ship.getEnergy() / (double) type.getEps());
 				}
@@ -229,54 +229,52 @@ public class EditShiptypes implements AdminPlugin
 				{
 					ship.recalculateModules();
 					type = ship.getTypeData();
-					
+
 					ship.setEnergy((int)Math.floor(type.getEps() * factor.get("eps")));
 					ship.setHull((int)Math.floor(type.getHull() * factor.get("hull")));
 					ship.setCrew((int)Math.floor(type.getCrew() * factor.get("crew")));
 					ship.setShields((int)Math.floor(type.getShields() * factor.get("shields")));
 					ship.setAblativeArmor((int)Math.floor(type.getAblativeArmor() * factor.get("ablativearmor")));
 					ship.setNahrungCargo((long)Math.floor(type.getNahrungCargo() * factor.get("nahrungcargo")));
-					
-					String id = "l " + ship.getId();
+
 					int fighterDocks = ship.getTypeData().getJDocks();
 					if (ship.getLandedCount() > fighterDocks)
 					{
-						List<?> fighters = db.createQuery("from Ship where docked = ?").setString(0, id).list();
-						long toStart = ship.getLandedCount() - fighterDocks;
+						List<Ship> fighters = ship.getLandedShips();
+						long toStart = fighters.size() - fighterDocks;
 						int fighterCount = 0;
-	
-						for (Iterator<?> iter2 = fighters.iterator(); iter2.hasNext() && fighterCount < toStart;)
+
+						for (Iterator<Ship> iter2 = fighters.iterator(); iter2.hasNext() && fighterCount < toStart;)
 						{
-							Ship fighter = (Ship) iter2.next();
-	
+							Ship fighter = iter2.next();
+
 							fighter.setDocked("");
 							fighterCount++;
 						}
 					}
-	
+
 					//Docked
-					id = Integer.toString(ship.getId());
 					int outerDocks = ship.getTypeData().getADocks();
 					if (ship.getDockedCount() > outerDocks)
 					{
-						List<?> outerDocked = db.createQuery("from Ship where docked = ?").setString(0, id).list();
-						long toStart = ship.getDockedCount() - outerDocks;
+						List<Ship> outerDocked = ship.getDockedShips();
+						long toStart = outerDocked.size() - outerDocks;
 						int dockedCount = 0;
-	
+
 						for (Iterator<?> iter2 = outerDocked.iterator(); iter2.hasNext() && dockedCount < toStart;)
 						{
 							Ship outer = (Ship) iter2.next();
 							outer.setDocked("");
-	
+
 							dockedCount++;
 						}
 					}
-					
+
 					if(ship.getId() >= 0)
 					{
 						ship.recalculateShipStatus();
 					}
-	
+
 					count++;
 					if (count % 20 == 0)
 					{
@@ -297,13 +295,16 @@ public class EditShiptypes implements AdminPlugin
 			HibernateUtil.getSessionFactory().getCurrentSession().evict(ShipModules.class);
 			HibernateUtil.getSessionFactory().getCurrentSession().evict(Offizier.class);
 
-			ScrollableResults battleShips = db.createQuery("from BattleShip where ship.shiptype=?").setEntity(0, shiptype).setCacheMode(CacheMode.IGNORE).scroll(ScrollMode.FORWARD_ONLY);
+			ScrollableResults battleShips = db.createQuery("from BattleShip where ship.shiptype=:type")
+				.setEntity("type", shiptype)
+				.setCacheMode(CacheMode.IGNORE)
+				.scroll(ScrollMode.FORWARD_ONLY);
 
 			count = 0;
 			while (battleShips.next())
 			{
 				BattleShip battleShip = (BattleShip) battleShips.get(0);
-				
+
 				ShipTypeData type = battleShip.getShip().getTypeData();
 				// Weight the difference between the old and the new value
 				Map<String, Double> factor = new HashMap<String, Double>();
@@ -326,7 +327,7 @@ public class EditShiptypes implements AdminPlugin
 					factor.put("ablativearmor", battleShip.getAblativeArmor() / (double) type.getAblativeArmor());
 				}
 				try
-				{		
+				{
 					battleShip.setShields((int)Math.floor(type.getShields() * factor.get("shields")));
 					battleShip.setHull((int)Math.floor(type.getHull() * factor.get("hull")));
 					battleShip.setAblativeArmor((int)Math.floor(type.getAblativeArmor() * factor.get("ablativearmor")));
@@ -354,7 +355,7 @@ public class EditShiptypes implements AdminPlugin
 		// Ship choosen - get the values
 		if (shiptypeId > 0)
 		{
-			ShipType ship = (ShipType) db.createQuery("from ShipType where id=?").setInteger(0, shiptypeId).uniqueResult();
+			ShipType ship = (ShipType) db.get(ShipType.class, shiptypeId);
 
 			echo.append("<form action=\"./ds\" method=\"post\">");
 			echo.append("<table class=\"noBorder\" width=\"100%\">");
@@ -377,7 +378,7 @@ public class EditShiptypes implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderS\">Hitze: </td><td><input type=\"text\" name=\"heat\" value=\"" + ship.getHeat() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Crew: </td><td><input type=\"text\" name=\"crew\" value=\"" + ship.getCrew() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Maximale Gr&ouml;&szlig;e f&ouml;r Einheiten: </td><td><input type=\"text\" name=\"maxunitsize\" value=\"" + ship.getMaxUnitSize() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Laderaum f&uuml;r Einheiten: </td><td><input type=\"text\" name=\"unitspace\" value=\"" + ship.getUnitSpace() + "\"></td></tr>\n");		
+			echo.append("<tr><td class=\"noBorderS\">Laderaum f&uuml;r Einheiten: </td><td><input type=\"text\" name=\"unitspace\" value=\"" + ship.getUnitSpace() + "\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Waffen: </td><td><textarea cols=\"50\" rows=\"10\" name=\"weapons\">" + ship.getWeapons() + "</textarea></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Maximale Hitze: </td><td><textarea cols=\"50\" rows=\"10\" name=\"maxheat\">" + ship.getMaxHeat() + "</textarea></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Torpedoabwehr: </td><td><input type=\"text\" name=\"torpedodef\" value=\"" + ship.getTorpedoDef() + "\"></td></tr>\n");

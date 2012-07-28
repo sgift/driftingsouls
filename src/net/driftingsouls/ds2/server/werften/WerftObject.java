@@ -133,8 +133,8 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 */
 	public WerftQueueEntry[] getScheduledQueueEntries() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<?> list = db.createQuery("from WerftQueueEntry where werft=? and scheduled=1 order by position")
-			.setInteger(0, this.getWerftID())
+		List<?> list = db.createQuery("from WerftQueueEntry where werft=:werft and scheduled=1 order by position")
+			.setInteger("werft", this.getWerftID())
 			.list();
 		WerftQueueEntry[] entries = new WerftQueueEntry[list.size()];
 		int index = 0;
@@ -172,8 +172,8 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	public final int getUsedSlots() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		return ((Number)db.createQuery("select sum(slots) from WerftQueueEntry where werft=? and scheduled=1")
-			.setInteger(0, this.getWerftID())
+		return ((Number)db.createQuery("select sum(slots) from WerftQueueEntry where werft=:werft and scheduled=1")
+			.setInteger("werft", this.getWerftID())
 			.iterate().next()).intValue();
 	}
 
@@ -296,8 +296,8 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 */
 	public void clearQueue() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		db.createQuery("delete from WerftQueueEntry where werft=?")
-			.setInteger(0, this.getWerftID())
+		db.createQuery("delete from WerftQueueEntry where werft=:werft")
+			.setInteger("werft", this.getWerftID())
 			.executeUpdate();
 
 		this.buildFlagschiff = false;
@@ -588,21 +588,18 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		long jdockcount = (Long)db.createQuery("select count(*) from Ship where docked=? and id>0")
-			.setString(0, "l "+ship.getId())
-			.iterate().next();
+		int jdockcount = (int)ship.getLandedCount();
 		if( jdockcount > shiptype.getJDocks() ) {
-			List<?> ships = db.createQuery("from Ship where docked=? and id>0")
-				.setString(0, "l "+ship.getId())
-				.setMaxResults((int)(jdockcount-shiptype.getJDocks()))
-				.list();
-
 			int count = 0;
 
 			// toArray(T[]) fuehrt hier leider zu Warnungen...
-			Ship[] undockarray = new Ship[ships.size()];
-			for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
-				undockarray[count++] = (Ship)iter.next();
+			Ship[] undockarray = new Ship[jdockcount-shiptype.getJDocks()];
+			for( Ship lship : ship.getLandedShips() ) {
+				undockarray[count++] = (Ship)lship;
+				if( count >= undockarray.length )
+				{
+					break;
+				}
 			}
 
 			output.append((jdockcount-shiptype.getJDocks())+" gelandete Schiffe wurden gestartet\n");
@@ -610,21 +607,18 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			ship.start(undockarray);
 		}
 
-		long adockcount = (Long)db.createQuery("select count(*) from Ship where docked=? and id>0")
-			.setString(0, Integer.toString(ship.getId()))
-			.iterate().next();
+		int adockcount = (int)ship.getDockedCount();
 		if( adockcount > shiptype.getADocks() ) {
-			List<?> ships = db.createQuery("from Ship where docked=? and id>0")
-				.setString(0, Integer.toString(ship.getId()))
-				.setMaxResults((int)(adockcount-shiptype.getADocks()))
-				.list();
-
 			int count = 0;
 
 			// toArray(T[]) fuehrt hier leider zu Warnungen...
-			Ship[] undockarray = new Ship[ships.size()];
-			for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
-				undockarray[count++] = (Ship)iter.next();
+			Ship[] undockarray = new Ship[adockcount-shiptype.getADocks()];
+			for( Ship lship : ship.getDockedShips() ) {
+				undockarray[count++] = (Ship)lship;
+				if( count >= undockarray.length )
+				{
+					break;
+				}
 			}
 
 			output.append((adockcount-shiptype.getADocks())+" extern gedockte Schiffe wurden abgedockt\n");
@@ -633,13 +627,13 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 
 		if( shiptype.getWerft() == 0 ) {
-			db.createQuery("delete from ShipWerft where shipid=?")
-				.setEntity(0, ship)
+			db.createQuery("delete from ShipWerft where shipid=:ship")
+				.setEntity("ship", ship)
 				.executeUpdate();
 		}
 		else {
-			ShipWerft w = (ShipWerft)db.createQuery("from ShipWerft where ship=?")
-				.setEntity(0, ship)
+			ShipWerft w = (ShipWerft)db.createQuery("from ShipWerft where ship=:ship")
+				.setEntity("ship", ship)
 				.uniqueResult();
 			if( w == null ) {
 				w = new ShipWerft(ship);
@@ -753,8 +747,8 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 		ShipTypeData shiptype = ship.getTypeData();
 
-		ShipBaubar baubar = (ShipBaubar)db.createQuery("from ShipBaubar where type=?")
-			.setInteger(0, ship.getType())
+		ShipBaubar baubar = (ShipBaubar)db.createQuery("from ShipBaubar where type=:type")
+			.setInteger("type", ship.getType())
 			.setMaxResults(1)
 			.uniqueResult();
 
@@ -976,8 +970,8 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		RepairCosts repairCosts = new RepairCosts();
 
 		Cargo materialCosts = new Cargo();
-		ShipBaubar buildable = (ShipBaubar)db.createQuery("from ShipBaubar where type=?")
-											 .setInteger(0, ship.getType())
+		ShipBaubar buildable = (ShipBaubar)db.createQuery("from ShipBaubar where type=:type")
+											 .setInteger("type", ship.getType())
 											 .setMaxResults(1)
 											 .uniqueResult();
 
@@ -1194,7 +1188,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 *
 	 * @return Schiffstypen, die auf dieser Werft gebaut werden koennen.
 	 */
-	@SuppressWarnings("unchecked")
 	public Set<ShipType> getBuildableShips() {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
@@ -1202,7 +1195,9 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 		Set<ShipType> shipTypes = new HashSet<ShipType>();
 
-		List<ShipBaubar> buildableShips = db.createQuery("from ShipBaubar where werftslots <= ?").setInteger(0, this.getWerftSlots()).list();
+		List<ShipBaubar> buildableShips = Common.cast(db.createQuery("from ShipBaubar where werftslots <= :slot")
+			.setInteger("slot", this.getWerftSlots())
+			.list());
 
 		//Allowed by draft
 		Set<IEDraftShip> drafts = getUsableShipDrafts();
@@ -1548,7 +1543,9 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		org.hibernate.Session db = context.getDB();
 		int item = -1;
 		ShipType type = (ShipType)db.load(ShipType.class, typeid);
-		ShipBaubar ship = (ShipBaubar)db.createQuery("from ShipBaubar where type=?").setEntity(0, type).uniqueResult();
+		ShipBaubar ship = (ShipBaubar)db.createQuery("from ShipBaubar where type=:type")
+			.setEntity("type", type)
+			.uniqueResult();
 
 		if(ship == null) {
 			for(ItemCargoEntry entry: getAllItems()) {
@@ -1757,8 +1754,8 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		List<?> queue = db.createQuery("from WerftQueueEntry where werft=? order by position asc")
-			.setInteger(0, this.getWerftID())
+		List<?> queue = db.createQuery("from WerftQueueEntry where werft=:werft order by position asc")
+			.setInteger("werft", this.getWerftID())
 			.list();
 
 		WerftQueueEntry[] list = new WerftQueueEntry[queue.size()];
@@ -1789,9 +1786,9 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 		db.delete(entry);
 
-		final Iterator<?> entryIter = db.createQuery("from WerftQueueEntry where werft=? and position>? order by position")
-			.setEntity(0, entry.getWerft())
-			.setInteger(1, entry.getPosition())
+		final Iterator<?> entryIter = db.createQuery("from WerftQueueEntry where werft=:werft and position>:pos order by position")
+			.setEntity("werft", entry.getWerft())
+			.setInteger("pos", entry.getPosition())
 			.iterate();
 		while( entryIter.hasNext() ) {
 			WerftQueueEntry aEntry = (WerftQueueEntry)entryIter.next();
@@ -1852,9 +1849,9 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	public WerftQueueEntry getBuildQueueEntry(int position) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		return (WerftQueueEntry)db.createQuery("from WerftQueueEntry where werft=? and position=?")
-			.setInteger(0, this.getWerftID())
-			.setInteger(1, position)
+		return (WerftQueueEntry)db.createQuery("from WerftQueueEntry where werft=:werft and position=:pos")
+			.setInteger("werft", this.getWerftID())
+			.setInteger("pos", position)
 			.uniqueResult();
 	}
 

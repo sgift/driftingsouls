@@ -82,7 +82,7 @@ public class EditShipCosts implements AdminPlugin
 			int tr2 = request.getParameterInt("tr2");
 			int tr3 = request.getParameterInt("tr3");
 
-			ShipBaubar shiptype = (ShipBaubar) db.createQuery("from ShipBaubar where id=?").setInteger(0, shiptypeId).uniqueResult();
+			ShipBaubar shiptype = (ShipBaubar) db.get(ShipBaubar.class, shiptypeId);
 
 			shiptype.setEKosten(ekosten);
 			shiptype.setCrew(crew);
@@ -104,10 +104,7 @@ public class EditShipCosts implements AdminPlugin
 		// Ship choosen - get the values
 		if (shiptypeId > 0)
 		{
-			ShipBaubar ship = (ShipBaubar) db
-				.createQuery("from ShipBaubar where id=?")
-				.setInteger(0, shiptypeId)
-				.uniqueResult();
+			ShipBaubar ship = (ShipBaubar) db.get(ShipBaubar.class, shiptypeId);
 
 			echo.append("<div class='gfxbox' style='width:600px'>");
 			echo.append("<form action=\"./ds\" method=\"post\">");

@@ -6,23 +6,23 @@
 	<session-factory>
 		<property name="connection.driver_class">com.mysql.jdbc.Driver</property>
 
-		<property name="connection.isolation">2</property>
-		<property name="jdbc.batch_versioned_data">true</property>
+		<property name="hibernate.connection.isolation">2</property>
+		<property name="hibernate.jdbc.batch_versioned_data">true</property>
 
 		<!-- configure transaction manager -->
 		<property name="transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
 		<property name="current_session_context_class">thread</property>
 
 		<!-- C3P0 connection pool -->
-		<property name="connection.provider_class">org.hibernate.service.jdbc.connections.internal.C3P0ConnectionProvider</property>
-		<property name="c3p0.min_size">5</property>
-		<property name="c3p0.acquire_increment">1</property>
-		<property name="c3p0.max_size">500</property>
-		<property name="c3p0.timeout">5000</property>
-		<property name="c3p0.max_statements">500</property>
-		<property name="c3p0.max_statements_per_connection">10</property>
-		<property name="c3p0.idle_test_period">3000</property>
-		<property name="c3p0.preferred_test_query">SELECT ticks FROM config LIMIT 1</property>
+		<property name="hibernate.connection.provider_class">org.hibernate.service.jdbc.connections.internal.C3P0ConnectionProvider</property>
+		<property name="hibernate.c3p0.min_size">1</property>
+		<property name="hibernate.c3p0.acquire_increment">1</property>
+		<property name="hibernate.c3p0.max_size">50</property>
+		<property name="hibernate.c3p0.timeout">5000</property>
+		<property name="hibernate.c3p0.max_statements">500</property>
+		<property name="hibernate.c3p0.max_statements_per_connection">100</property>
+		<property name="hibernate.c3p0.idle_test_period">3000</property>
+		<property name="hibernate.c3p0.preferred_test_query">SELECT value FROM config LIMIT 1</property>
 
         <!-- SQL dialect -->
         <property name="dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
@@ -34,8 +34,8 @@
 		<property name="cache.use_query_cache">true</property>
 
 		<!-- Enable batching -->
-		<property name="jdbc.batch_size">50</property>
-		<property name="jdbc.fetch_size">50</property>
+		<property name="hibernate.jdbc.batch_size">50</property>
+		<property name="hibernate.jdbc.fetch_size">50</property>
 		<property name="hibernate.default_batch_fetch_size">50</property>
 
 		<!-- Order batch updates, so hibernate doesn't do anything stupid -->
@@ -53,6 +53,6 @@
        	<property name="hibernate.format_sql">false</property>
 
        	<!-- Statistiken aktivieren -->
-       	<property name="generate_statistics">false</property>
+       	<property name="hibernate.generate_statistics">true</property>
 	</session-factory>
 </hibernate-configuration>

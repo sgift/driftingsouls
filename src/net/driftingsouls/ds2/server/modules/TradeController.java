@@ -89,11 +89,11 @@ public class TradeController extends TemplateGenerator {
 		}
 
 		int tradepost = getInteger("tradepost");
-		Ship handel = (Ship)db.createQuery("from Ship where id>0 and system=? and x=? and y=? and id=?")
-			.setInteger(0, this.ship.getSystem())
-			.setInteger(1, this.ship.getX())
-			.setInteger(2, this.ship.getY())
-			.setInteger(3, tradepost)
+		Ship handel = (Ship)db.createQuery("from Ship where id>0 and system=:sys and x=:x and y=:y and id=:id")
+			.setInteger("sys", this.ship.getSystem())
+			.setInteger("x", this.ship.getX())
+			.setInteger("y", this.ship.getY())
+			.setInteger("id", tradepost)
 			.setMaxResults(1)
 			.uniqueResult();
 		if( handel == null  || !handel.isTradepost()) {
@@ -229,10 +229,10 @@ public class TradeController extends TemplateGenerator {
 
 		int tick = getContext().get(ContextCommon.class).getTick();
 
-		StatVerkaeufe stats = (StatVerkaeufe)db.createQuery("from StatVerkaeufe where tick=? and place=? and system=?")
-			.setInteger(0, tick)
-			.setString(1, this.place)
-			.setInteger(2, this.posten.getSystem())
+		StatVerkaeufe stats = (StatVerkaeufe)db.createQuery("from StatVerkaeufe where tick=:tick and place=:place and system=:sys")
+			.setInteger("tick", tick)
+			.setString("place", this.place)
+			.setInteger("sys", this.posten.getSystem())
 			.uniqueResult();
 
 		Cargo statsCargo = null;

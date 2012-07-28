@@ -122,8 +122,8 @@ public class FleetMgntController extends TemplateGenerator {
 
 				return false;
 			}
-			User owner = (User)db.createQuery("select owner from Ship where id>0 and fleet=?")
-				.setEntity(0, fleet)
+			User owner = (User)db.createQuery("select owner from Ship where id>0 and fleet=:fleet")
+				.setEntity("fleet", fleet)
 				.iterate().next();
 
 			if( user.getId() != owner.getId() ) {
@@ -291,12 +291,12 @@ public class FleetMgntController extends TemplateGenerator {
 				return;
 			}
 
-			List<?> ships = db.createQuery("from Ship where id>0 and owner=? and system=? and x=? and y=? and type=? and docked='' order by fleet,id asc")
-				.setEntity(0, user)
-				.setInteger(1, sectorShip.getSystem())
-				.setInteger(2, sectorShip.getX())
-				.setInteger(3, sectorShip.getY())
-				.setInteger(4, type)
+			List<?> ships = db.createQuery("from Ship where id>0 and owner=:owner and system=:sys and x=:x and y=:y and type=:type and docked='' order by fleet,id asc")
+				.setEntity("owner", user)
+				.setInteger("sys", sectorShip.getSystem())
+				.setInteger("x", sectorShip.getX())
+				.setInteger("y", sectorShip.getY())
+				.setInteger("type", type)
 				.setMaxResults(count)
 				.list();
 			shiplistInt = new Integer[ships.size()];
@@ -359,12 +359,12 @@ public class FleetMgntController extends TemplateGenerator {
 			return;
 		}
 
-		long shipcount = (Long)db.createQuery("select count(*) from Ship where owner=? and system=? and x=? and y=? and type=? and docked=''")
-			.setEntity(0, user)
-			.setInteger(1, sectorShip.getSystem())
-			.setInteger(2, sectorShip.getX())
-			.setInteger(3, sectorShip.getY())
-			.setInteger(4, type)
+		long shipcount = (Long)db.createQuery("select count(*) from Ship where owner=:owner and system=:sys and x=:x and y=:y and type=:type and docked=''")
+			.setEntity("owner", user)
+			.setInteger("sys", sectorShip.getSystem())
+			.setInteger("x", sectorShip.getX())
+			.setInteger("y", sectorShip.getY())
+			.setInteger("type", type)
 			.iterate().next();
 
 		if( (count < 1) || (shipcount < count) ) {
@@ -373,14 +373,14 @@ public class FleetMgntController extends TemplateGenerator {
 		}
 
 		List<Ship> shiplist = new ArrayList<Ship>();
-		List<?> slist = db.createQuery("from Ship where owner=? and system=? and x=? and y=? and type=? and " +
-				"docked='' and (fleet is null or fleet!=?) order by fleet,id asc")
-				.setEntity(0, user)
-				.setInteger(1, sectorShip.getSystem())
-				.setInteger(2, sectorShip.getX())
-				.setInteger(3, sectorShip.getY())
-				.setInteger(4, type)
-				.setEntity(5, this.fleet)
+		List<?> slist = db.createQuery("from Ship where owner=:owner and system=:sys and x=:x and y=:y and type=:type and " +
+				"docked='' and (fleet is null or fleet!=:fleet) order by fleet,id asc")
+				.setEntity("owner", user)
+				.setInteger("sys", sectorShip.getSystem())
+				.setInteger("x", sectorShip.getX())
+				.setInteger("y", sectorShip.getY())
+				.setInteger("type", type)
+				.setEntity("fleet", this.fleet)
 			.setMaxResults(count)
 			.list();
 		for( Iterator<?> iter=slist.iterator(); iter.hasNext(); ) {
@@ -466,8 +466,8 @@ public class FleetMgntController extends TemplateGenerator {
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 
-		db.createQuery("update Ship set fleet=null where fleet=?")
-			.setEntity(0, this.fleet)
+		db.createQuery("update Ship set fleet=null where fleet=:fleet")
+			.setEntity("fleet", this.fleet)
 			.executeUpdate();
 		db.delete(this.fleet);
 
@@ -534,9 +534,9 @@ public class FleetMgntController extends TemplateGenerator {
 
 		if( newowner != null ) {
 			if( this.fleet.consign(newowner) ) {
-				Ship coords = (Ship)db.createQuery("from Ship where owner=? and fleet=?")
-					.setEntity(0, newowner)
-					.setEntity(1, this.fleet)
+				Ship coords = (Ship)db.createQuery("from Ship where owner=:owner and fleet=:fleet")
+					.setEntity("owner", newowner)
+					.setEntity("fleet", this.fleet)
 					.setMaxResults(1)
 					.uniqueResult();
 
@@ -572,8 +572,8 @@ public class FleetMgntController extends TemplateGenerator {
 		org.hibernate.Session db = getDB();
 
 		StringBuilder message = new StringBuilder(100);
-		List<?> ships = db.createQuery("from Ship as s left join fetch s.modules where s.fleet=? and (s.shields < s.shiptype.shields or s.shields < s.modules.shields) and s.battle is null")
-			.setEntity(0, this.fleet)
+		List<?> ships = db.createQuery("from Ship as s left join fetch s.modules where s.fleet=:fleet and (s.shields < s.shiptype.shields or s.shields < s.modules.shields) and s.battle is null")
+			.setEntity("fleet", this.fleet)
 			.list();
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship s = (Ship)iter.next();
@@ -614,8 +614,8 @@ public class FleetMgntController extends TemplateGenerator {
 		StringBuilder message = new StringBuilder(100);
 
 		List<?> ships = db.createQuery("from Ship as s left join fetch s.modules " +
-				"where s.fleet=? and (s.e < s.shiptype.eps or s.e < s.modules.eps) and s.battle is null")
-			.setEntity(0, this.fleet)
+				"where s.fleet=:fleet and (s.e < s.shiptype.eps or s.e < s.modules.eps) and s.battle is null")
+			.setEntity("fleet", this.fleet)
 			.list();
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship s = (Ship)iter.next();
@@ -656,8 +656,8 @@ public class FleetMgntController extends TemplateGenerator {
 
 		StringBuilder message = new StringBuilder(100);
 
-		List<?> ships = db.createQuery("from Ship as s WHERE s.fleet=? and s.battle is null")
-			.setEntity(0, this.fleet)
+		List<?> ships = db.createQuery("from Ship as s WHERE s.fleet=:fleet and s.battle is null")
+			.setEntity("fleet", this.fleet)
 			.list();
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship s = (Ship)iter.next();
@@ -699,8 +699,8 @@ public class FleetMgntController extends TemplateGenerator {
 
 		t.setBlock("_FLEETMGNT", "exportships.listitem", "exportships.list" );
 
-		List<?> ships = db.createQuery("from Ship where id>0 and fleet=?")
-			.setEntity(0, this.fleet)
+		List<?> ships = db.createQuery("from Ship where id>0 and fleet=:fleet")
+			.setEntity("fleet", this.fleet)
 			.list();
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship aship = (Ship)iter.next();
@@ -869,9 +869,9 @@ public class FleetMgntController extends TemplateGenerator {
 
 		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
-		List<Ship> shipyards = db.createQuery("from Ship where id>0 and owner=? and fleet=? and shiptype.werft > 0 order by id")
-		.setEntity(0, user)
-		.setEntity(1, this.fleet)
+		List<Ship> shipyards = db.createQuery("from Ship where id>0 and owner=:owner and fleet=:fleet and shiptype.werft > 0 order by id")
+		.setEntity("owner", user)
+		.setEntity("fleet", this.fleet)
 		.list();
 
 		for(Iterator<Ship> it = shipyards.iterator(); it.hasNext();) {
@@ -889,7 +889,9 @@ public class FleetMgntController extends TemplateGenerator {
 		while(buildCount > 0) {
 			int couldNotBuild = 0;
 			for(Ship ship: shipyards) {
-				WerftObject shipyard = (WerftObject)db.createQuery("from WerftObject where shipid=?").setInteger(0, ship.getId()).uniqueResult();
+				WerftObject shipyard = (WerftObject)db.createQuery("from WerftObject where shipid=:ship")
+					.setInteger("ship", ship.getId())
+					.uniqueResult();
 				if(shipyard.getKomplex() != null)
 				{
 					shipyard = shipyard.getKomplex();
@@ -1070,8 +1072,8 @@ public class FleetMgntController extends TemplateGenerator {
 
 		List<NamePatternElement> nameParts = parseNamePattern(name);
 
-		List<?> ships = db.createQuery("from Ship where id>0 and fleet=?" )
-			.setEntity(0, this.fleet)
+		List<?> ships = db.createQuery("from Ship where id>0 and fleet=:fleet" )
+			.setEntity("fleet", this.fleet)
 			.list();
 
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
@@ -1102,9 +1104,9 @@ public class FleetMgntController extends TemplateGenerator {
 		crewInPercent = Math.max(crewInPercent, 0.0);
 
 		List<Ship> ships = Common.cast(db.createQuery("from Ship " +
-				"where id>0 and owner=? and fleet=? order by id")
-			.setEntity(0, user)
-			.setEntity(1, this.fleet)
+				"where id>0 and owner=:owner and fleet=:fleet order by id")
+			.setEntity("owner", user)
+			.setEntity("fleet", this.fleet)
 			.list());
 
 		List<Base> bases = Common.cast(db.createQuery("from Base where owner=:owner")
@@ -1221,9 +1223,9 @@ public class FleetMgntController extends TemplateGenerator {
 
 		Location aloc = aship.getLocation();
 
-		List<?> ships = db.createQuery("from Ship where id>0 and owner=? and fleet=? order by id")
-			.setEntity(0, user)
-			.setEntity(1, this.fleet)
+		List<?> ships = db.createQuery("from Ship where id>0 and owner=:owner and fleet=:fleet order by id")
+			.setEntity("owner", user)
+			.setEntity("fleet", this.fleet)
 			.list();
 
 		Set<WerftObject> werften = new HashSet<WerftObject>();
@@ -1236,7 +1238,9 @@ public class FleetMgntController extends TemplateGenerator {
 			//Find shipyards
 			if(shiptype.getWerft() > 0)
 			{
-				WerftObject werft = (WerftObject)db.createQuery("from WerftObject where shipid=?").setInteger(0, ship.getId()).uniqueResult();
+				WerftObject werft = (WerftObject)db.createQuery("from WerftObject where shipid=:ship")
+					.setInteger("ship", ship.getId())
+					.uniqueResult();
 				if( werft.getKomplex() != null )
 				{
 					werften.add(werft.getKomplex());
@@ -1339,10 +1343,10 @@ public class FleetMgntController extends TemplateGenerator {
 
 		List<?> shiptypes = db.createQuery("select s.shiptype,count(*) " +
 				"from Ship as s " +
-				"where s.owner=? and locate(?,s.shiptype.flags)!=0 and s.docked='' and ("+sectorstring+") " +
+				"where s.owner=:owner and locate(:flag,s.shiptype.flags)!=0 and s.docked='' and ("+sectorstring+") " +
 				"group by s.shiptype")
-			.setEntity(0, user)
-			.setString(1, ShipTypes.SF_JAEGER)
+			.setEntity("owner", user)
+			.setString("flag", ShipTypes.SF_JAEGER)
 			.list();
 		for( Iterator<?> iter=shiptypes.iterator(); iter.hasNext(); ) {
 			ShipType shiptype = (ShipType)((Object[])iter.next())[0];
@@ -1356,19 +1360,19 @@ public class FleetMgntController extends TemplateGenerator {
 		// Flottenliste bauen
 		t.setBlock("_FLEETMGNT", "fleetcombine.listitem", "fleetcombine.list");
 		List<?> fleetList = db.createQuery("select distinct s.fleet from Ship as s " +
-				"where s.system=? and s.x=? and s.y=? AND docked='' AND owner=? AND s.fleet!=?")
-				.setInteger(0, aship.getSystem())
-				.setInteger(1, aship.getX())
-				.setInteger(2, aship.getY())
-				.setEntity(3, user)
-				.setEntity(4, this.fleet)
+				"where s.system=:sys and s.x=:x and s.y=:y AND docked='' AND owner=:owner AND s.fleet!=:fleet")
+				.setInteger("sys", aship.getSystem())
+				.setInteger("x", aship.getX())
+				.setInteger("y", aship.getY())
+				.setEntity("owner", user)
+				.setEntity("fleet", this.fleet)
 				.list();
 
 		for( Iterator<?> iter=fleetList.iterator(); iter.hasNext(); ) {
 			ShipFleet afleet = (ShipFleet)iter.next();
 
-			long count = (Long)db.createQuery("select count(*) from Ship where fleet=?")
-				.setEntity(0, afleet)
+			long count = (Long)db.createQuery("select count(*) from Ship where fleet=:fleet")
+				.setEntity("fleet", afleet)
 				.iterate().next();
 
 			t.setVar(	"fleetcombine.id",			afleet.getId(),
@@ -1404,8 +1408,8 @@ public class FleetMgntController extends TemplateGenerator {
 	private Ship getOneFleetShip()
 	{
 		org.hibernate.Session db = getDB();
-		return (Ship)db.createQuery("from Ship where id>0 and fleet=?")
-					   .setEntity(0, this.fleet)
+		return (Ship)db.createQuery("from Ship where id>0 and fleet=:fleet")
+					   .setEntity("fleet", this.fleet)
 					   .setMaxResults(1)
 					   .uniqueResult();
 	}
