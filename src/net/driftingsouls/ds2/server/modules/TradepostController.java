@@ -408,7 +408,7 @@ public class TradepostController extends TemplateGenerator {
 		SellLimit itemsell = null;
 		ResourceLimit itembuy = null;
 		// check if we dont want to sell the resource any more
-		if(!salebool)
+		if(!salebool || salesprice <= 0 )
 		{
 			if(selllistmap.containsKey(itemid * -1))
 			{
@@ -447,7 +447,7 @@ public class TradepostController extends TemplateGenerator {
 		}
 
 		// check if we dont want to buy the resource any more
-		if(!buybool)
+		if(!buybool || buyprice <= 0)
 		{
 			if(buylistmap.containsKey(itemid * -1))
 			{
