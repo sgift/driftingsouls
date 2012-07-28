@@ -487,15 +487,15 @@ public class User extends BasicUser {
 
 		if( relations == null ) {
 			UserRelation currelation = (UserRelation)context.getDB()
-				.createQuery("from UserRelation WHERE user=? AND target_id=?")
-				.setInteger(0, this.getId())
-				.setInteger(1, userid)
+				.createQuery("from UserRelation WHERE user=:user AND target_id=:userid")
+				.setInteger("user", this.getId())
+				.setInteger("userid", userid)
 				.uniqueResult();
 
 			if( currelation == null ) {
 				currelation = (UserRelation)context.getDB()
-					.createQuery("from UserRelation WHERE user=? AND target_id=0")
-					.setInteger(0, this.getId())
+					.createQuery("from UserRelation WHERE user=:user AND target_id=0")
+					.setInteger("user", this.getId())
 					.uniqueResult();
 			}
 
@@ -525,9 +525,9 @@ public class User extends BasicUser {
 		}
 
 		UserRelation currelation = (UserRelation)db
-			.createQuery("from UserRelation WHERE user=? AND target_id=?")
-			.setInteger(0, this.getId())
-			.setInteger(1, userid)
+			.createQuery("from UserRelation WHERE user=:user AND target_id=:targetid")
+			.setInteger("user", this.getId())
+			.setInteger("targetid", userid)
 			.uniqueResult();
 		if( userid != 0 ) {
 			if( (relation != Relation.FRIEND) && (getAlly() != null) ) {
@@ -538,8 +538,8 @@ public class User extends BasicUser {
 				}
 			}
 			UserRelation defrelation = (UserRelation)db
-				.createQuery("from UserRelation WHERE user=? AND target_id=0")
-				.setInteger(0, this.getId())
+				.createQuery("from UserRelation WHERE user=:user AND target_id=0")
+				.setInteger("user", this.getId())
 				.uniqueResult();
 
 			if( defrelation == null ) {
@@ -576,8 +576,8 @@ public class User extends BasicUser {
 				if( relations != null ) {
 					relations.toOther.put(0, Relation.NEUTRAL);
 				}
-				db.createQuery("delete from UserRelation where user=? and target=0")
-					.setInteger(0, this.getId())
+				db.createQuery("delete from UserRelation where user=:user and target=0")
+					.setInteger("user", this.getId())
 					.executeUpdate();
 			}
 			else {
@@ -594,9 +594,9 @@ public class User extends BasicUser {
 					db.persist(currelation);
 				}
 			}
-			db.createQuery("delete from UserRelation where user=? and status=? AND target!=0")
-				.setInteger(0, this.getId())
-				.setInteger(1, relation.ordinal())
+			db.createQuery("delete from UserRelation where user=:user and status=:status AND target!=0")
+				.setInteger("user", this.getId())
+				.setInteger("status", relation.ordinal())
 				.executeUpdate();
 		}
 	}
@@ -1349,14 +1349,16 @@ public class User extends BasicUser {
 	public long getFreeSpecializationPoints()
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		long usedSpecpoints =  (Long)db.createQuery("select sum(res.research.specializationCosts) from UserResearch res where res.owner=:owner")
-		  		   	   				   .setParameter("owner", this)
-		  		   	   				   .uniqueResult();
+		long usedSpecpoints =  (Long)db
+				.createQuery("select sum(res.research.specializationCosts) from UserResearch res where res.owner=:owner")
+				.setParameter("owner", this)
+		  		.uniqueResult();
 
 		//Add researchs, which are currently developed in research centers
-		List<Forschungszentrum> researchcenters = Common.cast(db.createQuery("from Forschungszentrum where forschung is not null and base.owner=?")
-												  		  		.setEntity(0, this)
-												  		  		.list());
+		List<Forschungszentrum> researchcenters = Common.cast(db
+				.createQuery("from Forschungszentrum where forschung is not null and base.owner=:owner")
+				.setEntity("owner", this)
+				.list());
 		for(Forschungszentrum researchcenter: researchcenters)
 		{
 			usedSpecpoints += researchcenter.getForschung().getSpecializationCosts();

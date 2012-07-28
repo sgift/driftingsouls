@@ -21,18 +21,15 @@ package net.driftingsouls.ds2.server.bases;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
-import org.hibernate.annotations.Immutable;
-
 /**
  * <h1>Die Standardcore in DS.</h1>
  * Alle Cores, welche keine eigene Core-Klasse besitzen, werden von
  * dieser Klasse bearbeitet.
- * 
+ *
  * @author Christopher Jung
  *
  */
 @Entity
-@Immutable
 @DiscriminatorValue("1")
 public class DefaultCore extends Core {
 	/**

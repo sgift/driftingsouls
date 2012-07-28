@@ -263,9 +263,9 @@ public abstract class BasicUser {
 	 */
 	public String getUserValue( String valuename ) {
 		UserValue value = (UserValue)context.getDB()
-			.createQuery("from UserValue where user in (?,0) and name=? order by abs(user) desc")
-			.setInteger(0, this.id)
-			.setString(1, valuename)
+			.createQuery("from UserValue where user in (:id,0) and name=:name order by abs(user) desc")
+			.setInteger("id", this.id)
+			.setString("name", valuename)
 			.setMaxResults(1)
 			.uniqueResult();
 
@@ -284,9 +284,9 @@ public abstract class BasicUser {
 	 * @param newvalue neuer Wert des User-Values
 	 */
 	public void setUserValue( String valuename, String newvalue ) {
-		UserValue valuen = (UserValue)context.getDB().createQuery("from UserValue where user=? and name=?")
-			.setInteger(0, this.id)
-			.setString(1, valuename)
+		UserValue valuen = (UserValue)context.getDB().createQuery("from UserValue where user=:user and name=:name")
+			.setInteger("user", this.id)
+			.setString("name", valuename)
 			.uniqueResult();
 
 		// Existiert noch kein Eintag?

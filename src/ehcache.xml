@@ -2,7 +2,7 @@
     <diskStore path="java.io.tmpdir"/>
 
     <defaultCache
-            maxElementsInMemory="300"
+            maxElementsInMemory="1000"
             eternal="false"
             timeToIdleSeconds="3600"
             timeToLiveSeconds="3600"
@@ -57,31 +57,23 @@
 	<cache  name="net.driftingsouls.ds2.server.entities.Ammo"
 			maxElementsInMemory="100"
 			eternal="true"
-			timeToIdleSeconds="1800"
-			timeToLiveSeconds="1800"
 			overflowToDisk="true"
 	/>
 	<cache name="net.driftingsouls.ds2.server.modules.GuiHelpText"
 			maxElementsInMemory="300"
 			eternal="true"
-			timeToIdleSeconds="1800"
-			timeToLiveSeconds="1800"
 			overflowToDisk="true"
 	/>
 
 	<cache  name="net.driftingsouls.ds2.server.bases.Building"
 			maxElementsInMemory="50"
 			eternal="true"
-			timeToIdleSeconds="1800"
-			timeToLiveSeconds="3600"
 			overflowToDisk="false"
   	/>
 
 	<cache  name="net.driftingsouls.ds2.server.bases.Core"
 			maxElementsInMemory="20"
 			eternal="true"
-			timeToIdleSeconds="60"
-			timeToLiveSeconds="600"
 			overflowToDisk="false"
 	/>
 
@@ -96,32 +88,29 @@
 	<cache  name="net.driftingsouls.ds2.server.ships.ShipType"
 			maxElementsInMemory="300"
 			eternal="true"
-			timeToIdleSeconds="3600"
-			timeToLiveSeconds="3600"
 			overflowToDisk="true"
 	/>
 
 	<cache name="net.driftingsouls.ds2.server.entities.FactoryEntry"
 			maxElementsInMemory="50"
 			eternal="true"
-			timeToIdleSeconds="5"
-			timeToLiveSeconds="10"
 			overflowToDisk="false"
 	/>
 
 	<cache  name="net.driftingsouls.ds2.server.units.UnitType"
 			maxElementsInMemory="30"
 			eternal="true"
-			timeToIdleSeconds="60"
-			timeToLiveSeconds="600"
 			overflowToDisk="false"
   	/>
 
   	<cache name="net.driftingsouls.ds2.server.entities.KaserneEntry"
 			maxElementsInMemory="50"
 			eternal="true"
-			timeToIdleSeconds="5"
-			timeToLiveSeconds="10"
 			overflowToDisk="false"
 	/>
+
+	<cache name="net.driftingsouls.ds2.server.config.items.Item"
+			maxElementsInMemory="500"
+			eternal="true"
+			overflowToDisk="false" />
 </ehcache>

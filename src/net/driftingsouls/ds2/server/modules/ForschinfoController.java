@@ -246,8 +246,8 @@ public class ForschinfoController extends TemplateGenerator {
 
 		boolean firstentry = true;
 
-		Iterator<?> buildingIter = db.createQuery("from Building where techReq=?")
-			.setInteger(0, this.research.getID())
+		Iterator<?> buildingIter = db.createQuery("from Building where techReq=:tech")
+			.setInteger("tech", this.research.getID())
 			.iterate();
 		for( ; buildingIter.hasNext(); ) {
 			Building building = (Building)buildingIter.next();
@@ -303,8 +303,8 @@ public class ForschinfoController extends TemplateGenerator {
 		t.setVar("tech.cores.list","");
 
 		firstentry = true;
-		Iterator<?> coreIter = db.createQuery("from Core where techReq=?")
-			.setInteger(0, this.research.getID())
+		Iterator<?> coreIter = db.createQuery("from Core where techReq=:tech")
+			.setInteger("tech", this.research.getID())
 			.iterate();
 		for( ; coreIter.hasNext(); ) {
 			Core core = (Core)coreIter.next();

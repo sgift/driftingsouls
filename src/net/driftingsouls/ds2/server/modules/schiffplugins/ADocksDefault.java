@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.modules.schiffplugins;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -40,11 +39,9 @@ public class ADocksDefault implements SchiffPlugin {
 		Ship ship = caller.ship;
 		ShipTypeData shiptype = caller.shiptype;
 		SchiffController controller = caller.controller;
-		
+
 		String output = "";
-		
-		org.hibernate.Session db = controller.getDB();
-		
+
 		controller.parameterString("act");
 		String act = controller.getString("act");
 
@@ -54,13 +51,7 @@ public class ADocksDefault implements SchiffPlugin {
 
 			long cargocount = cargo.getMass();
 
-			List<?> dships = db.createQuery("from Ship where id>0 and docked=?")
-				.setString(0, Integer.toString(ship.getId()))
-				.list();
-			
-			for( Iterator<?> iter=dships.iterator(); iter.hasNext(); ) {
-				Ship dship = (Ship)iter.next();
-				
+			for( Ship dship : ship.getDockedShips() ) {
 				Cargo dcargo = dship.getCargo();
 				long dcargocount = dcargo.getMass();
 
@@ -68,7 +59,7 @@ public class ADocksDefault implements SchiffPlugin {
 					output += "Kann einige Schiffe nicht entladen - nicht genug Frachtraum<br />\n";
 					break;
 				}
-				
+
 				cargo.addCargo( dcargo );
 
 				cargocount += dcargocount;
@@ -78,7 +69,7 @@ public class ADocksDefault implements SchiffPlugin {
 
 			ship.setCargo(cargo);
 		}
-		
+
 		return output;
 	}
 
@@ -89,20 +80,13 @@ public class ADocksDefault implements SchiffPlugin {
 		ShipTypeData shiptype = caller.shiptype;
 		SchiffController controller = caller.controller;
 
-		org.hibernate.Session db = controller.getDB();
-
 		TemplateEngine t = controller.getTemplateEngine();
 		t.setFile("_PLUGIN_"+pluginid, "schiff.adocks.default.html");
 
 		List<Ship> dockedShips = new ArrayList<Ship>();
 		List<Integer> dockedids = new ArrayList<Integer>();
-		
-		List<?> dlist = db.createQuery("from Ship where id>0 and docked=? order by id")
-			.setString(0, Integer.toString(ship.getId()))
-			.list();
-		
-		for( Iterator<?> iter=dlist.iterator(); iter.hasNext(); ) {
-			Ship aship = (Ship)iter.next();
+
+		for( Ship aship : ship.getDockedShips() ) {
 			dockedShips.add(aship);
 			dockedids.add(aship.getId());
 		}

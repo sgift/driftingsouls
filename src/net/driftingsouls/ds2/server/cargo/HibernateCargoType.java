@@ -23,8 +23,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.type.StringType;
 import org.hibernate.usertype.UserType;
 
 /**
@@ -47,7 +48,7 @@ public class HibernateCargoType implements UserType {
 		if( value == null ) {
 			return null;
 		}
-		
+
 		return ((Cargo)value).clone();
 	}
 
@@ -76,9 +77,9 @@ public class HibernateCargoType implements UserType {
 	}
 
 	@Override
-	public Object nullSafeGet(ResultSet rs, String[] names, Object owner) throws HibernateException, SQLException {
-		String value = (String)Hibernate.STRING.nullSafeGet(rs, names[0]);
-		
+	public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor impl, Object owner) throws HibernateException, SQLException {
+		String value = (String)StringType.INSTANCE.nullSafeGet(rs, names[0], impl);
+
 		if( (value == null) || value.isEmpty() ) {
 			return new Cargo();
 		}
@@ -86,18 +87,18 @@ public class HibernateCargoType implements UserType {
 	}
 
 	@Override
-	public void nullSafeSet(PreparedStatement st, Object value, int index) throws HibernateException, SQLException {
+	public void nullSafeSet(PreparedStatement st, Object value, int index, SessionImplementor impl) throws HibernateException, SQLException {
 		if( value == null ) {
 			value = new Cargo();
 		}
-		Hibernate.STRING.nullSafeSet(st, ((Cargo)value).save(), index);
+		StringType.INSTANCE.nullSafeSet(st, ((Cargo)value).save(), index, impl);
 	}
 
 	@Override
 	public Object replace(Object original, Object target, Object owner) throws HibernateException {
 		return ((Cargo)original).clone();
 	}
-	
+
 	@Override
 	public Class<?> returnedClass() {
 		return Cargo.class;

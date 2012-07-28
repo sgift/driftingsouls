@@ -27,10 +27,10 @@ import java.util.Properties;
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
 import org.hibernate.dialect.Dialect;
-import org.hibernate.engine.SessionImplementor;
-import org.hibernate.exception.JDBCExceptionHelper;
+import org.hibernate.engine.jdbc.spi.SqlExceptionHelper;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.id.Configurable;
-import org.hibernate.id.IdentifierGeneratorFactory;
+import org.hibernate.id.IdentifierGeneratorHelper;
 import org.hibernate.id.IdentityGenerator;
 import org.hibernate.id.PostInsertIdentifierGenerator;
 import org.hibernate.id.PostInsertIdentityPersister;
@@ -49,13 +49,13 @@ public class ShipIdGenerator implements PostInsertIdentifierGenerator, Configura
 	@Override
 	public synchronized Serializable generate(SessionImplementor session, Object object) throws HibernateException {
 		Ship ship = (Ship)object;
-		
+
 		if( ship.getId() > 0 ) {
 			return getIntelliId( session, ship.getId() );
 		}
-		return IdentifierGeneratorFactory.POST_INSERT_INDICATOR;
+		return IdentifierGeneratorHelper.POST_INSERT_INDICATOR;
 	}
-	
+
 	@Override
 	public InsertGeneratedIdentifierDelegate getInsertGeneratedIdentifierDelegate(
 			PostInsertIdentityPersister persister,
@@ -72,7 +72,7 @@ public class ShipIdGenerator implements PostInsertIdentifierGenerator, Configura
 	private int getIntelliId( SessionImplementor session, int startId ) {
 		final String sql = "SELECT newIntelliShipId( ? )";
 		try {
-			PreparedStatement st = session.getBatcher().prepareSelectStatement(sql);
+			PreparedStatement st = session.connection().prepareStatement(sql);
 			st.setInt(1, startId);
 			try {
 				ResultSet rs = st.executeQuery();
@@ -87,13 +87,18 @@ public class ShipIdGenerator implements PostInsertIdentifierGenerator, Configura
 				}
 			}
 			finally {
-				session.getBatcher().closeStatement(st);
+				st.close();
 			}
-			
+
 		}
 		catch (SQLException sqle) {
-			throw JDBCExceptionHelper.convert(
-				session.getFactory().getSQLExceptionConverter(),
+			SqlExceptionHelper helper = session
+				.getTransactionCoordinator()
+				.getTransactionContext()
+				.getTransactionEnvironment()
+				.getJdbcServices()
+				.getSqlExceptionHelper();
+			throw helper.convert(
 				sqle,
 				"Stored Procedure newIntelliShipId failed",
 				sql

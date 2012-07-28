@@ -20,27 +20,27 @@ package net.driftingsouls.ds2.server.framework.db;
 
 import java.util.List;
 
-import org.hibernate.Hibernate;
 import org.hibernate.QueryException;
 import org.hibernate.dialect.function.SQLFunction;
-import org.hibernate.engine.Mapping;
-import org.hibernate.engine.SessionFactoryImplementor;
+import org.hibernate.engine.spi.Mapping;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.type.BooleanType;
 import org.hibernate.type.Type;
 
 /**
  * <p>Vergleicht ob zwei Werte gleich sind unter Beruecksichtigung der <code>null</code>. Der Rueckgabewert
  * ist ein <code>Boolean</code>.</p>
- * <p>Syntax: <code>ncp(<i>&lt;zu pruefende Spalte&gt;</i>, <i>&lt;Wert der Spalte&gt;</i>)</code></p> 
+ * <p>Syntax: <code>ncp(<i>&lt;zu pruefende Spalte&gt;</i>, <i>&lt;Wert der Spalte&gt;</i>)</code></p>
  * @author Christopher Jung
  *
  */
 // Wer auch immer einen besseren Weg findet: Nur zu...
 public class NullCompFunction implements SQLFunction {
 	private static String NULL_VALUE = NullCompFunction.class.getName()+"#render()#null-value";
-	
+
 	@Override
 	public Type getReturnType(Type columnType, Mapping mapping) throws QueryException {
-		return Hibernate.BOOLEAN;
+		return BooleanType.INSTANCE;
 	}
 
 	@Override
@@ -54,7 +54,7 @@ public class NullCompFunction implements SQLFunction {
 	}
 
 	@Override
-	public String render(List args, SessionFactoryImplementor factory) throws QueryException {
+	public String render(Type type, List args, SessionFactoryImplementor factory) throws QueryException {
 		final String param = (String)args.get(0);
 		final String value = (String)args.get(1);
 		return "case ifnull("+value+",'"+NULL_VALUE+"') when '"+NULL_VALUE+"' then "+param+" is null when "+param+" then 1 else 0 end";

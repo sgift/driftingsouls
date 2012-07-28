@@ -18,7 +18,8 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
-import java.sql.Blob;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -453,10 +454,10 @@ public class RestTick extends TickController {
 				RunningQuest rquest = (RunningQuest)obj;
 				try
 				{
-					Blob execdata = rquest.getExecData();
-					if( (execdata != null) && (execdata.length() > 0) )
+					byte[] execdata = rquest.getExecData();
+					if( (execdata != null) && (execdata.length > 0) )
 					{
-						scriptparser.setContext(ScriptParserContext.fromStream(execdata.getBinaryStream()));
+						scriptparser.setContext(ScriptParserContext.fromStream(new ByteArrayInputStream(execdata)));
 					}
 					else
 					{
@@ -479,8 +480,9 @@ public class RestTick extends TickController {
 
 					if( usequest != 0 )
 					{
-						ScriptParserContext.toStream(scriptparser.getContext(), execdata.setBinaryStream(1));
-						rquest.setExecData(execdata);
+						ByteArrayOutputStream out = new ByteArrayOutputStream();
+						ScriptParserContext.toStream(scriptparser.getContext(), out);
+						rquest.setExecData(out.toByteArray());
 					}
 				}
 				catch( Exception e )

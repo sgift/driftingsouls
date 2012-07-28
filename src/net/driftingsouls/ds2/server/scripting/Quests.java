@@ -18,8 +18,8 @@
  */
 package net.driftingsouls.ds2.server.scripting;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.sql.Blob;
 import java.util.Random;
 
 import javax.script.Bindings;
@@ -36,7 +36,6 @@ import net.driftingsouls.ds2.server.scripting.entities.Script;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Hibernate;
 
 /**
  * Hilfsfunktionen zur Questverarbeitung.
@@ -122,9 +121,9 @@ public class Quests {
 		}
 
 		try {
-			Blob execdata = runningdata.getExecData();
-			if( (execdata != null) && (execdata.length() > 0) ) {
-				scriptparser.setContext(ScriptParserContext.fromStream(execdata.getBinaryStream()));
+			byte[] execdata = runningdata.getExecData();
+			if( (execdata != null) && (execdata.length > 0) ) {
+				scriptparser.setContext(ScriptParserContext.fromStream(new ByteArrayInputStream(execdata)));
 			}
 		}
 		catch( Exception e ) {
@@ -250,9 +249,9 @@ public class Quests {
 			if( runningdata != null ) {
 				runningID = runningdata.getId();
 				try {
-					Blob execdata = runningdata.getExecData();
-					if( (execdata != null) && (execdata.length() > 0) ) {
-						scriptparser.setContext(ScriptParserContext.fromStream(execdata.getBinaryStream()));
+					byte[] execdata = runningdata.getExecData();
+					if( (execdata != null) && (execdata.length > 0) ) {
+						scriptparser.setContext(ScriptParserContext.fromStream(new ByteArrayInputStream(execdata)));
 					}
 				}
 				catch( Exception e ) {
@@ -321,7 +320,7 @@ public class Quests {
 				try {
 					ByteArrayOutputStream out = new ByteArrayOutputStream();
 					ScriptParserContext.toStream(scriptparser.getContext(), out);
-					runningdata.setExecData(Hibernate.createBlob(out.toByteArray()));
+					runningdata.setExecData(out.toByteArray());
 				}
 				catch( Exception e ) {
 					log.warn("Writing back Script-ExecData failed: ",e);

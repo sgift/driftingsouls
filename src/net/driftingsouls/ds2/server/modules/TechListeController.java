@@ -164,8 +164,8 @@ public class TechListeController extends TemplateGenerator {
 		keys.put("invisible", invisible);
 
 		Map<Integer,Integer> currentResearches = new HashMap<Integer,Integer>();
-		List<?> resList = db.createQuery("from Forschungszentrum where forschung is not null and base.owner=?")
-			.setEntity(0, user)
+		List<?> resList = db.createQuery("from Forschungszentrum where forschung is not null and base.owner=:owner")
+			.setEntity("owner", user)
 			.list();
 		for( Iterator<?> iter=resList.iterator(); iter.hasNext(); ) {
 			Forschungszentrum fz = (Forschungszentrum)iter.next();

@@ -29,7 +29,6 @@ import java.util.Map;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 
 import org.apache.commons.logging.Log;
@@ -210,16 +209,6 @@ public abstract class TickController {
 	public Context getContext()
 	{
 		return context;
-	}
-
-	/**
-	 * Gibt eine Datenbankinstanz des Kontexts zurueck.
-	 * @return eine Datenbankinstanz
-	 * @deprecated Bitte Hibernate verwenden
-	 */
-	@Deprecated
-	public Database getDatabase() {
-		return new Database(getDB().connection());
 	}
 
 	/**

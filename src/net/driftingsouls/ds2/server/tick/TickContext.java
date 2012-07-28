@@ -31,7 +31,7 @@ public class TickContext extends BasicContext
 	@Override
 	public Database getDatabase()
 	{
-		return new Database(db.connection());
+		return new Database(connectionFromSession(db));
 	}
 
 	@Override

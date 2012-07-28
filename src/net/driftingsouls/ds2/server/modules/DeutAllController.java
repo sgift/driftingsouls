@@ -52,17 +52,17 @@ public class DeutAllController extends TemplateGenerator {
 	 */
 	public DeutAllController(Context context) {
 		super(context);
-		
+
 		setTemplate("deutall.html");
-		
+
 		setPageTitle("Deut. sammeln");
 	}
-	
+
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		return true;
 	}
-	
+
 	/**
 	 * Sammelt das Deuterium auf den Tankern.
 	 */
@@ -72,26 +72,26 @@ public class DeutAllController extends TemplateGenerator {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
 		org.hibernate.Session db = getDB();
-		
+
 		Location lastcoords = null;
-		
+
 		t.setBlock("_DEUTALL", "ships.listitem", "ships.list");
 
 		List<?> ships = db.createQuery("from Ship as s left join fetch s.modules " +
-				"where s.id>0 and s.owner=? and (s.shiptype.deutFactor>0 or s.modules.deutFactor>0) " +
+				"where s.id>0 and s.owner=:user and (s.shiptype.deutFactor>0 or s.modules.deutFactor>0) " +
 				"order by s.system,s.x,s.y")
-				.setEntity(0, user)
+				.setEntity("user", user)
 				.list();
-		
+
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			t.start_record();
 			Ship ship = (Ship)iter.next();
-			
+
 			ShipTypeData shiptype = ship.getTypeData();
 			if( shiptype.getDeutFactor() == 0 ) {
-				continue;	
+				continue;
 			}
-	
+
 			if( (lastcoords == null) || !lastcoords.sameSector(0, ship.getLocation(), 0) ) {
 				t.setVar(	"ship.newcoords",		1,
 							"ship.location",		ship.getLocation().displayCoordinates(false),
@@ -99,10 +99,10 @@ public class DeutAllController extends TemplateGenerator {
 
 				lastcoords = ship.getLocation();
 			}
-			
+
 			t.setVar(	"ship.id",		ship.getId(),
 						"ship.name",	Common._plaintitle(ship.getName()) );
-			
+
 			long e = ship.getEnergy();
 			if( e <= 0 ) {
 				t.setVar(	"ship.message",			"Keine Energie",
@@ -118,7 +118,7 @@ public class DeutAllController extends TemplateGenerator {
 				if( (nebel != null) && (nebel.getType() < 3) ) {
 					Cargo shipCargo = ship.getCargo();
 					long cargo = shipCargo.getMass();
-					
+
 					int deutfactor = shiptype.getDeutFactor();
 					if( nebel.getType() == 1 ) {
 						deutfactor--;
@@ -126,32 +126,32 @@ public class DeutAllController extends TemplateGenerator {
 					else if( nebel.getType() == 2 ) {
 						deutfactor++;
 					}
-	
+
 					if( (e * deutfactor)*Cargo.getResourceMass( Resources.DEUTERIUM, 1 ) > (shiptype.getCargo() - cargo) ) {
 						e = (shiptype.getCargo()-cargo)/(deutfactor*Cargo.getResourceMass( Resources.DEUTERIUM, 1 ));
-							
+
 						t.setVar(	"ship.message",			"Kein Platz mehr im Frachtraum",
 									"ship.message.color",	"#FF4444" );
 					}
-						
+
 					long saugdeut = e * deutfactor;
-						
+
 					t.setVar(	"ship.saugdeut",	saugdeut,
 								"deuterium.image",	Cargo.getResourceImage(Resources.DEUTERIUM) );
 					shipCargo.addResource( Resources.DEUTERIUM, saugdeut );
-					
+
 					ship.setEnergy((int)(ship.getEnergy()-e));
 					ship.setCargo(shipCargo);
-					
+
 					ship.recalculateShipStatus();
-				} 
+				}
 				else {
 					t.setVar(	"ship.message",			"Kein Nebel",
 								"ship.message.color",	"red" );
 				}
 			}
 			t.parse("ships.list", "ships.listitem", true);
-			
+
 			t.stop_record();
 			t.clear_record();
 		}

@@ -85,7 +85,7 @@ import org.hibernate.classic.Lifecycle;
 
 /**
  * <p>Repraesentiert eine Basis in DS.</p>
- * 
+ *
  * @author Christopher Jung
  */
 @Entity
@@ -133,7 +133,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	private String spawnressavailable;
 	private boolean isloading;
 	private boolean isfeeding;
-	
+
 	@OneToOne(fetch=FetchType.LAZY)
 	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH})
 	@JoinColumn
@@ -150,7 +150,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH})
 	@JoinColumn(name="col")
 	private Set<Factory> factories;
-	
+
 	@OneToMany(fetch=FetchType.LAZY, targetEntity=net.driftingsouls.ds2.server.bases.BaseUnitCargoEntry.class)
 	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH,org.hibernate.annotations.CascadeType.MERGE})
 	@JoinColumn(name="destid", nullable=true)
@@ -159,7 +159,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	private Set<BaseUnitCargoEntry> units;
 	@Version
 	private int version;
-	
+
 	@Transient
 	private List<AutoGTUAction> autoGtuActsObj;
 	@Transient
@@ -168,7 +168,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	private Integer[] bebauungObj;
 	@Transient
 	private Integer[] activeObj;
-	
+
 	/**
 	 * Konstruktor.
 	 *
@@ -177,7 +177,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		// EMPTY
 	}
-	
+
 	/**
 	 * Erstellt eine neue Basis.
 	 * @param loc Die Position
@@ -196,7 +196,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		this.owner = owner;
 		this.name = "Leerer Asteroid";
 	}
-	
+
 	/**
 	 * Gibt die ID der Basis zurueck.
 	 * @return die ID der Basis
@@ -206,7 +206,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		return this.id;
 	}
-	
+
 	/**
 	 * Gibt die Breite der Bauflaeche auf der Basis in Feldern zurueck.
 	 * @return Die Breite
@@ -215,7 +215,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		return this.width;
 	}
-	
+
 	/**
 	 * Setzt die Breite der Bauflaeche auf der Basis.
 	 * @param width Die Breite
@@ -224,7 +224,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		this.width = width;
 	}
-	
+
 	/**
 	 * Gibt die Hoehe der Bauflaeche auf der Basis in Feldern zurueck.
 	 * @return Die Hoehe
@@ -233,7 +233,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		return this.height;
 	}
-	
+
 	/**
 	 * Setzt die Hoehe der Bauflaeche auf der Basis.
 	 * @param height Die Hoehe
@@ -242,7 +242,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		this.height = height;
 	}
-	
+
 	/**
 	 * Gibt den Namen der Basis zurueck.
 	 * @return Der Name
@@ -251,7 +251,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		return this.name;
 	}
-	
+
 	/**
 	 * Gibt der Basis einen neuen Namen.
 	 * @param name Der neue Name
@@ -260,10 +260,10 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		this.name = name;
 	}
-	
+
 	/**
 	 * Gibt den Besitzer zurueck.
-	 * 
+	 *
 	 * @return Der Besitzer
 	 */
 	@Override
@@ -271,7 +271,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		return this.owner;
 	}
-	
+
 	/**
 	 * Setzt den neuen Besitzer fuer die Basis.
 	 * @param owner Der neue Besitzer
@@ -280,7 +280,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		this.owner = owner;
 	}
-	
+
 	/**
 	 * Gibt die Terrain-Typen der einzelnen Basisfelder zurueck.
 	 * @return Die Terraintypen der Felder
@@ -289,7 +289,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		return this.terrainObj.clone();
 	}
-	
+
 	/**
 	 * Setzt das neue Terrain der Basis.
 	 * @param terrain Das neue Terrain
@@ -299,18 +299,18 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		this.terrainObj = terrain.clone();
 		this.terrain = Common.implode("|", terrain);
 	}
-	
+
 	/**
 	 * Gibt die IDs der auf den einzelnen Feldern stehenden Gebaeude zurueck.
 	 * Sollte auf einem Feld kein Gebaeude stehen ist die ID 0.
-	 * 
+	 *
 	 * @return Die IDs der Gebaeude
 	 */
 	public Integer[] getBebauung()
 	{
 		return this.bebauungObj.clone();
 	}
-	
+
 	/**
 	 * Setzt die neue Bebauung der Basis.
 	 * @param bebauung Die neue Bebauung
@@ -320,7 +320,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		this.bebauungObj = bebauung.clone();
 		this.bebauung = Common.implode("|", bebauung);
 	}
-	
+
 	/**
 	 * Gibt an, auf welchen Feldern die Gebaeude aktiv (1) sind und auf welchen
 	 * nicht (0).
@@ -330,7 +330,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		return this.activeObj.clone();
 	}
-	
+
 	/**
 	 * Setzt den Aktivierungszustand aller Gebaeude. <code>1</code> bedeutet, dass das
 	 * Gebaeude aktiv ist. <code>0</code>, dass das Gebaeude nicht aktiv ist.
@@ -341,53 +341,53 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		this.activeObj = active.clone();
 		this.active = Common.implode("|", active);
 	}
-	
+
 	/**
 	 * Gibt den Cargo der Basis zurueck.
 	 * @return Der Cargo
 	 */
-	// TODO: UnmodifiableCargos zurueckgeben (zuerst alle Verwendungen checken und umbauen) 
+	// TODO: UnmodifiableCargos zurueckgeben (zuerst alle Verwendungen checken und umbauen)
 	@Override
 	public Cargo getCargo()
 	{
 		return cargo;
 	}
-	
+
 	@Override
 	public boolean equals(Object object)
 	{
-		if( object == null ) 
+		if( object == null )
 		{
 			return false;
 		}
-		
+
 		if(object.getClass() != this.getClass())
 		{
 			return false;
 		}
-		
+
 		Base other = (Base)object;
-		
+
 		if(other.getId() != this.getId())
 		{
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	@Override
 	public int hashCode()
 	{
 		return this.getId();
 	}
-	
+
 	/**
 	 * Setzt den Cargo des Basisobjekts.
 	 * @param cargo Der neue Cargo
 	 */
 	@Override
-	public void setCargo(Cargo cargo) 
+	public void setCargo(Cargo cargo)
 	{
 		this.cargo = cargo;
 	}
@@ -395,18 +395,18 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	/**
 	 * Gibt die ID der installierten Core der Basis zurueck.
 	 * Falls es keine Core auf der Basis gibt, so wird 0 zurueckgegeben.
-	 * 
+	 *
 	 * @return Die ID der Core oder 0
 	 */
 	public int getCore()
 	{
 		return this.core;
 	}
-	
+
 	/**
 	 * Setzt den neuen Kern der Basis. <code>0</code> bedeutet,
 	 * dass kein Kern vorhanden ist.
-	 * 
+	 *
 	 * @param core der neue Kern oder <code>0</code>
 	 */
 	public void setCore(int core)
@@ -422,7 +422,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		return this.x;
 	}
-	
+
 	/**
 	 * Setzt die X-Koordinate der Basis.
 	 * @param x Die X-Koordinate
@@ -440,7 +440,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		return this.y;
 	}
-	
+
 	/**
 	 * Setzt die Y-Koordinate der Basis.
 	 * @param y Die Y-Koordinate
@@ -458,7 +458,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		return this.system;
 	}
-	
+
 	/**
 	 * Setzt das System in dem sich die Basis befindet.
 	 * @param system Das System
@@ -476,7 +476,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		return this.coreActive != 0;
 	}
-	
+
 	/**
 	 * Setzt den Aktivierungszustand der Core.
 	 * @param active <code>true</code>, wenn die Core aktiv ist
@@ -495,7 +495,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		return this.maxCargo;
 	}
-	
+
 	/**
 	 * Setzt den neuen maximalen Cargo der Basis.
 	 * @param cargo Der neue maximale Cargo
@@ -513,7 +513,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		return this.bewohner;
 	}
-	
+
 	/**
 	 * Setzt die Anzahl der Bewohner auf der Basis.
 	 * @param bewohner Die neue Anzahl der Bewohner
@@ -522,7 +522,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		this.bewohner = bewohner;
 	}
-	
+
 	/**
 	 * Gibt dden UnitCargo der Basis zurueck.
 	 * @return Der UnitCargo
@@ -537,7 +537,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		return new UnitCargo(entries, UnitCargo.CARGO_ENTRY_BASE, id);
 		//return new UnitCargo(UnitCargo.CARGO_ENTRY_BASE, id);
 	}
-	
+
 	/**
 	 * Setzt den UnitCargo der basis.
 	 * @param unitcargo Der neue UnitCargo
@@ -548,7 +548,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		unitcargo.setDestId(id);
 		unitcargo.save();
 	}
-	
+
 	/**
 	 * Gibt die Anzahl der Arbeiter auf der Basis zurueck.
 	 * @return Die Arbeiter
@@ -557,7 +557,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		return this.arbeiter;
 	}
-	
+
 	/**
 	 * Setzt die neue Menge der Arbeiter auf der Basis.
 	 * @param arbeiter Die Anzahl der Arbeiter
@@ -575,7 +575,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		return this.energy;
 	}
-	
+
 	/**
 	 * Setzt die Menge der auf der Basis vorhandenen Energie.
 	 * @param e Die auf der Basis vorhandene Energie
@@ -584,7 +584,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		this.energy = e;
 	}
-	
+
 	/**
 	 * Gibt die maximal auf der Basis speicherbare Energiemenge zurueck.
 	 * @return die max. Energiemenge
@@ -593,7 +593,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		return this.maxEnergy;
 	}
-	
+
 	/**
 	 * Setzt die maximale Menge an Energie die auf der Basis gespeichert werden kann.
 	 * @param maxe Die maximale Menge an Energie
@@ -602,7 +602,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		this.maxEnergy = maxe;
 	}
-	
+
 	/**
 	 * Gibt die Basis-Klasse zurueck.
 	 * @return die Klasse
@@ -611,7 +611,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		return this.klasse;
 	}
-	
+
 	/**
 	 * Gibt die Klassennummer der Basis zurueck (= Der Astityp).
 	 * @return Die Klassennummer
@@ -620,7 +620,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		return this.klasse.getId();
 	}
-	
+
 	/**
 	 * Setzt die Klasse der Basis.
 	 * @param klasse Die Klasse
@@ -634,7 +634,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 			this.klasse = type;
 		}
 	}
-	
+
 	/**
 	 * Gibt die Anzahl an Feldern zurueck, die in die Gesamtflaechenanzahl eingerechnet werden
 	 * duerfen. Entspricht nicht immer der tatsaechlichen Anzahl an Feldern.
@@ -644,7 +644,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		return this.maxTiles;
 	}
-	
+
 	/**
 	 * Setzt die Anzahl an Feldern, die in die Gesamtflaechenanzahl eingerechnet werden sollen.
 	 * @param tiles Die Felderanzahl
@@ -653,7 +653,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		this.maxTiles = tiles;
 	}
-	
+
 	/**
 	 * Gibt den Radius der Basis auf der Sternenkarte zurueck.
 	 * 0 bedeutet in diesem Zusammenhang, dass die Basis keine Ausdehung
@@ -664,7 +664,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		return this.size;
 	}
-	
+
 	/**
 	 * Setzt den Radius der Basis.
 	 * @param size Der Radius
@@ -673,7 +673,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		this.size = size;
 	}
-	
+
 	/**
 	 * Gibt eine Kopie der Liste der automatischen GTU-Verkaufsaktionen zurueck.
 	 * @return Eine Kopie der Liste der GTU-Verkaufsaktionen beim Tick
@@ -682,10 +682,10 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		List<AutoGTUAction> acts = new ArrayList<AutoGTUAction>();
 		acts.addAll(this.autoGtuActsObj);
-		
+
 		return acts;
 	}
-	
+
 	/**
 	 * Setzt die Liste der automatischen GTU-Verkaufsaktionen.
 	 * @param list Die neue Liste
@@ -695,12 +695,12 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		this.autoGtuActsObj = list;
 		this.autoGtuActs = Common.implode(";", list);
 	}
-	
+
 	/**
 	 * Gibt die zum spawn freigegebenen Ressourcen zurueck.
 	 * @return Die Spawn-Ressourcen als String (itemid,chance,maxmenge)
 	 */
-	public String getSpawnableRess() 
+	public String getSpawnableRess()
 	{
 		if (this.spawnableress == null )
 		{
@@ -708,7 +708,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		}
 		return this.spawnableress;
 	}
-	
+
 	/**
 	 * Setzt die zum spawn freigegebenen Ressourcen zurueck.
 	 * @param spawnableRess Die Spawn-Ressourcen als String
@@ -717,7 +717,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		this.spawnableress = spawnableRess;
 	}
-	
+
 	/**
 	 * Gibt die zum spawn freigegebenen Ressourcen in einer HashMap zurueck.
 	 * Beruecksichtigt ebenfalls die Systemvorraussetzungen
@@ -728,17 +728,17 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		org.hibernate.Session db = getDB();
 		StarSystem system = (StarSystem)db.get(StarSystem.class, this.system);
-		
+
 		if(getSpawnableRess() == null && system.getSpawnableRess() == null && getBaseType().getSpawnableRess() == null)
 		{
 			return null;
 		}
-		
+
 		Map<Integer,Integer[]> spawnress = new HashMap<Integer,Integer[]>();
 		Map<Integer,Integer[]> spawnressmap = new HashMap<Integer,Integer[]>();
 		int chances = 0;
 		int baseress = 0;
-		
+
 		if(!(getSpawnableRess() == null))
 		{
 			String[] spawnableress = StringUtils.split(getSpawnableRess(), ";");
@@ -747,12 +747,12 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 				int itemid = Integer.parseInt(thisress[0]);
 				int chance = Integer.parseInt(thisress[1]);
 				int maxvalue = Integer.parseInt(thisress[2]);
-				
+
 				// Er soll nur Ressourcen spawnen die noch nicht vorhanden sind
 				if(getSpawnableRessAmount(itemid) <= 0)
 				{
 					chances += chance;
-					
+
 					spawnress.put(i, new Integer[] {chance, itemid, maxvalue});
 				}
 			}
@@ -766,12 +766,12 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 				int itemid = Integer.parseInt(thisress[0]);
 				int chance = Integer.parseInt(thisress[1]);
 				int maxvalue = Integer.parseInt(thisress[2]);
-				
+
 				// Er soll nur Ressourcen spawnen die noch nicht vorhanden sind
 				if(getSpawnableRessAmount(itemid) <= 0)
 				{
 					chances += chance;
-					
+
 					spawnress.put(i+baseress, new Integer[] {chance, itemid, maxvalue});
 				}
 			}
@@ -784,12 +784,12 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 				int itemid = Integer.parseInt(thisress[0]);
 				int chance = Integer.parseInt(thisress[1]);
 				int maxvalue = Integer.parseInt(thisress[2]);
-				
+
 				// Er soll nur Ressourcen spawnen die noch nicht vorhanden sind
 				if(getSpawnableRessAmount(itemid) <= 0)
 				{
 					chances += chance;
-					
+
 					spawnress.put(i+baseress, new Integer[] {chance, itemid, maxvalue});
 				}
 			}
@@ -807,10 +807,10 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 			}
 			chances += chance+1;
 		}
-		
+
 		return spawnressmap;
 	}
-	
+
 	/**
 	 * Gibt die aktuell verfuegbare Ressourcenmenge der Spawnable-Ressourcen zurueck.
 	 * @return Die Ressourcenmengen als String (itemid,menge;itemid,menge)
@@ -823,7 +823,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		}
 		return this.spawnressavailable;
 	}
-	
+
 	/**
 	 * Setzt die aktuell verfuegbare Ressourcenmenge der Spawnable-Ressourcen.
 	 * @param availableRess Die Ressourcenmengen als String
@@ -832,7 +832,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		this.spawnressavailable = availableRess;
 	}
-	
+
 	/**
 	 * Gibt zurueck, ob diese Basis den Speicher der Schiffe aufladen soll.
 	 * @return <code>true</code>, wenn der Speicher geladen werden soll
@@ -841,7 +841,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		return isloading;
 	}
-	
+
 	/**
 	 * Setzt, ob diese Basis den Speicher der Schiffe aufladen soll.
 	 * @param loading <code>true</code>, wenn der Speicher aufgeladen werden soll
@@ -850,7 +850,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		this.isloading = loading;
 	}
-	
+
 	/**
 	 * Gibt zurueck, ob diese Basis die Schiffe im Orbit versorgt.
 	 * @return <code>true</code>, wenn die Schiffe versorgt werden
@@ -859,7 +859,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		return isfeeding;
 	}
-	
+
 	/**
 	 * Setzt, ob diese Basis die Schiffe im Orbit versorgt.
 	 * @param feeding <code>true</code>, wenn die Schiffe versorgt werden sollen
@@ -868,7 +868,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		this.isfeeding = feeding;
 	}
-	
+
 	/**
 	 * Gibt den Nettoverbrauch der Basis aus.
 	 * @return Der Nettoverbrauch
@@ -881,34 +881,34 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 
 			stat.addCargo(core.getConsumes());
 		}
-		
+
 		Integer[] bebauung = getBebauung();
 		Integer[] bebon = getActive();
-			
+
 		for( int o=0; o < getWidth() * getHeight(); o++ )
 		{
 			if( bebauung[o] == 0 )
 			{
 				continue;
-			} 
-			
+			}
+
 			Building building = Building.getBuilding(bebauung[o]);
 
 			bebon[o] = building.isActive( this, bebon[o], o ) ? 1 : 0;
-			
+
 			if( bebon[o] == 0 )
 			{
 				continue;
 			}
-			
+
 			building.modifyConsumptionStats( this, stat, bebauung[o] );
-			
+
 			stat.addCargo(building.getConsumes());
 		}
-		
+
 		return stat;
 	}
-	
+
 	/**
 	 * Gibt die Nettoproduktion der Basis aus.
 	 * @return Die Nettoproduktion
@@ -921,34 +921,34 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 
 			stat.addCargo(core.getProduces());
 		}
-		
+
 		Integer[] bebauung = getBebauung();
 		Integer[] bebon = getActive();
-			
+
 		for( int o=0; o < getWidth() * getHeight(); o++ )
 		{
 			if( bebauung[o] == 0 )
 			{
 				continue;
-			} 
-			
+			}
+
 			Building building = Building.getBuilding(bebauung[o]);
 
 			bebon[o] = building.isActive( this, bebon[o], o ) ? 1 : 0;
-			
+
 			if( bebon[o] == 0 )
 			{
 				continue;
 			}
-			
+
 			building.modifyProductionStats( this, stat, bebauung[o] );
-			
+
 			stat.addCargo(building.getProduces());
 		}
-		
+
 		return stat;
 	}
-		
+
 	/**
 	 * Generiert den aktuellen Verbrauch/Produktion-Status einer Basis.
 	 * @param base die Basis
@@ -960,65 +960,65 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		int e = 0;
 		int arbeiter = 0;
 		int bewohner = 0;
-		Map<Integer,Integer> buildinglocs = new TreeMap<Integer,Integer>(); 
-	
+		Map<Integer,Integer> buildinglocs = new TreeMap<Integer,Integer>();
+
 		if( (base.getCore() > 0) && base.isCoreActive() ) {
 			Core core = Core.getCore(base.getCore());
 
 			stat.substractCargo(core.getConsumes());
 			stat.addCargo(core.getProduces());
-			
+
 			e = e - core.getEVerbrauch() + core.getEProduktion();
 			arbeiter += core.getArbeiter();
 			bewohner += core.getBewohner();
 		}
-		
+
 		Integer[] bebauung = base.getBebauung();
 		Integer[] bebon = base.getActive();
-			
+
 		for( int o=0; o < base.getWidth() * base.getHeight(); o++ )
 		{
 			if( bebauung[o] == 0 )
 			{
 				continue;
-			} 
-			
+			}
+
 			Building building = Building.getBuilding(bebauung[o]);
-	
+
 			if( !buildinglocs.containsKey(building.getId()) ) {
 				buildinglocs.put(building.getId(), o);
 			}
-				
+
 			bebon[o] = building.isActive( base, bebon[o], o ) ? 1 : 0;
-		
+
 			if( bebon[o] == 0 )
 			{
 				continue;
 			}
-			
+
 			building.modifyStats( base, stat, bebauung[o] );
-		
+
 			stat.substractCargo(building.getConsumes());
 			stat.addCargo(building.getAllProduces());
-			
+
 			e = e - building.getEVerbrauch() + building.getEProduktion();
 			arbeiter += building.getArbeiter();
 			bewohner += building.getBewohner();
 		}
-		
+
 		stat.substractResource( Resources.NAHRUNG, (long)Math.ceil(base.getBewohner()/10) );
-		
+
 		stat.substractResource( Resources.NAHRUNG, (long)Math.ceil(base.getUnits().getNahrung()/10) );
 		stat.substractResource( Resources.RE, base.getUnits().getRE() );
-		
+
 		return new BaseStatus(stat, e, bewohner, arbeiter, Collections.unmodifiableMap(buildinglocs), bebon);
 	}
-	
+
 	private BaseStatus getStatus()
 	{
 		return Base.getStatus(this);
 	}
-	
+
 	@Override
 	public Object clone()
 	{
@@ -1051,13 +1051,13 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 			base.activeObj = this.getActive().clone();
 			base.bebauungObj = this.getBebauung().clone();
 			base.cargo = (Cargo)this.getCargo().clone();
-			
+
 			base.autoGtuActsObj = new ArrayList<AutoGTUAction>();
 			for( int i=0; i < this.autoGtuActsObj.size(); i++ )
 			{
 				base.autoGtuActsObj.add((AutoGTUAction)this.autoGtuActsObj.get(i).clone());
 			}
-		
+
 			return base;
 		}
 		catch (CloneNotSupportedException e) {
@@ -1070,7 +1070,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		this.terrainObj = Common.explodeToInteger("|",this.terrain);
 		this.bebauungObj = Common.explodeToInteger("|",this.bebauung);
 		this.activeObj = Common.explodeToInteger("|",this.active);
-		
+
 		String[] autogtuacts = StringUtils.split(this.autoGtuActs,";");
 		List<AutoGTUAction> acts = new ArrayList<AutoGTUAction>();
 		for( int i=0; i < autogtuacts.length; i++ )
@@ -1082,9 +1082,9 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 			}
 		}
 		this.autoGtuActsObj = acts;
-		
+
 		boolean update = false;
-		
+
 		// Ggf die Feldergroessen fixen
 		if( getTerrain().length < getWidth()*getHeight() )
 		{
@@ -1103,43 +1103,43 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 					terrain[i] = allowedterrain[0];
 				}
 				int rnd = RandomUtils.nextInt(allowedterrain.length);
-				
-				terrain[i] = allowedterrain[rnd];	
+
+				terrain[i] = allowedterrain[rnd];
 			}
-			
+
 			setTerrain(terrain);
 			update = true;
 		}
-			
+
 		if( getBebauung().length < getWidth()*getHeight() )
 		{
 			Integer[] bebauung = new Integer[getWidth()*getHeight()];
 			System.arraycopy(getBebauung(), 0, bebauung, 0, getBebauung().length );
 			for( int i=Math.max(getBebauung().length,0); i < getWidth()*getHeight(); i++ )
 			{
-				bebauung[i] = 0;	
+				bebauung[i] = 0;
 			}
-			
+
 			setBebauung(bebauung);
 			update = true;
 		}
-		
+
 		if( getActive().length < getWidth()*getHeight() )
 		{
 			Integer[] active = new Integer[getWidth()*getHeight()];
 			System.arraycopy(getActive(), 0, active, 0, getActive().length );
 			for( int i=Math.max(getActive().length,0); i < getWidth()*getHeight(); i++ )
 			{
-				active[i] = 0;	
+				active[i] = 0;
 			}
-			
+
 			setActive(active);
 			update = true;
 		}
-		
+
 		return update;
 	}
-	
+
 	@Override
 	public boolean onDelete(Session s) throws CallbackException
 	{
@@ -1181,16 +1181,16 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		return new Location(this.getSystem(), this.getX(), this.getY());
 	}
-	
+
 	@Override
 	public String transfer(Transfering to, ResourceID resource, long count)
 	{
 		return new Transfer().transfer(this, to, resource, count);
 	}
-	
+
 	/**
 	 * Transfers crew from the asteroid to a ship.
-	 * 
+	 *
 	 * @param ship Ship that gets the crew.
 	 * @param amount People that should be transfered.
 	 * @return People that where transfered.
@@ -1202,45 +1202,45 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		{
 			return 0;
 		}
-		
+
 		//Only workless people can be transfered, when there is enough space on the ship
 		int maxAmount = ship.getTypeData().getCrew() - ship.getCrew();
 		int workless = getBewohner() - getArbeiter();
 		amount = Math.min(amount, maxAmount);
 		amount = Math.min(amount, workless);
-		
+
 		ship.setCrew(ship.getCrew() + amount);
 		setBewohner(getBewohner() - amount);
-		
+
 		ship.recalculateShipStatus();
-		
+
 		return amount;
 	}
-	
+
 	/**
 	 * Gibt die Werft der Basis zurueck.
-	 * 
+	 *
 	 * @return <code>null</code>, wenn die Basis keine Werft hat, ansonsten das Objekt.
 	 */
 	public BaseWerft getShipyard()
 	{
 		return this.getWerft();
 	}
-	
+
 	/**
 	 * Gibt an, ob die Basis eine Werft hat.
-	 * 
+	 *
 	 * @return <code>true</code>, wenn die Basis eine Werft hat, <code>false</code> ansonsten.
 	 */
 	public boolean hasShipyard()
 	{
 		return getShipyard() != null;
 	}
-	
+
 	/**
 	 * Gibt das userspezifische Bild der Basis zurueck. Falls es kein spezielles Bild
 	 * fuer den angegebenen Benutzer gibt wird <code>null</code> zurueckgegeben.
-	 * 
+	 *
 	 * @param location Koordinate fuer die das Bild der Basis ermittelt werden soll.
 	 * @param user Aktueller Spieler.
 	 * @param scanned <code>true</code>, wenn die Basis derzeit von einem Schiff des Spielers gescannt werden kann.
@@ -1252,11 +1252,11 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		{
 			return null;
 		}
-		
+
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		User nobody = (User)db.get(User.class, -1);
 		User zero = (User)db.get(User.class, 0);
-		
+
 		if(size > 0)
 		{
 			return null;
@@ -1278,11 +1278,11 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Gibt das Bild der Basis zurueck.
 	 * Dabei werden Ausdehnung und Besitzer beruecksichtigt.
-	 * 
+	 *
 	 * @param location Koordinate fuer die das Bild der Basis ermittelt werden soll.
 	 * @return Der Bildstring der Basis oder einen Leerstring, wenn die Basis die Koordinaten nicht schneidet
 	 */
@@ -1292,27 +1292,27 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		{
 			return "";
 		}
-		
+
 		if(size > 0)
 		{
 			int imgcount = 0;
 			Location centerLoc = getLocation();
-			for(int by = getY() - getSize(); by <= getY() + getSize(); by++) 
+			for(int by = getY() - getSize(); by <= getY() + getSize(); by++)
 			{
-				for(int bx = getX() - getSize(); bx <= getX() + getSize(); bx++) 
+				for(int bx = getX() - getSize(); bx <= getX() + getSize(); bx++)
 				{
 					Location loc = new Location(getSystem(), bx, by);
-					
-					if( !centerLoc.sameSector(0, loc, getSize())) 
+
+					if( !centerLoc.sameSector(0, loc, getSize()))
 					{
-						continue;	
+						continue;
 					}
-					
+
 					if(location.equals(loc))
 					{
 						return "kolonie"+getKlasse()+"_lrs/kolonie"+getKlasse()+"_lrs"+imgcount;
 					}
-					
+
 					imgcount++;
 				}
 			}
@@ -1321,16 +1321,16 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		{
 			return "kolonie"+getKlasse()+"_lrs/kolonie"+getKlasse()+"_lrs";
 		}
-		
+
 		assert false;
 		return null;
 	}
-	
+
 	/**
 	 * @return The current amount of food on the object.
 	 */
 	@Override
-	public long getNahrungCargo() 
+	public long getNahrungCargo()
 	{
 		Cargo cargo = this.getCargo();
 		return cargo.getResourceCount(Resources.NAHRUNG);
@@ -1338,41 +1338,41 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 
 	/**
 	 * Updates the amount of food on the object.
-	 * 
+	 *
 	 * @param newFood The new amount of food.
 	 */
 	@Override
-	public void setNahrungCargo(long newFood) 
+	public void setNahrungCargo(long newFood)
 	{
 		Cargo cargo = this.getCargo();
 		cargo.setResource(Resources.NAHRUNG, newFood);
 		this.setCargo(cargo);
 	}
-	
+
 	/**
 	 * @return Die Bilanz der Basis.
 	 */
 	public long getBalance()
 	{
 		BaseStatus status = getStatus(this );
-		
+
 		Cargo produktion = status.getProduction();
-		
+
 		return produktion.getResourceCount( Resources.RE );
 	}
-	
+
 	/**
 	 * @return Die Nahrungsbilanz der Basis.
 	 */
 	public long getNahrungsBalance()
 	{
 		BaseStatus status = getStatus(this );
-		
+
 		Cargo produktion = status.getProduction();
-		
+
 		return produktion.getResourceCount( Resources.NAHRUNG );
 	}
-	
+
 	/**
 	 * Gibt zurueck, wie viel diese Basis an Nahrung bei sich behalten muss um alle Schiffe im Sektor versorgen zu koennen.
 	 * @return Die Nahrung die die Basis behalten muss
@@ -1385,27 +1385,27 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		}
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		long savenahrung = 0;
-		
-		List<?> ships = db.createQuery("from Ship fetch all properties where owner=? and system=? and x=? and y=?")
-								.setEntity(0, getOwner())
-								.setInteger(1, getSystem())
-								.setInteger(2, getX())
-								.setInteger(3, getY())
+
+		List<?> ships = db.createQuery("from Ship fetch all properties where owner=:owner and system=:sys and x=:x and y=:y")
+								.setEntity("owner", getOwner())
+								.setInteger("sys", getSystem())
+								.setInteger("x", getX())
+								.setInteger("y", getY())
 								.list();
-		
+
 		for(Iterator<?> iter=ships.iterator();iter.hasNext();)
 		{
 			Ship ship = (Ship)iter.next();
 			savenahrung += ship.getFoodConsumption();
 		}
-		
+
 		if(savenahrung > cargo.getResourceCount(Resources.NAHRUNG))
 		{
 			savenahrung = cargo.getResourceCount(Resources.NAHRUNG);
 		}
 		return savenahrung;
 	}
-	
+
 	/**
 	 * Gibt alle auf der Basis vorhandenen Fabriken zurueck.
 	 * @return Die Fabriken
@@ -1414,7 +1414,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		return this.factories;
 	}
-	
+
 	/**
 	 * Setzt alle auf der Basis vorhandenen Fabriken.
 	 * @param factories Die Fabriken
@@ -1423,7 +1423,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		this.factories = factories;
 	}
-	
+
 	/**
 	 * Gibt eine evt vorhandene Akademie zurueck.
 	 * @return Die Akademie oder <code>null</code>
@@ -1480,25 +1480,25 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 
 	/**
 	 * Laesst die Basis ticken.
-	 * 
+	 *
 	 * @return Die Ticknachrichten, wenn es welche gab.
 	 */
 	public String tick()
 	{
 		String message = "Basis " + getName() + "\n----------------------------------\n";
 		boolean usefullMessage = false;
-		
+
 		String proof = proofBuildings();
 		if(!proof.equals(""))
 		{
 			message += proof;
 			usefullMessage = true;
 		}
-		
+
 		BaseStatus state = getStatus();
-		
+
 		immigrate(state);
-		
+
 		if(!rebalanceEnergy(state))
 		{
 			message += "Zu wenig Energie. Die Produktion f&auml;llt aus.\n";
@@ -1518,15 +1518,15 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 				boolean overfullCargo = clearOverfullCargo(state);
 				if(money > 0)
 				{
-					getOwner().transferMoneyFrom(Faction.GTU, money, "Automatischer Warenverkauf Asteroid " + getName(), false, UserMoneyTransfer.Transfer.AUTO);	
+					getOwner().transferMoneyFrom(Faction.GTU, money, "Automatischer Warenverkauf Asteroid " + getName(), false, UserMoneyTransfer.Transfer.AUTO);
 				}
-				
+
 				if(money > 0)
 				{
 					message += "Ihnen wurden " + money + " RE f&uuml;r automatische Verk&auml;ufe gut geschrieben.\n";
 					usefullMessage = true;
 				}
-				
+
 				if(overfullCargo)
 				{
 					message += "Wegen uuml;berfuuml;llten Lagerr&auml;umen wurde ein Teil der Produktion vernichtet.\n";
@@ -1534,12 +1534,12 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 				}
 			}
 		}
-		
+
 		if(getBewohner() > state.getLivingSpace())
 		{
 			setBewohner(state.getLivingSpace());
 		}
-		
+
 		if(usefullMessage)
 		{
 			message += "\n";
@@ -1548,10 +1548,10 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		{
 			message = "";
 		}
-		
+
 		return message;
 	}
-	
+
 	/**
 	 * Ueberprueft alle Gebaeude und schaltet bei nicht vorhandenen Voraussetzungen ab.
 	 * @return Gibt eine Meldung mit allen abgeschalteten Gebaeuden zurueck
@@ -1560,64 +1560,64 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		User owner = getOwner();
 		String msg = "";
-		
+
 		if( (getCore() > 0) && isCoreActive() ) {
 			Core core = Core.getCore(getCore());
-			
+
 			if( core.isShutDown() && !owner.hasResearched(core.getTechRequired()) )
 			{
 				setCoreActive(false);
 				msg += "Der Core wurde wegen unzureichenden Voraussetzungen abgeschaltet.\n";
 			}
 		}
-		
+
 		Integer[] bebauung = getBebauung();
 		Integer[] bebon = getActive();
-			
+
 		for( int o=0; o < getWidth() * getHeight(); o++ )
 		{
 			if( bebauung[o] == 0 )
 			{
 				continue;
-			} 
-			
+			}
+
 			Building building = Building.getBuilding(bebauung[o]);
 
 			if( bebon[o] == 0 )
 			{
 				continue;
 			}
-			
-			if( building.isShutDown() && 
-					(!owner.hasResearched(building.getTechRequired()) 
+
+			if( building.isShutDown() &&
+					(!owner.hasResearched(building.getTechRequired())
 							|| (owner.getRace() != building.getRace() && building.getRace() != 0)))
 			{
 				bebon[o] = 0;
 				msg += "Das Geb&auml;ude "+building.getName()+" wurde wegen unzureichenden Voraussetzungen abgeschaltet.\n";
 			}
 		}
-		
+
 		setActive(bebon);
-		
+
 		return msg;
 	}
-	
+
 	/**
 	 * Enforces the automatic sale rules of the base.
-	 * 
+	 *
 	 * @return The money for resource sales.
 	 */
 	private long automaticSale()
 	{
 		long money = 0;
 		List<AutoGTUAction> actions = getAutoGTUActs();
-		if(!actions.isEmpty() ) 
-		{	
+		if(!actions.isEmpty() )
+		{
 			for(AutoGTUAction action: actions)
 			{
-				
+
 				ResourceID resource = action.getResID();
-				
+
 				long sell;
 				switch(action.getActID())
 				{
@@ -1635,7 +1635,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 					default:
 						sell = 0;
 				}
-				
+
 				if(sell > 0)
 				{
 					cargo.substractResource(resource, sell);
@@ -1643,13 +1643,13 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 				}
 			}
 		}
-		
+
 		return money;
 	}
-	
+
 	/**
 	 * Enforces the maximum cargo rules.
-	 * 
+	 *
 	 * @param state Der Status der Basis
 	 * @return The money for resource sales.
 	 */
@@ -1657,7 +1657,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		long maxCargo = getMaxCargo();
 		long surplus = cargo.getMass() - maxCargo;
-		
+
 		if(surplus > 0)
 		{
 			ResourceList production = state.getProduction().getResourceList();
@@ -1688,19 +1688,19 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 					long resourceMass = Cargo.getResourceMass(resource.getId(), 1);
 					toSell = (long)Math.ceil((double)surplus/(double)resourceMass);
 				}
-				
+
 				cargo.substractResource(resource.getId(), toSell);
 				surplus = cargo.getMass() - maxCargo;
-				
+
 				if(cargo.getMass() <= maxCargo)
 				{
 					return true;
 				}
 			}
-			
+
 			return true;
 		}
-		
+
 		return false;
 	}
 
@@ -1715,23 +1715,23 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		GtuWarenKurse kurs = (GtuWarenKurse)getDB().get(GtuWarenKurse.class, "asti");
 		Cargo prices = kurs.getKurse();
 		double price = prices.getResourceCount(resource) / 1000d;
-		
+
 		long pay = Math.round(price * count);
 		return pay;
 	}
-	
+
 	private boolean rebalanceEnergy(BaseStatus state)
 	{
 		int energy = getEnergy();
 		int eps = getMaxEnergy();
 		int production = state.getEnergy();
-		
+
 		energy = energy + production;
 		if(energy < 0)
 		{
 			return false;
 		}
-		
+
 		if(energy > eps)
 		{
 			long overflow = energy - eps;
@@ -1740,16 +1740,16 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 			{
 				overflow = emptyBatteries;
 			}
-			
+
 			cargo.substractResource(Resources.LBATTERIEN, overflow);
 			cargo.addResource(Resources.BATTERIEN, overflow);
 			energy = eps;
 		}
-		
+
 		setEnergy(energy);
 		return true;
 	}
-	
+
 	private String produce(BaseStatus state)
 	{
 		String msg = "";
@@ -1758,14 +1758,14 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		Cargo nettoconsumption = getNettoConsumption();
 		org.hibernate.Session db = getDB();
 		boolean ok = true;
-		
+
 		if(state.getArbeiter() > getBewohner())
 		{
 			return "Sie haben mehr Arbeiter als (maximal)Bev&ouml;lkerung. Die Produktion f&auml;llt aus.";
 		}
-		
+
 		baseCargo.addResource(Resources.RE, getOwner().getKonto().longValue());
-		
+
 		for(ResourceEntry entry : nettoproduction.getResourceList())
 		{
 			// Auf Spawn Resource pruefen und ggf Produktion anpassen
@@ -1791,22 +1791,22 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		}
 		Cargo fullproduction = (Cargo)nettoproduction.clone();
 		fullproduction.substractCargo(nettoconsumption);
-		
+
 		ResourceList resources = baseCargo.compare(fullproduction, true);
 		for(ResourceEntry entry: resources)
 		{
 			long stock = entry.getCount1();
 			long production = entry.getCount2();
-			
+
 			long balance = stock + production;
-			
+
 			//Not enough resources for production
 			if(balance < 0)
 			{
 				msg += "Zu wenig "+entry.getPlainName()+" vorhanden. Die Produktion f&auml;llt aus.\n";
 				ok = false;
 			}
-			
+
 			if(production > 0)
 			{
 				baseCargo.addResource(entry.getId(), production);
@@ -1817,13 +1817,13 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 				baseCargo.substractResource(entry.getId(), production);
 			}
 		}
-		
+
 		//Try to take all of the RE from the pool
 		//Only use the asteroid cargo if there's no choice
 		long baseRE = cargo.getResourceCount(Resources.RE);
-		
+
 		long newRE = baseCargo.getResourceCount(Resources.RE);
-		
+
 		if(newRE > baseRE)
 		{
 			getOwner().setKonto(BigInteger.valueOf(newRE - baseRE));
@@ -1833,42 +1833,42 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		{
 			getOwner().setKonto(BigInteger.ZERO);
 		}
-		
+
 		if(!feedInhabitants(baseCargo))
 		{
 			msg += "Wegen einer Hungersnot fliehen ihre Einwohner. Die Produktion f&auml;llt aus.\n";
 			ok = false;
 		}
-		
+
 		// Zuerst sollen die Marines verhungern danach die Bevoelkerung.
 		if(!feedMarines(baseCargo))
 		{
 			msg += "Wegen Unterern&auml;hrung desertieren ihre Truppen.\n";
 		}
-		
+
 		if(ok)
 		{
 			this.cargo = baseCargo;
 		}
 		return msg;
 	}
-	
+
 	private void immigrate(BaseStatus state)
 	{
 		int inhabitants = getBewohner();
 		int maxInhabitants = state.getLivingSpace();
-		
+
 		if(maxInhabitants > inhabitants)
 		{
 			int immigrants = maxInhabitants - inhabitants;
-			
+
 			Session db = getDB();
 			ConfigValue immigrationFactorValue = (ConfigValue)db.get(ConfigValue.class, "immigrationfactor");
 			ConfigValue randomizeImmigrationValue = (ConfigValue)db.get(ConfigValue.class, "randomizeimmigration");
-			
+
 			double immigrationFactor = Double.valueOf(immigrationFactorValue.getValue());
 			boolean randomizeImmigration = Boolean.parseBoolean(randomizeImmigrationValue.getValue());
-			
+
 			immigrants *= immigrationFactor;
 			if(randomizeImmigration)
 			{
@@ -1878,43 +1878,43 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 					immigrants = 1;
 				}
 			}
-			
+
 			setBewohner(getBewohner() + immigrants);
 		}
 	}
-	
-	private boolean feedMarines(Cargo baseCargo) 
+
+	private boolean feedMarines(Cargo baseCargo)
 	{
 		int hungryPeople = (int)Math.ceil(getUnits().getNahrung() / 10);
 		int fleeingPeople = feedPeople(hungryPeople, baseCargo);
-		
+
 		if(fleeingPeople > 0)
 		{
 			getUnits().fleeUnits(fleeingPeople);
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 
 	private boolean feedInhabitants(Cargo baseCargo)
 	{
 		int hungryPeople = (int)Math.ceil(getBewohner() / 10);
 		int fleeingPeople = feedPeople(hungryPeople, baseCargo);
-		
+
 		if(fleeingPeople > 0)
 		{
 			setBewohner(getBewohner() - fleeingPeople);
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Tries to feed hungry people.
-	 * 
+	 *
 	 * @param hungryPeople People, which should be feed.
 	 * @param baseCargo Der Cargo aus dem die Bewohner versorgt werden sollen
 	 * @return People, which got no food.
@@ -1935,12 +1935,12 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		baseCargo.setResource(Resources.NAHRUNG, food);
 		return hungryPeople;
 	}
-	
+
 	private Session getDB()
 	{
 		return ContextMap.getContext().getDB();
 	}
-	
+
 	private int getSpawnableRessAmount(int itemid)
 	{
 		if(getAvailableSpawnableRess() == null) {
@@ -1955,7 +1955,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		}
 		return 0;
 	}
-	
+
 	private void setSpawnableRessAmount(int itemid, long value)
 	{
 		if(getAvailableSpawnableRess() == null)
@@ -1965,7 +1965,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		String[] spawnress = StringUtils.split(getAvailableSpawnableRess(), ";");
 		String newspawnress = "";
 		boolean found = false;
-		for(int i = 0; i < spawnress.length; i++) 
+		for(int i = 0; i < spawnress.length; i++)
 		{
 			String[] thisress = StringUtils.split(spawnress[i], ",");
 			if(Integer.valueOf(thisress[0]) == itemid) {
@@ -1987,14 +1987,14 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		newspawnress = StringUtils.substring(newspawnress, 0, newspawnress.length() - 1);
 		this.spawnressavailable = newspawnress;
 	}
-	
+
 	private void respawnRess(int itemid)
 	{
 		org.hibernate.Session db = getDB();
 		User sourceUser = (User)db.get(User.class, -1);
-	
+
 		setSpawnableRessAmount(itemid, 0);
-		
+
 		Map<Integer,Integer[]> spawnableress = getSpawnableRessMap();
 		if(spawnableress == null || spawnableress.isEmpty())
 		{
@@ -2004,15 +2004,15 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		Integer[] spawnress = spawnableress.get(chance);
 		int item = spawnress[0];
 		int maxvalue = RandomUtils.nextInt(spawnress[1]-1)+1;
-		
+
 		setSpawnableRessAmount(item, maxvalue);
-		
+
 		Item olditem = (Item)db.get(Item.class, itemid);
 		Item newitem = (Item)db.get(Item.class, item);
 		String message = "Kolonie: " + this.getName() + " (" + this.getId() + ")\n";
 		message = message + "Ihre Arbeiter melden: Die Ressource " + olditem.getName() + " wurde aufgebraucht!\n";
 		message = message + "Erfreulich ist: Ihre Geologen haben " + newitem.getName() + " gefunden!";
-			
+
 		PM.send(sourceUser, this.getOwner().getId(), "Ressourcen aufgebraucht!", message);
 	}
 }

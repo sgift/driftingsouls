@@ -77,8 +77,8 @@ public class KasernenBuilding extends DefaultBuilding {
 		super.cleanup(context, base, building);
 
 		org.hibernate.Session db = context.getDB();
-		Kaserne kaserne = (Kaserne)db.createQuery("from Kaserne where col=?")
-			.setEntity(0, base)
+		Kaserne kaserne = (Kaserne)db.createQuery("from Kaserne where col=:base")
+			.setEntity("base", base)
 			.uniqueResult();
 
 		if( kaserne != null ) {
@@ -92,8 +92,8 @@ public class KasernenBuilding extends DefaultBuilding {
 
 		StringBuilder result = new StringBuilder(200);
 
-		Kaserne kaserne = (Kaserne)db.createQuery("from Kaserne where col=?")
-			.setEntity(0, base)
+		Kaserne kaserne = (Kaserne)db.createQuery("from Kaserne where col=:base")
+			.setEntity("base", base)
 			.uniqueResult();
 		if( kaserne != null ) {
 			if( !kaserne.isBuilding() ) {
@@ -133,8 +133,8 @@ public class KasernenBuilding extends DefaultBuilding {
 	public boolean isActive(Base base, int status, int field) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		Kaserne kaserne = (Kaserne)db.createQuery("from Kaserne where col=?")
-			.setEntity(0, base)
+		Kaserne kaserne = (Kaserne)db.createQuery("from Kaserne where col=:base")
+			.setEntity("base", base)
 			.uniqueResult();
 		if( kaserne != null ) {
 			return kaserne.isBuilding();
@@ -147,8 +147,8 @@ public class KasernenBuilding extends DefaultBuilding {
 	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
 		org.hibernate.Session db = context.getDB();
 
-		Kaserne kaserne = (Kaserne)db.createQuery("from Kaserne where col=?")
-			.setEntity(0, base)
+		Kaserne kaserne = (Kaserne)db.createQuery("from Kaserne where col=:base")
+			.setEntity("base", base)
 			.uniqueResult();
 
 		User owner = base.getOwner();

@@ -79,12 +79,11 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 	public void cleanup(Context context, Base base, int building) {
 		super.cleanup(context, base, building);
 
+		Forschungszentrum fz = base.getForschungszentrum();
 		base.setForschungszentrum(null);
+
 		org.hibernate.Session db = context.getDB();
-		db.flush();
-		db.createQuery("delete from Forschungszentrum where base=?")
-			.setEntity(0, base)
-			.executeUpdate();
+		db.delete(fz);
 	}
 
 	@Override
@@ -155,8 +154,8 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 
 		List<Integer> researches = new ArrayList<Integer>();
 		List<?> researchList = db.createQuery("from Forschungszentrum " +
-				"where forschung is not null and base.owner=?")
-				.setEntity(0, user)
+				"where forschung is not null and base.owner=:owner")
+				.setEntity("owner", user)
 				.list();
 		for( Iterator<?> iter=researchList.iterator(); iter.hasNext(); ) {
 			Forschungszentrum aFz = (Forschungszentrum)iter.next();

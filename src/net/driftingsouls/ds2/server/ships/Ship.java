@@ -18,7 +18,6 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
-import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -835,7 +834,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * Gibt die Scriptausfuehrungsdaten zurueck.
 	 * @return Die Scriptausfuehrungsdaten
 	 */
-	public Blob getScriptExeData()
+	public byte[] getScriptExeData()
 	{
 		if(scriptData != null)
 		{
@@ -849,7 +848,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * Setzt die Scriptausfuehrungsdaten.
 	 * @param scriptexedata Die neuen Ausfuehrungsdaten
 	 */
-	public void setScriptExeData(Blob scriptexedata)
+	public void setScriptExeData(byte[] scriptexedata)
 	{
 		if(scriptData == null)
 		{
@@ -957,8 +956,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		// Ueberpruefen, ob ein evt vorhandener Werftkomplex nicht exisitert
 		if( type.getWerft() != 0 ) {
-			ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=?")
-				.setEntity(0, this)
+			ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=:ship")
+				.setEntity("ship", this)
 				.uniqueResult();
 
 			if( (werft != null) && (werft.getKomplex() != null) ) {
@@ -982,12 +981,12 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		Ship versorger = (Ship)db.createQuery("from Ship as s left join fetch s.modules" +
 								" where (s.shiptype.versorger!=0 or s.modules.versorger!=0)" +
-								" and s.owner=? and s.system=? and s.x=? and s.y=? and s.nahrungcargo > 0 and s.einstellungen.isfeeding != 0 " +
+								" and s.owner=:owner and s.system=:sys and s.x=:x and s.y=:y and s.nahrungcargo > 0 and s.einstellungen.isfeeding != 0 " +
 								"ORDER BY s.nahrungcargo DESC")
-								.setEntity(0, this.owner)
-								.setInteger(1, this.system)
-								.setInteger(2, this.x)
-								.setInteger(3, this.y)
+								.setEntity("owner", this.owner)
+								.setInteger("sys", this.system)
+								.setInteger("x", this.x)
+								.setInteger("y", this.y)
 								.setMaxResults(1)
 								.uniqueResult();
 
@@ -1107,11 +1106,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 	private boolean isBaseInSector() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		List<?> bases = db.createQuery("from Base where owner=? and system=? and x=? and y=?")
-							.setEntity(0, this.owner)
-							.setInteger(1, this.system)
-							.setInteger(2, this.x)
-							.setInteger(3, this.y)
+		List<?> bases = db.createQuery("from Base where owner=:owner and system=:sys and x=:x and y=:y")
+							.setEntity("owner", this.owner)
+							.setInteger("sys", this.system)
+							.setInteger("x", this.x)
+							.setInteger("y", this.y)
 							.list();
 
 		if(bases.size() > 0)
@@ -1173,9 +1172,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		if( shiptype.getJDocks() > 0 || shiptype.getADocks() > 0 ) {
 			//Angehaengte Schiffe beruecksichtigen
-			List<?> dockedShips = db.createQuery("from Ship as ship where ship.docked in (?,?)")
-				.setString(0, Integer.toString(this.id))
-				.setString(1, "l "+this.id)
+			List<?> dockedShips = db.createQuery("from Ship as ship where ship.docked in (:docked,:landed)")
+				.setString("docked", Integer.toString(this.id))
+				.setString("landed", "l "+this.id)
 				.list();
 			for( Iterator<?> iter=dockedShips.iterator(); iter.hasNext(); ) {
 				Ship dockedShip = (Ship)iter.next();
@@ -1490,14 +1489,14 @@ public class Ship implements Locatable,Transfering,Feeding {
 				Battle battle = ship.getBattle();
 				battle.load(this.owner, null, null, oside);
 
-				int docked = ((Number)db.createQuery("select count(*) from Ship where docked=?")
-						.setString(0, Integer.toString(this.id))
+				int docked = ((Number)db.createQuery("select count(*) from Ship where docked=:dock")
+						.setString("dock", Integer.toString(this.id))
 						.iterate().next()).intValue();
 
 				if(docked != 0)
 				{
-					List<Ship> dlist = Common.cast(db.createQuery("from Ship where docked=?")
-													 .setString(0, Integer.toString(this.id))
+					List<Ship> dlist = Common.cast(db.createQuery("from Ship where docked=:dock")
+													 .setString("dock", Integer.toString(this.id))
 													 .list());
 
 					for(Ship aship: dlist)
@@ -1887,14 +1886,14 @@ public class Ship implements Locatable,Transfering,Feeding {
 		org.hibernate.Session db = context.getDB();
 
 		List<?> fleetships = db.createQuery("from Ship s left join fetch s.modules " +
-				"where s.id>0 and s.fleet=? and s.x=? and s.y=? and s.system=? and s.owner=? and " +
-				"s.docked='' and s.id!=? and s.e>0 and s.battle is null")
-			.setEntity(0, this.fleet)
-			.setInteger(1, this.x)
-			.setInteger(2, this.y)
-			.setInteger(3, this.system)
-			.setEntity(4, this.owner)
-			.setInteger(5, this.id)
+				"where s.id>0 and s.fleet=:fleet and s.x=:x and s.y=:y and s.system=:sys and s.owner=:owner and " +
+				"s.docked='' and s.id!=:id and s.e>0 and s.battle is null")
+			.setEntity("fleet", this.fleet)
+			.setInteger("x", this.x)
+			.setInteger("y", this.y)
+			.setInteger("sys", this.system)
+			.setEntity("owner", this.owner)
+			.setInteger("id", this.id)
 			.list();
 
 		for( Iterator<?> iter=fleetships.iterator(); iter.hasNext(); ) {
@@ -1927,9 +1926,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 				int dockedcount = 0;
 				int adockedcount = 0;
 				if( (shiptype.getJDocks() > 0) || (shiptype.getADocks() > 0) ) {
-					int docks = ((Number)db.createQuery("select count(*) from Ship where id>0 and docked in (?,?)")
-							.setString(0, "l "+fleetship.getId())
-							.setString(1, Integer.toString(fleetship.getId()))
+					int docks = ((Number)db.createQuery("select count(*) from Ship where id>0 and docked in (:landed,:docked)")
+							.setString("landed", "l "+fleetship.getId())
+							.setString("docked", Integer.toString(fleetship.getId()))
 							.iterate().next()).intValue();
 
 					dockedcount = docks;
@@ -2108,9 +2107,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 		MovementStatus status = MovementStatus.SUCCESS;
 
 		if( (shiptype.getJDocks() > 0) || (shiptype.getADocks() > 0) ) {
-			docked = ((Number)db.createQuery("select count(*) from Ship where id>0 and docked in (?,?)")
-					.setString(0, "l "+this.id)
-					.setString(1, Integer.toString(this.id))
+			docked = ((Number)db.createQuery("select count(*) from Ship where id>0 and docked in (:landed,:docked)")
+					.setString("landed", "l "+this.id)
+					.setString("docked", Integer.toString(this.id))
 					.iterate().next()).intValue();
 
 			if( shiptype.getADocks() > 0 ) {
@@ -2280,10 +2279,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 							}
 
 							sectors = db.createQuery("from Sector "+
-									"where system in (?,-1) AND x in (-1,?) and y in (-1,?) order by system desc")
-									.setInteger(0, this.system)
-									.setInteger(1, this.x+tmpxoff)
-									.setInteger(2, this.y+tmpyoff)
+									"where system in (:sys,-1) AND x in (-1,:x) and y in (-1,:y) order by system desc")
+									.setInteger("sys", this.system)
+									.setInteger("x", this.x+tmpxoff)
+									.setInteger("y", this.y+tmpyoff)
 									.list();
 							for( Iterator<?> iter=sectors.iterator(); iter.hasNext(); ) {
 								Sector sector = (Sector)iter.next();
@@ -2330,13 +2329,18 @@ public class Ship implements Locatable,Transfering,Feeding {
 						if( (sector != null) && sector.getOnEnter().length() > 0 ) {
 							this.docked = "";
 							if( docked != 0 ) {
-								db.createQuery("update Ship set x=? ,y=?, system=? where id>0 and docked in (?,?)")
-									.setInteger(0, this.x)
-									.setInteger(1, this.y)
-									.setInteger(2, this.system)
-									.setString(3, "l "+this.id)
-									.setString(4, Integer.toString(this.id))
-									.executeUpdate();
+								for( Ship dship : this.getDockedShips() )
+								{
+									dship.setX(this.x);
+									dship.setY(this.y);
+									dship.setSystem(this.system);
+								}
+								for( Ship dship : this.getLandedShips() )
+								{
+									dship.setX(this.x);
+									dship.setY(this.y);
+									dship.setSystem(this.system);
+								}
 							}
 							saveFleetShips();
 
@@ -2353,13 +2357,18 @@ public class Ship implements Locatable,Transfering,Feeding {
 							Quests.currentEventURL.set("&action=onenter");
 
 							if( docked != 0 ) {
-								db.createQuery("update Ship set x=? ,y=?, system=? where id>0 and docked in (?,?)")
-									.setInteger(0, this.x)
-									.setInteger(1, this.y)
-									.setInteger(2, this.system)
-									.setString(3, "l "+this.id)
-									.setString(4, Integer.toString(this.id))
-									.executeUpdate();
+								for( Ship dship : this.getDockedShips() )
+								{
+									dship.setX(this.x);
+									dship.setY(this.y);
+									dship.setSystem(this.system);
+								}
+								for( Ship dship : this.getLandedShips() )
+								{
+									dship.setX(this.x);
+									dship.setY(this.y);
+									dship.setSystem(this.system);
+								}
 							}
 
 							if( Quests.executeEvent(scriptparser, sector.getOnEnter(), this.owner, "", false ) ) {
@@ -2373,13 +2382,18 @@ public class Ship implements Locatable,Transfering,Feeding {
 					if( alertList.containsKey(this.getLocation()) ) {
 						this.docked = "";
 						if( docked != 0 ) {
-							db.createQuery("update Ship set x=? ,y=?, system=? where id>0 and docked in (?,?)")
-								.setInteger(0, this.x)
-								.setInteger(1, this.y)
-								.setInteger(2, this.system)
-								.setString(3, "l "+this.id)
-								.setString(4, Integer.toString(this.id))
-								.executeUpdate();
+							for( Ship dship : this.getDockedShips() )
+							{
+								dship.setX(this.x);
+								dship.setY(this.y);
+								dship.setSystem(this.system);
+							}
+							for( Ship dship : this.getLandedShips() )
+							{
+								dship.setX(this.x);
+								dship.setY(this.y);
+								dship.setSystem(this.system);
+							}
 						}
 						saveFleetShips();
 
@@ -2404,9 +2418,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 			this.docked = "";
 			if( docked != 0 ) {
-				List<?> dockedList = db.createQuery("from Ship where id>0 and docked in (?,?)")
-					.setString(0, "l "+this.id)
-					.setString(1, Integer.toString(this.id))
+				List<?> dockedList = db.createQuery("from Ship where id>0 and docked in (:docked,:landed)")
+					.setString("landed", "l "+this.id)
+					.setString("docked", Integer.toString(this.id))
 					.list();
 				for( Iterator<?> iter=dockedList.iterator(); iter.hasNext(); ) {
 					Ship dockedShip = (Ship)iter.next();
@@ -2598,11 +2612,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 		List<Ship> shiplist = new ArrayList<Ship>();
 		// Falls vorhanden die Schiffe der Flotte einfuegen
 		if( this.fleet != null ) {
-			List<?> fleetships = db.createQuery("from Ship where id>0 and fleet=? AND x=? AND y=? AND system=? and docked='' AND battle is null")
-			.setEntity(0, this.fleet)
-			.setInteger(1, this.x)
-			.setInteger(2, this.y)
-			.setInteger(3, this.system)
+			List<?> fleetships = db.createQuery("from Ship where id>0 and fleet=:fleet AND x=:x AND y=:y AND system=:sys and docked='' AND battle is null")
+			.setEntity("fleet", this.fleet)
+			.setInteger("x", this.x)
+			.setInteger("y", this.y)
+			.setInteger("sys", this.system)
 			.list();
 
 			for( Iterator<?> iter=fleetships.iterator(); iter.hasNext(); ) {
@@ -2630,9 +2644,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 			// Liste der gedockten Schiffe laden
 			List<Ship> docked = new ArrayList<Ship>();
 			if( (shiptype.getADocks() > 0) || (shiptype.getJDocks() > 0) ) {
-				List<?> line = db.createQuery("from Ship where id>0 and docked in (?,?)")
-					.setString(0, Integer.toString(ship.getId()))
-					.setString(1, "l "+ship.getId())
+				List<?> line = db.createQuery("from Ship where id>0 and docked in (:docked,:landed)")
+					.setString("docked", Integer.toString(ship.getId()))
+					.setString("landed", "l "+ship.getId())
 					.list();
 				for( Iterator<?> iter=line.iterator(); iter.hasNext(); ) {
 					Ship aship = (Ship)iter.next();
@@ -2758,8 +2772,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 			errors = true;
 		}
 
-		long landedShips = (Long)db.createQuery("select count(*) from Ship where docked=?")
-			.setParameter(0, "l "+getId())
+		long landedShips = (Long)db.createQuery("select count(*) from Ship where docked=:landed")
+			.setParameter("landed", "l "+getId())
 			.uniqueResult();
 		if(landedShips + dockships.length > this.getTypeData().getJDocks())
 		{
@@ -2971,8 +2985,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 			return errors;
 		}
 
-		long dockedShips = (Long)db.createQuery("select count(*) from Ship where docked=?")
-			.setParameter(0, ""+getId())
+		long dockedShips = (Long)db.createQuery("select count(*) from Ship where docked=:docked")
+			.setParameter("docked", ""+getId())
 			.uniqueResult();
 		if(!superdock)
 		{
@@ -3186,11 +3200,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 		List<ShipLoot> loot = new ArrayList<ShipLoot>();
 		int maxchance = 0;
 
-		List<?> lootList = db.createQuery("from ShipLoot where owner=? and shiptype in (?,?) and targetuser in (0,?) and totalmax!=0")
-		.setInteger(0, this.owner.getId())
-		.setInteger(1, this.shiptype.getId())
-		.setInteger(2, -this.id)
-		.setInteger(3, destroyer)
+		List<?> lootList = db.createQuery("from ShipLoot where owner=:owner and shiptype in (:type,:negtype) and targetuser in (0,:destroyer) and totalmax!=0")
+		.setInteger("owner", this.owner.getId())
+		.setInteger("type", this.shiptype.getId())
+		.setInteger("negtype", -this.id)
+		.setInteger("destroyer", destroyer)
 		.list();
 
 		for( Iterator<?> iter=lootList.iterator(); iter.hasNext(); ) {
@@ -3259,14 +3273,14 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		// Checken wir mal ob die Flotte danach noch bestehen darf....
 		if( this.fleet != null ) {
-			long fleetcount = (Long)db.createQuery("select count(*) from Ship where fleet=?")
-			.setInteger(0, fleet.getId())
+			long fleetcount = (Long)db.createQuery("select count(*) from Ship where fleet=:fleet")
+			.setInteger("fleet", fleet.getId())
 			.iterate().next();
 			if( fleetcount <= 2 ) {
 				final ShipFleet fleet = this.fleet;
 
-				final Iterator<?> shipIter = db.createQuery("from Ship where fleet=?")
-					.setEntity(0, this.fleet)
+				final Iterator<?> shipIter = db.createQuery("from Ship where fleet=:fleet")
+					.setEntity("fleet", this.fleet)
 					.iterate();
 				while( shipIter.hasNext() ) {
 					Ship aship = (Ship)shipIter.next();
@@ -3307,16 +3321,16 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		// Und nun loeschen wir es...
-		db.createQuery("delete from Offizier where dest=?")
-			.setString(0, "s "+this.id)
+		db.createQuery("delete from Offizier where dest=:dest")
+			.setString("dest", "s "+this.id)
 			.executeUpdate();
 
-		db.createQuery("delete from Jump where shipid=?")
-			.setInteger(0, this.id)
+		db.createQuery("delete from Jump where shipid=:id")
+			.setInteger("id", this.id)
 			.executeUpdate();
 
-		ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where shipid=?")
-			.setInteger(0, this.id)
+		ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where shipid=:ship")
+			.setInteger("ship", this.id)
 			.uniqueResult();
 
 		if( werft != null ) {
@@ -3425,14 +3439,14 @@ public class Ship implements Locatable,Transfering,Feeding {
 				this.getBaseShip().undock(this);
 			}
 
-			db.createQuery("update Offizier set userid=? where dest=?")
-				.setEntity(0, newowner)
-				.setString(1, "s "+this.id)
+			db.createQuery("update Offizier set userid=:owner where dest=:dest")
+				.setEntity("owner", newowner)
+				.setString("dest", "s "+this.id)
 				.executeUpdate();
 
 			if( getTypeData().getWerft() != 0 ) {
-				ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=?")
-					.setEntity(0, this)
+				ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=:shipid")
+					.setEntity("shipid", this)
 					.uniqueResult();
 
 				if(werft != null)
@@ -3451,9 +3465,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		StringBuilder message = MESSAGE.get();
-		List<?> s = db.createQuery("from Ship where id>0 and docked in (?,?)")
-			.setString(0, Integer.toString(this.id))
-			.setString(1, "l "+this.id)
+		List<?> s = db.createQuery("from Ship where id>0 and docked in (:docked,:landed)")
+			.setString("docked", Integer.toString(this.id))
+			.setString("landed", "l "+this.id)
 			.list();
 		for( Iterator<?> iter=s.iterator(); iter.hasNext(); ) {
 			Ship aship = (Ship)iter.next();
@@ -3628,8 +3642,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		return (Long)db.createQuery("select count(*) from Ship where id>0 AND docked=?")
-			.setString(0, Integer.toString(this.id))
+		return (Long)db.createQuery("select count(*) from Ship where id>0 AND docked=:docked")
+			.setString("docked", Integer.toString(this.id))
 			.iterate().next();
 	}
 
@@ -3643,8 +3657,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		return (Long)db.createQuery("select count(*) from Ship where id>0 AND docked=?")
-			.setString(0, "l "+this.id)
+		return (Long)db.createQuery("select count(*) from Ship where id>0 AND docked=:landed")
+			.setString("landed", "l "+this.id)
 			.iterate().next();
 	}
 

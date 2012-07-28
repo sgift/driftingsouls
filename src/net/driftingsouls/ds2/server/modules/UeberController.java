@@ -19,9 +19,9 @@
 package net.driftingsouls.ds2.server.modules;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.Blob;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -191,9 +191,9 @@ public class UeberController extends TemplateGenerator {
 		}
 
 		try {
-			Blob execdata = questdata.getExecData();
-			if( (execdata != null) && (execdata.length() > 0) ) {
-				scriptparser.setContext(ScriptParserContext.fromStream(execdata.getBinaryStream()));
+			byte[] execdata = questdata.getExecData();
+			if( (execdata != null) && (execdata.length > 0) ) {
+				scriptparser.setContext(ScriptParserContext.fromStream(new ByteArrayInputStream(execdata)));
 			}
 		}
 		catch( Exception e ) {
@@ -464,8 +464,8 @@ public class UeberController extends TemplateGenerator {
 		// Bookmarks zusammenbauen
 		t.setVar("show.bookmarks",1);
 
-		List<?> bookmarks = db.createQuery("from Ship where id>0 and einstellungen.bookmark=1 and owner=? order by id desc")
-			.setEntity(0, user)
+		List<?> bookmarks = db.createQuery("from Ship where id>0 and einstellungen.bookmark=1 and owner=:owner order by id desc")
+			.setEntity("owner", user)
 			.list();
 		for( Iterator<?> iter=bookmarks.iterator(); iter.hasNext(); ) {
 			Ship bookmark = (Ship)iter.next();
@@ -492,8 +492,8 @@ public class UeberController extends TemplateGenerator {
 			long count = (Long)data[0];
 			ShipFleet fleet = (ShipFleet)data[1];
 
-			Ship aship = (Ship)db.createQuery("from Ship where fleet=?")
-				.setEntity(0, fleet)
+			Ship aship = (Ship)db.createQuery("from Ship where fleet=:fleet")
+				.setEntity("fleet", fleet)
 				.iterate().next();
 
 			if( !jdocked && aship.isLanded() ) {

@@ -43,18 +43,18 @@ public class WerftDefault implements SchiffPlugin {
 
 		org.hibernate.Session db = controller.getDB();
 
-		WerftObject werft = (WerftObject)db.createQuery("from ShipWerft where ship=?")
-			.setEntity(0, ship)
+		WerftObject werft = (WerftObject)db.createQuery("from ShipWerft where ship=:ship")
+			.setEntity("ship", ship)
 			.uniqueResult();
 
 		if( werft != null ) {
 			TemplateEngine t = controller.getTemplateEngine();
 			t.setFile("_PLUGIN_"+pluginid, "schiff.werft.default.html");
-	
+
 			if( werft.getKomplex() != null ) {
 				werft = werft.getKomplex();
 			}
-			
+
 			final WerftQueueEntry[] entries = werft.getBuildQueue();
 			final int totalSlots = werft.getWerftSlots();
 			int usedSlots = 0;
@@ -76,7 +76,7 @@ public class WerftDefault implements SchiffPlugin {
 					"schiff.werft.waiting",		entries.length-buildingCount,
 					"schiff.werft.bau", imBau
 					);
-			
+
 			t.parse(caller.target,"_PLUGIN_"+pluginid);
 		}
 	}

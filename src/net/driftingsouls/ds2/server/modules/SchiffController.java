@@ -18,10 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.io.ByteArrayOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -32,7 +30,6 @@ import java.util.Map;
 import javax.script.Bindings;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
-import javax.script.ScriptException;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Offizier;
@@ -56,9 +53,6 @@ import net.driftingsouls.ds2.server.modules.schiffplugins.Parameters;
 import net.driftingsouls.ds2.server.modules.schiffplugins.SchiffPlugin;
 import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.Quests;
-import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
-import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
-import net.driftingsouls.ds2.server.scripting.entities.Script;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
@@ -68,7 +62,6 @@ import net.driftingsouls.ds2.server.ships.ShipTypes;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -289,13 +282,13 @@ public class SchiffController extends TemplateGenerator {
 			t.setVar("ship.message", (!consMessage.equals("") ? consMessage+"<br />" : "")+"<span style=\"color:green\">Das Schiff wurde erfolgreich an "+newowner.getProfileLink()+" &uuml;bergeben</span><br />");
 
 			if( fleet != null ) {
-				long fleetcount = (Long)db.createQuery("select count(*) from Ship where id>0 and fleet=?")
-					.setEntity(0, fleet)
+				long fleetcount = (Long)db.createQuery("select count(*) from Ship where id>0 and fleet=:fleet")
+					.setEntity("fleet", fleet)
 					.iterate().next();
 
 				if( fleetcount < 3 ) {
-					db.createQuery("update Ship set fleet=null where id>0 and fleet=?")
-						.setEntity(0, fleet)
+					db.createQuery("update Ship set fleet=null where id>0 and fleet=:fleet")
+						.setEntity("fleet", fleet)
 						.executeUpdate();
 
 					db.delete(fleet);
@@ -933,10 +926,10 @@ public class SchiffController extends TemplateGenerator {
 		}
 
 		// Aktion: Schnelllink GTU-Handelsdepot
-		Iterator<?> handel = db.createQuery("from Ship where id>0 and system=? and x=? and y=? and locate('tradepost',status)!=0")
-			.setInteger(0, ship.getSystem())
-			.setInteger(1, ship.getX())
-			.setInteger(2, ship.getY())
+		Iterator<?> handel = db.createQuery("from Ship where id>0 and system=:sys and x=:x and y=:y and locate('tradepost',status)!=0")
+			.setInteger("sys", ship.getSystem())
+			.setInteger("x", ship.getX())
+			.setInteger("y", ship.getY())
 			.iterate();
 
 		if( handel.hasNext() ) {

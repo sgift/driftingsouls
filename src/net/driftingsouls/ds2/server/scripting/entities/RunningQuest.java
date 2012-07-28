@@ -18,20 +18,19 @@
  */
 package net.driftingsouls.ds2.server.scripting.entities;
 
-import java.sql.Blob;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.hibernate.Hibernate;
-
 import net.driftingsouls.ds2.server.entities.User;
+
+import org.hibernate.Hibernate;
 
 /**
  * <h1>Repraesentiert ein laufendes Quest.</h1>
@@ -55,14 +54,15 @@ public class RunningQuest {
 	@JoinColumn(name="userid", nullable=false)
 	private User user;
 	@Column(name="execdata")
-	private Blob execData;
+	@Lob
+	private byte[] execData;
 	private String uninstall;
 	@Column(name="statustext")
 	private String statusText;
 	private int publish;
 	@Column(name="ontick")
 	private Integer onTick;
-	
+
 	/**
 	 * Konstruktor.
 	 *
@@ -70,7 +70,7 @@ public class RunningQuest {
 	public RunningQuest() {
 		// EMPTY
 	}
-	
+
 	/**
 	 * Erstellt ein neues laufendes Quest.
 	 * @param quest Das Quest
@@ -83,7 +83,7 @@ public class RunningQuest {
 		this.statusText = "";
 		this.publish = 0;
 		this.onTick = null;
-		this.execData = Hibernate.createBlob(new byte[0]);
+		this.execData = new byte[0];
 	}
 
 	/**
@@ -92,7 +92,7 @@ public class RunningQuest {
 	 * Scriptparsers.
 	 * @return the execData Die Ausfuehrungsdaten
 	 */
-	public Blob getExecData() {
+	public byte[] getExecData() {
 		return execData;
 	}
 
@@ -102,7 +102,7 @@ public class RunningQuest {
 	 * Scriptparsers.
 	 * @param execData Die Ausfuehrungsdaten
 	 */
-	public void setExecData(Blob execData) {
+	public void setExecData(byte[] execData) {
 		this.execData = execData;
 	}
 

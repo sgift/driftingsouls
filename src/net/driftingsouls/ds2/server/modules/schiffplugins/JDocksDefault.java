@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.modules.schiffplugins;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -40,11 +39,9 @@ public class JDocksDefault implements SchiffPlugin {
 		Ship ship = caller.ship;
 		ShipTypeData shiptype = caller.shiptype;
 		SchiffController controller = caller.controller;
-		
+
 		String output = "";
-		
-		org.hibernate.Session db = controller.getDB();
-		
+
 		controller.parameterString("act");
 		String act = controller.getString("act");
 
@@ -54,12 +51,7 @@ public class JDocksDefault implements SchiffPlugin {
 
 			long cargocount = cargo.getMass();
 
-			List<?> lships = db.createQuery("from Ship where id>0 and docked=?")
-				.setString(0, "l "+ship.getId())
-				.list();
-			for( Iterator<?> iter=lships.iterator(); iter.hasNext(); ) {
-				Ship lship = (Ship)iter.next();
-				
+			for( Ship lship : ship.getLandedShips() ) {
 				Cargo dcargo = lship.getCargo();
 				long dcargocount = dcargo.getMass();
 
@@ -67,7 +59,7 @@ public class JDocksDefault implements SchiffPlugin {
 					output += "Kann einige Schiffe nicht entladen - nicht genug Frachtraum<br />\n";
 					break;
 				}
-				
+
 				cargo.addCargo( dcargo );
 
 				cargocount += dcargocount;
@@ -77,7 +69,7 @@ public class JDocksDefault implements SchiffPlugin {
 
 			ship.setCargo(cargo);
 		}
-		
+
 		return output;
 	}
 
@@ -88,8 +80,6 @@ public class JDocksDefault implements SchiffPlugin {
 		ShipTypeData datatype = caller.shiptype;
 		SchiffController controller = caller.controller;
 
-		org.hibernate.Session db = controller.getDB();
-
 		TemplateEngine t = controller.getTemplateEngine();
 		t.setFile("_PLUGIN_"+pluginid, "schiff.jdocks.default.html");
 
@@ -97,20 +87,14 @@ public class JDocksDefault implements SchiffPlugin {
 		List<Integer> jdockedid = new ArrayList<Integer>();
 		List<Ship> jdockedShip = new ArrayList<Ship>();
 
-		List<?> lships = db.createQuery("from Ship where id>0 and docked=? order by id")
-			.setString(0, "l "+data.getId())
-			.list();
-		
-		for( Iterator<?> iter=lships.iterator(); iter.hasNext(); ) {
-			Ship aship = (Ship)iter.next();
-			
+		for( Ship aship : data.getLandedShips() ) {
 			jdockedid.add(aship.getId());
 			jdockedShip.add(aship);
 			if( aship.getFleet() != null ) {
 				nofleet = false;
 			}
 		}
-		
+
 		String idlist = "";
 		if( jdockedid.size() > 0 ) {
 			idlist = Common.implode("|",jdockedid);
@@ -133,7 +117,7 @@ public class JDocksDefault implements SchiffPlugin {
 
 			if( jdockedShip.size() > j ) {
 				Ship aship = jdockedShip.get(j);
-				
+
 				t.setVar(	"docks.entry.id",		aship.getId(),
 							"docks.entry.name",		aship.getName(),
 							"docks.entry.type",		aship.getType(),

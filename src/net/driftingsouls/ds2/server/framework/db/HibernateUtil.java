@@ -15,8 +15,11 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.dialect.function.SQLFunctionTemplate;
 import org.hibernate.dialect.function.StandardSQLFunction;
-import org.hibernate.engine.CollectionKey;
-import org.hibernate.engine.EntityKey;
+import org.hibernate.engine.spi.CollectionKey;
+import org.hibernate.engine.spi.EntityKey;
+import org.hibernate.type.DoubleType;
+import org.hibernate.type.IntegerType;
+import org.hibernate.type.LongType;
 import org.scannotation.AnnotationDB;
 import org.scannotation.ClasspathUrlFinder;
 
@@ -28,69 +31,69 @@ import org.scannotation.ClasspathUrlFinder;
  * @see HibernateSessionRequestFilter
  * @author Drifting-Souls Team
  */
-public class HibernateUtil 
+public class HibernateUtil
 {
-    static 
+    static
     {
-        try 
+        try
         {
         	AnnotationConfiguration configuration = new AnnotationConfiguration();
         	configuration.configure(new File(Configuration.getSetting("configdir")+"hibernate.xml"));
-        	
+
     		// Configure connection
     		configuration.setProperty("hibernate.connection.url", Configuration.getSetting("db_url"));
     		configuration.setProperty("hibernate.connection.username", Configuration.getSetting("db_user"));
     		configuration.setProperty("hibernate.connection.password", Configuration.getSetting("db_password"));
-        	
+
     		// Add ds-specific utility functions
-    		configuration.addSqlFunction("pow", new StandardSQLFunction("pow", Hibernate.DOUBLE));
-    		configuration.addSqlFunction("floor", new StandardSQLFunction("floor", Hibernate.LONG));
+    		configuration.addSqlFunction("pow", new StandardSQLFunction("pow", DoubleType.INSTANCE));
+    		configuration.addSqlFunction("floor", new StandardSQLFunction("floor", LongType.INSTANCE));
     		configuration.addSqlFunction("ncp", new NullCompFunction());
-    		configuration.addSqlFunction("bit_and", new SQLFunctionTemplate(Hibernate.INTEGER, "?1 & ?2"));
-    		configuration.addSqlFunction("bit_or", new SQLFunctionTemplate(Hibernate.INTEGER, "?1 | ?2"));
-            
+    		configuration.addSqlFunction("bit_and", new SQLFunctionTemplate(IntegerType.INSTANCE, "?1 & ?2"));
+    		configuration.addSqlFunction("bit_or", new SQLFunctionTemplate(IntegerType.INSTANCE, "?1 | ?2"));
+
             //Find all annotated classes and add to configuration
 			URL[] urls = ClasspathUrlFinder.findResourceBases("META-INF/ds.marker");
 			AnnotationDB db = new AnnotationDB();
 			db.scanArchives(urls);
 			SortedSet<String> entityClasses = new TreeSet<String>(db.getAnnotationIndex().get(javax.persistence.Entity.class.getName()));
-			for( String cls : entityClasses ) 
+			for( String cls : entityClasses )
 			{
-				try 
+				try
 				{
 					Class<?> clsObject = Class.forName(cls);
 					configuration.addAnnotatedClass(clsObject);
 				}
-				catch( ClassNotFoundException e ) 
+				catch( ClassNotFoundException e )
 				{
 					// Not all classes are always available - ignore
 				}
 			}
-			
+
 			// Create the SessionFactory from hibernate.xml
 			sessionFactory = configuration.buildSessionFactory();
-        } 
-        catch (Throwable ex) 
+        }
+        catch (Throwable ex)
         {
             // Make sure you log the exception, as it might be swallowed
             System.err.println("Initial SessionFactory creation failed." + ex);
             throw new ExceptionInInitializerError(ex);
         }
     }
- 
+
     /**
      * Gibt die SessionFactory zurueck.
      * Zu jeder Zeit existiert nur eine.
-     * 
+     *
      * @return Die SessionFactory.
      */
-    public static SessionFactory getSessionFactory() 
+    public static SessionFactory getSessionFactory()
     {
         return sessionFactory;
     }
-    
+
     private static final SessionFactory sessionFactory;
-    
+
     /**
      * Gibt den momentanen Inhalt der Session, aufgelistet nach Entitynamen/Collectionrolle und der zugehoerigen Anzahl
      * an Eintraegen in der Session zurueck.

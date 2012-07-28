@@ -33,6 +33,7 @@ import net.driftingsouls.ds2.server.tick.TickContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
+import org.hibernate.internal.SessionImpl;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 /**
@@ -43,11 +44,11 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 public abstract class DSApplication {
 	private static final Log log = LogFactory.getLog(DSApplication.class) ;
 	private Context context;
-	
+
 	private Map<Integer,Writer> logTargets;
 	private int handleCounter;
 	private final Session db;
-	
+
 	/**
 	 * Konstruktor.
 	 * @param args Die Kommandozeilenargumente
@@ -55,11 +56,11 @@ public abstract class DSApplication {
 	 */
 	public DSApplication(String[] args) throws Exception {
 		log.info("Booting DS...");
-		
+
 		CmdLineRequest request = new CmdLineRequest(args);
-		
+
 		new FileSystemXmlApplicationContext("/"+request.getParameterString("config")+"/spring.xml");
-		
+
 		try {
 			new DriftingSouls(log, request.getParameterString("config"), true);
 		}
@@ -68,17 +69,17 @@ public abstract class DSApplication {
 			throw new Exception(e);
 		}
 		db = HibernateUtil.getSessionFactory().openSession();
-		
+
 		SimpleResponse response = new SimpleResponse();
-		
+
 		this.context = new TickContext(db, request, response);
-		
+
 		logTargets = new HashMap<Integer,Writer>();
 		handleCounter = 0;
-		
+
 		logTargets.put(-1, new OutputStreamWriter(System.out));
 	}
-	
+
 	/**
 	 * Gibt den aktuellen Context zurueck.
 	 * @return der Kontext
@@ -86,7 +87,7 @@ public abstract class DSApplication {
 	public Context getContext() {
 		return this.context;
 	}
-	
+
 	/**
 	 * Gibt eine Datenbankinstanz des Kontexts zurueck.
 	 * @return eine Datenbankinstanz
@@ -94,9 +95,9 @@ public abstract class DSApplication {
 	 */
 	@Deprecated
 	public Database getDatabase() {
-		return new Database(db.connection());
+		return this.context.getDatabase();
 	}
-	
+
 	/**
 	 * Gibt die Hibernate-Session des Kontexts zurueck.
 	 * @return die Hibernate-Session
@@ -104,14 +105,14 @@ public abstract class DSApplication {
 	public org.hibernate.Session getDB() {
 		return db;
 	}
-	
+
 	/**
 	 * Fuegt ein neues Ziel fuer geloggte Daten hinzu.
 	 * @param file Das Ziel, zu dem geloggt werden soll. Das Ziel muss schreibbar sein
 	 * @param append Sollen die Daten angehangen werden?
-	 * 
+	 *
 	 * @return Handle des Log-Ziels oder -1 (gescheitert)
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public int addLogTarget( String file, boolean append ) throws IOException {
 		File f = new File(file);
@@ -119,28 +120,28 @@ public abstract class DSApplication {
 			f.createNewFile();
 		}
 		Writer w = new FileWriter(f, append);
-	
+
 		logTargets.put(handleCounter, w);
-		
+
 		handleCounter++;
-		
+
 		return (handleCounter-1);
 	}
-	
+
 	/**
 	 * Entfernt ein Ziel fuer geloggte Daten.
 	 * @param handle Das Handle des Log-Ziels
-	 * 
+	 *
 	 * @return true bei erfolgreichem entfernen
-	 * @throws IOException 
+	 * @throws IOException
 	 */
-	public boolean removeLogTarget( int handle ) throws IOException {		
+	public boolean removeLogTarget( int handle ) throws IOException {
 		logTargets.get(handle).close();
 		logTargets.remove(handle);
 
 		return true;
 	}
-	
+
 	/**
 	 * Beendet die Applikation und gibt alle Resourcen wieder frei.<br>
 	 * Diese Funktion sollte innerhalb der main() aufgerufen werden, nachdem
@@ -148,7 +149,7 @@ public abstract class DSApplication {
 	 */
 	public void dispose() {
 		int[] handles = new int[logTargets.size()];
-		
+
 		int index = 0;
 		for( int handle : logTargets.keySet() ) {
 			handles[index++] = handle;
@@ -163,7 +164,7 @@ public abstract class DSApplication {
 		}
 		System.exit(0);
 	}
-	
+
 	/**
 	 * Loggt einen String.
 	 * @param string Der zu loggende String
@@ -185,7 +186,7 @@ public abstract class DSApplication {
 			}
 		}
 	}
-	
+
 	/**
 	 * Loggt eine Zeile. Fuer den Zeilenumbruch wird automatisch gesorgt.
 	 * @param string Die zu loggende Zeile

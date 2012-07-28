@@ -15,11 +15,11 @@ import javax.servlet.http.HttpServletRequest;
 import net.driftingsouls.ds2.server.framework.authentication.TickInProgressException;
 import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeException;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.StaleStateException;
-import org.hibernate.exception.ExceptionUtils;
 import org.hibernate.exception.GenericJDBCException;
 
 /**

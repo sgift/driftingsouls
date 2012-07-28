@@ -727,8 +727,8 @@ public class ItemInfoController extends TemplateGenerator {
 		t.setBlock("_ITEMINFO", "knownlist.listitem", "knownlist.list");
 
 		Map<Integer,String[]> reslocations = new HashMap<Integer,String[]>();
-		List<?> modules = db.createQuery("from StatItemLocations where user=?")
-			.setEntity(0, user)
+		List<?> modules = db.createQuery("from StatItemLocations where user=:user")
+			.setEntity("user", user)
 			.list();
 		for( Iterator<?> iter=modules.iterator(); iter.hasNext(); ) {
 			StatItemLocations amodule = (StatItemLocations)iter.next();

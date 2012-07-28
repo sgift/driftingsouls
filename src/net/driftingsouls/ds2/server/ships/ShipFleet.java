@@ -113,8 +113,8 @@ public class ShipFleet {
 	public User getOwner() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		return (User)db.createQuery("select s.owner from Ship as s where s.id>0 and s.fleet=?")
-			.setEntity(0, this)
+		return (User)db.createQuery("select s.owner from Ship as s where s.id>0 and s.fleet=:fleet")
+			.setEntity("fleet", this)
 			.setMaxResults(1)
 			.uniqueResult();
 	}
@@ -129,8 +129,8 @@ public class ShipFleet {
 	public void collectFightersByType(User user, int jaegertypeID) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		List<?> ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null" )
-			.setEntity(0, this)
+		List<?> ships = db.createQuery("from Ship where id>0 and fleet=:fleet and battle is null" )
+			.setEntity("fleet", this)
 			.list();
 
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
@@ -180,8 +180,8 @@ public class ShipFleet {
 	public void setAlarm(int alarm) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		List<?> ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null" )
-			.setEntity(0, this)
+		List<?> ships = db.createQuery("from Ship where id>0 and fleet=:fleet and battle is null" )
+			.setEntity("fleet", this)
 			.list();
 
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
@@ -202,14 +202,14 @@ public class ShipFleet {
 	public void joinFleet(ShipFleet targetFleet) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		db.createQuery("update Ship set fleet=? where id>0 and fleet=?")
-			.setEntity(0, this)
-			.setEntity(1, targetFleet)
+		db.createQuery("update Ship set fleet=:fleet where id>0 and fleet=:targetFleet")
+			.setEntity("fleet", this)
+			.setEntity("targetFleet", targetFleet)
 			.executeUpdate();
 
 		// Problem i<0 beruecksichtigen - daher nur loeschen, wenn die Flotte auch wirklich leer ist
-		long count = (Long)db.createQuery("select count(*) from Ship where fleet=?")
-			.setEntity(0, targetFleet)
+		long count = (Long)db.createQuery("select count(*) from Ship where fleet=:fleet")
+			.setEntity("fleet", targetFleet)
 			.iterate().next();
 		if( count == 0 ) {
 			db.delete(targetFleet);
@@ -223,8 +223,8 @@ public class ShipFleet {
 	public void startFighters() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		List<?> ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null")
-			.setEntity(0, this)
+		List<?> ships = db.createQuery("from Ship where id>0 and fleet=:fleet and battle is null")
+			.setEntity("fleet", this)
 			.list();
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship aship = (Ship)iter.next();
@@ -239,8 +239,8 @@ public class ShipFleet {
 	public void collectContainers(User user) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		List<?> ships = db.createQuery("from Ship where id>0 and fleet=? and battle is null" )
-			.setEntity(0, this)
+		List<?> ships = db.createQuery("from Ship where id>0 and fleet=:fleet and battle is null" )
+			.setEntity("fleet", this)
 			.list();
 
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
@@ -258,14 +258,14 @@ public class ShipFleet {
 			List<Ship> containerlist = new ArrayList<Ship>();
 
 			List<?> containers = db.createQuery("from Ship as s " +
-					"where s.owner=? and s.system=? and s.x=? and s.y=? and s.docked='' and " +
-							"s.shiptype.shipClass=? and s.battle is null " +
+					"where s.owner=:owner and s.system=:sys and s.x=:x and s.y=:y and s.docked='' and " +
+							"s.shiptype.shipClass=:cls and s.battle is null " +
 					"order by s.fleet,s.shiptype ")
-				.setEntity(0, user)
-				.setInteger(1, ship.getSystem())
-				.setInteger(2, ship.getX())
-				.setInteger(3, ship.getY())
-				.setInteger(4, ShipClasses.CONTAINER.ordinal())
+				.setEntity("owner", user)
+				.setInteger("sys", ship.getSystem())
+				.setInteger("x", ship.getX())
+				.setInteger("y", ship.getY())
+				.setInteger("cls", ShipClasses.CONTAINER.ordinal())
 				.list();
 
 			if( containers.isEmpty() ) {
@@ -306,8 +306,8 @@ public class ShipFleet {
 
 		this.consignMode = true;
 		try {
-			List<?> shiplist = db.createQuery("from Ship where fleet=? and battle is null" )
-				.setInteger(0, this.id)
+			List<?> shiplist = db.createQuery("from Ship where fleet=:fleet and battle is null" )
+				.setInteger("fleet", this.id)
 				.list();
 			for( Iterator<?> iter=shiplist.iterator(); iter.hasNext(); ) {
 				Ship aship = (Ship)iter.next();
@@ -342,8 +342,8 @@ public class ShipFleet {
 
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		int fleetcount = ((Number)db.createQuery("select count(*) from Ship where fleet=? and id>0")
-				.setInteger(0, this.id)
+		int fleetcount = ((Number)db.createQuery("select count(*) from Ship where fleet=:fleet and id>0")
+				.setInteger("fleet", this.id)
 				.iterate().next()).intValue();
 
 		if( fleetcount > 2 || this.consignMode ) {
@@ -351,8 +351,8 @@ public class ShipFleet {
 			MESSAGE.get().append("aus der Flotte ausgetreten");
 		}
 		else {
-			final Iterator<?> shipIter = db.createQuery("from Ship where fleet=?")
-				.setEntity(0, this)
+			final Iterator<?> shipIter = db.createQuery("from Ship where fleet=:fleet")
+				.setEntity("fleet", this)
 				.iterate();
 			while( shipIter.hasNext() ) {
 				Ship aship = (Ship)shipIter.next();

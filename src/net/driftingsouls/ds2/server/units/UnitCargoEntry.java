@@ -37,7 +37,6 @@ import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 
 import org.hibernate.annotations.DiscriminatorFormula;
-import org.hibernate.annotations.ForceDiscriminator;
 import org.hibernate.proxy.HibernateProxy;
 
 /**
@@ -47,7 +46,6 @@ import org.hibernate.proxy.HibernateProxy;
 @Table(name="cargo_entries_units")
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @DiscriminatorFormula(value="type")
-@ForceDiscriminator
 public abstract class UnitCargoEntry implements JSONSupport
 {
 	/**

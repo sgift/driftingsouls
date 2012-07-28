@@ -152,8 +152,8 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	public final boolean isBuilding() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		return db.createQuery("from WerftQueueEntry where werft=?")
-			.setInteger(0, this.getWerftID())
+		return db.createQuery("from WerftQueueEntry where werft=:werft")
+			.setInteger("werft", this.getWerftID())
 			.iterate().hasNext();
 	}
 

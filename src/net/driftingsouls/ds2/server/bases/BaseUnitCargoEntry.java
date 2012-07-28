@@ -2,7 +2,6 @@ package net.driftingsouls.ds2.server.bases;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.Table;
 
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargoEntry;
@@ -15,7 +14,6 @@ import net.driftingsouls.ds2.server.units.UnitType;
  * @author Drifting-Souls Team
  */
 @Entity
-@Table(name="cargo_entries_units")
 @DiscriminatorValue("" + UnitCargo.CARGO_ENTRY_BASE)
 public class BaseUnitCargoEntry extends UnitCargoEntry
 {

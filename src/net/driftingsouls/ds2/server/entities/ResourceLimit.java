@@ -14,7 +14,7 @@ import net.driftingsouls.ds2.server.ships.Ship;
 
 /**
  * A limit for a single resource.
- * 
+ *
  * @author Sebastian Gift
  */
 @Entity
@@ -26,7 +26,7 @@ public class ResourceLimit {
 	@Embeddable
 	public static class ResourceLimitKey implements Serializable {
 		private static final long serialVersionUID = 1510394179895753873L;
-		
+
 		private int shipid;
 		private int resourceid;
 
@@ -36,7 +36,7 @@ public class ResourceLimit {
 		public ResourceLimitKey() {
 			// EMPTY
 		}
-		
+
 		/**
 		 * Erstellt einen neuen Key.
 		 * @param ship Das Schiff
@@ -62,25 +62,62 @@ public class ResourceLimit {
 		public int getShipId() {
 			return shipid;
 		}
+
+		@Override
+		public int hashCode()
+		{
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + resourceid;
+			result = prime * result + shipid;
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (this == obj)
+			{
+				return true;
+			}
+			if (obj == null)
+			{
+				return false;
+			}
+			if (getClass() != obj.getClass())
+			{
+				return false;
+			}
+			ResourceLimitKey other = (ResourceLimitKey) obj;
+			if (resourceid != other.resourceid)
+			{
+				return false;
+			}
+			if (shipid != other.shipid)
+			{
+				return false;
+			}
+			return true;
+		}
 	}
-	
+
 	@Id
 	private ResourceLimitKey resourceLimitKey;
 	@Column(name="maximum")
 	private long limit;
     @Column(name="min_rank")
     private int minRank;
-	
+
 	@Version
 	private int version;
-	
+
 	/**
 	 * Konstruktor.
 	 */
 	public ResourceLimit() {
 		//Empty
 	}
-	
+
 	/**
 	 * generates an new ResourceLimit with key and limit as parameters.
 	 * @param resourcelimitkey the key of the resourcelimit
@@ -91,7 +128,7 @@ public class ResourceLimit {
 		this.resourceLimitKey = resourcelimitkey;
 		this.limit = limit;
 		this.minRank = rank;
-        
+
 	}
 
 	/**
@@ -117,7 +154,7 @@ public class ResourceLimit {
 	public int getVersion() {
 		return this.version;
 	}
-	
+
 	/**
 	 * Sets the limit for this ResourceLimit.
 	 * @param limit the limit for this kind of resource

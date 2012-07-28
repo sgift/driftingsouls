@@ -46,43 +46,43 @@ import net.sf.json.JSONObject;
 public class ImpObjectsController extends DSGenerator {
 	private StarSystem system;
 	private boolean viewableSystem;
-	
+
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
 	 */
 	public ImpObjectsController(Context context) {
 		super(context);
-		
+
 		this.viewableSystem = true;
-		
+
 		parameterNumber("system");
 	}
-	
+
 	@Override
 	protected boolean validateAndPrepare(String action) {
 		User user = (User)getUser();
 		int sys = getInteger("system");
 		org.hibernate.Session db = getDB();
-		
+
 		if( sys == 0 ) {
 			sys = 1;
 		}
-		
+
 		StarSystem thissystem = (StarSystem)db.get(StarSystem.class, sys);
 
 		if( (thissystem.getAccess() == StarSystem.AC_ADMIN) && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) ) {
 			viewableSystem = false;
-		} 
+		}
 		else if( (thissystem.getAccess() == StarSystem.AC_NPC) && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) && !user.hasFlag( User.FLAG_VIEW_SYSTEMS ) ) {
 			viewableSystem = false;
 		}
-		
+
 		system = thissystem;
-		
-		return true;	
+
+		return true;
 	}
-	
+
 	/**
 	 * Liefert alle wichtigen Objekte im System als JSON-Objekt zurueck.
 	 * @throws IOException
@@ -93,7 +93,7 @@ public class ImpObjectsController extends DSGenerator {
 		org.hibernate.Session db = getDB();
 		JSONObject json = new JSONObject();
 		User user = (User)getUser();
-		
+
 		JSONObject sysObj = new JSONObject();
 		sysObj.accumulate("name", system.getName());
 		sysObj.accumulate("id", system.getID());
@@ -102,87 +102,87 @@ public class ImpObjectsController extends DSGenerator {
 		JSONArray jnListObj = new JSONArray();
 		JSONArray postenListObj = new JSONArray();
 		if( viewableSystem )
-		{	 			
+		{
 			/*
 				Sprungpunkte
 			*/
-		
-			List<?> jnList = db.createQuery("from JumpNode where system=?  and hidden=0")
-				.setInteger(0, system.getID())
+
+			List<?> jnList = db.createQuery("from JumpNode where system=:sys and hidden=0")
+				.setInteger("sys", system.getID())
 				.list();
 			for( Iterator<?> iter=jnList.iterator(); iter.hasNext(); )
 			{
 				JumpNode node = (JumpNode)iter.next();
-				
+
 				StarSystem systemout = (StarSystem)db.get(StarSystem.class, node.getSystemOut());
-				
+
 				JSONObject jn = new JSONObject();
 				jn.accumulate("x", node.getX());
 				jn.accumulate("y", node.getY());
 				jn.accumulate("name", node.getName());
 				jn.accumulate("target", node.getSystemOut());
 				jn.accumulate("targetname", systemout.getName());
-				
+
 				jnListObj.add(jn);
 			}
-		
+
 			/*
 				Handelsposten
 			*/
-		
+
 			List<?> postenList = db.createQuery("from Ship where id>0 and system=:sys and locate('tradepost',status)!=0")
 				.setInteger("sys", system.getID())
 				.list();
 			for( Iterator<?> iter=postenList.iterator(); iter.hasNext(); )
 			{
 				Ship posten = (Ship)iter.next();
-				
+
 				if( !posten.isTradepostVisible(user, user.getRelations()) )
 				{
 					continue;
 				}
-				
+
 				JSONObject postenObj = new JSONObject();
 				postenObj.accumulate("x", posten.getX());
 				postenObj.accumulate("y", posten.getY());
 				postenObj.accumulate("name", posten.getName());
-				
+
 				postenListObj.add(postenObj);
 			}
 		}
-		
+
 		json.accumulate("jumpnodes", jnListObj);
 		json.accumulate("posten", postenListObj);
-	
+
 		/*
 			Basen
 		*/
 		JSONArray baseListObj = new JSONArray();
-		
-		List<?> baseList = db.createQuery("from Base where owner=? and system=?")
-			.setEntity(0, getUser())
-			.setInteger(1, system.getID())
+
+		List<?> baseList = db.createQuery("from Base where owner=:owner and system=:sys")
+			.setEntity("owner", getUser())
+			.setInteger("sys", system.getID())
 			.list();
 		for( Iterator<?> iter=baseList.iterator(); iter.hasNext(); )
 		{
 			Base base = (Base)iter.next();
-			
+
 			JSONObject baseObj = new JSONObject();
 			baseObj.accumulate("x", base.getX());
 			baseObj.accumulate("y", base.getY());
 			baseObj.accumulate("name", base.getName());
-			
+
 			baseListObj.add(baseObj);
 		}
-		
+
 		json.accumulate("bases", baseListObj);
-		
+
 		getResponse().getWriter().append(json.toString());
 	}
 
 	@Override
 	@Action(ActionType.AJAX)
-	public void defaultAction() throws IOException {	
+	public void defaultAction() throws IOException {
 		jsonAction();
 	}
 }

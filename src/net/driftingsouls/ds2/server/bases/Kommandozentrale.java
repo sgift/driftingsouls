@@ -45,6 +45,7 @@ import net.driftingsouls.ds2.server.entities.Factory;
 import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.Kaserne;
+import net.driftingsouls.ds2.server.entities.KaserneEntry;
 import net.driftingsouls.ds2.server.entities.StatVerkaeufe;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
@@ -129,12 +130,15 @@ public class Kommandozentrale extends DefaultBuilding {
 		}
 
 		// Auftraege der Kaserne loeschen
-		Kaserne kaserne = (Kaserne)db.createQuery("from Kaserne where col=?")
-			.setEntity(0, base)
+		Kaserne kaserne = (Kaserne)db.createQuery("from Kaserne where col=:base")
+			.setEntity("base", base)
 			.uniqueResult();
 
 		if( kaserne != null ) {
-			db.createQuery("DELETE from KaserneEntry WHERE kaserne=:kaserne").setInteger("kaserne", kaserne.getId()).executeUpdate();
+			for( KaserneEntry entry : kaserne.getQueueEntries() )
+			{
+				db.delete(entry);
+			}
 		}
 
 		// Auftraege der Akademie loeschen
@@ -222,10 +226,10 @@ public class Kommandozentrale extends DefaultBuilding {
 			int tick = context.get(ContextCommon.class).getTick();
 			int system = base.getSystem();
 
-			StatVerkaeufe statsRow = (StatVerkaeufe)db.createQuery("from StatVerkaeufe where tick=? and place=? and system=?")
-				.setInteger(0, tick)
-				.setString(1, "asti")
-				.setInteger(2, system)
+			StatVerkaeufe statsRow = (StatVerkaeufe)db.createQuery("from StatVerkaeufe where tick=:tick and place=:place and system=:sys")
+				.setInteger("tick", tick)
+				.setString("place", "asti")
+				.setInteger("sys", system)
 				.uniqueResult();
 			Cargo stats = new Cargo();
 			if( statsRow != null ) {

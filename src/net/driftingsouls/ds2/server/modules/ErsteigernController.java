@@ -59,9 +59,6 @@ import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextInstance;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
@@ -77,6 +74,7 @@ import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.hibernate.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Required;
@@ -1116,8 +1114,9 @@ public class ErsteigernController extends TemplateGenerator
 		t.setVar("none", "");
 
 		int count = 0;
-		List<?> angebote = db.createQuery("from FactionOffer where faction=?").setInteger(0,
-				this.faction).list();
+		List<?> angebote = db.createQuery("from FactionOffer where faction=:faction")
+			.setInteger("faction",this.faction)
+			.list();
 		for( Iterator<?> iter = angebote.iterator(); iter.hasNext(); )
 		{
 			FactionOffer offer = (FactionOffer)iter.next();
@@ -1268,8 +1267,9 @@ public class ErsteigernController extends TemplateGenerator
 			StarSystem system = (StarSystem)iter.next();
 			if( system.getDropZone() != null && (user.getAstiSystems().contains(system.getID()) || system.getID() == defaultDropZone))
 			{
-				t.setVar("dropzone.system.id", system.getID(), "dropzone.system.name", system
-						.getName(), "dropzone.selected", (user.getGtuDropZone() == system.getID()));
+				t.setVar("dropzone.system.id", system.getID(),
+						"dropzone.system.name", system.getName(),
+						"dropzone.selected", (user.getGtuDropZone() == system.getID()));
 
 				t.parse("gtu.dropzones.list", "gtu.dropzones.listitem", true);
 			}
@@ -1314,7 +1314,6 @@ public class ErsteigernController extends TemplateGenerator
 	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
-		Database database = getDatabase();
 		org.hibernate.Session db = getDB();
 
 		if( !Faction.get(faction).getPages().hasPage("shop") )
@@ -1371,9 +1370,12 @@ public class ErsteigernController extends TemplateGenerator
 			return;
 		}
 
-		SQLResultRow sameorder = database.first("SELECT id FROM factions_shop_orders WHERE user_id=",
-				user.getId(), " AND adddata LIKE \"", gany.getId(), "@%\" AND status<4");
-		if( !sameorder.isEmpty() )
+		FactionShopOrder sameorder = (FactionShopOrder)db
+			.createQuery("from FactionShopOrder where user=:user and adddata like :pattern and status < 4")
+			.setParameter("user", user)
+			.setParameter("pattern", gany.getId()+"@%")
+			.uniqueResult();
+		if( sameorder != null )
 		{
 			addError("Es existiert bereits ein Transport-Auftrag f&uuml;r diese Ganymede");
 			unsetParameter("sourcesystem");
@@ -1444,13 +1446,15 @@ public class ErsteigernController extends TemplateGenerator
 		else
 		{
 			Map<String, Long> costindex = new HashMap<String, Long>();
-			SQLQuery entry = database.query("SELECT * FROM factions_shop_entries WHERE faction_id=",
-					this.faction, " AND type=2");
-			while( entry.next() )
+			List<FactionShopEntry> entries = Common.cast(db
+					.createQuery("from FactionShopEntry where faction=:faction and type=:type")
+					.setParameter("faction", this.faction)
+					.setParameter("type", FactionShopEntry.Type.TRANSPORT)
+					.list());
+			for( FactionShopEntry entry : entries )
 			{
-				costindex.put(entry.getString("resource"), entry.getLong("price"));
+				costindex.put(entry.getResource(), entry.getPrice());
 			}
-			entry.free();
 
 			Set<Integer> systemlist = new HashSet<Integer>();
 			systemlist.add(sourcesystem);
@@ -1504,8 +1508,6 @@ public class ErsteigernController extends TemplateGenerator
 		}
 		else
 		{
-			database.tBegin();
-
 			User faction = (User)getDB().get(User.class, this.faction);
 			faction.transferMoneyFrom(user.getId(), totalcost,
 					"&Uuml;berweisung Bestellung #ganytransXX" + gany.getId());
@@ -1551,7 +1553,6 @@ public class ErsteigernController extends TemplateGenerator
 					+ " erhalten und vom System best&auml;tigt.<br />Einen angenehmen Tag noch!");
 
 			redirect("shop");
-
 		}
 	}
 
@@ -1570,8 +1571,7 @@ public class ErsteigernController extends TemplateGenerator
 	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
-		Database db = getDatabase();
-		org.hibernate.Session database = getDB();
+		org.hibernate.Session db = getDB();
 
 		if( !Faction.get(faction).getPages().hasPage("shop") )
 		{
@@ -1586,7 +1586,7 @@ public class ErsteigernController extends TemplateGenerator
 			return;
 		}
 
-		FactionShopEntry entry = (FactionShopEntry)database
+		FactionShopEntry entry = (FactionShopEntry)db
 			.createQuery("from FactionShopEntry where faction=:faction and type=2")
 			.setInteger("faction", this.faction)
 			.setMaxResults(1)
@@ -1626,35 +1626,43 @@ public class ErsteigernController extends TemplateGenerator
 
 		// Liste aller bereits mit einem Transport-Auftrag ausgestatteten Ganys generieren
 		Set<Integer> blockedganylist = new HashSet<Integer>();
-		List<Integer> blockedganysqlList = new ArrayList<Integer>();
 
-		SQLQuery adddata = db
-				.query(
-						"SELECT t1.adddata FROM factions_shop_orders t1 JOIN factions_shop_entries t2 ON t1.shopentry_id=t2.id WHERE t1.user_id=",
-						user.getId(), " AND t1.status<4 AND t2.type=2");
-		while( adddata.next() )
+		List<FactionShopOrder> orderList = Common.cast(db
+				.createQuery("from FactionShopOrder fso " +
+						"where fso.user=:user and fso.status<4 and fso.shopEntry.type=:type")
+				.setEntity("user", user)
+				.setParameter("type", FactionShopEntry.Type.TRANSPORT)
+				.list());
+		for( FactionShopOrder order : orderList )
 		{
-			String[] tmp = StringUtils.split(adddata.getString("adddata"), "@");
+			String[] tmp = StringUtils.split(order.getAddData(), "@");
 			int ganyid = Integer.parseInt(tmp[0]);
 
 			blockedganylist.add(ganyid);
-			blockedganysqlList.add(ganyid);
 		}
-		adddata.free();
 
 		String blockedganysql = "";
-		if( blockedganysqlList.size() > 0 )
+		if( blockedganylist.size() > 0 )
 		{
-			blockedganysql = "AND !(id IN (" + Common.implode(",", blockedganysqlList) + "))";
+			blockedganysql = "AND id not in (:ganylist)";
 		}
 
+		ShipType ganyType = (ShipType)db.get(ShipType.class, ShopGanyTransportEntry.SHIPTYPE_GANYMEDE);
+
 		boolean first = true;
-		SQLQuery asystem = db.query("SELECT system FROM ships WHERE type=",
-				ShopGanyTransportEntry.SHIPTYPE_GANYMEDE, " AND owner=", user.getId(), " ",
-				blockedganysql, " GROUP BY system ORDER BY system");
-		while( asystem.next() )
+		Query query = db
+			.createQuery("select distinct system from Ship where shiptype=:ganyType and owner=:user "+blockedganysql)
+			.setEntity("ganyType", ganyType)
+			.setEntity("user", user);
+		if( blockedganylist.size() > 0 )
 		{
-			if( sourcesystem == asystem.getInt("system") )
+			query.setParameterList("ganylist", blockedganylist);
+		}
+		List<Integer> ganySystems = Common.cast(query
+			.list());
+		for( Integer asystem : ganySystems )
+		{
+			if( sourcesystem == asystem )
 			{
 				t.setVar("sourcesystem.selected", 1);
 				first = false;
@@ -1663,12 +1671,11 @@ public class ErsteigernController extends TemplateGenerator
 			{
 				t.setVar("sourcesystem.selected", 0);
 			}
-			StarSystem system = (StarSystem)database.get(StarSystem.class, asystem.getInt("system"));
-			t.setVar("sourcesystem.id", asystem.getInt("system"), "sourcesystem.name", system.getName());
+			StarSystem system = (StarSystem)db.get(StarSystem.class, asystem);
+			t.setVar("sourcesystem.id", asystem, "sourcesystem.name", system.getName());
 
 			t.parse("ganytrans.sourcesystem.list", "ganytrans.sourcesystem.listitem", true);
 		}
-		asystem.free();
 
 		// Check, ob ein System ausgewaehlt wurde.
 		// Wenn nicht -> Ende
@@ -1681,12 +1688,15 @@ public class ErsteigernController extends TemplateGenerator
 
 		// Moegliche Ganymedes ausgeben
 		first = true;
-		SQLQuery agany = db.query("SELECT id,name FROM ships WHERE type=",
-				ShopGanyTransportEntry.SHIPTYPE_GANYMEDE, " AND owner=", user.getId(),
-				" AND system=", sourcesystem, " ORDER BY x+y");
-		while( agany.next() )
+		List<Ship> ships = Common.cast(db
+			.createQuery("from Ship where shiptype=:ganyType and owner=:user and system=:sys order by x+y")
+			.setEntity("ganyType", ganyType)
+			.setEntity("user", user)
+			.setInteger("sys", sourcesystem)
+			.list());
+		for( Ship agany : ships )
 		{
-			if( blockedganylist.contains(agany.getInt("id")) )
+			if( blockedganylist.contains(agany.getId()) )
 			{
 				continue;
 			}
@@ -1700,14 +1710,13 @@ public class ErsteigernController extends TemplateGenerator
 			{
 				t.setVar("ganymede.selected", 0);
 			}
-			t.setVar("ganymede.id", agany.getInt("id"),
-					"ganymede.name", Common._plaintitle(agany.getString("name")));
+			t.setVar("ganymede.id", agany.getId(),
+					"ganymede.name", Common._plaintitle(agany.getName()));
 
 			t.parse("ganytrans.ganymedes.list", "ganytrans.ganymedes.listitem", true);
 		}
-		agany.free();
 
-		List<StarSystem> systems = Common.cast(database.createQuery("from StarSystem").list());
+		List<StarSystem> systems = Common.cast(db.createQuery("from StarSystem").list());
 
 		// Zielsysteme ausgeben
 		first = true;

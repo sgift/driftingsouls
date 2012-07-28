@@ -183,7 +183,7 @@ public class SchiffeController extends TemplateGenerator {
 		String ow = ordermapper.get(ord);
 
 		String query = "from Ship as s left join fetch s.modules "+
-			"where s.id>0 and s.owner=? and ";
+			"where s.id>0 and s.owner=:owner and ";
 
 		if( low != 0 ) {
 			query += "(locate('mangel_nahrung',s.status)!=0 or locate('mangel_reaktor',s.status)!=0) and locate('nocrew',s.status)=0 and ";
@@ -270,7 +270,7 @@ public class SchiffeController extends TemplateGenerator {
 		}
 
 		List<?> ships = db.createQuery(query)
-			.setEntity(0, user)
+			.setEntity("owner", user)
 			.setMaxResults(MAX_SHIPS_PER_PAGE+1)
 			.setFirstResult(listoffset)
 			.list();
@@ -342,8 +342,8 @@ public class SchiffeController extends TemplateGenerator {
 				}
 
 				if( shiptype.getWerft() != 0 ) {
-					WerftObject werft = (WerftObject)db.createQuery("from ShipWerft where shipid=?")
-						.setEntity(0, ship)
+					WerftObject werft = (WerftObject)db.createQuery("from ShipWerft where shipid=:ship")
+						.setEntity("ship", ship)
 						.uniqueResult();
 					if( werft == null ) {
 						log.warn("Schiff "+ship.getId()+" hat keinen Werfteintrag");

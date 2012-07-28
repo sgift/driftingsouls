@@ -77,10 +77,10 @@ public class JumpdriveShivan implements SchiffPlugin
 				if( ship.getFleet() != null ) {
 					output += "<table class=\"noBorder\">\n";
 
-					List<?> sList = db.createQuery("from Ship where id>0 and fleet=? and owner=? and docked='' and id!=?")
-						.setEntity(0, ship.getFleet())
-						.setEntity(1, ship.getOwner())
-						.setInteger(2, ship.getId())
+					List<?> sList = db.createQuery("from Ship where id>0 and fleet=:fleet and owner=:owner and docked='' and id!=:id")
+						.setEntity("fleet", ship.getFleet())
+						.setEntity("owner", ship.getOwner())
+						.setInteger("id", ship.getId())
 						.list();
 
 					for( Iterator<?> iter=sList.iterator(); iter.hasNext(); )
@@ -95,7 +95,7 @@ public class JumpdriveShivan implements SchiffPlugin
 
 						output += "<tr>";
 						output += "<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange;font-size:12px\"> "+aship.getName()+" ("+aship.getId()+"):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n";
-						
+
 						output += "Das Schiff aktiviert den Sprungantrieb";
 
 						ships.add(aship);
@@ -124,8 +124,8 @@ public class JumpdriveShivan implements SchiffPlugin
 			}
 			else if ( "newtarget".equals(subaction) && (system != null && system.getID() != 0) )
 			{
-				Jump jump = (Jump)db.createQuery("from Jump where shipid=?")
-					.setEntity(0, ship)
+				Jump jump = (Jump)db.createQuery("from Jump where shipid=:ship")
+					.setEntity("ship", ship)
 					.uniqueResult();
 
 				if( jump == null )
@@ -143,10 +143,10 @@ public class JumpdriveShivan implements SchiffPlugin
 				{
 					output += "<table class=\"noBorder\">\n";
 
-					List<?> sList = db.createQuery("from Ship where id>0 and fleet=? and owner=? and docked='' and id!=?")
-						.setEntity(0, ship.getFleet())
-						.setEntity(1, ship.getOwner())
-						.setInteger(2, ship.getId())
+					List<?> sList = db.createQuery("from Ship where id>0 and fleet=:fleet and owner=:owner and docked='' and id!=:id")
+						.setEntity("fleet", ship.getFleet())
+						.setEntity("owner", ship.getOwner())
+						.setInteger("id", ship.getId())
 						.list();
 
 					for( Iterator<?> iter=sList.iterator(); iter.hasNext(); )
@@ -163,8 +163,8 @@ public class JumpdriveShivan implements SchiffPlugin
 						output += "<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange;font-size:12px\"> "+aship.getName()+" ("+aship.getId()+"):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n";
 						output += "Das Schiff &auml;ndert das Sprungziel";
 
-						jump = (Jump)db.createQuery("from Jump where shipid=?")
-							.setEntity(0, ship)
+						jump = (Jump)db.createQuery("from Jump where shipid=:ship")
+							.setEntity("ship", ship)
 							.uniqueResult();
 						jump.setSystem(system.getID());
 						jump.setX(x);
@@ -176,8 +176,8 @@ public class JumpdriveShivan implements SchiffPlugin
 			}
 			else if ( "cancel".equals(subaction) )
 			{
-				Jump jump = (Jump)db.createQuery("from Jump where shipid=?")
-					.setEntity(0, ship)
+				Jump jump = (Jump)db.createQuery("from Jump where shipid=:ship")
+					.setEntity("ship", ship)
 					.uniqueResult();
 
 				if( jump == null )
@@ -193,10 +193,10 @@ public class JumpdriveShivan implements SchiffPlugin
 				{
 					output += "<table class=\"noBorder\">\n";
 
-					List<?> sList = db.createQuery("from Ship where id>0 and fleet=? and owner=? and docked='' and id!=?")
-						.setEntity(0, ship.getFleet())
-						.setEntity(1, ship.getOwner())
-						.setInteger(2, ship.getId())
+					List<?> sList = db.createQuery("from Ship where id>0 and fleet=:fleet and owner=:owner and docked='' and id!=:id")
+						.setEntity("fleet", ship.getFleet())
+						.setEntity("owner", ship.getOwner())
+						.setInteger("id", ship.getId())
 						.list();
 
 					for( Iterator<?> iter=sList.iterator(); iter.hasNext(); )
@@ -212,8 +212,8 @@ public class JumpdriveShivan implements SchiffPlugin
 						output += "<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange;font-size:12px\"> "+aship.getName()+" ("+aship.getId()+"):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n";
 						output += "Das Schiff stoppt den Sprungantrieb";
 
-						db.createQuery("delete from Jump where shipid=?")
-							.setEntity(0, aship)
+						db.createQuery("delete from Jump where shipid=:ship")
+							.setEntity("ship", aship)
 							.executeUpdate();
 
 						output += "</span></td></tr>\n";
@@ -238,8 +238,8 @@ public class JumpdriveShivan implements SchiffPlugin
 		TemplateEngine t = controller.getTemplateEngine();
 		t.setFile("_PLUGIN_"+pluginid, "schiff.jumpdrive.shivan.html");
 
-		Jump jump = (Jump)db.createQuery("from Jump where shipid=?")
-			.setEntity(0, ship)
+		Jump jump = (Jump)db.createQuery("from Jump where shipid=:ship")
+			.setEntity("ship", ship)
 			.uniqueResult();
 
 		t.setVar(	"global.pluginid",				pluginid,

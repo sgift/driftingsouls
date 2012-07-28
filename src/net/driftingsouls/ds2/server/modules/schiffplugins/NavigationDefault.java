@@ -182,12 +182,12 @@ public class NavigationDefault implements SchiffPlugin {
 			int sys = data.getSystem();
 
 			String[][] sectorimgs = new String[3][3];
-			List<?> jnlist = db.createQuery("from JumpNode where system=? and (x between ? and ?) and (y between ? and ?)")
-				.setInteger(0, sys)
-				.setInteger(1, x-1)
-				.setInteger(2, x+1)
-				.setInteger(3, y-1)
-				.setInteger(4, y+1)
+			List<?> jnlist = db.createQuery("from JumpNode where system=:sys and (x between :xstart and :xend) and (y between :ystart and :yend)")
+				.setInteger("sys", sys)
+				.setInteger("xstart", x-1)
+				.setInteger("xend", x+1)
+				.setInteger("ystart", y-1)
+				.setInteger("yend", y+1)
 				.list();
 
 			for( Iterator<?> iter=jnlist.iterator(); iter.hasNext(); ) {
@@ -195,10 +195,10 @@ public class NavigationDefault implements SchiffPlugin {
 				sectorimgs[jn.getX()-x+1][jn.getY()-y+1] = "data/starmap/jumpnode/jumpnode.png";
 			}
 
-			List<?> baselist = db.createQuery("select distinct b from Base b where b.system=? and floor(sqrt(pow(?-b.x,2)+pow(?-b.y,2))) <= b.size+1")
-				.setInteger(0, sys)
-				.setInteger(1, x)
-				.setInteger(2, y)
+			List<?> baselist = db.createQuery("select distinct b from Base b where b.system=:sys and floor(sqrt(pow(:x-b.x,2)+pow(:y-b.y,2))) <= b.size+1")
+				.setInteger("sys", sys)
+				.setInteger("x", x)
+				.setInteger("y", y)
 				.list();
 			for( Iterator<?> iter=baselist.iterator(); iter.hasNext(); ) {
 				Base aBase = (Base)iter.next();
@@ -230,12 +230,12 @@ public class NavigationDefault implements SchiffPlugin {
 				}
 			}
 
-			List<?> nebellist = db.createQuery("from Nebel where loc.system=? and (loc.x between ? and ?) and (loc.y between ? and ?)")
-				.setInteger(0, sys)
-				.setInteger(1, x-1)
-				.setInteger(2, x+1)
-				.setInteger(3, y-1)
-				.setInteger(4, y+1)
+			List<?> nebellist = db.createQuery("from Nebel where loc.system=:sys and (loc.x between :xstart and :xend) and (loc.y between :ystart and :yend)")
+				.setInteger("sys", sys)
+				.setInteger("xstart", x-1)
+				.setInteger("xend", x+1)
+				.setInteger("ystart", y-1)
+				.setInteger("yend", y+1)
 				.list();
 			for( Iterator<?> iter=nebellist.iterator(); iter.hasNext(); ) {
 				Nebel nebel = (Nebel)iter.next();

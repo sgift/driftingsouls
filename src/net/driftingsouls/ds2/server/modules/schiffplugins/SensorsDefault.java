@@ -623,8 +623,8 @@ public class SensorsDefault implements SchiffPlugin {
 					if( ashiptype.getSize() > ShipType.SMALL_SHIP_MAXSIZE ) {
 						boolean ok = true;
 						if( ashiptype.hasFlag(ShipTypes.SF_OFFITRANSPORT) ) {
-							long officount = (Long)db.createQuery("select count(*) from Offizier where dest=?")
-								.setString(0, "s "+aship.getId())
+							long officount = (Long)db.createQuery("select count(*) from Offizier where dest=:dest")
+								.setString("dest", "s "+aship.getId())
 								.setFlushMode(FlushMode.MANUAL)
 								.iterate().next();
 
@@ -665,8 +665,8 @@ public class SensorsDefault implements SchiffPlugin {
 								if( fleetlist == null ) {
 									fleetlist = new ArrayList<Integer>();
 
-									List<?> tmpList = db.createQuery("from Ship where id>0 and fleet=?")
-										.setEntity(0, ship.getFleet())
+									List<?> tmpList = db.createQuery("from Ship where id>0 and fleet=:fleet")
+										.setEntity("fleet", ship.getFleet())
 										.setFlushMode(FlushMode.MANUAL)
 										.list();
 									for( Iterator<?> iter2=tmpList.iterator(); iter2.hasNext(); ) {
@@ -706,8 +706,8 @@ public class SensorsDefault implements SchiffPlugin {
 							List<Integer> thisFleetList = new ArrayList<Integer>();
 
 							boolean ok = true;
-							List<?> tmpList = db.createQuery("from Ship where id>0 and fleet=?")
-								.setEntity(0, aship.getFleet())
+							List<?> tmpList = db.createQuery("from Ship where id>0 and fleet=:fleet")
+								.setEntity("fleet", aship.getFleet())
 								.setFlushMode(FlushMode.MANUAL)
 								.list();
 							for( Iterator<?> iter2=tmpList.iterator(); iter2.hasNext(); ) {
@@ -761,21 +761,21 @@ public class SensorsDefault implements SchiffPlugin {
 	private void outputBases(Parameters caller, org.hibernate.Session db, User user,
 			TemplateEngine t, String order)
 	{
-		final long dataOffizierCount = (Long)db.createQuery("select count(*) from Offizier where dest=?")
-				.setString(0, "s "+caller.ship.getId())
+		final long dataOffizierCount = (Long)db.createQuery("select count(*) from Offizier where dest=:dest")
+				.setString("dest", "s "+caller.ship.getId())
 				.iterate().next();
 
 		Query baseQuery = null;
 		if( !order.equals("type") && !order.equals("shiptype") ) {
-			baseQuery = db.createQuery("from Base where system=? and floor(sqrt(pow(?-x,2)+pow(?-y,2))) <= size order by "+order+",id");
+			baseQuery = db.createQuery("from Base where system=:sys and floor(sqrt(pow(:x-x,2)+pow(:y-y,2))) <= size order by "+order+",id");
 		}
 		else {
-			baseQuery = db.createQuery("from Base where system=? and floor(sqrt(pow(?-x,2)+pow(?-y,2))) <= size order by id");
+			baseQuery = db.createQuery("from Base where system=:sys and floor(sqrt(pow(:x-x,2)+pow(:y-y,2))) <= size order by id");
 		}
 		List<?> bases = baseQuery
-			.setInteger(0, caller.ship.getSystem())
-			.setInteger(1, caller.ship.getX())
-			.setInteger(2, caller.ship.getY())
+			.setInteger("sys", caller.ship.getSystem())
+			.setInteger("x", caller.ship.getX())
+			.setInteger("y", caller.ship.getY())
 			.list();
 
 		for( Iterator<?> iter=bases.iterator(); iter.hasNext(); ) {
@@ -877,10 +877,10 @@ public class SensorsDefault implements SchiffPlugin {
 	private void outputJumpnodes(Parameters caller, org.hibernate.Session db, User user, TemplateEngine t)
 	{
 		Ship ship = caller.ship;
-		JumpNode node = (JumpNode)db.createQuery("from JumpNode where x=? and y=? and system=?")
-			.setInteger(0, ship.getX())
-			.setInteger(1, ship.getY())
-			.setInteger(2, ship.getSystem())
+		JumpNode node = (JumpNode)db.createQuery("from JumpNode where x=:x and y=:y and system=:sys")
+			.setInteger("x", ship.getX())
+			.setInteger("y", ship.getY())
+			.setInteger("sys", ship.getSystem())
 			.uniqueResult();
 
 		if( node != null ) {
@@ -970,10 +970,10 @@ public class SensorsDefault implements SchiffPlugin {
 	private void outputSubraumspalten(Parameters caller, org.hibernate.Session db, TemplateEngine t)
 	{
 		Ship ship = caller.ship;
-		final long jumps = (Long)db.createQuery("select count(*) from Jump where x=? and y=? and system=?")
-			.setInteger(0, ship.getX())
-			.setInteger(1, ship.getY())
-			.setInteger(2, ship.getSystem())
+		final long jumps = (Long)db.createQuery("select count(*) from Jump where x=:x and y=:y and system=:sys")
+			.setInteger("x", ship.getX())
+			.setInteger("y", ship.getY())
+			.setInteger("sys", ship.getSystem())
 			.iterate().next();
 		if( jumps != 0 ) {
 			t.setVar(	"global.jumps",			jumps,

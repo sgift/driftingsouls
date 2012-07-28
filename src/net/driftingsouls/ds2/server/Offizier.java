@@ -90,7 +90,7 @@ public class Offizier extends DSObject {
 		 */
 		COM
 	}
-	
+
 	/**
 	 * Die Spezialfaehigkeiten der Offiziere.
 	 * Jeder Offizier besitzt eine Spezialfaehigkeit
@@ -126,14 +126,14 @@ public class Offizier extends DSObject {
 		 * Verrueckter Diktator.
 		 */
 		VERRUECKTER_DIKTATOR("Verr&uuml;ckter Diktator");
-		
+
 		private String name;
 		private Special(String name) {
 			this.name = name;
 		}
-		
+
 		/**
-		 * Gibt den Namen der Spezialfaehigkeit zurueck (entspricht nicht 
+		 * Gibt den Namen der Spezialfaehigkeit zurueck (entspricht nicht
 		 * zwangslaeufig der Konstante!).
 		 * @return Der Name
 		 */
@@ -141,7 +141,7 @@ public class Offizier extends DSObject {
 			return name;
 		}
 	}
-	
+
 	@Id @GeneratedValue
 	private int id;
 	private String name;
@@ -161,20 +161,20 @@ public class Offizier extends DSObject {
 	private int wafu;
 	private int secu;
 	private int comu;
-	
+
 	@Transient
 	private Configuration config;
-	
+
     /**
      * Injiziert die DS-Konfiguration.
      * @param config Die DS-Konfiguration
      */
     @Autowired
-    public void setConfiguration(Configuration config) 
+    public void setConfiguration(Configuration config)
     {
     	this.config = config;
     }
-	
+
 	/**
 	 * Konstruktor.
 	 *
@@ -182,7 +182,7 @@ public class Offizier extends DSObject {
 	public Offizier() {
 		// EMPTY
 	}
-	
+
 	/**
 	 * Konstruktor.
 	 * @param owner Der Besitzer des Offiziers
@@ -198,9 +198,9 @@ public class Offizier extends DSObject {
 	 * @return Der Name
 	 */
 	public String getName() {
-		return name;	
+		return name;
 	}
-	
+
 	/**
 	 * Setzt den Namen des Offiziers.
 	 * @param name der neue Name
@@ -208,23 +208,23 @@ public class Offizier extends DSObject {
 	public void setName( String name ) {
 		this.name = name;
 	}
-	
+
 	/**
 	 * Gibt die ID des Offiziers zurueck.
 	 * @return die ID
 	 */
 	public int getID() {
-		return id;	
+		return id;
 	}
-	
+
 	/**
 	 * Gibt den Rang des Offiziers zurueck.
 	 * @return der Rang
 	 */
 	public int getRang() {
-		return rang;	
+		return rang;
 	}
-	
+
 	/**
 	 * Setzt den Rang des Offiziers.
 	 * @param rang Der Rang
@@ -232,7 +232,7 @@ public class Offizier extends DSObject {
 	public void setRang(int rang) {
 		this.rang = rang;
 	}
-	
+
 	/**
 	 * Gibt den Pfad des zum Offizier gehoerenden Bilds zurueck.
 	 * Der Pfad ist bereits eine vollstaendige URL.
@@ -241,7 +241,7 @@ public class Offizier extends DSObject {
 	public String getPicture() {
 		return config.get("URL")+"data/interface/offiziere/off"+getRang()+".png";
 	}
-	
+
 	/**
 	 * Gibt den Aufenthaltsort des Offiziers als Array der Laenge 2 zurueck.
 	 * Das erste Element kennzeichnet den Typ des Aufenthaltsortes (<code>s</code> bei Schiffen,
@@ -252,7 +252,7 @@ public class Offizier extends DSObject {
 	public String[] getDest() {
 		return StringUtils.split(dest, ' ');
 	}
-	
+
 	/**
 	 * Setzt den Aufenthaltsort eines Offiziers.
 	 * @param dest Der Typ des Aufenthaltsortes (s, b, t)
@@ -262,23 +262,23 @@ public class Offizier extends DSObject {
 	public void setDest( String dest, int objectid ) {
 		this.dest = dest+' '+objectid;
 	}
-	
+
 	/**
 	 * Gibt den Besitzers des Offiziers zurueck.
 	 * @return der Besitzer
 	 */
 	public User getOwner() {
-		return owner;	
+		return owner;
 	}
-	
+
 	/**
 	 * Setzt den Besitzer des Offiziers.
 	 * @param owner der neue Besitzer
 	 */
 	public void setOwner( User owner ) {
-		this.owner = owner; 
+		this.owner = owner;
 	}
-	
+
 	/**
 	 * Gibt den aktuellen Skillwert der angegebenen Faehigkeit des Offiziers zurueck.
 	 * @param ability Die Faehigkeit
@@ -299,7 +299,7 @@ public class Offizier extends DSObject {
 		}
 		return 0;
 	}
-	
+
 	/**
 	 * Setzt den Skillwert einer Faehigkeit des offiziers.
 	 * @param ability Die Faehigkeit
@@ -327,7 +327,7 @@ public class Offizier extends DSObject {
 
 	/**
 	 * Gibt dem Offizier Erfahrungspunkte fuer die Faehigkeit.
-	 * 
+	 *
 	 * @param ability Die Faehigkeit
 	 * @param exp Die Anzahl der Erfahrungspunkte
 	 */
@@ -365,7 +365,7 @@ public class Offizier extends DSObject {
 					newrang = true;
 				}
 				break;
-				
+
 			case NAV: {
 				this.navu = this.navu + exp;
 				fak = 2;
@@ -380,7 +380,7 @@ public class Offizier extends DSObject {
 					newrang = true;
 				}
 				break;
-			}	
+			}
 			case SEC:
 				this.secu = this.secu + exp;
 				fak = 2;
@@ -395,7 +395,7 @@ public class Offizier extends DSObject {
 					newrang = true;
 				}
 				break;
-				
+
 			case COM:
 				this.comu = this.comu + exp;
 				fak = 2;
@@ -411,24 +411,24 @@ public class Offizier extends DSObject {
 				}
 				break;
 		}
-		
+
 		if( newrang ) {
 			double rangf = (this.ing+this.waf+this.nav+this.sec+this.com);
 			int rang = (int)(rangf/125);
 			if( rang > Offiziere.MAX_RANG ) {
 				rang = Offiziere.MAX_RANG;
 			}
-						
+
 			this.rang = rang;
 		}
 	}
-	
+
 	/**
-	 * Benutzt einen Skill des Offiziers unter Beruecksichtigung 
+	 * Benutzt einen Skill des Offiziers unter Beruecksichtigung
 	 * der Schwierigkeit der Aufgabe. Der Offizier kann dabei seinen
 	 * Skill verbessern. Entsprechende Hinweistexte koennen via {@link DSObject#MESSAGE}
 	 * erfragt werden. Zurueckgegeben wird, wie oft der Skill erfolgreich angewandt wurde.
-	 * 
+	 *
 	 * @param ability Die Faehigkeit
 	 * @param difficulty Die Schwierigkeit der Aufgabe
 	 * @return Die Anzahl der erfolgreichen Anwendungen des Skills
@@ -444,7 +444,7 @@ public class Offizier extends DSObject {
 				}
 				if( this.ing > fak*(RandomUtils.nextInt(101)/100d) ) {
 					count++;
-					
+
 					if( RandomUtils.nextInt(31) > 10 ) {
 						this.ingu++;
 						fak = 2;
@@ -462,7 +462,7 @@ public class Offizier extends DSObject {
 			}
 			case WAF:
 				break;
-				
+
 			case NAV: {
 				int fak = difficulty;
 				if( this.spec == 5 ) {
@@ -470,7 +470,7 @@ public class Offizier extends DSObject {
 				}
 				if( this.nav > fak*(RandomUtils.nextInt(101)/100d) ) {
 					count++;
-					
+
 					if( RandomUtils.nextInt(31) > 10 ) {
 						this.navu++;
 						fak = 2;
@@ -485,30 +485,30 @@ public class Offizier extends DSObject {
 					}
 				}
 				break;
-			}	
+			}
 			case SEC:
 				break;
-				
+
 			case COM:
 				break;
 		}
-		
+
 		if( count != 0 ) {
 			double rangf = (this.ing+this.waf+this.nav+this.sec+this.com)/5.0;
 			int rang = (int)(rangf/125);
 			if( rang > Offiziere.MAX_RANG ) {
 				rang = Offiziere.MAX_RANG;
 			}
-						
+
 			if( rang > this.rang ) {
 				MESSAGE.get().append(this.name+" wurde bef&ouml;rdert\n");
 				this.rang = rang;
 			}
 		}
 
-		return count;	
+		return count;
 	}
-	
+
 	/**
 	 * Gibt die Spezialfaehigkeit des Offiziers zurueck.
 	 * @return Die Spezialfaehigkeit
@@ -516,7 +516,7 @@ public class Offizier extends DSObject {
 	public Special getSpecial() {
 		return Special.values()[spec];
 	}
-	
+
 	/**
 	 * Setzt die Spezialeigenschaft des Offiziers.
 	 * @param special Die Spezialeigenschaft
@@ -524,16 +524,16 @@ public class Offizier extends DSObject {
 	public void setSpecial(Special special) {
 		this.spec = special.ordinal();
 	}
-	
+
 	/**
 	 * Prueft, ob der Offizier die angegebene Spezialfaehigkeit hat.
 	 * @param special Die Spezialfaehigkeit
 	 * @return <code>true</code>, falls der Offizier die Faehigkeit hat
 	 */
 	public boolean hasSpecial( Special special ) {
-		return spec == special.ordinal();	
+		return spec == special.ordinal();
 	}
-	
+
 	/**
 	 * @return Offensivskill des Offiziers.
 	 */
@@ -541,10 +541,10 @@ public class Offizier extends DSObject {
 	{
 		int weaponSkill = getAbility(Offizier.Ability.WAF);
 		int commSkill = getAbility(Offizier.Ability.COM);
-		
+
 		return (int)Math.round((weaponSkill + commSkill) / 2d);
 	}
-	
+
 	/**
 	 * @return Defensivskill des Offiziers.
 	 */
@@ -552,7 +552,7 @@ public class Offizier extends DSObject {
 	{
 		return (getAbility(Offizier.Ability.NAV) + getAbility(Offizier.Ability.COM)) / 2;
 	}
-	
+
 	/**
 	 * @param verteidiger <code>true</code>, falls es der Verteidigende Offizier ist.
 	 * @return Kapermultiplikator des Offiziers.
@@ -574,26 +574,26 @@ public class Offizier extends DSObject {
 		}
 		return multi;
 	}
-		
+
 	/**
 	 * Gibt einen Offizier am angegebenen Aufenthaltsort zurueck. Sollten mehrere
 	 * Offiziere sich an diesem Ort aufhalten, so wird der beste von ihnen zurueckgegeben.
 	 * Sollte sich an dem Ort kein Offizier aufhalten, so wird <code>null</code> zurueckgegeben.
-	 * 
+	 *
 	 * @param dest Der Typ des Aufenthaltsortes (s, t, b)
 	 * @param objid Die ID des Aufenthaltsortes
-	 * @return Ein Offizier oder <code>null</code> 
+	 * @return Ein Offizier oder <code>null</code>
 	 * @see #getDest()
 	 */
 	public static Offizier getOffizierByDest(char dest, int objid) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
-		return (Offizier)db.createQuery("from Offizier where dest=? order by rang desc")
-			.setString(0, dest+" "+objid)
+
+		return (Offizier)db.createQuery("from Offizier where dest=:dest order by rang desc")
+			.setString("dest", dest+" "+objid)
 			.setMaxResults(1)
 			.uniqueResult();
 	}
-	
+
 	/**
 	 * Gibt den Offizier mit der angegebenen ID zurueck. Sollte kein solcher Offizier
 	 * existieren, so wird <code>null</code> zurueckgegeben.
@@ -602,10 +602,10 @@ public class Offizier extends DSObject {
 	 */
 	public static Offizier getOffizierByID(int id) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
+
 		return (Offizier)db.get(Offizier.class, id);
 	}
-	
+
 	/**
 	 * Gibt alle Offiziere am angegebenen Aufenthaltsort zurueck.
 	 * @param dest Der Typ des Aufenthaltsortes (s, t, b)
@@ -616,7 +616,7 @@ public class Offizier extends DSObject {
 	@SuppressWarnings("unchecked")
 	public static List<Offizier> getOffiziereByDest(char dest, int objid) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
+
 		return db.createQuery("from Offizier where dest= :dest")
 			.setString("dest", dest+" "+objid)
 			.list();

@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
@@ -132,8 +133,7 @@ public class PlayerDelete implements AdminPlugin
 
 			try
 			{
-				scriptparser.setContext(ScriptParserContext.fromStream(rquest.getExecData()
-						.getBinaryStream()));
+				scriptparser.setContext(ScriptParserContext.fromStream(new ByteArrayInputStream(rquest.getExecData())));
 				final Bindings engineBindings = scriptparser.getContext().getBindings(
 						ScriptContext.ENGINE_SCOPE);
 

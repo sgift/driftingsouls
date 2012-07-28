@@ -114,8 +114,8 @@ public class SchiffInfoController extends TemplateGenerator {
 
 		if( ship != 0 ) {
 			//Daten fuer baubare Schiffe laden
-			sw = (ShipBaubar)db.createQuery("from ShipBaubar where type=?")
-				.setInteger(0, ship)
+			sw = (ShipBaubar)db.createQuery("from ShipBaubar where type=:type")
+				.setInteger("type", ship)
 				.setMaxResults(1)
 				.uniqueResult();
 		}
