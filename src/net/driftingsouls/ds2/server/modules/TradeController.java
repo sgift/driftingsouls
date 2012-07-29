@@ -25,13 +25,13 @@ import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
+import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.ResourceLimit;
 import net.driftingsouls.ds2.server.entities.ResourceLimit.ResourceLimitKey;
 import net.driftingsouls.ds2.server.entities.SellLimit;
 import net.driftingsouls.ds2.server.entities.StatVerkaeufe;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.User.Relation;
 import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -109,15 +109,25 @@ public class TradeController extends TemplateGenerator {
 		this.place = "p"+handel.getId();
 		GtuWarenKurse kurse = (GtuWarenKurse)db.get(GtuWarenKurse.class, "p"+handel.getId());
 
-		if( kurse == null ) {
-			this.place="ps"+handel.getSystem();
-			kurse = (GtuWarenKurse)db.get(GtuWarenKurse.class, "ps"+handel.getSystem());
-
-			if( kurse == null ) {
-				this.place = "tradepost";
-				kurse = (GtuWarenKurse)db.get(GtuWarenKurse.class, "tradepost");
-			}
+		if( kurse == null && this.posten.getOwner().getRace() == Faction.GTU_RASSE ) {
+			this.place = "tradepost";
+			kurse = (GtuWarenKurse)db.get(GtuWarenKurse.class, "tradepost");
 		}
+		if( kurse == null )
+		{
+			addError( "Fehler: Der An- und Verkauf auf dem Handelsposten wurde nicht freigegeben", Common.buildUrl("default", "module", "schiff", "ship", shipId));
+
+			return false;
+		}
+
+		User user = (User)getUser();
+		if ( !posten.isTradepostVisible(user, user.getRelations()) )
+		{
+			addError( "Fehler: Dieser Handelsposten handelt nicht mit Ihnen. Für die Aufnahme von Handelsbeziehungen setzen Sie sich mit dem Eigner in Verbindung.", Common.buildUrl("default", "module", "schiff", "ship", shipId));
+
+			return false;
+		}
+
 		this.kurse = new Cargo(kurse.getKurse());
 		this.kurse.setOption( Cargo.Option.SHOWMASS, false );
 
@@ -157,7 +167,7 @@ public class TradeController extends TemplateGenerator {
 			SellLimit limit = (SellLimit)db.get(SellLimit.class, resourceLimitKey);
 
 			//Ware wird nicht verkauft
-			if(limit == null) {
+			if(limit == null || limit.getPrice() <= 0) {
 				continue;
 			}
 
@@ -392,91 +402,80 @@ public class TradeController extends TemplateGenerator {
 
 		// Block to check if user is an enemy
 		User user = (User)getUser();
-		User owner = this.posten.getOwner();
 
-		boolean block = false;
-
-		if ( user.getRelation(owner.getId()) == Relation.ENEMY || owner.getRelation(user.getId()) == Relation.ENEMY )
+		if (!isFull())
 		{
-			block = true;
-		}
-
-		if(!block)
-		{
-			if(!isFull()) {
-				t.setVar("is.full", 0);
-				for( ResourceEntry res : reslist ) {
-					if( !this.shipCargo.hasResource( res.getId() ) ) {
-						continue;
-					}
-
-                    ResourceLimitKey resourceLimitKey = new ResourceLimitKey(posten, res.getId());
-                    ResourceLimit limit = (ResourceLimit)db.get(ResourceLimit.class, resourceLimitKey);
-
-                    //Kaufen wir diese Ware vom Spieler?
-                    if(limit != null && !limit.willBuy(this.posten.getOwner(), user))
-                    {
-                        continue;
-                    }
-
-					String preis = "";
-					if( res.getCount1() < 50) {
-						preis = "Kein Bedarf";
-					}
-					else {
-						preis = Common.ln(res.getCount1()/1000d)+" RE";
-					}
-
-					t.setVar(	"res.img",		res.getImage(),
-								"res.id",		res.getId(),
-								"res.name",		res.getName(),
-								"res.cargo",	this.shipCargo.getResourceCount( res.getId() ),
-								"res.re",		preis );
-
-					t.parse("res.list","res.listitem",true);
-				}
-			}
-			else {
-
-				t.setVar(	"is.full",		true,
-							"res.msg", 		"Dieser Handelsposten ist voll. Bitte beehre uns zu einem späteren Zeitpunkt erneut.");
-			}
-
-			t.setBlock("_TRADE","resbuy.listitem","resbuy.list");
-
-			ResourceList buyList = this.posten.getCargo().getResourceList();
-			for(ResourceEntry resource: buyList) {
-				ResourceLimitKey resourceLimitKey = new ResourceLimitKey(posten, resource.getId());
-				SellLimit limit = (SellLimit)db.get(SellLimit.class, resourceLimitKey);
-
-				//Nicht kaeuflich
-				if(limit == null) {
+			t.setVar("is.full", 0);
+			for (ResourceEntry res : reslist)
+			{
+				if (!this.shipCargo.hasResource(res.getId()))
+				{
 					continue;
 				}
 
-                if(!limit.willSell(this.posten.getOwner(), user))
-                {
-                    continue;
-                }
+				ResourceLimitKey resourceLimitKey = new ResourceLimitKey(posten, res.getId());
+				ResourceLimit limit = (ResourceLimit) db.get(ResourceLimit.class, resourceLimitKey);
 
-				long buyable = this.posten.getCargo().getResourceCount(resource.getId()) - limit.getLimit();
-				if(buyable <= 0) {
+				// Kaufen wir diese Ware vom Spieler?
+				if (limit != null && !limit.willBuy(this.posten.getOwner(), user))
+				{
 					continue;
 				}
 
+				String preis = "";
+				if (res.getCount1() < 50)
+				{
+					preis = "Kein Bedarf";
+				}
+				else
+				{
+					preis = Common.ln(res.getCount1() / 1000d) + " RE";
+				}
 
-				t.setVar(	"resbuy.img",		resource.getImage(),
-							"resbuy.id",		resource.getId(),
-							"resbuy.name",		resource.getName(),
-							"resbuy.cargo",		buyable,
-							"resbuy.re",		limit.getPrice() );
-				t.parse("resbuy.list","resbuy.listitem",true);
+				t.setVar(	"res.img",		res.getImage(),
+							"res.id",		res.getId(),
+							"res.name",		res.getName(),
+							"res.cargo",	this.shipCargo.getResourceCount( res.getId() ),
+							"res.re",		preis );
+
+				t.parse("res.list","res.listitem",true);
 			}
 		}
-		else
-		{
-			t.setVar(	"deny",		true,
-						"deny.msg",	"Dieser Handelsposten handelt nicht mit Ihnen. Für die Aufnahme von Handelsbeziehungen setzen Sie sich mit dem Eigner in Verbindung.");
+		else {
+
+			t.setVar(	"is.full",		true,
+						"res.msg", 		"Dieser Handelsposten ist voll. Bitte beehre uns zu einem späteren Zeitpunkt erneut.");
+		}
+
+		t.setBlock("_TRADE","resbuy.listitem","resbuy.list");
+
+		ResourceList buyList = this.posten.getCargo().getResourceList();
+		for(ResourceEntry resource: buyList) {
+			ResourceLimitKey resourceLimitKey = new ResourceLimitKey(posten, resource.getId());
+			SellLimit limit = (SellLimit)db.get(SellLimit.class, resourceLimitKey);
+
+			//Nicht kaeuflich
+			if(limit == null || limit.getPrice() <=0) {
+				continue;
+			}
+
+            if(!limit.willSell(this.posten.getOwner(), user))
+            {
+                continue;
+            }
+
+			long buyable = this.posten.getCargo().getResourceCount(resource.getId()) - limit.getLimit();
+			if(buyable <= 0) {
+				continue;
+			}
+
+
+			t.setVar(	"resbuy.img",		resource.getImage(),
+						"resbuy.id",		resource.getId(),
+						"resbuy.name",		resource.getName(),
+						"resbuy.cargo",		buyable,
+						"resbuy.re",		limit.getPrice() );
+			t.parse("resbuy.list","resbuy.listitem",true);
 		}
 	}
 }

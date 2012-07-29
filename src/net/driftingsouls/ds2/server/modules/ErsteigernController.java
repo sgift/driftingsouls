@@ -48,6 +48,8 @@ import net.driftingsouls.ds2.server.entities.FactionShopOrder;
 import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
 import net.driftingsouls.ds2.server.entities.JumpNode;
+import net.driftingsouls.ds2.server.entities.ResourceLimit;
+import net.driftingsouls.ds2.server.entities.ResourceLimit.ResourceLimitKey;
 import net.driftingsouls.ds2.server.entities.UpgradeInfo;
 import net.driftingsouls.ds2.server.entities.UpgradeJob;
 import net.driftingsouls.ds2.server.entities.UpgradeMaxValues;
@@ -1032,62 +1034,138 @@ public class ErsteigernController extends TemplateGenerator
 		// GTU-Preise
 		t.setBlock("_ERSTEIGERN", "kurse.listitem", "kurse.list");
 		t.setBlock("kurse.listitem", "kurse.waren.listitem", "kurse.waren.list");
+		t.setBlock("kurse.listitem", "kurse.verkaufswaren.listitem", "kurse.verkaufswaren.list");
 
-		List<?> kurseList = db.createQuery("from GtuWarenKurse").list();
-		for( Iterator<?> iter = kurseList.iterator(); iter.hasNext(); )
+		outputAstiKurse(t, db);
+
+		List<Ship> postenList = Common.cast(db
+				.createQuery("from Ship where id>0 and locate('tradepost',status)!=0 order by system,x+y")
+				.list());
+
+		for( Ship tradepost : postenList )
 		{
-			GtuWarenKurse kurse = (GtuWarenKurse)iter.next();
-
-			Cargo kurseCargo = new Cargo(kurse.getKurse());
-			kurseCargo.setOption(Cargo.Option.SHOWMASS, false);
-
-			String place = kurse.getPlace();
-			if (place.startsWith("p"))
+			if(!tradepost.isTradepostVisible(user, relationlist))
 			{
-				int shipid = Integer.valueOf(place.substring(1));
-				Ship tradepost = (Ship)db.get(Ship.class, shipid);
-				if(tradepost == null)
-				{
-					db.delete(kurse);
-					db.createQuery("delete from ResourceLimit where shipid = :shipid").setParameter("shipid", shipid).executeUpdate();
-					db.createQuery("delete from SellLimit where shipid = :shipid").setParameter("shipid", shipid).executeUpdate();
-					continue;
-				}
-				if(!tradepost.isTradepostVisible(user, relationlist))
-				{
-					continue;
-				}
-
-				t.setVar("posten.name", tradepost.getName(), "kurse.waren.list", "");
-				t.setVar(	"posten.owner.name", Common._title(tradepost.getOwner().getName()),
-							"posten.owner.id", tradepost.getOwner().getId(),
-							"posten.koords.system", tradepost.getLocation().getSystem(),
-							"posten.koords.x", tradepost.getLocation().getX(),
-							"posten.koords.y", tradepost.getLocation().getY() );
+				continue;
 			}
-			else
+			StarSystem sys = (StarSystem)db.get(StarSystem.class, tradepost.getSystem());
+			if( !sys.isVisibleFor(user) )
 			{
-				t.setVar("posten.name", kurse.getName(), "kurse.waren.list", "");
-				t.setVar(	"posten.owner.name", "",
-						"posten.owner.id", "",
-						"posten.koords.system", "",
-						"posten.koords.x", "",
-						"posten.koords.y", "");
+				continue;
 			}
 
-			ResourceList reslist = kurseCargo.getResourceList();
-			for( ResourceEntry res : reslist )
-			{
-				t.setVar(	"ware.image", res.getImage(),
-							"ware.preis", (res.getCount1() / 1000d > 0.05 ? Common.ln(res.getCount1() / 1000d) : ""),
-							"ware.name", res.getName(),
-							"ware.plainname", res.getPlainName(),
-							"ware.id", res.getId() );
-
-				t.parse("kurse.waren.list", "kurse.waren.listitem", true);
-			}
-			t.parse("kurse.list", "kurse.listitem", true);
+			outputHandelspostenKurse(t, db, user, tradepost);
 		}
+	}
+
+	private void outputHandelspostenKurse(TemplateEngine t, org.hibernate.Session db, User user, Ship tradepost)
+	{
+		GtuWarenKurse kurse = (GtuWarenKurse)db.get(GtuWarenKurse.class, "p"+tradepost.getId());
+		if( kurse == null && tradepost.getOwner().getRace() == Faction.GTU_RASSE )
+		{
+			kurse = (GtuWarenKurse)db.get(GtuWarenKurse.class, "tradepost");
+		}
+		if( kurse == null )
+		{
+			return;
+		}
+
+		t.setVar(
+				"posten.name", tradepost.getName(),
+				"kurse.waren.list", "",
+				"posten.owner.name", Common._title(tradepost.getOwner().getName()),
+				"posten.owner.id", tradepost.getOwner().getId(),
+				"posten.location", tradepost.getLocation().displayCoordinates(false) );
+
+		boolean full = tradepost.getTypeData().getCargo() <= tradepost.getCargo().getMass();
+
+		Cargo kurseCargo = new Cargo(kurse.getKurse());
+		kurseCargo.setOption(Cargo.Option.SHOWMASS, false);
+		ResourceList reslist = kurseCargo.getResourceList();
+		for( ResourceEntry res : reslist )
+		{
+			ResourceLimitKey resourceLimitKey = new ResourceLimitKey(tradepost, res.getId());
+			ResourceLimit limit = (ResourceLimit) db.get(ResourceLimit.class, resourceLimitKey);
+
+			// Kaufen wir diese Ware vom Spieler?
+			if (limit != null && !limit.willBuy(tradepost.getOwner(), user))
+			{
+				continue;
+			}
+
+			boolean sellable = limit == null || tradepost.getCargo().getResourceCount(res.getId()) < limit.getLimit();
+
+			t.setVar(	"ware.image", res.getImage(),
+						"ware.preis", (res.getCount1() / 1000d > 0.05 ? Common.ln(res.getCount1() / 1000d) : ""),
+						"ware.name", res.getName(),
+						"ware.plainname", res.getPlainName(),
+						"ware.id", res.getId(),
+						"ware.inaktiv", full || !sellable);
+
+			t.parse("kurse.waren.list", "kurse.waren.listitem", true);
+		}
+
+		/*
+		Vorerst keine Verkaufspreise, da die Liste zu lang und unuebersichtlich wird
+
+
+		ResourceList buyList = tradepost.getCargo().getResourceList();
+		for(ResourceEntry resource: buyList) {
+			ResourceLimitKey resourceLimitKey = new ResourceLimitKey(tradepost, resource.getId());
+			SellLimit limit = (SellLimit)db.get(SellLimit.class, resourceLimitKey);
+			if( limit == null )
+			{
+				continue;
+			}
+			if( limit.getPrice() <= 0 )
+			{
+				continue;
+			}
+			if(!limit.willSell(tradepost.getOwner(), user))
+            {
+                continue;
+            }
+
+			boolean buyable = tradepost.getCargo().getResourceCount(resource.getId()) - limit.getLimit() > 0;
+
+			t.setVar(
+					"ware.image", resource.getImage(),
+					"ware.preis", Common.ln(limit.getPrice()),
+					"ware.name", resource.getName(),
+					"ware.plainname", resource.getPlainName(),
+					"ware.id", resource.getId(),
+					"ware.inaktiv", !buyable);
+
+			t.parse("kurse.verkaufswaren.list", "kurse.verkaufswaren.listitem", true);
+		}
+		*/
+		t.parse("kurse.list", "kurse.listitem", true);
+	}
+
+	private void outputAstiKurse(TemplateEngine t, org.hibernate.Session db)
+	{
+		GtuWarenKurse asti = (GtuWarenKurse)db.get(GtuWarenKurse.class, "asti");
+		Cargo kurseCargo = new Cargo(asti.getKurse());
+		kurseCargo.setOption(Cargo.Option.SHOWMASS, false);
+		t.setVar(
+				"posten.name", asti.getName(),
+				"kurse.waren.list", "",
+				"posten.owner.name", "",
+				"posten.owner.id", "",
+				"posten.location", "");
+
+		ResourceList reslist = kurseCargo.getResourceList();
+		for( ResourceEntry res : reslist )
+		{
+			t.setVar(	"ware.image", res.getImage(),
+						"ware.preis", (res.getCount1() / 1000d > 0.05 ? Common.ln(res.getCount1() / 1000d) : ""),
+						"ware.name", res.getName(),
+						"ware.plainname", res.getPlainName(),
+						"ware.id", res.getId() );
+
+			t.parse("kurse.waren.list", "kurse.waren.listitem", true);
+		}
+		t.parse("kurse.list", "kurse.listitem", true);
 	}
 
 	/**

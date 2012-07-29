@@ -11,15 +11,25 @@
 */
 
 .kursbox {
-	width:250px;
-	margin-right:25px;
-	margin-bottom:20px;
-	float:left;
+	width:95%;
 }
 
-.kursbox .content {
-	max-height:300px;
-	overflow-y:auto;
+.kursbox dd > div {
+	display:inline-block;
+}
+.kursbox dt {
+	padding-top:20px;
+	border-top:1px solid #C7C7C7;
+	margin-top:20px;
+}
+.kursbox dt:first-child {
+	border-top:0px;
+	margin-top:0px;
+	padding-top:0px;
+}
+
+.kursbox .inaktiv a {
+	color:red
 }
 
 /*

@@ -70,13 +70,7 @@ public class ImpObjectsController extends DSGenerator {
 		}
 
 		StarSystem thissystem = (StarSystem)db.get(StarSystem.class, sys);
-
-		if( (thissystem.getAccess() == StarSystem.AC_ADMIN) && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) ) {
-			viewableSystem = false;
-		}
-		else if( (thissystem.getAccess() == StarSystem.AC_NPC) && !user.hasFlag( User.FLAG_VIEW_ALL_SYSTEMS ) && !user.hasFlag( User.FLAG_VIEW_SYSTEMS ) ) {
-			viewableSystem = false;
-		}
+		this.viewableSystem = thissystem.isVisibleFor(user);
 
 		system = thissystem;
 

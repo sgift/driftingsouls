@@ -10,73 +10,31 @@
 {if msgs.list}
 	<br />
 {/endif}
-{if deny}
+{if res.list}
 	{!table_begin 430,center}
-	<table class="noBorderX" width="100%">
-		<tr>
-			<td class="noBorderX" colspan="4" align="center">{deny.msg}</td>
-		</tr>
-	</table>
-	{!table_end}
-{else}
-	{if res.list}
-		{!table_begin 430,center}
-			<form action="./ds" method="post">
-				<table class="noBorderX" cellpadding="2" width="100%">
-				{if ! is.full}
-				<tr>
-					<td colspan="4" class="noBorderX">
-						<span style="font-weight:bold">Waren verkaufen:</span>
-					</td>
-				</tr>
-				{/endif}
-				{if is.full}
-				<tr>
-					<td class="noBorderX" colspan="4" align="center">{res.msg}</td>
-				</tr>
-				{/endif}
-				<!-- BEGIN res.listitem -->
-					<tr>
-						<td class="noBorderX"><img src="{res.img}"alt="" />{res.name}</td>
-						<td class="noBorderX">{res.cargo}</td>
-						<td class="noBorderX"><input name="{res.id}to" type="text" size="3" value="0" /></td>
-						<td class="noBorderX">{res.re}</td>
-					</tr>
-				<!-- END res.listitem -->
-				{if ! is.full}
-				<tr>
-					<td class="noBorderX" colspan="4">
-						<hr noshade="noshade" size="1" style="color:#cccccc" />
-					</td>
-				</tr>
-				<tr>
-					<td class="noBorderX" colspan="4" align="center">
-						{!form_create_hidden sell, ship:$global.shipid, tradepost:$global.tradepost}
-						<input type="submit" value="verkaufen" style="width:200px" />
-					</td>
-				</tr>
-				{/endif}
-				</table>
-			</form>
-		{!table_end}
-	{/endif}
-	{if resbuy.list}
-		{!table_begin 430,center}
-			<form action="./ds" method="post">
+		<form action="./ds" method="post">
 			<table class="noBorderX" cellpadding="2" width="100%">
+			{if ! is.full}
 			<tr>
 				<td colspan="4" class="noBorderX">
-					<span style="font-weight:bold">Waren kaufen:</span>
+					<span style="font-weight:bold">Waren verkaufen:</span>
 				</td>
 			</tr>
-			<!-- BEGIN resbuy.listitem -->
+			{/endif}
+			{if is.full}
+			<tr>
+				<td class="noBorderX" colspan="4" align="center">{res.msg}</td>
+			</tr>
+			{/endif}
+			<!-- BEGIN res.listitem -->
 				<tr>
-					<td class="noBorderX"><img src="{resbuy.img}"alt="" />{resbuy.name}</td>
-					<td class="noBorderX">{resbuy.cargo}</td>
-					<td class="noBorderX"><input name="{resbuy.id}from" type="text" size="3" value="0" /></td>
-					<td class="noBorderX">{resbuy.re}</td>
+					<td class="noBorderX"><img src="{res.img}"alt="" />{res.name}</td>
+					<td class="noBorderX">{res.cargo}</td>
+					<td class="noBorderX"><input name="{res.id}to" type="text" size="3" value="0" /></td>
+					<td class="noBorderX">{res.re}</td>
 				</tr>
-			<!-- END resbuy.listitem -->
+			<!-- END res.listitem -->
+			{if ! is.full}
 			<tr>
 				<td class="noBorderX" colspan="4">
 					<hr noshade="noshade" size="1" style="color:#cccccc" />
@@ -84,15 +42,48 @@
 			</tr>
 			<tr>
 				<td class="noBorderX" colspan="4" align="center">
-					{!form_create_hidden buy, ship:$global.shipid, tradepost:$global.tradepost}
-					<input type="submit" value="kaufen" style="width:200px" />
+					{!form_create_hidden sell, ship:$global.shipid, tradepost:$global.tradepost}
+					<input type="submit" value="verkaufen" style="width:200px" />
 				</td>
 			</tr>
+			{/endif}
 			</table>
-			</form>
-		{!table_end}
-	{/endif}
+		</form>
+	{!table_end}
 {/endif}
+{if resbuy.list}
+	{!table_begin 430,center}
+		<form action="./ds" method="post">
+		<table class="noBorderX" cellpadding="2" width="100%">
+		<tr>
+			<td colspan="4" class="noBorderX">
+				<span style="font-weight:bold">Waren kaufen:</span>
+			</td>
+		</tr>
+		<!-- BEGIN resbuy.listitem -->
+			<tr>
+				<td class="noBorderX"><img src="{resbuy.img}"alt="" />{resbuy.name}</td>
+				<td class="noBorderX">{resbuy.cargo}</td>
+				<td class="noBorderX"><input name="{resbuy.id}from" type="text" size="3" value="0" /></td>
+				<td class="noBorderX">{resbuy.re}</td>
+			</tr>
+		<!-- END resbuy.listitem -->
+		<tr>
+			<td class="noBorderX" colspan="4">
+				<hr noshade="noshade" size="1" style="color:#cccccc" />
+			</td>
+		</tr>
+		<tr>
+			<td class="noBorderX" colspan="4" align="center">
+				{!form_create_hidden buy, ship:$global.shipid, tradepost:$global.tradepost}
+				<input type="submit" value="kaufen" style="width:200px" />
+			</td>
+		</tr>
+		</table>
+		</form>
+	{!table_end}
+{/endif}
+
 <br />
 {!link_to zur&uuml;ck, default, css_class:back, module:schiff, ship:$global.shipid}
 </span>
