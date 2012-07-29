@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -77,7 +78,6 @@ import org.hibernate.Session;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.Type;
@@ -134,25 +134,21 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	private boolean isloading;
 	private boolean isfeeding;
 
-	@OneToOne(fetch=FetchType.LAZY)
-	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH})
+	@OneToOne(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH})
 	@JoinColumn
 	private Academy academy;
-	@OneToOne(fetch=FetchType.LAZY)
-	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH})
+	@OneToOne(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH})
 	@JoinColumn
 	private Forschungszentrum forschungszentrum;
-	@OneToOne(fetch=FetchType.LAZY)
-	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH})
+	@OneToOne(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH})
 	@JoinColumn
 	private BaseWerft werft;
-	@OneToMany(fetch=FetchType.LAZY)
-	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH})
+	@OneToMany(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH})
 	@JoinColumn(name="col")
 	private Set<Factory> factories;
 
-	@OneToMany(fetch=FetchType.LAZY, targetEntity=net.driftingsouls.ds2.server.bases.BaseUnitCargoEntry.class)
-	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH,org.hibernate.annotations.CascadeType.MERGE})
+	@OneToMany(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH},
+			targetEntity=net.driftingsouls.ds2.server.bases.BaseUnitCargoEntry.class)
 	@JoinColumn(name="destid", nullable=true)
 	@BatchSize(size=50)
 	@NotFound(action = NotFoundAction.IGNORE)
@@ -2014,5 +2010,24 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		message = message + "Erfreulich ist: Ihre Geologen haben " + newitem.getName() + " gefunden!";
 
 		PM.send(sourceUser, this.getOwner().getId(), "Ressourcen aufgebraucht!", message);
+	}
+
+	/**
+	 * Ermittelt alle Basen eines Nutzers an einer gegebenen Position.
+	 * @param loc Die Position
+	 * @param besitzer Der Besitzer
+	 * @return Die Liste der Basen
+	 */
+	public static List<Base> byLocationAndBesitzer(Location loc, User besitzer)
+	{
+		List<Base> bases = new ArrayList<Base>();
+		for( Base base : besitzer.getBases() )
+		{
+			if( base.getLocation().equals(loc) )
+			{
+				bases.add(base);
+			}
+		}
+		return bases;
 	}
 }

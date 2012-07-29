@@ -20,7 +20,6 @@ package net.driftingsouls.ds2.server;
 
 import java.io.Serializable;
 
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.ships.Ships;
 
 /**
@@ -30,16 +29,16 @@ import net.driftingsouls.ds2.server.ships.Ships;
  */
 public final class Location implements Serializable, Locatable, Comparable<Location> {
 	private static final long serialVersionUID = -5144442902462679539L;
-	
+
 	private static final int EMP_NEBULA_LOW = 3;
 	private static final int EMP_NEBULA_NORMAL = 4;
 	private static final int EMP_NEBULA_THICK = 5;
-	
+
 	private final int x;
 	private final int y;
 	private final int system;
 	private transient int hashCode = 0;
-	
+
 	/**
 	 * Erstellt ein neues Positionsobjekt fuer den Ort 0:0/0.
 	 *
@@ -52,7 +51,7 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 
 	/**
 	 * Erstellt ein neues Positionsobjekt bestehend aus einem Sternensystem, einer x- sowie einer y-Position.
-	 * 
+	 *
 	 * @param system Das Sternensystem (id)
 	 * @param x Die x-Position
 	 * @param y Die y-Position
@@ -86,12 +85,21 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 	public int getY() {
 		return y;
 	}
-	
+
+	/**
+	 * Exportiert die Position als String, welcher mittels
+	 * {@link #fromString(String)} wieder geparst werden kann.
+	 * @return Die serialisierte Position
+	 */
+	public String asString() {
+		return this.system+":"+this.x+"/"+this.y;
+	}
+
 	@Override
 	public String toString() {
 		return "THIS METHOD IGNORES FIELD TYPES IN PRINTING: USE displayCoordinates() INSTEAD";
 	}
-	
+
 	/**
 	 * Erzeugt eine neue Location aus dieser mit den angegebenen X-Wert.
 	 * @param x der neue X-Wert
@@ -100,7 +108,7 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 	public Location setX(int x) {
 		return new Location(system, x, y);
 	}
-	
+
 	/**
 	 * Erzeugt eine neue Location aus dieser mit den angegebenen Y-Wert.
 	 * @param y der neue Y-Wert
@@ -109,7 +117,7 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 	public Location setY(int y) {
 		return new Location(system, x, y);
 	}
-	
+
 	/**
 	 * Erzeugt eine neue Location aus dieser mit der angegebenen System-ID.
 	 * @param system die neue System-ID
@@ -118,11 +126,11 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 	public Location setSystem(int system) {
 		return new Location(system, x, y);
 	}
-	
+
 	/**
 	 * Generiert ein Location-Objekt aus einem Positionsstring des.
 	 * Formats system:x/y oder x/y
-	 * 
+	 *
 	 * @param loc Der Positionsstring
 	 * @return Das zum Positionsstring gehoerende Location-Objekt
 	 */
@@ -130,34 +138,22 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 		String parseLoc = loc;
 		int separator = parseLoc.indexOf(':');
 		int system = 0;
-		
+
 		if( separator > -1 ) {
 			system = Integer.parseInt(loc.substring(0, separator));
 			parseLoc = parseLoc.substring(separator+1);
 		}
-		
+
 		separator = parseLoc.indexOf('/');
 		if( separator == -1 ) {
 			throw new RuntimeException("Illegales Koordinatenformat '"+loc+"'! Separator / fehlt");
 		}
 		int x = Integer.parseInt(parseLoc.substring(0, separator));
 		int y = Integer.parseInt(parseLoc.substring(separator+1));
-		
+
 		return new Location(system, x, y);
 	}
-	
-	/**
-	 * Generiert ein Location-Objekt aus einer SQL-Ergebniszeile, welche die Spalten
-	 * 'x', 'y' und 'system' enthaelt.
-	 * @param result Die SQL-Ergebniszeile
-	 * @return Das zur Ergebniszeile gehoerende Location-Objekt
-	 * @deprecated Bitte Hibernate benutzen
-	 */
-	@Deprecated
-	public static Location fromResult(SQLResultRow result) {
-		return new Location(result.getInt("system"), result.getInt("x"), result.getInt("y"));
-	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if( this == obj ) {
@@ -166,7 +162,7 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 		if( (obj == null) || (obj.getClass() != getClass()) ) {
 			return false;
 		}
-		
+
 		final Location loc = (Location)obj;
 		if( this.system != loc.system ) {
 			return false;
@@ -174,26 +170,26 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 		if( this.x != loc.x ) {
 			return false;
 		}
-		
+
 		if( this.y != loc.y ) {
 			return false;
 		}
 		return true;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		if( hashCode == 0 ) {
 			hashCode = system*100000+x*1000+y;
 		}
-		
+
 		return hashCode;
 	}
-	
+
 	/**
 	 * Prueft, ob zwei Koordinaten unter Beruecksichtigung ihrer Radien einen oder mehrere
 	 * gemeinsame Sektoren haben (sie sich also in gewisser Weise im selben Sektor befinden).
-	 * 
+	 *
 	 * @param ownRadius Der eigene Radius (bzw 0 wenn das Objekt keine Ausdehnung hat)
 	 * @param object Das Objekt mit dem es einen gemeinsamen Sektor haben soll
 	 * @param objectRadius Der Radius des Objekts
@@ -204,37 +200,37 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 		if( this.system != loc.getSystem() ) {
 			return false;
 		}
-		
+
 		if( Math.floor(Math.sqrt((this.x-loc.getX())*(this.x-loc.getX())+(this.y-loc.getY())*(this.y-loc.getY()))) > ownRadius+objectRadius ) {
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Gibt die angezeigten Koordinaten zurueck.
 	 * EMP wird dabei beruecksichtigt.
-	 * 
+	 *
 	 * @param noSystem <code>true</code>, wenn das System nicht mit angezeigt werden soll, sonst <code>false</code>
 	 * @return Anzeigbare Koordinaten.
 	 */
 	public String displayCoordinates(boolean noSystem)
 	{
 		int nebulaType = Ships.getNebula(this);
-		
+
 		StringBuilder text = new StringBuilder(8);
 		if( !noSystem ) {
 			text.append(system);
 			text.append(":");
 		}
-		
+
 		if( nebulaType == EMP_NEBULA_LOW ) {
 			text.append(x / 10);
 			text.append("x/");
 			text.append(y / 10);
 			text.append('x');
-			
+
 			return text.toString();
 		}
 		else if( (nebulaType == EMP_NEBULA_NORMAL) || (nebulaType == EMP_NEBULA_THICK) ) {
@@ -244,7 +240,7 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 		text.append(x);
 		text.append('/');
 		text.append(y);
-		
+
 		return text.toString();
 	}
 
@@ -256,7 +252,7 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 	/**
 	 * @return <code>true</code>, wenn der Sektor einen Nebel enthaelt.
 	 */
-	public boolean isNebula() 
+	public boolean isNebula()
 	{
 		return Ships.getNebula(this) != -1;
 	}
@@ -264,13 +260,13 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 	/**
 	 * Vergleicht den Sektor mit einem anderen.
 	 * Beim Vergleich werden erst System, dann y, dann x getestet.
-	 * 
+	 *
 	 * @param o Vergleichsobjekt.
-	 * 
+	 *
 	 * @return vgl compareTo in Interface Comparable.
 	 */
 	@Override
-	public int compareTo(Location o) 
+	public int compareTo(Location o)
 	{
 		if(system == o.system)
 		{

@@ -103,15 +103,7 @@ public class NPCOrderTick extends TickController {
 				int owner = order.getUser();
 				User user = (User)getDB().get(User.class, owner);
 
-				Base base = (Base)db.createQuery("from Base where owner=:base")
-					.setEntity("base", user)
-					.setMaxResults(1)
-					.uniqueResult();
-				Location loc = DEFAULT_LOCATION;
-				if( base != null )
-				{
-					loc = base.getLocation();
-				}
+				Location loc = ermittleLieferposition(db, user);
 
 				log("  Lieferung erfolgt bei "+loc.getSystem()+":"+loc.getX()+"/"+loc.getY());
 
@@ -123,7 +115,7 @@ public class NPCOrderTick extends TickController {
 				}
 				else if( order instanceof OrderOffizier )
 				{
-					newShip = processOrderOffizier(db, order, user, base, loc);
+					newShip = processOrderOffizier(db, order, user, loc);
 				}
 
 				if( newShip != null )
@@ -212,12 +204,14 @@ public class NPCOrderTick extends TickController {
 		return newShip;
 	}
 
-	private Ship processOrderOffizier(org.hibernate.Session db, Order order, User user, Base base, Location loc)
+	private Ship processOrderOffizier(org.hibernate.Session db, Order order, User user, Location loc)
 	{
+		List<Base> bases = Base.byLocationAndBesitzer(loc, user);
+
 		ShipType shipd = (ShipType)db.get(ShipType.class, OFFIZIERSSCHIFF);
 
 		Ship newShip = null;
-		if( base == null )
+		if( bases.isEmpty() )
 		{
 			Ship ship = createShip(db, user, shipd, loc);
 
@@ -228,7 +222,7 @@ public class NPCOrderTick extends TickController {
 		}
 		else
 		{
-			this.log("* Order "+order.getId()+" ready: Offizier wird zu User "+order.getUser()+" - Basis "+base.getId()+" geliefert");
+			this.log("* Order "+order.getId()+" ready: Offizier wird zu User "+order.getUser()+" - Basis "+bases.get(0).getId()+" geliefert");
 		}
 
 		OrderableOffizier offizier = (OrderableOffizier)db.get(OrderableOffizier.class, ((OrderOffizier)order).getType());
@@ -241,9 +235,9 @@ public class NPCOrderTick extends TickController {
 		offi.setAbility(Offizier.Ability.NAV, offizier.getNav());
 		offi.setAbility(Offizier.Ability.SEC, offizier.getSec());
 		offi.setAbility(Offizier.Ability.COM, offizier.getCom());
-		if( base != null )
+		if( !bases.isEmpty() )
 		{
-			offi.setDest("b", base.getId());
+			offi.setDest("b", bases.get(0).getId());
 		}
 		else
 		{
@@ -263,16 +257,16 @@ public class NPCOrderTick extends TickController {
 		pmcache.append(offizier.getName());
 		pmcache.append(" wurde geliefert.\nEr befindet sich auf ");
 
-		if( base == null ) {
+		if( bases.isEmpty() ) {
 			pmcache.append("einer ");
 			pmcache.append(shipd.getNickname());
 			pmcache.append(" bei ");
 		}
 		else {
 			pmcache.append("auf ihrer Basis ");
-			pmcache.append(base.getName());
+			pmcache.append(bases.get(0).getName());
 			pmcache.append(" (");
-			pmcache.append(base.getId());
+			pmcache.append(bases.get(0).getId());
 			pmcache.append(") im Sektor ");
 		}
 
@@ -312,6 +306,26 @@ public class NPCOrderTick extends TickController {
 
 		this.log("Schiff "+id+" erzeugt");
 		return ship;
+	}
+
+	private Location ermittleLieferposition(org.hibernate.Session db, User user)
+	{
+		if( user.getNpcOrderLocation() != null )
+		{
+			Location loc = Location.fromString(user.getNpcOrderLocation());
+			List<Base> candidates = Base.byLocationAndBesitzer(loc, user);
+			if( !candidates.isEmpty() )
+			{
+				return loc;
+			}
+		}
+
+		if( user.getBases().isEmpty() )
+		{
+			return DEFAULT_LOCATION;
+		}
+		Base ersteBasis = user.getBases().iterator().next();
+		return ersteBasis.getLocation();
 	}
 
 }

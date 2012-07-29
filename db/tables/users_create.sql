@@ -19,7 +19,7 @@ CREATE TABLE `users` (
   `plainname` varchar(255) NOT NULL default 'Kolonist',
   `allyposten` int(11) default NULL,
   `gtudropzone` tinyint(3) unsigned NOT NULL default '2',
-  `npcorderloc` varchar(12) NOT NULL default '',
+  `npcorderloc` varchar(12) default null,
   `imgpath` varchar(200) default NULL,
   `disabled` tinyint(3) unsigned NOT NULL default '0',
   `flags` tinytext NOT NULL,
@@ -39,4 +39,4 @@ CREATE TABLE `users` (
   KEY `ally` (`ally`),
   KEY `vaccount` (`vaccount`,`wait4vac`),
   KEY `un` (`un`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

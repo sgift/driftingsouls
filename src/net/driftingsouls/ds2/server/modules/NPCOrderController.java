@@ -4,9 +4,11 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 import net.driftingsouls.ds2.server.ContextCommon;
@@ -36,7 +38,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.tasks.Task;
@@ -482,47 +483,25 @@ public class NPCOrderController extends TemplateGenerator {
 	 *
 	 * @urlparam String orderloc Die Koordinate des Ortes, an dem die georderten Objekte erscheinen sollen
 	 */
-	// TODO: fertig implementieren (Interface, Ticks)
 	@Action(ActionType.DEFAULT)
 	public void changeOrderLocationAction() {
-		org.hibernate.Session db = getDB();
 		TemplateEngine t = this.getTemplateEngine();
 		User user = (User)this.getUser();
 
-		parameterString("orderloc");
-		String orderloc = getString("orderloc");
+		parameterString("lieferposition");
+		String orderloc = getString("lieferposition");
 
 		Location loc = Location.fromString(orderloc);
 
 		String ordermessage = "";
 
-		Ship ship = (Ship)db.createQuery("from Ship as s " +
-				"where s.shiptype.shipClass= :cls AND s.id>0 " +
-					"and s.x= :x and s.y= :y and s.system= :sys and s.owner= :user")
-			.setInteger("cls", ShipClasses.STATION.ordinal())
-			.setEntity("user", user)
-			.setInteger("x", loc.getX())
-			.setInteger("y", loc.getY())
-			.setInteger("sys", loc.getSystem())
-			.setMaxResults(1)
-			.uniqueResult();
-
-		Base base = (Base)db.createQuery("from Base where owner= :user and " +
-				"x= :x and y= :y and system= :sys")
-			.setEntity("user", user)
-			.setInteger("x", loc.getX())
-			.setInteger("y", loc.getY())
-			.setInteger("sys", loc.getSystem())
-			.setMaxResults(1)
-			.uniqueResult();
-
-		if( (base != null) || (ship != null) ) {
-			user.setNpcOrderLocation(loc.toString());
+		if( !Base.byLocationAndBesitzer(loc, user).isEmpty() ) {
+			user.setNpcOrderLocation(loc.asString());
 
 			ordermessage = "Neue Lieferkoordinaten gespeichert";
 		}
 		else {
-			ordermessage = "Keine Lieferung nach "+loc+" m&ouml;glich\n";
+			ordermessage = "Keine Lieferung nach "+loc.asString()+" m&ouml;glich\n";
 		}
 
 		t.setVar("npcorder.message", ordermessage);
@@ -760,6 +739,34 @@ public class NPCOrderController extends TemplateGenerator {
 						"offizier.ordercount",	offiorders.get(offizier.getId()) );
 
 			t.parse("offiziere.list", "offiziere.listitem", true);
+		}
+
+		outputLieferposition(t, user);
+	}
+
+	private void outputLieferposition(TemplateEngine t, User user)
+	{
+		Set<Location> uniqueLocations = new HashSet<Location>();
+
+		Location lieferpos = null;
+		if( user.getNpcOrderLocation() != null )
+		{
+			lieferpos = Location.fromString(user.getNpcOrderLocation());
+		}
+		t.setBlock("_NPCORDER", "lieferposition.listitem", "lieferposition.list");
+		for( Base base : user.getBases() )
+		{
+			// Jede Position nur einmal auflisten!
+			if( !uniqueLocations.add(base.getLocation()) )
+			{
+				continue;
+			}
+			t.setVar(
+					"lieferposition.pos", base.getLocation().asString(),
+					"lieferposition.name", Common._plaintitle(base.getName()),
+					"lieferposition.aktiv", lieferpos != null && base.getLocation().equals(lieferpos));
+
+			t.parse("lieferposition.list", "lieferposition.listitem", true);
 		}
 	}
 }

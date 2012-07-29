@@ -1742,4 +1742,8 @@
    		INSERT INTO loyalitaetspunkte SELECT null, owner, 'Initiale LP', '[Automatische Konvertierung]', lp, NOW(), rank_giver FROM user_rank WHERE lp>0;
  		ALTER TABLE user_rank DROP COLUMN lp;
     ]]></update>
+    <update type="structure" datum="2012-07-29"><![CDATA[
+    	ALTER TABLE users MODIFY npcorderloc VARCHAR(12) DEFAULT NULL;
+    	UPDATE users SET npcorderloc = null WHERE npcorderloc='';
+    ]]></update>
 </updates>
