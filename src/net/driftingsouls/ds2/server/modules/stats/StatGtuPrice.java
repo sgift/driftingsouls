@@ -20,14 +20,15 @@ package net.driftingsouls.ds2.server.modules.stats;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.List;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
+import net.driftingsouls.ds2.server.entities.StatGtu;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.StatsController;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -40,55 +41,62 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 public class StatGtuPrice extends AbstractStatistic implements Statistic {
 	/**
 	 * Konstruktor.
-	 * 
+	 *
 	 */
 	public StatGtuPrice() {
 		// EMPTY
 	}
-	
+
 	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
-		
-		String url = getUserURL();
-	
-		Writer echo = getContext().getResponse().getWriter();
-		
-		echo.append("<table class=\"noBorderX\" cellspacing=\"1\" cellpadding=\"1\" width=\"100%\">\n");
-		echo.append("<tr><td class=\"noBorderX\" colspan=\"5\" align=\"left\">Die h&ouml;chsten Gebote:</td></tr>\n");
-	
-		int a = 1;
-	
-		SQLQuery gebot = db.query("SELECT username,userid,preis,type,mtype " +
-				"FROM stats_gtu " +
-				"ORDER BY preis DESC LIMIT 0,"+size);
+		org.hibernate.Session db = context.getDB();
 
-		while( gebot.next() ) {
+		String url = getUserURL();
+
+		Writer echo = getContext().getResponse().getWriter();
+
+		echo.append("<h1>Die höchsten Gebote:</h1>");
+		echo.append("<table class='stats'>\n");
+
+		int a = 1;
+
+		List<StatGtu> gebote = Common.cast(db
+			.createQuery("from StatGtu order by preis desc")
+			.setMaxResults(size)
+			.list());
+
+		for( StatGtu gebot : gebote )
+		{
 			String name = null;
-			
-			if( gebot.getInt("mtype") == 1 ) {
-				ShipTypeData shiptype = Ship.getShipType(gebot.getInt("type"));
-				name = "<a class=\"forschinfo\" onclick='ShiptypeBox.show("+gebot.getInt("type")+");return false;' href=\"./ds?module=schiffinfo&ship="+gebot.getInt("type")+"\">"+shiptype.getNickname()+"</a>";
+
+			if( gebot.getMType() == 1 ) {
+				ShipTypeData shiptype = Ship.getShipType(Integer.parseInt(gebot.getType()));
+				name = "<a class=\"forschinfo\" onclick='ShiptypeBox.show("+gebot.getType()+");return false;' href=\"./ds?module=schiffinfo&ship="+gebot.getType()+"\">"+shiptype.getNickname()+"</a>";
 			}
-			else if( gebot.getInt("mtype") == 2 ) {
-				Cargo mycargo = new Cargo( Cargo.Type.AUTO, gebot.getString("type") );
+			else if( gebot.getMType() == 2 ) {
+				Cargo mycargo = new Cargo( Cargo.Type.AUTO, gebot.getType() );
 				ResourceEntry resource = mycargo.getResourceList().iterator().next();
-					
+
 				name = ( resource.getCount1() > 1 ? resource.getCount1()+"x " : "" )+Cargo.getResourceName(resource.getId());
 			}
-	
-	   		echo.append("<tr><td class=\"noBorderX\" style=\"width:40px\">"+a+".</td>\n");
-	   		echo.append("<td class=\"noBorderX\"><a class=\"profile\" href=\""+url+gebot.getInt("userid")+"\">"+Common._title(gebot.getString("username"))+" ("+gebot.getInt("userid")+")</td>");
-			echo.append("<td class=\"noBorderX\">&nbsp;-&nbsp;</td>\n");
-			echo.append("<td class=\"noBorderX\">"+name+"</td>\n");
-			echo.append("<td class=\"noBorderX\">&nbsp;-&nbsp;</td>\n");
-			echo.append("<td class=\"noBorderX\"><span class=\"nobr\">"+Common.ln(gebot.getLong("preis"))+" RE</span></td></tr>\n");
-	
+
+	   		echo.append("<tr><td>"+a+".</td>\n");
+	   		User user = (User)db.get(User.class, gebot.getUserId());
+	   		if( user != null )
+	   		{
+	   			echo.append("<td><a class=\"profile\" href=\""+url+user.getId()+"\">"+Common._title(user.getName())+" ("+user.getId()+")</a></td>");
+	   		}
+	   		else
+	   		{
+	   			echo.append("<td>"+Common._title(gebot.getUsername())+" ("+gebot.getUserId()+")</td>");
+		   	}
+	   		echo.append("<td>"+name+"</td>\n");
+			echo.append("<td><span class=\"nobr\">"+Common.ln(gebot.getPrice())+" RE</span></td></tr>\n");
+
 			a++;
 		}
-		gebot.free();
-		
-		echo.append("</table><br /><br />\n");
+
+		echo.append("</table>\n");
 	}
 }

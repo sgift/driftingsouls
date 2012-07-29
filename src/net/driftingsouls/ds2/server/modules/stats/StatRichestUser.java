@@ -20,11 +20,15 @@
 package net.driftingsouls.ds2.server.modules.stats;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.ally.Ally;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.StatsController;
 
 /**
@@ -46,30 +50,38 @@ public class StatRichestUser extends AbstractStatistic implements Statistic {
 	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 
-		String url = null;
-
-		SQLQuery tmp = null;
 		if( !allys ) {
-			tmp = db.query("SELECT konto count,name,id ",
-					    "FROM users ",
-						"WHERE id>",StatsController.MIN_USER_ID," ",
-						"ORDER BY count DESC,id ASC LIMIT ",size);
-			url = getUserURL();
+			List<User> users = Common.cast(db
+				.createQuery("select u from User u where id>:minid order by konto desc,id desc")
+				.setParameter("minid", StatsController.MIN_USER_ID)
+				.setMaxResults(size)
+				.list());
+
+			Map<User,Long> displayMap = new LinkedHashMap<User,Long>();
+			for( User user : users )
+			{
+				displayMap.put(user, user.getKonto().longValue());
+			}
+
+			this.generateStatistic("Linked Markets Fortune List:", displayMap, USER_LINK_GENERATOR, false, -1);
 		}
 		else {
-			tmp = db.query("SELECT SUM(konto) count,a.name,u.ally id ",
-					    "FROM users u JOIN ally a ON u.ally=a.id ",
-						"WHERE u.id>",StatsController.MIN_USER_ID," AND u.ally>0 ",
-						"GROUP BY u.ally ",
-						"ORDER BY count DESC,u.id ASC LIMIT ",size);
+			List<Object[]> allianzen = Common.cast(db
+				.createQuery("select a,sum(u.konto) from User u join u.ally a " +
+						"where u.id>:minid group by a order by sum(u.konto) desc,u.id desc")
+				.setParameter("minid", StatsController.MIN_USER_ID)
+				.setMaxResults(size)
+				.list());
 
-			url = getAllyURL();
+			Map<Ally,Long> displayMap = new LinkedHashMap<Ally,Long>();
+			for( Object[] allianz : allianzen )
+			{
+				displayMap.put((Ally)allianz[0], ((Number)allianz[1]).longValue());
+			}
+
+			this.generateStatistic("Linked Markets Fortune List:", displayMap, ALLY_LINK_GENERATOR, false, -1);
 		}
-
-		this.generateStatistic("Linked Markets Fortune List:", tmp, url, false);
-
-		tmp.free();
 	}
 }

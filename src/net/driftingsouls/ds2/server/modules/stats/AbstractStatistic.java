@@ -115,11 +115,11 @@ abstract class AbstractStatistic implements Statistic {
 	 * @param size Die maximale Anzahl an anzuzeigenden Zeilen bzw 0 fuer beliebig viele
 	 * @throws IOException
 	 */
-	protected <T> void generateStatistic(String name, SortedMap<T,Long> counts, LinkGenerator<T> generator, boolean showCount, long size) throws IOException {
+	protected <T> void generateStatistic(String name, Map<T,Long> counts, LinkGenerator<T> generator, boolean showCount, long size) throws IOException {
 		Writer echo = getContext().getResponse().getWriter();
 
+		echo.append("<h1>"+name+"</h1>");
 		echo.append("<table class='stats'>\n");
-		echo.append("<tr><td colspan=\"3\">"+name+"</td></tr>\n");
 
 		int count = 0;
 		for( Map.Entry<T,Long> entry : counts.entrySet() )

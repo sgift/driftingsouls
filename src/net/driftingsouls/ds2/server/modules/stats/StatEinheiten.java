@@ -65,12 +65,12 @@ public class StatEinheiten implements Statistic {
 		List<UnitType> unitlist = Common.cast(db.createQuery("from UnitType").list());
 
 		// Ausgabe des Tabellenkopfs
-		echo.append("<table class=\"noBorderX\" cellspacing=\"1\" cellpadding=\"1\">\n");
-		echo.append("<tr><td class=\"noBorderX\" align=\"left\" colspan=\"3\">Einheiten:</td></tr>\n");
-		echo.append("<tr><td class=\"noBorderX\" align=\"left\" width=\"200\">&nbsp;</td>\n");
-		echo.append("<td class=\"noBorderX\">Alle</td>\n");
-		echo.append("<td class=\"noBorderX\" width=\"15\">&nbsp;</td>\n");
-		echo.append("<td class=\"noBorderX\">Eigene</td>\n");
+		echo.append("<table cellspacing=\"1\" cellpadding=\"1\">\n");
+		echo.append("<tr><td align=\"left\" colspan=\"3\">Einheiten:</td></tr>\n");
+		echo.append("<tr><td align=\"left\" width=\"200\">&nbsp;</td>\n");
+		echo.append("<td>Alle</td>\n");
+		echo.append("<td width=\"15\">&nbsp;</td>\n");
+		echo.append("<td>Eigene</td>\n");
 		echo.append("</tr>\n");
 
 		// Einheitenliste durchlaufen
@@ -132,16 +132,16 @@ public class StatEinheiten implements Statistic {
 			{
 				// Daten zur Einheit ausgeben
 	      		echo.append("<tr>\n");
-	      		echo.append("<td class=\"noBorderX\" style=\"white-space:nowrap\"><img style=\"vertical-align:middle\" src=\""+unittype.getPicture()+"\" alt=\"\"><a href=\""+Common.buildUrl("default", "module", "unitinfo", "unit", unittype.getId())+"\" >"+unittype.getName()+"</a>");
+	      		echo.append("<td style=\"white-space:nowrap\"><img style=\"vertical-align:middle\" src=\""+unittype.getPicture()+"\" alt=\"\"><a href=\""+Common.buildUrl("default", "module", "unitinfo", "unit", unittype.getId())+"\" >"+unittype.getName()+"</a>");
 	      		if( unittype.isHidden() && context.hasPermission("unit", "versteckteSichtbar"))
 	      		{
 	      			echo.append("[hidden]");
 	      		}
 	      		echo.append("</td>\n");
-	      		echo.append("<td class=\"noBorderX\">"+(baseunits+shipunits)+"</td>\n");
-	      		echo.append("<td class=\"noBorderX\">&nbsp;</td>\n");
-	      		echo.append("<td class=\"noBorderX\">"+(baseunitsuser+shipunitsuser)+"</td>\n");
-	      		echo.append("<td class=\"noBorderX\">&nbsp;</td>\n");
+	      		echo.append("<td>"+(baseunits+shipunits)+"</td>\n");
+	      		echo.append("<td>&nbsp;</td>\n");
+	      		echo.append("<td>"+(baseunitsuser+shipunitsuser)+"</td>\n");
+	      		echo.append("<td>&nbsp;</td>\n");
 			}
 
 		} // Ende: Einheitenliste

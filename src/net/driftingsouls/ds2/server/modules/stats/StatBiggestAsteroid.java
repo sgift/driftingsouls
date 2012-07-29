@@ -20,12 +20,13 @@ package net.driftingsouls.ds2.server.modules.stats;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.List;
 
+import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.StatsController;
 
 /**
@@ -36,43 +37,44 @@ import net.driftingsouls.ds2.server.modules.StatsController;
 public class StatBiggestAsteroid extends AbstractStatistic implements Statistic {
 	/**
 	 * Konstruktor.
-	 * 
+	 *
 	 */
 	public StatBiggestAsteroid() {
 		// EMPTY
 	}
-	
+
 	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 
-		SQLQuery tmp = db.query("SELECT b.id,b.owner,b.name astiname,b.bewohner count,u.name " +
-				"FROM bases b JOIN users u ON b.owner=u.id " +
-				"WHERE b.owner>"+StatsController.MIN_USER_ID+" " +
-				"ORDER BY count DESC LIMIT "+size);
-			
+		List<Base> bases = Common.cast(db
+				.createQuery("select b from Base b "+
+				"where b.owner.id>:minid " +
+				"order by b.bewohner desc")
+				.setParameter("minid", StatsController.MIN_USER_ID)
+				.setMaxResults(size)
+				.list());
+
 		String url = getUserURL();
-	
+
 		Writer echo = getContext().getResponse().getWriter();
-		
-		echo.append("<table class=\"noBorderX\" cellspacing=\"1\" cellpadding=\"1\" width=\"100%\">\n");
-		echo.append("<tr><td class=\"noBorderX\" colspan=\"6\" align=\"left\">Die gr&ouml;&szlig;ten Asteroiden:</td></tr>\n");
-	
+
+		echo.append("<h1>Die größten Asteroiden:</h1>");
+		echo.append("<table class='stats'>\n");
+
 		int count = 0;
-		while( tmp.next() ) {
-	   		echo.append("<tr><td class=\"noBorderX\" style=\"width:40px\">"+(count+1)+".</td>\n");
-			echo.append("<td class=\"noBorderX\"><a class=\"profile\" href=\""+url+tmp.getInt("owner")+"\">"+Common._title(tmp.getString("name"))+" ("+tmp.getInt("owner")+")</a></td>\n");
-			echo.append("<td class=\"noBorderX\">&nbsp;-&nbsp;</td>\n");
-			echo.append("<td class=\"noBorderX\">"+tmp.getString("astiname")+" ("+tmp.getInt("id")+")</td>\n");
-			echo.append("<td class=\"noBorderX\">&nbsp;-&nbsp;</td>\n");
-			echo.append("<td class=\"noBorderX\">"+Common.ln(tmp.getInt("count"))+"</td></tr>\n");
-	   		
+		for( Base base : bases )
+		{
+	   		echo.append("<tr><td>"+(count+1)+".</td>\n");
+			User owner = base.getOwner();
+			echo.append("<td><a class=\"profile\" href=\""+url+owner.getId()+"\">"+Common._title(owner.getName())+" ("+owner.getId()+")</a></td>\n");
+			echo.append("<td>"+Common._plaintitle(base.getName())+" ("+base.getId()+")</td>\n");
+			echo.append("<td>"+Common.ln(base.getBewohner())+"</td></tr>\n");
+
 	   		count++;
 		}
-		
-		echo.append("</table><br /><br />\n");
-		
-		tmp.free();
+
+		echo.append("</table>\n");
 	}
 }
