@@ -694,6 +694,11 @@ public class NPCOrderController extends TemplateGenerator {
 		for( Iterator<?> iter=shipOrders.iterator(); iter.hasNext(); ) {
 			OrderableShip ship = (OrderableShip)iter.next();
 
+			if( !Rassen.get().rasse(user.getRace()).isMemberIn(ship.getRasse()) )
+			{
+				continue;
+			}
+
 			t.start_record();
 
 			if( ship.getShipType().getShipClass() != oldclass ) {

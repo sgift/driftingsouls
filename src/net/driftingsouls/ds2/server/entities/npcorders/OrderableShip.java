@@ -44,13 +44,23 @@ public class OrderableShip {
 	@PrimaryKeyJoinColumn
 	private ShipType shipType;
 	private int cost;
-	
+	private int rasse;
+
 	/**
 	 * Konstruktor.
 	 *
 	 */
 	public OrderableShip() {
 		// EMPTY
+	}
+
+	/**
+	 * Gibt die ID der Rasse zurueck, die das Schiff ordern kann.
+	 * @return Die Rasse
+	 */
+	public int getRasse()
+	{
+		return this.rasse;
 	}
 
 	/**
@@ -68,7 +78,7 @@ public class OrderableShip {
 	public ShipType getShipType() {
 		return this.shipType;
 	}
-	
+
 	/**
 	 * Gibt die ID des Eintrags zurueck.
 	 * @return Die ID

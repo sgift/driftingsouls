@@ -1745,5 +1745,6 @@
     <update type="structure" datum="2012-07-29"><![CDATA[
     	ALTER TABLE users MODIFY npcorderloc VARCHAR(12) DEFAULT NULL;
     	UPDATE users SET npcorderloc = null WHERE npcorderloc='';
+    	ALTER TABLE orders_ships ADD COLUMN rasse INT DEFAULT 0;
     ]]></update>
 </updates>
