@@ -60,11 +60,11 @@
 	<setting type="number" name="DESTROYABLE_SHIPS" value="1" />
 	<setting type="number" name="ENABLE_CHEATS" value="1" />
 	<setting type="number" name="USE_NEW_FOOD_SYSTEM" value="0" />
-	<setting type="number" name="NAHRUNG_CHECKOUT_FACTOR" value="100" />
+	<setting type="number" name="NAHRUNG_CHECKOUT_FACTOR" value="1" />
 
 	<!-- Register -->
 	<setting type="string" name="REGISTER_BASELAYOUT" value="1,0,2,6,17,0,0,2,0,0,0,0,0,0,0,7,0,0,0,0,7,0,0,0,0,4,0,0,0,3,4,0,0,0,5,4,0,0,0,5" />
-	<setting type="string" name="REGISTER_BASECARGO" value="0,500,1050,1300,450,0,200,500,600,100,0,0,0,0,0,0,0,0," />
+	<setting type="string" name="REGISTER_BASECARGO" value="16|3500|0|0;17|1500|0|0;18|2500|0|0;19|3500|0|0;20|3500|0|0;22|1000|0|0;23|2500|0|0;24|2500|0|0;25|500|0|0" />
 	<setting type="number" name="REGISTER_PM_SENDER" value="-16" />
 
 	<!--
