@@ -7,6 +7,7 @@ import java.util.Map;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemID;
+import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.ResourceLimit;
@@ -126,11 +127,20 @@ public class TradepostController extends TemplateGenerator {
 		GtuWarenKurse kurse = (GtuWarenKurse)db.get(GtuWarenKurse.class, "p"+shipid);
 		if(kurse == null)
 		{
-			// there's no cargo, create one bastard
-			buylistgtu = new Cargo();
-			// there's no GtuWarenKurse Object, create one
-			kurse = new GtuWarenKurse("p"+shipid, ship.getName(), buylistgtu);
-			db.persist(kurse);
+			if( user.getRace() == Faction.GTU_RASSE )
+			{
+				GtuWarenKurse tmpKurse = (GtuWarenKurse)db.get(GtuWarenKurse.class, "tradepost");
+				kurse = new GtuWarenKurse("p"+shipid, ship.getName(), tmpKurse.getKurse());
+				db.persist(kurse);
+			}
+			else
+			{
+				// there's no cargo, create one bastard
+				buylistgtu = new Cargo();
+				// there's no GtuWarenKurse Object, create one
+				kurse = new GtuWarenKurse("p"+shipid, ship.getName(), buylistgtu);
+				db.persist(kurse);
+			}
 		}
 		else
 		{
