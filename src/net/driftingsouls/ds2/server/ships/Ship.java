@@ -4057,7 +4057,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		Cargo shipCargo = this.cargo;
 		long cargo = shipCargo.getMass();
 
-		long deutfactor = shiptype.getDeutFactor();
+		long deutfactor = type.getDeutFactor();
 
 		if( nebel.getType() == 1 ) {
 			deutfactor--;
@@ -4066,11 +4066,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 			deutfactor++;
 		}
 
-		if( (energie * deutfactor)*Cargo.getResourceMass(Resources.DEUTERIUM, 1) > (getTypeData().getCargo() - cargo) ) {
+		if( (energie * deutfactor)*Cargo.getResourceMass(Resources.DEUTERIUM, 1) > (type.getCargo() - cargo) ) {
 			energie = (type.getCargo()-cargo)/(deutfactor*Cargo.getResourceMass( Resources.DEUTERIUM, 1 ));
 		}
 
-		long saugdeut = e * deutfactor;
+		long saugdeut = energie * deutfactor;
 
 		if( saugdeut > 0 ) {
 			shipCargo.addResource( Resources.DEUTERIUM, saugdeut );
