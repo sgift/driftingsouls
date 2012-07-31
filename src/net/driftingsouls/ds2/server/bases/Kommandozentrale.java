@@ -1,5 +1,5 @@
 /*
- *	Drifting Souls 2
+# *	Drifting Souls 2
  *	Copyright (c) 2006 Christopher Jung
  *
  *	This library is free software; you can redistribute it and/or
@@ -169,7 +169,7 @@ public class Kommandozentrale extends DefaultBuilding {
 
 	@Override
 	public String echoShortcut(Context context, Base base, int field, int building) {
-		return "<a class=\"back\" href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"\">[K]</a>";
+		return "<a class=\"back tooltip\" href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"\">[K]<span class='ttcontent'>"+this.getName()+"</span></a>";
 	}
 
 	@Override

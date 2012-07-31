@@ -88,12 +88,12 @@ public class Werft extends DefaultBuilding {
 		if( werft != null ) {
 			werft.setBaseField(field);
 			if( !werft.isBuilding() ) {
-				result.append("<a class=\"back\" href=\"./ds?module=building");
+				result.append("<a class=\"back tooltip\" href=\"./ds?module=building");
 				result.append("&amp;col=");
 				result.append(base.getId());
 				result.append("&amp;field=");
 				result.append(field);
-				result.append("\">[W]</a>");
+				result.append("\">[W]<span class='ttcontent'>"+this.getName()+"</span></a>");
 			}
 			else {
 				WerftObject werftObj = werft;
@@ -114,6 +114,7 @@ public class Werft extends DefaultBuilding {
 				}
 
 				StringBuilder popup = new StringBuilder(100);
+				popup.append(this.getName()+":<br />");
 				popup.append("Belegte Werftslots: <img style='vertical-align:middle;border:0px' src='"+config.get("URL")+"data/interface/schiffinfo/werftslots.png' alt='' />"+usedSlots+"/"+totalSlots+"<br />");
 				popup.append("Im Bau: "+buildingCount+" Schiffe<br />");
 				popup.append("In der Warteschlange: "+(entries.length - buildingCount));

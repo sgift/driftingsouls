@@ -191,15 +191,16 @@ public class AcademyBuilding extends DefaultBuilding {
 		Academy acc = base.getAcademy();
 		if( acc != null ) {
 			if( !acc.getTrain() ) {
-				result.append("<a class=\"back\" href=\"./ds?module=building");
+				result.append("<a class=\"back tooltip\" href=\"./ds?module=building");
 				result.append("&amp;col=");
 				result.append(base.getId());
 				result.append("&amp;field=");
 				result.append(field);
-				result.append("\">[A]</a>");
+				result.append("\">[A]<span class='ttcontent'>"+this.getName()+"</span></a>");
 			}
 			else {
 				StringBuilder popup = new StringBuilder(200);
+				popup.append(this.getName()+":<br /><br />");
 				List<AcademyQueueEntry> entries = acc.getScheduledQueueEntries();
 				for( AcademyQueueEntry entry : entries )
 				{

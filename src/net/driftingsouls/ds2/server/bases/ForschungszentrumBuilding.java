@@ -114,10 +114,11 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		Forschungszentrum fz = base.getForschungszentrum();
 		if( fz != null ) {
 			if( fz.getDauer() == 0 ) {
-				result.append("<a class=\"back\" href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"\">[F]</a>");
+				result.append("<a class=\"back tooltip\" href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"\">[F]<span class='ttcontent'>"+this.getName()+"</span></a>");
 			}
 			else {
 				StringBuilder popup = new StringBuilder();
+				popup.append(this.getName()+":<br />");
 				Forschung forschung = fz.getForschung();
 				popup.append("<img align='left' border='0' src='"+config.get("URL")+"data/tech/"+fz.getForschung().getID()+".gif' alt='' />");
 				popup.append(forschung.getName()+"<br />");

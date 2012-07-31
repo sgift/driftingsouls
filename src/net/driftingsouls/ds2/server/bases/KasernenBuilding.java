@@ -97,16 +97,16 @@ public class KasernenBuilding extends DefaultBuilding {
 			.uniqueResult();
 		if( kaserne != null ) {
 			if( !kaserne.isBuilding() ) {
-				result.append("<a class=\"back\" href=\"./ds?module=building");
+				result.append("<a class=\"back tooltip\" href=\"./ds?module=building");
 				result.append("&amp;col=");
 				result.append(base.getId());
 				result.append("&amp;field=");
 				result.append(field);
-				result.append("\">[B]</a>");
+				result.append("\">[B]<span class='ttcontent'>"+this.getName()+"</span></a>");
 			}
 			else {
 				StringBuilder popup = new StringBuilder(100);
-
+				popup.append(this.getName()+":<br />");
 				for( KaserneEntry entry : kaserne.getQueueEntries() )
 				{
 					UnitType unittype = entry.getUnit();

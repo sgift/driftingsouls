@@ -392,7 +392,8 @@ public class Fabrik extends DefaultBuilding {
 		}
 		else
 		{
-			result.append("<a class=\"back\" href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"\">[FA]</a>");
+			result.append("<a class=\"back tooltip\" href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"\">[FA]" +
+					"<span class='ttcontent'>"+this.getName()+"</span></a>");
 		}
 
 		return result.toString();
