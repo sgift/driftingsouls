@@ -82,7 +82,7 @@ public class StatOwnOffiziere implements Statistic {
 				if( !ships.containsKey(destid) ) {
 					if( destid > 0 ) {
 						Ship ship = (Ship)db.get(Ship.class, destid);
-						if( ship != null && ship.getId() > 0 ) {
+						if( ship == null || ship.getId() <= 0 ) {
 							log.warn("Offizier '"+offizier.getID()+"' befindet sich auf einem ungueltigen Schiff: "+destid);
 							ships.put(destid, "");
 						}

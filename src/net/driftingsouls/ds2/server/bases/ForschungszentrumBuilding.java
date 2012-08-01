@@ -80,6 +80,10 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		super.cleanup(context, base, building);
 
 		Forschungszentrum fz = base.getForschungszentrum();
+		if( fz == null )
+		{
+			return;
+		}
 		base.setForschungszentrum(null);
 
 		org.hibernate.Session db = context.getDB();
