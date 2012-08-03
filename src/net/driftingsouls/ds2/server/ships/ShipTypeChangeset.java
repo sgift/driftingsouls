@@ -73,7 +73,6 @@ public class ShipTypeChangeset {
 	private String flags;
 	private int werft;
 	private int oneWayWerft;
-	private String pictureMod;
 	private Boolean srs;
 	private int scanCost;
 	private int pickingCost;
@@ -236,10 +235,6 @@ public class ShipTypeChangeset {
 			{
 				this.oneWayWerft = Integer.parseInt(changeset[1]);
 			}
-			else if( changeset[0].equals("picturemod") )
-			{
-				this.pictureMod = changeset[1];
-			}
 			else if( changeset[0].equals("srs") )
 			{
 				this.srs = Boolean.parseBoolean(changeset[1]);
@@ -352,13 +347,6 @@ public class ShipTypeChangeset {
 		this.reCost = request.getParameterInt("recost"+addict);
 		this.werft = request.getParameterInt("werftslots"+addict);
 		this.oneWayWerft = request.getParameterInt("onewaywerft"+addict);
-		if( request.getParameterString("picturemod"+addict).length() > 0 ) {
-			this.pictureMod = request.getParameterString("picturemod"+addict);
-		}
-		else
-		{
-			this.pictureMod = null;
-		}
 		if( !"null".equals(request.getParameterString("srs"+addict)) )
 		{
 			this.srs = request.getParameterString("srs"+addict).equals("true") ? true : false;
@@ -643,14 +631,6 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt die Bildmodifikatoren zurueck.
-	 * @return Die Bildmodifikatoren
-	 */
-	public String getPictureMods() {
-		return pictureMod;
-	}
-
-	/**
 	 * Gibt zurueck, ob SRS vorhanden sein sollen.
 	 * @return <code>true</code>, falls SRS vorhanden sein sollen
 	 */
@@ -746,7 +726,6 @@ public class ShipTypeChangeset {
 		echo.append("<tr><td class=\"noBorderS\">Flags: </td><td><input type=\"text\" name=\"flags" +append+"\" value=\"" + (getFlags() == null ? "" : getFlags()) + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Werftslots: </td><td><input type=\"text\" name=\"werftslots" +append+"\" value=\"" + getWerft() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">oneWayWerft: </td><td><input type=\"text\" name=\"onewaywerft" +append+"\" value=\"" + getOneWayWerft() + "\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">pictureMod: </td><td><input type=\"text\" name=\"picturemod" +append+"\" value=\"" + (getPictureMods() == null ? "" : getPictureMods()) + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Hat SRS: </td><td><input type=\"text\" name=\"srs" +append+"\" value=\"" + hasSrs() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">scan Kosten: </td><td><input type=\"text\" name=\"scancost" +append+"\" value=\"" + getScanCost() + "\"></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\">Picking Kosten: </td><td><input type=\"text\" name=\"pickingcost" +append+"\" value=\"" + getPickingCost() + "\"></td></tr>\n");
@@ -845,9 +824,6 @@ public class ShipTypeChangeset {
 		}
 		if ( getOneWayWerft() != 0) {
 			itemstring = itemstring + "onewaywerft," + getOneWayWerft() + "|";
-		}
-		if ( getPictureMods() != null) {
-			itemstring = itemstring + "picturemod," + getPictureMods() + "|";
 		}
 		if ( getScanCost() != 0) {
 			itemstring = itemstring + "scancost," + getScanCost() + "|";
