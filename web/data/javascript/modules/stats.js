@@ -77,10 +77,10 @@ var Stats = {
 			datasetsEl.find('input').on('click', function(event) {
 				var tar = $(event.target);
 				var key = tar.attr('ds-stats-key');
-				if( tar.val() == 1 && typeof selectedDatasets[key] === 'undefined' ) {
+				if( tar.attr('checked') && typeof selectedDatasets[key] === 'undefined' ) {
 					showDataset(key);
 				}
-				else if( tar.val()!=1 && typeof selectedDatasets[key] !== 'undefined' ) {
+				else if( !tar.attr('checked') && typeof selectedDatasets[key] !== 'undefined' ) {
 					removeDataset(key);
 				}
 			});
@@ -91,8 +91,8 @@ var Stats = {
 				.find('input')
 				.first();
 
-			firstInput.val('1');
-			firstInput.click();
+			firstInput.attr('checked', true);
+			showDataset(firstInput.attr('ds-stats-key'));
 		}
 		else if( datasets.length == 1 ){
 			showDataset(datasets[0].key)
@@ -107,7 +107,7 @@ var Stats = {
 		var datasetsEl = target.next();
 		for( var i=0,length=datasets.length; i < length; i++ ) {
 			var set = datasets[i];
-			datasetsEl.append("<div class='set'><input type='checkbox' ds-stats-key='"+set.key+"' value='1'/>"+set.label+"</div>");
+			datasetsEl.append("<div class='set'><input type='checkbox' ds-stats-key='"+set.key+"' />"+set.label+"</div>");
 		}
 		return datasetsEl;
 	}
