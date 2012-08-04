@@ -23,20 +23,24 @@ import java.util.Comparator;
 
 /**
  * Vergleichsklasse fuer Resourcen-IDs.
- * @author Christopher Jung 
+ * @author Christopher Jung
  *
  */
-class ResourceIDComparator implements Comparator<ResourceID>, Serializable
+public class ResourceIDComparator implements Comparator<ResourceID>, Serializable
 {
 	private static final long serialVersionUID = 3588397636540631609L;
-	
+
 	private boolean descending;
-	
-	ResourceIDComparator(boolean descending)
+
+	/**
+	 * Konstruktor.
+	 * @param descending <code>true</code>, falls absteigend sortiert werden soll
+	 */
+	public ResourceIDComparator(boolean descending)
 	{
 		this.descending = descending;
 	}
-	
+
 	@Override
 	public int compare(ResourceID o1, ResourceID o2)
 	{
@@ -47,7 +51,7 @@ class ResourceIDComparator implements Comparator<ResourceID>, Serializable
 		}
 		return val;
 	}
-	
+
 	private int compareEntries(ResourceID id1, ResourceID id2)
 	{
 		// IDs vergleichen

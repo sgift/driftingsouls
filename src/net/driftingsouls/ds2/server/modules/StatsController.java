@@ -26,12 +26,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.modules.stats.AjaxStatistic;
 import net.driftingsouls.ds2.server.modules.stats.StatBiggestAsteroid;
 import net.driftingsouls.ds2.server.modules.stats.StatBiggestFleet;
 import net.driftingsouls.ds2.server.modules.stats.StatBiggestPopulation;
@@ -49,7 +51,10 @@ import net.driftingsouls.ds2.server.modules.stats.StatRichestUser;
 import net.driftingsouls.ds2.server.modules.stats.StatShipCount;
 import net.driftingsouls.ds2.server.modules.stats.StatShips;
 import net.driftingsouls.ds2.server.modules.stats.StatWaren;
+import net.driftingsouls.ds2.server.modules.stats.StatWarenentwicklung;
 import net.driftingsouls.ds2.server.modules.stats.Statistic;
+import net.sf.json.JSON;
+import net.sf.json.JSONObject;
 
 /**
  * Die Statistikseite.
@@ -99,6 +104,8 @@ public class StatsController extends DSGenerator {
 
 	@Override
 	protected boolean validateAndPrepare(String action) {
+		User user = (User)getUser();
+
 		registerStat( "Spieler", new StatOwnCiv(), "Meine Zivilisation", 0 );
 		registerStat( "Spieler", new StatBiggestFleet(false), "Die gr&ouml;ssten Flotten", 60 );
 		registerStat( "Spieler", new StatBiggestTrader(false), "Die gr&ouml;ssten Handelsflotten", 60);
@@ -116,6 +123,10 @@ public class StatsController extends DSGenerator {
 		registerStat( "Sonstiges", new StatPopulationDensity(), "Siedlungsdichte", 0 );
 		registerStat( "Sonstiges", new StatShips(), "Schiffe", 0 );
 		registerStat( "Sonstiges", new StatShipCount(), "Schiffsentwicklung", 0 );
+		if( user.isNPC() )
+		{
+			registerStat( "Sonstiges", new StatWarenentwicklung(), "Warenentwicklung", 0 );
+		}
 		registerStat( "Sonstiges", new StatWaren(), "Waren", 0 );
 		registerStat( "Sonstiges", new StatEinheiten(), "Einheiten", 0);
 		registerStat( "Sonstiges", new StatData(), "Diverse Daten", 0 );
@@ -193,6 +204,24 @@ public class StatsController extends DSGenerator {
 		echo.append("<div><br /><br /></div>\n");
 	}
 
+	@Action(ActionType.AJAX)
+	public JSON ajaxAction() throws IOException {
+		int stat = getInteger("stat");
+
+		if( this.statslist.get(show).size() <= stat ) {
+			stat = 1;
+		}
+
+		StatEntry mystat = this.statslist.get(this.show).get(stat);
+
+		if( mystat.stat instanceof AjaxStatistic )
+		{
+			JSON json = ((AjaxStatistic)mystat.stat).generateData(this, mystat.width);
+			return json;
+		}
+		return new JSONObject();
+	}
+
 	/**
 	 * Anzeige der Statistiken.
 	 * @throws IOException
@@ -211,8 +240,9 @@ public class StatsController extends DSGenerator {
 		printMenu();
 
 		Writer echo = getContext().getResponse().getWriter();
+		echo.write("<script type='text/javascript'>Stats.setCurrentStatistic("+show+","+stat+");</script>");
 
-		echo.append("<div class='gfxbox' style='width:850px'>");
+		echo.append("<div class='gfxbox statistic'>");
 
 		mystat.stat.show(this, mystat.width);
 

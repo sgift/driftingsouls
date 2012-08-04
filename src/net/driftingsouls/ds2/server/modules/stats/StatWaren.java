@@ -115,13 +115,7 @@ public class StatWaren implements Statistic {
 			// Wenn die Resource ein Item ist, dann pruefen, ob dieses angezeigt werden darf
 			int itemid = res.getId().getItemID();
 			Item item = (Item)db.get(Item.class, itemid);
-			if( item == null ) {
-				continue;
-			}
-			if( item.getAccessLevel() > user.getAccessLevel() ) {
-				continue;
-			}
-			if( item.isUnknownItem() && !user.isKnownItem(itemid) && !context.hasPermission("item", "unbekannteSichtbar") ) {
+			if( item == null || !user.canSeeItem(item) ) {
 				continue;
 			}
 
