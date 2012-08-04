@@ -61,20 +61,40 @@ public class StatWarenentwicklung implements Statistic,AjaxStatistic {
 		boolean first = true;
 		for( Map.Entry<ResourceID,SortedMap<Integer,Long>> entry : cargos.entrySet() )
 		{
-			if( !first )
+			if( !isImportantResource(entry.getValue()) )
 			{
-				echo.append(",\n");
+				continue;
 			}
-			first = false;
+
 			Item item = (Item)db.get(Item.class, entry.getKey().getItemID());
 			if( item == null || !user.canSeeItem(item) )
 			{
 				continue;
 			}
+			if( !first )
+			{
+				echo.append(",\n");
+			}
+			first = false;
 			echo.append("{label:'"+item.getName()+"',key:'"+item.getID()+"',picture:'"+item.getPicture()+"'}");
 		}
 		echo.append("]);\n");
 		echo.append("});</script>");
+	}
+
+	private boolean isImportantResource(SortedMap<Integer,Long> values)
+	{
+		long minValue = values.size()*5;
+		long count = 0;
+		for( Long value : values.values() )
+		{
+			count += value;
+			if( count >= minValue )
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private SortedMap<ResourceID, SortedMap<Integer, Long>> generateDataMap(org.hibernate.Session db)

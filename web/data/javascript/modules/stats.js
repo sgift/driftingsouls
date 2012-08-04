@@ -52,33 +52,63 @@ var Stats = {
 		redraw();
 
 		var el = $('#'+selector);
-		el.after("<div class='datasets'></div>");
-
-		var datasetsEl = el.next();
-		for( var i=0,length=datasets.length; i < length; i++ ) {
-			var set = datasets[i];
-			datasetsEl.append("<div class='set'><input type='checkbox' ds-stats-key='"+set.key+"' />"+set.label+"</div>");
-		}
+		var datasetsEl = this.__renderDatasets(el, datasets);
 
 		var self = this;
-		datasetsEl.find('input').on('click', function(event) {
-			var key = $(event.target).attr('ds-stats-key');
-			if( event.target.checked && typeof selectedDatasets[key] === 'undefined' ) {
-				DS.getJSON(
-					{module:'stats',
-					action:'ajax',
-					show:self.__currentCategory,
-					stat:self.__currentStatistic,
-					key:key},
-					function(result) {
-						selectedDatasets[key] = result.data;
-						redraw();
-					});
-			}
-			else if( !event.target.checked && typeof selectedDatasets[key] !== 'undefined' ) {
-				delete selectedDatasets[key];
-				redraw();
-			}
-		});
+
+		var showDataset = function(key) {
+			DS.getJSON(
+				{module:'stats',
+				action:'ajax',
+				show:self.__currentCategory,
+				stat:self.__currentStatistic,
+				key:key},
+				function(result) {
+					selectedDatasets[key] = result.data;
+					redraw();
+				});
+		};
+		var removeDataset = function(key) {
+			delete selectedDatasets[key];
+			redraw();
+		}
+
+		if( datasetsEl != null ) {
+			datasetsEl.find('input').on('click', function(event) {
+				var tar = $(event.target);
+				var key = tar.attr('ds-stats-key');
+				if( tar.val() == 1 && typeof selectedDatasets[key] === 'undefined' ) {
+					showDataset(key);
+				}
+				else if( tar.val()!=1 && typeof selectedDatasets[key] !== 'undefined' ) {
+					removeDataset(key);
+				}
+			});
+		}
+
+		if( datasets.length > 1 ) {
+			var firstInput = datasetsEl
+				.find('input')
+				.first();
+
+			firstInput.val('1');
+			firstInput.click();
+		}
+		else if( datasets.length == 1 ){
+			showDataset(datasets[0].key)
+		}
+	},
+	__renderDatasets : function(target,datasets) {
+		if( datasets.length <= 0 ) {
+			return null;
+		}
+		target.after("<div class='datasets'></div>");
+
+		var datasetsEl = target.next();
+		for( var i=0,length=datasets.length; i < length; i++ ) {
+			var set = datasets[i];
+			datasetsEl.append("<div class='set'><input type='checkbox' ds-stats-key='"+set.key+"' value='1'/>"+set.label+"</div>");
+		}
+		return datasetsEl;
 	}
 };
