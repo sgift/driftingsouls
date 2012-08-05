@@ -276,8 +276,7 @@ public class Item {
 			return ItemEffectFactory.fromString(this.effect);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
-			return null;
+			throw new IllegalStateException("Konnte keinen Effekt fuer Item "+id+" ermitteln",e);
 		}
 	}
 
