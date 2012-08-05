@@ -1,7 +1,7 @@
 CREATE TABLE `ship_types` (
   `id` int(11) NOT NULL auto_increment,
   `nickname` varchar(30) NOT NULL default '',
-  `picture` varchar(50) NOT NULL default '',
+  `picture` varchar(255) NOT NULL default '',
   `ru` int(11) NOT NULL default '0',
   `rd` int(11) NOT NULL default '0',
   `ra` int(11) NOT NULL default '0',
@@ -47,4 +47,4 @@ CREATE TABLE `ship_types` (
   `versorger` tinyint(1) NOT NULL default '0',
   `bounty` bigint(20) unsigned NOT NULL default '0',
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -1747,4 +1747,7 @@
     	UPDATE users SET npcorderloc = null WHERE npcorderloc='';
     	ALTER TABLE orders_ships ADD COLUMN rasse INT DEFAULT 0;
     ]]></update>
+    <update type="structure" datum="2012-08-05"><![CDATA[
+    	ALTER TABLE ship_types MODIFY picture VARCHAR(255) NOT NULL;
+    ]]></update>
 </updates>
