@@ -1039,7 +1039,11 @@ public class ErsteigernController extends TemplateGenerator
 		outputAstiKurse(t, db);
 
 		List<Ship> postenList = Common.cast(db
-				.createQuery("from Ship where id>0 and locate('tradepost',status)!=0 order by system,x+y")
+				.createQuery("select s from Ship s left join s.modules sm " +
+						"where s.id>0 and locate('tradepost',s.status)!=0 or " +
+							"s.shiptype.flags like '%tradepost%' or " +
+							"sm.flags like '%tradepost%' " +
+						"order by system,x+y")
 				.list());
 
 		for( Ship tradepost : postenList )
@@ -1065,7 +1069,7 @@ public class ErsteigernController extends TemplateGenerator
 		{
 			kurse = (GtuWarenKurse)db.get(GtuWarenKurse.class, "tradepost");
 		}
-		if( kurse == null )
+		if( kurse == null || kurse.getKurse().isEmpty() )
 		{
 			return;
 		}
