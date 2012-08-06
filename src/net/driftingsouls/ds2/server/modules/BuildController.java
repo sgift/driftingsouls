@@ -384,7 +384,7 @@ public class BuildController extends TemplateGenerator {
 				}
 			}
 
-			t.setVar(	"building.picture",		building.getPicture(),
+			t.setVar(	"building.picture",		building.getPictureForRace(user.getRace()),
 						"building.name",		Common._plaintitle(building.getName()),
 						"building.id",			building.getId(),
 						"building.buildable", 	ok,

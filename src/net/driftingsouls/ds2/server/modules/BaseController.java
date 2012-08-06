@@ -31,7 +31,6 @@ import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -41,31 +40,15 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-
 /**
  * Verwaltung einer Basis.
  * @author Christopher Jung
  *
  * @urlparam Integer col Die ID der Basis
  */
-@Configurable
 @Module(name="base")
 public class BaseController extends TemplateGenerator {
 	private Base base;
-
-	private Configuration config;
-
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config)
-    {
-    	this.config = config;
-    }
 
 	/**
 	 * Konstruktor.
@@ -262,6 +245,7 @@ public class BaseController extends TemplateGenerator {
 	 */
 	@Action(ActionType.AJAX)
 	public JSONObject ajaxAction() {
+		User user = (User)getUser();
 
 		JSONObject response = new JSONObject();
 		response.accumulate("col", base.getId());
@@ -341,7 +325,7 @@ public class BaseController extends TemplateGenerator {
 					.accumulate("id", building.getId())
 					.accumulate("supportsJSON", building.isSupportsJson())
 					.accumulate("deaktiviert", building.isDeakAble() && (base.getActive()[i] == 0))
-					.accumulate("grafik", building.getPicture());
+					.accumulate("grafik", building.getPictureForRace(user.getRace()));
 
 				feld.accumulate("gebaeude", gebaeudeObj);
 			}
@@ -387,6 +371,7 @@ public class BaseController extends TemplateGenerator {
 	@Override
 	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
+		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 
 		int mapheight = (1 + base.getHeight() * 2) * 22+25;
@@ -449,7 +434,7 @@ public class BaseController extends TemplateGenerator {
 					}
 				}
 
-				image = building.getPicture();
+				image = building.getPictureForRace(user.getRace());
 
 				if( building.isDeakAble() && (base.getActive()[i] == 0) ) {
 					t.setVar(	"tile.overlay",			1,
@@ -477,9 +462,6 @@ public class BaseController extends TemplateGenerator {
 		//----------------
 
 		base.setArbeiter(basedata.getArbeiter());
-
-		int bue = base.getBewohner() - basedata.getArbeiter();
-		int wue = basedata.getLivingSpace() - base.getBewohner();
 
 		ResourceList reslist = base.getCargo().compare(basedata.getProduction(), true,true);
 

@@ -255,7 +255,7 @@ public class ForschinfoController extends TemplateGenerator {
 			t.start_record();
 
 			t.setVar(	"tech.building.hr",			!firstentry,
-						"tech.building.picture",	building.getPicture(),
+						"tech.building.picture",	building.getPictureForRace(user.getRace()),
 						"tech.building.name",		Common._plaintitle(building.getName()),
 						"tech.building.arbeiter",	building.getArbeiter(),
 						"tech.building.bewohner",	building.getBewohner() );

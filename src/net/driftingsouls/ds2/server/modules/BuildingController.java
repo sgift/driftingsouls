@@ -112,6 +112,7 @@ public class BuildingController extends TemplateGenerator {
 	@Action(ActionType.AJAX)
 	public JSONObject startAjaxAction()
 	{
+		User user = (User)getUser();
 		int field = getInteger("field");
 		JSONObject response = new JSONObject();
 		response.accumulate("col", base.getId());
@@ -120,7 +121,7 @@ public class BuildingController extends TemplateGenerator {
 		JSONObject buildingObj = new JSONObject();
 		buildingObj.accumulate("id", building.getId());
 		buildingObj.accumulate("name", Common._plaintitle(building.getName()));
-		buildingObj.accumulate("picture", building.getPicture());
+		buildingObj.accumulate("picture", building.getPictureForRace(user.getRace()));
 		buildingObj.accumulate("active", building.isActive( base, base.getActive()[field], field ));
 		buildingObj.accumulate("deakable", building.isDeakAble());
 		buildingObj.accumulate("kommandozentrale", building.getId() == Building.KOMMANDOZENTRALE);
@@ -190,6 +191,7 @@ public class BuildingController extends TemplateGenerator {
 	 */
 	@Action(ActionType.AJAX)
 	public JSONObject shutdownAjaxAction() {
+		User user = (User)getUser();
 		int field = getInteger("field");
 		JSONObject response = new JSONObject();
 		response.accumulate("col", base.getId());
@@ -198,7 +200,7 @@ public class BuildingController extends TemplateGenerator {
 		JSONObject buildingObj = new JSONObject();
 		buildingObj.accumulate("id", building.getId());
 		buildingObj.accumulate("name", Common._plaintitle(building.getName()));
-		buildingObj.accumulate("picture", building.getPicture());
+		buildingObj.accumulate("picture", building.getPictureForRace(user.getRace()));
 		buildingObj.accumulate("active", building.isActive( base, base.getActive()[field], field ));
 		buildingObj.accumulate("deakable", building.isDeakAble());
 		buildingObj.accumulate("kommandozentrale", building.getId() == Building.KOMMANDOZENTRALE);
@@ -307,6 +309,7 @@ public class BuildingController extends TemplateGenerator {
 	 */
 	@Action(ActionType.DEFAULT)
 	public void demoAction() throws IOException {
+		User user = (User)getUser();
 		int field = getInteger("field");
 		Writer echo = getResponse().getWriter();
 
@@ -317,7 +320,7 @@ public class BuildingController extends TemplateGenerator {
 
 		if( !conf.equals("ok") ) {
 			echo.append("<div align=\"center\">\n");
-			echo.append("<img align=\"middle\" src=\""+config.get("URL")+building.getPicture()+"\" alt=\"\" /> "+Common._plaintitle(building.getName())+"<br /><br />\n");
+			echo.append("<img align=\"middle\" src=\""+config.get("URL")+building.getPictureForRace(user.getRace())+"\" alt=\"\" /> "+Common._plaintitle(building.getName())+"<br /><br />\n");
 			echo.append("Wollen sie dieses Geb&auml;ude wirklich abreissen?<br /><br />\n");
 			echo.append("<a class=\"error\" href=\""+Common.buildUrl("demo", "col", base.getId(), "field", field, "conf", "ok")+"\">abreissen</a><br /></div>");
 			echo.append(Common.tableEnd());
@@ -370,6 +373,7 @@ public class BuildingController extends TemplateGenerator {
 	@Action(ActionType.AJAX)
 	public JSONObject ajaxAction()
 	{
+		User user = (User)getUser();
 		JSONObject json = new JSONObject();
 
 		int field = getInteger("field");
@@ -379,7 +383,7 @@ public class BuildingController extends TemplateGenerator {
 		JSONObject buildingObj = new JSONObject();
 		buildingObj.accumulate("id", building.getId());
 		buildingObj.accumulate("name", Common._plaintitle(building.getName()));
-		buildingObj.accumulate("picture", building.getPicture());
+		buildingObj.accumulate("picture", building.getPictureForRace(user.getRace()));
 		buildingObj.accumulate("active", building.isActive( base, base.getActive()[field], field ));
 		buildingObj.accumulate("deakable", building.isDeakAble());
 		buildingObj.accumulate("kommandozentrale", building.getId() == Building.KOMMANDOZENTRALE);
@@ -404,6 +408,7 @@ public class BuildingController extends TemplateGenerator {
 	@Override
 	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
+		User user = (User)getUser();
 		try {
 			int field = getInteger("field");
 			Writer echo = getResponse().getWriter();
@@ -415,7 +420,7 @@ public class BuildingController extends TemplateGenerator {
 					echo.append(Common.tableBegin(430, "left"));
 
 					echo.append("<div style=\"text-align:center\">\n");
-					echo.append("<img style=\"vertical-align:middle\" src=\""+config.get("URL")+building.getPicture()+"\" alt=\"\" /> "+Common._plaintitle(building.getName())+"<br /></div>\n");
+					echo.append("<img style=\"vertical-align:middle\" src=\""+config.get("URL")+building.getPictureForRace(user.getRace())+"\" alt=\"\" /> "+Common._plaintitle(building.getName())+"<br /></div>\n");
 				}
 				else {
 					echo.append("<div>\n");

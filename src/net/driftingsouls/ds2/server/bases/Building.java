@@ -18,7 +18,11 @@
  */
 package net.driftingsouls.ds2.server.bases;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
@@ -78,6 +82,8 @@ public abstract class Building {
 	private int arbeiter;
 	private String name;
 	private String picture;
+	@ElementCollection
+	private Map<Integer,String> alternativeBilder;
 	@Type(type="cargo")
 	@Column(name="buildcosts")
 	private Cargo buildCosts;
@@ -109,7 +115,7 @@ public abstract class Building {
 	 *
 	 */
 	public Building() {
-		// EMPTY
+		this.alternativeBilder = new HashMap<Integer,String>();
 	}
 
 	/**
@@ -129,11 +135,36 @@ public abstract class Building {
 	}
 
 	/**
-	 * Gibt das zum Gebaeudetyp gehoerende Bild zurueck.
+	 * Gibt das Default-Bild des Gebaeudes zurueck.
 	 * @return Das Bild
 	 */
-	public String getPicture() {
-		return picture;
+	public String getDefaultPicture()
+	{
+		return this.picture;
+	}
+
+	/**
+	 * Gibt die Map aller rassenspezifischen alternativen
+	 * Bilder des Gebaeudes zurueck. Key der Map ist die ID
+	 * der Rasse.
+	 * @return Die Map mit den alternativen Bildern
+	 */
+	public Map<Integer,String> getAlternativeBilder()
+	{
+		return this.alternativeBilder;
+	}
+
+	/**
+	 * Gibt das Bild des Gebaeudes fuer die angegebene Rasse zurueck.
+	 * @param rasse Die Rasse
+	 * @return Das Bild
+	 */
+	public String getPictureForRace(int rasse) {
+		if( this.alternativeBilder.containsKey(rasse) )
+		{
+			return this.alternativeBilder.get(rasse);
+		}
+		return this.picture;
 	}
 
 	/**
@@ -347,7 +378,7 @@ public abstract class Building {
 	 *
 	 * @param picture Bildpfad
 	 */
-	public void setPicture(String picture)
+	public void setDefaultPicture(String picture)
 	{
 		this.picture = picture;
 	}

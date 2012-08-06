@@ -55,7 +55,7 @@ public class EditBuilding implements AdminPlugin
 
 			Building building = (Building)db.get(Building.class, buildingId);
 			building.setName(context.getRequest().getParameterString("name"));
-			building.setPicture(context.getRequest().getParameterString("picture"));
+			building.setDefaultPicture(context.getRequest().getParameterString("picture"));
 			building.setArbeiter(context.getRequest().getParameterInt("worker"));
 			int energy = context.getRequest().getParameterInt("energy");
 			if(energy < 0)
@@ -103,7 +103,7 @@ public class EditBuilding implements AdminPlugin
 			echo.append("<input type=\"hidden\" name=\"building\" value=\"" + buildingId + "\" />\n");
 			echo.append("<table width=\"100%\">");
 			echo.append("<tr><td>Name: </td><td><input type=\"text\" name=\"name\" value=\"" + building.getName() + "\"></td></tr>\n");
-			echo.append("<tr><td>Bild: </td><td><input type=\"text\" name=\"picture\" value=\"" + building.getPicture() + "\"></td></tr>\n");
+			echo.append("<tr><td>Bild: </td><td><input type=\"text\" name=\"picture\" value=\"" + building.getDefaultPicture() + "\"></td></tr>\n");
 			echo.append("<tr><td>Arbeiter: </td><td><input type=\"text\" name=\"worker\" value=\"" + building.getArbeiter() + "\"></td></tr>\n");
 			int energy = -1*building.getEVerbrauch() + building.getEProduktion();
 			echo.append("<tr><td>Energie: </td><td><input type=\"text\" name=\"energy\" value=\"" + energy  + "\"></td></tr>\n");
