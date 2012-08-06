@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.bases;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -83,6 +84,7 @@ public abstract class Building {
 	private String name;
 	private String picture;
 	@ElementCollection
+	@CollectionTable(name="building_alternativebilder")
 	private Map<Integer,String> alternativeBilder;
 	@Type(type="cargo")
 	@Column(name="buildcosts")
