@@ -870,6 +870,7 @@ public class SensorsDefault implements SchiffPlugin {
 		if( nebel != null ) {
 			t.setVar(	"nebel",	true,
 						"nebel.type",	nebel.getType(),
+						"nebel.flotteSammeln", ship.getFleet() != null && nebel.getType() < 3,
 						"global.ship.deutfactor", (shiptype.getDeutFactor() != 0 && (nebel.getType() < 3) ));
 		}
 	}
