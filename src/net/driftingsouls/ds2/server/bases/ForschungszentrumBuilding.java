@@ -67,12 +67,15 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		if( context == null ) {
 			throw new RuntimeException("No Context available");
 		}
-		org.hibernate.Session db = context.getDB();
-
-		Forschungszentrum fz = new Forschungszentrum(base);
-		db.persist(fz);
-
-		base.setForschungszentrum(fz);
+		if( base.getForschungszentrum() == null )
+		{
+			org.hibernate.Session db = context.getDB();
+	
+			Forschungszentrum fz = new Forschungszentrum(base);
+			db.persist(fz);
+	
+			base.setForschungszentrum(fz);
+		}
 	}
 
 	@Override

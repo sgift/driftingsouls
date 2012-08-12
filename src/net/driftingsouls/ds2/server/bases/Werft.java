@@ -61,9 +61,12 @@ public class Werft extends DefaultBuilding {
 	public void build(Base base, int building) {
 		super.build(base, building);
 
-		BaseWerft werft = new BaseWerft(base);
-		ContextMap.getContext().getDB().persist(werft);
-		base.setWerft(werft);
+		if( base.getWerft() == null )
+		{
+			BaseWerft werft = new BaseWerft(base);
+			ContextMap.getContext().getDB().persist(werft);
+			base.setWerft(werft);
+		}
 	}
 
 

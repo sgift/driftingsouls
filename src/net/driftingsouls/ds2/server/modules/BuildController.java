@@ -139,30 +139,6 @@ public class BuildController extends TemplateGenerator {
 			}
 		}
 
-		if( building instanceof Werft)
-		{
-			BaseWerft werft = base.getWerft();
-			if( werft != null)
-			{
-				addError("Sie k&ouml;nnen maximal eine Werft pro Asteroid bauen");
-
-				redirect();
-				return;
-			}
-		}
-
-		if( building instanceof ForschungszentrumBuilding)
-		{
-			Forschungszentrum fz = base.getForschungszentrum();
-			if( fz != null)
-			{
-				addError("Sie k&ouml;nnen maximal ein Forschungszentrum pro Asteroid bauen");
-
-				redirect();
-				return;
-			}
-		}
-
 		//Anzahl der Gebaeude pro Spieler berechnen
 		if( building.getPerUserCount() != 0 ) {
 			int ownerbuildingcount = 0;
