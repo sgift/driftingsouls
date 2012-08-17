@@ -97,10 +97,16 @@ public class TechListeController extends TemplateGenerator {
 
 		int rasse = getInteger("rasse");
 
-		if( rasse == 0 ) {
+		if( rasse == 0 )
+		{
 			rasse = user.getRace();
 		}
-		else if( !Rassen.get().rasse(rasse).isExtPlayable() ) {
+		else if( Rassen.get().rasse(rasse) == null )
+		{
+			rasse = user.getRace();
+		}
+		else if( !Rassen.get().rasse(rasse).isExtPlayable() )
+		{
 			rasse = user.getRace();
 		}
 
