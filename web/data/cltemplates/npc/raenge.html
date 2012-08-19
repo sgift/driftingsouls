@@ -1,0 +1,48 @@
+<div id="npc">
+	<ng-include src="'data/cltemplates/npc/_header.html'"></ng-include>
+	<div id="npcraenge" class="content">
+		<div class="gfxbox userInput">
+			<form ng-submit="changeUser()">
+				Rang von Spieler bearbeiten:
+				<input type="text" name="edituser" ng-model="editUserId" style="width:50px" />
+				<input type="submit" value="bearbeiten"/>
+			</form>
+		</div>
+		<div class="gfxbox raengeBox" ng-show="edituserPresent">
+			<div class="user">
+				<a class="profile" href="./ds?module=userprofile&action=default&user={{edituser.id}}">
+					<span ng-bind-html-unsafe="edituser.name" />
+				</a>
+			</div>
+			<form ng-submit="rangAendern()">
+				<table width="100%">
+					<tr>
+						<td>Rang bei Ihnen:</td>
+						<td align="center" colspan="2">
+							<select name="rank" size="1" ng-model="aktiverRang" ng-options="rang.name for rang in raenge">
+							</select>
+						</td>
+					</tr>
+				</table>
+				<div style="text-align:center">
+					<input type="submit" value="Aktualisieren">
+				</div>
+			</form>
+			<div ng-show="menu.head">
+				<hr noshade="noshade" size="1" style="color:#cccccc" />
+				<form ng-submit="medailleVergeben()">
+					<div class="medal" ng-repeat="medal in medals">
+						<img ng-src="data/{{medal.image}}" alt="" /><br />
+						<input type="radio" id="medal{{medal.id}}" ng-model="$parent.medalSelected" value="{{medal.id}}"/>
+						<label for="medal{{medal.id}}">{{medal.name}}</label>
+					</div>
+					<div class="medalAward">
+						Grund: [...Aufgrund der/deiner ]
+						<input type="text" name="reason" ng-model="begruendung" value="" size="40" /><br />
+						<input type="submit" value="Spieler auszeichnen" />
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,90 @@
+<div id="npc">
+	<ng-include src="'data/cltemplates/npc/_header.html'"></ng-include>
+	<div id="npcorder">
+		<div class="npcpunkte">Kommandopunkte: {{npcpunkte}}</div>
+		<div class="gfxbox npcorderbox schiffe">
+			<input type="text" placeholder="Suchen..." ng-model="suche" class="suche" />
+			<form ng-submit="orderShips()">
+				<div class="liste">
+					<table>
+						<thead>
+							<tr>
+								<td>Klasse</td>
+								<td>Schiff</td>
+								<td>Kosten</td>
+								<td>Anzahl</td>
+								<td>Geordert</td>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="ship in ships | filter:suche">
+								<td>{{ship.klasse}}</td>
+								<td>
+									<a class="forschinfo" onclick="ShiptypeBox.show({{ship.type}});return false;"
+										href="./ds?module=schiffinfo&amp;ship={{ship.type}}">{{ship.name}}</a>
+								</td>
+								<td>{{ship.cost}}</td>
+								<td><input type="text" size="3" maxlength="3" ng-model="ship.neworder" /></td>
+								<td>
+									<span ng-show="ship.ordercount > 0">{{ship.ordercount}}x</span>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<ul>
+					<li>
+						<input type="checkbox" name="shipflag_disableiff" ng-model="shipflags.disableiff" />
+						<label for="shipflag_disableiff">IFF deaktiviert (+5 Punkte/Schiff)</label>
+					</li>
+					<li>
+						<input type="checkbox" name="shipflag_nichtkaperbar" ng-model="shipflags.nichtkaperbar" />
+						<label for="shipflag_nichtkaperbar">Nicht kaperbar (+5 Punkte/Schiff)</label>
+					</li>
+					<li>
+						<input type="checkbox" name="shipflag_handelsposten" ng-model="shipflags.handelsposten" />
+						<label for="shipflag_handelsposten">Handelsposten (+5 Punkte/Schiff)</label>
+					</li>
+					<li>
+						<input type="submit" value="bestellen" />
+					</li>
+				</ul>
+			</form>
+		</div>
+		<div class="gfxbox npcorderbox offiziere">
+			<table>
+			<thead>
+				<tr>
+					<td>Rang</td>
+					<td>Offizier</td>
+					<td>Kosten</td>
+					<td></td>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="offizier in offiziere">
+					<td>
+						<img ng-src="data/interface/offiziere/off{{offizier.rang}}.png" alt="Rang {{offizier.rang}}" />
+					</td>
+					<td>
+						<a href="#" ng-click="orderOffizier(offizier,1)">{{offizier.name}}</a> 
+						(<a href="#" ng-click="orderOffizier(offizier,5)">5x</a>, 
+						<a href="#" ng-click="orderOffizier(offizier,10)">10x</a>)
+					</td>
+					<td>{{offizier.cost}}</td>
+					<td><span ng-show="offizier.ordercount>0">{{offizier.ordercount}}x</span></td>
+				</tr>
+			</tbody>
+			</table>
+		</div>
+		<div class="gfxbox npcorderposition">
+			<form ng-submit="lieferpositionAendern()">
+				<label for="lieferposition">Lieferposition:</label>
+				<select ng-model="lieferposition" ng-options="lieferposition.label for lieferposition in lieferpositionen">
+					<option value="">[automatisch]</option>
+				</select>
+				<input type="submit" value="ok" />
+			</form>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,26 @@
+<div id="npc">
+	<ng-include src="'data/cltemplates/npc/_header.html'"></ng-include>
+	<div id="npcshop" class="gfxbox" style="width:700px">
+		<table width="100%" class="datatable">
+			<thead>
+				<tr>
+					<td style="text-align:center" colspan="2">Frachter</td>
+					<td style="text-align:center">Status</td>
+					<td style="text-align:center">Auftrag</td>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="transport in transporter">
+					<td>
+						<img style="vertical-align:middle;height:100px" ng-src="{transport.ship.picture}" alt="" />
+					</td>
+					<td>
+						<a href="./ds?module=ship&action=default&ship={{transport.ship.id}}">{{transport.ship.name}}</a> ({{transport.ship.id}})
+					</td>
+					<td style="text-align:center">{{transport.status}}</td>
+					<td style="text-align:center">{{transport.assignment}}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>

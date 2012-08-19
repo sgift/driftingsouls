@@ -76,19 +76,19 @@
 				<file pattern="/data/([^/]*)/v[a-fA-F0-9]*/(.*)" file="data/$1/$2" />
 			</execute-reader>
 		</match>
-		<match pattern="/.*data/.*\.(gif|png|jpg|css|js)">
+		<match pattern="/.*data/.*\.(gif|png|jpg|css|js|html)">
 			<execute-reader>
 				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.FileReader" />
 				<file pattern=".*/data/(.*)" file="data/$1" />
 			</execute-reader>
 		</match>
-		<match pattern="/[^/]+\.(gif|png|jpg|css|js)">
+		<match pattern="/[^/]+\.(gif|png|jpg|css|js|html)">
 			<execute-reader>
 				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.FileReader" />
 				<file pattern="/(.*)" file="$1" />
 			</execute-reader>
 		</match>
-		<match pattern="/.*\.(gif|png|jpg|css|js)">
+		<match pattern="/.*\.(gif|png|jpg|css|js|html)">
 			<execute-reader>
 				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.FileReader" />
 				<file pattern="/.*/([^/]+)" file="$1" />

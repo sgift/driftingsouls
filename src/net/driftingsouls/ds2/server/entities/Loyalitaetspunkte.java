@@ -9,6 +9,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import net.driftingsouls.ds2.server.framework.JSONSupport;
+import net.sf.json.JSONObject;
+
 /**
  * Repraesentation einer Menge von vergebenen Loyalitaetspunkten durch einen NPC
  * an einen Nutzer. Der Vergabe ist jeweils ein Datum sowie ein Grund zugeordnet.
@@ -18,7 +21,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name="loyalitaetspunkte")
-public class Loyalitaetspunkte implements Comparable<Loyalitaetspunkte>
+public class Loyalitaetspunkte implements Comparable<Loyalitaetspunkte>, JSONSupport
 {
 	@Id
 	@GeneratedValue
@@ -140,5 +143,18 @@ public class Loyalitaetspunkte implements Comparable<Loyalitaetspunkte>
 			return -diff;
 		}
 		return this.grund.compareTo(arg0.grund);
+	}
+
+	@Override
+	public JSONObject toJSON()
+	{
+		JSONObject result = new JSONObject()
+			.accumulate("id", this.id)
+			.accumulate("grund", this.grund)
+			.accumulate("anmerkungen", this.anmerkungen)
+			.accumulate("anzahlPunkte", this.anzahlPunkte)
+			.accumulate("zeitpunkt", this.zeitpunkt.getTime());
+
+		return result;
 	}
 }

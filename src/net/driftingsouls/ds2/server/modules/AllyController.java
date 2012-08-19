@@ -397,7 +397,7 @@ public class AllyController extends TemplateGenerator {
 
 		parameterString("rangname");
 		parameterNumber("rangnr");
-		String rangname = Common._plaintitle(getString("rangname"));
+		String rangname = getString("rangname");
 		int rangnr = getInteger("rangnr");
 
 		if( rangname.length() == 0 || rangnr < 0 ) {

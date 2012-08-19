@@ -52,10 +52,13 @@ import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.JSONSupport;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitType;
+import net.sf.json.JSON;
+import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -79,7 +82,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Configurable
 @BatchSize(size=50)
-public class User extends BasicUser {
+public class User extends BasicUser implements JSONSupport {
 	private static final Log log = LogFactory.getLog(User.class);
 
 	/**
@@ -360,6 +363,18 @@ public class User extends BasicUser {
 				pre+"knownItems", this.knownItems,
 				pre+"vaccount", this.vaccount,
 				pre+"wait4vac", this.wait4vac);
+	}
+
+	@Override
+	public JSON toJSON()
+	{
+		JSONObject result = new JSONObject();
+		result.accumulate("race", this.race);
+		result.accumulate("id", this.getId());
+		result.accumulate("name", Common._title(this.getName()));
+		result.accumulate("plainname", this.getPlainname());
+		
+		return result;
 	}
 
 	/**

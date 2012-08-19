@@ -79,34 +79,127 @@
 	NPC-Menue
 */
 
-.npcorderbox {
+#npcmenu {
+	margin-bottom:20px;
+}
+
+#npcmenu .menuLabel {
+	width:100px;
+	padding-left:10px;
+	display:inline-block;
+	vertical-align:middle;
+}
+#npcmenu .menuBox {
+	width:400px;
+	text-align:center;
+	display:inline-block;
+}
+
+#npcorder .suche {
+	width:90%;
+	display:block;
+	margin: 0px auto 10px auto;
+}
+
+#npcorder .message,
+#npcorder .npcpunkte {
+	margin-bottom:10px;
+	font-size:12px;
+}
+
+#npcorder .npcorderbox {
 	width:500px;
 	text-align:left;
 	margin-right:20px;
 	float:left;
 }
-.npcorderbox table {
+
+#npcorder .npcorderbox .liste {
+	max-height:400px;
+	overflow-y:auto;
+}
+
+#npcorder .offiziere td:first-child {
+	width:30px;
+	text-align:right;
+}
+#npcorder .npcorderbox table {
 	width:100%;
 }
-.npcorderbox table thead,
-.npcorderbox table tfoot {
+#npcorder .npcorderbox table thead {
 	text-align:center;
 	font-weight:bold;
 }
-.npcorderbox table ul {
+#npcorder .npcorderbox ul {
 	list-style:none;
-	margin:0px;
+	margin:0px auto 0px auto;
 	padding:0px;
+	width:300px;
+	margin-top:10px;
+	text-align:center;
 }
-.npcorderbox table ul li {
+#npcorder .npcorderbox ul li {
 	margin-top:5px;
 	margin-bottom:5px;
 }
 
-.npcorderposition {
+#npcorder .npcorderposition {
 	float:left;
 	width:500px;
 	margin-right:20px;
+}
+
+#npc .content {
+	width:700px;
+	text-align:center;
+}
+
+#npc .userInput {
+	width:400px;
+	margin:0px auto 20px auto;
+}
+
+#npcraenge .raengeBox {
+	width:700px;
+	text-align:left;
+}
+
+#npcraenge .raengeBox .user {
+	text-align:center;
+	margin-bottom:5px;
+}
+
+#npcraenge .medal {
+	display:inline-block;
+	width:120px;
+	min-height:160px;
+	margin:5px;
+	text-align:center; 
+}
+
+#npcraenge .medalAward {
+	text-align:center;
+	padding-top:10px;
+	clear:both;
+}
+
+#npclp .lpbox {
+	width:900px;
+	text-align:left;
+}
+
+#npclp .user,
+#npclp .lpcount {
+	margin-bottom:10px;
+}
+
+#npclp .user {
+	text-align:center;
+}
+
+#npclp textarea {
+	width:200px;
+	height:30px
 }
 
 /*

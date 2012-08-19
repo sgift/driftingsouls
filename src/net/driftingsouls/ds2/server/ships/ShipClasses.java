@@ -35,7 +35,7 @@ public enum ShipClasses {
 	/**
 	 * Die Schiffsklasse "Zerstoerer".
 	 */
-	ZERSTOERER("Zerst&ouml;rer"),				// 2
+	ZERSTOERER("Zerstörer"),				// 2
 	/**
 	 * Die Schiffsklasse "Tanker".
 	 */
@@ -63,11 +63,11 @@ public enum ShipClasses {
 	/**
 	 * Die Schiffsklasse "Jaeger".
 	 */
-	JAEGER("J&auml;ger"),						// 9
+	JAEGER("Jäger"),						// 9
 	/**
 	 * Die Schiffsklasse "Geschuetze".
 	 */
-	GESCHUETZ("Gesch&uuml;tz","Gesch&uuml;tze"),				// 10
+	GESCHUETZ("Geschütz","Geschütze"),				// 10
 	/**
 	 * Die Schiffsklasse "Forschungskreuzer".
 	 */
@@ -87,7 +87,7 @@ public enum ShipClasses {
 	/**
 	 * Die Schiffsklasse "Traeger".
 	 */
-	TRAEGER("Tr&auml;ger"),						// 15
+	TRAEGER("Träger"),						// 15
 	/**
 	 * Die Schiffsklasse "Kommandoschiffe".
 	 */

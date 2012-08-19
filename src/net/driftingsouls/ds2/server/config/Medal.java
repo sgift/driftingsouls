@@ -18,12 +18,16 @@
  */
 package net.driftingsouls.ds2.server.config;
 
+import net.driftingsouls.ds2.server.framework.JSONSupport;
+import net.sf.json.JSON;
+import net.sf.json.JSONObject;
+
 /**
  * Repraesentiert einen Orden in DS.
  * @author Chirstopher Jung
  *
  */
-public class Medal {
+public class Medal implements JSONSupport {
 	/**
 	 * Das normale Bild.
 	 */
@@ -115,5 +119,16 @@ public class Medal {
 			return imageSmall;	
 		}
 		return null;
+	}
+
+	@Override
+	public JSON toJSON()
+	{
+		JSONObject medalObj = new JSONObject()
+			.accumulate("name", this.name)
+			.accumulate("id", this.id)
+			.accumulate("image", this.image)
+			.accumulate("imageSmall", this.imageSmall);
+		return medalObj;
 	}
 }

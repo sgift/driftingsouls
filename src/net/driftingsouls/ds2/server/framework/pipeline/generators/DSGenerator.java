@@ -332,13 +332,7 @@ public abstract class DSGenerator extends Generator {
 		@Override
 		public void printFooter() {}
 		@Override
-		public void printErrorList() throws IOException {
-			Writer sb = getContext().getResponse().getWriter();
-
-			for( Error error : getContext().getErrorList() ) {
-				sb.append("ERROR: "+error.getDescription().replaceAll("\n"," ")+"\n");
-			}
-		}
+		public void printErrorList() throws IOException {}
 	}
 
 	/**
@@ -477,11 +471,9 @@ public abstract class DSGenerator extends Generator {
 				this.parameter.put(parameter, Common.getNumberFormat().parse(val.trim()));
 			}
 			catch( NumberFormatException e ) {
-				addError("Parameter "+parameter+" ist keine g&uuml;ltige Zahl");
 				this.parameter.put(parameter, 0d);
 			}
 			catch( ParseException e ) {
-				addError("Parameter "+parameter+" ist keine g&uuml;ltige Zahl");
 				this.parameter.put(parameter, 0d);
 			}
 		}
@@ -567,19 +559,13 @@ public abstract class DSGenerator extends Generator {
 			action = "default";
 		}
 
-		if( getErrorList().length != 0 ) {
-			printErrorListOnly();
-
-			return;
-		}
-
 		try {
 			Method method = getMethodForAction(action);
-			final Action actionDescriptor = method.getAnnotation(Action.class);
+			Action actionDescriptor = method.getAnnotation(Action.class);
 			setActionType(actionDescriptor.value());
 
 			if( (getErrorList().length != 0) || !validateAndPrepare(action) ) {
-				printErrorListOnly();
+				printErrorListOnly(actionDescriptor.value());
 
 				return;
 			}
@@ -593,10 +579,7 @@ public abstract class DSGenerator extends Generator {
 
 			method.setAccessible(true);
 			Object result = method.invoke(this);
-			if( result != null )
-			{
-				getResponse().getWriter().append(result.toString());
-			}
+			writeResultObject(result, actionDescriptor.value());
 		}
 		catch( NoSuchMethodException e )
 		{
@@ -610,9 +593,17 @@ public abstract class DSGenerator extends Generator {
 
 		parseSubParameter("");
 
-		printErrorList();
+		printErrorList(this.actionType);
 
 		printFooter( action );
+	}
+
+	protected void writeResultObject(Object result, ActionType value) throws IOException
+	{
+		if( result != null )
+		{
+			getResponse().getWriter().append(result.toString());
+		}
 	}
 
 	private void doActionOptimizations(final Action actionDescriptor)
@@ -630,18 +621,18 @@ public abstract class DSGenerator extends Generator {
 		}
 	}
 
-	protected void printErrorList() throws IOException
+	protected void printErrorList(ActionType type) throws IOException
 	{
 		if( getErrorList().length > 0 ) {
 			actionTypeHandler.printErrorList();
 		}
 	}
 
-	private void printErrorListOnly() throws IOException
+	protected void printErrorListOnly(ActionType type) throws IOException
 	{
 		actionTypeHandler.printHeader();
 
-		printErrorList();
+		printErrorList(type);
 
 		actionTypeHandler.printFooter();
 	}

@@ -472,6 +472,7 @@
 		<mkdir dir="${build.home}/artifacts" />
 		<zip destfile="${build.home}/artifacts/javascript.zip" basedir="${build.home}/data/javascript"/>
 		<zip destfile="${build.home}/artifacts/css.zip" basedir="${build.home}/data/css"/>
+		<zip destfile="${build.home}/artifacts/cltemplates.zip" basedir="${build.home}/data/cltemplates"/>
 	</target>
 </project>
 

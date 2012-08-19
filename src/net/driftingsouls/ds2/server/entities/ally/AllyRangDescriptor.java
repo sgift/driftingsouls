@@ -36,11 +36,9 @@ import javax.persistence.Version;
 @Table(name="ally_rangdescriptors")
 public class AllyRangDescriptor implements Comparable<AllyRangDescriptor>
 {
-	@SuppressWarnings("unused")
 	@Id	@GeneratedValue
 	private int id;
 	
-	@SuppressWarnings("unused")
 	@Version
 	private int version;
 	
