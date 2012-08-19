@@ -278,6 +278,8 @@
 			<arg value="${build.home}/data/javascript/ds_concat.js" />
 			<arg value="--js_output_file" />
 			<arg value="${build.home}/data/javascript/ds_compressed.js" />
+			<arg value="--language_in" />
+			<arg value="ECMASCRIPT5" />
 		</java>
 
 		<concat destfile="${build.home}/data/javascript/ds.js" append="false">
