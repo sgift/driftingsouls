@@ -83,32 +83,55 @@ var StarmapActionOverlay = function(options){
 
 			self.onDragStart();
 		});
+		$('#actionOverlay').bind('touchstart', function(e) {
+			e.stopPropagation();
+			self.__lastDrag = [e.originalEvent.touches[0].pageX, e.originalEvent.touches[0].pageY];
 
-		$('#actionOverlay').bind('mouseup mouseout', function(e) {
+			e.target.ondragstart = function() { return false; };
+			document.body.focus();
+			document.onselectstart = function () { return false; };
+
+			self.onDragStart();
+		});
+
+		$('#actionOverlay').bind('mouseup mouseout touchend', function(e) {
 			self.__lastDrag = [];
 			e.stopPropagation();
 
 			self.onDragStop();
 		});
 
-		$('#actionOverlay').bind('mousemove', function(e)
+		$('#actionOverlay').bind('mousemove touchmove', function(e)
 		{
 			var drag = self.__lastDrag;
 			if( typeof drag === "undefined" || drag.length == 0 ) {
 				return;
+			}
+			
+			if( event.type == 'touchmove' ) {
+				e.preventDefault();
 			}
 
 			document.body.focus();
 			document.onselectstart = function () { return false; };
 
 			e.stopPropagation();
-
-			var moveX = drag[0] - e.pageX;
-			var moveY = drag[1] - e.pageY;
+			var pageX, pageY;
+			if( typeof e.originalEvent.touches !== 'undefined' ) {
+				pageX = e.originalEvent.touches[0].pageX;
+				pageY = e.originalEvent.touches[0].pageY;
+			}
+			else {
+				pageX = e.pageX;
+				pageY = e.pageY;
+			}
+			
+			var moveX = drag[0] - pageX;
+			var moveY = drag[1] - pageY;
 
 			self.onDrag(moveX, moveY);
 
-			self.__lastDrag = [e.pageX, e.pageY];
+			self.__lastDrag = [pageX, pageY];
 		});
 	};
 
