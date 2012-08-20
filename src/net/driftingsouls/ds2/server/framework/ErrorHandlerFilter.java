@@ -14,11 +14,11 @@ import javax.servlet.http.HttpServletRequest;
 
 import net.driftingsouls.ds2.server.framework.authentication.TickInProgressException;
 import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeException;
+import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.StaleObjectStateException;
 import org.hibernate.StaleStateException;
 import org.hibernate.exception.GenericJDBCException;
 
@@ -43,46 +43,42 @@ public class ErrorHandlerFilter implements Filter
 		}
 		catch(Exception e)
 		{
+			boolean json = "JSON".equals(request.getParameter("FORMAT"));
+			ErrorReporter reporter;
+			if( json )
+			{
+				reporter = new JsonErrorReporter(request, response);
+			}
+			else
+			{
+				reporter = new HtmlErrorReporter(request, response);
+			}
 			Throwable ex = e;
 			do
 			{
 				if(ex instanceof TickInProgressException)
 				{
-					printBoxedErrorMessage(response, "Der Tick l&auml;uft. Bitte etwas Geduld.");
+					reporter.reportTickInProgress((TickInProgressException)ex);
 					return;
 				}
-				else if(ex instanceof StaleStateException || ex instanceof StaleObjectStateException)
+				else if(ex instanceof StaleStateException )
 				{
-					printBoxedErrorMessage(response, "Die Operation hat sich mit einer anderen &uumlberschnitten. Bitte probier es noch einmal.");
+					reporter.reportStaleState((StaleStateException)ex);
 					return;
 				}
 				else if((ex instanceof GenericJDBCException) && (((GenericJDBCException)ex).getSQLException().getMessage() != null) && ((GenericJDBCException)ex).getSQLException().getMessage().startsWith("Beim Warten auf eine Sperre wurde die") )
 				{
-					printBoxedErrorMessage(response, "Die Operation hat sich mit einer anderen &uumlberschnitten. Bitte probier es noch einmal.");
+					reporter.reportSqlLock((GenericJDBCException)ex);
 					return;
 				}
 				else if(ex instanceof NotLoggedInException)
 				{
-					if(!isAutomaticAccess(request))
-					{
-						redirectToPortal(response, "Du musst eingeloggt sein, um diese Seite zu sehen.");
-					}
+					reporter.reportNotLoggedIn((NotLoggedInException)ex);
 					return;
 				}
 				else if(ex instanceof AccountInVacationModeException)
 				{
-					AccountInVacationModeException vacException = (AccountInVacationModeException)ex;
-					if(!isAutomaticAccess(request))
-					{
-						if(vacException.getDauer() > 1)
-						{
-							printBoxedErrorMessage(response, "Du bist noch " + vacException.getDauer() + " Ticks im Vacationmodus.");
-						}
-						else
-						{
-							printBoxedErrorMessage(response, "Du bist noch " + vacException.getDauer() + " Tick im Vacationmodus.");
-						}
-					}
+					reporter.reportInVacation((AccountInVacationModeException)ex);
 					return;
 				}
 				ex = ExceptionUtils.getCause(ex);
@@ -116,7 +112,7 @@ public class ErrorHandlerFilter implements Filter
 			Common.mailThrowable(mailThrowable, "Unexpected exception", infos.toString());
 			log.info("", e);
 
-			printBoxedErrorMessage(response, "Ein genereller Fehler ist aufgetreten. Die Entwickler arbeiten daran ihn zu beheben.");
+			reporter.reportUnexpected(e);
 		}
 	}
 
@@ -127,43 +123,197 @@ public class ErrorHandlerFilter implements Filter
 	@Override
 	public void destroy()
 	{}
-
-	private void redirectToPortal(ServletResponse response, String message) throws IOException
+	
+	private interface ErrorReporter
 	{
-		Writer sb = response.getWriter();
-		sb.append("<script type=\"text/javascript\">\n");
-		sb.append("var url=parent.location.href;\n");
-		sb.append("parent.location.href=url.substring(0,url.indexOf('?'));");
-		sb.append("</script>");
-		sb.append("<div id=\"error-box\" align=\"center\">\n");
-		sb.append(Common.tableBegin(430,"left"));
-		sb.append("<ul>");
-		sb.append("<li><span style=\"font-size:14px; color:red\">"+ message +"</span></li>\n");
-		sb.append("</url>");
-		sb.append(Common.tableEnd());
-		sb.append("</div>\n");
+		public void reportTickInProgress(TickInProgressException e) throws IOException;
+		public void reportStaleState(StaleStateException e) throws IOException;
+		public void reportSqlLock(GenericJDBCException e) throws IOException;
+		public void reportNotLoggedIn(NotLoggedInException e) throws IOException;
+		public void reportInVacation(AccountInVacationModeException e) throws IOException;
+		public void reportUnexpected(Throwable t) throws IOException;
 	}
-
-	private void printBoxedErrorMessage(ServletResponse response, String message) throws IOException
+	
+	private class HtmlErrorReporter implements ErrorReporter
 	{
-		Writer sb = response.getWriter();
-		sb.append("<div id=\"error-box\" align=\"center\">\n");
-		sb.append(Common.tableBegin(430,"left"));
-		sb.append("<ul>");
-		sb.append("<li><span style=\"font-size:14px; color:red\">"+ message +"</span></li>\n");
-		sb.append("</url>");
-		sb.append(Common.tableEnd());
-		sb.append("</div>\n");
-	}
-
-	private boolean isAutomaticAccess(ServletRequest request)
-	{
-		String automaticAccessParameter = request.getParameter("autoAccess");
-		if(automaticAccessParameter != null && automaticAccessParameter.equals("true"))
+		private ServletRequest request;
+		private ServletResponse response;
+		
+		HtmlErrorReporter(ServletRequest request, ServletResponse response)
 		{
-			return true;
+			this.request = request;
+			this.response = response;
 		}
 
-		return false;
+		@Override
+		public void reportTickInProgress(TickInProgressException e) throws IOException
+		{
+			printBoxedErrorMessage(response, "Der Tick läuft. Bitte etwas Geduld.");
+		}
+
+		@Override
+		public void reportStaleState(StaleStateException e) throws IOException
+		{
+			printBoxedErrorMessage(response, "Die Operation hat sich mit einer anderen überschnitten. Bitte probier es noch einmal.");
+		}
+
+		@Override
+		public void reportSqlLock(GenericJDBCException e) throws IOException
+		{
+			printBoxedErrorMessage(response, "Die Operation hat sich mit einer anderen überschnitten. Bitte probier es noch einmal.");
+		}
+
+		@Override
+		public void reportNotLoggedIn(NotLoggedInException e) throws IOException
+		{
+			if(!isAutomaticAccess(request))
+			{
+				redirectToPortal(response, "Du musst eingeloggt sein, um diese Seite zu sehen.");
+			}
+		}
+
+		@Override
+		public void reportInVacation(AccountInVacationModeException e) throws IOException
+		{
+			if(!isAutomaticAccess(request))
+			{
+				if(e.getDauer() > 1)
+				{
+					printBoxedErrorMessage(response, "Du bist noch " + e.getDauer() + " Ticks im Vacationmodus.");
+				}
+				else
+				{
+					printBoxedErrorMessage(response, "Du bist noch " + e.getDauer() + " Tick im Vacationmodus.");
+				}
+			}
+		}
+
+		@Override
+		public void reportUnexpected(Throwable t) throws IOException
+		{
+			printBoxedErrorMessage(response, "Ein genereller Fehler ist aufgetreten. Die Entwickler arbeiten daran ihn zu beheben.");
+		}
+		
+		private void redirectToPortal(ServletResponse response, String message) throws IOException
+		{
+			Writer sb = response.getWriter();
+			sb.append("<script type=\"text/javascript\">\n");
+			sb.append("var url=parent.location.href;\n");
+			sb.append("parent.location.href=url.substring(0,url.indexOf('?'));");
+			sb.append("</script>");
+			sb.append("<div id=\"error-box\" align=\"center\">\n");
+			sb.append(Common.tableBegin(430,"left"));
+			sb.append("<ul>");
+			sb.append("<li><span style=\"font-size:14px; color:red\">"+ message +"</span></li>\n");
+			sb.append("</url>");
+			sb.append(Common.tableEnd());
+			sb.append("</div>\n");
+		}
+
+		private void printBoxedErrorMessage(ServletResponse response, String message) throws IOException
+		{
+			Writer sb = response.getWriter();
+			sb.append("<div id=\"error-box\" align=\"center\">\n");
+			sb.append(Common.tableBegin(430,"left"));
+			sb.append("<ul>");
+			sb.append("<li><span style=\"font-size:14px; color:red\">"+ message +"</span></li>\n");
+			sb.append("</url>");
+			sb.append(Common.tableEnd());
+			sb.append("</div>\n");
+		}
+		
+		private boolean isAutomaticAccess(ServletRequest request)
+		{
+			String automaticAccessParameter = request.getParameter("autoAccess");
+			if(automaticAccessParameter != null && automaticAccessParameter.equals("true"))
+			{
+				return true;
+			}
+
+			return false;
+		}
+	}
+	
+	private class JsonErrorReporter implements ErrorReporter
+	{
+		private ServletResponse response;
+		
+		JsonErrorReporter(ServletRequest request, ServletResponse response)
+		{
+			this.response = response;
+		}
+
+		@Override
+		public void reportTickInProgress(TickInProgressException e) throws IOException
+		{
+			JSONObject obj = JSONUtils.error("Der Tick läuft. Bitte etwas Geduld.");
+			obj.getJSONObject("message")
+				.accumulate("cls", e.getClass().getSimpleName());
+			respondWithObject(obj);
+		}
+
+		@Override
+		public void reportStaleState(StaleStateException e) throws IOException
+		{
+			JSONObject obj = JSONUtils.error("Die Operation hat sich mit einer anderen überschnitten. " +
+					"Bitte probier es noch einmal.");
+			obj.getJSONObject("message")
+				.accumulate("cls", e.getClass().getSimpleName());
+			respondWithObject(obj);
+		}
+
+		@Override
+		public void reportSqlLock(GenericJDBCException e) throws IOException
+		{
+			JSONObject obj = JSONUtils.error("Die Operation hat sich mit einer anderen überschnitten. " +
+					"Bitte probier es noch einmal.");
+			obj.getJSONObject("message")
+				.accumulate("cls", e.getClass().getSimpleName());
+			respondWithObject(obj);
+		}
+
+		@Override
+		public void reportNotLoggedIn(NotLoggedInException e) throws IOException
+		{
+			JSONObject obj = JSONUtils.error("Du musst eingeloggt sein, um diese Seite zu sehen.");
+			obj.getJSONObject("message")
+				.accumulate("cls", e.getClass().getSimpleName())
+				.accumulate("redirect", true);
+			respondWithObject(obj);
+		}
+
+		@Override
+		public void reportInVacation(AccountInVacationModeException e) throws IOException
+		{
+			
+			JSONObject obj;
+			if(e.getDauer() > 1)
+			{
+				obj = JSONUtils.error("Du bist noch " + e.getDauer() + " Ticks im Vacationmodus.");
+			}
+			else
+			{
+				obj = JSONUtils.error("Du bist noch " + e.getDauer() + " Tick im Vacationmodus.");
+			}
+			obj.getJSONObject("message")
+				.accumulate("cls", e.getClass().getSimpleName())
+				.accumulate("redirect", true);
+			respondWithObject(obj);
+		}
+
+		@Override
+		public void reportUnexpected(Throwable t) throws IOException
+		{
+			JSONObject obj = JSONUtils.error("Ein genereller Fehler ist aufgetreten. Die Entwickler arbeiten daran ihn zu beheben.");
+			obj.getJSONObject("message")
+				.accumulate("cls", t.getClass().getSimpleName());
+			respondWithObject(obj);
+		}
+		
+		private void respondWithObject(JSONObject obj) throws IOException
+		{
+			Writer w = response.getWriter();
+			w.append(obj.toString());
+		}
 	}
 }

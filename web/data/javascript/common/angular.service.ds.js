@@ -9,14 +9,11 @@ angular.module('ds.service.ds', [])
 		if( typeof options.processMessages === 'undefined' ) {
 			options.processMessages = true;
 		}
-		var base = DS.getUrl()+"?";
-		var first = true;
+		var base = DS.getUrl()+"?FORMAT=JSON";
 		angular.forEach(params, function(value,key) {
-			if( !first ) {
-				base += "&";
+			if( typeof value !== 'undefined' && value != null) {
+				base += "&"+key+"="+value;
 			}
-			base += key+"="+value;
-			first = false;
 		});
 		var async = $http.get(base);
 		
@@ -29,7 +26,7 @@ angular.module('ds.service.ds', [])
 		return async;
 	};
 }])
-.factory('dsMsg', function() {
+.factory('dsMsg', ['$location', function($location) {
 	return function(messageContainer) {
 		if( typeof messageContainer.errors !== 'undefined' && 
 				messageContainer.errors.length > 0 ) {
@@ -46,10 +43,18 @@ angular.module('ds.service.ds', [])
 			}
 			else if( msg.type === 'error' ) {
 				toastr.error(messageContainer.message.description);
+				if( typeof msg.redirect !== 'undefined' && msg.redirect ) {
+					if( parent ) {
+						parent.location.href=DS.getUrl();
+					}
+					else {
+						location.href=DS.getUrl();
+					}
+				}
 			}
 			else if( msg.type === 'success' ) {
 				toastr.warning(messageContainer.message.description);
 			}
 		}
 	}
-});
+}]);
