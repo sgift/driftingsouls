@@ -53,16 +53,27 @@ public class StatBiggestTrader extends AbstractStatistic implements Statistic {
 		SQLQuery tmp = null;
 		if( !allys ) {
 			tmp = db.query("SELECT SUM( (CASE WHEN t4.cargo IS NULL THEN t3.cargo ELSE t4.cargo END) * (t1.crew/CASE WHEN t4.crew IS NULL THEN t3.crew ELSE t4.crew END) * (t1.hull/CASE WHEN t4.hull IS NULL THEN t3.hull ELSE t4.hull END) * t1.hull ) count,t2.name,t2.id ",
-					    "FROM ((ships t1 JOIN users t2 ON t1.owner=t2.id) JOIN ship_types t3 ON t1.type=t3.id) LEFT OUTER JOIN ships_modules t4 ON t1.id=t4.id ",
-						"WHERE t1.id>0 AND t1.owner>",StatsController.MIN_USER_ID," AND (((t4.id IS NULL) AND t3.cost>0) OR ((t4.id IS NOT NULL) AND t4.cost>0)) AND t3.class in (1,12) ",
+					    "FROM ((ships t1 JOIN users t2 ON t1.owner=t2.id) " +
+					    "	JOIN ship_types t3 ON t1.type=t3.id) " +
+					    "	LEFT OUTER JOIN ships_modules t4 ON t1.id=t4.id ",
+						"WHERE t1.id>0 AND t1.owner>",StatsController.MIN_USER_ID," AND " +
+					    "	(t2.vaccount=0 OR t2.wait4vac>0) AND " +
+						"	(((t4.id IS NULL) AND t3.cost>0) OR ((t4.id IS NOT NULL) AND t4.cost>0)) AND " +
+						"	t3.class in (1,12) ",
 						"GROUP BY t1.owner ",
 						"ORDER BY count DESC,t2.id ASC LIMIT ",size);
 			url = getUserURL();
 		}
 		else {
 			tmp = db.query("SELECT SUM( (CASE WHEN sm.cargo IS NULL THEN st.cargo ELSE sm.cargo END) * (s.crew/CASE WHEN sm.crew IS NULL THEN st.crew ELSE sm.crew END) * (s.hull/CASE WHEN sm.hull IS NULL THEN st.hull ELSE sm.hull END) * s.hull ) count,a.name,u.ally id ",
-					    "FROM (((ships s JOIN users u ON s.owner=u.id) JOIN ship_types st ON s.type=st.id) JOIN ally a ON u.ally=a.id) LEFT OUTER JOIN ships_modules sm ON s.id=sm.id ",
-						"WHERE s.id>0 AND s.owner>",StatsController.MIN_USER_ID," AND u.ally>0 AND (((sm.id IS NULL) AND st.cost>0) OR ((sm.id IS NOT NULL) AND sm.cost>0)) AND st.class in (1,12) ",
+					    "FROM (((ships s JOIN users u ON s.owner=u.id) " +
+					    "	JOIN ship_types st ON s.type=st.id) " +
+					    "	JOIN ally a ON u.ally=a.id) " +
+					    "	LEFT OUTER JOIN ships_modules sm ON s.id=sm.id ",
+						"WHERE s.id>0 AND s.owner>",StatsController.MIN_USER_ID," AND " +
+						"	(u.vaccount=0 OR u.wait4vac>0) AND " +
+						"	u.ally>0 AND (((sm.id IS NULL) AND st.cost>0) OR ((sm.id IS NOT NULL) AND sm.cost>0)) AND " +
+						"	st.class in (1,12) ",
 						"GROUP BY u.ally ",
 						"ORDER BY count DESC,u.id ASC LIMIT ",size);
 

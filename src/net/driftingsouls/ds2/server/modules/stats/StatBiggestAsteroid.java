@@ -50,7 +50,7 @@ public class StatBiggestAsteroid extends AbstractStatistic implements Statistic 
 
 		List<Base> bases = Common.cast(db
 				.createQuery("select b from Base b "+
-				"where b.owner.id>:minid " +
+				"where b.owner.id>:minid and (b.owner.vaccount=0 or b.owner.wait4vac>0) " +
 				"order by b.bewohner desc")
 				.setParameter("minid", StatsController.MIN_USER_ID)
 				.setMaxResults(size)

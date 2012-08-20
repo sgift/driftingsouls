@@ -71,7 +71,9 @@ public class StatBiggestPopulation extends AbstractStatistic implements Statisti
 		Map<User,Long> bev = new HashMap<User,Long>();
 
 		List<Object[]> rows = Common.cast(db
-			.createQuery("select sum(s.crew), s.owner from Ship s where s.id>0 and s.owner.id>:minid group by s.owner")
+			.createQuery("select sum(s.crew), s.owner from Ship s " +
+					"where s.id>0 and s.owner.id>:minid and (s.owner.vaccount=0 or s.owner.wait4vac>0) " +
+					"group by s.owner")
 			.setParameter("minid", StatsController.MIN_USER_ID)
 			.list());
 		for( Object[] row : rows )
@@ -81,7 +83,8 @@ public class StatBiggestPopulation extends AbstractStatistic implements Statisti
 
 		//Bevoelkerung (Basis) pro User ermitteln (+ zur Besatzung pro User addieren)
 		rows = Common.cast(db
-				.createQuery("select sum(b.bewohner), b.owner from Base b where b.owner.id>:minid group by b.owner")
+				.createQuery("select sum(b.bewohner), b.owner from Base b " +
+						"where b.owner.id>:minid and (b.owner.vaccount=0 or b.owner.wait4vac>0) group by b.owner")
 				.setParameter("minid", StatsController.MIN_USER_ID)
 				.list());
 		for( Object[] row : rows )

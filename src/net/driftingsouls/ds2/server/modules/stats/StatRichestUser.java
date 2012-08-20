@@ -54,7 +54,7 @@ public class StatRichestUser extends AbstractStatistic implements Statistic {
 
 		if( !allys ) {
 			List<User> users = Common.cast(db
-				.createQuery("select u from User u where id>:minid order by konto desc,id desc")
+				.createQuery("select u from User u where id>:minid and (u.vaccount=0 or u.wait4vac>0) order by konto desc,id desc")
 				.setParameter("minid", StatsController.MIN_USER_ID)
 				.setMaxResults(size)
 				.list());
@@ -70,7 +70,7 @@ public class StatRichestUser extends AbstractStatistic implements Statistic {
 		else {
 			List<Object[]> allianzen = Common.cast(db
 				.createQuery("select a,sum(u.konto) from User u join u.ally a " +
-						"where u.id>:minid group by a order by sum(u.konto) desc,u.id desc")
+						"where u.id>:minid and (u.vaccount=0 or u.wait4vac>0) group by a order by sum(u.konto) desc,u.id desc")
 				.setParameter("minid", StatsController.MIN_USER_ID)
 				.setMaxResults(size)
 				.list());
