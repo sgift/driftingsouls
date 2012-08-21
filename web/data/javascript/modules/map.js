@@ -108,7 +108,7 @@ var StarmapActionOverlay = function(options){
 				return;
 			}
 			
-			if( event.type == 'touchmove' ) {
+			if( e.type == 'touchmove' ) {
 				e.preventDefault();
 			}
 
