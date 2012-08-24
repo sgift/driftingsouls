@@ -247,11 +247,33 @@
 					cargoErz = parseInt(erz);
 					updateCosts();
 				}
+				
+				function updateFelderFromSelect(select) {
+					var option = select.options[select.selectedIndex];
+					if( option == null ) {
+						return;
+					}
+					var preis = option.getAttribute('ds-preis');
+					var bbs = option.getAttribute('ds-bbs');
+					var erz = option.getAttribute('ds-erz');
+					updateFelder(preis,bbs,erz);
+				}
+				
+				function updateCargoFromSelect(select) {
+					var option = select.options[select.selectedIndex];
+					if( option == null ) {
+						return;
+					}
+					var preis = option.getAttribute('ds-preis');
+					var bbs = option.getAttribute('ds-bbs');
+					var erz = option.getAttribute('ds-erz');
+					updateCargo(preis,bbs,erz);
+				}
 
 				function updateCosts() {
-					document.getElementById("RE_Display").firstChild.nodeValue = felderPreis + cargoPreis;
-					document.getElementById("BBS_Display").firstChild.nodeValue = felderBBS + cargoBBS;
-					document.getElementById("Erz_Display").firstChild.nodeValue = felderErz + cargoErz;
+					$("#RE_Display").text(felderPreis + cargoPreis);
+					$("#BBS_Display").text(felderBBS + cargoBBS);
+					$("#Erz_Display").text(felderErz + cargoErz);
 				}
 
 				function astiChanged() {
@@ -299,9 +321,9 @@
 						&nbsp;
 					</td>
 					<td class="noBorderX" style="text-align:left">
-						<select name="felder" size="1" style="width:220px">
+						<select name="felder" size="1" style="width:220px" onchange="updateFelderFromSelect(this)">
 						<!-- BEGIN ausbau.felder.listitem -->
-							<option value="{felder.id}" onclick="updateFelder({felder.preis}, {felder.bbs}, {felder.erz})">+ {felder.mod} Felder</option>
+							<option value="{felder.id}" ds-preis="{felder.preis}" ds-bbs="{felder.bbs}" ds-erz="{felder.erz}">+ {felder.mod} Felder</option>
 						<!-- END ausbau.felder.listitem -->
 						</select>
 					</td>
@@ -314,9 +336,9 @@
 						&nbsp;
 					</td>
 					<td class="noBorderX" style="text-align:left">
-						<select name="cargo" size="1" style="width:220px">
+						<select name="cargo" size="1" style="width:220px" onchange="updateCargoFromSelect(this)">
 						<!-- BEGIN ausbau.cargo.listitem -->
-							<option value="{cargo.id}" onclick="updateCargo({cargo.preis}, {cargo.bbs}, {cargo.erz})">+ {cargo.mod} Lagerraum</option>
+							<option value="{cargo.id}" ds-preis="{cargo.preis}" ds-bbs="{cargo.bbs}" ds-erz="{cargo.erz}">+ {cargo.mod} Lagerraum</option>
 						<!-- END ausbau.cargo.listitem -->
 						</select>
 					</td>
