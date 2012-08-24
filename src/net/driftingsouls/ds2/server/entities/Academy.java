@@ -52,7 +52,7 @@ public class Academy {
 	@Version
 	private int version;
 	
-	@OneToMany(mappedBy="academy",cascade=CascadeType.ALL)
+	@OneToMany(mappedBy="academy",cascade=CascadeType.ALL, orphanRemoval=true)
 	private List<AcademyQueueEntry> queue;
 	
 	/**

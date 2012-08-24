@@ -337,8 +337,6 @@ public class AcademyQueueEntry {
 	 * Loescht den Eintrag aus der Bauschlange.
 	 */
 	public void deleteQueueEntry() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		db.delete(this);
 		this.getAcademy().getQueueEntries().remove(this);
 	}
 }
