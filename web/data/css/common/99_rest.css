@@ -159,6 +159,10 @@
 	margin:0px auto 20px auto;
 }
 
+#npc .userInput input[type=text] {
+	width:50px;
+}
+
 #npcraenge .raengeBox {
 	width:700px;
 	text-align:left;
