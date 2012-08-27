@@ -279,6 +279,10 @@ public class AcademyQueueEntry {
 			final Offizier.Ability ability = dTrain.get(training);
 
 			final Offizier offz = Offizier.getOffizierByID(offizier);
+			if( offz == null )
+			{
+				return true;
+			}
 			offz.setAbility(ability, offz.getAbility(ability)+2);
 			if( !academy.isOffizierScheduled(offz.getID()) )
 			{
