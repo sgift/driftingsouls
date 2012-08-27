@@ -212,7 +212,10 @@ public class AcademyBuilding extends DefaultBuilding {
 					else
 					{
 						Offizier offi = Offizier.getOffizierByID(entry.getTraining());
-
+						if( offi == null )
+						{
+							continue;
+						}
 						popup.append("Bildet aus: ");
 						popup.append(offi.getName());
 						popup.append(" (");
@@ -493,13 +496,16 @@ public class AcademyBuilding extends DefaultBuilding {
 				if( entry.getTraining() > 0 )
 				{
 					Offizier offi = Offizier.getOffizierByID(entry.getTraining());
-					t.setVar(
-							"trainoffizier.id", entry.getTraining(),
-							"trainoffizier.name", offi.getName(),
-							"trainoffizier.attribute", attributes.get(entry.getTrainingType()),
-							"trainoffizier.offi", true,
-							"trainoffizier.picture", offi.getPicture()
-							);
+					if( offi != null )
+					{
+						t.setVar(
+								"trainoffizier.id", entry.getTraining(),
+								"trainoffizier.name", offi.getName(),
+								"trainoffizier.attribute", attributes.get(entry.getTrainingType()),
+								"trainoffizier.offi", true,
+								"trainoffizier.picture", offi.getPicture()
+								);
+					}
 				}
 				else
 				{

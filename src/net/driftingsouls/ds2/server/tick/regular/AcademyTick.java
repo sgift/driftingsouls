@@ -112,7 +112,11 @@ public class AcademyTick extends TickController {
 							}
 							else
 							{
-								msg = msg+Offizier.getOffizierByID(entry.getTraining()).getName()+" ("+dTrain.get(entry.getTrainingType())+")<br />";
+								Offizier offi = Offizier.getOffizierByID(entry.getTraining());
+								if( offi != null )
+								{
+									msg = msg+offi.getName()+" ("+dTrain.get(entry.getTrainingType())+")<br />";
+								}
 							}
 							entry.finishBuildProcess();
 
