@@ -60,16 +60,6 @@ angular.module('ds.npc', ['ds.service.ds'])
 		}
 	};
 }])
-.config(['$routeProvider', function($routeProvider) {
-	$routeProvider
-		.when('/npc/order', {templateUrl: 'data/cltemplates/npc/order.html',   controller: 'NpcOrderController'})
-		.when('/npc/raenge', {templateUrl: 'data/cltemplates/npc/raenge.html', controller: 'NpcRaengeController'})
-		.when('/npc/raenge/:userId', {templateUrl: 'data/cltemplates/npc/raenge.html', controller: 'NpcRaengeController'})
-		.when('/npc/lp', {templateUrl: 'data/cltemplates/npc/lp.html', controller: 'NpcLpController'})
-		.when('/npc/shop', {templateUrl: 'data/cltemplates/npc/shop.html', controller: 'NpcShopController'})
-		.otherwise({redirectTo: '/npc/order'});
-	
-}])
 .controller('NpcShopController', ['$scope', 'dsNpc', function($scope, dsNpc) {
 	function refresh() {
 		dsNpc
@@ -80,6 +70,12 @@ angular.module('ds.npc', ['ds.service.ds'])
 		});
 	}
 	refresh();
+}])
+.controller('DummyController', ['$scope', 'dsNpc', function($scope, dsNpc) {
+	$scope.transport = {};
+	$scope.transport.ship = {};
+	$scope.transport.ship.name = "Testschiff";
+	$scope.transport.status = "Teststatus";
 }])
 .controller('NpcLpController', ['$scope', 'dsNpc', function($scope, dsNpc) {
 	function refresh() {
