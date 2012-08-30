@@ -1,7 +1,19 @@
+<style>
+	h3 {margin-top:20px !important}
+	h3:first-child {margin-top:5px !important}
+</style>
 <div class="gfxbox" style="width:600px">
 	<h3>Popup</h3>
 	<a ds-popup="demo/popup.html" ds-popup-title="Testpopup" ng-controller="DemoPopupController">Test</a>
 	
 	<h3>Autocomplete (Users)</h3>
 	<input type="text" ds-autocomplete="users"/>
+	
+	<h3>LineChart</h3>
+	<div ds-line-chart="lineChartData" title="Line Chart">
+		<x-axis label="Tag" pad="1" tick-interval="1"/>
+		<y-axis label="Umgefallene Deuteriumfässer" />
+		<legend location="e" />
+	</div>
+	<a ng-click="generateNewLineChartData()">Neue Daten generieren</a>
 </div>

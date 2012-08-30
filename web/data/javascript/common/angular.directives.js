@@ -41,7 +41,7 @@ angular.module('ds.directives', [])
 .directive('dsPopup', function(PopupService) {
 	return {
 		restrict : 'A',
-		link : function postLink(scope, element, attrs) {
+		link : function(scope, element, attrs) {
 			var popupOptions = {
 				title : attrs.dsPopupTitle
 			};
@@ -83,4 +83,87 @@ angular.module('ds.directives', [])
 	}
 
 	return popupService;
+})
+
+.directive('dsLineChart', function() {
+	function parseAxis(element, axisName, target) {
+		var axisElem = element.find(axisName);
+		if( axisElem.size() > 0 ) {
+			if( axisElem.attr('label') ) {
+				target.label = axisElem.attr('label');
+			}
+			if( axisElem.attr('pad') ) {
+				target.pad = axisElem.attr('pad');
+			}
+			if( axisElem.attr('tick-interval') ) {
+				target.tickInterval = axisElem.attr('tick-interval');
+			}
+		}
+	}
+
+	function parseLegend(element, target) {
+		var legendElem = element.find('legend');
+		if( legendElem.size() > 0 ) {
+			target.show = true;
+			if( legendElem.attr('location') ) {
+				target.location = legendElem.attr('location');
+			}
+		}
+	}
+
+	function generateDataFromScopeValue(options, evalValue) {
+		var data = [];
+		angular.forEach(evalValue, function(entry) {
+			var seriesEntry = {};
+			if( typeof entry === 'object' ) {
+				seriesEntry.label = entry.label;
+				data.push(entry.data);
+			}
+			else {
+				data.push(entry);
+			}
+			options.series.push(seriesEntry);
+		});
+		return data;
+	}
+
+	var chartId = 1;
+	return {
+		restrict : 'A',
+		link : function(scope, element, attrs) {
+			var currentId = "_dsLineChart"+(chartId++);
+			element.attr('id', currentId);
+			
+			attrs.$observe('dsLineChart', function(value) {
+				scope.$watch(value, function(evalValue) {
+					if( evalValue == null || !evalValue ) {
+						evalValue = [null];
+					}
+
+					var options = {
+						axes : {
+							xaxis : {},
+							yaxis : {}
+						},
+						legend: {},
+						highlighter:{show:true, sizeAdjust: 7.5},
+						cursor:{show:false},
+						series: []
+					};
+					if( attrs.title ) {
+						options.title = attrs.title;
+					}
+
+					parseAxis(element, 'x-axis', options.axes.xaxis);
+					parseAxis(element, 'y-axis', options.axes.yaxis);
+					parseLegend(element, options.legend);
+
+					var data = generateDataFromScopeValue(options, evalValue);
+
+					$('#'+currentId).find('canvas,div').remove();
+					DS.plot(currentId, data, options);
+				});
+			});
+		}
+	};
 });
