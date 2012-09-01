@@ -38,7 +38,7 @@ angular.module('ds.directives', [])
 			});
 	};
 })
-.directive('dsPopup', function(PopupService) {
+.directive('dsPopup', ['PopupService', function(PopupService) {
 	return {
 		restrict : 'A',
 		link : function(scope, element, attrs) {
@@ -50,8 +50,8 @@ angular.module('ds.directives', [])
 			});
 		}
 	};
-})
-.factory('PopupService', function($http, $compile) {
+}])
+.factory('PopupService', ['$http', '$compile', function($http, $compile) {
 	var popupService = {
 		popupElement : null
 	};
@@ -83,55 +83,58 @@ angular.module('ds.directives', [])
 	}
 
 	return popupService;
+}])
+.factory('dsChartSupport', function() {
+	return {
+		__chartId : 1,
+		generateChartId : function() {
+			return "_dsChart"+this.__chartId++;
+		},
+		parseAxis : function(element, axisName, target) {
+			var axisElem = element.find(axisName);
+			if( axisElem.size() > 0 ) {
+				if( axisElem.attr('label') ) {
+					target.label = axisElem.attr('label');
+				}
+				if( axisElem.attr('pad') ) {
+					target.pad = axisElem.attr('pad');
+				}
+				if( axisElem.attr('tick-interval') ) {
+					target.tickInterval = axisElem.attr('tick-interval');
+				}
+			}
+		},
+		parseLegend : function(element, target) {
+			var legendElem = element.find('legend');
+			if( legendElem.size() > 0 ) {
+				target.show = true;
+				if( legendElem.attr('location') ) {
+					target.location = legendElem.attr('location');
+				}
+			}
+		},
+		generateDataFromScopeValue : function(options, evalValue) {
+			var data = [];
+			angular.forEach(evalValue, function(entry) {
+				if( typeof entry === 'object' && !(entry instanceof Array)) {
+					var seriesEntry = {};
+                    seriesEntry.label = entry.label;
+					data.push(entry.data);
+					options.series.push(seriesEntry);
+				}
+				else {
+					data.push(entry);
+				}
+			});
+			return data;
+		}
+	};
 })
-
-.directive('dsLineChart', function() {
-	function parseAxis(element, axisName, target) {
-		var axisElem = element.find(axisName);
-		if( axisElem.size() > 0 ) {
-			if( axisElem.attr('label') ) {
-				target.label = axisElem.attr('label');
-			}
-			if( axisElem.attr('pad') ) {
-				target.pad = axisElem.attr('pad');
-			}
-			if( axisElem.attr('tick-interval') ) {
-				target.tickInterval = axisElem.attr('tick-interval');
-			}
-		}
-	}
-
-	function parseLegend(element, target) {
-		var legendElem = element.find('legend');
-		if( legendElem.size() > 0 ) {
-			target.show = true;
-			if( legendElem.attr('location') ) {
-				target.location = legendElem.attr('location');
-			}
-		}
-	}
-
-	function generateDataFromScopeValue(options, evalValue) {
-		var data = [];
-		angular.forEach(evalValue, function(entry) {
-			var seriesEntry = {};
-			if( typeof entry === 'object' ) {
-				seriesEntry.label = entry.label;
-				data.push(entry.data);
-			}
-			else {
-				data.push(entry);
-			}
-			options.series.push(seriesEntry);
-		});
-		return data;
-	}
-
-	var chartId = 1;
+.directive('dsLineChart', ['dsChartSupport', function(dsChartSupport) {
 	return {
 		restrict : 'A',
 		link : function(scope, element, attrs) {
-			var currentId = "_dsLineChart"+(chartId++);
+			var currentId = dsChartSupport.generateChartId();
 			element.attr('id', currentId);
 			
 			attrs.$observe('dsLineChart', function(value) {
@@ -154,11 +157,11 @@ angular.module('ds.directives', [])
 						options.title = attrs.title;
 					}
 
-					parseAxis(element, 'x-axis', options.axes.xaxis);
-					parseAxis(element, 'y-axis', options.axes.yaxis);
-					parseLegend(element, options.legend);
+					dsChartSupport.parseAxis(element, 'x-axis', options.axes.xaxis);
+					dsChartSupport.parseAxis(element, 'y-axis', options.axes.yaxis);
+					dsChartSupport.parseLegend(element, options.legend);
 
-					var data = generateDataFromScopeValue(options, evalValue);
+					var data = dsChartSupport.generateDataFromScopeValue(options, evalValue);
 
 					$('#'+currentId).find('canvas,div').remove();
 					DS.plot(currentId, data, options);
@@ -166,4 +169,54 @@ angular.module('ds.directives', [])
 			});
 		}
 	};
-});
+}])
+.directive('dsPieChart', ['dsChartSupport', function(dsChartSupport) {
+	return {
+		restrict : 'A',
+		link : function(scope, element, attrs) {
+			var currentId = dsChartSupport.generateChartId();
+			element.attr('id', currentId);
+
+			attrs.$observe('dsPieChart', function(value) {
+				scope.$watch(value, function(evalValue) {
+					if( evalValue == null || !evalValue ) {
+						evalValue = [null];
+					}
+
+					var options = {
+						seriesDefaults : {
+							renderer:$.jqplot.PieRenderer,
+							rendererOptions:{
+								showDataLabels:true,
+								dataLabelThreshold:0
+							}
+						},
+						legend: {},
+						highlighter:{
+							show:false
+						},
+						cursor:{show:false},
+						series: []
+					};
+					if( attrs.title ) {
+						options.title = attrs.title;
+					}
+					if( attrs.labelThreshold ) {
+						options.seriesDefaults.rendererOptions.dataLabelThreshold =
+							attrs.labelThreshold;
+					}
+					if( !attrs.percentValues ) {
+						options.seriesDefaults.rendererOptions.dataLabels='value';
+					}
+
+					dsChartSupport.parseLegend(element, options.legend);
+
+					var data = dsChartSupport.generateDataFromScopeValue(options, evalValue);
+
+					$('#'+currentId).find('canvas,div').remove();
+					DS.plot(currentId, data, options);
+				});
+			});
+		}
+	};
+}]);
