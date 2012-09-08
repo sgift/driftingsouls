@@ -121,7 +121,7 @@ public class DeutSammelnController extends TemplateGenerator {
 
 			return false;
 		}
-		if( nebel.getType() > 2 )  {
+		if( !nebel.getType().isDeuteriumNebel() )  {
 			addError("In diesem Nebel k&ouml;nnen sie kein Deuterium sammeln", errorurl );
 
 			return false;
@@ -211,13 +211,8 @@ public class DeutSammelnController extends TemplateGenerator {
 		int maxE = 0;
 		for( Ship ship : ships )
 		{
-			int deutfactor = ship.getTypeData().getDeutFactor();
-			if( nebel.getType() == 1 ) {
-				deutfactor--;
-			}
-			else if( nebel.getType() == 2 ) {
-				deutfactor++;
-			}
+			long deutfactor = ship.getTypeData().getDeutFactor();
+			deutfactor = nebel.getType().modifiziereDeutFaktor(deutfactor);
 			deutfactorSum += deutfactor;
 			if( maxE  < ship.getEnergy() )
 			{

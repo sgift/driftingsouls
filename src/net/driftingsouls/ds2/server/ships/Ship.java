@@ -2187,12 +2187,13 @@ public class Ship implements Locatable,Transfering,Feeding {
 			// Alle potentiell relevanten Sektoren mit EMP-Nebeln (ok..und ein wenig ueberfluessiges Zeug bei schraegen Bewegungen) auslesen
 			Map<Location,Boolean> nebulaemplist = new HashMap<Location,Boolean>();
 			sectorList = Common.cast(db.createQuery("from Nebel " +
-					"where type>=3 and type<=5 and system=:system and x between :lowerx and :upperx and y between :lowery and :uppery")
+					"where type in (:emptypes) and system=:system and x between :lowerx and :upperx and y between :lowery and :uppery")
 					.setInteger("system", this.system)
 					.setInteger("lowerx", (waypoint.direction-1) % 3 == 0 ? this.x-waypoint.distance : this.x )
 					.setInteger("upperx", (waypoint.direction) % 3 == 0 ? this.x+waypoint.distance : this.x )
 					.setInteger("lowery", waypoint.direction <= 3 ? this.y-waypoint.distance : this.y )
 					.setInteger("uppery", waypoint.direction >= 7 ? this.y+waypoint.distance : this.y )
+					.setParameterList("emptypes", Nebel.Typ.getEmpNebel())
 					.list());
 
 			for( Iterator<?> iter=sectorList.iterator(); iter.hasNext(); ) {
@@ -2254,8 +2255,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 				// ACHTUNG: Ob das ganze hier noch sinnvoll funktioniert, wenn distance > 1 ist, ist mehr als fraglich...
 				if( nebulaemplist.containsKey(nextLocation) &&
 						(RandomUtils.nextDouble() < getTypeData().getLostInEmpChance()) ) {
-					int nebel = Ships.getNebula(getLocation());
-					if( nebel == 5 ) {
+					Nebel.Typ nebel = Ships.getNebula(getLocation());
+					if( nebel == Nebel.Typ.STRONG_EMP ) {
 						waypoint.direction = RandomUtils.nextInt(10)+1;
 						if( waypoint.direction == 5 ) {
 							waypoint.direction++;
@@ -4038,7 +4039,7 @@ public class Ship implements Locatable,Transfering,Feeding {
     	{
 			return 0;
 		}
-    	if( nebel.getType() > 2 )
+    	if( !nebel.getType().isDeuteriumNebel() )
     	{
     		return 0;
     	}
@@ -4058,13 +4059,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		long cargo = shipCargo.getMass();
 
 		long deutfactor = type.getDeutFactor();
-
-		if( nebel.getType() == 1 ) {
-			deutfactor--;
-		}
-		else if( nebel.getType() == 2 ) {
-			deutfactor++;
-		}
+		deutfactor = nebel.getType().modifiziereDeutFaktor(deutfactor);
 
 		if( (energie * deutfactor)*Cargo.getResourceMass(Resources.DEUTERIUM, 1) > (type.getCargo() - cargo) ) {
 			energie = (type.getCargo()-cargo)/(deutfactor*Cargo.getResourceMass( Resources.DEUTERIUM, 1 ));

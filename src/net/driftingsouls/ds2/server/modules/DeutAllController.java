@@ -114,7 +114,7 @@ public class DeutAllController extends TemplateGenerator {
 			else {
 				Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(ship));
 
-				if( (nebel != null) && (nebel.getType() < 3) ) {
+				if( (nebel != null) && nebel.getType().isDeuteriumNebel() ) {
 					long saugdeut = ship.sammelDeuterium(nebel, -1);
 					if( saugdeut <= 0 )
 					{

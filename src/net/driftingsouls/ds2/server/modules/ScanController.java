@@ -110,18 +110,18 @@ public class ScanController extends TemplateGenerator {
 			if( nebel != null ) {
 				switch( nebel.getType() ) {
 				// Norm. Deut, DMG
-				case 0:
-				case 6:
+				case MEDIUM_DEUT:
+				case DAMAGE:
 					range = (int)Math.round(range/2d);
 					break;
 
 				// L. Deut
-				case 1:
+				case LOW_DEUT:
 					range = (int)Math.round(range*0.75d);
 					break;
 
 				// H. Deut
-				case 2:
+				case STRONG_DEUT:
 					range = (int)Math.round(range/3d);
 					break;
 
@@ -223,7 +223,7 @@ public class ScanController extends TemplateGenerator {
 		boolean scanableNebel = false;
 
 		Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(scanLoc));
-		if( !this.admin && (nebel != null) && ((nebel.getType() < 3) || (nebel.getType() > 5)) )
+		if( !this.admin && (nebel != null) && !nebel.getType().isEmp() )
 		{
 			// Wenn kein EMP-Nebel, dann kann man ihn scannen
 			scanableNebel = true;
@@ -239,12 +239,12 @@ public class ScanController extends TemplateGenerator {
 
 		if( (nebel != null) && !scanableNebel ) {
 			t.setVar(	"sector.nebel",			1,
-						"sector.nebel.type",	nebel.getType() );
+						"sector.nebel.type",	nebel.getType().ordinal() );
 		}
 		else {
 			if( nebel != null ) {
 				t.setVar(	"sector.nebel",			1,
-							"sector.nebel.type",	nebel.getType() );
+							"sector.nebel.type",	nebel.getType().ordinal() );
 			}
 			/*
 				Basen
@@ -319,7 +319,7 @@ public class ScanController extends TemplateGenerator {
 					questbattle = true;
 				}
 
-				String party1 = "";
+				String party1;
 				if( battle.getAlly(0) == 0 ) {
 					final User commander1 = battle.getCommander(0);
 					party1 = Common._title(commander1.getName());
@@ -329,7 +329,7 @@ public class ScanController extends TemplateGenerator {
 					party1 = Common._title(ally.getName());
 				}
 
-				String party2 = "";
+				String party2;
 				if( battle.getAlly(1) == 0 ) {
 					final User commander2 = battle.getCommander(1);
 					party2 = Common._title(commander2.getName());
@@ -418,20 +418,20 @@ public class ScanController extends TemplateGenerator {
 
 				boolean scanable = false;
 				if(nebel != null){
-					int nebeltype = nebel.getType();
-					if( nebeltype == 1 && shiptype.getSize() > 4 ) // leichter Deutnebel
+					Nebel.Typ nebeltype = nebel.getType();
+					if( nebeltype == Nebel.Typ.LOW_DEUT && shiptype.getSize() > 4 ) // leichter Deutnebel
 					{
 						scanable = true;
 					}
-					else if( nebeltype == 0 && shiptype.getSize() > 6 ) // mittlerer Deutnebel
+					else if( nebeltype == Nebel.Typ.MEDIUM_DEUT && shiptype.getSize() > 6 ) // mittlerer Deutnebel
 					{
 						scanable = true;
 					}
-					else if( nebeltype == 2 && shiptype.getSize() > 10 ) // schwerer Deutnebel
+					else if( nebeltype == Nebel.Typ.STRONG_DEUT && shiptype.getSize() > 10 ) // schwerer Deutnebel
 					{
 						scanable = true;
 					}
-					else if( nebeltype == 6 && shiptype.getSize() > 8 ) // Schadensnebel
+					else if( nebeltype == Nebel.Typ.DAMAGE && shiptype.getSize() > 8 ) // Schadensnebel
 					{
 						scanable = true;
 					}
@@ -495,7 +495,7 @@ public class ScanController extends TemplateGenerator {
 		*/
 
 		// Nebel
-		Map<Location,Integer> nebelmap = new HashMap<Location,Integer>();
+		Map<Location,Nebel.Typ> nebelmap = new HashMap<Location,Nebel.Typ>();
 
 		List<?> nebelList = db.createQuery("from Nebel where system=:system and " +
 				"x between :xmin and :xmax and " +
@@ -675,9 +675,9 @@ public class ScanController extends TemplateGenerator {
 								"map.showsector",	1 );
 
 					// Nebel
-					if (nebelmap.containsKey(loc) && ((nebelmap.get(loc) >=3) && (nebelmap.get(loc) <= 5)))
+					if (nebelmap.containsKey(loc) && nebelmap.get(loc).isEmp() )
 					{
-						t.setVar(	"map.image",		"fog"+nebelmap.get(loc)+"/fog"+nebelmap.get(loc),
+						t.setVar(	"map.image",		"fog"+nebelmap.get(loc).ordinal()+"/fog"+nebelmap.get(loc).ordinal(),
 								"map.image.name",	"Nebel" );
 					}
 					else {
@@ -716,19 +716,19 @@ public class ScanController extends TemplateGenerator {
 									boolean scan = false;
 									if (nebelmap.containsKey(loc))
 									{
-										if (nebelmap.get(loc) == 1 && myship.getTypeData().getSize() > 4) // leichter Deutnebel
+										if (nebelmap.get(loc) == Nebel.Typ.LOW_DEUT && myship.getTypeData().getSize() > 4) // leichter Deutnebel
 										{
 											scan = true;
 										}
-										else if (nebelmap.get(loc) == 0 && myship.getTypeData().getSize() > 6) // mittlerer Deutnebel
+										else if (nebelmap.get(loc) == Nebel.Typ.MEDIUM_DEUT && myship.getTypeData().getSize() > 6) // mittlerer Deutnebel
 										{
 											scan = true;
 										}
-										else if (nebelmap.get(loc) == 2 && myship.getTypeData().getSize() > 10) // schwerer Deutnebel
+										else if (nebelmap.get(loc) == Nebel.Typ.STRONG_DEUT && myship.getTypeData().getSize() > 10) // schwerer Deutnebel
 										{
 											scan = true;
 										}
-										else if (nebelmap.get(loc) == 6 && myship.getTypeData().getSize() > 8) // Schadensnebel
+										else if (nebelmap.get(loc) == Nebel.Typ.DAMAGE && myship.getTypeData().getSize() > 8) // Schadensnebel
 										{
 											scan = true;
 										}
@@ -738,7 +738,7 @@ public class ScanController extends TemplateGenerator {
 										scan = true;
 									}
 
-									if( !myship.isLanded() && scan == true )
+									if( !myship.isLanded() && scan )
 									{
 										if( enemy == 0 ) {
 											fleet[2] = "_fe";
@@ -763,7 +763,7 @@ public class ScanController extends TemplateGenerator {
 						// Nebel, Basen, Sprungpunkte
 						if( nebelmap.containsKey(loc) )
 						{
-							t.setVar(	"map.image",		"fog"+nebelmap.get(loc)+"/fog"+nebelmap.get(loc),
+							t.setVar(	"map.image",		"fog"+nebelmap.get(loc).ordinal()+"/fog"+nebelmap.get(loc).ordinal(),
 										"map.image.name",	"Nebel" );
 						}
 						else if( basemap.containsKey(loc) )

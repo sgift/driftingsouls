@@ -73,7 +73,7 @@ class Field
 			return true;
 		}
 		
-		Nebel.Types type = Nebel.Types.getType(nebula.getType());
+		Nebel.Typ type = nebula.getType();
 		return type.getMinScansize() <= ship.getTypeData().getSize();
 	}
 	

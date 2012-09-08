@@ -459,37 +459,37 @@ public class CreateObjects implements AdminPlugin {
 					
 				// Deut-Nebel Normal
 				case 0xffFF0000:
-					createNebula(db, loc, 0);
+					createNebula(db, loc, Nebel.Typ.MEDIUM_DEUT);
 					break;
 					
 				// Deut-Nebel Schwach
 				case 0xffCB0000:
-					createNebula(db, loc, 1);
+					createNebula(db, loc, Nebel.Typ.LOW_DEUT);
 					break;
 					
 				// Deut-Nebel Stark
 				case 0xffFF00AE:
-					createNebula(db, loc, 2);
+					createNebula(db, loc, Nebel.Typ.STRONG_DEUT);
 					break;
 					
 				// EMP-Nebel Schwach
 				case 0xff3B9400:
-					createNebula(db, loc, 3);
+					createNebula(db, loc, Nebel.Typ.LOW_EMP);
 					break;
 					
 				// EMP-Nebel Mittel
 				case 0xff4FC500:
-					createNebula(db, loc, 4);
+					createNebula(db, loc, Nebel.Typ.MEDIUM_EMP);
 					break;
 					
 				// EMP-Nebel Stark
 				case 0xff66FF00:
-					createNebula(db, loc, 5);
+					createNebula(db, loc, Nebel.Typ.STRONG_EMP);
 					break;
 					
 				// Schadensnebel
 				case 0xffFFBA00:
-					createNebula(db, loc, 6);
+					createNebula(db, loc, Nebel.Typ.DAMAGE);
 					break;
 					
 				// Normaler Asteroid
@@ -597,7 +597,7 @@ public class CreateObjects implements AdminPlugin {
 	private void handleNebel(Context context, int system) {
 		org.hibernate.Session db = context.getDB();
 		
-		final int type = context.getRequest().getParameterInt("type");
+		final Nebel.Typ type = Nebel.Typ.values()[context.getRequest().getParameterInt("type")];
 		final int anzahl = context.getRequest().getParameterInt("anzahl");
 		final int minX = context.getRequest().getParameterInt("minX");
 		final int minY = context.getRequest().getParameterInt("minY");
@@ -651,7 +651,7 @@ public class CreateObjects implements AdminPlugin {
 		}
 	}
 
-	private void createNebula( org.hibernate.Session db, Location loc, int type ) {
+	private void createNebula( org.hibernate.Session db, Location loc, Nebel.Typ type ) {
 		Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(loc));
 		if( nebel != null ) {
 			db.delete(nebel);

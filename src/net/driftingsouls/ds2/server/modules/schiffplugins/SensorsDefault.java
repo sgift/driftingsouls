@@ -129,8 +129,8 @@ public class SensorsDefault implements SchiffPlugin {
 		int sensorrange = Math.round(shiptype.getSensorRange()*(ship.getSensors()/100f));
 
 		if ( ( sensorrange > 0 ) && ( ship.getCrew() >= shiptype.getMinCrew()/3 ) ) {
-			int nebel = Ships.getNebula(ship.getLocation());
-			if( (nebel < 3) || (nebel > 5) ) {
+			Nebel.Typ nebel = Ships.getNebula(ship.getLocation());
+			if( !nebel.isEmp() ) {
 				t.setVar("global.longscan",1);
 			}
 		}
@@ -765,7 +765,7 @@ public class SensorsDefault implements SchiffPlugin {
 				.setString("dest", "s "+caller.ship.getId())
 				.iterate().next();
 
-		Query baseQuery = null;
+		Query baseQuery;
 		if( !order.equals("type") && !order.equals("shiptype") ) {
 			baseQuery = db.createQuery("from Base where system=:sys and floor(sqrt(pow(:x-x,2)+pow(:y-y,2))) <= size order by "+order+",id");
 		}
@@ -837,7 +837,7 @@ public class SensorsDefault implements SchiffPlugin {
 					if( werft.getBaseField() == -1)
 					{
 						//Werftfeld suchen
-						int i=0;
+						int i;
 						for( i=0; i < base.getBebauung().length; i++ ) {
 							if( (base.getBebauung()[i] != 0) && (Building.getBuilding(base.getBebauung()[i]) instanceof Werft) ) {
 								break;
@@ -869,9 +869,9 @@ public class SensorsDefault implements SchiffPlugin {
 		Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(ship));
 		if( nebel != null ) {
 			t.setVar(	"nebel",	true,
-						"nebel.type",	nebel.getType(),
-						"nebel.flotteSammeln", ship.getFleet() != null && nebel.getType() < 3,
-						"global.ship.deutfactor", (shiptype.getDeutFactor() != 0 && (nebel.getType() < 3) ));
+						"nebel.type",	nebel.getType().ordinal(),
+						"nebel.flotteSammeln", ship.getFleet() != null && nebel.getType().isDeuteriumNebel(),
+						"global.ship.deutfactor", (nebel.getType().modifiziereDeutFaktor(shiptype.getDeutFactor())>0) );
 		}
 	}
 
@@ -914,8 +914,8 @@ public class SensorsDefault implements SchiffPlugin {
 
 		for( Battle battle : battles ) {
 			Ally ownAlly = user.getAlly();
-			String party1 = null;
-			String party2 = null;
+			String party1;
+			String party2;
 
 			if( battle.getAlly(0) == 0 ) {
 				User commander = battle.getCommander(0);

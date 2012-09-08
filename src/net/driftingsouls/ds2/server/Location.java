@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server;
 
 import java.io.Serializable;
 
+import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.ships.Ships;
 
 /**
@@ -29,10 +30,6 @@ import net.driftingsouls.ds2.server.ships.Ships;
  */
 public final class Location implements Serializable, Locatable, Comparable<Location> {
 	private static final long serialVersionUID = -5144442902462679539L;
-
-	private static final int EMP_NEBULA_LOW = 3;
-	private static final int EMP_NEBULA_NORMAL = 4;
-	private static final int EMP_NEBULA_THICK = 5;
 
 	private final int x;
 	private final int y;
@@ -217,7 +214,7 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 	 */
 	public String displayCoordinates(boolean noSystem)
 	{
-		int nebulaType = Ships.getNebula(this);
+		Nebel.Typ nebulaType = Ships.getNebula(this);
 
 		StringBuilder text = new StringBuilder(8);
 		if( !noSystem ) {
@@ -225,7 +222,7 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 			text.append(":");
 		}
 
-		if( nebulaType == EMP_NEBULA_LOW ) {
+		if( nebulaType == Nebel.Typ.LOW_EMP ) {
 			text.append(x / 10);
 			text.append("x/");
 			text.append(y / 10);
@@ -233,7 +230,7 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 
 			return text.toString();
 		}
-		else if( (nebulaType == EMP_NEBULA_NORMAL) || (nebulaType == EMP_NEBULA_THICK) ) {
+		else if( (nebulaType == Nebel.Typ.MEDIUM_EMP) || (nebulaType == Nebel.Typ.STRONG_EMP) ) {
 			text.append("??/??");
 			return text.toString();
 		}
@@ -254,7 +251,7 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 	 */
 	public boolean isNebula()
 	{
-		return Ships.getNebula(this) != -1;
+		return Ships.getNebula(this) != null;
 	}
 
 	/**

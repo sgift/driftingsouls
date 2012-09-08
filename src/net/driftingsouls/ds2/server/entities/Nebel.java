@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.entities;
 
 import javax.persistence.Entity;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -31,6 +32,9 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Immutable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Ein Nebel.
  * @author Christopher Jung
@@ -42,48 +46,51 @@ import org.hibernate.annotations.Immutable;
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @BatchSize(size=50)
 public class Nebel implements Locatable {
-	@Id
-	private MutableLocation loc;
-	private int type;
-	
 	/**
 	 * Nebeltyp.
 	 */
-	public enum Types
+	public enum Typ
 	{
-		/**
-		 * Schwacher Deutnebel.
-		 */
-		LOW_DEUT(1, 5), 
 		/**
 		 * Normaler Deutnebel.
 		 */
-		MEDIUM_DEUT(0, 7), 
+		MEDIUM_DEUT(0, 7, false, 0),
+		/**
+		 * Schwacher Deutnebel.
+		 */
+		LOW_DEUT(1, 5, false, -1),
 		/**
 		 * Dichter Deutnebel.
 		 */
-		STRONG_DEUT(2, 11), 
+		STRONG_DEUT(2, 11, false, 1),
 		/**
 		 * Schwacher EMP-Nebel.
 		 */
-		LOW_EMP(3, Integer.MAX_VALUE), 
+		LOW_EMP(3, Integer.MAX_VALUE, true, Integer.MIN_VALUE),
 		/**
 		 * Normaler EMP-Nebel.
 		 */
-		MEDIUM_EMP(4, Integer.MAX_VALUE), 
+		MEDIUM_EMP(4, Integer.MAX_VALUE, true, Integer.MIN_VALUE),
 		/**
 		 * Dichter EMP-Nebel.
 		 */
-		STRONG_EMP(5, Integer.MAX_VALUE), 
+		STRONG_EMP(5, Integer.MAX_VALUE, true, Integer.MIN_VALUE),
 		/**
 		 * Schadensnebel.
 		 */
-		DAMAGE(6, 7);
+		DAMAGE(6, 7, false, Integer.MIN_VALUE);
+
+		private final int code;
+		private final int minScansize;
+		private final boolean emp;
+		private final int deutfaktor;
 		
-		private Types(int code, int minScansize)
+		private Typ(int code, int minScansize, boolean emp, int deutfaktor)
 		{
 			this.code = code;
 			this.minScansize = minScansize;
+			this.emp = emp;
+			this.deutfaktor = deutfaktor;
 		}
 		
 		/**
@@ -92,12 +99,12 @@ public class Nebel implements Locatable {
 		 * @param type Typenid.
 		 * @return Passendes enum.
 		 */
-		public static Types getType(int type)
+		public static Typ getType(int type)
 		{
 			switch(type)
 			{
-				case 1: return LOW_DEUT;
 				case 0: return MEDIUM_DEUT;
+				case 1: return LOW_DEUT;
 				case 2: return STRONG_DEUT;
 				case 3: return LOW_EMP;
 				case 4: return MEDIUM_EMP;
@@ -122,10 +129,71 @@ public class Nebel implements Locatable {
 		{
 			return this.minScansize;
 		}
-		
-		private final int code;
-		private final int minScansize;
+
+		/**
+		 * Gibt zurueck, ob es sich um einen EMP-Nebel handelt.
+		 * @return <code>true</code> falls dem so ist
+		 */
+		public boolean isEmp()
+		{
+			return emp;
+		}
+
+		/**
+		 * Gibt zurueck, ob ein Nebel diesen Typs das Sammeln
+		 * von Deuterium ermoeglicht.
+		 * @return <code>true</code> falls dem so ist
+		 */
+		public boolean isDeuteriumNebel()
+		{
+			return this.deutfaktor > Integer.MIN_VALUE;
+		}
+
+		/**
+		 * Gibt den durch die Eigenschaften des Nebels modifizierten
+		 * Deuterium-Faktor beim Sammeln von Deuterium
+		 * in einem Nebel diesem Typs zurueck. Falls der modifizierte
+		 * Faktor <code>0</code> betraegt ist kein Sammeln moeglich.
+		 * Falls es sich nicht um einen Nebel handelt,
+		 * der das Sammeln von Deuterium erlaubt, wird
+		 * der Faktor immer auf <code>0</code> reduziert.
+		 * @param faktor Der zu modifizierende Faktor
+		 * @return Der modifizierte Deuteriumfaktor
+		 */
+		public long modifiziereDeutFaktor(long faktor)
+		{
+			long modfaktor = faktor + this.deutfaktor;
+			if( modfaktor < 0 )
+			{
+				return 0;
+			}
+			return modfaktor;
+		}
+
+		/**
+		 * Gibt alle Nebeltypen zurueck, die die Eigenschaft
+		 * EMP haben.
+		 * @return Die Liste
+		 * @see #isEmp()
+		 */
+		public static List<Typ> getEmpNebel()
+		{
+			List<Typ> result = new ArrayList<Typ>();
+			for( Typ typ : values() )
+			{
+				if( typ.isEmp() )
+				{
+					result.add(typ);
+				}
+			}
+			return result;
+		}
 	}
+
+	@Id
+	private MutableLocation loc;
+	@Enumerated
+	private Typ type;
 	
 	/**
 	 * Konstruktor.
@@ -140,7 +208,7 @@ public class Nebel implements Locatable {
 	 * @param loc Die Position des Nebels
 	 * @param type Der Typ
 	 */
-	public Nebel(MutableLocation loc, int type) {
+	public Nebel(MutableLocation loc, Typ type) {
 		this.loc = loc;
 		this.type = type;
 	}
@@ -157,8 +225,8 @@ public class Nebel implements Locatable {
 	 * Gibt den Typ des Nebels zurueck.
 	 * @return Der Typ
 	 */
-	public int getType() {
-		return type;
+	public Typ getType() {
+		return this.type;
 	}
 	
 	/**
@@ -204,7 +272,7 @@ public class Nebel implements Locatable {
 	 */
 	public String getImage()
 	{
-		return "fog"+type+"/fog"+type;
+		return "fog"+type.ordinal()+"/fog"+type.ordinal();
 	}
 
 	/**
@@ -212,8 +280,8 @@ public class Nebel implements Locatable {
 	 */
 	public boolean isEmp()
 	{
-		Types nebula = Types.getType(type);
-		if(nebula == Types.LOW_EMP || nebula == Types.MEDIUM_EMP || nebula == Types.STRONG_EMP)
+		Typ nebula = this.type;
+		if(nebula == Typ.LOW_EMP || nebula == Typ.MEDIUM_EMP || nebula == Typ.STRONG_EMP)
 		{
 			return true;
 		}
@@ -226,7 +294,7 @@ public class Nebel implements Locatable {
 	 */
 	public boolean isDamage()
 	{
-		return Types.DAMAGE == Types.getType(type);
+		return Typ.DAMAGE == this.type;
 	}
 	
 	/**
@@ -235,21 +303,21 @@ public class Nebel implements Locatable {
 	 */
 	public int getMinScanableShipSize()
 	{
-		Types nebula = Types.getType(type);
+		Typ nebula = this.type;;
 		
-		if (nebula == Types.LOW_DEUT )
+		if (nebula == Typ.LOW_DEUT )
 		{
 			return 5;
 		}
-		else if (nebula == Types.MEDIUM_DEUT )
+		else if (nebula == Typ.MEDIUM_DEUT )
 		{
 			return 7;
 		}
-		else if (nebula == Types.STRONG_DEUT)
+		else if (nebula == Typ.STRONG_DEUT)
 		{
 			return 11;
 		}
-		else if (nebula == Types.DAMAGE)
+		else if (nebula == Typ.DAMAGE)
 		{
 			return 9;
 		}

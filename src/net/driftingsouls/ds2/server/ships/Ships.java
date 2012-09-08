@@ -67,7 +67,7 @@ public class Ships {
 	 * @return der Positionstext
 	 */
 	public static String getLocationText(int system, int x, int y, boolean noSystem) {
-		int nebel = getNebula(new Location(system, x, y));
+		Nebel.Typ nebel = getNebula(new Location(system, x, y));
 		
 		StringBuilder text = new StringBuilder(8);
 		if( !noSystem ) {
@@ -75,7 +75,7 @@ public class Ships {
 			text.append(":");
 		}
 		
-		if( nebel == 3 ) {
+		if( nebel == Nebel.Typ.LOW_EMP ) {
 			text.append(x / 10);
 			text.append("x/");
 			text.append(y / 10);
@@ -83,7 +83,7 @@ public class Ships {
 			
 			return text.toString();
 		}
-		else if( (nebel == 4) || (nebel == 5) ) {
+		else if( (nebel == Nebel.Typ.MEDIUM_EMP) || (nebel == Nebel.Typ.STRONG_EMP) ) {
 			text.append(":??/??");
 			return text.toString();
 		}
@@ -107,12 +107,12 @@ public class Ships {
 		
 	/**
 	 * Gibt den Nebeltyp an der angegebenen Position zurueck. Sollte sich an der Position kein
-	 * Nebel befinden, wird <code>-1</code> zurueckgegeben.
+	 * Nebel befinden, wird <code>null</code> zurueckgegeben.
 	 * @param loc Die Position
-	 * @return Der Nebeltyp oder <code>-1</code>
+	 * @return Der Nebeltyp oder <code>null</code>
 	 */
 	@SuppressWarnings("unchecked")
-	public static synchronized int getNebula(Location loc) {
+	public static synchronized Nebel.Typ getNebula(Location loc) {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		
@@ -130,7 +130,7 @@ public class Ships {
 			Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(loc));
 			if( nebel == null ) {
 				map.put(loc, Boolean.FALSE);
-				return -1;
+				return null;
 			}
 			
 			map.put(loc, Boolean.TRUE);
@@ -143,6 +143,6 @@ public class Ships {
 			return nebel.getType();
 		}
 			
-		return -1;
+		return null;
 	}
 }

@@ -239,7 +239,7 @@ public class NavigationDefault implements SchiffPlugin {
 				.list();
 			for( Iterator<?> iter=nebellist.iterator(); iter.hasNext(); ) {
 				Nebel nebel = (Nebel)iter.next();
-				sectorimgs[nebel.getX()-x+1][nebel.getY()-y+1] = "data/starmap/fog"+nebel.getType()+"/fog"+nebel.getType()+".png";
+				sectorimgs[nebel.getX()-x+1][nebel.getY()-y+1] = "data/starmap/"+nebel.getImage()+".png";
 			}
 
 			int tmp = 0;

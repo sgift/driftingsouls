@@ -18,18 +18,6 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.bases.Base;
@@ -39,6 +27,7 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.entities.Feeding;
+import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
@@ -52,10 +41,21 @@ import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.tick.UnitOfWork;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo.Crew;
-
 import org.hibernate.CacheMode;
 import org.hibernate.FetchMode;
 import org.hibernate.criterion.Restrictions;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Berechnung des Ticks fuer Schiffe.
@@ -306,28 +306,21 @@ public class SchiffsTick extends TickController {
 				(shipc.getMass() < shiptd.getCargo()) )
 		{
 			this.slog("\tS. Deut: ");
-			int nebel = Ships.getNebula(shipd.getLocation());
+			Nebel.Typ nebel = Ships.getNebula(shipd.getLocation());
 
-			if( (nebel >= 0) && (nebel <= 2) )
+			if( nebel.isDeuteriumNebel() )
 			{
 				int tmpe = e;
 
-				int deutfactor = shiptd.getDeutFactor();
-				if( nebel == 1 )
-				{
-					deutfactor--;
-				}
-				else if( nebel == 2 )
-				{
-					deutfactor++;
-				}
+				long deutfactor = shiptd.getDeutFactor();
+				deutfactor = nebel.modifiziereDeutFaktor(deutfactor);
 
 				if( Cargo.getResourceMass( Resources.DEUTERIUM, tmpe * deutfactor ) > (shiptd.getCargo() - shipc.getMass()) )
 				{
 					tmpe = (int)( (shiptd.getCargo()-shipc.getMass())/(deutfactor*Cargo.getResourceMass( Resources.DEUTERIUM, 1 )) );
 					this.slog("[maxcargo]");
 				}
-				int saugdeut = tmpe * deutfactor;
+				long saugdeut = tmpe * deutfactor;
 
 				shipc.addResource( Resources.DEUTERIUM, saugdeut );
 				e -= tmpe;
@@ -664,7 +657,7 @@ public class SchiffsTick extends TickController {
 
 		if( (shipd.getStatus().indexOf("lowmoney") == -1) &&
 				( (shipd.getEngine() < 100) || (shipd.getWeapons() < 100) || (shipd.getComm() < 100) || (shipd.getSensors() < 100) ) &&
-				(Ships.getNebula(shipd.getLocation()) != 6)  ) {
+				(Ships.getNebula(shipd.getLocation()) != Nebel.Typ.DAMAGE)  ) {
 
 			Offizier offizier = Offizier.getOffizierByDest('s', shipd.getId());
 
