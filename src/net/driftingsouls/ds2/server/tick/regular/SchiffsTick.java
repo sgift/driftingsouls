@@ -308,7 +308,7 @@ public class SchiffsTick extends TickController {
 			this.slog("\tS. Deut: ");
 			Nebel.Typ nebel = Ships.getNebula(shipd.getLocation());
 
-			if( nebel.isDeuteriumNebel() )
+			if( nebel != null && nebel.isDeuteriumNebel() )
 			{
 				int tmpe = e;
 

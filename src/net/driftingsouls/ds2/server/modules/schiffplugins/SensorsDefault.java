@@ -130,7 +130,7 @@ public class SensorsDefault implements SchiffPlugin {
 
 		if ( ( sensorrange > 0 ) && ( ship.getCrew() >= shiptype.getMinCrew()/3 ) ) {
 			Nebel.Typ nebel = Ships.getNebula(ship.getLocation());
-			if( !nebel.isEmp() ) {
+			if( nebel == null || !nebel.isEmp() ) {
 				t.setVar("global.longscan",1);
 			}
 		}
