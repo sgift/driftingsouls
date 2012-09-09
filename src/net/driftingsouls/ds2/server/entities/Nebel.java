@@ -27,13 +27,18 @@ import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.MutableLocation;
 
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.ships.Ships;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Immutable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Ein Nebel.
@@ -47,6 +52,47 @@ import java.util.List;
 @BatchSize(size=50)
 public class Nebel implements Locatable {
 	/**
+	 * Gibt den Nebeltyp an der angegebenen Position zurueck. Sollte sich an der Position kein
+	 * Nebel befinden, wird <code>null</code> zurueckgegeben.
+	 * @param loc Die Position
+	 * @return Der Nebeltyp oder <code>null</code>
+	 */
+	@SuppressWarnings("unchecked")
+	public static synchronized Typ getNebula(Location loc) {
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+
+		// Hibernate cachet nur Ergebnisse, die nicht leer waren.
+		// Da es jedoch viele Positionen ohne Nebel gibt wuerden viele Abfragen
+		// mehrfach durchgefuehrt. Daher wird in der Session vermerkt, welche
+		// Positionen bereits geprueft wurden
+
+		Map<Location,Boolean> map = (Map<Location,Boolean>)context.getVariable(Ships.class, "getNebula(Location)#Nebel");
+		if( map == null ) {
+			map = new HashMap<Location,Boolean>();
+			context.putVariable(Ships.class, "getNebula(Location)#Nebel", map);
+		}
+		if( !map.containsKey(loc) ) {
+			Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(loc));
+			if( nebel == null ) {
+				map.put(loc, Boolean.FALSE);
+				return null;
+			}
+
+			map.put(loc, Boolean.TRUE);
+			return nebel.getType();
+		}
+
+		Boolean val = map.get(loc);
+		if(val) {
+			Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(loc));
+			return nebel.getType();
+		}
+
+		return null;
+	}
+
+	/**
 	 * Nebeltyp.
 	 */
 	public enum Typ
@@ -54,43 +100,45 @@ public class Nebel implements Locatable {
 		/**
 		 * Normaler Deutnebel.
 		 */
-		MEDIUM_DEUT(0, 7, false, 0),
+		MEDIUM_DEUT(0, 7, false, 0, 7),
 		/**
 		 * Schwacher Deutnebel.
 		 */
-		LOW_DEUT(1, 5, false, -1),
+		LOW_DEUT(1, 5, false, -1, 5),
 		/**
 		 * Dichter Deutnebel.
 		 */
-		STRONG_DEUT(2, 11, false, 1),
+		STRONG_DEUT(2, 11, false, 1, 11),
 		/**
 		 * Schwacher EMP-Nebel.
 		 */
-		LOW_EMP(3, Integer.MAX_VALUE, true, Integer.MIN_VALUE),
+		LOW_EMP(3, Integer.MAX_VALUE, true, Integer.MIN_VALUE, 0),
 		/**
 		 * Normaler EMP-Nebel.
 		 */
-		MEDIUM_EMP(4, Integer.MAX_VALUE, true, Integer.MIN_VALUE),
+		MEDIUM_EMP(4, Integer.MAX_VALUE, true, Integer.MIN_VALUE, 0),
 		/**
 		 * Dichter EMP-Nebel.
 		 */
-		STRONG_EMP(5, Integer.MAX_VALUE, true, Integer.MIN_VALUE),
+		STRONG_EMP(5, Integer.MAX_VALUE, true, Integer.MIN_VALUE, 0),
 		/**
 		 * Schadensnebel.
 		 */
-		DAMAGE(6, 7, false, Integer.MIN_VALUE);
+		DAMAGE(6, 7, false, Integer.MIN_VALUE, 9);
 
 		private final int code;
 		private final int minScansize;
 		private final boolean emp;
 		private final int deutfaktor;
+		private final int minScanbareSchiffsgroesse;
 		
-		private Typ(int code, int minScansize, boolean emp, int deutfaktor)
+		private Typ(int code, int minScansize, boolean emp, int deutfaktor, int minScanbareSchiffsgroesse)
 		{
 			this.code = code;
 			this.minScansize = minScansize;
 			this.emp = emp;
 			this.deutfaktor = deutfaktor;
+			this.minScanbareSchiffsgroesse = minScanbareSchiffsgroesse;
 		}
 		
 		/**
@@ -188,6 +236,19 @@ public class Nebel implements Locatable {
 			}
 			return result;
 		}
+
+		/**
+		 * Gibt die minimale mittels LRS scanbare Schiffsgroesse zurueck.
+		 * Schiffe, deren Groesse kleiner als die angegebene Groesse ist,
+		 * werden mittels LRS in einem Nebel diesen Typs nicht erkannt.
+		 * Der Wert <code>0</code> bedeutet, das alle Schiffe mittels
+		 * LRS geortet werden koennen.
+		 * @return Die minimale Groesse
+		 */
+		public int getMinScanbareSchiffsgroesse()
+		{
+			return this.minScanbareSchiffsgroesse;
+		}
 	}
 
 	@Id
@@ -261,7 +322,7 @@ public class Nebel implements Locatable {
 	 */
 	public boolean allowsScan()
 	{
-		return !isEmp();
+		return !this.type.isEmp();
 	}
 
 	/**
@@ -273,54 +334,5 @@ public class Nebel implements Locatable {
 	public String getImage()
 	{
 		return "fog"+type.ordinal()+"/fog"+type.ordinal();
-	}
-
-	/**
-	 * @return <code>true</code>, wenn in dem Feld ein EMP-Nebel ist, sonst <code>false</code>
-	 */
-	public boolean isEmp()
-	{
-		Typ nebula = this.type;
-		if(nebula == Typ.LOW_EMP || nebula == Typ.MEDIUM_EMP || nebula == Typ.STRONG_EMP)
-		{
-			return true;
-		}
-		
-		return false;
-	}
-	
-	/**
-	 * @return <code>true</code>, wenn es ein Schadensnebel ist, sonst <code>false</code>.
-	 */
-	public boolean isDamage()
-	{
-		return Typ.DAMAGE == this.type;
-	}
-	
-	/**
-	 * Gibt die Mindestgroesse eines Schiffs zurueck, ab der es via LRS im Nebel geortet werden kann.
-	 * @return Die Mindestgroesse
-	 */
-	public int getMinScanableShipSize()
-	{
-		Typ nebula = this.type;;
-		
-		if (nebula == Typ.LOW_DEUT )
-		{
-			return 5;
-		}
-		else if (nebula == Typ.MEDIUM_DEUT )
-		{
-			return 7;
-		}
-		else if (nebula == Typ.STRONG_DEUT)
-		{
-			return 11;
-		}
-		else if (nebula == Typ.DAMAGE)
-		{
-			return 9;
-		}
-		return 0;
 	}
 }

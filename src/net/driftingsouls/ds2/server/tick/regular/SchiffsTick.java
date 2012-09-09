@@ -35,7 +35,6 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipFlag;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.tick.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.tick.UnitOfWork;
@@ -306,7 +305,7 @@ public class SchiffsTick extends TickController {
 				(shipc.getMass() < shiptd.getCargo()) )
 		{
 			this.slog("\tS. Deut: ");
-			Nebel.Typ nebel = Ships.getNebula(shipd.getLocation());
+			Nebel.Typ nebel = Nebel.getNebula(shipd.getLocation());
 
 			if( nebel != null && nebel.isDeuteriumNebel() )
 			{
@@ -657,7 +656,7 @@ public class SchiffsTick extends TickController {
 
 		if( (shipd.getStatus().indexOf("lowmoney") == -1) &&
 				( (shipd.getEngine() < 100) || (shipd.getWeapons() < 100) || (shipd.getComm() < 100) || (shipd.getSensors() < 100) ) &&
-				(Ships.getNebula(shipd.getLocation()) != Nebel.Typ.DAMAGE)  ) {
+				(Nebel.getNebula(shipd.getLocation()) != Nebel.Typ.DAMAGE)  ) {
 
 			Offizier offizier = Offizier.getOffizierByDest('s', shipd.getId());
 

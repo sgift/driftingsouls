@@ -44,7 +44,6 @@ import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
-import net.driftingsouls.ds2.server.ships.Ships;
 import net.driftingsouls.ds2.server.werften.BaseWerft;
 
 import org.apache.commons.lang.StringUtils;
@@ -129,7 +128,7 @@ public class SensorsDefault implements SchiffPlugin {
 		int sensorrange = Math.round(shiptype.getSensorRange()*(ship.getSensors()/100f));
 
 		if ( ( sensorrange > 0 ) && ( ship.getCrew() >= shiptype.getMinCrew()/3 ) ) {
-			Nebel.Typ nebel = Ships.getNebula(ship.getLocation());
+			Nebel.Typ nebel = Nebel.getNebula(ship.getLocation());
 			if( nebel == null || !nebel.isEmp() ) {
 				t.setVar("global.longscan",1);
 			}

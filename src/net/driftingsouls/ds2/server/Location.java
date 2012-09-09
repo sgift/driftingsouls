@@ -21,7 +21,6 @@ package net.driftingsouls.ds2.server;
 import java.io.Serializable;
 
 import net.driftingsouls.ds2.server.entities.Nebel;
-import net.driftingsouls.ds2.server.ships.Ships;
 
 /**
  * Eine Positionsklasse.
@@ -214,7 +213,7 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 	 */
 	public String displayCoordinates(boolean noSystem)
 	{
-		Nebel.Typ nebulaType = Ships.getNebula(this);
+		Nebel.Typ nebulaType = Nebel.getNebula(this);
 
 		StringBuilder text = new StringBuilder(8);
 		if( !noSystem ) {
@@ -251,7 +250,7 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 	 */
 	public boolean isNebula()
 	{
-		return Ships.getNebula(this) != null;
+		return Nebel.getNebula(this) != null;
 	}
 
 	/**

@@ -48,7 +48,6 @@ import javax.script.ScriptEngine;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.MutableLocation;
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
@@ -1723,7 +1722,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 				out.append(ship.getName()+" ("+ship.getId()+"): ");
 				firstOutput = false;
 			}
-			out.append("<span style=\"color:#ff0000\">Keine Energie. Stoppe bei "+Ships.getLocationText(ship.getLocation(), true)+"</span><br />\n");
+			out.append("<span style=\"color:#ff0000\">Keine Energie. Stoppe bei "+ship.getLocation().displayCoordinates(true)+"</span><br />\n");
 			distance = 0;
 
 			return new MovementResult(distance, moved, MovementStatus.SHIP_FAILURE);
@@ -1766,7 +1765,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 				}
 				out.append("<span style=\"color:#ff0000\">Triebwerk w&uuml;rde &uuml;berhitzen</span><br />\n");
 
-				out.append("<span style=\"color:#ff0000\">Autopilot bricht ab bei "+Ships.getLocationText(ship.getLocation(),true)+"</span><br />\n");
+				out.append("<span style=\"color:#ff0000\">Autopilot bricht ab bei "+ship.getLocation().displayCoordinates(true)+"</span><br />\n");
 				out.append("</span></td></tr>\n");
 				distance = 0;
 				return new MovementResult(distance, moved, MovementStatus.SHIP_FAILURE);
@@ -1822,7 +1821,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 						ship.setEngine(0);
 					}
 					if( distance > 0 ) {
-						out.append("<span style=\"color:#ff0000\">Autopilot bricht ab bei "+Ships.getLocationText(ship.getLocation(),true)+"</span><br />\n");
+						out.append("<span style=\"color:#ff0000\">Autopilot bricht ab bei "+ship.getLocation().displayCoordinates(true)+"</span><br />\n");
 						status = MovementStatus.SHIP_FAILURE;
 						distance = 0;
 					}
@@ -1834,7 +1833,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			ship.setEnergy(newe);
 			ship.setHeat(news);
 			if( verbose ) {
-				out.append(ship.getName()+" fliegt in "+Ships.getLocationText(ship.getLocation(),true)+" ein<br />\n");
+				out.append(ship.getName()+" fliegt in "+ship.getLocation().displayCoordinates(true)+" ein<br />\n");
 			}
 		}
 
@@ -2189,10 +2188,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 			sectorList = Common.cast(db.createQuery("from Nebel " +
 					"where type in (:emptypes) and system=:system and x between :lowerx and :upperx and y between :lowery and :uppery")
 					.setInteger("system", this.system)
-					.setInteger("lowerx", (waypoint.direction-1) % 3 == 0 ? this.x-waypoint.distance : this.x )
-					.setInteger("upperx", (waypoint.direction) % 3 == 0 ? this.x+waypoint.distance : this.x )
-					.setInteger("lowery", waypoint.direction <= 3 ? this.y-waypoint.distance : this.y )
-					.setInteger("uppery", waypoint.direction >= 7 ? this.y+waypoint.distance : this.y )
+					.setInteger("lowerx", (waypoint.direction - 1) % 3 == 0 ? this.x - waypoint.distance : this.x)
+					.setInteger("upperx", (waypoint.direction) % 3 == 0 ? this.x + waypoint.distance : this.x)
+					.setInteger("lowery", waypoint.direction <= 3 ? this.y - waypoint.distance : this.y)
+					.setInteger("uppery", waypoint.direction >= 7 ? this.y + waypoint.distance : this.y)
 					.setParameterList("emptypes", Nebel.Typ.getEmpNebel())
 					.list());
 
@@ -2255,7 +2254,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 				// ACHTUNG: Ob das ganze hier noch sinnvoll funktioniert, wenn distance > 1 ist, ist mehr als fraglich...
 				if( nebulaemplist.containsKey(nextLocation) &&
 						(RandomUtils.nextDouble() < getTypeData().getLostInEmpChance()) ) {
-					Nebel.Typ nebel = Ships.getNebula(getLocation());
+					Nebel.Typ nebel = Nebel.getNebula(getLocation());
 					if( nebel == Nebel.Typ.STRONG_EMP ) {
 						waypoint.direction = RandomUtils.nextInt(10)+1;
 						if( waypoint.direction == 5 ) {
@@ -2416,7 +2415,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		} // while !error && route.size() > 0
 
 		if( moved ) {
-			out.append("Ankunft bei "+Ships.getLocationText(this.getLocation(),true)+"<br /><br />\n");
+			out.append("Ankunft bei "+this.getLocation().displayCoordinates(true)+"<br /><br />\n");
 
 			this.docked = "";
 			if( docked != 0 ) {

@@ -196,7 +196,8 @@ public class PlayerStarmap extends PublicStarmap
 							scannable = false;
 						}
 						
-						if( scannable && nebula != null && nebula.getMinScanableShipSize() > ship.getTypeData().getSize() )
+						if( scannable && nebula != null &&
+								nebula.getType().getMinScanbareSchiffsgroesse() > ship.getTypeData().getSize() )
 						{
 							scannable = false;
 						}
@@ -348,7 +349,7 @@ public class PlayerStarmap extends PublicStarmap
 						if(loc.equals(position))
 						{
 							Nebel nebula = nebulas.get(position);
-							if(!nebula.isEmp())
+							if(nebula.allowsScan())
 							{
 								scannableLocations.put(loc, scanShip);
 							}

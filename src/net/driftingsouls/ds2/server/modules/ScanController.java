@@ -416,34 +416,11 @@ public class ScanController extends TemplateGenerator {
 					}
 				}
 
-				boolean scanable = false;
+				boolean scanable = true;
 				if(nebel != null){
 					Nebel.Typ nebeltype = nebel.getType();
-					if( nebeltype == Nebel.Typ.LOW_DEUT && shiptype.getSize() > 4 ) // leichter Deutnebel
-					{
-						scanable = true;
-					}
-					else if( nebeltype == Nebel.Typ.MEDIUM_DEUT && shiptype.getSize() > 6 ) // mittlerer Deutnebel
-					{
-						scanable = true;
-					}
-					else if( nebeltype == Nebel.Typ.STRONG_DEUT && shiptype.getSize() > 10 ) // schwerer Deutnebel
-					{
-						scanable = true;
-					}
-					else if( nebeltype == Nebel.Typ.DAMAGE && shiptype.getSize() > 8 ) // Schadensnebel
-					{
-						scanable = true;
-					}
-					else if (ship.getOwner().getId() == user.getId())
-					{
-						scanable = true;
-					}
-				}
-				else
-				// kein nebel
-				{
-					scanable = true;
+					scanable = shiptype.getSize() >= nebeltype.getMinScanbareSchiffsgroesse();
+					scanable |= ship.getOwner().getId() == user.getId();
 				}
 
 				if (scanable){
@@ -713,29 +690,10 @@ public class ScanController extends TemplateGenerator {
 								}
 								else if( (myship.getOwner().getId() != user.getId()) && ( (user.getAlly() == null) || ((user.getAlly() != null) && (myship.getOwner().getAlly() != user.getAlly()) ) )  )
 								{
-									boolean scan = false;
+									boolean scan = true;
 									if (nebelmap.containsKey(loc))
 									{
-										if (nebelmap.get(loc) == Nebel.Typ.LOW_DEUT && myship.getTypeData().getSize() > 4) // leichter Deutnebel
-										{
-											scan = true;
-										}
-										else if (nebelmap.get(loc) == Nebel.Typ.MEDIUM_DEUT && myship.getTypeData().getSize() > 6) // mittlerer Deutnebel
-										{
-											scan = true;
-										}
-										else if (nebelmap.get(loc) == Nebel.Typ.STRONG_DEUT && myship.getTypeData().getSize() > 10) // schwerer Deutnebel
-										{
-											scan = true;
-										}
-										else if (nebelmap.get(loc) == Nebel.Typ.DAMAGE && myship.getTypeData().getSize() > 8) // Schadensnebel
-										{
-											scan = true;
-										}
-									}
-									else
-									{
-										scan = true;
+										scan = myship.getTypeData().getSize() >= nebelmap.get(loc).getMinScanbareSchiffsgroesse();
 									}
 
 									if( !myship.isLanded() && scan )

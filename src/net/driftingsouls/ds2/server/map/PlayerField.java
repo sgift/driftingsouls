@@ -189,7 +189,8 @@ public class PlayerField
                         }
                     }
 
-                    if( this.field.isNebula() && this.field.getNebula().getMinScanableShipSize() > type.getSize() )
+                    if( this.field.isNebula() &&
+							this.field.getNebula().getType().getMinScanbareSchiffsgroesse() > type.getSize() )
                     {
                         continue;
                     }
