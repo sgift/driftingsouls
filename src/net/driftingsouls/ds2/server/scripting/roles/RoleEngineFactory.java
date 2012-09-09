@@ -42,7 +42,7 @@ public class RoleEngineFactory implements ScriptEngineFactory {
 
 	@Override
 	public List<String> getExtensions() {
-		return Arrays.asList(new String[] {"role"});
+		return Arrays.asList("role");
 	}
 
 	@Override
@@ -62,12 +62,12 @@ public class RoleEngineFactory implements ScriptEngineFactory {
 
 	@Override
 	public List<String> getMimeTypes() {
-		return Arrays.asList(new String[] {"text/plain", "text/dsrole"});
+		return Arrays.asList("text/plain", "text/dsrole");
 	}
 
 	@Override
 	public List<String> getNames() {
-		return Arrays.asList(new String[] {"DSRoles", "DSRole", "dsroles", "dsrole"});
+		return Arrays.asList("DSRoles", "DSRole", "dsroles", "dsrole");
 	}
 
 	@Override

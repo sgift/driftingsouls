@@ -361,11 +361,7 @@ public class Cargo implements Cloneable {
 		if( item[2] != resid.getUses() ) {
 			return false;
 		}
-		if( item[3] != resid.getQuest() ) {
-			return false;
-		}
-
-		return true;
+		return item[3] == resid.getQuest();
 	}
 
 	private boolean isSameIID( Long[] resid, Long[] item ) {
@@ -375,11 +371,7 @@ public class Cargo implements Cloneable {
 		if( !item[2].equals(resid[2]) ) {
 			return false;
 		}
-		if( !item[3].equals(resid[3]) ) {
-			return false;
-		}
-
-		return true;
+		return item[3].equals(resid[3]);
 	}
 
 	/**
@@ -463,10 +455,7 @@ public class Cargo implements Cloneable {
 		if( count != 0 ) {
 			return (amount >= count);
 		}
-		if( amount != 0 ) {
-			return true;
-		}
-		return false;
+		return amount != 0;
 	}
 
 	/**

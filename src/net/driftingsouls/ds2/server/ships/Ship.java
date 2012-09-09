@@ -122,8 +122,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	@Id @GeneratedValue(generator="ds-shipid")
 	@GenericGenerator(name="ds-shipid", strategy = "net.driftingsouls.ds2.server.ships.ShipIdGenerator")
 	private int id;
-	@OneToOne
-	@Cascade({org.hibernate.annotations.CascadeType.REFRESH, org.hibernate.annotations.CascadeType.EVICT})
+	@OneToOne(cascade={CascadeType.REFRESH,CascadeType.DETACH})
 	@JoinColumn(name="modules", nullable=true)
 	@BatchSize(size=50)
 	@NotFound(action = NotFoundAction.IGNORE)
@@ -175,22 +174,25 @@ public class Ship implements Locatable,Transfering,Feeding {
 	private boolean battleAction;
 	private String jumptarget;
 
-	@OneToOne(fetch=FetchType.LAZY, optional=false, cascade={CascadeType.MERGE,CascadeType.REFRESH,CascadeType.REMOVE})
-	@Cascade(org.hibernate.annotations.CascadeType.EVICT)
+	@OneToOne(
+			fetch=FetchType.LAZY,
+			optional=false,
+			cascade={CascadeType.MERGE,CascadeType.REFRESH,CascadeType.REMOVE,CascadeType.DETACH})
 	@PrimaryKeyJoinColumn(name="id", referencedColumnName="id")
 	private ShipHistory history;
 
 	private String oncommunicate;
 	private int ablativeArmor;
-	@OneToMany(fetch=FetchType.LAZY, targetEntity=net.driftingsouls.ds2.server.ships.ShipUnitCargoEntry.class)
-	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH,org.hibernate.annotations.CascadeType.MERGE})
+	@OneToMany(
+			fetch=FetchType.LAZY,
+			targetEntity=net.driftingsouls.ds2.server.ships.ShipUnitCargoEntry.class,
+			cascade = {CascadeType.DETACH,CascadeType.REFRESH,CascadeType.MERGE})
 	@JoinColumn(name="destid", nullable=true)
 	@BatchSize(size=500)
 	@NotFound(action = NotFoundAction.IGNORE)
 	private Set<ShipUnitCargoEntry> units;
 
-	@OneToOne(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
-	@Cascade(org.hibernate.annotations.CascadeType.EVICT)
+	@OneToOne(fetch=FetchType.LAZY, cascade={CascadeType.ALL,CascadeType.DETACH})
 	@JoinColumn(name="scriptData_id")
 	@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 	private ShipScriptData scriptData;
@@ -2290,7 +2292,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 								sectorlist.put(sector.getLocation(), sector);
 							}
 
-							alertList.putAll(alertCheck(owner, new Location[] { new Location(this.system, this.x+tmpxoff, this.y+tmpyoff) }));
+							alertList.putAll(alertCheck(owner, new Location(this.system, this.x+tmpxoff, this.y+tmpyoff)));
 						}
 					}
 				}

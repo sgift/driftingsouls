@@ -364,12 +364,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 
 		Base other = (Base)object;
 
-		if(other.getId() != this.getId())
-		{
-			return false;
-		}
-
-		return true;
+		return other.getId() == this.getId();
 	}
 
 	@Override

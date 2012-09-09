@@ -225,12 +225,7 @@ public class ErrorHandlerFilter implements Filter
 		private boolean isAutomaticAccess(ServletRequest request)
 		{
 			String automaticAccessParameter = request.getParameter("autoAccess");
-			if(automaticAccessParameter != null && automaticAccessParameter.equals("true"))
-			{
-				return true;
-			}
-
-			return false;
+			return automaticAccessParameter != null && automaticAccessParameter.equals("true");
 		}
 	}
 	

@@ -85,11 +85,7 @@ public class ItemID implements ResourceID
 		{
 			return false;
 		}
-		if( rid.charAt(0) == 'i' )
-		{
-			return true;
-		}
-		return false;
+		return rid.charAt(0) == 'i';
 	}
 	
 	/**

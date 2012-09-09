@@ -42,7 +42,7 @@ public abstract class DSScriptFactory implements ScriptEngineFactory {
 
 	@Override
 	public List<String> getExtensions() {
-		return Arrays.asList(new String[] {"dsscript"});
+		return Arrays.asList("dsscript");
 	}
 
 	@Override
@@ -62,12 +62,12 @@ public abstract class DSScriptFactory implements ScriptEngineFactory {
 
 	@Override
 	public List<String> getMimeTypes() {
-		return Arrays.asList(new String[] {"text/plain", "text/dsscript"});
+		return Arrays.asList("text/plain", "text/dsscript");
 	}
 
 	@Override
 	public List<String> getNames() {
-		return Arrays.asList(new String[] {"dsscript", "DSScript", "scriptparser", "ScriptParser"});
+		return Arrays.asList("dsscript", "DSScript", "scriptparser", "ScriptParser");
 	}
 
 	@Override

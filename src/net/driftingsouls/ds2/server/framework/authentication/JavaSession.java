@@ -135,9 +135,6 @@ class JavaSession implements Serializable {
 	 * @return <code>true</code>, falls die IP-Adresse in der Liste vorkommt
 	 */
 	public boolean isValidIP(String ip) {
-		if( !getIP().contains("<"+ip+">") ) {
-			return false;
-		}
-		return true;
+		return getIP().contains("<"+ip+">");
 	}
 }

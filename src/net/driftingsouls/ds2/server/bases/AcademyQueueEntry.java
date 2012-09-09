@@ -330,11 +330,7 @@ public class AcademyQueueEntry {
 
 		int lastposition = this.getNextEmptyPosition()-1;
 
-		if( this.getPosition() == lastposition )
-		{
-			return true;
-		}
-		return false;
+		return this.getPosition() == lastposition;
 	}
 
 	/**

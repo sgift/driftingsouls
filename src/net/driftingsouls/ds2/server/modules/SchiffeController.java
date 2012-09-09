@@ -315,7 +315,7 @@ public class SchiffeController extends TemplateGenerator {
 				}
 			}
 
-			if( ok == false ) {
+			if( !ok ) {
 				String offi = null;
 
 				if( ship.getStatus().indexOf("offizier") > -1 ) {

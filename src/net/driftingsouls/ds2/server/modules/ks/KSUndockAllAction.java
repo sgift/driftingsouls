@@ -98,8 +98,8 @@ public class KSUndockAllAction extends BasicKSAction {
 			}
 		}
 
-		ownShip.getShip().start(new Ship[0]);
-		ownShip.getShip().undock(new Ship[0]);
+		ownShip.getShip().start();
+		ownShip.getShip().undock();
 
 		battle.logme(counter+" Schiffe wurden abgedockt");
 		battle.logenemy(counter+" Schiffe wurden von der "+Battle.log_shiplink(ownShip.getShip())+" abgedockt\n");

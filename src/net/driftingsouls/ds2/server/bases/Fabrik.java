@@ -117,7 +117,7 @@ public class Fabrik extends DefaultBuilding {
 			vars.allvars.clear();
 		}
 
-		if( !vars.allvars.containsKey(buildingid) || (vars.allvars.get(buildingid).init == false) )
+		if( !vars.allvars.containsKey(buildingid) || !vars.allvars.get(buildingid).init )
 		{
 			vars.allvars.put(buildingid, new ContextVars());
 			vars.allvars.get(buildingid).init = true;
@@ -403,10 +403,7 @@ public class Fabrik extends DefaultBuilding {
 	public boolean isActive(Base base, int status, int field) {
 		loaddata( base, base.getBebauung()[field] );
 		AllContextVars vars = ContextMap.getContext().get(AllContextVars.class);
-		if( vars.allvars.get(base.getBebauung()[field]).usedcapacity.get(base.getId()).doubleValue() > 0 ) {
-			return true;
-		}
-		return false;
+		return vars.allvars.get(base.getBebauung()[field]).usedcapacity.get(base.getId()).doubleValue() > 0;
 	}
 
 	@SuppressWarnings("unchecked")

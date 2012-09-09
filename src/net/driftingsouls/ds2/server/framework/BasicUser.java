@@ -205,11 +205,7 @@ public abstract class BasicUser {
 			return true;
 		}
 
-		if( (attachedUser != null) && attachedUser.hasFlag(flag) ) {
-			return true;
-		}
-
-		return false;
+		return (attachedUser != null) && attachedUser.hasFlag(flag);
 	}
 
 	/**
