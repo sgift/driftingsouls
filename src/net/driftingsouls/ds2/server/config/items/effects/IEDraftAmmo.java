@@ -67,7 +67,7 @@ public class IEDraftAmmo extends ItemEffect {
 		
 		String[] effects = StringUtils.split(effectString, "&");
 		int ammo = Integer.parseInt(effects[0]);
-		Boolean allyEffect = effects[1].equals("true") ? true : false;
+		Boolean allyEffect = effects[1].equals("true");
 		
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		Ammo ammoEntry = (Ammo)db.get(Ammo.class, ammo);
@@ -89,7 +89,7 @@ public class IEDraftAmmo extends ItemEffect {
 	public static ItemEffect fromContext(Context context) {
 		
 		int ammoid = context.getRequest().getParameterInt("ammoid");
-		Boolean allyEffect = context.getRequest().getParameterString("allyeffect").equals("true") ? true : false;
+		Boolean allyEffect = context.getRequest().getParameterString("allyeffect").equals("true");
 		
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		Ammo ammoEntry = (Ammo)db.get(Ammo.class, ammoid);

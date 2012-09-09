@@ -531,7 +531,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		moduleUpdateShipData(ship, oldshiptype, cargo);
 
 		MESSAGE.get().append("Modul ausgebaut\n");
-		return;
 	}
 
 	private void moduleUpdateShipData(Ship ship, ShipTypeData oldshiptype, Cargo cargo) {
@@ -595,7 +594,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			// toArray(T[]) fuehrt hier leider zu Warnungen...
 			Ship[] undockarray = new Ship[jdockcount-shiptype.getJDocks()];
 			for( Ship lship : ship.getLandedShips() ) {
-				undockarray[count++] = (Ship)lship;
+				undockarray[count++] = lship;
 				if( count >= undockarray.length )
 				{
 					break;
@@ -614,7 +613,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			// toArray(T[]) fuehrt hier leider zu Warnungen...
 			Ship[] undockarray = new Ship[adockcount-shiptype.getADocks()];
 			for( Ship lship : ship.getDockedShips() ) {
-				undockarray[count++] = (Ship)lship;
+				undockarray[count++] = lship;
 				if( count >= undockarray.length )
 				{
 					break;
@@ -731,7 +730,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 		MESSAGE.get().append("Modul eingebaut\n");
 
-		return;
 	}
 
 	/**
@@ -1225,7 +1223,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			ShipType shipType = it.next();
 			if(disabledShips.contains(shipType)) {
 				it.remove();
-				continue;
 			}
 		}
 

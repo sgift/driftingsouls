@@ -70,7 +70,7 @@ public class EditUser implements AdminPlugin
 		{
 			User user = (User)db.get(User.class, userid);
 
-			boolean disableAccount = context.getRequest().getParameterInt("blockuser") == 1 ? true : false;
+			boolean disableAccount = context.getRequest().getParameterInt("blockuser") == 1;
 
 			user.setDisabled(disableAccount);
 

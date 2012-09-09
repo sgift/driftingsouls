@@ -349,7 +349,7 @@ public class ShipTypeChangeset {
 		this.oneWayWerft = request.getParameterInt("onewaywerft"+addict);
 		if( !"null".equals(request.getParameterString("srs"+addict)) )
 		{
-			this.srs = request.getParameterString("srs"+addict).equals("true") ? true : false;
+			this.srs = request.getParameterString("srs" + addict).equals("true");
 		}
 		this.scanCost = request.getParameterInt("scancost"+addict);
 		this.pickingCost = request.getParameterInt("pickingcost"+addict);

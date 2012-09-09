@@ -107,8 +107,8 @@ public class BasesMap implements AdminPlugin
 			Color black = new Color(0, 0, 0);
 			Color blue = new Color(0, 0, 255);
 			Color green = new Color(0, 255, 0);
-			Color red = new Color(255, 000, 000);
-			Color yellow = new Color(255, 255, 000);
+			Color red = new Color(255, 0, 0);
+			Color yellow = new Color(255, 255, 0);
 			Color grey = new Color(128, 128, 128);
 			
 			Graphics2D g = image.createGraphics();

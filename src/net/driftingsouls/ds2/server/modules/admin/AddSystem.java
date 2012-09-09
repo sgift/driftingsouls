@@ -53,9 +53,9 @@ public class AddSystem implements AdminPlugin
 			String name = request.getParameterString("name");
 			int width = request.getParameterInt("width");
 			int height = request.getParameterInt("height");
-			boolean military = request.getParameterString("military").equals("true") ? true : false; 
+			boolean military = request.getParameterString("military").equals("true");
 			int maxcolonies = request.getParameterInt("maxcolonies");
-			boolean starmap = request.getParameterString("starmap").equals("true") ? true : false;
+			boolean starmap = request.getParameterString("starmap").equals("true");
 			String orderloc = request.getParameterString("orderloc");
 			String gtuDropZoneString = request.getParameterString("gtuDropZone");
 			int access = request.getParameterInt("access");

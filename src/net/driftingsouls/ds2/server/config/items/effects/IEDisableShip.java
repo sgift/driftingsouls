@@ -67,7 +67,7 @@ public class IEDisableShip extends ItemEffect {
 	public static ItemEffect fromString(String effectString) throws Exception {
 		
 		String[] effects = StringUtils.split(effectString, "&");
-		Boolean allyEffect = effects[1].equals("true") ? true : false;
+		Boolean allyEffect = effects[1].equals("true");
 		int shiptype = Integer.parseInt(effects[0]);
 		
 		org.hibernate.Session db = ContextMap.getContext().getDB();
@@ -90,7 +90,7 @@ public class IEDisableShip extends ItemEffect {
 	public static ItemEffect fromContext(Context context) {
 		
 		int shiptype = context.getRequest().getParameterInt("shiptype");
-		boolean allyeffect = context.getRequest().getParameterString("allyeffect").equals("true") ? true : false;
+		boolean allyeffect = context.getRequest().getParameterString("allyeffect").equals("true");
 		
 		if( allyeffect ) {
 			return new IEDisableShip(allyeffect, shiptype);

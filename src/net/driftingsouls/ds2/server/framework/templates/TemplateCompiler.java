@@ -345,7 +345,7 @@ public class TemplateCompiler {
 	}
 
 	private String parse_control_structures( String block ) {
-		StringBuffer blockBuilder = new StringBuffer(block.length());
+		StringBuilder blockBuilder = new StringBuilder(block.length());
 		Matcher match = Pattern.compile("\\{if (['\"]?)([^\"'\\}]*)\\1}").matcher(block);
 		int index = 0;
 		while( match.find() ) {
@@ -401,7 +401,7 @@ public class TemplateCompiler {
 	}
 
 	private String parse_functions( String block ) {
-		StringBuffer blockBuilder = new StringBuffer(block.length());
+		StringBuilder blockBuilder = new StringBuilder(block.length());
 		Matcher match = Pattern.compile("\\{#([^\\s^\\}^\\?]+)([^\\}]*)\\}").matcher(block);
 		int index = 0;
 		while( match.find() ) {

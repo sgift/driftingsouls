@@ -684,7 +684,6 @@ public class PortalController extends TemplateGenerator {
 		}
 
 		getResponse().redirectTo("ds?module=main&action=default");
-		return;
 	}
 
 	/**
@@ -730,7 +729,6 @@ public class PortalController extends TemplateGenerator {
 	public void reloginAction()
 	{
 		getResponse().redirectTo("ds?module=main&action=default");
-		return;
 	}
 
 	/**

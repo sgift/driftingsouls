@@ -147,7 +147,6 @@ public class DeutSammelnController extends TemplateGenerator {
 			if( ship.getCrew() < (shiptype.getCrew()/2) ) {
 				lastError = "Sie haben nicht genug Crew um Deuterium zu sammeln";
 				iter.remove();
-				continue;
 			}
 		}
 

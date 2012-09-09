@@ -70,7 +70,6 @@ public class PlayerField
 			if( this.user.getAlly() != null && user.getAlly().equals(base.getOwner().getAlly()) )
 			{
 				bases.add(base);
-				continue;
 			}
 		}
         

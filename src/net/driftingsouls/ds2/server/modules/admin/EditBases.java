@@ -89,7 +89,7 @@ public class EditBases implements AdminPlugin
 			base.setTerrain(convertAndCapTileList(size, context.getRequest().getParameterString("terrain")));
 			base.setBebauung(convertAndCapTileList(size, context.getRequest().getParameterString("bebauung")));
 			base.setActive(convertAndCapTileList(size, context.getRequest().getParameterString("active")));
-			base.setCoreActive(context.getRequest().getParameterString("coreactive").equals("true") ? true : false);
+			base.setCoreActive(context.getRequest().getParameterString("coreactive").equals("true"));
 			base.setSpawnableRess(context.getRequest().getParameterString("spawnableress"));
 			base.setAvailableSpawnableRess(context.getRequest().getParameterString("availableress"));
 			String[] autogtuacts = StringUtils.split(context.getRequest().getParameterString("autogtuacts"),";");

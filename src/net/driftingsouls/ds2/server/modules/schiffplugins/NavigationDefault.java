@@ -91,7 +91,7 @@ public class NavigationDefault implements SchiffPlugin {
 			einstellungen.setDestX(x);
 			einstellungen.setDestY(y);
 			einstellungen.setDestCom(com);
-			einstellungen.setBookmark(bookmark != 0 ? true : false);
+			einstellungen.setBookmark(bookmark != 0);
 			einstellungen.persistIfNecessary(ship);
 
 			output += "Neues Ziel: "+system+":"+x+"/"+y+"<br />Beschreibung: "+Common._plaintitle(com);

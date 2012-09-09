@@ -384,7 +384,6 @@ public class CommController extends TemplateGenerator {
 		}
 
 		getContext().getResponse().getWriter().append(Integer.toString(counter));
-		return;
 	}
 
 	/**
@@ -932,7 +931,7 @@ public class CommController extends TemplateGenerator {
 		for( Map.Entry<String, String> entry: specialuilist.entrySet() ) {
 			t.setVar(	"specialui.name",	entry.getValue(),
 						"specialui.value",	entry.getKey(),
-						"specialui.selected",	special.equals(entry.getKey()) ? true : false);
+						"specialui.selected", special.equals(entry.getKey()));
 
 			t.parse("write.specialui.list", "write.specialui.listitem", true);
 		}

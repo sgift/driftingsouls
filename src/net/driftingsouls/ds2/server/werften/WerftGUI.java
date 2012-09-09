@@ -980,6 +980,5 @@ public class WerftGUI {
 			}
 		}
 
-		return;
 	}
 }

@@ -378,9 +378,9 @@ public class TradepostController extends TemplateGenerator {
         int buyRank = getInteger("i"+aitem.getID()+"buyrank");
 
 		final Request request = ContextMap.getContext().getRequest();
-		boolean salebool = (request.getParameterInt("i"+aitem.getID()+"salebool") == 1 ? true : false);
-		boolean buybool = (request.getParameterInt("i"+aitem.getID()+"buybool") == 1 ? true : false);
-		boolean fill = (request.getParameterInt("i"+aitem.getID()+"fill") == 1 ? true : false);
+		boolean salebool = (request.getParameterInt("i" + aitem.getID() + "salebool") == 1);
+		boolean buybool = (request.getParameterInt("i" + aitem.getID() + "buybool") == 1);
+		boolean fill = (request.getParameterInt("i" + aitem.getID() + "fill") == 1);
 
 		// check if values are positive and set to zero if not
 		if(salesprice < 0)

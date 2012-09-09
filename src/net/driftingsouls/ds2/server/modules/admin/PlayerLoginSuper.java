@@ -86,7 +86,6 @@ public class PlayerLoginSuper implements AdminPlugin {
 			}
 			catch( AuthenticationException e ) {
 				echo.append("<span style=\"color:red\">"+e.getMessage()+"</span>");
-				return;
 			}
 		}
 	}

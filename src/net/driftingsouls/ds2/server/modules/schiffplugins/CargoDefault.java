@@ -194,7 +194,7 @@ public class CargoDefault implements SchiffPlugin {
 			int autodeut = controller.getInteger("autodeut");
 
 			SchiffEinstellungen einstellungen = ship.getEinstellungen();
-			einstellungen.setAutoDeut(autodeut != 0 ? true : false);
+			einstellungen.setAutoDeut(autodeut != 0);
 			einstellungen.persistIfNecessary(ship);
 
 			output += "Automatisches Deuteriumsammeln "+(autodeut != 0 ? "":"de")+"aktiviert<br />\n";
@@ -205,7 +205,7 @@ public class CargoDefault implements SchiffPlugin {
 			int startfighter = controller.getInteger("startfighter");
 
 			SchiffEinstellungen einstellungen = ship.getEinstellungen();
-			einstellungen.setStartFighters(startfighter != 0 ? true : false);
+			einstellungen.setStartFighters(startfighter != 0);
 			einstellungen.persistIfNecessary(ship);
 
 			output += "Automatisches Starten von Jägern "+(startfighter != 0 ? "":"de")+"aktiviert<br />\n";
@@ -216,7 +216,7 @@ public class CargoDefault implements SchiffPlugin {
 			int isfeeding = controller.getInteger("isfeeding");
 
 			SchiffEinstellungen einstellungen = ship.getEinstellungen();
-			einstellungen.setFeeding(isfeeding != 0 ? true : false);
+			einstellungen.setFeeding(isfeeding != 0);
 			einstellungen.persistIfNecessary(ship);
 
 			output += "Automatisches Versorgen "+(isfeeding != 0 ? "":"de")+"aktiviert<br />\n";
@@ -227,7 +227,7 @@ public class CargoDefault implements SchiffPlugin {
 			int isallyfeeding = controller.getInteger("isallyfeeding");
 
 			SchiffEinstellungen einstellungen = ship.getEinstellungen();
-			einstellungen.setAllyFeeding(isallyfeeding != 0 ? true : false);
+			einstellungen.setAllyFeeding(isallyfeeding != 0);
 			einstellungen.persistIfNecessary(ship);
 
 			output += "Automatisches Versorgen von Allianzschiffen "+(isallyfeeding != 0 ? "":"de")+"aktiviert<br />\n";

@@ -146,7 +146,7 @@ public class IEDraftShip extends ItemEffect {
 		}
 		
 		draft.race = Integer.parseInt(effects[1]);
-		draft.flagschiff = effects[2].equals("true") ? true : false;
+		draft.flagschiff = effects[2].equals("true");
 		draft.crew = Integer.parseInt(effects[3]);
 		draft.e = Integer.parseInt(effects[4]);
 		draft.dauer = Integer.parseInt(effects[5]);
@@ -179,7 +179,7 @@ public class IEDraftShip extends ItemEffect {
 		}
 		
 		draft.race = context.getRequest().getParameterInt("race");
-		draft.flagschiff = context.getRequest().getParameterString("flagschiff").equals("true") ? true : false;
+		draft.flagschiff = context.getRequest().getParameterString("flagschiff").equals("true");
 		draft.crew = context.getRequest().getParameterInt("crew");
 		draft.e = context.getRequest().getParameterInt("energie");
 		draft.dauer = context.getRequest().getParameterInt("dauer");

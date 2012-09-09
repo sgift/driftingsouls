@@ -142,7 +142,7 @@ public class Werft extends DefaultBuilding {
 		BaseWerft werft = base.getWerft();
 		if( werft != null ) {
 			werft.setBaseField(field);
-			return (werft.isBuilding() ? true : false);
+			return (werft.isBuilding());
 		}
 
 		return false;

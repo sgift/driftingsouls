@@ -296,7 +296,6 @@ public class SchiffController extends TemplateGenerator {
 			}
 		}
 
-		return;
 	}
 
 	/**
@@ -329,7 +328,6 @@ public class SchiffController extends TemplateGenerator {
 		ship.destroy();
 
 		t.setVar("ship.message", "<span style=\"color:white\">Das Schiff hat sich selbstzerst&ouml;rt</span><br />");
-		return;
 	}
 
 	/**
@@ -885,7 +883,7 @@ public class SchiffController extends TemplateGenerator {
 					"shiptype.crew",		Common.ln(shiptype.getCrew()),
 					"ship.crew",			Common.ln(ship.getCrew()),
 					"ship.crew.color",		genSubColor(ship.getCrew(), shiptype.getCrew()),
-					"ship.marines",			(shiptype.getUnitSpace() > 0) ? true : false,
+					"ship.marines", (shiptype.getUnitSpace() > 0),
 					"ship.e",				Common.ln(ship.getEnergy()),
 					"shiptype.eps",			Common.ln(shiptype.getEps()),
 					"ship.e.color",			genSubColor(ship.getEnergy(), shiptype.getEps()),

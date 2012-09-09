@@ -1376,7 +1376,6 @@ public class ErsteigernController extends TemplateGenerator
 		t.setVar("show.general", 1, "global.faction.text", Common._text(Faction.get(faction)
 				.getPages().getFactionText()));
 
-		return;
 	}
 
 	/**
@@ -2708,6 +2707,5 @@ public class ErsteigernController extends TemplateGenerator
 	{
 		this.redirect(Faction.get(faction).getPages().getFirstPage());
 
-		return;
 	}
 }

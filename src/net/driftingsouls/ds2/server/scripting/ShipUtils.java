@@ -88,7 +88,6 @@ public class ShipUtils {
 			
 			if( result == Ship.MovementStatus.BLOCKED_BY_EMP ) {
 				maxcount = 1;
-				continue;
 			}
 			else if( result != Ship.MovementStatus.SUCCESS ) {
 				MESSAGE.get().append("Ausfuehrung bis zum naechsten Tick angehalten\n\n");
@@ -97,8 +96,7 @@ public class ShipUtils {
 			// Nach einem Flug durch einen EMP-Nebel den Flug normal weiterfuehren
 			else if( oldMaxCount != maxcount ) {
 				maxcount = oldMaxCount;
-				
-				continue;
+
 			}
 			else {
 				break;

@@ -72,17 +72,17 @@ public class EditBuilding implements AdminPlugin
 			building.setEps(context.getRequest().getParameterInt("eps"));
 			building.setBewohner(context.getRequest().getParameterInt("room"));
 			building.setTechReq(context.getRequest().getParameterInt("tech"));
-			building.setUcomplex(context.getRequest().getParameterString("undergroundbuilding").equals("true") ? true : false);
+			building.setUcomplex(context.getRequest().getParameterString("undergroundbuilding").equals("true"));
 			building.setPerPlanet(context.getRequest().getParameterInt("perplanet"));
 			building.setPerOwner(context.getRequest().getParameterInt("perowner"));
-			building.setDeakable(context.getRequest().getParameterString("deactivable").equals("true") ? true : false);
+			building.setDeakable(context.getRequest().getParameterString("deactivable").equals("true"));
 			building.setCategory(context.getRequest().getParameterInt("category"));
 			building.setTerrain(context.getRequest().getParameterString("terrain"));
 			building.setBuildCosts(buildcosts);
 			building.setProduces(produces);
 			building.setConsumes(consumes);
 			building.setChanceRess(context.getRequest().getParameterString("chanceress"));
-			building.setShutDown(context.getRequest().getParameterString("shutdown").equals("true") ? true : false);
+			building.setShutDown(context.getRequest().getParameterString("shutdown").equals("true"));
 		}
 
 		if(buildingId > 0)

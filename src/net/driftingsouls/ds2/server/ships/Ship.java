@@ -3265,7 +3265,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		Taskmanager.getInstance().addTask(Taskmanager.Types.SHIP_DESTROY_COUNTDOWN, 21, Integer.toString(id), "", "" );
 
-		return;
 	}
 
 	/**
@@ -3555,7 +3554,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			}
 
 			return new ShipTypeDataPictureWrapper(shipdata != null ? shipdata : type,
-					!type.getPicture().equals(picture) ? true : false);
+					!type.getPicture().equals(picture));
 		}
 
 		if( shipdata != null ) {

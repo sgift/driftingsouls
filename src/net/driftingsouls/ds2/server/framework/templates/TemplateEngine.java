@@ -207,8 +207,7 @@ public class TemplateEngine {
 		if( log.isDebugEnabled() ) {
 			log.debug("Defined block "+handle+" in "+parent+". Replacement: "+name);
 		}
-		
-		return;
+
 	}
 	
 	/**

@@ -168,13 +168,11 @@ public class OptionsController extends TemplateGenerator {
 		if( del == 0 ) {
 			t.setVar( "options.delaccountform", 1 );
 
-			return;
 		}
 		else if( reason.length() < 5 ) {
 			t.setVar(	"options.message",			"Bitte geben sie Gr&uuml;nde f&uuml;r die L&ouml;schung an!<br />\n",
 						"options.delaccountform",	1 );
 
-			return;
 		}
 		else {
 			StringBuilder msg = new StringBuilder(100);
@@ -196,7 +194,6 @@ public class OptionsController extends TemplateGenerator {
 			t.setVar(	"options.delaccountresp",		1,
 						"delaccountresp.admins",		config.get("ADMIN_PMS_ACCOUNT") );
 
-			return;
 		}
 	}
 
@@ -251,7 +248,7 @@ public class OptionsController extends TemplateGenerator {
 		if( (scriptdebug != 0) && hasPermission("schiff", "script") ) {
 			parameterNumber("scriptdebugstatus");
 
-			boolean scriptdebugstatus = getInteger("scriptdebugstatus") != 0 ? true : false;
+			boolean scriptdebugstatus = getInteger("scriptdebugstatus") != 0;
 
 			if( scriptdebugstatus != user.hasFlag( User.FLAG_SCRIPT_DEBUGGING ) ) {
 				user.setFlag( User.FLAG_SCRIPT_DEBUGGING, scriptdebugstatus  );
@@ -437,7 +434,7 @@ public class OptionsController extends TemplateGenerator {
 		parameterNumber("showtooltip");
 		parameterNumber("wrapfactor");
 
-		boolean showtooltip = getInteger("showtooltip") != 0 ? true : false;
+		boolean showtooltip = getInteger("showtooltip") != 0;
 		int wrapfactor = getInteger("wrapfactor");
 
 		String changemsg = "";

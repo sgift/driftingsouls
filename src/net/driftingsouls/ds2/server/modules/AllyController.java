@@ -246,7 +246,6 @@ public class AllyController extends TemplateGenerator {
 
 		t.setVar( "ally.statusmessage", "Die beiden angegebenen Spieler wurden via PM benachrichtigt. Sollten sich beide zur Unterst&uuml;tzung entschlossen haben, wird die Allianz augenblicklich gegr&uuml;ndet. Du wirst au&szlig;erdem via PM benachrichtigt." );
 
-		return;
 	}
 
 	/**
@@ -332,7 +331,6 @@ public class AllyController extends TemplateGenerator {
 
 		t.setVar( "ally.statusmessage", "Der Aufnahmeantrag wurde weitergeleitet. Die Bearbeitung kann jedoch abh&auml;ngig von der Allianz l&auml;ngere Zeit in anspruch nehmen. Sollten sie aufgenommen werden, wird automatisch eine PM an sie gesendet." );
 
-		return;
 	}
 
 	/**
@@ -915,7 +913,7 @@ public class AllyController extends TemplateGenerator {
 		this.ally.setDescription(this.getString("desc"));
 		this.ally.setHp(this.getString("hp"));
 		this.ally.setAllyTag(allytag);
-		this.ally.setShowAstis(this.getInteger("showastis") != 0 ? true : false);
+		this.ally.setShowAstis(this.getInteger("showastis") != 0);
 		this.ally.setShowGtuBieter(this.getInteger("showGtuBieter") != 0);
 		this.ally.setPname(praesi);
 		this.ally.setShowLrs(this.getInteger("showlrs") != 0);

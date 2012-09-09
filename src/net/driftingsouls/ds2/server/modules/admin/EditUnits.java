@@ -73,7 +73,7 @@ public class EditUnits implements AdminPlugin
 			unit.setSize(context.getRequest().getParameterInt("size"));
 			unit.setDescription(context.getRequest().getParameterString("description"));
 			unit.setRes(context.getRequest().getParameterInt("forschung"));
-			unit.setHidden(context.getRequest().getParameterString("hidden").equals("true") ? true : false );
+			unit.setHidden(context.getRequest().getParameterString("hidden").equals("true"));
 
 			Cargo cargo = new Cargo(Cargo.Type.ITEMSTRING, context.getRequest().getParameter("buildcosts"));
 

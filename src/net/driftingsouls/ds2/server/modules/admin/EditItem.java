@@ -68,10 +68,10 @@ public class EditItem implements AdminPlugin
 				item.setEffect(ItemEffectFactory.fromContext(context));
 				item.setQuality(Quality.fromString(context.getRequest().getParameterString("quality")));
 				item.setDescription(context.getRequest().getParameterString("description"));
-				item.setHandel(context.getRequest().getParameterString("handel").equals("true") ? true : false);
+				item.setHandel(context.getRequest().getParameterString("handel").equals("true"));
 				item.setAccessLevel(context.getRequest().getParameterInt("accesslevel"));
-				item.setUnknownItem(context.getRequest().getParameterString("unknownitem").equals("true") ? true : false);
-				item.setSpawnableRess(context.getRequest().getParameterString("spawnableress").equals("true") ? true : false);
+				item.setUnknownItem(context.getRequest().getParameterString("unknownitem").equals("true"));
+				item.setSpawnableRess(context.getRequest().getParameterString("spawnableress").equals("true"));
 
 				echo.append("<p>Update abgeschlossen.</p>");
 			}
