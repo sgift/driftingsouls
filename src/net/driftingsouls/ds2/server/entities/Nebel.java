@@ -210,6 +210,10 @@ public class Nebel implements Locatable {
 		 */
 		public long modifiziereDeutFaktor(long faktor)
 		{
+			if( faktor <= 0 )
+			{
+				return 0;
+			}
 			long modfaktor = faktor + this.deutfaktor;
 			if( modfaktor < 0 )
 			{
