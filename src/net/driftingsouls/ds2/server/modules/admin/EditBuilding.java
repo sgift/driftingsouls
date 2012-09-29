@@ -10,6 +10,7 @@ import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.modules.AdminController;
 
 /**
@@ -27,12 +28,14 @@ public class EditBuilding implements AdminPlugin
 		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
 
-		int buildingId = context.getRequest().getParameterInt("building");
+		Request request = context.getRequest();
+		int buildingId = request.getParameterInt("building");
 		List<Building> buildings = Common.cast(db.createQuery("from Building").list());
 
 		// Update values?
-		boolean update = context.getRequest().getParameterString("change").equals("Aktualisieren");
+		boolean update = request.getParameterString("change").equals("Aktualisieren");
 
+		echo.append("<div class='gfxbox' style='width:300px'>");
 		echo.append("<form action=\"./ds\" method=\"post\">");
 		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
 		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
@@ -40,24 +43,25 @@ public class EditBuilding implements AdminPlugin
 		echo.append("<select size=\"1\" name=\"building\">");
 		for (Building building: buildings)
 		{
-			echo.append("<option value=\"" + building.getId() + "\" " + (building.getId() == buildingId ? "selected=\"selected\"" : "") + ">" + building.getName() + "</option>");
+			echo.append("<option value=\"" + building.getId() + "\" " + (building.getId() == buildingId ? "selected=\"selected\"" : "") + ">" + building.getName() + " ("+building.getId()+")</option>");
 		}
 		echo.append("</select>");
 		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
 		echo.append("</form>");
+		echo.append("</div>");
 
 
 		if(update && buildingId > 0)
 		{
-			Cargo buildcosts = new Cargo(Cargo.Type.ITEMSTRING,context.getRequest().getParameter("buildcosts"));
-			Cargo produces = new Cargo(Cargo.Type.ITEMSTRING,context.getRequest().getParameter("produces"));
-			Cargo consumes = new Cargo(Cargo.Type.ITEMSTRING,context.getRequest().getParameter("consumes"));
+			Cargo buildcosts = new Cargo(Cargo.Type.ITEMSTRING, request.getParameter("buildcosts"));
+			Cargo produces = new Cargo(Cargo.Type.ITEMSTRING, request.getParameter("produces"));
+			Cargo consumes = new Cargo(Cargo.Type.ITEMSTRING, request.getParameter("consumes"));
 
 			Building building = (Building)db.get(Building.class, buildingId);
-			building.setName(context.getRequest().getParameterString("name"));
-			building.setDefaultPicture(context.getRequest().getParameterString("picture"));
-			building.setArbeiter(context.getRequest().getParameterInt("worker"));
-			int energy = context.getRequest().getParameterInt("energy");
+			building.setName(request.getParameterString("name"));
+			building.setDefaultPicture(request.getParameterString("picture"));
+			building.setArbeiter(request.getParameterInt("worker"));
+			int energy = request.getParameterInt("energy");
 			if(energy < 0)
 			{
 				energy = -1 * energy;
@@ -69,20 +73,21 @@ public class EditBuilding implements AdminPlugin
 				building.setEProduktion(energy);
 				building.setEVerbrauch(0);
 			}
-			building.setEps(context.getRequest().getParameterInt("eps"));
-			building.setBewohner(context.getRequest().getParameterInt("room"));
-			building.setTechReq(context.getRequest().getParameterInt("tech"));
-			building.setUcomplex(context.getRequest().getParameterString("undergroundbuilding").equals("true"));
-			building.setPerPlanet(context.getRequest().getParameterInt("perplanet"));
-			building.setPerOwner(context.getRequest().getParameterInt("perowner"));
-			building.setDeakable(context.getRequest().getParameterString("deactivable").equals("true"));
-			building.setCategory(context.getRequest().getParameterInt("category"));
-			building.setTerrain(context.getRequest().getParameterString("terrain"));
+			building.setEps(request.getParameterInt("eps"));
+			building.setBewohner(request.getParameterInt("room"));
+			building.setTechReq(request.getParameterInt("tech"));
+			building.setUcomplex(request.getParameterString("undergroundbuilding").equals("true"));
+			building.setPerPlanet(request.getParameterInt("perplanet"));
+			building.setPerOwner(request.getParameterInt("perowner"));
+			building.setDeakable(request.getParameterString("deactivable").equals("true"));
+			building.setCategory(request.getParameterInt("category"));
+			building.setTerrain(request.getParameterString("terrain"));
 			building.setBuildCosts(buildcosts);
 			building.setProduces(produces);
 			building.setConsumes(consumes);
-			building.setChanceRess(context.getRequest().getParameterString("chanceress"));
-			building.setShutDown(context.getRequest().getParameterString("shutdown").equals("true"));
+			building.setChanceRess(request.getParameterString("chanceress"));
+			building.setShutDown(request.getParameterString("shutdown").equals("true"));
+			building.setRace(request.getParameterInt("race"));
 		}
 
 		if(buildingId > 0)
@@ -123,6 +128,7 @@ public class EditBuilding implements AdminPlugin
 			echo.append("<tr><td>Terrain: </td><td><input type=\"text\" name=\"terrain\" value=\"" + building.getTerrain() + "\"></td></tr>\n");
 			echo.append("<tr><td>Auto Abschalten: </td><td><input type=\"text\" name=\"shutdown\" value=\"" + building.isShutDown() + "\"></td></tr>\n");
 			echo.append("<tr><td>ChanceRess: </td><td><input type=\"text\" name=\"chanceress\" value=\"" + building.getChanceRess() + "\"></td></tr>\n");
+			echo.append("<tr><td>Rasse: </td><td><input type=\"text\" name=\"race\" value=\"" + building.getRace() + "\"></td></tr>\n");
 			echo.append("<tr><td>Baukosten: </td><td><input type='hidden' id='buildcosts' name='buildcosts' value='"+building.getBuildCosts().save()+"'></td></tr>\n");
 			echo.append("<tr><td>Verbraucht: </td><td><input type='hidden' id='consumes' name='consumes' value='"+building.getConsumes().save()+"'></td></tr>\n");
 			echo.append("<tr><td>Produziert: </td><td><input type='hidden' id='produces' name='produces' value='"+building.getProduces().save()+"'></td></tr>\n");
