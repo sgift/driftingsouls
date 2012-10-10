@@ -44,6 +44,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenera
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -588,12 +589,12 @@ public class CommController extends TemplateGenerator {
 			flags |= PM.FLAGS_OFFICIAL;
 		}
 
-		if( to.equals("task") ) {
+		if( "task".equals(to) ) {
 			t.setVar("show.message", "<span style=\"color:#00ff55\">Antwort verarbeitet</span>");
 
 			PM.send(user, PM.TASK, title, msg, flags );
 		}
-		else if( to.equals("ally") ) {
+		else if( "ally".equals(to) ) {
 			if( user.getAlly() == null ) {
 				t.setVar("show.message", "<span style=\"color:red; font-weight:bold\">Sie sind in keiner Allianz Mitglied</span>");
 
@@ -606,8 +607,8 @@ public class CommController extends TemplateGenerator {
 			PM.sendToAlly(user, user.getAlly(), title, msg, flags );
 		}
 		else {
-			if( (to.length() == 0) || (Integer.parseInt(to) == 0) ) {
-				t.setVar("show.message", "<span style=\"color:#ff0000\">Sie m&uuml;ssen einen Empf&auml;nger angeben</span>");
+			if( (to.length() == 0) || !NumberUtils.isNumber(to) || Integer.parseInt(to) == 0 ) {
+				t.setVar("show.message", "<span style=\"color:#ff0000\">Sie m&uuml;ssen einen gülten Empf&auml;nger angeben</span>");
 				return;
 			}
 
