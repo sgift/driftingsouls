@@ -35,7 +35,7 @@
 						</thead>
 						<tbody>
 							<tr ng-repeat="lp in lpListe">
-								<td>{{lp.zeitpunkt.time | date:'medium'}}</td>
+								<td>{{lp.zeitpunkt | date:'medium'}}</td>
 								<td>
 									<a href="./ds?module=userprofile&action=default;&user={{lp.verliehenDurch.id}}">
 										<span ng-bind-html-unsafe="lp.verliehenDurch.name"></span>
