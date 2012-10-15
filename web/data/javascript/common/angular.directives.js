@@ -10,10 +10,16 @@ angular.module('jquery-ui.directives', [])
 			element
 				.autocomplete({
 					source : items,
-					html : false
+					html : false,
+					select : function( event, ui ) {
+						element.trigger('input');
+					},
+					change : function( event, ui ) {
+						element.trigger('input');
+					}
 				})
 				.blur(function() {
-					scope[elemName] = element.val();
+					element.trigger('input');
 				});
 		});
 	};
@@ -31,10 +37,16 @@ angular.module('ds.directives', [])
 		element
 			.autocomplete({
 				source : items,
-				html : true
+				html : true,
+				select : function( event, ui ) {
+					element.trigger('input');
+				},
+				change : function( event, ui ) {
+					element.trigger('input');
+				}
 			})
 			.blur(function() {
-				scope[elemName] = element.val();
+				element.trigger('input');
 			});
 	};
 })

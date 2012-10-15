@@ -61,6 +61,7 @@ import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
@@ -1411,7 +1412,7 @@ public class User extends BasicUser implements JSONSupport {
 
 	/**
 	 * Gibt zurueck, ob der Einheitentyp dem User bekannt ist.
-	 * @param id Die ID des Einheitentyps
+	 * @param unitType Die ID des Einheitentyps
 	 * @return <code>true</code>, falls die Einheit dem User bekannt ist, sonst <code>false</code>
 	 */
 	public boolean isKnownUnit(UnitType unitType) {
@@ -1566,5 +1567,54 @@ public class User extends BasicUser implements JSONSupport {
 			}
 		}
 		return total;
+	}
+
+	/**
+	 * <p>Ermittelt zu einem gegebenen Identifier den Benutzer. Ein Identifier
+	 * kann die ID des Benutzers oder sein (unformatierter) Name sein.
+	 * Beim Namen werden auch teilweise Matches beruecksichtigt.</p>
+	 * <p>Es wird nur dann ein User-Objekt zurueckgegeben, wenn
+	 * zu dem gegebenen Identifier genau ein Benutzer ermittelt
+	 * werden kann (Eindeutigkeit).</p>
+	 * @param identifier Der Identifier
+	 * @return Der passende Benutzer oder <code>null</code>
+	 */
+	public static User lookupByIdentifier(String identifier)
+	{
+		if( identifier.isEmpty() )
+		{
+			return null;
+		}
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		if( NumberUtils.isNumber(identifier) )
+		{
+			try
+			{
+				User user = (User)db.get(User.class, Integer.parseInt(identifier));
+				if( user != null && user.getId() != 0 )
+				{
+					return user;
+				}
+			}
+			catch( NumberFormatException e )
+			{
+				// Keine gueltige ID - anders weiter versuchen
+			}
+		}
+
+		List<User> users = Common.cast(
+			db.createQuery("select u from User u where plainname like :name and id<>0")
+				.setParameter("name", "%"+identifier+"%")
+				.setMaxResults(2)
+				.list());
+
+		if( users.size() == 1 )
+		{
+			// Nur bei Eindeutigkeit den User zurueckgeben
+			// um "Unfaelle" zu vermeiden
+			return users.iterator().next();
+		}
+
+		return null;
 	}
 }

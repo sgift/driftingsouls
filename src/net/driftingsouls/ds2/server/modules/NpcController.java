@@ -198,14 +198,14 @@ public class NpcController extends AngularGenerator {
 			return JSONUtils.failure("Sie sind nicht berechtigt auf dieses Menü zuzugreifen");
 		}
 
-		this.parameterNumber("edituser");
+		this.parameterString("edituser");
 		this.parameterNumber("medal");
 		this.parameterString("reason");
-		int edituserID = this.getInteger("edituser");
+		String edituserID = this.getString("edituser");
 		int medal = this.getInteger("medal");
 		String reason = this.getString("reason");
 
-		User edituser = (User)getContext().getDB().get(User.class, edituserID);
+		User edituser = User.lookupByIdentifier(edituserID);
 
 		if( edituser == null ) {
 			return JSONUtils.failure("Der angegebene Spieler existiert nicht");
@@ -253,12 +253,12 @@ public class NpcController extends AngularGenerator {
 	public JSONObject changeRankAction() {
 		User user = (User)this.getUser();
 
-		this.parameterNumber("edituser");
+		this.parameterString("edituser");
 		this.parameterNumber("rank");
-		int edituserID = this.getInteger("edituser");
+		String edituserID = this.getString("edituser");
 		int rank = this.getInteger("rank");
 
-		User edituser = (User)getContext().getDB().get(User.class, edituserID);
+		User edituser = User.lookupByIdentifier(edituserID);
 		
 		if( edituser == null ) {
 			return JSONUtils.failure("Der angegebene Spieler existiert nicht");
@@ -276,12 +276,12 @@ public class NpcController extends AngularGenerator {
 	@Action(ActionType.AJAX)
 	public JSONObject deleteLpAction()
 	{
-		parameterNumber("edituser");
+		parameterString("edituser");
 		parameterNumber("lp");
-		int edituserID = getInteger("edituser");
+		String edituserID = getString("edituser");
 		int lpId = getInteger("lp");
 
-		User edituser = (User)getDB().get(User.class, edituserID);
+		User edituser = User.lookupByIdentifier(edituserID);
 		if( edituser == null )
 		{
 			return JSONUtils.failure("Der Spieler existiert nicht");
@@ -315,10 +315,10 @@ public class NpcController extends AngularGenerator {
 	{
 		User user = (User)this.getUser();
 
-		parameterNumber("edituser");
-		int edituserID = getInteger("edituser");
+		parameterString("edituser");
+		String edituserID = getString("edituser");
 
-		User edituser = (User)getDB().get(User.class, edituserID);
+		User edituser = User.lookupByIdentifier(edituserID);
 		if( edituser == null )
 		{
 			return JSONUtils.failure("Benutzer nicht gefunden");
@@ -357,15 +357,15 @@ public class NpcController extends AngularGenerator {
 	{
 		User user = (User)this.getUser();
 
-		parameterNumber("edituser");
-		int edituserID = getInteger("edituser");
+		parameterString("edituser");
+		String edituserID = getString("edituser");
 		
 		JSONObject result = new JSONObject();
 		fillCommonMenuResultData(result);
 
-		User edituser = (User)getDB().get(User.class, edituserID);
+		User edituser = User.lookupByIdentifier(edituserID);
 
-		if( edituser == null || edituserID == 0 ) {
+		if( edituser == null ) {
 			return result;
 		}
 
@@ -398,15 +398,15 @@ public class NpcController extends AngularGenerator {
 	public JSONObject raengeMenuAction() {
 		User user = (User)this.getUser();
 
-		parameterNumber("edituser");
-		int edituserID = getInteger("edituser");
+		parameterString("edituser");
+		String edituserID = getString("edituser");
 
-		User edituser = (User)getDB().get(User.class, edituserID);
+		User edituser = User.lookupByIdentifier(edituserID);
 		
 		JSONObject result = new JSONObject();
 		fillCommonMenuResultData(result);
 
-		if( edituser == null || edituserID == 0 ) {
+		if( edituser == null ) {
 			return result;
 		}
 

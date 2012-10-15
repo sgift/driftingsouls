@@ -13,7 +13,7 @@ var DsAutoComplete = {
 			var data = [];
 			for( var i=0; i < result.users.length; i++ ) {
 				var user = result.users[i];
-				data.push({label: user.name+" ("+user.id+")", value:user.id});
+				data.push({label: user.name+" ("+user.id+")", value:user.plainname});
 			}
 			response(data);
 		});

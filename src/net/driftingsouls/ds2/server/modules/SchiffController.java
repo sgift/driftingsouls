@@ -243,10 +243,10 @@ public class SchiffController extends TemplateGenerator {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
 
-		parameterNumber("newowner");
-		int newownerID = getInteger("newowner");
+		parameterString("newowner");
+		String newownerID = getString("newowner");
 
-		User newowner = (User)db.get(User.class, newownerID);
+		User newowner = User.lookupByIdentifier(newownerID);
 		if( newowner == null ) {
 			t.setVar("ship.message", "<span style=\"color:red\">Der Spieler existiert nicht</span><br />");
 			redirect();

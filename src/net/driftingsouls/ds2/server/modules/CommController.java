@@ -607,21 +607,14 @@ public class CommController extends TemplateGenerator {
 			PM.sendToAlly(user, user.getAlly(), title, msg, flags );
 		}
 		else {
-			if( (to.length() == 0) || !NumberUtils.isNumber(to) || Integer.parseInt(to) == 0 ) {
-				t.setVar("show.message", "<span style=\"color:#ff0000\">Sie m&uuml;ssen einen gülten Empf&auml;nger angeben</span>");
-				return;
-			}
-
-			int iTo = Integer.parseInt(to);
-
-			User auser = (User)getContext().getDB().get(User.class, iTo);
+			User auser = User.lookupByIdentifier(to);
 			if( auser == null ) {
-				t.setVar("show.message", "<span style=\"color:#ff0000\">Der angegebene Empf&auml;ger ist ung&uuml;ltig</span>");
+				t.setVar("show.message", "<span style=\"color:#ff0000\">Sie m&uuml;ssen einen gülten Empf&auml;nger angeben</span>");
 				return;
 			}
 			t.setVar("show.message", "<span style=\"color:#00ff55\">Nachricht versendet an</span> "+Common._title(auser.getName()));
 
-			PM.send(user, iTo, title, msg, flags );
+			PM.send(user, auser.getId(), title, msg, flags );
 		}
 	}
 
