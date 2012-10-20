@@ -171,7 +171,7 @@ public abstract class DSGenerator extends Generator {
 			}
 			final boolean devMode = !"true".equals(this.config.get("PRODUCTION"));
 
-			sb.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n");
+			sb.append("<!DOCTYPE html>\n");
 			sb.append("<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"de\" lang=\"de\">\n");
 			sb.append("<head>\n");
 			sb.append("<title>Drifting Souls 2</title>\n");
