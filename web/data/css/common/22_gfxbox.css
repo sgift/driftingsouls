@@ -3,7 +3,7 @@
 */
 
 div.gfxbox {
-	border-style: none;
+	border-style: solid;
 
 	-webkit-border-image: url('./data/interface/border/border.gif') 18 19 18 19 repeat;
 	-moz-border-image: url('./data/interface/border/border.gif') 18 19 repeat;
