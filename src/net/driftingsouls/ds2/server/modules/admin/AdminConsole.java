@@ -62,7 +62,7 @@ public class AdminConsole implements AdminPlugin {
 		}
 		
 		if( (cmd.length() > 0) && (cleanpage == 0) ) {
-			echo.append(Common.tableBegin(400,"left"));
+			echo.append("<div class='gfxbox' style='width:440px'>");
 			echo.append("<table class=\"noBorderX\">\n");
 			echo.append("<tr>\n");
 			echo.append("<td class=\"noBorderX\">\n");
@@ -70,7 +70,7 @@ public class AdminConsole implements AdminPlugin {
 			echo.append("</td>\n");
 			echo.append("</tr>\n");
 			echo.append("</table>\n");
-			echo.append(Common.tableEnd());
+			echo.append("</div>");
 			echo.append("<br /><br />\n");
 		}
 		if( cleanpage == 0 ) {

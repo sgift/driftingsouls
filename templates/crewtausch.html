@@ -2,7 +2,7 @@
 {if crewtausch.transfer}
 	<img src="{URL}data/interface/besatzung.gif" alt="Crew" />{transfer.count} {if transfer.way.to}zur{else}von{/endif} {target.name} transferiert<br /><br />
 {/endif}
-{!table_begin 400,left}
+<div class="gfxbox" style="width:440px">
 	<div align="center">
 		{ship.name} ({ship.id}) zu {target.name} ({target.id})<br /><br />
 	</div>
@@ -23,7 +23,7 @@
 		&nbsp;&nbsp;
 		<input type="submit" value="von {target.name} transferieren" /><br />
 	</form>
-{!table_end}
+</div>
 <br />{!link_to zur&uuml;ck, default, css_class:back, module:schiff, ship:$ship.id}
 {if global.mode.ss}
 	 | {!link_to zum Zielschiff, default, css_class:back, module:schiff, ship:$target.id}

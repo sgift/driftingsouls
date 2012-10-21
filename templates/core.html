@@ -1,6 +1,6 @@
 {if core.build}
 	<span class="smallfont">
-		{!table_begin 450,center}
+		<div class="gfxbox" style="width:490px;text-align:center">
 		<table class="noBorder" cellpadding="1" cellspacing="1">
 		<!-- BEGIN build.res.listitem -->
 			<tr>
@@ -26,7 +26,7 @@
 		{if build.message}
 			<br />{build.message}
 		{/endif}
-		{!table_end}
+		</div>
 	</span>
 	<br />
 	<br />
@@ -38,7 +38,7 @@
 	<br /><br />
 {/endif}
 {if base.core}
-	{!table_begin 420,left}
+	<div class="gfxbox" style="width:460px">
 		<div align="center">
 			<img align="middle" src="{URL}data/starmap/kolonie{core.astitype}_lrs/kolonie{core.astitype}_lrs.png" alt="" />{core.name}
 		</div><br />
@@ -78,10 +78,10 @@
 		{else}
 			Aktionen: {!link_to aktivieren, activate, css_class:ok, col:$base.id}<br />
 		{/endif}
-	{!table_end}
+	</div>
 {else}
 	{if cores.list}
-		{!table_begin 900,left}
+		<div class="gfxbox" style="width:940px">
 			<table class="noBorderX">
 			<tr>
 				<td class="noBorderX">Name</td>
@@ -152,11 +152,11 @@
 				</tr>
 			<!-- END cores.listitem -->
 			</table>
-		{!table_end}
+		</div>
 	{else}
-		{!table_begin 450,center}
+		<div class="gfxbox" style="width:490px;text-align:center">
 			Sie haben noch nicht die n&ouml;tigen Forschungen um eine passende Core bauen zu k&ouml;nnen<br />
-		{!table_end}
+		</div>
 	{/endif}
 {/endif}
 <br />

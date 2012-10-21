@@ -5,19 +5,19 @@
 	{!link_to Fehler: Sie m&uuml;ssen die Waren erst komplett bezahlen, default, css_class:error, module:schiff, ship:$global.shipid}
 {/endif}
 {if global.transferlist}
-	{!table_begin 500,center}
+	<div class="gfxbox" style="width:540px;text-align:center">
 		Transferiere Waren<br /><br />
 		<!-- BEGIN transferlist.res.listitem -->
 			<img border="0" src="{res.image}"alt="" />{res.name} {res.cargo} 
 		<!-- END transferlist.res.listitem -->
-	{!table_end}
+	</div>
 	<br />
 	{if transferlist.backlink}
 		<a class="back" href="./ds?module=gtuzwischenlager&ship={global.shipid}">zur&uuml;ck</a>
 	{/endif}
 {/endif}
 {if global.tradelist}
-	{!table_begin 600,left}
+	<div class="gfxbox" style="width:640px">
 		<div align="center">
 			Handelsliste<br /><br />
 		</div>
@@ -67,12 +67,12 @@
 		</tr>
 		<!-- END tradelist.listitem -->
 		</table>
-	{!table_end}
+	</div>
 	<br />
 	{!link_to zur&uuml;ck, default, css_class:back, module:schiff, ship:$global.shipid}
 {/endif}
 {if global.entry}
-	{!table_begin 500,left}
+	<div class="gfxbox" style="width:540px">
 		<div align="center">
 			Handelseintrag<br /><br />
 		</div>
@@ -111,7 +111,7 @@
 			</tr>
 		{/endif}
 		</table>
-	{!table_end}
+	</div>
 	<br />
 	<a style="font-size:16px" class="back" href="./ds?module=gtuzwischenlager&ship={global.shipid}">zur&uuml;ck</a>
 {/endif}

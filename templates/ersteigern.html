@@ -68,15 +68,15 @@
 	{/endif}
 </div>
 {if show.ueberweisen}
-	{!table_begin 400,center}
+	<div class="gfxbox" style="width:440px;text-align:center">
 		{ueberweisen.betrag} RE an {ueberweisen.to.name} ({ueberweisen.to}) &uuml;berweisen?<br />
 		{!link_to ja, ueberweisen, css_class:ok, to:$ueberweisen.to, count:$ueberweisen.betrag.plain, ack:yes, faction:$global.faction, token:$ueberweisen.token}&nbsp;|&nbsp;
 		{!link_to nein, bank, css_class:error, faction:$global.faction}<br />
-	{!table_end}
+	</div>
 	<br />
 {/endif}
 {if show.bid.entry}
-	{!table_begin 630,left}
+	<div class="gfxbox" style="width:670px">
 		<form action="./ds" method="post">
 		<table class="noBorderX" cellspacing="3" cellpadding="3">
 		<tr>
@@ -105,23 +105,23 @@
 		</tr>
 		</table>
 		</form>
-	{!table_end}
+	</div>
 {/endif}
 
 {if show.versteigerungen}
 	{if gtuzwischenlager.list}
-		{!table_begin 630,left}
+		<div class="gfxbox" style="width:670px">
 			<span style="color:red">Es warten noch Waren an folgenden GTU-Posten auf Abholung:</span><br />
 			<ul>
 			<!-- BEGIN gtuzwischenlager.listitem -->
 				<li>{gtuzwischenlager.name} - {gtuzwischenlager.system}:{gtuzwischenlager.x}/{gtuzwischenlager.y}</li>
 			<!-- END gtuzwischenlager.listitem -->
 			</ul>
-		{!table_end}
+		</div>
 		<br />
 	{/endif}
 
-	{!table_begin 630,left}
+	<div class="gfxbox" style="width:670px">
 		<table class="noBorderX" cellspacing="3" cellpadding="3" width="100%">
 		<tr><td class="noBorderX" align="center" style="width:170px">Typ</td><td class="noBorderX">Gebot</td><td class="noBorderX">H&ouml;chstbietender</td><td class="noBorderX">Dauer</td></tr>
 		<!-- BEGIN entry.listitem -->
@@ -176,7 +176,7 @@
 		<!-- END entry.listitem -->
 
 		</table><br />
-	{!table_end}
+	</div>
 	<div class="smallfont">
 		<br />
 		<br />
@@ -202,13 +202,13 @@
 	<tr>
 		<!-- BEGIN angebote.item -->
 		<td class="noBorder" style="width:27%" valign="top">
-			{!table_begin 100%,center}
+			<div class="gfxbox" style="width:100%;text-align:center">
 				<div style="font-weight:bold; font-size:15px; text-align:center">{angebot.title}<br />
 				<img src="{URL}{angebot.image}" alt="" /></div><br />
 				<div style="text-align:left">
 					{angebot.description}
 				</div>
-			{!table_end}
+			</div>
 		</td>
 		{if angebot.linebreak}
 		</tr>
@@ -281,7 +281,7 @@
 					document.getElementsByName('form_ausbau')[0].submit();
 				}
 			</script>
-			{!table_begin 650,center}
+			<div class="gfxbox" style="width:690px;text-align:center">
 			<table class="noBorderX" width="100%">
 				<tr>
 					<td class="noBorderX" style="width=150px; text-align:right">
@@ -395,7 +395,7 @@
 					</td>
 				</tr>
 			</table>
-			{!table_end}
+			</div>
 		</div>
 	</form>
 {/endif}
@@ -431,7 +431,7 @@
 		</td>
 	</tr>
 	</table>
-	{!table_begin 650,left}
+	<div class="gfxbox" style="width:690px;text-align:center">
 		<div style="height:200px; width:610px; overflow:auto; padding:4px">
 			<table class="noBorderX" width="100%">
 			<tr>
@@ -463,7 +463,7 @@
 			<!-- END moneytransfer.listitem -->
 			</table>
 		</div>
-	{!table_end}
+	</div>
 {/endif}
 {if show.other}
 	<div class="smallfont">
@@ -516,16 +516,16 @@
 	</div>
 {/endif}
 {if show.general}
-	{!table_begin 530,center}
+	<div class="gfxbox" style="width:570px;text-align:center">
 		<div style="text-align:center;font-size:25px;font-style:italic;font-weight:bold">
 			{global.faction.name}
 		</div>
 		<br />
 		{global.faction.text}
-	{!table_end}
+	</div>
 {/endif}
 {if show.shopOrderGanymedeSummary}
-	{!table_begin 530}
+	<div class="gfxbox" style="width:570px;text-align:center">
 		<div style="text-align:center;font-size:16px">
 			Ganymede-Transport
 			<br />
@@ -588,10 +588,10 @@
 			</tr>
 		{/endif}
 		</table>
-	{!table_end}
+	</div>
 {/endif}
 {if show.shopOrderGanymede}
-	{!table_begin 530}
+	<div class="gfxbox" style="width:570px;text-align:center">
 		<div style="text-align:center;font-size:16px">
 			Ganymede-Transport
 			<br />
@@ -675,10 +675,10 @@
 				Sie verf&uuml;gen &uuml;ber keine Ganymedes
 			</div>
 		{/endif}
-	{!table_end}
+	</div>
 {/endif}
 {if show.shopOrderLocation}
-	{!table_begin 530,center}
+	<div class="gfxbox" style="width:570px;text-align:center">
 		<div style="text-align:center;font-size:16px">
 			Lieferkoordinaten
 			<br />
@@ -697,7 +697,7 @@
 				<input type="submit" value="bestellen" style="width:150px" />
 			</div>
 		</form>
-	{!table_end}
+	</div>
 {/endif}
 {if show.shop}
 	{if shop.orderlist.list}

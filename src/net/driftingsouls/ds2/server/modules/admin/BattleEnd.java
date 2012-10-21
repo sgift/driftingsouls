@@ -48,7 +48,7 @@ public class BattleEnd implements AdminPlugin
 				
 		if( battleid == 0 ) 
 		{
-			echo.append(Common.tableBegin(500, "center"));
+			echo.append("<div class='gfxbox' style='width:540px;text-align:center'>");
 			
 			org.hibernate.Session db = context.getDB();
 			
@@ -94,7 +94,7 @@ public class BattleEnd implements AdminPlugin
 			echo.append("<input type=\"submit\" value=\"beenden\" style=\"width:100px\"/>");
 			echo.append("</form>");
 			
-			echo.append(Common.tableEnd());
+			echo.append("</div>");
 		}
 		else 
 		{

@@ -655,7 +655,7 @@ public class Fabrik extends DefaultBuilding {
 		/*
 			Ausgabe: Verbrauch, Auftraege, Liste baubarer Munitionstypen
 		*/
-		echo.append(Common.tableBegin(1060, "left"));
+		echo.append("<div class='gfxbox' style='width:1100px'>");
 
 		echo.append("<img style=\"vertical-align:middle\" src=\""+config.get("URL")+"data/interface/time.gif\" alt=\"Zeiteinheiten\" />"+usedcapacity+"/"+wf.getCount()+" ausgelastet<br />\n");
 		echo.append("Verbrauch: ");
@@ -806,7 +806,7 @@ public class Fabrik extends DefaultBuilding {
 		}
 
 		echo.append("</table><br />\n");
-		echo.append(Common.tableEnd());
+		echo.append("</div>");
 		echo.append( "<div><br /></div>\n");
 
 		return echo.toString();

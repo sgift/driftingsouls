@@ -3,10 +3,10 @@
 	<td class="noBorderS" style="text-align:center;font-size:12px">Kommandozentrale<br />{base.name}</td>
 	<td class="noBorder">&nbsp;</td>
 	<td class="noBorderS">
-		{!table_begin 440,center}
+		<div class="gfxbox" style="width:480px;text-align:center">
 			{!link_to Allgemein, default, col:$base.id, field:$base.field, show:general}&nbsp;
 			&nbsp;|&nbsp;&nbsp;{!link_to Automatischer Verkauf, default, col:$base.id, field:$base.field, show:autogtu}
-		{!table_end}
+		</div>
 	</td>
 </tr>
 </table>
@@ -18,7 +18,7 @@
 {/endif}
 
 {if show.autogtu}
-	{!table_begin 568, center}
+	<div class="gfxbox" style="width:608px;text-align:center">
 		<div style="text-align:left">Verkaufsauftr&auml;ge:<br /><br /></div>
 		<form action="ds" method="post">
 			<table class="noBorderX" width="100%">
@@ -71,13 +71,13 @@
 			</table>
 			{!form_create_hidden default, col:$base.id, field:$base.field, baction:gtuadd, show:autogtu}
 		</form>
-	{!table_end}
+	</div>
 	<div class="smallfont">
 		<br />
 	</div>
 {/endif}
 {if show.general}
-	{!table_begin 430,center}
+	<div class="gfxbox" style="width:470px;text-align:center">
 		<table class="noBorderX" cellpadding="2">
 		<tr>
 			<td class="noBorderX"><span style="font-weight:bold">Aktion</span></td>
@@ -124,21 +124,21 @@
 			</td>
 		</tr>
 		</table>
-	{!table_end}
+	</div>
 	<div class="smallfont">
 		<br />
 		{if general.itemconsign.list}
 			</div>
-			{!table_begin 430,left}
+			<div class="gfxbox" style="width:470px">
 		{else}
 			{if general.shiptransfer.list}
 				</div>
-				{!table_begin 430,left}
+				<div class="gfxbox" style="width:470px">
 				<span style="font-weight:bold">Waren transferieren:</span><br />
 			{else}
 				{if general.basetransfer.list}
 					</div>
-					{!table_begin 430,left}
+					<div class="gfxbox" style="width:470px">
 					<span style="font-weight:bold">Waren transferieren:</span><br />
 				{/endif}
 			{/endif}
@@ -200,22 +200,22 @@
 		<!-- END general.basetransfer.listitem -->
 		
 		{if general.itemconsign.list}
-			{!table_end}
+			</div>
 			<br />
 		{else}
 			{if general.shiptransfer.list}
-				{!table_end}
+				</div>
 				<br />
 			{else}
 				{if general.basetransfer.list}
-					{!table_end}
+					</div>
 					<br />
 				{/endif}
 			{/endif}
 		{/endif}
 	</div>
-	
-	{!table_begin 430,center}
+
+	<div class="gfxbox" style="width:470px;text-align:center">
 		<form action="./ds" method="post">
 		<table class="noBorderX" cellpadding="2" width="100%">
 		<tr>
@@ -244,7 +244,7 @@
 		</tr>
 		</table>
 		</form>
-	{!table_end}
+	</div>
 	
 	<div class="smallfont">
 		<br />

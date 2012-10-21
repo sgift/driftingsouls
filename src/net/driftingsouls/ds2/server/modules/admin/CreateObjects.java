@@ -185,7 +185,7 @@ public class CreateObjects implements AdminPlugin {
 		echo.append("}\n");
 		echo.append("//-->\n");
 		echo.append("</script>\n");
-		echo.append(Common.tableBegin( 300, "left" ));
+		echo.append("<div class='gfxbox' style='width:340px'>");
 		echo.append("<form action=\"./ds\" method=\"post\">\n");
 		echo.append("<table class=\"noBorderX\" border=\"1\">\n");
 		echo.append("<tr>\n");
@@ -217,7 +217,7 @@ public class CreateObjects implements AdminPlugin {
 		echo.append("</form>");
 		echo.append("</font>");
 		
-		echo.append(Common.tableEnd());
+		echo.append("</div>");
 		
 		if( system != 0 ) {
 			echo.append("Bearbeite System: "+system+"<br />\n");

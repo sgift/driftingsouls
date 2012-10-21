@@ -7,7 +7,7 @@
 			<td class="noBorderS">{user.ally.name}</td>
 			<td class="noBorder">&nbsp;</td>
 			<td class="noBorder">
-				{!table_begin 650,center}
+				<div class="gfxbox" style="width:690px;text-align:center">
 					{!link_to Allgemeines, default, module:ally, show:allgemein}
 					|
 					{!link_to Mitglieder, showMembers, module:ally, show:members}
@@ -23,7 +23,7 @@
 					{!link_to Allianzen auflisten, default, module:allylist}
 					|
 					{!link_to Austreten, part, css_class:error, module:ally, show:$show}
-				{!table_end}
+				</div>
 			</td>
 		</tr>
 		</table>
@@ -33,13 +33,13 @@
 			<td class="noBorderS">Keine Allianz</td>
 			<td class="noBorder">&nbsp;</td>
 			<td class="noBorder">
-				{!table_begin 600,center}
+				<div class="gfxbox" style="width:640px;text-align:center">
 					{!link_to Allianz beitreten, defaultNoAlly, module:ally, show:join}
 					&nbsp;|&nbsp;
 					{!link_to Allianz gr&uuml;nden, showCreateAlly, module:ally, show:create}
 					&nbsp;|&nbsp;
 					{!link_to Allianzen auflisten, default}
-				{!table_end}
+				</div>
 			</td>
 		</tr>
 		</table>
@@ -54,7 +54,7 @@
 		{/endif}
 		{if allylist.showally}
 			<div style="text-align:center">
-			{!table_begin 700,left}
+			<div class="gfxbox" style="width:740px">
 				<table class="noBorderX" width="100%">
 				<tr>	
 					<td class="noBorderX" style="width:75px">
@@ -144,12 +144,12 @@
  				{/endif}
  				</table>
  				<br />			
-			{!table_end}
+			</div>
 			</div>
 		{/endif}
 		{if allylist.showlist}
 			<!-- BEGIN allylist.ally.listitem -->
-				{!table_begin 400,center}
+				<div class="gfxbox" style="width:660px;text-align:center">
 					<table class="noBorderX" width="620">
 					<tr>
 						<td class="noBorderX" style="width:75px">
@@ -167,7 +167,7 @@
 						</td>
 					</tr>
 					</table>
-				{!table_end}
+				</div>
 			<!-- END allylist.ally.listitem -->
 		{/endif}
 	</td>

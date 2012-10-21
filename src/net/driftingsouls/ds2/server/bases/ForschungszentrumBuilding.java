@@ -409,12 +409,12 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		//Neue Forschung & Bereits erforscht
 		echo.append("<td class=\"noBorderS\">\n");
 
-		echo.append(Common.tableBegin( 440, "center" ));
+		echo.append("<div class='gfxbox' style='width:480px;text-align:center'>");
 
 		echo.append("<a class=\"forschinfo\" href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"&amp;show=newres\">Neue Forschung</a>&nbsp;\n");
 		echo.append("&nbsp;|&nbsp;&nbsp;<a class=\"forschinfo\" href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"&amp;show=oldres\">Bereits erforscht</a>\n");
 
-		echo.append(Common.tableEnd());
+		echo.append("</div>");
 
 		echo.append("</td>\n");
 		echo.append("</tr>\n");
@@ -422,7 +422,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		echo.append("<td colspan=\"3\" class=\"noBorderS\">\n");
 		echo.append("<br />\n");
 
-		echo.append(Common.tableBegin( 570, "left" ));
+		echo.append("<div class='gfxbox' style='width:610px'>");
 
 		if( (kill.length() != 0) || (research != 0) ) {
 			if( kill.length() != 0 ) {
@@ -441,7 +441,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 			alreadyResearched( context, echo );
 		}
 
-		echo.append(Common.tableEnd());
+		echo.append("</div>");
 
 		echo.append("<br />\n");
 		echo.append("</td>\n");

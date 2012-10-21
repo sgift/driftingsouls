@@ -48,14 +48,14 @@
 		<tr>
 			<td class="noBorderS">
 				{if message}
-					{!table_begin 550,left}
+					<div class="gfxbox" style="width:590px">
 						{message}
-					{!table_end}
+					</div>
 					<br />
 				{/endif}
 				{if interactivetutorial.show}
 					<br />
-					{!table_begin 700,left}
+					<div class="gfxbox" width="740px">
 						<table style="width:100%" class="noBorderX">
 						<tr>
 							<td class="noBorderX" valign="top">
@@ -77,7 +77,7 @@
 							</td>
 						</tr>
 						</table>
-					{!table_end}
+					</div>
 				{/endif}
 				<br />
 				{if global.battlelist}
@@ -94,7 +94,7 @@
 	</td>
 	<td class="noBorderS" valign="top">
 		<!-- BEGIN quests.listitem -->
-			{!table_begin 280,left}
+			<div class="gfxbox" style="width:330px">
 				<table class="noBorderX">
 				<tr><td class="noBorderX" style="font-size:12px; text-align:center">{quest.name}</td><td class="noBorderX" style="width:20px;align:right">{!link_to x,stopQuest,css_class:error, questid:$quest.id}</td></tr>
 				<tr>
@@ -103,7 +103,7 @@
 					</td>
 				</tr>
 				</table>
-			{!table_end}
+			</div>
 		<!-- END quests.listitem -->
 	</td>
 </tr>
@@ -112,7 +112,7 @@
 <table class="noBorder">
 <tr>
 	<td class="noBorderS">
-		{!table_begin 440,left}
+		<div class="gfxbox" style="width:480px">
 			<div style="text-align:center; font-weight:bold">
 				Bookmarks
 			</div>
@@ -127,10 +127,10 @@
 					- {bookmark.shiptype} - {bookmark.location}<br />
 				<!-- END bookmarks.listitem -->
 			</div>
-		{!table_end}
+		</div>
 	</td>
 	<td class="noBorderS" valign="top">
-		{!table_begin 440,left}
+		<div class="gfxbox" style="width:480px">
 			<div style="text-align:center; font-weight:bold">
 				Flotten
 			</div>
@@ -141,7 +141,7 @@
 					- {fleet.shipcount} Schiffe - {fleet.location}<br />
 				<!-- END fleets.listitem -->
 			</div>
-		{!table_end}
+		</div>
 	</td>
 </tr>
 <tr>

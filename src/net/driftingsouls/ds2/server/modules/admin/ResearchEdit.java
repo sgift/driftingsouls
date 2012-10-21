@@ -83,7 +83,7 @@ public class ResearchEdit implements AdminPlugin {
 
 		//Spezialforschungen ignorieren
 		if( techid <= 0 ) {
-			echo.append(Common.tableBegin( 450, "left" ));
+			echo.append("<div class='gfxbox' style='width:490px'>");
 
 			echo.append("<form action=\"./ds\" method=\"post\">\n");
 			echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
@@ -101,18 +101,18 @@ public class ResearchEdit implements AdminPlugin {
 			echo.append("<input type=\"submit\" value=\"bearbeiten\" />\n");
 			echo.append("</form>\n");
 
-			echo.append(Common.tableEnd());
+			echo.append("</div>");
 		}
 		else {
 			Forschung research = (Forschung)db.get(Forschung.class, techid);
 
-			echo.append(Common.tableBegin( 900, "left" ));
+			echo.append("<div class='gfxbox' style='width:940px'>");
 			echo.append("<form action=\"ds\" method=\"post\">\n");
 			echo.append("<table class=\"noBorderX\" cellpadding=\"2\" cellspacing=\"2\" width=\"100%\">\n");
 
 			echo.append("<tr><td width=\"200\" colspan=\"2\" class=\"noBorderX\">");
 			echo.append("<input type=\"text\" name=\"name\" value=\""+Common._plaintitle(research.getName())+"\" size=\"20\" />\n");
-			echo.append(" ("+techid+")</td>\n");;
+			echo.append(" ("+techid+")</td>\n");
 
 			echo.append("<td class=\"noBorderX\">Vorraussetzungen</td>\n");
 			echo.append("<td width=\"140\" class=\"noBorderX\">Kosten</td>\n");
@@ -227,7 +227,7 @@ public class ResearchEdit implements AdminPlugin {
 
 			echo.append("</table>\n");
 			echo.append("</form>\n");
-			echo.append(Common.tableEnd());
+			echo.append("</div>");
 		}
 	}
 }

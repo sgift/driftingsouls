@@ -136,7 +136,7 @@ public class AddShips implements AdminPlugin {
 			echo.append("</script>\n");
 			echo.append("<script src=\""+config.get("URL")+"data/javascript/modules/admin.addships.js\" type=\"text/javascript\"></script>\n");
 
-			echo.append(Common.tableBegin(520,"left"));
+			echo.append("<div class='gfxbox' style='width:560px'>");
 			echo.append("<form action=\"./ds\" method=\"post\">\n");
 			echo.append("<table class=\"noBorderX\" width=\"100%\">\n");
 			echo.append("<tr>\n");
@@ -267,7 +267,7 @@ public class AddShips implements AdminPlugin {
 			echo.append("Admin_AddShips.shipSelectChange(1);\n");
 			echo.append("-->\n");
 			echo.append("</script>\n");
-			echo.append(Common.tableEnd());
+			echo.append("</div>");
 		}
 		else if( count > 0 ) {
 			final int ownerId = context.getRequest().getParameterInt("owner");

@@ -54,18 +54,18 @@ public class QuestsSTM implements AdminPlugin {
 		
 		if( stmid.length() != 0 ) {
 			if( stmaction.equals("new") ) {			
-				echo.append(Common.tableBegin(550,"left"));
+				echo.append("<div class='gfxbox' style='width:590px'>");
 				GlobalSectorTemplate newtemplate = new GlobalSectorTemplate(stmid,x,y,w,h,0);
 				db.persist(newtemplate);
 				
 				echo.append("Sectortemplate hinzugef&uuml;gt");
-				echo.append(Common.tableEnd());	
+				echo.append("</div>");
 				echo.append("<br />\n");
 			}
 			else if( stmaction.equals("edit1") ) {
 				GlobalSectorTemplate template = (GlobalSectorTemplate)db.get(GlobalSectorTemplate.class, stmid);
 				
-				echo.append(Common.tableBegin(550,"left"));
+				echo.append("<div class='gfxbox' style='width:590px'>");
 				echo.append("<div align=\"center\">STM-ID bearbeiten:</div><br />\n");
 				echo.append("<form action=\"./ds\" method=\"post\">\n");
 				echo.append("id: <input type=\"text\" name=\"newstmid\" value=\""+template.getId()+"\" /><br />\n");
@@ -80,7 +80,7 @@ public class QuestsSTM implements AdminPlugin {
 				echo.append("<input type=\"hidden\" name=\"stmaction\" value=\"edit2\" /></div>\n");
 				echo.append("<div align=\"center\"><input type=\"submit\" value=\":: speichern ::\" /></div>\n");
 				echo.append("</form>\n");
-				echo.append(Common.tableEnd());
+				echo.append("</div>");
 				echo.append("<br />\n");	
 			}
 			else if( stmaction.equals("edit2") ) {
@@ -91,32 +91,32 @@ public class QuestsSTM implements AdminPlugin {
 				db.delete(template);
 				db.persist(newtemplate);
 				
-				echo.append(Common.tableBegin(550,"left"));
+				echo.append("<div class='gfxbox' style='width:590px'>");
 				echo.append("Update durchgef&uuml;hrt<br />");
-				echo.append(Common.tableEnd());
+				echo.append("</div>");
 				echo.append("<br />\n");
 			}
 			else if( stmaction.equals("delete1") ) {
-				echo.append(Common.tableBegin(550,"left"));
+				echo.append("<div class='gfxbox' style='width:590px'>");
 				echo.append("Wollen sie das Sectortemplate '"+stmid+"' wirklich l&ouml;schen?<br />\n");
 				echo.append("<a class=\"error\" href=\"./ds?module=admin&act="+action+"&page="+page+"&stmid="+stmid+"&stmaction=delete2\">Ja</a>");
 				echo.append(" - <a class=\"forschinfo\" href=\"./ds?module=admin&act="+action+"&page="+page+"\">Nein</a>");
-				echo.append(Common.tableEnd());
+				echo.append("</div>");
 				echo.append("<br />\n");	
 			}
 			else if( stmaction.equals("delete2") ) {
-				echo.append(Common.tableBegin(550,"left"));
+				echo.append("<div class='gfxbox' style='width:590px'>");
 			
 				GlobalSectorTemplate template = (GlobalSectorTemplate)db.get(GlobalSectorTemplate.class, stmid);
 				db.delete(template);
 				echo.append("Sectortemplate '"+stmid+"' gel&ouml;scht");
 			
-				echo.append(Common.tableEnd());
+				echo.append("</div>");
 				echo.append("<br />\n");	
 			}
 		}
 		else if( newstm > 0 ) {
-			echo.append(Common.tableBegin(550,"left"));
+			echo.append("<div class='gfxbox' style='width:590px'>");
 			echo.append("<div align=\"center\">Neue STM-ID erstellen:</div><br />\n");
 			echo.append("<form action=\"./ds\" method=\"post\">\n");
 			echo.append("id: <input type=\"text\" name=\"stmid\" value=\"meineid\" /><br />\n");
@@ -130,11 +130,11 @@ public class QuestsSTM implements AdminPlugin {
 			echo.append("<input type=\"hidden\" name=\"stmaction\" value=\"new\" /></div>\n");
 			echo.append("<div align=\"center\"><input type=\"submit\" value=\":: speichern ::\" /></div>\n");
 			echo.append("</form>\n");
-			echo.append(Common.tableEnd());
+			echo.append("</div>");
 			echo.append("<br />\n");		
 		}
 		
-		echo.append(Common.tableBegin(550,"left"));
+		echo.append("<div class='gfxbox' style='width:590px'>");
 		List<GlobalSectorTemplate> templates = Common.cast(db.createQuery("from GlobalSectorTemplate").list());
 		
 		for(GlobalSectorTemplate template : templates ) {
@@ -151,6 +151,6 @@ public class QuestsSTM implements AdminPlugin {
 		}
 		echo.append("<br />\n");
 		echo.append("<div align=\"center\"><a class=\"forschinfo\" href=\"./ds?module=admin&act="+action+"&page="+page+"&newstm=1\">&gt; neu &lt;</div>\n");
-		echo.append(Common.tableEnd());
+		echo.append("</div>");
 	}
 }

@@ -54,7 +54,7 @@ public class EditBases implements AdminPlugin
 		// Update values?
 		boolean update = context.getRequest().getParameterString("change").equals("Aktualisieren");
 
-		echo.append(Common.tableBegin(350,"left"));
+		echo.append("<div class='gfxbox' style='width:390px'>");
 		echo.append("<form action=\"./ds\" method=\"post\">");
 		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
 		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
@@ -62,7 +62,7 @@ public class EditBases implements AdminPlugin
 		echo.append("Basis: <input type=\"text\" name=\"baseid\" value=\""+ baseid +"\" />\n");
 		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
 		echo.append("</form>");
-		echo.append(Common.tableEnd());
+		echo.append("</div>");
 
 		if(update && baseid != 0)
 		{

@@ -2,11 +2,11 @@
 <tr>
 	<td class="noBorderS">Handel</td><td class="noBorder">&nbsp;</td>
 	<td class="noBorder">
-	{!table_begin 450,center}
+	<div class="gfxbox" style="width:490px;text-align:center">
 		{!link_to Aktuelle Angebote, default}
 			&nbsp;&nbsp;|&nbsp;&nbsp;
 			{!link_to Angebot hinzuf&uuml;gen, add}
-	{!table_end}
+	</div>
 	</td>
 </tr>
 </table>
@@ -26,7 +26,7 @@
 			<tr>
 		{/endif}
 		<td class="noBorder" style="width:30%; vertical-align:top">
-			{!table_begin 100%,center}
+			<div class="gfxbox" style="width:90%;text-align:center">
 				<div style="font-weight:bold; font-size:15px; text-align:center">
 					{!link_to $angebot.owner.name, default, css_class:profile, module:userprofile, user:$angebot.owner}
 					{if angebot.showdelete}
@@ -78,7 +78,7 @@
 						{angebot.description}
 					</div>
 				</div>
-			{!table_end}
+			</div>
 		</td>
 	<!-- END angebote.listitem -->
 	<!-- BEGIN emptyangebote.listitem -->
@@ -92,7 +92,7 @@
 	<table class="noBorder">
 	<tr>
 		<td class="noBorder">
-			{!table_begin 400,center}
+			<div class="gfxbox" style="width:440px;text-align:center">
 				<div style="text-align:center">1. Waren eintragen</div>
 			
 				<table class="noBorderX" cellspacing="3" cellpadding="3">
@@ -122,24 +122,24 @@
 					<!-- END addresources.listitem -->
 					</table>
 				</div>
-			{!table_end}
+			</div>
 		</td>
 		<td class="noBorder" valign="top">
-			{!table_begin 400,center}
+			<div class="gfxbox" style="width:440px;text-align:center">
 				<div style="text-align:center">2. Beschreibung eingeben</div>
 				<textarea name="comm" rows="8" cols="42">Anmerkungen (z.b Koordinaten)</textarea><br />
 				<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
 				{!form_create_hidden enter}
 				<input type="submit" value="Angebot eintragen" />
-			{!table_end}
+			</div>
 		</td>
 	</tr>
 	<tr>
 		<td class="noBorder" colspan="2">
-			{!table_begin 800}
+			<div class="gfxbox" style="width:840px;text-align:center">
 				F&uuml;r jedes Ihrer laufenden Angebote berechnen wir einen Preis von
 				derzeit {trade.runningcost} RE pro galaktischem Einheitszeitraum.
-			{!table_end}
+			</div>
 		</td>
 	</table>
 	</form>

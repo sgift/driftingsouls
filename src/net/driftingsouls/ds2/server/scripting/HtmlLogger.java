@@ -43,7 +43,7 @@ public class HtmlLogger extends Writer {
 		}
 		Writer out = context.getResponse().getWriter();
 		out.append("</span>\n");
-		out.append(Common.tableEnd());
+		out.append("</div>");
 		out.append("<br />\n");
 		
 		first = true;
@@ -63,7 +63,7 @@ public class HtmlLogger extends Writer {
 		
 		if( first ) {
 			Writer out = context.getResponse().getWriter();
-			out.append(Common.tableBegin(500,"left"));
+			out.append("<div class='gfxbox' style='width:540px'>");
 			out.append("<div align=\"center\">Scriptengine [Debug]</div><br />");
 			out.append("<span style=\"font-size:11px\">\n");
 			

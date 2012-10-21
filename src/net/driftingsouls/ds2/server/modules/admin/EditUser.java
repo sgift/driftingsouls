@@ -56,7 +56,7 @@ public class EditUser implements AdminPlugin
 		// Update values?
 		boolean update = context.getRequest().getParameterString("change").equals("Aktualisieren");
 
-		echo.append(Common.tableBegin(350,"left"));
+		echo.append("<div class='gfxbox' style='width:390px'>");
 		echo.append("<form action=\"./ds\" method=\"post\">");
 		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
 		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
@@ -64,7 +64,7 @@ public class EditUser implements AdminPlugin
 		echo.append("User: <input type=\"text\" name=\"userid\" value=\""+ userid +"\" />\n");
 		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
 		echo.append("</form>");
-		echo.append(Common.tableEnd());
+		echo.append("</div>");
 
 		if(update && userid != 0)
 		{
@@ -113,7 +113,7 @@ public class EditUser implements AdminPlugin
 				return;
 			}
 
-			echo.append(Common.tableBegin(650,"left"));
+			echo.append("<div class='gfxbox' style='width:690px'>");
 			echo.append("<form action=\"./ds\" method=\"post\">");
 			echo.append("<table class=\"noBorderX\" width=\"100%\">");
 			echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
@@ -156,7 +156,7 @@ public class EditUser implements AdminPlugin
 			echo.append("</td></tr>\n");
 			echo.append("</table>");
 			echo.append("</form>\n");
-			echo.append(Common.tableEnd());
+			echo.append("</div>");
 		}
 	}
 

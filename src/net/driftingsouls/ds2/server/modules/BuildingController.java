@@ -316,14 +316,14 @@ public class BuildingController extends TemplateGenerator {
 		parameterString("conf");
 		String conf = getString("conf");
 
-		echo.append(Common.tableBegin(430,"left"));
+		echo.append("<div class='gfxbox' style='width:470px'>");
 
 		if( !conf.equals("ok") ) {
 			echo.append("<div align=\"center\">\n");
 			echo.append("<img align=\"middle\" src=\""+config.get("URL")+building.getPictureForRace(user.getRace())+"\" alt=\"\" /> "+Common._plaintitle(building.getName())+"<br /><br />\n");
 			echo.append("Wollen sie dieses Geb&auml;ude wirklich abreissen?<br /><br />\n");
 			echo.append("<a class=\"error\" href=\""+Common.buildUrl("demo", "col", base.getId(), "field", field, "conf", "ok")+"\">abreissen</a><br /></div>");
-			echo.append(Common.tableEnd());
+			echo.append("</div>");
 
 			echo.append("<br />\n");
 			echo.append("<a class=\"back\" href=\""+Common.buildUrl("default", "module", "base", "col", base.getId())+"\">zur&uuml;ck</a><br />\n");
@@ -364,7 +364,7 @@ public class BuildingController extends TemplateGenerator {
 		echo.append("<br />\n");
 		echo.append("<hr noshade=\"noshade\" size=\"1\" style=\"color:#cccccc\" /><br />\n");
 		echo.append("<div align=\"center\"><span style=\"color:#ff0000\">Das Geb&auml;ude wurde demontiert</span></div>\n");
-		echo.append(Common.tableEnd());
+		echo.append("</div>");
 
 		echo.append("<br />\n");
 		echo.append("<a class=\"back\" href=\""+Common.buildUrl("default", "module", "base", "col", base.getId())+"\">zur&uuml;ck</a><br />\n");
@@ -417,7 +417,7 @@ public class BuildingController extends TemplateGenerator {
 
 			if( building.printHeader() ) {
 				if( !classicDesign ) {
-					echo.append(Common.tableBegin(430, "left"));
+					echo.append("<div class='gfxbox' style='width:470px'>");
 
 					echo.append("<div style=\"text-align:center\">\n");
 					echo.append("<img style=\"vertical-align:middle\" src=\""+config.get("URL")+building.getPictureForRace(user.getRace())+"\" alt=\"\" /> "+Common._plaintitle(building.getName())+"<br /></div>\n");
@@ -475,7 +475,7 @@ public class BuildingController extends TemplateGenerator {
 
 			if( !classicDesign ) {
 				echo.append("<br />\n");
-				echo.append(Common.tableEnd());
+				echo.append("</div>");
 				echo.append("<div>\n");
 				echo.append("<br />\n");
 			}

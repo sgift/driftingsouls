@@ -3,7 +3,7 @@
 	<td class="noBorderS" align="center" style="font-size:12px">Geb&auml;ude<br />{base.name}</td>
 	<td class="noBorder">&nbsp;</td>
 	<td class="noBorderS">
-		{!table_begin 620,center}
+		<div class="gfxbox" style="width:660px;text-align:center">
 			<table class="noBorderX">
 			<tr>
 				<td class="noBorderX">{!link_to Energie, default, col:$base.id, field:$global.field, cat:0}</td>
@@ -17,14 +17,14 @@
 				<td class="noBorderX">{!link_to Sonstiges, default, col:$base.id, field:$global.field, cat:4}</td>
 			</tr>
 			</table>
-		{!table_end}
+		</div>
 	</td>
 </tr>
 </table>
 <div>
 	<br />
 </div>
-{!table_begin 670,left}
+<div class="gfxbox" style="width:710px">
 	{if show.build}
 		<table cellpadding="1" cellspacing="1" class="noBorderX">
 			<!-- BEGIN build.res.listitem -->
@@ -89,7 +89,7 @@
 			{!link_to Geb&auml;udeliste, default, module:buildings, col:$base.id, field:$global.field}
 		</div>
 	{/endif}
-{!table_end}
+</div>
 <div class="smallfont">
 	<br />
 	{!link_to zur&uuml;ck, default, module:base, css_class:back, col:$base.id}<br />

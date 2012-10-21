@@ -9,7 +9,7 @@
 	</div>
 {/endif}
 {if show.vorschau}
-	{!table_begin 100%,left}
+	<div class="gfxbox" style="width:100%">
 	<table width="100%" cellspacing="3" cellpadding="3" class="noBorderX">
 	<tr>
 		<td style="width:90px; text-align:center; vertical-align:top" class="noBorderX">
@@ -48,13 +48,13 @@
 		</td>
 	</tr>
 	</table>
-	{!table_end}
+	</div>
 	<div>
 		<br /><br />
 	</div>
 {/endif}
 {if show.searchform}
-	{!table_begin 550,left}
+	<div class="gfxbox" style="width:590px">
 		<form method="post" action="./ds">
 		<table cellpadding="3" cellspacing="3" class="noBorder">
 		<tr>
@@ -87,13 +87,13 @@
 		<div style="text-align:center">
 			{!link_to abbrechen und zur&uuml;ck zum Com-net Men&uuml;, default}
 		</div>
-	{!table_end}
+	</div>
 	<div>
 		<br /><br />
 	</div>
 {/endif}
 {if show.inputform}
-	{!table_begin 550,left}
+	<div class="gfxbox" style="width:590px">
 		<form method="post" action="./ds">
 		<table cellpadding="3" cellspacing="3" class="noBorder">
 		<tr>
@@ -126,7 +126,7 @@
 			<br />
 			{!link_to abbrechen und zur&uuml;ck zum Com-net Men&uuml;, default}
 		</div>
-	{!table_end}
+	</div>
 	<div>
 		<br /><br />
 		<span style="font-weight:bold">Folgende Tags sind erlaubt:</span><br />
@@ -226,7 +226,7 @@
 		<br /><br />
 	</div>
 	<!-- BEGIN posts.listitem -->
-		{!table_begin 100%,left}
+		<div class="gfxbox" style="width:95%">
 		<table width="100%" cellspacing="3" cellpadding="3" class="noBorderX">
 		<tr>
 			<td style="width:90px; text-align:center; vertical-align:top" class="noBorderX">
@@ -266,7 +266,7 @@
 			</td>
 		</tr>
 		</table>
-		{!table_end}
+		</div>
 		<div>
 			<br />
 		</div>

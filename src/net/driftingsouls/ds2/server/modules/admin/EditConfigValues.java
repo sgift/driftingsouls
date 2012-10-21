@@ -39,7 +39,7 @@ public class EditConfigValues implements AdminPlugin
 			}
 		}
 		
-		echo.append(Common.tableBegin(750,"left"));
+		echo.append("<div class='gfxbox' style='width:790px'>");
 		echo.append("<form action=\"./ds\" method=\"post\">");
 		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
 		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
@@ -53,6 +53,6 @@ public class EditConfigValues implements AdminPlugin
 		}
 		echo.append("<tr><td class=\"noBorderX\"></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
 		echo.append("</table>");
-		echo.append(Common.tableEnd());
+		echo.append("</div>");
 	}
 }

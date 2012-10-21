@@ -88,7 +88,7 @@ public class PlayerDelete implements AdminPlugin
 
 		if( userid == 0 )
 		{
-			echo.append(Common.tableBegin(400, "center"));
+			echo.append("<div class='gfxbox' style='width:440px;text-align:center'>");
 			echo.append("Hinweis: Es gibt KEINE Sicherheitsabfrage!<br />\n");
 			echo.append("<form action=\"./ds\" method=\"post\">");
 			echo.append("<table class=\"noBorderX\">\n");
@@ -102,21 +102,21 @@ public class PlayerDelete implements AdminPlugin
 			echo.append("<input type=\"submit\" value=\"l&ouml;schen\" style=\"width:100px\"/></td></tr>");
 			echo.append("</table>\n");
 			echo.append("</form>");
-			echo.append(Common.tableEnd());
+			echo.append("</div>");
 
 			return;
 		}
 
 		log.info("Loesche Spieler "+userid);
 
-		echo.append(Common.tableBegin(500, "left"));
+		echo.append("<div class='gfxbox' style='width:540px'>");
 		User user = (User)db.get(User.class, userid);
 
 		if( (user.getAlly() != null) && (user.getAlly().getPresident() == user) )
 		{
 			echo.append("Der Spieler " + userid + " ist Pr&auml;sident einer Allianz.<br />\n");
 			echo.append("Die Allianz muss zuerst gel&ouml;scht werden oder einen anderen Pr&auml;sidenten bekommen, bevor der Spieler gel&ouml;scht werden kann.<br />\n");
-			echo.append(Common.tableEnd());
+			echo.append("</div>");
 
 			return;
 		}
@@ -146,7 +146,7 @@ public class PlayerDelete implements AdminPlugin
 			{
 				echo.append("Fehler beim Beenden des Quests " + rquest.getQuest().getId() + ": "+ e);
 				log.error(e, e);
-				echo.append(Common.tableEnd());
+				echo.append("</div>");
 			}
 		}
 
@@ -374,7 +374,7 @@ public class PlayerDelete implements AdminPlugin
 
 		echo.append("<br />Spieler " + userid + " gel&ouml;scht!<br />\n");
 
-		echo.append(Common.tableEnd());
+		echo.append("</div>");
 	}
 
 }

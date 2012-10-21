@@ -32,22 +32,22 @@
 		<br />
 	</div>
 	{if ally.message}
-		{!table_begin 400,center}
+		<div class="gfxbox" style="width:440px;text-align:center">
 			<span style="color:red">{ally.message}</span>
-		{!table_end}
+		</div>
 		<div class="smallfont">
 			<br />
 		</div>
 	{/endif}
 	{if ally.statusmessage}
-		{!table_begin 400,center}
+		<div class="gfxbox" style="width:440px;text-align:center">
 			{ally.statusmessage}
 			{if ally.statusmessage.ask.url1}
 				<br />
 				<a class="ok" href="./ds?module=ally{ally.statusmessage.ask.url1}">Ja</a> -
 				<a class="error" href="./ds?module=ally{ally.statusmessage.ask.url2}">Nein</a>
 			{/endif}
-		{!table_end}
+		</div>
 		<div class="smallfont">
 			<br />
 		</div>
@@ -119,9 +119,9 @@
 	{/endif}
 	{if show.members}
 		{if user.president}
-			{!table_begin 600,left}
+			<div class="gfxbox" style="width:640px">
 		{else}
-			{!table_begin 400,left}
+			<div class="gfxbox" style="width:440px">
 		{/endif}
 		
 		<table class="noBorderX" width="100%">
@@ -160,10 +160,10 @@
 			</tr>
 		<!-- END show.members.listitem -->
 		</table>
-		{!table_end}
+		</div>
 	{/endif}
 	{if show.einstellungen}
-		{!table_begin 550,left}
+		<div class="gfxbox" style="width:590px">
 			Daten &auml;ndern:<br />
 			<form action="./ds" method="post">
 			<table class="noBorderX">
@@ -213,14 +213,14 @@
 				<span style="font-weight:bold">Hinweis:</span> F&uuml;r Namen, Beschreibung & Allytag k&ouml;nnen die Com-Net Tags verwendet werden<br /><br />
 				<span style="font-weight:bold">Hinweise (Allytags):</span> F&uuml;r den Allytag existiert au&szlig;erdem noch der Tag [name], welcher hinterher automatisch durch den entsprechenden Spielernamen ersetzt wird!<br />
 			</span>
-		{!table_end}
+		</div>
 		</form>
 		<div class="smallfont">
 			<br />
 			<br />
 		</div>
-			
-		{!table_begin 450,left}
+
+		<div class="gfxbox" style="width:490px">
 			Allianzlogo hochladen:<br />
 			<form enctype="multipart/form-data" action="./ds" method="post">
 				<input type="hidden" name="MAX_FILE_SIZE" value="307200" />
@@ -229,7 +229,7 @@
 				&nbsp;<input type="submit" value="Hochladen" /><br />
 				gif-format; 75x75; max 300kb
 			</form>
-		{!table_end}
+		</div>
 		<div class="smallfont">
 			<br />
 			<br />
@@ -263,7 +263,7 @@
 		<tr>
 			<!-- BEGIN show.einstellungen.channels.listitem -->
 				<td class="noBorder" style="width:300px; vertical-align:top">
-					{!table_begin 320,left}
+					<div class="gfxbox" style="width:360px">
 						<div align="center">
 							{show.einstellungen.channels.index}. Com-Net Frequenz -
 							{if show.einstellungen.channels.id} 
@@ -357,7 +357,7 @@
  							</tr>
 							</table>
 						</form>
-					{!table_end}
+					</div>
 				</td>
 			<!-- END show.einstellungen.channels.listitem -->
 		</tr>
@@ -368,7 +368,7 @@
 		</div>
 	{/endif}
 	{if show.posten}
-		{!table_begin 600,left}
+		<div class="gfxbox" style="width:640px">
 			<table class="noBorderX" width="100%">
 			<tr>
 				<td colspan="2" class="noBorderX">Posten bearbeiten:</td>
@@ -402,13 +402,13 @@
 			<!-- END show.posten.modify.listitem -->
 			</table>
 			<br />
-		{!table_end}
+		</div>
 		<div class="smallfont">
 			<br />
 			<br />
 		</div>
 		{if show.posten.addposten}
-			{!table_begin 600,left}
+			<div class="gfxbox" style="width:640px">
 				<table class="noBorderX" width="100%">
 				<tr>
 					<td colspan="3" class="noBorderX">Posten erstellen:</td>
@@ -435,7 +435,7 @@
 				</tr>
 				</form>
 				</table>
-			{!table_end}
+			</div>
 		{/endif}
 	{/endif}
 	{if show.raenge}
@@ -581,13 +581,13 @@
 		<td class="noBorderS">Keine Allianz</td>
 		<td class="noBorder">&nbsp;</td>
 		<td class="noBorder">
-			{!table_begin 600,center}
+			<div class="gfxbox" style="width:640px;text-align:center">
 				{!link_to Allianz beitreten, defaultNoAlly, show:join}
 				&nbsp;|&nbsp;
 				{!link_to Allianz gr&uuml;nden, showCreateAlly, show:create}
 				&nbsp;|&nbsp;
 				{!link_to Allianzen auflisten, default, module:allylist}
-			{!table_end}
+			</div>
 		</td>
 	</tr>
 	</table>
@@ -595,29 +595,29 @@
 		<br />
 	</div>
 	{if ally.message}
-		{!table_begin 400,center}
+		<div class="gfxbox" style="width:440px;text-align:center">
 			<span style="color:red">{ally.message}</span>
-		{!table_end}
+		</div>
 		<div class="smallfont">
 			<br />
 		</div>
 	{/endif}
 	{if ally.statusmessage}
-		{!table_begin 400,center}
+		<div class="gfxbox" style="width:440px;text-align:center">
 			{ally.statusmessage}
 			{if ally.statusmessage.ask.url1}
 				<br />
 				<a class="ok" href="./ds?module=ally{ally.statusmessage.ask.url1}">Ja</a> -
 				<a class="error" href="./ds?module=ally{ally.statusmessage.ask.url2}">Nein</a>
 			{/endif}
-		{!table_end}
+		</div>
 		<div class="smallfont">
 			<br />
 		</div>
 	{/endif}
 	
 	{if show.create}
-		{!table_begin 450,left}
+		<div class="gfxbox" style="width:490px">
 			<form action="./ds" method="post">
 			<table class="noBorderX" border="1">
 			<tr>
@@ -647,7 +647,7 @@
 			</tr>
 			</table>
 			</form>
-		{!table_end}
+		</div>
 	{/endif}
 	{if show.join}
 		<div class="smallfont">

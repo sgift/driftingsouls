@@ -6,7 +6,7 @@
 	{/endif}
 </div>
 {if options.changenamepwd}
-	{!table_begin 670,left}
+	<div class="gfxbox" style="width:710px">
 		<div style="text-align:justify">
 			Es k&ouml;nnen die BBCode-Tags [b], [i], [u], [color], [font], [mark] und [align] verwendet werden.<br />
 			Nach der Password-&Auml;nderung wird Ihnen eine Best&auml;tigungsmail geschickt - das Password wird verschl&uuml;sselt gespeichert.<br />
@@ -41,10 +41,10 @@
 			</table>
 		</div>
 		</form>
-	{!table_end}
+	</div>
 {/endif}
 {if options.delaccountform}
-	{!table_begin 540,left}
+	<div class="gfxbox" style="width:580px">
 		<div style="text-align:center; color:red">
 			L&ouml;schen des Accounts beantragen
 			<br />
@@ -61,20 +61,20 @@
 				</div>
 			</div>
 		</form>
-	{!table_end}
+	</div>
 {/endif}
 {if options.delaccountresp}
-	{!table_begin 540,justify}
+	<div class="gfxbox" style="width:580px;text-align:justify">
 		<div style="text-align:center; font-weight:bold; color:red">Der Antrag auf L&ouml;schung des Accounts wurde versendet</div><br />
 		Es kann jedoch einige Tage oder Wochen dauern, bis die L&ouml;schung durchgef&uuml;hrt wird.<br />
 		Sollten sie es sich dennoch anders &uuml;berlegen, schreiben sie bitte
 		eine PM an einen Administrator (IDs: {delaccountresp.admins})<br />
-	{!table_end}
+	</div>
 {/endif}
 {if options.xtra}
 	<form action="ds" method="post">
 
-	{!table_begin 520,center}
+	<div class="gfxbox" style="width:560px;text-align:center">
 		<table class="noBorderX">
 		<tr>
 			<td class="noBorderX">Schiffsgruppen-Multiplikator (0=Keine Gruppierungen):</td>
@@ -121,14 +121,14 @@
 			</td>
 		</tr>
 		</table>
-	{!table_end}
+	</div>
 
 	</form>
 {/endif}
 
 {if options.general}
 	{if user.noob}
-		{!table_begin 470,left}
+		<div class="gfxbox" style="width:510px">
 			Sie stehen noch unter GCP-Schutz. Klicken sie hier um diesen vorzeitig zu beenden.<br /><br />
 			<div style="text-align:center">
 				<input type="button" value="GCP-Schutz verlassen" style="width:300px" onclick="javascript:ask('Haben sie es sich auch genau &uuml;berlegt?\nEs gibt kein Zur&uuml;ck mehr!',getDsUrl()+'?module=options&action=dropNoobProtection')" />
@@ -137,10 +137,10 @@
 			<br />
 			<span style="color:red">Ohne GCP-Schutz k&ouml;nnen sie JEDERZEIT angegriffen werden.
 			Sobald sie einmal den GCP-Schutz verlassen haben gibt es kein zur&uuml;ck mehr!</span>
-		{!table_end}
+		</div>
 		<br />
 	{/endif}
-	{!table_begin 470,left}
+	<div class="gfxbox" style="width:510px">
 		<table class="noBorderX" cellpadding="2" cellspacing="2">
 		<tr>
 			<td class="noBorderX">Eigenes</td>
@@ -165,11 +165,11 @@
 				(gif-format, 75*75 pixel, max 300kb)
 			</div>
 		</form>
-	{!table_end}
+	</div>
 	<div>
 		<br />
 	</div>
-	{!table_begin 470,left}
+	<div class="gfxbox" style="width:510px">
 		<form action="./ds" method="post">
 			<div>
 				<span style="font-weight:bold">Anzeige</span><br />
@@ -180,11 +180,11 @@
 				<input type="submit" value="Speichern" /><br />
 			</div>
 		</form>
-	{!table_end}
+	</div>
 	<div>
 		<br />
 	</div>
-	{!table_begin 470,left}
+	<div class="gfxbox" style="width:510px">
 		<form action="./ds" method="post">
 			<div>
 				<span style="font-weight:bold">Grafikpak (Pfad):</span><br />
@@ -196,11 +196,11 @@
 				</span>
 			</div>
 		</form>
-	{!table_end}
+	</div>
 	<div>
 		<br />
 	</div>
-	{!table_begin 470,left}
+	<div class="gfxbox" style="width:510px">
 		<form action="./ds" method="post">
 			<div>
 				<span style="font-weight:bold">Vacation-Modus:</span><br />
@@ -214,5 +214,5 @@
 				</span>
 			</div>
 		</form>
-	{!table_end}
+	</div>
 {/endif}

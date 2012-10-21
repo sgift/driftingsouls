@@ -126,7 +126,7 @@ public class QuestsQuick implements AdminPlugin {
 		if( qact.equals("details") ) {
 			QuickQuest qquest = (QuickQuest)db.get(QuickQuest.class, id);
 
-			echo.append(Common.tableBegin(550,"left"));
+			echo.append("<div class='gfxbox' style='width:590px'>");
 			if( qquest.getEnabled() != 0 ) {
 				echo.append("Aktiv bei:<br /><ul>");
 				List<?> rquestList = db.createQuery("from RunningQuest rq inner join fetch rq.user where rq.quest= :qid order by rq.user")
@@ -152,11 +152,11 @@ public class QuestsQuick implements AdminPlugin {
 			}
 			echo.append("</ul><br />\n");
 
-			echo.append(Common.tableEnd());
+			echo.append("</div>");
 		}
 		// Zeigt die Liste aller Quests an
 		else if( !qact.equals("script") ) {
-			echo.append(Common.tableBegin(550,"center"));
+			echo.append("<div class='gfxbox' style='width:590px;text-align:center'>");
 			echo.append("<table class=\"noBorderX\">\n");
 
 			List<?> qquestList = db.createQuery("from QuickQuest order by qid").list();
@@ -182,7 +182,7 @@ public class QuestsQuick implements AdminPlugin {
 				echo.append("</td></tr>\n");
 			}
 			echo.append("</table>\n");
-			echo.append(Common.tableEnd());
+			echo.append("</div>");
 		}
 		// Exportiert das Quest
 		else if( qact.equals("script") ) {
@@ -212,7 +212,7 @@ public class QuestsQuick implements AdminPlugin {
 			qquest_notyettext = StringUtils.replace(qquest_notyettext, ">", "&gt;");
 			qquest_notyettext = StringUtils.replace(qquest_notyettext, "<", "&lt;");
 
-			echo.append(Common.tableBegin(600,"left"));
+			echo.append("<div class='gfxbox' style='width:640px'>");
 			echo.append("<span class=\"nobr\">\n");
 
 			Set<String> reqFileList = new HashSet<String>();
@@ -588,7 +588,7 @@ public class QuestsQuick implements AdminPlugin {
 			echo.append("&lt;/quest&gt;<br />\n");
 
 			echo.append("</span>");
-			echo.append(Common.tableEnd());
+			echo.append("</div>");
 		}
 	}
 

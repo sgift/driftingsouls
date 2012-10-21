@@ -557,17 +557,4 @@ public class TemplateEngine {
 		context.addError("Template: "+msg);
 		log.error(msg);
  	}
- 	
- 	/*	
-	 *	__call($method, $parameter)
-	 *		php standard method
-	 */
- 	/*function __call( $method, $parameter ) {
- 		if( $method == 'table_begin' ) {
- 			echo call_user_func_array('table_begin', $parameter);
- 		}
- 		elseif( $method == 'table_end' ) {
- 			echo table_end();	
- 		}	
- 	}*/
 }

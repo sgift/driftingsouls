@@ -52,11 +52,11 @@ public class PListController extends DSGenerator {
 			echo.append("</script>\n");
 		}
 
-		echo.append(Common.tableBegin(325,"left"));
+		echo.append("<div class='gfxbox' style='width:365px'>");
 
 		new PlayerList().draw(getContext());
 		
-		echo.append(Common.tableEnd());
+		echo.append("</div>");
 	}
 
 }

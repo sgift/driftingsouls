@@ -202,11 +202,11 @@ public class ErrorHandlerFilter implements Filter
 			sb.append("parent.location.href=url.substring(0,url.indexOf('?'));");
 			sb.append("</script>");
 			sb.append("<div id=\"error-box\" align=\"center\">\n");
-			sb.append(Common.tableBegin(430,"left"));
+			sb.append("<div class='gfxbox' style='width:470px'>");
 			sb.append("<ul>");
 			sb.append("<li><span style=\"font-size:14px; color:red\">"+ message +"</span></li>\n");
 			sb.append("</url>");
-			sb.append(Common.tableEnd());
+			sb.append("</div>");
 			sb.append("</div>\n");
 		}
 
@@ -214,11 +214,11 @@ public class ErrorHandlerFilter implements Filter
 		{
 			Writer sb = response.getWriter();
 			sb.append("<div id=\"error-box\" align=\"center\">\n");
-			sb.append(Common.tableBegin(430,"left"));
+			sb.append("<div class='gfxbox' style='width:470px'>");
 			sb.append("<ul>");
 			sb.append("<li><span style=\"font-size:14px; color:red\">"+ message +"</span></li>\n");
 			sb.append("</url>");
-			sb.append(Common.tableEnd());
+			sb.append("</div>");
 			sb.append("</div>\n");
 		}
 		

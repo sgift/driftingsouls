@@ -58,44 +58,6 @@ public class TemplateCompiler {
 		public String process(List<String> parameter);
 	}
 
-	private static class TCFTableBegin implements TemplateCompileFunction {
-		TCFTableBegin() {
-			// EMPTY
-		}
-		@Override
-		public String process(List<String> parameter) {
-			String width = (parameter.size() > 0 ? parameter.get(0) : "420");
-			String align = (parameter.size() > 1 ? parameter.get(1) : "center");
-
-			if( width.charAt(0) == '$' ) {
-				width = width.substring(1);
-				width = "\"); str.append(templateEngine.getVar(\""+width+"\")); str.append(\"";
-			}
-			if( align.charAt(0) == '$' ) {
-				align = width.substring(1);
-				align = "\"); str.append(templateEngine.getVar(\""+align+"\")); str.append(\"";
-			}
-
-			// TODO: check & ggf fixme (slash-problem ?)
-			String txt = StringUtils.replace(Common.tableBegin("{$$WIDTH$$}","{$$ALIGN$$}","{$$IMAGEPATH$$}"),"\"", "\\\"");
-			txt = StringUtils.replace(txt, "{$$IMAGEPATH$$}", "\"); str.append(templateEngine.getVar(\"global.datadir\")); str.append(\"");
-			txt = StringUtils.replace(txt, "{$$ALIGN$$}", align);
-			txt = StringUtils.replace(txt, "{$$WIDTH$$}", width);
-			return txt;
-		}
-	}
-
-	private static class TCFTableEnd implements TemplateCompileFunction {
-		TCFTableEnd() {
-			// EMPTY
-		}
-		@Override
-		public String process(List<String> parameter) {
-			String txt = StringUtils.replace(Common.tableEnd("{$$IMAGEPATH$$}"), "\"", "\\\"");
-			return StringUtils.replace(txt, "{$$IMAGEPATH$}}", "\"); str.append(templateEngine.getVar(\"URL\")); str.append(\"");
-		}
-	}
-
 	private static class TCFLinkTo implements TemplateCompileFunction {
 		TCFLinkTo() {
 			// EMPTY
@@ -282,8 +244,6 @@ public class TemplateCompiler {
 	private static final Map<String,TemplateCompileFunction> COMPILE_FUNCTIONS = new HashMap<String,TemplateCompileFunction>();
 
 	static {
-		COMPILE_FUNCTIONS.put("table_begin", new TCFTableBegin());
-		COMPILE_FUNCTIONS.put("table_end", new TCFTableEnd());
 		COMPILE_FUNCTIONS.put("image_link_to", new TCFImageLinkTo());
 		COMPILE_FUNCTIONS.put("link_to", new TCFLinkTo());
 		COMPILE_FUNCTIONS.put("form_create_hidden", new TCFFormCreateHidden());

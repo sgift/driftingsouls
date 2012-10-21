@@ -14,13 +14,13 @@
 		<td class="noBorderS">Kommunikation</td>
 		<td class="noBorder">&nbsp;</td>
 		<td class="noBorder">
-			{!table_begin 550,center}
+			<div class="gfxbox" style="width:590px;text-align:center">
 				{!link_to Nachricht schreiben, default, to:0}
 				&nbsp;&nbsp;|&nbsp;&nbsp;
 				{!link_to Posteingang, showInbox}
 				&nbsp;&nbsp;|&nbsp;&nbsp;
 				{!link_to Postausgang, showOutbox}
-			{!table_end}
+			</div>
 		</td>
 	</tr>
 	</table>
@@ -34,7 +34,7 @@
 	</div>
 {/endif}
 {if show.preview}
-	{!table_begin 710,left}
+	<div class="gfxbox" style="width:750px">
 		<div style="position:relative; width:635px; height:240px; margin: 0px; position: relative; top: 0px; left: 0px; overflow:auto">
 			{if pm.bgimage}
 				<div style="position:absolute; top:0px; left:0px; margin:0px; padding:0px; width:570px; overflow:hidden; background-image: url('{URL}data/interface/pms/{pm.bgimage}');'">
@@ -64,11 +64,11 @@
 				</div>
 			</div>
 		</div>
-	{!table_end}
+	</div>
 	<br>
 {/endif}
 {if show.write}
-	{!table_begin 710,left}
+	<div class="gfxbox" style="width:750px">
 		<form action="./ds" method="post">
 		<table class="noBorderX" cellspacing="2" cellpadding="4">
 		<tr>
@@ -119,7 +119,7 @@
 		<span style="font-weight:bold">M&ouml;gliche Empf&auml;nder:</span><br />
 		"ally" - Alle Mitglieder der Allianz<br />
 		User-ID -  Der Spieler mit dieser ID (<a class="forschinfo" href="javascript:PlayerList()">Liste</a>)
-	{!table_end}
+	</div>
 {/endif}
 {if show.inbox}
 	<script type="text/javascript">
@@ -149,7 +149,7 @@
 	</script>
 
 	<form action="./ds" method="post">
-	{!table_begin 710,left}
+	<div class="gfxbox" style="width:750px">
 		<div style="position:relative; width:100%; height:240px">
 			<!--  Waiter Div -->
 			<div style="position:absolute; top:0px; left:0px; height:240px; width:100%; z-index:2; display:none" id="inbox_waiter">
@@ -305,13 +305,13 @@
 			</div>
 		</form>
 		<br />
-	{!table_end}
+	</div>
 	<br />
-	{!table_begin 710,left}
+	<div class="gfxbox" style="width:750px">
 		<iframe src="./ds?module=comm&amp;action=showPm" name="pmviewer" width="630" height="240" scrolling="auto" marginheight="0" marginwidth="0" frameborder="0">
 			Dein Browser unterst&uuml;tzt leider keine iframes. Am besten installierst du einen Browser neueren Datums wie z.B. den <a class="forschinfo" href="http://www.mozilla.org">Mozilla Firefox</a>
 		</iframe>
-	{!table_end}
+	</div>
 
 	<script type="text/javascript">
 	<!--
@@ -323,7 +323,7 @@
 	</script>
 {/endif}
 {if show.outbox}
-	{!table_begin 710,left}
+	<div class="gfxbox" style="width:750px">
 		<div style="height:240px; overflow:auto">
 			<table class="noBorderX" width="100%">
 			<tr>
@@ -357,13 +357,13 @@
 			</table>
 		</div>
 		Hinweis: Diese PMs werden mit der Zeit automatisch gel&ouml;scht<br /><br />
-	{!table_end}
+	</div>
 	<br />
-	{!table_begin 710,left}
+	<div class="gfxbox" style="width:750px">
 		<iframe src="./ds?module=comm&amp;action=showPm" name="pmviewer" width="630" height="240" scrolling="auto" marginheight="0" marginwidth="0" frameborder="0">
 			Dein Browser unterst&uuml;tzt leider keine iframes. Am besten installierst du einen Browser neueren Datums wie z.B. den <a class="forschinfo" href="http://www.mozilla.org">Mozilla Firefox</a>
 		</iframe>
-	{!table_end}
+	</div>
 {/endif}
 {if show.pm}
 	{if pm.bgimage}
@@ -414,7 +414,7 @@
 	</table>
 {/endif}
 {if show.comment}
-	{!table_begin 710,left}
+	<div class="gfxbox" style="width:750px">
 		<form action="./ds" method="post">
 		<table class="noBorderX" cellspacing="2" cellpadding="4">
 		<tr>
@@ -452,5 +452,5 @@
 		</tr>
 		</table>
 		</form>
-	{!table_end}
+	</div>
 {/endif}

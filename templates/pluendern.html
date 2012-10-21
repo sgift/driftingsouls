@@ -18,7 +18,7 @@
 	<br />
 {/endif}
 
-{!table_begin 400,center}
+<div class="gfxbox" style="width:440px;text-align:center">
 	{fromship.name} ({fromship.id}) pl&uuml;ndert {toship.name} ({toship.id})<br /><br />
 	<form action="./ds" method="post">
 	{if frompage.kapern}<input type="hidden" name="fromkapern" value="1" />{/endif}
@@ -62,7 +62,7 @@
 	</tr>
 	</table>
 	</form>
-{!table_end}
+</div>
 <br />
 {if frompage.kapern}
 	{!link_to zur&uuml;ck, default, module:kapern, css_class:back, ship:$fromship.id, tar:$toship.id}

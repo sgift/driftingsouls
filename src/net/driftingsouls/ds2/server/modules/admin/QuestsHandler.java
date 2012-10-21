@@ -51,7 +51,7 @@ public class QuestsHandler implements AdminPlugin {
 		final String URLBASE = "./ds?module=admin&page="+page+"&act="+action;
 
 		if( event.length() == 0 ) {
-			echo.append(Common.tableBegin(700, "center"));
+			echo.append("<div class='gfxbox' style='width:740px;text-align:center'>");
 			echo.append("<form action=\"./ds\" method=\"post\">\n");
 			echo.append("<select size=\"1\" name=\"event\">\n");
 			echo.append("<option value=\"oncommunicate\">oncommunicate</option>\n");
@@ -65,11 +65,11 @@ public class QuestsHandler implements AdminPlugin {
 			echo.append("<input type=\"submit\" value=\"bearbeiten\" />\n");
 			echo.append("</form>\n");
 
-			echo.append(Common.tableEnd());
+			echo.append("</div>");
 
 			echo.append("<br /><br />\n");
 
-			echo.append(Common.tableBegin(700,"left"));
+			echo.append("<div class='gfxbox' style='width:740px'>");
 
 			echo.append("oncommunicate:<br />\n");
 			SQLQuery ship = db.query("SELECT id,name,owner " +
@@ -120,7 +120,7 @@ public class QuestsHandler implements AdminPlugin {
 			}
 			battle.free();
 
-			echo.append(Common.tableEnd());
+			echo.append("</div>");
 		}
 		else if( save == 0 ) {
 			if( event.equals("oncommunicate") ) {
@@ -139,7 +139,7 @@ public class QuestsHandler implements AdminPlugin {
 				oid = "";
 			}
 
-			echo.append(Common.tableBegin(700,"left"));
+			echo.append("<div class='gfxbox' style='width:740px'>");
 
 			echo.append("<form action=\"./ds\" method=\"post\">\n");
 			echo.append("<input type=\"text\" name=\"handler\" size=\"50\" value=\""+handler+"\" />\n");
@@ -152,7 +152,7 @@ public class QuestsHandler implements AdminPlugin {
 			echo.append("<input type=\"submit\" value=\"bearbeiten\" />\n");
 			echo.append("</form>\n");
 
-			echo.append(Common.tableEnd());
+			echo.append("</div>");
 		}
 		else {
 			if( event.equals("oncommunicate") ) {

@@ -83,7 +83,7 @@ public class QuestsFiles implements AdminPlugin {
 		int upload = context.getRequest().getParameterInt("upload");
 		String info = context.getRequest().getParameterString("info");
 
-		echo.append(Common.tableBegin(550,"left"));
+		echo.append("<div class='gfxbox' style='width:590px'>");
 		echo.append("<form action=\"./ds\" method=\"post\">\n");
 		echo.append("<input type=\"text\" name=\"installfile\" value=\""+(installfile.length() == 0 ? "Datei" : installfile)+"\" size=\"50\" />\n");
 		echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
@@ -91,17 +91,17 @@ public class QuestsFiles implements AdminPlugin {
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 		echo.append("<input type=\"submit\" value=\"installieren\" />\n");
 		echo.append("</form>\n");
-		echo.append(Common.tableEnd());
+		echo.append("</div>");
 		echo.append("<br />\n");
 		
 		final String questpath = config.get("QUESTPATH");
 		
 		if( installfile.length() > 0 ) {
-			echo.append(Common.tableBegin(550,"left"));
+			echo.append("<div class='gfxbox' style='width:590px'>");
 			echo.append("Install-Log:<br />\n");
 			QuestXMLParser parser = new QuestXMLParser(QuestXMLParser.Mode.INSTALL, installfile);
 			echo.append(StringUtils.replace(parser.MESSAGE.getMessage(), "\n", "<br />"));
-			echo.append(Common.tableEnd());	
+			echo.append("</div>");
 			echo.append("<br />\n");
 		}
 		
@@ -109,16 +109,16 @@ public class QuestsFiles implements AdminPlugin {
 			String unlinkName = basename(unlink);
 			
 			if( conf == 0 ) {
-				echo.append(Common.tableBegin(550,"center"));
+				echo.append("<div class='gfxbox' style='width:590px;text-align:center'>");
 				echo.append("Wollen sie die Quest-XML "+unlinkName+" wirklich l&ouml;schen?<br />\n");
 				echo.append("<a class=\"error\" href=\"./ds?module=admin&act="+action+"&page="+page+"&unlink="+unlink+"&conf=1\">ja</a> - \n");
 				echo.append("<a class=\"ok\" href=\"./ds?module=admin&act="+action+"&page="+page+"\">nein</a>\n");
 				
-				echo.append(Common.tableEnd());
+				echo.append("</div>");
 				echo.append("<br />\n");
 			}
 			else if( new File(questpath+unlink+".xml").exists() ) {
-				echo.append(Common.tableBegin(550,"left"));
+				echo.append("<div class='gfxbox' style='width:590px'>");
 				
 				if( new File(questpath+unlink+".install").exists() ) {
 					new File(questpath+unlink+".install").delete();
@@ -127,13 +127,13 @@ public class QuestsFiles implements AdminPlugin {
 				new File(questpath+unlink+".xml").delete();
 				echo.append("Entferne Quest-XML<br />\n");
 				
-				echo.append(Common.tableEnd());
+				echo.append("</div>");
 				echo.append("<br />\n");
 			}
 		}
 		
 		if( (upload != 0) && (context.getRequest().getUploadedFiles().size() != 0) ) {
-			echo.append(Common.tableBegin(550,"left"));
+			echo.append("<div class='gfxbox' style='width:590px'>");
 			
 			FileItem afile = context.getRequest().getUploadedFiles().get(0);
 			
@@ -157,12 +157,12 @@ public class QuestsFiles implements AdminPlugin {
 				e.printStackTrace();
 			}
 			
-	    	echo.append(Common.tableEnd());	
+	    	echo.append("</div>");
 			echo.append("<br />\n");
 		}
 		
 		if( info.length() > 0 ) {
-			echo.append(Common.tableBegin(550,"left"));
+			echo.append("<div class='gfxbox' style='width:590px'>");
 			
 			if( new File(questpath+info+".install").exists() ) {
 				QuestXMLParser questXML = new QuestXMLParser(QuestXMLParser.Mode.READ, info);
@@ -207,12 +207,12 @@ public class QuestsFiles implements AdminPlugin {
 			else {
 				echo.append("Es existieren keine Install-Informationen\n");	
 			}
-			echo.append(Common.tableEnd());
+			echo.append("</div>");
 			
 			echo.append("<br />\n");
 		}
 		
-		echo.append(Common.tableBegin(550,"left"));
+		echo.append("<div class='gfxbox' style='width:590px'>");
 		echo.append("Vorhandene Quest-XMLs:<br />\n");
 		
 		File questdir = new File(questpath);
@@ -238,6 +238,6 @@ public class QuestsFiles implements AdminPlugin {
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 		echo.append("<input type=\"submit\" value=\"hochladen\" />\n");
 		echo.append("</form>\n");
-		echo.append(Common.tableEnd());
+		echo.append("</div>");
 	}
 }

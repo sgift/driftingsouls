@@ -299,7 +299,7 @@ public abstract class DSGenerator extends Generator {
 		public void printErrorList() throws IOException {
 			Writer sb = getContext().getResponse().getWriter();
 			sb.append("<div id=\"error-box\" align=\"center\">\n");
-			sb.append(Common.tableBegin(430,"left"));
+			sb.append("<div class='gfxbox' style='width:470px'>");
 			sb.append("<div style=\"text-align:center; font-size:14px; font-weight:bold\">Es sind Fehler aufgetreten:</div><ul>\n");
 
 			for( Error error : getContext().getErrorList() ) {
@@ -312,7 +312,7 @@ public abstract class DSGenerator extends Generator {
 			}
 
 			sb.append("</ul>\n");
-			sb.append(Common.tableEnd());
+			sb.append("</div>");
 			sb.append("</div>\n");
 			sb.append("<script type=\"text/javascript\">\n");
 			sb.append("var error = document.getElementById('error-box');\n");

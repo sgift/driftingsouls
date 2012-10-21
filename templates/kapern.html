@@ -1,7 +1,7 @@
 {if kapern.showkaperreport}
-	{!table_begin 500,left}
+	<div class="gfxbox" style="width:540px">
 		{kapern.message}<br />
-	{!table_end}
+	</div>
 	<br />
 	{if kapern.battle}
 		{!link_to ur Schlacht, default, module:angriff, css_class:error, battle:$kapern.battle}

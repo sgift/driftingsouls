@@ -5,7 +5,7 @@
 	<br />
 {/endif}
 {if werftgui.ws}
-	{!table_begin 570, left}
+	<div class="gfxbox" style="width:610px">
 		<table class="noBorderX" width="100%" cellpadding="2">
 		<tr>
 			<td colspan="2" class="noBorderX">
@@ -156,7 +156,7 @@
 		</tr>
 		</table>
 		<br />
-	{!table_end}
+	</div>
 	<br />
 	<a class="back" href="{werftgui.urlbase}">Zur&uuml;ck zur Werft&uuml;bersicht</a>
 	{if ship.own}
@@ -165,7 +165,7 @@
 	<br />
 {/endif}
 {if werftgui.build}
-	{!table_begin 500,left}
+	<div class="gfxbox" style="width:540px">
 		<div style="text-align:center">
 			<h2>{build.type.name}</h2>
 			<img src="{build.type.image}" alt="" />
@@ -237,10 +237,10 @@
 			<hr noshade="noshade" size="1" style="color:#cccccc; width:10%" />
 			<a class="ok" href="{werftgui.urlbase}">zur&uuml;ck</a><br />
 		</div>
-	{!table_end}
+	</div>
 {/endif}
 {if werftgui.main}
-	{!table_begin 810}
+	<div class="gfxbox" style="width:850px;text-align:center">
 		<h3>Werft: {werftgui.name}</h3>
 		<div style="text-align:left">
 			<table class="noBorderX" cellpadding="2" cellspacing="1">
@@ -531,6 +531,6 @@
 				{/endif}
 			{/endif}
 		{/endif}
-	{!table_end}
+	</div>
 {/endif}
 </div>
