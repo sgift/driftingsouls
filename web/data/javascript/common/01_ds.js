@@ -7,12 +7,7 @@ function ask(text,url)
 
 function getDsUrl()
 {
-	var url = location.href;
-	if( url.indexOf('?') > -1 )
-	{
-		url = url.substring(0,url.indexOf('?'));
-	}
-	return url;
+	return DS.getUrl();
 }
 
 var DS = {
@@ -57,6 +52,9 @@ var DS = {
 		if( url.indexOf('?') > -1 )
 		{
 			url = url.substring(0,url.indexOf('?'));
+		}
+		if( url.indexOf('#') > -1 ) {
+			url = url.substring(0,url.indexOf('#'));
 		}
 		return url;
 	},
