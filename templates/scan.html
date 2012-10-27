@@ -156,41 +156,41 @@
 	</tr>
 	<tr>
 		<td class="noBorderS" valign="top">	
-			<table cellpadding="0" cellspacing="0" class="show">
+			<table cellpadding="0" cellspacing="0" class="show lrsmap">
 			<tr>
 				<td></td>
 				<!-- BEGIN mapborder.listitem -->
-					<td style="font-size:9px">{mapborder.x}</td>
+					<td>{mapborder.x}</td>
 				<!-- END mapborder.listitem -->
 			</tr>
 			<!-- BEGIN map.rowitem -->			
 				<tr>
-					<td align="center" valign="middle" style="font-size:9px">{map.border.y}</td>
+					<td>{map.border.y}</td>
 					<!-- BEGIN map.listitem -->
 						{if map.showsector}
 							{if map.fleet}
-								<td class="tooltip" valign="center" align="center" onclick="javascript:scanSector({map.x},{map.y})" style="background:url('{URL}data/starmap/{map.image}.png') no-repeat;width:25px;height:25px;cursor:pointer">
-									<img src="{URL}data/starmap/fleet/fleet{map.fleet}.png" alt="{map.image.name}" width="25" height="25" />
+								<td class="tooltip sector" onclick="javascript:scanSector({map.x},{map.y})" style="background:url('{URL}data/starmap/{map.image}.png') no-repeat;">
+									<img src="{URL}data/starmap/fleet/fleet{map.fleet}.png" alt="{map.image.name}"/>
 									{if map.tooltip}
 										<span class="ttcontent">{map.tooltip}</span>
 									{/endif}
 								</td>
 							{else}
-								<td class="tooltip" valign="center" onclick="javascript:scanSector({map.x},{map.y})" align="center" style="width:25px;height:25px;cursor:pointer">
-									<img src="{URL}data/starmap/{map.image}{map.fleet}.png" alt="{map.image.name}" width="25" height="25" />
+								<td class="tooltip sector" onclick="javascript:scanSector({map.x},{map.y})">
+									<img src="{URL}data/starmap/{map.image}{map.fleet}.png" alt="{map.image.name}" />
 									{if map.tooltip}
 										<span class="ttcontent">{map.tooltip}</span>
 									{/endif}
 								</td>
 							{/endif}
 							{if map.show.rightborder}
-								<tr><td align="center" valign="middle">{map.border.y}</td>
+								<tr><td>{map.border.y}</td>
 							{/endif}
 						{else}
-							<td valign="center" align="center">&nbsp;</td>
+							<td>&nbsp;</td>
 						{/endif}
 					<!-- END map.listitem -->
-					<td align="center" valign="middle" style="font-size:9px">{map.border.y}</td>
+					<td>{map.border.y}</td>
 				</tr>
 			<!-- END map.rowitem -->
 			<tr>

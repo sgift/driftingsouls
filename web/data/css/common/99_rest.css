@@ -245,3 +245,23 @@
 	top:3px;
 	position:absolute;
 }
+
+/*
+	scan (lrs)
+*/
+.lrsmap img {
+	vertical-align:bottom;
+	width:25px;
+	height:25px;
+}
+.lrsmap td {
+	text-align:center;
+	vertical-align:middle;
+	font-size:9px
+}
+.lrsmap .sector {
+	font-size:inherit;
+	width:25px;
+	height:25px;
+	cursor:pointer;
+}
