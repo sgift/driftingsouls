@@ -4,34 +4,38 @@
 	</span>
 {/endif}
 
-<div class="gfxbox" style="width:460px;text-align:center">
+<div id="choffBox" class="gfxbox">
 	<form action="./ds" method="post">
-	<table class="noBorderX">
-	<tr>
-		<td class="noBorderX" colspan="2">Name</td>
-		<td class="noBorderX">Technik</td>
-		<td class="noBorderX">Waffen</td>
-		<td class="noBorderX">Navigation</td>
-		<td class="noBorderX">Sicherheit</td>
-		<td class="noBorderX">Kommandoeffizienz</td>
-		<td class="noBorderX">Spezial</td>
-		<td class="noBorderX"></td>
-	</tr>
-	<tr>
-		<td class="noBorderX">
-			<img src="{offizier.picture}" alt="" />
-		</td>
-		<td class="noBorderX">
-			<input name="name" type="text" size="15" value="{offizier.name}" />
-		</td>
-		<td class="noBorderX">{offizier.ability.ing}</td>
-		<td class="noBorderX">{offizier.ability.waf}</td>
-		<td class="noBorderX">{offizier.ability.nav}</td>
-		<td class="noBorderX">{offizier.ability.sec}</td>
-		<td class="noBorderX">{offizier.ability.com}</td>
-		<td class="noBorderX">{offizier.special}</td>
-		<td class="noBorderX"><input type="submit" value="&auml;ndern"></td>
-	</tr>
+	<table class="datatable">
+	<thead>
+		<tr>
+			<th colspan="2">Name</th>
+			<th>Technik</th>
+			<th>Waffen</th>
+			<th>Navigation</th>
+			<th>Sicherheit</th>
+			<th>Kommandoeffizienz</th>
+			<th>Spezial</th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>
+				<img src="{offizier.picture}" alt="" />
+			</td>
+			<td>
+				<input name="name" type="text" size="15" value="{offizier.name}" />
+			</td>
+			<td>{offizier.ability.ing}</td>
+			<td>{offizier.ability.waf}</td>
+			<td>{offizier.ability.nav}</td>
+			<td>{offizier.ability.sec}</td>
+			<td>{offizier.ability.com}</td>
+			<td>{offizier.special}</td>
+			<td><input type="submit" value="ändern"></td>
+		</tr>
+	</tbody>
 	</table>
 	{!form_create_hidden rename, off:$offizier.id}
 	</form>

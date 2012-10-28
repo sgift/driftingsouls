@@ -247,6 +247,21 @@
 }
 
 /*
+	choff
+*/
+#choffBox {
+	width:800px;
+	text-align:center;
+}
+#choffBox table {
+	width:100%;
+}
+#choffBox table tbody td {
+	text-align:center;
+}
+
+
+/*
 	scan (lrs)
 */
 .lrsmap img {
