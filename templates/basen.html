@@ -1,84 +1,110 @@
-<div style="color:#ff0505">Asteroidenbasen<br /></div>
-<table class="show" width="95%" cellpadding="3" cellspacing="2">
+<div class="gfxbox" id="basenBox">
+<table class="datatable">
+<colgroup>
+	<col class="idCol" />
+	<col class="nameCol" />
+	<col class="locationCol" />
+	<col class="bewohnerCol" />
+	<col class="energieCol" />
+	<col class="mangelCol" />
+	<col class="lagerCol" />
+	<col class="einheitenCol" />
+	<col class="gebaeudeCol" />
+</colgroup>
+<thead>
 <tr>
-	<td class="schiffData">
-		<a class="forschinfo" href="./ds?module=basen&amp;ord=id&amp;l={global.l}&amp;order={if global.omode > 0}-1{else}1{/endif}">ID</a>
-	</td>
-	<td class="schiffData">
-		<a class="forschinfo" href="./ds?module=basen&amp;ord=name&amp;l={global.l}&amp;order={if global.omode > 0}-1{else}1{/endif}">Name</a>
-	</td>
-	<td class="schiffData">
-		<a class="forschinfo" href="./ds?module=basen&amp;ord=sys&amp;l={global.l}&amp;order={if global.omode > 0}-1{else}1{/endif}">Koordinaten</a>
-	</td>
-	<td class="schiffData">
-		<a class="forschinfo" href="./ds?module=basen&amp;ord=bew&amp;l={global.l}&amp;order={if global.omode > 0}-1{else}1{/endif}">Bewohner</a>
-	</td>
-	<td class="schiffData">
-		<a class="forschinfo" href="./ds?module=basen&amp;ord=e&amp;l={global.l}&amp;order={if global.omode > 0}-1{else}1{/endif}">Energie</a>
-	</td>
-	<td class="schiffData"><span class="nobr">Mangel [<img style="vertical-align:middle" src="{URL}data/interface/time.gif" alt="" />]</span></td>
-	<td class="schiffData" style="width:35%">
+	<th>
+		ID
+		<a class="sort" href="./ds?module=basen&amp;ord=id&amp;l={global.l}&amp;order={if global.omode > 0}-1{else}1{/endif}">
+			<img src="./data/interface/sort{if global.order.id}{if global.omode > 0}-down{else}-up{/endif}{/endif}.png" />
+		</a>
+	</th>
+	<th>
+		Name
+		<a class="sort" href="./ds?module=basen&amp;ord=name&amp;l={global.l}&amp;order={if global.omode > 0}-1{else}1{/endif}">
+			<img src="./data/interface/sort{if global.order.name}{if global.omode > 0}-down{else}-up{/endif}{/endif}.png" />
+		</a>
+	</th>
+	<th>
+		Koordinaten
+		<a class="sort" href="./ds?module=basen&amp;ord=sys&amp;l={global.l}&amp;order={if global.omode > 0}-1{else}1{/endif}">
+			<img src="./data/interface/sort{if global.order.sys}{if global.omode > 0}-down{else}-up{/endif}{/endif}.png" />
+		</a>
+	</th>
+	<th>
+		Bewohner
+		<a class="sort" href="./ds?module=basen&amp;ord=bew&amp;l={global.l}&amp;order={if global.omode > 0}-1{else}1{/endif}">
+			<img src="./data/interface/sort{if global.order.bew}{if global.omode > 0}-down{else}-up{/endif}{/endif}.png" />
+		</a>
+	</th>
+	<th>
+		Energie
+		<a class="sort" href="./ds?module=basen&amp;ord=e&amp;l={global.l}&amp;order={if global.omode > 0}-1{else}1{/endif}">
+			<img src="./data/interface/sort{if global.order.e}{if global.omode > 0}-down{else}-up{/endif}{/endif}.png" />
+		</a>
+	</th>
+	<th>Mangel <img src="{URL}data/interface/time.gif" alt="" /></th>
+	<th>
 		Lager
 		{if global.l > 0}
-			<a class="forschinfo" href="./ds?module=basen&amp;l=-1"><span style="font-size:8pt">(nicht anzeigen)</span></a>
+			<a href="./ds?module=basen&amp;l=-1"><span style="font-size:8pt">(nicht anzeigen)</span></a>
 		{else}
-			<a class="forschinfo" href="./ds?module=basen&amp;l=1"><span style="font-size:8pt">(anzeigen)</span></a>
+			<a href="./ds?module=basen&amp;l=1"><span style="font-size:8pt">(anzeigen)</span></a>
 		{/endif}
-	</td>
-	<td class="schiffData">Einheiten</td>
-	<td class="schiffData">Spezialgeb&auml;ude</td>
+	</th>
+	<th>Einheiten</th>
+	<th>Spezialgebäude</th>
 </tr>
+</thead>
+<tbody>
 <!-- BEGIN bases.listitem -->
 	<tr>
-		<td class="schiffData">
+		<td>
 			{!link_to $base.id, default, module:base, col:$base.id}
 		</td>
-		<td class="schiffData">
-			<a class="forschinfo" href="./ds?module=base&amp;col={base.id}">
-				<img style="vertical-align:middle; border:0px" src="{URL}data/starmap/kolonie{base.klasse}_lrs/kolonie{base.klasse}_lrs.png" alt="Kolonie" />&nbsp;
+		<td>
+			<a href="./ds?module=base&amp;col={base.id}">
+				<img class="baseIcon" src="{URL}data/starmap/kolonie{base.klasse}_lrs/kolonie{base.klasse}_lrs.png" alt="Kolonie" />&nbsp;
 				{base.name}
 			</a>
 		</td>
-		<td class="schiffData">{base.system}:{base.x}/{base.y}</td>
-		<td class="schiffData">{base.bewohner}</td>
-		<td class="schiffData">
+		<td>{base.system}:{base.x}/{base.y}</td>
+		<td>{base.bewohner}</td>
+		<td>
+			{base.e}
 			{if base.e.diff < 0}
-				<span style="color:red">{base.e}-{base.e.diff}
-			{/endif}
-			{if base.e.diff == 0}
-				<span style="color:yellow">{base.e}
+				<span style="color:red">-{base.e.diff}</span>
 			{/endif}
 			{if base.e.diff > 0}
-				<span style="color:green">{base.e}+{base.e.diff}
+				<span style="color:green">+{base.e.diff}</span>
 			{/endif}
-			</span>
 		</td>
-		<td class="schiffData">
-			<span style="color:red">
-				<!-- BEGIN bases.mangel.listitem -->
-					<span class="nobr"><img style="vertical-align:middle" src="{mangel.image}" alt="" title="{mangel.plainname}" />{mangel.rounds}</span>
-				<!-- END bases.mangel.listitem -->
-			</span>
+		<td class="mangelCol">
+			<!-- BEGIN bases.mangel.listitem -->
+				<span class="nobr"><img src="{mangel.image}" alt="" title="{mangel.plainname}" />{mangel.rounds}</span>
+			<!-- END bases.mangel.listitem -->
 		</td>
-		<td class="schiffData" style="width:35%">
+		<td>
 			{if global.l > 0}
 				<!-- BEGIN bases.cargo.listitem -->
-					<span class="nobr"><img style="vertical-align:middle" src="{res.image}" alt="" title="{res.plainname}" />{res.cargo}</span>
+					<span class="nobr"><img src="{res.image}" alt="" title="{res.plainname}" />{res.cargo}</span>
 				<!-- END bases.cargo.listitem -->
-				<span class="nobr"><img style="vertical-align:middle" src="{URL}data/interface/leer.gif" alt="" title="Leer" />{bases.cargo.empty}</span>
+				<span class="nobr"><img src="{URL}data/interface/leer.gif" alt="" title="Leer" />{bases.cargo.empty}</span>
 			{else}
 				{!link_to (anzeigen), default, css_style:font-size:8pt, l:1}
 			{/endif}
 		</td>
-		<td class="schiffData">
+		<td>
 			<!-- BEGIN bases.units.listitem -->
-			<img style="vertical-align:middle" src="{res.picture}" alt="" />{!link_to $res.name, default, module:unitinfo, unit:$res.id} {res.count}
+			<img src="{res.picture}" alt="" />{!link_to $res.name, default, module:unitinfo, unit:$res.id} {res.count}
 			<br />
 			<!-- END bases.units.listitem -->
 		</td>
-		<td class="schiffData">
+		<td class="gebaeudeCol">
 			{base.shortcuts}
 		</td>
 	</tr>
 <!-- END bases.listitem -->
+</tbody>
 </table>
+</div>

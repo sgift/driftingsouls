@@ -280,3 +280,36 @@
 	height:25px;
 	cursor:pointer;
 }
+
+/*
+	basen
+*/
+#basenBox {
+	width:95%;
+}
+#basenBox img {
+	vertical-align:middle;
+}
+
+#basenBox table {
+	width:100%;
+}
+#basenBox thead img {
+	float:right;
+}
+#basenBox .lagerCol {
+	width:40%;
+}
+#basenBox .baseIcon {
+	border:0px;
+}
+#basenBox tbody td.gebaeudeCol {
+	text-align:right;
+}
+#basenBox tbody td.mangelCol {
+	color:red;
+}
+#basenBox tbody td {
+	padding-bottom:10px;
+	vertical-align:top;
+}

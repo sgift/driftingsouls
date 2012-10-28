@@ -72,6 +72,7 @@ public class BasenController extends TemplateGenerator {
 		parameterNumber("l");	
 		parameterString("ord");
 		parameterNumber("order");
+		setPageTitle("Basen");
 	}
 	
 	@Override
@@ -109,6 +110,7 @@ public class BasenController extends TemplateGenerator {
 		
 		t.setVar(	"global.l",		l,
 					"global.order",	ord,
+					"global.order."+ord, 1,
 					"global.omode", order );
 	
 		
