@@ -1,26 +1,28 @@
-<div class="smallfont">
 <div class="gfxbox" style="width:95%">
-	<table class="noBorderX" width="100%">
-	<tr>
-		<td class="noBorderX" colspan="2">Name</td>
-		<td class="noBorderX">Baukosten</td>
-		<td class="noBorderX">Verbrauch</td>
-		<td class="noBorderX">Produktion</td>
-		<td class="noBorderX">Arbeiter</td>
-		<td class="noBorderX">Effekt</td>
-	</tr>
+	<table class="datatable" width="100%">
+	<thead>
+		<tr>
+			<th colspan="2">Name</th>
+			<th>Baukosten</th>
+			<th>Verbrauch</th>
+			<th>Produktion</th>
+			<th>Arbeiter</th>
+			<th>Effekt</th>
+		</tr>
+	</thead>
+	<tbody>
 	<!-- BEGIN buildings.listitem -->
 		{if buildings.list}
 			<tr>
-				<td class="noBorderX" colspan="8">
+				<td colspan="8">
 					<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
 				</td>
 			</tr>
 		{/endif}
 		<tr>
-			<td class="noBorderX"><img src="{URL}{building.picture}" alt="" /></td>
-			<td class="noBorderX">{building.name}</td>
-			<td class="noBorderX" valign="top">
+			<td><img src="{URL}{building.picture}" alt="" /></td>
+			<td>{building.name}</td>
+			<td valign="top">
 				{if building.buildcosts.list}
 					<!-- BEGIN building.buildcosts.listitem -->
 						<img style="vertical-align:middle" src="{res.image}" alt="" title="{res.plainname}" />{res.cargo}
@@ -29,7 +31,7 @@
 					-
 				{/endif}
 			</td>
-			<td class="noBorderX" valign="top">
+			<td valign="top">
 				{if building.consumes.list}
 					<!-- BEGIN building.consumes.listitem -->
 						<img style="vertical-align:middle" src="{res.image}" alt="" title="{res.plainname}" />{res.cargo}
@@ -38,7 +40,7 @@
 					-
 				{/endif}
 			</td>
-			<td class="noBorderX" valign="top">
+			<td valign="top">
 				{if building.produces.list}
 					<!-- BEGIN building.produces.listitem -->
 						<img style="vertical-align:middle" src="{res.image}" alt="" title="{res.plainname}" />{res.cargo}
@@ -47,14 +49,14 @@
 					-
 				{/endif}
 			</td>
-			<td class="noBorderX" valign="top">
+			<td valign="top">
 				{if building.arbeiter}
 					<img src="{URL}data/interface/narbeiter.gif" alt="Arbeiter" />{building.arbeiter}
 				{else}
 					-
 				{/endif}
 			</td>
-			<td class="noBorderX" valign="top">
+			<td valign="top">
 				{if building.bewohner}
 					<img src="{URL}data/interface/arbeiter.gif" alt="Bev&ouml;lkerung" />{building.bewohner}
 				{else}
@@ -64,34 +66,38 @@
 		</tr>
 		{if building.addinfo}
 			<tr>	
-				<td class="noBorderX">&nbsp;</td>
-				<td class="noBorderX" colspan="7">{building.addinfo}</td>
+				<td>&nbsp;</td>
+				<td colspan="7">{building.addinfo}</td>
 			</tr>
 		{/endif}
 	<!-- END buildings.listitem -->
+	</tbody>
 	</table>
 </div>
 <br />
 {if cores.list}
 	<br />
-	<div class="gfxbox" style="width:100%">
+	<div class="gfxbox" style="width:95%">
 		<span style="color:#cdcdcd">Cores:</span><br />
-		<table class="noBorderX" width="100%">
-		<tr>
-			<td class="noBorderX" colspan="2">Name</td>
-			<td class="noBorderX">Baukosten</td>
-			<td class="noBorderX">Verbrauch</td>
-			<td class="noBorderX">Produktion</td>
-			<td class="noBorderX">Arbeiter</td>
-			<td class="noBorderX">Effekt</td>
-		</tr>
+		<table class="datatable" width="100%">
+		<thead>
+			<tr>
+				<th colspan="2">Name</th>
+				<th>Baukosten</th>
+				<th>Verbrauch</th>
+				<th>Produktion</th>
+				<th>Arbeiter</th>
+				<th>Effekt</th>
+			</tr>
+		</thead>
+		<tbody>
 		<!-- BEGIN cores.listitem -->
 			<tr>
-				<td class="noBorderX">
+				<td>
 					<img src="{URL}data/starmap/kolonie{core.astitype}_lrs/kolonie{core.astitype}_lrs.png" alt="" />
 				</td>
-				<td class="noBorderX">{core.name}</td>
-				<td class="noBorderX" valign="top">
+				<td>{core.name}</td>
+				<td valign="top">
 					{if core.buildcosts.list}
 						<!-- BEGIN core.buildcosts.listitem -->
 							<img style="vertical-align:middle" src="{res.image}" alt="" title="{res.plainname}" />{res.cargo}
@@ -100,7 +106,7 @@
 						-
 					{/endif}
 				</td>
-				<td class="noBorderX" valign="top">
+				<td valign="top">
 					{if core.consumes.list}
 						<!-- BEGIN core.consumes.listitem -->
 							<img style="vertical-align:middle" src="{res.image}" alt="" title="{res.plainname}" />{res.cargo}
@@ -109,7 +115,7 @@
 						-
 					{/endif}
 				</td>
-				<td class="noBorderX" valign="top">
+				<td valign="top">
 					{if core.produces.list}
 						<!-- BEGIN core.produces.listitem -->
 							<img style="vertical-align:middle" src="{res.image}" alt="" title="{res.plainname}" />{res.cargo}
@@ -118,14 +124,14 @@
 						-
 					{/endif}
 				</td>
-				<td class="noBorderX" valign="top">
+				<td valign="top">
 					{if core.arbeiter}
 						<img src="{URL}data/interface/narbeiter.gif" alt="Arbeiter" />{core.arbeiter}
 					{else}
 						-
 					{/endif}
 				</td>
-				<td class="noBorderX" valign="top">
+				<td valign="top">
 					{if core.bewohner}
 						<img src="{URL}data/interface/arbeiter.gif" alt="Bev&ouml;lkerung" />{core.bewohner}
 					{else}
@@ -134,15 +140,17 @@
 				</td>
 			</tr>
 		<!-- END cores.listitem -->
+		</tbody>
 		</table>
 	</div>
+{/endif}
+<div class="smallfont">
 	<br />
-{/endif}
-{if base.field}
-	{!link_to zur&uuml;ck, default, css_class:back, module:build, col:$base.id, field:$base.field}
-{else}
-	{if base.id}
-		{!link_to zur&uuml;ck, default, module:base, css_class:back, col:$base.id}
+	{if base.field}
+		{!link_to zur&uuml;ck, default, css_class:back, module:build, col:$base.id, field:$base.field}
+	{else}
+		{if base.id}
+			{!link_to zur&uuml;ck, default, module:base, css_class:back, col:$base.id}
+		{/endif}
 	{/endif}
-{/endif}
 </div>
