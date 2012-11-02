@@ -266,7 +266,7 @@
 				nach dem Komprimieren kommt JQuery an den Anfang (da bereits minimiert) -->
 			<fileset dir="${build.home}/data/javascript/libs"
 				includes="*.js"
-				excludes="jquery-1.7.2.min.js,jquery-ui-1.8.20.min.js"/>
+				excludes="jquery-1.8.2.min.js,jquery-ui-1.8.20.min.js"/>
 			<fileset dir="${build.home}/data/javascript/common"
 				includes="*.js"/>
 			<fileset dir="${build.home}/data/javascript/modules"
