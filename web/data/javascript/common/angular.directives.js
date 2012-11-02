@@ -600,9 +600,10 @@ angular.module('ds.directives', [])
 									'left': x+"px",
 									'top': y+"px"
 								});
-								jsPlumbInstance.draggable(clone);
-
 								cursor.after(clone);
+
+                                jsPlumbInstance.draggable(clone);
+
 								last = {
 									scope: childScope,
 									element: (cursor = clone),

@@ -247,7 +247,7 @@ public abstract class DSGenerator extends Generator {
 			File commondir = new File(jsdir.getAbsolutePath()+"/common");
 
 			sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/libs/jquery-1.8.2.min.js\" type=\"text/javascript\"></script>\n");
-			sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/libs/jquery-ui-1.8.20.min.js\" type=\"text/javascript\"></script>\n");
+			sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/libs/jquery-ui-1.9.1.min.js\" type=\"text/javascript\"></script>\n");
 			for( String filename : new TreeSet<String>(Arrays.asList(libdir.list())) )
 			{
 				if( filename.startsWith("jquery-1") || filename.startsWith("jquery-ui-1") || !filename.endsWith(".js") )
