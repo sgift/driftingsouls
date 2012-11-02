@@ -15,7 +15,7 @@
 		<td class="noBorder">&nbsp;</td>
 		<td class="noBorder">
 			<div class="gfxbox" style="width:590px;text-align:center">
-				{!link_to Nachricht schreiben, default, to:0}
+				{!link_to Nachricht schreiben, default}
 				&nbsp;&nbsp;|&nbsp;&nbsp;
 				{!link_to Posteingang, showInbox}
 				&nbsp;&nbsp;|&nbsp;&nbsp;
@@ -73,11 +73,24 @@
 		<table class="noBorderX" cellspacing="2" cellpadding="4">
 		<tr>
 			<td class="noBorderX">An</td>
-			<td class="noBorderX"><input id="pm_to" name="to" type="text" size="5" value="{write.to}" /> "ally" oder User-ID (<a class="forschinfo" href="javascript:PlayerList()">Liste</a>)</td>
+			<td class="noBorderX">
+				<ul style="list-style:none;margin:0px;padding:0px;">
+					<li>
+						{if user.ally}<input type="radio" style="padding-right:5px" id="sendeziel_user" name="sendeziel" value="user" {if !sendeziel.ally}checked="checked"{/endif} />{/endif}
+						<input id="pm_to" name="to" type="text" size="50" value="{write.to}" onfocus="$('#sendeziel_user').click()" /> (<a class="forschinfo" href="javascript:PlayerList()">Liste</a>)
+					</li>
+					{if user.ally}
+					<li>
+						<input type="radio" name="sendeziel" style="padding-right:5px" value="ally" {if sendeziel.ally}checked="checked"{/endif} />
+						Gesamte Allianz
+					</li>
+					{/endif}
+				</ul>
+			</td>
 		</tr>
 		<tr>
 			<td class="noBorderX">Betreff</td>
-			<td class="noBorderX"><input name="title" type="text" size="30" maxlength="30" value="{write.title}" /></td>
+			<td class="noBorderX"><input name="title" type="text" style="width:500px" maxlength="100" value="{write.title}" /></td>
 		</tr>
 		{if write.specialui.list}
 			<tr>
@@ -115,10 +128,7 @@
 		</form>
 		<hr noshade="noshade" size="1" style="color:#cccccc" />
 		<span style="font-weight:bold">Hinweis:</span><br />
-		Es k&ouml;nnen in der Nachricht die <a class="forschinfo" href="javascript:BBCodeInfo()">BBCodes</a> verwendet werden<br /><br />
-		<span style="font-weight:bold">M&ouml;gliche Empf&auml;nder:</span><br />
-		"ally" - Alle Mitglieder der Allianz<br />
-		User-ID -  Der Spieler mit dieser ID (<a class="forschinfo" href="javascript:PlayerList()">Liste</a>)
+		Es k&ouml;nnen in der Nachricht die <a class="forschinfo" href="javascript:BBCodeInfo()">BBCodes</a> verwendet werden
 	</div>
 {/endif}
 {if show.inbox}

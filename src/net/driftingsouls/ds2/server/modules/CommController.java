@@ -540,10 +540,12 @@ public class CommController extends TemplateGenerator {
 		parameterString("to");
 		parameterNumber("reply");
 		parameterString("msg");
+		parameterString("sendeziel");
 
 		String to = getString("to").trim();
 		int reply = getInteger("reply");
 		String msg = getString("msg");
+		String sendeziel = getString("sendeziel");
 
 		String title = null;
 		String special = null;
@@ -594,7 +596,7 @@ public class CommController extends TemplateGenerator {
 
 			PM.send(user, PM.TASK, title, msg, flags );
 		}
-		else if( "ally".equals(to) ) {
+		else if( "ally".equals(to) || "ally".equals(sendeziel) ) {
 			if( user.getAlly() == null ) {
 				t.setVar("show.message", "<span style=\"color:red; font-weight:bold\">Sie sind in keiner Allianz Mitglied</span>");
 
@@ -901,11 +903,13 @@ public class CommController extends TemplateGenerator {
 		parameterString("to");
 		parameterString("title");
 		parameterString("special");
+		parameterString("sendeziel");
 
 		String msg = getString("msg");
 		String to = getString("to");
 		String title = getString("title");
 		String special = getString("special");
+		String sendeziel = getString("sendeziel");
 
 		Map<String,String> specialuilist = new LinkedHashMap<String,String>();
 		specialuilist.put("nichts", "");
@@ -942,12 +946,13 @@ public class CommController extends TemplateGenerator {
 		t.setVar(	"pm.text",			Smilie.parseSmilies(Common._text(msg)),
 					"pm.title",			title,
 					"pm.sender",		user.getId(),
-					"pm.sender.name",	user.getName(),
+					"pm.sender.name",	Common._title(user.getName()),
 					"pm.time",			Common.date("j.n.Y G:i", Common.time()),
 					"pm.bgimage",		bgimg,
 					"write.to",			to,
 					"write.title",		title,
 					"write.message",	msg,
+					"sendeziel.ally",	"ally".equals(sendeziel),
 					"show.preview",		1,
 					"show.write",		1 );
 	}
