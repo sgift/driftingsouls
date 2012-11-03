@@ -68,9 +68,9 @@
 				{base.name}
 			</a>
 		</td>
-		<td>{base.system}:{base.x}/{base.y}</td>
-		<td>{base.bewohner}</td>
-		<td>
+		<td class="locationCol">{base.system}:{base.x}/{base.y}</td>
+		<td class="bewohnerCol">{base.bewohner}</td>
+		<td class="energieCol">
 			{base.e}
 			{if base.e.diff < 0}
 				<span style="color:red">-{base.e.diff}</span>

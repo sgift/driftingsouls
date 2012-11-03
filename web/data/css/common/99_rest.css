@@ -309,6 +309,9 @@
 #basenBox tbody td.mangelCol {
 	color:red;
 }
+#basenBox tbody td.energieCol {
+	white-space:nowrap;
+}
 #basenBox tbody td {
 	padding-bottom:10px;
 	vertical-align:top;
