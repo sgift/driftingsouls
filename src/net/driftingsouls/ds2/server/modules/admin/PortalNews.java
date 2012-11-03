@@ -60,7 +60,7 @@ public class PortalNews implements AdminPlugin {
 		else 
 		{
 			Session db = context.getDB();
-			String username = context.getActiveUser().getPlainname();
+			String username = Common.escapeHTML(context.getActiveUser().getPlainname());
 			long timestamp = Common.time();
 			NewsEntry entry = new NewsEntry(title, username, timestamp, shortDescription, news);
 			db.persist(entry);

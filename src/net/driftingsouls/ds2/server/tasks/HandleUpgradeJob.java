@@ -218,7 +218,7 @@ class HandleUpgradeJob implements TaskHandler
 	{
 		User faction = (User)db.get(User.class, factionId);
 
-		String message = "Sehr geehrter "+order.getUser().getPlainname()+",\n\n"+
+		String message = "Sehr geehrter "+order.getUser().getName()+",\n\n"+
 			"gerne führen wir den von ihnen beauftragten Ausbau des Asteroids '"+order.getBase().getName()+"' ("+order.getBase().getId()+") durch. Bitte stellen sie die folgenden Dinge sicher: [list]\n";
 		if( !order.getPayed() ) {
 			if( order.getBar() ) {
@@ -243,7 +243,7 @@ class HandleUpgradeJob implements TaskHandler
 	{
 		User faction = (User)db.get(User.class, factionId);
 
-		String message = "Sehr geehrter "+order.getUser().getPlainname()+",\n\n"+
+		String message = "Sehr geehrter "+order.getUser().getName()+",\n\n"+
 			"der von ihnen bestellte Ausbau des Asteroids '"+order.getBase().getName()+"' ("+order.getBase().getId()+") ist nun abgeschlossen. " +
 					"Wir hoffen, dass sie mit der herausragenden Qualität von "+faction.getPlainname()+" Asteroidenerweiterungen zufrieden sind. \n";
 		message += "Wir würden uns freuen, wenn wir sie in Zukunft erneut als Kunden begrüßen dürften.\n\n";
@@ -257,7 +257,7 @@ class HandleUpgradeJob implements TaskHandler
 	{
 		User faction = (User)db.get(User.class, factionId);
 
-		String message = "Sehr geehrter "+order.getUser().getPlainname()+",\n\n"+
+		String message = "Sehr geehrter "+order.getUser().getName()+",\n\n"+
 			"der von ihnen bestellte Ausbau des Asteroids '"+order.getBase().getName()+"' ("+order.getBase().getId()+") ist nun abgeschlossen. " +
 					"Aufgrund ihres erreichten Feldermaximums ist es nicht m&ouml;glich Ihnen den Asteroiden zur&uuml;ckzugeben.\n";
 		message += "Der Asteroid wurde von "+ faction.getPlainname() +" aufgegeben und kann jederzeit von Ihnen besiedelt werden.\n";

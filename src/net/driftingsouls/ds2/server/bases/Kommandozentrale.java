@@ -516,7 +516,7 @@ public class Kommandozentrale extends DefaultBuilding {
 								"ship.y",		ship.getY() );
 
 					if( ship.getOwner().getId() != user.getId() ) {
-						t.setVar("ship.owner.name", ship.getOwner().getPlainname());
+						t.setVar("ship.owner.name", Common.escapeHTML(ship.getOwner().getPlainname()));
 					}
 					else {
 						t.setVar("ship.owner.name", "");

@@ -32,6 +32,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
 
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import org.apache.commons.lang.StringUtils;
@@ -352,7 +353,7 @@ public abstract class BasicUser {
 	public void setName( String name ) {
 		if( !name.equals(this.name) ) {
 			this.name = name;
-			this.plainname = Common._titleNoFormat(name);
+			this.plainname = BBCodeParser.getInstance().parse(name,new String[] {"all"});
 		}
 	}
 

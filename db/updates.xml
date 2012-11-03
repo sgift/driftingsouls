@@ -1761,4 +1761,20 @@
 
     	ALTER TABLE building_alternativebilder ADD CONSTRAINT building_alternativebilder_fk_building FOREIGN KEY (Building_id) REFERENCES buildings(id);
     ]]></update>
+	<update type="data" datum="2012-11-03"><![CDATA[
+		UPDATE users SET plainname=replace(plainname,'&#187;', '»');
+		UPDATE users SET plainname=replace(plainname,'&#171;', '«');
+		UPDATE users SET plainname=replace(plainname,'&#252;', 'ü');
+		UPDATE users SET plainname=replace(plainname,'&#246;', 'ö');
+		UPDATE users SET plainname=replace(plainname,'&#180;', '´');
+		UPDATE users SET plainname=replace(plainname,'&#225;', 'á');
+		UPDATE users SET plainname=replace(plainname,'&#233;', 'é');
+		UPDATE users SET plainname=replace(plainname,'&#223;', 'ß');
+		UPDATE users SET plainname=replace(plainname,'&#228;', 'ä');
+		UPDATE users SET plainname=replace(plainname,'&#160;', ' ');
+		UPDATE users SET plainname=replace(plainname,'&#299;', 'ī');
+		UPDATE users SET plainname=replace(plainname,'&#237;', 'í');
+		UPDATE users SET plainname=replace(plainname,'&#257;', 'ā');
+		UPDATE users SET plainname=replace(plainname,'&#236;', 'ì');
+	]]></update>
 </updates>
