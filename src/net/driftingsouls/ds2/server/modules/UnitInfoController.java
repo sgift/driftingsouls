@@ -79,8 +79,8 @@ public class UnitInfoController extends TemplateGenerator {
 			if( !unit.isHidden() || user.isKnownUnit(unit) )
 			{
 				t.setVar(	"unit.id",		unit.getId(),
-							"unit.name", 	unit.getName() + ((unit.isHidden() && hasPermission("unit", "versteckteSichtbar")) ? "[hidden]" : ""),
-							"unit.groesse",	unit.getSize(),
+							"unit.name", 	unit.getName() + ((unit.isHidden() && hasPermission("unit", "versteckteSichtbar")) ? " [hidden]" : ""),
+							"unit.groesse",	Common.ln(unit.getSize()),
 							"unit.picture",	unit.getPicture() );
 
 				t.parse("unitinfo.unitlist.list", "unitinfo.unitlist.listitem", true);
@@ -120,7 +120,7 @@ public class UnitInfoController extends TemplateGenerator {
 
 		for(ResourceEntry res : unittype.getBuildCosts().getResourceList())
 		{
-			buildcosts = buildcosts+"<img style=\"vertical-align:middle\" src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1();
+			buildcosts = buildcosts+" <img style=\"vertical-align:middle\" src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1();
 		}
 
 		Forschung forschung = Forschung.getInstance(unittype.getRes());
@@ -143,11 +143,11 @@ public class UnitInfoController extends TemplateGenerator {
 
 		t.setVar(	"unitinfo.details",	1,
 					"unit.picture",		unittype.getPicture(),
-					"unit.name",		name + ((unittype.isHidden() && hasPermission("unit", "versteckteSichtbar")) ? "[hidden]" : ""),
-					"unit.size",		unittype.getSize(),
-					"unit.nahrungcost",	unittype.getNahrungCost(),
-					"unit.recost",		unittype.getReCost(),
-					"unit.kapervalue",	unittype.getKaperValue(),
+					"unit.name",		name + ((unittype.isHidden() && hasPermission("unit", "versteckteSichtbar")) ? " [hidden]" : ""),
+					"unit.size",		Common.ln(unittype.getSize()),
+					"unit.nahrungcost",	Common.ln(unittype.getNahrungCost()),
+					"unit.recost",		Common.ln(unittype.getReCost()),
+					"unit.kapervalue",	Common.ln(unittype.getKaperValue()),
 					"unit.description",	Common._text(unittype.getDescription()),
 					"unit.baukosten",	buildcosts,
 					"unit.forschung",	forschungstring );
