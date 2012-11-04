@@ -143,9 +143,9 @@
 	<div class="gfxbox" style="width:510px">
 		<table class="noBorderX" cellpadding="2" cellspacing="2">
 		<tr>
-			<td class="noBorderX">Eigenes</td>
+			<td class="noBorderX">Eigenes Logo</td>
 			{if user.ally}
-				<td class="noBorderX">Allianz</td>
+				<td class="noBorderX">Allianzlogo</td>
 			{/endif}
 		</tr>
 		<tr>
@@ -204,12 +204,12 @@
 		<form action="./ds" method="post">
 			<div>
 				<span style="font-weight:bold">Vacation-Modus:</span><br />
-				<p>Du kannst den Vacation-Modus maximal {vacation.maxtime} Tage aktivieren.</p>
+				<p>Du kannst den Vacation-Modus maximal {vacation.maxtime} Tage lang aktivieren.</p>
 				{!form_create_hidden vacMode}
 				<input type="text" maxlength="5" size="5" name="vacdays" /> Tage
 				<input type="submit" value="ok" /><br /><br />
 				<span style="font-size:10px">Nach dem Starten den Vacationmodus dauert es einige Ticks bis dieser auch aktiviert wird.
-					W&auml;hrenddessen k&ouml;nnen sie jeder Zeit den Vacationmodus abbrechen. Auch eine normale Nutzung des Accounts ist m&ouml;glich.
+					W&auml;hrenddessen kannst du jeder Zeit den Vacationmodus abbrechen. Auch eine normale Nutzung des Accounts ist m&ouml;glich.
 					Sobald der Vacationmodus allerdings vollst&auml;ndig aktiviert ist, ist ein Login nicht mehr m&ouml;glich bis entweder der Vacationmodus abgelaufen ist oder durch einen Administrator abgeschaltet wurde.
 				</span>
 			</div>
