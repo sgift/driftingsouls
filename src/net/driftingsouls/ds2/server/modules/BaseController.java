@@ -18,10 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.BaseStatus;
 import net.driftingsouls.ds2.server.bases.Building;
@@ -39,6 +35,9 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenera
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Verwaltung einer Basis.
@@ -297,7 +296,7 @@ public class BaseController extends TemplateGenerator {
 
 		JSONArray mapObj = new JSONArray();
 
-		Map<Integer,Integer> buildingonoffstatus = new LinkedHashMap<Integer,Integer>();
+		Map<Integer,Integer> buildingonoffstatus = new TreeMap<Integer,Integer>(new BuildingComparator());
 
 		for( int i = 0; i < base.getWidth() * base.getHeight(); i++ ) {
 			JSONObject feld = new JSONObject();
@@ -309,10 +308,10 @@ public class BaseController extends TemplateGenerator {
 				Building building = Building.getBuilding(base.getBebauung()[i]);
 				base.getActive()[i] = basedata.getActiveBuildings()[i];
 
+				if( !buildingonoffstatus.containsKey(base.getBebauung()[i]) ) {
+					buildingonoffstatus.put(base.getBebauung()[i], 0);
+				}
 				if( building.isDeakAble() ) {
-					if( !buildingonoffstatus.containsKey(base.getBebauung()[i]) ) {
-						buildingonoffstatus.put(base.getBebauung()[i], 0);
-					}
 					if( buildingonoffstatus.get(base.getBebauung()[i]) == 0 ) {
 						buildingonoffstatus.put( base.getBebauung()[i], base.getActive()[i] + 1 );
 					}
@@ -343,17 +342,14 @@ public class BaseController extends TemplateGenerator {
 		//----------------
 
 		JSONArray buildingStatus = new JSONArray();
-		for( int bid : buildingonoffstatus.keySet() ) {
-			int bstatus = buildingonoffstatus.get(bid);
-			if( bstatus == 0 ) {
-				continue;
-			}
-			Building building = Building.getBuilding(bid);
+		for( Map.Entry<Integer,Integer> entry : buildingonoffstatus.entrySet() ) {
+			int bstatus = entry.getValue();
+			Building building = Building.getBuilding(entry.getKey());
 
 			JSONObject buildingObj = new JSONObject();
 			buildingObj
 				.accumulate("name", Common._plaintitle(building.getName()))
-				.accumulate("id", bid)
+				.accumulate("id", entry.getKey())
 				.accumulate("aktivierbar", (bstatus == -1) || (bstatus == 1))
 				.accumulate("deaktivierbar", (bstatus == -1) || (bstatus == 2));
 
@@ -404,7 +400,7 @@ public class BaseController extends TemplateGenerator {
 		// Karte
 		//----------------
 
-		Map<Integer,Integer> buildingonoffstatus = new LinkedHashMap<Integer,Integer>();
+		Map<Integer,Integer> buildingonoffstatus = new TreeMap<Integer,Integer>(new BuildingComparator());
 
 		t.setBlock("_BASE", "base.map.listitem", "base.map.list");
 
@@ -422,10 +418,11 @@ public class BaseController extends TemplateGenerator {
 				Building building = Building.getBuilding(base.getBebauung()[i]);
 				base.getActive()[i] = basedata.getActiveBuildings()[i];
 
+				if( !buildingonoffstatus.containsKey(base.getBebauung()[i]) ) {
+					buildingonoffstatus.put(base.getBebauung()[i], 0);
+				}
 				if( building.isDeakAble() ) {
-					if( !buildingonoffstatus.containsKey(base.getBebauung()[i]) ) {
-						buildingonoffstatus.put(base.getBebauung()[i], 0);
-					}
+
 					if( buildingonoffstatus.get(base.getBebauung()[i]) == 0 ) {
 						buildingonoffstatus.put( base.getBebauung()[i], base.getActive()[i] + 1 );
 					}
@@ -494,15 +491,13 @@ public class BaseController extends TemplateGenerator {
 
 		t.setBlock("_BASE", "base.massonoff.listitem", "base.massonoff.list");
 
-		for( int bid : buildingonoffstatus.keySet() ) {
-			int bstatus = buildingonoffstatus.get(bid);
-			if( bstatus == 0 ) {
-				continue;
-			}
 
-			Building building = Building.getBuilding(bid);
+		for( Map.Entry<Integer,Integer> entry : buildingonoffstatus.entrySet() ) {
+			int bstatus = entry.getValue();
+
+			Building building = Building.getBuilding(entry.getKey());
 			t.setVar(	"building.name",	Common._plaintitle(building.getName()),
-						"building.id",		bid,
+						"building.id",		entry.getKey(),
 						"building.allowoff",	(bstatus == -1) || (bstatus == 2),
 						"building.allowon",	(bstatus == -1) || (bstatus == 1) );
 
@@ -542,5 +537,18 @@ public class BaseController extends TemplateGenerator {
 			"arbeitslosProzent", arbeitslosProzent,
 			"wohnraumFreiProzent", wohnraumFreiProzent,
 			"wohnraumFehltProzent", wohnraumFehltProzent);
+	}
+
+	private static class BuildingComparator implements Comparator<Integer> {
+
+		@Override
+		public int compare(Integer o1, Integer o2) {
+			int diff = Building.getBuilding(o1).getName().compareTo(Building.getBuilding(o2).getName());
+			if( diff != 0 )
+			{
+				return diff;
+			}
+			return o1.compareTo(o2);
+		}
 	}
 }
