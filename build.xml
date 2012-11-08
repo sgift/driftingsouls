@@ -283,8 +283,8 @@
 		</java>
 
 		<concat destfile="${build.home}/data/javascript/ds.js" append="false">
-			<fileset file="${build.home}/data/javascript/libs/jquery-1.7.2.min.js" />
-			<fileset file="${build.home}/data/javascript/libs/jquery-ui-1.8.20.min.js" />
+			<fileset file="${build.home}/data/javascript/libs/jquery-1.8.2.min.js" />
+			<fileset file="${build.home}/data/javascript/libs/jquery-ui-1.9.1.min.js" />
 			<fileset file="${build.home}/data/javascript/ds_compressed.js" />
 		</concat>
 
