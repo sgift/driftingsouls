@@ -123,10 +123,7 @@ public class StatsController extends DSGenerator {
 		registerStat( "Sonstiges", new StatPopulationDensity(), "Siedlungsdichte", 0 );
 		registerStat( "Sonstiges", new StatShips(), "Schiffe", 0 );
 		registerStat( "Sonstiges", new StatShipCount(), "Schiffsentwicklung", 0 );
-		if( user.isNPC() )
-		{
-			registerStat( "Sonstiges", new StatWarenentwicklung(), "Warenentwicklung", 0 );
-		}
+		registerStat( "Sonstiges", new StatWarenentwicklung(), "Warenentwicklung", 0 );
 		registerStat( "Sonstiges", new StatWaren(), "Waren", 0 );
 		registerStat( "Sonstiges", new StatEinheiten(), "Einheiten", 0);
 		registerStat( "Sonstiges", new StatData(), "Diverse Daten", 0 );

@@ -8,7 +8,19 @@ var Stats = {
 	germanNumberFormatter : function(format,val) {
 		return DS.ln(val);
 	},
-	chart : function(selector, xaxis, yaxis, datasets) {
+	chart : function(selector, datasets, options) {
+		var xaxis = options.xaxis;
+		if( typeof xaxis === 'undefined' ) {
+			xaxis = {};
+		}
+
+		var yaxis = options.yaxis;
+		if( typeof yaxis === 'undefined' ) {
+			yaxis = {};
+		}
+
+		var multiSelect = options.selection !== 'single';
+
 		var selectedDatasets = [];
 		var dataRendererFunction = function() {
 			var data = [];
@@ -52,7 +64,7 @@ var Stats = {
 		redraw();
 
 		var el = $('#'+selector);
-		var datasetsEl = this.__renderDatasets(el, datasets);
+		var datasetsEl = this.__renderDatasets(el, multiSelect, datasets);
 
 		var self = this;
 
@@ -72,12 +84,19 @@ var Stats = {
 			delete selectedDatasets[key];
 			redraw();
 		}
+		var removeAllDatasets = function() {
+			selectedDatasets = [];
+			redraw();
+		}
 
 		if( datasetsEl != null ) {
 			datasetsEl.find('input').on('click', function(event) {
 				var tar = $(event.target);
 				var key = tar.attr('ds-stats-key');
 				if( tar.attr('checked') && typeof selectedDatasets[key] === 'undefined' ) {
+					if( !multiSelect ) {
+						removeAllDatasets();
+					}
 					showDataset(key);
 				}
 				else if( !tar.attr('checked') && typeof selectedDatasets[key] !== 'undefined' ) {
@@ -98,16 +117,22 @@ var Stats = {
 			showDataset(datasets[0].key)
 		}
 	},
-	__renderDatasets : function(target,datasets) {
+	__renderDatasets : function(target,multiSelect,datasets) {
 		if( datasets.length <= 0 ) {
 			return null;
 		}
 		target.after("<div class='datasets'></div>");
 
+		var groupName = target.attr('id')+'_selection';
+
 		var datasetsEl = target.next();
 		for( var i=0,length=datasets.length; i < length; i++ ) {
 			var set = datasets[i];
-			datasetsEl.append("<div class='set'><input type='checkbox' ds-stats-key='"+set.key+"' />"+set.label+"</div>");
+			datasetsEl.append(
+				"<div class='set'>"+
+				"<input type='"+(multiSelect ? 'checkbox' : 'radio')+"' name='"+groupName+"' ds-stats-key='"+set.key+"' />"+set.label+
+				"</div>"
+			);
 		}
 		return datasetsEl;
 	}

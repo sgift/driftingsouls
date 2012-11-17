@@ -57,7 +57,7 @@ public class StatWarenentwicklung implements Statistic,AjaxStatistic {
 		echo.write("<h1>Warenentwicklung</h1>");
 		SortedMap<ResourceID, SortedMap<Integer, Long>> cargos = generateDataMap(db);
 		echo.append("<div id='warenstats'></div><script type='text/javascript'>$(document).ready(function(){\n");
-		echo.append("Stats.chart('warenstats',{label:'Tick',pad:0,tickInterval:49}, {label:'Menge'},[");
+		echo.append("Stats.chart('warenstats',[");
 		boolean first = true;
 		for( Map.Entry<ResourceID,SortedMap<Integer,Long>> entry : cargos.entrySet() )
 		{
@@ -78,7 +78,7 @@ public class StatWarenentwicklung implements Statistic,AjaxStatistic {
 			first = false;
 			echo.append("{label:'"+item.getName()+"',key:'"+item.getID()+"',picture:'"+item.getPicture()+"'}");
 		}
-		echo.append("]);\n");
+		echo.append("],{xaxis:{label:'Tick',pad:0,tickInterval:49}, yaxis:{label:'Menge'}, selection:'single'});\n");
 		echo.append("});</script>");
 	}
 
@@ -105,7 +105,7 @@ public class StatWarenentwicklung implements Statistic,AjaxStatistic {
 		int counter = 0;
 		List<StatCargo> stats = Common.cast(db
 				.createQuery("from StatCargo order by tick desc")
-				.setMaxResults(90)
+				.setMaxResults(30+31) // ca 2 Monate
 				.list());
 		for( StatCargo sc : stats )
 		{
