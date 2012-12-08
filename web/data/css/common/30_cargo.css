@@ -8,15 +8,21 @@
 	text-decoration:none;
 }
 .cargo1.positiv,
-.cargo2.positiv {
+.gfxbox .cargo1.positiv,
+.cargo2.positiv,
+ .gfxbox .cargo2.positiv {
 	color:green;
 }
 .cargo1.negativ,
-.cargo2.negativ {
+.gfxbox .cargo1.negativ,
+.cargo2.negativ,
+.gfxbox .cargo2.negativ {
 	color:#E00000;
 }
 .cargo1:hover,
-.cargo2:hover {
+.gfxbox .cargo1:hover,
+.cargo2:hover,
+.gfxbox .cargo2:hover{
 	color: #F0A000;
 }
 
