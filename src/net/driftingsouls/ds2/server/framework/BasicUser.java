@@ -267,7 +267,6 @@ public abstract class BasicUser {
 			.uniqueResult();
 
 		if( value == null ) {
-			log.warn("Uservalue "+valuename+" hat keinen Defaultwert");
 			return "";
 		}
 		return value.getValue();

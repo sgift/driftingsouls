@@ -266,7 +266,7 @@ public class UnitCargo implements Cloneable, JSONSupport {
 
 	/**
 	 * Ueberprueft ob eine Einheit vorhanden ist.
-	 * @param unitid Der Einheitentyp
+	 * @param unit Der Einheitentyp
 	 * @return <code>true</code>, falls die Einheit vorhanden ist
 	 */
 	public boolean hasUnit( UnitType unit ) {

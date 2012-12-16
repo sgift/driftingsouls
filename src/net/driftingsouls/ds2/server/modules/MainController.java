@@ -28,12 +28,14 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.JSONUtils;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
+import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -74,6 +76,22 @@ public class MainController extends TemplateGenerator {
 		getTemplateEngine().setVar("SCRIPT_FORUM", SCRIPT_FORUM);
 
 		return true;
+	}
+
+	/**
+	 * Persistiert die Notizen eines Benutzers.
+	 * @return Die JSON-Nachricht ueber den Erfolg des speicherns
+	 */
+	@Action(ActionType.AJAX)
+	public JSONObject speicherNotizen() {
+		parameterString("notizen");
+
+		String notizen = getString("notizen");
+
+		User user = (User)getUser();
+		user.setUserValue("TBLORDER/main/notizen", notizen.trim());
+
+		return JSONUtils.success("gespeichert");
 	}
 
 	/**
@@ -135,9 +153,10 @@ public class MainController extends TemplateGenerator {
 		}
 
 		t.setVar(
-				"user.npc"		, user.hasFlag( User.FLAG_ORDER_MENU ),
-				"user.adminSichtbar"	, hasPermission("admin", "sichtbar"),
-				"admin.showconsole",	user.getUserValue("TBLORDER/admin/show_cmdline"));
+				"user.npc", user.hasFlag( User.FLAG_ORDER_MENU ),
+				"user.adminSichtbar", hasPermission("admin", "sichtbar"),
+				"admin.showconsole", user.getUserValue("TBLORDER/admin/show_cmdline"),
+				"user.notizen", user.getUserValue("TBLORDER/main/notizen"));
 
 		t.setBlock("_MAIN", "bases.listitem", "bases.list");
 

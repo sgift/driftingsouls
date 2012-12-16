@@ -201,7 +201,33 @@ var adminBox = {
 	}
 };
 
+var notizBox = {
+	__timeout : false,
+	init : function() {
+		$('#noticebox').draggable();
 
+		var self = this;
+		$('#noticebox textarea').on('keypress', function() {
+			self.onChanged();
+		});
+	},
+	onChanged : function() {
+		if( !this.__timeout ) {
+			this.__timeout = true;
+			var self = this;
+			setTimeout(function() {
+				self.__timeout = false;
+				self.__speichern();
+			}, 500);
+		}
+	},
+	__speichern : function() {
+		var notizen = $('#noticebox textarea').val();
+		$.post(
+			DS.getUrl(),
+			{module:'main', action:'speicherNotizen', notizen:notizen});
+	}
+};
 
 /*
 	Page-Funktionen
@@ -273,7 +299,7 @@ function completePage() {
 $(document).ready(function() {
 	if( $('#currentDsModule').val() === 'main' ) {
 		checkPMStatus();
-		$('#noticebox').draggable();
+		notizBox.init();
 		$('#helpbox').draggable();
 		$('#searchbox').draggable();
 		adminBox.init();
