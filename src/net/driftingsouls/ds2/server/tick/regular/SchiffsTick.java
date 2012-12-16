@@ -293,6 +293,8 @@ public class SchiffsTick extends TickController {
 			shipd.setCrew(0);
 		}
 
+		shipd.recalculateShipStatus(false);
+
 		this.slog("\tNeu: crew "+shipd.getCrew()+" e "+e+" nc "+shipd.getNahrungCargo()+" : <");
 		this.slog(shipd.getStatus());
 		this.log(">");

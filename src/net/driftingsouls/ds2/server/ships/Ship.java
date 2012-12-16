@@ -878,6 +878,17 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * @return der neue Status-String
 	 */
 	public String recalculateShipStatus() {
+		return this.recalculateShipStatus(true);
+	}
+
+	/**
+	 * Berechnet das Status-Feld des Schiffes neu. Diese Aktion sollte nach jeder
+	 * Operation angewendet werden, die das Schiff in irgendeiner Weise veraendert.
+	 * Die Berechnung des Nahrungsverbrauchs ist dabei optional.
+	 * @param nahrungPruefen <code>true</code>, falls der Nahrungsverbrauch geprueft werden soll
+	 * @return der neue Status-String
+	 */
+	public String recalculateShipStatus(boolean nahrungPruefen) {
 		if( this.id < 0 ) {
 			throw new UnsupportedOperationException("recalculateShipStatus kann nur bei Schiffen mit positiver ID ausgefuhert werden!");
 		}
@@ -897,17 +908,20 @@ public class Ship implements Locatable,Transfering,Feeding {
 			for( int i=0; i < oldstatus.length; i++ ) {
 				String astatus = oldstatus[i];
 
-				// deprecated -- vorlaeufig automatisch rausfiltern
-				if( astatus.equals("tblmodules") || astatus.equals("nebel") ) {
+				// Aktuelle Statusflags rausfiltern
+				if ("disable_iff".equals(astatus) ||
+						"mangel_reaktor".equals(astatus) ||
+						"offizier".equals(astatus) ||
+						"nocrew".equals(astatus))
+				{
 					continue;
 				}
 
-				// Aktuelle Statusflags rausfiltern
-				if( !astatus.equals("disable_iff") && !astatus.equals("mangel_nahrung") &&
-						!astatus.equals("mangel_reaktor") && !astatus.equals("offizier") &&
-						!astatus.equals("nocrew") ) {
-					status.add(astatus);
+				if( nahrungPruefen && "mangel_nahrung".equals(astatus) )
+				{
+					continue;
 				}
+				status.add(astatus);
 			}
 		}
 
@@ -950,7 +964,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			this.modules = null;
 		}
 
-		if( lackOfFood() ) {
+		if( nahrungPruefen && lackOfFood() ) {
 			status.add("mangel_nahrung");
 		}
 
