@@ -330,7 +330,9 @@ public class AcademyBuilding extends DefaultBuilding {
 				{
 					AcademyQueueEntry upperentry = academy.getQueueEntryByPosition(thisentry.getPosition()+1);
 					thisentry.setPosition(thisentry.getPosition()+1);
-					upperentry.setPosition(upperentry.getPosition()-1);
+					if( upperentry != null ) {
+						upperentry.setPosition(upperentry.getPosition()-1);
+					}
 				}
 			}
 		}
