@@ -301,10 +301,12 @@ public class FleetMgntController extends TemplateGenerator {
 				.list();
 			shiplistInt = new Integer[ships.size()];
 			int i=0;
-			for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
-				Ship s = (Ship)iter.next();
+			for (Object ship : ships)
+			{
+				Ship s = (Ship) ship;
 
-				if( s.getFleet() != null ) {
+				if (s.getFleet() != null)
+				{
 					s.removeFromFleet();
 				}
 				shiplistInt[i++] = s.getId();
@@ -315,9 +317,10 @@ public class FleetMgntController extends TemplateGenerator {
 			ShipFleet fleet = new ShipFleet(fleetname);
 			db.persist(fleet);
 
-			for( int i=0; i < shiplistInt.length; i++ ) {
-				Ship s = (Ship)db.get(Ship.class, shiplistInt[i]);
-				if( s == null )
+			for (Integer aShiplistInt : shiplistInt)
+			{
+				Ship s = (Ship) db.get(Ship.class, aShiplistInt);
+				if (s == null)
 				{
 					continue;
 				}
@@ -383,9 +386,11 @@ public class FleetMgntController extends TemplateGenerator {
 				.setEntity("fleet", this.fleet)
 			.setMaxResults(count)
 			.list();
-		for( Iterator<?> iter=slist.iterator(); iter.hasNext(); ) {
-			Ship s = (Ship)iter.next();
-			if( s.getFleet() != null ) {
+		for (Object aSlist : slist)
+		{
+			Ship s = (Ship) aSlist;
+			if (s.getFleet() != null)
+			{
 				s.removeFromFleet();
 			}
 			shiplist.add(s);
@@ -576,26 +581,29 @@ public class FleetMgntController extends TemplateGenerator {
 				"where s.fleet=:fleet and (s.shields < s.shiptype.shields or s.shields < m.shields) and s.battle is null")
 			.setEntity("fleet", this.fleet)
 			.list();
-		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
-			Ship s = (Ship)iter.next();
+		for (Object ship : ships)
+		{
+			Ship s = (Ship) ship;
 			ShipTypeData stype = s.getTypeData();
 
 			int shieldfactor = 100;
-			if( stype.getShields() < 1000 ) {
+			if (stype.getShields() < 1000)
+			{
 				shieldfactor = 10;
 			}
 
-			int shup = (int)Math.ceil((stype.getShields() - s.getShields())/(double)shieldfactor);
-			if( shup > s.getEnergy() ) {
+			int shup = (int) Math.ceil((stype.getShields() - s.getShields()) / (double) shieldfactor);
+			if (shup > s.getEnergy())
+			{
 				shup = s.getEnergy();
-				message.append(s.getName()+" ("+s.getId()+") - " +
-						"<span style=\"color:orange\">Schilde bei "+Math.round((s.getShields()+shup*shieldfactor)/(double)stype.getShields()*100)+"%</span><br />");
+				message.append(s.getName()).append(" (").append(s.getId()).append(") - ").append("<span style=\"color:orange\">Schilde bei ").append(Math.round((s.getShields() + shup * shieldfactor) / (double) stype.getShields() * 100)).append("%</span><br />");
 			}
-			s.setShields(s.getShields() + shup*shieldfactor);
-			if( s.getShields() > stype.getShields() ) {
+			s.setShields(s.getShields() + shup * shieldfactor);
+			if (s.getShields() > stype.getShields())
+			{
 				s.setShields(stype.getShields());
 			}
-			s.setEnergy(s.getEnergy()-shup);
+			s.setEnergy(s.getEnergy() - shup);
 		}
 
 		t.setVar( "fleetmgnt.message", message+" Die Schilde wurden aufgeladen" );
@@ -618,26 +626,29 @@ public class FleetMgntController extends TemplateGenerator {
 				"where s.fleet=:fleet and (s.e < s.shiptype.eps or (s.e < m.eps)) and s.battle is null")
 			.setEntity("fleet", this.fleet)
 			.list();
-		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
-			Ship s = (Ship)iter.next();
+		for (Object ship : ships)
+		{
+			Ship s = (Ship) ship;
 			ShipTypeData stype = s.getTypeData();
 
-			if( s.getEnergy() >= stype.getEps() ) {
+			if (s.getEnergy() >= stype.getEps())
+			{
 				continue;
 			}
 
 			Cargo cargo = s.getCargo();
 
 			long unload = stype.getEps() - s.getEnergy();
-			if( unload > cargo.getResourceCount( Resources.BATTERIEN ) ) {
-				unload = cargo.getResourceCount( Resources.BATTERIEN ) ;
+			if (unload > cargo.getResourceCount(Resources.BATTERIEN))
+			{
+				unload = cargo.getResourceCount(Resources.BATTERIEN);
 
-				message.append(s.getName()+" ("+s.getId()+") - <span style=\"color:orange\">Energie bei "+Math.round((s.getEnergy()+unload)/(double)stype.getEps()*100)+"%</span><br />");
+				message.append(s.getName()).append(" (").append(s.getId()).append(") - <span style=\"color:orange\">Energie bei ").append(Math.round((s.getEnergy() + unload) / (double) stype.getEps() * 100)).append("%</span><br />");
 			}
-			cargo.substractResource( Resources.BATTERIEN, unload );
-			cargo.addResource( Resources.LBATTERIEN, unload );
+			cargo.substractResource(Resources.BATTERIEN, unload);
+			cargo.addResource(Resources.LBATTERIEN, unload);
 
-			s.setEnergy((int)(s.getEnergy()+unload));
+			s.setEnergy((int) (s.getEnergy() + unload));
 			s.setCargo(cargo);
 		}
 
@@ -660,24 +671,27 @@ public class FleetMgntController extends TemplateGenerator {
 		List<?> ships = db.createQuery("from Ship as s WHERE s.fleet=:fleet and s.battle is null")
 			.setEntity("fleet", this.fleet)
 			.list();
-		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
-			Ship s = (Ship)iter.next();
+		for (Object ship : ships)
+		{
+			Ship s = (Ship) ship;
 
 			Cargo cargo = new Cargo(s.getCargo());
-			if( !cargo.hasResource(Resources.LBATTERIEN) ) {
+			if (!cargo.hasResource(Resources.LBATTERIEN))
+			{
 				continue;
 			}
 
 			long load = cargo.getResourceCount(Resources.LBATTERIEN);
-			if( load > s.getEnergy() ) {
+			if (load > s.getEnergy())
+			{
 				load = s.getEnergy();
 
-				message.append(s.getName()+" ("+s.getId()+") - <span style=\"color:orange\">"+load+"/"+cargo.getResourceCount(Resources.LBATTERIEN)+" Batterien aufgeladen</span><br />");
+				message.append(s.getName()).append(" (").append(s.getId()).append(") - <span style=\"color:orange\">").append(load).append("/").append(cargo.getResourceCount(Resources.LBATTERIEN)).append(" Batterien aufgeladen</span><br />");
 			}
-			cargo.substractResource( Resources.LBATTERIEN, load );
-			cargo.addResource( Resources.BATTERIEN, load );
+			cargo.substractResource(Resources.LBATTERIEN, load);
+			cargo.addResource(Resources.BATTERIEN, load);
 
-			s.setEnergy((int)(s.getEnergy()-load));
+			s.setEnergy((int) (s.getEnergy() - load));
 			s.setCargo(cargo);
 		}
 
@@ -703,11 +717,12 @@ public class FleetMgntController extends TemplateGenerator {
 		List<?> ships = db.createQuery("from Ship where id>0 and fleet=:fleet")
 			.setEntity("fleet", this.fleet)
 			.list();
-		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
-			Ship aship = (Ship)iter.next();
+		for (Object ship : ships)
+		{
+			Ship aship = (Ship) ship;
 
-			t.setVar(	"ship.id",		aship.getId(),
-						"ship.name",	Common._plaintitle(aship.getName()) );
+			t.setVar("ship.id", aship.getId(),
+					"ship.name", Common._plaintitle(aship.getName()));
 
 			t.parse("exportships.list", "exportships.listitem", true);
 		}
@@ -1077,8 +1092,9 @@ public class FleetMgntController extends TemplateGenerator {
 			.setEntity("fleet", this.fleet)
 			.list();
 
-		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
-			Ship ship = (Ship)iter.next();
+		for (Object ship1 : ships)
+		{
+			Ship ship = (Ship) ship1;
 
 			ship.setName(generateNextShipName(nameParts));
 		}
@@ -1242,11 +1258,11 @@ public class FleetMgntController extends TemplateGenerator {
 				WerftObject werft = (WerftObject)db.createQuery("from WerftObject where shipid=:ship")
 					.setInteger("ship", ship.getId())
 					.uniqueResult();
-				if( werft.getKomplex() != null )
+				if( werft != null && werft.getKomplex() != null )
 				{
 					werften.add(werft.getKomplex());
 				}
-				else
+				else if( werft != null )
 				{
 					werften.add(werft);
 				}
@@ -1349,11 +1365,12 @@ public class FleetMgntController extends TemplateGenerator {
 			.setEntity("owner", user)
 			.setString("flag", ShipTypes.SF_JAEGER)
 			.list();
-		for( Iterator<?> iter=shiptypes.iterator(); iter.hasNext(); ) {
-			ShipType shiptype = (ShipType)((Object[])iter.next())[0];
+		for (Object shiptype1 : shiptypes)
+		{
+			ShipType shiptype = (ShipType) ((Object[]) shiptype1)[0];
 
-			t.setVar(	"jaegertype.id",	shiptype.getId(),
-						"jaegertype.name",	shiptype.getNickname() );
+			t.setVar("jaegertype.id", shiptype.getId(),
+					"jaegertype.name", shiptype.getNickname());
 
 			t.parse("jaegertypes.list", "jaegertypes.listitem", true);
 		}
@@ -1369,16 +1386,17 @@ public class FleetMgntController extends TemplateGenerator {
 				.setEntity("fleet", this.fleet)
 				.list();
 
-		for( Iterator<?> iter=fleetList.iterator(); iter.hasNext(); ) {
-			ShipFleet afleet = (ShipFleet)iter.next();
+		for (Object aFleetList : fleetList)
+		{
+			ShipFleet afleet = (ShipFleet) aFleetList;
 
-			long count = (Long)db.createQuery("select count(*) from Ship where fleet=:fleet")
-				.setEntity("fleet", afleet)
-				.iterate().next();
+			long count = (Long) db.createQuery("select count(*) from Ship where fleet=:fleet")
+					.setEntity("fleet", afleet)
+					.iterate().next();
 
-			t.setVar(	"fleetcombine.id",			afleet.getId(),
-						"fleetcombine.name",		Common._plaintitle(afleet.getName()),
-						"fleetcombine.shipcount",	count );
+			t.setVar("fleetcombine.id", afleet.getId(),
+					"fleetcombine.name", Common._plaintitle(afleet.getName()),
+					"fleetcombine.shipcount", count);
 
 			t.parse("fleetcombine.list", "fleetcombine.listitem", true);
 		}
