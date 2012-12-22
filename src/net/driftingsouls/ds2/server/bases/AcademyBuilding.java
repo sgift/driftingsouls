@@ -293,7 +293,8 @@ public class AcademyBuilding extends DefaultBuilding {
 		//--------------------------------
 		if( up == 1 && queueid > 0 )
 		{
-			if( queueid == 1) {
+			if( queueid == 1)
+			{
 				t.setVar(
 						"academy.message", "<font color=\"red\">Vielen Dank fuer diesen URL-Hack.<br />Ihre Anfrage wurde soeben mitsamt Ihrer Spieler-ID an die Admins geschickt.<br />Wir wuenschen noch einen angenehmen Tag!</font>"
 						);
@@ -301,11 +302,16 @@ public class AcademyBuilding extends DefaultBuilding {
 			else
 			{
 				AcademyQueueEntry thisentry = academy.getQueueEntryById(queueid);
-				if(thisentry != null)
+				if(thisentry != null && thisentry.getPosition() > 0 )
 				{
 					AcademyQueueEntry upperentry = academy.getQueueEntryByPosition(thisentry.getPosition()-1);
+
 					thisentry.setPosition(thisentry.getPosition()-1);
-					upperentry.setPosition(upperentry.getPosition()+1);
+
+					if( upperentry != null )
+					{
+						upperentry.setPosition(upperentry.getPosition()+1);
+					}
 				}
 			}
 		}
