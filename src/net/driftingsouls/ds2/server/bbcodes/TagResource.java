@@ -49,15 +49,20 @@ public class TagResource implements BBCodeFunction {
 				count = Long.parseLong(content);
 			}
 			ResourceID rid = Resources.fromString(values[0]);
+
 			String format = "in";
 			if( values.length > 1 ) {
 				format = values[1];
 			}
 
-
 			String unknstr = "Unbekannter Gegenstand";
 			if( count != 0 ) {
 				unknstr = Common.ln(count)+"x "+unknstr;
+			}
+
+			if( rid == null )
+			{
+				return unknstr;
 			}
 
 			Item item = (Item)db.get(Item.class, rid.getItemID());
