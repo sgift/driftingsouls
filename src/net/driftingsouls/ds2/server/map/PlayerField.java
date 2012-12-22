@@ -225,19 +225,14 @@ public class PlayerField
         
         Ally userAlly = user.getAlly();
         Ally ownerAlly = owner.getAlly();
-        if(userAlly.getId() == ownerAlly.getId())
+        if( userAlly != null && ownerAlly != null && userAlly.getId() == ownerAlly.getId())
         {
             return true;
         }
         
         Relations relations = user.getRelations();
-        if(relations.fromOther.get(owner) == Relation.FRIEND && relations.toOther.get(owner) == Relation.FRIEND)
-        {
-            return true;
-        }
-
-        return false;
-    }
+		return relations.fromOther.get(owner) == Relation.FRIEND && relations.toOther.get(owner) == Relation.FRIEND;
+	}
 
 	private final Session db;
 	private final Field field;
