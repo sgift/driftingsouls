@@ -18,33 +18,6 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.Version;
-import javax.script.Bindings;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
@@ -84,7 +57,6 @@ import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargoEntry;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.logging.Log;
@@ -93,13 +65,38 @@ import org.hibernate.ObjectNotFoundException;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.Type;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.Version;
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Repraesentiert ein Schiff in DS.
@@ -1129,11 +1126,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 							.setInteger("y", this.y)
 							.list();
 
-		if(bases.size() > 0)
-		{
-			return true;
-		}
-		return false;
+		return bases.size() > 0;
 	}
 
 	private long timeUntilLackOfFood() {
@@ -1392,24 +1385,28 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		Map<Integer,String[]>slotlist = new HashMap<Integer,String[]>();
 		String[] tmpslotlist = StringUtils.split(type.getTypeModules(), ';');
-		for( int i=0; i < tmpslotlist.length; i++ ) {
-			String[] aslot = StringUtils.split(tmpslotlist[i], ':');
+		for (String aTmpslotlist : tmpslotlist)
+		{
+			String[] aslot = StringUtils.split(aTmpslotlist, ':');
 			slotlist.put(Integer.parseInt(aslot[0]), aslot);
 		}
 
 		List<Module> moduleobjlist = new ArrayList<Module>();
 		List<String> moduleSlotData = new ArrayList<String>();
 
-		for( int i=0; i < moduletbl.size(); i++ ) {
-			ModuleEntry module = moduletbl.get(i);
-			if( module.getModuleType() != null ) {
+		for (ModuleEntry module : moduletbl)
+		{
+			if (module.getModuleType() != null)
+			{
 				Module moduleobj = module.createModule();
 
-				if( moduleobj.isSame(moduleEntry) ) {
+				if (moduleobj.isSame(moduleEntry))
+				{
 					continue;
 				}
 
-				if( (module.getSlot() > 0) && (slotlist.get(module.getSlot()).length > 2) ) {
+				if ((module.getSlot() > 0) && (slotlist.get(module.getSlot()).length > 2))
+				{
 					moduleobj.setSlotData(slotlist.get(module.getSlot())[2]);
 				}
 				moduleobjlist.add(moduleobj);
@@ -1455,8 +1452,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		Map<Integer,String[]>slotlist = new HashMap<Integer,String[]>();
 		String[] tmpslotlist = StringUtils.split(type.getTypeModules(), ';');
-		for( int i=0; i < tmpslotlist.length; i++ ) {
-			String[] aslot = StringUtils.split(tmpslotlist[i], ':');
+		for (String aTmpslotlist : tmpslotlist)
+		{
+			String[] aslot = StringUtils.split(aTmpslotlist, ':');
 			slotlist.put(Integer.parseInt(aslot[0]), aslot);
 		}
 
@@ -1934,7 +1932,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 			if( outpb.length() != 0 ) {
 				out.append("<tr>\n");
-				out.append("<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange; font-size:12px\"> "+fleetship.getName()+" ("+fleetship.getId()+"):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n");
+				out.append("<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange; font-size:12px\"> ").append(fleetship.getName()).append(" (").append(fleetship.getId()).append("):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n");
 				out.append(outpb);
 				out.append("</span></td></tr>\n");
 			}
@@ -1983,7 +1981,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 			if(verbose) {
 				out.append("<tr>\n");
-				out.append("<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange; font-size:12px\"> "+fleetship.getName()+" ("+fleetship.getId()+"):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n");
+				out.append("<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange; font-size:12px\"> ").append(fleetship.getName()).append(" (").append(fleetship.getId()).append("):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n");
 			}
 			Offizier offizierf = fleetdata.offiziere.get(fleetship.getId());
 
@@ -2035,8 +2033,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 				List<?> dockedList = db.createQuery("from Ship s left join fetch s.modules where s.id>0 and s.docked in (:dockedIds)")
 					.setParameterList("dockedIds", entry.getValue())
 					.list();
-				for( Iterator<?> iter=dockedList.iterator(); iter.hasNext(); ) {
-					Ship dockedShip = (Ship)iter.next();
+				for (Object aDockedList : dockedList)
+				{
+					Ship dockedShip = (Ship) aDockedList;
 					dockedShip.setSystem(loc.getSystem());
 					dockedShip.setX(loc.getX());
 					dockedShip.setY(loc.getY());
@@ -2740,7 +2739,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		/**
 		 * Schiff starten.
 		 */
-		START;
+		START
 	}
 
 	/**
@@ -2785,7 +2784,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		if(ships.size() < dockships.length)
 		{
 			//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
-			dockships = ships.toArray(new Ship[0]);
+			dockships = ships.toArray(new Ship[ships.size()]);
 			errors = true;
 		}
 
@@ -3119,7 +3118,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		if(ships.size() < dockships.length)
 		{
 			//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
-			dockships = ships.toArray(new Ship[0]);
+			dockships = ships.toArray(new Ship[ships.size()]);
 
 			if(dockships.length == 0)
 			{
@@ -3139,7 +3138,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			if(ships.size() < dockships.length)
 			{
 				//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
-				dockships = ships.toArray(new Ship[0]);
+				dockships = ships.toArray(new Ship[ships.size()]);
 
 				if(dockships.length == 0)
 				{
@@ -3435,7 +3434,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		if( this.status.indexOf("noconsign") != -1 ) {
-			MESSAGE.get().append("Die '"+this.name+"' ("+this.id+") kann nicht &uuml;bergeben werden");
+			MESSAGE.get().append("Die '").append(this.name).append("' (").append(this.id).append(") kann nicht &uuml;bergeben werden");
 			return true;
 		}
 
@@ -3485,16 +3484,19 @@ public class Ship implements Locatable,Transfering,Feeding {
 			.setString("docked", Integer.toString(this.id))
 			.setString("landed", "l "+this.id)
 			.list();
-		for( Iterator<?> iter=s.iterator(); iter.hasNext(); ) {
-			Ship aship = (Ship)iter.next();
+		for (Object value : s)
+		{
+			Ship aship = (Ship) value;
 			int oldlength = message.length();
-			boolean tmp = aship.consign(newowner, testonly );
-			if( tmp && !testonly ) {
-				this.dock( aship.isLanded() ? DockMode.START : DockMode.UNDOCK, aship);
+			boolean tmp = aship.consign(newowner, testonly);
+			if (tmp && !testonly)
+			{
+				this.dock(aship.isLanded() ? DockMode.START : DockMode.UNDOCK, aship);
 			}
 
-			if( (oldlength > 0) && (oldlength != message.length()) ) {
-				message.insert(oldlength-1, "<br />");
+			if ((oldlength > 0) && (oldlength != message.length()))
+			{
+				message.insert(oldlength - 1, "<br />");
 			}
 		}
 
