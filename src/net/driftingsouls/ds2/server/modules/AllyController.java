@@ -428,13 +428,14 @@ public class AllyController extends TemplateGenerator {
 		List<FileItem> list = getContext().getRequest().getUploadedFiles();
 		if( !list.isEmpty() && list.get(0).getSize() > 0 )
 		{
-			if( rang.getCustomImg() != null )
-			{
-				DynamicContentManager.remove(rang.getCustomImg());
-				rang.setCustomImg(null);
-			}
+			String oldImg = rang.getCustomImg();
 			try {
 				rang.setCustomImg(DynamicContentManager.add(list.get(0)));
+
+				if( oldImg != null )
+				{
+					DynamicContentManager.remove(oldImg);
+				}
 			}
 			catch( Exception e ) {
 				t.setVar("ally.statusmessage","Offenbar ging beim Upload etwas schief");

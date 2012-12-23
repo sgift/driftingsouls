@@ -82,11 +82,12 @@ public class EditBuildingPicture implements AdminPlugin
 				{
 					if( "picture".equals(file.getFieldName()) && file.getSize() > 0 )
 					{
-						if( building.getDefaultPicture().startsWith("data/dynamicContent/") )
-						{
-							DynamicContentManager.remove(building.getDefaultPicture());
-						}
+                        String oldImg = building.getDefaultPicture();
 						building.setDefaultPicture("data/dynamicContent/"+DynamicContentManager.add(file));
+                        if( oldImg.startsWith("data/dynamicContent/") )
+                        {
+                            DynamicContentManager.remove(building.getDefaultPicture());
+                        }
 					}
 					for( Rasse rasse : Rassen.get() )
 					{
@@ -94,11 +95,11 @@ public class EditBuildingPicture implements AdminPlugin
 						if( key.equals(file.getFieldName()) && file.getSize() > 0 )
 						{
 							String curPicture = altBilder.get(rasse.getID());
-							if( curPicture != null && curPicture.startsWith("data/dynamicContent/"))
-							{
-								DynamicContentManager.remove(curPicture);
-							}
 							altBilder.put(rasse.getID(), "data/dynamicContent/"+DynamicContentManager.add(file));
+                            if( curPicture != null && curPicture.startsWith("data/dynamicContent/"))
+                            {
+                                DynamicContentManager.remove(curPicture);
+                            }
 						}
 					}
 				}

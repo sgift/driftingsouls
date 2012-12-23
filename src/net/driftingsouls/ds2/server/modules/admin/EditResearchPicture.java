@@ -76,11 +76,13 @@ public class EditResearchPicture implements AdminPlugin
 				{
 					if( "image".equals(file.getFieldName()) && file.getSize() > 0 )
 					{
-						if( forschung.getImage().startsWith("data/dynamicContent/") )
-						{
-							DynamicContentManager.remove(forschung.getImage());
-						}
+						String oldImg = forschung.getImage();
 						forschung.setImage("data/dynamicContent/"+DynamicContentManager.add(file));
+
+						if( oldImg.startsWith("data/dynamicContent/") )
+						{
+							DynamicContentManager.remove(oldImg);
+						}
 					}
 				}
 

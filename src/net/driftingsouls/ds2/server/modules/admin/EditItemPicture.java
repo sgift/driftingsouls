@@ -76,19 +76,21 @@ public class EditItemPicture implements AdminPlugin
 				{
 					if( "picture".equals(file.getFieldName()) && file.getSize() > 0 )
 					{
-						if( item.getPicture().startsWith("data/dynamicContent/") )
-						{
-							DynamicContentManager.remove(item.getPicture());
-						}
+						String oldImg = item.getPicture();
 						item.setPicture("data/dynamicContent/"+DynamicContentManager.add(file));
+						if( oldImg.startsWith("data/dynamicContent/") )
+						{
+							DynamicContentManager.remove(oldImg);
+						}
 					}
 					if( "largepicture".equals(file.getFieldName()) && file.getSize() > 0 )
 					{
-						if( item.getLargePicture() != null && item.getLargePicture().startsWith("data/dynamicContent/") )
-						{
-							DynamicContentManager.remove(item.getLargePicture());
-						}
+                        String oldImg = item.getLargePicture();
 						item.setLargePicture("data/dynamicContent/"+DynamicContentManager.add(file));
+						if( oldImg != null && oldImg.startsWith("data/dynamicContent/") )
+						{
+							DynamicContentManager.remove(oldImg);
+						}
 					}
 				}
 

@@ -87,11 +87,12 @@ public class EditShiptypePicture implements AdminPlugin
 				{
 					if( "image".equals(file.getFieldName()) && file.getSize() > 0 )
 					{
-						if( shipType.getPicture().startsWith("data/dynamicContent/") )
-						{
-							DynamicContentManager.remove(shipType.getPicture());
-						}
+						String oldImg = shipType.getPicture();
 						shipType.setPicture("data/dynamicContent/"+DynamicContentManager.add(file));
+						if( oldImg.startsWith("data/dynamicContent/") )
+						{
+							DynamicContentManager.remove(oldImg);
+						}
 					}
 				}
 
