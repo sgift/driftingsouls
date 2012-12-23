@@ -178,18 +178,18 @@ public abstract class DSGenerator extends Generator {
 			sb.append("<title>Drifting Souls 2</title>\n");
 			sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n");
 			sb.append("<meta http-equiv=\"X-UA-Compatible\" content=\"IE=9\">\n");
-			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"data/css/ui-darkness/jquery-ui-1.8.20.css\" />\n");
+			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(config.get("URL")).append("data/css/ui-darkness/jquery-ui-1.8.20.css\" />\n");
 			if( devMode )
 			{
 				appendDevModeCss(sb);
 			}
 			else
 			{
-				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"data/css/v"+version.getHgVersion()+"/format.css\" />\n");
+				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(config.get("URL")).append("data/css/v").append(version.getHgVersion()).append("/format.css\" />\n");
 			}
 
 			sb.append("<!--[if IE]>\n");
-			sb.append("<style type=\"text/css\">@import url("+config.get("URL")+"data/css/v"+version.getHgVersion()+"/format_fuer_den_dummen_ie.css);</style>\n");
+			sb.append("<style type=\"text/css\">@import url(").append(config.get("URL")).append("data/css/v").append(version.getHgVersion()).append("/format_fuer_den_dummen_ie.css);</style>\n");
 			sb.append("<![endif]-->\n");
 
 			if( this.getAttribute("header") != null ) {
@@ -198,10 +198,10 @@ public abstract class DSGenerator extends Generator {
 
 			sb.append("</head>\n");
 
-			sb.append("<body "+getOnLoadText()+" "+getBodyParameters()+" >\n");
+			sb.append("<body ").append(getOnLoadText()).append(" ").append(getBodyParameters()).append(" >\n");
 			sb.append("<input type='hidden' name='currentDsModule' id='currentDsModule' value='"+this.getAttribute("module")+"' />");
 			if( usegfxpak ) {
-				sb.append("<script src=\""+url+"data/javascript/gfxpakversion.js?"+version.getHgVersion()+"\" type=\"text/javascript\"></script>\n");
+				sb.append("<script src=\"").append(url).append("data/javascript/gfxpakversion.js?").append(version.getHgVersion()).append("\" type=\"text/javascript\"></script>\n");
 			}
 
 			if( devMode )
@@ -210,17 +210,17 @@ public abstract class DSGenerator extends Generator {
 			}
 			else
 			{
-				sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/ds.js\" type=\"text/javascript\"></script>\n");
+				sb.append("<script src=\"").append(config.get("URL")).append("data/javascript/v").append(version.getHgVersion()).append("/ds.js\" type=\"text/javascript\"></script>\n");
 			}
 			if( this.getAttribute("module") != null ) {
 				sb.append("<script type=\"text/javascript\">\n");
 				sb.append("<!--\n");
 				sb.append("if( parent && parent.setCurrentPage ) {\n");
-				sb.append("parent.setCurrentPage('"+this.getAttribute("module")+"','"+this.getAttribute("pagetitle")+"');\n");
+				sb.append("parent.setCurrentPage('" + this.getAttribute("module") + "','" + this.getAttribute("pagetitle") + "');\n");
 				PageMenuEntry[] entries = (PageMenuEntry[])this.getAttribute("pagemenu");
 				if( (entries != null) && (entries.length > 0) ) {
 					for( int i=0; i < entries.length; i++ ) {
-						sb.append("parent.addPageMenuEntry('"+entries[i].title+"','"+entries[i].url.replace("&amp;", "&")+"');");
+						sb.append("parent.addPageMenuEntry('").append(entries[i].title).append("','").append(entries[i].url.replace("&amp;", "&")).append("');");
 					}
 				}
 				sb.append("parent.completePage();");
@@ -237,7 +237,7 @@ public abstract class DSGenerator extends Generator {
 
 			for( String filename : new TreeSet<String>(Arrays.asList(cssdir.list())) )
 			{
-				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\""+config.get("URL")+"data/css/v"+version.getHgVersion()+"/common/"+filename+"\" />\n");
+				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(config.get("URL")).append("data/css/v").append(version.getHgVersion()).append("/common/").append(filename).append("\" />\n");
 			}
 		}
 
@@ -247,15 +247,15 @@ public abstract class DSGenerator extends Generator {
 			File libdir = new File(jsdir.getAbsolutePath()+"/libs");
 			File commondir = new File(jsdir.getAbsolutePath()+"/common");
 
-			sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/libs/jquery-1.8.2.min.js\" type=\"text/javascript\"></script>\n");
-			sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/libs/jquery-ui-1.9.1.min.js\" type=\"text/javascript\"></script>\n");
+			sb.append("<script src=\"").append(config.get("URL")).append("data/javascript/v").append(version.getHgVersion()).append("/libs/jquery-1.8.2.min.js\" type=\"text/javascript\"></script>\n");
+			sb.append("<script src=\"").append(config.get("URL")).append("data/javascript/v").append(version.getHgVersion()).append("/libs/jquery-ui-1.9.1.min.js\" type=\"text/javascript\"></script>\n");
 			for( String filename : new TreeSet<String>(Arrays.asList(libdir.list())) )
 			{
 				if( filename.startsWith("jquery-1") || filename.startsWith("jquery-ui-1") || !filename.endsWith(".js") )
 				{
 					continue;
 				}
-				sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/libs/"+filename+"\" type=\"text/javascript\"></script>\n");
+				sb.append("<script src=\"").append(config.get("URL")).append("data/javascript/v").append(version.getHgVersion()).append("/libs/").append(filename).append("\" type=\"text/javascript\"></script>\n");
 			}
 
 			for( String filename : new TreeSet<String>(Arrays.asList(commondir.list())) )
@@ -264,11 +264,11 @@ public abstract class DSGenerator extends Generator {
 				{
 					continue;
 				}
-				sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/common/"+filename+"\" type=\"text/javascript\"></script>\n");
+				sb.append("<script src=\"").append(config.get("URL")).append("data/javascript/v").append(version.getHgVersion()).append("/common/").append(filename).append("\" type=\"text/javascript\"></script>\n");
 			}
 			if( new File(jsdir.getAbsolutePath()+"/modules/"+this.getAttribute("module")+".js").isFile() )
 			{
-				sb.append("<script src=\""+config.get("URL")+"data/javascript/v"+version.getHgVersion()+"/modules/"+this.getAttribute("module")+".js\" type=\"text/javascript\"></script>\n");
+				sb.append("<script src=\"" + config.get("URL") + "data/javascript/v" + version.getHgVersion() + "/modules/" + this.getAttribute("module") + ".js\" type=\"text/javascript\"></script>\n");
 			}
 		}
 
@@ -287,7 +287,7 @@ public abstract class DSGenerator extends Generator {
 				sb.append("Execution-Time: "+(System.currentTimeMillis()-getStartTime())/1000d+"s");
 				if( this.version.getBuildTime() != null )
 				{
-					sb.append(" -- Version: "+this.version.getHgVersion()+", "+this.version.getBuildTime());
+					sb.append(" -- Version: ").append(this.version.getHgVersion()).append(", ").append(this.version.getBuildTime());
 				}
 				//	echo "<a class=\"forschinfo\" target=\"none\" style=\"font-size:11px\" href=\"http://ds2.drifting-souls.net/mantis/\">Zum Bugtracker</a><br />\n";
 				sb.append("</div>\n");
@@ -305,10 +305,10 @@ public abstract class DSGenerator extends Generator {
 
 			for( Error error : getContext().getErrorList() ) {
 				if( error.getUrl() == null ) {
-					sb.append("<li><span style=\"font-size:14px; color:red\">"+error.getDescription().replaceAll("\n","<br />")+"</span></li>\n");
+					sb.append("<li><span style=\"font-size:14px; color:red\">").append(error.getDescription().replaceAll("\n", "<br />")).append("</span></li>\n");
 				}
 				else {
-					sb.append("<li><a class=\"error\" style=\"font-size:14px; font-weight:normal\" href=\""+error.getUrl()+"\">"+error.getDescription().replaceAll("\n","<br />")+"</a></li>\n");
+					sb.append("<li><a class=\"error\" style=\"font-size:14px; font-weight:normal\" href=\"").append(error.getUrl()).append("\">").append(error.getDescription().replaceAll("\n", "<br />")).append("</a></li>\n");
 				}
 			}
 
@@ -770,7 +770,7 @@ public abstract class DSGenerator extends Generator {
 
 		if( bodyParameters.size() > 0 ) {
 			for( String key : bodyParameters.keySet() ) {
-				text.append(key+"=\""+bodyParameters.get(key)+"\" ");
+				text.append(key).append("=\"").append(bodyParameters.get(key)).append("\" ");
 			}
 		}
 
