@@ -18,14 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.bbcodes.TagIntrnlConfTask;
 import net.driftingsouls.ds2.server.comm.Ordner;
@@ -41,14 +33,23 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Die PM-Verwaltung.
@@ -102,14 +103,12 @@ public class CommController extends TemplateGenerator {
 
 	/**
 	 * Markiert alle PMs in einem Ordner als gelesen.
-	 * @urlparam Integer ordner Die ID des Ordners
-	 *
 	 */
 	@Action(ActionType.DEFAULT)
+	@UrlParam(name="ordner", type=UrlParamType.NUMBER, description = "Die ID des Ordners")
 	public void readAllAction() {
 		TemplateEngine t = getTemplateEngine();
 
-		parameterNumber("ordner");
 		Ordner ordner = Ordner.getOrdnerByID(getInteger("ordner"), (User)getUser());
 
 		ordner.markAllAsRead();
@@ -298,13 +297,15 @@ public class CommController extends TemplateGenerator {
 		List<?> pmList = db.createQuery("from PM where empfaenger=:user and gelesen < 1")
 			.setEntity("user", user)
 			.list();
-		for( Iterator<?> iter=pmList.iterator(); iter.hasNext(); ) {
-			PM pm = (PM)iter.next();
+		for (Object aPmList : pmList)
+		{
+			PM pm = (PM) aPmList;
 
-			parameterNumber("pm_"+pm.getId());
-			int pmParam = getInteger("pm_"+pm.getId());
+			parameterNumber("pm_" + pm.getId());
+			int pmParam = getInteger("pm_" + pm.getId());
 
-			if( (pmParam == pm.getId()) && !pm.hasFlag(PM.FLAGS_IMPORTANT) ) {
+			if ((pmParam == pm.getId()) && !pm.hasFlag(PM.FLAGS_IMPORTANT))
+			{
 				pm.setGelesen(1);
 			}
 		}
@@ -347,40 +348,48 @@ public class CommController extends TemplateGenerator {
 		List<Ordner> ordners = source.getChildren();
 
 		int counter = 0;
-		for(int i = 0; i < ordners.size(); i++ ) {
-			if( ordners.get(i).hasFlag(Ordner.FLAG_TRASH) ) {
+		for (Ordner ordner : ordners)
+		{
+			if (ordner.hasFlag(Ordner.FLAG_TRASH))
+			{
 				continue;
 			}
 
-			parameterNumber("ordner_"+ordners.get(i).getId());
-			final int ordnerId = getInteger("ordner_"+ordners.get(i).getId());
-			if( ordnerId == 0 ) {
+			parameterNumber("ordner_" + ordner.getId());
+			final int ordnerId = getInteger("ordner_" + ordner.getId());
+			if (ordnerId == 0)
+			{
 				continue;
 			}
 
 			Ordner tomove = Ordner.getOrdnerByID(ordnerId, user);
-			if( tomove == null ) {
+			if (tomove == null)
+			{
 				continue;
 			}
 
-			if( tomove.getAllChildren().contains(moveto)) {
+			if (tomove.getAllChildren().contains(moveto))
+			{
 				getContext().getResponse().getWriter().append("ERROR: Es duerfen keine Ordner in ihre eignen Unterordner verschoben werden");
 				return;
 			}
 
 
-			if( tomove.getId() == ordners.get(i).getId() ){
+			if (tomove.getId() == ordner.getId())
+			{
 				counter++;
 				tomove.setParent(moveto);
 			}
 		}
 
-		for( int i = 0; i < pms.size(); i++ ) {
-			parameterNumber("pm_"+pms.get(i).getId());
-			int pm = getInteger("pm_"+pms.get(i).getId());
-			if( pm == pms.get(i).getId() ) {
+		for (PM pm1 : pms)
+		{
+			parameterNumber("pm_" + pm1.getId());
+			int pm = getInteger("pm_" + pm1.getId());
+			if (pm == pm1.getId())
+			{
 				counter++;
-				pms.get(i).setOrdner(moveto.getId());
+				pm1.setOrdner(moveto.getId());
 			}
 		}
 
@@ -423,46 +432,47 @@ public class CommController extends TemplateGenerator {
 		List<Ordner> ordners = source.getChildren();
 
 		int counter = 0;
-		for(int i = 0; i < ordners.size(); i++ ) {
-			if( ordners.get(i).hasFlag(Ordner.FLAG_TRASH) ) {
+		for (Ordner ordner : ordners) {
+			if (ordner.hasFlag(Ordner.FLAG_TRASH)) {
 				continue;
 			}
 
-			parameterNumber("ordner_"+ordners.get(i).getId());
-			final int ordnerId = getInteger("ordner_"+ordners.get(i).getId());
-			if( ordnerId == 0 ) {
+			parameterNumber("ordner_" + ordner.getId());
+			final int ordnerId = getInteger("ordner_" + ordner.getId());
+			if (ordnerId == 0) {
 				continue;
 			}
 
 			Ordner tomove = Ordner.getOrdnerByID(ordnerId, user);
-			if( tomove == null ) {
+			if (tomove == null) {
 				continue;
 			}
 
-			if(tomove.equals(ordners.get(i)))
-			{
+			if (tomove.equals(ordner)) {
 				continue;
 			}
 
-			if( tomove.getAllChildren().contains(moveto)) {
+			if (tomove.getAllChildren().contains(moveto)) {
 				t.setVar("show.message", "<span style=\"color:red\">Es d&uuml;rfen keine Ordner in ihre eignen Unterordner verschoben werden.</span>");
 				redirect("showInbox");
-				return ;
+				return;
 			}
 
 
-			if( tomove.getId() == ordners.get(i).getId() ){
+			if (tomove.getId() == ordner.getId()) {
 				counter++;
 				tomove.setParent(moveto);
 			}
 		}
 
-		for( int i = 0; i < pms.size(); i++ ) {
-			parameterNumber("pm_"+pms.get(i).getId());
-			int pm = getInteger("pm_"+pms.get(i).getId());
-			if( pm == pms.get(i).getId() ) {
+		for (PM pm1 : pms)
+		{
+			parameterNumber("pm_" + pm1.getId());
+			int pm = getInteger("pm_" + pm1.getId());
+			if (pm == pm1.getId())
+			{
 				counter++;
-				pms.get(i).setOrdner(moveto.getId());
+				pm1.setOrdner(moveto.getId());
 			}
 		}
 
@@ -487,33 +497,40 @@ public class CommController extends TemplateGenerator {
 		List<PM> pms = ordner.getPms();
 		List<Ordner> ordners = ordner.getChildren();
 
-		for( int i = 0; i < ordners.size(); i++ ) {
-			if( ordners.get(i).hasFlag(Ordner.FLAG_TRASH) ) {
+		for (Ordner ordner1 : ordners)
+		{
+			if (ordner1.hasFlag(Ordner.FLAG_TRASH))
+			{
 				continue;
 			}
 
-			parameterNumber("ordner_"+ordners.get(i).getId());
-			final int ordnerId = getInteger("ordner_"+ordners.get(i).getId());
-			if( ordnerId == 0 ) {
+			parameterNumber("ordner_" + ordner1.getId());
+			final int ordnerId = getInteger("ordner_" + ordner1.getId());
+			if (ordnerId == 0)
+			{
 				continue;
 			}
 
 			Ordner delordner = Ordner.getOrdnerByID(ordnerId, user);
 
-			if( delordner.getId() == ordners.get(i).getId() ) {
+			if (delordner.getId() == ordner1.getId())
+			{
 				delordner.deleteOrdner();
 			}
 		}
 
-		for( int i = 0; i < pms.size(); i++ ) {
-			parameterNumber("pm_"+pms.get(i).getId() );
-			int pm_id = getInteger("pm_"+pms.get(i).getId());
+		for (PM pm : pms)
+		{
+			parameterNumber("pm_" + pm.getId());
+			int pm_id = getInteger("pm_" + pm.getId());
 
-			if( pm_id == pms.get(i).getId() ) {
-				if( pms.get(i).getEmpfaenger() != user ) {
+			if (pm_id == pm.getId())
+			{
+				if (pm.getEmpfaenger() != user)
+				{
 					continue;
 				}
-				pms.get(i).delete();
+				pm.delete();
 			}
 		}
 
@@ -649,7 +666,7 @@ public class CommController extends TemplateGenerator {
 			return;
 		}
 
-		User sender = null;
+		User sender;
 
 		if( user.equals(pm.getSender()) ) {
 			try {
@@ -709,7 +726,7 @@ public class CommController extends TemplateGenerator {
 		if( pm.hasFlag(PM.FLAGS_ADMIN) ) {
 			bgimg = "pm_adminbg.png";
 		}
-		else if( pm.hasFlag(PM.FLAGS_OFFICIAL) ) {
+		else if( sender != null && pm.hasFlag(PM.FLAGS_OFFICIAL) ) {
 			bgimg = "pm_"+Rassen.get().rasse(sender.getRace()).getName()+"bg.png";
 		}
 
@@ -797,11 +814,12 @@ public class CommController extends TemplateGenerator {
 		List<?> ordnerList = db.createQuery("from Ordner where owner= :user order by name asc")
 			.setEntity("user", user)
 			.list();
-		for( Iterator<?> iter=ordnerList.iterator(); iter.hasNext(); ) {
-			Ordner aOrdner = (Ordner)iter.next();
+		for (Object anOrdnerList : ordnerList)
+		{
+			Ordner aOrdner = (Ordner) anOrdnerList;
 
-			t.setVar(	"availordner.id",	aOrdner.getId(),
-						"availordner.name",	aOrdner.getName() );
+			t.setVar("availordner.id", aOrdner.getId(),
+					"availordner.name", aOrdner.getName());
 
 			t.parse("availordner.list", "availordner.listitem", true);
 		}
@@ -829,7 +847,7 @@ public class CommController extends TemplateGenerator {
 			t.setVar(	"ordner.id",			aOrdner.getId(),
 						"ordner.name",			aOrdner.getName(),
 						"ordner.parent",		aOrdner.getParent().getId(),
-						"ordner.pms",			count != null ? count.intValue() : 0,
+						"ordner.pms",			count != null ? count : 0,
 						"ordner.flags.up",		0,
 						"ordner.flags.trash",	aOrdner.hasFlag(Ordner.FLAG_TRASH) );
 
@@ -871,16 +889,17 @@ public class CommController extends TemplateGenerator {
 				"where pm.sender= :user order by pm.id desc")
 			.setEntity("user", user)
 			.list();
-		for( Iterator<?> iter=pms.iterator(); iter.hasNext(); ) {
-			PM pm = (PM)iter.next();
+		for (Object pm1 : pms)
+		{
+			PM pm = (PM) pm1;
 
-			t.setVar(	"pm.id",				pm.getId(),
-						"pm.flags.admin",		pm.hasFlag(PM.FLAGS_ADMIN),
-						"pm.highlight",	pm.hasFlag(PM.FLAGS_ADMIN) || pm.hasFlag(PM.FLAGS_OFFICIAL),
-						"pm.title",				Common._plaintitle(pm.getTitle()),
-						"pm.empfaenger.name",	Common._title(pm.getEmpfaenger().getName()),
-						"pm.time",				Common.date("j.n.Y G:i",pm.getTime()),
-						"pm.empfaenger",		pm.getEmpfaenger().getId() );
+			t.setVar("pm.id", pm.getId(),
+					"pm.flags.admin", pm.hasFlag(PM.FLAGS_ADMIN),
+					"pm.highlight", pm.hasFlag(PM.FLAGS_ADMIN) || pm.hasFlag(PM.FLAGS_OFFICIAL),
+					"pm.title", Common._plaintitle(pm.getTitle()),
+					"pm.empfaenger.name", Common._title(pm.getEmpfaenger().getName()),
+					"pm.time", Common.date("j.n.Y G:i", pm.getTime()),
+					"pm.empfaenger", pm.getEmpfaenger().getId());
 
 			t.parse("pms.out.list", "pms.out.listitem", true);
 		}
@@ -993,16 +1012,16 @@ public class CommController extends TemplateGenerator {
 
 	/**
 	 * Speichert einen Kommentar zu einer Nachricht.
-	 * @urlparam Integer pmid Die ID der Nachricht
-	 * @urlparam String msg Der Kommentar
 	 */
 	@Action(ActionType.DEFAULT)
+	@UrlParams({
+			@UrlParam(name="pmid", type=UrlParamType.NUMBER, description = "Die ID der Nachricht"),
+			@UrlParam(name="msg", description = "Der Kommentar")
+	})
 	public void sendCommentAction() {
 		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 
-		parameterNumber("pmid");
-		parameterString("msg");
 		int pmid = getInteger("pmid");
 		String msg = getString("msg");
 
@@ -1016,14 +1035,15 @@ public class CommController extends TemplateGenerator {
 
 	@Override
 	@Action(ActionType.DEFAULT)
+	@UrlParams({
+		@UrlParam(name="to", description="Der Empfaenger der neuen PM"),
+		@UrlParam(name="reply", type=UrlParamType.NUMBER, description = "Die ID der PM, auf die geantwortet wird"),
+		@UrlParam(name="msg", description = "Der Text der PM")
+	})
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
-
-		parameterString("to");
-		parameterNumber("reply");
-		parameterString("msg");
 
 		String toStr = getString("to");
 		int reply = getInteger("reply");

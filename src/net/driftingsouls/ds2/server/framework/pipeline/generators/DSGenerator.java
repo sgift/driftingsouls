@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.framework.pipeline.generators;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -553,6 +554,37 @@ public abstract class DSGenerator extends Generator {
 		throw new NoSuchMethodException();
 	}
 
+	private void prepareUrlParams(Annotation[] annotations)
+	{
+		for( Annotation an : annotations )
+		{
+			if( an instanceof UrlParam )
+			{
+				prepareUrlParam((UrlParam)an);
+			}
+			else if( an instanceof UrlParams )
+			{
+				for( UrlParam param : ((UrlParams)an).value() )
+				{
+					prepareUrlParam(param);
+				}
+			}
+		}
+	}
+
+	private void prepareUrlParam(UrlParam an)
+	{
+		switch (an.type()) {
+
+			case NUMBER:
+				parameterNumber(an.name());
+				break;
+			case STRING:
+				parameterString(an.name());
+				break;
+		}
+	}
+
 	@Override
 	public void handleAction( String action ) throws IOException {
 		if( (action == null) || action.isEmpty() ) {
@@ -560,7 +592,11 @@ public abstract class DSGenerator extends Generator {
 		}
 
 		try {
+			prepareUrlParams(this.getClass().getAnnotations());
+
 			Method method = getMethodForAction(action);
+			prepareUrlParams(method.getAnnotations());
+
 			Action actionDescriptor = method.getAnnotation(Action.class);
 			setActionType(actionDescriptor.value());
 
