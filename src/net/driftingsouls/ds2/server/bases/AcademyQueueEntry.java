@@ -267,7 +267,8 @@ public class AcademyQueueEntry {
 
 			offz.setSpecial(Offizier.Special.values()[spec-1]);
 
-			offz.setDest("b", academy.getBase().getId());
+			offz.setTraining(false);
+			offz.stationierenAuf(academy.getBase());
 			id = (Integer)db.save(offz);
 		}
 		else
@@ -286,7 +287,7 @@ public class AcademyQueueEntry {
 			offz.setAbility(ability, offz.getAbility(ability)+2);
 			if( !academy.isOffizierScheduled(offz.getID()) )
 			{
-				offz.setDest("b", academy.getBase().getId());
+				offz.setTraining(false);
 			}
 			id = (Integer)db.save(offz);
 		}

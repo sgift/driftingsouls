@@ -319,7 +319,7 @@ public class SchiffeController extends TemplateGenerator {
 				String offi = null;
 
 				if( ship.getStatus().indexOf("offizier") > -1 ) {
-					Offizier offizier = Offizier.getOffizierByDest('s', ship.getId());
+					Offizier offizier = Offizier.getOffizierByDest(ship);
 					if( offizier != null ) {
 						offi = " <a class=\"forschinfo\" href=\""+Common.buildUrl("default", "module", "choff", "off", offizier.getID())+"\"><img style=\"vertical-align:middle\" src=\""+offizier.getPicture()+"\" alt=\"Rang "+offizier.getRang()+"\" /></a>";
 					}

@@ -3336,12 +3336,12 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		// Und nun loeschen wir es...
-		db.createQuery("delete from Offizier where dest=:dest")
-			.setString("dest", "s "+this.id)
+		db.createQuery("delete from Offizier where stationiertAufSchiff=:dest")
+			.setEntity("dest", this)
 			.executeUpdate();
 
-		db.createQuery("delete from Jump where shipid=:id")
-			.setInteger("id", this.id)
+		db.createQuery("delete from Jump where ship=:id")
+			.setEntity("id", this.id)
 			.executeUpdate();
 
 		ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where shipid=:ship")
@@ -3454,10 +3454,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 				this.getBaseShip().undock(this);
 			}
 
-			db.createQuery("update Offizier set userid=:owner where dest=:dest")
-				.setEntity("owner", newowner)
-				.setString("dest", "s "+this.id)
-				.executeUpdate();
+			for( Offizier offi : Offizier.getOffiziereByDest(this) )
+			{
+				offi.setOwner(newowner);
+			}
 
 			if( getTypeData().getWerft() != 0 ) {
 				ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=:shipid")
@@ -3691,11 +3691,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		if( this.offizier == null ) {
-			this.offizier = Offizier.getOffizierByDest('s', this.id);
+			this.offizier = Offizier.getOffizierByDest(this);
 		}
 		if( this.offizier != null ) {
-			String[] dest =  this.offizier.getDest();
-			if( !dest[0].equals("s") || Integer.parseInt(dest[1]) != this.id ) {
+			if( offizier.getStationiertAufSchiff() == null || offizier.getStationiertAufSchiff().getId() != this.id ) {
 				this.offizier = null;
 			}
 		}

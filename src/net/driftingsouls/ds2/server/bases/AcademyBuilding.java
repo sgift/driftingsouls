@@ -116,9 +116,9 @@ public class AcademyBuilding extends DefaultBuilding {
 		}
 
 
-		for( Offizier offizier : Offizier.getOffiziereByDest('t', base.getId()) )
+		for( Offizier offizier : Offizier.getOffiziereByDest(base) )
 		{
-			offizier.setDest("b", base.getId());
+			offizier.setTraining(false);
 		}
 	}
 
@@ -350,7 +350,7 @@ public class AcademyBuilding extends DefaultBuilding {
 					if( !academy.isOffizierScheduled(offid))
 					{
 						Offizier offizier = Offizier.getOffizierByID(offid);
-						offizier.setDest("b", base.getId());
+						offizier.setTraining(false);
 					}
 				}
 				if( academy.getNumberScheduledQueueEntries() == 0 ) {
@@ -398,9 +398,9 @@ public class AcademyBuilding extends DefaultBuilding {
 		if( (train != 0) && (off != 0) ) {
 			Offizier offizier = Offizier.getOffizierByID(off);
 			//Auch hier kann es sein dass der Offizier nicht existiert.
-			if(offizier != null)
+			if(offizier != null )
 			{
-				if( offizier.getDest()[0].equals("b") && offizier.getDest()[1].equals(Integer.toString(base.getId())) || offizier.getDest()[0].equals("t") && offizier.getDest()[1].equals(Integer.toString(base.getId())) ) {
+				if( offizier.getStationiertAufBasis() != null && offizier.getStationiertAufBasis().getId() == base.getId() ) {
 					Map<Integer,Offizier.Ability> dTrain = new HashMap<Integer,Offizier.Ability>();
 					dTrain.put(1, Offizier.Ability.ING);
 					dTrain.put(2, Offizier.Ability.WAF);
@@ -463,7 +463,7 @@ public class AcademyBuilding extends DefaultBuilding {
 
 						AcademyQueueEntry entry = new AcademyQueueEntry(academy,offizier.getID(),dauer,train);
 
-						offizier.setDest("t", base.getId());
+						offizier.setTraining(true);
 						base.setCargo(cargo);
 						db.save(entry);
 						academy.addQueueEntry(entry);
@@ -588,9 +588,12 @@ public class AcademyBuilding extends DefaultBuilding {
 
 		t.setBlock("_BUILDING", "academy.offilistausb.listitem", "academy.offilistausb.list");
 
-		List<Offizier> offiziere = Offizier.getOffiziereByDest('t', base.getId());
+		List<Offizier> offiziere = Offizier.getOffiziereByDest(base);
 		for( Offizier offi : offiziere ) {
-
+			if( !offi.isTraining() )
+			{
+				continue;
+			}
 			t.setVar(
 					"offizier.picture",	offi.getPicture(),
 					"offizier.id",		offi.getID(),
@@ -607,9 +610,13 @@ public class AcademyBuilding extends DefaultBuilding {
 
 		t.setBlock("_BUILDING", "academy.offilist.listitem", "academy.offilist.list");
 
-		offiziere = Offizier.getOffiziereByDest('b', base.getId());
-		for( Offizier offi : offiziere ) {
-
+		offiziere = Offizier.getOffiziereByDest(base);
+		for( Offizier offi : offiziere )
+		{
+			if( offi.isTraining() )
+			{
+				continue;
+			}
 			t.setVar(
 					"offizier.picture",	offi.getPicture(),
 					"offizier.id",		offi.getID(),

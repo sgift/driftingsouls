@@ -20,9 +20,9 @@ package net.driftingsouls.ds2.server.modules;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
+import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -220,10 +220,10 @@ public class ColonizeController extends TemplateGenerator {
 		Cargo cargo2 = base.getCargo();
 		cargo.addCargo( cargo2 );
 
-		db.createQuery("update Offizier set dest=:dest where dest=:olddest")
-			.setString("dest", "b "+base.getId())
-			.setString("olddest", "s "+ship.getId())
-			.executeUpdate();
+		for( Offizier offi : Offizier.getOffiziereByDest(base) )
+		{
+			offi.stationierenAuf(base);
+		}
 
 		ship.destroy();
 
@@ -238,11 +238,10 @@ public class ColonizeController extends TemplateGenerator {
 		base.setBewohner(crew);
 		base.setEnergy(e);
 
-		db.createQuery("update Offizier set userid=:owner where dest in (:destb,:destt)")
-			.setEntity("owner", user)
-			.setString("destb", "b "+base.getId())
-			.setString("destt", "t "+base.getId())
-			.executeUpdate();
+		for( Offizier offi : Offizier.getOffiziereByDest(base) )
+		{
+			offi.setOwner(user);
+		}
 
 		t.setVar("base.id", base.getId());
 	}

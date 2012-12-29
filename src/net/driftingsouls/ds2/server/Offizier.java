@@ -29,6 +29,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.HibernateCargoType;
 import net.driftingsouls.ds2.server.config.Offiziere;
 import net.driftingsouls.ds2.server.entities.User;
@@ -37,7 +38,7 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DSObject;
 
-import org.apache.commons.lang.StringUtils;
+import net.driftingsouls.ds2.server.ships.Ship;
 import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.TypeDef;
@@ -149,7 +150,11 @@ public class Offizier extends DSObject {
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="userid")
 	private User owner;
-	private String dest;
+	@ManyToOne(fetch=FetchType.LAZY)
+	private Ship stationiertAufSchiff;
+	@ManyToOne(fetch=FetchType.LAZY)
+	private Base stationiertAufBasis;
+	private boolean training;
 	private int ing;
 	private int waf;
 	private int nav;
@@ -243,24 +248,45 @@ public class Offizier extends DSObject {
 	}
 
 	/**
-	 * Gibt den Aufenthaltsort des Offiziers als Array der Laenge 2 zurueck.
-	 * Das erste Element kennzeichnet den Typ des Aufenthaltsortes (<code>s</code> bei Schiffen,
-	 * <code>b</code> bei Basen und <code>t</code> bei aktuell laufender Ausbildung auf einer Basis).
-	 * Das zweite Feld enthaelt die ID des Aufenthaltsortes
-	 * @return Der Aufenthaltsort
+	 * Gibt zurueck, ob der Offizier momentan ausgebildet wird.
+	 * @return <code>true</code> falls dem so ist
 	 */
-	public String[] getDest() {
-		return StringUtils.split(dest, ' ');
+	public boolean isTraining()
+	{
+		return training;
 	}
 
 	/**
-	 * Setzt den Aufenthaltsort eines Offiziers.
-	 * @param dest Der Typ des Aufenthaltsortes (s, b, t)
-	 * @param objectid Die ID des Aufenthaltsortes
-	 * @see #getDest()
+	 * Setzt, ob der Offizier momentan gerade ausgebildet wird.
+	 * @param training <code>true</code> falls er ausgebildet wird
 	 */
-	public void setDest( String dest, int objectid ) {
-		this.dest = dest+' '+objectid;
+	public void setTraining(boolean training)
+	{
+		this.training = training;
+	}
+
+	/**
+	 * Gibt das Zielschiff zurueck, auf dem sich der Offizier befindet.
+	 * Falls der Offizier sich nicht auf einem Schiff befindet wird <code>null</code>
+	 * zurueckgegeben.
+	 * @return Das Schiff oder <code>null</code>
+	 * @see #getStationiertAufBasis()
+	 */
+	public Ship getStationiertAufSchiff()
+	{
+		return stationiertAufSchiff;
+	}
+
+	/**
+	 * Gibt die Zielbasis zurueck, auf der sich der Offizier befindet.
+	 * Falls der Offizier sich nicht auf einer Basis befindet wird <code>null</code>
+	 * zurueckgegeben.
+	 * @return Die Basis oder <code>null</code>
+	 * @see #getStationiertAufSchiff()
+	 */
+	public Base getStationiertAufBasis()
+	{
+		return stationiertAufBasis;
 	}
 
 	/**
@@ -452,7 +478,7 @@ public class Offizier extends DSObject {
 							fak = 1;
 						}
 						if( this.ingu > this.ing * fak ) {
-							MESSAGE.get().append(Common._plaintitle(this.name)+" hat seine Ingeneursf&auml;higkeit verbessert\n");
+							MESSAGE.get().append(Common._plaintitle(this.name)).append(" hat seine Ingeneursf&auml;higkeit verbessert\n");
 							this.ing++;
 							this.ingu = 0;
 						}
@@ -478,7 +504,7 @@ public class Offizier extends DSObject {
 							fak = 1;
 						}
 						if( this.navu > this.nav * fak ) {
-							MESSAGE.get().append(Common._plaintitle(this.name)+" hat seine Navigationsf&auml;higkeit verbessert\n");
+							MESSAGE.get().append(Common._plaintitle(this.name)).append(" hat seine Navigationsf&auml;higkeit verbessert\n");
 							this.nav++;
 							this.navu = 0;
 						}
@@ -501,7 +527,7 @@ public class Offizier extends DSObject {
 			}
 
 			if( rang > this.rang ) {
-				MESSAGE.get().append(this.name+" wurde bef&ouml;rdert\n");
+				MESSAGE.get().append(this.name).append(" wurde bef&ouml;rdert\n");
 				this.rang = rang;
 			}
 		}
@@ -559,7 +585,7 @@ public class Offizier extends DSObject {
 	 */
 	public int getKaperMulti(boolean verteidiger)
 	{
-		int multi = 0;
+		int multi;
 		if(verteidiger)
 		{
 			multi =  (int)Math.floor(((getAbility(Offizier.Ability.COM)+2*getAbility(Offizier.Ability.SEC))/3d) /25d)+1;
@@ -576,22 +602,55 @@ public class Offizier extends DSObject {
 	}
 
 	/**
+	 * Stationiert den Offizier auf dem angegebenen Zielobjekt. Es erfolgt keine sonstige
+	 * Statusberechnung/korrektur auf dem bisherigen oder dem zukuenftigen Stationierungsort.
+	 * @param ziel Der neue Stationierungsort
+	 * @throws IllegalArgumentException Falls der Typ des Aufenthaltsorts unbekannt ist
+	 */
+	public void stationierenAuf(Object ziel) throws IllegalArgumentException
+	{
+		if( ziel instanceof Ship )
+		{
+			this.stationiertAufBasis = null;
+			this.stationiertAufSchiff = (Ship)ziel;
+		}
+		else if( ziel instanceof Base )
+		{
+			this.stationiertAufSchiff = null;
+			this.stationiertAufBasis = (Base)ziel;
+		}
+		else
+		{
+			throw new IllegalArgumentException("Unbekannter Typ von Aufenthaltsort: "+ziel);
+		}
+	}
+
+	/**
 	 * Gibt einen Offizier am angegebenen Aufenthaltsort zurueck. Sollten mehrere
 	 * Offiziere sich an diesem Ort aufhalten, so wird der beste von ihnen zurueckgegeben.
 	 * Sollte sich an dem Ort kein Offizier aufhalten, so wird <code>null</code> zurueckgegeben.
 	 *
-	 * @param dest Der Typ des Aufenthaltsortes (s, t, b)
-	 * @param objid Die ID des Aufenthaltsortes
+	 * @param ziel Der Aufenthaltsort
 	 * @return Ein Offizier oder <code>null</code>
-	 * @see #getDest()
+	 * @throws IllegalArgumentException Falls der Typ des Aufenthaltsorts unbekannt ist
 	 */
-	public static Offizier getOffizierByDest(char dest, int objid) {
+	public static Offizier getOffizierByDest(Object ziel) throws IllegalArgumentException {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		return (Offizier)db.createQuery("from Offizier where dest=:dest order by rang desc")
-			.setString("dest", dest+" "+objid)
-			.setMaxResults(1)
-			.uniqueResult();
+		if( ziel instanceof Ship ) {
+			return (Offizier)db.createQuery("from Offizier where stationiertAufSchiff=:dest order by rang desc")
+					.setEntity("dest", ziel)
+					.setMaxResults(1)
+					.uniqueResult();
+		}
+		else if( ziel instanceof Base )
+		{
+			return (Offizier)db.createQuery("from Offizier where stationiertAufBasis=:dest order by rang desc")
+					.setEntity("dest", ziel)
+					.setMaxResults(1)
+					.uniqueResult();
+		}
+		throw new IllegalArgumentException("Unbekannter Typ von Aufenthaltsort: "+ziel);
 	}
 
 	/**
@@ -608,17 +667,36 @@ public class Offizier extends DSObject {
 
 	/**
 	 * Gibt alle Offiziere am angegebenen Aufenthaltsort zurueck.
-	 * @param dest Der Typ des Aufenthaltsortes (s, t, b)
-	 * @param objid Die ID des Aufenthaltsortes
+	 * @param ziel Der Aufenthaltsort
 	 * @return Die Liste aller Offiziere
-	 * @see #getDest()
+	 * @throws IllegalArgumentException Falls der Typ des Aufenthaltsorts unbekannt ist
 	 */
 	@SuppressWarnings("unchecked")
-	public static List<Offizier> getOffiziereByDest(char dest, int objid) {
+	public static List<Offizier> getOffiziereByDest(Object ziel) throws IllegalArgumentException {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		return db.createQuery("from Offizier where dest= :dest")
-			.setString("dest", dest+" "+objid)
-			.list();
+		if( ziel instanceof Ship )
+		{
+			return db.createQuery("from Offizier where stationiertAufSchiff= :dest")
+					.setEntity("dest", ziel)
+					.list();
+		}
+		else if( ziel instanceof Base )
+		{
+			return db.createQuery("from Offizier where stationiertAufBasis= :dest")
+					.setEntity("dest", ziel)
+					.list();
+		}
+		throw new IllegalArgumentException("Unbekannter Typ von Aufenthaltsort: "+ziel);
+	}
+
+	@Override
+	public String toString()
+	{
+		return "Offizier{" +
+				"id=" + id +
+				", name='" + name + '\'' +
+				", owner=" + owner +
+				'}';
 	}
 }

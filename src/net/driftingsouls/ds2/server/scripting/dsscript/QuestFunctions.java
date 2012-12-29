@@ -263,7 +263,7 @@ public class QuestFunctions {
 					val = ship.getCargo();
 				}
 				else if( value[1].equals("offizier") ) {
-					val = Offizier.getOffizierByDest('s', ship.getId());
+					val = Offizier.getOffizierByDest(ship);
 				}
 				else if( value[1].equals("id") ) {
 					val = ship.getId();
@@ -381,7 +381,14 @@ public class QuestFunctions {
 					val = offi.getRang();
 				}
 				else if( value[1].equals("dest") ) {
-					val = offi.getDest();
+					if( offi.getStationiertAufBasis() != null )
+					{
+						val = "b "+offi.getStationiertAufBasis().getId();
+					}
+					else if( offi.getStationiertAufSchiff() != null )
+					{
+						val = "s "+offi.getStationiertAufSchiff().getId();
+					}
 				}
 				else if( value[1].equals("owner") ) {
 					val = offi.getOwner().getId();
@@ -1845,18 +1852,24 @@ public class QuestFunctions {
 				return CONTINUE;
 			}
 
-			User destowner = null;
+			Offizier offizier;
 			if( desttype.equals("s") ) {
 				Ship destobj = (Ship)db.get(Ship.class, destid);
-				destowner = destobj.getOwner();;
+
+				offizier = new Offizier(destobj.getOwner(), baseOffi.getName());
+				offizier.stationierenAuf(destobj);
 			}
 			else if( desttype.equals("b") ) {
 				Base destobj = (Base)db.get(Base.class, destid);
-				destowner = destobj.getOwner();;
+				offizier = new Offizier(destobj.getOwner(), baseOffi.getName());
+				offizier.stationierenAuf(destobj);
+			}
+			else
+			{
+				scriptparser.log("Warnung: Kein gueltiges Ziel '"+desttype+"' fuer Offizier");
+				return CONTINUE;
 			}
 
-			Offizier offizier = new Offizier(destowner, baseOffi.getName());
-			offizier.setDest(desttype, destid);
 			for( Ability ability : Offizier.Ability.values() ) {
 				offizier.setAbility(ability, baseOffi.getAbility(ability));
 			}
@@ -1887,13 +1900,12 @@ public class QuestFunctions {
 			if( offi == null ) {
 				return CONTINUE;
 			}
-			String[] destArray = offi.getDest();
+			Ship targetShip = offi.getStationiertAufSchiff();
 
 			db.delete(offi);
 
-			if( destArray[0].equals("s") ) {
-				Ship destobj = (Ship)db.get(Ship.class, Value.Int(destArray[1]));
-				destobj.recalculateShipStatus();
+			if( targetShip != null ) {
+				targetShip.recalculateShipStatus();
 			}
 
 			return CONTINUE;

@@ -144,11 +144,11 @@ public class KSKapernAction extends BasicKSAction {
 		int attmulti = 1;
 		int defmulti = 1;
 
-		Offizier defoffizier = Offizier.getOffizierByDest('s', enemyShip.getId());
+		Offizier defoffizier = Offizier.getOffizierByDest(enemyShip);
 		if( defoffizier != null ) {
 			defmulti = defoffizier.getKaperMulti(true);
 		}
-		Offizier attoffizier = Offizier.getOffizierByDest('s', ownShip.getId());
+		Offizier attoffizier = Offizier.getOffizierByDest(ownShip);
 		if( attoffizier != null)
 		{
 			attmulti = attoffizier.getKaperMulti(false);
@@ -319,10 +319,10 @@ public class KSKapernAction extends BasicKSAction {
 				BattleShip bDockShip = (BattleShip)db.get(BattleShip.class, dockShip.getId());
 				bDockShip.setSide(battle.getOwnSide());
 
-				db.createQuery("update Offizier set userid=:user where dest=:dest")
-				.setEntity("user", user)
-				.setString("dest", "s "+dockShip.getId())
-				.executeUpdate();
+				for( Offizier offi : Offizier.getOffiziereByDest(dockShip) )
+				{
+					offi.setOwner(user);
+				}
 				if( dockShip.getTypeData().getWerft() != 0 ) {
 					ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=:ship")
 					.setEntity("ship", dockShip)
@@ -337,10 +337,10 @@ public class KSKapernAction extends BasicKSAction {
 				kaperlist.add(bDockShip.getId());
 			}
 
-			db.createQuery("update Offizier set userid=:user where dest=:dest")
-			.setEntity("user", user)
-			.setString("dest", "s "+enemyShip.getId())
-			.executeUpdate();
+			for( Offizier offi : Offizier.getOffiziereByDest(enemyShip) )
+			{
+				offi.setOwner(user);
+			}
 			if( enemyShipType.getWerft() != 0 ) {
 				ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=:ship")
 				.setEntity("ship", enemyShip)

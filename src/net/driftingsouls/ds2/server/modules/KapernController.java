@@ -328,10 +328,10 @@ public class KapernController extends TemplateGenerator {
 			dockShip.removeFromFleet();
 			dockShip.setOwner(user);
 
-			db.createQuery("update Offizier set userid=:owner where dest=:dest")
-			.setEntity("owner", user)
-			.setString("dest", "s "+dockShip.getId())
-			.executeUpdate();
+			for( Offizier offi : Offizier.getOffiziereByDest(dockShip) )
+			{
+				offi.setOwner(user);
+			}
 			if( dockShip.getTypeData().getWerft() != 0 ) {
 				ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=:ship")
 				.setEntity("ship", dockShip)
@@ -345,10 +345,10 @@ public class KapernController extends TemplateGenerator {
 
 		}
 
-		db.createQuery("update Offizier set userid=:owner where dest=:dest")
-		.setEntity("owner", user)
-		.setString("dest", "s "+this.targetShip.getId())
-		.executeUpdate();
+		for( Offizier offi : Offizier.getOffiziereByDest(this.targetShip) )
+		{
+			offi.setOwner(user);
+		}
 		if( this.targetShip.getTypeData().getWerft() != 0 ) {
 			ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=:ship")
 			.setEntity("ship", this.targetShip)
@@ -390,11 +390,11 @@ public class KapernController extends TemplateGenerator {
 		int attmulti = 1;
 		int defmulti = 1;
 
-		Offizier defoffizier = Offizier.getOffizierByDest('s', this.targetShip.getId());
+		Offizier defoffizier = Offizier.getOffizierByDest(this.targetShip);
 		if( defoffizier != null ) {
 			defmulti = defoffizier.getKaperMulti(true);
 		}
-		Offizier attoffizier = Offizier.getOffizierByDest('s', this.ownShip.getId());
+		Offizier attoffizier = Offizier.getOffizierByDest(this.ownShip);
 		if( attoffizier != null)
 		{
 			attmulti = attoffizier.getKaperMulti(false);

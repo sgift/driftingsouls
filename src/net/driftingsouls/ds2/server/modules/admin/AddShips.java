@@ -358,7 +358,7 @@ public class AddShips implements AdminPlugin {
 						offizier.setAbility(Offizier.Ability.NAV, offi.getNav());
 						offizier.setAbility(Offizier.Ability.SEC, offi.getSec());
 						offizier.setAbility(Offizier.Ability.COM, offi.getCom());
-						offizier.setDest("s", ship.getId());
+						offizier.stationierenAuf(ship);
 						offizier.setSpecial(Offizier.Special.values()[RandomUtils.nextInt(Offizier.Special.values().length)]);
 						db.persist(offizier);
 

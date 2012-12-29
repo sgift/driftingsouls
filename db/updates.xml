@@ -1777,4 +1777,13 @@
 		UPDATE users SET plainname=replace(plainname,'&#257;', 'ā');
 		UPDATE users SET plainname=replace(plainname,'&#236;', 'ì');
 	]]></update>
+	<update type="structure" datum="2012-12-24"><![CDATA[
+		ALTER TABLE offiziere ADD COLUMN stationiertAufSchiff_id INTEGER, ADD COLUMN stationiertAufBasis_id INTEGER, ADD CONSTRAINT offiziere_fk_ships FOREIGN KEY (stationiertAufSchiff_id) REFERENCES ships(id), ADD CONSTRAINT offiziere_fk_bases FOREIGN KEY (stationiertAufBasis_id) REFERENCES bases(id), ADD COLUMN training TINYINT(1) NOT NULL DEFAULT 0;
+		UPDATE offiziere SET training=1 WHERE dest LIKE "t %";
+		UPDATE offiziere SET dest=replace(dest,'t ','b ');
+		UPDATE offiziere set stationiertAufSchiff_id=CAST(substr(dest,3) AS DECIMAL) WHERE dest like "s %" and exists(select id from ships where id=CAST(substr(dest,3) as DECIMAL));
+		UPDATE offiziere set stationiertAufBasis_id=CAST(substr(dest,3) AS DECIMAL) WHERE dest like "b %" and exists(select id from bases where id=CAST(substr(dest,3) as DECIMAL));
+		update offiziere set stationiertAufBasis_id=(select id from bases where owner=offiziere.userid limit 1) where stationiertAufBasis_id is null and stationiertAufSchiff_id is null;
+		ALTER TABLE offiziere DROP COLUMN dest;
+	]]></update>
 </updates>

@@ -396,8 +396,8 @@ public class CreateObjects implements AdminPlugin {
 						rang = Offiziere.MAX_RANG;
 					}
 					offizier.setRang(rang);
-					offizier.setDest("s", id);
-					
+					offizier.stationierenAuf(shipObj);
+
 					db.persist(offizier);
 				}
 			}

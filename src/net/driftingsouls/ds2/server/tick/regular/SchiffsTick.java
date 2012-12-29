@@ -660,7 +660,7 @@ public class SchiffsTick extends TickController {
 				( (shipd.getEngine() < 100) || (shipd.getWeapons() < 100) || (shipd.getComm() < 100) || (shipd.getSensors() < 100) ) &&
 				(Nebel.getNebula(shipd.getLocation()) != Nebel.Typ.DAMAGE)  ) {
 
-			Offizier offizier = Offizier.getOffizierByDest('s', shipd.getId());
+			Offizier offizier = Offizier.getOffizierByDest(shipd);
 
 			for( int a=0; a<=3; a++ )
 			{

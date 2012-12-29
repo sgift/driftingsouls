@@ -115,9 +115,7 @@ public class ChoffController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
-		
-		String[] dest = offizier.getDest();
-		
+
 		t.setVar(	"offizier.id",			offizier.getID(),
 					"offizier.name",		Common._plaintitle(offizier.getName()),
 					"offizier.picture",		offizier.getPicture(),
@@ -127,8 +125,8 @@ public class ChoffController extends TemplateGenerator {
 					"offizier.ability.sec",	offizier.getAbility( Offizier.Ability.SEC ),
 					"offizier.ability.com",	offizier.getAbility( Offizier.Ability.COM ),
 					"offizier.special",		offizier.getSpecial().getName(),
-					"base.id",				(dest[0].equals("b") || dest[0].equals("t") ? dest[1] : 0),
-					"ship.id",				(dest[0].equals("s") ? dest[1] : 0) );
+					"base.id",				offizier.getStationiertAufBasis() != null ? offizier.getStationiertAufBasis().getId() : 0,
+					"ship.id",				offizier.getStationiertAufSchiff() != null ? offizier.getStationiertAufSchiff().getId() : 0 );
 	}
 
 

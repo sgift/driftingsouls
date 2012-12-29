@@ -98,10 +98,9 @@ public class TCController extends TemplateGenerator {
 	 * Offiziersliste eines Objekts ausgeben.
 	 *
 	 * @param mode	Transfermodus (shipToShip, baseToShip usw)
-	 * @param dest	Typ des Aufenthaltsort der Offiziere (s,b usw)
-	 * @param destid ID des Aufenthaltsortes
+	 * @param ziel	Der Aufenthaltsort der Offiziere
 	 */
-	private void echoOffiList( String mode, char dest, int destid ) {
+	private void echoOffiList( String mode, Object ziel ) {
 		TemplateEngine t = getTemplateEngine();
 
 		t.setVar(	"tc.selectoffizier",	1,
@@ -109,8 +108,12 @@ public class TCController extends TemplateGenerator {
 
 		t.setBlock( "_TC", "tc.offiziere.listitem", "tc.offiziere.list" );
 
-		List<Offizier> offiList = Offizier.getOffiziereByDest(dest, destid);
+		List<Offizier> offiList = Offizier.getOffiziereByDest(ziel);
 		for( Offizier offi : offiList ) {
+			if( offi.isTraining() )
+			{
+				continue;
+			}
 			t.setVar(	"tc.offizier.picture",		offi.getPicture(),
 						"tc.offizier.id",			offi.getID(),
 						"tc.offizier.name",			Common._plaintitle(offi.getName()),
@@ -168,8 +171,8 @@ public class TCController extends TemplateGenerator {
 			return;
 		}
 
-		long officount = ((Number)db.createQuery("select count(*) from Offizier where dest=:dest AND userid=:owner")
-				.setString("dest", "s "+ship.getId())
+		long officount = ((Number)db.createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest AND owner=:owner")
+				.setEntity("dest", ship)
 				.setEntity("owner", user)
 				.iterate().next()
 			).longValue();
@@ -206,8 +209,8 @@ public class TCController extends TemplateGenerator {
 			maxoffis = tarShipType.getCrew();
 		}
 
-		long tarOffiCount = ((Number)db.createQuery("select count(*) from Offizier where dest=:dest AND userid=:owner")
-				.setString("dest", "s "+tarShip.getId())
+		long tarOffiCount = ((Number)db.createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest AND owner=:owner")
+				.setEntity("dest", tarShip)
 				.setEntity("owner", tarShip.getOwner())
 				.iterate().next()
 			).longValue();
@@ -220,17 +223,17 @@ public class TCController extends TemplateGenerator {
 
 		// Offiziersliste bei bedarf ausgeben
 		if( (officount > 1) && (off == 0) ) {
-			echoOffiList("shipToShip", 's', ship.getId());
+			echoOffiList("shipToShip", ship);
 			return;
 		}
 
 		// Offizier laden
-		Offizier offizier = null;
+		Offizier offizier;
 		if( off != 0 ) {
 			offizier = Offizier.getOffizierByID(off);
 		}
 		else {
-			offizier = Offizier.getOffizierByDest('s', ship.getId());
+			offizier = Offizier.getOffizierByDest(ship);
 		}
 
 		if( (offizier == null) || (offizier.getOwner() != user) ) {
@@ -240,8 +243,7 @@ public class TCController extends TemplateGenerator {
 			return;
 		}
 
-		String[] dest = offizier.getDest();
-		if( !dest[0].equals("s") || (Integer.parseInt(dest[1]) != ship.getId()) ) {
+		if( offizier.isTraining() || offizier.getStationiertAufSchiff() == null || offizier.getStationiertAufSchiff().getId() !=  ship.getId() ) {
 			addError("Der angegebene Offizier befindet sich nicht auf dem Schiff", errorurl);
 			setTemplate("");
 
@@ -260,7 +262,7 @@ public class TCController extends TemplateGenerator {
 		User tarUser = tarShip.getOwner();
 
 		// Transfer!
-		offizier.setDest( "s", tarShip.getId() );
+		offizier.stationierenAuf(tarShip);
 		offizier.setOwner( tarUser );
 
 		ship.recalculateShipStatus();
@@ -298,8 +300,8 @@ public class TCController extends TemplateGenerator {
 			return;
 		}
 
-		long officount = ((Number)db.createQuery("select count(*) from Offizier where dest=:dest AND userid=:owner")
-				.setString("dest", "s "+ship.getId())
+		long officount = ((Number)db.createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest AND owner=:owner")
+				.setEntity("dest", ship)
 				.setEntity("owner", user)
 				.iterate().next()
 			).longValue();
@@ -312,17 +314,17 @@ public class TCController extends TemplateGenerator {
 
 		// bei bedarf offiliste ausgeben
 		if( (officount > 1) && (off == 0) ) {
-			echoOffiList("shipToBase", 's', ship.getId());
+			echoOffiList("shipToBase", ship);
 			return;
 		}
 
 		// Offi laden
-		Offizier offizier = null;
+		Offizier offizier;
 		if( off != 0 ) {
 			offizier = Offizier.getOffizierByID(off);
 		}
 		else {
-			offizier = Offizier.getOffizierByDest('s', ship.getId());
+			offizier = Offizier.getOffizierByDest(ship);
 		}
 
 		if( (offizier == null) || (offizier.getOwner() != user) ) {
@@ -332,8 +334,7 @@ public class TCController extends TemplateGenerator {
 			return;
 		}
 
-		String[] dest = offizier.getDest();
-		if( !dest[0].equals("s") || (Integer.parseInt(dest[1]) != ship.getId()) ) {
+		if( offizier.isTraining() || offizier.getStationiertAufSchiff() == null || offizier.getStationiertAufSchiff().getId() != ship.getId() ) {
 			addError("Der angegebene Offizier befindet sich nicht auf dem Schiff", errorurl);
 			setTemplate("");
 
@@ -343,7 +344,7 @@ public class TCController extends TemplateGenerator {
 		t.setVar( "tc.offizier.name", Common._plaintitle(offizier.getName()) );
 
 		// Confirm ?
-		if( (tarBase.getOwner() != user) && (conf != "ok") ) {
+		if( (tarBase.getOwner() != user) && (!"ok".equals(conf)) ) {
 			t.setVar( "tc.confirm", 1 );
 
 			return;
@@ -352,7 +353,7 @@ public class TCController extends TemplateGenerator {
 		User tarUser = tarBase.getOwner();
 
 		// Transfer !
-		offizier.setDest( "b", tarBase.getId() );
+		offizier.stationierenAuf(tarBase);
 		offizier.setOwner( tarUser );
 
 		ship.recalculateShipStatus();
@@ -399,7 +400,15 @@ public class TCController extends TemplateGenerator {
 					"tc.ship",				ship.getId(),
 					"tc.target",			upBase.getId() );
 
-		List<Offizier> offilist = Offizier.getOffiziereByDest('b', upBase.getId());
+		List<Offizier> offilist = Offizier.getOffiziereByDest(upBase);
+		for( Iterator<Offizier> iter=offilist.iterator(); iter.hasNext(); )
+		{
+			Offizier offi = iter.next();
+			if( offi.isTraining() )
+			{
+				iter.remove();
+			}
+		}
 
 		int shipcount = 0;
 
@@ -412,15 +421,17 @@ public class TCController extends TemplateGenerator {
 			.setInteger("y", this.ship.getY())
 			.setMaxResults(offilist.size())
 			.list();
-		for( Iterator<?> iter=shiplist.iterator(); iter.hasNext(); ) {
-			Ship aship = (Ship)iter.next();
+		for (Object aShiplist : shiplist)
+		{
+			Ship aship = (Ship) aShiplist;
 			ShipTypeData shipType = aship.getTypeData();
-			if( shipType.getSize() <= ShipType.SMALL_SHIP_MAXSIZE ) {
+			if (shipType.getSize() <= ShipType.SMALL_SHIP_MAXSIZE)
+			{
 				continue;
 			}
 
 			Offizier offi = offilist.remove(0);
-			offi.setDest( "s", aship.getId() );
+			offi.stationierenAuf(ship);
 
 			aship.recalculateShipStatus();
 
@@ -476,7 +487,7 @@ public class TCController extends TemplateGenerator {
 
 		// Wenn noch kein Offizier ausgewaehlt wurde -> Liste der Offiziere in der Basis anzeigen
 		if( off == 0 ) {
-			echoOffiList("baseToShip", 'b', upBase.getId());
+			echoOffiList("baseToShip", upBase);
 
 			if( ship.getFleet() != null ) {
 				long count = ((Number)db.createQuery("select count(*) from Ship where fleet=:fleet and owner=:owner and system=:sys and x=:x and " +
@@ -504,8 +515,7 @@ public class TCController extends TemplateGenerator {
 				return;
 			}
 
-			String[] dest = offizier.getDest();
-			if( !dest[0].equals("b") || (Integer.parseInt(dest[1]) != upBase.getId()) ) {
+			if( offizier.isTraining() || offizier.getStationiertAufBasis() == null || offizier.getStationiertAufBasis().getId() != upBase.getId() ) {
 				addError("Der angegebene Offizier ist nicht in der Basis stationiert", errorurl);
 				setTemplate("");
 
@@ -515,8 +525,8 @@ public class TCController extends TemplateGenerator {
 			// Check ob noch fuer einen weiteren Offi platz ist
 			ShipTypeData tarShipType = ship.getTypeData();
 
-			long offi = ((Number)getDB().createQuery("select count(*) from Offizier where dest=:dest")
-					.setString("dest", "s "+ship.getId())
+			long offi = ((Number)getDB().createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest")
+					.setEntity("dest", ship)
 					.iterate().next()
 				).longValue();
 
@@ -534,7 +544,7 @@ public class TCController extends TemplateGenerator {
 
 			t.setVar("tc.offizier.name",Common._plaintitle(offizier.getName()));
 
-			offizier.setDest( "s", ship.getId() );
+			offizier.stationierenAuf(ship);
 
 			ship.recalculateShipStatus();
 		}

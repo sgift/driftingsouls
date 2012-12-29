@@ -103,9 +103,9 @@ public class Kommandozentrale extends DefaultBuilding {
 		}
 
 		// Ueberstelle Offiziere
-		db.createQuery("update Offizier set owner=:owner where dest=:dest")
+		db.createQuery("update Offizier set owner=:owner where stationiertAufBasis=:dest")
 		  .setEntity("owner", nullUser)
-		  .setString("dest", "b " + base.getId())
+		  .setEntity("dest", base)
 		  .executeUpdate();
 
 		// Loesche Verbindungen

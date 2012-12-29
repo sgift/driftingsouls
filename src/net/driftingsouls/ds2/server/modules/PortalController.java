@@ -26,6 +26,7 @@ import java.util.List;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.SectorTemplateManager;
 import net.driftingsouls.ds2.server.bases.AutoGTUAction;
 import net.driftingsouls.ds2.server.bases.Base;
@@ -470,11 +471,10 @@ public class PortalController extends TemplateGenerator {
 	 	base.setCoreActive(false);
 	 	base.setAutoGTUActs(new ArrayList<AutoGTUAction>());
 
-	 	db.createQuery("update Offizier set userid=:owner where dest in (:destb, :destt)")
-	 		.setInteger("owner", base.getOwner().getId())
-	 		.setString("destb", "b "+base.getId())
-	 		.setString("destt", "t "+base.getId())
-	 		.executeUpdate();
+		for( Offizier offi : Offizier.getOffiziereByDest(base) )
+		{
+			offi.setOwner(base.getOwner());
+		}
 
 	 	for( int i=0; i < baselayout.length; i++ ) {
 			if( baselayout[i] > 0 ) {

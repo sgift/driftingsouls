@@ -299,8 +299,8 @@ public class ShipWerft extends WerftObject {
 		if( this.linked == null ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 
-			int officount = ((Number)db.createQuery("select count(*) from Offizier where dest=:dest")
-				.setString("dest", "s "+this.ship.getId())
+			int officount = ((Number)db.createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest")
+				.setEntity("dest", this.ship)
 				.iterate().next()).intValue();
 			int maxoffis = 1;
 			ShipTypeData shiptype = this.ship.getTypeData();
@@ -327,18 +327,18 @@ public class ShipWerft extends WerftObject {
 
 		if( this.linked == null )
 		{
-			offizier.setDest("s", this.ship.getId());
+			offizier.stationierenAuf(this.ship);
 		}
 		else
 		{
-			Offizier myoffi = Offizier.getOffizierByDest('s', this.ship.getId());
+			Offizier myoffi = Offizier.getOffizierByDest(this.ship);
 			if( myoffi != null )
 			{
-				offizier.setDest("b", this.linked.getId());
+				offizier.stationierenAuf(this.linked);
 			}
 			else
 			{
-				offizier.setDest("s", this.ship.getId());
+				offizier.stationierenAuf(this.ship);
 			}
 		}
 	}

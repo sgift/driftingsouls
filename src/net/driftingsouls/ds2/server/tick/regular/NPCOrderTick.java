@@ -237,11 +237,11 @@ public class NPCOrderTick extends TickController {
 		offi.setAbility(Offizier.Ability.COM, offizier.getCom());
 		if( !bases.isEmpty() )
 		{
-			offi.setDest("b", bases.get(0).getId());
+			offi.stationierenAuf(bases.get(0));
 		}
 		else
 		{
-			offi.setDest("s", newShip.getId());
+			offi.stationierenAuf(newShip);
 		}
 		offi.setSpecial(Offizier.Special.values()[special]);
 

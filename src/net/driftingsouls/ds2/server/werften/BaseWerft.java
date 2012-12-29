@@ -146,7 +146,7 @@ public class BaseWerft extends WerftObject {
 	@Override
 	public void transferOffi(int offi) {
 		Offizier offizier = Offizier.getOffizierByID(offi);
-		offizier.setDest("b", this.base.getId());
+		offizier.stationierenAuf(this.base);
 	}
 
 	@Override

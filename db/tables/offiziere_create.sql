@@ -8,14 +8,15 @@ CREATE TABLE `offiziere` (
   `nav` int(11) NOT NULL default '0',
   `sec` int(11) NOT NULL default '0',
   `com` int(11) NOT NULL default '0',
-  `dest` varchar(15) NOT NULL default '',
   `ingu` int(11) NOT NULL default '0',
   `wafu` int(11) NOT NULL default '0',
   `navu` int(11) NOT NULL default '0',
   `secu` int(11) NOT NULL default '0',
   `comu` int(11) NOT NULL default '0',
   `spec` tinyint(4) NOT NULL default '0',
+	stationiertAufSchiff_id INTEGER,
+	stationiertAufBasis_id INTEGER,
+	training TINYINT(1) NOT NULL DEFAULT 0,
   PRIMARY KEY  (`id`),
-  KEY `dest` (`dest`),
   KEY `userid` (`userid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

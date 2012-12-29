@@ -137,7 +137,7 @@ class HandleShipRespawnCountdown implements TaskHandler {
 			}
 			
 			// Offiziere einfuegen, falls vorhanden
-			SQLQuery offizier = db.query("SELECT * FROM offiziere WHERE dest='s ",shipid,"'");
+			SQLQuery offizier = db.query("SELECT * FROM offiziere WHERE stationiertAufSchiff_id=",shipid,"");
 			while( offizier.next() ) {
 				queryfp.clear();
 				querylp.clear();
@@ -145,8 +145,8 @@ class HandleShipRespawnCountdown implements TaskHandler {
 				afield = db.query("SHOW FIELDS FROM offiziere");
 				while( afield.next() ) {
 					queryfp.add("`"+afield.getString("Field")+"`");
-					if( afield.getString("Field").equals("dest") ) {
-						querylp.add("'s "+(-shipid)+"'");
+					if( afield.getString("Field").equals("stationiertAufSchiff_id") ) {
+						querylp.add(Integer.toString(-shipid));
 					}
 					else if( afield.getString("Field").equals("id") ) {
 						querylp.add("NULL");
