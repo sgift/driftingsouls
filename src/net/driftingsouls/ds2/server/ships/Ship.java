@@ -3341,7 +3341,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			.executeUpdate();
 
 		db.createQuery("delete from Jump where ship=:id")
-			.setEntity("id", this.id)
+			.setEntity("id", this)
 			.executeUpdate();
 
 		ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where shipid=:ship")
