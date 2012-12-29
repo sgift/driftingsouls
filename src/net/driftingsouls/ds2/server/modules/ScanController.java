@@ -283,13 +283,15 @@ public class ScanController extends TemplateGenerator {
 			/*
 				Jumpnodes
 			*/
-			JumpNode node = (JumpNode)db.createQuery("from JumpNode where x= :x and y= :y and system= :sys")
+			t.setBlock("_SCAN","nodes.listitem","nodes.list");
+
+			List<JumpNode> nodes = Common.cast(db.createQuery("from JumpNode where x= :x and y= :y and system= :sys")
 				.setInteger("x", scanLoc.getX())
 				.setInteger("y", scanLoc.getY())
 				.setInteger("sys", scanLoc.getSystem())
-				.setMaxResults(1)
-				.uniqueResult();
-			if( node != null ) {
+				.list());
+			for( JumpNode node : nodes )
+			{
 				String blocked = "";
 				if( node.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn( 0 ) ) {
 					blocked = "<br />-Blockiert-";
@@ -299,6 +301,8 @@ public class ScanController extends TemplateGenerator {
 							"jumpnode.id",		node.getId(),
 							"jumpnode.name",	node.getName(),
 							"jumpnode.blocked",	blocked );
+
+				t.parse("nodes.list","nodes.listitem",true);
 			}
 
 			/*

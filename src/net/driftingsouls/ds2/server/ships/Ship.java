@@ -2470,7 +2470,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		StringBuilder outputbuffer = MESSAGE.get();
 
-		String nodetypename = "";
+		String nodetypename;
 		String nodetarget = "";
 
 		User user = this.owner;
@@ -2485,7 +2485,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		// Daten der Sprungpunkte laden
 		//
 
-		Location nodeLoc = null;
+		Location nodeLoc;
 		Location outLoc = null;
 		Object nodeObj = null;
 

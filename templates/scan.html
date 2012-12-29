@@ -49,13 +49,15 @@
 			</tr>
 			<!-- END bases.listitem -->
 		{/endif}
-		{if sector.jumpnode}
+		{if nodes.list}
+			<!-- BEGIN nodes.listitem -->
 			<tr>
 				<td class="show2"><span class="smallfont">{jumpnode.id}</span></td>
 				<td class="show2">&nbsp;</td>
 				<td class="show2"><span class="smallfont">{jumpnode.name}{jumpnode.blocked}</span></td>
 				<td class="show2"><img src="{URL}data/objects/node.png" alt="" /></td>
 			</tr>
+			<!-- END nodes.listitem -->
 		{/endif}
 		{if battles.list}
 			<!-- BEGIN battles.listitem -->

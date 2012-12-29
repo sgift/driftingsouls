@@ -955,16 +955,20 @@ public class SensorsDefault implements SchiffPlugin {
 
 	private void outputJumpnodes(Parameters caller, org.hibernate.Session db, User user, TemplateEngine t)
 	{
+		t.setBlock("_SENSORS","nodes.listitem","nodes.list");
+
 		Ship ship = caller.ship;
-		JumpNode node = (JumpNode)db.createQuery("from JumpNode where x=:x and y=:y and system=:sys")
+		List<JumpNode> nodes = Common.cast(db.createQuery("from JumpNode where x=:x and y=:y and system=:sys")
 			.setInteger("x", ship.getX())
 			.setInteger("y", ship.getY())
 			.setInteger("sys", ship.getSystem())
-			.uniqueResult();
+			.list());
 
-		if( node != null ) {
+		for( JumpNode node : nodes )
+		{
 			int blocked = 0;
-			if( node.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn( 0 ) ) {
+			if( node.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn( 0 ) )
+			{
 				blocked = 1;
 			}
 			if( user.hasFlag( User.FLAG_NO_JUMPNODE_BLOCK ) )
@@ -975,6 +979,8 @@ public class SensorsDefault implements SchiffPlugin {
 			t.setVar(	"node.id",		node.getId(),
 						"node.name",	node.getName(),
 						"node.blocked",	blocked );
+
+			t.parse("nodes.list","nodes.listitem",true);
 		}
 	}
 
