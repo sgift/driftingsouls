@@ -193,7 +193,8 @@ public abstract class BasicUser {
 	 * @return Der Image-Path des Benutzers
 	 */
 	public String getUserImagePath() {
-		return imgpath;
+		//return imgpath;
+		return getDefaultImagePath();
 	}
 
 	/**
