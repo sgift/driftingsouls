@@ -210,7 +210,8 @@
 	Statistik
 */
 .statistic {
-	width:850px;
+	min-width:850px;
+	display: inline-block;
 }
 .statistic h1 {
 	margin-bottom:10px;
@@ -293,9 +294,6 @@
 
 #basenBox table {
 	width:100%;
-}
-#basenBox thead img {
-	float:right;
 }
 #basenBox .lagerCol {
 	width:40%;
