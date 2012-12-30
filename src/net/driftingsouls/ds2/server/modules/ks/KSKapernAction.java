@@ -337,7 +337,7 @@ public class KSKapernAction extends BasicKSAction {
 				kaperlist.add(bDockShip.getId());
 			}
 
-			for( Offizier offi : Offizier.getOffiziereByDest(enemyShip) )
+			for( Offizier offi : Offizier.getOffiziereByDest(enemyShip.getShip()) )
 			{
 				offi.setOwner(user);
 			}
