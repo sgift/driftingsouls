@@ -144,11 +144,11 @@ public class KSKapernAction extends BasicKSAction {
 		int attmulti = 1;
 		int defmulti = 1;
 
-		Offizier defoffizier = Offizier.getOffizierByDest(enemyShip);
+		Offizier defoffizier = Offizier.getOffizierByDest(enemyShip.getShip());
 		if( defoffizier != null ) {
 			defmulti = defoffizier.getKaperMulti(true);
 		}
-		Offizier attoffizier = Offizier.getOffizierByDest(ownShip);
+		Offizier attoffizier = Offizier.getOffizierByDest(ownShip.getShip());
 		if( attoffizier != null)
 		{
 			attmulti = attoffizier.getKaperMulti(false);
