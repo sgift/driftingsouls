@@ -63,6 +63,11 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 	public void build(Base base, int building) {
 		super.build(base, building);
 
+		buildInternal(base);
+	}
+
+	private void buildInternal(Base base)
+	{
 		Context context = ContextMap.getContext();
 		if( context == null ) {
 			throw new RuntimeException("No Context available");
@@ -70,10 +75,10 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		if( base.getForschungszentrum() == null )
 		{
 			org.hibernate.Session db = context.getDB();
-	
+
 			Forschungszentrum fz = new Forschungszentrum(base);
 			db.persist(fz);
-	
+
 			base.setForschungszentrum(fz);
 		}
 	}
@@ -110,7 +115,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 			return true;
 		}
 		else if( fz == null ) {
-			log.warn("Forschungszentrum ohne fz-Eintrag auf Basis "+base.getId()+" gefunden");
+			buildInternal(base);
 		}
 		return false;
 	}
@@ -119,29 +124,31 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 	public String echoShortcut(Context context, Base base, int field, int building) {
 		StringBuilder result = new StringBuilder(100);
 		Forschungszentrum fz = base.getForschungszentrum();
-		if( fz != null ) {
-			if( fz.getDauer() == 0 ) {
-				result.append("<a class=\"back tooltip\" href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"\">[F]<span class='ttcontent'>"+this.getName()+"</span></a>");
-			}
-			else {
-				StringBuilder popup = new StringBuilder();
-				popup.append(this.getName()+":<br />");
-				Forschung forschung = fz.getForschung();
-				popup.append("<img align='left' border='0' src='"+config.get("URL")+"data/tech/"+fz.getForschung().getID()+".gif' alt='' />");
-				popup.append(forschung.getName()+"<br />");
-				popup.append("Dauer: noch <img src='"+config.get("URL")+"data/interface/time.gif' alt='noch ' />"+fz.getDauer()+"<br />");
+		if( fz == null )
+		{
+			buildInternal(base);
+			fz = base.getForschungszentrum();
+		}
 
-				result.append(
-						"<a class=\"error tooltip\" " +
-							"href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"\">" +
-								"[F]<span style=\"font-weight:normal\">"+fz.getDauer()+"</span>" +
-								"<span class='ttcontent'>"+popup+"</span>" +
-						"</a>");
-			}
+		if( fz.getDauer() == 0 ) {
+			result.append("<a class=\"back tooltip\" href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"\">[F]<span class='ttcontent'>"+this.getName()+"</span></a>");
 		}
 		else {
-			result.append("WARNUNG: Forschungszentrum ohne Forschungszentrumeintrag gefunden<br />\n");
+			StringBuilder popup = new StringBuilder();
+			popup.append(this.getName()+":<br />");
+			Forschung forschung = fz.getForschung();
+			popup.append("<img align='left' border='0' src='"+config.get("URL")+"data/tech/"+fz.getForschung().getID()+".gif' alt='' />");
+			popup.append(forschung.getName()+"<br />");
+			popup.append("Dauer: noch <img src='"+config.get("URL")+"data/interface/time.gif' alt='noch ' />"+fz.getDauer()+"<br />");
+
+			result.append(
+					"<a class=\"error tooltip\" " +
+						"href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"\">" +
+							"[F]<span style=\"font-weight:normal\">"+fz.getDauer()+"</span>" +
+							"<span class='ttcontent'>"+popup+"</span>" +
+					"</a>");
 		}
+
 		return result.toString();
 	}
 
@@ -165,10 +172,12 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 				"where forschung is not null and base.owner=:owner")
 				.setEntity("owner", user)
 				.list();
-		for( Iterator<?> iter=researchList.iterator(); iter.hasNext(); ) {
-			Forschungszentrum aFz = (Forschungszentrum)iter.next();
+		for (Object aResearchList : researchList)
+		{
+			Forschungszentrum aFz = (Forschungszentrum) aResearchList;
 
-			if( aFz.getForschung() != null ) {
+			if (aFz.getForschung() != null)
+			{
 				researches.add(aFz.getForschung().getID());
 			}
 		}
@@ -176,70 +185,82 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		boolean first = true;
 
 		List<?> forschungen = db.createQuery("from Forschung order by name").list();
-		for( Iterator<?> iter=forschungen.iterator(); iter.hasNext(); ) {
-			Forschung tech = (Forschung)iter.next();
+		for (Object aForschungen : forschungen)
+		{
+			Forschung tech = (Forschung) aForschungen;
 
-			if( !Rassen.get().rasse(user.getRace()).isMemberIn(tech.getRace()) ) {
+			if (!Rassen.get().rasse(user.getRace()).isMemberIn(tech.getRace()))
+			{
 				continue;
 			}
-			if( researches.contains(tech.getID()) ) {
+			if (researches.contains(tech.getID()))
+			{
 				continue;
 			}
-			if( user.hasResearched(tech.getID())  ) {
+			if (user.hasResearched(tech.getID()))
+			{
 				continue;
 			}
 
-			if(user.getFreeSpecializationPoints() < tech.getSpecializationCosts())
+			if (user.getFreeSpecializationPoints() < tech.getSpecializationCosts())
 			{
 				continue;
 			}
 
 			boolean ok = true;
 
-			for( int k = 1; k <= 3; k++ ) {
-				if( (tech.getRequiredResearch(k) != 0) && !user.hasResearched(tech.getRequiredResearch(k)) ) {
+			for (int k = 1; k <= 3; k++)
+			{
+				if ((tech.getRequiredResearch(k) != 0) && !user.hasResearched(tech.getRequiredResearch(k)))
+				{
 					ok = false;
 				}
 			}
 
-			if( ok ) {
-				if( !first ) {
+			if (ok)
+			{
+				if (!first)
+				{
 					echo.append("<tr><td colspan=\"2\" class=\"noBorderX\"><hr style=\"height:1px; border:0px; background-color:#606060; color:#606060\" /></td></tr>\n");
-				}
-				else {
+				} else
+				{
 					first = false;
 				}
 
 				echo.append("<tr>\n");
 				echo.append("<td class=\"noBorderX\" style=\"width:60%\">\n");
-				if( !user.isNoob() || !tech.hasFlag(Forschung.FLAG_DROP_NOOB_PROTECTION) ) {
-					echo.append("<a class=\"forschinfo\" href=\"./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"&amp;res="+tech.getID()+"\">"+Common._plaintitle(tech.getName())+"</a>\n");
+				if (!user.isNoob() || !tech.hasFlag(Forschung.FLAG_DROP_NOOB_PROTECTION))
+				{
+					echo.append("<a class=\"forschinfo\" href=\"./ds?module=building&amp;col=" + base.getId() + "&amp;field=" + field + "&amp;res=" + tech.getID() + "\">" + Common._plaintitle(tech.getName()) + "</a>\n");
 				}
-				else {
+				else
+				{
 					echo.append("<a class=\"forschinfo\" " +
 							"href=\"javascript:ask(" +
-								"'Achtung!\\nWenn Sie diese Technologie erforschen verlieren sie den GCP-Schutz. Dies bedeutet, dass Sie sowohl angreifen als auch angegriffen werden k&ouml;nnen'," +
-								"'./ds?module=building&amp;col="+base.getId()+"&amp;field="+field+"&amp;res="+tech.getID()+"'" +
-							")\">"+Common._plaintitle(tech.getName())+"</a>\n");
+							"'Achtung!\\nWenn Sie diese Technologie erforschen verlieren sie den GCP-Schutz. Dies bedeutet, dass Sie sowohl angreifen als auch angegriffen werden k&ouml;nnen'," +
+							"'./ds?module=building&amp;col=" + base.getId() + "&amp;field=" + field + "&amp;res=" + tech.getID() + "'" +
+							")\">" + Common._plaintitle(tech.getName()) + "</a>\n");
 				}
-				echo.append("<a class=\"forschinfo\" href=\"./ds?module=forschinfo&amp;res="+tech.getID()+"\"><img style=\"border:0px;vertical-align:middle\" src=\""+config.get("URL")+"data/interface/forschung/info.gif\" alt=\"?\" /></a>\n");
+				echo.append("<a class=\"forschinfo\" href=\"./ds?module=forschinfo&amp;res=" + tech.getID() + "\"><img style=\"border:0px;vertical-align:middle\" src=\"" + config.get("URL") + "data/interface/forschung/info.gif\" alt=\"?\" /></a>\n");
 				echo.append("&nbsp;&nbsp;");
 				echo.append("</td>\n");
 
 				echo.append("<td class=\"noBorderX\">");
-				echo.append("<img style=\"vertical-align:middle\" src=\""+config.get("URL")+"data/interface/time.gif\" alt=\"Dauer\" />"+tech.getTime()+" ");
-				echo.append("<img style=\"vertical-align:middle\" src=\""+config.get("URL")+"data/interface/forschung/specpoints.gif\" alt=\"Spezialisierungskosten\" />"+tech.getSpecializationCosts()+" ");
+				echo.append("<img style=\"vertical-align:middle\" src=\"" + config.get("URL") + "data/interface/time.gif\" alt=\"Dauer\" />" + tech.getTime() + " ");
+				echo.append("<img style=\"vertical-align:middle\" src=\"" + config.get("URL") + "data/interface/forschung/specpoints.gif\" alt=\"Spezialisierungskosten\" />" + tech.getSpecializationCosts() + " ");
 
 				Cargo costs = tech.getCosts();
-				costs.setOption( Cargo.Option.SHOWMASS, false );
+				costs.setOption(Cargo.Option.SHOWMASS, false);
 
-				ResourceList reslist = costs.compare( cargo, false, false, true );
-				for( ResourceEntry res : reslist ) {
-					if( res.getDiff() > 0 ) {
-						echo.append("<img style=\"vertical-align:middle\" src=\""+res.getImage()+"\" alt=\"\" /><span style=\"color:red\">"+res.getCargo1()+"</span> ");
-					}
-					else {
-						echo.append("<img style=\"vertical-align:middle\" src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1()+" ");
+				ResourceList reslist = costs.compare(cargo, false, false, true);
+				for (ResourceEntry res : reslist)
+				{
+					if (res.getDiff() > 0)
+					{
+						echo.append("<img style=\"vertical-align:middle\" src=\"" + res.getImage() + "\" alt=\"\" /><span style=\"color:red\">" + res.getCargo1() + "</span> ");
+					} else
+					{
+						echo.append("<img style=\"vertical-align:middle\" src=\"" + res.getImage() + "\" alt=\"\" />" + res.getCargo1() + " ");
 					}
 				}
 
@@ -387,10 +408,10 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 	@Override
 	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
 
-		int research 	= context.getRequest().getParameterInt("res");
-		String confirm 	= context.getRequest().getParameterString("conf");
-		String kill 		= context.getRequest().getParameterString("kill");
-		String show 		= context.getRequest().getParameterString("show");
+		int research = context.getRequest().getParameterInt("res");
+		String confirm = context.getRequest().getParameterString("conf");
+		String kill = context.getRequest().getParameterString("kill");
+		String show = context.getRequest().getParameterString("show");
 		if( !show.equals("oldres") ) {
 			show = "newres";
 		}
@@ -399,8 +420,8 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 
 		Forschungszentrum fz = base.getForschungszentrum();
 		if( fz == null ) {
-			echo.append("<span style=\"color:red\">Fehler: Dieses Forschungszentrum hat keinen Datenbank-Eintrag</span>\n");
-			return echo.toString();
+			buildInternal(base);
+			fz = base.getForschungszentrum();
 		}
 
 		echo.append("<table class=\"show\" cellspacing=\"2\" cellpadding=\"2\">\n");
