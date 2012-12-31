@@ -1786,4 +1786,7 @@
 		update offiziere set stationiertAufBasis_id=(select id from bases where owner=offiziere.userid limit 1) where stationiertAufBasis_id is null and stationiertAufSchiff_id is null;
 		ALTER TABLE offiziere DROP COLUMN dest;
 	]]></update>
+	<update type="structure" datum="2012-12-31"><![CDATA[
+		ALTER TABLE stats_verkaeufe MODIFY system INT(11) NOT NULL DEFAULT 1;
+	]]></update>
 </updates>
