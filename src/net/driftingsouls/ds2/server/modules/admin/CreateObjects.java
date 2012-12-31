@@ -46,6 +46,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
+import net.driftingsouls.ds2.server.map.TileCache;
 import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
@@ -120,6 +121,42 @@ public class CreateObjects implements AdminPlugin {
 			return out;
 		}
 	}
+
+	private static class EnumEntry<T extends Enum> implements DialogEntry {
+		final String title;
+		final String name;
+		final T[] values;
+
+		EnumEntry(String title, String name, T[] values) {
+			this.title = title;
+			this.name = name;
+			this.values = values;
+		}
+
+		@Override
+		public String toHtml(Request request) {
+			String out = "<tr><td class=\"noBorderX\">"+this.title+"</td>\n";
+
+			String currentVal = request.getParameter(this.name);
+
+			boolean first = true;
+
+			out += "<td class=\"noBorderX\"><select name=\""+this.name+"\">";
+			for( T value : values )
+			{
+				out += "<option value='"+value+"'";
+				if( value.toString().equals(currentVal) || (currentVal == null && first) )
+				{
+					out += " selected='selected'";
+					first = false;
+				}
+				out += ">"+value+"</option>";
+			}
+			out += "</select></td></tr>\n";
+
+			return out;
+		}
+	}
 	
 	private static final Map<String,DialogEntry[]> OPTIONS = new LinkedHashMap<String,DialogEntry[]>();
 	static {
@@ -136,7 +173,7 @@ public class CreateObjects implements AdminPlugin {
 		
 		OPTIONS.put("Nebel", new DialogEntry[] {
 				new TextEntry("Anzahl", "anzahl", 18, "0"),
-				new TextEntry("Typ", "type", 18, "0"),
+				new EnumEntry("Typ", "type", Nebel.Typ.values()),
 				new TextEntry("System", "system", 18, "0"),
 				new TextEntry("Min X", "minX", 18, "0"),
 				new TextEntry("Min Y", "minY", 18, "0"),
@@ -237,9 +274,10 @@ public class CreateObjects implements AdminPlugin {
 			else if( objekt.equals("SystemXML") ) {
 				handleSystemXML(context, echo, system);
 			}
+			TileCache.forSystem(system).resetCache();
 		} 
 	}
-	
+
 	private void handleSystemXML(Context context, Writer echo, int system) throws IOException {
 		org.hibernate.Session db = context.getDB();
 		
@@ -597,7 +635,7 @@ public class CreateObjects implements AdminPlugin {
 	private void handleNebel(Context context, int system) {
 		org.hibernate.Session db = context.getDB();
 		
-		final Nebel.Typ type = Nebel.Typ.values()[context.getRequest().getParameterInt("type")];
+		final Nebel.Typ type = Nebel.Typ.valueOf(context.getRequest().getParameterString("type"));
 		final int anzahl = context.getRequest().getParameterInt("anzahl");
 		final int minX = context.getRequest().getParameterInt("minX");
 		final int minY = context.getRequest().getParameterInt("minY");
