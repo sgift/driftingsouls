@@ -1,19 +1,5 @@
 package net.driftingsouls.ds2.server.modules;
 
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.List;
-import java.util.Map;
-
-import javax.imageio.ImageIO;
-
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.config.Rassen;
@@ -21,7 +7,6 @@ import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -30,18 +15,22 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenera
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.map.PlayerField;
 import net.driftingsouls.ds2.server.map.PlayerStarmap;
-import net.driftingsouls.ds2.server.map.PublicStarmap;
+import net.driftingsouls.ds2.server.map.TileCache;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
 import org.apache.commons.io.IOUtils;
 import org.hibernate.FlushMode;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
-import com.sun.imageio.plugins.common.PaletteBuilder;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Zeigt die Sternenkarte eines Systems an.
@@ -52,13 +41,9 @@ import com.sun.imageio.plugins.common.PaletteBuilder;
 @Module(name="map")
 public class MapController extends TemplateGenerator
 {
-	private static final int TILE_SIZE = 20;
-	private static final int SECTOR_IMAGE_SIZE = 25;
-
 	private boolean showSystem;
 	private StarSystem system;
 	private int sys;
-	private Configuration config;
 
 	/**
 	 * Legt den MapController an.
@@ -86,15 +71,6 @@ public class MapController extends TemplateGenerator
 		setPageTitle("Sternenkarte");
 
 		setDisableDebugOutput(true);
-	}
-
-	/**
-	 * Injiziert die DS-Konfiguration.
-	 * @param config Die DS-Konfiguration
-	 */
-	@Autowired
-	public void setConfiguration(Configuration config) {
-		this.config = config;
 	}
 
 	@Override
@@ -196,15 +172,9 @@ public class MapController extends TemplateGenerator
 		{
 			tileY = 0;
 		}
-		final File cacheDir = new File(this.config.get("ABSOLUTE_PATH")+"data/starmap/_tilecache/");
-		if( !cacheDir.isDirectory() ) {
-			cacheDir.mkdir();
-		}
 
-		File tileCacheFile = new File(this.config.get("ABSOLUTE_PATH")+"data/starmap/_tilecache/"+this.system.getID()+"_"+tileX+"_"+tileY+".png");
-		if( !tileCacheFile.isFile() ) {
-			createTile(tileCacheFile, tileX, tileY);
-		}
+		TileCache cache = TileCache.forSystem(this.system);
+		File tileCacheFile = cache.getTile(tileX, tileY);
 
 		InputStream in = new FileInputStream(tileCacheFile);
 		try {
@@ -221,65 +191,6 @@ public class MapController extends TemplateGenerator
 		}
 		finally {
 			in.close();
-		}
-	}
-
-	private void createTile(File tileCacheFile, int tileX, int tileY) throws IOException
-	{
-		org.hibernate.Session db = getDB();
-
-		PublicStarmap content = new PublicStarmap(db, this.system);
-
-		BufferedImage img = new BufferedImage(TILE_SIZE*25,TILE_SIZE*25,BufferedImage.TYPE_INT_RGB);
-		Graphics2D g = img.createGraphics();
-		try
-		{
-			for(int y = 0; y < TILE_SIZE; y++)
-			{
-				for(int x = 0; x < TILE_SIZE; x++)
-				{
-					Location position = new Location(this.system.getID(), tileX*TILE_SIZE+x+1, tileY*TILE_SIZE+y+1);
-					String sectorImageName = content.getSectorBaseImage(position);
-
-					BufferedImage sectorImage = ImageIO.read(new File(this.config.get("ABSOLUTE_PATH")+"data/starmap/"+sectorImageName));
-					g.drawImage(sectorImage,
-							x*SECTOR_IMAGE_SIZE, y*SECTOR_IMAGE_SIZE,
-							SECTOR_IMAGE_SIZE, SECTOR_IMAGE_SIZE,
-							null);
-				}
-			}
-		}
-		finally
-		{
-			g.dispose();
-		}
-
-		final OutputStream outputStream = new FileOutputStream(tileCacheFile);
-		try
-		{
-			ImageIO.write(CustomPaletteBuilder.createIndexedImage(img, 64), "png", outputStream);
-
-			outputStream.flush();
-		}
-		finally
-		{
-			outputStream.close();
-		}
-	}
-
-	private static final class CustomPaletteBuilder extends PaletteBuilder
-	{
-
-		protected CustomPaletteBuilder(RenderedImage src, int size)
-		{
-			super(src, size);
-		}
-
-		public static RenderedImage createIndexedImage(RenderedImage img, int colors)
-		{
-			CustomPaletteBuilder pb = new CustomPaletteBuilder(img, colors);
-			pb.buildPalette();
-			return pb.getIndexedImage();
 		}
 	}
 
