@@ -431,7 +431,7 @@ public class TCController extends TemplateGenerator {
 			}
 
 			Offizier offi = offilist.remove(0);
-			offi.stationierenAuf(ship);
+			offi.stationierenAuf(aship);
 
 			aship.recalculateShipStatus();
 
