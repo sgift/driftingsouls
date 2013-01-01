@@ -60,7 +60,8 @@ body {
 	display:none;
 }
 
-#sectortable{
+#sectortable,
+#starmaploader{
 	position: fixed;
 	top: 200px;
 	margin-left:auto;
@@ -266,10 +267,10 @@ body {
 	padding-top:8px;
 }
 
-#sectorview .loader {
+#starmaploader .content {
 	text-align:center;
 }
-#sectorview .loader img {
+#starmaploader .content img {
 	margin-top:10px;
 	width:200px;
 	height:22px;

@@ -475,10 +475,7 @@ var StarmapOverlay = function(data, screen) {
 			var loc = this.__currentLocations[i];
 			if( loc.x == sectorX && loc.y == sectorY )
 			{
-				if( loc.scanner != null )
-				{
-					Starmap.showSector(this.__currentSystem, sectorX, sectorY, loc.scanner);
-				}
+				Starmap.showSector(this.__currentSystem, sectorX, sectorY, loc);
 				break;
 			}
 		}
@@ -514,45 +511,39 @@ var Starmap = {
 	__starmapTiles:null,
 	__starmapOverlay:null,
 	__dataPath:null,
-	showSystemSelection : function() {
-		$('#systemauswahl').removeClass('invisible');
-	},
-	hideSystemSelection : function() {
-		$('#systemauswahl').addClass('invisible');
-	},
-	showJumpnodeList : function() {
-		$('#jumpnodebox').removeClass('invisible');
-	},
-	hideJumpnodeList : function() {
-		$('#jumpnodebox').addClass('invisible');
-	},
-	load : function()
+	load : function(sys,x,y,loadCallback)
 	{
 		if( $('#mapview').size() == 0 ) {
 			$('#mapcontent').append('<div id="mapview" />');
 		}
 
-		var sys = document.mapform.sys.value;
-		var x = document.mapform.xstart.value;
-		var y = document.mapform.ystart.value;
-
-		var width = Math.floor(($('#mapview').width())/this.__SECTOR_IMAGE_SIZE);
-		var height = Math.floor(($('#mapview').height())/this.__SECTOR_IMAGE_SIZE);
+		var mapview = $('#mapview');
+		var width = Math.floor((mapview.width())/this.__SECTOR_IMAGE_SIZE);
+		var height = Math.floor((mapview.height())/this.__SECTOR_IMAGE_SIZE);
 
 		var xstart = Math.max(1, x-Math.floor(width/2));
 		var ystart = Math.max(1, y-Math.floor(height/2));
 
-		this.hideSystemSelection();
-		this.showLoader();
+		this.onSystemLoad();
 		this.clearMap();
 
 		var self = this;
 
 		$.getJSON(DS.getUrl(),
-			{'sys': sys, 'xstart' : xstart, 'xend' : xstart+width, 'ystart' : ystart, 'yend' : ystart+height, 'loadmap' : '1', 'module': 'map', 'action' : 'map'},
+			{
+				'sys': sys,
+				'xstart' : xstart,
+				'xend' : xstart+width,
+				'ystart' : ystart,
+				'yend' : ystart+height,
+				'loadmap' : '1',
+				'module': 'map',
+				'action' : 'map'
+			},
 			function(data) {
 				self.renderMap(data);
-				self.hideLoader();
+				self.onSystemLoaded();
+				loadCallback(data);
 			});
 
 		$(window).bind('resize', function() {
@@ -581,8 +572,6 @@ var Starmap = {
 		this.__currentSystem = data.system;
 		this.__screen = new StarmapScreen('#mapview', this.__currentSystem);
 
-		var map = $('#mapcontent');
-
 		this.__starmapLegend = new StarmapLegend(this.__screen, this.__currentSize);
 		this.__starmapTiles = new StarmapTiles(this.__currentSystem.id, this.__screen, this.__currentSize);
 		this.__starmapOverlay = new StarmapOverlay(data, this.__screen);
@@ -598,8 +587,6 @@ var Starmap = {
 				self.__onMove(moveX, moveY);
 			}
 		});
-
-		this.__updateJumpnodeList(data);
 	},
 	__onMove : function(moveX, moveY) {
 		var newOff = [this.__currentShiftOffset[0]-moveX, this.__currentShiftOffset[1]-moveY];
@@ -628,8 +615,6 @@ var Starmap = {
 		this.__starmapTiles.storeShift(cl);
 		this.__starmapOverlay.storeShift(cl);
 
-		//$('#mapview').remove();
-		//$('#mapcontent').append(cl);
 		if( isNaN(newOff[0]) || isNaN(newOff[1]) ) {
 			throw "NaN";
 		}
@@ -637,28 +622,72 @@ var Starmap = {
 		this.__currentShiftOffset = newOff;
 	},
 
-	__updateJumpnodeList : function(data)
+	__loaderPopup : null,
+	onSystemLoad : function()
 	{
-		var listEl = $('#jumpnodelist');
-		listEl.children().remove();
-
-		var jns = '<table class="noBorderX">';
-
-		for( var i=0; i < data.jumpnodes.length; i++ )
-		{
-			var jn = data.jumpnodes[i];
-
-			jns += '<tr>';
-			jns += '<td class="noBorderX" valign="top"><span class="nobr">'+jn.x+'/'+jn.y+'</span></td>';
-			jns += '<td class="noBorderX">nach</td>';
-			jns += '<td class="noBorderX"><span class="nobr">'+jn.name+' ('+jn.systemout+')'+jn.blocked+'</span></td>';
-			jns += '</tr>';
+		if( this.__loaderPopup == null ) {
+			this.__loaderPopup = new StarmapLoaderPopup();
 		}
-		jns += '</table>';
-
-		listEl.append(jns);
+		this.__loaderPopup.show();
 	},
-	__createSectorView : function()
+	onSystemLoaded : function()
+	{
+		this.__loaderPopup.hide();
+	},
+	showSector : function (system, x, y, locationInfo) {
+		if( locationInfo.scanner != null )
+		{
+			new StarmapSectorInfoPopup(system, x, y, locationInfo.scanner, this.__dataPath);
+		}
+	}
+};
+
+/**
+ * Erzeugt ein Loader-Popup im versteckten Zustand.
+ * @constructor
+ */
+var StarmapLoaderPopup = function() {
+	var createLoaderPopup  = function()
+	{
+		if( $('#starmaploader').size() == 0 )
+		{
+			var sectorview = "<div class='invisible gfxbox' id='starmaploader' style='width:400px'>";
+			sectorview += "<div class='content'>";
+			//Text is inserted here - using javascript
+			sectorview += "</div>";
+			sectorview += "</div>";
+			$('#mapcontent').append(sectorview);
+		}
+	};
+
+	createLoaderPopup();
+
+	/**
+	 * Zeigt das Loader-Popup an.
+	 */
+	this.show = function() {
+		$('#starmaploader .content').html("Verbinde mit interplanetarem Überwachungsnetzwerk...<br /><img src='./data/interface/ajax-loader.gif' alt='Lade' />");
+		$('#starmaploader').removeClass('invisible');
+	};
+	/**
+	 * Verbirgt das Loader-Popup wieder.
+	 */
+	this.hide = function() {
+		$('#starmaploader').addClass('invisible');
+	};
+};
+
+/**
+ * Erzeugt ein neues Infopopup zu einem Sektor und zeigt dieses an.
+ * @param {Object} system Das Sternensystem (Objekt)
+ * @param {Number} x Die x-Koordinate des Sektors
+ * @param {Number} y Die y-Koordinate des Sektors
+ * @param {Number} scanShip Das als Scanner fungierende Schiff
+ * @param {String} dataPath Der DataPath von DS
+ * @constructor
+ */
+function StarmapSectorInfoPopup(system, x, y, scanShip, dataPath) {
+	var __createSectorView  = function()
 	{
 		if( $('#sectortable').size() == 0 )
 		{
@@ -667,45 +696,33 @@ var Starmap = {
 			//Text is inserted here - using javascript
 			sectorview += "</div>";
 			sectorview += "</div>";
-			sectorview += "</div>";
 			$('#mapcontent').append(sectorview);
 		}
-	},
-	showLoader : function()
-	{
-		this.__createSectorView();
+	};
 
-		$('#sectorview').html("<div class='loader'>Verbinde mit interplanetarem Überwachungsnetzwerk...<br /><img src='./data/interface/ajax-loader.gif' alt='Lade' /></div>");
-		$('#sectortable').removeClass('invisible');
-	},
-	hideLoader : function()
+	var showSector = function (system, x, y, scanShip)
 	{
-		$('#sectortable').addClass('invisible');
-	},
-	showSector : function (system, x, y, scanShip)
-	{
-		this.__createSectorView();
+		__createSectorView();
 
 		$('#sectorview').html('Lade Sektor ' + system.id + ':' + x + '/' + y);
 		$('#sectortable').removeClass('invisible');
-		var self = this;
 		$.getJSON(DS.getUrl(),
-			 {sys: system.id, x: x, y: y, scanship: scanShip, module: 'map', action:'sector'},
-			 function(data)
-			 {
-				 self.openSector(system.id, x, y, data);
-			 });
-	},
+			{sys: system.id, x: x, y: y, scanship: scanShip, module: 'map', action:'sector'},
+			function(data)
+			{
+				openSector(system.id, x, y, data);
+			});
+	};
 
-	openSector : function (system, x, y, data)
+	var openSector = function (system, x, y, data)
 	{
 		var sector = $('#sectorview');
-		var dialog = '<div class="content"><span>Sektor ' + system + ':' + x + '/' + y + '</span><a onclick="Starmap.closeSector()" style="float:right;color:#ff0000;">(x)</a>';
+		var dialog = '<div class="content"><span>Sektor ' + system + ':' + x + '/' + y + '</span><a class="close" style="float:right;color:#ff0000;">(x)</a>';
 		if( data.bases.length > 0 ) {
 			var self = this;
 			dialog += "<ul class='bases'>";
 			$.each(data.bases, function() {
-				dialog+= "<li><img src='"+self.__dataPath+"kolonie"+this.klasse+"_srs.png' /><div class='name'>"+this.name+"</div><div class='owner'>"+this.username+"</div></li>";
+				dialog+= "<li><img src='"+dataPath+"kolonie"+this.klasse+"_srs.png' /><div class='name'>"+this.name+"</div><div class='owner'>"+this.username+"</div></li>";
 			});
 			dialog += "</ul>";
 		}
@@ -721,14 +738,20 @@ var Starmap = {
 				shipcount += this.ships.length;
 			});
 			shiptypes += '</ul>';
-			dialog += '<span onclick="Starmap.toggleShowShipClasses(\''+shipclassId+'\')"><span id="'+shipclassId+'Toggle">+</span> '+this.name+'</span><span style="float:right;">'+shipcount+'</span><br>';
+			dialog += '<span ds-shipclass="'+shipclassId+'"><span id="'+shipclassId+'Toggle">+</span> '+this.name+'</span><span style="float:right;">'+shipcount+'</span><br>';
 			dialog += shiptypes;
 		});
 		dialog += '</div></div>';
 		sector.html(dialog);
-	},
+		sector.find('.close').on('click', function() {
+			closeSector();
+		});
+		sector.find('[ds-shipclass]').on('click', function() {
+			toggleShowShipClasses($(this).attr('ds-shipclass'));
+		});
+	};
 
-	toggleShowShipClasses : function (shipclassId)
+	var toggleShowShipClasses = function (shipclassId)
 	{
 		$('#' + shipclassId).toggleClass('invisible');
 		var node = $('#' + shipclassId+'Toggle');
@@ -740,10 +763,62 @@ var Starmap = {
 		{
 			node.text('+');
 		}
-	},
+	};
 
-	closeSector : function ()
+	var closeSector = function ()
 	{
 		$('#sectortable').addClass('invisible');
+	};
+
+	showSector(system, x, y, scanShip);
+};
+
+
+var MapController = {
+	showSystemSelection : function() {
+		$('#systemauswahl').removeClass('invisible');
+	},
+	hideSystemSelection : function() {
+		$('#systemauswahl').addClass('invisible');
+	},
+	showJumpnodeList : function() {
+		$('#jumpnodebox').removeClass('invisible');
+	},
+	hideJumpnodeList : function() {
+		$('#jumpnodebox').addClass('invisible');
+	},
+	load : function() {
+		var sys = document.mapform.sys.value;
+		var x = document.mapform.xstart.value;
+		var y = document.mapform.ystart.value;
+
+		this.hideSystemSelection();
+
+		var self = this;
+
+		Starmap.load(sys,x,y, function(data) {
+			self.__updateJumpnodeList(data);
+		});
+	},
+	__updateJumpnodeList : function(data)
+	{
+		var listEl = $('#jumpnodelist');
+		listEl.children().remove();
+
+		var jns = '<table class="datatable">';
+
+		for( var i=0; i < data.jumpnodes.length; i++ )
+		{
+			var jn = data.jumpnodes[i];
+
+			jns += '<tr>';
+			jns += '<td><span class="nobr">'+jn.x+'/'+jn.y+'</span></td>';
+			jns += '<td>nach</td>';
+			jns += '<td><span class="nobr">'+jn.name+' ('+jn.systemout+')'+jn.blocked+'</span></td>';
+			jns += '</tr>';
+		}
+		jns += '</table>';
+
+		listEl.append(jns);
 	}
 };
