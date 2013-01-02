@@ -64,22 +64,13 @@ public class PlayerStarmap extends PublicStarmap
 		this.scannableLocations = buildScannableLocations(user);
 	}
 
-	/**
-	 * Gibt an, ob der Spieler einen bestimmten Sektor scannen kann.
-	 * 
-	 * @param location Der Sektor.
-	 * @return <code>true</code>, wenn der Spieler den Sektor scannen kann, sonst <code>false</code>
-	 */
+	@Override
 	public boolean isScannable(Location location)
 	{
 		return this.scannableLocations.containsKey(location);
 	}
 
-    /**
-     * @param location Der Sektor, der gescannt werden soll.
-     *
-     * @return Das Schiff, dass diesen Sektor scannt.
-     */
+    @Override
     public Ship getSectorScanner(Location location)
     {
         return this.scannableLocations.get(location);
@@ -99,13 +90,7 @@ public class PlayerStarmap extends PublicStarmap
 		return baseImage + (shipImage != null ? shipImage : "") + ".png";
 	}
 	
-	/**
-	 * Gibt ein evt. abweichendes Basisbild des Sektors aus Sicht des Benutzers zurueck. Das Bild enthaelt
-	 * keine Flottenmarkierungen. Falls kein abweichendes Basisbild existiert
-	 * wird <code>null</code> zurueckgegeben.
-	 * @param location Der Sektor
-	 * @return Das Bild als String ohne den Pfad zum Data-Verzeichnis oder <code>null</code>.
-	 */
+	@Override
 	public String getUserSectorBaseImage(Location location)
 	{
 		List<Base> positionBases = map.getBaseMap().get(location);
@@ -125,9 +110,9 @@ public class PlayerStarmap extends PublicStarmap
 			{
 				for(JumpNode node: positionNodes)
 				{
-					if(node.isHidden())
+					if(!node.isHidden())
 					{
-						return "jumpnode/jumpnode";
+						return "jumpnode/jumpnode.png";
 					}
 				}
 			}
@@ -136,18 +121,7 @@ public class PlayerStarmap extends PublicStarmap
 		return null;
 	}
 	
-	/**
-	 * Gibt das Overlay-Bild des Sektors zurueck. Dieses
-	 * enthaelt ausschliesslich spielerspezifische Markierungen
-	 * und keinerlei Hintergrundelemente. Der Hintergrund
-	 * des Bilds ist transparent.
-	 * 
-	 * Falls keine Overlay-Daten fuer den Sektor angezeigt werden sollen
-	 * wird <code>null</code> zurueckgegeben.
-	 * 
-	 * @param location Der Sektor
-	 * @return Das Bild als String ohne den Pfad zum Data-Verzeichnis oder <code>null</code>
-	 */
+	@Override
 	public String getSectorOverlayImage(Location location)
 	{
 		final String shipImage = getShipImage(location);
@@ -371,13 +345,10 @@ public class PlayerStarmap extends PublicStarmap
 	 * @param position Die Position
 	 * @return <code>true</code>, falls der Sektor sichtbaren Inhalt aufweist.
 	 */
+	@Override
 	public boolean isHasSectorContent(Location position)
 	{
 		List<Base> bases = map.getBaseMap().get(position);
-		if( bases != null && !bases.isEmpty() )
-		{
-			return true;
-		}
-		return this.getShipImage(position) != null;
+		return bases != null && !bases.isEmpty() || this.getShipImage(position) != null;
 	}
 }

@@ -12,9 +12,16 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.map.PlayerField;
+import net.driftingsouls.ds2.server.map.AdminFieldView;
+import net.driftingsouls.ds2.server.map.AdminStarmap;
+import net.driftingsouls.ds2.server.map.FieldView;
+import net.driftingsouls.ds2.server.map.PlayerFieldView;
 import net.driftingsouls.ds2.server.map.PlayerStarmap;
+import net.driftingsouls.ds2.server.map.PublicStarmap;
 import net.driftingsouls.ds2.server.map.TileCache;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
@@ -39,11 +46,17 @@ import java.util.Map;
  */
 @Configurable
 @Module(name="map")
+@UrlParams({
+		@UrlParam(name="sys", type=UrlParamType.NUMBER, description = "Die ID des zu landenden Sternensystems"),
+		@UrlParam(name="loadmap", type=UrlParamType.NUMBER, description = "1 falls die Kartendaten geladen werden sollen"),
+		@UrlParam(name="admin", type=UrlParamType.NUMBER, description = "1 falls die Adminsicht auf die Sternenkarte verwendet werden soll")
+})
 public class MapController extends TemplateGenerator
 {
 	private boolean showSystem;
 	private StarSystem system;
 	private int sys;
+	private boolean adminView;
 
 	/**
 	 * Legt den MapController an.
@@ -53,18 +66,6 @@ public class MapController extends TemplateGenerator
 	public MapController(Context context)
 	{
 		super(context);
-
-		parameterNumber("scanship");
-		parameterNumber("sys");
-		parameterNumber("x");
-		parameterNumber("y");
-		parameterNumber("loadmap");
-		parameterNumber("xstart");
-		parameterNumber("xend");
-		parameterNumber("ystart");
-		parameterNumber("yend");
-		parameterNumber("tileX");
-		parameterNumber("tileY");
 
 		setTemplate("map.html");
 
@@ -102,7 +103,10 @@ public class MapController extends TemplateGenerator
 
 		t.setVar(
 				"map.showsystem",	showSystem,
-				"map.system",		sys );
+				"map.system",		sys,
+				"map.adminSichtVerfuegbar", user.isAdmin());
+
+		this.adminView = getInteger("admin") == 1 && user.isAdmin();
 
 		return true;
 	}
@@ -153,6 +157,10 @@ public class MapController extends TemplateGenerator
 	 * @throws IOException Speicherfehler
 	 */
 	@Action(value=ActionType.BINARY, readOnly=true)
+	@UrlParams({
+			@UrlParam(name="tileX", type=UrlParamType.NUMBER, description = "Die X-Kachel"),
+			@UrlParam(name="tileY", type=UrlParamType.NUMBER, description = "Die Y-Kachel")
+	})
 	public void tileAction() throws IOException
 	{
 		if( this.system == null )
@@ -199,6 +207,12 @@ public class MapController extends TemplateGenerator
 	 * @throws IOException
 	 */
 	@Action(value=ActionType.AJAX, readOnly=true)
+	@UrlParams({
+			@UrlParam(name="xstart",type= UrlParamType.NUMBER),
+			@UrlParam(name="xend",type= UrlParamType.NUMBER),
+			@UrlParam(name="ystart",type= UrlParamType.NUMBER),
+			@UrlParam(name="yend",type= UrlParamType.NUMBER),
+	})
 	public void mapAction() throws IOException {
 		JSONObject json = new JSONObject();
 
@@ -261,7 +275,14 @@ public class MapController extends TemplateGenerator
 				xEnd = width;
 			}
 
-			PlayerStarmap content = new PlayerStarmap(db, user, system, new int[] {xStart,yStart,xEnd-xStart,yEnd-yStart});
+			PublicStarmap content;
+			if( this.adminView )
+			{
+				content = new AdminStarmap(db, system, user, new int[] {xStart,yStart,xEnd-xStart,yEnd-yStart});
+			}
+			else {
+				content = new PlayerStarmap(db, user, system, new int[] {xStart,yStart,xEnd-xStart,yEnd-yStart});
+			}
 
 			JSONArray publicNodeArray = new JSONArray();
 			for(JumpNode node: content.getPublicNodes())
@@ -360,10 +381,14 @@ public class MapController extends TemplateGenerator
 
 	/**
 	 * Zeigt einen einzelnen Sektor mit allen Details an.
-	 * @throws IOException
 	 */
 	@Action(value=ActionType.AJAX, readOnly=true)
-	public void sectorAction() throws IOException
+	@UrlParams({
+			@UrlParam(name="x", type=UrlParamType.NUMBER, description = "Die X-Koordinate des zu scannenden Sektors"),
+			@UrlParam(name="y", type=UrlParamType.NUMBER, description = "Die Y-Koordinate des zu scannenden Sektors"),
+			@UrlParam(name="scanship", type=UrlParamType.NUMBER, description = "Die ID des fuer den Scanvorgang zu verwendenden Schiffs")
+	})
+	public JSONObject sectorAction()
 	{
 		User user = (User)getUser();
 		org.hibernate.Session db = getDB();
@@ -380,13 +405,20 @@ public class MapController extends TemplateGenerator
 		if( scanShip == null )
 		{
 			json.accumulate("users", users);
-			getResponse().getWriter().append(json.toString());
-			return;
+			return json;
 		}
 
 		final Location loc = new Location(system, x, y);
 
-		PlayerField field = new PlayerField(db, user, loc, scanShip);
+		FieldView field;
+		if( this.adminView )
+		{
+			field = new AdminFieldView(db, user, loc);
+		}
+		else {
+			field = new PlayerFieldView(db, user, loc, scanShip);
+		}
+
 		for(Map.Entry<User, Map<ShipType, List<Ship>>> owner: field.getShips().entrySet())
 		{
 			JSONObject jsonUser = new JSONObject();
@@ -425,6 +457,6 @@ public class MapController extends TemplateGenerator
 
 		json.accumulate("bases", baseListObj);
 
-		getResponse().getWriter().append(json.toString());
+		return json;
 	}
 }

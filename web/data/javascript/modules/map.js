@@ -357,13 +357,17 @@ var StarmapTiles = function(systemId, screenSize, mapSize) {
  * Das Overlay der Sternenkarte beinhaltet alle scanbaren Sektoren (LRS).
  * Zum fuellen des Overlays erfolgen bei Bedarf AJAX-Requests.
  */
-var StarmapOverlay = function(data, screen) {
+var StarmapOverlay = function(data, screen, request) {
 	this.__currentShiftOffset = [0,0];
 	this.__currentSize = data.size;
 	this.__screen = screen;
 	this.__reloadTriggered = false;
 	this.__currentSystem = data.system;
 	this.__currentLocations = data.locations;
+	this.__request = request;
+	if( typeof this.__request === 'undefined' ) {
+		this.__request = {};
+	}
 
 	this.__reloadOverlay = function()
 	{
@@ -406,8 +410,17 @@ var StarmapOverlay = function(data, screen) {
 
 		if( mod ) {
 			var self = this;
+			var request = this.__request;
+			request.sys = this.__currentSystem.id;
+			request.xstart = realSize.minx;
+			request.xend = realSize.maxx;
+			request.ystart = realSize.miny;
+			request.yend = realSize.maxy;
+			request.loadmap = 1;
+			request.module = 'map';
+			request.action = 'map';
 			$.getJSON(DS.getUrl(),
-					{'sys': this.__currentSystem.id, 'xstart' : realSize.minx, 'xend' : realSize.maxx, 'ystart' : realSize.miny, 'yend' : realSize.maxy, 'loadmap' : '1', 'module': 'map', 'action' : 'map'},
+					request,
 					function(data) {
 						self.__updateShiftOffset(data.size);
 						self.__currentLocations = data.locations;
@@ -511,8 +524,12 @@ var Starmap = {
 	__starmapTiles:null,
 	__starmapOverlay:null,
 	__dataPath:null,
-	load : function(sys,x,y,loadCallback)
+	__request:null,
+	load : function(sys,x,y,options)
 	{
+		if( typeof options === 'undefined' ) {
+			options = {};
+		}
 		if( $('#mapview').size() == 0 ) {
 			$('#mapcontent').append('<div id="mapview" />');
 		}
@@ -529,21 +546,29 @@ var Starmap = {
 
 		var self = this;
 
+		var request = options.request;
+		if( typeof request === 'undefined' ) {
+			request = {};
+		}
+		this.__request = request;
+
+		request.sys = sys;
+		request.xstart = xstart;
+		request.xend = xstart+width;
+		request.ystart = ystart;
+		request.yend = ystart+height;
+		request.loadmap = 1;
+		request.module = 'map';
+		request.action = 'map';
+
 		$.getJSON(DS.getUrl(),
-			{
-				'sys': sys,
-				'xstart' : xstart,
-				'xend' : xstart+width,
-				'ystart' : ystart,
-				'yend' : ystart+height,
-				'loadmap' : '1',
-				'module': 'map',
-				'action' : 'map'
-			},
+			request,
 			function(data) {
-				self.renderMap(data);
+				self.renderMap(data, options);
 				self.onSystemLoaded();
-				loadCallback(data);
+				if( typeof options.loadCallback !== 'undefined' ) {
+					options.loadCallback(data);
+				}
 			});
 
 		$(window).bind('resize', function() {
@@ -565,7 +590,7 @@ var Starmap = {
 		$('#actionOverlay').remove();
 		this.__currentShiftOffset = [0,0];
 	},
-	renderMap : function(data)
+	renderMap : function(data, options)
 	{
 		this.__dataPath = data.dataPath;
 		this.__currentSize = data.size;
@@ -574,7 +599,7 @@ var Starmap = {
 
 		this.__starmapLegend = new StarmapLegend(this.__screen, this.__currentSize);
 		this.__starmapTiles = new StarmapTiles(this.__currentSystem.id, this.__screen, this.__currentSize);
-		this.__starmapOverlay = new StarmapOverlay(data, this.__screen);
+		this.__starmapOverlay = new StarmapOverlay(data, this.__screen, options.request);
 
 		var self = this;
 		this.__actionOverlay = new StarmapActionOverlay({
@@ -635,10 +660,10 @@ var Starmap = {
 		this.__loaderPopup.hide();
 	},
 	showSector : function (system, x, y, locationInfo) {
-		if( locationInfo.scanner != null )
-		{
-			new StarmapSectorInfoPopup(system, x, y, locationInfo.scanner, this.__dataPath);
-		}
+		var self = this;
+		new StarmapSectorInfoPopup(system, x, y, locationInfo, {
+			request : self.__request
+		});
 	}
 };
 
@@ -682,11 +707,11 @@ var StarmapLoaderPopup = function() {
  * @param {Object} system Das Sternensystem (Objekt)
  * @param {Number} x Die x-Koordinate des Sektors
  * @param {Number} y Die y-Koordinate des Sektors
- * @param {Number} scanShip Das als Scanner fungierende Schiff
- * @param {String} dataPath Der DataPath von DS
+ * @param {Object} locationInfo Die Informationen zum darzustellenden Sektor (Serverantwort)
+ * @param {Object} options Die Optionalen Angaben zur Darstellung
  * @constructor
  */
-function StarmapSectorInfoPopup(system, x, y, scanShip, dataPath) {
+function StarmapSectorInfoPopup(system, x, y, locationInfo, options) {
 	var __createSectorView  = function()
 	{
 		if( $('#sectortable').size() == 0 )
@@ -706,8 +731,19 @@ function StarmapSectorInfoPopup(system, x, y, scanShip, dataPath) {
 
 		$('#sectorview').html('Lade Sektor ' + system.id + ':' + x + '/' + y);
 		$('#sectortable').removeClass('invisible');
+		var request = options.request;
+		if( typeof request === 'undefined' ) {
+			request = {};
+		}
+		request.sys = system.id;
+		request.x = x;
+		request.y = y;
+		request.scanship = scanShip;
+		request.module = 'map';
+		request.action = 'sector';
+
 		$.getJSON(DS.getUrl(),
-			{sys: system.id, x: x, y: y, scanship: scanShip, module: 'map', action:'sector'},
+			request,
 			function(data)
 			{
 				openSector(system.id, x, y, data);
@@ -718,11 +754,10 @@ function StarmapSectorInfoPopup(system, x, y, scanShip, dataPath) {
 	{
 		var sector = $('#sectorview');
 		var dialog = '<div class="content"><span>Sektor ' + system + ':' + x + '/' + y + '</span><a class="close" style="float:right;color:#ff0000;">(x)</a>';
-		if( data.bases.length > 0 ) {
-			var self = this;
+		if( data.bases && data.bases.length > 0 ) {
 			dialog += "<ul class='bases'>";
 			$.each(data.bases, function() {
-				dialog+= "<li><img src='"+dataPath+"kolonie"+this.klasse+"_srs.png' /><div class='name'>"+this.name+"</div><div class='owner'>"+this.username+"</div></li>";
+				dialog+= "<li><img src='./data/starmap/kolonie"+this.klasse+"_srs.png' /><div class='name'>"+this.name+"</div><div class='owner'>"+this.username+"</div></li>";
 			});
 			dialog += "</ul>";
 		}
@@ -770,7 +805,10 @@ function StarmapSectorInfoPopup(system, x, y, scanShip, dataPath) {
 		$('#sectortable').addClass('invisible');
 	};
 
-	showSector(system, x, y, scanShip);
+	if( locationInfo.scanner != null )
+	{
+		showSector(system, x, y, locationInfo.scanner);
+	}
 };
 
 
@@ -791,13 +829,22 @@ var MapController = {
 		var sys = document.mapform.sys.value;
 		var x = document.mapform.xstart.value;
 		var y = document.mapform.ystart.value;
+		var adminSicht = 0;
+		if( document.mapform.adminSicht && document.mapform.adminSicht.checked) {
+			adminSicht = 1;
+		}
 
 		this.hideSystemSelection();
 
 		var self = this;
 
-		Starmap.load(sys,x,y, function(data) {
-			self.__updateJumpnodeList(data);
+		Starmap.load(sys,x,y, {
+			request : {
+				admin : adminSicht
+			},
+			loadCallback : function(data) {
+				self.__updateJumpnodeList(data);
+			}
 		});
 	},
 	__updateJumpnodeList : function(data)

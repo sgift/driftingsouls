@@ -18,9 +18,9 @@
 <div id="systemauswahl" class="gfxbox">
 	<h3>Bitte Kartenausschnitt auswählen</h3>
 	<form action="./ds" method="post" name="mapform" onsubmit="MapController.load();return false;">
-		<table class="noBorderX" cellpadding="3">
+		<table cellpadding="3">
 		<tr>
-			<td class="noBorderX" colspan="2">
+			<td colspan="2">
 				System<br />
 				<select size="1" name="sys">
 					<!-- BEGIN systems.listitem -->
@@ -30,15 +30,22 @@
 			</td>
 		</tr>
 		<tr>
-			<td class="noBorderX">
+			<td>
 				Position
 			</td>
-			<td class="noBorderX">
+			<td>
 				<input type="text" name="xstart" size="3" value="1" />
 				/
 				<input type="text" name="ystart" size="3" value="1" />
 			</td>
 		</tr>
+		{if map.adminSichtVerfuegbar}
+			<tr>
+				<td colspan="2">
+					<input type="checkbox" value="1" id="adminSicht" name="adminSicht" /><label for="adminSicht">Admin-Sicht</label>
+				</td>
+			</tr>
+		{/endif}
 		</table>
 		<input type="submit" value="Sternenkarte laden"/>
 	</form>

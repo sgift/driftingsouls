@@ -27,6 +27,7 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 
+import net.driftingsouls.ds2.server.ships.Ship;
 import org.hibernate.Session;
 
 /**
@@ -57,6 +58,72 @@ public class PublicStarmap
 			throw new IllegalArgumentException("The given system " + system.getID() + " does not exist.");
 		}
 		return map;
+	}
+
+	/**
+	 * Gibt ein evt. abweichendes Basisbild des Sektors aus Sicht des Benutzers im Rahmen
+	 * der spezifischen Sternenkarte zurueck. Das Bild enthaelt
+	 * keine Flottenmarkierungen. Falls kein abweichendes Basisbild existiert
+	 * wird <code>null</code> zurueckgegeben.
+	 * @param location Der Sektor
+	 * @return Das Bild als String ohne den Pfad zum Data-Verzeichnis oder <code>null</code>.
+	 */
+	public String getUserSectorBaseImage(Location location)
+	{
+		return null;
+	}
+
+	/**
+	 * Gibt das Overlay-Bild des Sektors zurueck. Dieses
+	 * enthaelt ausschliesslich spielerspezifische Markierungen
+	 * und keinerlei Hintergrundelemente. Der Hintergrund
+	 * des Bilds ist transparent.
+	 *
+	 * Falls keine Overlay-Daten fuer den Sektor angezeigt werden sollen
+	 * wird <code>null</code> zurueckgegeben.
+	 *
+	 * @param location Der Sektor
+	 * @return Das Bild als String ohne den Pfad zum Data-Verzeichnis oder <code>null</code>
+	 */
+	public String getSectorOverlayImage(Location location)
+	{
+		return null;
+	}
+
+	/**
+	 * Gibt zurueck, ob der Sektor einen fuer den Spieler theoretisch sichtbaren Inhalt besitzt.
+	 * Es spielt dabei einzig der Inhalt des Sektors eine Rolle. Nicht gerpueft wird,
+	 * ob sich ein entsprechendes Schiff in scanreichweite befindet bzw ob der Spieler anderweitig
+	 * den Inhalt des Sektors scannen kann.
+	 * @param position Die Position
+	 * @return <code>true</code>, falls der Sektor sichtbaren Inhalt aufweist.
+	 */
+	public boolean isHasSectorContent(Location position)
+	{
+		return false;
+	}
+
+	/**
+	 * Gibt sofern vorhanden ein Schiff zurueck, das den angegebenen
+	 * Sektor scannen kann.
+	 * @param location Der Sektor, der gescannt werden soll.
+	 *
+	 * @return Das Schiff, dass diesen Sektor scannen kann oder <code>null</code>
+	 */
+	public Ship getSectorScanner(Location location)
+	{
+		return null;
+	}
+
+	/**
+	 * Gibt an, ob der entsprechende Sektor der Sternenkarte momentan gescannt werden kann.
+	 *
+	 * @param location Der Sektor.
+	 * @return <code>true</code>, wenn der Sektor gescannt werden kann, sonst <code>false</code>
+	 */
+	public boolean isScannable(Location location)
+	{
+		return false;
 	}
 
 	/**

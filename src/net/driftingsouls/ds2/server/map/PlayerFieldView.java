@@ -27,7 +27,7 @@ import org.hibernate.Session;
  * 
  * @author Drifting-Souls Team
  */
-public class PlayerField 
+public class PlayerFieldView implements FieldView
 {
     /**
 	 * Legt eine neue Sicht an.
@@ -37,7 +37,7 @@ public class PlayerField
 	 * @param position Der gesuchte Sektor.
      * @param scanShip Schiff mit dem der Spieler den Sektor scannt.
 	 */
-	public PlayerField(Session db, User user, Location position, Ship scanShip)
+	public PlayerFieldView(Session db, User user, Location position, Ship scanShip)
 	{
 		this.field = new Field(db, position);
 		this.user = user;
@@ -50,6 +50,7 @@ public class PlayerField
 	 * Gibt die Liste aller Basen in dem Feld zurueck.
 	 * @return Die Basenliste
 	 */
+	@Override
 	public List<Base> getBases()
 	{
 		if(!isInScanRange())
@@ -121,6 +122,7 @@ public class PlayerField
 	/**
 	 * @return Die Schiffe, die der Spieler sehen kann.
 	 */
+	@Override
 	public Map<User, Map<ShipType, List<Ship>>> getShips()
 	{
 		Map<User, Map<ShipType, List<Ship>>> ships = new HashMap<User, Map<ShipType,List<Ship>>>();
@@ -138,74 +140,71 @@ public class PlayerField
 		
 		Ally ally = this.user.getAlly();
 		Relations relations = this.user.getRelations();
-		Iterator<Ship> viewableShips = field.getShips().iterator();
-		while(viewableShips.hasNext())
+		for (Ship viewableShip : field.getShips())
 		{
-			final Ship viewableShip = viewableShips.next();
-			if( viewableShip.isLanded() )
+			if (viewableShip.isLanded())
 			{
 				continue;
 			}
-			
-			final ShipType type = (ShipType)db.get(ShipType.class, viewableShip.getType());
+
+			final ShipType type = (ShipType) db.get(ShipType.class, viewableShip.getType());
 			final User owner = viewableShip.getOwner();
-			
+
 			boolean enemy = false;
-			if(!viewableShip.getOwner().equals(this.user))
+			if (!viewableShip.getOwner().equals(this.user))
 			{
-				if(ally != null)
+				if (ally != null)
 				{
 					Ally ownerAlly = viewableShip.getOwner().getAlly();
-					if(ownerAlly == null || !ownerAlly.equals(this.user.getAlly()))
+					if (ownerAlly == null || !ownerAlly.equals(this.user.getAlly()))
 					{
 						enemy = true;
 					}
-				}
-				else
+				} else
 				{
-					if(relations.toOther.get(viewableShip.getOwner()) != Relation.FRIEND || relations.fromOther.get(viewableShip.getOwner()) != Relation.FRIEND)
+					if (relations.toOther.get(viewableShip.getOwner()) != Relation.FRIEND || relations.fromOther.get(viewableShip.getOwner()) != Relation.FRIEND)
 					{
 						enemy = true;
 					}
 				}
 			}
-			
-			if( enemy )
+
+			if (enemy)
 			{
-                if(!shipInSector)
-                {
-                    if(type.hasFlag(ShipTypes.SF_SEHR_KLEIN) )
-                    {
-                        continue;
-                    }
+				if (!shipInSector)
+				{
+					if (type.hasFlag(ShipTypes.SF_SEHR_KLEIN))
+					{
+						continue;
+					}
 
-                    if( viewableShip.isDocked() )
-                    {
-                        Ship mship = viewableShip.getBaseShip();
-                        if( mship.getTypeData().hasFlag(ShipTypes.SF_SEHR_KLEIN))
-                        {
-                            continue;
-                        }
-                    }
+					if (viewableShip.isDocked())
+					{
+						Ship mship = viewableShip.getBaseShip();
+						if (mship.getTypeData().hasFlag(ShipTypes.SF_SEHR_KLEIN))
+						{
+							continue;
+						}
+					}
 
-                    if( this.field.isNebula() &&
-							this.field.getNebula().getType().getMinScanbareSchiffsgroesse() > type.getSize() )
-                    {
-                        continue;
-                    }
-                }
+					if (this.field.isNebula() &&
+							this.field.getNebula().getType().getMinScanbareSchiffsgroesse() > type.getSize())
+					{
+						continue;
+					}
+				}
 			}
-					
-			if(!ships.containsKey(owner))
+
+			if (!ships.containsKey(owner))
 			{
 				ships.put(owner, new HashMap<ShipType, List<Ship>>());
 			}
-			
-			if(!ships.get(owner).containsKey(type))
+
+			if (!ships.get(owner).containsKey(type))
 			{
 				ships.get(owner).put(type, new ArrayList<Ship>());
 			}
-			
+
 			ships.get(owner).get(type).add(viewableShip);
 		}
 		
