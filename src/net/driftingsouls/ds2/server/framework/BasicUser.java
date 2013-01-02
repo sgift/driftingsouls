@@ -264,7 +264,7 @@ public abstract class BasicUser {
 	 */
 	public String getUserValue( String valuename ) {
 		UserValue value = (UserValue)context.getDB()
-			.createQuery("from UserValue where user in (:id,0) and name=:name order by abs(user),id desc")
+			.createQuery("from UserValue where user in (:id,0) and name=:name order by abs(user) desc,id")
 			.setInteger("id", this.id)
 			.setString("name", valuename)
 			.setMaxResults(1)
@@ -285,7 +285,7 @@ public abstract class BasicUser {
 	 */
 	public List<String> getUserValues( String valuename ) {
 		List<UserValue> values = Common.cast(context.getDB()
-				.createQuery("from UserValue where user in (:id,0) and name=:name order by abs(user),id desc")
+				.createQuery("from UserValue where user in (:id,0) and name=:name order by abs(user) desc,id")
 				.setInteger("id", this.id)
 				.setString("name", valuename)
 				.list());
