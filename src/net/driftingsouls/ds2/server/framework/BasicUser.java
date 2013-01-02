@@ -18,7 +18,9 @@
  */
 package net.driftingsouls.ds2.server.framework;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -253,7 +255,8 @@ public abstract class BasicUser {
 	}
 
 	/**
-	 * Liefert den Wert eines User-Values zurueck.
+	 * Liefert den Wert eines User-Values zurueck. Sofern mehrere Eintraege zu diesem
+	 * User-Value existieren wird der aelteste zurueckgegeben.
 	 * User-Values sind die Eintraege, welche sich in der Tabelle user_values befinden.
 	 *
 	 * @param valuename Name des User-Values
@@ -261,7 +264,7 @@ public abstract class BasicUser {
 	 */
 	public String getUserValue( String valuename ) {
 		UserValue value = (UserValue)context.getDB()
-			.createQuery("from UserValue where user in (:id,0) and name=:name order by abs(user) desc")
+			.createQuery("from UserValue where user in (:id,0) and name=:name order by abs(user),id desc")
 			.setInteger("id", this.id)
 			.setString("name", valuename)
 			.setMaxResults(1)
@@ -274,14 +277,37 @@ public abstract class BasicUser {
 	}
 
 	/**
-	 * Setzt ein User-Value auf einen bestimmten Wert.
+	 * Liefert alle Werte eines User-Values zurueck.
+	 * User-Values sind die Eintraege, welche sich in der Tabelle user_values befinden.
+	 *
+	 * @param valuename Name des User-Values
+	 * @return Werte des User-Values
+	 */
+	public List<String> getUserValues( String valuename ) {
+		List<UserValue> values = Common.cast(context.getDB()
+				.createQuery("from UserValue where user in (:id,0) and name=:name order by abs(user),id desc")
+				.setInteger("id", this.id)
+				.setString("name", valuename)
+				.list());
+
+		List<String> result = new ArrayList<String>();
+		for (UserValue value : values)
+		{
+			result.add(value.getValue());
+		}
+		return result;
+	}
+
+	/**
+	 * Setzt ein User-Value auf einen bestimmten Wert. Sollten mehrere Eintraege
+	 * existieren wird nur der aelteste aktualisiert.
 	 * @see #getUserValue(String)
 	 *
 	 * @param valuename Name des User-Values
 	 * @param newvalue neuer Wert des User-Values
 	 */
 	public void setUserValue( String valuename, String newvalue ) {
-		UserValue valuen = (UserValue)context.getDB().createQuery("from UserValue where user=:user and name=:name")
+		UserValue valuen = (UserValue)context.getDB().createQuery("from UserValue where user=:user and name=:name order by id")
 			.setInteger("user", this.id)
 			.setString("name", valuename)
 			.uniqueResult();

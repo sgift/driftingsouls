@@ -176,12 +176,14 @@ public class PM {
 				pm.setFlags(flags);
 				db.persist(pm);
 
-				String forward = user.getUserValue("TBLORDER/pms/forward");
-				if( !"".equals(forward) && (Integer.parseInt(forward) != 0) ) {
-					send(user, Integer.parseInt(forward), "Fwd: "+title,
-							"[align=center][color=green]- Folgende Nachricht ist soeben eingegangen -[/color][/align]\n" +
-							"[b]Absender:[/b] [userprofile="+from.getId()+"]"+from.getName()+"[/userprofile] ("+from.getId()+")\n\n"+
-							txt, flags);
+				for( String forward : user.getUserValues("TBLORDER/pms/forward") )
+				{
+					if( !"".equals(forward) && (Integer.parseInt(forward) != 0) ) {
+						send(user, Integer.parseInt(forward), "Fwd: "+title,
+								"[align=center][color=green]- Folgende Nachricht ist soeben eingegangen -[/color][/align]\n" +
+								"[b]Absender:[/b] [userprofile="+from.getId()+"]"+from.getName()+"[/userprofile] ("+from.getId()+")\n\n"+
+								txt, flags);
+					}
 				}
 			}
 			else {
