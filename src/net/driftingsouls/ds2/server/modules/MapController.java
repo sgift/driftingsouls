@@ -211,7 +211,7 @@ public class MapController extends TemplateGenerator
 			@UrlParam(name="xstart",type= UrlParamType.NUMBER),
 			@UrlParam(name="xend",type= UrlParamType.NUMBER),
 			@UrlParam(name="ystart",type= UrlParamType.NUMBER),
-			@UrlParam(name="yend",type= UrlParamType.NUMBER),
+			@UrlParam(name="yend",type= UrlParamType.NUMBER)
 	})
 	public void mapAction() throws IOException {
 		JSONObject json = new JSONObject();
