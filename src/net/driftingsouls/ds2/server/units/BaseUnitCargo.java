@@ -63,18 +63,12 @@ public class BaseUnitCargo extends UnitCargo
 
 		for(UnitCargoEntry entry: entries)
 		{
-			if( !this.units.contains(entry) )
-			{
-				db.delete(entry);
-			}
+			db.delete(entry);
 		}
 
 		for(UnitCargoEntry entry: units)
 		{
-			if( !db.contains(entry) )
-			{
-				db.persist(entry);
-			}
+			db.persist(entry);
 		}
 	}
 
