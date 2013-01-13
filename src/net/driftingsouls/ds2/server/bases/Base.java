@@ -532,8 +532,13 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	public void setUnits(UnitCargo unitcargo)
 	{
 		BaseUnitCargo cargo = this.getUnits();
-		cargo.clear();
-		cargo.addCargo(unitcargo);
+		if( unitcargo != cargo )
+		{
+			// Ein anderer Cargo soll gespeichert werden
+			// momentane Instanz leeren und neu befuellen
+			cargo.clear();
+			cargo.addCargo(unitcargo);
+		}
 		cargo.save();
 	}
 

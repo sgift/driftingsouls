@@ -557,8 +557,13 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	public void setUnits(UnitCargo unitcargo) {
 		UnitCargo newCargo = this.getUnits();
-		newCargo.clear();
-		newCargo.addCargo(unitcargo);
+		if( unitcargo != newCargo )
+		{
+			// Ein anderer Cargo soll gespeichert werden
+			// momentane Instanz leeren und neu befuellen
+			newCargo.clear();
+			newCargo.addCargo(unitcargo);
+		}
 		newCargo.save();
 	}
 
