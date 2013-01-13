@@ -40,6 +40,7 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.units.TransientUnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo.Crew;
 import net.driftingsouls.ds2.server.units.UnitType;
@@ -159,8 +160,8 @@ public class KSKapernAction extends BasicKSAction {
 			battle.logme("Die Einheiten st&uuml;rmen das Schiff\n");
 			msg = "Die Einheiten der "+Battle.log_shiplink(ownShip.getShip())+" st&uuml;rmen die "+Battle.log_shiplink(enemyShip.getShip())+"\n";
 
-			UnitCargo toteeigeneUnits = new UnitCargo();
-			UnitCargo totefeindlicheUnits = new UnitCargo();
+			UnitCargo toteeigeneUnits = new TransientUnitCargo();
+			UnitCargo totefeindlicheUnits = new TransientUnitCargo();
 
 			if(ownUnits.kapern(enemyUnits, toteeigeneUnits, totefeindlicheUnits, dcrew, attmulti, defmulti ))
 			{

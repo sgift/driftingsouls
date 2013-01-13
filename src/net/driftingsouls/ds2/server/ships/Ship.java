@@ -54,6 +54,7 @@ import net.driftingsouls.ds2.server.scripting.Quests;
 import net.driftingsouls.ds2.server.scripting.ShipScriptData;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
+import net.driftingsouls.ds2.server.units.ShipUnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargoEntry;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
@@ -183,8 +184,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 	@OneToMany(
 			fetch=FetchType.LAZY,
 			targetEntity=net.driftingsouls.ds2.server.ships.ShipUnitCargoEntry.class,
-			cascade = {CascadeType.DETACH,CascadeType.REFRESH,CascadeType.MERGE})
-	@JoinColumn(name="destid", nullable=true)
+			cascade = {CascadeType.DETACH,CascadeType.REFRESH,CascadeType.MERGE},
+			mappedBy="schiff")
 	@BatchSize(size=500)
 	@NotFound(action = NotFoundAction.IGNORE)
 	private Set<ShipUnitCargoEntry> units;
@@ -545,7 +546,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			{
 				entries = new ArrayList<UnitCargoEntry>();
 			}
-			unitcargo = new UnitCargo(entries, UnitCargo.CARGO_ENTRY_SHIP, id);
+			unitcargo = new ShipUnitCargo(entries, this);
 		}
 		return unitcargo;
 	}
@@ -555,9 +556,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * @param unitcargo Der UnitCargo
 	 */
 	public void setUnits(UnitCargo unitcargo) {
-		unitcargo.setTyp(UnitCargo.CARGO_ENTRY_SHIP);
-		unitcargo.setDestId(id);
-		unitcargo.save();
+		UnitCargo newCargo = this.getUnits();
+		newCargo.clear();
+		newCargo.addCargo(unitcargo);
+		newCargo.save();
 	}
 
 	/**
@@ -1039,7 +1041,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		org.hibernate.Session db = context.getDB();
 
-		Object unitsnahrung = db.createQuery("select sum(e.amount*t.nahrungcost) from UnitCargoEntry as e,UnitType as t, Ship as s where e.key.unittype = t.id and e.key.destid = s.id and e.key.type = 2 and s.system=:system and s.x=:x and s.y=:y and s.owner = :user")
+		Object unitsnahrung = db.createQuery("select sum(e.amount*e.unittype.nahrungcost) from ShipUnitCargoEntry as e where e.schiff.system=:system and e.schiff.x=:x and e.schiff.y=:y and e.schiff.owner = :user")
 									.setInteger("system", this.system)
 									.setInteger("x", this.x)
 									.setInteger("y", this.y)

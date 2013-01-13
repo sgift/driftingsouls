@@ -38,6 +38,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tick.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.tick.UnitOfWork;
+import net.driftingsouls.ds2.server.units.TransientUnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo.Crew;
 import org.hibernate.CacheMode;
@@ -463,7 +464,7 @@ public class SchiffsTick extends TickController {
 			if(crewToFeed >= shipd.getUnits().getNahrung())
 			{
 				crewToFeed = crewToFeed - (int)Math.ceil(shipd.getUnits().getNahrung());
-				shipd.setUnits(new UnitCargo());
+				shipd.setUnits(new TransientUnitCargo());
 				ConfigValue maxverhungern = (ConfigValue)db.get(ConfigValue.class, "maxverhungern");
 				int maxverhungernfactor = Integer.parseInt(maxverhungern.getValue());
 				int maxverhungernvalue = (int)Math.ceil(shiptd.getCrew() * (maxverhungernfactor/100.0));
@@ -621,7 +622,7 @@ public class SchiffsTick extends TickController {
 				UnitCargo meuterer = unitcargo.getMeuterer(account.intValue() - shiptd.getReCost());
 				Crew dcrew = new UnitCargo.Crew(shipd.getCrew());
 
-				if(meuterer.kapern(unitcargo, new UnitCargo(), new UnitCargo(), dcrew, 1, 1))
+				if(meuterer.kapern(unitcargo, new TransientUnitCargo(), new TransientUnitCargo(), dcrew, 1, 1))
 				{
 					shipd.setCrew(dcrew.getValue());
 					shipd.setUnits(meuterer);

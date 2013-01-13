@@ -81,8 +81,7 @@ public class StatEinheiten implements Statistic {
 			long baseunitsuser = 0;
 			long shipunitsuser = 0;
 
-			Object baseunitsobject = db.createQuery("select sum(e.amount) from UnitCargoEntry as e, Base as b where e.key.type=:type and e.key.unittype=:unittype and e.key.destid = b.id and b.owner > 0")
-										.setInteger("type", UnitCargo.CARGO_ENTRY_BASE)
+			Object baseunitsobject = db.createQuery("select sum(e.amount) from BaseUnitCargoEntry as e where e.unittype=:unittype and e.basis.owner.id > 0")
 										.setInteger("unittype", unittype.getId())
 										.iterate()
 										.next();
@@ -92,8 +91,7 @@ public class StatEinheiten implements Statistic {
 				baseunits = (Long)baseunitsobject;
 			}
 
-			Object shipunitsobject = db.createQuery("select sum(e.amount) from UnitCargoEntry as e, Ship as s where e.key.type=:type and e.key.unittype=:unittype and e.key.destid = s.id and s.owner > 0")
-										.setInteger("type", UnitCargo.CARGO_ENTRY_SHIP)
+			Object shipunitsobject = db.createQuery("select sum(e.amount) from ShipUnitCargoEntry as e where e.unittype=:unittype and e.schiff.owner.id > 0")
 										.setInteger("unittype", unittype.getId())
 										.iterate()
 										.next();
@@ -103,8 +101,7 @@ public class StatEinheiten implements Statistic {
 				shipunits = (Long)shipunitsobject;
 			}
 
-			Object baseunitsuserobject = db.createQuery("select sum(e.amount) from UnitCargoEntry as e, Base as b where e.key.type=:type and e.key.unittype=:unittype and e.key.destid = b.id and b.owner=:user")
-											.setInteger("type", UnitCargo.CARGO_ENTRY_BASE)
+			Object baseunitsuserobject = db.createQuery("select sum(e.amount) from BaseUnitCargoEntry as e where e.unittype=:unittype and e.basis.owner=:user")
 											.setInteger("unittype", unittype.getId())
 											.setEntity("user", user)
 											.iterate()
@@ -115,8 +112,7 @@ public class StatEinheiten implements Statistic {
 				baseunitsuser = (Long)baseunitsuserobject;
 			}
 
-			Object shipunitsuserobject = db.createQuery("select sum(e.amount) from UnitCargoEntry as e, Ship as s where e.key.type=:type and e.key.unittype=:unittype and e.key.destid = s.id and s.owner=:user")
-											.setInteger("type", UnitCargo.CARGO_ENTRY_SHIP)
+			Object shipunitsuserobject = db.createQuery("select sum(e.amount) from ShipUnitCargoEntry as e where e.unittype=:unittype and e.schiff.owner=:user")
 											.setInteger("unittype", unittype.getId())
 											.setEntity("user", user)
 											.iterate()

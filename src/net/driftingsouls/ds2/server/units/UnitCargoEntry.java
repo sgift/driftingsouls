@@ -19,10 +19,15 @@
 
 package net.driftingsouls.ds2.server.units;
 
-import java.io.Serializable;
+import net.driftingsouls.ds2.server.framework.JSONSupport;
+import net.sf.json.JSON;
+import net.sf.json.JSONObject;
+import org.hibernate.proxy.HibernateProxy;
 
-import javax.persistence.Embeddable;
+import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
@@ -30,171 +35,23 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import net.driftingsouls.ds2.server.bases.BaseUnitCargoEntry;
-import net.driftingsouls.ds2.server.framework.JSONSupport;
-import net.driftingsouls.ds2.server.ships.ShipUnitCargoEntry;
-import net.sf.json.JSON;
-import net.sf.json.JSONObject;
-
-import org.hibernate.annotations.DiscriminatorFormula;
-import org.hibernate.proxy.HibernateProxy;
-
 /**
  * Diese Klasse repraesentiert alle UnitCargo-Eintraege.
  */
 @Entity
 @Table(name="cargo_entries_units")
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
-@DiscriminatorFormula(value="type")
+@DiscriminatorColumn(name="type")
 public abstract class UnitCargoEntry implements JSONSupport
 {
-	/**
-	 * Diese Klasse repraesentiert einen Primarschluessel fuer einen Cargo-Eintrag.
-	 */
-	@Embeddable
-	public static class UnitCargoEntryKey implements Serializable
-	{
-		private static final long serialVersionUID = 1510394179895753873L;
-
-		private int type;
-		private int destid;
-		@ManyToOne
-		@JoinColumn(name="unittype")
-		private UnitType unittype;
-
-		/**
-		 * Konstruktor.
-		 */
-		public UnitCargoEntryKey()
-		{
-			// EMPTY
-		}
-
-		/**
-		 * Konstruktor.
-		 * @param type Der Typ des Eintrages
-		 * @param destid Die ID des Ziels
-		 * @param unittype Die ID des Einheitentyps
-		 */
-		public UnitCargoEntryKey(int type, int destid, UnitType unittype)
-		{
-			this.type = type;
-			this.destid = destid;
-			this.unittype = unittype;
-		}
-
-		/**
-		 * Gibt den Typ des Eintrages zurueck.
-		 * @return der Typ
-		 */
-		public int getTyp()
-		{
-			return type;
-		}
-
-		/**
-		 * Gibt die ZielId des Eintrages zurueck.
-		 * @return die ZielID
-		 */
-		public int getDestId()
-		{
-			return destid;
-		}
-
-		/**
-		 * Gibt die ID des UnitTyps zurueck.
-		 * @return Die ID
-		 */
-		public int getUnitTypeId()
-		{
-			return unittype.getId();
-		}
-
-		/**
-		 * Gibt den UnitTyp zurueck.
-		 * @return der UnitTyp
-		 */
-		public UnitType getUnitType()
-		{
-			return unittype;
-		}
-
-		/**
-		 * Setzt den Eintrags-Typ.
-		 * @param type der Typ
-		 */
-		public void setTyp(int type)
-		{
-			//this.type = type;
-		}
-
-		/**
-		 * Setzt die ID des Zielobjekts.
-		 * @param destid Die ID
-		 */
-		public void setDestId(int destid)
-		{
-			this.destid = destid;
-		}
-
-		/**
-		 * Setzt den UnitTyp.
-		 * @param unittype der UnitTyp
-		 */
-		public void setUnitType(UnitType unittype)
-		{
-			this.unittype = unittype;
-		}
-
-		@Override
-		public int hashCode()
-		{
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + destid;
-			result = prime * result + type;
-			result = prime * result + unittype.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj)
-		{
-			if( this == obj )
-			{
-				return true;
-			}
-			if( obj == null )
-			{
-				return false;
-			}
-			if( obj instanceof HibernateProxy )
-			{
-				obj = ((HibernateProxy)obj).getHibernateLazyInitializer().getImplementation();
-			}
-			if( getClass() != obj.getClass() )
-			{
-				return false;
-			}
-			UnitCargoEntryKey other = (UnitCargoEntryKey)obj;
-			if( destid != other.destid )
-			{
-				return false;
-			}
-			if( type != other.type )
-			{
-				return false;
-			}
-			if( unittype != other.unittype )
-			{
-				return false;
-			}
-			return true;
-		}
-	}
-
 	@Id
-	private UnitCargoEntryKey key;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+
+	@ManyToOne
+	@JoinColumn(name="unittype")
+	private UnitType unittype;
+
 	private long amount;
 
 	/**
@@ -207,106 +64,49 @@ public abstract class UnitCargoEntry implements JSONSupport
 
 	/**
 	 * Konstruktor.
-	 * @param type Der Typ des Eintrages
-	 * @param destid Die ID des Zielobjekts
 	 * @param unittype Der Einheitentyps
 	 * @param amount Die Menge
 	 */
-	public UnitCargoEntry(int type, int destid, UnitType unittype, long amount)
+	public UnitCargoEntry(UnitType unittype, long amount)
 	{
-		this.key = new UnitCargoEntryKey(type,destid,unittype);
+		this.unittype = unittype;
 		this.amount = amount;
 	}
 
 	/**
-	 * Gibt den Typ des Eintrages zurueck.
-	 * @return Der Typ
-	 */
-	public int getTyp()
-	{
-		return this.key.getTyp();
-	}
-
-	/**
-	 * Gibt die ID des Zielobjekts zurueck.
-	 * @return Die ID
-	 */
-	public int getDestId()
-	{
-		return this.key.getDestId();
-	}
-
-	/**
-	 * Gibt die ID des Einheitentyps zurueck.
+	 * Gibt die ID des UnitTyps zurueck.
 	 * @return Die ID
 	 */
 	public int getUnitTypeId()
 	{
-		return this.key.getUnitTypeId();
+		return unittype.getId();
 	}
 
 	/**
-	 * Gibt den Einheitentyp zurueck.
-	 * @return Der Einheitentyp
+	 * Gibt den UnitTyp zurueck.
+	 * @return der UnitTyp
 	 */
 	public UnitType getUnitType()
 	{
-		return this.key.getUnitType();
+		return unittype;
 	}
 
 	/**
-	 * Gibt die Menge zurueck.
-	 * @return Die Menge
+	 * Setzt den Eintrags-Typ.
+	 * @param type der Typ
 	 */
-	public long getAmount()
+	public void setTyp(int type)
 	{
-		return this.amount;
+		//this.type = type;
 	}
 
 	/**
-	 * Setzt den Typ des Eintrages.
-	 * @param typ Der Typ
-	 */
-	public void setTyp(int typ)
-	{
-		this.key.setTyp(typ);
-	}
-
-	/**
-	 * Setzt die ID des Zielobjekts.
-	 * @param destid Die ID
-	 */
-	public void setDestId(int destid)
-	{
-		this.key.setDestId(destid);
-	}
-
-	/**
-	 * Setzt den Einheitentyp.
-	 * @param unittype Der Einheitentyp
+	 * Setzt den UnitTyp.
+	 * @param unittype der UnitTyp
 	 */
 	public void setUnitType(UnitType unittype)
 	{
-		this.key.setUnitType(unittype);
-	}
-
-	/**
-	 * Setzt die Menge.
-	 * @param amount Die Menge
-	 */
-	public void setAmount(long amount)
-	{
-		this.amount = amount;
-	}
-
-	@Override
-	public UnitCargoEntry clone()
-	{
-		if(getTyp() == UnitCargo.CARGO_ENTRY_BASE)
-		{
-			return new BaseUnitCargoEntry(getTyp(),getDestId(),getUnitType(),getAmount());
-		}
-		return new ShipUnitCargoEntry(getTyp(),getDestId(),getUnitType(),getAmount());
+		this.unittype = unittype;
 	}
 
 	@Override
@@ -314,7 +114,7 @@ public abstract class UnitCargoEntry implements JSONSupport
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((key == null) ? 0 : key.hashCode());
+		result = prime * result + unittype.hashCode();
 		return result;
 	}
 
@@ -338,29 +138,46 @@ public abstract class UnitCargoEntry implements JSONSupport
 			return false;
 		}
 		UnitCargoEntry other = (UnitCargoEntry)obj;
-		if( key == null )
-		{
-			if( other.key != null )
-			{
-				return false;
-			}
-		}
-		else if( !key.equals(other.key) )
+		if( unittype != other.unittype )
 		{
 			return false;
 		}
 		return true;
 	}
 
+	/**
+	 * Gibt die Menge zurueck.
+	 * @return Die Menge
+	 */
+	public long getAmount()
+	{
+		return this.amount;
+	}
+
+	/**
+	 * Setzt die Menge.
+	 * @param amount Die Menge
+	 */
+	public void setAmount(long amount)
+	{
+		this.amount = amount;
+	}
+
 	@Override
 	public JSON toJSON()
 	{
 		JSONObject result = new JSONObject();
-		result.accumulate("id", this.key.getUnitTypeId())
+		result.accumulate("id", this.getUnitTypeId())
 			.accumulate("count", amount)
-			.accumulate("name", this.key.getUnitType().getName())
-			.accumulate("picture", this.key.getUnitType().getPicture());
+			.accumulate("name", this.getUnitType().getName())
+			.accumulate("picture", this.getUnitType().getPicture());
 
 		return result;
 	}
+
+	/**
+	 * Erstellt eine Kopie des UnitCargo-Eintrags.
+	 * @return Die Kopie
+	 */
+	public abstract UnitCargoEntry createCopy();
 }

@@ -41,16 +41,8 @@ import org.apache.commons.logging.LogFactory;
  * beruecksichtigt ob die Optionen gleich sind oder die Cargos bei der Initalisierung einen unterschiedlichen Inhalt hatten.</p>
  *
  */
-public class UnitCargo implements Cloneable, JSONSupport {
+public abstract class UnitCargo implements Cloneable, JSONSupport {
 	private static final Log log = LogFactory.getLog(UnitCargo.class);
-	/**
-	 * Variable zum erkennen eines Baseneintrags.
-	 */
-	public static final int CARGO_ENTRY_BASE = 1;
-	/**
-	 * Variable zum erkennen eines Schiffseintrags.
-	 */
-	public static final int CARGO_ENTRY_SHIP = 2;
 
 	/**
 	 * Diese Klasse ist fuer das Kapern gedacht um die verbleibende Crew auf.
@@ -95,9 +87,7 @@ public class UnitCargo implements Cloneable, JSONSupport {
 		}
 	}
 
-	private List<UnitCargoEntry> units = new ArrayList<UnitCargoEntry>();
-	private int type;
-	private int destid;
+	protected List<UnitCargoEntry> units = new ArrayList<UnitCargoEntry>();
 
 	private boolean showmass = true;
 
@@ -120,40 +110,18 @@ public class UnitCargo implements Cloneable, JSONSupport {
 		for( int i=0; i < unitArray.size(); i++ ) {
 			UnitCargoEntry unit = unitArray.get(i);
 
-			this.units.add(unit.clone());
+			this.units.add(unit.createCopy());
 		}
-	}
-
-	/**
-	 * Konstruktor, Stellt einen EinheitenCargo des Zielobjekts zusammen.
-	 * @param type Der Typ des Eintrages
-	 * @param destid Die ID des Zielobjektes
-	 */
-	public UnitCargo(int type, int destid)
-	{
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
-		this.units = Common.cast(db.createQuery("from UnitCargoEntry where key.type = :type and key.destid = :destid")
-													.setInteger("type", type)
-													.setInteger("destid", destid)
-													.list());
-		this.type = type;
-		this.destid = destid;
-
 	}
 
 	/**
 	 * Ein neuer UnitCargo.
 	 *
 	 * @param units Die Einheiten in diesem Cargo.
-	 * @param type Cargotyp (Schiff oder Basis).
-	 * @param destid Die Id des Zielobjekts.
 	 */
-	public UnitCargo(List<UnitCargoEntry> units, int type, int destid)
+	public UnitCargo(List<UnitCargoEntry> units)
 	{
 		this.units = units;
-		this.type = type;
-		this.destid = destid;
 	}
 
 	protected List<UnitCargoEntry> getUnitArray() {
@@ -163,49 +131,7 @@ public class UnitCargo implements Cloneable, JSONSupport {
 	/**
 	 * Speichert das aktuelle UnitCargoObjekt.
 	 */
-	public void save()
-	{
-		if( this.type == 0 || this.destid == 0)
-		{
-			log.warn("Nicht genug Daten zum speichern eines UnitCargoObjektes");
-			return;
-		}
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<UnitCargoEntry> entries = Common.cast(db.createQuery("from UnitCargoEntry where key.type = :type and key.destid = :destid")
-						.setInteger("type", this.type)
-						.setInteger("destid", this.destid)
-						.list());
-
-		for(UnitCargoEntry entry: entries)
-		{
-			db.delete(entry);
-		}
-
-		db.flush();
-
-		for(UnitCargoEntry entry: units)
-		{
-			db.persist(entry);
-		}
-	}
-
-	/**
-	 * Setzt den Typ des UnitCargos.
-	 * @param type der Typ
-	 */
-	public void setTyp(int type)
-	{
-		this.type = type;
-	}
-
-	/**
-	 * Setzt die ID des Zielobjektes.
-	 * @param destid Die ID
-	 */
-	public void setDestId(int destid)
-	{
-		this.destid = destid;
-	}
+	public abstract void save();
 
 	/**
 	 * Fuegt dem UnitCargo die angegebene Einheit in der angegebenen Hoehe hinzu.
@@ -221,16 +147,18 @@ public class UnitCargo implements Cloneable, JSONSupport {
 			}
 		}
 
-		UnitCargoEntry entry;
-		if(this.type == UnitCargo.CARGO_ENTRY_BASE)
-		{
-			entry = new BaseUnitCargoEntry(this.type, this.destid, unitid, count);
-		}
-		else
-		{
-			entry = new ShipUnitCargoEntry(type, destid, unitid, count);
-		}
+		UnitCargoEntry entry = createUnitCargoEntry(unitid, count);
 		units.add(entry);
+	}
+
+	protected abstract UnitCargoEntry createUnitCargoEntry(UnitType unitid, long count);
+
+	/**
+	 * Entfernt alle Eintraege aus dem UnitCargo.
+	 */
+	public void clear()
+	{
+		this.units.clear();
 	}
 
 	/**
@@ -250,15 +178,7 @@ public class UnitCargo implements Cloneable, JSONSupport {
 			}
 		}
 
-		UnitCargoEntry entry;
-		if(this.type == UnitCargo.CARGO_ENTRY_BASE)
-		{
-			entry = new BaseUnitCargoEntry(this.type,this.destid,unitid,-count);
-		}
-		else
-		{
-			entry = new ShipUnitCargoEntry(this.type,this.destid,unitid,-count);
-		}
+		UnitCargoEntry entry = createUnitCargoEntry(unitid, -count);
 
 		// Diese Anweisung wird nur ausgefuerht, wenn das Item nicht im Cargo vorhanden ist
 		units.add(entry);
@@ -372,15 +292,7 @@ public class UnitCargo implements Cloneable, JSONSupport {
 			}
 		}
 
-		UnitCargoEntry entry;
-		if(this.type == UnitCargo.CARGO_ENTRY_BASE)
-		{
-			entry = new BaseUnitCargoEntry(this.type,this.destid,unitid,count);
-		}
-		else
-		{
-			entry = new ShipUnitCargoEntry(this.type,this.destid,unitid,count);
-		}
+		UnitCargoEntry entry = createUnitCargoEntry(unitid, count);
 		units.add(entry);
 	}
 
@@ -412,7 +324,7 @@ public class UnitCargo implements Cloneable, JSONSupport {
 			UnitCargo newcargo = (UnitCargo)super.clone();
 			newcargo.units = new ArrayList<UnitCargoEntry>();
 			for( int i=0; i < this.units.size(); i++ ) {
-				newcargo.units.add(i, this.units.get(i).clone());
+				newcargo.units.add(i, this.units.get(i).createCopy());
 			}
 			newcargo.showmass = this.showmass;
 
@@ -655,7 +567,7 @@ public class UnitCargo implements Cloneable, JSONSupport {
 		{
 			int totekapervalue = (int)Math.ceil((kaperunitcargo.getKaperValue()+10*feindCrew.getValue())*defmulti*1.0/ amulti );
 			gefallenefeindlicheUnits.addCargo(kaperunitcargo);
-			kaperunitcargo.substractCargo(new UnitCargo(kaperunitcargo));
+			kaperunitcargo.substractCargo(kaperunitcargo);
 			feindCrew.setValue(0);
 			reduziereKaperValue(totekapervalue, gefalleneeigeneUnits);
 			return true;
@@ -708,6 +620,8 @@ public class UnitCargo implements Cloneable, JSONSupport {
 		}
 	}
 
+	protected abstract UnitCargo createEmptyCargo();
+
 	/**
 	 * Filtert alle Einheiten aus diesem UnitCargo heraus, die groeszer als die angegebene MaximalGroesze sind.
 	 * @param maxsize Die Maximale Groesze die im UnitCargo verbleiben soll
@@ -715,7 +629,7 @@ public class UnitCargo implements Cloneable, JSONSupport {
 	 */
 	public UnitCargo trimToMaxSize(int maxsize)
 	{
-		UnitCargo trimedUnits = new UnitCargo();
+		UnitCargo trimedUnits = createEmptyCargo();
 
 		if(isEmpty())
 		{
@@ -742,7 +656,7 @@ public class UnitCargo implements Cloneable, JSONSupport {
 	 */
 	public UnitCargo getMeuterer(int restre)
 	{
-		UnitCargo meuterer = new UnitCargo();
+		UnitCargo meuterer = createEmptyCargo();
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		List<UnitType> unitlist = Common.cast(db.createQuery("from UnitType").list());

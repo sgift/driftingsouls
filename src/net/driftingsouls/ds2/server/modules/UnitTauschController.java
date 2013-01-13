@@ -41,6 +41,7 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.units.TransientUnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitType;
 
@@ -256,7 +257,7 @@ public class UnitTauschController extends TemplateGenerator {
 
 		/**
 		 * Setzt den maximalen UntSpace.
-		 * @param maxcargo der neue maximale UnitSpace
+		 * @param unitspace der neue maximale UnitSpace
 		 */
 		void setMaxUnitSpace(long unitspace) {
 			this.maxUnitSpace = unitspace;
@@ -712,11 +713,11 @@ public class UnitTauschController extends TemplateGenerator {
 
 		List<UnitCargo> newtoclist = new ArrayList<UnitCargo>();
 		List<Long> cargotolist = new ArrayList<Long>();
-		UnitCargo totaltocargo = new UnitCargo();
+		UnitCargo totaltocargo = new TransientUnitCargo();
 
 		List<UnitCargo> newfromclist = new ArrayList<UnitCargo>();
 		List<Long> cargofromlist = new ArrayList<Long>();
-		UnitCargo totalfromcargo = new UnitCargo();
+		UnitCargo totalfromcargo = new TransientUnitCargo();
 
 		// TODO: rewrite
 		for( int k=0; k < tolist.size(); k++ ) {
@@ -1087,7 +1088,7 @@ public class UnitTauschController extends TemplateGenerator {
 
 		// Soll der Zielcargo gezeigt werden?
 		boolean showtarget = false;
-		UnitCargo tocargo = new UnitCargo();
+		UnitCargo tocargo = new TransientUnitCargo();
 
 		for( TransportTarget to : this.to ) {
 			if( getUser().getId() != to.getOwner() ) {
@@ -1105,7 +1106,7 @@ public class UnitTauschController extends TemplateGenerator {
 
 		t.setVar("target.show", showtarget);
 
-		UnitCargo fromcargo = new UnitCargo();
+		UnitCargo fromcargo = new TransientUnitCargo();
 		for( TransportTarget afrom : from ) {
 			HashMap<UnitType, Long> unitlist = afrom.getUnits().getUnitList();
 			for( Entry<UnitType, Long> unit : unitlist.entrySet() ) {
@@ -1118,7 +1119,7 @@ public class UnitTauschController extends TemplateGenerator {
 		// Muss verglichen werden oder reicht unsere eigene Resliste?
 		HashMap<Integer, Long[]> unitlist = null;
 		if( !showtarget ) {
-			unitlist = fromcargo.compare( new UnitCargo());
+			unitlist = fromcargo.compare( new TransientUnitCargo());
 		}
 		else {
 			unitlist = fromcargo.compare( tocargo );

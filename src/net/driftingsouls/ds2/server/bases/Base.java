@@ -67,6 +67,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.units.BaseUnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargoEntry;
 import net.driftingsouls.ds2.server.werften.BaseWerft;
@@ -148,8 +149,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	private Set<Factory> factories;
 
 	@OneToMany(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH},
-			targetEntity=net.driftingsouls.ds2.server.bases.BaseUnitCargoEntry.class)
-	@JoinColumn(name="destid", nullable=true)
+			targetEntity=net.driftingsouls.ds2.server.bases.BaseUnitCargoEntry.class,
+			mappedBy="basis")
 	@BatchSize(size=50)
 	@NotFound(action = NotFoundAction.IGNORE)
 	private Set<BaseUnitCargoEntry> units;
@@ -518,15 +519,10 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 * Gibt dden UnitCargo der Basis zurueck.
 	 * @return Der UnitCargo
 	 */
-	public UnitCargo getUnits()
+	public BaseUnitCargo getUnits()
 	{
-		List<UnitCargoEntry> entries = new ArrayList<UnitCargoEntry>();
-		for(UnitCargoEntry entry: units)
-		{
-			entries.add(entry);
-		}
-		return new UnitCargo(entries, UnitCargo.CARGO_ENTRY_BASE, id);
-		//return new UnitCargo(UnitCargo.CARGO_ENTRY_BASE, id);
+		List<UnitCargoEntry> entries = new ArrayList<UnitCargoEntry>(units);
+		return new BaseUnitCargo(entries, this);
 	}
 
 	/**
@@ -535,9 +531,10 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 */
 	public void setUnits(UnitCargo unitcargo)
 	{
-		unitcargo.setTyp(UnitCargo.CARGO_ENTRY_BASE);
-		unitcargo.setDestId(id);
-		unitcargo.save();
+		BaseUnitCargo cargo = this.getUnits();
+		cargo.clear();
+		cargo.addCargo(unitcargo);
+		cargo.save();
 	}
 
 	/**

@@ -1789,4 +1789,14 @@
 	<update type="structure" datum="2012-12-31"><![CDATA[
 		ALTER TABLE stats_verkaeufe MODIFY system INT(11) NOT NULL DEFAULT 1;
 	]]></update>
+	<update type="structure" datum="2013-01-13"><![CDATA[
+		ALTER TABLE cargo_entries_units DROP PRIMARY KEY;
+		ALTER TABLE cargo_entries_units ADD COLUMN id BIGINT NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY (id);
+		ALTER TABLE cargo_entries_units ADD COLUMN basis_id INT, ADD COLUMN schiff_id INT, ADD CONSTRAINT cargo_entries_units_fk_basis FOREIGN KEY (basis_id) REFERENCES bases(id), ADD CONSTRAINT cargo_entries_units_fk_schiff FOREIGN KEY (schiff_id) REFERENCES ships(id);
+		UPDATE cargo_entries_units SET schiff_id=destid WHERE type=2 AND exists(SELECT id FROM ships where id=cargo_entries_units.destid);
+		UPDATE cargo_entries_units SET basis_id=destid WHERE type=1 AND exists(SELECT id FROM bases where id=cargo_entries_units.destid);
+		DELETE FROM cargo_entries_units WHERE schiff_id IS NULL and basis_id IS NULL;
+		ALTER TABLE cargo_entries_units DROP COLUMN destid;
+		ALTER TABLE cargo_entries_units ADD CONSTRAINT UNIQUE (type,basis_id,schiff_id,unittype);
+	]]></update>
 </updates>

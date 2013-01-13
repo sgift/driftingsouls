@@ -1283,7 +1283,7 @@ public class User extends BasicUser implements JSONSupport {
 
 		// Kosten der auf den Schiffen stationierten Einheiten ermitteln
 		Long einheitenKosten = (Long)db
-			.createQuery("select sum(ceil(u.amount*u.key.unittype.recost)) " +
+			.createQuery("select sum(ceil(u.amount*u.unittype.recost)) " +
 				"from Ship s join s.units u "+
 				"where s.owner=:user and s.docked not like 'l %' and s.id>0 and s.battle is null")
 			.setParameter("user", this)
@@ -1425,9 +1425,8 @@ public class User extends BasicUser implements JSONSupport {
 		long shipunit = 0;
 
 		Object baseunitsuserobject = db.createQuery("select sum(e.amount) " +
-				"from UnitCargoEntry as e, Base as b " +
-				"where e.key.type=:type and e.key.unittype=:unittype and e.key.destid = b.id and b.owner=:user")
-				.setInteger("type", UnitCargo.CARGO_ENTRY_BASE)
+				"from BaseUnitCargoEntry as e " +
+				"where e.unittype=:unittype and e.basis.owner=:user")
 				.setInteger("unittype", unitType.getId())
 				.setEntity("user", this)
 				.iterate()
@@ -1442,9 +1441,8 @@ public class User extends BasicUser implements JSONSupport {
 		}
 
 		Object shipunitsuserobject = db.createQuery("select sum(e.amount) " +
-				"from UnitCargoEntry as e, Ship as s " +
-				"where e.key.type=:type and e.key.unittype=:unittype and e.key.destid = s.id and s.owner=:user")
-				.setInteger("type", UnitCargo.CARGO_ENTRY_SHIP)
+				"from ShipUnitCargoEntry as e " +
+				"where e.unittype=:unittype and e.schiff.owner=:user")
 				.setInteger("unittype", unitType.getId())
 				.setEntity("user", this)
 				.iterate()

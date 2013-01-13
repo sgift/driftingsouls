@@ -1,11 +1,13 @@
 package net.driftingsouls.ds2.server.bases;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-
-import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargoEntry;
 import net.driftingsouls.ds2.server.units.UnitType;
+import org.hibernate.proxy.HibernateProxy;
+
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 /**
  * A unit cargo entry for bases.
@@ -14,9 +16,13 @@ import net.driftingsouls.ds2.server.units.UnitType;
  * @author Drifting-Souls Team
  */
 @Entity
-@DiscriminatorValue("" + UnitCargo.CARGO_ENTRY_BASE)
+@DiscriminatorValue("2")
 public class BaseUnitCargoEntry extends UnitCargoEntry
 {
+	@ManyToOne(cascade = {})
+	@JoinColumn
+	private Base basis;
+
 	/**
 	 * Default.
 	 */
@@ -24,14 +30,65 @@ public class BaseUnitCargoEntry extends UnitCargoEntry
 	{}
 
 	/**
-	 * @see UnitCargoEntry#UnitCargoEntry(int, int, int, long)
-	 * @param type Der Typ des Eintrages
-	 * @param destid Die ID des Zielobjekts
+	 * @param base Die Basis zu der der UnitCargo-Eintrag gehoert
 	 * @param unittype Der Einheitentyp
 	 * @param amount Die Menge
 	 */
-	public BaseUnitCargoEntry(int type, int destid, UnitType unittype, long amount)
+	public BaseUnitCargoEntry(Base base, UnitType unittype, long amount)
 	{
-		super(type, destid, unittype, amount);
+		super(unittype, amount);
+		this.basis = base;
+	}
+
+	@Override
+	public UnitCargoEntry createCopy()
+	{
+		return new BaseUnitCargoEntry(this.basis,getUnitType(),getAmount());
+	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + basis.hashCode();
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if( this == obj )
+		{
+			return true;
+		}
+		if( obj == null )
+		{
+			return false;
+		}
+		if( obj instanceof HibernateProxy)
+		{
+			obj = ((HibernateProxy)obj).getHibernateLazyInitializer().getImplementation();
+		}
+		if( getClass() != obj.getClass() )
+		{
+			return false;
+		}
+		BaseUnitCargoEntry other = (BaseUnitCargoEntry)obj;
+		if( !super.equals(other) )
+		{
+			return false;
+		}
+		if( basis == null )
+		{
+			if( other.basis != null ) {
+				return false;
+			}
+		}
+		else if( !basis.equals(other.basis) )
+		{
+			return false;
+		}
+		return true;
 	}
 }
