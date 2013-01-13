@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.MutableLocation;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
@@ -21,6 +22,12 @@ import org.hibernate.Session;
  */
 class Field
 {
+	private List<Ship> ships;
+	private List<Base> bases;
+	private List<JumpNode> nodes;
+	private Nebel nebula;
+	private Location position;
+
 	Field(Session db, Location position)
 	{
 		ships = Common.cast(db.createQuery("from Ship where system=:system and x=:x and y=:y")
@@ -33,6 +40,12 @@ class Field
 				  .setParameter("x", position.getX())
 				  .setParameter("y", position.getY())
 				  .list());
+		nodes = Common.cast(db.createQuery("from JumpNode where system=:system and x=:x and y=:y")
+				.setParameter("system", position.getSystem())
+				.setParameter("x", position.getX())
+				.setParameter("y", position.getY())
+				.list());
+		nebula = (Nebel)db.get(Nebel.class, new MutableLocation(position));
 		this.position = position;
 	}
 	
@@ -76,10 +89,4 @@ class Field
 		Nebel.Typ type = nebula.getType();
 		return type.getMinScansize() <= ship.getTypeData().getSize();
 	}
-	
-	private List<Ship> ships;
-	private List<Base> bases;
-	private List<JumpNode> nodes;
-	private Nebel nebula;
-	private Location position;
 }
