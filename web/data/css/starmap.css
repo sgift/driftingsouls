@@ -247,24 +247,35 @@ body {
     list-style-type: none;
 }
 
-#sectorview .bases {
+#sectorview .bases,
+#sectorview .jumpnodes{
 	margin-top:8px;
 	margin-left:0px;
 	padding-left:0px;
 }
 
-#sectorview .bases img {
+#sectorview .bases img,
+#sectorview .jumpnodes img{
 	float:left;
 	margin-right:8px;
 }
 
+#sectorview .jumpnodes img {
+	width: 50px;
+}
+
 #sectorview .bases li,
+#sectorview .jumpndoes li,
 #sectorview .ships {
 	clear:both;
 }
 
 #sectorview .ships {
 	padding-top:8px;
+}
+
+#sectorview .ships .toggle {
+	cursor:pointer;
 }
 
 #starmaploader .content {

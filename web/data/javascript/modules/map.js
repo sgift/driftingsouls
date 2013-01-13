@@ -488,7 +488,7 @@ var StarmapOverlay = function(data, screen, request) {
 			var loc = this.__currentLocations[i];
 			if( loc.x == sectorX && loc.y == sectorY )
 			{
-				Starmap.showSector(this.__currentSystem, sectorX, sectorY, loc);
+				Starmap.onClick(this.__currentSystem, sectorX, sectorY, loc);
 				break;
 			}
 		}
@@ -659,7 +659,7 @@ var Starmap = {
 	{
 		this.__loaderPopup.hide();
 	},
-	showSector : function (system, x, y, locationInfo) {
+	onClick : function (system, x, y, locationInfo) {
 		var self = this;
 		new StarmapSectorInfoPopup(system, x, y, locationInfo, {
 			request : self.__request
@@ -754,6 +754,14 @@ function StarmapSectorInfoPopup(system, x, y, locationInfo, options) {
 	{
 		var sector = $('#sectorview');
 		var dialog = '<div class="content"><span>Sektor ' + system + ':' + x + '/' + y + '</span><a class="close" style="float:right;color:#ff0000;">(x)</a>';
+		if( data.jumpnodes && data.jumpnodes.length > 0 ) {
+			dialog += "<ul class='jumpnodes'>";
+			$.each(data.jumpnodes, function() {
+				dialog+= "<li><img src='./data/objects/node.png' /><div class='name'>"+this.name+(this.blocked ? ' - blockiert' : '')+"</div></li>";
+			});
+			dialog += "</ul>";
+		}
+
 		if( data.bases && data.bases.length > 0 ) {
 			dialog += "<ul class='bases'>";
 			$.each(data.bases, function() {
@@ -761,6 +769,7 @@ function StarmapSectorInfoPopup(system, x, y, locationInfo, options) {
 			});
 			dialog += "</ul>";
 		}
+
 		dialog += "<div class='ships'>"
 		$.each(data.users, function()
 		{
@@ -773,7 +782,7 @@ function StarmapSectorInfoPopup(system, x, y, locationInfo, options) {
 				shipcount += this.ships.length;
 			});
 			shiptypes += '</ul>';
-			dialog += '<span ds-shipclass="'+shipclassId+'"><span id="'+shipclassId+'Toggle">+</span> '+this.name+'</span><span style="float:right;">'+shipcount+'</span><br>';
+			dialog += '<span class="toggle" ds-shipclass="'+shipclassId+'"><span id="'+shipclassId+'Toggle">+</span> '+this.name+'</span><span style="float:right;">'+shipcount+'</span><br>';
 			dialog += shiptypes;
 		});
 		dialog += '</div></div>';

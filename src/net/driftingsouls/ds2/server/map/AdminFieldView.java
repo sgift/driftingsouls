@@ -2,6 +2,7 @@ package net.driftingsouls.ds2.server.map;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
@@ -72,5 +73,11 @@ public class AdminFieldView implements FieldView
 		}
 
 		return ships;
+	}
+
+	@Override
+	public List<JumpNode> getJumpNodes()
+	{
+		return field.getNodes();
 	}
 }

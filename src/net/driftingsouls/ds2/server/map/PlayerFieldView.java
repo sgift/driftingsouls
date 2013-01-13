@@ -1,14 +1,9 @@
 package net.driftingsouls.ds2.server.map;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.MutableLocation;
 import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.User.Relation;
@@ -17,8 +12,12 @@ import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
-
 import org.hibernate.Session;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Eine Sicht auf ein bestimmtes Sternenkartenfeld.
@@ -29,6 +28,12 @@ import org.hibernate.Session;
  */
 public class PlayerFieldView implements FieldView
 {
+	private final Session db;
+	private final Field field;
+	private final User user;
+	private final Ship scanShip;
+	private final Location location;
+
     /**
 	 * Legt eine neue Sicht an.
 	 * 
@@ -211,7 +216,22 @@ public class PlayerFieldView implements FieldView
 		return ships;
 	}
 
-    /**
+	@Override
+	public List<JumpNode> getJumpNodes()
+	{
+		List<JumpNode> result = new ArrayList<JumpNode>();
+		for (JumpNode jumpNode : this.field.getNodes())
+		{
+			if( !jumpNode.isHidden() )
+			{
+				result.add(jumpNode);
+			}
+		}
+
+		return result;
+	}
+
+	/**
      * @return <code>true</code>, wenn der Spieler das Schiff zum Scannen nutzen darf, <code>false</code> ansonsten.
      */
     private boolean canUse()
@@ -232,10 +252,4 @@ public class PlayerFieldView implements FieldView
         Relations relations = user.getRelations();
 		return relations.fromOther.get(owner) == Relation.FRIEND && relations.toOther.get(owner) == Relation.FRIEND;
 	}
-
-	private final Session db;
-	private final Field field;
-    private final User user;
-    private final Ship scanShip;
-    private final Location location;
 }

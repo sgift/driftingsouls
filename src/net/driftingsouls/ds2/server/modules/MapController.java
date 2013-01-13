@@ -457,6 +457,17 @@ public class MapController extends TemplateGenerator
 
 		json.accumulate("bases", baseListObj);
 
+		JSONArray jumpNodeListObj = new JSONArray();
+		for (JumpNode jumpNode : field.getJumpNodes())
+		{
+			JSONObject jnObj = new JSONObject();
+			jnObj.accumulate("id", jumpNode.getId());
+			jnObj.accumulate("name", jumpNode.getName());
+			jnObj.accumulate("blocked", jumpNode.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn( 0 ));
+			jumpNodeListObj.add(jnObj);
+		}
+		json.accumulate("jumpnodes", jumpNodeListObj);
+
 		return json;
 	}
 }

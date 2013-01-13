@@ -1,6 +1,7 @@
 package net.driftingsouls.ds2.server.map;
 
 import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
@@ -24,4 +25,10 @@ public interface FieldView
 	 * @return Die Schiffe
 	 */
 	Map<User, Map<ShipType, List<Ship>>> getShips();
+
+	/**
+	 * Gibt alle sichtbaren Spungpunkte zurueck.
+	 * @return Die Sprungpunkte
+	 */
+	List<JumpNode> getJumpNodes();
 }
