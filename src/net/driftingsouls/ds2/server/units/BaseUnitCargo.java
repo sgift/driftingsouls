@@ -68,7 +68,10 @@ public class BaseUnitCargo extends UnitCargo
 
 		for(UnitCargoEntry entry: units)
 		{
-			db.persist(entry);
+			if( entry.getAmount() > 0 )
+			{
+				db.persist(entry);
+			}
 		}
 	}
 

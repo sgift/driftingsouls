@@ -18,21 +18,23 @@
  */
 package net.driftingsouls.ds2.server.units;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import net.driftingsouls.ds2.server.bases.BaseUnitCargoEntry;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.JSONSupport;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.ships.ShipUnitCargoEntry;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * Repraesentiert einen UnitCargo, also eine Liste von Einheiten mit jeweils einer bestimmten Menge, in DS.
@@ -84,6 +86,38 @@ public abstract class UnitCargo implements Cloneable, JSONSupport {
 		public void setValue(int wert)
 		{
 			this.wert = wert;
+		}
+	}
+
+	/**
+	 * Sortierer fuer {@link UnitType}s, das Kritierium ist der Name.
+	 */
+	private static class UnitTypeComparator implements Comparator<UnitType>
+	{
+		@Override
+		public int compare(UnitType o1, UnitType o2)
+		{
+			int diff = o1.getName().compareTo(o2.getName());
+			if( diff != 0 )
+			{
+				return diff;
+			}
+			return o1.getId()-o2.getId();
+		}
+	}
+
+	/**
+	 * Sortierer fuer {@link UnitCargoEntry}s mit dem selben Sortierkriterium wie
+	 * {@link UnitTypeComparator}.
+	 */
+	private static class UnitCargoEntryComparator implements Comparator<UnitCargoEntry>
+	{
+		private static final UnitTypeComparator INNER = new UnitTypeComparator();
+
+		@Override
+		public int compare(UnitCargoEntry o1, UnitCargoEntry o2)
+		{
+			return INNER.compare(o1.getUnitType(), o2.getUnitType());
 		}
 	}
 
@@ -486,7 +520,14 @@ public abstract class UnitCargo implements Cloneable, JSONSupport {
 
 		t.setVar(templateblock,"");
 
-		for( UnitCargoEntry aunit : units ) {
+		SortedSet<UnitCargoEntry> entries = new TreeSet<UnitCargoEntry>(new UnitCargoEntryComparator());
+		entries.addAll(units);
+
+		for( UnitCargoEntry aunit : entries ) {
+			if( aunit.getAmount() == 0 )
+			{
+				continue;
+			}
 			UnitType unittype = aunit.getUnitType();
 
 			t.setVar(	"res.id", 			aunit.getUnitTypeId(),
@@ -504,23 +545,23 @@ public abstract class UnitCargo implements Cloneable, JSONSupport {
 	 * @param unitcargo Der UnitCargo mit dem verglichen wird
 	 * @return Eine HashMap mit den Einheiten und den jeweiligen Anzahlen
 	 */
-	public HashMap<Integer, Long[]> compare( UnitCargo unitcargo )
+	public Map<UnitType, Long[]> compare( UnitCargo unitcargo )
 	{
-		HashMap<Integer, Long[]> unitlist = new HashMap<Integer, Long[]>();
+		Map<UnitType, Long[]> unitlist = new TreeMap<UnitType, Long[]>(new UnitTypeComparator());
 		for(UnitCargoEntry unit : units)
 		{
-			unitlist.put(unit.getUnitTypeId(), new Long[] {unit.getAmount(), 0l});
+			unitlist.put(unit.getUnitType(), new Long[] {unit.getAmount(), 0l});
 		}
 
 		for(UnitCargoEntry unit : unitcargo.getUnitArray())
 		{
-			if(unitlist.containsKey(unit.getUnitTypeId()))
+			if(unitlist.containsKey(unit.getUnitType()))
 			{
-				unitlist.put(unit.getUnitTypeId(), new Long[] {unitlist.get(unit.getUnitTypeId())[0], unit.getAmount()});
+				unitlist.put(unit.getUnitType(), new Long[] {unitlist.get(unit.getUnitType())[0], unit.getAmount()});
 			}
 			else
 			{
-				unitlist.put(unit.getUnitTypeId(), new Long[] {0l, unit.getAmount()});
+				unitlist.put(unit.getUnitType(), new Long[] {0l, unit.getAmount()});
 			}
 		}
 

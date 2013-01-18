@@ -310,6 +310,10 @@
 #basenBox tbody td.energieCol {
 	white-space:nowrap;
 }
+#basenBox tbody td.unitCol {
+	white-space:nowrap;
+	vertical-align:middle;
+}
 #basenBox tbody td {
 	padding-bottom:10px;
 	vertical-align:top;

@@ -349,6 +349,16 @@ public class PlayerStarmap extends PublicStarmap
 	public boolean isHasSectorContent(Location position)
 	{
 		List<Base> bases = map.getBaseMap().get(position);
-		return bases != null && !bases.isEmpty() || this.getShipImage(position) != null;
+		if( bases != null && !bases.isEmpty()  )
+		{
+			return true;
+		}
+
+		List<JumpNode> nodes = map.getNodeMap().get(position);
+		if( nodes != null && !nodes.isEmpty() )
+		{
+			return true;
+		}
+		return this.getShipImage(position) != null;
 	}
 }

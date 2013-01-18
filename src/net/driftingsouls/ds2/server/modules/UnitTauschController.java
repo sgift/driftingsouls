@@ -752,14 +752,14 @@ public class UnitTauschController extends TemplateGenerator {
 			t.setBlock("_TRANSPORT", "transfer.multitarget.listitem", "transfer.multitarget.list" );
 		}
 
-		HashMap<Integer, Long[]> unitlist = totalfromcargo.compare( totaltocargo );
-		for( Entry<Integer, Long[]> unit : unitlist.entrySet() ) {
-			UnitType unittype = (UnitType)db.get(UnitType.class, unit.getKey());
-			parameterNumber(unit.getKey()+"to");
-			int transt = getInteger(unit.getKey()+"to");
+		Map<UnitType, Long[]> unitlist = totalfromcargo.compare( totaltocargo );
+		for( Map.Entry<UnitType, Long[]> unit : unitlist.entrySet() ) {
+			UnitType unittype = unit.getKey();
+			parameterNumber(unittype.getId()+"to");
+			int transt = getInteger(unittype.getId()+"to");
 
-			parameterNumber(unit.getKey()+"from");
-			int transf = getInteger(unit.getKey()+"from");
+			parameterNumber(unittype.getId()+"from");
+			int transf = getInteger(unittype.getId()+"from");
 
 			t.setVar("transfer.multitarget.list", "");
 
@@ -1117,7 +1117,7 @@ public class UnitTauschController extends TemplateGenerator {
 		}
 
 		// Muss verglichen werden oder reicht unsere eigene Resliste?
-		HashMap<Integer, Long[]> unitlist = null;
+		Map<UnitType, Long[]> unitlist;
 		if( !showtarget ) {
 			unitlist = fromcargo.compare( new TransientUnitCargo());
 		}
@@ -1125,8 +1125,8 @@ public class UnitTauschController extends TemplateGenerator {
 			unitlist = fromcargo.compare( tocargo );
 		}
 
-		for( Entry<Integer, Long[]> unit : unitlist.entrySet() ) {
-			UnitType unittype = (UnitType)db.get(UnitType.class, unit.getKey());
+		for( Map.Entry<UnitType, Long[]> unit : unitlist.entrySet() ) {
+			UnitType unittype = unit.getKey();
 			t.setVar(	"res.name",		unittype.getName(),
 						"res.image",	unittype.getPicture(),
 						"res.id",		unittype.getId(),

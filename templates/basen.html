@@ -84,7 +84,7 @@
 				<span class="nobr"><img src="{mangel.image}" alt="" title="{mangel.plainname}" />{mangel.rounds}</span>
 			<!-- END bases.mangel.listitem -->
 		</td>
-		<td>
+		<td class="cargoCol">
 			{if global.l > 0}
 				<!-- BEGIN bases.cargo.listitem -->
 					<span class="nobr"><img src="{res.image}" alt="" title="{res.plainname}" />{res.cargo}</span>
@@ -94,7 +94,7 @@
 				{!link_to (anzeigen), default, css_style:font-size:8pt, l:1}
 			{/endif}
 		</td>
-		<td>
+		<td class="unitCol">
 			<!-- BEGIN bases.units.listitem -->
 			<img src="{res.picture}" alt="" />{!link_to $res.name, default, module:unitinfo, unit:$res.id} {res.count}
 			<br />
