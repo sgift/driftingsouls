@@ -316,6 +316,7 @@ public class User extends BasicUser implements JSONSupport {
 		trash.setFlags(Ordner.FLAG_TRASH);
 		this.researches = new HashSet<UserResearch>();
 		addResearch(0);
+		this.specializationPoints = 15;
 
 		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "gtudefaultdropzone");
 		int defaultDropZone = Integer.valueOf(value.getValue());
