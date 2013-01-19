@@ -5,6 +5,7 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
+import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -467,6 +468,15 @@ public class MapController extends TemplateGenerator
 			jumpNodeListObj.add(jnObj);
 		}
 		json.accumulate("jumpnodes", jumpNodeListObj);
+
+		Nebel nebel = field.getNebel();
+		if( nebel != null )
+		{
+			JSONObject nebelObj = new JSONObject();
+			nebelObj.accumulate("type", nebel.getType().getCode());
+			nebelObj.accumulate("image", nebel.getImage());
+			json.accumulate("nebel", nebelObj);
+		}
 
 		return json;
 	}

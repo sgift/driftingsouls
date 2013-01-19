@@ -753,7 +753,10 @@ function StarmapSectorInfoPopup(system, x, y, locationInfo, options) {
 	var openSector = function (system, x, y, data)
 	{
 		var sector = $('#sectorview');
-		var dialog = '<div class="content"><span>Sektor ' + system + ':' + x + '/' + y + '</span><a class="close" style="float:right;color:#ff0000;">(x)</a>';
+		var dialog = '<div class="content"><div class="header"><span>Sektor ' + system + ':' + x + '/' + y + '</span><a class="close" style="float:right;color:#ff0000;">(x)</a></div>';
+		if( data.nebel ) {
+			dialog += '<img class="nebel" src="data/objects/nebel'+data.nebel.type+'.png" alt="Nebel" />';
+		}
 		if( data.jumpnodes && data.jumpnodes.length > 0 ) {
 			dialog += "<ul class='jumpnodes'>";
 			$.each(data.jumpnodes, function() {

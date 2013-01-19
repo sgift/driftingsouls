@@ -247,6 +247,14 @@ body {
     list-style-type: none;
 }
 
+#sectorview .nebel {
+	float:left;
+	width:50px;
+	margin-right:8px;
+	margin-top:8px;
+	margin-left:0px;
+}
+
 #sectorview .bases,
 #sectorview .jumpnodes{
 	margin-top:8px;

@@ -231,6 +231,12 @@ public class PlayerFieldView implements FieldView
 		return result;
 	}
 
+	@Override
+	public Nebel getNebel()
+	{
+		return field.getNebula();
+	}
+
 	/**
      * @return <code>true</code>, wenn der Spieler das Schiff zum Scannen nutzen darf, <code>false</code> ansonsten.
      */
