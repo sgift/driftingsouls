@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.framework;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -59,6 +60,22 @@ public abstract class BasicUser {
 	private static final Log log = LogFactory.getLog(BasicUser.class);
 
 	private static String defaultImagePath = null;
+
+	/**
+	 * Sortiert die Benutzer entsprechend ihres Anzeigenamens.
+	 */
+	public static final Comparator<BasicUser> PLAINNAME_ORDER = new Comparator<BasicUser>() {
+		@Override
+		public int compare(BasicUser o1, BasicUser o2)
+		{
+			int diff = o1.getPlainname().compareToIgnoreCase(o2.getPlainname());
+			if( diff != 0 )
+			{
+				return diff;
+			}
+			return o1.getId()-o2.getId();
+		}
+	};
 
 	@Id
 	private int id;

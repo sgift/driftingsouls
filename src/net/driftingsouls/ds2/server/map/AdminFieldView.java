@@ -5,6 +5,7 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import org.hibernate.Session;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Die Sicht eines Administrators auf ein Feld der Sternenkarte.
@@ -48,7 +50,7 @@ public class AdminFieldView implements FieldView
 	@Override
 	public Map<User, Map<ShipType, List<Ship>>> getShips()
 	{
-		Map<User, Map<ShipType, List<Ship>>> ships = new HashMap<User, Map<ShipType,List<Ship>>>();
+		Map<User, Map<ShipType, List<Ship>>> ships = new TreeMap<User, Map<ShipType, List<Ship>>>(BasicUser.PLAINNAME_ORDER);
 
 		for (Ship viewableShip : field.getShips())
 		{

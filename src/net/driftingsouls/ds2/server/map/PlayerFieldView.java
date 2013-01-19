@@ -9,6 +9,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.User.Relation;
 import net.driftingsouls.ds2.server.entities.User.Relations;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
+import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Eine Sicht auf ein bestimmtes Sternenkartenfeld.
@@ -130,7 +132,7 @@ public class PlayerFieldView implements FieldView
 	@Override
 	public Map<User, Map<ShipType, List<Ship>>> getShips()
 	{
-		Map<User, Map<ShipType, List<Ship>>> ships = new HashMap<User, Map<ShipType,List<Ship>>>();
+		Map<User, Map<ShipType, List<Ship>>> ships = new TreeMap<User, Map<ShipType,List<Ship>>>(BasicUser.PLAINNAME_ORDER);
         if(!isInScanRange())
         {
             return ships;
