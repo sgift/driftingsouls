@@ -47,6 +47,7 @@ public class FactionShopOrder {
 	@JoinColumn(name="user_id", nullable=false)
 	private User user;
 	private long price;
+	private long lpKosten;
 	private int count;
 	private int status;
 	private long date;
@@ -74,6 +75,24 @@ public class FactionShopOrder {
 		setShopEntry(entry);
 		setUser(user);
 		setDate(Common.time());
+	}
+
+	/**
+	 * Gibt die LP-Kosten fuer den Auftrag zurueck.
+	 * @return Die LP-Kosten
+	 */
+	public long getLpKosten()
+	{
+		return lpKosten;
+	}
+
+	/**
+	 * Setzt die LP-Kosten fuer den Auftrag.
+	 * @param lpKosten Die LP-Kosten
+	 */
+	public void setLpKosten(long lpKosten)
+	{
+		this.lpKosten = lpKosten;
 	}
 
 	/**

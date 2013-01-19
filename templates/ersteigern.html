@@ -735,7 +735,8 @@
 					{/endif}
 				</td>
 				<td class="noBorderX" style="width:50px;text-align:center">
-					{orderentry.price}
+					{orderentry.price}RE
+					{if orderentry.lpkosten}{orderentry.lpkosten}LP{/endif}
 				</td>
 				<td class="noBorderX" style="text-align:center">
 					&nbsp;{orderentry.status}&nbsp;
@@ -780,7 +781,8 @@
 					{/endif}
 				</td>
 				<td class="noBorderX" style="width:50px;text-align:center">
-					{orderentry.price}
+					{orderentry.price}RE
+					{if orderentry.lpkosten}{orderentry.lpkosten}LP{/endif}
 				</td>
 				<td class="noBorderX" style="text-align:center">
 					<form action="./ds" method="post" style="display:inline">
@@ -845,9 +847,11 @@
 				</td>
 				<td class="noBorderX">
 					{if shop.owner}
-						<input type="text" size="9" name="entryPrice" value="{entry.price}" />
+						<input type="text" size="9" name="entryPrice" value="{entry.price}" />RE
+						<input type="text" size="2" name="entryLpKosten" value="{entry.lpkosten}" />LP
 					{else}
-						{entry.price}
+						{entry.price}RE
+						{if entry.lpkosten}{entry.lpkosten}LP{/endif}
 					{/endif}
 				</td>
 				<td class="noBorderX">
@@ -888,7 +892,8 @@
 							</select>
 							<input type="text" name="entryTypeId" id="entryTypeId" value="" size="15"/>
 							für
-							<input type="text" name="entryCost" id="entryCost" value="" size="10"/>RE
+							<input type="text" name="entryCost" id="entryCost" value="" size="6"/>RE
+							<input type="text" name="entryLpKosten" id="entryLpKosten" value="" size="3"/>LP
 							{!form_create_hidden shopEntryCreate, faction:$global.faction}
 							<input type="submit" value="erstellen" />
 						</form>

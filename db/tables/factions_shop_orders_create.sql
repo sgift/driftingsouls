@@ -3,6 +3,7 @@ CREATE TABLE `factions_shop_orders` (
   `shopentry_id` smallint(5) unsigned NOT NULL default '0',
   `user_id` int(11) NOT NULL default '0',
   `price` int(10) unsigned NOT NULL default '1',
+	lpKosten INT NOT NULL DEFAULT 0,
   `count` int(10) unsigned NOT NULL default '1',
   `status` tinyint(3) unsigned NOT NULL default '0',
   `date` int(10) unsigned NOT NULL default '0',

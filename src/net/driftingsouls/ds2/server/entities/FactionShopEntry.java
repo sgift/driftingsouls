@@ -51,6 +51,7 @@ public class FactionShopEntry {
 	private Type type;
 	private String resource;
 	private long price;
+	private long lpKosten;
 	private int availability;
     @Column(name="min_rank")
     private int minRank;
@@ -124,6 +125,24 @@ public class FactionShopEntry {
 	 */
 	public void setPrice(long price) {
 		this.price = price;
+	}
+
+	/**
+	 * Gibt die LP-Kosten fuer das Produkt zurueck.
+	 * @return Die LP-Kosten
+	 */
+	public long getLpKosten()
+	{
+		return lpKosten;
+	}
+
+	/**
+	 * Setzt die LP-Kosten fuer das Produkt.
+	 * @param lpKosten Die LP-Kosten
+	 */
+	public void setLpKosten(long lpKosten)
+	{
+		this.lpKosten = lpKosten;
 	}
 
 	/**

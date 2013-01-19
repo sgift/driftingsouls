@@ -1799,4 +1799,8 @@
 		ALTER TABLE cargo_entries_units DROP COLUMN destid;
 		ALTER TABLE cargo_entries_units ADD CONSTRAINT UNIQUE (type,basis_id,schiff_id,unittype);
 	]]></update>
+	<update type="structure" datum="2013-01-19"><![CDATA[
+		ALTER TABLE factions_shop_entries ADD COLUMN lpKosten INT NOT NULL DEFAULT 0;
+		ALTER TABLE factions_shop_orders ADD COLUMN lpKosten INT NOT NULL DEFAULT 0;
+	]]></update>
 </updates>
