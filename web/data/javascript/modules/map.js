@@ -714,12 +714,10 @@ var StarmapLoaderPopup = function() {
 function StarmapSectorInfoPopup(system, x, y, locationInfo, options) {
 	var __createSectorView  = function()
 	{
-		if( $('#sectortable').size() == 0 )
+		if( $('#sectorview').size() == 0 )
 		{
-			var sectorview = "<div class='invisible gfxbox' id='sectortable' style='width:400px'>";
-			sectorview += "<div id='sectorview'>";
+			var sectorview = "<div id='sectorview'>";
 			//Text is inserted here - using javascript
-			sectorview += "</div>";
 			sectorview += "</div>";
 			$('#mapcontent').append(sectorview);
 		}
@@ -729,8 +727,13 @@ function StarmapSectorInfoPopup(system, x, y, locationInfo, options) {
 	{
 		__createSectorView();
 
-		$('#sectorview').html('Lade Sektor ' + system.id + ':' + x + '/' + y);
-		$('#sectortable').removeClass('invisible');
+		$('#sectorview').dsBox('show', {
+			center:true,
+			width:400,
+			draggable:true
+		});
+
+		$('#sectorview .content').html('Lade Sektor ' + system.id + ':' + x + '/' + y);
 		var request = options.request;
 		if( typeof request === 'undefined' ) {
 			request = {};
@@ -752,8 +755,8 @@ function StarmapSectorInfoPopup(system, x, y, locationInfo, options) {
 
 	var openSector = function (system, x, y, data)
 	{
-		var sector = $('#sectorview');
-		var dialog = '<div class="content"><div class="header"><span>Sektor ' + system + ':' + x + '/' + y + '</span><a class="close" style="float:right;color:#ff0000;">(x)</a></div>';
+		var sector = $('#sectorview .content');
+		var dialog = '<div class="header"><span>Sektor ' + system + ':' + x + '/' + y + '</span></div>';
 		if( data.nebel ) {
 			dialog += '<img class="nebel" src="data/objects/nebel'+data.nebel.type+'.png" alt="Nebel" />';
 		}
@@ -788,11 +791,8 @@ function StarmapSectorInfoPopup(system, x, y, locationInfo, options) {
 			dialog += '<span class="toggle" ds-shipclass="'+shipclassId+'"><span id="'+shipclassId+'Toggle">+</span> '+this.name+'</span><span style="float:right;">'+shipcount+'</span><br>';
 			dialog += shiptypes;
 		});
-		dialog += '</div></div>';
+		dialog += '</div>';
 		sector.html(dialog);
-		sector.find('.close').on('click', function() {
-			closeSector();
-		});
 		sector.find('[ds-shipclass]').on('click', function() {
 			toggleShowShipClasses($(this).attr('ds-shipclass'));
 		});
@@ -810,11 +810,6 @@ function StarmapSectorInfoPopup(system, x, y, locationInfo, options) {
 		{
 			node.text('+');
 		}
-	};
-
-	var closeSector = function ()
-	{
-		$('#sectortable').addClass('invisible');
 	};
 
 	if( locationInfo.scanner != null )

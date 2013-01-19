@@ -29,7 +29,7 @@
 					this.css('left', options.x);
 				}
 				else if( typeof options.centerX !== 'undefined' && options.centerX ) {
-					this.css('left', Math.floor($("body").width()/2-this.width()/2)+"px");
+					this.css('left', Math.floor($("body").width()/2-this.outerWidth()/2)+"px");
 				}
 				if( typeof options.y !== 'undefined' ) {
 					this.css('top', options.y);
@@ -37,8 +37,8 @@
 
 				if( typeof options.center !== 'undefined' && options.center ) {
 					this.css({
-						left : Math.floor($("body").width()/2-this.width()/2)+"px",
-						top : $(window).scrollTop()+Math.max(Math.floor(($(window).height()-this.height())/2),10)+"px"
+						left : Math.floor($("body").width()/2-this.outerWidth()/2)+"px",
+						top : $(window).scrollTop()+Math.max(Math.floor(($(window).height()-this.outerHeight())/2),10)+"px"
 					});
 				}
 

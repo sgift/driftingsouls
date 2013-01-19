@@ -1,7 +1,3 @@
-body {
-	margin:0px;
-}
-
 #mapmenubar {
 	position:fixed;
 	left:-20px;
@@ -60,7 +56,6 @@ body {
 	display:none;
 }
 
-#sectortable,
 #starmaploader{
 	position: fixed;
 	top: 200px;
@@ -82,11 +77,10 @@ body {
 #legend
 {
 	table-layout: fixed;
-	border-width: 0px;
 	padding: 0px;
 	margin: 0px;
 	border-spacing: 0px;
-	border-style: none;
+	border: 0px none;
 	position:absolute;
 	left:0px;
 	top:0px;
@@ -174,15 +168,13 @@ body {
 
 #legend td
 {
-	border-width: 0px;
 	padding: 0px;
 	margin: 0px;
 	border-spacing: 0px;
-	border-style: none;
+	border: 0px none;
 	width:25px;
 	height:25px;
-	background-position:0px 0px;
-	background-repeat:no-repeat;
+	background: no-repeat 0px 0px;
 	text-align:center;
 	vertical-align:middle;
 }
@@ -238,9 +230,12 @@ body {
 }
 
 #sectorview .content {
-	padding-right:3px;
 	max-height:400px;
-	overflow-y:auto;
+	margin-bottom:3px;
+}
+#sectorview .header {
+	font-weight:bold;
+	text-align: center;
 }
 #sectorview ul
 {
