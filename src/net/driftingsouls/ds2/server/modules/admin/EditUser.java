@@ -169,19 +169,22 @@ public class EditUser implements AdminPlugin
 		}
 		else if(user.getWait4VacationCount() == 0)
 		{
-			//Code geklaut aus RestTick - ueberarbeiten
-			String name = user.getName();
-			String nickname = user.getNickname();
+			if( !user.getName().contains("[VAC]") )
+			{
+				//Code geklaut aus RestTick - ueberarbeiten
+				String name = user.getName();
+				String nickname = user.getNickname();
 
-			if( name.length() > 249 ) {
-				name = name.substring(0, 249);
-			}
-			if( nickname.length() > 249 ) {
-				nickname = nickname.substring(0, 249);
-			}
+				if( name.length() > 249 ) {
+					name = name.substring(0, 249);
+				}
+				if( nickname.length() > 249 ) {
+					nickname = nickname.substring(0, 249);
+				}
 
-			user.setName(name+" [VAC]");
-			user.setNickname(nickname+" [VAC]");
+				user.setName(name+" [VAC]");
+				user.setNickname(nickname+" [VAC]");
+			}
 		}
 	}
 }
