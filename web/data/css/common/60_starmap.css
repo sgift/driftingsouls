@@ -36,7 +36,7 @@
 	margin-bottom:10px;
 }
 
-#mapcontent {
+.starmap {
 	position:absolute;
 	left:45px;
 	top:5px;
@@ -44,7 +44,7 @@
 	bottom:5px;
 }
 
-#legend
+.starmap #legend
 {
 	table-layout: fixed;
 	padding: 0px;
@@ -60,7 +60,7 @@
 	font-size:9px;
 }
 
-#legend .top {
+.starmap #legend .top {
 	height: 25px;
     left: 0;
     position: absolute;
@@ -68,7 +68,7 @@
     width:100%;
 }
 
-#legend .bottom {
+.starmap #legend .bottom {
 	bottom: 0px;
     left: 0px;
     position: absolute;
@@ -76,7 +76,7 @@
     height:25px;
 }
 
-#legend .hbar {
+.starmap #legend .hbar {
 	left: 25px;
 	right:25px;
     position: absolute;
@@ -85,7 +85,7 @@
     overflow:hidden;
 }
 
-#legend .hbar .scroll div {
+.starmap #legend .hbar .scroll div {
 	float:left;
 	text-align:center;
 	vertical-align:middle;
@@ -94,7 +94,7 @@
 	line-height: 20px;
 }
 
-#legend .left {
+.starmap #legend .left {
     left: 0px;
     position: absolute;
     top: 25px;
@@ -102,7 +102,7 @@
     width: 25px;
 }
 
-#legend .right {
+.starmap #legend .right {
     right: 0px;
     position: absolute;
     top: 25px;
@@ -110,14 +110,14 @@
     bottom:25px;
 }
 
-#legend .vbar {
+.starmap #legend .vbar {
 	position: absolute;
 	overflow:hidden;
 	height:100%;
 	width:25px;
 }
 
-#legend .vbar .scroll div {
+.starmap #legend .vbar .scroll div {
 	text-align:center;
 	vertical-align:middle;
 	width:25px;
@@ -125,18 +125,18 @@
 	line-height: 20px;
 }
 
-#legend .corner {
+.starmap #legend .corner {
 	text-align:center;
 	line-height: 20px;
 	width:25px;
 	height:25px;
 }
 
-#legend .scroll {
+.starmap #legend .scroll {
 	position:absolute;
 }
 
-#legend td
+.starmap #legend td
 {
 	padding: 0px;
 	margin: 0px;
@@ -149,11 +149,11 @@
 	vertical-align:middle;
 }
 
-#legend .border {
+.starmap #legend .border {
 	font-size:9px;
 }
 
-#mapview {
+.starmap #mapview {
 	position:absolute;
 	top:25px;
 	left:25px;
@@ -163,7 +163,7 @@
 	z-index:10;
 }
 
-#actionOverlay {
+.starmap #actionOverlay {
 	position:absolute;
 	top:0px;
 	left:0px;
@@ -172,7 +172,7 @@
 	height:100%;
 }
 
-#tiles {
+.starmap #tiles {
 	position:absolute;
 	top:0px;
 	left:0px;
@@ -180,20 +180,20 @@
 	opacity:0.5;
 }
 
-#tiles img {
+.starmap #tiles img {
 	width:500px;
 	height:500px;
 	position:absolute;
 }
 
-#tileOverlay {
+.starmap #tileOverlay {
 	position:absolute;
 	top:0px;
 	left:0px;
 	z-index:15;
 }
 
-#tileOverlay div {
+.starmap #tileOverlay div {
 	width:25px;
 	height:25px;
 	position:absolute;

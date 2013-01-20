@@ -1,4 +1,5 @@
 var MapController = {
+	__starmap : null,
 	init : function() {
 		var self = this;
 		$(document).ready(function() {
@@ -9,6 +10,7 @@ var MapController = {
 				draggable:true,
 				closeButton:false
 			});
+			self.__starmap = new Starmap($('#mapcontent'));
 		});
 	},
 	showSystemSelection : function() {
@@ -40,7 +42,7 @@ var MapController = {
 
 		var self = this;
 
-		Starmap.load(sys,x,y, {
+		this.__starmap.load(sys,x,y, {
 			request : {
 				admin : adminSicht
 			},
