@@ -128,6 +128,10 @@ public class BaseController extends TemplateGenerator {
 		if( newname.length() > 50 ) {
 			newname = newname.substring(0,50);
 		}
+		if( newname.trim().isEmpty() )
+		{
+			newname = "Kolonie "+base.getId();
+		}
 
 		base.setName(newname);
 
