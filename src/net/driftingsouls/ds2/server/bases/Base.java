@@ -1773,6 +1773,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 				else if (getSpawnableRessAmount(item.getID()) == 0) {
 					// Dann ziehen wir die Production eben ab
 					nettoproduction.setResource(entry.getId(), 0);
+					msg += "Ihre Arbeiter konnten keine Vorkommen der Ressource "+item.getName()+" finden.\n";
 				}
 				// Es kann nicht mehr die volle Produktion gefoerdert werden
 				else {
