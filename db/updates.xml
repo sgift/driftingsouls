@@ -1803,4 +1803,20 @@
 		ALTER TABLE factions_shop_entries ADD COLUMN lpKosten INT NOT NULL DEFAULT 0;
 		ALTER TABLE factions_shop_orders ADD COLUMN lpKosten INT NOT NULL DEFAULT 0;
 	]]></update>
+	<update type="structure" datum="2013-01-20"><![CDATA[
+		CREATE TABLE `stat_aktive_spieler` (
+		 	`tick` int(11) NOT NULL auto_increment,
+			sehrAktiv int(11) NOT NULL DEFAULT 0,
+			aktiv int(11) NOT NULL DEFAULT 0,
+			teilweiseAktiv int(11) NOT NULL DEFAULT 0,
+			wenigAktiv int(11) NOT NULL DEFAULT 0,
+			inaktiv int(11) NOT NULL DEFAULT 0,
+			vacation int(11) NOT NULL DEFAULT 0,
+			gesamtanzahl int(11) NOT NULL DEFAULT 0,
+			registrierungen int(11) NOT NULL DEFAULT 0,
+			maxUserId int(11) NOT NULL DEFAULT 0,
+			`version` int(10) unsigned not null default '0',
+		  PRIMARY KEY  (`tick`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Die Statistik der Spieleraktivitaet';
+	]]></update>
 </updates>

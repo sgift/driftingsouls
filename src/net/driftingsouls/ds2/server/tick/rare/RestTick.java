@@ -27,6 +27,7 @@ import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleItemModule;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
+import net.driftingsouls.ds2.server.entities.statistik.StatAktiveSpieler;
 import net.driftingsouls.ds2.server.entities.statistik.StatCargo;
 import net.driftingsouls.ds2.server.entities.statistik.StatItemLocations;
 import net.driftingsouls.ds2.server.entities.statistik.StatUserCargo;
@@ -94,11 +95,39 @@ public class RestTick extends TickController {
 			speicherItemLocations(db, useritemlocations);
 
 			transaction.commit();
+			transaction = db.beginTransaction();
+
+			this.log("Erfasse Spieleraktivitaet");
+			erstelleSpielerStatistik(db);
+
+			transaction.commit();
 		}
 		catch(Exception e)
 		{
 			transaction.rollback();
 		}
+	}
+
+	private void erstelleSpielerStatistik(Session db)
+	{
+		StatAktiveSpieler lastStatSpieler = (StatAktiveSpieler)db
+				.createQuery("from StatAktiveSpieler order by tick DESC")
+				.setMaxResults(1)
+				.uniqueResult();
+		StatAktiveSpieler statSpieler = new StatAktiveSpieler();
+		List<User> spielerList = Common.cast(db.createQuery("from User u").list());
+		for( User user : spielerList )
+		{
+			statSpieler.erfasseSpieler(user);
+			if( lastStatSpieler != null )
+			{
+				if( lastStatSpieler.getMaxUserId() < user.getId() )
+				{
+					statSpieler.erfasseRegistrierung(user);
+				}
+			}
+		}
+		db.persist(statSpieler);
 	}
 
 	private void ermittleCargoStatistiken(Session db, Cargo cargo, Map<User, Cargo> usercargos, Map<User, Map<Integer, Set<String>>> useritemlocations)
