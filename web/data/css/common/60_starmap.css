@@ -34,15 +34,7 @@
 	margin-top:5px;
 }
 
-#jumpnodebox {
-	position:fixed;
-	top:200px;
-	margin-left:auto;
-	margin-right:auto;
-	z-index:100;
-	left:0px;
-	right:0px;
-	width:400px;
+#jumpnodebox .content {
 	text-align:center;
 }
 

@@ -826,11 +826,19 @@ var MapController = {
 	hideSystemSelection : function() {
 		$('#systemauswahl').addClass('invisible');
 	},
-	showJumpnodeList : function() {
-		$('#jumpnodebox').removeClass('invisible');
+	__createJumpnodePopup : function() {
+		if( $('#jumpnodebox').size() == 0 ) {
+			$('body').append('<div id="jumpnodebox"><h3>Sprungpunkte</h3><div id="jumpnodelist"><span>Kein System ausgewählt.</span></div></div>');
+			$('#jumpnodebox').dsBox({
+				center:true,
+				width:400,
+				draggable:true
+			});
+		}
 	},
-	hideJumpnodeList : function() {
-		$('#jumpnodebox').addClass('invisible');
+	showJumpnodeList : function() {
+		this.__createJumpnodePopup();
+		$('#jumpnodebox').dsBox('show');
 	},
 	load : function() {
 		var sys = document.mapform.sys.value;
@@ -856,6 +864,8 @@ var MapController = {
 	},
 	__updateJumpnodeList : function(data)
 	{
+		this.__createJumpnodePopup();
+
 		var listEl = $('#jumpnodelist');
 		listEl.children().remove();
 
