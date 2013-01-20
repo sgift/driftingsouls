@@ -387,8 +387,8 @@
 					<tr>
 						<td class="noBorderX" style="text-align:center;width:30%" colspan="2">Typ</td>
 						<td class="noBorderX" style="width:50%">Status</td>
-						<td class="noBorderX" style="width:10%"></td>
-						<td class="noBorderX" style="width:10%">Aktionen</td>
+						<td class="noBorderX" style="width:5%"></td>
+						<td class="noBorderX" style="width:15%">Aktionen</td>
 					</tr>
 					<!-- BEGIN queueshiplist.listitem -->
 						<tr onmouseover="highlightRow(this, true)" onmouseout="highlightRow(this, false)">
@@ -421,17 +421,25 @@
 							</td>
 							<td class="noBorderX">
 								{if queueship.uppossible}
-									<a href="{werftgui.urlbase}&amp;werftact=queueup&entry={queueship.position}&amp;show=queue">
-										<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/up.png" alt="Runter" title="Runter" />
+									<a href="{werftgui.urlbase}&amp;werftact=queuetop&entry={queueship.position}&amp;show=queue" title="Ganz nach oben verschieben">
+										<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/top.png" alt="Runter"/>
+									</a>
+									<a href="{werftgui.urlbase}&amp;werftact=queueup&entry={queueship.position}&amp;show=queue" title="Nach oben verschieben">
+										<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/up.png" alt="Runter" />
 									</a>
 								{else}
 									<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/spacer.png" alt="" />
+									<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/spacer.png" alt="" />
 								{/endif}
 								{if queueship.downpossible}
-									<a href="{werftgui.urlbase}&amp;werftact=queuedown&entry={queueship.position}&amp;show=queue">
-										<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/down.png" alt="Hoch" title="Hoch" />
+									<a href="{werftgui.urlbase}&amp;werftact=queuedown&entry={queueship.position}&amp;show=queue" title="Nach unten verschieben">
+										<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/down.png" alt="Hoch" />
+									</a>
+									<a href="{werftgui.urlbase}&amp;werftact=queuebottom&entry={queueship.position}&amp;show=queue" title="Ganz nach unten verschieben">
+										<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/bottom.png" alt="Hoch" />
 									</a>
 								{else}
+									<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/spacer.png" alt="" />
 									<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/spacer.png" alt="" />
 								{/endif}
 								<a href="javascript:ask('Soll der Bau wirklich abgebrochen werden?','{werftgui.urlbase}&amp;werftact=canclebuild&entry={queueship.position}&amp;show=queue')">

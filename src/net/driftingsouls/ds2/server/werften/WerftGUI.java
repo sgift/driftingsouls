@@ -209,11 +209,32 @@ public class WerftGUI {
 						werft.swapQueueEntries(entry, entry2);
 					}
 				}
+				else if( action.equals("queuebottom") ) {
+					final int queueSize = werft.getBuildQueue().length;
+					for( int i=position; i < queueSize-1; i++ )
+					{
+						WerftQueueEntry entry = werft.getBuildQueueEntry(i);
+						WerftQueueEntry entry2 = werft.getBuildQueueEntry(i+1);
+						if( (entry != null) && (entry2 != null) ) {
+							werft.swapQueueEntries(entry, entry2);
+						}
+					}
+				}
 				else if( action.equals("queueup") ) {
 					WerftQueueEntry entry = werft.getBuildQueueEntry(position);
 					WerftQueueEntry entry2 = werft.getBuildQueueEntry(position-1);
 					if( (entry != null) && (entry2 != null) ) {
 						werft.swapQueueEntries(entry, entry2);
+					}
+				}
+				else if( action.equals("queuetop") ) {
+					for( int i=position; i > 1; i-- )
+					{
+						WerftQueueEntry entry = werft.getBuildQueueEntry(i);
+						WerftQueueEntry entry2 = werft.getBuildQueueEntry(i-1);
+						if( (entry != null) && (entry2 != null) ) {
+							werft.swapQueueEntries(entry, entry2);
+						}
 					}
 				}
 
