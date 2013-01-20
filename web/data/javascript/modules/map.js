@@ -820,11 +820,20 @@ function StarmapSectorInfoPopup(system, x, y, locationInfo, options) {
 
 
 var MapController = {
-	showSystemSelection : function() {
-		$('#systemauswahl').removeClass('invisible');
+	init : function() {
+		var self = this;
+		$(document).ready(function() {
+			self.__createJumpnodePopup();
+			$('#systemauswahl').dsBox('show', {
+				width:400,
+				center:true,
+				draggable:true,
+				closeButton:false
+			});
+		});
 	},
-	hideSystemSelection : function() {
-		$('#systemauswahl').addClass('invisible');
+	showSystemSelection : function() {
+		$('#systemauswahl').dsBox('show');
 	},
 	__createJumpnodePopup : function() {
 		if( $('#jumpnodebox').size() == 0 ) {
@@ -837,7 +846,6 @@ var MapController = {
 		}
 	},
 	showJumpnodeList : function() {
-		this.__createJumpnodePopup();
 		$('#jumpnodebox').dsBox('show');
 	},
 	load : function() {
@@ -849,7 +857,7 @@ var MapController = {
 			adminSicht = 1;
 		}
 
-		this.hideSystemSelection();
+		$('#systemauswahl').dsBox('hide');
 
 		var self = this;
 
@@ -864,8 +872,6 @@ var MapController = {
 	},
 	__updateJumpnodeList : function(data)
 	{
-		this.__createJumpnodePopup();
-
 		var listEl = $('#jumpnodelist');
 		listEl.children().remove();
 
