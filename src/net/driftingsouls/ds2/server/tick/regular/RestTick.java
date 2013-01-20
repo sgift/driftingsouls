@@ -38,7 +38,7 @@ import net.driftingsouls.ds2.server.config.ConfigFelsbrocken;
 import net.driftingsouls.ds2.server.config.ConfigFelsbrockenSystem;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Jump;
-import net.driftingsouls.ds2.server.entities.StatShips;
+import net.driftingsouls.ds2.server.entities.statistik.StatShips;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;

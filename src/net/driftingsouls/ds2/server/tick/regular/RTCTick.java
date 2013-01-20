@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
-import net.driftingsouls.ds2.server.entities.StatGtu;
+import net.driftingsouls.ds2.server.entities.statistik.StatGtu;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.entities.Versteigerung;

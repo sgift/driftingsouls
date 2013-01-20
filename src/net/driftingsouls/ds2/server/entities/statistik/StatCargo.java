@@ -16,10 +16,9 @@
  *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.driftingsouls.ds2.server.entities;
+package net.driftingsouls.ds2.server.entities.statistik;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Version;
@@ -29,21 +28,18 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import org.hibernate.annotations.Type;
 
 /**
- * Die Verkaufsstatistik an einem Verkaufsort (z.B. Handelsposten, Kommandozentrale)
- * in einem System waehrend eines Ticks.
+ * Ein Stats-Eintrag, der den Gesamtcargo im Spiel zu einem Zeitpunkt (Tick) 
+ * festhaelt.
  * @author Christopher Jung
  *
  */
 @Entity
-@Table(name="stats_verkaeufe")
-public class StatVerkaeufe {
-	@Id @GeneratedValue
-	private int id;
+@Table(name="stats_cargo")
+public class StatCargo {
+	@Id
 	private int tick;
-	private String place;
-	private int system;
 	@Type(type="cargo")
-	private Cargo stats;
+	private Cargo cargo;
 	
 	@Version
 	private int version;
@@ -52,69 +48,34 @@ public class StatVerkaeufe {
 	 * Konstruktor.
 	 *
 	 */
-	public StatVerkaeufe() {
+	public StatCargo() {
 		// EMPTY
 	}
 	
 	/**
-	 * Erstellt einen neuen Stat-Eintrag.
+	 * Erstellt einen neuen Eintrag.
 	 * @param tick Der Tick
-	 * @param system Das System
-	 * @param place Der Typ des Verkaufsorts
+	 * @param cargo Der Cargo
 	 */
-	public StatVerkaeufe(int tick, int system, String place) {
+	public StatCargo(int tick, Cargo cargo) {
 		this.tick = tick;
-		this.system = system;
-		this.place = place;
-		this.stats = new Cargo();
+		this.cargo = cargo;
 	}
 
 	/**
-	 * Gibt den Ort zurueck.
-	 * @return Der Ort
+	 * Gibt den Cargo zurueck.
+	 * @return Der Cargo
 	 */
-	public String getPlace() {
-		return place;
+	public Cargo getCargo() {
+		return cargo;
 	}
 
 	/**
-	 * Setzt den Ort.
-	 * @param place Der Ort
+	 * Setzt den Cargo.
+	 * @param cargo Der Cargo
 	 */
-	public final void setPlace(String place) {
-		this.place = place;
-	}
-
-	/**
-	 * Gibt die Verkaufsdaten zurueck.
-	 * @return Die Verkaufsdaten
-	 */
-	public Cargo getStats() {
-		return stats;
-	}
-
-	/**
-	 * Setzt die Verkaufsdaten.
-	 * @param stats Die Verkaufsdaten
-	 */
-	public final void setStats(Cargo stats) {
-		this.stats = stats;
-	}
-
-	/**
-	 * Gibt das System zurueck.
-	 * @return Das System
-	 */
-	public int getSystem() {
-		return system;
-	}
-
-	/**
-	 * Setzt das System.
-	 * @param system Das System
-	 */
-	public final void setSystem(int system) {
-		this.system = system;
+	public void setCargo(Cargo cargo) {
+		this.cargo = cargo;
 	}
 
 	/**
@@ -129,16 +90,8 @@ public class StatVerkaeufe {
 	 * Setzt den Tick.
 	 * @param tick Der Tick
 	 */
-	public final void setTick(int tick) {
+	public void setTick(int tick) {
 		this.tick = tick;
-	}
-
-	/**
-	 * Gibt die ID zurueck.
-	 * @return Die ID
-	 */
-	public int getId() {
-		return id;
 	}
 
 	/**

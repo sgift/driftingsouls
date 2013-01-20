@@ -24,7 +24,7 @@ import java.util.List;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
-import net.driftingsouls.ds2.server.entities.StatGtu;
+import net.driftingsouls.ds2.server.entities.statistik.StatGtu;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;

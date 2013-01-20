@@ -30,7 +30,7 @@ import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.ResourceIDComparator;
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.entities.StatCargo;
+import net.driftingsouls.ds2.server.entities.statistik.StatCargo;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;

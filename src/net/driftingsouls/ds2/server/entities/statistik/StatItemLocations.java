@@ -16,38 +16,36 @@
  *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.driftingsouls.ds2.server.entities;
+package net.driftingsouls.ds2.server.entities.statistik;
 
+import net.driftingsouls.ds2.server.entities.User;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
-import net.driftingsouls.ds2.server.cargo.Cargo;
-
-import org.hibernate.annotations.Type;
-
 /**
- * Ein Statistikeintrag ueber den Gesamtcargo eines Spielers (zum letzten Berechnungszeitpunkt).
- * @author Chirstopher Jung
+ * Statistik fuer die Aufenthaltsorte eines Items bei einem Spieler.
+ * @author Christopher Jung
  *
  */
 @Entity
-@Table(name="stats_user_cargo")
-public class StatUserCargo {
-	// TODO: Warum mag Hibernate die Variante "private User user" nicht als ID?
-	@Id
-	int user_id;
-	
-	@OneToOne(fetch=FetchType.LAZY)
+@Table(name="stats_module_locations")
+public class StatItemLocations {
+	@Id @GeneratedValue
+	private int id;
+	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="user_id",nullable=false)
 	private User user;
-	
-	@Type(type="cargo")
-	private Cargo cargo;
+	@Column(name="item_id")
+	private int itemId;
+	private String locations;
 	
 	@Version
 	private int version;
@@ -56,34 +54,52 @@ public class StatUserCargo {
 	 * Konstruktor.
 	 *
 	 */
-	public StatUserCargo() {
+	public StatItemLocations() {
 		// EMPTY
 	}
 	
 	/**
 	 * Erstellt einen neuen Statistikeintrag.
-	 * @param user Der User
-	 * @param cargo Der Cargo
+	 * @param user Der Spieler
+	 * @param itemid Das Item
+	 * @param locations Die Aufenthaltsorte
 	 */
-	public StatUserCargo(User user, Cargo cargo) {
-		setUser(user);
-		setCargo(cargo);
+	public StatItemLocations(User user, int itemid, String locations) {
+		this.user = user;
+		this.itemId = itemid;
+		this.locations = locations;
 	}
 
 	/**
-	 * Gibt den Cargo des Spielers zurueck.
-	 * @return Der Cargo
+	 * Gibt die ID des Items zurueck.
+	 * @return DIe ID
 	 */
-	public Cargo getCargo() {
-		return cargo;
+	public int getItemId() {
+		return itemId;
 	}
 
 	/**
-	 * Setzt den Cargo des Spielers.
-	 * @param cargo Der Cargo
+	 * Setzt die ID des Items.
+	 * @param itemId Die ID
 	 */
-	public final void setCargo(final Cargo cargo) {
-		this.cargo = cargo;
+	public void setItemId(int itemId) {
+		this.itemId = itemId;
+	}
+
+	/**
+	 * Gibt die Aufenthaltsorte des Items beim Spieler zurueck.
+	 * @return Die Aufenthaltsorte
+	 */
+	public String getLocations() {
+		return locations;
+	}
+
+	/**
+	 * Setzt die Aufenthaltsorte des Items beim Spieler.
+	 * @param locations Die Aufenthaltsorte
+	 */
+	public void setLocations(String locations) {
+		this.locations = locations;
 	}
 
 	/**
@@ -98,9 +114,16 @@ public class StatUserCargo {
 	 * Setzt den Spieler.
 	 * @param user Der Spieler
 	 */
-	public final void setUser(final User user) {
+	public void setUser(User user) {
 		this.user = user;
-		this.user_id = user.getId();
+	}
+
+	/**
+	 * Gibt die ID des Eintrags zurueck.
+	 * @return Die ID
+	 */
+	public int getId() {
+		return id;
 	}
 
 	/**

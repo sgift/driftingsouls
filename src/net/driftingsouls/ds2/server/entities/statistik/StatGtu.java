@@ -16,7 +16,11 @@
  *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.driftingsouls.ds2.server.entities;
+package net.driftingsouls.ds2.server.entities.statistik;
+
+import net.driftingsouls.ds2.server.entities.Versteigerung;
+import net.driftingsouls.ds2.server.entities.VersteigerungResource;
+import net.driftingsouls.ds2.server.entities.VersteigerungSchiff;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -71,11 +75,11 @@ public class StatGtu {
 		this.ownername = entry.getOwner().getName();
 		this.gtuGew = gtuGewinn;
 		
-		if( entry instanceof VersteigerungSchiff ) {
+		if( entry instanceof VersteigerungSchiff) {
 			this.mType = 1;
 			this.type = Integer.toString(((VersteigerungSchiff)entry).getShipType().getId());
 		}
-		else if( entry instanceof VersteigerungResource ) {
+		else if( entry instanceof VersteigerungResource) {
 			this.mType = 2;
 			this.type = ((VersteigerungResource)entry).getCargo().save();
 		}

@@ -46,7 +46,7 @@ import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.Kaserne;
 import net.driftingsouls.ds2.server.entities.KaserneEntry;
-import net.driftingsouls.ds2.server.entities.StatVerkaeufe;
+import net.driftingsouls.ds2.server.entities.statistik.StatVerkaeufe;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.entities.ally.Ally;

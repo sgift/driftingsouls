@@ -30,7 +30,7 @@ import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.ResourceLimit;
 import net.driftingsouls.ds2.server.entities.ResourceLimit.ResourceLimitKey;
 import net.driftingsouls.ds2.server.entities.SellLimit;
-import net.driftingsouls.ds2.server.entities.StatVerkaeufe;
+import net.driftingsouls.ds2.server.entities.statistik.StatVerkaeufe;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.framework.Common;
