@@ -201,6 +201,7 @@
 
 #sectorview .content {
 	max-height:400px;
+	min-height:150px;
 	margin-bottom:3px;
 }
 #sectorview .header {
