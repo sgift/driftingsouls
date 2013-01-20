@@ -676,12 +676,15 @@ var StarmapLoaderPopup = function() {
 	{
 		if( $('#starmaploader').size() == 0 )
 		{
-			var sectorview = "<div class='invisible gfxbox' id='starmaploader' style='width:400px'>";
-			sectorview += "<div class='content'>";
+			var sectorview = "<div id='starmaploader'>";
 			//Text is inserted here - using javascript
 			sectorview += "</div>";
-			sectorview += "</div>";
 			$('#mapcontent').append(sectorview);
+			$('#starmaploader').dsBox({
+				width:400,
+				center:true,
+				closeButton:false
+			})
 		}
 	};
 
@@ -692,13 +695,13 @@ var StarmapLoaderPopup = function() {
 	 */
 	this.show = function() {
 		$('#starmaploader .content').html("Verbinde mit interplanetarem Überwachungsnetzwerk...<br /><img src='./data/interface/ajax-loader.gif' alt='Lade' />");
-		$('#starmaploader').removeClass('invisible');
+		$('#starmaploader').dsBox('show')
 	};
 	/**
 	 * Verbirgt das Loader-Popup wieder.
 	 */
 	this.hide = function() {
-		$('#starmaploader').addClass('invisible');
+		$('#starmaploader').dsBox('hide')
 	};
 };
 

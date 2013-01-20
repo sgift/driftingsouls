@@ -36,20 +36,6 @@
 	margin-bottom:10px;
 }
 
-.invisible{
-	display:none;
-}
-
-#starmaploader{
-	position: fixed;
-	top: 200px;
-	margin-left:auto;
-	margin-right:auto;
-	z-index:90;
-	left:0px;
-	right:0px;
-}
-
 #mapcontent {
 	position:absolute;
 	left:45px;
