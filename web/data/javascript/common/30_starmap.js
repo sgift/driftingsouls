@@ -3,6 +3,10 @@ var Starmap = function(jqElement) {
 
 	/**
 	 * Hilfsklasse zur Verwaltung des momentanen Anzeigebereichs (Kartengroesse).
+	 * Die Groesse ist dabei durch den Anzeigebereich bestimmt, jedoch beschraenkt auf
+	 * die maximale Groesse des dargestellten Sternensystems.
+	 * @param {String} selector Der JQuery-Selektor zur Ermittlung des als Anzeigebereich verwendeten Elements
+	 * @param {Object} system Das Sternensystem-Objekt mit den Breiten- und Hoehenangaben des Sternensystems
 	 */
 	var Screen = function(selector, system) {
 		this.__screen = [0,0];
@@ -10,18 +14,46 @@ var Starmap = function(jqElement) {
 		this.__max = [this.__currentSystem.width*SECTOR_IMAGE_SIZE, this.__currentSystem.height*SECTOR_IMAGE_SIZE];
 		this.__selector = selector;
 
+		/**
+		 * Gibt die Breite des dargestellten Bereichs der Sternenkarte zurueck.
+		 * @return {Number} Die Breite in px
+		 */
 		this.width = function() {
 			return Math.min(this.__screen[0], this.__max[0]);
 		};
+		/**
+		 * Gibt die Hoehe des dargestellten Bereichs der Sternenkarte zurueck.
+		 * @return {Number} Die Hoehe in px
+		 */
 		this.height = function() {
 			return Math.min(this.__screen[1], this.__max[1]);
 		};
+		/**
+		 * Gibt die Breite des dargestellten Bereichs der Sternenkarte in Sektoren zurueck.
+		 * Teilweise dargestellte Sektoren zaehlen vollstaendig mit.
+		 * @return {Number} Die Anzahl der Sektoren
+		 */
 		this.widthInSectors = function() {
 			return Math.min(Math.ceil(this.__screen[0] / SECTOR_IMAGE_SIZE), this.__currentSystem.width);
 		};
+		/**
+		 * Gibt die Hoehe des dargestellten Bereichs der Sternenkarte in Sektoren zurueck.
+		 * Teilweise dargestellte Sektoren zaehlen vollstaendig mit.
+		 * @return {Number} Die Anzahl der Sektoren
+		 */
 		this.heightInSectors = function() {
 			return Math.min(Math.ceil(this.__screen[1] / SECTOR_IMAGE_SIZE), this.__currentSystem.height);
 		};
+		/**
+		 * Gibt die Anzahl der zur Fuellung des dargestellten Bereichs der Sternenkarte in der Breite noch fehlenden
+		 * Sektoren zurueck. Dazu wird ein ueber offset sowie Start- und Zielsektor (x) zu ueberpruefender
+		 * Bereich gegen die tatsaechliche Breite der Darstellung geprueft. Es wird nicht ueberprueft
+		 * ob durch das offset selbst eine Luecke in der Darstellung entsteht (offset > 0).
+		 * @param {Number} offset Das zu verwendende x-Offset (< 0)
+		 * @param {Number} minx Der Startsektor (x) des Bereichs
+		 * @param {Number} maxx Der Endsektor (x) des Bereichs
+		 * @return {Number} Die zur Fuellung des Anzeigebereichs noch fehlenden Sektoren oder 0
+		 */
 		this.widthGap = function(offset, minx, maxx) {
 			var gap = this.width() - (offset + (maxx-minx)*SECTOR_IMAGE_SIZE);
 			if( gap > 0 ) {
@@ -29,14 +61,29 @@ var Starmap = function(jqElement) {
 			}
 			return 0;
 		};
-		this.heightGap = function(offset, minx, maxx) {
-			var gap = this.height() - (offset + (maxx-minx)*SECTOR_IMAGE_SIZE);
+		/**
+		 * Gibt die Anzahl der zur Fuellung des dargestellten Bereichs der Sternenkarte in der Hoehe noch fehlenden
+		 * Sektoren zurueck. Dazu wird ein ueber offset sowie Start- und Zielsektor (y) zu ueberpruefender
+		 * Bereich gegen die tatsaechliche Hoehe der Darstellung geprueft. Es wird nicht ueberprueft
+		 * ob durch das offset selbst eine Luecke in der Darstellung entsteht (offset > 0).
+		 * @param {Number} offset Das zu verwendende y-Offset (< 0)
+		 * @param {Number} miny Der Startsektor (y) des Bereichs
+		 * @param {Number} maxy Der Endsektor (y) des Bereichs
+		 * @return {Number} Die zur Fuellung des Anzeigebereichs noch fehlenden Sektoren oder 0
+		 */
+		this.heightGap = function(offset, miny, maxy) {
+			var gap = this.height() - (offset + (maxy-miny)*SECTOR_IMAGE_SIZE);
 			if( gap > 0 ) {
 				return Math.ceil(gap/SECTOR_IMAGE_SIZE);
 			}
 			return 0;
 		};
 
+		/**
+		 * Aktualisiert die Breiten- und Hoeheninformationen des Anzeigebereichs.
+		 * Diese Methode ist aufzurufen wenn sich die Groesse des Anzeigebereichs
+		 * aendert.
+		 */
 		this.update = function() {
 			var el = $(this.__selector);
 			this.__screen = [el.width(),el.height()];
@@ -146,7 +193,7 @@ var Starmap = function(jqElement) {
 		this.onDragStop = options.onDragStop;
 
 		if( typeof this.onClick === "undefined" ) {
-			this.onDragClick = function() {};
+			this.onClick = function() {};
 		}
 		if( typeof this.onDragStart === "undefined" ) {
 			this.onDragStart = function() {};
@@ -480,21 +527,22 @@ var Starmap = function(jqElement) {
 			return overlay;
 		};
 
-		this.onClick = function(x, y) {
-			x -= this.__currentShiftOffset[0];
-			y -= this.__currentShiftOffset[1];
-			var sectorX = this.__currentSize.minx+Math.floor(x / SECTOR_IMAGE_SIZE);
-			var sectorY = this.__currentSize.miny+Math.floor(y / SECTOR_IMAGE_SIZE);
-
+		/**
+		 * Gibt die zum angegebenen Sektor vorhandenen Informationen zurueck.
+		 * @param {Number} sectorX Die x-Koordinate des Sektors
+		 * @param {Number} sectorY Die Y-Koordinate des Sektors
+		 * @return {Object} Die Sektorinformationen oder null
+		 */
+		this.getSectorInformation = function(sectorX,sectorY) {
 			for( var i=0; i < this.__currentLocations.length; i++ )
 			{
 				var loc = this.__currentLocations[i];
 				if( loc.x == sectorX && loc.y == sectorY )
 				{
-					onClick(this.__currentSystem, sectorX, sectorY, loc);
-					break;
+					return loc;
 				}
 			}
+			return null;
 		};
 
 		this.prepareShift = function(moveX, moveY) {
@@ -644,7 +692,7 @@ var Starmap = function(jqElement) {
 
 		__actionOverlay = new ActionOverlay({
 			onClick : function(x, y) {
-				__starmapOverlay.onClick(x, y);
+				onClick(x,y);
 			},
 			onDragStart : function() {
 			},
@@ -699,8 +747,14 @@ var Starmap = function(jqElement) {
 	{
 		__loaderPopup.hide();
 	};
-	function onClick(system, x, y, locationInfo) {
-		new StarmapSectorInfoPopup(system, x, y, locationInfo, {
+	function onClick(x,y) {
+		x -= __currentShiftOffset[0];
+		y -= __currentShiftOffset[1];
+		var sectorX = __currentSize.minx+Math.floor(x / SECTOR_IMAGE_SIZE);
+		var sectorY = __currentSize.miny+Math.floor(y / SECTOR_IMAGE_SIZE);
+		var locationInfo = __starmapOverlay.getSectorInformation(sectorX, sectorY);
+
+		new StarmapSectorInfoPopup(__currentSystem, sectorX, sectorY, locationInfo, {
 			request : __request
 		});
 	};
