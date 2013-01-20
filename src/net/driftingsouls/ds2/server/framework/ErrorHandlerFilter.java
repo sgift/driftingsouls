@@ -205,7 +205,7 @@ public class ErrorHandlerFilter implements Filter
 			sb.append("<div class='gfxbox' style='width:470px'>");
 			sb.append("<ul>");
 			sb.append("<li><span style=\"font-size:14px; color:red\">"+ message +"</span></li>\n");
-			sb.append("</url>");
+			sb.append("</ul>");
 			sb.append("</div>");
 			sb.append("</div>\n");
 		}
@@ -217,7 +217,7 @@ public class ErrorHandlerFilter implements Filter
 			sb.append("<div class='gfxbox' style='width:470px'>");
 			sb.append("<ul>");
 			sb.append("<li><span style=\"font-size:14px; color:red\">"+ message +"</span></li>\n");
-			sb.append("</url>");
+			sb.append("</ul>");
 			sb.append("</div>");
 			sb.append("</div>\n");
 		}
