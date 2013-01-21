@@ -388,6 +388,10 @@ public class Cargo implements Cloneable {
 	 * @param count Die Anzahl an hinzuzufuegenden Resourceneinheiten
 	 */
 	public void addResource( ResourceID resourceid, long count ) {
+		if( count == 0 )
+		{
+			return;
+		}
 		boolean done = false;
 
 		for( int i=0; i < items.size(); i++ ) {
@@ -419,6 +423,10 @@ public class Cargo implements Cloneable {
 	 * @param count Die Anzahl an Einheiten, die abgezogen werden sollen
 	 */
 	public void substractResource( ResourceID resourceid, long count ) {
+		if( count == 0 )
+		{
+			return;
+		}
 		for( int i=0; i < items.size(); i++ ) {
 			Long[] aitem = items.get(i);
 			if( isSameIID(resourceid, aitem) ) {
