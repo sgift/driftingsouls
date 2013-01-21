@@ -263,7 +263,7 @@ public class QuestFunctions {
 					val = ship.getCargo();
 				}
 				else if( value[1].equals("offizier") ) {
-					val = Offizier.getOffizierByDest(ship);
+					val = ship.getOffizier();
 				}
 				else if( value[1].equals("id") ) {
 					val = ship.getId();

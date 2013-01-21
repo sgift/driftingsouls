@@ -233,7 +233,7 @@ public class TCController extends TemplateGenerator {
 			offizier = Offizier.getOffizierByID(off);
 		}
 		else {
-			offizier = Offizier.getOffizierByDest(ship);
+			offizier = ship.getOffizier();
 		}
 
 		if( (offizier == null) || (offizier.getOwner() != user) ) {
@@ -324,7 +324,7 @@ public class TCController extends TemplateGenerator {
 			offizier = Offizier.getOffizierByID(off);
 		}
 		else {
-			offizier = Offizier.getOffizierByDest(ship);
+			offizier = ship.getOffizier();
 		}
 
 		if( (offizier == null) || (offizier.getOwner() != user) ) {

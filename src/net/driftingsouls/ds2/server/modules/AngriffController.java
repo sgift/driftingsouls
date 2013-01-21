@@ -335,7 +335,7 @@ public class AngriffController extends TemplateGenerator {
 		}
 
 		// Offiziere
-		Offizier offizier = Offizier.getOffizierByDest(ship.getShip());
+		Offizier offizier = ship.getShip().getOffizier();
 		if( offizier != null ) {
 			t.setVar(	"offizier.rang",	offizier.getRang(),
 						"offizier.id",		offizier.getID(),

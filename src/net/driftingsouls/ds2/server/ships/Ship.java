@@ -3461,7 +3461,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 				this.getBaseShip().undock(this);
 			}
 
-			for( Offizier offi : Offizier.getOffiziereByDest(this) )
+			for( Offizier offi : this.getOffiziere() )
 			{
 				offi.setOwner(newowner);
 			}
@@ -4097,4 +4097,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 		return saugdeut;
     }
+
+	public List<Offizier> getOffiziere()
+	{
+		return Offizier.getOffiziereByDest(this);
+	}
 }

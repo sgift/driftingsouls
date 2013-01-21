@@ -331,7 +331,7 @@ public class ShipWerft extends WerftObject {
 		}
 		else
 		{
-			Offizier myoffi = Offizier.getOffizierByDest(this.ship);
+			Offizier myoffi = this.ship.getOffizier();
 			if( myoffi != null )
 			{
 				offizier.stationierenAuf(this.linked);

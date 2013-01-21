@@ -329,7 +329,7 @@ public class KapernController extends TemplateGenerator {
 			dockShip.removeFromFleet();
 			dockShip.setOwner(user);
 
-			for( Offizier offi : Offizier.getOffiziereByDest(dockShip) )
+			for( Offizier offi : dockShip.getOffiziere() )
 			{
 				offi.setOwner(user);
 			}
@@ -346,7 +346,7 @@ public class KapernController extends TemplateGenerator {
 
 		}
 
-		for( Offizier offi : Offizier.getOffiziereByDest(this.targetShip) )
+		for( Offizier offi : this.targetShip.getOffiziere() )
 		{
 			offi.setOwner(user);
 		}
@@ -391,11 +391,11 @@ public class KapernController extends TemplateGenerator {
 		int attmulti = 1;
 		int defmulti = 1;
 
-		Offizier defoffizier = Offizier.getOffizierByDest(this.targetShip);
+		Offizier defoffizier = this.targetShip.getOffizier();
 		if( defoffizier != null ) {
 			defmulti = defoffizier.getKaperMulti(true);
 		}
-		Offizier attoffizier = Offizier.getOffizierByDest(this.ownShip);
+		Offizier attoffizier = this.ownShip.getOffizier();
 		if( attoffizier != null)
 		{
 			attmulti = attoffizier.getKaperMulti(false);

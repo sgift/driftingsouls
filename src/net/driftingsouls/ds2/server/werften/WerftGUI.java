@@ -685,7 +685,7 @@ public class WerftGUI {
 					"ship.e.color",				this.genSubColor(ship.getEnergy(), shipType.getEps()),
 					"ship.heat",				ship.getHeat() );
 
-		Offizier offizier = Offizier.getOffizierByDest(ship);
+		Offizier offizier = ship.getOffizier();
 		if( offizier != null ) {
 			t.setVar(	"ship.offizier.id",			offizier.getID(),
 						"ship.offizier.rang",		offizier.getRang(),

@@ -145,11 +145,11 @@ public class KSKapernAction extends BasicKSAction {
 		int attmulti = 1;
 		int defmulti = 1;
 
-		Offizier defoffizier = Offizier.getOffizierByDest(enemyShip.getShip());
+		Offizier defoffizier = enemyShip.getShip().getOffizier();
 		if( defoffizier != null ) {
 			defmulti = defoffizier.getKaperMulti(true);
 		}
-		Offizier attoffizier = Offizier.getOffizierByDest(ownShip.getShip());
+		Offizier attoffizier = ownShip.getShip().getOffizier();
 		if( attoffizier != null)
 		{
 			attmulti = attoffizier.getKaperMulti(false);
@@ -320,7 +320,7 @@ public class KSKapernAction extends BasicKSAction {
 				BattleShip bDockShip = (BattleShip)db.get(BattleShip.class, dockShip.getId());
 				bDockShip.setSide(battle.getOwnSide());
 
-				for( Offizier offi : Offizier.getOffiziereByDest(dockShip) )
+				for( Offizier offi : dockShip.getOffiziere() )
 				{
 					offi.setOwner(user);
 				}
@@ -338,7 +338,7 @@ public class KSKapernAction extends BasicKSAction {
 				kaperlist.add(bDockShip.getId());
 			}
 
-			for( Offizier offi : Offizier.getOffiziereByDest(enemyShip.getShip()) )
+			for( Offizier offi : enemyShip.getShip().getOffiziere() )
 			{
 				offi.setOwner(user);
 			}

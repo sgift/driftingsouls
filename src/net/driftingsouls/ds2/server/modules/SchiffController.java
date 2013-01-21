@@ -905,7 +905,7 @@ public class SchiffController extends TemplateGenerator {
 		if( offizier != null ) {
 			t.setBlock("_SCHIFF", "offiziere.listitem", "offiziere.list");
 
-			List<Offizier> offiziere = Offizier.getOffiziereByDest(ship);
+			List<Offizier> offiziere = ship.getOffiziere();
 			for( Offizier offi : offiziere ) {
 				t.setVar(	"offizier.id",		offi.getID(),
 							"offizier.name",	Common._plaintitle(offi.getName()),
