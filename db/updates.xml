@@ -1819,4 +1819,7 @@
 		  PRIMARY KEY  (`tick`)
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Die Statistik der Spieleraktivitaet';
 	]]></update>
+	<update type="structure" datum="2013-01-21"><![CDATA[
+		ALTER TABLE user_values MODIFY value TEXT NOT NULL DEFAULT '';
+	]]></update>
 </updates>
