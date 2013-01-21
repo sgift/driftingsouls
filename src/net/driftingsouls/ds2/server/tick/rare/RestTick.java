@@ -115,6 +115,8 @@ public class RestTick extends TickController {
 				.setMaxResults(1)
 				.uniqueResult();
 		StatAktiveSpieler statSpieler = new StatAktiveSpieler();
+		statSpieler.setTick(this.tick);
+
 		List<User> spielerList = Common.cast(db.createQuery("from User u").list());
 		for( User user : spielerList )
 		{
