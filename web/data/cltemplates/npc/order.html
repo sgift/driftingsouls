@@ -34,16 +34,16 @@
 				</div>
 				<ul>
 					<li>
-						<input type="checkbox" name="shipflag_disableiff" ng-model="shipflags.disableiff" />
+						<input type="checkbox" id="shipflag_disableiff" name="shipflag_disableiff" ng-model="shipflags.disableiff" />
 						<label for="shipflag_disableiff">IFF deaktiviert (+5 Punkte/Schiff)</label>
 					</li>
 					<li>
-						<input type="checkbox" name="shipflag_nichtkaperbar" ng-model="shipflags.nichtkaperbar" />
+						<input type="checkbox" id="shipflag_nichtkaperbar" name="shipflag_nichtkaperbar" ng-model="shipflags.nichtkaperbar" />
 						<label for="shipflag_nichtkaperbar">Nicht kaperbar (+5 Punkte/Schiff)</label>
 					</li>
 					<li>
-						<input type="checkbox" name="shipflag_handelsposten" ng-model="shipflags.handelsposten" />
-						<label for="shipflag_handelsposten">Handelsposten (+5 Punkte/Schiff)</label>
+						<input type="checkbox" id="shipflag_handelsposten" name="shipflag_handelsposten" ng-model="shipflags.handelsposten" />
+						<label for="shipflag_handelsposten">Handelsposten (+10 Punkte/Schiff) - inkl. nicht kaperbar</label>
 					</li>
 					<li>
 						<input type="submit" value="bestellen" />
@@ -80,7 +80,7 @@
 		<div class="gfxbox npcorderposition">
 			<form ng-submit="lieferpositionAendern()">
 				<label for="lieferposition">Lieferposition:</label>
-				<select ng-model="lieferposition" ng-options="lieferposition.label for lieferposition in lieferpositionen">
+				<select id="lieferposition" ng-model="lieferposition" ng-options="lieferposition.label for lieferposition in lieferpositionen">
 					<option value="">[automatisch]</option>
 				</select>
 				<input type="submit" value="ok" />

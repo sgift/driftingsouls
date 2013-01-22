@@ -132,10 +132,9 @@
 }
 #npcorder .npcorderbox ul {
 	list-style:none;
-	margin:0px auto 0px auto;
 	padding:0px;
-	width:300px;
-	margin-top:10px;
+	width:400px;
+	margin: 0px auto;
 	text-align:center;
 }
 #npcorder .npcorderbox ul li {

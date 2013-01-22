@@ -491,33 +491,34 @@ public class NpcController extends AngularGenerator {
 		List<Order> orderList = new ArrayList<Order>();
 
 		List<?> shipOrders = db
-				.createQuery("from OrderableShip order by shipType.shipClass,shipType")
+				.createQuery("from OrderableShip s order by s.shipType.shipClass,s.shipType.id")
 				.list();
-		for( Iterator<?> iter=shipOrders.iterator(); iter.hasNext(); )
+		for (Object shipOrder : shipOrders)
 		{
-			OrderableShip ship = (OrderableShip)iter.next();
+			OrderableShip ship = (OrderableShip) shipOrder;
 
-			parameterNumber("ship"+ship.getShipType().getId()+"_count");
+			parameterNumber("ship" + ship.getShipType().getId() + "_count");
 
-			int count = getInteger("ship"+ship.getShipType().getId()+"_count");
-			if( count > 0 )
+			int count = getInteger("ship" + ship.getShipType().getId() + "_count");
+			if (count > 0)
 			{
-				costs += count*ship.getCost();
+				costs += count * ship.getCost();
 
-				for( int i=0; i < count; i++ ) {
+				for (int i = 0; i < count; i++)
+				{
 					OrderShip orderObj = new OrderShip(user.getId(), ship.getId());
 					orderObj.setTick(1);
-					if( flagDisableIff )
+					if (flagDisableIff)
 					{
 						orderObj.addFlag("disable_iff");
 						costs += 5;
 					}
-					if( flagNichtKaperbar )
+					if (flagNichtKaperbar || flagHandelsposten)
 					{
 						orderObj.addFlag("nicht_kaperbar");
 						costs += 5;
 					}
-					if( flagHandelsposten )
+					if (flagHandelsposten)
 					{
 						orderObj.addFlag("tradepost");
 						costs += 5;
