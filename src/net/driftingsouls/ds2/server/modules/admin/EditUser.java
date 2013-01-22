@@ -185,6 +185,7 @@ public class EditUser implements AdminPlugin
 				user.setName(name+" [VAC]");
 				user.setNickname(nickname+" [VAC]");
 			}
+			user.setInactivity(0);
 		}
 	}
 }
