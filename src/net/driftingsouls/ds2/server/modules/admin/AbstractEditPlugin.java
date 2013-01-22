@@ -18,6 +18,33 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
  */
 public abstract class AbstractEditPlugin implements AdminPlugin
 {
+	protected void beginSelectionBox(Writer echo, String page, int action) throws IOException
+	{
+		echo.append("<div class='gfxbox' style='width:390px'>");
+		echo.append("<form action=\"./ds\" method=\"post\">");
+		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
+		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
+		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
+		echo.append("<select size=\"1\" name=\"entityId\">");
+	}
+
+	protected void addSelectionOption(Writer echo, Object id, String label) throws IOException
+	{
+		Context context = ContextMap.getContext();
+		String currentIdStr = context.getRequest().getParameter("entityid");
+		String idStr = id.toString();
+
+		echo.append("<option value=\"" + idStr + "\" " + (idStr.equals(currentIdStr) ? "selected=\"selected\"" : "") + ">" + label + "</option>");
+	}
+
+	protected void endSelectionBox(Writer echo) throws IOException
+	{
+		echo.append("</select>");
+		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
+		echo.append("</form>");
+		echo.append("</div>");
+	}
+
 	protected void beginEditorTable(Writer echo, String page, int action, Object entityId) throws IOException
 	{
 		echo.append("<div class='gfxbox' style='width:600px'>");

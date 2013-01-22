@@ -52,20 +52,12 @@ public class EditCore extends AbstractEditPlugin
 
 		List<Core> cores = Common.cast(db.createQuery("from Core").list());
 
-		echo.append("<div class='gfxbox' style='width:300px'>");
-		echo.append("<form action=\"./ds\" method=\"post\">");
-		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
-		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
-		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-		echo.append("<select size=\"1\" name=\"entityId\">");
+		beginSelectionBox(echo, page, action);
 		for (Core core: cores)
 		{
-			echo.append("<option value=\"" + core.getId() + "\" " + (core.getId() == coreId ? "selected=\"selected\"" : "") + ">" + core.getName() + "</option>");
+			addSelectionOption(echo, core.getId(), core.getName()+" ("+core.getId()+")");
 		}
-		echo.append("</select>");
-		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
-		echo.append("</form>");
-		echo.append("</div>");
+		endSelectionBox(echo);
 
 		if(coreId > 0)
 		{

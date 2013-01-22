@@ -18,21 +18,22 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import java.io.IOException;
-import java.io.Writer;
-
 import net.driftingsouls.ds2.server.bases.BaseType;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AdminController;
 
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
+
 /**
  * Aktualisierungstool fuer die Basis-Klassen.
  * 
  */
 @AdminMenuEntry(category = "Asteroiden", name = "Basis-Klasse editieren")
-public class EditBaseType implements AdminPlugin
+public class EditBaseType extends AbstractEditPlugin implements AdminPlugin
 {
 	@Override
 	public void output(AdminController controller, String page, int action) throws IOException
@@ -41,22 +42,18 @@ public class EditBaseType implements AdminPlugin
 		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
 		
-		int typeid = context.getRequest().getParameterInt("typeid");
+		int typeid = context.getRequest().getParameterInt("entityId");
 
-		// Update values?
-		boolean update = context.getRequest().getParameterString("change").equals("Aktualisieren");
+		List<BaseType> baseTypes = Common.cast(db.createQuery("from BaseType").list());
 
-		echo.append("<div class='gfxbox' style='width:390px'>");
-		echo.append("<form action=\"./ds\" method=\"post\">");
-		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
-		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
-		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-		echo.append("Basis: <input type=\"text\" name=\"typeid\" value=\""+ typeid +"\" />\n");
-		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
-		echo.append("</form>");
-		echo.append("</div>");
-		
-		if(update && typeid != 0)
+		beginSelectionBox(echo, page, action);
+		for (BaseType type: baseTypes)
+		{
+			addSelectionOption(echo, type.getId(), type.getName()+" ("+type.getId()+")");
+		}
+		endSelectionBox(echo);
+
+		if(this.isUpdateExecuted() && typeid != 0)
 		{
 			BaseType type = (BaseType)db.get(BaseType.class, typeid);
 			
@@ -81,25 +78,18 @@ public class EditBaseType implements AdminPlugin
 				return;
 			}
 
-			echo.append("<div class='gfxbox' style='width:690px'>");
-			echo.append("<form action=\"./ds\" method=\"post\">");
-			echo.append("<table class=\"noBorderX\" width=\"100%\">");
-			echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
-			echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
-			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-			echo.append("<input type=\"hidden\" name=\"typeid\" value=\"" + typeid + "\" />\n");
-			echo.append("<tr><td class=\"noBorderX\">Name: </td><td><input type=\"text\" size=\"40\" name=\"name\" value=\"" + type.getName() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">Energie: </td><td><input type=\"text\" size=\"40\" name=\"energie\" value=\"" + type.getEnergy() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">Cargo: </td><td><input type=\"text\" size=\"40\" name=\"cargo\" value=\"" + type.getCargo() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">Breite: </td><td><input type=\"text\" size=\"40\" name=\"width\" value=\"" + type.getWidth() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">H&ouml;he: </td><td><input type=\"text\" size=\"40\" name=\"height\" value=\"" + type.getHeight() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">Feldergr&ouml;&szlig;e: </td><td><input type=\"text\" size=\"40\" name=\"maxtiles\" value=\"" + type.getMaxTiles() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">Terrain: </td><td><input type=\"text\" size=\"40\" name=\"terrain\" value=\"" + (type.getTerrain() == null ? "" : Common.implode(";", type.getTerrain()))  + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\">Zum Spawn freigegebene Ressourcen: </td><td><input type=\"text\" size=\"40\" name=\"spawnableress\" value=\"" + type.getSpawnableRess() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\"></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
-			echo.append("</table>");
-			echo.append("</form>\n");
-			echo.append("</div>");
+			beginEditorTable(echo, page, action, typeid);
+
+			editField(echo, "Name", "name", String.class, type.getName());
+			editField(echo, "Energie", "energie", Integer.class, type.getEnergy());
+			editField(echo, "Cargo", "cargo", Integer.class, type.getCargo());
+			editField(echo, "Breite", "width", Integer.class, type.getWidth());
+			editField(echo, "Höhe", "height", Integer.class, type.getHeight());
+			editField(echo, "Max. Feldanzahl", "maxtiles", Integer.class, type.getMaxTiles());
+			editField(echo, "Terrain", "terrain", String.class, (type.getTerrain() == null ? "" : Common.implode(";", type.getTerrain())));
+			editField(echo, "Zum Spawn freigegebene Ressourcen", "spanableress", String.class, type.getSpawnableRess());
+
+			endEditorTable(echo);
 		}
 	}
 }
