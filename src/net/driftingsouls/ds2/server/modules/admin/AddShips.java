@@ -343,7 +343,7 @@ public class AddShips implements AdminPlugin {
 					db.persist(werft);
 				}
 
-				echo.append("Schiff ("+ship.getId()+") hinzugef&uuml;gt<br />");
+				echo.append("<a href='ds?module=schiff&action=default&ship="+ship.getId()+"'>Schiff ("+ship.getId()+")</a> hinzugef&uuml;gt<br />");
 
 				// Offizier einfuegen
 				if( (offitype > 0) && (offiname.length() > 0) &&
