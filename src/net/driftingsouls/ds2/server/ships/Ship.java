@@ -245,6 +245,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		this.history = new ShipHistory(this);
 		this.docked = "";
 		this.weaponHeat = "";
+		this.offiziere = new HashSet<Offizier>();
 	}
 
 	/**
@@ -275,6 +276,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		this.weapons = 100;
 		this.comm = 100;
 		this.sensors = 100;
+		this.offiziere = new HashSet<Offizier>();
 	}
 
     /**
