@@ -608,7 +608,7 @@ public abstract class UnitCargo implements Cloneable, JSONSupport {
 		{
 			int totekapervalue = (int)Math.ceil((kaperunitcargo.getKaperValue()+10*feindCrew.getValue())*defmulti*1.0/ amulti );
 			gefallenefeindlicheUnits.addCargo(kaperunitcargo);
-			kaperunitcargo.substractCargo(kaperunitcargo);
+			kaperunitcargo.clear();
 			feindCrew.setValue(0);
 			reduziereKaperValue(totekapervalue, gefalleneeigeneUnits);
 			return true;
