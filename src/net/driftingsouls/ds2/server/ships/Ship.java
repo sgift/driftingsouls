@@ -190,6 +190,14 @@ public class Ship implements Locatable,Transfering,Feeding {
 	@NotFound(action = NotFoundAction.IGNORE)
 	private Set<ShipUnitCargoEntry> units;
 
+	@OneToMany(
+			fetch=FetchType.LAZY,
+			cascade = {CascadeType.DETACH,CascadeType.REFRESH,CascadeType.MERGE},
+			mappedBy="stationiertAufSchiff")
+	@BatchSize(size=500)
+	@NotFound(action = NotFoundAction.IGNORE)
+	private Set<Offizier> offiziere;
+
 	@OneToOne(fetch=FetchType.LAZY, cascade={CascadeType.ALL,CascadeType.DETACH})
 	@JoinColumn(name="scriptData_id")
 	@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
@@ -197,9 +205,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "ship")
     private Set<ShipFlag> flags;
-
-	@Transient
-	private Offizier offizier;
 
 	@Version
 	private int version;
@@ -3351,7 +3356,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			.setEntity("id", this)
 			.executeUpdate();
 
-		ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where shipid=:ship")
+		ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=:ship")
 			.setInteger("ship", this.id)
 			.uniqueResult();
 
@@ -3685,27 +3690,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 		return (Long)db.createQuery("select count(*) from Ship where id>0 AND docked=:landed")
 			.setString("landed", "l "+this.id)
 			.iterate().next();
-	}
-
-	/**
-	 * Gibt den Offizier des Schiffes zurueck.
-	 * @return Der Offizier
-	 */
-	public Offizier getOffizier() {
-		if( this.getTypeData().getSize() <= ShipType.SMALL_SHIP_MAXSIZE &&
-				this.getTypeData().getShipClass() != ShipClasses.RETTUNGSKAPSEL.ordinal() ) {
-			return null;
-		}
-
-		if( this.offizier == null ) {
-			this.offizier = Offizier.getOffizierByDest(this);
-		}
-		if( this.offizier != null ) {
-			if( offizier.getStationiertAufSchiff() == null || offizier.getStationiertAufSchiff().getId() != this.id ) {
-				this.offizier = null;
-			}
-		}
-		return this.offizier;
 	}
 
 	/**
@@ -4098,8 +4082,51 @@ public class Ship implements Locatable,Transfering,Feeding {
 		return saugdeut;
     }
 
-	public List<Offizier> getOffiziere()
+	/**
+	 * Stationiert einen Offizier auf dem Schiff.
+	 * @param offizier Der Offizier
+	 */
+	public void onOffizierStationiert(Offizier offizier)
 	{
-		return Offizier.getOffiziereByDest(this);
+		this.offiziere.add(offizier);
+	}
+
+	/**
+	 * Callback wenn ein Offizier von Schiff entfernt wird.
+	 * @param offizier Der Offizier
+	 */
+	public void onOffizierEntfernt(Offizier offizier)
+	{
+		this.offiziere.remove(offizier);
+	}
+
+	/**
+	 * Gibt alle auf dem Schiff stationierten Offiziere zurueck.
+	 * @return Die Offiziere
+	 */
+	public Set<Offizier> getOffiziere()
+	{
+		return this.offiziere;
+	}
+
+	/**
+	 * Gibt den kommandierenden Offizier des Schiffes zurueck.
+	 * @return Der Offizier
+	 */
+	public Offizier getOffizier() {
+		if( this.getTypeData().getSize() <= ShipType.SMALL_SHIP_MAXSIZE &&
+				this.getTypeData().getShipClass() != ShipClasses.RETTUNGSKAPSEL.ordinal() ) {
+			return null;
+		}
+
+		Offizier offi = null;
+		for( Offizier aoffi : this.offiziere )
+		{
+			if( offi == null || offi.getRang() < aoffi.getRang() )
+			{
+				offi = aoffi;
+			}
+		}
+		return offi;
 	}
 }

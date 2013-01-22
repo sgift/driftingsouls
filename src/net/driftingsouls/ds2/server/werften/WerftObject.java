@@ -906,7 +906,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 		int maxoffis = this.canTransferOffis();
 
-		List<Offizier> offiziere = ship.getOffiziere();
+		Set<Offizier> offiziere = ship.getOffiziere();
 
 		if( offiziere.size() > maxoffis ) {
 			output.append("Nicht genug Platz f&uuml;r alle Offiziere");

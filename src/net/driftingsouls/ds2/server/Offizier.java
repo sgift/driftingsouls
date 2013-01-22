@@ -278,6 +278,24 @@ public class Offizier extends DSObject {
 	}
 
 	/**
+	 * Setzt das Zielschiff auf dem sich der Offizier befindet.
+	 * @param schiff Das Schiff
+	 */
+	public void setStationiertAufSchiff(Ship schiff)
+	{
+		if( schiff == null )
+		{
+			throw new NullPointerException("Das Schiff darf nicht null sein");
+		}
+		if( this.stationiertAufSchiff != null )
+		{
+			this.stationiertAufSchiff.onOffizierEntfernt(this);
+		}
+		this.stationiertAufSchiff = schiff;
+		this.stationiertAufBasis = null;
+	}
+
+	/**
 	 * Gibt die Zielbasis zurueck, auf der sich der Offizier befindet.
 	 * Falls der Offizier sich nicht auf einer Basis befindet wird <code>null</code>
 	 * zurueckgegeben.
@@ -609,10 +627,16 @@ public class Offizier extends DSObject {
 	 */
 	public void stationierenAuf(Object ziel) throws IllegalArgumentException
 	{
+		if( this.stationiertAufSchiff != null )
+		{
+			this.stationiertAufSchiff.onOffizierEntfernt(this);
+		}
+
 		if( ziel instanceof Ship )
 		{
 			this.stationiertAufBasis = null;
 			this.stationiertAufSchiff = (Ship)ziel;
+			this.stationiertAufSchiff.onOffizierStationiert(this);
 		}
 		else if( ziel instanceof Base )
 		{
@@ -623,34 +647,6 @@ public class Offizier extends DSObject {
 		{
 			throw new IllegalArgumentException("Unbekannter Typ von Aufenthaltsort: "+ziel);
 		}
-	}
-
-	/**
-	 * Gibt einen Offizier am angegebenen Aufenthaltsort zurueck. Sollten mehrere
-	 * Offiziere sich an diesem Ort aufhalten, so wird der beste von ihnen zurueckgegeben.
-	 * Sollte sich an dem Ort kein Offizier aufhalten, so wird <code>null</code> zurueckgegeben.
-	 *
-	 * @param ziel Der Aufenthaltsort
-	 * @return Ein Offizier oder <code>null</code>
-	 * @throws IllegalArgumentException Falls der Typ des Aufenthaltsorts unbekannt ist
-	 */
-	public static Offizier getOffizierByDest(Object ziel) throws IllegalArgumentException {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
-		if( ziel instanceof Ship ) {
-			return (Offizier)db.createQuery("from Offizier where stationiertAufSchiff=:dest order by rang desc")
-					.setEntity("dest", ziel)
-					.setMaxResults(1)
-					.uniqueResult();
-		}
-		else if( ziel instanceof Base )
-		{
-			return (Offizier)db.createQuery("from Offizier where stationiertAufBasis=:dest order by rang desc")
-					.setEntity("dest", ziel)
-					.setMaxResults(1)
-					.uniqueResult();
-		}
-		throw new IllegalArgumentException("Unbekannter Typ von Aufenthaltsort: "+ziel);
 	}
 
 	/**
