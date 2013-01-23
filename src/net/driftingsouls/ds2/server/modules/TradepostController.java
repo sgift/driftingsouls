@@ -447,7 +447,7 @@ public class TradepostController extends TemplateGenerator {
 			{
 				Cargo cargo = ship.getCargo();
 				long cnt = cargo.getResourceCount(rid);
-				final long mincount = Math.max(saleslimit*5,1000);
+				final long mincount = saleslimit;
 				if( cnt < mincount )
 				{
 					cargo.setResource(rid, mincount);
