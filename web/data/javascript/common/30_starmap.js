@@ -832,7 +832,10 @@ function StarmapSectorInfoPopup(system, x, y, locationInfo, options) {
 		if( data.bases && data.bases.length > 0 ) {
 			dialog += "<ul class='bases'>";
 			$.each(data.bases, function() {
-				dialog+= "<li><img src='./data/starmap/kolonie"+this.klasse+"_srs.png' /><div class='name'>"+this.name+"</div><div class='owner'>"+this.username+"</div></li>";
+				dialog+= "<li><img src='./data/starmap/kolonie"+this.klasse+"_srs.png' />" +
+					"<div class='name'>"+this.name+"</div>" +
+					"<div class='typ'>"+this.typ+"</div>" +
+					"<div class='owner'>"+this.username+"</div></li>";
 			});
 			dialog += "</ul>";
 		}

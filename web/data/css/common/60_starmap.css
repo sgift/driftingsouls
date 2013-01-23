@@ -234,6 +234,11 @@
 	margin-right:8px;
 }
 
+#sectorview .bases .typ {
+	font-size:80%;
+	line-height:1.5
+}
+
 #sectorview .jumpnodes img {
 	width: 50px;
 }

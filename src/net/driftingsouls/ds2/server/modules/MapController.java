@@ -452,6 +452,7 @@ public class MapController extends TemplateGenerator
 			baseObj.accumulate("username", Common._title(base.getOwner().getName()));
 			baseObj.accumulate("image", base.getBaseImage(loc));
 			baseObj.accumulate("klasse", base.getKlasse());
+			baseObj.accumulate("typ", base.getBaseType().getName());
 
 			baseListObj.add(baseObj);
 		}
