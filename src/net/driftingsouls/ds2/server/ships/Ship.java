@@ -965,14 +965,17 @@ public class Ship implements Locatable,Transfering,Feeding {
 			status.add("offizier");
 		}
 
-		try {
-			ShipModules modules = (ShipModules)db.get(ShipModules.class, this.id);
-			if( modules != null ) {
-				this.modules = modules;
+		if( this.modules == null )
+		{
+			try {
+				ShipModules modules = (ShipModules)db.get(ShipModules.class, this.id);
+				if( modules != null ) {
+					this.modules = modules;
+				}
 			}
-		}
-		catch( ObjectNotFoundException e ) {
-			this.modules = null;
+			catch( ObjectNotFoundException e ) {
+				this.modules = null;
+			}
 		}
 
 		if( nahrungPruefen && lackOfFood() ) {
