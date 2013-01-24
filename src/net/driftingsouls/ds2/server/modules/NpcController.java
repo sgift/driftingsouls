@@ -17,6 +17,7 @@ import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.config.Rang;
+import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.FactionShopOrder;
 import net.driftingsouls.ds2.server.entities.Loyalitaetspunkte;
@@ -35,6 +36,10 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.AngularGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
+import net.driftingsouls.ds2.server.namegenerator.NameGenerator;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
@@ -310,12 +315,22 @@ public class NpcController extends AngularGenerator {
 		return JSONUtils.success("Eintrag gelöscht");
 	}
 
+	/**
+	 * Fuegt LP zu einem Spieler hinzu.
+	 * @return Das Antwortobjekt
+	 */
 	@Action(ActionType.AJAX)
+	@UrlParams({
+			@UrlParam(name="edituser", description = "Die Identifikationsdaten des zu bearbeitenden Spielers"),
+			@UrlParam(name="grund", description = "Der Grund fuer die LP"),
+			@UrlParam(name="anmerkungen", description = "Weitere Anmerkungen zur Vergabe der LP"),
+			@UrlParam(name="punkte", type= UrlParamType.NUMBER, description = "Die Anzahl der LP"),
+			@UrlParam(name="pm", type=UrlParamType.NUMBER, description = "1 falls eine PM an den Spieler versendet werden soll")
+	})
 	public JSONObject editLpAction()
 	{
 		User user = (User)this.getUser();
 
-		parameterString("edituser");
 		String edituserID = getString("edituser");
 
 		User edituser = User.lookupByIdentifier(edituserID);
@@ -324,13 +339,10 @@ public class NpcController extends AngularGenerator {
 			return JSONUtils.failure("Benutzer nicht gefunden");
 		}
 
-		parameterString("grund");
-		parameterString("anmerkungen");
-		parameterNumber("punkte");
-
 		String grund = getString("grund");
 		String anmerkungen = getString("anmerkungen");
 		int punkte = getInteger("punkte");
+		boolean sendPm = getInteger("pm") == 1;
 
 		if( punkte == 0 || grund.isEmpty() )
 		{
@@ -341,9 +353,18 @@ public class NpcController extends AngularGenerator {
 
 		Loyalitaetspunkte lp = new Loyalitaetspunkte(edituser, user, grund, punkte);
 		lp.setAnmerkungen(anmerkungen);
-		user.getLoyalitaetspunkte().add(lp);
+		edituser.getLoyalitaetspunkte().add(lp);
 
 		db.persist(lp);
+
+		if( sendPm )
+		{
+			String pmText = "[Automatische Mitteilung]\n" +
+					"Du hast soeben "+punkte+" Loyalitätspunkte erhalten. " +
+					"Du verfügst nun insgesamt über "+edituser.getLoyalitaetspunkteTotalBeiNpc(user)+" Loyalitätspunkte bei mir.\n\n";
+			pmText += "Grund für die Vergabe: "+grund;
+			PM.send(user, edituser.getId(), "Loyalitätspunkte erhalten", pmText, PM.FLAGS_AUTOMATIC);
+		}
 
 		return JSONUtils.success(punkte+" LP vergeben");
 	}
@@ -633,7 +654,7 @@ public class NpcController extends AngularGenerator {
 
 		JSONArray shipResultList = new JSONArray();
 
-		List<?> shipOrders = db.createQuery("from OrderableShip order by shipType.shipClass,shipType").list();
+		List<?> shipOrders = db.createQuery("from OrderableShip order by shipType.shipClass,shipType.id").list();
 		for( Iterator<?> iter=shipOrders.iterator(); iter.hasNext(); ) {
 			OrderableShip ship = (OrderableShip)iter.next();
 

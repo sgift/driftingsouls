@@ -92,7 +92,8 @@ angular.module('ds.npc', ['ds.service.ds'])
 			$scope.lpNeu = {
 				grund: "",
 				anmerkungen: "",
-				punkte: ""
+				punkte: "",
+				pm:true
 			};
 		});
 	}
@@ -106,7 +107,8 @@ angular.module('ds.npc', ['ds.service.ds'])
 			edituser:$scope.edituser.id,
 			grund:$scope.lpNeu.grund,
 			anmerkungen:$scope.lpNeu.anmerkungen,
-			punkte:$scope.lpNeu.punkte
+			punkte:$scope.lpNeu.punkte,
+			pm:$scope.lpNeu.pm ? 1 : 0
 		})
 		.success(function(data) {
 			if( data.message.type === 'success' ) {
