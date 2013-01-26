@@ -16,7 +16,7 @@ import javax.persistence.ManyToOne;
  * @author Drifting-Souls Team
  */
 @Entity
-@DiscriminatorValue("2")
+@DiscriminatorValue("1")
 public class BaseUnitCargoEntry extends UnitCargoEntry
 {
 	@ManyToOne(cascade = {})
