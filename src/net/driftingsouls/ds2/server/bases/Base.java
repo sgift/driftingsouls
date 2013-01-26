@@ -732,7 +732,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		int chances = 0;
 		int baseress = 0;
 
-		if(!(getSpawnableRess() == null))
+		if( getSpawnableRess() != null )
 		{
 			String[] spawnableress = StringUtils.split(getSpawnableRess(), ";");
 			for(int i = 0;i < spawnableress.length; i++) {
@@ -751,7 +751,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 			}
 			baseress = spawnress.size();
 		}
-		if(!(system.getSpawnableRess() == null))
+		if( system.getSpawnableRess() != null )
 		{
 			String[] spawnableresssystem = StringUtils.split(system.getSpawnableRess(), ";");
 			for(int i = 0;i < spawnableresssystem.length; i++) {
