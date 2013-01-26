@@ -87,7 +87,7 @@ public class EditBaseType extends AbstractEditPlugin implements AdminPlugin
 			editField(echo, "Höhe", "height", Integer.class, type.getHeight());
 			editField(echo, "Max. Feldanzahl", "maxtiles", Integer.class, type.getMaxTiles());
 			editField(echo, "Terrain", "terrain", String.class, (type.getTerrain() == null ? "" : Common.implode(";", type.getTerrain())));
-			editField(echo, "Zum Spawn freigegebene Ressourcen", "spanableress", String.class, type.getSpawnableRess());
+			editField(echo, "Zum Spawn freigegebene Ressourcen", "spawnableress", String.class, type.getSpawnableRess());
 
 			endEditorTable(echo);
 		}

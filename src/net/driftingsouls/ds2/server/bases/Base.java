@@ -769,7 +769,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 				}
 			}
 		}
-		if(!(getBaseType().getSpawnableRess() == null))
+		if( getBaseType().getSpawnableRess() != null && !getBaseType().getSpawnableRess().isEmpty() )
 		{
 			String[] spawnableresstype = StringUtils.split(getBaseType().getSpawnableRess(), ";");
 			for(int i = 0;i < spawnableresstype.length; i++) {
