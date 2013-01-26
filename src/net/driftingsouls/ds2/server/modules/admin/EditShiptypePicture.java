@@ -21,7 +21,6 @@ package net.driftingsouls.ds2.server.modules.admin;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
-
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -32,8 +31,6 @@ import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipModules;
 import net.driftingsouls.ds2.server.ships.ShipType;
-
-import org.apache.commons.fileupload.FileItem;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.CacheMode;
@@ -46,7 +43,7 @@ import org.hibernate.ScrollableResults;
  * @author Christopher Jung
  */
 @AdminMenuEntry(category = "Schiffe", name = "Typengrafik editieren")
-public class EditShiptypePicture implements AdminPlugin
+public class EditShiptypePicture extends AbstractEditPlugin implements AdminPlugin
 {
 	private static final Logger log = LogManager.getLogger(EditShiptypePicture.class);
 
@@ -57,43 +54,27 @@ public class EditShiptypePicture implements AdminPlugin
 		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
 
-		int shipid = context.getRequest().getParameterInt("shipid");
+		int shipid = context.getRequest().getParameterInt("entityId");
 
-		// Update values?
-		boolean update = context.getRequest().getParameterString("change").equals("Aktualisieren");
-
-		echo.append("<div class='gfxbox'><form action=\"./ds\" method=\"post\">");
-		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
-		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
-		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-		echo.append("<select name=\"shipid\" size='1'>\n");
+		this.beginSelectionBox(echo, page, action);
 		List<ShipType> shipTypes = Common.cast(db.createQuery("from ShipType order by id").list());
 		for( ShipType st : shipTypes )
 		{
-			echo.append("<option value='"+st.getId()+"' "+
-					(st.getId()==shipid?"selected='selected'":"")+">"+
-					st.getNickname()+" ("+st.getId()+")</option>");
+			this.addSelectionOption(echo, st.getId(), st.getNickname()+" ("+st.getId()+")");
 		}
-		echo.append("</select>");
-		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
-		echo.append("</form></div>");
+		this.endSelectionBox(echo);
 
-		if(update && shipid != 0)
+		if(this.isUpdateExecuted() && shipid != 0)
 		{
 			ShipType shipType = (ShipType)db.get(ShipType.class, shipid);
 
 			if(shipType != null) {
-				for( FileItem file : context.getRequest().getUploadedFiles() )
+				String img = this.processDynamicContent("image", shipType.getPicture());
+				String oldImg = shipType.getPicture();
+				shipType.setPicture("data/dynamicContent/"+img);
+				if( oldImg.startsWith("data/dynamicContent/") )
 				{
-					if( "image".equals(file.getFieldName()) && file.getSize() > 0 )
-					{
-						String oldImg = shipType.getPicture();
-						shipType.setPicture("data/dynamicContent/"+DynamicContentManager.add(file));
-						if( oldImg.startsWith("data/dynamicContent/") )
-						{
-							DynamicContentManager.remove(oldImg);
-						}
-					}
+					DynamicContentManager.remove(oldImg);
 				}
 
 				echo.append("<p>Update abgeschlossen.</p>");
@@ -114,31 +95,17 @@ public class EditShiptypePicture implements AdminPlugin
 				return;
 			}
 
-			echo.append("<div class='gfxbox' style='width:700px'>");
-			echo.append("<form action=\"./ds\" method=\"post\" enctype='multipart/form-data'>");
-			echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
-			echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
-			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-			echo.append("<input type=\"hidden\" name=\"shipid\" value=\"" + shipid + "\" />\n");
-
-			echo.append("<table width=\"100%\">");
-			echo.append("<tr><td >Name: </td>" +
-					"<td>"+shipType.getNickname()+"</td><td></td></tr>\n");
-			echo.append("<tr><td>Bild: </td>" +
-					"<td><input type=\"file\" name=\"image\"\"></td>"+
-					"<td><img src='"+shipType.getPicture()+"' /></td></tr>\n");
+			this.beginEditorTable(echo, page, action, shipid);
+			this.editLabel(echo, "Name", shipType.getNickname());
+			this.editDynamicContentField(echo, "Bild", "image", shipType.getPicture());
 
 			Number count = (Number)db.createQuery("select count(*) from Ship s where s.shiptype=:type and s.modules is not null")
 				.setParameter("type", shipType)
 				.iterate()
 				.next();
 
-			echo.append("<tr><td>Zu aktualisieren:</td><td>"+count+" Schiffe mit Modulen</td><td></td></tr>\n");
-
-			echo.append("<tr><td></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td><td></td></tr>\n");
-			echo.append("</table>");
-			echo.append("</form>\n");
-			echo.append("</div>");
+			this.editLabel(echo, "Zu aktualisieren", count + " Schiffe mit Modulen");
+			this.endEditorTable(echo);
 		}
 	}
 

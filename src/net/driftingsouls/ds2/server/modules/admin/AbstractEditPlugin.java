@@ -2,6 +2,7 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Date;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -9,6 +10,9 @@ import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.DynamicContent;
+import net.driftingsouls.ds2.server.framework.DynamicContentManager;
+import org.apache.commons.fileupload.FileItem;
 
 /**
  * Bsisklasse fuer einfache Editor-Plugins (fuer einzelne Entities). Stellt
@@ -18,9 +22,64 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
  */
 public abstract class AbstractEditPlugin implements AdminPlugin
 {
+	private String page;
+	private int action;
+
+	protected String processDynamicContent(String name, String currentValue) throws IOException
+	{
+		Context context = ContextMap.getContext();
+
+		for( FileItem file : context.getRequest().getUploadedFiles() )
+		{
+			if( name.equals(file.getFieldName()) && file.getSize() > 0 )
+			{
+				String id = DynamicContentManager.add(file);
+				if( id != null )
+				{
+					processDynamicContentMetadata(name, id);
+					return id;
+				}
+			}
+		}
+		if( currentValue != null )
+		{
+			processDynamicContentMetadata(name, currentValue);
+		}
+		return null;
+	}
+
+	private void processDynamicContentMetadata(String name, String id)
+	{
+		Context context = ContextMap.getContext();
+
+		DynamicContent metadata = DynamicContentManager.lookupMetadata(id, true);
+		String lizenzStr = context.getRequest().getParameterString(name+"_dc_lizenz");
+		if( !lizenzStr.isEmpty() )
+		{
+			try
+			{
+				metadata.setLizenz(DynamicContent.Lizenz.valueOf(lizenzStr));
+			}
+			catch( IllegalArgumentException e )
+			{
+				// EMPTY
+			}
+		}
+		metadata.setLizenzdetails(context.getRequest().getParameterString(name + "_dc_lizenzdetails"));
+		metadata.setAutor(context.getRequest().getParameterString(name+"_dc_autor"));
+		metadata.setQuelle(context.getRequest().getParameterString(name + "_dc_quelle"));
+		metadata.setAenderungsdatum(new Date());
+		if( !context.getDB().contains(metadata) )
+		{
+			context.getDB().persist(metadata);
+		}
+	}
+
 	protected void beginSelectionBox(Writer echo, String page, int action) throws IOException
 	{
-		echo.append("<div class='gfxbox' style='width:390px'>");
+		this.page = page;
+		this.action = action;
+		echo.append("<div class='gfxbox adminSelection' style='width:390px'>");
 		echo.append("<form action=\"./ds\" method=\"post\">");
 		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
 		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
@@ -31,7 +90,7 @@ public abstract class AbstractEditPlugin implements AdminPlugin
 	protected void addSelectionOption(Writer echo, Object id, String label) throws IOException
 	{
 		Context context = ContextMap.getContext();
-		String currentIdStr = context.getRequest().getParameter("entityid");
+		String currentIdStr = context.getRequest().getParameter("entityId");
 		String idStr = id.toString();
 
 		echo.append("<option value=\"" + idStr + "\" " + (idStr.equals(currentIdStr) ? "selected=\"selected\"" : "") + ">" + label + "</option>");
@@ -47,8 +106,10 @@ public abstract class AbstractEditPlugin implements AdminPlugin
 
 	protected void beginEditorTable(Writer echo, String page, int action, Object entityId) throws IOException
 	{
-		echo.append("<div class='gfxbox' style='width:600px'>");
-		echo.append("<form action=\"./ds\" method=\"post\">");
+		this.page = page;
+		this.action = action;
+		echo.append("<div class='gfxbox adminEditor' style='width:700px'>");
+		echo.append("<form action=\"./ds\" method=\"post\" enctype='multipart/form-data'>");
 		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
 		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
@@ -59,16 +120,70 @@ public abstract class AbstractEditPlugin implements AdminPlugin
 
 	protected void endEditorTable(Writer echo) throws IOException
 	{
-		echo.append("<tr><td></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
+		echo.append("<tr><td colspan='2'></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
 		echo.append("</table>");
 		echo.append("</form>\n");
 		echo.append("</div>");
 	}
 
+	protected void editDynamicContentField(Writer echo, String label, String name, String value) throws IOException
+	{
+		echo.append("<tr class='dynamicContentEdit'>");
+
+		writeCommonDynamicContentPart(echo, label, name, value);
+
+		echo.append("</tr>");
+	}
+
+	protected void editDynamicContentFieldWithRemove(Writer echo, String label, String name, String value) throws IOException
+	{
+		echo.append("<tr class='dynamicContentEdit'>");
+		writeCommonDynamicContentPart(echo, label, name, value);
+
+		String entityId = ContextMap.getContext().getRequest().getParameter("entityId");
+
+		echo.append("<td><a title='entfernen' href='./ds?module=admin&amp;page="+page+"&amp;act="+action+"&amp;entityId="+entityId+"&reset="+name+"'>X</a>");
+
+		echo.append("</tr>");
+	}
+
+	private void writeCommonDynamicContentPart(Writer echo, String label, String name, String value) throws IOException
+	{
+		echo.append("<td>"+label+": </td>" +
+				"<td>"+(value != null && !value.trim().isEmpty() ? "<img src='"+value+"' />" : "")+"</td>" +
+				"<td>");
+
+		DynamicContent content = DynamicContentManager.lookupMetadata(value != null ? value : "dummy", true);
+
+		echo.append("<input type=\"file\" name=\""+name+"\">");
+
+		echo.append("<table>");
+		echo.append("<tr><td>Lizenz</td><td><select name='"+name+"_dc_lizenz'>");
+		echo.append("<option>Bitte wählen</option>");
+		for( DynamicContent.Lizenz lizenz : DynamicContent.Lizenz.values() )
+		{
+			echo.append("<option value='"+lizenz.name()+"' "+(content.getLizenz() == lizenz ? "selected='selected'" : "")+">"+lizenz.getLabel()+"</option>");
+		}
+		echo.append("</select></tr>");
+		echo.append("<tr><td>Lizenzdetails</td><td><textarea rows='3' cols='30' name='"+name+"_dc_lizenzdetails'>"+content.getLizenzdetails()+"</textarea></td></tr>");
+		echo.append("<tr><td>Quelle</td><td><input type='text' maxlength='255' name='"+name+"_dc_quelle' value='"+content.getQuelle()+"'/></td></tr>");
+		echo.append("<tr><td>Autor (RL-Name+Nick)</td><td><input type='text' maxlength='255' name='"+name+"_dc_autor' value='"+content.getAutor()+"'/></td></tr>");
+		echo.append("</table>");
+
+		echo.append("</td>\n");
+	}
+
+	protected void editLabel(Writer echo, String label, Object value) throws IOException
+	{
+		echo.append("<tr>");
+		echo.append("<td colspan='2'>"+label+":</td>"+
+				"<td>"+value+"</td></tr>\n");
+	}
+
 	protected void editField(Writer echo, String label, String name, Class<?> type, Object value) throws IOException
 	{
 		echo.append("<tr>");
-		echo.append("<td>"+label+":</td>");
+		echo.append("<td colspan='2'>"+label+":</td>");
 		echo.append("<td>");
 		if( Cargo.class.isAssignableFrom(type) )
 		{
@@ -112,9 +227,24 @@ public abstract class AbstractEditPlugin implements AdminPlugin
 		echo.append("</td></tr>\n");
 	}
 
+	protected boolean isResetted(String name)
+	{
+		Context context = ContextMap.getContext();
+		String reset = context.getRequest().getParameterString("reset");
+		return name.equals(reset);
+	}
+
+	protected boolean isResetExecuted()
+	{
+		Context context = ContextMap.getContext();
+		String reset = context.getRequest().getParameterString("reset");
+		return reset != null && !reset.trim().isEmpty();
+	}
+
 	protected boolean isUpdateExecuted()
 	{
 		Context context = ContextMap.getContext();
-		return context.getRequest().getParameterString("change").equals("Aktualisieren");
+		String change = context.getRequest().getParameterString("change");
+		return "Aktualisieren".equals(change);
 	}
 }

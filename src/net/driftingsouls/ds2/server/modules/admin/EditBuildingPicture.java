@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 import java.util.Map;
-
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
@@ -32,15 +31,13 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DynamicContentManager;
 import net.driftingsouls.ds2.server.modules.AdminController;
 
-import org.apache.commons.fileupload.FileItem;
-
 /**
  * Aktualisierungstool fuer Gebaeudegrafiken.
  *
  * @author Christopher Jung
  */
 @AdminMenuEntry(category = "Asteroiden", name = "Gebäudegrafiken editieren")
-public class EditBuildingPicture implements AdminPlugin
+public class EditBuildingPicture extends AbstractEditPlugin implements AdminPlugin
 {
 	@Override
 	public void output(AdminController controller, String page, int action) throws IOException
@@ -49,57 +46,45 @@ public class EditBuildingPicture implements AdminPlugin
 		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
 
-		int buildingid = context.getRequest().getParameterInt("buildingid");
+		int buildingid = context.getRequest().getParameterInt("entityId");
 
 		// Update values?
-		boolean update = context.getRequest().getParameterString("change").equals("Aktualisieren");
-		boolean delete = !context.getRequest().getParameterString("reset").isEmpty();
 
-		echo.append("<div class='gfxbox'><form action=\"./ds\" method=\"post\">");
-		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
-		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
-		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-		echo.append("<select name=\"buildingid\" size='1'>\n");
+		this.beginSelectionBox(echo, page, action);
 		List<Building> buildings = Common.cast(db.createQuery("from Building order by id").list());
 		for( Building building : buildings )
 		{
-			echo.append("<option value='"+building.getId()+"' "+
-					(building.getId()==buildingid?"selected='selected'":"")+">"+
-					building.getName()+" ("+building.getId()+")</option>");
+			this.addSelectionOption(echo, building.getId(), building.getName()+" ("+building.getId()+")");
 		}
-		echo.append("</select>");
-		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
-		echo.append("</form></div>");
+		this.endSelectionBox(echo);
 
-		if(update && buildingid != 0)
+		if(this.isUpdateExecuted() && buildingid != 0)
 		{
 			Building building = (Building)db.get(Building.class, buildingid);
 
 			if(building != null) {
 				Map<Integer,String> altBilder = building.getAlternativeBilder();
 
-				for( FileItem file : context.getRequest().getUploadedFiles() )
+				String buildingImg = processDynamicContent("picture", building.getDefaultPicture());
+				if( buildingImg != null )
 				{
-					if( "picture".equals(file.getFieldName()) && file.getSize() > 0 )
+					String oldImg = building.getDefaultPicture();
+					building.setDefaultPicture("data/dynamicContent/"+buildingImg);
+					if( oldImg.startsWith("data/dynamicContent/") )
 					{
-                        String oldImg = building.getDefaultPicture();
-						building.setDefaultPicture("data/dynamicContent/"+DynamicContentManager.add(file));
-                        if( oldImg.startsWith("data/dynamicContent/") )
-                        {
-                            DynamicContentManager.remove(building.getDefaultPicture());
-                        }
+						DynamicContentManager.remove(building.getDefaultPicture());
 					}
-					for( Rasse rasse : Rassen.get() )
+				}
+				for( Rasse rasse : Rassen.get() )
+				{
+					String rasseImg = processDynamicContent("rasse"+rasse.getID(), altBilder.get(rasse.getID()));
+					if( rasseImg != null )
 					{
-						String key = "rasse"+rasse.getID()+"_picture";
-						if( key.equals(file.getFieldName()) && file.getSize() > 0 )
+						String curPicture = altBilder.get(rasse.getID());
+						altBilder.put(rasse.getID(), "data/dynamicContent/"+rasseImg);
+						if( curPicture != null && curPicture.startsWith("data/dynamicContent/"))
 						{
-							String curPicture = altBilder.get(rasse.getID());
-							altBilder.put(rasse.getID(), "data/dynamicContent/"+DynamicContentManager.add(file));
-                            if( curPicture != null && curPicture.startsWith("data/dynamicContent/"))
-                            {
-                                DynamicContentManager.remove(curPicture);
-                            }
+							DynamicContentManager.remove(curPicture);
 						}
 					}
 				}
@@ -111,18 +96,22 @@ public class EditBuildingPicture implements AdminPlugin
 				echo.append("<p>Kein Gebäude gefunden.</p>");
 			}
 		}
-		else if( delete && buildingid != 0 )
+		else if( isResetExecuted() && buildingid != 0 )
 		{
-			int rasse = context.getRequest().getParameterInt("reset");
 			Building building = (Building)db.get(Building.class, buildingid);
-			if(building != null) {
-				building.getAlternativeBilder().remove(rasse);
-
-				echo.append("<p>Update abgeschlossen.</p>");
-			}
-			else
+			for( Rasse rasse : Rassen.get() )
 			{
-				echo.append("<p>Kein Gebäude gefunden.</p>");
+				if( isResetted("rasse"+rasse.getID()) )
+				{
+					String value = building.getAlternativeBilder().remove(rasse.getID());
+					if(value != null)
+					{
+						DynamicContentManager.remove(value);
+					}
+
+					echo.append("<p>Update abgeschlossen.</p>");
+					break;
+				}
 			}
 		}
 
@@ -135,43 +124,18 @@ public class EditBuildingPicture implements AdminPlugin
 				return;
 			}
 
-			echo.append("<div class='gfxbox' style='width:500px'>");
-			echo.append("<form action=\"./ds\" method=\"post\" enctype='multipart/form-data'>");
-			echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
-			echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
-			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-			echo.append("<input type=\"hidden\" name=\"buildingid\" value=\"" + buildingid + "\" />\n");
+			this.beginEditorTable(echo, page, action, buildingid);
 
-			echo.append("<table width=\"100%\">");
-			echo.append("<tr><td>Name:</td>" +
-					"<td></td>"+
-					"<td>"+building.getName()+"</td></tr>\n");
-			echo.append("<tr><td>Bild: </td>" +
-					"<td><img src='"+building.getDefaultPicture()+"' /></td>" +
-					"<td><input type=\"file\" name=\"picture\"\"></td></tr>\n");
+			this.editLabel(echo, "Name", building.getName());
+			this.editDynamicContentField(echo, "Bild", "picture", building.getDefaultPicture());
 
 			Map<Integer,String> altBilder = building.getAlternativeBilder();
 			for( Rasse rasse : Rassen.get() )
 			{
-				echo.append("<tr><td>"+rasse.getName()+": </td>");
-				if( altBilder.containsKey(rasse.getID())  )
-				{
-					echo.append("<td><img src='"+altBilder.get(rasse.getID())+"' /></td>");
-				}
-				else
-				{
-					echo.append("<td></td>");
-				}
-				echo.append("<td><input type=\"file\" name=\"rasse"+rasse.getID()+"_picture\" ></td>");
-				echo.append("<td><a title='entfernen' href='./ds?module=admin&amp;page="+page+"&amp;act="+action+"&amp;buildingid="+buildingid+"&reset="+rasse.getID()+"'>X</a>");
-				echo.append("</tr>\n");
+				this.editDynamicContentFieldWithRemove(echo, rasse.getName(), "rasse"+rasse.getID(), altBilder.get(rasse.getID()));
 			}
 
-
-			echo.append("<tr><td></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
-			echo.append("</table>");
-			echo.append("</form>\n");
-			echo.append("</div>");
+			this.endEditorTable(echo);
 		}
 	}
 }

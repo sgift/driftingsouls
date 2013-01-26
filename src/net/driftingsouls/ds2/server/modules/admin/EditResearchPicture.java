@@ -21,7 +21,6 @@ package net.driftingsouls.ds2.server.modules.admin;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
-
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -29,15 +28,13 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DynamicContentManager;
 import net.driftingsouls.ds2.server.modules.AdminController;
 
-import org.apache.commons.fileupload.FileItem;
-
 /**
  * Aktualisierungstool fuer Forschungsgrafiken.
  *
  * @author Christopher Jung
  */
 @AdminMenuEntry(category = "Techs", name = "Forschungsgrafik editieren")
-public class EditResearchPicture implements AdminPlugin
+public class EditResearchPicture extends AbstractEditPlugin implements AdminPlugin
 {
 	@Override
 	public void output(AdminController controller, String page, int action) throws IOException
@@ -46,44 +43,29 @@ public class EditResearchPicture implements AdminPlugin
 		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
 
-		int forschungid = context.getRequest().getParameterInt("forschungid");
+		int forschungid = context.getRequest().getParameterInt("entityId");
 
-		// Update values?
-		boolean update = context.getRequest().getParameterString("change").equals("Aktualisieren");
-
-		echo.append("<div class='gfxbox'><form action=\"./ds\" method=\"post\">");
-		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
-		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
-		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-		echo.append("<select name=\"forschungid\" size='1'>\n");
+		this.beginSelectionBox(echo, page, action);
 		List<Forschung> forschungen = Common.cast(db.createQuery("from Forschung order by id").list());
 		for( Forschung f : forschungen )
 		{
-			echo.append("<option value='"+f.getID()+"' "+
-					(f.getID()==forschungid?"selected='selected'":"")+">"+
-					f.getName()+" ("+f.getID()+")</option>");
+			this.addSelectionOption(echo, f.getID(), f.getName()+" ("+f.getID()+")");
 		}
-		echo.append("</select>");
-		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
-		echo.append("</form></div>");
+		this.endSelectionBox(echo);
 
-		if(update && forschungid != 0)
+		if(this.isUpdateExecuted() && forschungid != 0)
 		{
 			Forschung forschung = (Forschung)db.get(Forschung.class, forschungid);
 
 			if(forschung != null) {
-				for( FileItem file : context.getRequest().getUploadedFiles() )
-				{
-					if( "image".equals(file.getFieldName()) && file.getSize() > 0 )
-					{
-						String oldImg = forschung.getImage();
-						forschung.setImage("data/dynamicContent/"+DynamicContentManager.add(file));
+				String img = this.processDynamicContent("image", forschung.getImage());
 
-						if( oldImg.startsWith("data/dynamicContent/") )
-						{
-							DynamicContentManager.remove(oldImg);
-						}
-					}
+				String oldImg = forschung.getImage();
+				forschung.setImage("data/dynamicContent/"+img);
+
+				if( oldImg.startsWith("data/dynamicContent/") )
+				{
+					DynamicContentManager.remove(oldImg);
 				}
 
 				echo.append("<p>Update abgeschlossen.</p>");
@@ -103,25 +85,10 @@ public class EditResearchPicture implements AdminPlugin
 				return;
 			}
 
-			echo.append("<div class='gfxbox' style='width:500px'>");
-			echo.append("<form action=\"./ds\" method=\"post\" enctype='multipart/form-data'>");
-			echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
-			echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
-			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-			echo.append("<input type=\"hidden\" name=\"forschungid\" value=\"" + forschungid + "\" />\n");
-
-			echo.append("<table width=\"100%\">");
-			echo.append("<tr><td >Name: </td>" +
-					"<td></td>"+
-					"<td>"+forschung.getName()+"</td></tr>\n");
-			echo.append("<tr><td>Bild: </td>" +
-					"<td><img src='"+forschung.getImage()+"' /></td>" +
-					"<td><input type=\"file\" name=\"image\"\"></td></tr>\n");
-
-			echo.append("<tr><td></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
-			echo.append("</table>");
-			echo.append("</form>\n");
-			echo.append("</div>");
+			this.beginEditorTable(echo, page, action, forschung.getID());
+			this.editLabel(echo, "Name", forschung.getID());
+			this.editDynamicContentField(echo, "Bild", "image", forschung.getImage());
+			this.endEditorTable(echo);
 		}
 	}
 }

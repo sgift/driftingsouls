@@ -1822,4 +1822,20 @@
 	<update type="structure" datum="2013-01-21"><![CDATA[
 		ALTER TABLE user_values MODIFY value TEXT NOT NULL DEFAULT '';
 	]]></update>
+	<update type="structure" datum="2013-01-25"><![CDATA[
+		create table dynamic_content (
+			id varchar(255) not null,
+			anlagedatum datetime,
+			aenderungsdatum datetime,
+			autor varchar(255),
+			lizenz varchar(255),
+			lizenzdetails TEXT,
+			quelle varchar(255),
+			version integer not null,
+			hochgeladenDurch_id integer,
+			primary key (id)
+		) ENGINE=InnoDB;
+
+		ALTER TABLE dynamic_content ADD CONSTRAINT dynamic_content_fk_users FOREIGN KEY (hochgeladenDurch_id) REFERENCES users(id);
+	]]></update>
 </updates>

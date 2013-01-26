@@ -90,5 +90,53 @@ public class DynamicContentManager
 		}
 		String uploaddir = Configuration.getSetting("ABSOLUTE_PATH")+"data/dynamicContent/";
 		new File(uploaddir+id).delete();
+
+		DynamicContent metadata = lookupMetadata(id, false);
+		if( metadata != null )
+		{
+			ContextMap.getContext().getDB().delete(metadata);
+		}
+	}
+
+	/**
+	 * Laedt die Metadaten zur einer DynamicContent-ID (bzw Pfad und DynamicContent-ID).
+	 * @param id Die ID mit oder ohne Pfad
+	 * @param createIfMissing <code>true</code> falls ein neuer Metadaten-Eintrag erzeugt werden
+	 *                        soll wenn noch keiner vorhanden ist (Achtung: Die Persistierung erfolgt
+	 *                        nicht automatisch)
+	 * @return Die Metadaten oder <code>null</code>, falls keine vorliegen und keine erzeugt
+	 * werden sollen
+	 */
+	public static DynamicContent lookupMetadata(String id, boolean createIfMissing)
+	{
+		if( id == null )
+		{
+			return null;
+		}
+
+		Context context = ContextMap.getContext();
+		id = extractUuuidFromPath(id);
+
+		DynamicContent content = (DynamicContent)context.getDB().get(DynamicContent.class, id);
+
+		if( content == null && createIfMissing )
+		{
+			content = new DynamicContent(id);
+			content.setHochgeladenDurch(context.getActiveUser());
+		}
+		return content;
+	}
+
+	private static String extractUuuidFromPath(String id)
+	{
+		if( id.startsWith("data/dynamicContent/") )
+		{
+			id = id.substring("data/dynamicContent/".length());
+		}
+		if( id.lastIndexOf('.') > -1 )
+		{
+			id = id.substring(0, id.lastIndexOf('.'));
+		}
+		return id;
 	}
 }

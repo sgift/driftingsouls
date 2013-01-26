@@ -21,7 +21,6 @@ package net.driftingsouls.ds2.server.modules.admin;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
-
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -29,15 +28,13 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DynamicContentManager;
 import net.driftingsouls.ds2.server.modules.AdminController;
 
-import org.apache.commons.fileupload.FileItem;
-
 /**
  * Aktualisierungstool fuer Itemgrafiken.
  *
  * @author Christopher Jung
  */
 @AdminMenuEntry(category = "Items", name = "Itemgrafik editieren")
-public class EditItemPicture implements AdminPlugin
+public class EditItemPicture extends AbstractEditPlugin implements AdminPlugin
 {
 	@Override
 	public void output(AdminController controller, String page, int action) throws IOException
@@ -46,51 +43,39 @@ public class EditItemPicture implements AdminPlugin
 		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
 
-		int itemid = context.getRequest().getParameterInt("itemid");
+		int itemid = context.getRequest().getParameterInt("entityId");
 
-		// Update values?
-		boolean update = context.getRequest().getParameterString("change").equals("Aktualisieren");
-
-		echo.append("<div class='gfxbox'><form action=\"./ds\" method=\"post\">");
-		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
-		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
-		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-		echo.append("<select name=\"itemid\" size='1'>\n");
+		this.beginSelectionBox(echo, page, action);
 		List<Item> items = Common.cast(db.createQuery("from Item order by id").list());
 		for( Item item : items )
 		{
-			echo.append("<option value='"+item.getID()+"' "+
-					(item.getID()==itemid?"selected='selected'":"")+">"+
-					item.getName()+" ("+item.getID()+")</option>");
+			this.addSelectionOption(echo, item.getID(), item.getName()+"( "+item.getID()+")");
 		}
-		echo.append("</select>");
-		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
-		echo.append("</form></div>");
+		this.endSelectionBox(echo);
 
-		if(update && itemid != 0)
+		if(isUpdateExecuted() && itemid != 0)
 		{
 			Item item = (Item)db.get(Item.class, itemid);
 
 			if(item != null) {
-				for( FileItem file : context.getRequest().getUploadedFiles() )
+				String newimg = this.processDynamicContent("picture", item.getPicture());
+				if( newimg != null )
 				{
-					if( "picture".equals(file.getFieldName()) && file.getSize() > 0 )
+					String oldImg = item.getPicture();
+					item.setPicture("data/dynamicContent/"+newimg);
+					if( oldImg.startsWith("data/dynamicContent/") )
 					{
-						String oldImg = item.getPicture();
-						item.setPicture("data/dynamicContent/"+DynamicContentManager.add(file));
-						if( oldImg.startsWith("data/dynamicContent/") )
-						{
-							DynamicContentManager.remove(oldImg);
-						}
+						DynamicContentManager.remove(oldImg);
 					}
-					if( "largepicture".equals(file.getFieldName()) && file.getSize() > 0 )
+				}
+				String newlargeimg = this.processDynamicContent("largepicture", item.getLargePicture());
+				if( newlargeimg != null )
+				{
+					String oldImg = item.getLargePicture();
+					item.setLargePicture("data/dynamicContent/"+newlargeimg);
+					if( oldImg != null && oldImg.startsWith("data/dynamicContent/") )
 					{
-                        String oldImg = item.getLargePicture();
-						item.setLargePicture("data/dynamicContent/"+DynamicContentManager.add(file));
-						if( oldImg != null && oldImg.startsWith("data/dynamicContent/") )
-						{
-							DynamicContentManager.remove(oldImg);
-						}
+						DynamicContentManager.remove(oldImg);
 					}
 				}
 
@@ -111,36 +96,11 @@ public class EditItemPicture implements AdminPlugin
 				return;
 			}
 
-			echo.append("<div class='gfxbox' style='width:500px'>");
-			echo.append("<form action=\"./ds\" method=\"post\" enctype='multipart/form-data'>");
-			echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
-			echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
-			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-			echo.append("<input type=\"hidden\" name=\"itemid\" value=\"" + itemid + "\" />\n");
-
-			echo.append("<table width=\"100%\">");
-			echo.append("<tr><td >Name: </td>" +
-					"<td></td>"+
-					"<td>"+item.getName()+"</td></tr>\n");
-			echo.append("<tr><td>Bild: </td>" +
-					"<td><img src='"+item.getPicture()+"' /></td>" +
-					"<td><input type=\"file\" name=\"picture\"\"></td></tr>\n");
-
-			echo.append("<tr><td>Bild (gro&szlig;): </td>");
-			if( item.getLargePicture() != null )
-			{
-				echo.append("<td><img src='"+item.getLargePicture()+"' /></td>");
-			}
-			else
-			{
-				echo.append("<td></td>");
-			}
-			echo.append("<td><input type=\"file\" name=\"largepicture\" ></td></tr>\n");
-
-			echo.append("<tr><td></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
-			echo.append("</table>");
-			echo.append("</form>\n");
-			echo.append("</div>");
+			this.beginEditorTable(echo, page, action, item.getID());
+			this.editLabel(echo, "Name", item.getName());
+			this.editDynamicContentField(echo, "Bild", "picture", item.getPicture());
+			this.editDynamicContentField(echo, "Bild (groß)", "largepicture", item.getLargePicture());
+			this.endEditorTable(echo);
 		}
 	}
 }

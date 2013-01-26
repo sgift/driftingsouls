@@ -317,3 +317,36 @@
 	padding-bottom:10px;
 	vertical-align:top;
 }
+
+/*
+	Admin
+*/
+
+.adminSelection select {
+	width:80%;
+}
+
+.adminEditor .dynamicContentEdit td {
+	vertical-align: top;
+}
+.adminEditor .dynamicContentEdit table {
+	width:100%;
+	margin-bottom:15px;
+	background-color:#222222;
+	background: -webkit-linear-gradient(top left, #333333, rgba(0,0,0,0));
+	background: linear-gradient(bottom right, #333333, rgba(0,0,0,0));
+	font-size:12px;
+	border-spacing:4px;
+}
+.adminEditor .dynamicContentEdit a {
+	color:red;
+	margin-left:5px;
+}
+.adminEditor .dynamicContentEdit img {
+	max-width:200px;
+}
+.adminEditor .dynamicContentEdit input,
+.adminEditor .dynamicContentEdit select,
+.adminEditor .dynamicContentEdit textarea{
+	width:100%;
+}
