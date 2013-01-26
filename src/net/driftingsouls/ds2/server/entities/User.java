@@ -231,7 +231,7 @@ public class User extends BasicUser implements JSONSupport {
     @OneToMany(mappedBy="userRankKey.owner")
     private Set<UserRank> userRanks;
     @OneToMany(mappedBy="user", cascade=CascadeType.ALL)
-    private List<Loyalitaetspunkte> loyalitaetspunkte;
+    private Set<Loyalitaetspunkte> loyalitaetspunkte;
 
 	@OneToMany
 	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH})
@@ -317,6 +317,7 @@ public class User extends BasicUser implements JSONSupport {
 		this.researches = new HashSet<UserResearch>();
 		addResearch(0);
 		this.specializationPoints = 15;
+		this.loyalitaetspunkte = new HashSet<Loyalitaetspunkte>();
 
 		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "gtudefaultdropzone");
 		int defaultDropZone = Integer.valueOf(value.getValue());
@@ -504,14 +505,14 @@ public class User extends BasicUser implements JSONSupport {
 
 		if( relations == null ) {
 			UserRelation currelation = (UserRelation)context.getDB()
-				.createQuery("from UserRelation WHERE user=:user AND target_id=:userid")
+				.createQuery("from UserRelation WHERE user=:user AND target=:userid")
 				.setInteger("user", this.getId())
 				.setInteger("userid", userid)
 				.uniqueResult();
 
 			if( currelation == null ) {
 				currelation = (UserRelation)context.getDB()
-					.createQuery("from UserRelation WHERE user=:user AND target_id=0")
+					.createQuery("from UserRelation WHERE user=:user AND target=0")
 					.setInteger("user", this.getId())
 					.uniqueResult();
 			}
@@ -542,7 +543,7 @@ public class User extends BasicUser implements JSONSupport {
 		}
 
 		UserRelation currelation = (UserRelation)db
-			.createQuery("from UserRelation WHERE user=:user AND target_id=:targetid")
+			.createQuery("from UserRelation WHERE user=:user AND target=:targetid")
 			.setInteger("user", this.getId())
 			.setInteger("targetid", userid)
 			.uniqueResult();
@@ -555,7 +556,7 @@ public class User extends BasicUser implements JSONSupport {
 				}
 			}
 			UserRelation defrelation = (UserRelation)db
-				.createQuery("from UserRelation WHERE user=:user AND target_id=0")
+				.createQuery("from UserRelation WHERE user=:user AND target=0")
 				.setInteger("user", this.getId())
 				.uniqueResult();
 
@@ -1546,7 +1547,7 @@ public class User extends BasicUser implements JSONSupport {
 	 * Gibt alle an den Nutzer vergebenen Loyalitaetspunkte zurueck.
 	 * @return Die Liste
 	 */
-	public List<Loyalitaetspunkte> getLoyalitaetspunkte()
+	public Set<Loyalitaetspunkte> getLoyalitaetspunkte()
 	{
 		return this.loyalitaetspunkte;
 	}
