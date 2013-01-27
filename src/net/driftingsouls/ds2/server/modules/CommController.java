@@ -857,11 +857,16 @@ public class CommController extends TemplateGenerator {
 		// PMs im aktuellen Ordner ausgeben
 		List<PM> pms = ordner.getPms();
 		for( PM pm : pms ) {
+			String title = pm.getTitle();
+			if( title == null || title.trim().isEmpty() )
+			{
+				title = "<Kein Betreff>";
+			}
 			t.setVar(	"pm.id",			pm.getId(),
 						"pm.new",			pm.getGelesen() == 0,
 						"pm.flags.admin",	pm.hasFlag(PM.FLAGS_ADMIN),
 						"pm.highlight",	pm.hasFlag(PM.FLAGS_ADMIN) || pm.hasFlag(PM.FLAGS_OFFICIAL),
-						"pm.title",			Common._plaintitle(pm.getTitle()),
+						"pm.title",			Common._plaintitle(title),
 						"pm.sender.name",	Common._title(pm.getSender().getName()),
 						"pm.sender.id",		pm.getSender().getId(),
 						"pm.time",			Common.date("j.n.Y G:i",pm.getTime()),
@@ -893,10 +898,16 @@ public class CommController extends TemplateGenerator {
 		{
 			PM pm = (PM) pm1;
 
+			String title = pm.getTitle();
+			if( title == null || title.trim().isEmpty() )
+			{
+				title = "<Kein Betreff>";
+			}
+
 			t.setVar("pm.id", pm.getId(),
 					"pm.flags.admin", pm.hasFlag(PM.FLAGS_ADMIN),
 					"pm.highlight", pm.hasFlag(PM.FLAGS_ADMIN) || pm.hasFlag(PM.FLAGS_OFFICIAL),
-					"pm.title", Common._plaintitle(pm.getTitle()),
+					"pm.title", Common._plaintitle(title),
 					"pm.empfaenger.name", Common._title(pm.getEmpfaenger().getName()),
 					"pm.time", Common.date("j.n.Y G:i", pm.getTime()),
 					"pm.empfaenger", pm.getEmpfaenger().getId());
