@@ -1838,4 +1838,26 @@
 
 		ALTER TABLE dynamic_content ADD CONSTRAINT dynamic_content_fk_users FOREIGN KEY (hochgeladenDurch_id) REFERENCES users(id);
 	]]></update>
+	<update type="structure" datum="2013-01-27"><![CDATA[
+		create table fraktion_aktions_meldung (
+			id bigint not null auto_increment,
+			bearbeitetAm datetime,
+			gemeldetAm datetime,
+			meldungstext text,
+			version integer not null,
+			fraktion_id integer,
+			gemeldetVon_id integer,
+			primary key (id)
+		) ENGINE=InnoDB;
+
+		alter table fraktion_aktions_meldung
+			add constraint fraktion_aktions_meldung_fk_users
+			foreign key (gemeldetVon_id)
+			references users (id);
+
+		alter table fraktion_aktions_meldung
+			add constraint fraktion_aktions_meldung_fk_users2
+			foreign key (fraktion_id)
+			references users (id);
+	]]></update>
 </updates>

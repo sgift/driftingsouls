@@ -1,6 +1,45 @@
 <div id="npc">
 	<ng-include src="'data/cltemplates/npc/_header.html'"></ng-include>
 	<div id="npclp" class="content">
+		<div class="gfxbox meldungen">
+			<div>
+				<input type="checkbox" id="alleMeldungenAnzeigen" ng-model="alleMeldungenAnzeigen" ng-change="alleMeldungenChanged()"/>
+				<label for="alleMeldungenAnzeigen">Alle Meldungen anzeigen</label>
+			</div>
+			<table width='100%' class="datatable">
+				<thead>
+					<tr>
+						<th>Fraktion</th>
+						<th>Datum</th>
+						<th>Spieler</th>
+						<th>Bearbeitet am</th>
+						<th>Meldungstext</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="meldung in meldungen">
+						<td>
+							<a href="./ds?module=userprofile&action=default;&user={{meldung.fraktion.id}}">
+								<span ng-bind-html-unsafe="meldung.fraktion.name"></span>
+							</a>
+						</td>
+						<td>{{meldung.am | date:'medium'}}</td>
+						<td>
+							<a href="./ds?module=userprofile&action=default;&user={{meldung.von.id}}">
+								<span ng-bind-html-unsafe="meldung.von.name"></span>
+							</a>
+						</td>
+						<td>
+							<div ng-show="meldung.bearbeitetAm">{{meldung.bearbeitetAm | date:'medium'}}</div>
+							<div ng-hide="meldung.bearbeitetAm">
+								<button ng-click="meldungBearbeitet(meldung)">als bearbeitet markieren</button>
+							</div>
+						</td>
+						<td class="meldungstext"><textarea readonly="readonly">{{meldung.meldungstext}}</textarea></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 		<div class="gfxbox userInput">
 			<form ng-submit="changeUser()">
 				LP von Spieler bearbeiten:

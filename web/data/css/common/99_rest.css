@@ -149,13 +149,13 @@
 }
 
 #npc .content {
-	width:700px;
+	width:100%;
 	text-align:center;
 }
 
 #npc .userInput {
 	width:400px;
-	margin:0px auto 20px auto;
+	margin:5px auto 20px auto;
 }
 
 #npc .userInput input[type=text] {
@@ -187,7 +187,8 @@
 }
 
 #npclp .lpbox {
-	width:900px;
+	width:90%;
+	margin:0px auto;
 	text-align:left;
 }
 
@@ -203,6 +204,26 @@
 #npclp textarea {
 	width:200px;
 	height:30px
+}
+
+#npclp .meldungen {
+	width:90%;
+	margin:5px auto;
+	max-height:300px;
+	overflow-y:auto;
+}
+
+#npclp .meldungen td {
+	vertical-align: top;
+}
+
+#npclp .meldungen td.meldungstext {
+	width:50%;
+}
+
+#npclp .meldungen textarea {
+	width:100%;
+	height:75px;
 }
 
 /*

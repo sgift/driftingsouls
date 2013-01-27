@@ -13,6 +13,11 @@ angular.module('ds.npc', ['ds.service.ds'])
 			options.action='changeRank';
 			return ds(options);
 		},
+		meldungBearbeitet : function(options) {
+			options.module='npc';
+			options.action='meldungBearbeitet';
+			return ds(options);
+		},
 		deleteLp : function(options) {
 			options.module='npc';
 			options.action='deleteLp';
@@ -80,14 +85,19 @@ angular.module('ds.npc', ['ds.service.ds'])
 .controller('NpcLpController', ['$scope', 'dsNpc', function($scope, dsNpc) {
 	function refresh() {
 		dsNpc
-		.lpMenu({edituser:$scope.editUserId})
+		.lpMenu({
+				edituser:$scope.editUserId,
+				alleMeldungen:$scope.alleMeldungenAnzeigen ? 1 : 0
+		})
 		.success(function(data) {
 			$scope.menu = data.menu;
 			$scope.edituser = data.user;
 			$scope.edituserPresent =  $scope.edituser != null;
+			$scope.meldungen = data.meldungen;
 			$scope.lpListe = data.lpListe;
 			$scope.rang = data.rang;
 			$scope.lpBeiNpc = data.lpBeiNpc;
+			$scope.alleMeldungenAnzeigen = data.alleMeldungen;
 			
 			$scope.lpNeu = {
 				grund: "",
@@ -96,6 +106,21 @@ angular.module('ds.npc', ['ds.service.ds'])
 				pm:true
 			};
 		});
+	}
+
+	$scope.meldungBearbeitet = function(meldung) {
+		dsNpc.meldungBearbeitet({
+			meldung:meldung.id
+		})
+		.success(function(data) {
+			if( data.message.type === 'success' ) {
+				refresh();
+			}
+		});
+	}
+
+	$scope.alleMeldungenChanged = function() {
+		refresh();
 	}
 	
 	$scope.changeUser = function() {

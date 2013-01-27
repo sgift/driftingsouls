@@ -1,6 +1,8 @@
 package net.driftingsouls.ds2.server.modules;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -20,6 +22,7 @@ import net.driftingsouls.ds2.server.config.Rang;
 import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.FactionShopOrder;
+import net.driftingsouls.ds2.server.entities.FraktionAktionsMeldung;
 import net.driftingsouls.ds2.server.entities.Loyalitaetspunkte;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserRank;
@@ -370,6 +373,25 @@ public class NpcController extends AngularGenerator {
 	}
 
 	/**
+	 * Markiert die Meldung einer Aktion als "bearbeitet".
+	 * @return Die JSON-Antwort
+	 */
+	@Action(ActionType.AJAX)
+	@UrlParam(name="meldung", type=UrlParamType.NUMBER, description = "Die ID der Meldung")
+	public JSONObject meldungBearbeitetAction()
+	{
+		FraktionAktionsMeldung meldung =
+				(FraktionAktionsMeldung)getDB().get(FraktionAktionsMeldung.class, (long)getInteger("meldung"));
+
+		if( meldung == null )
+		{
+			return JSONUtils.error("Die angegebene Meldung konnte nicht gefunden werden");
+		}
+		meldung.setBearbeitetAm(new Date());
+		return JSONUtils.success("Die Meldung wurde als bearbeitet markiert");
+	}
+
+	/**
 	 * Zeigt die GUI fuer LP-Verwaltung an.
 	 *
 	 */
@@ -379,10 +401,47 @@ public class NpcController extends AngularGenerator {
 		User user = (User)this.getUser();
 
 		parameterString("edituser");
+		parameterNumber("alleMeldungen");
 		String edituserID = getString("edituser");
+		boolean alleMeldungen = getInteger("alleMeldungen") != 0;
 		
 		JSONObject result = new JSONObject();
 		fillCommonMenuResultData(result);
+		result.accumulate("alleMeldungen", alleMeldungen);
+
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DAY_OF_YEAR, -14);
+
+		List<FraktionAktionsMeldung> meldungen;
+		if( alleMeldungen )
+		{
+			meldungen = Common.cast(getDB()
+					.createQuery("from FraktionAktionsMeldung where bearbeitetAm is null or bearbeitetAm>:maxBearbeitet order by bearbeitetAm,gemeldetAm")
+					.setDate("maxBearbeitet", cal.getTime())
+					.list());
+		}
+		else {
+			meldungen = Common.cast(getDB()
+					.createQuery("from FraktionAktionsMeldung where fraktion=:user and (bearbeitetAm is null or bearbeitetAm>:maxBearbeitet) order by bearbeitetAm,gemeldetAm")
+					.setEntity("user", user)
+					.setDate("maxBearbeitet", cal.getTime())
+					.list());
+		}
+
+		JSONArray meldungenListObj = new JSONArray();
+		for (FraktionAktionsMeldung meldung : meldungen)
+		{
+			JSONObject meldungObj = new JSONObject();
+			meldungObj.accumulate("id", meldung.getId());
+			meldungObj.accumulate("von", meldung.getGemeldetVon().toJSON());
+			meldungObj.accumulate("am", meldung.getGemeldetAm().getTime());
+			meldungObj.accumulate("fraktion", meldung.getFraktion().toJSON());
+			meldungObj.accumulate("meldungstext", meldung.getMeldungstext());
+			meldungObj.accumulate("bearbeitetAm", meldung.getBearbeitetAm() != null ? meldung.getBearbeitetAm().getTime() : null);
+			meldungenListObj.add(meldungObj);
+		}
+
+		result.accumulate("meldungen", meldungenListObj);
 
 		User edituser = User.lookupByIdentifier(edituserID);
 

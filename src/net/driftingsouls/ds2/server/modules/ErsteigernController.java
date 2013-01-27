@@ -45,6 +45,7 @@ import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.FactionOffer;
 import net.driftingsouls.ds2.server.entities.FactionShopEntry;
 import net.driftingsouls.ds2.server.entities.FactionShopOrder;
+import net.driftingsouls.ds2.server.entities.FraktionAktionsMeldung;
 import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
 import net.driftingsouls.ds2.server.entities.JumpNode;
@@ -2419,10 +2420,9 @@ public class ErsteigernController extends TemplateGenerator
 			taskmanager.addTask(Taskmanager.Types.UPGRADE_JOB, 1,
 					Integer.toString(auftrag.getId()), "0", Integer.toString(this.faction));
 
-			t
-					.setVar(
-							"show.message",
-							"Ihr Auftrag wurde an den zust&auml;ndigen Sachbearbeiter weitergeleitet. Die Bauma&szlig;nahmen werden in k&uuml;rze beginnen.");
+			t.setVar(
+				"show.message",
+				"Ihr Auftrag wurde an den zust&auml;ndigen Sachbearbeiter weitergeleitet. Die Bauma&szlig;nahmen werden in k&uuml;rze beginnen.");
 
 			redirect();
 			return;
@@ -2735,6 +2735,61 @@ public class ErsteigernController extends TemplateGenerator
 
 			t.parse("shop.list", "shop.listitem", true);
 		}
+	}
+
+	/**
+	 * Zeigt die Meldeseite fuer LP der Fraktion an.
+	 *
+	 */
+	@Action(ActionType.DEFAULT)
+	public void aktionMeldenAction()
+	{
+		TemplateEngine t = getTemplateEngine();
+		org.hibernate.Session db = getDB();
+		User user = (User)getUser();
+
+		if( !Faction.get(faction).getPages().hasPage("aktionmelden") )
+		{
+			redirect();
+			return;
+		}
+
+		User factionUser = (User)db.get(User.class, this.faction);
+
+		t.setVar("show.aktionmelden", 1);
+	}
+
+	@UrlParam(name="meldungstext", description = "Der Beschreibungstext der Aktion")
+	@Action(ActionType.DEFAULT)
+	public void aktionsMeldungErstellenAction()
+	{
+		TemplateEngine t = getTemplateEngine();
+		org.hibernate.Session db = getDB();
+		User user = (User)getUser();
+
+		if( !Faction.get(faction).getPages().hasPage("aktionmelden") )
+		{
+			redirect();
+			return;
+		}
+
+		User factionUser = (User)db.get(User.class, this.faction);
+
+		String meldungstext = getString("meldungstext");
+		if( meldungstext == null || meldungstext.trim().length() < 10 )
+		{
+			addError("Bitte gib eine genaue Beschreibung deiner Aktion ein");
+			redirect("aktionMelden");
+			return;
+		}
+
+		FraktionAktionsMeldung meldung = new FraktionAktionsMeldung(user, factionUser);
+		meldung.setMeldungstext(meldungstext);
+		db.persist(meldung);
+
+		t.setVar("show.message", "Die Aktionsmeldung wurde der Fraktion erfolgreich übermittelt");
+
+		redirect("aktionMelden");
 	}
 
 	/**

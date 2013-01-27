@@ -40,6 +40,9 @@
 			{if faction.bank}
 				<li>{!link_to Bank, bank, faction:$global.faction}</li>
 			{/endif}
+			{if faction.aktionmelden}
+				<li>{!link_to Einsatz melden, aktionMelden, faction:$global.faction}</li>
+			{/endif}
 			{if faction.other}
 				<li>{!link_to Sonstiges, other, faction:$global.faction}</li>
 			{/endif}
@@ -902,5 +905,18 @@
 			</tfoot>
 		{/endif}
 		</table>
+	</div>
+{/endif}
+{if show.aktionmelden}
+	<div class="gfxbox" style="width:600px">
+		<h3>Einsatz bei Fraktion melden</h3>
+		<form action="./ds" method="post">
+			<label for="meldungstext">Beschreibung der Aktion:</label>
+			<textarea name="meldungstext" id="meldungstext" style="width:100%;height:150px"></textarea>
+			{!form_create_hidden aktionsMeldungErstellen, faction:$global.faction}
+			<input type="submit" value="Aktion melden" />
+		</form>
+		<p>Achtung: Jede Aktion kann nur bei einer Fraktion gemeldet werden. Meldungen der gleichen Aktion bei mehreren Fraktionen bewirken,
+		dass keine Fraktion sich für die Aktion interessiert (es gibt keine Loyalitätspunkte).</p>
 	</div>
 {/endif}
