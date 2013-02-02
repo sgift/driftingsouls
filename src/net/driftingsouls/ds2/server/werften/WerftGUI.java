@@ -20,10 +20,8 @@ package net.driftingsouls.ds2.server.werften;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -47,7 +45,6 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -173,8 +170,9 @@ public class WerftGUI {
 			SQLResultRow[] shipdata = werft.getBuildShipList();
 
 			Cargo costs = new Cargo();
-			for( int i=0; i < shipdata.length; i++ ) {
-				costs.addCargo((Cargo)shipdata[i].get("costs"));
+			for (SQLResultRow aShipdata : shipdata)
+			{
+				costs.addCargo((Cargo) aShipdata.get("costs"));
 			}
 
 			this.out_ResourceList( werft, costs );
@@ -194,7 +192,7 @@ public class WerftGUI {
 
 				final int position = context.getRequest().getParameterInt("entry");
 
-				if( action.equals("canclebuild") ) {
+				if("canclebuild".equals(action)) {
 					WerftQueueEntry entry = werft.getBuildQueueEntry(position);
 					if( entry != null ) {
 						t.setVar( "werftgui.building.cancel", 1 );
@@ -202,40 +200,25 @@ public class WerftGUI {
 						werft.cancelBuild(entry);
 					}
 				}
-				else if( action.equals("queuedown") ) {
+				else if("queuedown".equals(action)) {
 					WerftQueueEntry entry = werft.getBuildQueueEntry(position);
 					WerftQueueEntry entry2 = werft.getBuildQueueEntry(position+1);
 					if( (entry != null) && (entry2 != null) ) {
 						werft.swapQueueEntries(entry, entry2);
 					}
 				}
-				else if( action.equals("queuebottom") ) {
-					final int queueSize = werft.getBuildQueue().length;
-					for( int i=position; i < queueSize-1; i++ )
-					{
-						WerftQueueEntry entry = werft.getBuildQueueEntry(i);
-						WerftQueueEntry entry2 = werft.getBuildQueueEntry(i+1);
-						if( (entry != null) && (entry2 != null) ) {
-							werft.swapQueueEntries(entry, entry2);
-						}
-					}
+				else if("queuebottom".equals(action)) {
+					werft.moveBuildQueueEntryToBottom(position);
 				}
-				else if( action.equals("queueup") ) {
+				else if("queueup".equals(action)) {
 					WerftQueueEntry entry = werft.getBuildQueueEntry(position);
 					WerftQueueEntry entry2 = werft.getBuildQueueEntry(position-1);
 					if( (entry != null) && (entry2 != null) ) {
 						werft.swapQueueEntries(entry, entry2);
 					}
 				}
-				else if( action.equals("queuetop") ) {
-					for( int i=position; i > 1; i-- )
-					{
-						WerftQueueEntry entry = werft.getBuildQueueEntry(i);
-						WerftQueueEntry entry2 = werft.getBuildQueueEntry(i-1);
-						if( (entry != null) && (entry2 != null) ) {
-							werft.swapQueueEntries(entry, entry2);
-						}
-					}
+				else if("queuetop".equals(action)) {
+					werft.moveBuildQueueEntryToTop(position);
 				}
 
 				if( !action.isEmpty() ) {
@@ -261,44 +244,46 @@ public class WerftGUI {
 			t.setBlock("_WERFT.WERFTGUI", "werftgui.komplexparts.listitem", "werftgui.komplexparts.list");
 
 			final WerftObject[] members = ((WerftKomplex)werft).getMembers();
-			for( int i=0; i < members.length; i++ ) {
-				final WerftObject member = members[i];
-
+			for (final WerftObject member : members)
+			{
 				t.setVar(
-						"komplexpart.type.image",	member.getWerftPicture(),
-						"komplexpart.name",	member.getWerftName(),
-						"komplexpart.url",	member.getObjectUrl(),
-						"komplexpart.id",	member.getWerftID(),
-						"komplexpart.werftgui.formhidden",	member.getFormHidden(),
-						"komplexpart.linkedbase.list",	"");
+						"komplexpart.type.image", member.getWerftPicture(),
+						"komplexpart.name", member.getWerftName(),
+						"komplexpart.url", member.getObjectUrl(),
+						"komplexpart.id", member.getWerftID(),
+						"komplexpart.werftgui.formhidden", member.getFormHidden(),
+						"komplexpart.linkedbase.list", "");
 
-				if( member instanceof ShipWerft ) {
-					Ship ship = ((ShipWerft)member).getShip();
-					Base linkedbase = ((ShipWerft)member).getLinkedBase();
+				if (member instanceof ShipWerft)
+				{
+					Ship ship = ((ShipWerft) member).getShip();
+					Base linkedbase = ((ShipWerft) member).getLinkedBase();
 
 					ShipTypeData shiptype = ship.getTypeData();
-					if( shiptype.getCost() == 0 ) {
+					if (shiptype.getCost() == 0)
+					{
 						t.setBlock("werftgui.komplexparts.listitem", "komplexpart.linkedbase.listitem", "komplexpart.linkedbase.list");
 
-						t.setVar(	"komplexpart.linkedbase.selected",	linkedbase == null,
-									"komplexpart.linkedbase.value",		"-1",
-									"komplexpart.linkedbase.name",		"kein Ziel" );
+						t.setVar("komplexpart.linkedbase.selected", linkedbase == null,
+								"komplexpart.linkedbase.value", "-1",
+								"komplexpart.linkedbase.name", "kein Ziel");
 
 						t.parse("komplexpart.linkedbase.list", "komplexpart.linkedbase.listitem", true);
 
 						List<?> bases = db.createQuery("from Base " +
-									"where x=:x and y=:y and system=:sys and owner=:owner order by id")
-									.setInteger("x", member.getX())
-									.setInteger("y", member.getY())
-									.setInteger("sys", member.getSystem())
-									.setEntity("owner", member.getOwner())
-									.list();
-						for( Iterator<?> iter=bases.iterator(); iter.hasNext(); ) {
-							Base base = (Base)iter.next();
+								"where x=:x and y=:y and system=:sys and owner=:owner order by id")
+								.setInteger("x", member.getX())
+								.setInteger("y", member.getY())
+								.setInteger("sys", member.getSystem())
+								.setEntity("owner", member.getOwner())
+								.list();
+						for (Object base1 : bases)
+						{
+							Base base = (Base) base1;
 
-							t.setVar(	"komplexpart.linkedbase.selected",	linkedbase == base,
-										"komplexpart.linkedbase.value",		base.getId(),
-										"komplexpart.linkedbase.name",		base.getName()+" ("+base.getId()+")" );
+							t.setVar("komplexpart.linkedbase.selected", linkedbase == base,
+									"komplexpart.linkedbase.value", base.getId(),
+									"komplexpart.linkedbase.name", base.getName() + " (" + base.getId() + ")");
 							t.parse("komplexpart.linkedbase.list", "komplexpart.linkedbase.listitem", true);
 						}
 					}
@@ -321,19 +306,22 @@ public class WerftGUI {
 				.setInteger("sys", werft.getSystem())
 				.setEntity("owner", werft.getOwner())
 				.list();
-			for( Iterator<?> iter=werften.iterator(); iter.hasNext(); ) {
-				ShipWerft shipwerft = (ShipWerft)iter.next();
+			for (Object aWerften : werften)
+			{
+				ShipWerft shipwerft = (ShipWerft) aWerften;
 
-				if( shipwerft == werft ) {
+				if (shipwerft == werft)
+				{
 					continue;
 				}
-				if( !shipwerft.isLinkableWerft() ) {
+				if (!shipwerft.isLinkableWerft())
+				{
 					continue;
 				}
 
 				t.setVar(
-						"linkedwerft.value",	shipwerft.getWerftID(),
-						"linkedwerft.name",		shipwerft.getName()+" ("+shipwerft.getShip().getId()+")" );
+						"linkedwerft.value", shipwerft.getWerftID(),
+						"linkedwerft.name", shipwerft.getName() + " (" + shipwerft.getShip().getId() + ")");
 				t.parse("werftgui.linkedwerft.list", "werftgui.linkedwerft.listitem", true);
 			}
 		}
@@ -362,12 +350,13 @@ public class WerftGUI {
 							.setInteger("sys", werft.getSystem())
 							.setEntity("owner", werft.getOwner())
 							.list();
-				for( Iterator<?> iter=bases.iterator(); iter.hasNext(); ) {
-					Base base = (Base)iter.next();
+				for (Object base1 : bases)
+				{
+					Base base = (Base) base1;
 
-					t.setVar(	"linkedbase.selected",	(linkedbase == base),
-								"linkedbase.value",		base.getId(),
-								"linkedbase.name",		base.getName()+" ("+base.getId()+")" );
+					t.setVar("linkedbase.selected", (linkedbase == base),
+							"linkedbase.value", base.getId(),
+							"linkedbase.name", base.getName() + " (" + base.getId() + ")");
 					t.parse("werftgui.linkedbase.list", "werftgui.linkedbase.listitem", true);
 				}
 			}
@@ -390,25 +379,29 @@ public class WerftGUI {
 								.setInteger("sys", werft.getSystem())
 								.list();
 
-		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
-			Ship ship = (Ship)iter.next();
+		for (Object ship1 : ships)
+		{
+			Ship ship = (Ship) ship1;
 
-			if( (werft instanceof ShipWerft) && (((ShipWerft)werft).getShip() == ship) ) {
+			if ((werft instanceof ShipWerft) && (((ShipWerft) werft).getShip() == ship))
+			{
 				continue;
 			}
 
-			if(ship.isDamaged()) {
+			if (ship.isDamaged())
+			{
 				t.setVar("ship.needsrepair", 1);
 			}
-			else {
+			else
+			{
 				t.setVar("ship.needsrepair", 0);
 			}
 
 			String ownername = Common._title(ship.getOwner().getName());
 
-			t.setVar(	"ship.id",			ship.getId(),
-						"ship.name",		ship.getName(),
-						"ship.owner.name",	ownername );
+			t.setVar("ship.id", ship.getId(),
+					"ship.name", ship.getName(),
+					"ship.owner.name", ownername);
 
 			t.parse("wsshiplist.list", "wsshiplist.listitem", true);
 		}
@@ -485,63 +478,67 @@ public class WerftGUI {
 		int energy = werft.getEnergy();
 		int crew = werft.getCrew();
 
-		for( int i=0; i < shipdata.length; i++ ) {
-			SQLResultRow ashipdata = shipdata[i];
+		for (SQLResultRow ashipdata : shipdata)
+		{
 			t.start_record();
 
 			Cargo costs = new Cargo();
-			costs.addCargo((Cargo)ashipdata.get("costs"));
-			costs.setOption( Cargo.Option.SHOWMASS, false );
+			costs.addCargo((Cargo) ashipdata.get("costs"));
+			costs.setOption(Cargo.Option.SHOWMASS, false);
 
-			if( !(ashipdata.get("_item") instanceof Boolean) ) {
-				Object[] data = (Object[])ashipdata.get("_item");
-				ResourceID itemdata = (ResourceID)data[1];
+			if (!(ashipdata.get("_item") instanceof Boolean))
+			{
+				Object[] data = (Object[]) ashipdata.get("_item");
+				ResourceID itemdata = (ResourceID) data[1];
 
-				t.setVar(	"buildship.item.id",	itemdata.getItemID(),
-							"buildship.item.color",	(data[0].toString().equals("local") ? "#EECC44" : "#44EE44"),
-							"buildship.item.uses",	itemdata.getUses() );
+				t.setVar("buildship.item.id", itemdata.getItemID(),
+						"buildship.item.color", (data[0].toString().equals("local") ? "#EECC44" : "#44EE44"),
+						"buildship.item.uses", itemdata.getUses());
 			}
 
-			t.setVar(	"res.image",		config.get("URL")+"data/interface/time.gif",
-						"res.count",		ashipdata.getInt("dauer"),
-						"res.plainname",	"Dauer",
-						"res.mangel",		0 );
+			t.setVar("res.image", config.get("URL") + "data/interface/time.gif",
+					"res.count", ashipdata.getInt("dauer"),
+					"res.plainname", "Dauer",
+					"res.mangel", 0);
 			t.parse("buildship.res.list", "buildship.res.listitem", false);
 
-			ResourceList reslist = costs.compare( availablecargo, false, false, true );
-			for( ResourceEntry res : reslist ) {
-				t.setVar(	"res.image",		res.getImage(),
-							"res.count",		res.getCargo1(),
-							"res.plainname",	res.getPlainName(),
-							"res.mangel",		res.getDiff() > 0 );
-        if(res.getDiff() > 0) {
-          costs.setOption( Cargo.Option.LINKCLASS, "error" );
-        }
-        else {
-          costs.setOption( Cargo.Option.LINKCLASS, "ok" );
-        }
+			ResourceList reslist = costs.compare(availablecargo, false, false, true);
+			for (ResourceEntry res : reslist)
+			{
+				t.setVar("res.image", res.getImage(),
+						"res.count", res.getCargo1(),
+						"res.plainname", res.getPlainName(),
+						"res.mangel", res.getDiff() > 0);
+				if (res.getDiff() > 0)
+				{
+					costs.setOption(Cargo.Option.LINKCLASS, "error");
+				}
+				else
+				{
+					costs.setOption(Cargo.Option.LINKCLASS, "ok");
+				}
 				t.parse("buildship.res.list", "buildship.res.listitem", true);
 			}
 
-			t.setVar(	"res.image",		config.get("URL")+"data/interface/energie.gif",
-						"res.count",		ashipdata.getInt("ekosten"),
-						"res.plainname",	"Energie",
-						"res.mangel",		energy < ashipdata.getInt("ekosten") );
+			t.setVar("res.image", config.get("URL") + "data/interface/energie.gif",
+					"res.count", ashipdata.getInt("ekosten"),
+					"res.plainname", "Energie",
+					"res.mangel", energy < ashipdata.getInt("ekosten"));
 			t.parse("buildship.res.list", "buildship.res.listitem", true);
 
-			t.setVar(	"res.image",		config.get("URL")+"data/interface/besatzung.gif",
-						"res.count",		ashipdata.getInt("crew"),
-						"res.plainname",	"Besatzung",
-						"res.mangel",		crew < ashipdata.getInt("crew") );
+			t.setVar("res.image", config.get("URL") + "data/interface/besatzung.gif",
+					"res.count", ashipdata.getInt("crew"),
+					"res.plainname", "Besatzung",
+					"res.mangel", crew < ashipdata.getInt("crew"));
 			t.parse("buildship.res.list", "buildship.res.listitem", true);
 
 			ShipTypeData shiptype = Ship.getShipType(ashipdata.getInt("type"));
 
-			t.setVar(	"buildship.id",			ashipdata.getInt("id"),
-						"buildship.type.id",	ashipdata.getInt("type"),
-						"buildship.type.image",	shiptype.getPicture(),
-						"buildship.flagschiff",	ashipdata.getBoolean("flagschiff"),
-						"buildship.type.name",	shiptype.getNickname() );
+			t.setVar("buildship.id", ashipdata.getInt("id"),
+					"buildship.type.id", ashipdata.getInt("type"),
+					"buildship.type.image", shiptype.getPicture(),
+					"buildship.flagschiff", ashipdata.getBoolean("flagschiff"),
+					"buildship.type.name", shiptype.getNickname());
 			t.parse("buildshiplist.list", "buildshiplist.listitem", true);
 
 			t.stop_record();
@@ -713,8 +710,9 @@ public class WerftGUI {
 
 		List<String[]> moduleslots = new ArrayList<String[]>();
 		String[] mslots = StringUtils.split(shiptype.getTypeModules(), ';');
-		for( int i=0; i < mslots.length; i++ ) {
-			String[] data = StringUtils.split(mslots[i], ':');
+		for (String mslot : mslots)
+		{
+			String[] data = StringUtils.split(mslot, ':');
 			moduleslots.add(data);
 		}
 
@@ -748,36 +746,41 @@ public class WerftGUI {
 		List<ItemCargoEntry> itemlist = cargo.getItemsWithEffect( ItemEffect.Type.MODULE );
 
 		// Slots (Mit Belegung) ausgeben
-		for( int i=0; i < moduleslots.size(); i++ ) {
-			String[] aslot = moduleslots.get(i);
+		for (String[] aslot : moduleslots)
+		{
+			t.setVar("slot.name", ModuleSlots.get().slot(aslot[1]).getName(),
+					"slot.empty", !usedslots.containsKey(Integer.parseInt(aslot[0])),
+					"slot.id", aslot[0],
+					"slot.items.list", "");
 
-			t.setVar(	"slot.name",		ModuleSlots.get().slot(aslot[1]).getName(),
-						"slot.empty",		!usedslots.containsKey(Integer.parseInt(aslot[0])),
-						"slot.id",			aslot[0],
-						"slot.items.list",	"" );
-
-			if( usedslots.containsKey(Integer.parseInt(aslot[0])) ) {
+			if (usedslots.containsKey(Integer.parseInt(aslot[0])))
+			{
 				ModuleEntry module = modules[usedslots.get(Integer.parseInt(aslot[0]))];
 				Module moduleobj = module.createModule();
-				if( aslot.length > 2 ) {
+				if (aslot.length > 2)
+				{
 					moduleobj.setSlotData(aslot[2]);
 				}
 
-				t.setVar( "slot.module.name", moduleobj.getName() );
+				t.setVar("slot.module.name", moduleobj.getName());
 			}
-			else {
-				for( int j=0; j < itemlist.size(); j++ ) {
-					IEModule effect = (IEModule)itemlist.get(j).getItemEffect();
-					if( !ModuleSlots.get().slot(aslot[1]).isMemberIn(effect.getSlots()) ) {
+			else
+			{
+				for (ItemCargoEntry anItemlist : itemlist)
+				{
+					IEModule effect = (IEModule) anItemlist.getItemEffect();
+					if (!ModuleSlots.get().slot(aslot[1]).isMemberIn(effect.getSlots()))
+					{
 						continue;
 					}
-					Item itemobj = itemlist.get(j).getItemObject();
-					if( itemobj.getAccessLevel() > user.getAccessLevel() ) {
+					Item itemobj = anItemlist.getItemObject();
+					if (itemobj.getAccessLevel() > user.getAccessLevel())
+					{
 						continue;
 					}
 
-					t.setVar(	"item.id",		itemlist.get(j).getItemID(),
-								"item.name",	itemobj.getName() );
+					t.setVar("item.id", anItemlist.getItemID(),
+							"item.name", itemobj.getName());
 
 					t.parse("slot.items.list", "slot.items.listitem", true);
 				}

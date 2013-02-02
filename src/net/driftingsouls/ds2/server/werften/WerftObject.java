@@ -936,6 +936,58 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	}
 
 	/**
+	 * Bewegt den Eintrag in der Bauschlange ganz an das Ende.
+	 * @param position Die Position des zu verschiebenden Eintrags
+	 */
+	public void moveBuildQueueEntryToBottom(int position)
+	{
+		WerftQueueEntry[] queue = this.getBuildQueue();
+		final int queueSize = queue.length;
+		int index = 0;
+		for( ; index < queueSize; index++ )
+		{
+			if( queue[index].getPosition() == position )
+			{
+				break;
+			}
+		}
+		for( ; index < queueSize-1; index++ )
+		{
+			WerftQueueEntry entry = queue[index];
+			WerftQueueEntry entry2 = queue[index+1];
+			if( (entry != null) && (entry2 != null) ) {
+				this.swapQueueEntries(entry, entry2);
+			}
+		}
+	}
+
+	/**
+	 * Verschiebt den angegenen Eintrag in der Bauschlange ganz
+	 * an den Anfang.
+	 * @param position Die Position des zu verschiebenden Eintrags
+	 */
+	public void moveBuildQueueEntryToTop(int position)
+	{
+		WerftQueueEntry[] queue = this.getBuildQueue();
+		int index = queue.length-1;
+		for( ; index > 0; index-- )
+		{
+			if( queue[index].getPosition() == position )
+			{
+				break;
+			}
+		}
+		for( ; index > 0; index-- )
+		{
+			WerftQueueEntry entry = queue[index];
+			WerftQueueEntry entry2 = queue[index-1];
+			if( (entry != null) && (entry2 != null) ) {
+				this.swapQueueEntries(entry, entry2);
+			}
+		}
+	}
+
+	/**
 	 * Die Reparaturkosten eines Schiffes.
 	 *
 	 */
@@ -1741,7 +1793,8 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	private WerftQueueEntry[] entries = null;
 
 	/**
-	 * Gibt die Bauschlange der Werft zurueck (inkl gerade im Bau befindlicher Schiffe).
+	 * Gibt die Bauschlange der Werft zurueck (inkl gerade im Bau befindlicher Schiffe)
+	 * in sortierter Reihenfolge (Position in der Bauschlange) zurueck.
 	 * @return Die Bauschlange
 	 */
 	public WerftQueueEntry[] getBuildQueue() {
