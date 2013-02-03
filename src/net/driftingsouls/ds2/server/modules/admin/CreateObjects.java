@@ -681,7 +681,6 @@ public class CreateObjects implements AdminPlugin {
 			base.setHeight(type.getHeight());
 			base.setMaxTiles(type.getMaxTiles());
 			base.setMaxCargo(type.getCargo());
-			base.setUnits(new TransientUnitCargo());
 			base.setMaxEnergy(type.getEnergy());
 			base.setAvailableSpawnableRess(availablespawnableress);
 			db.persist(base);

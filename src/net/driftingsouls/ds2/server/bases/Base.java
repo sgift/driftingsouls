@@ -23,6 +23,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -192,6 +193,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		this.autoGtuActs = "";
 		this.owner = owner;
 		this.name = "Leerer Asteroid";
+		this.units = new HashSet<BaseUnitCargoEntry>();
 	}
 
 	/**
