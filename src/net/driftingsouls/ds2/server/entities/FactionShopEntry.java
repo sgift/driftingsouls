@@ -18,11 +18,15 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import java.util.HashSet;
+import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
@@ -56,6 +60,9 @@ public class FactionShopEntry {
     @Column(name="min_rank")
     private int minRank;
 
+	@OneToMany(mappedBy="shopEntry",cascade = CascadeType.ALL)
+	private Set<FactionShopOrder> orders;
+
 	@Version
 	private int version;
 
@@ -77,6 +84,35 @@ public class FactionShopEntry {
 		this.faction = faction;
 		this.type = type;
 		this.resource = resource;
+		this.orders = new HashSet<FactionShopOrder>();
+	}
+
+	/**
+	 * Gibt alle zu diesem Shopeintrag vorhandenen Bestellungen
+	 * zurueck. Dies umfasst auch alle bereits abgeschlossenen
+	 * Bestellungen.
+	 * @return Die Bestellungen
+	 */
+	public Set<FactionShopOrder> getBestellungen()
+	{
+		return this.orders;
+	}
+
+	/**
+	 * Gibt die Anzahl aller noch offenen Bestellungen zurueck.
+	 * @return Die Anazhl der offenen Bestellungen
+	 */
+	public int getAnzahlOffeneBestellungen()
+	{
+		int counter = 0;
+		for (FactionShopOrder order : this.orders)
+		{
+			if( order.getStatus() < 4 )
+			{
+				counter++;
+			}
+		}
+		return counter;
 	}
 
 	/**

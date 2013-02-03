@@ -2138,6 +2138,13 @@ public class ErsteigernController extends TemplateGenerator
 
 			if( "löschen".equalsIgnoreCase(getString("operation")) )
 			{
+				if( entry.getAnzahlOffeneBestellungen() > 0 )
+				{
+					addError("Es gibt noch offene Bestellungen zu diesem Shopeintrag");
+					redirect("shop");
+					return;
+				}
+
 				db.delete(entry);
 
 				t.setVar("show.message", "Eintrag gelöscht");
