@@ -404,16 +404,12 @@
 {/endif}
 {if show.bank}
 <form action="./ds" method="post">
-		<div class="smallfont">
-			<input name="count" type="text" value="0">
-			<select name="to">
-			<!-- BEGIN ueberweisen.listitem -->
-				<option value="{target.id}">{target.name} ({target.id})
-			<!-- END ueberweisen.listitem -->
-			</select>
+		<div class="gfxbox" style="width:690px">
+			<input name="count" type="text" value="0"> RE an
+			<input type="text" id="ueberweisen_to" name="to" style="width:300px"/>
 			{!form_create_hidden ueberweisen, faction:$global.faction}
 			<input type="submit" value="&uuml;berweisen" />
-		</span>
+		</div>
 	</form>
 	<div class="smallfont">
 		<br />

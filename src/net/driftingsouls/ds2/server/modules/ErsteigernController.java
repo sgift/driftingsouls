@@ -806,13 +806,14 @@ public class ErsteigernController extends TemplateGenerator
 	/**
 	 * Ueberweist einen bestimmten Geldbetrag an einen anderen Spieler. Wenn die Ueberweisung noch
 	 * nicht explizit bestaetigt wurde, wird die Bestaetigung erfragt.
-	 *
-	 * @urlparam Integer to Die ID des Spielers, der Ziel der Ueberweisung sein soll
-	 * @urlparam String ack <code>yes</code> um die Ueberweisung zu bestaetigen
-	 * @urlparam Integer count Die zu ueberweisende Geldmenge
-	 *
 	 */
 	@Action(ActionType.DEFAULT)
+	@UrlParams({
+			@UrlParam(name="to", description = "Der Spieler an den ueberwiesen werden soll"),
+			@UrlParam(name="ack", description = "yes falls die Uberweisung bestaetigt wurde (Sicherheitsabfrage)"),
+			@UrlParam(name="count", type=UrlParamType.NUMBER, description = "Die zu ueberweisenden RE"),
+			@UrlParam(name="token", description = "Ein Sicherheitstoken zur Bestaetigung der Ueberweisung")
+	})
 	public void ueberweisenAction()
 	{
 		if( !Faction.get(faction).getPages().hasPage("bank") )
@@ -832,13 +833,8 @@ public class ErsteigernController extends TemplateGenerator
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 
-		parameterNumber("to");
-		int to = getInteger("to");
-
-		parameterString("ack");
+		String to = getString("to");
 		String ack = getString("ack");
-
-		parameterNumber("count");
 		int count = getInteger("count");
 
 		if( user.getKonto().compareTo(new BigDecimal(count).toBigInteger()) < 0 )
@@ -852,7 +848,14 @@ public class ErsteigernController extends TemplateGenerator
 			return;
 		}
 
-		parameterString("token");
+		User tmp = User.lookupByIdentifier(to);
+		if( tmp == null )
+		{
+			addError("Der angegebene Spieler konnte nicht gefunden werden");
+			redirect("bank");
+			return;
+		}
+
 		String requestToken = getString("token");
 
 		UeberweisungsTokenContainer token = getContext().get(UeberweisungsTokenContainer.class);
@@ -860,8 +863,6 @@ public class ErsteigernController extends TemplateGenerator
 		// Falls noch keine Bestaetigung vorliegt: Bestaetigung der Ueberweisung erfragen
 		if( !ack.equals("yes") || !token.getToken().equals(requestToken) )
 		{
-			User tmp = (User)db.get(User.class, to);
-
 			token.generateNewToken();
 
 			t.setVar(
@@ -874,8 +875,6 @@ public class ErsteigernController extends TemplateGenerator
 
 			return;
 		}
-
-		User tmp = (User)db.get(User.class, to);
 
 		tmp.transferMoneyFrom(user.getId(), count, "&Uuml;berweisung vom "
 				+ Common.getIngameTime(this.ticks));
@@ -937,19 +936,6 @@ public class ErsteigernController extends TemplateGenerator
 		User user = (User)this.getUser();
 
 		t.setVar("show.bank", 1);
-
-		// ueberweisungen
-		t.setBlock("_ERSTEIGERN", "ueberweisen.listitem", "ueberweisen.list");
-
-		List<User> users = Common.cast(db.createQuery("from User " +
-				"where locate('hide',flags)=0 and id!=:userid order by id")
-			.setInteger("userid", user.getId())
-			.list());
-		for( User usr : users )
-		{
-			t.setVar("target.id", usr.getId(), "target.name", Common._title(usr.getName()));
-			t.parse("ueberweisen.list", "ueberweisen.listitem", true);
-		}
 
 		// Auwahl max. Transaktionstyp in der Kontoanzeige generieren
 		int transtype = Integer.parseInt(user.getUserValue("TBLORDER/factions/konto_maxtype"));
