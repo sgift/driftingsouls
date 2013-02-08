@@ -62,7 +62,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.ObjectNotFoundException;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -1267,7 +1266,12 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * @param moduleid Die Typen-ID des Modultyps
 	 * @param data Weitere Daten, welche das Modul identifizieren
 	 */
-	public void addModule(int slot, ModuleType moduleid, String data ) {
+	public void addModule(int slot, ModuleType moduleid, String data )
+	{
+		addModule(slot, moduleid, data, true);
+	}
+
+	private void addModule(int slot, ModuleType moduleid, String data, boolean validate ) {
 		if( this.id < 0 ) {
 			throw new UnsupportedOperationException("addModules kann nur bei Schiffen mit positiver ID ausgefuhert werden!");
 		}
@@ -1321,6 +1325,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		shipModules.setModules(Common.implode(";",moduleSlotData));
 		writeTypeToShipModule(shipModules, type);
+
+		if( validate )
+		{
+			ueberpruefeGedocktGelandetAnzahl();
+		}
 	}
 
 	private void writeTypeToShipModule(ShipModules shipModules, ShipTypeData type) {
@@ -1367,6 +1376,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * @param moduleEntry Der zu entfernende Moduleintrag
 	 */
 	public void removeModule( ModuleEntry moduleEntry ) {
+		removeModule(moduleEntry, true);
+	}
+
+	private void removeModule( ModuleEntry moduleEntry, boolean validate ) {
 		if( this.id < 0 ) {
 			throw new UnsupportedOperationException("addModules kann nur bei Schiffen mit positiver ID ausgefuhert werden!");
 		}
@@ -1432,6 +1445,34 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 			this.modules = null;
 		}
+
+		if( validate )
+		{
+			ueberpruefeGedocktGelandetAnzahl();
+		}
+	}
+
+	private void ueberpruefeGedocktGelandetAnzahl() {
+		ShipTypeData type = this.getTypeData();
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+
+		List<Ship> dockshipList = Common.cast(db.createQuery("from Ship where id>0 and docked= :docked")
+				.setString("docked", Integer.toString(this.id))
+				.list());
+		if( dockshipList.size() > type.getADocks() )
+		{
+			List<Ship> undock = dockshipList.subList(0, dockshipList.size()-type.getADocks());
+			this.undock(undock.toArray(new Ship[undock.size()]));
+		}
+
+		List<Ship> jdockshipList = Common.cast(db.createQuery("from Ship where id>0 and docked= :docked")
+				.setString("docked", "l "+Integer.toString(this.id))
+				.list());
+		if( jdockshipList.size() > type.getJDocks() )
+		{
+			List<Ship> undock = jdockshipList.subList(0, jdockshipList.size()-type.getJDocks());
+			this.start(undock.toArray(new Ship[undock.size()]));
+		}
 	}
 
 	/**
@@ -1485,6 +1526,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		shipModules.setModules(Common.implode(";",moduleSlotData));
 		writeTypeToShipModule(shipModules, type);
+
+		ueberpruefeGedocktGelandetAnzahl();
 	}
 
 	private void handleAlert()
@@ -2901,8 +2944,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 			gotmodule = true;
 
 			ModuleEntry moduleEntry = new ModuleEntry(0, ModuleType.CONTAINER_SHIP, Integer.toString(aship.getId()));
-			aship.removeModule( moduleEntry );
-			this.removeModule( moduleEntry );
+			aship.removeModule( moduleEntry, false );
+			this.removeModule( moduleEntry, false );
 		}
 
 		if( gotmodule )
@@ -3065,8 +3108,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 				aship.setCargo(emptycargo);
 			}
 
-			aship.addModule( 0, ModuleType.CONTAINER_SHIP, aship.getId()+"_"+(-type.getCargo()) );
-			this.addModule( 0, ModuleType.CONTAINER_SHIP, aship.getId()+"_"+type.getCargo() );
+			aship.addModule( 0, ModuleType.CONTAINER_SHIP, aship.getId()+"_"+(-type.getCargo()), false );
+			this.addModule( 0, ModuleType.CONTAINER_SHIP, aship.getId()+"_"+type.getCargo(), false );
 		}
 
 		this.cargo = cargo;
