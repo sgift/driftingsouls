@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -713,13 +714,79 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		this.spawnableress = spawnableRess;
 	}
 
+	private static class SpawnableRess
+	{
+		private int itemId;
+		private int chance;
+		private int maxValue;
+
+		SpawnableRess(int itemId, int chance, int maxValue)
+		{
+			this.itemId = itemId;
+			this.chance = chance;
+			this.maxValue = maxValue;
+		}
+	}
+
+	private static class SpawnableRessMap
+	{
+		private Map<Integer,SpawnableRess> chanceMap;
+		private Map<Integer,SpawnableRess> itemMap;
+		private int totalChance;
+
+		SpawnableRessMap()
+		{
+			this.chanceMap = new LinkedHashMap<Integer,SpawnableRess>();
+			this.itemMap = new LinkedHashMap<Integer, SpawnableRess>();
+			this.totalChance = 0;
+		}
+
+		void addSpawnRess(SpawnableRess spawnRess)
+		{
+			this.itemMap.put(spawnRess.itemId, spawnRess);
+			this.totalChance += spawnRess.chance;
+		}
+
+		void buildChanceMap()
+		{
+			final double chancefactor = 100 / (double)this.totalChance;
+			int chances = 1;
+			for (SpawnableRess thisress : this.itemMap.values())
+			{
+				int chance = (int) Math.round((double) thisress.chance * chancefactor);
+				int itemid = thisress.itemId;
+				int maxvalue = thisress.maxValue;
+				for (int a = chances; a <= chance + chances; a++)
+				{
+					chanceMap.put(a, new SpawnableRess(itemid, 1, maxvalue));
+				}
+				chances += chance + 1;
+			}
+		}
+
+		public SpawnableRess newRandomRess()
+		{
+			int chance = RandomUtils.nextInt(this.chanceMap.size()) + 1;
+			return this.chanceMap.get(chance);
+		}
+
+		public boolean isEmpty()
+		{
+			return this.itemMap.isEmpty();
+		}
+
+		public boolean containsRess(Item item)
+		{
+			return this.itemMap.containsKey(item.getID());
+		}
+	}
+
 	/**
-	 * Gibt die zum spawn freigegebenen Ressourcen in einer HashMap zurueck.
-	 * Beruecksichtigt ebenfalls die Systemvorraussetzungen
-	 * Keys von 1 bis 100 mit der dazugehoerigen Ressource und Maxmenge die gespawnt wird
+	 * Gibt die zum spawn freigegebenen Ressourcen zurueck.
+	 * Beruecksichtigt ebenfalls die Systemvorraussetzungen.
 	 * @return Die zum Spawn freigegebenen Ressourcen
 	 */
-	private Map<Integer,Integer[]> getSpawnableRessMap()
+	private SpawnableRessMap getSpawnableRessMap()
 	{
 		org.hibernate.Session db = getDB();
 		StarSystem system = (StarSystem)db.get(StarSystem.class, this.system);
@@ -729,81 +796,75 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 			return null;
 		}
 
-		Map<Integer,Integer[]> spawnress = new HashMap<Integer,Integer[]>();
-		Map<Integer,Integer[]> spawnressmap = new HashMap<Integer,Integer[]>();
-		int chances = 0;
-		int baseress = 0;
+		SpawnableRessMap spawnMap = new SpawnableRessMap();
 
 		if( getSpawnableRess() != null )
 		{
 			String[] spawnableress = StringUtils.split(getSpawnableRess(), ";");
-			for(int i = 0;i < spawnableress.length; i++) {
-				String[] thisress = StringUtils.split(spawnableress[i], ",");
+			for (String spawnableres : spawnableress)
+			{
+				String[] thisress = StringUtils.split(spawnableres, ",");
+				if( thisress.length != 3 )
+				{
+					continue;
+				}
 				int itemid = Integer.parseInt(thisress[0]);
 				int chance = Integer.parseInt(thisress[1]);
 				int maxvalue = Integer.parseInt(thisress[2]);
 
 				// Er soll nur Ressourcen spawnen die noch nicht vorhanden sind
-				if(getSpawnableRessAmount(itemid) <= 0)
+				if (getSpawnableRessAmount(itemid) <= 0)
 				{
-					chances += chance;
-
-					spawnress.put(i, new Integer[] {chance, itemid, maxvalue});
+					spawnMap.addSpawnRess(new SpawnableRess(itemid, chance, maxvalue));
 				}
 			}
-			baseress = spawnress.size();
 		}
 		if( system.getSpawnableRess() != null )
 		{
 			String[] spawnableresssystem = StringUtils.split(system.getSpawnableRess(), ";");
-			for(int i = 0;i < spawnableresssystem.length; i++) {
-				String[] thisress = StringUtils.split(spawnableresssystem[i], ",");
+			for (String aSpawnableresssystem : spawnableresssystem)
+			{
+				String[] thisress = StringUtils.split(aSpawnableresssystem, ",");
+				if( thisress.length != 3 )
+				{
+					continue;
+				}
 				int itemid = Integer.parseInt(thisress[0]);
 				int chance = Integer.parseInt(thisress[1]);
 				int maxvalue = Integer.parseInt(thisress[2]);
 
 				// Er soll nur Ressourcen spawnen die noch nicht vorhanden sind
-				if(getSpawnableRessAmount(itemid) <= 0)
+				if (getSpawnableRessAmount(itemid) <= 0)
 				{
-					chances += chance;
-
-					spawnress.put(i+baseress, new Integer[] {chance, itemid, maxvalue});
+					spawnMap.addSpawnRess(new SpawnableRess(itemid, chance, maxvalue));
 				}
 			}
 		}
 		if( getBaseType().getSpawnableRess() != null && !getBaseType().getSpawnableRess().isEmpty() )
 		{
 			String[] spawnableresstype = StringUtils.split(getBaseType().getSpawnableRess(), ";");
-			for(int i = 0;i < spawnableresstype.length; i++) {
-				String[] thisress = StringUtils.split(spawnableresstype[i], ",");
+			for (String aSpawnableresstype : spawnableresstype)
+			{
+				String[] thisress = StringUtils.split(aSpawnableresstype, ",");
+				if( thisress.length != 3 )
+				{
+					continue;
+				}
 				int itemid = Integer.parseInt(thisress[0]);
 				int chance = Integer.parseInt(thisress[1]);
 				int maxvalue = Integer.parseInt(thisress[2]);
 
 				// Er soll nur Ressourcen spawnen die noch nicht vorhanden sind
-				if(getSpawnableRessAmount(itemid) <= 0)
+				if (getSpawnableRessAmount(itemid) <= 0)
 				{
-					chances += chance;
-
-					spawnress.put(i+baseress, new Integer[] {chance, itemid, maxvalue});
+					spawnMap.addSpawnRess(new SpawnableRess(itemid, chance, maxvalue));
 				}
 			}
 		}
-		double chancefactor = 100 / (double)chances;
-		chances = 1;
-		for(int i = 0; i < spawnress.size(); i++)
-		{
-			Integer[] thisress = spawnress.get(i);
-			int chance = (int)Math.round((double)thisress[0] * chancefactor);
-			int itemid = thisress[1];
-			int maxvalue = thisress[2];
-			for(int a = chances; a <= chance+chances; a++) {
-				spawnressmap.put(a, new Integer[] {itemid, maxvalue});
-			}
-			chances += chance+1;
-		}
 
-		return spawnressmap;
+		spawnMap.buildChanceMap();
+
+		return spawnMap;
 	}
 
 	/**
@@ -812,9 +873,13 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 */
 	public String getAvailableSpawnableRess()
 	{
-		if( this.spawnressavailable == null || this.spawnressavailable.equals("null"))
+		if( "null".equals(this.spawnressavailable))
 		{
 			return null;
+		}
+		else if( this.spawnressavailable == null )
+		{
+			return "";
 		}
 		return this.spawnressavailable;
 	}
@@ -1761,6 +1826,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 
 		baseCargo.addResource(Resources.RE, getOwner().getKonto().longValue());
 
+		SpawnableRessMap ressMap = getSpawnableRessMap();
+
 		for(ResourceEntry entry : nettoproduction.getResourceList())
 		{
 			// Auf Spawn Resource pruefen und ggf Produktion anpassen
@@ -1772,7 +1839,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 					setSpawnableRessAmount(item.getID(), getSpawnableRessAmount(item.getID()) - nettoproduction.getResourceCount(entry.getId()));
 				}
 				// Ueberhaupt nichts auf dem Asteroiden vorhanden
-				else if (getSpawnableRessAmount(item.getID()) == 0) {
+				else if (getSpawnableRessAmount(item.getID()) < 0 || !ressMap.containsRess(item) ) {
 					// Dann ziehen wir die Production eben ab
 					nettoproduction.setResource(entry.getId(), 0);
 					msg += "Ihre Arbeiter konnten keine Vorkommen der Ressource "+item.getName()+" finden.\n";
@@ -1991,15 +2058,14 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 
 		setSpawnableRessAmount(itemid, 0);
 
-		Map<Integer,Integer[]> spawnableress = getSpawnableRessMap();
+		SpawnableRessMap spawnableress = getSpawnableRessMap();
 		if(spawnableress == null || spawnableress.isEmpty())
 		{
 			return;
 		}
-		int chance = RandomUtils.nextInt(99) + 1;
-		Integer[] spawnress = spawnableress.get(chance);
-		int item = spawnress[0];
-		int maxvalue = RandomUtils.nextInt(spawnress[1]-1)+1;
+		SpawnableRess spawnress = spawnableress.newRandomRess();
+		int item = spawnress.itemId;
+		int maxvalue = RandomUtils.nextInt(spawnress.maxValue-1)+1;
 
 		setSpawnableRessAmount(item, maxvalue);
 
