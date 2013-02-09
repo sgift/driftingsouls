@@ -152,6 +152,10 @@ public class HttpRequest implements Request {
 
 	@Override
 	public String getRemoteAddress() {
+		if( request.getHeader("x-forwarded-for") != null )
+		{
+			return request.getHeader("x-forwarded-for");
+		}
 		return request.getRemoteAddr();
 	}
 
