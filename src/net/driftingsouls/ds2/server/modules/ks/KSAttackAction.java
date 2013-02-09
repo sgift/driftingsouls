@@ -114,9 +114,10 @@ public class KSAttackAction extends BasicKSAction {
 
 		int remove = 1; // Anzahl der zerstoerten Schiffe
 
-		if( (eShip.getAction() & Battle.BS_DESTROYED) == 0 )
+		eShip.setAction(eShip.getAction() | Battle.BS_DESTROYED);
+
+		if( eShip.getDestroyer() == 0 )
 		{
-			eShip.setAction(eShip.getAction() | Battle.BS_DESTROYED);
 			eShip.setDestroyer(id);
 		}
 
@@ -131,9 +132,9 @@ public class KSAttackAction extends BasicKSAction {
 			if(s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == eShip.getId())
 			{
 				remove++;
-				if( (s.getAction() & Battle.BS_DESTROYED) == 0 )
+				s.setAction(s.getAction() | Battle.BS_DESTROYED);
+				if( s.getDestroyer() == 0)
 				{
-					s.setAction(s.getAction() | Battle.BS_DESTROYED);
 					s.setDestroyer(id);
 				}
 			}
