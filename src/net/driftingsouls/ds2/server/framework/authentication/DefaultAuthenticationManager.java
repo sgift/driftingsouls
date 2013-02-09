@@ -255,7 +255,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 			Request request = context.getRequest();
 			Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+request.getRemoteAddress()+"> ("+user.getId()+") <"+user.getUN()+"> ***ACC DISABLED*** von Browser <"+request.getUserAgent()+">\n");
 
-			db.createQuery("delete from PermanentSession where user=:user")
+			db.createQuery("delete from PermanentSession where userId=:user")
 				.setEntity("user", user)
 				.executeUpdate();
 
