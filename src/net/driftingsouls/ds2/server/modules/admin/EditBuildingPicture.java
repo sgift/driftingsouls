@@ -72,7 +72,7 @@ public class EditBuildingPicture extends AbstractEditPlugin implements AdminPlug
 					building.setDefaultPicture("data/dynamicContent/"+buildingImg);
 					if( oldImg.startsWith("data/dynamicContent/") )
 					{
-						DynamicContentManager.remove(building.getDefaultPicture());
+						DynamicContentManager.remove(oldImg);
 					}
 				}
 				for( Rasse rasse : Rassen.get() )
