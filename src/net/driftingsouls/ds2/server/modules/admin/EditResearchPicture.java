@@ -86,7 +86,7 @@ public class EditResearchPicture extends AbstractEditPlugin implements AdminPlug
 			}
 
 			this.beginEditorTable(echo, page, action, forschung.getID());
-			this.editLabel(echo, "Name", forschung.getID());
+			this.editLabel(echo, "Name", forschung.getName());
 			this.editDynamicContentField(echo, "Bild", "image", forschung.getImage());
 			this.endEditorTable(echo);
 		}

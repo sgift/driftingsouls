@@ -49,7 +49,7 @@ public class EditItemPicture extends AbstractEditPlugin implements AdminPlugin
 		List<Item> items = Common.cast(db.createQuery("from Item order by id").list());
 		for( Item item : items )
 		{
-			this.addSelectionOption(echo, item.getID(), item.getName()+"( "+item.getID()+")");
+			this.addSelectionOption(echo, item.getID(), item.getName()+" ("+item.getID()+")");
 		}
 		this.endSelectionBox(echo);
 
