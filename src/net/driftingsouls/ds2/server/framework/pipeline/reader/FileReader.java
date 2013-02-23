@@ -23,6 +23,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.activation.MimetypesFileTypeMap;
 import javax.servlet.http.HttpServletResponse;
@@ -47,6 +49,7 @@ public class FileReader implements Reader {
 	private static final Log log = LogFactory.getLog(FileReader.class);
 	
 	private Configuration config;
+	private Map<String,String> extensionMap;
 	
     /**
      * Injiziert die DS-Konfiguration.
@@ -56,38 +59,23 @@ public class FileReader implements Reader {
     public void setConfiguration(Configuration config) 
     {
     	this.config = config;
+		this.extensionMap = new HashMap<String,String>();
+		this.extensionMap.put("html", "text/html");
+		this.extensionMap.put("txt", "text/plain");
+		this.extensionMap.put("xml", "text/xml");
+		this.extensionMap.put("js", "text/javascript");
+		this.extensionMap.put("css", "text/css");
+		this.extensionMap.put("png", "image/png");
+		this.extensionMap.put("gif", "image/gif");
+		this.extensionMap.put("jpg", "image/jpg");
+		this.extensionMap.put("svg", "image/svg+xml");
     }
 	
 	private String guessMimeType( String extension ) {
 		if( extension == null ) {
 			return null;
 		}
-		if( extension.equals("html") ) {
-			return "text/html";
-		}
-		if( extension.equals("txt") ) {
-			return "text/plain";
-		}
-		if( extension.equals("xml") ) {
-			return "text/xml";
-		}
-		if( extension.equals("js") ) {
-			return "text/javascript";
-		}
-		if( extension.equals("css") ) {
-			return "text/css";
-		}
-		if( extension.equals("png") ) {
-			return "image/png";
-		}
-		if( extension.equals("gif") ) {
-			return "image/gif";
-		}
-		if( extension.equals("jpg") ) {
-			return "image/jpg";
-		}
-		
-		return null;
+		return this.extensionMap.get(extension);
 	}
 	
 	@Override
