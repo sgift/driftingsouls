@@ -106,7 +106,8 @@ var Starmap = function(jqElement) {
 			$('#mapview').append(overlay);
 
 			var self = this;
-			$('#actionOverlay').bind('click', function(e)
+			var actionOverlay = $('#actionOverlay');
+			actionOverlay.bind('click', function(e)
 			{
 				document.body.focus();
 				document.onselectstart = function () { return false; };
@@ -120,7 +121,7 @@ var Starmap = function(jqElement) {
 				self.onClick(x, y);
 			});
 
-			$('#actionOverlay').bind('mousedown', function(e) {
+			actionOverlay.bind('mousedown', function(e) {
 				if( e.which != 1 ) {
 					return;
 				}
@@ -133,7 +134,7 @@ var Starmap = function(jqElement) {
 
 				self.onDragStart();
 			});
-			$('#actionOverlay').bind('touchstart', function(e) {
+			actionOverlay.bind('touchstart', function(e) {
 				e.stopPropagation();
 				self.__lastDrag = [e.originalEvent.touches[0].pageX, e.originalEvent.touches[0].pageY];
 
@@ -144,14 +145,14 @@ var Starmap = function(jqElement) {
 				self.onDragStart();
 			});
 
-			$('#actionOverlay').bind('mouseup mouseout touchend', function(e) {
+			actionOverlay.bind('mouseup mouseout touchend', function(e) {
 				self.__lastDrag = [];
 				e.stopPropagation();
 
 				self.onDragStop();
 			});
 
-			$('#actionOverlay').bind('mousemove touchmove', function(e)
+			actionOverlay.bind('mousemove touchmove', function(e)
 			{
 				var drag = self.__lastDrag;
 				if( typeof drag === "undefined" || drag.length == 0 ) {
@@ -613,6 +614,7 @@ var Starmap = function(jqElement) {
 	var __starmapOverlay = null;
 	var __dataPath = null;
 	var __request = null;
+	var __ready = false;
 
 	function load(sys,x,y,options)
 	{
@@ -631,8 +633,6 @@ var Starmap = function(jqElement) {
 
 		var xstart = Math.max(1, 1-Math.floor(width/2));
 		var ystart = Math.max(1, 1-Math.floor(height/2));
-		var targetX = Math.max(1, x-Math.floor(width/2));
-		var targetY = Math.max(1, y-Math.floor(height/2));
 
 		onSystemLoad();
 		clearMap();
@@ -656,9 +656,7 @@ var Starmap = function(jqElement) {
 			request,
 			function(data) {
 				renderMap(data, options);
-				if( targetX != xstart || targetY != ystart ) {
-					gotoLocation(targetX,targetY);
-				}
+				gotoLocation(x,y);
 				onSystemLoaded();
 				if( typeof options.loadCallback !== 'undefined' ) {
 					options.loadCallback(data);
@@ -678,7 +676,27 @@ var Starmap = function(jqElement) {
 	};
 
 	function gotoLocation(x, y) {
-		__onMove(x*SECTOR_IMAGE_SIZE,y*SECTOR_IMAGE_SIZE);
+		var mapview = $('#mapview');
+		var width = Math.floor((mapview.width())/SECTOR_IMAGE_SIZE);
+		var height = Math.floor((mapview.height())/SECTOR_IMAGE_SIZE);
+
+		var targetX = Math.max(1, x-Math.floor(width/2));
+		var targetY = Math.max(1, y-Math.floor(height/2));
+
+		if( targetX > __currentSystem.width ) {
+			targetX = __currentSystem.width-width;
+		}
+		if( targetY > __currentSystem.height ) {
+			targetY = __currentSystem.height-height;
+		}
+		if( targetX < 1 ) {
+			targetX = 1;
+		}
+		if( targetY < 1 ) {
+			targetY = 1;
+		}
+
+		__onMove((targetX-1)*SECTOR_IMAGE_SIZE+__currentShiftOffset[0],(targetY-1)*SECTOR_IMAGE_SIZE+__currentShiftOffset[1]);
 	};
 
 	function clearMap()
@@ -756,6 +774,7 @@ var Starmap = function(jqElement) {
 	function onSystemLoaded()
 	{
 		__loaderPopup.hide();
+		__ready = true;
 	};
 	function onClick(x,y) {
 		x -= __currentShiftOffset[0];
@@ -775,7 +794,55 @@ var Starmap = function(jqElement) {
 	// PUBLIC METHODS
 	this.gotoLocation = gotoLocation;
 	this.load = load;
+	this.isReady = function() { return __ready };
 };
+
+/**
+ * Erzeugt ein Popup das die Eingabe einer neuen Position erlaubt.
+ * @param {function} callback Die Callbackmethode beim bestaetigen des Popups.
+ * 			Erhaelt zwei Parameter, x und y.
+ * @constructor
+ */
+function StarmapGotoLocationPopup(callback) {
+	var __createPopup  = function()
+	{
+		if( $('#starmapGotoLocationPopup').size() == 0 )
+		{
+			var sectorview = '<div id="starmapGotoLocationPopup" class="gfxbox">'+
+				'<form action="./ds" method="post" name="mapform">'+
+				'<label>Position</label>'+
+				'<input type="text" name="xstart" size="3" value="1" />/'+
+				'<input type="text" name="ystart" size="3" value="1" />'+
+				'<input type="submit" value="ok"/>'+
+				'</form>'+
+				'</div>';
+			$('body').append(sectorview);
+		}
+	};
+
+	var show = function() {
+		__createPopup();
+
+		var popup = $('#starmapGotoLocationPopup');
+		popup.dialog({
+			title: "Zur Position springen",
+			height:100
+		});
+		var form = popup.find('form');
+		form.off('submit')
+			.on('submit', function(event) {
+				event.preventDefault();
+
+				popup.dialog('close');
+
+				callback(form.find('input[name=xstart]').val(), form.find('input[name=ystart]').val());
+
+				return false;
+			});
+	};
+
+	show();
+}
 
 /**
  * Erzeugt ein neues Infopopup zu einem Sektor und zeigt dieses an.

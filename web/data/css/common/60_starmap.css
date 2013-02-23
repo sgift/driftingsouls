@@ -14,16 +14,27 @@
 	margin-bottom:8px;
 }
 
+#mapmenubar img {
+	width:20px;
+}
+
 #systemauswahl .content {
 	text-align:center;
 }
 
 #systemauswahl table {
-	margin-left:auto;
-	margin-right:auto;
 	text-align:left;
-	margin-bottom:10px;
-	margin-top:5px;
+	margin: 5px auto 10px;
+}
+
+#starmapGotoLocationPopup form {
+	width:100%;
+	text-align:center;
+}
+
+#starmapGotoLocationPopup form input[type=text] {
+	margin:0px 4px;
+	width:50px;
 }
 
 #jumpnodebox .content {

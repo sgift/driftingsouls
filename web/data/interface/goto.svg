@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="147.46875"
+   height="68.63356"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.3.1 r9886"
+   sodipodi:docname="goto.svg">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="3.959798"
+     inkscape:cx="40.387279"
+     inkscape:cy="59.783891"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     showguides="true"
+     inkscape:guide-bbox="true"
+     inkscape:window-width="1605"
+     inkscape:window-height="984"
+     inkscape:window-x="151"
+     inkscape:window-y="100"
+     inkscape:window-maximized="0"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0">
+    <sodipodi:guide
+       orientation="1,0"
+       position="-82.75893,55.155686"
+       id="guide2989" />
+    <sodipodi:guide
+       orientation="1,0"
+       position="123.49107,40.869966"
+       id="guide2991" />
+    <sodipodi:guide
+       orientation="0,1"
+       position="116.4375,45.066396"
+       id="guide2993" />
+    <sodipodi:guide
+       orientation="0,1"
+       position="-12.84821,10.155686"
+       id="guide2995" />
+    <sodipodi:guide
+       orientation="-0.70710684,0.70710672"
+       position="140.99107,45.066396"
+       id="guide3765" />
+    <sodipodi:guide
+       orientation="0,1"
+       position="153.66964,0.51282626"
+       id="guide3767" />
+    <sodipodi:guide
+       orientation="1,0"
+       position="146.97322,42.298546"
+       id="guide3769" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>Christopher Jung (bKtHeG)</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:rights>
+          <cc:Agent>
+            <dc:title>CC-BY 3.0</dc:title>
+          </cc:Agent>
+        </dc:rights>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Ebene 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-219.1875,-416.74144)">
+    <path
+       style="fill:#178413;fill-opacity:1;stroke:#003000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 233.59419,470.67363 c 57.52543,-42.08721 64.17275,-38.33109 98.6826,-2.46323 l -16.65178,16.65178 50.53571,0 -0.0447,-50.49107 -16.47321,16.47322 c -45.31817,-42.19925 -67.43163,-46.822 -129.7658,-1.44435 z"
+       id="path2987"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccccc" />
+  </g>
+</svg>
