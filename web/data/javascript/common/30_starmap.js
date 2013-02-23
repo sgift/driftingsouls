@@ -629,8 +629,10 @@ var Starmap = function(jqElement) {
 		var width = Math.floor((mapview.width())/SECTOR_IMAGE_SIZE);
 		var height = Math.floor((mapview.height())/SECTOR_IMAGE_SIZE);
 
-		var xstart = Math.max(1, x-Math.floor(width/2));
-		var ystart = Math.max(1, y-Math.floor(height/2));
+		var xstart = Math.max(1, 1-Math.floor(width/2));
+		var ystart = Math.max(1, 1-Math.floor(height/2));
+		var targetX = Math.max(1, x-Math.floor(width/2));
+		var targetY = Math.max(1, y-Math.floor(height/2));
 
 		onSystemLoad();
 		clearMap();
@@ -654,6 +656,9 @@ var Starmap = function(jqElement) {
 			request,
 			function(data) {
 				renderMap(data, options);
+				if( targetX != xstart || targetY != ystart ) {
+					gotoLocation(targetX,targetY);
+				}
 				onSystemLoaded();
 				if( typeof options.loadCallback !== 'undefined' ) {
 					options.loadCallback(data);
@@ -671,6 +676,11 @@ var Starmap = function(jqElement) {
 
 		return false;
 	};
+
+	function gotoLocation(x, y) {
+		__onMove(x*SECTOR_IMAGE_SIZE,y*SECTOR_IMAGE_SIZE);
+	};
+
 	function clearMap()
 	{
 		$('#legend').remove();
@@ -753,6 +763,9 @@ var Starmap = function(jqElement) {
 		var sectorX = __currentSize.minx+Math.floor(x / SECTOR_IMAGE_SIZE);
 		var sectorY = __currentSize.miny+Math.floor(y / SECTOR_IMAGE_SIZE);
 		var locationInfo = __starmapOverlay.getSectorInformation(sectorX, sectorY);
+		if( locationInfo == null ) {
+			return;
+		}
 
 		new StarmapSectorInfoPopup(__currentSystem, sectorX, sectorY, locationInfo, {
 			request : __request
@@ -760,6 +773,7 @@ var Starmap = function(jqElement) {
 	};
 
 	// PUBLIC METHODS
+	this.gotoLocation = gotoLocation;
 	this.load = load;
 };
 
