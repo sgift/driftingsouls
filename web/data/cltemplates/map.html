@@ -6,7 +6,53 @@
 
 <div id="mapcontent"></div>
 
-<div id="systemauswahl" ds-popup="systemSelection" ds-popup-title="Kartenausschnitt" ds-popup-width="400" ds-popup-auto-open="true">
+<div id="starmapGotoLocationPopup"
+	class="gfxbox"
+	ds-popup="gotoLocationPopup"
+	ds-popup-title="Zur Position springen"
+	ds-popup-width="400"
+	ng-controller="MapGeheZuPositionController">
+
+	<form ng-submit="zurPositionSpringen()">
+		<div class="bekannteObjekte">
+			<ul>
+				<li ng-show="sprungpunkte.length>0">Sprungpunkte
+					<ul>
+						<li ng-repeat="sprungpunkt in sprungpunkte">
+							<a ds-popup-control-close="@this" ng-click="zurPositionSpringen(sprungpunkt)">{{sprungpunkt.x}}/{{sprungpunkt.y}} - {{sprungpunkt.name}}</a>
+						</li>
+					</ul>
+				</li>
+				<li ng-show="posten.length>0">Handelsposten
+					<ul>
+						<li ng-repeat="hp in posten">
+							<a ds-popup-control-close="@this" ng-click="zurPositionSpringen(hp)">{{hp.x}}/{{hp.y}} - {{hp.name}}</a>
+						</li>
+					</ul>
+				</li>
+				<li ng-show="basen.length>0">Basen
+					<ul>
+						<li ng-repeat="basis in basen">
+							<a ds-popup-control-close="@this" ng-click="zurPositionSpringen(basis)">{{basis.x}}/{{basis.y}} - {{basis.name}}</a>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+		<label>Eigene Position eingeben</label>
+		<input type="text" ng-model="x" size="3" />/
+		<input type="text" ng-model="y" name="ystart" size="3" />
+		<input type="submit" value="ok" ds-popup-control-close="@this"/>
+	</form>
+</div>
+
+<div id="systemauswahl"
+	ds-popup="systemSelection"
+	ds-popup-title="Kartenausschnitt"
+	ds-popup-width="400"
+	ds-popup-auto-open="true"
+	ng-controller="MapSystemauswahlController">
+
 	<form ng-submit="sternenkarteLaden()">
 		<table cellpadding="3">
 			<tr>

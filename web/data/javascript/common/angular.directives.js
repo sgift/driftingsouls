@@ -50,8 +50,30 @@ angular.module('ds.directives', [])
 			});
 	};
 })
+.directive('dsPopupControlOpen', ['PopupService', function(PopupService) {
+	return {
+		restrict : 'A',
+		link : function(scope, element, attrs) {
+			element.bind("click", function() {
+				PopupService.open(attrs.dsPopupControlOpen, element);
+			});
+		}
+	};
+}])
+.directive('dsPopupControlClose', ['PopupService', function(PopupService) {
+	return {
+		restrict : 'A',
+		link : function(scope, element, attrs) {
+			element.bind("click", function() {
+				PopupService.close(attrs.dsPopupControlClose, element);
+			});
+		}
+	};
+}])
 .directive('dsPopup', ['PopupService', function(PopupService) {
 	return {
+		scope:true,
+		restrict:'A',
 		link : function(scope, element, attrs) {
 			var popupOptions = {
 				title : attrs.dsPopupTitle,
@@ -65,11 +87,11 @@ angular.module('ds.directives', [])
 			}
 
 			var dialogEl = $(element.get(0));
-			PopupService.create(attrs.dsPopup, dialogEl, popupOptions);
+			PopupService.create(attrs.dsPopup, dialogEl, popupOptions, scope);
 
 			if( element.get(0).nodeName.toUpperCase() == "A" ) {
 				element.bind("click", function() {
-					PopupService.show(attrs.dsPopup);
+					PopupService.open(attrs.dsPopup);
 				});
 			}
 		}
@@ -81,24 +103,38 @@ angular.module('ds.directives', [])
 
 	var embeddedPopupRegistry = [];
 
-	popupService.create = function(name, dialogEl, popupOptions) {
+	popupService.create = function(name, dialogEl, popupOptions, scope) {
 		dialogEl.dialog(popupOptions);
 		dialogEl.addClass('gfxbox');
-		embeddedPopupRegistry[name] = dialogEl;
+		scope.dsPopupName = name;
+		embeddedPopupRegistry[name] = {element:dialogEl, scope:scope};
 	}
 
-	popupService.open = function(name) {
+	function resolvePopupName(name, element) {
+		if( !name.startsWith('@') ) {
+			return name;
+		}
+		if( name == "@this" ) {
+			return element.parents().filter('[ds-popup]').first().attr('ds-popup');
+		}
+		throw "Unbekannter Popupname: "+name;
+	}
+
+	popupService.open = function(name, element) {
+		name = resolvePopupName(name, element);
 		if( !embeddedPopupRegistry[name] ) {
 			throw "Unbekanntes Popup "+name;
 		}
-		embeddedPopupRegistry[name].dialog('open');
+		embeddedPopupRegistry[name].element.dialog('open');
+		embeddedPopupRegistry[name].scope.$broadcast('dsPopupOpen', name);
 	}
 
-	popupService.close = function(name) {
+	popupService.close = function(name, element) {
+		name = resolvePopupName(name, element);
 		if( !embeddedPopupRegistry[name] ) {
 			throw "Unbekanntes Popup "+name;
 		}
-		embeddedPopupRegistry[name].dialog('close');
+		embeddedPopupRegistry[name].element.dialog('close');
 	}
 
 	return popupService;

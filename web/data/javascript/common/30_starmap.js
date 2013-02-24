@@ -792,55 +792,9 @@ var Starmap = function(jqElement) {
 	// PUBLIC METHODS
 	this.gotoLocation = gotoLocation;
 	this.load = load;
-	this.isReady = function() { return __ready };
+	this.isReady = function() { return __ready; };
+	this.getSystemId = function() { return __currentSystem.id; };
 };
-
-/**
- * Erzeugt ein Popup das die Eingabe einer neuen Position erlaubt.
- * @param {function} callback Die Callbackmethode beim bestaetigen des Popups.
- * 			Erhaelt zwei Parameter, x und y.
- * @constructor
- */
-function StarmapGotoLocationPopup(callback) {
-	var __createPopup  = function()
-	{
-		if( $('#starmapGotoLocationPopup').size() == 0 )
-		{
-			var sectorview = '<div id="starmapGotoLocationPopup" class="gfxbox">'+
-				'<form action="./ds" method="post" name="mapform">'+
-				'<label>Position</label>'+
-				'<input type="text" name="xstart" size="3" value="1" />/'+
-				'<input type="text" name="ystart" size="3" value="1" />'+
-				'<input type="submit" value="ok"/>'+
-				'</form>'+
-				'</div>';
-			$('body').append(sectorview);
-		}
-	};
-
-	var show = function() {
-		__createPopup();
-
-		var popup = $('#starmapGotoLocationPopup');
-		popup.dialog({
-			title: "Zur Position springen",
-			height:100
-		});
-		var form = popup.find('form');
-		form.off('submit')
-			.on('submit', function(event) {
-				event.preventDefault();
-
-				popup.dialog('close');
-
-				callback(form.find('input[name=xstart]').val(), form.find('input[name=ystart]').val());
-
-				return false;
-			});
-	};
-
-	show();
-}
 
 /**
  * Erzeugt ein neues Infopopup zu einem Sektor und zeigt dieses an.

@@ -27,6 +27,19 @@
 	margin: 5px auto 10px;
 }
 
+#starmapGotoLocationPopup .bekannteObjekte {
+	border-bottom:1px solid #aaaaaa;
+	text-align:left;
+	max-height:150px;
+	margin:0px 0px 10px 0px;
+	overflow:auto;
+}
+
+#starmapGotoLocationPopup .bekannteObjekte ul {
+	margin:0px 0px 0px 0px;
+	padding:0px 0px 10px 20px;
+}
+
 #starmapGotoLocationPopup form {
 	width:100%;
 	text-align:center;
