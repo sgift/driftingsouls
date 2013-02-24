@@ -41,6 +41,7 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
+import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
@@ -696,15 +697,35 @@ public class WerftGUI {
 		User user = (User)context.getActiveUser();
 		org.hibernate.Session db = context.getDB();
 
-		int itemid = context.getRequest().getParameterInt("item");
-		int slot = context.getRequest().getParameterInt("slot");
-		String moduleaction = context.getRequest().getParameterString("moduleaction");
+		Request request = context.getRequest();
+		int itemid = request.getParameterInt("item");
+		int slot = request.getParameterInt("slot");
+		String moduleaction = request.getParameterString("moduleaction");
+		boolean flotte = request.getParameterInt("flotte") != 0;
 
 		//Gehoert das Schiff dem User?
 		if( (ship == null) || (ship.getId() < 0) || (ship.getOwner() != user) ) {
 			context.addError("Das Schiff existiert nicht oder geh&ouml;rt nicht ihnen", werft.getUrlBase());
 			return;
 		}
+
+		List<Ship> targetShips = new ArrayList<Ship>();
+		if( ship.getFleet() != null )
+		{
+			for (Ship fleetship : ship.getFleet().getShips())
+			{
+				if( fleetship.getType() == ship.getType() )
+				{
+					targetShips.add(fleetship);
+				}
+			}
+		}
+		else
+		{
+			targetShips.add(ship);
+		}
+
+		flotte = targetShips.size() > 1 && flotte;
 
 		ShipTypeData shiptype = ship.getBaseType();
 
@@ -719,20 +740,32 @@ public class WerftGUI {
 		t.setBlock("_WERFT.WERFTGUI", "ws.modules.slots.listitem", "ws.modules.slots.list");
 		t.setBlock("ws.modules.slots.listitem", "slot.items.listitem", "slot.items.list");
 
-		t.setVar(	"werftgui.ws.modules",	1,
-					"ship.type.image",		shiptype.getPicture() );
+		t.setVar(
+				"werftgui.ws.modules", 1,
+				"ship.type.image", shiptype.getPicture(),
+				"ws.modules.flotte", targetShips.size()>1 ? 1 : 0,
+				"ws.modules.flotte.typname", shiptype.getNickname(),
+				"ws.modules.flotte.anzahl", targetShips.size(),
+				"ws.modules.flotte.aktiv", flotte ? 1 : 0);
 
 		// Modul einbauen
 		if( (itemid != 0) && (slot != 0) ) {
 			Item item = (Item)db.get(Item.class, itemid);
 			if( item != null) {
-				werft.addModule( ship, slot, itemid );
-				t.setVar("ws.modules.msg", Common._plaintext(werft.MESSAGE.getMessage()));
+				for (Ship aship : targetShips)
+				{
+					werft.addModule( aship, slot, itemid );
+				}
+				t.setVar("ws.modules.msg", Common._plaintext(werft.getMessage()));
 			}
 		}
 		else if( moduleaction.equals("ausbauen") && (slot != 0) ) {
-			werft.removeModule( ship, slot );
-			t.setVar("ws.modules.msg", Common._plaintext(werft.MESSAGE.getMessage()));
+			for (Ship aship : targetShips)
+			{
+				werft.removeModule( aship, slot );
+			}
+
+			t.setVar("ws.modules.msg", Common._plaintext(werft.getMessage()));
 		}
 
 		ModuleEntry[] modules = ship.getModules();
@@ -830,10 +863,10 @@ public class WerftGUI {
 
 		boolean ok = werft.dismantleShip(ship, !conf.equals("ok"));
 		if( !ok ) {
-			t.setVar("ws.dismantle.error", werft.MESSAGE.getMessage() );
+			t.setVar("ws.dismantle.error", werft.getMessage() );
 		}
 		else {
-			String msg = werft.MESSAGE.getMessage();
+			String msg = werft.getMessage();
 			if( msg.length() > 0 ) {
 				t.setVar("ws.dismantle.msg", msg);
 			}
@@ -881,10 +914,10 @@ public class WerftGUI {
 		boolean ok = werft.repairShip(ship, !conf.equals("ok"));
 
 		if( !ok ) {
-			t.setVar("ws.repair.error", werft.MESSAGE.getMessage());
+			t.setVar("ws.repair.error", werft.getMessage());
 		}
 		else {
-			String msg = werft.MESSAGE.getMessage();
+			String msg = werft.getMessage();
 			if( msg.length() > 0 ) {
 				t.setVar("ws.repair.message", msg);
 			}
@@ -905,7 +938,7 @@ public class WerftGUI {
 
 		ShipBaubar shipdata = werft.getShipBuildData( build, itemid );
 		if( (shipdata == null) ) {
-			t.setVar("werftgui.msg", "<span style=\"color:red\">"+werft.MESSAGE.getMessage()+"</span>");
+			t.setVar("werftgui.msg", "<span style=\"color:red\">"+werft.getMessage()+"</span>");
 			return;
 		}
 
@@ -985,14 +1018,14 @@ public class WerftGUI {
 			boolean result = werft.buildShip(build, itemid, false, true );
 
 			if( !result ) {
-				t.setVar("build.instant.error", StringUtils.replace(werft.MESSAGE.getMessage(), "\n", "<br/>\n"));
+				t.setVar("build.instant.error", StringUtils.replace(werft.getMessage(), "\n", "<br/>\n"));
 			}
 
 			// Kosten pro Tick
 			result = werft.buildShip(build, itemid, true, true );
 
 			if( !result ) {
-				t.setVar("build.pertick.error", StringUtils.replace(werft.MESSAGE.getMessage(), "\n", "<br/>\n"));
+				t.setVar("build.pertick.error", StringUtils.replace(werft.getMessage(), "\n", "<br/>\n"));
 			}
 		}
 		// Bau ausfuehren
@@ -1000,7 +1033,7 @@ public class WerftGUI {
 			boolean result = werft.buildShip(build, itemid, perTick, false );
 
 			if( !result ) {
-				t.setVar("build.error", StringUtils.replace(werft.MESSAGE.getMessage(), "\n", "<br/>\n"));
+				t.setVar("build.error", StringUtils.replace(werft.getMessage(), "\n", "<br/>\n"));
 			}
 		}
 

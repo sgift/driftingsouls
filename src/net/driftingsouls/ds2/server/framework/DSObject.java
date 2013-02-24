@@ -28,4 +28,14 @@ public class DSObject {
 	 * Lognachrichten der zuletzt aufgerufenen Methoden. Die Nachrichten sind Thread-Lokal.
 	 */
 	public final ContextLocalMessage MESSAGE = new ContextLocalMessage();
+
+	/**
+	 * Gibt die Lognachrichten der zuletzt aufgerufenen Methode zurueck.
+	 * Der Nachrichtenpuffer wird anschliessend zurueckgesetzt.
+	 * @return Die Nachrichten
+	 */
+	public String getMessage()
+	{
+		return MESSAGE.getMessage();
+	}
 }

@@ -1,11 +1,11 @@
-<div class="smallfont">
+<div class="smallfont werft">
 {if werftgui.msg}
 	{werftgui.msg}
 	<br />
 	<br />
 {/endif}
 {if werftgui.ws}
-	<div class="gfxbox" style="width:610px">
+	<div class="gfxbox werkstatt" style="width:610px">
 		<table class="noBorderX" width="100%" cellpadding="2">
 		<tr>
 			<td colspan="2" class="noBorderX">
@@ -117,30 +117,50 @@
 					{ws.modules.msg}
 					<br />
 				{/endif}
-				<!-- BEGIN ws.modules.slots.listitem -->
-					* {slot.name}: 
-					{if slot.empty}
-						Leer
-						{if slot.items.list}
-							<form action="./ds" method="post">
-							{werftgui.formhidden}
-							<input type="hidden" name="werftact" value="module" />
-							<input type="hidden" name="ws" value="{ship.id}" />
-							<input type="hidden" name="slot" value="{slot.id}" />
-							<select size="1" name="item">
-								<!-- BEGIN slot.items.listitem -->
-									<option value="{item.id}">{item.name}</option>
-								<!-- END slot.items.listitem -->
-							</select>
-							<input type="submit" value="einbauen" />
-							</form>
-						{/endif}
-					{else}
-						{slot.module.name}
-						<a class="error" href="{werftgui.urlbase}&amp;ws={ship.id}&amp;werftact=module&amp;slot={slot.id}&amp;moduleaction=ausbauen">ausbauen</a>
-					{/endif}
+				{if ws.modules.flotte}
+					<form action="./ds" method="post" id="flotteMitModulenForm">
+						{werftgui.formhidden}
+						<input type="hidden" name="werftact" value="module" />
+						<input type="hidden" name="ws" value="{ship.id}" />
+						<input type="checkbox"
+							   name="flotte"
+							   id="flotteMitModulen"
+							   value="1"
+							   onclick="$('#flotteMitModulenForm').submit()"
+							   onchange="$('#flotteMitModulenForm').submit()"
+								{if ws.modules.flotte.aktiv}checked="checked"{/endif} />
+						<label for="flotteMitModulen">Alle {ws.modules.flotte.anzahl} {ws.modules.flotte.typname} der Flotte ausrüsten</label>
+					</form>
 					<br />
+				{/endif}
+				<ul>
+				<!-- BEGIN ws.modules.slots.listitem -->
+					<li>
+						{slot.name}:
+						{if slot.empty}
+							Leer
+							{if slot.items.list}
+								<form action="./ds" method="post">
+								{werftgui.formhidden}
+								<input type="hidden" name="werftact" value="module" />
+								<input type="hidden" name="ws" value="{ship.id}" />
+								<input type="hidden" name="slot" value="{slot.id}" />
+								<input type="hidden" name="flotte" value="{ws.modules.flotte.aktiv}" />
+								<select size="1" name="item">
+									<!-- BEGIN slot.items.listitem -->
+										<option value="{item.id}">{item.name}</option>
+									<!-- END slot.items.listitem -->
+								</select>
+								<input type="submit" value="einbauen" />
+								</form>
+							{/endif}
+						{else}
+							{slot.module.name}
+							<a class="error" href="{werftgui.urlbase}&amp;ws={ship.id}&amp;werftact=module&amp;slot={slot.id}&amp;flotte={ws.modules.flotte.aktiv}&amp;moduleaction=ausbauen">ausbauen</a>
+						{/endif}
+					</li>
 				<!-- END ws.modules.slots.listitem -->
+				</ul>
 			{/endif}			
 			</td>
 			<td valign="top" align="center" class="noBorderX">

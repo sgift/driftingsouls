@@ -371,3 +371,17 @@
 .adminEditor .dynamicContentEdit textarea{
 	width:100%;
 }
+
+/*
+	Werft
+*/
+.werft .werkstatt ul {
+	margin-left:0px;
+	padding-left:20px;
+}
+.werft .werkstatt li {
+	margin-bottom:6px;
+}
+.werft .werkstatt select {
+	width:200px;
+}

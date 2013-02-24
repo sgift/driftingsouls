@@ -483,7 +483,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 
 		if( !usedslots.containsKey(slot) ) {
-			MESSAGE.get().append("Es befindet sich kein Modul in diesem Slot\n");
+			MESSAGE.get().append(ship.getName()+" - Es befindet sich kein Modul in diesem Slot\n");
 			return;
 		}
 
@@ -502,11 +502,11 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 
 		if( aslot == null ) {
-			MESSAGE.get().append("Keinen passenden Slot gefunden\n");
+			MESSAGE.get().append(ship.getName()+" - Keinen passenden Slot gefunden\n");
 			return;
 		}
 
-		ShipTypeData oldshiptype = null;
+		ShipTypeData oldshiptype;
 		try {
 			oldshiptype = (ShipTypeData)shiptype.clone();
 		}
@@ -530,7 +530,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 		moduleUpdateShipData(ship, oldshiptype, cargo);
 
-		MESSAGE.get().append("Modul ausgebaut\n");
+		MESSAGE.get().append(ship.getName()+" - Modul ausgebaut\n");
 	}
 
 	private void moduleUpdateShipData(Ship ship, ShipTypeData oldshiptype, Cargo cargo) {
@@ -626,7 +626,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 
 		if( shiptype.getWerft() == 0 ) {
-			db.createQuery("delete from ShipWerft where shipid=:ship")
+			db.createQuery("delete from ShipWerft where ship=:ship")
 				.setEntity("ship", ship)
 				.executeUpdate();
 		}
@@ -664,7 +664,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 
 		if( usedslots.containsKey(slot) ) {
-			MESSAGE.get().append("Der Slot ist bereits belegt\n");
+			MESSAGE.get().append(ship.getName()+" - Der Slot ist bereits belegt\n");
 			return;
 		}
 
@@ -686,18 +686,18 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 
 		if( aslot == null ) {
-			MESSAGE.get().append("Keinen passenden Slot gefunden\n");
+			MESSAGE.get().append(ship.getName()+" - Keinen passenden Slot gefunden\n");
 			return;
 		}
 
 		Item item = (Item)db.get(Item.class, itemid);
 		if( (aslot == null) || !ModuleSlots.get().slot(aslot[1]).isMemberIn( ((IEModule)item.getEffect()).getSlots() ) ) {
-			MESSAGE.get().append("Das Item passt nicht in dieses Slot\n");
+			MESSAGE.get().append(ship.getName()+" - Das Item passt nicht in dieses Slot\n");
 			return;
 		}
 
 		if( item.getAccessLevel() > context.getActiveUser().getAccessLevel() ) {
-			MESSAGE.get().append("Ihre Techniker wissen nichts mit dem Modul anzufangen\n");
+			MESSAGE.get().append(ship.getName()+" - Ihre Techniker wissen nichts mit dem Modul anzufangen\n");
 			return;
 		}
 
@@ -711,11 +711,11 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 
 		if( myitem == null ) {
-			MESSAGE.get().append("Kein passendes Item gefunden\n");
+			MESSAGE.get().append(ship.getName()+" - Kein passendes Item gefunden\n");
 			return;
 		}
 
-		ShipTypeData oldshiptype = null;
+		ShipTypeData oldshiptype;
 		try {
 			oldshiptype = (ShipTypeData)shiptype.clone();
 		}
@@ -728,7 +728,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 		moduleUpdateShipData(ship, oldshiptype, cargo);
 
-		MESSAGE.get().append("Modul eingebaut\n");
+		MESSAGE.get().append(ship.getName()+" - Modul eingebaut\n");
 
 	}
 
