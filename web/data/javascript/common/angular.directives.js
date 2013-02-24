@@ -111,7 +111,7 @@ angular.module('ds.directives', [])
 	}
 
 	function resolvePopupName(name, element) {
-		if( !name.startsWith('@') ) {
+		if( name.indexOf('@') !== 0 ) {
 			return name;
 		}
 		if( name == "@this" ) {
