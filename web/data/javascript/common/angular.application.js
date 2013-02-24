@@ -3,6 +3,7 @@
 angular.module('ds.application', 
 	[
 	'ds.npc',
+	'ds.map',
 	'ds.demo',
 	'ds.directives', 
 	'jquery-ui.directives'
@@ -16,6 +17,7 @@ angular.module('ds.application',
 		.when('/npc/raenge/:userId', {templateUrl: 'data/cltemplates/npc/raenge.html', controller: 'NpcRaengeController'})
 		.when('/npc/lp', {templateUrl: 'data/cltemplates/npc/lp.html', controller: 'NpcLpController'})
 		.when('/npc/shop', {templateUrl: 'data/cltemplates/npc/shop.html', controller: 'NpcShopController'})
-		.otherwise({redirectTo: '/npc/order'});
+		.when('/map', {templateUrl: 'data/cltemplates/map.html', controller: 'MapController'})
+		.otherwise({redirectTo: '/map'});
 	
 }]);

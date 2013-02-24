@@ -12,6 +12,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.AngularGenerator;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
@@ -52,7 +53,7 @@ import java.util.Map;
 		@UrlParam(name="loadmap", type=UrlParamType.NUMBER, description = "1 falls die Kartendaten geladen werden sollen"),
 		@UrlParam(name="admin", type=UrlParamType.NUMBER, description = "1 falls die Adminsicht auf die Sternenkarte verwendet werden soll")
 })
-public class MapController extends TemplateGenerator
+public class MapController extends AngularGenerator
 {
 	private boolean showSystem;
 	private StarSystem system;
@@ -68,18 +69,13 @@ public class MapController extends TemplateGenerator
 	{
 		super(context);
 
-		setTemplate("map.html");
-
 		setPageTitle("Sternenkarte");
-
-		setDisableDebugOutput(true);
 	}
 
 	@Override
 	protected boolean validateAndPrepare(String action)
 	{
 		User user = (User)getUser();
-		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 		sys = getInteger("sys");
 
@@ -89,41 +85,42 @@ public class MapController extends TemplateGenerator
 
 		if( sys == 0 )
 		{
-			t.setVar("map.message", "Bitte w&auml;hlen Sie ein System aus:" );
 			sys = 1;
 			showSystem = false; //Zeige das System nicht an
 		}
 		else if( system == null || !system.isVisibleFor(user) )
 		{
-			t.setVar("map.message", "Sie haben keine entsprechenden Karten - Ihnen sind bekannt:");
-			sys = 1;
-			showSystem = false; //Zeige das System nicht an
+			addError("Sie haben keine entsprechenden Karten - Ihnen sind bekannt:");
+			return false;
 		}
 
 		this.system = system;
-
-		t.setVar(
-				"map.showsystem",	showSystem,
-				"map.system",		sys,
-				"map.adminSichtVerfuegbar", user.isAdmin());
-
 		this.adminView = getInteger("admin") == 1 && user.isAdmin();
 
 		return true;
 	}
 
+	private JSONObject createResultObj()
+	{
+		JSONObject result = new JSONObject();
+		result.accumulate("system", sys);
+		result.accumulate("adminSichtVerfuegbar", getUser().isAdmin());
+
+		return result;
+	}
+
 	/**
 	 * Zeigt die Sternenkarte an.
 	 */
-	@Override
-	@Action(value=ActionType.DEFAULT, readOnly=true)
-	public void defaultAction() throws IOException
+	@Action(value=ActionType.AJAX, readOnly=true)
+	public JSONObject systemauswahlAction() throws IOException
 	{
 		User user = (User)getUser();
-		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 
-		t.setBlock("_MAP", "systems.listitem", "systems.list");
+		JSONObject result = createResultObj();
+
+		JSONArray systemListObj = new JSONArray();
 
 		List<StarSystem> systems = Common.cast(db.createQuery("from StarSystem order by id asc").list());
 		for(StarSystem system: systems)
@@ -144,13 +141,15 @@ public class MapController extends TemplateGenerator
 				systemAddInfo += "[hidden]";
 			}
 
-			t.setVar(	"system.name",		system.getName(),
-						"system.id",		system.getID(),
-						"system.addinfo",	systemAddInfo,
-						"system.selected",	(system.getID() == sys) );
+			JSONObject sysObj = new JSONObject();
+			sysObj.accumulate("name", system.getName());
+			sysObj.accumulate("id", system.getID());
+			sysObj.accumulate("addinfo", systemAddInfo);
 
-			t.parse("systems.list", "systems.listitem", true);
+			systemListObj.add(sysObj);
 		}
+		result.accumulate("systeme", systemListObj);
+		return result;
 	}
 
 	/**
@@ -305,9 +304,6 @@ public class MapController extends TemplateGenerator
 			}
 			json.accumulate("jumpnodes", publicNodeArray);
 
-
-			String dataPath = templateEngine.getVar("global.datadir") + "data/starmap/";
-			json.accumulate("dataPath", dataPath);
 
 			JSONObject sizeObj = new JSONObject();
 			sizeObj.accumulate("minx", xStart);

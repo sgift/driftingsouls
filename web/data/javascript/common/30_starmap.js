@@ -503,14 +503,14 @@ var Starmap = function(jqElement) {
 				var posy = (loc.y-this.__currentSize.miny)*SECTOR_IMAGE_SIZE;
 
 				if( loc.bg != null ) {
-					overlay += "<div style=\"top:"+posy+"px;left:"+posx+"px;background-image:url('"+data.dataPath+loc.bg+"')\" >";
+					overlay += "<div style=\"top:"+posy+"px;left:"+posx+"px;background-image:url('data/starmap/"+loc.bg+"')\" >";
 				}
 				else if( loc.fg != null ) {
 					overlay += "<div style=\"top:"+posy+"px;left:"+posx+"px\" >";
 				}
 
 				if( loc.fg != null ) {
-					overlay += "<img src=\""+data.dataPath+loc.fg;
+					overlay += "<img src=\"data/starmap/"+loc.fg;
 					if( loc.scanner != null ) {
 						overlay += "\" alt=\""+loc.x+"/"+loc.y+"\" class=\"showsector\" />";
 					}
@@ -612,7 +612,6 @@ var Starmap = function(jqElement) {
 	var __starmapLegend = null;
 	var __starmapTiles = null;
 	var __starmapOverlay = null;
-	var __dataPath = null;
 	var __request = null;
 	var __ready = false;
 
@@ -709,7 +708,6 @@ var Starmap = function(jqElement) {
 	};
 	function renderMap(data, options)
 	{
-		__dataPath = data.dataPath;
 		__currentSize = data.size;
 		__currentSystem = data.system;
 		__screen = new Screen('#mapview', __currentSystem);

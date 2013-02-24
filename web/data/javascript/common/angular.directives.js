@@ -52,23 +52,77 @@ angular.module('ds.directives', [])
 })
 .directive('dsPopup', ['PopupService', function(PopupService) {
 	return {
-		restrict : 'A',
+		link : function(scope, element, attrs) {
+			var popupOptions = {
+				title : attrs.dsPopupTitle,
+				autoOpen : attrs.dsPopupAutoOpen ? true : false
+			};
+			if( attrs.dsPopupWidth ) {
+				popupOptions.width = attrs.dsPopupWidth;
+			}
+			if( attrs.dsPopupHeight ) {
+				popupOptions.height = attrs.dsPopupHeight;
+			}
+
+			var dialogEl = $(element.get(0));
+			PopupService.create(attrs.dsPopup, dialogEl, popupOptions);
+
+			if( element.get(0).nodeName.toUpperCase() == "A" ) {
+				element.bind("click", function() {
+					PopupService.show(attrs.dsPopup);
+				});
+			}
+		}
+	};
+}])
+.factory('PopupService', [function() {
+	var popupService = {
+	};
+
+	var embeddedPopupRegistry = [];
+
+	popupService.create = function(name, dialogEl, popupOptions) {
+		dialogEl.dialog(popupOptions);
+		dialogEl.addClass('gfxbox');
+		embeddedPopupRegistry[name] = dialogEl;
+	}
+
+	popupService.open = function(name) {
+		if( !embeddedPopupRegistry[name] ) {
+			throw "Unbekanntes Popup "+name;
+		}
+		embeddedPopupRegistry[name].dialog('open');
+	}
+
+	popupService.close = function(name) {
+		if( !embeddedPopupRegistry[name] ) {
+			throw "Unbekanntes Popup "+name;
+		}
+		embeddedPopupRegistry[name].dialog('close');
+	}
+
+	return popupService;
+}])
+.directive('dsExternalPopup', ['ExternalPopupService', function(PopupService) {
+	return {
 		link : function(scope, element, attrs) {
 			var popupOptions = {
 				title : attrs.dsPopupTitle
 			};
-			element.bind("click", function() {
-				PopupService.load("data/cltemplates/"+attrs.dsPopup, scope, popupOptions);
-			});
+			if( element.get(0).nodeName.toUpperCase() == "A" ) {
+				element.bind("click", function() {
+					PopupService.load("data/cltemplates/"+attrs.dsPopup, scope, popupOptions);
+				});
+			}
 		}
 	};
 }])
-.factory('PopupService', ['$http', '$compile', function($http, $compile) {
+.factory('ExternalPopupService', ['$http', '$compile', function($http, $compile) {
 	var popupService = {
 		popupElement : null
 	};
 
-	popupService.getPopup = function(create) {
+	popupService.getExternalPopup = function(create) {
 		if( popupService.popupElement == null && create) {
 			popupService.popupElement = $('<div class="modal hide gfxbox"></div>');
 			popupService.popupElement.appendTo('body');
@@ -80,7 +134,7 @@ angular.module('ds.directives', [])
 	popupService.load = function(url, scope, options) {
 		$http.get(url).success(
 			function(data) {
-				var popup = popupService.getPopup(true);
+				var popup = popupService.getExternalPopup(true);
 				popup.html(data);
 				$compile(popup)(scope);
 				$(popup).dialog(options);
@@ -88,7 +142,7 @@ angular.module('ds.directives', [])
 	}
 
 	popupService.close = function() {
-		var popup = popupService.getPopup(false);
+		var popup = popupService.getExternalPopup(false);
 		if( popup != null ) {
 			$(popup).dialog('hide');
 		}

@@ -1,0 +1,36 @@
+<div id="mapmenubar" class="gfxbox"><div class="content">
+	<a id="showSystemauswahl" title="System auswählen" ng-click="showSystemSelection()"><img src="data/interface/impobjects.gif" alt="?" /></a>
+	<a id="gotoLocation" title="Zu Position springen" ng-click="showJumpToPosition()"><img src="data/interface/goto.svg" alt="?" /></a>
+	<a id="showJumpnodeList" title="Sprungpunkte anzeigen" ng-click="showJumpnodeList()"><img src="data/interface/jumpnode.png" alt="?" /></a>
+</div></div>
+
+<div id="mapcontent"></div>
+
+<div id="systemauswahl" ds-popup="systemSelection" ds-popup-title="Kartenausschnitt" ds-popup-width="400" ds-popup-auto-open="true">
+	<form ng-submit="sternenkarteLaden()">
+		<table cellpadding="3">
+			<tr>
+				<td colspan="2">
+					System<br />
+					<select name="sys" ng-model="systemSelected" ng-options="sys.label for sys in systeme" />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Position
+				</td>
+				<td>
+					<input type="text" name="xstart" size="3" value="1" ng-model="locationX"/>
+					/
+					<input type="text" name="ystart" size="3" value="1" ng-model="locationY"/>
+				</td>
+			</tr>
+			<tr ng-show="adminSichtVerfuegbar">
+				<td colspan="2">
+					<input type="checkbox" ng-model="adminSicht" id="adminSicht" name="adminSicht" /><label for="adminSicht">Admin-Sicht</label>
+				</td>
+			</tr>
+		</table>
+		<input type="submit" value="Sternenkarte laden"/>
+	</form>
+</div>
