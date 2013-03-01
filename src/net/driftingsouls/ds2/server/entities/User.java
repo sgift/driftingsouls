@@ -1472,6 +1472,14 @@ public class User extends BasicUser implements JSONSupport {
 		{
 			if (rang.getRankGiver().getId() == rankGiver.getId())
 			{
+				if( rank == 0 )
+				{
+					this.userRanks.remove(rang);
+					org.hibernate.Session db = ContextMap.getContext().getDB();
+					db.delete(rang);
+					return;
+				}
+
 				rang.setRank(rank);
 				return;
 			}
@@ -1522,7 +1530,11 @@ public class User extends BasicUser implements JSONSupport {
 	 */
 	public SortedSet<Rang> getOwnGrantableRanks()
 	{
-		return this.ally != null ? this.ally.getFullRangNameList() : new TreeSet<Rang>(Medals.get().raenge().values());
+		if( this.ally != null )
+		{
+			return this.ally.getFullRangNameList();
+		}
+		return new TreeSet<Rang>(Medals.get().raenge().values());
 	}
 
 	/**

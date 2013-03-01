@@ -500,7 +500,14 @@ public class NpcController extends AngularGenerator {
 		{
 			JSONObject rangObj = new JSONObject();
 			rangObj.accumulate("id", rang.getId());
-			rangObj.accumulate("name", rang.getName());
+			if( rang.getId() == 0 )
+			{
+				rangObj.accumulate("name", "-");
+			}
+			else
+			{
+				rangObj.accumulate("name", rang.getName());
+			}
 			raengeObj.add(rangObj);
 		}
 		
