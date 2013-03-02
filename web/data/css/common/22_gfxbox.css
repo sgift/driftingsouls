@@ -171,3 +171,11 @@ div.gfxbox {
 	content : "";
 	padding:0px;
 }
+
+.gfxbox .graph {
+	overflow:auto;
+	padding:5px;
+}
+.gfxbox .graph .graphcontainer {
+	position:relative;
+}

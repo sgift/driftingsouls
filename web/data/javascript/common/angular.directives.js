@@ -329,11 +329,14 @@ angular.module('ds.directives', [])
 	Graph.Layout.Spring = function(graph) {
 		this.graph = graph;
 		this.iterations = 500;
-		this.maxRepulsiveForceDistance = 7;
+		this.maxRepulsiveForceDistance = 5;
 		this.minAttractiveForceDistance = 3;
 		this.k = 2;
 		this.c = 0.01;
-		this.maxVertexMovement = 0.5;
+		//this.c = 0.8;
+		this.maxVertexMovement = 4;
+		this.minVertexMovement = 0;
+		this.round = false;
 		this.layout();
 	};
 	Graph.Layout.Spring.prototype = {
@@ -400,12 +403,20 @@ angular.module('ds.directives', [])
 				var node = this.graph.nodes[i];
 				var xmove = this.c * node.layoutForceX;
 				var ymove = this.c * node.layoutForceY;
+				if( this.round ) {
+					xmove = Math.round(xmove);
+					ymove = Math.round(ymove);
+				}
 
 				var max = this.maxVertexMovement;
+				var min = this.minVertexMovement;
 				if(xmove > max) xmove = max;
-				if(xmove < -max) xmove = -max;
+				else if(xmove < -max) xmove = -max;
+				else if(xmove <= min && xmove >= -min ) xmove = 0;
+
 				if(ymove > max) ymove = max;
-				if(ymove < -max) ymove = -max;
+				else if(ymove < -max) ymove = -max;
+				else if(ymove <= min && ymove >= -min ) ymove = 0;
 
 				node.layoutPosX += xmove;
 				node.layoutPosY += ymove;
@@ -423,7 +434,7 @@ angular.module('ds.directives', [])
 			if(d2 < 0.01) {
 				dx = 0.1 * Math.random() + 0.1;
 				dy = 0.1 * Math.random() + 0.1;
-				var d2 = dx * dx + dy * dy;
+				d2 = dx * dx + dy * dy;
 			}
 			var d = Math.sqrt(d2);
 			if(d < this.maxRepulsiveForceDistance) {
@@ -445,7 +456,7 @@ angular.module('ds.directives', [])
 			if(d2 < 0.01) {
 				dx = 0.1 * Math.random() + 0.1;
 				dy = 0.1 * Math.random() + 0.1;
-				var d2 = dx * dx + dy * dy;
+				d2 = dx * dx + dy * dy;
 			}
 			var d = Math.sqrt(d2);
 			if(d > this.maxRepulsiveForceDistance) {
@@ -522,7 +533,11 @@ angular.module('ds.directives', [])
 			if (typeof (key = obj.$$hashKey) == 'function') {
 				// must invoke on object to keep the right this
 				key = obj.$$hashKey();
-			} else if (key === undefined) {
+			}
+			else if( typeof obj.id !== 'undefinied' && obj.id != null ) {
+				key = obj.$$hashKey = obj.id;
+			}
+			else if (key === undefined) {
 				key = obj.$$hashKey = nextUid();
 			}
 		} else {
@@ -605,8 +620,8 @@ angular.module('ds.directives', [])
 		terminal: true,
 		compile: function(element, attr, linker) {
 			return function(scope, iterStartElement, attr){
-				var graphWidth = parseInt(attr.graphWidth)-parseInt(attr.nodeWidth);
-				var graphHeight = parseInt(attr.graphHeight)-parseInt(attr.nodeHeight);
+				iterStartElement.wrap("<div class='graph'><div class='graphcontainer'/></div>");
+				var nodeWidth, nodeHeight;
 				var curGraphId = graphId++;
 
 				var lastOrder = new HashQueueMap();
@@ -625,8 +640,13 @@ angular.module('ds.directives', [])
 					[ "Arrow", { location:0.2, direction:-1 }, arrowCommon ]
 				];
 				var uniqueEdges = {};
+				var nodeId = 0;
+
 				scope.$watch(function(scope){
 					var graph = $.extend(scope.$eval(attr.dsGraph), {});
+					if( graph.edges == null || graph.nodes == null ) {
+						return;
+					}
 					prepareGraphEdges(graph);
 					var layout = new dsGraphSupport.Layout.Spring(graph);
 
@@ -639,9 +659,6 @@ angular.module('ds.directives', [])
 						array = collection,
 						last,
 						cursor = iterStartElement;
-
-					var layoutWidth = layout.graph.layoutMaxX-layout.graph.layoutMinX;
-					var layoutHeight = layout.graph.layoutMaxY-layout.graph.layoutMinY;
 
 					// we are not using forEach for perf reasons (trying to avoid #call)
 					for (index = 0, length = array.length; index < length; index++) {
@@ -682,15 +699,30 @@ angular.module('ds.directives', [])
 							uniqueEdges[hashKey(value)] = {};
 
 							linker(childScope, function(clone){
-								var id = "_dsGraph"+curGraphId+"i"+index;
+								var id = "_dsGraph"+curGraphId+"i"+(nodeId++);
 								clone.attr("id", id);
-								var x = (value.layoutPosX-layout.graph.layoutMinX)/layoutWidth*graphWidth;
-								var y = (value.layoutPosY-layout.graph.layoutMinY)/layoutHeight*graphHeight;
+								cursor.after(clone);
+
+								if( !nodeWidth ) {
+									nodeWidth = attr.nodeWidth ? parseInt(attr.nodeWidth) : clone.outerWidth()*1.1;
+								}
+								if( !nodeHeight ) {
+									nodeHeight = attr.nodeHeight ? parseInt(attr.nodeHeight) : clone.outerHeight()*1.1;
+								}
+
+								var x = (value.layoutPosX-layout.graph.layoutMinX)*nodeWidth;
+								var y = (value.layoutPosY-layout.graph.layoutMinY)*nodeHeight;
 								clone.css({
 									'left': x+"px",
 									'top': y+"px"
 								});
-								cursor.after(clone);
+
+								if( iterStartElement.parent().width() < x+nodeWidth ) {
+									iterStartElement.parent().css('width', (x+nodeWidth+10)+"px");
+								}
+								if( iterStartElement.parent().height() < y+nodeHeight ) {
+									iterStartElement.parent().css('height', (y+nodeHeight+10)+"px");
+								}
 
                                 jsPlumbInstance.draggable(clone);
 

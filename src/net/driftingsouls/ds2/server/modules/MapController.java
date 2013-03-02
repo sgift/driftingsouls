@@ -122,6 +122,10 @@ public class MapController extends AngularGenerator
 
 		JSONArray systemListObj = new JSONArray();
 
+		List<JumpNode> jumpNodes = Common.cast(db
+				.createQuery("from JumpNode jn where "+(!user.isAdmin() ? "jn.hidden=0 and " : "")+"jn.system!=jn.systemOut")
+				.list());
+
 		List<StarSystem> systems = Common.cast(db.createQuery("from StarSystem order by id asc").list());
 		for(StarSystem system: systems)
 		{
@@ -145,6 +149,18 @@ public class MapController extends AngularGenerator
 			sysObj.accumulate("name", system.getName());
 			sysObj.accumulate("id", system.getID());
 			sysObj.accumulate("addinfo", systemAddInfo);
+			sysObj.accumulate("npcOnly", system.getAccess() == StarSystem.AC_NPC );
+			sysObj.accumulate("adminOnly", system.getAccess() == StarSystem.AC_ADMIN );
+
+			JSONArray jnListObj = new JSONArray();
+			for( JumpNode jn : jumpNodes )
+			{
+				if( jn.getSystem() == system.getID() )
+				{
+					jnListObj.add(jn.toJSON());
+				}
+			}
+			sysObj.accumulate("sprungpunkte", jnListObj);
 
 			systemListObj.add(sysObj);
 		}

@@ -1,10 +1,25 @@
 <div id="mapmenubar" class="gfxbox"><div class="content">
 	<a id="showSystemauswahl" title="System auswählen" ng-click="showSystemSelection()"><img src="data/interface/impobjects.gif" alt="?" /></a>
 	<a id="gotoLocation" title="Zu Position springen" ng-click="showJumpToPosition()"><img src="data/interface/goto.svg" alt="?" /></a>
-	<a id="showJumpnodeList" title="Sprungpunkte anzeigen" ng-click="showJumpnodeList()"><img src="data/interface/jumpnode.png" alt="?" /></a>
+	<a id="showStarmap" title="Bekannte Sternensysteme" ds-popup-control-open="starmapSystemOverviewPopup"><img src="data/interface/jumpnode.svg" alt="?" /></a>
 </div></div>
 
 <div id="mapcontent"></div>
+
+<div id="starmapSystemOverviewPopup"
+	 class="gfxbox"
+	 ds-popup="starmapSystemOverviewPopup"
+	 ds-popup-title="Sternensysteme"
+	 ds-popup-width="750"
+	 ng-controller="MapSystemuebersichtController">
+
+	<div ds-graph="sysGraph" class="starsystem">
+		<div class="nodecontent">
+			<div class="label">{{node.label}}</div>
+			<div class="sysid">{{node.id}}</div>
+		</div>
+	</div>
+</div>
 
 <div id="starmapGotoLocationPopup"
 	class="gfxbox"

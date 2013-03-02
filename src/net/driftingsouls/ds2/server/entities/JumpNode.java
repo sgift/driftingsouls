@@ -18,16 +18,18 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import net.driftingsouls.ds2.server.Locatable;
+import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.framework.JSONSupport;
+import net.sf.json.JSON;
+import net.sf.json.JSONObject;
+import org.hibernate.annotations.Immutable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
-import net.driftingsouls.ds2.server.Locatable;
-import net.driftingsouls.ds2.server.Location;
-
-import org.hibernate.annotations.Immutable;
 
 /**
  * Ein Sprungpunkt.
@@ -37,7 +39,7 @@ import org.hibernate.annotations.Immutable;
 @Entity
 @Table(name="jumpnodes")
 @Immutable
-public class JumpNode implements Locatable {
+public class JumpNode implements Locatable, JSONSupport {
 	@Id @GeneratedValue
 	private int id;
 	private int x;
@@ -174,5 +176,20 @@ public class JumpNode implements Locatable {
 	@Override
 	public Location getLocation() {
 		return new Location(this.system, this.x, this.y);
+	}
+
+	@Override
+	public JSON toJSON()
+	{
+		JSONObject nodeObj = new JSONObject();
+		nodeObj.accumulate("system", this.system);
+		nodeObj.accumulate("x", this.x);
+		nodeObj.accumulate("y", this.y);
+		nodeObj.accumulate("name", this.name);
+		nodeObj.accumulate("systemout", this.systemOut);
+		nodeObj.accumulate("blocked", this.gcpColonistBlock);
+		nodeObj.accumulate("hidden", this.hidden != 0);
+
+		return nodeObj;
 	}
 }

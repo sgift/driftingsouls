@@ -237,7 +237,7 @@ public abstract class DSGenerator extends Generator {
 
 			for( String filename : new TreeSet<String>(Arrays.asList(cssdir.list())) )
 			{
-				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(config.get("URL")).append("data/css/v").append(version.getHgVersion()).append("/common/").append(filename).append("\" />\n");
+				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(config.get("URL")).append("data/css").append("/common/").append(filename).append("\" />\n");
 			}
 		}
 
@@ -247,15 +247,15 @@ public abstract class DSGenerator extends Generator {
 			File libdir = new File(jsdir.getAbsolutePath()+"/libs");
 			File commondir = new File(jsdir.getAbsolutePath()+"/common");
 
-			sb.append("<script src=\"").append(config.get("URL")).append("data/javascript/v").append(version.getHgVersion()).append("/libs/jquery-1.8.2.min.js\" type=\"text/javascript\"></script>\n");
-			sb.append("<script src=\"").append(config.get("URL")).append("data/javascript/v").append(version.getHgVersion()).append("/libs/jquery-ui-1.9.1.min.js\" type=\"text/javascript\"></script>\n");
+			sb.append("<script src=\"").append(config.get("URL")).append("data/javascript").append("/libs/jquery-1.8.2.min.js\" type=\"text/javascript\"></script>\n");
+			sb.append("<script src=\"").append(config.get("URL")).append("data/javascript").append("/libs/jquery-ui-1.9.1.min.js\" type=\"text/javascript\"></script>\n");
 			for( String filename : new TreeSet<String>(Arrays.asList(libdir.list())) )
 			{
 				if( filename.startsWith("jquery-1") || filename.startsWith("jquery-ui-1") || !filename.endsWith(".js") )
 				{
 					continue;
 				}
-				sb.append("<script src=\"").append(config.get("URL")).append("data/javascript/v").append(version.getHgVersion()).append("/libs/").append(filename).append("\" type=\"text/javascript\"></script>\n");
+				sb.append("<script src=\"").append(config.get("URL")).append("data/javascript").append("/libs/").append(filename).append("\" type=\"text/javascript\"></script>\n");
 			}
 
 			for( String filename : new TreeSet<String>(Arrays.asList(commondir.list())) )
@@ -264,11 +264,11 @@ public abstract class DSGenerator extends Generator {
 				{
 					continue;
 				}
-				sb.append("<script src=\"").append(config.get("URL")).append("data/javascript/v").append(version.getHgVersion()).append("/common/").append(filename).append("\" type=\"text/javascript\"></script>\n");
+				sb.append("<script src=\"").append(config.get("URL")).append("data/javascript").append("/common/").append(filename).append("\" type=\"text/javascript\"></script>\n");
 			}
 			if( new File(jsdir.getAbsolutePath()+"/modules/"+this.getAttribute("module")+".js").isFile() )
 			{
-				sb.append("<script src=\"" + config.get("URL") + "data/javascript/v" + version.getHgVersion() + "/modules/" + this.getAttribute("module") + ".js\" type=\"text/javascript\"></script>\n");
+				sb.append("<script src=\"").append(config.get("URL")).append("data/javascript").append("/modules/").append((String)this.getAttribute("module")).append(".js\" type=\"text/javascript\"></script>\n");
 			}
 		}
 

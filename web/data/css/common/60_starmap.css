@@ -27,6 +27,32 @@
 	margin: 5px auto 10px;
 }
 
+#starmapSystemOverviewPopup .graph {
+	width:100%;
+	height:550px;
+}
+
+#starmapSystemOverviewPopup .starsystem {
+	background-size: 30px 30px;
+	background: rgba(200, 200, 200, 0.15) url('../../interface/system.png') no-repeat center 3px;
+	border: 1px solid #999999;
+	border-radius:5px;
+	text-shadow: 1px 1px 0px black, -1px -1px 0px black, 2px 2px 0px black, -2px -2px 0px black;
+	width:110px;
+	height:25px;
+	padding:35px 5px 5px 5px;
+	position:absolute;
+	text-align:center;
+	margin:10px;
+	z-index:10;
+}
+
+#starmapSystemOverviewPopup .sysid {
+	position: absolute;
+	right: 4px;
+	top: 2px;
+}
+
 #starmapGotoLocationPopup .bekannteObjekte {
 	border-bottom:1px solid #aaaaaa;
 	text-align:left;

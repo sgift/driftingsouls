@@ -71,29 +71,45 @@ angular.module('ds.map', ['ds.service.ds'])
 
 		$scope.zurPositionSpringen = zurPositionSpringen;
 	}])
-	.controller('MapSystemauswahlController', ['$scope', 'dsMap', 'PopupService', 'StarmapService', function($scope, dsMap, PopupService, StarmapService) {
-		function __updateJumpnodeList(data)
-		{
-			var listEl = $('#jumpnodelist');
-			listEl.children().remove();
+	.controller('MapSystemuebersichtController', ['$scope', 'dsMap', function($scope, dsMap) {
+		function refresh() {
+			dsMap
+				.systemauswahl()
+				.success(function(data) {
+					var sysGraph = {
+						nodes: [],
+						edges : []
+					};
 
-			var jns = '<table class="datatable">';
+					var systeme = data.systeme;
+					angular.forEach(systeme, function(system) {
+						if( system.npcOnly || system.adminOnly ) {
+							return;
+						}
+						sysGraph.nodes.push({
+							id: system.id,
+							label: system.name
+						});
 
-			for( var i=0; i < data.jumpnodes.length; i++ )
-			{
-				var jn = data.jumpnodes[i];
+						angular.forEach(system.sprungpunkte, function(jn) {
+							sysGraph.edges.push({
+								source:jn.system,
+								target:jn.systemout
+							});
+						});
+					});
 
-				jns += '<tr>';
-				jns += '<td><span class="nobr">'+jn.x+'/'+jn.y+'</span></td>';
-				jns += '<td>nach</td>';
-				jns += '<td><span class="nobr">'+jn.name+' ('+jn.systemout+')'+jn.blocked+'</span></td>';
-				jns += '</tr>';
-			}
-			jns += '</table>';
-
-			listEl.append(jns);
+					$scope.sysGraph = sysGraph;
+				});
 		}
 
+		$scope.$on('dsPopupOpen', function(event, popup) {
+			if( popup == $scope.dsPopupName ) {
+				refresh();
+			}
+		});
+	}])
+	.controller('MapSystemauswahlController', ['$scope', 'dsMap', 'PopupService', 'StarmapService', function($scope, dsMap, PopupService, StarmapService) {
 		function refresh() {
 			dsMap
 				.systemauswahl()
@@ -124,9 +140,6 @@ angular.module('ds.map', ['ds.service.ds'])
 			StarmapService.get().load(sys,x,y, {
 				request : {
 					admin : adminSicht
-				},
-				loadCallback : function(data) {
-					__updateJumpnodeList(data);
 				}
 			});
 		}
@@ -138,25 +151,11 @@ angular.module('ds.map', ['ds.service.ds'])
 	.controller('MapController', ['$scope', 'dsMap', 'PopupService', 'StarmapService', function($scope, dsMap, PopupService, StarmapService) {
 		function init() {
 			$(document).ready(function() {
-				__createJumpnodePopup();
 				StarmapService.create('#mapcontent');
 			});
 		}
 		function showSystemSelection() {
 			PopupService.open('systemSelection');
-		};
-		function __createJumpnodePopup() {
-			if( $('#jumpnodebox').size() == 0 ) {
-				$('body').append('<div id="jumpnodebox"><h3>Sprungpunkte</h3><div id="jumpnodelist"><span>Kein System ausgewählt.</span></div></div>');
-				$('#jumpnodebox').dsBox({
-					center:true,
-					width:400,
-					draggable:true
-				});
-			}
-		};
-		function showJumpnodeList() {
-			$('#jumpnodebox').dsBox('show');
 		};
 		function showJumpToPosition() {
 			if( !StarmapService.get().isReady() ) {
@@ -169,7 +168,6 @@ angular.module('ds.map', ['ds.service.ds'])
 		init();
 
 		$scope.showJumpToPosition = showJumpToPosition;
-		$scope.showJumpnodeList = showJumpnodeList;
 		$scope.showSystemSelection = showSystemSelection;
 
 	}]);
