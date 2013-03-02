@@ -246,6 +246,10 @@ public class MapController extends AngularGenerator
 				maxCount = (Long)entry[2];
 				currentAlly = (Ally)entry[1];
 			}
+			else if( (Long)entry[2] == maxCount )
+			{
+				currentAlly = null;
+			}
 		}
 		systeme.put(currentSys, currentAlly);
 
