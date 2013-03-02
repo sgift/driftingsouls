@@ -88,7 +88,10 @@ angular.module('ds.map', ['ds.service.ds'])
 						}
 						sysGraph.nodes.push({
 							id: system.id,
-							label: system.name
+							label: system.name,
+							allianz: system.allianz,
+							basis: system.basis,
+							schiff: system.schiff
 						});
 
 						angular.forEach(system.sprungpunkte, function(jn) {

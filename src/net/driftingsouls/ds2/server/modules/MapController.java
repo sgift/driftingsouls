@@ -7,8 +7,10 @@ import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
@@ -26,11 +28,13 @@ import net.driftingsouls.ds2.server.map.PlayerStarmap;
 import net.driftingsouls.ds2.server.map.PublicStarmap;
 import net.driftingsouls.ds2.server.map.TileCache;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 import org.hibernate.FlushMode;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import java.io.File;
@@ -38,8 +42,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Zeigt die Sternenkarte eines Systems an.
@@ -126,6 +133,10 @@ public class MapController extends AngularGenerator
 				.createQuery("from JumpNode jn where "+(!user.isAdmin() ? "jn.hidden=0 and " : "")+"jn.system!=jn.systemOut")
 				.list());
 
+		Map<Integer, Ally> systemFraktionen = ermittleDominierendeAllianzen(db);
+		Set<Integer> basen = ermittleSystemeMitEigenerBasis(db);
+		Set<Integer> schiffe = ermittleSystemeMitEigenenSchiffen(db);
+
 		List<StarSystem> systems = Common.cast(db.createQuery("from StarSystem order by id asc").list());
 		for(StarSystem system: systems)
 		{
@@ -152,6 +163,7 @@ public class MapController extends AngularGenerator
 			sysObj.accumulate("npcOnly", system.getAccess() == StarSystem.AC_NPC );
 			sysObj.accumulate("adminOnly", system.getAccess() == StarSystem.AC_ADMIN );
 
+			// Sprungpunkte
 			JSONArray jnListObj = new JSONArray();
 			for( JumpNode jn : jumpNodes )
 			{
@@ -162,10 +174,82 @@ public class MapController extends AngularGenerator
 			}
 			sysObj.accumulate("sprungpunkte", jnListObj);
 
+			// Dominierende NPC-Allianzen
+			Ally maxAlly = systemFraktionen.get(system.getID());
+			if( maxAlly != null )
+			{
+				JSONObject allyObj = new JSONObject();
+				allyObj.accumulate("name", Common._title(maxAlly.getName()));
+				allyObj.accumulate("plainname", BBCodeParser.getInstance().parse(maxAlly.getName(), new String[]{"all"}));
+				allyObj.accumulate("id", maxAlly.getId());
+				sysObj.accumulate("allianz", allyObj);
+			}
+
+			// Basen
+			sysObj.accumulate("basis", basen.contains(system.getID()));
+
+			// Schiffe
+			sysObj.accumulate("schiff", schiffe.contains(system.getID()));
+
 			systemListObj.add(sysObj);
 		}
 		result.accumulate("systeme", systemListObj);
 		return result;
+	}
+
+	private Set<Integer> ermittleSystemeMitEigenenSchiffen(Session db)
+	{
+		List<Integer> result = Common.cast(db
+				.createQuery("select s.system from Ship s where s.owner=:user group by s.system")
+				.setEntity("user", getUser())
+				.list());
+
+		return new HashSet<Integer>(result);
+	}
+
+	private Set<Integer> ermittleSystemeMitEigenerBasis(Session db)
+	{
+		List<Integer> result = Common.cast(db
+				.createQuery("select b.system from Base b where b.owner=:user group by b.system")
+				.setEntity("user", getUser())
+				.list());
+
+		return new HashSet<Integer>(result);
+	}
+
+	private Map<Integer,Ally> ermittleDominierendeAllianzen(Session db)
+	{
+		List<Object[]> data = Common.cast(db
+				.createQuery("select s.system,s.owner.ally,count(*) " +
+						"from Ship s " +
+						"where s.shiptype.shipClass in (:shipclasses) and s.owner.id<0 and s.owner.ally is not null " +
+						"group by s.system,s.owner.ally "+
+						"order by s.system,count(*)")
+				.setParameter("shipclasses", ShipClasses.STATION.ordinal())
+				.list());
+
+		Map<Integer,Ally> systeme = new HashMap<Integer,Ally>();
+		int currentSys = -1;
+		Ally currentAlly = null;
+		long maxCount = 0;
+		for( Object[] entry : data )
+		{
+			if( (Integer)entry[0] != currentSys )
+			{
+				systeme.put(currentSys, currentAlly);
+				maxCount = 0;
+				currentAlly = null;
+				currentSys = (Integer)entry[0];
+			}
+			if( (Long)entry[2] > maxCount )
+			{
+				maxCount = (Long)entry[2];
+				currentAlly = (Ally)entry[1];
+			}
+		}
+		systeme.put(currentSys, currentAlly);
+
+		return systeme;
 	}
 
 	/**

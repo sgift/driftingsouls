@@ -5,7 +5,8 @@ angular.module('ds.application',
 	'ds.npc',
 	'ds.map',
 	'ds.demo',
-	'ds.directives', 
+	'ds.directives',
+	'ui',
 	'jquery-ui.directives'
 	]
 )
