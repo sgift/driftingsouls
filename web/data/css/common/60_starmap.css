@@ -58,6 +58,16 @@
 	width:115px;
 }
 
+#starmapSystemOverviewPopup .jumpToSystem {
+	position:absolute;
+	left:50%;
+	top:3px;
+	margin-left:-15px;
+	width:30px;
+	height:30px;
+	cursor:pointer;
+}
+
 #starmapSystemOverviewPopup .starsystem .icons {
 	position:absolute;
 	left:2px;

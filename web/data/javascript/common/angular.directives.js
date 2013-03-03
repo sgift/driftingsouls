@@ -724,7 +724,7 @@ angular.module('ds.directives', [])
 									iterStartElement.parent().css('height', (y+nodeHeight+10)+"px");
 								}
 
-                                jsPlumbInstance.draggable(clone);
+                                //jsPlumbInstance.draggable(clone);
 
 								last = {
 									scope: childScope,

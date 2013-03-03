@@ -71,7 +71,19 @@ angular.module('ds.map', ['ds.service.ds'])
 
 		$scope.zurPositionSpringen = zurPositionSpringen;
 	}])
-	.controller('MapSystemuebersichtController', ['$scope', 'dsMap', function($scope, dsMap) {
+	.controller('MapSystemuebersichtController', ['$scope', 'dsMap', 'PopupService', 'StarmapService', function($scope, dsMap, PopupService, StarmapService) {
+		function wechselZuSystem(node) {
+			var sys = node.id;
+
+			PopupService.close($scope.dsPopupName);
+
+			StarmapService.get().load(sys,1,1, {
+				request : {
+					admin : false
+				}
+			});
+		}
+
 		function refresh() {
 			dsMap
 				.systemauswahl()
@@ -103,6 +115,7 @@ angular.module('ds.map', ['ds.service.ds'])
 					});
 
 					$scope.sysGraph = sysGraph;
+					$scope.wechselZuSystem = wechselZuSystem;
 				});
 		}
 

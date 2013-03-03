@@ -15,7 +15,8 @@
 	 ng-controller="MapSystemuebersichtController">
 
 	<div ds-graph="sysGraph" class="starsystem">
-		<div class="nodecontent" ng-class="node.basis && 'basis' || ''">
+		<div class="nodecontent" ng-class="node.basis && 'basis' || ''" >
+			<div class="jumpToSystem" ng-click="wechselZuSystem(node)" title="System anzeigen"></div>
 			<div class="label">{{node.label}}</div>
 			<div class="sysid">{{node.id}}</div>
 			<div class="icons">
