@@ -27,6 +27,7 @@ import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
+import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Permission;
@@ -45,6 +46,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	private static final Log log = LogFactory.getLog(DefaultAuthenticationManager.class);
 	private static final ServiceLoader<LoginEventListener> loginListenerList = ServiceLoader.load(LoginEventListener.class);
 	private static final ServiceLoader<AuthenticateEventListener> authListenerList = ServiceLoader.load(AuthenticateEventListener.class);
+	private static final boolean DEV_MODE = !"true".equals(Configuration.getSetting("PRODUCTION"));
 
 	@Override
 	public BasicUser login(String username, String password, boolean useGfxPak, boolean rememberMe) throws AuthenticationException {
@@ -170,9 +172,26 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 
 		JavaSession jsession = context.get(JavaSession.class);
 
-		BasicUser user;
-		if( (jsession == null || jsession.getUser() == null) && !automaticAccess )
+		BasicUser user = null;
+		if( DEV_MODE && context.getRequest().getParameterInt("devUserId") != 0 )
 		{
+			// In der lokalen Entwicklungsumgebung den schnellen Wechsel zwischen Usern erlauben
+			user = (BasicUser)context.getDB().get(BasicUser.class, context.getRequest().getParameterInt("devUserId"));
+			if( user != null )
+			{
+				try
+				{
+					finishLogin(user, false, false);
+				}
+				catch (AuthenticationException e)
+				{
+					return false;
+				}
+			}
+		}
+		else if( (jsession == null || jsession.getUser() == null) && !automaticAccess )
+		{
+			// Laden des Users aus einem Cookie versuchen
 			try
 			{
 				user = checkRememberMe();
@@ -182,8 +201,9 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 				return false;
 			}
 		}
-		else
+		else if( jsession != null )
 		{
+			// User aus der Session laden
 			user = jsession.getUser();
 		}
 
