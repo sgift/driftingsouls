@@ -147,7 +147,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		JavaSession jsession = context.get(JavaSession.class);
 		jsession.setUser(user);
 		jsession.setIP("<"+context.getRequest().getRemoteAddress()+">");
-		if( attach ) {
+		if( attach && user.getId() != oldUser.getId() ) {
 			jsession.setAttach(oldUser);
 		}
 
