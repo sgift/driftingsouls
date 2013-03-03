@@ -49,7 +49,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	private static final boolean DEV_MODE = !"true".equals(Configuration.getSetting("PRODUCTION"));
 
 	@Override
-	public BasicUser login(String username, String password, boolean useGfxPak, boolean rememberMe) throws AuthenticationException {
+	public BasicUser login(String username, String password, boolean rememberMe) throws AuthenticationException {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		Request request = context.getRequest();
@@ -75,10 +75,10 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 			throw new WrongPasswordException();
 		}
 
-		return finishLogin(user, useGfxPak, rememberMe);
+		return finishLogin(user, rememberMe);
 	}
 
-	private BasicUser finishLogin(BasicUser user, boolean useGfxPack, boolean rememberMe) throws AuthenticationException
+	private BasicUser finishLogin(BasicUser user,  boolean rememberMe) throws AuthenticationException
 	{
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
@@ -95,7 +95,6 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 
 		JavaSession jsession = context.get(JavaSession.class);
 		jsession.setUser(user);
-		jsession.setUseGfxPak(useGfxPack);
 		jsession.setIP("<"+context.getRequest().getRemoteAddress()+">");
 
 
@@ -109,7 +108,6 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 			permanentSession.setTick(context.get(ContextCommon.class).getTick());
 			permanentSession.setToken(Common.md5(uuid.toString()));
 			permanentSession.setUserId(user.getId());
-			permanentSession.setUseGfxPack(useGfxPack);
 
 			db.save(permanentSession);
 		}
@@ -149,7 +147,6 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		JavaSession jsession = context.get(JavaSession.class);
 		jsession.setUser(user);
 		jsession.setIP("<"+context.getRequest().getRemoteAddress()+">");
-		jsession.setUseGfxPak(false);
 		if( attach ) {
 			jsession.setAttach(oldUser);
 		}
@@ -181,7 +178,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 			{
 				try
 				{
-					finishLogin(user, false, false);
+					finishLogin(user, false);
 				}
 				catch (AuthenticationException e)
 				{
@@ -220,8 +217,6 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		{
 			return false;
 		}
-
-		user.setSessionData(jsession.getUseGfxPak());
 
 		try {
 			for( AuthenticateEventListener listener : authListenerList ) {
@@ -308,9 +303,8 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 
 		db.delete(session);
 		BasicUser user = (BasicUser)db.get(BasicUser.class, session.getUserId());
-		user.setSessionData(session.isUseGfxPack());
 
-		return finishLogin(user, session.isUseGfxPack(), true);
+		return finishLogin(user, true);
 	}
 
 	private PermanentSession getPermanentSession()

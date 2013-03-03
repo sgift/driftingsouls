@@ -613,7 +613,6 @@ public class PortalController extends TemplateGenerator {
 	 * wird die GUI zum einloggen angezeigt.
 	 * @urlparam String username Der Benutzername
 	 * @urlparam String password Das Passwort
-	 * @urlparam Integer usegfxpak != 0, falls ein vorhandenes Grafikpak benutzt werden soll
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
@@ -622,17 +621,15 @@ public class PortalController extends TemplateGenerator {
 
 		parameterString("username");
 		parameterString("password");
-		parameterNumber("usegfxpak");
 		parameterString("rememberme");
 
 		String username = getString("username");
 		String password = getString("password");
-		int usegfxpak = getInteger("usegfxpak") != 0 ? 1 : 0;
 		boolean rememberMe = Boolean.parseBoolean(getString("rememberme"));
 
 		if( !username.isEmpty() && !password.isEmpty() ) {
 			try {
-				User user = (User)this.authManager.login(username, password, usegfxpak != 0, rememberMe);
+				User user = (User)this.authManager.login(username, password, rememberMe);
 
 				doLogin(user);
 
@@ -677,12 +674,6 @@ public class PortalController extends TemplateGenerator {
 		TemplateEngine t = getTemplateEngine();
 
 		t.setVar( "show.login.msg.ok", 1 );
-
-		// Ueberpruefen ob das gfxpak noch aktuell ist
-		if( !BasicUser.getDefaultImagePath().equals(user.getImagePath()) ) {
-			t.setVar(	"login.checkgfxpak", 1,
-						"login.checkgfxpak.path", user.getUserImagePath() );
-		}
 
 		getResponse().redirectTo("ds?module=main&action=default");
 	}

@@ -354,46 +354,6 @@ public class OptionsController extends TemplateGenerator {
 	}
 
 	/**
-	 * Setzt die Grafikpak-Einstellungen fuer den Spieler.
-	 * @urlparam String gfxpak Der neue GfxPak-Pfad. Wenn dieser leer ist, wird der Default-Pfad verwendet
-	 *
-	 */
-	@Action(ActionType.DEFAULT)
-	public void gfxPakAction() {
-		User user = (User)getUser();
-		TemplateEngine t = getTemplateEngine();
-
-		parameterString("gfxpak");
-
-		String gfxpak = getString("gfxpak");
-
-		if( gfxpak.length() == 0  || gfxpak.trim().equals(BasicUser.getDefaultImagePath()) ) {
-			user.setImagePath(null);
-
-			t.setVar( "options.message", "Pfad zum Grafikpak zur&uuml;ckgesetzt<br />\n" );
-		}
-		else {
-			if( (gfxpak.indexOf('/') == -1) && (gfxpak.indexOf('\\') != -1) ) {
-				gfxpak = StringUtils.replace(gfxpak, "\\", "/");
-			}
-			if( !gfxpak.endsWith("/") ){
-				gfxpak += '/';
-			}
-			if( gfxpak.indexOf("://") == -1 ) {
-				if( !gfxpak.startsWith("/") ) {
-					gfxpak = '/'+gfxpak;
-				}
-				gfxpak = "file://"+gfxpak;
-			}
-			user.setImagePath( gfxpak );
-
-			t.setVar( "options.message", "Pfad zum Grafikpak ge&auml;ndert<br />\n" );
-		}
-
-		redirect();
-	}
-
-	/**
 	 * Aktiviert den Vac-Mode fuer den Spieler.
 	 * @urlparam Integer vacmode die ID des zu benutzenden Vacmodes
 	 */

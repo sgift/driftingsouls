@@ -161,15 +161,7 @@ public abstract class DSGenerator extends Generator {
 				return;
 			}
 			Writer sb = response.getWriter();
-			String url = config.get("URL")+"/";
-			boolean usegfxpak = false;
-			final BasicUser user = getContext().getActiveUser();
-			if( user != null ) {
-				if( user.getUserImagePath() != null ) {
-					usegfxpak = true;
-				}
-				url = user.getImagePath();
-			}
+
 			final boolean devMode = !"true".equals(this.config.get("PRODUCTION"));
 
 			sb.append("<!DOCTYPE html>\n");
@@ -200,9 +192,6 @@ public abstract class DSGenerator extends Generator {
 
 			sb.append("<body ").append(getOnLoadText()).append(" ").append(getBodyParameters()).append(" >\n");
 			sb.append("<input type='hidden' name='currentDsModule' id='currentDsModule' value='"+this.getAttribute("module")+"' />");
-			if( usegfxpak ) {
-				sb.append("<script src=\"").append(url).append("data/javascript/gfxpakversion.js?").append(version.getHgVersion()).append("\" type=\"text/javascript\"></script>\n");
-			}
 
 			if( devMode )
 			{

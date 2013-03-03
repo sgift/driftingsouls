@@ -101,8 +101,6 @@ public abstract class BasicUser {
 	private int version;
 
 	@Transient
-	private boolean forceDefaultImgPath = false;
-	@Transient
 	private Context context;
 	@Transient
 	private BasicUser attachedUser;
@@ -115,16 +113,6 @@ public abstract class BasicUser {
 		context = ContextMap.getContext();
 		attachedUser = null;
 		this.permissions = new HashSet<Permission>();
-	}
-
-	/**
-	 * Fuegt dem Benutzer weitere Sessiondaten hinzu.
-	 * @param useGfxPak <code>true</code>, falls ein Grafikpak genutzt werden soll
-	 */
-	public void setSessionData(boolean useGfxPak) {
-		if( !useGfxPak ) {
-			forceDefaultImgPath = true;
-		}
 	}
 
 	/**
@@ -496,10 +484,6 @@ public abstract class BasicUser {
 	 * @return Der Image-Pfad des Spielers
 	 */
 	public String getImagePath() {
-		if( !this.forceDefaultImgPath && this.imgpath != null ) {
-			return this.imgpath;
-		}
-
 		return getDefaultImagePath();
 	}
 

@@ -34,7 +34,6 @@ class JavaSession implements Serializable {
 	private static final long serialVersionUID = 1513402479401819226L;
 	
 	private Integer id;
-	private boolean usegfxpak = true;
 	private Integer attachedUser;
 
 	private String ip;
@@ -70,23 +69,7 @@ class JavaSession implements Serializable {
 		
 		return (BasicUser)db.get(BasicUser.class, this.id);
 	}
-	
-	/**
-	 * Gibt <code>true</code>, falls das Grafikpak verwendet werden soll.
-	 * @return <code>true</code>, falls das Grafikpak verwendet werden soll
-	 */
-	public boolean getUseGfxPak() {
-		return usegfxpak;
-	}
 
-	/**
-	 * Setzt, ob das Grafikpak verwendet werden soll.
-	 * @param usegfxpak <code>true</code>, falls das Grafikpak verwendet werden soll
-	 */
-	public void setUseGfxPak(boolean usegfxpak) {
-		this.usegfxpak = usegfxpak;
-	}
-	
 	/**
 	 * Gibt den angefuegten User oder <code>null</code> zurueck.
 	 * @return Der User oder <code>null</code>

@@ -144,14 +144,6 @@ public class MainController extends TemplateGenerator {
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 
-		if( user.getUserImagePath() != null ) {
-			parameterNumber("gfxpakversion");
-			int gfxpakversion = getInteger("gfxpakversion");
-			if( (gfxpakversion != 0) && (gfxpakversion != config.getInt("GFXPAK_VERSION")) ) {
-				t.setVar("show.gfxpakwarning", true);
-			}
-		}
-
 		t.setVar(
 				"user.npc", user.hasFlag( User.FLAG_ORDER_MENU ),
 				"user.adminSichtbar", hasPermission("admin", "sichtbar"),
