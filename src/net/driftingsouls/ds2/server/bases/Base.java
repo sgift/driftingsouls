@@ -1839,7 +1839,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 					setSpawnableRessAmount(item.getID(), getSpawnableRessAmount(item.getID()) - nettoproduction.getResourceCount(entry.getId()));
 				}
 				// Ueberhaupt nichts auf dem Asteroiden vorhanden
-				else if (getSpawnableRessAmount(item.getID()) < 0 || !ressMap.containsRess(item) ) {
+				else if (getSpawnableRessAmount(item.getID()) < 0 && !ressMap.containsRess(item) ) {
 					// Dann ziehen wir die Production eben ab
 					nettoproduction.setResource(entry.getId(), 0);
 					msg += "Ihre Arbeiter konnten keine Vorkommen der Ressource "+item.getName()+" finden.\n";
