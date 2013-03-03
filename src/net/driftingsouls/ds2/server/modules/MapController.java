@@ -15,11 +15,9 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.AngularGenerator;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
-import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.map.AdminFieldView;
 import net.driftingsouls.ds2.server.map.AdminStarmap;
 import net.driftingsouls.ds2.server.map.FieldView;
@@ -28,7 +26,6 @@ import net.driftingsouls.ds2.server.map.PlayerStarmap;
 import net.driftingsouls.ds2.server.map.PublicStarmap;
 import net.driftingsouls.ds2.server.map.TileCache;
 import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -220,12 +217,11 @@ public class MapController extends AngularGenerator
 	private Map<Integer,Ally> ermittleDominierendeAllianzen(Session db)
 	{
 		List<Object[]> data = Common.cast(db
-				.createQuery("select s.system,s.owner.ally,count(*) " +
+				.createQuery("select s.system,s.owner.ally,sum(s.shiptype.size) " +
 						"from Ship s " +
-						"where s.shiptype.shipClass in (:shipclasses) and s.owner.id<0 and s.owner.ally is not null " +
-						"group by s.system,s.owner.ally "+
+						"where s.status like '%tradepost%' and s.owner.id<0 and s.owner.ally is not null " +
+						"group by s.system,s.owner.ally " +
 						"order by s.system,count(*)")
-				.setParameter("shipclasses", ShipClasses.STATION.ordinal())
 				.list());
 
 		Map<Integer,Ally> systeme = new HashMap<Integer,Ally>();
