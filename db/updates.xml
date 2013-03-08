@@ -1860,4 +1860,7 @@
 			foreign key (fraktion_id)
 			references users (id);
 	]]></update>
+	<update type="structure" datum="2013-03-08"><![CDATA[
+		ALTER TABLE users ADD CONSTRAINT users_allyposten_unique UNIQUE (allyposten);
+	]]></update>
 </updates>

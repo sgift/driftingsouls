@@ -38,5 +38,6 @@ CREATE TABLE `users` (
   PRIMARY KEY  (`id`),
   KEY `ally` (`ally`),
   KEY `vaccount` (`vaccount`,`wait4vac`),
-  KEY `un` (`un`)
+  KEY `un` (`un`),
+	UNIQUE `users_allyposten_unique`  (`allyposten`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
