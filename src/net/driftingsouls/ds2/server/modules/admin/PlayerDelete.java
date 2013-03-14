@@ -111,6 +111,12 @@ public class PlayerDelete implements AdminPlugin
 
 		echo.append("<div class='gfxbox' style='width:540px'>");
 		User user = (User)db.get(User.class, userid);
+		if( user == null ) {
+			echo.append("Der Spieler existiert nicht.<br />\n");
+			echo.append("</div>");
+
+			return;
+		}
 
 		if( (user.getAlly() != null) && (user.getAlly().getPresident() == user) )
 		{
@@ -228,6 +234,12 @@ public class PlayerDelete implements AdminPlugin
 		count = db.createQuery("delete from UserResearch where owner=:user")
 			.setInteger("user", userid)
 			.executeUpdate();
+		echo.append(count+"<br />\n");
+
+		echo.append("Entferne Fraktionsaktionsmeldungen...");
+		count = db.createQuery("delete from FraktionAktionsMeldung where gemeldetVon=:user")
+				.setInteger("user", userid)
+				.executeUpdate();
 		echo.append(count+"<br />\n");
 
 		// Schiffe
