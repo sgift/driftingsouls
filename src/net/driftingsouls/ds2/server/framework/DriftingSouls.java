@@ -24,6 +24,7 @@ import java.util.Locale;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
 import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -37,19 +38,18 @@ import org.w3c.dom.NodeList;
  *
  */
 public class DriftingSouls {
-	private Log LOG = null;
+	private static final Log LOG = LogFactory.getLog(DriftingSouls.class);
+
 	/**
 	 * Startet eine neue Instanz von Drifting Souls.
 	 * Dabei werden Konfiguration und Datenbankverbindungen sowie
 	 * weitere bootbare Klassen initalisiert.
 	 *
-	 * @param log Logger, mit dem die Initalisierung protokolliert werden soll
 	 * @param configdir Das DS-Konfigurationsverzeichnis
 	 * @param boot Sollen die boot.xml abgearbeitet werden?
 	 * @throws Exception
 	 */
-	public DriftingSouls(Log log, String configdir, boolean boot) throws Exception {
-		LOG = log;
+	public DriftingSouls(String configdir, boolean boot) throws Exception {
 		LOG.info("----------- DS2 Startup "+new Date()+" -----------");
 		LOG.info("Reading "+configdir+"config.xml");
 		Configuration.init(configdir);

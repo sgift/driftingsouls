@@ -45,7 +45,7 @@ public class DefaultServletContextListener implements ServletContextListener {
 		log.info("Booting DS...");
 
 		try {
-			new DriftingSouls(log, context.getRealPath("/WEB-INF/cfg")+"/", true);
+			new DriftingSouls(context.getRealPath("/WEB-INF/cfg")+"/", true);
 		}
 		catch( Throwable e ) {
 			log.fatal(e, e);
