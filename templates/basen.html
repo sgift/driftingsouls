@@ -14,46 +14,64 @@
 <thead>
 <tr>
 	<th class="sortable">
-		ID
-		<a class="sort" href="./ds?module=basen&amp;ord=id&amp;l={global.l}&amp;order={if global.omode > 0}-1{else}1{/endif}">
-			<img src="./data/interface/sort{if global.order.id}{if global.omode > 0}-down{else}-up{/endif}{/endif}.png" />
-		</a>
+		<div>
+			ID
+			<a class="sort" href="./ds?module=basen&amp;ord=id&amp;l={global.l}&amp;order={if global.omode > 0}-1{else}1{/endif}">
+				<img src="./data/interface/sort{if global.order.id}{if global.omode > 0}-down{else}-up{/endif}{/endif}.png" />
+			</a>
+		</div>
 	</th>
 	<th class="sortable">
-		Name
-		<a class="sort" href="./ds?module=basen&amp;ord=name&amp;l={global.l}&amp;order={if global.omode > 0}-1{else}1{/endif}">
-			<img src="./data/interface/sort{if global.order.name}{if global.omode > 0}-down{else}-up{/endif}{/endif}.png" />
-		</a>
+		<div>
+			Name
+			<a class="sort" href="./ds?module=basen&amp;ord=name&amp;l={global.l}&amp;order={if global.omode > 0}-1{else}1{/endif}">
+				<img src="./data/interface/sort{if global.order.name}{if global.omode > 0}-down{else}-up{/endif}{/endif}.png" />
+			</a>
+		</div>
 	</th>
 	<th class="sortable">
-		Koordinaten
-		<a class="sort" href="./ds?module=basen&amp;ord=sys&amp;l={global.l}&amp;order={if global.omode > 0}-1{else}1{/endif}">
-			<img src="./data/interface/sort{if global.order.sys}{if global.omode > 0}-down{else}-up{/endif}{/endif}.png" />
-		</a>
+		<div>
+			Koordinaten
+			<a class="sort" href="./ds?module=basen&amp;ord=sys&amp;l={global.l}&amp;order={if global.omode > 0}-1{else}1{/endif}">
+				<img src="./data/interface/sort{if global.order.sys}{if global.omode > 0}-down{else}-up{/endif}{/endif}.png" />
+			</a>
+		</div>
 	</th>
 	<th class="sortable">
-		Bewohner
-		<a class="sort" href="./ds?module=basen&amp;ord=bew&amp;l={global.l}&amp;order={if global.omode > 0}-1{else}1{/endif}">
-			<img src="./data/interface/sort{if global.order.bew}{if global.omode > 0}-down{else}-up{/endif}{/endif}.png" />
-		</a>
+		<div>
+			Bewohner
+			<a class="sort" href="./ds?module=basen&amp;ord=bew&amp;l={global.l}&amp;order={if global.omode > 0}-1{else}1{/endif}">
+				<img src="./data/interface/sort{if global.order.bew}{if global.omode > 0}-down{else}-up{/endif}{/endif}.png" />
+			</a>
+		</div>
 	</th>
 	<th class="sortable">
-		Energie
-		<a class="sort" href="./ds?module=basen&amp;ord=e&amp;l={global.l}&amp;order={if global.omode > 0}-1{else}1{/endif}">
-			<img src="./data/interface/sort{if global.order.e}{if global.omode > 0}-down{else}-up{/endif}{/endif}.png" />
-		</a>
+		<div>
+			Energie
+			<a class="sort" href="./ds?module=basen&amp;ord=e&amp;l={global.l}&amp;order={if global.omode > 0}-1{else}1{/endif}">
+				<img src="./data/interface/sort{if global.order.e}{if global.omode > 0}-down{else}-up{/endif}{/endif}.png" />
+			</a>
+		</div>
 	</th>
-	<th>Mangel <img src="{URL}data/interface/time.gif" alt="" /></th>
+	<th><div>Mangel <img src="{URL}data/interface/time.gif" alt="" /></div></th>
 	<th>
-		Lager
-		{if global.l > 0}
-			<a href="./ds?module=basen&amp;l=-1"><span style="font-size:8pt">(nicht anzeigen)</span></a>
-		{else}
-			<a href="./ds?module=basen&amp;l=1"><span style="font-size:8pt">(anzeigen)</span></a>
-		{/endif}
+		<div>
+			Lager
+			{if global.l > 0}
+				<a href="./ds?module=basen&amp;l=-1"><span style="font-size:8pt">(nicht anzeigen)</span></a>
+			{else}
+				<a href="./ds?module=basen&amp;l=1"><span style="font-size:8pt">(anzeigen)</span></a>
+			{/endif}
+		</div>
 	</th>
-	<th>Einheiten</th>
-	<th>Spezialgebäude</th>
+	<th>
+		<div>
+			Einheiten
+		</div>
+	</th>
+	<th>
+		<div>Spezialgebäude</div>
+	</th>
 </tr>
 </thead>
 <tbody>

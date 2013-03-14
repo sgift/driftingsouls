@@ -123,17 +123,17 @@ div.gfxbox {
 .gfxbox .datatable thead th {
 	font-weight:bold;
 	color:#FEB626;
-	position:relative;
 }
 
-.gfxbox .datatable thead .sortable {
-	padding-right:15px;
+.gfxbox .datatable thead th.sortable > div {
+	position:relative;
+	padding:1px 15px 1px 1px;
 }
 
 .gfxbox .datatable .sort {
 	position:absolute;
 	right:2px;
-	top:2px;
+	top:0px;
 }
 
 .gfxbox .content {
