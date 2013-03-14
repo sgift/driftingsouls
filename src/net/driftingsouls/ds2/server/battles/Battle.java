@@ -270,6 +270,24 @@ public class Battle implements Locatable
 	}
 
 	/**
+	 * Gibt den Inhalt des OnEnd-Events zurueck.
+	 * @return Der String
+	 */
+	public String getOnEnd()
+	{
+		return onend;
+	}
+
+	/**
+	 * Setzt den Inhalt des OnEnd-Events.
+	 * @param onend Der String
+	 */
+	public void setOnEnd(String onend)
+	{
+		this.onend = onend;
+	}
+
+	/**
 	 * Gibt den aktuellen Blockierungs-Zaehler fuer den Rundenwechsel zurueck.
 	 * @return Der Zaehler
 	 */

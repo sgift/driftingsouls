@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.scripting.dsscript;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.Blob;
@@ -1189,27 +1190,28 @@ public class QuestFunctions {
 
 		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
-			Database db = ContextMap.getContext().getDatabase();
+			org.hibernate.Session db = ContextMap.getContext().getDB();
 
 			String questid = command[1];
 			scriptparser.log("QuestID: "+questid+"\n");
 
-			SQLQuery questdata = null;
+			RunningQuest rquest = null;
 			if( questid.charAt(0) != 'r' ) {
 				int user = Value.Int(scriptparser.getRegister("USER"));
 
-				questdata = db.query("SELECT id,execdata " +
-						"FROM quests_running " +
-						"WHERE questid="+Integer.parseInt(questid)+" AND userid="+user);
+				rquest = (RunningQuest)db
+						.createQuery("from RunningQuest where quest=:quest and user=:user")
+						.setInteger("quest", Integer.parseInt(questid))
+						.setInteger("user", user)
+						.uniqueResult();
 			}
 			else {
 				String rquestid = questid.substring(1);
-				questdata = db.query("SELECT id,execdata " +
-						"FROM quests_running " +
-						"WHERE id="+Integer.parseInt(rquestid));
+
+				rquest = (RunningQuest)db.load(RunningQuest.class, Integer.parseInt(rquestid));
 			}
 
-			if( !questdata.next() ) {
+			if( rquest == null ) {
 				scriptparser.log("Warnung: Kein passendes laufendes Quest gefunden\n");
 				scriptparser.setRegister("QUEST","0");
 			}
@@ -1217,21 +1219,20 @@ public class QuestFunctions {
 				try {
 					Object ip = scriptparser.getContext().getAttribute("__INSTRUCTIONPOINTER");
 
-					Blob blob = questdata.getBlob("execdata");
+					byte[] blob = rquest.getExecData();
 					scriptparser.getContext().getBindings(ScriptContext.ENGINE_SCOPE).putAll(
-							ScriptParserContext.fromStream(blob.getBinaryStream()).getBindings(ScriptContext.ENGINE_SCOPE)
+							ScriptParserContext.fromStream(new ByteArrayInputStream(blob)).getBindings(ScriptContext.ENGINE_SCOPE)
 					);
 
 					scriptparser.getContext().setAttribute("__INSTRUCTIONPOINTER", ip, ScriptContext.ENGINE_SCOPE);
-					scriptparser.setRegister("QUEST","r"+questdata.getInt("id"));
+					scriptparser.setRegister("QUEST","r"+rquest.getId());
 				}
 				catch( Exception e ) {
 					scriptparser.log("Fehler: Konnte Questdaten nicht laden: "+e+"\n");
-					scriptparser.setRegister("QUEST","r"+questdata.getInt("id"));
+					scriptparser.setRegister("QUEST","r"+rquest.getId());
 					log.warn("Fehler beim Laden der Questdaten (Quest: "+questid+"): "+e,e);
 				}
 			}
-			questdata.free();
 
 			return CONTINUE;
 		}
@@ -2028,7 +2029,6 @@ public class QuestFunctions {
 		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
-			Database database = ContextMap.getContext().getDatabase();
 
 			Location sector = Location.fromString(command[1]);
 			scriptparser.log("sector: "+sector+"\n");
@@ -2038,7 +2038,6 @@ public class QuestFunctions {
 
 			List<String> result = new ArrayList<String>();
 
-			String locSQL = "system="+sector.getSystem()+" AND x="+sector.getX()+" AND y="+sector.getY();
 			if( property.equals("nebel") ) {
 				Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(sector));
 				if( nebel != null ) {
@@ -2057,39 +2056,56 @@ public class QuestFunctions {
 				}
 			}
 			else if( property.equals("jumpnodes") ) {
-				SQLQuery jn = database.query("SELECT id FROM jumpnodes WHERE "+locSQL);
-				while( jn.next() ) {
-					result.add(Integer.toString(jn.getInt("id")));
+				List<?> jnIds = db.createQuery("select id from JumpNode WHERE system= :sys and x= :x and y= :y")
+						.setInteger("sys", sector.getSystem())
+						.setInteger("x", sector.getX())
+						.setInteger("y", sector.getY())
+						.list();
+				for( Iterator<?> iter=jnIds.iterator(); iter.hasNext(); ) {
+					Integer id = (Integer)iter.next();
+					result.add(id.toString());
 				}
-				jn.free();
 			}
 			else if( property.equals("ships") ) {
-				SQLQuery ship = database.query("SELECT id FROM ships WHERE id>0 AND "+locSQL);
-				while( ship.next() ) {
-					result.add(Integer.toString(ship.getInt("id")));
+				List<?> shipIds = db.createQuery("select id from Ship WHERE id > 0 and system= :sys and x= :x and y= :y")
+						.setInteger("sys", sector.getSystem())
+						.setInteger("x", sector.getX())
+						.setInteger("y", sector.getY())
+						.list();
+				for( Iterator<?> iter=shipIds.iterator(); iter.hasNext(); ) {
+					Integer id = (Integer)iter.next();
+					result.add(id.toString());
 				}
-				ship.free();
 			}
 			else if( property.equals("shipsByOwner") ) {
 				int owner = Value.Int(command[3]);
 				scriptparser.log("owner: "+owner+"\n");
 
-				SQLQuery ship = database.query("SELECT id FROM ships WHERE id>0 AND "+locSQL+" AND owner="+owner);
-				while( ship.next() ) {
-					result.add(Integer.toString(ship.getInt("id")));
+				List<?> shipIds = db.createQuery("select id from Ship WHERE id>0 and system= :sys and x= :x and y= :y and owner=:owner")
+						.setInteger("sys", sector.getSystem())
+						.setInteger("x", sector.getX())
+						.setInteger("y", sector.getY())
+						.setInteger("owner", owner)
+						.list();
+				for( Iterator<?> iter=shipIds.iterator(); iter.hasNext(); ) {
+					Integer id = (Integer)iter.next();
+					result.add(id.toString());
 				}
-				ship.free();
 			}
 			else if( property.equals("shipsByTag") ) {
 				String tag = command[3];
 				scriptparser.log("tag: "+tag+"\n");
 
-				SQLQuery ship = database.prepare("SELECT id FROM ships WHERE id>0 AND "+locSQL+" AND LOCATE( ? ,status)")
-					.query("<"+tag+">");
-				while( ship.next() ) {
-					result.add(Integer.toString(ship.getInt("id")));
+				List<?> shipIds = db.createQuery("select id from Ship WHERE id>0 and system= :sys and x= :x and y= :y and status like :status")
+						.setInteger("sys", sector.getSystem())
+						.setInteger("x", sector.getX())
+						.setInteger("y", sector.getY())
+						.setString("status", "%<" + tag + ">%")
+						.list();
+				for( Iterator<?> iter=shipIds.iterator(); iter.hasNext(); ) {
+					Integer id = (Integer)iter.next();
+					result.add(id.toString());
 				}
-				ship.free();
 			}
 
 			scriptparser.setRegister("A",result.toArray(new String[result.size()]));
@@ -2102,7 +2118,7 @@ public class QuestFunctions {
 	static class GetSystemProperty implements SPFunction {
 		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
-			Database db = ContextMap.getContext().getDatabase();
+			org.hibernate.Session db = ContextMap.getContext().getDB();
 
 			int system = Value.Int(command[1]);
 			scriptparser.log("system: "+system+"\n");
@@ -2116,11 +2132,14 @@ public class QuestFunctions {
 				String tag = command[3];
 				scriptparser.log("tag: "+tag+"\n");
 
-				SQLQuery ship = db.query("SELECT id FROM ships WHERE id>0 AND system="+system+" AND LOCATE('<"+tag+">',status)");
-				while( ship.next() ) {
-					result.add(Integer.toString(ship.getInt("id")));
+				List<?> shipIds = db.createQuery("select id from Ship WHERE id>0 and system= :sys and status like :status")
+						.setInteger("sys", system)
+						.setString("status", "%<"+tag+">%")
+						.list();
+				for( Iterator<?> iter=shipIds.iterator(); iter.hasNext(); ) {
+					Integer id = (Integer)iter.next();
+					result.add(id.toString());
 				}
-				ship.free();
 			}
 
 			scriptparser.setRegister("A",result.toArray(new String[result.size()]));

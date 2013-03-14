@@ -18,16 +18,19 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import java.io.IOException;
-import java.io.Writer;
-
+import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.AdminController;
+import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
+import net.driftingsouls.ds2.server.ships.Ship;
+import org.hibernate.Session;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
 
 /**
  * Ermoeglicht das Bearbeiten von Quest-Handlern.
@@ -46,7 +49,7 @@ public class QuestsHandler implements AdminPlugin {
 		String oid = context.getRequest().getParameterString("oid");
 		String handler = context.getRequest().getParameterString("handler");
 
-		Database db = context.getDatabase();
+		Session db = context.getDB();
 
 		final String URLBASE = "./ds?module=admin&page="+page+"&act="+action;
 
@@ -72,65 +75,74 @@ public class QuestsHandler implements AdminPlugin {
 			echo.append("<div class='gfxbox' style='width:740px'>");
 
 			echo.append("oncommunicate:<br />\n");
-			SQLQuery ship = db.query("SELECT id,name,owner " +
-					"FROM ships " +
-					"WHERE id>0 AND oncommunicate IS NOT NULL " +
-					"ORDER BY id");
-			while( ship.next() ) {
-				echo.append("* <a class=\"forschinfo\" href=\""+URLBASE+"&event=oncommunicate&oid="+ship.getInt("id")+"\">");
+			List<?> ships = db
+					.createQuery("from Ship where id>0 and oncommunicate is not null order by id")
+					.list();
+			for( Object obj : ships )
+			{
+				Ship ship = (Ship)obj;
+				echo.append("* <a class=\"forschinfo\" href=\""+URLBASE+"&event=oncommunicate&oid="+ship.getId()+"\">");
 
-				User owner = (User)context.getDB().get(User.class, ship.getInt("owner"));
+				User owner = ship.getOwner();
 
-				echo.append(ship.getString("name")+" ("+ship.getInt("id")+") ["+Common._title(owner.getName())+"]");
+				echo.append(ship.getName()+" ("+ship.getId()+") ["+Common._title(owner.getName())+"]");
 
 				echo.append("</a><br />\n");
 			}
-			ship.free();
 
 			echo.append("<br />ontick (rQuest):<br />\n");
-			SQLQuery rquest = db.query("SELECT qr.id,q.name,qr.userid " +
-					"FROM quests_running qr JOIN quests q ON qr.questid=q.id " +
-					"WHERE qr.ontick IS NOT NULL " +
-					"ORDER BY qr.userid");
-			while( rquest.next() ) {
-				echo.append("* <a class=\"forschinfo\" href=\""+URLBASE+"&event=ontick_rquest&oid="+rquest.getInt("id")+"\">");
+			List<?> rquests = db
+					.createQuery("from RunningQuest rq where rq.onTick is not null order by rq.user.id")
+					.list();
+			for( Object obj : rquests )
+			{
+				RunningQuest rquest = (RunningQuest)obj;
+				echo.append("* <a class=\"forschinfo\" href=\""+URLBASE+"&event=ontick_rquest&oid="+rquest.getId()+"\">");
 
-				User owner = (User)context.getDB().get(User.class, rquest.getInt("userid"));
+				User owner = rquest.getUser();
 
-				echo.append(rquest.getString("name")+" ("+rquest.getInt("id")+") ["+Common._title(owner.getName())+"]");
+				echo.append(rquest.getQuest().getName()+" ("+rquest.getId()+") ["+Common._title(owner.getName())+"]");
 
 				echo.append("</a><br />\n");
 			}
-			rquest.free();
 
 			echo.append("<br />onendbattle:<br />\n");
-			SQLQuery battle = db.query("SELECT id,x,y,system,commander1,commander2 " +
-					"FROM battles " +
-					"WHERE onend IS NOT NULL " +
-					"ORDER BY system,x,y");
-			while( battle.next() ) {
-				echo.append("* <a class=\"forschinfo\" href=\""+URLBASE+"&event=onendbattle&oid="+battle.getInt("id")+"\">");
+			List<?> battles = db
+					.createQuery("from Battle where onend is not null order by system,x,y")
+					.list();
+			for( Object obj : battles )
+			{
+				Battle battle = (Battle)obj;
+				echo.append("* <a class=\"forschinfo\" href=\""+URLBASE+"&event=onendbattle&oid="+battle.getId()+"\">");
 
-				User com1 = (User)context.getDB().get(User.class, battle.getInt("commander1"));
-				User com2 = (User)context.getDB().get(User.class, battle.getInt("commander2"));
+				User com1 = battle.getCommander(0);
+				User com2 = battle.getCommander(1);
 
-				echo.append(battle.getInt("system")+":"+battle.getInt("x")+"/"+battle.getInt("y")+" ("+battle.getInt("id")+") ["+Common._title(com1.getName())+" vs "+Common._title(com2.getName())+"]");
+				echo.append(battle.getSystem()+":"+battle.getX()+"/"+battle.getY()+" ("+battle.getId()+") ["+Common._title(com1.getName())+" vs "+Common._title(com2.getName())+"]");
 
 				echo.append("</a><br />\n");
 			}
-			battle.free();
 
 			echo.append("</div>");
 		}
 		else if( save == 0 ) {
 			if( event.equals("oncommunicate") ) {
-				handler = db.first("SELECT oncommunicate FROM ships WHERE id>0 AND id="+Integer.parseInt(oid)).getString("oncommunicate");
+				handler = (String)db
+						.createQuery("select oncommunicate from Ship where id>0 and id=:id")
+						.setInteger("id", Integer.parseInt(oid))
+						.uniqueResult();
 			}
 			else if( event.equals("ontick_rquest") ) {
-				handler = db.first("SELECT ontick FROM quests_running WHERE id="+Integer.parseInt(oid)).getString("ontick");
+				handler = (String)db
+						.createQuery("select onTick from RunningQuest where id=:id")
+						.setInteger("id", Integer.parseInt(oid))
+						.uniqueResult();
 			}
 			else if( event.equals("onendbattle") ) {
-				handler = db.first("SELECT onend FROM battles WHERE id="+Integer.parseInt(oid)).getString("onend");
+				handler = (String)db
+						.createQuery("select onend from Battle where id=:id")
+						.setInteger("id", Integer.parseInt(oid))
+						.uniqueResult();
 			}
 			else {
 				echo.append("WARNUNG: Ung&uuml;ltiges Event &gt;"+event+"&lt; <br />\n");
@@ -156,27 +168,39 @@ public class QuestsHandler implements AdminPlugin {
 		}
 		else {
 			if( event.equals("oncommunicate") ) {
+				Ship ship = (Ship)db
+						.createQuery("from Ship where id>0 and id=:id")
+						.setInteger("id", Integer.parseInt(oid))
+						.uniqueResult();
 				if( handler.length() != 0 ) {
-					db.update("UPDATE ships SET oncommunicate='"+handler+"' WHERE id>0 AND id="+Integer.parseInt(oid));
+					ship.setOnCommunicate(handler);
 				}
 				else {
-					db.update("UPDATE ships SET oncommunicate=NULL WHERE id>0 AND id="+Integer.parseInt(oid));
+					ship.setOnCommunicate(null);
 				}
 			}
 			else if( event.equals("ontick_rquest") ) {
+				RunningQuest rquest = (RunningQuest)db
+						.createQuery("select onTick from RunningQuest where id=:id")
+						.setInteger("id", Integer.parseInt(oid))
+						.uniqueResult();
 				if( handler.length() != 0 ) {
-					db.update("UPDATE quests_running SET ontick='"+handler+"' WHERE id="+Integer.parseInt(oid));
+					rquest.setOnTick(Integer.parseInt(handler));
 				}
 				else {
-					db.update("UPDATE quests_running SET ontick=NULL WHERE id="+Integer.parseInt(oid));
+					rquest.setOnTick(null);
 				}
 			}
 			else if( event.equals("onendbattle") ) {
+				Battle battle = (Battle)db
+						.createQuery("select onend from Battle where id=:id")
+						.setInteger("id", Integer.parseInt(oid))
+						.uniqueResult();
 				if( handler.length() != 0 ) {
-					db.update("UPDATE battles SET onend='"+handler+"' WHERE id="+Integer.parseInt(oid));
+					battle.setOnEnd(handler);
 				}
 				else {
-					db.update("UPDATE battles SET onend=NULL WHERE id="+Integer.parseInt(oid));
+					battle.setOnEnd(null);
 				}
 			}
 			else {
