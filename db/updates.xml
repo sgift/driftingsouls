@@ -1863,4 +1863,7 @@
 	<update type="structure" datum="2013-03-08"><![CDATA[
 		ALTER TABLE users ADD CONSTRAINT users_allyposten_unique UNIQUE (allyposten);
 	]]></update>
+	<update type="data" datum="2013-03-14"><![CDATA[
+		UPDATE forschungen SET costs=replace(costs,'i','');
+	]]></update>
 </updates>
