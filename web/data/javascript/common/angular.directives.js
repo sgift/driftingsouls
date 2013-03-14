@@ -612,6 +612,144 @@ angular.module('ds.directives', [])
 		}
 	}
 
+	function computeVoronoiDiagram(graph, coordTransformer) {
+		var voronoi = new Voronoi();
+		var bbox = {
+			xl:0,
+			xr:coordTransformer.transformX(graph.layoutMaxX)+coordTransformer.getNodeWidth()+10,
+			yt:0,
+			yb:coordTransformer.transformY(graph.layoutMaxY)+coordTransformer.getNodeHeight()+10
+		};
+		var vertices = [];
+
+		for( var i=0; i < graph.nodes.length; i++ ) {
+			var node = graph.nodes[i];
+
+			vertices.push({
+				x: coordTransformer.transformX(node.layoutPosX)+coordTransformer.getNodeWidth()/2,
+				y: coordTransformer.transformY(node.layoutPosY)+coordTransformer.getNodeHeight()/2,
+				nodeId: i,
+				group: node.group
+			});
+		}
+		// a 'vertex' is an object exhibiting 'x' and 'y' properties. The
+		// Voronoi object will add a unique 'voronoiId' property to all
+		// vertices. The 'voronoiId' can be used as a key to lookup the
+		// associated cell in 'diagram.cells'.
+		return voronoi.compute(vertices, bbox);
+	}
+
+	function renderVoronoiDiagram(targetEl, diagram) {
+		if( diagram.edges.length == 0 ) {
+			return;
+		}
+
+		var parent = targetEl.get(0);
+
+		var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+		svg.setAttribute("version", "1.1");
+		svg.setAttribute("preserveAspectRatio", "none");
+		svg.setAttribute("class", "voronoi graphBackground");
+
+		var groupMap = [];
+		var groupCounter = 0;
+
+		var cells = diagram.cells,
+			cellLength = cells.length;
+		for( var i=0; i < cellLength; i++ ) {
+			var cell = cells[i];
+			var halfedges = cell.halfedges;
+			var group = cell.site.group;
+			var halfedgeLength = halfedges.length;
+			if( halfedgeLength == 0 ) {
+				continue;
+			}
+
+			var cls = groupMap[group.id];
+			if( cls == null ) {
+				cls = "group"+(groupCounter++);
+				groupMap[group.id] = cls;
+			}
+
+			var points = "";
+			for( var j=0; j < halfedgeLength; j++ ) {
+				var halfedge = halfedges[j];
+				if( j > 0 ) {
+					points += " ";
+				}
+				var startPoint = halfedge.getStartpoint();
+				points += startPoint.x+","+startPoint.y;
+				var endPoint = halfedge.getEndpoint();
+				points += " "+endPoint.x+","+endPoint.y;
+			}
+
+			var poly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+			poly.setAttribute("points", points);
+			poly.setAttribute("class", "group "+cls+" "+group.styleClass);
+			svg.appendChild(poly);
+		}
+
+		var maxX = 0;
+		var maxY = 0;
+		var edges = diagram.edges,
+			iEdge = edges.length,
+			edge, v, v2;
+		while (iEdge--) {
+			edge = edges[iEdge];
+
+			var rGroup = edge.rSite != null ? edge.rSite.group : null;
+			var lGroup = edge.lSite != null ? edge.lSite.group : null;
+
+			if( rGroup == null || lGroup == null || rGroup.id == lGroup.id ) {
+				continue;
+			}
+
+			v = edge.va;
+			v2 = edge.vb;
+			var line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+			line.setAttribute("x1", v.x);
+			line.setAttribute("x2", v2.x);
+			line.setAttribute("y1", v.y);
+			line.setAttribute("y2", v2.y);
+			line.setAttribute("class", "border");
+			svg.appendChild(line);
+
+			if(v.x > maxX ) {
+				maxX = v.x;
+			}
+			if(v2.x > maxX ) {
+				maxX = v2.x;
+			}
+			if(v.y > maxY ) {
+				maxY = v.y;
+			}
+			if(v2.y > maxY ) {
+				maxY = v2.y;
+			}
+		}
+
+		svg.setAttribute("style", "position:absolute;left:0px;top:0px;display:block;width:"+maxX+"px;height:"+maxY+"px");
+
+		parent.insertBefore(svg, parent.firstChild);
+	}
+
+	function WorldToScreenTransformer(worldMinX,worldMinY, nodeWidth, nodeHeight) {
+		return {
+			transformX : function(x) {
+				return Math.floor(nodeWidth/2+(x-worldMinX)*nodeWidth);
+			},
+			transformY : function(y) {
+				return Math.floor(nodeHeight/2+(y-worldMinY)*nodeHeight);
+			},
+			getNodeHeight : function() {
+				return nodeHeight;
+			},
+			getNodeWidth : function() {
+				return nodeWidth;
+			}
+		};
+	}
+
 	var graphId = 1;
 	// Basierend auf ng-repeat
 	return {
@@ -621,7 +759,7 @@ angular.module('ds.directives', [])
 		compile: function(element, attr, linker) {
 			return function(scope, iterStartElement, attr){
 				iterStartElement.wrap("<div class='graph'><div class='graphcontainer'/></div>");
-				var nodeWidth, nodeHeight;
+
 				var curGraphId = graphId++;
 
 				var lastOrder = new HashQueueMap();
@@ -642,8 +780,12 @@ angular.module('ds.directives', [])
 				var uniqueEdges = {};
 				var nodeId = 0;
 
-				scope.$watch(function(scope){
-					var graph = $.extend(scope.$eval(attr.dsGraph), {});
+				scope.$watch(attr.dsGraph, function(dsGraph){
+					var coordTransformer;
+
+					iterStartElement.parent().parent().find('.graphBackground').remove();
+
+					var graph = $.extend(true, dsGraph, {});
 					if( graph.edges == null || graph.nodes == null ) {
 						return;
 					}
@@ -683,7 +825,31 @@ angular.module('ds.directives', [])
 								cursor.after(last.element);
 								cursor = last.element;
 							}
-						} else {
+
+							if( !coordTransformer ) {
+								var nodeWidth = attr.nodeWidth ? parseInt(attr.nodeWidth) : last.element.outerWidth()*1.1;
+								var nodeHeight = attr.nodeHeight ? parseInt(attr.nodeHeight) : last.element.outerHeight()*1.1;
+
+								coordTransformer = new WorldToScreenTransformer(
+									layout.graph.layoutMinX,
+									layout.graph.layoutMinY,
+									nodeWidth,
+									nodeHeight
+								);
+							}
+
+							var x = coordTransformer.transformX(value.layoutPosX);
+							var y = coordTransformer.transformY(value.layoutPosY);
+							last.element.css({
+								'left': x+"px",
+								'top': y+"px"
+							});
+
+							jsPlumbInstance.detachAllConnections(last.element);
+
+							uniqueEdges[hashKey(value)] = {};
+						}
+						else {
 							// new item which we don't know about
 							childScope = scope.$new();
 						}
@@ -703,26 +869,24 @@ angular.module('ds.directives', [])
 								clone.attr("id", id);
 								cursor.after(clone);
 
-								if( !nodeWidth ) {
-									nodeWidth = attr.nodeWidth ? parseInt(attr.nodeWidth) : clone.outerWidth()*1.1;
-								}
-								if( !nodeHeight ) {
-									nodeHeight = attr.nodeHeight ? parseInt(attr.nodeHeight) : clone.outerHeight()*1.1;
+								if( !coordTransformer ) {
+									var nodeWidth = attr.nodeWidth ? parseInt(attr.nodeWidth) : clone.outerWidth()*1.1;
+									var nodeHeight = attr.nodeHeight ? parseInt(attr.nodeHeight) : clone.outerHeight()*1.1;
+
+									coordTransformer = new WorldToScreenTransformer(
+										layout.graph.layoutMinX,
+										layout.graph.layoutMinY,
+										nodeWidth,
+										nodeHeight
+									);
 								}
 
-								var x = (value.layoutPosX-layout.graph.layoutMinX)*nodeWidth;
-								var y = (value.layoutPosY-layout.graph.layoutMinY)*nodeHeight;
+								var x = coordTransformer.transformX(value.layoutPosX);
+								var y = coordTransformer.transformY(value.layoutPosY);
 								clone.css({
 									'left': x+"px",
 									'top': y+"px"
 								});
-
-								if( iterStartElement.parent().width() < x+nodeWidth ) {
-									iterStartElement.parent().css('width', (x+nodeWidth+10)+"px");
-								}
-								if( iterStartElement.parent().height() < y+nodeHeight ) {
-									iterStartElement.parent().css('height', (y+nodeHeight+10)+"px");
-								}
 
                                 //jsPlumbInstance.draggable(clone);
 
@@ -771,6 +935,10 @@ angular.module('ds.directives', [])
 						}
 					}
 
+					if( attr.groupNodes ) {
+						var voronoi = computeVoronoiDiagram(graph, coordTransformer);
+						renderVoronoiDiagram(iterStartElement.parent(), voronoi);
+					}
 					lastOrder = nextOrder;
 				});
 			};

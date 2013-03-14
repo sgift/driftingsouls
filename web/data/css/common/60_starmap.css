@@ -91,6 +91,49 @@
 	top: 2px;
 }
 
+#starmapSystemOverviewPopup .border {
+	stroke:rgb(130,47,0);
+	stroke-width:3;
+	stroke-dasharray:13 13
+}
+
+#starmapSystemOverviewPopup .group {
+	stroke-width:2;
+}
+
+#starmapSystemOverviewPopup .group0 {
+	fill:rgb(33,0,61);
+	stroke:rgb(33,0,61);
+}
+#starmapSystemOverviewPopup .group1 {
+	fill:#444400;
+	stroke:#444400;
+}
+#starmapSystemOverviewPopup .group2 {
+	fill:rgb(33,61,33);
+	stroke:rgb(33,61,33);
+}
+#starmapSystemOverviewPopup .group3 {
+	fill:rgb(0,68,65);
+	stroke:rgb(0,68,65);
+}
+#starmapSystemOverviewPopup .group4 {
+	fill:#333333;
+	stroke:#333333;
+}
+#starmapSystemOverviewPopup .group5 {
+	fill:rgb(50, 30, 10);
+	stroke:rgb(50, 30, 10);
+}
+#starmapSystemOverviewPopup .group6 {
+	fill:rgb(10, 30, 50);
+	stroke:rgb(10, 30, 50);
+}
+
+#starmapSystemOverviewPopup .noGroup {
+	display:none;
+}
+
 #starmapGotoLocationPopup .bekannteObjekte {
 	border-bottom:1px solid #aaaaaa;
 	text-align:left;

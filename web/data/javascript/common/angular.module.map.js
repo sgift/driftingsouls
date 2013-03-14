@@ -98,12 +98,26 @@ angular.module('ds.map', ['ds.service.ds'])
 						if( system.npcOnly || system.adminOnly ) {
 							return;
 						}
+
+						var group = {
+							id: 'none',
+							styleClass: 'noGroup'
+						};
+
+						if( system.allianz != null ) {
+							group = {
+								id: system.allianz.id,
+								styleClass: system.allianz.plainname.toLowerCase().replace(/[^a-zA-Z0-9]/g, '')
+							};
+						}
+
 						sysGraph.nodes.push({
 							id: system.id,
 							label: system.name,
 							allianz: system.allianz,
 							basis: system.basis,
-							schiff: system.schiff
+							schiff: system.schiff,
+							group: group
 						});
 
 						angular.forEach(system.sprungpunkte, function(jn) {
