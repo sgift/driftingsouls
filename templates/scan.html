@@ -204,7 +204,7 @@
 			<br />
 			<div align="center">
 				{!link_to neu scannen, default, ship:$global.ship.id, admin:$global.admin, baseloc:$global.baseloc, range:$global.baserange, css_class:back} |
-				{!link_to zur Sternenkarte, default, module:map, loadmap:1, sys:$global.scan.sys, xstart:$global.scan.minx, xend:$global.scan.maxx, ystart:$global.scan.miny, yend:$global.scan.maxy, css_class:back} | 
+				<a href="./ds?module=client&action=default#/map/{global.scan.sys}/{global.scan.x}/{global.scan.y}" class="back">zur Sternenkarte</a> |
 				{!link_to zur&uuml;ck, default, css_class:back, module:schiff, ship:$global.ship.id}
 			</div>
 		</td>

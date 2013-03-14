@@ -19,6 +19,7 @@ angular.module('ds.application',
 		.when('/npc/lp', {templateUrl: 'data/cltemplates/npc/lp.html', controller: 'NpcLpController'})
 		.when('/npc/shop', {templateUrl: 'data/cltemplates/npc/shop.html', controller: 'NpcShopController'})
 		.when('/map', {templateUrl: 'data/cltemplates/map.html', controller: 'MapController'})
+		.when('/map/:system/:x/:y', {templateUrl: 'data/cltemplates/map.html', controller: 'MapController'})
 		.otherwise({redirectTo: '/map'});
 	
 }]);

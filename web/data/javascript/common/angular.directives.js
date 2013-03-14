@@ -102,12 +102,23 @@ angular.module('ds.directives', [])
 	};
 
 	var embeddedPopupRegistry = [];
+	var queuedActions = [];
 
 	popupService.create = function(name, dialogEl, popupOptions, scope) {
 		dialogEl.dialog(popupOptions);
 		dialogEl.addClass('gfxbox');
 		scope.dsPopupName = name;
 		embeddedPopupRegistry[name] = {element:dialogEl, scope:scope};
+
+		if( queuedActions[name] != null ) {
+			if( queuedActions[name] ) {
+				dialogEl.dialog('open');
+			}
+			else {
+				dialogEl.dialog('close');
+			}
+			queuedActions[name] = null;
+		}
 	}
 
 	function resolvePopupName(name, element) {
@@ -123,7 +134,8 @@ angular.module('ds.directives', [])
 	popupService.open = function(name, element) {
 		name = resolvePopupName(name, element);
 		if( !embeddedPopupRegistry[name] ) {
-			throw "Unbekanntes Popup "+name;
+			queuedActions[name] = true;
+			return;
 		}
 		embeddedPopupRegistry[name].element.dialog('open');
 		embeddedPopupRegistry[name].scope.$broadcast('dsPopupOpen', name);
@@ -132,7 +144,8 @@ angular.module('ds.directives', [])
 	popupService.close = function(name, element) {
 		name = resolvePopupName(name, element);
 		if( !embeddedPopupRegistry[name] ) {
-			throw "Unbekanntes Popup "+name;
+			queuedActions[name] = false;
+			return;
 		}
 		embeddedPopupRegistry[name].element.dialog('close');
 	}

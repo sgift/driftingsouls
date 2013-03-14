@@ -178,7 +178,7 @@ angular.module('ds.map', ['ds.service.ds'])
 
 		$scope.sternenkarteLaden = sternenkarteLaden;
 	}])
-	.controller('MapController', ['$scope', 'dsMap', 'PopupService', 'StarmapService', function($scope, dsMap, PopupService, StarmapService) {
+	.controller('MapController', ['$scope', 'dsMap', 'PopupService', 'StarmapService', '$routeParams', function($scope, dsMap, PopupService, StarmapService, $routeParams) {
 		function init() {
 			$(document).ready(function() {
 				StarmapService.create('#mapcontent');
@@ -200,4 +200,19 @@ angular.module('ds.map', ['ds.service.ds'])
 		$scope.showJumpToPosition = showJumpToPosition;
 		$scope.showSystemSelection = showSystemSelection;
 
+		if( $routeParams.system ) {
+			var sys = $routeParams.system;
+			var x = $routeParams.x;
+			var y = $routeParams.y;
+			var adminSicht = 0;
+
+			StarmapService.get().load(sys,x,y, {
+				request : {
+					admin : adminSicht
+				}
+			});
+		}
+		else {
+			PopupService.open('systemSelection');
+		}
 	}]);
