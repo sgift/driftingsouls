@@ -40,7 +40,6 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -168,12 +167,12 @@ public class WerftGUI {
 					);
 
 			// Resourcenliste
-			SQLResultRow[] shipdata = werft.getBuildShipList();
+			List<WerftObject.SchiffBauinformationen> shipdata = werft.getBuildShipList();
 
 			Cargo costs = new Cargo();
-			for (SQLResultRow aShipdata : shipdata)
+			for (WerftObject.SchiffBauinformationen aShipdata : shipdata)
 			{
-				costs.addCargo((Cargo) aShipdata.get("costs"));
+				costs.addCargo(aShipdata.getBaudaten().getCosts());
 			}
 
 			this.out_ResourceList( werft, costs );
@@ -469,7 +468,7 @@ public class WerftGUI {
 		}
 	}
 
-	private void out_buildShipList(WerftObject werft, SQLResultRow[] shipdata) {
+	private void out_buildShipList(WerftObject werft, List<WerftObject.SchiffBauinformationen> shipdata) {
 		t.setVar("werftgui.buildshiplist", 1);
 		t.setBlock("_WERFT.WERFTGUI", "buildshiplist.listitem", "buildshiplist.list");
 		t.setBlock("buildshiplist.listitem", "buildship.res.listitem", "buildship.res.list");
@@ -479,26 +478,25 @@ public class WerftGUI {
 		int energy = werft.getEnergy();
 		int crew = werft.getCrew();
 
-		for (SQLResultRow ashipdata : shipdata)
+		for (WerftObject.SchiffBauinformationen ashipdata : shipdata)
 		{
 			t.start_record();
 
 			Cargo costs = new Cargo();
-			costs.addCargo((Cargo) ashipdata.get("costs"));
+			costs.addCargo(ashipdata.getBaudaten().getCosts());
 			costs.setOption(Cargo.Option.SHOWMASS, false);
 
-			if (!(ashipdata.get("_item") instanceof Boolean))
+			if ( ashipdata.getItem() != null )
 			{
-				Object[] data = (Object[]) ashipdata.get("_item");
-				ResourceID itemdata = (ResourceID) data[1];
+				ResourceID itemdata = ashipdata.getItem();
 
 				t.setVar("buildship.item.id", itemdata.getItemID(),
-						"buildship.item.color", (data[0].toString().equals("local") ? "#EECC44" : "#44EE44"),
+						"buildship.item.color", ashipdata.getQuelle() == WerftObject.BauinformationenQuelle.LOKALES_ITEM ? "#EECC44" : "#44EE44",
 						"buildship.item.uses", itemdata.getUses());
 			}
 
 			t.setVar("res.image", config.get("URL") + "data/interface/time.gif",
-					"res.count", ashipdata.getInt("dauer"),
+					"res.count", ashipdata.getBaudaten().getDauer(),
 					"res.plainname", "Dauer",
 					"res.mangel", 0);
 			t.parse("buildship.res.list", "buildship.res.listitem", false);
@@ -522,23 +520,23 @@ public class WerftGUI {
 			}
 
 			t.setVar("res.image", config.get("URL") + "data/interface/energie.gif",
-					"res.count", ashipdata.getInt("ekosten"),
+					"res.count", ashipdata.getBaudaten().getEKosten(),
 					"res.plainname", "Energie",
-					"res.mangel", energy < ashipdata.getInt("ekosten"));
+					"res.mangel", energy < ashipdata.getBaudaten().getEKosten());
 			t.parse("buildship.res.list", "buildship.res.listitem", true);
 
 			t.setVar("res.image", config.get("URL") + "data/interface/besatzung.gif",
-					"res.count", ashipdata.getInt("crew"),
+					"res.count", ashipdata.getBaudaten().getCrew(),
 					"res.plainname", "Besatzung",
-					"res.mangel", crew < ashipdata.getInt("crew"));
+					"res.mangel", crew < ashipdata.getBaudaten().getCrew());
 			t.parse("buildship.res.list", "buildship.res.listitem", true);
 
-			ShipTypeData shiptype = Ship.getShipType(ashipdata.getInt("type"));
+			ShipTypeData shiptype = ashipdata.getBaudaten().getType();
 
-			t.setVar("buildship.id", ashipdata.getInt("id"),
-					"buildship.type.id", ashipdata.getInt("type"),
+			t.setVar("buildship.id", ashipdata.getQuelle() == WerftObject.BauinformationenQuelle.FORSCHUNG ? ashipdata.getBaudaten().getId() : -1,
+					"buildship.type.id", shiptype.getTypeId(),
 					"buildship.type.image", shiptype.getPicture(),
-					"buildship.flagschiff", ashipdata.getBoolean("flagschiff"),
+					"buildship.flagschiff", ashipdata.getBaudaten().isFlagschiff(),
 					"buildship.type.name", shiptype.getNickname());
 			t.parse("buildshiplist.list", "buildshiplist.listitem", true);
 

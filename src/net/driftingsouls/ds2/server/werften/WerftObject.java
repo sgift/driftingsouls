@@ -73,9 +73,6 @@ import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DSObject;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipType;
@@ -133,7 +130,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 */
 	public WerftQueueEntry[] getScheduledQueueEntries() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<?> list = db.createQuery("from WerftQueueEntry where werft=:werft and scheduled=1 order by position")
+		List<?> list = db.createQuery("from WerftQueueEntry where werft=:werft and scheduled=true order by position")
 			.setInteger("werft", this.getWerftID())
 			.list();
 		WerftQueueEntry[] entries = new WerftQueueEntry[list.size()];
@@ -172,7 +169,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	public final int getUsedSlots() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		return ((Number)db.createQuery("select sum(slots) from WerftQueueEntry where werft=:werft and scheduled=1")
+		return ((Number)db.createQuery("select sum(slots) from WerftQueueEntry where werft=:werft and scheduled=true")
 			.setInteger("werft", this.getWerftID())
 			.iterate().next()).intValue();
 	}
@@ -1245,7 +1242,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 		Set<ShipType> shipTypes = new HashSet<ShipType>();
 
-		List<ShipBaubar> buildableShips = Common.cast(db.createQuery("from ShipBaubar where werftslots <= :slot")
+		List<ShipBaubar> buildableShips = Common.cast(db.createQuery("from ShipBaubar where werftSlots <= :slot")
 			.setInteger("slot", this.getWerftSlots())
 			.list());
 
@@ -1362,30 +1359,77 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	}
 
 	/**
+	 * Die Quelle aus der Bauinformationen stammen.
+	 */
+	public static enum BauinformationenQuelle
+	{
+		FORSCHUNG,
+		ALLIANZ_ITEM,
+		LOKALES_ITEM
+	}
+
+	/**
+	 * Die Bauinformationen fuer ein Schiff zusammen mit ihren Quellinformationen.
+	 */
+	public static class SchiffBauinformationen
+	{
+		private ShipBaubar baudaten;
+		private BauinformationenQuelle quelle;
+		private ResourceID item;
+
+		SchiffBauinformationen(ShipBaubar baudaten, BauinformationenQuelle quelle, ResourceID item)
+		{
+			this.baudaten = baudaten;
+			this.quelle = quelle;
+			this.item = item;
+		}
+
+		/**
+		 * Gibt die konkreten Daten zum Bau des Schiffes zurueck.
+		 * @return Die Baudaten
+		 */
+		public ShipBaubar getBaudaten()
+		{
+			return baudaten;
+		}
+
+		/**
+		 * Gibt die Quelle zurueck, aus der die Bauinformationen stammen.
+		 * @return Die Quelle
+		 */
+		public BauinformationenQuelle getQuelle()
+		{
+			return quelle;
+		}
+
+		/**
+		 * Gibt das evt. zum Bau benoetigte Item zurueck.
+		 * @return Das Item oder <code>null</code>
+		 */
+		public ResourceID getItem()
+		{
+			return item;
+		}
+	}
+
+	/**
 	 * Liefert die Liste aller theoretisch baubaren Schiffe auf dieser Werft.
 	 * Das vorhanden sein von Resourcen wird hierbei nicht beruecksichtigt.
 	 * @return array mit Schiffsbaudaten (ships_baubar) sowie
 	 * 			'_item' => array( ('local' | 'ally'), $resourceid) oder '_item' => false
 	 * 			zur Bestimmung ob und wenn ja welcher Bauplan benoetigt wird zum bauen
 	 */
-	@Deprecated
-	public SQLResultRow[] getBuildShipList() {
-		List<SQLResultRow> result = new ArrayList<SQLResultRow>();
+	public List<SchiffBauinformationen> getBuildShipList() {
+		List<SchiffBauinformationen> result = new ArrayList<SchiffBauinformationen>();
 
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 
 		User user = this.getOwner();
 
-		String query = "SELECT t1.id,t1.race,t1.type,t1.dauer,t1.costs,t1.ekosten,t1.crew,t1.tr1,t1.tr2,t1.tr3,t1.flagschiff " +
-			"FROM ships_baubar t1 JOIN ship_types t2 ON t1.type=t2.id " +
-			"WHERE t1.werftslots<="+this.getWerftSlots()+" "+
-			"ORDER BY t2.nickname";
-
-
 		Cargo availablecargo = this.getCargo(false);
 
-		Cargo allyitems = null;
+		Cargo allyitems;
 		if( user.getAlly() != null ) {
 			allyitems = new Cargo(Cargo.Type.ITEMSTRING, user.getAlly().getItems());
 		}
@@ -1407,31 +1451,29 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			disableShips.put(effect.getShipType(), true);
 		}
 
-		SQLQuery shipdataRow = db.query(query);
-		while( shipdataRow.next() ) {
-			if( disableShips.containsKey(shipdataRow.getInt("type")) ) {
+		List<?> baubarList = db
+				.createQuery("select sb from ShipBaubar sb WHERE sb.werftSlots <= :werftslots order by sb.type.nickname")
+				.setInteger("werftslots", this.getWerftSlots())
+				.list();
+		for( Object obj : baubarList )
+		{
+			ShipBaubar sb = (ShipBaubar)obj;
+			if( disableShips.containsKey(sb.getType().getId()) ) {
 				continue;
 			}
-			if( !Rassen.get().rasse(user.getRace()).isMemberIn(shipdataRow.getInt("race")) ) {
+			if( !Rassen.get().rasse(user.getRace()).isMemberIn(sb.getRace()) ) {
 				continue;
 			}
 
 			//Forschungen checken
-			if( !user.hasResearched(shipdataRow.getInt("tr1")) ||
-				!user.hasResearched(shipdataRow.getInt("tr2")) ||
-				!user.hasResearched(shipdataRow.getInt("tr3"))) {
+			if( !user.hasResearched(sb.getRes(1)) ||
+				!user.hasResearched(sb.getRes(2)) ||
+				!user.hasResearched(sb.getRes(3))) {
 				continue;
 			}
 
-			SQLResultRow shipdata = shipdataRow.getRow();
-
-			Cargo costs = new Cargo( Cargo.Type.AUTO, shipdata.getString("costs") );
-
-			shipdata.put("costs", costs);
-			shipdata.put("_item", false);
-			result.add(shipdata);
+			result.add(new SchiffBauinformationen(sb, BauinformationenQuelle.FORSCHUNG, null));
 		}
-		shipdataRow.free();
 
 		//Items
 		Cargo localcargo = this.getCargo(true);
@@ -1449,25 +1491,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 				continue;
 			}
 
-			Cargo cost = effect.getBuildCosts();
-
-			// TODO: Nicht schoen
-			SQLResultRow shipdata = new SQLResultRow();
-			shipdata.put("id", -1);
-			shipdata.put("type", effect.getShipType());
-			shipdata.put("costs", cost);
-			shipdata.put("crew", effect.getCrew());
-			shipdata.put("dauer", effect.getDauer());
-			shipdata.put("ekosten", effect.getE());
-			shipdata.put("race", effect.getRace());
-			shipdata.put("tr1", effect.getTechReq(1));
-			shipdata.put("tr2", effect.getTechReq(2));
-			shipdata.put("tr3", effect.getTechReq(3));
-			shipdata.put("werftslots", effect.getWerftSlots());
-			shipdata.put("flagschiff", effect.isFlagschiff());
-			shipdata.put("_item", new Object[] {"local", item.getResourceID()});
-
-			result.add(shipdata);
+			result.add(new SchiffBauinformationen(effect.toShipBaubar(), BauinformationenQuelle.LOKALES_ITEM, item.getResourceID()));
 		}
 
 		itemlist = allyitems.getItemsWithEffect( ItemEffect.Type.DRAFT_SHIP );
@@ -1484,28 +1508,10 @@ public abstract class WerftObject extends DSObject implements Locatable {
 				continue;
 			}
 
-			Cargo cost = effect.getBuildCosts();
-
-			// TODO: Nicht schoen
-			SQLResultRow shipdata = new SQLResultRow();
-			shipdata.put("id", -1);
-			shipdata.put("type", effect.getShipType());
-			shipdata.put("costs", cost);
-			shipdata.put("crew", effect.getCrew());
-			shipdata.put("dauer", effect.getDauer());
-			shipdata.put("ekosten", effect.getE());
-			shipdata.put("race", effect.getRace());
-			shipdata.put("tr1", effect.getTechReq(1));
-			shipdata.put("tr2", effect.getTechReq(2));
-			shipdata.put("tr3", effect.getTechReq(3));
-			shipdata.put("werftslots", effect.getWerftSlots());
-			shipdata.put("flagschiff", effect.isFlagschiff());
-			shipdata.put("_item", new Object[] {"ally", item.getResourceID()});
-
-			result.add(shipdata);
+			result.add(new SchiffBauinformationen(effect.toShipBaubar(), BauinformationenQuelle.ALLIANZ_ITEM, item.getResourceID()));
 		}
 
-		return result.toArray(new SQLResultRow[result.size()]);
+		return result;
 	}
 
 	/**

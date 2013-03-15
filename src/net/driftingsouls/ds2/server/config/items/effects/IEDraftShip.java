@@ -26,6 +26,7 @@ import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
 import org.apache.commons.lang.StringUtils;
@@ -213,6 +214,30 @@ public class IEDraftShip extends ItemEffect {
 		echo.append("<tr><td class=\"noBorderS\">Baukosten: </td><td><input type=\"text\" name=\"buildcosts\" value=\"" + getBuildCosts().save() + "\"></td></tr>\n");
 		String techs = Common.implode(",", this.techs);
 		echo.append("<tr><td class=\"noBorderS\">Ben�tigte Technologien: </td><td><input type=\"text\" name=\"techs\" value=\"" + techs + "\"></td></tr>\n");
+	}
+
+	/**
+	 * Konvertiert die Baudaten des Itemeffekts in ein {@link ShipBaubar}-Objekt.
+	 * @return Das neu erstellte Objekt
+	 */
+	public ShipBaubar toShipBaubar()
+	{
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		ShipType type = (ShipType)db.get(ShipType.class, this.shiptype);
+
+		ShipBaubar baudaten = new ShipBaubar(type);
+		baudaten.setCosts(this.buildcosts);
+		baudaten.setCrew(this.crew);
+		baudaten.setDauer(this.dauer);
+		baudaten.setEKosten(this.e);
+		baudaten.setRace(this.race);
+		baudaten.setRes1(this.getTechReq(1));
+		baudaten.setRes2(this.getTechReq(2));
+		baudaten.setRes3(this.getTechReq(3));
+		baudaten.setWerftSlots(this.werftslots);
+		baudaten.setFlagschiff(this.flagschiff);
+
+		return baudaten;
 	}
 	
 	/**
