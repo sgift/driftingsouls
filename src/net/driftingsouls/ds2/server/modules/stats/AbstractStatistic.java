@@ -18,17 +18,16 @@
  */
 package net.driftingsouls.ds2.server.modules.stats;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Comparator;
-import java.util.Map;
-
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Comparator;
+import java.util.Map;
 
 abstract class AbstractStatistic implements Statistic {
 	private Context context = null;
@@ -137,45 +136,5 @@ abstract class AbstractStatistic implements Statistic {
 		}
 
 		echo.append("</table>\n");
-	}
-
-	/**
-	 * Generiert eine Statistik mit Platz, Namen und Anzahl.
-	 * @param name Der Name der Statistik
-	 * @param tmp Ein SQL-Ergebnis mit den Feldern (Spieler/Ally) "id", (Spieler/Ally) "name" und "count", welches den Plaetzen nach sortiert ist (1. Platz zuerst)
-	 * @param url Die fuer Links
-	 * @throws IOException
-	 */
-	protected final void generateStatistic(String name, SQLQuery tmp, String url) throws IOException {
-		generateStatistic(name, tmp, url, true);
-	}
-
-	/**
-	 * Generiert eine Statistik mit Platz, Namen und Anzahl.
-	 * @param name Der Name der Statistik
-	 * @param tmp Ein SQL-Ergebnis mit den Feldern (Spieler/Ally) "id", (Spieler/Ally) "name" und "count", welches den Plaetzen nach sortiert ist (1. Platz zuerst)
-	 * @param url Die fuer Links
-	 * @param showCount Soll die Spalte "count" angezeigt werden?
-	 * @throws IOException
-	 */
-	protected final void generateStatistic(String name, SQLQuery tmp, String url, boolean showCount) throws IOException {
-		Writer echo = getContext().getResponse().getWriter();
-
-		echo.append("<table class=\"noBorderX\" cellspacing=\"1\" cellpadding=\"1\" width=\"100%\">\n");
-		echo.append("<tr><td class=\"noBorderX\" colspan=\"4\" align=\"left\">"+name+"</td></tr>\n");
-
-		int count = 0;
-		while( tmp.next() ) {
-	   		echo.append("<tr><td class=\"noBorderX\" style=\"width:40px\">"+(count+1)+".</td>\n");
-			echo.append("<td class=\"noBorderX\"><a class=\"profile\" href=\""+url+tmp.getInt("id")+"\">"+Common._title(tmp.getString("name"))+" ("+tmp.getInt("id")+")</a></td>\n");
-			if( showCount ) {
-				echo.append("<td class=\"noBorderX\">&nbsp;-&nbsp;</td>\n");
-				echo.append("<td class=\"noBorderX\">"+Common.ln(tmp.getInt("count"))+"</td></tr>\n");
-			}
-
-	   		count++;
-		}
-
-		echo.append("</table><br /><br />\n");
 	}
 }

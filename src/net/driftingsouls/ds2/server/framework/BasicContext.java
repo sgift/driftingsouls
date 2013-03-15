@@ -18,24 +18,18 @@
  */
 package net.driftingsouls.ds2.server.framework;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import net.driftingsouls.ds2.server.framework.pipeline.Error;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.pipeline.Response;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.internal.SessionImpl;
 import org.springframework.beans.factory.annotation.Configurable;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Eine einfache Klasse, welche das <code>Context</code>-Interface implementiert. Die Klasse
@@ -72,34 +66,6 @@ public class BasicContext implements Context
 		this.request = request;
 		this.response = response;
 		this.permissionResolver = presolver;
-	}
-
-	protected Connection connectionFromSession(org.hibernate.Session sess)
-	{
-		try
-		{
-			Method m = sess.getClass().getDeclaredMethod("connection");
-			m.setAccessible(true);
-			return (Connection)m.invoke(sess);
-		}
-		catch( NoSuchMethodException e )
-		{
-			throw new IllegalStateException(e);
-		}
-		catch (IllegalAccessException e)
-		{
-			throw new IllegalStateException(e);
-		}
-		catch (InvocationTargetException e)
-		{
-			throw new IllegalStateException(e);
-		}
-	}
-
-	@Override
-	public Database getDatabase()
-	{
-		return new Database(connectionFromSession(getDB()));
 	}
 
 	@Override

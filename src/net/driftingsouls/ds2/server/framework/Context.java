@@ -18,7 +18,6 @@
  */
 package net.driftingsouls.ds2.server.framework;
 
-import net.driftingsouls.ds2.server.framework.db.Database;
 import net.driftingsouls.ds2.server.framework.pipeline.Error;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.pipeline.Response;
@@ -34,15 +33,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.Response;
  *
  */
 public interface Context extends PermissionResolver {
-	/**
-	 * Liefert eine Instanz der Datenbank-Klasse zurueck.
-	 *
-	 * @return Eine Database-Instanz
-	 * @deprecated use getDB() (Hibernate)
-	 */
-	@Deprecated
-	public Database getDatabase();
-
 	/**
 	 * Liefert eine Instanz der berwendeten DB-Session zurueck.
 	 * @return Die DB-Session
