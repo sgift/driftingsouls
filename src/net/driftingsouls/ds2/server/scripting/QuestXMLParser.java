@@ -37,6 +37,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DSObject;
 import net.driftingsouls.ds2.server.framework.db.Database;
 
+import net.driftingsouls.ds2.server.scripting.entities.Script;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -136,7 +137,7 @@ public class QuestXMLParser extends DSObject {
 	}
 	
 	private class InstallParser implements ContentHandler {
-		private Database db;
+		private org.hibernate.Session db;
 		private Set<String> validTags = new HashSet<String>();
 		private boolean doNotUninstall;
 		private String currentFile;
@@ -147,7 +148,7 @@ public class QuestXMLParser extends DSObject {
 		 * @param doNotUninstall Soll das install-xml nur geparst, nicht aber ausgefuehrt werden (<code>true</code>)?
 		 */
 		public InstallParser(String currentFile, boolean doNotUninstall) {
-			this.db = ContextMap.getContext().getDatabase();
+			this.db = ContextMap.getContext().getDB();
 			
 			this.doNotUninstall = doNotUninstall;
 			this.currentFile = currentFile;
@@ -215,28 +216,36 @@ public class QuestXMLParser extends DSObject {
 					questids.put(this.currentFile+":"+atts.getValue("id"), Integer.parseInt(atts.getValue("db")));
 					
 					if( !this.doNotUninstall ) {
-						db.update("DELETE FROM quests WHERE id="+Integer.parseInt(atts.getValue("db")));
+						db.createQuery("delete from Quest where id=:id")
+							.setInteger("id", Integer.parseInt(atts.getValue("db")))
+							.executeUpdate();
 					}
 				}
 				else if( tag.equals("answerid") ) {
 					answerids.put(this.currentFile+":"+atts.getValue("id"), Integer.parseInt(atts.getValue("db")));
 					
 					if( !this.doNotUninstall ) {
-						db.update("DELETE FROM quests_answers WHERE id="+Integer.parseInt(atts.getValue("db")));
+						db.createQuery("delete from Answer where id=:id")
+								.setInteger("id", Integer.parseInt(atts.getValue("db")))
+								.executeUpdate();
 					}
 				}
 				else if( tag.equals("dialogid") ) {
 					dialogids.put(this.currentFile+":"+atts.getValue("id"), Integer.parseInt(atts.getValue("db")));
 					
 					if( !this.doNotUninstall ) {
-						db.update("DELETE FROM quests_text WHERE id="+Integer.parseInt(atts.getValue("db")));
+						db.createQuery("delete from Text where id=:id")
+								.setInteger("id", Integer.parseInt(atts.getValue("db")))
+								.executeUpdate();
 					}
 				}
 				else if( tag.equals("scriptid") ) {
 					scripts.put(this.currentFile+":"+atts.getValue("id"), new ScriptEntry(Integer.parseInt(atts.getValue("db"))));
 					
 					if( !this.doNotUninstall ) {
-						db.update("DELETE FROM scripts WHERE id="+Integer.parseInt(atts.getValue("db")));
+						db.createQuery("delete from Script where id=:id")
+								.setInteger("id", Integer.parseInt(atts.getValue("db")))
+								.executeUpdate();
 					}
 				}
 				else if( tag.equals("usedby") ) {
@@ -748,11 +757,13 @@ public class QuestXMLParser extends DSObject {
 		}
 		this.addParseFiles.clear();
 		
-		Database db = ContextMap.getContext().getDatabase();
+		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
 		// process scripts
-		for( ScriptEntry script : this.scripts.values() ) {
-			db.update("UPDATE scripts SET script='"+Common.trimLines(Common.implode(" ",script.script))+"' WHERE id='"+script.id+"';");	
+		for( ScriptEntry script : this.scripts.values() )
+		{
+			Script scriptobj = (Script)db.get(Script.class, script.id);
+			scriptobj.setScript(Common.trimLines(Common.implode(" ",script.script)));
 		}
 		
 		// process install-files

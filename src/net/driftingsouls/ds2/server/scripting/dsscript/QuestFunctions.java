@@ -39,6 +39,7 @@ import net.driftingsouls.ds2.server.Offizier.Ability;
 import net.driftingsouls.ds2.server.SectorTemplateManager;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
@@ -50,6 +51,7 @@ import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.VersteigerungResource;
+import net.driftingsouls.ds2.server.entities.VersteigerungSchiff;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -61,12 +63,15 @@ import net.driftingsouls.ds2.server.scripting.Quests;
 import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
 import net.driftingsouls.ds2.server.scripting.ShipUtils;
 import net.driftingsouls.ds2.server.scripting.entities.Answer;
+import net.driftingsouls.ds2.server.scripting.entities.CompletedQuest;
 import net.driftingsouls.ds2.server.scripting.entities.Quest;
 import net.driftingsouls.ds2.server.scripting.entities.QuickQuest;
 import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
 import net.driftingsouls.ds2.server.scripting.entities.Text;
 import net.driftingsouls.ds2.server.ships.Ship;
 
+import net.driftingsouls.ds2.server.ships.ShipLoot;
+import net.driftingsouls.ds2.server.ships.ShipType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
@@ -755,7 +760,8 @@ public class QuestFunctions {
 	static class InstallHandler implements SPFunction {
 		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
-			Database db = ContextMap.getContext().getDatabase();
+			Database database = ContextMap.getContext().getDatabase();
+			org.hibernate.Session db = ContextMap.getContext().getDB();
 
 			String event = command[1];
 			scriptparser.log("event: "+event+"\n");
@@ -796,7 +802,7 @@ public class QuestFunctions {
 
 				// On-Communicate
 				if( event.equals("oncommunicate") ) {
-					SQLResultRow ship = db.first("SELECT id,oncommunicate FROM ships " +
+					SQLResultRow ship = database.first("SELECT id,oncommunicate FROM ships " +
 							"WHERE id>0 AND id="+Value.Int(objid));
 					if( !ship.isEmpty() ) {
 						String comm = ship.getString("oncommunicate");
@@ -804,7 +810,7 @@ public class QuestFunctions {
 							comm += ";";
 						}
 						comm += userid+":"+scriptid+":"+questid;
-						db.prepare("UPDATE ships SET oncommunicate= ? WHERE id>0 AND id= ?")
+						database.prepare("UPDATE ships SET oncommunicate= ? WHERE id>0 AND id= ?")
 							.update(comm, Value.Int(objid));
 
 						removescript.append("!REMOVEHANDLER "+event+" "+objid+" "+userid+" "+scriptid+" "+questid+"\n");
@@ -814,7 +820,7 @@ public class QuestFunctions {
 				else if( event.equals("onenter") ) {
 					Location loc = Location.fromString(objid);
 
-					SQLResultRow sector = db.first("SELECT system,x,y,onenter FROM sectors " +
+					SQLResultRow sector = database.first("SELECT system,x,y,onenter FROM sectors " +
 							"WHERE system="+loc.getSystem()+" AND x="+loc.getX()+" AND y="+loc.getY());
 					if( sector.isEmpty() ) {
 						db.update("INSERT INTO sectors (system,x,y) " +
@@ -828,14 +834,14 @@ public class QuestFunctions {
 					}
 					onenter += userid+":"+scriptid+":"+questid;
 
-					db.prepare("UPDATE sectors SET onenter= ? WHERE system= ? AND x= ? AND y= ?")
+					database.prepare("UPDATE sectors SET onenter= ? WHERE system= ? AND x= ? AND y= ?")
 						.update(onenter, loc.getSystem(), loc.getX(), loc.getY());
 
 					removescript.append("!REMOVEHANDLER "+event+" "+objid+" "+userid+" "+scriptid+" "+questid+"\n");
 				}
 				// Battle-OnEnd
 				else {
-					db.prepare("UPDATE battles SET onend= ? WHERE id= ?")
+					database.prepare("UPDATE battles SET onend= ? WHERE id= ?")
 						.update(userid+":"+scriptid+":"+questid, Value.Int("objid"));
 				}
 			}
@@ -862,32 +868,34 @@ public class QuestFunctions {
 				questid = command[4];
 				scriptparser.log("questid: "+questid+"\n");
 
-				db.prepare("UPDATE quests_running SET ontick= ? WHERE questid= ? AND userid= ?")
+				database.prepare("UPDATE quests_running SET ontick= ? WHERE questid= ? AND userid= ?")
 					.update(scriptid, questid, userid);
 
 				removescript.append("!REMOVEHANDLER "+event+" "+userid+" "+questid+"\n");
 			}
 
 			if( removescript.length() > 0 ) {
-				SQLResultRow runningdata = null;
+				RunningQuest runningdata = null;
 				if( questid.charAt(0) != 'r' ) {
-					runningdata = db.first("SELECT id,uninstall FROM quests_running " +
-							"WHERE questid="+Value.Int(questid)+" AND userid="+userid);
+					runningdata = (RunningQuest)db
+							.createQuery("from RunningQuest  where quest=:questid and user=:userid")
+							.setInteger("questid", Value.Int(questid))
+							.setInteger("userid", userid)
+							.uniqueResult();
 				}
 				else {
 					int rquestid = Value.Int(questid.substring(1));
-					runningdata = db.first("SELECT id,uninstall FROM quests_running WHERE id="+rquestid);
+					runningdata = (RunningQuest)db.get(RunningQuest.class, rquestid);
 				}
 
-				if( !runningdata.isEmpty() ) {
-					String uninstall = runningdata.getString("uninstall");
+				if( runningdata != null ) {
+					String uninstall = runningdata.getUninstall();
 					if( uninstall.length() == 0 ) {
 						uninstall = ":0\n";
 					}
 					uninstall += removescript;
 
-					db.prepare("UPDATE quests_running SET uninstall= ? WHERE id= ?")
-						.update(uninstall, runningdata.getInt("id"));
+					runningdata.setUninstall(uninstall);
 				}
 			}
 
@@ -1014,12 +1022,18 @@ public class QuestFunctions {
 				scriptparser.log("questid: "+questid+"\n");
 
 				if( questid.charAt(0) != 'r' ) {
-					database.update("UPDATE quests_running SET ontick=NULL " +
-							"WHERE questid="+Value.Int(questid)+" AND userid="+userid);
+					RunningQuest rquest = (RunningQuest)db
+							.createQuery("from RunningQuest  where quest=:questid and user=:userid")
+							.setInteger("questid", Value.Int(questid))
+							.setInteger("userid", userid)
+							.uniqueResult();
+
+					rquest.setOnTick(null);
 				}
 				else {
 					int rquestid = Value.Int(questid.substring(1));
-					database.update("UPDATE quests_running SET ontick=NULL WHERE id="+rquestid);
+					RunningQuest rquest = (RunningQuest)db.get(RunningQuest.class, rquestid);
+					rquest.setOnTick(null);
 				}
 			}
 
@@ -1086,7 +1100,7 @@ public class QuestFunctions {
 	static class CompleteQuest implements SPFunction {
 		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
-			Database db = ContextMap.getContext().getDatabase();
+			org.hibernate.Session db = ContextMap.getContext().getDB();
 
 			String questidStr = command[1];
 			scriptparser.log("questid: "+questidStr+"\n");
@@ -1094,7 +1108,8 @@ public class QuestFunctions {
 			int questid = 0;
 			if( questidStr.charAt(0) == 'r' ) {
 				String rquestid = questidStr.substring(1);
-				questid = db.first("SELECT questid FROM quests_running WHERE id="+Value.Int(rquestid)).getInt("questid");
+				RunningQuest rquest = (RunningQuest)db.get(RunningQuest.class, Value.Int(rquestid));
+				questid = rquest.getQuest().getId();
 			}
 			else {
 				questid = Value.Int(questidStr);
@@ -1102,9 +1117,16 @@ public class QuestFunctions {
 
 			int userid = Value.Int(scriptparser.getRegister("USER"));
 
-			SQLResultRow cqid = db.first("SELECT id FROM quests_completed WHERE questid="+questid+" AND userid="+userid);
-			if( cqid.isEmpty() ) {
-				db.update("INSERT INTO quests_completed (questid,userid) VALUES ("+questid+","+userid+")");
+			CompletedQuest cquest = (CompletedQuest)db
+					.createQuery("from CompletedQuest where quest=:questid and user=:userid")
+					.setInteger("questid", questid)
+					.setInteger("userid", userid)
+					.uniqueResult();
+			if( cquest == null ) {
+				User user = (User)db.get(User.class, userid);
+				Quest quest = (Quest)db.get(Quest.class, questid);
+				cquest = new CompletedQuest(quest, user);
+				db.persist(cquest);
 			}
 
 			return CONTINUE;
@@ -1114,25 +1136,26 @@ public class QuestFunctions {
 	static class HasQuestCompleted implements SPFunction {
 		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
-			Database db = ContextMap.getContext().getDatabase();
+			org.hibernate.Session db = ContextMap.getContext().getDB();
 
 			String questid = command[1];
 			scriptparser.log("questid: "+questid+"\n");
 
 			if( questid.charAt(0) == 'r' ) {
 				int rquestid = Integer.parseInt(questid.substring(1));
-				questid = Integer.toString(
-						db.first("SELECT questid FROM quests_running " +
-								"WHERE id="+rquestid).getInt("questid")
-					);
+				RunningQuest rquest = (RunningQuest)db.get(RunningQuest.class, rquestid);
+				questid = Integer.toString(rquest.getId());
 			}
 
 			int userid = Value.Int(scriptparser.getRegister("USER"));
 
-			SQLResultRow id = db.first("SELECT id FROM quests_completed " +
-					"WHERE userid="+userid+" AND questid="+questid);
+			CompletedQuest cquest = (CompletedQuest)db
+					.createQuery("from CompletedQuest where user=:userid and quest=:questid")
+					.setInteger("userid", userid)
+					.setInteger("questid", Integer.parseInt(questid))
+					.uniqueResult();
 
-			if( !id.isEmpty() ) {
+			if( cquest != null ) {
 				scriptparser.setRegister("cmp","1");
 			}
 			else {
@@ -1146,7 +1169,7 @@ public class QuestFunctions {
 	static class SetQuestUIStatus implements SPFunction {
 		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
-			Database db = ContextMap.getContext().getDatabase();
+			org.hibernate.Session db = ContextMap.getContext().getDB();
 
 			String statustext = "";
 			if( command[1].charAt(0) == '#' ) {
@@ -1162,13 +1185,21 @@ public class QuestFunctions {
 			int userid = Value.Int(scriptparser.getRegister("USER"));
 
 			if( questid.charAt(0) != 'r' ) {
-				db.prepare("UPDATE quests_running SET statustext= ? ,publish= ? WHERE userid= ? AND questid= ?")
-					.update(statustext, publish, userid, Value.Int(questid));
+				RunningQuest rquest = (RunningQuest)db
+						.createQuery("from RunningQuest  where quest=:questid and user=:userid")
+						.setInteger("questid", Value.Int(questid))
+						.setInteger("userid", userid)
+						.uniqueResult();
+
+				rquest.setStatusText(statustext);
+				rquest.setPublish(publish);
 			}
 			else {
 				String rquestid = questid.substring(1);
-				db.prepare("UPDATE quests_running SET statustext= ? ,publish= ? WHERE id= ?")
-					.update(statustext, publish, Value.Int(rquestid));
+				RunningQuest rquest = (RunningQuest)db.get(RunningQuest.class, Value.Int(rquestid));
+
+				rquest.setStatusText(statustext);
+				rquest.setPublish(publish);
 			}
 
 			return CONTINUE;
@@ -1291,7 +1322,7 @@ public class QuestFunctions {
 	static class AddQuestItem implements SPFunction {
 		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
-			Database db = ContextMap.getContext().getDatabase();
+			org.hibernate.Session db = ContextMap.getContext().getDB();
 
 			scriptparser.log("cargo: "+command[1]+"\n");
 			Object cargoObj = scriptparser.getRegisterObject(command[1]);
@@ -1310,14 +1341,17 @@ public class QuestFunctions {
 			String questid = scriptparser.getRegister("QUEST");
 			if( questid.charAt(0) != 'r' ) {
 				int userid = Value.Int(scriptparser.getRegister("USER"));
-				SQLResultRow questRow = db.first("SELECT id FROM quests_running " +
-						"WHERE questid="+Value.Int(questid)+" AND userid="+userid);
+				RunningQuest rquest = (RunningQuest)db
+						.createQuery("from RunningQuest  where quest=:questid and user=:userid")
+						.setInteger("questid", Value.Int(questid))
+						.setInteger("userid", userid)
+						.uniqueResult();
 
-				if( questRow.isEmpty() ) {
+				if( rquest == null ) {
 					scriptparser.log("FATAL ERROR: Kein passendes Quest gefunden!\n");
 					return CONTINUE;
 				}
-				questid = Integer.toString(questRow.getInt("id"));
+				questid = Integer.toString(rquest.getId());
 			}
 			else {
 				questid = questid.substring(1);
@@ -1340,7 +1374,7 @@ public class QuestFunctions {
 	static class HasQuestItem implements SPFunction {
 		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
-			Database db = ContextMap.getContext().getDatabase();
+			org.hibernate.Session db = ContextMap.getContext().getDB();
 
 			scriptparser.log("cargo: "+command[1]+"\n");
 			Object cargoObj = scriptparser.getRegisterObject(command[1]);
@@ -1360,14 +1394,17 @@ public class QuestFunctions {
 			String questid = scriptparser.getRegister("QUEST");
 			if( questid.charAt(0) != 'r' ) {
 				int userid = Value.Int(scriptparser.getRegister("USER"));
-				SQLResultRow questRow = db.first("SELECT id FROM quests_running " +
-						"WHERE questid="+Value.Int(questid)+" AND userid="+userid);
+				RunningQuest rquest = (RunningQuest)db
+						.createQuery("from RunningQuest  where quest=:questid and user=:userid")
+						.setInteger("questid", Value.Int(questid))
+						.setInteger("userid", userid)
+						.uniqueResult();
 
-				if( questRow.isEmpty() ) {
+				if( rquest == null ) {
 					scriptparser.log("FATAL ERROR: Kein passendes Quest gefunden!\n");
 					return CONTINUE;
 				}
-				questid = Integer.toString(questRow.getInt("id"));
+				questid = Integer.toString(rquest.getId());
 			}
 			else {
 				questid = questid.substring(1);
@@ -1643,21 +1680,22 @@ public class QuestFunctions {
 	static class IsShipDestroyed implements SPFunction {
 		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
-			Database db = ContextMap.getContext().getDatabase();
+			org.hibernate.Session db = ContextMap.getContext().getDB();
 
 			int shipid = Value.Int(command[1]);
 			scriptparser.log("shipid: "+shipid+"\n");
 
-			SQLResultRow ship = db.first("SELECT id,battle FROM ships WHERE id>0 AND id="+shipid);
-			if( ship.isEmpty() ) {
+			Ship ship = (Ship)db.get(Ship.class, shipid);
+			if( ship == null || ship.getId() < 0 ) {
 				scriptparser.setRegister("cmp","0");
 			}
-			else if( ship.getInt("battle") != 0 ) {
-				SQLResultRow battleship = db.first("SELECT action " +
-						"FROM battles_ships " +
-						"WHERE shipid="+shipid+" AND battleid="+ship.getInt("battle"));
+			else if( ship.getBattle() != null ) {
+				BattleShip bs = (BattleShip)db
+						.createQuery("from BattleShip where ship=:ship")
+						.setEntity("ship", ship)
+						.uniqueResult();
 
-				if( (battleship.getInt("action") & Battle.BS_DESTROYED) != 0 ) {
+				if( (bs.getAction() & Battle.BS_DESTROYED) != 0 ) {
 					scriptparser.setRegister("cmp","0");
 				}
 				else {
@@ -1675,7 +1713,8 @@ public class QuestFunctions {
 	static class AddLootTable implements SPFunction {
 		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
-			Database db = ContextMap.getContext().getDatabase();
+			Database database = ContextMap.getContext().getDatabase();
+			org.hibernate.Session db = ContextMap.getContext().getDB();
 
 			String questid = scriptparser.getRegister("QUEST");
 			int userid = Value.Int(scriptparser.getRegister("USER"));
@@ -1694,7 +1733,12 @@ public class QuestFunctions {
 			if( resourceid.getQuest() == 1 ) {
 				int qid = 0;
 				if( questid.charAt(0) != 'r' ) {
-					qid = db.first("SELECT id FROM quests_running WHERE questid="+Value.Int(questid)+" AND userid="+userid).getInt("id");
+					RunningQuest rquest = (RunningQuest)db
+							.createQuery("from RunningQuest  where quest=:questid and user=:userid")
+							.setInteger("questid", Value.Int(questid))
+							.setInteger("userid", userid)
+							.uniqueResult();
+					qid = rquest.getId();
 				}
 				else {
 					qid = Value.Int(questid.substring(1));
@@ -1716,29 +1760,31 @@ public class QuestFunctions {
 				totalmax = -1;
 			}
 
-			db.update("INSERT INTO ship_loot " +
+			database.update("INSERT INTO ship_loot " +
 					"(shiptype,owner,targetuser,chance,resource,count,totalmax) " +
 					"VALUES " +
-					"("+shiptype+","+shipowner+","+userid+","+chance+",'"+resourceid.toString()+"',"+count+","+totalmax+")");
+					"(" + shiptype + "," + shipowner + "," + userid + "," + chance + ",'" + resourceid.toString() + "'," + count + "," + totalmax + ")");
 
-			int loottable = db.insertID();
+			int loottable = database.insertID();
 
-			SQLResultRow runningdata = null;
+			RunningQuest runningdata = null;
 			if( questid.charAt(0) != 'r' ) {
-				runningdata = db.first("SELECT id,uninstall FROM quests_running WHERE questid="+Value.Int(questid)+" AND userid="+userid);
+				runningdata = (RunningQuest)db
+						.createQuery("from RunningQuest  where quest=:questid and user=:userid")
+						.setInteger("questid", Value.Int(questid))
+						.setInteger("userid", userid)
+						.uniqueResult();
 			}
 			else {
 				int rquestid = Value.Int(questid.substring(1));
-				runningdata = db.first("SELECT id,uninstall FROM quests_running WHERE id="+rquestid);
+				runningdata = (RunningQuest)db.get(RunningQuest.class, rquestid);
 			}
 
-			if( !runningdata.isEmpty() ) {
-				if( runningdata.getString("uninstall").length() == 0 ) {
-					runningdata.put("uninstall", ":0\n");
+			if( runningdata != null ) {
+				if( runningdata.getUninstall() == null || runningdata.getUninstall().length() == 0 ) {
+					runningdata.setUninstall(":0\n");
 				}
-				runningdata.put("uninstall", runningdata.getString("uninstall") + "!DELETELOOTTABLE "+loottable+"\n");
-
-				db.update("UPDATE quests_running SET uninstall='"+runningdata.getString("uninstall")+"' WHERE id="+runningdata.getInt("id"));
+				runningdata.setUninstall(runningdata.getUninstall() + "!DELETELOOTTABLE "+loottable+"\n");
 			}
 
 			return CONTINUE;
@@ -1748,13 +1794,14 @@ public class QuestFunctions {
 	static class DeleteLootTable implements SPFunction {
 		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
-			Database db = ContextMap.getContext().getDatabase();
+			org.hibernate.Session db = ContextMap.getContext().getDB();
 
 			int lootid = Value.Int(command[1]);
 			scriptparser.log("loottable-id: "+lootid+"\n");
 
 			if( lootid > 0 ) {
-				db.update("DELETE FROM ship_loot WHERE id="+lootid);
+				ShipLoot loot = (ShipLoot)db.get(ShipLoot.class, lootid);
+				db.delete(loot);
 			}
 
 			return CONTINUE;
@@ -2151,7 +2198,7 @@ public class QuestFunctions {
 	static class GtuAuctionShip implements SPFunction {
 		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
-			Database db = ContextMap.getContext().getDatabase();
+			org.hibernate.Session db = ContextMap.getContext().getDB();
 
 			int shipid = Integer.parseInt(command[1]);
 			scriptparser.log("shiptypeid: "+shipid+"\n");
@@ -2171,8 +2218,12 @@ public class QuestFunctions {
 			int curtick = ContextMap.getContext().get(ContextCommon.class).getTick();
 			ticks += curtick;
 
-			db.update("INSERT INTO versteigerungen (mtype,type,tick,preis,owner)" ,
-					" VALUES ('1','",shipid,"',",ticks,",",initbid,",",owner,")");
+			User user = (User)db.get(User.class, owner);
+			ShipType st = (ShipType)db.get(ShipType.class, shipid);
+
+			VersteigerungSchiff v = new VersteigerungSchiff(user, st, initbid);
+			v.setTick(ticks);
+			db.persist(v);
 
 			return CONTINUE;
 		}
