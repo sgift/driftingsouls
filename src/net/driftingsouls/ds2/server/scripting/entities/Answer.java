@@ -74,4 +74,13 @@ public class Answer {
 	public int getId() {
 		return id;
 	}
+
+	/**
+	 * Setzt die ID.
+	 * @param id Die ID
+	 */
+	public void setId(Integer id)
+	{
+		this.id = id;
+	}
 }

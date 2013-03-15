@@ -100,4 +100,13 @@ public class Quest {
 	{
 		return "Quest [id: "+this.id+" name: "+this.name+"]";
 	}
+
+	/**
+	 * Setzt die ID des Quests.
+	 * @param id Die ID
+	 */
+	public void setId(Integer id)
+	{
+		this.id = id;
+	}
 }

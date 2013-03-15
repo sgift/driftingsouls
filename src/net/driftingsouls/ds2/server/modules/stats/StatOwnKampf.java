@@ -18,18 +18,17 @@
  */
 package net.driftingsouls.ds2.server.modules.stats;
 
-import java.io.IOException;
-import java.io.Writer;
-
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.StatsController;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
 
 /**
  * Zeigt in Schlachten zerstoerte und verlorene Schiffe an.
@@ -41,7 +40,7 @@ public class StatOwnKampf implements Statistic {
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		User user = (User)context.getActiveUser();
-		Database database = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 
 		Writer echo = context.getResponse().getWriter();
 
@@ -53,7 +52,10 @@ public class StatOwnKampf implements Statistic {
 
 		int destpos = context.getRequest().getParameterInt("destpos");
 
-		int destcount = database.first("SELECT count(distinct tick) as count FROM ships_lost WHERE destowner=",user.getId()).getInt("count");
+		int destcount = ((Long)db
+				.createQuery("SELECT count(distinct tick) FROM ShipLost WHERE destOwner=:user")
+				.setEntity("user", user)
+				.uniqueResult()).intValue();
 		if( destcount > 0 ) {
 			if( destpos > destcount ) {
 				destpos = destcount - 10;
@@ -65,10 +67,18 @@ public class StatOwnKampf implements Statistic {
 
 			echo.append("Zerst&ouml;rte Schiffe:<br />");
 			echo.append("<table class=\"noBorderX\" cellpadding=\"3\" width=\"100%\">\n");
-			SQLQuery t = database.query("SELECT distinct tick FROM ships_lost WHERE destowner=",user.getId()," ORDER BY tick DESC LIMIT ",destpos,",10");
-			while( t.next() ) {
-				int tick = t.getInt("tick");
-				SQLQuery s = database.query("SELECT distinct count(*) as count,type,owner FROM ships_lost WHERE destowner=",user.getId()," AND tick=",tick," GROUP BY type,owner");
+			List<?> t = db.createQuery("SELECT distinct tick FROM ShipLost WHERE destOwner=:user ORDER BY tick DESC")
+					.setEntity("user", user)
+					.setMaxResults(10)
+					.setFirstResult(destpos)
+					.list();
+			for( Object o : t )
+			{
+				int tick = (Integer)o;
+				List<?> s = db.createQuery("SELECT distinct count(*),type,owner FROM ShipLost WHERE destOwner=:user AND tick=:tick GROUP BY type,owner")
+						.setEntity("user", user)
+						.setInteger("tick", tick)
+						.list();
 
 				if( counter == 0 ) {
 					echo.append("<tr>");
@@ -79,29 +89,30 @@ public class StatOwnKampf implements Statistic {
 				echo.append("<td class=\"noBorderX\" style=\"vertical-align:top; text-align:center\">");
 				echo.append(Common.getIngameTime(tick)+"<br />");
 
-				while( s.next() )
+				for( Object o2 : s )
 				{
-					ShipTypeData shiptype = Ship.getShipType( s.getInt("type") );
+					Object[] data = (Object[])o2;
+					ShipTypeData shiptype = Ship.getShipType( (Integer)data[1] );
 
-					int count = s.getInt("count");
+					long count = (Long)data[0];
 
 					echo.append(count+" ");
 					if( shiptype != null ) {
-						echo.append("<a target=\"_blank\" onclick='ShiptypeBox.show("+s.getInt("type")+");return false;' " +
-								"href=\"./ds?module=schiffinfo&ship="+s.getInt("type")+"\">" +
+						echo.append("<a target=\"_blank\" onclick='ShiptypeBox.show("+shiptype.getTypeId()+");return false;' " +
+								"href=\"./ds?module=schiffinfo&ship="+shiptype.getTypeId()+"\">" +
 								shiptype.getNickname()+"</a>");
 					}
 					else
 					{
-						echo.append(s.getString("type"));
+						echo.append(data[1].toString());
 					}
 
-					User auser = (User)context.getDB().get(User.class, s.getInt("owner"));
+					User auser = (User)context.getDB().get(User.class, (Integer)data[2]);
 					if( auser != null ) {
 						echo.append(" von: "+auser.getProfileLink()+"<br />");
 					}
 					else {
-						echo.append("von: Unbekannter Spieler ("+s.getInt("owner")+")<br />");
+						echo.append(" von: Unbekannter Spieler ("+data[2]+")<br />");
 					}
 				}
 				echo.append("</td>\n");
@@ -109,9 +120,7 @@ public class StatOwnKampf implements Statistic {
 				if( (counter % 5) == 0 ) {
 					echo.append("</tr>\n<tr>");
 				}
-				s.free();
 			}
-			t.free();
 
 			while( counter % 5 != 0 ) {
 				echo.append("<td class=\"noBorderX\">&nbsp;</td>");
@@ -146,7 +155,10 @@ public class StatOwnKampf implements Statistic {
 
 		int lostpos = context.getRequest().getParameterInt("lostpos");
 
-		int lostcount = database.first("SELECT count(distinct tick) as count FROM ships_lost WHERE owner=",user.getId()).getInt("count");
+		int lostcount = ((Long)db
+				.createQuery("SELECT count(distinct tick) FROM ShipLost WHERE owner=:user")
+				.setEntity("user", user)
+				.uniqueResult()).intValue();
 		if( lostcount > 0 ) {
 			if( lostpos > lostcount ) {
 				lostpos = lostcount - 10;
@@ -162,9 +174,14 @@ public class StatOwnKampf implements Statistic {
 
 			echo.append("<br />Verlorene Schiffe:<br />");
 			echo.append("<table class=\"noBorderX\" cellpadding=\"3\" width=\"100%\">\n");
-			SQLQuery t = database.query("SELECT distinct tick FROM ships_lost WHERE owner=",user.getId()," ORDER BY tick DESC LIMIT ",lostpos,",10");
-			while( t.next() ) {
-				int tick = t.getInt("tick");
+			List<?> t = db.createQuery("SELECT distinct tick FROM ShipLost WHERE owner=:user ORDER BY tick DESC")
+					.setEntity("user", user)
+					.setMaxResults(10)
+					.setFirstResult(destpos)
+					.list();
+			for( Object o : t )
+			{
+				int tick = (Integer)o;
 				if( counter == 0 ) {
 					echo.append("<tr>");
 				}
@@ -174,31 +191,36 @@ public class StatOwnKampf implements Statistic {
 				echo.append(Common.getIngameTime(tick)+"<br />");
 
 
-				SQLQuery s = database.query("SELECT count(*) as count,type,destowner FROM ships_lost WHERE owner=",user.getId()," AND tick=",tick," GROUP BY type,destowner");
+				List<?> s = db.createQuery("SELECT distinct count(*),type,destOwner FROM ShipLost WHERE owner=:user AND tick=:tick GROUP BY type,destOwner")
+						.setEntity("user", user)
+						.setInteger("tick", tick)
+						.list();
 
-				while( s.next() )
+				for( Object o2 : s )
 				{
-					ShipTypeData shiptype = Ship.getShipType( s.getInt("type") );
-					int count = s.getInt("count");
+					Object[] data = (Object[])o2;
+					ShipTypeData shiptype = Ship.getShipType( (Integer)data[1] );
+
+					long count = (Long)data[0];
 
 					echo.append(count+" ");
 					if( shiptype != null ) {
-						echo.append("<a target=\"_blank\" onclick='ShiptypeBox.show("+s.getInt("type")+");return false;' " +
-								"href=\"./ds?module=schiffinfo&ship="+s.getInt("type")+"\">" +
+						echo.append("<a target=\"_blank\" onclick='ShiptypeBox.show("+shiptype.getTypeId()+");return false;' " +
+								"href=\"./ds?module=schiffinfo&ship="+shiptype.getTypeId()+"\">" +
 								shiptype.getNickname()+"</a>");
 					}
 					else
 					{
-						echo.append(s.getString("type"));
+						echo.append(data[1].toString());
 					}
 
-					User auser = (User)context.getDB().get(User.class, s.getInt("destowner"));
+					User auser = (User)context.getDB().get(User.class, (Integer)data[2]);
 
 					if( auser != null ) {
-						echo.append(auser.getProfileLink()+"<br />");
+						echo.append(" durch: "+auser.getProfileLink()+"<br />");
 					}
 					else {
-						echo.append("Unbekannter Spieler ("+s.getInt("destowner")+")<br />");
+						echo.append(" durch: Unbekannter Spieler ("+data[2]+")<br />");
 					}
 				}
 				echo.append("</td>\n");
@@ -206,9 +228,8 @@ public class StatOwnKampf implements Statistic {
 				if( (counter % 5) == 0 ) {
 					echo.append("</tr>\n<tr>");
 				}
-				s.free();
 			}
-			t.free();
+
 			while( counter % 5 != 0 ) {
 				echo.append("<td class=\"noBorderX\">&nbsp;</td>");
 				counter++;

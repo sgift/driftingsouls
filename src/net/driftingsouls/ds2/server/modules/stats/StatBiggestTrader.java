@@ -19,13 +19,17 @@
 
 package net.driftingsouls.ds2.server.modules.stats;
 
-import java.io.IOException;
-
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.StatsController;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
+
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Zeigt die Liste der goessten Handelsflotten an.
@@ -46,42 +50,62 @@ public class StatBiggestTrader extends AbstractStatistic implements Statistic {
 	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 
-		String url = null;
+		Integer[] zuIgnorierendeSchiffsklassen = {
+				ShipClasses.TRANSPORTER.ordinal(),
+				ShipClasses.CONTAINER.ordinal()};
 
-		SQLQuery tmp = null;
+		String sumStatement = "sum(COALESCE(sm.cargo, st.cargo)*(s.crew/COALESCE(sm.crew, st.crew))*(s.hull/COALESCE(sm.hull, st.hull))*s.hull)";
+
 		if( !allys ) {
-			tmp = db.query("SELECT SUM( (CASE WHEN t4.cargo IS NULL THEN t3.cargo ELSE t4.cargo END) * (t1.crew/CASE WHEN t4.crew IS NULL THEN t3.crew ELSE t4.crew END) * (t1.hull/CASE WHEN t4.hull IS NULL THEN t3.hull ELSE t4.hull END) * t1.hull ) count,t2.name,t2.id ",
-					    "FROM ((ships t1 JOIN users t2 ON t1.owner=t2.id) " +
-					    "	JOIN ship_types t3 ON t1.type=t3.id) " +
-					    "	LEFT OUTER JOIN ships_modules t4 ON t1.id=t4.id ",
-						"WHERE t1.id>0 AND t1.owner>",StatsController.MIN_USER_ID," AND " +
-					    "	(t2.vaccount=0 OR t2.wait4vac>0) AND " +
-						"	(((t4.id IS NULL) AND t3.cost>0) OR ((t4.id IS NOT NULL) AND t4.cost>0)) AND " +
-						"	t3.class in (1,12) ",
-						"GROUP BY t1.owner ",
-						"ORDER BY count DESC,t2.id ASC LIMIT ",size);
-			url = getUserURL();
+			List<?> tmp = db.createQuery("select "+sumStatement+" as cnt,o " +
+					"from Ship s join s.owner o join s.shiptype st left join s.modules sm " +
+					"where s.id > 0 and " +
+					"	o.id > :minid and " +
+					"	(o.vaccount=0 or o.wait4vac>0) and " +
+					"	(((sm.id is null) and st.cost>0) or ((sm.id is not null) and sm.cost>0)) and " +
+					"	st.shipClass in (:classes) " +
+					"group by o " +
+					"order by "+sumStatement+" desc, o.id asc")
+					.setInteger("minid", StatsController.MIN_USER_ID)
+					.setParameterList("classes", zuIgnorierendeSchiffsklassen)
+					.setMaxResults(size)
+					.list();
+
+			Map<User,Long> result = new LinkedHashMap<User,Long>();
+			for (Object o : tmp)
+			{
+				Object[] data = (Object[])o;
+				result.put((User)data[1],(Long)data[0]);
+			}
+
+			this.generateStatistic("Die größten Handelsflotten:", result, USER_LINK_GENERATOR, false, size);
 		}
 		else {
-			tmp = db.query("SELECT SUM( (CASE WHEN sm.cargo IS NULL THEN st.cargo ELSE sm.cargo END) * (s.crew/CASE WHEN sm.crew IS NULL THEN st.crew ELSE sm.crew END) * (s.hull/CASE WHEN sm.hull IS NULL THEN st.hull ELSE sm.hull END) * s.hull ) count,a.name,u.ally id ",
-					    "FROM (((ships s JOIN users u ON s.owner=u.id) " +
-					    "	JOIN ship_types st ON s.type=st.id) " +
-					    "	JOIN ally a ON u.ally=a.id) " +
-					    "	LEFT OUTER JOIN ships_modules sm ON s.id=sm.id ",
-						"WHERE s.id>0 AND s.owner>",StatsController.MIN_USER_ID," AND " +
-						"	(u.vaccount=0 OR u.wait4vac>0) AND " +
-						"	u.ally>0 AND (((sm.id IS NULL) AND st.cost>0) OR ((sm.id IS NOT NULL) AND sm.cost>0)) AND " +
-						"	st.class in (1,12) ",
-						"GROUP BY u.ally ",
-						"ORDER BY count DESC,u.id ASC LIMIT ",size);
+			List<?> tmp = db.createQuery("select "+sumStatement+" as cnt,ally " +
+					"from Ship s join s.owner o join o.ally ally join s.shiptype st left join s.modules sm " +
+					"where s.id > 0 and " +
+					"	ally is not null and " +
+					"	o.id > :minid and " +
+					"	(o.vaccount=0 or o.wait4vac>0) and " +
+					"	(((sm.id is null) and st.cost>0) or ((sm.id is not null) and sm.cost>0)) and " +
+					"	st.shipClass in (:classes) " +
+					"group by ally " +
+					"order by "+sumStatement+" desc, ally.id asc")
+					.setInteger("minid", StatsController.MIN_USER_ID)
+					.setParameterList("classes", zuIgnorierendeSchiffsklassen)
+					.setMaxResults(size)
+					.list();
 
-			url = getAllyURL();
+			Map<Ally,Long> result = new LinkedHashMap<Ally, Long>();
+			for (Object o : tmp)
+			{
+				Object[] data = (Object[])o;
+				result.put((Ally)data[1],(Long)data[0]);
+			}
+
+			this.generateStatistic("Die größten Handelsflotten:", result, ALLY_LINK_GENERATOR, false, size);
 		}
-
-		this.generateStatistic("Die groessten Handelsflotten:", tmp, url, false);
-
-		tmp.free();
 	}
 }

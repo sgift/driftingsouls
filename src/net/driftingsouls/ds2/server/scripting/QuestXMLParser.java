@@ -18,6 +18,27 @@
  */
 package net.driftingsouls.ds2.server.scripting;
 
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Configuration;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.DSObject;
+import net.driftingsouls.ds2.server.scripting.entities.Answer;
+import net.driftingsouls.ds2.server.scripting.entities.Quest;
+import net.driftingsouls.ds2.server.scripting.entities.Script;
+import net.driftingsouls.ds2.server.scripting.entities.Text;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
+import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.Locator;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -30,25 +51,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
-
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.DSObject;
-import net.driftingsouls.ds2.server.framework.db.Database;
-
-import net.driftingsouls.ds2.server.scripting.entities.Script;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.SystemUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.Locator;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 /**
  * Ermoeglicht das Verarbeiten und Installieren von Quest-XMLs.
@@ -349,7 +351,7 @@ public class QuestXMLParser extends DSObject {
 	private class QuestParser implements ContentHandler {
 		private Set<String> validTags = new HashSet<String>();
 		private String currentFile;
-		private Database db;
+		private Session db;
 		private Stack<String> currentTag = new Stack<String>();
 		
 		private Stack<Map<String,Object>> currentData = new Stack<Map<String,Object>>();
@@ -362,7 +364,7 @@ public class QuestXMLParser extends DSObject {
 		 * @param currentFile Der Name der mit diesen Parser uebersetzten Datei
 		 */
 		public QuestParser(String currentFile) {
-			this.db = ContextMap.getContext().getDatabase();
+			this.db = ContextMap.getContext().getDB();
 			
 			this.validTags.add("quest");
 			this.validTags.add("answer");
@@ -416,26 +418,29 @@ public class QuestXMLParser extends DSObject {
 			if( this.validTags.contains(localName.toLowerCase()) ) {
 				if( this.currentTag.peek().equals("answer") ) {
 					final String key = this.currentFile+":"+currentdata.get("id");
-					
-					if( !answerids.containsKey(key) ) {
-						db.update("INSERT INTO quests_answers (text) VALUES ('"+Common.trimLines((String)currentdata.get("chardata"))+"');");
-						answerids.put(key, db.insertID());
+
+					Answer answer = new Answer();
+					answer.setText(Common.trimLines((String) currentdata.get("chardata")));
+					if( answerids.containsKey(key) ) {
+						answer.setId(answerids.get(key));
 					}
-					else {
-						db.update("INSERT INTO quests_answers (id,text) VALUES ('"+answerids.get(key)+"','"+Common.trimLines((String)currentdata.get("chardata"))+"');");
-					}
+					db.persist(answer);
+					answerids.put(key, answer.getId());
+
 					addInstallData(this.currentFile, "<answerid id=\""+currentdata.get("id")+"\" db=\""+answerids.get(key)+"\" />\n");
 				}	
 				else if( this.currentTag.peek().equals("dialog") ) {
 					final String key = this.currentFile+":"+currentdata.get("id");
-					
-					if( !dialogids.containsKey(key) ) {
-						db.update("INSERT INTO quests_text (text,picture,comment) VALUES ('"+Common.trimLines((String)currentdata.get("chardata"))+"','"+currentdata.get("picture")+"','"+currentdata.get("comment")+"');");
-						dialogids.put(key, db.insertID());
+
+					Text text = new Text();
+					text.setText(Common.trimLines((String) currentdata.get("chardata")));
+					text.setPicture(currentdata.get("picture").toString());
+					text.setComment(currentdata.get("comment").toString());
+					if( dialogids.containsKey(key) ) {
+						text.setId(dialogids.get(key));
 					}
-					else {
-						db.update("INSERT INTO quests_text (id,text,picture,comment) VALUES ('"+dialogids.get(key)+"','"+Common.trimLines((String)currentdata.get("chardata"))+"','"+currentdata.get("picture")+"','"+currentdata.get("comment")+"');");
-					}
+					db.persist(text);
+					dialogids.put(key, text.getId());
 					addInstallData(this.currentFile, "<dialogid id=\""+currentdata.get("id")+"\" db=\""+dialogids.get(key)+"\" />\n");
 				}	
 				// <part...>...</part> bearbeiten (einfuegen von scriptteilen in scripte)
@@ -461,16 +466,17 @@ public class QuestXMLParser extends DSObject {
 					final String key = this.currentFile+":"+currentdata.get("id");
 
 					int id = 0;
-					if( !scripts.containsKey(key) ) {
-						db.update("INSERT INTO scripts (name,script) VALUES ('"+key+"','');");
-						id = db.insertID();
+					Script script = new Script();
+					script.setScript("");
+					script.setName(key);
+
+					if( scripts.containsKey(key) ) {
+						script.setId(scripts.get(key).id);
 					}
-					else {	
-						db.update("INSERT INTO scripts (id,name,script) VALUES ('"+scripts.get(key).id+"','"+key+"','');");
-						id = scripts.get(key).id;
-					}
+					db.persist(script);
+					id = script.getId();
 					
-					addInstallData(this.currentFile, "<scriptid id=\""+currentdata.get("id")+"\" db=\""+id+"\" />\n");
+					addInstallData(this.currentFile, "<scriptid id=\"" + currentdata.get("id") + "\" db=\"" + id + "\" />\n");
 					
 					scripts.put(key, (ScriptEntry)currentdata.get("data"));
 					scripts.get(key).id = id;
@@ -521,14 +527,15 @@ public class QuestXMLParser extends DSObject {
 				if( this.currentTag.peek().equals("quest") ) {
 					if( (atts.getValue("id") != null) && (atts.getValue("name") != null) ) {
 						final String key = this.currentFile+":"+atts.getValue("id");
-						
-						if( !questids.containsKey(key) ) {
-							db.update("INSERT INTO quests (name,qid) VALUES ('"+atts.getValue("name")+"','"+atts.getValue("id")+"');");
-							questids.put(key, db.insertID());
+
+						Quest quest = new Quest();
+						quest.setName(atts.getValue("name"));
+						quest.setQid(atts.getValue("id"));
+						if( questids.containsKey(key) ) {
+							quest.setId(questids.get(key));
 						}
-						else {
-							db.update("INSERT INTO quests (id,name,qid) VALUES ('"+questids.get(key)+"','"+atts.getValue("name")+"','"+atts.getValue("id")+"');");
-						}
+						db.persist(quest);
+						questids.put(key, quest.getId());
 						addInstallData(this.currentFile, "<questid id=\""+atts.getValue("id")+"\" db=\""+questids.get(key)+"\" />\n");
 					}	
 				}
@@ -763,7 +770,7 @@ public class QuestXMLParser extends DSObject {
 		for( ScriptEntry script : this.scripts.values() )
 		{
 			Script scriptobj = (Script)db.get(Script.class, script.id);
-			scriptobj.setScript(Common.trimLines(Common.implode(" ",script.script)));
+			scriptobj.setScript(Common.trimLines(Common.implode(" ", script.script)));
 		}
 		
 		// process install-files

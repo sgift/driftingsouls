@@ -68,12 +68,6 @@ public class Taskmanager {
 		 */
 		SHIP_DESTROY_COUNTDOWN(5, new HandleShipDestroyCountdown()),
 		/**
-		 * Ein Countdown bis zum Respawn des Schiffes.
-		 *
-		 * data1 - die ID des betroffenen Schiffes (neg. id!)
-		 */
-		SHIP_RESPAWN_COUNTDOWN(6, new HandleShipRespawnCountdown()),
-		/**
 		 * Ein Gany-Transportauftrag.
 		 *
 		 * data1 - die Order-ID des Auftrags

@@ -18,13 +18,17 @@
  */
 package net.driftingsouls.ds2.server.modules.stats;
 
-import java.io.IOException;
-
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.ally.Ally;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.StatsController;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
 
 /**
  * Zeigt die Liste der groessten Flotten an.
@@ -45,43 +49,85 @@ public class StatBiggestFleet extends AbstractStatistic implements Statistic {
 	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 
-		String url = null;
+		Integer[] zuIgnorierendeSchiffsklassen = {
+				ShipClasses.UNBEKANNT.ordinal(),
+				ShipClasses.TRANSPORTER.ordinal(),
+				ShipClasses.TANKER.ordinal(),
+				ShipClasses.CONTAINER.ordinal(),
+				ShipClasses.SCHROTT.ordinal(),
+				ShipClasses.RETTUNGSKAPSEL.ordinal(),
+				ShipClasses.EMTPY.ordinal(),
+				ShipClasses.FELSBROCKEN.ordinal()};
 
-		SQLQuery tmp = null;
+		String sumStatement = "sum(COALESCE(sm.size, st.size)*COALESCE(sm.size, st.size)*s.crew/COALESCE(sm.crew, st.crew))";
+
+		String url;
+
+		List<?> tmp;
 		if( !allys ) {
-			tmp = db.query("SELECT SUM( (CASE WHEN t4.size IS NULL THEN t3.size*t3.size ELSE t4.size*t4.size END) * (t1.crew/CASE WHEN t4.crew IS NULL THEN t3.crew ELSE t4.crew END) * (t1.hull/CASE WHEN t4.hull IS NULL THEN t3.hull ELSE t4.hull END) * t1.hull ) count,t2.name,t2.id ",
-					    "FROM ((ships t1 JOIN users t2 ON t1.owner=t2.id) " +
-					    "	JOIN ship_types t3 ON t1.type=t3.id) " +
-					    "	LEFT OUTER JOIN ships_modules t4 ON t1.id=t4.id ",
-						"WHERE t1.id>0 AND t1.owner>",StatsController.MIN_USER_ID," AND " +
-					    "	(t2.vaccount=0 or t2.wait4vac>0) AND " +
-						"	(((t4.id IS NULL) AND t3.cost>0) OR ((t4.id IS NOT NULL) AND t4.cost>0)) AND " +
-						"	t3.class not in (0,1,3,12,14,18,19,20) ",
-						"GROUP BY t1.owner ",
-						"ORDER BY count DESC,t2.id ASC LIMIT ",size);
+			tmp = db.createQuery("select "+sumStatement+" as cnt,o " +
+					"from Ship s join s.owner o join s.shiptype st left join s.modules sm " +
+					"where s.id > 0 and " +
+					"	o.id > :minid and " +
+					"	(o.vaccount=0 or o.wait4vac>0) and " +
+					"	(((sm.id is null) and st.cost>0) or ((sm.id is not null) and sm.cost>0)) and " +
+					"	st.shipClass not in (:classes) " +
+					"group by o " +
+					"order by "+sumStatement+" desc, o.id asc")
+				.setInteger("minid", StatsController.MIN_USER_ID)
+				.setParameterList("classes", zuIgnorierendeSchiffsklassen)
+				.setMaxResults(size)
+				.list();
+
 			url = getUserURL();
 		}
 		else {
-			tmp = db.query("SELECT SUM( (CASE WHEN sm.size IS NULL THEN st.size*st.size ELSE sm.size*sm.size END) * (s.crew/CASE WHEN sm.crew IS NULL THEN st.crew ELSE sm.crew END) * (s.hull/CASE WHEN sm.hull IS NULL THEN st.hull ELSE sm.hull END) * s.hull ) count,a.name,u.ally id ",
-					    "FROM (((ships s JOIN users u ON s.owner=u.id) " +
-					    "	JOIN ship_types st ON s.type=st.id) " +
-					    "	JOIN ally a ON u.ally=a.id) " +
-					    "	LEFT OUTER JOIN ships_modules sm ON s.id=sm.id ",
-						"WHERE s.id>0 AND s.owner>",StatsController.MIN_USER_ID," AND " +
-						"	u.ally IS NOT NULL AND " +
-					    "	(u.vaccount=0 or u.wait4vac>0) AND " +
-						"	(((sm.id IS NULL) AND st.cost>0) OR ((sm.id IS NOT NULL) AND sm.cost>0)) AND " +
-						"	st.class not in (0,1,3,12,14,18,19,20) ",
-						"GROUP BY u.ally ",
-						"ORDER BY count DESC,u.id ASC LIMIT ",size);
+			tmp = db.createQuery("select "+sumStatement+" as cnt,ally " +
+					"from Ship s join s.owner o join o.ally ally join s.shiptype st left join s.modules sm " +
+					"where s.id > 0 and " +
+					"	ally is not null and " +
+					"	o.id > :minid and " +
+					"	(o.vaccount=0 or o.wait4vac>0) and " +
+					"	(((sm.id is null) and st.cost>0) or ((sm.id is not null) and sm.cost>0)) and " +
+					"	st.shipClass not in (:classes) " +
+					"group by ally " +
+					"order by "+sumStatement+" desc, ally.id asc")
+					.setInteger("minid", StatsController.MIN_USER_ID)
+					.setParameterList("classes", zuIgnorierendeSchiffsklassen)
+					.setMaxResults(size)
+					.list();
 
 			url = getAllyURL();
 		}
 
-		this.generateStatistic("Die groessten Flotten:", tmp, url, false);
+		Writer echo = getContext().getResponse().getWriter();
 
-		tmp.free();
+		echo.append("<h1>Die größten Flotten:</h1>");
+		echo.append("<table class='stats'>\n");
+
+		int count = 0;
+		for( Object obj : tmp )
+		{
+			Object[] values = (Object[])obj;
+
+			echo.append("<tr><td>"+(count+1)+".</td>\n");
+			if( values[1] instanceof User )
+			{
+				User owner = (User)values[1];
+				echo.append("<td><a class=\"profile\" href=\""+url+owner.getId()+"\">"+ Common._title(owner.getName())+" ("+owner.getId()+")</a></td>\n");
+			}
+			else
+			{
+				Ally ally = (Ally)values[1];
+				echo.append("<td><a class=\"profile\" href=\""+url+ally.getId()+"\">"+ Common._title(ally.getName())+" ("+ally.getId()+")</a></td>\n");
+			}
+
+			count++;
+			echo.append("</tr>");
+		}
+
+		echo.append("</table>\n");
 	}
 }

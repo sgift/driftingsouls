@@ -18,19 +18,6 @@
  */
 package net.driftingsouls.ds2.server.scripting.dsscript;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.sql.Blob;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.script.ScriptContext;
-import javax.script.ScriptException;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.MutableLocation;
@@ -48,7 +35,9 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
+import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
+import net.driftingsouls.ds2.server.entities.Sector;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.VersteigerungResource;
 import net.driftingsouls.ds2.server.entities.VersteigerungSchiff;
@@ -56,9 +45,6 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.scripting.Quests;
 import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
 import net.driftingsouls.ds2.server.scripting.ShipUtils;
@@ -69,7 +55,6 @@ import net.driftingsouls.ds2.server.scripting.entities.QuickQuest;
 import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
 import net.driftingsouls.ds2.server.scripting.entities.Text;
 import net.driftingsouls.ds2.server.ships.Ship;
-
 import net.driftingsouls.ds2.server.ships.ShipLoot;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import org.apache.commons.lang.StringUtils;
@@ -78,6 +63,17 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+
+import javax.script.ScriptContext;
+import javax.script.ScriptException;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Scriptbefehle fuer Questscripte.
@@ -238,7 +234,6 @@ public class QuestFunctions {
 		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
-			Database database = ContextMap.getContext().getDatabase();
 
 			scriptparser.log("register: "+command[1]+"\n");
 			scriptparser.log("value: "+command[2]+"\n");
@@ -250,7 +245,7 @@ public class QuestFunctions {
 
 			String[] value = StringUtils.split(command[2], '.');
 			if( value[0].equals("shipsource") ) {
-				Ship ship = null;
+				Ship ship;
 				if( command.length == 3 ) {
 					ship = scriptparser.getShip();
 				}
@@ -407,44 +402,85 @@ public class QuestFunctions {
 				}
 			}
 			else if( value[0].equals("base") ) {
-				SQLResultRow base = null;
+				Base base;
 
 				Object baseObj = scriptparser.getRegisterObject(command[3]);
-				if( baseObj instanceof SQLResultRow ) {
-					base = (SQLResultRow)baseObj;
+				if( baseObj instanceof Base ) {
+					base = (Base)baseObj;
 				}
 				else {
 					int baseID = ((Number)baseObj).intValue();
-					base = database.first("SELECT id,name,owner,x,y,system,cargo,maxcargo,klasse FROM bases WHERE id=",baseID);
+					base = (Base)db.get(Base.class, baseID);
 				}
-
 				if( (value.length <= 1) || (value[1].length() == 0) ) {
 					val = base;
 				}
 				else if( value[1].equals("cargo") ) {
-					val = new Cargo( Cargo.Type.AUTO, base.getString("cargo") );
+					val = base.getCargo();
 				}
-				else {
-					val = base.get(value[1].trim());
+				else if( "id".equals(value[1]) ) {
+					val = base.getId();
+				}
+				else if( "name".equals(value[1]) ) {
+					val = base.getName();
+				}
+				else if( "owner".equals(value[1]) ) {
+					val = base.getOwner().getId();
+				}
+				else if( "x".equals(value[1]) ) {
+					val = base.getLocation().getX();
+				}
+				else if( "y".equals(value[1]) ) {
+					val = base.getLocation().getY();
+				}
+				else if( "system".equals(value[1]) ) {
+					val = base.getLocation().getSystem();
+				}
+				else if( "maxcargo".equals(value[1]) ) {
+					val = base.getMaxCargo();
+				}
+				else if( "klasse".equals(value[1]) ) {
+					val = base.getKlasse();
 				}
 			}
 			else if( value[0].equals("jumpnode") ) {
-				SQLResultRow jn = null;
+				JumpNode jn;
 
 				Object jnObj = scriptparser.getRegisterObject(command[3]);
-				if( jnObj instanceof SQLResultRow ) {
-					jn = (SQLResultRow)jnObj;
+				if( jnObj instanceof JumpNode ) {
+					jn = (JumpNode)jnObj;
 				}
 				else {
 					int jnID = ((Number)jnObj).intValue();
-					jn = database.first("SELECT id,name,owner,x,y,system,cargo,maxcargo,klasse FROM bases WHERE id=",jnID);
+					jn = (JumpNode)db.get(JumpNode.class, jnID);
 				}
 
 				if( (value.length <= 1) || (value[1].length() == 0) ) {
 					val = jn;
 				}
-				else {
-					val = jn.get(value[1].trim());
+				else if( "id".equals(value[1]) ) {
+					val = jn.getId();
+				}
+				else if( "x".equals(value[1]) ) {
+					val = jn.getLocation().getX();
+				}
+				else if( "y".equals(value[1]) ) {
+					val = jn.getLocation().getY();
+				}
+				else if( "system".equals(value[1]) ) {
+					val = jn.getLocation().getSystem();
+				}
+				else if( "xout".equals(value[1]) ) {
+					val = jn.getXOut();
+				}
+				else if( "yout".equals(value[1]) ) {
+					val = jn.getYOut();
+				}
+				else if( "systemout".equals(value[1]) ) {
+					val = jn.getSystemOut();
+				}
+				else if( "name".equals(value[1]) ) {
+					val = jn.getName();
 				}
 			}
 
@@ -529,7 +565,6 @@ public class QuestFunctions {
 		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
-			Database database = ContextMap.getContext().getDatabase();
 
 			scriptparser.log("value: "+command[1]+"\n");
 			scriptparser.log("register: "+command[2]+"\n");
@@ -612,19 +647,20 @@ public class QuestFunctions {
 			}
 			else if( value[0].equals("base") ) {
 				Object baseObj = scriptparser.getRegisterObject(command[3]);
-				if( !(baseObj instanceof SQLResultRow) ) {
-					baseObj = database.first("SELECT * FROM bases WHERE id="+Value.Int(baseObj.toString()));
+				if( !(baseObj instanceof Base) ) {
+					baseObj = db.get(Base.class, Value.Int(baseObj.toString()));
 				}
-				SQLResultRow base = (SQLResultRow)baseObj;
+				Base base = (Base)baseObj;
 
-				if( !value[1].equals("cargo") ) {
-					base.put(value[1].trim(), val);
-					database.prepare("UPDATE bases SET `?`= ? WHERE id>0 AND id= ?")
-						.update(value[1].trim(), val, base.getInt("id"));
+				if (value[1].equals("cargo"))
+				{
+					base.setCargo((Cargo) val);
 				}
-				else {
-					base.put("cargo", ((Cargo)val).save());
-					database.update("UPDATE base SET `cargo`='"+base.getString("cargo")+"' WHERE id>0 AND id="+base.getInt("id"));
+				else if( "name".equals(value[1]) ) {
+					base.setName(val.toString());
+				}
+				else if( "maxcargo".equals(value[1]) ) {
+					base.setMaxCargo(Value.Int(val.toString()));
 				}
 			}
 
@@ -760,7 +796,6 @@ public class QuestFunctions {
 	static class InstallHandler implements SPFunction {
 		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
-			Database database = ContextMap.getContext().getDatabase();
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 
 			String event = command[1];
@@ -802,16 +837,14 @@ public class QuestFunctions {
 
 				// On-Communicate
 				if( event.equals("oncommunicate") ) {
-					SQLResultRow ship = database.first("SELECT id,oncommunicate FROM ships " +
-							"WHERE id>0 AND id="+Value.Int(objid));
-					if( !ship.isEmpty() ) {
-						String comm = ship.getString("oncommunicate");
+					Ship ship = (Ship)db.get(Ship.class, Value.Int(objid));
+					if( ship != null && ship.getId() > 0 ) {
+						String comm = ship.getOnCommunicate();
 						if( comm.length() > 0 ) {
 							comm += ";";
 						}
 						comm += userid+":"+scriptid+":"+questid;
-						database.prepare("UPDATE ships SET oncommunicate= ? WHERE id>0 AND id= ?")
-							.update(comm, Value.Int(objid));
+						ship.setOnCommunicate(comm);
 
 						removescript.append("!REMOVEHANDLER "+event+" "+objid+" "+userid+" "+scriptid+" "+questid+"\n");
 					}
@@ -820,29 +853,27 @@ public class QuestFunctions {
 				else if( event.equals("onenter") ) {
 					Location loc = Location.fromString(objid);
 
-					SQLResultRow sector = database.first("SELECT system,x,y,onenter FROM sectors " +
-							"WHERE system="+loc.getSystem()+" AND x="+loc.getX()+" AND y="+loc.getY());
-					if( sector.isEmpty() ) {
-						db.update("INSERT INTO sectors (system,x,y) " +
-								"VALUES ("+loc.getSystem()+","+loc.getX()+","+loc.getY()+")");
-						sector.put("onenter", "");
+					Sector sector = (Sector)db.get(Sector.class, new MutableLocation(loc));
+					if( sector == null ) {
+						sector = new Sector(new MutableLocation(loc));
+						sector.setOnEnter("");
+						db.persist(sector);
 					}
 
-					String onenter = sector.getString("onenter");
+					String onenter = sector.getOnEnter();
 					if( onenter.length() > 0) {
 						onenter += ";";
 					}
 					onenter += userid+":"+scriptid+":"+questid;
 
-					database.prepare("UPDATE sectors SET onenter= ? WHERE system= ? AND x= ? AND y= ?")
-						.update(onenter, loc.getSystem(), loc.getX(), loc.getY());
+					sector.setOnEnter(onenter);
 
 					removescript.append("!REMOVEHANDLER "+event+" "+objid+" "+userid+" "+scriptid+" "+questid+"\n");
 				}
 				// Battle-OnEnd
 				else {
-					database.prepare("UPDATE battles SET onend= ? WHERE id= ?")
-						.update(userid+":"+scriptid+":"+questid, Value.Int("objid"));
+					Battle battle = (Battle)db.get(Battle.class, Value.Int("objid"));
+					battle.setOnEnd("userid+\":\"+scriptid+\":\"+questid");
 				}
 			}
 			// OnTick
@@ -868,8 +899,12 @@ public class QuestFunctions {
 				questid = command[4];
 				scriptparser.log("questid: "+questid+"\n");
 
-				database.prepare("UPDATE quests_running SET ontick= ? WHERE questid= ? AND userid= ?")
-					.update(scriptid, questid, userid);
+				RunningQuest runningdata = (RunningQuest)db
+						.createQuery("from RunningQuest  where quest=:questid and user=:userid")
+						.setInteger("questid", Value.Int(questid))
+						.setInteger("userid", userid)
+						.uniqueResult();
+				runningdata.setOnTick(scriptid);
 
 				removescript.append("!REMOVEHANDLER "+event+" "+userid+" "+questid+"\n");
 			}
@@ -906,7 +941,6 @@ public class QuestFunctions {
 	static class RemoveHandler implements SPFunction {
 		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
-			Database database = ContextMap.getContext().getDatabase();
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 
 			String event = command[1];
@@ -973,12 +1007,11 @@ public class QuestFunctions {
 				else {
 					Location loc = Location.fromString(objid);
 
-					SQLResultRow sector = database.first("SELECT system,x,y,onenter FROM sectors " +
-							"WHERE system="+loc.getSystem()+" AND x="+loc.getX()+" AND y="+loc.getY());
-					if( !sector.isEmpty() ) {
+					Sector sector = (Sector)db.get(Sector.class, new MutableLocation(loc));
+					if( sector != null ) {
 						List<String> newenter = new ArrayList<String>();
 
-						String[] enter = StringUtils.split(sector.getString("onenter"), ';');
+						String[] enter = StringUtils.split(sector.getOnEnter(), ';');
 						for( int i=0; i < enter.length; i++ ) {
 							String[] tmp = StringUtils.split(enter[i], ':');
 							int usr = Value.Int(tmp[0]);
@@ -990,18 +1023,13 @@ public class QuestFunctions {
 						}
 
 						if( newenter.size() > 0 ) {
-							database.prepare("UPDATE sectors SET onenter= ? WHERE system= ? AND x= ? AND y= ?")
-								.update(Common.implode(";", newenter), loc.getSystem(), loc.getX(), loc.getY());
+							sector.setOnEnter(Common.implode(";", newenter));
 						}
-						else if( sector.getInt("objects") != 0 ) {
-							database.update("UPDATE ships SET onenter=NULL " +
-									"WHERE system="+loc.getSystem()+" " +
-											"AND x="+loc.getX()+" AND y="+loc.getY());
+						else if( sector.getObjects() != 0 ) {
+							sector.setOnEnter(null);
 						}
 						else {
-							database.update("DELETE FROM sectors " +
-									"WHERE system="+loc.getSystem()+" " +
-									"AND x="+loc.getX()+" AND y="+loc.getY());
+							db.delete(sector);
 						}
 					}
 				}
@@ -1713,7 +1741,6 @@ public class QuestFunctions {
 	static class AddLootTable implements SPFunction {
 		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
-			Database database = ContextMap.getContext().getDatabase();
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 
 			String questid = scriptparser.getRegister("QUEST");
@@ -1722,8 +1749,8 @@ public class QuestFunctions {
 			int shiptype = Value.Int(command[1]);
 			scriptparser.log("shiptype: "+shiptype+"\n");
 
-			int shipowner = Value.Int(command[2]);
-			scriptparser.log("shipowner: "+shipowner+"\n");
+			int shipownerId = Value.Int(command[2]);
+			scriptparser.log("shipowner: "+shipownerId+"\n");
 
 			int chance = Value.Int(command[3]);
 			scriptparser.log("chance: "+chance);
@@ -1731,7 +1758,7 @@ public class QuestFunctions {
 			ResourceID resourceid = Resources.fromString(command[4]);
 			scriptparser.log("resourceid: "+resourceid+"\n");
 			if( resourceid.getQuest() == 1 ) {
-				int qid = 0;
+				int qid;
 				if( questid.charAt(0) != 'r' ) {
 					RunningQuest rquest = (RunningQuest)db
 							.createQuery("from RunningQuest  where quest=:questid and user=:userid")
@@ -1747,12 +1774,12 @@ public class QuestFunctions {
 				resourceid = new ItemID(resourceid.getItemID(), resourceid.getUses(), qid);
 			}
 
-			long count = Value.Long(command[5]);
+			int count = Value.Int(command[5]);
 			scriptparser.log("resource-count: "+count+"\n");
 
-			long totalmax = 0;
+			int totalmax = 0;
 			if( command.length > 6 ) {
-				totalmax = Value.Long(command[6]);
+				totalmax = Value.Int(command[6]);
 				scriptparser.log("totalmax: "+totalmax+"\n");
 			}
 
@@ -1760,14 +1787,23 @@ public class QuestFunctions {
 				totalmax = -1;
 			}
 
-			database.update("INSERT INTO ship_loot " +
-					"(shiptype,owner,targetuser,chance,resource,count,totalmax) " +
-					"VALUES " +
-					"(" + shiptype + "," + shipowner + "," + userid + "," + chance + ",'" + resourceid.toString() + "'," + count + "," + totalmax + ")");
+			User user = (User)db.get(User.class, userid);
+			User shipowner = (User)db.get(User.class, shipownerId);
 
-			int loottable = database.insertID();
+			ShipLoot loot = new ShipLoot();
+			loot.setShipType(shiptype);
+			loot.setOwner(shipowner);
+			loot.setTargetUser(user);
+			loot.setChance(chance);
+			loot.setResource(resourceid.toString());
+			loot.setCount(count);
+			loot.setTotalMax(totalmax);
 
-			RunningQuest runningdata = null;
+			db.persist(loot);
+
+			int loottable = loot.getId();
+
+			RunningQuest runningdata;
 			if( questid.charAt(0) != 'r' ) {
 				runningdata = (RunningQuest)db
 						.createQuery("from RunningQuest  where quest=:questid and user=:userid")

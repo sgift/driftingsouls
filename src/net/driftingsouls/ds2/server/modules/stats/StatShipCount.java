@@ -18,15 +18,14 @@
  */
 package net.driftingsouls.ds2.server.modules.stats;
 
-import java.io.IOException;
-import java.io.Writer;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.StatsController;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
 
 /**
  * Zeigt allgemeine Daten zu DS und zum Server an.
@@ -37,7 +36,7 @@ public class StatShipCount implements Statistic {
 	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 
 		Writer echo = context.getResponse().getWriter();
 
@@ -46,15 +45,18 @@ public class StatShipCount implements Statistic {
 
 		int curTick = context.get(ContextCommon.class).getTick();
 		boolean first = true;
-		SQLQuery query = db.query("SELECT tick,shipcount FROM stats_ships WHERE tick>=",curTick-49," ORDER BY tick ASC");
-		while( query.next() ) {
+		List<?> result = db.createQuery("SELECT tick,shipCount FROM StatShips WHERE tick>=:mintick ORDER BY tick ASC")
+				.setInteger("mintick", curTick-49)
+				.list();
+		for (Object o : result)
+		{
+			Object[] data = (Object[])o;
 			if( !first ) {
 				echo.append(',');
 			}
 			first = false;
-			echo.append("["+query.getString("tick")+","+query.getString("shipcount")+"]");
+			echo.append("["+data[0]+","+data[1]+"]");
 		}
-		query.free();
 
 		echo.append("]], {" +
 				"axes:{xaxis:{label:'Tick',pad:0,tickInterval:7}, yaxis:{label:'Schiffe in Spielerhand'} }" +

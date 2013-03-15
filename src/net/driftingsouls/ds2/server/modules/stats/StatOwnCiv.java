@@ -18,16 +18,16 @@
  */
 package net.driftingsouls.ds2.server.modules.stats;
 
-import java.io.IOException;
-import java.io.Writer;
-
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.StatsController;
+import net.driftingsouls.ds2.server.ships.ShipType;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
 
 /**
  * Zeigt allgemeine Daten ueber den Account des Spielers an.
@@ -39,31 +39,40 @@ public class StatOwnCiv implements Statistic {
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		User user = (User)context.getActiveUser();
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 
 		Writer echo = context.getResponse().getWriter();
-		echo.append("<table class=\"noBorderX\" cellspacing=\"3\" cellpadding=\"3\" width=\"100%\">\n");
-		echo.append("<tr><td class=\"noBorderX\"colspan=\"2\" align=\"left\">Meine Zivilisation:</td></tr>\n");
+		echo.append("<h1>Meine Zivilisation:</h1>");
+		echo.append("<table cellspacing=\"3\" cellpadding=\"3\" width=\"100%\">\n");
 
 		long crew = 0;
 
-		echo.append("<tr><td class=\"noBorderX\" valign=\"top\">Schiffe:</td><td class=\"noBorderX\">\n");
+		echo.append("<tr><td valign=\"top\">Schiffe:</td><td>\n");
 
-		SQLQuery tmp = db.query("SELECT t1.type,t2.nickname,count(*) count,sum(t1.crew) sum " +
-				"FROM ships t1 JOIN ship_types t2 ON t1.type=t2.id " +
-				"WHERE t1.id>0 AND t1.owner=",user.getId()," GROUP BY t1.type,t2.nickname");
-		while( tmp.next() ) {
-			echo.append(Common.ln(tmp.getInt("count"))+" "+tmp.getString("nickname")+"<br />\n");
-   			crew += tmp.getInt("sum");
+		List<?> tmp = db
+				.createQuery("SELECT st,count(*),sum(s.crew) " +
+					"FROM Ship s join s.shiptype st " +
+					"WHERE s.id>0 AND s.owner=:user GROUP BY st order by st.nickname")
+				.setEntity("user", user)
+				.list();
+
+		for (Object o : tmp)
+		{
+			Object[] data = (Object[])o;
+			ShipType st = (ShipType)data[0];
+			echo.append(Common.ln((Long)data[1])+" "+st.getNickname()+"<br />\n");
+			crew += (Long)data[2];
 		}
-		tmp.free();
 
-		long population = db.first("SELECT sum(bewohner) sum FROM bases WHERE owner=",user.getId()).getInt("sum");
+		long population = (Long)db
+				.createQuery("SELECT sum(bewohner) FROM Base WHERE owner=:user")
+				.setEntity("user", user)
+				.uniqueResult();
 
 		echo.append("</td></tr>\n");
-		echo.append("<tr><td class=\"noBorderX\">Bev&ouml;lkerung:</td><td class=\"noBorderX\">"+Common.ln(crew+population)+"</td></tr>\n");
-		echo.append("<tr><td class=\"noBorderX\">Bewohner:</td><td class=\"noBorderX\">"+Common.ln(population)+"</td></tr>\n");
-		echo.append("<tr><td class=\"noBorderX\">Crew:</td><td class=\"noBorderX\">"+Common.ln(crew)+"</td></tr>\n");
+		echo.append("<tr><td>Bev&ouml;lkerung:</td><td>"+Common.ln(crew+population)+"</td></tr>\n");
+		echo.append("<tr><td>Bewohner:</td><td>"+Common.ln(population)+"</td></tr>\n");
+		echo.append("<tr><td>Crew:</td><td>"+Common.ln(crew)+"</td></tr>\n");
 		echo.append("</table><br /><br />\n");
 	}
 }

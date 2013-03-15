@@ -18,22 +18,19 @@
  */
 package net.driftingsouls.ds2.server.modules.stats;
 
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.modules.StatsController;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Writer;
 import java.math.BigInteger;
-
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
-import net.driftingsouls.ds2.server.modules.StatsController;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Zeigt allgemeine Daten zu DS und zum Server an.
@@ -46,46 +43,54 @@ public class StatData implements Statistic {
 	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 
 		Writer echo = context.getResponse().getWriter();
 
-		echo.append("<table class=\"noBorderX\" cellspacing=\"1\" cellpadding=\"3\">\n");
-		echo.append("<tr><td class=\"noBorderX\" align=\"left\" colspan=\"2\">Diverse Daten:</td></tr>\n");
+		echo.append("<h1>Diverse Daten:</h1>");
+		echo.append("<table cellspacing=\"1\" cellpadding=\"3\">\n");
 
-		echo.append("<tr><td class=\"noBorderX\" align=\"left\">Einnahmen aus Versteigerungen</td><td class=\"noBorderX\"></td></tr>\n");
+		echo.append("<tr><td align=\"left\">Einnahmen aus Versteigerungen</td><td class=\"noBorderX\"></td></tr>\n");
 
-		echo.append("<tr><td class=\"noBorderX\" align=\"left\">&nbsp;&nbsp;&nbsp;GTU</td>\n");
-		SQLResultRow einnahmen = db.first("SELECT sum(ceil(preis*gtugew/100)) gtu,sum(preis) total FROM stats_gtu");
-		echo.append("<td class=\"noBorderX\" align=\"left\">"+Common.ln(einnahmen.getLong("gtu"))+" RE</td></tr>\n");
+		echo.append("<tr><td align=\"left\">&nbsp;&nbsp;&nbsp;GTU</td>\n");
+		Object[] einnahmen = (Object[])db
+				.createQuery("SELECT sum(ceil(preis*gtuGew/100)),sum(preis) FROM StatGtu")
+				.uniqueResult();
+		echo.append("<td align=\"left\">"+Common.ln((Long)einnahmen[0])+" RE</td></tr>\n");
 
-		echo.append("<tr><td class=\"noBorderX\" align=\"left\">&nbsp;&nbsp;&nbsp;Spieler</td>\n");
-		echo.append("<td class=\"noBorderX\" align=\"left\">"+Common.ln(einnahmen.getLong("total")-einnahmen.getLong("gtu"))+" RE</td></tr>\n");
+		echo.append("<tr><td align=\"left\">&nbsp;&nbsp;&nbsp;Spieler</td>\n");
+		echo.append("<td align=\"left\">"+Common.ln((Long)einnahmen[1]-(Long)einnahmen[0])+" RE</td></tr>\n");
 
-		echo.append("<tr><td class=\"noBorderX\" align=\"left\">Gesamtverm&ouml;gen aller Spieler:</td>\n");
-		BigInteger totalre = db.first("SELECT sum(konto) sum FROM users WHERE id > 0").getBigInteger("sum");
-		echo.append("<td class=\"noBorderX\" align=\"left\">"+Common.ln(totalre)+" RE</td></tr>\n");
+		echo.append("<tr><td align=\"left\">Gesamtverm&ouml;gen aller Spieler:</td>\n");
+		BigInteger totalre = (BigInteger)db.createQuery("SELECT sum(konto) FROM User WHERE id > 0").uniqueResult();
+		echo.append("<td align=\"left\">"+Common.ln(totalre)+" RE</td></tr>\n");
 
-		echo.append("<tr><td class=\"noBorderX\" colspan=\"2\"><hr noshade=\"noshade\" size=\"1\" style=\"color:#cccccc\" /></td></tr>\n");
+		echo.append("<tr><td colspan=\"2\"><hr noshade=\"noshade\" size=\"1\" style=\"color:#cccccc\" /></td></tr>\n");
 
-		SQLResultRow shipstats = db.first("SELECT shipcount,crewcount FROM stats_ships ORDER BY tick DESC");
-		echo.append("<tr><td class=\"noBorderX\" align=\"left\">Schiffe in Spielerhand:</td>\n");
-		echo.append("<td class=\"noBorderX\" align=\"left\">"+Common.ln(shipstats.getLong("shipcount"))+"</td></tr>\n");
+		Object[] shipstats = (Object[])db
+				.createQuery("SELECT shipCount,crewCount FROM StatShips ORDER BY tick DESC")
+				.setMaxResults(1)
+				.uniqueResult();
+		echo.append("<tr><td align=\"left\">Schiffe in Spielerhand:</td>\n");
+		echo.append("<td align=\"left\">"+Common.ln((Long)shipstats[0])+"</td></tr>\n");
 
-		echo.append("<tr><td class=\"noBorderX\" align=\"left\">Crew auf diesen Schiffen:</td>\n");
-		echo.append("<td class=\"noBorderX\" align=\"left\">"+Common.ln(shipstats.getBigInteger("crewcount"))+"</td></tr>\n");
+		echo.append("<tr><td align=\"left\">Crew auf diesen Schiffen:</td>\n");
+		echo.append("<td align=\"left\">"+Common.ln((Long)shipstats[1])+"</td></tr>\n");
 
-		echo.append("<tr><td class=\"noBorderX\" colspan=\"2\"><hr noshade=\"noshade\" size=\"1\" style=\"color:#cccccc\" /></td></tr>\n");
+		echo.append("<tr><td colspan=\"2\"><hr noshade=\"noshade\" size=\"1\" style=\"color:#cccccc\" /></td></tr>\n");
 
-		echo.append("<tr><td class=\"noBorderX\" align=\"left\">Registrierte Spieler:</td>\n");
-		int usercount = db.first("SELECT count(*) count FROM users WHERE id>",StatsController.MIN_USER_ID).getInt("count");
-		echo.append("<td class=\"noBorderX\" align=\"left\">"+Common.ln(usercount)+"</td></tr>\n");
+		echo.append("<tr><td align=\"left\">Registrierte Spieler:</td>\n");
+		long usercount = (Long)db
+				.createQuery("SELECT count(*) FROM User WHERE id>:minid")
+				.setInteger("minid",StatsController.MIN_USER_ID)
+				.uniqueResult();
+		echo.append("<td align=\"left\">"+Common.ln(usercount)+"</td></tr>\n");
 
-		echo.append("<tr><td class=\"noBorderX\" align=\"left\">PMs in der Datenbank:</td>\n");
-		long pmcount = db.first("SELECT count(*) count FROM transmissionen").getLong("count");
-		echo.append("<td class=\"noBorderX\" align=\"left\">"+Common.ln(pmcount)+"</td></tr>\n");
+		echo.append("<tr><td align=\"left\">PMs in der Datenbank:</td>\n");
+		long pmcount = (Long)db.createQuery("SELECT count(*) FROM PM").uniqueResult();
+		echo.append("<td align=\"left\">"+Common.ln(pmcount)+"</td></tr>\n");
 
-		echo.append("<tr><td class=\"noBorderX\" colspan=\"2\"><hr noshade=\"noshade\" size=\"1\" style=\"color:#cccccc\" /></td></tr>\n");
+		echo.append("<tr><td colspan=\"2\"><hr noshade=\"noshade\" size=\"1\" style=\"color:#cccccc\" /></td></tr>\n");
 
 		if( new File("/proc/uptime").canRead() ) {
 			try {
@@ -107,8 +112,8 @@ public class StatData implements Statistic {
 						long uptime_min = (long)(uptime_sec / 60);
 						uptime_sec -= uptime_min*60;
 
-						echo.append("<tr><td class=\"noBorderX\" align=\"left\">Uptime des Servers:</td>\n");
-						echo.append("<td class=\"noBorderX\" align=\"left\">"+uptime_days+" Tage "+uptime_hours+" Stunden "+uptime_min+" Minuten</td></tr>\n");
+						echo.append("<tr><td align=\"left\">Uptime des Servers:</td>\n");
+						echo.append("<td align=\"left\">"+uptime_days+" Tage "+uptime_hours+" Stunden "+uptime_min+" Minuten</td></tr>\n");
 					}
 				}
 				finally
@@ -130,8 +135,8 @@ public class StatData implements Statistic {
 					{
 						String[] load = line.split(" ");
 
-						echo.append("<tr><td class=\"noBorderX\" align=\"left\">Auslastung:</td>\n");
-						echo.append("<td class=\"noBorderX\" align=\"left\">"+load[0]+" "+load[1]+" "+load[2]+"</td></tr>\n");
+						echo.append("<tr><td align=\"left\">Auslastung:</td>\n");
+						echo.append("<td align=\"left\">"+load[0]+" "+load[1]+" "+load[2]+"</td></tr>\n");
 					}
 				}
 				finally {

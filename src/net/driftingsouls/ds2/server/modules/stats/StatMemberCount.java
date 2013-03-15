@@ -18,13 +18,15 @@
  */
 package net.driftingsouls.ds2.server.modules.stats;
 
-import java.io.IOException;
-
+import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.StatsController;
+
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Zeigt die Mitgliederanzahl der Allianzen an.
@@ -35,17 +37,23 @@ public class StatMemberCount extends AbstractStatistic implements Statistic {
 	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 
-		String url = getAllyURL();
+		List<?> tmp = db.createQuery("SELECT ally, count(u) " +
+					"FROM User u join u.ally ally " +
+					"WHERE u.id> :minid " +
+					"GROUP BY ally ORDER BY count(u) DESC")
+				.setInteger("minid", StatsController.MIN_USER_ID)
+				.setMaxResults(size)
+				.list();
 
-		SQLQuery tmp = db.query("SELECT a.id, a.name, count(u.id) count " +
-				"FROM ally a JOIN users u ON a.id=u.ally " +
-				"WHERE a.id>",StatsController.MIN_USER_ID," " +
-				"GROUP BY a.id ORDER BY count DESC LIMIT "+size);
+		Map<Ally,Long> result = new LinkedHashMap<Ally,Long>();
+		for( Object obj : tmp )
+		{
+			Object[] values = (Object[])obj;
+			result.put((Ally) values[0], (Long) values[1]);
+		}
 
-		this.generateStatistic("Die gr&ouml;&szlig;ten Allianzen:", tmp, url);
-
-		tmp.free();
+		this.generateStatistic("Die größten Allianzen:", result, ALLY_LINK_GENERATOR, true, size);
 	}
 }

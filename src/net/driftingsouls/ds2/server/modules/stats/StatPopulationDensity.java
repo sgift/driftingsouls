@@ -18,20 +18,18 @@
  */
 package net.driftingsouls.ds2.server.modules.stats;
 
-import java.io.IOException;
-import java.io.Writer;
-
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.Database;
-import net.driftingsouls.ds2.server.framework.db.SQLQuery;
 import net.driftingsouls.ds2.server.modules.StatsController;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
 
 /**
  * Zeigt die Bevoelkerungsdichte in einzelnen Systemen sowie insgesamt an.
@@ -44,31 +42,35 @@ public class StatPopulationDensity implements Statistic {
 	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
-		Database db = context.getDatabase();
+		org.hibernate.Session db = context.getDB();
 		User user = (User)context.getActiveUser();
 		org.hibernate.Session database = context.getDB();
 
 		Writer echo = context.getResponse().getWriter();
 
-		echo.append("Siedlungsdichte:<br />");
-		echo.append("<table class=\"noBorderX\" cellspacing=\"1\" cellpadding=\"1\" width=\"100%\">\n");
-		echo.append("<tr><td class=\"noBorderX\">System</td><td class=\"noBorderX\">Asteroiden</td><td class=\"noBorderX\">%</td><td class=\"noBorderX\">Bewohner</td><td class=\"noBorderX\">Bewohner / Asteroid</td><td class=\"noBorderX\">Bewohner / besiedelter Asteroid</td></tr>\n");
+		echo.append("<h1>Siedlungsdichte:</h1>");
+		echo.append("<table cellspacing=\"1\" cellpadding=\"1\" width=\"100%\">\n");
+		echo.append("<thead><tr><th>System</th><th>Asteroiden</th><th>%</th><th>Bewohner</th><th>Bewohner / Asteroid</th><th>Bewohner / besiedelter Asteroid</th></tr></thead>\n");
+		echo.append("<tbody>");
 
 		long insbew=0;
 		int instotal = 0;
 		int insused = 0;
 
-		SQLQuery systemStats = db.query("SELECT system, count(*) total, " +
-				"sum(CASE WHEN owner!=0 THEN bewohner ELSE 0 END) bew, " +
-				"sum(CASE WHEN owner!=0 THEN 1 ELSE 0 END) used " +
-				"FROM bases " +
-				"GROUP BY system ORDER BY system");
+		List<?> systemStats = db.createQuery("SELECT system, count(*), " +
+					"sum(CASE WHEN owner.id!=0 THEN bewohner ELSE 0 END), " +
+					"sum(CASE WHEN owner.id!=0 THEN 1 ELSE 0 END) " +
+					"FROM Base b " +
+					"GROUP BY b.system ORDER BY b.system")
+				.list();
 
-		while( systemStats.next() ) {
+		for( Object o : systemStats )
+		{
+			Object[] data = (Object[])o;
 			String systemAddInfo = "";
-			StarSystem system = (StarSystem)database.get(StarSystem.class, systemStats.getInt("system"));
+			StarSystem system = (StarSystem)database.get(StarSystem.class, (Integer)data[0]);
 			if( system == null ) {
-				log.warn("Asteroiden im ungueltigen System "+systemStats.getInt("system")+" vorhanden");
+				log.warn("Asteroiden im ungueltigen System "+data[0]+" vorhanden");
 				continue;
 			}
 			if( (system.getAccess() == StarSystem.AC_ADMIN) && user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS) ) {
@@ -84,13 +86,9 @@ public class StatPopulationDensity implements Statistic {
 				systemAddInfo += " ";
 			}
 
-			int total = 0;
-			int used = 0;
-			long bew = 0;
-
-			bew = systemStats.getLong("bew");
-			used = systemStats.getInt("used");
-			total = systemStats.getInt("total");
+			long bew = (Long)data[2];
+			long used = (Long)data[3];
+			long total = (Long)data[1];
 
 			insbew += bew;
 	   		instotal += total;
@@ -111,14 +109,14 @@ public class StatPopulationDensity implements Statistic {
 				bewPerUsedAsti = (long)(bew/(double)used);
 			}
 
-			echo.append("<tr><td class=\"noBorderX\" style=\"vertical-align:top\">"+
+			echo.append("<tr><td style=\"vertical-align:top\">"+
 					systemAddInfo+system.getName()+" ("+system.getID()+")</td>\n");
 
-			echo.append("<td class=\"noBorderX\">"+Common.ln(used)+"/"+Common.ln(total)+"</td>" +
-					"<td class=\"noBorderX\">"+Common.ln(percentUsed)+" %</td>" +
-					"<td class=\"noBorderX\">"+Common.ln(bew)+"</td>" +
-					"<td class=\"noBorderX\">"+Common.ln(bewPerAsti)+"</td>" +
-					"<td class=\"noBorderX\">"+Common.ln(bewPerUsedAsti)+"</td>\n");
+			echo.append("<td>"+Common.ln(used)+"/"+Common.ln(total)+"</td>" +
+					"<td>"+Common.ln(percentUsed)+" %</td>" +
+					"<td>"+Common.ln(bew)+"</td>" +
+					"<td>"+Common.ln(bewPerAsti)+"</td>" +
+					"<td>"+Common.ln(bewPerUsedAsti)+"</td>\n");
 			echo.append("</tr>");
 		}
 
@@ -133,23 +131,26 @@ public class StatPopulationDensity implements Statistic {
 		if( insused > 0 ) {
 			bewPerUsedAsti = (long)(insbew/(double)insused);
 		}
-		echo.append("<tr><td class=\"noBorderX\" colspan=\"6\">" +
+		echo.append("<tr><td colspan=\"6\">" +
 				"<hr noshade=\"noshade\" size=\"1\" style=\"color:#cccccc\" /></td></tr>\n");
 
-		echo.append("<tr><td class=\"noBorderX\" style=\"vertical-align:top\">Insgesamt</td>" +
-				"<td class=\"noBorderX\">"+Common.ln(insused)+"/"+Common.ln(instotal)+"</td>" +
-				"<td class=\"noBorderX\">"+Common.ln(percentUsed)+" %</td>" +
-				"<td class=\"noBorderX\">"+Common.ln(insbew)+"</td>" +
-				"<td class=\"noBorderX\">"+Common.ln(bewPerAsti)+"</td>" +
-				"<td class=\"noBorderX\">"+Common.ln(bewPerUsedAsti)+"</td>" +
+		echo.append("<tr><td style=\"vertical-align:top\">Insgesamt</td>" +
+				"<td>"+Common.ln(insused)+"/"+Common.ln(instotal)+"</td>" +
+				"<td>"+Common.ln(percentUsed)+" %</td>" +
+				"<td>"+Common.ln(insbew)+"</td>" +
+				"<td>"+Common.ln(bewPerAsti)+"</td>" +
+				"<td>"+Common.ln(bewPerUsedAsti)+"</td>" +
 				"</tr>\n");
 
-		long crew = db.first("SELECT sum(crew) sum FROM ships WHERE id>0 AND owner>"+StatsController.MIN_USER_ID).getLong("sum");
+		long crew = (Long)db
+				.createQuery("SELECT sum(crew) FROM Ship WHERE id>0 AND owner.id>:minid")
+				.setInteger("minid",StatsController.MIN_USER_ID)
+				.uniqueResult();
 		long tw = crew + insbew;
 
-		echo.append("<tr><td class=\"noBorderX\" colspan=\"6\">" +
+		echo.append("<tr><td colspan=\"6\">" +
 				"+ "+Common.ln(crew)+" Crew auf Schiffen = "+Common.ln(tw)+" Bev&ouml;lkerung insgesamt" +
 				"</td></tr>\n");
-		echo.append("</table><br /><br />");
+		echo.append("</tbody></table><br /><br />");
 	}
 }

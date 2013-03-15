@@ -93,4 +93,13 @@ public class Script {
 	public int getId() {
 		return id;
 	}
+
+	/**
+	 * Setzt die ID.
+	 * @param id Die ID
+	 */
+	public void setId(int id)
+	{
+		this.id = id;
+	}
 }
