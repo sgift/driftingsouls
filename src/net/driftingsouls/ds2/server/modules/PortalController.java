@@ -259,13 +259,6 @@ public class PortalController extends TemplateGenerator {
 											.setMaxResults(15)
 											.iterate();
 
-				/*SQLQuery adist = db.query("SELECT sqrt((",locations[i].getX(),"-x)*(",locations[i].getX(),"-x)+(",locations[i].getY(),"-y)*(",locations[i].getY(),"-y)) distance FROM bases WHERE owner=0 AND system='",system.getID(),"' AND klasse=1 ORDER BY distance LIMIT 15");
-				while( adist.next() ) {
-					dist += adist.getInt("distance");
-					count++;
-				}
-				adist.free();*/
-
 				while(distiter.hasNext())
 				{
 					dist += (Double)distiter.next();
