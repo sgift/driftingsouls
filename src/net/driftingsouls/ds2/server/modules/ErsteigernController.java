@@ -522,8 +522,21 @@ public class ErsteigernController extends TemplateGenerator
 			else
 			{
 				Map<Integer, Faction> factions = Faction.getFactions();
-				for( Integer aFactionID : factions.keySet() )
+				for (Map.Entry<Integer, Faction> integerFactionEntry : factions.entrySet())
 				{
+					int aFactionID = integerFactionEntry.getKey();
+					Faction factionObj = integerFactionEntry.getValue();
+					if( !factionObj.getPages().isEnabled() )
+					{
+						continue;
+					}
+
+					User aFactionUser = (User)db.get(User.class, factionObj.getID());
+					if( aFactionUser == null )
+					{
+						continue;
+					}
+
 					if( (user.getRelation(aFactionID) != User.Relation.ENEMY)
 							&& (relationlist.fromOther.get(aFactionID) != User.Relation.ENEMY) )
 					{
@@ -573,6 +586,10 @@ public class ErsteigernController extends TemplateGenerator
 			}
 
 			User aFactionUser = (User)db.get(User.class, factionObj.getID());
+			if( aFactionUser == null )
+			{
+				continue;
+			}
 			t.setVar(
 					"item.faction.name", Common._title(aFactionUser.getName()),
 					"item.faction.id", factionObj.getID());
