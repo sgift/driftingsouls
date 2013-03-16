@@ -564,15 +564,15 @@ public class AcademyBuilding extends DefaultBuilding {
 
 		t.setBlock("_BUILDING", "academy.trainnew.listitem", "academy.trainnew.list");
 
-		for( SQLResultRow offi : Offiziere.LIST.values() ) {
+		for( Offiziere.Offiziersausbildung offi : Offiziere.LIST.values() ) {
 			t.setVar(
-					"offizier.id",		offi.getInt("id"),
-					"offizier.name",	Common._title(offi.getString("name")),
-					"offizier.ing",		offi.getInt("ing"),
-					"offizier.waf",		offi.getInt("waf"),
-					"offizier.nav",		offi.getInt("nav"),
-					"offizier.sec",		offi.getInt("sec"),
-					"offizier.com",		offi.getInt("com"));
+					"offizier.id",		offi.getId(),
+					"offizier.name",	Common._title(offi.getName()),
+					"offizier.ing",		offi.getAbility(Offizier.Ability.ING),
+					"offizier.waf",		offi.getAbility(Offizier.Ability.WAF),
+					"offizier.nav",		offi.getAbility(Offizier.Ability.NAV),
+					"offizier.sec",		offi.getAbility(Offizier.Ability.SEC),
+					"offizier.com",		offi.getAbility(Offizier.Ability.COM));
 
 			t.parse("academy.trainnew.list", "academy.trainnew.listitem", true);
 		}

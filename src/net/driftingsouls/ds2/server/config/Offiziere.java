@@ -18,11 +18,12 @@
  */
 package net.driftingsouls.ds2.server.config;
 
+import net.driftingsouls.ds2.server.Offizier;
+
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 
 /**
  * Liste aller ausbildbaren Offizierstypen.
@@ -31,6 +32,99 @@ import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
  */
 public class Offiziere {
 	/**
+	 * Beschreibt eine konkrete (initiale) Ausbildung eines Offiziers bzw
+	 * den aus der Ausbildung resultierenden Offizier.
+	 */
+	public static class Offiziersausbildung {
+		private int id;
+		private String name;
+		private Map<Offizier.Ability,Integer> abilities;
+		private int[] specials;
+
+		/**
+		 * Konstruktor.
+		 * @param id Die ID der Ausbildung
+		 * @param name Der Name der Ausbildung
+		 */
+		public Offiziersausbildung(int id, String name)
+		{
+			this.id = id;
+			this.name = name;
+			this.specials = new int[] {1,2,3,4,5,6};
+			this.abilities = new HashMap<Offizier.Ability, Integer>();
+			for (Offizier.Ability ability : Offizier.Ability.values())
+			{
+				this.abilities.put(ability, 0);
+			}
+
+		}
+
+		/**
+		 * Gibt die ID der Ausbildung zurueck.
+		 * @return Die ID
+		 */
+		public int getId()
+		{
+			return id;
+		}
+
+		/**
+		 * Gibt den Namen der Ausbildung zurueck.
+		 * @return Der Name
+		 */
+		public String getName()
+		{
+			return name;
+		}
+
+		/**
+		 * Gibt den Wert der angegebenen Faehigkeit des Offiziers nach der
+		 * Ausbildung zurueck.
+		 * @param ability Die Faehigkeit
+		 * @return Der Wert
+		 */
+		public int getAbility(Offizier.Ability ability)
+		{
+			return this.abilities.get(ability);
+		}
+
+		/**
+		 * Setzt den Wert der angegebenen Faehigkeit des Offiziers nach der
+		 * Ausbildung.
+		 * @param ability Die Faehigkeit
+		 * @param wert Der Wert
+		 */
+		public void setAbility(Offizier.Ability ability, int wert)
+		{
+			this.abilities.put(ability, wert);
+		}
+
+		/**
+		 * Gibt alle durch die Ausbildung moeglichen Spezialfaehigkeiten des
+		 * Offiziers zurueck.
+		 * @return Die Faehigkeiten
+		 */
+		public int[] getSpecials()
+		{
+			return specials.clone();
+		}
+
+		/**
+		 * Setzt alle durch die Ausbildung moeglichen Spezialfaehigkeiten des
+		 * Offiziers.
+		 * @param specials Die Faehigkeiten
+		 */
+		public void setSpecials(int[] specials)
+		{
+			if( specials == null )
+			{
+				throw new NullPointerException();
+			}
+			this.specials = specials.clone();
+		}
+	}
+
+	/**
 	 * Der maximale Rang, den ein Offizier durch Erfahrung erlangen kann.
 	 */
 	public static final int MAX_RANG = 6;
@@ -38,55 +132,43 @@ public class Offiziere {
 	/**
 	 * Die Liste der Offizierstypen.
 	 */
-	public static final Map<Integer,SQLResultRow> LIST;
+	public static final Map<Integer,Offiziersausbildung> LIST;
 	
 	static {
 		// TODO: In XML auslagern...
 		// TODO: ...eine richtige Klasse statt SQLResultRow waere auch nicht schlecht...
-		Map<Integer,SQLResultRow> liste = new LinkedHashMap<Integer,SQLResultRow>();
-		
-		SQLResultRow offi = new SQLResultRow();
-		offi.put("id", 1);
-		offi.put("name", "Ingenieur");
-		offi.put("ing", 25);
-		offi.put("waf", 20);
-		offi.put("nav", 10);
-		offi.put("sec", 5);
-		offi.put("com", 5);
-		offi.put("specials", new int[] {1,2,3,4,5,6});
+		Map<Integer,Offiziersausbildung> liste = new LinkedHashMap<Integer,Offiziersausbildung>();
+
+		Offiziersausbildung offi = new Offiziersausbildung(1, "Ingenieur");
+		offi.setAbility(Offizier.Ability.ING, 25);
+		offi.setAbility(Offizier.Ability.WAF, 20);
+		offi.setAbility(Offizier.Ability.NAV, 10);
+		offi.setAbility(Offizier.Ability.SEC, 5);
+		offi.setAbility(Offizier.Ability.COM, 5);
 		liste.put(1, offi);
 		
-		offi = new SQLResultRow();
-		offi.put("id", 2);
-		offi.put("name", "Navigator");
-		offi.put("ing", 5);
-		offi.put("waf", 10);
-		offi.put("nav", 30);
-		offi.put("sec", 5);
-		offi.put("com", 10);
-		offi.put("specials", new int[] {1,2,3,4,5,6});
+		offi = new Offiziersausbildung(2, "Navigator");
+		offi.setAbility(Offizier.Ability.ING, 5);
+		offi.setAbility(Offizier.Ability.WAF, 10);
+		offi.setAbility(Offizier.Ability.NAV, 30);
+		offi.setAbility(Offizier.Ability.SEC, 5);
+		offi.setAbility(Offizier.Ability.COM, 10);
 		liste.put(2, offi);
 		
-		offi = new SQLResultRow();
-		offi.put("id", 3);
-		offi.put("name", "Sicherheitsexperte");
-		offi.put("ing", 10);
-		offi.put("waf", 25);
-		offi.put("nav", 5);
-		offi.put("sec", 35);
-		offi.put("com", 5);
-		offi.put("specials", new int[] {1,2,3,4,5,6});
+		offi = new Offiziersausbildung(3, "Sicherheitsexperte");
+		offi.setAbility(Offizier.Ability.ING, 10);
+		offi.setAbility(Offizier.Ability.WAF, 25);
+		offi.setAbility(Offizier.Ability.NAV, 5);
+		offi.setAbility(Offizier.Ability.SEC, 35);
+		offi.setAbility(Offizier.Ability.COM, 5);
 		liste.put(3, offi);
 
-		offi = new SQLResultRow();
-		offi.put("id", 4);
-		offi.put("name", "Captain");
-		offi.put("ing", 10);
-		offi.put("waf", 10);
-		offi.put("nav", 15);
-		offi.put("sec", 5);
-		offi.put("com", 35);
-		offi.put("specials", new int[] {1,2,3,4,5,6});
+		offi = new Offiziersausbildung(4, "Captain");
+		offi.setAbility(Offizier.Ability.ING, 10);
+		offi.setAbility(Offizier.Ability.WAF, 10);
+		offi.setAbility(Offizier.Ability.NAV, 15);
+		offi.setAbility(Offizier.Ability.SEC, 5);
+		offi.setAbility(Offizier.Ability.COM, 35);
 		liste.put(4, offi);
 		
 		LIST = Collections.unmodifiableMap(liste);

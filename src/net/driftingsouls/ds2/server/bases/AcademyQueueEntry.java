@@ -254,16 +254,15 @@ public class AcademyQueueEntry {
 				offizier = -Offiziere.LIST.keySet().iterator().next();
 			}
 
-			SQLResultRow offi = Offiziere.LIST.get(-offizier);
+			Offiziere.Offiziersausbildung offi = Offiziere.LIST.get(-offizier);
 
-			offz.setAbility(Offizier.Ability.ING, offi.getInt("ing"));
-			offz.setAbility(Offizier.Ability.WAF, offi.getInt("waf"));
-			offz.setAbility(Offizier.Ability.NAV, offi.getInt("nav"));
-			offz.setAbility(Offizier.Ability.SEC, offi.getInt("sec"));
-			offz.setAbility(Offizier.Ability.COM, offi.getInt("com"));
+			for (Offizier.Ability ability : Offizier.Ability.values())
+			{
+				offz.setAbility(Offizier.Ability.ING, offi.getAbility(ability));
+			}
 
-			int spec = RandomUtils.nextInt(((int[])offi.get("specials")).length);
-			spec = ((int[])offi.get("specials"))[spec];
+			int spec = RandomUtils.nextInt(offi.getSpecials().length);
+			spec = offi.getSpecials()[spec];
 
 			offz.setSpecial(Offizier.Special.values()[spec-1]);
 
