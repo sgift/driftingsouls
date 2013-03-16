@@ -61,7 +61,7 @@ public class StatBiggestFleet extends AbstractStatistic implements Statistic {
 				ShipClasses.EMTPY.ordinal(),
 				ShipClasses.FELSBROCKEN.ordinal()};
 
-		String sumStatement = "sum(COALESCE(sm.size, st.size)*COALESCE(sm.size, st.size)*s.crew/COALESCE(sm.crew, st.crew))";
+		String sumStatement = "sum(COALESCE(sm.size, st.size)*COALESCE(sm.size, st.size)*s.crew/COALESCE(sm.crew, st.crew)*s.hull/COALESCE(sm.hull,st.hull)*s.hull)";
 
 		String url;
 
@@ -72,7 +72,7 @@ public class StatBiggestFleet extends AbstractStatistic implements Statistic {
 					"where s.id > 0 and " +
 					"	o.id > :minid and " +
 					"	(o.vaccount=0 or o.wait4vac>0) and " +
-					"	(((sm.id is null) and st.cost>0) or ((sm.id is not null) and sm.cost>0)) and " +
+					"	COALESCE(sm.cost,st.cost)>0 and " +
 					"	st.shipClass not in (:classes) " +
 					"group by o " +
 					"order by "+sumStatement+" desc, o.id asc")
@@ -90,7 +90,7 @@ public class StatBiggestFleet extends AbstractStatistic implements Statistic {
 					"	ally is not null and " +
 					"	o.id > :minid and " +
 					"	(o.vaccount=0 or o.wait4vac>0) and " +
-					"	(((sm.id is null) and st.cost>0) or ((sm.id is not null) and sm.cost>0)) and " +
+					"	COALESCE(sm.cost,st.cost)>0 and " +
 					"	st.shipClass not in (:classes) " +
 					"group by ally " +
 					"order by "+sumStatement+" desc, ally.id asc")
