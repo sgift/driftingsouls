@@ -23,6 +23,11 @@ import java.io.IOException;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
@@ -56,6 +61,25 @@ public class XMLUtils {
 	 */
 	public static Document readFile(String file) throws SAXException, IOException, ParserConfigurationException {
 		return factory.newDocumentBuilder().parse(new File(file));
+	}
+
+	/**
+	 * Schreibt das angegebene XML-Dokument in die angegebene Datei.
+	 * @param file Die Zieldatei
+	 * @param doc Das zu schreibene XML-Dokument
+	 * @throws TransformerException Bei Fehlern waehrend des Schreibvorgangs
+	 */
+	public static void writeFile(String file, Document doc) throws TransformerException
+	{
+		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		Transformer transformer = transformerFactory.newTransformer();
+		DOMSource source = new DOMSource(doc);
+		StreamResult result = new StreamResult(new File(file));
+
+		// Output to console for testing
+		// StreamResult result = new StreamResult(System.out);
+
+		transformer.transform(source, result);
 	}
 	
 	/**
