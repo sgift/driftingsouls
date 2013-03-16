@@ -4,6 +4,7 @@
 
 div.gfxbox {
 	border-style: solid;
+	border-color: #26312a;
 
 	-webkit-border-image: url('./data/interface/border/border.gif') 18 19 18 19 repeat;
 	-moz-border-image: url('./data/interface/border/border.gif') 18 19 repeat;
@@ -15,6 +16,7 @@ div.gfxbox {
 	border-left-width:19px;
 	border-bottom-width:18px;
 	border-right-width:19px;
+	background-color:#0f1513;
 	background-image:url('./data/interface/border/border_background.gif');
 	background-clip:padding-box;
 

@@ -41,6 +41,7 @@
 	margin:0px;
 	padding:0px;
 	border-style:solid;
+	border-color: #26312a;
 	-webkit-border-image: url('./data/interface/border/border.gif') 18 19 18 19 repeat;
 	-moz-border-image: url('./data/interface/border/border.gif') 18 19 repeat;
 	-o-border-image: url('./data/interface/border/border.gif') 18 19 18 19 repeat;
@@ -48,6 +49,7 @@
 	border-image: url('./data/interface/border/border.gif') 18 19 18 19 repeat;
 	border-width:0px 18px 0px 19px;
 
+	background-color:#0f1513;
 	background-image:url('./data/interface/border/border_background.gif');
 	background-clip:padding-box;
 	font-size:13px;
