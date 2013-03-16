@@ -32,28 +32,26 @@ public class PlayerStarmap extends PublicStarmap
 	/**
 	 * Legt eine neue Sicht an.
 	 * 
-	 * @param db Ein aktives Hibernate Sessionobjekt.
 	 * @param user Der Spieler fuer den die Sicht gelten soll.
 	 * @param system Die ID des zu Grunde liegenden Sternensystems.
 	 */
-	public PlayerStarmap(Session db, User user, StarSystem system) {
-		this(db, user, system, null);
+	public PlayerStarmap(User user, StarSystem system) {
+		this(user, system, null);
 	}
 	
 	/**
 	 * Legt eine neue Sicht an.
 	 * 
-	 * @param db Ein aktives Hibernate Sessionobjekt.
 	 * @param user Der Spieler fuer den die Sicht gelten soll.
 	 * @param system Die ID des zu Grunde liegenden Sternensystems.
 	 * @param ausschnitt Der Ausschnitt (x, y, w, h) auf den die Sicht beschraenkt werden soll.
 	 */
-	public PlayerStarmap(Session db, User user, StarSystem system, int[] ausschnitt)
+	public PlayerStarmap(User user, StarSystem system, int[] ausschnitt)
 	{
-		super(db, system);
+		super(system);
 		
 		if( ausschnitt != null ) {
-			this.map = new ClippedStarmap(db, user, this.map, ausschnitt);
+			this.map = new ClippedStarmap(user, this.map, ausschnitt);
 		}
 		this.user = user;
 		if(this.user == null)

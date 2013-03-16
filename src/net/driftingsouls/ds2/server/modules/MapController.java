@@ -378,10 +378,10 @@ public class MapController extends AngularGenerator
 			PublicStarmap content;
 			if( this.adminView )
 			{
-				content = new AdminStarmap(db, system, user, new int[] {xStart,yStart,xEnd-xStart,yEnd-yStart});
+				content = new AdminStarmap(system, user, new int[] {xStart,yStart,xEnd-xStart,yEnd-yStart});
 			}
 			else {
-				content = new PlayerStarmap(db, user, system, new int[] {xStart,yStart,xEnd-xStart,yEnd-yStart});
+				content = new PlayerStarmap(user, system, new int[] {xStart,yStart,xEnd-xStart,yEnd-yStart});
 			}
 
 			JSONArray publicNodeArray = new JSONArray();

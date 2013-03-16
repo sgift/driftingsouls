@@ -23,15 +23,14 @@ public class AdminStarmap extends PublicStarmap
 	/**
 	 * Konstruktor.
 	 *
-	 * @param db     Die DB-Verbindung
 	 * @param system Die ID des Systems
 	 */
-	public AdminStarmap(Session db, StarSystem system, User adminUser, int[] ausschnitt)
+	public AdminStarmap(StarSystem system, User adminUser, int[] ausschnitt)
 	{
-		super(db, system);
+		super(system);
 
 		if( ausschnitt != null ) {
-			this.map = new ClippedStarmap(db, null, this.map, ausschnitt);
+			this.map = new ClippedStarmap(null, this.map, ausschnitt);
 		}
 
 		this.adminUser = adminUser;

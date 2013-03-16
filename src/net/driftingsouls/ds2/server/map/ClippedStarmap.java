@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 
 import org.hibernate.Session;
@@ -52,14 +53,14 @@ public class ClippedStarmap extends Starmap
 
 	/**
 	 * Konstruktor.
-	 * @param db Die DB-Verbindung
 	 * @param user Der Benutzer
 	 * @param inner Das zu Grunde liegende eigentliche Sternensystem
 	 * @param ausschnitt Der gewaehlte Ausschnitt <code>[x, y, w, h]</code>
 	 */
-	public ClippedStarmap(org.hibernate.Session db, User user, Starmap inner, int[] ausschnitt)
+	public ClippedStarmap(User user, Starmap inner, int[] ausschnitt)
 	{
-		this.db = db;
+		super(inner.getSystem());
+		this.db = ContextMap.getContext().getDB();
 		this.inner = inner;
 		this.ausschnitt = ausschnitt.clone();
 		this.clippedShipMap = this.buildClippedShipMap(user);

@@ -42,17 +42,16 @@ public class PublicStarmap
 
 	/**
 	 * Konstruktor.
-	 * @param db Die DB-Verbindung
 	 * @param system Die ID des Systems
 	 */
-	public PublicStarmap(Session db, StarSystem system)
+	public PublicStarmap(StarSystem system)
 	{
-		this.map = createMap(db, system);
+		this.map = createMap(system);
 	}
 
-	private Starmap createMap(Session db, StarSystem system)
+	private Starmap createMap(StarSystem system)
 	{
-		Starmap map = (Starmap)db.get(Starmap.class, system.getID());
+		Starmap map = new Starmap(system.getID());
 		if(map == null)
 		{
 			throw new IllegalArgumentException("The given system " + system.getID() + " does not exist.");

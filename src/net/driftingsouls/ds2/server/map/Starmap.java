@@ -18,6 +18,8 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 
 /**
@@ -27,12 +29,20 @@ import net.driftingsouls.ds2.server.ships.Ship;
  * 
  * @author Sebastian Gift
  */
-@Table(name="starmap")
-@Entity
 class Starmap
 {
-	Starmap()
-	{}
+	private int system;
+
+	private List<JumpNode> nodes;
+	private Map<Location, List<Ship>> shipMap;
+	private Map<Location, Nebel> nebulaMap;
+	private Map<Location, List<JumpNode>> nodeMap;
+	private Map<Location, List<Base>> baseMap;
+
+	Starmap(int system)
+	{
+		this.system = system;
+	}
 	
 	boolean isNebula(Location location)
 	{
@@ -52,12 +62,8 @@ class Starmap
 	 */
 	Collection<JumpNode> getJumpNodes()
 	{
-		if(nodes != null)
-		{
-			return Collections.unmodifiableCollection(this.nodes);
-		}
-		
-		return null;
+		loadNodes();
+		return Collections.unmodifiableCollection(this.nodes);
 	}
 	
 	/**
@@ -66,7 +72,12 @@ class Starmap
 	Map<Location, List<Ship>> getShipMap()
 	{
 		if( this.shipMap == null ) {
-			this.shipMap = buildShipMap(this.ships);
+			org.hibernate.Session db = ContextMap.getContext().getDB();
+			List<Ship> ships = Common.cast(db
+					.createQuery("from Ship where system=:system")
+					.setInteger("system", this.system)
+					.list());
+			this.shipMap = buildShipMap(ships);
 		}
 		return Collections.unmodifiableMap(this.shipMap);
 	}
@@ -77,7 +88,13 @@ class Starmap
 	Map<Location, List<Base>> getBaseMap()
 	{
 		if( this.baseMap == null ) {
-			this.baseMap = buildBaseMap(this.bases);
+			org.hibernate.Session db = ContextMap.getContext().getDB();
+			List<Base> bases = Common.cast(db
+					.createQuery("from Base where system=:system")
+					.setInteger("system", this.system)
+					.list());
+
+			this.baseMap = buildBaseMap(bases);
 		}
 		return Collections.unmodifiableMap(this.baseMap);
 	}
@@ -88,18 +105,37 @@ class Starmap
 	Map<Location, List<JumpNode>> getNodeMap()
 	{
 		if( this.nodeMap == null ) {
-			this.nodeMap = buildNodeMap(this.nodes);
+			loadNodes();
+			this.nodeMap = buildNodeMap(nodes);
 		}
 		return Collections.unmodifiableMap(this.nodeMap);
 	}
-	
+
+	private void loadNodes()
+	{
+		if( this.nodes != null )
+		{
+			return;
+		}
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		this.nodes = Common.cast(db
+				.createQuery("from JumpNode where system=:system")
+				.setInteger("system", this.system)
+				.list());
+	}
+
 	/**
 	 * @return Die Liste der Schiffe im System, sortiert nach Sektoren.
 	 */
 	Map<Location, Nebel> getNebulaMap()
 	{
 		if( this.nebulaMap == null ) {
-			this.nebulaMap = buildNebulaMap(this.nebulas);
+			org.hibernate.Session db = ContextMap.getContext().getDB();
+			List<Nebel> nebulas = Common.cast(db
+					.createQuery("from Nebel where loc.system=:system")
+					.setInteger("system", this.system)
+					.list());
+			this.nebulaMap = buildNebulaMap(nebulas);
 		}
 		return Collections.unmodifiableMap(this.nebulaMap);
 	}
@@ -195,28 +231,4 @@ class Starmap
 
 		return baseMap;		
 	}
-	
-	@Id
-	private int system;
-	@OneToMany
-	@JoinColumn(name="system", nullable=true)
-	private List<Ship> ships;
-	@OneToMany
-	@JoinColumn(name="system", nullable=true)
-	private List<Nebel> nebulas;
-	@OneToMany
-	@JoinColumn(name="system", nullable=true)
-	private List<JumpNode> nodes;
-	@OneToMany
-	@JoinColumn(name="system", nullable=true)
-	private List<Base> bases = new ArrayList<Base>();
-	
-	@Transient
-	private Map<Location, List<Ship>> shipMap;
-	@Transient
-	private Map<Location, Nebel> nebulaMap;
-	@Transient
-	private Map<Location, List<JumpNode>> nodeMap;
-	@Transient
-	private Map<Location, List<Base>> baseMap;
 }

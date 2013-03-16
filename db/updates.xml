@@ -1866,4 +1866,7 @@
 	<update type="data" datum="2013-03-14"><![CDATA[
 		UPDATE forschungen SET costs=replace(costs,'i','');
 	]]></update>
+	<update type="structure" datum="2013-03-16"><![CDATA[
+		DROP TABLE starmap;
+	]]></update>
 </updates>
