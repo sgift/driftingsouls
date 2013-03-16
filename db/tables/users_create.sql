@@ -29,7 +29,7 @@ CREATE TABLE `users` (
   `wonBattles` smallint(5) unsigned NOT NULL default '0',
   `destroyedShips` int(10) unsigned NOT NULL default '0',
   `lostShips` int(10) unsigned NOT NULL default '0',
-  `knownItems` text NOT NULL default '',
+  `knownItems` text NOT NULL,
   `version` int(10) unsigned not null default '0',
   `vacpoints` int NOT NULL DEFAULT '0',
   `specializationPoints` INT NOT NULL DEFAULT '0',

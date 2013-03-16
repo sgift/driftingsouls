@@ -1,4 +1,5 @@
 -- Berechnet die naechste freie Schiffs-ID ab der angegebenen ID
+DROP FUNCTION IF EXISTS newIntelliShipID;
 DELIMITER //
 CREATE FUNCTION newIntelliShipID(minid INT) RETURNS INT
 READS SQL DATA

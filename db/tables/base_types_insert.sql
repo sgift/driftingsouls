@@ -1,1 +1,1 @@
-INSERT INTO `ds2`.`base_types` (`id`, `Name`, `width`, `height`, `maxtiles`, `cargo`, `energy`, `terrain`, `spawnableress`) VALUES ('1', 'Normaler Asteroid', '5', '8', '40', '2000000', '1000', NULL, NULL);
+INSERT INTO `base_types` (`id`, `Name`, `width`, `height`, `maxtiles`, `cargo`, `energy`, `terrain`, `spawnableress`) VALUES ('1', 'Normaler Asteroid', '5', '8', '40', '2000000', '1000', NULL, NULL);
