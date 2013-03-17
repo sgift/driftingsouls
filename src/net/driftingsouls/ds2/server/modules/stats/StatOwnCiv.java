@@ -64,10 +64,15 @@ public class StatOwnCiv implements Statistic {
 			crew += (Long)data[2];
 		}
 
-		long population = (Long)db
+		Long population = (Long)db
 				.createQuery("SELECT sum(bewohner) FROM Base WHERE owner=:user")
 				.setEntity("user", user)
 				.uniqueResult();
+
+		if( population == null )
+		{
+			population = 0L;
+		}
 
 		echo.append("</td></tr>\n");
 		echo.append("<tr><td>Bev&ouml;lkerung:</td><td>"+Common.ln(crew+population)+"</td></tr>\n");
