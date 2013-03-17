@@ -1869,4 +1869,7 @@
 	<update type="structure" datum="2013-03-16"><![CDATA[
 		DROP TABLE starmap;
 	]]></update>
+	<update type="structure" datum="2013-03-17"><![CDATA[
+		DROP TABLE user_f;
+	]]></update>
 </updates>
