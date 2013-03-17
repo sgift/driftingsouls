@@ -1,0 +1,17 @@
+INSERT INTO `jumpnodes` (`id`, `x`, `y`, `system`, `xout`, `yout`, `systemout`, `name`, `wpnblock`, `gcpcolonistblock`, `hidden`) VALUES (1,25,28,1,44,44,2,'Regulus (2:44/44)',0,0,0);
+INSERT INTO `jumpnodes` (`id`, `x`, `y`, `system`, `xout`, `yout`, `systemout`, `name`, `wpnblock`, `gcpcolonistblock`, `hidden`) VALUES (2,44,44,2,25,28,1,'Delta Serpentis (1:25/28)',0,0,0);
+INSERT INTO `jumpnodes` (`id`, `x`, `y`, `system`, `xout`, `yout`, `systemout`, `name`, `wpnblock`, `gcpcolonistblock`, `hidden`) VALUES (3,39,31,1,32,348,1,'Delta Serpentis (1:32/348)',0,0,0);
+INSERT INTO `jumpnodes` (`id`, `x`, `y`, `system`, `xout`, `yout`, `systemout`, `name`, `wpnblock`, `gcpcolonistblock`, `hidden`) VALUES (4,32,348,1,39,31,1,'Delta Serpentis (1:39/31)',0,0,0);
+INSERT INTO `jumpnodes` (`id`, `x`, `y`, `system`, `xout`, `yout`, `systemout`, `name`, `wpnblock`, `gcpcolonistblock`, `hidden`) VALUES (5,18,4,1,32,348,1,'Delta Serpentis (1:32/348)',0,0,0);
+INSERT INTO `jumpnodes` (`id`, `x`, `y`, `system`, `xout`, `yout`, `systemout`, `name`, `wpnblock`, `gcpcolonistblock`, `hidden`) VALUES (6,21,29,2,19,34,4,'Epsilon Pegasi (4:19/34)',0,0,0);
+INSERT INTO `jumpnodes` (`id`, `x`, `y`, `system`, `xout`, `yout`, `systemout`, `name`, `wpnblock`, `gcpcolonistblock`, `hidden`) VALUES (7,19,34,4,21,29,2,'Regulus (2:21/29)',0,0,0);
+INSERT INTO `jumpnodes` (`id`, `x`, `y`, `system`, `xout`, `yout`, `systemout`, `name`, `wpnblock`, `gcpcolonistblock`, `hidden`) VALUES (8,64,364,1,46,23,5,'Chyron (5:46/23)',0,0,0);
+INSERT INTO `jumpnodes` (`id`, `x`, `y`, `system`, `xout`, `yout`, `systemout`, `name`, `wpnblock`, `gcpcolonistblock`, `hidden`) VALUES (9,46,23,5,64,364,1,'Delta Serpentis (1:64/364)',0,0,0);
+INSERT INTO `jumpnodes` (`id`, `x`, `y`, `system`, `xout`, `yout`, `systemout`, `name`, `wpnblock`, `gcpcolonistblock`, `hidden`) VALUES (10,67,71,5,17,81,8,'Yalon Tarh (8:17/81)',0,0,0);
+INSERT INTO `jumpnodes` (`id`, `x`, `y`, `system`, `xout`, `yout`, `systemout`, `name`, `wpnblock`, `gcpcolonistblock`, `hidden`) VALUES (11,17,81,8,67,71,5,'Chyron (5:67/71)',0,0,0);
+INSERT INTO `jumpnodes` (`id`, `x`, `y`, `system`, `xout`, `yout`, `systemout`, `name`, `wpnblock`, `gcpcolonistblock`, `hidden`) VALUES (12,121,117,1,140,122,5,'Chyron (5:140/122)',0,0,0);
+INSERT INTO `jumpnodes` (`id`, `x`, `y`, `system`, `xout`, `yout`, `systemout`, `name`, `wpnblock`, `gcpcolonistblock`, `hidden`) VALUES (13,140,122,5,121,117,1,'Delta Serpentis (1:121/117)',0,0,0);
+INSERT INTO `jumpnodes` (`id`, `x`, `y`, `system`, `xout`, `yout`, `systemout`, `name`, `wpnblock`, `gcpcolonistblock`, `hidden`) VALUES (16,97,52,8,17,33,7,'Sigma Draconis (7:17/33)',0,0,0);
+INSERT INTO `jumpnodes` (`id`, `x`, `y`, `system`, `xout`, `yout`, `systemout`, `name`, `wpnblock`, `gcpcolonistblock`, `hidden`) VALUES (17,189,5,4,175,168,7,'Sigma Draconis (7:175/168)',0,0,0);
+INSERT INTO `jumpnodes` (`id`, `x`, `y`, `system`, `xout`, `yout`, `systemout`, `name`, `wpnblock`, `gcpcolonistblock`, `hidden`) VALUES (21,175,168,7,189,5,4,'Epsilon Pegasi (4:189/5)',0,0,0);
+INSERT INTO `jumpnodes` (`id`, `x`, `y`, `system`, `xout`, `yout`, `systemout`, `name`, `wpnblock`, `gcpcolonistblock`, `hidden`) VALUES (22,17,33,7,97,52,8,'Yalon Tarh (8:97/52)',0,0,0);
