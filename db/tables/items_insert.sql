@@ -1,6 +1,6 @@
 		INSERT INTO `items` VALUES ('16', 'Nahrung', 'data/resources/Nahrung.gif', 'data/resources/Nahrung.gif', '1', null, 'common', 'Nahrung', '0', '0', '0', '0');
 		INSERT INTO `items` VALUES ('17', 'Deuterium', 'data/resources/Deuterium.gif', 'data/resources/Deuterium.gif', '1', null, 'common', 'Deuterium', '0', '0', '0', '0');
-		INSERT INTO `items` VALUES ('18', 'Kunststoff', 'data/resources/Kunststoffe.gif', 'data/resources/Kunststiffe.gif', '1', null, 'common', 'Kunststoff', '0', '0', '0', '0');
+		INSERT INTO `items` VALUES ('18', 'Kunststoff', 'data/resources/Kunststoffe.gif', 'data/resources/Kunststoffe.gif', '1', null, 'common', 'Kunststoff', '0', '0', '0', '0');
 		INSERT INTO `items` VALUES ('19', 'Titan', 'data/resources/Titan.gif', 'data/resources/Titan.gif', '1', null, 'common', 'Titan', '0', '0', '0', '0');
 		INSERT INTO `items` VALUES ('20', 'Uran', 'data/resources/Uran.gif', 'data/resources/Uran.gif', '1', null, 'common', 'Uran', '0', '0', '0', '0');
 		INSERT INTO `items` VALUES ('21', 'Antimaterie', 'data/resources/Antimaterie.gif', 'data/resources/Antimaterie.gif', '1', null, 'common', 'Antimaterie', '0', '0', '0', '0');
@@ -17,7 +17,7 @@
 		INSERT INTO `items` VALUES ('32', 'Holz', 'data/items/open.gif', 'data/items/open.gif', '1', null, 'common', 'Holz', '0', '0', '0', '0');
 		INSERT INTO `items` VALUES ('35', 'Isochips', 'data/resources/Isochips.gif', 'data/resources/Isochips.gif', '1', null, 'common', 'Isochips', '0', '0', '0', '0');
 		INSERT INTO `items` VALUES ('36', 'Batterien', 'data/resources/Reservebatterien.gif', 'data/resources/Reservebatterien.gif', '1', null, 'common', 'Batterien', '0', '0', '0', '0');
-		INSERT INTO `items` VALUES ('37', 'Leere Batterien', 'data/resources/Leere Reservebatterien.gif', 'data/resources/Leere Reservebatterien.gi', '1', null, 'common', 'Leere Batterien', '0', '0', '0', '0');
+		INSERT INTO `items` VALUES ('37', 'Leere Batterien', 'data/resources/Leere Reservebatterien.gif', 'data/resources/Leere Reservebatterien.gif', '1', null, 'common', 'Leere Batterien', '0', '0', '0', '0');
 		INSERT INTO `items` VALUES ('38', 'Shivanisches Artefakt', 'data/resources/shiv-arte.gif', 'data/resources/shiv-arte.gif', '1', null, 'common', 'Shivanisches Artefakt', '0', '0', '0', '0');
 		INSERT INTO `items` VALUES ('39', 'Artefakt der Uralten', 'data/resources/ancient-arte.gif', 'data/resources/ancient-arte.gif', '1', null, 'common', 'Artefakt der Uralten', '0', '0', '0', '0');
 		INSERT INTO `items` VALUES ('40', 'Böser Admin', 'data/resources/Soldaten.gif', 'data/resources/Soldaten.gif', '1', null, 'common', 'Böser Admin', '0', '0', '0', '0');
