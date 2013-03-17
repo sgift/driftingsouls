@@ -42,6 +42,7 @@ public class BaseType
 	private int energy;
 	private String terrain;
 	private String spawnableress;
+	private int size;
 	
 	/**
 	 * Konstruktor.
@@ -211,5 +212,23 @@ public class BaseType
 	public void setSpawnableRess(String spawnableRess)
 	{
 		this.spawnableress = spawnableRess;
+	}
+
+	/**
+	 * Gibt den Radius des Basentyps auf der Sternenkarte zurueck.
+	 * @return Der Radius
+	 */
+	public int getSize()
+	{
+		return size;
+	}
+
+	/**
+	 * Setzt den Radius des Basentyps auf der Sternenkarte.
+	 * @param size Der Radius
+	 */
+	public void setSize(int size)
+	{
+		this.size = size;
 	}
 }

@@ -63,6 +63,7 @@ public class EditBaseType extends AbstractEditPlugin implements AdminPlugin
 			type.setWidth(context.getRequest().getParameterInt("width"));
 			type.setHeight(context.getRequest().getParameterInt("height"));
 			type.setMaxTiles(context.getRequest().getParameterInt("maxtiles"));
+			type.setSize(context.getRequest().getParameterInt("size"));
 			type.setTerrain(Common.explodeToInteger(";", context.getRequest().getParameterString("terrain")));
 			type.setSpawnableRess(context.getRequest().getParameterString("spawnableress"));
 			
@@ -86,6 +87,7 @@ public class EditBaseType extends AbstractEditPlugin implements AdminPlugin
 			editField(echo, "Breite", "width", Integer.class, type.getWidth());
 			editField(echo, "Höhe", "height", Integer.class, type.getHeight());
 			editField(echo, "Max. Feldanzahl", "maxtiles", Integer.class, type.getMaxTiles());
+			editField(echo, "Radius", "size", Integer.class, type.getSize());
 			editField(echo, "Terrain", "terrain", String.class, (type.getTerrain() == null ? "" : Common.implode(";", type.getTerrain())));
 			editField(echo, "Zum Spawn freigegebene Ressourcen", "spawnableress", String.class, type.getSpawnableRess());
 

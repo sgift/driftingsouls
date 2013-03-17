@@ -683,6 +683,7 @@ public class CreateObjects implements AdminPlugin {
 			base.setMaxCargo(type.getCargo());
 			base.setMaxEnergy(type.getEnergy());
 			base.setAvailableSpawnableRess(availablespawnableress);
+			base.setSize(type.getSize());
 			db.persist(base);
 
 			echo.append("Erstelle Kolonie...<br />\n");

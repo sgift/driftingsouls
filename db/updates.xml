@@ -1872,4 +1872,8 @@
 	<update type="structure" datum="2013-03-17"><![CDATA[
 		DROP TABLE user_f;
 	]]></update>
+	<update type="structure" datum="2013-03-17"><![CDATA[
+		ALTER TABLE base_types ADD COLUMN `size` int(11) not null;
+		UPDATE base_types SET size=(SELECT max(size) FROM bases WHERE klasse=base_types.id);
+	]]></update>
 </updates>
