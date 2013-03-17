@@ -61,9 +61,9 @@ public class IEDraftAmmo extends ItemEffect {
 	 * Laedt einen Effect aus einem String.
 	 * @param effectString Der Effect als String
 	 * @return Der Effect
-	 * @throws Exception falls der Effect nicht richtig geladen werden konnte
+	 * @throws IllegalArgumentException falls der Effect nicht richtig geladen werden konnte
 	 */
-	public static ItemEffect fromString(String effectString) throws Exception {
+	public static ItemEffect fromString(String effectString) throws IllegalArgumentException {
 		
 		String[] effects = StringUtils.split(effectString, "&");
 		int ammo = Integer.parseInt(effects[0]);
@@ -72,7 +72,7 @@ public class IEDraftAmmo extends ItemEffect {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		Ammo ammoEntry = (Ammo)db.get(Ammo.class, ammo);
 		if( ammoEntry == null ) {
-			throw new Exception("Illegaler Ammo-Typ '"+ammo+"' im Item-Effekt 'Munitionsbauplan'");
+			throw new IllegalArgumentException("Illegaler Ammo-Typ '"+ammo+"' im Item-Effekt 'Munitionsbauplan'");
 		}
 		
 		if( allyEffect ) {

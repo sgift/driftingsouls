@@ -62,9 +62,9 @@ public class IEDisableShip extends ItemEffect {
 	 * Laedt einen Effect aus einem String.
 	 * @param effectString Der Effect als String
 	 * @return Der Effect
-	 * @throws Exception falls der Effect nicht richtig geladen werden konnte
+	 * @throws IllegalArgumentException falls der Effect nicht richtig geladen werden konnte
 	 */
-	public static ItemEffect fromString(String effectString) throws Exception {
+	public static ItemEffect fromString(String effectString) throws IllegalArgumentException {
 		
 		String[] effects = StringUtils.split(effectString, "&");
 		Boolean allyEffect = effects[1].equals("true");
@@ -73,7 +73,7 @@ public class IEDisableShip extends ItemEffect {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		ShipType shipType = (ShipType)db.get(ShipType.class, shiptype);
 		if( shipType == null ) {
-			throw new Exception("Illegaler Schiffstyp '"+shiptype+"' im Item-Effekt 'Schiffsbauplan deaktivieren'");
+			throw new IllegalArgumentException("Illegaler Schiffstyp '"+shiptype+"' im Item-Effekt 'Schiffsbauplan deaktivieren'");
 		}
 		
 		if( allyEffect ) {

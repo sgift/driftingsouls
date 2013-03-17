@@ -19,8 +19,9 @@
 package net.driftingsouls.ds2.server.config.items.effects;
 
 import net.driftingsouls.ds2.server.framework.Context;
-
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 /**
  * Fabrikklasse fuer Itemeffekte.
@@ -28,6 +29,8 @@ import org.apache.commons.lang.StringUtils;
  *
  */
 public class ItemEffectFactory {
+	private static final Logger LOG = LogManager.getLogger(ItemEffectFactory.class);
+
 	private ItemEffectFactory() {
 		// EMPTY
 	}
@@ -46,27 +49,35 @@ public class ItemEffectFactory {
 		if( effects[0] == null || effects[0].equals("")) {
 			return new IENone();
 		}
-		
-		if( effects[0].equals("draft-ship")) {
-			return IEDraftShip.fromString(effects[1]);
+
+		try
+		{
+			if( effects[0].equals("draft-ship")) {
+				return IEDraftShip.fromString(effects[1]);
+			}
+			if( effects[0].equals("draft-ammo") ) {
+				return IEDraftAmmo.fromString(effects[1]);
+			}
+			if( effects[0].equals("module") ) {
+				return IEModule.fromString(effects[1]);
+			}
+			if( effects[0].equals("ammo") ) {
+				return IEAmmo.fromString(effects[1]);
+			}
+			if( effects[0].equals("disable-ship") ) {
+				return IEDisableShip.fromString(effects[1]);
+			}
+			if( effects[0].equals("disable-iff") ) {
+				return IEDisableIFF.fromString(effects[1]);
+			}
+			if( effects[0].equals("module-set-meta") ) {
+				return IEModuleSetMeta.fromString(effects[1]);
+			}
 		}
-		if( effects[0].equals("draft-ammo") ) {
-			return IEDraftAmmo.fromString(effects[1]);
-		}
-		if( effects[0].equals("module") ) {
-			return IEModule.fromString(effects[1]);
-		}
-		if( effects[0].equals("ammo") ) {
-			return IEAmmo.fromString(effects[1]);
-		}
-		if( effects[0].equals("disable-ship") ) {
-			return IEDisableShip.fromString(effects[1]);
-		}
-		if( effects[0].equals("disable-iff") ) {
-			return IEDisableIFF.fromString(effects[1]);
-		}
-		if( effects[0].equals("module-set-meta") ) {
-			return IEModuleSetMeta.fromString(effects[1]);
+		catch(RuntimeException e)
+		{
+			LOG.error("Konnte Effekt-String '"+itemEffectString+"' nicht parsen. Fallback auf 'Kein Effekt'.", e);
+			return new IENone();
 		}
 		
 		throw new Exception("Unbekannter Item-Effekttyp: '"+effects[0]+"'");

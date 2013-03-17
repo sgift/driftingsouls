@@ -95,9 +95,9 @@ public class IEModuleSetMeta extends ItemEffect {
 	 * Laedt einen Effect aus einem String.
 	 * @param itemeffectString Der Effect als String
 	 * @return Der Effect
-	 * @throws Exception falls der Effect nicht richtig geladen werden konnte
+	 * @throws IllegalArgumentException falls der Effect nicht richtig geladen werden konnte
 	 */
-	public static ItemEffect fromString(String itemeffectString) throws Exception {
+	public static ItemEffect fromString(String itemeffectString) throws IllegalArgumentException {
 		String[] effects = StringUtils.split(itemeffectString, "&");
 		
 		IEModuleSetMeta effect = new IEModuleSetMeta(effects[0]);

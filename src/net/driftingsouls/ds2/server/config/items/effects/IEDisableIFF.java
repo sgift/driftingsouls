@@ -40,9 +40,9 @@ public class IEDisableIFF extends ItemEffect {
 	 * Laedt einen Effect aus einem String.
 	 * @param effectString Der Effect als String
 	 * @return Der Effect
-	 * @throws Exception falls der Effect nicht richtig geladen werden konnte
+	 * @throws IllegalArgumentException falls der Effect nicht richtig geladen werden konnte
 	 */
-	public static ItemEffect fromString(String effectString) throws Exception {
+	public static ItemEffect fromString(String effectString) throws IllegalArgumentException {
 		return new IEDisableIFF();
 	}
 	

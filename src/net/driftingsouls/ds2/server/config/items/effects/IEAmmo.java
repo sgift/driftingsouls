@@ -58,9 +58,9 @@ public class IEAmmo extends ItemEffect {
 	 * Liest die Ammodaten aus einem String aus.
 	 * @param effectString Der String mit dem Effect
 	 * @return Der Effect
-	 * @throws Exception falls der Effect nicht richtig geladen werden konnte
+	 * @throws IllegalArgumentException falls der Effect nicht richtig geladen werden konnte
 	 */
-	public static ItemEffect fromString(String effectString) throws Exception {
+	public static ItemEffect fromString(String effectString) throws IllegalArgumentException {
 		int ammo = Integer.parseInt(effectString);
 		
 		org.hibernate.Session db = ContextMap.getContext().getDB();
