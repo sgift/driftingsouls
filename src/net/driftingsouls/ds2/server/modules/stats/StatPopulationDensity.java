@@ -142,10 +142,13 @@ public class StatPopulationDensity implements Statistic {
 				"<td>"+Common.ln(bewPerUsedAsti)+"</td>" +
 				"</tr>\n");
 
-		long crew = (Long)db
+		Long crew = (Long)db
 				.createQuery("SELECT sum(crew) FROM Ship WHERE id>0 AND owner.id>:minid")
 				.setInteger("minid",StatsController.MIN_USER_ID)
 				.uniqueResult();
+
+		crew = crew == null ? 0L : crew;
+
 		long tw = crew + insbew;
 
 		echo.append("<tr><td colspan=\"6\">" +

@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.modules.stats;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -71,7 +72,13 @@ public class StatWaren implements Statistic {
 
 		Writer echo = context.getResponse().getWriter();
 
-		Cargo cargo = new Cargo((Cargo)db.createQuery("SELECT cargo FROM StatCargo ORDER BY tick DESC").setMaxResults(1).iterate().next());
+		Iterator iterator = db.createQuery("SELECT cargo FROM StatCargo ORDER BY tick DESC").setMaxResults(1).iterate();
+		if( !iterator.hasNext() )
+		{
+			echo.append("Keine Datenbasis vorhanden");
+			return;
+		}
+		Cargo cargo = new Cargo((Cargo) iterator.next());
 
 		StatUserCargo userCargo = (StatUserCargo)db.get(StatUserCargo.class, user.getId());
 		Cargo ownCargo = null;
