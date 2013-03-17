@@ -1,1 +1,9 @@
-INSERT INTO `base_types` (`id`, `Name`, `width`, `height`, `maxtiles`, `cargo`, `energy`, `terrain`, `spawnableress`) VALUES ('1', 'Normaler Asteroid', '5', '8', '40', '2000000', '1000', NULL, NULL);
+INSERT INTO `base_types` (`id`, `Name`, `width`, `height`, `maxtiles`, `cargo`, `energy`, `terrain`, `spawnableress`, `size`) VALUES (1,'Wohnasteroid mittel',5,8,40,2000000,1000,'0;1;2;0;0','',0);
+INSERT INTO `base_types` (`id`, `Name`, `width`, `height`, `maxtiles`, `cargo`, `energy`, `terrain`, `spawnableress`, `size`) VALUES (2,'Asteroid',5,5,2500,1000000,1000,NULL,NULL,0);
+INSERT INTO `base_types` (`id`, `Name`, `width`, `height`, `maxtiles`, `cargo`, `energy`, `terrain`, `spawnableress`, `size`) VALUES (3,'Wohnasteroid groß',6,10,60,3000000,1000,'0;1;2;0;0',NULL,0);
+INSERT INTO `base_types` (`id`, `Name`, `width`, `height`, `maxtiles`, `cargo`, `energy`, `terrain`, `spawnableress`, `size`) VALUES (4,'Wohnasteroid klein',5,4,20,1000000,1000,'0;1;2;0;0',NULL,0);
+INSERT INTO `base_types` (`id`, `Name`, `width`, `height`, `maxtiles`, `cargo`, `energy`, `terrain`, `spawnableress`, `size`) VALUES (5,'Asteroid',5,5,2500,1000000,1000,NULL,NULL,0);
+INSERT INTO `base_types` (`id`, `Name`, `width`, `height`, `maxtiles`, `cargo`, `energy`, `terrain`, `spawnableress`, `size`) VALUES (6,'Asteroid',5,5,2500,1000000,1000,NULL,NULL,10);
+INSERT INTO `base_types` (`id`, `Name`, `width`, `height`, `maxtiles`, `cargo`, `energy`, `terrain`, `spawnableress`, `size`) VALUES (7,'Asteroid',5,5,2500,1000000,1000,NULL,NULL,3);
+INSERT INTO `base_types` (`id`, `Name`, `width`, `height`, `maxtiles`, `cargo`, `energy`, `terrain`, `spawnableress`, `size`) VALUES (8,'Asteroid',5,5,2500,1000000,1000,NULL,NULL,15);
+INSERT INTO `base_types` (`id`, `Name`, `width`, `height`, `maxtiles`, `cargo`, `energy`, `terrain`, `spawnableress`, `size`) VALUES (9,'Asteroid',5,5,2500,1000000,1000,NULL,NULL,2);
