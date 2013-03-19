@@ -258,7 +258,7 @@ public class AcademyQueueEntry {
 
 			for (Offizier.Ability ability : Offizier.Ability.values())
 			{
-				offz.setAbility(Offizier.Ability.ING, offi.getAbility(ability));
+				offz.setAbility(ability, offi.getAbility(ability));
 			}
 
 			int spec = RandomUtils.nextInt(offi.getSpecials().length);
