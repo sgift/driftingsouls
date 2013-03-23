@@ -27,6 +27,84 @@
 	margin: 5px auto 10px;
 }
 
+#starmapSectorPopup{
+	max-height:400px;
+	min-height:150px;
+	margin-bottom:3px;
+}
+#starmapSectorPopup .header {
+	font-weight:bold;
+	text-align: center;
+}
+
+#starmapSectorPopup .toggle:before {
+	content: '+';
+	width:8px;
+	display:inline-block;
+}
+
+#starmapSectorPopup .toggle.expanded:before {
+	content: '-';
+}
+
+#starmapSectorPopup .toggle + .shipclasses {
+	display:none;
+}
+
+#starmapSectorPopup .toggle.expanded + .shipclasses {
+	display:block;
+}
+
+#starmapSectorPopup ul
+{
+	list-style-type: none;
+	margin-top:3px;
+}
+
+#starmapSectorPopup .nebel {
+	float:left;
+	width:50px;
+	margin-right:8px;
+	margin-top:8px;
+	margin-left:0px;
+}
+
+#starmapSectorPopup .bases,
+#starmapSectorPopup .jumpnodes{
+	margin-top:8px;
+	margin-left:0px;
+	padding-left:0px;
+}
+
+#starmapSectorPopup .bases img,
+#starmapSectorPopup .jumpnodes img{
+	float:left;
+	margin-right:8px;
+}
+
+#starmapSectorPopup .bases .typ {
+	font-size:80%;
+	line-height:1.5
+}
+
+#starmapSectorPopup .jumpnodes img {
+	width: 50px;
+}
+
+#starmapSectorPopup .bases li,
+#starmapSectorPopup .jumpndoes li,
+#starmapSectorPopup .ships {
+	clear:both;
+}
+
+#starmapSectorPopup .ships {
+	padding-top:8px;
+}
+
+#starmapSectorPopup .ships .toggle {
+	cursor:pointer;
+}
+
 #starmapSystemOverviewPopup .graph {
 	position:absolute;
 	left:5px;
@@ -328,64 +406,6 @@
 	width:25px;
 	height:25px;
 	position:absolute;
-}
-
-#sectorview .content {
-	max-height:400px;
-	min-height:150px;
-	margin-bottom:3px;
-}
-#sectorview .header {
-	font-weight:bold;
-	text-align: center;
-}
-#sectorview ul
-{
-    list-style-type: none;
-}
-
-#sectorview .nebel {
-	float:left;
-	width:50px;
-	margin-right:8px;
-	margin-top:8px;
-	margin-left:0px;
-}
-
-#sectorview .bases,
-#sectorview .jumpnodes{
-	margin-top:8px;
-	margin-left:0px;
-	padding-left:0px;
-}
-
-#sectorview .bases img,
-#sectorview .jumpnodes img{
-	float:left;
-	margin-right:8px;
-}
-
-#sectorview .bases .typ {
-	font-size:80%;
-	line-height:1.5
-}
-
-#sectorview .jumpnodes img {
-	width: 50px;
-}
-
-#sectorview .bases li,
-#sectorview .jumpndoes li,
-#sectorview .ships {
-	clear:both;
-}
-
-#sectorview .ships {
-	padding-top:8px;
-}
-
-#sectorview .ships .toggle {
-	cursor:pointer;
 }
 
 #starmaploader .content {

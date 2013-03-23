@@ -614,6 +614,7 @@ var Starmap = function(jqElement) {
 	var __starmapOverlay = null;
 	var __request = null;
 	var __ready = false;
+	var __onSectorClicked = function() {};
 
 	function load(sys,x,y,options)
 	{
@@ -650,6 +651,10 @@ var Starmap = function(jqElement) {
 		request.loadmap = 1;
 		request.module = 'map';
 		request.action = 'map';
+
+		if( options.onSectorClicked ) {
+			__onSectorClicked = options.onSectorClicked;
+		}
 
 		$.getJSON(DS.getUrl(),
 			request,
@@ -780,13 +785,8 @@ var Starmap = function(jqElement) {
 		var sectorX = __currentSize.minx+Math.floor(x / SECTOR_IMAGE_SIZE);
 		var sectorY = __currentSize.miny+Math.floor(y / SECTOR_IMAGE_SIZE);
 		var locationInfo = __starmapOverlay.getSectorInformation(sectorX, sectorY);
-		if( locationInfo == null ) {
-			return;
-		}
 
-		new StarmapSectorInfoPopup(__currentSystem, sectorX, sectorY, locationInfo, {
-			request : __request
-		});
+		__onSectorClicked(__currentSystem, sectorX, sectorY, locationInfo);
 	};
 
 	// PUBLIC METHODS

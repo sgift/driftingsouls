@@ -15,20 +15,97 @@ angular.module('ds.map', ['ds.service.ds'])
 				options.action = 'json';
 				options.system = systemId;
 				return ds(options);
+			},
+			sektor : function(systemId, x, y, scanShip, adminSicht) {
+				var options = {};
+				options.module = 'map';
+				options.action = 'sector';
+				options.sys = systemId;
+				options.x = x;
+				options.y = y;
+				options.scanship = scanShip;
+				options.admin = adminSicht ? 1 : 0;
+				return ds(options);
 			}
 		};
 	}])
-	.factory('StarmapService', [function() {
+	.factory('StarmapService', ['PopupService', '$rootScope', function(PopupService, $rootScope) {
 		var starmap;
 
 		return {
 			create : function(targetSelector) {
 				starmap = new Starmap($(targetSelector));
 			},
+			load : function(sys, x, y, adminSicht) {
+				starmap.load(sys,x,y, {
+					request : {
+						admin : adminSicht ? 1 : 0
+					},
+					onSectorClicked : function(system, x, y, locationinfo) {
+						$rootScope.$apply(function() {
+							if( locationinfo == null || !locationinfo.scanner ) {
+								return;
+							}
+							PopupService.open('starmapSectorPopup', {parameters : {
+								system:system,
+								x:x,
+								y:y,
+								locationinfo:locationinfo,
+								adminSicht : adminSicht
+							}});
+						});
+					}
+				});
+			},
 			get : function() {
 				return starmap;
 			}
 		};
+	}])
+	.controller('MapSectorPopupController', ['$scope', 'dsMap', 'PopupService', 'StarmapService', function($scope, dsMap, PopupService, StarmapService) {
+		function refresh(parameters) {
+			if( !StarmapService.get().isReady() ) {
+				return;
+			}
+			$scope.position = {
+				system: parameters.system.id,
+				x: parameters.x,
+				y: parameters.y
+			};
+			$scope.geladen = false;
+
+			dsMap
+				.sektor(parameters.system.id, parameters.x, parameters.y, parameters.locationinfo.scanner, parameters.adminSicht)
+				.success(function(result) {
+					var sektor = {};
+					sektor.nebel = result.nebel;
+					sektor.jumpnodes = result.jumpnodes;
+					sektor.bases = result.bases;
+					sektor.users = result.users;
+					$.each(sektor.users, function()
+					{
+						var shipcount = 0;
+						$.each(this.shiptypes, function()
+						{
+							shipcount += this.ships.length;
+						});
+						this.shipcount = shipcount;
+					});
+
+					$scope.sektor = sektor;
+					$scope.geladen = true;
+				});
+		}
+
+		$scope.$on('dsPopupOpen', function(event, popup, parameters) {
+			if( popup == $scope.dsPopupName ) {
+				refresh(parameters);
+			}
+		});
+
+		$scope.toggle = function(user) {
+			user.expanded = !user.expanded;
+		}
 	}])
 	.controller('MapGeheZuPositionController', ['$scope', 'dsMap', 'PopupService', 'StarmapService', function($scope, dsMap, PopupService, StarmapService) {
 		function zurPositionSpringen(objekt) {
@@ -163,15 +240,11 @@ angular.module('ds.map', ['ds.service.ds'])
 			var sys = $scope.systemSelected.id;
 			var x = $scope.locationX;
 			var y = $scope.locationY;
-			var adminSicht = $scope.adminSicht ? 1 : 0;
+			var adminSicht = $scope.adminSicht;
 
 			PopupService.close("systemSelection");
 
-			StarmapService.get().load(sys,x,y, {
-				request : {
-					admin : adminSicht
-				}
-			});
+			StarmapService.load(sys,x,y, adminSicht);
 		}
 
 		refresh();
@@ -204,13 +277,9 @@ angular.module('ds.map', ['ds.service.ds'])
 			var sys = $routeParams.system;
 			var x = $routeParams.x;
 			var y = $routeParams.y;
-			var adminSicht = 0;
+			var adminSicht = false;
 
-			StarmapService.get().load(sys,x,y, {
-				request : {
-					admin : adminSicht
-				}
-			});
+			StarmapService.load(sys,x,y, adminSicht);
 		}
 		else {
 			PopupService.open('systemSelection');

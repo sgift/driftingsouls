@@ -26,6 +26,53 @@
 	</div>
 </div>
 
+<div id="starmapSectorPopup"
+	 class="gfxbox"
+	 ds-popup="starmapSectorPopup"
+	 ds-popup-title="Sektorinformationen"
+	 ds-popup-width="450"
+	 ds-popup-height="300"
+	 ng-controller="MapSectorPopupController">
+	<div ng-hide="geladen">
+		Lade Sektor {{position.system}}:{{position.x}}/{{position.y}}
+	</div>
+	<div ng-show="geladen">
+		<div class="header"><span>Sektor {{position.system}}:{{position.x}}/{{position.y}}</span></div>
+		<div ui-if="sektor.nebel"><img class="nebel" ng-src="data/objects/nebel{{sektor.nebel.type}}.png" alt="Nebel" /></div>
+		<div ui-if="sektor.jumpnodes.length>0">
+			<ul class='jumpnodes'>
+				<li ng-repeat="jumpnode in sektor.jumpnodes">
+					<img src='./data/interface/jumpnode.svg' />
+					<div>Sprungpunkt</div>
+					<div class='name'>{{jumpnode.name}}<span ng-show="jumpnode.blocked"> - blockiert</span>
+					</div>
+				</li>
+			</ul>
+		</div>
+		<div ui-if="sektor.bases.length>0">
+			<ul class='bases'>
+				<li ng-repeat="base in sektor.bases">
+					<img ng-src='./data/starmap/kolonie{{base.klasse}}_srs.png' />
+					<div class='name'>{{base.name}}</div>
+					<div class='typ'>{{base.typ}}</div>
+					<div class='owner' ng-bind-html-unsafe="base.username"></div>
+				</li>
+			</ul>
+		</div>
+		<div class='ships'>
+			<div ng-repeat="user in sektor.users">
+				<div class="toggle" ng-class="user.expanded && 'expanded' || ''" ng-click="toggle(user)">
+					<span ng-bind-html-unsafe="user.name"></span>
+					<span style="float:right;">{{user.shipcount}}</span>
+				</div>
+				<ul class="shipclasses">
+					<li ng-repeat="shiptype in user.shiptypes"><span>{{shiptype.name}}</span><span style="float:right;">{{shiptype.ships.length}}</span></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div id="starmapGotoLocationPopup"
 	class="gfxbox"
 	ds-popup="gotoLocationPopup"

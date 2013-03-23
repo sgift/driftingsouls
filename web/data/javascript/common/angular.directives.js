@@ -55,7 +55,7 @@ angular.module('ds.directives', [])
 		restrict : 'A',
 		link : function(scope, element, attrs) {
 			element.bind("click", function() {
-				PopupService.open(attrs.dsPopupControlOpen, element);
+				PopupService.open(attrs.dsPopupControlOpen, {element:element});
 			});
 		}
 	};
@@ -65,7 +65,7 @@ angular.module('ds.directives', [])
 		restrict : 'A',
 		link : function(scope, element, attrs) {
 			element.bind("click", function() {
-				PopupService.close(attrs.dsPopupControlClose, element);
+				PopupService.close(attrs.dsPopupControlClose, {element:element});
 			});
 		}
 	};
@@ -131,18 +131,24 @@ angular.module('ds.directives', [])
 		throw "Unbekannter Popupname: "+name;
 	}
 
-	popupService.open = function(name, element) {
-		name = resolvePopupName(name, element);
+	popupService.open = function(name, options) {
+		if(options == null ) {
+			options = {};
+		}
+		name = resolvePopupName(name, options.element);
 		if( !embeddedPopupRegistry[name] ) {
 			queuedActions[name] = true;
 			return;
 		}
 		embeddedPopupRegistry[name].element.dialog('open');
-		embeddedPopupRegistry[name].scope.$broadcast('dsPopupOpen', name);
+		embeddedPopupRegistry[name].scope.$broadcast('dsPopupOpen', name, options.parameters);
 	}
 
-	popupService.close = function(name, element) {
-		name = resolvePopupName(name, element);
+	popupService.close = function(name, options) {
+		if(options == null ) {
+			options = {};
+		}
+		name = resolvePopupName(name, options.element);
 		if( !embeddedPopupRegistry[name] ) {
 			queuedActions[name] = false;
 			return;
