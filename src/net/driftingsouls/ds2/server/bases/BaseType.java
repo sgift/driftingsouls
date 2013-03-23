@@ -34,7 +34,7 @@ public class BaseType
 {
 	@Id
 	private int id;
-	private String Name;
+	private String name;
 	private int width;
 	private int height;
 	private int maxtiles;
@@ -122,7 +122,7 @@ public class BaseType
 	 */
 	public String getName()
 	{
-		return this.Name;
+		return this.name;
 	}
 	
 	/**
@@ -131,7 +131,7 @@ public class BaseType
 	 */
 	public void setName(String name)
 	{
-		this.Name = name;
+		this.name = name;
 	}
 	
 	/**

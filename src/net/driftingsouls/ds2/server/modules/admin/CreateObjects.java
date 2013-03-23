@@ -18,17 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import javax.imageio.ImageIO;
-import javax.xml.parsers.ParserConfigurationException;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.MutableLocation;
@@ -50,16 +39,28 @@ import net.driftingsouls.ds2.server.map.TileCache;
 import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
-import net.driftingsouls.ds2.server.units.TransientUnitCargo;
-import net.driftingsouls.ds2.server.units.UnitCargo;
-
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
+import org.hibernate.Session;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import javax.imageio.ImageIO;
+import javax.xml.parsers.ParserConfigurationException;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.Serializable;
+import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Ermoeglicht das Absetzen von Admin-Kommandos.
@@ -158,12 +159,86 @@ public class CreateObjects implements AdminPlugin {
 			return out;
 		}
 	}
+
+	private static class EntityEntry<T> implements DialogEntry {
+		final String title;
+		final String name;
+		final Class<T> entityCls;
+		final String labelProperty;
+
+		EntityEntry(String title, String name, Class<T> entityCls, String labelProperty) {
+			this.title = title;
+			this.name = name;
+			this.entityCls = entityCls;
+			this.labelProperty = labelProperty;
+		}
+
+		@Override
+		public String toHtml(Request request) {
+			String out = "<tr><td class=\"noBorderX\">"+this.title+"</td>\n";
+
+			String currentVal = request.getParameter(this.name);
+
+			boolean first = true;
+
+			out += "<td class=\"noBorderX\"><select name=\""+this.name+"\">";
+			Session db = ContextMap.getContext().getDB();
+			List<T> results = Common.cast(db.createCriteria(this.entityCls).list());
+			for( T value :  results )
+			{
+				Serializable id = db.getIdentifier(value);
+				if( id == null )
+				{
+					continue;
+				}
+
+				String label = readLabel(value);
+				if( label == null )
+				{
+					continue;
+				}
+
+				out += "<option value='"+id+"'";
+				if( id.toString().equals(currentVal) || (currentVal == null && first) )
+				{
+					out += " selected='selected'";
+					first = false;
+				}
+				out += ">"+label+" ("+id+")</option>";
+			}
+			out += "</select></td></tr>\n";
+
+			return out;
+		}
+
+		private String readLabel(T value)
+		{
+			String label;
+			try
+			{
+				label = BeanUtils.getProperty(value, labelProperty);
+			}
+			catch (IllegalAccessException e)
+			{
+				label = null;
+			}
+			catch (InvocationTargetException e)
+			{
+				label = null;
+			}
+			catch (NoSuchMethodException e)
+			{
+				label = null;
+			}
+			return label;
+		}
+	}
 	
 	private static final Map<String,DialogEntry[]> OPTIONS = new LinkedHashMap<String,DialogEntry[]>();
 	static {
 		OPTIONS.put("Base", new DialogEntry[] {
 				new TextEntry("Anzahl", "anzahl", 18, "0"),
-				new TextEntry("Klasse", "klasse", 18, "0"),
+				new EntityEntry<BaseType>("Klasse", "klasse", BaseType.class, "name"),
 				new TextEntry("Vorhandene Spawn-Ressourcen", "availspawnress", 18, "0"),
 				new TextEntry("System", "system", 18, "0"),
 				new TextEntry("Min X", "minX", 18, "0"),
@@ -174,7 +249,7 @@ public class CreateObjects implements AdminPlugin {
 		
 		OPTIONS.put("Nebel", new DialogEntry[] {
 				new TextEntry("Anzahl", "anzahl", 18, "0"),
-				new EnumEntry("Typ", "type", Nebel.Typ.values()),
+				new EnumEntry<Nebel.Typ>("Typ", "type", Nebel.Typ.values()),
 				new TextEntry("System", "system", 18, "0"),
 				new TextEntry("Min X", "minX", 18, "0"),
 				new TextEntry("Min Y", "minY", 18, "0"),
