@@ -204,6 +204,18 @@ public class User extends BasicUser implements JSONSupport {
 		protected Relations() {
 			// EMPTY
 		}
+
+		/**
+		 * Gibt zurueck, ob die Beziehung zu einem gegebenen anderen Spieler
+		 * in beide Richtungen den angegebenen Beziehungtyp hat.
+		 * @param otherUser Der andere Spieler
+		 * @param relation Der Beziehungstyp
+		 * @return <code>true</code>, falls in beide Richtungen der Beziehungstyp gilt
+		 */
+		public boolean isOnly(User otherUser, Relation relation)
+		{
+			return this.toOther.get(otherUser.getId()) == relation && this.fromOther.get(otherUser) == relation;
+		}
 	}
 
 	private int race;

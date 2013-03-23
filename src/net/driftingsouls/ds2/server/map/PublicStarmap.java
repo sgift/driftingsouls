@@ -126,24 +126,6 @@ public class PublicStarmap
 	}
 
 	/**
-	 * @return Alle fuer den Spieler oeffentlich sichtbaren Jumpnodes.
-	 */
-	public List<JumpNode> getPublicNodes()
-	{
-		List<JumpNode> publicNodes = new ArrayList<JumpNode>();
-		Collection<JumpNode> nodes = map.getJumpNodes();
-		for(JumpNode node: nodes)
-		{
-			if(!node.isHidden())
-			{
-				publicNodes.add(node);
-			}
-		}
-		
-		return publicNodes;
-	}
-
-	/**
 	 * Gibt das Basisbild des Sektors zurueck. Das Bild enthaelt
 	 * keine Flottenmarkierungen.
 	 * @param location Der Sektor

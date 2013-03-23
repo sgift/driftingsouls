@@ -63,6 +63,7 @@ public class MapController extends AngularGenerator
 	private StarSystem system;
 	private int sys;
 	private boolean adminView;
+	private Ship scanner;
 
 	/**
 	 * Legt den MapController an.
@@ -384,27 +385,6 @@ public class MapController extends AngularGenerator
 				content = new PlayerStarmap(user, system, new int[] {xStart,yStart,xEnd-xStart,yEnd-yStart});
 			}
 
-			JSONArray publicNodeArray = new JSONArray();
-			for(JumpNode node: content.getPublicNodes())
-			{
-				String blocked = "";
-				if( node.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn(0) )
-				{
-					blocked = " - blockiert";
-				}
-
-				JSONObject nodeObj = new JSONObject();
-				nodeObj.accumulate("x", node.getX());
-				nodeObj.accumulate("y", node.getY());
-				nodeObj.accumulate("name", node.getName());
-				nodeObj.accumulate("systemout", node.getSystemOut());
-				nodeObj.accumulate("blocked", blocked);
-
-				publicNodeArray.add(nodeObj);
-			}
-			json.accumulate("jumpnodes", publicNodeArray);
-
-
 			JSONObject sizeObj = new JSONObject();
 			sizeObj.accumulate("minx", xStart);
 			sizeObj.accumulate("miny", yStart);
@@ -448,10 +428,10 @@ public class MapController extends AngularGenerator
 						sectorImage = sectorOverlayImage;
 					}
 
-					if( scannable && (content.isHasSectorContent(position)) ) {
-						int scannerId = content.getSectorScanner(position).getId();
+					if( scannable && content.isHasSectorContent(position)) {
+						scanner = content.getSectorScanner(position);
 
-						posObj.accumulate("scanner", scannerId);
+						posObj.accumulate("scanner", scanner != null ? scanner.getId() : -1);
 					}
 
 					if( sectorImage != null )
@@ -499,11 +479,6 @@ public class MapController extends AngularGenerator
 		JSONArray users = new JSONArray();
 
 		Ship scanShip = (Ship)db.get(Ship.class, shipId);
-		if( scanShip == null )
-		{
-			json.accumulate("users", users);
-			return json;
-		}
 
 		final Location loc = new Location(system, x, y);
 

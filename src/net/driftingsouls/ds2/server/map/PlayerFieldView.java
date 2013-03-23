@@ -65,7 +65,7 @@ public class PlayerFieldView implements FieldView
             return new ArrayList<Base>();
         }
 
-        boolean shipInSector = scanShip.getLocation().sameSector(0, this.location, 0);
+        boolean shipInSector = isSameSector();
 
         List<Base> bases = new ArrayList<Base>();
 		for( Base base : this.field.getBases() )
@@ -100,7 +100,12 @@ public class PlayerFieldView implements FieldView
 		
 		return bases;
 	}
-	
+
+	private boolean isSameSector()
+	{
+		return scanShip != null && scanShip.getLocation().sameSector(0, this.location, 0);
+	}
+
 	private boolean isInScanRange()
 	{
 		if(!canUse())
@@ -138,7 +143,7 @@ public class PlayerFieldView implements FieldView
             return ships;
         }
 
-        boolean shipInSector = scanShip.getLocation().sameSector(0, this.location, 0);
+        boolean shipInSector = isSameSector();
 
 		if(!shipInSector && this.field.isNebula() && !this.field.getNebula().allowsScan() )
 		{
@@ -167,9 +172,10 @@ public class PlayerFieldView implements FieldView
 					{
 						enemy = true;
 					}
-				} else
+				}
+				else
 				{
-					if (relations.toOther.get(viewableShip.getOwner()) != Relation.FRIEND || relations.fromOther.get(viewableShip.getOwner()) != Relation.FRIEND)
+					if( !relations.isOnly(viewableShip.getOwner(), Relation.FRIEND) )
 					{
 						enemy = true;
 					}
@@ -244,6 +250,10 @@ public class PlayerFieldView implements FieldView
      */
     private boolean canUse()
     {
+		if( scanShip == null )
+		{
+			return false;
+		}
         User owner = scanShip.getOwner();
         if(owner.getId() == user.getId())
         {
@@ -258,6 +268,6 @@ public class PlayerFieldView implements FieldView
         }
         
         Relations relations = user.getRelations();
-		return relations.fromOther.get(owner) == Relation.FRIEND && relations.toOther.get(owner) == Relation.FRIEND;
+		return relations.isOnly(owner, Relation.FRIEND);
 	}
 }

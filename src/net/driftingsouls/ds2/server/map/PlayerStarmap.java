@@ -1,8 +1,10 @@
 package net.driftingsouls.ds2.server.map;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
@@ -27,7 +29,9 @@ import org.hibernate.Session;
 public class PlayerStarmap extends PublicStarmap
 {
 	private final Map<Location, Ship> scannableLocations;
+	private final Set<Location> bekannteOrte;
 	private final User user;
+	private final Relations relations;
 	
 	/**
 	 * Legt eine neue Sicht an.
@@ -58,14 +62,55 @@ public class PlayerStarmap extends PublicStarmap
 		{
 			throw new IllegalArgumentException("User may not be null.");
 		}
-		
+		this.relations = user.getRelations();
+
 		this.scannableLocations = buildScannableLocations(user);
+		this.bekannteOrte = findeBekannteOrte(user);
+	}
+
+	private Set<Location> findeBekannteOrte(User user)
+	{
+		Set<Location> result = new HashSet<Location>();
+		for (JumpNode jumpNode : this.map.getJumpNodes())
+		{
+			if( jumpNode.isHidden() )
+			{
+				continue;
+			}
+			result.add(jumpNode.getLocation());
+		}
+
+		for (Map.Entry<Location, List<Base>> loc : this.map.getBaseMap().entrySet())
+		{
+			for (Base base : loc.getValue())
+			{
+				User owner = base.getOwner();
+				if( owner.getId() == user.getId() )
+				{
+					result.add(loc.getKey());
+				}
+				else if( user.getAlly() != null && user.getAlly().getShowAstis() && owner.getAlly() != null &&
+						user.getAlly().getId() == owner.getAlly().getId() )
+				{
+					result.add(loc.getKey());
+				}
+				else
+				{
+					if( relations.isOnly(owner, Relation.FRIEND) )
+					{
+						result.add(loc.getKey());
+					}
+				}
+			}
+		}
+
+		return result;
 	}
 
 	@Override
 	public boolean isScannable(Location location)
 	{
-		return this.scannableLocations.containsKey(location);
+		return this.scannableLocations.containsKey(location) || this.bekannteOrte.contains(location);
 	}
 
     @Override
@@ -73,45 +118,36 @@ public class PlayerStarmap extends PublicStarmap
     {
         return this.scannableLocations.get(location);
     }
-	
-	/**
-	 * Gibt das Bild des Sektors zurueck.
-	 * Das Bild kann fuer verschiedene Spieler anders sein.
-	 * 
-	 * @param location Der Sektor
-	 * @return Das Bild als String ohne den Pfad zum Data-Verzeichnis.
-	 */
-	public String getSectorImage(Location location)
-	{
-		final String baseImage = getBaseImage(location);
-		final String shipImage = getShipImage(location);
-		return baseImage + (shipImage != null ? shipImage : "") + ".png";
-	}
-	
+
 	@Override
 	public String getUserSectorBaseImage(Location location)
 	{
+		boolean scannable = scannableLocations.containsKey(location);
 		List<Base> positionBases = map.getBaseMap().get(location);
 		if(positionBases != null && !positionBases.isEmpty())
 		{
-			Base base = positionBases.get(0);
-			String img = base.getOverlayImage(location, user, isScannable(location));
-			if( img != null ) {
-				return img+".png";
+			for (Base base : positionBases)
+			{
+				if( scannable || base.getOwner().getId() == this.user.getId() ||
+						(user.getAlly() != null && user.getAlly().getShowAstis() && user.getAlly().equals(base.getOwner().getAlly())) ||
+						relations.isOnly(base.getOwner(), Relation.FRIEND) )
+				{
+					String img = base.getOverlayImage(location, user, isScannable(location));
+					if( img != null ) {
+						return img+".png";
+					}
+				}
 			}
 		}
 		
 		List<JumpNode> positionNodes = map.getNodeMap().get(location);
 		if(positionNodes != null && !positionNodes.isEmpty())
 		{
-			if(scannableLocations.containsKey(location))
+			for(JumpNode node: positionNodes)
 			{
-				for(JumpNode node: positionNodes)
+				if(!node.isHidden() || scannableLocations.containsKey(location))
 				{
-					if(!node.isHidden())
-					{
-						return "jumpnode/jumpnode.png";
-					}
+					return "jumpnode/jumpnode.png";
 				}
 			}
 		}
@@ -122,6 +158,10 @@ public class PlayerStarmap extends PublicStarmap
 	@Override
 	public String getSectorOverlayImage(Location location)
 	{
+		if( !this.scannableLocations.containsKey(location) )
+		{
+			return null;
+		}
 		final String shipImage = getShipImage(location);
 		if( shipImage == null )
 		{
@@ -154,8 +194,7 @@ public class PlayerStarmap extends PublicStarmap
 				{
 					Ally shipAlly = shipOwner.getAlly();
 					Ally userAlly = user.getAlly();
-					Relations relations = user.getRelations();
-					if((shipAlly != null && shipAlly.equals(userAlly)) || (relations.toOther.get(ship.getOwner()) == Relation.FRIEND && relations.fromOther.get(ship.getOwner()) == Relation.FRIEND))
+					if((shipAlly != null && shipAlly.equals(userAlly)) || relations.isOnly(ship.getOwner(), Relation.FRIEND))
 					{
 						alliedShips++;
 					}
@@ -232,7 +271,6 @@ public class PlayerStarmap extends PublicStarmap
 	{
 		Map<Location, Nebel> nebulas = this.map.getNebulaMap();
 		Ally ally = user.getAlly();
-		Relations relations = user.getRelations();
 		Map<Location, Ship> scannableLocations = new HashMap<Location, Ship>();
 
 		for(Map.Entry<Location, List<Ship>> sectorShips: this.map.getShipMap().entrySet())
@@ -240,52 +278,16 @@ public class PlayerStarmap extends PublicStarmap
 			Location position = sectorShips.getKey();
 			List<Ship> ships = sectorShips.getValue();
 
-			int scanRange = -1;
-            Ship scanShip = null;
-			//Find ship with best scanrange
-			for(Ship ship: ships)
-			{
-				//Own ship?
-				if(!ship.getOwner().equals(user))
-				{
-					//See allied scans?
-					if(ally != null && ally.getShowLrs())
-					{
-						//Allied ship?
-						Ally ownerAlly = ship.getOwner().getAlly();
-						if(ownerAlly == null || !ownerAlly.equals(ally))
-						{
-							continue;
-						}
-					}
-					else
-					{
-						if(relations.toOther.get(ship.getOwner()) != Relation.FRIEND || relations.fromOther.get(ship.getOwner()) != Relation.FRIEND)
-						{
-							continue;
-						}
-					}
-				}
-				
-				if(ship.getOwner().isInVacation())
-				{
-					continue;
-				}
-
-				int shipScanRange = ship.getEffectiveScanRange();
-				if(shipScanRange > scanRange)
-				{
-					scanRange = shipScanRange;
-                    scanShip = ship;
-				}
-			}
+			Ship scanShip = findBestScanShip(user, ally, ships);
 			
 			//No ship found
-			if(scanRange == -1)
+			if(scanShip == null)
 			{
 				continue;
 			}
-			
+
+			int scanRange = scanShip.getEffectiveScanRange();
+
 			//Adjust for nebula position
 			//TODO: Check, if there's an performant way to bring this part into the Ship and/or the Location class
 			if(nebulas.containsKey(position))
@@ -336,6 +338,50 @@ public class PlayerStarmap extends PublicStarmap
 		return scannableLocations;
 	}
 
+	private Ship findBestScanShip(User user, Ally ally,  List<Ship> ships)
+	{
+		int curScanRange = -1;
+		Ship scanShip = null;
+		//Find ship with best scanrange
+		for(Ship ship: ships)
+		{
+			//Own ship?
+			if(!ship.getOwner().equals(user))
+			{
+				//See allied scans?
+				if(ally != null && ally.getShowLrs())
+				{
+					//Allied ship?
+					Ally ownerAlly = ship.getOwner().getAlly();
+					if(ownerAlly == null || !ownerAlly.equals(ally))
+					{
+						continue;
+					}
+				}
+				else
+				{
+					if( !relations.isOnly(ship.getOwner(), Relation.FRIEND) )
+					{
+						continue;
+					}
+				}
+			}
+
+			if(ship.getOwner().isInVacation())
+			{
+				continue;
+			}
+
+			int shipScanRange = ship.getEffectiveScanRange();
+			if(shipScanRange > curScanRange)
+			{
+				curScanRange = shipScanRange;
+				scanShip = ship;
+			}
+		}
+		return scanShip;
+	}
+
 	/**
 	 * Gibt zurueck, ob der Sektor einen fuer den Spieler theoretisch sichtbaren Inhalt besitzt.
 	 * Es spielt dabei einzig der Inhalt des Sektors eine Rolle. Nicht gerpueft wird,
@@ -353,10 +399,6 @@ public class PlayerStarmap extends PublicStarmap
 		}
 
 		List<JumpNode> nodes = map.getNodeMap().get(position);
-		if( nodes != null && !nodes.isEmpty() )
-		{
-			return true;
-		}
-		return this.getShipImage(position) != null;
+		return nodes != null && !nodes.isEmpty() || this.getShipImage(position) != null;
 	}
 }
