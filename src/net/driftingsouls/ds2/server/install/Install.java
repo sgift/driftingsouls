@@ -33,6 +33,10 @@ public class Install
 {
 	public static void main(String[] args) throws IOException
 	{
+		Set<String> params = new HashSet<String>(Arrays.asList(args));
+		final boolean skipDatabase = params.contains("--skip-database");
+		final boolean skipConfiguraiton = params.contains("--skip-configuration");
+
 		System.out.println("\n\nDrifting Souls 2 - Installationsprogramm\n\n");
 
 		System.out.println("Lade Datenbanktreiber");
@@ -86,19 +90,25 @@ public class Install
 			{
 				System.out.println("Datenbankverbindung hergestellt");
 
-				if( !checkDatabaseEmpty(con, reader) )
+				if( !skipDatabase )
 				{
-					return;
+					if( !checkDatabaseEmpty(con, reader) )
+					{
+						return;
+					}
+
+					setupDatabase(con);
+
+					System.out.println("Datenbank installiert\n");
 				}
 
-				setupDatabase(con);
-
-				System.out.println("Datenbank installiert\n");
-
-				System.out.println("Erstelle config.xml");
-				if( !createConfigXml(reader, dblocation, db, user, pw) )
+				if( !skipConfiguraiton )
 				{
-					return;
+					System.out.println("Erstelle config.xml");
+					if( !createConfigXml(reader, dblocation, db, user, pw) )
+					{
+						return;
+					}
 				}
 
 				System.out.println("\nDS ist nun installiert.\n");
