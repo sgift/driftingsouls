@@ -137,20 +137,20 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	private boolean isloading;
 	private boolean isfeeding;
 
-	@OneToOne(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH})
+	@OneToOne(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE})
 	@JoinColumn
 	private Academy academy;
-	@OneToOne(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH})
+	@OneToOne(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE})
 	@JoinColumn
 	private Forschungszentrum forschungszentrum;
-	@OneToOne(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH})
+	@OneToOne(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE})
 	@JoinColumn
 	private BaseWerft werft;
-	@OneToMany(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH})
+	@OneToMany(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE})
 	@JoinColumn(name="col")
 	private Set<Factory> factories;
 
-	@OneToMany(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH},
+	@OneToMany(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE},
 			targetEntity=net.driftingsouls.ds2.server.bases.BaseUnitCargoEntry.class,
 			mappedBy="basis")
 	@BatchSize(size=50)

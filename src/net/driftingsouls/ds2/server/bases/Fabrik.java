@@ -346,6 +346,7 @@ public class Fabrik extends DefaultBuilding {
 		}
 		else {
 			db.delete(wf);
+			base.getFactories().remove(wf);
 		}
 	}
 
