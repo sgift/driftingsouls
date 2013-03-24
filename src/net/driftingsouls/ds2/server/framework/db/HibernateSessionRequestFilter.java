@@ -77,6 +77,7 @@ public class HibernateSessionRequestFilter extends DSFilter
 
                 throw new ServletException(ex);
             }
+			sf.getCurrentSession().close();
 			ManagedSessionContext.unbind(sf);
 		}
         else
