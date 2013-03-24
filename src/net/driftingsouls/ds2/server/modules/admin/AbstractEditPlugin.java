@@ -176,14 +176,14 @@ public abstract class AbstractEditPlugin implements AdminPlugin
 	protected void editLabel(Writer echo, String label, Object value) throws IOException
 	{
 		echo.append("<tr>");
-		echo.append("<td colspan='2'>"+label+":</td>"+
+		echo.append("<td colspan='2'>"+(label.trim().isEmpty() ? "" : label+":")+"</td>"+
 				"<td>"+value+"</td></tr>\n");
 	}
 
 	protected void editField(Writer echo, String label, String name, Class<?> type, Object value) throws IOException
 	{
 		echo.append("<tr>");
-		echo.append("<td colspan='2'>"+label+":</td>");
+		echo.append("<td colspan='2'>"+(label.trim().isEmpty() ? "" : label+":")+"</td>");
 		echo.append("<td>");
 		if( Cargo.class.isAssignableFrom(type) )
 		{

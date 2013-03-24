@@ -43,7 +43,7 @@ import org.hibernate.ScrollableResults;
  *
  */
 @AdminMenuEntry(category = "Systeme", name = "System editieren")
-public class EditSystem implements AdminPlugin
+public class EditSystem extends AbstractEditPlugin implements AdminPlugin
 {
 	@Override
 	public void output(AdminController controller, String page, int action) throws IOException
@@ -52,28 +52,20 @@ public class EditSystem implements AdminPlugin
 		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
 
-		int systemid = context.getRequest().getParameterInt("systemid");
+		int systemid = context.getRequest().getParameterInt("entityId");
 
 		// Update values?
-		boolean update = context.getRequest().getParameterString("change").equals("Aktualisieren");
 		List<?> systems = db.createQuery("from StarSystem").list();
 
-		echo.append("<form action=\"./ds\" method=\"post\">");
-		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
-		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
-		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-		echo.append("<select size=\"1\" name=\"systemid\">");
-		for (Iterator<?> iter = systems.iterator(); iter.hasNext();)
+		this.beginSelectionBox(echo, page, action);
+		for (Object system1 : systems)
 		{
-			StarSystem system = (StarSystem) iter.next();
-
-			echo.append("<option value=\"" + system.getID() + "\" " + (system.getID() == systemid ? "selected=\"selected\"" : "") + ">" + system.getName() + " (" + system.getID() + ")</option>");
+			StarSystem system = (StarSystem) system1;
+			this.addSelectionOption(echo, system.getID(), system.getName() + " (" + system.getID() + ")");
 		}
-		echo.append("</select>");
-		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
-		echo.append("</form>");
+		this.endSelectionBox(echo);
 
-		if (update && systemid > 0)
+		if (this.isUpdateExecuted() && systemid > 0)
 		{
 			Request request = context.getRequest();
 
@@ -98,7 +90,7 @@ public class EditSystem implements AdminPlugin
 			system.setMaxColonies(maxcolonies);
 			system.setStarmapVisible(starmap);
 			system.setOrderLocations(orderloc);
-			if(gtuDropZoneString != "") {
+			if(!"".equals(gtuDropZoneString)) {
 				system.setDropZone(Location.fromString(gtuDropZoneString));
 			}
 			else
@@ -170,26 +162,19 @@ public class EditSystem implements AdminPlugin
 		{
 			StarSystem system = (StarSystem) db.get(StarSystem.class, systemid);
 
-			echo.append("<form action=\"./ds\" method=\"post\">");
-			echo.append("<table class=\"noBorder\" width=\"100%\">");
-			echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
-			echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
-			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-			echo.append("<input type=\"hidden\" name=\"systemid\" value=\"" + systemid + "\" />\n");
-			echo.append("<tr><td class=\"noBorderS\">Name: </td><td><input type=\"text\" name=\"name\" value=\"" + system.getName() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Breite: </td><td><input type=\"text\" name=\"width\" value=\"" + system.getWidth() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">H&ouml;he: </td><td><input type=\"text\" name=\"height\" value=\"" + system.getHeight() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Allow Military: </td><td><input type=\"text\" name=\"military\" value=\"" + system.isMilitaryAllowed() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Max Colonies (-1 = keine Begrenzung): </td><td><input type=\"text\" name=\"maxcolonies\" value=\"" + system.getMaxColonies() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">In Sternenkarte sichtbar: </td><td><input type=\"text\" name=\"starmap\" value=\"" + system.isStarmapVisible() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">OrderLocations(Form: x/y|x/y): </td><td><input type=\"text\" name=\"orderloc\" value=\"" + system.getOrderLocationString() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">GTU Dropzone(Form: x/y): </td><td><input type=\"text\" name=\"gtuDropZone\" value=\"" + (system.getDropZone() != null ? (system.getDropZone().equals(new Location( 0, 0, 0 )) ? "" : system.getDropZoneString()) : "") + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Zugriffsrechte(1=Jeder;2=NPC;3=Admin): </td><td><input type=\"text\" name=\"access\" value=\"" + system.getAccess() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Beschreibung: </td><td><textarea cols=\"50\" rows=\"10\" name=\"descrip\">" + system.getDescription() + "</textarea></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Ressourcenvorkommen: </td><td><input type=\"text\" name=\"spawnableress\" value=\"" + system.getSpawnableRess() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\"></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
-			echo.append("</table>");
-			echo.append("</form>\n");
+			this.beginEditorTable(echo, page, action, systemid);
+			this.editField(echo, "Name", "name", String.class, system.getName());
+			this.editField(echo, "Breite", "width", Integer.class, system.getWidth());
+			this.editField(echo, "Höhe", "height", Integer.class, system.getHeight());
+			this.editField(echo, "Allow Military", "military", Boolean.class, system.isMilitaryAllowed());
+			this.editField(echo, "Max Colonies (-1 = keine Begrenzung)", "maxcolonies", Integer.class, system.getMaxColonies());
+			this.editField(echo, "In Sternenkarte sichtbar", "starmap", Boolean.class, system.isStarmapVisible());
+			this.editField(echo, "OrderLocations(Form: x/y|x/y)", "orderloc", String.class, system.getOrderLocationString());
+			this.editField(echo, "GTU Dropzone(Form: x/y)", "gtuDropZone", String.class, system.getDropZoneString());
+			this.editField(echo, "Zugriffsrechte(1=Jeder;2=NPC;3=Admin)", "access", Integer.class, system.getAccess());
+			this.editField(echo, "Beschreibung", "descrip", String.class, system.getDescription());
+			this.editField(echo, "Ressourcenvorkommen", "spawnableress", String.class, system.getSpawnableRess());
+			this.endEditorTable(echo);
 		}
 	}
 }
