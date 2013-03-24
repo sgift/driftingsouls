@@ -79,9 +79,14 @@ public class HibernateSessionRequestFilter extends DSFilter
                     log.error("Could not rollback transaction after exception!", rbEx);
                 }
 
+				session.close();
+
                 throw new ServletException(ex);
             }
-			session.close();
+			finally
+			{
+				session.close();
+			}
 		}
         else
         {
