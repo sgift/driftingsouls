@@ -18,13 +18,17 @@
  */
 package net.driftingsouls.ds2.server.tick;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.hibernate.FlushMode;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.Transaction;
@@ -42,6 +46,8 @@ import org.hibernate.exception.GenericJDBCException;
  */
 public abstract class UnitOfWork<T>
 {
+	private static final Logger LOG = LogManager.getLogger(UnitOfWork.class);
+
 	private String name;
 	private int flushSize = 50;
 	private org.hibernate.Session db;
@@ -88,7 +94,9 @@ public abstract class UnitOfWork<T>
 		try {
 			db.setFlushMode(FlushMode.MANUAL);
 			Transaction transaction = db.beginTransaction();
-			
+
+			List<T> unflushedObjects = new ArrayList<T>();
+
 			int count = 0;
 			for( Iterator<T> iter=work.iterator(); iter.hasNext(); ) 
 			{
@@ -96,6 +104,8 @@ public abstract class UnitOfWork<T>
 				if( !tryWork(db, transaction, workObject) ) {
 					transaction = db.beginTransaction();
 				}
+
+				unflushedObjects.add(workObject);
 				
 				count++;
 				if(count%this.flushSize == 0)
@@ -134,12 +144,14 @@ public abstract class UnitOfWork<T>
 								// Parsen der Fehlermeldung nicht moeglich - normal weiter machen 
 							}
 						}
-						e.printStackTrace();
-						Common.mailThrowable(e, this.name+" Exception", "on flush");
+						LOG.warn(name+" - on flush von "+unflushedObjects, e);
+						Common.mailThrowable(e, this.name + " Exception", "on flush von "+unflushedObjects);
 					}
 					
 					onFlushed();
-					
+
+					unflushedObjects.clear();
+
 					transaction = db.beginTransaction();
 				}
 			}
@@ -182,7 +194,8 @@ public abstract class UnitOfWork<T>
 			{
 				db.evict(workObject);
 			}
-			
+
+			LOG.warn(name+" - Object: "+workObject, e);
 			e.printStackTrace();
 			Common.mailThrowable(e, name+" Exception", "Object: " + workObject);
 			
