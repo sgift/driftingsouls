@@ -1900,4 +1900,7 @@
 		ALTER TABLE ally_posten MODIFY COLUMN `version` INTEGER NOT NULL;
 		ALTER TABLE ally_posten MODIFY COLUMN `ally` INTEGER NOT NULL;
 	]]></update>
+	<update type="structure" datum="2013-03-24"><![CDATA[
+		ALTER TABLE factory MODIFY COLUMN col INTEGER;
+	]]></update>
 </updates>

@@ -1,6 +1,6 @@
 CREATE TABLE `factory` (
 		`id` int(11) NOT NULL auto_increment,
-		`col` int(11) NOT NULL default '0',
+		`col` int(11),
 		`count` tinyint(3) unsigned NOT NULL default '0',
 		`produces` text NOT NULL,
 		`buildingid` int(11) NOT NULL,
