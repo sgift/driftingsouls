@@ -1876,4 +1876,28 @@
 		ALTER TABLE base_types ADD COLUMN `size` int(11) not null;
 		UPDATE base_types SET size=(SELECT max(size) FROM bases WHERE klasse=base_types.id);
 	]]></update>
+	<update type="structure" datum="2013-03-24"><![CDATA[
+		rename table academy_queues to academy_queue_entry;
+		ALTER TABLE ally MODIFY COLUMN `allytag` varchar(255) not null;
+		ALTER TABLE ally MODIFY COLUMN `description` LONGTEXT NOT NULL;
+		ALTER TABLE ally MODIFY COLUMN `founded` datetime not null;
+		ALTER TABLE ally MODIFY COLUMN `lostBattles` smallint NOT NULL;
+		ALTER TABLE ally MODIFY COLUMN `wonBattles` smallint NOT NULL;
+		ALTER TABLE ally MODIFY COLUMN `president` INTEGER NOT NULL;
+		ALTER TABLE ally MODIFY COLUMN `destroyedShips` INTEGER NOT NULL;
+		ALTER TABLE ally MODIFY COLUMN `hp` LONGTEXT NOT NULL;
+		ALTER TABLE ally MODIFY COLUMN `items` LONGTEXT NOT NULL;
+		ALTER TABLE ally MODIFY COLUMN `lostShips` INTEGER NOT NULL;
+		ALTER TABLE ally MODIFY COLUMN `name` LONGTEXT NOT NULL;
+		ALTER TABLE ally MODIFY COLUMN `plainname` varchar(255) NOT NULL;
+		ALTER TABLE ally MODIFY COLUMN `pname` varchar(255) NOT NULL;
+		ALTER TABLE ally MODIFY COLUMN `showGtuBieter` tinyint NOT NULL;
+		ALTER TABLE ally MODIFY COLUMN `showastis` BOOLEAN NOT NULL;
+		ALTER TABLE ally MODIFY COLUMN `showlrs` tinyint NOT NULL;
+		ALTER TABLE ally MODIFY COLUMN `tick` int(11) NOT NULL;
+		ALTER TABLE ally MODIFY COLUMN `version` INTEGER NOT NULL;
+		ALTER TABLE ally_posten MODIFY COLUMN `name` varchar(255) NOT NULL;
+		ALTER TABLE ally_posten MODIFY COLUMN `version` INTEGER NOT NULL;
+		ALTER TABLE ally_posten MODIFY COLUMN `ally` INTEGER NOT NULL;
+	]]></update>
 </updates>

@@ -120,6 +120,7 @@ public class Configuration
 			return value.toString();
 		}
 		log.error("couldn't read " + setting + " from Configuration");
+
 		return null;
 	}
 

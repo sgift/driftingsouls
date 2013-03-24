@@ -43,13 +43,14 @@ import net.driftingsouls.ds2.server.namegenerator.NameGenerator;
 
 import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.Session;
+import org.hibernate.annotations.ForeignKey;
 
 /**
- *
+ * Ein Eintrag in der Produktionsschlange einer Akademie.
  *
  */
 @Entity
-@Table(name="academy_queues")
+@Table(name="academy_queue_entry")
 public class AcademyQueueEntry {
 
 	private static Map<Integer,Offizier.Ability> dTrain = new HashMap<Integer,Offizier.Ability>();
@@ -70,8 +71,9 @@ public class AcademyQueueEntry {
 
 	@Id @GeneratedValue
 	private int id;
-	@ManyToOne
-	@JoinColumn
+	@ManyToOne(optional = false)
+	@JoinColumn(nullable = false)
+	@ForeignKey(name = "academy_queues_fk_academy")
 	private Academy academy;
 	private int position;
 	private int training;

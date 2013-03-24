@@ -18,26 +18,6 @@
  */
 package net.driftingsouls.ds2.server.entities.ally;
 
-import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.OrderBy;
-import javax.persistence.Table;
-import javax.persistence.Version;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.comm.PM;
@@ -49,9 +29,29 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
-
 import org.hibernate.Query;
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.ForeignKey;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.OrderBy;
+import javax.persistence.Table;
+import javax.persistence.Version;
+import java.util.Date;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Repraesentiert eine Allianz in DS.
@@ -64,20 +64,32 @@ import org.hibernate.annotations.BatchSize;
 public class Ally {
 	@Id	@GeneratedValue
 	private int id;
+	@Lob
+	@Column(nullable = false)
 	private String name;
+	@Column(nullable = false)
 	private String plainname;
+	@Column(nullable = false)
 	private Date founded;
 	private int tick;
-	@OneToOne(fetch=FetchType.LAZY)
+	@OneToOne(fetch=FetchType.LAZY, optional=false)
 	@JoinColumn(name="president", nullable=false)
+	@ForeignKey(name = "ally_fk_users")
 	private User president;
+	@Lob
+	@Column(nullable = false)
 	private String description;
+	@Lob
+	@Column(nullable = false)
 	private String hp;
+	@Column(nullable = false)
 	private String allytag;
 	private boolean showastis;
 	private byte showGtuBieter;
 	private byte showlrs;
 	private String pname;
+	@Lob
+	@Column(nullable = false)
 	private String items;
 	private short lostBattles;
 	private short wonBattles;
@@ -404,7 +416,7 @@ public class Ally {
 		return ContextMap.getContext()
 			.getDB()
 			.createQuery("select distinct u from User u join u.ally a " +
-					"where a.id= :allyId and (u.allyposten is not null or a.president=u.id)")
+					"where a.id= :allyId and (u.allyposten is not null or a.president.id=u.id)")
 			.setInteger("allyId", this.getId())
 			.list();
 	}
@@ -443,16 +455,17 @@ public class Ally {
 		List<?> chnList = db.createQuery("from ComNetChannel where allyOwner=:owner")
 			.setInteger("owner", this.id)
 			.list();
-		for( Iterator<?> iter=chnList.iterator(); iter.hasNext(); ) {
-			ComNetChannel channel = (ComNetChannel)iter.next();
+		for (Object aChnList : chnList)
+		{
+			ComNetChannel channel = (ComNetChannel) aChnList;
 
 			db.createQuery("delete from ComNetVisit where channel=:channel")
-				.setEntity("channel", channel)
-				.executeUpdate();
+					.setEntity("channel", channel)
+					.executeUpdate();
 
 			db.createQuery("delete from ComNetEntry where channel=:channel")
-				.setEntity("channel", channel)
-				.executeUpdate();
+					.setEntity("channel", channel)
+					.executeUpdate();
 
 			db.delete(channel);
 		}
@@ -462,12 +475,14 @@ public class Ally {
 		List<?> uids = db.createQuery("from User where ally=:ally")
 			.setEntity("ally", this)
 			.list();
-		for( Iterator<?> iter=uids.iterator(); iter.hasNext(); ) {
-			User auser = (User)iter.next();
+		for (Object uid : uids)
+		{
+			User auser = (User) uid;
 
-			auser.addHistory(Common.getIngameTime(tick)+": Verlassen der Allianz "+this.name+" im Zuge der Aufl&ouml;sung dieser Allianz");
+			auser.addHistory(Common.getIngameTime(tick) + ": Verlassen der Allianz " + this.name + " im Zuge der Aufl&ouml;sung dieser Allianz");
 			auser.setAlly(null);
-			if( auser.getAllyPosten() != null ) {
+			if (auser.getAllyPosten() != null)
+			{
 				AllyPosten posten = auser.getAllyPosten();
 				auser.setAllyPosten(null);
 				db.delete(posten);

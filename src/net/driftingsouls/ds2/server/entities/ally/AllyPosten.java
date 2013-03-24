@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.entities.ally;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -29,6 +30,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.entities.User;
+import org.hibernate.annotations.ForeignKey;
 
 /**
  * Ein Allianzposten.
@@ -40,9 +42,13 @@ import net.driftingsouls.ds2.server.entities.User;
 public class AllyPosten {
 	@Id @GeneratedValue
 	private int id;
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="ally")
+
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
+	@JoinColumn(name="ally", nullable = false)
+	@ForeignKey(name = "ally_posten_fk_ally")
 	private Ally ally;
+
+	@Column(nullable = false)
 	private String name;
 	
 	@OneToOne(mappedBy="allyposten",optional=true,fetch=FetchType.LAZY)

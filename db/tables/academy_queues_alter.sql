@@ -1,1 +1,1 @@
-ALTER TABLE academy_queues ADD CONSTRAINT academy_queues_fk_academy FOREIGN KEY (academy_id) REFERENCES academy(id);
+ALTER TABLE academy_queue_entry ADD CONSTRAINT academy_queues_fk_academy FOREIGN KEY (academy_id) REFERENCES academy(id);
