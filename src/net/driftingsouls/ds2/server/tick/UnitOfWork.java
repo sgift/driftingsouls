@@ -51,6 +51,7 @@ public abstract class UnitOfWork<T>
 	private String name;
 	private int flushSize = 50;
 	private org.hibernate.Session db;
+	private List<T> unsuccessfulWork;
 	
 	/**
 	 * Konstruktor.
@@ -60,6 +61,7 @@ public abstract class UnitOfWork<T>
 	{
 		this.name = name;
 		this.db = ContextMap.getContext().getDB();
+		this.unsuccessfulWork = new ArrayList<T>();
 	}
 	
 	/**
@@ -115,6 +117,7 @@ public abstract class UnitOfWork<T>
 						transaction.commit();
 					}
 					catch( Exception e ) {
+						this.unsuccessfulWork.addAll(unflushedObjects);
 						transaction.rollback();
 						
 						if( e instanceof StaleObjectStateException ) {
@@ -163,6 +166,14 @@ public abstract class UnitOfWork<T>
 		finally {		
 			db.setFlushMode(oldMode);
 		}
+	}
+
+	/**
+	 * Gibt alle Objekte zurueck, fuer die die Verarbeitung nicht erfolgreich war.
+	 * @return Die nicht erfolgreich bearbeiteten Objekte
+	 */
+	public List<T> getUnsuccessfulWork() {
+		return new ArrayList<T>(this.unsuccessfulWork);
 	}
 	
 	/**
