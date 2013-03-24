@@ -1,18 +1,11 @@
 package net.driftingsouls.ds2.server.framework.db;
 
-import java.io.File;
-import java.net.URL;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
 import net.driftingsouls.ds2.server.framework.Configuration;
-
-import org.hibernate.Hibernate;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.cfg.AnnotationConfiguration;
+import org.hibernate.dialect.MySQL5InnoDBDialect;
 import org.hibernate.dialect.function.SQLFunctionTemplate;
 import org.hibernate.dialect.function.StandardSQLFunction;
 import org.hibernate.engine.spi.CollectionKey;
@@ -22,6 +15,15 @@ import org.hibernate.type.IntegerType;
 import org.hibernate.type.LongType;
 import org.scannotation.AnnotationDB;
 import org.scannotation.ClasspathUrlFinder;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * Eine Hilfsklasse, um die Hibernate SessionFactory zu initialisieren.
@@ -37,7 +39,7 @@ public class HibernateUtil
     {
         try
         {
-        	AnnotationConfiguration configuration = new AnnotationConfiguration();
+        	org.hibernate.cfg.Configuration configuration = new org.hibernate.cfg.Configuration();
         	configuration.configure(new File(Configuration.getSetting("configdir")+"hibernate.xml"));
 
     		// Configure connection
@@ -70,6 +72,11 @@ public class HibernateUtil
 				}
 			}
 
+			if( !"true".equals(Configuration.getSetting("PRODUCTION")) )
+			{
+				writeSchemaToDisk(configuration);
+			}
+
 			// Create the SessionFactory from hibernate.xml
 			sessionFactory = configuration.buildSessionFactory();
         }
@@ -81,7 +88,24 @@ public class HibernateUtil
         }
     }
 
-    /**
+	private static void writeSchemaToDisk(org.hibernate.cfg.Configuration configuration) throws IOException
+	{
+		String[] dropSQL = configuration.generateDropSchemaScript( new MySQL5InnoDBDialect() );
+		String[] createSQL = configuration.generateSchemaCreationScript( new MySQL5InnoDBDialect()  );
+		FileOutputStream writer = new FileOutputStream(new File(Configuration.getSetting("configdir")+"schema.sql"));
+		try
+		{
+			IOUtils.write(StringUtils.join(dropSQL, "\n"), writer, "UTF-8");
+			IOUtils.write("\n\n\n\n", writer, "UTF-8");
+			IOUtils.write(StringUtils.join(createSQL, "\n"), writer, "UTF-8");
+		}
+		finally
+		{
+			writer.close();
+		}
+	}
+
+	/**
      * Gibt die SessionFactory zurueck.
      * Zu jeder Zeit existiert nur eine.
      *
