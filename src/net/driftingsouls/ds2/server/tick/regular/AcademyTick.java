@@ -69,7 +69,7 @@ public class AcademyTick extends TickController {
 		org.hibernate.Session db = getDB();
 
 		List<Integer> accList = Common.cast(db.createQuery("select a.id from Academy a " +
-			"where a.train=1 and (a.base.owner.vaccount=0 or a.base.owner.wait4vac!=0)").list());
+			"where a.train=true and (a.base.owner.vaccount=0 or a.base.owner.wait4vac!=0)").list());
 
 		new EvictableUnitOfWork<Integer>("Academy Tick")
 		{
@@ -83,10 +83,6 @@ public class AcademyTick extends TickController {
 
 				log("Akademie "+acc.getId()+":");
 
-				boolean build;
-
-				String msg = "";
-
 				// Einen neuen Offizier ausbilden?
 				if( acc.getTrain() )
 				{
@@ -94,9 +90,9 @@ public class AcademyTick extends TickController {
 
 					List<AcademyQueueEntry> entries = acc.getScheduledQueueEntries();
 
-					msg = "Die Ausbildung von<br />";
+					String msg = "Die Ausbildung von\n";
 
-					build = false;
+					boolean build = false;
 
 					for( AcademyQueueEntry entry : entries )
 					{
@@ -108,14 +104,14 @@ public class AcademyTick extends TickController {
 
 							if( entry.getTraining() < 0 )
 							{
-								msg = msg+"einem Neuen Offizier ("+offis.get(-entry.getTraining())+")<br />";
+								msg = msg+"einem Neuen Offizier ("+offis.get(-entry.getTraining())+")\n";
 							}
 							else
 							{
 								Offizier offi = Offizier.getOffizierByID(entry.getTraining());
 								if( offi != null )
 								{
-									msg = msg+offi.getName()+" ("+dTrain.get(entry.getTrainingType())+")<br />";
+									msg = msg+offi.getName()+" ("+dTrain.get(entry.getTrainingType())+")\n";
 								}
 							}
 							entry.finishBuildProcess();
