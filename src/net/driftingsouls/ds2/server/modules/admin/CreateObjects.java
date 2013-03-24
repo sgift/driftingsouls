@@ -266,13 +266,7 @@ public class CreateObjects implements AdminPlugin {
 				new TextEntry("Austritts-System", "systemout", 18, "0"),
 				new TextEntry("Austritts-Name", "systemname", 18, "0")
 		});
-		
-		OPTIONS.put("Png", new DialogEntry[] {
-				new TextEntry("Pfad", "pngpath", 50, ""),
-				new LabelEntry("Infos", "#000000 - Freier Raum\n#FF0000 -  Nebel (Deut)\n#0000FF - Asteroid (Typ 1; 5x8=40)\n#0000AF - Asteroid (Typ 3; 6x10=60)\n#00006F - Asteroid (Typ 4; 5x4=20)"),
-				new TextEntry("System", "system", 18, "0")
-		});
-		
+
 		OPTIONS.put("SystemXML", new DialogEntry[] {
 				new TextEntry("Pfad", "xmlpath", 50, ""),
 				new TextEntry("System", "system", 18, "0")
@@ -343,9 +337,6 @@ public class CreateObjects implements AdminPlugin {
 			}
 			else if( objekt.equals("Jumpnode") ) {
 				handleJumpnode(context, echo, system);
-			}
-			else if( objekt.equals("Png") ) {
-				handlePng(context, echo, system);
 			}
 			else if( objekt.equals("SystemXML") ) {
 				handleSystemXML(context, echo, system);
@@ -527,25 +518,6 @@ public class CreateObjects implements AdminPlugin {
 		}
 	}
 
-	private void handlePng(Context context, Writer echo, int system) throws IOException {
-		org.hibernate.Session db = context.getDB();
-		
-		final String pngpath = context.getRequest().getParameterString("pngpath");
-		
-		File png = new File(pngpath);
-		if( !png.isFile() ) {
-			echo.append("File not found: "+pngpath+"<br />\n");
-			return;
-		}
-		
-		try {
-			parsePngFile(db, echo, system, png);
-		}
-		catch( IOException e ) {
-			echo.append("Kann PNG "+pngpath+" nicht oeffnen: "+e);
-		}
-	}
-
 	private Location parseLocation(int system, String location) {
 		// Position mit Systemangabe
 		if( location.indexOf(':') > -1 ) {
@@ -555,89 +527,89 @@ public class CreateObjects implements AdminPlugin {
 		// Position ohne Systemangabe (d.h. innerhalb dieses Systems)
 		return Location.fromString(system+":"+location);
 	}
-	
+
 	private void parsePngFile(org.hibernate.Session db, Writer echo, int system, File png) throws IOException {
 		BufferedImage image = ImageIO.read(new FileInputStream(png));
-		
+
 		StarSystem thissystem = (StarSystem)db.get(StarSystem.class, system);
-		
+
 		for( int x=0; x < thissystem.getWidth(); x++ ) {
 			for( int y=0; y < thissystem.getHeight(); y++ ) {
 				Location loc = new Location(system, x+1, y+1);
-				
+
 				int colorhex = image.getRGB(x, y);
 
 				switch(colorhex) {
 				case 0xff000000:
 					continue;
-					
+
 				// Deut-Nebel Normal
 				case 0xffFF0000:
 					createNebula(db, loc, Nebel.Typ.MEDIUM_DEUT);
 					break;
-					
+
 				// Deut-Nebel Schwach
 				case 0xffCB0000:
 					createNebula(db, loc, Nebel.Typ.LOW_DEUT);
 					break;
-					
+
 				// Deut-Nebel Stark
 				case 0xffFF00AE:
 					createNebula(db, loc, Nebel.Typ.STRONG_DEUT);
 					break;
-					
+
 				// EMP-Nebel Schwach
 				case 0xff3B9400:
 					createNebula(db, loc, Nebel.Typ.LOW_EMP);
 					break;
-					
+
 				// EMP-Nebel Mittel
 				case 0xff4FC500:
 					createNebula(db, loc, Nebel.Typ.MEDIUM_EMP);
 					break;
-					
+
 				// EMP-Nebel Stark
 				case 0xff66FF00:
 					createNebula(db, loc, Nebel.Typ.STRONG_EMP);
 					break;
-					
+
 				// Schadensnebel
 				case 0xffFFBA00:
 					createNebula(db, loc, Nebel.Typ.DAMAGE);
 					break;
-					
+
 				// Normaler Asteroid
 				case 0xff0000FF:
 					createPlanet(db, loc, 1);
 					break;
-					
+
 				// Grosser Asteroid
 				case 0xff0000AF:
 					createPlanet(db, loc, 3);
 					break;
-					
+
 				// Kleiner Asteroid
 				case 0xff00006F:
 					createPlanet(db, loc, 4);
 					break;
-					
+
 				// Sehr kleiner Asteroid
 				case 0xff40406F:
 					createPlanet(db, loc, 5);
 					break;
-					
+
 				// Sehr grosser Asteroid
 				case 0xff4040AF:
 					createPlanet(db, loc, 2);
 					break;
-					
+
 				default:
 					echo.append("Unknown color: #"+Integer.toHexString(colorhex)+"<br />");
 				}
 			}
 		}
 	}
-	
+
 	private void createPlanet( org.hibernate.Session db, Location loc, int klasse ) throws IOException {
 		Writer echo = ContextMap.getContext().getResponse().getWriter();
 		

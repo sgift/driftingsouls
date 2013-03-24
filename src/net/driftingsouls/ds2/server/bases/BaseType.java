@@ -52,6 +52,25 @@ public class BaseType
 	{
 		// EMPTY
 	}
+
+	/**
+	 * Copy-Konstruktor.
+	 * @param baseType Die als Basis zu verwendende Basis-Klasse.
+	 *
+	 */
+	public BaseType(BaseType baseType)
+	{
+		this.id = baseType.id;
+		this.name = baseType.name;
+		this.width = baseType.width;
+		this.height = baseType.height;
+		this.maxtiles = baseType.maxtiles;
+		this.cargo = baseType.cargo;
+		this.energy = baseType.energy;
+		this.terrain = baseType.terrain;
+		this.spawnableress = baseType.spawnableress;
+		this.size = baseType.size;
+	}
 	
 	/**
 	 * Gibt die ID der Basis-Klasse zurueck.
@@ -61,7 +80,7 @@ public class BaseType
 	{
 		return this.id;
 	}
-	
+
 	/**
 	 * Gibt die Breite der Bauflaeche auf der Basis in Feldern zurueck.
 	 * @return Die Breite
