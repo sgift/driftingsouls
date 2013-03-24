@@ -29,13 +29,13 @@ public class HibernateSessionRequestFilter extends DSFilter
     {
         if(!isStaticRequest(request))
         {
+			Session session = sf.openSession();
 			try
             {
-				Session session = sf.openSession();
 				ManagedSessionContext.bind(session);
 
                 log.debug("Starting a database transaction");
-                sf.getCurrentSession().beginTransaction();
+				session.beginTransaction();
 
                 // Call the next filter (continue request processing)
                 chain.doFilter(request, response);
@@ -43,13 +43,16 @@ public class HibernateSessionRequestFilter extends DSFilter
                 // Commit and cleanup
                 log.debug("Committing the database transaction");
 
-                sf.getCurrentSession().getTransaction().commit();
+				ManagedSessionContext.unbind(sf);
+
+				session.getTransaction().commit();
             }
             catch (StaleObjectStateException staleEx)
             {
-				if (sf.getCurrentSession().getTransaction().isActive())
+				ManagedSessionContext.unbind(sf);
+				if (session.getTransaction().isActive())
 				{
-					sf.getCurrentSession().getTransaction().rollback();
+					session.getTransaction().rollback();
 				}
 
                 log.error("This interceptor does not implement optimistic concurrency control!");
@@ -62,12 +65,13 @@ public class HibernateSessionRequestFilter extends DSFilter
             }
             catch (Throwable ex)
             {
+				ManagedSessionContext.unbind(sf);
                 try
                 {
-                    if (sf.getCurrentSession().getTransaction().isActive())
+                    if (session.getTransaction().isActive())
                     {
                         log.debug("Trying to rollback database transaction after exception");
-                        sf.getCurrentSession().getTransaction().rollback();
+						session.getTransaction().rollback();
                     }
                 }
                 catch (Throwable rbEx)
@@ -77,8 +81,7 @@ public class HibernateSessionRequestFilter extends DSFilter
 
                 throw new ServletException(ex);
             }
-			sf.getCurrentSession().close();
-			ManagedSessionContext.unbind(sf);
+			session.close();
 		}
         else
         {
