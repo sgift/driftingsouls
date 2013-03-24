@@ -11,8 +11,10 @@ import javax.servlet.ServletResponse;
 import net.driftingsouls.ds2.server.framework.DSFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.StaleObjectStateException;
+import org.hibernate.context.internal.ManagedSessionContext;
 
 /**
  * Ein Filter, um eine neue Session zu oeffnen fuer den Request.
@@ -27,8 +29,11 @@ public class HibernateSessionRequestFilter extends DSFilter
     {
         if(!isStaticRequest(request))
         {
-            try
+			try
             {
+				Session session = sf.openSession();
+				ManagedSessionContext.bind(session);
+
                 log.debug("Starting a database transaction");
                 sf.getCurrentSession().beginTransaction();
 
@@ -37,10 +42,16 @@ public class HibernateSessionRequestFilter extends DSFilter
 
                 // Commit and cleanup
                 log.debug("Committing the database transaction");
+
                 sf.getCurrentSession().getTransaction().commit();
             }
             catch (StaleObjectStateException staleEx)
             {
+				if (sf.getCurrentSession().getTransaction().isActive())
+				{
+					sf.getCurrentSession().getTransaction().rollback();
+				}
+
                 log.error("This interceptor does not implement optimistic concurrency control!");
                 log.error("Your application will not work until you add compensation actions!");
                 // Rollback, close everything, possibly compensate for any permanent changes
@@ -66,7 +77,8 @@ public class HibernateSessionRequestFilter extends DSFilter
 
                 throw new ServletException(ex);
             }
-        }
+			ManagedSessionContext.unbind(sf);
+		}
         else
         {
             chain.doFilter(request, response);

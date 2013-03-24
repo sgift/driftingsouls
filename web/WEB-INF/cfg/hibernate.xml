@@ -11,7 +11,7 @@
 
 		<!-- configure transaction manager -->
 		<property name="transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
-		<property name="current_session_context_class">thread</property>
+		<property name="current_session_context_class">managed</property>
 
 		<!-- C3P0 connection pool -->
 		<property name="hibernate.connection.provider_class">org.hibernate.service.jdbc.connections.internal.C3P0ConnectionProvider</property>
