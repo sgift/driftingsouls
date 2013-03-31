@@ -134,6 +134,27 @@ public class NavigationDefault implements SchiffPlugin {
 		return output;
 	}
 
+	private static class SectorImage
+	{
+		private final String image;
+		private final int x;
+		private final int y;
+		private final int size;
+
+		private SectorImage(String image)
+		{
+			this(image, 0, 0, 0);
+		}
+
+		private SectorImage(String image, int size, int x, int y)
+		{
+			this.image = image;
+			this.x = x;
+			this.y = y;
+			this.size = size;
+		}
+	}
+
     @Override
 	public void output(Parameters caller)
     {
@@ -181,7 +202,7 @@ public class NavigationDefault implements SchiffPlugin {
 			int y = data.getY();
 			int sys = data.getSystem();
 
-			String[][] sectorimgs = new String[3][3];
+			SectorImage[][] sectorimgs = new SectorImage[3][3];
 			List<?> jnlist = db.createQuery("from JumpNode where system=:sys and (x between :xstart and :xend) and (y between :ystart and :yend)")
 				.setInteger("sys", sys)
 				.setInteger("xstart", x-1)
@@ -190,9 +211,10 @@ public class NavigationDefault implements SchiffPlugin {
 				.setInteger("yend", y+1)
 				.list();
 
-			for( Iterator<?> iter=jnlist.iterator(); iter.hasNext(); ) {
-				JumpNode jn = (JumpNode)iter.next();
-				sectorimgs[jn.getX()-x+1][jn.getY()-y+1] = "data/starmap/jumpnode/jumpnode.png";
+			for (Object aJnlist : jnlist)
+			{
+				JumpNode jn = (JumpNode) aJnlist;
+				sectorimgs[jn.getX() - x + 1][jn.getY() - y + 1] = new SectorImage("jumpnode/jumpnode");
 			}
 
 			List<?> baselist = db.createQuery("select distinct b from Base b where b.system=:sys and floor(sqrt(pow(:x-b.x,2)+pow(:y-b.y,2))) <= b.size+1")
@@ -200,31 +222,40 @@ public class NavigationDefault implements SchiffPlugin {
 				.setInteger("x", x)
 				.setInteger("y", y)
 				.list();
-			for( Iterator<?> iter=baselist.iterator(); iter.hasNext(); ) {
-				Base aBase = (Base)iter.next();
+			for (Object aBaselist : baselist)
+			{
+				Base aBase = (Base) aBaselist;
 
-				if( (aBase.getSize() == 0) && (sectorimgs[aBase.getX()-x+1][aBase.getY()-y+1] == null) ) {
-					if( aBase.getOwner() == user ) {
-						sectorimgs[aBase.getX()-x+1][aBase.getY()-y+1] = "data/starmap/asti_own/asti_own.png";
+				if ((aBase.getSize() == 0) && (sectorimgs[aBase.getX() - x + 1][aBase.getY() - y + 1] == null))
+				{
+					if (aBase.getOwner() == user)
+					{
+						sectorimgs[aBase.getX() - x + 1][aBase.getY() - y + 1] = new SectorImage("asti_own/asti_own");
 					}
-					else {
-						sectorimgs[aBase.getX()-x+1][aBase.getY()-y+1] = "data/starmap/kolonie"+aBase.getKlasse()+"_lrs/kolonie"+aBase.getKlasse()+"_lrs.png";
+					else
+					{
+						int[] offset = aBase.getBaseImageOffset(aBase.getLocation());
+						sectorimgs[aBase.getX() - x + 1][aBase.getY() - y + 1] = new SectorImage(aBase.getBaseImage(aBase.getLocation()), aBase.getSize(), offset[0], offset[1]);
 					}
 				}
-				else if( aBase.getSize() > 0 ) {
+				else if (aBase.getSize() > 0)
+				{
 					Location loc = aBase.getLocation();
-					int imgcount = 0;
-					for( int by=aBase.getY()-aBase.getSize(); by <= aBase.getY()+aBase.getSize(); by++ ) {
-						for( int bx=aBase.getX()-aBase.getSize(); bx <= aBase.getX()+aBase.getSize(); bx++ ) {
-							if( !loc.sameSector( aBase.getSize(), new Location(aBase.getSystem(), bx, by), 0 ) ) {
+					for (int by = aBase.getY() - aBase.getSize(); by <= aBase.getY() + aBase.getSize(); by++)
+					{
+						for (int bx = aBase.getX() - aBase.getSize(); bx <= aBase.getX() + aBase.getSize(); bx++)
+						{
+							Location curLoc = new Location(aBase.getSystem(), bx, by);
+							if (!loc.sameSector(aBase.getSize(), curLoc, 0))
+							{
 								continue;
 							}
-							if( Math.abs(x - bx) > 1 || Math.abs(y - by) > 1 ) {
-								imgcount++;
+							if (Math.abs(x - bx) > 1 || Math.abs(y - by) > 1)
+							{
 								continue;
 							}
-							sectorimgs[bx-x+1][by-y+1] = "data/starmap/kolonie"+aBase.getKlasse()+"_lrs/kolonie"+aBase.getKlasse()+"_lrs"+imgcount+".png";
-							imgcount++;
+							int[] offset = aBase.getBaseImageOffset(curLoc);
+							sectorimgs[bx - x + 1][by - y + 1] = new SectorImage(aBase.getBaseImage(curLoc), aBase.getSize(), offset[0], offset[1]);
 						}
 					}
 				}
@@ -237,20 +268,19 @@ public class NavigationDefault implements SchiffPlugin {
 				.setInteger("ystart", y-1)
 				.setInteger("yend", y+1)
 				.list();
-			for( Iterator<?> iter=nebellist.iterator(); iter.hasNext(); ) {
-				Nebel nebel = (Nebel)iter.next();
-				sectorimgs[nebel.getX()-x+1][nebel.getY()-y+1] = "data/starmap/"+nebel.getImage()+".png";
+			for (Object aNebellist : nebellist)
+			{
+				Nebel nebel = (Nebel) aNebellist;
+				sectorimgs[nebel.getX() - x + 1][nebel.getY() - y + 1] = new SectorImage(nebel.getImage());
 			}
 
 			int tmp = 0;
-			boolean newrow = false;
 			final String url = config.get("URL");
 
 			t.setVar("schiff.navigation.size",37);
 
 			Location[] locs = new Location[8];
 			for( int ny = 0, index=0; ny <= 2; ny++ ) {
-				newrow = true;
 				for( int nx = 0; nx <= 2; nx++ ) {
 					if( nx == 1 && ny == 1 ) {
 						continue;
@@ -261,15 +291,30 @@ public class NavigationDefault implements SchiffPlugin {
 
 			boolean[] alertStatus = Ship.getAlertStatus(user.getId(), locs);
 
+			boolean newrow;
+
 			t.setBlock("_NAVIGATION","schiff.navigation.nav.listitem","schiff.navigation.nav.list");
 			for( int ny = 0, index=0; ny <= 2; ny++ ) {
 				newrow = true;
 				for( int nx = 0; nx <= 2; nx++ ) {
 					tmp++;
 
+					SectorImage img = sectorimgs[nx][ny];
+					if( img == null )
+					{
+						img = new SectorImage("space/space");
+					}
+
+					int sizeX = (img.size*2+1)*37;
+					int sizeY = (img.size*2+1)*37;
+
 					t.setVar(	"schiff.navigation.nav.direction",		tmp,
 								"schiff.navigation.nav.location",		new Location(sys, x+nx-1, y+ny-1).displayCoordinates(true),
-								"schiff.navigation.nav.sectorimage",	url + (sectorimgs[nx][ny] != null ? sectorimgs[nx][ny] : "data/starmap/space/space.png"),
+								"schiff.navigation.nav.sectorimage",	url + "data/starmap/"+ img.image+".png",
+								"schiff.navigation.nav.sectorimage.x",	img.x*37,
+								"schiff.navigation.nav.sectorimage.y",	img.y*37,
+								"schiff.navigation.nav.sectorimage.w",	sizeX,
+								"schiff.navigation.nav.sectorimage.h",	sizeY,
 								"schiff.navigation.nav.newrow",			newrow,
 								"schiff.navigation.nav.warn",			(1 != nx || 1 != ny ? alertStatus[index++] : false) );
 

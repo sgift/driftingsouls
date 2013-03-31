@@ -451,14 +451,6 @@ public class ScanController extends TemplateGenerator {
 		}
 	}
 
-	private static class BaseEntry {
-		BaseEntry() {
-			// EMPTY
-		}
-		Base base;
-		int imgcount;
-	}
-
 	/**
 	 * Zeigt die LRS-Karte an.
 	 */
@@ -478,17 +470,18 @@ public class ScanController extends TemplateGenerator {
 		// Nebel
 		Map<Location,Nebel.Typ> nebelmap = new HashMap<Location,Nebel.Typ>();
 
-		List<?> nebelList = db.createQuery("from Nebel where system=:system and " +
-				"x between :xmin and :xmax and " +
-				"y between :ymin and :ymax")
+		List<?> nebelList = db.createQuery("from Nebel where loc.system=:system and " +
+				"loc.x between :xmin and :xmax and " +
+				"loc.y between :ymin and :ymax")
 			.setInteger("system", this.ship.getSystem())
 			.setInteger("xmin", this.ship.getX()-this.range)
 			.setInteger("xmax", this.ship.getX()+this.range)
 			.setInteger("ymin", this.ship.getY()-this.range)
 			.setInteger("ymax", this.ship.getY()+this.range)
 			.list();
-		for( Iterator<?> iter=nebelList.iterator(); iter.hasNext(); ) {
-			Nebel nebel = (Nebel)iter.next();
+		for (Object aNebelList : nebelList)
+		{
+			Nebel nebel = (Nebel) aNebelList;
 			nebelmap.put(nebel.getLocation(), nebel.getType());
 		}
 
@@ -504,8 +497,9 @@ public class ScanController extends TemplateGenerator {
 			.setInteger("ymin", this.ship.getY()-this.range)
 			.setInteger("ymax", this.ship.getY()+this.range)
 			.list();
-		for( Iterator<?> iter=nodeList.iterator(); iter.hasNext(); ) {
-			JumpNode node = (JumpNode)iter.next();
+		for (Object aNodeList : nodeList)
+		{
+			JumpNode node = (JumpNode) aNodeList;
 			nodemap.put(node.getLocation(), true);
 		}
 
@@ -528,9 +522,9 @@ public class ScanController extends TemplateGenerator {
 		Map<Location,Boolean> ownshipmap = new HashMap<Location,Boolean>();
 
 		List<?> shipList = db.createQuery("from Ship s inner join fetch s.owner " +
-				"where s.id>0 and system=:system and " +
-				"x between :xmin and :xmax and " +
-				"y between :ymin and :ymax and " +
+				"where s.id>0 and s.system=:system and " +
+				"s.x between :xmin and :xmax and " +
+				"s.y between :ymin and :ymax and " +
 				"((s.shiptype not in ("+Common.implode(",",verysmallshiptypes)+")) or s.modules is not null)")
 			.setInteger("system", this.ship.getSystem())
 			.setInteger("xmin", this.ship.getX()-this.range)
@@ -538,40 +532,45 @@ public class ScanController extends TemplateGenerator {
 			.setInteger("ymin", this.ship.getY()-this.range)
 			.setInteger("ymax", this.ship.getY()+this.range)
 			.list();
-		for( Iterator<?> iter=shipList.iterator(); iter.hasNext(); ) {
-			Ship ship = (Ship)iter.next();
+		for (Object aShipList : shipList)
+		{
+			Ship ship = (Ship) aShipList;
 
 			ShipTypeData st = ship.getTypeData();
 
 			// Im Admin-Modus sind alle Schiffe sichtbar
-			if( !this.admin && st.hasFlag(ShipTypes.SF_SEHR_KLEIN) ) {
+			if (!this.admin && st.hasFlag(ShipTypes.SF_SEHR_KLEIN))
+			{
 				continue;
 			}
 
-			if( !this.admin && ship.isDocked() )
+			if (!this.admin && ship.isDocked())
 			{
 				Ship mship = ship.getBaseShip();
-				if( mship.getTypeData().hasFlag(ShipTypes.SF_SEHR_KLEIN))
+				if (mship.getTypeData().hasFlag(ShipTypes.SF_SEHR_KLEIN))
 				{
 					continue;
 				}
 			}
 
 			Location loc = ship.getLocation();
-			if( !shipmap.containsKey(loc) ) {
+			if (!shipmap.containsKey(loc))
+			{
 				shipmap.put(loc, new ArrayList<Ship>());
 			}
 			shipmap.get(loc).add(ship);
 
-			if( (ship.getOwner().getId() == user.getId()) && (ship.getSensors()>30) && !ownshipmap.containsKey(loc) ) {
-				if( ship.getCrew() >= st.getCrew()/4 ) {
+			if ((ship.getOwner().getId() == user.getId()) && (ship.getSensors() > 30) && !ownshipmap.containsKey(loc))
+			{
+				if (ship.getCrew() >= st.getCrew() / 4)
+				{
 					ownshipmap.put(loc, true);
 				}
 			}
 		}
 
 		// Basen
-		Map<Location,BaseEntry> basemap = new HashMap<Location,BaseEntry>();
+		Map<Location,Base> basemap = new HashMap<Location,Base>();
 
 		List<?> baseList = db.createQuery("from Base b inner join fetch b.owner " +
 				"where b.system= :sys and " +
@@ -583,25 +582,23 @@ public class ScanController extends TemplateGenerator {
 			.setInteger("range", this.range)
 			.list();
 
-		for( Iterator<?> iter=baseList.iterator(); iter.hasNext(); ) {
-			Base base = (Base)iter.next();
+		for (Object aBaseList : baseList)
+		{
+			Base base = (Base) aBaseList;
 
-			int imgcount = 0;
 			Location centerLoc = base.getLocation();
-			for( int by=base.getY()-base.getSize(); by <= base.getY()+base.getSize(); by++ ) {
-				for( int bx=base.getX()-base.getSize(); bx <= base.getX()+base.getSize(); bx++ ) {
+			for (int by = base.getY() - base.getSize(); by <= base.getY() + base.getSize(); by++)
+			{
+				for (int bx = base.getX() - base.getSize(); bx <= base.getX() + base.getSize(); bx++)
+				{
 					Location loc = new Location(this.ship.getSystem(), bx, by);
 
-					if( !centerLoc.sameSector( 0, loc, base.getSize() ) ) {
+					if (!centerLoc.sameSector(0, loc, base.getSize()))
+					{
 						continue;
 					}
-					BaseEntry entry = new BaseEntry();
-					entry.base = base;
-					if( base.getSize() > 0 ) {
-						entry.imgcount = imgcount;
-						imgcount++;
-					}
-					basemap.put(loc, entry);
+
+					basemap.put(loc, base);
 				}
 			}
 		}
@@ -711,6 +708,11 @@ public class ScanController extends TemplateGenerator {
 							}
 						}
 
+						t.setVar(
+								"map.image.offset.x", 0,
+								"map.image.offset.y", 0
+						);
+
 						String tooltip = "";
 						String fleetStr = "";
 						if( own+ally+enemy > 0 )
@@ -730,30 +732,33 @@ public class ScanController extends TemplateGenerator {
 						}
 						else if( basemap.containsKey(loc) )
 						{
-							BaseEntry entry = basemap.get(loc);
-							if( entry.base.getSize() > 0 )
+							Base base = basemap.get(loc);
+							if( base.getSize() > 0 )
 							{
-								t.setVar(	"map.image",		"kolonie"+entry.base.getKlasse()+"_lrs/kolonie"+entry.base.getKlasse()+"_lrs"+entry.imgcount,
+								int[] offset = base.getBaseImageOffset(loc);
+								t.setVar(	"map.image",		base.getBaseImage(loc),
+											"map.image.offset.x", offset[0]*25,
+											"map.image.offset.y", offset[1]*25,
 											"map.image.name",	"Asteroid" );
 							}
-							else if( entry.base.getOwner().getId() == user.getId() )
+							else if( base.getOwner().getId() == user.getId() )
 							{
 								t.setVar(	"map.image",		"asti_own/asti_own",
 											"map.image.name",	"Eigener Asteroid" );
 							}
-							else if( (entry.base.getOwner().getId() != 0) && (user.getAlly() != null) && (entry.base.getOwner().getAlly() == user.getAlly()) )
+							else if( (base.getOwner().getId() != 0) && (user.getAlly() != null) && (base.getOwner().getAlly() == user.getAlly()) )
 							{
 								t.setVar(	"map.image",		"asti_ally/asti_ally",
 											"map.image.name",	"Ally Asteroid" );
 							}
-							else if( (entry.base.getOwner().getId() != 0) )
+							else if( (base.getOwner().getId() != 0) )
 							{
 								t.setVar(	"map.image",		"asti_enemy/asti_enemy",
 											"map.image.name",	"Feindlicher Asteroid" );
 							}
 							else
 							{
-								String astiimg = "kolonie"+entry.base.getKlasse()+"_lrs";
+								String astiimg = "kolonie"+base.getKlasse()+"_lrs";
 
 								t.setVar(	"map.image",		astiimg+"/"+astiimg,
 											"map.image.name",	"Asteroid" );

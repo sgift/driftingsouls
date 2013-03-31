@@ -25,8 +25,7 @@
 			{/endif}
 			<td class="nav" style="width:{schiff.navigation.size}px; height:{schiff.navigation.size}px; text-align:center">
 				<div style="position:relative; top:0px; left:0px; margin:0px; width:{schiff.navigation.size}px; height:{schiff.navigation.size}px">
-					<div style="position:absolute; top:0px; left:0px; z-index:1; width:{schiff.navigation.size}px; height:{schiff.navigation.size}px">
-						<img style="width:{schiff.navigation.size}px; height:{schiff.navigation.size}px; border:0px" src="{schiff.navigation.nav.sectorimage}" alt="" />
+					<div style="position:absolute; top:0px; left:0px; z-index:1; width:{schiff.navigation.size}px; height:{schiff.navigation.size}px;background: url('{schiff.navigation.nav.sectorimage}') no-repeat {schiff.navigation.nav.sectorimage.x}px {schiff.navigation.nav.sectorimage.y}px; background-size:{schiff.navigation.nav.sectorimage.w}px {schiff.navigation.nav.sectorimage.h}px">
 					</div>
 					<div style="position:absolute; top:0px; left:0px; z-index:2; width:{schiff.navigation.size}px; height:{schiff.navigation.size}px">
 						{if schiff.navigation.nav.warn}

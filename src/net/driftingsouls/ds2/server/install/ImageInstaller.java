@@ -229,32 +229,11 @@ public class ImageInstaller
 			{
 				while( result.next() )
 				{
-					int size = result.getInt("size");
 					int klasse = result.getInt("id");
-					if(size > 0)
-					{
-						int imgcount = 0;
-						Location centerLoc = new Location(1, 2*size, 2*size);
-						for(int by = centerLoc.getY() - size; by <= centerLoc.getY() + size; by++)
-						{
-							for(int bx = centerLoc.getX() - size; bx <= centerLoc.getX() + size; bx++)
-							{
-								Location loc = new Location(centerLoc.getSystem(), bx, by);
 
-								if( !centerLoc.sameSector(0, loc, size))
-								{
-									continue;
-								}
-								imgs.add("kolonie"+klasse+"_lrs/kolonie"+klasse+"_lrs"+imgcount+".png");
-
-								imgcount++;
-							}
-						}
-					}
-					else
-					{
-						imgs.add("kolonie"+klasse+"_lrs/kolonie"+klasse+"_lrs.png");
-					}
+					imgs.add("kolonie"+klasse+"_starmap.png");
+					imgs.add("kolonie"+klasse+"_lrs/kolonie"+klasse+"_lrs.png");
+					imgs.add("kolonie"+klasse+"_lrs/kolonie"+klasse+"_lrs.jpg");
 				}
 			}
 			finally

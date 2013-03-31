@@ -522,6 +522,8 @@ public class MapController extends AngularGenerator
 			baseObj.accumulate("name", base.getName());
 			baseObj.accumulate("username", Common._title(base.getOwner().getName()));
 			baseObj.accumulate("image", base.getBaseImage(loc));
+			baseObj.accumulate("imageX", base.getBaseImageOffset(loc)[0]);
+			baseObj.accumulate("imageY", base.getBaseImageOffset(loc)[1]);
 			baseObj.accumulate("klasse", base.getKlasse());
 			baseObj.accumulate("typ", base.getBaseType().getName());
 

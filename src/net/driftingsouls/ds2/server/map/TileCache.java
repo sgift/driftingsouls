@@ -12,6 +12,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -81,12 +82,22 @@ public class TileCache
 				for(int x = 0; x < TILE_SIZE; x++)
 				{
 					Location position = new Location(this.system.getID(), tileX*TILE_SIZE+x+1, tileY*TILE_SIZE+y+1);
-					String sectorImageName = content.getSectorBaseImage(position);
+					PublicStarmap.SectorBaseImage sectorImageName = content.getSectorBaseImage(position);
 
-					BufferedImage sectorImage = ImageIO.read(new File(Configuration.getSetting("ABSOLUTE_PATH") + "data/starmap/" + sectorImageName));
+					File path = new File(Configuration.getSetting("ABSOLUTE_PATH") + "data/starmap/" + sectorImageName.getImage());
+					if( !path.canRead() )
+					{
+						throw new FileNotFoundException(path.getAbsolutePath());
+					}
+					BufferedImage sectorImage = ImageIO.read(path);
 					g.drawImage(sectorImage,
-							x*SECTOR_IMAGE_SIZE, y*SECTOR_IMAGE_SIZE,
-							SECTOR_IMAGE_SIZE, SECTOR_IMAGE_SIZE,
+							x*SECTOR_IMAGE_SIZE,y*SECTOR_IMAGE_SIZE,
+							(x+1)*SECTOR_IMAGE_SIZE, (y+1)*SECTOR_IMAGE_SIZE,
+
+							-sectorImageName.getX()*25,
+							-sectorImageName.getY()*25,
+							-sectorImageName.getX()*25+25,
+							-sectorImageName.getY()*25+25,
 							null);
 				}
 			}

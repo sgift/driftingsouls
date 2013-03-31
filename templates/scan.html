@@ -170,21 +170,14 @@
 					<td>{map.border.y}</td>
 					<!-- BEGIN map.listitem -->
 						{if map.showsector}
-							{if map.fleet}
-								<td class="tooltip sector" onclick="javascript:scanSector({map.x},{map.y})" style="background:url('{URL}data/starmap/{map.image}.png') no-repeat;">
-									<img src="{URL}data/starmap/fleet/fleet{map.fleet}.png" alt="{map.image.name}"/>
-									{if map.tooltip}
-										<span class="ttcontent">{map.tooltip}</span>
-									{/endif}
-								</td>
-							{else}
-								<td class="tooltip sector" onclick="javascript:scanSector({map.x},{map.y})">
-									<img src="{URL}data/starmap/{map.image}{map.fleet}.png" alt="{map.image.name}" />
-									{if map.tooltip}
-										<span class="ttcontent">{map.tooltip}</span>
-									{/endif}
-								</td>
-							{/endif}
+
+							<td class="tooltip sector" onclick="javascript:scanSector({map.x},{map.y})" style="width:25px;height:25px;background:url('{URL}data/starmap/{map.image}.png') no-repeat {map.image.offset.x}px {map.image.offset.y}px">
+								{if map.fleet}<img src="{URL}data/starmap/fleet/fleet{map.fleet}.png" alt="{map.image.name}"/>{/endif}
+								{if map.tooltip}
+									<span class="ttcontent">{map.tooltip}</span>
+								{/endif}
+							</td>
+
 							{if map.show.rightborder}
 								<tr><td>{map.border.y}</td>
 							{/endif}

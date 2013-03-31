@@ -126,32 +126,68 @@ public class PublicStarmap
 	}
 
 	/**
+	 * Die Beschreibung einer fuer einen Sektor zu verwendenden Grafik.
+	 * Die Grafik besteht aus einem Pfad sowie einem fuer die Darstellung
+	 * anzuwendenden Offset.
+	 */
+	public static class SectorBaseImage {
+		private final String image;
+		private final int x;
+		private final int y;
+
+		SectorBaseImage(String image, int x, int y)
+		{
+			this.image = image;
+			this.x = x;
+			this.y = y;
+		}
+
+		/**
+		 * Gibt den Pfad zur Grafik zurueck.
+		 * @return Der Pfad
+		 */
+		public String getImage()
+		{
+			return image;
+		}
+
+		/**
+		 * Gibt den x-Offset in Sektoren der Grafik fuer die Darstellung zurueck (vgl. CSS-Sprites).
+		 * @return Der x-Offset in Sektoren
+		 */
+		public int getX()
+		{
+			return x;
+		}
+
+		/**
+		 * Gibt den y-Offset in Sektoren der Grafik fuer die Darstellung zurueck (vgl. CSS-Sprites).
+		 * @return Der y-Offset in Sektoren
+		 */
+		public int getY()
+		{
+			return y;
+		}
+	}
+
+	/**
 	 * Gibt das Basisbild des Sektors zurueck. Das Bild enthaelt
 	 * keine Flottenmarkierungen.
 	 * @param location Der Sektor
 	 * @return Das Bild als String ohne den Pfad zum Data-Verzeichnis.
 	 */
-	public String getSectorBaseImage(Location location)
-	{
-		return getBaseImage(location)+".png";
-	}
-	
-	/**
-	 * Gibt das zum Sektor passende Bild ohne Dateiendung zurueck.
-	 * @param location Die Position des Sektors
-	 * @return Das Bild passend zum Grundtyp des Sektors, ohne Dateiendung (z.B. "space/space")
-	 */
-	protected String getBaseImage(Location location)
+	public SectorBaseImage getSectorBaseImage(Location location)
 	{
 		if(isNebula(location))
 		{
-			return map.getNebulaMap().get(location).getImage();
+			return new SectorBaseImage(map.getNebulaMap().get(location).getImage()+".png", 0, 0);
 		}
 		List<Base> positionBases = map.getBaseMap().get(location);
 		if(positionBases != null && !positionBases.isEmpty())
 		{
 			Base base = positionBases.get(0);
-			return base.getBaseImage(location);
+			int[] offset = base.getBaseImageOffset(location);
+			return new SectorBaseImage(base.getBaseImage(location)+".png", offset[0], offset[1]);
 		}
 		List<JumpNode> positionNodes = map.getNodeMap().get(location);
 		if(positionNodes != null && !positionNodes.isEmpty())
@@ -160,13 +196,11 @@ public class PublicStarmap
 			{
 				if(!node.isHidden())
 				{
-					return "jumpnode/jumpnode";
+					return new SectorBaseImage("jumpnode/jumpnode.png", 0, 0);
 				}
 			}
-			
-			return "space/space";
 		}
-		return "space/space";
+		return new SectorBaseImage("space/space.png", 0, 0);
 	}
 	
 	private boolean isNebula(Location location)
