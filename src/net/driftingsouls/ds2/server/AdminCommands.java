@@ -18,29 +18,8 @@
  */
 package net.driftingsouls.ds2.server;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontFormatException;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.imageio.ImageIO;
-import javax.script.Bindings;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-import javax.script.ScriptException;
-
 import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.bases.BaseType;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
@@ -55,6 +34,7 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
+import net.driftingsouls.ds2.server.map.TileCache;
 import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -64,7 +44,6 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
@@ -72,6 +51,24 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.CacheMode;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
+
+import javax.imageio.ImageIO;
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptException;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Fueht spezielle Admin-Kommandos aus.
@@ -409,7 +406,7 @@ public class AdminCommands {
 					}
 
 					if( shiptype.getWerft() != 0 ) {
-						ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where shipid=:ship")
+						ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=:ship")
 							.setInteger("ship", ship.getId())
 							.uniqueResult();
 
@@ -649,7 +646,7 @@ public class AdminCommands {
 				}
 
 				if( shiptype.getWerft() != 0 ) {
-					ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where shipid=:ship")
+					ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=:ship")
 						.setInteger("ship", ship.getId())
 						.uniqueResult();
 
@@ -1248,7 +1245,7 @@ public class AdminCommands {
 			org.hibernate.Session db = context.getDB();
 
 			ScrollableResults ships = db.createQuery("from Ship as s left join fetch s.modules " +
-													 "where s.id>0 order by s.owner,s.docked,s.shiptype asc")
+													 "where s.id>0 order by s.owner.id,s.docked,s.shiptype.id asc")
 													 .setCacheMode(CacheMode.IGNORE)
 													 .scroll(ScrollMode.FORWARD_ONLY);
 
