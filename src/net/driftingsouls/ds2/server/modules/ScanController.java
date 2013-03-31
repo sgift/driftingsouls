@@ -650,7 +650,9 @@ public class ScanController extends TemplateGenerator {
 					t.setVar(	"map.x",			x,
 								"map.y",			y,
 								"map.linkclass",	cssClass,
-								"map.showsector",	1 );
+								"map.showsector",	1,
+								"map.image.offset.x", 0,
+								"map.image.offset.y", 0);
 
 					// Nebel
 					if (nebelmap.containsKey(loc) && nebelmap.get(loc).isEmp() )
@@ -707,11 +709,6 @@ public class ScanController extends TemplateGenerator {
 								}
 							}
 						}
-
-						t.setVar(
-								"map.image.offset.x", 0,
-								"map.image.offset.y", 0
-						);
 
 						String tooltip = "";
 						String fleetStr = "";
