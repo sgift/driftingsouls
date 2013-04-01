@@ -320,8 +320,8 @@ public class TradeController extends TemplateGenerator {
 				//Aufpassen das ich nicht das Konto leerfresse
 				if(reconsumption > 0)
 				{
-					int ticks = konto.subtract(get.toBigInteger()).divide(BigInteger.valueOf(reconsumption)).intValue();
-					if(ticks <= MIN_TICKS_TO_SURVIVE)
+					BigInteger ticks = konto.subtract(get.toBigInteger()).divide(BigInteger.valueOf(reconsumption));
+					if(ticks.compareTo(BigInteger.valueOf(MIN_TICKS_TO_SURVIVE)) <= 0)
 					{
 						//Konto reicht mit Verkauf nur noch fuer weniger als 7 Ticks => begrenzen.
 						int maximum = konto
