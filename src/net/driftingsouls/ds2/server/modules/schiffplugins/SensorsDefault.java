@@ -617,7 +617,7 @@ public class SensorsDefault implements SchiffPlugin {
 				}
 
 				//Handeln, Pluendernlink, Waren transferieren
-				if (aship.isTradepost())
+				if (aship.isTradepost() && aship.isTradepostVisible(user, user.getRelations()) )
 				{
 					t.setVar("sships.action.trade", 1);
 				}

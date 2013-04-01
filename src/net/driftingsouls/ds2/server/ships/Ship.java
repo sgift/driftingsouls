@@ -3524,6 +3524,15 @@ public class Ship implements Locatable,Transfering,Feeding {
 					}
 				}
 			}
+
+			if( this.isTradepost() )
+			{
+				// Um exploits zu verhindern die Sichtbarkeit des Haandelsposten
+				// auf nichts stellen
+				SchiffEinstellungen einstellungen = this.getEinstellungen();
+				einstellungen.setShowtradepost(TradepostVisibility.NONE);
+				einstellungen.persistIfNecessary(this);
+			}
 		}
 
 		StringBuilder message = MESSAGE.get();

@@ -239,7 +239,7 @@ public class SchiffEinstellungen
 		}
 		if( this.showtradepost != TradepostVisibility.ALL )
 		{
-			return false;
+			return true;
 		}
 		return false;
 	}
