@@ -718,13 +718,6 @@ public class WerftGUI {
 				}
 			}
 		}
-		else
-
-		if ( targetShips.size() <= 1 || !flotte )
-		{
-			targetShips.clear();
-			targetShips.add(ship);
-		}
 
 		ShipTypeData shiptype = ship.getBaseType();
 
@@ -746,6 +739,13 @@ public class WerftGUI {
 				"ws.modules.flotte.typname", shiptype.getNickname(),
 				"ws.modules.flotte.anzahl", targetShips.size(),
 				"ws.modules.flotte.aktiv", flotte ? 1 : 0);
+
+
+		if ( targetShips.size() <= 1 || !flotte )
+		{
+			targetShips.clear();
+			targetShips.add(ship);
+		}
 
 		// Modul einbauen
 		if( (itemid != 0) && (slot != 0) ) {

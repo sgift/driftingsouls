@@ -156,6 +156,14 @@ public class ShipWerft extends WerftObject {
 
 	@Override
 	public void setCargo(Cargo cargo, boolean localonly) {
+		for (ResourceEntry entry : cargo.getResourceList())
+		{
+			if( entry.getCount1() < 0 )
+			{
+				throw new IllegalArgumentException("Der Cargo kann nicht negativ sein ("+entry.getId()+": "+entry.getCount1());
+			}
+		}
+
 		if( (this.linked != null) && !localonly ) {
 			ShipTypeData shiptype = this.ship.getTypeData();
 

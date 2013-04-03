@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.bases.Werft;
 import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -96,6 +97,14 @@ public class BaseWerft extends WerftObject {
 
 	@Override
 	public void setCargo(Cargo cargo, boolean localonly) {
+		for (ResourceEntry entry : cargo.getResourceList())
+		{
+			if( entry.getCount1() < 0 )
+			{
+				throw new IllegalArgumentException("Der Cargo kann nicht negativ sein ("+entry.getId()+": "+entry.getCount1());
+			}
+		}
+
 		base.setCargo(cargo);
 	}
 
