@@ -719,11 +719,12 @@ public class WerftGUI {
 			}
 		}
 		else
+
+		if ( targetShips.size() <= 1 || !flotte )
 		{
+			targetShips.clear();
 			targetShips.add(ship);
 		}
-
-		flotte = targetShips.size() > 1 && flotte;
 
 		ShipTypeData shiptype = ship.getBaseType();
 

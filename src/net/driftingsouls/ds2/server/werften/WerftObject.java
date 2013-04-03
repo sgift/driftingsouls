@@ -688,7 +688,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 
 		Item item = (Item)db.get(Item.class, itemid);
-		if( (aslot == null) || !ModuleSlots.get().slot(aslot[1]).isMemberIn( ((IEModule)item.getEffect()).getSlots() ) ) {
+		if( !ModuleSlots.get().slot(aslot[1]).isMemberIn( ((IEModule)item.getEffect()).getSlots() ) ) {
 			MESSAGE.get().append(ship.getName()+" - Das Item passt nicht in dieses Slot\n");
 			return;
 		}
@@ -707,7 +707,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			}
 		}
 
-		if( myitem == null ) {
+		if( myitem == null || myitem.getCount() <= 0 ) {
 			MESSAGE.get().append(ship.getName()+" - Kein passendes Item gefunden\n");
 			return;
 		}
