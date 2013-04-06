@@ -34,8 +34,11 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.JSONSupport;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 
+import net.sf.json.JSON;
+import net.sf.json.JSONObject;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 
@@ -46,7 +49,7 @@ import org.hibernate.Query;
  */
 @Entity
 @Table(name="ship_fleets")
-public class ShipFleet {
+public class ShipFleet implements JSONSupport {
 	/**
 	 * Objekt mit Funktionsmeldungen.
 	 */
@@ -440,5 +443,14 @@ public class ShipFleet {
 				.createQuery("from Ship where fleet=:fleet")
 	 			.setParameter("fleet", this)
 	 			.list());
+	}
+
+	@Override
+	public JSON toJSON()
+	{
+		JSONObject fleetObj = new JSONObject();
+		fleetObj.accumulate("id", this.id);
+		fleetObj.accumulate("name", this.name);
+		return fleetObj;
 	}
 }

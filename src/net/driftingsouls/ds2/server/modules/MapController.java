@@ -11,6 +11,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.JSONSupport;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -478,7 +479,6 @@ public class MapController extends AngularGenerator
 		int shipId = getInteger("scanship");
 
 		JSONObject json = new JSONObject();
-		JSONArray users = new JSONArray();
 
 		Ship scanShip = (Ship)db.get(Ship.class, shipId);
 
@@ -493,27 +493,7 @@ public class MapController extends AngularGenerator
 			field = new PlayerFieldView(db, user, loc, scanShip);
 		}
 
-		for(Map.Entry<User, Map<ShipType, List<Ship>>> owner: field.getShips().entrySet())
-		{
-			JSONObject jsonUser = new JSONObject();
-			jsonUser.accumulate("name", Common._text(owner.getKey().getName()));
-			jsonUser.accumulate("id", owner.getKey().getId());
-			JSONArray shiptypes = new JSONArray();
-			for(Map.Entry<ShipType, List<Ship>> shiptype: owner.getValue().entrySet())
-			{
-				JSONObject jsonShiptype = new JSONObject();
-				jsonShiptype.accumulate("name", shiptype.getKey().getNickname());
-				JSONArray ships = new JSONArray();
-				for(Ship ship: shiptype.getValue())
-				{
-					ships.add(ship.getName());
-				}
-				jsonShiptype.accumulate("ships", ships);
-				shiptypes.add(jsonShiptype);
-			}
-			jsonUser.accumulate("shiptypes", shiptypes);
-			users.add(jsonUser);
-		}
+		JSONArray users = exportSectorShips(field);
 		json.accumulate("users", users);
 
 		JSONArray baseListObj = new JSONArray();
@@ -580,5 +560,46 @@ public class MapController extends AngularGenerator
 		json.accumulate("battles", battleListObj);
 
 		return json;
+	}
+
+	private JSONArray exportSectorShips(FieldView field)
+	{
+		JSONArray users = new JSONArray();
+		for(Map.Entry<User, Map<ShipType, List<Ship>>> owner: field.getShips().entrySet())
+		{
+			JSONObject jsonUser = new JSONObject();
+			jsonUser.accumulate("name", Common._text(owner.getKey().getName()));
+			jsonUser.accumulate("id", owner.getKey().getId());
+			jsonUser.accumulate("eigener", owner.getKey().getId() == getUser().getId());
+
+			JSONArray shiptypes = new JSONArray();
+			for(Map.Entry<ShipType, List<Ship>> shiptype: owner.getValue().entrySet())
+			{
+				JSONObject jsonShiptype = new JSONObject();
+				jsonShiptype.accumulate("id", shiptype.getKey().getId());
+				jsonShiptype.accumulate("name", shiptype.getKey().getNickname());
+				jsonShiptype.accumulate("picture", shiptype.getKey().getPicture());
+
+				JSONArray ships = new JSONArray();
+				for(Ship ship: shiptype.getValue())
+				{
+					JSONObject shipObj = new JSONObject();
+					shipObj.accumulate("id", ship.getId());
+					shipObj.accumulate("name", ship.getName());
+
+					if( ship.getFleet() != null )
+					{
+						shipObj.accumulate("fleet", ship.getFleet().toJSON());
+					}
+
+					ships.add(shipObj);
+				}
+				jsonShiptype.accumulate("ships", ships);
+				shiptypes.add(jsonShiptype);
+			}
+			jsonUser.accumulate("shiptypes", shiptypes);
+			users.add(jsonUser);
+		}
+		return users;
 	}
 }

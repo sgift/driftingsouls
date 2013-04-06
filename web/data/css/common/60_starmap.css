@@ -59,6 +59,7 @@
 {
 	list-style-type: none;
 	margin-top:3px;
+	padding-left:13px;
 }
 
 #starmapSectorPopup .nebel {
@@ -131,6 +132,42 @@
 
 #starmapSectorPopup .ships .toggle {
 	cursor:pointer;
+}
+
+#starmapSectorPopup .ships li {
+	margin-top:8px;
+}
+
+#starmapSectorPopup .ships li:first-child {
+	margin-top:0px;
+}
+
+#starmapSectorPopup .ships .shiptype {
+	background-color: rgba(196, 255, 196, 0.1);
+	height: 44px;
+	padding:2px 1px;
+}
+
+#starmapSectorPopup .ships .shiptype a {
+	display:block;
+	float:right;
+	padding:2px;
+}
+#starmapSectorPopup .ships img {
+	height:40px;
+}
+
+#starmapSectorPopup .ships table {
+	width:98%;
+	margin-left:2%;
+}
+
+#starmapSectorPopup .ships table .id {
+	width:70px;
+}
+
+#starmapSectorPopup .ships table .fleet {
+	width:200px;
 }
 
 #starmapSystemOverviewPopup .graph {

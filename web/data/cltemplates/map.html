@@ -30,8 +30,8 @@
 	 class="gfxbox"
 	 ds-popup="starmapSectorPopup"
 	 ds-popup-title="Sektorinformationen"
-	 ds-popup-width="450"
-	 ds-popup-height="300"
+	 ds-popup-width="550"
+	 ds-popup-height="400"
 	 ng-controller="MapSectorPopupController">
 	<div ng-hide="geladen">
 		Lade Sektor {{position.system}}:{{position.x}}/{{position.y}}
@@ -83,7 +83,36 @@
 					<span style="float:right;">{{user.shipcount}}</span>
 				</div>
 				<ul class="shipclasses">
-					<li ng-repeat="shiptype in user.shiptypes"><span>{{shiptype.name}}</span><span style="float:right;">{{shiptype.ships.length}}</span></li>
+					<li ng-repeat="shiptype in user.shiptypes">
+						<div class="shiptype">
+							{{shiptype.ships.length}}x {{shiptype.name}}
+							<a href="./ds?module=schiffinfo&ship={{shiptype.id}}" onclick="ShiptypeBox.show({{shiptype.id}});return false;">
+								<img ng-src="{{shiptype.picture}}" />
+							</a>
+						</div>
+						<table>
+							<tbody>
+								<col class="id" />
+								<col class="name" />
+								<col class="fleet" />
+								<tr ng-repeat="ship in shiptype.ships">
+									<td>
+										<a ui-if="user.eigener" href="./ds?module=schiff&action=default&ship={{ship.id}}">{{ship.id}}</a>
+										<span ui-if="!user.eigener">{{ship.id}}</span>
+									</td>
+									<td>
+										<a ui-if="user.eigener" href="./ds?module=schiff&action=default&ship={{ship.id}}">{{ship.name}}</a>
+										<span ui-if="!user.eigener">{{ship.name}}</span>
+									</td>
+									<td>
+										<span ui-if="ship.fleet">
+											{{ship.fleet.name}}
+										</span>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</li>
 				</ul>
 			</div>
 		</div>
