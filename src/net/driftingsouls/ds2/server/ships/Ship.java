@@ -997,7 +997,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		Ship versorger = (Ship)db.createQuery("select s from Ship as s left join s.modules m" +
 								" where (s.shiptype.versorger!=0 or m.versorger!=0)" +
-								" and s.owner=:owner and s.system=:sys and s.x=:x and s.y=:y and s.nahrungcargo > 0 and s.einstellungen.isfeeding != 0 " +
+								" and s.owner=:owner and s.system=:sys and s.x=:x and s.y=:y and s.nahrungcargo > 0 and s.einstellungen.isfeeding != false " +
 								"ORDER BY s.nahrungcargo DESC")
 								.setEntity("owner", this.owner)
 								.setInteger("sys", this.system)
@@ -1079,7 +1079,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		Object versorger = db.createQuery("select sum(s.nahrungcargo) from Ship as s left join s.modules m " +
-								" where (s.shiptype.versorger!=0 or m.versorger!=0)" +
+								" where (s.shiptype.versorger!=false or m.versorger!=false)" +
 								" and s.owner=:user and s.system=:system and s.x=:x and s.y=:y and s.einstellungen.isfeeding != 0")
 						.setInteger("system", this.system)
 						.setInteger("x", this.x)
@@ -1094,7 +1094,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			versorgernahrung = (Long)versorger;
 		}
 
-		List<Base> bases = Common.cast(db.createQuery("from Base where owner=:user and system=:system and x=:x and y=:y and isfeeding=1")
+		List<Base> bases = Common.cast(db.createQuery("from Base where owner=:user and system=:system and x=:x and y=:y and isfeeding=true")
 						.setEntity("user", this.owner)
 						.setInteger("system", this.system)
 						.setInteger("x", this.x)
@@ -1369,6 +1369,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		shipModules.setScanCost(type.getScanCost());
 		shipModules.setMinCrew(type.getMinCrew());
 		shipModules.setVersorger(type.isVersorger());
+		shipModules.setLostInEmpChance(type.getLostInEmpChance());
 	}
 
 	/**
@@ -2342,7 +2343,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 							}
 
 							sectors = db.createQuery("from Sector "+
-									"where system in (:sys,-1) AND x in (-1,:x) and y in (-1,:y) order by system desc")
+									"where loc.system in (:sys,-1) AND loc.x in (-1,:x) and loc.y in (-1,:y) order by loc.system desc")
 									.setInteger("sys", this.system)
 									.setInteger("x", this.x+tmpxoff)
 									.setInteger("y", this.y+tmpyoff)
