@@ -70,14 +70,16 @@
 }
 
 #starmapSectorPopup .bases,
-#starmapSectorPopup .jumpnodes{
+#starmapSectorPopup .jumpnodes,
+#starmapSectorPopup .battles{
 	margin-top:8px;
 	margin-left:0px;
 	padding-left:0px;
 }
 
 #starmapSectorPopup .bases img,
-#starmapSectorPopup .jumpnodes img{
+#starmapSectorPopup .jumpnodes img,
+#starmapSectorPopup .battles img{
 	float:left;
 	margin-right:8px;
 }
@@ -91,8 +93,34 @@
 	width: 50px;
 }
 
+#starmapSectorPopup .battles img{
+	width: 40px;
+	margin-right:10px;
+}
+
+#starmapSectorPopup .battles .details {
+	width:275px;
+	display:inline-block;
+	vertical-align: top;
+}
+
+#starmapSectorPopup .battles .details .side:after {
+	content:"vs";
+	display:block;
+}
+
+#starmapSectorPopup .battles .details .side:last-child:after {
+	display:none;
+}
+
+#starmapSectorPopup .battles .name {
+	display:inline-block;
+	width:100px;
+}
+
 #starmapSectorPopup .bases li,
 #starmapSectorPopup .jumpndoes li,
+#starmapSectorPopup .battles li,
 #starmapSectorPopup .ships {
 	clear:both;
 }
@@ -406,6 +434,10 @@
 	width:25px;
 	height:25px;
 	position:absolute;
+}
+
+.starmap #tileOverlay .battle {
+	background-color: rgba(255,0,0,0.25);
 }
 
 #starmaploader .content {

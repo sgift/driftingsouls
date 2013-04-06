@@ -14,8 +14,10 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -38,6 +40,7 @@ class Starmap
 	private Map<Location, Nebel> nebulaMap;
 	private Map<Location, List<JumpNode>> nodeMap;
 	private Map<Location, List<Base>> baseMap;
+	private Map<Location, List<Battle>> battleMap;
 
 	Starmap(int system)
 	{
@@ -77,7 +80,7 @@ class Starmap
 					.createQuery("from Ship where system=:system")
 					.setInteger("system", this.system)
 					.list());
-			this.shipMap = buildShipMap(ships);
+			this.shipMap = buildLocatableMap(ships);
 		}
 		return Collections.unmodifiableMap(this.shipMap);
 	}
@@ -98,6 +101,23 @@ class Starmap
 		}
 		return Collections.unmodifiableMap(this.baseMap);
 	}
+
+	/**
+	 * @return Die Liste der Schlachten im System, sortiert nach Sektoren.
+	 */
+	Map<Location, List<Battle>> getBattleMap()
+	{
+		if( this.battleMap == null ) {
+			org.hibernate.Session db = ContextMap.getContext().getDB();
+			List<Battle> battles = Common.cast(db
+					.createQuery("from Battle where system=:system")
+					.setInteger("system", this.system)
+					.list());
+
+			this.battleMap = buildLocatableMap(battles);
+		}
+		return Collections.unmodifiableMap(this.battleMap);
+	}
 	
 	/**
 	 * @return Die Liste der Jumpnodes im System, sortiert nach Sektoren.
@@ -106,7 +126,7 @@ class Starmap
 	{
 		if( this.nodeMap == null ) {
 			loadNodes();
-			this.nodeMap = buildNodeMap(nodes);
+			this.nodeMap = buildLocatableMap(nodes);
 		}
 		return Collections.unmodifiableMap(this.nodeMap);
 	}
@@ -139,25 +159,7 @@ class Starmap
 		}
 		return Collections.unmodifiableMap(this.nebulaMap);
 	}
-	
-	protected Map<Location, List<Ship>> buildShipMap(List<Ship> ships)
-	{
-		Map<Location, List<Ship>> shipMap = new HashMap<Location, List<Ship>>();
 
-		for(Ship ship: ships)
-		{
-			Location position = ship.getLocation();
-			if(!shipMap.containsKey(position))
-			{
-				shipMap.put(position, new ArrayList<Ship>());
-			}
-
-			shipMap.get(position).add(ship);
-		}
-
-		return shipMap;
-	}
-	
 	protected Map<Location, Nebel> buildNebulaMap(List<Nebel> nebulas)
 	{
 		Map<Location, Nebel> nebulaMap = new HashMap<Location, Nebel>();
@@ -170,17 +172,17 @@ class Starmap
 		return nebulaMap;
 	}
 	
-	protected Map<Location, List<JumpNode>> buildNodeMap(List<JumpNode> nodes)
+	protected <T extends Locatable> Map<Location, List<T>> buildLocatableMap(List<T> nodes)
 	{
-		Map<Location, List<JumpNode>> nodeMap = new HashMap<Location, List<JumpNode>>();
+		Map<Location, List<T>> nodeMap = new HashMap<Location, List<T>>();
 
-		for(JumpNode node: nodes)
+		for(T node: nodes)
 		{
-			Location position = new Location(node.getSystem(), node.getX(), node.getY());
+			Location position = node.getLocation();
 
 			if(!nodeMap.containsKey(position))
 			{
-				nodeMap.put(position, new ArrayList<JumpNode>());
+				nodeMap.put(position, new ArrayList<T>());
 			}
 
 			nodeMap.get(position).add(node);

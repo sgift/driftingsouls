@@ -207,4 +207,15 @@ public class PublicStarmap
 	{
 		return map.isNebula(location);
 	}
+
+	/**
+	 * Gibt zurueck, ob an der gegebenen Position eine (bekannte/sichtbare)
+	 * Schlacht stattfindet.
+	 * @param loc Die Position
+	 * @return <code>true</code> falls dem so ist
+	 */
+	public boolean isBattleAtLocation(Location loc)
+	{
+		return false;
+	}
 }

@@ -515,13 +515,9 @@ var Starmap = function(jqElement) {
 				}
 
 				if( loc.fg != null ) {
-					overlay += "<img src=\"data/starmap/"+loc.fg;
-					if( loc.scanner != null ) {
-						overlay += "\" alt=\""+loc.x+"/"+loc.y+"\" class=\"showsector\" />";
-					}
-					else {
-						overlay += "\" alt=\""+loc.x+"/"+loc.y+"\" />";
-					}
+					overlay += "<img " +
+						(loc.battle ? "class='battle' " : "")+
+						"src=\"data/starmap/"+loc.fg+"\" alt=\""+loc.x+"/"+loc.y+"\" />";
 				}
 
 				if( loc.fg != null || loc.bg != null ) {

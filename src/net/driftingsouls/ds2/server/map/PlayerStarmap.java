@@ -8,6 +8,7 @@ import java.util.Set;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
@@ -400,5 +401,17 @@ public class PlayerStarmap extends PublicStarmap
 
 		List<JumpNode> nodes = map.getNodeMap().get(position);
 		return nodes != null && !nodes.isEmpty() || this.getShipImage(position) != null;
+	}
+
+	@Override
+	public boolean isBattleAtLocation(Location loc)
+	{
+		if( !this.scannableLocations.containsKey(loc) )
+		{
+			return false;
+		}
+
+		List<Battle> battles = this.map.getBattleMap().get(loc);
+		return battles != null && !battles.isEmpty();
 	}
 }

@@ -2,6 +2,7 @@ package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
@@ -314,13 +315,12 @@ public class MapController extends AngularGenerator
 			@UrlParam(name="ystart",type= UrlParamType.NUMBER),
 			@UrlParam(name="yend",type= UrlParamType.NUMBER)
 	})
-	public void mapAction() throws IOException {
+	public JSONObject mapAction() {
 		JSONObject json = new JSONObject();
 
 		if( !this.showSystem )
 		{
-			getResponse().getWriter().append(json.toString());
-			return;
+			return json;
 		}
 
 		org.hibernate.Session db = getDB();
@@ -439,6 +439,8 @@ public class MapController extends AngularGenerator
 						posObj.accumulate("fg", sectorImage);
 					}
 
+					posObj.accumulate("battle", content.isBattleAtLocation(position));
+
 					if( endTag ) {
 						locationArray.add(posObj);
 					}
@@ -446,10 +448,10 @@ public class MapController extends AngularGenerator
 			}
 			json.accumulate("locations", locationArray);
 
-			getResponse().getWriter().append(json.toString());
-
 			// Das Anzeigen sollte keine DB-Aenderungen verursacht haben
 			db.clear();
+
+			return json;
 		}
 		finally {
 			db.setFlushMode(oldFlushMode);
@@ -551,6 +553,30 @@ public class MapController extends AngularGenerator
 			nebelObj.accumulate("image", nebel.getImage());
 			json.accumulate("nebel", nebelObj);
 		}
+
+		JSONArray battleListObj = new JSONArray();
+		for (Battle battle : field.getBattles())
+		{
+			JSONObject battleObj = new JSONObject();
+			battleObj.accumulate("id", battle.getId());
+			JSONArray sideListObj = new JSONArray();
+
+			for( int i=0; i < 2; i++ )
+			{
+				JSONObject sideObj = new JSONObject();
+				sideObj.accumulate("commander", battle.getCommander(i).toJSON());
+				if( battle.getAlly(i) != 0 )
+				{
+					Ally ally = (Ally)db.get(Ally.class, battle.getAlly(i));
+					sideObj.accumulate("ally", ally.toJSON());
+				}
+				sideListObj.add(sideObj);
+			}
+			battleObj.accumulate("sides", sideListObj);
+
+			battleListObj.add(battleObj);
+		}
+		json.accumulate("battles", battleListObj);
 
 		return json;
 	}

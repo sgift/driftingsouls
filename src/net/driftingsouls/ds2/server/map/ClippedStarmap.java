@@ -128,7 +128,7 @@ public class ClippedStarmap extends Starmap
 				.setInteger("maxy", this.ausschnitt[1]+this.ausschnitt[3])
 				.list());
 
-		return this.buildShipMap(shipList);
+		return this.buildLocatableMap(shipList);
 	}
 
 	private Map<Location, Nebel> buildClippedNebulaMap(User user2)
@@ -162,9 +162,9 @@ public class ClippedStarmap extends Starmap
 		}
 
 		List<Nebel> nebelList = Common.cast(db.createQuery("from Nebel " +
-				"where system=:sys and " +
-				"x between :minx and :maxx and " +
-				"y between :miny and :maxy")
+				"where loc.system=:sys and " +
+				"loc.x between :minx and :maxx and " +
+				"loc.y between :miny and :maxy")
 			.setInteger("sys", this.inner.getSystem())
 			.setInteger("minx", load[0])
 			.setInteger("miny", load[1])

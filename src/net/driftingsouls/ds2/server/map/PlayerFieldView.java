@@ -3,6 +3,7 @@ package net.driftingsouls.ds2.server.map;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.MutableLocation;
 import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
@@ -237,6 +238,12 @@ public class PlayerFieldView implements FieldView
 		}
 
 		return result;
+	}
+
+	@Override
+	public List<Battle> getBattles()
+	{
+		return this.field.getBattles();
 	}
 
 	@Override

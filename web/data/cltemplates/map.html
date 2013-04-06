@@ -43,8 +43,8 @@
 			<ul class='jumpnodes'>
 				<li ng-repeat="jumpnode in sektor.jumpnodes">
 					<img src='./data/interface/jumpnode.svg' />
-					<div>Sprungpunkt</div>
-					<div class='name'>{{jumpnode.name}}<span ng-show="jumpnode.blocked"> - blockiert</span>
+					<div class="name">Sprungpunkt</div>
+					<div class='details'>{{jumpnode.name}}<span ng-show="jumpnode.blocked"> - blockiert</span>
 					</div>
 				</li>
 			</ul>
@@ -56,6 +56,20 @@
 					<div class='name'>{{base.name}}</div>
 					<div class='typ'>{{base.typ}}</div>
 					<div class='owner' ng-bind-html-unsafe="base.username"></div>
+				</li>
+			</ul>
+		</div>
+		<div ui-if="sektor.battles.length>0">
+			<ul class='battles'>
+				<li ng-repeat="battle in sektor.battles">
+					<img src='./data/interface/battle.svg' />
+					<div class="name">Schlacht</div>
+					<div class='details'>
+						<div ng-repeat="side in battle.sides" class="side">
+							<a ui-if="side.ally" href="ds?module=allylist&action=details&details={{side.ally.id}}" ng-bind-html-unsafe="side.ally.name" />
+							<a ui-if="!side.ally" href="ds?module=userprofile&action=default&user={{side.commander.id}}" ng-bind-html-unsafe="side.commander.name" />
+						</div>
+					</div>
 				</li>
 			</ul>
 		</div>

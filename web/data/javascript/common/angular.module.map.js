@@ -81,6 +81,7 @@ angular.module('ds.map', ['ds.service.ds'])
 					sektor.nebel = result.nebel;
 					sektor.jumpnodes = result.jumpnodes;
 					sektor.bases = result.bases;
+					sektor.battles = result.battles;
 					sektor.users = result.users;
 					$.each(sektor.users, function()
 					{

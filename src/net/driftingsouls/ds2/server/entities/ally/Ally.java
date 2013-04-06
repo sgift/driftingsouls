@@ -28,7 +28,10 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.JSONSupport;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
+import net.sf.json.JSON;
+import net.sf.json.JSONObject;
 import org.hibernate.Query;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.ForeignKey;
@@ -61,7 +64,7 @@ import java.util.TreeSet;
 @Entity
 @Table(name="ally")
 @BatchSize(size=50)
-public class Ally {
+public class Ally implements JSONSupport {
 	@Id	@GeneratedValue
 	private int id;
 	@Lob
@@ -628,5 +631,16 @@ public class Ally {
 		}
 
 		return Medals.get().rang(rangNr).getName();
+	}
+
+	@Override
+	public JSON toJSON()
+	{
+		JSONObject result = new JSONObject();
+		result.accumulate("id", this.getId());
+		result.accumulate("name", Common._title(this.getName()));
+		result.accumulate("plainname", this.getPlainname());
+
+		return result;
 	}
 }

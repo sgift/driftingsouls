@@ -2,6 +2,7 @@ package net.driftingsouls.ds2.server.map;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.User;
@@ -153,5 +154,12 @@ public class AdminStarmap extends PublicStarmap
 	{
 		List<Base> bases = map.getBaseMap().get(position);
 		return bases != null && !bases.isEmpty() || this.getShipImage(position) != null;
+	}
+
+	@Override
+	public boolean isBattleAtLocation(Location loc)
+	{
+		List<Battle> battles = this.map.getBattleMap().get(loc);
+		return battles != null && !battles.isEmpty();
 	}
 }

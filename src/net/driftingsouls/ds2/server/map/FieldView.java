@@ -1,6 +1,7 @@
 package net.driftingsouls.ds2.server.map;
 
 import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
@@ -38,4 +39,10 @@ public interface FieldView
 	 * @return Der Nebel oder <code>null</code>
 	 */
 	Nebel getNebel();
+
+	/**
+	 * Gibt alle sichtbaren Schlachten zurueck.
+	 * @return Die Schlachten
+	 */
+	List<Battle> getBattles();
 }
