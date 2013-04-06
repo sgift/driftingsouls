@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="238.3894"
+   height="278.32587"
+   id="svg3799"
+   version="1.1"
+   inkscape:version="0.48.3.1 r9886"
+   sodipodi:docname="battle.svg">
+  <defs
+     id="defs3801" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.35"
+     inkscape:cx="119.19471"
+     inkscape:cy="139.16293"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:window-width="932"
+     inkscape:window-height="441"
+     inkscape:window-x="346"
+     inkscape:window-y="311"
+     inkscape:window-maximized="0" />
+  <metadata
+     id="metadata3804">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+        <dc:date>06.04.2013</dc:date>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>Christopher Jung (bKtHeG)</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:rights>
+          <cc:Agent>
+            <dc:title>CC-BY 3.0</dc:title>
+          </cc:Agent>
+        </dc:rights>
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by/3.0/" />
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/by/3.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Ebene 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-230.80529,-393.19925)">
+    <path
+       style="fill:#ff0000;fill-opacity:1;stroke:none"
+       d="m 242.32692,393.19925 150.13189,172.46116 45.44481,0.97617 -25.65469,22.45153 56.94577,65.97231 -19.44299,16.46469 -8.12559,-9.41302 -48.81666,-56.55128 -26.21973,22.63227 6.41984,-45.51077 -129.29952,-148.9975 z"
+       id="path3011"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccccccccc" />
+    <path
+       sodipodi:nodetypes="cccccccccccc"
+       inkscape:connector-curvature="0"
+       id="path3783"
+       d="m 457.67307,393.19925 -150.13189,172.46116 -45.44481,0.97617 25.65469,22.45153 -56.94577,65.97231 19.44299,16.46469 8.12559,-9.41302 48.81666,-56.55128 26.21973,22.63227 -6.41984,-45.51077 129.29952,-148.9975 z"
+       style="fill:#ff0000;fill-opacity:1;stroke:none" />
+  </g>
+</svg>
