@@ -43,15 +43,8 @@
 */
 
 #shiptypeBox {
-	width:700px;
-	position:fixed;
-	top:10px;
-	margin-left:auto;
-	margin-right:auto;
-	z-index:95;
-	left:0px;
-	right:0px;
 	text-align:center;
+	width:700px;
 }
 
 #shiptypeBox .content {

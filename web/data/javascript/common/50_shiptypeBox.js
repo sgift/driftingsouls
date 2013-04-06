@@ -6,14 +6,20 @@ var ShiptypeBox = {
 		var box = $('#shiptypeBox');
 		if( box.size() == 0 )
 		{
-			$("body").append("<div id='shiptypeBox' class='gfxbox'><div class='content'><div>Lade...</div></div>"+
-					"<button class='closebox'>schließen</button></div>");
+			$("body").append("<div id='shiptypeBox' class='gfxbox'><div class='content'><div>Lade...</div></div></div>");
 			box = $('#shiptypeBox');
-			var self = this;
-			box.find('button.closebox').bind('click', function() {self.hide()});
 		}
 
-		box.css('display', 'block');
+		box.dialog({
+			title:"Schiffstyp",
+			close: function() {
+				var box = $('#shiptypeBox');
+				var content = box.find('.content');
+				content.children().remove();
+				content.append("<div>Lade...</div>");
+			},
+			width:700
+		});
 
 		var url = DS.getUrl();
 		var params = {
@@ -40,10 +46,6 @@ var ShiptypeBox = {
 	hide : function()
 	{
 		var box = $('#shiptypeBox');
-
-		box.css('display', 'none');
-		var content = box.find('.content');
-		content.children().remove();
-		content.append("<div>Lade...</div>");
+		box.dialog('close');
 	}
 };
