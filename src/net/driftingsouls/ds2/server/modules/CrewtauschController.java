@@ -210,7 +210,15 @@ public class CrewtauschController extends TemplateGenerator {
 			addError("Das angegebene Schiff existiert nicht oder geh&ouml;rt ihnen nicht", Common.buildUrl("default", "module", "schiffe") );
 			
 			return false;
-		}	
+		}
+
+		if( ship.getBattle() != null ) {
+			addError("Ihr Schiff befindet sich in einer Schlacht. Diese verlangt die volle Aufmerksamkeit der Crew weshalb ein Crewaustausch " +
+					"momentan nicht durchgeführt werden kann.",
+					Common.buildUrl("default", "module", "schiff", "ship", shipID) );
+
+			return false;
+		}
 		
 		Target datat = null;
 		int maxcrewf = 0;
@@ -221,6 +229,14 @@ public class CrewtauschController extends TemplateGenerator {
 			if( (aship == null) || (aship.getId() < 0) || !ship.getLocation().sameSector(0, aship, 0) ) {
 				addError("Die beiden Schiffe befinden sich nicht im selben Sektor", Common.buildUrl("default", "module", "schiff", "ship", shipID) );
 				
+				return false;
+			}
+
+			if( aship.getBattle() != null ) {
+				addError("Das Ziel befindet sich in einer Schlacht. Ihre Crew weigert sich " +
+						"deshalb in die Shuttles einzusteigen und einen Crewaustausch durchzuführen.",
+						Common.buildUrl("default", "module", "schiff", "ship", shipID) );
+
 				return false;
 			}
 
