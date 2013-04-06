@@ -42,12 +42,15 @@ import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipModules;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
+import net.driftingsouls.ds2.server.tick.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.hibernate.CacheMode;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
@@ -69,6 +72,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Fueht spezielle Admin-Kommandos aus.
@@ -1239,34 +1243,40 @@ public class AdminCommands {
 	}
 
 	protected static class RecalcShipModulesCommand implements Command {
+		private static final Logger LOG = LogManager.getLogger(RecalcShipModulesCommand.class);
+
 		@Override
 		public String execute(Context context, String[] command) {
-			String output = "";
+			String output;
 			org.hibernate.Session db = context.getDB();
 
-			ScrollableResults ships = db.createQuery("from Ship as s left join fetch s.modules " +
-													 "where s.id>0 order by s.owner.id,s.docked,s.shiptype.id asc")
-													 .setCacheMode(CacheMode.IGNORE)
-													 .scroll(ScrollMode.FORWARD_ONLY);
-
-			int count = 0;
+			final AtomicInteger count = new AtomicInteger(0);
 			long start = System.currentTimeMillis();
-			while(ships.next())
-			{
-				Ship ship = (Ship) ships.get(0);
-				ship.recalculateModules();
-				count++;
 
-				if(count % 20 == 0)
+			db.getTransaction().commit();
+
+			List<Integer> ships = db.createQuery("select s.id from Ship as s join s.modules " +
+													 "where s.id>0 order by s.owner.id,s.docked,s.shiptype.id asc")
+													 .list();
+
+			new EvictableUnitOfWork<Integer>("AdminCommand: RecalculateShipModules") {
+
+				@Override
+				public void doWork(Integer object) throws Exception
 				{
-					db.flush();
-					HibernateUtil.getSessionFactory().getCurrentSession().evict(Ship.class);
-					HibernateUtil.getSessionFactory().getCurrentSession().evict(ShipModules.class);
-					HibernateUtil.getSessionFactory().getCurrentSession().evict(Offizier.class);
+					Ship ship = (Ship)getDB().get(Ship.class, object);
+					ship.recalculateModules();
+					count.incrementAndGet();
+
+					if( count.get() % 1000 == 0 ) {
+						LOG.info("Schiffe berechnet: "+count.get());
+					}
 				}
 			}
+			.setFlushSize(20)
+			.executeFor(ships);
 
-			output = "Es wurden "+count+" Schiffe in "+ (System.currentTimeMillis() - start)/1000d +" Sekunden neu berechnet.";
+			output = "Es wurden "+count.get()+" Schiffe in "+ (System.currentTimeMillis() - start)/1000d +" Sekunden neu berechnet.";
 			return output;
 		}
 
