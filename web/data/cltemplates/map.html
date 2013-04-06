@@ -53,7 +53,10 @@
 			<ul class='bases'>
 				<li ng-repeat="base in sektor.bases">
 					<img ng-src='./data/starmap/kolonie{{base.klasse}}_srs.png' />
-					<div class='name'>{{base.name}}</div>
+					<div class='name'>
+						<a ui-if="base.eigene" href="./ds?module=base&action=default&col={{base.id}}">{{base.name}}</a>
+						<span ui-if="!base.eigene">{{base.name}}</span>
+					</div>
 					<div class='typ'>{{base.typ}}</div>
 					<div class='owner' ng-bind-html-unsafe="base.username"></div>
 				</li>
@@ -66,8 +69,8 @@
 					<div class="name">Schlacht</div>
 					<div class='details'>
 						<div ng-repeat="side in battle.sides" class="side">
-							<a ui-if="side.ally" href="ds?module=allylist&action=details&details={{side.ally.id}}" ng-bind-html-unsafe="side.ally.name" />
-							<a ui-if="!side.ally" href="ds?module=userprofile&action=default&user={{side.commander.id}}" ng-bind-html-unsafe="side.commander.name" />
+							<a ui-if="side.ally" href="ds?module=allylist&action=details&details={{side.ally.id}}" ng-bind-html-unsafe="side.ally.name"></a>
+							<a ui-if="!side.ally" href="ds?module=userprofile&action=default&user={{side.commander.id}}" ng-bind-html-unsafe="side.commander.name"></a>
 						</div>
 					</div>
 				</li>
