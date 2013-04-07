@@ -37,29 +37,12 @@
 	text-align: center;
 }
 
-#starmapSectorPopup .toggle:before {
-	content: '+';
-	width:8px;
-	display:inline-block;
-}
-
-#starmapSectorPopup .toggle.expanded:before {
-	content: '-';
-}
-
-#starmapSectorPopup .toggle + .shipclasses {
-	display:none;
-}
-
-#starmapSectorPopup .toggle.expanded + .shipclasses {
-	display:block;
-}
-
 #starmapSectorPopup ul
 {
 	list-style-type: none;
-	margin-top:3px;
-	padding-left:13px;
+	margin:3px 0px 7px 3px;
+	padding-left:8px;
+	padding-bottom:5px;
 }
 
 #starmapSectorPopup .nebel {
@@ -126,6 +109,26 @@
 	clear:both;
 }
 
+#starmapSectorPopup .toggle:before {
+	content: '+';
+	width:8px;
+	display:inline-block;
+}
+
+#starmapSectorPopup .toggle.expanded:before {
+	content: '-';
+}
+
+#starmapSectorPopup .toggle + .shipclasses {
+	display:none;
+}
+
+#starmapSectorPopup .toggle.expanded + .shipclasses {
+	display:block;
+	border: dashed #c7c7c7;
+	border-width: 0px 0px 0px 1px;
+}
+
 #starmapSectorPopup .ships {
 	padding-top:8px;
 }
@@ -160,14 +163,15 @@
 #starmapSectorPopup .ships table {
 	width:98%;
 	margin-left:2%;
+	font-size:12px;
 }
 
 #starmapSectorPopup .ships table .id {
-	width:70px;
+	width:15%;
 }
 
 #starmapSectorPopup .ships table .fleet {
-	width:200px;
+	width:40%;
 }
 
 #starmapSystemOverviewPopup .graph {

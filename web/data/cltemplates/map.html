@@ -92,19 +92,16 @@
 						</div>
 						<table>
 							<tbody>
-								<col class="id" />
-								<col class="name" />
-								<col class="fleet" />
 								<tr ng-repeat="ship in shiptype.ships">
-									<td>
+									<td class="id">
 										<a ui-if="user.eigener" href="./ds?module=schiff&action=default&ship={{ship.id}}">{{ship.id}}</a>
 										<span ui-if="!user.eigener">{{ship.id}}</span>
 									</td>
-									<td>
+									<td class="name">
 										<a ui-if="user.eigener" href="./ds?module=schiff&action=default&ship={{ship.id}}">{{ship.name}}</a>
 										<span ui-if="!user.eigener">{{ship.name}}</span>
 									</td>
-									<td>
+									<td class="fleet">
 										<span ui-if="ship.fleet">
 											{{ship.fleet.name}}
 										</span>
