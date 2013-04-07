@@ -7,7 +7,7 @@
 	position:absolute;
 	min-width:100px;
 	max-width:300px;
-	z-index:1000;
+	z-index:10000;
 
 	padding:4px 3px 4px 3px;
 
