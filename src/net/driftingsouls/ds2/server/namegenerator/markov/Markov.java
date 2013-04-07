@@ -32,6 +32,8 @@ import java.io.ObjectInputStream;
 public class Markov
 {
 	private float[][][] table = new float[32][32][32];
+	private int a;
+	private int b;
 
 	/**
 	 * Konstruktor.
@@ -66,16 +68,15 @@ public class Markov
 	 * @param count Die Anzahl
 	 * @return Die generierten Namen
 	 */
-	public String[] generate(int count)
+	public synchronized String[] generate(int count)
 	{
 		String[] result = new String[count];
 		StringBuilder word = new StringBuilder();
 
-		int a = 0, b = 0, c = 0;
 		while( count > 0 )
 		{
 			float random = (float)Math.random();
-			c = 0;
+			int c = 0;
 			int tableIndex = 0;
 			float probability = this.table[a][b][tableIndex];
 			while( c < 32 && probability < random )

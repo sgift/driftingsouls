@@ -20,12 +20,14 @@ package net.driftingsouls.ds2.server.namegenerator.markov;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 
 /**
  * <p>Generator fuer Markov-Ketten aus einer Menge von Namen aus einer Eingabedatei.
@@ -52,43 +54,42 @@ public class MarkovTrainer
 		if( this.probabilitiesCalculated ) {
 			throw new IllegalStateException("Die Markov-Tabelle wurde bereits berechnet.");
 		}
-		
+
 		for( int i = 0; i < name.length(); ++i )
 		{
 			nextChar(name.charAt(i));
-			
-			if( c == '-' ) {
-				c = 27;
-			}
-			else if( c == ' ' ) {
-				c = 28;
-			}
-			else if( c == '\'' ) {
-				c = 29;
-			}
-			// Strenge Limitierung auf a-z und A-Z
-			else if( Character.toLowerCase(c) < 'a' || Character.toLowerCase(c) > 'z' )
-			{
-				System.err.println("Unkown character '"+(char)c+"' in "+name);
-				c = 31;
-			}
-			else
-			{
-				c = c & 31;
-			}
-			table[a][b][c] += 1;
-			total += 1;
 		}
 
 		nextChar(0);
-		table[a][b][c] += 1;
-		total += 1;
 	}
 	
 	private void nextChar(int newC) {
 		a = b; 
 		b = c; 
 		c = newC;
+
+		if( c == '-' ) {
+			c = 27;
+		}
+		else if( c == ' ' ) {
+			c = 28;
+		}
+		else if( c == '\'' ) {
+			c = 29;
+		}
+		// Strenge Limitierung auf a-z und A-Z
+		else if( c != 0 && (Character.toLowerCase(c) < 'a' || Character.toLowerCase(c) > 'z') )
+		{
+			System.err.println("Unkown character '"+(char)c+"' (c="+c+")");
+			c = 31;
+		}
+		else if( c != 0 )
+		{
+			c = c & 31;
+		}
+
+		table[a][b][c] += 1;
+		total += 1;
 	}
 
 	private void calculateProbabilities()
