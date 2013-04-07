@@ -54,6 +54,11 @@ angular.module('ds.map', ['ds.service.ds'])
 								adminSicht : adminSicht
 							}});
 						});
+					},
+					loadCallback: function() {
+						if( x > 1 || y > 1 ) {
+							starmap.highlight(x,y,"gotoLocation");
+						}
 					}
 				});
 			},
@@ -120,6 +125,8 @@ angular.module('ds.map', ['ds.service.ds'])
 				y = $scope.y;
 			}
 			StarmapService.get().gotoLocation(x,y);
+			StarmapService.get().unhighlightGroup('gotoLocation');
+			StarmapService.get().highlight(x,y,'gotoLocation');
 		}
 
 		function refresh() {

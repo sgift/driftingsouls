@@ -31,6 +31,7 @@ var Starmap = function(jqElement) {
 
 		/**
 		 * Gibt die Breite des dargestellten Bereichs der Sternenkarte zurueck.
+		 * @name StarmapScreen.width
 		 * @return {Number} Die Breite in px
 		 */
 		this.width = function() {
@@ -38,6 +39,7 @@ var Starmap = function(jqElement) {
 		};
 		/**
 		 * Gibt die Hoehe des dargestellten Bereichs der Sternenkarte zurueck.
+		 * @name StarmapScreen.height
 		 * @return {Number} Die Hoehe in px
 		 */
 		this.height = function() {
@@ -46,6 +48,7 @@ var Starmap = function(jqElement) {
 		/**
 		 * Gibt die Breite des dargestellten Bereichs der Sternenkarte in Sektoren zurueck.
 		 * Teilweise dargestellte Sektoren zaehlen vollstaendig mit.
+		 * @name StarmapScreen.widthInSectors
 		 * @return {Number} Die Anzahl der Sektoren
 		 */
 		this.widthInSectors = function() {
@@ -54,6 +57,7 @@ var Starmap = function(jqElement) {
 		/**
 		 * Gibt die Hoehe des dargestellten Bereichs der Sternenkarte in Sektoren zurueck.
 		 * Teilweise dargestellte Sektoren zaehlen vollstaendig mit.
+		 * @name StarmapScreen.heightInSectors
 		 * @return {Number} Die Anzahl der Sektoren
 		 */
 		this.heightInSectors = function() {
@@ -64,6 +68,7 @@ var Starmap = function(jqElement) {
 		 * Sektoren zurueck. Dazu wird ein ueber offset sowie Start- und Zielsektor (x) zu ueberpruefender
 		 * Bereich gegen die tatsaechliche Breite der Darstellung geprueft. Es wird nicht ueberprueft
 		 * ob durch das offset selbst eine Luecke in der Darstellung entsteht (offset > 0).
+		 * @name StarmapScreen.widthGap
 		 * @param {Number} offset Das zu verwendende x-Offset (< 0)
 		 * @param {Number} minx Der Startsektor (x) des Bereichs
 		 * @param {Number} maxx Der Endsektor (x) des Bereichs
@@ -81,6 +86,7 @@ var Starmap = function(jqElement) {
 		 * Sektoren zurueck. Dazu wird ein ueber offset sowie Start- und Zielsektor (y) zu ueberpruefender
 		 * Bereich gegen die tatsaechliche Hoehe der Darstellung geprueft. Es wird nicht ueberprueft
 		 * ob durch das offset selbst eine Luecke in der Darstellung entsteht (offset > 0).
+		 * @name StarmapScreen.heightGap
 		 * @param {Number} offset Das zu verwendende y-Offset (< 0)
 		 * @param {Number} miny Der Startsektor (y) des Bereichs
 		 * @param {Number} maxy Der Endsektor (y) des Bereichs
@@ -98,6 +104,7 @@ var Starmap = function(jqElement) {
 		 * Aktualisiert die Breiten- und Hoeheninformationen des Anzeigebereichs.
 		 * Diese Methode ist aufzurufen wenn sich die Groesse des Anzeigebereichs
 		 * aendert.
+		 * @name StarmapScreen.update
 		 */
 		this.update = function() {
 			var el = $(__selector);
@@ -110,6 +117,7 @@ var Starmap = function(jqElement) {
 	 * Das Aktionsoverlay der Sternenkarte. Nimmt Aktionen (Clicks, Drags) usw
 	 * entgegen und berechnet entsprechende Events fuer die Sternenkarte.
 	 * Die Eventhandler muessen durch die Sternenkarte ueberschrieben werden.
+	 * @constructor
 	 */
 	var ActionOverlay = function(options){
 		this.__lastDrag = [];
@@ -227,6 +235,7 @@ var Starmap = function(jqElement) {
 	 * eine Achse mit x-Koordinaten des momentanen Ausschnitts und rechts
 	 * und links eine Achse mit y-Koordinaten des momentanen Ausschnitts.
 	 * Das Rendering erfolgt allein clientseitig.
+	 * @constructor
 	 */
 	var Legend = function(screen, mapSize) {
 		this.__screen = screen;
@@ -425,65 +434,59 @@ var Starmap = function(jqElement) {
 	/**
 	 * Das Overlay der Sternenkarte beinhaltet alle scanbaren Sektoren (LRS).
 	 * Zum fuellen des Overlays erfolgen bei Bedarf AJAX-Requests.
+	 * @constructor
 	 * @param {Object} data Die Serverantwort
 	 * @param {StarmapScreen} screen Die Informationen zum Darstellungsbereich
 	 * @param {Object} request Die fuer Requests zu verwendenden Daten
 	 */
 	var Overlay = function(data, screen, request) {
-		this.__currentShiftOffset = [0,0];
-		this.__currentSize = data.size;
-		this.__screen = screen;
-		this.__reloadTriggered = false;
-		this.__currentSystem = data.system;
-		this.__currentLocations = data.locations;
-		this.__request = request;
-		if( typeof this.__request === 'undefined' ) {
-			this.__request = {};
+		var __currentShiftOffset = [0,0];
+		var __currentSize = data.size;
+		var __screen = screen;
+		var __reloadTriggered = false;
+		var __currentSystem = data.system;
+		var __currentLocations = data.locations;
+		var __request = request;
+		if( typeof __request === 'undefined' ) {
+			__request = {};
 		}
 
-		this.__reloadOverlay = function()
+		var __reloadOverlay = function()
 		{
 			var realSize = {
-				minx:this.__currentSize.minx,
-				maxx:this.__currentSize.maxx,
-				miny:this.__currentSize.miny,
-				maxy:this.__currentSize.maxy};
+				minx:__currentSize.minx,
+				maxx:__currentSize.maxx,
+				miny:__currentSize.miny,
+				maxy:__currentSize.maxy};
 
 
 			// Fehlende Bereiche identifieren und Ausschnitt vergroessern
 			var mod = false;
-			if( this.__currentShiftOffset[0] >= SECTOR_IMAGE_SIZE ) {
-				var cnt = Math.ceil(this.__currentShiftOffset[0] / SECTOR_IMAGE_SIZE);
-				realSize.minx -= cnt;
-				realSize.maxx = realSize.minx + this.__screen.widthInSectors() + 1;
+			if( __currentShiftOffset[0] >= SECTOR_IMAGE_SIZE ) {
+				realSize.minx -= Math.ceil(__currentShiftOffset[0] / SECTOR_IMAGE_SIZE);
+				realSize.maxx = realSize.minx + __screen.widthInSectors() + 1;
 				mod = true;
 			}
-			else if( this.__screen.widthGap(this.__currentShiftOffset[0], this.__currentSize.minx, this.__currentSize.maxx) > 0 ) {
-				var gap = this.__screen.widthGap(this.__currentShiftOffset[0], this.__currentSize.minx, this.__currentSize.maxx);
-				realSize.maxx += gap;
-				var newmin = Math.max(1,realSize.maxx - this.__screen.widthInSectors() - 1);
-				realSize.minx = newmin;
+			else if( __screen.widthGap(__currentShiftOffset[0], __currentSize.minx, __currentSize.maxx) > 0 ) {
+				realSize.maxx += __screen.widthGap(__currentShiftOffset[0], __currentSize.minx, __currentSize.maxx);
+				realSize.minx = Math.max(1, realSize.maxx - __screen.widthInSectors() - 1);
 				mod = true;
 			}
 
-			if( this.__currentShiftOffset[1] >= SECTOR_IMAGE_SIZE ) {
-				var cnt = Math.ceil(this.__currentShiftOffset[1] / SECTOR_IMAGE_SIZE);
-				realSize.miny -= cnt;
-				realSize.maxy = realSize.miny + this.__screen.heightInSectors() + 1;
+			if( __currentShiftOffset[1] >= SECTOR_IMAGE_SIZE ) {
+				realSize.miny -= Math.ceil(__currentShiftOffset[1] / SECTOR_IMAGE_SIZE);
+				realSize.maxy = realSize.miny + __screen.heightInSectors() + 1;
 				mod = true;
 			}
-			else if( this.__screen.heightGap(this.__currentShiftOffset[1], this.__currentSize.miny, this.__currentSize.maxy) > 0 ) {
-				var gap = this.__screen.heightGap(this.__currentShiftOffset[1], this.__currentSize.miny, this.__currentSize.maxy);
-				realSize.maxy += gap;
-				var newmin = Math.max(1,realSize.maxy - this.__screen.heightInSectors() - 1);
-				realSize.miny = newmin;
+			else if( __screen.heightGap(__currentShiftOffset[1], __currentSize.miny, __currentSize.maxy) > 0 ) {
+				realSize.maxy += __screen.heightGap(__currentShiftOffset[1], __currentSize.miny, __currentSize.maxy);
+				realSize.miny = Math.max(1, realSize.maxy - __screen.heightInSectors() - 1);
 				mod = true;
 			}
 
 			if( mod ) {
-				var self = this;
-				var request = this.__request;
-				request.sys = this.__currentSystem.id;
+				var request = __request;
+				request.sys = __currentSystem.id;
 				request.xstart = realSize.minx;
 				request.xend = realSize.maxx;
 				request.ystart = realSize.miny;
@@ -494,32 +497,47 @@ var Starmap = function(jqElement) {
 				$.getJSON(DS.getUrl(),
 					request,
 					function(data) {
-						self.__updateShiftOffset(data.size);
-						self.__currentLocations = data.locations;
-						self.__currentSize = data.size;
-						var overlay = self.__renderOverlay(data);
-						$('#tileOverlay').remove();
+						__updateShiftOffset(data.size);
+						__currentLocations = data.locations;
+						__currentSize = data.size;
+						var overlay = $(__renderOverlay(data));
+						var oldOverlay = $('#tileOverlay');
+
+						oldOverlay.find('.highlight').each(function() {
+							var highlight = $(this);
+							var sectorX = parseInt(highlight.attr('data-highlight-x'));
+							var sectorY = parseInt(highlight.attr('data-highlight-y'));
+							var posx = (sectorX-__currentSize.minx)*SECTOR_IMAGE_SIZE;
+							var posy = (sectorY-__currentSize.miny)*SECTOR_IMAGE_SIZE;
+							highlight.css({
+								left:posx+"px",
+								top:posy+"px"
+							});
+
+							overlay.append(highlight);
+						});
+						oldOverlay.remove();
 						$('#mapview').append(overlay);
-						self.__reloadTriggered = false;
+						__reloadTriggered = false;
 					});
 			}
 
-			this.__reloadTriggered = false;
+			__reloadTriggered = false;
 		};
 
-		this.__updateShiftOffset = function(newSize) {
-			this.__currentShiftOffset[0] -= (this.__currentSize.minx-newSize.minx)*SECTOR_IMAGE_SIZE;
-			this.__currentShiftOffset[1] -= (this.__currentSize.miny-newSize.miny)*SECTOR_IMAGE_SIZE;
+		var __updateShiftOffset = function(newSize) {
+			__currentShiftOffset[0] -= (__currentSize.minx-newSize.minx)*SECTOR_IMAGE_SIZE;
+			__currentShiftOffset[1] -= (__currentSize.miny-newSize.miny)*SECTOR_IMAGE_SIZE;
 		};
 
-		this.__renderOverlay = function(data)
+		var __renderOverlay = function(data)
 		{
-			var overlay = "<div id='tileOverlay' style='left:"+(this.__currentShiftOffset[0])+"px;top:"+(this.__currentShiftOffset[1])+"px'>";
+			var overlay = "<div id='tileOverlay' style='left:"+(__currentShiftOffset[0])+"px;top:"+(__currentShiftOffset[1])+"px'>";
 			for( var i=0; i < data.locations.length; i++ ) {
 				var loc = data.locations[i];
 
-				var posx = (loc.x-this.__currentSize.minx)*SECTOR_IMAGE_SIZE;
-				var posy = (loc.y-this.__currentSize.miny)*SECTOR_IMAGE_SIZE;
+				var posx = (loc.x-__currentSize.minx)*SECTOR_IMAGE_SIZE;
+				var posy = (loc.y-__currentSize.miny)*SECTOR_IMAGE_SIZE;
 
 				if( loc.bg != null ) {
 					if( typeof loc.bg === 'object' ) {
@@ -550,14 +568,15 @@ var Starmap = function(jqElement) {
 
 		/**
 		 * Gibt die zum angegebenen Sektor vorhandenen Informationen zurueck.
+		 * @name Overlay.getSectorInformation
 		 * @param {Number} sectorX Die x-Koordinate des Sektors
 		 * @param {Number} sectorY Die Y-Koordinate des Sektors
 		 * @return {Object} Die Sektorinformationen oder null
 		 */
 		this.getSectorInformation = function(sectorX,sectorY) {
-			for( var i=0; i < this.__currentLocations.length; i++ )
+			for( var i=0; i < __currentLocations.length; i++ )
 			{
-				var loc = this.__currentLocations[i];
+				var loc = __currentLocations[i];
 				if( loc.x == sectorX && loc.y == sectorY )
 				{
 					return loc;
@@ -566,22 +585,76 @@ var Starmap = function(jqElement) {
 			return null;
 		};
 
-		this.prepareShift = function(moveX, moveY) {
-			this.__currentShiftOffset = [this.__currentShiftOffset[0]-moveX, this.__currentShiftOffset[1]-moveY];
+		/**
+		 * Highlightet einen Sektor.
+		 * @name Overlay.highlight
+		 * @param sectorX {number} Die x-Koordinate des Sektors
+		 * @param sectorY {number} Die y-Koordinate des Sektors
+		 * @param highlightGroup {string=} Die Gruppe zu der das highlight gehört.
+		 * Falls nicht angegeben gehoert es zur Defaultgruppe.
+		 * @param cssClass {string=} Zusätzliche an das Highlight zu schreibende CSS-Klassen
+		 */
+		this.highlight = function(sectorX, sectorY, highlightGroup, cssClass) {
+			if( highlightGroup == null ) {
+				highlightGroup = "DEFAULT";
+			}
+			var posx = (sectorX-__currentSize.minx)*SECTOR_IMAGE_SIZE;
+			var posy = (sectorY-__currentSize.miny)*SECTOR_IMAGE_SIZE;
 
-			if( !this.__reloadTriggered ) {
-				this.__reloadTriggered = true;
-				var self = this;
-				setTimeout(function() {self.__reloadOverlay();}, 500);
+			var highlight = "<div style=\"top:"+posy+"px;left:"+posx+"px\" class='highlight "+cssClass+"' " +
+				"data-highlight-group='"+highlightGroup+"' data-highlight-x='"+sectorX+"' data-highlight-y='"+sectorY+"' />";
+			$('#tileOverlay').append(highlight)
+		}
+
+		/**
+		 * Entfernt das Highlight einer bestimmten Gruppe von einem Sektor.
+		 * @name Overlay.unhighlight
+		 * @param sectorX {number} Die x-Koordinate des Sektors
+		 * @param sectorY {number} Die y-Koordinate des Sektors
+		 * @param highlightGroup {string=} Die Highlight-Gruppe.
+		 * Falls nicht angegeben wird die Defaultgruppe genommen.
+		 */
+		this.unhighlight = function(sectorX, sectorY, highlightGroup) {
+			if( highlightGroup == null ) {
+				highlightGroup = "DEFAULT";
+			}
+			$('#tileOverlay').find('.highlight[data-highlight-x='+sectorX+'][data-highlight-y='+sectorY+'][data-highlight-group='+highlightGroup+']').remove();
+		}
+
+		/**
+		 * Entfernt alle Highlights die zu einer Gruppe gehoeren.
+		 * @name Overlay.unhighlightGroup
+		 * @param highlightGroup {string=} Die Highlight-Gruppe.
+		 * Falls nicht angegeben wird die Defaultgruppe genommen.
+		 */
+		this.unhighlightGroup = function(highlightGroup) {
+			if( highlightGroup == null ) {
+				highlightGroup = "DEFAULT";
+			}
+			$('#tileOverlay').find('.highlight[data-highlight-group='+highlightGroup+']').remove();
+		}
+
+		/**
+		 * Bereitet eine Verschiebeoperation vor.
+		 * @name Overlay.prepareShift
+		 * @param moveX {number} Der Offset in X-Richtung in Pixel
+		 * @param moveY {number} Der Offset in Y-Richtung in Pixel
+		 */
+		this.prepareShift = function(moveX, moveY) {
+			__currentShiftOffset = [__currentShiftOffset[0]-moveX, __currentShiftOffset[1]-moveY];
+
+			if( !__reloadTriggered ) {
+				__reloadTriggered = true;
+				setTimeout(function() {__reloadOverlay();}, 500);
 			}
 		};
 
 		this.storeShift = function(cl) {
 			var overlay = cl.find('#tileOverlay');
-			overlay.css({'left' : (this.__currentShiftOffset[0])+'px', 'top' : (this.__currentShiftOffset[1])+'px'});
+			overlay.css({'left' : (__currentShiftOffset[0])+'px', 'top' : (__currentShiftOffset[1])+'px'});
 		};
 
-		var content = this.__renderOverlay(data);
+		var content = __renderOverlay(data);
 		$('#mapview').append(content);
 	};
 
@@ -611,6 +684,7 @@ var Starmap = function(jqElement) {
 
 		/**
 		 * Zeigt das Loader-Popup an.
+		 * @name LoaderPopup.show
 		 */
 		this.show = function() {
 			$('#starmaploader .content').html("Verbinde mit interplanetarem Überwachungsnetzwerk...<br /><img src='./data/interface/ajax-loader.gif' alt='Lade' />");
@@ -618,6 +692,7 @@ var Starmap = function(jqElement) {
 		};
 		/**
 		 * Verbirgt das Loader-Popup wieder.
+		 * @name LoaderPopup.hide
 		 */
 		this.hide = function() {
 			$('#starmaploader').dsBox('hide')
@@ -629,8 +704,20 @@ var Starmap = function(jqElement) {
 	var __screen = null;
 	var __currentShiftOffset = [0,0];
 	var __actionOverlay = null;
+	/**
+	 * @type {Legend}
+	 * @private
+	 */
 	var __starmapLegend = null;
+	/**
+	 * @type {Tiles}
+	 * @private
+	 */
 	var __starmapTiles = null;
+	/**
+	 * @type {Overlay}
+	 * @private
+	 */
 	var __starmapOverlay = null;
 	var __request = null;
 	var __ready = false;
@@ -706,6 +793,12 @@ var Starmap = function(jqElement) {
 		return false;
 	}
 
+	/**
+	 * Springt zum angegebenen Sektor. Die Karte wird (sofern die Grenzen
+	 * es erlauben) direkt auf dem Sektor zentriert.
+	 * @param x {number} Die X-Koordinate des Sektors
+	 * @param y {number} Die Y-Koordinate des Sektors
+	 */
 	function gotoLocation(x, y) {
 		var mapview = $('#mapview');
 		var width = Math.floor((mapview.width())/SECTOR_IMAGE_SIZE);
@@ -818,7 +911,41 @@ var Starmap = function(jqElement) {
 
 	// PUBLIC METHODS
 	this.gotoLocation = gotoLocation;
+	/**
+	 * Highlightet einen Sektor.
+	 * @param sectorX {number} Die x-Koordinate des Sektors
+	 * @param sectorY {number} Die y-Koordinate des Sektors
+	 * @param highlightGroup {string=} Die Gruppe zu der das highlight gehört.
+	 * Falls nicht angegeben gehoert es zur Defaultgruppe.
+	 * @param cssClass {string=} Zusätzliche an das Highlight zu schreibende CSS-Klassen
+	 */
+	this.highlight = function(sectorX,sectorY,highlightGroup,cssClass) { __starmapOverlay.highlight(sectorX,sectorY,highlightGroup,cssClass) };
+	/**
+	 * Entfernt das Highlight einer bestimmten Gruppe von einem Sektor.
+	 * @param sectorX {number} Die x-Koordinate des Sektors
+	 * @param sectorY {number} Die y-Koordinate des Sektors
+	 * @param highlightGroup {string=} Die Highlight-Gruppe.
+	 * Falls nicht angegeben wird die Defaultgruppe genommen.
+	 */
+	this.unhighlight = function(sectorX,sectorY,highlightGroup) { __starmapOverlay.unhighlight(sectorX,sectorY,highlightGroup) };
+	/**
+	 * Entfernt alle Highlights die zu einer Gruppe gehoeren.
+	 * @param highlightGroup {string=} Die Highlight-Gruppe.
+	 * Falls nicht angegeben wird die Defaultgruppe genommen.
+	 */
+	this.unhighlightGroup = function(highlightGroup) { __starmapOverlay.unhighlightGroup(highlightGroup) };
 	this.load = load;
+	/**
+	 * Gibt zurueck, ob die Sternenkarte erfolgreich geladen wurde, d.h.
+	 * momentan ein Sternensystem dargestellt wird.
+	 * @returns {boolean} true, falls dem so ist
+	 */
 	this.isReady = function() { return __ready; };
+	/**
+	 * Gibt die ID des momentan dargestellten Sternensystems zurueck.
+	 * Das Ergebnis der Methode ist nicht definiert, falls momentan kein
+	 * Sternensystem geladen ist.
+	 * @returns {number} Die ID
+	 */
 	this.getSystemId = function() { return __currentSystem.id; };
 };
