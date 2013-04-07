@@ -1,32 +1,47 @@
 var Starmap = function(jqElement) {
+	/**
+	 * Die Groesse eines Sektors der Sternenkarte in Pixel.
+	 * @const
+	 * @type {number}
+	 */
 	var SECTOR_IMAGE_SIZE = 25;
+
+	/**
+	 * @name JsonSystemResponse
+	 * @class JsonSystemResponse
+	 * Die Antwort des Servers.
+	 *
+	 * @property {number} width Die Breite des Sternensystems in Sektoren.
+	 * @property {number} height Die Höhe des Sternensystems in Sektoren.
+	 */
 
 	/**
 	 * Hilfsklasse zur Verwaltung des momentanen Anzeigebereichs (Kartengroesse).
 	 * Die Groesse ist dabei durch den Anzeigebereich bestimmt, jedoch beschraenkt auf
 	 * die maximale Groesse des dargestellten Sternensystems.
+	 * @constructor
 	 * @param {String} selector Der JQuery-Selektor zur Ermittlung des als Anzeigebereich verwendeten Elements
-	 * @param {Object} system Das Sternensystem-Objekt mit den Breiten- und Hoehenangaben des Sternensystems
+	 * @param {JsonSystemResponse}system Das Sternensystem-Objekt mit den Breiten- und Hoehenangaben des Sternensystems
 	 */
-	var Screen = function(selector, system) {
-		this.__screen = [0,0];
-		this.__currentSystem = system;
-		this.__max = [this.__currentSystem.width*SECTOR_IMAGE_SIZE, this.__currentSystem.height*SECTOR_IMAGE_SIZE];
-		this.__selector = selector;
+	var StarmapScreen = function(selector, system) {
+		var __screen = [0,0];
+		var __currentSystem = system;
+		var __max = [__currentSystem.width*SECTOR_IMAGE_SIZE, __currentSystem.height*SECTOR_IMAGE_SIZE];
+		var __selector = selector;
 
 		/**
 		 * Gibt die Breite des dargestellten Bereichs der Sternenkarte zurueck.
 		 * @return {Number} Die Breite in px
 		 */
 		this.width = function() {
-			return Math.min(this.__screen[0], this.__max[0]);
+			return Math.min(__screen[0], __max[0]);
 		};
 		/**
 		 * Gibt die Hoehe des dargestellten Bereichs der Sternenkarte zurueck.
 		 * @return {Number} Die Hoehe in px
 		 */
 		this.height = function() {
-			return Math.min(this.__screen[1], this.__max[1]);
+			return Math.min(__screen[1], __max[1]);
 		};
 		/**
 		 * Gibt die Breite des dargestellten Bereichs der Sternenkarte in Sektoren zurueck.
@@ -34,7 +49,7 @@ var Starmap = function(jqElement) {
 		 * @return {Number} Die Anzahl der Sektoren
 		 */
 		this.widthInSectors = function() {
-			return Math.min(Math.ceil(this.__screen[0] / SECTOR_IMAGE_SIZE), this.__currentSystem.width);
+			return Math.min(Math.ceil(__screen[0] / SECTOR_IMAGE_SIZE), __currentSystem.width);
 		};
 		/**
 		 * Gibt die Hoehe des dargestellten Bereichs der Sternenkarte in Sektoren zurueck.
@@ -42,7 +57,7 @@ var Starmap = function(jqElement) {
 		 * @return {Number} Die Anzahl der Sektoren
 		 */
 		this.heightInSectors = function() {
-			return Math.min(Math.ceil(this.__screen[1] / SECTOR_IMAGE_SIZE), this.__currentSystem.height);
+			return Math.min(Math.ceil(__screen[1] / SECTOR_IMAGE_SIZE), __currentSystem.height);
 		};
 		/**
 		 * Gibt die Anzahl der zur Fuellung des dargestellten Bereichs der Sternenkarte in der Breite noch fehlenden
@@ -85,8 +100,8 @@ var Starmap = function(jqElement) {
 		 * aendert.
 		 */
 		this.update = function() {
-			var el = $(this.__selector);
-			this.__screen = [el.width(),el.height()];
+			var el = $(__selector);
+			__screen = [el.width(),el.height()];
 		};
 
 		this.update();
@@ -303,6 +318,10 @@ var Starmap = function(jqElement) {
 	/**
 	 * Der Hintergrund (Tiles) der Sternenkarte. Dieser besteht aus einzelnen Kacheln.
 	 * Die Identifikation der Kacheln geschieht allein clientseitig.
+	 * @constructor
+	 * @param {Number} systemId Die ID des darzustellenden Sternensystems
+	 * @param {StarmapScreen} screenSize
+	 * @param {Object} mapSize
 	 */
 	var Tiles = function(systemId, screenSize, mapSize) {
 		this.__TILE_SIZE = 20;
@@ -346,26 +365,25 @@ var Starmap = function(jqElement) {
 
 			var mod = false;
 			if( this.__currentShiftOffset[0] >= SECTOR_IMAGE_SIZE ) {
-				var cnt = Math.ceil(this.__currentShiftOffset[0] / SECTOR_IMAGE_SIZE);
-				//this.__currentShiftOffset[0] -= cnt*SECTOR_IMAGE_SIZE;
-				realSize.minx = this.__startSectorPos[0]-cnt;
+				var cntw = Math.ceil(this.__currentShiftOffset[0] / SECTOR_IMAGE_SIZE);
+				realSize.minx = this.__startSectorPos[0]-cntw;
 				mod = true;
 			}
 			else if( this.__currentShiftOffset[0] + (this.__size.maxx-this.__size.minx)*this.__TILE_SIZE < this.__screen.width() ) {
-				var gap = this.__screen.width() - (this.__currentShiftOffset[0] + (this.__size.maxx-this.__size.minx)*this.__TILE_SIZE);
-				realSize.maxx += Math.ceil(gap / SECTOR_IMAGE_SIZE);
+				var gapw = this.__screen.width() - (this.__currentShiftOffset[0] + (this.__size.maxx-this.__size.minx)*this.__TILE_SIZE);
+				realSize.maxx += Math.ceil(gapw / SECTOR_IMAGE_SIZE);
 				mod = true;
 			}
 
 			if( this.__currentShiftOffset[1] >= SECTOR_IMAGE_SIZE ) {
-				var cnt = Math.ceil(this.__currentShiftOffset[1] / SECTOR_IMAGE_SIZE);
+				var cnth = Math.ceil(this.__currentShiftOffset[1] / SECTOR_IMAGE_SIZE);
 				//this.__currentShiftOffset[1] -= cnt*SECTOR_IMAGE_SIZE;
-				realSize.miny = this.__startSectorPos[1]-cnt;
+				realSize.miny = this.__startSectorPos[1]-cnth;
 				mod = true;
 			}
 			else if( this.__currentShiftOffset[1] + (this.__size.maxy-this.__size.miny)*this.__TILE_SIZE < this.__screen.height() ) {
-				var gap = this.__screen.height() - (this.__currentShiftOffset[1] + (this.__size.maxy-this.__size.miny)*this.__TILE_SIZE);
-				realSize.maxy += Math.ceil(gap / SECTOR_IMAGE_SIZE);
+				var gaph = this.__screen.height() - (this.__currentShiftOffset[1] + (this.__size.maxy-this.__size.miny)*this.__TILE_SIZE);
+				realSize.maxy += Math.ceil(gaph / SECTOR_IMAGE_SIZE);
 				mod = true;
 			}
 
@@ -407,6 +425,9 @@ var Starmap = function(jqElement) {
 	/**
 	 * Das Overlay der Sternenkarte beinhaltet alle scanbaren Sektoren (LRS).
 	 * Zum fuellen des Overlays erfolgen bei Bedarf AJAX-Requests.
+	 * @param {Object} data Die Serverantwort
+	 * @param {StarmapScreen} screen Die Informationen zum Darstellungsbereich
+	 * @param {Object} request Die fuer Requests zu verwendenden Daten
 	 */
 	var Overlay = function(data, screen, request) {
 		this.__currentShiftOffset = [0,0];
@@ -487,9 +508,7 @@ var Starmap = function(jqElement) {
 		};
 
 		this.__updateShiftOffset = function(newSize) {
-			//if( newSize.minx > this.__currentSize.minx ) {
 			this.__currentShiftOffset[0] -= (this.__currentSize.minx-newSize.minx)*SECTOR_IMAGE_SIZE;
-			//}
 			this.__currentShiftOffset[1] -= (this.__currentSize.miny-newSize.miny)*SECTOR_IMAGE_SIZE;
 		};
 
@@ -615,7 +634,14 @@ var Starmap = function(jqElement) {
 	var __starmapOverlay = null;
 	var __request = null;
 	var __ready = false;
-	var __onSectorClicked = function() {};
+	/**
+	 * @param {JsonSystemResponse} currentSystem
+	 * @param {Number} sectorX
+	 * @param {Number} sectorY
+	 * @param {Object} locationInfo
+	 * @private
+	 */
+	var __onSectorClicked = function(currentSystem,sectorX,sectorY,locationInfo) {};
 
 	function load(sys,x,y,options)
 	{
@@ -678,7 +704,7 @@ var Starmap = function(jqElement) {
 		});
 
 		return false;
-	};
+	}
 
 	function gotoLocation(x, y) {
 		var mapview = $('#mapview');
@@ -702,7 +728,7 @@ var Starmap = function(jqElement) {
 		}
 
 		__onMove((targetX-1)*SECTOR_IMAGE_SIZE+__currentShiftOffset[0],(targetY-1)*SECTOR_IMAGE_SIZE+__currentShiftOffset[1]);
-	};
+	}
 
 	function clearMap()
 	{
@@ -711,12 +737,12 @@ var Starmap = function(jqElement) {
 		$('#tiles').remove();
 		$('#actionOverlay').remove();
 		__currentShiftOffset = [0,0];
-	};
+	}
 	function renderMap(data, options)
 	{
 		__currentSize = data.size;
 		__currentSystem = data.system;
-		__screen = new Screen('#mapview', __currentSystem);
+		__screen = new StarmapScreen('#mapview', __currentSystem);
 
 		__starmapLegend = new Legend(__screen, __currentSize);
 		__starmapTiles = new Tiles(__currentSystem.id, __screen, __currentSize);
@@ -732,7 +758,7 @@ var Starmap = function(jqElement) {
 				__onMove(moveX, moveY);
 			}
 		});
-	};
+	}
 	function __onMove(moveX, moveY) {
 		var newOff = [__currentShiftOffset[0]-moveX, __currentShiftOffset[1]-moveY];
 
@@ -765,7 +791,7 @@ var Starmap = function(jqElement) {
 		}
 
 		__currentShiftOffset = newOff;
-	};
+	}
 
 	var __loaderPopup = null;
 	function onSystemLoad()
@@ -774,12 +800,12 @@ var Starmap = function(jqElement) {
 			__loaderPopup = new LoaderPopup();
 		}
 		__loaderPopup.show();
-	};
+	}
 	function onSystemLoaded()
 	{
 		__loaderPopup.hide();
 		__ready = true;
-	};
+	}
 	function onClick(x,y) {
 		x -= __currentShiftOffset[0];
 		y -= __currentShiftOffset[1];
@@ -788,7 +814,7 @@ var Starmap = function(jqElement) {
 		var locationInfo = __starmapOverlay.getSectorInformation(sectorX, sectorY);
 
 		__onSectorClicked(__currentSystem, sectorX, sectorY, locationInfo);
-	};
+	}
 
 	// PUBLIC METHODS
 	this.gotoLocation = gotoLocation;
