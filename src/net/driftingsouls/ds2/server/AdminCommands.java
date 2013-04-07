@@ -1255,9 +1255,10 @@ public class AdminCommands {
 
 			db.getTransaction().commit();
 
-			List<Integer> ships = db.createQuery("select s.id from Ship as s join s.modules " +
-													 "where s.id>0 order by s.owner.id,s.docked,s.shiptype.id asc")
-													 .list();
+			List<Integer> ships = Common.cast(db
+				.createQuery("select s.id from Ship as s join s.modules " +
+					"where s.id>0 order by s.owner.id,s.docked,s.shiptype.id asc")
+				.list());
 
 			new EvictableUnitOfWork<Integer>("AdminCommand: RecalculateShipModules") {
 
@@ -1275,6 +1276,8 @@ public class AdminCommands {
 			}
 			.setFlushSize(20)
 			.executeFor(ships);
+
+			db.beginTransaction();
 
 			output = "Es wurden "+count.get()+" Schiffe in "+ (System.currentTimeMillis() - start)/1000d +" Sekunden neu berechnet.";
 			return output;
