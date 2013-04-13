@@ -29,6 +29,8 @@ import org.hibernate.Session;
  */
 public class PlayerStarmap extends PublicStarmap
 {
+	static final boolean ALLOW_NEBULA_SCANS = true;
+
 	private final Map<Location, Ship> scannableLocations;
 	private final Set<Location> bekannteOrte;
 	private final User user;
@@ -321,9 +323,9 @@ public class PlayerStarmap extends PublicStarmap
 					}
 					else
 					{
-						if(loc.equals(position))
+						if(ALLOW_NEBULA_SCANS || loc.equals(position))
 						{
-							Nebel nebula = nebulas.get(position);
+							Nebel nebula = nebulas.get(loc);
 							if(nebula.allowsScan())
 							{
 								scannableLocations.put(loc, scanShip);

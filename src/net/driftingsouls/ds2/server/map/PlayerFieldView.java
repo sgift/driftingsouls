@@ -129,6 +129,17 @@ public class PlayerFieldView implements FieldView
         {
             return false;
         }
+
+		Nebel targetNebula = (Nebel)db.get(Nebel.class, new MutableLocation(location));
+		if( targetNebula != null ) {
+			if( !targetNebula.allowsScan() ) {
+				return false;
+			}
+			if( !PlayerStarmap.ALLOW_NEBULA_SCANS && !location.equals(scanShip.getLocation()) ) {
+				return false;
+			}
+		}
+
         return true;
 	}
 	
