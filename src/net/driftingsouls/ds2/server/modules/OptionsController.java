@@ -267,18 +267,6 @@ public class OptionsController extends TemplateGenerator {
 			user.setUserValue("TBLORDER/uebersicht/inttutorial", Integer.toString(inttutorial) );
 		}
 
-		if( mapwidth != Integer.parseInt(user.getUserValue("TBLORDER/map/width")) ) {
-			changemsg += "Kartenbreite ge&auml;ndert...<br />\n";
-
-			user.setUserValue("TBLORDER/map/width", Integer.toString(mapwidth) );
-		}
-
-		if( mapheight != Integer.parseInt(user.getUserValue("TBLORDER/map/height")) ) {
-			changemsg += "Kartenh&ouml;he ge&auml;ndert...<br />\n";
-
-			user.setUserValue("TBLORDER/map/height", Integer.toString(mapheight));
-		}
-
 		if( rel != user.getRelation(0) ) {
 			changemsg += "Diplomatiehaltung ge&auml;ndert...<br />\n";
 
@@ -312,8 +300,6 @@ public class OptionsController extends TemplateGenerator {
 					"user.wrapfactor",		user.getUserValue("TBLORDER/schiff/wrapfactor"),
 					"user.inttutorial",		user.getUserValue("TBLORDER/uebersicht/inttutorial"),
 					"user.showScriptDebug",	hasPermission("schiff", "script"),
-					"user.mapwidth",		user.getUserValue("TBLORDER/map/width"),
-					"user.mapheight",		user.getUserValue("TBLORDER/map/height"),
 					"user.scriptdebug",		user.hasFlag(User.FLAG_SCRIPT_DEBUGGING),
 					"user.defrelation",		user.getRelation(0).ordinal() );
 	}

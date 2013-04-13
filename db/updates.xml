@@ -1903,4 +1903,8 @@
 	<update type="structure" datum="2013-03-24"><![CDATA[
 		ALTER TABLE factory MODIFY COLUMN col INTEGER;
 	]]></update>
+	<update type="data" datum="2013-04-13"><![CDATA[
+		delete from user_values where name='TBLORDER/map/height';
+		delete from user_values where name='TBLORDER/map/width';
+	]]></update>
 </updates>
