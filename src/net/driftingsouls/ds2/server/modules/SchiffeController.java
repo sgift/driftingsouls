@@ -30,6 +30,7 @@ import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -435,7 +436,17 @@ public class SchiffeController extends TemplateGenerator {
  				}
 
 				if( (shiptype.getShipClass() == ShipClasses.AWACS.ordinal()) || (shiptype.getShipClass() == ShipClasses.FORSCHUNGSKREUZER.ordinal()) ) {
-					t.setVar("ship.awac",1);
+					int sensorrange = Math.round(shiptype.getSensorRange()*(ship.getSensors()/100f));
+
+					if ( ( sensorrange > 0 ) && ( ship.getCrew() >= shiptype.getMinCrew()/3 ) ) {
+						Nebel.Typ nebel = Nebel.getNebula(ship.getLocation());
+						if( nebel == null || !nebel.isEmp() ) {
+							t.setVar("ship.longscan",1,
+									"ship.system", ship.getSystem(),
+									"ship.x", ship.getX(),
+									"ship.y", ship.getY());
+						}
+					}
 				}
 
 				int wa = 0;

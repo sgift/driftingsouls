@@ -120,10 +120,14 @@ public class SensorsDefault implements SchiffPlugin {
 		}
 		t.setVar("has.srs", true);
 
-		t.setVar(	"global.ship",				ship.getId(),
-					"global.pluginid",			pluginid,
-					"ship.sensors.location",	ship.getLocation().displayCoordinates(true),
-					"global.awac",				shiptype.hasFlag(ShipTypes.SF_SRS_AWAC) );
+		t.setVar(
+				"global.ship", ship.getId(),
+				"global.ship.system", ship.getLocation().getSystem(),
+				"global.ship.x", ship.getLocation().getX(),
+				"global.ship.y", ship.getLocation().getY(),
+				"global.pluginid", pluginid,
+				"ship.sensors.location", ship.getLocation().displayCoordinates(true),
+				"global.awac", shiptype.hasFlag(ShipTypes.SF_SRS_AWAC) );
 
 		int sensorrange = Math.round(shiptype.getSensorRange()*(ship.getSensors()/100f));
 

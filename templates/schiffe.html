@@ -99,8 +99,8 @@
 				<br />{!link_to [frei], default, module:werft, css_class:nonbold, css_style:color:#CCAA33, ship:$ship.id}
 			{/endif}
 		{/endif}
-		{if ship.awac}
-			<br />{!link_to [scan], default, module:scan, css_class:nonbold, css_style:color:#CCAA33, ship:$ship.id}	
+		{if ship.longscan}
+			<br /><a href="./ds?module=client#/map/{ship.system}/{ship.x}/{ship.y}" class="nonbold" style="color:#CCAA33">[scan]</a>
 		{/endif}
 		</td>
 		<td class="schiffData">
