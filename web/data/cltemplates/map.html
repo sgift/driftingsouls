@@ -82,15 +82,15 @@
 					<span ng-bind-html-unsafe="user.name"></span>
 					<span style="float:right;">{{user.shipcount}}</span>
 				</div>
-				<ul class="shipclasses">
+				<ul class="shipclasses toggleContent">
 					<li ng-repeat="shiptype in user.shiptypes">
-						<div class="shiptype">
+						<div class="shiptype toggle" ng-class="shiptype.expanded && 'expanded' || ''" ng-click="toggle(shiptype)">
 							{{shiptype.ships.length}}x {{shiptype.name}}
 							<a href="./ds?module=schiffinfo&ship={{shiptype.id}}" onclick="ShiptypeBox.show({{shiptype.id}});return false;">
 								<img ng-src="{{shiptype.picture}}" />
 							</a>
 						</div>
-						<table>
+						<table class="toggleContent">
 							<tbody>
 								<tr ng-repeat="ship in shiptype.ships">
 									<td class="id">
