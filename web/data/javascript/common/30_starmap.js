@@ -1,3 +1,8 @@
+/**
+ * Erzeugt eine neue Sternenkarte an der Stelle des uebergebenen JQuery-Objekts.
+ * @param jqElement Das JQuery-Objekt
+ * @constructor
+ */
 var Starmap = function(jqElement) {
 	/**
 	 * Die Groesse eines Sektors der Sternenkarte in Pixel.
@@ -588,21 +593,51 @@ var Starmap = function(jqElement) {
 		/**
 		 * Highlightet einen Sektor.
 		 * @name Overlay.highlight
-		 * @param sectorX {number} Die x-Koordinate des Sektors
-		 * @param sectorY {number} Die y-Koordinate des Sektors
+		 * @param shape {{x:number,y:number,size:?number}} Die x-Koordinate des Sektors
 		 * @param highlightGroup {string=} Die Gruppe zu der das highlight gehört.
 		 * Falls nicht angegeben gehoert es zur Defaultgruppe.
 		 * @param cssClass {string=} Zusätzliche an das Highlight zu schreibende CSS-Klassen
 		 */
-		this.highlight = function(sectorX, sectorY, highlightGroup, cssClass) {
+		this.highlight = function(shape, highlightGroup, cssClass) {
 			if( highlightGroup == null ) {
 				highlightGroup = "DEFAULT";
 			}
-			var posx = (sectorX-__currentSize.minx)*SECTOR_IMAGE_SIZE;
-			var posy = (sectorY-__currentSize.miny)*SECTOR_IMAGE_SIZE;
+			if( shape.x < 1 || shape.x > __currentSystem.width ) {
+				return;
+			}
+			if( shape.y < 1 || shape.y > __currentSystem.height ) {
+				return;
+			}
+			var size = shape.size || 0;
 
-			var highlight = "<div style=\"top:"+posy+"px;left:"+posx+"px\" class='highlight "+cssClass+"' " +
-				"data-highlight-group='"+highlightGroup+"' data-highlight-x='"+sectorX+"' data-highlight-y='"+sectorY+"' />";
+			var highlight = "";
+			for( var i=shape.x-size; i <= shape.x+size; i++ ) {
+				if( i < 1 ) {
+					continue;
+				}
+				var height = 0;
+				var minY = Number.MAX_VALUE;
+				for( var j=shape.y-size; j <= shape.y+size; j++ ) {
+					if( j < 1 ) {
+						continue;
+					}
+
+					if( Math.floor(Math.sqrt(Math.pow(j-shape.y,2)+Math.pow(i-shape.x,2))) <= size ) {
+						height += 1;
+						if( minY > j ) {
+							minY = j;
+						}
+					}
+				}
+				if( height > 0 ) {
+					var posx = (i-__currentSize.minx)*SECTOR_IMAGE_SIZE;
+					var posy = (minY-__currentSize.miny)*SECTOR_IMAGE_SIZE;
+					height *= SECTOR_IMAGE_SIZE;
+
+					highlight += "<div style=\"top:"+posy+"px;left:"+posx+"px;height:"+height+"px\" class='highlight "+cssClass+"' " +
+						"data-highlight-group='"+highlightGroup+"' data-highlight-x='"+shape.x+"' data-highlight-y='"+shape.y+"' />";
+				}
+			}
 			$('#tileOverlay').append(highlight)
 		}
 
@@ -913,13 +948,12 @@ var Starmap = function(jqElement) {
 	this.gotoLocation = gotoLocation;
 	/**
 	 * Highlightet einen Sektor.
-	 * @param sectorX {number} Die x-Koordinate des Sektors
-	 * @param sectorY {number} Die y-Koordinate des Sektors
+	 * @param shape {{x:number,y:number,size:?number}} Die x-Koordinate des Sektors
 	 * @param highlightGroup {string=} Die Gruppe zu der das highlight gehört.
 	 * Falls nicht angegeben gehoert es zur Defaultgruppe.
 	 * @param cssClass {string=} Zusätzliche an das Highlight zu schreibende CSS-Klassen
 	 */
-	this.highlight = function(sectorX,sectorY,highlightGroup,cssClass) { __starmapOverlay.highlight(sectorX,sectorY,highlightGroup,cssClass) };
+	this.highlight = function(shape,highlightGroup,cssClass) { __starmapOverlay.highlight(shape,highlightGroup,cssClass) };
 	/**
 	 * Entfernt das Highlight einer bestimmten Gruppe von einem Sektor.
 	 * @param sectorX {number} Die x-Koordinate des Sektors

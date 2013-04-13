@@ -307,7 +307,6 @@ public class MapController extends AngularGenerator
 
 	/**
 	 * Gibt die Kartendaten des gewaehlten Ausschnitts als JSON-Response zurueck.
-	 * @throws IOException
 	 */
 	@Action(value=ActionType.AJAX, readOnly=true)
 	@UrlParams({
@@ -570,7 +569,9 @@ public class MapController extends AngularGenerator
 			JSONObject jsonUser = new JSONObject();
 			jsonUser.accumulate("name", Common._text(owner.getKey().getName()));
 			jsonUser.accumulate("id", owner.getKey().getId());
-			jsonUser.accumulate("eigener", owner.getKey().getId() == getUser().getId());
+
+			boolean ownFleet = owner.getKey().getId() == getUser().getId();
+			jsonUser.accumulate("eigener", ownFleet);
 
 			JSONArray shiptypes = new JSONArray();
 			for(Map.Entry<ShipType, List<Ship>> shiptype: owner.getValue().entrySet())
@@ -579,6 +580,7 @@ public class MapController extends AngularGenerator
 				jsonShiptype.accumulate("id", shiptype.getKey().getId());
 				jsonShiptype.accumulate("name", shiptype.getKey().getNickname());
 				jsonShiptype.accumulate("picture", shiptype.getKey().getPicture());
+				jsonShiptype.accumulate("size", shiptype.getKey().getSize());
 
 				JSONArray ships = new JSONArray();
 				for(Ship ship: shiptype.getValue())
@@ -586,6 +588,10 @@ public class MapController extends AngularGenerator
 					JSONObject shipObj = new JSONObject();
 					shipObj.accumulate("id", ship.getId());
 					shipObj.accumulate("name", ship.getName());
+					if( ownFleet )
+					{
+						shipObj.accumulate("sensorRange", ship.getTypeData().getSensorRange());
+					}
 
 					if( ship.getFleet() != null )
 					{

@@ -481,6 +481,11 @@
 	border:1px solid #FEB626;
 }
 
+.starmap #tileOverlay .highlight.lrs {
+	border:0;
+	background-color: rgba(50,160,50,0.3);
+}
+
 .starmap #tileOverlay .battle {
 	background-color: rgba(255,0,0,0.25);
 }

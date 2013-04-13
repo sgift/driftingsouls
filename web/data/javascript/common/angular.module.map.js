@@ -30,6 +30,9 @@ angular.module('ds.map', ['ds.service.ds'])
 		};
 	}])
 	.factory('StarmapService', ['PopupService', '$rootScope', function(PopupService, $rootScope) {
+		/**
+		 * @type Starmap
+		 */
 		var starmap;
 
 		return {
@@ -57,7 +60,7 @@ angular.module('ds.map', ['ds.service.ds'])
 					},
 					loadCallback: function() {
 						if( x > 1 || y > 1 ) {
-							starmap.highlight(x,y,"gotoLocation");
+							starmap.highlight({x:x,y:y},"gotoLocation");
 						}
 					}
 				});
@@ -101,6 +104,15 @@ angular.module('ds.map', ['ds.service.ds'])
 					$scope.sektor = sektor;
 					$scope.geladen = true;
 				});
+
+			$scope.highlightSensoren = function(ship) {
+				if( ship.sensorRange ) {
+					StarmapService.get().highlight({x:parameters.x, y:parameters.y, size:ship.sensorRange}, "lrs", "lrs");
+				}
+			}
+			$scope.unhighlightSensoren = function(ship) {
+				StarmapService.get().unhighlightGroup("lrs");
+			}
 		}
 
 		$scope.$on('dsPopupOpen', function(event, popup, parameters) {
@@ -126,7 +138,7 @@ angular.module('ds.map', ['ds.service.ds'])
 			}
 			StarmapService.get().gotoLocation(x,y);
 			StarmapService.get().unhighlightGroup('gotoLocation');
-			StarmapService.get().highlight(x,y,'gotoLocation');
+			StarmapService.get().highlight({x:x,y:y},'gotoLocation');
 		}
 
 		function refresh() {

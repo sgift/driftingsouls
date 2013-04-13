@@ -92,7 +92,7 @@
 						</div>
 						<table class="toggleContent">
 							<tbody>
-								<tr ng-repeat="ship in shiptype.ships">
+								<tr ng-repeat="ship in shiptype.ships" ng-mouseenter="highlightSensoren(ship)" ng-mouseleave="unhighlightSensoren(ship)">
 									<td class="id">
 										<a ui-if="user.eigener" href="./ds?module=schiff&action=default&ship={{ship.id}}">{{ship.id}}</a>
 										<span ui-if="!user.eigener">{{ship.id}}</span>
