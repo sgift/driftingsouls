@@ -646,7 +646,7 @@ public class ScanController extends TemplateGenerator {
 					cssClass = "class=\"starmap\"";
 				}
 
-				if( Math.round(Math.sqrt(Math.pow(y-this.ship.getY(),2)+Math.pow(x-this.ship.getX(),2))) <= this.range ) {
+				if( this.ship.getLocation().sameSector(this.range, new Location(this.ship.getSystem(), x, y), 0) ) {
 					t.setVar(	"map.x",			x,
 								"map.y",			y,
 								"map.linkclass",	cssClass,
