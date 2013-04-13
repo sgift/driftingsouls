@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('ds.map', ['ds.service.ds'])
+angular.module('ds.map', ['ds.service.ds','ds.starmap'])
 	.factory('dsMap', ['ds', function(ds) {
 		return {
 			systemauswahl : function() {
@@ -29,7 +29,7 @@ angular.module('ds.map', ['ds.service.ds'])
 			}
 		};
 	}])
-	.factory('StarmapService', ['PopupService', '$rootScope', function(PopupService, $rootScope) {
+	.factory('StarmapService', ['PopupService', '$rootScope', 'Starmap', function(PopupService, $rootScope,  Starmap) {
 		/**
 		 * @type Starmap
 		 */

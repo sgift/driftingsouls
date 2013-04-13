@@ -33,6 +33,7 @@ angular.module('ds.service.ds', [])
 			angular.forEach(messageContainer.errors, function(error) {
 				toastr.error(error.description);
 			});
+			return false;
 		}
 		else if( typeof messageContainer.message !== 'undefined' &&
 				typeof messageContainer.message.type !== 'undefined' ) {
@@ -51,10 +52,12 @@ angular.module('ds.service.ds', [])
 						location.href=DS.getUrl();
 					}
 				}
+				return false;
 			}
 			else if( msg.type === 'success' ) {
 				toastr.warning(messageContainer.message.description);
 			}
 		}
+		return true;
 	}
 }]);

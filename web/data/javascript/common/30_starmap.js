@@ -1,9 +1,14 @@
+'use strict';
+
+angular.module('ds.starmap', ['ds.service.ds'])
+	.factory('Starmap', ['dsMsg', function(dsMsg) {
 /**
  * Erzeugt eine neue Sternenkarte an der Stelle des uebergebenen JQuery-Objekts.
  * @param jqElement Das JQuery-Objekt
+ * @name Starmap
  * @constructor
  */
-var Starmap = function(jqElement) {
+return function(jqElement) {
 	/**
 	 * Die Groesse eines Sektors der Sternenkarte in Pixel.
 	 * @const
@@ -491,6 +496,7 @@ var Starmap = function(jqElement) {
 
 			if( mod ) {
 				var request = __request;
+				request.FORMAT = 'JSON';
 				request.sys = __currentSystem.id;
 				request.xstart = realSize.minx;
 				request.xend = realSize.maxx;
@@ -502,6 +508,7 @@ var Starmap = function(jqElement) {
 				$.getJSON(DS.getUrl(),
 					request,
 					function(data) {
+						dsMsg(data);
 						__updateShiftOffset(data.size);
 						__currentLocations = data.locations;
 						__currentSize = data.size;
@@ -792,6 +799,7 @@ var Starmap = function(jqElement) {
 		}
 		__request = request;
 
+		request.FORMAT = 'JSON';
 		request.sys = sys;
 		request.xstart = xstart;
 		request.xend = xstart+width;
@@ -808,6 +816,8 @@ var Starmap = function(jqElement) {
 		$.getJSON(DS.getUrl(),
 			request,
 			function(data) {
+				dsMsg(data);
+
 				renderMap(data, options);
 				gotoLocation(x,y);
 				onSystemLoaded();
@@ -952,6 +962,7 @@ var Starmap = function(jqElement) {
 	 * @param highlightGroup {string=} Die Gruppe zu der das highlight gehört.
 	 * Falls nicht angegeben gehoert es zur Defaultgruppe.
 	 * @param cssClass {string=} Zusätzliche an das Highlight zu schreibende CSS-Klassen
+	 * @name Starmap.highlight
 	 */
 	this.highlight = function(shape,highlightGroup,cssClass) { __starmapOverlay.highlight(shape,highlightGroup,cssClass) };
 	/**
@@ -960,19 +971,31 @@ var Starmap = function(jqElement) {
 	 * @param sectorY {number} Die y-Koordinate des Sektors
 	 * @param highlightGroup {string=} Die Highlight-Gruppe.
 	 * Falls nicht angegeben wird die Defaultgruppe genommen.
+	 * @name Starmap.unhighlight
 	 */
 	this.unhighlight = function(sectorX,sectorY,highlightGroup) { __starmapOverlay.unhighlight(sectorX,sectorY,highlightGroup) };
 	/**
 	 * Entfernt alle Highlights die zu einer Gruppe gehoeren.
 	 * @param highlightGroup {string=} Die Highlight-Gruppe.
 	 * Falls nicht angegeben wird die Defaultgruppe genommen.
+	 * @name Starmap.unhighlightGroup
 	 */
 	this.unhighlightGroup = function(highlightGroup) { __starmapOverlay.unhighlightGroup(highlightGroup) };
+	/**
+	 * Laedt ein Sternensystem in der Sternenkarte und positioniert die Ansicht ueber der angegebenen
+	 * Position.
+	 * @param sys {number} Das zu ladende System (ID)
+	 * @param x {number} Die X-Position auf der positioniert werden soll
+	 * @param y {number} Die Y-Position auf der positioniert werden soll
+	 * @param options {object}
+	 * @name Starmap.load
+	 */
 	this.load = load;
 	/**
 	 * Gibt zurueck, ob die Sternenkarte erfolgreich geladen wurde, d.h.
 	 * momentan ein Sternensystem dargestellt wird.
 	 * @returns {boolean} true, falls dem so ist
+	 * @name Starmap.isReadoy
 	 */
 	this.isReady = function() { return __ready; };
 	/**
@@ -980,6 +1003,8 @@ var Starmap = function(jqElement) {
 	 * Das Ergebnis der Methode ist nicht definiert, falls momentan kein
 	 * Sternensystem geladen ist.
 	 * @returns {number} Die ID
+	 * @name Starmap.getSystemId
 	 */
 	this.getSystemId = function() { return __currentSystem.id; };
 };
+	}]);
