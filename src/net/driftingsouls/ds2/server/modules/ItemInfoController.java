@@ -148,13 +148,13 @@ public class ItemInfoController extends TemplateGenerator {
 		}
 
 		if( mods.getCost() != 0 ) {
-			colorize(effecttext, mods.getCost());
+			colorize(effecttext, -mods.getCost());
 			effecttext.append("Flugkosten "+mods.getCost());
 			effecttext.append("</span><br />\n");
 		}
 
 		if( mods.getHeat() != 0 ) {
-			colorize(effecttext, mods.getHeat());
+			colorize(effecttext, -mods.getHeat());
 			effecttext.append("&Uuml;berhitzung "+mods.getHeat());
 			effecttext.append("</span><br />\n");
 		}
@@ -214,7 +214,7 @@ public class ItemInfoController extends TemplateGenerator {
 		}
 
 		if( mods.getSize() != 0 ) {
-			colorize(effecttext, mods.getSize());
+			colorize(effecttext, -mods.getSize());
 			effecttext.append("Gr&ouml;&szlig;e "+mods.getSize());
 			effecttext.append("</span><br />\n");
 		}
@@ -250,7 +250,7 @@ public class ItemInfoController extends TemplateGenerator {
 		}
 
 		if( mods.getReCost() != 0 ) {
-			colorize(effecttext, mods.getReCost());
+			colorize(effecttext, -mods.getReCost());
 			effecttext.append("Wartungskosten "+mods.getReCost());
 			effecttext.append("</span><br />\n");
 		}
