@@ -1907,4 +1907,7 @@
 		delete from user_values where name='TBLORDER/map/height';
 		delete from user_values where name='TBLORDER/map/width';
 	]]></update>
+	<update type="structure" datum="2013-04-13"><![CDATA[
+		ALTER TABLE systems ADD COLUMN mapX INTEGER NOT NULL, ADD COLUMN mapY INTEGER NOT NULL;
+	]]></update>
 </updates>

@@ -73,6 +73,8 @@ public class StarSystem {
 	@Column(name="starmap")
 	private boolean isStarmapVisible = false;
 	private String spawnableress = "";
+	private int mapX;
+	private int mapY;
 
 	@Transient
 	private ArrayList<Location> orderlocs = new ArrayList<Location>();
@@ -90,6 +92,42 @@ public class StarSystem {
 	 */
 	public StarSystem(int id) {
 		this.id = id;
+	}
+
+	/**
+	 * Gibt die X-Position auf der Systemuebersichtskarte zurueck.
+	 * @return Die X-Position
+	 */
+	public int getMapX()
+	{
+		return mapX;
+	}
+
+	/**
+	 * Setzt die X-Position auf der Systemuebersichtskarte.
+	 * @param mapX Die X-Position
+	 */
+	public void setMapX(int mapX)
+	{
+		this.mapX = mapX;
+	}
+
+	/**
+	 * Gibt die Y-Position auf der Systemuebersichtskarte zurueck.
+	 * @return Die Y-Position
+	 */
+	public int getMapY()
+	{
+		return mapY;
+	}
+
+	/**
+	 * Setzt die Y-Position auf der Systemuebersichtskarte
+	 * @param mapY Die Y-Position
+	 */
+	public void setMapY(int mapY)
+	{
+		this.mapY = mapY;
 	}
 
 	/**

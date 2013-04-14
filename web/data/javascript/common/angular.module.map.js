@@ -26,6 +26,11 @@ angular.module('ds.map', ['ds.service.ds','ds.starmap'])
 				options.scanship = scanShip;
 				options.admin = adminSicht ? 1 : 0;
 				return ds(options);
+			},
+			speichereSystemkarte: function(requestData) {
+				requestData.module = 'map';
+				requestData.action = 'speichereSystemkarte';
+				return ds(requestData);
 			}
 		};
 	}])
@@ -181,6 +186,17 @@ angular.module('ds.map', ['ds.service.ds','ds.starmap'])
 			});
 		}
 
+		function speichern() {
+			var req = {};
+			angular.forEach($scope.sysGraph.nodes, function(node) {
+				if( node.posX || node.posY ) {
+					req['sys'+node.id+'x'] = Math.round(node.posX);
+					req['sys'+node.id+'y'] = Math.round(node.posY);
+				}
+			});
+			dsMap.speichereSystemkarte(req);
+		}
+
 		function refresh() {
 			dsMap
 				.systemauswahl()
@@ -214,7 +230,9 @@ angular.module('ds.map', ['ds.service.ds','ds.starmap'])
 							allianz: system.allianz,
 							basis: system.basis,
 							schiff: system.schiff,
-							group: group
+							group: group,
+							posX: system.mapX,
+							posY: system.mapY
 						});
 
 						angular.forEach(system.sprungpunkte, function(jn) {
@@ -227,6 +245,10 @@ angular.module('ds.map', ['ds.service.ds','ds.starmap'])
 
 					$scope.sysGraph = sysGraph;
 					$scope.wechselZuSystem = wechselZuSystem;
+					$scope.systemkarteEditierbar = data.systemkarteEditierbar;
+					if( data.systemkarteEditierbar ) {
+						$scope.speichern = speichern;
+					}
 				});
 		}
 

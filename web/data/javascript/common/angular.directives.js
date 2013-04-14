@@ -368,7 +368,7 @@ angular.module('ds.directives', [])
 		},
 
 		layoutPrepare: function() {
-			for (var i in this.graph.nodes) {
+			for( var i= 0, length=this.graph.nodes.length; i < length; i++ ) {
 				var node = this.graph.nodes[i];
 				node.layoutPosX = 0;
 				node.layoutPosY = 0;
@@ -381,9 +381,10 @@ angular.module('ds.directives', [])
 		layoutCalcBounds: function() {
 			var minx = Infinity, maxx = -Infinity, miny = Infinity, maxy = -Infinity;
 
-			for (var i in this.graph.nodes) {
-				var x = this.graph.nodes[i].layoutPosX;
-				var y = this.graph.nodes[i].layoutPosY;
+			for( var i= 0, length=this.graph.nodes.length; i < length; i++ ) {
+				var node = this.graph.nodes[i];
+				var x = node.layoutPosX;
+				var y = node.layoutPosY;
 
 				if(x > maxx) maxx = x;
 				if(x < minx) minx = x;
@@ -401,9 +402,9 @@ angular.module('ds.directives', [])
 			// Forces on nodes due to node-node repulsions
 
 			var prev = new Array();
-			for(var c in this.graph.nodes) {
+			for( var c= 0, length=this.graph.nodes.length; c < length; c++ ) {
 				var node1 = this.graph.nodes[c];
-				for (var d in prev) {
+				for( var d= 0, length2=prev.length; d < length2; d++ ) {
 					var node2 = this.graph.nodes[prev[d]];
 					this.layoutRepulsive(node1, node2);
 
@@ -418,7 +419,7 @@ angular.module('ds.directives', [])
 			}
 
 			// Move by the given force
-			for (i in this.graph.nodes) {
+			for( var i= 0, length=this.graph.nodes.length; i < length; i++ ) {
 				var node = this.graph.nodes[i];
 				var xmove = this.c * node.layoutForceX;
 				var ymove = this.c * node.layoutForceY;
@@ -635,21 +636,31 @@ angular.module('ds.directives', [])
 		var voronoi = new Voronoi();
 		var bbox = {
 			xl:0,
-			xr:coordTransformer.transformX(graph.layoutMaxX)+coordTransformer.getNodeWidth()+10,
+			xr:0,
 			yt:0,
-			yb:coordTransformer.transformY(graph.layoutMaxY)+coordTransformer.getNodeHeight()+10
+			yb:0
 		};
 		var vertices = [];
 
 		for( var i=0; i < graph.nodes.length; i++ ) {
 			var node = graph.nodes[i];
 
+			var x = node.posX || coordTransformer.transformX(node.layoutPosX);
+			var y = node.posY || coordTransformer.transformY(node.layoutPosY);
+
 			vertices.push({
-				x: coordTransformer.transformX(node.layoutPosX)+coordTransformer.getNodeWidth()/2,
-				y: coordTransformer.transformY(node.layoutPosY)+coordTransformer.getNodeHeight()/2,
+				x: x+coordTransformer.getNodeWidth()/2,
+				y: y+coordTransformer.getNodeHeight()/2,
 				nodeId: i,
 				group: node.group
 			});
+
+			if( bbox.xr < x+coordTransformer.getNodeWidth()+10 ) {
+				bbox.xr = x+coordTransformer.getNodeWidth()+10;
+			}
+			if( bbox.yb < y+coordTransformer.getNodeHeight()+10 ) {
+				bbox.yb = y+coordTransformer.getNodeHeight()+10;
+			}
 		}
 		// a 'vertex' is an object exhibiting 'x' and 'y' properties. The
 		// Voronoi object will add a unique 'voronoiId' property to all
@@ -791,11 +802,6 @@ angular.module('ds.directives', [])
 					HoverPaintStyle : {strokeStyle:"#ec9f2e" },
 					EndpointHoverStyle : {fillStyle:"#ec9f2e" }
 				});
-				var arrowCommon = { foldback:0.7, fillStyle:'darkgreen', width:14 };
-				var overlays = [
-					[ "Arrow", { location:0.8 }, arrowCommon ],
-					[ "Arrow", { location:0.2, direction:-1 }, arrowCommon ]
-				];
 				var uniqueEdges = {};
 				var nodeId = 0;
 
@@ -821,6 +827,35 @@ angular.module('ds.directives', [])
 						last,
 						cursor = iterStartElement;
 
+
+					function updateElementPosition(value, element) {
+						if( !coordTransformer ) {
+							var nodeWidth = attr.nodeWidth ? parseInt(attr.nodeWidth) : element.outerWidth()*1.1;
+							var nodeHeight = attr.nodeHeight ? parseInt(attr.nodeHeight) : element.outerHeight()*1.1;
+
+							coordTransformer = new WorldToScreenTransformer(
+								layout.graph.layoutMinX,
+								layout.graph.layoutMinY,
+								nodeWidth,
+								nodeHeight
+							);
+						}
+
+						var x, y;
+						if( value.posX || value.posY ) {
+							x = value.posX;
+							y = value.posY;
+						}
+						else {
+							x = coordTransformer.transformX(value.layoutPosX);
+							y = coordTransformer.transformY(value.layoutPosY);
+						}
+						element.css({
+							'left': x+"px",
+							'top': y+"px"
+						});
+					}
+
 					// we are not using forEach for perf reasons (trying to avoid #call)
 					for (index = 0, length = array.length; index < length; index++) {
 						key = (collection === array) ? index : array[index];
@@ -845,24 +880,7 @@ angular.module('ds.directives', [])
 								cursor = last.element;
 							}
 
-							if( !coordTransformer ) {
-								var nodeWidth = attr.nodeWidth ? parseInt(attr.nodeWidth) : last.element.outerWidth()*1.1;
-								var nodeHeight = attr.nodeHeight ? parseInt(attr.nodeHeight) : last.element.outerHeight()*1.1;
-
-								coordTransformer = new WorldToScreenTransformer(
-									layout.graph.layoutMinX,
-									layout.graph.layoutMinY,
-									nodeWidth,
-									nodeHeight
-								);
-							}
-
-							var x = coordTransformer.transformX(value.layoutPosX);
-							var y = coordTransformer.transformY(value.layoutPosY);
-							last.element.css({
-								'left': x+"px",
-								'top': y+"px"
-							});
+							updateElementPosition(value, last.element);
 
 							jsPlumbInstance.detachAllConnections(last.element);
 
@@ -888,41 +906,40 @@ angular.module('ds.directives', [])
 								clone.attr("id", id);
 								cursor.after(clone);
 
-								if( !coordTransformer ) {
-									var nodeWidth = attr.nodeWidth ? parseInt(attr.nodeWidth) : clone.outerWidth()*1.1;
-									var nodeHeight = attr.nodeHeight ? parseInt(attr.nodeHeight) : clone.outerHeight()*1.1;
+								updateElementPosition(value, clone);
 
-									coordTransformer = new WorldToScreenTransformer(
-										layout.graph.layoutMinX,
-										layout.graph.layoutMinY,
-										nodeWidth,
-										nodeHeight
-									);
+								if( attr.draggable ) {
+                                	jsPlumbInstance.draggable(clone);
+									clone.on('dragstop', function(event,ui) {
+										scope.$apply(function(scope) {
+											var graph = scope.$eval(attr.dsGraph);
+											$.each(lastOrder, function(key, value) {
+												if( typeof value !== 'object' ) {
+													return;
+												}
+												if( value[0].elementId == $(event.target).attr('id') ) {
+													graph.nodes[value[0].index].posX = ui.position.left;
+													graph.nodes[value[0].index].posY = ui.position.top;
+												}
+											});
+										});
+
+									});
 								}
-
-								var x = coordTransformer.transformX(value.layoutPosX);
-								var y = coordTransformer.transformY(value.layoutPosY);
-								clone.css({
-									'left': x+"px",
-									'top': y+"px"
-								});
-
-                                //jsPlumbInstance.draggable(clone);
 
 								last = {
 									scope: childScope,
 									element: (cursor = clone),
 									index: index,
 									elementId : id
-
 								};
 								nextOrder.push(value, last);
 							});
 						}
 					}
 
-					for (index = 0, length = layout.graph.edges.length; index < length; index++) {
-						var edge = layout.graph.edges[index];
+					for (var indexEdge = 0, lengthEdge = layout.graph.edges.length; indexEdge < lengthEdge; indexEdge++) {
+						var edge = layout.graph.edges[indexEdge];
 						var node1 = nextOrder.get(edge.source);
 						var node2 = nextOrder.get(edge.target);
 						if( hashKey(edge.source) === hashKey(edge.target) ) {

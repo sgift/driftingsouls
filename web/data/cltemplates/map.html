@@ -13,7 +13,7 @@
 	 ds-popup-width="750"
 	 ds-popup-height="550"
 	 ng-controller="MapSystemuebersichtController">
-	<div ds-graph="sysGraph" class="starsystem" group-nodes="true">
+	<div ds-graph="sysGraph" class="starsystem" group-nodes="true" draggable="systemkarteEditierbar">
 		<div class="nodecontent" ng-class="node.basis && 'basis' || ''" >
 			<div class="jumpToSystem" ng-click="wechselZuSystem(node)" title="System anzeigen"></div>
 			<div class="label">{{node.label}}</div>
@@ -22,6 +22,11 @@
 				<div class="allianz" ui-if="node.allianz"><img title="Vorherschende Fraktion: {{node.allianz.plainname}}" ng-src="data/logos/ally/{{node.allianz.id}}.gif" /></div>
 				<div class="schiff" ui-if="node.schiff"><img title="Eigene Schiffe im System" src="data/interface/schiffe/1/icon_schiff.gif" /></div>
 			</div>
+		</div>
+	</div>
+	<div class="aktionen">
+		<div ui-if="systemkarteEditierbar" class="aktion">
+			<span ng-click="speichern()">speichern</span>
 		</div>
 	</div>
 </div>

@@ -12,6 +12,7 @@ import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.JSONSupport;
+import net.driftingsouls.ds2.server.framework.JSONUtils;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -107,11 +108,38 @@ public class MapController extends AngularGenerator
 		return true;
 	}
 
+	@Action(value=ActionType.AJAX)
+	public JSONObject speichereSystemkarteAction()
+	{
+		if( !getUser().isAdmin() )
+		{
+			return JSONUtils.error("Du bist nicht berechtigt diese Aktion auszuführen");
+		}
+
+		org.hibernate.Session db = getDB();
+
+		List<StarSystem> systems = Common.cast(db.createCriteria(StarSystem.class).list());
+		for(StarSystem system: systems)
+		{
+			int x = getRequest().getParameterInt("sys"+system.getID()+"x");
+			int y = getRequest().getParameterInt("sys"+system.getID()+"y");
+
+			if( x != 0 || y != 0 )
+			{
+				system.setMapX(x);
+				system.setMapY(y);
+			}
+		}
+
+		return JSONUtils.success("Systeme gespeichert");
+	}
+
 	private JSONObject createResultObj()
 	{
 		JSONObject result = new JSONObject();
 		result.accumulate("system", sys);
 		result.accumulate("adminSichtVerfuegbar", getUser().isAdmin());
+		result.accumulate("systemkarteEditierbar", getUser().isAdmin());
 
 		return result;
 	}
@@ -120,7 +148,7 @@ public class MapController extends AngularGenerator
 	 * Zeigt die Sternenkarte an.
 	 */
 	@Action(value=ActionType.AJAX, readOnly=true)
-	public JSONObject systemauswahlAction() throws IOException
+	public JSONObject systemauswahlAction()
 	{
 		User user = (User)getUser();
 		org.hibernate.Session db = getDB();
@@ -162,6 +190,8 @@ public class MapController extends AngularGenerator
 			sysObj.accumulate("addinfo", systemAddInfo);
 			sysObj.accumulate("npcOnly", system.getAccess() == StarSystem.AC_NPC );
 			sysObj.accumulate("adminOnly", system.getAccess() == StarSystem.AC_ADMIN );
+			sysObj.accumulate("mapX", system.getMapX());
+			sysObj.accumulate("mapY", system.getMapY());
 
 			// Sprungpunkte
 			JSONArray jnListObj = new JSONArray();
