@@ -920,6 +920,7 @@ angular.module('ds.directives', [])
 												if( value[0].elementId == $(event.target).attr('id') ) {
 													graph.nodes[value[0].index].posX = ui.position.left;
 													graph.nodes[value[0].index].posY = ui.position.top;
+													graph.nodes[value[0].index].moved = true;
 												}
 											});
 										});

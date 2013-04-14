@@ -189,7 +189,7 @@ angular.module('ds.map', ['ds.service.ds','ds.starmap'])
 		function speichern() {
 			var req = {};
 			angular.forEach($scope.sysGraph.nodes, function(node) {
-				if( node.posX || node.posY ) {
+				if( node.moved && (node.posX || node.posY) ) {
 					req['sys'+node.id+'x'] = Math.round(node.posX);
 					req['sys'+node.id+'y'] = Math.round(node.posY);
 				}
