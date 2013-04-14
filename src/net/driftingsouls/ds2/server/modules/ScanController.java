@@ -223,7 +223,7 @@ public class ScanController extends TemplateGenerator {
 		boolean scanableNebel = false;
 
 		Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(scanLoc));
-		if( !this.admin && (nebel != null) && !nebel.getType().isEmp() )
+		if( !this.admin && (nebel != null) && nebel.getType().allowsScan() )
 		{
 			// Wenn kein EMP-Nebel, dann kann man ihn scannen
 			scanableNebel = true;
@@ -655,7 +655,7 @@ public class ScanController extends TemplateGenerator {
 								"map.image.offset.y", 0);
 
 					// Nebel
-					if (nebelmap.containsKey(loc) && nebelmap.get(loc).isEmp() )
+					if (nebelmap.containsKey(loc) && !nebelmap.get(loc).allowsScan() )
 					{
 						t.setVar(	"map.image",		"fog"+nebelmap.get(loc).ordinal()+"/fog"+nebelmap.get(loc).ordinal(),
 								"map.image.name",	"Nebel" );

@@ -129,11 +129,11 @@ public class SensorsDefault implements SchiffPlugin {
 				"ship.sensors.location", ship.getLocation().displayCoordinates(true),
 				"global.awac", shiptype.hasFlag(ShipTypes.SF_SRS_AWAC) );
 
-		int sensorrange = Math.round(shiptype.getSensorRange()*(ship.getSensors()/100f));
+		int sensorrange = ship.getEffectiveScanRange();
 
 		if ( ( sensorrange > 0 ) && ( ship.getCrew() >= shiptype.getMinCrew()/3 ) ) {
 			Nebel.Typ nebel = Nebel.getNebula(ship.getLocation());
-			if( nebel == null || !nebel.isEmp() ) {
+			if( nebel == null || nebel.allowsScan() ) {
 				t.setVar("global.longscan",1);
 			}
 		}

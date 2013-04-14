@@ -590,7 +590,11 @@ public class MapController extends AngularGenerator
 					shipObj.accumulate("name", ship.getName());
 					if( ownFleet )
 					{
-						shipObj.accumulate("sensorRange", ship.getTypeData().getSensorRange());
+						int sensorRange = ship.getEffectiveScanRange();
+						if( field.getNebel() != null ) {
+							sensorRange /= 2;
+						}
+						shipObj.accumulate("sensorRange", sensorRange);
 					}
 
 					if( ship.getFleet() != null )

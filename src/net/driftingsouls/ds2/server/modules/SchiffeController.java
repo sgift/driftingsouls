@@ -436,11 +436,11 @@ public class SchiffeController extends TemplateGenerator {
  				}
 
 				if( (shiptype.getShipClass() == ShipClasses.AWACS.ordinal()) || (shiptype.getShipClass() == ShipClasses.FORSCHUNGSKREUZER.ordinal()) ) {
-					int sensorrange = Math.round(shiptype.getSensorRange()*(ship.getSensors()/100f));
+					int sensorrange = ship.getEffectiveScanRange();
 
 					if ( ( sensorrange > 0 ) && ( ship.getCrew() >= shiptype.getMinCrew()/3 ) ) {
 						Nebel.Typ nebel = Nebel.getNebula(ship.getLocation());
-						if( nebel == null || !nebel.isEmp() ) {
+						if( nebel == null || nebel.allowsScan() ) {
 							t.setVar("ship.longscan",1,
 									"ship.system", ship.getSystem(),
 									"ship.x", ship.getX(),

@@ -253,6 +253,16 @@ public class Nebel implements Locatable {
 		{
 			return this.minScanbareSchiffsgroesse;
 		}
+
+		/**
+		 * Gibt an, ob Schiffe in diesem Feld scannen duerfen.
+		 *
+		 * @return <code>true</code>, wenn sie scannen duerfen, sonst <code>false</code>.
+		 */
+		public boolean allowsScan()
+		{
+			return !this.emp;
+		}
 	}
 
 	@Id
@@ -326,7 +336,7 @@ public class Nebel implements Locatable {
 	 */
 	public boolean allowsScan()
 	{
-		return !this.type.isEmp();
+		return this.type.allowsScan();
 	}
 
 	/**
