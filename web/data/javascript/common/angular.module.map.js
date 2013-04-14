@@ -206,10 +206,22 @@ angular.module('ds.map', ['ds.service.ds','ds.starmap'])
 						edges : []
 					};
 
+					var hasNpcSystems = false;
+					var hasAdminSystems = false;
+
 					var systeme = data.systeme;
 					angular.forEach(systeme, function(system) {
-						if( system.npcOnly || system.adminOnly ) {
-							return;
+						if( system.npcOnly ) {
+							hasNpcSystems = true;
+							if( !$scope.ansicht.npcSystemeAnzeigen ) {
+								return;
+							}
+						}
+						if( system.adminOnly ) {
+							hasAdminSystems = true;
+							if( !$scope.ansicht.adminSystemeAnzeigen ) {
+								return;
+							}
 						}
 
 						var group = {
@@ -243,15 +255,37 @@ angular.module('ds.map', ['ds.service.ds','ds.starmap'])
 						});
 					});
 
+					var ansicht = $scope.ansicht;
+					ansicht.systemkarteEditierbar = data.systemkarteEditierbar;
+					ansicht.adminSysteme = hasAdminSystems;
+					ansicht.npcSysteme = hasNpcSystems;
+					$scope.ansicht = ansicht;
+
 					$scope.sysGraph = sysGraph;
 					$scope.wechselZuSystem = wechselZuSystem;
-					$scope.systemkarteEditierbar = data.systemkarteEditierbar;
+
 					if( data.systemkarteEditierbar ) {
 						$scope.speichern = speichern;
 					}
 				});
 		}
 
+		var ansicht;
+		if( $scope.ansicht ) {
+			ansicht = $scope.ansicht;
+		}
+		else {
+			ansicht = {adminSystemeAnzeigen: false, npcSystemeAnzeigen:false};
+			ansicht.toggleNpcSystemeAnzeigen = function() {
+				this.npcSystemeAnzeigen = !this.npcSystemeAnzeigen;
+				refresh();
+			}
+			ansicht.toggleAdminSystemeAnzeigen = function() {
+				this.adminSystemeAnzeigen = !this.adminSystemeAnzeigen;
+				refresh();
+			}
+		}
+		$scope.ansicht = ansicht;
 		$scope.$on('dsPopupOpen', function(event, popup) {
 			if( popup == $scope.dsPopupName ) {
 				refresh();

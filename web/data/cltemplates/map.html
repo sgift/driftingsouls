@@ -24,9 +24,19 @@
 			</div>
 		</div>
 	</div>
-	<div class="aktionen">
-		<div ui-if="systemkarteEditierbar" class="aktion">
+	<div class="aktionen" ui-if="ansicht.systemkarteEditierbar || ansicht.adminSysteme || ansicht.npcSysteme">
+		<div ui-if="ansicht.systemkarteEditierbar" class="aktion">
 			<span ng-click="speichern()">speichern</span>
+		</div>
+		<div ui-if="ansicht.adminSysteme" class="aktion">
+			<span ng-click="ansicht.toggleAdminSystemeAnzeigen()">
+				Admin-Systeme: {{ansicht.adminSystemeAnzeigen && 'ja' || 'nein'}}
+			</span>
+		</div>
+		<div ui-if="ansicht.npcSysteme" class="aktion">
+			<span ng-click="ansicht.toggleNpcSystemeAnzeigen()">
+				NPC-Systeme: {{ansicht.npcSystemeAnzeigen && 'ja' || 'nein'}}
+			</span>
 		</div>
 	</div>
 </div>
