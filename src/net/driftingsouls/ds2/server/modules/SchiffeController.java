@@ -343,7 +343,7 @@ public class SchiffeController extends TemplateGenerator {
 				}
 
 				if( shiptype.getWerft() != 0 ) {
-					WerftObject werft = (WerftObject)db.createQuery("from ShipWerft where shipid=:ship")
+					WerftObject werft = (WerftObject)db.createQuery("from ShipWerft where ship=:ship")
 						.setEntity("ship", ship)
 						.uniqueResult();
 					if( werft == null ) {

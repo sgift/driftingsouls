@@ -259,7 +259,7 @@ public class SensorsDefault implements SchiffPlugin {
 						"s.battle is null and " +
 						"locate('l ',s.docked)=0 and s.shiptype= :showonly and s.owner= :showid and " +
 						"locate('disable_iff',s.status)=0 "+
-					"order by "+thisorder+",case when s.docked!='' then s.docked else s.id end,fleet")
+					"order by "+thisorder+",case when s.docked!='' then s.docked else s.id end,s.fleet")
 				.setInteger("id", ship.getId())
 				.setInteger("x", ship.getX())
 				.setInteger("y", ship.getY())
@@ -302,7 +302,7 @@ public class SensorsDefault implements SchiffPlugin {
 			ships = db.createQuery("from Ship s inner join fetch s.owner " +
 					"where s.id!= :id and s.id>0 and s.x= :x and s.y=:y and s.system= :sys and " +
 						"s.battle is null and locate('l ',s.docked)=0 " +
-					"order by "+thisorder+",case when s.docked!='' then s.docked else s.id end, fleet")
+					"order by "+thisorder+",case when s.docked!='' then s.docked else s.id end, s.fleet")
 				.setInteger("id", ship.getId())
 				.setInteger("x", ship.getX())
 				.setInteger("y", ship.getY())
@@ -836,10 +836,10 @@ public class SensorsDefault implements SchiffPlugin {
 
 		Query baseQuery;
 		if( !order.equals("type") && !order.equals("shiptype") ) {
-			baseQuery = db.createQuery("from Base where system=:sys and floor(sqrt(pow(:x-x,2)+pow(:y-y,2))) <= size order by "+order+",id");
+			baseQuery = db.createQuery("from Base b where b.system=:sys and floor(sqrt(pow(:x-b.x,2)+pow(:y-b.y,2))) <= b.size order by "+order+",b.id");
 		}
 		else {
-			baseQuery = db.createQuery("from Base where system=:sys and floor(sqrt(pow(:x-x,2)+pow(:y-y,2))) <= size order by id");
+			baseQuery = db.createQuery("from Base b where b.system=:sys and floor(sqrt(pow(:x-b.x,2)+pow(:y-b.y,2))) <= b.size order by b.id");
 		}
 		List<?> bases = baseQuery
 			.setInteger("sys", caller.ship.getSystem())
