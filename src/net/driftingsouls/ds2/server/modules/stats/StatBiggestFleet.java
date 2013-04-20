@@ -51,15 +51,15 @@ public class StatBiggestFleet extends AbstractStatistic implements Statistic {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 
-		Integer[] zuIgnorierendeSchiffsklassen = {
-				ShipClasses.UNBEKANNT.ordinal(),
-				ShipClasses.TRANSPORTER.ordinal(),
-				ShipClasses.TANKER.ordinal(),
-				ShipClasses.CONTAINER.ordinal(),
-				ShipClasses.SCHROTT.ordinal(),
-				ShipClasses.RETTUNGSKAPSEL.ordinal(),
-				ShipClasses.EMTPY.ordinal(),
-				ShipClasses.FELSBROCKEN.ordinal()};
+		ShipClasses[] zuIgnorierendeSchiffsklassen = {
+				ShipClasses.UNBEKANNT,
+				ShipClasses.TRANSPORTER,
+				ShipClasses.TANKER,
+				ShipClasses.CONTAINER,
+				ShipClasses.SCHROTT,
+				ShipClasses.RETTUNGSKAPSEL,
+				ShipClasses.EMTPY,
+				ShipClasses.FELSBROCKEN};
 
 		String sumStatement = "sum(COALESCE(sm.size, st.size)*COALESCE(sm.size, st.size)*s.crew/COALESCE(sm.crew, st.crew)*s.hull/COALESCE(sm.hull,st.hull)*s.hull)";
 

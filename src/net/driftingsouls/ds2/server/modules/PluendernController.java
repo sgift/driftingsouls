@@ -127,7 +127,7 @@ public class PluendernController extends TemplateGenerator {
 			return false;
 		}
 
-		if( shipTypeTo.getShipClass() == ShipClasses.GESCHUETZ.ordinal() ) {
+		if( shipTypeTo.getShipClass() == ShipClasses.GESCHUETZ ) {
 			addError("Sie k&ouml;nnen autonome orbitale Verteidigungsanlagen weder kapern noch pl&uuml;ndern", errorurl);
 
 			return false;
@@ -175,7 +175,7 @@ public class PluendernController extends TemplateGenerator {
 			return false;
 		}
 
-		if( (shipTypeTo.getShipClass() == ShipClasses.STATION.ordinal() ) && (shipTo.getCrew() != 0) ) {
+		if( (shipTypeTo.getShipClass() == ShipClasses.STATION ) && (shipTo.getCrew() != 0) ) {
 			addError("Solange die Crew &uuml;ber die Waren wacht werden sie hier nichts klauen k&ouml;nnen", errorurl);
 
 			return false;

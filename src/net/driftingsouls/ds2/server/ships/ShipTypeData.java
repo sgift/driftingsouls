@@ -229,7 +229,7 @@ public interface ShipTypeData extends Cloneable {
 	 * Gibt die Schiffsklasse zurueck.
 	 * @return Die Schiffsklasse
 	 */
-	public int getShipClass();
+	public ShipClasses getShipClass();
 
 	/**
 	 * Gibt die Schiffsgroesse zurueck.

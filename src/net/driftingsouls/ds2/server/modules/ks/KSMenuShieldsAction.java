@@ -26,6 +26,7 @@ import java.util.Map;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
@@ -80,14 +81,14 @@ public class KSMenuShieldsAction extends BasicKSMenuAction {
 		}
 				
 		int shieldidlist = 0;
-		Map<Integer,Integer> shieldclasslist = new HashMap<Integer,Integer>();
+		Map<ShipClasses,Integer> shieldclasslist = new HashMap<ShipClasses,Integer>();
 		
 		List<BattleShip> ownShips = battle.getOwnShips();
-		for( int i=0; i < ownShips.size(); i++ ) {
-			BattleShip aship = ownShips.get(i);
-			
+		for (BattleShip aship : ownShips)
+		{
 			ShipTypeData ashiptype = aship.getTypeData();
-			if( aship.getShip().getShields() < ashiptype.getShields() ) {
+			if (aship.getShip().getShields() < ashiptype.getShields())
+			{
 				shieldidlist++;
 				Common.safeIntInc(shieldclasslist, ashiptype.getShipClass());
 			}
@@ -102,20 +103,20 @@ public class KSMenuShieldsAction extends BasicKSMenuAction {
 					"Wollen sie wirklich alle Schilde aufladen?" );
 		}
 		
-		for( Map.Entry<Integer, Integer> entry: shieldclasslist.entrySet()) {
-			int classID = entry.getKey();
+		for( Map.Entry<ShipClasses, Integer> entry: shieldclasslist.entrySet()) {
+			ShipClasses classID = entry.getKey();
 			int idlist = entry.getValue();
 			
 			if( idlist == 0 ) {
 				continue;
 			} 
-			this.menuEntryAsk( "Alle "+ShipTypes.getShipClass(classID).getPlural()+"-Schilde aufladen",
+			this.menuEntryAsk( "Alle "+classID.getPlural()+"-Schilde aufladen",
 					new Object[] {
 						"ship",		ownShip.getId(),
 						"attack",	enemyShip.getId(),
 						"ksaction",	"shields_class",
-						"shieldclass",	classID },
-					"Wollen sie wirklich bei allen Schiffen der Klasse '"+ShipTypes.getShipClass(classID).getSingular()+"' die Schilde aufladen?" );
+						"shieldclass",	classID.ordinal() },
+					"Wollen sie wirklich bei allen Schiffen der Klasse '"+classID.getSingular()+"' die Schilde aufladen?" );
 		}
 				
 		this.menuEntry("zur&uuml;ck",

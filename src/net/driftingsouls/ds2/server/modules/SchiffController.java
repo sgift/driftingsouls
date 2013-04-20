@@ -213,7 +213,7 @@ public class SchiffController extends TemplateGenerator {
 			return;
 		}
 
-		if( (shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal()) || !shiptype.isMilitary() ) {
+		if( (shiptype.getShipClass() == ShipClasses.GESCHUETZ) || !shiptype.isMilitary() ) {
 			redirect();
 			return;
 		}
@@ -891,7 +891,7 @@ public class SchiffController extends TemplateGenerator {
 					"ship.s",				ship.getHeat(),
 					"ship.fleet",			ship.getFleet() != null ? ship.getFleet().getId() : 0,
 					"shiptype.werft",		shiptype.getWerft(),
-					"ship.showalarm",		!noob && (shiptype.getShipClass() != ShipClasses.GESCHUETZ.ordinal()) && shiptype.isMilitary() );
+					"ship.showalarm",		!noob && (shiptype.getShipClass() != ShipClasses.GESCHUETZ) && shiptype.isMilitary() );
 
 		if( ship.getHeat() >= 100 ) {
 			t.setVar("ship.s.color", "red");

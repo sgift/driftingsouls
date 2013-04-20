@@ -52,9 +52,9 @@ public class StatBiggestTrader extends AbstractStatistic implements Statistic {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 
-		Integer[] zuIgnorierendeSchiffsklassen = {
-				ShipClasses.TRANSPORTER.ordinal(),
-				ShipClasses.CONTAINER.ordinal()};
+		ShipClasses[] zuIgnorierendeSchiffsklassen = {
+				ShipClasses.TRANSPORTER,
+				ShipClasses.CONTAINER};
 
 		String sumStatement = "sum(COALESCE(sm.cargo, st.cargo)*(s.crew/COALESCE(sm.crew, st.crew))*(s.hull/COALESCE(sm.hull, st.hull))*s.hull)";
 

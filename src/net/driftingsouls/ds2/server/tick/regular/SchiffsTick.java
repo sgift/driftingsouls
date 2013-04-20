@@ -261,7 +261,7 @@ public class SchiffsTick extends TickController {
 		this.log("\tEnergie:");
 		int e = shipd.getEnergy();
 
-		if(shiptd.getShipClass() != ShipClasses.GESCHUETZ.ordinal())
+		if(shiptd.getShipClass() != ShipClasses.GESCHUETZ)
 		{
 			e -= shipd.getAlertEnergyCost();
 			if( e < 0 ) {

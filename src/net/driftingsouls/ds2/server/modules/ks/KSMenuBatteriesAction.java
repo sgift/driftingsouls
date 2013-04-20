@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
@@ -82,19 +83,20 @@ public class KSMenuBatteriesAction extends BasicKSMenuAction {
 		}
 				
 		int battsidlist = 0;
-		Map<Integer,Integer> battsclasslist = new HashMap<Integer,Integer>();
+		Map<ShipClasses,Integer> battsclasslist = new HashMap<ShipClasses, Integer>();
 				
 		List<BattleShip> ownShips = battle.getOwnShips();
-		for( int i=0; i < ownShips.size(); i++ ) {
-			BattleShip aship = ownShips.get(i);
-			
+		for (BattleShip aship : ownShips)
+		{
 			ShipTypeData ashiptype = aship.getTypeData();
-			if( aship.getShip().getEnergy() >= ashiptype.getEps() ) {
+			if (aship.getShip().getEnergy() >= ashiptype.getEps())
+			{
 				continue;
 			}
-			
+
 			Cargo mycargo = aship.getCargo();
-			if( mycargo.hasResource( Resources.BATTERIEN ) ) {
+			if (mycargo.hasResource(Resources.BATTERIEN))
+			{
 				battsidlist++;
 				Common.safeIntInc(battsclasslist, ashiptype.getShipClass());
 			}
@@ -108,19 +110,19 @@ public class KSMenuBatteriesAction extends BasicKSMenuAction {
 								"Wollen sie wirklich bei allen Schiffen die Batterien entladen?" );
 		}
 		
-		for( Map.Entry<Integer, Integer> entry: battsclasslist.entrySet() ) {
-			int classID = entry.getKey();
+		for( Map.Entry<ShipClasses, Integer> entry: battsclasslist.entrySet() ) {
+			ShipClasses classID = entry.getKey();
 			int idlist = entry.getValue();
 			
 			if( idlist == 0 ) {
 				continue;
 			} 
-			this.menuEntryAsk( "Bei allen "+ShipTypes.getShipClass(classID).getPlural()+"n die Batterien entladen",
+			this.menuEntryAsk( "Bei allen "+classID.getPlural()+"n die Batterien entladen",
 								new Object[] { 	"ship",			ownShip.getId(),
 												"attack",		enemyShip.getId(),
 												"ksaction",		"batterien_class",
-												"battsclass",	classID },
-								"Wollen sie wirklich bei allen Schiffen der Klasse '"+ShipTypes.getShipClass(classID).getSingular()+"' die Batterien entladen?" );
+												"battsclass",	classID.ordinal() },
+								"Wollen sie wirklich bei allen Schiffen der Klasse '"+classID.getSingular()+"' die Batterien entladen?" );
 		}
 				
 		this.menuEntry("zur&uuml;ck",	

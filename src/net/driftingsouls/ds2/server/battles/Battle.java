@@ -24,6 +24,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -758,7 +759,7 @@ public class Battle implements Locatable
 
 
             boolean ownShip = false;
-            if ((shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal()) && (aShip.isDocked() || aShip.isLanded())) {
+            if ((shiptype.getShipClass() == ShipClasses.GESCHUETZ) && (aShip.isDocked() || aShip.isLanded())) {
                 battleShip.setAction(battleShip.getAction() | BS_DISABLE_WEAPONS);
             }
 
@@ -1060,7 +1061,7 @@ public class Battle implements Locatable
 		}
 
 		ShipTypeData shiptype = shipd.getTypeData();
-		if( (shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal() ) )
+		if( (shiptype.getShipClass() == ShipClasses.GESCHUETZ ) )
 		{
 			context.addError("<span style=\"color:red\">Gesch&uuml;tze k&ouml;nnen einer Schlacht nicht beitreten!<br />Diese m&uuml;ssen von Frachtern mitgenommen werden!</span>");
 			return false;
@@ -1149,7 +1150,7 @@ public class Battle implements Locatable
             }
 
             shiptype = aship.getTypeData();
-            if (shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal()) {
+            if (shiptype.getShipClass() == ShipClasses.GESCHUETZ) {
                 continue;
             }
 
@@ -1170,7 +1171,7 @@ public class Battle implements Locatable
                 int sid2Action = 0;
 
                 ShipTypeData stype = dockedShip.getTypeData();
-                if (stype.getShipClass() == ShipClasses.GESCHUETZ.ordinal()) {
+                if (stype.getShipClass() == ShipClasses.GESCHUETZ) {
                     sid2Action = BS_BLOCK_WEAPONS;
                 }
 
@@ -1284,11 +1285,12 @@ public class Battle implements Locatable
                     {
 						long shipcount = ((Number)db.createQuery("select count(*) from Ship " +
 								"where owner= :user and x= :x and y= :y and system= :sys and " +
-									"battle is null and shiptype.shipClass in (11,13)")
+									"battle is null and shiptype.shipClass in (:shipClasses)")
 								.setEntity("user", user)
 								.setInteger("x", this.x)
 								.setInteger("y", this.y)
 								.setInteger("sys", this.system)
+								.setParameterList("shipClasses", EnumSet.of(ShipClasses.AWACS,ShipClasses.FORSCHUNGSKREUZER))
 								.iterate().next()).longValue();
 						if( shipcount > 0 ) {
 							this.guest = true;
@@ -1572,7 +1574,7 @@ public class Battle implements Locatable
                 }
 
                 if ((ship.getAction() & BS_BLOCK_WEAPONS) != 0) {
-                    if (!((ship.getTypeData().getShipClass() == ShipClasses.GESCHUETZ.ordinal()) && ship.getShip().isDocked())) {
+                    if (!((ship.getTypeData().getShipClass() == ShipClasses.GESCHUETZ) && ship.getShip().isDocked())) {
                         ship.setAction(ship.getAction() ^ BS_BLOCK_WEAPONS);
                     }
                 }

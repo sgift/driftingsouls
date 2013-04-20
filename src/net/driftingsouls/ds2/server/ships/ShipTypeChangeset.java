@@ -1256,7 +1256,7 @@ public class ShipTypeChangeset {
 		}
 
 		@Override
-		public int getShipClass() {
+		public ShipClasses getShipClass() {
 			return inner.getShipClass();
 		}
 

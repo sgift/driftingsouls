@@ -148,14 +148,14 @@ public class ShipFleet implements JSONSupport {
 				continue;
 			}
 
-			List<Ship>jaegerlist = new ArrayList<Ship>();
+			List<Ship>jaegerlist;
 
 			Query jaegerListeQuery = db.createQuery("select s from Ship as s left join s.modules m " +
 					"where "+(jaegertypeID > 0 ? "s.shiptype=:shiptype and " : "")+"s.owner=:user and s.system=:system and " +
 							"s.x=:x and s.y=:y and s.docked='' and " +
 							"(locate(:jaegerFlag,s.shiptype.flags)!=0 or locate(:jaegerFlag,m.flags)!=0) and " +
 							"s.battle is null " +
-					"order by s.fleet,s.shiptype ")
+					"order by s.fleet.id,s.shiptype.id ")
 				.setEntity("user", user)
 				.setInteger("system", ship.getSystem())
 				.setInteger("x", ship.getX())
@@ -190,7 +190,7 @@ public class ShipFleet implements JSONSupport {
 		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
 			Ship ship = (Ship)iter.next();
 
-			if( (ship.getTypeData().getShipClass() == ShipClasses.GESCHUETZ.ordinal()) || !ship.getTypeData().isMilitary() ) {
+			if( (ship.getTypeData().getShipClass() == ShipClasses.GESCHUETZ) || !ship.getTypeData().isMilitary() ) {
 				continue;
 			}
 
@@ -263,12 +263,12 @@ public class ShipFleet implements JSONSupport {
 			List<?> containers = db.createQuery("from Ship as s " +
 					"where s.owner=:owner and s.system=:sys and s.x=:x and s.y=:y and s.docked='' and " +
 							"s.shiptype.shipClass=:cls and s.battle is null " +
-					"order by s.fleet,s.shiptype ")
+					"order by s.fleet.id,s.shiptype.id ")
 				.setEntity("owner", user)
 				.setInteger("sys", ship.getSystem())
 				.setInteger("x", ship.getX())
 				.setInteger("y", ship.getY())
-				.setInteger("cls", ShipClasses.CONTAINER.ordinal())
+				.setParameter("cls", ShipClasses.CONTAINER)
 				.list();
 
 			if( containers.isEmpty() ) {

@@ -943,7 +943,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			long er = ep/type.getRm();
 
 			int turns = 2;
-			if( (this.alarm != Alert.GREEN.getCode()) && (type.getShipClass() != ShipClasses.GESCHUETZ.ordinal()) ) {
+			if( (this.alarm != Alert.GREEN.getCode()) && (type.getShipClass() != ShipClasses.GESCHUETZ) ) {
 				turns = 4;
 			}
 
@@ -2939,7 +2939,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 			ShipTypeData type = aship.getTypeData();
 
-			if( type.getShipClass() != ShipClasses.CONTAINER.ordinal() ) {
+			if( type.getShipClass() != ShipClasses.CONTAINER ) {
 				continue;
 		  	}
 			gotmodule = true;
@@ -2971,7 +2971,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 				Ship aship = dockships[i];
 				ShipTypeData ashiptype = aship.getTypeData();
 
-				if( (ashiptype.getShipClass() == ShipClasses.CONTAINER.ordinal()) && (cargo.getMass() > 0) )
+				if( (ashiptype.getShipClass() == ShipClasses.CONTAINER) && (cargo.getMass() > 0) )
 				{
 					Cargo acargo = cargo.cutCargo( ashiptype.getCargo() );
 					if( !acargo.isEmpty() )
@@ -3096,7 +3096,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			aship.setDocked(Integer.toString(this.id));
 			ShipTypeData type = aship.getTypeData();
 
-			if( type.getShipClass() != ShipClasses.CONTAINER.ordinal() )
+			if( type.getShipClass() != ShipClasses.CONTAINER )
 			{
 				continue;
 			}
@@ -4160,7 +4160,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	public Offizier getOffizier() {
 		if( this.getTypeData().getSize() <= ShipType.SMALL_SHIP_MAXSIZE &&
-				this.getTypeData().getShipClass() != ShipClasses.RETTUNGSKAPSEL.ordinal() ) {
+				this.getTypeData().getShipClass() != ShipClasses.RETTUNGSKAPSEL ) {
 			return null;
 		}
 

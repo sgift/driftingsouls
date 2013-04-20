@@ -68,7 +68,7 @@ public class KSSecondRowAttackAction extends BasicKSAction {
 			}
 			ShipTypeData shiptype = aship.getTypeData();
 			
-			if( shiptype.getShipClass() == ShipClasses.ZERSTOERER.ordinal() ) {
+			if( shiptype.getShipClass() == ShipClasses.ZERSTOERER ) {
 				hasDestroyer = true;
 			}
 		}

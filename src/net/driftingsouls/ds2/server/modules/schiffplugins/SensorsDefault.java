@@ -625,7 +625,7 @@ public class SensorsDefault implements SchiffPlugin {
 				{
 					t.setVar("sships.action.trade", 1);
 				}
-				else if (!disableIFF && (aship.getOwner().getId() == -1) && (ashiptype.getShipClass() == ShipClasses.SCHROTT.ordinal() || ashiptype.getShipClass() == ShipClasses.FELSBROCKEN.ordinal()))
+				else if (!disableIFF && (aship.getOwner().getId() == -1) && (ashiptype.getShipClass() == ShipClasses.SCHROTT || ashiptype.getShipClass() == ShipClasses.FELSBROCKEN))
 				{
 					t.setVar("sships.action.transferpluender", 1);
 				}
@@ -635,8 +635,8 @@ public class SensorsDefault implements SchiffPlugin {
 				}
 
 				//Bemannen, Kapern, Einheiten tranferieren
-				if (!disableIFF && (aship.getOwner().getId() != user.getId()) && (ashiptype.getShipClass() != ShipClasses.GESCHUETZ.ordinal()) &&
-						((aship.getOwner().getId() != -1) || (ashiptype.getShipClass() == ShipClasses.SCHROTT.ordinal() || ashiptype.getShipClass() == ShipClasses.FELSBROCKEN.ordinal())))
+				if (!disableIFF && (aship.getOwner().getId() != user.getId()) && (ashiptype.getShipClass() != ShipClasses.GESCHUETZ) &&
+						((aship.getOwner().getId() != -1) || (ashiptype.getShipClass() == ShipClasses.SCHROTT || ashiptype.getShipClass() == ShipClasses.FELSBROCKEN)))
 				{
 					if ((user.getAlly() == null) || (aship.getOwner().getAlly() != user.getAlly()))
 					{
@@ -1030,12 +1030,12 @@ public class SensorsDefault implements SchiffPlugin {
 				fixedjoin = true;
 			}
 			boolean viewable = false;
-			if( ((shiptype.getShipClass() == ShipClasses.FORSCHUNGSKREUZER.ordinal()) || (shiptype.getShipClass() == ShipClasses.AWACS.ordinal())) && !fixedjoin ) {
+			if( ((shiptype.getShipClass() == ShipClasses.FORSCHUNGSKREUZER) || (shiptype.getShipClass() == ShipClasses.AWACS)) && !fixedjoin ) {
 				viewable = true;
 			}
 
 			boolean joinable = true;
-			if( shiptype.getShipClass() == ShipClasses.GESCHUETZ.ordinal() ) {
+			if( shiptype.getShipClass() == ShipClasses.GESCHUETZ ) {
 				joinable = false;
 			}
 

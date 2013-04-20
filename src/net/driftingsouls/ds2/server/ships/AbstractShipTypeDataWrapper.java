@@ -209,7 +209,7 @@ public abstract class AbstractShipTypeDataWrapper implements ShipTypeData {
 	}
 
 	@Override
-	public int getShipClass() {
+	public ShipClasses getShipClass() {
 		return inner.getShipClass();
 	}
 

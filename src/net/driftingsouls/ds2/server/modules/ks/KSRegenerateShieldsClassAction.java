@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
@@ -28,7 +29,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
  *
  */
 public class KSRegenerateShieldsClassAction extends KSRegenerateShieldsAllAction {
-	private int shieldclass = 0;
+	private ShipClasses shieldclass;
 	
 	/**
 	 * Konstruktor.
@@ -36,7 +37,7 @@ public class KSRegenerateShieldsClassAction extends KSRegenerateShieldsAllAction
 	 */
 	public KSRegenerateShieldsClassAction() {
 		
-		this.shieldclass = ContextMap.getContext().getRequest().getParameterInt("shieldclass");
+		this.shieldclass = ShipClasses.values()[ContextMap.getContext().getRequest().getParameterInt("shieldclass")];
 	}
 	
 	@Override

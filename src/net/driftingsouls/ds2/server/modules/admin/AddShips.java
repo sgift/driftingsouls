@@ -348,7 +348,7 @@ public class AddShips implements AdminPlugin {
 				// Offizier einfuegen
 				if( (offitype > 0) && (offiname.length() > 0) &&
 						((ship.getTypeData().getSize() > ShipType.SMALL_SHIP_MAXSIZE) ||
-								ship.getTypeData().getShipClass() == ShipClasses.RETTUNGSKAPSEL.ordinal()) ) {
+								ship.getTypeData().getShipClass() == ShipClasses.RETTUNGSKAPSEL) ) {
 					OrderableOffizier offi = (OrderableOffizier)db.get(OrderableOffizier.class, offitype);
 					if( offi != null ) {
 						Offizier offizier = new Offizier(auser, offiname);

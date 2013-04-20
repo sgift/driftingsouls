@@ -33,6 +33,7 @@ import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipModules;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -133,7 +134,7 @@ public class EditShiptypes implements AdminPlugin
 			echo.append("<tr><td>RE Kosten: </td><td><input type=\"text\" name=\"recosts\" value=\"" + ship.getReCost() + "\"></td></tr>\n");
 			echo.append("<tr><td>Beschreibung: </td><td><textarea cols=\"50\" rows=\"10\" name=\"description\">" + ship.getDescrip() + "</textarea></td></tr>\n");
 			echo.append("<tr><td>Deuteriumsammeln: </td><td><input type=\"text\" name=\"deutfactor\" value=\"" + ship.getDeutFactor() + "\"></td></tr>\n");
-			echo.append("<tr><td>Schiffsklasse: </td><td><input type=\"text\" name=\"class\" value=\"" + ship.getShipClass() + "\"></td></tr>\n");
+			echo.append("<tr><td>Schiffsklasse: </td><td><input type=\"text\" name=\"class\" value=\"" + ship.getShipClass().ordinal() + "\"></td></tr>\n");
 			echo.append("<tr><td>Flags: </td><td><input type=\"text\" name=\"flags\" value=\"" + ship.getFlags() + "\"></td></tr>\n");
 			echo.append("<tr><td>Groupwrap: </td><td><input type=\"text\" name=\"groupwrap\" value=\"" + ship.getGroupwrap() + "\"></td></tr>\n");
 			echo.append("<tr><td>Werft: </td><td><input type=\"text\" name=\"dockyard\" value=\"" + ship.getWerft() + "\"></td></tr>\n");
@@ -237,7 +238,7 @@ public class EditShiptypes implements AdminPlugin
 		shiptype.setReCost(reCost);
 		shiptype.setDescrip(description);
 		shiptype.setDeutFactor(deutFactor);
-		shiptype.setShipClass(shipClass);
+		shiptype.setShipClass(ShipClasses.values()[shipClass]);
 		shiptype.setFlags(flags);
 		shiptype.setGroupwrap(groupwrap);
 		shiptype.setWerft(werft);

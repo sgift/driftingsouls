@@ -79,7 +79,7 @@ public class ShipType implements ShipTypeData {
 	@Column(name="deutfactor")
 	private int deutFactor;
 	@Column(name="class")
-	private int shipClass;
+	private ShipClasses shipClass;
 	private String flags;
 	private int groupwrap;
 	private int werft;
@@ -278,7 +278,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	@Override
-	public int getShipClass() {
+	public ShipClasses getShipClass() {
 		return shipClass;
 	}
 
@@ -645,7 +645,7 @@ public class ShipType implements ShipTypeData {
 	 * Setzt die Schiffsklasse, zu der der Typ zugehoert.
 	 * @param shipClass Die Schiffsklasse
 	 */
-	public void setShipClass(int shipClass) {
+	public void setShipClass(ShipClasses shipClass) {
 		this.shipClass = shipClass;
 	}
 

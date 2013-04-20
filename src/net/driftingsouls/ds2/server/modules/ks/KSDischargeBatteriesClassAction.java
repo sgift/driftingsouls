@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
@@ -28,7 +29,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
  *
  */
 public class KSDischargeBatteriesClassAction extends KSDischargeBatteriesAllAction {
-	private int battsclass = 0;
+	private ShipClasses battsclass;
 	
 	/**
 	 * Konstruktor.
@@ -36,7 +37,7 @@ public class KSDischargeBatteriesClassAction extends KSDischargeBatteriesAllActi
 	 */
 	public KSDischargeBatteriesClassAction() {
 		
-		this.battsclass = ContextMap.getContext().getRequest().getParameterInt("battsclass");
+		this.battsclass = ShipClasses.values()[ContextMap.getContext().getRequest().getParameterInt("battsclass")];
 	}
 
 	@Override

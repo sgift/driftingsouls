@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
@@ -107,20 +108,21 @@ public class KSMenuFluchtAction extends BasicKSMenuAction {
 			}
 					
 			int fluchtidlist = 0;
-			Map<Integer,Integer> fluchtclasslist = new HashMap<Integer,Integer>();
+			Map<ShipClasses,Integer> fluchtclasslist = new HashMap<ShipClasses, Integer>();
 			
 			List<BattleShip> ownShips = battle.getOwnShips();
-			for( int i=0; i < ownShips.size(); i++ ) {
-				BattleShip aship = ownShips.get(i);
+			for (BattleShip aship : ownShips)
+			{
 				ShipTypeData ashiptype = aship.getTypeData();
-				
-				if( (aship.getAction() & Battle.BS_JOIN ) == 0 && (aship.getAction() & Battle.BS_DESTROYED) == 0 && 
-					(aship.getAction() & Battle.BS_FLUCHT) == 0 && !ownShip.getShip().isLanded() && !ownShip.getShip().isDocked() && (aship.getShip().getEngine() > 0) &&
-					!aship.getShip().isBattleAction() && gotone ) {
-						
+
+				if ((aship.getAction() & Battle.BS_JOIN) == 0 && (aship.getAction() & Battle.BS_DESTROYED) == 0 &&
+						(aship.getAction() & Battle.BS_FLUCHT) == 0 && !ownShip.getShip().isLanded() && !ownShip.getShip().isDocked() && (aship.getShip().getEngine() > 0) &&
+						!aship.getShip().isBattleAction() && gotone)
+				{
+
 					fluchtidlist++;
 					Common.safeIntInc(fluchtclasslist, ashiptype.getShipClass());
-				}	
+				}
 			}
 									
 			if( fluchtidlist > 0 ) {
@@ -133,20 +135,20 @@ public class KSMenuFluchtAction extends BasicKSMenuAction {
 						"Wollen sie wirklich mit allen Schiffen fl&uuml;chten?" );
 			}
 			
-			for( Map.Entry<Integer, Integer> entry: fluchtclasslist.entrySet()) { 
-				int classID = entry.getKey();
+			for( Map.Entry<ShipClasses, Integer> entry: fluchtclasslist.entrySet()) {
+				ShipClasses classID = entry.getKey();
 				int idlist = entry.getValue();
 				if( idlist == 0 ) {
 					continue;
 				} 
-				this.menuEntryAsk( "Alle "+ShipTypes.getShipClass(classID).getPlural()+" fl&uuml;chten lassen",
+				this.menuEntryAsk( "Alle "+classID.getPlural()+" fl&uuml;chten lassen",
 						new Object[] {
 							"ship",		ownShip.getId(),
 							"attack",	enemyShip.getId(),
 							"ksaction",	"flucht_class",
-							"fluchtclass",	classID,
+							"fluchtclass",	classID.ordinal(),
 							"fluchtmode",	fluchtmode },
-						"Wollen sie wirklich mit allen Schiffen der Klasse '"+ShipTypes.getShipClass(classID).getSingular()+"' fl&uuml;chten?" );
+						"Wollen sie wirklich mit allen Schiffen der Klasse '"+classID.getSingular()+"' fl&uuml;chten?" );
 			}
 		}
 				

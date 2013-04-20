@@ -162,7 +162,7 @@ public class KapernController extends TemplateGenerator {
 		}
 
 		// Wenn das Ziel ein Geschtz (10) ist....
-		if( dship.getTypeData().getShipClass() == ShipClasses.GESCHUETZ.ordinal() ) {
+		if( dship.getTypeData().getShipClass() == ShipClasses.GESCHUETZ ) {
 			addError("Sie k&ouml;nnen orbitale Verteidigungsanlagen weder kapern noch pl&uuml;ndern", errorurl);
 
 			return false;
@@ -268,7 +268,7 @@ public class KapernController extends TemplateGenerator {
 				return;
 			}
 
-			if( this.targetShip.getTypeData().getShipClass() == ShipClasses.STATION.ordinal() ) {
+			if( this.targetShip.getTypeData().getShipClass() == ShipClasses.STATION ) {
 				if( !checkAlliedShipsReaction(db, t, targetUser) ) {
 					return;
 				}

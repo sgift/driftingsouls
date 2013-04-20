@@ -1025,7 +1025,7 @@ public class KSAttackAction extends BasicKSAction {
 	}
 
 	private boolean shipNeedsDock(ShipTypeData type) {
-		return !(type.getShipClass() != ShipClasses.JAEGER.ordinal() && type.getShipClass() != ShipClasses.BOMBER.ordinal());
+		return !(type.getShipClass() != ShipClasses.JAEGER && type.getShipClass() != ShipClasses.BOMBER);
 	}
 
 	private boolean shipIsGKS(ShipTypeData type) {

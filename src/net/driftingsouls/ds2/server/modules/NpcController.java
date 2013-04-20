@@ -702,15 +702,16 @@ public class NpcController extends AngularGenerator {
 		List<?> orderList = db.createQuery("from Order where user= :user")
 			.setInteger("user", user.getId())
 			.list();
-		for( Iterator<?> iter=orderList.iterator(); iter.hasNext(); ) {
-			Order order = (Order)iter.next();
-			if( order instanceof OrderShip )
+		for (Object anOrderList : orderList)
+		{
+			Order order = (Order) anOrderList;
+			if (order instanceof OrderShip)
 			{
-				Common.safeIntInc(shiporders, ((OrderShip)order).getType());
+				Common.safeIntInc(shiporders, ((OrderShip) order).getType());
 			}
-			else if( order instanceof OrderOffizier )
+			else if (order instanceof OrderOffizier)
 			{
-				Common.safeIntInc(offiorders, ((OrderOffizier)order).getType());
+				Common.safeIntInc(offiorders, ((OrderOffizier) order).getType());
 			}
 		}
 
@@ -721,19 +722,21 @@ public class NpcController extends AngularGenerator {
 		JSONArray shipResultList = new JSONArray();
 
 		List<?> shipOrders = db.createQuery("from OrderableShip order by shipType.shipClass,shipType.id").list();
-		for( Iterator<?> iter=shipOrders.iterator(); iter.hasNext(); ) {
-			OrderableShip ship = (OrderableShip)iter.next();
+		for (Object shipOrder : shipOrders)
+		{
+			OrderableShip ship = (OrderableShip) shipOrder;
 
-			if( !Rassen.get().rasse(user.getRace()).isMemberIn(ship.getRasse()) )
+			if (!Rassen.get().rasse(user.getRace()).isMemberIn(ship.getRasse()))
 			{
 				continue;
 			}
-			
+
 			JSONObject resShip = new JSONObject();
 
-			resShip.accumulate("klasse", ShipTypes.getShipClass(ship.getShipType().getShipClass()).getSingular());
+			resShip.accumulate("klasse", ship.getShipType().getShipClass().getSingular());
 
-			if( !shiporders.containsKey(ship.getId()) ) {
+			if (!shiporders.containsKey(ship.getId()))
+			{
 				shiporders.put(ship.getId(), 0);
 			}
 
@@ -742,7 +745,7 @@ public class NpcController extends AngularGenerator {
 			resShip.accumulate("type", ship.getShipType().getId());
 			resShip.accumulate("cost", ship.getCost());
 			resShip.accumulate("ordercount", shiporders.get(ship.getId()));
-			
+
 			shipResultList.add(resShip);
 		}
 		

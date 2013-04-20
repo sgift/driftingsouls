@@ -371,7 +371,7 @@ public class SchiffInfoController extends TemplateGenerator {
 
 		t.setVar(	"shiptype.nickname",	ship.getNickname(),
 					"shiptype.id",			ship.getTypeId(),
-					"shiptype.class",		ShipTypes.getShipClass(ship.getShipClass()).getSingular(),
+					"shiptype.class",		ship.getShipClass().getSingular(),
 					"shiptype.image",		ship.getPicture(),
 					"shiptype.ru",			Common.ln(ship.getRu()),
 					"shiptype.rd",			Common.ln(ship.getRd()),
