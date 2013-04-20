@@ -81,7 +81,6 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	private BasicUser finishLogin(BasicUser user,  boolean rememberMe) throws AuthenticationException
 	{
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
 		Request request = context.getRequest();
 
 		checkDisabled(user);
@@ -100,19 +99,26 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 
 		if(rememberMe)
 		{
-			UUID uuid = UUID.randomUUID();
-			String value = user.getId() + "####" + uuid;
-			context.getResponse().setCookie("dsRememberMe", value, 157680000);
-
-			PermanentSession permanentSession = new PermanentSession();
-			permanentSession.setTick(context.get(ContextCommon.class).getTick());
-			permanentSession.setToken(Common.md5(uuid.toString()));
-			permanentSession.setUserId(user.getId());
-
-			db.save(permanentSession);
+			createPermanentSessionAndCookie(user, context);
 		}
 
 		return user;
+	}
+
+	private void createPermanentSessionAndCookie(BasicUser user, Context context)
+	{
+		org.hibernate.Session db = context.getDB();
+
+		UUID uuid = UUID.randomUUID();
+		String value = user.getId() + "####" + uuid;
+		context.getResponse().setCookie("dsRememberMe", value, 157680000);
+
+		PermanentSession permanentSession = new PermanentSession();
+		permanentSession.setTick(context.get(ContextCommon.class).getTick());
+		permanentSession.setToken(Common.md5(uuid.toString()));
+		permanentSession.setUserId(user.getId());
+
+		db.save(permanentSession);
 	}
 
 	private void checkLoginDisabled(Context context) throws LoginDisabledException {
@@ -178,7 +184,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 			{
 				try
 				{
-					finishLogin(user, false);
+					finishLogin(user, true);
 				}
 				catch (AuthenticationException e)
 				{
