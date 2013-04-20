@@ -1290,7 +1290,7 @@ public class Battle implements Locatable
 								.setInteger("x", this.x)
 								.setInteger("y", this.y)
 								.setInteger("sys", this.system)
-								.setParameterList("shipClasses", EnumSet.of(ShipClasses.AWACS,ShipClasses.FORSCHUNGSKREUZER))
+								.setParameterList("shipClasses", ShipClasses.darfSchlachtenAnsehen())
 								.iterate().next()).longValue();
 						if( shipcount > 0 ) {
 							this.guest = true;

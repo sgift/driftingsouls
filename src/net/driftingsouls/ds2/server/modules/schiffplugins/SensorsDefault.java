@@ -1030,7 +1030,7 @@ public class SensorsDefault implements SchiffPlugin {
 				fixedjoin = true;
 			}
 			boolean viewable = false;
-			if( ((shiptype.getShipClass() == ShipClasses.FORSCHUNGSKREUZER) || (shiptype.getShipClass() == ShipClasses.AWACS)) && !fixedjoin ) {
+			if( shiptype.getShipClass().isDarfSchlachtenAnsehen() && !fixedjoin ) {
 				viewable = true;
 			}
 

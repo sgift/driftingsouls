@@ -18,6 +18,9 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Die unterschiedlichen Schiffsklassen in DS.
  * @author Christopher Jung
@@ -27,96 +30,108 @@ public enum ShipClasses {
 	/**
 	 * Die Schiffsklasse "Unbekannt". ID 0.
 	 */
-	UNBEKANNT("Unbekannt", "Unbekannt", true),
+	UNBEKANNT("Unbekannt", "Unbekannt", true, false),
 	/**
 	 * Die Schiffsklasse "Transporter". ID 1.
 	 */
-	TRANSPORTER("Transporter", "Transporter", true),
+	TRANSPORTER("Transporter", "Transporter", true, false),
 	/**
 	 * Die Schiffsklasse "Zerstoerer". ID 2.
 	 */
-	ZERSTOERER("Zerstörer", "Zerstörer", true),
+	ZERSTOERER("Zerstörer", "Zerstörer", true, false),
 	/**
 	 * Die Schiffsklasse "Tanker". ID 3.
 	 */
-	TANKER("Tanker", "Tanker", true),
+	TANKER("Tanker", "Tanker", true, false),
 	/**
 	 * Die Schiffsklasse "Juggernauten". ID 4.
 	 */
-	JUGGERNAUT("Juggernaut","Juggernauten", true),
+	JUGGERNAUT("Juggernaut","Juggernauten", true, false),
 	/**
 	 * Die Schiffsklasse "Korvetten". ID 5.
 	 */
-	KORVETTE("Korvette", "Korvetten", true),
+	KORVETTE("Korvette", "Korvetten", true, false),
 	/**
 	 * Die Schiffsklasse "Kreuzer". ID 6.
 	 */
-	KREUZER("Kreuzer", "Kreuzer", true),
+	KREUZER("Kreuzer", "Kreuzer", true, false),
 	/**
 	 * Die Schiffsklasse "Schwere Kreuzer". ID 7.
 	 */
-	SCHWERER_KREUZER("Schwerer Kreuzer", "Schwere Kreuzer", true),
+	SCHWERER_KREUZER("Schwerer Kreuzer", "Schwere Kreuzer", true, false),
 	/**
 	 * Die Schiffsklasse "Stationen". ID 8.
 	 */
-	STATION("Station", "Stationen", true),
+	STATION("Station", "Stationen", true, false),
 	/**
 	 * Die Schiffsklasse "Jaeger". ID 9.
 	 */
-	JAEGER("Jäger", "Jäger", true),
+	JAEGER("Jäger", "Jäger", true, false),
 	/**
 	 * Die Schiffsklasse "Geschuetze". ID 10.
 	 */
-	GESCHUETZ("Geschütz","Geschütze", false),
+	GESCHUETZ("Geschütz","Geschütze", false, false),
 	/**
 	 * Die Schiffsklasse "Forschungskreuzer". ID 11.
 	 */
-	FORSCHUNGSKREUZER("Forschungskreuzer", "Forschungskreuzer", true),
+	FORSCHUNGSKREUZER("Forschungskreuzer", "Forschungskreuzer", true, true),
 	/**
 	 * Die Schiffsklasse "Container". ID 12.
 	 */
-	CONTAINER("Container", "Container", true),
+	CONTAINER("Container", "Container", true, false),
 	/**
 	 * Die Schiffsklasse "AWACs". ID 13.
 	 */
-	AWACS("AWAC", "AWACs", true),
+	AWACS("AWAC", "AWACs", true, true),
 	/**
 	 * Die Schiffsklasse "Schrotthaufen". ID 14.
 	 */
-	SCHROTT("Schrott", "Schrotthaufen", true),
+	SCHROTT("Schrott", "Schrotthaufen", true, false),
 	/**
 	 * Die Schiffsklasse "Traeger". ID 15.
 	 */
-	TRAEGER("Träger", "Träger", true),
+	TRAEGER("Träger", "Träger", true, false),
 	/**
 	 * Die Schiffsklasse "Kommandoschiffe". ID 16.
 	 */
-	KOMMANDOSCHIFF("Kommandoschiff", "Kommandoschiffe", true),
+	KOMMANDOSCHIFF("Kommandoschiff", "Kommandoschiffe", true, false),
 	/**
 	 * Die Schiffsklasse "Bomber". ID 17.
 	 */
-	BOMBER("Bomber", "Bomber", true),
+	BOMBER("Bomber", "Bomber", true, false),
 	/**
 	 * Die Schiffsklasse "Rettungskapseln". ID 18.
 	 */
-	RETTUNGSKAPSEL("Rettungskapsel", "Rettungskapseln", true),
+	RETTUNGSKAPSEL("Rettungskapsel", "Rettungskapseln", true, false),
 	/**
 	 * Die Schiffsklasse "" (nichts). ID 19.
 	 */
-	EMTPY("", "", true),
+	EMTPY("", "", true, false),
 	/**
 	 * Die Schiffsklasse "Felsbrocken". ID 20.
 	 */
-	FELSBROCKEN("Felsbrocken", "Felsbrocken", true);
+	FELSBROCKEN("Felsbrocken", "Felsbrocken", true, false);
 
 	private String singular;
 	private String plural;
 	private final boolean kaperbar;
+
+	private final boolean darfSchlachtenAnsehen;
 	
-	private ShipClasses(String singular, String plural, boolean kaperbar) {
+	private ShipClasses(String singular, String plural, boolean kaperbar, boolean darfSchlachtenAnsehen) {
 		this.singular = singular;
 		this.plural = plural;
 		this.kaperbar = kaperbar;
+		this.darfSchlachtenAnsehen = darfSchlachtenAnsehen;
+	}
+
+	/**
+	 * Gibt zurueck, ob diese Schiffsklasse laufende Schlachten ansehen darf ohne ihnen beitreten zu muessen.
+	 * @return <code>true</code> falls dem so ist
+	 */
+	public boolean isDarfSchlachtenAnsehen()
+	{
+		return darfSchlachtenAnsehen;
 	}
 
 	/**
@@ -141,5 +156,22 @@ public enum ShipClasses {
 	 */
 	public String getPlural() {
 		return plural;
+	}
+
+	/**
+	 * Gibt alle Schiffsklassen zurueck, die laufende Schlachten einsehen dürfen.
+	 * @return Die Schiffsklassen
+	 * @see #isDarfSchlachtenAnsehen() 
+	 */
+	public static Set<ShipClasses> darfSchlachtenAnsehen() {
+		Set<ShipClasses> result = new HashSet<ShipClasses>();
+		for (ShipClasses shipClasses : values())
+		{
+			if( shipClasses.isDarfSchlachtenAnsehen() )
+			{
+				result.add(shipClasses);
+			}
+		}
+		return result;
 	}
 }
