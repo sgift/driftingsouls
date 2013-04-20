@@ -25,102 +25,108 @@ package net.driftingsouls.ds2.server.ships;
  */
 public enum ShipClasses {
 	/**
-	 * Die Schiffsklasse "Unbekannt".
+	 * Die Schiffsklasse "Unbekannt". ID 0.
 	 */
-	UNBEKANNT("Unbekannt"),						// 0
+	UNBEKANNT("Unbekannt", "Unbekannt", true),
 	/**
-	 * Die Schiffsklasse "Transporter".
+	 * Die Schiffsklasse "Transporter". ID 1.
 	 */
-	TRANSPORTER("Transporter"),					// 1
+	TRANSPORTER("Transporter", "Transporter", true),
 	/**
-	 * Die Schiffsklasse "Zerstoerer".
+	 * Die Schiffsklasse "Zerstoerer". ID 2.
 	 */
-	ZERSTOERER("Zerstörer"),				// 2
+	ZERSTOERER("Zerstörer", "Zerstörer", true),
 	/**
-	 * Die Schiffsklasse "Tanker".
+	 * Die Schiffsklasse "Tanker". ID 3.
 	 */
-	TANKER("Tanker"),							// 3
+	TANKER("Tanker", "Tanker", true),
 	/**
-	 * Die Schiffsklasse "Juggernauten".
+	 * Die Schiffsklasse "Juggernauten". ID 4.
 	 */
-	JUGGERNAUT("Juggernaut","Juggernauten"),	// 4
+	JUGGERNAUT("Juggernaut","Juggernauten", true),
 	/**
-	 * Die Schiffsklasse "Korvetten".
+	 * Die Schiffsklasse "Korvetten". ID 5.
 	 */
-	KORVETTE("Korvette", "Korvetten"),			// 5
+	KORVETTE("Korvette", "Korvetten", true),
 	/**
-	 * Die Schiffsklasse "Kreuzer".
+	 * Die Schiffsklasse "Kreuzer". ID 6.
 	 */
-	KREUZER("Kreuzer", "Kreuzer"),				// 6
+	KREUZER("Kreuzer", "Kreuzer", true),
 	/**
-	 * Die Schiffsklasse "Schwere Kreuzer".
+	 * Die Schiffsklasse "Schwere Kreuzer". ID 7.
 	 */
-	SCHWERER_KREUZER("Schwerer Kreuzer", "Schwere Kreuzer"),	// 7
+	SCHWERER_KREUZER("Schwerer Kreuzer", "Schwere Kreuzer", true),
 	/**
-	 * Die Schiffsklasse "Stationen".
+	 * Die Schiffsklasse "Stationen". ID 8.
 	 */
-	STATION("Station", "Stationen"),			// 8
+	STATION("Station", "Stationen", true),
 	/**
-	 * Die Schiffsklasse "Jaeger".
+	 * Die Schiffsklasse "Jaeger". ID 9.
 	 */
-	JAEGER("Jäger"),						// 9
+	JAEGER("Jäger", "Jäger", true),
 	/**
-	 * Die Schiffsklasse "Geschuetze".
+	 * Die Schiffsklasse "Geschuetze". ID 10.
 	 */
-	GESCHUETZ("Geschütz","Geschütze"),				// 10
+	GESCHUETZ("Geschütz","Geschütze", false),
 	/**
-	 * Die Schiffsklasse "Forschungskreuzer".
+	 * Die Schiffsklasse "Forschungskreuzer". ID 11.
 	 */
-	FORSCHUNGSKREUZER("Forschungskreuzer"),		// 11
+	FORSCHUNGSKREUZER("Forschungskreuzer", "Forschungskreuzer", true),
 	/**
-	 * Die Schiffsklasse "Container".
+	 * Die Schiffsklasse "Container". ID 12.
 	 */
-	CONTAINER("Container"),						// 12
+	CONTAINER("Container", "Container", true),
 	/**
-	 * Die Schiffsklasse "AWACs".
+	 * Die Schiffsklasse "AWACs". ID 13.
 	 */
-	AWACS("AWAC", "AWACs"),						// 13
+	AWACS("AWAC", "AWACs", true),
 	/**
-	 * Die Schiffsklasse "Schrotthaufen".
+	 * Die Schiffsklasse "Schrotthaufen". ID 14.
 	 */
-	SCHROTT("Schrott", "Schrotthaufen"),		// 14
+	SCHROTT("Schrott", "Schrotthaufen", true),
 	/**
-	 * Die Schiffsklasse "Traeger".
+	 * Die Schiffsklasse "Traeger". ID 15.
 	 */
-	TRAEGER("Träger"),						// 15
+	TRAEGER("Träger", "Träger", true),
 	/**
-	 * Die Schiffsklasse "Kommandoschiffe".
+	 * Die Schiffsklasse "Kommandoschiffe". ID 16.
 	 */
-	KOMMANDOSCHIFF("Kommandoschiff", "Kommandoschiffe"),		// 16
+	KOMMANDOSCHIFF("Kommandoschiff", "Kommandoschiffe", true),
 	/**
-	 * Die Schiffsklasse "Bomber".
+	 * Die Schiffsklasse "Bomber". ID 17.
 	 */
-	BOMBER("Bomber"),							// 17
+	BOMBER("Bomber", "Bomber", true),
 	/**
-	 * Die Schiffsklasse "Rettungskapseln".
+	 * Die Schiffsklasse "Rettungskapseln". ID 18.
 	 */
-	RETTUNGSKAPSEL("Rettungskapsel", "Rettungskapseln"),		// 18
+	RETTUNGSKAPSEL("Rettungskapsel", "Rettungskapseln", true),
 	/**
-	 * Die Schiffsklasse "" (nichts).
+	 * Die Schiffsklasse "" (nichts). ID 19.
 	 */
-	EMTPY(""),									// 19
+	EMTPY("", "", true),
 	/**
-	 * Die Schiffsklasse "Felsbrocken".
+	 * Die Schiffsklasse "Felsbrocken". ID 20.
 	 */
-	FELSBROCKEN("Felsbrocken");					// 20
-	
+	FELSBROCKEN("Felsbrocken", "Felsbrocken", true);
+
 	private String singular;
 	private String plural;
+	private final boolean kaperbar;
 	
-	private ShipClasses(String singular, String plural) {
+	private ShipClasses(String singular, String plural, boolean kaperbar) {
 		this.singular = singular;
 		this.plural = plural;
+		this.kaperbar = kaperbar;
 	}
-	
-	private ShipClasses(String name) {
-		this(name,name);
+
+	/**
+	 * Gibt zurueck, ob der Schiffstyp grundsaetzlich kaperbar oder pluenderbar ist.
+	 * @return <code>true</code> falls dem so ist
+	 */
+	public boolean isKaperbar() {
+		return this.kaperbar;
 	}
-	
+
 	/**
 	 * Gibt die Singularform des Schiffsklassen-Namens zurueck.
 	 * @return die Singularform

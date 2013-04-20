@@ -47,6 +47,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenera
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.units.TransientUnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo;
@@ -155,15 +156,16 @@ public class KapernController extends TemplateGenerator {
 			return false;
 		}
 
-		if( (dship.getTypeData().getCost() != 0) && (dship.getEngine() != 0) && (dship.getCrew() != 0 || !dship.getUnits().isEmpty()) ) {
+		ShipTypeData dshipTypeData = dship.getTypeData();
+		if( (dshipTypeData.getCost() != 0) && (dship.getEngine() != 0) && (dship.getCrew() != 0 || !dship.getUnits().isEmpty()) ) {
 			addError("Das feindliche Schiff ist noch bewegungsf&auml;hig", errorurl);
 
 			return false;
 		}
 
 		// Wenn das Ziel ein Geschtz (10) ist....
-		if( dship.getTypeData().getShipClass() == ShipClasses.GESCHUETZ ) {
-			addError("Sie k&ouml;nnen orbitale Verteidigungsanlagen weder kapern noch pl&uuml;ndern", errorurl);
+		if( !dshipTypeData.getShipClass().isKaperbar() ) {
+			addError("Sie k&ouml;nnen "+ dshipTypeData.getShipClass().getPlural()+" weder kapern noch pl&uuml;ndern", errorurl);
 
 			return false;
 		}

@@ -80,7 +80,7 @@ public class KSKapernAction extends BasicKSAction {
 		ShipTypeData enemyShipType = enemyShip.getTypeData();
 
 		//		 Geschuetze sind nicht kaperbar
-		if( (enemyShipType.getShipClass() == ShipClasses.GESCHUETZ ) ||
+		if( !enemyShipType.getShipClass().isKaperbar() ||
 				((enemyShipType.getCost() != 0) && (enemyShip.getShip().getEngine() != 0) && (enemyShip.getCrew() != 0)) ||
 				(ownShip.getCrew() == 0) || enemyShipType.hasFlag(ShipTypes.SF_NICHT_KAPERBAR) ) {
 			return Result.ERROR;

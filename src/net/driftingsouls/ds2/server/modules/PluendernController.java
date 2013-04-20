@@ -127,8 +127,8 @@ public class PluendernController extends TemplateGenerator {
 			return false;
 		}
 
-		if( shipTypeTo.getShipClass() == ShipClasses.GESCHUETZ ) {
-			addError("Sie k&ouml;nnen autonome orbitale Verteidigungsanlagen weder kapern noch pl&uuml;ndern", errorurl);
+		if( !shipTypeTo.getShipClass().isKaperbar() ) {
+			addError("Sie k&ouml;nnen "+shipTypeTo.getShipClass().getPlural()+" weder kapern noch pl&uuml;ndern", errorurl);
 
 			return false;
 		}

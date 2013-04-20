@@ -635,7 +635,7 @@ public class SensorsDefault implements SchiffPlugin {
 				}
 
 				//Bemannen, Kapern, Einheiten tranferieren
-				if (!disableIFF && (aship.getOwner().getId() != user.getId()) && (ashiptype.getShipClass() != ShipClasses.GESCHUETZ) &&
+				if (!disableIFF && (aship.getOwner().getId() != user.getId()) && ashiptype.getShipClass().isKaperbar() &&
 						((aship.getOwner().getId() != -1) || (ashiptype.getShipClass() == ShipClasses.SCHROTT || ashiptype.getShipClass() == ShipClasses.FELSBROCKEN)))
 				{
 					if ((user.getAlly() == null) || (aship.getOwner().getAlly() != user.getAlly()))
