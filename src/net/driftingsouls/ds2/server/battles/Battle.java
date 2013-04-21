@@ -1237,6 +1237,43 @@ public class Battle implements Locatable
 	}
 
 	/**
+	 * Gibt zurueck, auf welcher Seite ein Spieler Teil der Schlacht ist.
+	 * Falls ein Spieler nicht Teil der Schlacht ist wird <code>-1</code>
+	 * zurueckgegeben.
+	 * @param user Der Spieler
+	 * @return Die Seite oder <code>-1</code>
+	 */
+	public int getSchlachtMitglied(User user)
+	{
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+
+		for( int i=0; i < 1; i++ )
+		{
+			if( user.getAlly() != null && user.getAlly().getId() == this.getAlly(i) )
+			{
+				return i;
+			}
+			if( this.getCommander(i).getId() == user.getId() )
+			{
+				return i;
+			}
+		}
+
+		// Hat der Spieler ein Schiff in der Schlacht
+		BattleShip aship = (BattleShip)db.createQuery("from BattleShip where id>0 and ship.owner=:user and battle=:battle")
+				.setEntity("user", user)
+				.setEntity("battle", this)
+				.setMaxResults(1)
+				.uniqueResult();
+
+		if( aship != null ) {
+			return aship.getSide();
+		}
+		return -1;
+	}
+
+	/**
 	 * Laedt weitere Schlachtdaten aus der Datenbank.
 	 * @param user Der aktive Spieler
 	 * @param ownShip Das auszuwaehlende eigene Schiff (oder <code>null</code>)
@@ -1262,44 +1299,31 @@ public class Battle implements Locatable
 		int forceSide = -1;
 
 		if( forcejoin == 0 ) {
-			if( ( (user.getAlly() != null) && !Common.inArray(user.getAlly().getId(),this.getAllys()) && !this.isCommander(user) ) ||
-				( (user.getAlly() == null) && !this.isCommander(user) ) ) {
-
-				// Hat der Spieler ein Schiff in der Schlacht
-				BattleShip aship = (BattleShip)db.createQuery("from BattleShip where id>0 and ship.owner=:user and battle=:battle")
-					.setEntity("user", user)
-					.setEntity("battle", this)
-					.setMaxResults(1)
-					.uniqueResult();
-
-				if( aship != null ) {
-					forceSide = aship.getSide();
+			forceSide = this.getSchlachtMitglied(user);
+			if( forceSide == -1 )
+			{
+				//Mehr ueber den Spieler herausfinden
+				if( context.hasPermission("schlacht", "alleAufrufbar") ) {
+					this.guest = true;
 				}
 				else
-                {
-					//Mehr ueber den Spieler herausfinden
-					if( context.hasPermission("schlacht", "alleAufrufbar") ) {
+				{
+					long shipcount = ((Number)db.createQuery("select count(*) from Ship " +
+							"where owner= :user and x= :x and y= :y and system= :sys and " +
+								"battle is null and shiptype.shipClass in (:shipClasses)")
+							.setEntity("user", user)
+							.setInteger("x", this.x)
+							.setInteger("y", this.y)
+							.setInteger("sys", this.system)
+							.setParameterList("shipClasses", ShipClasses.darfSchlachtenAnsehen())
+							.iterate().next()).longValue();
+					if( shipcount > 0 ) {
 						this.guest = true;
 					}
 					else
-                    {
-						long shipcount = ((Number)db.createQuery("select count(*) from Ship " +
-								"where owner= :user and x= :x and y= :y and system= :sys and " +
-									"battle is null and shiptype.shipClass in (:shipClasses)")
-								.setEntity("user", user)
-								.setInteger("x", this.x)
-								.setInteger("y", this.y)
-								.setInteger("sys", this.system)
-								.setParameterList("shipClasses", ShipClasses.darfSchlachtenAnsehen())
-								.iterate().next()).longValue();
-						if( shipcount > 0 ) {
-							this.guest = true;
-						}
-						else
-                        {
-							context.addError("Sie verf&uuml;gen &uuml;ber kein geeignetes Schiff im Sektor um die Schlacht zu verfolgen");
-							return false;
-						}
+					{
+						context.addError("Sie verf&uuml;gen &uuml;ber kein geeignetes Schiff im Sektor um die Schlacht zu verfolgen");
+						return false;
 					}
 				}
 			}
@@ -1335,7 +1359,7 @@ public class Battle implements Locatable
 
 		List<BattleShip> ships = Common.cast(db.createQuery("from BattleShip bs inner join fetch bs.ship as s " +
                 "where s.id>0 and bs.battle=:battle " +
-                "order by s.shiptype, s.id")
+                "order by s.shiptype.id, s.id")
                 .setEntity("battle", this)
                 .list());
 

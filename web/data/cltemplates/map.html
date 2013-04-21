@@ -81,7 +81,8 @@
 			<ul class='battles'>
 				<li ng-repeat="battle in sektor.battles">
 					<img src='./data/interface/battle.svg' />
-					<div class="name">Schlacht</div>
+					<div class="name" ui-if="!battle.einsehbar">Schlacht</div>
+					<div class="name" ui-if="battle.einsehbar"><a href="./ds?module=angriff&battle={{battle.id}}">Schlacht</a></div>
 					<div class='details'>
 						<div ng-repeat="side in battle.sides" class="side">
 							<a ui-if="side.ally" href="ds?module=allylist&action=details&details={{side.ally.id}}" ng-bind-html-unsafe="side.ally.name"></a>

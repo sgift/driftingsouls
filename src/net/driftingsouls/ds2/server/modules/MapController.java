@@ -565,11 +565,47 @@ public class MapController extends AngularGenerator
 			json.accumulate("nebel", nebelObj);
 		}
 
+		JSONArray battleListObj = exportSectorBattles(db, field);
+		json.accumulate("battles", battleListObj);
+
+		json.accumulate("subraumspaltenCount", field.getSubraumspalten().size());
+
+
+		return json;
+	}
+
+	private JSONArray exportSectorBattles(Session db, FieldView field)
+	{
 		JSONArray battleListObj = new JSONArray();
-		for (Battle battle : field.getBattles())
+		List<Battle> battles = field.getBattles();
+		if( battles.isEmpty() )
+		{
+			return battleListObj;
+		}
+
+		User user = (User)getUser();
+		boolean viewable = getContext().hasPermission("schlacht", "alleAufrufbar");
+
+		if( !viewable )
+		{
+			Map<ShipType, List<Ship>> ships = field.getShips().get(user);
+			if( ships != null && !ships.isEmpty() )
+			{
+				for (ShipType shipType : ships.keySet())
+				{
+					if( shipType.getShipClass().isDarfSchlachtenAnsehen() )
+					{
+						viewable = true;
+					}
+				}
+			}
+		}
+
+		for (Battle battle : battles)
 		{
 			JSONObject battleObj = new JSONObject();
 			battleObj.accumulate("id", battle.getId());
+			battleObj.accumulate("einsehbar", viewable || battle.getSchlachtMitglied(user) != -1);
 			JSONArray sideListObj = new JSONArray();
 
 			for( int i=0; i < 2; i++ )
@@ -587,12 +623,7 @@ public class MapController extends AngularGenerator
 
 			battleListObj.add(battleObj);
 		}
-		json.accumulate("battles", battleListObj);
-
-		json.accumulate("subraumspaltenCount", field.getSubraumspalten().size());
-
-
-		return json;
+		return battleListObj;
 	}
 
 	private JSONArray exportSectorShips(FieldView field)

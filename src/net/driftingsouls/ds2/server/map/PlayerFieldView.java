@@ -37,6 +37,7 @@ public class PlayerFieldView implements FieldView
 	private final User user;
 	private final Ship scanShip;
 	private final Location location;
+	private final boolean inScanRange;
 
     /**
 	 * Legt eine neue Sicht an.
@@ -53,6 +54,7 @@ public class PlayerFieldView implements FieldView
         this.scanShip = scanShip;
 		this.db = db;
         this.location = position;
+		this.inScanRange = this.isInScanRange();
 	}
 	
 	/**
@@ -62,7 +64,7 @@ public class PlayerFieldView implements FieldView
 	@Override
 	public List<Base> getBases()
 	{
-		if(!isInScanRange())
+		if(!this.inScanRange)
         {
             return new ArrayList<Base>();
         }
@@ -151,7 +153,7 @@ public class PlayerFieldView implements FieldView
 	public Map<User, Map<ShipType, List<Ship>>> getShips()
 	{
 		Map<User, Map<ShipType, List<Ship>>> ships = new TreeMap<User, Map<ShipType,List<Ship>>>(BasicUser.PLAINNAME_ORDER);
-        if(!isInScanRange())
+        if(!this.inScanRange)
         {
             return ships;
         }
@@ -255,7 +257,7 @@ public class PlayerFieldView implements FieldView
 	@Override
 	public List<Jump> getSubraumspalten()
 	{
-		if( !isInScanRange() )
+		if( !this.inScanRange )
 		{
 			return new ArrayList<Jump>();
 		}
@@ -265,7 +267,7 @@ public class PlayerFieldView implements FieldView
 	@Override
 	public List<Battle> getBattles()
 	{
-		if( !isInScanRange() )
+		if( !this.inScanRange )
 		{
 			return new ArrayList<Battle>();
 		}

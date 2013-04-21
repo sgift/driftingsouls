@@ -18,12 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules.schiffplugins;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import net.driftingsouls.ds2.server.MutableLocation;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
@@ -45,7 +39,6 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.werften.BaseWerft;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,6 +46,11 @@ import org.hibernate.FlushMode;
 import org.hibernate.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Schiffsmodul fuer die SRS-Sensoren.
@@ -1022,13 +1020,7 @@ public class SensorsDefault implements SchiffPlugin {
 				Ally ally = (Ally)db.get(Ally.class, battle.getAlly(1));
 				party2 = "<a class=\"profile\" href=\""+Common.buildUrl("default", "module", "allylist", "details", ally.getId())+"\">"+Common._title(ally.getName())+"</a>";
 			}
-			boolean fixedjoin = false;
-			if( (battle.getCommander(0).getId() == user.getId()) ||
-				(battle.getCommander(1).getId() == user.getId()) ||
-				( (ownAlly != null) && (battle.getAlly(0) == ownAlly.getId()) ) ||
-				( (ownAlly != null) && (battle.getAlly(1) == ownAlly.getId()) ) ) {
-				fixedjoin = true;
-			}
+			boolean fixedjoin = battle.getSchlachtMitglied(user) != -1;
 			boolean viewable = false;
 			if( shiptype.getShipClass().isDarfSchlachtenAnsehen() && !fixedjoin ) {
 				viewable = true;
