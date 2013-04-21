@@ -248,20 +248,20 @@ public class PluendernController extends TemplateGenerator {
 			// Transfer vom Ausgangsschiff zum Zielschiff
 			if( transt > 0 ) {
 				t.setVar(	"transfer.target",	this.shipTo.getName(),
-							"transfer.count",	transt );
+							"transfer.count",	Common.ln(transt) );
 
 				if( transt > res.getCount1() ) {
 					transt = res.getCount1();
 
 					t.setVar(	"transfer.notenoughcargo",	1,
-								"transfer.cargo",			res.getCount1() );
+								"transfer.cargo",			Common.ln(res.getCount1()) );
 				}
 
 				if( curcargoto - transt < 0 ) {
 					transt = (long)( curcargoto/(double)Cargo.getResourceMass( res.getId(), 1 ) );
 
 					t.setVar(	"transfer.notenoughspace",	1,
-								"transfer.newcount",		transt );
+								"transfer.newcount",		Common.ln(transt) );
 				}
 
 				// Falls es sich um ein unbekanntes Item handelt, dann dem Besitzer des Zielschiffes bekannt machen
@@ -279,11 +279,11 @@ public class PluendernController extends TemplateGenerator {
 				curcargoto = shipTypeTo.getCargo() - newCargoTo.getMass();
 				curcargofrom = shipTypeFrom.getCargo() - newCargoFrom.getMass();
 
-				t.setVar( "transfer.totalcargo", newCargoTo.getResourceCount( res.getId() ) );
+				t.setVar( "transfer.totalcargo", Common.ln(newCargoTo.getResourceCount( res.getId() )) );
 
 				if( transt > 0 ) {
 					transfer = true;
-					msg.append("[resource="+res.getId()+")"+transt+"[/resource] zur&uuml;ckgegeben.\n");
+					msg.append("[resource="+res.getId()+")"+Common.ln(transt)+"[/resource] zur&uuml;ckgegeben.\n");
 				}
 
 				t.parse("transfer.list", "transfer.listitem", true);
@@ -291,20 +291,20 @@ public class PluendernController extends TemplateGenerator {
 			// Transfer vom Zielschiff zum Ausgangsschiff
 			else if( transf > 0 ) {
 				t.setVar(	"transfer.target",	this.shipFrom.getName(),
-							"transfer.count",	transf );
+							"transfer.count",	Common.ln(transf) );
 
 				if( transf > res.getCount2() ) {
 					transf = res.getCount2();
 
 					t.setVar(	"transfer.notenoughcargo",	1,
-								"transfer.cargo",			res.getCount2() );
+								"transfer.cargo",			Common.ln(res.getCount2()) );
 				}
 
 				if( curcargofrom - transf < 0 ) {
 					transf = (long)( curcargofrom/(double)Cargo.getResourceMass( res.getId(), 1 ) );
 
 					t.setVar(	"transfer.notenoughspace",	1,
-								"transfer.newcount",		transf );
+								"transfer.newcount",		Common.ln(transf) );
 				}
 
 				// Falls es sich um ein unbekanntes Item handelt, dann dieses dem Spieler bekannt machen
@@ -324,11 +324,11 @@ public class PluendernController extends TemplateGenerator {
 				curcargoto = shipTypeTo.getCargo() - newCargoTo.getMass();
 				curcargofrom = shipTypeFrom.getCargo() - newCargoFrom.getMass();
 
-				t.setVar( "transfer.totalcargo", newCargoFrom.getResourceCount( res.getId() ) );
+				t.setVar( "transfer.totalcargo", Common.ln(newCargoFrom.getResourceCount( res.getId() )) );
 
 				if( transf > 0 ) {
 					transfer = true;
-					msg.append("[resource="+res.getId()+")"+transf+"[/resource] gestohlen.\n");
+					msg.append("[resource="+res.getId()+")"+Common.ln(transf)+"[/resource] gestohlen.\n");
 				}
 
 				t.parse("transfer.list", "transfer.listitem", true);
@@ -392,10 +392,10 @@ public class PluendernController extends TemplateGenerator {
 
 		t.setVar(	"fromship.name",	this.shipFrom.getName(),
 					"fromship.id",		this.shipFrom.getId(),
-					"fromship.cargo",	shipTypeFrom.getCargo()-fromcargo.getMass(),
+					"fromship.cargo",	Common.ln(shipTypeFrom.getCargo()-fromcargo.getMass()),
 					"toship.name",		this.shipTo.getName(),
 					"toship.id",		this.shipTo.getId(),
-					"toship.cargo",		shipTypeTo.getCargo()-tocargo.getMass() );
+					"toship.cargo",		Common.ln(shipTypeTo.getCargo()-tocargo.getMass()) );
 
 		t.setBlock("_PLUENDERN", "res.listitem", "res.list");
 
