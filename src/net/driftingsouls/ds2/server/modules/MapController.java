@@ -31,6 +31,7 @@ import net.driftingsouls.ds2.server.map.PublicStarmap;
 import net.driftingsouls.ds2.server.map.TileCache;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
@@ -634,6 +635,7 @@ public class MapController extends AngularGenerator
 			JSONObject jsonUser = new JSONObject();
 			jsonUser.accumulate("name", Common._text(owner.getKey().getName()));
 			jsonUser.accumulate("id", owner.getKey().getId());
+			jsonUser.accumulate("race", owner.getKey().getRace());
 
 			boolean ownFleet = owner.getKey().getId() == getUser().getId();
 			jsonUser.accumulate("eigener", ownFleet);
@@ -650,11 +652,16 @@ public class MapController extends AngularGenerator
 				JSONArray ships = new JSONArray();
 				for(Ship ship: shiptype.getValue())
 				{
+					ShipTypeData typeData = ship.getTypeData();
 					JSONObject shipObj = new JSONObject();
 					shipObj.accumulate("id", ship.getId());
 					shipObj.accumulate("name", ship.getName());
+					shipObj.accumulate("gedockt", ship.getDockedCount());
+					shipObj.accumulate("maxGedockt", typeData.getADocks());
 					if( ownFleet )
 					{
+						shipObj.accumulate("gelandet", ship.getLandedCount());
+						shipObj.accumulate("maxGelandet", typeData.getJDocks());
 						int sensorRange = ship.getEffectiveScanRange();
 						if( field.getNebel() != null ) {
 							sensorRange /= 2;

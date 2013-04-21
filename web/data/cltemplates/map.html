@@ -107,12 +107,12 @@
 						<div class="shiptype toggle" ng-class="shiptype.expanded && 'expanded' || ''" ng-click="toggle(shiptype)">
 							{{shiptype.ships.length}}x {{shiptype.name}}
 							<a href="./ds?module=schiffinfo&ship={{shiptype.id}}" onclick="ShiptypeBox.show({{shiptype.id}});return false;">
-								<img ng-src="{{shiptype.picture}}" />
+								<img class="schiffstypengrafik" ng-src="{{shiptype.picture}}" />
 							</a>
 						</div>
 						<table class="toggleContent">
-							<tbody>
-								<tr ng-repeat="ship in shiptype.ships" ng-mouseenter="highlightSensoren(ship)" ng-mouseleave="unhighlightSensoren(ship)">
+							<tbody ng-repeat="ship in shiptype.ships" ng-mouseenter="highlightSensoren(ship)" ng-mouseleave="unhighlightSensoren(ship)">
+								<tr>
 									<td class="id">
 										<a ui-if="user.eigener" href="./ds?module=schiff&action=default&ship={{ship.id}}">{{ship.id}}</a>
 										<span ui-if="!user.eigener">{{ship.id}}</span>
@@ -124,6 +124,18 @@
 									<td class="fleet">
 										<span ui-if="ship.fleet">
 											{{ship.fleet.name}}
+										</span>
+									</td>
+								</tr>
+								<tr class="details" ui-if="ship.maxGedockt>0 || ship.maxGelandet>0">
+									<td colspan="3">
+										<span ui-if="ship.maxGedockt>0" title="gedockte Schiffe">
+											<img ng-src="./data/interface/schiffe/{{user.race}}/icon_container.gif" alt="" />
+											{{ship.gedockt}}/{{ship.maxGedockt}}
+										</span>
+										<span ui-if="ship.maxGelandet>0" title="gelandete Schiffe">
+											<img ng-src="./data/interface/schiffe/{{user.race}}/icon_schiff.gif" alt="" />
+											{{ship.gelandet}}/{{ship.maxGelandet}}
 										</span>
 									</td>
 								</tr>

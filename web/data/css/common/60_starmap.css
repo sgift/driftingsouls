@@ -133,6 +133,10 @@
 	border-width: 0px 0px 0px 1px;
 }
 
+#starmapSectorPopup .toggle.expanded + table.toggleContent {
+	display: table;
+}
+
 #starmapSectorPopup .ships {
 	padding-top:8px;
 }
@@ -160,7 +164,7 @@
 	float:right;
 	padding:2px;
 }
-#starmapSectorPopup .ships img {
+#starmapSectorPopup .ships .schiffstypengrafik {
 	height:40px;
 }
 
@@ -174,8 +178,17 @@
 	width:15%;
 }
 
+#starmapSectorPopup .ships table .name {
+	width:45%;
+}
+
 #starmapSectorPopup .ships table .fleet {
 	width:40%;
+}
+
+#starmapSectorPopup .ships .details td {
+	padding-left:10px;
+	padding-bottom:5px;
 }
 
 #starmapSystemOverviewPopup .graph {
