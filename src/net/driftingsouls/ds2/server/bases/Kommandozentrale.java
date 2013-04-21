@@ -18,16 +18,6 @@
  */
 package net.driftingsouls.ds2.server.bases;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -46,16 +36,24 @@ import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.Kaserne;
 import net.driftingsouls.ds2.server.entities.KaserneEntry;
-import net.driftingsouls.ds2.server.entities.statistik.StatVerkaeufe;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
+import net.driftingsouls.ds2.server.entities.statistik.StatVerkaeufe;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.werften.BaseWerft;
+
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Die Kommandozentrale.
@@ -130,7 +128,7 @@ public class Kommandozentrale extends DefaultBuilding {
 		}
 
 		// Auftraege der Kaserne loeschen
-		Kaserne kaserne = (Kaserne)db.createQuery("from Kaserne where col=:base")
+		Kaserne kaserne = (Kaserne)db.createQuery("from Kaserne where base=:base")
 			.setEntity("base", base)
 			.uniqueResult();
 
@@ -146,10 +144,7 @@ public class Kommandozentrale extends DefaultBuilding {
 
 		if( academy != null)
 		{
-			for( AcademyQueueEntry entry : academy.getQueueEntries() )
-			{
-				db.delete(entry);
-			}
+			academy.getQueueEntries().clear();
 		}
 
 		//Check if we need to change the drop zone of the player to another system
@@ -476,7 +471,7 @@ public class Kommandozentrale extends DefaultBuilding {
 					"where id>:minid and (x between :minx and :maxx) and " +
 							"(y between :miny and :maxy) and " +
 							"system= :sys and locate('l ',docked)=0 and battle is null " +
-					"order by x,y,owner,id")
+					"order by x,y,owner.id,id")
 				.setInteger("minid", 0)
 				.setInteger("minx", base.getX()-base.getSize())
 				.setInteger("maxx", base.getX()+base.getSize())
@@ -487,38 +482,46 @@ public class Kommandozentrale extends DefaultBuilding {
 			if( !ships.isEmpty() ) {
 				Location oldLoc = null;
 
-				for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
-					Ship ship = (Ship)iter.next();
+				for (Object ship1 : ships)
+				{
+					Ship ship = (Ship) ship1;
 
-					if( oldLoc == null ) {
+					if (oldLoc == null)
+					{
 						oldLoc = ship.getLocation();
 
-						if( base.getSize() != 0 ) {
+						if (base.getSize() != 0)
+						{
 							t.setVar("ship.begingroup", 1);
 						}
 					}
-					else if( !oldLoc.equals(ship.getLocation()) ) {
+					else if (!oldLoc.equals(ship.getLocation()))
+					{
 						oldLoc = ship.getLocation();
 
-						if( base.getSize() != 0 ) {
-							t.setVar(	"ship.begingroup",	1,
-										"ship.endgroup",	1 );
+						if (base.getSize() != 0)
+						{
+							t.setVar("ship.begingroup", 1,
+									"ship.endgroup", 1);
 						}
 					}
-					else {
-						t.setVar(	"ship.begingroup",	0,
-									"ship.endgroup",	0);
+					else
+					{
+						t.setVar("ship.begingroup", 0,
+								"ship.endgroup", 0);
 					}
 
-					t.setVar(	"ship.id",		ship.getId(),
-								"ship.name",	Common._plaintitle(ship.getName()),
-								"ship.x",		ship.getX(),
-								"ship.y",		ship.getY() );
+					t.setVar("ship.id", ship.getId(),
+							"ship.name", Common._plaintitle(ship.getName()),
+							"ship.x", ship.getX(),
+							"ship.y", ship.getY());
 
-					if( ship.getOwner().getId() != user.getId() ) {
+					if (ship.getOwner().getId() != user.getId())
+					{
 						t.setVar("ship.owner.name", Common.escapeHTML(ship.getOwner().getPlainname()));
 					}
-					else {
+					else
+					{
 						t.setVar("ship.owner.name", "");
 					}
 
@@ -533,11 +536,12 @@ public class Kommandozentrale extends DefaultBuilding {
 				.setInteger("id", base.getId())
 				.setEntity("owner", base.getOwner())
 				.list();
-			for( Iterator<?> iter=targetbases.iterator(); iter.hasNext(); ) {
-				Base targetbase = (Base)iter.next();
+			for (Object targetbase1 : targetbases)
+			{
+				Base targetbase = (Base) targetbase1;
 
-				t.setVar(	"targetbase.id", 	targetbase.getId(),
-							"targetbase.name",	Common._plaintitle(targetbase.getName()) );
+				t.setVar("targetbase.id", targetbase.getId(),
+						"targetbase.name", Common._plaintitle(targetbase.getName()));
 				t.parse("general.basetransfer.list", "general.basetransfer.listitem", true);
 			}
 
