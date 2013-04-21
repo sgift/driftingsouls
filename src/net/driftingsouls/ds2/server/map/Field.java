@@ -7,6 +7,7 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.MutableLocation;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.entities.Jump;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -27,6 +28,7 @@ class Field
 	private List<Base> bases;
 	private List<JumpNode> nodes;
 	private List<Battle> battles;
+	private List<Jump> subraumspalten;
 	private Nebel nebula;
 	private Location position;
 
@@ -50,6 +52,12 @@ class Field
 		nebula = (Nebel)db.get(Nebel.class, new MutableLocation(position));
 
 		battles = Common.cast(db.createQuery("from Battle where system=:system and x=:x and y=:y")
+				.setParameter("system", position.getSystem())
+				.setParameter("x", position.getX())
+				.setParameter("y", position.getY())
+				.list());
+
+		subraumspalten = Common.cast(db.createQuery("from Jump where system=:system and x=:x and y=:y")
 				.setParameter("system", position.getSystem())
 				.setParameter("x", position.getX())
 				.setParameter("y", position.getY())
@@ -86,6 +94,11 @@ class Field
 	List<Battle> getBattles()
 	{
 		return Collections.unmodifiableList(battles);
+	}
+
+	List<Jump> getSubraumspalten()
+	{
+		return Collections.unmodifiableList(subraumspalten);
 	}
 
 	Location getPosition()

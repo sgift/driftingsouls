@@ -96,6 +96,7 @@ angular.module('ds.map', ['ds.service.ds','ds.starmap'])
 					sektor.bases = result.bases;
 					sektor.battles = result.battles;
 					sektor.users = result.users;
+					sektor.subraumspaltenCount = result.subraumspaltenCount;
 					$.each(sektor.users, function()
 					{
 						var shipcount = 0;

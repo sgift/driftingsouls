@@ -4,6 +4,7 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.MutableLocation;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.entities.Jump;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
@@ -130,7 +131,7 @@ public class PlayerFieldView implements FieldView
             return false;
         }
 
-		Nebel targetNebula = (Nebel)db.get(Nebel.class, new MutableLocation(location));
+		Nebel targetNebula = field.getNebula();
 		if( targetNebula != null ) {
 			if( !targetNebula.allowsScan() ) {
 				return false;
@@ -252,8 +253,22 @@ public class PlayerFieldView implements FieldView
 	}
 
 	@Override
+	public List<Jump> getSubraumspalten()
+	{
+		if( !isInScanRange() )
+		{
+			return new ArrayList<Jump>();
+		}
+		return field.getSubraumspalten();
+	}
+
+	@Override
 	public List<Battle> getBattles()
 	{
+		if( !isInScanRange() )
+		{
+			return new ArrayList<Battle>();
+		}
 		return this.field.getBattles();
 	}
 

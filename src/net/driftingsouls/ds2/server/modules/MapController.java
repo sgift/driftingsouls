@@ -5,6 +5,7 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
+import net.driftingsouls.ds2.server.entities.Jump;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
@@ -587,6 +588,9 @@ public class MapController extends AngularGenerator
 			battleListObj.add(battleObj);
 		}
 		json.accumulate("battles", battleListObj);
+
+		json.accumulate("subraumspaltenCount", field.getSubraumspalten().size());
+
 
 		return json;
 	}

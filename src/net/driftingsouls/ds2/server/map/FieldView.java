@@ -2,6 +2,7 @@ package net.driftingsouls.ds2.server.map;
 
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.entities.Jump;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
@@ -33,6 +34,12 @@ public interface FieldView
 	 * @return Die Sprungpunkte
 	 */
 	List<JumpNode> getJumpNodes();
+
+	/**
+	 * Gibt alle sichtbaren Subraumspalten zurueck.
+	 * @return Die Subraumspalten
+	 */
+	List<Jump> getSubraumspalten();
 
 	/**
 	 * Gibt, sofern an der Stelle vorhanden, den entsprechenden Nebel zurueck.

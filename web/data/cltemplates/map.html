@@ -91,6 +91,10 @@
 				</li>
 			</ul>
 		</div>
+		<div ui-if="sektor.subraumspaltenCount>0" class="subraumspalten">
+			<img src='./data/objects/subraumspalt.gif' />
+			<div class="name">{{sektor.subraumspaltenCount}} Subraumspalte{{sector.subraumspaltenCount > 1 && 'n' || ''}}</div>
+		</div>
 		<div class='ships'>
 			<div ng-repeat="user in sektor.users">
 				<div class="toggle" ng-class="user.expanded && 'expanded' || ''" ng-click="toggle(user)">

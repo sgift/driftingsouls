@@ -55,7 +55,8 @@
 
 #starmapSectorPopup .bases,
 #starmapSectorPopup .jumpnodes,
-#starmapSectorPopup .battles{
+#starmapSectorPopup .battles,
+#starmapSectorPopup .subraumspalten{
 	margin-top:8px;
 	margin-left:0px;
 	padding-left:0px;
@@ -63,7 +64,8 @@
 
 #starmapSectorPopup .bases img,
 #starmapSectorPopup .jumpnodes img,
-#starmapSectorPopup .battles img{
+#starmapSectorPopup .battles img,
+#starmapSectorPopup .subraumspalten img{
 	float:left;
 	margin-right:8px;
 }
@@ -73,7 +75,8 @@
 	line-height:1.5
 }
 
-#starmapSectorPopup .jumpnodes img {
+#starmapSectorPopup .jumpnodes img,
+#starmapSectorPopup .subraumspalten img{
 	width: 50px;
 }
 
@@ -105,7 +108,8 @@
 #starmapSectorPopup .bases li,
 #starmapSectorPopup .jumpndoes li,
 #starmapSectorPopup .battles li,
-#starmapSectorPopup .ships {
+#starmapSectorPopup .ships,
+#starmapSectorPopup .subraumspalten{
 	clear:both;
 }
 
