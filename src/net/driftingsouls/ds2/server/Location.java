@@ -124,6 +124,24 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 	}
 
 	/**
+	 * Berechnet die Entfernung von dieser Position zu einem anderen Position.
+	 * Die Entfernung wird nicht als Flugdistanz sondern als tatsaechliche Entfernung (Pythagoras)
+	 * berechnet. Liegen die beiden Positionen nicht im selben Sternensystem wird ein Fehler geworfen.
+	 * @param loc Die Position zu der die Distanz berechnet werden soll
+	 * @return Die Distanz
+	 * @throws IllegalArgumentException Falls beide Positionen nicht im selben Sternensystem liegen
+	 */
+	public double distanzZu(Location loc) throws IllegalArgumentException
+	{
+		if( loc.getSystem() != this.system )
+		{
+			throw new IllegalArgumentException("Die beiden Positionen liegen in verschiedenen Sternensystemen");
+		}
+
+		return Math.sqrt(Math.pow(loc.getX()-this.x,2)+Math.pow(loc.getY()-this.y, 2));
+	}
+
+	/**
 	 * Generiert ein Location-Objekt aus einem Positionsstring des.
 	 * Formats system:x/y oder x/y
 	 *
@@ -243,14 +261,6 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 	@Override
 	public Location getLocation() {
 		return this;
-	}
-
-	/**
-	 * @return <code>true</code>, wenn der Sektor einen Nebel enthaelt.
-	 */
-	public boolean isNebula()
-	{
-		return Nebel.getNebula(this) != null;
 	}
 
 	/**

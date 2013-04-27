@@ -52,4 +52,11 @@ public interface FieldView
 	 * @return Die Schlachten
 	 */
 	List<Battle> getBattles();
+
+	/**
+	 * Gibt zurueck, ob im Sektor feindliche Schiffe auf rotem (bzw. gelben) Alarm
+	 * gesetzt sind, als ein Einflug vmtl in einem Angriff endet.
+	 * @return <code>true</code>, falls dem so ist
+	 */
+	boolean isRoterAlarm();
 }

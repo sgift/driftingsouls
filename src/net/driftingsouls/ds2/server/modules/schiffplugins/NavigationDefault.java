@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.modules.schiffplugins;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
@@ -289,12 +290,12 @@ public class NavigationDefault implements SchiffPlugin {
 				}
 			}
 
-			boolean[] alertStatus = Ship.getAlertStatus(user, locs);
+			Set<Location> alertStatus = Ship.getAlertStatus(user, locs);
 
 			boolean newrow;
 
 			t.setBlock("_NAVIGATION","schiff.navigation.nav.listitem","schiff.navigation.nav.list");
-			for( int ny = 0, index=0; ny <= 2; ny++ ) {
+			for( int ny = 0; ny <= 2; ny++ ) {
 				newrow = true;
 				for( int nx = 0; nx <= 2; nx++ ) {
 					tmp++;
@@ -308,15 +309,16 @@ public class NavigationDefault implements SchiffPlugin {
 					int sizeX = (img.size*2+1)*37;
 					int sizeY = (img.size*2+1)*37;
 
+					Location sector = new Location(sys, x + nx - 1, y + ny - 1);
 					t.setVar(	"schiff.navigation.nav.direction",		tmp,
-								"schiff.navigation.nav.location",		new Location(sys, x+nx-1, y+ny-1).displayCoordinates(true),
+								"schiff.navigation.nav.location",		sector.displayCoordinates(true),
 								"schiff.navigation.nav.sectorimage",	url + "data/starmap/"+ img.image+".png",
 								"schiff.navigation.nav.sectorimage.x",	img.x*37,
 								"schiff.navigation.nav.sectorimage.y",	img.y*37,
 								"schiff.navigation.nav.sectorimage.w",	sizeX,
 								"schiff.navigation.nav.sectorimage.h",	sizeY,
 								"schiff.navigation.nav.newrow",			newrow,
-								"schiff.navigation.nav.warn",			(1 != nx || 1 != ny ? alertStatus[index++] : false) );
+								"schiff.navigation.nav.warn",			((1 != nx || 1 != ny) && alertStatus.contains(sector)) );
 
 					t.parse( "schiff.navigation.nav.list", "schiff.navigation.nav.listitem", true );
 					newrow = false;

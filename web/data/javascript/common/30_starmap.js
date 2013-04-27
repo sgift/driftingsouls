@@ -564,8 +564,14 @@ return function(jqElement) {
 				}
 
 				if( loc.fg != null ) {
-					overlay += "<img " +
-						(loc.battle ? "class='battle' " : "")+
+					var classes = "fg";
+					if( loc.battle ) {
+						classes += " battle";
+					}
+					else if( loc.roterAlarm ) {
+						classes += " roter-alarm";
+					}
+					overlay += "<img class='"+classes+"' "+
 						"src=\"data/starmap/"+loc.fg+"\" alt=\""+loc.x+"/"+loc.y+"\" />";
 				}
 

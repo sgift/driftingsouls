@@ -1569,27 +1569,37 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * dass der Sektor unter Alarm steht.
 	 * @param user Der Spieler
 	 * @param locs Die Positionen, die ueberprueft werden sollen
-	 * @return Liste von Booleans in der Reihenfolge der Koordinaten.
+	 * @return Liste von Sektoren mit rotem Alarm
 	 */
-	public static boolean[] getAlertStatus( User user, Location ... locs ) {
-		boolean[] results = new boolean[locs.length];
+	public static Set<Location> getAlertStatus( User user, Location ... locs ) {
+		Set<Location> results = new HashSet<Location>();
 
 		Map<Location,List<Ship>> result = alertCheck(user, locs);
 
-		for( int i=0; i < locs.length; i++ ) {
-			results[i] = !result.get(locs[i]).isEmpty();
+		for (Map.Entry<Location, List<Ship>> entry : result.entrySet())
+		{
+			if( !entry.getValue().isEmpty() )
+			{
+				results.add(entry.getKey());
+			}
 		}
+
 		return results;
 	}
 
 	private static Map<Location,List<Ship>> alertCheck( User user, Location ... locs )
 	{
+		Set<Integer> xSektoren = new HashSet<Integer>();
+		Set<Integer> ySektoren = new HashSet<Integer>();
+
 		Map<Location,List<Ship>> results = new HashMap<Location,List<Ship>>();
 		Set<Location> locations = new HashSet<Location>();
 		for(Location location: locs)
 		{
 			results.put(location, new ArrayList<Ship>());
 			locations.add(location);
+			xSektoren.add(location.getX());
+			ySektoren.add(location.getY());
 		}
 
 		if(locations.isEmpty())
@@ -1600,11 +1610,16 @@ public class Ship implements Locatable,Transfering,Feeding {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 
-		List<Ship> ships = Common.cast(db.createQuery("from Ship s inner join fetch s.owner where s.e > 0 and s.alarm!=:green and s.docked='' and s.crew!=0 and s.system=:system and s.owner!=:owner")
-							 			 .setParameter("green", Alert.GREEN.getCode())
-							 			 .setParameter("system", locs[0].getSystem())
-							 			 .setParameter("owner", user)
-							 			 .list());
+		List<Ship> ships = Common.cast(db.createQuery("from Ship s inner join fetch s.owner " +
+				"where s.e > 0 and s.alarm!=:green and s.docked='' and " +
+				"	s.crew!=0 and s.system=:system and s.owner!=:owner and " +
+				"	s.x in (:xSektoren) and s.y in (:ySektoren)")
+			.setParameter("green", Alert.GREEN.getCode())
+			.setParameter("system", locs[0].getSystem())
+			.setParameter("owner", user)
+			.setParameterList("xSektoren", xSektoren)
+			.setParameterList("ySektoren", ySektoren)
+			.list());
 
 		User.Relations relationlist = user.getRelations();
 		for(Ship ship: ships)

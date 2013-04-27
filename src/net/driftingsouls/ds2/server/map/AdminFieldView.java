@@ -103,4 +103,10 @@ public class AdminFieldView implements FieldView
 	{
 		return this.field.getBattles();
 	}
+
+	@Override
+	public boolean isRoterAlarm()
+	{
+		return false;
+	}
 }

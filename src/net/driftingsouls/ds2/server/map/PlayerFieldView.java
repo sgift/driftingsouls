@@ -275,6 +275,21 @@ public class PlayerFieldView implements FieldView
 	}
 
 	@Override
+	public boolean isRoterAlarm()
+	{
+		// Nur den Status in benachbarten Sektoren ermitteln
+		if( Math.abs(this.scanShip.getLocation().getX()-this.location.getX()) > 1 )
+		{
+			return false;
+		}
+		if( Math.abs(this.scanShip.getLocation().getY()-this.location.getY()) > 1 )
+		{
+			return false;
+		}
+		return !Ship.getAlertStatus(this.user, this.location).isEmpty();
+	}
+
+	@Override
 	public Nebel getNebel()
 	{
 		return field.getNebula();

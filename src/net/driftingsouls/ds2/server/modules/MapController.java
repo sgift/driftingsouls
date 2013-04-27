@@ -5,14 +5,12 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
-import net.driftingsouls.ds2.server.entities.Jump;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.JSONSupport;
 import net.driftingsouls.ds2.server.framework.JSONUtils;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
@@ -431,7 +429,7 @@ public class MapController extends AngularGenerator
 				for(int x = xStart; x <= xEnd; x++)
 				{
 					Location position = new Location(this.system.getID(), x, y);
-					boolean scannable = content.isScannable(position);
+					boolean scannable = content.isScannbar(position);
 					String sectorImage = content.getUserSectorBaseImage(position);
 					String sectorOverlayImage = content.getSectorOverlayImage(position);
 
@@ -461,7 +459,7 @@ public class MapController extends AngularGenerator
 					}
 
 					if( scannable && content.isHasSectorContent(position)) {
-						scanner = content.getSectorScanner(position);
+						scanner = content.getScanSchiffFuerSektor(position);
 
 						posObj.accumulate("scanner", scanner != null ? scanner.getId() : -1);
 					}
@@ -471,7 +469,8 @@ public class MapController extends AngularGenerator
 						posObj.accumulate("fg", sectorImage);
 					}
 
-					posObj.accumulate("battle", content.isBattleAtLocation(position));
+					posObj.accumulate("battle", content.isSchlachtImSektor(position));
+					posObj.accumulate("roterAlarm", content.isRoterAlarmImSektor(position));
 
 					if( endTag ) {
 						locationArray.add(posObj);
@@ -570,6 +569,7 @@ public class MapController extends AngularGenerator
 		json.accumulate("battles", battleListObj);
 
 		json.accumulate("subraumspaltenCount", field.getSubraumspalten().size());
+		json.accumulate("roterAlarm", field.isRoterAlarm());
 
 
 		return json;

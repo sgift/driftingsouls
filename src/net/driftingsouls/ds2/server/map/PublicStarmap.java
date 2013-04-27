@@ -18,8 +18,6 @@
  */
 package net.driftingsouls.ds2.server.map;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.Location;
@@ -28,7 +26,6 @@ import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 
 import net.driftingsouls.ds2.server.ships.Ship;
-import org.hibernate.Session;
 
 /**
  * Die allgemeine Sicht auf eine Sternenkarte ohne nutzerspezifische Anzeigen.
@@ -109,7 +106,7 @@ public class PublicStarmap
 	 *
 	 * @return Das Schiff, dass diesen Sektor scannen kann oder <code>null</code>
 	 */
-	public Ship getSectorScanner(Location location)
+	public Ship getScanSchiffFuerSektor(Location location)
 	{
 		return null;
 	}
@@ -120,7 +117,7 @@ public class PublicStarmap
 	 * @param location Der Sektor.
 	 * @return <code>true</code>, wenn der Sektor gescannt werden kann, sonst <code>false</code>
 	 */
-	public boolean isScannable(Location location)
+	public boolean isScannbar(Location location)
 	{
 		return false;
 	}
@@ -178,7 +175,7 @@ public class PublicStarmap
 	 */
 	public SectorBaseImage getSectorBaseImage(Location location)
 	{
-		if(isNebula(location))
+		if(isNebel(location))
 		{
 			return new SectorBaseImage(map.getNebulaMap().get(location).getImage()+".png", 0, 0);
 		}
@@ -203,7 +200,7 @@ public class PublicStarmap
 		return new SectorBaseImage("space/space.png", 0, 0);
 	}
 	
-	private boolean isNebula(Location location)
+	private boolean isNebel(Location location)
 	{
 		return map.isNebula(location);
 	}
@@ -211,10 +208,22 @@ public class PublicStarmap
 	/**
 	 * Gibt zurueck, ob an der gegebenen Position eine (bekannte/sichtbare)
 	 * Schlacht stattfindet.
-	 * @param loc Die Position
+	 * @param sektor Die Position
 	 * @return <code>true</code> falls dem so ist
 	 */
-	public boolean isBattleAtLocation(Location loc)
+	public boolean isSchlachtImSektor(Location sektor)
+	{
+		return false;
+	}
+
+	/**
+	 * Gibt zurueck, ob der Sektor als Sektor mit Schiffen auf Alarmstufe
+	 * Rot bzw Gelb dargestellt werden soll, d.h. ein Spieler moeglicherweise
+	 * beim Einflug in den Sektor angegriffen wird.
+	 * @param sektor Der Sektor
+	 * @return <code>true</code>, falls dem so ist
+	 */
+	public boolean isRoterAlarmImSektor(Location sektor)
 	{
 		return false;
 	}

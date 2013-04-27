@@ -53,6 +53,7 @@
 	</div>
 	<div ng-show="geladen">
 		<div class="header"><span>Sektor {{position.system}}:{{position.x}}/{{position.y}}</span></div>
+		<div class="warnung" ui-if="sektor.roterAlarm"><span>Warnung: Mindestens ein feindliches Schiff hat seine Waffensysteme aktiviert und wird angreifen solltest du mit einem Schiff in den Sektor fliegen.</span></div>
 		<div ui-if="sektor.nebel"><img class="nebel" ng-src="data/objects/nebel{{sektor.nebel.type}}.png" alt="Nebel" /></div>
 		<div ui-if="sektor.jumpnodes.length>0">
 			<ul class='jumpnodes'>

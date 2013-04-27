@@ -7,7 +7,6 @@ import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.ships.Ship;
-import org.hibernate.Session;
 
 import java.util.HashMap;
 import java.util.List;
@@ -39,13 +38,13 @@ public class AdminStarmap extends PublicStarmap
 	}
 
 	@Override
-	public boolean isScannable(Location location)
+	public boolean isScannbar(Location location)
 	{
 		return this.scannableLocations.containsKey(location);
 	}
 
 	@Override
-	public Ship getSectorScanner(Location location)
+	public Ship getScanSchiffFuerSektor(Location location)
 	{
 		return this.scannableLocations.get(location);
 	}
@@ -157,9 +156,9 @@ public class AdminStarmap extends PublicStarmap
 	}
 
 	@Override
-	public boolean isBattleAtLocation(Location loc)
+	public boolean isSchlachtImSektor(Location sektor)
 	{
-		List<Battle> battles = this.map.getBattleMap().get(loc);
+		List<Battle> battles = this.map.getBattleMap().get(sektor);
 		return battles != null && !battles.isEmpty();
 	}
 }
