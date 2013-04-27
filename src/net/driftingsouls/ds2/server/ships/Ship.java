@@ -233,23 +233,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 	/**
 	 * Erstellt ein neues Schiff.
 	 * @param owner Der Besitzer
-	 */
-	@Deprecated
-	public Ship(User owner) {
-		this.owner = owner;
-		this.cargo = new Cargo();
-		this.name = "";
-		this.status = "";
-		this.jumptarget = "";
-		this.history = new ShipHistory(this);
-		this.docked = "";
-		this.weaponHeat = "";
-		this.offiziere = new HashSet<Offizier>();
-	}
-
-	/**
-	 * Erstellt ein neues Schiff.
-	 * @param owner Der Besitzer
 	 * @param shiptype Der Schiffstyp
 	 * @param system Das System
 	 * @param x Die X-Koordinate
@@ -747,11 +730,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	public boolean isTradepost()
 	{
-		if (this.getStatus().contains("tradepost") || this.getTypeData().hasFlag(ShipTypes.SF_TRADEPOST))
-		{
-			return true;
-		}
-		return this.getStatus().contains("tradepost");
+		return this.getStatus().contains("tradepost") || this.getTypeData().hasFlag(ShipTypes.SF_TRADEPOST);
 	}
 
 	/**
@@ -915,9 +894,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 		String[] oldstatus = StringUtils.split(this.status, ' ');
 
 		if( oldstatus.length > 0 ) {
-			for( int i=0; i < oldstatus.length; i++ ) {
-				String astatus = oldstatus[i];
-
+			for (String astatus : oldstatus)
+			{
 				// Aktuelle Statusflags rausfiltern
 				if ("disable_iff".equals(astatus) ||
 						"mangel_reaktor".equals(astatus) ||
@@ -927,7 +905,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 					continue;
 				}
 
-				if( nahrungPruefen && "mangel_nahrung".equals(astatus) )
+				if (nahrungPruefen && "mangel_nahrung".equals(astatus))
 				{
 					continue;
 				}
@@ -996,7 +974,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		Ship versorger = (Ship)db.createQuery("select s from Ship as s left join s.modules m" +
-								" where (s.shiptype.versorger!=0 or m.versorger!=0)" +
+								" where (s.shiptype.versorger!=false or m.versorger!=false)" +
 								" and s.owner=:owner and s.system=:sys and s.x=:x and s.y=:y and s.nahrungcargo > 0 and s.einstellungen.isfeeding != false " +
 								"ORDER BY s.nahrungcargo DESC")
 								.setEntity("owner", this.owner)
@@ -1080,7 +1058,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		Object versorger = db.createQuery("select sum(s.nahrungcargo) from Ship as s left join s.modules m " +
 								" where (s.shiptype.versorger!=false or m.versorger!=false)" +
-								" and s.owner=:user and s.system=:system and s.x=:x and s.y=:y and s.einstellungen.isfeeding != 0")
+								" and s.owner=:user and s.system=:system and s.x=:x and s.y=:y and s.einstellungen.isfeeding != false")
 						.setInteger("system", this.system)
 						.setInteger("x", this.x)
 						.setInteger("y", this.y)
@@ -1112,11 +1090,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 	private boolean lackOfFood() {
 		long ticks = timeUntilLackOfFood();
-		if( ticks <= MANGEL_TICKS && ticks >= 0) {
-			return true;
-		}
-
-		return false;
+		return ticks <= MANGEL_TICKS && ticks >= 0;
 	}
 
 	private boolean isBaseInSector() {
@@ -1188,8 +1162,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 				.setString("docked", Integer.toString(this.id))
 				.setString("landed", "l "+this.id)
 				.list();
-			for( Iterator<?> iter=dockedShips.iterator(); iter.hasNext(); ) {
-				Ship dockedShip = (Ship)iter.next();
+			for (Object dockedShip1 : dockedShips)
+			{
+				Ship dockedShip = (Ship) dockedShip1;
 
 				dockedcrew += dockedShip.getScaledCrew();
 				dockedunits += dockedShip.getScaledUnits();
@@ -1252,8 +1227,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 		ShipModules moduletbl = this.modules;
 		if( moduletbl.getModules().length() != 0 ) {
 			String[] modulelist = StringUtils.split(moduletbl.getModules(), ';');
-			for( int i=0; i < modulelist.length; i++ ) {
-				result.add(ModuleEntry.unserialize(modulelist[i]));
+			for (String aModulelist : modulelist)
+			{
+				result.add(ModuleEntry.unserialize(aModulelist));
 			}
 		}
 
@@ -1298,19 +1274,22 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		Map<Integer,String[]>slotlist = new HashMap<Integer,String[]>();
 		String[] tmpslotlist = StringUtils.splitPreserveAllTokens(type.getTypeModules(), ';');
-		for( int i=0; i < tmpslotlist.length; i++ ) {
-			String[] aslot = StringUtils.splitPreserveAllTokens(tmpslotlist[i], ':');
+		for (String aTmpslotlist : tmpslotlist)
+		{
+			String[] aslot = StringUtils.splitPreserveAllTokens(aTmpslotlist, ':');
 			slotlist.put(Integer.parseInt(aslot[0]), aslot);
 		}
 
 		List<Module> moduleobjlist = new ArrayList<Module>();
 		List<String> moduleSlotData = new ArrayList<String>();
 
-		for( int i=0; i < moduletbl.size(); i++ ) {
-			ModuleEntry module = moduletbl.get(i);
-			if( module.getModuleType() != null ) {
+		for (ModuleEntry module : moduletbl)
+		{
+			if (module.getModuleType() != null)
+			{
 				Module moduleobj = module.createModule();
-				if( (module.getSlot() > 0) && (slotlist.get(module.getSlot()).length > 2) ) {
+				if ((module.getSlot() > 0) && (slotlist.get(module.getSlot()).length > 2))
+				{
 					moduleobj.setSlotData(slotlist.get(module.getSlot())[2]);
 				}
 				moduleobjlist.add(moduleobj);
@@ -1507,12 +1486,14 @@ public class Ship implements Locatable,Transfering,Feeding {
 		List<Module> moduleobjlist = new ArrayList<Module>();
 		List<String> moduleSlotData = new ArrayList<String>();
 
-		for( int i=0; i < moduletbl.size(); i++ ) {
-			ModuleEntry module = moduletbl.get(i);
-			if( module.getModuleType() != null ) {
+		for (ModuleEntry module : moduletbl)
+		{
+			if (module.getModuleType() != null)
+			{
 				Module moduleobj = module.createModule();
 
-				if( (module.getSlot() > 0) && (slotlist.get(module.getSlot()).length > 2) ) {
+				if ((module.getSlot() > 0) && (slotlist.get(module.getSlot()).length > 2))
+				{
 					moduleobj.setSlotData(slotlist.get(module.getSlot())[2]);
 				}
 				moduleobjlist.add(moduleobj);
@@ -1591,8 +1572,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * @return Liste von Booleans in der Reihenfolge der Koordinaten.
 	 */
 	public static boolean[] getAlertStatus( User user, Location ... locs ) {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
 		boolean[] results = new boolean[locs.length];
 
 		Map<Location,List<Ship>> result = alertCheck(user, locs);
@@ -1740,7 +1719,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 	private static MovementResult moveSingle(Ship ship, ShipTypeData shiptype, Offizier offizier, int direction, int distance, int adocked, boolean forceLowHeat, boolean verbose) {
 		boolean moved = false;
 		MovementStatus status = MovementStatus.SUCCESS;
-		boolean firstOutput = true;
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		StringBuilder out = MESSAGE.get();
@@ -1777,12 +1755,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		if( newe < 0 ) {
-			if(!verbose && firstOutput)
+			if(!verbose)
 			{
-				out.append(ship.getName()+" ("+ship.getId()+"): ");
-				firstOutput = false;
+				out.append(ship.getName()).append(" (").append(ship.getId()).append("): ");
 			}
-			out.append("<span style=\"color:#ff0000\">Keine Energie. Stoppe bei "+ship.getLocation().displayCoordinates(true)+"</span><br />\n");
+			out.append("<span style=\"color:#ff0000\">Keine Energie. Stoppe bei ").append(ship.getLocation().displayCoordinates(true)).append("</span><br />\n");
 			distance = 0;
 
 			return new MovementResult(distance, moved, MovementStatus.SHIP_FAILURE);
@@ -1797,7 +1774,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 					newe = ship.getEnergy() - 1;
 				}
 				if(verbose) {
-					out.append(offizier.getName()+" verringert Flugkosten<br />\n");
+					out.append(offizier.getName()).append(" verringert Flugkosten<br />\n");
 				}
 			}
 			// Ueberhitzung
@@ -1808,7 +1785,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 					news = ship.getHeat();
 				}
 				if( verbose ) {
-					out.append(offizier.getName()+" verringert &Uuml;berhitzung<br />\n");
+					out.append(offizier.getName()).append(" verringert &Uuml;berhitzung<br />\n");
 				}
 			}
 			if( verbose ) {
@@ -1819,13 +1796,12 @@ public class Ship implements Locatable,Transfering,Feeding {
 		// Grillen wir uns bei dem Flug eventuell den Antrieb?
 		if( news > 100 )  {
 			if(forceLowHeat && distance > 0) {
-				if( !verbose && firstOutput ) {
-					out.append(ship.getName()+" ("+ship.getId()+"): ");
-					firstOutput = false;
+				if( !verbose ) {
+					out.append(ship.getName()).append(" (").append(ship.getId()).append("): ");
 				}
 				out.append("<span style=\"color:#ff0000\">Triebwerk w&uuml;rde &uuml;berhitzen</span><br />\n");
 
-				out.append("<span style=\"color:#ff0000\">Autopilot bricht ab bei "+ship.getLocation().displayCoordinates(true)+"</span><br />\n");
+				out.append("<span style=\"color:#ff0000\">Autopilot bricht ab bei ").append(ship.getLocation().displayCoordinates(true)).append("</span><br />\n");
 				out.append("</span></td></tr>\n");
 				distance = 0;
 				return new MovementResult(distance, moved, MovementStatus.SHIP_FAILURE);
@@ -1867,21 +1843,20 @@ public class Ship implements Locatable,Transfering,Feeding {
 			moved = true;
 
 			if( ship.getHeat() >= 100 ) {
-				if( !verbose && firstOutput) {
-					out.append(ship.getName()+" ("+ship.getId()+"): ");
-					firstOutput = false;
+				if( !verbose ) {
+					out.append(ship.getName()).append(" (").append(ship.getId()).append("): ");
 				}
 				out.append("<span style=\"color:#ff0000\">Triebwerke &uuml;berhitzt</span><br />\n");
 
 				if( (RandomUtils.nextInt(101)) < 3*(news-100) ) {
 					int dmg = (int)( (2*(RandomUtils.nextInt(101)/100d)) + 1 ) * (news-100);
-					out.append("<span style=\"color:#ff0000\">Triebwerke nehmen "+dmg+" Schaden</span><br />\n");
+					out.append("<span style=\"color:#ff0000\">Triebwerke nehmen ").append(dmg).append(" Schaden</span><br />\n");
 					ship.setEngine(ship.getEngine()-dmg);
 					if( ship.getEngine() < 0 ) {
 						ship.setEngine(0);
 					}
 					if( distance > 0 ) {
-						out.append("<span style=\"color:#ff0000\">Autopilot bricht ab bei "+ship.getLocation().displayCoordinates(true)+"</span><br />\n");
+						out.append("<span style=\"color:#ff0000\">Autopilot bricht ab bei ").append(ship.getLocation().displayCoordinates(true)).append("</span><br />\n");
 						status = MovementStatus.SHIP_FAILURE;
 						distance = 0;
 					}
@@ -1893,7 +1868,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			ship.setEnergy(newe);
 			ship.setHeat(news);
 			if( verbose ) {
-				out.append(ship.getName()+" fliegt in "+ship.getLocation().displayCoordinates(true)+" ein<br />\n");
+				out.append(ship.getName()).append(" fliegt in ").append(ship.getLocation().displayCoordinates(true)).append(" ein<br />\n");
 			}
 		}
 
@@ -1956,48 +1931,56 @@ public class Ship implements Locatable,Transfering,Feeding {
 			.setInteger("id", this.id)
 			.list();
 
-		for( Iterator<?> iter=fleetships.iterator(); iter.hasNext(); ) {
-			if( verbose && firstEntry ) {
+		for (Object fleetship1 : fleetships)
+		{
+			if (verbose && firstEntry)
+			{
 				firstEntry = false;
 				out.append("<table class=\"noBorder\">\n");
 			}
-			Ship fleetship = (Ship)iter.next();
+			Ship fleetship = (Ship) fleetship1;
 			ShipTypeData shiptype = fleetship.getTypeData();
 
 			StringBuilder outpb = new StringBuilder();
 
-			if( shiptype.getCost() == 0 ) {
+			if (shiptype.getCost() == 0)
+			{
 				outpb.append("<span style=\"color:red\">Das Objekt kann nicht fliegen, da es keinen Antieb hat</span><br />");
 				error = true;
 			}
 
-			if( (fleetship.getCrew() == 0) && (shiptype.getCrew() > 0) ) {
+			if ((fleetship.getCrew() == 0) && (shiptype.getCrew() > 0))
+			{
 				outpb.append("<span style=\"color:red\">Fehler: Sie haben keine Crew auf dem Schiff</span><br />");
 				error = true;
 			}
 
-			if( outpb.length() != 0 ) {
+			if (outpb.length() != 0)
+			{
 				out.append("<tr>\n");
 				out.append("<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange; font-size:12px\"> ").append(fleetship.getName()).append(" (").append(fleetship.getId()).append("):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n");
 				out.append(outpb);
 				out.append("</span></td></tr>\n");
 			}
-			else {
+			else
+			{
 				int dockedcount = 0;
 				int adockedcount = 0;
-				if( (shiptype.getJDocks() > 0) || (shiptype.getADocks() > 0) ) {
-					int docks = ((Number)db.createQuery("select count(*) from Ship where id>0 and docked in (:landed,:docked)")
-							.setString("landed", "l "+fleetship.getId())
+				if ((shiptype.getJDocks() > 0) || (shiptype.getADocks() > 0))
+				{
+
+					dockedcount = ((Number) db.createQuery("select count(*) from Ship where id>0 and docked in (:landed,:docked)")
+							.setString("landed", "l " + fleetship.getId())
 							.setString("docked", Integer.toString(fleetship.getId()))
 							.iterate().next()).intValue();
-
-					dockedcount = docks;
-					if( shiptype.getADocks() > 0 ) {
-						adockedcount = (int)fleetship.getDockedCount();
+					if (shiptype.getADocks() > 0)
+					{
+						adockedcount = (int) fleetship.getDockedCount();
 					}
 				}
 
-				if( fleetship.getStatus().indexOf("offizier") > -1 ) {
+				if (fleetship.getStatus().contains("offizier"))
+				{
 					fleetdata.offiziere.put(fleetship.getId(), fleetship.getOffizier());
 				}
 
@@ -2211,9 +2194,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 			// Alle potentiell relevanten Sektoren (ok..und ein wenig ueberfluessiges Zeug bei schraegen Bewegungen) auslesen
 			Map<Location,Sector> sectorlist = new HashMap<Location,Sector>();
 			List<?> sectors = db.createQuery("from Sector " +
-					"where system in (:system,-1) and " +
-						"(x=-1 or x between :lowerx and :upperx) and " +
-						"(y=-1 or y between :lowery and :uppery) order by system desc")
+					"where loc.system in (:system,-1) and " +
+						"(loc.x=-1 or loc.x between :lowerx and :upperx) and " +
+						"(loc.y=-1 or loc.y between :lowery and :uppery) order by loc.system desc")
 					.setInteger("system", this.system)
 					.setInteger("lowerx", (waypoint.direction-1) % 3 == 0 ? this.x-waypoint.distance : this.x )
 					.setInteger("upperx", (waypoint.direction) % 3 == 0 ? this.x+waypoint.distance : this.x )
@@ -2221,8 +2204,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 					.setInteger("uppery", waypoint.direction >= 7 ? this.y+waypoint.distance : this.y )
 					.list();
 
-			for( Iterator<?> iter=sectors.iterator(); iter.hasNext(); ) {
-				Sector sector = (Sector)iter.next();
+			for (Object sector1 : sectors)
+			{
+				Sector sector = (Sector) sector1;
 				sectorlist.put(sector.getLocation(), sector);
 			}
 
@@ -2242,12 +2226,12 @@ public class Ship implements Locatable,Transfering,Feeding {
 				locations.add(ship.getLocation());
 			}
 
-			Map<Location, List<Ship>> alertList = alertCheck(owner, locations.toArray(new Location[0]));
+			Map<Location, List<Ship>> alertList = alertCheck(owner, locations.toArray(new Location[locations.size()]));
 
 			// Alle potentiell relevanten Sektoren mit EMP-Nebeln (ok..und ein wenig ueberfluessiges Zeug bei schraegen Bewegungen) auslesen
 			Map<Location,Boolean> nebulaemplist = new HashMap<Location,Boolean>();
-			sectorList = Common.cast(db.createQuery("from Nebel " +
-					"where type in (:emptypes) and system=:system and x between :lowerx and :upperx and y between :lowery and :uppery")
+			List<Nebel> sectorNebelList = Common.cast(db.createQuery("from Nebel " +
+					"where type in (:emptypes) and loc.system=:system and loc.x between :lowerx and :upperx and loc.y between :lowery and :uppery")
 					.setInteger("system", this.system)
 					.setInteger("lowerx", (waypoint.direction - 1) % 3 == 0 ? this.x - waypoint.distance : this.x)
 					.setInteger("upperx", (waypoint.direction) % 3 == 0 ? this.x + waypoint.distance : this.x)
@@ -2256,8 +2240,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 					.setParameterList("emptypes", Nebel.Typ.getEmpNebel())
 					.list());
 
-			for( Iterator<?> iter=sectorList.iterator(); iter.hasNext(); ) {
-				Nebel nebel = (Nebel)iter.next();
+			for (Nebel nebel : sectorNebelList)
+			{
 				nebulaemplist.put(nebel.getLocation(), Boolean.TRUE);
 			}
 
@@ -2346,8 +2330,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 									.setInteger("x", this.x+tmpxoff)
 									.setInteger("y", this.y+tmpyoff)
 									.list();
-							for( Iterator<?> iter=sectors.iterator(); iter.hasNext(); ) {
-								Sector sector = (Sector)iter.next();
+							for (Object sector1 : sectors)
+							{
+								Sector sector = (Sector) sector1;
 								sectorlist.put(sector.getLocation(), sector);
 							}
 
@@ -2476,7 +2461,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		} // while !error && route.size() > 0
 
 		if( moved ) {
-			out.append("Ankunft bei "+this.getLocation().displayCoordinates(true)+"<br /><br />\n");
+			out.append("Ankunft bei ").append(this.getLocation().displayCoordinates(true)).append("<br /><br />\n");
 
 			this.docked = "";
 			if( docked != 0 ) {
@@ -2484,8 +2469,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 					.setString("landed", "l "+this.id)
 					.setString("docked", Integer.toString(this.id))
 					.list();
-				for( Iterator<?> iter=dockedList.iterator(); iter.hasNext(); ) {
-					Ship dockedShip = (Ship)iter.next();
+				for (Object aDockedList : dockedList)
+				{
+					Ship dockedShip = (Ship) aDockedList;
 					dockedShip.setSystem(this.system);
 					dockedShip.setX(this.x);
 					dockedShip.setY(this.y);
@@ -2566,7 +2552,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 			 * base|id:255|group:-15,455,1200
 			 * fix|8:20/100|default <--- diese Einstellung entspricht der bisherigen Praxis
 			 */
-			nodetypename = "Knossosportal";
 
 			Ship shipNode = (Ship)db.get(Ship.class, nodeID);
 			if( shipNode == null ) {
@@ -2614,7 +2599,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			// Einmalig das aktuelle Schiff ueberpruefen.
 			// Evt vorhandene Schiffe in einer Flotte werden spaeter separat gecheckt
 			if( shipNode.getId() == this.id ) {
-				outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen nicht mit dem "+nodetypename+" durch sich selbst springen</span><br />\n");
+				outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen nicht mit dem ").append(nodetypename).append(" durch sich selbst springen</span><br />\n");
 				return true;
 			}
 
@@ -2630,21 +2615,21 @@ public class Ship implements Locatable,Transfering,Feeding {
 			else if( jmpnodeuser[0].equals("default") || jmpnodeuser[0].equals("ownally") ){
 				if( ( (user.getAlly() != null) && (shipNode.getOwner().getAlly() != user.getAlly()) ) ||
 						( user.getAlly() == null && (shipNode.getOwner() != user) ) ) {
-					outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes "+nodetypename+" benutzen - default</span><br />\n");
+					outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes ").append(nodetypename).append(" benutzen - default</span><br />\n");
 					return true;
 				}
 			}
 			// user:$userid
 			else if ( jmpnodeuser[0].equals("user") ){
 				if( Integer.parseInt(jmpnodeuser[1]) != user.getId() )  {
-					outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes "+nodetypename+" benutzen - owner</span><br />\n");
+					outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes ").append(nodetypename).append(" benutzen - owner</span><br />\n");
 					return true;
 				}
 			}
 			// ally:$allyid
 			else if ( jmpnodeuser[0].equals("ally") ){
 				if( (user.getAlly() == null) || (Integer.parseInt(jmpnodeuser[1]) != user.getAlly().getId()) )  {
-					outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes "+nodetypename+" benutzen - ally</span><br />\n");
+					outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes ").append(nodetypename).append(" benutzen - ally</span><br />\n");
 					return true;
 				}
 			}
@@ -2652,7 +2637,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			else if ( jmpnodeuser[0].equals("group") ){
 				Integer[] userlist = Common.explodeToInteger(",", jmpnodeuser[1]);
 				if( !Common.inArray(user.getId(), userlist) )  {
-					outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes "+nodetypename+" benutzen - group</span><br />\n");
+					outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes ").append(nodetypename).append(" benutzen - group</span><br />\n");
 					return true;
 				}
 			}
@@ -2663,7 +2648,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		Location shipLoc = new Location(this.system, this.x, this.y);
 
 		if( !shipLoc.sameSector(0, nodeLoc, 0) ) {
-			outputbuffer.append("<span style=\"color:red\">Fehler: "+nodetypename+" befindet sich nicht im selben Sektor wie das Schiff</span><br />\n");
+			outputbuffer.append("<span style=\"color:red\">Fehler: ").append(nodetypename).append(" befindet sich nicht im selben Sektor wie das Schiff</span><br />\n");
 			return true;
 		}
 
@@ -2681,11 +2666,13 @@ public class Ship implements Locatable,Transfering,Feeding {
 			.setInteger("sys", this.system)
 			.list();
 
-			for( Iterator<?> iter=fleetships.iterator(); iter.hasNext(); ) {
-				Ship fleetship = (Ship)iter.next();
+			for (Object fleetship1 : fleetships)
+			{
+				Ship fleetship = (Ship) fleetship1;
 
 				// Bei Knossossprungpunkten darauf achten, dass das Portal nicht selbst mitspringt
-				if( knode && (fleetship.getId() == nodeID) ) {
+				if (knode && (fleetship.getId() == nodeID))
+				{
 					continue;
 				}
 
@@ -2710,8 +2697,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 					.setString("docked", Integer.toString(ship.getId()))
 					.setString("landed", "l "+ship.getId())
 					.list();
-				for( Iterator<?> iter=line.iterator(); iter.hasNext(); ) {
-					Ship aship = (Ship)iter.next();
+				for (Object aLine : line)
+				{
+					Ship aship = (Ship) aLine;
 					docked.add(aship);
 				}
 			}
@@ -2722,7 +2710,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 				if( node.isWeaponBlock() && !user.hasFlag(User.FLAG_MILITARY_JUMPS) ) {
 					//Schiff ueberprfen
 					if( shiptype.isMilitary() ) {
-						outputbuffer.append("<span style=\"color:red\">"+ship.getName()+" ("+ship.getId()+"): Die GCP verwehrt ihrem Kriegsschiff den Einflug nach "+node.getName()+"</span><br />\n");
+						outputbuffer.append("<span style=\"color:red\">").append(ship.getName()).append(" (").append(ship.getId()).append("): Die GCP verwehrt ihrem Kriegsschiff den Einflug nach ").append(node.getName()).append("</span><br />\n");
 						return true;
 					}
 
@@ -2738,7 +2726,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 						}
 
 						if(	wpnfound ) {
-							outputbuffer.append("<span style=\"color:red\">"+ship.getName()+" ("+ship.getId()+"): Die GCP verwehrt einem/mehreren ihrer angedockten Kriegsschiffe den Einflug nach "+node.getName()+"</span><br />\n");
+							outputbuffer.append("<span style=\"color:red\">").append(ship.getName()).append(" (").append(ship.getId()).append("): Die GCP verwehrt einem/mehreren ihrer angedockten Kriegsschiffe den Einflug nach ").append(node.getName()).append("</span><br />\n");
 							return true;
 						}
 					}
@@ -2746,11 +2734,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 			}
 
 			if( ship.getEnergy() < 5 ) {
-				outputbuffer.append("<span style=\"color:red\">"+ship.getName()+" ("+ship.getId()+"): Zuwenig Energie zum Springen</span><br />\n");
+				outputbuffer.append("<span style=\"color:red\">").append(ship.getName()).append(" (").append(ship.getId()).append("): Zuwenig Energie zum Springen</span><br />\n");
 				return true;
 			}
 
-			outputbuffer.append(ship.getName()+" ("+ship.getId()+") springt nach "+nodetarget+"<br />\n");
+			outputbuffer.append(ship.getName()).append(" (").append(ship.getId()).append(") springt nach ").append(nodetarget).append("<br />\n");
 			ship.setSystem(outLoc.getSystem());
 			ship.setX(outLoc.getX());
 			ship.setY(outLoc.getY());
@@ -2807,7 +2795,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		StringBuilder outputbuffer = MESSAGE.get();
 
 		//No superdock for landing
-		Ship[] help = performLandingChecks(outputbuffer, false, dockships);
+		Ship[] help = performLandingChecks(false, dockships);
 		boolean errors = false;
 		if(help.length < dockships.length)
 		{
@@ -3034,7 +3022,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		org.hibernate.Session db = context.getDB();
 		StringBuilder outputbuffer = MESSAGE.get();
 
-		Ship[] help = performLandingChecks(outputbuffer, superdock, dockships);
+		Ship[] help = performLandingChecks(superdock, dockships);
 		boolean errors = false;
 		if(help.length < dockships.length)
 		{
@@ -3062,7 +3050,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			if(ships.size() < dockships.length)
 			{
 				//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
-				dockships = ships.toArray(new Ship[0]);
+				dockships = ships.toArray(new Ship[ships.size()]);
 				errors = true;
 			}
 		}
@@ -3119,13 +3107,12 @@ public class Ship implements Locatable,Transfering,Feeding {
 	/**
 	 * Checks, die sowohl fuers landen, als auch fuers andocken durchgefuehrt werden muessen.
 	 *
-	 * @param outputbuffer Puffer fuer Fehlermeldungen.
 	 * @param superdock <code>true</code>, falls im Superdock-Modus
 	 * 			(Keine Ueberpruefung von Groesse/Besitzer) gedockt/gelandet werden soll
 	 * @param dockships Schiffe auf die geprueft werden soll.
 	 * @return Die Liste der zu dockenden/landenden Schiffe
 	 */
-	private Ship[] performLandingChecks(StringBuilder outputbuffer, boolean superdock, Ship ... dockships)
+	private Ship[] performLandingChecks(boolean superdock, Ship ... dockships)
 	{
 		if(dockships.length == 0)
 		{
@@ -3147,7 +3134,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		if(ships.size() < dockships.length)
 		{
 			//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
-			dockships = ships.toArray(new Ship[0]);
+			dockships = ships.toArray(new Ship[ships.size()]);
 
 			if(dockships.length == 0)
 			{
@@ -3269,8 +3256,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 		.setInteger("destroyer", destroyer)
 		.list();
 
-		for( Iterator<?> iter=lootList.iterator(); iter.hasNext(); ) {
-			ShipLoot lootEntry = (ShipLoot)iter.next();
+		for (Object aLootList : lootList)
+		{
+			ShipLoot lootEntry = (ShipLoot) aLootList;
 
 			maxchance += lootEntry.getChance();
 			loot.add(lootEntry);
@@ -3288,13 +3276,15 @@ public class Ship implements Locatable,Transfering,Feeding {
 		for( int i=0; i <= Integer.parseInt(truemmerMaxItems.getValue()); i++ ) {
 			rnd = RandomUtils.nextInt(maxchance+1);
 			int currentchance = 0;
-			for( int j=0; j < loot.size(); j++ ) {
-				ShipLoot aloot = loot.get(j);
-				if( aloot.getChance() + currentchance > rnd ) {
-					if( aloot.getTotalMax() > 0 ) {
-						aloot.setTotalMax(aloot.getTotalMax()-1);
+			for (ShipLoot aloot : loot)
+			{
+				if (aloot.getChance() + currentchance > rnd)
+				{
+					if (aloot.getTotalMax() > 0)
+					{
+						aloot.setTotalMax(aloot.getTotalMax() - 1);
 					}
-					cargo.addResource( Resources.fromString(aloot.getResource()), aloot.getCount() );
+					cargo.addResource(Resources.fromString(aloot.getResource()), aloot.getCount());
 					break;
 				}
 
@@ -3310,13 +3300,12 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		// Truemmer-Schiff hinzufuegen und entfernen-Task setzen
-		Ship truemmer = new Ship((User)db.get(User.class, -1));
+		ShipType truemmertype = (ShipType) db.get(ShipType.class, config.getInt("CONFIG_TRUEMMER"));
+		User truemmerbesitzer = (User) db.get(User.class, -1);
+
+		Ship truemmer = new Ship(truemmerbesitzer, truemmertype, this.system, this.x, this.y);
 		truemmer.setName("Tr&uuml;mmerteile");
-		truemmer.setBaseType((ShipType)db.get(ShipType.class, config.getInt("CONFIG_TRUEMMER")));
 		truemmer.setCargo(cargo);
-		truemmer.setX(this.x);
-		truemmer.setY(this.y);
-		truemmer.setSystem(this.system);
 		truemmer.setHull(config.getInt("CONFIG_TRUEMMER_HUELLE"));
 		int id = (Integer)db.save(truemmer);
 		db.save(truemmer.getHistory());
@@ -3377,8 +3366,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 		// Gibts bereits eine Loesch-Task? Wenn ja, dann diese entfernen
 		Taskmanager taskmanager = Taskmanager.getInstance();
 		Task[] tasks = taskmanager.getTasksByData( Taskmanager.Types.SHIP_DESTROY_COUNTDOWN, Integer.toString(this.id), "*", "*");
-		for( int i=0; i < tasks.length; i++ ) {
-			taskmanager.removeTask(tasks[i].getTaskID());
+		for (Task task : tasks)
+		{
+			taskmanager.removeTask(task.getTaskID());
 		}
 
 		// Und nun loeschen wir es...
@@ -3479,7 +3469,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			return true;
 		}
 
-		if( this.status.indexOf("noconsign") != -1 ) {
+		if(this.status.contains("noconsign")) {
 			MESSAGE.get().append("Die '").append(this.name).append("' (").append(this.id).append(") kann nicht &uuml;bergeben werden");
 			return true;
 		}
@@ -3616,7 +3606,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 	private static ShipTypeData getShipType( ShipType type, ShipModules shipdata, boolean plaindata ) {
 		if( !plaindata ) {
-			String picture = "";
+			String picture;
 			if( shipdata == null ) {
 				picture = type.getPicture();
 			}
@@ -3698,11 +3688,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * @return <code>False</code>, wenn das Schiff kein SRS hat oder gelandet ist. <code>True</code> ansonsten.
 	 */
 	public boolean canUseSrs() {
-		if(!getTypeData().hasSrs()) {
-			return false;
-		}
-
-		return !isLanded();
+		return getTypeData().hasSrs() && !isLanded();
 	}
 
 	/**
