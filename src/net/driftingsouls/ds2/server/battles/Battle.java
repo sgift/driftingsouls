@@ -1248,7 +1248,7 @@ public class Battle implements Locatable
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 
-		for( int i=0; i < 1; i++ )
+		for( int i=0; i <= 1; i++ )
 		{
 			if( user.getAlly() != null && user.getAlly().getId() == this.getAlly(i) )
 			{
