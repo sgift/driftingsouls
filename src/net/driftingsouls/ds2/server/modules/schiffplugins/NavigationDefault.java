@@ -289,7 +289,7 @@ public class NavigationDefault implements SchiffPlugin {
 				}
 			}
 
-			boolean[] alertStatus = Ship.getAlertStatus(user.getId(), locs);
+			boolean[] alertStatus = Ship.getAlertStatus(user, locs);
 
 			boolean newrow;
 

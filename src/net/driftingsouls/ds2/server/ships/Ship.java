@@ -1586,16 +1586,14 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * unter Alarm steht, d.h. bei einem Einflug eine Schlacht gestartet wird.
 	 * Die Reihenfolge der Liste entspricht der der uebergebenen Koordinaten. <code>true</code> kennzeichnet,
 	 * dass der Sektor unter Alarm steht.
-	 * @param userid Die Spieler-ID
+	 * @param user Der Spieler
 	 * @param locs Die Positionen, die ueberprueft werden sollen
 	 * @return Liste von Booleans in der Reihenfolge der Koordinaten.
 	 */
-	public static boolean[] getAlertStatus( int userid, Location ... locs ) {
+	public static boolean[] getAlertStatus( User user, Location ... locs ) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		boolean[] results = new boolean[locs.length];
-
-		User user = (User)db.get(User.class, userid);
 
 		Map<Location,List<Ship>> result = alertCheck(user, locs);
 
