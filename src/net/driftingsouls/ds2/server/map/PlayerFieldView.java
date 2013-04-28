@@ -64,11 +64,6 @@ public class PlayerFieldView implements FieldView
 	@Override
 	public List<Base> getBases()
 	{
-		if(!this.inScanRange)
-        {
-            return new ArrayList<Base>();
-        }
-
         boolean shipInSector = isSameSector();
 
         List<Base> bases = new ArrayList<Base>();
@@ -91,7 +86,7 @@ public class PlayerFieldView implements FieldView
 			nebula = bases.isEmpty();
 		}
 		
-		if( !nebula )
+		if( !nebula && this.inScanRange )
 		{
 			for( Base base : this.field.getBases() ) 
 			{
