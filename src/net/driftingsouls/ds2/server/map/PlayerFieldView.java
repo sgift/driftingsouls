@@ -277,6 +277,10 @@ public class PlayerFieldView implements FieldView
 	@Override
 	public boolean isRoterAlarm()
 	{
+		if( this.scanShip == null )
+		{
+			return false;
+		}
 		// Nur den Status in benachbarten Sektoren ermitteln
 		if( Math.abs(this.scanShip.getLocation().getX()-this.location.getX()) > 1 )
 		{
