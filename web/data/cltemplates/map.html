@@ -114,22 +114,11 @@
 						<table class="toggleContent">
 							<tbody ng-repeat="ship in shiptype.ships" ng-mouseenter="highlightSensoren(ship)" ng-mouseleave="unhighlightSensoren(ship)">
 								<tr>
-									<td class="id">
-										<a ui-if="user.eigener" href="./ds?module=schiff&action=default&ship={{ship.id}}">{{ship.id}}</a>
-										<span ui-if="!user.eigener">{{ship.id}}</span>
-									</td>
 									<td class="name">
 										<a ui-if="user.eigener" href="./ds?module=schiff&action=default&ship={{ship.id}}">{{ship.name}}</a>
 										<span ui-if="!user.eigener">{{ship.name}}</span>
 									</td>
-									<td class="fleet">
-										<span ui-if="ship.fleet">
-											{{ship.fleet.name}}
-										</span>
-									</td>
-								</tr>
-								<tr class="details" ui-if="ship.maxGedockt>0 || ship.maxGelandet>0">
-									<td colspan="3">
+									<td class="status">
 										<span ui-if="ship.maxGedockt>0" title="gedockte Schiffe">
 											<img ng-src="./data/interface/schiffe/{{user.race}}/icon_container.gif" alt="" />
 											{{ship.gedockt}}/{{ship.maxGedockt}}
@@ -137,6 +126,21 @@
 										<span ui-if="ship.maxGelandet>0" title="gelandete Schiffe">
 											<img ng-src="./data/interface/schiffe/{{user.race}}/icon_schiff.gif" alt="" />
 											{{ship.gelandet}}/{{ship.maxGelandet}}
+										</span>
+										<span ui-if="ship.maxEnergie>0" title="Energie">
+											<img ng-src="./data/interface/energie.gif" alt="" />
+											{{ship.energie}}/{{ship.maxEnergie}}
+										</span>
+										<span ui-if="ship.ueberhitzung>0" title="Triebwerksüberhitzung">
+											<img ng-src="./data/interface/ueberhitzung.svg" alt="" />
+											{{ship.ueberhitzung}}
+										</span>
+									</td>
+								</tr>
+								<tr class="details" ui-if="ship.fleet">
+									<td colspan="3">
+										<span ui-if="ship.fleet">
+											{{ship.fleet.name}}
 										</span>
 									</td>
 								</tr>

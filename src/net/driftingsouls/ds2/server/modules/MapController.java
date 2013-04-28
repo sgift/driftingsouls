@@ -662,6 +662,12 @@ public class MapController extends AngularGenerator
 					{
 						shipObj.accumulate("gelandet", ship.getLandedCount());
 						shipObj.accumulate("maxGelandet", typeData.getJDocks());
+
+						shipObj.accumulate("energie", ship.getEnergy());
+						shipObj.accumulate("maxEnergie", typeData.getEps());
+
+						shipObj.accumulate("ueberhitzung", ship.getHeat());
+
 						int sensorRange = ship.getEffectiveScanRange();
 						if( field.getNebel() != null ) {
 							sensorRange /= 2;

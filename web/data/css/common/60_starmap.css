@@ -179,16 +179,16 @@
 	font-size:12px;
 }
 
-#starmapSectorPopup .ships table .id {
-	width:15%;
-}
-
 #starmapSectorPopup .ships table .name {
 	width:45%;
 }
 
-#starmapSectorPopup .ships table .fleet {
-	width:40%;
+#starmapSectorPopup .ships table .status {
+	width:55%;
+}
+
+#starmapSectorPopup .ships table .status img {
+	max-height:15px;
 }
 
 #starmapSectorPopup .ships .details td {
