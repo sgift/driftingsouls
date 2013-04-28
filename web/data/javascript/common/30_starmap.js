@@ -982,7 +982,11 @@ return function(jqElement) {
 	 * @param cssClass {string=} Zusätzliche an das Highlight zu schreibende CSS-Klassen
 	 * @name Starmap.highlight
 	 */
-	this.highlight = function(shape,highlightGroup,cssClass) { __starmapOverlay.highlight(shape,highlightGroup,cssClass) };
+	this.highlight = function(shape,highlightGroup,cssClass) {
+		if( __starmapOverlay != null ) {
+			__starmapOverlay.highlight(shape,highlightGroup,cssClass);
+		}
+	};
 	/**
 	 * Entfernt das Highlight einer bestimmten Gruppe von einem Sektor.
 	 * @param sectorX {number} Die x-Koordinate des Sektors
@@ -991,14 +995,22 @@ return function(jqElement) {
 	 * Falls nicht angegeben wird die Defaultgruppe genommen.
 	 * @name Starmap.unhighlight
 	 */
-	this.unhighlight = function(sectorX,sectorY,highlightGroup) { __starmapOverlay.unhighlight(sectorX,sectorY,highlightGroup) };
+	this.unhighlight = function(sectorX,sectorY,highlightGroup) {
+		if( __starmapOverlay != null ) {
+			__starmapOverlay.unhighlight(sectorX,sectorY,highlightGroup);
+		}
+	};
 	/**
 	 * Entfernt alle Highlights die zu einer Gruppe gehoeren.
 	 * @param highlightGroup {string=} Die Highlight-Gruppe.
 	 * Falls nicht angegeben wird die Defaultgruppe genommen.
 	 * @name Starmap.unhighlightGroup
 	 */
-	this.unhighlightGroup = function(highlightGroup) { __starmapOverlay.unhighlightGroup(highlightGroup) };
+	this.unhighlightGroup = function(highlightGroup) {
+		if( __starmapOverlay != null ) {
+			__starmapOverlay.unhighlightGroup(highlightGroup);
+		}
+	};
 	/**
 	 * Laedt ein Sternensystem in der Sternenkarte und positioniert die Ansicht ueber der angegebenen
 	 * Position.
@@ -1013,7 +1025,7 @@ return function(jqElement) {
 	 * Gibt zurueck, ob die Sternenkarte erfolgreich geladen wurde, d.h.
 	 * momentan ein Sternensystem dargestellt wird.
 	 * @returns {boolean} true, falls dem so ist
-	 * @name Starmap.isReadoy
+	 * @name Starmap.isReady
 	 */
 	this.isReady = function() { return __ready; };
 	/**
