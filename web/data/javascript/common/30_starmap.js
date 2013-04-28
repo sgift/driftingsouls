@@ -131,6 +131,7 @@ return function(jqElement) {
 	 */
 	var ActionOverlay = function(options){
 		this.__lastDrag = [];
+		var dragDistance = 0;
 
 		this.create = function()
 		{
@@ -140,7 +141,7 @@ return function(jqElement) {
 
 			var self = this;
 			var actionOverlay = $('#actionOverlay');
-			actionOverlay.bind('click', function(e)
+			/*actionOverlay.bind('click', function(e)
 			{
 				document.body.focus();
 				document.onselectstart = function () { return false; };
@@ -152,7 +153,7 @@ return function(jqElement) {
 				e.stopPropagation();
 
 				self.onClick(x, y);
-			});
+			});*/
 
 			actionOverlay.bind('mousedown', function(e) {
 				if( e.which != 1 ) {
@@ -164,6 +165,7 @@ return function(jqElement) {
 				e.target.ondragstart = function() { return false; };
 				document.body.focus();
 				document.onselectstart = function () { return false; };
+				dragDistance = 0;
 
 				self.onDragStart();
 			});
@@ -183,6 +185,14 @@ return function(jqElement) {
 				e.stopPropagation();
 
 				self.onDragStop();
+
+				if( dragDistance < 3 ) {
+					var offset = $(e.target).offset();
+					var x = e.pageX - offset.left;
+					var y = e.pageY - offset.top;
+
+					self.onClick(x, y);
+				}
 			});
 
 			actionOverlay.bind('mousemove touchmove', function(e)
@@ -212,6 +222,8 @@ return function(jqElement) {
 
 				var moveX = drag[0] - pageX;
 				var moveY = drag[1] - pageY;
+
+				dragDistance += Math.abs(moveX)+Math.abs(moveY);
 
 				self.onDrag(moveX, moveY);
 
