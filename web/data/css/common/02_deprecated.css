@@ -63,7 +63,7 @@ td.noBorderXnBG		{background-color:transparent; color: #C7C7C7; font-family: ari
 td.noBorderX h2		{font-size:16px; font-weight:bold; text-decoration:none; color:#FFFFFF; margin-top:1px; margin-left:0px; margin-right:0px; margin-bottom:2px}
 td.noBorderX h3		{font-size:14px; font-weight:bold; text-decoration:none; color:#FEB626; margin-top:1px; margin-left:0px; margin-right:0px; margin-bottom:2px}
 
-a:link		{color: #000080; font-weight: bold; text-decoration: none;}
+a			{color: #000080; font-weight: bold; text-decoration: none;}
 a:visited	{color: #000080; font-weight: bold; text-decoration: none;}
 a:hover		{color: #F0A000; font-weight: bold; text-decoration: none;}
 a:active	{color: #0000FF; font-weight: bold; text-decoration: none;}
