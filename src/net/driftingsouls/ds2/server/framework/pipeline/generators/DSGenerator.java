@@ -18,6 +18,20 @@
  */
 package net.driftingsouls.ds2.server.framework.pipeline.generators;
 
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Configuration;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.Version;
+import net.driftingsouls.ds2.server.framework.pipeline.Error;
+import net.driftingsouls.ds2.server.framework.pipeline.Response;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.FlushMode;
+import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
@@ -30,22 +44,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
-
-import net.driftingsouls.ds2.server.framework.BasicUser;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.Version;
-import net.driftingsouls.ds2.server.framework.pipeline.Error;
-import net.driftingsouls.ds2.server.framework.pipeline.Response;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.FlushMode;
-import org.hibernate.Session;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Basisklasse fuer alle DS-spezifischen Generatoren.
