@@ -2258,6 +2258,7 @@ public class QuestFunctions {
 			ShipType st = (ShipType)db.get(ShipType.class, shipid);
 
 			VersteigerungSchiff v = new VersteigerungSchiff(user, st, initbid);
+			v.setBieter((User)db.get(User.class, Faction.GTU));
 			v.setTick(ticks);
 			db.persist(v);
 
@@ -2295,6 +2296,7 @@ public class QuestFunctions {
 			cargo.addResource(resid, count);
 
 			VersteigerungResource versteigerung = new VersteigerungResource((User)db.get(User.class, owner), cargo, initbid);
+			versteigerung.setBieter((User)db.get(User.class, Faction.GTU));
 			db.persist(versteigerung);
 
 			return CONTINUE;
