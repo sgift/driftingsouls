@@ -186,7 +186,7 @@ return function(jqElement) {
 
 				self.onDragStop();
 
-				if( dragDistance < 3 ) {
+				if( dragDistance < 3 && e.type != 'mouseout') {
 					var offset = $(e.target).offset();
 					var x = e.pageX - offset.left;
 					var y = e.pageY - offset.top;
@@ -473,6 +473,46 @@ return function(jqElement) {
 			__request = {};
 		}
 
+		function doServerRequest(realSize) {
+			var request = __request;
+			request.FORMAT = 'JSON';
+			request.sys = __currentSystem.id;
+			request.xstart = realSize.minx;
+			request.xend = realSize.maxx;
+			request.ystart = realSize.miny;
+			request.yend = realSize.maxy;
+			request.loadmap = 1;
+			request.module = 'map';
+			request.action = 'map';
+			$.getJSON(DS.getUrl(),
+				request,
+				function (data) {
+					dsMsg(data);
+					__updateShiftOffset(data.size);
+					__currentLocations = data.locations;
+					__currentSize = data.size;
+					var overlay = $(__renderOverlay(data));
+					var oldOverlay = $('#tileOverlay');
+
+					oldOverlay.find('.highlight').each(function () {
+						var highlight = $(this);
+						var sectorX = parseInt(highlight.attr('data-highlight-x'));
+						var sectorY = parseInt(highlight.attr('data-highlight-y'));
+						var posx = (sectorX - __currentSize.minx) * SECTOR_IMAGE_SIZE;
+						var posy = (sectorY - __currentSize.miny) * SECTOR_IMAGE_SIZE;
+						highlight.css({
+							left: posx + "px",
+							top: posy + "px"
+						});
+
+						overlay.append(highlight);
+					});
+					oldOverlay.remove();
+					$('#mapview').append(overlay);
+					__reloadTriggered = false;
+				});
+		}
+
 		var __reloadOverlay = function()
 		{
 			var realSize = {
@@ -507,43 +547,7 @@ return function(jqElement) {
 			}
 
 			if( mod ) {
-				var request = __request;
-				request.FORMAT = 'JSON';
-				request.sys = __currentSystem.id;
-				request.xstart = realSize.minx;
-				request.xend = realSize.maxx;
-				request.ystart = realSize.miny;
-				request.yend = realSize.maxy;
-				request.loadmap = 1;
-				request.module = 'map';
-				request.action = 'map';
-				$.getJSON(DS.getUrl(),
-					request,
-					function(data) {
-						dsMsg(data);
-						__updateShiftOffset(data.size);
-						__currentLocations = data.locations;
-						__currentSize = data.size;
-						var overlay = $(__renderOverlay(data));
-						var oldOverlay = $('#tileOverlay');
-
-						oldOverlay.find('.highlight').each(function() {
-							var highlight = $(this);
-							var sectorX = parseInt(highlight.attr('data-highlight-x'));
-							var sectorY = parseInt(highlight.attr('data-highlight-y'));
-							var posx = (sectorX-__currentSize.minx)*SECTOR_IMAGE_SIZE;
-							var posy = (sectorY-__currentSize.miny)*SECTOR_IMAGE_SIZE;
-							highlight.css({
-								left:posx+"px",
-								top:posy+"px"
-							});
-
-							overlay.append(highlight);
-						});
-						oldOverlay.remove();
-						$('#mapview').append(overlay);
-						__reloadTriggered = false;
-					});
+				doServerRequest(realSize);
 			}
 
 			__reloadTriggered = false;
@@ -713,6 +717,13 @@ return function(jqElement) {
 			var overlay = cl.find('#tileOverlay');
 			overlay.css({'left' : (__currentShiftOffset[0])+'px', 'top' : (__currentShiftOffset[1])+'px'});
 		};
+
+		/**
+		 * Aktualisiert die momentane Anzeige mit neuen vom Server abgeholten Daten.
+		 */
+		this.reload = function() {
+			doServerRequest(__currentSize);
+		}
 
 		var content = __renderOverlay(data);
 		$('#mapview').append(content);
@@ -1036,5 +1047,14 @@ return function(jqElement) {
 	 * @name Starmap.getSystemId
 	 */
 	this.getSystemId = function() { return __currentSystem.id; };
+	/**
+	 * Aktualisiert die Ansicht der Sternenkarte. Dabei werden aktuelle Daten
+	 * vom Server abgeholt und angezeigt. Die Anzeigeposition aendert sich nicht.
+	 */
+	this.refresh = function() {
+		if( __starmapOverlay != null ) {
+			__starmapOverlay.reload();
+		}
+	};
 };
 	}]);
