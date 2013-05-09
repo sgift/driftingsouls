@@ -4,6 +4,7 @@ angular.module('ds.application',
 	[
 	'ds.npc',
 	'ds.map',
+	'ds.schiff',
 	'ds.demo',
 	'ds.directives',
 	'ui',

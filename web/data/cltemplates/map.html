@@ -6,6 +6,25 @@
 
 <div id="mapcontent"></div>
 
+<div id="kartenaktionslog">
+	<ds-log list="log" entry="entry">
+		<span ng-bind-html-unsafe="entry.message"/>
+	</ds-log>
+</div>
+
+<div id="kartenaktion" ui-if="fokusaktion.aktion">
+	<span ui-if="fokusaktion.aktion=='flug'">
+		<span ui-if="fokusaktion.ziel">
+			Soll {{fokusaktion.flotte && 'die Flotte' || 'das Schiff'}} '{{fokusaktion.flotte.name || fokusaktion.schiff.name}}' wirklich nach {{fokusaktion.ziel.x}}/{{fokusaktion.ziel.y}} ({{fokusaktion.entfernung}} Felder) fliegen?
+		</span>
+		<span ui-if="!fokusaktion.ziel">
+			Bitte wähle die Zielposition für {{fokusaktion.flotte && 'die Flotte' || 'das Schiff'}} '{{fokusaktion.flotte.name || fokusaktion.schiff.name}}' aus...
+		</span>
+	</span>
+	<span class="abbruch" ng-click="kartenaktionAbbrechen()">abbruch</span>
+	<span ui-if="fokusaktion.ziel" class="bestaetigung" ng-click="kartenaktionBestaetigen()">ja</span>
+</div>
+
 <div id="starmapSystemOverviewPopup"
 	 class="gfxbox"
 	 ds-popup="starmapSystemOverviewPopup"
@@ -135,6 +154,11 @@
 											<img ng-src="./data/interface/ueberhitzung.svg" alt="" />
 											{{ship.ueberhitzung}}
 										</span>
+									</td>
+									<td class="aktionen">
+										<a ui-if="ship.kannFliegen" title="{{ship.fleet && 'Flotte' || 'Schiff'}} bewegen" ng-click="fliegeMitSchiff(ship)" ds-popup-control-close="@this">
+											<img ng-src="./data/interface/move.svg" alt="" />
+										</a>
 									</td>
 								</tr>
 								<tr class="details" ui-if="ship.fleet">

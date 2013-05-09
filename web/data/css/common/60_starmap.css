@@ -18,6 +18,84 @@
 	width:20px;
 }
 
+#kartenaktion,
+#kartenaktionslog .log {
+	position:absolute;
+	bottom:0px;
+	border: 1px solid #999999;
+	border-bottom:0px;
+	font-size:75%;
+	padding:2px 5px;
+	color:#c7c7c7;
+	border-radius: 4px 4px 0px 0px;
+	z-index:30;
+	background: rgba(50, 50, 50, 0.70);
+}
+
+#kartenaktion {
+	right:25px;
+	max-width:50%;
+	min-height:18px;
+}
+
+#kartenaktionslog .log {
+	left:25px;
+	width:40%;
+}
+#kartenaktionslog .log .logcontainer {
+	overflow-y:hidden;
+	max-height:18px;
+}
+#kartenaktionslog .log.expanded .logcontainer {
+	max-height:200px;
+	overflow-y:auto;
+	margin-right:12px;
+}
+#kartenaktionslog .log .toggleSize {
+	position:absolute;
+	right:4px;
+	top:5px;
+	display:block;
+	cursor:pointer;
+
+	width: 0;
+	height: 0;
+	border-left: 5px solid transparent;
+	border-right: 5px solid transparent;
+	border-bottom: 5px solid #47E767;
+}
+
+#kartenaktionslog .log.expanded .toggleSize {
+	border: 5px solid transparent;
+	border-top-color: #47E767;
+	border-bottom: 0px none;
+}
+
+#kartenaktionslog .logentry {
+	padding:3px 2px;
+}
+
+#kartenaktion > span {
+	float:left;
+}
+
+#kartenaktion .bestaetigung,
+#kartenaktion .abbruch {
+	display:block;
+	float:right;
+	margin-left:5px;
+	font-weight:bold;
+	cursor:pointer;
+}
+
+#kartenaktion .abbruch {
+	color:red;
+}
+
+#kartenaktion .bestaetigung {
+	color:green;
+}
+
 #systemauswahl {
 	text-align:center;
 }
@@ -184,10 +262,18 @@
 }
 
 #starmapSectorPopup .ships table .status {
-	width:55%;
+	width:45%;
+}
+
+#starmapSectorPopup .ships table .aktionen {
+	width:10%;
+	text-align:right;
 }
 
 #starmapSectorPopup .ships table .status img {
+	max-height:15px;
+}
+#starmapSectorPopup .ships table .aktionen img {
 	max-height:15px;
 }
 
@@ -376,7 +462,7 @@
 	left:45px;
 	top:5px;
 	right:5px;
-	bottom:5px;
+	bottom:20px;
 }
 
 .starmap #legend
@@ -391,7 +477,6 @@
 	top:0px;
 	right:0px;
 	bottom:0px;
-	z-index:5;
 	font-size:9px;
 }
 

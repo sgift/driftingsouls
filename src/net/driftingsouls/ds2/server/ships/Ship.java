@@ -2476,7 +2476,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		} // while !error && route.size() > 0
 
 		if( moved ) {
-			out.append("Ankunft bei ").append(this.getLocation().displayCoordinates(true)).append("<br /><br />\n");
+			out.append("Ankunft bei ").append(this.getLocation().displayCoordinates(true)).append("<br />\n");
 
 			this.docked = "";
 			if( docked != 0 ) {

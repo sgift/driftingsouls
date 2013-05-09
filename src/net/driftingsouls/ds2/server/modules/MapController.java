@@ -98,7 +98,7 @@ public class MapController extends AngularGenerator
 		}
 		else if( system == null || !system.isVisibleFor(user) )
 		{
-			addError("Sie haben keine entsprechenden Karten - Ihnen sind bekannt:");
+			addError("Sie haben keine entsprechenden Karten");
 			return false;
 		}
 
@@ -667,6 +667,8 @@ public class MapController extends AngularGenerator
 						shipObj.accumulate("maxEnergie", typeData.getEps());
 
 						shipObj.accumulate("ueberhitzung", ship.getHeat());
+
+						shipObj.accumulate("kannFliegen", typeData.getCost()>0 && !ship.isDocked() && !ship.isLanded());
 
 						int sensorRange = ship.getEffectiveScanRange();
 						if( field.getNebel() != null ) {

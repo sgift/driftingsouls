@@ -291,6 +291,51 @@ angular.module('ds.directives', [])
 		}
 	};
 }])
+	.directive('dsLog', function() {
+		return {
+			restrict : 'E',
+			transclude: true,
+			scope: {
+				logentries: '=list',
+				entry : '=entry'
+			},
+			replace: true,
+			template:
+				'<div class="log">' +
+					'<div class="logcontainer">' +
+						'<div class="logentries">' +
+						'<div class="logentry" ng-repeat="entry in logentries" ng-transclude />'+
+						'</div>'+
+					'</div>'+
+					'<span class="toggleSize" title="aufklappen" />'+
+				'</div>',
+			link : function(scope, element, attrs) {
+				var container = element.find('.logcontainer');
+				var oldHeight = 0;
+
+				element.find('.toggleSize').on('click', function(event) {
+					element.toggleClass('expanded');
+					$(event.target).attr('title', element.hasClass('expanded') ? 'zuklappen' : 'aufklappen');
+					oldHeight = element.find('.logentries').height();
+					container.scrollTop(oldHeight);
+				});
+				scope.$watch('logentries', function(){
+					setTimeout(function() {
+						var height;
+						if( !element.hasClass('expanded') || container.scrollTop()+container.height() >= oldHeight ) {
+							container.stop(true);
+							height = element.find('.logentries').height();
+							container.animate({ scrollTop: height }, 1000);
+						}
+						else {
+							height = element.find('.logentries').height();
+						}
+						oldHeight = height;
+					}, 100);
+				}, true);
+			}
+		};
+	})
 .directive('dsPieChart', ['dsChartSupport', function(dsChartSupport) {
 	return {
 		restrict : 'A',
