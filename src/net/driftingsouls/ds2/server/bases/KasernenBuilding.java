@@ -77,7 +77,7 @@ public class KasernenBuilding extends DefaultBuilding {
 		super.cleanup(context, base, building);
 
 		org.hibernate.Session db = context.getDB();
-		Kaserne kaserne = (Kaserne)db.createQuery("from Kaserne where col=:base")
+		Kaserne kaserne = (Kaserne)db.createQuery("from Kaserne where base=:base")
 			.setEntity("base", base)
 			.uniqueResult();
 
@@ -92,7 +92,7 @@ public class KasernenBuilding extends DefaultBuilding {
 
 		StringBuilder result = new StringBuilder(200);
 
-		Kaserne kaserne = (Kaserne)db.createQuery("from Kaserne where col=:base")
+		Kaserne kaserne = (Kaserne)db.createQuery("from Kaserne where base=:base")
 			.setEntity("base", base)
 			.uniqueResult();
 		if( kaserne != null ) {
@@ -111,7 +111,7 @@ public class KasernenBuilding extends DefaultBuilding {
 				{
 					UnitType unittype = entry.getUnit();
 					popup.append("<br />Aktuell im Bau: "+entry.getCount()+"x "+unittype.getName()+
-							" <img src='"+config.get("URL")+"data/interface/time.gif' alt='Dauer: ' />"+
+							" <img src='./data/interface/time.gif' alt='Dauer: ' />"+
 							entry.getRemaining());
 				}
 
@@ -133,7 +133,7 @@ public class KasernenBuilding extends DefaultBuilding {
 	public boolean isActive(Base base, int status, int field) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		Kaserne kaserne = (Kaserne)db.createQuery("from Kaserne where col=:base")
+		Kaserne kaserne = (Kaserne)db.createQuery("from Kaserne where base=:base")
 			.setEntity("base", base)
 			.uniqueResult();
 		if( kaserne != null ) {
@@ -147,7 +147,7 @@ public class KasernenBuilding extends DefaultBuilding {
 	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
 		org.hibernate.Session db = context.getDB();
 
-		Kaserne kaserne = (Kaserne)db.createQuery("from Kaserne where col=:base")
+		Kaserne kaserne = (Kaserne)db.createQuery("from Kaserne where base=:base")
 			.setEntity("base", base)
 			.uniqueResult();
 

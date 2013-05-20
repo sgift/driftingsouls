@@ -658,7 +658,7 @@ public class Fabrik extends DefaultBuilding {
 		*/
 		echo.append("<div class='gfxbox' style='width:1100px'>");
 
-		echo.append("<img style=\"vertical-align:middle\" src=\""+config.get("URL")+"data/interface/time.gif\" alt=\"Zeiteinheiten\" />"+usedcapacity+"/"+wf.getCount()+" ausgelastet<br />\n");
+		echo.append("<img style=\"vertical-align:middle\" src=\"./data/interface/time.gif\" alt=\"Zeiteinheiten\" />"+usedcapacity+"/"+wf.getCount()+" ausgelastet<br />\n");
 		echo.append("Verbrauch: ");
 		ResourceList reslist = consumes.getResourceList();
 		for( ResourceEntry res : reslist ) {
@@ -705,7 +705,7 @@ public class Fabrik extends DefaultBuilding {
 			}
 
 			echo.append("<td class=\"noBorderX\" valign=\"top\">\n");
-			echo.append("<img style=\"vertical-align:middle\" src=\""+config.get("URL")+"data/interface/time.gif\" alt=\"Dauer\" />"+entry.getDauer()+" \n");
+			echo.append("<img style=\"vertical-align:middle\" src=\"./data/interface/time.gif\" alt=\"Dauer\" />"+entry.getDauer()+" \n");
 
 			Cargo buildcosts = new Cargo(entry.getBuildCosts());
 			buildcosts.setOption(Cargo.Option.SHOWMASS, false);

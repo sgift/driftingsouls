@@ -112,13 +112,13 @@ public class Werft extends DefaultBuilding {
 					if( entries[i].isScheduled() ) {
 						usedSlots += entries[i].getSlots();
 						buildingCount++;
-						imBau = imBau+"<br />Aktuell im Bau: "+entries[i].getBuildShipType().getNickname()+" <img src='"+config.get("URL")+"data/interface/time.gif' alt='Dauer: ' />"+entries[i].getRemainingTime();
+						imBau = imBau+"<br />Aktuell im Bau: "+entries[i].getBuildShipType().getNickname()+" <img src='./data/interface/time.gif' alt='Dauer: ' />"+entries[i].getRemainingTime();
 					}
 				}
 
 				StringBuilder popup = new StringBuilder(100);
 				popup.append(this.getName()+":<br />");
-				popup.append("Belegte Werftslots: <img style='vertical-align:middle;border:0px' src='"+config.get("URL")+"data/interface/schiffinfo/werftslots.png' alt='' />"+usedSlots+"/"+totalSlots+"<br />");
+				popup.append("Belegte Werftslots: <img style='vertical-align:middle;border:0px' src='./data/interface/schiffinfo/werftslots.png' alt='' />"+usedSlots+"/"+totalSlots+"<br />");
 				popup.append("Im Bau: "+buildingCount+" Schiffe<br />");
 				popup.append("In der Warteschlange: "+(entries.length - buildingCount));
 				popup.append(imBau);

@@ -185,7 +185,7 @@ public class DigBuilding extends DefaultBuilding {
 
 		if( getEVerbrauch() > 0 )
 		{
-			buffer.append("<img src=\""+this.config.get("URL")+"data/interface/energie.gif\" alt=\"\" />"+getEVerbrauch()+" ");
+			buffer.append("<img src=\"./data/interface/energie.gif\" alt=\"\" />"+getEVerbrauch()+" ");
 			entry = true;
 		}
 		if( !entry )
@@ -208,7 +208,7 @@ public class DigBuilding extends DefaultBuilding {
 
 		if( getEProduktion() > 0 )
 		{
-			buffer.append("<img src=\""+this.config.get("URL")+"data/interface/energie.gif\" alt=\"\" />"+getEProduktion());
+			buffer.append("<img src=\"./data/interface/energie.gif\" alt=\"\" />"+getEProduktion());
 			entry = true;
 		}
 

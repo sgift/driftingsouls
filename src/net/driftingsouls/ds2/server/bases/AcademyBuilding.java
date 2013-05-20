@@ -202,8 +202,7 @@ public class AcademyBuilding extends DefaultBuilding {
 						popup.append("Bildet aus: ");
 						popup.append(offis.get(entry.getTraining() * -1));
 						popup.append(" Dauer: <img style='vertical-align:middle' src='");
-						popup.append(this.config.get("URL"));
-						popup.append("data/interface/time.gif' alt='noch ' />");
+						popup.append("./data/interface/time.gif' alt='noch ' />");
 						popup.append(entry.getRemainingTime());
 					}
 					else
@@ -219,8 +218,7 @@ public class AcademyBuilding extends DefaultBuilding {
 						popup.append(attributes.get(entry.getTrainingType()));
 						popup.append(") ");
 						popup.append("Dauer: <img style='vertical-align:middle' src='");
-						popup.append(this.config.get("URL"));
-						popup.append("data/interface/time.gif' alt='noch ' />");
+						popup.append("./data/interface/time.gif' alt='noch ' />");
 						popup.append(entry.getRemainingTime());
 					}
 					popup.append("<br />");
