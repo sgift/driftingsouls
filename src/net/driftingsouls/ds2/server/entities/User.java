@@ -69,8 +69,6 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 
 
 /**
@@ -81,7 +79,6 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Entity
 @DiscriminatorValue("default")
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-@Configurable
 @BatchSize(size=50)
 public class User extends BasicUser implements JSONSupport {
 	private static final Log log = LogFactory.getLog(User.class);
@@ -266,9 +263,6 @@ public class User extends BasicUser implements JSONSupport {
 	@Transient
 	private Context context;
 
-	@Transient
-	private Configuration config;
-
 	/**
 	 * Konstruktor.
 	 *
@@ -335,16 +329,6 @@ public class User extends BasicUser implements JSONSupport {
 		int defaultDropZone = Integer.valueOf(value.getValue());
 		setGtuDropZone(defaultDropZone);
 	}
-
-    /**
-    * Injiziert die DS-Konfiguration.
-    * @param config Die DS-Konfiguration
-    */
-    @Autowired
-    public void setConfiguration(Configuration config)
-    {
-    	this.config = config;
-    }
 
 	/**
 	 * Macht alle geladenen Benutzereigenschaften dem Templateengine bekannt.
@@ -471,7 +455,7 @@ public class User extends BasicUser implements JSONSupport {
 
 			List<?> relationlist = db.createQuery("from UserRelation " +
 					"where user= :user OR target= :user OR (user!= :user AND target=0) " +
-					"order by abs(target) desc")
+					"order by abs(target.id) desc")
 				.setEntity("user", this)
 				.list();
 
@@ -830,7 +814,7 @@ public class User extends BasicUser implements JSONSupport {
 	 * @return <code>true</code>, falls der Spieler noch ein Noob ist
 	 */
 	public boolean isNoob() {
-		if( config.getInt("NOOB_PROTECTION") > 0 ) {
+		if( Configuration.getIntSetting("NOOB_PROTECTION") > 0 ) {
 			if( this.getId() < 0 ) {
 				return false;
 			}

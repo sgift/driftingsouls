@@ -41,8 +41,6 @@ import net.driftingsouls.ds2.server.modules.StatsController;
 import net.driftingsouls.ds2.server.ships.Ship;
 
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Zeigt die insgesamt vorkommenden sowie die eigenen Waren an. Bei Items werden zudem,
@@ -50,19 +48,7 @@ import org.springframework.beans.factory.annotation.Configurable;
  * @author Christopher Jung
  *
  */
-@Configurable
 public class StatWaren implements Statistic {
-	private Configuration config;
-
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config)
-    {
-    	this.config = config;
-    }
 
     @Override
 	public void show(StatsController contr, int size) throws IOException {
@@ -113,8 +99,8 @@ public class StatWaren implements Statistic {
 		Map<Integer,String> shipnamecache = new HashMap<Integer,String>();
 
 		// Diese Grafiken kennzeichen bei Itempositionen den Typ der Position
-		final String shipimage = "<td class='noBorderX' style='text-align:right'><img style='vertical-align:middle' src='"+config.get("URL")+"data/interface/schiffe/"+user.getRace()+"/icon_schiff.gif' alt='' title='Schiff' /></td>";
-		final String baseimage = "<td class='noBorderX' style='text-align:right'><img style='vertical-align:middle;width:15px;height:15px' src='"+config.get("URL")+"data/starmap/asti/asti.png' alt='' title='Asteroid' /></td>";
+		final String shipimage = "<td class='noBorderX' style='text-align:right'><img style='vertical-align:middle' src='./data/interface/schiffe/"+user.getRace()+"/icon_schiff.gif' alt='' title='Schiff' /></td>";
+		final String baseimage = "<td class='noBorderX' style='text-align:right'><img style='vertical-align:middle;width:15px;height:15px' src='./data/starmap/asti/asti.png' alt='' title='Asteroid' /></td>";
 
 		// Resourcenliste durchlaufen
 		ResourceList reslist = cargo.compare(ownCargo, false);

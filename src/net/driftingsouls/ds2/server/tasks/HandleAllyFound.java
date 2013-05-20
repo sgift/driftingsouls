@@ -18,9 +18,6 @@
  */
 package net.driftingsouls.ds2.server.tasks;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
@@ -39,20 +36,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
  *  - data3 -> die Spieler, die in die neu gegruendete Allianz sollen, jeweils durch ein , getrennt (Pos: 0 -> Praesident/Gruender)  
  *  @author Christopher Jung
  */
-@Configurable
 class HandleAllyFound implements TaskHandler {
-	
-	private Configuration config;
-	
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config) 
-    {
-    	this.config = config;
-    }
 
 	@Override
 	public void handleEvent(Task task, String event) {	
@@ -75,7 +59,7 @@ class HandleAllyFound implements TaskHandler {
 				Ally ally = new Ally(allyname, allymember[0]);
 				int allyid = (Integer)db.save(ally);
 		
-				Common.copyFile(config.get("ABSOLUTE_PATH")+"data/logos/ally/0.gif", config.get("ABSOLUTE_PATH")+"data/logos/ally"+allyid+".gif");
+				Common.copyFile(Configuration.getSetting("ABSOLUTE_PATH")+"data/logos/ally/0.gif", Configuration.getSetting("ABSOLUTE_PATH")+"data/logos/ally"+allyid+".gif");
 				
 				for( int i=0; i < allymember.length; i++ ) {
 					User source = (User)ContextMap.getContext().getDB().get(User.class, 0);

@@ -18,44 +18,27 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Map;
-
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.scripting.QuestXMLParser;
-
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Map;
 
 /**
  * Ermoeglicht das Installieren und Verwalten von Quest-XMLs.
  * @author Christopher Jung
  *
  */
-@Configurable
 @AdminMenuEntry(category="Quests", name="Quest-XMLs")
 public class QuestsFiles implements AdminPlugin {
-	private Configuration config;
-	
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config) 
-    {
-    	this.config = config;
-    }
-
 	private String basename( String file ) {
 		int pos = file.lastIndexOf('/');
 		if( pos > -1 ) {
@@ -94,7 +77,7 @@ public class QuestsFiles implements AdminPlugin {
 		echo.append("</div>");
 		echo.append("<br />\n");
 		
-		final String questpath = config.get("QUESTPATH");
+		final String questpath = Configuration.getSetting("QUESTPATH");
 		
 		if( installfile.length() > 0 ) {
 			echo.append("<div class='gfxbox' style='width:590px'>");

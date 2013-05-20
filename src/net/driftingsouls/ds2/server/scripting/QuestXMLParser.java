@@ -29,8 +29,6 @@ import net.driftingsouls.ds2.server.scripting.entities.Text;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.hibernate.Session;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -60,7 +58,6 @@ import java.util.Stack;
  * @author Christopher Jung
  *
  */
-@Configurable
 public class QuestXMLParser extends DSObject {
 	/**
 	 * Der Modus in dem der Parser betrieben wird.
@@ -111,19 +108,7 @@ public class QuestXMLParser extends DSObject {
 	protected Set<String> compiledFiles = new HashSet<String>();
 	
 	private String currentFile;
-	
-	private Configuration config;
-	
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config) 
-    {
-    	this.config = config;
-    }
-	
+
 	/**
 	 * Konstruktor.
 	 * @param mode Der Modus in dem eine Quest-XML verarbeitet werden soll
@@ -324,7 +309,7 @@ public class QuestXMLParser extends DSObject {
 		this.dialogids.clear();
 		this.scripts.clear();
 		
-		File installXML = new File(config.get("QUESTPATH")+file+".install");
+		File installXML = new File(Configuration.getSetting("QUESTPATH")+file+".install");
 		// Wurde das Quest bereits installiert?
 		if( installXML.exists() ) {
 			try {
@@ -648,7 +633,7 @@ public class QuestXMLParser extends DSObject {
 			this.currentFile = mycurrentfile;
 			
 			// Wurde das Quest bereits installiert?
-			File installFile = new File(config.get("QUESTPATH")+this.currentFile+".install");
+			File installFile = new File(Configuration.getSetting("QUESTPATH")+this.currentFile+".install");
 			if( installFile.exists() ) {
 				try {
 					XMLReader parser = XMLReaderFactory.createXMLReader();
@@ -672,7 +657,7 @@ public class QuestXMLParser extends DSObject {
 			addInstallData(this.currentFile, "<?xml version='1.0' encoding='UTF-8'?>\n");
 			addInstallData(this.currentFile, "<install>\n");
 			
-			File questFile = new File(config.get("QUESTPATH")+file);
+			File questFile = new File(Configuration.getSetting("QUESTPATH")+file);
 			
 			try {
 				XMLReader parser = XMLReaderFactory.createXMLReader();
@@ -717,7 +702,7 @@ public class QuestXMLParser extends DSObject {
 	private void parsexml(String file) {
 		MESSAGE.get().append("parsing "+file+"...\n");
 		
-		File questFile = new File(config.get("QUESTPATH")+file);
+		File questFile = new File(Configuration.getSetting("QUESTPATH")+file);
 		if( !questFile.exists() ) {
 			MESSAGE.get().append("QuestXML konnte nicht gefunden werden");
 			return;
@@ -728,7 +713,7 @@ public class QuestXMLParser extends DSObject {
 		this.compiledFiles.add(this.currentFile);
 		
 		// Wurde das Quest bereits installiert?
-		File installFile = new File(config.get("QUESTPATH")+this.currentFile+".install");
+		File installFile = new File(Configuration.getSetting("QUESTPATH")+this.currentFile+".install");
 		if( installFile.exists() ) {
 			try {
 				XMLReader parser = XMLReaderFactory.createXMLReader();
@@ -777,7 +762,7 @@ public class QuestXMLParser extends DSObject {
 		for( String filename : this.installFiles.keySet() ) {
 			String instfile = this.installFiles.get(filename);
 			instfile += "</install>\n";
-			installFile = new File(config.get("QUESTPATH")+filename+".install");
+			installFile = new File(Configuration.getSetting("QUESTPATH")+filename+".install");
 			if( installFile.exists() ) {
 				installFile.delete();
 			}

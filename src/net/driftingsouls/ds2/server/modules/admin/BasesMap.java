@@ -36,30 +36,14 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AdminController;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-
 /**
  * Generiert eine Karte eines Systems.
  * @author Christopher Jung
  *
  */
-@Configurable
 @AdminMenuEntry(category="Objekte", name="Karte")
 public class BasesMap implements AdminPlugin 
 {
-	private Configuration config;
-	
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config) 
-    {
-    	this.config = config;
-    }
-
     @Override
 	public void output(AdminController controller, String page, int action) throws IOException 
 	{
@@ -101,7 +85,7 @@ public class BasesMap implements AdminPlugin
 				return;
 			}
 			
-			echo.append("<img src=\""+config.get("URL")+"downloads/"+context.getActiveUser().getId()+"/admin.bases.map.png\" alt=\"\" />\n");		
+			echo.append("<img src=\"./downloads/"+context.getActiveUser().getId()+"/admin.bases.map.png\" alt=\"\" />\n");
 			
 			BufferedImage image = new BufferedImage(system.getWidth()*scale, system.getHeight()*scale, BufferedImage.TYPE_INT_RGB);
 			Color black = new Color(0, 0, 0);
@@ -167,7 +151,7 @@ public class BasesMap implements AdminPlugin
 			
 			try 
 			{
-				File pngdir = new File(config.get("ABSOLUTE_PATH")+
+				File pngdir = new File(Configuration.getSetting("ABSOLUTE_PATH")+
 						"downloads/"+context.getActiveUser().getId()+"/");
 				
 				if( !pngdir.isDirectory() ) 
@@ -175,7 +159,7 @@ public class BasesMap implements AdminPlugin
 					pngdir.mkdirs();
 				}
 				
-				ImageIO.write(image, "png", new File(config.get("ABSOLUTE_PATH")+
+				ImageIO.write(image, "png", new File(Configuration.getSetting("ABSOLUTE_PATH")+
 						"downloads/"+context.getActiveUser().getId()+"/admin.bases.map.png"));
 			}
 			catch( IOException e ) 

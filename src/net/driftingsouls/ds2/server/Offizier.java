@@ -18,7 +18,19 @@
  */
 package net.driftingsouls.ds2.server;
 
-import java.util.List;
+import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.cargo.HibernateCargoType;
+import net.driftingsouls.ds2.server.config.Offiziere;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.DSObject;
+import net.driftingsouls.ds2.server.ships.Ship;
+import org.apache.commons.lang.math.RandomUtils;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.TypeDefs;
+import org.springframework.beans.factory.annotation.Configurable;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -27,24 +39,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
-
-import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.cargo.HibernateCargoType;
-import net.driftingsouls.ds2.server.config.Offiziere;
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.DSObject;
-
-import net.driftingsouls.ds2.server.ships.Ship;
-import org.apache.commons.lang.math.RandomUtils;
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
+import java.util.List;
 
 /**
  * Repraesentiert einen Offizier in DS.
@@ -61,7 +56,6 @@ import org.springframework.beans.factory.annotation.Configurable;
 )
 @Entity
 @Table(name="offiziere")
-@Configurable
 @BatchSize(size=50)
 public class Offizier extends DSObject {
 	/**
@@ -167,19 +161,6 @@ public class Offizier extends DSObject {
 	private int secu;
 	private int comu;
 
-	@Transient
-	private Configuration config;
-
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config)
-    {
-    	this.config = config;
-    }
-
 	/**
 	 * Konstruktor.
 	 *
@@ -244,7 +225,7 @@ public class Offizier extends DSObject {
 	 * @return Der Pfad des Bildes
 	 */
 	public String getPicture() {
-		return config.get("URL")+"data/interface/offiziere/off"+getRang()+".png";
+		return "./data/interface/offiziere/off"+getRang()+".png";
 	}
 
 	/**

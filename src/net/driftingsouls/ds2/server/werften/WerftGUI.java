@@ -46,30 +46,15 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Die GUI einer Werft.
  * @author bktheg
  *
  */
-@Configurable
 public class WerftGUI {
 	private Context context;
 	private TemplateEngine t;
-
-	private Configuration config;
-
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config)
-    {
-    	this.config = config;
-    }
 
 	/**
 	 * Erstellt eine neue Instanz einer Werftgui auf Basis des Kontexts.
@@ -453,7 +438,7 @@ public class WerftGUI {
 			if( entry.getEnergyPerTick() != 0 ) {
 
 				t.setVar(
-						"res.image",	config.get("URL")+"data/interface/energie.gif",
+						"res.image",	"./data/interface/energie.gif",
 						"res.plainname",	"Energie",
 						"res.name",		"Energie",
 						"res.cargo",	entry.getEnergyPerTick()
@@ -495,7 +480,7 @@ public class WerftGUI {
 						"buildship.item.uses", itemdata.getUses());
 			}
 
-			t.setVar("res.image", config.get("URL") + "data/interface/time.gif",
+			t.setVar("res.image", "./data/interface/time.gif",
 					"res.count", ashipdata.getBaudaten().getDauer(),
 					"res.plainname", "Dauer",
 					"res.mangel", 0);
@@ -519,13 +504,13 @@ public class WerftGUI {
 				t.parse("buildship.res.list", "buildship.res.listitem", true);
 			}
 
-			t.setVar("res.image", config.get("URL") + "data/interface/energie.gif",
+			t.setVar("res.image", "./data/interface/energie.gif",
 					"res.count", ashipdata.getBaudaten().getEKosten(),
 					"res.plainname", "Energie",
 					"res.mangel", energy < ashipdata.getBaudaten().getEKosten());
 			t.parse("buildship.res.list", "buildship.res.listitem", true);
 
-			t.setVar("res.image", config.get("URL") + "data/interface/besatzung.gif",
+			t.setVar("res.image", "./data/interface/besatzung.gif",
 					"res.count", ashipdata.getBaudaten().getCrew(),
 					"res.plainname", "Besatzung",
 					"res.mangel", crew < ashipdata.getBaudaten().getCrew());
@@ -558,12 +543,12 @@ public class WerftGUI {
 						"res.cargo",		res.getCargo2() );
 			t.parse("reslist.res.list", "reslist.res.listitem", true);
 		}
-		t.setVar(	"res.image",		config.get("URL")+"data/interface/energie.gif",
+		t.setVar(	"res.image",		"./data/interface/energie.gif",
 					"res.plainname",	"Energie",
 					"res.cargo",		werft.getEnergy() );
 		t.parse("reslist.res.list", "reslist.res.listitem", true);
 
-		t.setVar(	"res.image",		config.get("URL")+"data/interface/arbeitslos.gif",
+		t.setVar(	"res.image",		"./data/interface/arbeitslos.gif",
 					"res.plainname",	"Crew",
 					"res.cargo",		frei );
 		t.parse("reslist.res.list", "reslist.res.listitem", true);
@@ -903,7 +888,7 @@ public class WerftGUI {
 		}
 
 		if( repairCost.e > 0 ) {
-			t.setVar(	"res.image",			config.get("URL")+"data/interface/energie.gif",
+			t.setVar(	"res.image",			"./data/interface/energie.gif",
 						"res.plainname",		"Energie",
 						"res.cargo.needed",		repairCost.e,
 						"res.cargo.available",	werft.getEnergy() );
@@ -974,7 +959,7 @@ public class WerftGUI {
 
 		int ePerTick = (int)Math.ceil(shipdata.getEKosten()/(double)shipdata.getDauer());
 
-		t.setVar(	"res.image",		config.get("URL")+"data/interface/energie.gif",
+		t.setVar(	"res.image",		"./data/interface/energie.gif",
 					"res.plainname",	"Energie",
 					"res.cargo.pertick",	ePerTick,
 					"res.cargo.available",	werft.getEnergy(),
@@ -985,7 +970,7 @@ public class WerftGUI {
 		// Crew
 		final int frei = werft.getCrew();
 
-		t.setVar(	"res.image",			config.get("URL")+"data/interface/arbeitslos.gif",
+		t.setVar(	"res.image",			"./data/interface/arbeitslos.gif",
 					"res.plainname",		"Crew",
 					"res.cargo.pertick",	"",
 					"res.cargo.available",	frei,
@@ -994,7 +979,7 @@ public class WerftGUI {
 		t.parse("build.othercosts.list", "build.res.listitem", true);
 
 		// Werftslots
-		t.setVar(	"res.image",			config.get("URL")+"data/interface/schiffinfo/werftslots.png",
+		t.setVar(	"res.image",			"./data/interface/schiffinfo/werftslots.png",
 					"res.plainname",		"Werftslots",
 					"res.cargo.pertick",	"",
 					"res.cargo.available",	werft.getWerftSlots(),
@@ -1003,7 +988,7 @@ public class WerftGUI {
 		t.parse("build.othercosts.list", "build.res.listitem", true);
 
 		// Dauer
-		t.setVar(	"res.image",			config.get("URL")+"data/interface/time.gif",
+		t.setVar(	"res.image",			"./data/interface/time.gif",
 					"res.plainname",		"Dauer",
 					"res.cargo.pertick",	"",
 					"res.cargo.available",	"",

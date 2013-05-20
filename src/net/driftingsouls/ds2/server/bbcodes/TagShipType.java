@@ -18,13 +18,9 @@
  */
 package net.driftingsouls.ds2.server.bbcodes;
 
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeFunction;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * BBCode fuer Schiffstypen.
@@ -32,28 +28,12 @@ import org.springframework.beans.factory.annotation.Configurable;
  * @author Christopher Jung
  * 
  */
-@Configurable
 public class TagShipType implements BBCodeFunction
 {
-	
-	private Configuration config;
-	
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config) 
-    {
-    	this.config = config;
-    }
-
     @Override
 	public String handleMatch(String content, String... values)
 	{
-		String url = config.get("URL");
-
-		url += "ds?module=schiffinfo&ship=" + content;
+		String url = "./ds?module=schiffinfo&ship=" + content;
 
 		ShipTypeData shiptype = Ship.getShipType(Integer.parseInt(content));
 

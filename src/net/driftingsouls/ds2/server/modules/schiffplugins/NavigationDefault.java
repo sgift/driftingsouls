@@ -39,29 +39,14 @@ import net.driftingsouls.ds2.server.ships.Waypoint;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Schiffsmodul fuer die Anzeige der Navigation.
  * @author Christopher Jung
  *
  */
-@Configurable
 public class NavigationDefault implements SchiffPlugin {
 	private static final Log log = LogFactory.getLog(NavigationDefault.class);
-
-	private Configuration config;
-
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config)
-    {
-    	this.config = config;
-    }
 
     @Override
 	public String action(Parameters caller) {
@@ -276,8 +261,6 @@ public class NavigationDefault implements SchiffPlugin {
 			}
 
 			int tmp = 0;
-			final String url = config.get("URL");
-
 			t.setVar("schiff.navigation.size",37);
 
 			Location[] locs = new Location[8];
@@ -312,7 +295,7 @@ public class NavigationDefault implements SchiffPlugin {
 					Location sector = new Location(sys, x + nx - 1, y + ny - 1);
 					t.setVar(	"schiff.navigation.nav.direction",		tmp,
 								"schiff.navigation.nav.location",		sector.displayCoordinates(true),
-								"schiff.navigation.nav.sectorimage",	url + "data/starmap/"+ img.image+".png",
+								"schiff.navigation.nav.sectorimage",	"./data/starmap/"+ img.image+".png",
 								"schiff.navigation.nav.sectorimage.x",	img.x*37,
 								"schiff.navigation.nav.sectorimage.y",	img.y*37,
 								"schiff.navigation.nav.sectorimage.w",	sizeX,

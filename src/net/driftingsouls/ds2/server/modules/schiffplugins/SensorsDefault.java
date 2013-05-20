@@ -44,8 +44,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.FlushMode;
 import org.hibernate.Query;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,24 +55,11 @@ import java.util.Map;
  * @author Christopher Jung
  *
  */
-@Configurable
 public class SensorsDefault implements SchiffPlugin {
 	private static final Log log = LogFactory.getLog(SensorsDefault.class);
 
 	private int showOnly = 0;
 	private int showId = 0;
-
-	private Configuration config;
-
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config)
-    {
-    	this.config = config;
-    }
 
     @Override
 	public String action(Parameters caller) {
@@ -855,7 +840,7 @@ public class SensorsDefault implements SchiffPlugin {
 					"base.name", base.getName(),
 					"base.klasse", base.getKlasse(),
 					"base.size", base.getSize(),
-					"base.image", config.get("URL") + "data/starmap/kolonie" + base.getKlasse() + "_srs.png",
+					"base.image", "./data/starmap/kolonie" + base.getKlasse() + "_srs.png",
 					"base.transfer", (base.getOwner().getId() != 0),
 					"base.unittausch", (base.getOwner().getId() == caller.ship.getOwner().getId() && caller.shiptype.getUnitSpace() > 0),
 					"base.colonize", ((base.getOwner().getId() == 0) || (base.getOwner().getId() == -1)) && caller.shiptype.hasFlag(ShipTypes.SF_COLONIZER),

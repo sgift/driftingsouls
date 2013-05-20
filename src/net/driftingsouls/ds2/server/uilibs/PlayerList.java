@@ -30,28 +30,12 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.beans.factory.annotation.Required;
-
 /**
  * Die Spielerliste.
  * @author Christopher Jung
  *
  */
-@Configurable
 public class PlayerList {
-	private Configuration config;
-
-	/**
-	 * Injiziert die DS-Konfiguration.
-	 * @param config Die DS-Konfiguration
-	 */
-	@Autowired @Required
-	public void setConfiguration(Configuration config) {
-		this.config = config;
-	}
-
 	/**
 	 * Gibt die Spielerliste im angegebenen Kontext aus.
 	 * @param context Der Kontext
@@ -72,7 +56,7 @@ public class PlayerList {
 			show = "&show="+context.getRequest().getParameter("show");
 		}
 
-		String url = this.config.get("URL")+"ds";
+		String url = "./ds";
 		if( context.getRequest().getParameter("module") != null ) {
 			url += "?module="+context.getRequest().getParameter("module");
 		}
@@ -190,23 +174,23 @@ public class PlayerList {
 					}
 
 					if( relationlist.toOther.get(aUser.getId()) == User.Relation.ENEMY ) {
-						echo.append("<img src=\""+this.config.get("URL")+"data/interface/diplomacy/enemy1.png\" alt=\"\" title=\"Feindlich\" />");
+						echo.append("<img src=\"./data/interface/diplomacy/enemy1.png\" alt=\"\" title=\"Feindlich\" />");
 					}
 					else if( relationlist.toOther.get(aUser.getId()) == User.Relation.NEUTRAL ) {
-						echo.append("<img src=\""+this.config.get("URL")+"data/interface/diplomacy/neutral1.png\" alt=\"\" />");
+						echo.append("<img src=\"./data/interface/diplomacy/neutral1.png\" alt=\"\" />");
 					}
 					else if( relationlist.toOther.get(aUser.getId()) == User.Relation.FRIEND ) {
-						echo.append("<img src=\""+this.config.get("URL")+"data/interface/diplomacy/friend1.png\" alt=\"\" title=\"Feundlich\" />");
+						echo.append("<img src=\"./data/interface/diplomacy/friend1.png\" alt=\"\" title=\"Feundlich\" />");
 					}
 
 					if( relationlist.fromOther.get(aUser.getId()) == User.Relation.ENEMY ) {
-						echo.append("<img src=\""+this.config.get("URL")+"data/interface/diplomacy/enemy2.png\" alt=\"\" title=\"Feindlich\" />");
+						echo.append("<img src=\"./data/interface/diplomacy/enemy2.png\" alt=\"\" title=\"Feindlich\" />");
 					}
 					else if( relationlist.fromOther.get(aUser.getId()) == User.Relation.NEUTRAL ) {
-						echo.append("<img src=\""+this.config.get("URL")+"data/interface/diplomacy/neutral2.png\" alt=\"\" />");
+						echo.append("<img src=\"./data/interface/diplomacy/neutral2.png\" alt=\"\" />");
 					}
 					else if( relationlist.fromOther.get(aUser.getId()) == User.Relation.FRIEND ) {
-						echo.append("<img src=\""+this.config.get("URL")+"data/interface/diplomacy/friend2.png\" alt=\"\" title=\"Feundlich\" />");
+						echo.append("<img src=\"./data/interface/diplomacy/friend2.png\" alt=\"\" title=\"Feundlich\" />");
 					}
 				}
 

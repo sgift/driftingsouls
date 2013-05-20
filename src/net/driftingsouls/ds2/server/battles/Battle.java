@@ -77,8 +77,6 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.OptimisticLockType;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Repraesentiert eine Schlacht in DS.
@@ -88,7 +86,6 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Entity
 @org.hibernate.annotations.Entity(optimisticLock=OptimisticLockType.DIRTY)
 @Table(name="battles")
-@Configurable
 @Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 @BatchSize(size=50)
 public class Battle implements Locatable
@@ -227,19 +224,6 @@ public class Battle implements Locatable
 	private StringBuilder logoutputbuffer = new StringBuilder();
 	@Transient
 	private StringBuilder logenemybuffer = new StringBuilder();
-
-	@Transient
-	private Configuration config;
-
-    /**
-    * Injiziert die DS-Konfiguration.
-    * @param config Die DS-Konfiguration
-    */
-    @Autowired
-    public void setConfiguration(Configuration config)
-    {
-    	this.config = config;
-    }
 
 	/**
 	 * Generiert eine Stringrepraesentation eines Schiffes, welche
@@ -1542,7 +1526,7 @@ public class Battle implements Locatable
                 }
                 else if ((ship.getAction() & BS_DESTROYED) != 0)
                 {
-                    if (config.getInt("DESTROYABLE_SHIPS") != 0)
+                    if (Configuration.getIntSetting("DESTROYABLE_SHIPS") != 0)
                     {
                         //
                         // Verluste verbuchen (zerstoerte/verlorene Schiffe)
@@ -1564,7 +1548,7 @@ public class Battle implements Locatable
                         ShipLost lost = new ShipLost(ship.getShip());
                         lost.setDestAlly(destroyerAlly);
                         lost.setDestOwner(destroyer);
-                        lost.setBattleLog(config.get("LOXPATH") + "battles/battle_id" + getId() + ".log");
+                        lost.setBattleLog(Configuration.getSetting("LOXPATH") + "battles/battle_id" + getId() + ".log");
                         db.save(lost);
 
                         destroyShip(ship);
@@ -1844,8 +1828,8 @@ public class Battle implements Locatable
 
 		Common.writeLog("battles/battle_id"+this.id+".log", "</battle>");
 
-		final String newlog = config.get("LOXPATH")+"battles/ended/"+Common.time()+"_id"+this.id+".log";
-		new File(config.get("LOXPATH")+"battles/battle_id"+this.id+".log")
+		final String newlog = Configuration.getSetting("LOXPATH")+"battles/ended/"+Common.time()+"_id"+this.id+".log";
+		new File(Configuration.getSetting("LOXPATH")+"battles/battle_id"+this.id+".log")
 			.renameTo(new File(newlog));
 
 		db.createQuery("update ShipLost set battle=0,battleLog=:log where battle=:battle")

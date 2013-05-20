@@ -18,41 +18,22 @@
  */
 package net.driftingsouls.ds2.server.modules.stats;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.StatsController;
-import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitType;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
 
 /**
  * Zeigt die insgesamt vorkommenden sowie die eigenen Einheiten an.
  *
  */
-@Configurable
 public class StatEinheiten implements Statistic {
-	@SuppressWarnings("unused")
-	private Configuration config;
-
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config)
-    {
-    	this.config = config;
-    }
-
     @Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();

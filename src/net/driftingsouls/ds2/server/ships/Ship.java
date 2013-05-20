@@ -69,8 +69,6 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.Type;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -105,7 +103,6 @@ import java.util.Set;
  */
 @Entity
 @Table(name="ships")
-@Configurable
 @BatchSize(size=50)
 @Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 public class Ship implements Locatable,Transfering,Feeding {
@@ -213,11 +210,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 	@Transient
 	private UnitCargo unitcargo = null;
 
-	@Transient
-	private Configuration config;
-
-
-
     //Ship flags, no enum as this doesn't work very well with hibernate
 
     /** Das Schiff wurde vor kurzem repariert und kann aktuell nicht erneut repariert werden. */
@@ -267,16 +259,6 @@ public class Ship implements Locatable,Transfering,Feeding {
     public void setFlags(Set<ShipFlag> flags)
     {
         this.flags = flags;
-    }
-
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config)
-    {
-    	this.config = config;
     }
 
 	/**
@@ -3315,13 +3297,13 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		// Truemmer-Schiff hinzufuegen und entfernen-Task setzen
-		ShipType truemmertype = (ShipType) db.get(ShipType.class, config.getInt("CONFIG_TRUEMMER"));
+		ShipType truemmertype = (ShipType) db.get(ShipType.class, Configuration.getIntSetting("CONFIG_TRUEMMER"));
 		User truemmerbesitzer = (User) db.get(User.class, -1);
 
 		Ship truemmer = new Ship(truemmerbesitzer, truemmertype, this.system, this.x, this.y);
 		truemmer.setName("Tr&uuml;mmerteile");
 		truemmer.setCargo(cargo);
-		truemmer.setHull(config.getInt("CONFIG_TRUEMMER_HUELLE"));
+		truemmer.setHull(Configuration.getIntSetting("CONFIG_TRUEMMER_HUELLE"));
 		int id = (Integer)db.save(truemmer);
 		db.save(truemmer.getHistory());
 

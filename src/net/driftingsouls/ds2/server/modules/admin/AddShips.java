@@ -50,29 +50,14 @@ import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 
 import org.apache.commons.lang.math.RandomUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Ermoeglicht das Erstellen von Schiffen.
  * @author Christopher Jung
  *
  */
-@Configurable
 @AdminMenuEntry(category="Schiffe", name="hinzuf&uuml;gen")
 public class AddShips implements AdminPlugin {
-	private Configuration config;
-
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config)
-    {
-    	this.config = config;
-    }
-
     @Override
 	public void output(AdminController controller, String page, int action) throws IOException {
 		Context context = ContextMap.getContext();
@@ -134,7 +119,7 @@ public class AddShips implements AdminPlugin {
 
 			echo.append("-->\n");
 			echo.append("</script>\n");
-			echo.append("<script src=\""+config.get("URL")+"data/javascript/modules/admin.addships.js\" type=\"text/javascript\"></script>\n");
+			echo.append("<script src=\"./data/javascript/modules/admin.addships.js\" type=\"text/javascript\"></script>\n");
 
 			echo.append("<div class='gfxbox' style='width:560px'>");
 			echo.append("<form action=\"./ds\" method=\"post\">\n");
