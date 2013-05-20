@@ -41,6 +41,7 @@
 #kartenaktionslog .log {
 	left:25px;
 	width:40%;
+	overflow:hidden;
 }
 #kartenaktionslog .log .logcontainer {
 	overflow-y:hidden;
