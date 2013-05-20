@@ -30,6 +30,7 @@ import net.driftingsouls.ds2.server.map.TileCache;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
@@ -251,10 +252,11 @@ public class MapController extends AngularGenerator
 	{
 		List<Object[]> data = Common.cast(db
 				.createQuery("select s.system,s.owner.ally,sum(s.shiptype.size) " +
-						"from Ship s " +
-						"where s.status like '%tradepost%' and s.owner.id<0 and s.owner.ally is not null " +
+						"from Ship s join s.shiptype st left join s.modules sm " +
+						"where (s.status like '%tradepost%' or coalesce(sm.flags,st.flags) like :flags ) and s.owner.id<0 and s.owner.ally is not null " +
 						"group by s.system,s.owner.ally " +
 						"order by s.system,count(*)")
+				.setParameter("flags", ShipTypes.SF_TRADEPOST)
 				.list());
 
 		Map<Integer,Ally> systeme = new HashMap<Integer,Ally>();
