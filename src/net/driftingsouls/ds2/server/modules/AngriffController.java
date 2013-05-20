@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
@@ -32,6 +33,7 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
+import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -689,8 +691,8 @@ public class AngriffController extends TemplateGenerator {
 					"ownship.action.join",		(ownShip.getAction() & Battle.BS_JOIN) != 0,
 					"ownship.action.secondrow",	(ownShip.getAction() & Battle.BS_SECONDROW) != 0,
 					"ownship.action.fluchtnext",	(!battle.isGuest() ? ownShip.getAction() & Battle.BS_FLUCHTNEXT : 0),
-					"ownship.mangelnahrung",		(!battle.isGuest() ? ownShip.getShip().getStatus().indexOf("mangel_nahrung") > -1 : 0),
-					"ownship.mangelreaktor",	(!battle.isGuest() ? ownShip.getShip().getStatus().indexOf("mangel_reaktor") > -1 : 0),
+					"ownship.mangelnahrung",		(!battle.isGuest() ? ownShip.getShip().getStatus().contains("mangel_nahrung") : 0),
+					"ownship.mangelreaktor",	(!battle.isGuest() ? ownShip.getShip().getStatus().contains("mangel_reaktor") : 0),
 					"enemyship.id",				enemyShip.getId(),
 					"enemyship.name",			enemyShip.getName(),
 					"enemyship.type",			enemyShip.getShip().getType(),
@@ -703,6 +705,15 @@ public class AngriffController extends TemplateGenerator {
 					"enemyship.action.destroyed",	enemyShip.getAction() & Battle.BS_DESTROYED,
 					"enemyship.action.join",		enemyShip.getAction() & Battle.BS_JOIN,
 					"enemyship.action.secondrow",	enemyShip.getAction() & Battle.BS_SECONDROW );
+
+		Nebel.Typ nebula = Nebel.getNebula(ownShip.getShip().getLocation());
+		if( nebula == null || nebula.allowsScan() )
+		{
+			Location loc = ownShip.getShip().getLocation();
+			t.setVar("ownship.location.x", loc.getX(),
+					"ownship.location.y", loc.getY(),
+					"ownship.location.system", loc.getSystem());
+		}
 		
 		if( (battle.getOwnSide() == 0) && battle.hasFlag( Battle.FLAG_BLOCK_SECONDROW_0) ) {
 			t.setVar("ownside.secondrow.blocked", 1);

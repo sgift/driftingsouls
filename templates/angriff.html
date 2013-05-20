@@ -25,7 +25,11 @@
 			Eigene/Verb&uuml;ndete Schiffe&nbsp;
 		</span>
 		<span style="color:white">
-			 {ownship.coordinates}
+			{if ownship.location.system}
+				<a class="forschinfo" href='./ds?module=client#/map/{ownship.location.system}/{ownship.location.x}/{ownship.location.y}'>{ownship.coordinates}</a>
+			{else}
+				{ownship.coordinates}
+			{/endif}
 		</span>
 	</td>
 	<td class="Border" style="width:30%">
