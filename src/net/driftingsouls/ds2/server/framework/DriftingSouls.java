@@ -18,15 +18,14 @@
  */
 package net.driftingsouls.ds2.server.framework;
 
-import java.util.Date;
-import java.util.Locale;
-
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
+
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Hauptklasse von Drifting Souls.
@@ -54,12 +53,6 @@ public class DriftingSouls {
 		LOG.info("Reading "+configdir+"config.xml");
 		Configuration.init(configdir);
 
-		LOG.info("Setting up Boot Context...");
-		BasicContext context = new BasicContext(
-				new CmdLineRequest(new String[0]),
-				new SimpleResponse(),
-				new EmptyPermissionResolver());
-
 		Common.setLocale(Locale.GERMAN);
 
 		if( boot ) {
@@ -84,7 +77,5 @@ public class DriftingSouls {
 				}
 			}
 		}
-
-		context.free();
 	}
 }

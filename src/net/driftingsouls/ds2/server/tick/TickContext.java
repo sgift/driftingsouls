@@ -5,6 +5,7 @@ import net.driftingsouls.ds2.server.framework.EmptyPermissionResolver;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.pipeline.Response;
 import org.hibernate.Session;
+import org.springframework.context.ApplicationContext;
 
 /**
  * A tick specific context, which does not use the default database session handling.
@@ -19,10 +20,11 @@ public class TickContext extends BasicContext
 	 * @param db Die fuer den Tick verwendete Session.
 	 * @param request Das Requestobjekt.
 	 * @param response Das Responseobjekt.
+	 * @param applicationContext Der zu verwendende Spring {@link ApplicationContext}.
 	 */
-	public TickContext(Session db, Request request, Response response)
+	public TickContext(Session db, Request request, Response response, ApplicationContext applicationContext)
 	{
-		super(request, response, new EmptyPermissionResolver());
+		super(request, response, new EmptyPermissionResolver(), applicationContext);
 		this.db = db;
 	}
 

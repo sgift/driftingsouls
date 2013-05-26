@@ -24,9 +24,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
@@ -34,7 +32,6 @@ import org.springframework.beans.factory.annotation.Required;
  * @author Christopher Jung
  *
  */
-@Configurable
 @Module(name="logout")
 public class LogoutController extends TemplateGenerator {
 	private AuthenticationManager authManager;

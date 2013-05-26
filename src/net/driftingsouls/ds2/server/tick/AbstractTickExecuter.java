@@ -93,9 +93,7 @@ public abstract class AbstractTickExecuter extends TickController
 		{
 			TickController tick = tickname.newInstance();
 
-			ApplicationContext applicationContext = (ApplicationContext) this.getContext().getVariable(ApplicationContext.class, "beanFactory");
-			applicationContext.getAutowireCapableBeanFactory().autowireBean(tick);
-			tick.setApplicationContext(applicationContext);
+			this.getContext().autowireBean(tick);
 
 			if( !useSTDOUT )
 			{

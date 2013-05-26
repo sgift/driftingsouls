@@ -30,7 +30,6 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 
 import java.io.File;
 import java.io.IOException;
@@ -777,8 +776,7 @@ public abstract class DSGenerator extends Generator {
 			actionTypeHandler = new BinaryOutputHelper();
 		}
 
-		ApplicationContext context = (ApplicationContext)ContextMap.getContext().getVariable(ApplicationContext.class, "beanFactory");
-		context.getAutowireCapableBeanFactory().autowireBean(actionTypeHandler);
+		getContext().autowireBean(actionTypeHandler);
 
 		actionType = type;
 	}

@@ -72,9 +72,8 @@ public abstract class DriftingSoulsDBTestCase implements DBTestable {
 
 		SimpleResponse response = new SimpleResponse();
 		CmdLineRequest request = new CmdLineRequest(new String[0]);
-		this.context = new TestContext(db, request, response);
-		this.context.putVariable(ApplicationContext.class, "beanFactory", applicationContext);
-		
+		this.context = new TestContext(db, request, response, applicationContext);
+
 		Connection con = this.dbTester.getConnection().getConnection();
 		Statement stmt = con.createStatement();
 		try {

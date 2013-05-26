@@ -93,12 +93,12 @@ public class HibernateSessionRequestFilter extends DSFilter
     }
 
 	@Override
-    public void init(FilterConfig filterConfig) throws ServletException
-    {
-        log.debug("Initializing filter...");
-        log.debug("Obtaining SessionFactory from static HibernateUtil singleton");
-        sf = HibernateUtil.getSessionFactory();
-    }
+	protected void initFilterBean() throws ServletException
+	{
+		log.debug("Initializing filter...");
+		log.debug("Obtaining SessionFactory from static HibernateUtil singleton");
+		sf = HibernateUtil.getSessionFactory();
+	}
 
 	@Override
     public void destroy() {}

@@ -294,6 +294,7 @@ public class AdminController extends DSGenerator {
 			}
 
 			AdminPlugin plugin = aClass.newInstance();
+			getContext().autowireBean(plugin);
 			plugin.output(this, page, act);
 		}
 		catch( IOException e )
@@ -342,6 +343,7 @@ public class AdminController extends DSGenerator {
 				{
 					AdminPlugin plugin;
 					plugin = cls.newInstance();
+					getContext().autowireBean(plugin);
 					plugin.output(this, page, act);
 				}
 				catch( InstantiationException e )

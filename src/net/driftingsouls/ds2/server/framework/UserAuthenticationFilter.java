@@ -19,12 +19,14 @@ import net.driftingsouls.ds2.server.framework.authentication.DefaultAuthenticati
  */
 public class UserAuthenticationFilter extends SessionBasedFilter
 {
+	private AuthenticationManager manager = null;
+
 	@Override
-	public void destroy() 
+	public void destroy()
 	{}
 
 	@Override
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException 
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException
 	{
 		boolean authenticatedUser = false;
         if(!isStaticRequest(request))
@@ -46,7 +48,7 @@ public class UserAuthenticationFilter extends SessionBasedFilter
         {
             authenticatedUser = true;
         }
-		
+
 		if(authenticatedUser)
 		{
 			chain.doFilter(request, response);
@@ -57,17 +59,14 @@ public class UserAuthenticationFilter extends SessionBasedFilter
 			{
 				throw new NotLoggedInException();
 			}
-			
+
 			chain.doFilter(request, response);
 		}
 	}
 
 	@Override
-	public void init(FilterConfig config) throws ServletException 
+	protected void initFilterBean() throws ServletException
 	{
-		super.init(config);
 		this.manager = new DefaultAuthenticationManager();
 	}
-	
-	private AuthenticationManager manager = null;
 }

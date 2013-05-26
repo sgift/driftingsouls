@@ -54,6 +54,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.CacheMode;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.imageio.ImageIO;
 import javax.script.Bindings;
@@ -157,6 +158,7 @@ public class AdminCommands {
 			try
 			{
 				Command cmdExecuter = cmds.get(command[0]).newInstance();
+				context.autowireBean(cmdExecuter);
 				output = cmdExecuter.execute(context, command);
 			}
 			catch( InstantiationException e )
@@ -185,12 +187,16 @@ public class AdminCommands {
 	}
 
 	protected static class TickCommand implements Command {
+		@Autowired
+		private TickAdminCommand tickAdminCommand;
+
 		@Override
 		public String execute(Context context, String[] command)
 		{
 			if( command.length < 2 ) {
 				return "";
 			}
+
 			if( "regular".equals(command[1]) ) {
 				if( "run".equals(command[2]) ) {
 					if( command.length > 3 ) {
@@ -202,7 +208,7 @@ public class AdminCommands {
 						{
 							Class<? extends TickController> clazz = Class.forName(only)
 								.asSubclass(TickController.class);
-							new TickAdminCommand().runRegularTick(clazz);
+							tickAdminCommand.runRegularTick(clazz);
 						}
 						catch( ClassNotFoundException e )
 						{
@@ -210,7 +216,7 @@ public class AdminCommands {
 						}
 					}
 					else {
-						new TickAdminCommand().runRegularTick();
+						tickAdminCommand.runRegularTick();
 					}
 					return "Tick wird ausgefuehrt";
 				}
@@ -226,7 +232,7 @@ public class AdminCommands {
 						{
 							Class<? extends TickController> clazz = Class.forName(only)
 								.asSubclass(TickController.class);
-							new TickAdminCommand().runRareTick(clazz);
+							tickAdminCommand.runRareTick(clazz);
 						}
 						catch( ClassNotFoundException e )
 						{
@@ -234,7 +240,7 @@ public class AdminCommands {
 						}
 					}
 					else {
-						new TickAdminCommand().runRareTick();
+						tickAdminCommand.runRareTick();
 					}
 					return "Raretick wird ausgefuehrt";
 				}

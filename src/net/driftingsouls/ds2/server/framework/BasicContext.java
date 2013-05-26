@@ -24,6 +24,11 @@ import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.pipeline.Response;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanNotOfRequiredTypeException;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,6 +54,7 @@ public class BasicContext implements Context
 	private Map<Class<?>, Map<String, Object>> variables = new HashMap<Class<?>, Map<String, Object>>();
 	private List<ContextListener> listener = new ArrayList<ContextListener>();
 	private PermissionResolver permissionResolver;
+	private ApplicationContext applicationContext;
 
 	/**
 	 * Erstellt eine neue Instanz der Klasse unter Verwendung eines <code>Request</code> und einer
@@ -56,14 +62,45 @@ public class BasicContext implements Context
 	 *
 	 * @param request Die mit dem Kontext zu verbindende <code>Request</code>
 	 * @param response Die mit dem Kontext zu verbindende <code>Response</code>
+	 * @param presolver Der zu verwendende PermissionResolver
+	 * @param applicationContext Der zur Aufloesung von Bean/Autowiring zu verwendende Spring ApplicationContext.
+	 *                           Der ApplicationContext muss Autowiring unterstuetzen
 	 */
-	public BasicContext(Request request, Response response, PermissionResolver presolver)
+	public BasicContext(Request request, Response response, PermissionResolver presolver, ApplicationContext applicationContext)
 	{
+		if( applicationContext == null || applicationContext.getAutowireCapableBeanFactory() == null )
+		{
+			throw new IllegalArgumentException("Es wurde kein oder keine gueltiger ApplicationContext uebergeben");
+		}
+
 		ContextMap.addContext(this);
 
 		this.request = request;
 		this.response = response;
 		this.permissionResolver = presolver;
+		this.applicationContext = applicationContext;
+	}
+
+	@Override
+	public void autowireBean(Object bean)
+	{
+		this.applicationContext.getAutowireCapableBeanFactory().autowireBean(bean);
+		if( bean instanceof ApplicationContextAware )
+		{
+			((ApplicationContextAware)bean).setApplicationContext(this.applicationContext);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T getBean(Class<T> cls, String name) throws IllegalArgumentException
+	{
+		try {
+			return (T)this.applicationContext.getBean(name, cls);
+		}
+		catch( BeansException e ) {
+			throw new IllegalArgumentException("Die angegebene Bean konnte nicht gefunden werden", e);
+		}
 	}
 
 	@Override

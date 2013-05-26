@@ -25,11 +25,6 @@
 
 	<!-- Server -->
 
-	<bean class="net.driftingsouls.ds2.server.TickAdminCommand">
-		<property name="regularTickCronTrigger" ref="regularTickCronTrigger" />
-		<property name="rareTickCronTrigger" ref="rareTickCronTrigger" />
-		<property name="scheduler" ref="quartzSchedulerFactory" />
-	</bean>
 	<bean id="regularTickJob" class="org.springframework.scheduling.quartz.JobDetailBean">
 		<property name="jobClass" value="net.driftingsouls.ds2.server.tick.ScheduledTick" />
 		<property name="jobDataAsMap">

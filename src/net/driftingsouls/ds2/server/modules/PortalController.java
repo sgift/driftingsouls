@@ -54,7 +54,6 @@ import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeExc
 import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.math.BigInteger;
@@ -68,7 +67,6 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
-@Configurable
 @Module(name="portal", defaultModule=true)
 public class PortalController extends TemplateGenerator {
 	private AuthenticationManager authManager;

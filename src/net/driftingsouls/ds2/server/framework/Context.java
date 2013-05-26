@@ -148,4 +148,24 @@ public interface Context extends PermissionResolver {
 	 * @param permissionResolver Der PermissionResolver
 	 */
 	public void setPermissionResolver(PermissionResolver permissionResolver);
+
+	/**
+	 * Fuehrt ein Autowiring auf der angegebenen Beaninstanz durch. Alle in Spring
+	 * hinterlegten Beans werden, sofern die entsprechende Property/Methode
+	 * mit {@link org.springframework.beans.factory.annotation.Autowired} markiert ist,
+	 * automatisch injiziert. Sofern die Bean als {@link org.springframework.context.ApplicationContextAware}
+	 * markiert ist wird auch der {@link org.springframework.context.ApplicationContext} injiziert.
+	 * @param bean Die zu verarbeitende Bean
+	 */
+	void autowireBean(Object bean);
+
+	/**
+	 * Ermittelt die Spring-Bean mit dem angegebenen Namen und Typ.
+	 * @param cls Der Typ der Bean
+	 * @param name Der Name der Bean
+	 * @param <T> Der Typ der Bean
+	 * @return Die Bean
+	 * @throws IllegalArgumentException Falls die angegebene Bean nicht gefunden werden konnte
+	 */
+	<T> T getBean(Class<T> cls, String name) throws IllegalArgumentException;
 }

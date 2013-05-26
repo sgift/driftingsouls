@@ -56,9 +56,8 @@ public class ScheduledTick extends QuartzJobBean implements StatefulJob
 	{
 		CmdLineRequest request = new CmdLineRequest(new String[0]);
 		SimpleResponse response = new SimpleResponse();
-		BasicContext basicContext = new BasicContext(request, response, new EmptyPermissionResolver());
 		ApplicationContext applicationContext = getApplicationContext(context);
-		basicContext.putVariable(ApplicationContext.class, "beanFactory", applicationContext);
+		BasicContext basicContext = new BasicContext(request, response, new EmptyPermissionResolver(), applicationContext);
 		try
 		{
 			if( context.getMergedJobDataMap().containsKey("onlyTick") ) {
@@ -70,8 +69,7 @@ public class ScheduledTick extends QuartzJobBean implements StatefulJob
 				.asSubclass(AbstractTickExecuter.class);
 
 			AbstractTickExecuter tick = cls.newInstance();
-			applicationContext.getAutowireCapableBeanFactory().autowireBean(tick);
-			tick.setApplicationContext(applicationContext);
+			basicContext.autowireBean(tick);
 			tick.addLogTarget(TickController.STDOUT, false);
 			tick.execute();
 			tick.dispose();

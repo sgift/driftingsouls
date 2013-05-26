@@ -18,6 +18,17 @@
  */
 package net.driftingsouls.ds2.server.tick;
 
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -25,19 +36,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
-
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 /**
  * Basisklasse fuer Ticks.
@@ -66,15 +64,13 @@ public abstract class TickController implements ApplicationContextAware
 		logTargets = new HashMap<String,Writer>();
 		exectime = System.currentTimeMillis();
 		db = HibernateUtil.getSessionFactory().openSession();
-
-		Context context = ContextMap.getContext();
-		this.context = new TickContext(db, context.getRequest(), context.getResponse());
 	}
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException
 	{
-		this.context.putVariable(ApplicationContext.class, "beanFactory", applicationContext);
+		Context context = ContextMap.getContext();
+		this.context = new TickContext(db, context.getRequest(), context.getResponse(), applicationContext);
 	}
 
 	/**

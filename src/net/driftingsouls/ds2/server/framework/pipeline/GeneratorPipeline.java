@@ -47,6 +47,7 @@ public class GeneratorPipeline implements Pipeline {
 		constr.setAccessible(true);
 
 		Generator cntl = constr.newInstance(context);
+		context.autowireBean(cntl);
 
 		cntl.handleAction(context.getRequest().getParameter("action"));
 	}
