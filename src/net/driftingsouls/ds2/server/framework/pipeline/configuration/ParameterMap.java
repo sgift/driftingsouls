@@ -28,7 +28,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 class ParameterMap {
-	private Map<String, Parameter> paramMap = new HashMap<String,Parameter>();
+	private Map<String, Parameter> paramMap = new HashMap<>();
 	
 	ParameterMap( Node node ) throws Exception {
 		NodeList nodes = XMLUtils.getNodesByXPath(node, "parameter");

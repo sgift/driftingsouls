@@ -56,8 +56,8 @@ public class BBCodeParser {
 	private static final Log log = LogFactory.getLog(BBCodeParser.class);
 	private static BBCodeParser instance = null;
 	
-	private Map<String,BBCodeFunction> replaceFunctions = new HashMap<String,BBCodeFunction>();
-	private Map<String,HashSet<Integer>> tags = new HashMap<String,HashSet<Integer>>();
+	private Map<String,BBCodeFunction> replaceFunctions = new HashMap<>();
+	private Map<String,HashSet<Integer>> tags = new HashMap<>();
 
 	private BBCodeParser() {
 		try {
@@ -189,7 +189,7 @@ public class BBCodeParser {
 	
 	private StringBuilder parse( StringBuilder text, HashSet<String> ign ) {
 		int textIndex = 0;
-		int index = 0;
+		int index;
 		
 		StringBuilder buffer = new StringBuilder(text.length());
 		while( (index = text.indexOf("[", textIndex)) != -1 ) {
@@ -211,7 +211,7 @@ public class BBCodeParser {
 			
 			// Handelt es sich um einen schliessenden Tag?
 			if( (tagLC.length() == 0) || (tagLC.charAt(0) == '/') ) {
-				buffer.append("["+plainTag+"]");
+				buffer.append("[").append(plainTag).append("]");
 				continue;
 			}
 			// Falls vorhanden: Optionen (hinter dem = verarbeiten)
@@ -337,7 +337,7 @@ public class BBCodeParser {
 	 * @return Der formatierte Text
 	 */
 	public String parse( String text, String[] ignore ) {
-		HashSet<String> ign = new HashSet<String>();
+		HashSet<String> ign = new HashSet<>();
 		if( (ignore != null) && (ignore.length > 0) ) {
 			ign.addAll(Arrays.asList(ignore));
 			

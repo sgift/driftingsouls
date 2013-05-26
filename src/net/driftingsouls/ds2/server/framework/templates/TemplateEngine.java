@@ -48,7 +48,7 @@ public class TemplateEngine {
 	private static final String PACKAGE = "net.driftingsouls.ds2.server.templates";
 	private static final Log log = LogFactory.getLog(TemplateEngine.class);
 
-	private Map<String,Template> file = new HashMap<String,Template>();
+	private Map<String,Template> file = new HashMap<>();
 
 	/* 
 	 * relative filenames are relative to this pathname 
@@ -56,7 +56,7 @@ public class TemplateEngine {
 	 */
 	private String overlay = null;
 
-	private Map<String,Object> varvals = new HashMap<String,Object>();
+	private Map<String,Object> varvals = new HashMap<>();
 
 	/*
 	 *  whether every set_var-call should be recorded and every changed var should 
@@ -65,13 +65,13 @@ public class TemplateEngine {
 	private boolean record = false;
 	
 	// the list of all recorded values
-	private Set<String> recordvars = new HashSet<String>();
+	private Set<String> recordvars = new HashSet<>();
 	
-	private Map<String,String> blocks = new HashMap<String,String>();
-	private Map<String,String[]> registeredBlocks = new HashMap<String,String[]>();
-	private Map<String,TemplateBlock> registeredBlockObj = new HashMap<String,TemplateBlock>();
+	private Map<String,String> blocks = new HashMap<>();
+	private Map<String,String[]> registeredBlocks = new HashMap<>();
+	private Map<String,TemplateBlock> registeredBlockObj = new HashMap<>();
 	
-	private Map<String,String> varNameMap = new HashMap<String,String>();
+	private Map<String,String> varNameMap = new HashMap<>();
 	
 	/**
 	 * Konstruktor.
@@ -130,15 +130,7 @@ public class TemplateEngine {
 					templateMap.put(overlay+'.'+filename, t);
 					gotTemplate = true;
 				}
-				catch( ClassNotFoundException e ) {
-					// EMPTY
-				}
-				catch( InstantiationException e )
-				{
-					// EMPTY
-				}
-				catch( IllegalAccessException e )
-				{
+				catch( ReflectiveOperationException e ) {
 					// EMPTY
 				}
 			}
@@ -270,7 +262,7 @@ public class TemplateEngine {
 			return "";	
 		}
 		
-		String str = "";
+		String str;
 		
 		if( registeredBlockObj.containsKey(handle) ) {
 			TemplateBlock block = registeredBlockObj.get(handle);
@@ -353,13 +345,10 @@ public class TemplateEngine {
 		Object val = getVarObject(varname);
 		if( val != null ) {
 			if( val instanceof Number ) {
-				if( ((Number)val).doubleValue() != 0 ) {
-					return true;
-				}
-				return false;
+				return ((Number) val).doubleValue() != 0;
 			}
 			else if( val instanceof Boolean ) {
-				return ((Boolean)val).booleanValue();
+				return (Boolean) val;
 			}
 			else if( val instanceof String ) {
 				try {
@@ -376,10 +365,7 @@ public class TemplateEngine {
 				return false;
 			}
 			else {
-				if( !val.toString().equals("") ) {
-					return true;
-				}
-				return false;
+				return !val.toString().equals("");
 			}
 		}
 		return false;
@@ -392,7 +378,7 @@ public class TemplateEngine {
 		
 		int index = -1;
 		
-		while( (index = varname.indexOf('.', index+1)) != -1 ) {;
+		while( (index = varname.indexOf('.', index+1)) != -1 ) {
 			Object obj = getVarObject(varname.substring(0, index));
 			if( obj != null ) {
 				return resolveBeanAttributePath(obj, varname.substring(index+1));
@@ -414,16 +400,7 @@ public class TemplateEngine {
 			}
 			return getBeanAttribute(obj, attrib);
 		}
-		catch( IntrospectionException e ) {
-			log.error("BeanPath: "+attrib, e);
-		}
-		catch( InvocationTargetException e ) {
-			log.error("BeanPath: "+attrib, e);
-		}
-		catch( IllegalArgumentException e ) {
-			log.error("BeanPath: "+attrib, e);
-		}
-		catch( IllegalAccessException e ) {
+		catch( IntrospectionException | ReflectiveOperationException | IllegalArgumentException e ) {
 			log.error("BeanPath: "+attrib, e);
 		}
 		return null;
@@ -434,9 +411,11 @@ public class TemplateEngine {
 	{
 		BeanInfo info = Introspector.getBeanInfo(obj.getClass());
 		PropertyDescriptor[] descriptors = info.getPropertyDescriptors();
-		for( int i=0; i < descriptors.length; i++ ) {
-			if( descriptors[i].getName().equalsIgnoreCase(attrib) ) {
-				return descriptors[i].getReadMethod().invoke(obj);
+		for (PropertyDescriptor descriptor : descriptors)
+		{
+			if (descriptor.getName().equalsIgnoreCase(attrib))
+			{
+				return descriptor.getReadMethod().invoke(obj);
 			}
 		}
 		
@@ -480,10 +459,10 @@ public class TemplateEngine {
       			return Double.parseDouble(value.toString());
       		}
       		catch( NumberFormatException e ) {
-      			return new Double(0);
+      			return (double) 0;
       		}
 		}
-		return new Double(0);
+		return (double) 0;
 	}
 
 	/**

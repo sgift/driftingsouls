@@ -58,7 +58,7 @@ public abstract class DSGenerator extends Generator {
 	 */
 	protected abstract static class OutputHelper {
 		private Context context = null;
-		private Map<String,Object> attributes = new HashMap<String,Object>();
+		private Map<String,Object> attributes = new HashMap<>();
 
 		/**
 		 * Konstruktor.
@@ -211,7 +211,7 @@ public abstract class DSGenerator extends Generator {
 		{
 			File cssdir = new File(Configuration.getSetting("ABSOLUTE_PATH")+"data/css/common");
 
-			for( String filename : new TreeSet<String>(Arrays.asList(cssdir.list())) )
+			for( String filename : new TreeSet<>(Arrays.asList(cssdir.list())) )
 			{
 				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"./data/css").append("/common/").append(filename).append("\" />\n");
 			}
@@ -225,7 +225,7 @@ public abstract class DSGenerator extends Generator {
 
 			sb.append("<script src=\"./data/javascript").append("/libs/jquery-1.8.2.min.js\" type=\"text/javascript\"></script>\n");
 			sb.append("<script src=\"./data/javascript").append("/libs/jquery-ui-1.9.1.min.js\" type=\"text/javascript\"></script>\n");
-			for( String filename : new TreeSet<String>(Arrays.asList(libdir.list())) )
+			for( String filename : new TreeSet<>(Arrays.asList(libdir.list())) )
 			{
 				if( filename.startsWith("jquery-1") || filename.startsWith("jquery-ui-1") || !filename.endsWith(".js") )
 				{
@@ -234,7 +234,7 @@ public abstract class DSGenerator extends Generator {
 				sb.append("<script src=\"./data/javascript").append("/libs/").append(filename).append("\" type=\"text/javascript\"></script>\n");
 			}
 
-			for( String filename : new TreeSet<String>(Arrays.asList(commondir.list())) )
+			for( String filename : new TreeSet<>(Arrays.asList(commondir.list())) )
 			{
 				if( !filename.endsWith(".js") )
 				{
@@ -355,7 +355,7 @@ public abstract class DSGenerator extends Generator {
 	public DSGenerator(Context context) {
 		super(context);
 
-		this.parameter = new HashMap<String,Object>();
+		this.parameter = new HashMap<>();
 		this.subParameter = "";
 
 		parameterString("module");
@@ -366,11 +366,11 @@ public abstract class DSGenerator extends Generator {
 
 		this.disableDebugOutput = false;
 
-		this.onLoadFunctions = new ArrayList<String>();
-		this.bodyParameters = new HashMap<String,String>();
+		this.onLoadFunctions = new ArrayList<>();
+		this.bodyParameters = new HashMap<>();
 
 		this.pageTitle = null;
-		this.pageMenuEntries = new ArrayList<PageMenuEntry>();
+		this.pageMenuEntries = new ArrayList<>();
 		this.disablePageMenu = false;
 
 		setActionType(ActionType.DEFAULT);
@@ -443,10 +443,7 @@ public abstract class DSGenerator extends Generator {
 			try {
 				this.parameter.put(parameter, Common.getNumberFormat().parse(val.trim()));
 			}
-			catch( NumberFormatException e ) {
-				this.parameter.put(parameter, 0d);
-			}
-			catch( ParseException e ) {
+			catch( NumberFormatException | ParseException e ) {
 				this.parameter.put(parameter, 0d);
 			}
 		}

@@ -65,15 +65,17 @@ public class DriftingSouls {
 				String type = XMLUtils.getStringByXPath(nodes.item(i), "@type");
 				LOG.info("["+type+"] Booting "+className);
 
-				if( type.equals("static") ) {
-					Class.forName(className);
-				}
-				else if( type.equals("singleton") ) {
-					Class<?> cls = Class.forName(className);
-					cls.getMethod("getInstance").invoke(null);
-				}
-				else {
-					throw new Exception("Kann Klasse '"+className+"' nicht booten: Unbekannter Boot-Typ '"+type+"'");
+				switch (type)
+				{
+					case "static":
+						Class.forName(className);
+						break;
+					case "singleton":
+						Class<?> cls = Class.forName(className);
+						cls.getMethod("getInstance").invoke(null);
+						break;
+					default:
+						throw new Exception("Kann Klasse '" + className + "' nicht booten: Unbekannter Boot-Typ '" + type + "'");
 				}
 			}
 		}

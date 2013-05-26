@@ -28,17 +28,21 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
  * (De)aktivierung aller Gebaeude auf einer Basis.
  * @author Christopher Jung
- * 
- * @urlparam Integer col Die ID der Basis
- * @urlparam Integer deaconly != 0, falls die Gebaeude/Cores nur deaktiviert, nicht aber aktiviert werden sollen
  *
  */
 @Module(name="activateall")
+@UrlParams({
+		@UrlParam(name="col", type= UrlParamType.NUMBER, description = "Die ID der Basis"),
+		@UrlParam(name="deaconly", type=UrlParamType.NUMBER, description = "deaconly != 0, falls die Gebaeude/Cores nur deaktiviert, nicht aber aktiviert werden sollen")
+})
 public class ActivateAllController extends TemplateGenerator {
 	private Base base = null;
 	
@@ -50,10 +54,6 @@ public class ActivateAllController extends TemplateGenerator {
 		super(context);
 		
 		setTemplate("activateall.html");
-		
-		parameterNumber("col");
-		parameterNumber("deaconly");
-		
 		setPageTitle("Alles Aktivieren");
 	}
 	

@@ -25,8 +25,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.Response;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanNotOfRequiredTypeException;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
@@ -49,10 +47,10 @@ public class BasicContext implements Context
 	private Request request;
 	private Response response;
 	private BasicUser activeUser = null;
-	private List<Error> errorList = new ArrayList<Error>();
-	private Map<Class<?>, Object> contextSingletons = new HashMap<Class<?>, Object>();
-	private Map<Class<?>, Map<String, Object>> variables = new HashMap<Class<?>, Map<String, Object>>();
-	private List<ContextListener> listener = new ArrayList<ContextListener>();
+	private List<Error> errorList = new ArrayList<>();
+	private Map<Class<?>, Object> contextSingletons = new HashMap<>();
+	private final Map<Class<?>, Map<String, Object>> variables = new HashMap<>();
+	private List<ContextListener> listener = new ArrayList<>();
 	private PermissionResolver permissionResolver;
 	private ApplicationContext applicationContext;
 
@@ -175,13 +173,13 @@ public class BasicContext implements Context
 		try
 		{
 			// Allen Listenern signalisieren, dass der Context geschlossen wird
-			for( int i = 0; i < this.listener.size(); i++ )
+			for (ContextListener aListener : this.listener)
 			{
 				try
 				{
-					listener.get(i).onContextDestory();
+					aListener.onContextDestory();
 				}
-				catch( RuntimeException ex )
+				catch (RuntimeException ex)
 				{
 					e = ex;
 				}

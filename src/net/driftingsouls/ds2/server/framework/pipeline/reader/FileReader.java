@@ -52,7 +52,7 @@ public class FileReader implements Reader {
 	 */
 	public FileReader()
 	{
-		this.extensionMap = new HashMap<String,String>();
+		this.extensionMap = new HashMap<>();
 		this.extensionMap.put("html", "text/html");
 		this.extensionMap.put("txt", "text/plain");
 		this.extensionMap.put("xml", "text/xml");
@@ -119,17 +119,15 @@ public class FileReader implements Reader {
 		context.getResponse().setHeader("Accept-Ranges", "none" );
 		context.getResponse().setHeader("Date", dateFormat.format(new Date()));
 		context.getResponse().setHeader("Last-Modified", dateFormat.format( new Date(file.lastModified()) ) );
-		
-		FileInputStream fin = new FileInputStream(new File(path));
-		try {
+
+		try (FileInputStream fin = new FileInputStream(new File(path)))
+		{
 			IOUtils.copy(fin, context.getResponse().getOutputStream());
 		}
-		catch( IOException e ) {
+		catch (IOException e)
+		{
 			// Ignorieren, da es sich in den meisten Faellen um einen Browser handelt,
 			// der die Verbindung zu frueh dicht gemacht hat
-		}
-		finally {
-			fin.close();
 		}
 	}
 }

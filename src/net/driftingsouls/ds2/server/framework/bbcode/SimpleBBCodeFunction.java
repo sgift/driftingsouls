@@ -34,10 +34,10 @@ class SimpleBBCodeFunction implements BBCodeFunction {
 	private int max = 0;
 	
 	SimpleBBCodeFunction(String replace) {
-		List<String> parts = new ArrayList<String>();
-		List<Integer> indexParts = new ArrayList<Integer>();
+		List<String> parts = new ArrayList<>();
+		List<Integer> indexParts = new ArrayList<>();
 		this.replace = replace;
-		int index = 0;
+		int index;
 		while( (index = replace.indexOf('$')) != -1 ) {
 			if( (index+1 < replace.length()) ) {
 				char chr = replace.charAt(index+1);

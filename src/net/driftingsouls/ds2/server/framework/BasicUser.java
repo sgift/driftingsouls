@@ -18,11 +18,12 @@
  */
 package net.driftingsouls.ds2.server.framework;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
+import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import org.apache.commons.lang.StringUtils;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.DiscriminatorFormula;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -34,16 +35,11 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
-
-import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
-import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.DiscriminatorFormula;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -57,7 +53,6 @@ import org.hibernate.annotations.DiscriminatorFormula;
 @DiscriminatorFormula("'default'")
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public abstract class BasicUser {
-	private static final Log log = LogFactory.getLog(BasicUser.class);
 
 	private static String defaultImagePath = null;
 
@@ -112,7 +107,7 @@ public abstract class BasicUser {
 	public BasicUser() {
 		context = ContextMap.getContext();
 		attachedUser = null;
-		this.permissions = new HashSet<Permission>();
+		this.permissions = new HashSet<>();
 	}
 
 	/**
@@ -210,11 +205,8 @@ public abstract class BasicUser {
 	 * @return <code>true</code>, falls das Flag aktiv ist
 	 */
 	public boolean hasFlag( String flag ) {
-		if( flags.indexOf(flag) > -1 ) {
-			return true;
-		}
+		return flags.contains(flag) || (attachedUser != null) && attachedUser.hasFlag(flag);
 
-		return (attachedUser != null) && attachedUser.hasFlag(flag);
 	}
 
 	/**
@@ -224,7 +216,7 @@ public abstract class BasicUser {
 	 * @param on true, falls es aktiviert werden soll
 	 */
 	public void setFlag( String flag, boolean on ) {
-		String flagstring = "";
+		String flagstring;
 		if( on ) {
 			if( !"".equals(flags) ) {
 				flagstring = flags+" "+flag;
@@ -295,7 +287,7 @@ public abstract class BasicUser {
 				.setString("name", valuename)
 				.list());
 
-		List<String> result = new ArrayList<String>();
+		List<String> result = new ArrayList<>();
 		for (UserValue value : values)
 		{
 			result.add(value.getValue());
@@ -348,11 +340,7 @@ public abstract class BasicUser {
 		{
 			return true;
 		}
-		if( attachedUser != null)
-		{
-			return attachedUser.isAdmin();
-		}
-		return false;
+		return attachedUser != null && attachedUser.isAdmin();
 	}
 
 	/**

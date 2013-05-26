@@ -64,7 +64,7 @@ public class TemplateCompiler {
 		}
 		@Override
 		public String process(List<String> parameter) {
-			Map<String,String> paramlist = new LinkedHashMap<String,String>();
+			Map<String,String> paramlist = new LinkedHashMap<>();
 			String name = parameter.get(0);
 			String action = parameter.get(1);
 
@@ -96,17 +96,17 @@ public class TemplateCompiler {
 			text.append("<a ");
 
 			if( paramlist.containsKey("link_target") ) {
-				text.append("target=\\\""+paramlist.get("link_target")+"\\\" ");
+				text.append("target=\\\"").append(paramlist.get("link_target")).append("\\\" ");
 				paramlist.remove("link_target");
 			}
 
 			if( paramlist.containsKey("css_style") ) {
-				text.append("style=\\\""+paramlist.get("css_style")+"\\\" ");
+				text.append("style=\\\"").append(paramlist.get("css_style")).append("\\\" ");
 				paramlist.remove("css_style");
 			}
 
 			if( paramlist.containsKey("css_class") ) {
-				text.append("class=\\\""+paramlist.get("css_class")+"\\\" href=\\\"ds?module=");
+				text.append("class=\\\"").append(paramlist.get("css_class")).append("\\\" href=\\\"ds?module=");
 				paramlist.remove("css_class");
 			}
 			else {
@@ -114,21 +114,21 @@ public class TemplateCompiler {
 			}
 
 			if( paramlist.containsKey("module") ) {
-				text.append(paramlist.get("module")+"&amp;");
+				text.append(paramlist.get("module")).append("&amp;");
 				paramlist.remove("module");
 			}
 			else {
 				text.append("\"); str.append(templateEngine.getVar(\"global.module\")); str.append(\"&amp;");
 			}
 
-			text.append("action="+action);
+			text.append("action=").append(action);
 
 			if( paramlist.size() > 0 ) {
 				for( Map.Entry<String, String> entry : paramlist.entrySet() ) {
-					text.append("&amp;"+entry.getKey()+"="+entry.getValue());
+					text.append("&amp;").append(entry.getKey()).append("=").append(entry.getValue());
 				}
 			}
-			text.append("\\\">"+name+"</a>");
+			text.append("\\\">").append(name).append("</a>");
 
 			return text.toString();
 		}
@@ -140,26 +140,30 @@ public class TemplateCompiler {
 		}
 		@Override
 		public String process(List<String> parameter) {
-			Map<String,String> paramlist = new LinkedHashMap<String,String>();
-			List<String> params = new ArrayList<String>();
+			Map<String,String> paramlist = new LinkedHashMap<>();
+			List<String> params = new ArrayList<>();
 
-			for( int i=0; i < parameter.size(); i++ ) {
-				String arg = parameter.get(i);
+			for (String arg : parameter)
+			{
 				int pos = arg.indexOf(':');
-				if( pos != -1 ) {
+				if (pos != -1)
+				{
 					String pname = arg.substring(0, pos).trim();
-					String param = arg.substring(pos+1).trim();
-					if( param.charAt(0) == '$' ) {
+					String param = arg.substring(pos + 1).trim();
+					if (param.charAt(0) == '$')
+					{
 						param = param.substring(1);
-						param = "\"); str.append(templateEngine.getVar(\""+param+"\")); str.append(\"";
+						param = "\"); str.append(templateEngine.getVar(\"" + param + "\")); str.append(\"";
 					}
 					paramlist.put(pname, param);
 
-					if( !pname.equals("image_css_style") ) {
+					if (!pname.equals("image_css_style"))
+					{
 						params.add(arg);
 					}
 				}
-				else {
+				else
+				{
 					params.add(arg);
 				}
 			}
@@ -182,7 +186,7 @@ public class TemplateCompiler {
 		}
 		@Override
 		public String process(List<String> parameter) {
-			Map<String,String> paramlist = new LinkedHashMap<String,String>();
+			Map<String,String> paramlist = new LinkedHashMap<>();
 			String action = parameter.get(0);
 
 			if( action.charAt(0) == '$' ) {
@@ -206,11 +210,11 @@ public class TemplateCompiler {
 
 			StringBuilder text = new StringBuilder(50);
 			if( !action.equals("-") ) {
-				text.append("<input type=\\\"hidden\\\" name=\\\"action\\\" value=\\\""+action+"\\\" />\n");
+				text.append("<input type=\\\"hidden\\\" name=\\\"action\\\" value=\\\"").append(action).append("\\\" />\n");
 			}
 
 			if( paramlist.containsKey("module") ) {
-				text.append("<input type=\\\"hidden\\\" name=\\\"module\\\" value=\\\""+paramlist.get("module")+"\\\" />\n");
+				text.append("<input type=\\\"hidden\\\" name=\\\"module\\\" value=\\\"").append(paramlist.get("module")).append("\\\" />\n");
 				paramlist.remove("module");
 			}
 			else {
@@ -218,7 +222,7 @@ public class TemplateCompiler {
 			}
 
 			for( Map.Entry<String, String> entry : paramlist.entrySet() ) {
-				text.append("<input type=\\\"hidden\\\" name=\\\""+entry.getKey()+"\\\" value=\\\""+entry.getValue()+"\\\" />\n");
+				text.append("<input type=\\\"hidden\\\" name=\\\"").append(entry.getKey()).append("\\\" value=\\\"").append(entry.getValue()).append("\\\" />\n");
 			}
 
 			return text.toString();
@@ -241,7 +245,7 @@ public class TemplateCompiler {
 		}
 	}
 
-	private static final Map<String,TemplateCompileFunction> COMPILE_FUNCTIONS = new HashMap<String,TemplateCompileFunction>();
+	private static final Map<String,TemplateCompileFunction> COMPILE_FUNCTIONS = new HashMap<>();
 
 	static {
 		COMPILE_FUNCTIONS.put("image_link_to", new TCFImageLinkTo());
@@ -278,10 +282,12 @@ public class TemplateCompiler {
 	private String parse_if( String bedingung ) {
 		bedingung = bedingung.trim();
 		String[] bed = bedingung.split(" ");
-		List<String> bedingungen = new ArrayList<String>();
-		for( int i=0; i < bed.length; i++ ) {
-			if( bed[i].trim().length() != 0 ) {
-				bedingungen.add(bed[i].trim());
+		List<String> bedingungen = new ArrayList<>();
+		for (String aBed : bed)
+		{
+			if (aBed.trim().length() != 0)
+			{
+				bedingungen.add(aBed.trim());
 			}
 		}
 
@@ -325,7 +331,7 @@ public class TemplateCompiler {
 
 	private String parse_function( String name, String parameter, boolean callnow ) {
 		parameter = parameter.trim();
-		List<String> parameters = new ArrayList<String>(Arrays.asList(parameter.split(",")));
+		List<String> parameters = new ArrayList<>(Arrays.asList(parameter.split(",")));
 		// Laufzeit-Funktionen
 		if( !callnow ) {
 			for( int i=0; i < parameters.size(); i++ ) {
@@ -424,7 +430,7 @@ public class TemplateCompiler {
 		String reg = "<!--\\s+BEGIN ([^\\s]*)\\s+-->";
 		Matcher match = Pattern.compile(reg, Pattern.MULTILINE).matcher(block);
 
-		List<CompiledBlock> blocklist = new ArrayList<CompiledBlock>();
+		List<CompiledBlock> blocklist = new ArrayList<>();
 
 		while( match.find() ) {
 			// ok...wir haben einen block
@@ -449,7 +455,7 @@ public class TemplateCompiler {
 
 			List<CompiledBlock> subblocks = parse_blocks( extractedblock, name );
 
-			List<String> newvarlist = new ArrayList<String>();
+			List<String> newvarlist = new ArrayList<>();
 			/*Matcher varlist = Pattern.compile( "templateEngine.getVar\\(\"([^\"]*)\"([^\\)]*)\\)/").matcher(extractedblock.toString());
 
 			while( varlist.find() ) {
@@ -475,7 +481,7 @@ public class TemplateCompiler {
 	}
 
 	private List<String> parse_getChildVars( List<CompiledBlock> blocks, String name ) {
-		List<String> result = new ArrayList<String>();
+		List<String> result = new ArrayList<>();
 		for( int i=0; i < blocks.size(); i++ ) {
 			if( blocks.get(i).parent.equals(name) ) {
 				result.addAll(blocks.get(i).varlist);
@@ -496,18 +502,17 @@ public class TemplateCompiler {
 
 		StringBuilder strBuilder = new StringBuilder();
 
-		BufferedReader reader = new BufferedReader(new FileReader(new File(file)));
-		try {
-			String curLine = "";
-			while( (curLine = reader.readLine()) != null ) {
-				if( strBuilder.length() != 0 ) {
+		try (BufferedReader reader = new BufferedReader(new FileReader(new File(file))))
+		{
+			String curLine;
+			while ((curLine = reader.readLine()) != null)
+			{
+				if (strBuilder.length() != 0)
+				{
 					strBuilder.append("\n");
 				}
 				strBuilder.append(curLine);
 			}
-		}
-		finally {
-			reader.close();
 		}
 
 		String str = strBuilder.toString();
@@ -526,7 +531,7 @@ public class TemplateCompiler {
 
 		Matcher match = Pattern.compile("templateEngine.getVar\\(\"([^\"]*)\"([^\\)]*)\\)").matcher(str);
 
-		List<String> completevarlist = new ArrayList<String>();
+		List<String> completevarlist = new ArrayList<>();
 		while( match.find() ) {
 			completevarlist.add(match.group(1));
 		}
@@ -550,7 +555,7 @@ public class TemplateCompiler {
 			newfile.append("package net.driftingsouls.ds2.server.templates;\n");
 		}
 		else {
-			newfile.append("package net.driftingsouls.ds2.server.templates."+subPackage+";\n");
+			newfile.append("package net.driftingsouls.ds2.server.templates.").append(subPackage).append(";\n");
 		}
 		newfile.append("import net.driftingsouls.ds2.server.framework.templates.Template;\n");
 		newfile.append("import net.driftingsouls.ds2.server.framework.templates.TemplateBlock;\n");
@@ -561,17 +566,18 @@ public class TemplateCompiler {
 		newfile.append("   verloren. Wenn sie Aenderungen machen wollen, tun sie dies\n");
 		newfile.append("   bitte im entsprechenden Ursprungstemplate */\n\n");
 
-		newfile.append("public class "+bfname+" implements Template {\n");
+		newfile.append("public class ").append(bfname).append(" implements Template {\n");
 		newfile.append("\tpublic void prepare( TemplateEngine templateEngine, String filehandle ) {\n");
 
-		for( int i=0; i < result.size(); i++ ) {
-			CompiledBlock block = result.get(i);
+		for (CompiledBlock block : result)
+		{
 			String parent = "filehandle";
-			if( !block.parent.equals("MAIN") ) {
-				parent = "\""+block.parent+"\"";
+			if (!block.parent.equals("MAIN"))
+			{
+				parent = "\"" + block.parent + "\"";
 			}
 
-			newfile.append("\t\ttemplateEngine.registerBlockItrnl(\""+block.name+"\",filehandle,"+parent+");\n");
+			newfile.append("\t\ttemplateEngine.registerBlockItrnl(\"").append(block.name).append("\",filehandle,").append(parent).append(");\n");
 		}
 
 		newfile.append("\t}\n\n");
@@ -581,12 +587,12 @@ public class TemplateCompiler {
 		for( int i=0; i < result.size(); i++ ) {
 			CompiledBlock block = result.get(i);
 
-			newfile.append("\tstatic class "+StringUtils.replace(block.name, ".", "")+" implements TemplateBlock {\n");
+			newfile.append("\tstatic class ").append(StringUtils.replace(block.name, ".", "")).append(" implements TemplateBlock {\n");
 			newfile.append("\t\tpublic String[] getBlockVars(boolean all) {\n");
 			newfile.append("\t\t\tif( !all ) {\n");
 
 			if( block.varlist.size() != 0 ) {
-				newfile.append("\t\t\t\treturn new String[] {\""+Common.implode("\",\"",block.varlist)+"\"};\n");
+				newfile.append("\t\t\t\treturn new String[] {\"").append(Common.implode("\",\"", block.varlist)).append("\"};\n");
 			}
 			else {
 				newfile.append("\t\t\t\treturn new String[] {};\n");
@@ -598,22 +604,22 @@ public class TemplateCompiler {
 			varlist.addAll(parse_getChildVars(result, block.name));
 
 			if( varlist.size() != 0 ) {
-				newfile.append("\t\t\t\treturn new String[] {\""+Common.implode("\",\"",varlist)+"\"};\n");
+				newfile.append("\t\t\t\treturn new String[] {\"").append(Common.implode("\",\"", varlist)).append("\"};\n");
 			}
 			else {
 				newfile.append("\t\t\t\treturn new String[] {};\n");
 			}
 			newfile.append("\t\t\t}\n\t\t}\n");
 			newfile.append("\t\tpublic String output(TemplateEngine templateEngine) {\n");
-			newfile.append("\t\tStringBuilder str = new StringBuilder("+block.block.length()+");\n");
+			newfile.append("\t\tStringBuilder str = new StringBuilder(").append(block.block.length()).append(");\n");
 
 			String[] blockstr =  StringUtils.replace(block.block, "\r\n", "\n").split("\n");
 			for( int j=0; j < blockstr.length; j++ ) {
 				if( j < blockstr.length - 1 ) {
-					newfile.append("\t\tstr.append(\""+blockstr[j]+"\\n\");\n");
+					newfile.append("\t\tstr.append(\"").append(blockstr[j]).append("\\n\");\n");
 				}
 				else {
-					newfile.append("\t\tstr.append(\""+blockstr[j]+"\");\n");
+					newfile.append("\t\tstr.append(\"").append(blockstr[j]).append("\");\n");
 				}
 			}
 			newfile.append("\t\treturn str.toString();");
@@ -625,10 +631,10 @@ public class TemplateCompiler {
 		// Und jetzt den Rest
 
 		newfile.append("\tpublic TemplateBlock getBlock(String block) {\n");
-		for( int i=0; i < result.size(); i++ ) {
-			CompiledBlock block = result.get(i);
-			newfile.append("\t\tif( block.equals(\""+block.name+"\") ) {\n");
-			newfile.append("\t\t\treturn new "+StringUtils.replace(block.name, ".", "")+"();\n");
+		for (CompiledBlock block : result)
+		{
+			newfile.append("\t\tif( block.equals(\"").append(block.name).append("\") ) {\n");
+			newfile.append("\t\t\treturn new ").append(StringUtils.replace(block.name, ".", "")).append("();\n");
 			newfile.append("\t\t}\n");
 		}
 		newfile.append("\t\treturn null;\n");
@@ -636,7 +642,7 @@ public class TemplateCompiler {
 
 		match = Pattern.compile("templateEngine.getVar\\(\"([^\"]*)\"([^\\)]*)\\)").matcher(str);
 
-		List<String> newvarlist = new ArrayList<String>();
+		List<String> newvarlist = new ArrayList<>();
 		while( match.find() ) {
 			newvarlist.add(match.group(1));
 		}
@@ -651,7 +657,7 @@ public class TemplateCompiler {
 		newfile.append("\t\tif( !all ) {\n");
 
 		if( newvarlist.size() > 0 ) {
-			newfile.append("\t\t\treturn new String[] {\""+Common.implode("\",\"",newvarlist)+"\"};\n");
+			newfile.append("\t\t\treturn new String[] {\"").append(Common.implode("\",\"", newvarlist)).append("\"};\n");
 		}
 		else {
 			newfile.append("\t\t\treturn new String[] {};\n");
@@ -660,7 +666,7 @@ public class TemplateCompiler {
 		newfile.append("\t\t} else {\n");
 
 		if( completevarlist.size() > 0 ) {
-			newfile.append("\t\t\treturn new String[] {\""+Common.implode("\",\"",completevarlist)+"\"};\n");
+			newfile.append("\t\t\treturn new String[] {\"").append(Common.implode("\",\"", completevarlist)).append("\"};\n");
 		}
 		else {
 			newfile.append("\t\t\treturn new String[] {};\n");
@@ -670,15 +676,15 @@ public class TemplateCompiler {
 		// Nicht zu vergessen: Der Inhalt der Templatedatei, der keinem Block zugeordnet ist...
 
 		newfile.append("\tpublic String main( TemplateEngine templateEngine ) {\n");
-		newfile.append("\t\tStringBuilder str = new StringBuilder("+str.length()+");\n");
+		newfile.append("\t\tStringBuilder str = new StringBuilder(").append(str.length()).append(");\n");
 		str = StringUtils.replace(str, "\r\n", "\n");
 		String[] strLines = str.split("\n");
 		for( int i=0; i < strLines.length; i++ ) {
 			if( i < strLines.length - 1 ) {
-				newfile.append("\t\tstr.append(\""+strLines[i]+"\\n\");\n");
+				newfile.append("\t\tstr.append(\"").append(strLines[i]).append("\\n\");\n");
 			}
 			else {
-				newfile.append("\t\tstr.append(\""+strLines[i]+"\");\n");
+				newfile.append("\t\tstr.append(\"").append(strLines[i]).append("\");\n");
 			}
 		}
 		newfile.append("\t\treturn str.toString();");
@@ -686,37 +692,41 @@ public class TemplateCompiler {
 		newfile.append("\t}\n");
 		newfile.append("}");
 
-		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(outputPath+"/"+bfname+".java")));
-		try {
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(new File(outputPath + "/" + bfname + ".java"))))
+		{
 			writer.write(newfile.toString());
-		}
-		finally {
-			writer.close();
 		}
 	}
 
 	private static void compileDirectory( File dir, String outputPath, String subPackage ) throws IOException {
 		File[] files = dir.listFiles();
-		for( int i=0; i < files.length; i++ ) {
-			if( files[i].getName().indexOf(".html") != -1 ) {
-				String file = files[i].getAbsolutePath();
-				String baseFileName = file.substring(file.lastIndexOf("/")+1, file.lastIndexOf(".html"));
+		assert files != null;
+		for (File file1 : files)
+		{
+			if (file1.getName().contains(".html"))
+			{
+				String file = file1.getAbsolutePath();
+				String baseFileName = file.substring(file.lastIndexOf("/") + 1, file.lastIndexOf(".html"));
 				String bfname = StringUtils.replace(baseFileName, ".", "");
-				File compiledFile = new File(outputPath+"/"+bfname+".java");
-				if( !compiledFile.exists() || (compiledFile.lastModified() < files[i].lastModified()) ) {
-					log.info("compiling "+file);
+				File compiledFile = new File(outputPath + "/" + bfname + ".java");
+				if (!compiledFile.exists() || (compiledFile.lastModified() < file1.lastModified()))
+				{
+					log.info("compiling " + file);
 					TemplateCompiler compiler = new TemplateCompiler(file, outputPath, subPackage);
 					compiler.compile();
 				}
 			}
-			else if( files[i].isDirectory() && !files[i].isHidden() ) {
-				String subOutputPath = outputPath+"/"+files[i].getName();
-				if( !new File(subOutputPath).exists() ) {
-					if( !new File(subOutputPath).mkdir() ) {
-						throw new IOException("Konnte Verzeichnis "+subOutputPath+" nicht erstellen");
+			else if (file1.isDirectory() && !file1.isHidden())
+			{
+				String subOutputPath = outputPath + "/" + file1.getName();
+				if (!new File(subOutputPath).exists())
+				{
+					if (!new File(subOutputPath).mkdir())
+					{
+						throw new IOException("Konnte Verzeichnis " + subOutputPath + " nicht erstellen");
 					}
 				}
-				compileDirectory(files[i], subOutputPath, subPackage != null ? subPackage+"."+files[i].getName() : files[i].getName());
+				compileDirectory(file1, subOutputPath, subPackage != null ? subPackage + "." + file1.getName() : file1.getName());
 			}
 		}
 	}

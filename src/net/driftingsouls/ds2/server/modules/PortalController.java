@@ -125,11 +125,6 @@ public class PortalController extends TemplateGenerator {
 			t.setVar("show.passwordlost",1);
 		}
 		else {
-			//username = db.prepareString(username);
-			//SQLResultRow row = db.first("SELECT email,id FROM users WHERE un='",username,"'");
-			//String email = row.getString("email");
-			//int loguserid = row.getInt("id");
-
 			User user = (User)db.createQuery("from User where un = :username")
 							.setString("username", username)
 							.uniqueResult();
@@ -225,7 +220,7 @@ public class PortalController extends TemplateGenerator {
 		int systemID = 0;
 		int orderLocationID = 0;
 		int mindistance = 99999;
-		HashMap<Integer,StartLocation> minsysdistance = new HashMap<Integer,StartLocation>();
+		HashMap<Integer,StartLocation> minsysdistance = new HashMap<>();
 
 		List<?> systems = db.createQuery("from StarSystem order by id asc").list();
 		for (Object system1 : systems)
@@ -279,10 +274,6 @@ public class PortalController extends TemplateGenerator {
 			return false;
 		}
 
-	/*	String uname = db.prepareString(username);
-		SQLResultRow auser = db.first("SELECT * FROM users WHERE un='",uname,"'");
-		SQLResultRow auser2 = db.first("SELECT * FROM users WHERE email='",db.prepareString(email),"'");
-	 */
 		User user1 = (User)db.createQuery("from User where un = :username")
 						.setString("username", username)
 						.setMaxResults(1)
@@ -344,7 +335,7 @@ public class PortalController extends TemplateGenerator {
 
 		if( needkey ) {
 	 		String[] keylist = keys.getValue().replace("\r\n", "\n").split("\n");
-		 	HashMap<String,String> parameters = new HashMap<String,String>();
+		 	HashMap<String,String> parameters = new HashMap<>();
 		 	int pos;
 		 	for( pos=0; pos < keylist.length; pos++ ) {
 	 			if( keylist[pos].indexOf("<"+key+">") == 0 ) {

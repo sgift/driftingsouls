@@ -245,7 +245,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		context.setActiveUser(user);
 
 		int accessLevel = user.getAccessLevel();
-		Set<Permission> permissions = new HashSet<Permission>(user.getPermissions());
+		Set<Permission> permissions = new HashSet<>(user.getPermissions());
 		if( jsession.getAttach() != null && accessLevel < jsession.getAttach().getAccessLevel() )
 		{
 			accessLevel = jsession.getAttach().getAccessLevel();
@@ -335,12 +335,10 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		int userId = Integer.parseInt(parts[0]);
 		String token = parts[1];
 
-		PermanentSession session = (PermanentSession)db
+		return (PermanentSession)db
 			.createQuery("from PermanentSession where userId=:userId and token=:token")
 			.setParameter("userId", userId)
 			.setParameter("token", Common.md5(token))
 			.uniqueResult();
-
-		return session;
 	}
 }

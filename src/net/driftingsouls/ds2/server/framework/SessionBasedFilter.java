@@ -29,13 +29,9 @@ public abstract class SessionBasedFilter extends DSFilter
 	protected boolean isSessionNeededByModule(ServletRequest request)
 	{
 		String module = request.getParameter("module");
-		if(module != null && !sessionFreeModules.contains(module))
-		{
-			return true;
-		}
-		
-		return false;
+		return module != null && !sessionFreeModules.contains(module);
+
 	}
 	
-	private Set<String> sessionFreeModules = new HashSet<String>();
+	private Set<String> sessionFreeModules = new HashSet<>();
 }

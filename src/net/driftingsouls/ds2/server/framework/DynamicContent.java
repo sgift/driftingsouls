@@ -1,7 +1,5 @@
 package net.driftingsouls.ds2.server.framework;
 
-import java.io.Serializable;
-import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -10,7 +8,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
-import net.driftingsouls.ds2.server.entities.User;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Metadaten zu einer dynamicContent-Datei.

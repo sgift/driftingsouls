@@ -116,7 +116,7 @@ public abstract class TemplateGenerator extends DSGenerator {
 			}
 		
 			String mastertemplate = new File(file).getName();
-			if( mastertemplate.indexOf(".html") > -1 ) {
+			if(mastertemplate.contains(".html")) {
 				mastertemplate = mastertemplate.substring(0,mastertemplate.lastIndexOf(".html"));
 			}
 			mastertemplate = "_"+mastertemplate.toUpperCase();
