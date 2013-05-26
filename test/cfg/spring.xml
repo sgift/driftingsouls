@@ -2,18 +2,13 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:aop="http://www.springframework.org/schema/aop"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
 		http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
 		http://www.springframework.org/schema/context
-		http://www.springframework.org/schema/context/spring-context-2.5.xsd
-		http://www.springframework.org/schema/aop
-		http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+		http://www.springframework.org/schema/context/spring-context-2.5.xsd">
 	
 	<context:annotation-config/>
-	<aop:aspectj-autoproxy/>
-	<context:load-time-weaver/>
-	
+
 	<!-- Framework -->
 	
     <bean id="configuration" class="net.driftingsouls.ds2.server.framework.Configuration" lazy-init="true" />
@@ -21,9 +16,6 @@
 		<property name="configuration" ref="configuration" />
 	</bean> 
 	<bean id="authenticationManager" class="net.driftingsouls.ds2.server.framework.authentication.DefaultAuthenticationManager" lazy-init="true" />
-	<bean class="net.driftingsouls.ds2.server.framework.BasicContext" scope="prototype" lazy-init="true">
-		<property name="authenticationManager" ref="authenticationManager" />
-	</bean>
-	
+
 	<!-- Server -->
 </beans>

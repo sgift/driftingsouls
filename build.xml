@@ -367,7 +367,6 @@
 				<pathelement path="${build.home}/embedded"/>
 			</classpath>
 			<arg value="${build.home}" />
-			<jvmarg value="-javaagent:${basedir}/web/WEB-INF/lib/spring-agent.jar" />
 			<jvmarg value="${jetty.jvmargs}" />
 			<jvmarg value="-Dcom.sun.management.jmxremote" />
 			<jvmarg value="-Dcom.sun.management.jmxremote.authenticate=false" />
@@ -442,7 +441,6 @@
 		</copy>
 
 		<junit fork="yes" haltonfailure="true" outputtoformatters="false" forkmode="perBatch">
-			<jvmarg value="-javaagent:web/WEB-INF/lib/spring-agent.jar" />
 			<classpath>
 				<fileset dir="web/WEB-INF/lib">
 					<include name="*.jar"/>
