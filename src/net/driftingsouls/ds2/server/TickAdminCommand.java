@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server;
 
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.tick.TickController;
 
 import org.apache.commons.logging.Log;
@@ -27,6 +28,7 @@ import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.quartz.CronTriggerBean;
 
 /**
@@ -107,6 +109,9 @@ public class TickAdminCommand
 	public void runRegularTick(Class<? extends TickController> tickPart) {
 		try
 		{
+			ApplicationContext applicationContext = (ApplicationContext) ContextMap.getContext().getVariable(ApplicationContext.class, "beanFactory");
+			applicationContext.getAutowireCapableBeanFactory().autowireBean(tickPart);
+
 			JobDataMap map = new JobDataMap();
 			map.put("onlyTick", tickPart);
 			
@@ -126,6 +131,9 @@ public class TickAdminCommand
 	public void runRareTick(Class<? extends TickController> tickPart) {
 		try
 		{
+			ApplicationContext applicationContext = (ApplicationContext) ContextMap.getContext().getVariable(ApplicationContext.class, "beanFactory");
+			applicationContext.getAutowireCapableBeanFactory().autowireBean(tickPart);
+
 			JobDataMap map = new JobDataMap();
 			map.put("onlyTick", tickPart);
 			

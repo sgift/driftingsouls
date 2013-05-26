@@ -24,7 +24,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.pipeline.Response;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Configurable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,7 +37,6 @@ import java.util.Map;
  * @author Christopher Jung
  *
  */
-@Configurable
 public class BasicContext implements Context
 {
 	private static final Log log = LogFactory.getLog(BasicContext.class);

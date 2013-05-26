@@ -35,6 +35,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.configuration.PipelineCon
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.filter.GenericFilterBean;
@@ -59,7 +60,7 @@ public class DefaultServletRequestFilter extends GenericFilterBean implements Fi
 		HttpServletRequest httpRequest = (HttpServletRequest)req;
 		HttpServletResponse httpResponse = (HttpServletResponse)resp;
 				
-		Context context = null;
+		Context context;
 		try 
 		{
 			WebApplicationContext springContext = WebApplicationContextUtils.getRequiredWebApplicationContext(this.getServletContext());
@@ -69,6 +70,7 @@ public class DefaultServletRequestFilter extends GenericFilterBean implements Fi
 			context.putVariable(HttpServlet.class, "request", httpRequest);
 			context.putVariable(HttpServlet.class, "context", this.getServletContext());
 			context.putVariable(HttpServlet.class, "chain", chain);
+			context.putVariable(ApplicationContext.class, "beanFactory", springContext);
 			
 			PipelineConfig config = (PipelineConfig)springContext.getBean("pipelineConfig", PipelineConfig.class);
 			Pipeline pipeline = config.getPipelineForContext(context);

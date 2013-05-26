@@ -36,29 +36,22 @@ import net.driftingsouls.ds2.server.framework.pipeline.ReaderPipeline;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Liesst Dateien von der Festplatte und schreibt sie in die Antwort.
  * @author Christopher Jung
  *
  */
-@Configurable
 public class FileReader implements Reader {
 	private static final Log log = LogFactory.getLog(FileReader.class);
-	
-	private Configuration config;
+
 	private Map<String,String> extensionMap;
-	
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config) 
-    {
-    	this.config = config;
+
+	/**
+	 * Konstruktor.
+	 */
+	public FileReader()
+	{
 		this.extensionMap = new HashMap<String,String>();
 		this.extensionMap.put("html", "text/html");
 		this.extensionMap.put("txt", "text/plain");
@@ -69,8 +62,8 @@ public class FileReader implements Reader {
 		this.extensionMap.put("gif", "image/gif");
 		this.extensionMap.put("jpg", "image/jpg");
 		this.extensionMap.put("svg", "image/svg+xml");
-    }
-	
+	}
+
 	private String guessMimeType( String extension ) {
 		if( extension == null ) {
 			return null;
@@ -95,7 +88,7 @@ public class FileReader implements Reader {
 			return;
 		}
 		
-		String path = config.get("ABSOLUTE_PATH")+filename;
+		String path = Configuration.getSetting("ABSOLUTE_PATH")+filename;
 		File file = new File(path);
 		if( !file.exists() ) {
 			context.getResponse().setStatus(HttpServletResponse.SC_NOT_FOUND);

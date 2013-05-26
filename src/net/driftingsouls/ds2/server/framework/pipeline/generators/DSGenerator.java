@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.context.ApplicationContext;
 
 import java.io.File;
 import java.io.IOException;
@@ -126,19 +126,8 @@ public abstract class DSGenerator extends Generator {
 	 * </ul>
 	 *
 	 */
-	@Configurable
 	protected class HtmlOutputHelper extends OutputHelper {
-		private Configuration config;
 		private Version version;
-
-		/**
-		 * Injiziert die DS-Konfiguration.
-		 * @param config Die DS-Konfiguration
-		 */
-		@Autowired
-		public void setConfiguration(Configuration config) {
-			this.config = config;
-		}
 
 		/**
 		 * Injiziert die momentane DS-Version.
@@ -160,7 +149,7 @@ public abstract class DSGenerator extends Generator {
 			}
 			Writer sb = response.getWriter();
 
-			final boolean devMode = !"true".equals(this.config.get("PRODUCTION"));
+			final boolean devMode = !"true".equals(Configuration.getSetting("PRODUCTION"));
 
 			sb.append("<!DOCTYPE html>\n");
 			sb.append("<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"de\" lang=\"de\">\n");
@@ -168,18 +157,18 @@ public abstract class DSGenerator extends Generator {
 			sb.append("<title>Drifting Souls 2</title>\n");
 			sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n");
 			sb.append("<meta http-equiv=\"X-UA-Compatible\" content=\"IE=9\">\n");
-			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(config.get("URL")).append("data/css/ui-darkness/jquery-ui-1.8.20.css\" />\n");
+			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"./data/css/ui-darkness/jquery-ui-1.8.20.css\" />\n");
 			if( devMode )
 			{
 				appendDevModeCss(sb);
 			}
 			else
 			{
-				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(config.get("URL")).append("data/css/v").append(version.getHgVersion()).append("/format.css\" />\n");
+				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"./data/css/v").append(version.getHgVersion()).append("/format.css\" />\n");
 			}
 
 			sb.append("<!--[if IE]>\n");
-			sb.append("<style type=\"text/css\">@import url(").append(config.get("URL")).append("data/css/v").append(version.getHgVersion()).append("/format_fuer_den_dummen_ie.css);</style>\n");
+			sb.append("<style type=\"text/css\">@import url(./data/css/v").append(version.getHgVersion()).append("/format_fuer_den_dummen_ie.css);</style>\n");
 			sb.append("<![endif]-->\n");
 
 			if( this.getAttribute("header") != null ) {
@@ -189,7 +178,7 @@ public abstract class DSGenerator extends Generator {
 			sb.append("</head>\n");
 
 			sb.append("<body ").append(getOnLoadText()).append(" ").append(getBodyParameters()).append(" >\n");
-			sb.append("<input type='hidden' name='currentDsModule' id='currentDsModule' value='"+this.getAttribute("module")+"' />");
+			sb.append("<input type='hidden' name='currentDsModule' id='currentDsModule' value='" + this.getAttribute("module") + "' />");
 
 			if( devMode )
 			{
@@ -197,7 +186,7 @@ public abstract class DSGenerator extends Generator {
 			}
 			else
 			{
-				sb.append("<script src=\"").append(config.get("URL")).append("data/javascript/v").append(version.getHgVersion()).append("/ds.js\" type=\"text/javascript\"></script>\n");
+				sb.append("<script src=\"./data/javascript/v").append(version.getHgVersion()).append("/ds.js\" type=\"text/javascript\"></script>\n");
 			}
 			if( this.getAttribute("module") != null ) {
 				sb.append("<script type=\"text/javascript\">\n");
@@ -206,8 +195,9 @@ public abstract class DSGenerator extends Generator {
 				sb.append("parent.setCurrentPage('" + this.getAttribute("module") + "','" + this.getAttribute("pagetitle") + "');\n");
 				PageMenuEntry[] entries = (PageMenuEntry[])this.getAttribute("pagemenu");
 				if( (entries != null) && (entries.length > 0) ) {
-					for( int i=0; i < entries.length; i++ ) {
-						sb.append("parent.addPageMenuEntry('").append(entries[i].title).append("','").append(entries[i].url.replace("&amp;", "&")).append("');");
+					for (PageMenuEntry entry : entries)
+					{
+						sb.append("parent.addPageMenuEntry('").append(entry.title).append("','").append(entry.url.replace("&amp;", "&")).append("');");
 					}
 				}
 				sb.append("parent.completePage();");
@@ -220,29 +210,29 @@ public abstract class DSGenerator extends Generator {
 
 		private void appendDevModeCss(Writer sb) throws IOException
 		{
-			File cssdir = new File(this.config.get("ABSOLUTE_PATH")+"data/css/common");
+			File cssdir = new File(Configuration.getSetting("ABSOLUTE_PATH")+"data/css/common");
 
 			for( String filename : new TreeSet<String>(Arrays.asList(cssdir.list())) )
 			{
-				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(config.get("URL")).append("data/css").append("/common/").append(filename).append("\" />\n");
+				sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"./data/css").append("/common/").append(filename).append("\" />\n");
 			}
 		}
 
 		private void appendDevModeJavascript(Writer sb) throws IOException
 		{
-			File jsdir = new File(this.config.get("ABSOLUTE_PATH")+"data/javascript/");
+			File jsdir = new File(Configuration.getSetting("ABSOLUTE_PATH")+"data/javascript/");
 			File libdir = new File(jsdir.getAbsolutePath()+"/libs");
 			File commondir = new File(jsdir.getAbsolutePath()+"/common");
 
-			sb.append("<script src=\"").append(config.get("URL")).append("data/javascript").append("/libs/jquery-1.8.2.min.js\" type=\"text/javascript\"></script>\n");
-			sb.append("<script src=\"").append(config.get("URL")).append("data/javascript").append("/libs/jquery-ui-1.9.1.min.js\" type=\"text/javascript\"></script>\n");
+			sb.append("<script src=\"./data/javascript").append("/libs/jquery-1.8.2.min.js\" type=\"text/javascript\"></script>\n");
+			sb.append("<script src=\"./data/javascript").append("/libs/jquery-ui-1.9.1.min.js\" type=\"text/javascript\"></script>\n");
 			for( String filename : new TreeSet<String>(Arrays.asList(libdir.list())) )
 			{
 				if( filename.startsWith("jquery-1") || filename.startsWith("jquery-ui-1") || !filename.endsWith(".js") )
 				{
 					continue;
 				}
-				sb.append("<script src=\"").append(config.get("URL")).append("data/javascript").append("/libs/").append(filename).append("\" type=\"text/javascript\"></script>\n");
+				sb.append("<script src=\"./data/javascript").append("/libs/").append(filename).append("\" type=\"text/javascript\"></script>\n");
 			}
 
 			for( String filename : new TreeSet<String>(Arrays.asList(commondir.list())) )
@@ -251,11 +241,11 @@ public abstract class DSGenerator extends Generator {
 				{
 					continue;
 				}
-				sb.append("<script src=\"").append(config.get("URL")).append("data/javascript").append("/common/").append(filename).append("\" type=\"text/javascript\"></script>\n");
+				sb.append("<script src=\"./data/javascript").append("/common/").append(filename).append("\" type=\"text/javascript\"></script>\n");
 			}
 			if( new File(jsdir.getAbsolutePath()+"/modules/"+this.getAttribute("module")+".js").isFile() )
 			{
-				sb.append("<script src=\"").append(config.get("URL")).append("data/javascript").append("/modules/").append((String)this.getAttribute("module")).append(".js\" type=\"text/javascript\"></script>\n");
+				sb.append("<script src=\"./data/javascript").append("/modules/").append((String)this.getAttribute("module")).append(".js\" type=\"text/javascript\"></script>\n");
 			}
 		}
 
@@ -271,7 +261,7 @@ public abstract class DSGenerator extends Generator {
 			{
 				sb.append("<div style=\"text-align:center; font-size:11px;color:#c7c7c7; font-family:arial, helvetica;\">\n");
 				sb.append("<br /><br /><br />\n");
-				sb.append("Execution-Time: "+(System.currentTimeMillis()-getStartTime())/1000d+"s");
+				sb.append("Execution-Time: " + (System.currentTimeMillis() - getStartTime()) / 1000d + "s");
 				if( this.version.getBuildTime() != null )
 				{
 					sb.append(" -- Version: ").append(this.version.getHgVersion()).append(", ").append(this.version.getBuildTime());
@@ -355,7 +345,6 @@ public abstract class DSGenerator extends Generator {
 	private Map<String, String> bodyParameters;
 	private Map<String, Object> parameter;
 	private String subParameter;
-	private List<String> preloadUserValues;
 	private String pageTitle;
 	private List<PageMenuEntry> pageMenuEntries;
 	private boolean disablePageMenu;
@@ -380,9 +369,6 @@ public abstract class DSGenerator extends Generator {
 
 		this.onLoadFunctions = new ArrayList<String>();
 		this.bodyParameters = new HashMap<String,String>();
-
-		this.preloadUserValues = new ArrayList<String>();
-		this.preloadUserValues.add("id");
 
 		this.pageTitle = null;
 		this.pageMenuEntries = new ArrayList<PageMenuEntry>();
@@ -519,22 +505,27 @@ public abstract class DSGenerator extends Generator {
 
 	private Method getMethodForAction(String action) throws NoSuchMethodException {
 		Method[] methods = getClass().getMethods();
-		for( int i=0; i < methods.length; i++ ) {
-			Action actionAnnotation = methods[i].getAnnotation(Action.class);
-			if( actionAnnotation == null ) {
+		for (Method method : methods)
+		{
+			Action actionAnnotation = method.getAnnotation(Action.class);
+			if (actionAnnotation == null)
+			{
 				continue;
 			}
 
-			if( methods[i].getName().equals(action+"Action") ) {
-				return methods[i];
+			if (method.getName().equals(action + "Action"))
+			{
+				return method;
 			}
 
-			if( methods[i].getName().equals(action+"AjaxAct") ) {
-				return methods[i];
+			if (method.getName().equals(action + "AjaxAct"))
+			{
+				return method;
 			}
 
-			if( methods[i].getName().equals(action) ) {
-				return methods[i];
+			if (method.getName().equals(action))
+			{
+				return method;
 			}
 		}
 
@@ -785,6 +776,9 @@ public abstract class DSGenerator extends Generator {
 		else if( type == ActionType.BINARY ) {
 			actionTypeHandler = new BinaryOutputHelper();
 		}
+
+		ApplicationContext context = (ApplicationContext)ContextMap.getContext().getVariable(ApplicationContext.class, "beanFactory");
+		context.getAutowireCapableBeanFactory().autowireBean(actionTypeHandler);
 
 		actionType = type;
 	}
