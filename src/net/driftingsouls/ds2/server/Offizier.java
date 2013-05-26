@@ -30,7 +30,6 @@ import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
-import org.springframework.beans.factory.annotation.Configurable;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;

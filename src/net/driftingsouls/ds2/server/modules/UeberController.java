@@ -18,21 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.script.Bindings;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.BaseStatus;
@@ -59,26 +44,33 @@ import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Query;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
+
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Die Uebersicht.
  * @author Christopher Jung
  *
  */
-@Configurable
 @Module(name="ueber")
 public class UeberController extends TemplateGenerator {
 	private static final Log log = LogFactory.getLog(UeberController.class);
 
 	private String box = "";
-
-	private Configuration config;
 
 	/**
 	 * Konstruktor.
@@ -89,16 +81,6 @@ public class UeberController extends TemplateGenerator {
 
 		setTemplate("ueber.html");
 	}
-
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config)
-    {
-    	this.config = config;
-    }
 
 	@Override
 	protected boolean validateAndPrepare(String action) {
@@ -277,8 +259,9 @@ public class UeberController extends TemplateGenerator {
 		List<?> basen = db.createQuery("from Base where owner= :user order by id")
 			.setEntity("user", user)
 			.list();
-		for( Iterator<?> iter=basen.iterator(); iter.hasNext(); ) {
-			Base base = (Base)iter.next();
+		for (Object aBasen : basen)
+		{
+			Base base = (Base) aBasen;
 			bases++;
 
 			BaseStatus basedata = Base.getStatus(base);
@@ -289,19 +272,22 @@ public class UeberController extends TemplateGenerator {
 			boolean mangel = false;
 
 			ResourceList reslist = basedata.getProduction().getResourceList();
-			for( ResourceEntry res : reslist ) {
-				if( (res.getCount1() < 0) && (-(cargo.getResourceCount(res.getId())/res.getCount1()) <= 9) ) {
+			for (ResourceEntry res : reslist)
+			{
+				if ((res.getCount1() < 0) && (-(cargo.getResourceCount(res.getId()) / res.getCount1()) <= 9))
+				{
 					mangel = true;
 					break;
 				}
 			}
 
-			if(basedata.getEnergy() < 0 && base.getEnergy() / -basedata.getEnergy() <=9)
+			if (basedata.getEnergy() < 0 && base.getEnergy() / -basedata.getEnergy() <= 9)
 			{
 				mangel = true;
 			}
 
-			if( mangel ) {
+			if (mangel)
+			{
 				bw++;
 			}
 		}
@@ -312,8 +298,8 @@ public class UeberController extends TemplateGenerator {
 		// Mangel auf Schiffen checken
 		//------------------------------
 
-		long sw = 0;
-		long shipNoCrew = 0;
+		long sw;
+		long shipNoCrew;
 
 		sw = (Long)db.createQuery("select count(*) " +
 					"from Ship " +
@@ -374,8 +360,8 @@ public class UeberController extends TemplateGenerator {
 
 		// Ab hier beginnt das zweite Bier
 		for( Battle battle : battles ) {
-			String eparty = "";
-			String eparty2 = "";
+			String eparty;
+			String eparty2;
 			if( battle.getAlly(0) == 0 ) {
 				final User commander1 = battle.getCommander(0);
 				eparty = Common._title(commander1.getName());
@@ -395,32 +381,32 @@ public class UeberController extends TemplateGenerator {
 			}
 
 
-			battlelist.append("<a class=\"error\" href=\"ds?module=angriff&amp;battle="+battle.getId()+"\">Schlacht "+eparty+" vs "+eparty2+" bei "+battle.getLocation().displayCoordinates(false)+"</a>&nbsp;");
+			battlelist.append("<a class=\"error\" href=\"ds?module=angriff&amp;battle=").append(battle.getId()).append("\">Schlacht ").append(eparty).append(" vs ").append(eparty2).append(" bei ").append(battle.getLocation().displayCoordinates(false)).append("</a>&nbsp;");
 
 			// Nahrunganzeige der Schlacht
 			int nahrung = battle.getNahrungsBalance(user);
 
 			if ( nahrung < 0 )
 			{
-				battlelist.append("<span style=\"color:red\">("+Common.ln(nahrung));
+				battlelist.append("<span style=\"color:red\">(").append(Common.ln(nahrung));
 			}
 			else
 			{
-				battlelist.append("<span style=\"color:green\">(+"+Common.ln(nahrung));
+				battlelist.append("<span style=\"color:green\">(+").append(Common.ln(nahrung));
 			}
 
-			battlelist.append(" <img src=\""+Cargo.getResourceImage(Resources.NAHRUNG)+"\" alt=\"Nahrung\" title=\"Nahrung\" />)</span>");
+			battlelist.append(" <img src=\"").append(Cargo.getResourceImage(Resources.NAHRUNG)).append("\" alt=\"Nahrung\" title=\"Nahrung\" />)</span>");
 
 			// RE Anzeige der Schlacht
 			int re = battle.getBalance(user);
 
 			if ( re < 0 )
 			{
-				battlelist.append("&nbsp;<span style=\"color:red\">("+Common.ln(re));
+				battlelist.append("&nbsp;<span style=\"color:red\">(").append(Common.ln(re));
 			}
 			else
 			{
-				battlelist.append("&nbsp;<span style=\"color:green\">(+"+Common.ln(re));
+				battlelist.append("&nbsp;<span style=\"color:green\">(+").append(Common.ln(re));
 			}
 
 			battlelist.append(" RE)</span>");
@@ -467,15 +453,16 @@ public class UeberController extends TemplateGenerator {
 		List<?> bookmarks = db.createQuery("from Ship where id>0 and einstellungen.bookmark=1 and owner=:owner order by id desc")
 			.setEntity("owner", user)
 			.list();
-		for( Iterator<?> iter=bookmarks.iterator(); iter.hasNext(); ) {
-			Ship bookmark = (Ship)iter.next();
+		for (Object bookmark1 : bookmarks)
+		{
+			Ship bookmark = (Ship) bookmark1;
 			ShipTypeData shiptype = bookmark.getTypeData();
-			t.setVar(	"bookmark.shipid",		bookmark.getId(),
-						"bookmark.shipname",	bookmark.getName(),
-						"bookmark.location",	bookmark.getLocation().displayCoordinates(false),
-						"bookmark.shiptype",	shiptype.getNickname(),
-						"bookmark.description",	bookmark.getEinstellungen().getDestSystem()+":"+bookmark.getEinstellungen().getDestX()+"/"+bookmark.getEinstellungen().getDestY()+"<br />"+bookmark.getEinstellungen().getDestCom().replace("\r\n","<br />") );
-			t.parse("bookmarks.list","bookmarks.listitem",true);
+			t.setVar("bookmark.shipid", bookmark.getId(),
+					"bookmark.shipname", bookmark.getName(),
+					"bookmark.location", bookmark.getLocation().displayCoordinates(false),
+					"bookmark.shiptype", shiptype.getNickname(),
+					"bookmark.description", bookmark.getEinstellungen().getDestSystem() + ":" + bookmark.getEinstellungen().getDestX() + "/" + bookmark.getEinstellungen().getDestY() + "<br />" + bookmark.getEinstellungen().getDestCom().replace("\r\n", "<br />"));
+			t.parse("bookmarks.list", "bookmarks.listitem", true);
 		}
 		// Flotten zusammenbauen
 		t.setVar("show.fleets",1);
@@ -487,27 +474,30 @@ public class UeberController extends TemplateGenerator {
 				"order by s.docked,s.system,s.x,s.y")
 			.setEntity("user", user)
 			.list();
-		for( Iterator<?> iter=fleets.iterator(); iter.hasNext(); ) {
-			Object[] data = (Object[])iter.next();
-			long count = (Long)data[0];
-			ShipFleet fleet = (ShipFleet)data[1];
+		for (Object fleet1 : fleets)
+		{
+			Object[] data = (Object[]) fleet1;
+			long count = (Long) data[0];
+			ShipFleet fleet = (ShipFleet) data[1];
 
-			Ship aship = (Ship)db.createQuery("from Ship where fleet=:fleet")
-				.setEntity("fleet", fleet)
-				.iterate().next();
+			Ship aship = (Ship) db.createQuery("from Ship where fleet=:fleet")
+					.setEntity("fleet", fleet)
+					.iterate().next();
 
-			if( !jdocked && aship.isLanded() ) {
+			if (!jdocked && aship.isLanded())
+			{
 				jdocked = true;
-				t.setVar( "fleet.jaegerfleet", 1 );
+				t.setVar("fleet.jaegerfleet", 1);
 			}
-			else {
-				t.setVar( "fleet.jaegerfleet", 0 );
+			else
+			{
+				t.setVar("fleet.jaegerfleet", 0);
 			}
 
 			Ship baseShip = aship.getBaseShip();
 
 			String locationText;
-			if(baseShip == null)
+			if (baseShip == null)
 			{
 				locationText = aship.getLocation().displayCoordinates(false);
 			}
@@ -516,11 +506,11 @@ public class UeberController extends TemplateGenerator {
 				locationText = baseShip.getLocation().displayCoordinates(false);
 			}
 
-			t.setVar(	"fleet.shipid",		aship.getId(),
-						"fleet.name",		fleet.getName(),
-						"fleet.location",	locationText,
-						"fleet.shipcount",	count );
-			t.parse("fleets.list","fleets.listitem",true);
+			t.setVar("fleet.shipid", aship.getId(),
+					"fleet.name", fleet.getName(),
+					"fleet.location", locationText,
+					"fleet.shipcount", count);
+			t.parse("fleets.list", "fleets.listitem", true);
 		}
 
 		//------------------------------------
@@ -533,12 +523,13 @@ public class UeberController extends TemplateGenerator {
 				"where rq.user= :user and rq.publish=1")
 			.setEntity("user", user)
 			.list();
-		for( Iterator<?> iter=quests.iterator(); iter.hasNext(); ) {
-			RunningQuest quest = (RunningQuest)iter.next();
+		for (Object quest1 : quests)
+		{
+			RunningQuest quest = (RunningQuest) quest1;
 
-			t.setVar(	"quest.name",		quest.getQuest().getName(),
-						"quest.statustext",	quest.getStatusText(),
-						"quest.id",			quest.getId());
+			t.setVar("quest.name", quest.getQuest().getName(),
+					"quest.statustext", quest.getStatusText(),
+					"quest.id", quest.getId());
 
 			t.parse("quests.list", "quests.listitem", true);
 		}
@@ -550,7 +541,7 @@ public class UeberController extends TemplateGenerator {
 		// Letzten Tick ermitteln (Zeitpunkt)
 		try
 		{
-			BufferedReader bf = new BufferedReader(new FileReader(config.get("LOXPATH")+"ticktime.log"));
+			BufferedReader bf = new BufferedReader(new FileReader(Configuration.getSetting("LOXPATH")+"ticktime.log"));
 			try
 			{
 				ticktime = bf.readLine();

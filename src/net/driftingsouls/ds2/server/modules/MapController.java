@@ -36,7 +36,6 @@ import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
-import org.springframework.beans.factory.annotation.Configurable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -54,7 +53,6 @@ import java.util.Set;
  *
  * @author Drifting-Souls Team
  */
-@Configurable
 @Module(name="map")
 @UrlParams({
 		@UrlParam(name="sys", type=UrlParamType.NUMBER, description = "Die ID des zu landenden Sternensystems"),
@@ -67,7 +65,6 @@ public class MapController extends AngularGenerator
 	private StarSystem system;
 	private int sys;
 	private boolean adminView;
-	private Ship scanner;
 
 	/**
 	 * Legt den MapController an.
@@ -461,7 +458,7 @@ public class MapController extends AngularGenerator
 					}
 
 					if( scannable && content.isHasSectorContent(position)) {
-						scanner = content.getScanSchiffFuerSektor(position);
+						Ship scanner = content.getScanSchiffFuerSektor(position);
 
 						posObj.accumulate("scanner", scanner != null ? scanner.getId() : -1);
 					}

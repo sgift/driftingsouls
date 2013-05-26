@@ -18,11 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.battles.Battle;
@@ -40,24 +35,24 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
-
 import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.LockMode;
 import org.hibernate.Session;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Berechnet das Waffenfeuer im KS.
  * @author Christopher Jung
  *
  */
-@Configurable
 public class KSAttackAction extends BasicKSAction {
 	/**
 	 * Basisklasse fuer beim Feuern verwendete Waffenbeschreibungen.
@@ -336,10 +331,6 @@ public class KSAttackAction extends BasicKSAction {
 	private String attmode;
 	private int attcount;
 
-	private Configuration config;
-
-
-
 	/**
 	 * Konstruktor.
 	 *
@@ -366,16 +357,6 @@ public class KSAttackAction extends BasicKSAction {
 		}
 	}
 
-	/**
-	 * Injiziert die DS-Konfiguration.
-	 * @param config Die DS-Konfiguration
-	 */
-	@Autowired
-	public void setConfiguration(Configuration config)
-	{
-		this.config = config;
-	}
-
 	private int destroyShipOnly(int id, Battle battle, BattleShip eShip, boolean generateLoot, boolean generateStats) {
 
 		//
@@ -396,14 +377,13 @@ public class KSAttackAction extends BasicKSAction {
 		//
 
 		List<BattleShip> enemyShips = battle.getEnemyShips();
-		for( int i=0; i < enemyShips.size(); i++ ) {
-			BattleShip s = enemyShips.get(i);
-
-			if(s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == eShip.getId())
+		for (BattleShip s : enemyShips)
+		{
+			if (s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == eShip.getId())
 			{
 				remove++;
 				s.setAction(s.getAction() | Battle.BS_DESTROYED);
-				if( s.getDestroyer() == 0)
+				if (s.getDestroyer() == 0)
 				{
 					s.setDestroyer(id);
 				}
@@ -741,7 +721,7 @@ public class KSAttackAction extends BasicKSAction {
 			else {
 				battle.logme( "[color=red]+ Schiff zerst&ouml;rt[/color]\n" );
 				battle.logenemy( "[color=red]+ Schiff zerst&ouml;rt[/color]\n" );
-				if(config.getInt("DESTROYABLE_SHIPS") == 0 ) {
+				if(Configuration.getIntSetting("DESTROYABLE_SHIPS") == 0 ) {
 					if( eShip.getHull() < 1 ) {
 						eShip.setHull(1);
 					}
@@ -1174,7 +1154,7 @@ public class KSAttackAction extends BasicKSAction {
 		}
 
 		boolean mydamage = this.calcDamage( battle, aeShip, aeShipType, hit, (int)(shieldSchaden*damagemod), (int)(schaden*damagemod), tmpsubdmgs, "" );
-		if( !mydamage && (config.getInt("DESTROYABLE_SHIPS") != 0) ) {
+		if( !mydamage && (Configuration.getIntSetting("DESTROYABLE_SHIPS") != 0) ) {
 			this.destroyShip(this.ownShip.getOwner().getId(), battle, aeShip);
 		}
 	}
@@ -1556,7 +1536,7 @@ public class KSAttackAction extends BasicKSAction {
 				/*
 				 *	Schiff falls notwendig zerstoeren
 				 */
-				if( !savedamage && (config.getInt("DESTROYABLE_SHIPS") != 0) )
+				if( !savedamage && (Configuration.getIntSetting("DESTROYABLE_SHIPS") != 0) )
 				{
 					this.destroyShip(this.ownShip.getOwner().getId(), battle, this.enemyShip);
 					int newindex = battle.getNewTargetIndex();
@@ -1579,7 +1559,7 @@ public class KSAttackAction extends BasicKSAction {
 					battle.logme( "[color=red]+ Angreifer zerst&ouml;rt[/color]\n" );
 					battle.logenemy( "[color=red]+ Angreifer zerst&ouml;rt[/color]\n" );
 
-					if( config.getInt("DESTROYABLE_SHIPS") != 0 )
+					if( Configuration.getIntSetting("DESTROYABLE_SHIPS") != 0 )
 					{
 						this.destroyShipOnly(this.ownShip.getOwner().getId(), battle, this.ownShip, false, false);
 

@@ -18,6 +18,25 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
+import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Configuration;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
+import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.Locator;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,34 +50,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
-import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.Locator;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
-
 /**
  * Zeigt das Kampflog an.
  * @author Christopher Jung
  *
  */
-@Configurable
 public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHandler {
 	private static final Log log = LogFactory.getLog(KSMenuHistoryAction.class);
 	private String text = "";
@@ -76,20 +72,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 	private boolean historyShowtag = true;
 	
 	private final Map<Integer,Boolean> filter = new HashMap<Integer,Boolean>();
-	
-	private Configuration config;
-	
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config) 
-    {
-    	this.config = config;
-    }
-	
-	
+
 	/**
 	 * Konstruktor.
 	 *
@@ -175,8 +158,8 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 					{
 						if( (side == -1) || this.filter.get(side) )
 						{
-							this.history_text.append("[tooltip="+Common.date("d.m.Y H:i:s",Long.parseLong(atts.getValue("time")))+"][img]"+config.get("URL")+"data/interface/ks/icon_side"+side+".png[/img][/tooltip] ");
-							this.history_text.append(this.historySides.get(side)+" hat die Runde beendet\n");
+							this.history_text.append("[tooltip="+Common.date("d.m.Y H:i:s", Long.parseLong(atts.getValue("time")))+"][img]./data/interface/ks/icon_side"+side+".png[/img][/tooltip] ");
+							this.history_text.append(this.historySides.get(side)).append(" hat die Runde beendet\n");
 						}
 						else
 						{
@@ -199,8 +182,8 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 							this.historyShowtag = false;
 							return;	
 						}
-						this.history_text.append("[tooltip="+Common.date("d.m.Y H:i:s",Long.parseLong(atts.getValue("time")))+"][img]"+config.get("URL")+"data/interface/ks/icon_side"+side+".png[/img][/tooltip] ");
-						this.history_text.append(this.historySides.get(side)+" hat die Runde beendet\n");
+						this.history_text.append("[tooltip="+Common.date("d.m.Y H:i:s", Long.parseLong(atts.getValue("time")))+"][img]./data/interface/ks/icon_side"+side+".png[/img][/tooltip] ");
+						this.history_text.append(this.historySides.get(side)).append(" hat die Runde beendet\n");
 					}
 				}
 			} 
@@ -213,7 +196,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 					return;	
 				}
 						
-				this.history_text.append("[tooltip="+Common.date("d.m.Y H:i:s",Long.parseLong(atts.getValue("time")))+"][img]"+config.get("URL")+"data/interface/ks/icon_side"+side+".png[/img][/tooltip] ");
+				this.history_text.append("[tooltip="+Common.date("d.m.Y H:i:s", Long.parseLong(atts.getValue("time")))+"][img]./data/interface/ks/icon_side"+side+".png[/img][/tooltip] ");
 			} 
 			else if( this.history_tag.equals("side1") || this.history_tag.equals("side2") )
 			{
@@ -244,7 +227,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 
 			if( showCurrentPage()  )
 			{
-				this.history_text.append("<"+qName+" "+Common.implode(" ",params)+">");
+				this.history_text.append("<").append(qName).append(" ").append(Common.implode(" ", params)).append(">");
 			}
 		}
 	}
@@ -275,7 +258,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 			return;
 		}
 		if( !this.history_validTags.contains(localName.toLowerCase()) ) {
-			this.history_text.append("</"+localName+">");
+			this.history_text.append("</").append(localName).append(">");
 		}		
 	}
 	
@@ -384,7 +367,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 					"global.showlog.actionstr",		actionstr );
 		
 		try {
-			File ksLog = new File(config.get("LOXPATH")+"battles/battle_id"+battle.getId()+".log");
+			File ksLog = new File(Configuration.getSetting("LOXPATH")+"battles/battle_id"+battle.getId()+".log");
 			if( !ksLog.isFile() ) {
 				t.setVar( "global.showlog.log", "Fehler: Konnte Kampflog nicht &ouml;ffnen");
 				return Result.ERROR;

@@ -18,12 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.Offizier;
@@ -40,7 +34,6 @@ import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.NewsEntry;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -57,14 +50,18 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.units.TransientUnitCargo;
-import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeException;
-
 import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Required;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Das Portal.
@@ -75,7 +72,6 @@ import org.springframework.beans.factory.annotation.Required;
 @Module(name="portal", defaultModule=true)
 public class PortalController extends TemplateGenerator {
 	private AuthenticationManager authManager;
-	private Configuration config;
 
 	/**
 	 * Konstruktor.
@@ -97,16 +93,6 @@ public class PortalController extends TemplateGenerator {
 		this.authManager = authManager;
 	}
 
-	/**
-	 * Injiziert die DS-Konfiguration.
-	 * @param config Die DS-Konfiguration
-	 */
-	@Required
-	@Autowired
-	public void setConfiguration(Configuration config) {
-		this.config = config;
-	}
-
 	@Override
 	protected void printHeader( String action ) {
 		// EMPTY
@@ -116,9 +102,9 @@ public class PortalController extends TemplateGenerator {
 	protected boolean validateAndPrepare( String action ) {
 		TemplateEngine t = getTemplateEngine();
 
-		t.setVar(	"TUTORIAL_ID", this.config.get("ARTICLE_TUTORIAL"),
-					"FAQ_ID", this.config.get("ARTICLE_FAQ"),
-					"URL", this.config.get("URL") );
+		t.setVar(	"TUTORIAL_ID", Configuration.getSetting("ARTICLE_TUTORIAL"),
+					"FAQ_ID", Configuration.getSetting("ARTICLE_FAQ"),
+					"URL", Configuration.getSetting("URL") );
 
 		return true;
 	}
@@ -160,7 +146,7 @@ public class PortalController extends TemplateGenerator {
 
 					String subject = "Neues Passwort fuer Drifting Souls 2";
 
-					String message = this.config.get("PWNEW_EMAIL").replace("{username}", getString("username"));
+					String message = Configuration.getSetting("PWNEW_EMAIL").replace("{username}", getString("username"));
 					message = message.replace("{password}", password);
 					message = message.replace("{date}", Common.date("H:i j.m.Y"));
 
@@ -244,35 +230,39 @@ public class PortalController extends TemplateGenerator {
 		HashMap<Integer,StartLocation> minsysdistance = new HashMap<Integer,StartLocation>();
 
 		List<?> systems = db.createQuery("from StarSystem order by id asc").list();
-		for( Iterator<?> iter = systems.iterator(); iter.hasNext(); )
+		for (Object system1 : systems)
 		{
-			StarSystem system = (StarSystem)iter.next();
+			StarSystem system = (StarSystem) system1;
 			Location[] locations = system.getOrderLocations();
 
-			for( int i=0; i < locations.length; i++ ) {
+			for (int i = 0; i < locations.length; i++)
+			{
 				int dist = 0;
 				int count = 0;
-				Iterator<?> distiter = db.createQuery("SELECT sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y)) FROM Base WHERE owner = 0 AND system = :system AND klasse = 1 ORDER BY sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y))")
-											.setInteger("x", locations[i].getX())
-											.setInteger("y", locations[i].getY())
-											.setInteger("system", system.getID())
-											.setMaxResults(15)
-											.iterate();
+				Iterator<?> distiter = db.createQuery("SELECT sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y)) FROM Base WHERE owner.id = 0 AND system = :system AND klasse.id = 1 ORDER BY sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y))")
+						.setInteger("x", locations[i].getX())
+						.setInteger("y", locations[i].getY())
+						.setInteger("system", system.getID())
+						.setMaxResults(15)
+						.iterate();
 
-				while(distiter.hasNext())
+				while (distiter.hasNext())
 				{
-					dist += (Double)distiter.next();
+					dist += (Double) distiter.next();
 					count++;
 				}
 
-				if( count < 15 ) {
+				if (count < 15)
+				{
 					continue;
 				}
 
-				if( !minsysdistance.containsKey(system.getID()) || (minsysdistance.get(system.getID()).distance > dist) ) {
-					minsysdistance.put(system.getID(),  new StartLocation(i, dist));
+				if (!minsysdistance.containsKey(system.getID()) || (minsysdistance.get(system.getID()).distance > dist))
+				{
+					minsysdistance.put(system.getID(), new StartLocation(i, dist));
 
-					if( mindistance > dist ) {
+					if (mindistance > dist)
+					{
 						mindistance = dist;
 						systemID = system.getID();
 						orderLocationID = i;
@@ -322,7 +312,7 @@ public class PortalController extends TemplateGenerator {
 			needkey = true;
 		}
 
-		if( needkey && (keys.getValue().indexOf("<"+key+">") == -1) ) {
+		if( needkey && !keys.getValue().contains("<" + key + ">")) {
 			t.setVar("show.register.msg.wrongkey", 1);
 			return false;
 		}
@@ -357,7 +347,7 @@ public class PortalController extends TemplateGenerator {
 		if( needkey ) {
 	 		String[] keylist = keys.getValue().replace("\r\n", "\n").split("\n");
 		 	HashMap<String,String> parameters = new HashMap<String,String>();
-		 	int pos = 0;
+		 	int pos;
 		 	for( pos=0; pos < keylist.length; pos++ ) {
 	 			if( keylist[pos].indexOf("<"+key+">") == 0 ) {
 	 				if( keylist[pos].length() > ("<"+key+">").length() ) {
@@ -409,7 +399,7 @@ public class PortalController extends TemplateGenerator {
 	 	Location[] orderlocs = thissystem.getOrderLocations();
 	 	Location orderloc = orderlocs[locations.minSysDistance.get(system).orderLocationID];
 
-	 	String[] baselayoutStr = this.config.get("REGISTER_BASELAYOUT").split(",");
+	 	String[] baselayoutStr = Configuration.getSetting("REGISTER_BASELAYOUT").split(",");
 	 	Integer[] activebuildings = new Integer[baselayoutStr.length];
 	 	Integer[] baselayout = new Integer[baselayoutStr.length];
 	 	int bewohner = 0;
@@ -429,7 +419,7 @@ public class PortalController extends TemplateGenerator {
 	 		}
 	 	}
 
-	 	Base base = (Base)db.createQuery("from Base where klasse=1 and owner=0 and system=:sys order by sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y)) ")
+	 	Base base = (Base)db.createQuery("from Base where klasse.id=1 and owner.id=0 and system=:sys order by sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y)) ")
 	 		.setInteger("sys", system)
 	 		.setInteger("x", orderloc.getX())
 	 		.setInteger("y", orderloc.getY())
@@ -438,13 +428,15 @@ public class PortalController extends TemplateGenerator {
 
 	 	// Alte Gebaeude entfernen
 	 	Integer[] bebauung = base.getBebauung();
-		for( int i=0; i < bebauung.length; i++ ) {
-			if( bebauung[i] == 0 ) {
+		for (Integer aBebauung : bebauung)
+		{
+			if (aBebauung == 0)
+			{
 				continue;
 			}
 
-			Building building = Building.getBuilding(bebauung[i]);
-			building.cleanup(getContext(), base, bebauung[i]);
+			Building building = Building.getBuilding(aBebauung);
+			building.cleanup(getContext(), base, aBebauung);
 		}
 
 		BaseType basetype = (BaseType)db.get(BaseType.class, 1);
@@ -459,7 +451,7 @@ public class PortalController extends TemplateGenerator {
 	 	base.setWidth(basetype.getWidth());
 	 	base.setHeight(basetype.getHeight());
 	 	base.setMaxCargo(basetype.getCargo());
-	 	base.setCargo(new Cargo(Cargo.Type.AUTO, this.config.get("REGISTER_BASECARGO")));
+	 	base.setCargo(new Cargo(Cargo.Type.AUTO, Configuration.getSetting("REGISTER_BASECARGO")));
 	 	base.setCore(0);
 	 	base.setUnits(new TransientUnitCargo());
 	 	base.setCoreActive(false);
@@ -470,10 +462,12 @@ public class PortalController extends TemplateGenerator {
 			offi.setOwner(base.getOwner());
 		}
 
-	 	for( int i=0; i < baselayout.length; i++ ) {
-			if( baselayout[i] > 0 ) {
-				Building building = Building.getBuilding(baselayout[i]);
-				building.build(base, baselayout[i]);
+		for (Integer aBaselayout : baselayout)
+		{
+			if (aBaselayout > 0)
+			{
+				Building building = Building.getBuilding(aBaselayout);
+				building.build(base, aBaselayout);
 			}
 		}
 
@@ -494,17 +488,17 @@ public class PortalController extends TemplateGenerator {
 		}
 
 		//Willkommens-PM versenden
-	 	User source = (User)db.get(User.class, this.config.getInt("REGISTER_PM_SENDER"));
+	 	User source = (User)db.get(User.class, Configuration.getIntSetting("REGISTER_PM_SENDER"));
 		PM.send( source, newid, "Willkommen bei Drifting Souls 2",
-				this.config.get("REGISTER_PM"));
+				Configuration.getSetting("REGISTER_PM"));
 
 		t.setVar( "show.register.msg.ok", 1,
 					"register.newid", newid );
 
-		Common.copyFile(this.config.get("ABSOLUTE_PATH")+"data/logos/user/0.gif",
-				this.config.get("ABSOLUTE_PATH")+"data/logos/user/"+newid+".gif");
+		Common.copyFile(Configuration.getSetting("ABSOLUTE_PATH")+"data/logos/user/0.gif",
+				Configuration.getSetting("ABSOLUTE_PATH")+"data/logos/user/"+newid+".gif");
 
-		String message = this.config.get("REGISTER_EMAIL");
+		String message = Configuration.getSetting("REGISTER_EMAIL");
 		message = message.replace("{username}", username);
 		message = message.replace("{password}", password);
 		message = message.replace("{date}", Common.date("H:i j.m.Y"));
@@ -529,7 +523,7 @@ public class PortalController extends TemplateGenerator {
 		Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 
-		boolean showform = true;
+		boolean showform;
 
 		parameterString("username");
 		parameterNumber("race");
@@ -545,11 +539,6 @@ public class PortalController extends TemplateGenerator {
 
 		ConfigValue disableregister = (ConfigValue)db.get(ConfigValue.class, "disableregister");
 		if( !"".equals(disableregister.getValue()) ) {
-			username = null;
-			race = 0;
-			email = null;
-			showform = false;
-
 			t.setVar(	"show.register.registerdisabled" , 1,
 						"register.registerdisabled.msg" , Common._text(disableregister.getValue()) );
 

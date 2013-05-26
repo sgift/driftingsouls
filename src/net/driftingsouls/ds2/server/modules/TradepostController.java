@@ -1,9 +1,5 @@
 package net.driftingsouls.ds2.server.modules;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemID;
@@ -15,7 +11,6 @@ import net.driftingsouls.ds2.server.entities.ResourceLimit.ResourceLimitKey;
 import net.driftingsouls.ds2.server.entities.SellLimit;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
@@ -28,18 +23,16 @@ import net.driftingsouls.ds2.server.ships.SchiffEinstellungen;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.TradepostVisibility;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Erlaubt die Einstellungen fuer Handelsposten.
  *
  */
-@Configurable
 @Module(name="tradepost")
 public class TradepostController extends TemplateGenerator {
-	@SuppressWarnings("unused")
-	private Configuration config;	// never read, but we'll need it for later integreation of pictures i guess
 	private Ship ship = null;
 
 	/**
@@ -54,17 +47,7 @@ public class TradepostController extends TemplateGenerator {
 		setPageTitle("Tradepost");
 	}
 
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config)
-    {
-    	this.config = config;
-    }
-
-	@Override
+   	@Override
 	protected boolean validateAndPrepare(String action) {
 		return true;
 	}
@@ -260,7 +243,7 @@ public class TradepostController extends TemplateGenerator {
 		// get variables
 		parameterNumber("ship");
 		int shipid = getInteger("ship");
-		Cargo buylistgtu = null;
+		Cargo buylistgtu;
 		ship = (Ship)db.get(Ship.class, shipid);	// the tradepost
 
 		if(ship == null)
@@ -415,8 +398,8 @@ public class TradepostController extends TemplateGenerator {
         	fill = false;
         }
 
-		SellLimit itemsell = null;
-		ResourceLimit itembuy = null;
+		SellLimit itemsell;
+		ResourceLimit itembuy;
 		// check if we dont want to sell the resource any more
 		if(!salebool || salesprice <= 0 )
 		{
@@ -447,10 +430,9 @@ public class TradepostController extends TemplateGenerator {
 			{
 				Cargo cargo = ship.getCargo();
 				long cnt = cargo.getResourceCount(rid);
-				final long mincount = saleslimit;
-				if( cnt < mincount )
+				if( cnt < saleslimit)
 				{
-					cargo.setResource(rid, mincount);
+					cargo.setResource(rid, saleslimit);
 					ship.setCargo(cargo);
 				}
 			}

@@ -39,7 +39,6 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Das Forschungszentrum.
@@ -48,7 +47,6 @@ import org.springframework.beans.factory.annotation.Configurable;
  */
 @Entity(name="ForschungszentrumBuilding")
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.ForschungszentrumBuilding")
-@Configurable
 public class ForschungszentrumBuilding extends DefaultBuilding {
 	private static final Log log = LogFactory.getLog(ForschungszentrumBuilding.class);
 

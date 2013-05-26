@@ -18,17 +18,12 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.MutableLocation;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -39,8 +34,9 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Sammelt mit einem Tanker in einem Nebel Deuterium.
@@ -48,13 +44,10 @@ import org.springframework.beans.factory.annotation.Configurable;
  * @author Christopher Jung
  * @urlparam Integer ship Die ID des Tankers
  */
-@Configurable
 @Module(name="deutsammeln")
 public class DeutSammelnController extends TemplateGenerator {
 	private List<Ship> ships = null;
 	private Nebel nebel = null;
-
-	private Configuration config;
 
 	/**
 	 * Konstruktor.
@@ -70,16 +63,6 @@ public class DeutSammelnController extends TemplateGenerator {
 
 		setPageTitle("Deut. sammeln");
 	}
-
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config)
-    {
-    	this.config = config;
-    }
 
 	@Override
 	protected boolean validateAndPrepare(String action) {
@@ -187,7 +170,7 @@ public class DeutSammelnController extends TemplateGenerator {
 			}
 			else {
 				message += "<img src=\""+Cargo.getResourceImage(Resources.DEUTERIUM)+"\" alt=\"\" />"+saugdeut+
-					" f&uuml;r <img src=\""+config.get("URL")+"data/interface/energie.gif\" alt=\"Energie\" />"+e+
+					" f&uuml;r <img src=\"./data/interface/energie.gif\" alt=\"Energie\" />"+e+
 					" gesammelt<br />";
 			}
 		}

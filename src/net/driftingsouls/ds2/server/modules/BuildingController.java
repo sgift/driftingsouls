@@ -37,9 +37,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenera
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-
 /**
  * Die Gebaeudeansicht.
  * @author Christopher Jung
@@ -48,23 +45,10 @@ import org.springframework.beans.factory.annotation.Configurable;
  * @urlparam Integer field Die ID des Felds, dessen Gebaeude angezeigt werden soll
  *
  */
-@Configurable
 @Module(name="building")
 public class BuildingController extends TemplateGenerator {
 	private Base base;
 	private Building building;
-
-	private Configuration config;
-
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config)
-    {
-    	this.config = config;
-    }
 
 	/**
 	 * Konstruktor.
@@ -106,7 +90,6 @@ public class BuildingController extends TemplateGenerator {
 
 	/**
 	 * Aktiviert das Gebaeude.
-	 * @throws IOException
 	 *
 	 */
 	@Action(ActionType.AJAX)
@@ -320,7 +303,7 @@ public class BuildingController extends TemplateGenerator {
 
 		if( !conf.equals("ok") ) {
 			echo.append("<div align=\"center\">\n");
-			echo.append("<img align=\"middle\" src=\""+config.get("URL")+building.getPictureForRace(user.getRace())+"\" alt=\"\" /> "+Common._plaintitle(building.getName())+"<br /><br />\n");
+			echo.append("<img align=\"middle\" src=\"./"+building.getPictureForRace(user.getRace())+"\" alt=\"\" /> "+Common._plaintitle(building.getName())+"<br /><br />\n");
 			echo.append("Wollen sie dieses Geb&auml;ude wirklich abreissen?<br /><br />\n");
 			echo.append("<a class=\"error\" href=\""+Common.buildUrl("demo", "col", base.getId(), "field", field, "conf", "ok")+"\">abreissen</a><br /></div>");
 			echo.append("</div>");
@@ -420,7 +403,7 @@ public class BuildingController extends TemplateGenerator {
 					echo.append("<div class='gfxbox' style='width:470px'>");
 
 					echo.append("<div style=\"text-align:center\">\n");
-					echo.append("<img style=\"vertical-align:middle\" src=\""+config.get("URL")+building.getPictureForRace(user.getRace())+"\" alt=\"\" /> "+Common._plaintitle(building.getName())+"<br /></div>\n");
+					echo.append("<img style=\"vertical-align:middle\" src=\"./"+building.getPictureForRace(user.getRace())+"\" alt=\"\" /> "+Common._plaintitle(building.getName())+"<br /></div>\n");
 				}
 				else {
 					echo.append("<div>\n");

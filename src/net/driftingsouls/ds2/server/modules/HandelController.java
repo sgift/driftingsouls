@@ -18,9 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.util.Iterator;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
@@ -30,7 +27,6 @@ import net.driftingsouls.ds2.server.entities.Handel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -38,21 +34,15 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
+import java.util.List;
 
 /**
  * Zeigt aktive Handelsangebote an und ermoeglicht das Erstellen eigener Handelsangebote.
  * @author Christopher Jung
  *
  */
-@Configurable
 @Module(name="handel")
 public class HandelController extends TemplateGenerator {
-
-
-	private Configuration config;
-
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
@@ -66,16 +56,6 @@ public class HandelController extends TemplateGenerator {
 		addPageMenuEntry("Angebote", Common.buildUrl("default"));
 		addPageMenuEntry("neues Angebot", Common.buildUrl("add"));
 	}
-
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config)
-    {
-    	this.config = config;
-    }
 
 	@Override
 	protected boolean validateAndPrepare(String action) {
@@ -105,7 +85,7 @@ public class HandelController extends TemplateGenerator {
 		// Egal - "-1" (Spezialfall)
 		parameterNumber("-1need");
 		long needcount = getInteger("-1need");
-		long havecount = 0;
+		long havecount;
 
 		if( needcount <= 0 ) {
 			parameterNumber("-1have");
@@ -122,7 +102,7 @@ public class HandelController extends TemplateGenerator {
 
 		ResourceList reslist = Resources.getResourceList().getResourceList();
 		for( ResourceEntry res : reslist ) {
-			String name = "";
+			String name;
 
 			Item item = (Item)db.get(Item.class, res.getId().getItemID());
 			if( !item.getHandel() ) {
@@ -241,54 +221,62 @@ public class HandelController extends TemplateGenerator {
 		List<?> entryList = db.createQuery("from Handel " +
 				"where who.vaccount=0 or who.wait4vac!=0 order by time desc")
 			.list();
-		for( Iterator<?> iter=entryList.iterator(); iter.hasNext(); ) {
-			Handel entry = (Handel)iter.next();
+		for (Object anEntryList : entryList)
+		{
+			Handel entry = (Handel) anEntryList;
 
-			t.setVar(	"angebot.want.list",	"",
-						"angebot.need.list",	"" );
+			t.setVar("angebot.want.list", "",
+					"angebot.need.list", "");
 
-			for( int i = 0; i <= 1; i++ ) {
+			for (int i = 0; i <= 1; i++)
+			{
 				String line = (i == 1 ? entry.getBietet() : entry.getSucht());
 
-				if( !line.equals("-1") ) {
-					Cargo cargo = new Cargo( Cargo.Type.AUTO, line );
-					cargo.setOption( Cargo.Option.SHOWMASS, false );
-					cargo.setOption( Cargo.Option.LINKCLASS, "handelwaren");
+				if (!line.equals("-1"))
+				{
+					Cargo cargo = new Cargo(Cargo.Type.AUTO, line);
+					cargo.setOption(Cargo.Option.SHOWMASS, false);
+					cargo.setOption(Cargo.Option.LINKCLASS, "handelwaren");
 
 					ResourceList reslist = cargo.getResourceList();
-					if( i == 0 ) {
-						Resources.echoResList( t, reslist, "angebot.want.list");
+					if (i == 0)
+					{
+						Resources.echoResList(t, reslist, "angebot.want.list");
 					}
-					else {
-						Resources.echoResList( t, reslist, "angebot.need.list");
+					else
+					{
+						Resources.echoResList(t, reslist, "angebot.need.list");
 					}
 				}
-				else {
-					t.setVar(	"res.cargo",	1,
-								"res.id",		-1,
-								"res.image",	config.get("URL")+"data/interface/handel/open.gif");
-					if( i == 0 ) {
+				else
+				{
+					t.setVar("res.cargo", 1,
+							"res.id", -1,
+							"res.image", "./data/interface/handel/open.gif");
+					if (i == 0)
+					{
 						t.parse("angebot.want.list", "angebot.want.listitem", true);
 					}
-					else {
+					else
+					{
 						t.parse("angebot.need.list", "angebot.need.listitem", true);
 					}
 				}
 			}
 
-			t.setVar(	"angebot.id",			entry.getId(),
-						"angebot.owner",		entry.getWho().getId(),
-						"angebot.owner.name",	Common._title(entry.getWho().getName()),
-						"angebot.date",			Common.date("d.m.Y H:i:s",entry.getTime()),
-						"angebot.description",	Common._text(entry.getKommentar()),
-						"angebot.description.overflow",	Common._text(entry.getKommentar()).length() > 220,
-						"angebot.newline",		(count % 3 == 0),
-						"angebot.endline",		(count % 3 == 0) && (count > 0),
-						"angebot.showdelete",	entry.getWho().equals(user) || hasPermission("handel", "angeboteLoeschen") );
+			t.setVar("angebot.id", entry.getId(),
+					"angebot.owner", entry.getWho().getId(),
+					"angebot.owner.name", Common._title(entry.getWho().getName()),
+					"angebot.date", Common.date("d.m.Y H:i:s", entry.getTime()),
+					"angebot.description", Common._text(entry.getKommentar()),
+					"angebot.description.overflow", Common._text(entry.getKommentar()).length() > 220,
+					"angebot.newline", (count % 3 == 0),
+					"angebot.endline", (count % 3 == 0) && (count > 0),
+					"angebot.showdelete", entry.getWho().equals(user) || hasPermission("handel", "angeboteLoeschen"));
 
 			count++;
 
-			t.parse("angebote.list","angebote.listitem", true);
+			t.parse("angebote.list", "angebote.listitem", true);
 		}
 
 		t.setBlock("_HANDEL", "emptyangebote.listitem", "emptyangebote.list");

@@ -36,7 +36,6 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Configurable;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
@@ -55,7 +54,6 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
-@Configurable
 @AdminMenuEntry(category = "Spieler", name = "Spieler l&ouml;schen")
 public class PlayerDelete implements AdminPlugin
 {
@@ -117,9 +115,9 @@ public class PlayerDelete implements AdminPlugin
 		List<?> rquestList = db.createQuery("from RunningQuest where user= :user")
 			.setEntity("user",user)
 			.list();
-		for( Iterator<?> iter = rquestList.iterator(); iter.hasNext(); )
+		for (Object aRquestList : rquestList)
 		{
-			RunningQuest rquest = (RunningQuest)iter.next();
+			RunningQuest rquest = (RunningQuest) aRquestList;
 
 			try
 			{
@@ -132,9 +130,9 @@ public class PlayerDelete implements AdminPlugin
 				engineBindings.put("_PARAMETERS", "0");
 				scriptparser.eval(":0\n!ENDQUEST\n!QUIT");
 			}
-			catch( Exception e )
+			catch (Exception e)
 			{
-				echo.append("Fehler beim Beenden des Quests " + rquest.getQuest().getId() + ": "+ e);
+				echo.append("Fehler beim Beenden des Quests " + rquest.getQuest().getId() + ": " + e);
 				log.error(e, e);
 				echo.append("</div>");
 			}
@@ -232,9 +230,9 @@ public class PlayerDelete implements AdminPlugin
 		List<?> ships = db.createQuery("from Ship where owner=:user")
 			.setEntity("user", user)
 			.list();
-		for( Iterator<?> iter = ships.iterator(); iter.hasNext(); )
+		for (Object ship : ships)
 		{
-			Ship aship = (Ship)iter.next();
+			Ship aship = (Ship) ship;
 			aship.destroy();
 			count++;
 		}
@@ -247,9 +245,9 @@ public class PlayerDelete implements AdminPlugin
 		List<?> baseList = db.createQuery("from Base where owner=:user")
 			.setInteger("user", userid)
 			.list();
-		for( Iterator<?> iter = baseList.iterator(); iter.hasNext(); )
+		for (Object aBaseList : baseList)
 		{
-			Base base = (Base)iter.next();
+			Base base = (Base) aBaseList;
 			baselist.add(base);
 		}
 

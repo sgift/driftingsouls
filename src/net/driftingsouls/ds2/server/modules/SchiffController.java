@@ -18,20 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.script.Bindings;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -59,12 +45,22 @@ import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
+
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Die Schiffsansicht.
@@ -73,7 +69,6 @@ import org.springframework.beans.factory.annotation.Configurable;
  * @urlparam Integer ship Die ID des anzuzeigenden Schiffes
  *
  */
-@Configurable
 @net.driftingsouls.ds2.server.framework.pipeline.Module(name="schiff")
 public class SchiffController extends TemplateGenerator {
 	private Log log = LogFactory.getLog(SchiffController.class);
@@ -83,8 +78,6 @@ public class SchiffController extends TemplateGenerator {
 	private Offizier offizier = null;
 	private Map<String,SchiffPlugin> pluginMapper = new LinkedHashMap<String,SchiffPlugin>();
 	private boolean noob = false;
-
-	private Configuration config;
 
 	/**
 	 * Konstruktor.
@@ -99,16 +92,6 @@ public class SchiffController extends TemplateGenerator {
 
 		setPageTitle("Schiff");
 	}
-
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config)
-    {
-    	this.config = config;
-    }
 
 	private String genSubColor( int value, int defvalue ) {
 		if( defvalue == 0 ) {
@@ -131,8 +114,7 @@ public class SchiffController extends TemplateGenerator {
 		try {
 			Class<?> cls = Class.forName(clsName);
 			Class<? extends SchiffPlugin> spClass = cls.asSubclass(SchiffPlugin.class);
-			SchiffPlugin sp = spClass.newInstance();
-			return sp;
+			return spClass.newInstance();
 		}
 		catch( Exception e ) {
 			log.error(e,e);
@@ -528,10 +510,12 @@ public class SchiffController extends TemplateGenerator {
 
 		List<?> dockedList = db.createQuery("from Ship where id>0 and id in ("+Common.implode(",", shipidlist)+") and docked!=''")
 			.list();
-		for( Iterator<?> iter=dockedList.iterator(); iter.hasNext(); ) {
-			Ship docked = (Ship)iter.next();
+		for (Object aDockedList : dockedList)
+		{
+			Ship docked = (Ship) aDockedList;
 
-			if( docked.getOwner() != user ) {
+			if (docked.getOwner() != user)
+			{
 				addError("Eines der Schiffe gehoert nicht ihnen");
 				redirect();
 				return;
@@ -776,7 +760,7 @@ public class SchiffController extends TemplateGenerator {
 		ship.setY(10);
 		ship.setSystem(99);
 
-		t.setVar("ship.message", "<span style=\"color:green\">Willkommen auf der Insel <img align=\"middle\" src=\""+config.get("SMILIE_PATH")+"/icon_smile.gif\" alt=\":)\" /></span><br />");
+		t.setVar("ship.message", "<span style=\"color:green\">Willkommen auf der Insel</span><br />");
 
 		redirect();
 	}
@@ -957,7 +941,7 @@ public class SchiffController extends TemplateGenerator {
 		// Tooltip: Schiffsstatusfeld
 		if( hasPermission("schiff", "statusFeld") ) {
 			StringBuilder tooltiptext = new StringBuilder(100);
-			tooltiptext.append("<span style='text-decoration:underline'>Schiffsstatus:</span><br />"+ship.getStatus().trim().replace(" ", "<br />"));
+			tooltiptext.append("<span style='text-decoration:underline'>Schiffsstatus:</span><br />").append(ship.getStatus().trim().replace(" ", "<br />"));
 
 			t.setVar("tooltip.admin", tooltiptext.toString() );
 		}
@@ -977,28 +961,32 @@ public class SchiffController extends TemplateGenerator {
 
 			Map<Integer,String[]> slotlist = new HashMap<Integer,String[]>();
 			String[] tmpslotlist = StringUtils.split(type.getTypeModules(),';');
-			for( int i=0; i < tmpslotlist.length; i++ ) {
-				String[] aslot = StringUtils.split(tmpslotlist[i], ':');
+			for (String aTmpslotlist : tmpslotlist)
+			{
+				String[] aslot = StringUtils.split(aTmpslotlist, ':');
 				slotlist.put(new Integer(aslot[0]), aslot);
 			}
 
 			List<Module> moduleObjList = new ArrayList<Module>();
 			boolean itemmodules = false;
 
-			for( int i=0; i < modulelist.length; i++ ) {
-				ModuleEntry module = modulelist[i];
-				if( module.getModuleType() != null ) {
+			for (ModuleEntry module : modulelist)
+			{
+				if (module.getModuleType() != null)
+				{
 					Module moduleobj = module.createModule();
-					if( (module.getSlot() > 0) && (slotlist.get(module.getSlot()).length > 2) ) {
+					if ((module.getSlot() > 0) && (slotlist.get(module.getSlot()).length > 2))
+					{
 						moduleobj.setSlotData(slotlist.get(module.getSlot())[2]);
 					}
 
 					moduleObjList.add(moduleobj);
-					if( moduleobj instanceof ModuleItemModule ) {
+					if (moduleobj instanceof ModuleItemModule)
+					{
 						Cargo acargo = new Cargo();
-						acargo.addResource( ((ModuleItemModule)moduleobj).getItemID(), 1 );
+						acargo.addResource(((ModuleItemModule) moduleobj).getItemID(), 1);
 						ResourceEntry res = acargo.getResourceList().iterator().next();
-						tooltiplines.add("<span class='nobr'><img style='vertical-align:middle' src='"+res.getImage()+"' alt='' />"+res.getPlainName()+"</span><br />");
+						tooltiplines.add("<span class='nobr'><img style='vertical-align:middle' src='" + res.getImage() + "' alt='' />" + res.getPlainName() + "</span><br />");
 						itemmodules = true;
 					}
 				}
@@ -1025,7 +1013,7 @@ public class SchiffController extends TemplateGenerator {
 
 					// Alles was in moduleOutputList sitzt, muss in der DB durch einen von Number abgeleiteten Typ definiert sein!
 					if( !value.equals(baseValue) ) {
-						String text = null;
+						String text;
 						if( baseValue.doubleValue() < value.doubleValue() ) {
 							text = moduleOutputList.get(method)+Common.ln(value)+" (<span class='nobr' style='color:green'>+";
 						}
@@ -1105,13 +1093,16 @@ public class SchiffController extends TemplateGenerator {
 
 			// Flags
 			String[] newflaglist = StringUtils.split(type.getFlags(),' ');
-			for( int i=0; i < newflaglist.length; i++ ) {
-				if( newflaglist[i].equals("") ) {
+			for (String aNewflaglist : newflaglist)
+			{
+				if (aNewflaglist.equals(""))
+				{
 					continue;
 				}
 
-				if( !basetype.hasFlag(newflaglist[i]) ) {
-					tooltiplines.add("<span class='nobr' style='color:green'>"+ShipTypes.getShipTypeFlagName(newflaglist[i])+"</span><br />");
+				if (!basetype.hasFlag(aNewflaglist))
+				{
+					tooltiplines.add("<span class='nobr' style='color:green'>" + ShipTypes.getShipTypeFlagName(aNewflaglist) + "</span><br />");
 				}
 			}
 
@@ -1153,7 +1144,7 @@ public class SchiffController extends TemplateGenerator {
 			t.parse("ship.alarms.list", "ship.alarms.listitem", true);
 		}
 
-		if( ship.getStatus().indexOf("noconsign") == -1 ) {
+		if(!ship.getStatus().contains("noconsign")) {
 			t.setVar("ship.consignable", 1);
 		}
 

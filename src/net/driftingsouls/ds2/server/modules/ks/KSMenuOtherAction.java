@@ -18,35 +18,18 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import java.io.IOException;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.Configuration;
+
+import java.io.IOException;
 
 /**
  * Zeigt das Menue fuer sonstige Aktionen an, welche unter keine andere Kategorie fallen.
  * @author Christopher Jung
  *
  */
-@Configurable
 public class KSMenuOtherAction extends BasicKSMenuAction {
-	
-	private Configuration config;
-	
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config) 
-    {
-    	this.config = config;
-    }
-	
 	@Override
 	public Result execute(Battle battle) throws IOException {
 		Result result = super.execute(battle);
@@ -58,7 +41,7 @@ public class KSMenuOtherAction extends BasicKSMenuAction {
 		BattleShip enemyShip = battle.getEnemyShip();
 		
 		//Cheat-Menue
-		if( config.getInt("ENABLE_CHEATS") != 0 ) {
+		if( Configuration.getIntSetting("ENABLE_CHEATS") != 0 ) {
 			menuEntry("Cheats",	"ship",		ownShip.getId(),
 								"attack",	enemyShip.getId(),
 								"ksaction",	"cheats" );

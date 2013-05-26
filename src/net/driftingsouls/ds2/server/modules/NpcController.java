@@ -1,16 +1,5 @@
 package net.driftingsouls.ds2.server.modules;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
@@ -19,7 +8,6 @@ import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.config.Rang;
-import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.FactionShopOrder;
 import net.driftingsouls.ds2.server.entities.FraktionAktionsMeldung;
@@ -32,7 +20,6 @@ import net.driftingsouls.ds2.server.entities.npcorders.OrderShip;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderableOffizier;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderableShip;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.JSONUtils;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
@@ -42,30 +29,33 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.AngularGenerat
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
-import net.driftingsouls.ds2.server.namegenerator.NameGenerator;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Das Interface fuer NPCs.
  * @author Christopher Jung
  *
  */
-@Configurable
 @Module(name="npc")
 public class NpcController extends AngularGenerator {
 	private boolean isHead = false;
 	private boolean shop = false;
-
-	private Configuration config;
 
 	/**
 	 * Konstruktor.
@@ -75,16 +65,6 @@ public class NpcController extends AngularGenerator {
 		super(context);
 
 		setPageTitle("NPC-Menue");
-	}
-
-	/**
-	 * Injiziert die DS-Konfiguration.
-	 * @param config Die DS-Konfiguration
-	 */
-	@Autowired
-	public void setConfiguration(Configuration config)
-	{
-		this.config = config;
 	}
 
 	@Override
@@ -237,13 +217,13 @@ public class NpcController extends AngularGenerator {
 		int ticks = getContext().get(ContextCommon.class).getTick();
 
 		edituser.addHistory(Common.getIngameTime(ticks)+": Der Orden [img]"+
-				config.get("URL")+"data/"+Medals.get().medal(medal).getImage(Medal.IMAGE_SMALL)+"[/img]"+
+				"./data/"+Medals.get().medal(medal).getImage(Medal.IMAGE_SMALL)+"[/img]"+
 				Medals.get().medal(medal).getName()+" wurde von [userprofile="+user.getId()+"]"+
 				user.getName()+"[/userprofile] verliehen Aufgrund der "+reason);
 
 		PM.send(user, edituser.getId(), "Orden '"+Medals.get().medal(medal).getName()+"' verliehen",
-				"Ich habe dir den Orden [img]"+config.get("URL")+
-				"data/"+Medals.get().medal(medal).getImage(Medal.IMAGE_SMALL)+"[/img]'"+
+				"Ich habe dir den Orden [img]"+
+				"./data/"+Medals.get().medal(medal).getImage(Medal.IMAGE_SMALL)+"[/img]'"+
 				Medals.get().medal(medal).getName()+"' verliehen Aufgrund deiner "+reason);
 
 		return JSONUtils.success("Dem Spieler wurde der Orden '"+
@@ -647,7 +627,7 @@ public class NpcController extends AngularGenerator {
 		parameterNumber("order");
 		parameterNumber("count");
 
-		int costs = 0;
+		int costs;
 
 		int order = getInteger("order");
 		int count = getInteger("count");
@@ -758,10 +738,12 @@ public class NpcController extends AngularGenerator {
 		JSONArray resOffizierList = new JSONArray();
 
 		List<?> offizierOrders = db.createQuery("from OrderableOffizier where cost > 0 order by id").list();
-		for( Iterator<?> iter=offizierOrders.iterator(); iter.hasNext(); ) {
-			OrderableOffizier offizier = (OrderableOffizier)iter.next();
+		for (Object offizierOrder : offizierOrders)
+		{
+			OrderableOffizier offizier = (OrderableOffizier) offizierOrder;
 
-			if( !offiorders.containsKey(-offizier.getId()) ) {
+			if (!offiorders.containsKey(-offizier.getId()))
+			{
 				offiorders.put(-offizier.getId(), 0);
 			}
 
@@ -771,7 +753,7 @@ public class NpcController extends AngularGenerator {
 			resOffizier.accumulate("cost", offizier.getCost());
 			resOffizier.accumulate("id", -offizier.getId());
 			resOffizier.accumulate("ordercount", offiorders.get(offizier.getId()));
-			
+
 			resOffizierList.add(resOffizier);
 		}
 

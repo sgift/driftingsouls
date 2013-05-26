@@ -18,12 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
@@ -33,7 +27,6 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -48,11 +41,13 @@ import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitType;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Die Schiffsliste.
@@ -65,22 +60,9 @@ import org.springframework.beans.factory.annotation.Configurable;
  * @urlparam Integer kampf_only Falls != 0 werden nur Kriegsschiffe der Schiffsklasse mit der angegebenen ID angezeigt
  *
  */
-@Configurable
 @Module(name="schiffe")
 public class SchiffeController extends TemplateGenerator {
 	private static final Log log = LogFactory.getLog(SchiffeController.class);
-
-	private Configuration config;
-
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config)
-    {
-    	this.config = config;
-    }
 
 	/**
 	 * Konstruktor.
@@ -304,7 +286,7 @@ public class SchiffeController extends TemplateGenerator {
 			boolean ok = false;
 			if (low != 0)
 			{
-				if (ship.getStatus().indexOf("mangel_nahrung") > -1)
+				if (ship.getStatus().contains("mangel_nahrung"))
 				{
 					nr = 1;
 				}
@@ -313,7 +295,7 @@ public class SchiffeController extends TemplateGenerator {
 					nr = low + 1;
 				}
 
-				if (ship.getStatus().indexOf("mangel_reaktor") > -1)
+				if (ship.getStatus().contains("mangel_reaktor"))
 				{
 					er = low / 2 - 1;
 				}
@@ -327,7 +309,7 @@ public class SchiffeController extends TemplateGenerator {
 			{
 				String offi = null;
 
-				if (ship.getStatus().indexOf("offizier") > -1)
+				if (ship.getStatus().contains("offizier"))
 				{
 					Offizier offizier = ship.getOffizier();
 					if (offizier != null)
@@ -377,20 +359,20 @@ public class SchiffeController extends TemplateGenerator {
 						int usedSlots = 0;
 						int buildingCount = 0;
 						String imBau = "";
-						for (int i = 0; i < entries.length; i++)
+						for (WerftQueueEntry entry : entries)
 						{
-							if (entries[i].isScheduled())
+							if (entry.isScheduled())
 							{
-								usedSlots += entries[i].getSlots();
+								usedSlots += entry.getSlots();
 								buildingCount++;
-								imBau = imBau + "<br />Aktuell im Bau: " + entries[i].getBuildShipType().getNickname() + " <img src='" + config.get("URL") + "data/interface/time.gif' alt='Dauer: ' />" + entries[i].getRemainingTime();
+								imBau = imBau + "<br />Aktuell im Bau: " + entry.getBuildShipType().getNickname() + " <img src='./data/interface/time.gif' alt='Dauer: ' />" + entry.getRemainingTime();
 							}
 						}
 
 						StringBuilder popup = new StringBuilder(100);
-						popup.append("Belegte Werftslots: <img style='vertical-align:middle;border:0px' src='" + config.get("URL") + "data/interface/schiffinfo/werftslots.png' alt='' />" + usedSlots + "/" + totalSlots + "<br />");
-						popup.append("Im Bau: " + buildingCount + " Schiffe<br />");
-						popup.append("In der Warteschlange: " + (entries.length - buildingCount));
+						popup.append("Belegte Werftslots: <img style='vertical-align:middle;border:0px' src='./data/interface/schiffinfo/werftslots.png' alt='' />" + usedSlots + "/" + totalSlots + "<br />");
+						popup.append("Im Bau: ").append(buildingCount).append(" Schiffe<br />");
+						popup.append("In der Warteschlange: ").append(entries.length - buildingCount);
 						popup.append(imBau);
 
 						t.setVar("ship.werft.popup", popup.toString(),
@@ -411,7 +393,7 @@ public class SchiffeController extends TemplateGenerator {
 						"ship.image", shiptype.getPicture(),
 						"ship.crew", Common.ln(ship.getCrew()),
 						"ship.nahrungcargo", Common.ln(ship.getNahrungCargo()),
-						"ship.mangel_nahrung", (ship.getStatus().indexOf("mangel_nahrung") > -1),
+						"ship.mangel_nahrung", (ship.getStatus().contains("mangel_nahrung")),
 						"ship.versorger", shiptype.hasFlag(ShipTypes.SF_VERSORGER),
 						"ship.feedingstatus", (ship.getEinstellungen().isFeeding() && !ship.getEinstellungen().isAllyFeeding()) ? 1 : (ship.getEinstellungen().isFeeding()) ? 2 : 3,
 						"ship.unitspace", Common.ln(shiptype.getUnitSpace()),
