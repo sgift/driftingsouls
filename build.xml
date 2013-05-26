@@ -119,8 +119,8 @@
 			   debug="${compile.debug}"
 			   deprecation="${compile.deprecation}"
 			   optimize="${compile.optimize}"
-			   source="1.6"
-			   target="1.6"
+			   source="1.7"
+			   target="1.7"
 			   encoding="UTF-8"
 			   includes="**/server/framework/**">
 			<classpath refid="compile.classpath"/>
@@ -133,8 +133,8 @@
 				   debug="${compile.debug}"
 				   deprecation="${compile.deprecation}"
 				   optimize="${compile.optimize}"
-				   source="1.6"
-				   target="1.6"
+				   source="1.7"
+				   target="1.7"
 				   encoding="UTF-8"
 					includes="**/server/templates/**">
 				<classpath refid="compile.classpath"/>
@@ -160,8 +160,8 @@
 			   debug="${compile.debug}"
 			   deprecation="${compile.deprecation}"
 			   optimize="${compile.optimize}"
-			   source="1.6"
-			   target="1.6"
+			   source="1.7"
+			   target="1.7"
 			   encoding="UTF-8"
 				excludes="**/server/templates/**,**/server/framework/**">
 			<classpath refid="compile.classpath"/>
@@ -348,8 +348,8 @@
 			debug="${compile.debug}"
 			deprecation="${compile.deprecation}"
 			optimize="${compile.optimize}"
-			source="1.6"
-			target="1.6"
+			source="1.7"
+			target="1.7"
 			encoding="UTF-8"
 			verbose="true">
 			<classpath>
@@ -429,8 +429,8 @@
 			debug="${compile.debug}"
 			deprecation="${compile.deprecation}"
 			optimize="${compile.optimize}"
-			source="1.6"
-			target="1.6"
+			source="1.7"
+			target="1.7"
 			encoding="UTF-8"
 			verbose="true">
 			<classpath refid="test.classpath"/>
