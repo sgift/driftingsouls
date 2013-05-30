@@ -42,7 +42,6 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.VersteigerungResource;
 import net.driftingsouls.ds2.server.entities.VersteigerungSchiff;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.scripting.Quests;
@@ -68,7 +67,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -160,14 +158,14 @@ public class QuestFunctions {
 	// Diese Daten sind bei jeder ScriptParser-Instanz individuell!
 	String dialogText = "";
 	String dialogImage = "";
-	Map<String,QuestAnswer> dialogAnswers = new LinkedHashMap<String,QuestAnswer>();
+	Map<String,QuestAnswer> dialogAnswers = new LinkedHashMap<>();
 
 	class LoadDialog implements SPFunction {
 		@Override
 		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 
-			Text dialogdata = null;
+			Text dialogdata;
 
 			if( NumberUtils.isNumber(command[1]) ) {
 				int textid = Integer.parseInt(command[1]);
@@ -198,12 +196,12 @@ public class QuestFunctions {
 			ScriptContext context = scriptparser.getContext();
 			try {
 				context.getWriter().append( "<table class=\"noBorderX\"><tr><td class=\"noBorderX\" valign=\"top\">" );
-				context.getWriter().append( "<img src=\"./data/quests/"+dialogImage+"\" alt=\"\" />" );
+				context.getWriter().append("<img src=\"./data/quests/").append(dialogImage).append("\" alt=\"\" />");
 				context.getWriter().append( "</td><td class=\"noBorderX\" valign=\"top\">" );
-				context.getWriter().append( StringUtils.replace(text, "\n", "<br />")+"<br /><br />" );
+				context.getWriter().append(StringUtils.replace(text, "\n", "<br />")).append("<br /><br />");
 
 				for( QuestAnswer answer : dialogAnswers.values() ) {
-					context.getWriter().append( "<a class=\"forschinfo\" href=\""+answer.url+"\">"+answer.text+"</a><br />" );
+					context.getWriter().append("<a class=\"forschinfo\" href=\"").append(answer.url).append("\">").append(answer.text).append("</a><br />");
 				}
 				context.getWriter().append( "</td></tr></table>" );
 			}
@@ -229,244 +227,280 @@ public class QuestFunctions {
 			Object val = null;
 
 			String[] value = StringUtils.split(command[2], '.');
-			if( value[0].equals("shipsource") ) {
-				Ship ship;
-				if( command.length == 3 ) {
-					ship = scriptparser.getShip();
-				}
-				else if( scriptparser.getRegisterObject(command[3]) instanceof Ship ) {
-					ship = (Ship)scriptparser.getRegisterObject(command[3]);
-				}
-				else {
-					int shipID = Integer.parseInt(scriptparser.getRegister(command[3]));
-					ship = (Ship)db.get(Ship.class, shipID);
-				}
-
-				if( (value.length <= 1) || (value[1].length() == 0) ) {
-					val = ship;
-				}
-				if( value[1].equals("cargo") ) {
-					val = ship.getCargo();
-				}
-				else if( value[1].equals("offizier") ) {
-					val = ship.getOffizier();
-				}
-				else if( value[1].equals("id") ) {
-					val = ship.getId();
-				}
-				else if( value[1].equals("type") ) {
-					val = ship.getType();
-				}
-				else if( value[1].equals("name") ) {
-					val = ship.getName();
-				}
-				else if( value[1].equals("x") ) {
-					val = ship.getX();
-				}
-				else if( value[1].equals("y") ) {
-					val = ship.getY();
-				}
-				else if( value[1].equals("system") ) {
-					val = ship.getSystem();
-				}
-				else if( value[1].equals("status") ) {
-					val = ship.getStatus();
-				}
-				else if( value[1].equals("crew") ) {
-					val = ship.getCrew();
-				}
-				else if( value[1].equals("e") ) {
-					val = ship.getEnergy();
-				}
-				else if( value[1].equals("s") ) {
-					val = ship.getHeat();
-				}
-				else if( value[1].equals("hull") ) {
-					val = ship.getHull();
-				}
-				else if( value[1].equals("shields") ) {
-					val = ship.getShields();
-				}
-				else if( value[1].equals("heat") ) {
-					val = ship.getWeaponHeat();
-				}
-				else if( value[1].equals("engine") ) {
-					val = ship.getEngine();
-				}
-				else if( value[1].equals("weapons") ) {
-					val = ship.getWeapons();
-				}
-				else if( value[1].equals("comm") ) {
-					val = ship.getComm();
-				}
-				else if( value[1].equals("sensors") ) {
-					val = ship.getSensors();
-				}
-				else if( value[1].equals("docked") ) {
-					val = ship.getDocked();
-				}
-				else if( value[1].equals("alarm") ) {
-					val = ship.getAlarm();
-				}
-				else if( value[1].equals("fleet") ) {
-					val = (ship.getFleet() != null ? ship.getFleet().getId() : 0);
-				}
-				else if( value[1].equals("destsystem") ) {
-					val = ship.getEinstellungen().getDestSystem();
-				}
-				else if( value[1].equals("destx") ) {
-					val = ship.getEinstellungen().getDestX();
-				}
-				else if( value[1].equals("desty") ) {
-					val = ship.getEinstellungen().getDestY();
-				}
-				else if( value[1].equals("destcom") ) {
-					val = ship.getEinstellungen().getDestCom();
-				}
-				else if( value[1].equals("bookmark") ) {
-					val = ship.getEinstellungen().isBookmark();
-				}
-				else if( value[1].equals("battle") ) {
-					val = ship.getBattle();
-				}
-				else if( value[1].equals("battleaction") ) {
-					val = ship.isBattleAction();
-				}
-				else if( value[1].equals("jumptarget") ) {
-					val = ship.getJumpTarget();
-				}
-				else if( value[1].equals("autodeut") ) {
-					val = ship.getEinstellungen().getAutoDeut();
-				}
-				else if( value[1].equals("history") ) {
-					val = ship.getHistory();
-				}
-				else if( value[1].equals("script") ) {
-					val = ship.getScript();
-				}
-				else if( value[1].equals("scriptexedata") ) {
-					val = ship.getScriptExeData();
-				}
-				else if( value[1].equals("oncommunicate") ) {
-					val = ship.getOnCommunicate();
-				}
-			}
-			else if( value[0].equals("tick") ) {
-				val = ContextMap.getContext().get(ContextCommon.class).getTick();
-			}
-			else if( value[0].equals("offizier") ) {
-				Offizier offi = (Offizier)scriptparser.getRegisterObject(command[3]);
-
-				if( value[1].equals("name") ) {
-					val = offi.getName();
-				}
-				else if( value[1].equals("id") ) {
-					val = offi.getID();
-				}
-				else if( value[1].equals("rang") ) {
-					val = offi.getRang();
-				}
-				else if( value[1].equals("dest") ) {
-					if( offi.getStationiertAufBasis() != null )
+			switch (value[0])
+			{
+				case "shipsource":
+					Ship ship;
+					if (command.length == 3)
 					{
-						val = "b "+offi.getStationiertAufBasis().getId();
+						ship = scriptparser.getShip();
 					}
-					else if( offi.getStationiertAufSchiff() != null )
+					else if (scriptparser.getRegisterObject(command[3]) instanceof Ship)
 					{
-						val = "s "+offi.getStationiertAufSchiff().getId();
+						ship = (Ship) scriptparser.getRegisterObject(command[3]);
 					}
-				}
-				else if( value[1].equals("owner") ) {
-					val = offi.getOwner().getId();
-				}
-				else if( value[1].equals("ability") ) {
-					val = offi.getAbility(Offizier.Ability.valueOf(value[2]));
-				}
-				else if( value[1].equals("special") ) {
-					val = offi.getSpecial().toString();
-				}
-			}
-			else if( value[0].equals("base") ) {
-				Base base;
+					else
+					{
+						int shipID = Integer.parseInt(scriptparser.getRegister(command[3]));
+						ship = (Ship) db.get(Ship.class, shipID);
+					}
 
-				Object baseObj = scriptparser.getRegisterObject(command[3]);
-				if( baseObj instanceof Base ) {
-					base = (Base)baseObj;
-				}
-				else {
-					int baseID = ((Number)baseObj).intValue();
-					base = (Base)db.get(Base.class, baseID);
-				}
-				if( (value.length <= 1) || (value[1].length() == 0) ) {
-					val = base;
-				}
-				else if( value[1].equals("cargo") ) {
-					val = base.getCargo();
-				}
-				else if( "id".equals(value[1]) ) {
-					val = base.getId();
-				}
-				else if( "name".equals(value[1]) ) {
-					val = base.getName();
-				}
-				else if( "owner".equals(value[1]) ) {
-					val = base.getOwner().getId();
-				}
-				else if( "x".equals(value[1]) ) {
-					val = base.getLocation().getX();
-				}
-				else if( "y".equals(value[1]) ) {
-					val = base.getLocation().getY();
-				}
-				else if( "system".equals(value[1]) ) {
-					val = base.getLocation().getSystem();
-				}
-				else if( "maxcargo".equals(value[1]) ) {
-					val = base.getMaxCargo();
-				}
-				else if( "klasse".equals(value[1]) ) {
-					val = base.getKlasse();
-				}
-			}
-			else if( value[0].equals("jumpnode") ) {
-				JumpNode jn;
+					if ((value.length <= 1) || (value[1].length() == 0))
+					{
+						val = ship;
+					}
+					switch (value[1])
+					{
+						case "cargo":
+							val = ship.getCargo();
+							break;
+						case "offizier":
+							val = ship.getOffizier();
+							break;
+						case "id":
+							val = ship.getId();
+							break;
+						case "type":
+							val = ship.getType();
+							break;
+						case "name":
+							val = ship.getName();
+							break;
+						case "x":
+							val = ship.getX();
+							break;
+						case "y":
+							val = ship.getY();
+							break;
+						case "system":
+							val = ship.getSystem();
+							break;
+						case "status":
+							val = ship.getStatus();
+							break;
+						case "crew":
+							val = ship.getCrew();
+							break;
+						case "e":
+							val = ship.getEnergy();
+							break;
+						case "s":
+							val = ship.getHeat();
+							break;
+						case "hull":
+							val = ship.getHull();
+							break;
+						case "shields":
+							val = ship.getShields();
+							break;
+						case "heat":
+							val = ship.getWeaponHeat();
+							break;
+						case "engine":
+							val = ship.getEngine();
+							break;
+						case "weapons":
+							val = ship.getWeapons();
+							break;
+						case "comm":
+							val = ship.getComm();
+							break;
+						case "sensors":
+							val = ship.getSensors();
+							break;
+						case "docked":
+							val = ship.getDocked();
+							break;
+						case "alarm":
+							val = ship.getAlarm();
+							break;
+						case "fleet":
+							val = (ship.getFleet() != null ? ship.getFleet().getId() : 0);
+							break;
+						case "destsystem":
+							val = ship.getEinstellungen().getDestSystem();
+							break;
+						case "destx":
+							val = ship.getEinstellungen().getDestX();
+							break;
+						case "desty":
+							val = ship.getEinstellungen().getDestY();
+							break;
+						case "destcom":
+							val = ship.getEinstellungen().getDestCom();
+							break;
+						case "bookmark":
+							val = ship.getEinstellungen().isBookmark();
+							break;
+						case "battle":
+							val = ship.getBattle();
+							break;
+						case "battleaction":
+							val = ship.isBattleAction();
+							break;
+						case "jumptarget":
+							val = ship.getJumpTarget();
+							break;
+						case "autodeut":
+							val = ship.getEinstellungen().getAutoDeut();
+							break;
+						case "history":
+							val = ship.getHistory();
+							break;
+						case "script":
+							val = ship.getScript();
+							break;
+						case "scriptexedata":
+							val = ship.getScriptExeData();
+							break;
+						case "oncommunicate":
+							val = ship.getOnCommunicate();
+							break;
+					}
+					break;
+				case "tick":
+					val = ContextMap.getContext().get(ContextCommon.class).getTick();
+					break;
+				case "offizier":
+					Offizier offi = (Offizier) scriptparser.getRegisterObject(command[3]);
 
-				Object jnObj = scriptparser.getRegisterObject(command[3]);
-				if( jnObj instanceof JumpNode ) {
-					jn = (JumpNode)jnObj;
-				}
-				else {
-					int jnID = ((Number)jnObj).intValue();
-					jn = (JumpNode)db.get(JumpNode.class, jnID);
-				}
+					switch (value[1])
+					{
+						case "name":
+							val = offi.getName();
+							break;
+						case "id":
+							val = offi.getID();
+							break;
+						case "rang":
+							val = offi.getRang();
+							break;
+						case "dest":
+							if (offi.getStationiertAufBasis() != null)
+							{
+								val = "b " + offi.getStationiertAufBasis().getId();
+							}
+							else if (offi.getStationiertAufSchiff() != null)
+							{
+								val = "s " + offi.getStationiertAufSchiff().getId();
+							}
+							break;
+						case "owner":
+							val = offi.getOwner().getId();
+							break;
+						case "ability":
+							val = offi.getAbility(Ability.valueOf(value[2]));
+							break;
+						case "special":
+							val = offi.getSpecial().toString();
+							break;
+					}
+					break;
+				case "base":
+					Base base;
 
-				if( (value.length <= 1) || (value[1].length() == 0) ) {
-					val = jn;
-				}
-				else if( "id".equals(value[1]) ) {
-					val = jn.getId();
-				}
-				else if( "x".equals(value[1]) ) {
-					val = jn.getLocation().getX();
-				}
-				else if( "y".equals(value[1]) ) {
-					val = jn.getLocation().getY();
-				}
-				else if( "system".equals(value[1]) ) {
-					val = jn.getLocation().getSystem();
-				}
-				else if( "xout".equals(value[1]) ) {
-					val = jn.getXOut();
-				}
-				else if( "yout".equals(value[1]) ) {
-					val = jn.getYOut();
-				}
-				else if( "systemout".equals(value[1]) ) {
-					val = jn.getSystemOut();
-				}
-				else if( "name".equals(value[1]) ) {
-					val = jn.getName();
-				}
+					Object baseObj = scriptparser.getRegisterObject(command[3]);
+					if (baseObj instanceof Base)
+					{
+						base = (Base) baseObj;
+					}
+					else
+					{
+						int baseID = ((Number) baseObj).intValue();
+						base = (Base) db.get(Base.class, baseID);
+					}
+					if ((value.length <= 1) || (value[1].length() == 0))
+					{
+						val = base;
+					}
+					else if (value[1].equals("cargo"))
+					{
+						val = base.getCargo();
+					}
+					else if ("id".equals(value[1]))
+					{
+						val = base.getId();
+					}
+					else if ("name".equals(value[1]))
+					{
+						val = base.getName();
+					}
+					else if ("owner".equals(value[1]))
+					{
+						val = base.getOwner().getId();
+					}
+					else if ("x".equals(value[1]))
+					{
+						val = base.getLocation().getX();
+					}
+					else if ("y".equals(value[1]))
+					{
+						val = base.getLocation().getY();
+					}
+					else if ("system".equals(value[1]))
+					{
+						val = base.getLocation().getSystem();
+					}
+					else if ("maxcargo".equals(value[1]))
+					{
+						val = base.getMaxCargo();
+					}
+					else if ("klasse".equals(value[1]))
+					{
+						val = base.getKlasse();
+					}
+					break;
+				case "jumpnode":
+					JumpNode jn;
+
+					Object jnObj = scriptparser.getRegisterObject(command[3]);
+					if (jnObj instanceof JumpNode)
+					{
+						jn = (JumpNode) jnObj;
+					}
+					else
+					{
+						int jnID = ((Number) jnObj).intValue();
+						jn = (JumpNode) db.get(JumpNode.class, jnID);
+					}
+
+					if ((value.length <= 1) || (value[1].length() == 0))
+					{
+						val = jn;
+					}
+					else if ("id".equals(value[1]))
+					{
+						val = jn.getId();
+					}
+					else if ("x".equals(value[1]))
+					{
+						val = jn.getLocation().getX();
+					}
+					else if ("y".equals(value[1]))
+					{
+						val = jn.getLocation().getY();
+					}
+					else if ("system".equals(value[1]))
+					{
+						val = jn.getLocation().getSystem();
+					}
+					else if ("xout".equals(value[1]))
+					{
+						val = jn.getXOut();
+					}
+					else if ("yout".equals(value[1]))
+					{
+						val = jn.getYOut();
+					}
+					else if ("systemout".equals(value[1]))
+					{
+						val = jn.getSystemOut();
+					}
+					else if ("name".equals(value[1]))
+					{
+						val = jn.getName();
+					}
+					break;
 			}
 
 			if( val instanceof Boolean ) {
@@ -489,7 +523,7 @@ public class QuestFunctions {
 			scriptparser.log( "answerid: "+answerid+"\n" );
 			scriptparser.log( "internalid: "+internalid+"\n" );
 
-			List<String> addParamList = new ArrayList<String>();
+			List<String> addParamList = new ArrayList<>();
 			for( int i=3; i < command.length; i++ ) {
 				if( command[i].trim().length() > 0 ) {
 					addParamList.add(command[i]);
@@ -559,94 +593,104 @@ public class QuestFunctions {
 			}
 
 			String[] value = StringUtils.split(command[1], '.');
-			if( value[0].equals("shipsource") ) {
-				Ship ship = scriptparser.getShip();
-				if( (command.length > 3) && (command[3].length() > 0) ) {
-					Object shipObj = scriptparser.getRegister(command[3]);
-					ship = (Ship)db.get(Ship.class, Value.Int(shipObj.toString()));
+			switch (value[0])
+			{
+				case "shipsource":
+					Ship ship = scriptparser.getShip();
+					if ((command.length > 3) && (command[3].length() > 0))
+					{
+						Object shipObj = scriptparser.getRegister(command[3]);
+						ship = (Ship) db.get(Ship.class, Value.Int(shipObj.toString()));
 
-				}
+					}
 
-				if( value[1].equals("cargo") ) {
-					ship.setCargo((Cargo)val);
-				}
-				else if( value[1].equals("name") ) {
-					ship.setName(val.toString());
-				}
-				else if( value[1].equals("x") ) {
-					ship.setX(Value.Int(val.toString()));
-				}
-				else if( value[1].equals("y") ) {
-					ship.setY(Value.Int(val.toString()));
-				}
-				else if( value[1].equals("system") ) {
-					ship.setSystem(Value.Int(val.toString()));
-				}
-				else if( value[1].equals("status") ) {
-					ship.setStatus(val.toString());
-				}
-				else if( value[1].equals("crew") ) {
-					ship.setCrew(Value.Int(val.toString()));
-				}
-				else if( value[1].equals("e") ) {
-					ship.setEnergy(Value.Int(val.toString()));
-				}
-				else if( value[1].equals("s") ) {
-					ship.setHeat(Value.Int(val.toString()));
-				}
-				else if( value[1].equals("hull") ) {
-					ship.setHull(Value.Int(val.toString()));
-				}
-				else if( value[1].equals("shields") ) {
-					ship.setShields(Value.Int(val.toString()));
-				}
-				else if( value[1].equals("heat") ) {
-					ship.setWeaponHeat(val.toString());
-				}
-				else if( value[1].equals("engine") ) {
-					ship.setEngine(Value.Int(val.toString()));
-				}
-				else if( value[1].equals("weapons") ) {
-					ship.setWeapons(Value.Int(val.toString()));
-				}
-				else if( value[1].equals("comm") ) {
-					ship.setComm(Value.Int(val.toString()));
-				}
-				else if( value[1].equals("sensors") ) {
-					ship.setSensors(Value.Int(val.toString()));
-				}
-				else if( value[1].equals("alarm") ) {
-					ship.setAlarm(Value.Int(val.toString()));
-				}
-				else {
-					throw new UnsupportedOperationException("Setzen der Eigenschaft '"+value[1]+"' nicht unterstuetzt");
-				}
+					switch (value[1])
+					{
+						case "cargo":
+							ship.setCargo((Cargo) val);
+							break;
+						case "name":
+							ship.setName(val.toString());
+							break;
+						case "x":
+							ship.setX(Value.Int(val.toString()));
+							break;
+						case "y":
+							ship.setY(Value.Int(val.toString()));
+							break;
+						case "system":
+							ship.setSystem(Value.Int(val.toString()));
+							break;
+						case "status":
+							ship.setStatus(val.toString());
+							break;
+						case "crew":
+							ship.setCrew(Value.Int(val.toString()));
+							break;
+						case "e":
+							ship.setEnergy(Value.Int(val.toString()));
+							break;
+						case "s":
+							ship.setHeat(Value.Int(val.toString()));
+							break;
+						case "hull":
+							ship.setHull(Value.Int(val.toString()));
+							break;
+						case "shields":
+							ship.setShields(Value.Int(val.toString()));
+							break;
+						case "heat":
+							ship.setWeaponHeat(val.toString());
+							break;
+						case "engine":
+							ship.setEngine(Value.Int(val.toString()));
+							break;
+						case "weapons":
+							ship.setWeapons(Value.Int(val.toString()));
+							break;
+						case "comm":
+							ship.setComm(Value.Int(val.toString()));
+							break;
+						case "sensors":
+							ship.setSensors(Value.Int(val.toString()));
+							break;
+						case "alarm":
+							ship.setAlarm(Value.Int(val.toString()));
+							break;
+						default:
+							throw new UnsupportedOperationException("Setzen der Eigenschaft '" + value[1] + "' nicht unterstuetzt");
+					}
 
-				if( (command.length == 3) || (command[3].length() == 0) ) {
-					scriptparser.setShip( ship );
-				}
-			}
-			else if( value[0].equals("sessionid") ) {
-				// Kein speichern von sessionids moeglich
-				scriptparser.log("Speichern der Sessionid nicht moeglich\n");
-			}
-			else if( value[0].equals("base") ) {
-				Object baseObj = scriptparser.getRegisterObject(command[3]);
-				if( !(baseObj instanceof Base) ) {
-					baseObj = db.get(Base.class, Value.Int(baseObj.toString()));
-				}
-				Base base = (Base)baseObj;
+					if ((command.length == 3) || (command[3].length() == 0))
+					{
+						scriptparser.setShip(ship);
+					}
+					break;
+				case "sessionid":
+					// Kein speichern von sessionids moeglich
+					scriptparser.log("Speichern der Sessionid nicht moeglich\n");
+					break;
+				case "base":
+					Object baseObj = scriptparser.getRegisterObject(command[3]);
+					if (!(baseObj instanceof Base))
+					{
+						baseObj = db.get(Base.class, Value.Int(baseObj.toString()));
+					}
+					Base base = (Base) baseObj;
 
-				if (value[1].equals("cargo"))
-				{
-					base.setCargo((Cargo) val);
-				}
-				else if( "name".equals(value[1]) ) {
-					base.setName(val.toString());
-				}
-				else if( "maxcargo".equals(value[1]) ) {
-					base.setMaxCargo(Value.Int(val.toString()));
-				}
+					switch (value[1])
+					{
+						case "cargo":
+							base.setCargo((Cargo) val);
+							break;
+						case "name":
+							base.setName(val.toString());
+							break;
+						case "maxcargo":
+							base.setMaxCargo(Value.Int(val.toString()));
+							break;
+					}
+					break;
 			}
 
 			return CONTINUE;
@@ -717,7 +761,7 @@ public class QuestFunctions {
 			String questid = scriptparser.getRegister("QUEST");
 			int userid = Integer.parseInt(scriptparser.getRegister("USER"));
 
-			RunningQuest runningQuest = null;
+			RunningQuest runningQuest;
 			if( questid.charAt(0) != 'r' ) {
 				runningQuest = (RunningQuest)db.createQuery("from RunningQuest where quest=:quest and user=:user")
 					.setInteger("quest", Integer.parseInt(questid))
@@ -821,44 +865,51 @@ public class QuestFunctions {
 				scriptparser.log("questid: "+questid+"\n");
 
 				// On-Communicate
-				if( event.equals("oncommunicate") ) {
-					Ship ship = (Ship)db.get(Ship.class, Value.Int(objid));
-					if( ship != null && ship.getId() > 0 ) {
-						String comm = ship.getOnCommunicate();
-						if( comm.length() > 0 ) {
-							comm += ";";
+				switch (event)
+				{
+					case "oncommunicate":
+						Ship ship = (Ship) db.get(Ship.class, Value.Int(objid));
+						if (ship != null && ship.getId() > 0)
+						{
+							String comm = ship.getOnCommunicate();
+							if (comm.length() > 0)
+							{
+								comm += ";";
+							}
+							comm += userid + ":" + scriptid + ":" + questid;
+							ship.setOnCommunicate(comm);
+
+							removescript.append("!REMOVEHANDLER ").append(event).append(" ").append(objid).append(" ").append(userid).append(" ").append(scriptid).append(" ").append(questid).append("\n");
 						}
-						comm += userid+":"+scriptid+":"+questid;
-						ship.setOnCommunicate(comm);
+						break;
+					// On-Enter
+					case "onenter":
+						Location loc = Location.fromString(objid);
 
-						removescript.append("!REMOVEHANDLER "+event+" "+objid+" "+userid+" "+scriptid+" "+questid+"\n");
-					}
-				}
-				// On-Enter
-				else if( event.equals("onenter") ) {
-					Location loc = Location.fromString(objid);
+						Sector sector = (Sector) db.get(Sector.class, new MutableLocation(loc));
+						if (sector == null)
+						{
+							sector = new Sector(new MutableLocation(loc));
+							sector.setOnEnter("");
+							db.persist(sector);
+						}
 
-					Sector sector = (Sector)db.get(Sector.class, new MutableLocation(loc));
-					if( sector == null ) {
-						sector = new Sector(new MutableLocation(loc));
-						sector.setOnEnter("");
-						db.persist(sector);
-					}
+						String onenter = sector.getOnEnter();
+						if (onenter.length() > 0)
+						{
+							onenter += ";";
+						}
+						onenter += userid + ":" + scriptid + ":" + questid;
 
-					String onenter = sector.getOnEnter();
-					if( onenter.length() > 0) {
-						onenter += ";";
-					}
-					onenter += userid+":"+scriptid+":"+questid;
+						sector.setOnEnter(onenter);
 
-					sector.setOnEnter(onenter);
-
-					removescript.append("!REMOVEHANDLER "+event+" "+objid+" "+userid+" "+scriptid+" "+questid+"\n");
-				}
-				// Battle-OnEnd
-				else {
-					Battle battle = (Battle)db.get(Battle.class, Value.Int("objid"));
-					battle.setOnEnd("userid+\":\"+scriptid+\":\"+questid");
+						removescript.append("!REMOVEHANDLER ").append(event).append(" ").append(objid).append(" ").append(userid).append(" ").append(scriptid).append(" ").append(questid).append("\n");
+						break;
+					// Battle-OnEnd
+					default:
+						Battle battle = (Battle) db.get(Battle.class, Value.Int("objid"));
+						battle.setOnEnd("userid+\":\"+scriptid+\":\"+questid");
+						break;
 				}
 			}
 			// OnTick
@@ -891,11 +942,11 @@ public class QuestFunctions {
 						.uniqueResult();
 				runningdata.setOnTick(scriptid);
 
-				removescript.append("!REMOVEHANDLER "+event+" "+userid+" "+questid+"\n");
+				removescript.append("!REMOVEHANDLER ").append(event).append(" ").append(userid).append(" ").append(questid).append("\n");
 			}
 
 			if( removescript.length() > 0 ) {
-				RunningQuest runningdata = null;
+				RunningQuest runningdata;
 				if( questid.charAt(0) != 'r' ) {
 					runningdata = (RunningQuest)db
 							.createQuery("from RunningQuest  where quest=:questid and user=:userid")
@@ -931,8 +982,8 @@ public class QuestFunctions {
 			String event = command[1];
 			scriptparser.log("event: "+event+"\n");
 
-			String questid = "";
-			int userid = 0;
+			String questid;
+			int userid;
 
 			if( event.equals("oncommunicate") || event.equals("onenter") ) {
 				// Object-ID
@@ -968,16 +1019,18 @@ public class QuestFunctions {
 					Ship ship = (Ship)db.get(Ship.class, Value.Int(objid));
 
 					if( ship != null && ship.getId() > 0  ) {
-						List<String> newcom = new ArrayList<String>();
+						List<String> newcom = new ArrayList<>();
 
 						String[] com = StringUtils.split(ship.getOnCommunicate(), ';');
-						for( int i=0; i < com.length; i++ ) {
-							String[] tmp = StringUtils.split(com[i], ':');
+						for (String aCom : com)
+						{
+							String[] tmp = StringUtils.split(aCom, ':');
 							int usr = Value.Int(tmp[0]);
 							int script = Value.Int(tmp[1]);
 							String quest = tmp[2];
-							if( (usr != userid) || (script != scriptid) || !quest.equals(questid) ) {
-								newcom.add(com[i]);
+							if ((usr != userid) || (script != scriptid) || !quest.equals(questid))
+							{
+								newcom.add(aCom);
 							}
 						}
 
@@ -994,16 +1047,18 @@ public class QuestFunctions {
 
 					Sector sector = (Sector)db.get(Sector.class, new MutableLocation(loc));
 					if( sector != null ) {
-						List<String> newenter = new ArrayList<String>();
+						List<String> newenter = new ArrayList<>();
 
 						String[] enter = StringUtils.split(sector.getOnEnter(), ';');
-						for( int i=0; i < enter.length; i++ ) {
-							String[] tmp = StringUtils.split(enter[i], ':');
+						for (String anEnter : enter)
+						{
+							String[] tmp = StringUtils.split(anEnter, ':');
 							int usr = Value.Int(tmp[0]);
 							int script = Value.Int(tmp[1]);
 							String quest = tmp[2];
-							if( (usr != userid) || (script != scriptid) || !quest.equals(questid) ) {
-								newenter.add(enter[i]);
+							if ((usr != userid) || (script != scriptid) || !quest.equals(questid))
+							{
+								newenter.add(anEnter);
 							}
 						}
 
@@ -1067,19 +1122,19 @@ public class QuestFunctions {
 			for( int i=1; i < command.length; i++ ) {
 				String cmd = command[1];
 				if( cmd.charAt(0) == '#' ) {
-					removescript.append(scriptparser.getRegister(cmd)+' ');
+					removescript.append(scriptparser.getRegister(cmd)).append(' ');
 				}
 				else if( cmd.charAt(0) == '\\' ) {
-					removescript.append(cmd.substring(1)+' ');
+					removescript.append(cmd.substring(1)).append(' ');
 				}
 				else {
-					removescript.append(cmd+' ');
+					removescript.append(cmd).append(' ');
 				}
 			}
 
 			removescript.append("\n");
 
-			RunningQuest runningQuest = null;
+			RunningQuest runningQuest;
 			if( questid.charAt(0) != 'r' ) {
 				runningQuest = (RunningQuest)db.createQuery("from RunningQuest where quest=:quest and user=:user")
 					.setInteger("quest", Value.Int(questid))
@@ -1118,7 +1173,7 @@ public class QuestFunctions {
 			String questidStr = command[1];
 			scriptparser.log("questid: "+questidStr+"\n");
 
-			int questid = 0;
+			int questid;
 			if( questidStr.charAt(0) == 'r' ) {
 				String rquestid = questidStr.substring(1);
 				RunningQuest rquest = (RunningQuest)db.get(RunningQuest.class, Value.Int(rquestid));
@@ -1239,7 +1294,7 @@ public class QuestFunctions {
 			String questid = command[1];
 			scriptparser.log("QuestID: "+questid+"\n");
 
-			RunningQuest rquest = null;
+			RunningQuest rquest;
 			if( questid.charAt(0) != 'r' ) {
 				int user = Value.Int(scriptparser.getRegister("USER"));
 
@@ -1292,7 +1347,7 @@ public class QuestFunctions {
 			String questid = command[1];
 			scriptparser.log("QuestID: "+questid+"\n");
 
-			RunningQuest questdata = null;
+			RunningQuest questdata;
 			if( questid.charAt(0) != 'r' ) {
 				int user = Value.Int(scriptparser.getRegister("USER"));
 
@@ -1549,7 +1604,7 @@ public class QuestFunctions {
 			Object cargotarObj = scriptparser.getRegisterObject(command[1]);
 
 			scriptparser.log("cargo(source): "+command[2]+"\n");
-			Object cargosourceObj = scriptparser.getRegister(command[2]);
+			Object cargosourceObj = scriptparser.getRegisterObject(command[2]);
 
 			if( (cargotarObj instanceof Cargo) && (cargosourceObj instanceof Cargo) ) {
 				((Cargo)cargotarObj).addCargo((Cargo)cargosourceObj);
@@ -1597,11 +1652,12 @@ public class QuestFunctions {
 			int userid = Value.Int(scriptparser.getRegister("USER"));
 
 			StringBuilder removescript = new StringBuilder();
-			for( int i=0; i < shipids.length; i++ ) {
-				removescript.append("!REMOVESHIP "+shipids[i]+"\n");
+			for (Integer shipid : shipids)
+			{
+				removescript.append("!REMOVESHIP ").append(shipid).append("\n");
 			}
 
-			RunningQuest runningdata = null;
+			RunningQuest runningdata;
 			if( questid.charAt(0) != 'r' ) {
 				runningdata = (RunningQuest)db.createQuery("from RunningQuest where quest=:quest and user=:user")
 					.setParameter("quest", Value.Int(questid))
@@ -1922,21 +1978,26 @@ public class QuestFunctions {
 			}
 
 			Offizier offizier;
-			if( desttype.equals("s") ) {
-				Ship destobj = (Ship)db.get(Ship.class, destid);
-
-				offizier = new Offizier(destobj.getOwner(), baseOffi.getName());
-				offizier.stationierenAuf(destobj);
-			}
-			else if( desttype.equals("b") ) {
-				Base destobj = (Base)db.get(Base.class, destid);
-				offizier = new Offizier(destobj.getOwner(), baseOffi.getName());
-				offizier.stationierenAuf(destobj);
-			}
-			else
+			switch (desttype)
 			{
-				scriptparser.log("Warnung: Kein gueltiges Ziel '"+desttype+"' fuer Offizier");
-				return CONTINUE;
+				case "s":
+				{
+					Ship destobj = (Ship) db.get(Ship.class, destid);
+
+					offizier = new Offizier(destobj.getOwner(), baseOffi.getName());
+					offizier.stationierenAuf(destobj);
+					break;
+				}
+				case "b":
+				{
+					Base destobj = (Base) db.get(Base.class, destid);
+					offizier = new Offizier(destobj.getOwner(), baseOffi.getName());
+					offizier.stationierenAuf(destobj);
+					break;
+				}
+				default:
+					scriptparser.log("Warnung: Kein gueltiges Ziel '" + desttype + "' fuer Offizier");
+					return CONTINUE;
 			}
 
 			for( Ability ability : Offizier.Ability.values() ) {
@@ -2104,75 +2165,90 @@ public class QuestFunctions {
 			String property = command[2];
 			scriptparser.log("property: "+property+"\n");
 
-			List<String> result = new ArrayList<String>();
+			List<String> result = new ArrayList<>();
 
-			if( property.equals("nebel") ) {
-				Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(sector));
-				if( nebel != null ) {
-					result.add(nebel.getLocation().toString());
+			switch (property)
+			{
+				case "nebel":
+					Nebel nebel = (Nebel) db.get(Nebel.class, new MutableLocation(sector));
+					if (nebel != null)
+					{
+						result.add(nebel.getLocation().toString());
+					}
+					break;
+				case "bases":
+					List<?> baseIds = db.createQuery("select id from Base where system= :sys and x= :x and y= :y")
+							.setInteger("sys", sector.getSystem())
+							.setInteger("x", sector.getX())
+							.setInteger("y", sector.getY())
+							.list();
+					for (Object baseId : baseIds)
+					{
+						Integer id = (Integer) baseId;
+						result.add(id.toString());
+					}
+					break;
+				case "jumpnodes":
+					List<?> jnIds = db.createQuery("select id from JumpNode WHERE system= :sys and x= :x and y= :y")
+							.setInteger("sys", sector.getSystem())
+							.setInteger("x", sector.getX())
+							.setInteger("y", sector.getY())
+							.list();
+					for (Object jnId : jnIds)
+					{
+						Integer id = (Integer) jnId;
+						result.add(id.toString());
+					}
+					break;
+				case "ships":
+				{
+					List<?> shipIds = db.createQuery("select id from Ship WHERE id > 0 and system= :sys and x= :x and y= :y")
+							.setInteger("sys", sector.getSystem())
+							.setInteger("x", sector.getX())
+							.setInteger("y", sector.getY())
+							.list();
+					for (Object shipId : shipIds)
+					{
+						Integer id = (Integer) shipId;
+						result.add(id.toString());
+					}
+					break;
 				}
-			}
-			else if( property.equals("bases") ) {
-				List<?> baseIds = db.createQuery("select id from Base where system= :sys and x= :x and y= :y")
-					.setInteger("sys", sector.getSystem())
-					.setInteger("x", sector.getX())
-					.setInteger("y", sector.getY())
-					.list();
-				for( Iterator<?> iter=baseIds.iterator(); iter.hasNext(); ) {
-					Integer id = (Integer)iter.next();
-					result.add(id.toString());
-				}
-			}
-			else if( property.equals("jumpnodes") ) {
-				List<?> jnIds = db.createQuery("select id from JumpNode WHERE system= :sys and x= :x and y= :y")
-						.setInteger("sys", sector.getSystem())
-						.setInteger("x", sector.getX())
-						.setInteger("y", sector.getY())
-						.list();
-				for( Iterator<?> iter=jnIds.iterator(); iter.hasNext(); ) {
-					Integer id = (Integer)iter.next();
-					result.add(id.toString());
-				}
-			}
-			else if( property.equals("ships") ) {
-				List<?> shipIds = db.createQuery("select id from Ship WHERE id > 0 and system= :sys and x= :x and y= :y")
-						.setInteger("sys", sector.getSystem())
-						.setInteger("x", sector.getX())
-						.setInteger("y", sector.getY())
-						.list();
-				for( Iterator<?> iter=shipIds.iterator(); iter.hasNext(); ) {
-					Integer id = (Integer)iter.next();
-					result.add(id.toString());
-				}
-			}
-			else if( property.equals("shipsByOwner") ) {
-				int owner = Value.Int(command[3]);
-				scriptparser.log("owner: "+owner+"\n");
+				case "shipsByOwner":
+				{
+					int owner = Value.Int(command[3]);
+					scriptparser.log("owner: " + owner + "\n");
 
-				List<?> shipIds = db.createQuery("select id from Ship WHERE id>0 and system= :sys and x= :x and y= :y and owner=:owner")
-						.setInteger("sys", sector.getSystem())
-						.setInteger("x", sector.getX())
-						.setInteger("y", sector.getY())
-						.setInteger("owner", owner)
-						.list();
-				for( Iterator<?> iter=shipIds.iterator(); iter.hasNext(); ) {
-					Integer id = (Integer)iter.next();
-					result.add(id.toString());
+					List<?> shipIds = db.createQuery("select id from Ship WHERE id>0 and system= :sys and x= :x and y= :y and owner=:owner")
+							.setInteger("sys", sector.getSystem())
+							.setInteger("x", sector.getX())
+							.setInteger("y", sector.getY())
+							.setInteger("owner", owner)
+							.list();
+					for (Object shipId : shipIds)
+					{
+						Integer id = (Integer) shipId;
+						result.add(id.toString());
+					}
+					break;
 				}
-			}
-			else if( property.equals("shipsByTag") ) {
-				String tag = command[3];
-				scriptparser.log("tag: "+tag+"\n");
+				case "shipsByTag":
+				{
+					String tag = command[3];
+					scriptparser.log("tag: " + tag + "\n");
 
-				List<?> shipIds = db.createQuery("select id from Ship WHERE id>0 and system= :sys and x= :x and y= :y and status like :status")
-						.setInteger("sys", sector.getSystem())
-						.setInteger("x", sector.getX())
-						.setInteger("y", sector.getY())
-						.setString("status", "%<" + tag + ">%")
-						.list();
-				for( Iterator<?> iter=shipIds.iterator(); iter.hasNext(); ) {
-					Integer id = (Integer)iter.next();
-					result.add(id.toString());
+					List<?> shipIds = db.createQuery("select id from Ship WHERE id>0 and system= :sys and x= :x and y= :y and status like :status")
+							.setInteger("sys", sector.getSystem())
+							.setInteger("x", sector.getX())
+							.setInteger("y", sector.getY())
+							.setString("status", "%<" + tag + ">%")
+							.list();
+					for (Object shipId : shipIds)
+					{
+						Integer id = (Integer) shipId;
+						result.add(id.toString());
+					}
+					break;
 				}
 			}
 
@@ -2194,7 +2270,7 @@ public class QuestFunctions {
 			String property = command[2];
 			scriptparser.log("property: "+property+"\n");
 
-			List<String> result = new ArrayList<String>();
+			List<String> result = new ArrayList<>();
 
 			if( property.equals("shipsByTag") ) {
 				String tag = command[3];
@@ -2204,8 +2280,9 @@ public class QuestFunctions {
 						.setInteger("sys", system)
 						.setString("status", "%<"+tag+">%")
 						.list();
-				for( Iterator<?> iter=shipIds.iterator(); iter.hasNext(); ) {
-					Integer id = (Integer)iter.next();
+				for (Object shipId : shipIds)
+				{
+					Integer id = (Integer) shipId;
 					result.add(id.toString());
 				}
 			}
@@ -2328,47 +2405,56 @@ public class QuestFunctions {
 				.setString("expshipid3", shipid+"%")
 				.setString("type", typeid)
 				.list();
-			for( Iterator<?> iter=qquestList.iterator(); iter.hasNext(); ) {
-				QuickQuest qquest = (QuickQuest)iter.next();
+			for (Object aQquestList : qquestList)
+			{
+				QuickQuest qquest = (QuickQuest) aQquestList;
 
-				if( !qquest.getMoreThanOnce() ) {
+				if (!qquest.getMoreThanOnce())
+				{
 					call(new HasQuestCompleted(), scriptparser, qquest.getEnabled());
-					if( Integer.parseInt(scriptparser.getRegister("#cmp")) > 0 ) {
+					if (Integer.parseInt(scriptparser.getRegister("#cmp")) > 0)
+					{
 						continue;
 					}
 				}
-				if( qquest.getDependsOnQuests().length() > 0 ) {
+				if (qquest.getDependsOnQuests().length() > 0)
+				{
 					boolean ok = true;
 
 					String[] qquests = StringUtils.split(qquest.getDependsOnQuests(), ';');
-					for( int i=0; i < qquests.length; i++ ) {
-						String[] tmp = StringUtils.split(qquests[i], ':');
-						Quest quest = (Quest)db.createQuery("from Quest where qid= :qid")
-							.setString("qid", tmp[1])
-							.uniqueResult();
-						if( quest == null ) {
-							log.warn("QQuest "+qquest.getId()+" benoetigt Quest "+tmp[1]+", welches jedoch nicht existiert");
+					for (String qquest1 : qquests)
+					{
+						String[] tmp = StringUtils.split(qquest1, ':');
+						Quest quest = (Quest) db.createQuery("from Quest where qid= :qid")
+								.setString("qid", tmp[1])
+								.uniqueResult();
+						if (quest == null)
+						{
+							log.warn("QQuest " + qquest.getId() + " benoetigt Quest " + tmp[1] + ", welches jedoch nicht existiert");
 							continue;
 						}
 
 						call(new HasQuestCompleted(), scriptparser, quest.getId());
-						if( Value.Int(scriptparser.getRegister("#cmp")) <= 0 ) {
+						if (Value.Int(scriptparser.getRegister("#cmp")) <= 0)
+						{
 							ok = false;
 							break;
 						}
 					}
-					if( !ok ) {
+					if (!ok)
+					{
 						continue;
 					}
 				}
 				call(new LoadQuestContext(), scriptparser, qquest.getEnabled());
 
-				if( Value.Int(scriptparser.getRegister("#QSTATUS")) > 0 ) {
+				if (Value.Int(scriptparser.getRegister("#QSTATUS")) > 0)
+				{
 					continue;
 				}
 
 				call(new AddAnswer(), scriptparser,
-						"Auftrag &gt;"+qquest.getQName()+"&lt",
+						"Auftrag &gt;" + qquest.getQName() + "&lt",
 						"_quick_quests",
 						"desc",
 						qquest.getId());
@@ -2411,28 +2497,32 @@ public class QuestFunctions {
 				.setString("expshipid3", shipid+"%")
 				.setString("type", typeid)
 				.list();
-			for( Iterator<?> iter=qquestList.iterator(); iter.hasNext(); ) {
-				QuickQuest qquest = (QuickQuest)iter.next();
+			for (Object aQquestList : qquestList)
+			{
+				QuickQuest qquest = (QuickQuest) aQquestList;
 
 				call(new LoadQuestContext(), scriptparser, qquest.getEnabled());
 
-				if( scriptparser.getRegister("#QUEST").length() == 0 ||
-					scriptparser.getRegister("#QUEST").equals("0")  ) {
+				if (scriptparser.getRegister("#QUEST").length() == 0 ||
+						scriptparser.getRegister("#QUEST").equals("0"))
+				{
 					continue;
 				}
 
 				int rquestid = Integer.parseInt(scriptparser.getRegister("#QUEST").substring(1));
-				RunningQuest rquest = (RunningQuest)db.get(RunningQuest.class, rquestid);
-				if( rquest.getQuest().getId() != qquest.getEnabled() ) {
+				RunningQuest rquest = (RunningQuest) db.get(RunningQuest.class, rquestid);
+				if (rquest.getQuest().getId() != qquest.getEnabled())
+				{
 					continue;
 				}
 
-				if( Value.Int(scriptparser.getRegister("#QSTATUS")) != 1 ) {
+				if (Value.Int(scriptparser.getRegister("#QSTATUS")) != 1)
+				{
 					continue;
 				}
 
 				call(new AddAnswer(), scriptparser,
-						"Auftrag &gt;"+qquest.getQName()+"&lt beenden",
+						"Auftrag &gt;" + qquest.getQName() + "&lt beenden",
 						"_quick_quests",
 						"end",
 						qquest.getId());
@@ -2470,400 +2560,471 @@ public class QuestFunctions {
 			scriptparser.log("Action: "+scriptparser.getParameter(0)+"\n");
 
 			String action = scriptparser.getParameter(0);
-			if( "desc".equals(action) ) {
-				scriptparser.log("QQuest: "+scriptparser.getParameter(1)+"\n");
+			switch (action)
+			{
+				case "desc":
+				{
+					scriptparser.log("QQuest: " + scriptparser.getParameter(1) + "\n");
 
-				QuickQuest qquest = (QuickQuest)db.get(QuickQuest.class, Value.Int(scriptparser.getParameter(1)));
+					QuickQuest qquest = (QuickQuest) db.get(QuickQuest.class, Value.Int(scriptparser.getParameter(1)));
 
-				if( (qquest == null) || !qquest.getSourceType().equals(typeid) ) {
-					scriptparser.setRegister("#A","0");
-					return CONTINUE;
-				}
-
-				int[] sourcelist = Common.explodeToInt(",", qquest.getSource());
-				if( !Common.inArray(shipid, sourcelist) ) {
-					scriptparser.setRegister("#A","0");
-					return CONTINUE;
-				}
-
-				call(new LoadQuestContext(), scriptparser, qquest.getEnabled());
-				call(new GetQuestID(), scriptparser, scriptparser.getRegister("#QUEST"));
-
-				if( Value.Int(scriptparser.getRegister("#A")) == qquest.getEnabled() ) {
-					scriptparser.setRegister("#A","0");
-					return CONTINUE;
-				}
-
-				if( !qquest.getMoreThanOnce() ) {
-					call(new HasQuestCompleted(), scriptparser, qquest.getEnabled());
-					if( Value.Int(scriptparser.getRegister("#cmp")) > 0 ) {
-						scriptparser.setRegister("#A","0");
+					if ((qquest == null) || !qquest.getSourceType().equals(typeid))
+					{
+						scriptparser.setRegister("#A", "0");
 						return CONTINUE;
 					}
-				}
 
-				if( qquest.getDependsOnQuests().length() > 0 ) {
-					String[] qquests = StringUtils.split(qquest.getDependsOnQuests(), ';');
-					for( int i=0; i < qquests.length; i++ ) {
-						String[] tmp = StringUtils.split(qquests[i], ':');
-						Quest quest = (Quest)db.createQuery("from Quest where qid= :qid")
-							.setString("qid", tmp[1])
-							.uniqueResult();
-						if( quest == null ) {
-							log.warn("QQuest "+qquest.getId()+" benoetigt Quest "+tmp[1]+", welches jedoch nicht existiert");
-							continue;
-						}
+					int[] sourcelist = Common.explodeToInt(",", qquest.getSource());
+					if (!Common.inArray(shipid, sourcelist))
+					{
+						scriptparser.setRegister("#A", "0");
+						return CONTINUE;
+					}
 
-						call(new HasQuestCompleted(), scriptparser, quest.getId());
-						if( Value.Int(scriptparser.getRegister("#cmp")) <= 0 ) {
-							scriptparser.setRegister("#A","0");
+					call(new LoadQuestContext(), scriptparser, qquest.getEnabled());
+					call(new GetQuestID(), scriptparser, scriptparser.getRegister("#QUEST"));
+
+					if (Value.Int(scriptparser.getRegister("#A")) == qquest.getEnabled())
+					{
+						scriptparser.setRegister("#A", "0");
+						return CONTINUE;
+					}
+
+					if (!qquest.getMoreThanOnce())
+					{
+						call(new HasQuestCompleted(), scriptparser, qquest.getEnabled());
+						if (Value.Int(scriptparser.getRegister("#cmp")) > 0)
+						{
+							scriptparser.setRegister("#A", "0");
 							return CONTINUE;
 						}
 					}
-				}
 
-				String dialogtext = qquest.getShortDesc()+"[hr]\n"+qquest.getDescription()+"\n\n";
-				if( !qquest.getReqItems().isEmpty() || qquest.getReqRe() != 0 ) {
-					dialogtext += "Benötigt:[color=red]\n";
-					if( !qquest.getReqItems().isEmpty() ) {
-						ResourceList reslist = qquest.getReqItems().getResourceList();
-						for( ResourceEntry res : reslist ) {
-							dialogtext += "[resource="+res.getId()+"]"+res.getCount1()+"[/resource]\n";
-						}
-					}
-					if( qquest.getReqRe() != 0 ) {
-						dialogtext += Common.ln(qquest.getReqRe())+" RE\n";
-					}
-					dialogtext += "[/color]\n\n";
-				}
-				if( !qquest.getAwardItems().isEmpty() ) {
-					dialogtext += "Belohnung in Waren:\n";
-
-					ResourceList reslist = qquest.getAwardItems().getResourceList();
-					for( ResourceEntry res : reslist ) {
-						dialogtext += "[resource="+res.getId()+"]"+res.getCount1()+"[/resource]\n";
-					}
-					dialogtext += "\n";
-				}
-				if( qquest.getAwardRe() != 0 ) {
-					dialogtext += "Belohnung in RE: "+Common.ln(qquest.getAwardRe())+"\n";
-				}
-
-				call(new LoadDialog(), scriptparser,
-						dialogtext,
-						qquest.getHead());
-
-				call(new AddAnswer(), scriptparser,
-						"Annehmen",
-						"_quick_quests",
-						"yes",
-						qquest.getId());
-
-				call(new AddAnswer(), scriptparser,
-						"Ablehnen",
-						"0");
-
-				call(new InitDialog(), scriptparser);
-			}
-			// ende action.equals("desc")
-			else if( "yes".equals(action) ) {
-				scriptparser.log("QQuest: "+scriptparser.getParameter(1)+"\n");
-
-				QuickQuest qquest = (QuickQuest)db.get(QuickQuest.class, Value.Int(scriptparser.getParameter(1)));
-
-				if( (qquest == null) || !qquest.getSourceType().equals(typeid) ) {
-					scriptparser.setRegister("#A","0");
-					return CONTINUE;
-				}
-
-				int[] sourcelist = Common.explodeToInt(",", qquest.getSource());
-				if( !Common.inArray(shipid, sourcelist) ) {
-					scriptparser.setRegister("#A","0");
-					return CONTINUE;
-				}
-
-				call(new LoadQuestContext(), scriptparser, qquest.getEnabled() );
-				call(new GetQuestID(), scriptparser, scriptparser.getRegister("#QUEST") );
-				if( Value.Int(scriptparser.getRegister("#A")) == qquest.getEnabled() ) {
-					scriptparser.setRegister("#A","0");
-					return CONTINUE;
-				}
-
-				if( !qquest.getMoreThanOnce() ) {
-					call(new HasQuestCompleted(), scriptparser, qquest.getEnabled() );
-					if( Value.Int(scriptparser.getRegister("#cmp")) > 0 ) {
-						scriptparser.setRegister("#A","0");
-						return CONTINUE;
-					}
-				}
-				if( qquest.getDependsOnQuests().length() > 0 ) {
-					String[] qquests = StringUtils.split(qquest.getDependsOnQuests(), ';');
-					for( int i=0; i < qquests.length; i++ ) {
-						String[] tmp = StringUtils.split(qquests[i], ':');
-						Quest quest = (Quest)db.createQuery("from Quest where qid= :qid")
-							.setString("qid", tmp[1])
-							.uniqueResult();
-						if( quest == null ) {
-							log.warn("QQuest "+qquest.getId()+" benoetigt Quest "+tmp[1]+", welches jedoch nicht existiert");
-							continue;
-						}
-
-						call(new HasQuestCompleted(), scriptparser, quest.getId());
-						if( Value.Int(scriptparser.getRegister("#cmp")) <= 0 ) {
-							scriptparser.setRegister("#A","0");
-							return CONTINUE;
-						}
-					}
-				}
-
-				call(new InitQuest(), scriptparser, qquest.getEnabled() );
-				scriptparser.setRegister("#QSTATUS","1");
-
-				// Evt fuer das Quest benoetigte Items auf das Schiff transferieren
-				if( !qquest.getStartItems().isEmpty() ) {
-					call(new CopyVar(), scriptparser,
-							"#ship",
-							"shipsource.cargo" );
-
-					ResourceList reslist = qquest.getStartItems().getResourceList();
-					for( ResourceEntry res : reslist ) {
-						if( res.getId().getQuest() != 0 ) {
-							call( new AddQuestItem(), scriptparser,
-									"#ship",
-									res.getId().getItemID(),
-									res.getCount1() );
-						}
-						else {
-							call( new AddResource(), scriptparser,
-									"#ship",
-									res.getId().toString(),
-									res.getCount1() );
-						}
-					}
-					call( new SaveVar(), scriptparser,
-							"shipsource.cargo",
-							"#ship" );
-
-					scriptparser.setRegister("#ship","0");
-				}
-				// Loottable ergaenzen
-				if( qquest.getLoottable() != null ) {
-					String[] loottable = StringUtils.split(qquest.getLoottable(), ';');
-					for( int i=0; i < loottable.length; i++ ) {
-						String[] atable = StringUtils.split(loottable[i], ',');
-						if( atable.length > 4 ) {
-							call( new AddLootTable(), scriptparser,
-									atable[0],
-									atable[1],
-									atable[2],
-									atable[3],
-									atable[4],
-									atable.length > 5 ? atable[5] : "" );
-						}
-					}
-				}
-				scriptparser.setRegister("#quest"+qquest.getId()+"_status", qquest.getShortDesc());
-				call( new SetQuestUIStatus(), scriptparser,
-						"#quest"+qquest.getId()+"_status",
-						"1" );
-			}
-			// ende if( action.equals("yes")
-			else if( "end".equals(action) ) {
-				scriptparser.log("QQuest: "+scriptparser.getParameter(1)+"\n");
-
-				QuickQuest qquest = (QuickQuest)db.get(QuickQuest.class, Value.Int(scriptparser.getParameter(1)));
-
-				if( (qquest == null) || !qquest.getSourceType().equals(typeid) ) {
-					scriptparser.setRegister("#A","0");
-					return CONTINUE;
-				}
-
-				int[] sourcelist = Common.explodeToInt(",", qquest.getSource());
-				if( !Common.inArray(shipid, sourcelist) ) {
-					scriptparser.setRegister("#A","0");
-					return CONTINUE;
-				}
-
-				call(new LoadQuestContext(), scriptparser, qquest.getEnabled() );
-
-				if( scriptparser.getRegister("#QUEST").length() == 0 ) {
-					scriptparser.setRegister("#A","0");
-					return CONTINUE;
-				}
-
-				int rquestid = Value.Int(scriptparser.getRegister("#QUEST").substring(1));
-				RunningQuest rquest = (RunningQuest)db.get(RunningQuest.class, rquestid);
-				if( (rquest == null) || (rquest.getQuest().getId() != qquest.getEnabled()) ) {
-					scriptparser.setRegister("#A","0");
-					return CONTINUE;
-				}
-
-				if( Value.Int(scriptparser.getRegister("#QSTATUS")) != 1 ) {
-					scriptparser.setRegister("#A","0");
-					return CONTINUE;
-				}
-
-				boolean quitable = true;
-
-				// Die zum beenden benoetigten Items checken
-				if( !qquest.getReqItems().isEmpty() ) {
-					call( new CopyVar(), scriptparser,
-							"#ship",
-							"shipsource.cargo" );
-
-					ResourceList reslist = qquest.getReqItems().getResourceList();
-					for( ResourceEntry res : reslist ) {
-						if( res.getId().getQuest() != 0 ) {
-							call( new HasQuestItem(), scriptparser,
-									"#ship",
-									res.getId().getItemID(),
-									res.getCount1() );
-
-							if( Value.Int(scriptparser.getRegister("#cmp")) <= 0 ) {
-								quitable = false;
-								break;
+					if (qquest.getDependsOnQuests().length() > 0)
+					{
+						String[] qquests = StringUtils.split(qquest.getDependsOnQuests(), ';');
+						for (String qquest1 : qquests)
+						{
+							String[] tmp = StringUtils.split(qquest1, ':');
+							Quest quest = (Quest) db.createQuery("from Quest where qid= :qid")
+									.setString("qid", tmp[1])
+									.uniqueResult();
+							if (quest == null)
+							{
+								log.warn("QQuest " + qquest.getId() + " benoetigt Quest " + tmp[1] + ", welches jedoch nicht existiert");
+								continue;
 							}
-						}
-						else {
-							call( new HasResource(), scriptparser,
-									"#ship",
-									res.getId(),
-									res.getCount1() );
 
-							if( Value.Int(scriptparser.getRegister("#cmp")) <= 0 ) {
-								quitable = false;
-								break;
+							call(new HasQuestCompleted(), scriptparser, quest.getId());
+							if (Value.Int(scriptparser.getRegister("#cmp")) <= 0)
+							{
+								scriptparser.setRegister("#A", "0");
+								return CONTINUE;
 							}
 						}
 					}
-					scriptparser.setRegister("#ship","0");
-				} // end 'reqitems'
 
-				if( quitable && (qquest.getReqRe() != 0) ) {
-					call( new GetMoney(), scriptparser, scriptparser.getRegister("#USER") );
-					if( Value.Int(scriptparser.getRegister("A")) < qquest.getReqRe() ) {
-						quitable = false;
-					}
-				}
-
-				// Koennen wir das Quest nun beenden oder nicht?
-				if( quitable ) {
-					// Die ganzen gegenstaende abbuchen
-					if( !qquest.getReqItems().isEmpty() ) {
-						call( new CopyVar(), scriptparser,
-								"#ship",
-								"shipsource.cargo" );
-
-						ResourceList reslist = qquest.getReqItems().getResourceList();
-						for( ResourceEntry res : reslist ) {
-							if( res.getId().getQuest() != 0 ) {
-								call( new AddQuestItem(), scriptparser,
-										"#ship",
-										res.getId().getItemID(),
-										-res.getCount1() );
-							}
-							else {
-								call( new AddResource(), scriptparser,
-										"#ship",
-										res.getId(),
-										-res.getCount1() );
+					String dialogtext = qquest.getShortDesc() + "[hr]\n" + qquest.getDescription() + "\n\n";
+					if (!qquest.getReqItems().isEmpty() || qquest.getReqRe() != 0)
+					{
+						dialogtext += "Benötigt:[color=red]\n";
+						if (!qquest.getReqItems().isEmpty())
+						{
+							ResourceList reslist = qquest.getReqItems().getResourceList();
+							for (ResourceEntry res : reslist)
+							{
+								dialogtext += "[resource=" + res.getId() + "]" + res.getCount1() + "[/resource]\n";
 							}
 						}
-						call(new SaveVar(), scriptparser,
-								"shipsource.cargo",
-								"#ship" );
-
-						scriptparser.setRegister("#ship","0");
-					} // end 'reqitems'
-
-					if( qquest.getReqRe() != 0 ) {
-						call( new AddMoney(), scriptparser,
-								0,
-								scriptparser.getRegister("#USER"),
-								qquest.getReqRe(),
-								"Kosten Quest '"+qquest.getQName()+"'",
-								0 );
-					}
-
-					// Belohnungen (Waren/RE)
-					if( !qquest.getAwardItems().isEmpty() ) {
-						call( new CopyVar(), scriptparser,
-								"#ship",
-								"shipsource.cargo" );
-
-						ResourceList reslist = qquest.getAwardItems().getResourceList();
-						for( ResourceEntry res : reslist ) {
-							call( new AddResource(), scriptparser,
-									"#ship",
-									res.getId(),
-									res.getCount1() );
+						if (qquest.getReqRe() != 0)
+						{
+							dialogtext += Common.ln(qquest.getReqRe()) + " RE\n";
 						}
-						call( new SaveVar(), scriptparser,
-								"shipsource.cargo",
-								"#ship" );
-
-						scriptparser.setRegister("#ship","0");
+						dialogtext += "[/color]\n\n";
 					}
-					if( qquest.getAwardRe() != 0 ) {
-						call( new AddMoney(), scriptparser,
-								scriptparser.getRegister("#USER"),
-								0,
-								qquest.getAwardRe(),
-								"Belohnung Quest '"+qquest.getQName()+"'",
-								1 );
-					}
-					call( new CompleteQuest(), scriptparser, scriptparser.getRegister("#QUEST") );
-
-					String dialogtext = null;
-					if( qquest.getFinishText().isEmpty() ) {
-						dialogtext = "Sehr gut! Du hast deine Aufgabe beendet.\nHier hast du ein paar Dinge die du sicher gut gebrauchen kannst:\n\n";
-					}
-					else {
-						dialogtext = qquest.getFinishText()+"\n\n";
-					}
-
-					if( !qquest.getAwardItems().isEmpty() ) {
+					if (!qquest.getAwardItems().isEmpty())
+					{
 						dialogtext += "Belohnung in Waren:\n";
 
 						ResourceList reslist = qquest.getAwardItems().getResourceList();
-						for( ResourceEntry res : reslist ) {
-							dialogtext += "[resource="+res.getId()+"]"+res.getCount1()+"[/resource]\n";
+						for (ResourceEntry res : reslist)
+						{
+							dialogtext += "[resource=" + res.getId() + "]" + res.getCount1() + "[/resource]\n";
 						}
 						dialogtext += "\n";
 					}
-					if( qquest.getAwardRe() != 0 ) {
-						dialogtext += "Belohnung in RE: "+Common.ln(qquest.getAwardRe())+"\n";
+					if (qquest.getAwardRe() != 0)
+					{
+						dialogtext += "Belohnung in RE: " + Common.ln(qquest.getAwardRe()) + "\n";
 					}
 
 					call(new LoadDialog(), scriptparser,
 							dialogtext,
-							qquest.getHead() );
+							qquest.getHead());
 
 					call(new AddAnswer(), scriptparser,
-							"Auf Wiedersehen!",
-							"0" );
+							"Annehmen",
+							"_quick_quests",
+							"yes",
+							qquest.getId());
 
-					call(new InitDialog(), scriptparser );
+					call(new AddAnswer(), scriptparser,
+							"Ablehnen",
+							"0");
 
-					call(new EndQuest(), scriptparser );
+					call(new InitDialog(), scriptparser);
+					break;
 				}
-				else {
-					String dialogtext = null;
-					if( !qquest.getNotYetText().isEmpty() ) {
-						dialogtext = qquest.getNotYetText();
-					}
-					else {
-						dialogtext = "Tut mir leid. Du hast die Aufgabe noch nicht komplett erledigt.";
-					}
-					call( new LoadDialog(), scriptparser,
-							dialogtext,
-							qquest.getHead() );
+				// ende action.equals("desc")
+				case "yes":
+				{
+					scriptparser.log("QQuest: " + scriptparser.getParameter(1) + "\n");
 
-					call( new AddAnswer(), scriptparser,
-							"Auf Wiedersehen!",
-							"0" );
+					QuickQuest qquest = (QuickQuest) db.get(QuickQuest.class, Value.Int(scriptparser.getParameter(1)));
 
-					call( new InitDialog(), scriptparser );
+					if ((qquest == null) || !qquest.getSourceType().equals(typeid))
+					{
+						scriptparser.setRegister("#A", "0");
+						return CONTINUE;
+					}
+
+					int[] sourcelist = Common.explodeToInt(",", qquest.getSource());
+					if (!Common.inArray(shipid, sourcelist))
+					{
+						scriptparser.setRegister("#A", "0");
+						return CONTINUE;
+					}
+
+					call(new LoadQuestContext(), scriptparser, qquest.getEnabled());
+					call(new GetQuestID(), scriptparser, scriptparser.getRegister("#QUEST"));
+					if (Value.Int(scriptparser.getRegister("#A")) == qquest.getEnabled())
+					{
+						scriptparser.setRegister("#A", "0");
+						return CONTINUE;
+					}
+
+					if (!qquest.getMoreThanOnce())
+					{
+						call(new HasQuestCompleted(), scriptparser, qquest.getEnabled());
+						if (Value.Int(scriptparser.getRegister("#cmp")) > 0)
+						{
+							scriptparser.setRegister("#A", "0");
+							return CONTINUE;
+						}
+					}
+					if (qquest.getDependsOnQuests().length() > 0)
+					{
+						String[] qquests = StringUtils.split(qquest.getDependsOnQuests(), ';');
+						for (String qquest1 : qquests)
+						{
+							String[] tmp = StringUtils.split(qquest1, ':');
+							Quest quest = (Quest) db.createQuery("from Quest where qid= :qid")
+									.setString("qid", tmp[1])
+									.uniqueResult();
+							if (quest == null)
+							{
+								log.warn("QQuest " + qquest.getId() + " benoetigt Quest " + tmp[1] + ", welches jedoch nicht existiert");
+								continue;
+							}
+
+							call(new HasQuestCompleted(), scriptparser, quest.getId());
+							if (Value.Int(scriptparser.getRegister("#cmp")) <= 0)
+							{
+								scriptparser.setRegister("#A", "0");
+								return CONTINUE;
+							}
+						}
+					}
+
+					call(new InitQuest(), scriptparser, qquest.getEnabled());
+					scriptparser.setRegister("#QSTATUS", "1");
+
+					// Evt fuer das Quest benoetigte Items auf das Schiff transferieren
+					if (!qquest.getStartItems().isEmpty())
+					{
+						call(new CopyVar(), scriptparser,
+								"#ship",
+								"shipsource.cargo");
+
+						ResourceList reslist = qquest.getStartItems().getResourceList();
+						for (ResourceEntry res : reslist)
+						{
+							if (res.getId().getQuest() != 0)
+							{
+								call(new AddQuestItem(), scriptparser,
+										"#ship",
+										res.getId().getItemID(),
+										res.getCount1());
+							}
+							else
+							{
+								call(new AddResource(), scriptparser,
+										"#ship",
+										res.getId().toString(),
+										res.getCount1());
+							}
+						}
+						call(new SaveVar(), scriptparser,
+								"shipsource.cargo",
+								"#ship");
+
+						scriptparser.setRegister("#ship", "0");
+					}
+					// Loottable ergaenzen
+					if (qquest.getLoottable() != null)
+					{
+						String[] loottable = StringUtils.split(qquest.getLoottable(), ';');
+						for (String aLoottable : loottable)
+						{
+							String[] atable = StringUtils.split(aLoottable, ',');
+							if (atable.length > 4)
+							{
+								call(new AddLootTable(), scriptparser,
+										atable[0],
+										atable[1],
+										atable[2],
+										atable[3],
+										atable[4],
+										atable.length > 5 ? atable[5] : "");
+							}
+						}
+					}
+					scriptparser.setRegister("#quest" + qquest.getId() + "_status", qquest.getShortDesc());
+					call(new SetQuestUIStatus(), scriptparser,
+							"#quest" + qquest.getId() + "_status",
+							"1");
+					break;
+				}
+				// ende if( action.equals("yes")
+				case "end":
+				{
+					scriptparser.log("QQuest: " + scriptparser.getParameter(1) + "\n");
+
+					QuickQuest qquest = (QuickQuest) db.get(QuickQuest.class, Value.Int(scriptparser.getParameter(1)));
+
+					if ((qquest == null) || !qquest.getSourceType().equals(typeid))
+					{
+						scriptparser.setRegister("#A", "0");
+						return CONTINUE;
+					}
+
+					int[] sourcelist = Common.explodeToInt(",", qquest.getSource());
+					if (!Common.inArray(shipid, sourcelist))
+					{
+						scriptparser.setRegister("#A", "0");
+						return CONTINUE;
+					}
+
+					call(new LoadQuestContext(), scriptparser, qquest.getEnabled());
+
+					if (scriptparser.getRegister("#QUEST").length() == 0)
+					{
+						scriptparser.setRegister("#A", "0");
+						return CONTINUE;
+					}
+
+					int rquestid = Value.Int(scriptparser.getRegister("#QUEST").substring(1));
+					RunningQuest rquest = (RunningQuest) db.get(RunningQuest.class, rquestid);
+					if ((rquest == null) || (rquest.getQuest().getId() != qquest.getEnabled()))
+					{
+						scriptparser.setRegister("#A", "0");
+						return CONTINUE;
+					}
+
+					if (Value.Int(scriptparser.getRegister("#QSTATUS")) != 1)
+					{
+						scriptparser.setRegister("#A", "0");
+						return CONTINUE;
+					}
+
+					boolean quitable = true;
+
+					// Die zum beenden benoetigten Items checken
+					if (!qquest.getReqItems().isEmpty())
+					{
+						call(new CopyVar(), scriptparser,
+								"#ship",
+								"shipsource.cargo");
+
+						ResourceList reslist = qquest.getReqItems().getResourceList();
+						for (ResourceEntry res : reslist)
+						{
+							if (res.getId().getQuest() != 0)
+							{
+								call(new HasQuestItem(), scriptparser,
+										"#ship",
+										res.getId().getItemID(),
+										res.getCount1());
+
+								if (Value.Int(scriptparser.getRegister("#cmp")) <= 0)
+								{
+									quitable = false;
+									break;
+								}
+							}
+							else
+							{
+								call(new HasResource(), scriptparser,
+										"#ship",
+										res.getId(),
+										res.getCount1());
+
+								if (Value.Int(scriptparser.getRegister("#cmp")) <= 0)
+								{
+									quitable = false;
+									break;
+								}
+							}
+						}
+						scriptparser.setRegister("#ship", "0");
+					} // end 'reqitems'
+
+					if (quitable && (qquest.getReqRe() != 0))
+					{
+						call(new GetMoney(), scriptparser, scriptparser.getRegister("#USER"));
+						if (Value.Int(scriptparser.getRegister("A")) < qquest.getReqRe())
+						{
+							quitable = false;
+						}
+					}
+
+					// Koennen wir das Quest nun beenden oder nicht?
+					if (quitable)
+					{
+						// Die ganzen gegenstaende abbuchen
+						if (!qquest.getReqItems().isEmpty())
+						{
+							call(new CopyVar(), scriptparser,
+									"#ship",
+									"shipsource.cargo");
+
+							ResourceList reslist = qquest.getReqItems().getResourceList();
+							for (ResourceEntry res : reslist)
+							{
+								if (res.getId().getQuest() != 0)
+								{
+									call(new AddQuestItem(), scriptparser,
+											"#ship",
+											res.getId().getItemID(),
+											-res.getCount1());
+								}
+								else
+								{
+									call(new AddResource(), scriptparser,
+											"#ship",
+											res.getId(),
+											-res.getCount1());
+								}
+							}
+							call(new SaveVar(), scriptparser,
+									"shipsource.cargo",
+									"#ship");
+
+							scriptparser.setRegister("#ship", "0");
+						} // end 'reqitems'
+
+						if (qquest.getReqRe() != 0)
+						{
+							call(new AddMoney(), scriptparser,
+									0,
+									scriptparser.getRegister("#USER"),
+									qquest.getReqRe(),
+									"Kosten Quest '" + qquest.getQName() + "'",
+									0);
+						}
+
+						// Belohnungen (Waren/RE)
+						if (!qquest.getAwardItems().isEmpty())
+						{
+							call(new CopyVar(), scriptparser,
+									"#ship",
+									"shipsource.cargo");
+
+							ResourceList reslist = qquest.getAwardItems().getResourceList();
+							for (ResourceEntry res : reslist)
+							{
+								call(new AddResource(), scriptparser,
+										"#ship",
+										res.getId(),
+										res.getCount1());
+							}
+							call(new SaveVar(), scriptparser,
+									"shipsource.cargo",
+									"#ship");
+
+							scriptparser.setRegister("#ship", "0");
+						}
+						if (qquest.getAwardRe() != 0)
+						{
+							call(new AddMoney(), scriptparser,
+									scriptparser.getRegister("#USER"),
+									0,
+									qquest.getAwardRe(),
+									"Belohnung Quest '" + qquest.getQName() + "'",
+									1);
+						}
+						call(new CompleteQuest(), scriptparser, scriptparser.getRegister("#QUEST"));
+
+						String dialogtext;
+						if (qquest.getFinishText().isEmpty())
+						{
+							dialogtext = "Sehr gut! Du hast deine Aufgabe beendet.\nHier hast du ein paar Dinge die du sicher gut gebrauchen kannst:\n\n";
+						}
+						else
+						{
+							dialogtext = qquest.getFinishText() + "\n\n";
+						}
+
+						if (!qquest.getAwardItems().isEmpty())
+						{
+							dialogtext += "Belohnung in Waren:\n";
+
+							ResourceList reslist = qquest.getAwardItems().getResourceList();
+							for (ResourceEntry res : reslist)
+							{
+								dialogtext += "[resource=" + res.getId() + "]" + res.getCount1() + "[/resource]\n";
+							}
+							dialogtext += "\n";
+						}
+						if (qquest.getAwardRe() != 0)
+						{
+							dialogtext += "Belohnung in RE: " + Common.ln(qquest.getAwardRe()) + "\n";
+						}
+
+						call(new LoadDialog(), scriptparser,
+								dialogtext,
+								qquest.getHead());
+
+						call(new AddAnswer(), scriptparser,
+								"Auf Wiedersehen!",
+								"0");
+
+						call(new InitDialog(), scriptparser);
+
+						call(new EndQuest(), scriptparser);
+					}
+					else
+					{
+						String dialogtext;
+						if (!qquest.getNotYetText().isEmpty())
+						{
+							dialogtext = qquest.getNotYetText();
+						}
+						else
+						{
+							dialogtext = "Tut mir leid. Du hast die Aufgabe noch nicht komplett erledigt.";
+						}
+						call(new LoadDialog(), scriptparser,
+								dialogtext,
+								qquest.getHead());
+
+						call(new AddAnswer(), scriptparser,
+								"Auf Wiedersehen!",
+								"0");
+
+						call(new InitDialog(), scriptparser);
+					}
+					break;
 				}
 			}
 			// ende if( action.equals("end") )

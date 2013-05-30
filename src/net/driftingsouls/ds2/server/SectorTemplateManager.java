@@ -104,7 +104,7 @@ public class SectorTemplateManager {
 			return null;
 		}
 
-		List<Integer> shipids = new ArrayList<Integer>();
+		List<Integer> shipids = new ArrayList<>();
 
 		String query = "FROM Ship WHERE id>0 AND system=0 ";
 
@@ -122,9 +122,9 @@ public class SectorTemplateManager {
 			query += " AND (y BETWEEN "+res.getY()+" AND "+(res.getY()+res.getHeigth())+") ";
 		}
 
-		List<DockEntry> docked = new ArrayList<DockEntry>();
-		Map<Integer,Integer> idtable = new HashMap<Integer,Integer>();
-		List<FleetEntry> fleet = new ArrayList<FleetEntry>();
+		List<DockEntry> docked = new ArrayList<>();
+		Map<Integer,Integer> idtable = new HashMap<>();
+		List<FleetEntry> fleet = new ArrayList<>();
 
 		List<Ship> ships = Common.cast(db.createQuery(query).list());
 		for(Ship ship : ships ) {
@@ -200,9 +200,9 @@ public class SectorTemplateManager {
 		}
 
 		// Gedockte Schiffe behandeln
-		boolean landed = false;
+		boolean landed;
 		for( DockEntry dock : docked ) {
-			int masterid = -1;
+			int masterid;
 			if( dock.docked.charAt(0) == 'l' ) {
 				String[] split = dock.docked.split(" ");
 				masterid = Integer.parseInt(split[1]);
@@ -215,7 +215,7 @@ public class SectorTemplateManager {
 
 			masterid = idtable.get(masterid);
 
-			String newdock = "";
+			String newdock;
 			if( landed ) {
 				newdock = "l "+masterid;
 			}
@@ -228,7 +228,7 @@ public class SectorTemplateManager {
 				.setInteger("id", dock.shipid);
 		}
 
-		Map<Integer,Integer> fleetlist = new HashMap<Integer,Integer>();
+		Map<Integer,Integer> fleetlist = new HashMap<>();
 
 		for( FleetEntry flship : fleet ) {
 			if( !fleetlist.containsKey(flship.fleetid) ) {

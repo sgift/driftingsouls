@@ -28,7 +28,7 @@ import java.util.Map;
  */
 class RoleDefinitionImpl implements RoleDefinition {
 	private String roleName;
-	private Map<String,Object> attributes = new HashMap<String,Object>();
+	private Map<String,Object> attributes = new HashMap<>();
 	
 	@Override
 	public String getRoleName() {

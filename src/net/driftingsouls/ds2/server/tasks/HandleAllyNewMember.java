@@ -48,50 +48,61 @@ class HandleAllyNewMember implements TaskHandler {
 		User user = (User)context.getActiveUser();
 
 		int playerID = Integer.parseInt(task.getData2());
-		
-		if( event.equals("pm_yes") ) {
-			Ally ally = (Ally)context.getDB().get(Ally.class, Integer.valueOf(task.getData1()));
-			
-			User player = (User)context.getDB().get(User.class, playerID);
-			String newname = ally.getAllyTag();
-			newname = StringUtils.replace(newname, "[name]", player.getNickname());
-			player.setAlly(ally);
-			player.setName(newname);
-			
-			int tick = context.get(ContextCommon.class).getTick();
-			player.addHistory(Common.getIngameTime(tick)+": Beitritt zur Allianz "+ally.getName());
-			
-			int membercount = 1;
-			
-			// Beziehungen auf "Freund" setzen
-			List<User> members = ally.getMembers();
-			for( User allymember : members ) {
-				if( allymember.getId() == player.getId() ) {
-					continue;
+
+		switch (event)
+		{
+			case "pm_yes":
+				Ally ally = (Ally) context.getDB().get(Ally.class, Integer.valueOf(task.getData1()));
+
+				User player = (User) context.getDB().get(User.class, playerID);
+				String newname = ally.getAllyTag();
+				newname = StringUtils.replace(newname, "[name]", player.getNickname());
+				player.setAlly(ally);
+				player.setName(newname);
+
+				int tick = context.get(ContextCommon.class).getTick();
+				player.addHistory(Common.getIngameTime(tick) + ": Beitritt zur Allianz " + ally.getName());
+
+				int membercount = 1;
+
+				// Beziehungen auf "Freund" setzen
+				List<User> members = ally.getMembers();
+				for (User allymember : members)
+				{
+					if (allymember.getId() == player.getId())
+					{
+						continue;
+					}
+					allymember.setRelation(player.getId(), User.Relation.FRIEND);
+					player.setRelation(allymember.getId(), User.Relation.FRIEND);
+
+					membercount++;
 				}
-				allymember.setRelation(player.getId(), User.Relation.FRIEND);
-				player.setRelation(allymember.getId(), User.Relation.FRIEND);
-				
-				membercount++;
-			}
-			
-			PM.send( user, player.getId(), "Aufnahmeantrag", "[Automatische Nachricht]\nDu wurdest in die Allianz >"+ally.getName()+"< aufgenommen\n\nHerzlichen Gr&uuml;ckwunsch!");
-			
-			// Check, ob wir eine TM_TASK_LOW_MEMBER entfernen muessen
-			if( membercount == 3 ) {
-				Task[] tasks = Taskmanager.getInstance().getTasksByData( Taskmanager.Types.ALLY_LOW_MEMBER, Integer.toString(ally.getId()), "*", "*" );
-				for( int i=0; i < tasks.length; i++ ) {
-					Taskmanager.getInstance().removeTask( tasks[i].getTaskID() );
+
+				PM.send(user, player.getId(), "Aufnahmeantrag", "[Automatische Nachricht]\nDu wurdest in die Allianz >" + ally.getName() + "< aufgenommen\n\nHerzlichen Gr&uuml;ckwunsch!");
+
+				// Check, ob wir eine TM_TASK_LOW_MEMBER entfernen muessen
+				if (membercount == 3)
+				{
+					Task[] tasks = Taskmanager.getInstance().getTasksByData(Taskmanager.Types.ALLY_LOW_MEMBER, Integer.toString(ally.getId()), "*", "*");
+					for (Task task1 : tasks)
+					{
+						Taskmanager.getInstance().removeTask(task1.getTaskID());
+					}
 				}
+				break;
+			case "pm_no":
+			{
+				User source = (User) ContextMap.getContext().getDB().get(User.class, 0);
+				PM.send(source, playerID, "Aufnahmeantrag", "[Automatische Nachricht]\nDein Antrag wurde leider abgelehnt. Es steht dir nun frei ob du einen neuen Antrag nach absprache mit der Allianz stellen willst oder ob du dich an eine andere Allianz wendest.");
+				break;
 			}
-		}
-		else if( event.equals("pm_no") ) {
-			User source = (User)ContextMap.getContext().getDB().get(User.class, 0);
-			PM.send( source, playerID, "Aufnahmeantrag", "[Automatische Nachricht]\nDein Antrag wurde leider abgelehnt. Es steht dir nun frei ob du einen neuen Antrag nach absprache mit der Allianz stellen willst oder ob du dich an eine andere Allianz wendest.");
-		}
-		else if( event.equals("tick_timeout") ) {
-			User source = (User)ContextMap.getContext().getDB().get(User.class, 0);
-			PM.send( source, playerID, "Aufnahmeantrag", "[Automatische Nachricht]\nDein Antrag wurde leider nicht innerhalb der vorgegebenen Zeit bearbeitet und daher entfernt. Du hast jedoch jederzeit die M&ouml;glichkeit einen neuen Antrag zu stellen.");
+			case "tick_timeout":
+			{
+				User source = (User) ContextMap.getContext().getDB().get(User.class, 0);
+				PM.send(source, playerID, "Aufnahmeantrag", "[Automatische Nachricht]\nDein Antrag wurde leider nicht innerhalb der vorgegebenen Zeit bearbeitet und daher entfernt. Du hast jedoch jederzeit die M&ouml;glichkeit einen neuen Antrag zu stellen.");
+				break;
+			}
 		}
 		
 		Taskmanager.getInstance().removeTask( task.getTaskID() );

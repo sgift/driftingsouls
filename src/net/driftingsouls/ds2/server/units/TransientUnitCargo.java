@@ -43,8 +43,7 @@ public class TransientUnitCargo extends UnitCargo
 	@Override
 	protected UnitCargoEntry createUnitCargoEntry(UnitType unitid, long count)
 	{
-		UnitCargoEntry entry = new TransientUnitCargoEntry(unitid, count);
-		return entry;
+		return new TransientUnitCargoEntry(unitid, count);
 	}
 
 	@Override

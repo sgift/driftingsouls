@@ -18,10 +18,6 @@
  */
 package net.driftingsouls.ds2.server.werften;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -37,7 +33,6 @@ import net.driftingsouls.ds2.server.config.items.effects.IEModule;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
@@ -46,6 +41,11 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import org.apache.commons.lang.StringUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Die GUI einer Werft.
@@ -162,60 +162,76 @@ public class WerftGUI {
 
 			this.out_ResourceList( werft, costs );
 
-			if( "build".equals(show) ) {
-				t.setVar("werftgui.main.build", 1);
+			switch (show)
+			{
+				case "build":
+					t.setVar("werftgui.main.build", 1);
 
-				this.out_buildShipList( werft, shipdata );
-			}
-			else if( "repair".equals(show) ) {
-				t.setVar("werftgui.main.repair", 1);
+					this.out_buildShipList(werft, shipdata);
+					break;
+				case "repair":
+					t.setVar("werftgui.main.repair", 1);
 
-				this.out_wsShipList(werft);
-			}
-			else if( "queue".equals(show) ) {
-				t.setVar("werftgui.main.queue", 1);
+					this.out_wsShipList(werft);
+					break;
+				case "queue":
+					t.setVar("werftgui.main.queue", 1);
 
-				final int position = context.getRequest().getParameterInt("entry");
+					final int position = context.getRequest().getParameterInt("entry");
 
-				if("canclebuild".equals(action)) {
-					WerftQueueEntry entry = werft.getBuildQueueEntry(position);
-					if( entry != null ) {
-						t.setVar( "werftgui.building.cancel", 1 );
+					switch (action)
+					{
+						case "canclebuild":
+						{
+							WerftQueueEntry entry = werft.getBuildQueueEntry(position);
+							if (entry != null)
+							{
+								t.setVar("werftgui.building.cancel", 1);
 
-						werft.cancelBuild(entry);
+								werft.cancelBuild(entry);
+							}
+							break;
+						}
+						case "queuedown":
+						{
+							WerftQueueEntry entry = werft.getBuildQueueEntry(position);
+							WerftQueueEntry entry2 = werft.getBuildQueueEntry(position + 1);
+							if ((entry != null) && (entry2 != null))
+							{
+								werft.swapQueueEntries(entry, entry2);
+							}
+							break;
+						}
+						case "queuebottom":
+							werft.moveBuildQueueEntryToBottom(position);
+							break;
+						case "queueup":
+						{
+							WerftQueueEntry entry = werft.getBuildQueueEntry(position);
+							WerftQueueEntry entry2 = werft.getBuildQueueEntry(position - 1);
+							if ((entry != null) && (entry2 != null))
+							{
+								werft.swapQueueEntries(entry, entry2);
+							}
+							break;
+						}
+						case "queuetop":
+							werft.moveBuildQueueEntryToTop(position);
+							break;
 					}
-				}
-				else if("queuedown".equals(action)) {
-					WerftQueueEntry entry = werft.getBuildQueueEntry(position);
-					WerftQueueEntry entry2 = werft.getBuildQueueEntry(position+1);
-					if( (entry != null) && (entry2 != null) ) {
-						werft.swapQueueEntries(entry, entry2);
+
+					if (!action.isEmpty())
+					{
+						queue = werft.getBuildQueue();
 					}
-				}
-				else if("queuebottom".equals(action)) {
-					werft.moveBuildQueueEntryToBottom(position);
-				}
-				else if("queueup".equals(action)) {
-					WerftQueueEntry entry = werft.getBuildQueueEntry(position);
-					WerftQueueEntry entry2 = werft.getBuildQueueEntry(position-1);
-					if( (entry != null) && (entry2 != null) ) {
-						werft.swapQueueEntries(entry, entry2);
-					}
-				}
-				else if("queuetop".equals(action)) {
-					werft.moveBuildQueueEntryToTop(position);
-				}
 
-				if( !action.isEmpty() ) {
-					queue = werft.getBuildQueue();
-				}
+					out_queueShipList(werft, queue);
+					break;
+				case "options":
+					t.setVar("werftgui.main.options", 1);
 
-				out_queueShipList(werft, queue);
-			}
-			else if( "options".equals(show) ) {
-				t.setVar("werftgui.main.options", 1);
-
-				outWerftOptions(werft);
+					outWerftOptions(werft);
+					break;
 			}
 		}
 		t.parse( "OUT", "_WERFT.WERFTGUI" );
@@ -594,21 +610,28 @@ public class WerftGUI {
 		}
 
 		String action = context.getRequest().getParameterString("werftact");
-		if( action.equals("repair") ) {
-			String conf = context.getRequest().getParameterString("conf");
+		switch (action)
+		{
+			case "repair":
+			{
+				String conf = context.getRequest().getParameterString("conf");
 
-			this.out_repairShip( ship, werft, conf );
-		}
-		else if( action.equals("dismantle") ) {
-			String conf = context.getRequest().getParameterString("conf");
+				this.out_repairShip(ship, werft, conf);
+				break;
+			}
+			case "dismantle":
+			{
+				String conf = context.getRequest().getParameterString("conf");
 
-			this.out_dismantleShip( ship, werft, conf );
-		}
-		else if( action.equals("module") ) {
-			this.out_moduleShip( ship, werft );
-		}
-		else {
-			this.out_ws_info( ship );
+				this.out_dismantleShip(ship, werft, conf);
+				break;
+			}
+			case "module":
+				this.out_moduleShip(ship, werft);
+				break;
+			default:
+				this.out_ws_info(ship);
+				break;
 		}
 	}
 
@@ -692,7 +715,7 @@ public class WerftGUI {
 			return;
 		}
 
-		List<Ship> targetShips = new ArrayList<Ship>();
+		List<Ship> targetShips = new ArrayList<>();
 		if( ship.getFleet() != null )
 		{
 			for (Ship fleetship : ship.getFleet().getShips())
@@ -706,7 +729,7 @@ public class WerftGUI {
 
 		ShipTypeData shiptype = ship.getBaseType();
 
-		List<String[]> moduleslots = new ArrayList<String[]>();
+		List<String[]> moduleslots = new ArrayList<>();
 		String[] mslots = StringUtils.split(shiptype.getTypeModules(), ';');
 		for (String mslot : mslots)
 		{
@@ -753,7 +776,7 @@ public class WerftGUI {
 		}
 
 		ModuleEntry[] modules = ship.getModules();
-		Map<Integer,Integer> usedslots = new HashMap<Integer,Integer>();
+		Map<Integer,Integer> usedslots = new HashMap<>();
 
 		for( int i=0; i < modules.length; i++ ) {
 			usedslots.put(modules[i].getSlot(), i);

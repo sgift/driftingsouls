@@ -59,7 +59,7 @@ public final class ContextCommon
 		return Integer.valueOf(value.getValue());
 	}
 
-	private Map<String, ScriptEngine> scriptParsers = new HashMap<String, ScriptEngine>();
+	private Map<String, ScriptEngine> scriptParsers = new HashMap<>();
 
 	/**
 	 * Gibt eine Instanz einer ScriptEngine zurueck.

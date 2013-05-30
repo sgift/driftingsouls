@@ -64,13 +64,10 @@ class RoleEngine extends AbstractScriptEngine {
 			RoleExecuter executer = Interpreter.executerFromDefinition(roleDef);
 			executer.execute(context);
 		}
-		catch( IllegalRoleDefinitionException e ) {
+		catch( IllegalRoleDefinitionException | ParsingException e ) {
 			throw new ScriptException(e);
 		}
-		catch( ParsingException e ) {
-			throw new ScriptException(e);
-		}
-		
+
 		return null;
 	}
 
@@ -78,10 +75,10 @@ class RoleEngine extends AbstractScriptEngine {
 	public Object eval(Reader reader, ScriptContext context) throws ScriptException {
 		StringBuilder builder = new StringBuilder();
 		BufferedReader bf = new BufferedReader(reader);
-		String line = null;
+		String line;
 		try {
 			while( (line = bf.readLine()) != null ) {
-				builder.append(line+"\n");
+				builder.append(line).append("\n");
 			}
 		}
 		catch( IOException e ) {

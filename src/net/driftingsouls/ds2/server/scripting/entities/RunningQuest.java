@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.scripting.entities;
 
+import net.driftingsouls.ds2.server.entities.User;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -27,10 +29,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-
-import net.driftingsouls.ds2.server.entities.User;
-
-import org.hibernate.Hibernate;
 
 /**
  * <h1>Repraesentiert ein laufendes Quest.</h1>

@@ -100,37 +100,41 @@ public class ActionFunctions {
 
 			String cmd = (command.length > 1 ? command[1] : "");
 
-			if( cmd.equals("shipInRange") ) {
-				int shipid = Integer.parseInt(command[2]);
-				int range = 0;
-				if( (command.length > 3) && (command[3] != null) && (command[3].length() > 0) ) {
-					range = Integer.parseInt(command[3]);
-				}
+			switch (cmd)
+			{
+				case "shipInRange":
+					int shipid = Integer.parseInt(command[2]);
+					int range = 0;
+					if ((command.length > 3) && (command[3] != null) && (command[3].length() > 0))
+					{
+						range = Integer.parseInt(command[3]);
+					}
 
-				scriptparser.log("Warte auf Schiff "+shipid+" im Umkreis von "+range+" Feldern\n\n");
+					scriptparser.log("Warte auf Schiff " + shipid + " im Umkreis von " + range + " Feldern\n\n");
 
-				Location shipLoc = ship.getLocation();
+					Location shipLoc = ship.getLocation();
 
-				Ship result = (Ship)db.get(Ship.class, shipid);
+					Ship result = (Ship) db.get(Ship.class, shipid);
 
-				if( (result != null) && (result.getId() > 0) && shipLoc.sameSector(range, result.getLocation(), 0) ) {
-					return CONTINUE;
-				}
-				return STOP;
-			}
-			else if( cmd.equals("tick") ) {
-				int tick = ContextMap.getContext().get(ContextCommon.class).getTick();
-				int waittick = Integer.parseInt(command[2]);
-
-				scriptparser.log("Warte auf Tick "+waittick+" - aktuell: "+tick+"\n\n");
-
-				if( tick < waittick ) {
+					if ((result != null) && (result.getId() > 0) && shipLoc.sameSector(range, result.getLocation(), 0))
+					{
+						return CONTINUE;
+					}
 					return STOP;
-				}
-				return CONTINUE;
-			}
-			else {
-				scriptparser.log("Ausfuehrung bis zum naechsten Tick angehalten\n\n");
+				case "tick":
+					int tick = ContextMap.getContext().get(ContextCommon.class).getTick();
+					int waittick = Integer.parseInt(command[2]);
+
+					scriptparser.log("Warte auf Tick " + waittick + " - aktuell: " + tick + "\n\n");
+
+					if (tick < waittick)
+					{
+						return STOP;
+					}
+					return CONTINUE;
+				default:
+					scriptparser.log("Ausfuehrung bis zum naechsten Tick angehalten\n\n");
+					break;
 			}
 
 			return STOP_AND_INC;
@@ -291,22 +295,24 @@ public class ActionFunctions {
 			long count = Value.Long(command[6]);
 			scriptparser.log("count: "+count+"\n");
 
-			int from = idOne;
-			int to = idTwo;
+			int from;
+			int to;
 
 			boolean reversed = false;
-			if( way.equals("to") ) {
-				from = idOne;
-				to = idTwo;
-			}
-			else if( way.equals("from") ) {
-				from = idTwo;
-				to = idOne;
-				reversed = true;
-			}
-			else {
-				scriptparser.log("FEHLER: Transferweg darf nur from/to sein - war aber:"+way+"\n");
-				return CONTINUE;
+			switch (way)
+			{
+				case "to":
+					from = idOne;
+					to = idTwo;
+					break;
+				case "from":
+					from = idTwo;
+					to = idOne;
+					reversed = true;
+					break;
+				default:
+					scriptparser.log("FEHLER: Transferweg darf nur from/to sein - war aber:" + way + "\n");
+					return CONTINUE;
 			}
 
 

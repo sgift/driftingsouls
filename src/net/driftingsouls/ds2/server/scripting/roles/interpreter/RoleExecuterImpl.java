@@ -50,10 +50,7 @@ class RoleExecuterImpl implements RoleExecuter {
 				field.set(this.role, roleDef.getAttribute(roleDefAttr));
 			}
 		}
-		catch( InstantiationException e ) {
-			throw new IllegalRoleDefinitionException("Kann Rolle nicht erzeugen", e);
-		}
-		catch( IllegalAccessException e ) {
+		catch( InstantiationException | IllegalAccessException e ) {
 			throw new IllegalRoleDefinitionException("Kann Rolle nicht erzeugen", e);
 		}
 	}

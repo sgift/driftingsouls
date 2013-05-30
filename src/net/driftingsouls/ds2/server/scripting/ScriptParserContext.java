@@ -131,7 +131,7 @@ public class ScriptParserContext extends SimpleScriptContext {
 		
 		ObjectOutputStream oout = new ObjectOutputStream(out);
 		ExecData entry = new ExecData();
-		entry.register = new HashMap<String,Object>(context.getBindings(ScriptContext.ENGINE_SCOPE));
+		entry.register = new HashMap<>(context.getBindings(ScriptContext.ENGINE_SCOPE));
 		Integer ip = (Integer)context.getBindings(ScriptContext.ENGINE_SCOPE).get("__INSTRUCTIONPOINTER");
 		if( ip != null ) {
 			entry.lastcommand = ip;

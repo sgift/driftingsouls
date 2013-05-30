@@ -164,7 +164,7 @@ public enum ShipClasses {
 	 * @see #isDarfSchlachtenAnsehen() 
 	 */
 	public static Set<ShipClasses> darfSchlachtenAnsehen() {
-		Set<ShipClasses> result = new HashSet<ShipClasses>();
+		Set<ShipClasses> result = new HashSet<>();
 		for (ShipClasses shipClasses : values())
 		{
 			if( shipClasses.isDarfSchlachtenAnsehen() )

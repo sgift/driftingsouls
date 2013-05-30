@@ -18,11 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
@@ -46,12 +41,15 @@ import net.driftingsouls.ds2.server.ships.ShipLost;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
-
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Zeigt die Allianzseite an.
@@ -119,10 +117,13 @@ public class AllyController extends TemplateGenerator {
 
 		Task[] tasks = taskmanager.getTasksByData( Taskmanager.Types.ALLY_FOUND, "*", "*", "*" );
 		if( tasks.length > 0 ) {
-			for( int i=0; i < tasks.length; i++ ) {
-				int[] users = Common.explodeToInt(",", tasks[i].getData3());
-				for( int j=0; j < users.length; j++ ) {
-					if( users[j] == user.getId() ) {
+			for (Task task : tasks)
+			{
+				int[] users = Common.explodeToInt(",", task.getData3());
+				for (int user1 : users)
+				{
+					if (user1 == user.getId())
+					{
 						return true;
 					}
 				}
@@ -635,26 +636,32 @@ public class AllyController extends TemplateGenerator {
 		ComNetChannel channel = new ComNetChannel(name);
 		channel.setAllyOwner(this.ally.getId());
 
-		if( read.equals("all") ) {
-			channel.setReadAll(true);
-		}
-		else if( read.equals("ally") ) {
-			channel.setReadAlly(this.ally.getId());
-		}
-		else if( read.equals("player") ) {
-			readids = Common.implode(",", Common.explodeToInteger(",",readids));
-			channel.setReadPlayer(readids);
+		switch (read)
+		{
+			case "all":
+				channel.setReadAll(true);
+				break;
+			case "ally":
+				channel.setReadAlly(this.ally.getId());
+				break;
+			case "player":
+				readids = Common.implode(",", Common.explodeToInteger(",", readids));
+				channel.setReadPlayer(readids);
+				break;
 		}
 
-		if( write.equals("all") ) {
-			channel.setWriteAll(true);
-		}
-		else if( write.equals("ally") ) {
-			channel.setWriteAlly(this.ally.getId());
-		}
-		else if( write.equals("player") ) {
-			writeids = Common.implode(",", Common.explodeToInteger(",",writeids));
-			channel.setWritePlayer(writeids);
+		switch (write)
+		{
+			case "all":
+				channel.setWriteAll(true);
+				break;
+			case "ally":
+				channel.setWriteAlly(this.ally.getId());
+				break;
+			case "player":
+				writeids = Common.implode(",", Common.explodeToInteger(",", writeids));
+				channel.setWritePlayer(writeids);
+				break;
 		}
 		db.persist(channel);
 
@@ -719,26 +726,32 @@ public class AllyController extends TemplateGenerator {
 		channel.setWriteAlly(0);
 		channel.setWritePlayer("");
 
-		if( read.equals("all") ) {
-			channel.setReadAll(true);
-		}
-		else if( read.equals("ally") ) {
-			channel.setReadAlly(this.ally.getId());
-		}
-		else if( read.equals("player") ) {
-			readids = Common.implode(",", Common.explodeToInteger(",",readids));
-			channel.setReadPlayer(readids);
+		switch (read)
+		{
+			case "all":
+				channel.setReadAll(true);
+				break;
+			case "ally":
+				channel.setReadAlly(this.ally.getId());
+				break;
+			case "player":
+				readids = Common.implode(",", Common.explodeToInteger(",", readids));
+				channel.setReadPlayer(readids);
+				break;
 		}
 
-		if( write.equals("all") ) {
-			channel.setWriteAll(true);
-		}
-		else if( write.equals("ally") ) {
-			channel.setWriteAlly(this.ally.getId());
-		}
-		else if( write.equals("player") ) {
-			writeids = Common.implode(",", Common.explodeToInteger(",",writeids));
-			channel.setWritePlayer(writeids);
+		switch (write)
+		{
+			case "all":
+				channel.setWriteAll(true);
+				break;
+			case "ally":
+				channel.setWriteAlly(this.ally.getId());
+				break;
+			case "player":
+				writeids = Common.implode(",", Common.explodeToInteger(",", writeids));
+				channel.setWritePlayer(writeids);
+				break;
 		}
 
 		t.setVar( "ally.statusmessage", "Frequenz "+Common._plaintitle(name)+" ge&auml;ndert" );
@@ -878,7 +891,7 @@ public class AllyController extends TemplateGenerator {
 		String praesi = this.getString("praesi");
 
 		// Wurde der [name]-Tag vergessen?
-		if( allytag.indexOf("[name]") == -1 ) {
+		if(!allytag.contains("[name]")) {
 			t.setVar( "ally.message", "Warnung: Der [name]-tag wurde vergessen. Dieser wird nun automatisch angeh&auml;ngt!" );
 			allytag += "[name]";
 		}
@@ -1086,13 +1099,14 @@ public class AllyController extends TemplateGenerator {
 		t.setBlock( "_ALLY", "show.join.allylist.listitem", "show.join.allylist.list" );
 
 		List<?> al = getDB().createQuery("from Ally order by founded").list();
-		for( Iterator<?> iter=al.iterator(); iter.hasNext(); ) {
-			Ally aAlly = (Ally)iter.next();
+		for (Object anAl : al)
+		{
+			Ally aAlly = (Ally) anAl;
 
-			t.setVar(	"show.join.allylist.allyid",	aAlly.getId(),
-						"show.join.allylist.name",		Common._title(aAlly.getName()) );
+			t.setVar("show.join.allylist.allyid", aAlly.getId(),
+					"show.join.allylist.name", Common._title(aAlly.getName()));
 
-			t.parse( "show.join.allylist.list", "show.join.allylist.listitem", true );
+			t.parse("show.join.allylist.list", "show.join.allylist.listitem", true);
 		}
 	}
 
@@ -1185,42 +1199,44 @@ public class AllyController extends TemplateGenerator {
 		List<?> posten = db.createQuery("from AllyPosten as ap left join fetch ap.user where ap.ally= :ally")
 			.setEntity("ally", this.ally)
 			.list();
-		for( Iterator<?> iter=posten.iterator(); iter.hasNext(); ) {
-			AllyPosten aposten = (AllyPosten)iter.next();
+		for (Object aPosten : posten)
+		{
+			AllyPosten aposten = (AllyPosten) aPosten;
 
-			t.setVar(	"show.posten.modify.name",			Common._plaintitle(aposten.getName()),
-						"show.posten.modify.id",			aposten.getId(),
-						"show.posten.modify.userlist.list",	"" );
+			t.setVar("show.posten.modify.name", Common._plaintitle(aposten.getName()),
+					"show.posten.modify.id", aposten.getId(),
+					"show.posten.modify.userlist.list", "");
 
-			if( aposten.getUser() == null ) {
-				t.setVar(	"show.posten.modify.userlist.id",		"",
-							"show.posten.modify.userlist.name",		"KEINER",
-							"show.posten.modify.userlist.selected",	1 );
+			if (aposten.getUser() == null)
+			{
+				t.setVar("show.posten.modify.userlist.id", "",
+						"show.posten.modify.userlist.name", "KEINER",
+						"show.posten.modify.userlist.selected", 1);
 
-				t.parse( "show.posten.modify.userlist.list", "show.posten.modify.userlist.listitem", true );
+				t.parse("show.posten.modify.userlist.list", "show.posten.modify.userlist.listitem", true);
 			}
 
-			for( int i=0; i < allymember.size(); i++ ) {
-				User member = allymember.get(i);
-				t.setVar(	"show.posten.modify.userlist.id",		member.getId(),
-							"show.posten.modify.userlist.name",		Common._title(member.getNickname()),
-							"show.posten.modify.userlist.selected",	aposten.getUser() != null && (aposten.getUser().getId() == member.getId()) );
+			for (User member : allymember)
+			{
+				t.setVar("show.posten.modify.userlist.id", member.getId(),
+						"show.posten.modify.userlist.name", Common._title(member.getNickname()),
+						"show.posten.modify.userlist.selected", aposten.getUser() != null && (aposten.getUser().getId() == member.getId()));
 
-				t.parse( "show.posten.modify.userlist.list", "show.posten.modify.userlist.listitem", true );
+				t.parse("show.posten.modify.userlist.list", "show.posten.modify.userlist.listitem", true);
 			}
 
-			t.parse( "show.posten.modify.list", "show.posten.modify.listitem", true );
+			t.parse("show.posten.modify.list", "show.posten.modify.listitem", true);
 		}
 
 		if( maxposten > postencount ) {
 			t.setBlock( "_ALLY", "show.posten.addposten.userlist.listitem", "show.posten.addposten.userlist.list" );
 
-			for( int i=0; i < allymember.size(); i++ ) {
-				User member = allymember.get(i);
-				t.setVar(	"show.posten.addposten.userlist.id",	member.getId(),
-							"show.posten.addposten.userlist.name",	Common._title(member.getNickname()) );
+			for (User member : allymember)
+			{
+				t.setVar("show.posten.addposten.userlist.id", member.getId(),
+						"show.posten.addposten.userlist.name", Common._title(member.getNickname()));
 
-				t.parse( "show.posten.addposten.userlist.list", "show.posten.addposten.userlist.listitem", true );
+				t.parse("show.posten.addposten.userlist.list", "show.posten.addposten.userlist.listitem", true);
 			}
 		}
 	}
@@ -1279,30 +1295,33 @@ public class AllyController extends TemplateGenerator {
 			.setMaxResults(10)
 			.setFirstResult((int)destpos)
 			.list();
-		for( Iterator<?> iter=sList.iterator(); iter.hasNext(); ) {
-			ShipLost s = (ShipLost)iter.next();
-			ShipTypeData shiptype = Ship.getShipType( s.getType() );
+		for (Object aSList : sList)
+		{
+			ShipLost s = (ShipLost) aSList;
+			ShipTypeData shiptype = Ship.getShipType(s.getType());
 
 			counter++;
 
-			User auser = (User)getContext().getDB().get(User.class, s.getOwner());
-			String ownername = null;
-			if( auser != null ) {
+			User auser = (User) getContext().getDB().get(User.class, s.getOwner());
+			String ownername;
+			if (auser != null)
+			{
 				ownername = auser.getName();
 			}
-			else {
-				ownername = "Unbekannter Spieler ("+s.getOwner()+")";
+			else
+			{
+				ownername = "Unbekannter Spieler (" + s.getOwner() + ")";
 			}
 
-			t.setVar(	"show.destships.name",			s.getName(),
-						"show.destships.type.name",		shiptype.getNickname(),
-						"show.destships.type",			s.getType(),
-						"show.destships.type.picture",	shiptype.getPicture(),
-						"show.destships.owner",			Common._title(ownername),
-						"show.destships.time",			s.getTime(),
-						"show.destships.newrow",		(counter % 5) == 0 );
+			t.setVar("show.destships.name", s.getName(),
+					"show.destships.type.name", shiptype.getNickname(),
+					"show.destships.type", s.getType(),
+					"show.destships.type.picture", shiptype.getPicture(),
+					"show.destships.owner", Common._title(ownername),
+					"show.destships.time", s.getTime(),
+					"show.destships.newrow", (counter % 5) == 0);
 
-			t.parse( "show.destships.list", "show.destships.listitem", true );
+			t.parse("show.destships.list", "show.destships.listitem", true);
 		}
 
 		while( counter % 5 != 0 ) {
@@ -1338,41 +1357,46 @@ public class AllyController extends TemplateGenerator {
 			.setMaxResults(10)
 			.setFirstResult((int)lostpos)
 			.list();
-		for( Iterator<?> iter=sList.iterator(); iter.hasNext(); ) {
-			ShipLost s = (ShipLost)iter.next();
-			ShipTypeData shiptype = Ship.getShipType( s.getType() );
+		for (Object aSList : sList)
+		{
+			ShipLost s = (ShipLost) aSList;
+			ShipTypeData shiptype = Ship.getShipType(s.getType());
 
 			counter++;
 
-			User destowner = (User)getContext().getDB().get(User.class, s.getDestOwner());
-			User owner = (User)getContext().getDB().get(User.class, s.getOwner());
+			User destowner = (User) getContext().getDB().get(User.class, s.getDestOwner());
+			User owner = (User) getContext().getDB().get(User.class, s.getOwner());
 
-			String ownername = null;
-			if( owner != null ) {
+			String ownername;
+			if (owner != null)
+			{
 				ownername = owner.getName();
 			}
-			else {
-				ownername = "Unbekannter Spieler ("+s.getOwner()+")";
+			else
+			{
+				ownername = "Unbekannter Spieler (" + s.getOwner() + ")";
 			}
 
-			String destownername = null;
-			if( destowner != null ) {
+			String destownername;
+			if (destowner != null)
+			{
 				destownername = destowner.getName();
 			}
-			else {
-				destownername = "Unbekannter Spieler ("+s.getDestOwner()+")";
+			else
+			{
+				destownername = "Unbekannter Spieler (" + s.getDestOwner() + ")";
 			}
 
-			t.setVar(	"show.lostships.name",			s.getName(),
-						"show.lostships.type.name",		shiptype.getNickname(),
-						"show.lostships.type",			s.getType(),
-						"show.lostships.type.picture",	shiptype.getPicture(),
-						"show.lostships.owner",			Common._title(destownername),
-						"show.lostships.destroyer",		Common._title(ownername),
-						"show.lostships.time",			s.getTime(),
-						"show.lostships.newrow",		(counter % 5) == 0 );
+			t.setVar("show.lostships.name", s.getName(),
+					"show.lostships.type.name", shiptype.getNickname(),
+					"show.lostships.type", s.getType(),
+					"show.lostships.type.picture", shiptype.getPicture(),
+					"show.lostships.owner", Common._title(destownername),
+					"show.lostships.destroyer", Common._title(ownername),
+					"show.lostships.time", s.getTime(),
+					"show.lostships.newrow", (counter % 5) == 0);
 
-			t.parse( "show.lostships.list", "show.lostships.listitem", true );
+			t.parse("show.lostships.list", "show.lostships.listitem", true);
 		}
 
 		while( counter % 5 != 0 ) {
@@ -1414,13 +1438,14 @@ public class AllyController extends TemplateGenerator {
 					"show.einstellungen.channels.list",	"" );
 
 		// Zuerst alle vorhandenen Channels dieser Allianz auslesen (max 2)
-		List<ComNetChannel> channels = new ArrayList<ComNetChannel>();
+		List<ComNetChannel> channels = new ArrayList<>();
 		List<?> channelList = db.createQuery("from ComNetChannel where allyOwner=:ally")
 			.setInteger("ally", this.ally.getId())
 			.setMaxResults(2)
 			.list();
-		for( Iterator<?> iter=channelList.iterator(); iter.hasNext(); ) {
-			channels.add((ComNetChannel)iter.next());
+		for (Object aChannelList : channelList)
+		{
+			channels.add((ComNetChannel) aChannelList);
 		}
 		channels.add(null);
 
@@ -1483,38 +1508,46 @@ public class AllyController extends TemplateGenerator {
 		List<?> memberList = db.createQuery("from User where ally=:ally order by name")
 			.setEntity("ally", this.ally)
 			.list();
-		for( Iterator<?> iter=memberList.iterator(); iter.hasNext(); ) {
-			User member = (User)iter.next();
+		for (Object aMemberList : memberList)
+		{
+			User member = (User) aMemberList;
 
-			t.setVar(	"show.members.name",	Common._title( member.getName() ),
-						"show.members.id",		member.getId() );
+			t.setVar("show.members.name", Common._title(member.getName()),
+					"show.members.id", member.getId());
 
-			if( user.getId() == this.ally.getPresident().getId() ) {
-				String inakt_status = "";
+			if (user.getId() == this.ally.getPresident().getId())
+			{
+				String inakt_status;
 				int inakt = member.getInactivity();
-				if( inakt <= 14 ) {
+				if (inakt <= 14)
+				{
 					inakt_status = "<span style=\\'color:#00FF00\\'>aktiv</span>";
 				}
-				else if( inakt <= 49 ) {
+				else if (inakt <= 49)
+				{
 					inakt_status = "<span style=\\'color:#22AA22\\'>weniger aktiv</span>";
 				}
-				else if( inakt <= 98 ) {
+				else if (inakt <= 98)
+				{
 					inakt_status = "<span style=\\'color:#668822\\'>selten aktiv</span>";
 				}
-				else if( inakt <= 196 ) {
+				else if (inakt <= 196)
+				{
 					inakt_status = "<span style=\\'color:#884422\\'>inaktiv</span>";
 				}
-				else if( inakt <= 300 ) {
+				else if (inakt <= 300)
+				{
 					inakt_status = "<span style=\\'color:#AA4422\\'>scheintot</span>";
 				}
-				else {
+				else
+				{
 					inakt_status = "<span style=\\'color:#FF2222\\'>bald gel&ouml;scht</span>";
 				}
 
-				t.setVar( "show.members.inaktstatus", inakt_status );
+				t.setVar("show.members.inaktstatus", inakt_status);
 			}
 
-			t.parse( "show.members.list", "show.members.listitem", true );
+			t.parse("show.members.list", "show.members.listitem", true);
 		}
 	}
 
@@ -1569,17 +1602,19 @@ public class AllyController extends TemplateGenerator {
 				"where ap.ally= :ally")
 			.setEntity("ally", this.ally)
 			.list();
-		for( Iterator<?> iter=posten.iterator(); iter.hasNext(); ) {
-			AllyPosten aposten = (AllyPosten)iter.next();
-			if( aposten.getUser() == null ) {
+		for (Object aPosten : posten)
+		{
+			AllyPosten aposten = (AllyPosten) aPosten;
+			if (aposten.getUser() == null)
+			{
 				continue;
 			}
 
-			t.setVar(	"ally.posten.name",			Common._title(aposten.getName()),
-						"ally.posten.user.name",	Common._title(aposten.getUser().getName()),
-						"ally.posten.user.id",		aposten.getUser().getId());
+			t.setVar("ally.posten.name", Common._title(aposten.getName()),
+					"ally.posten.user.name", Common._title(aposten.getUser().getName()),
+					"ally.posten.user.id", aposten.getUser().getId());
 
-			t.parse( "ally.posten.list", "ally.posten.listitem", true );
+			t.parse("ally.posten.list", "ally.posten.listitem", true);
 		}
 
 		List<?> allymembers = getDB().createQuery("from User " +
@@ -1593,12 +1628,13 @@ public class AllyController extends TemplateGenerator {
 			t.setVar( "ally.addmembers.list", "" );
 			t.setBlock( "_ALLY", "ally.addmembers.listitem", "ally.addmembers.list" );
 
-			for( Iterator<?> iter=allymembers.iterator(); iter.hasNext(); ) {
-				User allymember = (User)iter.next();
-				t.setVar(	"ally.addmembers.name",	Common._title(allymember.getName()),
-							"ally.addmembers.id",	allymember.getId() );
+			for (Object allymember1 : allymembers)
+			{
+				User allymember = (User) allymember1;
+				t.setVar("ally.addmembers.name", Common._title(allymember.getName()),
+						"ally.addmembers.id", allymember.getId());
 
-				t.parse( "ally.addmembers.list", "ally.addmembers.listitem", true );
+				t.parse("ally.addmembers.list", "ally.addmembers.listitem", true);
 			}
 		}
 	}

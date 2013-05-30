@@ -31,7 +31,7 @@ import net.driftingsouls.ds2.server.scripting.roles.parser.RoleDefinition;
  *
  */
 public class Interpreter {
-	private static Map<String,Class<? extends Role>> roles = new HashMap<String,Class<? extends Role>>();
+	private static final Map<String,Class<? extends Role>> roles = new HashMap<>();
 	
 	static {
 		loadRegisteredRoles();

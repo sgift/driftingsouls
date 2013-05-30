@@ -92,11 +92,11 @@ public abstract class TransferStrategy {
 		return getFrom().transfer(getTo(), resource, count);
 	}
 
-	private final Transfering getFrom() {
+	private Transfering getFrom() {
 		return from;
 	}
 
-	private final Transfering getTo() {
+	private Transfering getTo() {
 		return to;
 	}
 	

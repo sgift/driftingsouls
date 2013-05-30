@@ -106,7 +106,7 @@ class HandleUpgradeJob implements TaskHandler
 				}
 				base.setMaxCargo(base.getMaxCargo() + order.getCargo().getMod());
 
-				Map<Integer,Integer> bases = new HashMap<Integer,Integer>();
+				Map<Integer,Integer> bases = new HashMap<>();
 				bases.put(base.getSystem(), 0);
 				int basecount = 0;
 

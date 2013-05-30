@@ -75,15 +75,13 @@ public class ShipIdGenerator implements PostInsertIdentifierGenerator, Configura
 			PreparedStatement st = session.connection().prepareStatement(sql);
 			st.setInt(1, startId);
 			try {
-				ResultSet rs = st.executeQuery();
-				try {
-					if ( rs.next() ) {
+				try (ResultSet rs = st.executeQuery())
+				{
+					if (rs.next())
+					{
 						return rs.getInt(1);
 					}
 					throw new HibernateException("Stored Procedure newIntelliShipId failed");
-				}
-				finally {
-					rs.close();
 				}
 			}
 			finally {

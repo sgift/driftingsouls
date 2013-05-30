@@ -80,8 +80,8 @@ public class QuestXMLParser extends DSObject {
 		Map<String,Integer> injectindex;
 		
 		ScriptEntry() {
-			this.script = new ArrayList<String>();
-			this.injectindex = new HashMap<String,Integer>();
+			this.script = new ArrayList<>();
+			this.injectindex = new HashMap<>();
 		}
 		
 		ScriptEntry( int id ) {
@@ -96,16 +96,16 @@ public class QuestXMLParser extends DSObject {
 		}
 	}
 	
-	protected Map<String,Integer> questids = new HashMap<String,Integer>();
-	protected Map<String,Integer> answerids = new HashMap<String,Integer>();
-	protected Map<String,Integer> dialogids = new HashMap<String,Integer>();
-	protected Map<String,ScriptEntry> scripts = new HashMap<String,ScriptEntry>();
+	protected Map<String,Integer> questids = new HashMap<>();
+	protected Map<String,Integer> answerids = new HashMap<>();
+	protected Map<String,Integer> dialogids = new HashMap<>();
+	protected Map<String,ScriptEntry> scripts = new HashMap<>();
 	
-	protected List<String> addParseFiles = new ArrayList<String>();
+	protected List<String> addParseFiles = new ArrayList<>();
 	
-	protected Map<String,String> installFiles = new HashMap<String,String>();
+	protected Map<String,String> installFiles = new HashMap<>();
 	
-	protected Set<String> compiledFiles = new HashSet<String>();
+	protected Set<String> compiledFiles = new HashSet<>();
 	
 	private String currentFile;
 
@@ -125,7 +125,7 @@ public class QuestXMLParser extends DSObject {
 	
 	private class InstallParser implements ContentHandler {
 		private org.hibernate.Session db;
-		private Set<String> validTags = new HashSet<String>();
+		private Set<String> validTags = new HashSet<>();
 		private boolean doNotUninstall;
 		private String currentFile;
 		
@@ -198,45 +198,52 @@ public class QuestXMLParser extends DSObject {
 		public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
 			if( this.validTags.contains(localName.toLowerCase()) ) {
 				String tag = localName.toLowerCase();
-				
-				if( tag.equals("questid") ) {
-					questids.put(this.currentFile+":"+atts.getValue("id"), Integer.parseInt(atts.getValue("db")));
-					
-					if( !this.doNotUninstall ) {
-						db.createQuery("delete from Quest where id=:id")
-							.setInteger("id", Integer.parseInt(atts.getValue("db")))
-							.executeUpdate();
-					}
-				}
-				else if( tag.equals("answerid") ) {
-					answerids.put(this.currentFile+":"+atts.getValue("id"), Integer.parseInt(atts.getValue("db")));
-					
-					if( !this.doNotUninstall ) {
-						db.createQuery("delete from Answer where id=:id")
-								.setInteger("id", Integer.parseInt(atts.getValue("db")))
-								.executeUpdate();
-					}
-				}
-				else if( tag.equals("dialogid") ) {
-					dialogids.put(this.currentFile+":"+atts.getValue("id"), Integer.parseInt(atts.getValue("db")));
-					
-					if( !this.doNotUninstall ) {
-						db.createQuery("delete from Text where id=:id")
-								.setInteger("id", Integer.parseInt(atts.getValue("db")))
-								.executeUpdate();
-					}
-				}
-				else if( tag.equals("scriptid") ) {
-					scripts.put(this.currentFile+":"+atts.getValue("id"), new ScriptEntry(Integer.parseInt(atts.getValue("db"))));
-					
-					if( !this.doNotUninstall ) {
-						db.createQuery("delete from Script where id=:id")
-								.setInteger("id", Integer.parseInt(atts.getValue("db")))
-								.executeUpdate();
-					}
-				}
-				else if( tag.equals("usedby") ) {
-					addParseFiles.add(atts.getValue("file"));	
+
+				switch (tag)
+				{
+					case "questid":
+						questids.put(this.currentFile + ":" + atts.getValue("id"), Integer.parseInt(atts.getValue("db")));
+
+						if (!this.doNotUninstall)
+						{
+							db.createQuery("delete from Quest where id=:id")
+									.setInteger("id", Integer.parseInt(atts.getValue("db")))
+									.executeUpdate();
+						}
+						break;
+					case "answerid":
+						answerids.put(this.currentFile + ":" + atts.getValue("id"), Integer.parseInt(atts.getValue("db")));
+
+						if (!this.doNotUninstall)
+						{
+							db.createQuery("delete from Answer where id=:id")
+									.setInteger("id", Integer.parseInt(atts.getValue("db")))
+									.executeUpdate();
+						}
+						break;
+					case "dialogid":
+						dialogids.put(this.currentFile + ":" + atts.getValue("id"), Integer.parseInt(atts.getValue("db")));
+
+						if (!this.doNotUninstall)
+						{
+							db.createQuery("delete from Text where id=:id")
+									.setInteger("id", Integer.parseInt(atts.getValue("db")))
+									.executeUpdate();
+						}
+						break;
+					case "scriptid":
+						scripts.put(this.currentFile + ":" + atts.getValue("id"), new ScriptEntry(Integer.parseInt(atts.getValue("db"))));
+
+						if (!this.doNotUninstall)
+						{
+							db.createQuery("delete from Script where id=:id")
+									.setInteger("id", Integer.parseInt(atts.getValue("db")))
+									.executeUpdate();
+						}
+						break;
+					case "usedby":
+						addParseFiles.add(atts.getValue("file"));
+						break;
 				}
 			}
 		}
@@ -254,29 +261,32 @@ public class QuestXMLParser extends DSObject {
 	 */
 	// TODO: Enums statt einfachen Strings
 	public Map<String,Integer> getInstallData(String data) {
-		Map<String,Integer> result;	
+		Map<String,Integer> result;
+
+		switch (data)
+		{
+			case "questids":
+				result = this.questids;
+				break;
+			case "answerids":
+				result = this.answerids;
+				break;
+			case "dialogids":
+				result = this.dialogids;
+				break;
+			case "scriptids":
+				result = new HashMap<>();
+
+				for (String key : this.scripts.keySet())
+				{
+					result.put(key, this.scripts.get(key).id);
+				}
+				break;
+			default:
+				throw new RuntimeException("getInstallData: ungueltiger data-parameter >" + data + "<\n");
+		}
 		
-		if( data.equals("questids") ) {
-			result = this.questids;	
-		}
-		else if( data.equals("answerids") ) {
-			result = this.answerids;	
-		}
-		else if( data.equals("dialogids") ) {
-			result = this.dialogids;	
-		}
-		else if( data.equals("scriptids") ) {
-			result = new HashMap<String,Integer>();
-			
-			for( String key : this.scripts.keySet() ) {
-				result.put(key, this.scripts.get(key).id);	
-			}
-		}
-		else {
-			throw new RuntimeException("getInstallData: ungueltiger data-parameter >"+data+"<\n");
-		}
-		
-		Map<String,Integer> newresult = new HashMap<String,Integer>();		
+		Map<String,Integer> newresult = new HashMap<>();
 		for( Map.Entry<String, Integer> entry: result.entrySet()) {
 			// Nur die Attribut-ID verwenden (der Teil hinter dem :). Den Dateinamen verwerfen.
 			String[] tmp = StringUtils.splitPreserveAllTokens(entry.getKey(), ':');
@@ -315,15 +325,10 @@ public class QuestXMLParser extends DSObject {
 			try {
 				XMLReader parser = XMLReaderFactory.createXMLReader();
 				parser.setContentHandler(new InstallParser("", true));
-			
-				InputStream in = new FileInputStream(installXML);
-				try
+
+				try (InputStream in = new FileInputStream(installXML))
 				{
 					parser.parse(new InputSource(in));
-				}
-				finally
-				{
-					in.close();
 				}
 			}
 			catch( Exception e ) {
@@ -334,12 +339,12 @@ public class QuestXMLParser extends DSObject {
 	}
 	
 	private class QuestParser implements ContentHandler {
-		private Set<String> validTags = new HashSet<String>();
+		private Set<String> validTags = new HashSet<>();
 		private String currentFile;
 		private Session db;
-		private Stack<String> currentTag = new Stack<String>();
+		private Stack<String> currentTag = new Stack<>();
 		
-		private Stack<Map<String,Object>> currentData = new Stack<Map<String,Object>>();
+		private Stack<Map<String,Object>> currentData = new Stack<>();
 		private int subScriptID = 0;
 		
 		private String currentInjectScript = "";
@@ -438,7 +443,7 @@ public class QuestXMLParser extends DSObject {
 							throw new RuntimeException("QuestXML: illegaler/kein inject-index fuer "+currentdata.get("id")+"\n");	
 						}
 						String tmp = scripts.get(this.currentInjectScript).script.get(indexid.intValue()) + " "+data.script.get(0)+" ";
-						scripts.get(this.currentInjectScript).script.set(indexid.intValue(), tmp);
+						scripts.get(this.currentInjectScript).script.set(indexid, tmp);
 					}
 					else {
 						throw new RuntimeException("QuestXML ("+this.currentFile+"): inject-target >"+this.currentInjectScript+"< nicht vorhanden\n");	
@@ -450,7 +455,7 @@ public class QuestXMLParser extends DSObject {
 				else if( this.currentTag.peek().equals("script") ) {
 					final String key = this.currentFile+":"+currentdata.get("id");
 
-					int id = 0;
+					int id;
 					Script script = new Script();
 					script.setScript("");
 					script.setName(key);
@@ -638,14 +643,10 @@ public class QuestXMLParser extends DSObject {
 				try {
 					XMLReader parser = XMLReaderFactory.createXMLReader();
 					parser.setContentHandler(new InstallParser("", true));
-				
-					InputStream in = new FileInputStream(installFile);
-					try
+
+					try (InputStream in = new FileInputStream(installFile))
 					{
 						parser.parse(new InputSource(in));
-					}
-					finally {
-						in.close();
 					}
 				}
 				catch( Exception e ) {
@@ -662,15 +663,10 @@ public class QuestXMLParser extends DSObject {
 			try {
 				XMLReader parser = XMLReaderFactory.createXMLReader();
 				parser.setContentHandler(this);
-			
-				InputStream in = new FileInputStream(questFile);
-				try
+
+				try (InputStream in = new FileInputStream(questFile))
 				{
 					parser.parse(new InputSource(in));
-				}
-				finally
-				{
-					in.close();
 				}
 			}
 			catch( Exception e ) {
@@ -744,8 +740,9 @@ public class QuestXMLParser extends DSObject {
 		}
 		
 		// Abhaengigkeiten verarbeiten (<usedby>-tag)
-		for( int i=0; i < this.addParseFiles.size(); i++ ) {
-			questParser.parseAddXml( file );	
+		for (String addParseFile : this.addParseFiles)
+		{
+			questParser.parseAddXml(file);
 		}
 		this.addParseFiles.clear();
 		

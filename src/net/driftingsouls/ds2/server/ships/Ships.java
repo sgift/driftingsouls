@@ -29,14 +29,6 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 public class Ships {
 
 	/**
-	 * Leert den Cache fuer Schiffsdaten.
-	 *
-	 */
-	public static void clearShipCache() {
-		// TODO - Schiffcache implementieren
-	}
-	
-	/**
 	 * Berechnet das Status-Feld des Schiffes neu. Diese Aktion sollte nach jeder
 	 * Operation angewendet werden, die das Schiff in irgendeiner Weise veraendert.
 	 * @param shipID die ID des Schiffes

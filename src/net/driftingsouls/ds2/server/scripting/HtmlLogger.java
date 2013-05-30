@@ -18,14 +18,12 @@
  */
 package net.driftingsouls.ds2.server.scripting;
 
-import java.io.IOException;
-import java.io.Writer;
-
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-
 import org.apache.commons.lang.StringUtils;
+
+import java.io.IOException;
+import java.io.Writer;
 
 /**
  * ScriptEngine-Logger, welcher die Ausgabe als HTML formatiert.

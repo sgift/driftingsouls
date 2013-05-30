@@ -18,17 +18,6 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.Version;
-
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -36,11 +25,19 @@ import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.JSONSupport;
 import net.driftingsouls.ds2.server.werften.WerftObject;
-
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.Version;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Eine Flotte aus Schiffen.
@@ -136,38 +133,43 @@ public class ShipFleet implements JSONSupport {
 			.setEntity("fleet", this)
 			.list();
 
-		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
-			Ship ship = (Ship)iter.next();
+		for (Object ship1 : ships)
+		{
+			Ship ship = (Ship) ship1;
 			ShipTypeData shiptype = ship.getTypeData();
 
-			if( shiptype.getJDocks() == 0 ) {
+			if (shiptype.getJDocks() == 0)
+			{
 				continue;
 			}
-			int free = shiptype.getJDocks() - (int)ship.getLandedCount();
-			if( free == 0 ) {
+			int free = shiptype.getJDocks() - (int) ship.getLandedCount();
+			if (free == 0)
+			{
 				continue;
 			}
 
-			List<Ship>jaegerlist;
+			List<Ship> jaegerlist;
 
 			Query jaegerListeQuery = db.createQuery("select s from Ship as s left join s.modules m " +
-					"where "+(jaegertypeID > 0 ? "s.shiptype=:shiptype and " : "")+"s.owner=:user and s.system=:system and " +
-							"s.x=:x and s.y=:y and s.docked='' and " +
-							"(locate(:jaegerFlag,s.shiptype.flags)!=0 or locate(:jaegerFlag,m.flags)!=0) and " +
-							"s.battle is null " +
+					"where " + (jaegertypeID > 0 ? "s.shiptype=:shiptype and " : "") + "s.owner=:user and s.system=:system and " +
+					"s.x=:x and s.y=:y and s.docked='' and " +
+					"(locate(:jaegerFlag,s.shiptype.flags)!=0 or locate(:jaegerFlag,m.flags)!=0) and " +
+					"s.battle is null " +
 					"order by s.fleet.id,s.shiptype.id ")
-				.setEntity("user", user)
-				.setInteger("system", ship.getSystem())
-				.setInteger("x", ship.getX())
-				.setInteger("y", ship.getY())
-				.setString("jaegerFlag", ShipTypes.SF_JAEGER);
+					.setEntity("user", user)
+					.setInteger("system", ship.getSystem())
+					.setInteger("x", ship.getX())
+					.setInteger("y", ship.getY())
+					.setString("jaegerFlag", ShipTypes.SF_JAEGER);
 
-			if( jaegertypeID > 0 ) {
+			if (jaegertypeID > 0)
+			{
 				jaegerListeQuery.setInteger("shiptype", jaegertypeID);
 			}
 			List<Ship> jaegerliste = Common.cast(jaegerListeQuery.list());
 
-			if( jaegerliste.isEmpty() ) {
+			if (jaegerliste.isEmpty())
+			{
 				break;
 			}
 
@@ -187,10 +189,12 @@ public class ShipFleet implements JSONSupport {
 			.setEntity("fleet", this)
 			.list();
 
-		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
-			Ship ship = (Ship)iter.next();
+		for (Object ship1 : ships)
+		{
+			Ship ship = (Ship) ship1;
 
-			if( (ship.getTypeData().getShipClass() == ShipClasses.GESCHUETZ) || !ship.getTypeData().isMilitary() ) {
+			if ((ship.getTypeData().getShipClass() == ShipClasses.GESCHUETZ) || !ship.getTypeData().isMilitary())
+			{
 				continue;
 			}
 
@@ -229,8 +233,9 @@ public class ShipFleet implements JSONSupport {
 		List<?> ships = db.createQuery("from Ship where id>0 and fleet=:fleet and battle is null")
 			.setEntity("fleet", this)
 			.list();
-		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
-			Ship aship = (Ship)iter.next();
+		for (Object ship : ships)
+		{
+			Ship aship = (Ship) ship;
 			aship.start();
 		}
 	}
@@ -246,36 +251,40 @@ public class ShipFleet implements JSONSupport {
 			.setEntity("fleet", this)
 			.list();
 
-		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
-			Ship ship = (Ship)iter.next();
+		for (Object ship1 : ships)
+		{
+			Ship ship = (Ship) ship1;
 			ShipTypeData shiptype = ship.getTypeData();
 
-			if( shiptype.getADocks() == 0 ) {
+			if (shiptype.getADocks() == 0)
+			{
 				continue;
 			}
 
-			int free = shiptype.getADocks() - (int)ship.getDockedCount();
-			if( free == 0 ) {
+			int free = shiptype.getADocks() - (int) ship.getDockedCount();
+			if (free == 0)
+			{
 				continue;
 			}
-			List<Ship> containerlist = new ArrayList<Ship>();
+			List<Ship> containerlist;
 
 			List<?> containers = db.createQuery("from Ship as s " +
 					"where s.owner=:owner and s.system=:sys and s.x=:x and s.y=:y and s.docked='' and " +
-							"s.shiptype.shipClass=:cls and s.battle is null " +
+					"s.shiptype.shipClass=:cls and s.battle is null " +
 					"order by s.fleet.id,s.shiptype.id ")
-				.setEntity("owner", user)
-				.setInteger("sys", ship.getSystem())
-				.setInteger("x", ship.getX())
-				.setInteger("y", ship.getY())
-				.setParameter("cls", ShipClasses.CONTAINER)
-				.list();
+					.setEntity("owner", user)
+					.setInteger("sys", ship.getSystem())
+					.setInteger("x", ship.getX())
+					.setInteger("y", ship.getY())
+					.setParameter("cls", ShipClasses.CONTAINER)
+					.list();
 
-			if( containers.isEmpty() ) {
+			if (containers.isEmpty())
+			{
 				break;
 			}
 
-			containerlist = Common.cast(containers,Ship.class).subList(0, free > containers.size() ? containers.size() : free);
+			containerlist = Common.cast(containers, Ship.class).subList(0, free > containers.size() ? containers.size() : free);
 			ship.dock(containerlist.toArray(new Ship[containerlist.size()]));
 		}
 	}
@@ -290,8 +299,9 @@ public class ShipFleet implements JSONSupport {
 		List<?> ships = db.createQuery("from Ship where id>0 and fleet=:fleet and battle is null")
 			.setEntity("fleet", this)
 			.list();
-		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
-			Ship aship = (Ship)iter.next();
+		for (Object ship : ships)
+		{
+			Ship aship = (Ship) ship;
 			aship.undock();
 		}
 	}
@@ -312,15 +322,18 @@ public class ShipFleet implements JSONSupport {
 			List<?> shiplist = db.createQuery("from Ship where fleet=:fleet and battle is null" )
 				.setInteger("fleet", this.id)
 				.list();
-			for( Iterator<?> iter=shiplist.iterator(); iter.hasNext(); ) {
-				Ship aship = (Ship)iter.next();
-				boolean tmp = aship.consign(newowner, false );
+			for (Object aShiplist : shiplist)
+			{
+				Ship aship = (Ship) aShiplist;
+				boolean tmp = aship.consign(newowner, false);
 
 				String msg = Ship.MESSAGE.getMessage();
-				if( msg.length() > 0 ) {
-					MESSAGE.get().append(msg+"<br />");
+				if (msg.length() > 0)
+				{
+					MESSAGE.get().append(msg + "<br />");
 				}
-				if( !tmp ) {
+				if (!tmp)
+				{
 					count++;
 					aship.setFleet(this);
 				}
@@ -407,12 +420,8 @@ public class ShipFleet implements JSONSupport {
 		log.debug("Ships to dismantle in fleet " + getId() + ": " + ships.size());
 		int dismantled = shipyard.dismantleShips(ships);
 		log.debug("Ships dismantled in fleet " + getId() + ": " + dismantled);
-		if(dismantled == ships.size())
-		{
-			return true;
-		}
+		return dismantled == ships.size();
 
-		return false;
 	}
 
 	/**
