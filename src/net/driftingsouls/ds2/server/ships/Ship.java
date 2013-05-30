@@ -250,7 +250,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		this.weapons = 100;
 		this.comm = 100;
 		this.sensors = 100;
-		this.offiziere = new HashSet<Offizier>();
+		this.offiziere = new HashSet<>();
 	}
 
     /**
@@ -515,7 +515,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			}
 			else
 			{
-				entries = new ArrayList<UnitCargoEntry>();
+				entries = new ArrayList<>();
 			}
 			unitcargo = new ShipUnitCargo(entries, this);
 		}
@@ -870,7 +870,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		Cargo cargo = this.cargo;
 
-		List<String> status = new ArrayList<String>();
+		List<String> status = new ArrayList<>();
 
 		// Alten Status lesen und ggf Elemente uebernehmen
 		String[] oldstatus = StringUtils.split(this.status, ' ');
@@ -1200,7 +1200,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * @return Eine Liste von Moduleintraegen
 	 */
 	public ModuleEntry[] getModules() {
-		List<ModuleEntry> result = new ArrayList<ModuleEntry>();
+		List<ModuleEntry> result = new ArrayList<>();
 
 		if( this.modules == null ) {
 			return new ModuleEntry[0];
@@ -1244,7 +1244,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			this.modules = shipModules;
 		}
 
-		List<ModuleEntry> moduletbl = new ArrayList<ModuleEntry>();
+		List<ModuleEntry> moduletbl = new ArrayList<>();
 		moduletbl.addAll(Arrays.asList(getModules()));
 
 		//check modules
@@ -1254,7 +1254,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		ShipTypeData type = Ship.getShipType( this.shiptype, null, true );
 
-		Map<Integer,String[]>slotlist = new HashMap<Integer,String[]>();
+		Map<Integer,String[]>slotlist = new HashMap<>();
 		String[] tmpslotlist = StringUtils.splitPreserveAllTokens(type.getTypeModules(), ';');
 		for (String aTmpslotlist : tmpslotlist)
 		{
@@ -1262,8 +1262,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 			slotlist.put(Integer.parseInt(aslot[0]), aslot);
 		}
 
-		List<Module> moduleobjlist = new ArrayList<Module>();
-		List<String> moduleSlotData = new ArrayList<String>();
+		List<Module> moduleobjlist = new ArrayList<>();
+		List<String> moduleSlotData = new ArrayList<>();
 
 		for (ModuleEntry module : moduletbl)
 		{
@@ -1354,7 +1354,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		ShipModules shipModules = this.modules;
 
-		List<ModuleEntry> moduletbl = new ArrayList<ModuleEntry>();
+		List<ModuleEntry> moduletbl = new ArrayList<>();
 		moduletbl.addAll(Arrays.asList(getModules()));
 
 		//check modules
@@ -1362,7 +1362,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		//rebuild
 		ShipTypeData type = Ship.getShipType( this.shiptype, null, true );
 
-		Map<Integer,String[]>slotlist = new HashMap<Integer,String[]>();
+		Map<Integer,String[]>slotlist = new HashMap<>();
 		String[] tmpslotlist = StringUtils.split(type.getTypeModules(), ';');
 		for (String aTmpslotlist : tmpslotlist)
 		{
@@ -1370,8 +1370,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 			slotlist.put(Integer.parseInt(aslot[0]), aslot);
 		}
 
-		List<Module> moduleobjlist = new ArrayList<Module>();
-		List<String> moduleSlotData = new ArrayList<String>();
+		List<Module> moduleobjlist = new ArrayList<>();
+		List<String> moduleSlotData = new ArrayList<>();
 
 		for (ModuleEntry module : moduletbl)
 		{
@@ -1449,7 +1449,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		ShipModules shipModules = (ShipModules)db.get(ShipModules.class, this.id);
 
-		List<ModuleEntry> moduletbl = new ArrayList<ModuleEntry>();
+		List<ModuleEntry> moduletbl = new ArrayList<>();
 		moduletbl.addAll(Arrays.asList(getModules()));
 
 		//check modules
@@ -1457,7 +1457,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		//rebuild
 		ShipTypeData type = Ship.getShipType( this.shiptype, null, true );
 
-		Map<Integer,String[]>slotlist = new HashMap<Integer,String[]>();
+		Map<Integer,String[]>slotlist = new HashMap<>();
 		String[] tmpslotlist = StringUtils.split(type.getTypeModules(), ';');
 		for (String aTmpslotlist : tmpslotlist)
 		{
@@ -1465,8 +1465,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 			slotlist.put(Integer.parseInt(aslot[0]), aslot);
 		}
 
-		List<Module> moduleobjlist = new ArrayList<Module>();
-		List<String> moduleSlotData = new ArrayList<String>();
+		List<Module> moduleobjlist = new ArrayList<>();
+		List<String> moduleSlotData = new ArrayList<>();
 
 		for (ModuleEntry module : moduletbl)
 		{
@@ -1554,7 +1554,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * @return Liste von Sektoren mit rotem Alarm
 	 */
 	public static Set<Location> getAlertStatus( User user, Location ... locs ) {
-		Set<Location> results = new HashSet<Location>();
+		Set<Location> results = new HashSet<>();
 
 		Map<Location,List<Ship>> result = alertCheck(user, locs);
 
@@ -1571,11 +1571,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 	private static Map<Location,List<Ship>> alertCheck( User user, Location ... locs )
 	{
-		Set<Integer> xSektoren = new HashSet<Integer>();
-		Set<Integer> ySektoren = new HashSet<Integer>();
+		Set<Integer> xSektoren = new HashSet<>();
+		Set<Integer> ySektoren = new HashSet<>();
 
-		Map<Location,List<Ship>> results = new HashMap<Location,List<Ship>>();
-		Set<Location> locations = new HashSet<Location>();
+		Map<Location,List<Ship>> results = new HashMap<>();
+		Set<Location> locations = new HashSet<>();
 		for(Location location: locs)
 		{
 			results.put(location, new ArrayList<Ship>());
@@ -1884,19 +1884,19 @@ public class Ship implements Locatable,Transfering,Feeding {
 		/**
 		 * Die Schiffe in der Flotte.
 		 */
-		Map<Integer,Ship> ships = new HashMap<Integer,Ship>();
+		Map<Integer,Ship> ships = new HashMap<>();
 		/**
 		 * Die Offiziere auf den Schiffen der Flotte.
 		 */
-		Map<Integer,Offizier> offiziere = new HashMap<Integer,Offizier>();
+		Map<Integer,Offizier> offiziere = new HashMap<>();
 		/**
 		 * Die Anzahl der gedockten/gelandeten Schiffe.
 		 */
-		Map<Integer,Integer> dockedCount = new HashMap<Integer,Integer>();
+		Map<Integer,Integer> dockedCount = new HashMap<>();
 		/**
 		 * Die Anzahl der extern gedocketen Schiffe.
 		 */
-		Map<Integer,Integer> aDockedCount = new HashMap<Integer,Integer>();
+		Map<Integer,Integer> aDockedCount = new HashMap<>();
 	}
 
 
@@ -2040,12 +2040,12 @@ public class Ship implements Locatable,Transfering,Feeding {
 		if( fleetdata != null ) {
 			org.hibernate.Session db = context.getDB();
 
-			Map<Location,List<String>> shipDockIds = new HashMap<Location,List<String>>();
+			Map<Location,List<String>> shipDockIds = new HashMap<>();
 			for( Ship fleetship : fleetdata.ships.values() ) {
 				if( fleetdata.dockedCount.get(fleetship.getId()) > 0 ) {
 					List<String> posIds = shipDockIds.get(fleetship.getLocation());
 					if( posIds == null ) {
-						posIds = new ArrayList<String>();
+						posIds = new ArrayList<>();
 						shipDockIds.put(fleetship.getLocation(), posIds);
 					}
 					posIds.add("l "+fleetship.getId());
@@ -2189,7 +2189,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			}
 
 			// Alle potentiell relevanten Sektoren (ok..und ein wenig ueberfluessiges Zeug bei schraegen Bewegungen) auslesen
-			Map<Location,Sector> sectorlist = new HashMap<Location,Sector>();
+			Map<Location,Sector> sectorlist = new HashMap<>();
 			List<?> sectors = db.createQuery("from Sector " +
 					"where loc.system in (:system,-1) and " +
 						"(loc.x=-1 or loc.x between :lowerx and :upperx) and " +
@@ -2217,7 +2217,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			.setInteger("uppery", waypoint.direction >= 7 ? this.y+waypoint.distance : this.y )
 			.list());
 
-			List<Location> locations = new ArrayList<Location>();
+			List<Location> locations = new ArrayList<>();
 			for(Ship ship: sectorList)
 			{
 				locations.add(ship.getLocation());
@@ -2226,7 +2226,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			Map<Location, List<Ship>> alertList = alertCheck(owner, locations.toArray(new Location[locations.size()]));
 
 			// Alle potentiell relevanten Sektoren mit EMP-Nebeln (ok..und ein wenig ueberfluessiges Zeug bei schraegen Bewegungen) auslesen
-			Map<Location,Boolean> nebulaemplist = new HashMap<Location,Boolean>();
+			Map<Location,Boolean> nebulaemplist = new HashMap<>();
 			List<Nebel> sectorNebelList = Common.cast(db.createQuery("from Nebel " +
 					"where type in (:emptypes) and loc.system=:system and loc.x between :lowerx and :upperx and loc.y between :lowery and :uppery")
 					.setInteger("system", this.system)
@@ -2565,32 +2565,41 @@ public class Ship implements Locatable,Transfering,Feeding {
 			 */
 
 			String[] target = StringUtils.split(shipNode.getJumpTarget(), '|');
-			if( target[0].equals("fix") ) {
-				outLoc = Location.fromString(target[1]);
+			switch (target[0])
+			{
+				case "fix":
+					outLoc = Location.fromString(target[1]);
 
-				nodetarget = target[1];
-			}
-			else if( target[0].equals("ship") ) {
-				String[] shiptarget = StringUtils.split(target[1], ':');
-				Ship jmptarget = (Ship)db.get(Ship.class, Integer.valueOf(shiptarget[1]));
-				if( jmptarget == null ) {
-					outputbuffer.append("<span style=\"color:red\">Die Empfangsstation existiert nicht!</span><br />\n");
-					return true;
+					nodetarget = target[1];
+					break;
+				case "ship":
+				{
+					String[] shiptarget = StringUtils.split(target[1], ':');
+					Ship jmptarget = (Ship) db.get(Ship.class, Integer.valueOf(shiptarget[1]));
+					if (jmptarget == null)
+					{
+						outputbuffer.append("<span style=\"color:red\">Die Empfangsstation existiert nicht!</span><br />\n");
+						return true;
+					}
+
+					outLoc = new Location(jmptarget.getSystem(), jmptarget.getX(), jmptarget.getY());
+					nodetarget = outLoc.getSystem() + ":" + outLoc.getX() + "/" + outLoc.getY();
+					break;
 				}
+				case "base":
+				{
+					String[] shiptarget = StringUtils.split(target[1], ':');
+					Base jmptarget = (Base) db.get(Base.class, Integer.valueOf(shiptarget[1]));
+					if (jmptarget == null)
+					{
+						outputbuffer.append("<span style=\"color:red\">Die Empfangsbasis existiert nicht!</span><br />\n");
+						return true;
+					}
 
-				outLoc = new Location(jmptarget.getSystem(), jmptarget.getX(), jmptarget.getY());
-				nodetarget = outLoc.getSystem()+":"+outLoc.getX()+"/"+outLoc.getY();
-			}
-			else if( target[0].equals("base") ) {
-				String[] shiptarget = StringUtils.split(target[1], ':');
-				Base jmptarget = (Base)db.get(Base.class, Integer.valueOf(shiptarget[1]));
-				if( jmptarget == null ) {
-					outputbuffer.append("<span style=\"color:red\">Die Empfangsbasis existiert nicht!</span><br />\n");
-					return true;
+					outLoc = jmptarget.getLocation();
+					nodetarget = outLoc.toString();
+					break;
 				}
-
-				outLoc = jmptarget.getLocation();
-				nodetarget = outLoc.toString();
 			}
 
 			// Einmalig das aktuelle Schiff ueberpruefen.
@@ -2605,38 +2614,46 @@ public class Ship implements Locatable,Transfering,Feeding {
 			 */
 			String[] jmpnodeuser = StringUtils.split(target[2], ':'); // Format art:ids aufgespalten
 
-			if( jmpnodeuser[0].equals("all") ) {
-				// Keine Einschraenkungen
-			}
-			// die alte variante
-			else if( jmpnodeuser[0].equals("default") || jmpnodeuser[0].equals("ownally") ){
-				if( ( (user.getAlly() != null) && (shipNode.getOwner().getAlly() != user.getAlly()) ) ||
-						( user.getAlly() == null && (shipNode.getOwner() != user) ) ) {
-					outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes ").append(nodetypename).append(" benutzen - default</span><br />\n");
-					return true;
-				}
-			}
-			// user:$userid
-			else if ( jmpnodeuser[0].equals("user") ){
-				if( Integer.parseInt(jmpnodeuser[1]) != user.getId() )  {
-					outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes ").append(nodetypename).append(" benutzen - owner</span><br />\n");
-					return true;
-				}
-			}
-			// ally:$allyid
-			else if ( jmpnodeuser[0].equals("ally") ){
-				if( (user.getAlly() == null) || (Integer.parseInt(jmpnodeuser[1]) != user.getAlly().getId()) )  {
-					outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes ").append(nodetypename).append(" benutzen - ally</span><br />\n");
-					return true;
-				}
-			}
-			// group:userid1,userid2, ...,useridn
-			else if ( jmpnodeuser[0].equals("group") ){
-				Integer[] userlist = Common.explodeToInteger(",", jmpnodeuser[1]);
-				if( !Common.inArray(user.getId(), userlist) )  {
-					outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes ").append(nodetypename).append(" benutzen - group</span><br />\n");
-					return true;
-				}
+			switch (jmpnodeuser[0])
+			{
+				case "all":
+					// Keine Einschraenkungen
+					break;
+				// die alte variante
+				case "default":
+				case "ownally":
+					if (((user.getAlly() != null) && (shipNode.getOwner().getAlly() != user.getAlly())) ||
+							(user.getAlly() == null && (shipNode.getOwner() != user)))
+					{
+						outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes ").append(nodetypename).append(" benutzen - default</span><br />\n");
+						return true;
+					}
+					break;
+				// user:$userid
+				case "user":
+					if (Integer.parseInt(jmpnodeuser[1]) != user.getId())
+					{
+						outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes ").append(nodetypename).append(" benutzen - owner</span><br />\n");
+						return true;
+					}
+					break;
+				// ally:$allyid
+				case "ally":
+					if ((user.getAlly() == null) || (Integer.parseInt(jmpnodeuser[1]) != user.getAlly().getId()))
+					{
+						outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes ").append(nodetypename).append(" benutzen - ally</span><br />\n");
+						return true;
+					}
+					break;
+				// group:userid1,userid2, ...,useridn
+				case "group":
+					Integer[] userlist = Common.explodeToInteger(",", jmpnodeuser[1]);
+					if (!Common.inArray(user.getId(), userlist))
+					{
+						outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes ").append(nodetypename).append(" benutzen - group</span><br />\n");
+						return true;
+					}
+					break;
 			}
 
 			nodeLoc = new Location(shipNode.getSystem(), shipNode.getX(), shipNode.getY());
@@ -2653,7 +2670,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		// Liste der Schiffe ermitteln, welche springen sollen
 		//
 
-		List<Ship> shiplist = new ArrayList<Ship>();
+		List<Ship> shiplist = new ArrayList<>();
 		// Falls vorhanden die Schiffe der Flotte einfuegen
 		if( this.fleet != null ) {
 			List<?> fleetships = db.createQuery("from Ship where id>0 and fleet=:fleet AND x=:x AND y=:y AND system=:sys and docked='' AND battle is null")
@@ -2688,7 +2705,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			ShipTypeData shiptype = ship.getTypeData();
 
 			// Liste der gedockten Schiffe laden
-			List<Ship> docked = new ArrayList<Ship>();
+			List<Ship> docked = new ArrayList<>();
 			if( (shiptype.getADocks() > 0) || (shiptype.getJDocks() > 0) ) {
 				List<?> line = db.createQuery("from Ship where id>0 and docked in (:docked,:landed)")
 					.setString("docked", Integer.toString(ship.getId()))
@@ -2975,7 +2992,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	{
 		if( this.getTypeData().getADocks() == 0 )
 		{
-			return new ArrayList<Ship>();
+			return new ArrayList<>();
 		}
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		List<Ship> dockshipList = Common.cast(db.createQuery("from Ship where id>0 and docked= :docked")
@@ -2992,7 +3009,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	{
 		if( this.getTypeData().getJDocks() == 0 )
 		{
-			return new ArrayList<Ship>();
+			return new ArrayList<>();
 		}
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		List<Ship> landedshipsList = Common.cast(db.createQuery("from Ship where id>0 and docked= :docked")
@@ -3243,7 +3260,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		// Moeglichen Loot zusammensuchen
-		List<ShipLoot> loot = new ArrayList<ShipLoot>();
+		List<ShipLoot> loot = new ArrayList<>();
 		int maxchance = 0;
 
 		List<?> lootList = db.createQuery("from ShipLoot where owner=:owner and shiptype in (:type,:negtype) and targetuser in (0,:destroyer) and totalmax!=0")
