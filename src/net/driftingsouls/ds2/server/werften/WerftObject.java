@@ -135,8 +135,9 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			.list();
 		WerftQueueEntry[] entries = new WerftQueueEntry[list.size()];
 		int index = 0;
-		for( Iterator<?> iter=list.iterator(); iter.hasNext(); ) {
-			entries[index++] = (WerftQueueEntry)iter.next();
+		for (Object aList : list)
+		{
+			entries[index++] = (WerftQueueEntry) aList;
 		}
 
 		return entries;
@@ -180,14 +181,14 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * @return Die Zeit in Ticks bis zur Fertigstellung
 	 */
 	public final int getTicksTillFinished(WerftQueueEntry searched) {
-		List<WerftQueueEntry> entries = new ArrayList<WerftQueueEntry>();
+		List<WerftQueueEntry> entries = new ArrayList<>();
 		entries.addAll(Arrays.asList(getBuildQueue()));
 
 		int slots = this.getWerftSlots();
 		int time = 0;
 		boolean first = true;
 
-		SortedMap<Integer,List<WerftQueueEntry>> scheduled = new TreeMap<Integer,List<WerftQueueEntry>>();
+		SortedMap<Integer,List<WerftQueueEntry>> scheduled = new TreeMap<>();
 
 		while( !entries.isEmpty() ) {
 			for( int i=0; i < entries.size(); i++ ) {
@@ -262,12 +263,14 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 
 		final WerftQueueEntry[] entries = getBuildQueue();
-		for( int i=0; i < entries.length; i++ ) {
-			final WerftQueueEntry entry = entries[i];
+		for (final WerftQueueEntry entry : entries)
+		{
 			// Falls ein Item benoetigt wird pruefen, ob es vorhanden ist
-			if( entry.getRequiredItem() != -1 ) {
+			if (entry.getRequiredItem() != -1)
+			{
 				List<ItemCargoEntry> itemlist = cargo.getItem(entry.getRequiredItem());
-				if( itemlist.size() == 0 ) {
+				if (itemlist.size() == 0)
+				{
 					entry.setScheduled(false);
 					continue;
 				}
@@ -276,7 +279,8 @@ public abstract class WerftObject extends DSObject implements Locatable {
 				cargo.substractResource(itemlist.get(0).getResourceID(), 1);
 			}
 
-			if( entry.getSlots() > freeSlots ) {
+			if (entry.getSlots() > freeSlots)
+			{
 				entry.setScheduled(false);
 				continue;
 			}
@@ -473,7 +477,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 *
 	 */
 	public void removeModule( Ship ship, int slot ) {
-		Map<Integer,Integer> usedslots = new HashMap<Integer,Integer>();
+		Map<Integer,Integer> usedslots = new HashMap<>();
 		ModuleEntry[] modules = ship.getModules();
 		for( int i=0; i < modules.length; i++ ) {
 			usedslots.put(modules[i].getSlot(), i);
@@ -489,10 +493,12 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		String[] aslot = null;
 
 		String[] moduleslots = StringUtils.split(shiptype.getTypeModules(), ';');
-		for( int i=0; i < moduleslots.length; i++ ) {
-			String[] data = StringUtils.split(moduleslots[i], ':');
+		for (String moduleslot : moduleslots)
+		{
+			String[] data = StringUtils.split(moduleslot, ':');
 
-			if( Integer.parseInt(data[0]) == slot ) {
+			if (Integer.parseInt(data[0]) == slot)
+			{
 				aslot = data;
 				break;
 			}
@@ -530,41 +536,44 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		MESSAGE.get().append(ship.getName()+" - Modul ausgebaut\n");
 	}
 
+	private int berecheNeuenStatusWertViaDelta(int currentVal, int oldMax, int newMax)
+	{
+		int delta = newMax - oldMax;
+		currentVal += delta;
+		if( currentVal > newMax ) {
+			currentVal = newMax;
+		}
+		else if( currentVal < 0 ) {
+			currentVal = 0;
+		}
+		return currentVal;
+	}
+
 	private void moduleUpdateShipData(Ship ship, ShipTypeData oldshiptype, Cargo cargo) {
 		ShipTypeData shiptype = ship.getTypeData();
 
 		if( ship.getHull() != shiptype.getHull() ) {
-			double factor = ship.getHull() / (double)oldshiptype.getHull();
-			ship.setHull((int)(shiptype.getHull() * factor));
+			ship.setHull(berecheNeuenStatusWertViaDelta(ship.getHull(), oldshiptype.getHull(), shiptype.getHull()));
 		}
 
-		if( ship.getHull() > shiptype.getHull() ) {
-			ship.setHull(shiptype.getHull());
-		}
-
-		if( ship.getShields() > shiptype.getShields() ) {
-			ship.setShields(shiptype.getShields());
+		if( ship.getShields() != shiptype.getShields() ) {
+			ship.setShields(berecheNeuenStatusWertViaDelta(ship.getShields(), oldshiptype.getShields(), shiptype.getShields()));
 		}
 
 		if( ship.getAblativeArmor() != shiptype.getAblativeArmor() ) {
-			double factor = 1;
-			if(oldshiptype.getAblativeArmor() != 0)
-			{
-				factor = ship.getAblativeArmor() / (double)oldshiptype.getAblativeArmor();
-			}
-			ship.setAblativeArmor((int)(shiptype.getAblativeArmor() * factor));
+			ship.setAblativeArmor(berecheNeuenStatusWertViaDelta(ship.getAblativeArmor(), oldshiptype.getAblativeArmor(), shiptype.getAblativeArmor()));
 		}
 
 		if( ship.getAblativeArmor() > shiptype.getAblativeArmor() ) {
 			ship.setAblativeArmor(shiptype.getAblativeArmor());
 		}
 
-		if( ship.getEnergy() > shiptype.getEps() ) {
-			ship.setEnergy(shiptype.getEps());
+		if( ship.getEnergy() != shiptype.getEps() ) {
+			ship.setEnergy(berecheNeuenStatusWertViaDelta(ship.getEnergy(), oldshiptype.getEps(), shiptype.getEps()));
 		}
 
-		if( ship.getCrew() > shiptype.getCrew() ) {
-			ship.setCrew(shiptype.getCrew());
+		if( ship.getCrew() != shiptype.getCrew() ) {
+			ship.setCrew(berecheNeuenStatusWertViaDelta(ship.getCrew(), oldshiptype.getCrew(), shiptype.getCrew()));
 		}
 
 		Cargo shipcargo = ship.getCargo();
@@ -651,7 +660,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 *
 	 */
 	public void addModule( Ship ship, int slot, int itemid ) {
-		Map<Integer,Integer> usedslots = new HashMap<Integer,Integer>();
+		Map<Integer,Integer> usedslots = new HashMap<>();
 		ModuleEntry[] modules = ship.getModules();
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
@@ -673,10 +682,12 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		String[] aslot = null;
 
 		String[] moduleslots = StringUtils.split(shiptype.getTypeModules(), ';');
-		for( int i=0; i < moduleslots.length; i++ ) {
-			String[] data = StringUtils.split(moduleslots[i], ':');
+		for (String moduleslot : moduleslots)
+		{
+			String[] data = StringUtils.split(moduleslot, ':');
 
-			if( Integer.parseInt(data[0]) == slot ) {
+			if (Integer.parseInt(data[0]) == slot)
+			{
 				aslot = data;
 				break;
 			}
@@ -700,9 +711,11 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 		ItemCargoEntry myitem = null;
 
-		for( int i=0; i < itemlist.size(); i++ ) {
-			if( itemlist.get(i).getItemID() == itemid ) {
-				myitem = itemlist.get(i);
+		for (ItemCargoEntry anItemlist : itemlist)
+		{
+			if (anItemlist.getItemID() == itemid)
+			{
+				myitem = anItemlist;
 				break;
 			}
 		}
@@ -913,7 +926,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			return false;
 		}
 
-		if( ok && !testonly ) {
+		if(!testonly) {
 			this.setCargo(newcargo, false);
 
 			this.setCrew(this.getCrew()+ship.getCrew());
@@ -1240,7 +1253,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		org.hibernate.Session db = context.getDB();
 		User owner = this.getOwner();
 
-		Set<ShipType> shipTypes = new HashSet<ShipType>();
+		Set<ShipType> shipTypes = new HashSet<>();
 
 		List<ShipBaubar> buildableShips = Common.cast(db.createQuery("from ShipBaubar where werftSlots <= :slot")
 			.setInteger("slot", this.getWerftSlots())
@@ -1289,7 +1302,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 		Cargo availablecargo = this.getCargo(false);
 		Cargo allyitems = getAllyItems();
-		Set<ShipType> disabledShips = new HashSet<ShipType>();
+		Set<ShipType> disabledShips = new HashSet<>();
 
 		Cargo allitems = new Cargo();
 		allitems.addCargo(allyitems);
@@ -1308,7 +1321,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		Cargo allyitems = getAllyItems();
 		Cargo shipyardCargo = this.getCargo(false);
 
-		Set<ItemCargoEntry> items = new HashSet<ItemCargoEntry>();
+		Set<ItemCargoEntry> items = new HashSet<>();
 		items.addAll(allyitems.getItemsWithEffect(ItemEffect.Type.DRAFT_SHIP));
 		items.addAll(shipyardCargo.getItemsWithEffect(ItemEffect.Type.DRAFT_SHIP));
 
@@ -1322,7 +1335,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 */
 	private Set<IEDraftShip> getUsableShipDrafts() {
 		User owner = this.getOwner();
-		Set<IEDraftShip> shipDrafts = new HashSet<IEDraftShip>();
+		Set<IEDraftShip> shipDrafts = new HashSet<>();
 
 
 		//All Drafts - ally and local
@@ -1420,7 +1433,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * 			zur Bestimmung ob und wenn ja welcher Bauplan benoetigt wird zum bauen
 	 */
 	public List<SchiffBauinformationen> getBuildShipList() {
-		List<SchiffBauinformationen> result = new ArrayList<SchiffBauinformationen>();
+		List<SchiffBauinformationen> result = new ArrayList<>();
 
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
@@ -1437,17 +1450,19 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			allyitems = new Cargo();
 		}
 
-		Map<Integer,Boolean> disableShips = new HashMap<Integer,Boolean>();
+		Map<Integer,Boolean> disableShips = new HashMap<>();
 
 		List<ItemCargoEntry> itemlist = availablecargo.getItemsWithEffect( ItemEffect.Type.DISABLE_SHIP );
-		for( int i=0; i < itemlist.size(); i++ ) {
-			IEDisableShip effect = (IEDisableShip)itemlist.get(i).getItemEffect();
+		for (ItemCargoEntry anItemlist : itemlist)
+		{
+			IEDisableShip effect = (IEDisableShip) anItemlist.getItemEffect();
 			disableShips.put(effect.getShipType(), true);
 		}
 
 		itemlist = allyitems.getItemsWithEffect( ItemEffect.Type.DISABLE_SHIP );
-		for( int i=0; i < itemlist.size(); i++ ) {
-			IEDisableShip effect = (IEDisableShip)itemlist.get(i).getItemEffect();
+		for (ItemCargoEntry anItemlist : itemlist)
+		{
+			IEDisableShip effect = (IEDisableShip) anItemlist.getItemEffect();
 			disableShips.put(effect.getShipType(), true);
 		}
 
@@ -1478,16 +1493,18 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		//Items
 		Cargo localcargo = this.getCargo(true);
 		itemlist = localcargo.getItemsWithEffect( ItemEffect.Type.DRAFT_SHIP );
-		for( int i=0; i < itemlist.size(); i++ ) {
-			ItemCargoEntry item = itemlist.get(i);
-			IEDraftShip effect = (IEDraftShip)item.getItemEffect();
+		for (ItemCargoEntry item : itemlist)
+		{
+			IEDraftShip effect = (IEDraftShip) item.getItemEffect();
 
-			if( effect.getWerftSlots() > this.getWerftSlots() ) {
+			if (effect.getWerftSlots() > this.getWerftSlots())
+			{
 				continue;
 			}
 
 			//Forschungen checken
-			if(!user.hasResearched(effect.getTechReq(1)) || !user.hasResearched(effect.getTechReq(2)) || !user.hasResearched(effect.getTechReq(3))) {
+			if (!user.hasResearched(effect.getTechReq(1)) || !user.hasResearched(effect.getTechReq(2)) || !user.hasResearched(effect.getTechReq(3)))
+			{
 				continue;
 			}
 
@@ -1495,16 +1512,18 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 
 		itemlist = allyitems.getItemsWithEffect( ItemEffect.Type.DRAFT_SHIP );
-		for( int i=0; i < itemlist.size(); i++ ) {
-			ItemCargoEntry item = itemlist.get(i);
-			IEDraftShip effect = (IEDraftShip)item.getItemEffect();
+		for (ItemCargoEntry item : itemlist)
+		{
+			IEDraftShip effect = (IEDraftShip) item.getItemEffect();
 
-			if( effect.getWerftSlots() > this.getWerftSlots() ) {
+			if (effect.getWerftSlots() > this.getWerftSlots())
+			{
 				continue;
 			}
 
 			//Forschungen checken
-			if(!user.hasResearched(effect.getTechReq(1)) || !user.hasResearched(effect.getTechReq(2)) || !user.hasResearched(effect.getTechReq(3))) {
+			if (!user.hasResearched(effect.getTechReq(1)) || !user.hasResearched(effect.getTechReq(2)) || !user.hasResearched(effect.getTechReq(3)))
+			{
 				continue;
 			}
 
@@ -1530,7 +1549,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		org.hibernate.Session db = context.getDB();
 		User user = this.getOwner();
 
-		Cargo allyitems = null;
+		Cargo allyitems;
 	   	if( user.getAlly() != null ) {
 			allyitems = new Cargo(Cargo.Type.ITEMSTRING,user.getAlly().getItems());
 			Cargo localcargo = this.getCargo(true);
@@ -1538,11 +1557,10 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			allyitems.addCargo( localcargo );
 		}
 		else {
-			Cargo localcargo = this.getCargo(true);
-			allyitems = localcargo;
+			allyitems = this.getCargo(true);
 		}
 
-	   	ShipBaubar shipdata = null;
+	   	ShipBaubar shipdata;
 		if( build > 0 ) {
 			shipdata = (ShipBaubar)db.createQuery("from ShipBaubar where id=:id")
 										.setInteger("id", build)
@@ -1647,7 +1665,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 		Cargo cargo = new Cargo(this.getCargo(false));
 
-	   	Cargo allyitems = null;
+	   	Cargo allyitems;
 	   	if( user.getAlly() != null ) {
 			allyitems = new Cargo(Cargo.Type.ITEMSTRING,user.getAlly().getItems());
 
@@ -1663,10 +1681,12 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 
 		List<ItemCargoEntry> itemlist = allyitems.getItemsWithEffect( ItemEffect.Type.DISABLE_SHIP );
-		for(int i=0; i < itemlist.size(); i++ ) {
-			IEDisableShip effect = (IEDisableShip)itemlist.get(i).getItemEffect();
+		for (ItemCargoEntry anItemlist : itemlist)
+		{
+			IEDisableShip effect = (IEDisableShip) anItemlist.getItemEffect();
 
-			if( effect.getShipType() == shipdata.getType().getId() ) {
+			if (effect.getShipType() == shipdata.getType().getId())
+			{
 				output.append("Ihnen wurde der Bau dieses Schiffs verboten");
 				return false;
 			}
@@ -1816,8 +1836,9 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 		WerftQueueEntry[] list = new WerftQueueEntry[queue.size()];
 		int index = 0;
-		for( Iterator<?> iter=queue.iterator(); iter.hasNext(); ) {
-			list[index++] = (WerftQueueEntry)iter.next();
+		for (Object aQueue : queue)
+		{
+			list[index++] = (WerftQueueEntry) aQueue;
 		}
 
 		this.entries = list;
@@ -1950,8 +1971,9 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		if( werften.length < 3 ) {
 			final WerftKomplex komplex = this.linkedWerft;
 
-			for( int i=0; i < werften.length; i++ ) {
-				werften[i].linkedWerft = null;
+			for (WerftObject aWerften : werften)
+			{
+				aWerften.linkedWerft = null;
 			}
 
 			// Die Werftauftraege der groessten Werft zuordnen oder
@@ -1959,11 +1981,13 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			final WerftObject largest = werften[0].getWerftSlots() > werften[1].getWerftSlots() ? werften[0] : werften[1];
 
 			WerftQueueEntry[] entries = komplex.getBuildQueue();
-			for( int i=0; i < entries.length; i++ ) {
-				if( entries[i].getSlots() <= largest.getWerftSlots() ) {
-					entries[i].copyToWerft(largest);
+			for (WerftQueueEntry entry : entries)
+			{
+				if (entry.getSlots() <= largest.getWerftSlots())
+				{
+					entry.copyToWerft(largest);
 				}
-				db.delete(entries[i]);
+				db.delete(entry);
 			}
 
 			this.entries = null;
@@ -2000,9 +2024,10 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		WerftQueueEntry[] entries = this.getBuildQueue();
-		for( int i=0; i < entries.length; i++ ) {
-			entries[i].copyToWerft(this.linkedWerft);
-			db.delete(entries[i]);
+		for (WerftQueueEntry entry : entries)
+		{
+			entry.copyToWerft(this.linkedWerft);
+			db.delete(entry);
 		}
 
 		this.entries = null;
@@ -2041,17 +2066,19 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		werft.linkedWerft = komplex;
 
 		WerftQueueEntry[] entries = this.getBuildQueue();
-		for( int i=0; i < entries.length; i++ ) {
-			entries[i].copyToWerft(this.linkedWerft);
-			db.delete(entries[i]);
+		for (WerftQueueEntry entry : entries)
+		{
+			entry.copyToWerft(this.linkedWerft);
+			db.delete(entry);
 		}
 
 		this.entries = null;
 
 		entries = werft.getBuildQueue();
-		for( int i=0; i < entries.length; i++ ) {
-			entries[i].copyToWerft(werft.linkedWerft);
-			db.delete(entries[i]);
+		for (WerftQueueEntry entry : entries)
+		{
+			entry.copyToWerft(werft.linkedWerft);
+			db.delete(entry);
 		}
 
 		werft.entries = null;
