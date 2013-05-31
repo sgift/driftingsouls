@@ -359,8 +359,8 @@ public abstract class DSGenerator extends Generator {
 		}
 
 		actionTypeHandler.setAttribute("bodyParameters", this.getBodyParameters());
-		actionTypeHandler.setAttribute("enableDebugOutput", !this.getDisableDebugOutput() ? true : null);
-		actionTypeHandler.setAttribute("startTime", this.getStartTime());
+		actionTypeHandler.setAttribute("enableDebugOutput", !this.disableDebugOutput ? true : null);
+		actionTypeHandler.setAttribute("startTime", this.startTime);
 		actionTypeHandler.printHeader();
 	}
 
@@ -374,14 +374,6 @@ public abstract class DSGenerator extends Generator {
 	 */
 	public void setDisableDebugOutput( boolean value ) {
 		disableDebugOutput = value;
-	}
-
-	/**
-	 * Gibt zurueck, ob die Debugausgabe deaktiviert ist.
-	 * @return <code>true</code>, falls sie deaktiviert ist
-	 */
-	public boolean getDisableDebugOutput() {
-		return disableDebugOutput;
 	}
 
 	/**
@@ -410,18 +402,10 @@ public abstract class DSGenerator extends Generator {
 	}
 
 	/**
-	 * Gibt den Startzeitpunkt der Verarbeitung zurueck.
-	 * @return Der Startzeitpunkt der Verarbeitung
-	 */
-	public long getStartTime() {
-		return startTime;
-	}
-
-	/**
 	 * Gibt weitere HTML-Body-Tag-Attribute zurueck.
 	 * @return Weitere HTML-Body-Tag-Attribute
 	 */
-	public String getBodyParameters() {
+	private String getBodyParameters() {
 		StringBuilder text = new StringBuilder();
 
 		if( bodyParameters.size() > 0 ) {
