@@ -127,7 +127,7 @@
 		</javac>
 	</target>
 
-	<target name="compile-templates" depends="prepare" description="Compile template sources">
+	<target name="compile-templates" depends="templates" description="Compile template sources">
 			<javac srcdir="${templates.srchome}"
 				   destdir="${build.home}/WEB-INF/classes"
 				   debug="${compile.debug}"
