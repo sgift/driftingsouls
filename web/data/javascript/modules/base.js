@@ -136,7 +136,7 @@ var Base = {
 		$('#baseMap .tile').removeClass('highlight');
 	},
 	changeName : function() {
-		this.view.showNameInput({basename:name, baseid: this.getBaseId()});
+		this.view.showNameInput({basename:$("#baseName").text(), baseid: this.getBaseId()});
 	},
 	showBuilding : function(tileId) {
 		new BuildingUi(this, tileId);
