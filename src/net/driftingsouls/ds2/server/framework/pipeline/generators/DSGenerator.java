@@ -182,6 +182,7 @@ public abstract class DSGenerator extends Generator {
 		try
 		{
 			Method method = getMethodForAction(action);
+			prepareUrlParams(method.getAnnotations());
 
 			final Action actionDescriptor = method.getAnnotation(Action.class);
 			doActionOptimizations(actionDescriptor);
