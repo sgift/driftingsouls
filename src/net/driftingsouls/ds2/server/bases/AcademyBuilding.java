@@ -30,7 +30,6 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Configurable;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -47,7 +46,6 @@ import java.util.Map;
  */
 @Entity(name="AcademyBuilding")
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.AcademyBuilding")
-@Configurable
 public class AcademyBuilding extends DefaultBuilding {
 	private static final Log log = LogFactory.getLog(AcademyBuilding.class);
 	private static final Map<Integer,String> offis = new HashMap<Integer,String>();

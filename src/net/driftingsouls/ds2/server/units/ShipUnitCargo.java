@@ -79,8 +79,7 @@ public class ShipUnitCargo extends UnitCargo
 	@Override
 	protected UnitCargoEntry createUnitCargoEntry(UnitType unitid, long count)
 	{
-		UnitCargoEntry entry = new ShipUnitCargoEntry(this.dest, unitid, count);
-		return entry;
+		return new ShipUnitCargoEntry(this.dest, unitid, count);
 	}
 
 	@Override

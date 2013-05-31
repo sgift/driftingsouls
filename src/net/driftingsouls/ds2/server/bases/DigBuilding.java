@@ -34,7 +34,6 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Die BuddelStaette.
@@ -42,7 +41,6 @@ import org.springframework.beans.factory.annotation.Configurable;
  */
 @Entity(name="DigBuilding")
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.DigBuilding")
-@Configurable
 public class DigBuilding extends DefaultBuilding {
 
 	/**

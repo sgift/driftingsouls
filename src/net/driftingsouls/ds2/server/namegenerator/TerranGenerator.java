@@ -38,7 +38,7 @@ import net.driftingsouls.ds2.server.namegenerator.markov.Markov;
 public class TerranGenerator implements NameGenerator
 {
 	private Markov markov;
-	private List<String> firstNames = new ArrayList<String>();
+	private List<String> firstNames = new ArrayList<>();
 
 	/**
 	 * Konstruktor.
@@ -48,19 +48,14 @@ public class TerranGenerator implements NameGenerator
 	{
 		this.markov = new Markov(TerranGenerator.class.getResourceAsStream("british.jmk"));
 
-		BufferedReader reader = new BufferedReader(new InputStreamReader(TerranGenerator.class
-				.getResourceAsStream("british_firstnames.txt")));
-		try
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(TerranGenerator.class
+				.getResourceAsStream("british_firstnames.txt"))))
 		{
-			String firstName = null;
-			while( (firstName = reader.readLine()) != null )
+			String firstName;
+			while ((firstName = reader.readLine()) != null)
 			{
 				firstNames.add(firstName);
 			}
-		}
-		finally
-		{
-			reader.close();
 		}
 	}
 

@@ -31,6 +31,7 @@ import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import org.hibernate.Session;
 import org.junit.After;
 import org.junit.Before;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 /**
@@ -67,12 +68,12 @@ public abstract class DriftingSoulsDBTestCase implements DBTestable {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		new FileSystemXmlApplicationContext("test/cfg/spring.xml");
-		
+		FileSystemXmlApplicationContext applicationContext = new FileSystemXmlApplicationContext("test/cfg/spring.xml");
+
 		SimpleResponse response = new SimpleResponse();
 		CmdLineRequest request = new CmdLineRequest(new String[0]);
-		this.context = new TestContext(db, request, response);
-		
+		this.context = new TestContext(db, request, response, applicationContext);
+
 		Connection con = this.dbTester.getConnection().getConnection();
 		Statement stmt = con.createStatement();
 		try {

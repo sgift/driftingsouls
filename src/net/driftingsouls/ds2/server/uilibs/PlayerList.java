@@ -18,17 +18,15 @@
  */
 package net.driftingsouls.ds2.server.uilibs;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Die Spielerliste.
@@ -96,28 +94,30 @@ public class PlayerList {
 		HashMap<Integer,Integer> asticount = null;
 		HashMap<Integer,Integer> shipcount = null;
 
-		String query = "";
+		String query;
 		if( (user == null) || !context.hasPermission("statistik", "erweiterteSpielerliste") ) {
 			query = "select u from User u left join fetch u.ally a where locate('hide',u.flags)=0 order by ";
 		}
 		else {
 			// Asteroiden/Schiffe zaehlen
-			asticount = new HashMap<Integer,Integer>();
-			shipcount = new HashMap<Integer,Integer>();
+			asticount = new HashMap<>();
+			shipcount = new HashMap<>();
 
 			List<?> basecounts = db.createQuery("select owner.id,count(*) from Base group by owner.id").list();
-			for( Iterator<?> iter=basecounts.iterator(); iter.hasNext(); ) {
-				final Object[] data = (Object[])iter.next();
-				final Integer owner = (Integer)data[0];
-				final Number count = (Number)data[1];
+			for (Object basecount : basecounts)
+			{
+				final Object[] data = (Object[]) basecount;
+				final Integer owner = (Integer) data[0];
+				final Number count = (Number) data[1];
 				asticount.put(owner, count.intValue());
 			}
 
 			List<?> shipcounts = db.createQuery("select owner.id,count(*) from Ship group by owner.id").list();
-			for( Iterator<?> iter=shipcounts.iterator(); iter.hasNext(); ) {
-				final Object[] data = (Object[])iter.next();
-				final Integer owner = (Integer)data[0];
-				final Number count = (Number)data[1];
+			for (Object shipcount1 : shipcounts)
+			{
+				final Object[] data = (Object[]) shipcount1;
+				final Integer owner = (Integer) data[0];
+				final Number count = (Number) data[1];
 				shipcount.put(owner, count.intValue());
 			}
 

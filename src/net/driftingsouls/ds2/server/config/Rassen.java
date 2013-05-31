@@ -44,7 +44,7 @@ import org.w3c.dom.NodeList;
 public class Rassen implements Iterable<Rasse> {
 	private static final Log log = LogFactory.getLog(Rassen.class);
 	private static Rassen rassenList = new Rassen();
-	private Map<Integer, Rasse> list = new LinkedHashMap<Integer, Rasse>();
+	private Map<Integer, Rasse> list = new LinkedHashMap<>();
 	
 	private Rassen() {
 		// EMPTY

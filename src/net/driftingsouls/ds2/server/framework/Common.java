@@ -78,7 +78,7 @@ public class Common {
 		// EMPTY
 	}
 	
-	private static Set<StackTraceElement> stubWarnList = new HashSet<StackTraceElement>();
+	private static Set<StackTraceElement> stubWarnList = new HashSet<>();
 	
 	/**
 	 * Markiert eine Methode als "STUB". Beim ersten Aufruf der Methode wird eine Warnung
@@ -126,7 +126,7 @@ public class Common {
 		final StringBuilder buffer = new StringBuilder("./ds?module=");	
 		final Request request = context.getRequest();
 		
-		final HashMap<String,String> params = new HashMap<String,String>();
+		final HashMap<String,String> params = new HashMap<>();
 		for( int i=0; i < paramlist.length; i+=2 ) {
 			params.put(paramlist[i].toString(), paramlist[i+1].toString());
 		}
@@ -139,15 +139,11 @@ public class Common {
 			buffer.append(request.getParameter("module"));
 		}
 
-		if( request.getParameter("_style") != null ) {
-			buffer.append("&amp;_style="+request.getParameter("_style"));	
-		}
-	
-		buffer.append("&amp;action="+action);
+		buffer.append("&amp;action=").append(action);
 	
 		for( Entry<String, String> entry: params.entrySet() ) 
 		{
-			buffer.append("&amp;"+entry.getKey()+"="+entry.getValue());
+			buffer.append("&amp;").append(entry.getKey()).append("=").append(entry.getValue());
 		}
 		
 		return buffer.toString();
@@ -269,7 +265,7 @@ public class Common {
 	 * @param list Die zu verknuepfende Liste
 	 * @return Die verknuepfte Liste
 	 */
-	public static String implode( String separator, List<? extends Object> list ) {
+	public static String implode( String separator, List<?> list ) {
 		if( list.size() > 0 ) {
 			StringBuilder sb = new StringBuilder(5*list.size());
 			boolean first = true;
@@ -300,7 +296,7 @@ public class Common {
 		int[] result = explodeToInt(separator, array, -1);
 		Integer[] result2 = new Integer[result.length];
 		for( int i=0; i < result.length; i++ ) {
-			result2[i] = Integer.valueOf(result[i]);
+			result2[i] = result[i];
 		}
 		return result2;
 	}
@@ -604,8 +600,10 @@ public class Common {
 	 * @return true, falls der Wert im Array vorhanden ist
 	 */
 	public static <T> boolean inArray(T key, T[] list) {
-		for( int i=0; i < list.length; i++ ) {
-			if( (list[i] != null) && list[i].equals(key) ) {
+		for (T aList : list)
+		{
+			if ((aList != null) && aList.equals(key))
+			{
 				return true;
 			}
 		}
@@ -620,8 +618,10 @@ public class Common {
 	 * @return true, falls der Wert im Array vorhanden ist
 	 */
 	public static boolean inArray(int key, int[] list) {
-		for( int i=0; i < list.length; i++ ) {
-			if( list[i] == key ) {
+		for (int aList : list)
+		{
+			if (aList == key)
+			{
 				return true;
 			}
 		}
@@ -859,8 +859,9 @@ public class Common {
 			digest.update(text.getBytes("UTF-8"));
 			byte[] md5 = digest.digest();
 			StringBuilder hexString = new StringBuilder();
-			for( int i=0; i<md5.length; i++ ) {
-				hexString.append(Integer.toHexString(0xFF & md5[i]));
+			for (byte aMd5 : md5)
+			{
+				hexString.append(Integer.toHexString(0xFF & aMd5));
 			}
 			return hexString.toString();
 		}
@@ -882,12 +883,9 @@ public class Common {
 		File file = new File(Configuration.getSetting("LOXPATH")+logFile);
 		if( file.isFile() ) {
 			try {
-				BufferedWriter bf = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, true)));
-				try {
+				try (BufferedWriter bf = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, true))))
+				{
 					bf.write(text);
-				}
-				finally {
-					bf.close();
 				}
 			}
 			catch( Exception e ) {
@@ -924,10 +922,10 @@ public class Common {
 		int tage = dauer % 7;
 		
 		if( wochen > 1 ) {
-			text.append(wochen+" Wochen");
+			text.append(wochen).append(" Wochen");
 		}
 		else if( wochen == 1 ) {
-			text.append(wochen+" Woche");
+			text.append(wochen).append(" Woche");
 		}
 					
 		if( (tage > 0) && (wochen > 0) ) {
@@ -935,10 +933,10 @@ public class Common {
 		}
 					
 		if( tage > 1 ) {
-			text.append(tage+" Tage");
+			text.append(tage).append(" Tage");
 		}
 		else if( tage == 1 ) {
-			text.append(tage+" Tag");
+			text.append(tage).append(" Tag");
 		}
 		else if( (wochen == 0) && (tage == 0) ) {
 			text.append("wenige Stunden"); 	
@@ -1054,8 +1052,9 @@ public class Common {
 		String prefix = Configuration.getSetting("EXCEPTION_MAIL_PREFIX");
 		
 		String[] mailAddrs = StringUtils.split(Configuration.getSetting("EXCEPTION_MAIL"), ';');
-		for( int i=0; i < mailAddrs.length; i++ ) {
-			Common.mail(mailAddrs[i], prefix+" "+(title != null && title.length() > 0 ? title : "Exception"), msg);
+		for (String mailAddr : mailAddrs)
+		{
+			Common.mail(mailAddr, prefix + " " + (title != null && title.length() > 0 ? title : "Exception"), msg);
 		}
 	}
 
@@ -1067,18 +1066,12 @@ public class Common {
 	public static void copyFile(String source, String destination) {
 		/* TODO: Exceptions? */
 		try {
-			FileChannel sourceChannel = new FileInputStream(new File(source)).getChannel();
-			try {
-				FileChannel destinationChannel = new FileOutputStream(new File(destination)).getChannel();
-				try {
+			try (FileChannel sourceChannel = new FileInputStream(new File(source)).getChannel())
+			{
+				try (FileChannel destinationChannel = new FileOutputStream(new File(destination)).getChannel())
+				{
 					sourceChannel.transferTo(0, sourceChannel.size(), destinationChannel);
 				}
-				finally {
-					destinationChannel.close();
-				}
-			}
-			finally {
-				sourceChannel.close();
 			}
 		}
 		catch(IOException e) {
@@ -1139,7 +1132,7 @@ public class Common {
 			return;
 		}
 		
-		map.put(property, val.intValue()+1);		
+		map.put(property, val +1);
 	}
 	
 	/**
@@ -1151,11 +1144,11 @@ public class Common {
 	public static <T> void safeLongInc(Map<T,Long> map, T property) {
 		Long val = map.get(property);
 		if( val == null ) {
-			map.put(property, Long.valueOf(1));
+			map.put(property, (long) 1);
 			return;
 		}
 		
-		map.put(property, val.longValue()+1);		
+		map.put(property, val +1);
 	}
 	
 	/**

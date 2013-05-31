@@ -119,8 +119,8 @@
 			   debug="${compile.debug}"
 			   deprecation="${compile.deprecation}"
 			   optimize="${compile.optimize}"
-			   source="1.6"
-			   target="1.6"
+			   source="1.7"
+			   target="1.7"
 			   encoding="UTF-8"
 			   includes="**/server/framework/**">
 			<classpath refid="compile.classpath"/>
@@ -133,8 +133,8 @@
 				   debug="${compile.debug}"
 				   deprecation="${compile.deprecation}"
 				   optimize="${compile.optimize}"
-				   source="1.6"
-				   target="1.6"
+				   source="1.7"
+				   target="1.7"
 				   encoding="UTF-8"
 					includes="**/server/templates/**">
 				<classpath refid="compile.classpath"/>
@@ -160,8 +160,8 @@
 			   debug="${compile.debug}"
 			   deprecation="${compile.deprecation}"
 			   optimize="${compile.optimize}"
-			   source="1.6"
-			   target="1.6"
+			   source="1.7"
+			   target="1.7"
 			   encoding="UTF-8"
 				excludes="**/server/templates/**,**/server/framework/**">
 			<classpath refid="compile.classpath"/>
@@ -348,8 +348,8 @@
 			debug="${compile.debug}"
 			deprecation="${compile.deprecation}"
 			optimize="${compile.optimize}"
-			source="1.6"
-			target="1.6"
+			source="1.7"
+			target="1.7"
 			encoding="UTF-8"
 			verbose="true">
 			<classpath>
@@ -367,7 +367,6 @@
 				<pathelement path="${build.home}/embedded"/>
 			</classpath>
 			<arg value="${build.home}" />
-			<jvmarg value="-javaagent:${basedir}/web/WEB-INF/lib/spring-agent.jar" />
 			<jvmarg value="${jetty.jvmargs}" />
 			<jvmarg value="-Dcom.sun.management.jmxremote" />
 			<jvmarg value="-Dcom.sun.management.jmxremote.authenticate=false" />
@@ -430,8 +429,8 @@
 			debug="${compile.debug}"
 			deprecation="${compile.deprecation}"
 			optimize="${compile.optimize}"
-			source="1.6"
-			target="1.6"
+			source="1.7"
+			target="1.7"
 			encoding="UTF-8"
 			verbose="true">
 			<classpath refid="test.classpath"/>
@@ -442,7 +441,6 @@
 		</copy>
 
 		<junit fork="yes" haltonfailure="true" outputtoformatters="false" forkmode="perBatch">
-			<jvmarg value="-javaagent:web/WEB-INF/lib/spring-agent.jar" />
 			<classpath>
 				<fileset dir="web/WEB-INF/lib">
 					<include name="*.jar"/>

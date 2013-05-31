@@ -35,7 +35,7 @@ public class ResourceEntry implements JSONSupport {
 	private String image;
 	private long count1;
 	private long count2 = 0;
-	private long diff = 0;;
+	private long diff = 0;
 	private String cargo1;
 	private String cargo2 = null;
 	private boolean largeImages = false;

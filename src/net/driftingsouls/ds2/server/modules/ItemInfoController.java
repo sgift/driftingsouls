@@ -18,11 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
@@ -44,16 +39,16 @@ import net.driftingsouls.ds2.server.config.items.effects.IEModuleSetMeta;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.Ammo;
 import net.driftingsouls.ds2.server.entities.Forschung;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.statistik.StatItemLocations;
 import net.driftingsouls.ds2.server.entities.statistik.StatUserCargo;
-import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeChangeset;
@@ -61,22 +56,20 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Zeigt Informationen zu Items an.
  * @author Christopher Jung
  *
  */
-@Configurable
 @Module(name="iteminfo")
 public class ItemInfoController extends TemplateGenerator {
-	private Configuration config;
-
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
@@ -88,16 +81,6 @@ public class ItemInfoController extends TemplateGenerator {
 
 		setPageTitle("Item");
 	}
-
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config)
-    {
-    	this.config = config;
-    }
 
 	@Override
 	protected boolean validateAndPrepare(String action) {
@@ -119,145 +102,145 @@ public class ItemInfoController extends TemplateGenerator {
 
 		if( mods.getRu() != 0 ) {
 			colorize(effecttext, mods.getRu());
-			effecttext.append("Reaktor <img src=\""+Cargo.getResourceImage(Resources.URAN)+"\" alt=\"\" /> "+mods.getRu());
+			effecttext.append("Reaktor <img src=\"").append(Cargo.getResourceImage(Resources.URAN)).append("\" alt=\"\" /> ").append(mods.getRu());
 			effecttext.append("</span><br />\n");
 		}
 
 		if( mods.getRd() != 0 ) {
 			colorize(effecttext, mods.getRd());
-			effecttext.append("Reaktor <img src=\""+Cargo.getResourceImage(Resources.DEUTERIUM)+"\" alt=\"\" /> "+mods.getRd());
+			effecttext.append("Reaktor <img src=\"").append(Cargo.getResourceImage(Resources.DEUTERIUM)).append("\" alt=\"\" /> ").append(mods.getRd());
 			effecttext.append("</span><br />\n");
 		}
 
 		if( mods.getRa() != 0 ) {
 			colorize(effecttext, mods.getRa());
-			effecttext.append("Reaktor <img src=\""+Cargo.getResourceImage(Resources.ANTIMATERIE)+"\" alt=\"\" /> "+mods.getRa());
+			effecttext.append("Reaktor <img src=\"").append(Cargo.getResourceImage(Resources.ANTIMATERIE)).append("\" alt=\"\" /> ").append(mods.getRa());
 			effecttext.append("</span><br />\n");
 		}
 
 		if( mods.getRm() != 0 ) {
 			colorize(effecttext, mods.getRm());
-			effecttext.append("Reaktor <img src=\""+config.get("URL")+"data/interface/energie.gif\" alt=\"\" /> "+mods.getRm());
+			effecttext.append("Reaktor <img src=\"./data/interface/energie.gif\" alt=\"\" /> ").append(mods.getRm());
 			effecttext.append("</span><br />\n");
 		}
 
 		if( mods.getEps() != 0 ) {
 			colorize(effecttext, mods.getEps());
-			effecttext.append("Energiespeicher "+mods.getEps());
+			effecttext.append("Energiespeicher ").append(mods.getEps());
 			effecttext.append("</span><br />\n");
 		}
 
 		if( mods.getCost() != 0 ) {
 			colorize(effecttext, -mods.getCost());
-			effecttext.append("Flugkosten "+mods.getCost());
+			effecttext.append("Flugkosten ").append(mods.getCost());
 			effecttext.append("</span><br />\n");
 		}
 
 		if( mods.getHeat() != 0 ) {
 			colorize(effecttext, -mods.getHeat());
-			effecttext.append("&Uuml;berhitzung "+mods.getHeat());
+			effecttext.append("&Uuml;berhitzung ").append(mods.getHeat());
 			effecttext.append("</span><br />\n");
 		}
 
 		if( mods.getHull() != 0 ) {
 			colorize(effecttext, mods.getHull());
-			effecttext.append("H&uuml;lle "+mods.getHull());
+			effecttext.append("H&uuml;lle ").append(mods.getHull());
 			effecttext.append("</span><br />\n");
 		}
 
 		if( mods.getPanzerung() != 0 ) {
 			colorize(effecttext, mods.getPanzerung());
-			effecttext.append("Panzerung "+mods.getPanzerung());
+			effecttext.append("Panzerung ").append(mods.getPanzerung());
 			effecttext.append("</span><br />\n");
 		}
 
 		if( mods.getAblativeArmor() != 0 ) {
 			colorize(effecttext, mods.getAblativeArmor());
-			effecttext.append("Ablative Panzerung "+mods.getAblativeArmor());
+			effecttext.append("Ablative Panzerung ").append(mods.getAblativeArmor());
 			effecttext.append("</span><br />\n");
 		}
 
 		if( mods.getCargo() != 0 ) {
 			colorize(effecttext, mods.getCargo());
-			effecttext.append("Cargo "+mods.getCargo());
+			effecttext.append("Cargo ").append(mods.getCargo());
 			effecttext.append("</span><br />\n");
 		}
 
 		if( mods.getCrew() != 0 ) {
 			colorize(effecttext, mods.getCrew());
-			effecttext.append("Crew "+mods.getCrew());
+			effecttext.append("Crew ").append(mods.getCrew());
 			effecttext.append("</span><br />\n");
 		}
 
 		if( mods.getNahrungCargo() != 0 ) {
 			colorize(effecttext, mods.getNahrungCargo());
-			effecttext.append("Nahrungsspeicher "+mods.getNahrungCargo());
+			effecttext.append("Nahrungsspeicher ").append(mods.getNahrungCargo());
 			effecttext.append("</span><br />\n");
 		}
 
 		if( mods.getUnitSpace() != 0 ) {
 			colorize(effecttext, mods.getUnitSpace());
-			effecttext.append("Einheitenladeraum "+mods.getUnitSpace());
+			effecttext.append("Einheitenladeraum ").append(mods.getUnitSpace());
 			effecttext.append("</span><br />\n");
 		}
 
 		if( mods.getMaxUnitSize() != 0 ) {
 			colorize(effecttext, mods.getMaxUnitSize());
-			effecttext.append("Maximale Einheitengr&ouml;&szlig;e "+mods.getMaxUnitSize());
+			effecttext.append("Maximale Einheitengr&ouml;&szlig;e ").append(mods.getMaxUnitSize());
 			effecttext.append("</span><br />\n");
 		}
 
 		if( mods.getShields() != 0 ) {
 			colorize(effecttext, mods.getShields());
-			effecttext.append("Schilde "+mods.getShields());
+			effecttext.append("Schilde ").append(mods.getShields());
 			effecttext.append("</span><br />\n");
 		}
 
 		if( mods.getSize() != 0 ) {
 			colorize(effecttext, -mods.getSize());
-			effecttext.append("Gr&ouml;&szlig;e "+mods.getSize());
+			effecttext.append("Gr&ouml;&szlig;e ").append(mods.getSize());
 			effecttext.append("</span><br />\n");
 		}
 
 		if( mods.getJDocks() != 0 ) {
 			colorize(effecttext, mods.getJDocks());
-			effecttext.append("J&auml;gerdocks "+mods.getJDocks());
+			effecttext.append("J&auml;gerdocks ").append(mods.getJDocks());
 			effecttext.append("</span><br />\n");
 		}
 
 		if( mods.getADocks() != 0 ) {
 			colorize(effecttext, mods.getADocks());
-			effecttext.append("Externe Docks "+mods.getADocks());
+			effecttext.append("Externe Docks ").append(mods.getADocks());
 			effecttext.append("</span><br />\n");
 		}
 
 		if( mods.getSensorRange() != 0 ) {
 			colorize(effecttext, mods.getSensorRange());
-			effecttext.append("Sensorreichweite "+mods.getSensorRange());
+			effecttext.append("Sensorreichweite ").append(mods.getSensorRange());
 			effecttext.append("</span><br />\n");
 		}
 
 		if( mods.getHydro() != 0 ) {
 			colorize(effecttext, mods.getHydro());
-			effecttext.append("Produziert <img src=\""+Cargo.getResourceImage(Resources.NAHRUNG)+"\" alt=\"\" />"+mods.getHydro());
+			effecttext.append("Produziert <img src=\"").append(Cargo.getResourceImage(Resources.NAHRUNG)).append("\" alt=\"\" />").append(mods.getHydro());
 			effecttext.append("</span><br />\n");
 		}
 
 		if( mods.getDeutFactor() != 0 ) {
 			colorize(effecttext, mods.getDeutFactor());
-			effecttext.append("Sammelt <img src=\""+Cargo.getResourceImage(Resources.DEUTERIUM)+"\" alt=\"\" />"+mods.getDeutFactor());
+			effecttext.append("Sammelt <img src=\"").append(Cargo.getResourceImage(Resources.DEUTERIUM)).append("\" alt=\"\" />").append(mods.getDeutFactor());
 			effecttext.append("</span><br />\n");
 		}
 
 		if( mods.getReCost() != 0 ) {
 			colorize(effecttext, -mods.getReCost());
-			effecttext.append("Wartungskosten "+mods.getReCost());
+			effecttext.append("Wartungskosten ").append(mods.getReCost());
 			effecttext.append("</span><br />\n");
 		}
 
 		if( mods.getWerft() != 0 ) {
 			colorize(effecttext, mods.getWerft());
-			effecttext.append("Werftslots "+mods.getWerft());
+			effecttext.append("Werftslots ").append(mods.getWerft());
 			effecttext.append("</span><br />\n");
 		}
 
@@ -288,10 +271,10 @@ public class ItemInfoController extends TemplateGenerator {
 				}
 				wpntext.append("<span class=\"nobr\">");
 				if( Math.abs(weaponcount) > 1 ) {
-					wpntext.append(weaponcount+"x ");
+					wpntext.append(weaponcount).append("x ");
 				}
 				wpntext.append(Weapons.get().weapon(weaponclassname).getName());
-				wpntext.append("</span><br />[Max. Hitze: "+weaponheat+"]");
+				wpntext.append("</span><br />[Max. Hitze: ").append(weaponheat).append("]");
 			}
 			effecttext.append(wpntext);
 			effecttext.append("<br />\n");
@@ -308,7 +291,7 @@ public class ItemInfoController extends TemplateGenerator {
 				if( wpntext.length() > 0 ) {
 					wpntext.append("<br />");
 				}
-				wpntext.append(Weapons.get().weapon(weaponclassname).getName()+":<br />+"+weaponheat+" Max-Hitze");
+				wpntext.append(Weapons.get().weapon(weaponclassname).getName()).append(":<br />+").append(weaponheat).append(" Max-Hitze");
 			}
 			effecttext.append(wpntext);
 			effecttext.append("<br />\n");
@@ -319,15 +302,14 @@ public class ItemInfoController extends TemplateGenerator {
 
 	/**
 	 * Zeigt Details zu einem Item an.
-	 * @urlparam Integer itemid Die ID des anzuzeigenden Items
 	 */
 	@Action(ActionType.DEFAULT)
+	@UrlParam(name="itemid", description = "Die ID des anzuzeigenden Items")
 	public void detailsAction() {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
 		org.hibernate.Session db = getDB();
 
-		parameterString("item");
 		String itemStr = getString("item");
 		int itemid = -1;
 		if( ItemID.isItemRID(itemStr) )
@@ -394,14 +376,14 @@ public class ItemInfoController extends TemplateGenerator {
 			}
 			else if( shiptype.isHide() ) {
         		if( hasPermission("schiffstyp", "versteckteSichtbar") ) {
-        			data.append("<a class=\"forschinfo\" onclick='ShiptypeBox.show("+effect.getShipType()+");return false;' href=\""+Common.buildUrl("default", "module", "schiffinfo", "ship", effect.getShipType())+"\">"+shiptype.getNickname()+"</a><br /><span style=\"font-style:italic;color:red\" class=\"verysmallfont\">[unsichtbar]</span>\n");
+        			data.append("<a class=\"forschinfo\" onclick='ShiptypeBox.show(").append(effect.getShipType()).append(");return false;' href=\"").append(Common.buildUrl("default", "module", "schiffinfo", "ship", effect.getShipType())).append("\">").append(shiptype.getNickname()).append("</a><br /><span style=\"font-style:italic;color:red\" class=\"verysmallfont\">[unsichtbar]</span>\n");
 	        	}
 	        	else {
     	    		data.append("Unbekannt");
         		}
 			}
 			else {
-				data.append("<a class=\"forschinfo\" onclick='ShiptypeBox.show("+effect.getShipType()+");return false;' href=\""+Common.buildUrl("default", "module", "schiffinfo", "ship", effect.getShipType())+"\">"+shiptype.getNickname()+"</a>\n");
+				data.append("<a class=\"forschinfo\" onclick='ShiptypeBox.show(").append(effect.getShipType()).append(");return false;' href=\"").append(Common.buildUrl("default", "module", "schiffinfo", "ship", effect.getShipType())).append("\">").append(shiptype.getNickname()).append("</a>\n");
 			}
 
 			t.setVar(	"entry.name",	"Schiffstyp",
@@ -422,7 +404,7 @@ public class ItemInfoController extends TemplateGenerator {
 					if( !dat.isVisibile(user) && (!user.hasResearched(dat.getRequiredResearch(1)) || !user.hasResearched(dat.getRequiredResearch(2)) || !user.hasResearched(dat.getRequiredResearch(3))) ) {
 						data.append("Unbekannt");
 						if( hasPermission("forschung", "allesSichtbar") ) {
-							data.append(" [ID:"+effect.getTechReq(i)+"]");
+							data.append(" [ID:").append(effect.getTechReq(i)).append("]");
 						}
 						data.append("<br />\n");
 						entry = true;
@@ -430,7 +412,7 @@ public class ItemInfoController extends TemplateGenerator {
 						continue;
 					}
 
-					data.append("<a class=\"nonbold\" href=\""+Common.buildUrl("default","module", "forschinfo", "res", effect.getTechReq(i))+"\">");
+					data.append("<a class=\"nonbold\" href=\"").append(Common.buildUrl("default", "module", "forschinfo", "res", effect.getTechReq(i))).append("\">");
 
 			 		if( user.hasResearched(effect.getTechReq(i)) ) {
 			 			data.append("<span style=\"color:green; font-size:14px\">");
@@ -456,10 +438,10 @@ public class ItemInfoController extends TemplateGenerator {
 			Cargo costs = effect.getBuildCosts();
 			ResourceList reslist = costs.getResourceList();
 			for( ResourceEntry res : reslist ) {
-				data.append("<img src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1()+"<br />\n");
+				data.append("<img src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCargo1()).append("<br />\n");
 			}
-			data.append("<img src=\""+config.get("URL")+"data/interface/energie.gif\" alt=\"\" />"+effect.getE()+"<br />\n");
-			data.append("<img src=\""+config.get("URL")+"data/interface/besatzung.gif\" alt=\"\" />"+effect.getCrew()+"<br />\n");
+			data.append("<img src=\"./data/interface/energie.gif\" alt=\"\" />").append(effect.getE()).append("<br />\n");
+			data.append("<img src=\"./data/interface/besatzung.gif\" alt=\"\" />").append(effect.getCrew()).append("<br />\n");
 
 			t.setVar(	"entry.name",	"Kosten",
 						"entry.data",	data );
@@ -467,12 +449,12 @@ public class ItemInfoController extends TemplateGenerator {
 			t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 
 			t.setVar(	"entry.name",	"Dauer",
-						"entry.data",	"<img valign=\"middle\" src=\""+config.get("URL")+"data/interface/time.gif\" alt=\"\" />"+effect.getDauer() );
+						"entry.data",	"<img valign=\"middle\" src=\"./data/interface/time.gif\" alt=\"\" />"+effect.getDauer() );
 
 			t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 
 			t.setVar(	"entry.name",	"Werftslots",
-						"entry.data",	"<img valign=\"middle\" src=\""+config.get("URL")+"data/interface/schiffinfo/werftslots.png\" alt=\"\" />"+effect.getWerftSlots() );
+						"entry.data",	"<img valign=\"middle\" src=\"./data/interface/schiffinfo/werftslots.png\" alt=\"\" />"+effect.getWerftSlots() );
 
 			t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 
@@ -516,17 +498,19 @@ public class ItemInfoController extends TemplateGenerator {
 
 			StringBuilder targetslots = new StringBuilder(50);
 			List<String> slots = effect.getSlots();
-			for( int i=0; i < slots.size(); i++ ) {
-				String aslot = slots.get(i);
-
-				if( targetslots.length() > 0 ) {
+			for (String aslot : slots)
+			{
+				if (targetslots.length() > 0)
+				{
 					targetslots.append(", ");
 				}
-				try {
+				try
+				{
 					targetslots.append(ModuleSlots.get().slot(aslot).getName());
 				}
-				catch( NoSuchSlotException e ) {
-					targetslots.append("Ungueltiger Slot '"+aslot+"'");
+				catch (NoSuchSlotException e)
+				{
+					targetslots.append("Ungueltiger Slot '").append(aslot).append("'");
 				}
 			}
 
@@ -612,25 +596,25 @@ public class ItemInfoController extends TemplateGenerator {
 
 				data.setLength(0);
 				if( ammo.getShotsPerShot() > 1 ) {
-					data.append(ammo.getShotsPerShot()+" Salven<br />\n");
+					data.append(ammo.getShotsPerShot()).append(" Salven<br />\n");
 				}
 				if( ammo.getDamage() != 0 ) {
-					data.append(ammo.getDamage()+" Schaden<br />\n");
+					data.append(ammo.getDamage()).append(" Schaden<br />\n");
 				}
 				if( ammo.getDamage() != ammo.getShieldDamage() ) {
-					data.append(ammo.getShieldDamage()+" Schildschaden<br />\n");
+					data.append(ammo.getShieldDamage()).append(" Schildschaden<br />\n");
 				}
 				if( ammo.getSubDamage() != 0 ) {
-					data.append(ammo.getSubDamage()+" Subsystemschaden<br />\n");
-					data.append(ammo.getSubWS()+"% Subsystem-Trefferwahrscheinlichkeit<br />\n");
+					data.append(ammo.getSubDamage()).append(" Subsystemschaden<br />\n");
+					data.append(ammo.getSubWS()).append("% Subsystem-Trefferwahrscheinlichkeit<br />\n");
 				}
-				data.append(ammo.getSmallTrefferWS()+"% Trefferwahrscheinlichkeit gegen J&auml;ger<br />\n");
-				data.append(ammo.getTrefferWS()+"% Trefferwahrscheinlichkeit gegen Capitals\n");
+				data.append(ammo.getSmallTrefferWS()).append("% Trefferwahrscheinlichkeit gegen J&auml;ger<br />\n");
+				data.append(ammo.getTrefferWS()).append("% Trefferwahrscheinlichkeit gegen Capitals\n");
 				if( ammo.getTorpTrefferWS() != 0 ) {
-					data.append("<br />"+ammo.getTorpTrefferWS()+"% Trefferwahrscheinlichkeit gegen Torpedos\n");
+					data.append("<br />").append(ammo.getTorpTrefferWS()).append("% Trefferwahrscheinlichkeit gegen Torpedos\n");
 				}
 				if( ammo.getAreaDamage() != 0 ) {
-					data.append("<br />Umgebungsschaden ("+ammo.getAreaDamage()+")\n");
+					data.append("<br />Umgebungsschaden (").append(ammo.getAreaDamage()).append(")\n");
 				}
 				if( ammo.getDestroyable() > 0 ) {
 					data.append("<br />Durch Abwehrfeuer zerst&ouml;rbar\n");
@@ -652,7 +636,7 @@ public class ItemInfoController extends TemplateGenerator {
 						weapons.append(weapon.getName());
 					}
 					else {
-						weapons.append(",<br />\n"+weapon.getName());
+						weapons.append(",<br />\n").append(weapon.getName());
 					}
 				}
 				if( weapons.length() > 0 ) {
@@ -687,7 +671,7 @@ public class ItemInfoController extends TemplateGenerator {
 			StringBuilder tmp = new StringBuilder(50);
 			ResourceList reslist = setitemlist.getResourceList();
 			for( ResourceEntry res : reslist ) {
-				tmp.append("<span class=\"nobr\"><img style=\"vertical-align:middle\" src=\""+res.getImage()+"\" alt=\"\">"+res.getName()+"</span><br />\n");
+				tmp.append("<span class=\"nobr\"><img style=\"vertical-align:middle\" src=\"").append(res.getImage()).append("\" alt=\"\">").append(res.getName()).append("</span><br />\n");
 			}
 
 			if( tmp.length() > 0 ) {
@@ -714,7 +698,7 @@ public class ItemInfoController extends TemplateGenerator {
 		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
 
 		StatUserCargo ownCargoRow = (StatUserCargo)db.get(StatUserCargo.class, user.getId());
-		Cargo owncargo = null;
+		Cargo owncargo;
 		if( ownCargoRow != null ) {
 			owncargo = new Cargo(ownCargoRow.getCargo());
 		}
@@ -726,17 +710,18 @@ public class ItemInfoController extends TemplateGenerator {
 
 		t.setBlock("_ITEMINFO", "knownlist.listitem", "knownlist.list");
 
-		Map<Integer,String[]> reslocations = new HashMap<Integer,String[]>();
+		Map<Integer,String[]> reslocations = new HashMap<>();
 		List<?> modules = db.createQuery("from StatItemLocations where user=:user")
 			.setEntity("user", user)
 			.list();
-		for( Iterator<?> iter=modules.iterator(); iter.hasNext(); ) {
-			StatItemLocations amodule = (StatItemLocations)iter.next();
-			reslocations.put(amodule.getItemId(), StringUtils.split(amodule.getLocations(),';'));
+		for (Object module : modules)
+		{
+			StatItemLocations amodule = (StatItemLocations) module;
+			reslocations.put(amodule.getItemId(), StringUtils.split(amodule.getLocations(), ';'));
 		}
 
-		final String shipimage = "<td class='noBorderX' style='text-align:right'><img style='vertical-align:middle' src='"+config.get("URL")+"data/interface/schiffe/"+user.getRace()+"/icon_schiff.gif' alt='' title='Schiff' /></td>";
-		final String baseimage = "<td class='noBorderX' style='text-align:right'><img style='vertical-align:middle;width:15px;height:15px' src='"+config.get("URL")+"data/starmap/asti/asti.png' alt='' title='Asteroid' /></td>";
+		final String shipimage = "<td class='noBorderX' style='text-align:right'><img style='vertical-align:middle' src='./data/interface/schiffe/"+user.getRace()+"/icon_schiff.gif' alt='' title='Schiff' /></td>";
+		final String baseimage = "<td class='noBorderX' style='text-align:right'><img style='vertical-align:middle;width:15px;height:15px' src='./data/starmap/asti/asti.png' alt='' title='Asteroid' /></td>";
 
 		for( Item aitem : itemlist ) {
 			int itemid = aitem.getID();
@@ -757,38 +742,45 @@ public class ItemInfoController extends TemplateGenerator {
 				StringBuilder tooltiptext = new StringBuilder(200);
 				tooltiptext.append("<table class='noBorderX'>");
 				String[] locations = reslocations.get(itemid);
-				for( int i=0; i < locations.length; i++ ) {
-					String alocation = locations[i];
+				for (String alocation : locations)
+				{
 					int objectid = Integer.parseInt(alocation.substring(1));
 
 					tooltiptext.append("<tr>");
-					switch( alocation.charAt(0) ) {
-					case 's': {
-						Ship ship = (Ship)db.get(Ship.class, objectid);
-						if( ship == null ) {
-							continue;
+					switch (alocation.charAt(0))
+					{
+						case 's':
+						{
+							Ship ship = (Ship) db.get(Ship.class, objectid);
+							if (ship == null)
+							{
+								continue;
+							}
+							tooltiptext.append(shipimage).append("<td class='noBorderX'><a style='font-size:14px' class='forschinfo' href='").append(Common.buildUrl("default", "module", "schiff", "ship", objectid)).append("'>").append(ship.getName()).append(" (").append(ship.getId()).append(")</a></td>");
+							break;
 						}
-						tooltiptext.append(shipimage+"<td class='noBorderX'><a style='font-size:14px' class='forschinfo' href='"+Common.buildUrl("default", "module", "schiff", "ship", objectid)+"'>"+ship.getName()+" ("+ship.getId()+")</a></td>");
-						break;
-					}
-					case 'b': {
-						Base base = (Base)db.get(Base.class, objectid);
-						if( base == null ) {
-							continue;
+						case 'b':
+						{
+							Base base = (Base) db.get(Base.class, objectid);
+							if (base == null)
+							{
+								continue;
+							}
+							tooltiptext.append(baseimage + "<td class='noBorderX'><a style='font-size:14px' class='forschinfo' href='").append(Common.buildUrl("default", "module", "base", "col", objectid)).append("'>").append(base.getName()).append(" - ").append(base.getLocation().displayCoordinates(false)).append("</a></td>");
+							break;
 						}
-						tooltiptext.append(baseimage+"<td class='noBorderX'><a style='font-size:14px' class='forschinfo' href='"+Common.buildUrl("default", "module", "base", "col", objectid)+"'>"+base.getName()+" - "+base.getLocation().displayCoordinates(false)+"</a></td>");
-						break;
-					}
-					case 'g': {
-						Ship ship = (Ship)db.get(Ship.class, objectid);
-						if( ship == null ) {
-							continue;
+						case 'g':
+						{
+							Ship ship = (Ship) db.get(Ship.class, objectid);
+							if (ship == null)
+							{
+								continue;
+							}
+							tooltiptext.append("<td colspan='2' class='noBorderX' style='font-size:14px'>").append(ship.getName()).append("</td>");
+							break;
 						}
-						tooltiptext.append("<td colspan='2' class='noBorderX' style='font-size:14px'>"+ship.getName()+"</td>");
-						break;
-					}
-					default:
-						tooltiptext.append("<td colspan='2' class='noBorderX' style='font-size:14px'>Unbekanntes Objekt "+alocation+"</td>");
+						default:
+							tooltiptext.append("<td colspan='2' class='noBorderX' style='font-size:14px'>Unbekanntes Objekt ").append(alocation).append("</td>");
 					}
 
 					tooltiptext.append("</tr>");
@@ -850,16 +842,15 @@ public class ItemInfoController extends TemplateGenerator {
 
 	/**
 	 * Zeigt eine Itemliste an.
-	 * @urlparam String itemlist Die Itemliste
 	 */
 	@Override
+	@UrlParam(name="itemlist", description = "Die Itemliste")
 	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		TemplateEngine t = this.getTemplateEngine();
 		User user = (User)getUser();
 
-		parameterString("itemlist");
-		Cargo itemlist = null;
+		Cargo itemlist;
 
 		try {
 			itemlist = new Cargo();
@@ -882,36 +873,39 @@ public class ItemInfoController extends TemplateGenerator {
 		t.setBlock("_ITEMINFO", "itemlist.listitem", "itemlist.list");
 
 		List<ItemCargoEntry> myitemlist = itemlist.getItems();
-		for( int i=0; i < myitemlist.size(); i++ ) {
-			ItemCargoEntry item = myitemlist.get(i);
-
+		for (ItemCargoEntry item : myitemlist)
+		{
 			Item itemobject = item.getItemObject();
 
-			if( itemobject == null ) {
+			if (itemobject == null)
+			{
 				continue;
 			}
 
-			if( itemobject.getAccessLevel() > user.getAccessLevel() ) {
+			if (itemobject.getAccessLevel() > user.getAccessLevel())
+			{
 				continue;
 			}
 
-			if( itemobject.isUnknownItem() && !user.isKnownItem(item.getItemID()) && !hasPermission("item", "unbekannteSichtbar") ) {
+			if (itemobject.isUnknownItem() && !user.isKnownItem(item.getItemID()) && !hasPermission("item", "unbekannteSichtbar"))
+			{
 				continue;
 			}
 
 			ItemEffect itemeffect = item.getItemEffect();
 
 			String name = Common._plaintitle(itemobject.getName());
-			if( itemobject.getQuality().color().length() > 0 ) {
-				name = "<span style=\"color:"+itemobject.getQuality().color()+"\">"+name+"</span>";
+			if (itemobject.getQuality().color().length() > 0)
+			{
+				name = "<span style=\"color:" + itemobject.getQuality().color() + "\">" + name + "</span>";
 			}
 
-			t.setVar(	"item.picture",	itemobject.getPicture(),
-						"item.id",		item.getItemID(),
-						"item.name",	name,
-						"item.class",	itemeffect.getType().getName(),
-						"item.cargo",	itemobject.getCargo(),
-						"item.count",	item.getCount() );
+			t.setVar("item.picture", itemobject.getPicture(),
+					"item.id", item.getItemID(),
+					"item.name", name,
+					"item.class", itemeffect.getType().getName(),
+					"item.cargo", itemobject.getCargo(),
+					"item.count", item.getCount());
 
 			t.parse("itemlist.list", "itemlist.listitem", true);
 		}

@@ -18,15 +18,10 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.entities.GuiHelpText;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.JSONUtils;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
@@ -34,22 +29,19 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-
 import net.sf.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Das Hauptframe von DS.
  * @author Christopher Jung
  *
  */
-@Configurable
 @Module(name="main")
 public class MainController extends TemplateGenerator {
 	private static final String SCRIPT_FORUM = "http://forum.drifting-souls.net/phpbb3/";
-
-	private Configuration config;
 
 	/**
 	 * Konstruktor.
@@ -60,15 +52,6 @@ public class MainController extends TemplateGenerator {
 
 		this.setTemplate("main.html");
 		setDisableDebugOutput(true);
-	}
-
-	/**
-	 * Injiziert die DS-Konfiguration.
-	 * @param config Die DS-Konfiguration
-	 */
-	@Autowired
-	public void setConfiguration(Configuration config) {
-		this.config = config;
 	}
 
 	@Override
@@ -155,14 +138,15 @@ public class MainController extends TemplateGenerator {
 		List<?> baseList = db.createQuery("from Base where owner= :user order by system,x,y")
 			.setEntity("user", user)
 			.list();
-		for( Iterator<?> iter=baseList.iterator(); iter.hasNext(); ) {
-			Base base = (Base)iter.next();
+		for (Object aBaseList : baseList)
+		{
+			Base base = (Base) aBaseList;
 
 			t.setVar(
-					"base.id",	base.getId(),
-					"base.name",	base.getName(),
-					"base.klasse",	base.getKlasse(),
-					"base.location",	base.getLocation());
+					"base.id", base.getId(),
+					"base.name", base.getName(),
+					"base.klasse", base.getKlasse(),
+					"base.location", base.getLocation());
 
 			t.parse("bases.list", "bases.listitem", true);
 		}

@@ -121,9 +121,7 @@ public abstract class UnitCargo implements Cloneable, JSONSupport {
 		}
 	}
 
-	protected List<UnitCargoEntry> units = new ArrayList<UnitCargoEntry>();
-
-	private boolean showmass = true;
+	protected List<UnitCargoEntry> units = new ArrayList<>();
 
 	/**
 	 * Erstellt ein neues leeres UnitCargo-Objekt.
@@ -141,9 +139,8 @@ public abstract class UnitCargo implements Cloneable, JSONSupport {
 	public UnitCargo(UnitCargo unitcargo) {
 
 		List<UnitCargoEntry> unitArray = unitcargo.getUnitArray();
-		for( int i=0; i < unitArray.size(); i++ ) {
-			UnitCargoEntry unit = unitArray.get(i);
-
+		for (UnitCargoEntry unit : unitArray)
+		{
 			this.units.add(unit.createCopy());
 		}
 	}
@@ -173,10 +170,11 @@ public abstract class UnitCargo implements Cloneable, JSONSupport {
 	 * @param count Die Anzahl an hinzuzufuegenden Einheiten
 	 */
 	public void addUnit( UnitType unitid, long count ) {
-		for( int i=0; i < units.size(); i++ ) {
-			UnitCargoEntry aunit = units.get(i);
-			if( unitid.getId() == aunit.getUnitTypeId()) {
-				aunit.setAmount(aunit.getAmount()+count);
+		for (UnitCargoEntry aunit : units)
+		{
+			if (unitid.getId() == aunit.getUnitTypeId())
+			{
+				aunit.setAmount(aunit.getAmount() + count);
 				return;
 			}
 		}
@@ -238,10 +236,7 @@ public abstract class UnitCargo implements Cloneable, JSONSupport {
 		if( count != 0 ) {
 			return (amount >= count);
 		}
-		if( amount != 0 ) {
-			return true;
-		}
-		return false;
+		return amount != 0;
 	}
 
 	/**
@@ -250,9 +245,10 @@ public abstract class UnitCargo implements Cloneable, JSONSupport {
 	 * @return die Anzahl der Einheiten
 	 */
 	public long getUnitCount( UnitType unit ) {
-		for( int i=0; i < units.size(); i++ ) {
-			UnitCargoEntry aunit = units.get(i);
-			if( unit.getId() == aunit.getUnitTypeId()) {
+		for (UnitCargoEntry aunit : units)
+		{
+			if (unit.getId() == aunit.getUnitTypeId())
+			{
 				return aunit.getAmount();
 			}
 		}
@@ -267,13 +263,15 @@ public abstract class UnitCargo implements Cloneable, JSONSupport {
 	public long getMass() {
 		long tmp = 0;
 
-		for( int i=0; i < units.size(); i++ ) {
-			UnitType unittype = units.get(i).getUnitType();
-			if( unittype == null ) {
-				log.warn("Unbekannte Einheit "+units.get(i).getUnitTypeId()+" geortet");
+		for (UnitCargoEntry unit : units)
+		{
+			UnitType unittype = unit.getUnitType();
+			if (unittype == null)
+			{
+				log.warn("Unbekannte Einheit " + unit.getUnitTypeId() + " geortet");
 				continue;
 			}
-			tmp += units.get(i).getAmount()*unittype.getSize();
+			tmp += unit.getAmount() * unittype.getSize();
 		}
 
 		return tmp;
@@ -318,9 +316,10 @@ public abstract class UnitCargo implements Cloneable, JSONSupport {
 	 * @param count Die neue Menge
 	 */
 	public void setUnit( UnitType unitid, long count ) {
-		for( int i=0; i < units.size(); i++ ) {
-			UnitCargoEntry aunit = units.get(i);
-			if( unitid.getId() == aunit.getUnitTypeId()) {
+		for (UnitCargoEntry aunit : units)
+		{
+			if (unitid.getId() == aunit.getUnitTypeId())
+			{
 				aunit.setAmount(count);
 				return;
 			}
@@ -340,10 +339,9 @@ public abstract class UnitCargo implements Cloneable, JSONSupport {
 			return true;
 		}
 
-		for( int i=0; i < units.size(); i++ )
+		for (UnitCargoEntry aunit : units)
 		{
-			UnitCargoEntry aunit = units.get(i);
-			if( aunit.getAmount() > 0 )
+			if (aunit.getAmount() > 0)
 			{
 				return false;
 			}
@@ -356,11 +354,10 @@ public abstract class UnitCargo implements Cloneable, JSONSupport {
 	public Object clone() {
 		try {
 			UnitCargo newcargo = (UnitCargo)super.clone();
-			newcargo.units = new ArrayList<UnitCargoEntry>();
+			newcargo.units = new ArrayList<>();
 			for( int i=0; i < this.units.size(); i++ ) {
 				newcargo.units.add(i, this.units.get(i).createCopy());
 			}
-			newcargo.showmass = this.showmass;
 
 			return newcargo;
 		}
@@ -520,7 +517,7 @@ public abstract class UnitCargo implements Cloneable, JSONSupport {
 
 		t.setVar(templateblock,"");
 
-		SortedSet<UnitCargoEntry> entries = new TreeSet<UnitCargoEntry>(new UnitCargoEntryComparator());
+		SortedSet<UnitCargoEntry> entries = new TreeSet<>(new UnitCargoEntryComparator());
 		entries.addAll(units);
 
 		for( UnitCargoEntry aunit : entries ) {
@@ -547,7 +544,7 @@ public abstract class UnitCargo implements Cloneable, JSONSupport {
 	 */
 	public Map<UnitType, Long[]> compare( UnitCargo unitcargo )
 	{
-		Map<UnitType, Long[]> unitlist = new TreeMap<UnitType, Long[]>(new UnitTypeComparator());
+		Map<UnitType, Long[]> unitlist = new TreeMap<>(new UnitTypeComparator());
 		for(UnitCargoEntry unit : units)
 		{
 			unitlist.put(unit.getUnitType(), new Long[] {unit.getAmount(), 0l});
@@ -574,7 +571,7 @@ public abstract class UnitCargo implements Cloneable, JSONSupport {
 	 */
 	public HashMap<UnitType, Long> getUnitList()
 	{
-		HashMap<UnitType, Long> unitlist = new HashMap<UnitType, Long>();
+		HashMap<UnitType, Long> unitlist = new HashMap<>();
 		for(UnitCargoEntry unit : units)
 		{
 			if(unit.getAmount() != 0)

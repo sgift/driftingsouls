@@ -18,21 +18,19 @@
  */
 package net.driftingsouls.ds2.server.tick;
 
-import java.io.File;
-
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.tick.rare.RestTick;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Configurable;
+
+import java.io.File;
 
 /**
  * Der seltene Tick.
  * @author Christopher Jung
  *
  */
-@Configurable
 public class RareTick extends AbstractTickExecuter
 {
 	private static final Log log = LogFactory.getLog(RareTick.class);
@@ -42,7 +40,7 @@ public class RareTick extends AbstractTickExecuter
 	{
 		try
 		{
-			File lockFile = new File(this.getConfiguration().get("LOXPATH")+"/raretick.lock");
+			File lockFile = new File(Configuration.getSetting("LOXPATH")+"/raretick.lock");
 			lockFile.createNewFile();
 			try
 			{
@@ -70,6 +68,6 @@ public class RareTick extends AbstractTickExecuter
 	protected void prepare()
 	{
 		setName("");
-		setLogPath(this.getConfiguration().get("LOXPATH")+"raretick/");
+		setLogPath(Configuration.getSetting("LOXPATH")+"raretick/");
 	}
 }

@@ -43,8 +43,8 @@ public class Configuration
 {
 	private static final Log log = LogFactory.getLog(Configuration.class);
 
-	private static Map<String, String> config = new HashMap<String, String>();
-	private static Map<String, Integer> configInt = new HashMap<String, Integer>();
+	private static Map<String, String> config = new HashMap<>();
+	private static Map<String, Integer> configInt = new HashMap<>();
 
 	/**
 	 * Laedt alle Konfigurationseinstellungen aus der config.xml im angegebenen Verzeichnis. Alle

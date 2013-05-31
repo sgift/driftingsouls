@@ -67,29 +67,27 @@ class HandleGanyTransport implements TaskHandler
 		int orderid = Integer.parseInt(task.getData1());
 		FactionShopOrder order = (FactionShopOrder)db.get(FactionShopOrder.class, orderid);
 
-		if( event.equals("tick_timeout") )
+		switch (event)
 		{
-			doTickTimeout(tm, task, order);
-		}
-		else if( event.equals("spa_start") )
-		{
-			tm.modifyTask( task.getTaskID(), task.getData1(), task.getData2(), "1" );
-		}
-		else if( event.equals("spa_completed") )
-		{
-			order.setStatus(4);
+			case "tick_timeout":
+				doTickTimeout(tm, task, order);
+				break;
+			case "spa_start":
+				tm.modifyTask(task.getTaskID(), task.getData1(), task.getData2(), "1");
+				break;
+			case "spa_completed":
+				order.setStatus(4);
 
-			tm.modifyTask( task.getTaskID(), task.getData1(), task.getData2(), "2" );
-		}
-		else if( event.equals("spa_error") )
-		{
-			order.setStatus(3);
+				tm.modifyTask(task.getTaskID(), task.getData1(), task.getData2(), "2");
+				break;
+			case "spa_error":
+				order.setStatus(3);
 
-			tm.modifyTask( task.getTaskID(), task.getData1(), task.getData2(), "2" );
-		}
-		else if( event.equals("spa_end") )
-		{
-			tm.removeTask( task.getTaskID() );
+				tm.modifyTask(task.getTaskID(), task.getData1(), task.getData2(), "2");
+				break;
+			case "spa_end":
+				tm.removeTask(task.getTaskID());
+				break;
 		}
 	}
 
@@ -110,8 +108,8 @@ class HandleGanyTransport implements TaskHandler
 
 			if( ship != null )
 			{
-				Map<Integer,List<JumpNode>> jumpnodes = new HashMap<Integer,List<JumpNode>>();
-				Map<Integer,JumpNode> jumpnodeindex = new HashMap<Integer,JumpNode>();
+				Map<Integer,List<JumpNode>> jumpnodes = new HashMap<>();
+				Map<Integer,JumpNode> jumpnodeindex = new HashMap<>();
 
 				List<?> jnList = db.createQuery("from JumpNode where hidden=0")
 					.list();

@@ -44,7 +44,7 @@ class TagList implements BBCodeFunction {
 			type = options[0].trim();
 		}
 
-		String[] listfacts = null;
+		String[] listfacts;
 		if( this.type == Type.LIST ) {
 			listfacts = list.split("\\[\\*\\]");
 		}

@@ -28,43 +28,26 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Die Liste aller baubaren Gebaeude und Cores.
  * @author Christopher Jung
- *
- * @urlparam Integer col Die ID der Basis, auf die der zurueck-Link zeigen soll
- * @urlparam Integer field Die ID des Feldes, dessen Gebaeude der zurueck-Link ansteuern soll
- *
  */
-@Configurable
 @Module(name="buildings")
+@UrlParams({
+		@UrlParam(name="col", type= UrlParamType.NUMBER, description = "Die ID der Basis, auf die der zurueck-Link zeigen soll"),
+		@UrlParam(name="field", type=UrlParamType.NUMBER, description = "Die ID des Feldes, dessen Gebaeude der zurueck-Link ansteuern soll")
+})
 public class BuildingsController extends TemplateGenerator {
-
-	private Configuration config;
-
-	/**
-	 * Injiziert die DS-Konfiguration.
-	 * @param config Die DS-Konfiguration
-	 */
-	@Autowired
-	@Required
-	public void setConfig(Configuration config)
-	{
-		this.config = config;
-	}
-
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
@@ -73,10 +56,6 @@ public class BuildingsController extends TemplateGenerator {
 		super(context);
 
 		setTemplate("buildings.html");
-
-		parameterNumber("col");
-		parameterNumber("field");
-
 		setPageTitle("Gebäude");
 	}
 
@@ -136,7 +115,7 @@ public class BuildingsController extends TemplateGenerator {
 			Resources.echoResList( t, reslist, "building.consumes.list" );
 
 			if( building.getEVerbrauch() > 0 ) {
-				t.setVar(	"res.image",	config.get("URL")+"data/interface/energie.gif",
+				t.setVar(	"res.image",	"./data/interface/energie.gif",
 							"res.cargo",	building.getEVerbrauch(),
 							"res.plainname",	"Energie" );
 
@@ -147,7 +126,7 @@ public class BuildingsController extends TemplateGenerator {
 			Resources.echoResList( t, reslist, "building.produces.list" );
 
 			if( building.getEProduktion() > 0 ) {
-				t.setVar(	"res.image",		config.get("URL")+"data/interface/energie.gif",
+				t.setVar(	"res.image",		"./data/interface/energie.gif",
 							"res.cargo",		building.getEProduktion(),
 							"res.plainname",	"Energie" );
 
@@ -161,13 +140,13 @@ public class BuildingsController extends TemplateGenerator {
 			int buildingrasse = building.getRace();
 
 			if( buildingrasse == 0 ) {
-				addinfo.append("<span style=\"color:#FFFFFF; font-weight:normal\">"+Rassen.get().rasse(buildingrasse).getName()+" <br /></span>");
+				addinfo.append("<span style=\"color:#FFFFFF; font-weight:normal\">").append(Rassen.get().rasse(buildingrasse).getName()).append(" <br /></span>");
 			}
 			else if( userrasse == buildingrasse ) {
-				addinfo.append("<span style=\"color:#00FF00; font-weight:normal\">"+Rassen.get().rasse(buildingrasse).getName()+" <br /></span>");
+				addinfo.append("<span style=\"color:#00FF00; font-weight:normal\">").append(Rassen.get().rasse(buildingrasse).getName()).append(" <br /></span>");
 			}
 			else {
-				addinfo.append("<span style=\"color:#FF0000; font-weight:normal\">"+Rassen.get().rasse(buildingrasse).getName()+" <br /></span>");
+				addinfo.append("<span style=\"color:#FF0000; font-weight:normal\">").append(Rassen.get().rasse(buildingrasse).getName()).append(" <br /></span>");
 			}
 
 
@@ -181,12 +160,12 @@ public class BuildingsController extends TemplateGenerator {
 
 			if( building.getPerPlanetCount() != 0 ) {
 
-				addinfo.append("Max. "+building.getPerPlanetCount()+"x pro Basis<br />");
+				addinfo.append("Max. ").append(building.getPerPlanetCount()).append("x pro Basis<br />");
 			}
 
 			if( building.getPerUserCount() != 0 ) {
 
-				addinfo.append("Max. "+building.getPerUserCount()+"x pro Account");
+				addinfo.append("Max. ").append(building.getPerUserCount()).append("x pro Account");
 			}
 
 			t.setVar("building.addinfo", addinfo);
@@ -223,7 +202,7 @@ public class BuildingsController extends TemplateGenerator {
 			Resources.echoResList( t, reslist, "core.consumes.list" );
 
 			if( core.getEVerbrauch() > 0 ) {
-				t.setVar(	"res.image",	config.get("URL")+"data/interface/energie.gif",
+				t.setVar(	"res.image",	"./data/interface/energie.gif",
 							"res.cargo",	core.getEVerbrauch(),
 							"res.plainname",	"Energie" );
 
@@ -234,7 +213,7 @@ public class BuildingsController extends TemplateGenerator {
 			Resources.echoResList( t, reslist, "core.produces.list" );
 
 			if( core.getEProduktion() > 0 ) {
-				t.setVar(	"res.image",		config.get("URL")+"data/interface/energie.gif",
+				t.setVar(	"res.image",		"./data/interface/energie.gif",
 							"res.cargo",		core.getEProduktion(),
 							"res.plainname",	"Energie" );
 

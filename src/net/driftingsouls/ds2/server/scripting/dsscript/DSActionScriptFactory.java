@@ -33,7 +33,7 @@ import javax.script.ScriptEngine;
 public class DSActionScriptFactory extends DSScriptFactory {
 	@Override
 	public List<String> getNames() {
-		List<String> list = new ArrayList<String>(super.getNames());
+		List<String> list = new ArrayList<>(super.getNames());
 		list.add("dsactionscript");
 		list.add("DSActionScript");
 		

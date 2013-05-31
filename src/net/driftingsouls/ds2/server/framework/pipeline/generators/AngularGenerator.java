@@ -55,20 +55,15 @@ public abstract class AngularGenerator extends DSGenerator
 		Writer echo = getResponse().getWriter();
 
 		File tmpl = new File(Configuration.getSetting("ABSOLUTE_PATH")+"data/cltemplates/ds.html");
-		BufferedReader reader = new BufferedReader(
-				new InputStreamReader(new FileInputStream(tmpl), "UTF-8"));
-		try
+		try (BufferedReader reader = new BufferedReader(
+				new InputStreamReader(new FileInputStream(tmpl), "UTF-8")))
 		{
 			char[] buffer = new char[8192];
-			int cnt = -1;
-			while( (cnt = reader.read(buffer)) != -1 )
+			int cnt;
+			while ((cnt = reader.read(buffer)) != -1)
 			{
 				echo.write(buffer, 0, cnt);
 			}
-		}
-		finally
-		{
-			reader.close();
 		}
 	}
 }

@@ -34,6 +34,9 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
 import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
 import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 
@@ -43,15 +46,16 @@ import org.scannotation.ClasspathUrlFinder;
 /**
  * Der Admin.
  * @author Christopher Jung
- *
- * @urlparam Integer act Die auszufuehrende Aktions-ID (ein Plugin wird ueber Seiten- und Aktions-ID identifiziert)
- * @urlparam String page Die anzuzeigende Seite (ID der Seite)
- * @urlparam Integer cleanpage Falls != 0 werden keine zusaetzlichen GUI-Elemente angezeigt
- * @urlparam String namedplugin Der Name des Plugins, welches angezeigt werden soll (Alternative zu Seiten- und Aktions-ID)
  */
 @Module(name="admin")
+@UrlParams({
+		@UrlParam( name="act", type= UrlParamType.NUMBER, description = "Die auszufuehrende Aktions-ID (ein Plugin wird ueber Seiten- und Aktions-ID identifiziert)"),
+		@UrlParam( name="page", description = "Die anzuzeigende Seite (ID der Seite)"),
+		@UrlParam( name="cleanpage", type=UrlParamType.NUMBER, description = "Falls != 0 werden keine zusaetzlichen GUI-Elemente angezeigt"),
+		@UrlParam( name="namedplugin", description = "Der Name des Plugins, welches angezeigt werden soll (Alternative zu Seiten- und Aktions-ID)")
+})
 public class AdminController extends DSGenerator {
-	private static final List<Class<? extends AdminPlugin>> plugins = new ArrayList<Class<? extends AdminPlugin>>();
+	private static final List<Class<? extends AdminPlugin>> plugins = new ArrayList<>();
 	static
 	{
 		try
@@ -59,7 +63,7 @@ public class AdminController extends DSGenerator {
 			URL[] urls = ClasspathUrlFinder.findResourceBases("META-INF/ds.marker");
 			AnnotationDB db = new AnnotationDB();
 			db.scanArchives(urls);
-			SortedSet<String> entityClasses = new TreeSet<String>(db.getAnnotationIndex().get(AdminMenuEntry.class.getName()));
+			SortedSet<String> entityClasses = new TreeSet<>(db.getAnnotationIndex().get(AdminMenuEntry.class.getName()));
 			for( String cls : entityClasses )
 			{
 				final Class<? extends AdminPlugin> adminPluginClass = Class.forName(cls)
@@ -67,11 +71,7 @@ public class AdminController extends DSGenerator {
 				plugins.add(adminPluginClass);
 			}
 		}
-		catch( IOException e )
-		{
-			throw new RuntimeException(e);
-		}
-		catch( ClassNotFoundException e )
+		catch( IOException | ClassNotFoundException e )
 		{
 			throw new RuntimeException(e);
 		}
@@ -80,7 +80,7 @@ public class AdminController extends DSGenerator {
 	private static class MenuEntry implements Comparable<MenuEntry>
 	{
 		String name;
-		SortedSet<MenuEntry> actions = new TreeSet<MenuEntry>();
+		SortedSet<MenuEntry> actions = new TreeSet<>();
 		Class<? extends AdminPlugin> cls;
 
 		MenuEntry( String name )
@@ -118,8 +118,8 @@ public class AdminController extends DSGenerator {
 		}
 	}
 
-	TreeMap<String,MenuEntry> menu = new TreeMap<String,MenuEntry>();
-	Set<String> validPlugins = new HashSet<String>();
+	TreeMap<String,MenuEntry> menu = new TreeMap<>();
+	Set<String> validPlugins = new HashSet<>();
 
 	/**
 	 * Konstruktor.
@@ -128,11 +128,6 @@ public class AdminController extends DSGenerator {
 	public AdminController(Context context)
 	{
 		super(context);
-
-		parameterNumber("act");
-		parameterString("page");
-		parameterNumber("cleanpage");
-		parameterString("namedplugin");
 	}
 
 	private void addMenuEntry( Class<? extends AdminPlugin> cls, String menuentry, String submenuentry )
@@ -223,7 +218,7 @@ public class AdminController extends DSGenerator {
 			echo.append("<ui class='menu'>");
 			for( MenuEntry entry : this.menu.values() )
 			{
-				echo.append("<li><a class=\"forschinfo\" href=\"./ds?module=admin&page="+entry.name+"\">"+entry.name+"</a></li>\n");
+				echo.append("<li><a class=\"forschinfo\" href=\"./ds?module=admin&page=").append(entry.name).append("\">").append(entry.name).append("</a></li>\n");
 			}
 			echo.append("</ul>\n");
 			echo.append("</div><br />\n");
@@ -244,7 +239,7 @@ public class AdminController extends DSGenerator {
 					int index = 1;
 					for( MenuEntry entry : actions )
 					{
-						echo.append("<tr><td align=\"left\"><a class=\"forschinfo\" href=\"./ds?module=admin&page="+page+"&act="+(index++)+"\">"+entry.name+"</a></td></tr>\n");
+						echo.append("<tr><td align=\"left\"><a class=\"forschinfo\" href=\"./ds?module=admin&page=" + page + "&act=" + (index++) + "\">" + entry.name + "</a></td></tr>\n");
 					}
 				}
 				echo.append("</table>\n");
@@ -294,6 +289,7 @@ public class AdminController extends DSGenerator {
 			}
 
 			AdminPlugin plugin = aClass.newInstance();
+			getContext().autowireBean(plugin);
 			plugin.output(this, page, act);
 		}
 		catch( IOException e )
@@ -308,12 +304,7 @@ public class AdminController extends DSGenerator {
 
 			throw e;
 		}
-		catch( InstantiationException e )
-		{
-			addError("Fehler beim Aufruf des Admin-Plugins: "+e);
-			e.printStackTrace();
-		}
-		catch( IllegalAccessException e )
+		catch( ReflectiveOperationException e )
 		{
 			addError("Fehler beim Aufruf des Admin-Plugins: "+e);
 			e.printStackTrace();
@@ -342,13 +333,10 @@ public class AdminController extends DSGenerator {
 				{
 					AdminPlugin plugin;
 					plugin = cls.newInstance();
+					getContext().autowireBean(plugin);
 					plugin.output(this, page, act);
 				}
-				catch( InstantiationException e )
-				{
-					addError("Fehler beim Aufruf des Admin-Plugins: "+e);
-				}
-				catch( IllegalAccessException e )
+				catch( ReflectiveOperationException e )
 				{
 					addError("Fehler beim Aufruf des Admin-Plugins: "+e);
 				}

@@ -33,13 +33,10 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenera
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.units.UnitType;
 
-import org.springframework.beans.factory.annotation.Configurable;
-
 /**
  * Zeigt Informationen zu Einheiten an.
  *
  */
-@Configurable
 @Module(name="unitinfo")
 public class UnitInfoController extends TemplateGenerator {
 

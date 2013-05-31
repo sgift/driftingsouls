@@ -1,16 +1,5 @@
 package net.driftingsouls.ds2.server.modules;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
@@ -19,7 +8,6 @@ import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.config.Rang;
-import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.FactionShopOrder;
 import net.driftingsouls.ds2.server.entities.FraktionAktionsMeldung;
@@ -32,7 +20,6 @@ import net.driftingsouls.ds2.server.entities.npcorders.OrderShip;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderableOffizier;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderableShip;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.JSONUtils;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
@@ -42,30 +29,32 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.AngularGenerat
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
-import net.driftingsouls.ds2.server.namegenerator.NameGenerator;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Das Interface fuer NPCs.
  * @author Christopher Jung
  *
  */
-@Configurable
 @Module(name="npc")
 public class NpcController extends AngularGenerator {
 	private boolean isHead = false;
 	private boolean shop = false;
-
-	private Configuration config;
 
 	/**
 	 * Konstruktor.
@@ -75,16 +64,6 @@ public class NpcController extends AngularGenerator {
 		super(context);
 
 		setPageTitle("NPC-Menue");
-	}
-
-	/**
-	 * Injiziert die DS-Konfiguration.
-	 * @param config Die DS-Konfiguration
-	 */
-	@Autowired
-	public void setConfiguration(Configuration config)
-	{
-		this.config = config;
 	}
 
 	@Override
@@ -130,47 +109,52 @@ public class NpcController extends AngularGenerator {
 		List<?> ships = db.createQuery("from Ship s where s.owner=:user and locate('#!/tm gany_transport',s.einstellungen.destcom)!=0")
 			.setEntity("user", user)
 			.list();
-		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
-			Ship aship = (Ship)iter.next();
+		for (Object ship : ships)
+		{
+			Ship aship = (Ship) ship;
 			ShipTypeData ashiptype = aship.getTypeData();
 
 			JSONObject transObj = new JSONObject();
 			transObj.accumulate("status", "lageweile")
-				.accumulate("auftrag", "-");
-			
+					.accumulate("auftrag", "-");
+
 			JSONObject shipObj = new JSONObject();
 			shipObj.accumulate("id", aship.getId())
-				.accumulate("name", aship.getName())
-				.accumulate("picture", ashiptype.getPicture());
-			
+					.accumulate("name", aship.getName())
+					.accumulate("picture", ashiptype.getPicture());
+
 			transObj.accumulate("ship", shipObj);
 			transpListObj.add(transObj);
 
 			Taskmanager taskmanager = Taskmanager.getInstance();
 			Task[] tasks = taskmanager.getTasksByData(Taskmanager.Types.GANY_TRANSPORT, "*", Integer.toString(aship.getId()), "*");
-			if( tasks.length == 0 ) {
+			if (tasks.length == 0)
+			{
 				continue;
 			}
 
 			Task task = tasks[0];
 
-			String status = "";
-			if( task.getData3().equals("1") ) {
+			String status;
+			if (task.getData3().equals("1"))
+			{
 				status = "verschiebt gany";
 			}
-			else if( task.getData3().equals("2") ) {
+			else if (task.getData3().equals("2"))
+			{
 				status = "rückflug";
 			}
-			else {
+			else
+			{
 				status = "anreise";
 			}
 
 			transObj.accumulate("status", status);
-			
-			FactionShopOrder order = (FactionShopOrder)db
+
+			FactionShopOrder order = (FactionShopOrder) db
 					.get(FactionShopOrder.class, Integer.parseInt(task.getData1()));
 
-			if( order == null)
+			if (order == null)
 			{
 				db.delete(task);
 				continue;
@@ -178,13 +162,13 @@ public class NpcController extends AngularGenerator {
 
 			User orderuser = order.getUser();
 
-			if(orderuser == null)
+			if (orderuser == null)
 			{
-				orderuser =  new User();
+				orderuser = new User();
 				orderuser.setName("deleted user");
 			}
 
-			transObj.accumulate("auftrag", order.getId()+": "+Common._title(orderuser.getName())+"\n"+order.getAddData());
+			transObj.accumulate("auftrag", order.getId() + ": " + Common._title(orderuser.getName()) + "\n" + order.getAddData());
 		}
 		
 		result.accumulate("transporter", transpListObj);
@@ -237,13 +221,13 @@ public class NpcController extends AngularGenerator {
 		int ticks = getContext().get(ContextCommon.class).getTick();
 
 		edituser.addHistory(Common.getIngameTime(ticks)+": Der Orden [img]"+
-				config.get("URL")+"data/"+Medals.get().medal(medal).getImage(Medal.IMAGE_SMALL)+"[/img]"+
+				"./data/"+Medals.get().medal(medal).getImage(Medal.IMAGE_SMALL)+"[/img]"+
 				Medals.get().medal(medal).getName()+" wurde von [userprofile="+user.getId()+"]"+
 				user.getName()+"[/userprofile] verliehen Aufgrund der "+reason);
 
 		PM.send(user, edituser.getId(), "Orden '"+Medals.get().medal(medal).getName()+"' verliehen",
-				"Ich habe dir den Orden [img]"+config.get("URL")+
-				"data/"+Medals.get().medal(medal).getImage(Medal.IMAGE_SMALL)+"[/img]'"+
+				"Ich habe dir den Orden [img]"+
+				"./data/"+Medals.get().medal(medal).getImage(Medal.IMAGE_SMALL)+"[/img]'"+
 				Medals.get().medal(medal).getName()+"' verliehen Aufgrund deiner "+reason);
 
 		return JSONUtils.success("Dem Spieler wurde der Orden '"+
@@ -456,7 +440,7 @@ public class NpcController extends AngularGenerator {
 		//DateFormat format = new SimpleDateFormat("dd.MM.yy HH:mm");
 
 		JSONArray lpListObj = new JSONArray();
-		for( Loyalitaetspunkte lp : new TreeSet<Loyalitaetspunkte>(edituser.getLoyalitaetspunkte()) )
+		for( Loyalitaetspunkte lp : new TreeSet<>(edituser.getLoyalitaetspunkte()) )
 		{
 			JSONObject lpObj = lp.toJSON();
 			lpObj.accumulate("verliehenDurch", lp.getVerliehenDurch().toJSON());
@@ -575,7 +559,7 @@ public class NpcController extends AngularGenerator {
 
 		int costs = 0;
 
-		List<Order> orderList = new ArrayList<Order>();
+		List<Order> orderList = new ArrayList<>();
 
 		List<?> shipOrders = db
 				.createQuery("from OrderableShip s order by s.shipType.shipClass,s.shipType.id")
@@ -647,7 +631,7 @@ public class NpcController extends AngularGenerator {
 		parameterNumber("order");
 		parameterNumber("count");
 
-		int costs = 0;
+		int costs;
 
 		int order = getInteger("order");
 		int count = getInteger("count");
@@ -693,8 +677,8 @@ public class NpcController extends AngularGenerator {
 		org.hibernate.Session db = getDB();
 		User user = (User)this.getUser();
 
-		Map<Integer,Integer> shiporders = new HashMap<Integer,Integer>();
-		Map<Integer,Integer> offiorders = new HashMap<Integer,Integer>();
+		Map<Integer,Integer> shiporders = new HashMap<>();
+		Map<Integer,Integer> offiorders = new HashMap<>();
 
 		JSONObject result = new JSONObject();
 		fillCommonMenuResultData(result);
@@ -758,10 +742,12 @@ public class NpcController extends AngularGenerator {
 		JSONArray resOffizierList = new JSONArray();
 
 		List<?> offizierOrders = db.createQuery("from OrderableOffizier where cost > 0 order by id").list();
-		for( Iterator<?> iter=offizierOrders.iterator(); iter.hasNext(); ) {
-			OrderableOffizier offizier = (OrderableOffizier)iter.next();
+		for (Object offizierOrder : offizierOrders)
+		{
+			OrderableOffizier offizier = (OrderableOffizier) offizierOrder;
 
-			if( !offiorders.containsKey(-offizier.getId()) ) {
+			if (!offiorders.containsKey(-offizier.getId()))
+			{
 				offiorders.put(-offizier.getId(), 0);
 			}
 
@@ -771,7 +757,7 @@ public class NpcController extends AngularGenerator {
 			resOffizier.accumulate("cost", offizier.getCost());
 			resOffizier.accumulate("id", -offizier.getId());
 			resOffizier.accumulate("ordercount", offiorders.get(offizier.getId()));
-			
+
 			resOffizierList.add(resOffizier);
 		}
 
@@ -794,7 +780,7 @@ public class NpcController extends AngularGenerator {
 
 	private void outputLieferposition(JSONObject result, User user)
 	{
-		Set<Location> uniqueLocations = new HashSet<Location>();
+		Set<Location> uniqueLocations = new HashSet<>();
 
 		Location lieferpos = null;
 		if( user.getNpcOrderLocation() != null )

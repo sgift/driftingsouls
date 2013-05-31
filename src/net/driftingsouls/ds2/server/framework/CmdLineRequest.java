@@ -39,7 +39,7 @@ import org.apache.commons.logging.LogFactory;
 public class CmdLineRequest implements Request {
 	private Log log = LogFactory.getLog(CmdLineRequest.class);
 	
-	private Map<String,String> params = new HashMap<String,String>();
+	private Map<String,String> params = new HashMap<>();
 	
 	/**
 	 * Erstellt ein neues Request-Objekt.
@@ -146,7 +146,7 @@ public class CmdLineRequest implements Request {
 
 	@Override
 	public List<FileItem> getUploadedFiles() {
-		return new ArrayList<FileItem>();
+		return new ArrayList<>();
 	}
 
 	@Override

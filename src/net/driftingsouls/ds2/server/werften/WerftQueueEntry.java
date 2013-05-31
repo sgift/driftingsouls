@@ -369,8 +369,10 @@ public class WerftQueueEntry {
 			Cargo cargo = this.werft.getCargo(true);
 			List<ItemCargoEntry> itemlist = cargo.getItem(this.getRequiredItem());
 			boolean ok = false;
-			for( int i=0; i < itemlist.size(); i++ ) {
-				if( itemlist.get(i).getMaxUses() == 0 ) {
+			for (ItemCargoEntry anItemlist : itemlist)
+			{
+				if (anItemlist.getMaxUses() == 0)
+				{
 					ok = true;
 					break;
 				}
@@ -383,8 +385,10 @@ public class WerftQueueEntry {
 				if( user.getAlly() != null ) {
 					allyitems = new Cargo( Cargo.Type.ITEMSTRING, user.getAlly().getItems() );
 					itemlist = allyitems.getItem(this.getRequiredItem());
-					for( int i=0; i < itemlist.size(); i++ ) {
-						if( itemlist.get(i).getMaxUses() == 0 ) {
+					for (ItemCargoEntry anItemlist : itemlist)
+					{
+						if (anItemlist.getMaxUses() == 0)
+						{
 							ok = true;
 							break;
 						}
@@ -392,8 +396,8 @@ public class WerftQueueEntry {
 				}
 
 				if( !ok ) {
-					ItemCargoEntry item = null;
-					String source = "";
+					ItemCargoEntry item;
+					String source;
 					if( (user.getAlly() != null) && allyitems.hasResource(new ItemID(this.getRequiredItem())) ) {
 						item = allyitems.getItem(this.getRequiredItem()).get(0);
 						source = "ally";

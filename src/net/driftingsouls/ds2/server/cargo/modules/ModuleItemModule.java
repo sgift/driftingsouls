@@ -74,7 +74,7 @@ public class ModuleItemModule extends Module {
 
 		if( calculateSetEffect && (effect.getSetID() != 0) ) {
 			// Set-Item-Count ausrechnen
-			List<Integer> gotitems = new ArrayList<Integer>();
+			List<Integer> gotitems = new ArrayList<>();
 			int count = 0;
 
 			for( Module moduleobj : moduleobjlist ) {
@@ -101,8 +101,9 @@ public class ModuleItemModule extends Module {
 
 			Item effectSet = (Item)db.get(Item.class, effect.getSetID());
 			ShipTypeChangeset[] mods = ((IEModuleSetMeta)effectSet.getEffect()).getCombo(count);
-			for( int i=0; i < mods.length; i++ ) {
-				stats = mods[i].applyTo(stats, this.weaponrepl);
+			for (ShipTypeChangeset mod : mods)
+			{
+				stats = mod.applyTo(stats, this.weaponrepl);
 			}
 		}
 
@@ -118,11 +119,8 @@ public class ModuleItemModule extends Module {
 			return false;
 		}
 
-		if( this.itemid != Integer.parseInt(entry.getData()) ) {
-			return false;
-		}
+		return this.itemid == Integer.parseInt(entry.getData());
 
-		return true;
 	}
 
 	@Override

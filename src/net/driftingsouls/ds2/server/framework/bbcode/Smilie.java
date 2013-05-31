@@ -81,7 +81,7 @@ public class Smilie {
 	
 	private static List<Pattern> smiliesSearch = null;
 	private static List<String> smiliesReplace = null;
-	private static Object LOCK = new Object();
+	private static final Object LOCK = new Object();
 	
 	/**
 	 * Ersetzt alle bekannten Smilies in einem Text durch entsprechende Grafiken (als HTML-Code).
@@ -91,8 +91,8 @@ public class Smilie {
 	public static String parseSmilies( String text ) {
 		synchronized(LOCK) {
 			if( smiliesSearch == null ) {
-				smiliesSearch = new ArrayList<Pattern>();
-				smiliesReplace = new ArrayList<String>();
+				smiliesSearch = new ArrayList<>();
+				smiliesReplace = new ArrayList<>();
 			
 				org.hibernate.Session db = ContextMap.getContext().getDB();
 				List<Smilie> smilies = Common.cast(db.createQuery("from Smilie").list());

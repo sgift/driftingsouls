@@ -18,12 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
@@ -33,7 +27,6 @@ import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -41,8 +34,11 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Zeigt die Liste der erforschten/nicht erforschten/erforschbaren Technologien
@@ -51,10 +47,8 @@ import org.springframework.beans.factory.annotation.Configurable;
  *
  * @urlparam Integer rasse Die Rasse, deren Technologien angezeigt werden sollen
  */
-@Configurable
 @Module(name="techliste")
 public class TechListeController extends TemplateGenerator {
-	private Configuration config;
 
 	/**
 	 * Konstruktor.
@@ -68,16 +62,6 @@ public class TechListeController extends TemplateGenerator {
 
 		setPageTitle("Forschungen");
 	}
-
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config)
-    {
-    	this.config = config;
-    }
 
 	@Override
 	protected boolean validateAndPrepare(String action) {
@@ -114,8 +98,8 @@ public class TechListeController extends TemplateGenerator {
 
 		for( Rasse aRasse : Rassen.get() ) {
 			if( aRasse.isExtPlayable() ) {
-				rassenliste.append("<a href='"+Common.buildUrl("default", "rasse", aRasse.getID())+"'>");
-				rassenliste.append("<img style='border:0px' src='"+config.get("URL")+"data/interface/rassen/"+aRasse.getID()+".png' />");
+				rassenliste.append("<a href='").append(Common.buildUrl("default", "rasse", aRasse.getID())).append("'>");
+				rassenliste.append("<img style='border:0px' src='./data/interface/rassen/"+aRasse.getID()+".png' />");
 				rassenliste.append("</a>");
 			}
 		}

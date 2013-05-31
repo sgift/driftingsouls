@@ -54,18 +54,13 @@ public class Version
 			return;
 		}
 		try {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-			try
+			try (BufferedReader reader = new BufferedReader(new InputStreamReader(in)))
 			{
 				String line;
-				while( (line = reader.readLine()) != null )
+				while ((line = reader.readLine()) != null)
 				{
 					parseLine(line);
 				}
-			}
-			finally
-			{
-				reader.close();
 			}
 		}
 		catch( IOException e )

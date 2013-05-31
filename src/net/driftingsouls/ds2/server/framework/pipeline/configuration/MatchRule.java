@@ -23,11 +23,9 @@ import java.util.regex.Pattern;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 
-import org.springframework.beans.factory.annotation.Configurable;
 import org.w3c.dom.Node;
 
-@Configurable
-class MatchRule extends AbstractRule {		
+class MatchRule extends AbstractRule {
 	private Pattern match = null;
 	
 	MatchRule( PipelineConfig pipelineConfig, Node matchNode ) throws Exception {

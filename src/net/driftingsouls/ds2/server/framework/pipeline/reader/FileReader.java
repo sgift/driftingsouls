@@ -36,30 +36,23 @@ import net.driftingsouls.ds2.server.framework.pipeline.ReaderPipeline;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * Liesst Dateien von der Festplatte und schreibt sie in die Antwort.
  * @author Christopher Jung
  *
  */
-@Configurable
 public class FileReader implements Reader {
 	private static final Log log = LogFactory.getLog(FileReader.class);
-	
-	private Configuration config;
+
 	private Map<String,String> extensionMap;
-	
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config) 
-    {
-    	this.config = config;
-		this.extensionMap = new HashMap<String,String>();
+
+	/**
+	 * Konstruktor.
+	 */
+	public FileReader()
+	{
+		this.extensionMap = new HashMap<>();
 		this.extensionMap.put("html", "text/html");
 		this.extensionMap.put("txt", "text/plain");
 		this.extensionMap.put("xml", "text/xml");
@@ -69,8 +62,8 @@ public class FileReader implements Reader {
 		this.extensionMap.put("gif", "image/gif");
 		this.extensionMap.put("jpg", "image/jpg");
 		this.extensionMap.put("svg", "image/svg+xml");
-    }
-	
+	}
+
 	private String guessMimeType( String extension ) {
 		if( extension == null ) {
 			return null;
@@ -95,7 +88,7 @@ public class FileReader implements Reader {
 			return;
 		}
 		
-		String path = config.get("ABSOLUTE_PATH")+filename;
+		String path = Configuration.getSetting("ABSOLUTE_PATH")+filename;
 		File file = new File(path);
 		if( !file.exists() ) {
 			context.getResponse().setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -126,17 +119,15 @@ public class FileReader implements Reader {
 		context.getResponse().setHeader("Accept-Ranges", "none" );
 		context.getResponse().setHeader("Date", dateFormat.format(new Date()));
 		context.getResponse().setHeader("Last-Modified", dateFormat.format( new Date(file.lastModified()) ) );
-		
-		FileInputStream fin = new FileInputStream(new File(path));
-		try {
+
+		try (FileInputStream fin = new FileInputStream(new File(path)))
+		{
 			IOUtils.copy(fin, context.getResponse().getOutputStream());
 		}
-		catch( IOException e ) {
+		catch (IOException e)
+		{
 			// Ignorieren, da es sich in den meisten Faellen um einen Browser handelt,
 			// der die Verbindung zu frueh dicht gemacht hat
-		}
-		finally {
-			fin.close();
 		}
 	}
 }

@@ -42,18 +42,17 @@ public class TransferStrategyFactory {
 			transferType = new StringBuilder(transferType).reverse().toString();
 			forceSameOwner = true;
 		}
-		
-		if( transferType.equals("sts") ) {
-			return new StsTransfer(from, to, forceSameOwner);
-		}
-		else if( transferType.equals("stb") ) {
-			return new StbTransfer(from, to, forceSameOwner);
-		}
-		else if( transferType.equals("bts") ) {
-			return new BtsTransfer(from, to, forceSameOwner);
-		}
-		else if( transferType.equals("btb") ) {
-			return new BtbTransfer(from, to, forceSameOwner);
+
+		switch (transferType)
+		{
+			case "sts":
+				return new StsTransfer(from, to, forceSameOwner);
+			case "stb":
+				return new StbTransfer(from, to, forceSameOwner);
+			case "bts":
+				return new BtsTransfer(from, to, forceSameOwner);
+			case "btb":
+				return new BtbTransfer(from, to, forceSameOwner);
 		}
 		
 		return null;

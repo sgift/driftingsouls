@@ -59,7 +59,7 @@ public class ShipTypeChangeset {
 	private long nahrungcargo;
 	private int heat;
 	private int crew;
-	private Map<String,Integer[]> weapons = new HashMap<String,Integer[]>();
+	private Map<String,Integer[]> weapons = new HashMap<>();
 	private Map<String,Integer> maxHeat;
 	private int torpedoDef;
 	private int shields;
@@ -101,167 +101,129 @@ public class ShipTypeChangeset {
 			throw new RuntimeException("Keine Shiptype-Changeset-Informationen vorhanden");
 		}
 		String[] changesets = StringUtils.split(changesetString, "|");
-		for ( int i=0; i < changesets.length; i++)
+		for (String changeset1 : changesets)
 		{
-			String[] changeset = StringUtils.split(changesets[i], ",");
-			if( changeset[0].equals("weapons"))
+			String[] changeset = StringUtils.split(changeset1, ",");
+			switch (changeset[0])
 			{
-				String[] weapon = StringUtils.split(changeset[1], "/");
+				case "weapons":
+					String[] weapon = StringUtils.split(changeset[1], "/");
 
-				// Sicherstellen, dass die Waffe existiert
-				Weapons.get().weapon(weapon[0]);
+					// Sicherstellen, dass die Waffe existiert
+					Weapons.get().weapon(weapon[0]);
 
-				weapons.put(weapon[0], new Integer[] {Integer.parseInt(weapon[1]), Integer.parseInt(weapon[2])});
-			}
-			else if( changeset[0].equals("flags"))
-			{
-				List<String> flagList = new ArrayList<String>();
-				String[] flags = StringUtils.split(changeset[1], "/");
-				for( int j=0; j< flags.length; j++)
-				{
-					flagList.add(flags[j]);
-				}
-				this.flags = Common.implode(" ", flagList);
-			}
-			else if( changeset[0].equals("nickname"))
-			{
-				this.nickname = changeset[1];
-			}
-			else if( changeset[0].equals("picture") )
-			{
-				this.picture = changeset[1];
-			}
-			else if( changeset[0].equals("ru") )
-			{
-				this.ru = Integer.parseInt(changeset[1]);
-			}
-			else if( changeset[0].equals("rd") )
-			{
-				this.rd = Integer.parseInt(changeset[1]);
-			}
-			else if( changeset[0].equals("ra") )
-			{
-				this.ra = Integer.parseInt(changeset[1]);
-			}
-			else if( changeset[0].equals("rm") )
-			{
-				this.rm = Integer.parseInt(changeset[1]);
-			}
-			else if( changeset[0].equals("eps") )
-			{
-				this.eps = Integer.parseInt(changeset[1]);
-			}
-			else if( changeset[0].equals("cost") )
-			{
-				this.cost = Integer.parseInt(changeset[1]);
-			}
-			else if( changeset[0].equals("hull") )
-			{
-				this.hull = Integer.parseInt(changeset[1]);
-			}
-			else if( changeset[0].equals("panzerung") )
-			{
-				this.panzerung = Integer.parseInt(changeset[1]);
-			}
-			else if( changeset[0].equals("ablativearmor") )
-			{
-				this.ablativeArmor = Integer.parseInt(changeset[1]);
-			}
-			else if( changeset[0].equals("cargo") )
-			{
-				this.cargo = Long.parseLong(changeset[1]);
-			}
-			else if( changeset[0].equals("nahrungcargo") )
-			{
-				this.nahrungcargo = Long.parseLong(changeset[1]);
-			}
-			else if( changeset[0].equals("heat") )
-			{
-				this.heat = Integer.parseInt(changeset[1]);
-			}
-			else if( changeset[0].equals("crew") )
-			{
-				this.crew = Integer.parseInt(changeset[1]);
-			}
-			else if( changeset[0].equals("maxunitsize") )
-			{
-				this.maxunitsize = Integer.parseInt(changeset[1]);
-			}
-			else if( changeset[0].equals("unitspace") )
-			{
-				this.unitspace = Integer.parseInt(changeset[1]);
-			}
-			else if( changeset[0].equals("torpdeff") )
-			{
-				this.torpedoDef = Integer.parseInt(changeset[1]);
-			}
-			else if( changeset[0].equals("shields") )
-			{
-				this.shields = Integer.parseInt(changeset[1]);
-			}
-			else if( changeset[0].equals("size") )
-			{
-				this.size = Integer.parseInt(changeset[1]);
-			}
-			else if( changeset[0].equals("jdocks") )
-			{
-				this.jDocks = Integer.parseInt(changeset[1]);
-			}
-			else if( changeset[0].equals("adocks") )
-			{
-				this.aDocks = Integer.parseInt(changeset[1]);
-			}
-			else if( changeset[0].equals("sensorrange") )
-			{
-				this.sensorRange = Integer.parseInt(changeset[1]);
-			}
-			else if( changeset[0].equals("hydro") )
-			{
-				this.hydro = Integer.parseInt(changeset[1]);
-			}
-			else if( changeset[0].equals("deutfactor") )
-			{
-				this.deutFactor = Integer.parseInt(changeset[1]);
-			}
-			else if( changeset[0].equals("recost") )
-			{
-				this.reCost = Integer.parseInt(changeset[1]);
-			}
-			else if( changeset[0].equals("werftslots") )
-			{
-				this.werft = Integer.parseInt(changeset[1]);
-			}
-			else if( changeset[0].equals("onewaywerft") )
-			{
-				this.oneWayWerft = Integer.parseInt(changeset[1]);
-			}
-			else if( changeset[0].equals("srs") )
-			{
-				this.srs = Boolean.parseBoolean(changeset[1]);
-			}
-			else if( changeset[0].equals("scancost") )
-			{
-				this.scanCost = Integer.parseInt(changeset[1]);
-			}
-			else if( changeset[0].equals("pickingcost") )
-			{
-				this.pickingCost = Integer.parseInt(changeset[1]);
-			}
-			else if( changeset[0].equals("mincrew"))
-			{
-				this.minCrew = Integer.parseInt(changeset[1]);
-			}
-			else if (changeset[0].equals("lostinempchance"))
-			{
-				this.lostInEmpChance = Double.parseDouble(changeset[1]);
-			}
-            else if(changeset[0].equals("bounty"))
-            {
-                this.bounty = new BigInteger(changeset[1]);
-            }
-			else
-			{
-				throw new RuntimeException("Unbekannte Changeset-Eigenschaft '"+changeset[0]+"'");
+					weapons.put(weapon[0], new Integer[]{Integer.parseInt(weapon[1]), Integer.parseInt(weapon[2])});
+					break;
+				case "flags":
+					List<String> flagList = new ArrayList<>();
+					String[] flags = StringUtils.split(changeset[1], "/");
+					Collections.addAll(flagList, flags);
+					this.flags = Common.implode(" ", flagList);
+					break;
+				case "nickname":
+					this.nickname = changeset[1];
+					break;
+				case "picture":
+					this.picture = changeset[1];
+					break;
+				case "ru":
+					this.ru = Integer.parseInt(changeset[1]);
+					break;
+				case "rd":
+					this.rd = Integer.parseInt(changeset[1]);
+					break;
+				case "ra":
+					this.ra = Integer.parseInt(changeset[1]);
+					break;
+				case "rm":
+					this.rm = Integer.parseInt(changeset[1]);
+					break;
+				case "eps":
+					this.eps = Integer.parseInt(changeset[1]);
+					break;
+				case "cost":
+					this.cost = Integer.parseInt(changeset[1]);
+					break;
+				case "hull":
+					this.hull = Integer.parseInt(changeset[1]);
+					break;
+				case "panzerung":
+					this.panzerung = Integer.parseInt(changeset[1]);
+					break;
+				case "ablativearmor":
+					this.ablativeArmor = Integer.parseInt(changeset[1]);
+					break;
+				case "cargo":
+					this.cargo = Long.parseLong(changeset[1]);
+					break;
+				case "nahrungcargo":
+					this.nahrungcargo = Long.parseLong(changeset[1]);
+					break;
+				case "heat":
+					this.heat = Integer.parseInt(changeset[1]);
+					break;
+				case "crew":
+					this.crew = Integer.parseInt(changeset[1]);
+					break;
+				case "maxunitsize":
+					this.maxunitsize = Integer.parseInt(changeset[1]);
+					break;
+				case "unitspace":
+					this.unitspace = Integer.parseInt(changeset[1]);
+					break;
+				case "torpdeff":
+					this.torpedoDef = Integer.parseInt(changeset[1]);
+					break;
+				case "shields":
+					this.shields = Integer.parseInt(changeset[1]);
+					break;
+				case "size":
+					this.size = Integer.parseInt(changeset[1]);
+					break;
+				case "jdocks":
+					this.jDocks = Integer.parseInt(changeset[1]);
+					break;
+				case "adocks":
+					this.aDocks = Integer.parseInt(changeset[1]);
+					break;
+				case "sensorrange":
+					this.sensorRange = Integer.parseInt(changeset[1]);
+					break;
+				case "hydro":
+					this.hydro = Integer.parseInt(changeset[1]);
+					break;
+				case "deutfactor":
+					this.deutFactor = Integer.parseInt(changeset[1]);
+					break;
+				case "recost":
+					this.reCost = Integer.parseInt(changeset[1]);
+					break;
+				case "werftslots":
+					this.werft = Integer.parseInt(changeset[1]);
+					break;
+				case "onewaywerft":
+					this.oneWayWerft = Integer.parseInt(changeset[1]);
+					break;
+				case "srs":
+					this.srs = Boolean.parseBoolean(changeset[1]);
+					break;
+				case "scancost":
+					this.scanCost = Integer.parseInt(changeset[1]);
+					break;
+				case "pickingcost":
+					this.pickingCost = Integer.parseInt(changeset[1]);
+					break;
+				case "mincrew":
+					this.minCrew = Integer.parseInt(changeset[1]);
+					break;
+				case "lostinempchance":
+					this.lostInEmpChance = Double.parseDouble(changeset[1]);
+					break;
+				case "bounty":
+					this.bounty = new BigInteger(changeset[1]);
+					break;
+				default:
+					throw new RuntimeException("Unbekannte Changeset-Eigenschaft '" + changeset[0] + "'");
 			}
 		}
 	}
@@ -279,14 +241,14 @@ public class ShipTypeChangeset {
 		{
 			String[] thisweapons = StringUtils.split(request.getParameterString("weapons"+addict), ";");
 
-			for(int i = 0; i < thisweapons.length; i++)
+			for (String thisweapon : thisweapons)
 			{
-				String[] weapon = StringUtils.split(thisweapons[i], "/");
+				String[] weapon = StringUtils.split(thisweapon, "/");
 
 				// Sicherstellen, dass die Waffe existiert
 				Weapons.get().weapon(weapon[0]);
 
-				weapons.put(weapon[0], new Integer[] {Integer.parseInt(weapon[1]), Integer.parseInt(weapon[2])});
+				weapons.put(weapon[0], new Integer[]{Integer.parseInt(weapon[1]), Integer.parseInt(weapon[2])});
 			}
 		}
 		else
@@ -295,12 +257,9 @@ public class ShipTypeChangeset {
 		}
 		if( request.getParameterString("flags"+addict).length() > 0)
 		{
-			List<String> flagList = new ArrayList<String>();
+			List<String> flagList = new ArrayList<>();
 			String[] flags = StringUtils.split(request.getParameterString("flags"+addict), " ");
-			for( int j=0; j< flags.length; j++)
-			{
-				flagList.add(flags[j]);
-			}
+			Collections.addAll(flagList, flags);
 			this.flags = Common.implode(" ", flagList);
 		}
 		else
@@ -615,7 +574,7 @@ public class ShipTypeChangeset {
 		if( this.weapons == null ) {
 			return null;
 		}
-		Map<String,Integer[]> map = new HashMap<String,Integer[]>();
+		Map<String,Integer[]> map = new HashMap<>();
 		for( Entry<String,Integer[]> entry : this.weapons.entrySet() ) {
 			map.put(entry.getKey(), entry.getValue().clone());
 		}
@@ -1009,12 +968,14 @@ public class ShipTypeChangeset {
 
 				if( ShipTypeChangeset.this.getFlags() != null ) {
 					String[] flagArray = StringUtils.split(ShipTypeChangeset.this.getFlags(), ' ');
-					for( int i=0; i < flagArray.length; i++ ) {
-						String aflag = flagArray[i];
-						if( (flags.length() != 0) && (flags.indexOf(aflag) == -1) ) {
-							flags += ' '+aflag;
+					for (String aflag : flagArray)
+					{
+						if ((flags.length() != 0) && !flags.contains(aflag))
+						{
+							flags += ' ' + aflag;
 						}
-						else if( flags.length() == 0 ) {
+						else if (flags.length() == 0)
+						{
 							flags = aflag;
 						}
 					}
@@ -1319,7 +1280,7 @@ public class ShipTypeChangeset {
 
 		@Override
 		public boolean hasFlag(String flag) {
-			return getFlags().indexOf(flag) > -1;
+			return getFlags().contains(flag);
 		}
 
 		@Override

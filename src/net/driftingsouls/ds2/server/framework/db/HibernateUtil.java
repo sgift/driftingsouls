@@ -58,7 +58,7 @@ public class HibernateUtil
 			URL[] urls = ClasspathUrlFinder.findResourceBases("META-INF/ds.marker");
 			AnnotationDB db = new AnnotationDB();
 			db.scanArchives(urls);
-			SortedSet<String> entityClasses = new TreeSet<String>(db.getAnnotationIndex().get(javax.persistence.Entity.class.getName()));
+			SortedSet<String> entityClasses = new TreeSet<>(db.getAnnotationIndex().get(javax.persistence.Entity.class.getName()));
 			for( String cls : entityClasses )
 			{
 				try
@@ -92,16 +92,11 @@ public class HibernateUtil
 	{
 		String[] dropSQL = configuration.generateDropSchemaScript( new MySQL5InnoDBDialect() );
 		String[] createSQL = configuration.generateSchemaCreationScript( new MySQL5InnoDBDialect()  );
-		FileOutputStream writer = new FileOutputStream(new File(Configuration.getSetting("configdir")+"schema.sql"));
-		try
+		try (FileOutputStream writer = new FileOutputStream(new File(Configuration.getSetting("configdir") + "schema.sql")))
 		{
 			IOUtils.write(StringUtils.join(dropSQL, "\n"), writer, "UTF-8");
 			IOUtils.write("\n\n\n\n", writer, "UTF-8");
 			IOUtils.write(StringUtils.join(createSQL, "\n"), writer, "UTF-8");
-		}
-		finally
-		{
-			writer.close();
 		}
 	}
 
@@ -126,7 +121,7 @@ public class HibernateUtil
      */
     public static SortedMap<String,Integer> getSessionContentStatistics(Session db)
     {
-    	SortedMap<String,Integer> counter = new TreeMap<String,Integer>();
+    	SortedMap<String,Integer> counter = new TreeMap<>();
 		for( Object obj : db.getStatistics().getEntityKeys() )
 		{
 			EntityKey key = (EntityKey)obj;

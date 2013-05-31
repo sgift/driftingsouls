@@ -18,9 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.util.Iterator;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
@@ -33,7 +30,12 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+
+import java.util.List;
 
 /**
  * Zeigt die Liste der Allianzen sowie Allianzdetails.
@@ -84,16 +86,16 @@ public class AllyListController extends TemplateGenerator {
 	
 	/**
 	 * Setzt die Beziehungen des Spielers zu allen Mitgliedern der Allianz.
-	 * @urlparam Integer details Die ID der Allianz
-	 * @urlparam Integer relation Die neue Beziehung. 1 fuer feindlich, 2 fuer freundlich und neural bei allen anderen Werten
-	 *
 	 */
+	@UrlParams({
+			@UrlParam(name="details", type= UrlParamType.NUMBER, description = "Die ID der Allianz"),
+			@UrlParam(name="relation", type=UrlParamType.NUMBER, description = "Die neue Beziehung. 1 fuer feindlich, 2 fuer freundlich und neural bei allen anderen Werten")
+	})
 	@Action(ActionType.DEFAULT)
 	public void changeRelationAction() {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 
-		this.parameterNumber("details");
 		int details = getInteger("details");
 		Ally ally = (Ally)getContext().getDB().get(Ally.class, details);
 		
@@ -108,8 +110,7 @@ public class AllyListController extends TemplateGenerator {
 			redirect("details");
 			return;
 		}
-		
-		parameterNumber("relation");
+
 		int relation = getInteger("relation");
 		
 		User.Relation rel = User.Relation.NEUTRAL;
@@ -134,9 +135,11 @@ public class AllyListController extends TemplateGenerator {
 
 	/**
 	 * Setzt die Beziehungen der Allianz des Spielers zur ausgewaehlten Allianz.
-	 * @urlparam Integer details Die ID der Allianz
-	 * @urlparam Integer relation Die neue Beziehung. 1 fuer feindlich, 2 fuer freundlich und neural bei allen anderen Werten
 	 */
+	@UrlParams({
+			@UrlParam(name="details", type= UrlParamType.NUMBER, description = "Die ID der Allianz"),
+			@UrlParam(name="relation", type=UrlParamType.NUMBER, description = "Die neue Beziehung. 1 fuer feindlich, 2 fuer freundlich und neural bei allen anderen Werten")
+	})
 	@Action(ActionType.DEFAULT)
 	public void changeRelationAllyAction() {
 		User user = (User)getUser();
@@ -147,8 +150,7 @@ public class AllyListController extends TemplateGenerator {
 			redirect("details");
 			return;
 		}
-		
-		parameterNumber("details");
+
 		int details = getInteger("details");
 		Ally ally = (Ally)getContext().getDB().get(Ally.class, details);
 		
@@ -170,7 +172,6 @@ public class AllyListController extends TemplateGenerator {
 			return;
 		}
 		
-		parameterNumber("relation");
 		int relation = getInteger("relation");
 		User.Relation rel = User.Relation.NEUTRAL;
 		switch( relation ) {
@@ -197,15 +198,14 @@ public class AllyListController extends TemplateGenerator {
 	
 	/**
 	 * Zeigt die Informationen zu einer Allianz an.
-	 * @urlparam Integer details Die ID der anzuzeigenden Allianz
 	 *
 	 */
+	@UrlParam(name="details", type= UrlParamType.NUMBER, description = "Die ID der anzuzeigenden Allianz")
 	@Action(ActionType.DEFAULT)
 	public void detailsAction() {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 
-		parameterNumber("details");
 		int details = getInteger("details");
 		
 		Ally ally = (Ally)getContext().getDB().get(Ally.class, details);
@@ -255,18 +255,20 @@ public class AllyListController extends TemplateGenerator {
 				"where ap.ally= :ally")
 			.setEntity("ally", ally)
 			.list();
-		for( Iterator<?> iter=posten.iterator(); iter.hasNext(); ) {
-			AllyPosten aposten = (AllyPosten)iter.next();
-			
-			if( aposten.getUser() == null ) {
+		for (Object aPosten : posten)
+		{
+			AllyPosten aposten = (AllyPosten) aPosten;
+
+			if (aposten.getUser() == null)
+			{
 				continue;
 			}
-			
-			t.setVar(	"ally.minister.posten",	Common._plaintitle(aposten.getName()),
-						"ally.minister.id",		aposten.getUser().getId(),
-						"ally.minister.name",	Common._title(aposten.getUser().getName()) );
-		
-			t.parse( "ally.minister.list", "ally.minister.listitem", true );
+
+			t.setVar("ally.minister.posten", Common._plaintitle(aposten.getName()),
+					"ally.minister.id", aposten.getUser().getId(),
+					"ally.minister.name", Common._title(aposten.getUser().getName()));
+
+			t.parse("ally.minister.list", "ally.minister.listitem", true);
 		}
 	
 		// Weitere Mitglieder ausgeben
@@ -279,14 +281,15 @@ public class AllyListController extends TemplateGenerator {
 			.list();
 		if( allymembers.size() > 0 ) {
 			t.setBlock( "_ALLYLIST", "ally.addmembers.listitem", "ally.addmembers.list" );
-		
-			for( Iterator<?> iter=allymembers.iterator(); iter.hasNext(); ) {
-				User allymember = (User)iter.next();
-				
-				t.setVar(	"ally.addmembers.name",	Common._title(allymember.getName()),
-							"ally.addmembers.id",	allymember.getId() );
-			
-				t.parse( "ally.addmembers.list", "ally.addmembers.listitem", true );
+
+			for (Object allymember1 : allymembers)
+			{
+				User allymember = (User) allymember1;
+
+				t.setVar("ally.addmembers.name", Common._title(allymember.getName()),
+						"ally.addmembers.id", allymember.getId());
+
+				t.parse("ally.addmembers.list", "ally.addmembers.listitem", true);
 			}
 		}
 	}
@@ -304,19 +307,21 @@ public class AllyListController extends TemplateGenerator {
 		t.setBlock( "_ALLYLIST", "allylist.ally.listitem", "allylist.ally.list" );
 	
 		List<?> allies = getDB().createQuery("from Ally order by founded").list();
-		for( Iterator<?> iter=allies.iterator(); iter.hasNext(); ) {
-			Ally ally = (Ally)iter.next();
-			
-			String name = "<a class=\"forschinfo\" href=\""+Common.buildUrl("details", "details", ally.getId())+"\">"+Common._title(ally.getName())+"</a>";
+		for (Object ally1 : allies)
+		{
+			Ally ally = (Ally) ally1;
 
-			if( ally.getHp().length() > 0 ) {
-				name += " <a class=\"forschinfo\" target=\"_blank\" href=\""+ally.getHp()+"\">[HP]</a>";
+			String name = "<a class=\"forschinfo\" href=\"" + Common.buildUrl("details", "details", ally.getId()) + "\">" + Common._title(ally.getName()) + "</a>";
+
+			if (ally.getHp().length() > 0)
+			{
+				name += " <a class=\"forschinfo\" target=\"_blank\" href=\"" + ally.getHp() + "\">[HP]</a>";
 			}
-		
-			t.setVar(	"allylist.ally",		ally,
-						"allylist.ally.name",	name );
-								
-			t.parse( "allylist.ally.list", "allylist.ally.listitem", true );
+
+			t.setVar("allylist.ally", ally,
+					"allylist.ally.name", name);
+
+			t.parse("allylist.ally.list", "allylist.ally.listitem", true);
 		}
 	}
 }

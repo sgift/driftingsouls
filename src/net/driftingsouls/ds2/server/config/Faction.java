@@ -38,7 +38,7 @@ import org.w3c.dom.NodeList;
 public class Faction {
 	private static final Log log = LogFactory.getLog(Faction.class);
 
-	private static Map<Integer,Faction> factionList = new LinkedHashMap<Integer,Faction>();
+	private static Map<Integer,Faction> factionList = new LinkedHashMap<>();
 
 	/**
 	 * Die Spieler-ID der GTU.

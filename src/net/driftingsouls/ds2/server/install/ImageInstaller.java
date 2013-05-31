@@ -1,6 +1,5 @@
 package net.driftingsouls.ds2.server.install;
 
-import net.driftingsouls.ds2.server.Location;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -82,22 +81,12 @@ public class ImageInstaller
 		urlcon.setRequestProperty("User-agent", "DS Installationsprogramm");
 		urlcon.setReadTimeout(60*1000);
 
-		InputStream in = urlcon.getInputStream();
-		try
+		try (InputStream in = urlcon.getInputStream())
 		{
-			FileOutputStream out = new FileOutputStream(localFile);
-			try
+			try (FileOutputStream out = new FileOutputStream(localFile))
 			{
 				IOUtils.copy(in, out);
 			}
-			finally
-			{
-				out.close();
-			}
-		}
-		finally
-		{
-			in.close();
 		}
 	}
 
@@ -110,17 +99,12 @@ public class ImageInstaller
 	public Set<String> readFromCss(File cssFile) throws IOException
 	{
 		String content;
-		FileInputStream in = new FileInputStream(cssFile);
-		try
+		try (FileInputStream in = new FileInputStream(cssFile))
 		{
 			content = IOUtils.toString(in, "UTF-8");
 		}
-		finally
-		{
-			in.close();
-		}
 
-		Set<String> imgs = new HashSet<String>();
+		Set<String> imgs = new HashSet<>();
 
 		Pattern pattern = Pattern.compile("url\\(([a-zA-Z0-9\\./'\"_\\-]+)\\)", Pattern.CASE_INSENSITIVE);
 		Matcher matcher = pattern.matcher(content);
@@ -176,17 +160,12 @@ public class ImageInstaller
 	public Set<String> readFromTemplate(File templateFile) throws IOException
 	{
 		String content;
-		FileInputStream in = new FileInputStream(templateFile);
-		try
+		try (FileInputStream in = new FileInputStream(templateFile))
 		{
 			content = IOUtils.toString(in, "UTF-8");
 		}
-		finally
-		{
-			in.close();
-		}
 
-		Set<String> imgs = new HashSet<String>();
+		Set<String> imgs = new HashSet<>();
 
 		Pattern pattern = Pattern.compile("src=\"([\\{}a-zA-Z0-9\\./_\\-']+)\"", Pattern.CASE_INSENSITIVE);
 		Matcher matcher = pattern.matcher(content);
@@ -219,31 +198,21 @@ public class ImageInstaller
 	 */
 	public Set<String> readStarmapBases(Connection con) throws SQLException
 	{
-		Set<String> imgs = new HashSet<String>();
+		Set<String> imgs = new HashSet<>();
 
-		PreparedStatement stmt = con.prepareStatement("select id,size from base_types");
-		try
+		try (PreparedStatement stmt = con.prepareStatement("select id,size from base_types"))
 		{
-			ResultSet result = stmt.executeQuery();
-			try
+			try (ResultSet result = stmt.executeQuery())
 			{
-				while( result.next() )
+				while (result.next())
 				{
 					int klasse = result.getInt("id");
 
-					imgs.add("kolonie"+klasse+"_starmap.png");
-					imgs.add("kolonie"+klasse+"_lrs/kolonie"+klasse+"_lrs.png");
-					imgs.add("kolonie"+klasse+"_lrs/kolonie"+klasse+"_lrs.jpg");
+					imgs.add("kolonie" + klasse + "_starmap.png");
+					imgs.add("kolonie" + klasse + "_lrs/kolonie" + klasse + "_lrs.png");
+					imgs.add("kolonie" + klasse + "_lrs/kolonie" + klasse + "_lrs.jpg");
 				}
 			}
-			finally
-			{
-				result.close();
-			}
-		}
-		finally
-		{
-			stmt.close();
 		}
 
 		return imgs;
@@ -259,34 +228,24 @@ public class ImageInstaller
 	 */
 	public Set<String> readFromDb(Connection con, String table, String... columns) throws SQLException
 	{
-		Set<String> imgs = new HashSet<String>();
+		Set<String> imgs = new HashSet<>();
 
-		PreparedStatement stmt = con.prepareStatement("select "+ StringUtils.join(columns, ',')+" from "+table);
-		try
+		try (PreparedStatement stmt = con.prepareStatement("select " + StringUtils.join(columns, ',') + " from " + table))
 		{
-			ResultSet result = stmt.executeQuery();
-			try
+			try (ResultSet result = stmt.executeQuery())
 			{
-				while( result.next() )
+				while (result.next())
 				{
-					for( String col : columns )
+					for (String col : columns)
 					{
 						String img = result.getString(col);
-						if( img != null && !img.trim().isEmpty() )
+						if (img != null && !img.trim().isEmpty())
 						{
 							imgs.add(img);
 						}
 					}
 				}
 			}
-			finally
-			{
-				result.close();
-			}
-		}
-		finally
-		{
-			stmt.close();
 		}
 
 		return imgs;

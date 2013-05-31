@@ -81,16 +81,17 @@ public class IEModule extends ItemEffect {
 	 * @throws IllegalArgumentException falls der Effect nicht richtig geladen werden konnte
 	 */
 	public static ItemEffect fromString(String effectString) throws IllegalArgumentException {
-		List<String> slots = new ArrayList<String>();
+		List<String> slots = new ArrayList<>();
 		String[] effects = StringUtils.split(effectString, "&");
 		String[] theslots = StringUtils.split(effects[0], ";");
-		for( int i=0; i < theslots.length; i++) {
-			
+		for (String theslot : theslots)
+		{
+
 			// Sicherstellen, dass der Slot existiert
 			// sonst -> NoSuchSlotException
-			ModuleSlots.get().slot(theslots[i]);
-			
-			slots.add(theslots[i]);
+			ModuleSlots.get().slot(theslot);
+
+			slots.add(theslot);
 		}
 		
 		int setId = Integer.parseInt(effects[1]);
@@ -106,14 +107,15 @@ public class IEModule extends ItemEffect {
 	 * @return Der Effect
 	 */
 	public static ItemEffect fromContext(Context context) {
-		List<String> slots = new ArrayList<String>();
+		List<String> slots = new ArrayList<>();
 		String slotstring = context.getRequest().getParameterString("slots");
 		String[] theslots = StringUtils.split(slotstring, ";");
-		for( int i=0; i < theslots.length; i++) {
-			
-			ModuleSlots.get().slot(theslots[i]);
-			
-			slots.add(theslots[i]);
+		for (String theslot : theslots)
+		{
+
+			ModuleSlots.get().slot(theslot);
+
+			slots.add(theslot);
 		}
 		
 		int setId = context.getRequest().getParameterInt("setid");
@@ -143,7 +145,6 @@ public class IEModule extends ItemEffect {
 	 */
 	@Override
 	public String toString() {
-		String itemstring = "module:" + Common.implode(";", getSlots()) + "&" + getSetID() + "&" + getMods().toString();
-		return itemstring;
+		return "module:" + Common.implode(";", getSlots()) + "&" + getSetID() + "&" + getMods().toString();
 	}
 }

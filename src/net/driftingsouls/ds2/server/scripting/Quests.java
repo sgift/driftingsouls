@@ -104,7 +104,7 @@ public class Quests {
 
 		String execparameter = "-1";
 
-		RunningQuest runningdata = null;
+		RunningQuest runningdata;
 		if( usequest.charAt(0) != 'r' ) {
 			runningdata = (RunningQuest)db.createQuery("from RunningQuest where quest= :quest and user = :user")
 				.setInteger("quest", Integer.parseInt(usequest))
@@ -175,42 +175,52 @@ public class Quests {
 		boolean forcenew = false;
 		boolean breakme = false;
 		boolean parserest = false;
-		for( int i=0; i < handlerArray.length; i++ ) {
-			String[] hentry = StringUtils.split(handlerArray[i], ':');
+		for (String aHandlerArray : handlerArray)
+		{
+			String[] hentry = StringUtils.split(aHandlerArray, ':');
 
-			if( hentry[0].equals(Integer.toString(user.getId())) ) {
+			if (hentry[0].equals(Integer.toString(user.getId())))
+			{
 				usechance = -1;
 				forcenew = false;
 
 				usescript = Integer.parseInt(hentry[1]);
-				if( hentry.length > 2 ) {
+				if (hentry.length > 2)
+				{
 					usequest = hentry[2];
 				}
 				breakme = true;
 				parserest = true;
 			}
-			else if( hentry[0].equals("*") ) {
+			else if (hentry[0].equals("*"))
+			{
 				usescript = Integer.parseInt(hentry[1]);
-				if( hentry.length > 2 ) {
+				if (hentry.length > 2)
+				{
 					usequest = hentry[2];
 				}
 				parserest = true;
 			}
 
 			// Optionale Parameter verarbeiten
-			if( parserest && hentry.length > 3 ) {
-				for( int j=3; j<hentry.length; j++ ) {
-					if( hentry[j].charAt(0) == '%' ) {
+			if (parserest && hentry.length > 3)
+			{
+				for (int j = 3; j < hentry.length; j++)
+				{
+					if (hentry[j].charAt(0) == '%')
+					{
 						usechance = Integer.parseInt(hentry[j].substring(1));
 					}
-					else if( hentry[j].charAt(0) == 'n' ) {
+					else if (hentry[j].charAt(0) == 'n')
+					{
 						forcenew = true;
 					}
 				}
 				parserest = false;
 			}
 
-			if( breakme ) {
+			if (breakme)
+			{
 				break;
 			}
 		}
@@ -260,7 +270,7 @@ public class Quests {
 				}
 			}
 			else {
-				Quest quest = null;
+				Quest quest;
 				if( usequest.charAt(0) == 'r' ) {
 					quest = (Quest)db.get(Quest.class, Integer.parseInt(usequest.substring(1)));
 				}
@@ -302,7 +312,7 @@ public class Quests {
 		usequest = (String)engineBindings.get("QUEST");
 
 		if( (usequest != null) && !usequest.isEmpty() && !usequest.equals("0") ) {
-			RunningQuest runningdata = null;
+			RunningQuest runningdata;
 			if( usequest.charAt(0) != 'r' ) {
 				runningdata = (RunningQuest)db.createQuery("from RunningQuest where quest= :quest and user = :user")
 					.setInteger("quest", Integer.parseInt(usequest))

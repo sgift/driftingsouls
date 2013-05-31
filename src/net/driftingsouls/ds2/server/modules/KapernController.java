@@ -192,7 +192,7 @@ public class KapernController extends TemplateGenerator {
 			return false;
 		}
 
-		if( dship.getStatus().indexOf("disable_iff") > -1) {
+		if(dship.getStatus().contains("disable_iff")) {
 			addError("Das Schiff besitzt keine IFF-Kennung und kann daher nicht gekapert/gepl&uuml;ndert werden", errorurl);
 
 			return false;
@@ -259,7 +259,7 @@ public class KapernController extends TemplateGenerator {
             }
         }
 
-        boolean ok = false;
+        boolean ok;
 
 		// Falls Crew auf dem Zielschiff vorhanden ist
 		if( this.targetShip.getCrew() != 0 || !this.targetShip.getUnits().isEmpty() ) {
@@ -279,7 +279,7 @@ public class KapernController extends TemplateGenerator {
 			msg.append("Die Einheiten der "+this.ownShip.getName()+" ("+this.ownShip.getId()+"), eine "+this.ownShip.getTypeData().getNickname()+", st&uuml;rmt die "+this.targetShip.getName()+" ("+this.targetShip.getId()+"), eine "+this.targetShip.getTypeData().getNickname()+", bei "+this.targetShip.getLocation().displayCoordinates(false)+"\n\n");
 
 			StringBuilder kapernLog = new StringBuilder();
-			ok = doFighting(db, kapernLog);
+			ok = doFighting(kapernLog);
 
 			msg.append(kapernLog);
 
@@ -319,7 +319,7 @@ public class KapernController extends TemplateGenerator {
 		this.targetShip.removeFromFleet();
 		this.targetShip.setOwner(user);
 
-		List<Integer> kaperlist = new ArrayList<Integer>();
+		List<Integer> kaperlist = new ArrayList<>();
 		kaperlist.add(this.targetShip.getId());
 
 		List<Ship> docked = Common.cast(db.createQuery("from Ship where id>0 and docked in (:docked,:landed)")
@@ -369,17 +369,17 @@ public class KapernController extends TemplateGenerator {
 		Cargo cargo = this.targetShip.getCargo();
 
 		List<ItemCargoEntry> itemlist = cargo.getItems();
-		for( int i=0; i < itemlist.size(); i++ ) {
-			ItemCargoEntry item = itemlist.get(i);
-
+		for (ItemCargoEntry item : itemlist)
+		{
 			Item itemobject = item.getItemObject();
-			if( itemobject.isUnknownItem() ) {
+			if (itemobject.isUnknownItem())
+			{
 				user.addKnownItem(item.getItemID());
 			}
 		}
 	}
 
-	private boolean doFighting(org.hibernate.Session db, StringBuilder msg)
+	private boolean doFighting(StringBuilder msg)
 	{
 		boolean ok = false;
 
@@ -500,7 +500,7 @@ public class KapernController extends TemplateGenerator {
 	private boolean checkAlliedShipsReaction(org.hibernate.Session db, TemplateEngine t,
 			User targetUser)
 	{
-		List<User> ownerlist = new ArrayList<User>();
+		List<User> ownerlist = new ArrayList<>();
 		if( targetUser.getAlly() != null ) {
 			ownerlist.addAll(targetUser.getAlly().getMembers());
 		}

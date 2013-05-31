@@ -20,14 +20,12 @@ package net.driftingsouls.ds2.server.namegenerator.markov;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
 
 /**
  * <p>Generator fuer Markov-Ketten aus einer Menge von Namen aus einer Eingabedatei.
@@ -163,32 +161,28 @@ public class MarkovTrainer
 		System.out.println("Generiere Markov-Kette für "+inputFile.getName());
 		
 		final MarkovTrainer trainer = new MarkovTrainer();
-		
-		BufferedReader reader = new BufferedReader(new FileReader(inputFile));
-		try {
+
+		try (BufferedReader reader = new BufferedReader(new FileReader(inputFile)))
+		{
 			int counter = 0;
 			String name;
-			while( (name = reader.readLine()) != null ) {
+			while ((name = reader.readLine()) != null)
+			{
 				name = name.trim();
-				if( name.isEmpty() ) {
+				if (name.isEmpty())
+				{
 					continue;
 				}
 				counter++;
 				trainer.add(name);
 			}
-			System.out.println(counter+" Namen verarbeitet");
-		}
-		finally {
-			reader.close();
+			System.out.println(counter + " Namen verarbeitet");
 		}
 		
 		System.err.println("Schreibe "+outputFile.getName());
-		FileOutputStream out = new FileOutputStream(outputFile);
-		try {
+		try (FileOutputStream out = new FileOutputStream(outputFile))
+		{
 			trainer.save(out);
-		}
-		finally {
-			out.close();
 		}
 	}
 }

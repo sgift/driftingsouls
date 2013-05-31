@@ -18,12 +18,6 @@
  */
 package net.driftingsouls.ds2.server.scripting.roles.roleimpl;
 
-import java.util.Iterator;
-import java.util.List;
-
-import javax.script.ScriptContext;
-import javax.script.ScriptException;
-
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -34,12 +28,17 @@ import net.driftingsouls.ds2.server.scripting.roles.Role;
 import net.driftingsouls.ds2.server.scripting.roles.interpreter.Attribute;
 import net.driftingsouls.ds2.server.ships.Ship;
 
+import javax.script.ScriptContext;
+import javax.script.ScriptException;
+import java.util.List;
+
 /**
  * <h1>Die Rolle DeutTransporter.</h1>
  * Holt Deuterium von Tankern ab und transportiert es auf einen Asteroiden.
  * @author Christopher Jung
  *
  */
+@SuppressWarnings("UnusedDeclaration")
 public class DeutTransporter implements Role {
 	@Attribute("nebel")
 	private Location nebel;
@@ -117,17 +116,19 @@ public class DeutTransporter implements Role {
 			.setInteger("owner", ship.getOwner().getId())
 			.setInteger("transporter", ship.getId())
 			.list();
-		for( Iterator<?> iter=tankerList.iterator(); iter.hasNext(); ) {
-			Ship tanker = (Ship)iter.next();
+		for (Object aTankerList : tankerList)
+		{
+			Ship tanker = (Ship) aTankerList;
 			Cargo tankerCargo = tanker.getCargo();
-			
+
 			long deut = getAvailableDeuterium(tanker);
-			if( deut + shipCargo.getMass() > ship.getTypeData().getCargo() ) {
+			if (deut + shipCargo.getMass() > ship.getTypeData().getCargo())
+			{
 				deut = ship.getTypeData().getCargo() - shipCargo.getMass();
 			}
 			shipCargo.addResource(Resources.DEUTERIUM, deut);
 			tankerCargo.substractResource(Resources.DEUTERIUM, deut);
-			
+
 			tanker.setCargo(tankerCargo);
 		}
 		

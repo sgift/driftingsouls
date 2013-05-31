@@ -107,16 +107,11 @@ public class TileCache
 			g.dispose();
 		}
 
-		final OutputStream outputStream = new FileOutputStream(tileCacheFile);
-		try
+		try (OutputStream outputStream = new FileOutputStream(tileCacheFile))
 		{
 			ImageIO.write(CustomPaletteBuilder.createIndexedImage(img, 64), "png", outputStream);
 
 			outputStream.flush();
-		}
-		finally
-		{
-			outputStream.close();
 		}
 	}
 
@@ -161,11 +156,7 @@ public class TileCache
 			@Override
 			public boolean accept(File pathname)
 			{
-				if( !pathname.isFile() )
-				{
-					return false;
-				}
-				return pathname.getName().startsWith(TileCache.this.system.getID()+"_");
+				return pathname.isFile() && pathname.getName().startsWith(TileCache.this.system.getID() + "_");
 			}
 		});
 

@@ -49,8 +49,8 @@ public @interface ContextInstance {
 		 * Verschiedene Sessions muessen unterschiedliche Instanzen haben.
 		 */
 		SESSION
-	};
-	
+	}
+
 	/**
 	 * Der Scope der kontextgebundenen Klasse.
 	 */

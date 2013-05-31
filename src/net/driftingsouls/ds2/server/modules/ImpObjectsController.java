@@ -31,6 +31,8 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -39,10 +41,9 @@ import net.sf.json.JSONObject;
  * Zeigt alle wichtigen Objekte in einem System an wie z.B.
  * eigene Basen, Sprungpunkte usw.
  * @author Christopher Jung
- *
- * @urlparam Integer system Die ID des Sternensystems
  */
 @Module(name="impobjects")
+@UrlParam(name="system", type= UrlParamType.NUMBER, description = "Die ID des Sternensystems")
 public class ImpObjectsController extends DSGenerator {
 	private StarSystem system;
 	private boolean viewableSystem;
@@ -55,8 +56,6 @@ public class ImpObjectsController extends DSGenerator {
 		super(context);
 
 		this.viewableSystem = true;
-
-		parameterNumber("system");
 	}
 
 	@Override
@@ -104,11 +103,11 @@ public class ImpObjectsController extends DSGenerator {
 			List<?> jnList = db.createQuery("from JumpNode where system=:sys and hidden=0")
 				.setInteger("sys", system.getID())
 				.list();
-			for( Iterator<?> iter=jnList.iterator(); iter.hasNext(); )
+			for (Object aJnList : jnList)
 			{
-				JumpNode node = (JumpNode)iter.next();
+				JumpNode node = (JumpNode) aJnList;
 
-				StarSystem systemout = (StarSystem)db.get(StarSystem.class, node.getSystemOut());
+				StarSystem systemout = (StarSystem) db.get(StarSystem.class, node.getSystemOut());
 
 				JSONObject jn = new JSONObject();
 				jn.accumulate("x", node.getX());
@@ -128,11 +127,11 @@ public class ImpObjectsController extends DSGenerator {
 					"where s.id>0 and s.system=:sys and (locate('tradepost',s.status)!=0 or locate('tradepost', coalesce(sm.flags, st.flags))!=0)")
 				.setInteger("sys", system.getID())
 				.list();
-			for( Iterator<?> iter=postenList.iterator(); iter.hasNext(); )
+			for (Object aPostenList : postenList)
 			{
-				Ship posten = (Ship)iter.next();
+				Ship posten = (Ship) aPostenList;
 
-				if( !posten.isTradepostVisible(user, user.getRelations()) )
+				if (!posten.isTradepostVisible(user, user.getRelations()))
 				{
 					continue;
 				}
@@ -158,9 +157,9 @@ public class ImpObjectsController extends DSGenerator {
 			.setEntity("owner", getUser())
 			.setInteger("sys", system.getID())
 			.list();
-		for( Iterator<?> iter=baseList.iterator(); iter.hasNext(); )
+		for (Object aBaseList : baseList)
 		{
-			Base base = (Base)iter.next();
+			Base base = (Base) aBaseList;
 
 			JSONObject baseObj = new JSONObject();
 			baseObj.accumulate("x", base.getX());

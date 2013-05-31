@@ -138,11 +138,7 @@ public abstract class UnitCargoEntry implements JSONSupport
 			return false;
 		}
 		UnitCargoEntry other = (UnitCargoEntry)obj;
-		if( unittype != other.unittype )
-		{
-			return false;
-		}
-		return true;
+		return unittype == other.unittype;
 	}
 
 	/**

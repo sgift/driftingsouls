@@ -51,7 +51,7 @@ public class Offiziere {
 			this.id = id;
 			this.name = name;
 			this.specials = new int[] {1,2,3,4,5,6};
-			this.abilities = new HashMap<Offizier.Ability, Integer>();
+			this.abilities = new HashMap<>();
 			for (Offizier.Ability ability : Offizier.Ability.values())
 			{
 				this.abilities.put(ability, 0);
@@ -136,8 +136,7 @@ public class Offiziere {
 	
 	static {
 		// TODO: In XML auslagern...
-		// TODO: ...eine richtige Klasse statt SQLResultRow waere auch nicht schlecht...
-		Map<Integer,Offiziersausbildung> liste = new LinkedHashMap<Integer,Offiziersausbildung>();
+		Map<Integer,Offiziersausbildung> liste = new LinkedHashMap<>();
 
 		Offiziersausbildung offi = new Offiziersausbildung(1, "Ingenieur");
 		offi.setAbility(Offizier.Ability.ING, 25);

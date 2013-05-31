@@ -18,17 +18,6 @@
  */
 package net.driftingsouls.ds2.server.bases;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.config.Offiziere;
 import net.driftingsouls.ds2.server.config.Rasse;
@@ -38,12 +27,20 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.SQLResultRow;
 import net.driftingsouls.ds2.server.namegenerator.NameGenerator;
-
 import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.Session;
 import org.hibernate.annotations.ForeignKey;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Ein Eintrag in der Produktionsschlange einer Akademie.

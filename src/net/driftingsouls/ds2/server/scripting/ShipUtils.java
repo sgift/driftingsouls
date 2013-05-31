@@ -64,7 +64,7 @@ public class ShipUtils {
 		// TODO maxcount wird beim Flug durch EMP-Nebel falsch interpretiert
 		
 		int oldMaxCount = maxcount;
-		Ship.MovementStatus result = Ship.MovementStatus.SUCCESS;
+		Ship.MovementStatus result;
 		
 		while( true ) {
 			int deltax = target.getX()-ship.getX();

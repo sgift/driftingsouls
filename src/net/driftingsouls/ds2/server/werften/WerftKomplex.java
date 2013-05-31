@@ -71,22 +71,27 @@ public class WerftKomplex extends WerftObject {
 
 		// Werften in eine Positionsmap eintragen. Die Position mit den meisten Werften merken
 		Location maxLocation = null;
-		Map<Location,List<WerftObject>> werftPos = new HashMap<Location,List<WerftObject>>();
+		Map<Location,List<WerftObject>> werftPos = new HashMap<>();
 
-		for( int i=0; i < werften.length; i++ ) {
-			Location loc = werften[i].getLocation();
+		for (WerftObject aWerften : werften)
+		{
+			Location loc = aWerften.getLocation();
 
-			if( !werftPos.containsKey(loc) ) {
+			if (!werftPos.containsKey(loc))
+			{
 				werftPos.put(loc, new ArrayList<WerftObject>());
 			}
 
-			werftPos.get(loc).add(werften[i]);
+			werftPos.get(loc).add(aWerften);
 
-			if( maxLocation == null ) {
+			if (maxLocation == null)
+			{
 				maxLocation = loc;
 			}
-			else if( !maxLocation.equals(loc) ) {
-				if( werftPos.get(maxLocation).size() < werftPos.get(loc).size() ) {
+			else if (!maxLocation.equals(loc))
+			{
+				if (werftPos.get(maxLocation).size() < werftPos.get(loc).size())
+				{
 					maxLocation = loc;
 				}
 			}
@@ -99,8 +104,9 @@ public class WerftKomplex extends WerftObject {
 				if( !loc.equals(maxLocation) ) {
 					List<WerftObject> werftListe = entry.getValue();
 
-					for( int i=0; i < werftListe.size(); i++ ) {
-						werftListe.get(i).removeFromKomplex();
+					for (WerftObject aWerftListe : werftListe)
+					{
+						aWerftListe.removeFromKomplex();
 					}
 				}
 			}
@@ -117,7 +123,7 @@ public class WerftKomplex extends WerftObject {
 				.setEntity("werft", this)
 				.list());
 
-			List<WerftObject> werften = new ArrayList<WerftObject>(werftList.size());
+			List<WerftObject> werften = new ArrayList<>(werftList.size());
 
 			for( WerftObject aWerft : werftList )
 			{
@@ -145,8 +151,9 @@ public class WerftKomplex extends WerftObject {
 
 		int count = 0;
 
-		for( int i=0; i < werften.length; i++ ) {
-			count += werften[i].canTransferOffis();
+		for (WerftObject aWerften : werften)
+		{
+			count += aWerften.canTransferOffis();
 		}
 		return count;
 	}
@@ -156,8 +163,9 @@ public class WerftKomplex extends WerftObject {
 		loadData();
 
 		Cargo cargo = new Cargo();
-		for( int i=0; i < werften.length; i++ ) {
-			cargo.addCargo(werften[i].getCargo(localonly));
+		for (WerftObject aWerften : werften)
+		{
+			cargo.addCargo(aWerften.getCargo(localonly));
 		}
 		return cargo;
 	}
@@ -168,8 +176,9 @@ public class WerftKomplex extends WerftObject {
 
 		int count = 0;
 
-		for( int i=0; i < werften.length; i++ ) {
-			count += werften[i].getCrew();
+		for (WerftObject aWerften : werften)
+		{
+			count += aWerften.getCrew();
 		}
 		return Math.min(count, 99999);
 	}
@@ -180,8 +189,9 @@ public class WerftKomplex extends WerftObject {
 
 		int count = 0;
 
-		for( int i=0; i < werften.length; i++ ) {
-			count += werften[i].getEnergy();
+		for (WerftObject aWerften : werften)
+		{
+			count += aWerften.getEnergy();
 		}
 		return count;
 	}
@@ -204,8 +214,9 @@ public class WerftKomplex extends WerftObject {
 
 		long count = 0;
 
-		for( int i=0; i < werften.length; i++ ) {
-			count += werften[i].getMaxCargo(localonly);
+		for (WerftObject aWerften : werften)
+		{
+			count += aWerften.getMaxCargo(localonly);
 		}
 		return count;
 	}
@@ -216,8 +227,9 @@ public class WerftKomplex extends WerftObject {
 
 		int count = 0;
 
-		for( int i=0; i < werften.length; i++ ) {
-			count += werften[i].getMaxCrew();
+		for (WerftObject aWerften : werften)
+		{
+			count += aWerften.getMaxCrew();
 		}
 		return count;
 	}
@@ -287,8 +299,9 @@ public class WerftKomplex extends WerftObject {
 		loadData();
 
 		int slots = 0;
-		for( int i=0; i < werften.length; i++ ) {
-			slots += werften[i].getWerftSlots();
+		for (WerftObject aWerften : werften)
+		{
+			slots += aWerften.getWerftSlots();
 		}
 		return slots;
 	}
@@ -346,17 +359,19 @@ public class WerftKomplex extends WerftObject {
 				factor = count/(double)oldCount;
 			}
 
-			for( int i=0; i < werften.length; i++ ) {
-				Cargo werftCargo = werften[i].getCargo(localonly);
-				long newCount = (long)(werftCargo.getResourceCount(res.getId())*factor);
+			for (WerftObject aWerften : werften)
+			{
+				Cargo werftCargo = aWerften.getCargo(localonly);
+				long newCount = (long) (werftCargo.getResourceCount(res.getId()) * factor);
 
 				count -= newCount;
-				if( count < 0 ) {
+				if (count < 0)
+				{
 					newCount += count;
 					count = 0;
 				}
 				werftCargo.setResource(res.getId(), newCount);
-				werften[i].setCargo(werftCargo, localonly);
+				aWerften.setCargo(werftCargo, localonly);
 			}
 
 			// Falls noch Crew uebrig geblieben ist, diese auf die erst beste Werft schicken
@@ -371,22 +386,27 @@ public class WerftKomplex extends WerftObject {
 		for( int iteration=100; iteration>0; iteration-- ) {
 			Cargo overflow = new Cargo();
 
-			for( int i=0; i < werften.length; i++ ) {
-				Cargo werftCargo = werften[i].getCargo(localonly);
-				if( werftCargo.getMass() > werften[i].getMaxCargo(localonly) ) {
-					Cargo tmp = werftCargo.cutCargo(werften[i].getMaxCargo(localonly));
+			for (WerftObject aWerften : werften)
+			{
+				Cargo werftCargo = aWerften.getCargo(localonly);
+				if (werftCargo.getMass() > aWerften.getMaxCargo(localonly))
+				{
+					Cargo tmp = werftCargo.cutCargo(aWerften.getMaxCargo(localonly));
 					overflow.addCargo(werftCargo);
-					werften[i].setCargo(tmp, localonly);
+					aWerften.setCargo(tmp, localonly);
 				}
-				else if( !overflow.isEmpty() ) {
-					if( overflow.getMass() + werftCargo.getMass() < werften[i].getMaxCargo(localonly) ) {
+				else if (!overflow.isEmpty())
+				{
+					if (overflow.getMass() + werftCargo.getMass() < aWerften.getMaxCargo(localonly))
+					{
 						werftCargo.addCargo(overflow);
 						overflow = new Cargo();
 					}
-					else {
-						werftCargo.addCargo(overflow.cutCargo(werften[i].getMaxCargo(localonly)-werftCargo.getMass()));
+					else
+					{
+						werftCargo.addCargo(overflow.cutCargo(aWerften.getMaxCargo(localonly) - werftCargo.getMass()));
 					}
-					werften[i].setCargo(werftCargo, localonly);
+					aWerften.setCargo(werftCargo, localonly);
 				}
 			}
 
@@ -405,13 +425,13 @@ public class WerftKomplex extends WerftObject {
 		int oldCrew = getCrew();
 		int subCrew = oldCrew - crew;
 
-		for( int i=0; i < werften.length; i++)
+		for (WerftObject aWerften : werften)
 		{
-			if( ((ShipWerft)werften[i]).getLinkedBase() != null)
+			if (((ShipWerft) aWerften).getLinkedBase() != null)
 			{
-				Base linked = ((ShipWerft)werften[i]).getLinkedBase();
+				Base linked = ((ShipWerft) aWerften).getLinkedBase();
 				int baseCrew = linked.getBewohner() - linked.getArbeiter();
-				if( baseCrew >= subCrew)
+				if (baseCrew >= subCrew)
 				{
 					baseCrew -= subCrew;
 					subCrew = 0;
@@ -423,7 +443,7 @@ public class WerftKomplex extends WerftObject {
 				}
 				linked.setBewohner(baseCrew + linked.getArbeiter());
 			}
-			if( subCrew == 0)
+			if (subCrew == 0)
 			{
 				return;
 			}
@@ -439,26 +459,31 @@ public class WerftKomplex extends WerftObject {
 			factor = crew/(double)oldCrew;
 		}
 
-		for( int i=0; i < werften.length; i++ ) {
-			int newCrew = Math.min((int)(werften[i].getCrew()*factor), werften[i].getMaxCrew());
+		for (WerftObject aWerften : werften)
+		{
+			int newCrew = Math.min((int) (aWerften.getCrew() * factor), aWerften.getMaxCrew());
 
 			crew -= newCrew;
-			if( crew < 0 ) {
+			if (crew < 0)
+			{
 				newCrew += crew;
 			}
-			werften[i].setCrew(newCrew);
+			aWerften.setCrew(newCrew);
 		}
 
 		// Falls noch Crew uebrig geblieben ist, diese auf die erst beste Werft schicken
 		if( crew > 0 ) {
-			for( int i=0; i < werften.length; i++ ) {
-				int freeSpace = werften[i].getMaxCrew()-werften[i].getCrew();
-				if( freeSpace > 0 ) {
+			for (WerftObject aWerften : werften)
+			{
+				int freeSpace = aWerften.getMaxCrew() - aWerften.getCrew();
+				if (freeSpace > 0)
+				{
 					int transfer = Math.min(freeSpace, crew);
-					werften[i].setCrew(werften[i].getCrew()+transfer);
+					aWerften.setCrew(aWerften.getCrew() + transfer);
 
 					crew -= transfer;
-					if( crew == 0 ) {
+					if (crew == 0)
+					{
 						return;
 					}
 				}
@@ -478,7 +503,7 @@ public class WerftKomplex extends WerftObject {
 		}
 
 		// Es gilt die Annahme, dass Energie nur weniger werden kann...
-		List<Integer> maxE = new ArrayList<Integer>();
+		List<Integer> maxE = new ArrayList<>();
 
 		for( int i=0; i < werften.length; i++ ) {
 			maxE.add(i, werften[i].getEnergy());
@@ -513,9 +538,11 @@ public class WerftKomplex extends WerftObject {
 	public void transferOffi(int offi) {
 		loadData();
 
-		for( int i=0; i < werften.length; i++ ) {
-			if( werften[i].canTransferOffis() > 0 ) {
-				werften[i].transferOffi(offi);
+		for (WerftObject aWerften : werften)
+		{
+			if (aWerften.canTransferOffis() > 0)
+			{
+				aWerften.transferOffi(offi);
 				return;
 			}
 		}
@@ -558,8 +585,9 @@ public class WerftKomplex extends WerftObject {
 
 		double value = 0;
 
-		for( int i=0; i < werften.length; i++ ) {
-			value += werften[i].getWorkerPercentageAvailable();
+		for (WerftObject aWerften : werften)
+		{
+			value += aWerften.getWorkerPercentageAvailable();
 		}
 		return value / werften.length;
 	}

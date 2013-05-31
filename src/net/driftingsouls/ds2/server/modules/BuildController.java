@@ -18,19 +18,12 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
-import net.driftingsouls.ds2.server.bases.ForschungszentrumBuilding;
-import net.driftingsouls.ds2.server.bases.Werft;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.config.Rassen;
-import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -38,17 +31,24 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.werften.BaseWerft;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Der Gebaeudebau.
  * @author Christopher Jung
- *
- * @urlparam Integer col Die Bases, auf der das Gebaeude gebaut werden soll
- * @urlparam Integer field Die ID des Feldes, auf dem das Gebaeude gebaut werden soll
  */
 @Module(name="build")
+@UrlParams({
+		@UrlParam(name="col", type=UrlParamType.NUMBER, description = "Die Bases, auf der das Gebaeude gebaut werden soll"),
+		@UrlParam(name="field", type=UrlParamType.NUMBER, description = "Die ID des Feldes, auf dem das Gebaeude gebaut werden soll")
+})
 public class BuildController extends TemplateGenerator {
 	private Base base;
 
@@ -60,9 +60,6 @@ public class BuildController extends TemplateGenerator {
 		super(context);
 
 		setTemplate("build.html");
-
-		parameterNumber("col");
-		parameterNumber("field");
 
 		setPageTitle("Bauen");
 	}
@@ -91,15 +88,14 @@ public class BuildController extends TemplateGenerator {
 
 	/**
 	 * Baut ein Gebaeute auf der Kolonie.
-	 * @urlparam Integer build Die ID des zu bauenden Gebaeudes
 	 *
 	 */
+	@UrlParam(name="build", type= UrlParamType.NUMBER, description = "Die ID des zu bauenden Gebaeudes")
 	@Action(ActionType.DEFAULT)
 	public void buildAction() {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 
-		parameterNumber("build");
 		int build = getInteger("build");
 
 		int field = getInteger("field");
@@ -262,16 +258,14 @@ public class BuildController extends TemplateGenerator {
 
 	/**
 	 * Zeigt die Liste der baubaren Gebaeude, sortiert nach Kategorien, an.
-	 * @urlparam Integer cat Die anzuzeigende Kategorie
 	 */
+	@UrlParam(name="cat", type=UrlParamType.NUMBER, description = "Die anzuzeigende Kategorie")
 	@Override
 	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
 		org.hibernate.Session db = getDB();
-
-		parameterNumber("cat");
 
 		int cat = getInteger("cat");
 		int field = getInteger("field");
@@ -282,13 +276,13 @@ public class BuildController extends TemplateGenerator {
 		t.setVar("show.buildinglist", 1);
 
 		//Anzahl der Gebaeude berechnen
-		Map<Integer,Integer> buildingcount = new HashMap<Integer,Integer>();
+		Map<Integer,Integer> buildingcount = new HashMap<>();
 		for( int building : base.getBebauung() ) {
 			Common.safeIntInc(buildingcount, building);
 		}
 
 		//Anzahl der Gebaeude pro Spieler berechnen
-		Map<Integer,Integer> ownerbuildingcount = new HashMap<Integer,Integer>(buildingcount);
+		Map<Integer,Integer> ownerbuildingcount = new HashMap<>(buildingcount);
 
 		for( Base abase : user.getBases() ) {
 			if( abase.getId() == this.base.getId() )
@@ -306,7 +300,7 @@ public class BuildController extends TemplateGenerator {
 		int grenze = (base.getWidth() * base.getHeight())/8;
 		int c = 0;
 
-		Iterator<?> ucBuildingIter = db.createQuery("from Building where ucomplex=1").iterate();
+		Iterator<?> ucBuildingIter = db.createQuery("from Building where ucomplex=true").iterate();
 		for( ; ucBuildingIter.hasNext(); ) {
 			Building building = (Building)ucBuildingIter.next();
 			if( buildingcount.containsKey(building.getId()) ) {

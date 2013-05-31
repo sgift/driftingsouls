@@ -1,15 +1,13 @@
 package net.driftingsouls.ds2.server.framework;
 
-import java.io.IOException;
+import net.driftingsouls.ds2.server.framework.authentication.TickInProgressException;
+import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-
-import net.driftingsouls.ds2.server.framework.authentication.TickInProgressException;
-import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
+import java.io.IOException;
 
 /**
  * Filter, um alle Zugriffe auf DS waehrend des Ticks zu blockieren ausser auf das Portal.
@@ -39,10 +37,6 @@ public class TickFilter extends DSFilter
 	    
 	    chain.doFilter(request, response);
 	}
-
-	@Override
-	public void init(FilterConfig config) throws ServletException 
-	{}
 	
 	@Override
 	public void destroy() 

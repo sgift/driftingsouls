@@ -18,10 +18,9 @@
  */
 package net.driftingsouls.ds2.server.tick;
 
-import java.io.File;
-
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
+import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.tick.regular.AcademyTick;
 import net.driftingsouls.ds2.server.tick.regular.BaseTick;
 import net.driftingsouls.ds2.server.tick.regular.BattleTick;
@@ -34,19 +33,18 @@ import net.driftingsouls.ds2.server.tick.regular.RestTick;
 import net.driftingsouls.ds2.server.tick.regular.SchiffsTick;
 import net.driftingsouls.ds2.server.tick.regular.UserTick;
 import net.driftingsouls.ds2.server.tick.regular.WerftTick;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.springframework.beans.factory.annotation.Configurable;
+
+import java.io.File;
 
 /**
  * Der normale Tick.
  * @author Christopher Jung
  *
  */
-@Configurable
 public class RegularTick extends AbstractTickExecuter
 {
 	private static final Log log = LogFactory.getLog(RegularTick.class);
@@ -58,7 +56,7 @@ public class RegularTick extends AbstractTickExecuter
 		
 		try
 		{
-			File lockFile = new File(this.getConfiguration().get("LOXPATH")+"/regulartick.lock");
+			File lockFile = new File(Configuration.getSetting("LOXPATH")+"/regulartick.lock");
 			lockFile.createNewFile();
 			log("Blockiere Accounts");
 			blockAccs();
@@ -125,7 +123,7 @@ public class RegularTick extends AbstractTickExecuter
 	protected void prepare()
 	{
 		setName("");
-		setLogPath(this.getConfiguration().get("LOXPATH")+"tick/");
+		setLogPath(Configuration.getSetting("LOXPATH")+"tick/");
 	}
 	
 	private void blockAccs()

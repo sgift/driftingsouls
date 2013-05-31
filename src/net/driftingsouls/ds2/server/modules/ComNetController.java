@@ -149,7 +149,7 @@ public class ComNetController extends TemplateGenerator {
 				 "search.string",	search,
 				 "search.type",		searchtype);
 
-		Object searchArgument = null;
+		Object searchArgument;
 		if( searchtype == SCAN_ID )
 		{
 			try
@@ -321,8 +321,9 @@ public class ComNetController extends TemplateGenerator {
 			.setFirstResult(back)
 			.setMaxResults(10)
 			.list();
-		for( Iterator<?> iter=postList.iterator(); iter.hasNext(); ) {
-			ComNetEntry post = (ComNetEntry)iter.next();
+		for (Object aPostList : postList)
+		{
+			ComNetEntry post = (ComNetEntry) aPostList;
 
 			t.start_record();
 			int postNumber = channelPostCount - back - i;
@@ -331,25 +332,27 @@ public class ComNetController extends TemplateGenerator {
 
 			text = Smilie.parseSmilies(Common._text(text));
 
-			if( head.length() == 0 ) {
+			if (head.length() == 0)
+			{
 				head = "-";
 			}
-			else {
+			else
+			{
 				head = Common._title(head);
 			}
 
-			t.setVar(	"post",				post,
-						"post.user.rang.name", Medals.get().rang(post.getUser().getRang()).getName(),
-						"post.postid",		postNumber,
-						"post.name",		Common._title(post.getName()),
-						"post.time",		Common.date("d.m.Y H:i:s",post.getTime()),
-						"post.title",		head,
-						"post.text",		text,
-						"post.ingametime",	Common.getIngameTime(post.getTick()) );
+			t.setVar("post", post,
+					"post.user.rang.name", Medals.get().rang(post.getUser().getRang()).getName(),
+					"post.postid", postNumber,
+					"post.name", Common._title(post.getName()),
+					"post.time", Common.date("d.m.Y H:i:s", post.getTime()),
+					"post.title", head,
+					"post.text", text,
+					"post.ingametime", Common.getIngameTime(post.getTick()));
 
 			i++;
 
-			t.parse("posts.list","posts.listitem",true);
+			t.parse("posts.list", "posts.listitem", true);
 			t.stop_record();
 			t.clear_record();
 		}
@@ -493,13 +496,14 @@ public class ComNetController extends TemplateGenerator {
 		}
 
 		// Letzte "Besuche" auslesen
-		Map<ComNetChannel,ComNetVisit> visits = new HashMap<ComNetChannel,ComNetVisit>();
+		Map<ComNetChannel,ComNetVisit> visits = new HashMap<>();
 
 		List<?> visitList = db.createQuery("from ComNetVisit where user= :user")
 			.setEntity("user", user)
 			.list();
-		for( Iterator<?> iter = visitList.iterator(); iter.hasNext(); ) {
-			ComNetVisit avisit = (ComNetVisit)iter.next();
+		for (Object aVisitList : visitList)
+		{
+			ComNetVisit avisit = (ComNetVisit) aVisitList;
 			visits.put(avisit.getChannel(), avisit);
 		}
 

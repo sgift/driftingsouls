@@ -50,10 +50,10 @@ public abstract class Generator implements PermissionResolver {
 		if( browser != null ) {
 			browser = browser.toLowerCase();
 
-			if( browser.indexOf("opera") > -1  ) {
+			if(browser.contains("opera")) {
 				browser = "opera";
 			}
-			else if( browser.indexOf("msie") > -1 ) {
+			else if(browser.contains("msie")) {
 				browser = "msie";
 			}
 			else {

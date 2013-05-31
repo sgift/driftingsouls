@@ -107,16 +107,20 @@ public class ShipWerft extends WerftObject {
 		// In einem Komplex darf eine Basis nur einmal vorkommen
 		if( (base != null) && (getKomplex() != null) ) {
 			WerftObject[] members = getKomplex().getMembers();
-			for( int i=0; i < members.length; i++ ) {
-				if( !(members[i] instanceof ShipWerft) ) {
+			for (WerftObject member1 : members)
+			{
+				if (!(member1 instanceof ShipWerft))
+				{
 					continue;
 				}
-				if( members[i].getWerftID() == this.getWerftID() ) {
+				if (member1.getWerftID() == this.getWerftID())
+				{
 					continue;
 				}
 
-				ShipWerft member = (ShipWerft)members[i];
-				if( member.getLinkedBase() == base ) {
+				ShipWerft member = (ShipWerft) member1;
+				if (member.getLinkedBase() == base)
+				{
 					return;
 				}
 			}
@@ -230,7 +234,7 @@ public class ShipWerft extends WerftObject {
 		if( crew > this.getMaxCrew() ) {
 			crew = getMaxCrew();
 		}
-		int shipcrew = 0;
+		int shipcrew;
 		if( this.linked != null )
 		{
 			ShipTypeData shiptype = this.ship.getTypeData();
@@ -468,16 +472,20 @@ public class ShipWerft extends WerftObject {
 		// nur einmal vorkommen
 		if( this.linked != null ) {
 			WerftObject[] members = linkedWerft.getMembers();
-			for( int i=0; i < members.length; i++ ) {
-				if( !(members[i] instanceof ShipWerft) ) {
+			for (WerftObject member1 : members)
+			{
+				if (!(member1 instanceof ShipWerft))
+				{
 					continue;
 				}
-				if( members[i].getWerftID() == this.getWerftID() ) {
+				if (member1.getWerftID() == this.getWerftID())
+				{
 					continue;
 				}
 
-				ShipWerft member = (ShipWerft)members[i];
-				if( member.getLinkedBase() == this.getLinkedBase() ) {
+				ShipWerft member = (ShipWerft) member1;
+				if (member.getLinkedBase() == this.getLinkedBase())
+				{
 					this.setLink(null);
 					return;
 				}
@@ -493,16 +501,20 @@ public class ShipWerft extends WerftObject {
 		// nur einmal vorkommen
 		if( this.linked != null ) {
 			WerftObject[] members = this.getKomplex().getMembers();
-			for( int i=0; i < members.length; i++ ) {
-				if( !(members[i] instanceof ShipWerft) ) {
+			for (WerftObject member1 : members)
+			{
+				if (!(member1 instanceof ShipWerft))
+				{
 					continue;
 				}
-				if( members[i].getWerftID() == this.getWerftID() ) {
+				if (member1.getWerftID() == this.getWerftID())
+				{
 					continue;
 				}
 
-				ShipWerft member = (ShipWerft)members[i];
-				if( member.getLinkedBase() == this.getLinkedBase() ) {
+				ShipWerft member = (ShipWerft) member1;
+				if (member.getLinkedBase() == this.getLinkedBase())
+				{
 					this.setLink(null);
 					return;
 				}

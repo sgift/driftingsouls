@@ -36,15 +36,12 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.units.UnitType;
 
-import org.springframework.beans.factory.annotation.Configurable;
-
 /**
  * Die Kaserne.
  *
  */
 @Entity(name="KaserneBuilding")
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.Kaserne")
-@Configurable
 public class KasernenBuilding extends DefaultBuilding {
 	/**
 	 * Erstellt eine neue Instanz der Kaserne.

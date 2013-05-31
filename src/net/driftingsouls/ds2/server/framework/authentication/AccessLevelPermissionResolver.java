@@ -25,7 +25,7 @@ public class AccessLevelPermissionResolver implements PermissionResolver, Serial
 	@Override
 	public boolean hasPermission(String category, String action)
 	{
-		Map<String,Integer> perms = new HashMap<String,Integer>();
+		Map<String,Integer> perms = new HashMap<>();
 		perms.put("admin#*", 30);
 		perms.put("comm#adminPM", 30);
 		perms.put("comm#offiziellePM", 30);

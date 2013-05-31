@@ -99,8 +99,9 @@ public abstract class DSScriptFactory implements ScriptEngineFactory {
 	@Override
 	public String getProgram(String... statements) {
 		StringBuilder builder = new StringBuilder();
-		for( int i=0; i < statements.length; i++ ) { 
-			builder.append(statements[i]+"\n");
+		for (String statement : statements)
+		{
+			builder.append(statement).append("\n");
 		}
 		return builder.toString();
 	}

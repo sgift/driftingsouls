@@ -1,19 +1,19 @@
 package net.driftingsouls.ds2.server.framework;
 
-import java.io.IOException;
+import net.driftingsouls.ds2.server.framework.pipeline.HttpRequest;
+import net.driftingsouls.ds2.server.framework.pipeline.HttpResponse;
+import net.driftingsouls.ds2.server.framework.pipeline.Request;
+import net.driftingsouls.ds2.server.framework.pipeline.Response;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import net.driftingsouls.ds2.server.framework.pipeline.HttpRequest;
-import net.driftingsouls.ds2.server.framework.pipeline.HttpResponse;
-import net.driftingsouls.ds2.server.framework.pipeline.Request;
-import net.driftingsouls.ds2.server.framework.pipeline.Response;
+import java.io.IOException;
 
 /**
  * Filter to initialize the drifting-souls context.
@@ -38,11 +38,13 @@ public class ContextFilter extends DSFilter
 		BasicContext context = null;
 		try
 		{
+			WebApplicationContext springContext = WebApplicationContextUtils.getRequiredWebApplicationContext(this.getServletContext());
+
 			HttpServletRequest httpRequest = (HttpServletRequest)request;
 			HttpServletResponse httpResponse = (HttpServletResponse)response;
 			Request dsRequest = new HttpRequest(httpRequest);
 			Response dsResponse = new HttpResponse(httpRequest, httpResponse);
-			context = new BasicContext(dsRequest, dsResponse, new EmptyPermissionResolver());
+			context = new BasicContext(dsRequest, dsResponse, new EmptyPermissionResolver(), springContext);
 			ContextMap.addContext(context);
 
 			chain.doFilter(request, response);
@@ -55,8 +57,4 @@ public class ContextFilter extends DSFilter
 			}
 		}
 	}
-
-	@Override
-	public void init(FilterConfig arg0) throws ServletException
-	{}
 }

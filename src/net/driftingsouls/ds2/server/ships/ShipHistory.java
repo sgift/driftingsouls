@@ -114,14 +114,13 @@ public class ShipHistory
 				if( endIndex > -1 ) {				
 					try
 					{
-						int date = Integer.parseInt(
+
+						return Integer.parseInt(
 								lastHistory.substring(
 										length,
 										endIndex
 								)
 						);
-
-						return date;
 					}
 					catch( StringIndexOutOfBoundsException e )
 					{

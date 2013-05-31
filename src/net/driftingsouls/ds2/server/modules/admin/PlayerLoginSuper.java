@@ -18,19 +18,17 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import java.io.IOException;
-import java.io.Writer;
-
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.authentication.AuthenticationException;
 import net.driftingsouls.ds2.server.framework.authentication.AuthenticationManager;
 import net.driftingsouls.ds2.server.modules.AdminController;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Required;
+
+import java.io.IOException;
+import java.io.Writer;
 
 /**
  * Ermoeglicht das Einloggen in einen anderen Account ohne Passwort.
@@ -38,7 +36,6 @@ import org.springframework.beans.factory.annotation.Required;
  *
  */
 @AdminMenuEntry(category="Spieler", name="Masterlogin")
-@Configurable
 public class PlayerLoginSuper implements AdminPlugin {
 	private AuthenticationManager authManager;
 	

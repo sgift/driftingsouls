@@ -18,37 +18,20 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import java.io.IOException;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
+import java.io.IOException;
+
 /**
  * Zeigt das Cheatmenue an.
  * @author Christopher Jung
  *
  */
-@Configurable
 public class KSMenuCheatsAction extends BasicKSMenuAction {
-	
-	private Configuration config;
-	
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public void setConfiguration(Configuration config) 
-    {
-    	this.config = config;
-    }
-	
 	@Override
 	public Result execute(Battle battle) throws IOException {
 		Result result = super.execute(battle);
@@ -58,7 +41,7 @@ public class KSMenuCheatsAction extends BasicKSMenuAction {
 		
 		Context context = ContextMap.getContext();
 		
-		if( config.getInt("ENABLE_CHEATS") == 0 ) {
+		if( Configuration.getIntSetting("ENABLE_CHEATS") == 0 ) {
 			context.addError("Cheats sind deaktiviert!");
 			return Result.HALT;
 		}

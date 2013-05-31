@@ -132,7 +132,7 @@ public class AdminStarmap extends PublicStarmap
 
 	private Map<Location,Ship> buildScannableLocations()
 	{
-		Map<Location,Ship> locSet = new HashMap<Location, Ship>();
+		Map<Location,Ship> locSet = new HashMap<>();
 		for (Map.Entry<Location, List<Ship>> locationListEntry : this.map.getShipMap().entrySet())
 		{
 			locSet.put(locationListEntry.getKey(), locationListEntry.getValue().get(0));

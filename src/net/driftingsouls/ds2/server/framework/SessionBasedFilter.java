@@ -1,11 +1,11 @@
 package net.driftingsouls.ds2.server.framework;
 
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeansException;
+
+import javax.servlet.ServletRequest;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
 
 /**
  * Base filter for filters, which need to check user sessions.
@@ -15,27 +15,23 @@ import javax.servlet.ServletRequest;
 public abstract class SessionBasedFilter extends DSFilter
 {
 	@Override
-	public void init(FilterConfig arg0) throws ServletException 
+	protected void initBeanWrapper(BeanWrapper bw) throws BeansException
 	{
 		//TODO: Use different urls/servlets for modules which don't need a session.
-		//Then we can set this filter for modules which need sessions and 
+		//Then we can set this filter for modules which need sessions and
 		//don't need to check the module here
 		sessionFreeModules.add("portal");
 		sessionFreeModules.add("news");
 		sessionFreeModules.add("schiffinfo");
 		sessionFreeModules.add("newsdetail");
 	}
-	
+
 	protected boolean isSessionNeededByModule(ServletRequest request)
 	{
 		String module = request.getParameter("module");
-		if(module != null && !sessionFreeModules.contains(module))
-		{
-			return true;
-		}
-		
-		return false;
+		return module != null && !sessionFreeModules.contains(module);
+
 	}
 	
-	private Set<String> sessionFreeModules = new HashSet<String>();
+	private Set<String> sessionFreeModules = new HashSet<>();
 }

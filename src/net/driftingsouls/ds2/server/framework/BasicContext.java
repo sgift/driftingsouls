@@ -24,7 +24,9 @@ import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.pipeline.Response;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,7 +40,6 @@ import java.util.Map;
  * @author Christopher Jung
  *
  */
-@Configurable
 public class BasicContext implements Context
 {
 	private static final Log log = LogFactory.getLog(BasicContext.class);
@@ -46,11 +47,12 @@ public class BasicContext implements Context
 	private Request request;
 	private Response response;
 	private BasicUser activeUser = null;
-	private List<Error> errorList = new ArrayList<Error>();
-	private Map<Class<?>, Object> contextSingletons = new HashMap<Class<?>, Object>();
-	private Map<Class<?>, Map<String, Object>> variables = new HashMap<Class<?>, Map<String, Object>>();
-	private List<ContextListener> listener = new ArrayList<ContextListener>();
+	private List<Error> errorList = new ArrayList<>();
+	private Map<Class<?>, Object> contextSingletons = new HashMap<>();
+	private final Map<Class<?>, Map<String, Object>> variables = new HashMap<>();
+	private List<ContextListener> listener = new ArrayList<>();
 	private PermissionResolver permissionResolver;
+	private ApplicationContext applicationContext;
 
 	/**
 	 * Erstellt eine neue Instanz der Klasse unter Verwendung eines <code>Request</code> und einer
@@ -58,14 +60,45 @@ public class BasicContext implements Context
 	 *
 	 * @param request Die mit dem Kontext zu verbindende <code>Request</code>
 	 * @param response Die mit dem Kontext zu verbindende <code>Response</code>
+	 * @param presolver Der zu verwendende PermissionResolver
+	 * @param applicationContext Der zur Aufloesung von Bean/Autowiring zu verwendende Spring ApplicationContext.
+	 *                           Der ApplicationContext muss Autowiring unterstuetzen
 	 */
-	public BasicContext(Request request, Response response, PermissionResolver presolver)
+	public BasicContext(Request request, Response response, PermissionResolver presolver, ApplicationContext applicationContext)
 	{
+		if( applicationContext == null || applicationContext.getAutowireCapableBeanFactory() == null )
+		{
+			throw new IllegalArgumentException("Es wurde kein oder keine gueltiger ApplicationContext uebergeben");
+		}
+
 		ContextMap.addContext(this);
 
 		this.request = request;
 		this.response = response;
 		this.permissionResolver = presolver;
+		this.applicationContext = applicationContext;
+	}
+
+	@Override
+	public void autowireBean(Object bean)
+	{
+		this.applicationContext.getAutowireCapableBeanFactory().autowireBean(bean);
+		if( bean instanceof ApplicationContextAware )
+		{
+			((ApplicationContextAware)bean).setApplicationContext(this.applicationContext);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T getBean(Class<T> cls, String name) throws IllegalArgumentException
+	{
+		try {
+			return (T)this.applicationContext.getBean(name, cls);
+		}
+		catch( BeansException e ) {
+			throw new IllegalArgumentException("Die angegebene Bean konnte nicht gefunden werden", e);
+		}
 	}
 
 	@Override
@@ -140,13 +173,13 @@ public class BasicContext implements Context
 		try
 		{
 			// Allen Listenern signalisieren, dass der Context geschlossen wird
-			for( int i = 0; i < this.listener.size(); i++ )
+			for (ContextListener aListener : this.listener)
 			{
 				try
 				{
-					listener.get(i).onContextDestory();
+					aListener.onContextDestory();
 				}
-				catch( RuntimeException ex )
+				catch (RuntimeException ex)
 				{
 					e = ex;
 				}

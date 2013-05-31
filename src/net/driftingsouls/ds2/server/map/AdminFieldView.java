@@ -52,7 +52,7 @@ public class AdminFieldView implements FieldView
 	@Override
 	public Map<User, Map<ShipType, List<Ship>>> getShips()
 	{
-		Map<User, Map<ShipType, List<Ship>>> ships = new TreeMap<User, Map<ShipType, List<Ship>>>(BasicUser.PLAINNAME_ORDER);
+		Map<User, Map<ShipType, List<Ship>>> ships = new TreeMap<>(BasicUser.PLAINNAME_ORDER);
 
 		for (Ship viewableShip : field.getShips())
 		{

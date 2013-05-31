@@ -33,16 +33,19 @@ class HandleAllyFoundConfirm implements TaskHandler {
 	public void handleEvent(Task task, String event) {	
 		String mastertaskid = task.getData1();
 		Taskmanager tm = Taskmanager.getInstance();
-		if( event.equals("pm_yes") ) {		
-			tm.handleTask( mastertaskid, "__conf_recv" );
-			tm.removeTask( task.getTaskID() );
-		}
-		else if( event.equals("pm_no") ) {
-			tm.handleTask( mastertaskid, "__conf_dism" );
-			tm.removeTask( task.getTaskID() );
-		}
-		else if( event.equals("tick_timeout") ) {
-			tm.removeTask( task.getTaskID() );
+		switch (event)
+		{
+			case "pm_yes":
+				tm.handleTask(mastertaskid, "__conf_recv");
+				tm.removeTask(task.getTaskID());
+				break;
+			case "pm_no":
+				tm.handleTask(mastertaskid, "__conf_dism");
+				tm.removeTask(task.getTaskID());
+				break;
+			case "tick_timeout":
+				tm.removeTask(task.getTaskID());
+				break;
 		}
 	}
 

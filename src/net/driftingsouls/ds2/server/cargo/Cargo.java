@@ -69,7 +69,7 @@ public class Cargo implements Cloneable {
 		 * Ein Item-String. Vergleichbar einem Cargo-String, jedoch auf Items beschraenkt.
 		 */
 		ITEMSTRING
-	};
+	}
 
 
 	/**
@@ -94,7 +94,7 @@ public class Cargo implements Cloneable {
 		 * {@link java.lang.Math#ceil(double)} zum Runden verwenden.
 		 */
 		CEIL
-	};
+	}
 
 	/**
 	 * Die verschiedenen Optionen des Cargo-Objekts.
@@ -118,11 +118,11 @@ public class Cargo implements Cloneable {
 		 * Soll die Ausgabe vollstaendig ohne HTML generiert werden? (java.lang.Boolean)
 		 */
 		NOHTML
-	};
+	}
 
 	private static final String NAMESPACE = "http://www.drifting-souls.net/ds2/resources/2006";
 
-	private List<Long[]> items = new ArrayList<Long[]>();
+	private List<Long[]> items = new ArrayList<>();
 	private String orgitems = null;
 
 	private String linkclass = "forschinfo";
@@ -145,10 +145,9 @@ public class Cargo implements Cloneable {
 	 */
 	public Cargo(Cargo cargo) {
 		List<Long[]> itemArray = cargo.getItemArray();
-		for( int i=0; i < itemArray.size(); i++ ) {
-			Long[] item = itemArray.get(i);
-
-			this.items.add(new Long[] {item[0], item[1], item[2], item[3]});
+		for (Long[] item : itemArray)
+		{
+			this.items.add(new Long[]{item[0], item[1], item[2], item[3]});
 		}
 
 		StringBuilder itemString = new StringBuilder(items.size()*8);
@@ -260,9 +259,11 @@ public class Cargo implements Cloneable {
 			orgitems = source;
 
 			String[] myitems = StringUtils.splitPreserveAllTokens(source, ';');
-			for( int i=0; i < myitems.length; i++ ) {
-				if( !myitems[i].equals("") ) {
-					items.add(parseItems(myitems[i]));
+			for (String myitem : myitems)
+			{
+				if (!myitem.equals(""))
+				{
+					items.add(parseItems(myitem));
 				}
 			}
 		}
@@ -286,9 +287,11 @@ public class Cargo implements Cloneable {
 			myitems = StringUtils.splitPreserveAllTokens(mycargo[ITEMS],';');
 		}
 
-		for( int i=0; i < myitems.length; i++ ) {
-			if( !myitems[i].equals("") ) {
-				items.add(parseItems(myitems[i]));
+		for (String myitem : myitems)
+		{
+			if (!myitem.equals(""))
+			{
+				items.add(parseItems(myitem));
 			}
 		}
 	}
@@ -405,7 +408,7 @@ public class Cargo implements Cloneable {
 		}
 
 		if( !done ) {
-			items.add( new Long[] {Long.valueOf(resourceid.getItemID()), count, Long.valueOf(resourceid.getUses()), Long.valueOf(resourceid.getQuest())} );
+			items.add( new Long[] {(long) resourceid.getItemID(), count, (long) resourceid.getUses(), (long) resourceid.getQuest()} );
 		}
 	}
 
@@ -440,7 +443,7 @@ public class Cargo implements Cloneable {
 		}
 
 		// Diese Anweisung wird nur ausgefuerht, wenn das Item nicht im Cargo vorhanden ist
-		items.add( new Long[] {Long.valueOf(resourceid.getItemID()), -count, Long.valueOf(resourceid.getUses()), Long.valueOf(resourceid.getQuest())} );
+		items.add( new Long[] {(long) resourceid.getItemID(), -count, (long) resourceid.getUses(), (long) resourceid.getQuest()} );
 	}
 
 	/**
@@ -472,10 +475,11 @@ public class Cargo implements Cloneable {
 	 * @return Liste aller Items des Typs im Cargo
 	 */
 	public List<ItemCargoEntry> getItem( int itemid ) {
-		List<ItemCargoEntry> result = new ArrayList<ItemCargoEntry>();
-		for( int i=0; i < items.size(); i++ ) {
-			Long[] item = items.get(i);
-			if( item[0] != itemid ) {
+		List<ItemCargoEntry> result = new ArrayList<>();
+		for (Long[] item : items)
+		{
+			if (item[0] != itemid)
+			{
 				continue;
 			}
 			result.add(new ItemCargoEntry(this, item[0].intValue(), item[1], item[2].intValue(), item[3].intValue()));
@@ -489,9 +493,9 @@ public class Cargo implements Cloneable {
 	 * @return Liste aller Items im Cargo
 	 */
 	public List<ItemCargoEntry> getItems() {
-		List<ItemCargoEntry> result = new ArrayList<ItemCargoEntry>();
-		for( int i=0; i < items.size(); i++ ) {
-			Long[] item = items.get(i);
+		List<ItemCargoEntry> result = new ArrayList<>();
+		for (Long[] item : items)
+		{
 			result.add(new ItemCargoEntry(this, item[0].intValue(), item[1], item[2].intValue(), item[3].intValue()));
 		}
 
@@ -504,9 +508,10 @@ public class Cargo implements Cloneable {
 	 * @return die Anzahl der Resourceneinheiten
 	 */
 	public long getResourceCount( ResourceID resourceid ) {
-		for( int i=0; i < items.size(); i++ ) {
-			Long[] aitem = items.get(i);
-			if( isSameIID(resourceid, aitem) ) {
+		for (Long[] aitem : items)
+		{
+			if (isSameIID(resourceid, aitem))
+			{
 				return aitem[1];
 			}
 		}
@@ -522,13 +527,15 @@ public class Cargo implements Cloneable {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		long tmp = 0;
 
-		for( int j=0; j < items.size(); j++ ) {
-			Item item = (Item)db.get(Item.class, items.get(j)[0].intValue());
-			if( item == null ) {
-				log.warn("Unbekanntes Item "+items.get(j)[0]+" geortet");
+		for (Long[] item1 : items)
+		{
+			Item item = (Item) db.get(Item.class, item1[0].intValue());
+			if (item == null)
+			{
+				log.warn("Unbekanntes Item " + item1[0] + " geortet");
 				continue;
 			}
-			tmp += items.get(j)[1]*item.getCargo();
+			tmp += item1[1] * item.getCargo();
 		}
 
 		return tmp;
@@ -554,7 +561,7 @@ public class Cargo implements Cloneable {
 
 				String name = itemType.getName();
 				String plainname = name;
-				String image = null;
+				String image;
 				boolean large = false;
 				if( !largeImages ) {
 					image = itemType.getPicture();
@@ -685,7 +692,7 @@ public class Cargo implements Cloneable {
 		List<Long[]> items = cargoObj.getItemArray();
 
 		// Ersteinmal feststellen was fuer items wir ueberhaupt im Cargo haben
-		List<ItemID> itemlist = new ArrayList<ItemID>();
+		List<ItemID> itemlist = new ArrayList<>();
 		if( this.items.size() > 0 ) {
 			for( Long[] aitem : this.items ) {
 				ItemID id = new ItemID(aitem[0].intValue(), aitem[2].intValue(), aitem[3].intValue());
@@ -734,7 +741,7 @@ public class Cargo implements Cloneable {
 
 				String name = item.getName();
 				String plainname = name;
-				String image = "";
+				String image;
 				boolean large = false;
 				String tooltiptext = "";
 
@@ -933,7 +940,7 @@ public class Cargo implements Cloneable {
 	public void multiply( double factor, Round round ) {
 		if( items.size() > 0 )
 		{
-			List<Long[]> toRemove = new ArrayList<Long[]>();
+			List<Long[]> toRemove = new ArrayList<>();
 			for( Long[] aitem : items ) {
 				double val = aitem[1]*factor;
 				switch( round ) {
@@ -966,7 +973,7 @@ public class Cargo implements Cloneable {
 	 * @return Das abgespaltene Cargoobjekt.
 	 */
 	public Cargo cutCargo( long mass ) {
-		Cargo retcargo = null;
+		Cargo retcargo;
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		if( mass >= getMass() ) {
@@ -1023,7 +1030,7 @@ public class Cargo implements Cloneable {
 		}
 
 		if( !done ) {
-			items.add( new Long[] {Long.valueOf(resourceid.getItemID()), count, Long.valueOf(resourceid.getUses()), Long.valueOf(resourceid.getQuest())} );
+			items.add( new Long[] {(long) resourceid.getItemID(), count, (long) resourceid.getUses(), (long) resourceid.getQuest()} );
 		}
 	}
 
@@ -1035,15 +1042,16 @@ public class Cargo implements Cloneable {
 	 */
 	public ItemCargoEntry getItemWithEffect( ItemEffect.Type itemeffectid ) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		for( int i=0; i < items.size(); i++ ) {
-			Long[] aitem = items.get(i);
-
+		for (Long[] aitem : items)
+		{
 			final int itemid = aitem[0].intValue();
-			Item item = (Item)db.get(Item.class, itemid);
-			if( item == null ) {
-				throw new RuntimeException("Unbekanntes Item "+itemid);
+			Item item = (Item) db.get(Item.class, itemid);
+			if (item == null)
+			{
+				throw new RuntimeException("Unbekanntes Item " + itemid);
 			}
-			if( item.getEffect().getType() != itemeffectid ) {
+			if (item.getEffect().getType() != itemeffectid)
+			{
 				continue;
 			}
 			return new ItemCargoEntry(this, itemid, aitem[1], aitem[2].intValue(), aitem[3].intValue());
@@ -1058,22 +1066,23 @@ public class Cargo implements Cloneable {
 	 * @return Die Liste aller Items mit dem gesuchten Effekt
 	 */
 	public List<ItemCargoEntry> getItemsWithEffect( ItemEffect.Type itemeffectid ) {
-		List<ItemCargoEntry> itemlist = new ArrayList<ItemCargoEntry>();
+		List<ItemCargoEntry> itemlist = new ArrayList<>();
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		for( int i=0; i < items.size(); i++ ) {
-			Long[] aitem = items.get(i);
-
+		for (Long[] aitem : items)
+		{
 			final int itemid = aitem[0].intValue();
-			Item item = (Item)db.get(Item.class, itemid);
+			Item item = (Item) db.get(Item.class, itemid);
 
-			if( item == null ) {
-				throw new RuntimeException("Unbekanntes Item "+itemid);
+			if (item == null)
+			{
+				throw new RuntimeException("Unbekanntes Item " + itemid);
 			}
-			if( item.getEffect().getType() != itemeffectid ) {
+			if (item.getEffect().getType() != itemeffectid)
+			{
 				continue;
 			}
-			itemlist.add( new ItemCargoEntry(this, itemid, aitem[1], aitem[2].intValue(), aitem[3].intValue()));
+			itemlist.add(new ItemCargoEntry(this, itemid, aitem[1], aitem[2].intValue(), aitem[3].intValue()));
 		}
 
 		return itemlist;
@@ -1084,9 +1093,10 @@ public class Cargo implements Cloneable {
 	 * @return <code>true</code>, falls er leer ist
 	 */
 	public boolean isEmpty() {
-		for( int i=0; i < items.size(); i++ ) {
-			Long[] aitem = items.get(i);
-			if( aitem[1] > 0 ) {
+		for (Long[] aitem : items)
+		{
+			if (aitem[1] > 0)
+			{
 				return false;
 			}
 		}
@@ -1145,7 +1155,7 @@ public class Cargo implements Cloneable {
 	public Object clone() {
 		try {
 			Cargo cargo = (Cargo)super.clone();
-			cargo.items = new ArrayList<Long[]>();
+			cargo.items = new ArrayList<>();
 			for( int i=0; i < this.items.size(); i++ ) {
 				cargo.items.add(i, this.items.get(i).clone());
 			}
@@ -1302,12 +1312,12 @@ public class Cargo implements Cloneable {
 			}
 		};
 
-		List<Long[]> items = new ArrayList<Long[]>();
+		List<Long[]> items = new ArrayList<>();
 		items.addAll(this.items);
 		Collections.sort(items, comp);
 
-		for( int i=0; i < items.size(); i++ ) {
-			Long[] item = items.get(i);
+		for (Long[] item : items)
+		{
 			hash *= 17;
 			hash += item[0];
 			hash *= 17;

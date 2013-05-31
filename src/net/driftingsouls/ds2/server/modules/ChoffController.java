@@ -26,6 +26,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
@@ -79,16 +80,13 @@ public class ChoffController extends TemplateGenerator {
 	
 	/**
 	 * Benennt einen Offizier um.
-	 * @urlparam String name Der neue Name des Offiziers 
-	 *
 	 */
+	@UrlParam(name="name", description = "Der neue Name des Offiziers ")
 	@Action(ActionType.DEFAULT)
 	public void renameAction()
     {
 		TemplateEngine t = getTemplateEngine();
 
-		parameterString("name");
-		
 		String name = getString("name");
 		if( name.length() != 0 )
         {

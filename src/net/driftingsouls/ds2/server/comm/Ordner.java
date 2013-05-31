@@ -18,11 +18,12 @@
  */
 package net.driftingsouls.ds2.server.comm;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -32,14 +33,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Repraesentiert einen Ordner im Postfach.
@@ -162,7 +159,7 @@ public class Ordner {
 	 */
 	public int deleteOrdner() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		int result = 0;
+		int result;
 		if( (this.flags & Ordner.FLAG_TRASH) != 0 ) {
 			return 2;
 		}
@@ -174,10 +171,12 @@ public class Ordner {
 			.setEntity("owner", this.owner)
 			.list();
 
-		for( Iterator<?> iter=ordnerlist.iterator(); iter.hasNext(); ) {
-			Ordner subordner = (Ordner)iter.next();
+		for (Object anOrdnerlist : ordnerlist)
+		{
+			Ordner subordner = (Ordner) anOrdnerlist;
 
-			if( (result = subordner.deleteOrdner()) != 0 ){
+			if ((result = subordner.deleteOrdner()) != 0)
+			{
 				return result;
 			}
 		}
@@ -228,14 +227,15 @@ public class Ordner {
 	public List<Ordner> getChildren() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		List<Ordner> children = new ArrayList<Ordner>();
+		List<Ordner> children = new ArrayList<>();
 
 		List<?> ordnerlist = db.createQuery("from Ordner where parent=:parent and owner=:owner")
 			.setInteger("parent", this.id)
 			.setEntity("owner", this.owner)
 			.list();
-		for( Iterator<?> iter=ordnerlist.iterator(); iter.hasNext(); ) {
-			children.add((Ordner)iter.next());
+		for (Object anOrdnerlist : ordnerlist)
+		{
+			children.add((Ordner) anOrdnerlist);
 		}
 
 		return children;
@@ -248,7 +248,7 @@ public class Ordner {
 	public List<PM> getPms() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		List<PM> pms = new ArrayList<PM>();
+		List<PM> pms = new ArrayList<>();
 
 		List<?> pmList = db.createQuery("from PM where empfaenger=:user and gelesen < :gelesen and ordner= :ordner order by time desc")
 			.setEntity("user", this.owner)
@@ -256,8 +256,9 @@ public class Ordner {
 			.setInteger("gelesen", this.hasFlag(FLAG_TRASH) ? 10 : 2)
 			.list();
 
-		for( Iterator<?> iter=pmList.iterator(); iter.hasNext(); ) {
-			pms.add((PM)iter.next());
+		for (Object aPmList : pmList)
+		{
+			pms.add((PM) aPmList);
 		}
 
 		return pms;
@@ -292,7 +293,7 @@ public class Ordner {
 	 */
 	public Map<Ordner,Integer> getPmCountPerSubOrdner() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		Map<Ordner,Integer> result = new HashMap<Ordner,Integer>();
+		Map<Ordner,Integer> result = new HashMap<>();
 
 		List<Ordner> ordners = this.getAllChildren();
 
@@ -303,7 +304,7 @@ public class Ordner {
 
 		// Array mit den Ordner-IDs erstellen sowie vermerken, wieviele Kindordner
 		// ein Ordner besitzt
-		Map<Ordner,Integer> childCount = new HashMap<Ordner,Integer>();
+		Map<Ordner,Integer> childCount = new HashMap<>();
 		Integer[] ordnerIDs = new Integer[ordners.size()];
 		for( int i=0; i < ordners.size(); i++ ) {
 			ordnerIDs[i] = ordners.get(i).getId();
@@ -321,9 +322,10 @@ public class Ordner {
 			.setParameterList("ordnerIds", ordnerIDs)
 			.setInteger("trash", trash)
 			.list();
-		for( Iterator<?> iter=pmcounts.iterator(); iter.hasNext(); ) {
-			Object[] pmcount = (Object[])iter.next();
-			result.put(Ordner.getOrdnerByID(((Number)pmcount[0]).intValue()), ((Number)pmcount[1]).intValue());
+		for (Object pmcount1 : pmcounts)
+		{
+			Object[] pmcount = (Object[]) pmcount1;
+			result.put(Ordner.getOrdnerByID(((Number) pmcount[0]).intValue()), ((Number) pmcount[1]).intValue());
 		}
 
 		// PMs in den einzelnen Ordnern unter Beruecksichtigung der

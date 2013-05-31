@@ -1,3 +1,8 @@
+<script type="text/javascript">
+	$(document).ready(function() {
+		reloadMainpage();
+	});
+</script>
 <span class="smallfont">
 {if fleetmgnt.message}
 	{fleetmgnt.message}<br /><br />
@@ -133,45 +138,45 @@
 				function actionSelectChange(action) {
 					{if jaegertypes.list}
 						if( action == "jland" ) {
-							document.getElementById("jaegertype").style.display = 'inline';
+							$("#jaegertype").css('display', 'inline');
 						}
 						else {
-							document.getElementById("jaegertype").style.display = 'none';
+							$("#jaegertype").css('display', 'none');
 						}
 					{/endif}
 					{if fleetcombine.list}
 						if( action == "fleetcombine" ) {
-							document.getElementById("fleetcombine").style.display = 'inline';
+							$("#fleetcombine").css('display', 'inline');
 						}
 						else {
-							document.getElementById("fleetcombine").style.display = 'none';
+							$("#fleetcombine").css('display', 'none');
 						}
 					{/endif}
 					if( action == "alarm" ) {
-						document.getElementById("alarm").style.display = 'inline';
+						$("#alarm").css('display', 'inline');
 					}
 					else {
-						document.getElementById("alarm").style.display = 'none';
+						$("#alarm").css('display', 'none');
 					}
 					
 					if(action == "getCrew")
 					{
-						document.getElementById("crewinpercent").style.display = 'inline';
-						document.getElementById("percent").style.display = 'inline';
+						$("#crewinpercent").css('display', 'inline');
+						$("#percent").css('display', 'inline');
 					}
 					else
 					{
-						document.getElementById("crewinpercent").style.display = 'none';
-						document.getElementById("percent").style.display = 'none';
+						$("#crewinpercent").css('display', 'none');
+						$("#percent").css('display', 'none');
 					}
 					
 					if( action == "build" ) {
-						document.getElementById("buildcount").style.display = 'inline';
-						document.getElementById("buildid").style.display = 'inline';
+						$("#buildcount").css('display', 'inline');
+						$("#buildid").css('display', 'inline');
 					}
 					else {
-						document.getElementById("buildcount").style.display = 'none';
-						document.getElementById("buildid").style.display = 'none';
+						$("buildcount").css('display', 'none');
+						$("buildid").css('display', 'none');
 					}
 				}
 			-->
@@ -269,7 +274,9 @@
 	}
 
 	function reloadMainpage() {
-		window.setTimeout("reloadMainpage2()", 1000);
+		window.setTimeout(function() {
+			reloadMainpage2();
+		}, 1000);
 	}
 	
 	{if jscript.reloadmain}

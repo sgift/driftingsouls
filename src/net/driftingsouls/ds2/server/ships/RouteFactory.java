@@ -36,7 +36,7 @@ public class RouteFactory {
 	 * @return Die Flugoperation als Route
 	 */
 	public List<Waypoint> getMovementRoute(int direction, int distance) {
-		List<Waypoint> route = new ArrayList<Waypoint>();
+		List<Waypoint> route = new ArrayList<>();
 		route.add(new Waypoint(Waypoint.Type.MOVEMENT, direction, distance));
 		
 		return route;
@@ -79,7 +79,7 @@ public class RouteFactory {
 	 * @return Die Flugroute
 	 */
 	private List<Waypoint> findPlainRoute(Location from, Location to, int maxcount) {
-		List<Waypoint> route = new ArrayList<Waypoint>();
+		List<Waypoint> route = new ArrayList<>();
 		
 		int deltax = to.getX()-from.getX();
 		int deltay = to.getY()-from.getY();

@@ -140,8 +140,8 @@ public class ShipTypes {
 	 */
 	public static final String SF_VERSORGER = "versorger";
 	
-	private static final Map<String,String> shipTypeFlagNames = new HashMap<String,String>();
-	private static final Map<String,String> shipTypeFlagDescs = new HashMap<String,String>();
+	private static final Map<String,String> shipTypeFlagNames = new HashMap<>();
+	private static final Map<String,String> shipTypeFlagDescs = new HashMap<>();
 	
 	static {
 		shipTypeFlagNames.put(SF_COLONIZER, "Colonizer");

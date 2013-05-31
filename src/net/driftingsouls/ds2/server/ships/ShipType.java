@@ -340,10 +340,7 @@ public class ShipType implements ShipTypeData {
 	
 	@Override
 	public boolean hasFlag(String flag) {
-		if( getFlags().indexOf(flag) > -1 ) {
-			return true;
-		}
-		return false;
+		return getFlags().contains(flag);
 	}
 	
 	@Override

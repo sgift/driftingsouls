@@ -110,7 +110,7 @@ public class ResourceList implements Iterable<ResourceEntry>, JSONSupport {
 		}
 	}
 
-	private List<ResourceEntry> list = new ArrayList<ResourceEntry>();
+	private List<ResourceEntry> list = new ArrayList<>();
 
 	protected ResourceList() {
 		// EMPTY

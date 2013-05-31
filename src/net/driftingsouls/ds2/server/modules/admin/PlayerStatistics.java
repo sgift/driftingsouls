@@ -25,15 +25,12 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AdminController;
 
-import org.springframework.beans.factory.annotation.Configurable;
-
 /**
  * Erweiterte Spielerstatistik.
  * @author Christopher Jung
  *
  */
 @AdminMenuEntry(category="Spieler", name="Erw. Statistik")
-@Configurable
 public class PlayerStatistics implements AdminPlugin {
 
 	@Override

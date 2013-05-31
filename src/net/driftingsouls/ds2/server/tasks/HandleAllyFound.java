@@ -42,73 +42,88 @@ class HandleAllyFound implements TaskHandler {
 	public void handleEvent(Task task, String event) {	
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
-		
-		if( event.equals("__conf_recv") ) {
-			int confcount = Integer.parseInt(task.getData1());
-			if( confcount == 1 ) {
-				String allyname = task.getData2();
-				
-				Integer[] allymemberIds = Common.explodeToInteger(",", task.getData3());
-				User[] allymember = new User[allymemberIds.length];
-				for( int i=0; i < allymemberIds.length; i++ ) {
-					allymember[i] = (User)db.get(User.class, allymemberIds[i]);
-				}
-				
-				int ticks = context.get(ContextCommon.class).getTick();
-				
-				Ally ally = new Ally(allyname, allymember[0]);
-				int allyid = (Integer)db.save(ally);
-		
-				Common.copyFile(Configuration.getSetting("ABSOLUTE_PATH")+"data/logos/ally/0.gif", Configuration.getSetting("ABSOLUTE_PATH")+"data/logos/ally"+allyid+".gif");
-				
-				for( int i=0; i < allymember.length; i++ ) {
-					User source = (User)ContextMap.getContext().getDB().get(User.class, 0);
-					
-					PM.send( source, allymember[i].getId(), "Allianzgr&uuml;ndung", "Die Allianz "+allyname+" wurde erfolgreich gegr&uuml;ndet.\n\nHerzlichen Gl&uuml;ckwunsch!");
 
-					allymember[i].setAlly(ally);
-					allymember[i].setAllyPosten(null);
-					allymember[i].addHistory(Common.getIngameTime(ticks)+": Gr&uuml;ndung der Allianz "+allyname);	
-					
-					// Beziehungen auf "Freund" setzen
-					for( int j=0; j < allymember.length; j++ ) {
-						if( allymember[j] == allymember[i] ) {
-							continue;
-						}
-				
-						allymember[j].setRelation(allymember[i].getId(), User.Relation.FRIEND);
-						allymember[i].setRelation(allymember[j].getId(), User.Relation.FRIEND);
+		switch (event)
+		{
+			case "__conf_recv":
+				int confcount = Integer.parseInt(task.getData1());
+				if (confcount == 1)
+				{
+					String allyname = task.getData2();
+
+					Integer[] allymemberIds = Common.explodeToInteger(",", task.getData3());
+					User[] allymember = new User[allymemberIds.length];
+					for (int i = 0; i < allymemberIds.length; i++)
+					{
+						allymember[i] = (User) db.get(User.class, allymemberIds[i]);
 					}
+
+					int ticks = context.get(ContextCommon.class).getTick();
+
+					Ally ally = new Ally(allyname, allymember[0]);
+					int allyid = (Integer) db.save(ally);
+
+					Common.copyFile(Configuration.getSetting("ABSOLUTE_PATH") + "data/logos/ally/0.gif", Configuration.getSetting("ABSOLUTE_PATH") + "data/logos/ally" + allyid + ".gif");
+
+					for (User anAllymember : allymember)
+					{
+						User source = (User) ContextMap.getContext().getDB().get(User.class, 0);
+
+						PM.send(source, anAllymember.getId(), "Allianzgr&uuml;ndung", "Die Allianz " + allyname + " wurde erfolgreich gegr&uuml;ndet.\n\nHerzlichen Gl&uuml;ckwunsch!");
+
+						anAllymember.setAlly(ally);
+						anAllymember.setAllyPosten(null);
+						anAllymember.addHistory(Common.getIngameTime(ticks) + ": Gr&uuml;ndung der Allianz " + allyname);
+
+						// Beziehungen auf "Freund" setzen
+						for (User anAllymember1 : allymember)
+						{
+							if (anAllymember1 == anAllymember)
+							{
+								continue;
+							}
+
+							anAllymember1.setRelation(anAllymember.getId(), User.Relation.FRIEND);
+							anAllymember.setRelation(anAllymember1.getId(), User.Relation.FRIEND);
+						}
+					}
+
+					Taskmanager.getInstance().removeTask(task.getTaskID());
 				}
-				
-				Taskmanager.getInstance().removeTask( task.getTaskID() );
+				else
+				{
+					confcount--;
+					Taskmanager.getInstance().modifyTask(task.getTaskID(), Integer.toString(confcount), task.getData2(), task.getData3());
+				}
+				break;
+			case "__conf_dism":
+			{
+				Integer[] allymember = Common.explodeToInteger(",", task.getData3());
+				User source = (User) ContextMap.getContext().getDB().get(User.class, 0);
+
+				PM.send(source, allymember[0], "Allianzgr&uuml;ndung", "Die Allianzgr&uuml;ndung ist fehlgeschlagen, da ein Spieler seine Unterst&uuml;tzung verweigert hat.");
+				Taskmanager.getInstance().removeTask(task.getTaskID());
+
+				Task[] tasklist = Taskmanager.getInstance().getTasksByData(Taskmanager.Types.ALLY_FOUND_CONFIRM, task.getTaskID(), "*", "*");
+				for (Task aTasklist : tasklist)
+				{
+					Taskmanager.getInstance().removeTask(aTasklist.getTaskID());
+				}
+
+				break;
 			}
-			else {
-				confcount--;
-				Taskmanager.getInstance().modifyTask(task.getTaskID(), Integer.toString(confcount), task.getData2(), task.getData3() );	
-			}
-		}
-		else if( event.equals("__conf_dism") ) {
-			Integer[] allymember = Common.explodeToInteger(",", task.getData3());
-			User source = (User)ContextMap.getContext().getDB().get(User.class, 0);
-			
-			PM.send( source, allymember[0], "Allianzgr&uuml;ndung", "Die Allianzgr&uuml;ndung ist fehlgeschlagen, da ein Spieler seine Unterst&uuml;tzung verweigert hat.");
-			Taskmanager.getInstance().removeTask( task.getTaskID() );
-			
-			Task[] tasklist = Taskmanager.getInstance().getTasksByData( Taskmanager.Types.ALLY_FOUND_CONFIRM, task.getTaskID(), "*", "*" );
-			for( int i=0; i < tasklist.length; i++ ) {
-				Taskmanager.getInstance().removeTask( tasklist[i].getTaskID() );	
-			}
-			
-		}
-		else if( event.equals("tick_timeout") ) {
-			Integer[] allymember = Common.explodeToInteger(",", task.getData3());
-			
-			Taskmanager.getInstance().removeTask( task.getTaskID() );
-			User source = (User)ContextMap.getContext().getDB().get(User.class, 0);
-			
-			for( int i=0; i < allymember.length; i++ ) {
-				PM.send( source, allymember[i], "Allianzgr&uuml;ndung", "Die Allianzgr&uuml;ndung ist fehlgeschlagen, da nicht alle angegebenen Spieler in der notwendigen Zeit ihre Unterst&uuml;tzung signalisiert haben.");
+			case "tick_timeout":
+			{
+				Integer[] allymember = Common.explodeToInteger(",", task.getData3());
+
+				Taskmanager.getInstance().removeTask(task.getTaskID());
+				User source = (User) ContextMap.getContext().getDB().get(User.class, 0);
+
+				for (Integer anAllymember : allymember)
+				{
+					PM.send(source, anAllymember, "Allianzgr&uuml;ndung", "Die Allianzgr&uuml;ndung ist fehlgeschlagen, da nicht alle angegebenen Spieler in der notwendigen Zeit ihre Unterst&uuml;tzung signalisiert haben.");
+				}
+				break;
 			}
 		}
 	}

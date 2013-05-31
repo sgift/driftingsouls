@@ -18,17 +18,18 @@
  */
 package net.driftingsouls.ds2.server.tick;
 
-import java.io.IOException;
-
 import net.driftingsouls.ds2.server.framework.BasicContext;
 import net.driftingsouls.ds2.server.framework.CmdLineRequest;
 import net.driftingsouls.ds2.server.framework.EmptyPermissionResolver;
 import net.driftingsouls.ds2.server.framework.SimpleResponse;
-
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.quartz.SchedulerException;
 import org.quartz.StatefulJob;
+import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.quartz.QuartzJobBean;
+
+import java.io.IOException;
 
 /**
  * Quartz-Scheduler fuer DS-Ticks. Die Konfiguration erfolgt durch
@@ -55,8 +56,8 @@ public class ScheduledTick extends QuartzJobBean implements StatefulJob
 	{
 		CmdLineRequest request = new CmdLineRequest(new String[0]);
 		SimpleResponse response = new SimpleResponse();
-		BasicContext basicContext = new BasicContext(request, response, new EmptyPermissionResolver());
-
+		ApplicationContext applicationContext = getApplicationContext(context);
+		BasicContext basicContext = new BasicContext(request, response, new EmptyPermissionResolver(), applicationContext);
 		try
 		{
 			if( context.getMergedJobDataMap().containsKey("onlyTick") ) {
@@ -68,6 +69,7 @@ public class ScheduledTick extends QuartzJobBean implements StatefulJob
 				.asSubclass(AbstractTickExecuter.class);
 
 			AbstractTickExecuter tick = cls.newInstance();
+			basicContext.autowireBean(tick);
 			tick.addLogTarget(TickController.STDOUT, false);
 			tick.execute();
 			tick.dispose();
@@ -94,4 +96,21 @@ public class ScheduledTick extends QuartzJobBean implements StatefulJob
 		}
 	}
 
+	private ApplicationContext getApplicationContext(JobExecutionContext context )
+			throws JobExecutionException {
+		ApplicationContext appCtx;
+		try
+		{
+			appCtx = (ApplicationContext)context.getScheduler().getContext().get("applicationContext");
+			if (appCtx == null) {
+				throw new JobExecutionException(
+						"Kein ApplicationContext unter dem Key \"applicationContext\" konfiguriert");
+			}
+			return appCtx;
+		}
+		catch (SchedulerException e)
+		{
+			throw new JobExecutionException("Konnte ApplicationContext nicht laden", e);
+		}
+	}
 }

@@ -18,19 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -60,7 +47,6 @@ import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.entities.Versteigerung;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextInstance;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
@@ -77,14 +63,23 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
-
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.hibernate.Query;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.beans.factory.annotation.Required;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Zeigt die Fraktionsseiten an.
@@ -379,7 +374,6 @@ public class ErsteigernController extends TemplateGenerator
 	 * @author Christopher Jung
 	 *
 	 */
-	@Configurable
 	private static class ShopGanyTransportEntry extends ShopEntry
 	{
 		/**
@@ -390,7 +384,6 @@ public class ErsteigernController extends TemplateGenerator
 		private long minprice = Long.MAX_VALUE;
 		private long maxprice = Long.MIN_VALUE;
 		private int ganytransid;
-		private Configuration config;
 
 		/**
 		 * Konstruktor.
@@ -413,16 +406,6 @@ public class ErsteigernController extends TemplateGenerator
 				}
 				this.ganytransid = data[0].getId();
 			}
-		}
-
-		/**
-		 * Injiziert die DS-Konfiguration.
-		 * @param config Die DS-Konfiguration
-		 */
-		@SuppressWarnings("unused")
-		@Autowired @Required
-		public void setConfiguration(Configuration config) {
-			this.config = config;
 		}
 
 		@Override
@@ -460,7 +443,7 @@ public class ErsteigernController extends TemplateGenerator
 		@Override
 		public String getImage()
 		{
-			return this.config.get("URL") + "data/interface/ganymede_transport.png";
+			return "./data/interface/ganymede_transport.png";
 		}
 
 		@Override

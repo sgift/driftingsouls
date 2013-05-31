@@ -38,6 +38,8 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
@@ -72,8 +74,6 @@ public class FleetMgntController extends TemplateGenerator {
 
 		setTemplate("fleetmgnt.html");
 
-		addOnLoadFunction("reloadMainpage()");
-
 		parameterNumber("fleet");
 		parameterString("shiplist");
 		parameterNumber("sector");
@@ -87,7 +87,7 @@ public class FleetMgntController extends TemplateGenerator {
 		User user = (User)getUser();
 		org.hibernate.Session db = getDB();
 
-		Integer[] shiplist = null;
+		Integer[] shiplist;
 
 		// Zuerst shiplist verarbeiten
 		String shiplistStr = getString("shiplist");
@@ -244,9 +244,8 @@ public class FleetMgntController extends TemplateGenerator {
 
 	/**
 	 * Erstellt eine Flotte aus einer Schiffsliste oder einer Koordinaten/Typen-Angabe.
-	 * @urlparam String fleetname der Name der neuen Flotte
-	 *
 	 */
+	@UrlParam(name="fleetname", description = "der Name der neuen Flotte")
 	@Action(ActionType.DEFAULT)
 	public void create2Action() {
 		TemplateEngine t = getTemplateEngine();
@@ -256,7 +255,7 @@ public class FleetMgntController extends TemplateGenerator {
 		parameterString("fleetname");
 		String fleetname = getString("fleetname");
 
-		Integer[] shiplistInt = null;
+		Integer[] shiplistInt;
 
 		String shiplist = getString("shiplist");
 		if( shiplist.length() == 0 ) {
@@ -905,7 +904,7 @@ public class FleetMgntController extends TemplateGenerator {
 		while(buildCount > 0) {
 			int couldNotBuild = 0;
 			for(Ship ship: shipyards) {
-				WerftObject shipyard = (WerftObject)db.createQuery("from WerftObject where shipid=:ship")
+				WerftObject shipyard = (WerftObject)db.createQuery("from ShipWerft where ship=:ship")
 					.setInteger("ship", ship.getId())
 					.uniqueResult();
 				if(shipyard.getKomplex() != null)
@@ -1008,7 +1007,7 @@ public class FleetMgntController extends TemplateGenerator {
 	 * @return Die Liste
 	 */
 	private List<NamePatternElement> parseNamePattern(String name) {
-		List<NamePatternElement> nameParts = new ArrayList<NamePatternElement>();
+		List<NamePatternElement> nameParts = new ArrayList<>();
 		do {
 			if( name.startsWith("$(") ) {
 				int end = name.indexOf(')');
@@ -1066,8 +1065,9 @@ public class FleetMgntController extends TemplateGenerator {
 	private String generateNextShipName(List<NamePatternElement> nameParts) {
 		StringBuilder builder = new StringBuilder();
 
-		for( int i=0; i < nameParts.size(); i++ ) {
-			builder.append(nameParts.get(i).next());
+		for (NamePatternElement namePart : nameParts)
+		{
+			builder.append(namePart.next());
 		}
 
 		return builder.toString();
@@ -1075,9 +1075,8 @@ public class FleetMgntController extends TemplateGenerator {
 
 	/**
 	 * Benennt die Schiffe der Flotte um.
-	 * @urlparam String name Das Namensmuster
-	 *
 	 */
+	@UrlParam(name="name", description="Das Namensmuster")
 	@Action(ActionType.DEFAULT)
 	public void renameShips2Action() {
 		org.hibernate.Session db = getDB();
@@ -1108,14 +1107,13 @@ public class FleetMgntController extends TemplateGenerator {
 	/**
 	 * Transferiert eine bestimmte Menge (in Prozent) an Crew zwischen der Flotte
 	 * und einer den Basen des Spielers.
-	 * @urlparam crewinpercent Anzahl der Crew in Prozent (der Maxcrew des Zielschiffes)
 	 */
+	@UrlParam(name="crewinpercent", type= UrlParamType.NUMBER, description = "Anzahl der Crew in Prozent (der Maxcrew des Zielschiffes)")
 	@Action(ActionType.DEFAULT)
 	public void getCrewAction() {
 		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 
-		parameterNumber("crewinpercent");
 		double crewInPercent = getInteger("crewinpercent")/100.0;
 		crewInPercent = Math.min(crewInPercent, 100.0);
 		crewInPercent = Math.max(crewInPercent, 0.0);
@@ -1164,7 +1162,7 @@ public class FleetMgntController extends TemplateGenerator {
 	@Action(ActionType.DEFAULT)
 	public void dismantleAction()
 	{
-		List<WerftObject> shipyards = new ArrayList<WerftObject>();
+		List<WerftObject> shipyards = new ArrayList<>();
 
 		org.hibernate.Session db = getDB();
 		if(getGanymedCount() > 0)
@@ -1220,7 +1218,7 @@ public class FleetMgntController extends TemplateGenerator {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 
-		List<String> sectors = new ArrayList<String>();
+		List<String> sectors = new ArrayList<>();
 
 		Ship aship = getOneFleetShip();
 
@@ -1245,44 +1243,46 @@ public class FleetMgntController extends TemplateGenerator {
 			.setEntity("fleet", this.fleet)
 			.list();
 
-		Set<WerftObject> werften = new HashSet<WerftObject>();
-		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
-			Ship ship = (Ship)iter.next();
+		Set<WerftObject> werften = new HashSet<>();
+		for (Object ship1 : ships)
+		{
+			Ship ship = (Ship) ship1;
 
 			ShipTypeData shiptype = ship.getTypeData();
 			Location loc = ship.getLocation();
 
 			//Find shipyards
-			if(shiptype.getWerft() > 0)
+			if (shiptype.getWerft() > 0)
 			{
-				WerftObject werft = (WerftObject)db.createQuery("from WerftObject where shipid=:ship")
-					.setInteger("ship", ship.getId())
-					.uniqueResult();
-				if( werft != null && werft.getKomplex() != null )
+				WerftObject werft = (WerftObject) db.createQuery("from ShipWerft where ship=:ship")
+						.setInteger("ship", ship.getId())
+						.uniqueResult();
+				if (werft != null && werft.getKomplex() != null)
 				{
 					werften.add(werft.getKomplex());
 				}
-				else if( werft != null )
+				else if (werft != null)
 				{
 					werften.add(werft);
 				}
 			}
 
-			t.setVar(	"ship.id",			ship.getId(),
-						"ship.name",		Common._plaintitle(ship.getName()),
-						"ship.type.name",	shiptype.getNickname(),
-						"ship.showbattle",	ship.getBattle() != null ? ship.getBattle() : 0,
-						"ship.showwarning",	!aloc.sameSector(0, loc, 0) );
+			t.setVar("ship.id", ship.getId(),
+					"ship.name", Common._plaintitle(ship.getName()),
+					"ship.type.name", shiptype.getNickname(),
+					"ship.showbattle", ship.getBattle() != null ? ship.getBattle() : 0,
+					"ship.showwarning", !aloc.sameSector(0, loc, 0));
 
-			String sectorStr = "(s.x="+ship.getX()+" and s.y="+ship.getY()+" and s.system="+ship.getSystem()+")";
-			if( !sectors.contains(sectorStr) ) {
+			String sectorStr = "(s.x=" + ship.getX() + " and s.y=" + ship.getY() + " and s.system=" + ship.getSystem() + ")";
+			if (!sectors.contains(sectorStr))
+			{
 				sectors.add(sectorStr);
 			}
 
 			t.parse("ships.list", "ships.listitem", true);
 		}
 
-		Set<ShipType> buildableShips = new HashSet<ShipType>();
+		Set<ShipType> buildableShips = new HashSet<>();
 		for( WerftObject werft : werften )
 		{
 			buildableShips.addAll(werft.getBuildableShips());
@@ -1291,7 +1291,7 @@ public class FleetMgntController extends TemplateGenerator {
 		//List of buildable ships
 		if(!buildableShips.isEmpty()) {
 			t.setBlock("_FLEETMGNT", "buildableships.listitem", "buildableships.list");
-			PriorityQueue<ShipType> sortedBuildableShips = new PriorityQueue<ShipType>(11, new Comparator<ShipType>() {
+			PriorityQueue<ShipType> sortedBuildableShips = new PriorityQueue<>(11, new Comparator<ShipType>() {
 					@Override
 					public int compare(ShipType o1, ShipType o2) {
 						if(o1.getId() == o2.getId()) {

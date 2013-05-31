@@ -29,8 +29,6 @@ import net.driftingsouls.ds2.server.werften.WerftGUI;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 
-import org.springframework.beans.factory.annotation.Configurable;
-
 /**
  * Die Werft.
  * @author Christopher Jung
@@ -38,7 +36,6 @@ import org.springframework.beans.factory.annotation.Configurable;
  */
 @Entity(name="WerftBuilding")
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.Werft")
-@Configurable
 public class Werft extends DefaultBuilding {
 	/**
 	 * Erstellt eine neue Instanz der Werft.

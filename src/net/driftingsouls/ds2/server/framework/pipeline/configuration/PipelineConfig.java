@@ -52,9 +52,9 @@ import org.w3c.dom.NodeList;
 public class PipelineConfig {
 	private static final Log log = LogFactory.getLog(PipelineConfig.class);
 	
-	private Map<String,ModuleSetting> modules = new ConcurrentHashMap<String,ModuleSetting>();
+	private Map<String,ModuleSetting> modules = new ConcurrentHashMap<>();
 	private ModuleSetting defaultModule = null;
-	private List<Rule> rules = new CopyOnWriteArrayList<Rule>();
+	private List<Rule> rules = new CopyOnWriteArrayList<>();
 	private Configuration configuration;
 	
 	ModuleSetting getModuleSettingByName(String name) throws Exception {
@@ -78,7 +78,7 @@ public class PipelineConfig {
 		URL[] urls = ClasspathUrlFinder.findResourceBases("META-INF/ds.marker");
 		AnnotationDB db = new AnnotationDB();
 		db.scanArchives(urls);
-		SortedSet<String> entityClasses = new TreeSet<String>(db.getAnnotationIndex().get(Module.class.getName()));
+		SortedSet<String> entityClasses = new TreeSet<>(db.getAnnotationIndex().get(Module.class.getName()));
 		for( String cls : entityClasses ) 
 		{
 			try 
@@ -124,7 +124,7 @@ public class PipelineConfig {
 		// Regeln
 		NodeList nodes = XMLUtils.getNodesByXPath(doc, "/pipeline/rules/*");
 		for( int i=0; i < nodes.getLength(); i++ ) {
-			if( nodes.item(i).getNodeName() == "match" ) {
+			if("match".equals(nodes.item(i).getNodeName())) {
 				rules.add(new MatchRule(this, nodes.item(i)));
 			}
 			else {
@@ -141,7 +141,7 @@ public class PipelineConfig {
 	 * @throws Exception
 	 */
 	public Pipeline getPipelineForContext(Context context) throws Exception {
-		Pipeline pipeline = null;
+		Pipeline pipeline;
 		for( Rule rule : rules ) {
 			if( (pipeline = rule.execute(context)) != null ) {
 				return pipeline;

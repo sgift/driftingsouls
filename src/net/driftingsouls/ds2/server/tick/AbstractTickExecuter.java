@@ -18,22 +18,19 @@
  */
 package net.driftingsouls.ds2.server.tick;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import net.driftingsouls.ds2.server.ContextCommon;
-import net.driftingsouls.ds2.server.framework.BasicContext;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.context.ApplicationContext;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Klasse zur Ausfuehrung von mehreren Ticks.
@@ -41,48 +38,18 @@ import org.springframework.beans.factory.annotation.Configurable;
  * @author Christopher Jung
  *
  */
-@Configurable
 public abstract class AbstractTickExecuter extends TickController
 {
 	private static final Log log = LogFactory.getLog(AbstractTickExecuter.class);
 
 	private String loxpath = null;
+
 	private String name = "";
 	private String status = null;
 	private Map<Class<? extends TickController>, Long> tickTimes = new LinkedHashMap<Class<? extends TickController>, Long>();
-
-	private static BasicContext basicContext;
-
-	private Configuration config;
-
-    /**
-     * Injiziert die DS-Konfiguration.
-     * @param config Die DS-Konfiguration
-     */
-    @Autowired
-    public final void setConfiguration(Configuration config)
-    {
-    	this.config = config;
-    	if( this.loxpath == null ) {
-    		this.loxpath = config.get("LOXPATH");
-    	}
-    }
-
-    /**
-     * Gibt die DS-Konfiguration zurueck.
-     * @return Die DS-Konfiguration
-     */
-    protected Configuration getConfiguration() {
-    	return this.config;
-    }
-
-	/**
-	 * Gibt alle noch belegten Resourcen frei.
-	 *
-	 */
-	public static final void free()
+	public AbstractTickExecuter()
 	{
-		basicContext.free();
+		this.loxpath = Configuration.getSetting("LOXPATH");
 	}
 
 	/**
@@ -126,6 +93,8 @@ public abstract class AbstractTickExecuter extends TickController
 		{
 			TickController tick = tickname.newInstance();
 
+			this.getContext().autowireBean(tick);
+
 			if( !useSTDOUT )
 			{
 				tick.addLogTarget(loxpath + tickname.getSimpleName().toLowerCase() + ".log", false);
@@ -158,18 +127,18 @@ public abstract class AbstractTickExecuter extends TickController
 		File[] files = new File(loxpath).listFiles();
 		if(files != null)
 		{
-			for( int i = 0; i < files.length; i++ )
+			for (File file : files)
 			{
-				if( files[i].getName().endsWith(".log") )
+				if (file.getName().endsWith(".log"))
 				{
-					String filename = files[i].getName();
+					String filename = file.getName();
 					log.info("Kopiere " + filename);
 
-					if( filename.lastIndexOf('/') > -1 )
+					if (filename.lastIndexOf('/') > -1)
 					{
 						filename = filename.substring(filename.lastIndexOf('/') + 1);
 					}
-					Common.copyFile(files[i].getAbsolutePath(), loxpath + ticknr + "/" + filename);
+					Common.copyFile(file.getAbsolutePath(), loxpath + ticknr + "/" + filename);
 				}
 			}
 		}
@@ -185,9 +154,9 @@ public abstract class AbstractTickExecuter extends TickController
 	{
 		try
 		{
-			addLogTarget(config.get("LOXPATH") + "ticktime.log", false);
+			addLogTarget(this.loxpath + "ticktime.log", false);
 			log("Bitte warten - " + status);
-			removeLogTarget(config.get("LOXPATH") + "ticktime.log");
+			removeLogTarget(this.loxpath + "ticktime.log");
 
 			this.status = status;
 		}
@@ -252,15 +221,15 @@ public abstract class AbstractTickExecuter extends TickController
 
 		try
 		{
-			addLogTarget(config.get("LOXPATH") + "tix.log", true);
+			addLogTarget(this.loxpath + "tix.log", true);
 			if( name.length() != 0 )
 			{
 				slog(name + ": ");
 			}
-			addLogTarget(config.get("LOXPATH") + "ticktime.log", false);
+			addLogTarget(this.loxpath + "ticktime.log", false);
 			log(Common.date("d.m.Y H:i:s"));
-			removeLogTarget(config.get("LOXPATH") + "ticktime.log");
-			removeLogTarget(config.get("LOXPATH") + "tix.log");
+			removeLogTarget(this.loxpath + "ticktime.log");
+			removeLogTarget(this.loxpath + "tix.log");
 		}
 		catch( Exception e )
 		{
@@ -275,11 +244,11 @@ public abstract class AbstractTickExecuter extends TickController
 	public final void mailTickStatistics()
 	{
 		StringBuilder stats = new StringBuilder();
-		stats.append("Tick: "+this.getClass().getName()+"\n\n");
+		stats.append("Tick: ").append(this.getClass().getName()).append("\n\n");
 		stats.append("Tickteile:\n");
 		for( Map.Entry<Class<? extends TickController>, Long> entry : this.tickTimes.entrySet() )
 		{
-			stats.append(entry.getKey().getName()+": "+entry.getValue()+"ms\n");
+			stats.append(entry.getKey().getName()).append(": ").append(entry.getValue()).append("ms\n");
 		}
 		Common.sendMailToAdmins("Tickstatistik", stats.toString());
 	}

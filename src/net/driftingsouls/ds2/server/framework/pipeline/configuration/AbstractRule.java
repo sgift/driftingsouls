@@ -39,18 +39,15 @@ abstract class AbstractRule implements Rule {
 	private final Node config;
 	
 	// actions
-	private final List<Action> actions = new ArrayList<Action>();
-	private final List<Map<String,Parameter>> actionParams = new ArrayList<Map<String,Parameter>>();
+	private final List<Action> actions = new ArrayList<>();
+	private final List<Map<String,Parameter>> actionParams = new ArrayList<>();
 	
 	private final Executer executer;
 
 	private final ParameterMap parameterMap;
-	
-	private final PipelineConfig pipelineConfig;
-	
+
 	AbstractRule( PipelineConfig pipelineConfig, Node matchNode ) throws Exception {
-		this.pipelineConfig = pipelineConfig;
-		
+
 		NodeList nodes = XMLUtils.getNodesByXPath(matchNode, "actions/*");
 		if( nodes != null ) {
 			setupActions(nodes);
@@ -76,7 +73,7 @@ abstract class AbstractRule implements Rule {
 		
 		Node node = XMLUtils.getNodeByXPath(matchNode, "execute-module");
 		if( node != null ) {
-			this.executer = new ModuleExecuter(this.pipelineConfig, node);
+			this.executer = new ModuleExecuter(pipelineConfig, node);
 			return;
 		}
 
@@ -104,7 +101,7 @@ abstract class AbstractRule implements Rule {
 			
 			Class<?> cls = Class.forName(XMLUtils.getStringByXPath(node, "@class"));
 			actions.add((Action)cls.newInstance());
-			HashMap<String,Parameter> map = new HashMap<String,Parameter>();
+			HashMap<String,Parameter> map = new HashMap<>();
 			
 			NodeList paramNodes = XMLUtils.getNodesByXPath(node, "parameter");
 			for( int j=0; j < paramNodes.getLength(); j++ ) {
