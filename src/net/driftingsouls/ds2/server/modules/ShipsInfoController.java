@@ -84,7 +84,6 @@ public class ShipsInfoController extends TemplateGenerator
             {
                 ResourceList resources = buildData.getCosts().getResourceList();
                 Resources.echoResList(t, resources, reslistName);
-                t.parse(reslistName, reslistName+"item", true);
             }
 
             t.parse(listName, itemName, true);
