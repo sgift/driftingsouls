@@ -79,27 +79,7 @@ public class TemplateEngine {
 	public TemplateEngine() {
 		// EMPTY
 	}
-	
-	/**
-	 * Setzt das Overlay-Verzeichnis fest. Das Overlay-Verzeichnis
-	 * muss ein direktes Unterverzeichnis des angegeben Template-Verzeichnisses sein.
-	 * Ferner duerfen keine / oder . im Namen vorkommen.
-	 * Templates werden fortan zuerst im Overlay-Verzeichnis
-	 * gesucht.
-	 *  
-	 * @param overlay Das Overlay-Verzeichnis
-	 * @return true, falls das Verzeichnis gefunden und als Overlay im System eingefuegt wurde
-	 */
-	public boolean setOverlay( String overlay) {
-		if( overlay.equals("") || (overlay.indexOf('.') != -1) ) {
-			// just return false
-      		return false;
-    	}
 
-		this.overlay = overlay;
-		return true;
-	}
-	
 	private static Map<String,Template> templateMap = Collections.synchronizedMap(new HashMap<String,Template>());
 	
 	/**

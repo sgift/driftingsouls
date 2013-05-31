@@ -139,10 +139,6 @@ public class Common {
 			buffer.append(request.getParameter("module"));
 		}
 
-		if( request.getParameter("_style") != null ) {
-			buffer.append("&amp;_style=").append(request.getParameter("_style"));
-		}
-	
 		buffer.append("&amp;action=").append(action);
 	
 		for( Entry<String, String> entry: params.entrySet() ) 

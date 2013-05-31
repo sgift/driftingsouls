@@ -143,9 +143,6 @@ public abstract class DSGenerator extends Generator {
 
 			response.setContentType("text/html", "UTF-8");
 
-			if( getContext().getRequest().getParameterString("_style").equals("xml") ) {
-				return;
-			}
 			Writer sb = response.getWriter();
 
 			final boolean devMode = !"true".equals(Configuration.getSetting("PRODUCTION"));
@@ -176,7 +173,7 @@ public abstract class DSGenerator extends Generator {
 
 			sb.append("</head>\n");
 
-			sb.append("<body ").append(getOnLoadText()).append(" ").append(getBodyParameters()).append(" >\n");
+			sb.append("<body ").append(getBodyParameters()).append(" >\n");
 			sb.append("<input type='hidden' name='currentDsModule' id='currentDsModule' value='" + this.getAttribute("module") + "' />");
 
 			if( devMode )
@@ -251,10 +248,6 @@ public abstract class DSGenerator extends Generator {
 		@Override
 		public void printFooter() throws IOException
 		{
-			if( getContext().getRequest().getParameterString("_style").equals("xml") )
-			{
-				return;
-			}
 			Writer sb = getContext().getResponse().getWriter();
 			if( !getDisableDebugOutput() )
 			{
@@ -340,7 +333,6 @@ public abstract class DSGenerator extends Generator {
 
 	private boolean disableDebugOutput;
 	private long startTime;
-	private List<String> onLoadFunctions;
 	private Map<String, String> bodyParameters;
 	private Map<String, Object> parameter;
 	private String subParameter;
@@ -360,13 +352,11 @@ public abstract class DSGenerator extends Generator {
 
 		parameterString("module");
 		parameterString("action");
-		parameterString("_style");
 
 		this.startTime = System.currentTimeMillis();
 
 		this.disableDebugOutput = false;
 
-		this.onLoadFunctions = new ArrayList<>();
 		this.bodyParameters = new HashMap<>();
 
 		this.pageTitle = null;
@@ -711,33 +701,8 @@ public abstract class DSGenerator extends Generator {
 	}
 
 	/**
-	 * Gibt das <code>onLoad</code>-Attribut des HTML-Body-Tags zurueck.
-	 * @return Das <code>onLoad</code>-Attribut
-	 */
-	public String getOnLoadText() {
-		if( onLoadFunctions.size() > 0 ) {
-			StringBuilder sb = new StringBuilder("onLoad=\"");
-			sb.append(Common.implode(" ", onLoadFunctions));
-			sb.append("\"");
-
-			return sb.toString();
-		}
-
-		return "";
-	}
-
-	/**
-	 * Fuegt eine Javascript-Funktion zum <code>onLoad</code>-Aufruf des Body-Tags hinzu.
-	 * @param func Der Javascript-Funktionsaufruf
-	 */
-	public void addOnLoadFunction( String func ) {
-		onLoadFunctions.add(func);
-	}
-
-	/**
 	 * Gibt weitere HTML-Body-Tag-Attribute zurueck.
 	 * @return Weitere HTML-Body-Tag-Attribute
-	 * @see #getOnLoadText()
 	 */
 	public String getBodyParameters() {
 		StringBuilder text = new StringBuilder();

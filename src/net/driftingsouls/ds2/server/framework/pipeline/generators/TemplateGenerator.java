@@ -44,8 +44,6 @@ public abstract class TemplateGenerator extends DSGenerator {
 		
 		templateEngine = null;
 		masterTemplateID = "";
-		
-		parameterString("_style");
 	}
 
 	private void createTemplateEngine() {
@@ -55,11 +53,6 @@ public abstract class TemplateGenerator extends DSGenerator {
 				
 		templateEngine = new TemplateEngine();
 
-		String style = getString("_style");
-		if( !style.equals("") ) {
-			templateEngine.setOverlay(style);	
-		}
-				
 		if( getBrowser().equals("opera") ) {
 			templateEngine.setVar("_BROWSER_OPERA",1);
 		}
