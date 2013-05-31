@@ -171,7 +171,7 @@ public class UnmodifiableCargo extends Cargo {
 
 	@Override
 	protected List<Long[]> getItemArray() {
-		return new ArrayList<Long[]>(innerCargo.getItemArray());
+		return new ArrayList<>(innerCargo.getItemArray());
 	}
 
 	@Override

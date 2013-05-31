@@ -18,8 +18,17 @@
  */
 package net.driftingsouls.ds2.server.comm;
 
-import java.util.Iterator;
-import java.util.List;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.ally.Ally;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Configuration;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.tasks.Taskmanager;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -30,19 +39,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
-
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.ally.Ally;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.tasks.Taskmanager;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
+import java.util.List;
 
 /**
  * <p>Repraesentiert eine PM in der Datenbank.</p>
@@ -137,8 +134,9 @@ public class PM {
 		List<?> members = db.createQuery("from User where ally=:ally")
 			.setEntity("ally", to)
 			.list();
-		for( Iterator<?> iter=members.iterator(); iter.hasNext(); ) {
-			User member = (User)iter.next();
+		for (Object member1 : members)
+		{
+			User member = (User) member1;
 
 			PM pm = new PM(from, member, title, msg);
 			pm.setFlags(flags);
@@ -194,16 +192,14 @@ public class PM {
 		 * Taskverarbeitung (Spezial-PM)
 		 */
 		else {
-			String taskid = title;
-			String taskcmd = txt;
 
 			Taskmanager taskmanager = Taskmanager.getInstance();
 
-			if( taskcmd.equals("handletm") ) {
-				taskmanager.handleTask( taskid, "pm_yes" );
+			if( txt.equals("handletm") ) {
+				taskmanager.handleTask(title, "pm_yes" );
 			}
 			else {
-				taskmanager.handleTask( taskid, "pm_no" );
+				taskmanager.handleTask(title, "pm_no" );
 			}
 		}
 	}
@@ -235,14 +231,17 @@ public class PM {
 		List<?> pms = db.createQuery("from PM where ordner=:ordner")
 			.setInteger("ordner", ordner.getId())
 			.list();
-		for( Iterator<?> iter=pms.iterator(); iter.hasNext(); ) {
-			PM pm = (PM)iter.next();
+		for (Object pm1 : pms)
+		{
+			PM pm = (PM) pm1;
 
-			if( pm.getEmpfaenger().getId() != user.getId() ) {
+			if (pm.getEmpfaenger().getId() != user.getId())
+			{
 				return 2;
 			}
 			int result = pm.delete();
-			if( result != 0 ) {
+			if (result != 0)
+			{
 				return result;
 			}
 		}
@@ -264,8 +263,9 @@ public class PM {
 			.setInteger("ordner", source.getId())
 			.setEntity("user", user)
 			.list();
-		for( Iterator<?> iter=pms.iterator(); iter.hasNext(); ) {
-			PM pm = (PM)iter.next();
+		for (Object pm1 : pms)
+		{
+			PM pm = (PM) pm1;
 			int gelesen = (trash == source) ? 1 : pm.getGelesen();
 
 			pm.setGelesen((trash == dest) ? 2 : gelesen);
@@ -517,7 +517,7 @@ public class PM {
 		}
 
 		Ordner trashCan = Ordner.getTrash(this.empfaenger);
-		int trash = -1;
+		int trash;
 		if(trashCan != null)
 		{
 			trash = trashCan.getId();

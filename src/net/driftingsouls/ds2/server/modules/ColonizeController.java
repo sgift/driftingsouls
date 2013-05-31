@@ -36,6 +36,9 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -45,11 +48,12 @@ import net.driftingsouls.ds2.server.ships.ShipTypes;
  * Kolonisieren eines Asteroiden mittels eines Colonizers (Schiff).
  * @author Christopher Jung
  *
- * @urlparam Integer ship Die Schiffs-ID des Colonizers
- * @urlparam Integer col Die Basis-ID des zu kolonisierenden Asteroiden
- *
  */
 @Module(name="colonize")
+@UrlParams({
+		@UrlParam(name="ship", type= UrlParamType.NUMBER, description = "Die Schiffs-ID des Colonizers"),
+		@UrlParam(name="col", type=UrlParamType.NUMBER, description = "Die Basis-ID des zu kolonisierenden Asteroiden")
+})
 public class ColonizeController extends TemplateGenerator {
 	private Ship ship;
 	private Base base;
@@ -62,10 +66,6 @@ public class ColonizeController extends TemplateGenerator {
 		super(context);
 
 		setTemplate("colonize.html");
-
-		parameterNumber("ship");
-		parameterNumber("col");
-
 		setPageTitle("Kolonisieren");
 	}
 
@@ -126,7 +126,7 @@ public class ColonizeController extends TemplateGenerator {
 		Integer[] bebauung = base.getBebauung();
 		Integer[] bebon = base.getActive();
 
-		Map<Integer,Integer> bases = new HashMap<Integer,Integer>();
+		Map<Integer,Integer> bases = new HashMap<>();
 		bases.put(base.getSystem(), 1);
 		int basecount = 0;
 
@@ -161,22 +161,25 @@ public class ColonizeController extends TemplateGenerator {
 		 *
 		 */
 		//Anzahl der Gebaeude pro Spieler berechnen
-		Map<Integer,Integer> ownerBuildingCount = new HashMap<Integer,Integer>();
+		Map<Integer,Integer> ownerBuildingCount = new HashMap<>();
 
 		for( Base aBase : user.getBases() ) {
 			Integer[] abeb = aBase.getBebauung();
-			for( int i=0; i < abeb.length; i++ ) {
-				if( ownerBuildingCount.containsKey(abeb[i]) ) {
-					ownerBuildingCount.put( abeb[i], ownerBuildingCount.get(abeb[i])+1 );
+			for (Integer anAbeb : abeb)
+			{
+				if (ownerBuildingCount.containsKey(anAbeb))
+				{
+					ownerBuildingCount.put(anAbeb, ownerBuildingCount.get(anAbeb) + 1);
 				}
-				else {
-					ownerBuildingCount.put( abeb[i], 1 );
+				else
+				{
+					ownerBuildingCount.put(anAbeb, 1);
 				}
 			}
 		}
 
 		// Problematische Gebaeude ermitteln
-		Map<Integer,Integer> problematicBuildings = new HashMap<Integer,Integer>();
+		Map<Integer,Integer> problematicBuildings = new HashMap<>();
 		Iterator<?> buildingIter = db.createQuery("from Building where perOwner>0").iterate();
 		for( ; buildingIter.hasNext(); ) {
 			Building aBuilding = (Building)buildingIter.next();

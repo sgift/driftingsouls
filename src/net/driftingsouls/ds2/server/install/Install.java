@@ -33,7 +33,7 @@ public class Install
 {
 	public static void main(String[] args) throws IOException
 	{
-		Set<String> params = new HashSet<String>(Arrays.asList(args));
+		Set<String> params = new HashSet<>(Arrays.asList(args));
 		final boolean skipDatabase = params.contains("--skip-database");
 		final boolean skipConfiguraiton = params.contains("--skip-configuration");
 
@@ -85,14 +85,13 @@ public class Install
 
 		try
 		{
-			Connection con = DriverManager.getConnection("jdbc:mysql://"+dblocation+"/"+db, user, pw);
-			try
+			try (Connection con = DriverManager.getConnection("jdbc:mysql://" + dblocation + "/" + db, user, pw))
 			{
 				System.out.println("Datenbankverbindung hergestellt");
 
-				if( !skipDatabase )
+				if (!skipDatabase)
 				{
-					if( !checkDatabaseEmpty(con, reader) )
+					if (!checkDatabaseEmpty(con, reader))
 					{
 						return;
 					}
@@ -102,10 +101,10 @@ public class Install
 					System.out.println("Datenbank installiert\n");
 				}
 
-				if( !skipConfiguraiton )
+				if (!skipConfiguraiton)
 				{
 					System.out.println("Erstelle config.xml");
-					if( !createConfigXml(reader, dblocation, db, user, pw) )
+					if (!createConfigXml(reader, dblocation, db, user, pw))
 					{
 						return;
 					}
@@ -114,10 +113,6 @@ public class Install
 				System.out.println("\nDS ist nun installiert.\n");
 
 				loadImages(reader, con);
-			}
-			finally
-			{
-				con.close();
 			}
 
 			System.out.println("Du solltest es nun mittels 'ant clean templates compile' erneut uebersetzen.");
@@ -203,7 +198,7 @@ public class Install
 			inst.store(imgs, null, null);
 		}
 
-		imgs = new HashSet<String>(Arrays.asList(
+		imgs = new HashSet<>(Arrays.asList(
 				"jumpnode/jumpnode.png",
 				"space/space.png",
 				"asti_own/asti_own.png",
@@ -221,24 +216,23 @@ public class Install
 	private static boolean checkDatabaseEmpty(Connection con, BufferedReader reader) throws SQLException, IOException
 	{
 		DatabaseMetaData metaData = con.getMetaData();
-		ResultSet rs = metaData.getTables(con.getCatalog(), con.getSchema(), "%", null);
-		try
+		try (ResultSet rs = metaData.getTables(con.getCatalog(), con.getSchema(), "%", null))
 		{
 			boolean drop = false;
-			while( rs.next() )
+			while (rs.next())
 			{
-				if( !"TABLE".equalsIgnoreCase(rs.getString("TABLE_TYPE")) )
+				if (!"TABLE".equalsIgnoreCase(rs.getString("TABLE_TYPE")))
 				{
 					continue;
 				}
-				if( !drop)
+				if (!drop)
 				{
 					System.out.print("Warnung! Es existieren bereits Tabellen in der gewaehlten Datenbank. " +
 							"Fuer die Installation von DS wird aber eine leere Datenbank benoetigt.\n" +
 							"Sollten die Tabellen automatisch geloescht werden (y/n)?: ");
 
 					String result = reader.readLine();
-					if( !"y".equalsIgnoreCase(result.trim()) )
+					if (!"y".equalsIgnoreCase(result.trim()))
 					{
 						return false;
 					}
@@ -247,29 +241,17 @@ public class Install
 					InstallUtils.toggleForeignKeyChecks(con, false);
 				}
 
-				if( drop )
+				System.out.println("Loesche Tabelle: " + rs.getString("TABLE_NAME"));
+				try (Statement stmt = con.createStatement())
 				{
-					System.out.println("Loesche Tabelle: "+rs.getString("TABLE_NAME"));
-					Statement stmt = con.createStatement();
-					try
-					{
-						stmt.executeUpdate("DROP TABLE "+rs.getString("TABLE_NAME"));
-					}
-					finally
-					{
-						stmt.close();
-					}
+					stmt.executeUpdate("DROP TABLE " + rs.getString("TABLE_NAME"));
 				}
 			}
 
-			if( drop )
+			if (drop)
 			{
 				InstallUtils.toggleForeignKeyChecks(con, true);
 			}
-		}
-		finally
-		{
-			rs.close();
 		}
 
 		return true;
@@ -323,27 +305,7 @@ public class Install
 
 			System.out.println("config.xml erstellt");
 		}
-		catch (SAXException e)
-		{
-			System.err.println("Konnte Konfigurationsdatei nicht erstellen");
-			throw new IOException(e);
-		}
-		catch (IOException e)
-		{
-			System.err.println("Konnte Konfigurationsdatei nicht erstellen");
-			throw new IOException(e);
-		}
-		catch (ParserConfigurationException e)
-		{
-			System.err.println("Konnte Konfigurationsdatei nicht erstellen");
-			throw new IOException(e);
-		}
-		catch (XPathExpressionException e)
-		{
-			System.err.println("Konnte Konfigurationsdatei nicht erstellen");
-			throw new IOException(e);
-		}
-		catch (TransformerException e)
+		catch (SAXException | IOException | ParserConfigurationException | XPathExpressionException | TransformerException e)
 		{
 			System.err.println("Konnte Konfigurationsdatei nicht erstellen");
 			throw new IOException(e);

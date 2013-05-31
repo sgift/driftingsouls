@@ -37,7 +37,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  */
 @Module(name="bbcodeview")
 public class BBCodeViewController extends TemplateGenerator {
-	private static List<String> codes = new ArrayList<String>();
+	private static List<String> codes = new ArrayList<>();
 	static {
 		codes.add("[url]http://www.dieGew&uuml;nschteSeite.de[/url]<br />");
 		codes.add("[url=http://www.dieGew&uuml;nschteSeite.de]Eine Beschreibung[/url<br />");

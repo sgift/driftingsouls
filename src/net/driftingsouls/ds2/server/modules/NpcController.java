@@ -41,7 +41,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -110,47 +109,52 @@ public class NpcController extends AngularGenerator {
 		List<?> ships = db.createQuery("from Ship s where s.owner=:user and locate('#!/tm gany_transport',s.einstellungen.destcom)!=0")
 			.setEntity("user", user)
 			.list();
-		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
-			Ship aship = (Ship)iter.next();
+		for (Object ship : ships)
+		{
+			Ship aship = (Ship) ship;
 			ShipTypeData ashiptype = aship.getTypeData();
 
 			JSONObject transObj = new JSONObject();
 			transObj.accumulate("status", "lageweile")
-				.accumulate("auftrag", "-");
-			
+					.accumulate("auftrag", "-");
+
 			JSONObject shipObj = new JSONObject();
 			shipObj.accumulate("id", aship.getId())
-				.accumulate("name", aship.getName())
-				.accumulate("picture", ashiptype.getPicture());
-			
+					.accumulate("name", aship.getName())
+					.accumulate("picture", ashiptype.getPicture());
+
 			transObj.accumulate("ship", shipObj);
 			transpListObj.add(transObj);
 
 			Taskmanager taskmanager = Taskmanager.getInstance();
 			Task[] tasks = taskmanager.getTasksByData(Taskmanager.Types.GANY_TRANSPORT, "*", Integer.toString(aship.getId()), "*");
-			if( tasks.length == 0 ) {
+			if (tasks.length == 0)
+			{
 				continue;
 			}
 
 			Task task = tasks[0];
 
-			String status = "";
-			if( task.getData3().equals("1") ) {
+			String status;
+			if (task.getData3().equals("1"))
+			{
 				status = "verschiebt gany";
 			}
-			else if( task.getData3().equals("2") ) {
+			else if (task.getData3().equals("2"))
+			{
 				status = "rückflug";
 			}
-			else {
+			else
+			{
 				status = "anreise";
 			}
 
 			transObj.accumulate("status", status);
-			
-			FactionShopOrder order = (FactionShopOrder)db
+
+			FactionShopOrder order = (FactionShopOrder) db
 					.get(FactionShopOrder.class, Integer.parseInt(task.getData1()));
 
-			if( order == null)
+			if (order == null)
 			{
 				db.delete(task);
 				continue;
@@ -158,13 +162,13 @@ public class NpcController extends AngularGenerator {
 
 			User orderuser = order.getUser();
 
-			if(orderuser == null)
+			if (orderuser == null)
 			{
-				orderuser =  new User();
+				orderuser = new User();
 				orderuser.setName("deleted user");
 			}
 
-			transObj.accumulate("auftrag", order.getId()+": "+Common._title(orderuser.getName())+"\n"+order.getAddData());
+			transObj.accumulate("auftrag", order.getId() + ": " + Common._title(orderuser.getName()) + "\n" + order.getAddData());
 		}
 		
 		result.accumulate("transporter", transpListObj);
@@ -436,7 +440,7 @@ public class NpcController extends AngularGenerator {
 		//DateFormat format = new SimpleDateFormat("dd.MM.yy HH:mm");
 
 		JSONArray lpListObj = new JSONArray();
-		for( Loyalitaetspunkte lp : new TreeSet<Loyalitaetspunkte>(edituser.getLoyalitaetspunkte()) )
+		for( Loyalitaetspunkte lp : new TreeSet<>(edituser.getLoyalitaetspunkte()) )
 		{
 			JSONObject lpObj = lp.toJSON();
 			lpObj.accumulate("verliehenDurch", lp.getVerliehenDurch().toJSON());
@@ -555,7 +559,7 @@ public class NpcController extends AngularGenerator {
 
 		int costs = 0;
 
-		List<Order> orderList = new ArrayList<Order>();
+		List<Order> orderList = new ArrayList<>();
 
 		List<?> shipOrders = db
 				.createQuery("from OrderableShip s order by s.shipType.shipClass,s.shipType.id")
@@ -673,8 +677,8 @@ public class NpcController extends AngularGenerator {
 		org.hibernate.Session db = getDB();
 		User user = (User)this.getUser();
 
-		Map<Integer,Integer> shiporders = new HashMap<Integer,Integer>();
-		Map<Integer,Integer> offiorders = new HashMap<Integer,Integer>();
+		Map<Integer,Integer> shiporders = new HashMap<>();
+		Map<Integer,Integer> offiorders = new HashMap<>();
 
 		JSONObject result = new JSONObject();
 		fillCommonMenuResultData(result);
@@ -776,7 +780,7 @@ public class NpcController extends AngularGenerator {
 
 	private void outputLieferposition(JSONObject result, User user)
 	{
-		Set<Location> uniqueLocations = new HashSet<Location>();
+		Set<Location> uniqueLocations = new HashSet<>();
 
 		Location lieferpos = null;
 		if( user.getNpcOrderLocation() != null )

@@ -32,6 +32,9 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -42,10 +45,9 @@ import java.util.*;
 /**
  * Verwaltung einer Basis.
  * @author Christopher Jung
- *
- * @urlparam Integer col Die ID der Basis
  */
 @Module(name="base")
+@UrlParam(name="col", type= UrlParamType.NUMBER, description = "Die ID der Basis")
 public class BaseController extends TemplateGenerator {
 	private Base base;
 
@@ -57,8 +59,6 @@ public class BaseController extends TemplateGenerator {
 		super(context);
 
 		setTemplate("base.html");
-
-		parameterNumber("col");
 
 		setPageTitle("Basis");
 	}
@@ -85,14 +85,13 @@ public class BaseController extends TemplateGenerator {
 
 	/**
 	 * Aendert den Namen einer Basis.
-	 * @urlparam Integer feeding Der neue Versorgungsstatus der Basis
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
+	@UrlParam(name="feeding", type=UrlParamType.NUMBER, description = "Der neue Versorgungsstatus der Basis")
 	public void changeFeedingAction() {
 		TemplateEngine t = getTemplateEngine();
 
-		parameterNumber("feeding");
 		int feeding = getInteger("feeding");
 		if( feeding == 0 ) {
 			base.setFeeding(false);
@@ -116,9 +115,9 @@ public class BaseController extends TemplateGenerator {
 
 	/**
 	 * Aendert den Versorgungsstatus einer Basis.
-	 * @urlparam String newname Der neue Name der Basis
 	 *
 	 */
+	@UrlParam(name="newname", description = "Der neue Name der Basis")
 	@Action(ActionType.DEFAULT)
 	public void changeNameAction() {
 		TemplateEngine t = getTemplateEngine();
@@ -142,11 +141,12 @@ public class BaseController extends TemplateGenerator {
 
 	/**
 	 * (de)aktiviert Gebaeudegruppen.
-	 * @urlparam Integer act 0, wenn die Gebaeude deaktiviert werden sollen. Andernfalls 1
-	 * @urlparam Integer buildingoff Die ID des Gebaeudetyps, dessen Gebaeude (de)aktiviert werden sollen
-	 *
 	 */
 	@Action(ActionType.DEFAULT)
+	@UrlParams({
+			@UrlParam(name="act", type=UrlParamType.NUMBER, description = "0, wenn die Gebaeude deaktiviert werden sollen. Andernfalls 1"),
+			@UrlParam(name="buildingoff", type=UrlParamType.NUMBER, description = "Die ID des Gebaeudetyps, dessen Gebaeude (de)aktiviert werden sollen")
+	})
 	public void changeBuildingStatusAction() {
 		TemplateEngine t = getTemplateEngine();
 
@@ -194,7 +194,7 @@ public class BaseController extends TemplateGenerator {
 			base.setActive(active);
 
 			if( count != 0 ) {
-				String result = "";
+				String result;
 
 				if( bebstatus != 0 ) {
 					result = "<span style=\"color:green\">";
@@ -300,7 +300,7 @@ public class BaseController extends TemplateGenerator {
 
 		JSONArray mapObj = new JSONArray();
 
-		Map<Integer,Integer> buildingonoffstatus = new TreeMap<Integer,Integer>(new BuildingComparator());
+		Map<Integer,Integer> buildingonoffstatus = new TreeMap<>(new BuildingComparator());
 
 		for( int i = 0; i < base.getWidth() * base.getHeight(); i++ ) {
 			JSONObject feld = new JSONObject();
@@ -404,14 +404,14 @@ public class BaseController extends TemplateGenerator {
 		// Karte
 		//----------------
 
-		Map<Integer,Integer> buildingonoffstatus = new TreeMap<Integer,Integer>(new BuildingComparator());
+		Map<Integer,Integer> buildingonoffstatus = new TreeMap<>(new BuildingComparator());
 
 		t.setBlock("_BASE", "base.map.listitem", "base.map.list");
 
 		for( int i = 0; i < base.getWidth() * base.getHeight(); i++ ) {
 			t.start_record();
 
-			String image = "";
+			String image;
 
 			//Leeres Feld
 			if( base.getBebauung()[i] == 0 ) {

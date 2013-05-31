@@ -66,7 +66,7 @@ public class PlayerFieldView implements FieldView
 	{
         boolean shipInSector = isSameSector();
 
-        List<Base> bases = new ArrayList<Base>();
+        List<Base> bases = new ArrayList<>();
 		for( Base base : this.field.getBases() )
 		{
 			if( base.getOwner().getId() == this.user.getId() )
@@ -147,7 +147,7 @@ public class PlayerFieldView implements FieldView
 	@Override
 	public Map<User, Map<ShipType, List<Ship>>> getShips()
 	{
-		Map<User, Map<ShipType, List<Ship>>> ships = new TreeMap<User, Map<ShipType,List<Ship>>>(BasicUser.PLAINNAME_ORDER);
+		Map<User, Map<ShipType, List<Ship>>> ships = new TreeMap<>(BasicUser.PLAINNAME_ORDER);
         if(!this.inScanRange)
         {
             return ships;
@@ -237,7 +237,7 @@ public class PlayerFieldView implements FieldView
 	@Override
 	public List<JumpNode> getJumpNodes()
 	{
-		List<JumpNode> result = new ArrayList<JumpNode>();
+		List<JumpNode> result = new ArrayList<>();
 		for (JumpNode jumpNode : this.field.getNodes())
 		{
 			if( !jumpNode.isHidden() )
@@ -254,7 +254,7 @@ public class PlayerFieldView implements FieldView
 	{
 		if( !this.inScanRange )
 		{
-			return new ArrayList<Jump>();
+			return new ArrayList<>();
 		}
 		return field.getSubraumspalten();
 	}
@@ -264,7 +264,7 @@ public class PlayerFieldView implements FieldView
 	{
 		if( !this.inScanRange )
 		{
-			return new ArrayList<Battle>();
+			return new ArrayList<>();
 		}
 		return this.field.getBattles();
 	}

@@ -1,15 +1,14 @@
 package net.driftingsouls.ds2.server.modules;
 
-import java.io.IOException;
-import java.io.Writer;
-
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
 import net.driftingsouls.ds2.server.uilibs.PlayerList;
+
+import java.io.IOException;
+import java.io.Writer;
 
 /**
  * Zeigt die Spielerliste an.
@@ -46,7 +45,7 @@ public class PListController extends DSGenerator {
 			echo.append("function playerPM(id)\n");
 			echo.append("{\n");
 			echo.append("opener.parent.frames['main'].location.href='./ds?module=comm&to='+id;\n");
-			echo.append("window.close()\n");;
+			echo.append("window.close()\n");
 			echo.append("}\n");
 			echo.append("// -->\n");
 			echo.append("</script>\n");

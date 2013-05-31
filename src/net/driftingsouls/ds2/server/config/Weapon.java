@@ -181,7 +181,7 @@ public class Weapon {
 				}
 			}
 			else {
-				List<String> ammo = new ArrayList<String>();
+				List<String> ammo = new ArrayList<>();
 				
 				NodeList nodes = shots.getChildNodes();
 				for( int i=0; i < nodes.getLength(); i++ ) {

@@ -48,12 +48,7 @@ public class PublicStarmap
 
 	private Starmap createMap(StarSystem system)
 	{
-		Starmap map = new Starmap(system.getID());
-		if(map == null)
-		{
-			throw new IllegalArgumentException("The given system " + system.getID() + " does not exist.");
-		}
-		return map;
+		return new Starmap(system.getID());
 	}
 
 	/**

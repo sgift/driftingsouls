@@ -48,6 +48,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeChangeset;
@@ -101,25 +102,25 @@ public class ItemInfoController extends TemplateGenerator {
 
 		if( mods.getRu() != 0 ) {
 			colorize(effecttext, mods.getRu());
-			effecttext.append("Reaktor <img src=\""+Cargo.getResourceImage(Resources.URAN)+"\" alt=\"\" /> "+mods.getRu());
+			effecttext.append("Reaktor <img src=\"").append(Cargo.getResourceImage(Resources.URAN)).append("\" alt=\"\" /> ").append(mods.getRu());
 			effecttext.append("</span><br />\n");
 		}
 
 		if( mods.getRd() != 0 ) {
 			colorize(effecttext, mods.getRd());
-			effecttext.append("Reaktor <img src=\""+Cargo.getResourceImage(Resources.DEUTERIUM)+"\" alt=\"\" /> "+mods.getRd());
+			effecttext.append("Reaktor <img src=\"").append(Cargo.getResourceImage(Resources.DEUTERIUM)).append("\" alt=\"\" /> ").append(mods.getRd());
 			effecttext.append("</span><br />\n");
 		}
 
 		if( mods.getRa() != 0 ) {
 			colorize(effecttext, mods.getRa());
-			effecttext.append("Reaktor <img src=\""+Cargo.getResourceImage(Resources.ANTIMATERIE)+"\" alt=\"\" /> "+mods.getRa());
+			effecttext.append("Reaktor <img src=\"").append(Cargo.getResourceImage(Resources.ANTIMATERIE)).append("\" alt=\"\" /> ").append(mods.getRa());
 			effecttext.append("</span><br />\n");
 		}
 
 		if( mods.getRm() != 0 ) {
 			colorize(effecttext, mods.getRm());
-			effecttext.append("Reaktor <img src=\"./data/interface/energie.gif\" alt=\"\" /> "+mods.getRm());
+			effecttext.append("Reaktor <img src=\"./data/interface/energie.gif\" alt=\"\" /> ").append(mods.getRm());
 			effecttext.append("</span><br />\n");
 		}
 
@@ -301,15 +302,14 @@ public class ItemInfoController extends TemplateGenerator {
 
 	/**
 	 * Zeigt Details zu einem Item an.
-	 * @urlparam Integer itemid Die ID des anzuzeigenden Items
 	 */
 	@Action(ActionType.DEFAULT)
+	@UrlParam(name="itemid", description = "Die ID des anzuzeigenden Items")
 	public void detailsAction() {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
 		org.hibernate.Session db = getDB();
 
-		parameterString("item");
 		String itemStr = getString("item");
 		int itemid = -1;
 		if( ItemID.isItemRID(itemStr) )
@@ -440,8 +440,8 @@ public class ItemInfoController extends TemplateGenerator {
 			for( ResourceEntry res : reslist ) {
 				data.append("<img src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCargo1()).append("<br />\n");
 			}
-			data.append("<img src=\"./data/interface/energie.gif\" alt=\"\" />"+effect.getE()+"<br />\n");
-			data.append("<img src=\"./data/interface/besatzung.gif\" alt=\"\" />"+effect.getCrew()+"<br />\n");
+			data.append("<img src=\"./data/interface/energie.gif\" alt=\"\" />").append(effect.getE()).append("<br />\n");
+			data.append("<img src=\"./data/interface/besatzung.gif\" alt=\"\" />").append(effect.getCrew()).append("<br />\n");
 
 			t.setVar(	"entry.name",	"Kosten",
 						"entry.data",	data );
@@ -710,7 +710,7 @@ public class ItemInfoController extends TemplateGenerator {
 
 		t.setBlock("_ITEMINFO", "knownlist.listitem", "knownlist.list");
 
-		Map<Integer,String[]> reslocations = new HashMap<Integer,String[]>();
+		Map<Integer,String[]> reslocations = new HashMap<>();
 		List<?> modules = db.createQuery("from StatItemLocations where user=:user")
 			.setEntity("user", user)
 			.list();
@@ -842,15 +842,14 @@ public class ItemInfoController extends TemplateGenerator {
 
 	/**
 	 * Zeigt eine Itemliste an.
-	 * @urlparam String itemlist Die Itemliste
 	 */
 	@Override
+	@UrlParam(name="itemlist", description = "Die Itemliste")
 	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		TemplateEngine t = this.getTemplateEngine();
 		User user = (User)getUser();
 
-		parameterString("itemlist");
 		Cargo itemlist;
 
 		try {

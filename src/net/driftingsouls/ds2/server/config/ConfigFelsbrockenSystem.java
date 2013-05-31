@@ -36,7 +36,7 @@ public class ConfigFelsbrockenSystem
 	 */
 	protected ConfigFelsbrockenSystem()
 	{
-		this.felsbrocken = new TreeSet<ConfigFelsbrocken>();
+		this.felsbrocken = new TreeSet<>();
 	}
 
 	/**

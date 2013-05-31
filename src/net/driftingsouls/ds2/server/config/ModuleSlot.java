@@ -84,13 +84,16 @@ public class ModuleSlot {
 	 */
 	public boolean isMemberIn( String[] slottype, String cmp ) {
 		if( slottype.length > 1 ) {
-			for( int i=0; i < slottype.length; i++ ) {
-				boolean result = isMemberIn(new String[] {slottype[i]});
-				if( result && cmp.equals("and") ) {
-					return false;	
+			for (String aSlottype : slottype)
+			{
+				boolean result = isMemberIn(new String[]{aSlottype});
+				if (result && cmp.equals("and"))
+				{
+					return false;
 				}
-				else if( result && cmp.equals("or") ) {
-					return true;	
+				else if (result && cmp.equals("or"))
+				{
+					return true;
 				}
 			}
 			if( cmp.equals("and") ) {
@@ -103,8 +106,8 @@ public class ModuleSlot {
 		
 		if( this.slottype.equals(slottype[0]) ) {
 			return true;
-		}	
-		
+		}
+
 		if( (parent != null) && (parent.length() > 0) ) {
 			return ModuleSlots.get().slot(parent).isMemberIn( slottype );
 		}

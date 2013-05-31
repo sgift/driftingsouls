@@ -18,9 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.util.Iterator;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.MutableLocation;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -36,6 +33,8 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenera
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+
+import java.util.List;
 
 /**
  * Laesst alle Tanker (solchen Schiffen mit einem <code>deutfactor</code> &gt; 0) Deuterium
@@ -83,53 +82,61 @@ public class DeutAllController extends TemplateGenerator {
 				.setEntity("user", user)
 				.list();
 
-		for( Iterator<?> iter=ships.iterator(); iter.hasNext(); ) {
+		for (Object ship1 : ships)
+		{
 			t.start_record();
-			Ship ship = (Ship)iter.next();
+			Ship ship = (Ship) ship1;
 
 			ShipTypeData shiptype = ship.getTypeData();
-			if( shiptype.getDeutFactor() == 0 ) {
+			if (shiptype.getDeutFactor() == 0)
+			{
 				continue;
 			}
 
-			if( (lastcoords == null) || !lastcoords.sameSector(0, ship.getLocation(), 0) ) {
-				t.setVar(	"ship.newcoords",		1,
-							"ship.location",		ship.getLocation().displayCoordinates(false),
-							"ship.newcoords.break",	lastcoords != null );
+			if ((lastcoords == null) || !lastcoords.sameSector(0, ship.getLocation(), 0))
+			{
+				t.setVar("ship.newcoords", 1,
+						"ship.location", ship.getLocation().displayCoordinates(false),
+						"ship.newcoords.break", lastcoords != null);
 
 				lastcoords = ship.getLocation();
 			}
 
-			t.setVar(	"ship.id",		ship.getId(),
-						"ship.name",	Common._plaintitle(ship.getName()) );
+			t.setVar("ship.id", ship.getId(),
+					"ship.name", Common._plaintitle(ship.getName()));
 
-			if( ship.getEnergy() <= 0 ) {
-				t.setVar(	"ship.message",			"Keine Energie",
-							"ship.message.color",	"red" );
+			if (ship.getEnergy() <= 0)
+			{
+				t.setVar("ship.message", "Keine Energie",
+						"ship.message.color", "red");
 			}
-			else if( ship.getCrew() < (shiptype.getCrew()/2) ) {
-				t.setVar(	"ship.message",			"Nicht genug Crew",
-							"ship.message.color",	"red" );
+			else if (ship.getCrew() < (shiptype.getCrew() / 2))
+			{
+				t.setVar("ship.message", "Nicht genug Crew",
+						"ship.message.color", "red");
 			}
-			else {
-				Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(ship));
+			else
+			{
+				Nebel nebel = (Nebel) db.get(Nebel.class, new MutableLocation(ship));
 
-				if( (nebel != null) && nebel.getType().isDeuteriumNebel() ) {
+				if ((nebel != null) && nebel.getType().isDeuteriumNebel())
+				{
 					long saugdeut = ship.sammelDeuterium(nebel, -1);
-					if( saugdeut <= 0 )
+					if (saugdeut <= 0)
 					{
-						t.setVar(	"ship.message",		"Es konnte kein weiteres Deuterium gesammelt werden",
-								"ship.message.color",	"#FF4444" );
+						t.setVar("ship.message", "Es konnte kein weiteres Deuterium gesammelt werden",
+								"ship.message.color", "#FF4444");
 					}
 					else
 					{
-						t.setVar(	"ship.saugdeut",	saugdeut,
-								"deuterium.image",	Cargo.getResourceImage(Resources.DEUTERIUM) );
+						t.setVar("ship.saugdeut", saugdeut,
+								"deuterium.image", Cargo.getResourceImage(Resources.DEUTERIUM));
 					}
 				}
-				else {
-					t.setVar(	"ship.message",			"Kein Nebel",
-								"ship.message.color",	"red" );
+				else
+				{
+					t.setVar("ship.message", "Kein Nebel",
+							"ship.message.color", "red");
 				}
 			}
 			t.parse("ships.list", "ships.listitem", true);

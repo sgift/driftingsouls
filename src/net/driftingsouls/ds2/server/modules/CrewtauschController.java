@@ -222,42 +222,47 @@ public class CrewtauschController extends TemplateGenerator {
 		
 		Target datat = null;
 		int maxcrewf = 0;
-		
-		if( mode.equals("ss") ) {
-			Ship aship = (Ship)db.get(Ship.class, tar);
 
-			if( (aship == null) || (aship.getId() < 0) || !ship.getLocation().sameSector(0, aship, 0) ) {
-				addError("Die beiden Schiffe befinden sich nicht im selben Sektor", Common.buildUrl("default", "module", "schiff", "ship", shipID) );
-				
-				return false;
-			}
-
-			if( aship.getBattle() != null ) {
-				addError("Das Ziel befindet sich in einer Schlacht. Ihre Crew weigert sich " +
-						"deshalb in die Shuttles einzusteigen und einen Crewaustausch durchzuführen.",
-						Common.buildUrl("default", "module", "schiff", "ship", shipID) );
-
-				return false;
-			}
-
-			maxcrewf = ship.getTypeData().getCrew();
-			datat = new ShipTarget(aship);
-		}
-		else if( mode.equals("sb") ) {
-			Base abase = (Base)db.get(Base.class, tar);
-
-			if( (abase == null) || !ship.getLocation().sameSector(0, abase, abase.getSize()) ) {
-				addError("Schiff und Basis befinden sich nicht im selben Sektor", Common.buildUrl("default", "module", "schiff", "ship", shipID) );
-				
-				return false;
-			}
-
-			maxcrewf = ship.getTypeData().getCrew();
-			datat = new BaseTarget(abase);
-		}
-		else
+		switch (mode)
 		{
-			addError("Dieser Transportweg ist unbekannt (hoer mit dem scheiss URL-Hacking auf) - Versuch geloggt", Common.buildUrl("default", "module", "schiff", "ship", shipID) );
+			case "ss":
+				Ship aship = (Ship) db.get(Ship.class, tar);
+
+				if ((aship == null) || (aship.getId() < 0) || !ship.getLocation().sameSector(0, aship, 0))
+				{
+					addError("Die beiden Schiffe befinden sich nicht im selben Sektor", Common.buildUrl("default", "module", "schiff", "ship", shipID));
+
+					return false;
+				}
+
+				if (aship.getBattle() != null)
+				{
+					addError("Das Ziel befindet sich in einer Schlacht. Ihre Crew weigert sich " +
+							"deshalb in die Shuttles einzusteigen und einen Crewaustausch durchzuführen.",
+							Common.buildUrl("default", "module", "schiff", "ship", shipID));
+
+					return false;
+				}
+
+				maxcrewf = ship.getTypeData().getCrew();
+				datat = new ShipTarget(aship);
+				break;
+			case "sb":
+				Base abase = (Base) db.get(Base.class, tar);
+
+				if ((abase == null) || !ship.getLocation().sameSector(0, abase, abase.getSize()))
+				{
+					addError("Schiff und Basis befinden sich nicht im selben Sektor", Common.buildUrl("default", "module", "schiff", "ship", shipID));
+
+					return false;
+				}
+
+				maxcrewf = ship.getTypeData().getCrew();
+				datat = new BaseTarget(abase);
+				break;
+			default:
+				addError("Dieser Transportweg ist unbekannt (hoer mit dem scheiss URL-Hacking auf) - Versuch geloggt", Common.buildUrl("default", "module", "schiff", "ship", shipID));
+				break;
 		}
 		
 		if( ship.getOwner() != datat.getOwner() ) {

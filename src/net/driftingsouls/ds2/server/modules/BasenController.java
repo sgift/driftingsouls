@@ -18,10 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.BaseStatus;
 import net.driftingsouls.ds2.server.bases.Building;
@@ -36,20 +32,25 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-
 import org.apache.commons.lang.ArrayUtils;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Die Basenliste.
  * @author Christopher Jung
- * 
- * @urlparam Integer l Falls == 1 werden die Cargos der Basen angezeigt
- * @urlparam String ord Das Attribut, nachdem geordnet werden soll
- * @urlparam Integer order Falls == 1 wird absteigend sortiert
- *
  */
 @Module(name="basen")
+@UrlParams({
+		@UrlParam(name="l", type= UrlParamType.NUMBER, description = "Falls == 1 werden die Cargos der Basen angezeigt"),
+		@UrlParam(name="ord", description = "Das Attribut, nach dem geordnet werden soll"),
+		@UrlParam(name="order", type=UrlParamType.NUMBER, description = "Falls == 1 wird absteigend sortiert")
+})
 public class BasenController extends TemplateGenerator {
 	@SuppressWarnings("unchecked")
 	private static final Map<String,String> ordmapper = ArrayUtils.toMap( new String[][]
@@ -68,10 +69,7 @@ public class BasenController extends TemplateGenerator {
 		super(context);
 		
 		setTemplate("basen.html");
-		
-		parameterNumber("l");	
-		parameterString("ord");
-		parameterNumber("order");
+
 		setPageTitle("Basen");
 	}
 	
@@ -114,8 +112,8 @@ public class BasenController extends TemplateGenerator {
 					"global.omode", order );
 	
 		
-		String ow = "";
-		String om = "";
+		String ow;
+		String om;
 		if( ordmapper.containsKey(ord) ) {
 			ow = ordmapper.get(ord);
 		}
@@ -138,51 +136,55 @@ public class BasenController extends TemplateGenerator {
 		List<?> list = db.createQuery("from Base where owner= :user order by "+ow+" "+om)
 			.setEntity("user", user)
 			.list();
-		for( Iterator<?> iter = list.iterator(); iter.hasNext(); ) {
-			Base base = (Base)iter.next();
+		for (Object aList : list)
+		{
+			Base base = (Base) aList;
 			BaseStatus basedata = Base.getStatus(base);
-			
-			t.setVar( "base.id"		, base.getId(),
-					"base.klasse"	, base.getKlasse(),
-					"base.name"		, Common._plaintitle(base.getName()),
-					"base.system"	, base.getSystem(),
-					"base.x"		, base.getX(),
-					"base.y"		, base.getY(),
-					"base.bewohner"	, base.getBewohner(),
-					"base.e"		, base.getEnergy(),
-					"base.e.diff"	, basedata.getEnergy(),
-					"bases.mangel.list"	, "",
-					"bases.cargo.list"	, "",
-					"bases.units.list"	, "" );
+
+			t.setVar("base.id", base.getId(),
+					"base.klasse", base.getKlasse(),
+					"base.name", Common._plaintitle(base.getName()),
+					"base.system", base.getSystem(),
+					"base.x", base.getX(),
+					"base.y", base.getY(),
+					"base.bewohner", base.getBewohner(),
+					"base.e", base.getEnergy(),
+					"base.e.diff", basedata.getEnergy(),
+					"bases.mangel.list", "",
+					"bases.cargo.list", "",
+					"bases.units.list", "");
 			
 			/*
 				Mangel + Runden anzeigen
 			*/
-	
+
 			Cargo cargo = new Cargo(base.getCargo());
 			cargo.addResource(Resources.RE, user.getKonto().longValue());
-			
+
 			ResourceList reslist = basedata.getProduction().getResourceList();
-			for( ResourceEntry res : reslist ) {
-				if( res.getCount1() < 0 ) {
-					long rounds = -cargo.getResourceCount(res.getId())/res.getCount1();
-					t.setVar(	"mangel.rounds",	rounds,
-								"mangel.image",		res.getImage(),
-								"mangel.plainname",	res.getPlainName() );
-					
+			for (ResourceEntry res : reslist)
+			{
+				if (res.getCount1() < 0)
+				{
+					long rounds = -cargo.getResourceCount(res.getId()) / res.getCount1();
+					t.setVar("mangel.rounds", rounds,
+							"mangel.image", res.getImage(),
+							"mangel.plainname", res.getPlainName());
+
 					t.parse("bases.mangel.list", "bases.mangel.listitem", true);
 				}
 			}
-			
+
 			cargo.substractResource(Resources.RE, user.getKonto().longValue());
 			
 			/*
 				Cargo anzeigen
 			*/
-			
-			if( l == 1 ) {
-				t.setVar("bases.cargo.empty", Common.ln(base.getMaxCargo()-cargo.getMass()));
-				
+
+			if (l == 1)
+			{
+				t.setVar("bases.cargo.empty", Common.ln(base.getMaxCargo() - cargo.getMass()));
+
 				reslist = cargo.getResourceList();
 				Resources.echoResList(t, reslist, "bases.cargo.list");
 			}
@@ -198,15 +200,16 @@ public class BasenController extends TemplateGenerator {
 
 			StringBuilder shortcuts = new StringBuilder(10);
 
-			for( Integer bid : basedata.getBuildingLocations().keySet() ) {
+			for (Integer bid : basedata.getBuildingLocations().keySet())
+			{
 				Building building = Building.getBuilding(bid);
-		
-				shortcuts.append(building.echoShortcut( getContext(), base, basedata.getBuildingLocations().get(bid), bid ));
+
+				shortcuts.append(building.echoShortcut(getContext(), base, basedata.getBuildingLocations().get(bid), bid));
 				shortcuts.append(" ");
 			}
-									
+
 			t.setVar("base.shortcuts", shortcuts);
-									
+
 			t.parse("bases.list", "bases.listitem", true);
 		}
 	}

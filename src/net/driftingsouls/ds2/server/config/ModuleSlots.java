@@ -42,7 +42,7 @@ import org.w3c.dom.NodeList;
 public class ModuleSlots implements Iterable<ModuleSlot> {
 	private static final Log log = LogFactory.getLog(ModuleSlots.class);
 	private static ModuleSlots moduleList = new ModuleSlots();
-	private Map<String, ModuleSlot> list = new LinkedHashMap<String, ModuleSlot>();
+	private Map<String, ModuleSlot> list = new LinkedHashMap<>();
 	
 	private ModuleSlots() {
 		// EMPTY

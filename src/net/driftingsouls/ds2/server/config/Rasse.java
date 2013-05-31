@@ -44,7 +44,7 @@ public class Rasse
 		/**
 		 * Der Namensgenerator fuer Schiffsnamen.
 		 */
-		SHIP;
+		SHIP
 	}
 
 	private String name = null;
@@ -57,9 +57,9 @@ public class Rasse
 	// playable "wahr" ist
 	private boolean playableext = false;
 	// Liste aller Spieler, die diese Rasse/Fraktion kontrollieren
-	private ArrayList<Integer> heads = new ArrayList<Integer>();
+	private ArrayList<Integer> heads = new ArrayList<>();
 	// Pfad zum jeweiligen Namensgenerator fuer die verschiedenen Bereiche
-	private Map<GeneratorType, NameGenerator> nameGenerator = new HashMap<GeneratorType, NameGenerator>();
+	private Map<GeneratorType, NameGenerator> nameGenerator = new HashMap<>();
 	// Eine Beschreibung der Rasse - wird bei der Registrierung angezeigt
 	private String description = "";
 
@@ -75,14 +75,7 @@ public class Rasse
 		this(id, name, playable);
 		this.memberIn = memberIn;
 
-		if( !playable )
-		{
-			this.playableext = playableext;
-		}
-		else
-		{
-			this.playableext = true;
-		}
+		this.playableext = playable || playableext;
 	}
 
 	/**

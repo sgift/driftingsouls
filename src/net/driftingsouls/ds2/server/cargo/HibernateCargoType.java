@@ -78,7 +78,7 @@ public class HibernateCargoType implements UserType {
 
 	@Override
 	public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor impl, Object owner) throws HibernateException, SQLException {
-		String value = (String)StringType.INSTANCE.nullSafeGet(rs, names[0], impl);
+		String value = StringType.INSTANCE.nullSafeGet(rs, names[0], impl);
 
 		if( (value == null) || value.isEmpty() ) {
 			return new Cargo();

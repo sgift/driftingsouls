@@ -34,6 +34,8 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -44,10 +46,9 @@ import java.util.List;
 /**
  * Zeigt Details zu einer Forschung an .
  * @author Christopher Jung
- *
- * @urlparam Integer res Die ID der anzuzeigenden Forschung
  */
 @Module(name="forschinfo")
+@UrlParam(name="res", type= UrlParamType.NUMBER, description = "Die ID der anzuzeigenden Forschung")
 public class ForschinfoController extends TemplateGenerator {
 	private Forschung research = null;
 
@@ -59,9 +60,6 @@ public class ForschinfoController extends TemplateGenerator {
 		super(context);
 
 		setTemplate("forschinfo.html");
-
-		parameterNumber("res");
-
 		setPageTitle("Forschung");
 	}
 

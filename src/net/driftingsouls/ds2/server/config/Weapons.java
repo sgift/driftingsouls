@@ -44,7 +44,7 @@ import org.w3c.dom.NodeList;
  */
 public class Weapons implements Iterable<Weapon> {
 	private static final Log log = LogFactory.getLog(Weapons.class);
-	private Map<String, Weapon> list = new LinkedHashMap<String, Weapon>();
+	private Map<String, Weapon> list = new LinkedHashMap<>();
 	private static Weapons instance = new Weapons();
 	
 	private Weapons() {
@@ -84,12 +84,14 @@ public class Weapons implements Iterable<Weapon> {
 	 * @return die Waffen-Map
 	 */
 	public static Map<String,String> parseWeaponList(String weaponlist) {
-		Map<String,String> result = new LinkedHashMap<String,String>();
+		Map<String,String> result = new LinkedHashMap<>();
 		String[] weaponArray = StringUtils.split(weaponlist, '|');
 
-		for( int i=0; i < weaponArray.length; i++ ) {
-			String[] weapon = StringUtils.split(weaponArray[i], '=');
-			if( !weapon[0].equals("") ) {
+		for (String aWeaponArray : weaponArray)
+		{
+			String[] weapon = StringUtils.split(aWeaponArray, '=');
+			if (!weapon[0].equals(""))
+			{
 				result.put(weapon[0], weapon[1]);
 			}
 		}
@@ -103,14 +105,13 @@ public class Weapons implements Iterable<Weapon> {
 	 * @return der Waffen-String
 	 */
 	public static String packWeaponList(Map<String,String> weapons) {
-		List<String> weaponlist = new ArrayList<String>();
+		List<String> weaponlist = new ArrayList<>();
 
 		for( Map.Entry<String, String> wpnEntry : weapons.entrySet() ) {
 			weaponlist.add(wpnEntry.getKey() + '=' + wpnEntry.getValue());
 		}
-		String weaponstring = Common.implode("|",weaponlist);
 
-		return weaponstring;
+		return Common.implode("|",weaponlist);
 	}
 	
 	static {

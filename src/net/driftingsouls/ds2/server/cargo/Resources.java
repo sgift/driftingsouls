@@ -162,8 +162,7 @@ public class Resources {
 		if( rid.equals("") ) {
 			return null;
 		}
-		ResourceID res = ItemID.fromString(rid);
-		return res;
+		return ItemID.fromString(rid);
 	}
 	
 	/**

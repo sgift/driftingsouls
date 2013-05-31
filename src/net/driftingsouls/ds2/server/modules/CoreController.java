@@ -32,14 +32,15 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
  * Verwaltung der Core eines Asteroiden.
  * @author Christopher Jung
- *
- * @urlparam Integer col Die ID des Asteroiden, dessen Core verwaltet werden soll
  */
+@UrlParam(name="col", type= UrlParamType.NUMBER, description = "Die ID des Asteroiden, dessen Core verwaltet werden soll")
 @Module(name="core")
 public class CoreController extends TemplateGenerator {
 	private Base base = null;
@@ -52,9 +53,6 @@ public class CoreController extends TemplateGenerator {
 		super(context);
 
 		setTemplate("core.html");
-
-		parameterNumber("col");
-
 		setPageTitle("Core");
 	}
 
@@ -80,15 +78,13 @@ public class CoreController extends TemplateGenerator {
 	/**
 	 * Baut eine neue Core auf dem Asteroiden, sofern noch keine Core auf dem
 	 * Asteroiden vorhanden ist.
-	 * @urlparam Integer build Die ID der zu bauenden Core
-	 *
 	 */
+	@UrlParam(name="build", type=UrlParamType.NUMBER, description = "Die ID der zu bauenden Core")
 	@Action(ActionType.DEFAULT)
 	public void buildAction() {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 
-		parameterNumber("build");
 		int build = getInteger("build");
 
 		if( base.getCore() > 0 ) {

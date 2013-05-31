@@ -29,6 +29,9 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
@@ -42,9 +45,12 @@ import java.util.List;
  * Sammelt mit einem Tanker in einem Nebel Deuterium.
  *
  * @author Christopher Jung
- * @urlparam Integer ship Die ID des Tankers
  */
 @Module(name="deutsammeln")
+@UrlParams({
+		@UrlParam(name="ship", type= UrlParamType.NUMBER, description = "Die ID des Tankers"),
+		@UrlParam(name="fleet", type=UrlParamType.NUMBER, description = "Die ID der Tankerflotte")
+})
 public class DeutSammelnController extends TemplateGenerator {
 	private List<Ship> ships = null;
 	private Nebel nebel = null;
@@ -57,10 +63,6 @@ public class DeutSammelnController extends TemplateGenerator {
 		super(context);
 
 		setTemplate("deutsammeln.html");
-
-		parameterNumber("ship");
-		parameterNumber("fleet");
-
 		setPageTitle("Deut. sammeln");
 	}
 
@@ -69,7 +71,7 @@ public class DeutSammelnController extends TemplateGenerator {
 		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 
-		List<Ship> ships = new ArrayList<Ship>();
+		List<Ship> ships = new ArrayList<>();
 		int shipID = getInteger("ship");
 		int fleetId = getInteger("fleet");
 
@@ -147,14 +149,12 @@ public class DeutSammelnController extends TemplateGenerator {
 
 	/**
 	 * Sammelnt fuer eine angegebene Menge Energie Deuterium aus einem Nebel.
-	 * @urlparam Integer e Die Menge Energie, fuer die Deuterium gesammelt werden soll
-	 *
 	 */
+	@UrlParam(name="e", type=UrlParamType.NUMBER, description = "Die Menge Energie, fuer die Deuterium gesammelt werden soll")
 	@Action(ActionType.DEFAULT)
 	public void sammelnAction() {
 		TemplateEngine t = getTemplateEngine();
 
-		parameterNumber("e");
 		long e = getInteger("e");
 
 		String message = "";

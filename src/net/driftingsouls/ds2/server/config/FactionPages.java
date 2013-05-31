@@ -42,7 +42,7 @@ public class FactionPages {
 	
 	protected FactionPages( int factionID ) {
 		this.factionID = factionID;
-		this.availablePages = new LinkedHashSet<String>();
+		this.availablePages = new LinkedHashSet<>();
 		this.menuSize = 500;
 		this.show = true;
 	}

@@ -42,8 +42,8 @@ import org.w3c.dom.NodeList;
 public class Medals {
 	private static final Log log = LogFactory.getLog(Medals.class);
 	private static Medals medalList = new Medals();
-	private Map<Integer, Medal> list = new LinkedHashMap<Integer, Medal>();
-	private Map<Integer, Rang> raenge = new LinkedHashMap<Integer, Rang>();
+	private Map<Integer, Medal> list = new LinkedHashMap<>();
+	private Map<Integer, Rang> raenge = new LinkedHashMap<>();
 	
 	private Medals() {
 		// EMPTY

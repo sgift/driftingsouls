@@ -18,9 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.io.IOException;
-import java.io.Writer;
-
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -28,23 +25,28 @@ import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+
+import java.io.IOException;
+import java.io.Writer;
 
 /**
  * Die Gebaeudeansicht.
  * @author Christopher Jung
- *
- * @urlparam Integer col Die ID der Basis
- * @urlparam Integer field Die ID des Felds, dessen Gebaeude angezeigt werden soll
- *
  */
+@UrlParams({
+		@UrlParam(name="col", type= UrlParamType.NUMBER, description = "Die ID der Basis"),
+		@UrlParam(name="field", type=UrlParamType.NUMBER, description = "Die ID des Felds, dessen Gebaeude angezeigt werden soll")
+})
 @Module(name="building")
 public class BuildingController extends TemplateGenerator {
 	private Base base;
@@ -56,9 +58,6 @@ public class BuildingController extends TemplateGenerator {
 	 */
 	public BuildingController(Context context) {
 		super(context);
-
-		parameterNumber("col");
-		parameterNumber("field");
 
 		setPageTitle("Gebäude");
 	}
@@ -287,29 +286,27 @@ public class BuildingController extends TemplateGenerator {
 	/**
 	 * Reisst das Gebaeude ab.
 	 * @throws IOException
-	 * @urlparam String conf Falls "ok" bestaetigt dies den Abriss
-	 *
 	 */
 	@Action(ActionType.DEFAULT)
+	@UrlParam(name="conf", description = "Falls \"ok\" bestaetigt dies den Abriss")
 	public void demoAction() throws IOException {
 		User user = (User)getUser();
 		int field = getInteger("field");
 		Writer echo = getResponse().getWriter();
 
-		parameterString("conf");
 		String conf = getString("conf");
 
 		echo.append("<div class='gfxbox' style='width:470px'>");
 
 		if( !conf.equals("ok") ) {
 			echo.append("<div align=\"center\">\n");
-			echo.append("<img align=\"middle\" src=\"./"+building.getPictureForRace(user.getRace())+"\" alt=\"\" /> "+Common._plaintitle(building.getName())+"<br /><br />\n");
+			echo.append("<img align=\"middle\" src=\"./").append(building.getPictureForRace(user.getRace())).append("\" alt=\"\" /> ").append(Common._plaintitle(building.getName())).append("<br /><br />\n");
 			echo.append("Wollen sie dieses Geb&auml;ude wirklich abreissen?<br /><br />\n");
-			echo.append("<a class=\"error\" href=\""+Common.buildUrl("demo", "col", base.getId(), "field", field, "conf", "ok")+"\">abreissen</a><br /></div>");
+			echo.append("<a class=\"error\" href=\"").append(Common.buildUrl("demo", "col", base.getId(), "field", field, "conf", "ok")).append("\">abreissen</a><br /></div>");
 			echo.append("</div>");
 
 			echo.append("<br />\n");
-			echo.append("<a class=\"back\" href=\""+Common.buildUrl("default", "module", "base", "col", base.getId())+"\">zur&uuml;ck</a><br />\n");
+			echo.append("<a class=\"back\" href=\"").append(Common.buildUrl("default", "module", "base", "col", base.getId())).append("\">zur&uuml;ck</a><br />\n");
 
 			return;
 		}
@@ -322,7 +319,7 @@ public class BuildingController extends TemplateGenerator {
 		Cargo addcargo = buildcosts.cutCargo(base.getMaxCargo()-base.getCargo().getMass());
 
 		for( ResourceEntry res : reslist ) {
-			echo.append("<img src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1());
+			echo.append("<img src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCargo1());
 			if( !addcargo.hasResource(res.getId()) ) {
 				echo.append(" - <span style=\"color:red\">Nicht genug Platz f&uuml;r alle Waren</span>");
 			}
@@ -350,7 +347,7 @@ public class BuildingController extends TemplateGenerator {
 		echo.append("</div>");
 
 		echo.append("<br />\n");
-		echo.append("<a class=\"back\" href=\""+Common.buildUrl("default", "module", "base", "col", base.getId())+"\">zur&uuml;ck</a><br />\n");
+		echo.append("<a class=\"back\" href=\"").append(Common.buildUrl("default", "module", "base", "col", base.getId())).append("\">zur&uuml;ck</a><br />\n");
 	}
 
 	@Action(ActionType.AJAX)
@@ -403,11 +400,11 @@ public class BuildingController extends TemplateGenerator {
 					echo.append("<div class='gfxbox' style='width:470px'>");
 
 					echo.append("<div style=\"text-align:center\">\n");
-					echo.append("<img style=\"vertical-align:middle\" src=\"./"+building.getPictureForRace(user.getRace())+"\" alt=\"\" /> "+Common._plaintitle(building.getName())+"<br /></div>\n");
+					echo.append("<img style=\"vertical-align:middle\" src=\"./").append(building.getPictureForRace(user.getRace())).append("\" alt=\"\" /> ").append(Common._plaintitle(building.getName())).append("<br /></div>\n");
 				}
 				else {
 					echo.append("<div>\n");
-					echo.append("<span style=\"font-weight:bold\">"+Common._plaintitle(building.getName())+"</span><br />\n");
+					echo.append("<span style=\"font-weight:bold\">").append(Common._plaintitle(building.getName())).append("</span><br />\n");
 				}
 
 				echo.append("Status: ");
@@ -435,10 +432,10 @@ public class BuildingController extends TemplateGenerator {
 
 			if( building.isDeakAble() ) {
 				if( base.getActive()[field] == 1 ) {
-					echo.append("<a style=\"font-size:16px\" class=\"forschinfo\" href=\""+Common.buildUrl("shutdown", "col", base.getId() , "field", field)+"\">deaktivieren</a>");
+					echo.append("<a style=\"font-size:16px\" class=\"forschinfo\" href=\"").append(Common.buildUrl("shutdown", "col", base.getId(), "field", field)).append("\">deaktivieren</a>");
 				}
 				else {
-					echo.append("<a style=\"font-size:16px\" class=\"forschinfo\" href=\""+Common.buildUrl("start", "col", base.getId() , "field", field)+"\">aktivieren</a>");
+					echo.append("<a style=\"font-size:16px\" class=\"forschinfo\" href=\"").append(Common.buildUrl("start", "col", base.getId(), "field", field)).append("\">aktivieren</a>");
 				}
 
 				if( classicDesign ) {
@@ -450,10 +447,10 @@ public class BuildingController extends TemplateGenerator {
 			}
 
 			if( building.getId() != Building.KOMMANDOZENTRALE ) {
-				echo.append("<a style=\"font-size:16px\" class=\"error\" href=\""+Common.buildUrl("demo", "col", base.getId() , "field", field)+"\">abreissen</a><br />");
+				echo.append("<a style=\"font-size:16px\" class=\"error\" href=\"").append(Common.buildUrl("demo", "col", base.getId(), "field", field)).append("\">abreissen</a><br />");
 			}
 			else {
-				echo.append("<a style=\"font-size:16px\" class=\"error\" href=\"javascript:ask(\'Wollen sie den Asteroiden wirklich aufgeben?\',\'"+Common.buildUrl("demo", "col", base.getId() , "field", field)+"\');\">Asteroid aufgeben</a><br />");
+				echo.append("<a style=\"font-size:16px\" class=\"error\" href=\"javascript:ask(\'Wollen sie den Asteroiden wirklich aufgeben?\',\'").append(Common.buildUrl("demo", "col", base.getId(), "field", field)).append("\');\">Asteroid aufgeben</a><br />");
 			}
 
 			if( !classicDesign ) {
@@ -463,7 +460,7 @@ public class BuildingController extends TemplateGenerator {
 				echo.append("<br />\n");
 			}
 
-			echo.append("<br /><a style=\"font-size:16px\" class=\"back\" href=\""+Common.buildUrl("default", "module", "base" , "col", base.getId())+"\">zur&uuml;ck zur Basis</a><br /></div>\n");
+			echo.append("<br /><a style=\"font-size:16px\" class=\"back\" href=\"").append(Common.buildUrl("default", "module", "base", "col", base.getId())).append("\">zur&uuml;ck zur Basis</a><br /></div>\n");
 		}
 		catch( IOException e ) {
 			throw new RuntimeException(e);

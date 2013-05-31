@@ -25,7 +25,6 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.bbcode.Smilie;
@@ -415,7 +414,6 @@ public class CommController extends TemplateGenerator {
 		List<PM> pms = source.getPms();
 		List<Ordner> ordners = source.getChildren();
 
-		int counter = 0;
 		for (Ordner ordner : ordners) {
 			if (ordner.hasFlag(Ordner.FLAG_TRASH)) {
 				continue;
@@ -444,7 +442,6 @@ public class CommController extends TemplateGenerator {
 
 
 			if (tomove.getId() == ordner.getId()) {
-				counter++;
 				tomove.setParent(moveto);
 			}
 		}
@@ -455,7 +452,6 @@ public class CommController extends TemplateGenerator {
 			int pm = getInteger("pm_" + pm1.getId());
 			if (pm == pm1.getId())
 			{
-				counter++;
 				pm1.setOrdner(moveto.getId());
 			}
 		}
@@ -925,7 +921,7 @@ public class CommController extends TemplateGenerator {
 		String special = getString("special");
 		String sendeziel = getString("sendeziel");
 
-		Map<String,String> specialuilist = new LinkedHashMap<String,String>();
+		Map<String,String> specialuilist = new LinkedHashMap<>();
 		specialuilist.put("nichts", "");
 		if( hasPermission("comm", "adminPM") ) {
 			specialuilist.put("admin", "admin");
@@ -1108,7 +1104,7 @@ public class CommController extends TemplateGenerator {
 			special = "";
 		}
 
-		Map<String,String> specialuilist = new LinkedHashMap<String,String>();
+		Map<String,String> specialuilist = new LinkedHashMap<>();
 		specialuilist.put("nichts", "");
 		if( hasPermission("comm", "adminPM") ) {
 			specialuilist.put("admin", "admin");

@@ -72,7 +72,7 @@ public class NewsController extends TemplateGenerator
 		feed.setDescription("Drifting-Souls Newsfeed");
 
 		Session db = getDB();
-		List<SyndEntry> entries = new ArrayList<SyndEntry>();
+		List<SyndEntry> entries = new ArrayList<>();
 		List<NewsEntry> allNews = Common.cast(db.createQuery("from NewsEntry").list());
 		for(NewsEntry news: allNews)
 		{

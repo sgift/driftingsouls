@@ -77,7 +77,7 @@ public class StarSystem {
 	private int mapY;
 
 	@Transient
-	private ArrayList<Location> orderlocs = new ArrayList<Location>();
+	private ArrayList<Location> orderlocs = new ArrayList<>();
 
 	/**
 	 * Standardkonstruktor.
@@ -142,7 +142,8 @@ public class StarSystem {
 				if( i != 0 ) {
 					this.orderloc = this.orderloc + "|" + orderlocs.get(i).getX() + "/" + orderlocs.get(i).getY();
 				}
-				else if( i == 0 ) {
+				else
+				{
 					this.orderloc = orderlocs.get(i).getX() + "/" + orderlocs.get(i).getY();
 				}
 			}
@@ -154,11 +155,13 @@ public class StarSystem {
 	 */
 	private void StringtoLocations() {
 		this.orderlocs.clear();
-		if(this.orderloc != "" && this.orderloc != null) {
+		if(!"".equals(this.orderloc) && this.orderloc != null) {
 			String[] locations = StringUtils.split(this.orderloc, "|");
-			for(int i=0; i < locations.length; i++) {
-				if(locations[i] != "" && locations[i] != null) {
-					Location orderloc = Location.fromString(locations[i]).setSystem(this.id);
+			for (String location : locations)
+			{
+				if (!"".equals(location) && location != null)
+				{
+					Location orderloc = Location.fromString(location).setSystem(this.id);
 					addOrderLocation(orderloc);
 				}
 			}

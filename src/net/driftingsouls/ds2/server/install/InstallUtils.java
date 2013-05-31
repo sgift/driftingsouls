@@ -53,14 +53,9 @@ public final class InstallUtils
 	 */
 	public static void toggleForeignKeyChecks(Connection con, boolean on) throws SQLException
 	{
-		PreparedStatement stmt = con.prepareStatement("SET FOREIGN_KEY_CHECKS="+(on ? 1 : 0));
-		try
+		try (PreparedStatement stmt = con.prepareStatement("SET FOREIGN_KEY_CHECKS=" + (on ? 1 : 0)))
 		{
 			stmt.executeUpdate();
-		}
-		finally
-		{
-			stmt.close();
 		}
 	}
 
@@ -76,18 +71,13 @@ public final class InstallUtils
 		{
 			String delimiter = ";";
 			String str;
-			FileInputStream in = new FileInputStream(file);
-			try
+			try (FileInputStream in = new FileInputStream(file))
 			{
 				str = IOUtils.toString(in, "UTF-8");
 			}
-			finally
-			{
-				in.close();
-			}
 
 			StringBuilder statement = new StringBuilder();
-			List<String> statements = new ArrayList<String>();
+			List<String> statements = new ArrayList<>();
 			for( String line : str.split("\n") )
 			{
 				line = line.trim();
@@ -115,19 +105,14 @@ public final class InstallUtils
 
 			for (String s : statements)
 			{
-				Statement stmt = con.createStatement();
-				try
+				try (Statement stmt = con.createStatement())
 				{
 					stmt.executeUpdate(s);
 				}
-				catch( SQLException e )
+				catch (SQLException e)
 				{
-					System.err.println("Konnte Statement nicht ausfuehren: "+s);
+					System.err.println("Konnte Statement nicht ausfuehren: " + s);
 					throw e;
-				}
-				finally
-				{
-					stmt.close();
 				}
 			}
 

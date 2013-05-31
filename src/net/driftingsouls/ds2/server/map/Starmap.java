@@ -1,19 +1,5 @@
 package net.driftingsouls.ds2.server.map;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
@@ -23,6 +9,13 @@ import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Eine Systemkarte.
@@ -162,7 +155,7 @@ class Starmap
 
 	protected Map<Location, Nebel> buildNebulaMap(List<Nebel> nebulas)
 	{
-		Map<Location, Nebel> nebulaMap = new HashMap<Location, Nebel>();
+		Map<Location, Nebel> nebulaMap = new HashMap<>();
 
 		for(Nebel nebula: nebulas)
 		{
@@ -174,7 +167,7 @@ class Starmap
 	
 	protected <T extends Locatable> Map<Location, List<T>> buildLocatableMap(List<T> nodes)
 	{
-		Map<Location, List<T>> nodeMap = new HashMap<Location, List<T>>();
+		Map<Location, List<T>> nodeMap = new HashMap<>();
 
 		for(T node: nodes)
 		{
@@ -193,7 +186,7 @@ class Starmap
 	
 	protected Map<Location, List<Base>> buildBaseMap(List<Base> bases)
 	{
-		Map<Location, List<Base>> baseMap = new HashMap<Location, List<Base>>();
+		Map<Location, List<Base>> baseMap = new HashMap<>();
 
 		for(Base base: bases)
 		{
