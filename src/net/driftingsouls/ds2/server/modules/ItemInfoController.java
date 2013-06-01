@@ -304,7 +304,7 @@ public class ItemInfoController extends TemplateGenerator {
 	 * Zeigt Details zu einem Item an.
 	 */
 	@Action(ActionType.DEFAULT)
-	@UrlParam(name="itemid", description = "Die ID des anzuzeigenden Items")
+	@UrlParam(name="item", description = "Die ID des anzuzeigenden Items")
 	public void detailsAction() {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
