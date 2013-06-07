@@ -2,6 +2,9 @@ package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.config.Rasse;
+import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -62,6 +65,8 @@ public class ShipsInfoController extends TemplateGenerator
         Map<BuildKind, Set<ShipType>> sortedShipTypes = sortTypes(db, user, buildableShips, ships);
         writeList(t, buildableShips, sortedShipTypes.get(BuildKind.ASTEROID), "_SHIPSINFO", "asteroidinfo.shiplist.list", "asteroidinfo.shiplist.listitem", "ship.buildcosts.asteroid.list");
         writeList(t, buildableShips, sortedShipTypes.get(BuildKind.GANYMED), "_SHIPSINFO", "ganymedinfo.shiplist.list", "ganymedinfo.shiplist.listitem", "ship.buildcosts.ganymed.list");
+        writeList(t, buildableShips, sortedShipTypes.get(BuildKind.LACKING_RESEARCH), "_SHIPSINFO", "researchableinfo.shiplist.list", "researchableinfo.shiplist.listitem", "ship.buildcosts.researchable.list");
+        writeList(t, buildableShips, sortedShipTypes.get(BuildKind.OTHER_SPECIES), "_SHIPSINFO", "otherinfo.shiplist.list", "otherinfo.shiplist.listitem", "ship.buildcosts.others.list");
         writeList(t, buildableShips, sortedShipTypes.get(BuildKind.NOWHERE), "_SHIPSINFO", "restinfo.shiplist.list", "restinfo.shiplist.listitem", null);
     }
     
@@ -98,6 +103,8 @@ public class ShipsInfoController extends TemplateGenerator
         Map<BuildKind, Set<ShipType>> sortedShipTypes = new HashMap<BuildKind, Set<ShipType>>();
         sortedShipTypes.put(BuildKind.ASTEROID, new TreeSet<ShipType>(sortTypeByName));
         sortedShipTypes.put(BuildKind.GANYMED, new TreeSet<ShipType>(sortTypeByName));
+        sortedShipTypes.put(BuildKind.LACKING_RESEARCH, new TreeSet<ShipType>(sortTypeByName));
+        sortedShipTypes.put(BuildKind.OTHER_SPECIES, new TreeSet<ShipType>(sortTypeByName));
         sortedShipTypes.put(BuildKind.NOWHERE, new TreeSet<ShipType>(sortTypeByName));
 
         for(ShipType shipType: shipTypes)
@@ -105,22 +112,41 @@ public class ShipsInfoController extends TemplateGenerator
             ShipBaubar buildData = buildableShips.get(shipType.getId());
             if(buildData != null)
             {
-                boolean researched = user.hasResearched(buildData.getRes(1)) && user.hasResearched(buildData.getRes(2)) && user.hasResearched(buildData.getRes(3));
-                if(researched)
+                if(Rassen.get().rasse(user.getRace()).isMemberIn(buildData.getRace()))
                 {
-                    int slotsNeeded = buildData.getWerftSlots();
-                    if(slotsNeeded > slotsOnAsteroids)
+                    boolean researched = user.hasResearched(buildData.getRes(1)) && user.hasResearched(buildData.getRes(2)) && user.hasResearched(buildData.getRes(3));
+                    if(researched)
                     {
-                        sortedShipTypes.get(BuildKind.GANYMED).add(shipType);
+                        int slotsNeeded = buildData.getWerftSlots();
+                        if(slotsNeeded > slotsOnAsteroids)
+                        {
+                            sortedShipTypes.get(BuildKind.GANYMED).add(shipType);
+                        }
+                        else
+                        {
+                            sortedShipTypes.get(BuildKind.ASTEROID).add(shipType);
+                        }
                     }
                     else
                     {
-                        sortedShipTypes.get(BuildKind.ASTEROID).add(shipType);
+                        Forschung res1 = Forschung.getInstance(buildData.getRes(1));
+                        Forschung res2 = Forschung.getInstance(buildData.getRes(2));
+                        Forschung res3 = Forschung.getInstance(buildData.getRes(3));
+
+                        boolean visible = (res1.getID() == 0 || res1.isVisibile(user)) && (res2.getID() == 0 || res2.isVisibile(user)) && (res3.getID() == 0 || res3.isVisibile(user));
+                        if(visible)
+                        {
+                            sortedShipTypes.get(BuildKind.LACKING_RESEARCH).add(shipType);
+                        }
+                        else
+                        {
+                            sortedShipTypes.get(BuildKind.NOWHERE).add(shipType);
+                        }
                     }
                 }
                 else
                 {
-                    sortedShipTypes.get(BuildKind.NOWHERE).add(shipType);
+                    sortedShipTypes.get(BuildKind.OTHER_SPECIES).add(shipType);
                 }
             }
             else
@@ -134,7 +160,7 @@ public class ShipsInfoController extends TemplateGenerator
                                           
     private enum BuildKind
     {
-        ASTEROID, GANYMED, NOWHERE
+        ASTEROID, GANYMED, LACKING_RESEARCH, OTHER_SPECIES, NOWHERE
     }
 
     private class NameSorter implements Comparator<ShipType>
