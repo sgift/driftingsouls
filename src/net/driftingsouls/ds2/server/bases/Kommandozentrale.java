@@ -344,6 +344,10 @@ public class Kommandozentrale extends DefaultBuilding {
 			if( create > cargo.getResourceCount( Resources.PLATIN ) ) {
 				create = cargo.getResourceCount( Resources.PLATIN );
 			}
+            
+            if(create < 0) {
+                create = Math.abs(create);
+            }
 
 			if( create != 0 ) {
 				message.append(Common._plaintitle(base.getName())+" produziert <img src=\""+Cargo.getResourceImage(Resources.LBATTERIEN)+"\" alt=\"\" />"+create+" "+Cargo.getResourceName(Resources.LBATTERIEN)+"<br/ ><br />\n");

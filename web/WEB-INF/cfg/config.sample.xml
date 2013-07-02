@@ -66,15 +66,16 @@
 	<!--
 		EMails / PMs
 	 -->
-	<setting type="string">
-		<name>PWNEW_EMAIL</name>
-		<value>Hallo {username},
+    <setting type="string">
+        <name>PWNEW_EMAIL</name>
+        <value>Hallo {username},
 du hast ein neues Password angefordert. Dein neues Password lautet "{password}" und wurde verschluesselt gespeichert. Wenn es verloren geht, musst du dir ueber die "Passwort vergessen?" Funktion der Login-Seite ein neues erstellen lassen.
-Das Admin-Team wuenscht einen angenehmen Aufenthalt in Drifting Souls 2
+Bitte beachte, dass dein Passwort nicht an andere Nutzer weiter gegeben werden darf.
+Das Admin-Team wuenscht weiterhin einen angenehmen Aufenthalt in Drifting Souls 2
 Gruss Guzman
 Admin
 {date} Serverzeit</value>
-	</setting>
+    </setting>
 	<setting type="string">
 		<name>PWCHANGE_EMAIL</name>
 		<value>Hallo {username},
