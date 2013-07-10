@@ -250,7 +250,7 @@ public class MapController extends AngularGenerator
 		List<Object[]> data = Common.cast(db
 				.createQuery("select s.system,s.owner.ally,sum(s.shiptype.size) " +
 						"from Ship s join s.shiptype st left join s.modules sm " +
-						"where (s.status like '%tradepost%' or coalesce(sm.flags,st.flags) like :flags ) and s.owner.id<0 and s.owner.ally is not null " +
+						"where (s.status like '%tradepost%' or sm.flags like :flags or st.flags like :flags) and s.owner.id<0 and s.owner.ally is not null " +
 						"group by s.system,s.owner.ally " +
 						"order by s.system,count(*)")
 				.setParameter("flags", ShipTypes.SF_TRADEPOST)
