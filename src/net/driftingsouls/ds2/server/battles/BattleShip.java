@@ -31,10 +31,12 @@ import javax.persistence.Version;
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 
 import org.hibernate.Session;
@@ -401,6 +403,20 @@ public class BattleShip {
 		
 		return getTypeData().getSize() * Integer.valueOf(sizeModifier.getValue()) + getTypeData().getJDocks() * Integer.valueOf(dockModifier.getValue());
 	}
+
+    /**
+     * @return Der Schaden, der einem Schiff diese Runde noch zugefuegt werden kann.
+     */
+    public int calcPossibleDamage()
+    {
+        int possibleDamage = Integer.MAX_VALUE;
+        if(getTypeData().hasFlag(ShipTypes.SF_ZERSTOERERPANZERUNG))
+        {
+            possibleDamage = (int)(getHull() * 0.33 - (getShip().getHull() - getHull()));
+        }
+
+        return possibleDamage;
+    }
 	
 	/**
 	 * Checks if the ship is joining the battle.

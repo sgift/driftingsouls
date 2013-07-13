@@ -80,6 +80,8 @@ public class Weapon {
 
 	
 	private String name = "";
+    
+    private String internalName = "";
 	
 	private int defTrefferWS = 50;
 	private int defSmallTrefferWS = 0;
@@ -230,6 +232,17 @@ public class Weapon {
 	public String getName() {
 		return this.name;
 	}
+    
+    public String getInternalName()
+    {
+        return this.internalName;
+    }
+    
+    public void setInternalName(String internalName)
+    {
+        this.internalName = internalName;
+    }
+            
 	
 	/**
 	 * Gibt die zum Abfeuern benoetigten AP zurueck.

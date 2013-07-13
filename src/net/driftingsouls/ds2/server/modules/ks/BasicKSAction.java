@@ -57,6 +57,7 @@ public abstract class BasicKSAction {
 	private boolean requireActive;
 	private boolean requireOwnShipReady;
 	private AngriffController controller;
+    private User commander;
 	
 	/**
 	 * Konstruktor.
@@ -69,7 +70,13 @@ public abstract class BasicKSAction {
 		this.requireCommander(true);
 		this.requireActive(true);
 		this.requireOwnShipReady(false);
+        this.commander = null;
 	}
+    
+    public BasicKSAction(User user)
+    {
+        this.commander = user;
+    }
 	
 	/**
 	 * Setzt den KS-Controller.
@@ -123,7 +130,11 @@ public abstract class BasicKSAction {
 	 */
 	public Result execute( Battle battle ) throws IOException
 	{
-		User user = (User)ContextMap.getContext().getActiveUser();
+        User user = this.commander;
+        if(user == null)
+        {
+	        user = (User)ContextMap.getContext().getActiveUser();
+        }
 		
 		if( this.requireCommander ) {
 			if( !battle.isCommander(user, battle.getOwnSide()) ) {
