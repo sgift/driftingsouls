@@ -79,7 +79,7 @@ public class BattleTick extends TickController {
                 {
                     log("Automatisches Feuer aktiviert fuer Spieler: " + user.getId());
                     AutoFire autoFire = new AutoFire(battle);
-                    autoFire.fireShips();
+                    //autoFire.fireShips();
                 }
                 
                 user = battle.getCommander(1);
