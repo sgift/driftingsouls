@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.battles.AutoFire;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.tick.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
 
@@ -73,22 +74,29 @@ public class BattleTick extends TickController {
 
 				log("+ Naechste Runde bei Schlacht "+battle.getId());
 				battle.load( battle.getCommander(0), null, null, 0 );
-                
-                User user = battle.getCommander(0);
-                if(user.getId() < 0)
+
+
+                ConfigValue helper = (ConfigValue)db.get(ConfigValue.class, "autofire");
+                boolean isAutoFire = helper.getValue().equals("1");
+
+                if(isAutoFire)
                 {
-                    log("Automatisches Feuer aktiviert fuer Spieler: " + user.getId());
-                    AutoFire autoFire = new AutoFire(battle);
-                    //autoFire.fireShips();
-                }
-                
-                user = battle.getCommander(1);
-                if(user.getId() < 0)
-                {
-                    battle.load(battle.getCommander(1), null, null, 0);
-                    log("Automatisches Feuer aktiviert fuer Spieler: " + user.getId());
-                    AutoFire autoFire = new AutoFire(battle);
-                    autoFire.fireShips();
+                    User user = battle.getCommander(0);
+                    if(user.getId() < 0)
+                    {
+                        log("Automatisches Feuer aktiviert fuer Spieler: " + user.getId());
+                        AutoFire autoFire = new AutoFire(getDB(), battle);
+                        autoFire.fireShips();
+                    }
+
+                    user = battle.getCommander(1);
+                    if(user.getId() < 0)
+                    {
+                        battle.load(battle.getCommander(1), null, null, 0);
+                        log("Automatisches Feuer aktiviert fuer Spieler: " + user.getId());
+                        AutoFire autoFire = new AutoFire(getDB(), battle);
+                        autoFire.fireShips();
+                    }
                 }
 
                 battle.load( battle.getCommander(0), null, null, 0 );

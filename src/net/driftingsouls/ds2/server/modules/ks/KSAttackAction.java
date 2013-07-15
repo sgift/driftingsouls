@@ -1238,6 +1238,12 @@ public class KSAttackAction extends BasicKSAction {
         }
 
         Map<String,String> weaponList = Weapons.parseWeaponList(shipType.getWeapons());
+        if(!weaponList.containsKey(weaponName))
+        {
+            //Ship doesn't have this weapon
+            return false;
+        }
+
         int weapons = Integer.parseInt(weaponList.get(weaponName));
         localweapon.setCount(weapons);
 

@@ -14,6 +14,7 @@ import net.driftingsouls.ds2.server.modules.ks.BasicKSAction;
 import net.driftingsouls.ds2.server.modules.ks.KSAttackAction;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
 
 import java.io.IOException;
 import java.util.*;
@@ -24,19 +25,24 @@ import java.util.*;
  */
 public class AutoFire
 {
-    public AutoFire(Battle battle)
+    public AutoFire(Session db, Battle battle)
     {
+        if(db == null)
+        {
+            throw new IllegalArgumentException("Db may not be null.");
+        }
+
         if(battle == null)
         {
             throw new IllegalArgumentException("Battle may not be null.");
         }
 
+        this.db = db;
         this.battle = battle;
     }
 
     public void fireShips()
     {
-        org.hibernate.Session db = ContextMap.getContext().getDB();
         List<BattleShip> firingShips = new ArrayList<>(battle.getShips(Side.OWN));
         List<BattleShip> attackedShips = new ArrayList<>(battle.getShips(Side.ENEMY));
 
@@ -125,7 +131,7 @@ public class AutoFire
                     {
                         for(int ammoId: ammos)
                         {
-                            Iterator<Object> iterator = ContextMap.getContext().getDB().createQuery("from Ammo where itemid=:id and type in (:ammo)")
+                            Iterator<Object> iterator = db.createQuery("from Ammo where itemid=:id and type in (:ammo)")
                                      .setInteger("id", ammoId)
                                      .setParameterList("ammo", weapon.getKey().getAmmoType()).iterate();
                             if(iterator.hasNext())
@@ -280,6 +286,7 @@ public class AutoFire
     }
 
     private final Battle battle;
+    private final Session db;
 
     private static final Log log = LogFactory.getLog(AutoFire.class);
 }
