@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server;
 
 import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.battles.AutoFire;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
@@ -91,6 +92,7 @@ public class AdminCommands {
 		cmds.put("buildimgs", BuildImgsCommand.class);
 		cmds.put("exectask", ExecTaskCommand.class);
 		cmds.put("tick", TickCommand.class);
+        cmds.put("autofire", AutoFireCommand.class);
 	}
 
 	/**
@@ -174,6 +176,41 @@ public class AdminCommands {
 		public String execute(Context context, String[] command);
 		public List<String> autoComplete(String[] command);
 	}
+    
+    protected static class AutoFireCommand implements Command
+    {
+        @Override
+        public String execute(Context context, String[] command)
+        {
+            if(command.length != 2)
+            {
+                return "";
+            }
+            
+            Battle battle = (Battle)context.getDB().get(Battle.class, Integer.valueOf(command[1]));
+            if(battle == null)
+            {
+                return "Schlacht existiert nicht.";
+            }
+
+            final AutoFire autoFire = new AutoFire(context.getDB(), battle);
+            new Thread()
+            {
+                public void run()
+                {
+                    autoFire.fireShips();
+                }
+            }.start();
+
+            return "Autofeuer wird ausgefuehrt fuer Schlacht " + command[1];
+        }
+        
+        @Override
+        public List<String> autoComplete(String[] command)
+        {
+            return Arrays.asList("[battleId]");
+        }
+    }
 
 	protected static class TickCommand implements Command {
 		@Autowired
