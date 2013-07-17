@@ -779,6 +779,10 @@ public class KSAttackAction extends BasicKSAction {
 		ShipTypeData ownShipType = ownShip.getTypeData();
 
 		Map<String,String> weapons = Weapons.parseWeaponList(ownShipType.getWeapons());
+        if(!weapons.containsKey(weaponName))
+        {
+            throw new IllegalArgumentException("Weapon: " + weaponName + " not found on ship: " + ownShip.getId());
+        }
 		int weaponCount = Integer.parseInt(weapons.get(weaponName));
 
 		Ammo ammo = null;
