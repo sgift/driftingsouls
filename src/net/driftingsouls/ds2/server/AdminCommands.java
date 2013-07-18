@@ -182,9 +182,9 @@ public class AdminCommands {
         @Override
         public String execute(Context context, String[] command)
         {
-            if(command.length != 2)
+            if(command.length != 3)
             {
-                return "";
+                return "autofire [battleId] [side=0|1]";
             }
             
             Battle battle = (Battle)context.getDB().get(Battle.class, Integer.valueOf(command[1]));
@@ -192,6 +192,13 @@ public class AdminCommands {
             {
                 return "Schlacht existiert nicht.";
             }
+            
+            int side = Integer.valueOf(command[2]);
+            if(side != 0 && side != 1)
+            {
+                return "Side war nicht 0 oder 1.";
+            }
+            battle.load(battle.getCommander(side), null, null, 0);
 
             final AutoFire autoFire = new AutoFire(context.getDB(), battle);
             new Thread()
@@ -208,7 +215,7 @@ public class AdminCommands {
         @Override
         public List<String> autoComplete(String[] command)
         {
-            return Arrays.asList("[battleId]");
+            return Arrays.asList("[battleId] [side=0|1]");
         }
     }
 
