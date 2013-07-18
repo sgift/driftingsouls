@@ -208,6 +208,8 @@ public class AutoFire
                 }
             }
         }
+
+        battle.writeLog();
     }
     
     private Map<Integer, KSAttackAction> loadWeapon(User user, Weapon weapon, int weaponCount, Ammo ammo, BattleShip attackedShip, BattleShip firingShip, int navSkill, int defensiveSkill)
