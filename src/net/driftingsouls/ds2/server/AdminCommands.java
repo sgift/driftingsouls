@@ -182,7 +182,7 @@ public class AdminCommands {
         @Override
         public String execute(Context context, String[] command)
         {
-            if(command.length != 4)
+            if(command.length != 3)
             {
                 return "autofire [battleId] [side=0|1]";
             }
