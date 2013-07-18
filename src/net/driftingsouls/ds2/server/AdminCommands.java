@@ -201,15 +201,9 @@ public class AdminCommands {
             battle.load(battle.getCommander(side), null, null, 0);
 
             final AutoFire autoFire = new AutoFire(context.getDB(), battle);
-            new Thread()
-            {
-                public void run()
-                {
-                    autoFire.fireShips();
-                }
-            }.start();
+            autoFire.fireShips();
 
-            return "Autofeuer wird ausgefuehrt fuer Schlacht " + command[1];
+            return "Autofeuer ausgefuehrt fuer Schlacht " + command[1];
         }
         
         @Override
