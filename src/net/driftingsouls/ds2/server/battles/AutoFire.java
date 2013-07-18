@@ -50,6 +50,7 @@ public class AutoFire
         {
             log.info("Firing with ship: " + firingShip.getShip().getId());
             log.info("------");
+            battle.setFiringShip(firingShip.getShip());
             int energy = firingShip.getShip().getEnergy();
             if(energy == 0)
             {
@@ -78,7 +79,7 @@ public class AutoFire
                 }
 
                 log.info("\tAttacking ship: " + attackedShip.getShip().getId());
-                battle.load(battle.getCommander(0), firingShip.getShip(), attackedShip.getShip(), 0);
+                battle.setAttackedShip(attackedShip.getShip());
 
                 Map<Integer, KSAttackAction> firingOptions = new TreeMap<>(new Comparator<Integer>()
                 {
@@ -136,13 +137,13 @@ public class AutoFire
                                      .setParameterList("ammo", weapon.getKey().getAmmoType()).iterate();
                             if(iterator.hasNext())
                             {
-                                log.info("Ammo type allowed by weapon.");
+                                log.info("Ammo type " + ammoId + " allowed by weapon.");
                                 Ammo ammo = (Ammo)iterator.next();
                                 filteredAmmos.add(ammo);
                             }
                             else
                             {
-                                log.info("Ammo type not allowed by weapon.");
+                                log.info("Ammo type " + ammoId + " not allowed by weapon.");
                             }
                         }
                     }

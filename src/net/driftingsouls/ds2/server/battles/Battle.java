@@ -1387,23 +1387,8 @@ public class Battle implements Locatable
 		this.activeSEnemy = 0;
 		this.activeSOwn = 0;
 
-		if( enemyShip != null ) {
-			for( int i=0; i < enemyShips.size(); i++ ) {
-				if( enemyShips.get(i).getId() == enemyShip.getId() ) {
-					this.activeSEnemy = i;
-					break;
-				}
-			}
-		}
-
-		if( ownShip != null ) {
-			for( int i=0; i < ownShips.size(); i++ ) {
-				if( ownShips.get(i).getId() == ownShip.getId() ) {
-					this.activeSOwn = i;
-					break;
-				}
-			}
-		}
+		setFiringShip(ownShip);
+        setAttackedShip(enemyShip);
 
 		// Falls die gewaehlten Schiffe gelandet (oder zerstoert) sind -> neue Schiffe suchen
 		while( activeSEnemy < enemyShips.size() &&
@@ -1432,6 +1417,36 @@ public class Battle implements Locatable
 
 		return true;
 	}
+    
+    public void setFiringShip(Ship ownShip)
+    {
+        if(ownShip != null)
+        {
+            for(int i=0; i < ownShips.size(); i++)
+            {
+                if(ownShips.get(i).getId() == ownShip.getId())
+                {
+                    this.activeSOwn = i;
+                    break;
+                }
+            }
+        }
+    }
+    
+    public void setAttackedShip(Ship enemyShip)
+    {
+        if(enemyShip != null)
+        {
+            for(int i = 0; i < enemyShips.size(); i++)
+            {
+                if(enemyShips.get(i).getId() == enemyShip.getId())
+                {
+                    this.activeSEnemy = i;
+                    break;
+                }
+            }
+        }
+    }
 
 	/**
 	 * Loggt eine Nachricht fuer aktuellen Spieler.
