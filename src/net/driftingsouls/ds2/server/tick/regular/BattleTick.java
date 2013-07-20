@@ -82,32 +82,24 @@ public class BattleTick extends TickController {
 
                 if(isAutoFire)
                 {
-                    Transaction transaction = db.beginTransaction();
-                    try
+                    User user = battle.getCommander(0);
+                    if(user.getId() < 0)
                     {
-                        User user = battle.getCommander(0);
-                        if(user.getId() < 0)
-                        {
-                            log("Automatisches Feuer aktiviert fuer Spieler: " + user.getId());
-                            AutoFire autoFire = new AutoFire(getDB(), battle);
-                            autoFire.fireShips();
-                        }
+                        log("Automatisches Feuer aktiviert fuer Spieler: " + user.getId());
+                        AutoFire autoFire = new AutoFire(getDB(), battle);
+                        autoFire.fireShips();
+                    }
 
-                        user = battle.getCommander(1);
-                        if(user.getId() < 0)
-                        {
-                            battle.load(battle.getCommander(1), null, null, 0);
-                            log("Automatisches Feuer aktiviert fuer Spieler: " + user.getId());
-                            AutoFire autoFire = new AutoFire(getDB(), battle);
-                            autoFire.fireShips();
-                        }
-                        transaction.commit();
-                    }
-                    catch(Exception e)
+                    user = battle.getCommander(1);
+                    if(user.getId() < 0)
                     {
-                        transaction.rollback();
-                        throw new RuntimeException(e);
+                        battle.load(battle.getCommander(1), null, null, 0);
+                        log("Automatisches Feuer aktiviert fuer Spieler: " + user.getId());
+                        AutoFire autoFire = new AutoFire(getDB(), battle);
+                        autoFire.fireShips();
                     }
+                    db.getTransaction().commit();
+                    db.getTransaction().begin();
                 }
 
                 battle.load( battle.getCommander(0), null, null, 0 );
