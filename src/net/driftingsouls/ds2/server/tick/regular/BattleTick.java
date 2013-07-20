@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.tick.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
+import org.hibernate.Transaction;
 
 /**
  * Fuehrt den Tick fuer Schlachten aus.
@@ -81,21 +82,31 @@ public class BattleTick extends TickController {
 
                 if(isAutoFire)
                 {
-                    User user = battle.getCommander(0);
-                    if(user.getId() < 0)
+                    Transaction transaction = db.beginTransaction();
+                    try
                     {
-                        log("Automatisches Feuer aktiviert fuer Spieler: " + user.getId());
-                        AutoFire autoFire = new AutoFire(getDB(), battle);
-                        autoFire.fireShips();
-                    }
+                        User user = battle.getCommander(0);
+                        if(user.getId() < 0)
+                        {
+                            log("Automatisches Feuer aktiviert fuer Spieler: " + user.getId());
+                            AutoFire autoFire = new AutoFire(getDB(), battle);
+                            autoFire.fireShips();
+                        }
 
-                    user = battle.getCommander(1);
-                    if(user.getId() < 0)
+                        user = battle.getCommander(1);
+                        if(user.getId() < 0)
+                        {
+                            battle.load(battle.getCommander(1), null, null, 0);
+                            log("Automatisches Feuer aktiviert fuer Spieler: " + user.getId());
+                            AutoFire autoFire = new AutoFire(getDB(), battle);
+                            autoFire.fireShips();
+                        }
+                        transaction.commit();
+                    }
+                    catch(Exception e)
                     {
-                        battle.load(battle.getCommander(1), null, null, 0);
-                        log("Automatisches Feuer aktiviert fuer Spieler: " + user.getId());
-                        AutoFire autoFire = new AutoFire(getDB(), battle);
-                        autoFire.fireShips();
+                        transaction.rollback();
+                        throw new RuntimeException(e);
                     }
                 }
 
