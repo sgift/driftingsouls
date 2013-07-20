@@ -21,18 +21,7 @@ package net.driftingsouls.ds2.server.tick;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.tick.regular.AcademyTick;
-import net.driftingsouls.ds2.server.tick.regular.BaseTick;
-import net.driftingsouls.ds2.server.tick.regular.BattleTick;
-import net.driftingsouls.ds2.server.tick.regular.ForschungsTick;
-import net.driftingsouls.ds2.server.tick.regular.KaserneTick;
-import net.driftingsouls.ds2.server.tick.regular.NPCOrderTick;
-import net.driftingsouls.ds2.server.tick.regular.NPCScriptTick;
-import net.driftingsouls.ds2.server.tick.regular.RTCTick;
-import net.driftingsouls.ds2.server.tick.regular.RestTick;
-import net.driftingsouls.ds2.server.tick.regular.SchiffsTick;
-import net.driftingsouls.ds2.server.tick.regular.UserTick;
-import net.driftingsouls.ds2.server.tick.regular.WerftTick;
+import net.driftingsouls.ds2.server.tick.regular.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
@@ -90,6 +79,9 @@ public class RegularTick extends AbstractTickExecuter
 		
 				publishStatus("berechne GTU");
 				execTick(RTCTick.class, false);
+
+                publishStatus("berechne automatisches Feuern");
+                execTick(AutofireTick.class, false);
 		
 				publishStatus("berechne Schlachten");
 				execTick(BattleTick.class, false);

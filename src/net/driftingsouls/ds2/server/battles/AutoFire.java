@@ -12,6 +12,8 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.ks.BasicKSAction;
 import net.driftingsouls.ds2.server.modules.ks.KSAttackAction;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
@@ -54,156 +56,99 @@ public class AutoFire
             int energy = firingShip.getShip().getEnergy();
             if(energy == 0)
             {
+                log.info("\tShip has no energy. Stopping.");
                 continue;
             }
 
             Map<Weapon, Integer> shipWeapons = getShipWeapons(firingShip);
             if(shipWeapons.size() == 0)
             {
+                log.info("\tShip has no weapons. Stopping.");
                 continue;
             }
 
             if(firingShip.getWeapons() == 0)
             {
+                log.info("\tWeapon system is down. Stopping.");
                 continue;
             }
 
-            int navSkill = firingShip.getNavigationalValue();
-            int defensiveSkill = firingShip.getDefensiveValue();
-
-            for(BattleShip attackedShip: attackedShips)
+            Map<String, String> maxHeats = Weapons.parseWeaponList(firingShip.getTypeData().getMaxHeat());
+            Map<String, String> heats = Weapons.parseWeaponList(firingShip.getWeaponHeat());
+            
+            for(Map.Entry<String, String> heatLog: maxHeats.entrySet())
             {
-                if(attackedShip.getHull() == 0)
+                log.info("Weapon: " + heatLog.getKey() + " Max heat: " + heatLog.getValue());
+            }
+
+            for(Map.Entry<String, String> heatLog: heats.entrySet())
+            {
+                log.info("Weapon: " + heatLog.getKey() + " Max heat: " + heatLog.getValue());
+            }
+            
+            for(Map.Entry<Weapon, Integer> weapon: shipWeapons.entrySet())
+            {
+                log.info("\tFiring weapon: " + weapon.getKey().getInternalName());
+                int maxHeat = Integer.valueOf(maxHeats.get(weapon.getKey().getInternalName()));
+                int heat =  0;
+                if(heats.containsKey(weapon.getKey().getInternalName()))
                 {
-                    continue;
+                    heat = Integer.valueOf(heats.get(weapon.getKey().getInternalName()));
                 }
-
-                log.info("\tAttacking ship: " + attackedShip.getShip().getId());
-                battle.setAttackedShip(attackedShip.getShip());
-
-                Map<Integer, KSAttackAction> firingOptions = new TreeMap<>(new Comparator<Integer>()
-                {
-                    @Override
-                    public int compare(Integer firstDamage, Integer secondDamage)
-                    {
-                        return (firstDamage - secondDamage) * -1;
-                    }
-                });
                 
-                for(Map.Entry<Weapon, Integer> weapon: shipWeapons.entrySet())
+                Set<Ammo> ammunition = getPossibleAmmunition(firingShip.getShip(), weapon.getKey());
+                for(Ammo ammo: ammunition)
                 {
-                    if(weapon.getKey().getECost() > energy)
+                    if(firingShip.getShip().getEnergy() == 0)
                     {
-                        continue;
+                        break;
                     }
 
-                    Set<Integer> ammos = new HashSet<>();
-                    if(weapon.getKey().getAmmoType().length > 0)
+                    log.info("\t\tFiring ammunition: " + (ammo != null ? ammo.getName() : "No Ammo"));
+                    boolean continueFire = true;
+                    while(continueFire)
                     {
-                        Cargo mycargo = firingShip.getCargo();
-                        List<ItemCargoEntry> itemList = mycargo.getItemsWithEffect(ItemEffect.Type.AMMO);
-                        if(weapon.getKey().hasFlag(Weapon.Flags.AMMO_SELECT))
+                        if(heat + weapon.getValue() > maxHeat)
                         {
-                            for(int i=0; i < itemList.size(); i++)
+                            log.info("\t\tMaximum heat reached for Weapon. Stopping.");
+                            break;
+                        }
+
+                        KSAttackAction firingAction = findTarget(battle.getCommander(0), firingShip, weapon, ammo, attackedShips);
+                        if(firingAction != null)
+                        {
+                            BasicKSAction.Result result = null;
+                            try
                             {
-                                ammos.add(itemList.get(i).getItemID());
+                                result = firingAction.attack(battle);
+                                heat += weapon.getValue();
+                            }
+                            catch (IOException e)
+                            {
+                                log.info("Exception while firing weapon", e);
+                            }
+
+                            if(result != BasicKSAction.Result.OK)
+                            {
+                                continueFire = false;
                             }
                         }
                         else
                         {
-                            for(int i=0; i < itemList.size(); i++)
-                            {
-                                IEAmmo effect = (IEAmmo)itemList.get(i).getItemEffect();
-                                if(Common.inArray(effect.getAmmo().getType(), weapon.getKey().getAmmoType()))
-                                {
-                                    ammos.add(effect.getAmmo().getItemId());
-                                    break;
-                                }
-                            }
+                            log.info("\t\tNo possible target found. Stopping.");
+                            continueFire = false;
                         }
-                    }
 
-                    Set<Ammo> filteredAmmos = new HashSet<>();
-                    if(ammos.isEmpty())
-                    {
-                        filteredAmmos.add(null);
-                    }
-                    else
-                    {
-                        for(int ammoId: ammos)
+                        if(firingShip.getShip().getEnergy() == 0)
                         {
-                            Iterator<Object> iterator = db.createQuery("from Ammo where itemid=:id and type in (:ammo)")
-                                     .setInteger("id", ammoId)
-                                     .setParameterList("ammo", weapon.getKey().getAmmoType()).iterate();
-                            if(iterator.hasNext())
-                            {
-                                log.info("Ammo type " + ammoId + " allowed by weapon.");
-                                Ammo ammo = (Ammo)iterator.next();
-                                filteredAmmos.add(ammo);
-                            }
-                            else
-                            {
-                                log.info("Ammo type " + ammoId + " not allowed by weapon.");
-                            }
+                            continueFire = false;
                         }
                     }
-
-                    for(Ammo ammo: filteredAmmos)
-                    {
-                        firingOptions.putAll(loadWeapon(battle.getCommander(0), weapon.getKey(), weapon.getValue(), ammo, attackedShip, firingShip, navSkill, defensiveSkill));
-                    }
                 }
 
-                //Ship has no energy to fire any of its weapons
-                if(firingOptions.isEmpty())
+                if(firingShip.getShip().getEnergy() == 0)
                 {
-                    break;
-                }
-
-                boolean destroyed = false;
-                boolean damageable = true;
-                for(Map.Entry<Integer, KSAttackAction> firingOption: firingOptions.entrySet())
-                {
-                    log.info("\t\tFiring weapon: " + firingOption.getValue().getWeaponName());
-                    int possibleDamage = attackedShip.calcPossibleDamage();
-                    if(possibleDamage == 0)
-                    {
-                        log.info("\t\tShip no longer damageable.");
-                        damageable = false;
-                        break;
-                    }
-
-                    boolean continueFiring = true;
-                    int fired = 0;
-                    while(continueFiring)
-                    try
-                    {
-                        BasicKSAction.Result result = firingOption.getValue().attack(battle);
-                        if(result != BasicKSAction.Result.OK)
-                        {
-                            log.info("\t\tCannot continue firing weapon: " + firingOption.getValue().getWeaponName());
-                            continueFiring = false;
-                            log.info("\t\tWeapon fired: " + ++fired + " times.");
-                        }
-                    }
-                    catch (IOException e)
-                    {}
-
-                    destroyed = attackedShip.getHull() == 0;
-                    if(destroyed)
-                    {
-                        log.info("\t\tShip has been destroyed.");
-                        break;
-                    }
-                }
-
-                if(destroyed)
-                {
-                    break;
-                }
-                
-                if(!damageable)
-                {
+                    log.info("\tShip has no more energy. Stopping.");
                     break;
                 }
             }
@@ -212,67 +157,185 @@ public class AutoFire
         battle.writeLog();
     }
     
-    private Map<Integer, KSAttackAction> loadWeapon(User user, Weapon weapon, int weaponCount, Ammo ammo, BattleShip attackedShip, BattleShip firingShip, int navSkill, int defensiveSkill)
+    private Set<Ammo> getPossibleAmmunition(Ship ship, Weapon weapon)
     {
-        Map<Integer, KSAttackAction> firingOptions = new TreeMap<>(new Comparator<Integer>()
+        //Load all ammunition from cargo
+        Set<Integer> ammos = new HashSet<>();
+        if(weapon.getAmmoType().length > 0)
         {
-            @Override
-            public int compare(Integer firstDamage, Integer secondDamage)
+            Cargo mycargo = ship.getCargo();
+            List<ItemCargoEntry> itemList = mycargo.getItemsWithEffect(ItemEffect.Type.AMMO);
+            if(weapon.hasFlag(Weapon.Flags.AMMO_SELECT))
             {
-                return (firstDamage - secondDamage) * -1;
+                for(int i=0; i < itemList.size(); i++)
+                {
+                    ammos.add(itemList.get(i).getItemID());
+                }
             }
-        });
+            else
+            {
+                for(int i=0; i < itemList.size(); i++)
+                {
+                    IEAmmo effect = (IEAmmo)itemList.get(i).getItemEffect();
+                    if(Common.inArray(effect.getAmmo().getType(), weapon.getAmmoType()))
+                    {
+                        ammos.add(effect.getAmmo().getItemId());
+                        break;
+                    }
+                }
+            }
+        }
 
-        KSAttackAction firingAction = new KSAttackAction(user, weapon, "single", 1);
+        //Filter ammunition the weapon cannot fire
+        Set<Ammo> filteredAmmos = new HashSet<>();
+        if(ammos.isEmpty())
+        {
+            filteredAmmos.add(null);
+        }
+        else
+        {
+            for(int ammoId: ammos)
+            {
+                Iterator<Object> iterator = db.createQuery("from Ammo where itemid=:id and type in (:ammo)")
+                                                .setInteger("id", ammoId)
+                                                .setParameterList("ammo", weapon.getAmmoType()).iterate();
+                if(iterator.hasNext())
+                {
+                    log.info("Ammo type " + ammoId + " allowed by weapon.");
+                    Ammo ammo = (Ammo)iterator.next();
+                    filteredAmmos.add(ammo);
+                }
+                else
+                {
+                    log.info("Ammo type " + ammoId + " not allowed by weapon.");
+                }
+            }
+        }
+
+        return filteredAmmos;
+    }
+
+    private KSAttackAction findTarget(User user, BattleShip firingShip, Map.Entry<Weapon, Integer> shipWeapon, Ammo ammo, List<BattleShip> possibleTargets)
+    {
+        log.info("\t\tCalculating best target");
+        if(possibleTargets.isEmpty())
+        {
+            return null;
+        }
+
         int ammoId = 0;
         if(ammo != null)
         {
             ammoId = ammo.getItemId();
         }
+        Weapon weapon = shipWeapon.getKey();
 
-        if(!firingAction.init(battle, weapon.getInternalName(), ammoId))
+        //Always fire on the same kind of ship unless the weapon is a special big ship or small ship attack weapon (i.e. torpedos on bombers)
+        boolean attackSmall = firingShip.getTypeData().getSize() < ShipType.SMALL_SHIP_MAXSIZE;
+        if(weapon.getInternalName().equals("torpedo"))
         {
-            return firingOptions;
+            attackSmall = false;
         }
 
-        int torpedoDefense = firingAction.getAntiTorpTrefferWS(attackedShip.getTypeData(), attackedShip);
-        int fighterDefense = firingAction.getFighterDefense(battle);
-
-        int weaponHitPercentage = firingAction.calculateTrefferWS(battle, attackedShip.getTypeData(), fighterDefense, torpedoDefense, navSkill, defensiveSkill);
-        int damage = 0;
-        //Ignore subsystem damage weapons for the moment
-        for(int i = 0; i < weaponCount; i++)
+        if(weapon.getInternalName().contains("flak") || weapon.getInternalName().contains("AAA"))
         {
-            if(ammo != null)
+            attackSmall = true;
+        }
+
+        //Find the ship we want to damage most
+        KSAttackAction firingAction = null;
+        Ship target = null;
+        int killDesire = 0;
+        for(BattleShip possibleTarget: possibleTargets)
+        {
+            log.info("\t\tChecking ship for kill: " + possibleTarget.getShip().getId());
+            if(attackSmall && possibleTarget.getTypeData().getSize() > ShipType.SMALL_SHIP_MAXSIZE && firingAction != null)
             {
-                if(weapon.getSubDamage(firingShip.getTypeData()) <= 0)
+                log.info("\t\tShip doesn't match preferred kill type and preferred kill type ship found. Ignoring.");
+                continue;
+            }
+
+            if(!attackSmall && possibleTarget.getTypeData().getSize() <= ShipType.SMALL_SHIP_MAXSIZE && firingAction != null)
+            {
+                log.info("\t\tShip doesn't match preferred kill type and preferred kill type ship found. Ignoring.");
+                continue;
+            }
+
+            if(possibleTarget.getEngine() == 0 || possibleTarget.getWeapons() == 0)
+            {
+                log.info("\t\tShip has no engine and/or weapon. Possible target for seizing. Ignoring.");
+                continue;
+            }
+
+            if(possibleTarget.getHull() == 0)
+            {
+                log.info("\t\tShip is already destroyed. Ignoring.");
+                continue;
+            }
+
+            KSAttackAction currentFiringAction = new KSAttackAction(user, weapon, "single", 1);
+            if(!currentFiringAction.init(battle, weapon.getInternalName(), ammoId))
+            {
+                log.info("\t\tWeapon cannot attack Ship. Ignoring.");
+                continue;
+            }
+
+            int possibleDamage = possibleTarget.calcPossibleDamage();
+
+            int fighterDefense = currentFiringAction.getFighterDefense(battle);
+            int torpedoDefense = currentFiringAction.getAntiTorpTrefferWS(possibleTarget.getTypeData(), possibleTarget);
+            int hitChance = currentFiringAction.calculateTrefferWS(battle, possibleTarget.getTypeData(), fighterDefense, torpedoDefense, firingShip.getNavigationalValue(), possibleTarget.getDefensiveValue());
+            int currentDamage = 0;
+            for(int i = 0; i < shipWeapon.getValue(); i++)
+            {
+                if(ammo != null)
                 {
-                    damage += ammo.getDamage() * weaponHitPercentage;
+                    if(ammo.getSubDamage() <= 0)
+                    {
+                        currentDamage += ammo.getDamage() * hitChance;
+                    }
+                }
+                else
+                {
+
+                    if(weapon.getSubDamage(firingShip.getTypeData()) <= 0)
+                    {
+                        currentDamage += weapon.getBaseDamage(firingShip.getTypeData()) * hitChance;
+                    }
                 }
             }
-            else
-            {
+            
+            currentDamage = Math.min(currentDamage, possibleDamage);
 
-                if(weapon.getSubDamage(firingShip.getTypeData()) <= 0)
-                {
-                    damage += weapon.getBaseDamage(firingShip.getTypeData()) * weaponHitPercentage;
-                }
+            int currentKillDesire = calculateKillDesirability(currentDamage);
+            if(currentKillDesire > killDesire)
+            {
+                log.info("\t\tKill desire: " + currentKillDesire + " better than current kill desire: " + killDesire + " - Switching target.");
+                killDesire = currentKillDesire;
+                firingAction = currentFiringAction;
+                target = possibleTarget.getShip();
             }
         }
-
-        while(firingOptions.containsKey(damage) && damage > 0)
+        
+        if(target != null)
         {
-            damage -= 1;
+            battle.setAttackedShip(target);
         }
 
-        if(damage != 0)
-        {
-            firingOptions.put(damage, firingAction);
-        }
-
-        return firingOptions;
+        return firingAction;
     }
-    
+
+    /**
+     * Calculates how desirable it is to fire on the ship.
+     *
+     * @param damage The damage the weapons can do at the ship.
+     * @return The desirability. Higher numbers are better.
+     */
+    private int calculateKillDesirability(int damage)
+    {
+        return damage;
+    }
+
     private Map<Weapon, Integer> getShipWeapons(BattleShip ship)
     {
         Map<Weapon, Integer> shipWeapons = new HashMap<>();

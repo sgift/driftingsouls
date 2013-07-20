@@ -18,8 +18,6 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
-import java.util.List;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.AutoFire;
 import net.driftingsouls.ds2.server.battles.Battle;
@@ -28,14 +26,16 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.tick.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
-import org.hibernate.Transaction;
+import net.driftingsouls.ds2.server.tick.UnitOfWork;
+
+import java.util.List;
 
 /**
  * Fuehrt den Tick fuer Schlachten aus.
  * @author Christopher Jung
  *
  */
-public class BattleTick extends TickController {
+public class AutofireTick extends TickController {
 
 	@Override
 	protected void prepare() {
@@ -45,16 +45,15 @@ public class BattleTick extends TickController {
 	@Override
 	protected void tick() {
 		org.hibernate.Session db = getDB();
+        ConfigValue helper = (ConfigValue)db.get(ConfigValue.class, "autofire");
+        boolean isAutoFire = helper.getValue().equals("1");
 
-		/*
-				Schlachten
-		 */
+        if(!isAutoFire)
+        {
+            return;
+        }
 
-		final long lastacttime = Common.time()-1800;
-
-		List<Integer> battles = Common.cast(db.createQuery("select id from Battle")
-											 .list());
-
+        List<Integer> battles = Common.cast(db.createQuery("select id from Battle battle where battle.commander1.id < 0").list());
 		new EvictableUnitOfWork<Integer>("Battle Tick")
 		{
 			@Override
@@ -62,29 +61,26 @@ public class BattleTick extends TickController {
 			{
 				org.hibernate.Session db = getDB();
 				Battle battle = (Battle)db.get(Battle.class, battleId);
-
-				if( battle.getBlockCount() > 0 && battle.getLetzteRunde() <= lastacttime )
-				{
-					battle.decrementBlockCount();
-				}
-
-				if( battle.getBlockCount() > 0 && battle.getLetzteAktion() > lastacttime )
-				{
-					return;
-				}
-
-				log("+ Naechste Runde bei Schlacht "+battle.getId());
-                battle.load( battle.getCommander(0), null, null, 0 );
-				if( battle.endTurn(false) )
-				{
-					// Daten nur aktualisieren, wenn die Schlacht auch weiterhin existiert
-					battle.logenemy("<endturn type=\"all\" side=\"-1\" time=\""+Common.time()+"\" tick=\""+getContext().get(ContextCommon.class).getTick()+"\" />\n");
-
-					battle.writeLog();
-				}
+				battle.load( battle.getCommander(0), null, null, 0 );
+                log("Automatisches Feuer aktiviert fuer Spieler: " + battle.getCommander(0).getId());
+                AutoFire autoFire = new AutoFire(getDB(), battle);
+                autoFire.fireShips();
 			}
-		}
-		.setFlushSize(1)
-		.executeFor(battles);
+		}.setFlushSize(1).executeFor(battles);
+
+        battles = Common.cast(db.createQuery("select id from Battle battle where battle.commander2.id < 0").list());
+        new EvictableUnitOfWork<Integer>("Battle Tick")
+        {
+            @Override
+            public void doWork(Integer battleId) throws Exception
+            {
+                org.hibernate.Session db = getDB();
+                Battle battle = (Battle)db.get(Battle.class, battleId);
+                battle.load( battle.getCommander(1), null, null, 0 );
+                log("Automatisches Feuer aktiviert fuer Spieler: " + battle.getCommander(1).getId());
+                AutoFire autoFire = new AutoFire(getDB(), battle);
+                autoFire.fireShips();
+            }
+        }.setFlushSize(1).executeFor(battles);
 	}
 }
