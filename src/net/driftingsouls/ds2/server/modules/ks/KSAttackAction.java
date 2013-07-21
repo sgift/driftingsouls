@@ -470,9 +470,11 @@ public class KSAttackAction extends BasicKSAction {
 		ShipTypeData ownShipType = this.ownShip.getTypeData();
 
 		if( (eShip.getCrew() == 0) && (eShipType.getMinCrew() > 0) ) {
+            log.info("\t\tTarget has no crew.");
 			return 100;
 		}
 		if( (defTrefferWS <= 0) && (eShipType.getCost() > 0) && (eShip.getShip().getEngine() > 0) ) {
+            log.info("\t\tBase hit chance zero and ship can move.");
 			return 0;
 		}
 
@@ -482,6 +484,7 @@ public class KSAttackAction extends BasicKSAction {
 		// Das Objekt hat einen Antrieb - also TrefferWS anpassen
 		if( ( eShipType.getCost() > 0 ) && ( eShip.getShip().getEngine() > 0 ) ) {
 			trefferWS = calcTWSthroughDifference(defensivskill, navskill, eShip, eShipType, defTrefferWS, ownShipType);
+            log.info("\t\tShip has engine - new hit chance: " + trefferWS);
 		}
 
 		if( trefferWS < 0 ) {
@@ -493,15 +496,19 @@ public class KSAttackAction extends BasicKSAction {
 
 		// Nun die TrefferWS anteilig senken, wenn Crew/Sensoren nicht auf 100 sind
 		trefferWS *= (this.ownShip.getShip().getSensors()/100d);
+        log.info("Hit chance after sensor adjustment: " + trefferWS);
 		if( (ownShipType.getMinCrew() > 0) && (this.ownShip.getCrew() < ownShipType.getMinCrew()) ) {
 			trefferWS *= this.ownShip.getCrew()/(double)ownShipType.getMinCrew();
+            log.info("\t\tNot enough crew - new hit chance: " + trefferWS);
 		}
 
 		// Und nun die TrefferWS anteilig steigern, wenn die Gegnerische Crew/Antrie nicht auf 100 sind
 		int restws = 100-trefferWS;
 		trefferWS += restws*((100-eShip.getShip().getEngine())/100d);
+        log.info("Hit chance after adjusting for damaged enemy engine: " + trefferWS);
 		if( eShip.getCrew() < eShipType.getMinCrew() ) {
 			trefferWS += restws*((eShipType.getMinCrew()-eShip.getCrew())/(double)eShipType.getMinCrew());
+            log.info("\t\tEnemy  ship has not enough crew - new hit chance: " + trefferWS);
 		}
 
 		if( trefferWS < 0 ) {
@@ -1791,10 +1798,12 @@ public class KSAttackAction extends BasicKSAction {
 		int trefferWS;
 		if( enemyShipType.getSize() <= ShipType.SMALL_SHIP_MAXSIZE )
 		{
+            log.info("\t\tTargeted ship is small ship.");
 			trefferWS = this.getSmallTrefferWS( battle, this.localweapon.getDefTrefferWs(), this.enemyShip, enemyShipType, defensivskill, navskill );
 		}
 		else
 		{
+            log.info("\t\tTargeted ship is big ship.");
 			trefferWS = this.getTrefferWS( battle, this.localweapon.getDefTrefferWs(), this.enemyShip, enemyShipType, defensivskill, navskill );
 		}
 

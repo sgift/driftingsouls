@@ -266,6 +266,7 @@ public class AutoFire
         for(BattleShip possibleTarget: possibleTargets)
         {
             log.info("\t\tChecking ship for kill: " + possibleTarget.getShip().getId());
+            
             if(attackSmall && possibleTarget.getTypeData().getSize() > ShipType.SMALL_SHIP_MAXSIZE && firingAction != null)
             {
                 log.info("\t\tShip doesn't match preferred kill type and preferred kill type ship found. Ignoring.");
@@ -318,6 +319,12 @@ public class AutoFire
             
             currentDamage = Math.min(currentDamage, possibleDamage);
             log.info("\t\tCalculated damage: " + currentDamage);
+
+            if(possibleTarget.getShip().isDocked() || possibleTarget.getShip().isLanded())
+            {
+                log.info("\t\tShip is landed or docked. Ignoring.");
+                continue;
+            }
 
             int currentKillDesire = calculateKillDesirability(currentDamage);
             if(currentKillDesire > killDesire)
