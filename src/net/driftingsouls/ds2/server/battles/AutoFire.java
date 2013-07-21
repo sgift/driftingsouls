@@ -329,29 +329,35 @@ public class AutoFire
             log.info("\t\tCalculated damage: " + currentDamage);
 
             int currentKillDesire = calculateKillDesirability(currentDamage);
-            if(currentKillDesire > killDesire)
+            if(currentKillDesire > 0)
             {
-                log.info("\t\tKill desire: " + currentKillDesire + " better than current kill desire: " + killDesire + " - Switching target.");
-                killDesire = currentKillDesire;
-                firingAction = currentFiringAction;
-                target = possibleTarget.getShip();
-            }
-            else if(currentKillDesire == killDesire)
-            {
-                if(target.getTypeData().getSize() > ShipType.SMALL_SHIP_MAXSIZE && attackSmall)
+                if(currentKillDesire > killDesire)
                 {
-                    log.info("\t\tKill desire: " + currentKillDesire + " equals best kill desire, but new target has preferred size - Switching target.");
+                    log.info("\t\tKill desire: " + currentKillDesire + " better than current kill desire: " + killDesire + " - Switching target.");
                     killDesire = currentKillDesire;
                     firingAction = currentFiringAction;
                     target = possibleTarget.getShip();
                 }
-
-                if(target.getTypeData().getSize() <= ShipType.SMALL_SHIP_MAXSIZE && !attackSmall)
+                else if(currentKillDesire == killDesire)
                 {
-                    log.info("\t\tKill desire: " + currentKillDesire + " equals best kill desire, but new target has preferred size - Switching target.");
-                    killDesire = currentKillDesire;
-                    firingAction = currentFiringAction;
-                    target = possibleTarget.getShip();
+                    if(target != null)
+                    {
+                        if(target.getTypeData().getSize() > ShipType.SMALL_SHIP_MAXSIZE && attackSmall)
+                        {
+                            log.info("\t\tKill desire: " + currentKillDesire + " equals best kill desire, but new target has preferred size - Switching target.");
+                            killDesire = currentKillDesire;
+                            firingAction = currentFiringAction;
+                            target = possibleTarget.getShip();
+                        }
+
+                        if(target.getTypeData().getSize() <= ShipType.SMALL_SHIP_MAXSIZE && !attackSmall)
+                        {
+                            log.info("\t\tKill desire: " + currentKillDesire + " equals best kill desire, but new target has preferred size - Switching target.");
+                            killDesire = currentKillDesire;
+                            firingAction = currentFiringAction;
+                            target = possibleTarget.getShip();
+                        }
+                    }
                 }
             }
         }
