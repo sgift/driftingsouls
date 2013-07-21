@@ -266,6 +266,12 @@ public class AutoFire
         for(BattleShip possibleTarget: possibleTargets)
         {
             log.info("\t\tChecking ship for kill: " + possibleTarget.getShip().getId());
+
+            if(possibleTarget.getShip().isDocked() || possibleTarget.getShip().isLanded())
+            {
+                log.info("\t\tShip is landed or docked. Ignoring.");
+                continue;
+            }
             
             if(attackSmall && possibleTarget.getTypeData().getSize() > ShipType.SMALL_SHIP_MAXSIZE && firingAction != null)
             {
@@ -320,12 +326,6 @@ public class AutoFire
             currentDamage = Math.min(currentDamage, possibleDamage);
             log.info("\t\tCalculated damage: " + currentDamage);
 
-            if(possibleTarget.getShip().isDocked() || possibleTarget.getShip().isLanded())
-            {
-                log.info("\t\tShip is landed or docked. Ignoring.");
-                continue;
-            }
-
             int currentKillDesire = calculateKillDesirability(currentDamage);
             if(currentKillDesire > killDesire)
             {
@@ -333,6 +333,24 @@ public class AutoFire
                 killDesire = currentKillDesire;
                 firingAction = currentFiringAction;
                 target = possibleTarget.getShip();
+            }
+            else if(currentKillDesire == killDesire)
+            {
+                if(target.getTypeData().getSize() > ShipType.SMALL_SHIP_MAXSIZE && attackSmall)
+                {
+                    log.info("\t\tKill desire: " + currentKillDesire + " equals best kill desire, but new target has preferred size - Switching target.");
+                    killDesire = currentKillDesire;
+                    firingAction = currentFiringAction;
+                    target = possibleTarget.getShip();
+                }
+
+                if(target.getTypeData().getSize() <= ShipType.SMALL_SHIP_MAXSIZE && !attackSmall)
+                {
+                    log.info("\t\tKill desire: " + currentKillDesire + " equals best kill desire, but new target has preferred size - Switching target.");
+                    killDesire = currentKillDesire;
+                    firingAction = currentFiringAction;
+                    target = possibleTarget.getShip();
+                }
             }
         }
         
