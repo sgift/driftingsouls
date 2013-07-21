@@ -370,6 +370,11 @@ public class KSAttackAction extends BasicKSAction {
         }
     }
 
+    public BattleShip getAttackedShip()
+    {
+        return this.enemyShip;
+    }
+
 	private int destroyShipOnly(int id, Battle battle, BattleShip eShip, boolean generateLoot, boolean generateStats) {
 
 		//
