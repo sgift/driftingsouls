@@ -1264,11 +1264,6 @@ public class KSAttackAction extends BasicKSAction {
 
         return true;
     }
-    
-    public String getWeaponName()
-    {
-        return this.weaponName;
-    }
 
     public Result attack(Battle battle) throws IOException
     {
@@ -1548,7 +1543,7 @@ public class KSAttackAction extends BasicKSAction {
                 int schaden = absSchaden;
 
                 int trefferWS = calculateTrefferWS(battle, enemyShipType, fighterdef,
-                        antitorptrefferws, navskill, defensivskill);
+                        antitorptrefferws, navskill, defensivskill, true);
 
                 int[] subdmgs = calculateSubsystemTrefferWS(battle, enemyShipType, navskill,
                         defensivskill, panzerung, trefferWS);
@@ -1793,7 +1788,7 @@ public class KSAttackAction extends BasicKSAction {
 	}
 
 	public int calculateTrefferWS(Battle battle, ShipTypeData enemyShipType, int fighterdef,
-			int antitorptrefferws, int navskill, int defensivskill)
+			int antitorptrefferws, int navskill, int defensivskill, boolean useBattleLog)
 	{
 		int trefferWS;
 		if( enemyShipType.getSize() <= ShipType.SMALL_SHIP_MAXSIZE )
@@ -1807,15 +1802,19 @@ public class KSAttackAction extends BasicKSAction {
 			trefferWS = this.getTrefferWS( battle, this.localweapon.getDefTrefferWs(), this.enemyShip, enemyShipType, defensivskill, navskill );
 		}
 
-		if( battle.getCommander(ownShip.getSide()).hasFlag( User.FLAG_KS_DEBUG )) {
-			battle.logme( "Basis-TrefferWS: "+ trefferWS +"%\n");
-			battle.logme( "FighterDef: "+ fighterdef +"%\n");
-			battle.logme( "AntitorpTrefferWS: "+ antitorptrefferws +"%\n");
-		}
-		else
-		{
-			battle.logme( "Basis-TrefferWS: "+ this.getTWSText(trefferWS) +"\n");
-		}
+        if(useBattleLog)
+        {
+            if( battle.getCommander(ownShip.getSide()).hasFlag( User.FLAG_KS_DEBUG )) {
+                battle.logme( "Basis-TrefferWS: "+ trefferWS +"%\n");
+                battle.logme( "FighterDef: "+ fighterdef +"%\n");
+                battle.logme( "AntitorpTrefferWS: "+ antitorptrefferws +"%\n");
+            }
+            else
+            {
+                battle.logme( "Basis-TrefferWS: "+ this.getTWSText(trefferWS) +"\n");
+            }
+        }
+
 		trefferWS -= antitorptrefferws;
 		// Minimum bei 5% bei zerstoerbaren Waffen
 		if( (trefferWS - fighterdef < 5) && (fighterdef > 0) ) {

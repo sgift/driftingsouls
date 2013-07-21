@@ -83,7 +83,7 @@ public class AutoFire
 
             for(Map.Entry<String, String> heatLog: heats.entrySet())
             {
-                log.info("Weapon: " + heatLog.getKey() + " Max heat: " + heatLog.getValue());
+                log.info("Weapon: " + heatLog.getKey() + " Heat: " + heatLog.getValue());
             }
             
             for(Map.Entry<Weapon, Integer> weapon: shipWeapons.entrySet())
@@ -309,7 +309,7 @@ public class AutoFire
 
             int fighterDefense = currentFiringAction.getFighterDefense(battle);
             int torpedoDefense = currentFiringAction.getAntiTorpTrefferWS(possibleTarget.getTypeData(), possibleTarget);
-            int hitChance = currentFiringAction.calculateTrefferWS(battle, possibleTarget.getTypeData(), fighterDefense, torpedoDefense, firingShip.getNavigationalValue(), possibleTarget.getDefensiveValue());
+            int hitChance = currentFiringAction.calculateTrefferWS(battle, possibleTarget.getTypeData(), fighterDefense, torpedoDefense, firingShip.getNavigationalValue(), possibleTarget.getDefensiveValue(), false);
             int currentDamage = 0;
             log.info("\t\tBase damage for weapon: " + baseDamage);
             log.info("\t\tHit chance: " + hitChance);
