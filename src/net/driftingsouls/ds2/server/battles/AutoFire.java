@@ -232,7 +232,7 @@ public class AutoFire
 
         //Always fire on the same kind of ship unless the weapon is a special big ship or small ship attack weapon (i.e. torpedos on bombers)
         boolean attackSmall = firingShip.getTypeData().getSize() < ShipType.SMALL_SHIP_MAXSIZE;
-        if(weapon.getInternalName().equals("torpedo"))
+        if(weapon.getInternalName().equals("torpedo") || weapon.getInternalName().equals("mjolnir"))
         {
             attackSmall = false;
         }
@@ -246,6 +246,23 @@ public class AutoFire
         KSAttackAction firingAction = null;
         Ship target = null;
         int killDesire = 0;
+        int baseDamage = 0;
+        if(ammo != null)
+        {
+            if(ammo.getSubDamage() <= 0)
+            {
+                baseDamage = ammo.getDamage();
+            }
+        }
+        else
+        {
+
+            if(weapon.getSubDamage(firingShip.getTypeData()) <= 0)
+            {
+                baseDamage = weapon.getBaseDamage(firingShip.getTypeData());
+            }
+        }
+
         for(BattleShip possibleTarget: possibleTargets)
         {
             log.info("\t\tChecking ship for kill: " + possibleTarget.getShip().getId());
@@ -281,31 +298,26 @@ public class AutoFire
             }
 
             int possibleDamage = possibleTarget.calcPossibleDamage();
+            log.info("\t\tMaximum possible damage on target: " + possibleDamage);
 
             int fighterDefense = currentFiringAction.getFighterDefense(battle);
             int torpedoDefense = currentFiringAction.getAntiTorpTrefferWS(possibleTarget.getTypeData(), possibleTarget);
             int hitChance = currentFiringAction.calculateTrefferWS(battle, possibleTarget.getTypeData(), fighterDefense, torpedoDefense, firingShip.getNavigationalValue(), possibleTarget.getDefensiveValue());
             int currentDamage = 0;
+            log.info("\t\tBase damage for weapon: " + baseDamage);
+            log.info("\t\tHit chance: " + hitChance);
+
             for(int i = 0; i < shipWeapon.getValue(); i++)
             {
-                if(ammo != null)
+                int diceRoll = (int)(Math.random() * 100.0d);
+                if(diceRoll <= hitChance)
                 {
-                    if(ammo.getSubDamage() <= 0)
-                    {
-                        currentDamage += ammo.getDamage() * hitChance;
-                    }
-                }
-                else
-                {
-
-                    if(weapon.getSubDamage(firingShip.getTypeData()) <= 0)
-                    {
-                        currentDamage += weapon.getBaseDamage(firingShip.getTypeData()) * hitChance;
-                    }
+                    currentDamage += baseDamage;
                 }
             }
             
             currentDamage = Math.min(currentDamage, possibleDamage);
+            log.info("\t\tCalculated damage: " + currentDamage);
 
             int currentKillDesire = calculateKillDesirability(currentDamage);
             if(currentKillDesire > killDesire)
