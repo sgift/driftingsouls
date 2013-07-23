@@ -123,6 +123,8 @@ public class AutoFire
                                 log.info("\t\tFiring at ship: " + firingAction.getAttackedShip().getId() + " Shields: " + firingAction.getAttackedShip().getShields() + " Ablative Armor: " + firingAction.getAttackedShip().getAblativeArmor() + " Hull: " + firingAction.getAttackedShip().getHull());
                                 result = firingAction.attack(battle);
                                 heat += weapon.getValue();
+                                db.merge(firingAction.getAttackedShip());
+                                db.merge(firingShip);
                                 log.info("\t\tFired at ship: " + firingAction.getAttackedShip().getShip().getId() + " Shields: " + firingAction.getAttackedShip().getShields() + " Ablative Armor: " + firingAction.getAttackedShip().getAblativeArmor() + " Hull: " + firingAction.getAttackedShip().getHull());
                             }
                             catch (IOException e)
