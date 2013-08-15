@@ -85,21 +85,18 @@ public class KSUndockAllAction extends BasicKSAction {
 			.setString("docked", "" + ownShip.getId())
 			.executeUpdate();
 
+        ownShip.getShip().start();
+        ownShip.getShip().undock();
+
 		List<BattleShip> ownShips = battle.getOwnShips();
-		for( int i=0; i < ownShips.size(); i++ ) {
+		for( int i=0; i < ownShips.size(); i++ )
+        {
 			BattleShip s = ownShips.get(i);
-
-			if(s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == ownShip.getId())
-			{
-				if( (s.getAction() & Battle.BS_SECONDROW) != 0 && !s.getTypeData().hasFlag(ShipTypes.SF_SECONDROW))
-				{
-					s.setAction((s.getAction() ^ Battle.BS_SECONDROW) | Battle.BS_SECONDROW_BLOCKED);
-				}
-			}
+            if( (s.getAction() & Battle.BS_SECONDROW) != 0 && !s.getTypeData().hasFlag(ShipTypes.SF_SECONDROW))
+            {
+                s.setAction((s.getAction() ^ Battle.BS_SECONDROW) | Battle.BS_SECONDROW_BLOCKED);
+            }
 		}
-
-		ownShip.getShip().start();
-		ownShip.getShip().undock();
 
 		battle.logme(counter+" Schiffe wurden abgedockt");
 		battle.logenemy(counter+" Schiffe wurden von der "+Battle.log_shiplink(ownShip.getShip())+" abgedockt\n");

@@ -2398,47 +2398,28 @@ public class Battle implements Locatable
 
 		for(BattleShip ship: secondRowShips)
 		{
-			if(ship.getSide() == 0)
+			if((ship.getSide() == 0 && firstRowExists) || (ship.getSide() == 1 && firstRowEnemyExists))
 			{
-				if(firstRowExists)
-				{
-					ship.setAction(BS_SECONDROW);
-					if( ship.getTypeData().getJDocks() == 0 )
-					{
-						continue;
-					}
-					List<Ship> landedShips = ship.getShip().getLandedShips();
-					for(Ship landedShip: landedShips)
-					{
-						BattleShip aship = battleShipMap.get(landedShip);
+                ship.setAction(BS_SECONDROW);
+                if(ship.getTypeData().getJDocks() == 0)
+                {
+                    continue;
+                }
 
-						if(aship != null)
-						{
-							aship.setAction(BS_SECONDROW);
-						}
-					}
-				}
-			}
-			else if(ship.getSide() == 1)
-			{
-				if(firstRowEnemyExists)
-				{
-					ship.setAction(BS_SECONDROW);
-					if( ship.getTypeData().getJDocks() == 0 )
-					{
-						continue;
-					}
-					List<Ship> landedShips = ship.getShip().getLandedShips();
-					for(Ship landedShip: landedShips)
-					{
-						BattleShip aship = battleShipMap.get(landedShip);
+                List<Ship> landedShips = ship.getShip().getLandedShips();
+                for(Ship landedShip: landedShips)
+                {
+                    if(!landedShip.getTypeData().hasFlag(ShipTypes.SF_SECONDROW))
+                    {
+                        continue;
+                    }
 
-						if(aship != null)
-						{
-							aship.setAction(BS_SECONDROW);
-						}
-					}
-				}
+                    BattleShip aship = battleShipMap.get(landedShip);
+                    if(aship != null)
+                    {
+                        aship.setAction(BS_SECONDROW);
+                    }
+                }
 			}
 		}
 		db.setFlushMode(FlushMode.AUTO);
