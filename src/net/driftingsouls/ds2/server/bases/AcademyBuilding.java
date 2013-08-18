@@ -453,6 +453,7 @@ public class AcademyBuilding extends DefaultBuilding {
 						t.setVar("trainoffi.train", 1);
 
 						cargo.substractResource( Resources.SILIZIUM, sk );
+						cargo.substractResource( Resources.NAHRUNG, nk );
 
 						AcademyQueueEntry entry = new AcademyQueueEntry(academy,offizier.getID(),dauer,train);
 
