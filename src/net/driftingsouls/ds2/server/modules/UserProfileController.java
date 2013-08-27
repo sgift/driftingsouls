@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.modules;
 
 import java.util.List;
+import java.util.Set;
 
 import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Medals;
@@ -233,6 +234,37 @@ public class UserProfileController extends TemplateGenerator {
 						"npcrang.npc", Common._title(rang.getRankGiver().getName()));
 
 				t.parse("user.npcrang.list", "user.npcrang", true);
+			}
+		}
+		else 
+		{
+			// IDs der Ranggeber
+			int ownGiverId;
+			int foreignGiverId;
+			// Sets aller Raenge
+			Set<UserRank> ownRanks = this.user.getOwnRanks();
+			Set<UserRank> foreignRanks = user.getOwnRanks();
+			// fur jeden eigenen Rang mit den fremden abgleichen ob er den gleichen Ranggeber hat
+			for(UserRank ownRank : ownRanks){
+				// hab ich selbst einen Rang? andernfalls brauch ich gar nicht schauen
+				if(ownRank.getRank() > 0)
+				{
+					// holen wir uns die ID vom Ranggeber
+					ownGiverId = ownRank.getRankGiver().getId();
+					// nun alle fremden Ränge durchgehen und vergleichen
+					for(UserRank foreignRank : foreignRanks){
+						// Ranggeber holen
+						foreignGiverId = foreignRank.getRankGiver().getId();
+						// Ranggeber identisch und Fremdling hat selbst einen Rang, dann weiter
+						if (ownGiverId == foreignGiverId && foreignRank.getRank() > 0){
+							// zeige den Rang an
+							t.setVar( "npcrang", foreignRank.getRankGiver().getOwnGrantableRank(foreignRank.getRank()),
+									"npcrang.npc", Common._title(foreignRank.getRankGiver().getName()));
+
+							t.parse("user.npcrang.list", "user.npcrang", true);
+						}
+					}
+				}
 			}
 		}
 
