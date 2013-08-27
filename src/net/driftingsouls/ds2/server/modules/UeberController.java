@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.IntTutorial;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserRank;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -323,11 +324,21 @@ public class UeberController extends TemplateGenerator {
 
 		// Ab hier beginnt das erste Bier
 		Set<Battle> battles = new LinkedHashSet<Battle>();
+		
+		Set<UserRank> ownRanks = user.getOwnRanks();
+		Set<User> commanderSet = new LinkedHashSet<User>();
+		commanderSet.add(user);
+		for(UserRank ownRank : ownRanks){
+			if(ownRank.getRank() > 0)
+			{
+				commanderSet.addAll(ownRank.getRankGiver().getAlly().getMembers());
+			}
+		}
 
 		if( !hasPermission("schlacht", "liste") ) {
 			// Zwei separate Queries fuer alle Schlachten um einen sehr unvorteilhaften Join zu vermeiden
 			String query = "from Battle " +
-					"where commander1= :user or commander2= :user ";
+					"where commander1 in (:commanders) or commander2 in (:commanders) ";
 
 			//hat der Benutzer eine ally, dann haeng das hier an
 			if(user.getAlly() != null) {
@@ -339,7 +350,7 @@ public class UeberController extends TemplateGenerator {
 			}
 
 			Query battleQuery = db.createQuery(query)
-				.setEntity("user", user);
+					.setParameterList("commanders", commanderSet);
 
 			if( user.getAlly() != null ) {
 				battleQuery = battleQuery.setInteger("ally", user.getAlly().getId());
