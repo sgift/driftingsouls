@@ -242,8 +242,8 @@ public class UserProfileController extends TemplateGenerator {
 			int ownGiverId;
 			int foreignGiverId;
 			// Sets aller Raenge
-			Set<UserRank> ownRanks = this.user.getOwnRanks();
-			Set<UserRank> foreignRanks = user.getOwnRanks();
+			Set<UserRank> ownRanks = user.getOwnRanks();
+			Set<UserRank> foreignRanks = this.user.getOwnRanks();
 			// fur jeden eigenen Rang mit den fremden abgleichen ob er den gleichen Ranggeber hat
 			for(UserRank ownRank : ownRanks){
 				// hab ich selbst einen Rang? andernfalls brauch ich gar nicht schauen
@@ -260,7 +260,9 @@ public class UserProfileController extends TemplateGenerator {
 							// zeige den Rang an
 							t.setVar( "npcrang", foreignRank.getRankGiver().getOwnGrantableRank(foreignRank.getRank()),
 									"npcrang.npc", Common._title(foreignRank.getRankGiver().getName()));
-
+							
+							// user.getOwnGrantableRanks()
+							
 							t.parse("user.npcrang.list", "user.npcrang", true);
 						}
 					}
