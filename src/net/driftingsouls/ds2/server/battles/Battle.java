@@ -1524,6 +1524,8 @@ public class Battle implements Locatable
 		//
 		for( int i=0; i < 2; i++ )
 		{
+			List<BattleShip> shipsSecond = new ArrayList<BattleShip>();
+
 			// Liste kopieren um Probleme beim Entfernen von Schiffen aus der Ursprungsliste zu vermeiden
 			List<BattleShip> shiplist = new ArrayList<BattleShip>(sides.get(i));
             for (BattleShip ship : shiplist)
@@ -1613,10 +1615,9 @@ public class Battle implements Locatable
 
                 if ((ship.getAction() & BS_JOIN) != 0) {
                     ShipTypeData ashipType = ship.getTypeData();
-                    if (ashipType.hasFlag(ShipTypes.SF_SECONDROW) &&
-                            this.isSecondRowStable(i, ship)) {
-                        ship.setAction(ship.getAction() | BS_SECONDROW);
-                    }
+					if (ashipType.hasFlag(ShipTypes.SF_SECONDROW)) {
+						shipsSecond.add(ship);
+					}
                     ship.setAction(ship.getAction() ^ BS_JOIN);
                 }
 
@@ -1633,6 +1634,12 @@ public class Battle implements Locatable
                 ship.getShip().setWeaponHeat(Weapons.packWeaponList(heat));
                 ship.getShip().setBattleAction(false);
             }
+
+			for(BattleShip second : shipsSecond){
+				if(this.isSecondRowStable(i, second)){
+					second.setAction(second.getAction() | BS_SECONDROW);
+				}
+			}
 		}
 
 		context.getDB().flush();
