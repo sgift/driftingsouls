@@ -329,7 +329,7 @@ public class UeberController extends TemplateGenerator {
 		Set<User> commanderSet = new LinkedHashSet<User>();
 		commanderSet.add(user);
 		for(UserRank ownRank : ownRanks){
-			if(ownRank.getRank() > 0)
+			if(ownRank.getRank() > 0 && ownRank.getRankGiver().getAlly() != null)
 			{
 				commanderSet.addAll(ownRank.getRankGiver().getAlly().getMembers());
 			}
