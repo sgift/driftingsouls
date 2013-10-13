@@ -101,7 +101,6 @@ public class SchiffAjaxController extends AngularGenerator
 			return JSONUtils.failure("Du kannst die Alarmstufe dieses Schiffs nicht ändern.");
 		}
 
-		parameterNumber("alarm");
 		int alarm = getInteger("alarm");
 
 		if( (alarm >= Ship.Alert.GREEN.getCode()) && (alarm <= Ship.Alert.RED.getCode()) ) {
@@ -174,7 +173,11 @@ public class SchiffAjaxController extends AngularGenerator
 		RouteFactory router = new RouteFactory();
 		boolean forceLowHeat = false;
 		Location from = ship.getLocation();
-		List<Waypoint> route = router.findRoute(from, new Location(from.getSystem(), targetx, targety));
+		Location to = new Location(from.getSystem(), targetx, targety);
+		List<Waypoint> route = router.findRoute(from, to);
+		if( route.isEmpty() ) {
+			return JSONUtils.error("Es wurde keine Route nach "+to.displayCoordinates(false)+" gefunden");
+		}
 
 		if( route.size() > 1 || route.iterator().next().distance > 1 )
 		{
