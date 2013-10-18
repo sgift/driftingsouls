@@ -32,12 +32,13 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import org.apache.commons.lang.ArrayUtils;
+import org.hibernate.Criteria;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,21 +47,17 @@ import java.util.Map;
  * @author Christopher Jung
  */
 @Module(name="basen")
-@UrlParams({
-		@UrlParam(name="l", type= UrlParamType.NUMBER, description = "Falls == 1 werden die Cargos der Basen angezeigt"),
-		@UrlParam(name="ord", description = "Das Attribut, nach dem geordnet werden soll"),
-		@UrlParam(name="order", type=UrlParamType.NUMBER, description = "Falls == 1 wird absteigend sortiert")
-})
 public class BasenController extends TemplateGenerator {
-	@SuppressWarnings("unchecked")
-	private static final Map<String,String> ordmapper = ArrayUtils.toMap( new String[][]
-		{	{"id", "id"}, 
-			{"name", "name"},
-			{"type", "type"}, 
-			{"sys", "system,x,y"},
-			{"bew", "bewohner"},
-			{"e", "e"} } );
-	
+	private static final Map<String,List<String>> ordmapper = new HashMap<>();
+	static {
+		ordmapper.put("id", Arrays.asList("id"));
+		ordmapper.put("name", Arrays.asList("name"));
+		ordmapper.put("type", Arrays.asList("type"));
+		ordmapper.put("sys", Arrays.asList("system","x","y"));
+		ordmapper.put("bew", Arrays.asList("bew"));
+		ordmapper.put("e", Arrays.asList("e"));
+	}
+
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
@@ -73,70 +70,64 @@ public class BasenController extends TemplateGenerator {
 		setPageTitle("Basen");
 	}
 	
-	@Override
-	protected boolean validateAndPrepare(String action) {
-		return true;
-	}
-	
 	/**
 	 * Zeigt die Liste aller Basen an.
+	 * @param l Falls == 1 werden die Cargos der Basen angezeigt
+	 * @param ord Das Attribut, nach dem geordnet werden soll
+	 * @param order Falls == 1 wird absteigend sortiert
 	 */
-	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() {
+	public void defaultAction(int l, String ord, int order) {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
-		
-		String ord = user.getUserValue("TBLORDER/basen/order");
-		int order = Integer.parseInt(user.getUserValue("TBLORDER/basen/order_mode"));
-		int l = Integer.parseInt(user.getUserValue("TBLORDER/basen/showcargo"));
-		if( !getString("ord").equals("") && !ord.equals(getString("ord")) ) {
-			ord = getString("ord");
-			user.setUserValue("TBLORDER/basen/order", ord );
+
+		String ordSetting = user.getUserValue("TBLORDER/basen/order");
+		int orderSetting = Integer.parseInt(user.getUserValue("TBLORDER/basen/order_mode"));
+		int lSetting = Integer.parseInt(user.getUserValue("TBLORDER/basen/showcargo"));
+		if (ord != null && !ord.isEmpty() && !ord.equals(ordSetting))
+		{
+			user.setUserValue("TBLORDER/basen/order", ord);
 		}
 
-		if( (getInteger("order") != 0) && (order != getInteger("order")) ) {
-			order = getInteger("order");
+		if (order != 0 && order != orderSetting)
+		{
 			user.setUserValue("TBLORDER/basen/order_mode", Integer.toString(order));
 		}
-		
-		if( (getInteger("l") != 0) && (l != getInteger("l")) ) {
-			l = getInteger("l");
+
+		if (l != 0 && l != lSetting)
+		{
 			user.setUserValue("TBLORDER/basen/showcargo", Integer.toString(l));
 		}
-		
-		t.setVar(	"global.l",		l,
-					"global.order",	ord,
-					"global.order."+ord, 1,
-					"global.omode", order );
-	
-		
-		String ow;
-		String om;
-		if( ordmapper.containsKey(ord) ) {
+
+		t.setVar("global.l", l,
+				"global.order", ord,
+				"global.order." + ord, 1,
+				"global.omode", order);
+
+
+		List<String> ow;
+		if (ordmapper.containsKey(ord))
+		{
 			ow = ordmapper.get(ord);
 		}
-		else {
-			ow = "id";	
+		else
+		{
+			ow = Arrays.asList("id");
 		}
-			
-		if( order == 1 ) {
-			om = "DESC";
-		}
-		else {
-			om = "ASC";
-		}
-		
+
 		t.setBlock("_BASEN", "bases.listitem", "bases.list");
 		t.setBlock("bases.listitem", "bases.mangel.listitem", "bases.mangel.list");
 		t.setBlock("bases.listitem", "bases.cargo.listitem", "bases.cargo.list");
 		t.setBlock("bases.listitem", "bases.units.listitem", "bases.units.list");
-		
-		List<?> list = db.createQuery("from Base where owner= :user order by "+ow+" "+om)
-			.setEntity("user", user)
-			.list();
-		for (Object aList : list)
+
+		Criteria criteria = db.createCriteria(Base.class).add(Restrictions.eq("owner", user));
+		for (String s : ow)
+		{
+			criteria.addOrder(order == 1 ? Order.desc(s) : Order.asc(s));
+		}
+
+		for (Object aList : criteria.list())
 		{
 			Base base = (Base) aList;
 			BaseStatus basedata = Base.getStatus(base);
