@@ -31,8 +31,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import java.util.List;
@@ -83,22 +81,18 @@ public class AllyListController extends TemplateGenerator {
 					
 		return true;
 	}
-	
+
 	/**
 	 * Setzt die Beziehungen des Spielers zu allen Mitgliedern der Allianz.
+	 *
+	 * @param ally     Die Allianz
+	 * @param relation Die neue Beziehung
 	 */
-	@UrlParams({
-			@UrlParam(name="details", type= UrlParamType.NUMBER, description = "Die ID der Allianz"),
-			@UrlParam(name="relation", type=UrlParamType.NUMBER, description = "Die neue Beziehung. 1 fuer feindlich, 2 fuer freundlich und neural bei allen anderen Werten")
-	})
 	@Action(ActionType.DEFAULT)
-	public void changeRelationAction() {
+	public void changeRelationAction(@UrlParam(name="details") Ally ally, User.Relation relation) {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 
-		int details = getInteger("details");
-		Ally ally = (Ally)getContext().getDB().get(Ally.class, details);
-		
 		if( ally == null ) {
 			addError("Die angegebene Allianz existiert nicht");
 			redirect();
@@ -111,21 +105,9 @@ public class AllyListController extends TemplateGenerator {
 			return;
 		}
 
-		int relation = getInteger("relation");
-		
-		User.Relation rel = User.Relation.NEUTRAL;
-		switch( relation ) {
-		case 1: 
-			rel = User.Relation.ENEMY;
-			break;
-		case 2:
-			rel = User.Relation.FRIEND;
-			break;
-		}
-		
 		List<User> allymembers = ally.getMembers();
 		for( User allymember : allymembers ) {
-			user.setRelation(allymember.getId(), rel);
+			user.setRelation(allymember.getId(), relation);
 		}
 
 		t.setVar("ally.message", "Beziehungsstatus ge&auml;ndert");	 
@@ -135,13 +117,11 @@ public class AllyListController extends TemplateGenerator {
 
 	/**
 	 * Setzt die Beziehungen der Allianz des Spielers zur ausgewaehlten Allianz.
+	 * @param ally Die Allianz
+	 * @param relation Die neue Beziehung
 	 */
-	@UrlParams({
-			@UrlParam(name="details", type= UrlParamType.NUMBER, description = "Die ID der Allianz"),
-			@UrlParam(name="relation", type=UrlParamType.NUMBER, description = "Die neue Beziehung. 1 fuer feindlich, 2 fuer freundlich und neural bei allen anderen Werten")
-	})
 	@Action(ActionType.DEFAULT)
-	public void changeRelationAllyAction() {
+	public void changeRelationAllyAction(@UrlParam(name="details") Ally ally, User.Relation relation) {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 
@@ -151,9 +131,6 @@ public class AllyListController extends TemplateGenerator {
 			return;
 		}
 
-		int details = getInteger("details");
-		Ally ally = (Ally)getContext().getDB().get(Ally.class, details);
-		
 		if( ally == null ) {
 			addError("Die angegebene Allianz existiert nicht");
 			redirect();
@@ -171,23 +148,12 @@ public class AllyListController extends TemplateGenerator {
 			redirect("details");
 			return;
 		}
-		
-		int relation = getInteger("relation");
-		User.Relation rel = User.Relation.NEUTRAL;
-		switch( relation ) {
-		case 1: 
-			rel = User.Relation.ENEMY;
-			break;
-		case 2:
-			rel = User.Relation.FRIEND;
-			break;
-		}
-		
+
 		List<User> users = user.getAlly().getMembers();
 		for( User auser : users ) {
 			List<User> allymembers = ally.getMembers();
 			for( User allymember : allymembers ) {
-				auser.setRelation(allymember.getId(), rel);
+				auser.setRelation(allymember.getId(), relation);
 			}
 		}
 			
@@ -198,17 +164,13 @@ public class AllyListController extends TemplateGenerator {
 	
 	/**
 	 * Zeigt die Informationen zu einer Allianz an.
-	 *
+	 * @param ally Die Allianz
 	 */
-	@UrlParam(name="details", type= UrlParamType.NUMBER, description = "Die ID der anzuzeigenden Allianz")
 	@Action(ActionType.DEFAULT)
-	public void detailsAction() {
+	public void detailsAction(@UrlParam(name="details") Ally ally) {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 
-		int details = getInteger("details");
-		
-		Ally ally = (Ally)getContext().getDB().get(Ally.class, details);
 		if( ally == null ) {
 			t.setVar( "ally.message", "Die angegebene Allianz existiert nicht" );
 			
@@ -225,7 +187,7 @@ public class AllyListController extends TemplateGenerator {
 			}
 		}
 		
-		t.setVar("allylist.showally", details);	
+		t.setVar("allylist.showally", ally.getId());
 
 		User presi = ally.getPresident();
 	

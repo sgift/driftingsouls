@@ -33,8 +33,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -47,10 +46,7 @@ import java.util.*;
  * @author Christopher Jung
  */
 @Module(name="base")
-@UrlParam(name="col", type= UrlParamType.NUMBER, description = "Die ID der Basis")
 public class BaseController extends TemplateGenerator {
-	private Base base;
-
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
@@ -63,36 +59,28 @@ public class BaseController extends TemplateGenerator {
 		setPageTitle("Basis");
 	}
 
-	@Override
-	protected boolean validateAndPrepare(String action) {
+	private void validate(Base base) {
 		User user = (User)getUser();
 
-		int col = getInteger("col");
-
-		base = (Base)getDB().get(Base.class, col);
 		if( (base == null) || (base.getOwner() != user) ) {
-			addError("Die angegebene Kolonie existiert nicht", Common.buildUrl("default", "module", "basen") );
-
-			return false;
+			throw new ValidierungException("Die angegebene Kolonie existiert nicht", Common.buildUrl("default", "module", "basen") );
 		}
 
 		base.getCargo().setOption( Cargo.Option.LINKCLASS, "schiffwaren" );
 
 		setPageTitle(base.getName());
-
-		return true;
 	}
 
 	/**
 	 * Aendert den Namen einer Basis.
-	 *
+	 * @param feeding Der neue Versorgungsstatus der Basis
 	 */
 	@Action(ActionType.DEFAULT)
-	@UrlParam(name="feeding", type=UrlParamType.NUMBER, description = "Der neue Versorgungsstatus der Basis")
-	public void changeFeedingAction() {
+	public void changeFeedingAction(@UrlParam(name="col") Base base, int feeding) {
+		validate(base);
+
 		TemplateEngine t = getTemplateEngine();
 
-		int feeding = getInteger("feeding");
 		if( feeding == 0 ) {
 			base.setFeeding(false);
 			t.setVar("base.message", "Versorgung abgeschaltet!");
@@ -115,15 +103,14 @@ public class BaseController extends TemplateGenerator {
 
 	/**
 	 * Aendert den Versorgungsstatus einer Basis.
-	 *
+	 * @param newname Der neue Name der Basis
 	 */
-	@UrlParam(name="newname", description = "Der neue Name der Basis")
 	@Action(ActionType.DEFAULT)
-	public void changeNameAction() {
+	public void changeNameAction(@UrlParam(name="col") Base base, String newname) {
+		validate(base);
+
 		TemplateEngine t = getTemplateEngine();
 
-		parameterString("newname");
-		String newname = getString("newname");
 		if( newname.length() > 50 ) {
 			newname = newname.substring(0,50);
 		}
@@ -141,25 +128,16 @@ public class BaseController extends TemplateGenerator {
 
 	/**
 	 * (de)aktiviert Gebaeudegruppen.
+	 * @param act <code>false</code>, wenn die Gebaeude deaktiviert werden sollen. Andernfalls <code>true</code>
+	 * @param buildingonoff Die ID des Gebaeudetyps, dessen Gebaeude (de)aktiviert werden sollen
 	 */
 	@Action(ActionType.DEFAULT)
-	@UrlParams({
-			@UrlParam(name="act", type=UrlParamType.NUMBER, description = "0, wenn die Gebaeude deaktiviert werden sollen. Andernfalls 1"),
-			@UrlParam(name="buildingoff", type=UrlParamType.NUMBER, description = "Die ID des Gebaeudetyps, dessen Gebaeude (de)aktiviert werden sollen")
-	})
-	public void changeBuildingStatusAction() {
+	public void changeBuildingStatusAction(@UrlParam(name="col") Base base, boolean act, int buildingonoff) {
+		validate(base);
+
 		TemplateEngine t = getTemplateEngine();
 
-		parameterNumber("act");
-		parameterNumber("buildingonoff");
-
-		int act = getInteger("act");
-		int buildingonoff = getInteger("buildingonoff");
-
-		int bebstatus = 0;
-		if( act == 1 ) {
-			bebstatus = 1;
-		}
+		int bebstatus = act ? 1 : 0;
 
 		Building building = Building.getBuilding(buildingonoff);
 
@@ -215,11 +193,21 @@ public class BaseController extends TemplateGenerator {
 	}
 
 	@Override
-	protected void printHeader(String action) throws IOException {
+	protected void printHeader() throws IOException {
 		TemplateEngine t = getTemplateEngine();
 
+		// TODO: Diese gesamte Methode gehoert eliminiert. Es muss (und wird)
+		// einen Weg geben mit einem festen Satz an CSS-Stilen fuer beliebig grosse
+		// Basen auszukommen
 		t.setBlock("_BASE", "header", "none" );
 		t.setBlock("header", "tiles.listitem", "tiles.list");
+
+		int colId = getContext().getRequest().getParameterInt("col");
+		Base base = (Base)getDB().get(Base.class, colId);
+		if( base == null || base.getOwner() != getUser() )
+		{
+			return;
+		}
 
 		int topOffset = 5;
 		int leftOffset = 5;
@@ -240,14 +228,16 @@ public class BaseController extends TemplateGenerator {
 
 		t.parse("__HEADER","header");
 
-		super.printHeader(action);
+		super.printHeader();
 	}
 
 	/**
 	 * Zeigt die Basis an.
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject ajaxAction() {
+	public JSONObject ajaxAction(@UrlParam(name="col") Base base) {
+		validate(base);
+
 		User user = (User)getUser();
 
 		JSONObject response = new JSONObject();
@@ -368,9 +358,10 @@ public class BaseController extends TemplateGenerator {
 	/**
 	 * Zeigt die Basis an.
 	 */
-	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() {
+	public void defaultAction(@UrlParam(name="col") Base base) {
+		validate(base);
+
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 

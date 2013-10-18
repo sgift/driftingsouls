@@ -29,8 +29,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
@@ -39,13 +38,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  *
  */
 @Module(name="activateall")
-@UrlParams({
-		@UrlParam(name="col", type= UrlParamType.NUMBER, description = "Die ID der Basis"),
-		@UrlParam(name="deaconly", type=UrlParamType.NUMBER, description = "deaconly != 0, falls die Gebaeude/Cores nur deaktiviert, nicht aber aktiviert werden sollen")
-})
 public class ActivateAllController extends TemplateGenerator {
-	private Base base = null;
-	
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
@@ -57,37 +50,30 @@ public class ActivateAllController extends TemplateGenerator {
 		setPageTitle("Alles Aktivieren");
 	}
 	
-	@Override
-	protected boolean validateAndPrepare(String action) {
+	private void validateBase(Base base) {
 		User user = (User)getUser();
-		
-		int col = getInteger("col");
-		
-		//Existiert die Basis?
-		Base base = (Base)getDB().get(Base.class, col);
-		if( (base == null) || (base.getOwner() != user) ) {
-			addError("Die angegebene Kolonie existiert nicht");
-			return false;
-		}
-				
-		this.base = base;
 
-		return true;	
+		//Existiert die Basis?
+		if( (base == null) || (base.getOwner() != user) ) {
+			throw new ValidierungException("Die angegebene Kolonie existiert nicht");
+		}
 	}
 	
 	/**
 	 * (de)aktiviert die Gebaeude/Cores.
+	 * @param base Die Basis
+	 * @param deaconly <code>true</code>, falls die Gebaeude/Cores nur deaktiviert, nicht aber aktiviert werden sollen
 	 */
-	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() {
+	public void defaultAction(@UrlParam(name="col") Base base, boolean deaconly) {
+		validateBase(base);
+
 		TemplateEngine t = getTemplateEngine();
 		
 		t.setVar("base.id", base.getId());
-		
-		int deakOnly = getInteger("deaconly");
-		if( deakOnly != 0 ) {
-			t.setBlock("_ACTIVATEALL", "deak.listitem", "deak.list");	
+
+		if( deaconly ) {
+			t.setBlock("_ACTIVATEALL", "deak.listitem", "deak.list");
 		}
 		else {
 			t.setBlock("_ACTIVATEALL", "activate.listitem", "activate.list");	
@@ -102,7 +88,7 @@ public class ActivateAllController extends TemplateGenerator {
 			base.setArbeiter(base.getArbeiter() - core.getArbeiter());
 			base.setCoreActive(false);
 
-			if( deakOnly != 0 ) {
+			if( deaconly ) {
 				t.setVar("deak.name", Common._plaintitle(core.getName()) );
 				t.parse("deak.list", "deak.listitem", true);
 			}
@@ -117,7 +103,7 @@ public class ActivateAllController extends TemplateGenerator {
 					ondb[i] = 0;
 					base.setArbeiter(base.getArbeiter() - building.getArbeiter());
 					
-					if( deakOnly != 0 ) {
+					if( deaconly ) {
 						t.setVar("deak.name", Common._plaintitle(building.getName()) );
 						t.parse("deak.list", "deak.listitem", true);
 					}
@@ -130,7 +116,7 @@ public class ActivateAllController extends TemplateGenerator {
 		/*
 			Falls gewuenscht, nun alle Gebaeude nacheinander aktivieren
 		*/
-		if( deakOnly == 0 ) {
+		if( !deaconly ) {
 			if( base.getCore() != 0 ) {
 				if( base.getBewohner() >= base.getArbeiter()+core.getArbeiter() ) {
 					base.setArbeiter(base.getArbeiter() + core.getArbeiter());
@@ -152,7 +138,7 @@ public class ActivateAllController extends TemplateGenerator {
 					
 					if( building.isDeakAble() && (base.getBewohner() >= base.getArbeiter()+building.getArbeiter()) ) {
 						ondb[i] = 1;
-						this.base.setArbeiter(base.getArbeiter() + building.getArbeiter());
+						base.setArbeiter(base.getArbeiter() + building.getArbeiter());
 						
 						t.setVar(	"activate.name",	Common._plaintitle(building.getName()),
 									"activate.success",	1 );
