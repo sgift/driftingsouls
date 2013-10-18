@@ -516,13 +516,13 @@ public class AngriffController extends TemplateGenerator {
 	}
 	
 	@Override
-	protected void printHeader(String action) throws IOException {
+	protected void printHeader() throws IOException {
 		TemplateEngine t = getTemplateEngine();
 		
 		t.setBlock("_BASE", "header", "none" );
 		t.parse("__HEADER","header");
 		
-		super.printHeader(action);
+		super.printHeader();
 	}
 	
 	/**

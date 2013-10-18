@@ -92,7 +92,7 @@ public class PortalController extends TemplateGenerator {
 	}
 
 	@Override
-	protected void printHeader( String action ) {
+	protected void printHeader() {
 		// EMPTY
 	}
 

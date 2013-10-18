@@ -40,7 +40,7 @@ public class NewsDetailController extends TemplateGenerator
 	}
 	
 	@Override
-	protected void printHeader( String action ) 
+	protected void printHeader()
 	{}
 	
 	/**

@@ -18,17 +18,18 @@
  */
 package net.driftingsouls.ds2.server.framework.pipeline.generators;
 
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.Response;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
+import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +42,7 @@ import java.util.Map;
  */
 public abstract class DSGenerator extends Generator {
 	private static final Log log = LogFactory.getLog(DSGenerator.class);
+	private static final LocalVariableTableParameterNameDiscoverer PARAMETER_NAME_DISCOVERER = new LocalVariableTableParameterNameDiscoverer();
 
 	private ActionType actionType;
 	private OutputHelper actionTypeHandler;
@@ -48,8 +50,7 @@ public abstract class DSGenerator extends Generator {
 	private boolean disableDebugOutput;
 	private long startTime;
 	private Map<String, String> bodyParameters;
-	private Map<String, Object> parameter;
-	private String subParameter;
+	private ParameterReader parameterReader;
 	private String pageTitle;
 	private List<PageMenuEntry> pageMenuEntries;
 	private boolean disablePageMenu;
@@ -61,11 +62,10 @@ public abstract class DSGenerator extends Generator {
 	public DSGenerator(Context context) {
 		super(context);
 
-		this.parameter = new HashMap<>();
-		this.subParameter = "";
+		this.parameterReader = new ParameterReader(getRequest(), this.getDB());
 
-		parameterString("module");
-		parameterString("action");
+		this.parameterReader.parameterString("module");
+		this.parameterReader.parameterString("action");
 
 		this.startTime = System.currentTimeMillis();
 
@@ -80,21 +80,16 @@ public abstract class DSGenerator extends Generator {
 		setActionType(ActionType.DEFAULT);
 	}
 
-	private Object getParameter( String parameter ) {
-		if( subParameter.equals("") ) {
-			return this.parameter.get(parameter);
-		}
-		return this.parameter.get(subParameter+"["+parameter+"]");
-	}
-
 	/**
 	 * Gibt einen als Zahl registrierten Parameter in Form eines
 	 * <code>int</code> zurueck.
 	 * @param parameter Der Parametername
 	 * @return Der Wert
+	 * @deprecated Bitte nur noch Parameter der Actionmethoden verwenden
 	 */
+	@Deprecated
 	public int getInteger(String parameter) {
-		return ((Number)getParameter(parameter)).intValue();
+		return this.parameterReader.getInteger(parameter);
 	}
 
 	/**
@@ -102,18 +97,22 @@ public abstract class DSGenerator extends Generator {
 	 * <code>double</code> zurueck.
 	 * @param parameter Der Parametername
 	 * @return Der Wert
+	 * @deprecated Bitte nur noch Parameter der Actionmethoden verwenden
 	 */
+	@Deprecated
 	public double getDouble(String parameter) {
-		return ((Number)getParameter(parameter)).doubleValue();
+		return this.parameterReader.getDouble(parameter);
 	}
 
 	/**
 	 * Gibt einen als String registrierten parameter zurueck.
 	 * @param parameter Der Name des Parameters
 	 * @return Der Wert
+	 * @deprecated Bitte nur noch Parameter der Actionmethoden verwenden
 	 */
+	@Deprecated
 	public String getString(String parameter) {
-		return (String)getParameter(parameter);
+		return this.parameterReader.getString(parameter);
 	}
 
 	/**
@@ -122,55 +121,33 @@ public abstract class DSGenerator extends Generator {
 	 * @param parameter Der Parametername
 	 */
 	public void unsetParameter( String parameter ) {
-		if( !subParameter.equals("") ) {
-			parameter = subParameter+"["+parameter+"]";
-		}
-		getRequest().setParameter(parameter,null);
-		this.parameter.remove(parameter);
+		this.parameterReader.unsetParameter(parameter);
 	}
 
 	protected void parseSubParameter( String subparam ) {
-		subParameter = subparam;
+		this.parameterReader.parseSubParameter(subparam);
 	}
 
 	/**
 	 * Registriert einen Parameter im System als Zahl. Der Parameter
 	 * kann anschliessend ueber entsprechende Funktionen erfragt werden.
 	 * @param parameter Der Name des Parameters
+	 * @deprecated Bitte nur noch Parameter der Actionmethoden verwenden
 	 */
+	@Deprecated
 	public void parameterNumber( String parameter ) {
-		if( !subParameter.equals("") ) {
-			parameter = subParameter+"["+parameter+"]";
-		}
-		if( (getRequest().getParameter(parameter) != null) && !"".equals(getRequest().getParameter(parameter)) ) {
-			String val = getRequest().getParameter(parameter);
-			try {
-				this.parameter.put(parameter, Common.getNumberFormat().parse(val.trim()));
-			}
-			catch( NumberFormatException | ParseException e ) {
-				this.parameter.put(parameter, 0d);
-			}
-		}
-		else {
-			this.parameter.put(parameter, 0d);
-		}
+		this.parameterReader.parameterNumber(parameter);
 	}
 
 	/**
 	 * Registriert einen Parameter im System als String. Der Parameter
 	 * kann anschliessend ueber entsprechende Funktionen erfragt werden.
 	 * @param parameter Der Name des Parameters
+	 * @deprecated Bitte nur noch Parameter der Actionmethoden verwenden
 	 */
+	@Deprecated
 	public void parameterString( String parameter ) {
-		if( !subParameter.equals("") ) {
-			parameter = subParameter+"["+parameter+"]";
-		}
-		if( getRequest().getParameter(parameter) != null ) {
-			this.parameter.put(parameter, getRequest().getParameter(parameter));
-		}
-		else {
-			this.parameter.put(parameter,"");
-		}
+		this.parameterReader.parameterString(parameter);
 	}
 
 	/**
@@ -187,8 +164,8 @@ public abstract class DSGenerator extends Generator {
 			final Action actionDescriptor = method.getAnnotation(Action.class);
 			doActionOptimizations(actionDescriptor);
 
-			method.setAccessible(true);
-			method.invoke(this);
+			Object result = invokeActionMethod(method);
+			writeResultObject(result, actionDescriptor.value());
 		}
 		catch( Exception e )
 		{
@@ -256,10 +233,10 @@ public abstract class DSGenerator extends Generator {
 		switch (an.type()) {
 
 			case NUMBER:
-				parameterNumber(an.name());
+				this.parameterReader.parameterNumber(an.name());
 				break;
 			case STRING:
-				parameterString(an.name());
+				this.parameterReader.parameterString(an.name());
 				break;
 		}
 	}
@@ -279,29 +256,52 @@ public abstract class DSGenerator extends Generator {
 			Action actionDescriptor = method.getAnnotation(Action.class);
 			setActionType(actionDescriptor.value());
 
-			if( (getErrorList().length != 0) || !validateAndPrepare(action) ) {
-				printErrorListOnly(actionDescriptor.value());
+			try {
+				if( (getErrorList().length != 0) || !validateAndPrepare(action) ) {
+					printErrorListOnly(actionDescriptor.value());
 
+					return;
+				}
+
+				if( actionDescriptor.value() == ActionType.DEFAULT )
+				{
+					printHeader();
+				}
+
+				doActionOptimizations(actionDescriptor);
+
+				try
+				{
+					Object result = invokeActionMethod(method);
+					writeResultObject(result, actionDescriptor.value());
+				}
+				catch( InvocationTargetException e )
+				{
+					Throwable ex = e;
+					while( ex instanceof InvocationTargetException )
+					{
+						ex = ex.getCause();
+					}
+					throw ex;
+				}
+			}
+			catch( ValidierungException e )
+			{
+				addError(e.getMessage(), e.getUrl());
+				printErrorListOnly(actionDescriptor.value());
 				return;
 			}
-
-			if( actionDescriptor.value() == ActionType.DEFAULT )
-			{
-				printHeader( action );
-			}
-
-			doActionOptimizations(actionDescriptor);
-
-			method.setAccessible(true);
-			Object result = method.invoke(this);
-			writeResultObject(result, actionDescriptor.value());
 		}
 		catch( NoSuchMethodException e )
 		{
 			log.error("", e);
 			addError("Die Aktion '"+action+"' existiert nicht!");
 		}
-		catch( Exception e )
+		catch( RuntimeException | Error e )
+		{
+			throw e;
+		}
+		catch( Throwable e )
 		{
 			throw new RuntimeException(e);
 		}
@@ -311,6 +311,33 @@ public abstract class DSGenerator extends Generator {
 		printErrorList(this.actionType);
 
 		printFooter( action );
+	}
+
+	private Object invokeActionMethod(Method method) throws InvocationTargetException, IllegalAccessException
+	{
+		method.setAccessible(true);
+		Annotation[][] annotations = method.getParameterAnnotations();
+		Class<?>[] parameterTypes = method.getParameterTypes();
+		String[] parameterNames = PARAMETER_NAME_DISCOVERER.getParameterNames(method);
+
+		Object[] params = new Object[annotations.length];
+		for( int i=0; i < params.length; i++ )
+		{
+			UrlParam paramAnnotation = null;
+			for (Annotation annotation : annotations[i])
+			{
+				if( annotation instanceof UrlParam )
+				{
+					paramAnnotation = (UrlParam)annotation;
+					break;
+				}
+			}
+
+			Class<?> type = parameterTypes[i];
+			params[i] = this.parameterReader.readParameterAsType(paramAnnotation == null ? parameterNames[i] : paramAnnotation.name(), type);
+		}
+
+		return method.invoke(this, params);
 	}
 
 	protected void writeResultObject(Object result, ActionType value) throws IOException
@@ -352,7 +379,7 @@ public abstract class DSGenerator extends Generator {
 		actionTypeHandler.printFooter();
 	}
 
-	protected void printHeader( String action ) throws IOException {
+	protected void printHeader() throws IOException {
 		if( !this.disablePageMenu ) {
 			actionTypeHandler.setAttribute("module", getString("module"));
 			actionTypeHandler.setAttribute("pagetitle", this.pageTitle);
@@ -461,15 +488,8 @@ public abstract class DSGenerator extends Generator {
 		return actionTypeHandler;
 	}
 
-	protected abstract boolean validateAndPrepare(String action);
-
-	/**
-	 * Die Default-Ajax-Aktion.
-	 * @throws IOException
-	 *
-	 */
-	public void defaultAjaxAct() throws IOException {
-		defaultAction();
+	protected boolean validateAndPrepare(String action) {
+		return true;
 	}
 
 	/**

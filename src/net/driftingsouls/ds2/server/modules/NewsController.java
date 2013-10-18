@@ -45,7 +45,7 @@ public class NewsController extends TemplateGenerator
 	}
 
 	@Override
-	protected void printHeader(String action) throws IOException
+	protected void printHeader() throws IOException
 	{}
 
 	@Override

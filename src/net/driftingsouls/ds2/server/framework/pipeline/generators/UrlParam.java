@@ -7,12 +7,12 @@ import java.lang.annotation.*;
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD,ElementType.TYPE})
+@Target({ElementType.METHOD,ElementType.TYPE,ElementType.PARAMETER})
 public @interface UrlParam {
 	/**
 	 * Der Name des Parameters.
 	 */
-	String name();
+	String name() default "";
 
 	/**
 	 * Der Parametertyp.
