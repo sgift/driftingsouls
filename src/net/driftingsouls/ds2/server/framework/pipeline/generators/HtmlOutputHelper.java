@@ -82,27 +82,6 @@ class HtmlOutputHelper extends OutputHelper {
 		{
 			sb.append("<script src=\"./data/javascript/v").append(version.getHgVersion()).append("/ds.js\" type=\"text/javascript\"></script>\n");
 		}
-		if( this.getAttribute("module") != null ) {
-			sb.append("<script type=\"text/javascript\">\n");
-			sb.append("<!--\n");
-			sb.append("if( parent && parent.setCurrentPage ) {\n");
-			Object pagetitle = this.getAttribute("pagetitle");
-			if( pagetitle == null ) {
-				pagetitle = "null";
-			}
-			sb.append("parent.setCurrentPage('").append(this.getAttributeString("module")).append("','").append(pagetitle.toString()).append("');\n");
-			PageMenuEntry[] entries = (PageMenuEntry[])this.getAttribute("pagemenu");
-			if( (entries != null) && (entries.length > 0) ) {
-				for (PageMenuEntry entry : entries)
-				{
-					sb.append("parent.addPageMenuEntry('").append(entry.title).append("','").append(entry.url.replace("&amp;", "&")).append("');");
-				}
-			}
-			sb.append("parent.completePage();");
-			sb.append("}\n");
-			sb.append("// -->\n");
-			sb.append("</script>\n");
-		}
 		sb.append("<div id=\"error-placeholder\"></div>\n");
 	}
 
@@ -163,6 +142,27 @@ class HtmlOutputHelper extends OutputHelper {
 			}
 			//	echo "<a class=\"forschinfo\" target=\"none\" style=\"font-size:11px\" href=\"http://ds2.drifting-souls.net/mantis/\">Zum Bugtracker</a><br />\n";
 			sb.append("</div>\n");
+		}
+		if( this.getAttribute("module") != null ) {
+			sb.append("<script type=\"text/javascript\">\n");
+			sb.append("<!--\n");
+			sb.append("if( parent && parent.setCurrentPage ) {\n");
+			Object pagetitle = this.getAttribute("pagetitle");
+			if( pagetitle == null ) {
+				pagetitle = "null";
+			}
+			sb.append("parent.setCurrentPage('").append(this.getAttributeString("module")).append("','").append(pagetitle.toString()).append("');\n");
+			PageMenuEntry[] entries = (PageMenuEntry[])this.getAttribute("pagemenu");
+			if( (entries != null) && (entries.length > 0) ) {
+				for (PageMenuEntry entry : entries)
+				{
+					sb.append("parent.addPageMenuEntry('").append(entry.title).append("','").append(entry.url.replace("&amp;", "&")).append("');");
+				}
+			}
+			sb.append("parent.completePage();");
+			sb.append("}\n");
+			sb.append("// -->\n");
+			sb.append("</script>\n");
 		}
 		sb.append("</body>");
 		sb.append("</html>");

@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.framework.pipeline.generators;
 
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.pipeline.Response;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.FlushMode;
@@ -380,12 +379,6 @@ public abstract class DSGenerator extends Generator {
 	}
 
 	protected void printHeader() throws IOException {
-		if( !this.disablePageMenu ) {
-			actionTypeHandler.setAttribute("module", getString("module"));
-			actionTypeHandler.setAttribute("pagetitle", this.pageTitle);
-			actionTypeHandler.setAttribute("pagemenu", this.pageMenuEntries.toArray(new PageMenuEntry[this.pageMenuEntries.size()]));
-		}
-
 		actionTypeHandler.setAttribute("bodyParameters", this.getBodyParameters());
 		actionTypeHandler.setAttribute("enableDebugOutput", !this.disableDebugOutput ? true : null);
 		actionTypeHandler.setAttribute("startTime", this.startTime);
@@ -393,6 +386,12 @@ public abstract class DSGenerator extends Generator {
 	}
 
 	protected void printFooter( String action ) throws IOException {
+		if( !this.disablePageMenu )
+		{
+			actionTypeHandler.setAttribute("module", this.parameterReader.getString("module"));
+			actionTypeHandler.setAttribute("pagetitle", this.pageTitle);
+			actionTypeHandler.setAttribute("pagemenu", this.pageMenuEntries.toArray(new PageMenuEntry[this.pageMenuEntries.size()]));
+		}
 		actionTypeHandler.printFooter();
 	}
 
