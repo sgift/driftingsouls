@@ -24,6 +24,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +49,7 @@ import org.apache.commons.logging.LogFactory;
 public class HttpRequest implements Request {
 	private static final Log log = LogFactory.getLog(HttpRequest.class);
 	private HttpServletRequest request = null;
-	private Map<String,String> parameters = new HashMap<String,String>();
+	private Map<String,String> parameters = new HashMap<>();
 	private boolean isMultipart = false;
 	private List<?> uploadedFiles = null;
 
@@ -75,36 +76,45 @@ public class HttpRequest implements Request {
 
 		isMultipart = ServletFileUpload.isMultipartContent(request);
 		if( isMultipart ) {
-			FileItemFactory factory = new DiskFileItemFactory();
-			ServletFileUpload upload = new ServletFileUpload(factory);
-
-			try {
-				uploadedFiles = upload.parseRequest(request);
-				for( int i=0; i < uploadedFiles.size(); i++ ) {
-					FileItem item = (FileItem)uploadedFiles.get(i);
-					if( !item.isFormField() ) {
-						continue;
-					}
-				    parameters.put(item.getFieldName(), item.getString("UTF-8"));
+			parseMultipartRequest(request);
+		}
+		else
+		{
+			for (Map.Entry<String, String[]> stringEntry : request.getParameterMap().entrySet())
+			{
+				if (stringEntry.getValue().length > 0)
+				{
+					this.parameters.put(stringEntry.getKey(), stringEntry.getValue()[0]);
 				}
 			}
-			catch( FileUploadException e ) {
-				log.error(e);
-			}
-			catch (UnsupportedEncodingException e)
+		}
+	}
+
+	private void parseMultipartRequest(HttpServletRequest request)
+	{
+		FileItemFactory factory = new DiskFileItemFactory();
+		ServletFileUpload upload = new ServletFileUpload(factory);
+
+		try {
+			uploadedFiles = upload.parseRequest(request);
+			for (Object uploadedFile : uploadedFiles)
 			{
-				// Sollte nie passieren
-				log.error(e);
+				FileItem item = (FileItem) uploadedFile;
+				if (!item.isFormField())
+				{
+					continue;
+				}
+				parameters.put(item.getFieldName(), item.getString("UTF-8"));
 			}
+		}
+		catch( FileUploadException | UnsupportedEncodingException e ) {
+			log.error(e);
 		}
 	}
 
 	@Override
 	public String getParameter(String parameter) {
-		if( parameters.containsKey(parameter) ) {
-			return parameters.get(parameter);
-		}
-		return request.getParameter(parameter);
+		return parameters.get(parameter);
 	}
 
 	@Override
@@ -193,20 +203,29 @@ public class HttpRequest implements Request {
 	}
 
 	@Override
+	public Map<String,String> getParameterMap()
+	{
+		return Collections.unmodifiableMap(this.parameters);
+	}
+
+	@Override
 	public List<FileItem> getUploadedFiles() {
 		if( !isMultipart ) {
-			return new ArrayList<FileItem>();
+			return new ArrayList<>();
 		}
 
-		List<FileItem> result = new ArrayList<FileItem>();
+		List<FileItem> result = new ArrayList<>();
 		List<?> items = uploadedFiles;
-		for( int i=0; i < items.size(); i++ ) {
-			if( items.get(i) instanceof FileItem ) {
-				FileItem item = (FileItem)items.get(i);
-				if( item.isFormField() ) {
+		for (Object item1 : items)
+		{
+			if (item1 instanceof FileItem)
+			{
+				FileItem item = (FileItem) item1;
+				if (item.isFormField())
+				{
 					continue;
 				}
-				result.add((FileItem)items.get(i));
+				result.add((FileItem) item1);
 			}
 		}
 

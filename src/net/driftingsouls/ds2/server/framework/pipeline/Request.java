@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.framework.pipeline;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.fileupload.FileItem;
 
@@ -155,4 +156,11 @@ public interface Request {
 	 * @return Wert des Cookie oder <code>null</code>, wenn er nicht existiert.
 	 */
 	public String getCookie(String name);
+
+	/**
+	 * Gibt eine Map mit allen Parametern der Request zurueck.
+	 * Key ist der Parametername.
+	 * @return Die Map
+	 */
+	public Map<String,String> getParameterMap();
 }

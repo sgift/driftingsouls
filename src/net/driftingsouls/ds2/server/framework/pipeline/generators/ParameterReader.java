@@ -7,6 +7,8 @@ import org.hibernate.Session;
 
 import javax.persistence.Entity;
 import java.io.Serializable;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,9 +36,7 @@ public class ParameterReader
 	 * @param parameter Der Parametername
 	 */
 	public void unsetParameter( String parameter ) {
-		if( !subParameter.equals("") ) {
-			parameter = subParameter+"["+parameter+"]";
-		}
+		parameter = buildParameterName(parameter);
 		this.request.setParameter(parameter, null);
 		this.parameter.remove(parameter);
 	}
@@ -48,23 +48,66 @@ public class ParameterReader
 	/**
 	 * Registriert einen Parameter im System als Zahl. Der Parameter
 	 * kann anschliessend ueber entsprechende Funktionen erfragt werden.
+	 *
 	 * @param parameter Der Name des Parameters
 	 */
-	public void parameterNumber( String parameter ) {
-		if( !subParameter.equals("") ) {
-			parameter = subParameter+"["+parameter+"]";
-		}
-		if( (this.request.getParameter(parameter) != null) && !"".equals(this.request.getParameter(parameter)) ) {
+	public void parameterNumber(String parameter)
+	{
+		parameter = buildParameterName(parameter);
+		if ((this.request.getParameter(parameter) != null) && !"".equals(this.request.getParameter(parameter)))
+		{
 			String val = this.request.getParameter(parameter);
-			try {
-				this.parameter.put(parameter, Common.getNumberFormat().parse(val.trim()));
-			}
-			catch( NumberFormatException | ParseException e ) {
-				this.parameter.put(parameter, 0d);
-			}
+			this.parameter.put(parameter, parseNumber(val));
 		}
-		else {
+		else
+		{
 			this.parameter.put(parameter, 0d);
+		}
+	}
+
+	private Number parseNumber(String value)
+	{
+		try
+		{
+			return Common.getNumberFormat().parse(value.trim());
+		}
+		catch (NumberFormatException | ParseException e)
+		{
+			return 0d;
+		}
+	}
+
+	private String buildParameterName(String parameter)
+	{
+		if (!subParameter.equals(""))
+		{
+			parameter = subParameter + "[" + parameter + "]";
+		}
+		return parameter;
+	}
+
+	private boolean parameterExists(String parameter)
+	{
+		parameter = buildParameterName(parameter);
+		return (this.request.getParameter(parameter) != null) && !this.request.getParameter(parameter).isEmpty();
+	}
+
+	private String string(String parameter)
+	{
+		parameterString(parameter);
+		return (String) getParameter(parameter);
+	}
+
+	private Number number(String parameter)
+	{
+		String value = string(parameter);
+		try
+		{
+			return Common.getNumberFormat().parse(value.trim());
+		}
+		catch (NumberFormatException | ParseException e)
+		{
+			return 0d;
 		}
 	}
 
@@ -74,9 +117,7 @@ public class ParameterReader
 	 * @param parameter Der Name des Parameters
 	 */
 	public void parameterString( String parameter ) {
-		if( !subParameter.equals("") ) {
-			parameter = subParameter+"["+parameter+"]";
-		}
+		parameter = buildParameterName(parameter);
 		if( this.request.getParameter(parameter) != null ) {
 			this.parameter.put(parameter, this.request.getParameter(parameter));
 		}
@@ -86,10 +127,7 @@ public class ParameterReader
 	}
 
 	private Object getParameter( String parameter ) {
-		if( subParameter.equals("") ) {
-			return this.parameter.get(parameter);
-		}
-		return this.parameter.get(subParameter+"["+parameter+"]");
+		return this.parameter.get(buildParameterName(parameter));
 	}
 
 	/**
@@ -128,59 +166,51 @@ public class ParameterReader
 	 * laesst. In einen solchen Fall wird dann der Defaultwert (z.B. <code>0</code>, <code>null</code>)
 	 * zurueckgegeben.
 	 * @param paramName Der Name des Parameters
-	 * @param type Der Typ des Parameters
+	 * @param typeDescription Der Typ des Parameters
 	 * @return Ein Objekt vom angegebenen Typ das den Wert des Parameters enthaelt
 	 * @throws IllegalArgumentException Falls der angegebene Typ nicht unterstuetzt wird
 	 */
-	public Object readParameterAsType(String paramName, Class<?> type) throws IllegalArgumentException
+	public Object readParameterAsType(String paramName, Type typeDescription) throws IllegalArgumentException
 	{
-		if( Number.class.isAssignableFrom(type) || type == Boolean.TYPE || type == Integer.TYPE || type == Double.TYPE || type == Long.TYPE )
-		{
-			parameterNumber(paramName);
-		}
-		else
-		{
-			parameterString(paramName);
-		}
+		Class<?> type = extractClass(typeDescription);
 
-		Object paramValue = getParameter(paramName);
 		if( type == Boolean.TYPE ) {
-			return paramValue != null && ((Number)paramValue).intValue() == 1;
+			return number(paramName).intValue() == 1;
 		}
 		else if( type == Integer.class )
 		{
-			return paramValue != null ? ((Number)paramValue).intValue() : null;
+			return parameterExists(paramName) ? number(paramName).intValue() : null;
 		}
 		else if( type == Integer.TYPE )
 		{
-			return paramValue != null ? ((Number)paramValue).intValue() : 0;
+			return parameterExists(paramName) ? number(paramName).intValue() : 0;
 		}
 		else if( type == Long.class )
 		{
-			return paramValue != null ? ((Number)paramValue).longValue() : null;
+			return parameterExists(paramName) ? number(paramName).longValue() : null;
 		}
 		else if( type == Long.TYPE )
 		{
-			return paramValue != null ? ((Number)paramValue).longValue() : 0L;
+			return parameterExists(paramName) ? number(paramName).longValue() : 0L;
 		}
 		else if( type == Double.class )
 		{
-			return paramValue != null ? ((Number)paramValue).doubleValue() : null;
+			return parameterExists(paramName) ? number(paramName).doubleValue() : null;
 		}
 		else if( type == Double.TYPE )
 		{
-			return paramValue != null ? ((Number)paramValue).doubleValue() : 0d;
+			return parameterExists(paramName) ? number(paramName).doubleValue() : 0d;
 		}
 		else if( Enum.class.isAssignableFrom(type) )
 		{
-			String strValue = (String)paramValue;
+			String strValue = string(paramName);
 			try
 			{
 				if(NumberUtils.isDigits(strValue) )
 				{
 					return type.getEnumConstants()[Integer.parseInt(strValue)];
 				}
-				return Enum.valueOf(type.asSubclass(Enum.class), (String)paramValue);
+				return Enum.valueOf(type.asSubclass(Enum.class), strValue);
 			}
 			catch( IllegalArgumentException | ArrayIndexOutOfBoundsException e )
 			{
@@ -189,18 +219,87 @@ public class ParameterReader
 		}
 		else if( type == String.class )
 		{
-			return paramValue;
+			return string(paramName);
 		}
 		else if( type.isAnnotationPresent(Entity.class) )
 		{
-			Class<?> idClass = this.session.getSessionFactory().getClassMetadata(type).getIdentifierType().getReturnedClass();
-			Serializable id = (Serializable)readParameterAsType(paramName, idClass);
-			if( id == null )
-			{
-				return null;
-			}
-			return this.session.get(type, id);
+			return readEntity(paramName, type);
+		}
+		else if( Map.class.isAssignableFrom(type) )
+		{
+			return readMap(paramName, (ParameterizedType) typeDescription);
 		}
 		throw new IllegalArgumentException(type.getName()+" ist kein gueltiger Parametertyp fuer eine Action-Methode");
+	}
+
+	private Object readEntity(String paramName, Class<?> type)
+	{
+		Class<?> idClass = this.session.getSessionFactory().getClassMetadata(type).getIdentifierType().getReturnedClass();
+		Serializable id = (Serializable)readParameterAsType(paramName, idClass);
+		if( id == null )
+		{
+			return null;
+		}
+		return this.session.get(type, id);
+	}
+
+	private Object readMap(String paramName, ParameterizedType typeDescription)
+	{
+		Type[] pTypes = typeDescription.getActualTypeArguments();
+		Class<?> firstParamType = extractClass(pTypes[0]);
+		Class<?> secondParamType = extractClass(pTypes[1]);
+
+		Map<Object,Object> resultMap = new HashMap<>();
+
+		String prefix = paramName;
+		String suffix = "";
+		int idx = prefix.indexOf('#');
+		if( idx != -1 )
+		{
+			suffix = idx < prefix.length()-1 ? prefix.substring(idx+1) : "";
+			prefix = prefix.substring(0, idx);
+		}
+
+		for (String key : this.request.getParameterMap().keySet())
+		{
+			if( !key.startsWith(prefix) || !key.endsWith(suffix) )
+			{
+				continue;
+			}
+			String mapKey = key.substring(0, key.length()-suffix.length());
+			mapKey = mapKey.substring(prefix.length());
+
+			resultMap.put(mapKeyToType(firstParamType,mapKey), readParameterAsType(key, secondParamType));
+		}
+		return resultMap;
+	}
+
+	private Object mapKeyToType(Class<?> firstParamType, String mapKey)
+	{
+		if( firstParamType == String.class )
+		{
+			return mapKey;
+		}
+		else if( firstParamType == Integer.class )
+		{
+			return parseNumber(mapKey).intValue();
+		}
+		else if( firstParamType == Long.class )
+		{
+			return parseNumber(mapKey).longValue();
+		}
+
+		throw new IllegalArgumentException("Der Typ "+firstParamType.getName()+" wird nicht als Map-Key unterstuetzt");
+	}
+
+	private Class<?> extractClass(Type typeDescription)
+	{
+		if( typeDescription instanceof  Class ) {
+			return (Class)typeDescription;
+		}
+		if( typeDescription instanceof ParameterizedType ) {
+			return (Class)((ParameterizedType)typeDescription).getRawType();
+		}
+		throw new IllegalArgumentException("Kann Klasse fuer Typ "+typeDescription+" nicht ermitteln");
 	}
 }

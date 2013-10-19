@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.framework;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -164,5 +165,11 @@ public class CmdLineRequest implements Request {
 	@Override
 	public String getCookie(String name) {
 		return null;
+	}
+
+	@Override
+	public Map<String, String> getParameterMap()
+	{
+		return Collections.unmodifiableMap(this.params);
 	}
 }

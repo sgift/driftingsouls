@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -316,7 +317,7 @@ public abstract class DSGenerator extends Generator {
 	{
 		method.setAccessible(true);
 		Annotation[][] annotations = method.getParameterAnnotations();
-		Class<?>[] parameterTypes = method.getParameterTypes();
+		Type[] parameterTypes = method.getGenericParameterTypes();
 		String[] parameterNames = PARAMETER_NAME_DISCOVERER.getParameterNames(method);
 
 		Object[] params = new Object[annotations.length];
@@ -332,7 +333,7 @@ public abstract class DSGenerator extends Generator {
 				}
 			}
 
-			Class<?> type = parameterTypes[i];
+			Type type = parameterTypes[i];
 			params[i] = this.parameterReader.readParameterAsType(paramAnnotation == null ? parameterNames[i] : paramAnnotation.name(), type);
 		}
 
@@ -379,6 +380,10 @@ public abstract class DSGenerator extends Generator {
 	}
 
 	protected void printHeader() throws IOException {
+		if( !this.disablePageMenu )
+		{
+			actionTypeHandler.setAttribute("module", this.parameterReader.getString("module"));
+		}
 		actionTypeHandler.setAttribute("bodyParameters", this.getBodyParameters());
 		actionTypeHandler.setAttribute("enableDebugOutput", !this.disableDebugOutput ? true : null);
 		actionTypeHandler.setAttribute("startTime", this.startTime);
