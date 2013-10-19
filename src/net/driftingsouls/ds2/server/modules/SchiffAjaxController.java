@@ -25,9 +25,7 @@ import net.driftingsouls.ds2.server.framework.JSONUtils;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.AngularGenerator;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.ships.RouteFactory;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
@@ -39,73 +37,64 @@ import java.util.List;
 
 /**
  * Die Schiffsfunktionen mit JSON/AJAX-Unterstuetzung.
- * @author Christopher Jung
  *
+ * @author Christopher Jung
  */
-@net.driftingsouls.ds2.server.framework.pipeline.Module(name="schiffAjax")
-@UrlParam(name="schiff", type = UrlParamType.NUMBER, description = "Die ID des anzuzeigenden Schiffes")
+@net.driftingsouls.ds2.server.framework.pipeline.Module(name = "schiffAjax")
 public class SchiffAjaxController extends AngularGenerator
 {
-	private Ship ship = null;
-	private ShipTypeData shiptype = null;
-	private boolean noob = false;
-
 	/**
 	 * Konstruktor.
+	 *
 	 * @param context Der zu verwendende Kontext
 	 */
-	public SchiffAjaxController(Context context) {
+	public SchiffAjaxController(Context context)
+	{
 		super(context);
 	}
 
-	@Override
-	protected boolean validateAndPrepare(String action) {
-		User user = (User)getUser();
-		org.hibernate.Session db = getDB();
+	private void validiereSchiff(Ship ship)
+	{
+		User user = (User) getUser();
 
-		int shipid = getInteger("schiff");
-
-		ship = (Ship)db.get(Ship.class, shipid);
-		if( (ship == null) || (ship.getId() < 0) || (ship.getOwner() != user) )
+		if ((ship == null) || (ship.getId() < 0) || (ship.getOwner() != user))
 		{
-			addError("Das angegebene Schiff existiert nicht");
-			return false;
+			throw new ValidierungException("Das angegebene Schiff existiert nicht");
 		}
 
-		if( ship.getBattle() != null )
+		if (ship.getBattle() != null)
 		{
-			addError("Das Schiff ist in einen Kampf verwickelt!");
-			return false;
+			throw new ValidierungException("Das Schiff ist in einen Kampf verwickelt!");
 		}
-
-
-		shiptype = ship.getTypeData();
-
-		noob = user.isNoob();
-
-		return true;
 	}
 
 	/**
 	 * Wechselt die Alarmstufe des Schiffes.
 	 *
+	 * @param schiff Das Schiff
+	 * @param alarm Die neue Alarmstufe
 	 */
-	@UrlParam(name="alarm", type = UrlParamType.NUMBER, description = "Die neue Alarmstufe")
 	@Action(ActionType.AJAX)
-	public JSONObject alarmAction() {
-		if( noob ) {
+	public JSONObject alarmAction(Ship schiff, int alarm)
+	{
+		validiereSchiff(schiff);
+
+		User user = (User) getUser();
+		if (user.isNoob())
+		{
 			return JSONUtils.failure("Du kannst die Alarmstufe nicht ändern solange du unter GCP-Schutz stehst.");
 		}
 
-		if( (shiptype.getShipClass() == ShipClasses.GESCHUETZ) || !shiptype.isMilitary() ) {
+		ShipTypeData shiptype = schiff.getTypeData();
+		if ((shiptype.getShipClass() == ShipClasses.GESCHUETZ) || !shiptype.isMilitary())
+		{
 			return JSONUtils.failure("Du kannst die Alarmstufe dieses Schiffs nicht ändern.");
 		}
 
-		int alarm = getInteger("alarm");
-
-		if( (alarm >= Ship.Alert.GREEN.getCode()) && (alarm <= Ship.Alert.RED.getCode()) ) {
-			ship.setAlarm(alarm);
-			ship.recalculateShipStatus();
+		if ((alarm >= Ship.Alert.GREEN.getCode()) && (alarm <= Ship.Alert.RED.getCode()))
+		{
+			schiff.setAlarm(alarm);
+			schiff.recalculateShipStatus();
 		}
 
 		return JSONUtils.success("Alarmstufe erfolgreich geändert");
@@ -114,21 +103,26 @@ public class SchiffAjaxController extends AngularGenerator
 	/**
 	 * Springt durch den angegebenen Sprungpunkt.
 	 *
+	 * @param schiff Das Schiff
+	 * @param sprungpunkt Die ID des Sprungpunkts
 	 */
 	@Action(ActionType.AJAX)
-	@UrlParam(name = "sprungpunkt", type = UrlParamType.NUMBER, description = "Die ID des Sprungpunkts")
-	public JSONObject springenAction() {
-		if( (shiptype.getCost() == 0) || (ship.getEngine() == 0) ) {
+	public JSONObject springenAction(Ship schiff, int sprungpunkt)
+	{
+		validiereSchiff(schiff);
+
+		ShipTypeData shiptype = schiff.getTypeData();
+		if ((shiptype.getCost() == 0) || (schiff.getEngine() == 0))
+		{
 			return JSONUtils.failure("Das Schiff besitzt keinen Antrieb");
 		}
 
-		int node = getInteger("sprungpunkt");
-		if( node == 0 )
+		if (sprungpunkt == 0)
 		{
 			return JSONUtils.error("Es wurde kein Sprungpunkt angegeben.");
 		}
 
-		ship.jump(node, false);
+		schiff.jump(sprungpunkt, false);
 		JSONObject result = new JSONObject();
 		result.accumulate("log", Ship.MESSAGE.getMessage().trim());
 		return result;
@@ -137,21 +131,26 @@ public class SchiffAjaxController extends AngularGenerator
 	/**
 	 * Benutzt einen an ein Schiff assoziierten Sprungpunkt.
 	 *
+	 * @param schiff Das Schiff
+	 * @param sprungpunktSchiff Die ID des Schiffes mit dem Sprungpunkt
 	 */
 	@Action(ActionType.AJAX)
-	@UrlParam(name = "sprungpunktSchiff", type = UrlParamType.NUMBER, description = "Die ID des Schiffes mit dem Sprungpunkt")
-	public JSONObject springenViaSchiffAction() {
-		if( (shiptype.getCost() == 0) || (ship.getEngine() == 0) ) {
+	public JSONObject springenViaSchiffAction(Ship schiff, int sprungpunktSchiff)
+	{
+		validiereSchiff(schiff);
+
+		ShipTypeData shiptype = schiff.getTypeData();
+		if ((shiptype.getCost() == 0) || (schiff.getEngine() == 0))
+		{
 			return JSONUtils.failure("Das Schiff besitzt keinen Antrieb");
 		}
 
-		int knode = getInteger("sprungpunktSchiff");
-		if( knode == 0 )
+		if (sprungpunktSchiff == 0)
 		{
 			return JSONUtils.error("Es wurde kein Sprungpunkt angegeben.");
 		}
 
-		ship.jump(knode, true);
+		schiff.jump(sprungpunktSchiff, true);
 		JSONObject result = new JSONObject();
 		result.accumulate("log", Ship.MESSAGE.getMessage().trim());
 		return result;
@@ -159,33 +158,33 @@ public class SchiffAjaxController extends AngularGenerator
 
 	/**
 	 * Fliegt ein Schiff bzw dessen Flotte zu einem Sektor.
+	 *
+	 * @param schiff Das Schiff
+	 * @param x Die X-Koordinate des Zielsektors
+	 * @param y Die Y-Koordinate des Zielsektors
 	 */
-	@Action(value=ActionType.AJAX)
-	@UrlParams({
-			@UrlParam(name="x", type=UrlParamType.NUMBER, description = "Die X-Koordinate des Zielsektors"),
-			@UrlParam(name="y", type=UrlParamType.NUMBER, description = "Die Y-Koordinate des Zielsektors"),
-	})
-	public JSONObject fliegeSchiffAction()
+	@Action(value = ActionType.AJAX)
+	public JSONObject fliegeSchiffAction(Ship schiff, int x, int y)
 	{
-		int targetx = getInteger("x");
-		int targety = getInteger("y");
+		validiereSchiff(schiff);
 
 		RouteFactory router = new RouteFactory();
 		boolean forceLowHeat = false;
-		Location from = ship.getLocation();
-		Location to = new Location(from.getSystem(), targetx, targety);
+		Location from = schiff.getLocation();
+		Location to = new Location(from.getSystem(), x, y);
 		List<Waypoint> route = router.findRoute(from, to);
-		if( route.isEmpty() ) {
-			return JSONUtils.error("Es wurde keine Route nach "+to.displayCoordinates(false)+" gefunden");
+		if (route.isEmpty())
+		{
+			return JSONUtils.error("Es wurde keine Route nach " + to.displayCoordinates(false) + " gefunden");
 		}
 
-		if( route.size() > 1 || route.iterator().next().distance > 1 )
+		if (route.size() > 1 || route.iterator().next().distance > 1)
 		{
 			// Bei weiteren Strecken keine Ueberhitzung zulassen
 			forceLowHeat = true;
 		}
 
-		ship.move(route, forceLowHeat, false);
+		schiff.move(route, forceLowHeat, false);
 
 		JSONObject result = new JSONObject();
 		result.accumulate("log", Ship.MESSAGE.getMessage().trim());

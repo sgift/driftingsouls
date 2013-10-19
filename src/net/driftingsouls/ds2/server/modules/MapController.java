@@ -17,9 +17,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.AngularGenerator;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.map.AdminFieldView;
 import net.driftingsouls.ds2.server.map.AdminStarmap;
 import net.driftingsouls.ds2.server.map.FieldView;
@@ -53,19 +51,9 @@ import java.util.Set;
  *
  * @author Drifting-Souls Team
  */
-@Module(name="map")
-@UrlParams({
-		@UrlParam(name="sys", type=UrlParamType.NUMBER, description = "Die ID des zu landenden Sternensystems"),
-		@UrlParam(name="loadmap", type=UrlParamType.NUMBER, description = "1 falls die Kartendaten geladen werden sollen"),
-		@UrlParam(name="admin", type=UrlParamType.NUMBER, description = "1 falls die Adminsicht auf die Sternenkarte verwendet werden soll")
-})
+@Module(name = "map")
 public class MapController extends AngularGenerator
 {
-	private boolean showSystem;
-	private StarSystem system;
-	private int sys;
-	private boolean adminView;
-
 	/**
 	 * Legt den MapController an.
 	 *
@@ -78,38 +66,20 @@ public class MapController extends AngularGenerator
 		setPageTitle("Sternenkarte");
 	}
 
-	@Override
-	protected boolean validateAndPrepare(String action)
+	public void validiereSystem(StarSystem system)
 	{
-		User user = (User)getUser();
-		org.hibernate.Session db = getDB();
-		sys = getInteger("sys");
+		User user = (User) getUser();
 
-		showSystem = this.getInteger("loadmap") != 0;
-
-		StarSystem system = (StarSystem)db.get(StarSystem.class, sys);
-
-		if( sys == 0 )
+		if (system == null || !system.isVisibleFor(user))
 		{
-			sys = 1;
-			showSystem = false; //Zeige das System nicht an
+			throw new ValidierungException("Sie haben keine entsprechenden Karten");
 		}
-		else if( system == null || !system.isVisibleFor(user) )
-		{
-			addError("Sie haben keine entsprechenden Karten");
-			return false;
-		}
-
-		this.system = system;
-		this.adminView = getInteger("admin") == 1 && user.isAdmin();
-
-		return true;
 	}
 
-	@Action(value=ActionType.AJAX)
+	@Action(value = ActionType.AJAX)
 	public JSONObject speichereSystemkarteAction()
 	{
-		if( !getUser().isAdmin() )
+		if (!getUser().isAdmin())
 		{
 			return JSONUtils.error("Du bist nicht berechtigt diese Aktion auszuführen");
 		}
@@ -117,12 +87,12 @@ public class MapController extends AngularGenerator
 		org.hibernate.Session db = getDB();
 
 		List<StarSystem> systems = Common.cast(db.createCriteria(StarSystem.class).list());
-		for(StarSystem system: systems)
+		for (StarSystem system : systems)
 		{
-			int x = getRequest().getParameterInt("sys"+system.getID()+"x");
-			int y = getRequest().getParameterInt("sys"+system.getID()+"y");
+			int x = getRequest().getParameterInt("sys" + system.getID() + "x");
+			int y = getRequest().getParameterInt("sys" + system.getID() + "y");
 
-			if( x != 0 || y != 0 )
+			if (x != 0 || y != 0)
 			{
 				system.setMapX(x);
 				system.setMapY(y);
@@ -132,10 +102,10 @@ public class MapController extends AngularGenerator
 		return JSONUtils.success("Systeme gespeichert");
 	}
 
-	private JSONObject createResultObj()
+	private JSONObject createResultObj(StarSystem system)
 	{
 		JSONObject result = new JSONObject();
-		result.accumulate("system", sys);
+		result.accumulate("system", system != null ? system.getID() : 1);
 		result.accumulate("adminSichtVerfuegbar", getUser().isAdmin());
 		result.accumulate("systemkarteEditierbar", getUser().isAdmin());
 
@@ -144,19 +114,21 @@ public class MapController extends AngularGenerator
 
 	/**
 	 * Zeigt die Sternenkarte an.
+	 *
+	 * @param sys Das momentan ausgewaehlte Sternensystem
 	 */
-	@Action(value=ActionType.AJAX, readOnly=true)
-	public JSONObject systemauswahlAction()
+	@Action(value = ActionType.AJAX, readOnly = true)
+	public JSONObject systemauswahlAction(StarSystem sys)
 	{
-		User user = (User)getUser();
+		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
 
-		JSONObject result = createResultObj();
+		JSONObject result = createResultObj(sys);
 
 		JSONArray systemListObj = new JSONArray();
 
 		List<JumpNode> jumpNodes = Common.cast(db
-				.createQuery("from JumpNode jn where "+(!user.isAdmin() ? "jn.hidden=0 and " : "")+"jn.system!=jn.systemOut")
+				.createQuery("from JumpNode jn where " + (!user.isAdmin() ? "jn.hidden=0 and " : "") + "jn.system!=jn.systemOut")
 				.list());
 
 		Map<Integer, Ally> systemFraktionen = ermittleDominierendeAllianzen(db);
@@ -164,20 +136,20 @@ public class MapController extends AngularGenerator
 		Set<Integer> schiffe = ermittleSystemeMitEigenenSchiffen(db);
 
 		List<StarSystem> systems = Common.cast(db.createQuery("from StarSystem order by id asc").list());
-		for(StarSystem system: systems)
+		for (StarSystem system : systems)
 		{
-			if( !system.isVisibleFor(user) )
+			if (!system.isVisibleFor(user))
 			{
 				continue;
 			}
 
 			String systemAddInfo = " ";
 
-			if( system.getAccess() == StarSystem.AC_ADMIN )
+			if (system.getAccess() == StarSystem.AC_ADMIN)
 			{
 				systemAddInfo += "[admin]";
 			}
-			else if( system.getAccess() == StarSystem.AC_NPC )
+			else if (system.getAccess() == StarSystem.AC_NPC)
 			{
 				systemAddInfo += "[hidden]";
 			}
@@ -186,16 +158,16 @@ public class MapController extends AngularGenerator
 			sysObj.accumulate("name", system.getName());
 			sysObj.accumulate("id", system.getID());
 			sysObj.accumulate("addinfo", systemAddInfo);
-			sysObj.accumulate("npcOnly", system.getAccess() == StarSystem.AC_NPC );
-			sysObj.accumulate("adminOnly", system.getAccess() == StarSystem.AC_ADMIN );
+			sysObj.accumulate("npcOnly", system.getAccess() == StarSystem.AC_NPC);
+			sysObj.accumulate("adminOnly", system.getAccess() == StarSystem.AC_ADMIN);
 			sysObj.accumulate("mapX", system.getMapX());
 			sysObj.accumulate("mapY", system.getMapY());
 
 			// Sprungpunkte
 			JSONArray jnListObj = new JSONArray();
-			for( JumpNode jn : jumpNodes )
+			for (JumpNode jn : jumpNodes)
 			{
-				if( jn.getSystem() == system.getID() )
+				if (jn.getSystem() == system.getID())
 				{
 					jnListObj.add(jn.toJSON());
 				}
@@ -204,7 +176,7 @@ public class MapController extends AngularGenerator
 
 			// Dominierende NPC-Allianzen
 			Ally maxAlly = systemFraktionen.get(system.getID());
-			if( maxAlly != null )
+			if (maxAlly != null)
 			{
 				JSONObject allyObj = new JSONObject();
 				allyObj.accumulate("name", Common._title(maxAlly.getName()));
@@ -232,7 +204,7 @@ public class MapController extends AngularGenerator
 				.setEntity("user", getUser())
 				.list());
 
-		return new HashSet<Integer>(result);
+		return new HashSet<>(result);
 	}
 
 	private Set<Integer> ermittleSystemeMitEigenerBasis(Session db)
@@ -242,10 +214,10 @@ public class MapController extends AngularGenerator
 				.setEntity("user", getUser())
 				.list());
 
-		return new HashSet<Integer>(result);
+		return new HashSet<>(result);
 	}
 
-	private Map<Integer,Ally> ermittleDominierendeAllianzen(Session db)
+	private Map<Integer, Ally> ermittleDominierendeAllianzen(Session db)
 	{
 		List<Object[]> data = Common.cast(db
 				.createQuery("select s.system,s.owner.ally,sum(s.shiptype.size) " +
@@ -256,25 +228,25 @@ public class MapController extends AngularGenerator
 				.setParameter("flags", "%" + ShipTypes.SF_TRADEPOST + "%")
 				.list());
 
-		Map<Integer,Ally> systeme = new HashMap<Integer,Ally>();
+		Map<Integer, Ally> systeme = new HashMap<>();
 		int currentSys = -1;
 		Ally currentAlly = null;
 		long maxCount = 0;
-		for( Object[] entry : data )
+		for (Object[] entry : data)
 		{
-			if( (Integer)entry[0] != currentSys )
+			if ((Integer) entry[0] != currentSys)
 			{
 				systeme.put(currentSys, currentAlly);
 				maxCount = 0;
 				currentAlly = null;
-				currentSys = (Integer)entry[0];
+				currentSys = (Integer) entry[0];
 			}
-			if( (Long)entry[2] > maxCount )
+			if ((Long) entry[2] > maxCount)
 			{
-				maxCount = (Long)entry[2];
-				currentAlly = (Ally)entry[1];
+				maxCount = (Long) entry[2];
+				currentAlly = (Ally) entry[1];
 			}
-			else if( (Long)entry[2] == maxCount )
+			else if ((Long) entry[2] == maxCount)
 			{
 				currentAlly = null;
 			}
@@ -286,148 +258,129 @@ public class MapController extends AngularGenerator
 
 	/**
 	 * Gibt eine einzelne Tile zurueck, entweder aus dem Cache oder, falls nicht vorhanden, neu generiert.
+	 *
+	 * @param sys Das anzuzeigende Sternensystem
+	 * @param tileX Die X-Kachel
+	 * @param tileY Die Y-Kachel
 	 * @throws IOException Speicherfehler
 	 */
-	@Action(value=ActionType.BINARY, readOnly=true)
-	@UrlParams({
-			@UrlParam(name="tileX", type=UrlParamType.NUMBER, description = "Die X-Kachel"),
-			@UrlParam(name="tileY", type=UrlParamType.NUMBER, description = "Die Y-Kachel")
-	})
-	public void tileAction() throws IOException
+	@Action(value = ActionType.BINARY, readOnly = true)
+	public void tileAction(StarSystem sys, int tileX, int tileY) throws IOException
 	{
-		if( this.system == null )
-		{
-			getResponse().getWriter().append("ERROR");
-			return;
-		}
+		validiereSystem(sys);
 
-		int tileX = getInteger("tileX");
-		int tileY = getInteger("tileY");
-
-		if( tileX < 0 )
+		if (tileX < 0)
 		{
 			tileX = 0;
 		}
-		if( tileY < 0 )
+		if (tileY < 0)
 		{
 			tileY = 0;
 		}
 
-		TileCache cache = TileCache.forSystem(this.system);
+		TileCache cache = TileCache.forSystem(sys);
 		File tileCacheFile = cache.getTile(tileX, tileY);
 
-		InputStream in = new FileInputStream(tileCacheFile);
-		try {
+		try (InputStream in = new FileInputStream(tileCacheFile))
+		{
 			getResponse().setContentType("image/png");
-			final OutputStream outputStream = getResponse().getOutputStream();
-			try
+			try (OutputStream outputStream = getResponse().getOutputStream())
 			{
 				IOUtils.copy(in, outputStream);
 			}
-			finally
-			{
-				outputStream.close();
-			}
-		}
-		finally {
-			in.close();
 		}
 	}
 
 	/**
 	 * Gibt die Kartendaten des gewaehlten Ausschnitts als JSON-Response zurueck.
+	 *
+	 * @param sys Das anzuzeigende Sternensystem
+	 * @param xstart Die untere Grenze des Ausschnitts auf der X-Achse
+	 * @param xend Die obere Grenze des Ausschnitts  auf der X-Achse
+	 * @param ystart Die untere Grenze des Ausschnitts auf der Y-Achse
+	 * @param yend Die obere Grenze des Ausschnitts  auf der Y-Achse
+	 * @param admin {@code true} falls die Adminsicht auf die Sternenkarte verwendet werden soll
 	 */
-	@Action(value=ActionType.AJAX, readOnly=true)
-	@UrlParams({
-			@UrlParam(name="xstart",type= UrlParamType.NUMBER),
-			@UrlParam(name="xend",type= UrlParamType.NUMBER),
-			@UrlParam(name="ystart",type= UrlParamType.NUMBER),
-			@UrlParam(name="yend",type= UrlParamType.NUMBER)
-	})
-	public JSONObject mapAction() {
-		JSONObject json = new JSONObject();
+	@Action(value = ActionType.AJAX, readOnly = true)
+	public JSONObject mapAction(StarSystem sys, int xstart, int xend, int ystart, int yend, boolean admin)
+	{
+		validiereSystem(sys);
 
-		if( !this.showSystem )
-		{
-			return json;
-		}
+		JSONObject json = new JSONObject();
 
 		org.hibernate.Session db = getDB();
 		// Flushmode aendern um autoflushes auf den grossen geladenen Datenmengen zu vermeiden.
 		FlushMode oldFlushMode = db.getFlushMode();
 		db.setFlushMode(FlushMode.MANUAL);
-		try {
-			User user = (User)getUser();
+		try
+		{
+			User user = (User) getUser();
 
 			JSONObject sysObj = new JSONObject();
-			sysObj.accumulate("id", this.system.getID());
-			sysObj.accumulate("width", this.system.getWidth());
-			sysObj.accumulate("height", this.system.getHeight());
+			sysObj.accumulate("id", sys.getID());
+			sysObj.accumulate("width", sys.getWidth());
+			sysObj.accumulate("height", sys.getHeight());
 			json.accumulate("system", sysObj);
 
-			int width = this.system.getWidth();
-			int height = this.system.getHeight();
-
-			int xStart = getInteger("xstart");
-			int xEnd = getInteger("xend");
-			int yStart = getInteger("ystart");
-			int yEnd = getInteger("yend");
+			int width = sys.getWidth();
+			int height = sys.getHeight();
 
 			//Limit width and height to map size
-			if(xStart < 1)
+			if (xstart < 1)
 			{
-				xStart = 1;
+				xstart = 1;
 			}
 
-			if(xEnd > width)
+			if (xend > width)
 			{
-				xEnd = width;
+				xend = width;
 			}
 
-			if(yStart < 1)
+			if (ystart < 1)
 			{
-				yStart = 1;
+				ystart = 1;
 			}
 
-			if(yEnd > height)
+			if (yend > height)
 			{
-				yEnd = height;
+				yend = height;
 			}
 
 			//Use sensible defaults in case of useless input
-			if(yEnd <= yStart)
+			if (yend <= ystart)
 			{
-				yEnd = height;
+				yend = height;
 			}
 
-			if(xEnd <= xStart)
+			if (xend <= xstart)
 			{
-				xEnd = width;
+				xend = width;
 			}
 
 			PublicStarmap content;
-			if( this.adminView )
+			if (admin && user.isAdmin())
 			{
-				content = new AdminStarmap(system, user, new int[] {xStart,yStart,xEnd-xStart,yEnd-yStart});
+				content = new AdminStarmap(sys, user, new int[]{xstart, ystart, xend - xstart, yend - ystart});
 			}
-			else {
-				content = new PlayerStarmap(user, system, new int[] {xStart,yStart,xEnd-xStart,yEnd-yStart});
+			else
+			{
+				content = new PlayerStarmap(user, sys, new int[]{xstart, ystart, xend - xstart, yend - ystart});
 			}
 
 			JSONObject sizeObj = new JSONObject();
-			sizeObj.accumulate("minx", xStart);
-			sizeObj.accumulate("miny", yStart);
-			sizeObj.accumulate("maxx", xEnd);
-			sizeObj.accumulate("maxy", yEnd);
+			sizeObj.accumulate("minx", xstart);
+			sizeObj.accumulate("miny", ystart);
+			sizeObj.accumulate("maxx", xend);
+			sizeObj.accumulate("maxy", yend);
 
 			json.accumulate("size", sizeObj);
 
 			JSONArray locationArray = new JSONArray();
-			for(int y = yStart; y <= yEnd; y++)
+			for (int y = ystart; y <= yend; y++)
 			{
-				for(int x = xStart; x <= xEnd; x++)
+				for (int x = xstart; x <= xend; x++)
 				{
-					Location position = new Location(this.system.getID(), x, y);
+					Location position = new Location(sys.getID(), x, y);
 					boolean scannable = content.isScannbar(position);
 					String sectorImage = content.getUserSectorBaseImage(position);
 					String sectorOverlayImage = content.getSectorOverlayImage(position);
@@ -439,31 +392,32 @@ public class MapController extends AngularGenerator
 					posObj.accumulate("y", y);
 					posObj.accumulate("scan", scannable);
 
-					if( sectorImage != null )
+					if (sectorImage != null)
 					{
 						endTag = true;
 						posObj.accumulate("bg", sectorImage);
 						sectorImage = sectorOverlayImage;
 					}
-					else if( scannable )
+					else if (scannable)
 					{
 						endTag = true;
 						posObj.accumulate("bg", content.getSectorBaseImage(position));
 						sectorImage = sectorOverlayImage;
 					}
-					else if( sectorOverlayImage != null )
+					else if (sectorOverlayImage != null)
 					{
 						endTag = true;
 						sectorImage = sectorOverlayImage;
 					}
 
-					if( scannable && content.isHasSectorContent(position)) {
+					if (scannable && content.isHasSectorContent(position))
+					{
 						Ship scanner = content.getScanSchiffFuerSektor(position);
 
 						posObj.accumulate("scanner", scanner != null ? scanner.getId() : -1);
 					}
 
-					if( sectorImage != null )
+					if (sectorImage != null)
 					{
 						posObj.accumulate("fg", sectorImage);
 					}
@@ -471,7 +425,8 @@ public class MapController extends AngularGenerator
 					posObj.accumulate("battle", content.isSchlachtImSektor(position));
 					posObj.accumulate("roterAlarm", content.isRoterAlarmImSektor(position));
 
-					if( endTag ) {
+					if (endTag)
+					{
 						locationArray.add(posObj);
 					}
 				}
@@ -483,50 +438,48 @@ public class MapController extends AngularGenerator
 
 			return json;
 		}
-		finally {
+		finally
+		{
 			db.setFlushMode(oldFlushMode);
 		}
 	}
 
 	/**
 	 * Zeigt einen einzelnen Sektor mit allen Details an.
+	 *
+	 * @param sys Das anzuzeigende Sternensystem
+	 * @param x Die X-Koordinate des zu scannenden Sektors
+	 * @param y Die Y-Koordinate des zu scannenden Sektors
+	 * @param scanship Die ID des fuer den Scanvorgang zu verwendenden Schiffs
+	 * @param admin {@code true} falls die Adminsicht auf die Sternenkarte verwendet werden soll
 	 */
-	@Action(value=ActionType.AJAX, readOnly=true)
-	@UrlParams({
-			@UrlParam(name="x", type=UrlParamType.NUMBER, description = "Die X-Koordinate des zu scannenden Sektors"),
-			@UrlParam(name="y", type=UrlParamType.NUMBER, description = "Die Y-Koordinate des zu scannenden Sektors"),
-			@UrlParam(name="scanship", type=UrlParamType.NUMBER, description = "Die ID des fuer den Scanvorgang zu verwendenden Schiffs")
-	})
-	public JSONObject sectorAction()
+	@Action(value = ActionType.AJAX, readOnly = true)
+	public JSONObject sectorAction(StarSystem sys, int x, int y, Ship scanship, boolean admin)
 	{
-		User user = (User)getUser();
-		org.hibernate.Session db = getDB();
+		validiereSystem(sys);
 
-		int system = getInteger("sys");
-		int x = getInteger("x");
-		int y = getInteger("y");
-		int shipId = getInteger("scanship");
+		User user = (User) getUser();
+		org.hibernate.Session db = getDB();
 
 		JSONObject json = new JSONObject();
 
-		Ship scanShip = (Ship)db.get(Ship.class, shipId);
-
-		final Location loc = new Location(system, x, y);
+		final Location loc = new Location(sys.getID(), x, y);
 
 		FieldView field;
-		if( this.adminView )
+		if (admin && user.isAdmin())
 		{
 			field = new AdminFieldView(db, user, loc);
 		}
-		else {
-			field = new PlayerFieldView(db, user, loc, scanShip);
+		else
+		{
+			field = new PlayerFieldView(db, user, loc, scanship);
 		}
 
 		JSONArray users = exportSectorShips(field);
 		json.accumulate("users", users);
 
 		JSONArray baseListObj = new JSONArray();
-		for( Base base : field.getBases() )
+		for (Base base : field.getBases())
 		{
 			JSONObject baseObj = new JSONObject();
 			baseObj.accumulate("id", base.getId());
@@ -550,13 +503,13 @@ public class MapController extends AngularGenerator
 			JSONObject jnObj = new JSONObject();
 			jnObj.accumulate("id", jumpNode.getId());
 			jnObj.accumulate("name", jumpNode.getName());
-			jnObj.accumulate("blocked", jumpNode.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn( 0 ));
+			jnObj.accumulate("blocked", jumpNode.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn(0));
 			jumpNodeListObj.add(jnObj);
 		}
 		json.accumulate("jumpnodes", jumpNodeListObj);
 
 		Nebel nebel = field.getNebel();
-		if( nebel != null )
+		if (nebel != null)
 		{
 			JSONObject nebelObj = new JSONObject();
 			nebelObj.accumulate("type", nebel.getType().getCode());
@@ -578,22 +531,22 @@ public class MapController extends AngularGenerator
 	{
 		JSONArray battleListObj = new JSONArray();
 		List<Battle> battles = field.getBattles();
-		if( battles.isEmpty() )
+		if (battles.isEmpty())
 		{
 			return battleListObj;
 		}
 
-		User user = (User)getUser();
+		User user = (User) getUser();
 		boolean viewable = getContext().hasPermission("schlacht", "alleAufrufbar");
 
-		if( !viewable )
+		if (!viewable)
 		{
 			Map<ShipType, List<Ship>> ships = field.getShips().get(user);
-			if( ships != null && !ships.isEmpty() )
+			if (ships != null && !ships.isEmpty())
 			{
 				for (ShipType shipType : ships.keySet())
 				{
-					if( shipType.getShipClass().isDarfSchlachtenAnsehen() )
+					if (shipType.getShipClass().isDarfSchlachtenAnsehen())
 					{
 						viewable = true;
 					}
@@ -608,13 +561,13 @@ public class MapController extends AngularGenerator
 			battleObj.accumulate("einsehbar", viewable || battle.getSchlachtMitglied(user) != -1);
 			JSONArray sideListObj = new JSONArray();
 
-			for( int i=0; i < 2; i++ )
+			for (int i = 0; i < 2; i++)
 			{
 				JSONObject sideObj = new JSONObject();
 				sideObj.accumulate("commander", battle.getCommander(i).toJSON());
-				if( battle.getAlly(i) != 0 )
+				if (battle.getAlly(i) != 0)
 				{
-					Ally ally = (Ally)db.get(Ally.class, battle.getAlly(i));
+					Ally ally = (Ally) db.get(Ally.class, battle.getAlly(i));
 					sideObj.accumulate("ally", ally.toJSON());
 				}
 				sideListObj.add(sideObj);
@@ -629,7 +582,7 @@ public class MapController extends AngularGenerator
 	private JSONArray exportSectorShips(FieldView field)
 	{
 		JSONArray users = new JSONArray();
-		for(Map.Entry<User, Map<ShipType, List<Ship>>> owner: field.getShips().entrySet())
+		for (Map.Entry<User, Map<ShipType, List<Ship>>> owner : field.getShips().entrySet())
 		{
 			JSONObject jsonUser = new JSONObject();
 			jsonUser.accumulate("name", Common._text(owner.getKey().getName()));
@@ -640,7 +593,7 @@ public class MapController extends AngularGenerator
 			jsonUser.accumulate("eigener", ownFleet);
 
 			JSONArray shiptypes = new JSONArray();
-			for(Map.Entry<ShipType, List<Ship>> shiptype: owner.getValue().entrySet())
+			for (Map.Entry<ShipType, List<Ship>> shiptype : owner.getValue().entrySet())
 			{
 				JSONObject jsonShiptype = new JSONObject();
 				jsonShiptype.accumulate("id", shiptype.getKey().getId());
@@ -649,7 +602,7 @@ public class MapController extends AngularGenerator
 				jsonShiptype.accumulate("size", shiptype.getKey().getSize());
 
 				JSONArray ships = new JSONArray();
-				for(Ship ship: shiptype.getValue())
+				for (Ship ship : shiptype.getValue())
 				{
 					ShipTypeData typeData = ship.getTypeData();
 					JSONObject shipObj = new JSONObject();
@@ -657,7 +610,7 @@ public class MapController extends AngularGenerator
 					shipObj.accumulate("name", ship.getName());
 					shipObj.accumulate("gedockt", ship.getDockedCount());
 					shipObj.accumulate("maxGedockt", typeData.getADocks());
-					if( ownFleet )
+					if (ownFleet)
 					{
 						shipObj.accumulate("gelandet", ship.getLandedCount());
 						shipObj.accumulate("maxGelandet", typeData.getJDocks());
@@ -667,16 +620,17 @@ public class MapController extends AngularGenerator
 
 						shipObj.accumulate("ueberhitzung", ship.getHeat());
 
-						shipObj.accumulate("kannFliegen", typeData.getCost()>0 && !ship.isDocked() && !ship.isLanded());
+						shipObj.accumulate("kannFliegen", typeData.getCost() > 0 && !ship.isDocked() && !ship.isLanded());
 
 						int sensorRange = ship.getEffectiveScanRange();
-						if( field.getNebel() != null ) {
+						if (field.getNebel() != null)
+						{
 							sensorRange /= 2;
 						}
 						shipObj.accumulate("sensorRange", sensorRange);
 					}
 
-					if( ship.getFleet() != null )
+					if (ship.getFleet() != null)
 					{
 						shipObj.accumulate("fleet", ship.getFleet().toJSON());
 					}

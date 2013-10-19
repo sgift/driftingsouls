@@ -29,9 +29,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
@@ -46,132 +44,134 @@ import java.util.List;
  *
  * @author Christopher Jung
  */
-@Module(name="deutsammeln")
-@UrlParams({
-		@UrlParam(name="ship", type= UrlParamType.NUMBER, description = "Die ID des Tankers"),
-		@UrlParam(name="fleet", type=UrlParamType.NUMBER, description = "Die ID der Tankerflotte")
-})
-public class DeutSammelnController extends TemplateGenerator {
-	private List<Ship> ships = null;
-	private Nebel nebel = null;
-
+@Module(name = "deutsammeln")
+public class DeutSammelnController extends TemplateGenerator
+{
 	/**
 	 * Konstruktor.
+	 *
 	 * @param context Der zu verwendende Kontext
 	 */
-	public DeutSammelnController(Context context) {
+	public DeutSammelnController(Context context)
+	{
 		super(context);
 
 		setTemplate("deutsammeln.html");
 		setPageTitle("Deut. sammeln");
 	}
 
-	@Override
-	protected boolean validateAndPrepare(String action) {
-		org.hibernate.Session db = getDB();
-		User user = (User)getUser();
-
+	private List<Ship> erzeugeSchiffsliste(Ship ship, ShipFleet fleet)
+	{
 		List<Ship> ships = new ArrayList<>();
-		int shipID = getInteger("ship");
-		int fleetId = getInteger("fleet");
+		User user = (User) getUser();
 
-		if( fleetId == 0 )
+		if (fleet == null)
 		{
-			Ship ship = (Ship)db.get(Ship.class, shipID);
-			if( (ship == null) || (ship.getOwner() != user) ) {
-				addError("Das angegebene Schiff existiert nicht", Common.buildUrl("default", "module", "schiffe") );
-
-				return false;
+			if ((ship == null) || (ship.getOwner() != user))
+			{
+				throw new ValidierungException("Das angegebene Schiff existiert nicht", Common.buildUrl("default", "module", "schiffe"));
 			}
 
 			ships.add(ship);
 		}
 		else
 		{
-			ShipFleet fleet = (ShipFleet)db.get(ShipFleet.class, fleetId);
-			if( fleet == null || fleet.getOwner() != user )
+			if (fleet.getOwner() != user)
 			{
-				addError("Die angegebene Flotte existiert nicht", Common.buildUrl("default", "module", "schiffe") );
-
-				return false;
+				throw new ValidierungException("Die angegebene Flotte existiert nicht", Common.buildUrl("default", "module", "schiffe"));
 			}
 			ships.addAll(fleet.getShips());
 		}
 
-		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", ships.get(0).getId());
+		return ships;
+	}
 
-		Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(ships.get(0)));
-		if( nebel == null ) {
-			addError("Der Nebel befindet sich nicht im selben Sektor wie das Schiff", errorurl );
+	private Nebel ermittleNebelFuerSchiffsliste(List<Ship> schiffe)
+	{
+		org.hibernate.Session db = getDB();
 
-			return false;
+		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", schiffe.get(0).getId());
+		Nebel nebel = (Nebel) db.get(Nebel.class, new MutableLocation(schiffe.get(0)));
+		if (nebel == null)
+		{
+			throw new ValidierungException("Der Nebel befindet sich nicht im selben Sektor wie das Schiff", errorurl);
 		}
-		if( !nebel.getType().isDeuteriumNebel() )  {
-			addError("In diesem Nebel k&ouml;nnen sie kein Deuterium sammeln", errorurl );
-
-			return false;
+		if (!nebel.getType().isDeuteriumNebel())
+		{
+			throw new ValidierungException("In diesem Nebel k&ouml;nnen sie kein Deuterium sammeln", errorurl);
 		}
+
+		return nebel;
+	}
+
+	private void filtereSchiffsliste(List<Ship> schiffe, Nebel nebel)
+	{
+		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", schiffe.get(0).getId());
 
 		String lastError = null;
-		for( Iterator<Ship> iter=ships.iterator(); iter.hasNext();)
+		for (Iterator<Ship> iter = schiffe.iterator(); iter.hasNext(); )
 		{
 			Ship ship = iter.next();
-			if( !nebel.getLocation().sameSector(0, ship, 0) ) {
+			if (!nebel.getLocation().sameSector(0, ship, 0))
+			{
 				lastError = "Der Nebel befindet sich nicht im selben Sektor wie das Schiff";
 				iter.remove();
 				continue;
 			}
 
 			ShipTypeData shiptype = ship.getTypeData();
-			if( shiptype.getDeutFactor() <= 0 )  {
+			if (shiptype.getDeutFactor() <= 0)
+			{
 				lastError = "Dieser Schiffstyp kann kein Deuterium sammeln";
 				iter.remove();
 				continue;
 			}
 
-			if( ship.getCrew() < (shiptype.getCrew()/2) ) {
+			if (ship.getCrew() < (shiptype.getCrew() / 2))
+			{
 				lastError = "Sie haben nicht genug Crew um Deuterium zu sammeln";
 				iter.remove();
 			}
 		}
 
-		if( ships.isEmpty() )
+		if (schiffe.isEmpty())
 		{
-			addError(lastError, errorurl);
-			return false;
+			throw new ValidierungException(lastError, errorurl);
 		}
-
-		this.ships = ships;
-		this.nebel = nebel;
-
-		return true;
 	}
 
 	/**
 	 * Sammelnt fuer eine angegebene Menge Energie Deuterium aus einem Nebel.
+	 *
+	 * @param e Die Menge Energie, fuer die Deuterium gesammelt werden soll
+	 * @param fleet Die Tankerflotte
+	 * @param ship Der Tanker
 	 */
-	@UrlParam(name="e", type=UrlParamType.NUMBER, description = "Die Menge Energie, fuer die Deuterium gesammelt werden soll")
 	@Action(ActionType.DEFAULT)
-	public void sammelnAction() {
-		TemplateEngine t = getTemplateEngine();
+	public void sammelnAction(Ship ship, ShipFleet fleet, long e)
+	{
+		List<Ship> shipList = erzeugeSchiffsliste(ship, fleet);
+		Nebel nebel = ermittleNebelFuerSchiffsliste(shipList);
+		filtereSchiffsliste(shipList, nebel);
 
-		long e = getInteger("e");
+		TemplateEngine t = getTemplateEngine();
 
 		String message = "";
 
-		for( Ship ship : this.ships )
+		for (Ship aship : shipList)
 		{
-			message += Common._plaintitle(ship.getName())+" ("+ship.getId()+"): ";
+			message += Common._plaintitle(aship.getName()) + " (" + aship.getId() + "): ";
 
-			long saugdeut = ship.sammelDeuterium(nebel, e);
-			if( saugdeut <= 0 )
+			long saugdeut = aship.sammelDeuterium(nebel, e);
+			if (saugdeut <= 0)
 			{
 				message += "Es konnte kein weiteres Deuterium gesammelt werden<br />";
 			}
-			else {
-				message += "<img src=\""+Cargo.getResourceImage(Resources.DEUTERIUM)+"\" alt=\"\" />"+saugdeut+
-					" f&uuml;r <img src=\"./data/interface/energie.gif\" alt=\"Energie\" />"+e+
-					" gesammelt<br />";
+			else
+			{
+				message += "<img src=\"" + Cargo.getResourceImage(Resources.DEUTERIUM) + "\" alt=\"\" />" + saugdeut +
+						" f&uuml;r <img src=\"./data/interface/energie.gif\" alt=\"Energie\" />" + e +
+						" gesammelt<br />";
 			}
 		}
 
@@ -183,29 +183,36 @@ public class DeutSammelnController extends TemplateGenerator {
 	/**
 	 * Zeigt eine Eingabemaske an, in der angegeben werden kann,
 	 * fuer wieviel Energie Deuterium gesammelt werden soll.
+	 *
+	 * @param fleet Die Tankerflotte
+	 * @param ship Der Tanker
 	 */
-	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() {
+	public void defaultAction(Ship ship, ShipFleet fleet)
+	{
+		List<Ship> shipList = erzeugeSchiffsliste(ship, fleet);
+		Nebel nebel = ermittleNebelFuerSchiffsliste(shipList);
+		filtereSchiffsliste(shipList, nebel);
+
 		TemplateEngine t = getTemplateEngine();
 
 		int deutfactorSum = 0;
 		int maxE = 0;
-		for( Ship ship : ships )
+		for (Ship aship : shipList)
 		{
-			long deutfactor = ship.getTypeData().getDeutFactor();
+			long deutfactor = aship.getTypeData().getDeutFactor();
 			deutfactor = nebel.getType().modifiziereDeutFaktor(deutfactor);
 			deutfactorSum += deutfactor;
-			if( maxE  < ship.getEnergy() )
+			if (maxE < aship.getEnergy())
 			{
-				maxE = ship.getEnergy();
+				maxE = aship.getEnergy();
 			}
 		}
 
-		t.setVar(	"deuterium.image",		Cargo.getResourceImage(Resources.DEUTERIUM),
-					"ship.type.deutfactor",	Common.ln(deutfactorSum/(double)ships.size()),
-					"ship.id",				this.ships.get(0).getId(),
-					"fleet.id",				this.ships.size() > 1 ? this.ships.get(0).getFleet().getId() : 0,
-					"ship.e",				maxE );
+		t.setVar("deuterium.image", Cargo.getResourceImage(Resources.DEUTERIUM),
+				"ship.type.deutfactor", Common.ln(deutfactorSum / (double) shipList.size()),
+				"ship.id", shipList.get(0).getId(),
+				"fleet.id", shipList.size() > 1 ? shipList.get(0).getFleet().getId() : 0,
+				"ship.e", maxE);
 	}
 }

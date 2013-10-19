@@ -31,8 +31,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -43,15 +42,8 @@ import java.io.Writer;
  * Die Gebaeudeansicht.
  * @author Christopher Jung
  */
-@UrlParams({
-		@UrlParam(name="col", type= UrlParamType.NUMBER, description = "Die ID der Basis"),
-		@UrlParam(name="field", type=UrlParamType.NUMBER, description = "Die ID des Felds, dessen Gebaeude angezeigt werden soll")
-})
 @Module(name="building")
 public class BuildingController extends TemplateGenerator {
-	private Base base;
-	private Building building;
-
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
@@ -62,40 +54,38 @@ public class BuildingController extends TemplateGenerator {
 		setPageTitle("Gebäude");
 	}
 
-	@Override
-	protected boolean validateAndPrepare(String action) {
-		User user = (User)getUser();
+	public Building getGebaeudeFuerFeld(Base basis, int feld)
+	{
+		return Building.getBuilding(basis.getBebauung()[feld]);
+	}
 
-		int col = getInteger("col");
-		int field = getInteger("field");
-
-		base = (Base)getDB().get(Base.class, col);
-		if( (base == null) || (base.getOwner() != user) ) {
-			addError("Die angegebene Kolonie existiert nicht", Common.buildUrl("default", "module", "basen"));
-
-			return false;
+	public void validiereBasisUndFeld(Base basis, int feld)
+	{
+		User user = (User) getUser();
+		if ((basis == null) || (basis.getOwner() != user))
+		{
+			throw new ValidierungException("Die angegebene Kolonie existiert nicht", Common.buildUrl("default", "module", "basen"));
 		}
 
-		if( (field >= base.getBebauung().length) || (base.getBebauung()[field] == 0) ) {
-			addError("Es existiert kein Geb&auml;ude an dieser Stelle");
-
-			return false;
+		if ((feld >= basis.getBebauung().length) || (basis.getBebauung()[feld] == 0))
+		{
+			throw new ValidierungException("Es existiert kein Geb&auml;ude an dieser Stelle");
 		}
-
-		building = Building.getBuilding(base.getBebauung()[field]);
-
-		return true;
 	}
 
 	/**
 	 * Aktiviert das Gebaeude.
+	 * @param base Die Basis
+	 * @param field Die ID des Feldes auf dem das Gebaeude steht
 	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject startAjaxAction()
+	public JSONObject startAjaxAction(@UrlParam(name = "col") Base base, int field)
 	{
-		User user = (User)getUser();
-		int field = getInteger("field");
+		validiereBasisUndFeld(base, field);
+		Building building = getGebaeudeFuerFeld(base, field);
+
+		User user = (User) getUser();
 		JSONObject response = new JSONObject();
 		response.accumulate("col", base.getId());
 		response.accumulate("field", field);
@@ -104,25 +94,27 @@ public class BuildingController extends TemplateGenerator {
 		buildingObj.accumulate("id", building.getId());
 		buildingObj.accumulate("name", Common._plaintitle(building.getName()));
 		buildingObj.accumulate("picture", building.getPictureForRace(user.getRace()));
-		buildingObj.accumulate("active", building.isActive( base, base.getActive()[field], field ));
+		buildingObj.accumulate("active", building.isActive(base, base.getActive()[field], field));
 		buildingObj.accumulate("deakable", building.isDeakAble());
 		buildingObj.accumulate("kommandozentrale", building.getId() == Building.KOMMANDOZENTRALE);
 		buildingObj.accumulate("type", building.getClass().getSimpleName());
 
 		response.accumulate("building", buildingObj);
 
-		if( (building.getArbeiter() > 0) && (building.getArbeiter() + base.getArbeiter() > base.getBewohner()) ) {
+		if ((building.getArbeiter() > 0) && (building.getArbeiter() + base.getArbeiter() > base.getBewohner()))
+		{
 			response.accumulate("success", false);
 			response.accumulate("message", "Nicht genügend Arbeiter vorhanden");
 		}
-		else if( building.isShutDown() &&
+		else if (building.isShutDown() &&
 				(!base.getOwner().hasResearched(building.getTechRequired())
 						|| (base.getOwner().getRace() != building.getRace() && building.getRace() != 0)))
 		{
 			response.accumulate("success", false);
 			response.accumulate("message", "Sie können dieses Geb&auml;ude wegen unzureichenden Voraussetzungen nicht aktivieren");
 		}
-		else {
+		else
+		{
 			Integer[] active = base.getActive();
 			active[field] = 1;
 			base.setActive(active);
@@ -137,24 +129,31 @@ public class BuildingController extends TemplateGenerator {
 
 	/**
 	 * Aktiviert das Gebaeude.
+	 * @param base Die Basis
+	 * @param field Die ID des Feldes auf dem das Gebaeude steht
 	 * @throws IOException
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void startAction() throws IOException {
-		int field = getInteger("field");
+	public void startAction(@UrlParam(name = "col") Base base, int field) throws IOException
+	{
+		validiereBasisUndFeld(base, field);
+		Building building = getGebaeudeFuerFeld(base, field);
+
 		Writer echo = getResponse().getWriter();
 
-		if( (building.getArbeiter() > 0) && (building.getArbeiter() + base.getArbeiter() > base.getBewohner()) ) {
+		if ((building.getArbeiter() > 0) && (building.getArbeiter() + base.getArbeiter() > base.getBewohner()))
+		{
 			echo.append("<span style=\"color:#ff0000\">Nicht gen&uuml;gend Arbeiter vorhanden</span><br /><br />\n");
 		}
-		else if( building.isShutDown() &&
+		else if (building.isShutDown() &&
 				(!base.getOwner().hasResearched(building.getTechRequired())
 						|| (base.getOwner().getRace() != building.getRace() && building.getRace() != 0)))
 		{
 			echo.append("<span style=\"color:#ff0000\">Sie k&ouml;nnen dieses Geb&auml;ude wegen unzureichenden Voraussetzungen nicht aktivieren</span><br /><br />\n");
 		}
-		else {
+		else
+		{
 			Integer[] active = base.getActive();
 			active[field] = 1;
 			base.setActive(active);
@@ -169,12 +168,17 @@ public class BuildingController extends TemplateGenerator {
 
 	/**
 	 * Deaktiviert das Gebaeude.
+	 * @param base Die Basis
+	 * @param field Die ID des Feldes auf dem das Gebaeude steht
 	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject shutdownAjaxAction() {
-		User user = (User)getUser();
-		int field = getInteger("field");
+	public JSONObject shutdownAjaxAction(@UrlParam(name = "col") Base base, int field)
+	{
+		validiereBasisUndFeld(base, field);
+		Building building = getGebaeudeFuerFeld(base, field);
+
+		User user = (User) getUser();
 		JSONObject response = new JSONObject();
 		response.accumulate("col", base.getId());
 		response.accumulate("field", field);
@@ -183,18 +187,20 @@ public class BuildingController extends TemplateGenerator {
 		buildingObj.accumulate("id", building.getId());
 		buildingObj.accumulate("name", Common._plaintitle(building.getName()));
 		buildingObj.accumulate("picture", building.getPictureForRace(user.getRace()));
-		buildingObj.accumulate("active", building.isActive( base, base.getActive()[field], field ));
+		buildingObj.accumulate("active", building.isActive(base, base.getActive()[field], field));
 		buildingObj.accumulate("deakable", building.isDeakAble());
 		buildingObj.accumulate("kommandozentrale", building.getId() == Building.KOMMANDOZENTRALE);
 		buildingObj.accumulate("type", building.getClass().getSimpleName());
 
 		response.accumulate("building", buildingObj);
 
-		if( !building.isDeakAble() ) {
+		if (!building.isDeakAble())
+		{
 			response.accumulate("success", false);
 			response.accumulate("message", "Sie können dieses Gebäude nicht deaktivieren");
 		}
-		else {
+		else
+		{
 			Integer[] active = base.getActive();
 			active[field] = 0;
 			base.setActive(active);
@@ -209,18 +215,25 @@ public class BuildingController extends TemplateGenerator {
 
 	/**
 	 * Deaktiviert das Gebaeude.
+	 * @param base Die Basis
+	 * @param field Die ID des Feldes auf dem das Gebaeude steht
 	 * @throws IOException
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void shutdownAction() throws IOException {
-		int field = getInteger("field");
+	public void shutdownAction(@UrlParam(name = "col") Base base, int field) throws IOException
+	{
+		validiereBasisUndFeld(base, field);
+		Building building = getGebaeudeFuerFeld(base, field);
+
 		Writer echo = getResponse().getWriter();
 
-		if( !building.isDeakAble() ) {
+		if (!building.isDeakAble())
+		{
 			echo.append("<span style=\"color:red\">Sie k&ouml;nnen dieses Geb&auml;ude nicht deaktivieren</span>\n");
 		}
-		else {
+		else
+		{
 			Integer[] active = base.getActive();
 			active[field] = 0;
 			base.setActive(active);
@@ -235,11 +248,14 @@ public class BuildingController extends TemplateGenerator {
 
 	/**
 	 * Reisst das Gebaeude ab.
+	 * @param base Die Basis
+	 * @param field Die ID des Feldes auf dem das Gebaeude steht
 	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject demoAjaxAction() {
-		int field = getInteger("field");
+	public JSONObject demoAjaxAction(@UrlParam(name="col") Base base, int field) {
+		validiereBasisUndFeld(base, field);
+		Building building = getGebaeudeFuerFeld(base, field);
 
 		JSONObject response = new JSONObject();
 		response.accumulate("col", base.getId());
@@ -285,16 +301,18 @@ public class BuildingController extends TemplateGenerator {
 
 	/**
 	 * Reisst das Gebaeude ab.
+	 * @param base Die Basis
+	 * @param field Die ID des Feldes auf dem das Gebaeude steht
+	 * @param conf Falls "ok" bestaetigt dies den Abriss
 	 * @throws IOException
 	 */
 	@Action(ActionType.DEFAULT)
-	@UrlParam(name="conf", description = "Falls \"ok\" bestaetigt dies den Abriss")
-	public void demoAction() throws IOException {
-		User user = (User)getUser();
-		int field = getInteger("field");
-		Writer echo = getResponse().getWriter();
+	public void demoAction(@UrlParam(name="col") Base base, int field, String conf) throws IOException {
+		validiereBasisUndFeld(base, field);
+		Building building = getGebaeudeFuerFeld(base, field);
 
-		String conf = getString("conf");
+		User user = (User)getUser();
+		Writer echo = getResponse().getWriter();
 
 		echo.append("<div class='gfxbox' style='width:470px'>");
 
@@ -350,13 +368,21 @@ public class BuildingController extends TemplateGenerator {
 		echo.append("<a class=\"back\" href=\"").append(Common.buildUrl("default", "module", "base", "col", base.getId())).append("\">zur&uuml;ck</a><br />\n");
 	}
 
+	/**
+	 * Erzeugt die GUI-Daten der Basis und gibt diese als JSON-Response zurueck.
+	 * @param base Die Basis
+	 * @param field Die ID des Feldes auf dem das Gebaeude steht
+	 * @return Die GUI-Daten
+	 */
 	@Action(ActionType.AJAX)
-	public JSONObject ajaxAction()
+	public JSONObject ajaxAction(@UrlParam(name="col") Base base, int field)
 	{
+		validiereBasisUndFeld(base, field);
+		Building building = getGebaeudeFuerFeld(base, field);
+
 		User user = (User)getUser();
 		JSONObject json = new JSONObject();
 
-		int field = getInteger("field");
 		json.accumulate("col", base.getId());
 		json.accumulate("field", field);
 
@@ -384,13 +410,16 @@ public class BuildingController extends TemplateGenerator {
 
 	/**
 	 * Zeigt die GUI des Gebaeudes an.
+	 * @param base Die Basis
+	 * @param field Die ID des Feldes auf dem das Gebaeude steht
 	 */
-	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() {
+	public void defaultAction(@UrlParam(name="col") Base base, int field) {
+		validiereBasisUndFeld(base, field);
+		Building building = getGebaeudeFuerFeld(base, field);
+
 		User user = (User)getUser();
 		try {
-			int field = getInteger("field");
 			Writer echo = getResponse().getWriter();
 
 			boolean classicDesign = building.classicDesign();

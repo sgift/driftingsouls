@@ -28,7 +28,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.AngularGenerator;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tasks.Task;
@@ -177,25 +176,18 @@ public class NpcController extends AngularGenerator {
 
 	/**
 	 * Zeichnet einen Spieler mit einem Orden aus.
-	 * @urlparam Integer edituser Die ID des zu bearbeitenden Spielers
-	 * @urlparam Integer medal Die ID des Ordens
-	 * @urlparam String Der Grund, warum der Orden verliehen wurde
+	 * @param edituserID Die ID des zu bearbeitenden Spielers
+	 * @param medal Die ID des Ordens
+	 * @param reason Der Grund, warum der Orden verliehen wurde
 	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject awardMedalAction() {
+	public JSONObject awardMedalAction(@UrlParam(name="edituser") String edituserID, int medal, String reason) {
 		User user = (User)this.getUser();
 
 		if( !this.isHead ) {
 			return JSONUtils.failure("Sie sind nicht berechtigt auf dieses Menü zuzugreifen");
 		}
-
-		this.parameterString("edituser");
-		this.parameterNumber("medal");
-		this.parameterString("reason");
-		String edituserID = this.getString("edituser");
-		int medal = this.getInteger("medal");
-		String reason = this.getString("reason");
 
 		User edituser = User.lookupByIdentifier(edituserID);
 
@@ -237,18 +229,13 @@ public class NpcController extends AngularGenerator {
 
 	/**
 	 * Befoerdert/Degradiert einen Spieler.
-	 * @urlparam Integer edituser Die ID des zu bearbeitenden Spielers
-	 * @urlparam Integer rank Der neue Rang
+	 * @param edituserID Die ID des zu bearbeitenden Spielers
+	 * @param rank Der neue Rang
 	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject changeRankAction() {
+	public JSONObject changeRankAction(@UrlParam(name="edituser") String edituserID, int rank) {
 		User user = (User)this.getUser();
-
-		this.parameterString("edituser");
-		this.parameterNumber("rank");
-		String edituserID = this.getString("edituser");
-		int rank = this.getInteger("rank");
 
 		User edituser = User.lookupByIdentifier(edituserID);
 		
@@ -266,13 +253,8 @@ public class NpcController extends AngularGenerator {
 	}
 
 	@Action(ActionType.AJAX)
-	public JSONObject deleteLpAction()
+	public JSONObject deleteLpAction(@UrlParam(name="edituser") String edituserID, @UrlParam(name="lp") int lpId)
 	{
-		parameterString("edituser");
-		parameterNumber("lp");
-		String edituserID = getString("edituser");
-		int lpId = getInteger("lp");
-
 		User edituser = User.lookupByIdentifier(edituserID);
 		if( edituser == null )
 		{
@@ -304,32 +286,23 @@ public class NpcController extends AngularGenerator {
 
 	/**
 	 * Fuegt LP zu einem Spieler hinzu.
+	 * @param anmerkungen Weitere Anmerkungen zur Vergabe der LP
+	 * @param edituserID Die Identifikationsdaten des zu bearbeitenden Spielers
+	 * @param grund Der Grund fuer die LP
+	 * @param pm <code>true</code> falls eine PM an den Spieler versendet werden soll
+	 * @param punkte Die Anzahl der LP
 	 * @return Das Antwortobjekt
 	 */
 	@Action(ActionType.AJAX)
-	@UrlParams({
-			@UrlParam(name="edituser", description = "Die Identifikationsdaten des zu bearbeitenden Spielers"),
-			@UrlParam(name="grund", description = "Der Grund fuer die LP"),
-			@UrlParam(name="anmerkungen", description = "Weitere Anmerkungen zur Vergabe der LP"),
-			@UrlParam(name="punkte", type= UrlParamType.NUMBER, description = "Die Anzahl der LP"),
-			@UrlParam(name="pm", type=UrlParamType.NUMBER, description = "1 falls eine PM an den Spieler versendet werden soll")
-	})
-	public JSONObject editLpAction()
+	public JSONObject editLpAction(@UrlParam(name="edituser") String edituserID, String grund, String anmerkungen, int punkte, boolean pm)
 	{
 		User user = (User)this.getUser();
-
-		String edituserID = getString("edituser");
 
 		User edituser = User.lookupByIdentifier(edituserID);
 		if( edituser == null )
 		{
 			return JSONUtils.failure("Benutzer nicht gefunden");
 		}
-
-		String grund = getString("grund");
-		String anmerkungen = getString("anmerkungen");
-		int punkte = getInteger("punkte");
-		boolean sendPm = getInteger("pm") == 1;
 
 		if( punkte == 0 || grund.isEmpty() )
 		{
@@ -344,7 +317,7 @@ public class NpcController extends AngularGenerator {
 
 		db.persist(lp);
 
-		if( sendPm )
+		if( pm )
 		{
 			String pmText = "[Automatische Mitteilung]\n" +
 					"Du hast soeben "+punkte+" Loyalitätspunkte erhalten. " +
@@ -358,15 +331,13 @@ public class NpcController extends AngularGenerator {
 
 	/**
 	 * Markiert die Meldung einer Aktion als "bearbeitet".
+	 * @param meldung Die Meldung
 	 * @return Die JSON-Antwort
 	 */
 	@Action(ActionType.AJAX)
 	@UrlParam(name="meldung", type=UrlParamType.NUMBER, description = "Die ID der Meldung")
-	public JSONObject meldungBearbeitetAction()
+	public JSONObject meldungBearbeitetAction(FraktionAktionsMeldung meldung)
 	{
-		FraktionAktionsMeldung meldung =
-				(FraktionAktionsMeldung)getDB().get(FraktionAktionsMeldung.class, (long)getInteger("meldung"));
-
 		if( meldung == null )
 		{
 			return JSONUtils.error("Die angegebene Meldung konnte nicht gefunden werden");
@@ -377,18 +348,15 @@ public class NpcController extends AngularGenerator {
 
 	/**
 	 * Zeigt die GUI fuer LP-Verwaltung an.
+	 * @param edituserID Die Identifikationsdaten des anzuzeigenden Spielers
+	 * @param alleMeldungen <code>true</code>, falls alle Meldungen angezeigt werden sollen
 	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject lpMenuAction()
+	public JSONObject lpMenuAction(@UrlParam(name="edituser") String edituserID, boolean alleMeldungen)
 	{
 		User user = (User)this.getUser();
 
-		parameterString("edituser");
-		parameterNumber("alleMeldungen");
-		String edituserID = getString("edituser");
-		boolean alleMeldungen = getInteger("alleMeldungen") != 0;
-		
 		JSONObject result = new JSONObject();
 		fillCommonMenuResultData(result);
 		result.accumulate("alleMeldungen", alleMeldungen);
@@ -459,11 +427,8 @@ public class NpcController extends AngularGenerator {
 	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject raengeMenuAction() {
+	public JSONObject raengeMenuAction(@UrlParam(name="edituser") String edituserID) {
 		User user = (User)this.getUser();
-
-		parameterString("edituser");
-		String edituserID = getString("edituser");
 
 		User edituser = User.lookupByIdentifier(edituserID);
 		
@@ -513,22 +478,19 @@ public class NpcController extends AngularGenerator {
 	/**
 	 * Setzt die Order-Koordinaten, an denen georderte Objekte erscheinen sollen.
 	 *
-	 * @urlparam String orderloc Die Koordinate des Ortes, an dem die georderten Objekte erscheinen sollen
+	 * @param lieferposition Die Koordinate des Ortes, an dem die georderten Objekte erscheinen sollen
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject changeOrderLocationAction() {
+	public JSONObject changeOrderLocationAction(String lieferposition) {
 		User user = (User)this.getUser();
 
-		parameterString("lieferposition");
-		String orderloc = getString("lieferposition");
-
-		if( orderloc.isEmpty() )
+		if( lieferposition.isEmpty() )
 		{
 			user.setNpcOrderLocation(null);
 			return JSONUtils.success("Lieferkoordinaten zurückgesetzt");
 		}
 		
-		Location loc = Location.fromString(orderloc);
+		Location loc = Location.fromString(lieferposition);
 
 		if( !Base.byLocationAndBesitzer(loc, user).isEmpty() ) {
 			user.setNpcOrderLocation(loc.asString());
@@ -545,17 +507,14 @@ public class NpcController extends AngularGenerator {
 	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject orderShipsAction()
+	public JSONObject orderShipsAction(
+			@UrlParam(name="shipflag_disableiff") boolean flagDisableIff,
+			@UrlParam(name="shipflag_handelsposten") boolean flagHandelsposten,
+			@UrlParam(name="shipflag_nichtkaperbar") boolean flagNichtKaperbar,
+			@UrlParam(name="ship#_count") Map<Integer,Integer> shipCounts)
 	{
 		org.hibernate.Session db = getDB();
 		User user = (User)this.getUser();
-
-		parameterNumber("shipflag_disableiff");
-		parameterNumber("shipflag_handelsposten");
-		parameterNumber("shipflag_nichtkaperbar");
-		boolean flagDisableIff = getInteger("shipflag_disableiff") == 1;
-		boolean flagHandelsposten = getInteger("shipflag_handelsposten") == 1;
-		boolean flagNichtKaperbar = getInteger("shipflag_nichtkaperbar") == 1;
 
 		int costs = 0;
 
@@ -568,10 +527,8 @@ public class NpcController extends AngularGenerator {
 		{
 			OrderableShip ship = (OrderableShip) shipOrder;
 
-			parameterNumber("ship" + ship.getShipType().getId() + "_count");
-
-			int count = getInteger("ship" + ship.getShipType().getId() + "_count");
-			if (count > 0)
+			Integer count = shipCounts.get(ship.getShipType().getId());
+			if (count != null && count > 0)
 			{
 				costs += count * ship.getCost();
 
@@ -619,22 +576,16 @@ public class NpcController extends AngularGenerator {
 
 	/**
 	 * Ordert eine Menge von Schiffen/Offizieren.
-	 * @urlparam Integer order Das zu ordernde Objekt (negativ: offizier)
-	 * @urlparam Integer count Die Menge der zu ordernden Objekte
+	 * @param order Das zu ordernde Objekt (negativ: offizier)
+	 * @param count Die Menge der zu ordernden Objekte
 	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject orderAction() {
+	public JSONObject orderAction(int order, int count) {
 		org.hibernate.Session db = getDB();
 		User user = (User)this.getUser();
 
-		parameterNumber("order");
-		parameterNumber("count");
-
 		int costs;
-
-		int order = getInteger("order");
-		int count = getInteger("count");
 
 		if( count <= 0 ) {
 			count = 1;

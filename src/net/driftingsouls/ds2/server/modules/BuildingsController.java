@@ -18,9 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.util.Iterator;
-
-import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.bases.Core;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
@@ -34,20 +31,17 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+
+import java.util.Iterator;
 
 /**
  * Die Liste aller baubaren Gebaeude und Cores.
  * @author Christopher Jung
  */
 @Module(name="buildings")
-@UrlParams({
-		@UrlParam(name="col", type= UrlParamType.NUMBER, description = "Die ID der Basis, auf die der zurueck-Link zeigen soll"),
-		@UrlParam(name="field", type=UrlParamType.NUMBER, description = "Die ID des Feldes, dessen Gebaeude der zurueck-Link ansteuern soll")
-})
-public class BuildingsController extends TemplateGenerator {
+public class BuildingsController extends TemplateGenerator
+{
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
@@ -59,32 +53,14 @@ public class BuildingsController extends TemplateGenerator {
 		setPageTitle("Gebäude");
 	}
 
-	@Override
-	protected boolean validateAndPrepare(String action) {
-		org.hibernate.Session db = getDB();
-		User user = (User)getUser();
-
-		int col = getInteger("col");
-
-		if( col != 0 ) {
-			Base chk = (Base)db.get(Base.class, col);
-
-			if( (chk == null) || (chk.getOwner() != user) ) {
-				addError("Die angegebene Kolonie existiert nicht");
-
-				return false;
-			}
-		}
-
-		return true;
-	}
-
 	/**
 	 * Zeigt die Liste aller baubaren Gebaeude und Cores an.
+	 * @param col Die ID der Basis, auf die der zurueck-Link zeigen soll
+	 * @param field Die ID des Feldes, dessen Gebaeude der zurueck-Link ansteuern soll
 	 */
-	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() {
+	public void defaultAction(@UrlParam(name="col") int col, int field)
+	{
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
@@ -223,7 +199,7 @@ public class BuildingsController extends TemplateGenerator {
 			t.parse("cores.list","cores.listitem",true);
 		}
 
-		t.setVar(	"base.id",		getInteger("col"),
-					"base.field",	getInteger("field") );
+		t.setVar("base.id", col,
+				"base.field", field);
 	}
 }

@@ -33,8 +33,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -86,15 +84,15 @@ public class CommController extends TemplateGenerator {
 
 	/**
 	 * Markiert alle PMs in einem Ordner als gelesen.
+	 * @param ordner Die ID des Ordners
 	 */
 	@Action(ActionType.DEFAULT)
-	@UrlParam(name="ordner", type=UrlParamType.NUMBER, description = "Die ID des Ordners")
-	public void readAllAction() {
+	public void readAllAction(int ordner) {
 		TemplateEngine t = getTemplateEngine();
 
-		Ordner ordner = Ordner.getOrdnerByID(getInteger("ordner"), (User)getUser());
+		Ordner ordnerObj = Ordner.getOrdnerByID(ordner, (User)getUser());
 
-		ordner.markAllAsRead();
+		ordnerObj.markAllAsRead();
 
 		t.setVar("show.message", "<span style=\"color:red\">Alle Nachrichten als gelesen markiert</span>");
 
@@ -1003,129 +1001,125 @@ public class CommController extends TemplateGenerator {
 
 	/**
 	 * Speichert einen Kommentar zu einer Nachricht.
+	 *
+	 * @param msg Der Kommentar
+	 * @param pm Die ID der Nachricht
 	 */
 	@Action(ActionType.DEFAULT)
-	@UrlParams({
-			@UrlParam(name="pmid", type=UrlParamType.NUMBER, description = "Die ID der Nachricht"),
-			@UrlParam(name="msg", description = "Der Kommentar")
-	})
-	public void sendCommentAction() {
-		org.hibernate.Session db = getDB();
-		User user = (User)getUser();
+	public void sendCommentAction(@UrlParam(name = "pmid") PM pm, String msg)
+	{
+		User user = (User) getUser();
 
-		int pmid = getInteger("pmid");
-		String msg = getString("msg");
-
-		PM pm = (PM)db.get(PM.class, pmid);
-		if( (pm != null) && pm.getEmpfaenger().equals(user) ) {
+		if ((pm != null) && pm.getEmpfaenger().equals(user))
+		{
 			pm.setKommentar(msg);
 		}
 
 		redirect("showInbox");
 	}
 
-	@Override
+	/**
+	 * Zeigt die GUI zum Versenden einer PM.
+	 *
+	 * @param toStr Der Empfaenger der neuen PM
+	 * @param reply Die ID der PM, auf die geantwortet wird
+	 * @param msg Der Text der PM
+	 * @param title Der Titel der PM
+	 * @param special Die Spezialmarkierung (admin, official)
+	 */
 	@Action(ActionType.DEFAULT)
-	@UrlParams({
-		@UrlParam(name="to", description="Der Empfaenger der neuen PM"),
-		@UrlParam(name="reply", type=UrlParamType.NUMBER, description = "Die ID der PM, auf die geantwortet wird"),
-		@UrlParam(name="msg", description = "Der Text der PM")
-	})
-	public void defaultAction() {
+	public void defaultAction(@UrlParam(name = "to") String toStr, PM reply, String msg, String title, String special)
+	{
 		TemplateEngine t = getTemplateEngine();
-		org.hibernate.Session db = getDB();
-		User user = (User)getUser();
+		User user = (User) getUser();
 
-		String toStr = getString("to");
-		int reply = getInteger("reply");
-		String msg = getString("msg");
+		if (reply != null && (reply.getEmpfaenger().equals(user) || reply.getSender().equals(user)))
+		{
+			User to = reply.getSender();
+			if (to.equals(user))
+			{
+				to = reply.getEmpfaenger();
+			}
+			title = "RE: " + Common._plaintitle(reply.getTitle());
+			special = "";
 
-		String title = "";
-		String special = "";
+			msg = "(Nachricht am " + Common.date("j.n.Y G:i", reply.getTime()) + " empfangen.)\n";
 
-		if( reply != 0) {
-			PM pm = (PM)db.get(PM.class, reply);
+			// Fuehrende > entfernen
+			msg += Pattern.compile("/\n>*/").matcher(reply.getInhalt()).replaceAll("\n");
 
-			if( (pm != null) && (pm.getEmpfaenger().equals(user) || pm.getSender().equals(user)) ) {
-				User to = pm.getSender();
-				if( to.equals(user) ) {
-					to = pm.getEmpfaenger();
-				}
-				title = "RE: "+Common._plaintitle(pm.getTitle());
-				special = "";
+			// Wegen der Einrueckung eingefuegte Umbrueche entfernen
+			msg = msg.replaceAll("\t\r\n", " ");
 
-				msg = "(Nachricht am "+Common.date("j.n.Y G:i",pm.getTime())+" empfangen.)\n";
+			// Reply-Verschachtelungstiefe ermitteln
+			int depth = 0;
+			Matcher match = Pattern.compile("/\\(Nachricht am \\d{1,2}\\.\\d{1,2}\\.\\d{4,4} \\d{1,2}:\\d{2,2} empfangen\\.\\)/").matcher(msg);
+			while (match.find())
+			{
+				depth++;
+			}
 
-				// Fuehrende > entfernen
-				msg += Pattern.compile("/\n>*/").matcher(pm.getInhalt()).replaceAll("\n");
+			String[] msg_lines = StringUtils.split(msg, '\n'); //Text Zeilenweise auftrennen
+			for (int i = 0; i < msg_lines.length; i++)
+			{
+				msg_lines[i] = Common.wordwrap(msg_lines[i], 65 - depth, "\t\n");    //Zeilen umbrechen
 
-				// Wegen der Einrueckung eingefuegte Umbrueche entfernen
-				msg = msg.replaceAll("\t\r\n", " ");
-
-				// Reply-Verschachtelungstiefe ermitteln
-				int depth = 0;
-				Matcher match = Pattern.compile("/\\(Nachricht am \\d{1,2}\\.\\d{1,2}\\.\\d{4,4} \\d{1,2}:\\d{2,2} empfangen\\.\\)/").matcher(msg);
-				while(match.find()) {
-					depth++;
-				}
-
-				String[] msg_lines = StringUtils.split(msg, '\n'); //Text Zeilenweise auftrennen
-				for( int i=0; i < msg_lines.length; i++ ){
-					msg_lines[i] = Common.wordwrap(msg_lines[i], 65 - depth, "\t\n");	//Zeilen umbrechen
-
-					if(Pattern.compile("/\\(Nachricht am \\d{1,2}\\.\\d{1,2}\\.\\d{4,4} \\d{1,2}:\\d{2,2} empfangen\\.\\)/").matcher(msg_lines[i]).find() ){ //beginn einer neuen Verschachtelung
-						for( int j = i + 1; j < msg_lines.length; j++){	//in Jede zeile ein ">" am Anfang einfuegen
-							msg_lines[j] = ">"+msg_lines[j];
-						}
+				if (Pattern.compile("/\\(Nachricht am \\d{1,2}\\.\\d{1,2}\\.\\d{4,4} \\d{1,2}:\\d{2,2} empfangen\\.\\)/").matcher(msg_lines[i]).find())
+				{
+					//beginn einer neuen Verschachtelung
+					for (int j = i + 1; j < msg_lines.length; j++)
+					{
+						//in Jede zeile ein ">" am Anfang einfuegen
+						msg_lines[j] = ">" + msg_lines[j];
 					}
 				}
-				msg = Common.implode("\n", msg_lines); //Text wieder zusammenfuegen
-				msg += "\n\n"; // Zwei Leerzeilen koennen am Ende nicht schaden...
-
-				toStr = Integer.toString(to.getId());
 			}
-		}
-		else {
-			parameterString("title");
-			parameterString("special");
+			msg = Common.implode("\n", msg_lines); //Text wieder zusammenfuegen
+			msg += "\n\n"; // Zwei Leerzeilen koennen am Ende nicht schaden...
 
-			title = getString("title");
-			special = getString("special");
+			toStr = Integer.toString(to.getId());
 		}
 
-		if( title.length() > 60 ) {
-			title = title.substring(0,60);
+		if (title.length() > 60)
+		{
+			title = title.substring(0, 60);
 		}
 
-		if( special.equals("admin") && !hasPermission("comm", "adminPM") ) {
+		if ("admin".equals(special) && !hasPermission("comm", "adminPM"))
+		{
 			special = "";
 		}
-		if( special.equals("official") && !hasPermission("comm", "offiziellePM") ) {
+		if ("official".equals(special) && !hasPermission("comm", "offiziellePM"))
+		{
 			special = "";
 		}
 
-		Map<String,String> specialuilist = new LinkedHashMap<>();
+		Map<String, String> specialuilist = new LinkedHashMap<>();
 		specialuilist.put("nichts", "");
-		if( hasPermission("comm", "adminPM") ) {
+		if (hasPermission("comm", "adminPM"))
+		{
 			specialuilist.put("admin", "admin");
 		}
-		if( hasPermission("comm", "offiziellePM") ) {
+		if (hasPermission("comm", "offiziellePM"))
+		{
 			specialuilist.put("Offizielle PM", "official");
 		}
 
-		t.setVar(	"show.write", 1,
-					"write.title", title,
-					"write.message", msg,
-					"write.to", toStr,
-					"system.time", Common.getIngameTime(getContext().get(ContextCommon.class).getTick()),
-					"user.signature", user.getUserValue("PMS/signature") );
+		t.setVar("show.write", 1,
+				"write.title", title,
+				"write.message", msg,
+				"write.to", toStr,
+				"system.time", Common.getIngameTime(getContext().get(ContextCommon.class).getTick()),
+				"user.signature", user.getUserValue("PMS/signature"));
 
 		t.setBlock("_COMM", "write.specialui.listitem", "write.specialui.list");
-		if( specialuilist.size() > 1 )
+		if (specialuilist.size() > 1)
 		{
-			for( Map.Entry<String, String> entry: specialuilist.entrySet() ) {
-				t.setVar(	"specialui.name", entry.getKey(),
-							"specialui.value", entry.getValue() );
+			for (Map.Entry<String, String> entry : specialuilist.entrySet())
+			{
+				t.setVar("specialui.name", entry.getKey(),
+						"specialui.value", entry.getValue(),
+						"specialui.selected", entry.getKey().equals(special));
 
 				t.parse("write.specialui.list", "write.specialui.listitem", true);
 			}
