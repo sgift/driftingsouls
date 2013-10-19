@@ -6,6 +6,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.hibernate.Session;
 
 import javax.persistence.Entity;
+import java.io.Serializable;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
@@ -133,7 +134,7 @@ public class ParameterReader
 	 */
 	public Object readParameterAsType(String paramName, Class<?> type) throws IllegalArgumentException
 	{
-		if( Number.class.isAssignableFrom(type) || type == Boolean.TYPE || type == Integer.TYPE || type == Double.TYPE )
+		if( Number.class.isAssignableFrom(type) || type == Boolean.TYPE || type == Integer.TYPE || type == Double.TYPE || type == Long.TYPE )
 		{
 			parameterNumber(paramName);
 		}
@@ -153,6 +154,14 @@ public class ParameterReader
 		else if( type == Integer.TYPE )
 		{
 			return paramValue != null ? ((Number)paramValue).intValue() : 0;
+		}
+		else if( type == Long.class )
+		{
+			return paramValue != null ? ((Number)paramValue).longValue() : null;
+		}
+		else if( type == Long.TYPE )
+		{
+			return paramValue != null ? ((Number)paramValue).longValue() : 0L;
 		}
 		else if( type == Double.class )
 		{
@@ -184,8 +193,8 @@ public class ParameterReader
 		}
 		else if( type.isAnnotationPresent(Entity.class) )
 		{
-			// TODO: Ids erkennen, deren Datentyp nicht Integer ist
-			Integer id = (Integer)readParameterAsType(paramName, Integer.class);
+			Class<?> idClass = this.session.getSessionFactory().getClassMetadata(type).getIdentifierType().getReturnedClass();
+			Serializable id = (Serializable)readParameterAsType(paramName, idClass);
 			if( id == null )
 			{
 				return null;
