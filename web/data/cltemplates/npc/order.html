@@ -67,9 +67,9 @@
 						<img ng-src="data/interface/offiziere/off{{offizier.rang}}.png" alt="Rang {{offizier.rang}}" />
 					</td>
 					<td>
-						<a href="#" ng-click="orderOffizier(offizier,1)">{{offizier.name}}</a> 
-						(<a href="#" ng-click="orderOffizier(offizier,5)">5x</a>, 
-						<a href="#" ng-click="orderOffizier(offizier,10)">10x</a>)
+						<a ng-click="orderOffizier(offizier,1)">{{offizier.name}}</a>
+						(<a ng-click="orderOffizier(offizier,5)">5x</a>,
+						<a ng-click="orderOffizier(offizier,10)">10x</a>)
 					</td>
 					<td>{{offizier.cost}}</td>
 					<td><span ng-show="offizier.ordercount>0">{{offizier.ordercount}}x</span></td>
