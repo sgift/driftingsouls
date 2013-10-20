@@ -39,7 +39,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
