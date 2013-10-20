@@ -56,11 +56,6 @@ public class LogoutController extends TemplateGenerator {
 		this.authManager = authManager;
 	}
 
-	@Override
-	protected boolean validateAndPrepare(String action) {
-		return true;
-	}
-
 	/**
 	 * Loggt den Spieler aus.
 	 */

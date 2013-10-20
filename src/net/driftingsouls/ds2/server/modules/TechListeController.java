@@ -33,7 +33,9 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import org.hibernate.Session;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -45,7 +47,6 @@ import java.util.Map;
  * an.
  * @author Christopher Jung
  *
- * @urlparam Integer rasse Die Rasse, deren Technologien angezeigt werden sollen
  */
 @Module(name="techliste")
 public class TechListeController extends TemplateGenerator {
@@ -56,30 +57,21 @@ public class TechListeController extends TemplateGenerator {
 	 */
 	public TechListeController(Context context) {
 		super(context);
-		parameterNumber("rasse");
 
 		setTemplate("techliste.html");
 
 		setPageTitle("Forschungen");
 	}
 
-	@Override
-	protected boolean validateAndPrepare(String action) {
-		// EMPTY
-		return true;
-	}
-
 	/**
 	 * Zeigt die Techliste an.
+	 * @param rasse Die Rasse, deren Technologien angezeigt werden sollen
 	 */
-	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() {
+	public void defaultAction(int rasse) {
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
-
-		int rasse = getInteger("rasse");
 
 		if( rasse == 0 )
 		{
@@ -109,12 +101,136 @@ public class TechListeController extends TemplateGenerator {
 		t.setVar(	"race.name",	Rassen.get().rasse(rasse).getName(),
 					"race.list",	rassenlisteStr );
 
-		Map<Integer,Forschung>  researched = new LinkedHashMap<Integer,Forschung>();
-		Map<Integer,Forschung>  researchable = new LinkedHashMap<Integer,Forschung>();
-		Map<Integer,Forschung>  notResearchable = new LinkedHashMap<Integer,Forschung>();
-		Map<Integer,Forschung>  invisible = new LinkedHashMap<Integer,Forschung>();
+		Map<Integer,Forschung>  researched = new LinkedHashMap<>();
+		Map<Integer,Forschung>  researchable = new LinkedHashMap<>();
+		Map<Integer,Forschung>  notResearchable = new LinkedHashMap<>();
+		Map<Integer,Forschung>  invisible = new LinkedHashMap<>();
 
 		//Alle Forschungen durchgehen
+		gruppiereForschungenNachStatus(rasse, db, user, researched, researchable, notResearchable, invisible);
+
+		t.setBlock("_TECHLISTE","tech.listitem","none");
+
+		t.setBlock("_TECHLISTE","tech.researchable.listitem","none");
+		t.setBlock("tech.researchable.listitem","res.listitem", "res.list" );
+
+		Map<String,Collection<Forschung>> keys = new LinkedHashMap<>();
+		keys.put("researched", researched.values());
+		keys.put("researchable", researchable.values());
+		keys.put("notResearchable", notResearchable.values());
+		keys.put("invisible", invisible.values());
+
+		Map<Integer, Integer> currentResearches = ermittleLaufendeForschungen(db, user);
+
+		for( Map.Entry<String, Collection<Forschung>> entry: keys.entrySet() ) {
+			String mykey = entry.getKey();
+			Collection<Forschung> var = entry.getValue();
+
+			gruppeVonForschungenAnzeigen(t, currentResearches, mykey, var);
+		}
+	}
+
+	private void gruppeVonForschungenAnzeigen(TemplateEngine t, Map<Integer, Integer> currentResearches, String gruppenname, Collection<Forschung> forschungsliste)
+	{
+		int count = 0;
+
+		if( forschungsliste.size() == 0 ) {
+			return;
+		}
+
+		String prefix = "";
+		if( gruppenname.equals("researchable") ) {
+			prefix = "researchable.";
+		}
+
+		for( Forschung result : forschungsliste) {
+			t.setVar(	"tech.id",			result.getID(),
+						"tech.image",		result.getImage(),
+						  "tech.name",		Common._title(result.getName()),
+						  "tech.dauer",		result.getTime(),
+						  "res.list",			"",
+						  "tech.remaining",	currentResearches.get(result.getID()),
+						  "tech.specpoints",	result.getSpecializationCosts());
+
+			// Kosten der Forschung ausgeben
+			Cargo costs = result.getCosts();
+			costs.setOption(Cargo.Option.SHOWMASS, false);
+
+			ResourceList reslist = costs.getResourceList();
+			int respos = 0;
+
+			for( ResourceEntry res : reslist ) {
+				t.setVar(	"waren",			"",
+							"warenb",			res.getImage(),
+							"tech.cost",		res.getCargo1(),
+							  "tech.cost.space",	(respos < reslist.size() - 1 ? 1 : 0 ) );
+
+				t.parse("res.list","res.listitem",true);
+
+				respos++;
+			}
+
+			boolean resentry = false;
+
+			// Benoetigte Forschungen ausgeben
+			if( !gruppenname.equals("researchable") ) {
+				for( int i=1; i <= 3; i++ ) {
+					if( result.getRequiredResearch(i) > 0) {
+						String req = Forschung.getInstance(result.getRequiredResearch(i)).getName();
+
+						t.setVar(	"tech.req"+i+".id",		result.getRequiredResearch(i),
+									"tech.req"+i+".name",	req );
+
+						resentry = true;
+					}
+					else if( (result.getRequiredResearch(i) < 0) && hasPermission("forschung", "allesSichtbar") ) {
+						t.setVar(	"tech.req"+i+".id",		"1",
+									"tech.req"+i+".name",	"<span style=\"color:#C7C7C7; font-weight:normal\">### Nicht erf&uuml;llbar</span>");
+
+						resentry = true;
+					}
+					else {
+						t.setVar(	"tech.req"+i+".id",		"",
+									"tech.req"+i+".name",	"");
+					}
+				}
+			}
+			if( !resentry ) {
+				t.setVar("tech.noreq",1);
+			}
+			else {
+				t.setVar("tech.noreq",0);
+			}
+
+			count++;
+
+			if( count % 3 == 0 ) {
+				t.setVar( "tech.newline", 1 );
+			}
+			else {
+				t.setVar( "tech.newline", 0 );
+			}
+
+			t.parse("tech."+ gruppenname +".list","tech."+prefix+"listitem",true);
+		}
+	}
+
+	private Map<Integer, Integer> ermittleLaufendeForschungen(Session db, User user)
+	{
+		Map<Integer,Integer> currentResearches = new HashMap<>();
+		List<?> resList = db.createQuery("from Forschungszentrum where forschung is not null and base.owner=:owner")
+			.setEntity("owner", user)
+			.list();
+		for (Object aResList : resList)
+		{
+			Forschungszentrum fz = (Forschungszentrum) aResList;
+			currentResearches.put(fz.getForschung().getID(), fz.getDauer());
+		}
+		return currentResearches;
+	}
+
+	private void gruppiereForschungenNachStatus(int rasse, Session db, User user, Map<Integer, Forschung> researched, Map<Integer, Forschung> researchable, Map<Integer, Forschung> notResearchable, Map<Integer, Forschung> invisible)
+	{
 		final Iterator<?> forschungIter = db.createQuery("from Forschung order by name")
 			.iterate();
 		while( forschungIter.hasNext() ) {
@@ -139,113 +255,6 @@ public class TechListeController extends TemplateGenerator {
 			}
 			else {
 				notResearchable.put(f.getID(), f);
-			}
-		}
-
-		t.setBlock("_TECHLISTE","tech.listitem","none");
-
-		t.setBlock("_TECHLISTE","tech.researchable.listitem","none");
-		t.setBlock("tech.researchable.listitem","res.listitem", "res.list" );
-
-		Map<String,Map<Integer,Forschung>> keys = new LinkedHashMap<String,Map<Integer,Forschung>>();
-		keys.put("researched", researched);
-		keys.put("researchable", researchable);
-		keys.put("notResearchable", notResearchable);
-		keys.put("invisible", invisible);
-
-		Map<Integer,Integer> currentResearches = new HashMap<Integer,Integer>();
-		List<?> resList = db.createQuery("from Forschungszentrum where forschung is not null and base.owner=:owner")
-			.setEntity("owner", user)
-			.list();
-		for( Iterator<?> iter=resList.iterator(); iter.hasNext(); ) {
-			Forschungszentrum fz = (Forschungszentrum)iter.next();
-			currentResearches.put(fz.getForschung().getID(), fz.getDauer());
-		}
-
-		for( Map.Entry<String, Map<Integer, Forschung>> entry: keys.entrySet() ) {
-			String mykey = entry.getKey();
-			Map<Integer,Forschung> var = entry.getValue();
-
-			int count = 0;
-
-			if( var.size() == 0 ) {
-				continue;
-			}
-
-			String prefix = "";
-			if( mykey.equals("researchable") ) {
-				prefix = "researchable.";
-			}
-
-			for( Forschung result : var.values() ) {
-				t.setVar(	"tech.id",			result.getID(),
-							"tech.image",		result.getImage(),
-						  	"tech.name",		Common._title(result.getName()),
-						  	"tech.dauer",		result.getTime(),
-						  	"res.list",			"",
-						  	"tech.remaining",	currentResearches.get(result.getID()),
-						  	"tech.specpoints",	result.getSpecializationCosts());
-
-				// Kosten der Forschung ausgeben
-				Cargo costs = result.getCosts();
-				costs.setOption(Cargo.Option.SHOWMASS, false);
-
-				ResourceList reslist = costs.getResourceList();
-				int respos = 0;
-
-				for( ResourceEntry res : reslist ) {
-					t.setVar(	"waren",			"",
-								"warenb",			res.getImage(),
-								"tech.cost",		res.getCargo1(),
-							  	"tech.cost.space",	(respos < reslist.size() - 1 ? 1 : 0 ) );
-
-					t.parse("res.list","res.listitem",true);
-
-					respos++;
-				}
-
-				boolean resentry = false;
-
-				// Benoetigte Forschungen ausgeben
-				if( !mykey.equals("researchable") ) {
-					for( int i=1; i <= 3; i++ ) {
-						if( result.getRequiredResearch(i) > 0) {
-							String req = Forschung.getInstance(result.getRequiredResearch(i)).getName();
-
-							t.setVar(	"tech.req"+i+".id",		result.getRequiredResearch(i),
-										"tech.req"+i+".name",	req );
-
-							resentry = true;
-						}
-						else if( (result.getRequiredResearch(i) < 0) && hasPermission("forschung", "allesSichtbar") ) {
-							t.setVar(	"tech.req"+i+".id",		"1",
-										"tech.req"+i+".name",	"<span style=\"color:#C7C7C7; font-weight:normal\">### Nicht erf&uuml;llbar</span>");
-
-							resentry = true;
-						}
-						else {
-							t.setVar(	"tech.req"+i+".id",		"",
-										"tech.req"+i+".name",	"");
-						}
-					}
-				}
-				if( !resentry ) {
-					t.setVar("tech.noreq",1);
-				}
-				else {
-					t.setVar("tech.noreq",0);
-				}
-
-				count++;
-
-				if( count % 3 == 0 ) {
-					t.setVar( "tech.newline", 1 );
-				}
-				else {
-					t.setVar( "tech.newline", 0 );
-				}
-
-				t.parse("tech."+mykey+".list","tech."+prefix+"listitem",true);
 			}
 		}
 	}

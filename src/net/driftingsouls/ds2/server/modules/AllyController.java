@@ -35,6 +35,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipLost;
@@ -671,19 +672,18 @@ public class AllyController extends TemplateGenerator {
 
 	/**
 	 * Setzt Namen und Zugriffrechte fuer einen Allianz-Comnet-Kanal.
-	 * @urlparam Integer edit Die ID des Comnet-Kanals
-	 * @urlparam String name Der neue Name
-	 * @urlparam String read Der Zugriffsmodus (all, ally, player)
-	 * @urlparam String readids Falls der Lesemodus player ist: Die Komma-separierte Liste der Spieler-IDs
-	 * @urlparam String write Der Zugriffsmodus fuer Schreibrechte (all, ally, player)
-	 * @urlparam String readids Falls der Schreibmodus player ist: Die Komma-separierte Liste der Spieler-IDs
+	 * @param channel Die ID des Comnet-Kanals
+	 * @param name Der neue Name
+	 * @param read Der Zugriffsmodus (all, ally, player)
+	 * @param readids Falls der Lesemodus player ist: Die Komma-separierte Liste der Spieler-IDs
+	 * @param write Der Zugriffsmodus fuer Schreibrechte (all, ally, player)
+	 * @param readids Falls der Schreibmodus player ist: Die Komma-separierte Liste der Spieler-IDs
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void editChannelAction() {
+	public void editChannelAction(@UrlParam(name="edit") ComNetChannel channel, String name, String read, String write, String readids, String writeids) {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
-		org.hibernate.Session db = getDB();
 
 		if( this.ally.getPresident().getId() != user.getId()) {
 			t.setVar( "ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren" );
@@ -691,26 +691,11 @@ public class AllyController extends TemplateGenerator {
 			return;
 		}
 
-		this.parameterNumber("edit");
-		int edit = getInteger("edit");
-
-		ComNetChannel channel = (ComNetChannel)db.get(ComNetChannel.class, edit);
 		if( (channel == null) || (channel.getAllyOwner() != this.ally.getId()) ) {
 			t.setVar( "ally.message", "Fehler: Diese Frequenz geh&ouml;rt nicht ihrer Allianz" );
 			redirect("showAllySettings");
 			return;
 		}
-
-		parameterString("name");
-		parameterString("read");
-		parameterString("write");
-		parameterString("readids");
-		parameterString("writeids");
-		String name = getString("name");
-		String read = getString("read");
-		String write = getString("write");
-		String readids = getString("readids");
-		String writeids = getString("writeids");
 
 		if( name.length() == 0 ) {
 			t.setVar( "ally.message", "Fehler: Sie haben keinen Namen f&uuml;r die Frequenz eingegeben" );
@@ -760,12 +745,13 @@ public class AllyController extends TemplateGenerator {
 
 	/**
 	 * Loescht einen Comnet-Kanal der Allianz.
-	 * @urlparam Integer channel Die ID des zu loeschenden Kanals
-	 * @urlparam String conf Die Bestaetigung des Vorgangs. <code>ok</code>, falls der Vorgang durchgefuehrt werden soll
+	 * @param channel Die ID des zu loeschenden Kanals
+	 * @param conf Die Bestaetigung des Vorgangs. <code>ok</code>, falls der Vorgang durchgefuehrt werden soll
+	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void deleteChannelAction() {
+	public void deleteChannelAction(ComNetChannel channel, String conf, String show) {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
 		org.hibernate.Session db = getDB();
@@ -776,19 +762,11 @@ public class AllyController extends TemplateGenerator {
 			return;
 		}
 
-		this.parameterNumber("channel");
-		int channelID = getInteger("channel");
-
-		ComNetChannel channel = (ComNetChannel)db.get(ComNetChannel.class, channelID);
 		if( (channel == null) || (channel.getAllyOwner() != this.ally.getId()) ) {
 			t.setVar( "ally.message", "Fehler: Diese Frequenz geh&ouml;rt nicht ihrer Allianz" );
 			redirect("showAllySettings");
 			return;
 		}
-
-		this.parameterString("conf");
-		String conf = getString("conf");
-		String show = getString("show");
 
 		if( !conf.equals("ok") ) {
 			t.setVar(	"ally.statusmessage",			"Wollen sie die Frequenz \""+Common._title(channel.getName())+"\" wirklich l&ouml;schen?",
@@ -856,18 +834,18 @@ public class AllyController extends TemplateGenerator {
 
 	/**
 	 * Speichert die neuen Daten der Allianz.
-	 * @urlparam String name Der Name der Allianz
-	 * @urlparam String desc Die Allianzbeschreibung
-	 * @urlparam String allytag Der Allianztag
-	 * @urlparam String hp Die URL zur Homepage
-	 * @urlparam String praesi Der Name des Praesidentenpostens
-	 * @urlparam Integer showastis Sollen eigene Astis auf der Sternenkarte angezeigt werden (<code>1</code>) oder nicht (<code>0</code>)
-	 * @urlparam Integer showGtuBieter Sollen Allymember einander bei GTU-Versteigerungen sehen koennen (<code>1</code>) oder nicht (<code>0</code>)
-	 * @urlparam Integer showlrs Sollen die LRS der Awacs in der Sternenkarte innerhalb der Ally geteilt werden (<code>1</code>) oder nicht (<code>0</code>)
+	 * @param name Der Name der Allianz
+	 * @param desc Die Allianzbeschreibung
+	 * @param allytag Der Allianztag
+	 * @param hp Die URL zur Homepage
+	 * @param praesi Der Name des Praesidentenpostens
+	 * @param showastis Sollen eigene Astis auf der Sternenkarte angezeigt werden (<code>true</code>) oder nicht (<code>false</code>)
+	 * @param showGtuBieter Sollen Allymember einander bei GTU-Versteigerungen sehen koennen (<code>true</code>) oder nicht (<code>false</code>)
+	 * @param showlrs Sollen die LRS der Awacs in der Sternenkarte innerhalb der Ally geteilt werden (<code>true</code>) oder nicht (<code>false</code>)
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeSettingsAction() {
+	public void changeSettingsAction(String name, String desc, String allytag, String hp, String praesi, boolean showastis, boolean showGtuBieter, boolean showlrs) {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
 
@@ -876,19 +854,6 @@ public class AllyController extends TemplateGenerator {
 			redirect("showAllySettings");
 			return;
 		}
-
-		this.parameterString("name");
-		this.parameterString("desc");
-		this.parameterString("allytag");
-		this.parameterString("hp");
-		this.parameterString("praesi");
-		this.parameterNumber("showastis");
-		this.parameterNumber("showGtuBieter");
-		this.parameterNumber("showlrs");
-
-		String name = this.getString("name");
-		String allytag = this.getString("allytag");
-		String praesi = this.getString("praesi");
 
 		// Wurde der [name]-Tag vergessen?
 		if(!allytag.contains("[name]")) {
@@ -909,13 +874,13 @@ public class AllyController extends TemplateGenerator {
 		}
 
 		this.ally.setName(name);
-		this.ally.setDescription(this.getString("desc"));
-		this.ally.setHp(this.getString("hp"));
+		this.ally.setDescription(desc);
+		this.ally.setHp(hp);
 		this.ally.setAllyTag(allytag);
-		this.ally.setShowAstis(this.getInteger("showastis") != 0);
-		this.ally.setShowGtuBieter(this.getInteger("showGtuBieter") != 0);
+		this.ally.setShowAstis(showastis);
+		this.ally.setShowGtuBieter(showGtuBieter);
 		this.ally.setPname(praesi);
-		this.ally.setShowLrs(this.getInteger("showlrs") != 0);
+		this.ally.setShowLrs(showlrs);
 
 		//Benutzernamen aktualisieren
 		List<User> allyusers = this.ally.getMembers();
@@ -934,11 +899,12 @@ public class AllyController extends TemplateGenerator {
 
 	/**
 	 * Laesst den aktuellen Spieler aus der Allianz austreten.
-	 * @urlparam String conf Falls <code>ok</code> wird der Austritt vollzogen
+	 * @param conf Falls <code>ok</code> wird der Austritt vollzogen
+	 * @param show Die nach der Bestaetigung anzuzeigende Aktion
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void partAction() {
+	public void partAction(String conf, String show) {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
 
@@ -948,12 +914,7 @@ public class AllyController extends TemplateGenerator {
 			return;
 		}
 
-		parameterString("conf");
-		String conf = getString("conf");
-
 		if( !conf.equals("ok") ) {
-			String show = getString("show");
-
 			t.setVar(	"ally.statusmessage",				"Wollen sie wirklich aus der Allianz austreten?",
 						"ally.statusmessage.ask.url1",		"&amp;action=part&amp;conf=ok&amp;show="+show,
 						"ally.statusmessage.ask.url2",		"&amp;show="+show );
@@ -975,11 +936,12 @@ public class AllyController extends TemplateGenerator {
 
 	/**
 	 * Loest einen Allianz auf.
-	 * @urlparam String conf Bestaetigt die Aufloesung, wenn der Wert <code>ok</code> ist
+	 * @param conf Bestaetigt die Aufloesung, wenn der Wert <code>ok</code> ist
+	 * @param show Die nach der Bestaetigung anzuzeigende Aktion
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void killAction() {
+	public void killAction(String conf, String show) {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
 
@@ -989,12 +951,7 @@ public class AllyController extends TemplateGenerator {
 			return;
 		}
 
-		this.parameterString("conf");
-		String conf = this.getString("conf");
-
 		if( !conf.equals("ok") ) {
-			String show = getString("show");
-
 			t.setVar(	"ally.statusmessage",			"Wollen sie die Allianz wirklich aufl&ouml;sen?",
 						"ally.statusmessage.ask.url1",	"&amp;action=kill&amp;conf=ok&amp;show="+show,
 						"ally.statusmessage.ask.url2",	"&amp;show="+show );
@@ -1015,11 +972,11 @@ public class AllyController extends TemplateGenerator {
 
 	/**
 	 * Befoerdert einen Spieler zum Praesidenten.
-	 * @urlparam Integer presn Die ID des neuen Praesidenten der Allianz
+	 * @param presn Die ID des neuen Praesidenten der Allianz
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void newPraesiAction() {
+	public void newPraesiAction(int presn) {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
 
@@ -1028,9 +985,6 @@ public class AllyController extends TemplateGenerator {
 			redirect("showMembers");
 			return;
 		}
-
-		parameterNumber("presn");
-		int presn = getInteger("presn");
 
 		User presnuser = (User)getContext().getDB().get(User.class, presn);
 		if( presnuser.getAlly() != this.ally ) {
@@ -1049,11 +1003,11 @@ public class AllyController extends TemplateGenerator {
 
 	/**
 	 * Wirft einen Spieler aus der Allianz.
-	 * @urlparam Integer kick Die ID des aus der Allianz zu werfenden Spielers
+	 * @param kick Die ID des aus der Allianz zu werfenden Spielers
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void kickAction() {
+	public void kickAction(int kick) {
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
 
@@ -1062,9 +1016,6 @@ public class AllyController extends TemplateGenerator {
 			redirect("showMembers");
 			return;
 		}
-
-		parameterNumber("kick");
-		int kick = getInteger("kick");
 
 		if( kick == user.getId() ) {
 			t.setVar( "ally.message", "Sie k&ouml;nnen sich nicht selber aus der Allianz werfen" );
@@ -1163,9 +1114,6 @@ public class AllyController extends TemplateGenerator {
 
 	/**
 	 * Zeigt die Postenliste der Allianz an.
-	 *
-	 * @urlparam Integer destpos Offset fuer die Liste der zerstoerten Schiffe
-	 * @urlparam Integer lostpos Offset fuer die Liste der verlorenen Schiffe
 	 */
 	@Action(ActionType.DEFAULT)
 	public void showPostenAction() {
@@ -1244,11 +1192,11 @@ public class AllyController extends TemplateGenerator {
 	/**
 	 * Zeigt die Liste der zerstoerten und verlorenen Schiffe der Allianz.
 	 *
-	 * @urlparam Integer destpos Offset fuer die Liste der zerstoerten Schiffe
-	 * @urlparam Integer lostpos Offset fuer die Liste der verlorenen Schiffe
+	 * @param destpos Offset fuer die Liste der zerstoerten Schiffe
+	 * @param lostpos Offset fuer die Liste der verlorenen Schiffe
 	 */
 	@Action(ActionType.DEFAULT)
-	public void showBattlesAction() {
+	public void showBattlesAction(long destpos, long lostpos) {
 		if( this.ally == null ) {
 			this.redirect("defaultNoAlly");
 			return;
@@ -1262,9 +1210,6 @@ public class AllyController extends TemplateGenerator {
 		/////////////////////////////
 
 		int counter = 0;
-
-		this.parameterNumber("destpos");
-		long destpos = getInteger("destpos");
 
 		long destcount = (Long)db.createQuery("select count(*) from ShipLost where destAlly=:ally")
 			.setInteger("ally", this.ally.getId())
@@ -1334,9 +1279,6 @@ public class AllyController extends TemplateGenerator {
 		/////////////////////////////
 
 		counter = 0;
-
-		parameterNumber("lostpos");
-		long lostpos = getInteger("lostpos");
 
 		long lostcount = (Long)db.createQuery("select count(*) from ShipLost where ally=:ally")
 			.setInteger("ally", this.ally.getId())
@@ -1554,9 +1496,6 @@ public class AllyController extends TemplateGenerator {
 	/**
 	 * Zeigt die GUI, spezifiziert durch den Parameter show,
 	 * fuer Spieler mit Allianz, an.
-	 *
-	 * @urlparam Integer destpos Offset fuer die Liste der zerstoerten Schiffe
-	 * @urlparam Integer lostpos Offset fuer die Liste der verlorenen Schiffe
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)

@@ -32,22 +32,27 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Zeigt aktive Handelsangebote an und ermoeglicht das Erstellen eigener Handelsangebote.
- * @author Christopher Jung
  *
+ * @author Christopher Jung
  */
-@Module(name="handel")
-public class HandelController extends TemplateGenerator {
+@Module(name = "handel")
+public class HandelController extends TemplateGenerator
+{
 	/**
 	 * Konstruktor.
+	 *
 	 * @param context Der zu verwendende Kontext
 	 */
-	public HandelController(Context context) {
+	public HandelController(Context context)
+	{
 		super(context);
 
 		setTemplate("handel.html");
@@ -58,23 +63,22 @@ public class HandelController extends TemplateGenerator {
 	}
 
 	@Override
-	protected boolean validateAndPrepare(String action) {
+	protected boolean validateAndPrepare(String action)
+	{
 		return true;
 	}
 
 	/**
 	 * Speichert ein neues Handelsangebot in der Datenbank.
-	 * @urlparam String comm Die Beschreibung
-	 * @urlparam Integer ($warenid|"i"+$itemid)+"need" Benoetigte Waren
-	 * @urlparam Integer ($warenid|"i"+$itemid)+"have" Angebotene Waren
 	 *
+	 * @param comm Die Beschreibung
+	 * @param needMap Benoetigte Waren
+	 * @param haveMap Angebotene Waren
 	 */
 	@Action(ActionType.DEFAULT)
-	public void enterAction() {
+	public void enterAction(String comm, @UrlParam(name = "#need") Map<String, Long> needMap, @UrlParam(name = "#have") Map<String, Long> haveMap)
+	{
 		org.hibernate.Session db = getDB();
-
-		parameterString("comm");
-		String comm = getString("comm");
 
 		boolean needeverything = false;
 		boolean haveeverything = false;
@@ -83,58 +87,64 @@ public class HandelController extends TemplateGenerator {
 
 
 		// Egal - "-1" (Spezialfall)
-		parameterNumber("-1need");
-		long needcount = getInteger("-1need");
+		long needcount = needMap.get("-1");
 		long havecount;
 
-		if( needcount <= 0 ) {
-			parameterNumber("-1have");
-			havecount = getInteger("-1have");
+		if (needcount <= 0)
+		{
+			havecount = haveMap.get("-1");
 
-			if( havecount > 0 ) {
+			if (havecount > 0)
+			{
 				haveeverything = true;
 			}
 		}
-		else {
+		else
+		{
 			needeverything = true;
 		}
 
 
 		ResourceList reslist = Resources.getResourceList().getResourceList();
-		for( ResourceEntry res : reslist ) {
+		for (ResourceEntry res : reslist)
+		{
 			String name;
 
-			Item item = (Item)db.get(Item.class, res.getId().getItemID());
-			if( !item.getHandel() ) {
+			Item item = (Item) db.get(Item.class, res.getId().getItemID());
+			if (!item.getHandel())
+			{
 				continue;
 			}
-			name = "i"+res.getId().getItemID();
+			name = "i" + res.getId().getItemID();
 
-			parameterNumber(name+"need");
-			needcount = getInteger(name+"need");
+			needcount = needMap.containsKey(name) ? needMap.get(name) : 0;
 			havecount = 0;
 
-			if( needcount <= 0 ) {
-				parameterNumber(name+"have");
-				havecount = getInteger(name+"have");
+			if (needcount <= 0)
+			{
+				havecount = haveMap.containsKey(name) ? haveMap.get(name) : 0;
 			}
 
-			if( needcount > 0 ) {
+			if (needcount > 0)
+			{
 				need.addResource(res.getId(), needcount);
 			}
-			if( havecount > 0 ) {
+			if (havecount > 0)
+			{
 				have.addResource(res.getId(), havecount);
 			}
 		}
 
-		Handel entry = new Handel((User)getUser());
+		Handel entry = new Handel((User) getUser());
 		entry.setKommentar(comm);
 
-		if( !needeverything ) {
+		if (!needeverything)
+		{
 			entry.setSucht(need.save());
 		}
 
-		if( !haveeverything ) {
+		if (!haveeverything)
+		{
 			entry.setBietet(have.save());
 		}
 
@@ -145,10 +155,10 @@ public class HandelController extends TemplateGenerator {
 
 	/**
 	 * Zeigt die Seite zur Eingabe eines Handelsangebots an.
-	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void addAction() {
+	public void addAction()
+	{
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 
@@ -157,43 +167,44 @@ public class HandelController extends TemplateGenerator {
 		t.setBlock("_HANDEL", "addresources.listitem", "addresources.list");
 
 		ResourceList reslist = Resources.getResourceList().getResourceList();
-		for( ResourceEntry res : reslist ) {
-			Item item = (Item)db.get(Item.class, res.getId().getItemID());
-			if( !item.getHandel() ) {
+		for (ResourceEntry res : reslist)
+		{
+			Item item = (Item) db.get(Item.class, res.getId().getItemID());
+			if (!item.getHandel())
+			{
 				continue;
 			}
 
-			t.setVar(	"res.id",		"i"+res.getId().getItemID(),
-						"res.name",		res.getName(),
-						"res.image",	res.getImage() );
+			t.setVar("res.id", "i" + res.getId().getItemID(),
+					"res.name", res.getName(),
+					"res.image", res.getImage());
 
 			t.parse("addresources.list", "addresources.listitem", true);
 		}
 
-		ConfigValue runningcost = (ConfigValue)db.get(ConfigValue.class, "adcost");
+		ConfigValue runningcost = (ConfigValue) db.get(ConfigValue.class, "adcost");
 		t.setVar("trade.runningcost", runningcost.getValue());
 	}
 
 	/**
 	 * Loescht ein Handelsangebot.
-	 * @urlparam Integer del Die ID des zu loeschenden Handelsangebots
 	 *
+	 * @param entry Die ID des zu loeschenden Handelsangebots
 	 */
 	@Action(ActionType.DEFAULT)
-	public void deleteAction() {
-		User user = (User)getUser();
+	public void deleteAction(@UrlParam(name = "del") Handel entry)
+	{
+		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 
-		parameterNumber("del");
-		int del = getInteger("del");
-
-		Handel entry = (Handel)db.get(Handel.class, del);
-		if( (entry != null) && (entry.getWho().equals(user) || hasPermission("handel", "angeboteLoeschen")) ) {
+		if ((entry != null) && (entry.getWho().equals(user) || hasPermission("handel", "angeboteLoeschen")))
+		{
 			db.delete(entry);
 			t.setVar("handel.message", "Angebot gel&ouml;scht");
 		}
-		else {
+		else
+		{
 			addError("Sie haben keine Berechtigung das Angebot zu l&ouml;schen");
 		}
 
@@ -205,10 +216,11 @@ public class HandelController extends TemplateGenerator {
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() {
+	public void defaultAction()
+	{
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
-		User user = (User)getUser();
+		User user = (User) getUser();
 
 		t.setVar("handel.view", 1);
 
@@ -220,7 +232,7 @@ public class HandelController extends TemplateGenerator {
 
 		List<?> entryList = db.createQuery("from Handel " +
 				"where who.vaccount=0 or who.wait4vac!=0 order by time desc")
-			.list();
+				.list();
 		for (Object anEntryList : entryList)
 		{
 			Handel entry = (Handel) anEntryList;
@@ -280,7 +292,8 @@ public class HandelController extends TemplateGenerator {
 		}
 
 		t.setBlock("_HANDEL", "emptyangebote.listitem", "emptyangebote.list");
-		while( count % 3 != 0 ) {
+		while (count % 3 != 0)
+		{
 			t.parse("emptyangebote.list", "emptyangebote.listitem", true);
 			count++;
 		}

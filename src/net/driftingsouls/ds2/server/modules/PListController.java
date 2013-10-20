@@ -12,34 +12,35 @@ import java.io.Writer;
 
 /**
  * Zeigt die Spielerliste an.
- * @author Christopher Jung
- * 
- * @urlparam Integer compopup != 0, falls die Spielerliste als Popup der PM-Verwaltung dient
  *
+ * @author Christopher Jung
  */
-@Module(name="plist")
-public class PListController extends DSGenerator {
+@Module(name = "plist")
+public class PListController extends DSGenerator
+{
 
 	/**
 	 * Konstruktor.
+	 *
 	 * @param context Der zu verwendende Kontext
 	 */
-	public PListController(Context context) {
+	public PListController(Context context)
+	{
 		super(context);
 	}
-	
-	@Override
-	protected boolean validateAndPrepare(String action) {
-		return true;
-	}
-	
-	@Override
+
+	/**
+	 * Zeigt die Spielerliste an.
+	 *
+	 * @param compopup {@code true}, falls die Spielerliste als Popup der PM-Verwaltung dient
+	 * @throws IOException
+	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() throws IOException {
-		parameterNumber("compopup");
-		
+	public void defaultAction(boolean compopup) throws IOException
+	{
 		Writer echo = getContext().getResponse().getWriter();
-		if( getInteger("compopup") != 0 ) {
+		if (compopup)
+		{
 			echo.append("<script type=\"text/javascript\">\n");
 			echo.append("<!--\n");
 			echo.append("function playerPM(id)\n");
@@ -54,7 +55,7 @@ public class PListController extends DSGenerator {
 		echo.append("<div class='gfxbox' style='width:365px'>");
 
 		new PlayerList().draw(getContext());
-		
+
 		echo.append("</div>");
 	}
 
