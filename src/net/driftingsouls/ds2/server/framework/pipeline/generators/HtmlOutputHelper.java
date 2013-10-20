@@ -134,8 +134,11 @@ class HtmlOutputHelper extends OutputHelper {
 		{
 			sb.append("<div style=\"text-align:center; font-size:11px;color:#c7c7c7; font-family:arial, helvetica;\">\n");
 			sb.append("<br /><br /><br />\n");
-			long startTime = (long)getAttribute("startTime");
-			sb.append("Execution-Time: ").append(Double.toString((System.currentTimeMillis() - startTime) / 1000d)).append("s");
+			Long startTime = (Long)getAttribute("startTime");
+			if( startTime != null )
+			{
+				sb.append("Execution-Time: ").append(Double.toString((System.currentTimeMillis() - startTime) / 1000d)).append("s");
+			}
 			if( this.version.getBuildTime() != null )
 			{
 				sb.append(" -- Version: ").append(this.version.getHgVersion()).append(", ").append(this.version.getBuildTime());
