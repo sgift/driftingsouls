@@ -54,7 +54,7 @@ public class BasenController extends TemplateGenerator {
 		ordmapper.put("name", Arrays.asList("name"));
 		ordmapper.put("type", Arrays.asList("type"));
 		ordmapper.put("sys", Arrays.asList("system","x","y"));
-		ordmapper.put("bew", Arrays.asList("bew"));
+		ordmapper.put("bew", Arrays.asList("bewohner"));
 		ordmapper.put("e", Arrays.asList("e"));
 	}
 
@@ -77,7 +77,7 @@ public class BasenController extends TemplateGenerator {
 	 * @param order Falls == 1 wird absteigend sortiert
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(int l, String ord, int order) {
+	public void defaultAction(Integer l, String ord, Integer order) {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
@@ -85,19 +85,31 @@ public class BasenController extends TemplateGenerator {
 		String ordSetting = user.getUserValue("TBLORDER/basen/order");
 		int orderSetting = Integer.parseInt(user.getUserValue("TBLORDER/basen/order_mode"));
 		int lSetting = Integer.parseInt(user.getUserValue("TBLORDER/basen/showcargo"));
-		if (ord != null && !ord.isEmpty() && !ord.equals(ordSetting))
+		if (ord != null && !ord.isEmpty())
 		{
 			user.setUserValue("TBLORDER/basen/order", ord);
 		}
+		else
+		{
+			ord = ordSetting;
+		}
 
-		if (order != 0 && order != orderSetting)
+		if (order != null)
 		{
 			user.setUserValue("TBLORDER/basen/order_mode", Integer.toString(order));
 		}
+		else
+		{
+			order = orderSetting;
+		}
 
-		if (l != 0 && l != lSetting)
+		if (l != null)
 		{
 			user.setUserValue("TBLORDER/basen/showcargo", Integer.toString(l));
+		}
+		else
+		{
+			l = lSetting;
 		}
 
 		t.setVar("global.l", l,
