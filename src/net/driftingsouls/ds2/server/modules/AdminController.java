@@ -18,6 +18,16 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
+import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
+import org.scannotation.AnnotationDB;
+import org.scannotation.ClasspathUrlFinder;
+
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URL;
@@ -29,33 +39,16 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.pipeline.Module;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
-import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
-import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
-
-import org.scannotation.AnnotationDB;
-import org.scannotation.ClasspathUrlFinder;
-
 /**
  * Der Admin.
+ *
  * @author Christopher Jung
  */
-@Module(name="admin")
-@UrlParams({
-		@UrlParam( name="act", type= UrlParamType.NUMBER, description = "Die auszufuehrende Aktions-ID (ein Plugin wird ueber Seiten- und Aktions-ID identifiziert)"),
-		@UrlParam( name="page", description = "Die anzuzeigende Seite (ID der Seite)"),
-		@UrlParam( name="cleanpage", type=UrlParamType.NUMBER, description = "Falls != 0 werden keine zusaetzlichen GUI-Elemente angezeigt"),
-		@UrlParam( name="namedplugin", description = "Der Name des Plugins, welches angezeigt werden soll (Alternative zu Seiten- und Aktions-ID)")
-})
-public class AdminController extends DSGenerator {
+@Module(name = "admin")
+public class AdminController extends DSGenerator
+{
 	private static final List<Class<? extends AdminPlugin>> plugins = new ArrayList<>();
+
 	static
 	{
 		try
@@ -64,14 +57,14 @@ public class AdminController extends DSGenerator {
 			AnnotationDB db = new AnnotationDB();
 			db.scanArchives(urls);
 			SortedSet<String> entityClasses = new TreeSet<>(db.getAnnotationIndex().get(AdminMenuEntry.class.getName()));
-			for( String cls : entityClasses )
+			for (String cls : entityClasses)
 			{
 				final Class<? extends AdminPlugin> adminPluginClass = Class.forName(cls)
-					.asSubclass(AdminPlugin.class);
+						.asSubclass(AdminPlugin.class);
 				plugins.add(adminPluginClass);
 			}
 		}
-		catch( IOException | ClassNotFoundException e )
+		catch (IOException | ClassNotFoundException e)
 		{
 			throw new RuntimeException(e);
 		}
@@ -83,7 +76,7 @@ public class AdminController extends DSGenerator {
 		SortedSet<MenuEntry> actions = new TreeSet<>();
 		Class<? extends AdminPlugin> cls;
 
-		MenuEntry( String name )
+		MenuEntry(String name)
 		{
 			this.name = name;
 		}
@@ -97,12 +90,12 @@ public class AdminController extends DSGenerator {
 		@Override
 		public boolean equals(Object object)
 		{
-			if(object == null)
+			if (object == null)
 			{
 				return false;
 			}
 
-			if(object.getClass() != this.getClass())
+			if (object.getClass() != this.getClass())
 			{
 				return false;
 			}
@@ -118,11 +111,12 @@ public class AdminController extends DSGenerator {
 		}
 	}
 
-	TreeMap<String,MenuEntry> menu = new TreeMap<>();
+	TreeMap<String, MenuEntry> menu = new TreeMap<>();
 	Set<String> validPlugins = new HashSet<>();
 
 	/**
 	 * Konstruktor.
+	 *
 	 * @param context Der zu verwendende Kontext
 	 */
 	public AdminController(Context context)
@@ -130,9 +124,9 @@ public class AdminController extends DSGenerator {
 		super(context);
 	}
 
-	private void addMenuEntry( Class<? extends AdminPlugin> cls, String menuentry, String submenuentry )
+	private void addMenuEntry(Class<? extends AdminPlugin> cls, String menuentry, String submenuentry)
 	{
-		if( !this.menu.containsKey(menuentry) )
+		if (!this.menu.containsKey(menuentry))
 		{
 			this.menu.put(menuentry, new MenuEntry(menuentry));
 		}
@@ -145,19 +139,21 @@ public class AdminController extends DSGenerator {
 	@Override
 	protected boolean validateAndPrepare(String action)
 	{
-		if( !hasPermission("admin", "sichtbar") ) {
+		if (!hasPermission("admin", "sichtbar"))
+		{
 			addError("Sie sind nicht berechtigt diese Seite aufzurufen");
 			return false;
 		}
 
-		for( Class<? extends AdminPlugin> cls : plugins )
+		for (Class<? extends AdminPlugin> cls : plugins)
 		{
 
-			if( validPlugins.contains(cls.getName()) )
+			if (validPlugins.contains(cls.getName()))
 			{
 				continue;
 			}
-			if( !hasPermission("admin", cls.getSimpleName()) ) {
+			if (!hasPermission("admin", cls.getSimpleName()))
+			{
 				continue;
 			}
 			validPlugins.add(cls.getName());
@@ -167,32 +163,26 @@ public class AdminController extends DSGenerator {
 			addMenuEntry(cls, adminMenuEntry.category(), adminMenuEntry.name());
 		}
 
-		if( this.getInteger("cleanpage") > 0 )
-		{
-			this.setDisableDebugOutput(true);
-			this.setDisablePageMenu(true);
-		}
-
 		return true;
 	}
 
 	/**
 	 * Fuehrt ein Admin-Plugin aus.
+	 *
+	 * @param act Die ID der Aktion auf einer Seite
+	 * @param page Der Name der Seite
+	 * @param namedplugin Der exakte Pluginname falls ein bestimmtes Adminplugin ausgefuehrt werden soll
 	 */
 	@Action(ActionType.AJAX)
-	public void ajaxAction()
+	public void ajaxAction(int act, String page, String namedplugin)
 	{
-		int act = getInteger("act");
-		String page = getString("page");
-		String namedplugin = getString("namedplugin");
-
-		if( page.length() > 0 || namedplugin.length() > 0 )
+		if (page.length() > 0 || namedplugin.length() > 0)
 		{
-			if( act > 0 )
+			if (act > 0)
 			{
 				callPlugin(page, act);
 			}
-			else if( (namedplugin.length() > 0) && (validPlugins.contains(namedplugin)) )
+			else if ((namedplugin.length() > 0) && (validPlugins.contains(namedplugin)))
 			{
 				callNamedPlugin(namedplugin);
 			}
@@ -201,43 +191,47 @@ public class AdminController extends DSGenerator {
 
 	/**
 	 * Zeigt die Gui an und fuehrt ein Admin-Plugin (sofern ausgewaehlt) aus.
+	 *
+	 * @param act Die ID der Aktion auf einer Seite
+	 * @param page Der Name der Seite
+	 * @param namedplugin Der exakte Pluginname falls ein bestimmtes Adminplugin ausgefuehrt werden soll
+	 * @param cleanpage {@code true} falls kein Seitenkopf (Menue) ausgegeben werden soll
 	 */
-	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() throws IOException
+	public void defaultAction(boolean cleanpage, int act, String page, String namedplugin) throws IOException
 	{
-		int cleanpage = getInteger("cleanpage");
-		int act = getInteger("act");
-		String page = getString("page");
-		String namedplugin = getString("namedplugin");
-
 		Writer echo = getContext().getResponse().getWriter();
-		if( cleanpage == 0 )
+		if (!cleanpage)
 		{
 			echo.append("<div class='gfxbox' style='width:900px;text-align:center;margin:0px auto'>\n");
 			echo.append("<ui class='menu'>");
-			for( MenuEntry entry : this.menu.values() )
+			for (MenuEntry entry : this.menu.values())
 			{
 				echo.append("<li><a class=\"forschinfo\" href=\"./ds?module=admin&page=").append(entry.name).append("\">").append(entry.name).append("</a></li>\n");
 			}
 			echo.append("</ul>\n");
 			echo.append("</div><br />\n");
 		}
-
-		if( page.length() > 0 || namedplugin.length() > 0 )
+		else
 		{
-			if( cleanpage == 0 )
+			this.setDisableDebugOutput(true);
+			this.setDisablePageMenu(true);
+		}
+
+		if (page.length() > 0 || namedplugin.length() > 0)
+		{
+			if (!cleanpage)
 			{
 				echo.append("<table class=\"noBorder\"><tr><td class=\"noBorder\" valign=\"top\">\n");
 
 				echo.append("<div class='gfxbox' style='width:250px'>");
 				echo.append("<table width=\"100%\">\n");
 				echo.append("<tr><td align=\"center\">Aktionen:</td></tr>\n");
-				if( this.menu.containsKey(page) && (this.menu.get(page).actions.size() > 0) )
+				if (this.menu.containsKey(page) && (this.menu.get(page).actions.size() > 0))
 				{
 					SortedSet<MenuEntry> actions = this.menu.get(page).actions;
 					int index = 1;
-					for( MenuEntry entry : actions )
+					for (MenuEntry entry : actions)
 					{
 						echo.append("<tr><td align=\"left\"><a class=\"forschinfo\" href=\"./ds?module=admin&page=" + page + "&act=" + (index++) + "\">" + entry.name + "</a></td></tr>\n");
 					}
@@ -248,16 +242,16 @@ public class AdminController extends DSGenerator {
 				echo.append("</td><td class=\"noBorder\" valign=\"top\" width=\"40\">&nbsp;&nbsp;&nbsp;</td>\n");
 				echo.append("<td class=\"noBorder\" valign=\"top\">\n");
 			}
-			if( act > 0 )
+			if (act > 0)
 			{
 				callPlugin(page, act);
 			}
-			else if( (namedplugin.length() > 0) && (validPlugins.contains(namedplugin)) )
+			else if ((namedplugin.length() > 0) && (validPlugins.contains(namedplugin)))
 			{
 				callNamedPlugin(namedplugin);
 			}
 
-			if( cleanpage == 0 )
+			if (!cleanpage)
 			{
 				echo.append("</td></tr></table>");
 			}
@@ -266,18 +260,19 @@ public class AdminController extends DSGenerator {
 
 	private void callNamedPlugin(String namedplugin)
 	{
-		try {
+		try
+		{
 			int act = 0;
 			String page = "";
 
 			Class<? extends AdminPlugin> aClass = null;
-			for( String aPage : this.menu.keySet() )
+			for (String aPage : this.menu.keySet())
 			{
 				int index = 1;
 				SortedSet<MenuEntry> actions = this.menu.get(aPage).actions;
-				for( MenuEntry entry : actions )
+				for (MenuEntry entry : actions)
 				{
-					if( entry.cls.getName().equals(namedplugin) )
+					if (entry.cls.getName().equals(namedplugin))
 					{
 						aClass = entry.cls;
 						page = aPage;
@@ -292,37 +287,37 @@ public class AdminController extends DSGenerator {
 			getContext().autowireBean(plugin);
 			plugin.output(this, page, act);
 		}
-		catch( IOException e )
+		catch (IOException e)
 		{
-			addError("Fehler beim Aufruf des Admin-Plugins: "+e);
+			addError("Fehler beim Aufruf des Admin-Plugins: " + e);
 
 			throw new RuntimeException(e);
 		}
-		catch( RuntimeException e )
+		catch (RuntimeException e)
 		{
-			addError("Fehler beim Aufruf des Admin-Plugins: "+e);
+			addError("Fehler beim Aufruf des Admin-Plugins: " + e);
 
 			throw e;
 		}
-		catch( ReflectiveOperationException e )
+		catch (ReflectiveOperationException e)
 		{
-			addError("Fehler beim Aufruf des Admin-Plugins: "+e);
+			addError("Fehler beim Aufruf des Admin-Plugins: " + e);
 			e.printStackTrace();
 		}
 	}
 
 	private void callPlugin(String page, int act)
 	{
-		if( this.menu.containsKey(page) && (this.menu.get(page).actions.size() > 0) )
+		if (this.menu.containsKey(page) && (this.menu.get(page).actions.size() > 0))
 		{
 			SortedSet<MenuEntry> actions = this.menu.get(page).actions;
-			if( act <= actions.size() )
+			if (act <= actions.size())
 			{
 				int index = 1;
 				MenuEntry calledEntry = null;
-				for( MenuEntry entry : actions )
+				for (MenuEntry entry : actions)
 				{
-					if( act == index++ )
+					if (act == index++)
 					{
 						calledEntry = entry;
 						break;
@@ -336,13 +331,13 @@ public class AdminController extends DSGenerator {
 					getContext().autowireBean(plugin);
 					plugin.output(this, page, act);
 				}
-				catch( ReflectiveOperationException e )
+				catch (ReflectiveOperationException e)
 				{
-					addError("Fehler beim Aufruf des Admin-Plugins: "+e);
+					addError("Fehler beim Aufruf des Admin-Plugins: " + e);
 				}
-				catch( IOException e )
+				catch (IOException e)
 				{
-					addError("Fehler beim Aufruf des Admin-Plugins: "+e);
+					addError("Fehler beim Aufruf des Admin-Plugins: " + e);
 
 					throw new RuntimeException(e);
 				}

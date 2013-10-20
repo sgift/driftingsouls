@@ -18,10 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 import net.driftingsouls.ds2.server.Offizier;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
@@ -37,117 +33,111 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParams;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 /**
  * Kolonisieren eines Asteroiden mittels eines Colonizers (Schiff).
- * @author Christopher Jung
  *
+ * @author Christopher Jung
  */
-@Module(name="colonize")
-@UrlParams({
-		@UrlParam(name="ship", type= UrlParamType.NUMBER, description = "Die Schiffs-ID des Colonizers"),
-		@UrlParam(name="col", type=UrlParamType.NUMBER, description = "Die Basis-ID des zu kolonisierenden Asteroiden")
-})
-public class ColonizeController extends TemplateGenerator {
-	private Ship ship;
-	private Base base;
-
+@Module(name = "colonize")
+public class ColonizeController extends TemplateGenerator
+{
 	/**
 	 * Konstruktor.
+	 *
 	 * @param context Der zu verwendende Kontext
 	 */
-	public ColonizeController(Context context) {
+	public ColonizeController(Context context)
+	{
 		super(context);
 
 		setTemplate("colonize.html");
 		setPageTitle("Kolonisieren");
 	}
 
-	@Override
-	protected boolean validateAndPrepare( String action ) {
-		org.hibernate.Session db = getDB();
-		User user = (User)getUser();
+	private void validiereSchiffUndBasis(Ship ship, Base base)
+	{
+		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
 
-		int shipId = getInteger("ship");
-		int col = getInteger("col");
-
-		Ship ship = (Ship)db.get(Ship.class, shipId);
-		if( (ship == null) || (ship.getOwner() != user) ) {
-			addError("Fehler: Das angegebene Schiff existiert nicht oder geh&ouml;rt ihnen nicht", Common.buildUrl("default", "module", "schiffe") );
-
-			return false;
+		if ((ship == null) || (ship.getOwner() != user))
+		{
+			throw new ValidierungException("Fehler: Das angegebene Schiff existiert nicht oder geh&ouml;rt ihnen nicht", Common.buildUrl("default", "module", "schiffe"));
 		}
 
 		ShipTypeData shiptype = ship.getTypeData();
-		if( !shiptype.hasFlag(ShipTypes.SF_COLONIZER) ) {
-			addError("Fehler: Das angegebene Schiff kann keine Planeten kolonisieren", Common.buildUrl("default", "module", "schiff" , "ship", shipId) );
-
-			return false;
+		if (!shiptype.hasFlag(ShipTypes.SF_COLONIZER))
+		{
+			throw new ValidierungException("Fehler: Das angegebene Schiff kann keine Planeten kolonisieren", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
 		}
 
-		Base base = (Base)getDB().get(Base.class, col);
-		if( (base == null) || (base.getOwner().getId() != 0) ) {
-			addError("Fehler: Der angegebene Asteroid existiert nicht oder geh&ouml;rt bereits einem anderen Spieler", Common.buildUrl("default", "module", "schiff" , "ship", shipId) );
-
-			return false;
+		if ((base == null) || (base.getOwner().getId() != 0))
+		{
+			throw new ValidierungException("Fehler: Der angegebene Asteroid existiert nicht oder geh&ouml;rt bereits einem anderen Spieler", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
 		}
 
-		if( !ship.getLocation().sameSector(0, base.getLocation(), base.getSize()) ) {
-			addError("Fehler: Der Asteroid befindet sich nicht im selben Sektor wie das Schiff", Common.buildUrl("default", "module", "schiff", "ship", shipId) );
-
-			return false;
+		if (!ship.getLocation().sameSector(0, base.getLocation(), base.getSize()))
+		{
+			throw new ValidierungException("Fehler: Der Asteroid befindet sich nicht im selben Sektor wie das Schiff", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
 		}
 
-		this.base = base;
-		this.ship = ship;
-
-		t.setVar( "ship.id", ship.getId() );
-
-		return true;
+		t.setVar("ship.id", ship.getId());
 	}
 
 	/**
 	 * Der Kolonisiervorgang.
+	 *
+	 * @param ship Die Schiffs-ID des Colonizers
+	 * @param base Die Basis-ID des zu kolonisierenden Asteroiden
 	 */
-	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() {
+	public void defaultAction(Ship ship, @UrlParam(name = "col") Base base)
+	{
+		validiereSchiffUndBasis(ship, base);
+
 		org.hibernate.Session db = getDB();
-		User user = (User)getUser();
+		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
+
+		t.setVar("ship.id", ship.getId());
 
 		Integer[] bebauung = base.getBebauung();
 		Integer[] bebon = base.getActive();
 
-		Map<Integer,Integer> bases = new HashMap<>();
+		Map<Integer, Integer> bases = new HashMap<>();
 		bases.put(base.getSystem(), 1);
 		int basecount = 0;
 
-		for( Base aBase : user.getBases() ) {
+		for (Base aBase : user.getBases())
+		{
 			final int system = aBase.getSystem();
 			Common.safeIntInc(bases, system);
 			basecount += aBase.getMaxTiles();
 		}
-		basecount += this.base.getMaxTiles();
+		basecount += base.getMaxTiles();
 
-		if( basecount > Integer.parseInt(user.getUserValue("GAMEPLAY/bases/maxtiles")) ) {
-			t.setVar("colonize.message", "<span style=\"color:#ff0000; font-weight:bold\">Kolonisierung unzul&auml;ssig, da dies die Gesamtzahl an zul&auml;ssigen Oberfl&auml;chenfeldern "+user.getUserValue("GAMEPLAY/bases/maxtiles")+" &uuml;bersteigen w&uuml;rde.</span>");
+		if (basecount > Integer.parseInt(user.getUserValue("GAMEPLAY/bases/maxtiles")))
+		{
+			t.setVar("colonize.message", "<span style=\"color:#ff0000; font-weight:bold\">Kolonisierung unzul&auml;ssig, da dies die Gesamtzahl an zul&auml;ssigen Oberfl&auml;chenfeldern " + user.getUserValue("GAMEPLAY/bases/maxtiles") + " &uuml;bersteigen w&uuml;rde.</span>");
 
 			return;
 		}
 
-		StarSystem system = (StarSystem)db.get(StarSystem.class, base.getSystem());
+		StarSystem system = (StarSystem) db.get(StarSystem.class, base.getSystem());
 
-		if( (system.getMaxColonies() >= 0) &&
-			(bases.get(base.getSystem()) >= system.getMaxColonies()) ) {
-			t.setVar("colonize.message", "<span style=\"color:#ff0000\">Sie d&uuml;rfen lediglich "+system.getMaxColonies()+" Asteroiden in "+system.getName()+" ("+base.getSystem()+") kolonisieren" );
+		if ((system.getMaxColonies() >= 0) &&
+				(bases.get(base.getSystem()) >= system.getMaxColonies()))
+		{
+			t.setVar("colonize.message", "<span style=\"color:#ff0000\">Sie d&uuml;rfen lediglich " + system.getMaxColonies() + " Asteroiden in " + system.getName() + " (" + base.getSystem() + ") kolonisieren");
 
 			return;
 		}
@@ -161,9 +151,10 @@ public class ColonizeController extends TemplateGenerator {
 		 *
 		 */
 		//Anzahl der Gebaeude pro Spieler berechnen
-		Map<Integer,Integer> ownerBuildingCount = new HashMap<>();
+		Map<Integer, Integer> ownerBuildingCount = new HashMap<>();
 
-		for( Base aBase : user.getBases() ) {
+		for (Base aBase : user.getBases())
+		{
 			Integer[] abeb = aBase.getBebauung();
 			for (Integer anAbeb : abeb)
 			{
@@ -179,27 +170,31 @@ public class ColonizeController extends TemplateGenerator {
 		}
 
 		// Problematische Gebaeude ermitteln
-		Map<Integer,Integer> problematicBuildings = new HashMap<>();
+		Map<Integer, Integer> problematicBuildings = new HashMap<>();
 		Iterator<?> buildingIter = db.createQuery("from Building where perOwner>0").iterate();
-		for( ; buildingIter.hasNext(); ) {
-			Building aBuilding = (Building)buildingIter.next();
+		for (; buildingIter.hasNext(); )
+		{
+			Building aBuilding = (Building) buildingIter.next();
 			problematicBuildings.put(aBuilding.getId(), aBuilding.getPerUserCount());
 		}
 
 		// Nun die Gebaeude auf dem Asti durchlaufen und bei Bedarf einige entfernen
-		for( int index=0; index < bebauung.length; index++ ) {
+		for (int index = 0; index < bebauung.length; index++)
+		{
 			final Integer building = bebauung[index];
-			if( problematicBuildings.containsKey(building) && ownerBuildingCount.containsKey(building) &&
-				(ownerBuildingCount.get(building) + 1 > problematicBuildings.get(building)) ) {
+			if (problematicBuildings.containsKey(building) && ownerBuildingCount.containsKey(building) &&
+					(ownerBuildingCount.get(building) + 1 > problematicBuildings.get(building)))
+			{
 				bebauung[index] = 0;
 				bebon[index] = 0;
 				Building gebaeude = Building.getBuilding(building);
 				gebaeude.cleanup(getContext(), base, building);
 			}
-			if( !ownerBuildingCount.containsKey(building) ) {
+			if (!ownerBuildingCount.containsKey(building))
+			{
 				ownerBuildingCount.put(building, 0);
 			}
-			ownerBuildingCount.put(building, ownerBuildingCount.get(building) + 1 );
+			ownerBuildingCount.put(building, ownerBuildingCount.get(building) + 1);
 		}
 
 		/*
@@ -213,17 +208,18 @@ public class ColonizeController extends TemplateGenerator {
 		t.setBlock("_COLONIZE", "res.listitem", "res.list");
 
 		ResourceList reslist = cargo.getResourceList();
-		for( ResourceEntry res : reslist ) {
-			t.setVar(	"res.image",	res.getImage(),
-						"res.name",		res.getName(),
-						"res.cargo",	res.getCargo1() );
+		for (ResourceEntry res : reslist)
+		{
+			t.setVar("res.image", res.getImage(),
+					"res.name", res.getName(),
+					"res.cargo", res.getCargo1());
 			t.parse("res.list", "res.listitem", true);
 		}
 
 		Cargo cargo2 = base.getCargo();
-		cargo.addCargo( cargo2 );
+		cargo.addCargo(cargo2);
 
-		for( Offizier offi : Offizier.getOffiziereByDest(base) )
+		for (Offizier offi : Offizier.getOffiziereByDest(base))
 		{
 			offi.stationierenAuf(base);
 		}
@@ -241,7 +237,7 @@ public class ColonizeController extends TemplateGenerator {
 		base.setBewohner(crew);
 		base.setEnergy(e);
 
-		for( Offizier offi : Offizier.getOffiziereByDest(base) )
+		for (Offizier offi : Offizier.getOffiziereByDest(base))
 		{
 			offi.setOwner(user);
 		}

@@ -18,8 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.util.Iterator;
-
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Core;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -33,83 +31,84 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+
+import java.util.Iterator;
 
 /**
  * Verwaltung der Core eines Asteroiden.
+ *
  * @author Christopher Jung
  */
-@UrlParam(name="col", type= UrlParamType.NUMBER, description = "Die ID des Asteroiden, dessen Core verwaltet werden soll")
-@Module(name="core")
-public class CoreController extends TemplateGenerator {
-	private Base base = null;
-
+@Module(name = "core")
+public class CoreController extends TemplateGenerator
+{
 	/**
 	 * Konstruktor.
+	 *
 	 * @param context Der zu verwendende Kontext
 	 */
-	public CoreController(Context context) {
+	public CoreController(Context context)
+	{
 		super(context);
 
 		setTemplate("core.html");
 		setPageTitle("Core");
 	}
 
-	@Override
-	protected boolean validateAndPrepare(String action) {
-		User user = (User)getUser();
-		TemplateEngine t = getTemplateEngine();
-
-		int col = getInteger("col");
-
-		base = (Base)getDB().get(Base.class, col);
-		if( (base == null) || (base.getOwner() != user) ) {
-			addError( "Die angegebene Kolonie existiert nicht", Common.buildUrl("default", "module", "basen") );
-
-			return false;
+	private void validiereBasis(Base base)
+	{
+		User user = (User) getUser();
+		if ((base == null) || (base.getOwner() != user))
+		{
+			throw new ValidierungException("Die angegebene Kolonie existiert nicht", Common.buildUrl("default", "module", "basen"));
 		}
-
-		t.setVar( "base.id", base.getId() );
-
-		return true;
 	}
 
 	/**
 	 * Baut eine neue Core auf dem Asteroiden, sofern noch keine Core auf dem
 	 * Asteroiden vorhanden ist.
+	 *
+	 * @param base Die Basis
+	 * @param core Die zu bauende Core
 	 */
-	@UrlParam(name="build", type=UrlParamType.NUMBER, description = "Die ID der zu bauenden Core")
 	@Action(ActionType.DEFAULT)
-	public void buildAction() {
-		User user = (User)getUser();
+	public void buildAction(@UrlParam(name = "col") Base base, @UrlParam(name = "build") Core core)
+	{
+		validiereBasis(base);
+
+		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
 
-		int build = getInteger("build");
+		t.setVar("base.id", base.getId());
 
-		if( base.getCore() > 0 ) {
+		if (base.getCore() > 0)
+		{
 			addError("Sie k&ouml;nnen nur eine Core pro Asteroid bauen", Common.buildUrl("default", "module", "base", "col", base.getId()));
 			setTemplate("");
 
 			return;
 		}
 
-		Core core = Core.getCore(build);
-		if( core == null ) {
+		if (core == null)
+		{
 			addError("Der angegebene Core-Typ existiert nicht", Common.buildUrl("default", "module", "base", "col", base.getId()));
 			setTemplate("");
 
 			return;
 		}
 
-		if( !user.hasResearched(core.getTechRequired()) ) {
+		if (!user.hasResearched(core.getTechRequired()))
+		{
 			addError("Sie haben nicht alle ben&ouml;tigten Forschungen", Common.buildUrl("default", "module", "base", "col", base.getId()));
 			setTemplate("");
 
 			return;
 		}
 
-		if( core.getAstiType() != base.getKlasse() ) {
+		if (core.getAstiType() != base.getKlasse())
+		{
 			addError("Diese Core passt nicht in diesen Asteroiden rein", Common.buildUrl("default", "module", "base", "col", base.getId()));
 			setTemplate("");
 
@@ -126,40 +125,46 @@ public class CoreController extends TemplateGenerator {
 		t.setBlock("_CORE", "build.res.listitem", "build.res.list");
 
 		boolean ok = true;
-		ResourceList reslist = costs.compare( cargo, false, true );
-		for( ResourceEntry res : reslist ) {
-			if( res.getDiff() > 0 ) {
+		ResourceList reslist = costs.compare(cargo, false, true);
+		for (ResourceEntry res : reslist)
+		{
+			if (res.getDiff() > 0)
+			{
 				ok = false;
 			}
-			t.setVar(	"res.image",			res.getImage(),
-						"res.cargo.available",	res.getCargo2(),
-						"res.cargo.needed",		res.getCargo1(),
-						"res.missing",			res.getDiff() > 0 ? res.getDiff() : 0 );
+			t.setVar("res.image", res.getImage(),
+					"res.cargo.available", res.getCargo2(),
+					"res.cargo.needed", res.getCargo1(),
+					"res.missing", res.getDiff() > 0 ? res.getDiff() : 0);
 
 			t.parse("build.res.list", "build.res.listitem", true);
 		}
 
 		// Genuegend Res vorhanden -> Bauen
-		if( ok ) {
-			base.setCore(build);
+		if (ok)
+		{
+			base.setCore(core.getId());
 
 			base.setCoreActive(false);
 
-			if( core.getArbeiter()+base.getArbeiter() > base.getBewohner() ) {
-				t.setVar( "build.message", "<span style=\"color:#ff0000\">Nicht gen&uuml;gend Arbeiter</span>" );
+			if (core.getArbeiter() + base.getArbeiter() > base.getBewohner())
+			{
+				t.setVar("build.message", "<span style=\"color:#ff0000\">Nicht gen&uuml;gend Arbeiter</span>");
 			}
-			else {
+			else
+			{
 				base.setCoreActive(true);
-				t.setVar( "build.message", "<span style=\"color:#00ff00\">aktiviert</span>" );
+				t.setVar("build.message", "<span style=\"color:#00ff00\">aktiviert</span>");
 			}
-			cargo.substractCargo( costs );
+			cargo.substractCargo(costs);
 
 			base.setCargo(cargo);
-			base.setCore(build);
+			base.setCore(core.getId());
 
-			if( base.isCoreActive() ) {
-				base.setArbeiter(base.getArbeiter()+core.getArbeiter());
-				base.setBewohner(base.getBewohner()+core.getBewohner());
+			if (base.isCoreActive())
+			{
+				base.setArbeiter(base.getArbeiter() + core.getArbeiter());
+				base.setBewohner(base.getBewohner() + core.getBewohner());
 			}
 		}
 
@@ -168,12 +173,19 @@ public class CoreController extends TemplateGenerator {
 
 	/**
 	 * Deaktiviert die Core auf dem Asteroiden, sofern sie noch nicht deaktiviert ist.
+	 *
+	 * @param base Die Basis
 	 */
 	@Action(ActionType.DEFAULT)
-	public void deactivateAction() {
-		TemplateEngine t = getTemplateEngine();
+	public void deactivateAction(@UrlParam(name = "col") Base base)
+	{
+		validiereBasis(base);
 
-		if( !base.isCoreActive() ) {
+		TemplateEngine t = getTemplateEngine();
+		t.setVar("base.id", base.getId());
+
+		if (!base.isCoreActive())
+		{
 			redirect();
 			return;
 		}
@@ -183,7 +195,7 @@ public class CoreController extends TemplateGenerator {
 		base.setArbeiter(base.getArbeiter() - core.getArbeiter());
 		base.setCoreActive(false);
 
-		t.setVar( "core.message", "<span class=\"error\">Core deaktiviert</span>" );
+		t.setVar("core.message", "<span class=\"error\">Core deaktiviert</span>");
 
 		redirect();
 	}
@@ -191,44 +203,54 @@ public class CoreController extends TemplateGenerator {
 	/**
 	 * Aktiviert die Core auf dem Asteroiden, sofern sie noch nicht aktiviert ist und
 	 * die Anzahl der freien Arbeiter dazu ausreicht.
+	 *
+	 * @param base Die Basis
 	 */
 	@Action(ActionType.DEFAULT)
-	public void activateAction() {
-		TemplateEngine t = getTemplateEngine();
+	public void activateAction(@UrlParam(name = "col") Base base)
+	{
+		validiereBasis(base);
 
-		if( base.isCoreActive() ) {
+		TemplateEngine t = getTemplateEngine();
+		t.setVar("base.id", base.getId());
+
+		if (base.isCoreActive())
+		{
 			redirect();
 			return;
 		}
 
 		Core core = Core.getCore(base.getCore());
-		if( core.getArbeiter()+base.getArbeiter() > base.getBewohner() ) {
-			t.setVar( "core.message", "<span style=\"color:#ff0000\">Nicht gen&uuml;gend Arbeiter</span>" );
-		}
-		else if( core.isShutDown() && !base.getOwner().hasResearched(core.getTechRequired()))
+		if (core.getArbeiter() + base.getArbeiter() > base.getBewohner())
 		{
-			t.setVar( "core.message", "<span sytel=\"color:#ff0000\">Sie haben nicht die notwendigen Voraussetzungen um dieses Geb&auml;ude aktivieren zu k&ouml;nnen.</span>");
+			t.setVar("core.message", "<span style=\"color:#ff0000\">Nicht gen&uuml;gend Arbeiter</span>");
 		}
-		else {
+		else if (core.isShutDown() && !base.getOwner().hasResearched(core.getTechRequired()))
+		{
+			t.setVar("core.message", "<span sytel=\"color:#ff0000\">Sie haben nicht die notwendigen Voraussetzungen um dieses Geb&auml;ude aktivieren zu k&ouml;nnen.</span>");
+		}
+		else
+		{
 			base.setArbeiter(base.getArbeiter() + core.getArbeiter());
 			base.setCoreActive(true);
 
-			t.setVar( "core.message", "<span class=\"ok\">Core aktiviert</span>" );
+			t.setVar("core.message", "<span class=\"ok\">Core aktiviert</span>");
 		}
 
 		redirect();
 	}
 
-	private void showCore() {
+	private void showCore(Base base)
+	{
 		TemplateEngine t = getTemplateEngine();
 
 		Core core = Core.getCore(base.getCore());
 
-		t.setVar(	"core.astitype",	core.getAstiType(),
-					"core.name",		Common._plaintitle(core.getName()),
-					"core.activated",	base.isCoreActive(),
-					"core.ever",		core.getEVerbrauch(),
-					"core.eprodu",		core.getEProduktion() );
+		t.setVar("core.astitype", core.getAstiType(),
+				"core.name", Common._plaintitle(core.getName()),
+				"core.activated", base.isCoreActive(),
+				"core.ever", core.getEVerbrauch(),
+				"core.eprodu", core.getEProduktion());
 
 		Cargo produces = core.getProduces();
 		Cargo consumes = core.getConsumes();
@@ -236,26 +258,29 @@ public class CoreController extends TemplateGenerator {
 		t.setBlock("_CORE", "res.listitem", "consumes.res.list");
 
 		ResourceList reslist = consumes.getResourceList();
-		for( ResourceEntry res : reslist ) {
-			t.setVar(	"res.image",	res.getImage(),
-						"res.cargo",	res.getCargo1() );
+		for (ResourceEntry res : reslist)
+		{
+			t.setVar("res.image", res.getImage(),
+					"res.cargo", res.getCargo1());
 
 			t.parse("consumes.res.list", "res.listitem", true);
 		}
 
 		reslist = produces.getResourceList();
-		for( ResourceEntry res : reslist ) {
-			t.setVar(	"res.image",	res.getImage(),
-						"res.cargo",	res.getCargo1() );
+		for (ResourceEntry res : reslist)
+		{
+			t.setVar("res.image", res.getImage(),
+					"res.cargo", res.getCargo1());
 
 			t.parse("produces.res.list", "res.listitem", true);
 		}
 	}
 
-	private void showCoreBuildList() {
+	private void showCoreBuildList(Base base)
+	{
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
-		User user = (User)getUser();
+		User user = (User) getUser();
 
 		// Keine Core vorhanden
 		Cargo cargo = base.getCargo();
@@ -263,12 +288,14 @@ public class CoreController extends TemplateGenerator {
 		t.setBlock("_CORE", "cores.listitem", "cores.list");
 
 		Iterator<?> coreIter = db.createQuery("from Core where astiType=:type")
-			.setInteger("type", base.getKlasse())
-			.iterate();
-		for( ; coreIter.hasNext(); ) {
-			Core core = (Core)coreIter.next();
+				.setInteger("type", base.getKlasse())
+				.iterate();
+		for (; coreIter.hasNext(); )
+		{
+			Core core = (Core) coreIter.next();
 
-			if( !user.hasResearched(core.getTechRequired()) ) {
+			if (!user.hasResearched(core.getTechRequired()))
+			{
 				continue;
 			}
 
@@ -278,47 +305,52 @@ public class CoreController extends TemplateGenerator {
 
 			boolean buildable = true;
 			ResourceList reslist = costs.compare(cargo, false, true);
-			for( ResourceEntry res : reslist ) {
-				if( res.getDiff() > 0 ) {
+			for (ResourceEntry res : reslist)
+			{
+				if (res.getDiff() > 0)
+				{
 					buildable = false;
 				}
 			}
 
-			t.setVar(	"core.isbuildable",		buildable,
-						"core.ever",			core.getEVerbrauch(),
-						"core.name",			Common._plaintitle(core.getName()),
-						"core.id",				core.getId(),
-						"core.eprodu",			core.getEProduktion(),
-						"core.arbeiter",		core.getArbeiter(),
-						"core.bewohner",		core.getBewohner(),
-						"costs.res.list",		"",
-						"consumes.res.list",	"",
-						"produces.res.list",	"" );
+			t.setVar("core.isbuildable", buildable,
+					"core.ever", core.getEVerbrauch(),
+					"core.name", Common._plaintitle(core.getName()),
+					"core.id", core.getId(),
+					"core.eprodu", core.getEProduktion(),
+					"core.arbeiter", core.getArbeiter(),
+					"core.bewohner", core.getBewohner(),
+					"costs.res.list", "",
+					"consumes.res.list", "",
+					"produces.res.list", "");
 
 			t.setBlock("cores.listitem", "costs.res.listitem", "costs.res.list");
 
-			for( ResourceEntry res : reslist ) {
-				t.setVar(	"res.red",		res.getDiff() > 0,
-							"res.image",	res.getImage(),
-							"res.cargo",	res.getCargo1() );
+			for (ResourceEntry res : reslist)
+			{
+				t.setVar("res.red", res.getDiff() > 0,
+						"res.image", res.getImage(),
+						"res.cargo", res.getCargo1());
 
 				t.parse("costs.res.list", "costs.res.listitem", true);
 			}
 
 			reslist = consumes.getResourceList();
-			for( ResourceEntry res : reslist ) {
-				t.setVar(	"res.image",	res.getImage(),
-							"res.cargo",	res.getCargo1() );
+			for (ResourceEntry res : reslist)
+			{
+				t.setVar("res.image", res.getImage(),
+						"res.cargo", res.getCargo1());
 
-  				t.parse("consumes.res.list", "costs.res.listitem", true);
+				t.parse("consumes.res.list", "costs.res.listitem", true);
 			}
 
 			reslist = produces.getResourceList();
-			for( ResourceEntry res : reslist ) {
-				t.setVar(	"res.image",	res.getImage(),
-							"res.cargo",	res.getCargo1() );
+			for (ResourceEntry res : reslist)
+			{
+				t.setVar("res.image", res.getImage(),
+						"res.cargo", res.getCargo1());
 
-  				t.parse("produces.res.list", "costs.res.listitem", true);
+				t.parse("produces.res.list", "costs.res.listitem", true);
 			}
 			t.parse("cores.list", "cores.listitem", true);
 		}
@@ -328,18 +360,25 @@ public class CoreController extends TemplateGenerator {
 	 * Zeigt entweder die Liste aller auf dem Asteroiden im Moment
 	 * baubaren Cores an (wenn noch keine Core gebaut wurde) oder
 	 * die Daten zur aktuellen Core.
+	 *
+	 * @param base Die Basis
 	 */
-	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() {
-		TemplateEngine t = getTemplateEngine();
-		t.setVar( "base.core", base.getCore() );
+	public void defaultAction(@UrlParam(name = "col") Base base)
+	{
+		validiereBasis(base);
 
-		if( base.getCore() > 0 ) {
-			showCore();
+		TemplateEngine t = getTemplateEngine();
+		t.setVar("base.id", base.getId());
+		t.setVar("base.core", base.getCore());
+
+		if (base.getCore() > 0)
+		{
+			showCore(base);
 		}
-		else {
-			showCoreBuildList();
+		else
+		{
+			showCoreBuildList(base);
 		}
 	}
 }

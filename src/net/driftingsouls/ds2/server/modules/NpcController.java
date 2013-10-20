@@ -335,7 +335,6 @@ public class NpcController extends AngularGenerator {
 	 * @return Die JSON-Antwort
 	 */
 	@Action(ActionType.AJAX)
-	@UrlParam(name="meldung", type=UrlParamType.NUMBER, description = "Die ID der Meldung")
 	public JSONObject meldungBearbeitetAction(FraktionAktionsMeldung meldung)
 	{
 		if( meldung == null )

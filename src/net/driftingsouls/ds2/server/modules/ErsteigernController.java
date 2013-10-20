@@ -595,11 +595,10 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Aendert das System, in dem ersteigerte Dinge gespawnt werden sollen.
-	 *
+	 * @param favsys Die ID des neuen Systems, in dem ersteigerte Dinge gespawnt werden sollen
 	 */
-	@UrlParam(name="favsys", type=UrlParamType.NUMBER, description = "Die ID des neuen Systems, in dem ersteigerte Dinge gespawnt werden sollen")
 	@Action(ActionType.DEFAULT)
-	public void changeDropZoneAction()
+	public void changeDropZoneAction(StarSystem favsys)
 	{
 		if( !Faction.get(faction).getPages().hasPage("versteigerung") )
 		{
@@ -609,14 +608,10 @@ public class ErsteigernController extends TemplateGenerator
 
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
-		org.hibernate.Session db = getDB();
 
-		int favsys = getInteger("favsys");
-
-		StarSystem system = (StarSystem)db.get(StarSystem.class, favsys);
-		if( system.getDropZone() != null && user.getAstiSystems().contains(favsys) )
+		if( favsys != null && favsys.getDropZone() != null && user.getAstiSystems().contains(favsys.getID()) )
 		{
-			user.setGtuDropZone(favsys);
+			user.setGtuDropZone(favsys.getID());
 			t.setVar("show.newcoords", 1);
 		}
 
@@ -806,15 +801,13 @@ public class ErsteigernController extends TemplateGenerator
 	/**
 	 * Ueberweist einen bestimmten Geldbetrag an einen anderen Spieler. Wenn die Ueberweisung noch
 	 * nicht explizit bestaetigt wurde, wird die Bestaetigung erfragt.
+	 * @param ack yes falls die Uberweisung bestaetigt wurde (Sicherheitsabfrage)
+	 * @param count Die zu ueberweisenden RE
+	 * @param to Der Spieler an den ueberwiesen werden soll
+	 * @param requestToken Ein Sicherheitstoken zur Bestaetigung der Ueberweisung
 	 */
 	@Action(ActionType.DEFAULT)
-	@UrlParams({
-			@UrlParam(name="to", description = "Der Spieler an den ueberwiesen werden soll"),
-			@UrlParam(name="ack", description = "yes falls die Uberweisung bestaetigt wurde (Sicherheitsabfrage)"),
-			@UrlParam(name="count", type=UrlParamType.NUMBER, description = "Die zu ueberweisenden RE"),
-			@UrlParam(name="token", description = "Ein Sicherheitstoken zur Bestaetigung der Ueberweisung")
-	})
-	public void ueberweisenAction()
+	public void ueberweisenAction(String to, String ack, int count, @UrlParam(name="token") String requestToken)
 	{
 		if( !Faction.get(faction).getPages().hasPage("bank") )
 		{
@@ -832,10 +825,6 @@ public class ErsteigernController extends TemplateGenerator
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
-
-		String to = getString("to");
-		String ack = getString("ack");
-		int count = getInteger("count");
 
 		if( user.getKonto().compareTo(new BigDecimal(count).toBigInteger()) < 0 )
 		{
@@ -855,8 +844,6 @@ public class ErsteigernController extends TemplateGenerator
 			redirect("bank");
 			return;
 		}
-
-		String requestToken = getString("token");
 
 		UeberweisungsTokenContainer token = getContext().get(UeberweisungsTokenContainer.class);
 
@@ -2007,15 +1994,13 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Erstellt einen neuen Shop-Eintrag.
+	 * @param entryCost Die Kosten des Eintrags in LP
+	 * @param entryLpKosten Die Kosten des Eintrags in RE
+	 * @param entryType Der Typ des Eintrags (ship,item,transport)
+	 * @param entryTypeId Die ID der anzubietenden Ware des angegebenen Eintragtyps
 	 */
 	@Action(ActionType.DEFAULT)
-	@UrlParams({
-			@UrlParam(name="entryType",description = "Der Typ des Eintrags (ship,item,transport)"),
-			@UrlParam(name="entryTypeId", description = "Die ID der anzubietenden Ware des angegebenen Eintragtyps"),
-			@UrlParam(name="entryCost", type = UrlParamType.NUMBER, description = "Die Kosten des Eintrags in RE"),
-			@UrlParam(name="entryLpKosten", type = UrlParamType.NUMBER, description = "Die Kosten des Eintrags in LP")
-	})
-	public void shopEntryCreate()
+	public void shopEntryCreate(String entryType, String entryTypeId, int entryCost, int entryLpKosten)
 	{
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
@@ -2029,50 +2014,45 @@ public class ErsteigernController extends TemplateGenerator
 
 		if( this.faction == user.getId() )
 		{
-			String entryType = getString("entryType");
-			String entryTypeId = getString("entryTypeId");
-			int entryCost = getInteger("entryCost");
-			int entryLpKosten = getInteger("entryLpKosten");
-
 			FactionShopEntry.Type type = null;
-			if( "ship".equals(entryType) )
+			switch (entryType)
 			{
-				type = FactionShopEntry.Type.SHIP;
-				if( !NumberUtils.isNumber(entryTypeId) )
-				{
-					t.setVar("show.message", "<span style=\"color:red\">Format ungueltig</span>");
-					redirect("shop");
-					return;
-				}
-				ShipType st = (ShipType)db.get(ShipType.class, Integer.parseInt(entryTypeId) );
-				if( st == null )
-				{
-					t.setVar("show.message", "<span style=\"color:red\">Kein bekannter Schiffstyp</span>");
-					redirect("shop");
-					return;
-				}
-			}
-			else if( "item".equals(entryType) )
-			{
-				type = FactionShopEntry.Type.ITEM;
-				if( ItemID.fromString(entryTypeId) == null )
-				{
-					t.setVar("show.message", "<span style=\"color:red\">Format ungueltig</span>");
+				case "ship":
+					type = FactionShopEntry.Type.SHIP;
+					if (!NumberUtils.isNumber(entryTypeId))
+					{
+						t.setVar("show.message", "<span style=\"color:red\">Format ungueltig</span>");
+						redirect("shop");
+						return;
+					}
+					ShipType st = (ShipType) db.get(ShipType.class, Integer.parseInt(entryTypeId));
+					if (st == null)
+					{
+						t.setVar("show.message", "<span style=\"color:red\">Kein bekannter Schiffstyp</span>");
+						redirect("shop");
+						return;
+					}
+					break;
+				case "item":
+					type = FactionShopEntry.Type.ITEM;
+					if (ItemID.fromString(entryTypeId) == null)
+					{
+						t.setVar("show.message", "<span style=\"color:red\">Format ungueltig</span>");
 
-					redirect("shop");
-					return;
-				}
-			}
-			else if( "transport".equals(entryType) )
-			{
-				type = FactionShopEntry.Type.TRANSPORT;
-				if( !NumberUtils.isNumber(entryTypeId) && !"*".equals(entryTypeId) )
-				{
-					t.setVar("show.message", "<span style=\"color:red\">Format ungueltig</span>");
+						redirect("shop");
+						return;
+					}
+					break;
+				case "transport":
+					type = FactionShopEntry.Type.TRANSPORT;
+					if (!NumberUtils.isNumber(entryTypeId) && !"*".equals(entryTypeId))
+					{
+						t.setVar("show.message", "<span style=\"color:red\">Format ungueltig</span>");
 
-					redirect("shop");
-					return;
-				}
+						redirect("shop");
+						return;
+					}
+					break;
 			}
 
 			FactionShopEntry entry = new FactionShopEntry(this.faction, type, entryTypeId);
@@ -2089,79 +2069,62 @@ public class ErsteigernController extends TemplateGenerator
 	/**
 	 * Aendert einen Shopeintrag.
 	 *
+	 * @param availability Die neue Verfuegbarkeit
+	 * @param entryLpKosten Die LP-Kosten
+	 * @param entryPrice Der Preis
+	 * @param entryRang Der Rang
+	 * @param operation Die auszufuehrende Aktion (ändern, löschen)
+	 * @param shopentry Die ID des Shopeintrags
 	 */
 	@Action(ActionType.DEFAULT)
-	@UrlParams({
-			@UrlParam(name="operation", description = "Die auszufuehrende Aktion (ändern, löschen)"),
-			@UrlParam(name="shopentry", type = UrlParamType.NUMBER, description = "Die ID des Shopeintrags"),
-			@UrlParam(name="availability", type = UrlParamType.NUMBER, description = "Die neue Verfuegbarkeit"),
-			@UrlParam(name="entryRang", type = UrlParamType.NUMBER, description = "Der Rang"),
-			@UrlParam(name="entryPrice", type = UrlParamType.STRING, description = "Der Preis"),
-			@UrlParam(name="entryLpKosten", type = UrlParamType.STRING, description = "Die LP-Kosten")
-	})
-	public void shopChangeEntryAction()
+	public void shopChangeEntryAction(String operation, FactionShopEntry shopentry, int availability, int entryRang, long entryPrice, long entryLpKosten)
 	{
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
-		User user = (User)getUser();
+		User user = (User) getUser();
 
-		if( !Faction.get(faction).getPages().hasPage("shop") )
+		if (!Faction.get(faction).getPages().hasPage("shop"))
 		{
 			redirect();
 			return;
 		}
 
-		if( this.faction == user.getId() )
+		if (this.faction == user.getId())
 		{
-			int shopentryID = getInteger("shopentry");
-			FactionShopEntry entry = (FactionShopEntry)db.get(FactionShopEntry.class, shopentryID);
-			if( (entry == null) || (entry.getFaction() != this.faction) )
+			if ((shopentry == null) || (shopentry.getFaction() != this.faction))
 			{
 				addError("Es konnte kein passender Shopeintrag gefunden werden");
 				redirect("shop");
 				return;
 			}
 
-			if( "löschen".equalsIgnoreCase(getString("operation")) )
+			if ("löschen".equalsIgnoreCase(operation))
 			{
-				if( entry.getAnzahlOffeneBestellungen() > 0 )
+				if (shopentry.getAnzahlOffeneBestellungen() > 0)
 				{
 					addError("Es gibt noch offene Bestellungen zu diesem Shopeintrag");
 					redirect("shop");
 					return;
 				}
 
-				db.delete(entry);
+				db.delete(shopentry);
 
 				t.setVar("show.message", "Eintrag gelöscht");
 				redirect("shop");
 				return;
 			}
 
-			String preis = getString("entryPrice");
-			String lpKosten = getString("entryLpKosten");
-
-			int availability = getInteger("availability");
-			int rang = getInteger("entryRang");
-
-			if( availability < 0 || availability > 2 )
+			if (availability < 0 || availability > 2)
 			{
 				addError("Ung&uuml;ltiger Status");
 				redirect("shop");
 				return;
 			}
 
-			entry.setAvailability(availability);
-			entry.setMinRank(rang);
-			try
-			{
-				entry.setPrice(Common.getNumberFormat().parse(preis).longValue());
-				entry.setLpKosten(Common.getNumberFormat().parse(lpKosten).longValue());
-			}
-			catch (ParseException e)
-			{
-				// Ignorieren
-			}
+			shopentry.setAvailability(availability);
+			shopentry.setMinRank(entryRang);
+			shopentry.setPrice(entryPrice);
+			shopentry.setLpKosten(entryLpKosten);
 
 			t.setVar("show.message", "Eintrag geaendert");
 		}
@@ -2171,47 +2134,39 @@ public class ErsteigernController extends TemplateGenerator
 	/**
 	 * Aendert den Auftragsstatus einer Bestellung.
 	 *
+	 * @param orderentry Die ID des Auftrags
+	 * @param orderstatus Der neue Auftragsstatus
 	 */
-	@UrlParams({
-			@UrlParam(name="orderentry", type=UrlParamType.NUMBER, description = "Die ID des Auftrags"),
-			@UrlParam(name="orderstatus", type=UrlParamType.NUMBER, description = "Der neue Auftragsstatus")
-	})
 	@Action(ActionType.DEFAULT)
-	public void changeShopOrderStatusAction()
+	public void changeShopOrderStatusAction(FactionShopOrder orderentry, int orderstatus)
 	{
 		TemplateEngine t = getTemplateEngine();
-		org.hibernate.Session db = getDB();
-		User user = (User)getUser();
+		User user = (User) getUser();
 
-		if( !Faction.get(faction).getPages().hasPage("shop") )
+		if (!Faction.get(faction).getPages().hasPage("shop"))
 		{
 			redirect();
 			return;
 		}
 
-		if( this.faction == user.getId() )
+		if (this.faction == user.getId())
 		{
-			int orderstatus = getInteger("orderstatus");
-			int orderentryID = getInteger("orderentry");
-
-			FactionShopOrder order = (FactionShopOrder)db.get(FactionShopOrder.class, orderentryID);
-
-			if( (order == null) || (order.getStatus() > 3)
-					|| (order.getShopEntry().getFaction() != this.faction) )
+			if ((orderentry == null) || (orderentry.getStatus() > 3)
+					|| (orderentry.getShopEntry().getFaction() != this.faction))
 			{
 				addError("Es konnte kein passender Ordereintrag gefunden werden");
 				redirect("shop");
 				return;
 			}
 
-			if( orderstatus < 0 || orderstatus > 4 )
+			if (orderstatus < 0 || orderstatus > 4)
 			{
 				addError("Ung&uuml;ltiger Status");
 				redirect("shop");
 				return;
 			}
 
-			order.setStatus(orderstatus);
+			orderentry.setStatus(orderstatus);
 
 			t.setVar("show.message", "Neuer Status erfolgreich zugewiesen");
 		}
@@ -2254,57 +2209,52 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Zeigt die GUI für den Asti-Asubau an.
+	 *
+	 * @param base Die ID des auszubauenden Asteroiden
+	 * @param bar Die Zahlungsmethode, {@code true} bedeutet Barzahlung, sonst Abbuchung
+	 * @param cargo Die ID der Cargoerweiterung
+	 * @param colonizer Die ID des zu verwendenden Colonizers
+	 * @param felder Die ID der Felderweiterung
+	 * @param order Soll wirklich bestellt werden (bestellen)?
 	 */
-	@UrlParams({
-			@UrlParam(name="astiid", type=UrlParamType.NUMBER, description = "Die ID des auszubauenden Asteroiden" ),
-			@UrlParam(name="colonizerid", type=UrlParamType.NUMBER, description = "Die ID des zu verwendenden Colonizers"),
-			@UrlParam(name="felder", type=UrlParamType.NUMBER, description = "Die ID der Felderweiterung"),
-			@UrlParam(name="cargo", type=UrlParamType.NUMBER, description = "Die ID der Cargoerweiterung"),
-			@UrlParam(name="bar", type=UrlParamType.NUMBER, description = "Die Zahlungsmethode, 1 bedeutet Barzahlung, sonst Abbuchung"),
-			@UrlParam(name="order", description = "Soll wirklich bestellt werden (bestellen)?")
-	})
 	@SuppressWarnings("unchecked")
 	@Action(ActionType.DEFAULT)
-	public void ausbauAction()
+	public void ausbauAction(@UrlParam(name = "base") Base base,
+							@UrlParam(name = "colonizer") Ship colonizer,
+							UpgradeInfo felder,
+							UpgradeInfo cargo,
+							boolean bar,
+							String order)
 	{
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
-		User user = (User)getUser();
+		User user = (User) getUser();
 
-		if( !Faction.get(faction).getPages().hasPage("ausbau") )
+		if (!Faction.get(faction).getPages().hasPage("ausbau"))
 		{
 			redirect();
 			return;
 		}
 
-		int astiid = getInteger("astiid");
-		int colonizerid = getInteger("colonizerid");
-		int felder = getInteger("felder");
-		int cargo = getInteger("cargo");
-		boolean bar = getInteger("bar") == 1;
-		boolean order = "bestellen".equals(getString("order"));
-
-		if( order && astiid != 0 && colonizerid != 0 && felder != 0 && cargo != 0 )
+		if ("bestellen".equals(order) && felder != null && cargo != null)
 		{
-			final Base base = (Base)db.get(Base.class, astiid);
-			if( base == null )
+			if (base == null)
 			{
 				addError("Der angew&auml;hlte Asteroid existiert nicht");
 				redirect();
 				return;
 			}
 
-			if( !base.getOwner().equals(getUser()) )
+			if (!base.getOwner().equals(getUser()))
 			{
 				addError("Dieser Asteroid geh&ouml;rt Ihnen nicht");
 				redirect();
 				return;
 			}
 
-			final Ship colonizer = (Ship)db.get(Ship.class, colonizerid);
-			if( colonizer == null || !colonizer.getOwner().equals(user)
+			if (colonizer == null || !colonizer.getOwner().equals(user)
 					|| !colonizer.getLocation().equals(base.getLocation())
-					|| !colonizer.getTypeData().hasFlag(ShipTypes.SF_COLONIZER) )
+					|| !colonizer.getTypeData().hasFlag(ShipTypes.SF_COLONIZER))
 			{
 				addError("Der ausgew&auml;hlte Colonizer ist ung&uuml;ltig");
 				redirect();
@@ -2313,19 +2263,20 @@ public class ErsteigernController extends TemplateGenerator
 
 			// Alle Werte wurden übergeben, nur noch testen ob sie akzeptabel sind
 			// Für jeden Asti darf maximal ein Auftrag in der DB sein
-			UpgradeJob auftrag = (UpgradeJob)db.createQuery("from UpgradeJob where base=:base")
-					.setParameter("base", base).uniqueResult();
+			UpgradeJob auftrag = (UpgradeJob) db.createQuery("from UpgradeJob where base=:base")
+					.setParameter("base", base)
+					.uniqueResult();
 
-			if( auftrag != null )
+			if (auftrag != null)
 			{
 				addError("F&uuml;r diesen Asteroid besteht bereits ein Auftrag");
 				redirect();
 				return;
 			}
 
-			final UpgradeMaxValues maxvalues = (UpgradeMaxValues)db.get(UpgradeMaxValues.class,
+			final UpgradeMaxValues maxvalues = (UpgradeMaxValues) db.get(UpgradeMaxValues.class,
 					base.getKlasse());
-			if( maxvalues == null )
+			if (maxvalues == null)
 			{
 				addError("Dieser Asteroid kann leider nicht ausgebaut werden");
 				redirect();
@@ -2339,9 +2290,9 @@ public class ErsteigernController extends TemplateGenerator
 					.setParameter("felder", felder)
 					.setParameter("cargo", cargo)
 					.setInteger("klasse", base.getKlasse())
-				.list();
+					.list();
 
-			if( infos.size() < 2 )
+			if (infos.size() < 2)
 			{ // Da es selbst für den leeren Ausbau Einträge gibt, funktioniert das hier
 				addError("Es wurden illegale Ausbauten ausgew&auml;hlt");
 				redirect();
@@ -2349,57 +2300,55 @@ public class ErsteigernController extends TemplateGenerator
 			}
 
 			boolean wantsUpgrade = false;
-			for( UpgradeInfo info : infos )
+			for (UpgradeInfo info : infos)
 			{
-				if( !info.getCargo()
+				if (!info.getCargo()
 						&& (base.getWidth() * base.getHeight() + info.getMod() > maxvalues
-								.getMaxTiles()) )
+						.getMaxTiles()))
 				{
 					addError("Der Asteroid hat zuviele Felder nach diesem Ausbau");
 					redirect();
 					return;
 				}
 
-				if( info.getCargo()
-						&& (base.getMaxCargo() + info.getMod() > maxvalues.getMaxCargo()) )
+				if (info.getCargo()
+						&& (base.getMaxCargo() + info.getMod() > maxvalues.getMaxCargo()))
 				{
 					addError("Der Asteroid hat zuviel Lagerraum nach diesem Ausbau.");
 					redirect();
 					return;
 				}
 
-				if( info.getMod() > 0 )
+				if (info.getMod() > 0)
 				{
 					wantsUpgrade = true;
 				}
 			}
 
-			if( !wantsUpgrade )
+			if (!wantsUpgrade)
 			{
 				redirect();
 				return;
 			}
 
 			// Erstelle einen neuen Auftrag
-			UpgradeInfo felderInfo = (UpgradeInfo)db.get(UpgradeInfo.class, felder);
-			UpgradeInfo cargoInfo = (UpgradeInfo)db.get(UpgradeInfo.class, cargo);
-			auftrag = new UpgradeJob(base, user, felderInfo, cargoInfo, bar, colonizer);
+			auftrag = new UpgradeJob(base, user, felder, cargo, bar, colonizer);
 
-			User faction = (User)db.get(User.class, this.faction);
-			if( !bar )
+			User faction = (User) db.get(User.class, this.faction);
+			if (!bar)
 			{
 				// Testen ob genuegend Geld vorhanden ist um es uns untern Nagel zu reiszen
-				if( user.getKonto()
+				if (user.getKonto()
 						.compareTo(
-								new BigDecimal(felderInfo.getPrice() + cargoInfo.getPrice())
-										.toBigInteger()) < 0 )
+								new BigDecimal(felder.getPrice() + cargo.getPrice())
+										.toBigInteger()) < 0)
 				{
 					addError("Sie verf&uuml;gen nicht &uuml;ber genug Geld</span>");
 					redirect();
 					return;
 				}
-				faction.transferMoneyFrom(user.getId(), felderInfo.getPrice()
-						+ cargoInfo.getPrice(), "Ausbau von " + base.getName());
+				faction.transferMoneyFrom(user.getId(), felder.getPrice()
+						+ cargo.getPrice(), "Ausbau von " + base.getName());
 			}
 
 			// Den Besitzer des Colonizers ändern
@@ -2414,8 +2363,8 @@ public class ErsteigernController extends TemplateGenerator
 					Integer.toString(auftrag.getId()), "0", Integer.toString(this.faction));
 
 			t.setVar(
-				"show.message",
-				"Ihr Auftrag wurde an den zust&auml;ndigen Sachbearbeiter weitergeleitet. Die Bauma&szlig;nahmen werden in k&uuml;rze beginnen.");
+					"show.message",
+					"Ihr Auftrag wurde an den zust&auml;ndigen Sachbearbeiter weitergeleitet. Die Bauma&szlig;nahmen werden in k&uuml;rze beginnen.");
 
 			redirect();
 			return;
@@ -2429,33 +2378,34 @@ public class ErsteigernController extends TemplateGenerator
 		t.setBlock("_ERSTEIGERN", "ausbau.felder.listitem", "ausbau.felder.list");
 
 		// Hole alle Astis des Spielers und markiere gewaehlten Asti
-		List<Base> astis = db.createQuery("from Base where owner=:user order by id").setParameter(
-				"user", user).list();
+		List<Base> astis = db.createQuery("from Base where owner=:user order by id")
+				.setParameter("user", user).list();
 		Base selectedBase = null;
-		for( Base asti : astis )
+		for (Base asti : astis)
 		{
-			final UpgradeMaxValues maxvalues = (UpgradeMaxValues)db.get(UpgradeMaxValues.class,
+			final UpgradeMaxValues maxvalues = (UpgradeMaxValues) db.get(UpgradeMaxValues.class,
 					asti.getKlasse());
-			if( maxvalues == null )
+			if (maxvalues == null)
 			{
 				continue;
 			}
 
-			t.setVar("asti.id", asti.getId(), "asti.name", asti.getName(), "asti.selected",
-					astiid == asti.getId());
+			t.setVar("asti.id", asti.getId(),
+					"asti.name", asti.getName(),
+					"asti.selected", base == asti);
 			t.parse("ausbau.asti.list", "ausbau.asti.listitem", true);
-			if( astiid == asti.getId() )
+			if (base == asti)
 			{
 				selectedBase = asti;
 			}
 		}
 
-		if( selectedBase == null && !astis.isEmpty() )
+		if (selectedBase == null && !astis.isEmpty())
 		{
 			selectedBase = astis.get(0);
 		}
 
-		if( selectedBase == null )
+		if (selectedBase == null)
 		{
 			return;
 		}
@@ -2473,25 +2423,26 @@ public class ErsteigernController extends TemplateGenerator
 				.setInteger("baseSystem", selectedBase.getSystem()).setInteger("baseX",
 						selectedBase.getX()).setInteger("baseY", selectedBase.getY()).list();
 
-		for( Ship colonizer : colonizers )
+		for (Ship acolonizer : colonizers)
 		{
-			t.setVar("colonizer.id", colonizer.getId(),
-					"colonizer.name", colonizer.getName());
+			t.setVar("colonizer.id", acolonizer.getId(),
+					"colonizer.name", acolonizer.getName());
 			t.parse("ausbau.colonizer.list", "ausbau.colonizer.listitem", true);
 		}
 
-		final UpgradeMaxValues maxvalues = (UpgradeMaxValues)db.get(UpgradeMaxValues.class,
+		final UpgradeMaxValues maxvalues = (UpgradeMaxValues) db.get(UpgradeMaxValues.class,
 				selectedBase.getKlasse());
 
 		// Setze die ausbau-mods, finde heraus welche bereits angewendet wurden und Typ des Astis
 		List<UpgradeInfo> possibleMods = db.createQuery(
 				"from UpgradeInfo where type=:asteroidClass order by id").setParameter(
 				"asteroidClass", selectedBase.getKlasse()).list();
-		for( UpgradeInfo info : possibleMods )
+		for (UpgradeInfo info : possibleMods)
 		{
-			if( info.getCargo() )
-			{ // Testen ob info den Cargo modifiziert
-				if( selectedBase.getMaxCargo() + info.getMod() <= maxvalues.getMaxCargo() )
+			if (info.getCargo())
+			{
+				// Testen ob info den Cargo modifiziert
+				if (selectedBase.getMaxCargo() + info.getMod() <= maxvalues.getMaxCargo())
 				{
 					t.setVar("cargo.mod", info.getMod(),
 							"cargo.id", info.getId(),
@@ -2503,7 +2454,7 @@ public class ErsteigernController extends TemplateGenerator
 			}
 			else
 			{ // Es handelt sich um ein Felder Ausbau
-				if( selectedBase.getMaxTiles() + info.getMod() <= maxvalues.getMaxTiles() )
+				if (selectedBase.getMaxTiles() + info.getMod() <= maxvalues.getMaxTiles())
 				{
 					t.setVar("felder.mod", info.getMod(),
 							"felder.id", info.getId(),
@@ -2738,8 +2689,6 @@ public class ErsteigernController extends TemplateGenerator
 	public void aktionMeldenAction()
 	{
 		TemplateEngine t = getTemplateEngine();
-		org.hibernate.Session db = getDB();
-		User user = (User)getUser();
 
 		if( !Faction.get(faction).getPages().hasPage("aktionmelden") )
 		{
@@ -2747,14 +2696,15 @@ public class ErsteigernController extends TemplateGenerator
 			return;
 		}
 
-		User factionUser = (User)db.get(User.class, this.faction);
-
 		t.setVar("show.aktionmelden", 1);
 	}
 
-	@UrlParam(name="meldungstext", description = "Der Beschreibungstext der Aktion")
+	/**
+	 * Erstellt eine LP-Meldung bei der momentanen Fraktion.
+	 * @param meldungstext Der Beschreibungstext der Aktion
+	 */
 	@Action(ActionType.DEFAULT)
-	public void aktionsMeldungErstellenAction()
+	public void aktionsMeldungErstellenAction(String meldungstext)
 	{
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
@@ -2768,7 +2718,6 @@ public class ErsteigernController extends TemplateGenerator
 
 		User factionUser = (User)db.get(User.class, this.faction);
 
-		String meldungstext = getString("meldungstext");
 		if( meldungstext == null || meldungstext.trim().length() < 10 )
 		{
 			addError("Bitte gib eine genaue Beschreibung deiner Aktion ein");

@@ -18,10 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
@@ -31,61 +27,48 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamType;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import java.io.IOException;
+import java.util.List;
+
 /**
  * Zeigt alle wichtigen Objekte in einem System an wie z.B.
  * eigene Basen, Sprungpunkte usw.
+ *
  * @author Christopher Jung
  */
-@Module(name="impobjects")
-@UrlParam(name="system", type= UrlParamType.NUMBER, description = "Die ID des Sternensystems")
-public class ImpObjectsController extends DSGenerator {
-	private StarSystem system;
-	private boolean viewableSystem;
-
+@Module(name = "impobjects")
+public class ImpObjectsController extends DSGenerator
+{
 	/**
 	 * Konstruktor.
+	 *
 	 * @param context Der zu verwendende Kontext
 	 */
-	public ImpObjectsController(Context context) {
+	public ImpObjectsController(Context context)
+	{
 		super(context);
-
-		this.viewableSystem = true;
-	}
-
-	@Override
-	protected boolean validateAndPrepare(String action) {
-		User user = (User)getUser();
-		int sys = getInteger("system");
-		org.hibernate.Session db = getDB();
-
-		if( sys == 0 ) {
-			sys = 1;
-		}
-
-		StarSystem thissystem = (StarSystem)db.get(StarSystem.class, sys);
-		this.viewableSystem = thissystem.isVisibleFor(user);
-
-		system = thissystem;
-
-		return true;
 	}
 
 	/**
 	 * Liefert alle wichtigen Objekte im System als JSON-Objekt zurueck.
+	 * @param system Das anzuzeigende Sternensystem
 	 * @throws IOException
 	 */
 	@Action(ActionType.AJAX)
-	public void jsonAction() throws IOException
+	public void jsonAction(StarSystem system) throws IOException
 	{
 		org.hibernate.Session db = getDB();
 		JSONObject json = new JSONObject();
-		User user = (User)getUser();
+		User user = (User) getUser();
+
+		if (system == null)
+		{
+			system = (StarSystem) db.get(StarSystem.class, 1);
+		}
 
 		JSONObject sysObj = new JSONObject();
 		sysObj.accumulate("name", system.getName());
@@ -94,15 +77,15 @@ public class ImpObjectsController extends DSGenerator {
 
 		JSONArray jnListObj = new JSONArray();
 		JSONArray postenListObj = new JSONArray();
-		if( viewableSystem )
+		if (system.isVisibleFor(user))
 		{
 			/*
 				Sprungpunkte
 			*/
 
 			List<?> jnList = db.createQuery("from JumpNode where system=:sys and hidden=0")
-				.setInteger("sys", system.getID())
-				.list();
+					.setInteger("sys", system.getID())
+					.list();
 			for (Object aJnList : jnList)
 			{
 				JumpNode node = (JumpNode) aJnList;
@@ -125,8 +108,8 @@ public class ImpObjectsController extends DSGenerator {
 
 			List<?> postenList = db.createQuery("select s from Ship s join s.shiptype st left join s.modules sm " +
 					"where s.id>0 and s.system=:sys and (locate('tradepost',s.status)!=0 or locate('tradepost', coalesce(sm.flags, st.flags))!=0)")
-				.setInteger("sys", system.getID())
-				.list();
+					.setInteger("sys", system.getID())
+					.list();
 			for (Object aPostenList : postenList)
 			{
 				Ship posten = (Ship) aPostenList;
@@ -154,9 +137,9 @@ public class ImpObjectsController extends DSGenerator {
 		JSONArray baseListObj = new JSONArray();
 
 		List<?> baseList = db.createQuery("from Base where owner=:owner and system=:sys")
-			.setEntity("owner", getUser())
-			.setInteger("sys", system.getID())
-			.list();
+				.setEntity("owner", getUser())
+				.setInteger("sys", system.getID())
+				.list();
 		for (Object aBaseList : baseList)
 		{
 			Base base = (Base) aBaseList;
@@ -174,9 +157,9 @@ public class ImpObjectsController extends DSGenerator {
 		getResponse().getWriter().append(json.toString());
 	}
 
-	@Override
 	@Action(ActionType.AJAX)
-	public void defaultAction() throws IOException {
-		jsonAction();
+	public void defaultAction(StarSystem system) throws IOException
+	{
+		jsonAction(system);
 	}
 }
