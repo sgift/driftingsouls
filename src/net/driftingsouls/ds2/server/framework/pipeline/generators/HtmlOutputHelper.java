@@ -143,7 +143,7 @@ class HtmlOutputHelper extends OutputHelper {
 			//	echo "<a class=\"forschinfo\" target=\"none\" style=\"font-size:11px\" href=\"http://ds2.drifting-souls.net/mantis/\">Zum Bugtracker</a><br />\n";
 			sb.append("</div>\n");
 		}
-		if( this.getAttribute("module") != null ) {
+		if( this.getAttribute("pagemenu") != null ) {
 			sb.append("<script type=\"text/javascript\">\n");
 			sb.append("<!--\n");
 			sb.append("if( parent && parent.setCurrentPage ) {\n");

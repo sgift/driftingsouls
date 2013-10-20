@@ -380,20 +380,16 @@ public abstract class DSGenerator extends Generator {
 	}
 
 	protected void printHeader() throws IOException {
-		if( !this.disablePageMenu )
-		{
-			actionTypeHandler.setAttribute("module", this.parameterReader.getString("module"));
-		}
+		actionTypeHandler.setAttribute("module", this.parameterReader.getString("module"));
 		actionTypeHandler.setAttribute("bodyParameters", this.getBodyParameters());
-		actionTypeHandler.setAttribute("enableDebugOutput", !this.disableDebugOutput ? true : null);
 		actionTypeHandler.setAttribute("startTime", this.startTime);
 		actionTypeHandler.printHeader();
 	}
 
 	protected void printFooter( String action ) throws IOException {
+		actionTypeHandler.setAttribute("enableDebugOutput", !this.disableDebugOutput ? true : null);
 		if( !this.disablePageMenu )
 		{
-			actionTypeHandler.setAttribute("module", this.parameterReader.getString("module"));
 			actionTypeHandler.setAttribute("pagetitle", this.pageTitle);
 			actionTypeHandler.setAttribute("pagemenu", this.pageMenuEntries.toArray(new PageMenuEntry[this.pageMenuEntries.size()]));
 		}
