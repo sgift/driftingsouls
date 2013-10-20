@@ -177,6 +177,9 @@ public class ParameterReader
 		if( type == Boolean.TYPE ) {
 			return number(paramName).intValue() == 1;
 		}
+		else if( type == Boolean.class ) {
+			return parameterExists(paramName) ? number(paramName).intValue() == 1 : null;
+		}
 		else if( type == Integer.class )
 		{
 			return parameterExists(paramName) ? number(paramName).intValue() : null;
