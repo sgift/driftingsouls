@@ -50,7 +50,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -100,7 +99,7 @@ public class SchiffsTick extends TickController {
 	@Override
 	protected void prepare()
 	{
-		esources = new LinkedHashMap<String,ResourceID>();
+		esources = new LinkedHashMap<>();
 		esources.put("a", Resources.ANTIMATERIE);
 		esources.put("d", Resources.DEUTERIUM);
 		esources.put("u", Resources.URAN);
@@ -115,7 +114,7 @@ public class SchiffsTick extends TickController {
 	 */
 	private int consumeFood(Feeding feeder, int crewToFeed, double scaleFactor)
 	{
-		int crewThatCouldBeFeed = 0;
+		int crewThatCouldBeFeed;
 		final long nahrung = feeder.getNahrungCargo();
 		if( crewToFeed*scaleFactor > nahrung )
 		{
@@ -139,7 +138,7 @@ public class SchiffsTick extends TickController {
 	{
 		Comparator<Ship> comparator = new ShipNahrungsCargoComparator();
 
-		Map<Location,SortedSet<Ship>> versorgerMap = new HashMap<Location,SortedSet<Ship>>();
+		Map<Location,SortedSet<Ship>> versorgerMap = new HashMap<>();
 		this.log("Berechne Versorger");
 
 		int versorgerCount = 0;
@@ -162,7 +161,7 @@ public class SchiffsTick extends TickController {
 			}
 			else
 			{
-				SortedSet<Ship> shiplist = new TreeSet<Ship>(comparator);
+				SortedSet<Ship> shiplist = new TreeSet<>(comparator);
 				shiplist.add(ship);
 				versorgerMap.put(loc, shiplist);
 			}
@@ -192,16 +191,16 @@ public class SchiffsTick extends TickController {
 				}
 				else
 				{
-					SortedSet<Ship> shiplist = new TreeSet<Ship>(comparator);
+					SortedSet<Ship> shiplist = new TreeSet<>(comparator);
 					shiplist.add(ship);
 					versorgerMap.put(loc, shiplist);
 				}
 			}
 		}
 
-		Map<Location,List<Ship>> versorgerList = new HashMap<Location,List<Ship>>();
+		Map<Location,List<Ship>> versorgerList = new HashMap<>();
 		for( Map.Entry<Location,SortedSet<Ship>> entry : versorgerMap.entrySet() ) {
-			versorgerList.put(entry.getKey(), new ArrayList<Ship>(entry.getValue()));
+			versorgerList.put(entry.getKey(), new ArrayList<>(entry.getValue()));
 		}
 
 		return versorgerList;
@@ -286,7 +285,10 @@ public class SchiffsTick extends TickController {
 		shipd.setComm(sub[2]);
 		shipd.setSensors(sub[3]);
 		shipd.setEnergy(e);
-		shipd.setWeaponHeat("");
+		if( shipd.getBattle() == null )
+		{
+			shipd.setWeaponHeat("");
+		}
 		shipd.setCargo(shipc);
 
 		if( shipd.getCrew() < 0 )
@@ -405,7 +407,7 @@ public class SchiffsTick extends TickController {
 		List<Base> bases = feedingBases.get(shipd.getLocation());
 		if(bases == null)
 		{
-			bases = new ArrayList<Base>();
+			bases = new ArrayList<>();
 		}
 
 		this.slog("\tCrew: ");
@@ -483,17 +485,16 @@ public class SchiffsTick extends TickController {
 					this.log("\tGedockte Schiffe verhungern.");
 					crew = Math.abs(crew);
 					List<Ship> dockedShips = shipd.getLandedShips();
-					for(Iterator<Ship> iter=dockedShips.iterator();iter.hasNext();)
+					for (Ship dockShip : dockedShips)
 					{
-						Ship dockShip = iter.next();
-						if(crew > dockShip.getCrew())
+						if (crew > dockShip.getCrew())
 						{
 							crew -= dockShip.getCrew();
 							dockShip.setCrew(0);
 						}
 						else
 						{
-							dockShip.setCrew(dockShip.getCrew()-crew);
+							dockShip.setCrew(dockShip.getCrew() - crew);
 							break;
 						}
 					}
@@ -657,7 +658,7 @@ public class SchiffsTick extends TickController {
 			return;
 		}
 
-		if( (shipd.getStatus().indexOf("lowmoney") == -1) &&
+		if( (!shipd.getStatus().contains("lowmoney")) &&
 				( (shipd.getEngine() < 100) || (shipd.getWeapons() < 100) || (shipd.getComm() < 100) || (shipd.getSensors() < 100) ) &&
 				(Nebel.getNebula(shipd.getLocation()) != Nebel.Typ.DAMAGE)  ) {
 
@@ -710,7 +711,7 @@ public class SchiffsTick extends TickController {
 
 	protected void tickUser(org.hibernate.Session db, User auser)
 	{
-		Map<Location, List<Base>> feedingBases = new HashMap<Location, List<Base>>();
+		Map<Location, List<Base>> feedingBases = new HashMap<>();
 
 		for(Base base: auser.getBases())
 		{
@@ -755,7 +756,7 @@ public class SchiffsTick extends TickController {
 
 	private List<Ship> buildSortedShipList(User auser)
 	{
-		List<Ship> ships = new ArrayList<Ship>(auser.getShips());
+		List<Ship> ships = new ArrayList<>(auser.getShips());
 		Collections.sort(ships, new ShipComparator());
 		return ships;
 	}
