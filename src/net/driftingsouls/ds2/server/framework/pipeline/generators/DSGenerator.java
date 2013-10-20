@@ -93,18 +93,6 @@ public abstract class DSGenerator extends Generator {
 	}
 
 	/**
-	 * Gibt einen als Zahl registrierten Parameter in Form eines
-	 * <code>double</code> zurueck.
-	 * @param parameter Der Parametername
-	 * @return Der Wert
-	 * @deprecated Bitte nur noch Parameter der Actionmethoden verwenden
-	 */
-	@Deprecated
-	public double getDouble(String parameter) {
-		return this.parameterReader.getDouble(parameter);
-	}
-
-	/**
 	 * Gibt einen als String registrierten parameter zurueck.
 	 * @param parameter Der Name des Parameters
 	 * @return Der Wert
