@@ -206,7 +206,7 @@ public class FleetMgntController extends TemplateGenerator {
 		}
 
 		t.setVar("show.create", 1,
-				"create.shiplist", "g," + sector + "," + type + "," + count);
+				"create.shiplist", "g," + sector.getId() + "," + type + "," + count);
 	}
 
 	/**
