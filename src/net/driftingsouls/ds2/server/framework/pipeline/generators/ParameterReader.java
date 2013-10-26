@@ -1,8 +1,11 @@
 package net.driftingsouls.ds2.server.framework.pipeline.generators;
 
+import net.driftingsouls.ds2.server.framework.AnnotationUtils;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 
 import javax.persistence.Entity;
@@ -12,12 +15,47 @@ import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedSet;
 
 /**
  * Klasse zum Parsen und Konvertieren von Requestparametern.
  */
 public class ParameterReader
 {
+	private static final Logger LOG = LogManager.getLogger(ParameterReader.class);
+
+	private static final Map<Class<?>,UrlParamKonverter> konverter = new HashMap<>();
+	static {
+		SortedSet<String> klassenNamen = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(UrlParamKonverterFuer.class);
+		for (String s : klassenNamen)
+		{
+			try
+			{
+				Class<?> cls = Class.forName(s);
+				if( !UrlParamKonverter.class.isAssignableFrom(cls) )
+				{
+					LOG.warn("Konverterklasse " + s + " implementiert nicht das korrekte Interface");
+					continue;
+				}
+				UrlParamKonverterFuer annotation = cls.getAnnotation(UrlParamKonverterFuer.class);
+				konverter.put(annotation.value(), cls.asSubclass(UrlParamKonverter.class).newInstance());
+			}
+			catch (ClassNotFoundException e)
+			{
+				LOG.warn("Konnte Konverterklasse " + s + " nicht laden", e);
+			}
+			catch (InstantiationException e)
+			{
+				LOG.warn("Konnte Konverterklasse " + s + " nicht instantiieren", e);
+			}
+			catch (IllegalAccessException e)
+			{
+				LOG.warn("Konnte Konverterklasse " + s + " nicht instantiieren", e);
+			}
+		}
+
+	}
+
 	private Request request;
 	private String subParameter;
 	private Map<String,Object> parameter = new HashMap<>();
@@ -28,6 +66,7 @@ public class ParameterReader
 		this.request = request;
 		this.session = session;
 		this.subParameter = "";
+
 	}
 
 	/**
@@ -231,6 +270,10 @@ public class ParameterReader
 		else if( Map.class.isAssignableFrom(type) )
 		{
 			return readMap(paramName, (ParameterizedType) typeDescription);
+		}
+		else if( konverter.containsKey(type) )
+		{
+			return konverter.get(type).konvertiere(this, paramName);
 		}
 		throw new IllegalArgumentException(type.getName()+" ist kein gueltiger Parametertyp fuer eine Action-Methode");
 	}
