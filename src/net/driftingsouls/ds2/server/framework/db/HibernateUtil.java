@@ -1,5 +1,6 @@
 package net.driftingsouls.ds2.server.framework.db;
 
+import net.driftingsouls.ds2.server.framework.AnnotationUtils;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -13,17 +14,13 @@ import org.hibernate.engine.spi.EntityKey;
 import org.hibernate.type.DoubleType;
 import org.hibernate.type.IntegerType;
 import org.hibernate.type.LongType;
-import org.scannotation.AnnotationDB;
-import org.scannotation.ClasspathUrlFinder;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URL;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 /**
  * Eine Hilfsklasse, um die Hibernate SessionFactory zu initialisieren.
@@ -55,10 +52,7 @@ public class HibernateUtil
     		configuration.addSqlFunction("bit_or", new SQLFunctionTemplate(IntegerType.INSTANCE, "?1 | ?2"));
 
             //Find all annotated classes and add to configuration
-			URL[] urls = ClasspathUrlFinder.findResourceBases("META-INF/ds.marker");
-			AnnotationDB db = new AnnotationDB();
-			db.scanArchives(urls);
-			SortedSet<String> entityClasses = new TreeSet<>(db.getAnnotationIndex().get(javax.persistence.Entity.class.getName()));
+			SortedSet<String> entityClasses = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(javax.persistence.Entity.class);
 			for( String cls : entityClasses )
 			{
 				try
