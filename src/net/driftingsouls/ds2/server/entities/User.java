@@ -18,26 +18,6 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
-import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import javax.persistence.CascadeType;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Transient;
-
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.comm.Ordner;
@@ -55,11 +35,9 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.JSONSupport;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitType;
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
@@ -68,7 +46,24 @@ import org.hibernate.Session;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Cascade;
+
+import javax.persistence.CascadeType;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Transient;
+import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 
 /**
@@ -191,12 +186,12 @@ public class User extends BasicUser implements JSONSupport {
 		 * Die Beziehungen des Spielers zu anderen Spielern.
 		 * Schluessel ist die Spieler-ID
 		 */
-		public Map<Integer,Relation> toOther = new HashMap<Integer,Relation>();
+		public Map<Integer,Relation> toOther = new HashMap<>();
 		/**
 		 * Die Beziehungen von anderen Spielern zum Spieler selbst.
 		 * Schluessel ist die Spieler-ID.
 		 */
-		public Map<Integer,Relation> fromOther = new HashMap<Integer,Relation>();
+		public Map<Integer,Relation> fromOther = new HashMap<>();
 
 		protected Relations() {
 			// EMPTY
@@ -242,20 +237,17 @@ public class User extends BasicUser implements JSONSupport {
     @OneToMany(mappedBy="user", cascade=CascadeType.ALL)
     private Set<Loyalitaetspunkte> loyalitaetspunkte;
 
-	@OneToMany
-	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH})
+	@OneToMany(cascade = {CascadeType.DETACH,CascadeType.REFRESH})
 	@JoinColumn(name="owner")
 	private Set<UserResearch> researches;
 
-	@OneToMany
-	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH})
+	@OneToMany(cascade = {CascadeType.DETACH,CascadeType.REFRESH})
 	@JoinColumn(name="owner")
 	// Explizit nur die Bases eines Users laden - sonst kommt Hibernate von Zeit zu Zeit auf die Idee die Bases von User 0 mitzuladen...
 	@BatchSize(size=1)
 	private Set<Base> bases;
 
-	@OneToMany
-	@Cascade({org.hibernate.annotations.CascadeType.EVICT,org.hibernate.annotations.CascadeType.REFRESH})
+	@OneToMany(cascade = {CascadeType.DETACH,CascadeType.REFRESH})
 	@JoinColumn(name="owner")
 	@BatchSize(size=1)
 	private Set<Ship> ships;
@@ -320,10 +312,10 @@ public class User extends BasicUser implements JSONSupport {
 		db.persist(this);
 		Ordner trash = Ordner.createNewOrdner("Papierkorb", Ordner.getOrdnerByID(0, this), this);
 		trash.setFlags(Ordner.FLAG_TRASH);
-		this.researches = new HashSet<UserResearch>();
+		this.researches = new HashSet<>();
 		addResearch(0);
 		this.specializationPoints = 15;
-		this.loyalitaetspunkte = new HashSet<Loyalitaetspunkte>();
+		this.loyalitaetspunkte = new HashSet<>();
 
 		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "gtudefaultdropzone");
 		int defaultDropZone = Integer.valueOf(value.getValue());
@@ -459,12 +451,15 @@ public class User extends BasicUser implements JSONSupport {
 				.setEntity("user", this)
 				.list();
 
-			for( Iterator<?> iter=relationlist.iterator(); iter.hasNext(); ) {
-				UserRelation relation = (UserRelation)iter.next();
-				if( relation.getUser().getId() == this.getId() ) {
+			for (Object aRelationlist : relationlist)
+			{
+				UserRelation relation = (UserRelation) aRelationlist;
+				if (relation.getUser().getId() == this.getId())
+				{
 					relations.toOther.put(relation.getTarget().getId(), Relation.values()[relation.getStatus()]);
 				}
-				else if( !relations.fromOther.containsKey(relation.getUser().getId()) ) {
+				else if (!relations.fromOther.containsKey(relation.getUser().getId()))
+				{
 					relations.fromOther.put(relation.getUser().getId(), Relation.values()[relation.getStatus()]);
 				}
 			}
@@ -814,14 +809,7 @@ public class User extends BasicUser implements JSONSupport {
 	 * @return <code>true</code>, falls der Spieler noch ein Noob ist
 	 */
 	public boolean isNoob() {
-		if( Configuration.getIntSetting("NOOB_PROTECTION") > 0 ) {
-			if( this.getId() < 0 ) {
-				return false;
-			}
-
-			return hasFlag( FLAG_NOOB );
-		}
-		return false;
+		return Configuration.getIntSetting("NOOB_PROTECTION") > 0 && this.getId() >= 0 && hasFlag(FLAG_NOOB);
 	}
 
 	/**
@@ -1176,12 +1164,8 @@ public class User extends BasicUser implements JSONSupport {
 
 		int costs = ticks * vacationCostsPerTick();
 
-		if(costs > getVacpoints())
-		{
-			return false;
-		}
+		return costs <= getVacpoints();
 
-		return true;
 	}
 
 	/**
@@ -1229,17 +1213,9 @@ public class User extends BasicUser implements JSONSupport {
 	 * @return boolean, true if user  is able to see the item
 	 */
 	public boolean canSeeItem(Item aitem) {
-		if( aitem.getAccessLevel() > this.getAccessLevel() )
-		{
-			return false;
-		}
+		return aitem.getAccessLevel() <= this.getAccessLevel() &&
+				(!aitem.isUnknownItem() || this.isKnownItem(aitem.getID()) || ContextMap.getContext().hasPermission("item", "unbekannteSichtbar"));
 
-		if( aitem.isUnknownItem() && !this.isKnownItem(aitem.getID()) &&
-				!ContextMap.getContext().hasPermission("item", "unbekannteSichtbar") )
-		{
-			return false;
-		}
-		return true;
 	}
 
 	/**
@@ -1329,7 +1305,7 @@ public class User extends BasicUser implements JSONSupport {
 	 */
 	public Set<Integer> getAstiSystems()
 	{
-		Set<Integer> systemlist = new HashSet<Integer>();
+		Set<Integer> systemlist = new HashSet<>();
 		for(Base base: this.bases)
 		{
 			int basesystem = base.getSystem();
@@ -1419,7 +1395,7 @@ public class User extends BasicUser implements JSONSupport {
 			return true;
 		}
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		long baseunit = 0;
+		long baseunit;
 		long shipunit = 0;
 
 		Object baseunitsuserobject = db.createQuery("select sum(e.amount) " +
@@ -1530,7 +1506,7 @@ public class User extends BasicUser implements JSONSupport {
 		{
 			return this.ally.getFullRangNameList();
 		}
-		return new TreeSet<Rang>(Medals.get().raenge().values());
+		return new TreeSet<>(Medals.get().raenge().values());
 	}
 
 	/**
