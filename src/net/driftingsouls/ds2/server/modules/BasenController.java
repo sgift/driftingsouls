@@ -55,7 +55,7 @@ public class BasenController extends TemplateGenerator {
 		ordmapper.put("type", Arrays.asList("type"));
 		ordmapper.put("sys", Arrays.asList("system","x","y"));
 		ordmapper.put("bew", Arrays.asList("bewohner"));
-		ordmapper.put("e", Arrays.asList("e"));
+		ordmapper.put("e", Arrays.asList("energy"));
 	}
 
 	/**
