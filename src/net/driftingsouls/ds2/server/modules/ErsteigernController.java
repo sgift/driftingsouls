@@ -72,7 +72,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -391,15 +390,15 @@ public class ErsteigernController extends TemplateGenerator
 		{
 			super(data[0]);
 
-			for( int i = 0; i < data.length; i++ )
+			for (FactionShopEntry aData : data)
 			{
-				if( data[i].getPrice() < this.minprice )
+				if (aData.getPrice() < this.minprice)
 				{
-					this.minprice = data[i].getPrice();
+					this.minprice = aData.getPrice();
 				}
-				if( data[i].getPrice() > this.maxprice )
+				if (aData.getPrice() > this.maxprice)
 				{
-					this.maxprice = data[i].getPrice();
+					this.maxprice = aData.getPrice();
 				}
 				this.ganytransid = data[0].getId();
 			}
@@ -462,7 +461,6 @@ public class ErsteigernController extends TemplateGenerator
 		}
 	}
 
-	private int ticks = 0;
 	private int faction = 0;
 	private boolean allowsTrade = true;
 
@@ -585,8 +583,6 @@ public class ErsteigernController extends TemplateGenerator
 				"global.faction.name", Common._title(factionuser.getName()),
 				"global.menusize", pages.getMenuSize());
 
-		this.ticks = getContext().get(ContextCommon.class).getTick();
-
 		return true;
 	}
 
@@ -619,12 +615,12 @@ public class ErsteigernController extends TemplateGenerator
 	 * Gibt ein Gebot auf eine Versteigerung ab bzw zeigt, falls kein Gebot angegeben wurde, die
 	 * angegebene Versteigerung an.
 	 *
-	 * @urlparam Integer bid Der gebotene Betrag oder 0
-	 * @urlparam Integer auk Die Auktion auf die geboten werden soll
+	 * @param bid Der gebotene Betrag oder 0
+	 * @param entry Die Auktion auf die geboten werden soll
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void bidEntryAction()
+	public void bidEntryAction(int bid, @UrlParam(name="auk") Versteigerung entry)
 	{
 		if( !Faction.get(faction).getPages().hasPage("versteigerung") )
 		{
@@ -642,14 +638,6 @@ public class ErsteigernController extends TemplateGenerator
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
-
-		parameterNumber("bid");
-		int bid = getInteger("bid");
-
-		parameterNumber("auk");
-		int auk = getInteger("auk");
-
-		Versteigerung entry = (Versteigerung)db.get(Versteigerung.class, auk);
 
 		if( entry == null || (entry.getOwner().getId() == user.getId()) )
 		{
@@ -697,17 +685,23 @@ public class ErsteigernController extends TemplateGenerator
 				cost++;
 			}
 
-			t.setVar("show.bid.entry", 1, "entry.type.name", StringEscapeUtils
-					.escapeJavaScript(StringUtils.replaceChars(entryname, '"', '\'')),
-					"entry.type.image", entryimage, "entry.link", entrylink, "entry.width",
-					entrywidth, "entry.height", entrywidth, "entry.count", entrycount,
-					"bid.player", Common._title(bietername), "bid.player.id", bieter.getId(),
-					"bid.price", cost, "bid.id", auk);
+			t.setVar("show.bid.entry", 1,
+					"entry.type.name", StringEscapeUtils.escapeJavaScript(StringUtils.replaceChars(entryname, '"', '\'')),
+					"entry.type.image", entryimage,
+					"entry.link", entrylink,
+					"entry.width", entrywidth,
+					"entry.height", entrywidth,
+					"entry.count", entrycount,
+					"bid.player", Common._title(bietername),
+					"bid.player.id", bieter.getId(),
+					"bid.price", cost,
+					"bid.id", entry.getId());
 			return;
 		}
 		// Gebot bestaetigt -> Versteigerung aktuallisieren
 		else if( bid > 0 )
 		{
+			int ticks = getContext().get(ContextCommon.class).getTick();
 			long cost = entry.getPreis() + (long)(entry.getPreis() / 20d);
 			if( cost == entry.getPreis() )
 			{
@@ -724,16 +718,13 @@ public class ErsteigernController extends TemplateGenerator
 					User bieter = entry.getBieter();
 					User factionUser = (User)db.get(User.class, faction);
 
-					PM
-							.send(
-									factionUser,
-									entry.getBieter().getId(),
-									"Bei Versteigerung &uuml;berboten",
-									"Sie wurden bei der Versteigerung um '"
-											+ entryname
-											+ "' &uuml;berboten. Die von ihnen gebotenen RE in H&ouml;he von "
-											+ Common.ln(entry.getPreis())
-											+ " wurden auf ihr Konto zur&uuml;ck&uuml;berwiesen.\n\nGaltracorp Unlimited");
+					PM.send(factionUser, entry.getBieter().getId(),
+							"Bei Versteigerung &uuml;berboten",
+							"Sie wurden bei der Versteigerung um '"
+									+ entryname
+									+ "' &uuml;berboten. Die von ihnen gebotenen RE in H&ouml;he von "
+									+ Common.ln(entry.getPreis())
+									+ " wurden auf ihr Konto zur&uuml;ck&uuml;berwiesen.\n\nGaltracorp Unlimited");
 
 					bieter.transferMoneyFrom(faction, entry.getPreis(),
 							"R&uuml;ck&uuml;berweisung Gebot #2" + entry.getId() + " '" + entryname
@@ -860,8 +851,10 @@ public class ErsteigernController extends TemplateGenerator
 			return;
 		}
 
+		int ticks = getContext().get(ContextCommon.class).getTick();
+
 		tmp.transferMoneyFrom(user.getId(), count, "&Uuml;berweisung vom "
-				+ Common.getIngameTime(this.ticks));
+				+ Common.getIngameTime(ticks));
 		User factionUser = (User)db.get(User.class, Faction.BANK);
 
 		PM.send(factionUser, tmp.getId(), "RE &uuml;berwiesen", user.getNickname()
@@ -879,11 +872,11 @@ public class ErsteigernController extends TemplateGenerator
 	/**
 	 * Aendert den Anzeigetyp fuer Kontotransaktionen.
 	 *
-	 * @urlparam Integer type Der neue Anzeigetyp (0-2)
+	 * @param type Der neue Anzeigetyp (0-2)
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void showKontoTransactionTypeAction()
+	public void showKontoTransactionTypeAction(int type)
 	{
 		if( !Faction.get(faction).getPages().hasPage("bank") )
 		{
@@ -892,9 +885,6 @@ public class ErsteigernController extends TemplateGenerator
 		}
 
 		User user = (User)getUser();
-
-		parameterNumber("type");
-		int type = getInteger("type");
 
 		if( (type >= 0) && (type < 3) )
 		{
@@ -950,13 +940,13 @@ public class ErsteigernController extends TemplateGenerator
 								+ "where umt.type<= :transtype and (umt.from= :user or umt.to= :user) order by umt.time desc")
 				.setInteger("transtype", transtype).setEntity("user", user).setMaxResults(40)
 				.list();
-		for( Iterator<?> iter = transferList.iterator(); iter.hasNext(); )
+		for (Object aTransferList : transferList)
 		{
-			UserMoneyTransfer entry = (UserMoneyTransfer)iter.next();
+			UserMoneyTransfer entry = (UserMoneyTransfer) aTransferList;
 
 			User player;
 
-			if( user.equals(entry.getFrom()) )
+			if (user.equals(entry.getFrom()))
 			{
 				player = entry.getTo();
 			}
@@ -968,16 +958,16 @@ public class ErsteigernController extends TemplateGenerator
 			// Negative Ueberweiszungen (die GTU wollte z.B. Geld von uns) beruecksichtigen
 			int from = 0;
 			BigInteger count = entry.getCount();
-			if( user.equals(entry.getFrom())
-					|| (count.compareTo(BigInteger.ZERO) < 0 && !user.equals(entry.getFrom())) )
+			if (user.equals(entry.getFrom())
+					|| (count.compareTo(BigInteger.ZERO) < 0 && !user.equals(entry.getFrom())))
 			{
 				from = 1;
 			}
 
 			// Ueberweiszungen an andere durch - kennzeichnen
-			if( from == 1 )
+			if (from == 1)
 			{
-				if( count.compareTo(BigInteger.ZERO) > 0 )
+				if (count.compareTo(BigInteger.ZERO) > 0)
 				{
 					count = count.negate();
 				}
@@ -989,9 +979,9 @@ public class ErsteigernController extends TemplateGenerator
 
 			t.setVar("moneytransfer.time", Common.date("j.n.Y H:i", entry.getTime()),
 					"moneytransfer.from", from, "moneytransfer.player", Common._title(player
-							.getName()), "moneytransfer.player.id", player.getId(),
+					.getName()), "moneytransfer.player.id", player.getId(),
 					"moneytransfer.count", Common.ln(count), "moneytransfer.reason", entry
-							.getText());
+					.getText());
 
 			t.parse("moneytransfer.list", "moneytransfer.listitem", true);
 		}
@@ -1231,7 +1221,7 @@ public class ErsteigernController extends TemplateGenerator
 		 * Laufende Handelsvereinbarungen anzeigen (nur solche, die man schon selbst erfuellt hat im
 		 * Moment)
 		 */
-		Set<Ship> gzlliste = new HashSet<Ship>();
+		Set<Ship> gzlliste = new HashSet<>();
 
 		List<?> entries = db.createQuery("from GtuZwischenlager where user1= :user or user2= :user")
 				.setEntity("user", user).list();
@@ -1307,13 +1297,15 @@ public class ErsteigernController extends TemplateGenerator
 				ownername = Common._title(entry.getOwner().getName());
 			}
 
+			int ticks = getContext().get(ContextCommon.class).getTick();
+
 			t.setVar("entry.link", entry.getObjectUrl(),
 					"entry.type.name", entryname,
 					"entry.type.image", entry.getObjectPicture(),
 					"entry.preis", Common.ln(entry.getPreis()),
 					"entry.bieter", Common._title(bietername),
 					"entry.bieter.id", entry.getBieter().getId(),
-					"entry.dauer", entry.getTick() - this.ticks,
+					"entry.dauer", entry.getTick() - ticks,
 					"entry.aukid", entry.getId(),
 					"entry.width", entrywidth,
 					"entry.height", entrywidth,
@@ -1370,17 +1362,17 @@ public class ErsteigernController extends TemplateGenerator
 	/**
 	 * Berechnet die Kosten eines Transportauftrags und speichert ihn in der Datenbank.
 	 *
-	 * @urlparam Integer sourcesystem Das Ausgangssystem
-	 * @urlparam Integer ganymedeid Die ID der zu transportierenden Ganymede
-	 * @urlparam Integer targetsystem Die ID des Zielsystems
-	 * @urlparam Integer targetx Die Ziel-X-Koordinate
-	 * @urlparam Integer targety Die Ziel-Y-Koordinate
-	 * @urlparam Integer transport Sofert der Wert <code>1</code>, wird der Transportauftrag
+	 * @param sourcesystem Das Ausgangssystem
+	 * @param ganymedeid Die ID der zu transportierenden Ganymede
+	 * @param targetsystem Die ID des Zielsystems
+	 * @param targetx Die Ziel-X-Koordinate
+	 * @param targety Die Ziel-Y-Koordinate
+	 * @param transport Sofert der Wert <code>1</code>, wird der Transportauftrag
 	 *           bestaetigt und abgespeichert
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void shopOrderGanymedeSummaryAction()
+	public void shopOrderGanymedeSummaryAction(int sourcesystem, int ganymedeid, int targetsystem, int targetx, int targety, int transport)
 	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
@@ -1410,20 +1402,6 @@ public class ErsteigernController extends TemplateGenerator
 			this.redirect();
 			return;
 		}
-
-		parameterNumber("sourcesystem");
-		parameterNumber("ganymedeid");
-		parameterNumber("targetsystem");
-		parameterNumber("targetx");
-		parameterNumber("targety");
-		parameterNumber("transport");
-
-		int sourcesystem = getInteger("sourcesystem");
-		int ganymedeid = getInteger("ganymedeid");
-		int targetsystem = getInteger("targetsystem");
-		int targetx = getInteger("targetx");
-		int targety = getInteger("targety");
-		int transport = getInteger("transport");
 
 		Ship gany = (Ship)db.get(Ship.class, ganymedeid);
 
@@ -1488,7 +1466,7 @@ public class ErsteigernController extends TemplateGenerator
 		}
 
 		// Weg finden und Preis ausrechnen
-		Map<Integer, List<JumpNode>> jumpnodes = new HashMap<Integer, List<JumpNode>>();
+		Map<Integer, List<JumpNode>> jumpnodes = new HashMap<>();
 		List<?> jnList = db.createQuery("from JumpNode where hidden=0 and (systemOut!=:source or system=:source)")
 			.setInteger("source", sourcesystem)
 			.list();
@@ -1513,7 +1491,7 @@ public class ErsteigernController extends TemplateGenerator
 		}
 		else
 		{
-			Map<String, Long> costindex = new HashMap<String, Long>();
+			Map<String, Long> costindex = new HashMap<>();
 			List<FactionShopEntry> entries = Common.cast(db
 					.createQuery("from FactionShopEntry where faction=:faction and type=:type")
 					.setParameter("faction", this.faction)
@@ -1524,7 +1502,7 @@ public class ErsteigernController extends TemplateGenerator
 				costindex.put(entry.getResource(), entry.getPrice());
 			}
 
-			Set<Integer> systemlist = new HashSet<Integer>();
+			Set<Integer> systemlist = new HashSet<>();
 			systemlist.add(sourcesystem);
 			for( int i = 0; i < shortestpath.path.size(); i++ )
 			{
@@ -1581,19 +1559,16 @@ public class ErsteigernController extends TemplateGenerator
 					"&Uuml;berweisung Bestellung #ganytransXX" + gany.getId());
 
 			StringBuilder waypoints = new StringBuilder(300);
-			waypoints.append("Start: " + sourcesystem + ":" + gany.getX() + "/"
-					+ gany.getY() + "\n");
+			waypoints.append("Start: ").append(sourcesystem).append(":").append(gany.getX()).append("/").append(gany.getY()).append("\n");
 			for( int i = 0; i < shortestpath.path.size(); i++ )
 			{
 				JumpNode jn = shortestpath.path.get(i);
 
-				waypoints.append(jn.getSystem() + ":" + jn.getX() + "/" + jn.getY()
-						+ " -> ");
-				waypoints.append(jn.getSystemOut() + ":" + jn.getXOut() + "/"
-						+ jn.getYOut() + " ");
-				waypoints.append("[ID: " + jn.getId() + "]\n");
+				waypoints.append(jn.getSystem()).append(":").append(jn.getX()).append("/").append(jn.getY()).append(" -> ");
+				waypoints.append(jn.getSystemOut()).append(":").append(jn.getXOut()).append("/").append(jn.getYOut()).append(" ");
+				waypoints.append("[ID: ").append(jn.getId()).append("]\n");
 			}
-			waypoints.append("Ziel: " + targetsystem + ":" + targetx + "/" + targety + "\n");
+			waypoints.append("Ziel: ").append(targetsystem).append(":").append(targetx).append("/").append(targety).append("\n");
 
 			PM.send(user, this.faction, "[auto] Shop-Bestellung [Ganymede]",
 					"Besteller: [userprofile=" + user.getId() + "]" + user.getName() + " ("
@@ -1627,15 +1602,15 @@ public class ErsteigernController extends TemplateGenerator
 	/**
 	 * Zeigt die GUI zur Erstellung eines Ganymede-Transportauftrags.
 	 *
-	 * @urlparam Integer sourcesystem Das Ausgangssystem
-	 * @urlparam Integer ganymedeid Die ID der zu transportierenden Ganymede
-	 * @urlparam Integer targetsystem Die ID des Zielsystems
-	 * @urlparam Integer targetx Die Ziel-X-Koordinate
-	 * @urlparam Integer targety Die Ziel-Y-Koordinate
+	 * @param sourcesystem Das Ausgangssystem
+	 * @param ganymedeid Die ID der zu transportierenden Ganymede
+	 * @param targetsystem Die ID des Zielsystems
+	 * @param targetx Die Ziel-X-Koordinate
+	 * @param targety Die Ziel-Y-Koordinate
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void shopOrderGanymedeAction()
+	public void shopOrderGanymedeAction(int sourcesystem, int ganymedeid, int targetsystem, int targetx, int targety)
 	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User)getUser();
@@ -1666,17 +1641,9 @@ public class ErsteigernController extends TemplateGenerator
 			return;
 		}
 
-		parameterNumber("sourcesystem");
-		parameterNumber("ganymedeid");
-		parameterNumber("targetsystem");
-		parameterNumber("targetx");
-		parameterNumber("targety");
-
-		int sourcesystem = getInteger("sourcesystem");
-
 		// Wenn alle Parameter eingegebene wurden -> shopOrderGanymedeSummary
-		if( getInteger("targetsystem") != 0 && getInteger("ganymedeid") != 0
-				&& getInteger("targetx") != 0 && getInteger("targety") != 0 && sourcesystem != 0 )
+		if( targetsystem != 0 && ganymedeid != 0
+				&& targetx != 0 && targety != 0 && sourcesystem != 0 )
 		{
 
 			redirect("shopOrderGanymedeSummary");
@@ -1693,7 +1660,7 @@ public class ErsteigernController extends TemplateGenerator
 		t.parse("ganytrans.sourcesystem.list", "ganytrans.sourcesystem.listitem", true);
 
 		// Liste aller bereits mit einem Transport-Auftrag ausgestatteten Ganys generieren
-		Set<Integer> blockedganylist = new HashSet<Integer>();
+		Set<Integer> blockedganylist = new HashSet<>();
 
 		List<FactionShopOrder> orderList = Common.cast(db
 				.createQuery("from FactionShopOrder fso " +
@@ -1822,15 +1789,15 @@ public class ErsteigernController extends TemplateGenerator
 	 * Fuehrt eine Bestellung im Shop aus. Der User muss dazu eine gewuenschte Lieferposition
 	 * angeben. Wenn diese noch nicht angegeben wurde, wird sie erfragt.
 	 *
-	 * @urlparam Integer shopentry Die ID des Shopeintrags, der bestellt werden soll
-	 * @urlparam Integer ordercount Die Liefermenge
-	 * @urlparam Integer ordersys Das Liefersystem
-	 * @urlparam Integer orderx Die X-Komponente der Lieferkoordinate
-	 * @urlparam Integer ordery Die Y-Komponente der Lieferkoordinate
+	 * @param shopentry Die ID des Shopeintrags, der bestellt werden soll
+	 * @param ordercount Die Liefermenge
+	 * @param ordersys Das Liefersystem
+	 * @param orderx Die X-Komponente der Lieferkoordinate
+	 * @param ordery Die Y-Komponente der Lieferkoordinate
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void shopOrderAction()
+	public void shopOrderAction(FactionShopEntry shopentry, int ordercount, int ordersys, int orderx, int ordery)
 	{
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
@@ -1849,13 +1816,6 @@ public class ErsteigernController extends TemplateGenerator
 			return;
 		}
 
-		parameterNumber("shopentry");
-		parameterNumber("ordercount");
-
-		int shopentryID = getInteger("shopentry");
-		int ordercount = getInteger("ordercount");
-
-		FactionShopEntry shopentry = (FactionShopEntry)db.get(FactionShopEntry.class, shopentryID);
 		if( shopentry == null )
 		{
 			t.setVar("show.message",
@@ -1893,14 +1853,6 @@ public class ErsteigernController extends TemplateGenerator
 			redirect("shop");
 			return;
 		}
-
-		parameterNumber("ordersys");
-		parameterNumber("orderx");
-		parameterNumber("ordery");
-
-		int ordersys = getInteger("ordersys");
-		int orderx = getInteger("orderx");
-		int ordery = getInteger("ordery");
 
 		ShopEntry entry;
 

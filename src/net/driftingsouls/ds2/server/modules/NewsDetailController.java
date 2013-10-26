@@ -1,7 +1,5 @@
 package net.driftingsouls.ds2.server.modules;
 
-import java.io.IOException;
-
 import net.driftingsouls.ds2.server.entities.NewsEntry;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -11,55 +9,46 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
-import org.hibernate.Session;
+import java.io.IOException;
 
 /**
  * Ein einzelner Newseintrag.
- * 
+ *
  * @author Sebastian Gift
  */
-@Module(name="newsdetail")
+@Module(name = "newsdetail")
 public class NewsDetailController extends TemplateGenerator
 {
 	/**
 	 * Legt den News Detail Eintrag an.
-	 * 
+	 *
 	 * @param context Der Kontext.
 	 */
 	public NewsDetailController(Context context)
 	{
 		super(context);
-		
+
 		setTemplate("newsdetail.html");
 	}
 
 	@Override
-	protected boolean validateAndPrepare(String action)
-	{
-		return true;
-	}
-	
-	@Override
 	protected void printHeader()
-	{}
-	
+	{
+	}
+
 	/**
 	 * Zeigt den Newseintrag an.
 	 */
-	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() throws IOException
+	public void defaultAction(NewsEntry newsid) throws IOException
 	{
 		TemplateEngine t = getTemplateEngine();
-		Session db = getDB();
-		
-		parameterNumber("newsid");
-		NewsEntry entry = (NewsEntry)db.get(NewsEntry.class, getInteger("newsid"));
-		if(entry != null)
+
+		if (newsid != null)
 		{
-			t.setVar("news.headline", entry.getTitle(),
-					 "news.date", Common.date("d.m.Y H:i", entry.getDate()),
-					 "news.text", Common._text(entry.getNewsText()));
+			t.setVar("news.headline", newsid.getTitle(),
+					"news.date", Common.date("d.m.Y H:i", newsid.getDate()),
+					"news.text", Common._text(newsid.getNewsText()));
 		}
 		else
 		{

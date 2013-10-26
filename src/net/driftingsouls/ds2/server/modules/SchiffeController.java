@@ -32,6 +32,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
@@ -51,51 +52,36 @@ import java.util.Map.Entry;
 
 /**
  * Die Schiffsliste.
+ *
  * @author Christopher Jung
- *
- * @urlparam String only Die anzuzeigende Schiffsart. Falls leer werden alle Schiffe angezeigt
- * @urlparam Integer low Falls != 0 werden alle Schiffe mit Mangel angezeigt
- * @urlparam Integer crewless Falls != 0 werden alle Schiffe ohne Crew angezeigt
- * @urlparam Integer listoffset Der Offset innerhalb der Liste der Schiffe
- * @urlparam Integer kampf_only Falls != 0 werden nur Kriegsschiffe der Schiffsklasse mit der angegebenen ID angezeigt
- *
  */
-@Module(name="schiffe")
-public class SchiffeController extends TemplateGenerator {
+@Module(name = "schiffe")
+public class SchiffeController extends TemplateGenerator
+{
 	private static final Log log = LogFactory.getLog(SchiffeController.class);
 
 	/**
 	 * Konstruktor.
+	 *
 	 * @param context Der zu verwendende Kontext
 	 */
-	public SchiffeController(Context context) {
+	public SchiffeController(Context context)
+	{
 		super(context);
 
 		setTemplate("schiffe.html");
-
-		parameterString("only");
-		parameterNumber("low");
-		parameterNumber("crewless");
-		parameterNumber("listoffset");
-		parameterNumber("kampf_only");
-	}
-
-	@Override
-	protected boolean validateAndPrepare(String action) {
-		return true;
 	}
 
 	/**
 	 * Aendert den Anzeigemodus fuer den Cargo.
-	 * @urlparam String mode Der Anzeigemodus fuer den Cargo (<code>carg</code> oder <code>norm</code>)
 	 *
+	 * @param mode Der Anzeigemodus fuer den Cargo (<code>carg</code> oder <code>norm</code>)
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeModeAction() {
-		parameterString("mode");
-
-		String mode = getString("mode");
-		if( mode.equals("carg") || mode.equals("norm") ) {
+	public void changeModeAction(String mode)
+	{
+		if (mode.equals("carg") || mode.equals("norm"))
+		{
 			getUser().setUserValue("TBLORDER/schiffe/mode", mode);
 		}
 
@@ -104,15 +90,14 @@ public class SchiffeController extends TemplateGenerator {
 
 	/**
 	 * Aendert den Sortierungsmodus fuer die Schiffe.
-	 * @urlparam String order Das neue Sortierkriterium
 	 *
+	 * @param order Das neue Sortierkriterium
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeOrderAction() {
-		parameterString("order");
-
-		String order = getString("order");
-		if( Common.inArray(order, new String[]{"id","name","type","sys","crew","hull","e"}) ) {
+	public void changeOrderAction(String order)
+	{
+		if (Common.inArray(order, new String[]{"id", "name", "type", "sys", "crew", "hull", "e"}))
+		{
 			getUser().setUserValue("TBLORDER/schiffe/order", order);
 		}
 
@@ -121,40 +106,44 @@ public class SchiffeController extends TemplateGenerator {
 
 	/**
 	 * Aendert den Anzeigemodus fuer gelandete Jaeger.
-	 * @urlparam Integer showLJaegder Falls != 0 werden gelandete Jaeger angezeigt
+	 *
+	 * @param showLJaeger Falls != 0 werden gelandete Jaeger angezeigt
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeJDockedAction() {
-		parameterNumber("showLJaeger");
-
-		this.getUser().setUserValue("TBLORDER/schiffe/showjaeger", Integer.toString(getInteger("showLJaeger")));
+	public void changeJDockedAction(int showLJaeger)
+	{
+		this.getUser().setUserValue("TBLORDER/schiffe/showjaeger", Integer.toString(showLJaeger));
 
 		this.redirect();
 	}
 
 	private static final int MAX_SHIPS_PER_PAGE = 250;
 
-	@Override
-	@Action(value=ActionType.DEFAULT, readOnly=true)
-	public void defaultAction() {
+	/**
+	 * Zeigt die Schiffsliste an.
+	 *
+	 * @param only Die anzuzeigende Schiffsart. Falls leer werden alle Schiffe angezeigt
+	 * @param low Falls != 0 werden alle Schiffe mit Mangel angezeigt
+	 * @param crewless Falls != 0 werden alle Schiffe ohne Crew angezeigt
+	 * @param listoffset Der Offset innerhalb der Liste der Schiffe
+	 * @param kampfOnly Falls != 0 werden nur Kriegsschiffe der Schiffsklasse mit der angegebenen ID angezeigt
+	 */
+	@Action(value = ActionType.DEFAULT, readOnly = true)
+	public void defaultAction(String only, int low, int crewless, int listoffset, @UrlParam(name = "kampf_only") int kampfOnly)
+	{
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
-		User user = (User)getUser();
+		User user = (User) getUser();
 
-		String only = getString("only");
-		int low = getInteger("low");
-		int crewless = getInteger("crewless");
-		int listoffset = getInteger("listoffset");
-
-		t.setVar(	"global.low",		low,
-				  	"global.crewless",	crewless,
-				  	"global.only",		only,
-				  	"user.race",		user.getRace());
+		t.setVar("global.low", low,
+				"global.crewless", crewless,
+				"global.only", only,
+				"user.race", user.getRace());
 
 		String ord = user.getUserValue("TBLORDER/schiffe/order");
 		String showjaeger = user.getUserValue("TBLORDER/schiffe/showjaeger");
 
-		Map<String,String> ordermapper = new HashMap<String,String>();
+		Map<String, String> ordermapper = new HashMap<>();
 		ordermapper.put("id", "s.id");
 		ordermapper.put("name", "s.name,s.id");
 		ordermapper.put("type", "s.shiptype,s.id");
@@ -165,87 +154,100 @@ public class SchiffeController extends TemplateGenerator {
 
 		String ow = ordermapper.get(ord);
 
-		String query = "select s from Ship as s left join s.modules m "+
-			"where s.id>0 and s.owner=:owner and ";
+		String query = "select s from Ship as s left join s.modules m " +
+				"where s.id>0 and s.owner=:owner and ";
 
-		if( low != 0 ) {
+		if (low != 0)
+		{
 			query += "(locate('mangel_nahrung',s.status)!=0 or locate('mangel_reaktor',s.status)!=0) and locate('nocrew',s.status)=0 and ";
 		}
-		if( crewless != 0 ) {
+		if (crewless != 0)
+		{
 			query += "((s.modules is not null and s.crew < (select crew from ShipModules where id=s.modules)) or s.crew < (select crew from ShipType where id = s.shiptype)) and ";
 		}
 
-		if( only.equals("kampf") && (showjaeger.equals("0")) ) {
+		if (only.equals("kampf") && (showjaeger.equals("0")))
+		{
 			query += "locate('l ',s.docked)=0 and ";
 		}
 
-		if( only.equals("tank") )	{
-			query += "s.shiptype.shipClass=3 order by "+ow;
-		}
-		else if( only.equals("versorger")) {
-			query += "(locate('versorger',s.shiptype.flags)!=0 or (s.modules is not null and locate('versorger',m.flags)!=0)) order by "+ow;
-		}
-		else if( only.equals("def") )	{
-			query += "s.shiptype.shipClass=10 order by "+ow;
-		}
-		else if( only.equals("werften") )	{
-			query += "s.shiptype.werft>0 order by "+ow;
-		}
-		else if( only.equals("sensor") ) {
-			query += "(s.shiptype.shipClass=13 or s.shiptype.shipClass=11) order by "+ow;
-		}
-		else if( only.equals("cargo") )	{
-			query += "s.shiptype.shipClass=8 order by "+ow;
-		}
-		else if( only.equals("trans") ) 	{
-			query += "s.shiptype.shipClass=1 order by "+ow;
-		}
-		else if( only.equals("zivil") ) 	{
-			query += "(locate('=',s.shiptype.weapons)=0 and (s.modules is null or locate('=',m.weapons)=0)) order by "+ow;
-		}
-		else if( only.equals("kampf") ) {
-			String sql_only;
+		switch (only)
+		{
+			case "tank":
+				query += "s.shiptype.shipClass=3 order by " + ow;
+				break;
+			case "versorger":
+				query += "(locate('versorger',s.shiptype.flags)!=0 or (s.modules is not null and locate('versorger',m.flags)!=0)) order by " + ow;
+				break;
+			case "def":
+				query += "s.shiptype.shipClass=10 order by " + ow;
+				break;
+			case "werften":
+				query += "s.shiptype.werft>0 order by " + ow;
+				break;
+			case "sensor":
+				query += "(s.shiptype.shipClass=13 or s.shiptype.shipClass=11) order by " + ow;
+				break;
+			case "cargo":
+				query += "s.shiptype.shipClass=8 order by " + ow;
+				break;
+			case "trans":
+				query += "s.shiptype.shipClass=1 order by " + ow;
+				break;
+			case "zivil":
+				query += "(locate('=',s.shiptype.weapons)=0 and (s.modules is null or locate('=',m.weapons)=0)) order by " + ow;
+				break;
+			case "kampf":
+				String sql_only;
 
-			if( getInteger("kampf_only") == 0 ) {
-				sql_only = "s.shiptype.shipClass in (2,4,5,6,7,9,15,16,17)";
-			}
-			else {
-				sql_only = "s.shiptype.shipClass="+getInteger("kampf_only");
-				t.setVar("global.kampf_only",getInteger("kampf_only"));
-			}
-			query += sql_only+" order by "+ow;
-		}
-		else {
-			query += "s.shiptype.shipClass > -1 order by "+ow;
-		}
-
-		if( only.equals("tank") ) {
-			t.setVar("only.tank", 1);
-		}
-		else if( only.equals("kampf") ) {
-			t.setVar(	"only.kampf", 1,
-				 		"only.kampf.showljaeger", (showjaeger.equals("1")? "checked=\"checked\"":"") );
-
-			if( getInteger("kampf_only") == 0 ) {
-				t.setVar("only.kampf.selected-1","selected=\"selected\"");
-			}
-			else {
-				t.setVar("only.kampf.selected"+getInteger("kampf_only"), "selected=\"selected\"");
-			}
-		}
-		else {
-			t.setVar("only.other",1);
+				if (kampfOnly == 0)
+				{
+					sql_only = "s.shiptype.shipClass in (2,4,5,6,7,9,15,16,17)";
+				}
+				else
+				{
+					sql_only = "s.shiptype.shipClass=" + kampfOnly;
+					t.setVar("global.kampf_only", kampfOnly);
+				}
+				query += sql_only + " order by " + ow;
+				break;
+			default:
+				query += "s.shiptype.shipClass > -1 order by " + ow;
+				break;
 		}
 
-		String[] alarms = {"green","yellow","red"};
+		switch (only)
+		{
+			case "tank":
+				t.setVar("only.tank", 1);
+				break;
+			case "kampf":
+				t.setVar("only.kampf", 1,
+						"only.kampf.showljaeger", (showjaeger.equals("1") ? "checked=\"checked\"" : ""));
+
+				if (kampfOnly == 0)
+				{
+					t.setVar("only.kampf.selected-1", "selected=\"selected\"");
+				}
+				else
+				{
+					t.setVar("only.kampf.selected" + kampfOnly, "selected=\"selected\"");
+				}
+				break;
+			default:
+				t.setVar("only.other", 1);
+				break;
+		}
+
+		String[] alarms = {"green", "yellow", "red"};
 
 		int shiplistcount = 0;
 
-		t.setBlock("_SCHIFFE","schiffe.listitem","schiffe.list");
-		t.setBlock("schiffe.listitem","schiffe.resitem","schiffe.reslist");
-		t.setBlock("schiffe.listitem","schiffe.unititem","schiffe.unitlist");
+		t.setBlock("_SCHIFFE", "schiffe.listitem", "schiffe.list");
+		t.setBlock("schiffe.listitem", "schiffe.resitem", "schiffe.reslist");
+		t.setBlock("schiffe.listitem", "schiffe.unititem", "schiffe.unitlist");
 
-		if(listoffset > 0)
+		if (listoffset > 0)
 		{
 			//prefoffset is 0 for first page -> can't use it in if
 			t.setVar("schiffe.hasprevoffset", 1);
@@ -253,10 +255,10 @@ public class SchiffeController extends TemplateGenerator {
 		}
 
 		List<?> ships = db.createQuery(query)
-			.setEntity("owner", user)
-			.setMaxResults(MAX_SHIPS_PER_PAGE+1)
-			.setFirstResult(listoffset)
-			.list();
+				.setEntity("owner", user)
+				.setMaxResults(MAX_SHIPS_PER_PAGE + 1)
+				.setFirstResult(listoffset)
+				.list();
 		for (Object ship1 : ships)
 		{
 			Ship ship = (Ship) ship1;
@@ -370,7 +372,7 @@ public class SchiffeController extends TemplateGenerator {
 						}
 
 						StringBuilder popup = new StringBuilder(100);
-						popup.append("Belegte Werftslots: <img style='vertical-align:middle;border:0px' src='./data/interface/schiffinfo/werftslots.png' alt='' />" + usedSlots + "/" + totalSlots + "<br />");
+						popup.append("Belegte Werftslots: <img style='vertical-align:middle;border:0px' src='./data/interface/schiffinfo/werftslots.png' alt='' />").append(usedSlots).append("/").append(totalSlots).append("<br />");
 						popup.append("Im Bau: ").append(buildingCount).append(" Schiffe<br />");
 						popup.append("In der Warteschlange: ").append(entries.length - buildingCount);
 						popup.append(imBau);

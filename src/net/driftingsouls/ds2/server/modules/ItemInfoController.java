@@ -85,12 +85,6 @@ public class ItemInfoController extends TemplateGenerator
 		setPageTitle("Item");
 	}
 
-	@Override
-	protected boolean validateAndPrepare(String action)
-	{
-		return true;
-	}
-
 	private void colorize(StringBuilder effecttext, Object mod)
 	{
 		long value = ((Number) mod).longValue();

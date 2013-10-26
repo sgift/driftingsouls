@@ -18,10 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -34,62 +30,64 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import java.io.IOException;
+import java.util.List;
+
 /**
  * Zeigt alle Objekte an, welche zu einem Suchbegriff passen.
- * @author Christopher Jung
  *
- * @urlparam String search Der Suchbegriff
+ * @author Christopher Jung
  */
-@Module(name="search")
-public class SearchController extends DSGenerator {
+@Module(name = "search")
+public class SearchController extends DSGenerator
+{
 	private static final int MAX_OBJECTS = 25;
 
 	/**
 	 * Konstruktor.
+	 *
 	 * @param context Der zu verwendende Kontext
 	 */
-	public SearchController(Context context) {
+	public SearchController(Context context)
+	{
 		super(context);
-
-		parameterString("search");
-	}
-
-	@Override
-	protected boolean validateAndPrepare(String action) {
-		return true;
 	}
 
 	/**
 	 * AJAX-Suche mit JSON-Antwort.
+	 *
+	 * @param search Der Suchbegriff
+	 * @param only Falls angegeben der Objekttyp in dem nur gesucht werden soll
+	 * @param max Die maximale Anzahl an zu findenden Eintraegen
 	 * @throws IOException
 	 */
 	@Action(ActionType.AJAX)
-	public void searchAction() throws IOException {
+	public void searchAction(String search, String only, int max) throws IOException
+	{
 		org.hibernate.Session db = getDB();
 		JSONObject json = new JSONObject();
 
-		parameterString("only");
-		parameterNumber("max");
-		final String only = getString("only");
-		final String search = getString("search");
-		int max = getInteger("max");
-		if( max <= 0 || max > MAX_OBJECTS ) {
+		if (max <= 0 || max > MAX_OBJECTS)
+		{
 			max = MAX_OBJECTS;
 		}
 
-		if( search.length() < 1 ) {
+		if (search.length() < 1)
+		{
 			getResponse().getWriter().append(json.toString());
 			return;
 		}
 
 		int count = 0;
 
-		if( only.isEmpty() || "bases".equals(only) ) {
+		if (only.isEmpty() || "bases".equals(only))
+		{
 			JSONArray baseListObj = new JSONArray();
 
-			List<?> baseList = findBases(db, search, max-count);
-			for( Iterator<?> iter=baseList.iterator(); iter.hasNext(); ) {
-				Base base = (Base)iter.next();
+			List<?> baseList = findBases(db, search, max - count);
+			for (Object aBaseList : baseList)
+			{
+				Base base = (Base) aBaseList;
 				JSONObject baseObj = new JSONObject();
 
 				baseObj.accumulate("id", base.getId());
@@ -104,13 +102,16 @@ public class SearchController extends DSGenerator {
 			json.accumulate("bases", baseListObj);
 		}
 
-		if( only.isEmpty() || "ships".equals(only) ) {
+		if (only.isEmpty() || "ships".equals(only))
+		{
 			JSONArray shipListObj = new JSONArray();
 
-			if( count < max ) {
-				List<?> shipList = findShips(db, search, max-count);
-				for( Iterator<?> iter=shipList.iterator(); iter.hasNext(); ) {
-					Ship ship = (Ship)iter.next();
+			if (count < max)
+			{
+				List<?> shipList = findShips(db, search, max - count);
+				for (Object aShipList : shipList)
+				{
+					Ship ship = (Ship) aShipList;
 
 					JSONObject shipObj = new JSONObject();
 
@@ -132,13 +133,16 @@ public class SearchController extends DSGenerator {
 			json.accumulate("ships", shipListObj);
 		}
 
-		if( only.isEmpty() || "users".equals(only) ) {
+		if (only.isEmpty() || "users".equals(only))
+		{
 			JSONArray userListObj = new JSONArray();
 
-			if( count < max ) {
-				List<?> userList = findUsers(db, search, max-count);
-				for( Iterator<?> iter=userList.iterator(); iter.hasNext(); ) {
-					User auser = (User)iter.next();
+			if (count < max)
+			{
+				List<?> userList = findUsers(db, search, max - count);
+				for (Object anUserList : userList)
+				{
+					User auser = (User) anUserList;
 
 					JSONObject userObj = new JSONObject();
 					userObj.accumulate("id", auser.getId());
@@ -153,47 +157,47 @@ public class SearchController extends DSGenerator {
 			json.accumulate("users", userListObj);
 		}
 
-		json.accumulate("maxObjects", count >= max );
+		json.accumulate("maxObjects", count >= max);
 
 		getResponse().getWriter().append(json.toString());
 	}
 
-	@Override
 	@Action(ActionType.AJAX)
-	public void defaultAction() throws IOException {
-		searchAction();
+	public void defaultAction(String search, String only, int max) throws IOException
+	{
+		searchAction(search, only, max);
 	}
 
 	private List<?> findUsers(org.hibernate.Session db, final String search, int count)
 	{
-		List<?> userList = db.createQuery("from User where "+(hasPermission("user", "versteckteSichtbar") ? "" : "locate('hide',flags)=0 and ")+
+		List<?> userList = db.createQuery("from User where " + (hasPermission("user", "versteckteSichtbar") ? "" : "locate('hide',flags)=0 and ") +
 				" (plainname like :search or id like :searchid)")
-			.setString("search", "%"+search+"%")
-			.setString("searchid", search+"%")
-			.setMaxResults(count)
-			.list();
+				.setString("search", "%" + search + "%")
+				.setString("searchid", search + "%")
+				.setMaxResults(count)
+				.list();
 		return userList;
 	}
 
 	private List<?> findShips(org.hibernate.Session db, final String search, int count)
 	{
 		List<?> shipList = db.createQuery("from Ship as s left join fetch s.modules where s.owner= :user and (s.name like :search or s.id like :searchid)")
-			.setEntity("user", getUser())
-			.setString("search", "%"+search+"%")
-			.setString("searchid", search+"%")
-			.setMaxResults(count)
-			.list();
+				.setEntity("user", getUser())
+				.setString("search", "%" + search + "%")
+				.setString("searchid", search + "%")
+				.setMaxResults(count)
+				.list();
 		return shipList;
 	}
 
 	private List<?> findBases(org.hibernate.Session db, final String search, int count)
 	{
 		List<?> baseList = db.createQuery("from Base where owner= :user and (name like :search or id like :searchid)")
-			.setEntity("user", getUser())
-			.setString("search", "%"+search+"%")
-			.setString("searchid", search+"%")
-			.setMaxResults(count)
-			.list();
+				.setEntity("user", getUser())
+				.setString("search", "%" + search + "%")
+				.setString("searchid", search + "%")
+				.setMaxResults(count)
+				.list();
 		return baseList;
 	}
 }

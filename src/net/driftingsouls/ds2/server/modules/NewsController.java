@@ -52,12 +52,6 @@ public class NewsController extends TemplateGenerator
 	protected void printFooter(String action) throws IOException
 	{}
 
-	@Override
-	protected boolean validateAndPrepare(String action)
-	{
-		return true;
-	}
-
 	/**
 	 * Gibt den News RSS Feed aus.
 	 */

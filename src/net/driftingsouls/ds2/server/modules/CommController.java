@@ -47,19 +47,22 @@ import java.util.regex.Pattern;
 
 /**
  * Die PM-Verwaltung.
+ *
  * @author Christopher Jung
  * @author Christian Peltz
- *
  */
-@Module(name="comm")
-public class CommController extends TemplateGenerator {
+@Module(name = "comm")
+public class CommController extends TemplateGenerator
+{
 	private static final Log log = LogFactory.getLog(CommController.class);
 
 	/**
 	 * Konstruktor.
+	 *
 	 * @param context Der zu verwendende Kontext
 	 */
-	public CommController(Context context) {
+	public CommController(Context context)
+	{
 		super(context);
 
 		setTemplate("comm.html");
@@ -71,12 +74,15 @@ public class CommController extends TemplateGenerator {
 	}
 
 	@Override
-	protected boolean validateAndPrepare(String action) {
-		if( action.equals("showPm") ) {
-			addBodyParameter("style","background-image: url('./data/interface/border/border_background.gif');");
+	protected boolean validateAndPrepare(String action)
+	{
+		if (action.equals("showPm"))
+		{
+			addBodyParameter("style", "background-image: url('./data/interface/border/border_background.gif');");
 			setDisableDebugOutput(true);
 		}
-		else {
+		else
+		{
 			getTemplateEngine().setVar("show.menu", 1);
 		}
 		return true;
@@ -84,15 +90,15 @@ public class CommController extends TemplateGenerator {
 
 	/**
 	 * Markiert alle PMs in einem Ordner als gelesen.
+	 *
 	 * @param ordner Die ID des Ordners
 	 */
 	@Action(ActionType.DEFAULT)
-	public void readAllAction(int ordner) {
+	public void readAllAction(Ordner ordner)
+	{
 		TemplateEngine t = getTemplateEngine();
 
-		Ordner ordnerObj = Ordner.getOrdnerByID(ordner, (User)getUser());
-
-		ordnerObj.markAllAsRead();
+		ordner.markAllAsRead();
 
 		t.setVar("show.message", "<span style=\"color:red\">Alle Nachrichten als gelesen markiert</span>");
 
@@ -101,15 +107,14 @@ public class CommController extends TemplateGenerator {
 
 	/**
 	 * Loescht alle PMs in einem Ordner.
-	 * @urlparam Integer ordner Der Ordner, dessen PMs geloescht werden sollen
 	 *
+	 * @param ordner Der Ordner, dessen PMs geloescht werden sollen
 	 */
 	@Action(ActionType.DEFAULT)
-	public void deleteAllAction() {
+	public void deleteAllAction(Ordner ordner)
+	{
 		TemplateEngine t = getTemplateEngine();
 
-		parameterNumber("ordner");
-		Ordner ordner = Ordner.getOrdnerByID(getInteger("ordner"), (User)getUser());
 		ordner.deleteAllPms();
 
 		t.setVar("show.message", "<span style=\"color:red\">Alle Nachrichten gel&ouml;scht</span>");
@@ -119,49 +124,49 @@ public class CommController extends TemplateGenerator {
 
 	/**
 	 * Loescht einen Ordner/eine PM.
-	 * @urlparam Integer delete Falls eine PM zu loeschen ist, dann enthaelt dies die ID der PM. Andernfalls 0
-	 * @urlparam Integer delord Die ID des zu loeschenden Ordners, andernfalls 0.
 	 *
+	 * @param delete Falls eine PM zu loeschen ist, dann enthaelt dies die ID der PM. Andernfalls 0
+	 * @param delord Die ID des zu loeschenden Ordners, andernfalls 0.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void deleteAction() {
+	public void deleteAction(int delete, Ordner delord)
+	{
 		org.hibernate.Session db = getContext().getDB();
-		User user = (User)getUser();
+		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
 
-		parameterNumber("delete");
-		parameterNumber("delord");
-		int delete = getInteger("delete");
-		Ordner ordner = Ordner.getOrdnerByID(getInteger("delord"), user);
-
 		int result = 0;
-		if( (ordner != null) && (delete == 0) ) {
-			result = ordner.deleteOrdner();
+		if ((delord != null) && (delete == 0))
+		{
+			result = delord.deleteOrdner();
 			db.flush();
 		}
-		else {
-			PM pm = (PM)db.get(PM.class, delete);
-			if( pm == null )
+		else
+		{
+			PM pm = (PM) db.get(PM.class, delete);
+			if (pm == null)
 			{
 				t.setVar("show.message", "<span style=\"color:red\">Die angegebene Nachricht existiert nicht</span>");
 				redirect("showInbox");
 				return;
 			}
-			if( pm.getEmpfaenger() == user ) {
+			if (pm.getEmpfaenger() == user)
+			{
 				result = pm.delete();
 				db.flush();
 			}
 		}
 
-		switch ( result ){
+		switch (result)
+		{
 			case 0:
-				t.setVar("show.message", "<span style=\"color:red\">"+(delete != 0 ? "Nachricht" : "Ordner")+" gel&ouml;scht</span>");
+				t.setVar("show.message", "<span style=\"color:red\">" + (delete != 0 ? "Nachricht" : "Ordner") + " gel&ouml;scht</span>");
 				break;
 			case 1:
 				t.setVar("show.message", "<span style=\"color:red\">Sie m&uuml;ssen diese Nachricht erst lesen</span>");
 				break;
 			case 2:
-				addError("Fehler: L&ouml;schen "+(delete != 0 ? "der PM" : "des Ordners")+" ist fehlgeschlagen");
+				addError("Fehler: L&ouml;schen " + (delete != 0 ? "der PM" : "des Ordners") + " ist fehlgeschlagen");
 				break;
 		}
 
@@ -170,46 +175,40 @@ public class CommController extends TemplateGenerator {
 
 	/**
 	 * Erstellt einen neuen Ordner.
-	 * @urlparam Integer ordner Der Basisordner
-	 * @urlparam String ordnername Der Name des neuen Ordners
 	 *
+	 * @param ordner Der Basisordner
+	 * @param ordnername Der Name des neuen Ordners
 	 */
 	@Action(ActionType.DEFAULT)
-	public void newOrdnerAction() {
-		User user = (User)getUser();
-		parameterString("ordnername");
-		parameterNumber("ordner");
-		String name = getString("ordnername");
-		Ordner parent = Ordner.getOrdnerByID(getInteger("ordner"), user);
+	public void newOrdnerAction(String ordnername, Ordner ordner)
+	{
+		User user = (User) getUser();
 
-		if( parent == null ) {
+		if (ordner == null)
+		{
 			redirect("showInbox");
 			return;
 		}
 
-		Ordner.createNewOrdner(name, parent, user);
+		Ordner.createNewOrdner(ordnername, ordner, user);
 
 		redirect("showInbox");
 	}
 
 	/**
 	 * Verschiebt alle PMs von einem Ordner in einen anderen.
-	 * @urlparam Integer ordner Der Ausgangsordner
-	 * @urlparam Integer moveto Der Zielordner
 	 *
+	 * @param ordner Der Ausgangsordner
+	 * @param moveto Der Zielordner
 	 */
 	@Action(ActionType.DEFAULT)
-	public void moveAllAction() {
-		User user = (User)getUser();
+	public void moveAllAction(Ordner moveto, Ordner ordner)
+	{
+		User user = (User) getUser();
 
-		parameterNumber("moveto");
-		parameterNumber("ordner");
-
-		Ordner moveto = Ordner.getOrdnerByID(getInteger("moveto"), user);
-		Ordner ordner = Ordner.getOrdnerByID(getInteger("ordner"), user);
-
-		if( (moveto != null) && (ordner != null) ) {
-			PM.moveAllToOrdner( ordner, moveto, user );
+		if ((moveto != null) && (ordner != null))
+		{
+			PM.moveAllToOrdner(ordner, moveto, user);
 		}
 
 		redirect("showInbox");
@@ -217,47 +216,37 @@ public class CommController extends TemplateGenerator {
 
 	/**
 	 * Benennt einen Ordner um.
-	 * @urlparam String ordnername Der neue Name des Ordners
-	 * @urlparam Integer subject Die ID des Ordners
 	 *
+	 * @param ordnername Der neue Name des Ordners
+	 * @param ordner Die ID des Ordners
 	 */
 	@Action(ActionType.DEFAULT)
-	public void renameAction() {
-		User user = (User)getUser();
-
-		parameterString("ordnername");
-		parameterNumber("subject");
-		String newname = getString("ordnername");
-		int subject = getInteger("subject");
-
-		Ordner ordner = Ordner.getOrdnerByID( subject, user );
-		ordner.setName( newname );
+	public void renameAction(String ordnername, @UrlParam(name = "subject") Ordner ordner)
+	{
+		ordner.setName(ordnername);
 
 		redirect("showInbox");
 	}
 
 	/**
 	 * Loescht alle PMs von einem bestimmten Spieler in einem Ordner.
-	 * @urlparam Integer playerid Die ID des Spielers
-	 * @urlparam Integer ordner Die ID des Ordners
 	 *
+	 * @param player Die ID des Spielers
+	 * @param ordner Die ID des Ordners
 	 */
 	@Action(ActionType.DEFAULT)
-	public void deletePlayerAction() {
+	public void deletePlayerAction(@UrlParam(name = "player") User player, Ordner ordner)
+	{
 		TemplateEngine t = getTemplateEngine();
 
-		parameterNumber("playerid");
-		parameterNumber("ordner");
-		Ordner ordner = Ordner.getOrdnerByID(getInteger("ordner"), (User)getUser());
+		if (player != null)
+		{
+			ordner.deletePmsByUser(player);
 
-		User auser = (User)getContext().getDB().get(User.class, getInteger("playerid"));
-
-		if( auser != null ) {
-			ordner.deletePmsByUser(auser);
-
-			t.setVar("show.message", "<span style=\"color:red\">Alle Nachrichten von "+Common._title(auser.getName())+" gel&ouml;scht</span>");
+			t.setVar("show.message", "<span style=\"color:red\">Alle Nachrichten von " + Common._title(player.getName()) + " gel&ouml;scht</span>");
 		}
-		else {
+		else
+		{
 			t.setVar("show.message", "<span style=\"color:red\">Der angegebene Spieler existiert nicht</span>");
 		}
 
@@ -266,26 +255,26 @@ public class CommController extends TemplateGenerator {
 
 	/**
 	 * Markiert die ausgewaehlten Nachrichten als gelesen.
-	 * @urlparam Integer pm_$pmid Die ID einer als gelesen zu markierenden PM ($pmid gibt diese ebenfalls an)
 	 *
+	 * @param pms Die IDs aller aös gelesen zu markierenden PMs
 	 */
 	@Action(ActionType.DEFAULT)
-	public void readSelectedAction() {
-		User user = (User)getUser();
+	public void readSelectedAction(@UrlParam(name = "pm_#") Map<Integer, Integer> pms)
+	{
+		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 
 		List<?> pmList = db.createQuery("from PM where empfaenger=:user and gelesen < 1")
-			.setEntity("user", user)
-			.list();
+				.setEntity("user", user)
+				.list();
 		for (Object aPmList : pmList)
 		{
 			PM pm = (PM) aPmList;
 
-			parameterNumber("pm_" + pm.getId());
-			int pmParam = getInteger("pm_" + pm.getId());
+			Integer pmParam = pms.get(pm.getId());
 
-			if ((pmParam == pm.getId()) && !pm.hasFlag(PM.FLAGS_IMPORTANT))
+			if (pmParam != null && (pmParam == pm.getId()) && !pm.hasFlag(PM.FLAGS_IMPORTANT))
 			{
 				pm.setGelesen(1);
 			}
@@ -298,29 +287,28 @@ public class CommController extends TemplateGenerator {
 
 	/**
 	 * Verschiebt die ausgewaehlten Nachrichten/Ordner von einem Basisordner in einen anderen.
-	 * @throws IOException
-	 * @urlparam Integer ordner Der Basisordner
-	 * @urlparam Integer moveto Die ID des Zielordners
-	 * @urlparam Integer ordner_$ordnerid Die ID eines zu verschiebenden Ordners ($ordnerid gibt diese ebenfalls an)
-	 * @urlparam Integer pm_$pmid Die ID einer zu verschiebenden PM ($pmid gibt diese ebenfalls an)
 	 *
+	 * @param source Der Basisordner
+	 * @param moveto Die ID des Zielordners
+	 * @param ordnerMap Die IDs der zu verschiebenden Ordner
+	 * @param pmMap Die IDs der zu verschiebenden PMs
+	 * @throws IOException
 	 */
 	@Action(ActionType.AJAX)
-	public void moveAjaxAct() throws IOException {
-		User user = (User)getUser();
-		parameterNumber("moveto");
-		parameterNumber("ordner");
+	public void moveAjaxAct(Ordner moveto, @UrlParam(name = "ordner") Ordner source, @UrlParam(name = "ordner_#") Map<Integer, Ordner> ordnerMap, @UrlParam(name = "pm_#") Map<Integer, Integer> pmMap) throws IOException
+	{
+		User user = (User) getUser();
 
-		Ordner moveto = Ordner.getOrdnerByID( getInteger("moveto"), user );
-		Ordner trash = Ordner.getTrash( user );
-		Ordner source = Ordner.getOrdnerByID(getInteger("ordner"), user);
+		Ordner trash = Ordner.getTrash(user);
 
-		if( moveto == null || source == null ) {
+		if (moveto == null || source == null)
+		{
 			getContext().getResponse().getWriter().append("Der angegebene Ordner existiert nicht");
 			return;
 		}
 
-		if( trash == moveto ) {
+		if (trash == moveto)
+		{
 			getContext().getResponse().getWriter().append("ERROR: Es duerfen keine Nachrichten/Ordner in den Papierkorb verschoben werden");
 			return;
 		}
@@ -336,14 +324,7 @@ public class CommController extends TemplateGenerator {
 				continue;
 			}
 
-			parameterNumber("ordner_" + ordner.getId());
-			final int ordnerId = getInteger("ordner_" + ordner.getId());
-			if (ordnerId == 0)
-			{
-				continue;
-			}
-
-			Ordner tomove = Ordner.getOrdnerByID(ordnerId, user);
+			Ordner tomove = ordnerMap.get(ordner.getId());
 			if (tomove == null)
 			{
 				continue;
@@ -365,9 +346,8 @@ public class CommController extends TemplateGenerator {
 
 		for (PM pm1 : pms)
 		{
-			parameterNumber("pm_" + pm1.getId());
-			int pm = getInteger("pm_" + pm1.getId());
-			if (pm == pm1.getId())
+			Integer pm = pmMap.get(pm1.getId());
+			if (pm != null && pm == pm1.getId())
 			{
 				counter++;
 				pm1.setOrdner(moveto.getId());
@@ -379,31 +359,29 @@ public class CommController extends TemplateGenerator {
 
 	/**
 	 * Verschiebt die ausgewaehlten Nachrichten/Ordner von einem Basisordner in einen anderen.
-	 * @urlparam Integer ordner Der Basisordner
-	 * @urlparam Integer moveto Die ID des Zielordners
-	 * @urlparam Integer ordner_$ordnerid Die ID eines zu verschiebenden Ordners ($ordnerid gibt diese ebenfalls an)
-	 * @urlparam Integer pm_$pmid Die ID einer zu verschiebenden PM ($pmid gibt diese ebenfalls an)
 	 *
+	 * @param source Der Basisordner
+	 * @param moveto Die ID des Zielordners
+	 * @param ordnerMap Die IDs der zu verschiebenden Ordner
+	 * @param pmMap Die IDs der zu verschiebenden PMs
 	 */
 	@Action(ActionType.DEFAULT)
-	public void moveSelectedAction() {
-		User user = (User)getUser();
+	public void moveSelectedAction(Ordner moveto, @UrlParam(name = "ordner") Ordner source, @UrlParam(name = "ordner_#") Map<Integer, Ordner> ordnerMap, @UrlParam(name = "pm_#") Map<Integer, Integer> pmMap)
+	{
+		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
 
-		parameterNumber("moveto");
-		parameterNumber("ordner");
+		Ordner trash = Ordner.getTrash(user);
 
-		Ordner moveto = Ordner.getOrdnerByID( getInteger("moveto"), user );
-		Ordner trash = Ordner.getTrash( user );
-		Ordner source = Ordner.getOrdnerByID(getInteger("ordner"), user);
-
-		if( moveto == null || source == null ) {
+		if (moveto == null || source == null)
+		{
 			t.setVar("show.message", "<span style=\"color:red\">Der angegebene Ordner existiert nicht</span>");
 			redirect("showInbox");
 			return;
 		}
 
-		if( trash.getId() == moveto.getId()){
+		if (trash.getId() == moveto.getId())
+		{
 			t.setVar("show.message", "<span style=\"color:red\">Es d&uuml;rfen keine Nachrichten/Ordner in den Papierkorb verschoben werden.</span>");
 			redirect("showInbox");
 			return;
@@ -412,43 +390,42 @@ public class CommController extends TemplateGenerator {
 		List<PM> pms = source.getPms();
 		List<Ordner> ordners = source.getChildren();
 
-		for (Ordner ordner : ordners) {
-			if (ordner.hasFlag(Ordner.FLAG_TRASH)) {
+		for (Ordner ordner : ordners)
+		{
+			if (ordner.hasFlag(Ordner.FLAG_TRASH))
+			{
 				continue;
 			}
 
-			parameterNumber("ordner_" + ordner.getId());
-			final int ordnerId = getInteger("ordner_" + ordner.getId());
-			if (ordnerId == 0) {
+			Ordner tomove = ordnerMap.get(ordner.getId());
+			if (tomove == null)
+			{
 				continue;
 			}
 
-			Ordner tomove = Ordner.getOrdnerByID(ordnerId, user);
-			if (tomove == null) {
+			if (tomove.equals(ordner))
+			{
 				continue;
 			}
 
-			if (tomove.equals(ordner)) {
-				continue;
-			}
-
-			if (tomove.getAllChildren().contains(moveto)) {
+			if (tomove.getAllChildren().contains(moveto))
+			{
 				t.setVar("show.message", "<span style=\"color:red\">Es d&uuml;rfen keine Ordner in ihre eignen Unterordner verschoben werden.</span>");
 				redirect("showInbox");
 				return;
 			}
 
 
-			if (tomove.getId() == ordner.getId()) {
+			if (tomove.getId() == ordner.getId())
+			{
 				tomove.setParent(moveto);
 			}
 		}
 
 		for (PM pm1 : pms)
 		{
-			parameterNumber("pm_" + pm1.getId());
-			int pm = getInteger("pm_" + pm1.getId());
-			if (pm == pm1.getId())
+			Integer pm = pmMap.get(pm1.getId());
+			if (pm != null && pm == pm1.getId())
 			{
 				pm1.setOrdner(moveto.getId());
 			}
@@ -459,18 +436,16 @@ public class CommController extends TemplateGenerator {
 
 	/**
 	 * Loescht die ausgewaehlten Nachrichten/Ordner in einem Basisordner.
-	 * @urlparam Integer ordner Der Basisordner
-	 * @urlparam Integer ordner_$ordnerid Die ID eines zu loeschenden Ordners ($ordnerid gibt diese ebenfalls an)
-	 * @urlparam Integer pm_$pmid Die ID einer zu loeschenden PM ($pmid gibt diese ebenfalls an)
 	 *
+	 * @param ordner Der Basisordner
+	 * @param ordnerMap Die IDd der zu loeschenden Ordner
+	 * @param pmMap Die IDs der zu loeschenden PMs
 	 */
 	@Action(ActionType.DEFAULT)
-	public void deleteSelectedAction() {
-		User user = (User)getUser();
+	public void deleteSelectedAction(Ordner ordner, @UrlParam(name="ordner_#") Map<Integer,Ordner> ordnerMap, @UrlParam(name="pm_#") Map<Integer,Integer> pmMap)
+	{
+		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
-
-		parameterNumber("ordner");
-		Ordner ordner = Ordner.getOrdnerByID(getInteger("ordner"), user);
 
 		List<PM> pms = ordner.getPms();
 		List<Ordner> ordners = ordner.getChildren();
@@ -482,14 +457,7 @@ public class CommController extends TemplateGenerator {
 				continue;
 			}
 
-			parameterNumber("ordner_" + ordner1.getId());
-			final int ordnerId = getInteger("ordner_" + ordner1.getId());
-			if (ordnerId == 0)
-			{
-				continue;
-			}
-
-			Ordner delordner = Ordner.getOrdnerByID(ordnerId, user);
+			Ordner delordner = ordnerMap.get(ordner1.getId());
 
 			if (delordner.getId() == ordner1.getId())
 			{
@@ -499,10 +467,9 @@ public class CommController extends TemplateGenerator {
 
 		for (PM pm : pms)
 		{
-			parameterNumber("pm_" + pm.getId());
-			int pm_id = getInteger("pm_" + pm.getId());
+			Integer pmId = pmMap.get(pm.getId());
 
-			if (pm_id == pm.getId())
+			if (pmId != null && pmId == pm.getId())
 			{
 				if (pm.getEmpfaenger() != user)
 				{
@@ -519,193 +486,188 @@ public class CommController extends TemplateGenerator {
 
 	/**
 	 * Versendet eine Nachricht.
-	 * @urlparam String to Der Empfaenger (Eine ID oder "task" oder "ally")
-	 * @urlparam Integer reply Falls != 0, dann die ID der Nachricht auf die geantwortet wird (Titel wird dann generiert)
-	 * @urlparam String msg Der Text der Nachricht
-	 * @urlparam String title Falls es sich nicht um eine Antwort handelt, dann der Titel der Nachricht
-	 * @urlparam String special Falls es sich nicht um eine Antwort handelt, dann das Spezialflag der Nachricht
 	 *
+	 * @param to Der Empfaenger (Eine ID oder "task" oder "ally")
+	 * @param reply Falls != 0, dann die ID der Nachricht auf die geantwortet wird (Titel wird dann generiert)
+	 * @param msg Der Text der Nachricht
+	 * @param title Falls es sich nicht um eine Antwort handelt, dann der Titel der Nachricht
+	 * @param special Falls es sich nicht um eine Antwort handelt, dann das Spezialflag der Nachricht
 	 */
 	@Action(ActionType.DEFAULT)
-	public void sendAction() {
-		User user = (User)getUser();
+	public void sendAction(String to, PM reply, String msg, String sendeziel, String title, String special)
+	{
+		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
-		org.hibernate.Session db = getDB();
 
-		parameterString("to");
-		parameterNumber("reply");
-		parameterString("msg");
-		parameterString("sendeziel");
-
-		String to = getString("to").trim();
-		int reply = getInteger("reply");
-		String msg = getString("msg");
-		String sendeziel = getString("sendeziel");
-
-		String title = null;
-		String special = null;
-
-		if( reply > 0 ) {
-			PM pm = (PM)db.get(PM.class, reply);
-			if( (pm.getEmpfaenger().equals(user) || pm.getSender().equals(user)) && (pm.getGelesen() < 2) ) {
-				User iTo = pm.getSender();
-				if( iTo.equals(user) ) {
-					iTo = pm.getEmpfaenger();
+		if (reply != null)
+		{
+			if ((reply.getEmpfaenger().equals(user) || reply.getSender().equals(user)) && (reply.getGelesen() < 2))
+			{
+				User iTo = reply.getSender();
+				if (iTo.equals(user))
+				{
+					iTo = reply.getEmpfaenger();
 				}
 				to = Integer.toString(iTo.getId());
-				title = "RE: "+Common._plaintitle(pm.getTitle());
+				title = "RE: " + Common._plaintitle(reply.getTitle());
 				special = "";
 			}
 		}
-		else {
-			parameterString("title");
-			parameterString("special");
 
-			title = getString("title");
-			special = getString("special");
+		if (title.length() > 60)
+		{
+			title = title.substring(0, 60);
 		}
 
-		if( title.length() > 60 ) {
-			title = title.substring(0,60);
-		}
-
-		if( special.equals("admin") && !hasPermission("comm", "adminPM") ) {
+		if (special.equals("admin") && !hasPermission("comm", "adminPM"))
+		{
 			special = "";
 		}
-		if( special.equals("official") && !hasPermission("comm", "offiziellePM") ) {
+		if (special.equals("official") && !hasPermission("comm", "offiziellePM"))
+		{
 			special = "";
 		}
 
 		int flags = 0;
 
-		if( special.equals("admin") ) {
+		if (special.equals("admin"))
+		{
 			flags |= PM.FLAGS_ADMIN;
 			flags |= PM.FLAGS_IMPORTANT;
 		}
-		else if( special.equals("official") ) {
+		else if (special.equals("official"))
+		{
 			flags |= PM.FLAGS_OFFICIAL;
 		}
 
-		if( "task".equals(to) ) {
+		if ("task".equals(to))
+		{
 			t.setVar("show.message", "<span style=\"color:#00ff55\">Antwort verarbeitet</span>");
 
-			PM.send(user, PM.TASK, title, msg, flags );
+			PM.send(user, PM.TASK, title, msg, flags);
 		}
-		else if( "ally".equals(to) || "ally".equals(sendeziel) ) {
-			if( user.getAlly() == null ) {
+		else if ("ally".equals(to) || "ally".equals(sendeziel))
+		{
+			if (user.getAlly() == null)
+			{
 				t.setVar("show.message", "<span style=\"color:red; font-weight:bold\">Sie sind in keiner Allianz Mitglied</span>");
 
 				return;
 			}
 
 			t.setVar("show.message",
-					"<span style=\"color:#00ff55\">Nachricht versendet an</span> "+Common._title(user.getAlly().getName()));
+					"<span style=\"color:#00ff55\">Nachricht versendet an</span> " + Common._title(user.getAlly().getName()));
 
-			PM.sendToAlly(user, user.getAlly(), title, msg, flags );
+			PM.sendToAlly(user, user.getAlly(), title, msg, flags);
 		}
-		else {
+		else
+		{
 			User auser = User.lookupByIdentifier(to);
-			if( auser == null ) {
+			if (auser == null)
+			{
 				t.setVar("show.message", "<span style=\"color:#ff0000\">Sie m&uuml;ssen einen gülten Empf&auml;nger angeben</span>");
 				return;
 			}
-			t.setVar("show.message", "<span style=\"color:#00ff55\">Nachricht versendet an</span> "+Common._title(auser.getName()));
+			t.setVar("show.message", "<span style=\"color:#00ff55\">Nachricht versendet an</span> " + Common._title(auser.getName()));
 
-			PM.send(user, auser.getId(), title, msg, flags );
+			PM.send(user, auser.getId(), title, msg, flags);
 		}
 	}
 
 	/**
 	 * Zeigt eine empfangene/gesendete PM an.
-	 * @urlparam Integer pmid Die ID der Nachricht
-	 * @urlparam Integer ordner Die ID des Ordners, in dem sich die Nachricht befindet
 	 *
+	 * @param pm Die ID der Nachricht
+	 * @param ordner Die ID des Ordners, in dem sich die Nachricht befindet
 	 */
 	@Action(ActionType.DEFAULT)
-	public void showPmAction() {
-		org.hibernate.Session db = getDB();
-		User user = (User)getUser();
+	public void showPmAction(@UrlParam(name="pmid") PM pm, Ordner ordner)
+	{
+		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
 		BBCodeParser bbcodeparser = BBCodeParser.getNewInstance();
 
-		parameterNumber("pmid");
-		parameterNumber("ordner");
-		int pmid = getInteger("pmid");
-		int parent_id = getInteger("ordner");
-
 		t.setVar("show.pm", 1);
 
-		if( pmid == 0 ) {
-			return;
-		}
-
-		PM pm = (PM)db.get(PM.class, pmid);
-		if( (pm == null) || (!user.equals(pm.getEmpfaenger()) && !user.equals(pm.getSender())) ) {
+		if ((pm == null) || (!user.equals(pm.getEmpfaenger()) && !user.equals(pm.getSender())))
+		{
 			return;
 		}
 
 		User sender;
 
-		if( user.equals(pm.getSender()) ) {
-			try {
-				bbcodeparser.registerHandler( "_intrnlConfTask", 2, "<div style=\"text-align:center\"><table class=\"noBorderX\" width=\"500\"><tr><td class=\"BorderX\" align=\"center\">Entscheidungsm&ouml;glichkeit in der Orginal-PM</td></tr></table></div>");
+		if (user.equals(pm.getSender()))
+		{
+			try
+			{
+				bbcodeparser.registerHandler("_intrnlConfTask", 2, "<div style=\"text-align:center\"><table class=\"noBorderX\" width=\"500\"><tr><td class=\"BorderX\" align=\"center\">Entscheidungsm&ouml;glichkeit in der Orginal-PM</td></tr></table></div>");
 			}
-			catch( Exception e ) {
+			catch (Exception e)
+			{
 				log.error("Register _intrnlConfTask failed", e);
 				addError("Fehler beim Darstellen der PM");
 			}
 
-			if( user.equals(pm.getEmpfaenger()) && (pm.getGelesen() == 0) ) {
+			if (user.equals(pm.getEmpfaenger()) && (pm.getGelesen() == 0))
+			{
 				pm.setGelesen(1);
 			}
 
 			User empfaenger = pm.getEmpfaenger();
 			sender = user;
-			if(empfaenger != null) {
-				t.setVar(	"pm.empfaenger",		empfaenger.getId(),
-							"pm.empfaenger.name",	Common._title(empfaenger.getName()));
+			if (empfaenger != null)
+			{
+				t.setVar("pm.empfaenger", empfaenger.getId(),
+						"pm.empfaenger.name", Common._title(empfaenger.getName()));
 			}
-			else {
-				t.setVar(	"pm.empfaenger",		"-",
-						"pm.empfaenger.name", 		"Unbekannt");
+			else
+			{
+				t.setVar("pm.empfaenger", "-",
+						"pm.empfaenger.name", "Unbekannt");
 			}
 		}
-		else {
-			try {
-				bbcodeparser.registerHandler( "_intrnlConfTask", 2, new TagIntrnlConfTask());
+		else
+		{
+			try
+			{
+				bbcodeparser.registerHandler("_intrnlConfTask", 2, new TagIntrnlConfTask());
 			}
-			catch( Exception e ) {
+			catch (Exception e)
+			{
 				log.error("Register _intrnlConfTask failed", e);
 				addError("Fehler beim Darstellen der PM");
 			}
 
-			if( pm.getGelesen() == 0 ) {
+			if (pm.getGelesen() == 0)
+			{
 				pm.setGelesen(1);
 			}
 
 			sender = pm.getSender();
 
-			if(sender != null)
+			if (sender != null)
 			{
-				t.setVar(	"pm.sender",		sender.getId(),
-							"pm.sender.name", 	Common._title(sender.getName()),
-							"ordner.parent",	parent_id);
+				t.setVar("pm.sender", sender.getId(),
+						"pm.sender.name", Common._title(sender.getName()),
+						"ordner.parent", ordner != null ? ordner.getId() : 0);
 			}
 			else
 			{
-				t.setVar(	"pm.sender",	"-",
-							"pm.sender.name", 	"Unbekannt",
-							"ordner.parent",	parent_id);
+				t.setVar("pm.sender", "-",
+						"pm.sender.name", "Unbekannt",
+						"ordner.parent", ordner != null ? ordner.getId() : 0);
 			}
 		}
 
 		String bgimg = "";
 
-		if( pm.hasFlag(PM.FLAGS_ADMIN) ) {
+		if (pm.hasFlag(PM.FLAGS_ADMIN))
+		{
 			bgimg = "pm_adminbg.png";
 		}
-		else if( sender != null && pm.hasFlag(PM.FLAGS_OFFICIAL) ) {
-			bgimg = "pm_"+Rassen.get().rasse(sender.getRace()).getName()+"bg.png";
+		else if (sender != null && pm.hasFlag(PM.FLAGS_OFFICIAL))
+		{
+			bgimg = "pm_" + Rassen.get().rasse(sender.getRace()).getName() + "bg.png";
 		}
 
 		String text = pm.getInhalt();
@@ -715,30 +677,29 @@ public class CommController extends TemplateGenerator {
 		text = StringUtils.replace(text, "\r\n", "<br />");
 		text = StringUtils.replace(text, "\n", "<br />");
 
-		t.setVar(	"pm.id",			pm.getId(),
-					"pm.title",			Common._plaintitle(pm.getTitle()),
-					"pm.flags.admin", 	pm.hasFlag(PM.FLAGS_ADMIN),
-					"pm.highlight",	pm.hasFlag(PM.FLAGS_ADMIN) || pm.hasFlag(PM.FLAGS_OFFICIAL),
-					"pm.bgimage", 		bgimg,
-					"pm.time", 			Common.date("j.n.Y G:i",pm.getTime()),
-					"pm.text", 			Smilie.parseSmilies(text),
-					"pm.kommentar", 	Smilie.parseSmilies(Common._text(pm.getKommentar())) );
+		t.setVar("pm.id", pm.getId(),
+				"pm.title", Common._plaintitle(pm.getTitle()),
+				"pm.flags.admin", pm.hasFlag(PM.FLAGS_ADMIN),
+				"pm.highlight", pm.hasFlag(PM.FLAGS_ADMIN) || pm.hasFlag(PM.FLAGS_OFFICIAL),
+				"pm.bgimage", bgimg,
+				"pm.time", Common.date("j.n.Y G:i", pm.getTime()),
+				"pm.text", Smilie.parseSmilies(text),
+				"pm.kommentar", Smilie.parseSmilies(Common._text(pm.getKommentar())));
 	}
 
 	/**
 	 * Stellt eine Nachricht aus dem Papierkorb wieder her.
-	 * @urlparam Integer recover Die wiederherzustellende Nachricht
 	 *
+	 * @param recover Die wiederherzustellende Nachricht
 	 */
 	@Action(ActionType.DEFAULT)
-	public void recoverAction() {
-		User user = (User)getUser();
+	public void recoverAction(PM recover)
+	{
+		User user = (User) getUser();
 
-		parameterNumber("recover");
-		PM pm = (PM)getDB().get(PM.class, getInteger("recover"));
-
-		if( pm.getEmpfaenger() == user ) {
-			pm.recover();
+		if (recover != null && recover.getEmpfaenger() == user)
+		{
+			recover.recover();
 		}
 
 		redirect("showInbox");
@@ -746,14 +707,14 @@ public class CommController extends TemplateGenerator {
 
 	/**
 	 * Stellt alle geloeschten Nachrichten aus dem Papierkorb wieder her.
-	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void recoverAllAction() {
-		User user = (User)getUser();
+	public void recoverAllAction()
+	{
+		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
 
-		PM.recoverAll( user );
+		PM.recoverAll(user);
 
 		t.setVar("show.message", "<span style=\"color:red\">Nachrichten wiederhergestellt</span>");
 
@@ -762,17 +723,15 @@ public class CommController extends TemplateGenerator {
 
 	/**
 	 * Zeigt die Liste aller empfangenen Nachrichten an.
-	 * @urlparam Integer Der anzuzeigende Ordner (0 ist die oberste Ebene)
 	 *
+	 * @param ordner Der anzuzeigende Ordner (0 ist die oberste Ebene)
 	 */
 	@Action(ActionType.DEFAULT)
-	public void showInboxAction() {
+	public void showInboxAction(Ordner ordner)
+	{
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
-		User user = (User)getUser();
-
-		parameterNumber("ordner");
-		final Ordner ordner = Ordner.getOrdnerByID(getInteger("ordner"), user);
+		User user = (User) getUser();
 
 		t.setVar(
 				"show.inbox", 1,
@@ -784,14 +743,14 @@ public class CommController extends TemplateGenerator {
 
 		// Liste aller vorhandenen Ordner generieren
 
-		t.setVar(	"availordner.id",	0,
-					"availordner.name",	"Hauptverzeichnis" );
+		t.setVar("availordner.id", 0,
+				"availordner.name", "Hauptverzeichnis");
 
 		t.parse("availordner.list", "availordner.listitem", true);
 
 		List<?> ordnerList = db.createQuery("from Ordner where owner= :user order by name asc")
-			.setEntity("user", user)
-			.list();
+				.setEntity("user", user)
+				.list();
 		for (Object anOrdnerList : ordnerList)
 		{
 			Ordner aOrdner = (Ordner) anOrdnerList;
@@ -803,53 +762,56 @@ public class CommController extends TemplateGenerator {
 		}
 
 		// Link zum uebergeordneten Ordner erstellen
-		if( ordner.getId() != 0 ) {
-			t.setVar(	"ordner.id",			ordner.getParent().getId(),
-						"ordner.name",			"..",
-						"ordner.parent",		ordner.getId(),
-						"ordner.pms",			ordner.getParent().getPmCount(),
-						"ordner.flags.up",		1,
-						"ordner.flags.trash",	(ordner.getFlags() & Ordner.FLAG_TRASH),
-						"ordner.name.real",		ordner.getName());
+		if (ordner.getId() != 0)
+		{
+			t.setVar("ordner.id", ordner.getParent().getId(),
+					"ordner.name", "..",
+					"ordner.parent", ordner.getId(),
+					"ordner.pms", ordner.getParent().getPmCount(),
+					"ordner.flags.up", 1,
+					"ordner.flags.trash", (ordner.getFlags() & Ordner.FLAG_TRASH),
+					"ordner.name.real", ordner.getName());
 
 			t.parse("ordner.list", "ordner.listitem", true);
 		}
 
-		Map<Ordner,Integer> ordners = ordner.getPmCountPerSubOrdner();
+		Map<Ordner, Integer> ordners = ordner.getPmCountPerSubOrdner();
 
 		// Ordnerliste im aktuellen Ordner ausgeben
 		List<Ordner> children = ordner.getChildren();
-		for( Ordner aOrdner : children ) {
+		for (Ordner aOrdner : children)
+		{
 			Integer count = ordners.get(aOrdner);
 
-			t.setVar(	"ordner.id",			aOrdner.getId(),
-						"ordner.name",			aOrdner.getName(),
-						"ordner.parent",		aOrdner.getParent().getId(),
-						"ordner.pms",			count != null ? count : 0,
-						"ordner.flags.up",		0,
-						"ordner.flags.trash",	aOrdner.hasFlag(Ordner.FLAG_TRASH) );
+			t.setVar("ordner.id", aOrdner.getId(),
+					"ordner.name", aOrdner.getName(),
+					"ordner.parent", aOrdner.getParent().getId(),
+					"ordner.pms", count != null ? count : 0,
+					"ordner.flags.up", 0,
+					"ordner.flags.trash", aOrdner.hasFlag(Ordner.FLAG_TRASH));
 
 			t.parse("ordner.list", "ordner.listitem", true);
 		}
 
 		// PMs im aktuellen Ordner ausgeben
 		List<PM> pms = ordner.getPms();
-		for( PM pm : pms ) {
+		for (PM pm : pms)
+		{
 			String title = pm.getTitle();
-			if( title == null || title.trim().isEmpty() )
+			if (title == null || title.trim().isEmpty())
 			{
 				title = "<Kein Betreff>";
 			}
-			t.setVar(	"pm.id",			pm.getId(),
-						"pm.new",			pm.getGelesen() == 0,
-						"pm.flags.admin",	pm.hasFlag(PM.FLAGS_ADMIN),
-						"pm.highlight",	pm.hasFlag(PM.FLAGS_ADMIN) || pm.hasFlag(PM.FLAGS_OFFICIAL),
-						"pm.title",			Common._plaintitle(title),
-						"pm.sender.name",	Common._title(pm.getSender().getName()),
-						"pm.sender.id",		pm.getSender().getId(),
-						"pm.time",			Common.date("j.n.Y G:i",pm.getTime()),
-						"pm.trash",			(pm.getGelesen() > 1) ? 1 : 0,
-						"pm.kommentar",		pm.getKommentar());
+			t.setVar("pm.id", pm.getId(),
+					"pm.new", pm.getGelesen() == 0,
+					"pm.flags.admin", pm.hasFlag(PM.FLAGS_ADMIN),
+					"pm.highlight", pm.hasFlag(PM.FLAGS_ADMIN) || pm.hasFlag(PM.FLAGS_OFFICIAL),
+					"pm.title", Common._plaintitle(title),
+					"pm.sender.name", Common._title(pm.getSender().getName()),
+					"pm.sender.id", pm.getSender().getId(),
+					"pm.time", Common.date("j.n.Y G:i", pm.getTime()),
+					"pm.trash", (pm.getGelesen() > 1) ? 1 : 0,
+					"pm.kommentar", pm.getKommentar());
 
 			t.parse("pms.list", "pms.listitem", true);
 		}
@@ -857,27 +819,27 @@ public class CommController extends TemplateGenerator {
 
 	/**
 	 * Zeigt die Liste aller versendeten und noch nicht geloeschten PMs.
-	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void showOutboxAction() {
+	public void showOutboxAction()
+	{
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
-		User user = (User)getUser();
+		User user = (User) getUser();
 
 		t.setVar("show.outbox", 1);
 		t.setBlock("_COMM", "pms.out.listitem", "pms.out.list");
 
 		List<?> pms = db.createQuery("from PM as pm inner join fetch pm.empfaenger " +
 				"where pm.sender= :user order by pm.id desc")
-			.setEntity("user", user)
-			.list();
+				.setEntity("user", user)
+				.list();
 		for (Object pm1 : pms)
 		{
 			PM pm = (PM) pm1;
 
 			String title = pm.getTitle();
-			if( title == null || title.trim().isEmpty() )
+			if (title == null || title.trim().isEmpty())
 			{
 				title = "<Kein Betreff>";
 			}
@@ -896,106 +858,96 @@ public class CommController extends TemplateGenerator {
 
 	/**
 	 * Zeigt eine Preview einer geschriebenen Nachricht an.
-	 * @urlparam String msg Die Nachricht
-	 * @urlparam String to Der Empfaenger der Nachricht
-	 * @urlparam String title Der Titel der Nachricht
-	 * @urlparam String special Spezialflag der Nachricht
 	 *
+	 * @param msg Die Nachricht
+	 * @param to Der Empfaenger der Nachricht
+	 * @param title Der Titel der Nachricht
+	 * @param special Spezialflag der Nachricht
+	 * @param sendeziel Der Empfaengertyp der Nachricht
 	 */
 	@Action(ActionType.DEFAULT)
-	public void previewAction() {
+	public void previewAction(String msg, String to, String title, String special, String sendeziel)
+	{
 		TemplateEngine t = getTemplateEngine();
-		User user = (User)getUser();
+		User user = (User) getUser();
 
-		parameterString("msg");
-		parameterString("to");
-		parameterString("title");
-		parameterString("special");
-		parameterString("sendeziel");
-
-		String msg = getString("msg");
-		String to = getString("to");
-		String title = getString("title");
-		String special = getString("special");
-		String sendeziel = getString("sendeziel");
-
-		Map<String,String> specialuilist = new LinkedHashMap<>();
+		Map<String, String> specialuilist = new LinkedHashMap<>();
 		specialuilist.put("nichts", "");
-		if( hasPermission("comm", "adminPM") ) {
+		if (hasPermission("comm", "adminPM"))
+		{
 			specialuilist.put("admin", "admin");
 		}
-		if( hasPermission("comm", "offiziellePM") ) {
+		if (hasPermission("comm", "offiziellePM"))
+		{
 			specialuilist.put("official", "Offizielle PM");
 		}
 
-		if( !specialuilist.containsKey(special) )
+		if (!specialuilist.containsKey(special))
 		{
 			special = "";
 		}
 
 		t.setBlock("_COMM", "write.specialui.listitem", "write.specialui.list");
-		for( Map.Entry<String, String> entry: specialuilist.entrySet() ) {
-			t.setVar(	"specialui.name",	entry.getValue(),
-						"specialui.value",	entry.getKey(),
-						"specialui.selected", special.equals(entry.getKey()));
+		for (Map.Entry<String, String> entry : specialuilist.entrySet())
+		{
+			t.setVar("specialui.name", entry.getValue(),
+					"specialui.value", entry.getKey(),
+					"specialui.selected", special.equals(entry.getKey()));
 
 			t.parse("write.specialui.list", "write.specialui.listitem", true);
 		}
 
 		String bgimg = "";
 
-		if( "admin".equals(special) ) {
+		if ("admin".equals(special))
+		{
 			bgimg = "pm_adminbg.png";
 		}
-		else if( "official".equals(special) ) {
-			bgimg = "pm_"+Rassen.get().rasse(user.getRace()).getName()+"bg.png";
+		else if ("official".equals(special))
+		{
+			bgimg = "pm_" + Rassen.get().rasse(user.getRace()).getName() + "bg.png";
 		}
 
-		t.setVar(	"pm.text",			Smilie.parseSmilies(Common._text(msg)),
-					"pm.title",			title,
-					"pm.sender",		user.getId(),
-					"pm.sender.name",	Common._title(user.getName()),
-					"pm.time",			Common.date("j.n.Y G:i", Common.time()),
-					"pm.bgimage",		bgimg,
-					"write.to",			to,
-					"write.title",		title,
-					"write.message",	msg,
-					"sendeziel.ally",	"ally".equals(sendeziel),
-					"show.preview",		1,
-					"show.write",		1 );
+		t.setVar("pm.text", Smilie.parseSmilies(Common._text(msg)),
+				"pm.title", title,
+				"pm.sender", user.getId(),
+				"pm.sender.name", Common._title(user.getName()),
+				"pm.time", Common.date("j.n.Y G:i", Common.time()),
+				"pm.bgimage", bgimg,
+				"write.to", to,
+				"write.title", title,
+				"write.message", msg,
+				"sendeziel.ally", "ally".equals(sendeziel),
+				"show.preview", 1,
+				"show.write", 1);
 	}
 
 	/**
 	 * Zeigt die GUI zum anlegen/bearbeiten eines Kommentars zu einer Nachricht an.
-	 * @urlparam Integer pm Die Nachricht
-	 * @urlparam Integer ordner Der Ordner, in dem sich die Nachricht befindet
 	 *
+	 * @param pm Die Nachricht
+	 * @param ordner Der Ordner, in dem sich die Nachricht befindet
 	 */
 	@Action(ActionType.DEFAULT)
-	public void editCommentAction() {
-		org.hibernate.Session db = getDB();
+	public void editCommentAction(PM pm, Ordner ordner)
+	{
 		TemplateEngine t = getTemplateEngine();
-		User user = (User)getUser();
+		User user = (User) getUser();
 
-		parameterNumber("pm");
-		parameterNumber("ordner");
-		int pmid = getInteger("pm");
-		int ordner = getInteger("ordner");
-
-		PM pm = (PM)db.get(PM.class, pmid);
-		if( (pm != null) && pm.getEmpfaenger().equals(user) ) {
+		if ((pm != null) && pm.getEmpfaenger().equals(user))
+		{
 			pm.setGelesen(1);
 
 			t.setVar("show.comment", 1);
 			t.setVar("comment.text", pm.getKommentar());
-			t.setVar("pm.id", pmid);
-			t.setVar("ordner.id", ordner);
+			t.setVar("pm.id", pm.getId());
+			t.setVar("ordner.id", ordner != null ? ordner.getId() : 0);
 			t.setVar("pm.title", pm.getTitle());
 			t.setVar("pm.empfaenger.name", Common._title(pm.getEmpfaenger().getName()));
 			t.setVar("pm.sender.name", Common._title(pm.getSender().getName()));
 			t.setVar("pm.text", Smilie.parseSmilies(Common._text(pm.getInhalt())));
 			t.setVar("system.time", Common.getIngameTime(getContext().get(ContextCommon.class).getTick()));
-			t.setVar("user.signature", user.getUserValue("PMS/signatur") );
+			t.setVar("user.signature", user.getUserValue("PMS/signatur"));
 		}
 	}
 

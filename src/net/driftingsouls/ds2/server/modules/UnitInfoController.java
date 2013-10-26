@@ -30,21 +30,24 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.units.UnitType;
 
 /**
  * Zeigt Informationen zu Einheiten an.
- *
  */
-@Module(name="unitinfo")
-public class UnitInfoController extends TemplateGenerator {
+@Module(name = "unitinfo")
+public class UnitInfoController extends TemplateGenerator
+{
 
 	/**
 	 * Konstruktor.
+	 *
 	 * @param context Der zu verwendende Kontext
 	 */
-	public UnitInfoController(Context context) {
+	public UnitInfoController(Context context)
+	{
 		super(context);
 
 		setTemplate("unitinfo.html");
@@ -52,33 +55,29 @@ public class UnitInfoController extends TemplateGenerator {
 		setPageTitle("Einheit");
 	}
 
-	@Override
-	protected boolean validateAndPrepare(String action) {
-		return true;
-	}
-
 	/**
 	 * Zeigt die Einheitenliste an.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void listAction() {
+	public void listAction()
+	{
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
-		User user = (User)ContextMap.getContext().getActiveUser();
-		List<UnitType> unitlist = Common.cast(db.createQuery("from UnitType").list());
+		User user = (User) ContextMap.getContext().getActiveUser();
+		List<UnitType> unitlist = Common.cast(db.createCriteria(UnitType.class).list());
 
-		t.setVar( "unitinfo.list", 1);
+		t.setVar("unitinfo.list", 1);
 
 		t.setBlock("_UNITINFO", "unitinfo.unitlist.listitem", "unitinfo.unitlist.list");
 
-		for( UnitType unit : unitlist)
+		for (UnitType unit : unitlist)
 		{
-			if( !unit.isHidden() || user.isKnownUnit(unit) )
+			if (!unit.isHidden() || user.isKnownUnit(unit))
 			{
-				t.setVar(	"unit.id",		unit.getId(),
-							"unit.name", 	unit.getName() + ((unit.isHidden() && hasPermission("unit", "versteckteSichtbar")) ? " [hidden]" : ""),
-							"unit.groesse",	Common.ln(unit.getSize()),
-							"unit.picture",	unit.getPicture() );
+				t.setVar("unittype.id", unit.getId(),
+						"unittype.name", unit.getName() + ((unit.isHidden() && hasPermission("unittype", "versteckteSichtbar")) ? " [hidden]" : ""),
+						"unittype.groesse", Common.ln(unit.getSize()),
+						"unittype.picture", unit.getPicture());
 
 				t.parse("unitinfo.unitlist.list", "unitinfo.unitlist.listitem", true);
 			}
@@ -87,66 +86,60 @@ public class UnitInfoController extends TemplateGenerator {
 
 	/**
 	 * Zeigt Details zu einer Einheit an.
-	 * @urlparam Integer unitid Die ID der anzuzeigenden Einheit
 	 */
-	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() {
+	public void defaultAction(@UrlParam(name = "unittype") UnitType unittype)
+	{
 		TemplateEngine t = getTemplateEngine();
-		User user = (User)ContextMap.getContext().getActiveUser();
-		org.hibernate.Session db = getDB();
+		User user = (User) ContextMap.getContext().getActiveUser();
 
-		parameterNumber("unit");
-		int unitid = getInteger("unit");
-
-		UnitType unittype = (UnitType)db.get(UnitType.class, unitid);
-
-		if( unittype == null ) {
+		if (unittype == null)
+		{
 			t.setVar("unitinfo.message", "Es ist keine Einheit mit dieser Identifikationsnummer bekannt");
 
 			return;
 		}
-		if(unittype.isHidden() && !user.isKnownUnit(unittype))
+		if (unittype.isHidden() && !user.isKnownUnit(unittype))
 		{
 			t.setVar("unitinfo.message", "Es ist keine Einheit mit dieser Identifikationsnummer bekannt");
 
 			return;
 		}
 		String buildcosts = "";
-		buildcosts = buildcosts+"<img style=\"vertical-align:middle\" src=\"data/interface/time.gif\" alt=\"\" />"+unittype.getDauer();
+		buildcosts = buildcosts + "<img style=\"vertical-align:middle\" src=\"data/interface/time.gif\" alt=\"\" />" + unittype.getDauer();
 
-		for(ResourceEntry res : unittype.getBuildCosts().getResourceList())
+		for (ResourceEntry res : unittype.getBuildCosts().getResourceList())
 		{
-			buildcosts = buildcosts+" <img style=\"vertical-align:middle\" src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1();
+			buildcosts = buildcosts + " <img style=\"vertical-align:middle\" src=\"" + res.getImage() + "\" alt=\"\" />" + res.getCargo1();
 		}
 
 		Forschung forschung = Forschung.getInstance(unittype.getRes());
 		String forschungstring = "";
 
-		if(forschung != null && forschung.isVisibile(user))
+		if (forschung != null && forschung.isVisibile(user))
 		{
 			forschungstring = forschung.getName();
 		}
-		else if(forschung != null)
+		else if (forschung != null)
 		{
 			forschungstring = "Unbekannte Technologie";
-			if( hasPermission("forschung", "allesSichtbar") )
+			if (hasPermission("forschung", "allesSichtbar"))
 			{
-				forschungstring = forschungstring + " ["+forschung.getID()+"]";
+				forschungstring = forschungstring + " [" + forschung.getID() + "]";
 			}
 		}
 
 		String name = Common._plaintitle(unittype.getName());
 
-		t.setVar(	"unitinfo.details",	1,
-					"unit.picture",		unittype.getPicture(),
-					"unit.name",		name + ((unittype.isHidden() && hasPermission("unit", "versteckteSichtbar")) ? " [hidden]" : ""),
-					"unit.size",		Common.ln(unittype.getSize()),
-					"unit.nahrungcost",	Common.ln(unittype.getNahrungCost()),
-					"unit.recost",		Common.ln(unittype.getReCost()),
-					"unit.kapervalue",	Common.ln(unittype.getKaperValue()),
-					"unit.description",	Common._text(unittype.getDescription()),
-					"unit.baukosten",	buildcosts,
-					"unit.forschung",	forschungstring );
+		t.setVar("unitinfo.details", 1,
+				"unittype.picture", unittype.getPicture(),
+				"unittype.name", name + ((unittype.isHidden() && hasPermission("unittype", "versteckteSichtbar")) ? " [hidden]" : ""),
+				"unittype.size", Common.ln(unittype.getSize()),
+				"unittype.nahrungcost", Common.ln(unittype.getNahrungCost()),
+				"unittype.recost", Common.ln(unittype.getReCost()),
+				"unittype.kapervalue", Common.ln(unittype.getKaperValue()),
+				"unittype.description", Common._text(unittype.getDescription()),
+				"unittype.baukosten", buildcosts,
+				"unittype.forschung", forschungstring);
 	}
 }
