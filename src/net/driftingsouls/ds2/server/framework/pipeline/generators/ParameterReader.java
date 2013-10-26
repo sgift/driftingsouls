@@ -213,7 +213,11 @@ public class ParameterReader
 	{
 		Class<?> type = extractClass(typeDescription);
 
-		if( type == Boolean.TYPE ) {
+		if( konverter.containsKey(type) )
+		{
+			return konverter.get(type).konvertiere(this, paramName);
+		}
+		else if( type == Boolean.TYPE ) {
 			return number(paramName).intValue() == 1;
 		}
 		else if( type == Boolean.class ) {
@@ -270,10 +274,6 @@ public class ParameterReader
 		else if( Map.class.isAssignableFrom(type) )
 		{
 			return readMap(paramName, (ParameterizedType) typeDescription);
-		}
-		else if( konverter.containsKey(type) )
-		{
-			return konverter.get(type).konvertiere(this, paramName);
 		}
 		throw new IllegalArgumentException(type.getName()+" ist kein gueltiger Parametertyp fuer eine Action-Methode");
 	}
