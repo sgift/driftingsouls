@@ -33,6 +33,8 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import org.apache.commons.lang.StringUtils;
@@ -41,72 +43,53 @@ import org.apache.commons.lang.StringUtils;
  * Zeigt das Profil eines Benutzers an.
  *
  * @author Christopher Jung
- * @urlparam Integer user Die ID des anzuzeigenden Benutzers
- *
  */
-@Module(name="userprofile")
-public class UserProfileController extends TemplateGenerator {
-	private User user = null;
-
+@Module(name = "userprofile")
+public class UserProfileController extends TemplateGenerator
+{
 	/**
 	 * Konstruktor.
+	 *
 	 * @param context Der zu verwendende Kontext
 	 */
-	public UserProfileController(Context context) {
+	public UserProfileController(Context context)
+	{
 		super(context);
 
 		setTemplate("userprofile.html");
 
-		parameterNumber("user");
-
 		setPageTitle("Profil");
 	}
 
-	@Override
-	protected boolean validateAndPrepare(String action) {
-
-		User user = (User)getUser();
-
-		User auser = (User)getDB().get(User.class, getInteger("user"));
-		if( (auser == null) || (auser.hasFlag(User.FLAG_HIDE) && !hasPermission("user", "versteckteSichtbar")) ) {
-			addError( "Ihnen ist kein Benutzer unter der angegebenen ID bekannt", Common.buildUrl("default", "module", "ueber") );
-
-			return false;
+	private void validiereBenutzer(User benutzer)
+	{
+		if ((benutzer == null) || (benutzer.hasFlag(User.FLAG_HIDE) && !hasPermission("user", "versteckteSichtbar")))
+		{
+			throw new ValidierungException("Ihnen ist kein Benutzer unter der angegebenen ID bekannt", Common.buildUrl("default", "module", "ueber"));
 		}
-
-		this.user = auser;
-
-		return true;
 	}
 
 	/**
 	 * Setzt die Beziehung des Users mit dem aktuell angezeigtem User.
-	 * @urlparam Integer relation Die neue Beziehung. 1 fuer feindlich, 2 fuer freundlich und neural bei allen anderen Werten
+	 *
+	 * @param ausgewaehlterBenutzer Die ID des anzuzeigenden Benutzers
+	 * @param relation Die neue Beziehung. 1 fuer feindlich, 2 fuer freundlich und neural bei allen anderen Werten
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeRelationAction() {
-		User user = (User)getUser();
+	public void changeRelationAction(@UrlParam(name = "user") User ausgewaehlterBenutzer, User.Relation relation)
+	{
+		validiereBenutzer(ausgewaehlterBenutzer);
+
+		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
 
-		if( this.user.getId() == user.getId() ) {
+		if (ausgewaehlterBenutzer.getId() == user.getId())
+		{
 			redirect();
 			return;
 		}
 
-		parameterNumber("relation");
-		int relation = getInteger("relation");
-
-		User.Relation rel = User.Relation.NEUTRAL;
-		switch( relation ) {
-		case 1:
-			rel = User.Relation.ENEMY;
-			break;
-		case 2:
-			rel = User.Relation.FRIEND;
-			break;
-		}
-
-		user.setRelation(this.user.getId(), rel);
+		user.setRelation(ausgewaehlterBenutzer.getId(), relation);
 		t.setVar("userprofile.message", "Beziehungsstatus ge&auml;ndert");
 
 		redirect();
@@ -115,48 +98,44 @@ public class UserProfileController extends TemplateGenerator {
 	/**
 	 * Setzt die Beziehung aller User der Ally des aktiven Users mit dem aktuell angezeigtem User.
 	 * Die Operation kann nur vom Allianzpraesidenten ausgefuehrt werden.
-	 * @urlparam Integer relation Die neue Beziehung. 1 fuer feindlich, 2 fuer freundlich und neural bei allen anderen Werten
+	 *
+	 * @param ausgewaehlterBenutzer Die ID des anzuzeigenden Benutzers
+	 * @param relation Die neue Beziehung. 1 fuer feindlich, 2 fuer freundlich und neural bei allen anderen Werten
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeRelationAllyAction() {
-		User user = (User)getUser();
+	public void changeRelationAllyAction(@UrlParam(name = "user") User ausgewaehlterBenutzer, User.Relation relation)
+	{
+		validiereBenutzer(ausgewaehlterBenutzer);
+
+		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
 
-		if( user.getAlly() == null ) {
+		if (user.getAlly() == null)
+		{
 			addError("Sie sind in keiner Allianz");
 			redirect();
 			return;
 		}
 
-		if( user.getAlly() == this.user.getAlly() ) {
+		if (user.getAlly() == ausgewaehlterBenutzer.getAlly())
+		{
 			addError("Sie befinden sich in der selben Allianz");
 			redirect();
 			return;
 		}
 
 		User allypresi = user.getAlly().getPresident();
-		if( allypresi.getId() != user.getId() ) {
+		if (allypresi.getId() != user.getId())
+		{
 			addError("Sie sind nicht der Pr&auml;sident der Allianz");
 			redirect();
 			return;
 		}
 
-		parameterNumber("relation");
-		int relation = getInteger("relation");
-
-		User.Relation rel = User.Relation.NEUTRAL;
-		switch( relation ) {
-		case 1:
-			rel = User.Relation.ENEMY;
-			break;
-		case 2:
-			rel = User.Relation.FRIEND;
-			break;
-		}
-
 		List<User> allymemberList = user.getAlly().getMembers();
-		for( User auser : allymemberList ) {
-			auser.setRelation(this.user.getId(), rel);
+		for (User auser : allymemberList)
+		{
+			auser.setRelation(ausgewaehlterBenutzer.getId(), relation);
 		}
 
 		t.setVar("userprofile.message", "Beziehungsstatus ge&auml;ndert");
@@ -166,172 +145,218 @@ public class UserProfileController extends TemplateGenerator {
 
 	/**
 	 * Zeigt die Daten des angegebenen Benutzers an.
+	 *
+	 * @param ausgewaehlterBenutzer Die ID des anzuzeigenden Benutzers
 	 */
-	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() {
+	public void defaultAction(@UrlParam(name = "user") User ausgewaehlterBenutzer)
+	{
+		validiereBenutzer(ausgewaehlterBenutzer);
+
 		TemplateEngine t = getTemplateEngine();
-		User user = (User)getUser();
+		User user = (User) getUser();
 
-		this.user.setTemplateVars(t);
+		ausgewaehlterBenutzer.setTemplateVars(t);
 
-		if( this.user.getAlly() != null ) {
-			Ally ally = this.user.getAlly();
-			t.setVar(	"user.ally.name",	Common._title(ally.getName()),
-						"user.ally.id",		ally.getId() );
+		if (ausgewaehlterBenutzer.getAlly() != null)
+		{
+			Ally ally = ausgewaehlterBenutzer.getAlly();
+			t.setVar("user.ally.name", Common._title(ally.getName()),
+					"user.ally.id", ally.getId());
 
 			String pstatus = "";
-			if( ally.getPresident() == this.user ) {
-				pstatus = "<span style=\"font-weight:bold; font-style:italic\">"+Common._plaintitle(ally.getPname())+"</span>";
+			if (ally.getPresident() == ausgewaehlterBenutzer)
+			{
+				pstatus = "<span style=\"font-weight:bold; font-style:italic\">" + Common._plaintitle(ally.getPname()) + "</span>";
 			}
 
-			if( this.user.getAllyPosten() != null ) {
-				String postenname = this.user.getAllyPosten().getName();
-				t.setVar("user.ally.position", (pstatus.length() != 0 ? pstatus+", " : "")+Common._plaintitle(postenname) );
+			if (ausgewaehlterBenutzer.getAllyPosten() != null)
+			{
+				String postenname = ausgewaehlterBenutzer.getAllyPosten().getName();
+				t.setVar("user.ally.position", (pstatus.length() != 0 ? pstatus + ", " : "") + Common._plaintitle(postenname));
 			}
-			else {
-				t.setVar("user.ally.position", pstatus );
+			else
+			{
+				t.setVar("user.ally.position", pstatus);
 			}
 		}
 
-		if( (user.getAlly() != null) && (user.getAlly() != this.user.getAlly()) ) {
-			if( user.getAlly().getPresident() == user ) {
+		if ((user.getAlly() != null) && (user.getAlly() != ausgewaehlterBenutzer.getAlly()))
+		{
+			if (user.getAlly().getPresident() == user)
+			{
 				t.setVar("user.allyrelationchange", 1);
 			}
 		}
 
-		if( user.getId() != this.user.getId() ) {
-			if( (user.getAlly() == null) || (user.getAlly() !=  this.user.getAlly()) ) {
-				User.Relation relation = user.getRelation(this.user.getId());
-
-				if( relation == User.Relation.ENEMY ) {
-					t.setVar( "relation.enemy", 1 );
-				}
-				else if( relation == User.Relation.NEUTRAL ) {
-					t.setVar( "relation.neutral", 1 );
-				}
-				else {
-					t.setVar( "relation.friend", 1 );
-				}
-			}
-		}
-
-		t.setVar(	"user.name",		Common._title(this.user.getName()),
-					"user.rasse.name",	Rassen.get().rasse(this.user.getRace()).getName(),
-					"user.rang",	Medals.get().rang(this.user.getRang()),
-					"user.signupdate",	(this.user.getSignup() > 0 ? Common.date("d.m.Y H:i:s",this.user.getSignup()) : "schon immer" ));
-
-		t.setBlock("_USERPROFILE", "user.npcrang", "user.npcrang.list");
-		if( this.user.getId() == user.getId() )
+		if (user.getId() != ausgewaehlterBenutzer.getId())
 		{
-			for( UserRank rang : user.getOwnRanks() )
+			if ((user.getAlly() == null) || (user.getAlly() != ausgewaehlterBenutzer.getAlly()))
 			{
-				if( rang.getRank() < 0 )
-				{
-					continue;
-				}
-				t.setVar( "npcrang", rang.getRankGiver().getOwnGrantableRank(rang.getRank()),
-						"npcrang.npc", Common._title(rang.getRankGiver().getName()));
+				User.Relation relation = user.getRelation(ausgewaehlterBenutzer.getId());
 
-				t.parse("user.npcrang.list", "user.npcrang", true);
-			}
-		}
-		else 
-		{
-			// IDs der Ranggeber
-			int ownGiverId;
-			int foreignGiverId;
-			// Sets aller Raenge
-			Set<UserRank> ownRanks = user.getOwnRanks();
-			Set<UserRank> foreignRanks = this.user.getOwnRanks();
-			// fur jeden eigenen Rang mit den fremden abgleichen ob er den gleichen Ranggeber hat
-			for(UserRank ownRank : ownRanks){
-				// hab ich selbst einen Rang? andernfalls brauch ich gar nicht schauen
-				if(ownRank.getRank() > 0)
+				if (relation == User.Relation.ENEMY)
 				{
-					// holen wir uns die ID vom Ranggeber
-					ownGiverId = ownRank.getRankGiver().getId();
-					// nun alle fremden Ränge durchgehen und vergleichen
-					for(UserRank foreignRank : foreignRanks){
-						// Ranggeber holen
-						foreignGiverId = foreignRank.getRankGiver().getId();
-						// Ranggeber identisch und Fremdling hat selbst einen Rang, dann weiter
-						if (ownGiverId == foreignGiverId && foreignRank.getRank() > 0){
-							// zeige den Rang an
-							t.setVar( "npcrang", foreignRank.getRankGiver().getOwnGrantableRank(foreignRank.getRank()),
-									"npcrang.npc", Common._title(foreignRank.getRankGiver().getName()));
-							
-							// user.getOwnGrantableRanks()
-							
-							t.parse("user.npcrang.list", "user.npcrang", true);
-						}
-					}
+					t.setVar("relation.enemy", 1);
+				}
+				else if (relation == User.Relation.NEUTRAL)
+				{
+					t.setVar("relation.neutral", 1);
+				}
+				else
+				{
+					t.setVar("relation.friend", 1);
 				}
 			}
 		}
+
+		t.setVar("user.name", Common._title(ausgewaehlterBenutzer.getName()),
+				"user.rasse.name", Rassen.get().rasse(ausgewaehlterBenutzer.getRace()).getName(),
+				"user.rang", Medals.get().rang(ausgewaehlterBenutzer.getRang()),
+				"user.signupdate", (ausgewaehlterBenutzer.getSignup() > 0 ? Common.date("d.m.Y H:i:s", ausgewaehlterBenutzer.getSignup()) : "schon immer"));
+
+		npcRangAnzeigen(ausgewaehlterBenutzer, t, user);
 
 		// Beziehung
-		String relname = "neutral";
-		String relcolor = "#c7c7c7";
-		if( user.getId() != this.user.getId() ) {
-			User.Relation relation = this.user.getRelation(user.getId());
-			switch( relation ) {
-			case ENEMY:
-				relname = "feindlich";
-				relcolor = "#E00000";
-				break;
-			case FRIEND:
-				relname = "freundlich";
-				relcolor = "#00E000";
-				break;
-			}
-		}
-
-		t.setVar(	"user.relation",		relname,
-					"user.relation.color",	relcolor );
+		beziehungZumBenutzerAnzeigen(ausgewaehlterBenutzer, t, user);
 
 		// Vacstatus
-		int vaccount = this.user.getVacationCount();
-		int wait4vac = this.user.getWait4VacationCount();
+		int vaccount = ausgewaehlterBenutzer.getVacationCount();
+		int wait4vac = ausgewaehlterBenutzer.getWait4VacationCount();
 
-		if(vaccount > 0 && wait4vac <= 0)
+		if (vaccount > 0 && wait4vac <= 0)
 		{
 			t.setVar("user.vacstatus", "aktiv");
 		}
-		else {
+		else
+		{
 			t.setVar("user.vacstatus", "-");
 		}
 
 		// Faction
 
 		// History
-		t.setBlock("_USERPROFILE", "history.listitem", "history.list");
-		if( this.user.getHistory().length() != 0 ) {
-			String[] history = StringUtils.split(StringUtils.replace(this.user.getHistory(),"\r\n", "\n"), "\n" );
+		historieAnzeigen(ausgewaehlterBenutzer, t);
 
-			for( int i=0; i < history.length; i++ ) {
-				t.setVar( "history.line", Common._title(history[i], new String[0]) );
+		// Orden
+		ordenAnzeigen(ausgewaehlterBenutzer, t);
+	}
+
+	private void beziehungZumBenutzerAnzeigen(User ausgewaehlterBenutzer, TemplateEngine t, User user)
+	{
+		String relname = "neutral";
+		String relcolor = "#c7c7c7";
+		if (user.getId() != ausgewaehlterBenutzer.getId())
+		{
+			User.Relation relation = ausgewaehlterBenutzer.getRelation(user.getId());
+			switch (relation)
+			{
+				case ENEMY:
+					relname = "feindlich";
+					relcolor = "#E00000";
+					break;
+				case FRIEND:
+					relname = "freundlich";
+					relcolor = "#00E000";
+					break;
+			}
+		}
+
+		t.setVar("user.relation", relname,
+				"user.relation.color", relcolor);
+	}
+
+	private void historieAnzeigen(User ausgewaehlterBenutzer, TemplateEngine t)
+	{
+		t.setBlock("_USERPROFILE", "history.listitem", "history.list");
+		if (ausgewaehlterBenutzer.getHistory().length() != 0)
+		{
+			String[] history = StringUtils.split(StringUtils.replace(ausgewaehlterBenutzer.getHistory(), "\r\n", "\n"), "\n");
+
+			for (String aHistory : history)
+			{
+				t.setVar("history.line", Common._title(aHistory, new String[0]));
 
 				t.parse("history.list", "history.listitem", true);
 			}
 		}
+	}
 
-		// Orden
+	private void ordenAnzeigen(User ausgewaehlterBenutzer, TemplateEngine t)
+	{
 		t.setBlock("_USERPROFILE", "medals.listitem", "medals.list");
 
-		if( this.user.getMedals().length() != 0 ) {
-			int[] medals = Common.explodeToInt(";", this.user.getMedals());
+		if (ausgewaehlterBenutzer.getMedals().length() != 0)
+		{
+			int[] medals = Common.explodeToInt(";", ausgewaehlterBenutzer.getMedals());
 
-			for( int i=0; i < medals.length; i++ ) {
+			for (int i = 0; i < medals.length; i++)
+			{
 				int medal = medals[i];
-				if( Medals.get().medal(medal) == null ) {
+				if (Medals.get().medal(medal) == null)
+				{
 					continue;
 				}
-				t.setVar(	"medal.index",				i,
-							"medal.image",				Medals.get().medal(medal).getImage(Medal.IMAGE_NORMAL),
-							"medal.image.highlight",	Medals.get().medal(medal).getImage(Medal.IMAGE_HIGHLIGHT) );
+				t.setVar("medal.index", i,
+						"medal.image", Medals.get().medal(medal).getImage(Medal.IMAGE_NORMAL),
+						"medal.image.highlight", Medals.get().medal(medal).getImage(Medal.IMAGE_HIGHLIGHT));
 
 				t.parse("medals.list", "medals.listitem", true);
+			}
+		}
+	}
+
+	private void npcRangAnzeigen(User ausgewaehlterBenutzer, TemplateEngine t, User user)
+	{
+		t.setBlock("_USERPROFILE", "user.npcrang", "user.npcrang.list");
+		if (ausgewaehlterBenutzer.getId() == user.getId())
+		{
+			for (UserRank rang : user.getOwnRanks())
+			{
+				if (rang.getRank() < 0)
+				{
+					continue;
+				}
+				t.setVar("npcrang", rang.getRankGiver().getOwnGrantableRank(rang.getRank()),
+						"npcrang.npc", Common._title(rang.getRankGiver().getName()));
+
+				t.parse("user.npcrang.list", "user.npcrang", true);
+			}
+		}
+		else
+		{
+			// IDs der Ranggeber
+			int ownGiverId;
+			int foreignGiverId;
+			// Sets aller Raenge
+			Set<UserRank> ownRanks = user.getOwnRanks();
+			Set<UserRank> foreignRanks = ausgewaehlterBenutzer.getOwnRanks();
+			// fur jeden eigenen Rang mit den fremden abgleichen ob er den gleichen Ranggeber hat
+			for (UserRank ownRank : ownRanks)
+			{
+				// hab ich selbst einen Rang? andernfalls brauch ich gar nicht schauen
+				if (ownRank.getRank() > 0)
+				{
+					// holen wir uns die ID vom Ranggeber
+					ownGiverId = ownRank.getRankGiver().getId();
+					// nun alle fremden Ränge durchgehen und vergleichen
+					for (UserRank foreignRank : foreignRanks)
+					{
+						// Ranggeber holen
+						foreignGiverId = foreignRank.getRankGiver().getId();
+						// Ranggeber identisch und Fremdling hat selbst einen Rang, dann weiter
+						if (ownGiverId == foreignGiverId && foreignRank.getRank() > 0)
+						{
+							// zeige den Rang an
+							t.setVar("npcrang", foreignRank.getRankGiver().getOwnGrantableRank(foreignRank.getRank()),
+									"npcrang.npc", Common._title(foreignRank.getRankGiver().getName()));
+
+							// user.getOwnGrantableRanks()
+
+							t.parse("user.npcrang.list", "user.npcrang", true);
+						}
+					}
+				}
 			}
 		}
 	}

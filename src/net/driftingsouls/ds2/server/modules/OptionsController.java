@@ -41,75 +41,79 @@ import java.util.List;
 
 /**
  * Aendern der Einstellungen eines Benutzers durch den Benutzer selbst.
- * @author Christopher Jung
  *
+ * @author Christopher Jung
  */
-@Module(name="options")
-public class OptionsController extends TemplateGenerator {
+@Module(name = "options")
+public class OptionsController extends TemplateGenerator
+{
 	private static final Log log = LogFactory.getLog(OptionsController.class);
 
 	/**
 	 * Konstruktor.
+	 *
 	 * @param context Der zu verwendende Kontext
 	 */
-	public OptionsController(Context context) {
+	public OptionsController(Context context)
+	{
 		super(context);
 
 		setTemplate("options.html");
 	}
 
 	@Override
-	protected boolean validateAndPrepare(String action) {
+	protected boolean validateAndPrepare(String action)
+	{
 		return true;
 	}
 
 	/**
 	 * Aendert den Namen und das Passwort des Benutzers.
-	 * @urlparam String name Der neue Benutzername
-	 * @urlparam String pw Das neue Passwort
-	 * @urlparam String pw2 Die Wiederholung des neuen Passworts
+	 *
+	 * @param name Der neue Benutzername
+	 * @param pw Das neue Passwort
+	 * @param pw2 Die Wiederholung des neuen Passworts
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeNamePassAction() {
+	public void changeNamePassAction(String name, String pw, String pw2)
+	{
 		TemplateEngine t = getTemplateEngine();
-		User user = (User)getUser();
-
-		parameterString("name");
-		parameterString("pw");
-		parameterString("pw2");
+		User user = (User) getUser();
 
 		String changemsg = "";
 
-		String name = getString("name");
-		if( (name.length() != 0) && !name.equals(user.getNickname()) ) {
+		if ((name.length() != 0) && !name.equals(user.getNickname()))
+		{
 			boolean addhistory = false;
 
 			BBCodeParser bbcodeparser = BBCodeParser.getInstance();
-			if( !bbcodeparser.parse(user.getNickname(),new String[]{"all"}).trim().equals(bbcodeparser.parse(name,new String[]{"all"}).trim()) ) {
+			if (!bbcodeparser.parse(user.getNickname(), new String[]{"all"}).trim().equals(bbcodeparser.parse(name, new String[]{"all"}).trim()))
+			{
 				addhistory = true;
 			}
 
 			String newname = name;
-			if( user.getAlly() != null ) {
+			if (user.getAlly() != null)
+			{
 				newname = user.getAlly().getAllyTag();
 				newname = StringUtils.replace(newname, "[name]", name);
 			}
 
-			changemsg += "<span style=\"color:green\">Der Ingame-Namen <span style=\"color:white\">"+Common._title(user.getNickname())+"</span> wurde in <span style=\"color:white\">"+Common._title(name)+"</span> ge&auml;ndert</span><br />\n";
+			changemsg += "<span style=\"color:green\">Der Ingame-Namen <span style=\"color:white\">" + Common._title(user.getNickname()) + "</span> wurde in <span style=\"color:white\">" + Common._title(name) + "</span> ge&auml;ndert</span><br />\n";
 
-			Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getContext().getRequest().getRemoteAddress()+"> ("+user.getId()+") <"+user.getUN()+"> Namensaenderung: Ingame-Namen <"+user.getNickname()+"> in <"+name+"> Browser <"+getContext().getRequest().getUserAgent()+">\n");
+			Common.writeLog("login.log", Common.date("j.m.Y H:i:s") + ": <" + getContext().getRequest().getRemoteAddress() + "> (" + user.getId() + ") <" + user.getUN() + "> Namensaenderung: Ingame-Namen <" + user.getNickname() + "> in <" + name + "> Browser <" + getContext().getRequest().getUserAgent() + ">\n");
 
-			if( addhistory ) {
-				user.addHistory(Common.getIngameTime(getContext().get(ContextCommon.class).getTick())+": Umbenennung in "+newname);
+			if (addhistory)
+			{
+				user.addHistory(Common.getIngameTime(getContext().get(ContextCommon.class).getTick()) + ": Umbenennung in " + newname);
 			}
 
 			user.setName(newname);
 			user.setNickname(name);
 		}
 
-		String pw = getString("pw");
-		String pw2 = getString("pw2");
-		if( (pw.length() != 0) && pw.equals(pw2) ) {
+		if ((pw.length() != 0) && pw.equals(pw2))
+		{
 			String enc_pw = Common.md5(pw);
 
 			user.setPassword(enc_pw);
@@ -120,141 +124,126 @@ public class OptionsController extends TemplateGenerator {
 			message = StringUtils.replace(message, "{username}", user.getUN());
 			message = StringUtils.replace(message, "{date}", Common.date("H:i j.m.Y"));
 
-			Common.mail (user.getEmail(), subject, message);
+			Common.mail(user.getEmail(), subject, message);
 
-			Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getContext().getRequest().getRemoteAddress()+"> ("+user.getId()+") <"+user.getUN()+"> Passwortaenderung Browser <"+getContext().getRequest().getUserAgent()+"> \n");
+			Common.writeLog("login.log", Common.date("j.m.Y H:i:s") + ": <" + getContext().getRequest().getRemoteAddress() + "> (" + user.getId() + ") <" + user.getUN() + "> Passwortaenderung Browser <" + getContext().getRequest().getUserAgent() + "> \n");
 		}
-		else if( pw.length() != 0 ) {
+		else if (pw.length() != 0)
+		{
 			changemsg += "<span style=\"color:red\">Die beiden eingegebenen Passw&ouml;rter stimmen nicht &uuml;berein</span><br />\n";
 		}
 
-		t.setVar(	"options.changenamepwd",			1,
-					"options.changenamepwd.nickname",	Common._plaintitle(user.getNickname()),
-					"options.message", 					changemsg );
+		t.setVar("options.changenamepwd", 1,
+				"options.changenamepwd.nickname", Common._plaintitle(user.getNickname()),
+				"options.message", changemsg);
 	}
 
 	/**
 	 * Sendet die Löschanfrage des Spielers.
-	 * @urlparam Integer del Der Interaktionsschritt. Bei 0 wird das Eingabeformular angezeigt. Andernfalls wird versucht die Anfrage zu senden
-	 * @urlparam String reason Die schluessige Begruendung. Muss mindestens die Laenge 5 haben
+	 *
+	 * @param del Der Interaktionsschritt. Bei 0 wird das Eingabeformular angezeigt. Andernfalls wird versucht die Anfrage zu senden
+	 * @param reason Die schluessige Begruendung. Muss mindestens die Laenge 5 haben
 	 */
 	@Action(ActionType.DEFAULT)
-	public void delAccountAction() {
+	public void delAccountAction(int del, String reason)
+	{
 		TemplateEngine t = getTemplateEngine();
-		User user = (User)getUser();
+		User user = (User) getUser();
 
-		parameterNumber("del");
-		parameterString("reason");
-
-		int del = getInteger("del");
-		String reason = getString("reason");
-		if( del == 0 ) {
-			t.setVar( "options.delaccountform", 1 );
+		if (del == 0)
+		{
+			t.setVar("options.delaccountform", 1);
 
 		}
-		else if( reason.length() < 5 ) {
-			t.setVar(	"options.message",			"Bitte geben sie Gr&uuml;nde f&uuml;r die L&ouml;schung an!<br />\n",
-						"options.delaccountform",	1 );
+		else if (reason.length() < 5)
+		{
+			t.setVar("options.message", "Bitte geben sie Gr&uuml;nde f&uuml;r die L&ouml;schung an!<br />\n",
+					"options.delaccountform", 1);
 
 		}
-		else {
+		else
+		{
 			StringBuilder msg = new StringBuilder(100);
-	 		msg.append("PLZ DELETE ME!!!\nMY ID IS: [userprofile=");
-	 		msg.append(user.getId());
-	 		msg.append("]");
-	 		msg.append(user.getId());
-	 		msg.append("[/userprofile]\n");
-	 		msg.append("MY UN IS: ");
-	 		msg.append(user.getUN());
-	 		msg.append("\n");
-	 		msg.append("MY CURRENT NAME IS: ");
-	 		msg.append(user.getName());
-	 		msg.append("\n");
-	 		msg.append("MY REASONS:\n");
-	 		msg.append(reason);
-	 		PM.sendToAdmins(user, "Account l&ouml;schen", msg.toString(), 0);
+			msg.append("PLZ DELETE ME!!!\nMY ID IS: [userprofile=");
+			msg.append(user.getId());
+			msg.append("]");
+			msg.append(user.getId());
+			msg.append("[/userprofile]\n");
+			msg.append("MY UN IS: ");
+			msg.append(user.getUN());
+			msg.append("\n");
+			msg.append("MY CURRENT NAME IS: ");
+			msg.append(user.getName());
+			msg.append("\n");
+			msg.append("MY REASONS:\n");
+			msg.append(reason);
+			PM.sendToAdmins(user, "Account l&ouml;schen", msg.toString(), 0);
 
-			t.setVar(	"options.delaccountresp",		1,
-						"delaccountresp.admins",		Configuration.getSetting("ADMIN_PMS_ACCOUNT") );
+			t.setVar("options.delaccountresp", 1,
+					"delaccountresp.admins", Configuration.getSetting("ADMIN_PMS_ACCOUNT"));
 
 		}
 	}
 
 	/**
 	 * Aendert die erweiterten Einstellungen des Spielers.
-	 * @urlparam Integer shipgroupmulti der neue Schiffsgruppierungswert
-	 * @urlparam Integer inttutorial Die Seite des Tutorials in der Uebersicht (0 = deaktiviert)
-	 * @urlparam Integer scriptdebug Ist fuer den Spieler die Option zum Debugging
+	 *
+	 * @param shipgroupmulti der neue Schiffsgruppierungswert
+	 * @param inttutorial Die Seite des Tutorials in der Uebersicht (0 = deaktiviert)
+	 * @param scriptdebug Ist fuer den Spieler die Option zum Debugging
 	 * von (ScriptParser-)Scripten sichtbar gewesen?
-	 * @urlparam Integer scriptdebugstatus Bei einem Wert != 0 wird das ScriptDebugging aktiviert
-	 * @urlparam Integer mapwidth Die Breite der Sternenkarte
-	 * @urlparam Integer mapheight Die Hoehe der Sternenkarte
-	 * @urlparam Integer defrelation Die Default-Beziehung zu anderen Spielern (1 = feindlich, 2 = freundlich, sonst neutral)
+	 * @param scriptdebugstatus Bei <code>true</code> wird das ScriptDebugging aktiviert
+	 * @param defrelation Die Default-Beziehung zu anderen Spielern (1 = feindlich, 2 = freundlich, sonst neutral)
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeXtraAction() {
-		User user = (User)getUser();
+	public void changeXtraAction(int shipgroupmulti, int inttutorial, int scriptdebug, boolean scriptdebugstatus, User.Relation defrelation)
+	{
+		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
-
-		parameterNumber("shipgroupmulti");
-		parameterNumber("inttutorial");
-		parameterNumber("scriptdebug");
-		parameterNumber("mapwidth");
-		parameterNumber("mapheight");
-		parameterNumber("defrelation");
-
-		int shipgroupmulti = getInteger("shipgroupmulti");
-		int inttutorial = getInteger("inttutorial");
-		int scriptdebug = getInteger("scriptdebug");
-		int defrelation = getInteger("defrelation");
-
-		User.Relation rel = User.Relation.NEUTRAL;
-		switch( defrelation ) {
-		case 1:
-			rel = User.Relation.ENEMY;
-			break;
-		case 2:
-			rel = User.Relation.FRIEND;
-			break;
-		}
 
 		String changemsg = "";
 
-		if( shipgroupmulti != Integer.parseInt(user.getUserValue("TBLORDER/schiff/wrapfactor")) ) {
+		if (shipgroupmulti != Integer.parseInt(user.getUserValue("TBLORDER/schiff/wrapfactor")))
+		{
 			changemsg += "Neuer Schiffsgruppenmultiplikator gespeichert...<br />\n";
 
-			user.setUserValue( "TBLORDER/schiff/wrapfactor", Integer.toString(shipgroupmulti) );
+			user.setUserValue("TBLORDER/schiff/wrapfactor", Integer.toString(shipgroupmulti));
 		}
 
-		if( (scriptdebug != 0) && hasPermission("schiff", "script") ) {
-			parameterNumber("scriptdebugstatus");
+		if ((scriptdebug != 0) && hasPermission("schiff", "script"))
+		{
+			if (scriptdebugstatus != user.hasFlag(User.FLAG_SCRIPT_DEBUGGING))
+			{
+				user.setFlag(User.FLAG_SCRIPT_DEBUGGING, scriptdebugstatus);
 
-			boolean scriptdebugstatus = getInteger("scriptdebugstatus") != 0;
-
-			if( scriptdebugstatus != user.hasFlag( User.FLAG_SCRIPT_DEBUGGING ) ) {
-				user.setFlag( User.FLAG_SCRIPT_DEBUGGING, scriptdebugstatus  );
-
-				changemsg += "Scriptdebugging "+(scriptdebugstatus ? "" : "de")+"aktiviert<br />\n";
+				changemsg += "Scriptdebugging " + (scriptdebugstatus ? "" : "de") + "aktiviert<br />\n";
 			}
 		}
 
-		if( inttutorial != Integer.parseInt(user.getUserValue("TBLORDER/uebersicht/inttutorial")) ) {
-			if( inttutorial != 0 ) {
+		if (inttutorial != Integer.parseInt(user.getUserValue("TBLORDER/uebersicht/inttutorial")))
+		{
+			if (inttutorial != 0)
+			{
 				changemsg += "Tutorial aktiviert...<br />\n";
 			}
-			else {
+			else
+			{
 				changemsg += "Tutorial deaktiviert...<br />\n";
 			}
-			user.setUserValue("TBLORDER/uebersicht/inttutorial", Integer.toString(inttutorial) );
+			user.setUserValue("TBLORDER/uebersicht/inttutorial", Integer.toString(inttutorial));
 		}
 
-		if( rel != user.getRelation(0) ) {
+		if (defrelation != user.getRelation(0))
+		{
 			changemsg += "Diplomatiehaltung ge&auml;ndert...<br />\n";
 
-			user.setRelation(0,rel);
-			if( user.getAlly() != null ) {
-				for( User auser : user.getAlly().getMembers() ) {
-					if( auser.getId() == user.getId() ) {
+			user.setRelation(0, defrelation);
+			if (user.getAlly() != null)
+			{
+				for (User auser : user.getAlly().getMembers())
+				{
+					if (auser.getId() == user.getId())
+					{
 						continue;
 					}
 					user.setRelation(auser.getId(), User.Relation.FRIEND);
@@ -263,58 +252,62 @@ public class OptionsController extends TemplateGenerator {
 			}
 		}
 
-		t.setVar( "options.message", changemsg );
+		t.setVar("options.message", changemsg);
 
 		redirect("xtra");
 	}
 
 	/**
 	 * Zeigt die erweiterten Einstellungen des Spielers.
-	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void xtraAction() {
-		User user = (User)getUser();
+	public void xtraAction()
+	{
+		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
 
-		t.setVar(	"options.xtra",			1,
-					"user.wrapfactor",		user.getUserValue("TBLORDER/schiff/wrapfactor"),
-					"user.inttutorial",		user.getUserValue("TBLORDER/uebersicht/inttutorial"),
-					"user.showScriptDebug",	hasPermission("schiff", "script"),
-					"user.scriptdebug",		user.hasFlag(User.FLAG_SCRIPT_DEBUGGING),
-					"user.defrelation",		user.getRelation(0).ordinal() );
+		t.setVar("options.xtra", 1,
+				"user.wrapfactor", user.getUserValue("TBLORDER/schiff/wrapfactor"),
+				"user.inttutorial", user.getUserValue("TBLORDER/uebersicht/inttutorial"),
+				"user.showScriptDebug", hasPermission("schiff", "script"),
+				"user.scriptdebug", user.hasFlag(User.FLAG_SCRIPT_DEBUGGING),
+				"user.defrelation", user.getRelation(0).ordinal());
 	}
 
 	private static final int MAX_UPLOAD_SIZE = 307200;
 
 	/**
 	 * Aendert das Logo des Spielers.
-	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void logoAction() {
+	public void logoAction()
+	{
 		TemplateEngine t = getTemplateEngine();
 
 		List<FileItem> list = getContext().getRequest().getUploadedFiles();
-		if( list.size() == 0 ) {
+		if (list.size() == 0)
+		{
 			redirect();
 			return;
 		}
 
-		if( list.get(0).getSize() > MAX_UPLOAD_SIZE ) {
-			t.setVar("options.message","Das Logo ist leider zu gro&szlig;. Bitte w&auml;hle eine Datei mit maximal 300kB Gr&ouml;&stlig;e<br />");
+		if (list.get(0).getSize() > MAX_UPLOAD_SIZE)
+		{
+			t.setVar("options.message", "Das Logo ist leider zu gro&szlig;. Bitte w&auml;hle eine Datei mit maximal 300kB Gr&ouml;&stlig;e<br />");
 			redirect();
 			return;
 		}
 
-		String uploaddir = Configuration.getSetting("ABSOLUTE_PATH")+"data/logos/user/";
-		try {
-			File uploadedFile = new File(uploaddir+getUser().getId()+".gif");
+		String uploaddir = Configuration.getSetting("ABSOLUTE_PATH") + "data/logos/user/";
+		try
+		{
+			File uploadedFile = new File(uploaddir + getUser().getId() + ".gif");
 			list.get(0).write(uploadedFile);
-			t.setVar("options.message","Das neue Logo wurde auf dem Server gespeichert<br />");
+			t.setVar("options.message", "Das neue Logo wurde auf dem Server gespeichert<br />");
 		}
-		catch( Exception e ) {
-			t.setVar("options.message","Offenbar ging beim Upload etwas schief (Ist die Datei evt. zu gro&szlig;?)<br />");
+		catch (Exception e)
+		{
+			t.setVar("options.message", "Offenbar ging beim Upload etwas schief (Ist die Datei evt. zu gro&szlig;?)<br />");
 			log.warn(e);
 		}
 		redirect();
@@ -322,19 +315,18 @@ public class OptionsController extends TemplateGenerator {
 
 	/**
 	 * Aktiviert den Vac-Mode fuer den Spieler.
-	 * @urlparam Integer vacmode die ID des zu benutzenden Vacmodes
+	 *
+	 * @param vacdays Die Anzahl der Tage im Vacationmodus
 	 */
 	@Action(ActionType.DEFAULT)
-	public void vacModeAction()
+	public void vacModeAction(int vacdays)
 	{
 		TemplateEngine t = getTemplateEngine();
-		User user = (User)getUser();
+		User user = (User) getUser();
 
-		parameterNumber("vacdays");
-		int vacDays = getInteger("vacdays");
-		int vacTicks = Common.daysToTicks(vacDays);
+		int vacTicks = Common.daysToTicks(vacdays);
 
-		if(!user.checkVacationRequest(vacTicks))
+		if (!user.checkVacationRequest(vacTicks))
 		{
 			t.setVar("options.message", "Dein Urlaubskonto reicht nicht aus f&uuml;r soviele Tage Urlaub.");
 			redirect();
@@ -348,52 +340,49 @@ public class OptionsController extends TemplateGenerator {
 
 	/**
 	 * Speichert die neuen Optionen.
-	 * @urlparam Integer enableipsess Falls != 0 wird die Koppelung der Session an die IP aktiviert
-	 * @urlparam Integer enableautologout Falls != 0 wird der automatische Logout aktiviert
-	 * @urlparam Integer showtooltip Falls != 0 werden die Hilfstooltips aktiviert
-	 * @urlparam Integer wrapfactor Der neue Schiffsgruppierungsfaktor (0 = keine Gruppierung)
+	 *
+	 * @param showtooltip Falls != 0 werden die Hilfstooltips aktiviert
+	 * @param wrapfactor Der neue Schiffsgruppierungsfaktor (0 = keine Gruppierung)
 	 */
 	@Action(ActionType.DEFAULT)
-	public void saveOptionsAction() {
-		User user = (User)getUser();
+	public void saveOptionsAction(boolean showtooltip, int wrapfactor)
+	{
+		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
-
-		parameterNumber("showtooltip");
-		parameterNumber("wrapfactor");
-
-		boolean showtooltip = getInteger("showtooltip") != 0;
-		int wrapfactor = getInteger("wrapfactor");
 
 		String changemsg = "";
 
-		if(showtooltip == (Integer.parseInt(user.getUserValue("TBLORDER/schiff/tooltips")) == 0)) {
-			user.setUserValue( "TBLORDER/schiff/tooltips", showtooltip ? "1" : "0" );
+		if (showtooltip == (Integer.parseInt(user.getUserValue("TBLORDER/schiff/tooltips")) == 0))
+		{
+			user.setUserValue("TBLORDER/schiff/tooltips", showtooltip ? "1" : "0");
 
-			changemsg += "Anzeige der Tooltips "+(showtooltip ? "" : "de")+"aktiviert<br />\n";
+			changemsg += "Anzeige der Tooltips " + (showtooltip ? "" : "de") + "aktiviert<br />\n";
 		}
 
-		if( wrapfactor != Integer.parseInt(user.getUserValue("TBLORDER/schiff/wrapfactor")) ) {
-			user.setUserValue("TBLORDER/schiff/wrapfactor", Integer.toString(wrapfactor) );
+		if (wrapfactor != Integer.parseInt(user.getUserValue("TBLORDER/schiff/wrapfactor")))
+		{
+			user.setUserValue("TBLORDER/schiff/wrapfactor", Integer.toString(wrapfactor));
 
-			changemsg += "Schiffsgruppierungen "+(wrapfactor != 0 ? "aktiviert" : "deaktiviert")+"<br />\n";
+			changemsg += "Schiffsgruppierungen " + (wrapfactor != 0 ? "aktiviert" : "deaktiviert") + "<br />\n";
 		}
 
-		t.setVar( "options.message", changemsg );
+		t.setVar("options.message", changemsg);
 
 		redirect();
 	}
 
 	/**
 	 * Deaktiviert den Noob-Schutz des Spielers.
-	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void dropNoobProtectionAction() {
-		User user = (User)getUser();
+	public void dropNoobProtectionAction()
+	{
+		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
 
-		if( user.isNoob() ) {
-			user.setFlag( User.FLAG_NOOB, false );
+		if (user.isNoob())
+		{
+			user.setFlag(User.FLAG_NOOB, false);
 			t.setVar("options.message", "GCP-Schutz wurde vorzeitig aufgehoben.<br />");
 		}
 
@@ -405,21 +394,23 @@ public class OptionsController extends TemplateGenerator {
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() {
+	public void defaultAction()
+	{
 		TemplateEngine t = getTemplateEngine();
-		User user = (User)getUser();
+		User user = (User) getUser();
 
 		String imagepath = user.getUserImagePath();
 
-		if( BasicUser.getDefaultImagePath().equals(imagepath) ) {
+		if (BasicUser.getDefaultImagePath().equals(imagepath))
+		{
 			imagepath = "";
 		}
 
-		t.setVar(	"options.general",	1,
-					"user.wrapfactor",	user.getUserValue("TBLORDER/schiff/wrapfactor"),
-					"user.tooltip",		user.getUserValue("TBLORDER/schiff/tooltips"),
-					"user.imgpath",		imagepath,
-					"user.noob",		user.isNoob(),
-					"vacation.maxtime", Common.ticks2DaysInDays(user.maxVacTicks()));
+		t.setVar("options.general", 1,
+				"user.wrapfactor", user.getUserValue("TBLORDER/schiff/wrapfactor"),
+				"user.tooltip", user.getUserValue("TBLORDER/schiff/tooltips"),
+				"user.imgpath", imagepath,
+				"user.noob", user.isNoob(),
+				"vacation.maxtime", Common.ticks2DaysInDays(user.maxVacTicks()));
 	}
 }

@@ -18,15 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
@@ -56,11 +47,18 @@ import net.driftingsouls.ds2.server.modules.stats.Statistic;
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 
+import java.io.IOException;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Die Statistikseite.
  * @author Christopher Jung
  *
- * @urlparam Integer stat Die ID der Statistik in der ausgewaehlten Kategorie
  * @urlparam Integer show die ID der ausgeaehlten Kategorie
  */
 @Module(name="stats")
@@ -69,10 +67,6 @@ public class StatsController extends DSGenerator {
 	 * Die minimale User/Ally-ID um in den Statistiken beruecksichtigt zu werden.
 	 */
 	public static final int MIN_USER_ID = 0;
-	/**
-	 * Die groesste moegliche Forschungs-ID + 1.
-	 */
-	public static final int MAX_RESID = 100;
 
 	private static class StatEntry {
 		Statistic stat;
@@ -85,8 +79,8 @@ public class StatsController extends DSGenerator {
 			this.width = width;
 		}
 	}
-	private Map<Integer,List<StatEntry>> statslist = new HashMap<Integer,List<StatEntry>>();
-	private Map<String,Integer> catlist = new LinkedHashMap<String,Integer>();
+	private Map<Integer,List<StatEntry>> statslist = new HashMap<>();
+	private Map<String,Integer> catlist = new LinkedHashMap<>();
 	private int show = 0;
 
 	/**
@@ -96,7 +90,6 @@ public class StatsController extends DSGenerator {
 	public StatsController(Context context) {
 		super(context);
 
-		parameterNumber("stat");
 		parameterNumber("show");
 
 		setPageTitle("Statistik");
@@ -104,8 +97,6 @@ public class StatsController extends DSGenerator {
 
 	@Override
 	protected boolean validateAndPrepare(String action) {
-		User user = (User)getUser();
-
 		registerStat( "Spieler", new StatOwnCiv(), "Meine Zivilisation", 0 );
 		registerStat( "Spieler", new StatBiggestFleet(false), "Die gr&ouml;ssten Flotten", 60 );
 		registerStat( "Spieler", new StatBiggestTrader(false), "Die gr&ouml;ssten Handelsflotten", 60);
@@ -155,14 +146,14 @@ public class StatsController extends DSGenerator {
 	private void printMenu() throws IOException {
 		Writer echo = getContext().getResponse().getWriter();
 
-		Map<Integer,String> lists = new HashMap<Integer,String>();
+		Map<Integer,String> lists = new HashMap<>();
 
 		for( int listkey : this.statslist.keySet() ) {
 			StringBuilder builder = new StringBuilder();
 
 			List<StatEntry> alist = this.statslist.get(listkey);
 			for( int i=0; i < alist.size(); i++ ) {
-				builder.append("<dd><a style='font-size:12px;font-weight:normal' class='back' href='"+Common.buildUrl("default", "show", listkey, "stat", i)+"'>"+alist.get(i).name+"</a></dd>");
+				builder.append("<dd><a style='font-size:12px;font-weight:normal' class='back' href='").append(Common.buildUrl("default", "show", listkey, "stat", i)).append("'>").append(alist.get(i).name).append("</a></dd>");
 			}
 
 			lists.put(listkey, builder.toString());
@@ -180,7 +171,7 @@ public class StatsController extends DSGenerator {
 				if( this.show == cat ) {
 					echo.append("style=\"text-decoration:underline\"");
 				}
-				echo.append(">"+catkey+"<img style='vertical-align:middle; border:0px' src='./data/interface/uebersicht/icon_dropdown.gif' alt='' /></dt>\n");
+				echo.append(">").append(catkey).append("<img style='vertical-align:middle; border:0px' src='./data/interface/uebersicht/icon_dropdown.gif' alt='' /></dt>\n");
 				echo.append(lists.get(cat));
 				echo.append("</dl></div>");
 			}
@@ -189,7 +180,7 @@ public class StatsController extends DSGenerator {
 				if( this.show == cat ) {
 					echo.append("style=\"text-decoration:underline\"");
 				}
-				echo.append(" class=\"forschinfo\" href=\""+Common.buildUrl("default", "show", cat)+"\">"+catkey+"</a>\n");
+				echo.append(" class=\"forschinfo\" href=\"").append(Common.buildUrl("default", "show", cat)).append("\">").append(catkey).append("</a>\n");
 			}
 
 			if( catpos < catsize - 1 ) {
@@ -201,10 +192,14 @@ public class StatsController extends DSGenerator {
 		echo.append("<div><br /><br /></div>\n");
 	}
 
+	/**
+	 * Ajax-Modus der Statistikseite.
+	 * @param stat Die ID der Statistik in der ausgewaehlten Kategorie
+	 * @return Die JSON-Daten zur Statistik
+	 * @throws IOException
+	 */
 	@Action(ActionType.AJAX)
-	public JSON ajaxAction() throws IOException {
-		int stat = getInteger("stat");
-
+	public JSON ajaxAction(int stat) throws IOException {
 		if( this.statslist.get(show).size() <= stat ) {
 			stat = 1;
 		}
@@ -213,21 +208,18 @@ public class StatsController extends DSGenerator {
 
 		if( mystat.stat instanceof AjaxStatistic )
 		{
-			JSON json = ((AjaxStatistic)mystat.stat).generateData(this, mystat.width);
-			return json;
+			return ((AjaxStatistic)mystat.stat).generateData(this, mystat.width);
 		}
 		return new JSONObject();
 	}
 
 	/**
 	 * Anzeige der Statistiken.
+	 * @param stat Die ID der Statistik in der ausgewaehlten Kategorie
 	 * @throws IOException
 	 */
-	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() throws IOException {
-		int stat = getInteger("stat");
-
+	public void defaultAction(int stat) throws IOException {
 		if( this.statslist.get(show).size() <= stat ) {
 			stat = 1;
 		}
