@@ -57,11 +57,6 @@ public class DeutAllController extends TemplateGenerator {
 		setPageTitle("Deut. sammeln");
 	}
 
-	@Override
-	protected boolean validateAndPrepare() {
-		return true;
-	}
-
 	/**
 	 * Sammelt das Deuterium auf den Tankern.
 	 */

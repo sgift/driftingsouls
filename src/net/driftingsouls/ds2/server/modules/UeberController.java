@@ -74,8 +74,6 @@ public class UeberController extends TemplateGenerator
 {
 	private static final Log log = LogFactory.getLog(UeberController.class);
 
-	private String box = "";
-
 	/**
 	 * Konstruktor.
 	 *
@@ -86,14 +84,6 @@ public class UeberController extends TemplateGenerator
 		super(context);
 
 		setTemplate("ueber.html");
-	}
-
-	@Override
-	protected boolean validateAndPrepare()
-	{
-		box = getUser().getUserValue("TBLORDER/uebersicht/box");
-
-		return true;
 	}
 
 	/**
@@ -145,10 +135,10 @@ public class UeberController extends TemplateGenerator
 	@Action(ActionType.DEFAULT)
 	public void boxAction(String box)
 	{
-		if (box != null && !box.equals(this.box))
+		String boxSetting = getUser().getUserValue("TBLORDER/uebersicht/box");
+		if (box != null && !box.equals(boxSetting))
 		{
 			getUser().setUserValue("TBLORDER/uebersicht/box", box);
-			this.box = box;
 		}
 
 		redirect();

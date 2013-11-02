@@ -70,11 +70,6 @@ public class BBCodeViewController extends TemplateGenerator {
 		
 		setTemplate("bbcodeview.html");
 	}
-	
-	@Override
-	protected boolean validateAndPrepare() {
-		return true;
-	}
 
 	/**
 	 * Anzeigen der BBCode-Liste.

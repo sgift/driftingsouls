@@ -19,9 +19,4 @@ public class ClientController extends AngularGenerator {
 	public ClientController(Context context) {
 		super(context);
 	}
-
-	@Override
-	protected boolean validateAndPrepare() {
-		return true;
-	}
 }

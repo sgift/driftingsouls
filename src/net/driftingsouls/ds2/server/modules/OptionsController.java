@@ -61,12 +61,6 @@ public class OptionsController extends TemplateGenerator
 		setTemplate("options.html");
 	}
 
-	@Override
-	protected boolean validateAndPrepare()
-	{
-		return true;
-	}
-
 	/**
 	 * Aendert den Namen und das Passwort des Benutzers.
 	 *

@@ -62,12 +62,6 @@ public class HandelController extends TemplateGenerator
 		addPageMenuEntry("neues Angebot", Common.buildUrl("add"));
 	}
 
-	@Override
-	protected boolean validateAndPrepare()
-	{
-		return true;
-	}
-
 	/**
 	 * Speichert ein neues Handelsangebot in der Datenbank.
 	 *
