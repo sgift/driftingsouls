@@ -29,6 +29,8 @@ import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -60,17 +62,13 @@ public class SensorsDefault implements SchiffPlugin {
 	private int showOnly = 0;
 	private int showId = 0;
 
-    @Override
-	public String action(Parameters caller) {
+	@Action(ActionType.DEFAULT)
+	public String action(Parameters caller, String order, int showonly, int showid) {
 		SchiffController controller = caller.controller;
-		controller.parameterNumber("showonly");
-		controller.parameterNumber("showid");
-		controller.parameterString("order");
 
-	 	showOnly = controller.getInteger("showonly");
-		showId = controller.getInteger("showid");
+	 	showOnly = showonly;
+		showId = showid;
 
-		String order = controller.getString("order");
 		if( !order.equals("") ) {
 			if( !order.equals("id") && !order.equals("name") && !order.equals("owner") && !order.equals("shiptype") ) {
 				order = "id";

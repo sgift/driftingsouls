@@ -23,6 +23,8 @@ import java.util.List;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -34,16 +36,12 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
  *
  */
 public class JDocksDefault implements SchiffPlugin {
-	@Override
-	public String action(Parameters caller) {
+	@Action(ActionType.DEFAULT)
+	public String action(Parameters caller, String act) {
 		Ship ship = caller.ship;
 		ShipTypeData shiptype = caller.shiptype;
-		SchiffController controller = caller.controller;
 
 		String output = "";
-
-		controller.parameterString("act");
-		String act = controller.getString("act");
 
 		if( !act.equals("") ) {
 			output += "Entlade J&auml;ger<br />\n";

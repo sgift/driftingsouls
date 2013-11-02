@@ -19,6 +19,8 @@
 package net.driftingsouls.ds2.server.modules.schiffplugins;
 
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -29,7 +31,7 @@ import net.driftingsouls.ds2.server.units.UnitCargo;
  *
  */
 public class UnitsDefault implements SchiffPlugin {
-	@Override
+	@Action(ActionType.DEFAULT)
 	public String action(Parameters caller) {
 		return "";
 	}

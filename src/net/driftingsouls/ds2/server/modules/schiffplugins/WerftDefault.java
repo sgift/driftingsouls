@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules.schiffplugins;
 
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -30,7 +32,7 @@ import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
  *
  */
 public class WerftDefault implements SchiffPlugin {
-	@Override
+	@Action(ActionType.DEFAULT)
 	public String action(Parameters parameters) {
 		return "";
 	}

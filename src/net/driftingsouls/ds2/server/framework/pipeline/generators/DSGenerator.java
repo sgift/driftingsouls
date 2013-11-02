@@ -132,6 +132,60 @@ public abstract class DSGenerator extends Generator
 	}
 
 	/**
+	 * Ruft die angegebene Methode des angegebenen Objekts als verschachtelte Actionmethode (SubAction) auf.
+	 * Im Gegensatz zu normalen Actions kann hier ein fester Satz zusaetzlicher Argumente uebergeben werden,
+	 * der <b>genau</b> in dieser Reihenfolge auf die ersten Argumente der Actionmethode angewandt wird.
+	 * Alle nachfolgenden Argumente werden ueber die URL-Parameter gefuellt.
+	 * @param subparam Der Prefix fuer die URL-Parameter zwecks Schaffung eines eigenen Namensraums. Falls <code>null</code> oder Leerstring wird kein Prefix verwendet
+	 * @param objekt Das Objekt dessen Methode aufgerufen werden soll
+	 * @param methode Der Name der Actionmethode
+	 * @param args Die ersten Argumente der Methode
+	 * @return Das Ergebnis der Methode
+	 * @throws ReflectiveOperationException Falls die Reflection-Operation schief laeuft
+	 */
+	protected Object rufeAlsSubActionAuf(String subparam, Object objekt, String methode, Object ... args) throws ReflectiveOperationException
+	{
+		if( subparam != null ) {
+			this.parseSubParameter(subparam);
+		}
+		try {
+			Method method = getMethodForAction(objekt, methode);
+			method.setAccessible(true);
+			Annotation[][] annotations = method.getParameterAnnotations();
+			Type[] parameterTypes = method.getGenericParameterTypes();
+			String[] parameterNames = PARAMETER_NAME_DISCOVERER.getParameterNames(method);
+
+			Object[] params = new Object[annotations.length];
+			for (int i = 0; i < params.length; i++)
+			{
+				if( i < args.length )
+				{
+					params[i] = args[i];
+					continue;
+				}
+
+				UrlParam paramAnnotation = null;
+				for (Annotation annotation : annotations[i])
+				{
+					if (annotation instanceof UrlParam)
+					{
+						paramAnnotation = (UrlParam) annotation;
+						break;
+					}
+				}
+
+				Type type = parameterTypes[i];
+				params[i] = this.parameterReader.readParameterAsType(paramAnnotation == null ? parameterNames[i] : paramAnnotation.name(), type);
+			}
+
+			return method.invoke(objekt, params);
+		}
+		finally {
+			parseSubParameter("");
+		}
+	}
+
+	/**
 	 * Registriert einen Parameter im System als Zahl. Der Parameter
 	 * kann anschliessend ueber entsprechende Funktionen erfragt werden.
 	 *
@@ -166,7 +220,7 @@ public abstract class DSGenerator extends Generator
 	{
 		try
 		{
-			Method method = getMethodForAction(action);
+			Method method = getMethodForAction(this, action);
 
 			final Action actionDescriptor = method.getAnnotation(Action.class);
 			doActionOptimizations(actionDescriptor);
@@ -188,9 +242,9 @@ public abstract class DSGenerator extends Generator
 		redirect("default");
 	}
 
-	private Method getMethodForAction(String action) throws NoSuchMethodException
+	private Method getMethodForAction(Object objekt, String action) throws NoSuchMethodException
 	{
-		Method[] methods = getClass().getMethods();
+		Method[] methods = objekt.getClass().getMethods();
 		for (Method method : methods)
 		{
 			Action actionAnnotation = method.getAnnotation(Action.class);
@@ -228,7 +282,7 @@ public abstract class DSGenerator extends Generator
 
 		try
 		{
-			Method method = getMethodForAction(action);
+			Method method = getMethodForAction(this, action);
 
 			Action actionDescriptor = method.getAnnotation(Action.class);
 			setActionType(actionDescriptor.value());

@@ -24,6 +24,8 @@ import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
 import net.driftingsouls.ds2.server.ships.RouteFactory;
@@ -45,53 +47,28 @@ import java.util.Set;
 public class NavigationDefault implements SchiffPlugin {
 	private static final Log log = LogFactory.getLog(NavigationDefault.class);
 
-    @Override
-	public String action(Parameters caller) {
+	@Action(ActionType.DEFAULT)
+	public String action(Parameters caller, String setdest, int system, int x, int y, String com, boolean bookmark, int act, int count, int targetx, int targety) {
 		Ship ship = caller.ship;
-		SchiffController controller = caller.controller;
 
 		String output = "";
 
-		controller.parameterString("setdest");
-		String setdest = controller.getString("setdest");
-
 		//Wird eine neue Beschreibung gesetzt?
 		if( setdest.length() > 0 ) {
-			controller.parameterNumber("system");
-			controller.parameterNumber("x");
-			controller.parameterNumber("y");
-			controller.parameterString("com");
-			controller.parameterNumber("bookmark");
-
-			int system = controller.getInteger("system");
-			int x = controller.getInteger("x");
-			int y = controller.getInteger("y");
-			String com = controller.getString("com");
-			int bookmark = controller.getInteger("bookmark");
-
 			SchiffEinstellungen einstellungen = ship.getEinstellungen();
 			einstellungen.setDestSystem(system);
 			einstellungen.setDestX(x);
 			einstellungen.setDestY(y);
 			einstellungen.setDestCom(com);
-			einstellungen.setBookmark(bookmark != 0);
+			einstellungen.setBookmark(bookmark);
 			einstellungen.persistIfNecessary(ship);
 
 			output += "Neues Ziel: "+system+":"+x+"/"+y+"<br />Beschreibung: "+Common._plaintitle(com);
-			if( bookmark != 0 ) {
+			if( bookmark ) {
 				output += "<br />[Bookmark]\n";
 			}
 			return output;
 		}
-
-		controller.parameterNumber("act");
-		controller.parameterNumber("count");
-		controller.parameterNumber("targetx");
-		controller.parameterNumber("targety");
-		int act = controller.getInteger("act");
-		int count = controller.getInteger("count");
-		int targetx = controller.getInteger("targetx");
-		int targety = controller.getInteger("targety");
 
 		if( (act > 9) || (act < 1) || count <= 0 ) {
 			return "Ung&uuml;ltige Flugparameter<br />\n";
@@ -100,7 +77,7 @@ public class NavigationDefault implements SchiffPlugin {
 		//Wir wollen nur beim Autopiloten lowheat erzwingen
 		boolean forceLowHeat = false;
 		RouteFactory router = new RouteFactory();
-		List<Waypoint> route = null;
+		List<Waypoint> route;
 		if( targetx == 0 || targety == 0 ) {
 			route = router.getMovementRoute(act, count);
 		}

@@ -403,7 +403,7 @@ public class SchiffController extends TemplateGenerator
 	 * @param plugin Der Name des Plugins
 	 */
 	@Action(ActionType.DEFAULT)
-	public void pluginAction(String plugin)
+	public void pluginAction(String plugin) throws ReflectiveOperationException
 	{
 		TemplateEngine t = getTemplateEngine();
 
@@ -420,10 +420,8 @@ public class SchiffController extends TemplateGenerator
 			return;
 		}
 
-		parseSubParameter(plugin + "_ops");
-		t.setVar("ship.message", pluginMapper.get(plugin).action(caller));
-
-		parseSubParameter("");
+		String ergebnis = (String)rufeAlsSubActionAuf(plugin+"_ops", pluginMapper.get(plugin), "action", caller);
+		t.setVar("ship.message", ergebnis);
 
 		redirect();
 	}

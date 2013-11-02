@@ -22,9 +22,9 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.modules.SchiffController;
 import net.driftingsouls.ds2.server.ships.SchiffEinstellungen;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -36,35 +36,25 @@ import net.driftingsouls.ds2.server.ships.ShipTypes;
  *
  */
 public class CargoDefault implements SchiffPlugin {
-	@Override
-	public String action(Parameters caller) {
+	@Action(ActionType.DEFAULT)
+	public String action(Parameters caller,
+			String max,
+			String act,
+			long unload,
+			long load,
+			boolean setautodeut,
+			int autodeut,
+			boolean setstartfighter,
+			int startfighter,
+			long usenahrung,
+			boolean setfeeding,
+			boolean isfeeding,
+			boolean setallyfeeding,
+			boolean isallyfeeding,
+			Ship othership) {
 		Ship ship = caller.ship;
-		SchiffController controller = caller.controller;
-		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		String output = "";
-
-		controller.parameterString("max");
-		controller.parameterString("act");
-		controller.parameterNumber("unload");
-		controller.parameterNumber("load");
-		controller.parameterNumber("setautodeut");
-		controller.parameterNumber("setstartfighter");
-		controller.parameterNumber("usenahrung");
-		controller.parameterNumber("setfeeding");
-		controller.parameterNumber("setallyfeeding");
-		controller.parameterNumber("othership");
-
-		String act = controller.getString("act");
-		String max = controller.getString("max");
-		long load = controller.getInteger("load");
-		long unload = controller.getInteger("unload");
-		int setautodeut = controller.getInteger("setautodeut");
-		int setstartfighter = controller.getInteger("setstartfighter");
-		long usenahrung = controller.getInteger("usenahrung");
-		int setfeeding = controller.getInteger("setfeeding");
-		int setallyfeeding = controller.getInteger("setallyfeeding");
-		Ship othership = (Ship)db.get(Ship.class, controller.getInteger("othership"));
 
 		if( act.equals("load") ) {
 			if( !max.equals("") ) {
@@ -185,13 +175,11 @@ public class CargoDefault implements SchiffPlugin {
 			othership.setCargo(cargo);
 			output += usenahrung + " Nahrung in den Speicher transferiert.<br />";
 		}
-		else if( setautodeut != 0 ) {
+		else if( setautodeut ) {
 			if( caller.shiptype.getDeutFactor() <= 0 ) {
 				output += "<span style=\"color:red\">Nur Tanker k&ouml;nnen automatisch Deuterium sammeln</span><br />\n";
 				return output;
 			}
-			controller.parameterNumber("autodeut");
-			int autodeut = controller.getInteger("autodeut");
 
 			SchiffEinstellungen einstellungen = ship.getEinstellungen();
 			einstellungen.setAutoDeut(autodeut != 0);
@@ -199,38 +187,29 @@ public class CargoDefault implements SchiffPlugin {
 
 			output += "Automatisches Deuteriumsammeln "+(autodeut != 0 ? "":"de")+"aktiviert<br />\n";
 		}
-		else if(setstartfighter != 0)
+		else if(setstartfighter)
 		{
-			controller.parameterNumber("startfighter");
-			int startfighter = controller.getInteger("startfighter");
-
 			SchiffEinstellungen einstellungen = ship.getEinstellungen();
 			einstellungen.setStartFighters(startfighter != 0);
 			einstellungen.persistIfNecessary(ship);
 
 			output += "Automatisches Starten von Jägern "+(startfighter != 0 ? "":"de")+"aktiviert<br />\n";
 		}
-		else if( setfeeding != 0 )
+		else if( setfeeding )
 		{
-			controller.parameterNumber("isfeeding");
-			int isfeeding = controller.getInteger("isfeeding");
-
 			SchiffEinstellungen einstellungen = ship.getEinstellungen();
-			einstellungen.setFeeding(isfeeding != 0);
+			einstellungen.setFeeding(isfeeding);
 			einstellungen.persistIfNecessary(ship);
 
-			output += "Automatisches Versorgen "+(isfeeding != 0 ? "":"de")+"aktiviert<br />\n";
+			output += "Automatisches Versorgen "+(isfeeding ? "":"de")+"aktiviert<br />\n";
 		}
-		else if( setallyfeeding != 0)
+		else if( setallyfeeding )
 		{
-			controller.parameterNumber("isallyfeeding");
-			int isallyfeeding = controller.getInteger("isallyfeeding");
-
 			SchiffEinstellungen einstellungen = ship.getEinstellungen();
-			einstellungen.setAllyFeeding(isallyfeeding != 0);
+			einstellungen.setAllyFeeding(isallyfeeding);
 			einstellungen.persistIfNecessary(ship);
 
-			output += "Automatisches Versorgen von Allianzschiffen "+(isallyfeeding != 0 ? "":"de")+"aktiviert<br />\n";
+			output += "Automatisches Versorgen von Allianzschiffen "+(isallyfeeding ? "":"de")+"aktiviert<br />\n";
 		}
 
 		return output;

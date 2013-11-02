@@ -22,6 +22,8 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Jump;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -38,8 +40,8 @@ import java.util.List;
  */
 public class JumpdriveShivan implements SchiffPlugin
 {
-	@Override
-	public String action(Parameters caller)
+	@Action(ActionType.DEFAULT)
+	public String action(Parameters caller, StarSystem system, int x, int y, String subaction, boolean instant)
 	{
 		SchiffController controller = caller.controller;
 		User user = (User)controller.getUser();
@@ -49,20 +51,9 @@ public class JumpdriveShivan implements SchiffPlugin
 
 		org.hibernate.Session db = controller.getDB();
 
-		controller.parameterNumber("system");
-		StarSystem system = (StarSystem)db.get(StarSystem.class, controller.getInteger("system"));
-
 		if( ship.getOwner().getId() < 0 )
 		{
-			controller.parameterNumber("x");
-			controller.parameterNumber("y");
-			int x = controller.getInteger("x");
-			int y = controller.getInteger("y");
-			controller.parameterString("subaction");
-			String subaction = controller.getString("subaction");
-			controller.parameterNumber("instant");
-			boolean instant = controller.getInteger("instant") == 1 && user.isNPC();
-
+			instant = instant && user.isNPC();
 
 			if( "set".equals(subaction) && (system != null && system.getID() != 0) )
 			{
