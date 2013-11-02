@@ -126,11 +126,6 @@ public abstract class DSGenerator extends Generator
 		this.parameterReader.unsetParameter(parameter);
 	}
 
-	protected void parseSubParameter(String subparam)
-	{
-		this.parameterReader.parseSubParameter(subparam);
-	}
-
 	/**
 	 * Ruft die angegebene Methode des angegebenen Objekts als verschachtelte Actionmethode (SubAction) auf.
 	 * Im Gegensatz zu normalen Actions kann hier ein fester Satz zusaetzlicher Argumente uebergeben werden,
@@ -146,7 +141,7 @@ public abstract class DSGenerator extends Generator
 	protected Object rufeAlsSubActionAuf(String subparam, Object objekt, String methode, Object ... args) throws ReflectiveOperationException
 	{
 		if( subparam != null ) {
-			this.parseSubParameter(subparam);
+			this.parameterReader.parseSubParameter(subparam);
 		}
 		try {
 			Method method = getMethodForAction(objekt, methode);
@@ -181,7 +176,7 @@ public abstract class DSGenerator extends Generator
 			return method.invoke(objekt, params);
 		}
 		finally {
-			parseSubParameter("");
+			this.parameterReader.parseSubParameter("");
 		}
 	}
 
@@ -339,7 +334,7 @@ public abstract class DSGenerator extends Generator
 			throw new RuntimeException(e);
 		}
 
-		parseSubParameter("");
+		this.parameterReader.parseSubParameter("");
 
 		printErrorList(this.actionType);
 
