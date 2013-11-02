@@ -31,13 +31,6 @@ function insertSignature(){
 	document.getElementById('msg').focus();
 }
 
-
-function showpm(pmid) {
-	pmviewer.location.href = DS.getUrl()+"?module=comm&action=showPm&pmid="+pmid;
-
-	$('#pm'+pmid).text('');
-}
-
 function setRenameAction(id) {
 	actionSelectChange("");
 	document.getElementById("form_ordnername").style.display = "inline";
@@ -96,7 +89,9 @@ function actionSelectChange( newval ) {
 }
 
 function showpm(pmid) {
-	pmviewer.location.href = DS.getUrl()+"?module=comm&action=showPm&pmid="+pmid;
+	DS.get({module: 'comm', action: 'showPm', pmid: pmid}, function(result) {
+		$('#pmviewer').empty().append($(result).filter('#pmcontent'));
+	});
 }
 
 $(document).ready(function() {

@@ -318,9 +318,7 @@
 	</div>
 	<br />
 	<div class="gfxbox" style="width:750px">
-		<iframe src="./ds?module=comm&amp;action=showPm" name="pmviewer" width="630" height="240" scrolling="auto" marginheight="0" marginwidth="0" frameborder="0">
-			Dein Browser unterst&uuml;tzt leider keine iframes. Am besten installierst du einen Browser neueren Datums wie z.B. den <a class="forschinfo" href="http://www.mozilla.org">Mozilla Firefox</a>
-		</iframe>
+		<div id="pmviewer" style="width:100%; height:240px; overflow-y:scroll;position:relative"/>
 	</div>
 
 	<script type="text/javascript">
@@ -370,58 +368,58 @@
 	</div>
 	<br />
 	<div class="gfxbox" style="width:750px">
-		<iframe src="./ds?module=comm&amp;action=showPm" name="pmviewer" width="630" height="240" scrolling="auto" marginheight="0" marginwidth="0" frameborder="0">
-			Dein Browser unterst&uuml;tzt leider keine iframes. Am besten installierst du einen Browser neueren Datums wie z.B. den <a class="forschinfo" href="http://www.mozilla.org">Mozilla Firefox</a>
-		</iframe>
+		<div id="pmviewer" style="width:100%; height:240px; overflow-y:scroll;position:relative"/>
 	</div>
 {/endif}
 {if show.pm}
-	{if pm.bgimage}
-		<div style="z-index:1; position:absolute; top:0px; left:0px; margin:0px; padding:0px; width:570px; overflow:hidden; background-image: url('{URL}data/interface/pms/{pm.bgimage}');'">
-			 <img src="{URL}data/interface/pms/{pm.bgimage}" width="570" alt="" />
-		</div>
-	{/endif}
-	<table class="noBorderX" width="100%">
-	<tr>
-		<td class="noBorderX">
-			{if pm.id}
-				<div style="z-index:2; position:absolute; top:0px; left:0px">
-					<div style="text-align:center; width:570px">
-						<table class="show2" style="width:500px; margin-left:auto; margin-right:auto">
-						{if pm.title}
+	<div id="pmcontent">
+		{if pm.bgimage}
+			<div style="z-index:1; position:absolute; top:0px; left:0px; margin:0px; padding:0px; width:100%; overflow:hidden; background: url('./data/interface/pms/{pm.bgimage}') no-repeat;'">
+				 <img src="{URL}data/interface/pms/{pm.bgimage}" width="570" alt="" />
+			</div>
+		{/endif}
+		<table class="noBorderX" width="100%">
+		<tr>
+			<td class="noBorderX">
+				{if pm.id}
+					<div style="z-index:2; position:absolute; top:0px; left:0px; width:100%">
+						<div style="text-align:center; width:100%">
+							<table class="show2" style="width:500px; margin-left:auto; margin-right:auto">
+							{if pm.title}
+								<tr>
+									<td {if pm.highlight}style="color:orange"{/endif} class="BorderX" align="center">
+										{pm.title}
+									</td>
+								</tr>
+							{/endif}
 							<tr>
-								<td {if pm.highlight}style="color:orange"{/endif} class="BorderX" align="center">
-									{pm.title}
+								<td class="BorderX">
+									{if pm.sender}
+										Von: {!link_to $pm.sender.name, default, css_class:profile, link_target:main, module:userprofile, user:$pm.sender}
+									{else}
+										An: {!link_to $pm.empfaenger.name, default, css_class:profile, link_target:main, module:userprofile, user:$pm.empfaenger}
+									{/endif}
+									 {!image_link_to interface/pen.gif, default, image_css_style:vertical-align:middle, link_target:main, reply:$pm.id}
+									{!image_link_to interface/pms/edit-comment.png, editComment, image_css_style:vertical-align:middle, link_target:main, pm:$pm.id, ordner:$ordner.parent}<br />
+									Datum: {pm.time}<br />
 								</td>
 							</tr>
+							</table>
+							<br />
+						</div>
+						{pm.text}
+						{if pm.kommentar}
+						<hr>
+						{pm.kommentar}
 						{/endif}
-						<tr>
-							<td class="BorderX">
-								{if pm.sender}
-									Von: {!link_to $pm.sender.name, default, css_class:profile, link_target:main, module:userprofile, user:$pm.sender}
-								{else}
-									An: {!link_to $pm.empfaenger.name, default, css_class:profile, link_target:main, module:userprofile, user:$pm.empfaenger}
-								{/endif}
-								 {!image_link_to interface/pen.gif, default, image_css_style:vertical-align:middle, link_target:main, reply:$pm.id}
-								{!image_link_to interface/pms/edit-comment.png, editComment, image_css_style:vertical-align:middle, link_target:main, pm:$pm.id, ordner:$ordner.parent}<br />
-								Datum: {pm.time}<br />
-							</td>
-						</tr>
-						</table>
-						<br />
 					</div>
-					{pm.text}
-					{if pm.kommentar}
-					<hr>
-					{pm.kommentar}
-					{/endif}
-				</div>
-			{else}
-				<div align="center">Keine Nachricht ausgew&auml;hlt</div>
-			{/endif}
-		</td>
-	</tr>
-	</table>
+				{else}
+					<div align="center">Keine Nachricht ausgew&auml;hlt</div>
+				{/endif}
+			</td>
+		</tr>
+		</table>
+	</div>
 {/endif}
 {if show.comment}
 	<div class="gfxbox" style="width:750px">

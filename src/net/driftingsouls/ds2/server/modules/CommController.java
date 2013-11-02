@@ -76,15 +76,7 @@ public class CommController extends TemplateGenerator
 	@Override
 	protected boolean validateAndPrepare(String action)
 	{
-		if (action.equals("showPm"))
-		{
-			addBodyParameter("style", "background-image: url('./data/interface/border/border_background.gif');");
-			setDisableDebugOutput(true);
-		}
-		else
-		{
-			getTemplateEngine().setVar("show.menu", 1);
-		}
+		getTemplateEngine().setVar("show.menu", 1);
 		return true;
 	}
 
