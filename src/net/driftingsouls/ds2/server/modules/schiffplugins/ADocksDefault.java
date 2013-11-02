@@ -83,8 +83,8 @@ public class ADocksDefault implements SchiffPlugin {
 		TemplateEngine t = controller.getTemplateEngine();
 		t.setFile("_PLUGIN_"+pluginid, "schiff.adocks.default.html");
 
-		List<Ship> dockedShips = new ArrayList<Ship>();
-		List<Integer> dockedids = new ArrayList<Integer>();
+		List<Ship> dockedShips = new ArrayList<>();
+		List<Integer> dockedids = new ArrayList<>();
 
 		for( Ship aship : ship.getDockedShips() ) {
 			dockedShips.add(aship);

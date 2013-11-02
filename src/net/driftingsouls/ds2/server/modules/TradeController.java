@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.modules;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Map;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -39,6 +40,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 
@@ -47,25 +49,28 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * Verkauft Waren an einem Handelsposten.
+ *
  * @author Christopher Jung
  * @urlparam Integer ship die ID des Schiffes, das Waren verkaufen moechte
  * @urlparam Integer tradepost die ID des Handelspostens, an dem die Waren verkauft werden sollen
  */
-@Module(name="trade")
-public class TradeController extends TemplateGenerator {
+@Module(name = "trade")
+public class TradeController extends TemplateGenerator
+{
 	private static final Log log = LogFactory.getLog(TradeController.class);
 
 	private Ship ship = null;
-	private Cargo shipCargo = null;
 	private Cargo kurse = null;
 	private Ship posten = null;
 	private String place = null;
 
 	/**
 	 * Konstruktor.
+	 *
 	 * @param context Der zu verwendende Kontext
 	 */
-	public TradeController(Context context) {
+	public TradeController(Context context)
+	{
 		super(context);
 
 		setTemplate("trade.html");
@@ -77,64 +82,65 @@ public class TradeController extends TemplateGenerator {
 	}
 
 	@Override
-	protected boolean validateAndPrepare(String action) {
+	protected boolean validateAndPrepare(String action)
+	{
 		org.hibernate.Session db = getDB();
 		int shipId = getInteger("ship");
 
-		this.ship = (Ship)db.get(Ship.class, shipId);
-		if( (this.ship == null) || (ship.getId() < 0) || (ship.getOwner() != getUser()) ) {
-			addError( "Fehler: Das angegebene Schiff existiert nicht oder geh&ouml;rt nicht ihnen", Common.buildUrl("default", "module", "schiffe") );
+		this.ship = (Ship) db.get(Ship.class, shipId);
+		if ((this.ship == null) || (ship.getId() < 0) || (ship.getOwner() != getUser()))
+		{
+			addError("Fehler: Das angegebene Schiff existiert nicht oder geh&ouml;rt nicht ihnen", Common.buildUrl("default", "module", "schiffe"));
 
 			return false;
 		}
 
 		int tradepost = getInteger("tradepost");
-		Ship handel = (Ship)db.createQuery("from Ship where id>0 and system=:sys and x=:x and y=:y and id=:id")
-			.setInteger("sys", this.ship.getSystem())
-			.setInteger("x", this.ship.getX())
-			.setInteger("y", this.ship.getY())
-			.setInteger("id", tradepost)
-			.setMaxResults(1)
-			.uniqueResult();
-		if( handel == null  || !handel.isTradepost()) {
-			addError( "Fehler: Der angegebene Handelsposten konnte nicht im Sektor lokalisiert werden", Common.buildUrl("default", "module", "schiff", "ship", shipId));
+		Ship handel = (Ship) db.createQuery("from Ship where id>0 and system=:sys and x=:x and y=:y and id=:id")
+				.setInteger("sys", this.ship.getSystem())
+				.setInteger("x", this.ship.getX())
+				.setInteger("y", this.ship.getY())
+				.setInteger("id", tradepost)
+				.setMaxResults(1)
+				.uniqueResult();
+		if (handel == null || !handel.isTradepost())
+		{
+			addError("Fehler: Der angegebene Handelsposten konnte nicht im Sektor lokalisiert werden", Common.buildUrl("default", "module", "schiff", "ship", shipId));
 
 			return false;
 		}
 
 		this.posten = handel;
+		this.place = "p" + handel.getId();
+		GtuWarenKurse kurse = (GtuWarenKurse) db.get(GtuWarenKurse.class, "p" + handel.getId());
 
-		this.shipCargo = this.ship.getCargo();
-
-		this.place = "p"+handel.getId();
-		GtuWarenKurse kurse = (GtuWarenKurse)db.get(GtuWarenKurse.class, "p"+handel.getId());
-
-		if( kurse == null && this.posten.getOwner().getRace() == Faction.GTU_RASSE ) {
-			this.place = "tradepost";
-			kurse = (GtuWarenKurse)db.get(GtuWarenKurse.class, "tradepost");
-		}
-		if( kurse == null )
+		if (kurse == null && this.posten.getOwner().getRace() == Faction.GTU_RASSE)
 		{
-			addError( "Fehler: Der An- und Verkauf auf dem Handelsposten wurde nicht freigegeben", Common.buildUrl("default", "module", "schiff", "ship", shipId));
+			this.place = "tradepost";
+			kurse = (GtuWarenKurse) db.get(GtuWarenKurse.class, "tradepost");
+		}
+		if (kurse == null)
+		{
+			addError("Fehler: Der An- und Verkauf auf dem Handelsposten wurde nicht freigegeben", Common.buildUrl("default", "module", "schiff", "ship", shipId));
 
 			return false;
 		}
 
-		User user = (User)getUser();
-		if ( !posten.isTradepostVisible(user, user.getRelations()) )
+		User user = (User) getUser();
+		if (!posten.isTradepostVisible(user, user.getRelations()))
 		{
-			addError( "Fehler: Dieser Handelsposten handelt nicht mit Ihnen. Für die Aufnahme von Handelsbeziehungen setzen Sie sich mit dem Eigner in Verbindung.", Common.buildUrl("default", "module", "schiff", "ship", shipId));
+			addError("Fehler: Dieser Handelsposten handelt nicht mit Ihnen. Für die Aufnahme von Handelsbeziehungen setzen Sie sich mit dem Eigner in Verbindung.", Common.buildUrl("default", "module", "schiff", "ship", shipId));
 
 			return false;
 		}
 
 		this.kurse = new Cargo(kurse.getKurse());
-		this.kurse.setOption( Cargo.Option.SHOWMASS, false );
+		this.kurse.setOption(Cargo.Option.SHOWMASS, false);
 
-		getTemplateEngine().setVar( "global.shipid", shipId );
-		getTemplateEngine().setVar( "global.tradepost", handel.getId() );
+		getTemplateEngine().setVar("global.shipid", shipId);
+		getTemplateEngine().setVar("global.tradepost", handel.getId());
 
-		getTemplateEngine().setBlock("_TRADE","msgs.listitem","msgs.list");
+		getTemplateEngine().setBlock("_TRADE", "msgs.listitem", "msgs.list");
 
 		return true;
 	}
@@ -143,110 +149,121 @@ public class TradeController extends TemplateGenerator {
 	 * Kauft die angegebenen Waren vom Handelsposten.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void buyAction() {
+	public void buyAction(@UrlParam(name = "#from") Map<String, Long> fromMap)
+	{
 		org.hibernate.Session db = getDB();
 
 		ResourceList resourceList = this.posten.getCargo().getResourceList();
 		Cargo tradepostCargo = this.posten.getCargo();
-		User user = (User)getUser();
+		User user = (User) getUser();
 		BigInteger moneyOfBuyer = user.getKonto();
 		BigInteger totalRE = BigInteger.ZERO;
 
-		log.info("Warenkauf an HP "+posten.getId()+" durch Schiff "+ship.getId()+" [User: "+user.getId()+"]");
+		log.info("Warenkauf an HP " + posten.getId() + " durch Schiff " + ship.getId() + " [User: " + user.getId() + "]");
 
-		for(ResourceEntry resource: resourceList) {
-			parameterNumber(resource.getId()+"from");
-			long amountToBuy = getInteger(resource.getId()+"from");
+		for (ResourceEntry resource : resourceList)
+		{
+			Long amountToBuy = fromMap.get(resource.getId().toString());
 
-			if( amountToBuy <= 0 ) {
+			if (amountToBuy == null || amountToBuy <= 0)
+			{
 				continue;
 			}
 
 			//Preis und Minimum holen
 			ResourceLimitKey resourceLimitKey = new ResourceLimitKey(posten, resource.getId());
-			SellLimit limit = (SellLimit)db.get(SellLimit.class, resourceLimitKey);
+			SellLimit limit = (SellLimit) db.get(SellLimit.class, resourceLimitKey);
 
 			//Ware wird nicht verkauft
-			if(limit == null || limit.getPrice() <= 0) {
+			if (limit == null || limit.getPrice() <= 0)
+			{
 				continue;
 			}
 
-            //The seller lacks the rank needed to sell this resource
-            if(!limit.willSell(this.posten.getOwner(), user))
-            {
-                continue;
-            }
+			//The seller lacks the rank needed to sell this resource
+			if (!limit.willSell(this.posten.getOwner(), user))
+			{
+				continue;
+			}
 
 			long amountOnPost = tradepostCargo.getResourceCount(resource.getId()) - limit.getLimit();
-			if( amountOnPost <= 0 ) {
+			if (amountOnPost <= 0)
+			{
 				continue;
 			}
 
-			if(amountToBuy > amountOnPost) {
+			if (amountToBuy > amountOnPost)
+			{
 				amountToBuy = amountOnPost;
 			}
 
 			long resourceMass = Cargo.getResourceMass(resource.getId(), 1);
 			long neededSpace = amountToBuy * resourceMass;
-			long freeSpaceOnShip = ship.getMaxCargo() - shipCargo.getMass();
+			long freeSpaceOnShip = ship.getMaxCargo() - ship.getCargo().getMass();
 
-			if(neededSpace > freeSpaceOnShip) {
+			if (neededSpace > freeSpaceOnShip)
+			{
 				amountToBuy = freeSpaceOnShip / resourceMass;
 			}
 
 			long price = amountToBuy * limit.getPrice();
 			//Nicht genug Geld da
-			if( moneyOfBuyer.compareTo(BigInteger.valueOf(price)) < 0 ) {
+			if (moneyOfBuyer.compareTo(BigInteger.valueOf(price)) < 0)
+			{
 				amountToBuy = moneyOfBuyer.divide(BigInteger.valueOf(price)).longValue();
 				price = amountToBuy * limit.getPrice();
 			}
-			log.info("Verkaufe "+amountToBuy+"x "+resource.getId()+" fuer gesamt "+price);
+			log.info("Verkaufe " + amountToBuy + "x " + resource.getId() + " fuer gesamt " + price);
 			totalRE = totalRE.add(BigInteger.valueOf(price));
 
-			if(amountToBuy <= 0) {
+			if (amountToBuy <= 0)
+			{
 				continue;
 			}
 
 			moneyOfBuyer = moneyOfBuyer.subtract(BigInteger.valueOf(price));
 
 			this.posten.transfer(this.ship, resource.getId(), amountToBuy);
-			this.shipCargo = this.ship.getCargo();
 		}
 
 		this.ship.recalculateShipStatus();
 		this.posten.recalculateShipStatus();
 
-		if( totalRE.compareTo(BigInteger.ZERO) > 0 ) {
+		if (totalRE.compareTo(BigInteger.ZERO) > 0)
+		{
 			this.posten.getOwner()
-				.transferMoneyFrom(user.getId(), totalRE,
-						"Warenkauf Handelsposten bei "+this.posten.getLocation().displayCoordinates(false),
-						false, UserMoneyTransfer.Transfer.SEMIAUTO);
+					.transferMoneyFrom(user.getId(), totalRE,
+							"Warenkauf Handelsposten bei " + this.posten.getLocation().displayCoordinates(false),
+							false, UserMoneyTransfer.Transfer.SEMIAUTO);
 		}
 		redirect();
 	}
 
 	/**
 	 * Verkauft die angegebenen Waren.
-	 * @urlparam Integer ${resid}to Verkauft die Resource mit der ID ${resid} in der angegebenen Menge
 	 *
+	 * @param toMap Verkauft die Resource mit der ID (Key) in der angegebenen Menge
 	 */
 	@Action(ActionType.DEFAULT)
-	public void sellAction() {
+	public void sellAction(@UrlParam(name = "#to") Map<String, Long> toMap)
+	{
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
-        User user = (User)getUser();
+		User user = (User) getUser();
 		int MIN_TICKS_TO_SURVIVE = 7;
+		Cargo shipCargo = ship.getCargo();
 
 		int tick = getContext().get(ContextCommon.class).getTick();
 
-		StatVerkaeufe stats = (StatVerkaeufe)db.createQuery("from StatVerkaeufe where tick=:tick and place=:place and system=:sys")
-			.setInteger("tick", tick)
-			.setString("place", this.place)
-			.setInteger("sys", this.posten.getSystem())
-			.uniqueResult();
+		StatVerkaeufe stats = (StatVerkaeufe) db.createQuery("from StatVerkaeufe where tick=:tick and place=:place and system=:sys")
+				.setInteger("tick", tick)
+				.setString("place", this.place)
+				.setInteger("sys", this.posten.getSystem())
+				.uniqueResult();
 
-		Cargo statsCargo = null;
-		if( stats == null ) {
+		Cargo statsCargo;
+		if (stats == null)
+		{
 			stats = new StatVerkaeufe(tick, this.posten.getSystem(), this.place);
 			db.persist(stats);
 		}
@@ -262,13 +279,15 @@ public class TradeController extends TemplateGenerator {
 		long freeSpace = posten.getTypeData().getCargo() - posten.getCargo().getMass();
 		long reconsumption = -1 * posten.getOwner().getReBalance();
 		BigInteger konto = posten.getOwner().getKonto();
-		for( ResourceEntry res : reslist ) {
-			parameterNumber( res.getId()+"to" );
-			long tmp = getInteger( res.getId()+"to" );
+		for (ResourceEntry res : reslist)
+		{
+			Long tmp = toMap.get(res.getId().toString());
 
-			if( tmp > 0 ) {
-				if( tmp > shipCargo.getResourceCount( res.getId() ) ) {
-					tmp = shipCargo.getResourceCount( res.getId() );
+			if (tmp != null && tmp > 0)
+			{
+				if (tmp > shipCargo.getResourceCount(res.getId()))
+				{
+					tmp = shipCargo.getResourceCount(res.getId());
 				}
 
 				long resourceMass = Cargo.getResourceMass(res.getId(), 1);
@@ -278,111 +297,117 @@ public class TradeController extends TemplateGenerator {
 				ResourceLimit resourceLimit = (ResourceLimit) db.get(ResourceLimit.class, resourceLimitKey);
 
 				long limit = Long.MAX_VALUE;
-				if(resourceLimit != null) {
-                    //Do we want to buy this resource from this player?
-                    if(!resourceLimit.willBuy(this.posten.getOwner(), user))
-                    {
-                        continue;
-                    }
+				if (resourceLimit != null)
+				{
+					//Do we want to buy this resource from this player?
+					if (!resourceLimit.willBuy(this.posten.getOwner(), user))
+					{
+						continue;
+					}
 
 					limit = resourceLimit.getLimit();
 					//Bereits gelagerte Bestaende abziehen
 					limit -= posten.getCargo().getResourceCount(res.getId());
 				}
 
-				if( tmp > limit ) {
+				if (tmp > limit)
+				{
 					long nichtVerkauft = tmp - limit;
 					tmp = limit;
 
-					t.setVar("waren.count",	Common.ln(nichtVerkauft),
-							"waren.name",	res.getName(),
-							"waren.img",	res.getImage(),
+					t.setVar("waren.count", Common.ln(nichtVerkauft),
+							"waren.name", res.getName(),
+							"waren.img", res.getImage(),
 							"waren.fehler", "Es besteht kein Interesse mehr an dieser Ware");
 
-					t.parse("msgs.list","msgs.listitem",true);
+					t.parse("msgs.list", "msgs.listitem", true);
 				}
 
 				//Nicht mehr ankaufen als Platz da ist
-				if(tmp*resourceMass > freeSpace) {
-					long nichtVerkauft = tmp - freeSpace/resourceMass;
-					tmp = freeSpace/resourceMass;
+				if (tmp * resourceMass > freeSpace)
+				{
+					long nichtVerkauft = tmp - freeSpace / resourceMass;
+					tmp = freeSpace / resourceMass;
 
-					t.setVar("waren.count",	Common.ln(nichtVerkauft),
-							"waren.name",	res.getName(),
-							"waren.img",	res.getImage(),
+					t.setVar("waren.count", Common.ln(nichtVerkauft),
+							"waren.name", res.getName(),
+							"waren.img", res.getImage(),
 							"waren.fehler", "Alle Lager sind voll");
 
-					t.parse("msgs.list","msgs.listitem",true);
+					t.parse("msgs.list", "msgs.listitem", true);
 				}
 
-				BigDecimal get = BigDecimal.valueOf(tmp).multiply(new BigDecimal(res.getCount1()/1000d));
+				BigDecimal get = BigDecimal.valueOf(tmp).multiply(new BigDecimal(res.getCount1() / 1000d));
 
 				//Aufpassen das ich nicht das Konto leerfresse
-				if(reconsumption > 0)
+				if (reconsumption > 0)
 				{
 					BigInteger ticks = konto.subtract(get.toBigInteger()).divide(BigInteger.valueOf(reconsumption));
-					if(ticks.compareTo(BigInteger.valueOf(MIN_TICKS_TO_SURVIVE)) <= 0)
+					if (ticks.compareTo(BigInteger.valueOf(MIN_TICKS_TO_SURVIVE)) <= 0)
 					{
 						//Konto reicht mit Verkauf nur noch fuer weniger als 7 Ticks => begrenzen.
-						int maximum = konto
-							.subtract(BigInteger.valueOf(MIN_TICKS_TO_SURVIVE*reconsumption))
-							.multiply(BigInteger.valueOf(1000))
-							.divide(BigInteger.valueOf(res.getCount1())).intValue();
+						long maximum = konto
+								.subtract(BigInteger.valueOf(MIN_TICKS_TO_SURVIVE * reconsumption))
+								.multiply(BigInteger.valueOf(1000))
+								.divide(BigInteger.valueOf(res.getCount1())).longValue();
 
-						t.setVar("waren.count",	Common.ln(tmp-maximum),
-								"waren.name",	res.getName(),
-								"waren.img",	res.getImage(),
+						t.setVar("waren.count", Common.ln(tmp - maximum),
+								"waren.name", res.getName(),
+								"waren.img", res.getImage(),
 								"waren.fehler", "Ihr Handelspartner ist pleite");
 
-						t.parse("msgs.list","msgs.listitem",true);
+						t.parse("msgs.list", "msgs.listitem", true);
 
 						tmp = maximum;
 					}
 				}
 
-				if( tmp <= 0 ) {
+				if (tmp <= 0)
+				{
 					continue;
 				}
 
-				get = BigDecimal.valueOf(tmp).multiply(new BigDecimal(res.getCount1()/1000d));
+				get = BigDecimal.valueOf(tmp).multiply(new BigDecimal(res.getCount1() / 1000d));
 
-				t.setVar(	"waren.count",	Common.ln(tmp),
-							"waren.name",	res.getName(),
-							"waren.img",	res.getImage(),
-							"waren.re",		Common.ln(get),
-							"waren.fehler", "");
+				t.setVar("waren.count", Common.ln(tmp),
+						"waren.name", res.getName(),
+						"waren.img", res.getImage(),
+						"waren.re", Common.ln(get),
+						"waren.fehler", "");
 
-				t.parse("msgs.list","msgs.listitem",true);
+				t.parse("msgs.list", "msgs.listitem", true);
 
 				totalRE = totalRE.add(get.toBigInteger());
 				changed = true;
-				shipCargo.substractResource( res.getId(), tmp );
+				shipCargo.substractResource(res.getId(), tmp);
 
-				statsCargo.addResource( res.getId(), tmp );
-				tpcargo.addResource( res.getId(), tmp );
+				statsCargo.addResource(res.getId(), tmp);
+				tpcargo.addResource(res.getId(), tmp);
 				//Freien Platz korrigieren
-				freeSpace -= tmp*resourceMass;
-				konto.subtract(get.toBigInteger());
+				freeSpace -= tmp * resourceMass;
+				konto = konto.subtract(get.toBigInteger());
 			}
 		}
 
-		if( changed ) {
+		if (changed)
+		{
 			stats.setStats(statsCargo);
 
 			this.posten.setCargo(tpcargo);
-			this.ship.setCargo(this.shipCargo);
+			this.ship.setCargo(shipCargo);
 
 			this.ship.recalculateShipStatus();
 
 			user.transferMoneyFrom(this.posten.getOwner().getId(), totalRE,
-					"Warenverkauf Handelsposten bei "+this.posten.getLocation().displayCoordinates(false), false,
-					UserMoneyTransfer.Transfer.SEMIAUTO );
+					"Warenverkauf Handelsposten bei " + this.posten.getLocation().displayCoordinates(false), false,
+					UserMoneyTransfer.Transfer.SEMIAUTO);
 		}
 
 		redirect();
 	}
 
-	private boolean isFull() {
+	private boolean isFull()
+	{
 		return posten.getTypeData().getCargo() <= posten.getCargo().getMass();
 	}
 
@@ -391,24 +416,25 @@ public class TradeController extends TemplateGenerator {
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() {
+	public void defaultAction()
+	{
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 
-		t.setVar("error.none",1);
-		t.setBlock("_TRADE","res.listitem","res.list");
+		t.setVar("error.none", 1);
+		t.setBlock("_TRADE", "res.listitem", "res.list");
 
 		ResourceList reslist = this.kurse.getResourceList();
 
 		// Block to check if user is an enemy
-		User user = (User)getUser();
+		User user = (User) getUser();
 
 		if (!isFull())
 		{
 			t.setVar("is.full", 0);
 			for (ResourceEntry res : reslist)
 			{
-				if (!this.shipCargo.hasResource(res.getId()))
+				if (!ship.getCargo().hasResource(res.getId()))
 				{
 					continue;
 				}
@@ -422,7 +448,7 @@ public class TradeController extends TemplateGenerator {
 					continue;
 				}
 
-				String preis = "";
+				String preis;
 				if (res.getCount1() < 50)
 				{
 					preis = "Kein Bedarf";
@@ -432,50 +458,54 @@ public class TradeController extends TemplateGenerator {
 					preis = Common.ln(res.getCount1() / 1000d) + " RE";
 				}
 
-				t.setVar(	"res.img",		res.getImage(),
-							"res.id",		res.getId(),
-							"res.name",		res.getName(),
-							"res.cargo",	this.shipCargo.getResourceCount( res.getId() ),
-							"res.re",		preis );
+				t.setVar("res.img", res.getImage(),
+						"res.id", res.getId(),
+						"res.name", res.getName(),
+						"res.cargo", ship.getCargo().getResourceCount(res.getId()),
+						"res.re", preis);
 
-				t.parse("res.list","res.listitem",true);
+				t.parse("res.list", "res.listitem", true);
 			}
 		}
-		else {
+		else
+		{
 
-			t.setVar(	"is.full",		true,
-						"res.msg", 		"Dieser Handelsposten ist voll. Bitte beehre uns zu einem späteren Zeitpunkt erneut.");
+			t.setVar("is.full", true,
+					"res.msg", "Dieser Handelsposten ist voll. Bitte beehre uns zu einem späteren Zeitpunkt erneut.");
 		}
 
-		t.setBlock("_TRADE","resbuy.listitem","resbuy.list");
+		t.setBlock("_TRADE", "resbuy.listitem", "resbuy.list");
 
 		ResourceList buyList = this.posten.getCargo().getResourceList();
-		for(ResourceEntry resource: buyList) {
+		for (ResourceEntry resource : buyList)
+		{
 			ResourceLimitKey resourceLimitKey = new ResourceLimitKey(posten, resource.getId());
-			SellLimit limit = (SellLimit)db.get(SellLimit.class, resourceLimitKey);
+			SellLimit limit = (SellLimit) db.get(SellLimit.class, resourceLimitKey);
 
 			//Nicht kaeuflich
-			if(limit == null || limit.getPrice() <=0) {
+			if (limit == null || limit.getPrice() <= 0)
+			{
 				continue;
 			}
 
-            if(!limit.willSell(this.posten.getOwner(), user))
-            {
-                continue;
-            }
+			if (!limit.willSell(this.posten.getOwner(), user))
+			{
+				continue;
+			}
 
 			long buyable = this.posten.getCargo().getResourceCount(resource.getId()) - limit.getLimit();
-			if(buyable <= 0) {
+			if (buyable <= 0)
+			{
 				continue;
 			}
 
 
-			t.setVar(	"resbuy.img",		resource.getImage(),
-						"resbuy.id",		resource.getId(),
-						"resbuy.name",		resource.getName(),
-						"resbuy.cargo",		buyable,
-						"resbuy.re",		limit.getPrice() );
-			t.parse("resbuy.list","resbuy.listitem",true);
+			t.setVar("resbuy.img", resource.getImage(),
+					"resbuy.id", resource.getId(),
+					"resbuy.name", resource.getName(),
+					"resbuy.cargo", buyable,
+					"resbuy.re", limit.getPrice());
+			t.parse("resbuy.list", "resbuy.listitem", true);
 		}
 	}
 }

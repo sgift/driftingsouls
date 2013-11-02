@@ -35,6 +35,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.schiffplugins.Parameters;
 import net.driftingsouls.ds2.server.modules.schiffplugins.SchiffPlugin;
@@ -64,26 +65,28 @@ import java.util.Set;
 
 /**
  * Die Schiffsansicht.
+ *
  * @author Christopher Jung
- *
  * @urlparam Integer ship Die ID des anzuzeigenden Schiffes
- *
  */
-@net.driftingsouls.ds2.server.framework.pipeline.Module(name="schiff")
-public class SchiffController extends TemplateGenerator {
+@net.driftingsouls.ds2.server.framework.pipeline.Module(name = "schiff")
+public class SchiffController extends TemplateGenerator
+{
 	private Log log = LogFactory.getLog(SchiffController.class);
 
 	private Ship ship = null;
 	private ShipTypeData shiptype = null;
 	private Offizier offizier = null;
-	private Map<String,SchiffPlugin> pluginMapper = new LinkedHashMap<String,SchiffPlugin>();
+	private Map<String, SchiffPlugin> pluginMapper = new LinkedHashMap<>();
 	private boolean noob = false;
 
 	/**
 	 * Konstruktor.
+	 *
 	 * @param context Der zu verwendende Kontext
 	 */
-	public SchiffController(Context context) {
+	public SchiffController(Context context)
+	{
 		super(context);
 
 		setTemplate("schiff.html");
@@ -93,55 +96,64 @@ public class SchiffController extends TemplateGenerator {
 		setPageTitle("Schiff");
 	}
 
-	private String genSubColor( int value, int defvalue ) {
-		if( defvalue == 0 ) {
+	private String genSubColor(int value, int defvalue)
+	{
+		if (defvalue == 0)
+		{
 			return "green";
 		}
 
-		if( value < defvalue/2 ) {
+		if (value < defvalue / 2)
+		{
 			return "red";
 		}
-		else if( value < defvalue ) {
+		else if (value < defvalue)
+		{
 			return "yellow";
 		}
-		else {
+		else
+		{
 			return "green";
 		}
 	}
 
-	private SchiffPlugin getPluginByName(String name) {
-		String clsName = getClass().getPackage().getName()+".schiffplugins."+name;
-		try {
+	private SchiffPlugin getPluginByName(String name)
+	{
+		String clsName = getClass().getPackage().getName() + ".schiffplugins." + name;
+		try
+		{
 			Class<?> cls = Class.forName(clsName);
 			Class<? extends SchiffPlugin> spClass = cls.asSubclass(SchiffPlugin.class);
 			return spClass.newInstance();
 		}
-		catch( Exception e ) {
-			log.error(e,e);
+		catch (Exception e)
+		{
+			log.error(e, e);
 			return null;
 		}
 	}
 
 	@Override
-	protected boolean validateAndPrepare(String action) {
-		User user = (User)getUser();
+	protected boolean validateAndPrepare(String action)
+	{
+		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 
-		t.setVar( "user.tooltips", user.getUserValue("TBLORDER/schiff/tooltips") );
+		t.setVar("user.tooltips", user.getUserValue("TBLORDER/schiff/tooltips"));
 
 		int shipid = getInteger("ship");
 
-		ship = (Ship)db.get(Ship.class, shipid);
-		if( (ship == null) || (ship.getId() < 0) || (ship.getOwner() != user) )
+		ship = (Ship) db.get(Ship.class, shipid);
+		if ((ship == null) || (ship.getId() < 0) || (ship.getOwner() != user))
 		{
-			addError("Das angegebene Schiff existiert nicht", Common.buildUrl("default","module", "schiffe") );
+			addError("Das angegebene Schiff existiert nicht", Common.buildUrl("default", "module", "schiffe"));
 			return false;
 		}
 
-		if( ship.getBattle() != null )
+		if (ship.getBattle() != null)
 		{
-			addError("Das Schiff ist in einen Kampf verwickelt (hier klicken um zu diesem zu gelangen)!", Common.buildUrl("default", "module", "angriff", "battle", ship.getBattle().getId(), "ship", shipid) );
+			addError("Das Schiff ist in einen Kampf verwickelt (hier klicken um zu diesem zu gelangen)!", Common.buildUrl("default", "module", "angriff", "battle", ship.getBattle().getId(), "ship", shipid));
 			return false;
 		}
 
@@ -153,57 +165,63 @@ public class SchiffController extends TemplateGenerator {
 		pluginMapper.put("navigation", getPluginByName("NavigationDefault"));
 		pluginMapper.put("cargo", getPluginByName("CargoDefault"));
 
-		if( shiptype.getWerft() != 0 ) {
+		if (shiptype.getWerft() != 0)
+		{
 			pluginMapper.put("werft", getPluginByName("WerftDefault"));
 		}
 
-		if( shiptype.hasFlag(ShipTypes.SF_JUMPDRIVE_SHIVAN) ) {
+		if (shiptype.hasFlag(ShipTypes.SF_JUMPDRIVE_SHIVAN))
+		{
 			pluginMapper.put("jumpdrive", getPluginByName("JumpdriveShivan"));
 		}
 
 		pluginMapper.put("sensors", getPluginByName("SensorsDefault"));
 
-		if( shiptype.getADocks() > 0 ) {
+		if (shiptype.getADocks() > 0)
+		{
 			pluginMapper.put("adocks", getPluginByName("ADocksDefault"));
 		}
 
-		if( shiptype.getJDocks() > 0 ) {
+		if (shiptype.getJDocks() > 0)
+		{
 			pluginMapper.put("jdocks", getPluginByName("JDocksDefault"));
 		}
 
-		if( shiptype.getUnitSpace() > 0 ) {
+		if (shiptype.getUnitSpace() > 0)
+		{
 			pluginMapper.put("units", getPluginByName("UnitsDefault"));
 		}
 
 		noob = user.isNoob();
 
 		// URL fuer Quests setzen
-		Quests.currentEventURLBase.set("./ds?module=schiff&ship="+getInteger("ship"));
+		Quests.currentEventURLBase.set("./ds?module=schiff&ship=" + this.ship.getId());
 
 		return true;
 	}
 
 	/**
 	 * Wechselt die Alarmstufe des Schiffes.
-	 * @urlparam Integer alarm Die neue Alarmstufe
 	 *
+	 * @param alarm Die neue Alarmstufe
 	 */
 	@Action(ActionType.DEFAULT)
-	public void alarmAction() {
-		if( noob ) {
+	public void alarmAction(int alarm)
+	{
+		if (noob)
+		{
 			redirect();
 			return;
 		}
 
-		if( (shiptype.getShipClass() == ShipClasses.GESCHUETZ) || !shiptype.isMilitary() ) {
+		if ((shiptype.getShipClass() == ShipClasses.GESCHUETZ) || !shiptype.isMilitary())
+		{
 			redirect();
 			return;
 		}
 
-		parameterNumber("alarm");
-		int alarm = getInteger("alarm");
-
-		if( (alarm >= Ship.Alert.GREEN.getCode()) && (alarm <= Ship.Alert.RED.getCode()) ) {
+		if ((alarm >= Ship.Alert.GREEN.getCode()) && (alarm <= Ship.Alert.RED.getCode()))
+		{
 			ship.setAlarm(alarm);
 
 			getTemplateEngine().setVar("ship.message", "Alarmstufe erfolgreich ge&auml;ndert<br />");
@@ -216,33 +234,30 @@ public class SchiffController extends TemplateGenerator {
 
 	/**
 	 * Uebergibt das Schiff an einen anderen Spieler.
-	 * @urlparam Integer newowner Die ID des neuen Besitzers
-	 * @urlparam Integer conf 1, falls die Sicherheitsabfrage positiv bestaetigt wurde
 	 *
+	 * @param newownerID Die ID des neuen Besitzers
+	 * @param conf 1, falls die Sicherheitsabfrage positiv bestaetigt wurde
 	 */
 	@Action(ActionType.DEFAULT)
-	public void consignAction() {
+	public void consignAction(@UrlParam(name = "newowner") String newownerID, int conf)
+	{
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
-		User user = (User)getUser();
-
-		parameterString("newowner");
-		String newownerID = getString("newowner");
+		User user = (User) getUser();
 
 		User newowner = User.lookupByIdentifier(newownerID);
-		if( newowner == null ) {
+		if (newowner == null)
+		{
 			t.setVar("ship.message", "<span style=\"color:red\">Der Spieler existiert nicht</span><br />");
 			redirect();
 			return;
 		}
 
-		parameterNumber("conf");
-		int conf = getInteger("conf");
-
-		if( conf == 0 ) {
-			String text = "<span style=\"color:white\">Wollen sie das Schiff "+Common._plaintitle(ship.getName())+" ("+ship.getId()+") wirklich an "+newowner.getProfileLink()+" &uuml;bergeben?</span><br />";
-			text += "<a class=\"ok\" href=\""+Common.buildUrl("consign", "ship", ship.getId(), "conf", 1 , "newowner", newowner.getId())+"\">&Uuml;bergeben</a></span><br />";
-			t.setVar( "ship.message", text );
+		if (conf == 0)
+		{
+			String text = "<span style=\"color:white\">Wollen sie das Schiff " + Common._plaintitle(ship.getName()) + " (" + ship.getId() + ") wirklich an " + newowner.getProfileLink() + " &uuml;bergeben?</span><br />";
+			text += "<a class=\"ok\" href=\"" + Common.buildUrl("consign", "ship", ship.getId(), "conf", 1, "newowner", newowner.getId()) + "\">&Uuml;bergeben</a></span><br />";
+			t.setVar("ship.message", text);
 
 			redirect();
 			return;
@@ -252,27 +267,31 @@ public class SchiffController extends TemplateGenerator {
 
 		boolean result = ship.consign(newowner, false);
 
-		if( result ) {
+		if (result)
+		{
 			t.setVar("ship.message", Ship.MESSAGE.getMessage());
 
 			redirect();
 		}
-		else {
-			String msg = "Ich habe dir die "+ship.getName()+" ("+ship.getId()+"), ein Schiff der "+shiptype.getNickname()+"-Klasse, &uuml;bergeben\nSie steht bei " + ship.getLocation().displayCoordinates(false);
+		else
+		{
+			String msg = "Ich habe dir die " + ship.getName() + " (" + ship.getId() + "), ein Schiff der " + shiptype.getNickname() + "-Klasse, &uuml;bergeben\nSie steht bei " + ship.getLocation().displayCoordinates(false);
 			PM.send(user, newowner.getId(), "Schiff &uuml;bergeben", msg);
 
 			String consMessage = Ship.MESSAGE.getMessage();
-			t.setVar("ship.message", (!consMessage.equals("") ? consMessage+"<br />" : "")+"<span style=\"color:green\">Das Schiff wurde erfolgreich an "+newowner.getProfileLink()+" &uuml;bergeben</span><br />");
+			t.setVar("ship.message", (!consMessage.equals("") ? consMessage + "<br />" : "") + "<span style=\"color:green\">Das Schiff wurde erfolgreich an " + newowner.getProfileLink() + " &uuml;bergeben</span><br />");
 
-			if( fleet != null ) {
-				long fleetcount = (Long)db.createQuery("select count(*) from Ship where id>0 and fleet=:fleet")
-					.setEntity("fleet", fleet)
-					.iterate().next();
-
-				if( fleetcount < 3 ) {
-					db.createQuery("update Ship set fleet=null where id>0 and fleet=:fleet")
+			if (fleet != null)
+			{
+				long fleetcount = (Long) db.createQuery("select count(*) from Ship where id>0 and fleet=:fleet")
 						.setEntity("fleet", fleet)
-						.executeUpdate();
+						.iterate().next();
+
+				if (fleetcount < 3)
+				{
+					db.createQuery("update Ship set fleet=null where id>0 and fleet=:fleet")
+							.setEntity("fleet", fleet)
+							.executeUpdate();
 
 					db.delete(fleet);
 				}
@@ -283,25 +302,23 @@ public class SchiffController extends TemplateGenerator {
 
 	/**
 	 * Zerstoert das Schiff.
-	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void destroyAction() {
+	public void destroyAction(int conf)
+	{
 		TemplateEngine t = getTemplateEngine();
 
-		if( ship.isNoSuicide() )
+		if (ship.isNoSuicide())
 		{
 			t.setVar("ship.message", "<span style=\"color:red\">Dieses Schiff kann sich nicht selbstzerst&ouml;ren.</span><br />");
 			redirect();
 			return;
 		}
 
-		parameterNumber("conf");
-		int conf = getInteger("conf");
-
-		if( conf == 0 ) {
-			String text = "<span style=\"color:white\">Wollen sie Selbstzerst&ouml;rung des Schiffes "+Common._plaintitle(ship.getName())+" ("+ship.getId()+") wirklich ausf&uuml;hren?</span><br />\n";
-			text += "<a class=\"error\" href=\""+Common.buildUrl("destroy", "ship", ship.getId(), "conf", 1)+"\">Selbstzerst&ouml;rung</a></span><br />";
+		if (conf == 0)
+		{
+			String text = "<span style=\"color:white\">Wollen sie Selbstzerst&ouml;rung des Schiffes " + Common._plaintitle(ship.getName()) + " (" + ship.getId() + ") wirklich ausf&uuml;hren?</span><br />\n";
+			text += "<a class=\"error\" href=\"" + Common.buildUrl("destroy", "ship", ship.getId(), "conf", 1) + "\">Selbstzerst&ouml;rung</a></span><br />";
 			t.setVar("ship.message", text);
 
 			redirect();
@@ -315,22 +332,22 @@ public class SchiffController extends TemplateGenerator {
 
 	/**
 	 * Springt durch den angegebenen Sprungpunkt.
-	 * @urlparam Integer knode Die ID des Sprungpunkts
 	 *
+	 * @param node Die ID des Sprungpunkts
 	 */
 	@Action(ActionType.DEFAULT)
-	public void jumpAction() {
+	public void jumpAction(int node)
+	{
 		TemplateEngine t = getTemplateEngine();
 
-		if( (shiptype.getCost() == 0) || (ship.getEngine() == 0) ) {
+		if ((shiptype.getCost() == 0) || (ship.getEngine() == 0))
+		{
 			redirect();
 			return;
 		}
 
-		parameterNumber("node");
-		int node = getInteger("node");
-
-		if( node != 0 ) {
+		if (node != 0)
+		{
 			ship.jump(node, false);
 			t.setVar("ship.message", Ship.MESSAGE.getMessage());
 		}
@@ -340,22 +357,22 @@ public class SchiffController extends TemplateGenerator {
 
 	/**
 	 * Benutzt einen an ein Schiff assoziierten Sprungpunkt.
-	 * @urlparam Integer knode Die ID des Schiffes mit dem Sprungpunkt
 	 *
+	 * @param knode Die ID des Schiffes mit dem Sprungpunkt
 	 */
 	@Action(ActionType.DEFAULT)
-	public void kjumpAction() {
+	public void kjumpAction(int knode)
+	{
 		TemplateEngine t = getTemplateEngine();
 
-		if( (shiptype.getCost() == 0) || (ship.getEngine() == 0) ) {
+		if ((shiptype.getCost() == 0) || (ship.getEngine() == 0))
+		{
 			redirect();
 			return;
 		}
 
-		parameterNumber("knode");
-		int knode = getInteger("knode");
-
-		if( knode != 0 ) {
+		if (knode != 0)
+		{
 			ship.jump(knode, true);
 			t.setVar("ship.message", Ship.MESSAGE.getMessage());
 		}
@@ -365,18 +382,16 @@ public class SchiffController extends TemplateGenerator {
 
 	/**
 	 * Benennt das Schiff um.
-	 * @urlparam String newname Der neue Name des Schiffes
 	 *
+	 * @param newname Der neue Name des Schiffes
 	 */
 	@Action(ActionType.DEFAULT)
-	public void renameAction() {
+	public void renameAction(String newname)
+	{
 		TemplateEngine t = getTemplateEngine();
 
-		parameterString("newname");
-		String newname = getString("newname");
-
 		ship.setName(newname);
-		t.setVar("ship.message", "Name zu "+Common._plaintitle(newname)+" ge&auml;ndert<br />");
+		t.setVar("ship.message", "Name zu " + Common._plaintitle(newname) + " ge&auml;ndert<br />");
 
 		redirect();
 	}
@@ -384,15 +399,13 @@ public class SchiffController extends TemplateGenerator {
 	/**
 	 * Fuehrt Aktionen eines Plugins aus. Plugin-spezifische
 	 * Parameter haben die Form $PluginName_ops[$ParameterName].
-	 * @urlparam String plugin Der Name des Plugins
 	 *
+	 * @param plugin Der Name des Plugins
 	 */
 	@Action(ActionType.DEFAULT)
-	public void pluginAction() {
+	public void pluginAction(String plugin)
+	{
 		TemplateEngine t = getTemplateEngine();
-
-		parameterString("plugin");
-		String plugin = getString("plugin");
 
 		Parameters caller = new Parameters();
 		caller.controller = this;
@@ -401,12 +414,13 @@ public class SchiffController extends TemplateGenerator {
 		caller.shiptype = shiptype;
 		caller.offizier = offizier;
 
-		if( !pluginMapper.containsKey(plugin) ) {
+		if (!pluginMapper.containsKey(plugin))
+		{
 			redirect();
 			return;
 		}
 
-		parseSubParameter(plugin+"_ops");
+		parseSubParameter(plugin + "_ops");
 		t.setVar("ship.message", pluginMapper.get(plugin).action(caller));
 
 		parseSubParameter("");
@@ -416,27 +430,28 @@ public class SchiffController extends TemplateGenerator {
 
 	/**
 	 * Landet die angegebenen Schiffe auf dem aktuellen Schiff.
-	 * @urlparameter String shiplist Eine mit | separierte Liste an Schiffs-IDs
 	 *
+	 * @param shipIdList Eine mit | separierte Liste an Schiffs-IDs
 	 */
 	@Action(ActionType.DEFAULT)
-	public void landAction() {
+	public void landAction(@UrlParam(name = "shiplist") String shipIdList)
+	{
 		TemplateEngine t = getTemplateEngine();
 
-		parameterString("shiplist");
-		String shipIdList = getString("shiplist");
-
-		if( shipIdList.equals("") ) {
+		if (shipIdList.equals(""))
+		{
 			t.setVar("ship.message", "Es wurden keine Schiffe angegeben");
 			redirect();
 			return;
 		}
 
-		int[] shipidlist = Common.explodeToInt("|",shipIdList);
+		int[] shipidlist = Common.explodeToInt("|", shipIdList);
 		Ship[] shiplist = new Ship[shipidlist.length];
-		for( int i=0; i < shipidlist.length; i++ ) {
-			Ship aship = (Ship)getDB().get(Ship.class, shipidlist[i]);
-			if( aship == null ) {
+		for (int i = 0; i < shipidlist.length; i++)
+		{
+			Ship aship = (Ship) getDB().get(Ship.class, shipidlist[i]);
+			if (aship == null)
+			{
 				addError("Eines der angegebenen Schiffe existiert nicht");
 				redirect();
 				return;
@@ -452,27 +467,28 @@ public class SchiffController extends TemplateGenerator {
 
 	/**
 	 * Startet die angegebenen Schiffe vom aktuellen Schiff.
-	 * @urlparam String shiplist Eine mit | separierte Liste von Schiffs-IDs
 	 *
+	 * @param shipIdList Eine mit | separierte Liste von Schiffs-IDs
 	 */
 	@Action(ActionType.DEFAULT)
-	public void startAction() {
+	public void startAction(@UrlParam(name = "shiplist") String shipIdList)
+	{
 		TemplateEngine t = getTemplateEngine();
 
-		parameterString("shiplist");
-		String shipIdList = getString("shiplist");
-
-		if( shipIdList.equals("") ) {
+		if (shipIdList.equals(""))
+		{
 			t.setVar("ship.message", "Es wurden keine Schiffe angegeben");
 			redirect();
 			return;
 		}
 
-		int[] shipidlist = Common.explodeToInt("|",shipIdList);
+		int[] shipidlist = Common.explodeToInt("|", shipIdList);
 		Ship[] shiplist = new Ship[shipidlist.length];
-		for( int i=0; i < shipidlist.length; i++ ) {
-			Ship aship = (Ship)getDB().get(Ship.class, shipidlist[i]);
-			if( aship == null ) {
+		for (int i = 0; i < shipidlist.length; i++)
+		{
+			Ship aship = (Ship) getDB().get(Ship.class, shipidlist[i]);
+			if (aship == null)
+			{
 				addError("Eines der angegebenen Schiffe existiert nicht");
 				redirect();
 				return;
@@ -488,28 +504,27 @@ public class SchiffController extends TemplateGenerator {
 
 	/**
 	 * Dockt die angegebenen Schiffe an das aktuelle Schiff an.
-	 * @urlparam String shiplist Eine mit | separierte Liste von Schiffs-IDs
 	 *
+	 * @param shipIdList Eine mit | separierte Liste von Schiffs-IDs
 	 */
 	@Action(ActionType.DEFAULT)
-	public void aufladenAction() {
+	public void aufladenAction(@UrlParam(name = "tar") String shipIdList)
+	{
 		TemplateEngine t = getTemplateEngine();
-		User user = (User)getUser();
+		User user = (User) getUser();
 
-		parameterString("tar");
-		String shipIdList = getString("tar");
-
-		if( shipIdList.equals("") ) {
+		if (shipIdList.equals(""))
+		{
 			t.setVar("ship.message", "Es wurden keine Schiffe angegeben");
 			redirect();
 		}
 
-		int[] shipidlist = Common.explodeToInt("|",shipIdList);
+		int[] shipidlist = Common.explodeToInt("|", shipIdList);
 
 		org.hibernate.Session db = getDB();
 
-		List<?> dockedList = db.createQuery("from Ship where id>0 and id in ("+Common.implode(",", shipidlist)+") and docked!=''")
-			.list();
+		List<?> dockedList = db.createQuery("from Ship where id>0 and id in (" + Common.implode(",", shipidlist) + ") and docked!=''")
+				.list();
 		for (Object aDockedList : dockedList)
 		{
 			Ship docked = (Ship) aDockedList;
@@ -527,9 +542,11 @@ public class SchiffController extends TemplateGenerator {
 		}
 
 		Ship[] shiplist = new Ship[shipidlist.length];
-		for( int i=0; i < shipidlist.length; i++ ) {
-			Ship aship = (Ship)getDB().get(Ship.class, shipidlist[i]);
-			if( aship == null ) {
+		for (int i = 0; i < shipidlist.length; i++)
+		{
+			Ship aship = (Ship) getDB().get(Ship.class, shipidlist[i]);
+			if (aship == null)
+			{
 				addError("Eines der angegebenen Schiffe existiert nicht");
 				redirect();
 				return;
@@ -545,26 +562,27 @@ public class SchiffController extends TemplateGenerator {
 
 	/**
 	 * Dockt die angegebenen Schiffe vom aktuellen Schiff ab.
-	 * @urlparam String shiplist Eine mit | separierte Liste von Schiffs-IDs
 	 *
+	 * @param shipIdList Eine mit | separierte Liste von Schiffs-IDs
 	 */
 	@Action(ActionType.DEFAULT)
-	public void abladenAction() {
+	public void abladenAction(@UrlParam(name = "tar") String shipIdList)
+	{
 		TemplateEngine t = getTemplateEngine();
 
-		parameterString("tar");
-		String shipIdList = getString("tar");
-
-		if( shipIdList.equals("") ) {
+		if (shipIdList.equals(""))
+		{
 			t.setVar("ship.message", "Es wurden keine Schiffe angegeben");
 			redirect();
 		}
 
-		int[] shipidlist = Common.explodeToInt("|",shipIdList);
+		int[] shipidlist = Common.explodeToInt("|", shipIdList);
 		Ship[] shiplist = new Ship[shipidlist.length];
-		for( int i=0; i < shipidlist.length; i++ ) {
-			Ship aship = (Ship)getDB().get(Ship.class, shipidlist[i]);
-			if( aship == null ) {
+		for (int i = 0; i < shipidlist.length; i++)
+		{
+			Ship aship = (Ship) getDB().get(Ship.class, shipidlist[i]);
+			if (aship == null)
+			{
 				addError("Eines der angegebenen Schiffe existiert nicht");
 				redirect();
 				return;
@@ -580,46 +598,50 @@ public class SchiffController extends TemplateGenerator {
 
 	/**
 	 * Laesst ein Schiff einer Flotte beitreten oder aus der aktuellen Flotte austreten.
-	 * @urlparam Integer join Die ID der Flotte, der das Schiff beitreten soll oder <code>0</code>, falls es aus der aktuellen Flotte austreten soll
 	 *
+	 * @param join Die ID der Flotte, der das Schiff beitreten soll oder <code>0</code>, falls es aus der aktuellen Flotte austreten soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void joinAction() {
+	public void joinAction(int join)
+	{
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
-		User user = (User)getUser();
-
-		parameterNumber("join");
-		int join = getInteger("join");
+		User user = (User) getUser();
 
 		// Austreten
-		if( join == 0 ) {
+		if (join == 0)
+		{
 			ship.removeFromFleet();
 
-			t.setVar("ship.message", "<span style=\"color:green\">"+Ship.MESSAGE.getMessage()+"</span><br />");
+			t.setVar("ship.message", "<span style=\"color:green\">" + Ship.MESSAGE.getMessage() + "</span><br />");
 		}
 		// Beitreten
-		else {
-			Ship fleetship = (Ship)db.get(Ship.class, join);
-			if( (fleetship == null) || (fleetship.getId() < 0) ) {
+		else
+		{
+			Ship fleetship = (Ship) db.get(Ship.class, join);
+			if ((fleetship == null) || (fleetship.getId() < 0))
+			{
 				redirect();
 				return;
 			}
 
 			ShipFleet fleet = fleetship.getFleet();
 
-			if( fleet == null ) {
+			if (fleet == null)
+			{
 				t.setVar("ship.message", "<span style=\"color:red\">Sie m&uuml;ssen erst eine Flotte erstellen</span><br />");
 				redirect();
 				return;
 			}
 
-			if( !ship.getLocation().sameSector(0, fleetship.getLocation(), 0) || ( fleetship.getOwner() != user ) ) {
-				t.setVar("ship.message", "<span style=\"color:red\">Beitritt zur Flotte &quot;"+Common._plaintitle(fleet.getName())+"&quot; nicht m&ouml;glich</span><br />");
+			if (!ship.getLocation().sameSector(0, fleetship.getLocation(), 0) || (fleetship.getOwner() != user))
+			{
+				t.setVar("ship.message", "<span style=\"color:red\">Beitritt zur Flotte &quot;" + Common._plaintitle(fleet.getName()) + "&quot; nicht m&ouml;glich</span><br />");
 			}
-			else {
+			else
+			{
 				ship.setFleet(fleet);
-				t.setVar("ship.message", "<span style=\"color:green\">Flotte &quot;"+Common._plaintitle(fleet.getName())+"&quot; beigetreten</span><br />");
+				t.setVar("ship.message", "<span style=\"color:green\">Flotte &quot;" + Common._plaintitle(fleet.getName()) + "&quot; beigetreten</span><br />");
 			}
 		}
 
@@ -628,33 +650,35 @@ public class SchiffController extends TemplateGenerator {
 
 	/**
 	 * Laedt die Schilde des aktuellen Schiffes auf.
-	 * @urlparam Integer shup Die Menge an Energie, die zum Aufladen der Schilde verwendet werden soll
 	 *
+	 * @param shup Die Menge an Energie, die zum Aufladen der Schilde verwendet werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void shupAction() {
+	public void shupAction(int shup)
+	{
 		TemplateEngine t = getTemplateEngine();
 
-		parameterNumber("shup");
-		int shup = getInteger("shup");
-
 		int shieldfactor = 100;
-		if( shiptype.getShields() < 1000 ) {
+		if (shiptype.getShields() < 1000)
+		{
 			shieldfactor = 10;
 		}
 
-		final int maxshup = (int)Math.ceil((shiptype.getShields() - ship.getShields())/(double)shieldfactor);
-		if( shup > maxshup ) {
+		final int maxshup = (int) Math.ceil((shiptype.getShields() - ship.getShields()) / (double) shieldfactor);
+		if (shup > maxshup)
+		{
 			shup = maxshup;
 		}
-		if( shup > ship.getEnergy() ) {
+		if (shup > ship.getEnergy())
+		{
 			shup = ship.getEnergy();
 		}
 
-		t.setVar("ship.message", "Schilde +"+(shup*shieldfactor)+"<br />");
+		t.setVar("ship.message", "Schilde +" + (shup * shieldfactor) + "<br />");
 
-		ship.setShields(ship.getShields() + shup*shieldfactor);
-		if( ship.getShields() > shiptype.getShields() ) {
+		ship.setShields(ship.getShields() + shup * shieldfactor);
+		if (ship.getShields() > shiptype.getShields())
+		{
 			ship.setShields(shiptype.getShields());
 		}
 
@@ -668,27 +692,25 @@ public class SchiffController extends TemplateGenerator {
 	/**
 	 * Speichert ein neues Schiffsaktionsscript und setzt optional
 	 * die aktuellen Ausfuehrungsdaten wieder zurueck.
-	 * @urlparam String script das neue Schfifsaktionsscript
-	 * @urlparam Integer reset Wenn der Wert != 0 ist, dann werden die Ausfuehrungsdaten zurueckgesetzt
 	 *
+	 * @param script das neue Schfifsaktionsscript
+	 * @param reset Wenn der Wert != 0 ist, dann werden die Ausfuehrungsdaten zurueckgesetzt
 	 */
 	@Action(ActionType.DEFAULT)
-	public void scriptAction() {
+	public void scriptAction(String script, boolean reset)
+	{
 		TemplateEngine t = getTemplateEngine();
 
-		parameterString("script");
-		parameterNumber("reset");
-
-		String script = getString("script");
-		int reset = getInteger("reset");
-
-		if( !script.trim().equals("") ) {
-			if( reset != 0 ) {
+		if (!script.trim().equals(""))
+		{
+			if (reset)
+			{
 				ship.setScriptExeData(null);
 			}
 			ship.setScript(script);
 		}
-		else {
+		else
+		{
 			ship.setScriptExeData(null);
 			ship.setScript(null);
 		}
@@ -700,58 +722,58 @@ public class SchiffController extends TemplateGenerator {
 
 	/**
 	 * Behandelt ein OnCommunicate-Ereigniss.
-	 * @urlparam Integer communicate Die ID des Schiffes, mit dem kommuniziert werden soll
-	 * @urlparam String execparameter Weitere Ausfuehrungsdaten
 	 *
+	 * @param communicate Die ID des Schiffes, mit dem kommuniziert werden soll
+	 * @param execparameter Weitere Ausfuehrungsdaten
 	 */
 	@Action(ActionType.DEFAULT)
-	public void communicateAction() {
+	public void communicateAction(int communicate, String execparameter)
+	{
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
-		User user = (User)getUser();
-
-		parameterNumber("communicate");
-		int communicate = getInteger("communicate");
+		User user = (User) getUser();
 
 		ScriptEngine scriptparser = getContext().get(ContextCommon.class).getScriptParser("DSQuestScript");
 		final Bindings engineBindings = scriptparser.getContext().getBindings(ScriptContext.ENGINE_SCOPE);
 
 		engineBindings.put("_SHIP", ship);
-		if( !user.hasFlag( User.FLAG_SCRIPT_DEBUGGING ) ) {
+		if (!user.hasFlag(User.FLAG_SCRIPT_DEBUGGING))
+		{
 			scriptparser.getContext().setErrorWriter(new NullLogger());
 		}
 
-		Quests.currentEventURL.set("&action=communicate&communicate="+communicate);
+		Quests.currentEventURL.set("&action=communicate&communicate=" + communicate);
 
 		engineBindings.put("TARGETSHIP", Integer.toString(communicate));
 
-		parameterString("execparameter");
-		String execparameter = getString( "execparameter" );
-		if( execparameter.equals("") ) {
+		if (execparameter.equals(""))
+		{
 			execparameter = "0";
 		}
 
-		Ship targetship = (Ship)db.get(Ship.class, communicate);
-		if( (targetship == null) || (targetship.getId() < 0) || !targetship.getLocation().sameSector(0, ship.getLocation(), 0) ) {
+		Ship targetship = (Ship) db.get(Ship.class, communicate);
+		if ((targetship == null) || (targetship.getId() < 0) || !targetship.getLocation().sameSector(0, ship.getLocation(), 0))
+		{
 			t.setVar("ship.message", "<span style=\"color:red\">Sie k&ouml;nnen nur mit Schiffen im selben Sektor kommunizieren</span><br />");
 			redirect();
 			return;
 		}
-		Quests.executeEvent( scriptparser, targetship.getOnCommunicate(), user, execparameter, false );
+		Quests.executeEvent(scriptparser, targetship.getOnCommunicate(), user, execparameter, false);
 
 		redirect();
 	}
 
 	/**
 	 * Transferiert das Schiff ins System 99.
-	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void inselAction() {
+	public void inselAction()
+	{
 		TemplateEngine t = getTemplateEngine();
-		User user = (User)getUser();
+		User user = (User) getUser();
 
-		if( !user.hasFlag( User.FLAG_NPC_ISLAND ) ) {
+		if (!user.hasFlag(User.FLAG_NPC_ISLAND))
+		{
 			redirect();
 			return;
 		}
@@ -765,32 +787,34 @@ public class SchiffController extends TemplateGenerator {
 		redirect();
 	}
 
-	private static final Map<String,String> moduleOutputList = new HashMap<String,String>();
+	private static final Map<String, String> moduleOutputList = new HashMap<>();
 
-	private static synchronized void initModuleOutputList() {
-		if( !moduleOutputList.isEmpty() ) {
+	private static synchronized void initModuleOutputList()
+	{
+		if (!moduleOutputList.isEmpty())
+		{
 			return;
 		}
 		final String url = Configuration.getSetting("URL");
 
-		Map<String,String> mo = new HashMap<String,String>();
+		Map<String, String> mo = new HashMap<>();
 		// Nur Number-Spalten!
-		mo.put("getRu", "<img align='middle' src='"+Cargo.getResourceImage(Resources.URAN)+"' alt='' />Reaktor ");
-		mo.put("getRd", "<img align='middle' src='"+Cargo.getResourceImage(Resources.DEUTERIUM)+"' alt='' />Reaktor ");
-		mo.put("getRa", "<img align='middle' src='"+Cargo.getResourceImage(Resources.ANTIMATERIE)+"' alt='' />Reaktor ");
-		mo.put("getRm", "<img align='middle' src='"+url+"data/interface/energie.gif' alt='' />Reaktor ");
-		mo.put("getCargo", "<img align='middle' src='"+url+"data/interface/leer.gif' alt='' />Cargo ");
-		mo.put("getEps", "<img align='middle' src='"+url+"data/interface/energie.gif' alt='' />Energiespeicher ");
-		mo.put("getHull", "<img align='middle' src='"+url+"data/interface/schiffe/panzerplatte.png' alt='' />H&uuml;lle ");
+		mo.put("getRu", "<img align='middle' src='" + Cargo.getResourceImage(Resources.URAN) + "' alt='' />Reaktor ");
+		mo.put("getRd", "<img align='middle' src='" + Cargo.getResourceImage(Resources.DEUTERIUM) + "' alt='' />Reaktor ");
+		mo.put("getRa", "<img align='middle' src='" + Cargo.getResourceImage(Resources.ANTIMATERIE) + "' alt='' />Reaktor ");
+		mo.put("getRm", "<img align='middle' src='" + url + "data/interface/energie.gif' alt='' />Reaktor ");
+		mo.put("getCargo", "<img align='middle' src='" + url + "data/interface/leer.gif' alt='' />Cargo ");
+		mo.put("getEps", "<img align='middle' src='" + url + "data/interface/energie.gif' alt='' />Energiespeicher ");
+		mo.put("getHull", "<img align='middle' src='" + url + "data/interface/schiffe/panzerplatte.png' alt='' />H&uuml;lle ");
 		mo.put("getShields", "Shields ");
 		mo.put("getCost", "Flugkosten ");
 		mo.put("getHeat", "&Uuml;berhitzung ");
-		mo.put("getPanzerung", "<img align='middle' src='"+url+"data/interface/schiffe/panzerplatte.png' alt='' />Panzerung ");
+		mo.put("getPanzerung", "<img align='middle' src='" + url + "data/interface/schiffe/panzerplatte.png' alt='' />Panzerung ");
 		mo.put("getTorpedoDef", "Torpedoabwehr ");
-		mo.put("getCrew", "<img align='middle' src='"+url+"data/interface/besatzung.gif' alt='' />Crew ");
-		mo.put("getHydro", "<img align='middle' src='"+Cargo.getResourceImage(Resources.NAHRUNG)+"' alt='' />Produktion ");
-		mo.put("getSensorRange", "<img align='middle' src='"+url+"data/interface/schiffe/sensorrange.png' alt='' />Sensorreichweite ");
-		mo.put("getDeutFactor", "Tanker: <img align='middle' src='"+Cargo.getResourceImage(Resources.DEUTERIUM)+"' alt='' />");
+		mo.put("getCrew", "<img align='middle' src='" + url + "data/interface/besatzung.gif' alt='' />Crew ");
+		mo.put("getHydro", "<img align='middle' src='" + Cargo.getResourceImage(Resources.NAHRUNG) + "' alt='' />Produktion ");
+		mo.put("getSensorRange", "<img align='middle' src='" + url + "data/interface/schiffe/sensorrange.png' alt='' />Sensorreichweite ");
+		mo.put("getDeutFactor", "Tanker: <img align='middle' src='" + Cargo.getResourceImage(Resources.DEUTERIUM) + "' alt='' />");
 		mo.put("getReCost", "Wartungskosten ");
 		mo.put("getADocks", "Externe Docks ");
 		mo.put("getJDocks", "J&auml;gerdocks ");
@@ -804,170 +828,186 @@ public class SchiffController extends TemplateGenerator {
 	 */
 	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() {
-		User user = (User)getUser();
+	public void defaultAction()
+	{
+		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 
 		db.flush();
 
 		ScriptEngine scriptparser = getContext().get(ContextCommon.class).getScriptParser("DSQuestScript");
-		if( ship.isDestroyed() ) {
-			if( (scriptparser != null) && (scriptparser.getContext().getWriter().toString().length() != 0) ) {
-				t.setVar("ship.scriptparseroutput", scriptparser.getContext().getWriter().toString() );
+		if (ship.isDestroyed())
+		{
+			if ((scriptparser != null) && (scriptparser.getContext().getWriter().toString().length() != 0))
+			{
+				t.setVar("ship.scriptparseroutput", scriptparser.getContext().getWriter().toString());
 			}
-			else {
+			else
+			{
 				addError("Das Schiff existiert nicht mehr oder geh&ouml;rt nicht mehr ihnen");
 			}
 			return;
 		}
 
-	//	db.refresh(ship);
 		shiptype = ship.getTypeData();
 
-		if( ship.getBattle() != null ) {
-			if( (scriptparser != null) && (scriptparser.getContext().getWriter().toString().length() > 0) ) {
-				t.setVar("ship.scriptparseroutput", scriptparser.getContext().getWriter().toString() );
+		if (ship.getBattle() != null)
+		{
+			if ((scriptparser != null) && (scriptparser.getContext().getWriter().toString().length() > 0))
+			{
+				t.setVar("ship.scriptparseroutput", scriptparser.getContext().getWriter().toString());
 			}
 
-			addError("Das Schiff ist in einen Kampf verwickelt (hier klicken um zu diesem zu gelangen)!", Common.buildUrl("default", "module", "angriff", "battle", ship.getBattle().getId(), "ship", ship.getId()) );
+			addError("Das Schiff ist in einen Kampf verwickelt (hier klicken um zu diesem zu gelangen)!", Common.buildUrl("default", "module", "angriff", "battle", ship.getBattle().getId(), "ship", ship.getId()));
 			return;
 		}
 
 		ship.recalculateShipStatus();
 		offizier = ship.getOffizier();
 
-		t.setVar(	"ship.showui",			1,
-					"ship.islanded",		ship.isLanded(),
-					"ship.id",				ship.getId(),
-					"ship.location.system",	ship.getLocation().getSystem(),
-					"ship.name",			Common._plaintitle(ship.getName()),
-					"ship.location",		ship.getLocation().displayCoordinates(false),
-					"ship.type",			ship.getType(),
-					"shiptype.picture",		shiptype.getPicture(),
-					"shiptype.name",		shiptype.getNickname(),
-					"ship.hull.color",		genSubColor(ship.getHull(), shiptype.getHull()),
-					"ship.hull",			Common.ln(ship.getHull()),
-					"shiptype.hull",		Common.ln(shiptype.getHull()),
-					"ship.ablativearmor.color",		genSubColor(ship.getAblativeArmor(), shiptype.getAblativeArmor()),
-					"ship.ablativearmor",			Common.ln(ship.getAblativeArmor()),
-					"shiptype.ablativearmor",		Common.ln(shiptype.getAblativeArmor()),
-					"ship.shields.color",	genSubColor(ship.getShields(), shiptype.getShields()),
-					"ship.shields",			Common.ln(ship.getShields()),
-					"shiptype.shields",		Common.ln(shiptype.getShields()),
-					"shiptype.cost",		shiptype.getCost(),
-					"ship.engine.color",	genSubColor(ship.getEngine(), 100),
-					"ship.engine",			ship.getEngine(),
-					"shiptype.weapon",		shiptype.isMilitary(),
-					"ship.weapons.color",	genSubColor(ship.getWeapons(), 100),
-					"ship.weapons",			ship.getWeapons(),
-					"ship.comm.color",		genSubColor(ship.getComm(), 100),
-					"ship.comm",			ship.getComm(),
-					"ship.sensors.color",	genSubColor(ship.getSensors(), 100),
-					"ship.sensors",			ship.getSensors(),
-					"shiptype.crew",		Common.ln(shiptype.getCrew()),
-					"ship.crew",			Common.ln(ship.getCrew()),
-					"ship.crew.color",		genSubColor(ship.getCrew(), shiptype.getCrew()),
-					"ship.marines", (shiptype.getUnitSpace() > 0),
-					"ship.e",				Common.ln(ship.getEnergy()),
-					"shiptype.eps",			Common.ln(shiptype.getEps()),
-					"ship.e.color",			genSubColor(ship.getEnergy(), shiptype.getEps()),
-					"ship.s",				ship.getHeat(),
-					"ship.fleet",			ship.getFleet() != null ? ship.getFleet().getId() : 0,
-					"shiptype.werft",		shiptype.getWerft(),
-					"ship.showalarm",		!noob && (shiptype.getShipClass() != ShipClasses.GESCHUETZ) && shiptype.isMilitary() );
+		t.setVar("ship.showui", 1,
+				"ship.islanded", ship.isLanded(),
+				"ship.id", ship.getId(),
+				"ship.location.system", ship.getLocation().getSystem(),
+				"ship.name", Common._plaintitle(ship.getName()),
+				"ship.location", ship.getLocation().displayCoordinates(false),
+				"ship.type", ship.getType(),
+				"shiptype.picture", shiptype.getPicture(),
+				"shiptype.name", shiptype.getNickname(),
+				"ship.hull.color", genSubColor(ship.getHull(), shiptype.getHull()),
+				"ship.hull", Common.ln(ship.getHull()),
+				"shiptype.hull", Common.ln(shiptype.getHull()),
+				"ship.ablativearmor.color", genSubColor(ship.getAblativeArmor(), shiptype.getAblativeArmor()),
+				"ship.ablativearmor", Common.ln(ship.getAblativeArmor()),
+				"shiptype.ablativearmor", Common.ln(shiptype.getAblativeArmor()),
+				"ship.shields.color", genSubColor(ship.getShields(), shiptype.getShields()),
+				"ship.shields", Common.ln(ship.getShields()),
+				"shiptype.shields", Common.ln(shiptype.getShields()),
+				"shiptype.cost", shiptype.getCost(),
+				"ship.engine.color", genSubColor(ship.getEngine(), 100),
+				"ship.engine", ship.getEngine(),
+				"shiptype.weapon", shiptype.isMilitary(),
+				"ship.weapons.color", genSubColor(ship.getWeapons(), 100),
+				"ship.weapons", ship.getWeapons(),
+				"ship.comm.color", genSubColor(ship.getComm(), 100),
+				"ship.comm", ship.getComm(),
+				"ship.sensors.color", genSubColor(ship.getSensors(), 100),
+				"ship.sensors", ship.getSensors(),
+				"shiptype.crew", Common.ln(shiptype.getCrew()),
+				"ship.crew", Common.ln(ship.getCrew()),
+				"ship.crew.color", genSubColor(ship.getCrew(), shiptype.getCrew()),
+				"ship.marines", (shiptype.getUnitSpace() > 0),
+				"ship.e", Common.ln(ship.getEnergy()),
+				"shiptype.eps", Common.ln(shiptype.getEps()),
+				"ship.e.color", genSubColor(ship.getEnergy(), shiptype.getEps()),
+				"ship.s", ship.getHeat(),
+				"ship.fleet", ship.getFleet() != null ? ship.getFleet().getId() : 0,
+				"shiptype.werft", shiptype.getWerft(),
+				"ship.showalarm", !noob && (shiptype.getShipClass() != ShipClasses.GESCHUETZ) && shiptype.isMilitary());
 
-		if( ship.getHeat() >= 100 ) {
+		if (ship.getHeat() >= 100)
+		{
 			t.setVar("ship.s.color", "red");
 		}
-		else if( ship.getHeat() > 40 ) {
+		else if (ship.getHeat() > 40)
+		{
 			t.setVar("ship.s.color", "yellow");
 		}
-		else {
+		else
+		{
 			t.setVar("ship.s.color", "white");
 		}
 
-		if( offizier != null ) {
+		if (offizier != null)
+		{
 			t.setBlock("_SCHIFF", "offiziere.listitem", "offiziere.list");
 
 			Set<Offizier> offiziere = ship.getOffiziere();
-			for( Offizier offi : offiziere ) {
-				t.setVar(	"offizier.id",		offi.getID(),
-							"offizier.name",	Common._plaintitle(offi.getName()),
-							"offizier.picture",	offi.getPicture(),
-							"offizier.rang",	offi.getRang() );
+			for (Offizier offi : offiziere)
+			{
+				t.setVar("offizier.id", offi.getID(),
+						"offizier.name", Common._plaintitle(offi.getName()),
+						"offizier.picture", offi.getPicture(),
+						"offizier.rang", offi.getRang());
 
 				t.parse("offiziere.list", "offiziere.listitem", true);
 			}
 		}
 
 		// Flottenlink
-		if( ship.getFleet() != null ) {
+		if (ship.getFleet() != null)
+		{
 			t.setVar(
 					"fleet.name", Common._plaintitle(ship.getFleet().getName()),
-					"fleet.id", ship.getFleet().getId() );
+					"fleet.id", ship.getFleet().getId());
 		}
 
 		// Aktion: Schnelllink GTU-Handelsdepot
 		Iterator<?> handel = db.createQuery("from Ship where id>0 and system=:sys and x=:x and y=:y and locate('tradepost',status)!=0")
-			.setInteger("sys", ship.getSystem())
-			.setInteger("x", ship.getX())
-			.setInteger("y", ship.getY())
-			.iterate();
+				.setInteger("sys", ship.getSystem())
+				.setInteger("x", ship.getX())
+				.setInteger("y", ship.getY())
+				.iterate();
 
-		if( handel.hasNext() ) {
-			Ship handelShip = (Ship)handel.next();
-			t.setVar(	"sector.handel",		handelShip.getId(),
-						"sector.handel.name",	Common._plaintitle(handelShip.getName()));
+		if (handel.hasNext())
+		{
+			Ship handelShip = (Ship) handel.next();
+			t.setVar("sector.handel", handelShip.getId(),
+					"sector.handel.name", Common._plaintitle(handelShip.getName()));
 		}
 
 		// Tooltip: Tradepost
-		if(ship.isTradepost())
+		if (ship.isTradepost())
 		{
 			t.setVar("tooltip.tradepost", 1);
 		}
 
 		// Tooltip: Schiffscripte
-		if( user.hasFlag( User.FLAG_EXEC_NOTES ) ) {
+		if (user.hasFlag(User.FLAG_EXEC_NOTES))
+		{
 
-			String script = StringUtils.replace(ship.getScript(),"\r\n", "\n");
-			script = StringUtils.replace(script,"\n", "\\n");
-			script = StringUtils.replace(script,"\"", "\\\"");
+			String script = StringUtils.replace(ship.getScript(), "\r\n", "\n");
+			script = StringUtils.replace(script, "\n", "\\n");
+			script = StringUtils.replace(script, "\"", "\\\"");
 
-			t.setVar(	"tooltip.execnotes",		1,
-						"tooltip.execnotes.script",	script );
+			t.setVar("tooltip.execnotes", 1,
+					"tooltip.execnotes.script", script);
 		}
 
 		// Tooltip: Schiffsstatusfeld
-		if( hasPermission("schiff", "statusFeld") ) {
+		if (hasPermission("schiff", "statusFeld"))
+		{
 			StringBuilder tooltiptext = new StringBuilder(100);
 			tooltiptext.append("<span style='text-decoration:underline'>Schiffsstatus:</span><br />").append(ship.getStatus().trim().replace(" ", "<br />"));
 
-			t.setVar("tooltip.admin", tooltiptext.toString() );
+			t.setVar("tooltip.admin", tooltiptext.toString());
 		}
 
-		if( user.hasFlag( User.FLAG_NPC_ISLAND ) ) {
+		if (user.hasFlag(User.FLAG_NPC_ISLAND))
+		{
 			t.setVar("ship.npcislandlink", 1);
 		}
 
 		// Tooltip: Module
 		final ModuleEntry[] modulelist = ship.getModules();
-		if( (modulelist.length > 0) && shiptype.getTypeModules().length() > 0 ) {
-			List<String> tooltiplines = new ArrayList<String>();
+		if ((modulelist.length > 0) && shiptype.getTypeModules().length() > 0)
+		{
+			List<String> tooltiplines = new ArrayList<>();
 			tooltiplines.add("<h1>Module</h1>");
 
-			ShipTypeData type = Ship.getShipType( ship.getType() );
+			ShipTypeData type = Ship.getShipType(ship.getType());
 			ShipTypeData basetype = type;
 
-			Map<Integer,String[]> slotlist = new HashMap<Integer,String[]>();
-			String[] tmpslotlist = StringUtils.split(type.getTypeModules(),';');
+			Map<Integer, String[]> slotlist = new HashMap<>();
+			String[] tmpslotlist = StringUtils.split(type.getTypeModules(), ';');
 			for (String aTmpslotlist : tmpslotlist)
 			{
 				String[] aslot = StringUtils.split(aTmpslotlist, ':');
 				slotlist.put(new Integer(aslot[0]), aslot);
 			}
 
-			List<Module> moduleObjList = new ArrayList<Module>();
+			List<Module> moduleObjList = new ArrayList<>();
 			boolean itemmodules = false;
 
 			for (ModuleEntry module : modulelist)
@@ -992,107 +1032,120 @@ public class SchiffController extends TemplateGenerator {
 				}
 			}
 
-			if( itemmodules ) {
+			if (itemmodules)
+			{
 				tooltiplines.add("<hr style='height:1px; border:0px; background-color:#606060; color:#606060' />");
 			}
 
-			for( int i=0; i < moduleObjList.size(); i++ ) {
-				type = moduleObjList.get(i).modifyStats( type, moduleObjList );
+			for (int i = 0; i < moduleObjList.size(); i++)
+			{
+				type = moduleObjList.get(i).modifyStats(type, moduleObjList);
 			}
 
 			initModuleOutputList();
-			for( String method : moduleOutputList.keySet() ) {
-				try {
+			for (String method : moduleOutputList.keySet())
+			{
+				try
+				{
 					Method m = type.getClass().getMethod(method);
 					m.setAccessible(true);
-					Number value = (Number)m.invoke(type);
+					Number value = (Number) m.invoke(type);
 
 					m = basetype.getClass().getMethod(method);
 					m.setAccessible(true);
-					Number baseValue = (Number)m.invoke(basetype);
+					Number baseValue = (Number) m.invoke(basetype);
 
 					// Alles was in moduleOutputList sitzt, muss in der DB durch einen von Number abgeleiteten Typ definiert sein!
-					if( !value.equals(baseValue) ) {
+					if (!value.equals(baseValue))
+					{
 						String text;
-						if( baseValue.doubleValue() < value.doubleValue() ) {
-							text = moduleOutputList.get(method)+Common.ln(value)+" (<span class='nobr' style='color:green'>+";
+						if (baseValue.doubleValue() < value.doubleValue())
+						{
+							text = moduleOutputList.get(method) + Common.ln(value) + " (<span class='nobr' style='color:green'>+";
 						}
-						else {
-							text = moduleOutputList.get(method)+Common.ln(value)+" (<span class='nobr' style='color:red'>";
+						else
+						{
+							text = moduleOutputList.get(method) + Common.ln(value) + " (<span class='nobr' style='color:red'>";
 						}
-						text += Common.ln(value.doubleValue() - baseValue.doubleValue())+"</span>)<br />";
+						text += Common.ln(value.doubleValue() - baseValue.doubleValue()) + "</span>)<br />";
 						tooltiplines.add(text);
 					}
 				}
-				catch( InvocationTargetException e ) {
-					log.error("Fehler beim Aufruf der Property "+method,e);
+				catch (InvocationTargetException e)
+				{
+					log.error("Fehler beim Aufruf der Property " + method, e);
 				}
-				catch( NoSuchMethodException e ) {
-					log.error("Ungueltige Property "+method,e);
-				}
-				catch( IllegalAccessException e ) {
-					log.error("Ungueltige Property "+method,e);
+				catch (NoSuchMethodException | IllegalAccessException e)
+				{
+					log.error("Ungueltige Property " + method, e);
 				}
 			}
 
 			// Weapons
-			Map<String,String> weaponlist = Weapons.parseWeaponList( type.getWeapons() );
-			Map<String,String> defweaponlist = Weapons.parseWeaponList( basetype.getWeapons() );
+			Map<String, String> weaponlist = Weapons.parseWeaponList(type.getWeapons());
+			Map<String, String> defweaponlist = Weapons.parseWeaponList(basetype.getWeapons());
 
-			for( Map.Entry<String, String> entry: weaponlist.entrySet() )
+			for (Map.Entry<String, String> entry : weaponlist.entrySet())
 			{
 				String aweapon = entry.getKey();
 				int aweaponcount = Integer.parseInt(entry.getValue());
-				if( !defweaponlist.containsKey(aweapon) )
+				if (!defweaponlist.containsKey(aweapon))
 				{
-					tooltiplines.add("<span class='nobr' style='color:green'>+"+aweaponcount+" "+Weapons.get().weapon(aweapon).getName()+"</span><br />");
+					tooltiplines.add("<span class='nobr' style='color:green'>+" + aweaponcount + " " + Weapons.get().weapon(aweapon).getName() + "</span><br />");
 				}
 				else
 				{
 					String defweapon = defweaponlist.get(aweapon);
-					if( Integer.parseInt(defweapon) < aweaponcount )
+					if (Integer.parseInt(defweapon) < aweaponcount)
 					{
-						tooltiplines.add("<span class='nobr' style='color:green'>+"+(aweaponcount - Integer.parseInt(defweapon))+" "+Weapons.get().weapon(aweapon).getName()+"</span><br />");
+						tooltiplines.add("<span class='nobr' style='color:green'>+" + (aweaponcount - Integer.parseInt(defweapon)) + " " + Weapons.get().weapon(aweapon).getName() + "</span><br />");
 					}
-					else if( Integer.parseInt(defweapon) > aweaponcount )
+					else if (Integer.parseInt(defweapon) > aweaponcount)
 					{
-						tooltiplines.add("<span class='nobr' style='color:red'>"+(aweaponcount - Integer.parseInt(defweapon))+" "+Weapons.get().weapon(aweapon).getName()+"</span><br />");
+						tooltiplines.add("<span class='nobr' style='color:red'>" + (aweaponcount - Integer.parseInt(defweapon)) + " " + Weapons.get().weapon(aweapon).getName() + "</span><br />");
 					}
 				}
 			}
 
-			for( Map.Entry<String, String> entry: defweaponlist.entrySet() ) {
+			for (Map.Entry<String, String> entry : defweaponlist.entrySet())
+			{
 				String aweapon = entry.getKey();
-				if( !weaponlist.containsKey(aweapon) ) {
+				if (!weaponlist.containsKey(aweapon))
+				{
 					int weaponint = Integer.parseInt(entry.getValue());
-					tooltiplines.add("<span class='nobr' style='color:red'>-"+weaponint+" "+Weapons.get().weapon(aweapon).getName()+"</span><br />");
+					tooltiplines.add("<span class='nobr' style='color:red'>-" + weaponint + " " + Weapons.get().weapon(aweapon).getName() + "</span><br />");
 				}
 			}
 
 			// MaxHeat
-			Map<String,String> heatlist = Weapons.parseWeaponList( type.getMaxHeat() );
-			Map<String,String> defheatlist = Weapons.parseWeaponList( basetype.getMaxHeat() );
+			Map<String, String> heatlist = Weapons.parseWeaponList(type.getMaxHeat());
+			Map<String, String> defheatlist = Weapons.parseWeaponList(basetype.getMaxHeat());
 
-			for( Map.Entry<String, String> entry: heatlist.entrySet() ) {
+			for (Map.Entry<String, String> entry : heatlist.entrySet())
+			{
 				int aweaponheat = Integer.parseInt(entry.getValue());
 				String aweapon = entry.getKey();
 
-				if( !defheatlist.containsKey(aweapon) ) {
-					tooltiplines.add("<span class='nobr' style='color:green'>+"+aweaponheat+" "+Weapons.get().weapon(aweapon).getName()+" Max-Hitze</span><br />");
+				if (!defheatlist.containsKey(aweapon))
+				{
+					tooltiplines.add("<span class='nobr' style='color:green'>+" + aweaponheat + " " + Weapons.get().weapon(aweapon).getName() + " Max-Hitze</span><br />");
 				}
-				else {
+				else
+				{
 					int defweaponheat = Integer.parseInt(defheatlist.get(aweapon));
-					if( defweaponheat < aweaponheat ) {
-						tooltiplines.add("<span class='nobr' style='color:green'>+"+(aweaponheat - defweaponheat)+" "+Weapons.get().weapon(aweapon).getName()+" Max-Hitze</span><br />");
+					if (defweaponheat < aweaponheat)
+					{
+						tooltiplines.add("<span class='nobr' style='color:green'>+" + (aweaponheat - defweaponheat) + " " + Weapons.get().weapon(aweapon).getName() + " Max-Hitze</span><br />");
 					}
-					else if( defweaponheat > aweaponheat ) {
-						tooltiplines.add("<span class='nobr' style='color:red'>"+(aweaponheat - defweaponheat)+" "+Weapons.get().weapon(aweapon).getName()+" Max-Hitze</span><br />");
+					else if (defweaponheat > aweaponheat)
+					{
+						tooltiplines.add("<span class='nobr' style='color:red'>" + (aweaponheat - defweaponheat) + " " + Weapons.get().weapon(aweapon).getName() + " Max-Hitze</span><br />");
 					}
 				}
 			}
 
 			// Flags
-			String[] newflaglist = StringUtils.split(type.getFlags(),' ');
+			String[] newflaglist = StringUtils.split(type.getFlags(), ' ');
 			for (String aNewflaglist : newflaglist)
 			{
 				if (aNewflaglist.equals(""))
@@ -1107,44 +1160,52 @@ public class SchiffController extends TemplateGenerator {
 			}
 
 			StringBuilder tooltiptext = new StringBuilder(100);
-			if( tooltiplines.size() > 15 ) {
+			if (tooltiplines.size() > 15)
+			{
 				tooltiptext.append("<div style='height:300px; overflow:auto'>");
 			}
-			tooltiptext.append(Common.implode("", tooltiplines ));
-			if( tooltiplines.size() > 15 ) {
+			tooltiptext.append(Common.implode("", tooltiplines));
+			if (tooltiplines.size() > 15)
+			{
 				tooltiptext.append("</div>");
 			}
 
-			if( tooltiplines.size() > 15 ) {
+			if (tooltiplines.size() > 15)
+			{
 				t.setVar("tooltip.moduleext", tooltiptext.toString());
 			}
-			else {
+			else
+			{
 				t.setVar("tooltip.module", tooltiptext.toString());
 			}
 		}
 
 		// Schilde aufladen
-		if( shiptype.getShields() > 0 && (ship.getShields() < shiptype.getShields()) ) {
+		if (shiptype.getShields() > 0 && (ship.getShields() < shiptype.getShields()))
+		{
 			int shieldfactor = 100;
-			if( shiptype.getShields() < 1000 ) {
+			if (shiptype.getShields() < 1000)
+			{
 				shieldfactor = 10;
 			}
 
-			t.setVar("ship.shields.reloade", Common.ln((int)Math.ceil((shiptype.getShields() - ship.getShields())/(double)shieldfactor)));
+			t.setVar("ship.shields.reloade", Common.ln((int) Math.ceil((shiptype.getShields() - ship.getShields()) / (double) shieldfactor)));
 		}
 
-		String[] alarmn = {"gr&uuml;n","gelb","rot"};
+		String[] alarmn = {"gr&uuml;n", "gelb", "rot"};
 
 		// Alarmstufe aendern
 		t.setBlock("_SCHIFF", "ship.alarms.listitem", "ship.alarms.list");
-		for( int a = 0; a < alarmn.length; a++ ) {
-			t.setVar(	"alarm.id",			a,
-						"alarm.name", 		alarmn[a],
-						"alarm.selected",	(ship.getAlarm() == a) );
+		for (int a = 0; a < alarmn.length; a++)
+		{
+			t.setVar("alarm.id", a,
+					"alarm.name", alarmn[a],
+					"alarm.selected", (ship.getAlarm() == a));
 			t.parse("ship.alarms.list", "ship.alarms.listitem", true);
 		}
 
-		if(!ship.getStatus().contains("noconsign")) {
+		if (!ship.getStatus().contains("noconsign"))
+		{
 			t.setVar("ship.consignable", 1);
 		}
 
@@ -1160,7 +1221,8 @@ public class SchiffController extends TemplateGenerator {
 		caller.shiptype = shiptype;
 		caller.offizier = offizier;
 
-		if( pluginMapper.containsKey("navigation") ) {
+		if (pluginMapper.containsKey("navigation"))
+		{
 			SchiffPlugin plugin = pluginMapper.get("navigation");
 			caller.pluginId = "navigation";
 			caller.target = "plugin.navigation";
@@ -1169,7 +1231,8 @@ public class SchiffController extends TemplateGenerator {
 			pluginMapper.remove("navigation");
 		}
 
-		if( pluginMapper.containsKey("cargo") ) {
+		if (pluginMapper.containsKey("cargo"))
+		{
 			SchiffPlugin plugin = pluginMapper.get("cargo");
 			caller.pluginId = "cargo";
 			caller.target = "plugin.cargo";
@@ -1178,7 +1241,7 @@ public class SchiffController extends TemplateGenerator {
 			pluginMapper.remove("cargo");
 		}
 
-		if( pluginMapper.containsKey("units"))
+		if (pluginMapper.containsKey("units"))
 		{
 			SchiffPlugin plugin = pluginMapper.get("units");
 			caller.pluginId = "units";
@@ -1192,15 +1255,17 @@ public class SchiffController extends TemplateGenerator {
 			Ok...das ist kein Plugin, es gehoert aber trotzdem zwischen die ganzen Plugins (Questoutput)
 		*/
 
-		if( (scriptparser != null) ) {
+		if ((scriptparser != null))
+		{
 			t.setVar("ship.scriptparseroutput", scriptparser.getContext().getWriter().toString());
 		}
 
 		caller.target = "plugin.output";
-		t.setBlock("_SCHIFF","plugins.listitem","plugins.list");
+		t.setBlock("_SCHIFF", "plugins.listitem", "plugins.list");
 
 		// Und nun weiter mit den Plugins
-		for( String pluginName : pluginMapper.keySet() ) {
+		for (String pluginName : pluginMapper.keySet())
+		{
 			SchiffPlugin plugin = pluginMapper.get(pluginName);
 
 			//Plugin-ID

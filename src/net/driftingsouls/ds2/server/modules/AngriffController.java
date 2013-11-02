@@ -43,6 +43,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.ks.BasicKSAction;
 import net.driftingsouls.ds2.server.modules.ks.BasicKSMenuAction;
@@ -91,14 +92,6 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Das UI fuer Schlachten.
  * @author Christopher Jung
- * 
- * @urlparam Integer ship Die ID eines eigenen ausgewaehlten Schiffes (Pflicht bei der Erstellung einer neuen Schlacht)
- * @urlparam Integer addship Die ID eines Schiffes, welches beitreten soll
- * @urlparam Integer attack Die ID eines Schiffes, welches angegriffen werden soll (Pflicht bei der Erstellung einer neuen Schlacht)
- * @urlparam String ksaction Die auszufuehrende KS-Aktion
- * @urlparam Integer battle Die ID der Schlacht. Wenn keine angegeben ist wird eine neue erstellt
- * @urlparam Integer forcejoin Die Seite auf der ein Beitritt "erzwungen" werden soll
- * @urlparam String scan Die im Scan anzuzeigende Seite (<code>own</code> oder <code>enemy</code>)
  *
  */
 @Module(name="angriff")
@@ -107,7 +100,7 @@ public class AngriffController extends TemplateGenerator {
 	
 	private static final int SHIPGROUPSIZE = 50;
 	
-	private static final Map<String,Class<? extends BasicKSAction>> ACTIONS = new HashMap<String,Class<? extends BasicKSAction>>();
+	private static final Map<String,Class<? extends BasicKSAction>> ACTIONS = new HashMap<>();
 	static {
 		ACTIONS.put("flucht_single", KSFluchtSingleAction.class);
 		ACTIONS.put("flucht_all", KSFluchtAllAction.class);
@@ -137,7 +130,7 @@ public class AngriffController extends TemplateGenerator {
 		}
 	}
 	
-	private static final Map<String,Class<? extends BasicKSMenuAction>> MENUACTIONS = new HashMap<String,Class<? extends BasicKSMenuAction>>();
+	private static final Map<String,Class<? extends BasicKSMenuAction>> MENUACTIONS = new HashMap<>();
 	static {
 		MENUACTIONS.put("attack", KSMenuAttackAction.class);
 		MENUACTIONS.put("attack_select", KSMenuAttackMuniSelectAction.class);
@@ -159,15 +152,7 @@ public class AngriffController extends TemplateGenerator {
 	 */
 	public AngriffController(Context context) {
 		super(context);
-		
-		parameterNumber("ship");
-		parameterNumber("addship");
-		parameterNumber("attack");
-		parameterString("ksaction");
-		parameterNumber("battle");
-		parameterNumber("forcejoin");
-		parameterString("scan");
-		
+
 		setTemplate("angriff.html");
 		
 		setPageTitle("Schlacht");
@@ -528,39 +513,46 @@ public class AngriffController extends TemplateGenerator {
 	/**
 	 * Zeigt die GUI an.
 	 * @throws IOException 
-	 * 
-	 * @urlparam String ownshipgroup Die eigene ausgewaehlte Schiffsgruppe
-	 * @urlparam String enemyshipgroup Die gegnerische ausgewaehlte Schiffsgruppe
-	 * @urlparam String weapon Die ID der gerade ausgewaehlten Waffe
+	 *
+	 * @param addShipID Die ID eines Schiffes, dass der Schlacht beitreten soll (falls die Schlacht schon laeuft)
+	 * @param enemyShipID Die ID des anzugreifenden Schiffs (Pflicht bei der Erstellung einer neuen Schlacht)
+	 * @param forcejoin Die ID der Seite auf der der Schlachtbeitritt erfolgen soll (1 oder 2, 0 = automatische Seitenwahl; nur bei bereits laufender Schlacht)
+	 * @param ksaction Die auszufuehrende Aktion in der Schlacht
+	 * @param ownShipID Die ID des eigenen Schiffs (Pflicht bei der Erstellung einer neuen Schlacht)
+	 * @param scan <code>own</code> oder Leerstring, falls die Scandaten eines eigenen Schiffes angezeigt werden sollen, sonst wird das gegnerische Schiff dargestellt
+	 * @param ownshipgroup Die eigene ausgewaehlte Schiffsgruppe
+	 * @param battleID Die ID der Schlacht (falls diese bereits laeuft)
+	 * @param enemyshipgroup Die gegnerische ausgewaehlte Schiffsgruppe
+	 * @param weapon Die ID der gerade ausgewaehlten Waffe
 	 */
-	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() throws IOException {
+	public void defaultAction(@UrlParam(name="ship") int ownShipID,
+			@UrlParam(name="addship") int addShipID,
+			@UrlParam(name="attack") int enemyShipID,
+			String ksaction,
+			@UrlParam(name="battle") int battleID,
+			int forcejoin,
+			String scan,
+			String ownshipgroup,
+			String enemyshipgroup,
+			String weapon) throws IOException {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 
-		int ownShipID = getInteger("ship");
 		if( ownShipID < 0 ) {
 			ownShipID = 0;	
 		}
-		
-		int addShipID = getInteger("addship");
+
 		if( addShipID < 0 ) {
 			addShipID = 0;	
 		}
-		
-		int enemyShipID = getInteger("attack");
+
 		if( enemyShipID < 0 ) {
 			enemyShipID = 0;	
 		}
 		
-		String action = getString("ksaction");
-		int battleID = getInteger("battle");
-		int forcejoin = getInteger("forcejoin");
-		
-		String scan = getString("scan");
-		if( scan.length() == 0 ) {
+		if( scan == null || scan.length() == 0 ) {
 			scan = "own";
 		}
 		
@@ -598,10 +590,8 @@ public class AngriffController extends TemplateGenerator {
 			return;
 		}
 		
-		parameterString("ownshipgroup");
-		parameterString("enemyshipgroup");
-		battle.setOwnShipGroup(getString("ownshipgroup"));
-		battle.setEnemyShipGroup(getString("enemyshipgroup"));
+		battle.setOwnShipGroup(ownshipgroup);
+		battle.setEnemyShipGroup(enemyshipgroup);
 		
 		//
 		// Schiff zur Schlacht hinzufgen
@@ -615,18 +605,16 @@ public class AngriffController extends TemplateGenerator {
 				}
 			}
 		}
-		
-		parameterString("weapon");
-		
+
 		/*--------------------------------------------------------------
 			
 			Actions
 		
 		----------------------------------------------------------------*/
 
-		if( (action.length() > 0) && ACTIONS.containsKey(action) ) {
+		if( (ksaction.length() > 0) && ACTIONS.containsKey(ksaction) ) {
 			try {
-				BasicKSAction actionobj = ACTIONS.get(action).newInstance();
+				BasicKSAction actionobj = ACTIONS.get(ksaction).newInstance();
 				actionobj.setController(this);
 				
 				if( actionobj.execute(battle) == BasicKSAction.Result.HALT ) {
@@ -634,12 +622,12 @@ public class AngriffController extends TemplateGenerator {
 					return;	
 				}
 				
-				action = "";
+				ksaction = "";
 				t.setVar("global.ksaction","");
 			}
 			catch( Exception e ) {
 				addError("Kann Aktion nicht ausfuehren: "+e);
-				log.error("Ausfuehrung der KS-Aktion "+action+" fehlgeschlagen", e);
+				log.error("Ausfuehrung der KS-Aktion "+ksaction+" fehlgeschlagen", e);
 				int curOwnShipID = -1;
 				int curEnemyShipID = -1;
 				try {
@@ -656,7 +644,7 @@ public class AngriffController extends TemplateGenerator {
 					// EMPTY
 				}
 				
-				Common.mailThrowable(e, "KS-Action-Error Schlacht "+battle.getId(), "Action: "+action+"\nownShip: "+curOwnShipID+"\nenemyShip: "+curEnemyShipID);
+				Common.mailThrowable(e, "KS-Action-Error Schlacht "+battle.getId(), "Action: "+ksaction+"\nownShip: "+curOwnShipID+"\nenemyShip: "+curEnemyShipID);
 			}
 		}
 		
@@ -668,11 +656,11 @@ public class AngriffController extends TemplateGenerator {
 		User oUser = ownShip.getOwner();
 		User eUser = enemyShip.getOwner();
 		
-		t.setVar(	"global.ksaction",			action,
+		t.setVar(	"global.ksaction",			ksaction,
 					"global.scan",				scan,
 					"global.ownshipgroup",		battle.getOwnShipGroup(),
 					"global.enemyshipgroup",	battle.getEnemyShipGroup(),
-					"global.weapon",			getString("weapon"),
+					"global.weapon",			weapon,
 					"battle.id",				battle.getId(),
 					"ownside.secondrow.stable",	battle.isSecondRowStable(battle.getOwnSide()),
 					"enemyside.secondrow.stable",	battle.isSecondRowStable(battle.getEnemySide()),
@@ -759,14 +747,14 @@ public class AngriffController extends TemplateGenerator {
 			battle.writeLog();
 		}
 		
-		StringBuilder actionBuilder = new StringBuilder(action);
+		StringBuilder actionBuilder = new StringBuilder(ksaction);
 		if( !this.showMenu( battle, actionBuilder ) ) {
 			this.setTemplate("");
 			return;
 		}
 		
-		action = actionBuilder.toString();
-		t.setVar("global.ksaction", action);
+		ksaction = actionBuilder.toString();
+		t.setVar("global.ksaction", ksaction);
 		
 		t.setBlock("_ANGRIFF","ship.info","none");
 		t.setBlock("ship.info","shipinfo.ammo.listitem","shipinfo.ammo.list");
@@ -905,8 +893,8 @@ public class AngriffController extends TemplateGenerator {
 							"ship.action.secondrow",	aship.getAction() & Battle.BS_SECONDROW,
 							"ship.action.fluchtnext",	(!battle.isGuest() ? aship.getAction() & Battle.BS_FLUCHTNEXT : 0),
 							"ship.action.shot",			(!battle.isGuest() ? aship.getAction() & Battle.BS_SHOT : 0),
-                            "ship.mangelnahrung",       !battle.isGuest() && (aship.getShip().getStatus().indexOf("mangel_nahrung") > -1),
-							"ship.mangelreaktor",       !battle.isGuest() && aship.getShip().getStatus().indexOf("mangel_reaktor") > -1);
+                            "ship.mangelnahrung",       !battle.isGuest() && (aship.getShip().getStatus().contains("mangel_nahrung")),
+							"ship.mangelreaktor",       !battle.isGuest() && aship.getShip().getStatus().contains("mangel_reaktor"));
 	
 				if( firstEntry ) {
 					firstEntry = false;
@@ -931,8 +919,8 @@ public class AngriffController extends TemplateGenerator {
 		else {
 			boolean firstEntry = true;
 		
-			Map<String,GroupEntry> groupdata = new HashMap<String,GroupEntry>();
-			Map<Integer,Integer> shiptypegroupcount = new HashMap<Integer,Integer>();
+			Map<String,GroupEntry> groupdata = new HashMap<>();
+			Map<Integer,Integer> shiptypegroupcount = new HashMap<>();
 			
 			List<BattleShip> ownShips = battle.getOwnShips();
             for (BattleShip aship : ownShips)
@@ -977,10 +965,10 @@ public class AngriffController extends TemplateGenerator {
                     if ((shipAction & Battle.BS_FLUCHTNEXT) != 0) {
                         data.fluchtnextcount++;
                     }
-                    if (aship.getShip().getStatus().indexOf("mangel_nahrung") > -1) {
+                    if (aship.getShip().getStatus().contains("mangel_nahrung")) {
                         data.mangelnahrungcount++;
                     }
-                    if (aship.getShip().getStatus().indexOf("mangel_reaktor") > -1) {
+                    if (aship.getShip().getStatus().contains("mangel_reaktor")) {
                         data.mangelreaktorcount++;
                     }
                 }
@@ -1159,9 +1147,9 @@ public class AngriffController extends TemplateGenerator {
 		else {
 			boolean firstEntry = true;
 		
-			Map<String,GroupEntry> groupdata = new HashMap<String,GroupEntry>();
+			Map<String,GroupEntry> groupdata = new HashMap<>();
 		
-			Map<Integer,Integer> shiptypegroupcount = new HashMap<Integer,Integer>();
+			Map<Integer,Integer> shiptypegroupcount = new HashMap<>();
 		
 			List<BattleShip> enemyShips = battle.getEnemyShips();
             for (BattleShip aship : enemyShips) {

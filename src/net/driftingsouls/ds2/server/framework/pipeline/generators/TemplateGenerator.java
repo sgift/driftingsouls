@@ -28,72 +28,86 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
  * Generator fuer Module mit Templates.
- * @author Christopher Jung
  *
+ * @author Christopher Jung
  */
-public abstract class TemplateGenerator extends DSGenerator {
+public abstract class TemplateGenerator extends DSGenerator
+{
 	protected TemplateEngine templateEngine;
 	private String masterTemplateID;
-	
+
 	/**
 	 * Konstruktor.
+	 *
 	 * @param context Der Kontext
 	 */
-	public TemplateGenerator(Context context) {
+	public TemplateGenerator(Context context)
+	{
 		super(context);
-		
+
 		templateEngine = null;
 		masterTemplateID = "";
 	}
 
-	private void createTemplateEngine() {
-		if( templateEngine != null ) {
+	private void createTemplateEngine()
+	{
+		if (templateEngine != null)
+		{
 			return;
 		}
-				
+
 		templateEngine = new TemplateEngine();
 
-		if( getBrowser().equals("opera") ) {
-			templateEngine.setVar("_BROWSER_OPERA",1);
+		if (getBrowser().equals("opera"))
+		{
+			templateEngine.setVar("_BROWSER_OPERA", 1);
 		}
-		else if( getBrowser().equals("msie") ) {
-			templateEngine.setVar("_BROWSER_MSIE",1);
+		else if (getBrowser().equals("msie"))
+		{
+			templateEngine.setVar("_BROWSER_MSIE", 1);
 		}
-		else {
-			templateEngine.setVar("_BROWSER_MOZILLA",1);
+		else
+		{
+			templateEngine.setVar("_BROWSER_MOZILLA", 1);
 		}
-		
-		if( getUser() != null ) {
+
+		if (getUser() != null)
+		{
 			templateEngine.setVar("global.datadir", getUser().getImagePath());
 		}
-		else {
+		else
+		{
 			templateEngine.setVar("global.datadir", BasicUser.getDefaultImagePath());
 		}
-		
-		templateEngine.setVar( "global.module", getString("module") );
-		
-		templateEngine.setVar( "global.version", new Version().getHgVersion());
+
+		templateEngine.setVar("global.module", getModule());
+
+		templateEngine.setVar("global.version", new Version().getHgVersion());
 	}
-	
+
 	/**
 	 * Gibt die mit dem Generator verknuepfte Instanz des Template-Engines zurueck.
+	 *
 	 * @return Das Template-Engine
 	 */
-	public TemplateEngine getTemplateEngine() {
-		if( templateEngine == null )
+	public TemplateEngine getTemplateEngine()
+	{
+		if (templateEngine == null)
 		{
 			createTemplateEngine();
 		}
 		return templateEngine;
 	}
-	
+
 	/**
-	 * Gibt die ID der im System registrierten Template-File zurueck. 
+	 * Gibt die ID der im System registrierten Template-File zurueck.
 	 * Sollte noch kein Template-File registriert sein, so wird ein leerer
 	 * String zurueckgegeben.
+	 *
 	 * @return die ID der Template-File oder <code>""</code>
 	 */
-	public String getTemplateID() {
+	public String getTemplateID()
+	{
 		return masterTemplateID;
 	}
 
@@ -101,50 +115,62 @@ public abstract class TemplateGenerator extends DSGenerator {
 	 * Setzt das vom Generator verwendete Template-File auf die angegebene Datei. Die Datei muss
 	 * in kompilierter Form im System vorliegen (das vorhandensein der unkompilierten Variante ist nicht
 	 * erforderlich).
+	 *
 	 * @param file Der Dateiname der unkompilierten Template-Datei
 	 */
-	public void setTemplate( String file ) {
-		if( !file.equals("") ) {
-			if( templateEngine == null ) {
+	public void setTemplate(String file)
+	{
+		if (!file.equals(""))
+		{
+			if (templateEngine == null)
+			{
 				createTemplateEngine();
 			}
 
 			String mastertemplate = new File(file).getName();
-			if(mastertemplate.contains(".html")) {
-				mastertemplate = mastertemplate.substring(0,mastertemplate.lastIndexOf(".html"));
+			if (mastertemplate.contains(".html"))
+			{
+				mastertemplate = mastertemplate.substring(0, mastertemplate.lastIndexOf(".html"));
 			}
-			mastertemplate = "_"+mastertemplate.toUpperCase();
-		
+			mastertemplate = "_" + mastertemplate.toUpperCase();
+
 			masterTemplateID = mastertemplate;
 
-			if( !templateEngine.setFile( masterTemplateID, file ) ) {
+			if (!templateEngine.setFile(masterTemplateID, file))
+			{
 				masterTemplateID = "";
 			}
-			
-			if( getContext().getActiveUser() != null ) {
-				getContext().getActiveUser().setTemplateVars( templateEngine );
-			}	
+
+			if (getContext().getActiveUser() != null)
+			{
+				getContext().getActiveUser().setTemplateVars(templateEngine);
+			}
 		}
-		else {
-			masterTemplateID = "";	
+		else
+		{
+			masterTemplateID = "";
 		}
 	}
 
 	@Override
-	protected void printFooter(String action) throws IOException {	
-		if( (getActionType() == ActionType.DEFAULT) && (getTemplateID().length() > 0) ) {
-			getTemplateEngine().parse( "OUT", getTemplateID() );
-				
+	protected void printFooter(String action) throws IOException
+	{
+		if ((getActionType() == ActionType.DEFAULT) && (getTemplateID().length() > 0))
+		{
+			getTemplateEngine().parse("OUT", getTemplateID());
+
 			getTemplateEngine().p("OUT");
 		}
 		super.printFooter(action);
 	}
 
 	@Override
-	protected void printHeader() throws IOException {
+	protected void printHeader() throws IOException
+	{
 		//this.getContext().getResponse().activateOutputCache();
 
-		if( (getActionType() == ActionType.DEFAULT) && (this.templateEngine != null) ) {
+		if ((getActionType() == ActionType.DEFAULT) && (this.templateEngine != null))
+		{
 			getOutputHelper().setAttribute("header", getTemplateEngine().getVar("__HEADER"));
 		}
 		super.printHeader();

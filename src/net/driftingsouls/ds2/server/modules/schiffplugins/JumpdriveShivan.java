@@ -18,10 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules.schiffplugins;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Jump;
@@ -31,6 +27,9 @@ import net.driftingsouls.ds2.server.modules.SchiffController;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Schiffsmodul fuer die Anzeige der shivanischen Sprungantriebe.
@@ -71,7 +70,7 @@ public class JumpdriveShivan implements SchiffPlugin
 
 				output += ship.getName()+" aktiviert den Sprungantrieb<br />\n";
 
-				List<Ship> ships = new ArrayList<Ship>();
+				List<Ship> ships = new ArrayList<>();
 				ships.add(ship);
 
 				if( ship.getFleet() != null ) {
@@ -83,18 +82,18 @@ public class JumpdriveShivan implements SchiffPlugin
 						.setInteger("id", ship.getId())
 						.list();
 
-					for( Iterator<?> iter=sList.iterator(); iter.hasNext(); )
+					for (Object aSList : sList)
 					{
-						Ship aship = (Ship)iter.next();
+						Ship aship = (Ship) aSList;
 
 						ShipTypeData st = aship.getTypeData();
-						if( !st.hasFlag(ShipTypes.SF_JUMPDRIVE_SHIVAN) )
+						if (!st.hasFlag(ShipTypes.SF_JUMPDRIVE_SHIVAN))
 						{
 							continue;
 						}
 
 						output += "<tr>";
-						output += "<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange;font-size:12px\"> "+aship.getName()+" ("+aship.getId()+"):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n";
+						output += "<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange;font-size:12px\"> " + aship.getName() + " (" + aship.getId() + "):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n";
 
 						output += "Das Schiff aktiviert den Sprungantrieb";
 
@@ -124,7 +123,7 @@ public class JumpdriveShivan implements SchiffPlugin
 			}
 			else if ( "newtarget".equals(subaction) && (system != null && system.getID() != 0) )
 			{
-				Jump jump = (Jump)db.createQuery("from Jump where shipid=:ship")
+				Jump jump = (Jump)db.createQuery("from Jump where ship=:ship")
 					.setEntity("ship", ship)
 					.uniqueResult();
 
@@ -149,23 +148,23 @@ public class JumpdriveShivan implements SchiffPlugin
 						.setInteger("id", ship.getId())
 						.list();
 
-					for( Iterator<?> iter=sList.iterator(); iter.hasNext(); )
+					for (Object aSList : sList)
 					{
-						Ship aship = (Ship)iter.next();
+						Ship aship = (Ship) aSList;
 
 						ShipTypeData st = aship.getTypeData();
-						if( !st.hasFlag(ShipTypes.SF_JUMPDRIVE_SHIVAN) )
+						if (!st.hasFlag(ShipTypes.SF_JUMPDRIVE_SHIVAN))
 						{
 							continue;
 						}
 
 						output += "<tr>";
-						output += "<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange;font-size:12px\"> "+aship.getName()+" ("+aship.getId()+"):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n";
+						output += "<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange;font-size:12px\"> " + aship.getName() + " (" + aship.getId() + "):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n";
 						output += "Das Schiff &auml;ndert das Sprungziel";
 
-						jump = (Jump)db.createQuery("from Jump where shipid=:ship")
-							.setEntity("ship", ship)
-							.uniqueResult();
+						jump = (Jump) db.createQuery("from Jump where ship=:ship")
+								.setEntity("ship", ship)
+								.uniqueResult();
 						jump.setSystem(system.getID());
 						jump.setX(x);
 						jump.setY(y);
@@ -176,7 +175,7 @@ public class JumpdriveShivan implements SchiffPlugin
 			}
 			else if ( "cancel".equals(subaction) )
 			{
-				Jump jump = (Jump)db.createQuery("from Jump where shipid=:ship")
+				Jump jump = (Jump)db.createQuery("from Jump where ship=:ship")
 					.setEntity("ship", ship)
 					.uniqueResult();
 
@@ -199,22 +198,22 @@ public class JumpdriveShivan implements SchiffPlugin
 						.setInteger("id", ship.getId())
 						.list();
 
-					for( Iterator<?> iter=sList.iterator(); iter.hasNext(); )
+					for (Object aSList : sList)
 					{
-						Ship aship = (Ship)iter.next();
+						Ship aship = (Ship) aSList;
 						ShipTypeData st = aship.getTypeData();
-						if( !st.hasFlag(ShipTypes.SF_JUMPDRIVE_SHIVAN) )
+						if (!st.hasFlag(ShipTypes.SF_JUMPDRIVE_SHIVAN))
 						{
 							continue;
 						}
 
 						output += "<tr>";
-						output += "<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange;font-size:12px\"> "+aship.getName()+" ("+aship.getId()+"):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n";
+						output += "<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange;font-size:12px\"> " + aship.getName() + " (" + aship.getId() + "):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n";
 						output += "Das Schiff stoppt den Sprungantrieb";
 
-						db.createQuery("delete from Jump where shipid=:ship")
-							.setEntity("ship", aship)
-							.executeUpdate();
+						db.createQuery("delete from Jump where ship=:ship")
+								.setEntity("ship", aship)
+								.executeUpdate();
 
 						output += "</span></td></tr>\n";
 					}
@@ -238,7 +237,7 @@ public class JumpdriveShivan implements SchiffPlugin
 		TemplateEngine t = controller.getTemplateEngine();
 		t.setFile("_PLUGIN_"+pluginid, "schiff.jumpdrive.shivan.html");
 
-		Jump jump = (Jump)db.createQuery("from Jump where shipid=:ship")
+		Jump jump = (Jump)db.createQuery("from Jump where ship=:ship")
 			.setEntity("ship", ship)
 			.uniqueResult();
 

@@ -64,18 +64,21 @@ import java.util.List;
 
 /**
  * Das Portal.
- * @author Christopher Jung
  *
+ * @author Christopher Jung
  */
-@Module(name="portal", defaultModule=true)
-public class PortalController extends TemplateGenerator {
+@Module(name = "portal", defaultModule = true)
+public class PortalController extends TemplateGenerator
+{
 	private AuthenticationManager authManager;
 
 	/**
 	 * Konstruktor.
+	 *
 	 * @param context Der zu verwendende Kontext
 	 */
-	public PortalController(Context context) {
+	public PortalController(Context context)
+	{
 		super(context);
 
 		setTemplate("portal.html");
@@ -83,26 +86,30 @@ public class PortalController extends TemplateGenerator {
 
 	/**
 	 * Injiziert den DS-AuthenticationManager zum einloggen von Benutzern.
+	 *
 	 * @param authManager Der AuthenticationManager
 	 */
 	@Required
 	@Autowired
-	public void setAuthenticationManager(AuthenticationManager authManager) {
+	public void setAuthenticationManager(AuthenticationManager authManager)
+	{
 		this.authManager = authManager;
 	}
 
 	@Override
-	protected void printHeader() {
+	protected void printHeader()
+	{
 		// EMPTY
 	}
 
 	@Override
-	protected boolean validateAndPrepare( String action ) {
+	protected boolean validateAndPrepare(String action)
+	{
 		TemplateEngine t = getTemplateEngine();
 
-		t.setVar(	"TUTORIAL_ID", Configuration.getSetting("ARTICLE_TUTORIAL"),
-					"FAQ_ID", Configuration.getSetting("ARTICLE_FAQ"),
-					"URL", Configuration.getSetting("URL") );
+		t.setVar("TUTORIAL_ID", Configuration.getSetting("ARTICLE_TUTORIAL"),
+				"FAQ_ID", Configuration.getSetting("ARTICLE_FAQ"),
+				"URL", Configuration.getSetting("URL"));
 
 		return true;
 	}
@@ -110,28 +117,29 @@ public class PortalController extends TemplateGenerator {
 	/**
 	 * Ermoeglicht das generieren eines neuen Passworts und anschliessenden
 	 * zumailens dessen.
-	 * @urlparam String username der Benutzername des Accounts
 	 *
+	 * @param username der Benutzername des Accounts
 	 */
 	@Action(ActionType.DEFAULT)
-	public void passwordLostAction() {
+	public void passwordLostAction(String username)
+	{
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 
-		parameterString("username");
-		String username = getString("username");
-
-		if( "".equals(username) ) {
-			t.setVar("show.passwordlost",1);
+		if ("".equals(username))
+		{
+			t.setVar("show.passwordlost", 1);
 		}
-		else {
-			User user = (User)db.createQuery("from User where un = :username")
-							.setString("username", username)
-							.uniqueResult();
-			if( user != null)
+		else
+		{
+			User user = (User) db.createQuery("from User where un = :username")
+					.setString("username", username)
+					.uniqueResult();
+			if (user != null)
 			{
-				if( !"".equals(user.getEmail()) ) {
-					String password = Common.md5(""+RandomUtils.nextInt(Integer.MAX_VALUE));
+				if (!"".equals(user.getEmail()))
+				{
+					String password = Common.md5("" + RandomUtils.nextInt(Integer.MAX_VALUE));
 					String enc_pw = Common.md5(password);
 
 					user.setPassword(enc_pw);
@@ -139,26 +147,27 @@ public class PortalController extends TemplateGenerator {
 
 					String subject = "Neues Passwort fuer Drifting Souls 2";
 
-					String message = Configuration.getSetting("PWNEW_EMAIL").replace("{username}", getString("username"));
+					String message = Configuration.getSetting("PWNEW_EMAIL").replace("{username}", username);
 					message = message.replace("{password}", password);
 					message = message.replace("{date}", Common.date("H:i j.m.Y"));
 
-					Common.mail( user.getEmail(), subject, message );
+					Common.mail(user.getEmail(), subject, message);
 
-					Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getId()+") <"+username+"> Passwortanforderung von Browser <"+getRequest().getUserAgent()+">\n");
+					Common.writeLog("login.log", Common.date("j.m.Y H:i:s") + ": <" + getRequest().getRemoteAddress() + "> (" + user.getId() + ") <" + username + "> Passwortanforderung von Browser <" + getRequest().getUserAgent() + ">\n");
 
-					t.setVar(	"show.passwordlost.msg.ok", 1,
-								"passwordlost.email", user.getEmail() );
+					t.setVar("show.passwordlost.msg.ok", 1,
+							"passwordlost.email", user.getEmail());
 				}
-				else {
-					Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> ("+user.getId()+") <"+username+"> Passwortanforderung von Browser <"+getRequest().getUserAgent()+">\n");
+				else
+				{
+					Common.writeLog("login.log", Common.date("j.m.Y H:i:s") + ": <" + getRequest().getRemoteAddress() + "> (" + user.getId() + ") <" + username + "> Passwortanforderung von Browser <" + getRequest().getUserAgent() + ">\n");
 
-					t.setVar("show.passwordlost.msg.error",1);
+					t.setVar("show.passwordlost.msg.error", 1);
 				}
 			}
 			else
 			{
-				Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+getRequest().getRemoteAddress()+"> <"+username+"> Passwortanforderung von Browser <"+getRequest().getUserAgent()+">\n");
+				Common.writeLog("login.log", Common.date("j.m.Y H:i:s") + ": <" + getRequest().getRemoteAddress() + "> <" + username + "> Passwortanforderung von Browser <" + getRequest().getUserAgent() + ">\n");
 			}
 		}
 	}
@@ -166,61 +175,66 @@ public class PortalController extends TemplateGenerator {
 
 	/**
 	 * Zeigt die Banner Seite an an.
-	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void bannerAction() {
-		getTemplateEngine().setVar("show.banner",1);
+	public void bannerAction()
+	{
+		getTemplateEngine().setVar("show.banner", 1);
 	}
 
 	/**
 	 * Zeigt die AGB an.
-	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void infosAgbAction() {
-		getTemplateEngine().setVar("show.agb",1);
+	public void infosAgbAction()
+	{
+		getTemplateEngine().setVar("show.agb", 1);
 	}
 
 	/**
 	 * Zeigt das Impressum an.
-	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void impressumAction() {
-		getTemplateEngine().setVar("show.impressum",1);
+	public void impressumAction()
+	{
+		getTemplateEngine().setVar("show.impressum", 1);
 	}
 
-	private static class StartLocations {
+	private static class StartLocations
+	{
 		final int systemID;
 		@SuppressWarnings("unused")
 		final int orderLocationID;
-		final HashMap<Integer,StartLocation> minSysDistance;
+		final HashMap<Integer, StartLocation> minSysDistance;
 
-		StartLocations(int systemID, int orderLocationID, HashMap<Integer,StartLocation> minSysDistance) {
+		StartLocations(int systemID, int orderLocationID, HashMap<Integer, StartLocation> minSysDistance)
+		{
 			this.systemID = systemID;
 			this.orderLocationID = orderLocationID;
 			this.minSysDistance = minSysDistance;
 		}
 	}
 
-	private static class StartLocation {
+	private static class StartLocation
+	{
 		int orderLocationID;
 		int distance;
 
-		StartLocation(int orderLocationID, int distance) {
+		StartLocation(int orderLocationID, int distance)
+		{
 			this.orderLocationID = orderLocationID;
 			this.distance = distance;
 		}
 	}
 
-	private StartLocations getStartLocation() {
+	private StartLocations getStartLocation()
+	{
 		org.hibernate.Session db = getDB();
 
 		int systemID = 0;
 		int orderLocationID = 0;
 		int mindistance = 99999;
-		HashMap<Integer,StartLocation> minsysdistance = new HashMap<>();
+		HashMap<Integer, StartLocation> minsysdistance = new HashMap<>();
 
 		List<?> systems = db.createQuery("from StarSystem order by id asc").list();
 		for (Object system1 : systems)
@@ -266,64 +280,73 @@ public class PortalController extends TemplateGenerator {
 		return new StartLocations(systemID, orderLocationID, minsysdistance);
 	}
 
-	private boolean register( String username, String email, int race, int system, String key, ConfigValue keys) {
-		org.hibernate.Session db = getDB();
+	private boolean register(String username, String email, int race, StarSystem system, String key, ConfigValue keys)
+	{
+		Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 
-		if( "".equals(username) || "".equals(email) ) {
+		if ("".equals(username) || "".equals(email))
+		{
 			return false;
 		}
 
-		User user1 = (User)db.createQuery("from User where un = :username")
-						.setString("username", username)
-						.setMaxResults(1)
-						.uniqueResult();
-		User user2 = (User)db.createQuery("from User where email = :email")
-						.setString("email", email)
-						.setMaxResults(1)
-						.uniqueResult();
+		User user1 = (User) db.createQuery("from User where un = :username")
+				.setString("username", username)
+				.setMaxResults(1)
+				.uniqueResult();
+		User user2 = (User) db.createQuery("from User where email = :email")
+				.setString("email", email)
+				.setMaxResults(1)
+				.uniqueResult();
 
-		if( user1 != null ) {
-			t.setVar("show.register.msg.wrongname",1);
+		if (user1 != null)
+		{
+			t.setVar("show.register.msg.wrongname", 1);
 			return false;
 		}
-		if( user2 != null ) {
-			t.setVar("show.register.msg.wrongemail",1);
+		if (user2 != null)
+		{
+			t.setVar("show.register.msg.wrongemail", 1);
 			return false;
 		}
-		if( !Rassen.get().rasse(race).isPlayable() ) {
-			t.setVar("show.register.msg.wrongrace",1);
+		if (!Rassen.get().rasse(race).isPlayable())
+		{
+			t.setVar("show.register.msg.wrongrace", 1);
 			return false;
 		}
 
 		boolean needkey = false;
-		if( keys.getValue().indexOf('*') == -1 ) {
+		if (keys.getValue().indexOf('*') == -1)
+		{
 			needkey = true;
 		}
 
-		if( needkey && !keys.getValue().contains("<" + key + ">")) {
+		if (needkey && !keys.getValue().contains("<" + key + ">"))
+		{
 			t.setVar("show.register.msg.wrongkey", 1);
 			return false;
 		}
 
-		StarSystem thissystem = (StarSystem)db.get(StarSystem.class, system);
 		List<StarSystem> systems = Common.cast(db.createQuery("from StarSystem").list());
 
-		if( (system == 0) || (thissystem == null) || (thissystem.getOrderLocations().length == 0) ) {
+		if ((system == null) || (system.getOrderLocations().length == 0))
+		{
 			t.setBlock("_PORTAL", "register.systems.listitem", "register.systems.list");
 			t.setBlock("_PORTAL", "register.systemdesc.listitem", "register.systemdesc.list");
 
 			StartLocations locations = getStartLocation();
-			t.setVar(	"register.system.id", locations.systemID,
-						"register.system.name", thissystem.getName(),
-						"show.register.choosesystem", 1 );
+			t.setVar("register.system.id", locations.systemID,
+					"register.system.name", system != null ? system.getName() : "",
+					"show.register.choosesystem", 1);
 
-			for( StarSystem sys : systems ) {
-				if( (sys.getOrderLocations().length > 0) && locations.minSysDistance.containsKey(sys.getID()) ) {
-					t.setVar(	"system.id", sys.getID(),
-								"system.name", sys.getName(),
-								"system.selected", (sys.getID() == locations.systemID),
-								"system.description", Common._text(sys.getDescription()) );
+			for (StarSystem sys : systems)
+			{
+				if ((sys.getOrderLocations().length > 0) && locations.minSysDistance.containsKey(sys.getID()))
+				{
+					t.setVar("system.id", sys.getID(),
+							"system.name", sys.getName(),
+							"system.selected", (sys.getID() == locations.systemID),
+							"system.description", Common._text(sys.getDescription()));
 
 					t.parse("register.systems.list", "register.systems.listitem", true);
 					t.parse("register.systemdesc.list", "register.systemdesc.listitem", true);
@@ -333,90 +356,148 @@ public class PortalController extends TemplateGenerator {
 			return true;
 		}
 
-		if( needkey ) {
-	 		String[] keylist = keys.getValue().replace("\r\n", "\n").split("\n");
-		 	HashMap<String,String> parameters = new HashMap<>();
-		 	int pos;
-		 	for( pos=0; pos < keylist.length; pos++ ) {
-	 			if( keylist[pos].indexOf("<"+key+">") == 0 ) {
-	 				if( keylist[pos].length() > ("<"+key+">").length() ) {
-		 				String[] params = keylist[pos].substring(("<"+key+">").length()).split(",");
+		if (needkey)
+		{
+			String[] keylist = keys.getValue().replace("\r\n", "\n").split("\n");
+			HashMap<String, String> parameters = new HashMap<>();
+			int pos;
+			for (pos = 0; pos < keylist.length; pos++)
+			{
+				if (keylist[pos].indexOf("<" + key + ">") == 0)
+				{
+					if (keylist[pos].length() > ("<" + key + ">").length())
+					{
+						String[] params = keylist[pos].substring(("<" + key + ">").length()).split(",");
 
-		 				for( String param : params ) {
-		 					String[] aParam = param.split("=");
-		 					parameters.put(aParam[0], aParam[1]);
-		 				}
-	 				}
+						for (String param : params)
+						{
+							String[] aParam = param.split("=");
+							parameters.put(aParam[0], aParam[1]);
+						}
+					}
 
-	 				break;
-	 			}
-	 		}
+					break;
+				}
+			}
 
-	 		if( parameters.containsKey("race") && (Integer.parseInt(parameters.get("race")) != race) ) {
-	 			t.setVar("show.register.msg.wrongrace",1);
+			if (parameters.containsKey("race") && (Integer.parseInt(parameters.get("race")) != race))
+			{
+				t.setVar("show.register.msg.wrongrace", 1);
 				return false;
-	 		}
-	 		String[] newKeyList = new String[keylist.length-1];
-	 		if( pos != 0 ) {
-	 			java.lang.System.arraycopy(keylist,0, newKeyList, 0, pos);
-	 		}
-	 		if( pos != keylist.length - 1 ) {
-	 			java.lang.System.arraycopy(keylist,pos+1, newKeyList, pos, keylist.length-pos-1);
-	 		}
+			}
+			String[] newKeyList = new String[keylist.length - 1];
+			if (pos != 0)
+			{
+				System.arraycopy(keylist, 0, newKeyList, 0, pos);
+			}
+			if (pos != keylist.length - 1)
+			{
+				System.arraycopy(keylist, pos + 1, newKeyList, pos, keylist.length - pos - 1);
+			}
 
-	 		keys.setValue(Common.implode("\n",newKeyList));
-	 	}
+			keys.setValue(Common.implode("\n", newKeyList));
+		}
 
-		String password = Common.md5(""+RandomUtils.nextInt(Integer.MAX_VALUE));
+		String password = Common.md5("" + RandomUtils.nextInt(Integer.MAX_VALUE));
 		String enc_pw = Common.md5(password);
 
-		int maxid = (Integer)db.createQuery("SELECT max(id) FROM User").iterate().next();
-		int newid = maxid+1;
+		int maxid = (Integer) db.createQuery("SELECT max(id) FROM User").iterate().next();
+		int newid = maxid + 1;
 
 		int ticks = getContext().get(ContextCommon.class).getTick();
 
-		String history = "Kolonistenlizenz erworben am "+Common.getIngameTime(ticks)+" ["+Common.date("d.m.Y H:i:s")+"]";
+		String history = "Kolonistenlizenz erworben am " + Common.getIngameTime(ticks) + " [" + Common.date("d.m.Y H:i:s") + "]";
 
 		User newuser = new User(username, enc_pw, race, history, new Cargo(), email);
 
 		// Startgeld festlegen
-
 		newuser.setKonto(BigInteger.valueOf(50000));
 
 		// Schiffe erstellen
-	 	StartLocations locations = getStartLocation();
-	 	Location[] orderlocs = thissystem.getOrderLocations();
-	 	Location orderloc = orderlocs[locations.minSysDistance.get(system).orderLocationID];
+		StartLocations locations = getStartLocation();
+		Location[] orderlocs = system.getOrderLocations();
+		Location orderloc = orderlocs[locations.minSysDistance.get(system.getID()).orderLocationID];
 
-	 	String[] baselayoutStr = Configuration.getSetting("REGISTER_BASELAYOUT").split(",");
-	 	Integer[] activebuildings = new Integer[baselayoutStr.length];
-	 	Integer[] baselayout = new Integer[baselayoutStr.length];
-	 	int bewohner = 0;
-	 	int arbeiter = 0;
+		Base base = (Base) db.createQuery("from Base where klasse.id=1 and owner.id=0 and system=:sys order by sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y)) ")
+				.setInteger("sys", system.getID())
+				.setInteger("x", orderloc.getX())
+				.setInteger("y", orderloc.getY())
+				.setMaxResults(1)
+				.uniqueResult();
 
-	 	for( int i=0; i < baselayoutStr.length; i++ ) {
-	 		baselayout[i] = Integer.parseInt(baselayoutStr[i]);
+		erstelleStartBasis(db, newuser, base);
 
-	 		if( baselayout[i] != 0 ) {
-	 			activebuildings[i] = 1;
-	 			Building building = Building.getBuilding(baselayout[i]);
-	 			bewohner += building.getBewohner();
-	 			arbeiter += building.getArbeiter();
-	 		}
-	 		else {
-	 			activebuildings[i] = 0;
-	 		}
-	 	}
+		Nebel nebel = (Nebel) db.createQuery("from Nebel where loc.system=:sys and type<3 order by sqrt((:x-loc.x)*(:x-loc.x)+(:y-loc.y)*(:y-loc.y))*(mod(type+1,3)+1)*3")
+				.setInteger("sys", system.getID())
+				.setInteger("x", base.getX())
+				.setInteger("y", base.getY())
+				.setMaxResults(1)
+				.uniqueResult();
 
-	 	Base base = (Base)db.createQuery("from Base where klasse.id=1 and owner.id=0 and system=:sys order by sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y)) ")
-	 		.setInteger("sys", system)
-	 		.setInteger("x", orderloc.getX())
-	 		.setInteger("y", orderloc.getY())
-	 		.setMaxResults(1)
-	 		.uniqueResult();
+		if (race == 1)
+		{
+			SectorTemplateManager.getInstance().useTemplate(db, "ORDER_TERRANER", base.getLocation(), newid);
+			SectorTemplateManager.getInstance().useTemplate(db, "ORDER_TERRANER_TANKER", nebel.getLocation(), newid);
+		}
+		else
+		{
+			SectorTemplateManager.getInstance().useTemplate(db, "ORDER_VASUDANER", base.getLocation(), newid);
+			SectorTemplateManager.getInstance().useTemplate(db, "ORDER_VASUDANER_TANKER", nebel.getLocation(), newid);
+		}
 
-	 	// Alte Gebaeude entfernen
-	 	Integer[] bebauung = base.getBebauung();
+		//Willkommens-PM versenden
+		User source = (User) db.get(User.class, Configuration.getIntSetting("REGISTER_PM_SENDER"));
+		PM.send(source, newid, "Willkommen bei Drifting Souls 2",
+				Configuration.getSetting("REGISTER_PM"));
+
+		t.setVar("show.register.msg.ok", 1,
+				"register.newid", newid);
+
+		Common.copyFile(Configuration.getSetting("ABSOLUTE_PATH") + "data/logos/user/0.gif",
+				Configuration.getSetting("ABSOLUTE_PATH") + "data/logos/user/" + newid + ".gif");
+
+		versendeRegistrierungsEmail(username, email, password);
+
+		return true;
+	}
+
+	private void versendeRegistrierungsEmail(String username, String email, String password)
+	{
+		String message = Configuration.getSetting("REGISTER_EMAIL");
+		message = message.replace("{username}", username);
+		message = message.replace("{password}", password);
+		message = message.replace("{date}", Common.date("H:i j.m.Y"));
+
+		Common.mail(email, "Anmeldung bei Drifting Souls 2", message);
+	}
+
+	private void erstelleStartBasis(Session db, User newuser, Base base)
+	{
+		String[] baselayoutStr = Configuration.getSetting("REGISTER_BASELAYOUT").split(",");
+		Integer[] activebuildings = new Integer[baselayoutStr.length];
+		Integer[] baselayout = new Integer[baselayoutStr.length];
+		int bewohner = 0;
+		int arbeiter = 0;
+
+		for (int i = 0; i < baselayoutStr.length; i++)
+		{
+			baselayout[i] = Integer.parseInt(baselayoutStr[i]);
+
+			if (baselayout[i] != 0)
+			{
+				activebuildings[i] = 1;
+				Building building = Building.getBuilding(baselayout[i]);
+				bewohner += building.getBewohner();
+				arbeiter += building.getArbeiter();
+			}
+			else
+			{
+				activebuildings[i] = 0;
+			}
+		}
+
+		// Alte Gebaeude entfernen
+		Integer[] bebauung = base.getBebauung();
 		for (Integer aBebauung : bebauung)
 		{
 			if (aBebauung == 0)
@@ -428,25 +509,25 @@ public class PortalController extends TemplateGenerator {
 			building.cleanup(getContext(), base, aBebauung);
 		}
 
-		BaseType basetype = (BaseType)db.get(BaseType.class, 1);
-	 	//User newuser = (User)getDB().get(User.class, newid);
+		BaseType basetype = (BaseType) db.get(BaseType.class, 1);
+		//User newuser = (User)getDB().get(User.class, newid);
 
-	 	base.setEnergy(base.getMaxEnergy());
-	 	base.setOwner(newuser);
-	 	base.setBebauung(baselayout);
-	 	base.setActive(activebuildings);
-	 	base.setArbeiter(arbeiter);
-	 	base.setBewohner(bewohner);
-	 	base.setWidth(basetype.getWidth());
-	 	base.setHeight(basetype.getHeight());
-	 	base.setMaxCargo(basetype.getCargo());
-	 	base.setCargo(new Cargo(Cargo.Type.AUTO, Configuration.getSetting("REGISTER_BASECARGO")));
-	 	base.setCore(0);
-	 	base.setUnits(new TransientUnitCargo());
-	 	base.setCoreActive(false);
-	 	base.setAutoGTUActs(new ArrayList<AutoGTUAction>());
+		base.setEnergy(base.getMaxEnergy());
+		base.setOwner(newuser);
+		base.setBebauung(baselayout);
+		base.setActive(activebuildings);
+		base.setArbeiter(arbeiter);
+		base.setBewohner(bewohner);
+		base.setWidth(basetype.getWidth());
+		base.setHeight(basetype.getHeight());
+		base.setMaxCargo(basetype.getCargo());
+		base.setCargo(new Cargo(Cargo.Type.AUTO, Configuration.getSetting("REGISTER_BASECARGO")));
+		base.setCore(0);
+		base.setUnits(new TransientUnitCargo());
+		base.setCoreActive(false);
+		base.setAutoGTUActs(new ArrayList<AutoGTUAction>());
 
-		for( Offizier offi : Offizier.getOffiziereByDest(base) )
+		for (Offizier offi : Offizier.getOffiziereByDest(base))
 		{
 			offi.setOwner(base.getOwner());
 		}
@@ -459,160 +540,114 @@ public class PortalController extends TemplateGenerator {
 				building.build(base, aBaselayout);
 			}
 		}
-
-	 	Nebel nebel = (Nebel)db.createQuery("from Nebel where loc.system=:sys and type<3 order by sqrt((:x-loc.x)*(:x-loc.x)+(:y-loc.y)*(:y-loc.y))*(mod(type+1,3)+1)*3")
-	 		.setInteger("sys", system)
-	 		.setInteger("x", base.getX())
-	 		.setInteger("y", base.getY())
-	 		.setMaxResults(1)
-	 		.uniqueResult();
-
-	 	if( race == 1 ) {
-			SectorTemplateManager.getInstance().useTemplate(db, "ORDER_TERRANER", base.getLocation(), newid);
-			SectorTemplateManager.getInstance().useTemplate(db, "ORDER_TERRANER_TANKER", nebel.getLocation(), newid);
-		}
-		else {
-			SectorTemplateManager.getInstance().useTemplate(db, "ORDER_VASUDANER", base.getLocation(), newid);
-			SectorTemplateManager.getInstance().useTemplate(db, "ORDER_VASUDANER_TANKER", nebel.getLocation(), newid);
-		}
-
-		//Willkommens-PM versenden
-	 	User source = (User)db.get(User.class, Configuration.getIntSetting("REGISTER_PM_SENDER"));
-		PM.send( source, newid, "Willkommen bei Drifting Souls 2",
-				Configuration.getSetting("REGISTER_PM"));
-
-		t.setVar( "show.register.msg.ok", 1,
-					"register.newid", newid );
-
-		Common.copyFile(Configuration.getSetting("ABSOLUTE_PATH")+"data/logos/user/0.gif",
-				Configuration.getSetting("ABSOLUTE_PATH")+"data/logos/user/"+newid+".gif");
-
-		String message = Configuration.getSetting("REGISTER_EMAIL");
-		message = message.replace("{username}", username);
-		message = message.replace("{password}", password);
-		message = message.replace("{date}", Common.date("H:i j.m.Y"));
-
-		Common.mail(email, "Anmeldung bei Drifting Souls 2", message);
-
-		return true;
 	}
 
 	/**
 	 * Registriert einen neuen Spieler. Falls keine Daten eingegeben wurden,
 	 * wird die GUI zum registrieren angezeigt.
-	 * @urlparam String username der Benutzername des Accounts
-	 * @urlparam Integer race Die Rasse des Accounts
-	 * @urlparam String email Die Email-Adresse
-	 * @urlparam String key Der Registrierungssschluessel
-	 * @urlparam Integer Das Startsystem
 	 *
+	 * @param username der Benutzername des Accounts
+	 * @param race Die Rasse des Accounts
+	 * @param email Die Email-Adresse
+	 * @param key Der Registrierungssschluessel
+	 * @param system Das Startsystem
 	 */
 	@Action(ActionType.DEFAULT)
-	public void registerAction() {
+	public void registerAction(String username, int race, String email, String key, StarSystem system)
+	{
 		Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 
 		boolean showform;
 
-		parameterString("username");
-		parameterNumber("race");
-		parameterString("email");
-		parameterString("key");
-		parameterNumber("system");
-
-		String username = getString("username");
-		int race = getInteger("race");
-		String email = getString("email");
-		String key = getString("key");
-		int system = getInteger("system");
-
-		ConfigValue disableregister = (ConfigValue)db.get(ConfigValue.class, "disableregister");
-		if( !"".equals(disableregister.getValue()) ) {
-			t.setVar(	"show.register.registerdisabled" , 1,
-						"register.registerdisabled.msg" , Common._text(disableregister.getValue()) );
+		ConfigValue disableregister = (ConfigValue) db.get(ConfigValue.class, "disableregister");
+		if (!"".equals(disableregister.getValue()))
+		{
+			t.setVar("show.register.registerdisabled", 1,
+					"register.registerdisabled.msg", Common._text(disableregister.getValue()));
 
 			return;
 		}
 
-		ConfigValue keys = (ConfigValue)db.get(ConfigValue.class, "keys");
+		ConfigValue keys = (ConfigValue) db.get(ConfigValue.class, "keys");
 		boolean needkey = false;
-		if( keys.getValue().indexOf('*') == -1  ) {
+		if (keys.getValue().indexOf('*') == -1)
+		{
 			needkey = true;
 		}
 
-		StarSystem thissystem = (StarSystem)db.get(StarSystem.class, system);
-
-		t.setVar(	"register.username"		, username,
-					"register.email"		, email,
-					"register.needkey"		, needkey,
-					"register.key"			, key,
-					"register.race"			, race,
-					"register.system.id"	, system,
-					"register.system.name" 	, (thissystem != null  ? thissystem.getName() : "") );
+		t.setVar("register.username", username,
+				"register.email", email,
+				"register.needkey", needkey,
+				"register.key", key,
+				"register.race", race,
+				"register.system.id", system != null ? system.getID() : 1,
+				"register.system.name", (system != null ? system.getName() : ""));
 
 		showform = !register(username, email, race, system, key, keys);
 
-		if( showform ) {
-			t.setBlock("_PORTAL","register.rassen.listitem","register.rassen.list");
-			t.setBlock("_PORTAL","register.rassendesc.listitem","register.rassendesc.list");
+		if (showform)
+		{
+			t.setBlock("_PORTAL", "register.rassen.listitem", "register.rassen.list");
+			t.setBlock("_PORTAL", "register.rassendesc.listitem", "register.rassendesc.list");
 
 			int first = -1;
 
-			for( Rasse rasse : Rassen.get() ) {
-				if( rasse.isPlayable() ) {
-					t.setVar(	"rasse.id"			, rasse.getID(),
-								"rasse.name"		, rasse.getName(),
-								"rasse.selected"	, (first == -1 ? 1 : 0),
-								"rasse.description"	, Common._text(rasse.getDescription()) );
+			for (Rasse rasse : Rassen.get())
+			{
+				if (rasse.isPlayable())
+				{
+					t.setVar("rasse.id", rasse.getID(),
+							"rasse.name", rasse.getName(),
+							"rasse.selected", (first == -1 ? 1 : 0),
+							"rasse.description", Common._text(rasse.getDescription()));
 
-					if( first == -1 ) {
+					if (first == -1)
+					{
 						first = rasse.getID();
 					}
 
-					t.parse("register.rassen.list","register.rassen.listitem",true);
-					t.parse("register.rassendesc.list","register.rassendesc.listitem",true);
+					t.parse("register.rassen.list", "register.rassen.listitem", true);
+					t.parse("register.rassendesc.list", "register.rassendesc.listitem", true);
 				}
 			}
 
-			t.setVar(	"show.register"				, 1,
-						"register.rassen.selected"	, first );
+			t.setVar("show.register", 1,
+					"register.rassen.selected", first);
 		}
 	}
 
 	/**
 	 * Loggt einen Spieler ein. Falls keine Daten angegeben wurden,
 	 * wird die GUI zum einloggen angezeigt.
-	 * @urlparam String username Der Benutzername
-	 * @urlparam String password Das Passwort
 	 *
+	 * @param username Der Benutzername
+	 * @param password Das Passwort
 	 */
 	@Action(ActionType.DEFAULT)
-	public void loginAction() {
+	public void loginAction(String username, String password, String rememberMe)
+	{
 		TemplateEngine t = getTemplateEngine();
 
-		parameterString("username");
-		parameterString("password");
-		parameterString("rememberme");
+		if (!username.isEmpty() && !password.isEmpty())
+		{
+			try
+			{
+				this.authManager.login(username, password, Boolean.parseBoolean(rememberMe));
 
-		String username = getString("username");
-		String password = getString("password");
-		boolean rememberMe = Boolean.parseBoolean(getString("rememberme"));
-
-		if( !username.isEmpty() && !password.isEmpty() ) {
-			try {
-				User user = (User)this.authManager.login(username, password, rememberMe);
-
-				doLogin(user);
+				doLogin();
 
 				return;
 			}
-			catch( LoginDisabledException e ) {
-				t.setVar(	"show.login.logindisabled", 1,
-							"login.logindisabled.msg", Common._text(e.getMessage()) );
+			catch (LoginDisabledException e)
+			{
+				t.setVar("show.login.logindisabled", 1,
+						"login.logindisabled.msg", Common._text(e.getMessage()));
 
 				return;
 			}
-			catch( AccountInVacationModeException e ) {
+			catch (AccountInVacationModeException e)
+			{
 				t.setVar(
 						"show.login.vacmode", 1,
 						"login.vacmode.dauer", e.getDauer(),
@@ -621,68 +656,68 @@ public class PortalController extends TemplateGenerator {
 
 				return;
 			}
-			catch( WrongPasswordException e ) {
-				t.setVar( "show.msg.login.wrongpassword",1 );
+			catch (WrongPasswordException e)
+			{
+				t.setVar("show.msg.login.wrongpassword", 1);
 			}
-			catch( AccountDisabledException e ) {
-				t.setVar("show.login.msg.accdisabled",1);
+			catch (AccountDisabledException e)
+			{
+				t.setVar("show.login.msg.accdisabled", 1);
 			}
-			catch( TickInProgressException e ) {
-				t.setVar("show.login.msg.tick",1);
+			catch (TickInProgressException e)
+			{
+				t.setVar("show.login.msg.tick", 1);
 			}
-			catch( AuthenticationException e ) {
+			catch (AuthenticationException e)
+			{
 				// EMPTY
 			}
 		}
 
-		t.setVar(	"show.login", 1,
-					"show.overview", 1,
-					"show.news", 1,
-					"login.username", username );
+		t.setVar("show.login", 1,
+				"show.overview", 1,
+				"show.news", 1,
+				"login.username", username);
 	}
 
-	private void doLogin(User user) {
+	private void doLogin()
+	{
 		TemplateEngine t = getTemplateEngine();
 
-		t.setVar( "show.login.msg.ok", 1 );
+		t.setVar("show.login.msg.ok", 1);
 
 		getResponse().redirectTo("ds?module=main&action=default");
 	}
 
 	/**
 	 * Ermoeglicht das Absenden einer Anfrage zur Deaktivierung des Vac-Modus.
-	 * @urlparam String asess Die Session-ID
-	 * @urlparam String reason Der Grund fuer eine vorzeitige Deaktivierung
 	 *
+	 * @param username Der Benutzername
+	 * @param pw Das Passwort
+	 * @param reason Der Grund fuer eine vorzeitige Deaktivierung
 	 */
 	@Action(ActionType.DEFAULT)
-	public void loginVacmodeDeakAction() {
+	public void loginVacmodeDeakAction(String username, String pw, String reason)
+	{
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 
-		parameterString("username");
-		parameterString("pw");
-		String username = getString("username");
-		String password = getString("pw");
+		User user = (User) db.createQuery("from User where un=:username")
+				.setString("username", username)
+				.uniqueResult();
 
-		User user = (User)db.createQuery("from User where un=:username")
-			.setString("username", username)
-			.uniqueResult();
+		String encPw = Common.md5(pw);
 
-		String encPw = Common.md5(password);
-
-		if( user == null || !encPw.equals(user.getPassword()) ) {
-			t.setVar("show.login.vacmode.msg.accerror",1);
+		if (user == null || !encPw.equals(user.getPassword()))
+		{
+			t.setVar("show.login.vacmode.msg.accerror", 1);
 			return;
 		}
 
-		parameterString("reason");
-		String reason = getString("reason");
-
 		PM.sendToAdmins(user, "VACMODE-DEAK",
-				"[VACMODE-DEAK]\nMY ID: "+user.getId()+"\nREASON:\n"+reason, 0);
+				"[VACMODE-DEAK]\nMY ID: " + user.getId() + "\nREASON:\n" + reason, 0);
 
-		t.setVar("show.login.vacmode.msg.send",1);
+		t.setVar("show.login.vacmode.msg.send", 1);
 	}
 
 	/**
@@ -696,37 +731,36 @@ public class PortalController extends TemplateGenerator {
 
 	/**
 	 * Zeigt die News an.
-	 * @urlparam Integer archiv != 0, falls alte News angezeigt werden sollen
+	 *
+	 * @param archiv != 0, falls alte News angezeigt werden sollen
 	 */
-	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() {
+	public void defaultAction(int archiv)
+	{
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 
-		parameterNumber("archiv");
-		int archiv = getInteger("archiv");
-
-		if(this.authManager.isRemembered())
+		if (this.authManager.isRemembered())
 		{
 			t.setVar("is.logged.in", 1);
 		}
 
 		t.setVar(
-				"show.news",	1,
-				"show.overview",	archiv == 0,
-				"show.news.archiv", archiv );
-		t.setBlock("_PORTAL","news.listitem","news.list");
+				"show.news", 1,
+				"show.overview", archiv == 0,
+				"show.news.archiv", archiv);
+		t.setBlock("_PORTAL", "news.listitem", "news.list");
 
 		List<NewsEntry> allnews = Common.cast(db.createQuery("FROM NewsEntry ORDER BY date DESC")
-												.setMaxResults(archiv != 0 ? 100 : 5)
-												.list());
-		for(NewsEntry news : allnews ) {
-			t.setVar(	"news.date", Common.date("d.m.Y H:i", news.getDate()),
-						"news.title", news.getTitle(),
-						"news.author", news.getAuthor(),
-						"news.text", Common._text(news.getNewsText()) );
-			t.parse("news.list","news.listitem",true);
+				.setMaxResults(archiv != 0 ? 100 : 5)
+				.list());
+		for (NewsEntry news : allnews)
+		{
+			t.setVar("news.date", Common.date("d.m.Y H:i", news.getDate()),
+					"news.title", news.getTitle(),
+					"news.author", news.getAuthor(),
+					"news.text", Common._text(news.getNewsText()));
+			t.parse("news.list", "news.listitem", true);
 		}
 	}
 }

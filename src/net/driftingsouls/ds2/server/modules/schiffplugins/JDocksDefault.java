@@ -84,8 +84,8 @@ public class JDocksDefault implements SchiffPlugin {
 		t.setFile("_PLUGIN_"+pluginid, "schiff.jdocks.default.html");
 
 		boolean nofleet = true;
-		List<Integer> jdockedid = new ArrayList<Integer>();
-		List<Ship> jdockedShip = new ArrayList<Ship>();
+		List<Integer> jdockedid = new ArrayList<>();
+		List<Ship> jdockedShip = new ArrayList<>();
 
 		for( Ship aship : data.getLandedShips() ) {
 			jdockedid.add(aship.getId());

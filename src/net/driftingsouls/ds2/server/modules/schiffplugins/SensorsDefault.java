@@ -29,7 +29,6 @@ import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -195,7 +194,7 @@ public class SensorsDefault implements SchiffPlugin {
 		Ship ship = caller.ship;
 
 		// Cache fuer Jaegerflotten. Key ist die Flotten-ID. Value die Liste der Schiffs-IDs der Flotte
-		Map<ShipFleet,List<Integer>> jaegerFleetCache = new HashMap<ShipFleet,List<Integer>>();
+		Map<ShipFleet,List<Integer>> jaegerFleetCache = new HashMap<>();
 
 		// Die ID des Schiffes, an dem das aktuell ausgewaehlte Schiff angedockt ist
 		int currentDockID = 0;
@@ -232,7 +231,7 @@ public class SensorsDefault implements SchiffPlugin {
 
 		List<?> ships;
 		boolean firstentry = false;
-		Map<String,Long> types = new HashMap<String,Long>();
+		Map<String,Long> types = new HashMap<>();
 
 		// Soll nur ein bestimmter Schiffstyp angezeigt werden?
 		if( this.showOnly != 0 ) {
@@ -558,48 +557,45 @@ public class SensorsDefault implements SchiffPlugin {
 					 */
 					String[] target = StringUtils.split(aship.getJumpTarget(), '|');
 					String[] targetuser = StringUtils.split(target[2], ':');
-					if (targetuser[0].equals("all"))
+					switch (targetuser[0])
 					{
-						t.setVar("sships.action.jump", 1);
-					}
-					else if (targetuser[0].equals("ally"))
-					{
-						if ((user.getAlly() != null) && (Integer.parseInt(targetuser[1]) == user.getAlly().getId()))
-						{
+						case "all":
 							t.setVar("sships.action.jump", 1);
-						}
-					}
-					else if (targetuser[0].equals("user"))
-					{
-						if (Integer.parseInt(targetuser[1]) == user.getId())
-						{
-							t.setVar("sships.action.jump", 1);
-						}
-					}
-					else if (targetuser[0].equals("ownally"))
-					{
-						if ((user.getAlly() != null) && (aship.getOwner().getAlly() == user.getAlly()))
-						{
-							t.setVar("sships.action.jump", 1);
-						}
-					}
-					else if (targetuser[0].equals("group"))
-					{
-						String[] userlist = targetuser[1].split(",");
-						if (Common.inArray(Integer.toString(user.getId()), userlist))
-						{
-							t.setVar("sships.action.jump", 1);
-						}
-					}
-					else
-					{
-						// Default: Selbe Allianz wie der Besitzer oder selbst der Besitzer
-						if (((user.getAlly() != null) && (aship.getOwner().getAlly() == user.getAlly())) ||
-								((user.getAlly() == null) && (aship.getOwner().getId() == user.getId())))
-						{
+							break;
+						case "ally":
+							if ((user.getAlly() != null) && (Integer.parseInt(targetuser[1]) == user.getAlly().getId()))
+							{
+								t.setVar("sships.action.jump", 1);
+							}
+							break;
+						case "user":
+							if (Integer.parseInt(targetuser[1]) == user.getId())
+							{
+								t.setVar("sships.action.jump", 1);
+							}
+							break;
+						case "ownally":
+							if ((user.getAlly() != null) && (aship.getOwner().getAlly() == user.getAlly()))
+							{
+								t.setVar("sships.action.jump", 1);
+							}
+							break;
+						case "group":
+							String[] userlist = targetuser[1].split(",");
+							if (Common.inArray(Integer.toString(user.getId()), userlist))
+							{
+								t.setVar("sships.action.jump", 1);
+							}
+							break;
+						default:
+							// Default: Selbe Allianz wie der Besitzer oder selbst der Besitzer
+							if (((user.getAlly() != null) && (aship.getOwner().getAlly() == user.getAlly())) ||
+									((user.getAlly() == null) && (aship.getOwner().getId() == user.getId())))
+							{
 
-							t.setVar("sships.action.jump", 1);
-						}
+								t.setVar("sships.action.jump", 1);
+							}
+							break;
 					}
 				}
 
@@ -701,7 +697,7 @@ public class SensorsDefault implements SchiffPlugin {
 								// Falls noch nicht geschehen die Flotte des Jaegers ermitteln
 								if (fleetlist == null)
 								{
-									fleetlist = new ArrayList<Integer>();
+									fleetlist = new ArrayList<>();
 
 									List<?> tmpList = db.createQuery("from Ship where id>0 and fleet=:fleet")
 											.setEntity("fleet", ship.getFleet())
@@ -747,7 +743,7 @@ public class SensorsDefault implements SchiffPlugin {
 					{
 						if (!jaegerFleetCache.containsKey(aship.getFleet()))
 						{
-							List<Integer> thisFleetList = new ArrayList<Integer>();
+							List<Integer> thisFleetList = new ArrayList<>();
 
 							boolean ok = true;
 							List<?> tmpList = db.createQuery("from Ship where id>0 and fleet=:fleet")
@@ -984,7 +980,6 @@ public class SensorsDefault implements SchiffPlugin {
 									.list());
 
 		for( Battle battle : battles ) {
-			Ally ownAlly = user.getAlly();
 			String party1;
 			String party2;
 

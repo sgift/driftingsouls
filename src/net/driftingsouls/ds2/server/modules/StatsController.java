@@ -58,8 +58,6 @@ import java.util.Map;
 /**
  * Die Statistikseite.
  * @author Christopher Jung
- *
- * @urlparam Integer show die ID der ausgeaehlten Kategorie
  */
 @Module(name="stats")
 public class StatsController extends DSGenerator {
@@ -81,7 +79,6 @@ public class StatsController extends DSGenerator {
 	}
 	private Map<Integer,List<StatEntry>> statslist = new HashMap<>();
 	private Map<String,Integer> catlist = new LinkedHashMap<>();
-	private int show = 0;
 
 	/**
 	 * Konstruktor.
@@ -90,13 +87,8 @@ public class StatsController extends DSGenerator {
 	public StatsController(Context context) {
 		super(context);
 
-		parameterNumber("show");
-
 		setPageTitle("Statistik");
-	}
 
-	@Override
-	protected boolean validateAndPrepare(String action) {
 		registerStat( "Spieler", new StatOwnCiv(), "Meine Zivilisation", 0 );
 		registerStat( "Spieler", new StatBiggestFleet(false), "Die gr&ouml;ssten Flotten", 60 );
 		registerStat( "Spieler", new StatBiggestTrader(false), "Die gr&ouml;ssten Handelsflotten", 60);
@@ -122,14 +114,13 @@ public class StatsController extends DSGenerator {
 		registerStat( "Eigene K&auml;mpfe", new StatOwnKampf(), "Eigene K&auml;mpfe", 0 );
 		registerStat( "Offiziere", new StatOwnOffiziere(), "Offiziere", 0 );
 		registerStat( "Spielerliste", new StatPlayerList(), "Spielerliste", 0 );
+	}
 
-		int show = getInteger("show");
+	protected int ermittleAnzuzeigendeStatistikkategorie(int show) {
 		if( (show == 0) || !this.statslist.containsKey(show) ) {
 			show = 1;
 		}
-		this.show = show;
-
-		return true;
+		return show;
 	}
 
 	private void registerStat( String cat, Statistic stat, String name, int size ) {
@@ -143,7 +134,7 @@ public class StatsController extends DSGenerator {
 		this.statslist.get(this.catlist.get(cat)).add(new StatEntry(stat, name, size));
 	}
 
-	private void printMenu() throws IOException {
+	private void printMenu(int show) throws IOException {
 		Writer echo = getContext().getResponse().getWriter();
 
 		Map<Integer,String> lists = new HashMap<>();
@@ -168,7 +159,7 @@ public class StatsController extends DSGenerator {
 
 			if( this.statslist.containsKey(cat) && (this.statslist.get(cat).size() > 1) ) {
 				echo.append("<div class='dropdown' style='width:120px'><dl><dt ");
-				if( this.show == cat ) {
+				if( show == cat ) {
 					echo.append("style=\"text-decoration:underline\"");
 				}
 				echo.append(">").append(catkey).append("<img style='vertical-align:middle; border:0px' src='./data/interface/uebersicht/icon_dropdown.gif' alt='' /></dt>\n");
@@ -177,7 +168,7 @@ public class StatsController extends DSGenerator {
 			}
 			else {
 				echo.append("<a ");
-				if( this.show == cat ) {
+				if( show == cat ) {
 					echo.append("style=\"text-decoration:underline\"");
 				}
 				echo.append(" class=\"forschinfo\" href=\"").append(Common.buildUrl("default", "show", cat)).append("\">").append(catkey).append("</a>\n");
@@ -195,16 +186,18 @@ public class StatsController extends DSGenerator {
 	/**
 	 * Ajax-Modus der Statistikseite.
 	 * @param stat Die ID der Statistik in der ausgewaehlten Kategorie
+	 * @param show die ID der ausgeaehlten Kategorie
 	 * @return Die JSON-Daten zur Statistik
 	 * @throws IOException
 	 */
 	@Action(ActionType.AJAX)
-	public JSON ajaxAction(int stat) throws IOException {
+	public JSON ajaxAction(int stat, int show) throws IOException {
+		show = ermittleAnzuzeigendeStatistikkategorie(show);
 		if( this.statslist.get(show).size() <= stat ) {
 			stat = 1;
 		}
 
-		StatEntry mystat = this.statslist.get(this.show).get(stat);
+		StatEntry mystat = this.statslist.get(show).get(stat);
 
 		if( mystat.stat instanceof AjaxStatistic )
 		{
@@ -216,17 +209,19 @@ public class StatsController extends DSGenerator {
 	/**
 	 * Anzeige der Statistiken.
 	 * @param stat Die ID der Statistik in der ausgewaehlten Kategorie
+	 * @param show die ID der ausgeaehlten Kategorie
 	 * @throws IOException
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(int stat) throws IOException {
+	public void defaultAction(int stat, int show) throws IOException {
+		show = ermittleAnzuzeigendeStatistikkategorie(show);
 		if( this.statslist.get(show).size() <= stat ) {
 			stat = 1;
 		}
 
-		StatEntry mystat = this.statslist.get(this.show).get(stat);
+		StatEntry mystat = this.statslist.get(show).get(stat);
 
-		printMenu();
+		printMenu(show);
 
 		Writer echo = getContext().getResponse().getWriter();
 		echo.write("<script type='text/javascript'>Stats.setCurrentStatistic("+show+","+stat+");</script>");
