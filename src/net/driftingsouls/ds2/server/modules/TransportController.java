@@ -549,7 +549,7 @@ public class TransportController extends TemplateGenerator
 	}
 
 	@Override
-	protected boolean validateAndPrepare(String action)
+	protected boolean validateAndPrepare()
 	{
 		String to = getString("to");
 		String from = getString("from");

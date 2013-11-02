@@ -82,7 +82,7 @@ public class AllyController extends TemplateGenerator
 	}
 
 	@Override
-	protected boolean validateAndPrepare(String action)
+	protected boolean validateAndPrepare()
 	{
 		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();

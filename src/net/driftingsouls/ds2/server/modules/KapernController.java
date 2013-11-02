@@ -83,7 +83,7 @@ public class KapernController extends TemplateGenerator {
 	}
 
 	@Override
-	protected boolean validateAndPrepare(String action) {
+	protected boolean validateAndPrepare() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		User user = (User)this.getUser();
 

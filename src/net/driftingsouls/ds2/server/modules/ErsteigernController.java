@@ -481,7 +481,7 @@ public class ErsteigernController extends TemplateGenerator
 	}
 
 	@Override
-	protected boolean validateAndPrepare(String action)
+	protected boolean validateAndPrepare()
 	{
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();

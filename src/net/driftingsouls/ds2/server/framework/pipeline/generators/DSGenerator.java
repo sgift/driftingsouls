@@ -284,7 +284,7 @@ public abstract class DSGenerator extends Generator
 
 			try
 			{
-				if ((getErrorList().length != 0) || !validateAndPrepare(action))
+				if ((getErrorList().length != 0) || !validateAndPrepare())
 				{
 					printErrorListOnly(actionDescriptor.value());
 
@@ -541,7 +541,7 @@ public abstract class DSGenerator extends Generator
 		return actionTypeHandler;
 	}
 
-	protected boolean validateAndPrepare(String action)
+	protected boolean validateAndPrepare()
 	{
 		return true;
 	}

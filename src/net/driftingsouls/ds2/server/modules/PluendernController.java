@@ -71,7 +71,7 @@ public class PluendernController extends TemplateGenerator
 	}
 
 	@Override
-	protected boolean validateAndPrepare(String action)
+	protected boolean validateAndPrepare()
 	{
 		org.hibernate.Session db = getDB();
 		User user = (User) this.getUser();

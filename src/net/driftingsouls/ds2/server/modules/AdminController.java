@@ -137,7 +137,7 @@ public class AdminController extends DSGenerator
 	}
 
 	@Override
-	protected boolean validateAndPrepare(String action)
+	protected boolean validateAndPrepare()
 	{
 		if (!hasPermission("admin", "sichtbar"))
 		{

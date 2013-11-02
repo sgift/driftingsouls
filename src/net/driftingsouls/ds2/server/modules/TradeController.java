@@ -82,7 +82,7 @@ public class TradeController extends TemplateGenerator
 	}
 
 	@Override
-	protected boolean validateAndPrepare(String action)
+	protected boolean validateAndPrepare()
 	{
 		org.hibernate.Session db = getDB();
 		int shipId = getInteger("ship");

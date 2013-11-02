@@ -89,7 +89,7 @@ public class UeberController extends TemplateGenerator
 	}
 
 	@Override
-	protected boolean validateAndPrepare(String action)
+	protected boolean validateAndPrepare()
 	{
 		box = getUser().getUserValue("TBLORDER/uebersicht/box");
 

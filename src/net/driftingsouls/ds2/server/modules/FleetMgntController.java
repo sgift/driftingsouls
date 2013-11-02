@@ -78,7 +78,7 @@ public class FleetMgntController extends TemplateGenerator
 	}
 
 	@Override
-	protected boolean validateAndPrepare(String action)
+	protected boolean validateAndPrepare()
 	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();

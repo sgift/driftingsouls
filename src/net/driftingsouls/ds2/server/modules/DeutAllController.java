@@ -58,7 +58,7 @@ public class DeutAllController extends TemplateGenerator {
 	}
 
 	@Override
-	protected boolean validateAndPrepare(String action) {
+	protected boolean validateAndPrepare() {
 		return true;
 	}
 

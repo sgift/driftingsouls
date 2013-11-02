@@ -74,7 +74,7 @@ public class CommController extends TemplateGenerator
 	}
 
 	@Override
-	protected boolean validateAndPrepare(String action)
+	protected boolean validateAndPrepare()
 	{
 		getTemplateEngine().setVar("show.menu", 1);
 		return true;

@@ -65,7 +65,7 @@ public class NpcController extends AngularGenerator {
 	}
 
 	@Override
-	protected boolean validateAndPrepare(String action) {
+	protected boolean validateAndPrepare() {
 		User user = (User)this.getUser();
 		
 		if( !user.hasFlag( User.FLAG_ORDER_MENU ) ) {
