@@ -451,7 +451,7 @@ public class CommController extends TemplateGenerator
 
 			Ordner delordner = ordnerMap.get(ordner1.getId());
 
-			if (delordner.getId() == ordner1.getId())
+			if (delordner != null && delordner.getId() == ordner1.getId())
 			{
 				delordner.deleteOrdner();
 			}
