@@ -70,6 +70,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -2168,8 +2169,8 @@ public class ErsteigernController extends TemplateGenerator
 	 */
 	@SuppressWarnings("unchecked")
 	@Action(ActionType.DEFAULT)
-	public void ausbauAction(@UrlParam(name = "base") Base base,
-							@UrlParam(name = "colonizer") Ship colonizer,
+	public void ausbauAction(@UrlParam(name = "astiid") Base base,
+							@UrlParam(name = "colonizerid") Ship colonizer,
 							UpgradeInfo felder,
 							UpgradeInfo cargo,
 							boolean bar,
@@ -2233,48 +2234,28 @@ public class ErsteigernController extends TemplateGenerator
 			}
 
 			// Teste ob die übergebenen felder und cargo Parameter korrekt sind
-			List<UpgradeInfo> infos = db.createQuery(
-					"from UpgradeInfo where ((id=:felder and cargo=false) "
-							+ "or (id=:cargo and cargo=true)) and type=:klasse ")
-					.setParameter("felder", felder)
-					.setParameter("cargo", cargo)
-					.setInteger("klasse", base.getKlasse())
-					.list();
-
-			if (infos.size() < 2)
+			if (!cargo.getCargo() || felder.getCargo() || cargo.getType()!=base.getKlasse() || felder.getType() != base.getKlasse())
 			{ // Da es selbst für den leeren Ausbau Einträge gibt, funktioniert das hier
 				addError("Es wurden illegale Ausbauten ausgew&auml;hlt");
 				redirect();
 				return;
 			}
 
-			boolean wantsUpgrade = false;
-			for (UpgradeInfo info : infos)
+			if ( felder.getMod() > 0 && (base.getMaxTiles() + felder.getMod() > maxvalues.getMaxTiles()))
 			{
-				if (!info.getCargo()
-						&& (base.getWidth() * base.getHeight() + info.getMod() > maxvalues
-						.getMaxTiles()))
-				{
-					addError("Der Asteroid hat zuviele Felder nach diesem Ausbau");
-					redirect();
-					return;
-				}
-
-				if (info.getCargo()
-						&& (base.getMaxCargo() + info.getMod() > maxvalues.getMaxCargo()))
-				{
-					addError("Der Asteroid hat zuviel Lagerraum nach diesem Ausbau.");
-					redirect();
-					return;
-				}
-
-				if (info.getMod() > 0)
-				{
-					wantsUpgrade = true;
-				}
+				addError("Der Asteroid hat zuviele Felder nach diesem Ausbau");
+				redirect();
+				return;
 			}
 
-			if (!wantsUpgrade)
+			if ( cargo.getMod() > 0 && (base.getMaxCargo() + cargo.getMod() > maxvalues.getMaxCargo()))
+			{
+				addError("Der Asteroid hat zuviel Lagerraum nach diesem Ausbau.");
+				redirect();
+				return;
+			}
+
+			if (felder.getMod() <= 0 && cargo.getMod() <= 0)
 			{
 				redirect();
 				return;
@@ -2391,7 +2372,7 @@ public class ErsteigernController extends TemplateGenerator
 			if (info.getCargo())
 			{
 				// Testen ob info den Cargo modifiziert
-				if (selectedBase.getMaxCargo() + info.getMod() <= maxvalues.getMaxCargo())
+				if (info.getMod() == 0 || selectedBase.getMaxCargo() + info.getMod() <= maxvalues.getMaxCargo())
 				{
 					t.setVar("cargo.mod", info.getMod(),
 							"cargo.id", info.getId(),
@@ -2403,7 +2384,7 @@ public class ErsteigernController extends TemplateGenerator
 			}
 			else
 			{ // Es handelt sich um ein Felder Ausbau
-				if (selectedBase.getMaxTiles() + info.getMod() <= maxvalues.getMaxTiles())
+				if (info.getMod() == 0 || selectedBase.getMaxTiles() + info.getMod() <= maxvalues.getMaxTiles())
 				{
 					t.setVar("felder.mod", info.getMod(),
 							"felder.id", info.getId(),
