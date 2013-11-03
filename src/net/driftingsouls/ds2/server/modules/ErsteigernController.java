@@ -65,6 +65,8 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.criterion.Order;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -82,18 +84,15 @@ import java.util.UUID;
  * Zeigt die Fraktionsseiten an.
  *
  * @author Christopher Jung
- *
  * @urlparam Integer faction Die ID der anzuzeigenden Fraktion
- *
  */
-@Module(name="ersteigern")
+@Module(name = "ersteigern")
 public class ErsteigernController extends TemplateGenerator
 {
 	/**
 	 * Ein Eintrag im Shop.
 	 *
 	 * @author Christopher Jung
-	 *
 	 */
 	private abstract static class ShopEntry
 	{
@@ -175,6 +174,7 @@ public class ErsteigernController extends TemplateGenerator
 
 		/**
 		 * Gibt die LP-Kosten fuer den Eintrag zurueck.
+		 *
 		 * @return Die LP-Kosten
 		 */
 		public long getLpKosten()
@@ -199,14 +199,14 @@ public class ErsteigernController extends TemplateGenerator
 		 */
 		public String getAvailabilityName()
 		{
-			switch( this.getAvailability() )
+			switch (this.getAvailability())
 			{
-			case 0:
-				return "Genug vorhanden";
-			case 1:
-				return "Nur noch 1-3 vorhanden";
-			case 2:
-				return "Nicht verf&uuml;gbar";
+				case 0:
+					return "Genug vorhanden";
+				case 1:
+					return "Nur noch 1-3 vorhanden";
+				case 2:
+					return "Nicht verf&uuml;gbar";
 			}
 			return "";
 		}
@@ -218,14 +218,14 @@ public class ErsteigernController extends TemplateGenerator
 		 */
 		public String getAvailabilityColor()
 		{
-			switch( this.getAvailability() )
+			switch (this.getAvailability())
 			{
-			case 0:
-				return "#55DD55";
-			case 1:
-				return "#FFFF44";
-			case 2:
-				return "#CC2222";
+				case 0:
+					return "#55DD55";
+				case 1:
+					return "#FFFF44";
+				case 2:
+					return "#CC2222";
 			}
 			return "";
 		}
@@ -276,7 +276,6 @@ public class ErsteigernController extends TemplateGenerator
 	 * Repraesentiert ein Shopeintrag, welcher ein Schiff enthaelt.
 	 *
 	 * @author Christopher Jung
-	 *
 	 */
 	private static class ShopShipEntry extends ShopEntry
 	{
@@ -317,7 +316,6 @@ public class ErsteigernController extends TemplateGenerator
 	 * Repraesentiert ein Shopeintrag, welcher eine Resource enthaelt.
 	 *
 	 * @author Christopher Jung
-	 *
 	 */
 	private static class ShopResourceEntry extends ShopEntry
 	{
@@ -369,7 +367,6 @@ public class ErsteigernController extends TemplateGenerator
 	 * Repraesentiert ein Shopeintrag, welcher einen Ganymede-Transport enthaelt.
 	 *
 	 * @author Christopher Jung
-	 *
 	 */
 	private static class ShopGanyTransportEntry extends ShopEntry
 	{
@@ -486,15 +483,15 @@ public class ErsteigernController extends TemplateGenerator
 	{
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
-		User user = (User)getUser();
+		User user = (User) getUser();
 
 		// Ausgewaehlte Fraktion ueberpruefen und deren Menueeintraege freischalten
 		int faction = this.getInteger("faction");
 		User.Relations relationlist = user.getRelations();
 
-		if( faction == 0 )
+		if (faction == 0)
 		{
-			if( Faction.get(user.getId()) != null )
+			if (Faction.get(user.getId()) != null)
 			{
 				faction = user.getId();
 			}
@@ -505,19 +502,19 @@ public class ErsteigernController extends TemplateGenerator
 				{
 					int aFactionID = integerFactionEntry.getKey();
 					Faction factionObj = integerFactionEntry.getValue();
-					if( !factionObj.getPages().isEnabled() )
+					if (!factionObj.getPages().isEnabled())
 					{
 						continue;
 					}
 
-					User aFactionUser = (User)db.get(User.class, factionObj.getID());
-					if( aFactionUser == null )
+					User aFactionUser = (User) db.get(User.class, factionObj.getID());
+					if (aFactionUser == null)
 					{
 						continue;
 					}
 
-					if( (user.getRelation(aFactionID) != User.Relation.ENEMY)
-							&& (relationlist.fromOther.get(aFactionID) != User.Relation.ENEMY) )
+					if ((user.getRelation(aFactionID) != User.Relation.ENEMY)
+							&& (relationlist.fromOther.get(aFactionID) != User.Relation.ENEMY))
 					{
 						faction = aFactionID;
 						break;
@@ -526,26 +523,26 @@ public class ErsteigernController extends TemplateGenerator
 			}
 		}
 
-		if( faction == 0 )
+		if (faction == 0)
 		{
 			addError("Keine Fraktion will mit ihnen zu handeln solange die Beziehungen feindlich sind");
 			return false;
 		}
 
-		if( Faction.get(faction) == null )
+		if (Faction.get(faction) == null)
 		{
 			addError("Die angegebene Fraktion verf&uuml;gt &uuml;ber keine eigene Seite");
 			return false;
 		}
 
-		if( (user.getRelation(faction) == User.Relation.ENEMY)
-				|| (relationlist.fromOther.get(faction) == User.Relation.ENEMY) )
+		if ((user.getRelation(faction) == User.Relation.ENEMY)
+				|| (relationlist.fromOther.get(faction) == User.Relation.ENEMY))
 		{
 			this.allowsTrade = false;
 		}
 
 		FactionPages pages = Faction.get(faction).getPages();
-		for( String aPage : pages.getPages() )
+		for (String aPage : pages.getPages())
 		{
 			t.setVar("faction." + aPage, 1);
 		}
@@ -554,18 +551,18 @@ public class ErsteigernController extends TemplateGenerator
 
 		// Fraktionsmenue
 
-		t.setBlock( "_ERSTEIGERN", "global.factionmenu.listitem", "global.factionmenu.list" );
+		t.setBlock("_ERSTEIGERN", "global.factionmenu.listitem", "global.factionmenu.list");
 
 		Map<Integer, Faction> factions = Faction.getFactions();
-		for( Faction factionObj : factions.values() )
+		for (Faction factionObj : factions.values())
 		{
-			if( !factionObj.getPages().isEnabled() )
+			if (!factionObj.getPages().isEnabled())
 			{
 				continue;
 			}
 
-			User aFactionUser = (User)db.get(User.class, factionObj.getID());
-			if( aFactionUser == null )
+			User aFactionUser = (User) db.get(User.class, factionObj.getID());
+			if (aFactionUser == null)
 			{
 				continue;
 			}
@@ -573,10 +570,10 @@ public class ErsteigernController extends TemplateGenerator
 					"item.faction.name", Common._title(aFactionUser.getName()),
 					"item.faction.id", factionObj.getID());
 
-			t.parse( "global.factionmenu.list", "global.factionmenu.listitem", true );
+			t.parse("global.factionmenu.list", "global.factionmenu.listitem", true);
 		}
 
-		User factionuser = (User)db.get(User.class, faction);
+		User factionuser = (User) db.get(User.class, faction);
 
 		t.setVar(
 				"user.konto", Common.ln(user.getKonto()),
@@ -589,21 +586,22 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Aendert das System, in dem ersteigerte Dinge gespawnt werden sollen.
+	 *
 	 * @param favsys Die ID des neuen Systems, in dem ersteigerte Dinge gespawnt werden sollen
 	 */
 	@Action(ActionType.DEFAULT)
 	public void changeDropZoneAction(StarSystem favsys)
 	{
-		if( !Faction.get(faction).getPages().hasPage("versteigerung") )
+		if (!Faction.get(faction).getPages().hasPage("versteigerung"))
 		{
 			redirect();
 			return;
 		}
 
-		User user = (User)getUser();
+		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
 
-		if( favsys != null && favsys.getDropZone() != null && user.getAstiSystems().contains(favsys.getID()) )
+		if (ermittleMoeglicheDropZones().contains(favsys))
 		{
 			user.setGtuDropZone(favsys.getID());
 			t.setVar("show.newcoords", 1);
@@ -618,29 +616,28 @@ public class ErsteigernController extends TemplateGenerator
 	 *
 	 * @param bid Der gebotene Betrag oder 0
 	 * @param entry Die Auktion auf die geboten werden soll
-	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void bidEntryAction(int bid, @UrlParam(name="auk") Versteigerung entry)
+	public void bidEntryAction(int bid, @UrlParam(name = "auk") Versteigerung entry)
 	{
-		if( !Faction.get(faction).getPages().hasPage("versteigerung") )
+		if (!Faction.get(faction).getPages().hasPage("versteigerung"))
 		{
 			redirect();
 			return;
 		}
 
-		if( !this.allowsTrade )
+		if (!this.allowsTrade)
 		{
 			addError("Die angegebene Fraktion weigert sich mit ihnen zu handeln solange die Beziehungen feindlich sind");
 			redirect();
 			return;
 		}
 
-		User user = (User)getUser();
+		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 
-		if( entry == null || (entry.getOwner().getId() == user.getId()) )
+		if (entry == null || (entry.getOwner().getId() == user.getId()))
 		{
 			addError("Sie k&ouml;nnen nicht bei eigenen Versteigerungen mitbieten");
 			redirect();
@@ -648,7 +645,7 @@ public class ErsteigernController extends TemplateGenerator
 		}
 
 		// Wenn noch kein Gebot abgegeben wurde -> Versteigerung anzeigen
-		if( bid == 0 )
+		if (bid == 0)
 		{
 			int entrywidth = entry.isObjectFixedImageSize() ? 50 : 0;
 			long entrycount = entry.getObjectCount();
@@ -660,28 +657,28 @@ public class ErsteigernController extends TemplateGenerator
 
 			User bieter = entry.getBieter();
 
-			if( bieter.getId() == faction )
+			if (bieter.getId() == faction)
 			{
 				bietername = bieter.getName();
 			}
-			else if( bieter.getId() == user.getId() )
+			else if (bieter.getId() == user.getId())
 			{
 				bietername = bieter.getName();
 			}
-			else if( hasPermission("fraktionen", "bietername") )
+			else if (hasPermission("fraktionen", "bietername"))
 			{
 				bietername = bieter.getName();
 			}
-			else if( (bieter.getAlly() != null) && (bieter.getAlly() == user.getAlly()) )
+			else if ((bieter.getAlly() != null) && (bieter.getAlly() == user.getAlly()))
 			{
-				if( bieter.getAlly().getShowGtuBieter() )
+				if (bieter.getAlly().getShowGtuBieter())
 				{
 					bietername = bieter.getName();
 				}
 			}
 
-			long cost = entry.getPreis() + (long)(entry.getPreis() / 20d);
-			if( cost == entry.getPreis() )
+			long cost = entry.getPreis() + (long) (entry.getPreis() / 20d);
+			if (cost == entry.getPreis())
 			{
 				cost++;
 			}
@@ -700,24 +697,24 @@ public class ErsteigernController extends TemplateGenerator
 			return;
 		}
 		// Gebot bestaetigt -> Versteigerung aktuallisieren
-		else if( bid > 0 )
+		else if (bid > 0)
 		{
 			int ticks = getContext().get(ContextCommon.class).getTick();
-			long cost = entry.getPreis() + (long)(entry.getPreis() / 20d);
-			if( cost == entry.getPreis() )
+			long cost = entry.getPreis() + (long) (entry.getPreis() / 20d);
+			if (cost == entry.getPreis())
 			{
 				cost++;
 			}
 
 			final String entryname = entry.getObjectName();
 
-			if( (bid >= cost)
-					&& (user.getKonto().compareTo(new BigDecimal(bid).toBigInteger()) >= 0) )
+			if ((bid >= cost)
+					&& (user.getKonto().compareTo(new BigDecimal(bid).toBigInteger()) >= 0))
 			{
-				if( entry.getBieter().getId() != faction )
+				if (entry.getBieter().getId() != faction)
 				{
 					User bieter = entry.getBieter();
-					User factionUser = (User)db.get(User.class, faction);
+					User factionUser = (User) db.get(User.class, faction);
 
 					PM.send(factionUser, entry.getBieter().getId(),
 							"Bei Versteigerung &uuml;berboten",
@@ -732,14 +729,14 @@ public class ErsteigernController extends TemplateGenerator
 									+ "'", false, UserMoneyTransfer.Transfer.SEMIAUTO);
 				}
 
-				if( entry.getTick() < ticks + 3 )
+				if (entry.getTick() < ticks + 3)
 				{
 					entry.setTick(ticks + 3);
 				}
 				entry.setBieter(user);
 				entry.setPreis(bid);
 
-				User gtu = (User)db.get(User.class, this.faction);
+				User gtu = (User) db.get(User.class, this.faction);
 				gtu.transferMoneyFrom(user.getId(), bid, "&Uuml;berweisung Gebot #2"
 						+ entry.getId() + " '" + entryname + "'", false, UserMoneyTransfer.Transfer.SEMIAUTO);
 
@@ -759,7 +756,8 @@ public class ErsteigernController extends TemplateGenerator
 	 * Der Container fuer Sicherheitstokens bei Ueberweisungsvorgaengen.
 	 */
 	@ContextInstance(ContextInstance.Scope.SESSION)
-	protected static class UeberweisungsTokenContainer implements Serializable {
+	protected static class UeberweisungsTokenContainer implements Serializable
+	{
 		private static final long serialVersionUID = 935839793552232133L;
 
 		private String token;
@@ -767,22 +765,26 @@ public class ErsteigernController extends TemplateGenerator
 		/**
 		 * Konstruktor.
 		 */
-		public UeberweisungsTokenContainer() {
+		public UeberweisungsTokenContainer()
+		{
 			this.token = UUID.randomUUID().toString();
 		}
 
 		/**
 		 * Erzeugt ein neues Token im Container.
 		 */
-		public void generateNewToken() {
+		public void generateNewToken()
+		{
 			this.token = UUID.randomUUID().toString();
 		}
 
 		/**
 		 * Gibt das Token als String zurueck.
+		 *
 		 * @return Das Token
 		 */
-		public String getToken() {
+		public String getToken()
+		{
 			return this.token;
 		}
 	}
@@ -790,44 +792,45 @@ public class ErsteigernController extends TemplateGenerator
 	/**
 	 * Ueberweist einen bestimmten Geldbetrag an einen anderen Spieler. Wenn die Ueberweisung noch
 	 * nicht explizit bestaetigt wurde, wird die Bestaetigung erfragt.
+	 *
 	 * @param ack yes falls die Uberweisung bestaetigt wurde (Sicherheitsabfrage)
 	 * @param count Die zu ueberweisenden RE
 	 * @param to Der Spieler an den ueberwiesen werden soll
 	 * @param requestToken Ein Sicherheitstoken zur Bestaetigung der Ueberweisung
 	 */
 	@Action(ActionType.DEFAULT)
-	public void ueberweisenAction(String to, String ack, int count, @UrlParam(name="token") String requestToken)
+	public void ueberweisenAction(String to, String ack, int count, @UrlParam(name = "token") String requestToken)
 	{
-		if( !Faction.get(faction).getPages().hasPage("bank") )
+		if (!Faction.get(faction).getPages().hasPage("bank"))
 		{
 			redirect();
 			return;
 		}
 
-		if( !this.allowsTrade )
+		if (!this.allowsTrade)
 		{
 			addError("Die angegebene Fraktion weigert sich mit ihnen zu handeln solange die Beziehungen feindlich sind");
 			redirect();
 			return;
 		}
 
-		User user = (User)getUser();
+		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 
-		if( user.getKonto().compareTo(new BigDecimal(count).toBigInteger()) < 0 )
+		if (user.getKonto().compareTo(new BigDecimal(count).toBigInteger()) < 0)
 		{
 			count = user.getKonto().intValue();
 		}
 
-		if( count <= 0 )
+		if (count <= 0)
 		{
 			redirect();
 			return;
 		}
 
 		User tmp = User.lookupByIdentifier(to);
-		if( tmp == null )
+		if (tmp == null)
 		{
 			addError("Der angegebene Spieler konnte nicht gefunden werden");
 			redirect("bank");
@@ -837,7 +840,7 @@ public class ErsteigernController extends TemplateGenerator
 		UeberweisungsTokenContainer token = getContext().get(UeberweisungsTokenContainer.class);
 
 		// Falls noch keine Bestaetigung vorliegt: Bestaetigung der Ueberweisung erfragen
-		if( !ack.equals("yes") || !token.getToken().equals(requestToken) )
+		if (!ack.equals("yes") || !token.getToken().equals(requestToken))
 		{
 			token.generateNewToken();
 
@@ -856,7 +859,7 @@ public class ErsteigernController extends TemplateGenerator
 
 		tmp.transferMoneyFrom(user.getId(), count, "&Uuml;berweisung vom "
 				+ Common.getIngameTime(ticks));
-		User factionUser = (User)db.get(User.class, Faction.BANK);
+		User factionUser = (User) db.get(User.class, Faction.BANK);
 
 		PM.send(factionUser, tmp.getId(), "RE &uuml;berwiesen", user.getNickname()
 				+ " hat dir soeben " + Common.ln(count) + " RE &uuml;berwiesen");
@@ -874,20 +877,19 @@ public class ErsteigernController extends TemplateGenerator
 	 * Aendert den Anzeigetyp fuer Kontotransaktionen.
 	 *
 	 * @param type Der neue Anzeigetyp (0-2)
-	 *
 	 */
 	@Action(ActionType.DEFAULT)
 	public void showKontoTransactionTypeAction(int type)
 	{
-		if( !Faction.get(faction).getPages().hasPage("bank") )
+		if (!Faction.get(faction).getPages().hasPage("bank"))
 		{
 			redirect();
 			return;
 		}
 
-		User user = (User)getUser();
+		User user = (User) getUser();
 
-		if( (type >= 0) && (type < 3) )
+		if ((type >= 0) && (type < 3))
 		{
 			user.setUserValue("TBLORDER/factions/konto_maxtype", Integer.toString(type));
 		}
@@ -900,7 +902,7 @@ public class ErsteigernController extends TemplateGenerator
 	@Action(ActionType.DEFAULT)
 	public void bankAction()
 	{
-		if( !Faction.get(faction).getPages().hasPage("bank") )
+		if (!Faction.get(faction).getPages().hasPage("bank"))
 		{
 			redirect();
 			return;
@@ -908,7 +910,7 @@ public class ErsteigernController extends TemplateGenerator
 
 		TemplateEngine t = this.getTemplateEngine();
 		org.hibernate.Session db = getDB();
-		User user = (User)this.getUser();
+		User user = (User) this.getUser();
 
 		t.setVar("show.bank", 1);
 
@@ -916,18 +918,18 @@ public class ErsteigernController extends TemplateGenerator
 		int transtype = Integer.parseInt(user.getUserValue("TBLORDER/factions/konto_maxtype"));
 
 		String newtypetext;
-		switch( transtype - 1 % 3 )
+		switch (transtype - 1 % 3)
 		{
-		case 0:
-			newtypetext = "Nur manuelle anzeigen";
-			break;
-		case 1:
-			newtypetext = "Alle nicht-automatischen anzeigen";
-			break;
-		case 2:
-		default:
-			newtypetext = "Alle anzeigen";
-			transtype = 2;
+			case 0:
+				newtypetext = "Nur manuelle anzeigen";
+				break;
+			case 1:
+				newtypetext = "Alle nicht-automatischen anzeigen";
+				break;
+			case 2:
+			default:
+				newtypetext = "Alle anzeigen";
+				transtype = 2;
 		}
 
 		t.setVar("konto.newtranstype.name", newtypetext, "konto.newtranstype", transtype - 1 % 3);
@@ -991,12 +993,11 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Zeigt die Seite mit diversen weiteren Infos an.
-	 *
 	 */
 	@Action(ActionType.DEFAULT)
 	public void otherAction()
 	{
-		if( !Faction.get(faction).getPages().hasPage("other") )
+		if (!Faction.get(faction).getPages().hasPage("other"))
 		{
 			redirect();
 			return;
@@ -1004,7 +1005,7 @@ public class ErsteigernController extends TemplateGenerator
 
 		TemplateEngine t = this.getTemplateEngine();
 		org.hibernate.Session db = getDB();
-		User user = (User)this.getUser();
+		User user = (User) this.getUser();
 
 		User.Relations relationlist;
 		relationlist = user.getRelations();
@@ -1021,19 +1022,19 @@ public class ErsteigernController extends TemplateGenerator
 		List<Ship> postenList = Common.cast(db
 				.createQuery("select s from Ship s left join s.modules sm " +
 						"where s.id>0 and locate('tradepost',s.status)!=0 or " +
-							"s.shiptype.flags like '%tradepost%' or " +
-							"sm.flags like '%tradepost%' " +
+						"s.shiptype.flags like '%tradepost%' or " +
+						"sm.flags like '%tradepost%' " +
 						"order by s.system,s.x+s.y")
 				.list());
 
-		for( Ship tradepost : postenList )
+		for (Ship tradepost : postenList)
 		{
-			if(!tradepost.isTradepostVisible(user, relationlist))
+			if (!tradepost.isTradepostVisible(user, relationlist))
 			{
 				continue;
 			}
-			StarSystem sys = (StarSystem)db.get(StarSystem.class, tradepost.getSystem());
-			if( !sys.isVisibleFor(user) )
+			StarSystem sys = (StarSystem) db.get(StarSystem.class, tradepost.getSystem());
+			if (!sys.isVisibleFor(user))
 			{
 				continue;
 			}
@@ -1044,12 +1045,12 @@ public class ErsteigernController extends TemplateGenerator
 
 	private void outputHandelspostenKurse(TemplateEngine t, org.hibernate.Session db, User user, Ship tradepost)
 	{
-		GtuWarenKurse kurse = (GtuWarenKurse)db.get(GtuWarenKurse.class, "p"+tradepost.getId());
-		if( kurse == null && tradepost.getOwner().getRace() == Faction.GTU_RASSE )
+		GtuWarenKurse kurse = (GtuWarenKurse) db.get(GtuWarenKurse.class, "p" + tradepost.getId());
+		if (kurse == null && tradepost.getOwner().getRace() == Faction.GTU_RASSE)
 		{
-			kurse = (GtuWarenKurse)db.get(GtuWarenKurse.class, "tradepost");
+			kurse = (GtuWarenKurse) db.get(GtuWarenKurse.class, "tradepost");
 		}
-		if( kurse == null || kurse.getKurse().isEmpty() )
+		if (kurse == null || kurse.getKurse().isEmpty())
 		{
 			return;
 		}
@@ -1059,14 +1060,14 @@ public class ErsteigernController extends TemplateGenerator
 				"kurse.waren.list", "",
 				"posten.owner.name", Common._title(tradepost.getOwner().getName()),
 				"posten.owner.id", tradepost.getOwner().getId(),
-				"posten.location", tradepost.getLocation().displayCoordinates(false) );
+				"posten.location", tradepost.getLocation().displayCoordinates(false));
 
 		boolean full = tradepost.getTypeData().getCargo() <= tradepost.getCargo().getMass();
 
 		Cargo kurseCargo = new Cargo(kurse.getKurse());
 		kurseCargo.setOption(Cargo.Option.SHOWMASS, false);
 		ResourceList reslist = kurseCargo.getResourceList();
-		for( ResourceEntry res : reslist )
+		for (ResourceEntry res : reslist)
 		{
 			ResourceLimitKey resourceLimitKey = new ResourceLimitKey(tradepost, res.getId());
 			ResourceLimit limit = (ResourceLimit) db.get(ResourceLimit.class, resourceLimitKey);
@@ -1079,12 +1080,12 @@ public class ErsteigernController extends TemplateGenerator
 
 			boolean sellable = limit == null || tradepost.getCargo().getResourceCount(res.getId()) < limit.getLimit();
 
-			t.setVar(	"ware.image", res.getImage(),
-						"ware.preis", (res.getCount1() / 1000d > 0.05 ? Common.ln(res.getCount1() / 1000d) : ""),
-						"ware.name", res.getName(),
-						"ware.plainname", res.getPlainName(),
-						"ware.id", res.getId(),
-						"ware.inaktiv", full || !sellable);
+			t.setVar("ware.image", res.getImage(),
+					"ware.preis", (res.getCount1() / 1000d > 0.05 ? Common.ln(res.getCount1() / 1000d) : ""),
+					"ware.name", res.getName(),
+					"ware.plainname", res.getPlainName(),
+					"ware.id", res.getId(),
+					"ware.inaktiv", full || !sellable);
 
 			t.parse("kurse.waren.list", "kurse.waren.listitem", true);
 		}
@@ -1128,7 +1129,7 @@ public class ErsteigernController extends TemplateGenerator
 
 	private void outputAstiKurse(TemplateEngine t, org.hibernate.Session db)
 	{
-		GtuWarenKurse asti = (GtuWarenKurse)db.get(GtuWarenKurse.class, "asti");
+		GtuWarenKurse asti = (GtuWarenKurse) db.get(GtuWarenKurse.class, "asti");
 		Cargo kurseCargo = new Cargo(asti.getKurse());
 		kurseCargo.setOption(Cargo.Option.SHOWMASS, false);
 		t.setVar(
@@ -1139,13 +1140,13 @@ public class ErsteigernController extends TemplateGenerator
 				"posten.location", "");
 
 		ResourceList reslist = kurseCargo.getResourceList();
-		for( ResourceEntry res : reslist )
+		for (ResourceEntry res : reslist)
 		{
-			t.setVar(	"ware.image", res.getImage(),
-						"ware.preis", (res.getCount1() / 1000d > 0.05 ? Common.ln(res.getCount1() / 1000d) : ""),
-						"ware.name", res.getName(),
-						"ware.plainname", res.getPlainName(),
-						"ware.id", res.getId() );
+			t.setVar("ware.image", res.getImage(),
+					"ware.preis", (res.getCount1() / 1000d > 0.05 ? Common.ln(res.getCount1() / 1000d) : ""),
+					"ware.name", res.getName(),
+					"ware.plainname", res.getPlainName(),
+					"ware.id", res.getId());
 
 			t.parse("kurse.waren.list", "kurse.waren.listitem", true);
 		}
@@ -1154,12 +1155,11 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Zeigt die Angebote der Fraktion an.
-	 *
 	 */
 	@Action(ActionType.DEFAULT)
 	public void angeboteAction()
 	{
-		if( !Faction.get(faction).getPages().hasPage("angebote") )
+		if (!Faction.get(faction).getPages().hasPage("angebote"))
 		{
 			redirect();
 			return;
@@ -1177,8 +1177,8 @@ public class ErsteigernController extends TemplateGenerator
 
 		int count = 0;
 		List<?> angebote = db.createQuery("from FactionOffer where faction=:faction")
-			.setInteger("faction",this.faction)
-			.list();
+				.setInteger("faction", this.faction)
+				.list();
 		for (Object anAngebote : angebote)
 		{
 			FactionOffer offer = (FactionOffer) anAngebote;
@@ -1190,7 +1190,7 @@ public class ErsteigernController extends TemplateGenerator
 
 			t.parse("angebote.list", "angebote.item", true);
 		}
-		while( count % 3 > 0 )
+		while (count % 3 > 0)
 		{
 			count++;
 			t.parse("angebote.list", "angebote.emptyitem", true);
@@ -1199,16 +1199,15 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Zeigt die laufenden Versteigerungen an.
-	 *
 	 */
 	@Action(ActionType.DEFAULT)
 	public void versteigerungAction()
 	{
 		TemplateEngine t = this.getTemplateEngine();
 		org.hibernate.Session db = getDB();
-		User user = (User)getUser();
+		User user = (User) getUser();
 
-		if( !Faction.get(faction).getPages().hasPage("versteigerung") )
+		if (!Faction.get(faction).getPages().hasPage("versteigerung"))
 		{
 			redirect();
 			return;
@@ -1216,41 +1215,12 @@ public class ErsteigernController extends TemplateGenerator
 
 		t.setVar("show.versteigerungen", 1);
 		t.setBlock("_ERSTEIGERN", "entry.listitem", "entry.list");
-		t.setBlock("_ERSTEIGERN", "gtuzwischenlager.listitem", "gtuzwischenlager.list");
 
 		/*
 		 * Laufende Handelsvereinbarungen anzeigen (nur solche, die man schon selbst erfuellt hat im
 		 * Moment)
 		 */
-		Set<Ship> gzlliste = new HashSet<>();
-
-		List<?> entries = db.createQuery("from GtuZwischenlager where user1= :user or user2= :user")
-				.setEntity("user", user).list();
-
-		for (Object entry1 : entries)
-		{
-			GtuZwischenlager aentry = (GtuZwischenlager) entry1;
-
-			Cargo owncargoneed = aentry.getCargo1Need();
-			if (aentry.getUser2() == user)
-			{
-				owncargoneed = aentry.getCargo2Need();
-			}
-
-			if (owncargoneed.isEmpty())
-			{
-				gzlliste.add(aentry.getPosten());
-			}
-		}
-
-		for( Ship aposten : gzlliste )
-		{
-			t.setVar("gtuzwischenlager.name", Common._plaintitle(aposten.getName()),
-					"gtuzwischenlager.x", aposten.getX(), "gtuzwischenlager.y", aposten.getY(),
-					"gtuzwischenlager.system", aposten.getSystem());
-
-			t.parse("gtuzwischenlager.list", "gtuzwischenlager.listitem", true);
-		}
+		handelsvereinbarungenAnzeigen(t, db, user);
 
 		/*
 		 * Einzelversteigerungen
@@ -1322,34 +1292,95 @@ public class ErsteigernController extends TemplateGenerator
 
 		t.setBlock("_ERSTEIGERN", "gtu.dropzones.listitem", "gtu.dropzones.list");
 
-		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "gtudefaultdropzone");
+
+		dropZoneAuswahlAnzeigen(t, db, user);
+	}
+
+	private void handelsvereinbarungenAnzeigen(TemplateEngine t, Session db, User user)
+	{
+		t.setBlock("_ERSTEIGERN", "gtuzwischenlager.listitem", "gtuzwischenlager.list");
+
+		Set<Ship> gzlliste = new HashSet<>();
+
+		List<?> entries = db.createQuery("from GtuZwischenlager where user1= :user or user2= :user")
+				.setEntity("user", user).list();
+
+		for (Object entry1 : entries)
+		{
+			GtuZwischenlager aentry = (GtuZwischenlager) entry1;
+
+			Cargo owncargoneed = aentry.getCargo1Need();
+			if (aentry.getUser2() == user)
+			{
+				owncargoneed = aentry.getCargo2Need();
+			}
+
+			if (owncargoneed.isEmpty())
+			{
+				gzlliste.add(aentry.getPosten());
+			}
+		}
+
+		for (Ship aposten : gzlliste)
+		{
+			t.setVar("gtuzwischenlager.name", Common._plaintitle(aposten.getName()),
+					"gtuzwischenlager.x", aposten.getX(), "gtuzwischenlager.y", aposten.getY(),
+					"gtuzwischenlager.system", aposten.getSystem());
+
+			t.parse("gtuzwischenlager.list", "gtuzwischenlager.listitem", true);
+		}
+	}
+
+	private void dropZoneAuswahlAnzeigen(TemplateEngine t, Session db, User user)
+	{
+		List<StarSystem> dropZones = ermittleMoeglicheDropZones();
+		StarSystem aktuelleDropZone = (StarSystem) db.get(StarSystem.class, user.getGtuDropZone());
+		if (!dropZones.contains(aktuelleDropZone))
+		{
+			dropZones.add(aktuelleDropZone);
+		}
+		for (StarSystem system : dropZones)
+		{
+			t.setVar("dropzone.system.id", system.getID(),
+					"dropzone.system.name", system.getName(),
+					"dropzone.selected", (user.getGtuDropZone() == system.getID()));
+
+			t.parse("gtu.dropzones.list", "gtu.dropzones.listitem", true);
+		}
+	}
+
+
+	public List<StarSystem> ermittleMoeglicheDropZones()
+	{
+		org.hibernate.Session db = getDB();
+		User user = (User) getUser();
+
+		List<StarSystem> result = new ArrayList<>();
+
+		ConfigValue value = (ConfigValue) db.get(ConfigValue.class, "gtudefaultdropzone");
 		int defaultDropZone = Integer.valueOf(value.getValue());
 
-		List<?> systems = db.createQuery("from StarSystem order by id asc").list();
+		List<?> systems = db.createCriteria(StarSystem.class).addOrder(Order.asc("id")).list();
 		for (Object system1 : systems)
 		{
 			StarSystem system = (StarSystem) system1;
 			if (system.getDropZone() != null && (user.getAstiSystems().contains(system.getID()) || system.getID() == defaultDropZone))
 			{
-				t.setVar("dropzone.system.id", system.getID(),
-						"dropzone.system.name", system.getName(),
-						"dropzone.selected", (user.getGtuDropZone() == system.getID()));
-
-				t.parse("gtu.dropzones.list", "gtu.dropzones.listitem", true);
+				result.add(system);
 			}
 		}
+		return result;
 	}
 
 	/**
 	 * Zeigt den Fraktionstext an.
-	 *
 	 */
 	@Action(ActionType.DEFAULT)
 	public void generalAction()
 	{
 		TemplateEngine t = getTemplateEngine();
 
-		if( !Faction.get(faction).getPages().hasPage("general") )
+		if (!Faction.get(faction).getPages().hasPage("general"))
 		{
 			redirect();
 			return;
@@ -1369,47 +1400,46 @@ public class ErsteigernController extends TemplateGenerator
 	 * @param targetx Die Ziel-X-Koordinate
 	 * @param targety Die Ziel-Y-Koordinate
 	 * @param transport Sofert der Wert <code>1</code>, wird der Transportauftrag
-	 *           bestaetigt und abgespeichert
-	 *
+	 * bestaetigt und abgespeichert
 	 */
 	@Action(ActionType.DEFAULT)
 	public void shopOrderGanymedeSummaryAction(int sourcesystem, int ganymedeid, int targetsystem, int targetx, int targety, int transport)
 	{
 		TemplateEngine t = getTemplateEngine();
-		User user = (User)getUser();
+		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
 
-		if( !Faction.get(faction).getPages().hasPage("shop") )
+		if (!Faction.get(faction).getPages().hasPage("shop"))
 		{
 			redirect();
 			return;
 		}
 
-		if( !this.allowsTrade )
+		if (!this.allowsTrade)
 		{
 			addError("Die angegebene Fraktion weigert sich mit ihnen zu handeln solange die Beziehungen feindlich sind");
 			redirect();
 			return;
 		}
 
-		FactionShopEntry shopentry = (FactionShopEntry)db
-			.createQuery("from FactionShopEntry where faction=:faction and type=2")
-			.setInteger("faction", this.faction)
-			.setMaxResults(1)
-			.uniqueResult();
+		FactionShopEntry shopentry = (FactionShopEntry) db
+				.createQuery("from FactionShopEntry where faction=:faction and type=2")
+				.setInteger("faction", this.faction)
+				.setMaxResults(1)
+				.uniqueResult();
 
-		if( shopentry == null )
+		if (shopentry == null)
 		{
 			this.redirect();
 			return;
 		}
 
-		Ship gany = (Ship)db.get(Ship.class, ganymedeid);
+		Ship gany = (Ship) db.get(Ship.class, ganymedeid);
 
-		if( gany == null ||
+		if (gany == null ||
 				gany.getOwner().getId() != user.getId() ||
 				gany.getSystem() != sourcesystem ||
-				gany.getType() != ShopGanyTransportEntry.SHIPTYPE_GANYMEDE )
+				gany.getType() != ShopGanyTransportEntry.SHIPTYPE_GANYMEDE)
 		{
 			addError("Die angegebene Ganymede konnte im Ausgangssystem nicht lokalisiert werden");
 			unsetParameter("sourcesystem");
@@ -1419,12 +1449,12 @@ public class ErsteigernController extends TemplateGenerator
 			return;
 		}
 
-		FactionShopOrder sameorder = (FactionShopOrder)db
-			.createQuery("from FactionShopOrder where user=:user and addData like :pattern and status < 4")
-			.setParameter("user", user)
-			.setParameter("pattern", gany.getId()+"@%")
-			.uniqueResult();
-		if( sameorder != null )
+		FactionShopOrder sameorder = (FactionShopOrder) db
+				.createQuery("from FactionShopOrder where user=:user and addData like :pattern and status < 4")
+				.setParameter("user", user)
+				.setParameter("pattern", gany.getId() + "@%")
+				.uniqueResult();
+		if (sameorder != null)
 		{
 			addError("Es existiert bereits ein Transport-Auftrag f&uuml;r diese Ganymede");
 			unsetParameter("sourcesystem");
@@ -1434,9 +1464,9 @@ public class ErsteigernController extends TemplateGenerator
 			return;
 		}
 
-		StarSystem system = (StarSystem)db.get(StarSystem.class, targetsystem);
-		if( (system.getAccess() == StarSystem.AC_ADMIN)
-				&& !user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS) )
+		StarSystem system = (StarSystem) db.get(StarSystem.class, targetsystem);
+		if ((system.getAccess() == StarSystem.AC_ADMIN)
+				&& !user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS))
 		{
 			addError("Die angegebene Zielsystem konnte nicht lokalisiert werden");
 			unsetParameter("targetsystem");
@@ -1444,9 +1474,9 @@ public class ErsteigernController extends TemplateGenerator
 			redirect("shopOrderGanymede");
 			return;
 		}
-		else if( (system.getAccess() == StarSystem.AC_NPC)
+		else if ((system.getAccess() == StarSystem.AC_NPC)
 				&& !user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS)
-				&& !user.hasFlag(User.FLAG_VIEW_SYSTEMS) )
+				&& !user.hasFlag(User.FLAG_VIEW_SYSTEMS))
 		{
 			addError("Die angegebene Zielsystem konnte nicht lokalisiert werden");
 			unsetParameter("targetsystem");
@@ -1455,8 +1485,8 @@ public class ErsteigernController extends TemplateGenerator
 			return;
 		}
 
-		if( (targetx < 1) || (targetx > system.getWidth()) || (targety < 1)
-				|| (targety > system.getHeight()) )
+		if ((targetx < 1) || (targetx > system.getWidth()) || (targety < 1)
+				|| (targety > system.getHeight()))
 		{
 			addError("Die angegebene Zielkoordinaten konnten im Zielsystem nicht lokalisiert werden");
 			unsetParameter("targetx");
@@ -1469,13 +1499,13 @@ public class ErsteigernController extends TemplateGenerator
 		// Weg finden und Preis ausrechnen
 		Map<Integer, List<JumpNode>> jumpnodes = new HashMap<>();
 		List<?> jnList = db.createQuery("from JumpNode where hidden=0 and (systemOut!=:source or system=:source)")
-			.setInteger("source", sourcesystem)
-			.list();
+				.setInteger("source", sourcesystem)
+				.list();
 
-		for( Object obj : jnList )
+		for (Object obj : jnList)
 		{
-			JumpNode jn = (JumpNode)obj;
-			if( !jumpnodes.containsKey(jn.getSystem()) )
+			JumpNode jn = (JumpNode) obj;
+			if (!jumpnodes.containsKey(jn.getSystem()))
 			{
 				jumpnodes.put(jn.getSystem(), new ArrayList<JumpNode>());
 			}
@@ -1484,8 +1514,8 @@ public class ErsteigernController extends TemplateGenerator
 
 		long totalcost = 0;
 		JumpNodeRouter.Result shortestpath = new JumpNodeRouter(jumpnodes)
-			.locateShortestJNPath(sourcesystem, gany.getX(), gany.getY(), targetsystem, targetx, targety);
-		if( shortestpath == null )
+				.locateShortestJNPath(sourcesystem, gany.getX(), gany.getY(), targetsystem, targetx, targety);
+		if (shortestpath == null)
 		{
 			transport = 0;
 			t.setVar("transport.price", "<span style=\"color:red\">Kein Weg gefunden</span>");
@@ -1498,22 +1528,22 @@ public class ErsteigernController extends TemplateGenerator
 					.setParameter("faction", this.faction)
 					.setParameter("type", FactionShopEntry.Type.TRANSPORT)
 					.list());
-			for( FactionShopEntry entry : entries )
+			for (FactionShopEntry entry : entries)
 			{
 				costindex.put(entry.getResource(), entry.getPrice());
 			}
 
 			Set<Integer> systemlist = new HashSet<>();
 			systemlist.add(sourcesystem);
-			for( int i = 0; i < shortestpath.path.size(); i++ )
+			for (int i = 0; i < shortestpath.path.size(); i++)
 			{
 				JumpNode jn = shortestpath.path.get(i);
 				systemlist.add(jn.getSystemOut());
 			}
 
-			for( Integer sys : systemlist )
+			for (Integer sys : systemlist)
 			{
-				if( costindex.containsKey(Integer.toString(sys)) )
+				if (costindex.containsKey(Integer.toString(sys)))
 				{
 					totalcost += costindex.get(Integer.toString(sys));
 				}
@@ -1523,12 +1553,12 @@ public class ErsteigernController extends TemplateGenerator
 				}
 			}
 
-			if( totalcost < 0 )
+			if (totalcost < 0)
 			{
 				totalcost = 0;
 			}
 
-			if( user.getKonto().compareTo(new BigDecimal(totalcost).toBigInteger()) >= 0 )
+			if (user.getKonto().compareTo(new BigDecimal(totalcost).toBigInteger()) >= 0)
 			{
 				t.setVar("transport.price", Common.ln(totalcost) + " RE", "transport.enableOrder",
 						1);
@@ -1541,7 +1571,7 @@ public class ErsteigernController extends TemplateGenerator
 			}
 		}
 
-		if( transport == 0 )
+		if (transport == 0)
 		{
 			t.setVar("show.shopOrderGanymedeSummary", 1,
 					"ganymede.id", gany.getId(),
@@ -1555,13 +1585,13 @@ public class ErsteigernController extends TemplateGenerator
 		}
 		else
 		{
-			User faction = (User)getDB().get(User.class, this.faction);
+			User faction = (User) getDB().get(User.class, this.faction);
 			faction.transferMoneyFrom(user.getId(), totalcost,
 					"&Uuml;berweisung Bestellung #ganytransXX" + gany.getId());
 
 			StringBuilder waypoints = new StringBuilder(300);
 			waypoints.append("Start: ").append(sourcesystem).append(":").append(gany.getX()).append("/").append(gany.getY()).append("\n");
-			for( int i = 0; i < shortestpath.path.size(); i++ )
+			for (int i = 0; i < shortestpath.path.size(); i++)
 			{
 				JumpNode jn = shortestpath.path.get(i);
 
@@ -1608,43 +1638,42 @@ public class ErsteigernController extends TemplateGenerator
 	 * @param targetsystem Die ID des Zielsystems
 	 * @param targetx Die Ziel-X-Koordinate
 	 * @param targety Die Ziel-Y-Koordinate
-	 *
 	 */
 	@Action(ActionType.DEFAULT)
 	public void shopOrderGanymedeAction(int sourcesystem, int ganymedeid, int targetsystem, int targetx, int targety)
 	{
 		TemplateEngine t = getTemplateEngine();
-		User user = (User)getUser();
+		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
 
-		if( !Faction.get(faction).getPages().hasPage("shop") )
+		if (!Faction.get(faction).getPages().hasPage("shop"))
 		{
 			redirect();
 			return;
 		}
 
-		if( !this.allowsTrade )
+		if (!this.allowsTrade)
 		{
 			addError("Die angegebene Fraktion weigert sich mit ihnen zu handeln solange die Beziehungen feindlich sind");
 			redirect();
 			return;
 		}
 
-		FactionShopEntry entry = (FactionShopEntry)db
-			.createQuery("from FactionShopEntry where faction=:faction and type=2")
-			.setInteger("faction", this.faction)
-			.setMaxResults(1)
-			.uniqueResult();
+		FactionShopEntry entry = (FactionShopEntry) db
+				.createQuery("from FactionShopEntry where faction=:faction and type=2")
+				.setInteger("faction", this.faction)
+				.setMaxResults(1)
+				.uniqueResult();
 
-		if( entry == null )
+		if (entry == null)
 		{
 			this.redirect();
 			return;
 		}
 
 		// Wenn alle Parameter eingegebene wurden -> shopOrderGanymedeSummary
-		if( targetsystem != 0 && ganymedeid != 0
-				&& targetx != 0 && targety != 0 && sourcesystem != 0 )
+		if (targetsystem != 0 && ganymedeid != 0
+				&& targetx != 0 && targety != 0 && sourcesystem != 0)
 		{
 
 			redirect("shopOrderGanymedeSummary");
@@ -1669,7 +1698,7 @@ public class ErsteigernController extends TemplateGenerator
 				.setEntity("user", user)
 				.setParameter("type", FactionShopEntry.Type.TRANSPORT)
 				.list());
-		for( FactionShopOrder order : orderList )
+		for (FactionShopOrder order : orderList)
 		{
 			String[] tmp = StringUtils.split(order.getAddData(), "@");
 			int ganyid = Integer.parseInt(tmp[0]);
@@ -1678,27 +1707,27 @@ public class ErsteigernController extends TemplateGenerator
 		}
 
 		String blockedganysql = "";
-		if( blockedganylist.size() > 0 )
+		if (blockedganylist.size() > 0)
 		{
 			blockedganysql = "AND id not in (:ganylist)";
 		}
 
-		ShipType ganyType = (ShipType)db.get(ShipType.class, ShopGanyTransportEntry.SHIPTYPE_GANYMEDE);
+		ShipType ganyType = (ShipType) db.get(ShipType.class, ShopGanyTransportEntry.SHIPTYPE_GANYMEDE);
 
 		boolean first = true;
 		Query query = db
-			.createQuery("select distinct system from Ship where shiptype=:ganyType and owner=:user "+blockedganysql)
-			.setEntity("ganyType", ganyType)
-			.setEntity("user", user);
-		if( blockedganylist.size() > 0 )
+				.createQuery("select distinct system from Ship where shiptype=:ganyType and owner=:user " + blockedganysql)
+				.setEntity("ganyType", ganyType)
+				.setEntity("user", user);
+		if (blockedganylist.size() > 0)
 		{
 			query.setParameterList("ganylist", blockedganylist);
 		}
 		List<Integer> ganySystems = Common.cast(query
-			.list());
-		for( Integer asystem : ganySystems )
+				.list());
+		for (Integer asystem : ganySystems)
 		{
-			if( sourcesystem == asystem )
+			if (sourcesystem == asystem)
 			{
 				t.setVar("sourcesystem.selected", 1);
 				first = false;
@@ -1707,7 +1736,7 @@ public class ErsteigernController extends TemplateGenerator
 			{
 				t.setVar("sourcesystem.selected", 0);
 			}
-			StarSystem system = (StarSystem)db.get(StarSystem.class, asystem);
+			StarSystem system = (StarSystem) db.get(StarSystem.class, asystem);
 			t.setVar("sourcesystem.id", asystem, "sourcesystem.name", system.getName());
 
 			t.parse("ganytrans.sourcesystem.list", "ganytrans.sourcesystem.listitem", true);
@@ -1715,7 +1744,7 @@ public class ErsteigernController extends TemplateGenerator
 
 		// Check, ob ein System ausgewaehlt wurde.
 		// Wenn nicht -> Ende
-		if( first || sourcesystem == 0 )
+		if (first || sourcesystem == 0)
 		{
 			return;
 		}
@@ -1725,19 +1754,19 @@ public class ErsteigernController extends TemplateGenerator
 		// Moegliche Ganymedes ausgeben
 		first = true;
 		List<Ship> ships = Common.cast(db
-			.createQuery("from Ship where shiptype=:ganyType and owner=:user and system=:sys order by x+y")
-			.setEntity("ganyType", ganyType)
-			.setEntity("user", user)
-			.setInteger("sys", sourcesystem)
-			.list());
-		for( Ship agany : ships )
+				.createQuery("from Ship where shiptype=:ganyType and owner=:user and system=:sys order by x+y")
+				.setEntity("ganyType", ganyType)
+				.setEntity("user", user)
+				.setInteger("sys", sourcesystem)
+				.list());
+		for (Ship agany : ships)
 		{
-			if( blockedganylist.contains(agany.getId()) )
+			if (blockedganylist.contains(agany.getId()))
 			{
 				continue;
 			}
 
-			if( first )
+			if (first)
 			{
 				t.setVar("ganymede.selected", 1);
 				first = false;
@@ -1756,21 +1785,21 @@ public class ErsteigernController extends TemplateGenerator
 
 		// Zielsysteme ausgeben
 		first = true;
-		for( StarSystem system : systems )
+		for (StarSystem system : systems)
 		{
-			if( (system.getAccess() == StarSystem.AC_ADMIN)
-					&& !user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS) )
+			if ((system.getAccess() == StarSystem.AC_ADMIN)
+					&& !user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS))
 			{
 				continue;
 			}
-			else if( (system.getAccess() == StarSystem.AC_NPC)
+			else if ((system.getAccess() == StarSystem.AC_NPC)
 					&& !user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS)
-					&& !user.hasFlag(User.FLAG_VIEW_SYSTEMS) )
+					&& !user.hasFlag(User.FLAG_VIEW_SYSTEMS))
 			{
 				continue;
 			}
 
-			if( first )
+			if (first)
 			{
 				t.setVar("targetsystem.selected", 1);
 				first = false;
@@ -1795,29 +1824,28 @@ public class ErsteigernController extends TemplateGenerator
 	 * @param ordersys Das Liefersystem
 	 * @param orderx Die X-Komponente der Lieferkoordinate
 	 * @param ordery Die Y-Komponente der Lieferkoordinate
-	 *
 	 */
 	@Action(ActionType.DEFAULT)
 	public void shopOrderAction(FactionShopEntry shopentry, int ordercount, int ordersys, int orderx, int ordery)
 	{
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
-		User user = (User)getUser();
+		User user = (User) getUser();
 
-		if( !Faction.get(faction).getPages().hasPage("shop") )
+		if (!Faction.get(faction).getPages().hasPage("shop"))
 		{
 			redirect();
 			return;
 		}
 
-		if( !this.allowsTrade )
+		if (!this.allowsTrade)
 		{
 			addError("Die angegebene Fraktion weigert sich mit ihnen zu handeln solange die Beziehungen feindlich sind");
 			redirect();
 			return;
 		}
 
-		if( shopentry == null )
+		if (shopentry == null)
 		{
 			t.setVar("show.message",
 					"<span style=\"color:red\">Es existiert kein passendes Angebot</span>");
@@ -1825,31 +1853,31 @@ public class ErsteigernController extends TemplateGenerator
 			return;
 		}
 
-		if(!shopentry.canBuy(user))
+		if (!shopentry.canBuy(user))
 		{
 			t.setVar("show.message",
-					 "<span style=\"color:red\">Es existiert kein passendes Angebot</span>");
+					"<span style=\"color:red\">Es existiert kein passendes Angebot</span>");
 			redirect("shop");
 			return;
 		}
 
-		if(shopentry.getAvailability() == 2)
+		if (shopentry.getAvailability() == 2)
 		{
 			t.setVar("show.message",
-					 "<span style=\"color:red\">Das Angebot ist nicht verf&uuml;gbar</span>");
+					"<span style=\"color:red\">Das Angebot ist nicht verf&uuml;gbar</span>");
 			redirect("shop");
 			return;
 		}
 
 		// Ganymed-Transporte verarbeiten
-		if( shopentry.getType() == FactionShopEntry.Type.TRANSPORT )
+		if (shopentry.getType() == FactionShopEntry.Type.TRANSPORT)
 		{
 			redirect("shopOrderGanymede");
 
 			return;
 		}
 
-		if( ordercount < 1 )
+		if (ordercount < 1)
 		{
 			redirect("shop");
 			return;
@@ -1857,11 +1885,11 @@ public class ErsteigernController extends TemplateGenerator
 
 		ShopEntry entry;
 
-		if( shopentry.getType() == FactionShopEntry.Type.SHIP )
+		if (shopentry.getType() == FactionShopEntry.Type.SHIP)
 		{ // Schiff
 			entry = new ShopShipEntry(shopentry);
 		}
-		else if( shopentry.getType() == FactionShopEntry.Type.ITEM )
+		else if (shopentry.getType() == FactionShopEntry.Type.ITEM)
 		{ // Cargo
 			entry = new ShopResourceEntry(shopentry);
 		}
@@ -1871,16 +1899,16 @@ public class ErsteigernController extends TemplateGenerator
 					+ "'");
 		}
 
-		if( user.getKonto().compareTo(new BigDecimal(entry.getPrice() * ordercount).toBigInteger()) < 0 )
+		if (user.getKonto().compareTo(new BigDecimal(entry.getPrice() * ordercount).toBigInteger()) < 0)
 		{
 			t.setVar("show.message",
-							"<span style=\"color:red\">Sie verf&uuml;gen nicht &uuml;ber genug Geld</span>");
+					"<span style=\"color:red\">Sie verf&uuml;gen nicht &uuml;ber genug Geld</span>");
 			redirect("shop");
 			return;
 		}
 
-		User factionUser = (User)db.get(User.class, this.faction);
-		if( user.getLoyalitaetspunkteTotalBeiNpc(factionUser) < entry.getLpKosten()*ordercount )
+		User factionUser = (User) db.get(User.class, this.faction);
+		if (user.getLoyalitaetspunkteTotalBeiNpc(factionUser) < entry.getLpKosten() * ordercount)
 		{
 			t.setVar("show.message",
 					"<span style=\"color:red\">Sie verfügen nicht über genug Loyalitätspunkte</span>");
@@ -1888,7 +1916,7 @@ public class ErsteigernController extends TemplateGenerator
 			return;
 		}
 
-		if( ordersys == 0 || orderx == 0 || ordery == 0 )
+		if (ordersys == 0 || orderx == 0 || ordery == 0)
 		{
 			t.setVar("show.shopOrderLocation", 1,
 					"order.count", ordercount,
@@ -1907,14 +1935,14 @@ public class ErsteigernController extends TemplateGenerator
 
 			String bestellId = "#" + entry.getType() + entry.getResource() + "XX";
 
-			if( entry.getLpKosten() > 0 )
+			if (entry.getLpKosten() > 0)
 			{
-				Loyalitaetspunkte lp = new Loyalitaetspunkte(user,factionUser, "Bestellung "+bestellId, (int)(-ordercount*entry.getLpKosten()));
+				Loyalitaetspunkte lp = new Loyalitaetspunkte(user, factionUser, "Bestellung " + bestellId, (int) (-ordercount * entry.getLpKosten()));
 				user.getLoyalitaetspunkte().add(lp);
 				db.persist(lp);
 			}
 
-			if( entry.getPrice() > 0 )
+			if (entry.getPrice() > 0)
 			{
 				factionUser.transferMoneyFrom(user.getId(), entry.getPrice() * ordercount,
 						"&Uuml;berweisung Bestellung " + bestellId
@@ -1935,7 +1963,7 @@ public class ErsteigernController extends TemplateGenerator
 							+ entry.getName()
 							+ " f&uuml;r "
 							+ Common.ln(entry.getPrice() * ordercount) + " RE"
-							+ (entry.getLpKosten() > 0 ? " und "+Common.ln(entry.getLpKosten())+" LP " : "")
+							+ (entry.getLpKosten() > 0 ? " und " + Common.ln(entry.getLpKosten()) + " LP " : "")
 							+ " erhalten und vom System best&auml;tigt.<br />Sollten noch R&uuml;ckfragen bestehend so wird sich ein Sachbearbeiter bei ihnen melden.<br />Einen angenehmen Tag noch!");
 
 			redirect("shop");
@@ -1944,6 +1972,7 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Erstellt einen neuen Shop-Eintrag.
+	 *
 	 * @param entryCost Die Kosten des Eintrags in LP
 	 * @param entryLpKosten Die Kosten des Eintrags in RE
 	 * @param entryType Der Typ des Eintrags (ship,item,transport)
@@ -1954,15 +1983,15 @@ public class ErsteigernController extends TemplateGenerator
 	{
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
-		User user = (User)getUser();
+		User user = (User) getUser();
 
-		if( !Faction.get(faction).getPages().hasPage("shop") )
+		if (!Faction.get(faction).getPages().hasPage("shop"))
 		{
 			redirect();
 			return;
 		}
 
-		if( this.faction == user.getId() )
+		if (this.faction == user.getId())
 		{
 			FactionShopEntry.Type type = null;
 			switch (entryType)
@@ -2125,32 +2154,32 @@ public class ErsteigernController extends TemplateGenerator
 
 	private String getStatusColor(int status)
 	{
-		switch( status )
+		switch (status)
 		{
-		case 0:
-			return "#DDDD00";
-		case 1:
-			return "#4477DD";
-		case 2:
-			return "#55DD55";
-		case 3:
-			return "#CC2222";
+			case 0:
+				return "#DDDD00";
+			case 1:
+				return "#4477DD";
+			case 2:
+				return "#55DD55";
+			case 3:
+				return "#CC2222";
 		}
 		return "";
 	}
 
 	private String getStatusName(int status)
 	{
-		switch( status )
+		switch (status)
 		{
-		case 0:
-			return "&nbsp;&nbsp;Neu&nbsp;&nbsp;";
-		case 1:
-			return "In Bearbeitung";
-		case 2:
-			return "Auslieferung";
-		case 3:
-			return "Nicht verf&uuml;gbar";
+			case 0:
+				return "&nbsp;&nbsp;Neu&nbsp;&nbsp;";
+			case 1:
+				return "In Bearbeitung";
+			case 2:
+				return "Auslieferung";
+			case 3:
+				return "Nicht verf&uuml;gbar";
 		}
 		return "";
 	}
@@ -2170,11 +2199,11 @@ public class ErsteigernController extends TemplateGenerator
 	@SuppressWarnings("unchecked")
 	@Action(ActionType.DEFAULT)
 	public void ausbauAction(@UrlParam(name = "astiid") Base base,
-							@UrlParam(name = "colonizerid") Ship colonizer,
-							UpgradeInfo felder,
-							UpgradeInfo cargo,
-							boolean bar,
-							String order)
+							 @UrlParam(name = "colonizerid") Ship colonizer,
+							 UpgradeInfo felder,
+							 UpgradeInfo cargo,
+							 boolean bar,
+							 String order)
 	{
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
@@ -2234,21 +2263,21 @@ public class ErsteigernController extends TemplateGenerator
 			}
 
 			// Teste ob die übergebenen felder und cargo Parameter korrekt sind
-			if (!cargo.getCargo() || felder.getCargo() || cargo.getType()!=base.getKlasse() || felder.getType() != base.getKlasse())
+			if (!cargo.getCargo() || felder.getCargo() || cargo.getType() != base.getKlasse() || felder.getType() != base.getKlasse())
 			{ // Da es selbst für den leeren Ausbau Einträge gibt, funktioniert das hier
 				addError("Es wurden illegale Ausbauten ausgew&auml;hlt");
 				redirect();
 				return;
 			}
 
-			if ( felder.getMod() > 0 && (base.getMaxTiles() + felder.getMod() > maxvalues.getMaxTiles()))
+			if (felder.getMod() > 0 && (base.getMaxTiles() + felder.getMod() > maxvalues.getMaxTiles()))
 			{
 				addError("Der Asteroid hat zuviele Felder nach diesem Ausbau");
 				redirect();
 				return;
 			}
 
-			if ( cargo.getMod() > 0 && (base.getMaxCargo() + cargo.getMod() > maxvalues.getMaxCargo()))
+			if (cargo.getMod() > 0 && (base.getMaxCargo() + cargo.getMod() > maxvalues.getMaxCargo()))
 			{
 				addError("Der Asteroid hat zuviel Lagerraum nach diesem Ausbau.");
 				redirect();
@@ -2399,22 +2428,21 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Zeigt den Shop der Fraktion an.
-	 *
 	 */
 	@Action(ActionType.DEFAULT)
 	public void shopAction()
 	{
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
-		User user = (User)getUser();
+		User user = (User) getUser();
 
-		if( !Faction.get(faction).getPages().hasPage("shop") )
+		if (!Faction.get(faction).getPages().hasPage("shop"))
 		{
 			redirect();
 			return;
 		}
 
-		User factionUser = (User)db.get(User.class, this.faction);
+		User factionUser = (User) db.get(User.class, this.faction);
 
 		t.setVar("show.shop", 1);
 
@@ -2422,7 +2450,7 @@ public class ErsteigernController extends TemplateGenerator
 		t.setBlock("_ERSTEIGERN", "shop.orderlist.listitem", "shop.orderlist.list");
 		t.setBlock("_ERSTEIGERN", "shop.shopownerlist.listitem", "shop.shopownerlist.list");
 
-		if( this.faction != user.getId() )
+		if (this.faction != user.getId())
 		{
 			List<?> orderentryList = db
 					.createQuery(
@@ -2544,8 +2572,8 @@ public class ErsteigernController extends TemplateGenerator
 
 		List<?> ganyEntryList = db.createQuery(
 				"from FactionShopEntry where faction= :faction and type=2")
-			.setInteger("faction", faction)
-			.list();
+				.setInteger("faction", faction)
+				.list();
 
 		FactionShopEntry[] ganytransport = new FactionShopEntry[ganyEntryList.size()];
 		int i = 0;
@@ -2556,7 +2584,7 @@ public class ErsteigernController extends TemplateGenerator
 		}
 
 		// Falls vorhanden jetzt eine Ganymed-Infozeile ausgeben
-		if( ganytransport.length > 0 )
+		if (ganytransport.length > 0)
 		{
 			ShopEntry shopEntryObj = new ShopGanyTransportEntry(ganytransport);
 
@@ -2613,14 +2641,13 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Zeigt die Meldeseite fuer LP der Fraktion an.
-	 *
 	 */
 	@Action(ActionType.DEFAULT)
 	public void aktionMeldenAction()
 	{
 		TemplateEngine t = getTemplateEngine();
 
-		if( !Faction.get(faction).getPages().hasPage("aktionmelden") )
+		if (!Faction.get(faction).getPages().hasPage("aktionmelden"))
 		{
 			redirect();
 			return;
@@ -2631,6 +2658,7 @@ public class ErsteigernController extends TemplateGenerator
 
 	/**
 	 * Erstellt eine LP-Meldung bei der momentanen Fraktion.
+	 *
 	 * @param meldungstext Der Beschreibungstext der Aktion
 	 */
 	@Action(ActionType.DEFAULT)
@@ -2638,17 +2666,17 @@ public class ErsteigernController extends TemplateGenerator
 	{
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
-		User user = (User)getUser();
+		User user = (User) getUser();
 
-		if( !Faction.get(faction).getPages().hasPage("aktionmelden") )
+		if (!Faction.get(faction).getPages().hasPage("aktionmelden"))
 		{
 			redirect();
 			return;
 		}
 
-		User factionUser = (User)db.get(User.class, this.faction);
+		User factionUser = (User) db.get(User.class, this.faction);
 
-		if( meldungstext == null || meldungstext.trim().length() < 10 )
+		if (meldungstext == null || meldungstext.trim().length() < 10)
 		{
 			addError("Bitte gib eine genaue Beschreibung deiner Aktion ein");
 			redirect("aktionMelden");
