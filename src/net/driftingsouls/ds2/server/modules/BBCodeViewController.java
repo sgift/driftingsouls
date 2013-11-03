@@ -26,7 +26,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
@@ -36,7 +36,8 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  *
  */
 @Module(name="bbcodeview")
-public class BBCodeViewController extends TemplateGenerator {
+public class BBCodeViewController extends TemplateController
+{
 	private static List<String> codes = new ArrayList<>();
 	static {
 		codes.add("[url]http://www.dieGew&uuml;nschteSeite.de[/url]<br />");

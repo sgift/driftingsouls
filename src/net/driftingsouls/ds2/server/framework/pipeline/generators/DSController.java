@@ -40,9 +40,9 @@ import java.util.Map;
  *
  * @author Christopher Jung
  */
-public abstract class DSGenerator extends Generator
+public abstract class DSController extends Generator
 {
-	private static final Log log = LogFactory.getLog(DSGenerator.class);
+	private static final Log log = LogFactory.getLog(DSController.class);
 	private static final LocalVariableTableParameterNameDiscoverer PARAMETER_NAME_DISCOVERER = new LocalVariableTableParameterNameDiscoverer();
 
 	private ActionType actionType;
@@ -61,7 +61,7 @@ public abstract class DSGenerator extends Generator
 	 *
 	 * @param context Der Kontext
 	 */
-	public DSGenerator(Context context)
+	public DSController(Context context)
 	{
 		super(context);
 

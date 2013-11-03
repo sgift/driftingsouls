@@ -31,7 +31,7 @@ import net.driftingsouls.ds2.server.framework.bbcode.Smilie;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import org.apache.commons.lang.StringUtils;
@@ -52,7 +52,7 @@ import java.util.regex.Pattern;
  * @author Christian Peltz
  */
 @Module(name = "comm")
-public class CommController extends TemplateGenerator
+public class CommController extends TemplateController
 {
 	private static final Log log = LogFactory.getLog(CommController.class);
 

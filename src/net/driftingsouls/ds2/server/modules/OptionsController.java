@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
@@ -45,7 +45,7 @@ import java.util.List;
  * @author Christopher Jung
  */
 @Module(name = "options")
-public class OptionsController extends TemplateGenerator
+public class OptionsController extends TemplateController
 {
 	private static final Log log = LogFactory.getLog(OptionsController.class);
 

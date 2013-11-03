@@ -31,7 +31,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  *
  * @author Christopher Jung
  */
-public abstract class TemplateGenerator extends DSGenerator
+public abstract class TemplateController extends DSController
 {
 	protected TemplateEngine templateEngine;
 	private String masterTemplateID;
@@ -41,7 +41,7 @@ public abstract class TemplateGenerator extends DSGenerator
 	 *
 	 * @param context Der Kontext
 	 */
-	public TemplateGenerator(Context context)
+	public TemplateController(Context context)
 	{
 		super(context);
 

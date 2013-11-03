@@ -14,7 +14,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 
@@ -30,7 +30,7 @@ import java.util.List;
  * @author Sebastian Gift
  */
 @Module(name="news")
-public class NewsController extends TemplateGenerator 
+public class NewsController extends TemplateController
 {
 	private Logger log = Logger.getLogger(NewsController.class);
 

@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
@@ -41,7 +41,8 @@ import java.util.List;
  *
  */
 @Module(name="allylist")
-public class AllyListController extends TemplateGenerator {
+public class AllyListController extends TemplateController
+{
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext

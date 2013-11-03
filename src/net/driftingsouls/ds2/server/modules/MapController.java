@@ -16,7 +16,7 @@ import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.AngularGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.AngularController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.map.AdminFieldView;
 import net.driftingsouls.ds2.server.map.AdminStarmap;
@@ -52,7 +52,7 @@ import java.util.Set;
  * @author Drifting-Souls Team
  */
 @Module(name = "map")
-public class MapController extends AngularGenerator
+public class MapController extends AngularController
 {
 	/**
 	 * Legt den MapController an.

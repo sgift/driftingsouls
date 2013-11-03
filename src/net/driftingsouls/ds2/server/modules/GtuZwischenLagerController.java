@@ -30,7 +30,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
@@ -58,7 +58,7 @@ import java.util.List;
  */
 // TODO: Die ID des Handelspostens sollte per URL spezifiziert werden
 @Module(name = "gtuzwischenlager")
-public class GtuZwischenLagerController extends TemplateGenerator
+public class GtuZwischenLagerController extends TemplateController
 {
 	/**
 	 * Konstruktor.

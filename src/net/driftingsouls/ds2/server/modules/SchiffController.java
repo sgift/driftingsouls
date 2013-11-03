@@ -34,7 +34,7 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
@@ -70,7 +70,7 @@ import java.util.Set;
  * @author Christopher Jung
  */
 @net.driftingsouls.ds2.server.framework.pipeline.Module(name = "schiff")
-public class SchiffController extends TemplateGenerator
+public class SchiffController extends TemplateController
 {
 	private Log log = LogFactory.getLog(SchiffController.class);
 

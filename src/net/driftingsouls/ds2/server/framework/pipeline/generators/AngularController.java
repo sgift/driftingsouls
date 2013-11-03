@@ -18,9 +18,9 @@ import net.sf.json.JSONObject;
  * @author Christopher Jung
  *
  */
-public abstract class AngularGenerator extends DSGenerator
+public abstract class AngularController extends DSController
 {	
-	public AngularGenerator(Context context)
+	public AngularController(Context context)
 	{
 		super(context);
 		

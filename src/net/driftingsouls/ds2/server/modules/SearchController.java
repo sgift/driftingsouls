@@ -25,7 +25,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.DSController;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -39,7 +39,7 @@ import java.util.List;
  * @author Christopher Jung
  */
 @Module(name = "search")
-public class SearchController extends DSGenerator
+public class SearchController extends DSController
 {
 	private static final int MAX_OBJECTS = 25;
 

@@ -25,7 +25,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -36,7 +36,7 @@ import net.driftingsouls.ds2.server.ships.Ship;
  * @author Christopher Jung
  */
 @Module(name = "crewtausch")
-public class CrewtauschController extends TemplateGenerator
+public class CrewtauschController extends TemplateController
 {
 	/**
 	 * Das Ziel fuer einen Crewtransfer.

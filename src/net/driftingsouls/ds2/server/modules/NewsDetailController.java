@@ -6,7 +6,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import java.io.IOException;
@@ -17,7 +17,7 @@ import java.io.IOException;
  * @author Sebastian Gift
  */
 @Module(name = "newsdetail")
-public class NewsDetailController extends TemplateGenerator
+public class NewsDetailController extends TemplateController
 {
 	/**
 	 * Legt den News Detail Eintrag an.

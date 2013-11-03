@@ -4,7 +4,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.DSController;
 import net.driftingsouls.ds2.server.uilibs.PlayerList;
 
 import java.io.IOException;
@@ -16,7 +16,7 @@ import java.io.Writer;
  * @author Christopher Jung
  */
 @Module(name = "plist")
-public class PListController extends DSGenerator
+public class PListController extends DSController
 {
 
 	/**

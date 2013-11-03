@@ -27,7 +27,7 @@ import net.driftingsouls.ds2.server.framework.JSONUtils;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.sf.json.JSONObject;
 
@@ -40,7 +40,7 @@ import java.util.List;
  * @author Christopher Jung
  */
 @Module(name = "main")
-public class MainController extends TemplateGenerator
+public class MainController extends TemplateController
 {
 	private static final String SCRIPT_FORUM = "http://forum.drifting-souls.net/phpbb3/";
 

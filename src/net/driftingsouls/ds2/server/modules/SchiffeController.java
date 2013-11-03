@@ -31,7 +31,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -56,7 +56,7 @@ import java.util.Map.Entry;
  * @author Christopher Jung
  */
 @Module(name = "schiffe")
-public class SchiffeController extends TemplateGenerator
+public class SchiffeController extends TemplateController
 {
 	private static final Log log = LogFactory.getLog(SchiffeController.class);
 

@@ -52,7 +52,7 @@ import net.driftingsouls.ds2.server.framework.ContextInstance;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.JumpNodeRouter;
@@ -72,7 +72,6 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -87,7 +86,7 @@ import java.util.UUID;
  * @urlparam Integer faction Die ID der anzuzeigenden Fraktion
  */
 @Module(name = "ersteigern")
-public class ErsteigernController extends TemplateGenerator
+public class ErsteigernController extends TemplateController
 {
 	/**
 	 * Ein Eintrag im Shop.

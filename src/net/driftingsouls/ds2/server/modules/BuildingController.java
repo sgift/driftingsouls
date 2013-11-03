@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.sf.json.JSONArray;
@@ -43,7 +43,8 @@ import java.io.Writer;
  * @author Christopher Jung
  */
 @Module(name="building")
-public class BuildingController extends TemplateGenerator {
+public class BuildingController extends TemplateController
+{
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext

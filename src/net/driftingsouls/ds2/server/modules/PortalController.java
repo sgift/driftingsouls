@@ -47,7 +47,7 @@ import net.driftingsouls.ds2.server.framework.authentication.WrongPasswordExcept
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.units.TransientUnitCargo;
 import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeException;
@@ -68,7 +68,7 @@ import java.util.List;
  * @author Christopher Jung
  */
 @Module(name = "portal", defaultModule = true)
-public class PortalController extends TemplateGenerator
+public class PortalController extends TemplateController
 {
 	private AuthenticationManager authManager;
 

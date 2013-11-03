@@ -37,7 +37,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.scripting.NullLogger;
@@ -70,7 +70,7 @@ import java.util.Set;
  * @author Christopher Jung
  */
 @Module(name = "ueber")
-public class UeberController extends TemplateGenerator
+public class UeberController extends TemplateController
 {
 	private static final Log log = LogFactory.getLog(UeberController.class);
 

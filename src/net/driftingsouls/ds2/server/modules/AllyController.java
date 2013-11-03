@@ -34,7 +34,7 @@ import net.driftingsouls.ds2.server.framework.DynamicContentManager;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -58,7 +58,7 @@ import java.util.List;
  * @author Christopher Jung
  */
 @Module(name = "ally")
-public class AllyController extends TemplateGenerator
+public class AllyController extends TemplateController
 {
 	private static final Log log = LogFactory.getLog(AllyController.class);
 	private static final double MAX_POSTENCOUNT = 0.3;

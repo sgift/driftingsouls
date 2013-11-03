@@ -31,7 +31,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Order;
@@ -47,7 +47,8 @@ import java.util.Map;
  * @author Christopher Jung
  */
 @Module(name="basen")
-public class BasenController extends TemplateGenerator {
+public class BasenController extends TemplateController
+{
 	private static final Map<String,List<String>> ordmapper = new HashMap<>();
 	static {
 		ordmapper.put("id", Arrays.asList("id"));

@@ -39,7 +39,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -55,7 +55,7 @@ import org.apache.commons.logging.LogFactory;
  * @urlparam Integer tradepost die ID des Handelspostens, an dem die Waren verkauft werden sollen
  */
 @Module(name = "trade")
-public class TradeController extends TemplateGenerator
+public class TradeController extends TemplateController
 {
 	private static final Log log = LogFactory.getLog(TradeController.class);
 

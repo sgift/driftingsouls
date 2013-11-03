@@ -25,7 +25,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
@@ -41,7 +41,7 @@ import java.io.Writer;
  * @author Christopher Jung
  */
 @Module(name = "werft")
-public class WerftController extends TemplateGenerator
+public class WerftController extends TemplateController
 {
 	/**
 	 * Konstruktor.

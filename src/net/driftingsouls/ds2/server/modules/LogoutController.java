@@ -23,7 +23,7 @@ import net.driftingsouls.ds2.server.framework.authentication.AuthenticationManag
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -33,7 +33,8 @@ import org.springframework.beans.factory.annotation.Required;
  *
  */
 @Module(name="logout")
-public class LogoutController extends TemplateGenerator {
+public class LogoutController extends TemplateController
+{
 	private AuthenticationManager authManager;
 	
 	/**

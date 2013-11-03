@@ -25,7 +25,7 @@ import net.driftingsouls.ds2.server.framework.JSONUtils;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.AngularGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.AngularController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -50,7 +50,8 @@ import java.util.TreeSet;
  *
  */
 @Module(name="npc")
-public class NpcController extends AngularGenerator {
+public class NpcController extends AngularController
+{
 	private boolean isHead = false;
 	private boolean shop = false;
 

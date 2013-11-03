@@ -11,7 +11,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipType;
@@ -30,7 +30,7 @@ import java.util.TreeSet;
  */
 @Configurable
 @Module(name = "shipsinfo")
-public class ShipsInfoController extends TemplateGenerator
+public class ShipsInfoController extends TemplateController
 {
 	public ShipsInfoController(Context context)
 	{
