@@ -131,6 +131,7 @@ public abstract class DSGenerator extends Generator
 	 * Im Gegensatz zu normalen Actions kann hier ein fester Satz zusaetzlicher Argumente uebergeben werden,
 	 * der <b>genau</b> in dieser Reihenfolge auf die ersten Argumente der Actionmethode angewandt wird.
 	 * Alle nachfolgenden Argumente werden ueber die URL-Parameter gefuellt.
+	 *
 	 * @param subparam Der Prefix fuer die URL-Parameter zwecks Schaffung eines eigenen Namensraums. Falls <code>null</code> oder Leerstring wird kein Prefix verwendet
 	 * @param objekt Das Objekt dessen Methode aufgerufen werden soll
 	 * @param methode Der Name der Actionmethode
@@ -138,12 +139,14 @@ public abstract class DSGenerator extends Generator
 	 * @return Das Ergebnis der Methode
 	 * @throws ReflectiveOperationException Falls die Reflection-Operation schief laeuft
 	 */
-	protected Object rufeAlsSubActionAuf(String subparam, Object objekt, String methode, Object ... args) throws ReflectiveOperationException
+	protected Object rufeAlsSubActionAuf(String subparam, Object objekt, String methode, Object... args) throws ReflectiveOperationException
 	{
-		if( subparam != null ) {
+		if (subparam != null)
+		{
 			this.parameterReader.parseSubParameter(subparam);
 		}
-		try {
+		try
+		{
 			Method method = getMethodForAction(objekt, methode);
 			method.setAccessible(true);
 			Annotation[][] annotations = method.getParameterAnnotations();
@@ -153,7 +156,7 @@ public abstract class DSGenerator extends Generator
 			Object[] params = new Object[annotations.length];
 			for (int i = 0; i < params.length; i++)
 			{
-				if( i < args.length )
+				if (i < args.length)
 				{
 					params[i] = args[i];
 					continue;
@@ -175,7 +178,8 @@ public abstract class DSGenerator extends Generator
 
 			return method.invoke(objekt, params);
 		}
-		finally {
+		finally
+		{
 			this.parameterReader.parseSubParameter("");
 		}
 	}
@@ -213,6 +217,17 @@ public abstract class DSGenerator extends Generator
 	 */
 	protected void redirect(String action)
 	{
+		redirect(action, new HashMap<String,Object>());
+	}
+
+	/**
+	 * Fuehrt eine Aktion aus. Die zur Aktion gehoerende Funktion wird aufgerufen.
+	 *
+	 * @param action Der Name der Aktion
+	 * @param arguments An diese Action zu uebergebende Parameter. Diese Parameter haben vorrang vor URL-Parametern.
+	 */
+	protected void redirect(String action, Map<String, Object> arguments)
+	{
 		try
 		{
 			Method method = getMethodForAction(this, action);
@@ -220,7 +235,7 @@ public abstract class DSGenerator extends Generator
 			final Action actionDescriptor = method.getAnnotation(Action.class);
 			doActionOptimizations(actionDescriptor);
 
-			Object result = invokeActionMethod(method);
+			Object result = invokeActionMethod(method, arguments);
 			writeResultObject(result, actionDescriptor.value());
 		}
 		catch (Exception e)
@@ -234,7 +249,7 @@ public abstract class DSGenerator extends Generator
 	 */
 	protected void redirect()
 	{
-		redirect("default");
+		redirect("default", new HashMap<String,Object>());
 	}
 
 	private Method getMethodForAction(Object objekt, String action) throws NoSuchMethodException
@@ -300,7 +315,7 @@ public abstract class DSGenerator extends Generator
 
 				try
 				{
-					Object result = invokeActionMethod(method);
+					Object result = invokeActionMethod(method, new HashMap<String,Object>());
 					writeResultObject(result, actionDescriptor.value());
 				}
 				catch (InvocationTargetException e)
@@ -341,7 +356,7 @@ public abstract class DSGenerator extends Generator
 		printFooter(action);
 	}
 
-	private Object invokeActionMethod(Method method) throws InvocationTargetException, IllegalAccessException
+	private Object invokeActionMethod(Method method, Map<String, Object> arguments) throws InvocationTargetException, IllegalAccessException
 	{
 		method.setAccessible(true);
 		Annotation[][] annotations = method.getParameterAnnotations();
@@ -362,7 +377,15 @@ public abstract class DSGenerator extends Generator
 			}
 
 			Type type = parameterTypes[i];
-			params[i] = this.parameterReader.readParameterAsType(paramAnnotation == null ? parameterNames[i] : paramAnnotation.name(), type);
+			String paramName = paramAnnotation == null ? parameterNames[i] : paramAnnotation.name();
+			if (arguments.containsKey(paramName))
+			{
+				params[i] = arguments.get(paramName);
+			}
+			else
+			{
+				params[i] = this.parameterReader.readParameterAsType(paramName, type);
+			}
 		}
 
 		return method.invoke(this, params);
