@@ -227,7 +227,7 @@ public class CommController extends TemplateGenerator
 	 * @param ordner Die ID des Ordners
 	 */
 	@Action(ActionType.DEFAULT)
-	public void deletePlayerAction(@UrlParam(name = "player") User player, Ordner ordner)
+	public void deletePlayerAction(@UrlParam(name = "playerid") User player, Ordner ordner)
 	{
 		TemplateEngine t = getTemplateEngine();
 
