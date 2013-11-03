@@ -31,6 +31,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
@@ -43,15 +44,10 @@ import java.util.Map;
  * Pluendert ein Schiff.
  *
  * @author Christopher Jung
- * @urlparam Integer from Die ID des Schiffes, mit dem ein anderes Schiff gepluendert werden soll
- * @urlparam Integer to Die ID des zu pluendernden Schiffes
  */
 @Module(name = "pluendern")
 public class PluendernController extends TemplateGenerator
 {
-	private Ship shipFrom;
-	private Ship shipTo;
-
 	/**
 	 * Konstruktor.
 	 *
@@ -63,169 +59,109 @@ public class PluendernController extends TemplateGenerator
 
 		setTemplate("pluendern.html");
 
-		parameterNumber("from");
-		parameterNumber("to");
-		parameterNumber("fromkapern");
-
 		setPageTitle("Pluendern");
 	}
 
-	@Override
-	protected boolean validateAndPrepare()
-	{
-		org.hibernate.Session db = getDB();
+	private void validiereEigenesUndZielschiff(Ship eigenesSchiff, Ship zielSchiff) {
 		User user = (User) this.getUser();
 
-		int from = getInteger("from");
-		int to = getInteger("to");
-
-		Ship shipFrom = (Ship) db.get(Ship.class, from);
-		if ((shipFrom == null) || (shipFrom.getId() < 0) || (shipFrom.getOwner() != user))
+		if ((eigenesSchiff == null) || (eigenesSchiff.getId() < 0) || (eigenesSchiff.getOwner() != user))
 		{
-			addError("Sie brauchen ein Schiff um zu pl&uuml;ndern", Common.buildUrl("default", "module", "schiff", "ship", from));
-
-			return false;
+			throw new ValidierungException("Sie brauchen ein Schiff um zu pl&uuml;ndern", Common.buildUrl("default", "module", "ships"));
 		}
 
-		final String errorurl = Common.buildUrl("default", "module", "schiff", "ship", from);
+		final String errorurl = Common.buildUrl("default", "module", "schiff", "ship", eigenesSchiff.getId());
 
-		Ship shipTo = (Ship) db.get(Ship.class, to);
-		if ((shipTo == null) || (shipTo.getId() < 0))
+		if ((zielSchiff == null) || (zielSchiff.getId() < 0))
 		{
-			addError("Das angegebene Zielschiff existiert nicht", errorurl);
-
-			return false;
+			throw new ValidierungException("Das angegebene Zielschiff existiert nicht", errorurl);
 		}
-		ShipTypeData shipTypeTo = shipTo.getTypeData();
+		ShipTypeData shipTypeTo = zielSchiff.getTypeData();
 
 		if (user.isNoob())
 		{
-			addError("Sie stehen unter GCP-Schutz und k&ouml;nnen daher nicht pl&uuml;nndern<br />Hinweis: der GCP-Schutz kann unter Optionen vorzeitig beendet werden", errorurl);
-
-			return false;
+			throw new ValidierungException("Sie stehen unter GCP-Schutz und k&ouml;nnen daher nicht pl&uuml;nndern<br />Hinweis: der GCP-Schutz kann unter Optionen vorzeitig beendet werden", errorurl);
 		}
 
-		if (to == from)
+		if (eigenesSchiff == zielSchiff)
 		{
-			addError("Sie k&ouml;nnen nicht sich selbst pl&uuml;ndern", errorurl);
-
-			return false;
+			throw new ValidierungException("Sie k&ouml;nnen nicht sich selbst pl&uuml;ndern", errorurl);
 		}
 
-		User taruser = shipTo.getOwner();
+		User taruser = zielSchiff.getOwner();
 
 		if (taruser.isNoob())
 		{
-			addError("Dieser Kolonist steht unter GCP-Schutz", errorurl);
-
-			return false;
+			throw new ValidierungException("Dieser Kolonist steht unter GCP-Schutz", errorurl);
 		}
 
 		if ((taruser.getVacationCount() != 0) && (taruser.getWait4VacationCount() == 0))
 		{
-			addError("Sie k&ouml;nnen Schiffe dieses Spielers nicht kapern oder pl&uuml;ndern solange er sich im Vacation-Modus befindet", errorurl);
-
-			return false;
+			throw new ValidierungException("Sie k&ouml;nnen Schiffe dieses Spielers nicht kapern oder pl&uuml;ndern solange er sich im Vacation-Modus befindet", errorurl);
 		}
 
-		if (!shipFrom.getLocation().sameSector(0, shipTo.getLocation(), 0))
+		if (!eigenesSchiff.getLocation().sameSector(0, zielSchiff.getLocation(), 0))
 		{
-			addError("Das zu pl&uuml;ndernde Schiff befindet sich nicht im selben Sektor", errorurl);
-
-			return false;
+			throw new ValidierungException("Das zu pl&uuml;ndernde Schiff befindet sich nicht im selben Sektor", errorurl);
 		}
 
-		if ((shipFrom.getBattle() != null) || (shipTo.getBattle() != null))
+		if ((eigenesSchiff.getBattle() != null) || (zielSchiff.getBattle() != null))
 		{
-			addError("Eines der Schiffe ist in einen Kampf verwickelt", errorurl);
-
-			return false;
+			throw new ValidierungException("Eines der Schiffe ist in einen Kampf verwickelt", errorurl);
 		}
 
 		if (!shipTypeTo.getShipClass().isKaperbar())
 		{
-			addError("Sie k&ouml;nnen " + shipTypeTo.getShipClass().getPlural() + " weder kapern noch pl&uuml;ndern", errorurl);
-
-			return false;
+			throw new ValidierungException("Sie k&ouml;nnen " + shipTypeTo.getShipClass().getPlural() + " weder kapern noch pl&uuml;ndern", errorurl);
 		}
 
 		// IFF-Check
-		boolean disableIFF = shipTo.getStatus().contains("disable_iff");
+		boolean disableIFF = zielSchiff.getStatus().contains("disable_iff");
 		if (disableIFF)
 		{
-			addError("Das Schiff kann nicht gepl&uuml;ndert werden", errorurl);
-
-			return false;
+			throw new ValidierungException("Das Schiff kann nicht gepl&uuml;ndert werden", errorurl);
 		}
 
-		if (shipTo.isDocked() || shipTo.isLanded())
+		if (zielSchiff.isDocked() || zielSchiff.isLanded())
 		{
-			if (shipTo.isLanded())
+			if (zielSchiff.isLanded())
 			{
-				addError("Sie k&ouml;nnen gelandete Schiffe weder kapern noch pl&uuml;ndern", errorurl);
-
-				return false;
+				throw new ValidierungException("Sie k&ouml;nnen gelandete Schiffe weder kapern noch pl&uuml;ndern", errorurl);
 			}
 
-			Ship mastership = shipTo.getBaseShip();
+			Ship mastership = zielSchiff.getBaseShip();
 			if (((mastership.getCrew() != 0)) && (mastership.getEngine() != 0) &&
 					(mastership.getWeapons() != 0))
 			{
-				addError("Das Schiff, an das das feindliche Schiff angedockt hat, ist noch bewegungsf&auml;hig", errorurl);
-
-				return false;
+				throw new ValidierungException("Das Schiff, an das das feindliche Schiff angedockt hat, ist noch bewegungsf&auml;hig", errorurl);
 			}
 		}
 
-		if ((shipTo.getCrew() != 0) && (shipTypeTo.getCost() != 0) && (shipTo.getEngine() != 0))
+		if ((zielSchiff.getCrew() != 0) && (shipTypeTo.getCost() != 0) && (zielSchiff.getEngine() != 0))
 		{
-			addError("Feindliches Schiff nicht bewegungsunf&auml;hig", errorurl);
-
-			return false;
+			throw new ValidierungException("Feindliches Schiff nicht bewegungsunf&auml;hig", errorurl);
 		}
 
 		if (shipTypeTo.hasFlag(ShipTypes.SF_KEIN_TRANSFER))
 		{
-			addError("Sie k&ouml;nnen keine Waren zu oder von diesem Schiff transferieren", errorurl);
-
-			return false;
+			throw new ValidierungException("Sie k&ouml;nnen keine Waren zu oder von diesem Schiff transferieren", errorurl);
 		}
 
 		if (shipTypeTo.hasFlag(ShipTypes.SF_NICHT_PLUENDERBAR))
 		{
-			addError("Sie k&ouml;nnen keine Waren von diesem Schiff pl&uuml;ndern", errorurl);
-
-			return false;
+			throw new ValidierungException("Sie k&ouml;nnen keine Waren von diesem Schiff pl&uuml;ndern", errorurl);
 		}
 
-		if ((shipTypeTo.getShipClass() == ShipClasses.STATION) && (shipTo.getCrew() != 0))
+		if ((shipTypeTo.getShipClass() == ShipClasses.STATION) && (zielSchiff.getCrew() != 0))
 		{
-			addError("Solange die Crew &uuml;ber die Waren wacht werden sie hier nichts klauen k&ouml;nnen", errorurl);
-
-			return false;
+			throw new ValidierungException("Solange die Crew &uuml;ber die Waren wacht werden sie hier nichts klauen k&ouml;nnen", errorurl);
 		}
 
-		ShipTypeData shipTypeFrom = shipFrom.getTypeData();
+		ShipTypeData shipTypeFrom = eigenesSchiff.getTypeData();
 		if (shipTypeFrom.hasFlag(ShipTypes.SF_KEIN_TRANSFER))
 		{
-			addError("Sie k&ouml;nnen keine Waren zu oder von ihrem Schiff transferieren", errorurl);
-
-			return false;
+			throw new ValidierungException("Sie k&ouml;nnen keine Waren zu oder von ihrem Schiff transferieren", errorurl);
 		}
-
-
-		int fromkapern = this.getInteger("fromkapern");
-		this.shipFrom = shipFrom;
-		this.shipTo = shipTo;
-
-		this.getTemplateEngine().setVar(
-				"fromship.name", this.shipFrom.getName(),
-				"fromship.id", this.shipFrom.getId(),
-				"toship.name", this.shipTo.getName(),
-				"toship.id", this.shipTo.getId(),
-				"frompage.kapern", fromkapern == 1);
-
-		return true;
 	}
 
 	/**
@@ -233,19 +169,35 @@ public class PluendernController extends TemplateGenerator
 	 *
 	 * @param toMap Die Menge der Ware (Key), welche zum Zielschiff transferiert werden soll
 	 * @param fromMap Die Menge der Ware (Key), welche vom Zielschiff herunter transferiert werden soll
+	 * @param fromkapern <code>true</code>, falls das Modul vom Kapern-Modul aus aufgerufen wurde
+	 * @param shipFrom Die ID des Schiffes, mit dem ein anderes Schiff gepluendert werden soll
+	 * @param shipTo Die ID des zu pluendernden Schiffes
 	 */
 	@Action(ActionType.DEFAULT)
-	public void transferAction(@UrlParam(name = "#to") Map<String, Long> toMap, @UrlParam(name = "#from") Map<String, Long> fromMap)
+	public void transferAction(@UrlParam(name = "#to") Map<String, Long> toMap,
+			@UrlParam(name = "#from") Map<String, Long> fromMap,
+			@UrlParam(name="from") Ship shipFrom,
+			@UrlParam(name="to") Ship shipTo,
+			boolean fromkapern)
 	{
 		TemplateEngine t = this.getTemplateEngine();
 		User user = (User) this.getUser();
 		org.hibernate.Session db = getDB();
 
-		Cargo cargofrom = this.shipFrom.getCargo();
-		Cargo cargoto = this.shipTo.getCargo();
+		validiereEigenesUndZielschiff(shipFrom, shipTo);
 
-		ShipTypeData shipTypeTo = this.shipTo.getTypeData();
-		ShipTypeData shipTypeFrom = this.shipFrom.getTypeData();
+		t.setVar(
+				"fromship.name", shipFrom.getName(),
+				"fromship.id", shipFrom.getId(),
+				"toship.name", shipTo.getName(),
+				"toship.id", shipTo.getId(),
+				"frompage.kapern", fromkapern);
+
+		Cargo cargofrom = shipFrom.getCargo();
+		Cargo cargoto = shipTo.getCargo();
+
+		ShipTypeData shipTypeTo = shipTo.getTypeData();
+		ShipTypeData shipTypeFrom = shipFrom.getTypeData();
 
 		long curcargoto = shipTypeTo.getCargo() - cargoto.getMass();
 		long curcargofrom = shipTypeFrom.getCargo() - cargofrom.getMass();
@@ -272,7 +224,7 @@ public class PluendernController extends TemplateGenerator
 			// Transfer vom Ausgangsschiff zum Zielschiff
 			if (transt != null && transt > 0)
 			{
-				t.setVar("transfer.target", this.shipTo.getName(),
+				t.setVar("transfer.target", shipTo.getName(),
 						"transfer.count", Common.ln(transt));
 
 				if (transt > res.getCount1())
@@ -298,7 +250,7 @@ public class PluendernController extends TemplateGenerator
 					Item item = (Item) db.get(Item.class, itemid);
 					if (item.isUnknownItem())
 					{
-						User targetUser = this.shipTo.getOwner();
+						User targetUser = shipTo.getOwner();
 						targetUser.addKnownItem(itemid);
 					}
 				}
@@ -321,7 +273,7 @@ public class PluendernController extends TemplateGenerator
 			// Transfer vom Zielschiff zum Ausgangsschiff
 			else if (transf != null && transf > 0)
 			{
-				t.setVar("transfer.target", this.shipFrom.getName(),
+				t.setVar("transfer.target", shipFrom.getName(),
 						"transfer.count", Common.ln(transf));
 
 				if (transf > res.getCount2())
@@ -378,33 +330,33 @@ public class PluendernController extends TemplateGenerator
 		if (transfer)
 		{
 			// Transmission versenden
-			versendeNachrichtNachTransfer(msg);
+			versendeNachrichtNachTransfer(msg, shipFrom, shipTo);
 
-			aktualisiereSchiffNachWarentransfer(t, shipTypeTo, newCargoTo, newCargoFrom, totaltransferfcount);
+			aktualisiereSchiffNachWarentransfer(t, shipTypeTo, newCargoTo, newCargoFrom, totaltransferfcount, shipFrom, shipTo);
 		}
 
 		this.redirect();
 	}
 
-	private void versendeNachrichtNachTransfer(StringBuilder msg)
+	private void versendeNachrichtNachTransfer(StringBuilder msg, Ship shipFrom, Ship shipTo)
 	{
-		if ((msg.length() > 0) && this.shipTo.getOwner().getId() != -1)
+		if ((msg.length() > 0) && shipTo.getOwner().getId() != -1)
 		{
-			msg.insert(0, this.shipTo.getName() + " (" + this.shipTo.getId() + ") wird von " +
-					this.shipFrom.getName() + " (" + this.shipFrom.getId() + ") bei " +
-					this.shipFrom.getLocation().displayCoordinates(false) + " gepl&uuml;ndert.\n");
+			msg.insert(0, shipTo.getName() + " (" + shipTo.getId() + ") wird von " +
+					shipFrom.getName() + " (" + shipFrom.getId() + ") bei " +
+					shipFrom.getLocation().displayCoordinates(false) + " gepl&uuml;ndert.\n");
 
-			PM.send(this.shipFrom.getOwner(), this.shipTo.getOwner().getId(), "Schiff gepl&uuml;ndert", msg.toString());
+			PM.send(shipFrom.getOwner(), shipTo.getOwner().getId(), "Schiff gepl&uuml;ndert", msg.toString());
 		}
 	}
 
-	private void aktualisiereSchiffNachWarentransfer(TemplateEngine t, ShipTypeData shipTypeTo, Cargo newCargoTo, Cargo newCargoFrom, long totaltransferfcount)
+	private void aktualisiereSchiffNachWarentransfer(TemplateEngine t, ShipTypeData shipTypeTo, Cargo newCargoTo, Cargo newCargoFrom, long totaltransferfcount, Ship shipFrom, Ship shipTo)
 	{
-		this.shipFrom.setCargo(newCargoFrom);
-		this.shipTo.setCargo(newCargoTo);
+		shipFrom.setCargo(newCargoFrom);
+		shipTo.setCargo(newCargoTo);
 
-		String status = this.shipTo.recalculateShipStatus();
-		this.shipFrom.recalculateShipStatus();
+		String status = shipTo.recalculateShipStatus();
+		shipFrom.recalculateShipStatus();
 
 		// Falls das Schiff instabil ist, dann diesem den "destory"-Status geben,
 		// damit der Schiffstick dieses zerstoert
@@ -423,30 +375,41 @@ public class PluendernController extends TemplateGenerator
 				statust += "destroy";
 			}
 
-			this.shipTo.setStatus(statust);
+			shipTo.setStatus(statust);
 		}
 	}
 
 	/**
 	 * Zeigt die GUI fuer den Warentransfer an.
+	 * @param fromkapern <code>true</code>, falls das Modul vom Kapern-Modul aus aufgerufen wurde
+	 * @param shipFrom Die ID des Schiffes, mit dem ein anderes Schiff gepluendert werden soll
+	 * @param shipTo Die ID des zu pluendernden Schiffes
 	 */
-	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction()
+	public void defaultAction(@UrlParam(name="from") Ship shipFrom, @UrlParam(name="to") Ship shipTo, boolean fromkapern)
 	{
 		TemplateEngine t = this.getTemplateEngine();
 
-		Cargo fromcargo = this.shipFrom.getCargo();
-		Cargo tocargo = this.shipTo.getCargo();
+		validiereEigenesUndZielschiff(shipFrom, shipTo);
 
-		ShipTypeData shipTypeFrom = this.shipFrom.getTypeData();
-		ShipTypeData shipTypeTo = this.shipTo.getTypeData();
+		t.setVar(
+				"fromship.name", shipFrom.getName(),
+				"fromship.id", shipFrom.getId(),
+				"toship.name", shipTo.getName(),
+				"toship.id", shipTo.getId(),
+				"frompage.kapern", fromkapern);
 
-		t.setVar("fromship.name", this.shipFrom.getName(),
-				"fromship.id", this.shipFrom.getId(),
+		Cargo fromcargo = shipFrom.getCargo();
+		Cargo tocargo = shipTo.getCargo();
+
+		ShipTypeData shipTypeFrom = shipFrom.getTypeData();
+		ShipTypeData shipTypeTo = shipTo.getTypeData();
+
+		t.setVar("fromship.name", shipFrom.getName(),
+				"fromship.id", shipFrom.getId(),
 				"fromship.cargo", Common.ln(shipTypeFrom.getCargo() - fromcargo.getMass()),
-				"toship.name", this.shipTo.getName(),
-				"toship.id", this.shipTo.getId(),
+				"toship.name", shipTo.getName(),
+				"toship.id", shipTo.getId(),
 				"toship.cargo", Common.ln(shipTypeTo.getCargo() - tocargo.getMass()));
 
 		t.setBlock("_PLUENDERN", "res.listitem", "res.list");

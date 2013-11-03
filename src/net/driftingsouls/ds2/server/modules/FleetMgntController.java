@@ -20,9 +20,11 @@ package net.driftingsouls.ds2.server.modules;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
 
@@ -54,14 +56,10 @@ import org.apache.commons.lang.StringUtils;
  * Die Flottenverwaltung.
  *
  * @author Christopher Jung
- * @urlparam Integer fleet Die ID der Flotte, falls schon eine existiert
- * @urlparam String shiplist Eine mit | separierte Liste von Schiffs-IDs oder eine mit , separierte Liste mit Koordinaten, Schiffstyp und  Mengenangabe
  */
 @Module(name = "fleetmgnt")
 public class FleetMgntController extends TemplateGenerator
 {
-	private ShipFleet fleet = null;
-
 	/**
 	 * Konstruktor.
 	 *
@@ -72,83 +70,19 @@ public class FleetMgntController extends TemplateGenerator
 		super(context);
 
 		setTemplate("fleetmgnt.html");
-
-		parameterNumber("fleet");
-		parameterString("shiplist");
 	}
 
-	@Override
-	protected boolean validateAndPrepare()
+	private int ermittleIdEinesGeeignetenSchiffsDerFlotte(ShipFleet fleet)
 	{
-		TemplateEngine t = getTemplateEngine();
-		User user = (User) getUser();
+		User user = (User)getUser();
 		org.hibernate.Session db = getDB();
-
-		Integer[] shiplist;
-
-		// Zuerst shiplist verarbeiten
-		String shiplistStr = getString("shiplist");
-		if ((shiplistStr.length() == 0) || (shiplistStr.charAt(0) != 'g'))
-		{
-			shiplist = Common.explodeToInteger("|", shiplistStr);
-		}
-		else
-		{
-			String[] tmp = StringUtils.split(shiplistStr, ",");
-			int sector = Integer.parseInt(tmp[1]);
-			int type = Integer.parseInt(tmp[2]);
-
-			Ship sectorShip = (Ship) db.get(Ship.class, sector);
-			Ship matchingShip = (Ship) db.createQuery("from Ship " +
-					"where owner= :user and system= :sys and " +
-					"x= :x and y= :y and shiptype= :type and docked=''")
-					.setEntity("user", user)
-					.setInteger("sys", sectorShip.getSystem())
-					.setInteger("x", sectorShip.getX())
-					.setInteger("y", sectorShip.getY())
-					.setInteger("type", type)
-					.iterate().next();
-
-			shiplist = new Integer[]{matchingShip.getId()};
-		}
-
-		// Evt haben wir bereits eine Flotten-ID uebergeben bekommen -> checken
-		int fleetID = getInteger("fleet");
-		if (fleetID != 0)
-		{
-			this.fleet = (ShipFleet) db.get(ShipFleet.class, fleetID);
-			if (this.fleet == null)
-			{
-				addError("Die angegebene Flotte existiert nicht");
-
-				return false;
-			}
-			User owner = (User) db.createQuery("select owner from Ship where id>0 and fleet=:fleet")
-					.setEntity("fleet", fleet)
-					.iterate().next();
-
-			if (user.getId() != owner.getId())
-			{
-				this.fleet = null;
-				addError("Diese Flotte geh&ouml;rt einem anderen Spieler");
-
-				return false;
-			}
-
-			// Falls sich doch ein Schiff eines anderen Spielers eingeschlichen hat
-			db.createQuery("update Ship set fleet=null where fleet= :fleet and owner!= :user")
-					.setEntity("fleet", this.fleet)
-					.setEntity("user", user)
-					.executeUpdate();
-		}
-
 		int shipid = 0;
 		// Nun brauchen wir die ID eines der Schiffe aus der Flotte fuer den javascript-code....
-		if ((shiplist == null || shiplist.length == 0) && (fleetID != 0))
+		if (fleet != null)
 		{
 			Ship aship = (Ship) db.createQuery("from Ship where id>0 and owner= :user and fleet= :fleet")
 					.setEntity("user", user)
-					.setEntity("fleet", this.fleet)
+					.setEntity("fleet", fleet)
 					.setMaxResults(1)
 					.uniqueResult();
 
@@ -158,27 +92,36 @@ public class FleetMgntController extends TemplateGenerator
 			}
 			else
 			{
-				addError("Die angegebene Flotte ist ungueltig");
-				return false;
+				throw new ValidierungException("Die angegebene Flotte ist ungueltig");
 			}
 		}
-		else if ((shiplist != null) && (shiplist.length > 0))
-		{
-			shipid = shiplist[0];
-		}
 
-		t.setVar("jscript.reloadmain.ship", shipid,
-				"fleet.id", (fleet != null ? fleet.getId() : 0));
-
-		return true;
+		return shipid;
 	}
 
-	private void validiereFlotteVorhanden(ShipFleet fleet)
+	private void validiereGueltigeFlotteVorhanden(ShipFleet fleet)
 	{
 		if (fleet == null)
 		{
 			throw new ValidierungException("Die angegebene Flotte existiert nicht");
 		}
+		org.hibernate.Session db = getDB();
+		User user = (User) getUser();
+
+		User owner = (User) db.createQuery("select owner from Ship where id>0 and fleet=:fleet")
+				.setEntity("fleet", fleet)
+				.iterate().next();
+
+		if (user.getId() != owner.getId())
+		{
+			throw new ValidierungException("Diese Flotte geh&ouml;rt einem anderen Spieler");
+		}
+
+		// Falls sich doch ein Schiff eines anderen Spielers eingeschlichen hat
+		db.createQuery("update Ship set fleet=null where fleet= :fleet and owner!= :user")
+				.setEntity("fleet", fleet)
+				.setEntity("user", user)
+				.executeUpdate();
 	}
 
 	/**
@@ -219,6 +162,7 @@ public class FleetMgntController extends TemplateGenerator
 
 	/**
 	 * Zeigt den Erstelldialog fuer eine neue Flotte an.
+	 * @param shiplistStr Eine mit | separierte Liste von Schiffs-IDs oder eine mit , separierte Liste mit Koordinaten, Schiffstyp und  Mengenangabe
 	 */
 	@Action(ActionType.DEFAULT)
 	public void createAction(@UrlParam(name = "shiplist") String shiplistStr)
@@ -304,7 +248,7 @@ public class FleetMgntController extends TemplateGenerator
 				return;
 			}
 
-			List<?> ships = db.createQuery("from Ship where id>0 and owner=:owner and system=:sys and x=:x and y=:y and type=:type and docked='' order by fleet.id,id asc")
+			List<?> ships = db.createQuery("from Ship where id>0 and owner=:owner and system=:sys and x=:x and y=:y and shiptype=:type and docked='' order by fleet.id,id asc")
 					.setEntity("owner", user)
 					.setInteger("sys", sectorShip.getSystem())
 					.setInteger("x", sectorShip.getX())
@@ -343,11 +287,12 @@ public class FleetMgntController extends TemplateGenerator
 
 			t.setVar("fleetmgnt.message", "Flotte " + Common._plaintitle(fleetname) + " erstellt",
 					"jscript.reloadmain", 1,
+					"jscript.reloadmain.ship", shiplistInt[0],
 					"fleet.id", fleet.getId());
 
-			this.fleet = fleet;
-
-			this.redirect();
+			Map<String,Object> params = new HashMap<>();
+			params.put("fleet", fleet);
+			this.redirect("default", params);
 		}
 		else
 		{
@@ -361,13 +306,15 @@ public class FleetMgntController extends TemplateGenerator
 	 * Flotte hinzu.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void addFromSRSGroupAction(@UrlParam(name = "sector") Ship sectorShip, int type, int count)
+	public void addFromSRSGroupAction(ShipFleet fleet, @UrlParam(name = "sector") Ship sectorShip, int type, int count)
 	{
-		validiereFlotteVorhanden(fleet);
+		validiereGueltigeFlotteVorhanden(fleet);
 
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
+
+		t.setVar("fleet.id", fleet.getId());
 
 		if ((sectorShip == null) || (sectorShip.getId() < 0) || (sectorShip.getOwner() != user))
 		{
@@ -375,7 +322,7 @@ public class FleetMgntController extends TemplateGenerator
 			return;
 		}
 
-		long shipcount = (Long) db.createQuery("select count(*) from Ship where owner=:owner and system=:sys and x=:x and y=:y and type=:type and docked=''")
+		long shipcount = (Long) db.createQuery("select count(*) from Ship where owner=:owner and system=:sys and x=:x and y=:y and shiptype=:type and docked=''")
 				.setEntity("owner", user)
 				.setInteger("sys", sectorShip.getSystem())
 				.setInteger("x", sectorShip.getX())
@@ -390,14 +337,14 @@ public class FleetMgntController extends TemplateGenerator
 		}
 
 		List<Ship> shiplist = new ArrayList<>();
-		List<?> slist = db.createQuery("from Ship where owner=:owner and system=:sys and x=:x and y=:y and type=:type and " +
+		List<?> slist = db.createQuery("from Ship where owner=:owner and system=:sys and x=:x and y=:y and shiptype=:type and " +
 				"docked='' and (fleet is null or fleet!=:fleet) order by fleet.id,id asc")
 				.setEntity("owner", user)
 				.setInteger("sys", sectorShip.getSystem())
 				.setInteger("x", sectorShip.getX())
 				.setInteger("y", sectorShip.getY())
 				.setInteger("type", type)
-				.setEntity("fleet", this.fleet)
+				.setEntity("fleet", fleet)
 				.setMaxResults(count)
 				.list();
 		for (Object aSlist : slist)
@@ -418,9 +365,12 @@ public class FleetMgntController extends TemplateGenerator
 
 		for (Ship s : shiplist)
 		{
-			s.setFleet(this.fleet);
+			s.setFleet(fleet);
 		}
 
+		int shipid = ermittleIdEinesGeeignetenSchiffsDerFlotte(fleet);
+
+		t.setVar("jscript.reloadmain.ship", shipid);
 		t.setVar("fleetmgnt.message", count + " Schiffe der Flotte hinzugef&uuml;gt",
 				"jscript.reloadmain", 1);
 	}
@@ -429,11 +379,13 @@ public class FleetMgntController extends TemplateGenerator
 	 * Zeigt die Seite zum Umbenennen von Flotten an.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void renameAction()
+	public void renameAction(ShipFleet fleet)
 	{
-		validiereFlotteVorhanden(fleet);
+		validiereGueltigeFlotteVorhanden(fleet);
 
 		TemplateEngine t = getTemplateEngine();
+
+		t.setVar("fleet.id", fleet.getId());
 
 		t.setVar("show.rename", 1,
 				"fleet.id", fleet.getId(),
@@ -446,16 +398,21 @@ public class FleetMgntController extends TemplateGenerator
 	 * @param fleetname Der neue Name der Flotte
 	 */
 	@Action(ActionType.DEFAULT)
-	public void rename2Action(String fleetname)
+	public void rename2Action(ShipFleet fleet, String fleetname)
 	{
-		validiereFlotteVorhanden(fleet);
+		validiereGueltigeFlotteVorhanden(fleet);
 
 		TemplateEngine t = getTemplateEngine();
 
+		t.setVar("fleet.id", fleet.getId());
+
 		if (fleetname.length() > 0)
 		{
-			this.fleet.setName(fleetname);
+			fleet.setName(fleetname);
 
+			int shipid = ermittleIdEinesGeeignetenSchiffsDerFlotte(fleet);
+
+			t.setVar("jscript.reloadmain.ship", shipid);
 			t.setVar("fleetmgnt.message", "Flotte " + Common._plaintitle(fleetname) + " umbenannt",
 					"jscript.reloadmain", 1);
 
@@ -473,12 +430,13 @@ public class FleetMgntController extends TemplateGenerator
 	 * Zeigt die Abfrage an, ob eine Flotte aufgeloest werden soll.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void killAction()
+	public void killAction(ShipFleet fleet)
 	{
-		validiereFlotteVorhanden(fleet);
+		validiereGueltigeFlotteVorhanden(fleet);
 
 		TemplateEngine t = getTemplateEngine();
 
+		t.setVar("fleet.id", fleet.getId());
 		t.setVar("fleet.name", Common._plaintitle(fleet.getName()),
 				"fleet.id", fleet.getId(),
 				"show.kill", 1);
@@ -488,18 +446,22 @@ public class FleetMgntController extends TemplateGenerator
 	 * Loest eine Flotte auf.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void kill2Action()
+	public void kill2Action(ShipFleet fleet)
 	{
-		validiereFlotteVorhanden(fleet);
+		validiereGueltigeFlotteVorhanden(fleet);
 
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 
 		db.createQuery("update Ship set fleet=null where fleet=:fleet")
-				.setEntity("fleet", this.fleet)
+				.setEntity("fleet", fleet)
 				.executeUpdate();
-		db.delete(this.fleet);
+		db.delete(fleet);
 
+		int shipid = ermittleIdEinesGeeignetenSchiffsDerFlotte(fleet);
+
+		t.setVar("fleet.id", fleet.getId());
+		t.setVar("jscript.reloadmain.ship", shipid);
 		t.setVar("fleetmgnt.message", "Die Flotte '" + fleet.getName() + "' wurde aufgel&ouml;st",
 				"jscript.reloadmain", 1);
 	}
@@ -508,15 +470,16 @@ public class FleetMgntController extends TemplateGenerator
 	 * Zeigt das Eingabefeld fuer die Uebergabe von Flotten an.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void newownerAction()
+	public void newownerAction(ShipFleet fleet)
 	{
-		validiereFlotteVorhanden(fleet);
+		validiereGueltigeFlotteVorhanden(fleet);
 
 		TemplateEngine t = getTemplateEngine();
 
+		t.setVar("fleet.id", fleet.getId());
 		t.setVar("show.newowner", 1,
-				"fleet.id", this.fleet.getId(),
-				"fleet.name", Common._plaintitle(this.fleet.getName()));
+				"fleet.id", fleet.getId(),
+				"fleet.name", Common._plaintitle(fleet.getName()));
 	}
 
 	/**
@@ -525,20 +488,21 @@ public class FleetMgntController extends TemplateGenerator
 	 * @param newowner Die ID des Users, an den die Flotte uebergeben werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void newowner2Action(@UrlParam(name = "ownerid") User newowner)
+	public void newowner2Action(ShipFleet fleet, @UrlParam(name = "ownerid") User newowner)
 	{
-		validiereFlotteVorhanden(fleet);
+		validiereGueltigeFlotteVorhanden(fleet);
 
 		TemplateEngine t = getTemplateEngine();
 
+		t.setVar("fleet.id", fleet.getId());
 
 		if (newowner != null)
 		{
 			t.setVar("show.newowner2", 1,
 					"newowner.name", Common._title(newowner.getName()),
 					"newowner.id", newowner.getId(),
-					"fleet.id", this.fleet.getId(),
-					"fleet.name", Common._plaintitle(this.fleet.getName()));
+					"fleet.id", fleet.getId(),
+					"fleet.name", Common._plaintitle(fleet.getName()));
 		}
 		else
 		{
@@ -554,27 +518,29 @@ public class FleetMgntController extends TemplateGenerator
 	 * @param newowner Die ID des neuen Besitzers
 	 */
 	@Action(ActionType.DEFAULT)
-	public void newowner3Action(@UrlParam(name = "ownerid") User newowner)
+	public void newowner3Action(ShipFleet fleet, @UrlParam(name = "ownerid") User newowner)
 	{
-		validiereFlotteVorhanden(fleet);
+		validiereGueltigeFlotteVorhanden(fleet);
 
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) this.getUser();
 		org.hibernate.Session db = getDB();
 
+		t.setVar("fleet.id", fleet.getId());
+
 		if (newowner != null)
 		{
-			if (this.fleet.consign(newowner))
+			if (fleet.consign(newowner))
 			{
 				Ship coords = (Ship) db.createQuery("from Ship where owner=:owner and fleet=:fleet")
 						.setEntity("owner", newowner)
-						.setEntity("fleet", this.fleet)
+						.setEntity("fleet", fleet)
 						.setMaxResults(1)
 						.uniqueResult();
 
 				if (coords != null)
 				{
-					PM.send(user, newowner.getId(), "Flotte &uuml;bergeben", "Ich habe dir die Flotte " + Common._plaintitle(this.fleet.getName()) + " &uuml;bergeben. Sie steht bei " + coords.getLocation().displayCoordinates(false));
+					PM.send(user, newowner.getId(), "Flotte &uuml;bergeben", "Ich habe dir die Flotte " + Common._plaintitle(fleet.getName()) + " &uuml;bergeben. Sie steht bei " + coords.getLocation().displayCoordinates(false));
 					t.setVar("fleetmgnt.message", ShipFleet.MESSAGE.getMessage() + "Die Flotte wurde &uuml;bergeben");
 				}
 				else
@@ -599,17 +565,19 @@ public class FleetMgntController extends TemplateGenerator
 	 * Laedt die Schilde aller Schiffe in der Flotte auf.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void shupAction()
+	public void shupAction(ShipFleet fleet)
 	{
-		validiereFlotteVorhanden(fleet);
+		validiereGueltigeFlotteVorhanden(fleet);
 
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 
+		t.setVar("fleet.id", fleet.getId());
+
 		StringBuilder message = new StringBuilder(100);
 		List<?> ships = db.createQuery("select s from Ship as s left join s.modules m " +
 				"where s.fleet=:fleet and (s.shields < s.shiptype.shields or s.shields < m.shields) and s.battle is null")
-				.setEntity("fleet", this.fleet)
+				.setEntity("fleet", fleet)
 				.list();
 		for (Object ship : ships)
 		{
@@ -645,18 +613,20 @@ public class FleetMgntController extends TemplateGenerator
 	 * Entlaedt die Batterien auf den Schiffen der Flotte, um die EPS wieder aufzuladen.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void dischargeBatteriesAction()
+	public void dischargeBatteriesAction(ShipFleet fleet)
 	{
-		validiereFlotteVorhanden(fleet);
+		validiereGueltigeFlotteVorhanden(fleet);
 
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
+
+		t.setVar("fleet.id", fleet.getId());
 
 		StringBuilder message = new StringBuilder(100);
 
 		List<?> ships = db.createQuery("select s from Ship as s left join s.modules m " +
 				"where s.fleet=:fleet and (s.e < s.shiptype.eps or (s.e < m.eps)) and s.battle is null")
-				.setEntity("fleet", this.fleet)
+				.setEntity("fleet", fleet)
 				.list();
 		for (Object ship : ships)
 		{
@@ -693,17 +663,19 @@ public class FleetMgntController extends TemplateGenerator
 	 * Laedt die Batterien auf den Schiffen der Flotte auf.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void chargeBatteriesAction()
+	public void chargeBatteriesAction(ShipFleet fleet)
 	{
-		validiereFlotteVorhanden(fleet);
+		validiereGueltigeFlotteVorhanden(fleet);
 
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 
+		t.setVar("fleet.id", fleet.getId());
+
 		StringBuilder message = new StringBuilder(100);
 
 		List<?> ships = db.createQuery("from Ship as s WHERE s.fleet=:fleet and s.battle is null")
-				.setEntity("fleet", this.fleet)
+				.setEntity("fleet", fleet)
 				.list();
 		for (Object ship : ships)
 		{
@@ -738,20 +710,22 @@ public class FleetMgntController extends TemplateGenerator
 	 * Exportiert die Schiffsliste der Flotte.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void exportAction()
+	public void exportAction(ShipFleet fleet)
 	{
-		validiereFlotteVorhanden(fleet);
+		validiereGueltigeFlotteVorhanden(fleet);
 
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 
-		t.setVar("fleet.name", Common._plaintitle(this.fleet.getName()),
+		t.setVar("fleet.id", fleet.getId());
+
+		t.setVar("fleet.name", Common._plaintitle(fleet.getName()),
 				"show.export", 1);
 
 		t.setBlock("_FLEETMGNT", "exportships.listitem", "exportships.list");
 
 		List<?> ships = db.createQuery("from Ship where id>0 and fleet=:fleet")
-				.setEntity("fleet", this.fleet)
+				.setEntity("fleet", fleet)
 				.list();
 		for (Object ship : ships)
 		{
@@ -768,14 +742,19 @@ public class FleetMgntController extends TemplateGenerator
 	 * Dockt alle Schiffe der Flotte ab.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void undockAction()
+	public void undockAction(ShipFleet fleet)
 	{
-		validiereFlotteVorhanden(fleet);
+		validiereGueltigeFlotteVorhanden(fleet);
 
 		TemplateEngine t = getTemplateEngine();
 
-		this.fleet.undockContainers();
+		t.setVar("fleet.id", fleet.getId());
 
+		fleet.undockContainers();
+
+		int shipid = ermittleIdEinesGeeignetenSchiffsDerFlotte(fleet);
+
+		t.setVar("jscript.reloadmain.ship", shipid);
 		t.setVar("fleetmgnt.message", "Alle gedockten Schiffe wurden gestartet",
 				"jscript.reloadmain", 1);
 
@@ -786,15 +765,20 @@ public class FleetMgntController extends TemplateGenerator
 	 * Sammelt alle nicht gedockten eigenen Container im Sektor auf (sofern genug Platz vorhanden ist).
 	 */
 	@Action(ActionType.DEFAULT)
-	public void redockAction()
+	public void redockAction(ShipFleet fleet)
 	{
-		validiereFlotteVorhanden(fleet);
+		validiereGueltigeFlotteVorhanden(fleet);
 
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
 
-		this.fleet.collectContainers(user);
+		t.setVar("fleet.id", fleet.getId());
 
+		fleet.collectContainers(user);
+
+		int shipid = ermittleIdEinesGeeignetenSchiffsDerFlotte(fleet);
+
+		t.setVar("jscript.reloadmain.ship", shipid);
 		t.setVar("fleetmgnt.message", "Container wurden aufgesammelt",
 				"jscript.reloadmain", 1);
 
@@ -805,14 +789,19 @@ public class FleetMgntController extends TemplateGenerator
 	 * Startet alle Jaeger der Flotte.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void jstartAction()
+	public void jstartAction(ShipFleet fleet)
 	{
-		validiereFlotteVorhanden(fleet);
+		validiereGueltigeFlotteVorhanden(fleet);
 
 		TemplateEngine t = getTemplateEngine();
 
-		this.fleet.startFighters();
+		t.setVar("fleet.id", fleet.getId());
 
+		fleet.startFighters();
+
+		int shipid = ermittleIdEinesGeeignetenSchiffsDerFlotte(fleet);
+
+		t.setVar("jscript.reloadmain.ship", shipid);
 		t.setVar("fleetmgnt.message", "Alle J&auml;ger sind gestartet",
 				"jscript.reloadmain", 1);
 
@@ -823,15 +812,20 @@ public class FleetMgntController extends TemplateGenerator
 	 * Sammelt alle nicht gelandeten eigenen Jaeger im Sektor auf (sofern genug Platz vorhanden ist).
 	 */
 	@Action(ActionType.DEFAULT)
-	public void jlandAction(int jaegertype)
+	public void jlandAction(ShipFleet fleet, int jaegertype)
 	{
-		validiereFlotteVorhanden(fleet);
+		validiereGueltigeFlotteVorhanden(fleet);
 
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
 
-		this.fleet.collectFightersByType(user, jaegertype);
+		t.setVar("fleet.id", fleet.getId());
 
+		fleet.collectFightersByType(user, jaegertype);
+
+		int shipid = ermittleIdEinesGeeignetenSchiffsDerFlotte(fleet);
+
+		t.setVar("jscript.reloadmain.ship", shipid);
 		t.setVar("fleetmgnt.message", "J&auml;ger wurden aufgesammelt",
 				"jscript.reloadmain", 1);
 
@@ -844,12 +838,14 @@ public class FleetMgntController extends TemplateGenerator
 	 * @param targetFleet Die ID der Flotte, deren Schiffe zur aktiven Flotte hinzugefuegt werden sollen
 	 */
 	@Action(ActionType.DEFAULT)
-	public void fleetcombineAction(@UrlParam(name = "fleetcombine") ShipFleet targetFleet)
+	public void fleetcombineAction(ShipFleet fleet, @UrlParam(name = "fleetcombine") ShipFleet targetFleet)
 	{
-		validiereFlotteVorhanden(fleet);
+		validiereGueltigeFlotteVorhanden(fleet);
 
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
+
+		t.setVar("fleet.id", fleet.getId());
 
 		if (targetFleet == null)
 		{
@@ -866,8 +862,11 @@ public class FleetMgntController extends TemplateGenerator
 			return;
 		}
 
-		this.fleet.joinFleet(targetFleet);
+		fleet.joinFleet(targetFleet);
 
+		int shipid = ermittleIdEinesGeeignetenSchiffsDerFlotte(fleet);
+
+		t.setVar("jscript.reloadmain.ship", shipid);
 		t.setVar("fleetmgnt.message", "Alle Schiffe der Flotte '" + Common._plaintitle(targetFleet.getName()) + "' sind beigetreten",
 				"jscript.reloadmain", 1);
 
@@ -880,14 +879,19 @@ public class FleetMgntController extends TemplateGenerator
 	 * @param alarm Die neue Alarmstufe
 	 */
 	@Action(ActionType.DEFAULT)
-	public void alarmAction(int alarm)
+	public void alarmAction(ShipFleet fleet, int alarm)
 	{
-		validiereFlotteVorhanden(fleet);
+		validiereGueltigeFlotteVorhanden(fleet);
 
 		TemplateEngine t = getTemplateEngine();
 
-		this.fleet.setAlarm(alarm);
+		t.setVar("fleet.id", fleet.getId());
 
+		fleet.setAlarm(alarm);
+
+		int shipid = ermittleIdEinesGeeignetenSchiffsDerFlotte(fleet);
+
+		t.setVar("jscript.reloadmain.ship", shipid);
 		t.setVar("fleetmgnt.message", "Die Alarmstufe wurde ge&auml;ndert",
 				"jscript.reloadmain", 1);
 
@@ -898,15 +902,17 @@ public class FleetMgntController extends TemplateGenerator
 	 * Zeigt das Eingabefeld fuer das Umbenennen der Schiffe der Flotte.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void renameShipsAction()
+	public void renameShipsAction(ShipFleet fleet)
 	{
-		validiereFlotteVorhanden(fleet);
+		validiereGueltigeFlotteVorhanden(fleet);
 
 		TemplateEngine t = getTemplateEngine();
 
+		t.setVar("fleet.id", fleet.getId());
+
 		t.setVar("show.renameShips", 1,
-				"fleet.id", this.fleet.getId(),
-				"fleet.name", Common._plaintitle(this.fleet.getName()));
+				"fleet.id", fleet.getId(),
+				"fleet.name", Common._plaintitle(fleet.getName()));
 	}
 
 	/**
@@ -914,11 +920,13 @@ public class FleetMgntController extends TemplateGenerator
 	 */
 	@Action(ActionType.DEFAULT)
 	@SuppressWarnings("unchecked")
-	public void buildAction(int buildcount, int buildid)
+	public void buildAction(ShipFleet fleet, int buildcount, int buildid)
 	{
-		validiereFlotteVorhanden(fleet);
+		validiereGueltigeFlotteVorhanden(fleet);
 
 		TemplateEngine t = getTemplateEngine();
+
+		t.setVar("fleet.id", fleet.getId());
 
 		if (buildcount <= 0)
 		{
@@ -929,7 +937,7 @@ public class FleetMgntController extends TemplateGenerator
 		User user = (User) getUser();
 		List<Ship> shipyards = db.createQuery("from Ship where id>0 and owner=:owner and fleet=:fleet and shiptype.werft > 0 order by id")
 				.setEntity("owner", user)
-				.setEntity("fleet", this.fleet)
+				.setEntity("fleet", fleet)
 				.list();
 
 		for (Iterator<Ship> it = shipyards.iterator(); it.hasNext(); )
@@ -982,6 +990,9 @@ public class FleetMgntController extends TemplateGenerator
 		}
 
 		//Reload main page
+		int shipid = ermittleIdEinesGeeignetenSchiffsDerFlotte(fleet);
+
+		t.setVar("jscript.reloadmain.ship", shipid);
 		t.setVar("jscript.reloadmain", 1);
 
 		this.redirect();
@@ -1157,17 +1168,19 @@ public class FleetMgntController extends TemplateGenerator
 	 * @param name Das Namensmuster
 	 */
 	@Action(ActionType.DEFAULT)
-	public void renameShips2Action(String name)
+	public void renameShips2Action(ShipFleet fleet, String name)
 	{
-		validiereFlotteVorhanden(fleet);
+		validiereGueltigeFlotteVorhanden(fleet);
 
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 
+		t.setVar("fleet.id", fleet.getId());
+
 		List<NamePatternElement> nameParts = parseNamePattern(name);
 
 		List<?> ships = db.createQuery("from Ship where id>0 and fleet=:fleet")
-				.setEntity("fleet", this.fleet)
+				.setEntity("fleet", fleet)
 				.list();
 
 		for (Object ship1 : ships)
@@ -1177,6 +1190,9 @@ public class FleetMgntController extends TemplateGenerator
 			ship.setName(generateNextShipName(nameParts));
 		}
 
+		int shipid = ermittleIdEinesGeeignetenSchiffsDerFlotte(fleet);
+
+		t.setVar("jscript.reloadmain.ship", shipid);
 		t.setVar("fleetmgnt.message", "Die Namen wurden ge&auml;ndert",
 				"jscript.reloadmain", 1);
 
@@ -1190,12 +1206,14 @@ public class FleetMgntController extends TemplateGenerator
 	 * @param crewinpercent Anzahl der Crew in Prozent (der Maxcrew des Zielschiffes)
 	 */
 	@Action(ActionType.DEFAULT)
-	public void getCrewAction(int crewinpercent)
+	public void getCrewAction(ShipFleet fleet, int crewinpercent)
 	{
-		validiereFlotteVorhanden(fleet);
+		validiereGueltigeFlotteVorhanden(fleet);
 
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
+
+		getTemplateEngine().setVar("fleet.id", fleet.getId());
 
 		double crewInPercent = crewinpercent / 100.0;
 		crewInPercent = Math.min(crewInPercent, 100.0);
@@ -1204,7 +1222,7 @@ public class FleetMgntController extends TemplateGenerator
 		List<Ship> ships = Common.cast(db.createQuery("from Ship " +
 				"where id>0 and owner=:owner and fleet=:fleet order by id")
 				.setEntity("owner", user)
-				.setEntity("fleet", this.fleet)
+				.setEntity("fleet", fleet)
 				.list());
 
 		List<Base> bases = Common.cast(db.createQuery("from Base where owner=:owner")
@@ -1234,9 +1252,9 @@ public class FleetMgntController extends TemplateGenerator
 	 * Bestaetigungsanfrage fuers Demontieren.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void askDismantleAction()
+	public void askDismantleAction(ShipFleet fleet)
 	{
-		validiereFlotteVorhanden(fleet);
+		validiereGueltigeFlotteVorhanden(fleet);
 
 		TemplateEngine t = getTemplateEngine();
 
@@ -1249,16 +1267,18 @@ public class FleetMgntController extends TemplateGenerator
 	 * Demontiert die Flotte.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void dismantleAction()
+	public void dismantleAction(ShipFleet fleet)
 	{
-		validiereFlotteVorhanden(fleet);
+		validiereGueltigeFlotteVorhanden(fleet);
 
 		List<WerftObject> shipyards = new ArrayList<>();
 
+		getTemplateEngine().setVar("fleet.id", fleet.getId());
+
 		org.hibernate.Session db = getDB();
-		if (getGanymedCount() > 0)
+		if (getGanymedCount(fleet) > 0)
 		{
-			Ship aship = getOneFleetShip();
+			Ship aship = getOneFleetShip(fleet);
 			shipyards = Common.cast(db.createQuery("from ShipWerft where ship.system=:system and ship.x=:x and ship.y=:y and ship.owner=:owner")
 					.setParameter("system", aship.getSystem())
 					.setParameter("x", aship.getX())
@@ -1267,7 +1287,7 @@ public class FleetMgntController extends TemplateGenerator
 					.list());
 		}
 
-		List<Base> bases = getOwnerAsteroids();
+		List<Base> bases = getOwnerAsteroids(fleet);
 		if (!bases.isEmpty())
 		{
 			for (Base base : bases)
@@ -1287,6 +1307,9 @@ public class FleetMgntController extends TemplateGenerator
 				if (fleet.dismantleFleet(shipyard))
 				{
 					TemplateEngine t = getTemplateEngine();
+					int shipid = ermittleIdEinesGeeignetenSchiffsDerFlotte(fleet);
+
+					t.setVar("jscript.reloadmain.ship", shipid);
 					t.setVar("fleetmgnt.message", "Die Flotte '" + fleet.getName() + "' wurde demontiert.",
 							"jscript.reloadmain", 1);
 
@@ -1302,19 +1325,20 @@ public class FleetMgntController extends TemplateGenerator
 		redirect();
 	}
 
-	@Override
 	@Action(value = ActionType.DEFAULT, readOnly = true)
-	public void defaultAction()
+	public void defaultAction(ShipFleet fleet)
 	{
-		validiereFlotteVorhanden(fleet);
+		validiereGueltigeFlotteVorhanden(fleet);
 
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
 
+		t.setVar("fleet.id", fleet.getId());
+
 		List<String> sectors = new ArrayList<>();
 
-		Ship aship = getOneFleetShip();
+		Ship aship = getOneFleetShip(fleet);
 
 		if (aship == null)
 		{
@@ -1325,8 +1349,8 @@ public class FleetMgntController extends TemplateGenerator
 		sectors.add("(s.x=" + aship.getX() + " and s.y=" + aship.getY() + " and s.system=" + aship.getSystem() + ")");
 
 		t.setVar("show.view", 1,
-				"fleet.name", Common._plaintitle(this.fleet.getName()),
-				"fleet.id", this.fleet.getId());
+				"fleet.name", Common._plaintitle(fleet.getName()),
+				"fleet.id", fleet.getId());
 
 		t.setBlock("_FLEETMGNT", "ships.listitem", "ships.list");
 
@@ -1334,7 +1358,7 @@ public class FleetMgntController extends TemplateGenerator
 
 		List<?> ships = db.createQuery("from Ship where id>0 and owner=:owner and fleet=:fleet order by id")
 				.setEntity("owner", user)
-				.setEntity("fleet", this.fleet)
+				.setEntity("fleet", fleet)
 				.list();
 
 		Set<WerftObject> werften = new HashSet<>();
@@ -1430,7 +1454,7 @@ public class FleetMgntController extends TemplateGenerator
 		}
 
 		//Find shipyards in sector
-		long ganymedCount = getGanymedCount();
+		long ganymedCount = getGanymedCount(fleet);
 
 		if (ganymedCount > 0)
 		{
@@ -1441,7 +1465,7 @@ public class FleetMgntController extends TemplateGenerator
 			//Find shipyards on asteroids
 			if (asteroidcount > 0)
 			{
-				List<Base> bases = getOwnerAsteroids();
+				List<Base> bases = getOwnerAsteroids(fleet);
 
 				for (Base base : bases)
 				{
@@ -1484,7 +1508,7 @@ public class FleetMgntController extends TemplateGenerator
 				.setInteger("x", aship.getX())
 				.setInteger("y", aship.getY())
 				.setEntity("owner", user)
-				.setEntity("fleet", this.fleet)
+				.setEntity("fleet", fleet)
 				.list();
 
 		for (Object aFleetList : fleetList)
@@ -1508,10 +1532,10 @@ public class FleetMgntController extends TemplateGenerator
 	 *
 	 * @return s.o.
 	 */
-	private List<Base> getOwnerAsteroids()
+	private List<Base> getOwnerAsteroids(ShipFleet fleet)
 	{
 		org.hibernate.Session db = getDB();
-		Ship aship = getOneFleetShip();
+		Ship aship = getOneFleetShip(fleet);
 		return Common.cast(db.createQuery("from Base where system=:system and x=:x and y=:y and owner=:owner")
 				.setParameter("system", aship.getSystem())
 				.setParameter("x", aship.getX())
@@ -1525,11 +1549,11 @@ public class FleetMgntController extends TemplateGenerator
 	 *
 	 * @return Irgendein Schiff.
 	 */
-	private Ship getOneFleetShip()
+	private Ship getOneFleetShip(ShipFleet fleet)
 	{
 		org.hibernate.Session db = getDB();
 		return (Ship) db.createQuery("from Ship where id>0 and fleet=:fleet")
-				.setEntity("fleet", this.fleet)
+				.setEntity("fleet", fleet)
 				.setMaxResults(1)
 				.uniqueResult();
 	}
@@ -1539,10 +1563,10 @@ public class FleetMgntController extends TemplateGenerator
 	 *
 	 * @return Anzahl Ganymeds.
 	 */
-	private long getGanymedCount()
+	private long getGanymedCount(ShipFleet fleet)
 	{
 		org.hibernate.Session db = getDB();
-		Ship aship = getOneFleetShip();
+		Ship aship = getOneFleetShip(fleet);
 		return (Long) db.createQuery("select count(id) from ShipWerft where ship.system=:system and ship.x=:x and ship.y=:y")
 				.setParameter("system", aship.getSystem())
 				.setParameter("x", aship.getX())

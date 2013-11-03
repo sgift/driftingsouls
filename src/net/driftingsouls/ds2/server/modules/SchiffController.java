@@ -36,6 +36,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateGenerator;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.schiffplugins.Parameters;
 import net.driftingsouls.ds2.server.modules.schiffplugins.SchiffPlugin;
@@ -67,18 +68,11 @@ import java.util.Set;
  * Die Schiffsansicht.
  *
  * @author Christopher Jung
- * @urlparam Integer ship Die ID des anzuzeigenden Schiffes
  */
 @net.driftingsouls.ds2.server.framework.pipeline.Module(name = "schiff")
 public class SchiffController extends TemplateGenerator
 {
 	private Log log = LogFactory.getLog(SchiffController.class);
-
-	private Ship ship = null;
-	private ShipTypeData shiptype = null;
-	private Offizier offizier = null;
-	private Map<String, SchiffPlugin> pluginMapper = new LinkedHashMap<>();
-	private boolean noob = false;
 
 	/**
 	 * Konstruktor.
@@ -90,8 +84,6 @@ public class SchiffController extends TemplateGenerator
 		super(context);
 
 		setTemplate("schiff.html");
-
-		parameterNumber("ship");
 
 		setPageTitle("Schiff");
 	}
@@ -133,35 +125,23 @@ public class SchiffController extends TemplateGenerator
 		}
 	}
 
-	@Override
-	protected boolean validateAndPrepare()
+	private void validiereSchiff(Ship ship)
 	{
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
-		org.hibernate.Session db = getDB();
-
-		t.setVar("user.tooltips", user.getUserValue("TBLORDER/schiff/tooltips"));
-
-		int shipid = getInteger("ship");
-
-		ship = (Ship) db.get(Ship.class, shipid);
 		if ((ship == null) || (ship.getId() < 0) || (ship.getOwner() != user))
 		{
-			addError("Das angegebene Schiff existiert nicht", Common.buildUrl("default", "module", "schiffe"));
-			return false;
+			throw new ValidierungException("Das angegebene Schiff existiert nicht", Common.buildUrl("default", "module", "schiffe"));
 		}
 
 		if (ship.getBattle() != null)
 		{
-			addError("Das Schiff ist in einen Kampf verwickelt (hier klicken um zu diesem zu gelangen)!", Common.buildUrl("default", "module", "angriff", "battle", ship.getBattle().getId(), "ship", shipid));
-			return false;
+			throw new ValidierungException("Das Schiff ist in einen Kampf verwickelt (hier klicken um zu diesem zu gelangen)!", Common.buildUrl("default", "module", "angriff", "battle", ship.getBattle().getId(), "ship", ship.getId()));
 		}
+	}
 
-
-		shiptype = ship.getTypeData();
-
-		offizier = ship.getOffizier();
-
+	private Map<String, SchiffPlugin> ermittlePluginsFuer(ShipTypeData shiptype)
+	{
+		Map<String, SchiffPlugin> pluginMapper = new LinkedHashMap<>();
 		pluginMapper.put("navigation", getPluginByName("NavigationDefault"));
 		pluginMapper.put("cargo", getPluginByName("CargoDefault"));
 
@@ -191,29 +171,28 @@ public class SchiffController extends TemplateGenerator
 		{
 			pluginMapper.put("units", getPluginByName("UnitsDefault"));
 		}
-
-		noob = user.isNoob();
-
-		// URL fuer Quests setzen
-		Quests.currentEventURLBase.set("./ds?module=schiff&ship=" + this.ship.getId());
-
-		return true;
+		return pluginMapper;
 	}
 
 	/**
 	 * Wechselt die Alarmstufe des Schiffes.
 	 *
+	 * @param ship Die ID des anzuzeigenden Schiffes
 	 * @param alarm Die neue Alarmstufe
 	 */
 	@Action(ActionType.DEFAULT)
-	public void alarmAction(int alarm)
+	public void alarmAction(Ship ship, int alarm)
 	{
-		if (noob)
+		validiereSchiff(ship);
+
+		User user = (User)getUser();
+		if (user.isNoob())
 		{
 			redirect();
 			return;
 		}
 
+		ShipTypeData shiptype = ship.getTypeData();
 		if ((shiptype.getShipClass() == ShipClasses.GESCHUETZ) || !shiptype.isMilitary())
 		{
 			redirect();
@@ -235,12 +214,15 @@ public class SchiffController extends TemplateGenerator
 	/**
 	 * Uebergibt das Schiff an einen anderen Spieler.
 	 *
+	 * @param ship Die ID des anzuzeigenden Schiffes
 	 * @param newownerID Die ID des neuen Besitzers
 	 * @param conf 1, falls die Sicherheitsabfrage positiv bestaetigt wurde
 	 */
 	@Action(ActionType.DEFAULT)
-	public void consignAction(@UrlParam(name = "newowner") String newownerID, int conf)
+	public void consignAction(Ship ship, @UrlParam(name = "newowner") String newownerID, int conf)
 	{
+		validiereSchiff(ship);
+
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
@@ -275,6 +257,7 @@ public class SchiffController extends TemplateGenerator
 		}
 		else
 		{
+			ShipTypeData shiptype = ship.getTypeData();
 			String msg = "Ich habe dir die " + ship.getName() + " (" + ship.getId() + "), ein Schiff der " + shiptype.getNickname() + "-Klasse, &uuml;bergeben\nSie steht bei " + ship.getLocation().displayCoordinates(false);
 			PM.send(user, newowner.getId(), "Schiff &uuml;bergeben", msg);
 
@@ -302,10 +285,14 @@ public class SchiffController extends TemplateGenerator
 
 	/**
 	 * Zerstoert das Schiff.
+	 * @param ship Die ID des anzuzeigenden Schiffes
+	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void destroyAction(int conf)
+	public void destroyAction(Ship ship, int conf)
 	{
+		validiereSchiff(ship);
+
 		TemplateEngine t = getTemplateEngine();
 
 		if (ship.isNoSuicide())
@@ -333,13 +320,17 @@ public class SchiffController extends TemplateGenerator
 	/**
 	 * Springt durch den angegebenen Sprungpunkt.
 	 *
+	 * @param ship Die ID des anzuzeigenden Schiffes
 	 * @param node Die ID des Sprungpunkts
 	 */
 	@Action(ActionType.DEFAULT)
-	public void jumpAction(int node)
+	public void jumpAction(Ship ship, int node)
 	{
+		validiereSchiff(ship);
+
 		TemplateEngine t = getTemplateEngine();
 
+		ShipTypeData shiptype = ship.getTypeData();
 		if ((shiptype.getCost() == 0) || (ship.getEngine() == 0))
 		{
 			redirect();
@@ -358,13 +349,17 @@ public class SchiffController extends TemplateGenerator
 	/**
 	 * Benutzt einen an ein Schiff assoziierten Sprungpunkt.
 	 *
+	 * @param ship Die ID des anzuzeigenden Schiffes
 	 * @param knode Die ID des Schiffes mit dem Sprungpunkt
 	 */
 	@Action(ActionType.DEFAULT)
-	public void kjumpAction(int knode)
+	public void kjumpAction(Ship ship, int knode)
 	{
+		validiereSchiff(ship);
+
 		TemplateEngine t = getTemplateEngine();
 
+		ShipTypeData shiptype = ship.getTypeData();
 		if ((shiptype.getCost() == 0) || (ship.getEngine() == 0))
 		{
 			redirect();
@@ -383,11 +378,14 @@ public class SchiffController extends TemplateGenerator
 	/**
 	 * Benennt das Schiff um.
 	 *
+	 * @param ship Die ID des anzuzeigenden Schiffes
 	 * @param newname Der neue Name des Schiffes
 	 */
 	@Action(ActionType.DEFAULT)
-	public void renameAction(String newname)
+	public void renameAction(Ship ship, String newname)
 	{
+		validiereSchiff(ship);
+
 		TemplateEngine t = getTemplateEngine();
 
 		ship.setName(newname);
@@ -400,20 +398,25 @@ public class SchiffController extends TemplateGenerator
 	 * Fuehrt Aktionen eines Plugins aus. Plugin-spezifische
 	 * Parameter haben die Form $PluginName_ops[$ParameterName].
 	 *
+	 * @param ship Die ID des anzuzeigenden Schiffes
 	 * @param plugin Der Name des Plugins
 	 */
 	@Action(ActionType.DEFAULT)
-	public void pluginAction(String plugin) throws ReflectiveOperationException
+	public void pluginAction(Ship ship, String plugin) throws ReflectiveOperationException
 	{
+		validiereSchiff(ship);
+
 		TemplateEngine t = getTemplateEngine();
 
+		ShipTypeData shiptype = ship.getTypeData();
 		Parameters caller = new Parameters();
 		caller.controller = this;
 		caller.pluginId = plugin;
 		caller.ship = ship;
 		caller.shiptype = shiptype;
-		caller.offizier = offizier;
+		caller.offizier = ship.getOffizier();
 
+		Map<String, SchiffPlugin> pluginMapper = ermittlePluginsFuer(shiptype);
 		if (!pluginMapper.containsKey(plugin))
 		{
 			redirect();
@@ -429,11 +432,14 @@ public class SchiffController extends TemplateGenerator
 	/**
 	 * Landet die angegebenen Schiffe auf dem aktuellen Schiff.
 	 *
+	 * @param ship Die ID des anzuzeigenden Schiffes
 	 * @param shipIdList Eine mit | separierte Liste an Schiffs-IDs
 	 */
 	@Action(ActionType.DEFAULT)
-	public void landAction(@UrlParam(name = "shiplist") String shipIdList)
+	public void landAction(Ship ship, @UrlParam(name = "shiplist") String shipIdList)
 	{
+		validiereSchiff(ship);
+
 		TemplateEngine t = getTemplateEngine();
 
 		if (shipIdList.equals(""))
@@ -466,11 +472,14 @@ public class SchiffController extends TemplateGenerator
 	/**
 	 * Startet die angegebenen Schiffe vom aktuellen Schiff.
 	 *
+	 * @param ship Die ID des anzuzeigenden Schiffes
 	 * @param shipIdList Eine mit | separierte Liste von Schiffs-IDs
 	 */
 	@Action(ActionType.DEFAULT)
-	public void startAction(@UrlParam(name = "shiplist") String shipIdList)
+	public void startAction(Ship ship, @UrlParam(name = "shiplist") String shipIdList)
 	{
+		validiereSchiff(ship);
+
 		TemplateEngine t = getTemplateEngine();
 
 		if (shipIdList.equals(""))
@@ -503,11 +512,14 @@ public class SchiffController extends TemplateGenerator
 	/**
 	 * Dockt die angegebenen Schiffe an das aktuelle Schiff an.
 	 *
+	 * @param ship Die ID des anzuzeigenden Schiffes
 	 * @param shipIdList Eine mit | separierte Liste von Schiffs-IDs
 	 */
 	@Action(ActionType.DEFAULT)
-	public void aufladenAction(@UrlParam(name = "tar") String shipIdList)
+	public void aufladenAction(Ship ship, @UrlParam(name = "tar") String shipIdList)
 	{
+		validiereSchiff(ship);
+
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
 
@@ -561,11 +573,14 @@ public class SchiffController extends TemplateGenerator
 	/**
 	 * Dockt die angegebenen Schiffe vom aktuellen Schiff ab.
 	 *
+	 * @param ship Die ID des anzuzeigenden Schiffes
 	 * @param shipIdList Eine mit | separierte Liste von Schiffs-IDs
 	 */
 	@Action(ActionType.DEFAULT)
-	public void abladenAction(@UrlParam(name = "tar") String shipIdList)
+	public void abladenAction(Ship ship, @UrlParam(name = "tar") String shipIdList)
 	{
+		validiereSchiff(ship);
+
 		TemplateEngine t = getTemplateEngine();
 
 		if (shipIdList.equals(""))
@@ -597,11 +612,14 @@ public class SchiffController extends TemplateGenerator
 	/**
 	 * Laesst ein Schiff einer Flotte beitreten oder aus der aktuellen Flotte austreten.
 	 *
+	 * @param ship Die ID des anzuzeigenden Schiffes
 	 * @param join Die ID der Flotte, der das Schiff beitreten soll oder <code>0</code>, falls es aus der aktuellen Flotte austreten soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void joinAction(int join)
+	public void joinAction(Ship ship, int join)
 	{
+		validiereSchiff(ship);
+
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
@@ -649,13 +667,17 @@ public class SchiffController extends TemplateGenerator
 	/**
 	 * Laedt die Schilde des aktuellen Schiffes auf.
 	 *
+	 * @param ship Die ID des anzuzeigenden Schiffes
 	 * @param shup Die Menge an Energie, die zum Aufladen der Schilde verwendet werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void shupAction(int shup)
+	public void shupAction(Ship ship, int shup)
 	{
+		validiereSchiff(ship);
+
 		TemplateEngine t = getTemplateEngine();
 
+		ShipTypeData shiptype = ship.getTypeData();
 		int shieldfactor = 100;
 		if (shiptype.getShields() < 1000)
 		{
@@ -691,12 +713,15 @@ public class SchiffController extends TemplateGenerator
 	 * Speichert ein neues Schiffsaktionsscript und setzt optional
 	 * die aktuellen Ausfuehrungsdaten wieder zurueck.
 	 *
+	 * @param ship Die ID des anzuzeigenden Schiffes
 	 * @param script das neue Schfifsaktionsscript
 	 * @param reset Wenn der Wert != 0 ist, dann werden die Ausfuehrungsdaten zurueckgesetzt
 	 */
 	@Action(ActionType.DEFAULT)
-	public void scriptAction(String script, boolean reset)
+	public void scriptAction(Ship ship, String script, boolean reset)
 	{
+		validiereSchiff(ship);
+
 		TemplateEngine t = getTemplateEngine();
 
 		if (!script.trim().equals(""))
@@ -721,12 +746,15 @@ public class SchiffController extends TemplateGenerator
 	/**
 	 * Behandelt ein OnCommunicate-Ereigniss.
 	 *
+	 * @param ship Die ID des anzuzeigenden Schiffes
 	 * @param communicate Die ID des Schiffes, mit dem kommuniziert werden soll
 	 * @param execparameter Weitere Ausfuehrungsdaten
 	 */
 	@Action(ActionType.DEFAULT)
-	public void communicateAction(int communicate, String execparameter)
+	public void communicateAction(Ship ship, int communicate, String execparameter)
 	{
+		validiereSchiff(ship);
+
 		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
@@ -763,10 +791,14 @@ public class SchiffController extends TemplateGenerator
 
 	/**
 	 * Transferiert das Schiff ins System 99.
+	 * @param ship Die ID des anzuzeigenden Schiffes
+	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void inselAction()
+	public void inselAction(Ship ship)
 	{
+		validiereSchiff(ship);
+
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
 
@@ -823,11 +855,14 @@ public class SchiffController extends TemplateGenerator
 
 	/**
 	 * Zeigt die Schiffsansicht an.
+	 * @param ship Die ID des anzuzeigenden Schiffes
+	 *
 	 */
-	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction()
+	public void defaultAction(Ship ship)
 	{
+		validiereSchiff(ship);
+
 		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
@@ -848,7 +883,7 @@ public class SchiffController extends TemplateGenerator
 			return;
 		}
 
-		shiptype = ship.getTypeData();
+		ShipTypeData shiptype = ship.getTypeData();
 
 		if (ship.getBattle() != null)
 		{
@@ -862,7 +897,7 @@ public class SchiffController extends TemplateGenerator
 		}
 
 		ship.recalculateShipStatus();
-		offizier = ship.getOffizier();
+		Offizier offizier = ship.getOffizier();
 
 		t.setVar("ship.showui", 1,
 				"ship.islanded", ship.isLanded(),
@@ -902,7 +937,7 @@ public class SchiffController extends TemplateGenerator
 				"ship.s", ship.getHeat(),
 				"ship.fleet", ship.getFleet() != null ? ship.getFleet().getId() : 0,
 				"shiptype.werft", shiptype.getWerft(),
-				"ship.showalarm", !noob && (shiptype.getShipClass() != ShipClasses.GESCHUETZ) && shiptype.isMilitary());
+				"ship.showalarm", !user.isNoob() && (shiptype.getShipClass() != ShipClasses.GESCHUETZ) && shiptype.isMilitary());
 
 		if (ship.getHeat() >= 100)
 		{
@@ -1219,6 +1254,7 @@ public class SchiffController extends TemplateGenerator
 		caller.shiptype = shiptype;
 		caller.offizier = offizier;
 
+		Map<String, SchiffPlugin> pluginMapper = ermittlePluginsFuer(shiptype);
 		if (pluginMapper.containsKey("navigation"))
 		{
 			SchiffPlugin plugin = pluginMapper.get("navigation");
