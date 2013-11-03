@@ -37,7 +37,7 @@ public class WerftDefault implements SchiffPlugin {
 		return "";
 	}
 
-	@Override
+	@Action(ActionType.DEFAULT)
 	public void output(Parameters caller) {
 		String pluginid = caller.pluginId;
 		SchiffController controller = caller.controller;
@@ -62,11 +62,13 @@ public class WerftDefault implements SchiffPlugin {
 			int usedSlots = 0;
 			int buildingCount = 0;
 			String imBau = "";
-			for( int i=0; i < entries.length; i++ ) {
-				if( entries[i].isScheduled() ) {
-					usedSlots += entries[i].getSlots();
+			for (WerftQueueEntry entry : entries)
+			{
+				if (entry.isScheduled())
+				{
+					usedSlots += entry.getSlots();
 					buildingCount++;
-					imBau = imBau+"<br />Aktuell im Bau: "+entries[i].getBuildShipType().getNickname()+" <img src='data/interface/time.gif' alt='Dauer: ' />"+entries[i].getRemainingTime();
+					imBau = imBau + "<br />Aktuell im Bau: " + entry.getBuildShipType().getNickname() + " <img src='data/interface/time.gif' alt='Dauer: ' />" + entry.getRemainingTime();
 				}
 			}
 			t.setVar(

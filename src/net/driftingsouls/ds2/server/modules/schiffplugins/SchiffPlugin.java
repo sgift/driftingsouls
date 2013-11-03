@@ -20,15 +20,12 @@ package net.driftingsouls.ds2.server.modules.schiffplugins;
 
 /**
  * Interface fuer Plugins des Schiff-Controllers.
- * Per Konvention hat jedes Plugin auch eine Action-Methode mit dem Namen "action" zu implementieren.
- * Die Action-Methode muss einen String zurueckgegeben.
+ * <p>Per Konvention hat jedes Plugin eine Action-Methode mit dem Namen "action" zu implementieren.
+ * Die Action-Methode muss einen String zurueckgegeben (Statusmeldung).</p>
+ * <p>Per Konvention hat jedes Plugin eine Action-Methode mit dem Namen "output" zu implementieren.
+ * Die Action-Methode muss ihre Ausgabe ueber die Templateengine erledigen.</p>
  * @author Christopher Jung
  *
  */
 public interface SchiffPlugin {
-	/**
-	 * Gibt das UI des Plugins via Templates aus.
-	 * @param parameters Objekt mit Parametern
-	 */
-	public void output(Parameters parameters);
 }

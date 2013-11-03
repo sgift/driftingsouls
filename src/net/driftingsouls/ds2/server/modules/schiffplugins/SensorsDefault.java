@@ -59,15 +59,9 @@ import java.util.Map;
 public class SensorsDefault implements SchiffPlugin {
 	private static final Log log = LogFactory.getLog(SensorsDefault.class);
 
-	private int showOnly = 0;
-	private int showId = 0;
-
 	@Action(ActionType.DEFAULT)
 	public String action(Parameters caller, String order, int showonly, int showid) {
 		SchiffController controller = caller.controller;
-
-	 	showOnly = showonly;
-		showId = showid;
 
 		if( !order.equals("") ) {
 			if( !order.equals("id") && !order.equals("name") && !order.equals("owner") && !order.equals("shiptype") ) {
@@ -79,8 +73,8 @@ public class SensorsDefault implements SchiffPlugin {
 		return "";
 	}
 
-    @Override
-	public void output(Parameters caller) {
+	@Action(ActionType.DEFAULT)
+	public void output(Parameters caller, int showonly, int showid) {
 		String pluginid = caller.pluginId;
 		Ship ship = caller.ship;
 		ShipTypeData shiptype = caller.shiptype;
@@ -177,7 +171,7 @@ public class SensorsDefault implements SchiffPlugin {
 				Schiffe
 			*/
 
-			outputShips(caller, db, user, t, order);
+			outputShips(caller, db, user, t, order, showonly, showid);
 		}
 
 		t.parse(caller.target,"_PLUGIN_"+pluginid);
@@ -185,7 +179,7 @@ public class SensorsDefault implements SchiffPlugin {
 
 	private void outputShips(Parameters caller,
 			org.hibernate.Session db, User user, TemplateEngine t,
-			String order)
+			String order, int showOnly, int showId)
 	{
 		List<Integer> fleetlist = null;
 		ShipTypeData shiptype = caller.shiptype;
@@ -232,7 +226,7 @@ public class SensorsDefault implements SchiffPlugin {
 		Map<String,Long> types = new HashMap<>();
 
 		// Soll nur ein bestimmter Schiffstyp angezeigt werden?
-		if( this.showOnly != 0 ) {
+		if( showOnly != 0 ) {
 			// IF(t1.docked!='',t1.docked+0.1,t1.id) as myorder
 			ships = db.createQuery("from Ship s inner join fetch s.owner " +
 					"where s.id!= :id and s.id>0 and s.x= :x and s.y= :y and s.system= :sys and " +
@@ -244,8 +238,8 @@ public class SensorsDefault implements SchiffPlugin {
 				.setInteger("x", ship.getX())
 				.setInteger("y", ship.getY())
 				.setInteger("sys", ship.getSystem())
-				.setInteger("showonly", this.showOnly)
-				.setInteger("showid", this.showId)
+				.setInteger("showonly", showOnly)
+				.setInteger("showid", showId)
 				.setFlushMode(FlushMode.MANUAL)
 				.list();
 
@@ -324,7 +318,7 @@ public class SensorsDefault implements SchiffPlugin {
 			final String typeGroupID = aship.getType() + "_" + aship.getOwner().getId();
 
 			// Schiff nur als/in Gruppe anzeigen
-			if ((this.showOnly == 0) && !aship.getStatus().contains("disable_iff") &&
+			if ((showOnly == 0) && !aship.getStatus().contains("disable_iff") &&
 					(user_wrapfactor != 0) && (mastertype.getGroupwrap() != 0) &&
 					(types.get(typeGroupID) >= mastertype.getGroupwrap() * user_wrapfactor))
 			{
@@ -369,9 +363,9 @@ public class SensorsDefault implements SchiffPlugin {
 				t.clear_record();
 				types.put(typeGroupID, -1L);    // einmal anzeigen reicht
 			}
-			else if ((this.showOnly != 0) || !types.containsKey(typeGroupID) || (types.get(typeGroupID) != -1))
+			else if ((showOnly != 0) || !types.containsKey(typeGroupID) || (types.get(typeGroupID) != -1))
 			{
-				if ((this.showOnly != 0) && firstentry)
+				if ((showOnly != 0) && firstentry)
 				{
 					int count = ships.size();
 

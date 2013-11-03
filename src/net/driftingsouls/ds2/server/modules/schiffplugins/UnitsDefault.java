@@ -36,7 +36,7 @@ public class UnitsDefault implements SchiffPlugin {
 		return "";
 	}
 
-	@Override
+	@Action(ActionType.DEFAULT)
 	public void output(Parameters caller) {
 		String pluginid = caller.pluginId;
 		Ship ship = caller.ship;

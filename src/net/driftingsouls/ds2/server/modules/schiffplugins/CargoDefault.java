@@ -215,7 +215,7 @@ public class CargoDefault implements SchiffPlugin {
 		return output;
 	}
 
-	@Override
+	@Action(ActionType.DEFAULT)
 	public void output(Parameters caller) {
 		String pluginid = caller.pluginId;
 		Ship ship = caller.ship;

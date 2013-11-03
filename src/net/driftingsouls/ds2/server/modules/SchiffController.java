@@ -859,7 +859,7 @@ public class SchiffController extends TemplateController
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(Ship ship)
+	public void defaultAction(Ship ship) throws ReflectiveOperationException
 	{
 		validiereSchiff(ship);
 
@@ -1260,7 +1260,7 @@ public class SchiffController extends TemplateController
 			SchiffPlugin plugin = pluginMapper.get("navigation");
 			caller.pluginId = "navigation";
 			caller.target = "plugin.navigation";
-			plugin.output(caller);
+			rufeAlsSubActionAuf(caller.pluginId+"_ops", plugin, "output", caller);
 
 			pluginMapper.remove("navigation");
 		}
@@ -1270,7 +1270,7 @@ public class SchiffController extends TemplateController
 			SchiffPlugin plugin = pluginMapper.get("cargo");
 			caller.pluginId = "cargo";
 			caller.target = "plugin.cargo";
-			plugin.output(caller);
+			rufeAlsSubActionAuf(caller.pluginId+"_ops", plugin, "output", caller);
 
 			pluginMapper.remove("cargo");
 		}
@@ -1280,7 +1280,7 @@ public class SchiffController extends TemplateController
 			SchiffPlugin plugin = pluginMapper.get("units");
 			caller.pluginId = "units";
 			caller.target = "plugin.units";
-			plugin.output(caller);
+			rufeAlsSubActionAuf(caller.pluginId+"_ops", plugin, "output", caller);
 
 			pluginMapper.remove("units");
 		}
@@ -1306,7 +1306,7 @@ public class SchiffController extends TemplateController
 			caller.pluginId = pluginName;
 
 			//Aufruf der entsprechenden Funktion
-			plugin.output(caller);
+			rufeAlsSubActionAuf(caller.pluginId+"_ops", plugin, "output", caller);
 
 			t.parse("plugins.list", "plugins.listitem", true);
 		}

@@ -115,7 +115,7 @@ public class NavigationDefault implements SchiffPlugin {
 		}
 	}
 
-    @Override
+	@Action(ActionType.DEFAULT)
 	public void output(Parameters caller)
     {
 		String pluginid = caller.pluginId;

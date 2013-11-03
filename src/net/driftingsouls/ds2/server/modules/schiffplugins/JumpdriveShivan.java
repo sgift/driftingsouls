@@ -215,7 +215,7 @@ public class JumpdriveShivan implements SchiffPlugin
 		return output;
 	}
 
-	@Override
+	@Action(ActionType.DEFAULT)
 	public void output(Parameters caller)
 	{
 		SchiffController controller = caller.controller;

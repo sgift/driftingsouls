@@ -71,7 +71,7 @@ public class JDocksDefault implements SchiffPlugin {
 		return output;
 	}
 
-	@Override
+	@Action(ActionType.DEFAULT)
 	public void output(Parameters caller) {
 		String pluginid = caller.pluginId;
 		Ship data = caller.ship;
