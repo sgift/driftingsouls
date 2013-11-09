@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.modules.stats;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -39,57 +40,91 @@ import net.driftingsouls.ds2.server.modules.StatsController;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
+import org.hibernate.Session;
 
 /**
  * Zeigt allgemeine Daten zu DS und zum Server an.
- * @author Christopher Jung
  *
+ * @author Christopher Jung
  */
-public class StatWarenentwicklung implements Statistic,AjaxStatistic {
+public class StatWarenentwicklung implements Statistic, AjaxStatistic
+{
+	public static class WareViewModel
+	{
+		private String label;
+		private int key;
+		private String picture;
+
+		private WareViewModel(int key, String label, String picture)
+		{
+			this.key = key;
+			this.label = label;
+			this.picture = picture;
+		}
+
+		public int getKey()
+		{
+			return key;
+		}
+
+		public String getLabel()
+		{
+			return label;
+		}
+
+		public String getPicture()
+		{
+			return picture;
+		}
+	}
 
 	@Override
-	public void show(StatsController contr, int size) throws IOException {
+	public void show(StatsController contr, int size) throws IOException
+	{
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
-		User user = (User)contr.getUser();
+		User user = (User) contr.getUser();
 
 		Writer echo = context.getResponse().getWriter();
 		echo.write("<h1>Warenentwicklung</h1>");
 		SortedMap<ResourceID, SortedMap<Integer, Long>> cargos = generateDataMap(db);
 		echo.append("<div id='warenstats'></div><script type='text/javascript'>$(document).ready(function(){\n");
-		echo.append("Stats.chart('warenstats',[");
-		boolean first = true;
-		for( Map.Entry<ResourceID,SortedMap<Integer,Long>> entry : cargos.entrySet() )
-		{
-			if( !isImportantResource(entry.getValue()) )
-			{
-				continue;
-			}
-
-			Item item = (Item)db.get(Item.class, entry.getKey().getItemID());
-			if( item == null || !user.canSeeItem(item) )
-			{
-				continue;
-			}
-			if( !first )
-			{
-				echo.append(",\n");
-			}
-			first = false;
-			echo.append("{label:'"+item.getName()+"',key:'"+item.getID()+"',picture:'"+item.getPicture()+"'}");
-		}
-		echo.append("],{xaxis:{label:'Tick',pad:0,tickInterval:49}, yaxis:{label:'Menge'}, selection:'single'});\n");
+		echo.append("Stats.chart('warenstats',");
+		List<WareViewModel> waren = erstelleViewModelDerWarenListe(db, user, cargos);
+		echo.append(JSONSerializer.toJSON(waren).toString());
+		echo.append(",{xaxis:{label:'Tick',pad:0,tickInterval:49}, yaxis:{label:'Menge'}, selection:'single'});\n");
 		echo.append("});</script>");
 	}
 
-	private boolean isImportantResource(SortedMap<Integer,Long> values)
+	private List<WareViewModel> erstelleViewModelDerWarenListe(Session db, User user, SortedMap<ResourceID, SortedMap<Integer, Long>> cargos)
 	{
-		long minValue = values.size()*5;
+		List<WareViewModel> waren = new ArrayList<>();
+		for (Map.Entry<ResourceID, SortedMap<Integer, Long>> entry : cargos.entrySet())
+		{
+			if (!isImportantResource(entry.getValue()))
+			{
+				continue;
+			}
+
+			Item item = (Item) db.get(Item.class, entry.getKey().getItemID());
+			if (item == null || !user.canSeeItem(item))
+			{
+				continue;
+			}
+			waren.add(new WareViewModel(item.getID(), item.getName(), item.getPicture()));
+		}
+		return waren;
+	}
+
+	private boolean isImportantResource(SortedMap<Integer, Long> values)
+	{
+		long minValue = values.size() * 5;
 		long count = 0;
-		for( Long value : values.values() )
+		for (Long value : values.values())
 		{
 			count += value;
-			if( count >= minValue )
+			if (count >= minValue)
 			{
 				return true;
 			}
@@ -99,24 +134,26 @@ public class StatWarenentwicklung implements Statistic,AjaxStatistic {
 
 	private SortedMap<ResourceID, SortedMap<Integer, Long>> generateDataMap(org.hibernate.Session db)
 	{
-		SortedMap<ResourceID,SortedMap<Integer,Long>> cargos =
-			new TreeMap<ResourceID,SortedMap<Integer,Long>>(new ResourceIDComparator(false));
+		SortedMap<ResourceID, SortedMap<Integer, Long>> cargos =
+				new TreeMap<>(new ResourceIDComparator(false));
 
 		int counter = 0;
 		List<StatCargo> stats = Common.cast(db
 				.createQuery("from StatCargo order by tick desc")
-				.setMaxResults(30+31) // ca 2 Monate
+				.setMaxResults(30 + 31) // ca 2 Monate
 				.list());
-		for( StatCargo sc : stats )
+		for (StatCargo sc : stats)
 		{
-			if( counter++ % 2 == 1 ) {
+			if (counter++ % 2 == 1)
+			{
 				// Nur jede zweite Zeile verarbeiten
 				continue;
 			}
-			for( ResourceEntry entry : sc.getCargo().getResourceList() ) {
-				if( !cargos.containsKey(entry.getId()) )
+			for (ResourceEntry entry : sc.getCargo().getResourceList())
+			{
+				if (!cargos.containsKey(entry.getId()))
 				{
-					cargos.put(entry.getId(), new TreeMap<Integer,Long>());
+					cargos.put(entry.getId(), new TreeMap<Integer, Long>());
 				}
 				cargos.get(entry.getId()).put(sc.getTick(), entry.getCount1());
 			}
@@ -127,14 +164,13 @@ public class StatWarenentwicklung implements Statistic,AjaxStatistic {
 	@Override
 	public JSON generateData(StatsController contr, int size)
 	{
-		User user = (User)contr.getUser();
+		User user = (User) contr.getUser();
 		org.hibernate.Session db = contr.getDB();
 
-		contr.parameterNumber("key");
-		ItemID itemId = new ItemID(contr.getInteger("key"));
+		ItemID itemId = new ItemID(ContextMap.getContext().getRequest().getParameterInt("key"));
 
-		Item item = (Item)db.get(Item.class, itemId.getItemID());
-		if( item == null || !user.canSeeItem(item) )
+		Item item = (Item) db.get(Item.class, itemId.getItemID());
+		if (item == null || !user.canSeeItem(item))
 		{
 			return new JSONObject();
 		}
@@ -148,10 +184,10 @@ public class StatWarenentwicklung implements Statistic,AjaxStatistic {
 		result.accumulate("key", itemObj);
 
 		JSONArray dataArray = new JSONArray();
-		SortedMap<Integer,Long> itemData = data.get(itemId);
-		if( itemData != null )
+		SortedMap<Integer, Long> itemData = data.get(itemId);
+		if (itemData != null)
 		{
-			for( Map.Entry<Integer,Long> entry : itemData.entrySet() )
+			for (Map.Entry<Integer, Long> entry : itemData.entrySet())
 			{
 				JSONObject entryObj = new JSONObject();
 				entryObj.accumulate("index", entry.getKey());
