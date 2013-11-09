@@ -41,6 +41,7 @@ import net.driftingsouls.ds2.server.modules.stats.StatPopulationDensity;
 import net.driftingsouls.ds2.server.modules.stats.StatRichestUser;
 import net.driftingsouls.ds2.server.modules.stats.StatShipCount;
 import net.driftingsouls.ds2.server.modules.stats.StatShips;
+import net.driftingsouls.ds2.server.modules.stats.StatSpieleraktivitaet;
 import net.driftingsouls.ds2.server.modules.stats.StatWaren;
 import net.driftingsouls.ds2.server.modules.stats.StatWarenentwicklung;
 import net.driftingsouls.ds2.server.modules.stats.Statistic;
@@ -107,6 +108,7 @@ public class StatsController extends DSController
 		registerStat( "Sonstiges", new StatPopulationDensity(), "Siedlungsdichte", 0 );
 		registerStat( "Sonstiges", new StatShips(), "Schiffe", 0 );
 		registerStat( "Sonstiges", new StatShipCount(), "Schiffsentwicklung", 0 );
+		registerStat( "Sonstiges", new StatSpieleraktivitaet(), "Spieleraktivität", 0 );
 		registerStat( "Sonstiges", new StatWarenentwicklung(), "Warenentwicklung", 0 );
 		registerStat( "Sonstiges", new StatWaren(), "Waren", 0 );
 		registerStat( "Sonstiges", new StatEinheiten(), "Einheiten", 0);
