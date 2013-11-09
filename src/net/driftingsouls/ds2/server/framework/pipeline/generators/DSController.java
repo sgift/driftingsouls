@@ -217,7 +217,15 @@ public abstract class DSController extends Generator
 	 */
 	protected void redirect(String action)
 	{
-		redirect(action, new HashMap<String,Object>());
+		redirect(action, new HashMap<String, Object>());
+	}
+
+	private static final class RedirectInvocationException extends RuntimeException
+	{
+		public RedirectInvocationException(Exception cause)
+		{
+			super(cause);
+		}
 	}
 
 	/**
@@ -240,7 +248,7 @@ public abstract class DSController extends Generator
 		}
 		catch (Exception e)
 		{
-			throw new RuntimeException(e);
+			throw new RedirectInvocationException(e);
 		}
 	}
 
@@ -249,7 +257,7 @@ public abstract class DSController extends Generator
 	 */
 	protected void redirect()
 	{
-		redirect("default", new HashMap<String,Object>());
+		redirect("default", new HashMap<String, Object>());
 	}
 
 	private Method getMethodForAction(Object objekt, String action) throws NoSuchMethodException
@@ -315,13 +323,13 @@ public abstract class DSController extends Generator
 
 				try
 				{
-					Object result = invokeActionMethod(method, new HashMap<String,Object>());
+					Object result = invokeActionMethod(method, new HashMap<String, Object>());
 					writeResultObject(result, actionDescriptor.value());
 				}
-				catch (InvocationTargetException e)
+				catch (InvocationTargetException | RedirectInvocationException e)
 				{
 					Throwable ex = e;
-					while (ex instanceof InvocationTargetException)
+					while (ex instanceof InvocationTargetException || ex instanceof RedirectInvocationException)
 					{
 						ex = ex.getCause();
 					}
