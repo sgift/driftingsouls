@@ -768,6 +768,7 @@ public class SchiffController extends TemplateController
 			scriptparser.getContext().setErrorWriter(new NullLogger());
 		}
 
+		Quests.currentEventURLBase.set("./ds?module=schiff&ship=" + ship.getId());
 		Quests.currentEventURL.set("&action=communicate&communicate=" + communicate);
 
 		engineBindings.put("TARGETSHIP", Integer.toString(communicate));
@@ -868,6 +869,8 @@ public class SchiffController extends TemplateController
 		org.hibernate.Session db = getDB();
 
 		db.flush();
+
+		Quests.currentEventURLBase.set("./ds?module=schiff&ship=" + ship.getId());
 
 		ScriptEngine scriptparser = getContext().get(ContextCommon.class).getScriptParser("DSQuestScript");
 		if (ship.isDestroyed())
