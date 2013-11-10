@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import net.driftingsouls.ds2.server.bases.BaseType;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.bases.Core;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
@@ -32,21 +33,25 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import org.hibernate.Session;
 
 import java.util.Iterator;
 
 /**
  * Die Liste aller baubaren Gebaeude und Cores.
+ *
  * @author Christopher Jung
  */
-@Module(name="buildings")
+@Module(name = "buildings")
 public class BuildingsController extends TemplateController
 {
 	/**
 	 * Konstruktor.
+	 *
 	 * @param context Der zu verwendende Kontext
 	 */
-	public BuildingsController(Context context) {
+	public BuildingsController(Context context)
+	{
 		super(context);
 
 		setTemplate("buildings.html");
@@ -55,58 +60,77 @@ public class BuildingsController extends TemplateController
 
 	/**
 	 * Zeigt die Liste aller baubaren Gebaeude und Cores an.
+	 *
 	 * @param col Die ID der Basis, auf die der zurueck-Link zeigen soll
 	 * @param field Die ID des Feldes, dessen Gebaeude der zurueck-Link ansteuern soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(@UrlParam(name="col") int col, int field)
+	public void defaultAction(@UrlParam(name = "col") int col, int field)
 	{
-		User user = (User)getUser();
+		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 		int userrasse = user.getRace();
 
 
+		gebaeudeListeAnzeigen(user, t, db, userrasse);
+
+		//
+		// Cores
+		//
+
+		coreListeAnzeigen(user, t, db);
+
+		t.setVar("base.id", col,
+				"base.field", field);
+	}
+
+	private void gebaeudeListeAnzeigen(User user, TemplateEngine t, Session db, int userrasse)
+	{
 		t.setBlock("_BUILDINGS", "buildings.listitem", "buildings.list");
 		t.setBlock("buildings.listitem", "building.buildcosts.listitem", "building.buildcosts.list");
 		t.setBlock("buildings.listitem", "building.produces.listitem", "building.produces.list");
 		t.setBlock("buildings.listitem", "building.consumes.listitem", "building.consumes.list");
 
 		Iterator<?> buildingIter = db.createQuery("from Building order by name").iterate();
-		for( ; buildingIter.hasNext(); ) {
-			Building building = (Building)buildingIter.next();
-			if( !user.hasResearched(building.getTechRequired()) ) {
+		for (; buildingIter.hasNext(); )
+		{
+			Building building = (Building) buildingIter.next();
+			if (!user.hasResearched(building.getTechRequired()))
+			{
 				continue;
 			}
 
-			t.setVar(	"building.name",	Common._plaintitle(building.getName()),
-						"building.picture",	building.getPictureForRace(user.getRace()),
-						"building.arbeiter",	building.getArbeiter(),
-						"building.bewohner",	building.getBewohner() );
+			t.setVar("building.name", Common._plaintitle(building.getName()),
+					"building.picture", building.getPictureForRace(user.getRace()),
+					"building.arbeiter", building.getArbeiter(),
+					"building.bewohner", building.getBewohner());
 
 			ResourceList reslist = building.getBuildCosts().getResourceList();
-			Resources.echoResList( t, reslist, "building.buildcosts.list" );
+			Resources.echoResList(t, reslist, "building.buildcosts.list");
 
 			reslist = building.getConsumes().getResourceList();
-			Resources.echoResList( t, reslist, "building.consumes.list" );
+			Resources.echoResList(t, reslist, "building.consumes.list");
 
-			if( building.getEVerbrauch() > 0 ) {
-				t.setVar(	"res.image",	"./data/interface/energie.gif",
-							"res.cargo",	building.getEVerbrauch(),
-							"res.plainname",	"Energie" );
+			if (building.getEVerbrauch() > 0)
+			{
+				t.setVar("res.image", "./data/interface/energie.gif",
+						"res.cargo", building.getEVerbrauch(),
+						"res.plainname", "Energie");
 
-				t.parse("building.consumes.list","building.consumes.listitem",true);
+				t.parse("building.consumes.list", "building.consumes.listitem", true);
 			}
 
 			reslist = building.getAllProduces().getResourceList();
-			Resources.echoResList( t, reslist, "building.produces.list" );
+			Resources.echoResList(t, reslist, "building.produces.list");
 
-			if( building.getEProduktion() > 0 ) {
-				t.setVar(	"res.image",		"./data/interface/energie.gif",
-							"res.cargo",		building.getEProduktion(),
-							"res.plainname",	"Energie" );
+			if (building.getEProduktion() > 0)
+			{
+				t.setVar("res.image", "./data/interface/energie.gif",
+						"res.cargo", building.getEProduktion(),
+						"res.plainname", "Energie");
 
-				t.parse("building.produces.list","building.produces.listitem",true);
+				t.parse("building.produces.list", "building.produces.listitem", true);
 			}
 
 			// Weitere Infos generieren (spezies, max per Basis/Acc & UComplex)
@@ -115,31 +139,37 @@ public class BuildingsController extends TemplateController
 
 			int buildingrasse = building.getRace();
 
-			if( buildingrasse == 0 ) {
+			if (buildingrasse == 0)
+			{
 				addinfo.append("<span style=\"color:#FFFFFF; font-weight:normal\">").append(Rassen.get().rasse(buildingrasse).getName()).append(" <br /></span>");
 			}
-			else if( userrasse == buildingrasse ) {
+			else if (userrasse == buildingrasse)
+			{
 				addinfo.append("<span style=\"color:#00FF00; font-weight:normal\">").append(Rassen.get().rasse(buildingrasse).getName()).append(" <br /></span>");
 			}
-			else {
+			else
+			{
 				addinfo.append("<span style=\"color:#FF0000; font-weight:normal\">").append(Rassen.get().rasse(buildingrasse).getName()).append(" <br /></span>");
 			}
 
 
-			if( building.isUComplex() ) {
+			if (building.isUComplex())
+			{
 				addinfo.append("Unterirdischer Komplex<br />");
 			}
-			if( building.isFabrik())
+			if (building.isFabrik())
 			{
 				addinfo.append("Fabrik-Geb&auml;ude");
 			}
 
-			if( building.getPerPlanetCount() != 0 ) {
+			if (building.getPerPlanetCount() != 0)
+			{
 
 				addinfo.append("Max. ").append(building.getPerPlanetCount()).append("x pro Basis<br />");
 			}
 
-			if( building.getPerUserCount() != 0 ) {
+			if (building.getPerUserCount() != 0)
+			{
 
 				addinfo.append("Max. ").append(building.getPerUserCount()).append("x pro Account");
 			}
@@ -148,11 +178,10 @@ public class BuildingsController extends TemplateController
 
 			t.parse("buildings.list", "buildings.listitem", true);
 		}
+	}
 
-		//
-		// Cores
-		//
-
+	private void coreListeAnzeigen(User user, TemplateEngine t, Session db)
+	{
 		t.setBlock("_BUILDINGS", "cores.listitem", "cores.list");
 		t.setBlock("cores.listitem", "core.buildcosts.listitem", "core.buildcosts.list");
 		t.setBlock("cores.listitem", "core.produces.listitem", "core.produces.list");
@@ -160,46 +189,50 @@ public class BuildingsController extends TemplateController
 
 
 		Iterator<?> coreIter = db.createQuery("from Core order by name,astiType").iterate();
-		for( ; coreIter.hasNext(); ) {
-			Core core = (Core)coreIter.next();
-			if( !user.hasResearched(core.getTechRequired()) ) {
+		for (; coreIter.hasNext(); )
+		{
+			Core core = (Core) coreIter.next();
+			if (!user.hasResearched(core.getTechRequired()))
+			{
 				continue;
 			}
 
-			t.setVar(	"core.astitype",	core.getAstiType(),
-						"core.name",		Common._plaintitle(core.getName()),
-						"core.arbeiter",	core.getArbeiter(),
-						"core.bewohner",	core.getBewohner() );
+			BaseType baseType = (BaseType) db.get(BaseType.class, core.getAstiType());
+
+			t.setVar("core.astitype", core.getAstiType(),
+					"core.basetype.name", baseType.getName(),
+					"core.name", Common._plaintitle(core.getName()),
+					"core.arbeiter", core.getArbeiter(),
+					"core.bewohner", core.getBewohner());
 
 			ResourceList reslist = core.getBuildCosts().getResourceList();
-			Resources.echoResList( t, reslist, "core.buildcosts.list" );
+			Resources.echoResList(t, reslist, "core.buildcosts.list");
 
 			reslist = core.getConsumes().getResourceList();
-			Resources.echoResList( t, reslist, "core.consumes.list" );
+			Resources.echoResList(t, reslist, "core.consumes.list");
 
-			if( core.getEVerbrauch() > 0 ) {
-				t.setVar(	"res.image",	"./data/interface/energie.gif",
-							"res.cargo",	core.getEVerbrauch(),
-							"res.plainname",	"Energie" );
+			if (core.getEVerbrauch() > 0)
+			{
+				t.setVar("res.image", "./data/interface/energie.gif",
+						"res.cargo", core.getEVerbrauch(),
+						"res.plainname", "Energie");
 
-				t.parse("core.consumes.list","core.consumes.listitem",true);
+				t.parse("core.consumes.list", "core.consumes.listitem", true);
 			}
 
 			reslist = core.getProduces().getResourceList();
-			Resources.echoResList( t, reslist, "core.produces.list" );
+			Resources.echoResList(t, reslist, "core.produces.list");
 
-			if( core.getEProduktion() > 0 ) {
-				t.setVar(	"res.image",		"./data/interface/energie.gif",
-							"res.cargo",		core.getEProduktion(),
-							"res.plainname",	"Energie" );
+			if (core.getEProduktion() > 0)
+			{
+				t.setVar("res.image", "./data/interface/energie.gif",
+						"res.cargo", core.getEProduktion(),
+						"res.plainname", "Energie");
 
-				t.parse("core.produces.list","core.produces.listitem",true);
+				t.parse("core.produces.list", "core.produces.listitem", true);
 			}
 
-			t.parse("cores.list","cores.listitem",true);
+			t.parse("cores.list", "cores.listitem", true);
 		}
-
-		t.setVar("base.id", col,
-				"base.field", field);
 	}
 }

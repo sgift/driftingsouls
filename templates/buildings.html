@@ -82,7 +82,8 @@
 		<table class="datatable" width="100%">
 		<thead>
 			<tr>
-				<th colspan="2">Name</th>
+				<th>Name</th>
+				<th colspan="2">Passt in</th>
 				<th>Baukosten</th>
 				<th>Verbrauch</th>
 				<th>Produktion</th>
@@ -93,10 +94,11 @@
 		<tbody>
 		<!-- BEGIN cores.listitem -->
 			<tr>
+				<td>{core.name}</td>
 				<td>
 					<img src="{URL}data/starmap/kolonie{core.astitype}_lrs/kolonie{core.astitype}_lrs.png" alt="" />
 				</td>
-				<td>{core.name}</td>
+				<td>{core.basetype.name}</td>
 				<td valign="top">
 					{if core.buildcosts.list}
 						<!-- BEGIN core.buildcosts.listitem -->
