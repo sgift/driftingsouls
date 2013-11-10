@@ -47,7 +47,6 @@ import org.hibernate.Session;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -527,8 +526,8 @@ public class KSAttackAction extends BasicKSAction {
 	}
 
 	private int calcTWSthroughDifference(double defensivskill, double navskill, BattleShip eShip, ShipTypeData eShipType, int defTrefferWS, ShipTypeData ownShipType) {
-		double differenceSkillz = 0.0;
-		double differenceSize = 0.0;
+		double differenceSkillz;
+		double differenceSize;
 		double eSize = eShipType.getSize();
 		double ownSize = ownShipType.getSize();
 		if ( defensivskill > navskill ){
@@ -681,11 +680,11 @@ public class KSAttackAction extends BasicKSAction {
 					final int COMM = 2;
 					final int SENSORS = 3;
 
-					List<Integer> subsysteme = new ArrayList<Integer>();
+					List<Integer> subsysteme = new ArrayList<>();
 					subsysteme.add(SENSORS);
 					subsysteme.add(COMM);
 
-					List<String> subsysteme_name = new ArrayList<String>();
+					List<String> subsysteme_name = new ArrayList<>();
 					subsysteme_name.add("Sensoren");
 					subsysteme_name.add("Kommunikation");
 
@@ -807,9 +806,11 @@ public class KSAttackAction extends BasicKSAction {
 		if( this.weapon.hasFlag(Weapon.Flags.AMMO_SELECT) ) {
 			ItemCargoEntry item = null;
 			itemlist = mycargo.getItemsWithEffect( ItemEffect.Type.AMMO );
-			for( int i=0; i < itemlist.size(); i++ ) {
-				if( itemlist.get(i).getItemID() == ammoId) {
-					item = itemlist.get(i);
+			for (ItemCargoEntry anItemlist : itemlist)
+			{
+				if (anItemlist.getItemID() == ammoId)
+				{
+					item = anItemlist;
 					break;
 				}
 			}
@@ -837,10 +838,12 @@ public class KSAttackAction extends BasicKSAction {
 		}
 		else {
 			itemlist = mycargo.getItemsWithEffect( ItemEffect.Type.AMMO );
-			for( int i=0; i < itemlist.size(); i++ ) {
-				IEAmmo effect = (IEAmmo)itemlist.get(i).getItemEffect();
+			for (ItemCargoEntry anItemlist : itemlist)
+			{
+				IEAmmo effect = (IEAmmo) anItemlist.getItemEffect();
 
-				if( Common.inArray(effect.getAmmo().getType(), this.weapon.getAmmoType()) ) {
+				if (Common.inArray(effect.getAmmo().getType(), this.weapon.getAmmoType()))
+				{
 					ammo = effect.getAmmo();
 					break;
 				}
@@ -850,11 +853,6 @@ public class KSAttackAction extends BasicKSAction {
 				battle.logme( "Sie verf&uuml;gen &uuml;ber keine Munition\n" );
 				return null;
 			}
-		}
-
-		if( ammo == null ) {
-			battle.logme("Der angegebene Munitionstyp existiert nicht\n" );
-			return null;
 		}
 
 		ammoitem = null;
@@ -867,7 +865,7 @@ public class KSAttackAction extends BasicKSAction {
 			}
 		}
 
-		if( ammoitem.getCount() <  weaponCount*this.weapon.getSingleShots() ) {
+		if( ammoitem == null || ammoitem.getCount() <  weaponCount*this.weapon.getSingleShots() ) {
 			battle.logme( this.weapon.getName()+" k&ouml;nnen nicht abgefeuert werden, da nicht genug Munition f&uuml;r alle Gesch&uuml;tze vorhanden ist.\n" );
 			return null;
 		}
@@ -1061,8 +1059,8 @@ public class KSAttackAction extends BasicKSAction {
 		int type = this.enemyShip.getShip().getType();
 
 		// schiffe zusammensuchen
-		List<BattleShip> shiplist = new ArrayList<BattleShip>();
-		List<BattleShip> backup = new ArrayList<BattleShip>();
+		List<BattleShip> shiplist = new ArrayList<>();
+		List<BattleShip> backup = new ArrayList<>();
 		boolean gottarget = false;
 
 		List<BattleShip> enemyShips = battle.getEnemyShips();
@@ -1319,44 +1317,43 @@ public class KSAttackAction extends BasicKSAction {
         int sameShipLoop = 1; // Alphastrike (same ship)
         int nextShipLoop = 1; // Breitseite (cycle through ships)
 
-        if( this.attmode.equals("alphastrike") )
-        {
-            sameShipLoop = 5;
-        }
-        else if( this.attmode.equals("strafe") )
-        {
-            nextShipLoop = 5;
-        }
-        else if( this.attmode.equals("alphastrike_max") )
-        {
-            if( weapons > 0 )
-            {
-                sameShipLoop = (int)((maxheat-heat)/(double)weapons);
-            }
-            else
-            {
-                sameShipLoop = 1;
-            }
-            if( sameShipLoop < 1 )
-            {
-                sameShipLoop = 1;
-            }
-        }
-        else if( this.attmode.equals("strafe_max") )
-        {
-            if( weapons > 0 )
-            {
-                nextShipLoop = (int)((maxheat-heat)/(double)weapons);
-            }
-            else
-            {
-                nextShipLoop = 1;
-            }
-            if( nextShipLoop < 1 )
-            {
-                nextShipLoop = 1;
-            }
-        }
+		switch (this.attmode)
+		{
+			case "alphastrike":
+				sameShipLoop = 5;
+				break;
+			case "strafe":
+				nextShipLoop = 5;
+				break;
+			case "alphastrike_max":
+				if (weapons > 0)
+				{
+					sameShipLoop = (int) ((maxheat - heat) / (double) weapons);
+				}
+				else
+				{
+					sameShipLoop = 1;
+				}
+				if (sameShipLoop < 1)
+				{
+					sameShipLoop = 1;
+				}
+				break;
+			case "strafe_max":
+				if (weapons > 0)
+				{
+					nextShipLoop = (int) ((maxheat - heat) / (double) weapons);
+				}
+				else
+				{
+					nextShipLoop = 1;
+				}
+				if (nextShipLoop < 1)
+				{
+					nextShipLoop = 1;
+				}
+				break;
+		}
 
         // Und nun checken wir mal ein wenig....
 
@@ -1463,6 +1460,17 @@ public class KSAttackAction extends BasicKSAction {
                     result = Result.ERROR;
                     break;
                 }
+
+				if( this.weapon.getAmmoType().length > 0)
+				{
+					Cargo mycargo = this.ownShip.getCargo();
+					if( mycargo.getResourceCount(this.localweapon.getAmmoItem().getResourceID()) - this.localweapon.getCount()*this.weapon.getSingleShots() < 0 ) {
+						battle.logme( this.weapon.getName()+" k&ouml;nnen nicht abgefeuert werden, da nicht genug Munition vorhanden ist\n" );
+						breakFlag = true;
+						result = Result.ERROR;
+						break;
+					}
+				}
 
                 if( this.ownShip.getShip().getEnergy() < this.weapon.getECost()*weapons )
                 {
