@@ -88,7 +88,7 @@ public class UnitInfoController extends TemplateController
 	 * Zeigt Details zu einer Einheit an.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(@UrlParam(name = "unittype") UnitType unittype)
+	public void defaultAction(@UrlParam(name = "unit") UnitType unittype)
 	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) ContextMap.getContext().getActiveUser();
@@ -132,14 +132,14 @@ public class UnitInfoController extends TemplateController
 		String name = Common._plaintitle(unittype.getName());
 
 		t.setVar("unitinfo.details", 1,
-				"unittype.picture", unittype.getPicture(),
-				"unittype.name", name + ((unittype.isHidden() && hasPermission("unittype", "versteckteSichtbar")) ? " [hidden]" : ""),
-				"unittype.size", Common.ln(unittype.getSize()),
-				"unittype.nahrungcost", Common.ln(unittype.getNahrungCost()),
-				"unittype.recost", Common.ln(unittype.getReCost()),
-				"unittype.kapervalue", Common.ln(unittype.getKaperValue()),
-				"unittype.description", Common._text(unittype.getDescription()),
-				"unittype.baukosten", buildcosts,
-				"unittype.forschung", forschungstring);
+				"unit.picture", unittype.getPicture(),
+				"unit.name", name + ((unittype.isHidden() && hasPermission("unittype", "versteckteSichtbar")) ? " [hidden]" : ""),
+				"unit.size", Common.ln(unittype.getSize()),
+				"unit.nahrungcost", Common.ln(unittype.getNahrungCost()),
+				"unit.recost", Common.ln(unittype.getReCost()),
+				"unit.kapervalue", Common.ln(unittype.getKaperValue()),
+				"unit.description", Common._text(unittype.getDescription()),
+				"unit.baukosten", buildcosts,
+				"unit.forschung", forschungstring);
 	}
 }
