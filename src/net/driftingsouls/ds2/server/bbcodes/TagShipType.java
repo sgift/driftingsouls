@@ -18,27 +18,45 @@
  */
 package net.driftingsouls.ds2.server.bbcodes;
 
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeFunction;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import org.apache.commons.lang.math.NumberUtils;
 
 /**
  * BBCode fuer Schiffstypen.
- * 
+ *
  * @author Christopher Jung
- * 
  */
 public class TagShipType implements BBCodeFunction
 {
-    @Override
+	@Override
 	public String handleMatch(String content, String... values)
 	{
 		String url = "./ds?module=schiffinfo&ship=" + content;
 
+		if (!NumberUtils.isDigits(content))
+		{
+			return "Unbekannter Schiffstyp (" + content + ")";
+		}
+
 		ShipTypeData shiptype = Ship.getShipType(Integer.parseInt(content));
 
-		return "<a target=\"main\" title=\""+shiptype.getNickname()+"\" class=\"noborder\" " +
-				"onclick='ShiptypeBox.show("+shiptype.getTypeId()+");return false;' " +
+		User user = (User) ContextMap.getContext().getActiveUser();
+
+		if ((shiptype == null) ||
+				(shiptype.isHide() && ((user == null) || !ContextMap.getContext().hasPermission("schiffstyp", "versteckteSichtbar"))))
+		{
+
+			return "Unbekannter Schiffstyp (" + content + ")";
+		}
+
+		return "<a target=\"main\" title=\"" + shiptype.getNickname() + "\" class=\"noborder\" " +
+				"onclick='ShiptypeBox.show(" + shiptype.getTypeId() + ");return false;' " +
 				"href=\"" + url + "\"><img align=\"middle\" border=\"0\" src=\"" + shiptype.getPicture()
 				+ "\" alt=\"\" /></a>";
 	}
