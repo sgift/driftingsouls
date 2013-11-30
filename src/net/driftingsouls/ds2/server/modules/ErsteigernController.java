@@ -2310,7 +2310,12 @@ public class ErsteigernController extends TemplateController
 			}
 
 			// Den Besitzer des Colonizers ändern
-			colonizer.setOwner(faction);
+			if( colonizer.consign(faction, false) )
+			{
+				addError("Der Colonizer konnte nicht übergeben werden.");
+				redirect();
+				return;
+			}
 
 			// Auftrag speichern
 			db.persist(auftrag);
@@ -2381,8 +2386,13 @@ public class ErsteigernController extends TemplateController
 				.setInteger("baseSystem", selectedBase.getSystem()).setInteger("baseX",
 						selectedBase.getX()).setInteger("baseY", selectedBase.getY()).list();
 
+		User faction = (User) db.get(User.class, this.faction);
 		for (Ship acolonizer : colonizers)
 		{
+			if( acolonizer.consign(faction, true) )
+			{
+				continue;
+			}
 			t.setVar("colonizer.id", acolonizer.getId(),
 					"colonizer.name", acolonizer.getName());
 			t.parse("ausbau.colonizer.list", "ausbau.colonizer.listitem", true);
