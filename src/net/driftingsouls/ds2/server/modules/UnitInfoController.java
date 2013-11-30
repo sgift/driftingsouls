@@ -74,10 +74,10 @@ public class UnitInfoController extends TemplateController
 		{
 			if (!unit.isHidden() || user.isKnownUnit(unit))
 			{
-				t.setVar("unittype.id", unit.getId(),
-						"unittype.name", unit.getName() + ((unit.isHidden() && hasPermission("unittype", "versteckteSichtbar")) ? " [hidden]" : ""),
-						"unittype.groesse", Common.ln(unit.getSize()),
-						"unittype.picture", unit.getPicture());
+				t.setVar("unit.id", unit.getId(),
+						"unit.name", unit.getName() + ((unit.isHidden() && hasPermission("unit", "versteckteSichtbar")) ? " [hidden]" : ""),
+						"unit.groesse", Common.ln(unit.getSize()),
+						"unit.picture", unit.getPicture());
 
 				t.parse("unitinfo.unitlist.list", "unitinfo.unitlist.listitem", true);
 			}
