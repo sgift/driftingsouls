@@ -34,12 +34,14 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.hibernate.Session;
 
@@ -95,7 +97,7 @@ public class TransportController extends TemplateController
 			//EMPTY
 		}
 
-		abstract List<TransportTarget> createTargets(int role, String target) throws Exception;
+		abstract List<TransportTarget> createTargets(int role, String target);
 	}
 
 	private static class BaseTransportFactory extends TransportFactory
@@ -106,7 +108,7 @@ public class TransportController extends TemplateController
 		}
 
 		@Override
-		List<TransportTarget> createTargets(int role, String target) throws Exception
+		List<TransportTarget> createTargets(int role, String target)
 		{
 			List<TransportTarget> list = new ArrayList<>();
 
@@ -139,7 +141,7 @@ public class TransportController extends TemplateController
 		}
 
 		@Override
-		List<TransportTarget> createTargets(int role, String target) throws Exception
+		List<TransportTarget> createTargets(int role, String target)
 		{
 			List<TransportTarget> list = new ArrayList<>();
 
@@ -150,12 +152,12 @@ public class TransportController extends TemplateController
 				{
 					if (list.size() == 0)
 					{
-						throw new Exception("Es wurde kein Schiff angegeben, zu dem die Flotte ausgewaehlt werden soll");
+						throw new ValidierungException("Es wurde kein Schiff angegeben, zu dem die Flotte ausgewaehlt werden soll");
 					}
 					ShipTransportTarget handler = (ShipTransportTarget) list.remove(list.size() - 1);
 					if (handler.getFleet() == null)
 					{
-						throw new Exception("Das angegebene Schiff befindet sich in keiner Flotte");
+						throw new ValidierungException("Das angegebene Schiff befindet sich in keiner Flotte");
 					}
 
 					Session db = ContextMap.getContext().getDB();
@@ -178,6 +180,10 @@ public class TransportController extends TemplateController
 				}
 				else
 				{
+					if (!NumberUtils.isDigits(aFromlist))
+					{
+						throw new ValidierungException("Es wurde kein Schiff angegeben");
+					}
 					ShipTransportTarget handler = new ShipTransportTarget();
 					handler.create(role, Integer.parseInt(aFromlist));
 					if (list.size() > 0)
@@ -224,7 +230,7 @@ public class TransportController extends TemplateController
 		 * @param id Die ID
 		 * @throws Exception
 		 */
-		void create(int role, int id) throws Exception
+		void create(int role, int id)
 		{
 			this.role = role;
 			this.id = id;
@@ -354,18 +360,18 @@ public class TransportController extends TemplateController
 			// EMPTY
 		}
 
-		void create(int role, Ship ship) throws Exception
+		void create(int role, Ship ship)
 		{
 			if ((ship == null) || (ship.getId() < 0))
 			{
-				throw new Exception("Eines der angegebenen Schiffe existiert nicht");
+				throw new ValidierungException("Eines der angegebenen Schiffe existiert nicht");
 			}
 
 			super.create(role, ship.getId());
 
 			if (ship.getBattle() != null)
 			{
-				throw new Exception("Das Schiff (id:" + ship.getId() + ") ist in einen Kampf verwickelt");
+				throw new ValidierungException("Das Schiff (id:" + ship.getId() + ") ist in einen Kampf verwickelt");
 			}
 
 			if (role == ROLE_TARGET)
@@ -373,7 +379,7 @@ public class TransportController extends TemplateController
 				User user = (User) ContextMap.getContext().getActiveUser();
 				if ((ship.getStatus().contains("disable_iff")) && (ship.getOwner() != user))
 				{
-					throw new Exception("Zu dem angegebenen Schiff (id:" + ship.getId() + ") k&ouml;nnen sie keine Waren transportieren");
+					throw new ValidierungException("Zu dem angegebenen Schiff (id:" + ship.getId() + ") k&ouml;nnen sie keine Waren transportieren");
 				}
 			}
 
@@ -381,7 +387,7 @@ public class TransportController extends TemplateController
 
 			if (tmptype.hasFlag(ShipTypes.SF_KEIN_TRANSFER))
 			{
-				throw new Exception("Sie k&ouml;nnen keine Waren zu oder von diesem Schiff (id:" + ship.getId() + ") transferieren");
+				throw new ValidierungException("Sie k&ouml;nnen keine Waren zu oder von diesem Schiff (id:" + ship.getId() + ") transferieren");
 			}
 
 			setOwner(ship.getOwner().getId());
@@ -391,7 +397,7 @@ public class TransportController extends TemplateController
 		}
 
 		@Override
-		void create(int role, int shipid) throws Exception
+		void create(int role, int shipid)
 		{
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 
@@ -466,7 +472,7 @@ public class TransportController extends TemplateController
 		}
 
 		@Override
-		void create(int role, int baseid) throws Exception
+		void create(int role, int baseid)
 		{
 			super.create(role, baseid);
 			org.hibernate.Session db = ContextMap.getContext().getDB();
@@ -475,7 +481,7 @@ public class TransportController extends TemplateController
 
 			if (base == null)
 			{
-				throw new Exception("Die angegebene Basis (id:" + baseid + ") existiert nicht");
+				throw new ValidierungException("Die angegebene Basis (id:" + baseid + ") existiert nicht");
 			}
 
 			setOwner(base.getOwner().getId());
@@ -567,16 +573,7 @@ public class TransportController extends TemplateController
 
 		if (wayhandler.containsKey(way[0]))
 		{
-			try
-			{
-				this.from.addAll(wayhandler.get(way[0]).createTargets(TransportTarget.ROLE_SOURCE, from));
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-				addError(e.toString());
-				return false;
-			}
+			this.from.addAll(wayhandler.get(way[0]).createTargets(TransportTarget.ROLE_SOURCE, from));
 		}
 		else
 		{
@@ -590,16 +587,7 @@ public class TransportController extends TemplateController
 		*/
 		if (wayhandler.containsKey(way[1]))
 		{
-			try
-			{
-				this.to.addAll(wayhandler.get(way[1]).createTargets(TransportTarget.ROLE_TARGET, to));
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-				addError(e.toString());
-				return false;
-			}
+			this.to.addAll(wayhandler.get(way[1]).createTargets(TransportTarget.ROLE_TARGET, to));
 		}
 		else
 		{
