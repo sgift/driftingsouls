@@ -911,7 +911,8 @@ public class CommController extends TemplateController
 				"write.message", msg,
 				"sendeziel.ally", "ally".equals(sendeziel),
 				"show.preview", 1,
-				"show.write", 1);
+				"show.write", 1,
+				"system.time", Common.getIngameTime(getContext().get(ContextCommon.class).getTick()));
 	}
 
 	/**
