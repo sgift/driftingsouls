@@ -118,11 +118,6 @@
 		<ul class="baseActions">
 			{if base.isfeeding}
 				<li>{!link_to Versorgung abschalten, changeFeeding, css_style:font-size:14px, css_class:ok, module:base, col:$base.id, feeding:0}</li>
-				{if base.isloading}
-					<li>{!link_to Auff&uuml;llen abschalten, changeFeeding, css_style:font-size:14px, css_class:ok, module:base, col:$base.id, feeding:2}</li>
-				{else}
-					<li>{!link_to Auff&uuml;llen anschalten, changeFeeding, css_style:font-size:14px, css_class:error, module:base, col:$base.id, feeding:3}</li>
-				{/endif}
 			{else}
 				<li>{!link_to Versorgung anschalten, changeFeeding, css_style:font-size:14px, css_class:error, module:base, col:$base.id, feeding:1}</li>
 			{/endif}
