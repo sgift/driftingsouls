@@ -322,12 +322,13 @@ public class FleetMgntController extends TemplateController
 			return;
 		}
 
-		long shipcount = (Long) db.createQuery("select count(*) from Ship where owner=:owner and system=:sys and x=:x and y=:y and shiptype=:type and docked=''")
+		long shipcount = (Long) db.createQuery("select count(*) from Ship where owner=:owner and system=:sys and x=:x and y=:y and shiptype=:type and docked='' and (fleet is null or fleet!=:fleet)")
 				.setEntity("owner", user)
 				.setInteger("sys", sectorShip.getSystem())
 				.setInteger("x", sectorShip.getX())
 				.setInteger("y", sectorShip.getY())
 				.setInteger("type", type)
+				.setEntity("fleet", fleet)
 				.iterate().next();
 
 		if ((count < 1) || (shipcount < count))
