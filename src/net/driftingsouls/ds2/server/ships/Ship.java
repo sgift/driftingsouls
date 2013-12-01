@@ -2298,44 +2298,42 @@ public class Ship implements Locatable,Transfering,Feeding {
 						(RandomUtils.nextDouble() < getTypeData().getLostInEmpChance()) ) {
 					Nebel.Typ nebel = Nebel.getNebula(getLocation());
 					if( nebel == Nebel.Typ.STRONG_EMP ) {
-						waypoint.direction = RandomUtils.nextInt(10)+1;
-						if( waypoint.direction == 5 ) {
-							waypoint.direction++;
-						}
-						// Nun muessen wir noch die Caches fuellen
-						if( waypoint.direction != olddirection ) {
-							int tmpxoff = 0;
-							int tmpyoff = 0;
-
-							if( waypoint.direction <= 3 ) {
-								tmpyoff--;
-							}
-							else if( waypoint.direction >= 7 ) {
-								tmpyoff++;
-							}
-
-							if( (waypoint.direction-1) % 3 == 0 ) {
-								tmpxoff--;
-							}
-							else if( waypoint.direction % 3 == 0 ) {
-								tmpxoff++;
-							}
-
-							sectors = db.createQuery("from Sector "+
-									"where loc.system in (:sys,-1) AND loc.x in (-1,:x) and loc.y in (-1,:y) order by loc.system desc")
-									.setInteger("sys", this.system)
-									.setInteger("x", this.x+tmpxoff)
-									.setInteger("y", this.y+tmpyoff)
-									.list();
-							for (Object sector1 : sectors)
-							{
-								Sector sector = (Sector) sector1;
-								sectorlist.put(sector.getLocation(), sector);
-							}
-
-							alertList.putAll(alertCheck(owner, new Location(this.system, this.x+tmpxoff, this.y+tmpyoff)));
-						}
+						waypoint.direction = RandomUtils.nextInt(9)+1;
 					}
+				}
+
+				// Nun muessen wir noch die Caches fuellen
+				if( waypoint.direction != olddirection ) {
+					int tmpxoff = 0;
+					int tmpyoff = 0;
+
+					if( waypoint.direction <= 3 ) {
+						tmpyoff--;
+					}
+					else if( waypoint.direction >= 7 ) {
+						tmpyoff++;
+					}
+
+					if( (waypoint.direction-1) % 3 == 0 ) {
+						tmpxoff--;
+					}
+					else if( waypoint.direction % 3 == 0 ) {
+						tmpxoff++;
+					}
+
+					sectors = db.createQuery("from Sector "+
+							"where loc.system in (:sys,-1) AND loc.x in (-1,:x) and loc.y in (-1,:y) order by loc.system desc")
+							.setInteger("sys", this.system)
+							.setInteger("x", this.x+tmpxoff)
+							.setInteger("y", this.y+tmpyoff)
+							.list();
+					for (Object sector1 : sectors)
+					{
+						Sector sector = (Sector) sector1;
+						sectorlist.put(sector.getLocation(), sector);
+					}
+
+					alertList.putAll(alertCheck(owner, new Location(this.system, this.x+tmpxoff, this.y+tmpyoff)));
 				}
 
 				waypoint.distance--;
