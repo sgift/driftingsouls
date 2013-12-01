@@ -3261,10 +3261,12 @@ public class Ship implements Locatable,Transfering,Feeding {
 		List<ShipLoot> loot = new ArrayList<>();
 		int maxchance = 0;
 
-		List<?> lootList = db.createQuery("from ShipLoot where owner=:owner and shiptype in (:type,:negtype) and targetuser in (0,:destroyer) and totalmax!=0")
+		User nullUser = (User)db.get(User.class, 0);
+		List<?> lootList = db.createQuery("from ShipLoot where owner=:owner and shipType in (:type,:negtype) and targetUser in (:nullUser,:destroyer) and totalMax!=0")
 		.setInteger("owner", this.owner.getId())
 		.setInteger("type", this.shiptype.getId())
 		.setInteger("negtype", -this.id)
+		.setEntity("nullUser", nullUser)
 		.setInteger("destroyer", destroyer)
 		.list();
 
