@@ -404,7 +404,7 @@ public class SensorsDefault implements SchiffPlugin {
 						"sships.fleet.id", aship.getFleet() != null ? aship.getFleet().getId() : 0,
 						"sships.type.name", ashiptype.getNickname().replace("'", ""),
 						"sships.type.image", ashiptype.getPicture(),
-						"sships.docked.id", aship.isDocked());
+						"sships.docked.id", aship.isDocked() ? aship.getBaseShip().getId() : null);
 
 				boolean disableIFF = aship.getStatus().contains("disable_iff");
 				t.setVar("sships.disableiff", disableIFF);

@@ -3883,7 +3883,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	public int getNahrungsBalance()
 	{
-			return getFoodConsumption();
+		return getFoodConsumption();
 	}
 
 	/**
