@@ -30,6 +30,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
@@ -93,7 +94,7 @@ public class UnitTauschController extends TemplateController
 			//EMPTY
 		}
 
-		abstract List<TransportTarget> createTargets(int role, String target) throws Exception;
+		abstract List<TransportTarget> createTargets(int role, String target);
 	}
 
 	private static class BaseTransportFactory extends TransportFactory
@@ -104,7 +105,7 @@ public class UnitTauschController extends TemplateController
 		}
 
 		@Override
-		List<TransportTarget> createTargets(int role, String target) throws Exception
+		List<TransportTarget> createTargets(int role, String target)
 		{
 			List<TransportTarget> list = new ArrayList<>();
 
@@ -137,7 +138,7 @@ public class UnitTauschController extends TemplateController
 		}
 
 		@Override
-		List<TransportTarget> createTargets(int role, String target) throws Exception
+		List<TransportTarget> createTargets(int role, String target)
 		{
 			List<TransportTarget> list = new ArrayList<>();
 
@@ -148,12 +149,12 @@ public class UnitTauschController extends TemplateController
 				{
 					if (list.size() == 0)
 					{
-						throw new Exception("Es wurde kein Schiff angegeben, zu dem die Flotte ausgewaehlt werden soll");
+						throw new ValidierungException("Es wurde kein Schiff angegeben, zu dem die Flotte ausgewaehlt werden soll");
 					}
 					ShipTransportTarget handler = (ShipTransportTarget) list.remove(list.size() - 1);
 					if (handler.getFleet() == null)
 					{
-						throw new Exception("Das angegebene Schiff befindet sich in keiner Flotte");
+						throw new ValidierungException("Das angegebene Schiff befindet sich in keiner Flotte");
 					}
 
 					Session db = ContextMap.getContext().getDB();
@@ -223,7 +224,7 @@ public class UnitTauschController extends TemplateController
 		 * @param id Die ID
 		 * @throws Exception
 		 */
-		void create(int role, int id) throws Exception
+		void create(int role, int id)
 		{
 			this.role = role;
 			this.id = id;
@@ -373,18 +374,18 @@ public class UnitTauschController extends TemplateController
 			// EMPTY
 		}
 
-		void create(int role, Ship ship) throws Exception
+		void create(int role, Ship ship)
 		{
 			if ((ship == null) || (ship.getId() < 0))
 			{
-				throw new Exception("Eines der angegebenen Schiffe existiert nicht");
+				throw new ValidierungException("Eines der angegebenen Schiffe existiert nicht");
 			}
 
 			super.create(role, ship.getId());
 
 			if (ship.getBattle() != null)
 			{
-				throw new Exception("Das Schiff (id:" + ship.getId() + ") ist in einen Kampf verwickelt");
+				throw new ValidierungException("Das Schiff (id:" + ship.getId() + ") ist in einen Kampf verwickelt");
 			}
 
 			if (role == ROLE_TARGET)
@@ -392,7 +393,7 @@ public class UnitTauschController extends TemplateController
 				User user = (User) ContextMap.getContext().getActiveUser();
 				if ((ship.getStatus().contains("disable_iff")) && (ship.getOwner() != user))
 				{
-					throw new Exception("Zu dem angegebenen Schiff (id:" + ship.getId() + ") k&ouml;nnen sie keine Waren transportieren");
+					throw new ValidierungException("Zu dem angegebenen Schiff (id:" + ship.getId() + ") k&ouml;nnen sie keine Waren transportieren");
 				}
 			}
 
@@ -400,7 +401,7 @@ public class UnitTauschController extends TemplateController
 
 			if (tmptype.hasFlag(ShipTypes.SF_KEIN_TRANSFER))
 			{
-				throw new Exception("Sie k&ouml;nnen keine Einheiten zu oder von diesem Schiff (id:" + ship.getId() + ") transferieren");
+				throw new ValidierungException("Sie k&ouml;nnen keine Einheiten zu oder von diesem Schiff (id:" + ship.getId() + ") transferieren");
 			}
 
 			setOwner(ship.getOwner().getId());
@@ -411,7 +412,7 @@ public class UnitTauschController extends TemplateController
 		}
 
 		@Override
-		void create(int role, int shipid) throws Exception
+		void create(int role, int shipid)
 		{
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 
@@ -487,7 +488,7 @@ public class UnitTauschController extends TemplateController
 		}
 
 		@Override
-		void create(int role, int baseid) throws Exception
+		void create(int role, int baseid)
 		{
 			super.create(role, baseid);
 			org.hibernate.Session db = ContextMap.getContext().getDB();
@@ -496,7 +497,7 @@ public class UnitTauschController extends TemplateController
 
 			if (base == null)
 			{
-				throw new Exception("Die angegebene Basis (id:" + baseid + ") existiert nicht");
+				throw new ValidierungException("Die angegebene Basis (id:" + baseid + ") existiert nicht");
 			}
 
 			setOwner(base.getOwner().getId());
@@ -589,22 +590,11 @@ public class UnitTauschController extends TemplateController
 
 		if (wayhandler.containsKey(way[0]))
 		{
-			try
-			{
-				this.from.addAll(wayhandler.get(way[0]).createTargets(TransportTarget.ROLE_SOURCE, from));
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-				addError(e.toString());
-				return false;
-			}
+			this.from.addAll(wayhandler.get(way[0]).createTargets(TransportTarget.ROLE_SOURCE, from));
 		}
 		else
 		{
-			addError("Ung&uuml;ltige Transportquelle", "./ds?module=ueber");
-
-			return false;
+			throw new ValidierungException("Ungültige Transportquelle", "./ds?module=ueber");
 		}
 
 		/*
@@ -612,29 +602,16 @@ public class UnitTauschController extends TemplateController
 		*/
 		if (wayhandler.containsKey(way[1]))
 		{
-			try
-			{
-				this.to.addAll(wayhandler.get(way[1]).createTargets(TransportTarget.ROLE_TARGET, to));
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-				addError(e.toString());
-				return false;
-			}
+			this.to.addAll(wayhandler.get(way[1]).createTargets(TransportTarget.ROLE_TARGET, to));
 		}
 		else
 		{
-			addError("Ung&uuml;ltiges Transportziel", "./ds?module=ueber");
-
-			return false;
+			addError("Ungültiges Transportziel", "./ds?module=ueber");
 		}
 
 		if ((this.from.size() == 0) || (this.to.size() == 0))
 		{
-			addError("Sie muessen mindestens ein Quell- und ein Zielobjekt angeben");
-
-			return false;
+			throw new ValidierungException("Sie muessen mindestens ein Quell- und ein Zielobjekt angeben");
 		}
 
 		/*
@@ -648,8 +625,7 @@ public class UnitTauschController extends TemplateController
 				{
 					if (aTo.getId() == afrom.getId())
 					{
-						addError("Sie k&ouml;nnen keine Einheiten zu sich selbst transportieren");
-						return false;
+						throw new ValidierungException("Sie können keine Einheiten zu sich selbst transportieren");
 					}
 				}
 			}
@@ -662,18 +638,14 @@ public class UnitTauschController extends TemplateController
 		Location toLoc = this.to.get(0).getLocation();
 		if (!fromLoc.sameSector(this.from.get(0).getSize(), toLoc, this.to.get(0).getSize()))
 		{
-			addError("Die angegebenen Objekte befinden sich nicht im selben Sektor");
-
-			return false;
+			throw new ValidierungException("Die angegebenen Objekte befinden sich nicht im selben Sektor");
 		}
 
 		for (int i = 1; i < this.from.size(); i++)
 		{
 			if (!fromLoc.sameSector(this.from.get(0).getSize(), this.from.get(i).getLocation(), this.from.get(i).getSize()))
 			{
-				addError("Die angegebenen Objekte befinden sich nicht im selben Sektor");
-
-				return false;
+				throw new ValidierungException("Die angegebenen Objekte befinden sich nicht im selben Sektor");
 			}
 		}
 
@@ -681,9 +653,7 @@ public class UnitTauschController extends TemplateController
 		{
 			if (!toLoc.sameSector(this.to.get(0).getSize(), this.to.get(i).getLocation(), this.to.get(i).getSize()))
 			{
-				addError("Die angegebenen Objekte befinden sich nicht im selben Sektor");
-
-				return false;
+				throw new ValidierungException("Die angegebenen Objekte befinden sich nicht im selben Sektor");
 			}
 		}
 
@@ -691,9 +661,7 @@ public class UnitTauschController extends TemplateController
 		{
 			if (afrom.getOwner() != getUser().getId())
 			{
-				addError("Das Schiff geh&ouml;rt ihnen nicht", Common.buildUrl("default", "module", "ueber"));
-
-				return false;
+				throw new ValidierungException("Das Schiff gehört ihnen nicht", Common.buildUrl("default", "module", "ueber"));
 			}
 		}
 
@@ -701,9 +669,7 @@ public class UnitTauschController extends TemplateController
 		{
 			if (ato.getOwner() != getUser().getId())
 			{
-				addError("Das Schiff geh&ouml;rt ihnen nicht", Common.buildUrl("default", "module", "ueber"));
-
-				return false;
+				throw new ValidierungException("Das Schiff gehört ihnen nicht", Common.buildUrl("default", "module", "ueber"));
 			}
 		}
 
