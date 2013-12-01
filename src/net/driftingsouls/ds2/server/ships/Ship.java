@@ -2158,6 +2158,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			}
 		}
 
+		boolean inAlarmRotEinfliegen = route.size() == 1 && route.get(0).distance == 1;
 		boolean moved = false;
 
 		while( (status == MovementStatus.SUCCESS) && route.size() > 0 ) {
@@ -2271,7 +2272,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 				}
 
 				// Schauen wir mal ob wir vor Alarm warnen muessen
-				if( (startdistance > 1) && alertList.containsKey(nextLocation) ) {
+				if( !inAlarmRotEinfliegen && alertList.containsKey(nextLocation) ) {
 					List<Ship> attackers = alertCheck(user, nextLocation)
 						.values().iterator().next();
 					if( !attackers.isEmpty() ) {
