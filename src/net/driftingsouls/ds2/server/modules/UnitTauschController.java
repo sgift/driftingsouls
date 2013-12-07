@@ -222,7 +222,6 @@ public class UnitTauschController extends TemplateController
 		 *
 		 * @param role Die Rolle (Source oder Target)
 		 * @param id Die ID
-		 * @throws Exception
 		 */
 		void create(int role, int id)
 		{
@@ -545,10 +544,7 @@ public class UnitTauschController extends TemplateController
 		}
 	}
 
-	private String[] way;
-
-	private List<TransportTarget> from;
-	private List<TransportTarget> to;
+	private Map<String, TransportFactory> wayhandler;
 
 	/**
 	 * Konstruktor.
@@ -559,57 +555,17 @@ public class UnitTauschController extends TemplateController
 	{
 		super(context);
 
-		from = new ArrayList<>();
-		to = new ArrayList<>();
-
 		setTemplate("unittausch.html");
-
-		parameterString("from");
-		parameterString("to");
-		parameterString("way");
-
 		setPageTitle("Einheitentransfer");
-	}
 
-	@Override
-	protected boolean validateAndPrepare()
-	{
-		String to = getString("to");
-		String from = getString("from");
-		String rawway = getString("way");
-
-		String[] way = StringUtils.split(rawway, "to");
-
-		Map<String, TransportFactory> wayhandler = new HashMap<>();
+		wayhandler = new HashMap<>();
 		wayhandler.put("s", new ShipTransportFactory());
 		wayhandler.put("b", new BaseTransportFactory());
+	}
 
-		/*
-			"From" bearbeiten
-		*/
-
-		if (wayhandler.containsKey(way[0]))
-		{
-			this.from.addAll(wayhandler.get(way[0]).createTargets(TransportTarget.ROLE_SOURCE, from));
-		}
-		else
-		{
-			throw new ValidierungException("Ungültige Transportquelle", "./ds?module=ueber");
-		}
-
-		/*
-			"To" bearbeiten
-		*/
-		if (wayhandler.containsKey(way[1]))
-		{
-			this.to.addAll(wayhandler.get(way[1]).createTargets(TransportTarget.ROLE_TARGET, to));
-		}
-		else
-		{
-			addError("Ungültiges Transportziel", "./ds?module=ueber");
-		}
-
-		if ((this.from.size() == 0) || (this.to.size() == 0))
+	private void validiereEinheitenKoennenZwischenQuelleUndZielTransferiertWerden(List<TransportTarget> from, List<TransportTarget> to, String fromKey, String toKey)
+	{
+		if ((from.size() == 0) || (to.size() == 0))
 		{
 			throw new ValidierungException("Sie muessen mindestens ein Quell- und ein Zielobjekt angeben");
 		}
@@ -617,11 +573,11 @@ public class UnitTauschController extends TemplateController
 		/*
 			Check ob das selbe Objekt in Quelle in Ziel vorkommt
 		*/
-		if (way[0].equals(way[1]))
+		if (fromKey.equals(toKey))
 		{
-			for (TransportTarget afrom : this.from)
+			for (TransportTarget afrom : from)
 			{
-				for (TransportTarget aTo : this.to)
+				for (TransportTarget aTo : to)
 				{
 					if (aTo.getId() == afrom.getId())
 					{
@@ -634,48 +590,72 @@ public class UnitTauschController extends TemplateController
 		/*
 			Sind die beiden Objekte auch im selben Sektor?
 		*/
-		Location fromLoc = this.from.get(0).getLocation();
-		Location toLoc = this.to.get(0).getLocation();
-		if (!fromLoc.sameSector(this.from.get(0).getSize(), toLoc, this.to.get(0).getSize()))
+
+		Location fromLoc = from.get(0).getLocation();
+		Location toLoc = to.get(0).getLocation();
+		if (!fromLoc.sameSector(from.get(0).getSize(), toLoc, to.get(0).getSize()))
 		{
 			throw new ValidierungException("Die angegebenen Objekte befinden sich nicht im selben Sektor");
 		}
+	}
 
-		for (int i = 1; i < this.from.size(); i++)
+	private List<TransportTarget> parseListeDerTransportZiele(String key, String toString)
+	{
+		List<TransportTarget> to = new ArrayList<>();
+		if (wayhandler.containsKey(key))
 		{
-			if (!fromLoc.sameSector(this.from.get(0).getSize(), this.from.get(i).getLocation(), this.from.get(i).getSize()))
-			{
-				throw new ValidierungException("Die angegebenen Objekte befinden sich nicht im selben Sektor");
-			}
+			to.addAll(wayhandler.get(key).createTargets(TransportTarget.ROLE_TARGET, toString));
+		}
+		else
+		{
+			throw new ValidierungException("Ungültiges Transportziel", "./ds?module=ueber");
 		}
 
-		for (int i = 1; i < this.to.size(); i++)
-		{
-			if (!toLoc.sameSector(this.to.get(0).getSize(), this.to.get(i).getLocation(), this.to.get(i).getSize()))
-			{
-				throw new ValidierungException("Die angegebenen Objekte befinden sich nicht im selben Sektor");
-			}
-		}
+		validiereAlleTransportZieleImSelbenSektor(to);
+		validiereAlleTransportZieleImSelbenSektor(to);
+		return to;
+	}
 
-		for (TransportTarget afrom : this.from)
+
+	private void validiereAlleTransportZieleGehoerenDenSpieler(List<TransportTarget> from)
+	{
+		for (TransportTarget afrom : from)
 		{
 			if (afrom.getOwner() != getUser().getId())
 			{
 				throw new ValidierungException("Das Schiff gehört ihnen nicht", Common.buildUrl("default", "module", "ueber"));
 			}
 		}
+	}
 
-		for (TransportTarget ato : this.to)
+	private List<TransportTarget> parseListeDerTransportQuellen(String key, String fromString)
+	{
+		List<TransportTarget> from = new ArrayList<>();
+		if (wayhandler.containsKey(key))
 		{
-			if (ato.getOwner() != getUser().getId())
-			{
-				throw new ValidierungException("Das Schiff gehört ihnen nicht", Common.buildUrl("default", "module", "ueber"));
-			}
+			from.addAll(wayhandler.get(key).createTargets(TransportTarget.ROLE_SOURCE, fromString));
+		}
+		else
+		{
+			throw new ValidierungException("Ungültige Transportquelle", "./ds?module=ueber");
 		}
 
-		this.way = way;
+		validiereAlleTransportZieleGehoerenDenSpieler(from);
+		validiereAlleTransportZieleImSelbenSektor(from);
 
-		return true;
+		return from;
+	}
+
+	private void validiereAlleTransportZieleImSelbenSektor(List<TransportTarget> to)
+	{
+		Location toLoc = to.get(0).getLocation();
+		for (int i = 1; i < to.size(); i++)
+		{
+			if (!toLoc.sameSector(to.get(0).getSize(), to.get(i).getLocation(), to.get(i).getSize()))
+			{
+				throw new ValidierungException("Die angegebenen Objekte befinden sich nicht im selben Sektor");
+			}
+		}
 	}
 
 	private long transferSingleUnit(TransportTarget fromUnit, TransportTarget toUnit, int unitid, long count, UnitCargo newfromc, UnitCargo newtoc, MutableLong cargofrom, MutableLong cargoto, StringBuilder msg, char mode, String rawFrom, String rawTo, String rawWay)
@@ -785,13 +765,19 @@ public class UnitTauschController extends TemplateController
 							   @UrlParam(name = "to") String rawTo,
 							   @UrlParam(name = "way") String rawWay)
 	{
+		String[] way = StringUtils.split(rawWay, "to");
+
+		List<TransportTarget> from = parseListeDerTransportQuellen(way[0], rawFrom);
+		List<TransportTarget> to = parseListeDerTransportZiele(way[1], rawTo);
+
+		validiereEinheitenKoennenZwischenQuelleUndZielTransferiertWerden(from, to, way[0], way[1]);
+
 		TemplateEngine t = getTemplateEngine();
 		t.setBlock("_TRANSPORT", "transfer.listitem", "transfer.list");
 
 		boolean transfer = false;
-		List<TransportTarget> tolist = this.to;
 
-		if (this.to.size() == 1)
+		if (to.size() == 1)
 		{
 			t.setVar("transfer.multitarget", 0);
 		}
@@ -805,17 +791,17 @@ public class UnitTauschController extends TemplateController
 		UnitCargo totalfromcargo = new TransientUnitCargo();
 
 		// TODO: rewrite
-		for (int k = 0; k < tolist.size(); k++)
+		for (int k = 0; k < to.size(); k++)
 		{
-			newtoclist.add(k, (UnitCargo) tolist.get(k).getUnits().clone());
-			totaltocargo.addCargo(tolist.get(k).getUnits());
-			if (tolist.get(k).getMaxUnitSpace() == -1)
+			newtoclist.add(k, (UnitCargo) to.get(k).getUnits().clone());
+			totaltocargo.addCargo(to.get(k).getUnits());
+			if (to.get(k).getMaxUnitSpace() == -1)
 			{
 				cargotolist.add(k, -1l);
 			}
 			else
 			{
-				cargotolist.add(k, tolist.get(k).getMaxUnitSpace() - tolist.get(k).getUnits().getMass());
+				cargotolist.add(k, to.get(k).getMaxUnitSpace() - to.get(k).getUnits().getMass());
 			}
 		}
 
@@ -835,7 +821,7 @@ public class UnitTauschController extends TemplateController
 
 		Map<Integer, StringBuilder> msg = new HashMap<>();
 
-		if ((tolist.size() > 1) || (from.size() > 1))
+		if ((to.size() > 1) || (from.size() > 1))
 		{
 			t.setBlock("_TRANSPORT", "transfer.multitarget.listitem", "transfer.multitarget.list");
 		}
@@ -857,34 +843,34 @@ public class UnitTauschController extends TemplateController
 
 				for (int k = 0; k < from.size(); k++)
 				{
-					TransportTarget from = this.from.get(k);
-					t.setVar("transfer.source.name", Common._plaintitle(from.getObjectName()));
+					TransportTarget fromTarget = from.get(k);
+					t.setVar("transfer.source.name", Common._plaintitle(fromTarget.getObjectName()));
 
-					for (int j = 0; j < tolist.size(); j++)
+					for (int j = 0; j < to.size(); j++)
 					{
-						TransportTarget to = tolist.get(j);
-						if ((tolist.size() > 1) || (this.from.size() > 1))
+						TransportTarget toTarget = to.get(j);
+						if ((to.size() > 1) || (from.size() > 1))
 						{
 							t.start_record();
 						}
 
-						t.setVar("transfer.target.name", Common._plaintitle(to.getObjectName()));
+						t.setVar("transfer.target.name", Common._plaintitle(toTarget.getObjectName()));
 
-						if (!msg.containsKey(to.getOwner()))
+						if (!msg.containsKey(toTarget.getOwner()))
 						{
-							msg.put(to.getOwner(), new StringBuilder());
+							msg.put(toTarget.getOwner(), new StringBuilder());
 						}
 
 						MutableLong mCargoFrom = new MutableLong(cargofromlist.get(k));
 						MutableLong mCargoTo = new MutableLong(cargotolist.get(j));
-						if (transferSingleUnit(from, to, unittype.getId(), transt, newfromclist.get(k), newtoclist.get(j), mCargoFrom, mCargoTo, msg.get(to.getOwner()), 't', rawFrom, rawTo, rawWay) != 0)
+						if (transferSingleUnit(fromTarget, toTarget, unittype.getId(), transt, newfromclist.get(k), newtoclist.get(j), mCargoFrom, mCargoTo, msg.get(toTarget.getOwner()), 't', rawFrom, rawTo, rawWay) != 0)
 						{
 							transfer = true;
 						}
 						cargofromlist.set(k, mCargoFrom.longValue());
 						cargotolist.set(j, mCargoTo.longValue());
 
-						if ((tolist.size() > 1) || (this.from.size() > 1))
+						if ((to.size() > 1) || (from.size() > 1))
 						{
 							t.parse("transfer.multitarget.list", "transfer.multitarget.listitem", true);
 
@@ -902,18 +888,18 @@ public class UnitTauschController extends TemplateController
 						"transfer.mode.to", 0);
 				for (int k = 0; k < from.size(); k++)
 				{
-					TransportTarget from = this.from.get(k);
-					t.setVar("transfer.source.name", Common._plaintitle(from.getObjectName()));
+					TransportTarget fromTarget = from.get(k);
+					t.setVar("transfer.source.name", Common._plaintitle(fromTarget.getObjectName()));
 
-					for (int j = 0; j < tolist.size(); j++)
+					for (int j = 0; j < to.size(); j++)
 					{
-						TransportTarget to = tolist.get(j);
-						if ((tolist.size() > 1) || (this.from.size() > 1))
+						TransportTarget toTarget = to.get(j);
+						if ((to.size() > 1) || (from.size() > 1))
 						{
 							t.start_record();
 						}
 
-						if ((to.getOwner() != getUser().getId()) && (to.getOwner() != 0))
+						if ((toTarget.getOwner() != getUser().getId()) && (toTarget.getOwner() != 0))
 						{
 							addError("Das geh&ouml;rt dir nicht!");
 
@@ -921,22 +907,22 @@ public class UnitTauschController extends TemplateController
 							return;
 						}
 
-						t.setVar("transfer.target.name", Common._plaintitle(to.getObjectName()));
+						t.setVar("transfer.target.name", Common._plaintitle(toTarget.getObjectName()));
 
-						if (!msg.containsKey(to.getOwner()))
+						if (!msg.containsKey(toTarget.getOwner()))
 						{
-							msg.put(to.getOwner(), new StringBuilder());
+							msg.put(toTarget.getOwner(), new StringBuilder());
 						}
 						MutableLong mCargoFrom = new MutableLong(cargofromlist.get(k));
 						MutableLong mCargoTo = new MutableLong(cargotolist.get(j));
-						if (transferSingleUnit(from, to, unittype.getId(), transf, newtoclist.get(j), newfromclist.get(k), mCargoTo, mCargoFrom, msg.get(to.getOwner()), 'f', rawFrom, rawTo, rawWay) != 0)
+						if (transferSingleUnit(fromTarget, toTarget, unittype.getId(), transf, newtoclist.get(j), newfromclist.get(k), mCargoTo, mCargoFrom, msg.get(toTarget.getOwner()), 'f', rawFrom, rawTo, rawWay) != 0)
 						{
 							transfer = true;
 						}
 						cargofromlist.set(k, mCargoFrom.longValue());
 						cargotolist.set(j, mCargoTo.longValue());
 
-						if ((tolist.size() > 1) || (this.from.size() > 1))
+						if ((to.size() > 1) || (from.size() > 1))
 						{
 							t.parse("transfer.multitarget.list", "transfer.multitarget.listitem", true);
 
@@ -952,36 +938,36 @@ public class UnitTauschController extends TemplateController
 		Map<Integer, String> ownerpmlist = new HashMap<>();
 
 		List<String> sourceshiplist = new ArrayList<>();
-		for (TransportTarget aFrom : this.from)
+		for (TransportTarget aFrom : from)
 		{
 			sourceshiplist.add(aFrom.getObjectName() + " (" + aFrom.getId() + ")");
 		}
 
-		for (int j = 0; j < tolist.size(); j++)
+		for (int j = 0; j < to.size(); j++)
 		{
-			TransportTarget to = tolist.get(j);
-			if (getUser().getId() != to.getOwner())
+			TransportTarget toTarget = to.get(j);
+			if (getUser().getId() != toTarget.getOwner())
 			{
-				if (msg.containsKey(to.getOwner()) && (msg.get(to.getOwner()).length() > 0) && !ownerpmlist.containsKey(to.getOwner()))
+				if (msg.containsKey(toTarget.getOwner()) && (msg.get(toTarget.getOwner()).length() > 0) && !ownerpmlist.containsKey(toTarget.getOwner()))
 				{
-					Common.writeLog("transport.log", Common.date("d.m.y H:i:s") + ": " + getUser().getId() + " -> " + to.getOwner() + " | " + rawFrom + " -> " + rawTo + " [" + rawWay + "] : " + "\n" + msg + "---------\n");
+					Common.writeLog("transport.log", Common.date("d.m.y H:i:s") + ": " + getUser().getId() + " -> " + toTarget.getOwner() + " | " + rawFrom + " -> " + rawTo + " [" + rawWay + "] : " + "\n" + msg + "---------\n");
 
 					t.setVar("transfer.pm", 1);
 
 					List<String> shiplist = new ArrayList<>();
 
-					for (int k = j; k < tolist.size(); k++)
+					for (int k = j; k < to.size(); k++)
 					{
-						if (this.to.get(j).getOwner() == tolist.get(k).getOwner())
+						if (to.get(j).getOwner() == to.get(k).getOwner())
 						{
-							shiplist.add(tolist.get(k).getObjectName() + " (" + tolist.get(k).getId() + ")");
+							shiplist.add(to.get(k).getObjectName() + " (" + to.get(k).getId() + ")");
 						}
 					}
 
-					String tmpmsg = Common.implode(",", sourceshiplist) + " l&auml;dt Waren auf " + Common.implode(",", shiplist) + "\n" + msg.get(to.getOwner());
-					PM.send((User) getUser(), to.getOwner(), "Waren transferiert", tmpmsg);
+					String tmpmsg = Common.implode(",", sourceshiplist) + " l&auml;dt Waren auf " + Common.implode(",", shiplist) + "\n" + msg.get(toTarget.getOwner());
+					PM.send((User) getUser(), toTarget.getOwner(), "Waren transferiert", tmpmsg);
 
-					ownerpmlist.put(to.getOwner(), msg.get(to.getOwner()).toString());
+					ownerpmlist.put(toTarget.getOwner(), msg.get(toTarget.getOwner()).toString());
 				}
 			}
 		}
@@ -1019,6 +1005,13 @@ public class UnitTauschController extends TemplateController
 	@Action(ActionType.DEFAULT)
 	public void defaultAction(@UrlParam(name = "way") String rawWay, @UrlParam(name = "from") String rawFrom, @UrlParam(name = "to") String rawTo)
 	{
+		String[] way = StringUtils.split(rawWay, "to");
+
+		List<TransportTarget> from = parseListeDerTransportQuellen(way[0], rawFrom);
+		List<TransportTarget> to = parseListeDerTransportZiele(way[1], rawTo);
+
+		validiereEinheitenKoennenZwischenQuelleUndZielTransferiertWerden(from, to, way[0], way[1]);
+
 		TemplateEngine t = getTemplateEngine();
 
 		t.setVar("global.rawway", rawWay,
@@ -1026,34 +1019,34 @@ public class UnitTauschController extends TemplateController
 				"target.isbase", way[1].equals("b"));
 
 		// Die Quelle(n) ausgeben
-		transportQuelleAnzeigen(rawFrom, t);
+		transportQuelleAnzeigen(rawFrom, t, from);
 
 		// Das Ziel / die Ziele ausgeben
-		transportZielAnzeigen(rawTo, t);
+		transportZielAnzeigen(rawTo, t, to);
 
 		// Transfermodi ausgeben
-		transportModusAnzeigen(rawFrom, rawTo, t);
+		transportModusAnzeigen(rawFrom, rawTo, t, from, to);
 
 		// Soll der Zielcargo gezeigt werden?
-		einheitenListeAnzeigen(t);
+		einheitenListeAnzeigen(t, from, to);
 	}
 
-	private void einheitenListeAnzeigen(TemplateEngine t)
+	private void einheitenListeAnzeigen(TemplateEngine t, List<TransportTarget> from, List<TransportTarget> to)
 	{
 		t.setBlock("_TRANSPORT", "res.listitem", "res.list");
 
 		boolean showtarget = false;
 		UnitCargo tocargo = new TransientUnitCargo();
 
-		for (TransportTarget to : this.to)
+		for (TransportTarget toTarget : to)
 		{
-			if (getUser().getId() != to.getOwner())
+			if (getUser().getId() != toTarget.getOwner())
 			{
 				continue;
 			}
 			showtarget = true;
 
-			HashMap<UnitType, Long> unitlist = to.getUnits().getUnitList();
+			HashMap<UnitType, Long> unitlist = toTarget.getUnits().getUnitList();
 			for (Entry<UnitType, Long> unit : unitlist.entrySet())
 			{
 				if (unit.getValue() > tocargo.getUnitCount(unit.getKey()))
@@ -1102,7 +1095,7 @@ public class UnitTauschController extends TemplateController
 		}
 	}
 
-	private void transportModusAnzeigen(String rawFrom, String rawTo, TemplateEngine t)
+	private void transportModusAnzeigen(String rawFrom, String rawTo, TemplateEngine t, List<TransportTarget> from, List<TransportTarget> to)
 	{
 		t.setBlock("_TRANSPORT", "transfermode.listitem", "transfermode.list");
 		if ((to.size() > 1) || (from.size() > 1) || (to.get(0).getMultiTarget() != null) ||
@@ -1184,7 +1177,7 @@ public class UnitTauschController extends TemplateController
 		}
 	}
 
-	private void transportZielAnzeigen(String rawTo, TemplateEngine t)
+	private void transportZielAnzeigen(String rawTo, TemplateEngine t, List<TransportTarget> to)
 	{
 		t.setBlock("_TRANSPORT", "target.targets.listitem", "target.targets.list");
 
@@ -1240,7 +1233,7 @@ public class UnitTauschController extends TemplateController
 		}
 	}
 
-	private void transportQuelleAnzeigen(String rawFrom, TemplateEngine t)
+	private void transportQuelleAnzeigen(String rawFrom, TemplateEngine t, List<TransportTarget> from)
 	{
 		t.setBlock("_TRANSPORT", "source.sources.listitem", "source.sources.list");
 
