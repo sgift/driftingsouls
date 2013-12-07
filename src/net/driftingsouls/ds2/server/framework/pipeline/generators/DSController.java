@@ -18,7 +18,10 @@
  */
 package net.driftingsouls.ds2.server.framework.pipeline.generators;
 
+import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.PermissionResolver;
+import net.driftingsouls.ds2.server.framework.pipeline.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.FlushMode;
@@ -40,7 +43,7 @@ import java.util.Map;
  *
  * @author Christopher Jung
  */
-public abstract class DSController extends Generator
+public abstract class DSController implements PermissionResolver
 {
 	private static final Log log = LogFactory.getLog(DSController.class);
 	private static final LocalVariableTableParameterNameDiscoverer PARAMETER_NAME_DISCOVERER = new LocalVariableTableParameterNameDiscoverer();
@@ -55,6 +58,7 @@ public abstract class DSController extends Generator
 	private String pageTitle;
 	private List<PageMenuEntry> pageMenuEntries;
 	private boolean disablePageMenu;
+	private Context context;
 
 	/**
 	 * Konstruktor.
@@ -63,8 +67,7 @@ public abstract class DSController extends Generator
 	 */
 	public DSController(Context context)
 	{
-		super(context);
-
+		this.context = context;
 		this.parameterReader = new ParameterReader(getRequest(), this.getDB());
 
 		this.parameterReader.parameterString("module");
@@ -167,6 +170,81 @@ public abstract class DSController extends Generator
 		redirect(action, new HashMap<String, Object>());
 	}
 
+	/**
+	 * Fuegt einen Fehler zur Fehlerliste hinzu.
+	 *
+	 * @param error Die Beschreibung des Fehlers
+	 */
+	public final void addError( String error ) {
+		context.addError(error);
+	}
+
+	/**
+	 * Fuegt einen Fehler zur Fehlerliste hinzu und bietet zudem eine Ausweich-URL an.
+	 *
+	 * @param error Die Beschreibung des Fehlers
+	 * @param link Die Ausweich-URL
+	 */
+	public final void addError( String error, String link ) {
+		context.addError(error, link);
+	}
+
+	/**
+	 * Liefert eine Liste aller Fehler zurueck.
+	 *
+	 * @return Eine Liste aller Fehlerbeschreibungen
+	 */
+	public final net.driftingsouls.ds2.server.framework.pipeline.Error[] getErrorList() {
+		return context.getErrorList();
+	}
+
+	/**
+	 * Liefert die Request fuer diesen Aufruf.
+	 * @return Die Request des Aufrufs
+	 */
+	public final Response getResponse() {
+		return context.getResponse();
+	}
+
+	/**
+	 * Liefert die zum Aufruf gehoerende Response.
+	 * @return Die Response des Aufrufs
+	 */
+	public final Request getRequest() {
+		return context.getRequest();
+	}
+
+	/**
+	 * Gibt den aktuellen Kontext zurueck.
+	 * @return Der Kontext
+	 */
+	public final Context getContext() {
+		return context;
+	}
+
+	/**
+	 * Gibt die aktuelle Hibernate-Session zurueck.
+	 * @return Die aktuelle Hibernate-Session
+	 */
+	public final Session getDB() {
+		return context.getDB();
+	}
+
+	/**
+	 * Gibt den aktiven User zurueck. Falls kein User eingeloggt ist
+	 * wird <code>null</code> zurueckgegeben.
+	 * @return Der User oder <code>null</code>
+	 */
+	public BasicUser getUser() {
+		return getContext().getActiveUser();
+	}
+
+	@Override
+	public boolean hasPermission(String category, String action)
+	{
+		return this.context.hasPermission(category, action);
+	}
+
 	private static final class RedirectInvocationException extends RuntimeException
 	{
 		public RedirectInvocationException(Exception cause)
@@ -237,7 +315,6 @@ public abstract class DSController extends Generator
 		throw new NoSuchMethodException();
 	}
 
-	@Override
 	public void handleAction(String action) throws IOException
 	{
 		if ((action == null) || action.isEmpty())
@@ -295,7 +372,7 @@ public abstract class DSController extends Generator
 			log.error("", e);
 			addError("Die Aktion '" + action + "' existiert nicht!");
 		}
-		catch (RuntimeException | Error e)
+		catch (RuntimeException | java.lang.Error e)
 		{
 			throw e;
 		}
