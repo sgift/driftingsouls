@@ -54,6 +54,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.JumpNodeRouter;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -83,7 +84,6 @@ import java.util.UUID;
  * Zeigt die Fraktionsseiten an.
  *
  * @author Christopher Jung
- * @urlparam Integer faction Die ID der anzuzeigenden Fraktion
  */
 @Module(name = "ersteigern")
 public class ErsteigernController extends TemplateController
@@ -458,9 +458,6 @@ public class ErsteigernController extends TemplateController
 		}
 	}
 
-	private int faction = 0;
-	private boolean allowsTrade = true;
-
 	/**
 	 * Konstruktor.
 	 *
@@ -471,126 +468,133 @@ public class ErsteigernController extends TemplateController
 		super(context);
 
 		setTemplate("ersteigern.html");
-
-		parameterNumber("faction");
-
 		setPageTitle("Fraktionen");
 	}
 
-	@Override
-	protected boolean validateAndPrepare()
+	private int ermittleFraktionUndErstelleMenue(int faction)
 	{
-		TemplateEngine t = getTemplateEngine();
-		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
-
-		// Ausgewaehlte Fraktion ueberpruefen und deren Menueeintraege freischalten
-		int faction = this.getInteger("faction");
-		User.Relations relationlist = user.getRelations();
+		org.hibernate.Session db = getDB();
 
 		if (faction == 0)
 		{
-			if (Faction.get(user.getId()) != null)
-			{
-				faction = user.getId();
-			}
-			else
-			{
-				Map<Integer, Faction> factions = Faction.getFactions();
-				for (Map.Entry<Integer, Faction> integerFactionEntry : factions.entrySet())
-				{
-					int aFactionID = integerFactionEntry.getKey();
-					Faction factionObj = integerFactionEntry.getValue();
-					if (!factionObj.getPages().isEnabled())
-					{
-						continue;
-					}
-
-					User aFactionUser = (User) db.get(User.class, factionObj.getID());
-					if (aFactionUser == null)
-					{
-						continue;
-					}
-
-					if ((user.getRelation(aFactionID) != User.Relation.ENEMY)
-							&& (relationlist.fromOther.get(aFactionID) != User.Relation.ENEMY))
-					{
-						faction = aFactionID;
-						break;
-					}
-				}
-			}
+			faction = ermittleStandardFraktionFuerSpieler(db, user);
 		}
 
+		validiereFraktion(faction);
+
+		TemplateEngine t = getTemplateEngine();
+
+		// Die Templatevariablen duerfen nur einmal gesetzt werden (redirects!)
+		if (t.getVar("global.faction").isEmpty())
+		{
+			FactionPages pages = Faction.get(faction).getPages();
+			for (String aPage : pages.getPages())
+			{
+				t.setVar("faction." + aPage, 1);
+			}
+
+			// Fraktionsmenue
+
+			t.setBlock("_ERSTEIGERN", "global.factionmenu.listitem", "global.factionmenu.list");
+
+			Map<Integer, Faction> factions = Faction.getFactions();
+			for (Faction factionObj : factions.values())
+			{
+				if (!factionObj.getPages().isEnabled())
+				{
+					continue;
+				}
+
+				User aFactionUser = (User) db.get(User.class, factionObj.getID());
+				if (aFactionUser == null)
+				{
+					continue;
+				}
+				t.setVar(
+						"item.faction.name", Common._title(aFactionUser.getName()),
+						"item.faction.id", factionObj.getID());
+
+				t.parse("global.factionmenu.list", "global.factionmenu.listitem", true);
+			}
+
+			User factionuser = (User) db.get(User.class, faction);
+
+			t.setVar(
+					"user.konto", Common.ln(user.getKonto()),
+					"global.faction", faction,
+					"global.faction.name", Common._title(factionuser.getName()));
+		}
+
+		return faction;
+	}
+
+	private void validiereFraktion(int faction)
+	{
 		if (faction == 0)
 		{
-			addError("Keine Fraktion will mit ihnen zu handeln solange die Beziehungen feindlich sind");
-			return false;
+			throw new ValidierungException("Keine Fraktion will mit ihnen zu handeln solange die Beziehungen feindlich sind");
 		}
 
 		if (Faction.get(faction) == null)
 		{
-			addError("Die angegebene Fraktion verf&uuml;gt &uuml;ber keine eigene Seite");
-			return false;
+			throw new ValidierungException("Die angegebene Fraktion verf&uuml;gt &uuml;ber keine eigene Seite");
 		}
+	}
 
-		if ((user.getRelation(faction) == User.Relation.ENEMY)
-				|| (relationlist.fromOther.get(faction) == User.Relation.ENEMY))
+	private boolean istHandelErlaubt(User user, int faction)
+	{
+		return user.getRelation(faction) != User.Relation.ENEMY
+				&& user.getRelations().fromOther.get(faction) != User.Relation.ENEMY;
+	}
+
+	private int ermittleStandardFraktionFuerSpieler(Session db, User user)
+	{
+		int faction = 0;
+		if (Faction.get(user.getId()) != null)
 		{
-			this.allowsTrade = false;
+			faction = user.getId();
 		}
-
-		FactionPages pages = Faction.get(faction).getPages();
-		for (String aPage : pages.getPages())
+		else
 		{
-			t.setVar("faction." + aPage, 1);
-		}
-
-		this.faction = faction;
-
-		// Fraktionsmenue
-
-		t.setBlock("_ERSTEIGERN", "global.factionmenu.listitem", "global.factionmenu.list");
-
-		Map<Integer, Faction> factions = Faction.getFactions();
-		for (Faction factionObj : factions.values())
-		{
-			if (!factionObj.getPages().isEnabled())
+			Map<Integer, Faction> factions = Faction.getFactions();
+			for (Map.Entry<Integer, Faction> integerFactionEntry : factions.entrySet())
 			{
-				continue;
-			}
+				int aFactionID = integerFactionEntry.getKey();
+				Faction factionObj = integerFactionEntry.getValue();
+				if (!factionObj.getPages().isEnabled())
+				{
+					continue;
+				}
 
-			User aFactionUser = (User) db.get(User.class, factionObj.getID());
-			if (aFactionUser == null)
-			{
-				continue;
-			}
-			t.setVar(
-					"item.faction.name", Common._title(aFactionUser.getName()),
-					"item.faction.id", factionObj.getID());
+				User aFactionUser = (User) db.get(User.class, factionObj.getID());
+				if (aFactionUser == null)
+				{
+					continue;
+				}
 
-			t.parse("global.factionmenu.list", "global.factionmenu.listitem", true);
+				if ((user.getRelation(aFactionID) != User.Relation.ENEMY)
+						&& (user.getRelations().fromOther.get(aFactionID) != User.Relation.ENEMY))
+				{
+					faction = aFactionID;
+					break;
+				}
+			}
 		}
-
-		User factionuser = (User) db.get(User.class, faction);
-
-		t.setVar(
-				"user.konto", Common.ln(user.getKonto()),
-				"global.faction", faction,
-				"global.faction.name", Common._title(factionuser.getName()),
-				"global.menusize", pages.getMenuSize());
-
-		return true;
+		return faction;
 	}
 
 	/**
 	 * Aendert das System, in dem ersteigerte Dinge gespawnt werden sollen.
 	 *
 	 * @param favsys Die ID des neuen Systems, in dem ersteigerte Dinge gespawnt werden sollen
+	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeDropZoneAction(StarSystem favsys)
+	public void changeDropZoneAction(int faction, StarSystem favsys)
 	{
+		faction = ermittleFraktionUndErstelleMenue(faction);
+
 		if (!Faction.get(faction).getPages().hasPage("versteigerung"))
 		{
 			redirect();
@@ -615,24 +619,28 @@ public class ErsteigernController extends TemplateController
 	 *
 	 * @param bid Der gebotene Betrag oder 0
 	 * @param entry Die Auktion auf die geboten werden soll
+	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void bidEntryAction(int bid, @UrlParam(name = "auk") Versteigerung entry)
+	public void bidEntryAction(int faction, int bid, @UrlParam(name = "auk") Versteigerung entry)
 	{
+		faction = ermittleFraktionUndErstelleMenue(faction);
+
 		if (!Faction.get(faction).getPages().hasPage("versteigerung"))
 		{
 			redirect();
 			return;
 		}
 
-		if (!this.allowsTrade)
+		User user = (User) getUser();
+
+		if (!istHandelErlaubt(user, faction))
 		{
 			addError("Die angegebene Fraktion weigert sich mit ihnen zu handeln solange die Beziehungen feindlich sind");
 			redirect();
 			return;
 		}
 
-		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 
@@ -735,7 +743,7 @@ public class ErsteigernController extends TemplateController
 				entry.setBieter(user);
 				entry.setPreis(bid);
 
-				User gtu = (User) db.get(User.class, this.faction);
+				User gtu = (User) db.get(User.class, faction);
 				gtu.transferMoneyFrom(user.getId(), bid, "&Uuml;berweisung Gebot #2"
 						+ entry.getId() + " '" + entryname + "'", false, UserMoneyTransfer.Transfer.SEMIAUTO);
 
@@ -796,24 +804,26 @@ public class ErsteigernController extends TemplateController
 	 * @param count Die zu ueberweisenden RE
 	 * @param to Der Spieler an den ueberwiesen werden soll
 	 * @param requestToken Ein Sicherheitstoken zur Bestaetigung der Ueberweisung
+	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void ueberweisenAction(String to, String ack, int count, @UrlParam(name = "token") String requestToken)
+	public void ueberweisenAction(int faction, String to, String ack, int count, @UrlParam(name = "token") String requestToken)
 	{
+		faction = ermittleFraktionUndErstelleMenue(faction);
 		if (!Faction.get(faction).getPages().hasPage("bank"))
 		{
 			redirect();
 			return;
 		}
 
-		if (!this.allowsTrade)
+		User user = (User) getUser();
+		if (!istHandelErlaubt(user, faction))
 		{
 			addError("Die angegebene Fraktion weigert sich mit ihnen zu handeln solange die Beziehungen feindlich sind");
 			redirect();
 			return;
 		}
 
-		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 
@@ -876,10 +886,12 @@ public class ErsteigernController extends TemplateController
 	 * Aendert den Anzeigetyp fuer Kontotransaktionen.
 	 *
 	 * @param type Der neue Anzeigetyp (0-2)
+	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void showKontoTransactionTypeAction(int type)
+	public void showKontoTransactionTypeAction(int faction, int type)
 	{
+		faction = ermittleFraktionUndErstelleMenue(faction);
 		if (!Faction.get(faction).getPages().hasPage("bank"))
 		{
 			redirect();
@@ -897,10 +909,13 @@ public class ErsteigernController extends TemplateController
 
 	/**
 	 * Shows the Bank Page.
+	 *
+	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void bankAction()
+	public void bankAction(int faction)
 	{
+		faction = ermittleFraktionUndErstelleMenue(faction);
 		if (!Faction.get(faction).getPages().hasPage("bank"))
 		{
 			redirect();
@@ -992,10 +1007,13 @@ public class ErsteigernController extends TemplateController
 
 	/**
 	 * Zeigt die Seite mit diversen weiteren Infos an.
+	 *
+	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void otherAction()
+	public void otherAction(int faction)
 	{
+		faction = ermittleFraktionUndErstelleMenue(faction);
 		if (!Faction.get(faction).getPages().hasPage("other"))
 		{
 			redirect();
@@ -1154,10 +1172,13 @@ public class ErsteigernController extends TemplateController
 
 	/**
 	 * Zeigt die Angebote der Fraktion an.
+	 *
+	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void angeboteAction()
+	public void angeboteAction(int faction)
 	{
+		faction = ermittleFraktionUndErstelleMenue(faction);
 		if (!Faction.get(faction).getPages().hasPage("angebote"))
 		{
 			redirect();
@@ -1176,7 +1197,7 @@ public class ErsteigernController extends TemplateController
 
 		int count = 0;
 		List<?> angebote = db.createQuery("from FactionOffer where faction=:faction")
-				.setInteger("faction", this.faction)
+				.setInteger("faction", faction)
 				.list();
 		for (Object anAngebote : angebote)
 		{
@@ -1198,10 +1219,13 @@ public class ErsteigernController extends TemplateController
 
 	/**
 	 * Zeigt die laufenden Versteigerungen an.
+	 *
+	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void versteigerungAction()
+	public void versteigerungAction(int faction)
 	{
+		faction = ermittleFraktionUndErstelleMenue(faction);
 		TemplateEngine t = this.getTemplateEngine();
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
@@ -1283,7 +1307,7 @@ public class ErsteigernController extends TemplateController
 					"entry.user.name", ownername,
 					"entry.user.id", entry.getOwner().getId(),
 					"entry.user", (entry.getOwner().getId() != faction),
-					"entry.bidAllowed", this.allowsTrade,
+					"entry.bidAllowed", istHandelErlaubt(user, faction),
 					"entry.ownauction", (entry.getOwner() == user));
 
 			t.parse("entry.list", "entry.listitem", true);
@@ -1373,10 +1397,13 @@ public class ErsteigernController extends TemplateController
 
 	/**
 	 * Zeigt den Fraktionstext an.
+	 *
+	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void generalAction()
+	public void generalAction(int faction)
 	{
+		faction = ermittleFraktionUndErstelleMenue(faction);
 		TemplateEngine t = getTemplateEngine();
 
 		if (!Faction.get(faction).getPages().hasPage("general"))
@@ -1400,10 +1427,12 @@ public class ErsteigernController extends TemplateController
 	 * @param targety Die Ziel-Y-Koordinate
 	 * @param transport Sofert der Wert <code>1</code>, wird der Transportauftrag
 	 * bestaetigt und abgespeichert
+	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void shopOrderGanymedeSummaryAction(int sourcesystem, int ganymedeid, int targetsystem, int targetx, int targety, int transport)
+	public void shopOrderGanymedeSummaryAction(int faction, int sourcesystem, int ganymedeid, int targetsystem, int targetx, int targety, int transport)
 	{
+		faction = ermittleFraktionUndErstelleMenue(faction);
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
@@ -1414,7 +1443,7 @@ public class ErsteigernController extends TemplateController
 			return;
 		}
 
-		if (!this.allowsTrade)
+		if (!istHandelErlaubt(user, faction))
 		{
 			addError("Die angegebene Fraktion weigert sich mit ihnen zu handeln solange die Beziehungen feindlich sind");
 			redirect();
@@ -1423,7 +1452,7 @@ public class ErsteigernController extends TemplateController
 
 		FactionShopEntry shopentry = (FactionShopEntry) db
 				.createQuery("from FactionShopEntry where faction=:faction and type=2")
-				.setInteger("faction", this.faction)
+				.setInteger("faction", faction)
 				.setMaxResults(1)
 				.uniqueResult();
 
@@ -1524,7 +1553,7 @@ public class ErsteigernController extends TemplateController
 			Map<String, Long> costindex = new HashMap<>();
 			List<FactionShopEntry> entries = Common.cast(db
 					.createQuery("from FactionShopEntry where faction=:faction and type=:type")
-					.setParameter("faction", this.faction)
+					.setParameter("faction", faction)
 					.setParameter("type", FactionShopEntry.Type.TRANSPORT)
 					.list());
 			for (FactionShopEntry entry : entries)
@@ -1584,8 +1613,8 @@ public class ErsteigernController extends TemplateController
 		}
 		else
 		{
-			User faction = (User) getDB().get(User.class, this.faction);
-			faction.transferMoneyFrom(user.getId(), totalcost,
+			User factionUser = (User) getDB().get(User.class, faction);
+			factionUser.transferMoneyFrom(user.getId(), totalcost,
 					"&Uuml;berweisung Bestellung #ganytransXX" + gany.getId());
 
 			StringBuilder waypoints = new StringBuilder(300);
@@ -1600,7 +1629,7 @@ public class ErsteigernController extends TemplateController
 			}
 			waypoints.append("Ziel: ").append(targetsystem).append(":").append(targetx).append("/").append(targety).append("\n");
 
-			PM.send(user, this.faction, "[auto] Shop-Bestellung [Ganymede]",
+			PM.send(user, faction, "[auto] Shop-Bestellung [Ganymede]",
 					"Besteller: [userprofile=" + user.getId() + "]" + user.getName() + " ("
 							+ user.getId() + ")[/userprofile]\nObjekt: " + gany.getName()
 							+ " (" + gany.getId() + ")\nPreis: " + Common.ln(totalcost)
@@ -1637,10 +1666,12 @@ public class ErsteigernController extends TemplateController
 	 * @param targetsystem Die ID des Zielsystems
 	 * @param targetx Die Ziel-X-Koordinate
 	 * @param targety Die Ziel-Y-Koordinate
+	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void shopOrderGanymedeAction(int sourcesystem, int ganymedeid, int targetsystem, int targetx, int targety)
+	public void shopOrderGanymedeAction(int faction, int sourcesystem, int ganymedeid, int targetsystem, int targetx, int targety)
 	{
+		faction = ermittleFraktionUndErstelleMenue(faction);
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
@@ -1651,7 +1682,7 @@ public class ErsteigernController extends TemplateController
 			return;
 		}
 
-		if (!this.allowsTrade)
+		if (!istHandelErlaubt(user, faction))
 		{
 			addError("Die angegebene Fraktion weigert sich mit ihnen zu handeln solange die Beziehungen feindlich sind");
 			redirect();
@@ -1660,7 +1691,7 @@ public class ErsteigernController extends TemplateController
 
 		FactionShopEntry entry = (FactionShopEntry) db
 				.createQuery("from FactionShopEntry where faction=:faction and type=2")
-				.setInteger("faction", this.faction)
+				.setInteger("faction", faction)
 				.setMaxResults(1)
 				.uniqueResult();
 
@@ -1823,10 +1854,12 @@ public class ErsteigernController extends TemplateController
 	 * @param ordersys Das Liefersystem
 	 * @param orderx Die X-Komponente der Lieferkoordinate
 	 * @param ordery Die Y-Komponente der Lieferkoordinate
+	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void shopOrderAction(FactionShopEntry shopentry, int ordercount, int ordersys, int orderx, int ordery)
+	public void shopOrderAction(int faction, FactionShopEntry shopentry, int ordercount, int ordersys, int orderx, int ordery)
 	{
+		faction = ermittleFraktionUndErstelleMenue(faction);
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
@@ -1837,7 +1870,7 @@ public class ErsteigernController extends TemplateController
 			return;
 		}
 
-		if (!this.allowsTrade)
+		if (!istHandelErlaubt(user, faction))
 		{
 			addError("Die angegebene Fraktion weigert sich mit ihnen zu handeln solange die Beziehungen feindlich sind");
 			redirect();
@@ -1906,7 +1939,7 @@ public class ErsteigernController extends TemplateController
 			return;
 		}
 
-		User factionUser = (User) db.get(User.class, this.faction);
+		User factionUser = (User) db.get(User.class, faction);
 		if (user.getLoyalitaetspunkteTotalBeiNpc(factionUser) < entry.getLpKosten() * ordercount)
 		{
 			t.setVar("show.message",
@@ -1948,7 +1981,7 @@ public class ErsteigernController extends TemplateController
 								+ ordercount);
 			}
 
-			PM.send(user, this.faction, "[auto] Shop-Bestellung", "Besteller: [userprofile="
+			PM.send(user, faction, "[auto] Shop-Bestellung", "Besteller: [userprofile="
 					+ user.getId() + "]" + user.getName() + " (" + user.getId()
 					+ ")[/userprofile]\nObjekt: " + entry.getName() + "\nMenge: " + ordercount
 					+ "\nLieferkoordinaten: " + ordersys + ":" + orderx + "/" + ordery
@@ -1976,10 +2009,12 @@ public class ErsteigernController extends TemplateController
 	 * @param entryLpKosten Die Kosten des Eintrags in RE
 	 * @param entryType Der Typ des Eintrags (ship,item,transport)
 	 * @param entryTypeId Die ID der anzubietenden Ware des angegebenen Eintragtyps
+	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void shopEntryCreate(String entryType, String entryTypeId, int entryCost, int entryLpKosten)
+	public void shopEntryCreate(int faction, String entryType, String entryTypeId, int entryCost, int entryLpKosten)
 	{
+		faction = ermittleFraktionUndErstelleMenue(faction);
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
@@ -1990,7 +2025,7 @@ public class ErsteigernController extends TemplateController
 			return;
 		}
 
-		if (this.faction == user.getId())
+		if (faction == user.getId())
 		{
 			FactionShopEntry.Type type = null;
 			switch (entryType)
@@ -2033,7 +2068,7 @@ public class ErsteigernController extends TemplateController
 					break;
 			}
 
-			FactionShopEntry entry = new FactionShopEntry(this.faction, type, entryTypeId);
+			FactionShopEntry entry = new FactionShopEntry(faction, type, entryTypeId);
 			entry.setAvailability(0);
 			entry.setPrice(entryCost);
 			entry.setLpKosten(entryLpKosten);
@@ -2053,10 +2088,12 @@ public class ErsteigernController extends TemplateController
 	 * @param entryRang Der Rang
 	 * @param operation Die auszufuehrende Aktion (ändern, löschen)
 	 * @param shopentry Die ID des Shopeintrags
+	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void shopChangeEntryAction(String operation, FactionShopEntry shopentry, int availability, int entryRang, long entryPrice, long entryLpKosten)
+	public void shopChangeEntryAction(int faction, String operation, FactionShopEntry shopentry, int availability, int entryRang, long entryPrice, long entryLpKosten)
 	{
+		faction = ermittleFraktionUndErstelleMenue(faction);
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
@@ -2067,9 +2104,9 @@ public class ErsteigernController extends TemplateController
 			return;
 		}
 
-		if (this.faction == user.getId())
+		if (faction == user.getId())
 		{
-			if ((shopentry == null) || (shopentry.getFaction() != this.faction))
+			if ((shopentry == null) || (shopentry.getFaction() != faction))
 			{
 				addError("Es konnte kein passender Shopeintrag gefunden werden");
 				redirect("shop");
@@ -2114,10 +2151,12 @@ public class ErsteigernController extends TemplateController
 	 *
 	 * @param orderentry Die ID des Auftrags
 	 * @param orderstatus Der neue Auftragsstatus
+	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeShopOrderStatusAction(FactionShopOrder orderentry, int orderstatus)
+	public void changeShopOrderStatusAction(int faction, FactionShopOrder orderentry, int orderstatus)
 	{
+		faction = ermittleFraktionUndErstelleMenue(faction);
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
 
@@ -2127,10 +2166,10 @@ public class ErsteigernController extends TemplateController
 			return;
 		}
 
-		if (this.faction == user.getId())
+		if (faction == user.getId())
 		{
 			if ((orderentry == null) || (orderentry.getStatus() > 3)
-					|| (orderentry.getShopEntry().getFaction() != this.faction))
+					|| (orderentry.getShopEntry().getFaction() != faction))
 			{
 				addError("Es konnte kein passender Ordereintrag gefunden werden");
 				redirect("shop");
@@ -2194,16 +2233,19 @@ public class ErsteigernController extends TemplateController
 	 * @param colonizer Die ID des zu verwendenden Colonizers
 	 * @param felder Die ID der Felderweiterung
 	 * @param order Soll wirklich bestellt werden (bestellen)?
+	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@SuppressWarnings("unchecked")
 	@Action(ActionType.DEFAULT)
-	public void ausbauAction(@UrlParam(name = "astiid") Base base,
+	public void ausbauAction(int faction,
+							 @UrlParam(name = "astiid") Base base,
 							 @UrlParam(name = "colonizerid") Ship colonizer,
 							 UpgradeInfo felder,
 							 UpgradeInfo cargo,
 							 boolean bar,
 							 String order)
 	{
+		faction = ermittleFraktionUndErstelleMenue(faction);
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
@@ -2292,7 +2334,7 @@ public class ErsteigernController extends TemplateController
 			// Erstelle einen neuen Auftrag
 			auftrag = new UpgradeJob(base, user, felder, cargo, bar, colonizer);
 
-			User faction = (User) db.get(User.class, this.faction);
+			User factionUser = (User) db.get(User.class, faction);
 			if (!bar)
 			{
 				// Testen ob genuegend Geld vorhanden ist um es uns untern Nagel zu reiszen
@@ -2305,12 +2347,12 @@ public class ErsteigernController extends TemplateController
 					redirect();
 					return;
 				}
-				faction.transferMoneyFrom(user.getId(), felder.getPrice()
+				factionUser.transferMoneyFrom(user.getId(), felder.getPrice()
 						+ cargo.getPrice(), "Ausbau von " + base.getName());
 			}
 
 			// Den Besitzer des Colonizers ändern
-			if( colonizer.consign(faction, false) )
+			if (colonizer.consign(factionUser, false))
 			{
 				addError("Der Colonizer konnte nicht übergeben werden.");
 				redirect();
@@ -2323,7 +2365,7 @@ public class ErsteigernController extends TemplateController
 			// Erstelle einen neuen Task für den Auftrag
 			Taskmanager taskmanager = Taskmanager.getInstance();
 			taskmanager.addTask(Taskmanager.Types.UPGRADE_JOB, 1,
-					Integer.toString(auftrag.getId()), "0", Integer.toString(this.faction));
+					Integer.toString(auftrag.getId()), "0", Integer.toString(faction));
 
 			t.setVar(
 					"show.message",
@@ -2386,10 +2428,10 @@ public class ErsteigernController extends TemplateController
 				.setInteger("baseSystem", selectedBase.getSystem()).setInteger("baseX",
 						selectedBase.getX()).setInteger("baseY", selectedBase.getY()).list();
 
-		User faction = (User) db.get(User.class, this.faction);
+		User factionUser = (User) db.get(User.class, faction);
 		for (Ship acolonizer : colonizers)
 		{
-			if( acolonizer.consign(faction, true) )
+			if (acolonizer.consign(factionUser, true))
 			{
 				continue;
 			}
@@ -2437,10 +2479,13 @@ public class ErsteigernController extends TemplateController
 
 	/**
 	 * Zeigt den Shop der Fraktion an.
+	 *
+	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void shopAction()
+	public void shopAction(int faction)
 	{
+		faction = ermittleFraktionUndErstelleMenue(faction);
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
@@ -2451,7 +2496,7 @@ public class ErsteigernController extends TemplateController
 			return;
 		}
 
-		User factionUser = (User) db.get(User.class, this.faction);
+		User factionUser = (User) db.get(User.class, faction);
 
 		t.setVar("show.shop", 1);
 
@@ -2459,7 +2504,7 @@ public class ErsteigernController extends TemplateController
 		t.setBlock("_ERSTEIGERN", "shop.orderlist.listitem", "shop.orderlist.list");
 		t.setBlock("_ERSTEIGERN", "shop.shopownerlist.listitem", "shop.shopownerlist.list");
 
-		if (this.faction != user.getId())
+		if (faction != user.getId())
 		{
 			List<?> orderentryList = db
 					.createQuery(
@@ -2592,6 +2637,7 @@ public class ErsteigernController extends TemplateController
 			ganytransport[i++] = (FactionShopEntry) aGanyEntryList;
 		}
 
+		final boolean handelErlaubt = istHandelErlaubt(user, faction);
 		// Falls vorhanden jetzt eine Ganymed-Infozeile ausgeben
 		if (ganytransport.length > 0)
 		{
@@ -2607,7 +2653,7 @@ public class ErsteigernController extends TemplateController
 					"entry.price", shopEntryObj.getPriceAsText(),
 					"entry.lpkosten", shopEntryObj.getLpKosten() > 0 ? Common.ln(shopEntryObj.getLpKosten()) : "",
 					"entry.showamountinput", shopEntryObj.showAmountInput(),
-					"entry.orderable", this.allowsTrade);
+					"entry.orderable", handelErlaubt);
 
 			t.parse("shop.list", "shop.listitem", true);
 		}
@@ -2642,7 +2688,7 @@ public class ErsteigernController extends TemplateController
 					"entry.lpkosten", shopEntryObj.getLpKosten() > 0 ? Common.ln(shopEntryObj.getLpKosten()) : "",
 					"entry.showamountinput", shopEntryObj.showAmountInput(),
 					"entry.npcrang", factionUser.getOwnGrantableRank(shopentry.getMinRank()),
-					"entry.orderable", this.allowsTrade && shopentry.canBuy(user));
+					"entry.orderable", handelErlaubt && shopentry.canBuy(user));
 
 			t.parse("shop.list", "shop.listitem", true);
 		}
@@ -2650,10 +2696,13 @@ public class ErsteigernController extends TemplateController
 
 	/**
 	 * Zeigt die Meldeseite fuer LP der Fraktion an.
+	 *
+	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void aktionMeldenAction()
+	public void aktionMeldenAction(int faction)
 	{
+		faction = ermittleFraktionUndErstelleMenue(faction);
 		TemplateEngine t = getTemplateEngine();
 
 		if (!Faction.get(faction).getPages().hasPage("aktionmelden"))
@@ -2669,10 +2718,12 @@ public class ErsteigernController extends TemplateController
 	 * Erstellt eine LP-Meldung bei der momentanen Fraktion.
 	 *
 	 * @param meldungstext Der Beschreibungstext der Aktion
+	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void aktionsMeldungErstellenAction(String meldungstext)
+	public void aktionsMeldungErstellenAction(int faction, String meldungstext)
 	{
+		faction = ermittleFraktionUndErstelleMenue(faction);
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
@@ -2683,7 +2734,7 @@ public class ErsteigernController extends TemplateController
 			return;
 		}
 
-		User factionUser = (User) db.get(User.class, this.faction);
+		User factionUser = (User) db.get(User.class, faction);
 
 		if (meldungstext == null || meldungstext.trim().length() < 10)
 		{
@@ -2703,11 +2754,13 @@ public class ErsteigernController extends TemplateController
 
 	/**
 	 * Leitet zur Default-Seite einer Fraktion weiter.
+	 *
+	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
-	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction()
+	public void defaultAction(int faction)
 	{
+		faction = ermittleFraktionUndErstelleMenue(faction);
 		this.redirect(Faction.get(faction).getPages().getFirstPage());
 
 	}
