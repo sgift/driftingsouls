@@ -89,20 +89,6 @@ public abstract class DSController extends Generator
 	}
 
 	/**
-	 * Gibt einen als Zahl registrierten Parameter in Form eines
-	 * <code>int</code> zurueck.
-	 *
-	 * @param parameter Der Parametername
-	 * @return Der Wert
-	 * @deprecated Bitte nur noch Parameter der Actionmethoden verwenden
-	 */
-	@Deprecated
-	public int getInteger(String parameter)
-	{
-		return this.parameterReader.getInteger(parameter);
-	}
-
-	/**
 	 * Gibt einen als String registrierten parameter zurueck.
 	 *
 	 * @param parameter Der Name des Parameters
@@ -182,19 +168,6 @@ public abstract class DSController extends Generator
 		{
 			this.parameterReader.parseSubParameter("");
 		}
-	}
-
-	/**
-	 * Registriert einen Parameter im System als Zahl. Der Parameter
-	 * kann anschliessend ueber entsprechende Funktionen erfragt werden.
-	 *
-	 * @param parameter Der Name des Parameters
-	 * @deprecated Bitte nur noch Parameter der Actionmethoden verwenden
-	 */
-	@Deprecated
-	public void parameterNumber(String parameter)
-	{
-		this.parameterReader.parameterNumber(parameter);
 	}
 
 	/**
