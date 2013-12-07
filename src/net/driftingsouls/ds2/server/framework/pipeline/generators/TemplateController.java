@@ -58,19 +58,6 @@ public abstract class TemplateController extends DSController
 
 		templateEngine = new TemplateEngine();
 
-		if (getBrowser().equals("opera"))
-		{
-			templateEngine.setVar("_BROWSER_OPERA", 1);
-		}
-		else if (getBrowser().equals("msie"))
-		{
-			templateEngine.setVar("_BROWSER_MSIE", 1);
-		}
-		else
-		{
-			templateEngine.setVar("_BROWSER_MOZILLA", 1);
-		}
-
 		if (getUser() != null)
 		{
 			templateEngine.setVar("global.datadir", getUser().getImagePath());

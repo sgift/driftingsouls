@@ -37,33 +37,12 @@ import net.driftingsouls.ds2.server.framework.pipeline.Response;
 public abstract class Generator implements PermissionResolver {
 	private Context context;
 
-	private String browser;
-
 	/**
 	 * Konstruktor.
 	 * @param context Der Kontext
 	 */
 	public Generator(Context context) {
 		this.context = context;
-
-		String browser = getRequest().getHeader("user-agent");
-		if( browser != null ) {
-			browser = browser.toLowerCase();
-
-			if(browser.contains("opera")) {
-				browser = "opera";
-			}
-			else if(browser.contains("msie")) {
-				browser = "msie";
-			}
-			else {
-				browser = "mozilla";
-			}
-			this.browser = browser;
-		}
-		else {
-			this.browser = "unknown";
-		}
 	}
 
 	/**
@@ -83,18 +62,6 @@ public abstract class Generator implements PermissionResolver {
 	 */
 	public final void addError( String error, String link ) {
 		context.addError(error, link);
-	}
-
-	/**
-	 * Liefert den letzten Fehler zurueck.
-	 *
-	 * @return Der letzte Fehlers
-	 *
-	 * @see #addError(String, String)
-	 * @see #addError(String)
-	 */
-	public final Error getLastError() {
-		return context.getLastError();
 	}
 
 	/**
@@ -153,14 +120,6 @@ public abstract class Generator implements PermissionResolver {
 	 * @throws IOException
 	 */
 	public abstract void handleAction( String action ) throws IOException;
-
-	/**
-	 * Gibt den Identifikationsstring des Browsers des Spielers zurueck.
-	 * @return Der Identifikationsstring des Browsers
-	 */
-	public final String getBrowser() {
-		return browser;
-	}
 
 	@Override
 	public boolean hasPermission(String category, String action)
