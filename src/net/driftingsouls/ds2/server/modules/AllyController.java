@@ -75,9 +75,6 @@ public class AllyController extends TemplateController
 		super(context);
 
 		setTemplate("ally.html");
-
-		parameterString("show");
-
 		setPageTitle("Allianz");
 	}
 
@@ -89,8 +86,7 @@ public class AllyController extends TemplateController
 
 		this.ally = user.getAlly();
 
-		t.setVar("ally", user.getAlly() != null ? user.getAlly().getId() : 0,
-				"show", this.getString("show"));
+		t.setVar("ally", user.getAlly() != null ? user.getAlly().getId() : 0);
 
 		if (this.ally != null)
 		{
@@ -151,12 +147,14 @@ public class AllyController extends TemplateController
 	 * @param name Der Name der neuen Allianz
 	 * @param confuser1 Die User-ID des ersten Unterstuetzers
 	 * @param confuser2 Die User-ID des zweiten Unterstuetzers
+	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void foundAction(String name, User confuser1, User confuser2)
+	public void foundAction(String name, User confuser1, User confuser2, String show)
 	{
 		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
+		t.setVar("show", show);
 
 		if (user.getAlly() != null)
 		{
@@ -254,12 +252,14 @@ public class AllyController extends TemplateController
 	 *
 	 * @param zielAllianz Die ID der Allianz, der der Benuzter beitreten moechte
 	 * @param conf Bestaetigt den Aufnahmewunsch falls der Wert "ok" ist
+	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void joinAction(String conf, @UrlParam(name = "join") Ally zielAllianz)
+	public void joinAction(String conf, @UrlParam(name = "join") Ally zielAllianz, String show)
 	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
+		t.setVar("show", show);
 
 		if (user.getAlly() != null)
 		{
@@ -336,12 +336,14 @@ public class AllyController extends TemplateController
 	 * Loescht einen Rangn.
 	 *
 	 * @param rangnr Die ID des zu loeschenden Rangs
+	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void deleteRangAction(int rangnr)
+	public void deleteRangAction(int rangnr, String show)
 	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
+		t.setVar("show", show);
 
 		if (this.ally.getPresident().getId() != user.getId() || !user.isNPC())
 		{
@@ -387,12 +389,15 @@ public class AllyController extends TemplateController
 	 *
 	 * @param rangname Der Anzeigename des Rangs
 	 * @param rangnr Die Rangnummer
+	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void addOrEditRangAction(String rangname, int rangnr)
+	public void addOrEditRangAction(String rangname, int rangnr, String show)
 	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
+
+		t.setVar("show", show);
 
 		if (this.ally.getPresident().getId() != user.getId() || !user.isNPC())
 		{
@@ -450,12 +455,14 @@ public class AllyController extends TemplateController
 	 * Loescht einen Allianz-Posten.
 	 *
 	 * @param posten Die ID des zu loeschenden Postens
+	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void deletePostenAction(@UrlParam(name = "postenid") AllyPosten posten)
+	public void deletePostenAction(@UrlParam(name = "postenid") AllyPosten posten, String show)
 	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
+		t.setVar("show", show);
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
@@ -489,12 +496,14 @@ public class AllyController extends TemplateController
 	 *
 	 * @param formuser Die ID des neuen Inhabers des Postens
 	 * @param posten Die ID des zu besetzenden Postens
+	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void editPostenAction(@UrlParam(name = "user") User formuser, @UrlParam(name = "id") AllyPosten posten)
+	public void editPostenAction(@UrlParam(name = "user") User formuser, @UrlParam(name = "id") AllyPosten posten, String show)
 	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
+		t.setVar("show", show);
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
@@ -543,12 +552,14 @@ public class AllyController extends TemplateController
 	 *
 	 * @param name Der Name des neuen Postens
 	 * @param formuser Die ID des Benutzers, der den Posten innehaben soll
+	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void addPostenAction(String name, @UrlParam(name = "user") User formuser)
+	public void addPostenAction(String name, @UrlParam(name = "user") User formuser, String show)
 	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
+		t.setVar("show", show);
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
@@ -604,13 +615,15 @@ public class AllyController extends TemplateController
 	 * @param read Der Zugriffsmodus (all, ally, player)
 	 * @param readids Falls der Lesemodus/Schreibmodus player ist: Die Komma-separierte Liste der Spieler-IDs
 	 * @param write Der Zugriffsmodus fuer Schreibrechte (all, ally, player)
+	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void createChannelAction(String name, String read, String readids, String write, String writeids)
+	public void createChannelAction(String name, String read, String readids, String write, String writeids, String show)
 	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
+		t.setVar("show", show);
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
@@ -681,12 +694,14 @@ public class AllyController extends TemplateController
 	 * @param read Der Zugriffsmodus (all, ally, player)
 	 * @param readids Falls der Lesemodus/Screibmodus player ist: Die Komma-separierte Liste der Spieler-IDs
 	 * @param write Der Zugriffsmodus fuer Schreibrechte (all, ally, player)
+	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void editChannelAction(@UrlParam(name = "edit") ComNetChannel channel, String name, String read, String write, String readids, String writeids)
+	public void editChannelAction(@UrlParam(name = "edit") ComNetChannel channel, String name, String read, String write, String readids, String writeids, String show)
 	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
+		t.setVar("show", show);
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
@@ -762,6 +777,7 @@ public class AllyController extends TemplateController
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
+		t.setVar("show", show);
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
@@ -803,12 +819,14 @@ public class AllyController extends TemplateController
 
 	/**
 	 * Laedt das neue Logo der Allianz auf den Server.
+	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void uploadLogoAction()
+	public void uploadLogoAction(String show)
 	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
+		t.setVar("show", show);
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
@@ -858,12 +876,14 @@ public class AllyController extends TemplateController
 	 * @param showastis Sollen eigene Astis auf der Sternenkarte angezeigt werden (<code>true</code>) oder nicht (<code>false</code>)
 	 * @param showGtuBieter Sollen Allymember einander bei GTU-Versteigerungen sehen koennen (<code>true</code>) oder nicht (<code>false</code>)
 	 * @param showlrs Sollen die LRS der Awacs in der Sternenkarte innerhalb der Ally geteilt werden (<code>true</code>) oder nicht (<code>false</code>)
+	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeSettingsAction(String name, String desc, String allytag, String hp, String praesi, boolean showastis, boolean showGtuBieter, boolean showlrs)
+	public void changeSettingsAction(String name, String desc, String allytag, String hp, String praesi, boolean showastis, boolean showGtuBieter, boolean showlrs, String show)
 	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
+		t.setVar("show", show);
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
@@ -930,6 +950,7 @@ public class AllyController extends TemplateController
 	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
+		t.setVar("show", show);
 
 		if (this.ally.getPresident().getId() == user.getId())
 		{
@@ -970,6 +991,7 @@ public class AllyController extends TemplateController
 	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
+		t.setVar("show", show);
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
@@ -1003,12 +1025,14 @@ public class AllyController extends TemplateController
 	 * Befoerdert einen Spieler zum Praesidenten.
 	 *
 	 * @param presn Die ID des neuen Praesidenten der Allianz
+	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void newPraesiAction(int presn)
+	public void newPraesiAction(int presn, String show)
 	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
+		t.setVar("show", show);
 
 		if (this.ally.getPresident() != user)
 		{
@@ -1037,12 +1061,14 @@ public class AllyController extends TemplateController
 	 * Wirft einen Spieler aus der Allianz.
 	 *
 	 * @param kick Die ID des aus der Allianz zu werfenden Spielers
+	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void kickAction(int kick)
+	public void kickAction(int kick, String show)
 	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
+		t.setVar("show", show);
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
@@ -1077,11 +1103,13 @@ public class AllyController extends TemplateController
 
 	/**
 	 * Zeigt die Liste der Allianzen fuer einen Allianzbeitritt an.
+	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultNoAllyAction()
+	public void defaultNoAllyAction(String show)
 	{
 		TemplateEngine t = getTemplateEngine();
+		t.setVar("show", show);
 
 		t.setVar("show.join", 1);
 		t.setBlock("_ALLY", "show.join.allylist.listitem", "show.join.allylist.list");
@@ -1100,12 +1128,14 @@ public class AllyController extends TemplateController
 
 	/**
 	 * Zeigt die GUI zum Gruenden einer Allianz an.
+	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void showCreateAllyAction()
+	public void showCreateAllyAction(String show)
 	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
+		t.setVar("show", show);
 
 		if (Common.time() - user.getSignup() < 60 * 60 * 24 * 3)
 		{
@@ -1119,10 +1149,13 @@ public class AllyController extends TemplateController
 
 	/**
 	 * Zeigt die Rangliste der Allianz an.
+	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void showRaengeAction()
+	public void showRaengeAction(String show)
 	{
+		TemplateEngine t = getTemplateEngine();
+		t.setVar("show", show);
 		if (this.ally == null)
 		{
 			this.redirect("defaultNoAlly");
@@ -1136,7 +1169,6 @@ public class AllyController extends TemplateController
 			return;
 		}
 
-		TemplateEngine t = getTemplateEngine();
 
 		t.setVar("show.raenge", 1,
 				"show.raenge.modify.list", "");
@@ -1157,17 +1189,19 @@ public class AllyController extends TemplateController
 
 	/**
 	 * Zeigt die Postenliste der Allianz an.
+	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void showPostenAction()
+	public void showPostenAction(String show)
 	{
+		TemplateEngine t = getTemplateEngine();
+		t.setVar("show", show);
 		if (this.ally == null)
 		{
 			this.redirect("defaultNoAlly");
 			return;
 		}
 
-		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 
 		List<User> allymember = this.ally.getMembers();
@@ -1241,17 +1275,19 @@ public class AllyController extends TemplateController
 	 *
 	 * @param destpos Offset fuer die Liste der zerstoerten Schiffe
 	 * @param lostpos Offset fuer die Liste der verlorenen Schiffe
+	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void showBattlesAction(long destpos, long lostpos)
+	public void showBattlesAction(long destpos, long lostpos, String show)
 	{
+		TemplateEngine t = getTemplateEngine();
+		t.setVar("show", show);
 		if (this.ally == null)
 		{
 			this.redirect("defaultNoAlly");
 			return;
 		}
 
-		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 
 		/////////////////////////////
@@ -1404,10 +1440,13 @@ public class AllyController extends TemplateController
 
 	/**
 	 * Zeigt die Allianzeinstellungen an.
+	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void showAllySettingsAction()
+	public void showAllySettingsAction(String show)
 	{
+		TemplateEngine t = getTemplateEngine();
+		t.setVar("show", show);
 		if (this.ally == null)
 		{
 			this.redirect("defaultNoAlly");
@@ -1422,7 +1461,6 @@ public class AllyController extends TemplateController
 			return;
 		}
 
-		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 
 		t.setVar("show.einstellungen", 1,
@@ -1489,10 +1527,13 @@ public class AllyController extends TemplateController
 
 	/**
 	 * Zeigt die Mitgliederliste an.
+	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void showMembersAction()
+	public void showMembersAction(String show)
 	{
+		TemplateEngine t = getTemplateEngine();
+		t.setVar("show", show);
 		if (this.ally == null)
 		{
 			this.redirect("defaultNoAlly");
@@ -1500,7 +1541,6 @@ public class AllyController extends TemplateController
 		}
 
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 
 		t.setVar("show.members", 1,
@@ -1558,12 +1598,13 @@ public class AllyController extends TemplateController
 	/**
 	 * Zeigt die GUI, spezifiziert durch den Parameter show,
 	 * fuer Spieler mit Allianz, an.
+	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
-	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction()
+	public void defaultAction(String show)
 	{
 		TemplateEngine t = getTemplateEngine();
+		t.setVar("show", show);
 
 		if (this.ally == null)
 		{
