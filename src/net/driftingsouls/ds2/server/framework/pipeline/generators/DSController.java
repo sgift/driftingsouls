@@ -89,19 +89,6 @@ public abstract class DSController extends Generator
 	}
 
 	/**
-	 * Gibt einen als String registrierten parameter zurueck.
-	 *
-	 * @param parameter Der Name des Parameters
-	 * @return Der Wert
-	 * @deprecated Bitte nur noch Parameter der Actionmethoden verwenden
-	 */
-	@Deprecated
-	public String getString(String parameter)
-	{
-		return this.parameterReader.getString(parameter);
-	}
-
-	/**
 	 * Entfernt einen Parameter. Bei einer anschliessenden
 	 * Registrierung des Parameters, ist der Wert leer.
 	 *
@@ -168,19 +155,6 @@ public abstract class DSController extends Generator
 		{
 			this.parameterReader.parseSubParameter("");
 		}
-	}
-
-	/**
-	 * Registriert einen Parameter im System als String. Der Parameter
-	 * kann anschliessend ueber entsprechende Funktionen erfragt werden.
-	 *
-	 * @param parameter Der Name des Parameters
-	 * @deprecated Bitte nur noch Parameter der Actionmethoden verwenden
-	 */
-	@Deprecated
-	public void parameterString(String parameter)
-	{
-		this.parameterReader.parameterString(parameter);
 	}
 
 	/**
