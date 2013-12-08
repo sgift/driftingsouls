@@ -222,7 +222,6 @@ public class AcademyQueueEntry {
 		int offizier = this.training;
 		int training = this.trainingtype;
 		User owner = this.academy.getBase().getOwner();
-		int race = owner.getRace();
 		int position = this.position;
 
 		// Loesche Eintrag und berechne Queue neu
@@ -244,7 +243,7 @@ public class AcademyQueueEntry {
 			/*
 			 * Neuer Offizier wurde ausgebildet
 			 */
-			String offiname = getNewOffiName(race);
+			String offiname = owner.getPersonenNamenGenerator().generiere();
 
 			Offizier offz = new Offizier(owner, offiname);
 
@@ -301,23 +300,6 @@ public class AcademyQueueEntry {
 		}
 
 		this.setRemainingTime(this.getRemainingTime()-1);
-	}
-
-	/**
-	 * Gibt einen neuen Offiziersnamen aus.
-	 * @param race Die Rasse aus der der Offiziersname generiert werden soll
-	 * @return Der Offiziersname
-	 */
-	private String getNewOffiName(int race)
-	{
-		String offiname = "Offizier";
-
-		PersonenNamenGenerator generator = Rassen.get().rasse(race).getPersonenNamenGenerator();
-		if( generator != null ) {
-			offiname = generator.generiere();
-		}
-
-		return offiname;
 	}
 
 	/**

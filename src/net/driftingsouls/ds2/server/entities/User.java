@@ -23,6 +23,7 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.comm.Ordner;
 import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.config.Rang;
+import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.entities.ally.AllyPosten;
@@ -34,6 +35,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.JSONSupport;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.units.UnitType;
 import net.sf.json.JSON;
@@ -50,6 +52,8 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -232,6 +236,8 @@ public class User extends BasicUser implements JSONSupport {
 	private int vacpoints;
 	private int specializationPoints;
     private BigInteger bounty;
+	@Enumerated(EnumType.STRING)
+	private PersonenNamenGenerator personenNamenGenerator;
     @OneToMany(mappedBy="userRankKey.owner")
     private Set<UserRank> userRanks;
     @OneToMany(mappedBy="user", cascade=CascadeType.ALL)
@@ -366,6 +372,20 @@ public class User extends BasicUser implements JSONSupport {
 		result.accumulate("plainname", this.getPlainname());
 		
 		return result;
+	}
+
+	public PersonenNamenGenerator getPersonenNamenGenerator()
+	{
+		if( this.personenNamenGenerator == null )
+		{
+			Rassen.get().rasse(this.race).getPersonenNamenGenerator();
+		}
+		return this.personenNamenGenerator;
+	}
+
+	public void setPersonenNamenGenerator(PersonenNamenGenerator personenNamenGenerator)
+	{
+		this.personenNamenGenerator = personenNamenGenerator;
 	}
 
 	/**

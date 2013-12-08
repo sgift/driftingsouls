@@ -69,7 +69,7 @@ public class NPCOrderTick extends TickController {
 	}
 
 	private String getOffiName(User user) {
-		PersonenNamenGenerator generator = Rassen.get().rasse(user.getRace()).getPersonenNamenGenerator();
+		PersonenNamenGenerator generator = user.getPersonenNamenGenerator();
 		if( generator != null ) {
 			return generator.generiere();
 		}

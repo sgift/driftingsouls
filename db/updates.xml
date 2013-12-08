@@ -1952,5 +1952,7 @@ Die Vasudaner haben eine sehr alte Kultur mit mehreren hochentwickelten Sprachen
 		insert into rasse (id, name, head_id, playable, memberIn_id, personenNamenGenerator, description, playableext) VALUES (7, 'HoL', null, false, 2, null, null, false);
 		insert into rasse (id, name, head_id, playable, memberIn_id, personenNamenGenerator, description, playableext) VALUES (8, 'GTU', -2, false, 0, null, null, false);
 		insert into rasse (id, name, head_id, playable, memberIn_id, personenNamenGenerator, description, playableext) VALUES (9, 'Piraten', -15, false, 1, null, null, true);
+
+		alter table users add column personenNamenGenerator varchar(255);
 	]]></update>
 </updates>
