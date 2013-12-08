@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.driftingsouls.ds2.server.namegenerator.NameGenerator;
+import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
 
 /**
  * Repraesentiert eine Rasse in Drifting Souls.
@@ -59,7 +59,7 @@ public class Rasse
 	// Liste aller Spieler, die diese Rasse/Fraktion kontrollieren
 	private ArrayList<Integer> heads = new ArrayList<>();
 	// Pfad zum jeweiligen Namensgenerator fuer die verschiedenen Bereiche
-	private Map<GeneratorType, NameGenerator> nameGenerator = new HashMap<>();
+	private Map<GeneratorType, PersonenNamenGenerator> nameGenerator = new HashMap<>();
 	// Eine Beschreibung der Rasse - wird bei der Registrierung angezeigt
 	private String description = "";
 
@@ -178,7 +178,7 @@ public class Rasse
 	 * @param type Der gewuenschte Namensgenerator-Typ
 	 * @return Der Pfad zum Namensgenerator
 	 */
-	public NameGenerator getNameGenerator(GeneratorType type)
+	public PersonenNamenGenerator getNameGenerator(GeneratorType type)
 	{
 		if( !nameGenerator.containsKey(type) && (memberIn != null) )
 		{
@@ -187,7 +187,7 @@ public class Rasse
 		return nameGenerator.get(type);
 	}
 
-	protected void setNameGenerator(GeneratorType type, NameGenerator generator)
+	protected void setNameGenerator(GeneratorType type, PersonenNamenGenerator generator)
 	{
 		nameGenerator.put(type, generator);
 	}

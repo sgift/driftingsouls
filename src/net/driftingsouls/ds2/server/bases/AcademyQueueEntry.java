@@ -27,7 +27,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.namegenerator.NameGenerator;
+import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
 import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.Session;
 import org.hibernate.annotations.ForeignKey;
@@ -50,7 +50,7 @@ import java.util.Map;
 @Table(name="academy_queue_entry")
 public class AcademyQueueEntry {
 
-	private static Map<Integer,Offizier.Ability> dTrain = new HashMap<Integer,Offizier.Ability>();
+	private static Map<Integer,Offizier.Ability> dTrain = new HashMap<>();
 
 	static {
 		dTrain.put(1, Offizier.Ability.ING);
@@ -313,9 +313,9 @@ public class AcademyQueueEntry {
 	{
 		String offiname = "Offizier";
 
-		NameGenerator generator = Rassen.get().rasse(race).getNameGenerator(Rasse.GeneratorType.PERSON);
+		PersonenNamenGenerator generator = Rassen.get().rasse(race).getNameGenerator(Rasse.GeneratorType.PERSON);
 		if( generator != null ) {
-			offiname = generator.generate(1)[0];
+			offiname = generator.generiere();
 		}
 
 		return offiname;

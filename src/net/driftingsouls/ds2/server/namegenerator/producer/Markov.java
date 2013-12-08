@@ -18,8 +18,6 @@
  */
 package net.driftingsouls.ds2.server.namegenerator.producer;
 
-import net.driftingsouls.ds2.server.namegenerator.NameGenerator;
-
 /**
  * Generiert aus einer Markov-Kette/Tabelle zufaellige Namen. Die Kette/Tabelle wird dabei aus einem
  * Eingabestrom eingelesen. Das Generieren wird von {@link MarkovTrainer} uebernommen.

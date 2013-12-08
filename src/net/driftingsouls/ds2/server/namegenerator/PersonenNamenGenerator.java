@@ -18,37 +18,24 @@
  */
 package net.driftingsouls.ds2.server.namegenerator;
 
-import java.io.IOException;
-
-import static net.driftingsouls.ds2.server.namegenerator.NameGeneratorUtils.*;
 import net.driftingsouls.ds2.server.namegenerator.producer.NameProducer;
 import net.driftingsouls.ds2.server.namegenerator.producer.NameProducerManager;
 
+import static net.driftingsouls.ds2.server.namegenerator.NameGeneratorUtils.upperAfterStrings;
+
 /**
- * Generator fuer vasudanische Namen. Alle Namen werden zufaellig
- * generiert. Als Vorlage dienen altaegyptische Namen.
- * @author Christopher Jung
+ * Interface fuer Namensgeneratoren.
  *
+ * @author Christopher Jung
  */
-public class VasudanGenerator implements NameGenerator
+public enum PersonenNamenGenerator
 {
-	private NameProducer markov;
-
-	/**
-	 * Konstruktor.
-	 * @throws IOException
-	 */
-	public VasudanGenerator() throws IOException
+	AEGYPTISCH
 	{
-		this.markov = NameProducerManager.INSTANCE.getMarkovNameProducer(VasudanGenerator.class.getResource("vasudan.txt"));
-	}
+		private NameProducer markov = NameProducerManager.INSTANCE.getMarkovNameProducer(PersonenNamenGenerator.class.getResource("vasudan.txt"));
 
-	@Override
-	public String[] generate(int count)
-	{
-		String[] result = new String[count];
-
-		for( int i = 0; i < result.length; i++ )
+		@Override
+		public String generiere()
 		{
 			String name = markov.generateNext();
 
@@ -56,9 +43,24 @@ public class VasudanGenerator implements NameGenerator
 
 			name = upperAfterStrings(name, "-", "'", " ");
 
-			result[i] = name;
+			return name;
 		}
+	},
+	ENGLISCH
+	{
+		private EnglischePersonenNamenGenerator generator = new EnglischePersonenNamenGenerator();
 
-		return result;
-	}
+		@Override
+		public String generiere()
+		{
+			return generator.generate();
+		}
+	};
+
+	/**
+	 * Generiert einen Namen.
+	 *
+	 * @return Der generierte Namen
+	 */
+	public abstract String generiere();
 }

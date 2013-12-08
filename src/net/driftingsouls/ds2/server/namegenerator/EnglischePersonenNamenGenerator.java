@@ -33,51 +33,39 @@ import static net.driftingsouls.ds2.server.namegenerator.NameGeneratorUtils.*;
  * @author Christopher Jung
  *
  */
-public class TerranGenerator implements NameGenerator
+public class EnglischePersonenNamenGenerator
 {
 	private NameProducer lastname;
 	private NameProducer firstName;
 
 	/**
 	 * Konstruktor.
-	 * @throws IOException
 	 */
-	public TerranGenerator() throws IOException
+	public EnglischePersonenNamenGenerator()
 	{
-		this.lastname = NameProducerManager.INSTANCE.getMarkovNameProducer(TerranGenerator.class.getResource("british.txt"));
-		this.firstName = NameProducerManager.INSTANCE.getListBasedNameProducer(TerranGenerator.class.getResource("british_firstnames.txt"));
+		this.lastname = NameProducerManager.INSTANCE.getMarkovNameProducer(EnglischePersonenNamenGenerator.class.getResource("british.txt"));
+		this.firstName = NameProducerManager.INSTANCE.getListBasedNameProducer(EnglischePersonenNamenGenerator.class.getResource("british_firstnames.txt"));
 	}
 
-	private String[] generateLastNames(int count)
+	private String generateLastName()
 	{
-		String[] result = new String[count];
+		String name = this.lastname.generateNext();
 
-		for( int i = 0; i < result.length; i++ )
-		{
-			String name = this.lastname.generateNext();
-
-			while( name.length() <= 2 ) {
-				name = this.lastname.generateNext();
-			}
-			
-			name = Character.toUpperCase(name.charAt(0)) + name.substring(1);
-
-			name = upperAfterStrings(name, "Mc", "-", "'", " ");
-
-			result[i] = name;
+		while( name.length() <= 2 ) {
+			name = this.lastname.generateNext();
 		}
 
-		return result;
+		name = Character.toUpperCase(name.charAt(0)) + name.substring(1);
+
+		name = upperAfterStrings(name, "Mc", "-", "'", " ");
+
+		return name;
 	}
 
-	@Override
-	public String[] generate(int count)
+	public String generate()
 	{
-		String[] lastnames = generateLastNames(count);
-		for( int i = 0; i < lastnames.length; i++ )
-		{
-			lastnames[i] = firstName.generateNext() + " " + lastnames[i];
-		}
-		return lastnames;
+		String lastname = generateLastName();
+		lastname = firstName.generateNext() + " " + lastname;
+		return lastname;
 	}
 }

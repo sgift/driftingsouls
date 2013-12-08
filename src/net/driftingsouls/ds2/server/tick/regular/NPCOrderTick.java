@@ -39,7 +39,7 @@ import net.driftingsouls.ds2.server.entities.npcorders.OrderOffizier;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderShip;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderableOffizier;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.namegenerator.NameGenerator;
+import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.tick.EvictableUnitOfWork;
@@ -64,15 +64,15 @@ public class NPCOrderTick extends TickController {
 
 	@Override
 	protected void prepare() {
-		this.pmcache = new HashMap<Integer,StringBuilder>();
+		this.pmcache = new HashMap<>();
 
 		this.currentTime = Common.getIngameTime(getContext().get(ContextCommon.class).getTick());
 	}
 
 	private String getOffiName(User user) {
-		NameGenerator generator = Rassen.get().rasse(user.getRace()).getNameGenerator(Rasse.GeneratorType.PERSON);
+		PersonenNamenGenerator generator = Rassen.get().rasse(user.getRace()).getNameGenerator(Rasse.GeneratorType.PERSON);
 		if( generator != null ) {
-			return generator.generate(1)[0];
+			return generator.generiere();
 		}
 
 		return "NPC-Lieferservice";

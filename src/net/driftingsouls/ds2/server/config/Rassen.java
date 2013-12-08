@@ -25,7 +25,7 @@ import java.util.Map;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
-import net.driftingsouls.ds2.server.namegenerator.NameGenerator;
+import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -119,11 +119,7 @@ public class Rassen implements Iterable<Rasse> {
 						throw new Exception("Ungueltiger Generator-Typ '"+type+"'");
 					}
 					
-					Class<? extends NameGenerator> clazz = Class
-						.forName(XMLUtils.getStringByXPath(generators.item(j),"text()"))
-						.asSubclass(NameGenerator.class);
-						
-					rasse.setNameGenerator(typeNo, clazz.newInstance());
+					rasse.setNameGenerator(typeNo, PersonenNamenGenerator.valueOf(XMLUtils.getStringByXPath(generators.item(j),"text()")));
 				}
 				rassenList.addRace(rasse);
 			}
