@@ -138,10 +138,7 @@ public class GtuZwischenLagerController extends TemplateController
 		tmpowncargoneed.substractCargo(owncargo);
 		if (!tmpowncargoneed.isEmpty())
 		{
-			addError("Sie m&uuml;ssen die Waren erst komplett bezahlen", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
-			this.setTemplate("");
-
-			return;
+			throw new ValidierungException("Sie m&uuml;ssen die Waren erst komplett bezahlen", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
 		}
 
 		ShipTypeData shiptype = ship.getTypeData();
@@ -209,8 +206,6 @@ public class GtuZwischenLagerController extends TemplateController
 		Ship handel = ermittleHandelspostenFuerSchiff(db, ship);
 		if ((tradeentry == null) || (tradeentry.getPosten() != handel) || ((tradeentry.getUser1() != user) && (tradeentry.getUser2() != user)))
 		{
-			this.setTemplate("");
-
 			throw new ValidierungException("Es wurde kein passender Handelseintrag gefunden", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
 		}
 	}

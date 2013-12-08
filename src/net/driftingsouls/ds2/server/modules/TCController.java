@@ -129,10 +129,7 @@ public class TCController extends TemplateController
 
 		if ((tarShip == null) || (tarShip.getId() < 0))
 		{
-			addError("Das angegebene Zielschiff existiert nicht", errorurl);
-			setTemplate("");
-
-			return;
+			throw new ValidierungException("Das angegebene Zielschiff existiert nicht", errorurl);
 		}
 
 		t.setVar("tc.ship", ship.getId(),
@@ -144,17 +141,12 @@ public class TCController extends TemplateController
 
 		if (!ship.getLocation().sameSector(0, tarShip.getLocation(), 0))
 		{
-			addError("Die beiden Schiffe befinden sich nicht im selben Sektor", errorurl);
-			setTemplate("");
-
-			return;
+			throw new ValidierungException("Die beiden Schiffe befinden sich nicht im selben Sektor", errorurl);
 		}
 
 		if (tarShip.getBattle() != null)
 		{
-			addError("Das Zielschiff befindet sich in einer Schlacht", Common.buildUrl("default", "module", "schiffe"));
-
-			return;
+			throw new ValidierungException("Das Zielschiff befindet sich in einer Schlacht", Common.buildUrl("default", "module", "schiffe"));
 		}
 
 		long officount = ((Number) db.createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest AND owner=:owner")
@@ -165,20 +157,14 @@ public class TCController extends TemplateController
 
 		if (officount == 0)
 		{
-			addError("Das Schiff hat keinen Offizier an Bord", errorurl);
-			setTemplate("");
-
-			return;
+			throw new ValidierungException("Das Schiff hat keinen Offizier an Bord", errorurl);
 		}
 
 		//IFF-Check
 		boolean disableIFF = (tarShip.getStatus().contains("disable_iff"));
 		if (disableIFF)
 		{
-			addError("Sie k&ouml;nnen keinen Offizier zu diesem Schiff transferieren", errorurl);
-			setTemplate("");
-
-			return;
+			throw new ValidierungException("Sie k&ouml;nnen keinen Offizier zu diesem Schiff transferieren", errorurl);
 		}
 
 		ShipTypeData tarShipType = tarShip.getTypeData();
@@ -186,10 +172,7 @@ public class TCController extends TemplateController
 		// Schiff gross genug?
 		if (tarShipType.getSize() <= ShipType.SMALL_SHIP_MAXSIZE)
 		{
-			addError("Das Schiff ist zu klein f&uuml;r einen Offizier", errorurl);
-			setTemplate("");
-
-			return;
+			throw new ValidierungException("Das Schiff ist zu klein f&uuml;r einen Offizier", errorurl);
 		}
 
 		// Check ob noch fuer einen weiteren Offi platz ist
@@ -206,10 +189,7 @@ public class TCController extends TemplateController
 		).longValue();
 		if (tarOffiCount >= maxoffis)
 		{
-			addError("Das Schiff hat bereits die maximale Anzahl Offiziere an Bord", errorurl);
-			setTemplate("");
-
-			return;
+			throw new ValidierungException("Das Schiff hat bereits die maximale Anzahl Offiziere an Bord", errorurl);
 		}
 
 		// Offiziersliste bei bedarf ausgeben
@@ -232,18 +212,12 @@ public class TCController extends TemplateController
 
 		if ((offizier == null) || (offizier.getOwner() != user))
 		{
-			addError("Der angegebene Offizier existiert nicht oder geh&ouml;rt nicht ihnen", errorurl);
-			setTemplate("");
-
-			return;
+			throw new ValidierungException("Der angegebene Offizier existiert nicht oder geh&ouml;rt nicht ihnen", errorurl);
 		}
 
 		if (offizier.isTraining() || offizier.getStationiertAufSchiff() == null || offizier.getStationiertAufSchiff().getId() != ship.getId())
 		{
-			addError("Der angegebene Offizier befindet sich nicht auf dem Schiff", errorurl);
-			setTemplate("");
-
-			return;
+			throw new ValidierungException("Der angegebene Offizier befindet sich nicht auf dem Schiff", errorurl);
 		}
 
 		t.setVar("tc.offizier.name", Common._plaintitle(offizier.getName()));
@@ -296,10 +270,7 @@ public class TCController extends TemplateController
 
 		if (!ship.getLocation().sameSector(0, tarBase.getLocation(), tarBase.getSize()))
 		{
-			addError("Schiff und Basis befinden sich nicht im selben Sektor", errorurl);
-			setTemplate("");
-
-			return;
+			throw new ValidierungException("Schiff und Basis befinden sich nicht im selben Sektor", errorurl);
 		}
 
 		long officount = ((Number) db.createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest AND owner=:owner")
@@ -309,10 +280,7 @@ public class TCController extends TemplateController
 		).longValue();
 		if (officount == 0)
 		{
-			addError("Das Schiff hat keinen Offizier an Bord", errorurl);
-			setTemplate("");
-
-			return;
+			throw new ValidierungException("Das Schiff hat keinen Offizier an Bord", errorurl);
 		}
 
 		// bei bedarf offiliste ausgeben
@@ -335,18 +303,12 @@ public class TCController extends TemplateController
 
 		if ((offizier == null) || (offizier.getOwner() != user))
 		{
-			addError("Der angegebene Offizier existiert nicht oder geh&ouml;rt nicht ihnen", errorurl);
-			setTemplate("");
-
-			return;
+			throw new ValidierungException("Der angegebene Offizier existiert nicht oder geh&ouml;rt nicht ihnen", errorurl);
 		}
 
 		if (offizier.isTraining() || offizier.getStationiertAufSchiff() == null || offizier.getStationiertAufSchiff().getId() != ship.getId())
 		{
-			addError("Der angegebene Offizier befindet sich nicht auf dem Schiff", errorurl);
-			setTemplate("");
-
-			return;
+			throw new ValidierungException("Der angegebene Offizier befindet sich nicht auf dem Schiff", errorurl);
 		}
 
 		t.setVar("tc.offizier.name", Common._plaintitle(offizier.getName()));
@@ -392,26 +354,17 @@ public class TCController extends TemplateController
 
 		if ((upBase == null) || (upBase.getOwner() != user))
 		{
-			addError("Die angegebene Basis existiert nicht oder geh&ouml;rt nicht ihnen", errorurl);
-			setTemplate("");
-
-			return;
+			throw new ValidierungException("Die angegebene Basis existiert nicht oder geh&ouml;rt nicht ihnen", errorurl);
 		}
 
 		if (!ship.getLocation().sameSector(0, upBase.getLocation(), upBase.getSize()))
 		{
-			addError("Schiff und Basis befinden sich nicht im selben Sektor", errorurl);
-			setTemplate("");
-
-			return;
+			throw new ValidierungException("Schiff und Basis befinden sich nicht im selben Sektor", errorurl);
 		}
 
 		if (ship.getFleet() == null)
 		{
-			addError("Das Schiff befinden sich in keiner Flotte", errorurl);
-			setTemplate("");
-
-			return;
+			throw new ValidierungException("Das Schiff befinden sich in keiner Flotte", errorurl);
 		}
 
 		t.setVar("tc.captainzuweisen", 1,
@@ -483,27 +436,18 @@ public class TCController extends TemplateController
 
 		if ((upBase == null) || (upBase.getOwner() != user))
 		{
-			addError("Die angegebene Basis existiert nicht oder geh&ouml;rt nicht ihnen");
-			setTemplate("");
-
-			return;
+			throw new ValidierungException("Die angegebene Basis existiert nicht oder geh&ouml;rt nicht ihnen");
 		}
 
 		if (!ship.getLocation().sameSector(0, upBase.getLocation(), upBase.getSize()))
 		{
-			addError("Schiff und Basis befinden sich nicht im selben Sektor", errorurl);
-			setTemplate("");
-
-			return;
+			throw new ValidierungException("Schiff und Basis befinden sich nicht im selben Sektor", errorurl);
 		}
 
 		ShipTypeData shipType = ship.getTypeData();
 		if (shipType.getSize() <= ShipType.SMALL_SHIP_MAXSIZE)
 		{
-			addError("Das Schiff ist zu klein f&uuml;r einen Offizier", errorurl);
-			setTemplate("");
-
-			return;
+			throw new ValidierungException("Das Schiff ist zu klein f&uuml;r einen Offizier", errorurl);
 		}
 
 		t.setVar("tc.captainzuweisen", 1,
@@ -540,18 +484,12 @@ public class TCController extends TemplateController
 			Offizier offizier = (Offizier) getDB().get(Offizier.class, off);
 			if (offizier == null)
 			{
-				addError("Der angegebene Offizier existiert nicht", errorurl);
-				setTemplate("");
-
-				return;
+				throw new ValidierungException("Der angegebene Offizier existiert nicht", errorurl);
 			}
 
 			if (offizier.isTraining() || offizier.getStationiertAufBasis() == null || offizier.getStationiertAufBasis().getId() != upBase.getId())
 			{
-				addError("Der angegebene Offizier ist nicht in der Basis stationiert", errorurl);
-				setTemplate("");
-
-				return;
+				throw new ValidierungException("Der angegebene Offizier ist nicht in der Basis stationiert", errorurl);
 			}
 
 			// Check ob noch fuer einen weiteren Offi platz ist
@@ -570,10 +508,7 @@ public class TCController extends TemplateController
 
 			if (offi >= maxoffis)
 			{
-				addError("Das Schiff hat bereits die maximale Anzahl Offiziere an Bord", errorurl);
-				setTemplate("");
-
-				return;
+				throw new ValidierungException("Das Schiff hat bereits die maximale Anzahl Offiziere an Bord", errorurl);
 			}
 
 			t.setVar("tc.offizier.name", Common._plaintitle(offizier.getName()));

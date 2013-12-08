@@ -117,10 +117,7 @@ public class ComNetController extends TemplateController
 		t.setVar("show.read", 1);
 		if (!channel.isReadable(user, this))
 		{
-			addError("Sie sind nicht berechtigt diese Frequenz zu empfangen", Common.buildUrl("default", "channel", channel.getId()));
-			setTemplate("");
-
-			return;
+			throw new ValidierungException("Sie sind nicht berechtigt diese Frequenz zu empfangen", Common.buildUrl("default", "channel", channel.getId()));
 		}
 
 		t.setVar("posts.action", "search",
@@ -258,10 +255,7 @@ public class ComNetController extends TemplateController
 		t.setVar("show.read", 1);
 		if (!channel.isReadable(user, this))
 		{
-			addError("Sie sind nicht berechtigt diesee Frequenz zu empfangen", Common.buildUrl("default", "channel", channel.getId()));
-			setTemplate("");
-
-			return;
+			throw new ValidierungException("Sie sind nicht berechtigt diesee Frequenz zu empfangen", Common.buildUrl("default", "channel", channel.getId()));
 		}
 
 		if (channel.isWriteable(user, this))
@@ -366,10 +360,7 @@ public class ComNetController extends TemplateController
 
 		if (!channel.isWriteable(user, this))
 		{
-			addError("Sie sind nicht berechtigt auf dieser Frequenz zu senden", Common.buildUrl("default", "channel", channel));
-			setTemplate("");
-
-			return;
+			throw new ValidierungException("Sie sind nicht berechtigt auf dieser Frequenz zu senden", Common.buildUrl("default", "channel", channel));
 		}
 
 		//In die DB eintragen
@@ -398,10 +389,7 @@ public class ComNetController extends TemplateController
 
 		if (!channel.isWriteable(user, this))
 		{
-			addError("Sie sind nicht berechtigt auf dieser Frequenz zu senden", Common.buildUrl("default", "channel", channel.getId()));
-			setTemplate("");
-
-			return;
+			throw new ValidierungException("Sie sind nicht berechtigt auf dieser Frequenz zu senden", Common.buildUrl("default", "channel", channel.getId()));
 		}
 
 		t.setVar("show.inputform", 1,
@@ -429,10 +417,7 @@ public class ComNetController extends TemplateController
 
 		if (!channel.isWriteable(user, this))
 		{
-			addError("Sie sind nicht berechtigt auf dieser Frequenz zu senden", Common.buildUrl("default", "channel", channel.getId()));
-			setTemplate("");
-
-			return;
+			throw new ValidierungException("Sie sind nicht berechtigt auf dieser Frequenz zu senden", Common.buildUrl("default", "channel", channel.getId()));
 		}
 
 		String tmpText = Smilie.parseSmilies(Common._text(text));

@@ -23,6 +23,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
 import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 import org.scannotation.AnnotationDB;
@@ -141,8 +142,7 @@ public class AdminController extends Controller
 	{
 		if (!hasPermission("admin", "sichtbar"))
 		{
-			addError("Sie sind nicht berechtigt diese Seite aufzurufen");
-			return false;
+			throw new ValidierungException("Sie sind nicht berechtigt diese Seite aufzurufen");
 		}
 
 		for (Class<? extends AdminPlugin> cls : plugins)
@@ -289,20 +289,17 @@ public class AdminController extends Controller
 		}
 		catch (IOException e)
 		{
-			addError("Fehler beim Aufruf des Admin-Plugins: " + e);
-
-			throw new RuntimeException(e);
+			throw new ValidierungException("Fehler beim Aufruf des Admin-Plugins: " + e);
 		}
 		catch (RuntimeException e)
 		{
-			addError("Fehler beim Aufruf des Admin-Plugins: " + e);
-
-			throw e;
+			throw new ValidierungException("Fehler beim Aufruf des Admin-Plugins: " + e);
 		}
 		catch (ReflectiveOperationException e)
 		{
-			addError("Fehler beim Aufruf des Admin-Plugins: " + e);
 			e.printStackTrace();
+			throw new ValidierungException("Fehler beim Aufruf des Admin-Plugins: " + e);
+
 		}
 	}
 
@@ -333,13 +330,11 @@ public class AdminController extends Controller
 				}
 				catch (ReflectiveOperationException e)
 				{
-					addError("Fehler beim Aufruf des Admin-Plugins: " + e);
+					throw new ValidierungException("Fehler beim Aufruf des Admin-Plugins: " + e);
 				}
 				catch (IOException e)
 				{
-					addError("Fehler beim Aufruf des Admin-Plugins: " + e);
-
-					throw new RuntimeException(e);
+					throw new ValidierungException("Fehler beim Aufruf des Admin-Plugins: " + e);
 				}
 			}
 		}

@@ -195,10 +195,7 @@ public class KapernController extends TemplateController
 
 		if (zielSchiff.getTypeData().hasFlag(ShipTypes.SF_NICHT_KAPERBAR))
 		{
-			addError("Sie k&ouml;nnen dieses Schiff nicht kapern", errorurl);
-			this.setTemplate("");
-
-			return;
+			throw new ValidierungException("Sie k&ouml;nnen dieses Schiff nicht kapern", errorurl);
 		}
 
 		User targetUser = (User) getDB().get(User.class, zielSchiff.getOwner().getId());
@@ -236,10 +233,7 @@ public class KapernController extends TemplateController
 		{
 			if (zielSchiff.getTypeData().getCrew() == 0)
 			{
-				addError("Dieses Schiff ist nicht kaperbar", errorurl);
-				this.setTemplate("");
-
-				return;
+				throw new ValidierungException("Dieses Schiff ist nicht kaperbar", errorurl);
 			}
 
 			if (zielSchiff.getTypeData().getShipClass() == ShipClasses.STATION)

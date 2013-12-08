@@ -879,7 +879,7 @@ public class SchiffController extends TemplateController
 			}
 			else
 			{
-				addError("Das Schiff existiert nicht mehr oder geh&ouml;rt nicht mehr ihnen");
+				throw new ValidierungException("Das Schiff existiert nicht mehr oder geh&ouml;rt nicht mehr ihnen");
 			}
 			return;
 		}
@@ -893,8 +893,7 @@ public class SchiffController extends TemplateController
 				t.setVar("ship.scriptparseroutput", scriptparser.getContext().getWriter().toString());
 			}
 
-			addError("Das Schiff ist in einen Kampf verwickelt (hier klicken um zu diesem zu gelangen)!", Common.buildUrl("default", "module", "angriff", "battle", ship.getBattle().getId(), "ship", ship.getId()));
-			return;
+			throw new ValidierungException("Das Schiff ist in einen Kampf verwickelt (hier klicken um zu diesem zu gelangen)!", Common.buildUrl("default", "module", "angriff", "battle", ship.getBattle().getId(), "ship", ship.getId()));
 		}
 
 		ship.recalculateShipStatus();

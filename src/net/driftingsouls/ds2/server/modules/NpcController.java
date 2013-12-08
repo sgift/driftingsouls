@@ -27,6 +27,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.AngularController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tasks.Task;
@@ -70,9 +71,7 @@ public class NpcController extends AngularController
 		User user = (User)this.getUser();
 		
 		if( !user.hasFlag( User.FLAG_ORDER_MENU ) ) {
-			addError("Nur NPCs können dieses Script nutzen", Common.buildUrl("default", "module", "ueber") );
-
-			return false;
+			throw new ValidierungException("Nur NPCs können dieses Script nutzen", Common.buildUrl("default", "module", "ueber") );
 		}
 
 		if( Rassen.get().rasse(user.getRace()).isHead(user.getId()) ) {

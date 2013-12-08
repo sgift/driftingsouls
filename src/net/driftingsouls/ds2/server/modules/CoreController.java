@@ -84,34 +84,22 @@ public class CoreController extends TemplateController
 
 		if (base.getCore() > 0)
 		{
-			addError("Sie k&ouml;nnen nur eine Core pro Asteroid bauen", Common.buildUrl("default", "module", "base", "col", base.getId()));
-			setTemplate("");
-
-			return;
+			throw new ValidierungException("Sie k&ouml;nnen nur eine Core pro Asteroid bauen", Common.buildUrl("default", "module", "base", "col", base.getId()));
 		}
 
 		if (core == null)
 		{
-			addError("Der angegebene Core-Typ existiert nicht", Common.buildUrl("default", "module", "base", "col", base.getId()));
-			setTemplate("");
-
-			return;
+			throw new ValidierungException("Der angegebene Core-Typ existiert nicht", Common.buildUrl("default", "module", "base", "col", base.getId()));
 		}
 
 		if (!user.hasResearched(core.getTechRequired()))
 		{
-			addError("Sie haben nicht alle ben&ouml;tigten Forschungen", Common.buildUrl("default", "module", "base", "col", base.getId()));
-			setTemplate("");
-
-			return;
+			throw new ValidierungException("Sie haben nicht alle ben&ouml;tigten Forschungen", Common.buildUrl("default", "module", "base", "col", base.getId()));
 		}
 
 		if (core.getAstiType() != base.getKlasse())
 		{
-			addError("Diese Core passt nicht in diesen Asteroiden rein", Common.buildUrl("default", "module", "base", "col", base.getId()));
-			setTemplate("");
-
-			return;
+			throw new ValidierungException("Diese Core passt nicht in diesen Asteroiden rein", Common.buildUrl("default", "module", "base", "col", base.getId()));
 		}
 
 		Cargo costs = core.getBuildCosts();
