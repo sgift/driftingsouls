@@ -41,7 +41,7 @@
 	<mapping class="net.driftingsouls.ds2.server.entities.Jump" />
 	<mapping class="net.driftingsouls.ds2.server.entities.LogEntry" />
 	<mapping class="net.driftingsouls.ds2.server.entities.Nebel" />
-	<mapping class="net.driftingsouls.ds2.server.Offizier" />
+	<mapping class="net.driftingsouls.ds2.server.entities.Offizier" />
 	<mapping class="net.driftingsouls.ds2.server.entities.Order" />
 	<mapping class="net.driftingsouls.ds2.server.entities.OrderOffizier" />
 	<mapping class="net.driftingsouls.ds2.server.entities.OrderShip" />

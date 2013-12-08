@@ -18,7 +18,7 @@
  */
 package net.driftingsouls.ds2.server.config;
 
-import net.driftingsouls.ds2.server.Offizier;
+import net.driftingsouls.ds2.server.entities.Offizier;
 
 import java.util.Collections;
 import java.util.HashMap;
