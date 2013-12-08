@@ -16,11 +16,9 @@
  *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.driftingsouls.ds2.server.namegenerator.markov;
+package net.driftingsouls.ds2.server.namegenerator.producer;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
+import net.driftingsouls.ds2.server.namegenerator.NameGenerator;
 
 /**
  * Generiert aus einer Markov-Kette/Tabelle zufaellige Namen. Die Kette/Tabelle wird dabei aus einem
@@ -29,7 +27,7 @@ import java.io.ObjectInputStream;
  * @author Christopher Jung
  * 
  */
-public class Markov
+public class Markov implements NameProducer
 {
 	private float[][][] table = new float[32][32][32];
 	private int a;
@@ -37,44 +35,20 @@ public class Markov
 
 	/**
 	 * Konstruktor.
-	 * 
-	 * @param in Der Eingabestrom, welcher eine Markov-Kette/Tabelle enthaelt
-	 * @throws IOException
+	 * @param table Die zu verwendende Markov-Tabelle
 	 */
-	public Markov(InputStream in) throws IOException
+	public Markov(float[][][] table)
 	{
-		try
-		{
-			ObjectInputStream oin = new ObjectInputStream(in);
-			Header h = (Header)oin.readObject();
-
-			if( h.version != 1 || h.order != 3 || h.width != 32 )
-			{
-				throw new IllegalArgumentException("Dateiformat ungueltig: " + h.version + " "
-						+ h.order + " " + h.width + "!");
-			}
-
-			this.table = (float[][][])oin.readObject();
-		}
-		catch( ClassNotFoundException e )
-		{
-			throw new IOException("Kann Markov-Tabelle nicht laden", e);
-		}
+		this.table = table.clone();
 	}
 
-	/**
-	 * Generiert die angegebene Anzahl an Namen.
-	 * 
-	 * @param count Die Anzahl
-	 * @return Die generierten Namen
-	 */
-	public synchronized String[] generate(int count)
+	@Override
+	public synchronized String generateNext()
 	{
-		String[] result = new String[count];
+		String result = null;
 		StringBuilder word = new StringBuilder();
 
-		while( count > 0 )
-		{
+		while( result == null ) {
 			float random = (float)Math.random();
 			int c = 0;
 			int tableIndex = 0;
@@ -89,7 +63,7 @@ public class Markov
 			{
 				if( word.length() > 1 )
 				{
-					result[--count] = word.toString();
+					result = word.toString();
 				}
 				word.setLength(0);
 			}

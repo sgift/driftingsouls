@@ -18,14 +18,12 @@
  */
 package net.driftingsouls.ds2.server.namegenerator;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
-import net.driftingsouls.ds2.server.namegenerator.markov.Markov;
+import net.driftingsouls.ds2.server.namegenerator.producer.NameProducer;
+import net.driftingsouls.ds2.server.namegenerator.producer.NameProducerManager;
+
+import static net.driftingsouls.ds2.server.namegenerator.NameGeneratorUtils.*;
 
 /**
  * Generator fuer terranische Namen. Die Namen werden aus einem
@@ -37,8 +35,8 @@ import net.driftingsouls.ds2.server.namegenerator.markov.Markov;
  */
 public class TerranGenerator implements NameGenerator
 {
-	private Markov markov;
-	private List<String> firstNames = new ArrayList<>();
+	private NameProducer lastname;
+	private NameProducer firstName;
 
 	/**
 	 * Konstruktor.
@@ -46,37 +44,25 @@ public class TerranGenerator implements NameGenerator
 	 */
 	public TerranGenerator() throws IOException
 	{
-		this.markov = new Markov(TerranGenerator.class.getResourceAsStream("british.jmk"));
-
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(TerranGenerator.class
-				.getResourceAsStream("british_firstnames.txt"))))
-		{
-			String firstName;
-			while ((firstName = reader.readLine()) != null)
-			{
-				firstNames.add(firstName);
-			}
-		}
+		this.lastname = NameProducerManager.INSTANCE.getMarkovNameProducer(TerranGenerator.class.getResource("british.txt"));
+		this.firstName = NameProducerManager.INSTANCE.getListBasedNameProducer(TerranGenerator.class.getResource("british_firstnames.txt"));
 	}
 
 	private String[] generateLastNames(int count)
 	{
-		String[] result = this.markov.generate(count);
+		String[] result = new String[count];
 
 		for( int i = 0; i < result.length; i++ )
 		{
-			String name = result[i];
+			String name = this.lastname.generateNext();
 
 			while( name.length() <= 2 ) {
-				name = this.markov.generate(1)[0];
+				name = this.lastname.generateNext();
 			}
 			
 			name = Character.toUpperCase(name.charAt(0)) + name.substring(1);
 
-			name = upperAfterString(name, "Mc");
-			name = upperAfterString(name, "-");
-			name = upperAfterString(name, "'");
-			name = upperAfterString(name, " ");
+			name = upperAfterStrings(name, "Mc", "-", "'", " ");
 
 			result[i] = name;
 		}
@@ -84,33 +70,13 @@ public class TerranGenerator implements NameGenerator
 		return result;
 	}
 
-	private String upperAfterString(String name, String str)
-	{
-		int index = -1;
-		while( (index = name.indexOf(str, index+1)) > -1 )
-		{
-			if( index+1 + str.length() >= name.length() )
-			{
-				break;
-			}
-			String firstPart = name.substring(0, index);
-			String middlePart = name.substring(index, index+str.length());
-			String endPart = name.substring(index+str.length());
-			
-			name = firstPart + middlePart + Character.toUpperCase(endPart.charAt(0)) + endPart.substring(1);
-		}
-		return name;
-	}
-
 	@Override
 	public String[] generate(int count)
 	{
-		Random rnd = new Random();
-
 		String[] lastnames = generateLastNames(count);
 		for( int i = 0; i < lastnames.length; i++ )
 		{
-			lastnames[i] = firstNames.get(rnd.nextInt(firstNames.size())) + " " + lastnames[i];
+			lastnames[i] = firstName.generateNext() + " " + lastnames[i];
 		}
 		return lastnames;
 	}

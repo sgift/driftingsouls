@@ -16,16 +16,7 @@
  *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.driftingsouls.ds2.server.namegenerator.markov;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
+package net.driftingsouls.ds2.server.namegenerator.producer;
 
 /**
  * <p>Generator fuer Markov-Ketten aus einer Menge von Namen aus einer Eingabedatei.
@@ -121,68 +112,14 @@ public class MarkovTrainer
 	}
 
 	/**
-	 * <p>Speichert die Struktur in angegebenen Stream ab. Der
-	 * Stream wird nicht geschlossen!</p>
-	 * <p>Nach dem Speichern sind keine weiteren Aenderungen an der Struktur
-	 * mehr moeglich.</p>
-	 * @param out Der Stream in den die Daten gespeichert werden sollen.
-	 * @throws IOException
+	 * Erzeugt das aus dem Lernprozess resultierende Markov-Objekt,
+	 * dass wiederum zur Generierung von Namen verwendet werden kann.
+	 * @return das Objekt
 	 */
-	public void save(OutputStream out) throws IOException
+	public Markov toMarkov()
 	{
 		this.calculateProbabilities();
-		
-		// save the file
-		ObjectOutputStream oout = new ObjectOutputStream(out);
 
-		Header h = new Header();
-		oout.writeObject(h);
-		oout.writeObject(this.table);
-	}
-	
-	/**
-	 * Programm zum Generieren und Ablegen einer Markov-Kette/Tabelle
-	 * in einer Datei. Das erste Argument ist die Zieldatei fuer die Ausgabe.
-	 * Das zweite eine Eingabedatei in welcher pro Zeile ein Name steht.
-	 * @param args Die Argumente
-	 * @throws IOException
-	 */
-	public static void main(String[] args) throws IOException {
-		if( args.length < 2 ) {
-			System.err.println("Usage: MarkovTrainer output-file input-file");
-			return;
-		}
-		final File outputFile = new File(args[0]);
-		final File inputFile = new File(args[1]);
-		if( !inputFile.isFile() ) {
-			throw new FileNotFoundException(inputFile+" nicht gefunden");
-		}
-		
-		System.out.println("Generiere Markov-Kette für "+inputFile.getName());
-		
-		final MarkovTrainer trainer = new MarkovTrainer();
-
-		try (BufferedReader reader = new BufferedReader(new FileReader(inputFile)))
-		{
-			int counter = 0;
-			String name;
-			while ((name = reader.readLine()) != null)
-			{
-				name = name.trim();
-				if (name.isEmpty())
-				{
-					continue;
-				}
-				counter++;
-				trainer.add(name);
-			}
-			System.out.println(counter + " Namen verarbeitet");
-		}
-		
-		System.err.println("Schreibe "+outputFile.getName());
-		try (FileOutputStream out = new FileOutputStream(outputFile))
-		{
-			trainer.save(out);
-		}
+		return new Markov(this.table);
 	}
 }

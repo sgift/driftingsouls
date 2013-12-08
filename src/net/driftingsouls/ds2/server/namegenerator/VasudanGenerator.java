@@ -20,7 +20,9 @@ package net.driftingsouls.ds2.server.namegenerator;
 
 import java.io.IOException;
 
-import net.driftingsouls.ds2.server.namegenerator.markov.Markov;
+import static net.driftingsouls.ds2.server.namegenerator.NameGeneratorUtils.*;
+import net.driftingsouls.ds2.server.namegenerator.producer.NameProducer;
+import net.driftingsouls.ds2.server.namegenerator.producer.NameProducerManager;
 
 /**
  * Generator fuer vasudanische Namen. Alle Namen werden zufaellig
@@ -30,7 +32,7 @@ import net.driftingsouls.ds2.server.namegenerator.markov.Markov;
  */
 public class VasudanGenerator implements NameGenerator
 {
-	private Markov markov;
+	private NameProducer markov;
 
 	/**
 	 * Konstruktor.
@@ -38,41 +40,21 @@ public class VasudanGenerator implements NameGenerator
 	 */
 	public VasudanGenerator() throws IOException
 	{
-		this.markov = new Markov(VasudanGenerator.class.getResourceAsStream("vasudan.jmk"));
-	}
-
-	private String upperAfterString(String name, String str)
-	{
-		int index = -1;
-		while( (index = name.indexOf(str, index+1)) > -1 )
-		{
-			if( index+1 + str.length() >= name.length() )
-			{
-				break;
-			}
-			String firstPart = name.substring(0, index);
-			String middlePart = name.substring(index, index+str.length());
-			String endPart = name.substring(index+str.length());
-			
-			name = firstPart + middlePart + Character.toUpperCase(endPart.charAt(0)) + endPart.substring(1);
-		}
-		return name;
+		this.markov = NameProducerManager.INSTANCE.getMarkovNameProducer(VasudanGenerator.class.getResource("vasudan.txt"));
 	}
 
 	@Override
 	public String[] generate(int count)
 	{
-		String[] result = this.markov.generate(count);
+		String[] result = new String[count];
 
 		for( int i = 0; i < result.length; i++ )
 		{
-			String name = result[i];
+			String name = markov.generateNext();
 
 			name = Character.toUpperCase(name.charAt(0)) + name.substring(1);
 
-			name = upperAfterString(name, "-");
-			name = upperAfterString(name, "'");
-			name = upperAfterString(name, " ");
+			name = upperAfterStrings(name, "-", "'", " ");
 
 			result[i] = name;
 		}
