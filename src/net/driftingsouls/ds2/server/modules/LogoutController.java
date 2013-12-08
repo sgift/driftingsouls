@@ -43,8 +43,6 @@ public class LogoutController extends TemplateController
 	 */
 	public LogoutController(Context context) {
 		super(context);
-		
-		setTemplate("logout.html");
 	}
 	
 	/**

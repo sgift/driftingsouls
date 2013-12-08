@@ -57,8 +57,6 @@ public class BuildController extends TemplateController
 	{
 		super(context);
 
-		setTemplate("build.html");
-
 		setPageTitle("Bauen");
 	}
 

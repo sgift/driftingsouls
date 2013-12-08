@@ -467,7 +467,6 @@ public class ErsteigernController extends TemplateController
 	{
 		super(context);
 
-		setTemplate("ersteigern.html");
 		setPageTitle("Fraktionen");
 	}
 

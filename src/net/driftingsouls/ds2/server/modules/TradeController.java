@@ -68,8 +68,6 @@ public class TradeController extends TemplateController
 	{
 		super(context);
 
-		setTemplate("trade.html");
-
 		setPageTitle("Handelsposten");
 	}
 

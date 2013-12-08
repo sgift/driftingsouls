@@ -50,8 +50,6 @@ public class UnitInfoController extends TemplateController
 	{
 		super(context);
 
-		setTemplate("unitinfo.html");
-
 		setPageTitle("Einheit");
 	}
 

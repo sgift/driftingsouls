@@ -82,8 +82,6 @@ public class UeberController extends TemplateController
 	public UeberController(Context context)
 	{
 		super(context);
-
-		setTemplate("ueber.html");
 	}
 
 	/**

@@ -60,7 +60,6 @@ public class ColonizeController extends TemplateController
 	{
 		super(context);
 
-		setTemplate("colonize.html");
 		setPageTitle("Kolonisieren");
 	}
 

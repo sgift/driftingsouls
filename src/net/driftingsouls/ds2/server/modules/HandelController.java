@@ -55,8 +55,6 @@ public class HandelController extends TemplateController
 	{
 		super(context);
 
-		setTemplate("handel.html");
-
 		setPageTitle("Handel");
 		addPageMenuEntry("Angebote", Common.buildUrl("default"));
 		addPageMenuEntry("neues Angebot", Common.buildUrl("add"));

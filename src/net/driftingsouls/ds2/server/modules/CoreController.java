@@ -53,7 +53,6 @@ public class CoreController extends TemplateController
 	{
 		super(context);
 
-		setTemplate("core.html");
 		setPageTitle("Core");
 	}
 

@@ -154,8 +154,6 @@ public class AngriffController extends TemplateController
 	public AngriffController(Context context) {
 		super(context);
 
-		setTemplate("angriff.html");
-		
 		setPageTitle("Schlacht");
 	}
 	

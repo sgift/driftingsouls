@@ -65,8 +65,6 @@ public class BasenController extends TemplateController
 	 */
 	public BasenController(Context context) {
 		super(context);
-		
-		setTemplate("basen.html");
 
 		setPageTitle("Basen");
 	}

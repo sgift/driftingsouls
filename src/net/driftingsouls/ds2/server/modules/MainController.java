@@ -53,7 +53,6 @@ public class MainController extends TemplateController
 	{
 		super(context);
 
-		this.setTemplate("main.html");
 		setDisableDebugOutput(true);
 	}
 

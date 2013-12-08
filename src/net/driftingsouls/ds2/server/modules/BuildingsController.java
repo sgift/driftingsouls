@@ -54,7 +54,6 @@ public class BuildingsController extends TemplateController
 	{
 		super(context);
 
-		setTemplate("buildings.html");
 		setPageTitle("Gebäude");
 	}
 

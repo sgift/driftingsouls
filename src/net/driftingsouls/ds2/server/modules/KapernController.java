@@ -76,8 +76,6 @@ public class KapernController extends TemplateController
 	public KapernController(Context context)
 	{
 		super(context);
-
-		setTemplate("kapern.html");
 	}
 
 	private void validiereEigenesUndZielschiff(Ship eigenesSchiff, Ship zielSchiff)

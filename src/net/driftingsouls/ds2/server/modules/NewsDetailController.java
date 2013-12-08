@@ -27,8 +27,6 @@ public class NewsDetailController extends TemplateController
 	public NewsDetailController(Context context)
 	{
 		super(context);
-
-		setTemplate("newsdetail.html");
 	}
 
 	@Override

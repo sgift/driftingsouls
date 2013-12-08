@@ -67,8 +67,6 @@ public class SchiffInfoController extends TemplateController
 	{
 		super(context);
 
-		setTemplate("schiffinfo.html");
-
 		setPageTitle("Schiffstyp");
 	}
 

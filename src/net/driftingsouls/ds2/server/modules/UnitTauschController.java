@@ -555,7 +555,6 @@ public class UnitTauschController extends TemplateController
 	{
 		super(context);
 
-		setTemplate("unittausch.html");
 		setPageTitle("Einheitentransfer");
 
 		wayhandler = new HashMap<>();

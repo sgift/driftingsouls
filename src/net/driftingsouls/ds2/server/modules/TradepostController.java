@@ -43,8 +43,6 @@ public class TradepostController extends TemplateController
 	{
 		super(context);
 
-		setTemplate("tradepost.html");
-
 		setPageTitle("Tradepost");
 	}
 

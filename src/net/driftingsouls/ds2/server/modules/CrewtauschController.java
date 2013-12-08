@@ -210,8 +210,6 @@ public class CrewtauschController extends TemplateController
 	{
 		super(context);
 
-		setTemplate("crewtausch.html");
-
 		setPageTitle("Crewtransfer");
 	}
 

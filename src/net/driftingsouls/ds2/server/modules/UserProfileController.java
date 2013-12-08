@@ -56,8 +56,6 @@ public class UserProfileController extends TemplateController
 	{
 		super(context);
 
-		setTemplate("userprofile.html");
-
 		setPageTitle("Profil");
 	}
 

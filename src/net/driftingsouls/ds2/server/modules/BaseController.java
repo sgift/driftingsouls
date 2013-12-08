@@ -55,8 +55,6 @@ public class BaseController extends TemplateController
 	public BaseController(Context context) {
 		super(context);
 
-		setTemplate("base.html");
-
 		setPageTitle("Basis");
 	}
 

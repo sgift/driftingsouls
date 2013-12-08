@@ -68,8 +68,6 @@ public class BBCodeViewController extends TemplateController
 	 */
 	public BBCodeViewController(Context context) {
 		super(context);
-		
-		setTemplate("bbcodeview.html");
 	}
 
 	/**

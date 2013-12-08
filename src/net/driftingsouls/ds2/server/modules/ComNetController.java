@@ -64,8 +64,6 @@ public class ComNetController extends TemplateController
 	{
 		super(context);
 
-		setTemplate("comnet.html");
-
 		setPageTitle("Com-Net");
 	}
 

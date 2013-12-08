@@ -68,8 +68,6 @@ public class FleetMgntController extends TemplateController
 	public FleetMgntController(Context context)
 	{
 		super(context);
-
-		setTemplate("fleetmgnt.html");
 	}
 
 	private int ermittleIdEinesGeeignetenSchiffsDerFlotte(ShipFleet fleet)

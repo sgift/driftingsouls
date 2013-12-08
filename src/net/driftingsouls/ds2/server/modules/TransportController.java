@@ -538,8 +538,6 @@ public class TransportController extends TemplateController
 	{
 		super(context);
 
-		setTemplate("transport.html");
-
 		setPageTitle("Warentransfer");
 
 		wayhandler = new HashMap<>();

@@ -35,7 +35,6 @@ public class ShipsInfoController extends TemplateController
 	public ShipsInfoController(Context context)
 	{
 		super(context);
-		setTemplate("shipsinfo.html");
 		setPageTitle("Schiffsliste");
 	}
 

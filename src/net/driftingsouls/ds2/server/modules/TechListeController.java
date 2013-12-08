@@ -59,8 +59,6 @@ public class TechListeController extends TemplateController
 	public TechListeController(Context context) {
 		super(context);
 
-		setTemplate("techliste.html");
-
 		setPageTitle("Forschungen");
 	}
 

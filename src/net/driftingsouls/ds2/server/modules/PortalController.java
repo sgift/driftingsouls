@@ -80,8 +80,6 @@ public class PortalController extends TemplateController
 	public PortalController(Context context)
 	{
 		super(context);
-
-		setTemplate("portal.html");
 	}
 
 	/**

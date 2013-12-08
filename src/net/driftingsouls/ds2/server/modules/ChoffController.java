@@ -48,8 +48,6 @@ public class ChoffController extends TemplateController
 	{
 		super(context);
 
-		setTemplate("choff.html");
-
 		setPageTitle("Offizier");
 	}
 

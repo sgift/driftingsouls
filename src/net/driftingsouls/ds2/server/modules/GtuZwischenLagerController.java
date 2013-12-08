@@ -69,8 +69,6 @@ public class GtuZwischenLagerController extends TemplateController
 	{
 		super(context);
 
-		setTemplate("gtuzwischenlager.html");
-
 		setPageTitle("GTU-Lager");
 	}
 

@@ -83,8 +83,6 @@ public class SchiffController extends TemplateController
 	{
 		super(context);
 
-		setTemplate("schiff.html");
-
 		setPageTitle("Schiff");
 	}
 

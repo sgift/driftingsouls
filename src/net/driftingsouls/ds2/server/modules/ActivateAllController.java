@@ -47,7 +47,6 @@ public class ActivateAllController extends TemplateController
 	public ActivateAllController(Context context) {
 		super(context);
 		
-		setTemplate("activateall.html");
 		setPageTitle("Alles Aktivieren");
 	}
 	

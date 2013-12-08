@@ -50,8 +50,6 @@ public class AllyListController extends TemplateController
 	public AllyListController(Context context) {
 		super(context);
 		
-		setTemplate("allylist.html");
-		
 		setPageTitle("Allianzliste");
 	}
 	

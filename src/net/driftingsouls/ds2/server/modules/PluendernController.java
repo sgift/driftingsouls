@@ -57,8 +57,6 @@ public class PluendernController extends TemplateController
 	{
 		super(context);
 
-		setTemplate("pluendern.html");
-
 		setPageTitle("Pluendern");
 	}
 

@@ -55,8 +55,6 @@ public class TCController extends TemplateController
 	{
 		super(context);
 
-		setTemplate("tc.html");
-
 		setPageTitle("Offizierstransfer");
 	}
 

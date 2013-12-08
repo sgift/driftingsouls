@@ -61,7 +61,6 @@ public class ForschinfoController extends TemplateController
 	{
 		super(context);
 
-		setTemplate("forschinfo.html");
 		setPageTitle("Forschung");
 	}
 

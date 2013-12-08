@@ -68,8 +68,6 @@ public class SchiffeController extends TemplateController
 	public SchiffeController(Context context)
 	{
 		super(context);
-
-		setTemplate("schiffe.html");
 	}
 
 	/**

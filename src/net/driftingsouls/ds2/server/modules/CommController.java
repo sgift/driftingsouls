@@ -65,8 +65,6 @@ public class CommController extends TemplateController
 	{
 		super(context);
 
-		setTemplate("comm.html");
-
 		setPageTitle("PMs");
 		addPageMenuEntry("Neue Nachricht", Common.buildUrl("default", "to", 0));
 		addPageMenuEntry("Posteingang", Common.buildUrl("showInbox"));

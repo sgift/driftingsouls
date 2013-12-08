@@ -47,6 +47,17 @@ public abstract class TemplateController extends Controller
 
 		templateEngine = null;
 		masterTemplateID = "";
+
+		setzeTemplateViaControllerNamen();
+	}
+
+	private void setzeTemplateViaControllerNamen()
+	{
+		String clsName = getClass().getSimpleName();
+		if( clsName.endsWith("Controller") ) {
+			clsName = clsName.substring(0, clsName.length()-"Controller".length());
+		}
+		setTemplate(clsName.toLowerCase()+".html");
 	}
 
 	private void createTemplateEngine()

@@ -56,7 +56,6 @@ public class DeutSammelnController extends TemplateController
 	{
 		super(context);
 
-		setTemplate("deutsammeln.html");
 		setPageTitle("Deut. sammeln");
 	}
 

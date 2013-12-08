@@ -74,7 +74,6 @@ public class AllyController extends TemplateController
 	{
 		super(context);
 
-		setTemplate("ally.html");
 		setPageTitle("Allianz");
 	}
 

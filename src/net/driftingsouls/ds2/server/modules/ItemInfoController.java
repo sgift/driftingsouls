@@ -80,8 +80,6 @@ public class ItemInfoController extends TemplateController
 	{
 		super(context);
 
-		setTemplate("iteminfo.html");
-
 		setPageTitle("Item");
 	}
 

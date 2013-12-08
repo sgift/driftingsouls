@@ -57,8 +57,6 @@ public class OptionsController extends TemplateController
 	public OptionsController(Context context)
 	{
 		super(context);
-
-		setTemplate("options.html");
 	}
 
 	/**

@@ -53,8 +53,6 @@ public class DeutAllController extends TemplateController
 	public DeutAllController(Context context) {
 		super(context);
 
-		setTemplate("deutall.html");
-
 		setPageTitle("Deut. sammeln");
 	}
 
