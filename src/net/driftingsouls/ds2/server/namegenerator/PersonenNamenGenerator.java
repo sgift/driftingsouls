@@ -35,7 +35,7 @@ public enum PersonenNamenGenerator
 	 */
 	AEGYPTISCH("Ägyptisch")
 	{
-		private NameProducer markov = NameProducerManager.INSTANCE.getMarkovNameProducer(PersonenNamenGenerator.class.getResource("vasudan.txt"));
+		private NameProducer markov = NameProducerManager.INSTANCE.getMarkovNameProducer(PersonenNamenGenerator.class.getResource("aegyptische_nachnamen.txt"));
 
 		@Override
 		public String generiere()

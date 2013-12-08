@@ -43,8 +43,8 @@ public class EnglischePersonenNamenGenerator
 	 */
 	public EnglischePersonenNamenGenerator()
 	{
-		this.lastname = NameProducerManager.INSTANCE.getMarkovNameProducer(EnglischePersonenNamenGenerator.class.getResource("british.txt"));
-		this.firstName = NameProducerManager.INSTANCE.getListBasedNameProducer(EnglischePersonenNamenGenerator.class.getResource("british_firstnames.txt"));
+		this.lastname = NameProducerManager.INSTANCE.getMarkovNameProducer(EnglischePersonenNamenGenerator.class.getResource("englisch_nachnamen.txt"));
+		this.firstName = NameProducerManager.INSTANCE.getListBasedNameProducer(EnglischePersonenNamenGenerator.class.getResource("englisch_vornamen.txt"));
 	}
 
 	private String generateLastName()
