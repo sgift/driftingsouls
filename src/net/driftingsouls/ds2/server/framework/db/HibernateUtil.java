@@ -88,9 +88,9 @@ public class HibernateUtil
 		String[] createSQL = configuration.generateSchemaCreationScript( new MySQL5InnoDBDialect()  );
 		try (FileOutputStream writer = new FileOutputStream(new File(Configuration.getSetting("configdir") + "schema.sql")))
 		{
-			IOUtils.write(StringUtils.join(dropSQL, "\n"), writer, "UTF-8");
+			IOUtils.write(StringUtils.join(dropSQL, ";\n"), writer, "UTF-8");
 			IOUtils.write("\n\n\n\n", writer, "UTF-8");
-			IOUtils.write(StringUtils.join(createSQL, "\n"), writer, "UTF-8");
+			IOUtils.write(StringUtils.join(createSQL, ";\n"), writer, "UTF-8");
 		}
 	}
 
