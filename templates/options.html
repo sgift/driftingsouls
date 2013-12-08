@@ -74,28 +74,28 @@
 {if options.xtra}
 	<form action="ds" method="post">
 
-	<div class="gfxbox" style="width:560px;text-align:center">
-		<table class="noBorderX">
+	<div class="gfxbox" style="width:560px">
+		<table style="width:100%">
 		<tr>
-			<td class="noBorderX">Schiffsgruppen-Multiplikator (0=Keine Gruppierungen):</td>
-			<td class="noBorderX"><input name="shipgroupmulti" type="text" size="8" value="{user.wrapfactor}" /></td>
+			<td>Schiffsgruppen-Multiplikator<br />(0=Keine Gruppierungen):</td>
+			<td><input name="shipgroupmulti" type="text" size="8" value="{user.wrapfactor}" /></td>
 		</tr>
 		<tr>
-			<td class="noBorderX">Tutorial anzeigen:</td>
-			<td class="noBorderX"><input name="inttutorial" type="checkbox" value="1" {if user.inttutorial}checked="checked"{/endif} /></td>
+			<td>Tutorial anzeigen:</td>
+			<td><input name="inttutorial" type="checkbox" value="1" {if user.inttutorial}checked="checked"{/endif} /></td>
 		</tr>
 		{if user.showScriptdebug}
 			<tr>
-				<td class="noBorderX">Scripts debuggen:</td>
-				<td class="noBorderX">
+				<td>Scripts debuggen:</td>
+				<td>
 					<input name="scriptdebug" type="hidden" value="1" />
 					<input type="checkbox" name="scriptdebugstatus" {if user.scriptdebug}checked="checked"{/endif} value="1" />
 				</td>
 			</tr>
 		{/endif}
 		<tr>
-			<td class="noBorderX">Diplomatie (Standard):</td>
-			<td class="noBorderX">
+			<td>Diplomatie (Standard):</td>
+			<td>
 				<span class="nobr">
 					<select name="defrelation" size="1">
 						<option value="1" {if user.defrelation == 1}selected="selected"{/endif}>Feindlich</option>
@@ -106,7 +106,19 @@
 			</td>
 		</tr>
 		<tr>
-			<td class="noBorderX" colspan="2" align="center"><br />
+			<td>Personennamen:</td>
+			<td>
+			<span class="nobr">
+				<select name="personenNamenGenerator">
+					<!-- BEGIN personenNamenGenerator.listitem -->
+						<option value="{personenNamenGenerator.name}" {if personenNamenGenerator.selected}selected="selected"{/endif}>{personenNamenGenerator.label}</option>
+					<!-- END personenNamenGenerator.listitem -->
+				</select>
+			</span>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2" align="center"><br />
 				{!form_create_hidden changeXtra}
 				<input type="submit" value="speichern" />
 			</td>

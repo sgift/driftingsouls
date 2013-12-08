@@ -24,13 +24,16 @@ import net.driftingsouls.ds2.server.namegenerator.producer.NameProducerManager;
 import static net.driftingsouls.ds2.server.namegenerator.NameGeneratorUtils.upperAfterStrings;
 
 /**
- * Interface fuer Namensgeneratoren.
+ * Namensgeneratoren fuer Personennamen.
  *
  * @author Christopher Jung
  */
 public enum PersonenNamenGenerator
 {
-	AEGYPTISCH
+	/**
+	 * (Alt)Aegyptische Namen.
+	 */
+	AEGYPTISCH("Ägyptisch")
 	{
 		private NameProducer markov = NameProducerManager.INSTANCE.getMarkovNameProducer(PersonenNamenGenerator.class.getResource("vasudan.txt"));
 
@@ -46,7 +49,10 @@ public enum PersonenNamenGenerator
 			return name;
 		}
 	},
-	ENGLISCH
+	/**
+	 * Englische Namen (Vor- und Nachname).
+	 */
+	ENGLISCH("Englisch")
 	{
 		private EnglischePersonenNamenGenerator generator = new EnglischePersonenNamenGenerator();
 
@@ -56,6 +62,22 @@ public enum PersonenNamenGenerator
 			return generator.generate();
 		}
 	};
+
+	private final String label;
+
+	private PersonenNamenGenerator(final String label)
+	{
+		this.label = label;
+	}
+
+	/**
+	 * Gibt den Anzeigenamen des Namensgenerators zurueck.
+	 * @return Der Anzeigename
+	 */
+	public String getLabel()
+	{
+		return this.label;
+	}
 
 	/**
 	 * Generiert einen Namen.

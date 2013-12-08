@@ -31,6 +31,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -186,9 +187,10 @@ public class OptionsController extends TemplateController
 	 * von (ScriptParser-)Scripten sichtbar gewesen?
 	 * @param scriptdebugstatus Bei <code>true</code> wird das ScriptDebugging aktiviert
 	 * @param defrelation Die Default-Beziehung zu anderen Spielern (1 = feindlich, 2 = freundlich, sonst neutral)
+	 * @param personenNamenGenerator Der zu verwendende {@link PersonenNamenGenerator}
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeXtraAction(int shipgroupmulti, int inttutorial, int scriptdebug, boolean scriptdebugstatus, User.Relation defrelation)
+	public void changeXtraAction(int shipgroupmulti, int inttutorial, int scriptdebug, boolean scriptdebugstatus, User.Relation defrelation, PersonenNamenGenerator personenNamenGenerator)
 	{
 		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
@@ -244,6 +246,8 @@ public class OptionsController extends TemplateController
 			}
 		}
 
+		user.setPersonenNamenGenerator(personenNamenGenerator);
+
 		t.setVar("options.message", changemsg);
 
 		redirect("xtra");
@@ -264,6 +268,15 @@ public class OptionsController extends TemplateController
 				"user.showScriptDebug", hasPermission("schiff", "script"),
 				"user.scriptdebug", user.hasFlag(User.FLAG_SCRIPT_DEBUGGING),
 				"user.defrelation", user.getRelation(0).ordinal());
+
+		t.setBlock("_OPTIONS", "personenNamenGenerator.listitem", "personenNamenGenerator.list");
+		for(PersonenNamenGenerator png : PersonenNamenGenerator.values())
+		{
+			t.setVar("personenNamenGenerator.name", png.name(),
+				"personenNamenGenerator.label", png.getLabel(),
+				"personenNamenGenerator.selected", png == user.getPersonenNamenGenerator());
+			t.parse("personenNamenGenerator.list", "personenNamenGenerator.listitem", true);
+		}
 	}
 
 	private static final int MAX_UPLOAD_SIZE = 307200;

@@ -385,7 +385,14 @@ public class User extends BasicUser implements JSONSupport {
 
 	public void setPersonenNamenGenerator(PersonenNamenGenerator personenNamenGenerator)
 	{
-		this.personenNamenGenerator = personenNamenGenerator;
+		if( Rassen.get().rasse(this.race).getPersonenNamenGenerator() == personenNamenGenerator )
+		{
+			this.personenNamenGenerator = null;
+		}
+		else
+		{
+			this.personenNamenGenerator = personenNamenGenerator;
+		}
 	}
 
 	/**
