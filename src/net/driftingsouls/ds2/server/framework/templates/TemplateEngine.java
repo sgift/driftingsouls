@@ -121,7 +121,7 @@ public class TemplateEngine {
 					templateMap.put(overlay+'.'+filename, t);
 				}
 				catch( Exception e ) {
-					log.fatal("FAILED: Loading class "+PACKAGE+"."+fname+" as "+handle, e);
+					log.debug("FAILED: Loading class "+PACKAGE+"."+fname+" as "+handle, e);
 					return false;
 				}
 			}
