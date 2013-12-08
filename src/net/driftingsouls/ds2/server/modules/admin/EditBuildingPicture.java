@@ -23,8 +23,8 @@ import java.io.Writer;
 import java.util.List;
 import java.util.Map;
 import net.driftingsouls.ds2.server.bases.Building;
-import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -77,11 +77,11 @@ public class EditBuildingPicture extends AbstractEditPlugin implements AdminPlug
 				}
 				for( Rasse rasse : Rassen.get() )
 				{
-					String rasseImg = processDynamicContent("rasse"+rasse.getID(), altBilder.get(rasse.getID()));
+					String rasseImg = processDynamicContent("rasse"+rasse.getId(), altBilder.get(rasse.getId()));
 					if( rasseImg != null )
 					{
-						String curPicture = altBilder.get(rasse.getID());
-						altBilder.put(rasse.getID(), "data/dynamicContent/"+rasseImg);
+						String curPicture = altBilder.get(rasse.getId());
+						altBilder.put(rasse.getId(), "data/dynamicContent/"+rasseImg);
 						if( curPicture != null && curPicture.startsWith("data/dynamicContent/"))
 						{
 							DynamicContentManager.remove(curPicture);
@@ -101,9 +101,9 @@ public class EditBuildingPicture extends AbstractEditPlugin implements AdminPlug
 			Building building = (Building)db.get(Building.class, buildingid);
 			for( Rasse rasse : Rassen.get() )
 			{
-				if( isResetted("rasse"+rasse.getID()) )
+				if( isResetted("rasse"+rasse.getId()) )
 				{
-					String value = building.getAlternativeBilder().remove(rasse.getID());
+					String value = building.getAlternativeBilder().remove(rasse.getId());
 					if(value != null)
 					{
 						DynamicContentManager.remove(value);
@@ -132,7 +132,7 @@ public class EditBuildingPicture extends AbstractEditPlugin implements AdminPlug
 			Map<Integer,String> altBilder = building.getAlternativeBilder();
 			for( Rasse rasse : Rassen.get() )
 			{
-				this.editDynamicContentFieldWithRemove(echo, rasse.getName(), "rasse"+rasse.getID(), altBilder.get(rasse.getID()));
+				this.editDynamicContentFieldWithRemove(echo, rasse.getName(), "rasse"+rasse.getId(), altBilder.get(rasse.getId()));
 			}
 
 			this.endEditorTable(echo);

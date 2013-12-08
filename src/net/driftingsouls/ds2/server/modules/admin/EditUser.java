@@ -23,15 +23,14 @@ import java.io.Writer;
 import java.math.BigInteger;
 import java.util.Map;
 
+import net.driftingsouls.ds2.server.entities.Rasse;
 import org.apache.commons.lang.StringUtils;
 
 import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.config.Rang;
-import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AdminController;
@@ -126,7 +125,7 @@ public class EditUser implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderX\">Rasse: </td><td><select size=\"1\" name=\"race\" \">");
 			for(Rasse race: Rassen.get())
 			{
-				echo.append("<option value=\""+ race.getID() +"\" " + (race.getID() == user.getRace() ? "selected=\"selected\"" : "") + " />"+race.getName()+"</option>");
+				echo.append("<option value=\""+ race.getId() +"\" " + (race.getId() == user.getRace() ? "selected=\"selected\"" : "") + " />"+race.getName()+"</option>");
 			}
 			echo.append("</select></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\">Vacation: </td><td><input type=\"text\" size=\"40\" name=\"vacation\" value=\"" + user.getVacationCount() + "\"></td></tr>\n");

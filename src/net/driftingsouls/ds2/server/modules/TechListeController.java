@@ -21,10 +21,10 @@ package net.driftingsouls.ds2.server.modules;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
-import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.Forschungszentrum;
+import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -80,7 +80,7 @@ public class TechListeController extends TemplateController
 		{
 			rasse = user.getRace();
 		}
-		else if( !Rassen.get().rasse(rasse).isExtPlayable() )
+		else if( !Rassen.get().rasse(rasse).isExtPlayable() && !Rassen.get().rasse(rasse).isPlayable() )
 		{
 			rasse = user.getRace();
 		}
@@ -88,9 +88,9 @@ public class TechListeController extends TemplateController
 		StringBuilder rassenliste = new StringBuilder(100);
 
 		for( Rasse aRasse : Rassen.get() ) {
-			if( aRasse.isExtPlayable() ) {
-				rassenliste.append("<a href='").append(Common.buildUrl("default", "rasse", aRasse.getID())).append("'>");
-				rassenliste.append("<img style='border:0px' src='./data/interface/rassen/"+aRasse.getID()+".png' />");
+			if( aRasse.isExtPlayable() || aRasse.isPlayable() ) {
+				rassenliste.append("<a href='").append(Common.buildUrl("default", "rasse", aRasse.getId())).append("'>");
+				rassenliste.append("<img style='border:0px' src='./data/interface/rassen/"+aRasse.getId()+".png' />");
 				rassenliste.append("</a>");
 			}
 		}

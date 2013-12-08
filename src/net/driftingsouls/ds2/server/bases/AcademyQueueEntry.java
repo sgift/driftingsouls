@@ -20,7 +20,6 @@ package net.driftingsouls.ds2.server.bases;
 
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.config.Offiziere;
-import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.Academy;
 import net.driftingsouls.ds2.server.entities.User;
@@ -313,7 +312,7 @@ public class AcademyQueueEntry {
 	{
 		String offiname = "Offizier";
 
-		PersonenNamenGenerator generator = Rassen.get().rasse(race).getNameGenerator(Rasse.GeneratorType.PERSON);
+		PersonenNamenGenerator generator = Rassen.get().rasse(race).getPersonenNamenGenerator();
 		if( generator != null ) {
 			offiname = generator.generiere();
 		}

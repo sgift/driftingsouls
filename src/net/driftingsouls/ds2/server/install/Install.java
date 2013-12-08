@@ -350,6 +350,11 @@ public class Install
 
 	private static void setupDatabase(Connection con) throws SQLException
 	{
+		try (Statement stmt = con.createStatement())
+		{
+			stmt.execute("SET SESSION sql_mode='NO_AUTO_VALUE_ON_ZERO'");
+		}
+
 		System.out.println("Erstelle Tabellen...");
 
 		File tableDir = new File("db/tables");

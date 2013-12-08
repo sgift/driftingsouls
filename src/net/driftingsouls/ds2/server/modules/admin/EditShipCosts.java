@@ -24,9 +24,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.Forschung;
+import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
@@ -119,7 +119,7 @@ public class EditShipCosts implements AdminPlugin
 			echo.append("<tr><td>Rasse: </td><td><select size=\"1\" name=\"race\" \">");
 			for(Rasse race: Rassen.get())
 			{
-				echo.append("<option value=\""+ race.getID() +"\" " + (race.getID() == ship.getRace() ? "selected=\"selected\"" : "") + " />"+race.getName()+"</option>");
+				echo.append("<option value=\""+ race.getId() +"\" " + (race.getId() == ship.getRace() ? "selected=\"selected\"" : "") + " />"+race.getName()+"</option>");
 			}
 			echo.append("</select></td></tr>\n");
 			echo.append("<tr><td>Ben&ouml;tigte Werftslots: </td><td><input type=\"text\" name=\"werftslots\" value=\"" + ship.getWerftSlots() + "\"></td></tr>\n");

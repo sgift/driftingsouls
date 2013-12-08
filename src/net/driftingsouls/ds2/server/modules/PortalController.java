@@ -28,11 +28,11 @@ import net.driftingsouls.ds2.server.bases.BaseType;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.comm.PM;
-import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.NewsEntry;
+import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
@@ -595,14 +595,14 @@ public class PortalController extends TemplateController
 			{
 				if (rasse.isPlayable())
 				{
-					t.setVar("rasse.id", rasse.getID(),
+					t.setVar("rasse.id", rasse.getId(),
 							"rasse.name", rasse.getName(),
 							"rasse.selected", (first == -1 ? 1 : 0),
 							"rasse.description", Common._text(rasse.getDescription()));
 
 					if (first == -1)
 					{
-						first = rasse.getID();
+						first = rasse.getId();
 					}
 
 					t.parse("register.rassen.list", "register.rassen.listitem", true);

@@ -31,7 +31,6 @@ import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleType;
 import net.driftingsouls.ds2.server.comm.PM;
-import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.npcorders.Order;
@@ -70,7 +69,7 @@ public class NPCOrderTick extends TickController {
 	}
 
 	private String getOffiName(User user) {
-		PersonenNamenGenerator generator = Rassen.get().rasse(user.getRace()).getNameGenerator(Rasse.GeneratorType.PERSON);
+		PersonenNamenGenerator generator = Rassen.get().rasse(user.getRace()).getPersonenNamenGenerator();
 		if( generator != null ) {
 			return generator.generiere();
 		}

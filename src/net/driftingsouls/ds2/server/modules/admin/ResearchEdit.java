@@ -26,11 +26,10 @@ import java.util.List;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
-import net.driftingsouls.ds2.server.config.Rasse;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.Forschung;
+import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AdminController;
@@ -111,7 +110,7 @@ public class ResearchEdit implements AdminPlugin {
 			echo.append("<select name=\"race\" size=\"1\" style=\"width:100px\">\n");
 			echo.append("<option value=\"-1\" "+(research.getRace() == -1 ? "selected=\"selected\"" : "")+">Alle</option>\n");
 			for( Rasse rasse : Rassen.get() ) {
-				echo.append("<option value=\""+rasse.getID()+"\" "+(research.getRace() == rasse.getID() ? "selected=\"selected\"" : "")+">"+rasse.getName()+"</option>\n");
+				echo.append("<option value=\""+rasse.getId()+"\" "+(research.getRace() == rasse.getId() ? "selected=\"selected\"" : "")+">"+rasse.getName()+"</option>\n");
 			}
 			echo.append("</select>\n");
 
