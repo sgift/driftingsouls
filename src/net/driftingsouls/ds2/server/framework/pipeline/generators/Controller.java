@@ -43,9 +43,9 @@ import java.util.Map;
  *
  * @author Christopher Jung
  */
-public abstract class DSController implements PermissionResolver
+public abstract class Controller implements PermissionResolver
 {
-	private static final Log log = LogFactory.getLog(DSController.class);
+	private static final Log log = LogFactory.getLog(Controller.class);
 	private static final LocalVariableTableParameterNameDiscoverer PARAMETER_NAME_DISCOVERER = new LocalVariableTableParameterNameDiscoverer();
 
 	private ActionType actionType;
@@ -65,7 +65,7 @@ public abstract class DSController implements PermissionResolver
 	 *
 	 * @param context Der Kontext
 	 */
-	public DSController(Context context)
+	public Controller(Context context)
 	{
 		this.context = context;
 		this.parameterReader = new ParameterReader(getRequest(), this.getDB());

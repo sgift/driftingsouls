@@ -21,7 +21,7 @@ package net.driftingsouls.ds2.server.framework.pipeline;
 import java.lang.reflect.Constructor;
 
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSController;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 
 import org.w3c.dom.Node;
 
@@ -32,21 +32,21 @@ import org.w3c.dom.Node;
  *
  */
 public class GeneratorPipeline implements Pipeline {
-	private Class<? extends DSController> generator;
+	private Class<? extends Controller> generator;
 
 	/**
 	 * Konstruktor.
 	 * @param generator Der zu verwendende Generator
 	 */
-	public GeneratorPipeline( Class<? extends DSController> generator ) {
+	public GeneratorPipeline( Class<? extends Controller> generator ) {
 		this.generator = generator;
 	}
 	
-	private void generateContent(Context context, Class<? extends DSController> generator) throws Exception {
-		Constructor<? extends DSController> constr = generator.getConstructor(Context.class);
+	private void generateContent(Context context, Class<? extends Controller> generator) throws Exception {
+		Constructor<? extends Controller> constr = generator.getConstructor(Context.class);
 		constr.setAccessible(true);
 
-		DSController cntl = constr.newInstance(context);
+		Controller cntl = constr.newInstance(context);
 		context.autowireBean(cntl);
 
 		cntl.handleAction(context.getRequest().getParameter("action"));

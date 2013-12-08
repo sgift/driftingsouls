@@ -18,14 +18,14 @@
  */
 package net.driftingsouls.ds2.server.framework.pipeline.configuration;
 
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSController;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 
 class ModuleSetting implements Cloneable {
-	Class<? extends DSController> generator = null;
+	Class<? extends Controller> generator = null;
 
 	ModuleSetting(String generator) throws ClassNotFoundException {
 		if( (generator != null) && !"".equals(generator.trim()) ) {
-			this.generator = Class.forName(generator).asSubclass(DSController.class);
+			this.generator = Class.forName(generator).asSubclass(Controller.class);
 		}
 	}
 	

@@ -22,7 +22,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSController;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
 import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 import org.scannotation.AnnotationDB;
@@ -45,7 +45,7 @@ import java.util.TreeSet;
  * @author Christopher Jung
  */
 @Module(name = "admin")
-public class AdminController extends DSController
+public class AdminController extends Controller
 {
 	private static final List<Class<? extends AdminPlugin>> plugins = new ArrayList<>();
 

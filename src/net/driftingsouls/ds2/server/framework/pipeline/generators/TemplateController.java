@@ -31,7 +31,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  *
  * @author Christopher Jung
  */
-public abstract class TemplateController extends DSController
+public abstract class TemplateController extends Controller
 {
 	protected TemplateEngine templateEngine;
 	private String masterTemplateID;

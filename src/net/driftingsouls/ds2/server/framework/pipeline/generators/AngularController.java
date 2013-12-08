@@ -18,7 +18,7 @@ import net.sf.json.JSONObject;
  * @author Christopher Jung
  *
  */
-public abstract class AngularController extends DSController
+public abstract class AngularController extends Controller
 {	
 	public AngularController(Context context)
 	{

@@ -23,7 +23,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.DSController;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.modules.stats.AjaxStatistic;
 import net.driftingsouls.ds2.server.modules.stats.StatBiggestAsteroid;
 import net.driftingsouls.ds2.server.modules.stats.StatBiggestFleet;
@@ -61,7 +61,7 @@ import java.util.Map;
  * @author Christopher Jung
  */
 @Module(name="stats")
-public class StatsController extends DSController
+public class StatsController extends Controller
 {
 	/**
 	 * Die minimale User/Ally-ID um in den Statistiken beruecksichtigt zu werden.
