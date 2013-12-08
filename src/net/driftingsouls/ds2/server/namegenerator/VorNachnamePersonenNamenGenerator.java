@@ -18,8 +18,6 @@
  */
 package net.driftingsouls.ds2.server.namegenerator;
 
-import java.io.IOException;
-
 import net.driftingsouls.ds2.server.namegenerator.producer.NameProducer;
 import net.driftingsouls.ds2.server.namegenerator.producer.NameProducerManager;
 
@@ -33,18 +31,20 @@ import static net.driftingsouls.ds2.server.namegenerator.NameGeneratorUtils.*;
  * @author Christopher Jung
  *
  */
-public class EnglischePersonenNamenGenerator
+public class VorNachnamePersonenNamenGenerator
 {
 	private NameProducer lastname;
 	private NameProducer firstName;
+	private String[] kapitalisierungen;
 
 	/**
 	 * Konstruktor.
 	 */
-	public EnglischePersonenNamenGenerator()
+	public VorNachnamePersonenNamenGenerator(String vornamenDatei, String nachnamenDatei, String[] kapitalisierungen)
 	{
-		this.lastname = NameProducerManager.INSTANCE.getMarkovNameProducer(EnglischePersonenNamenGenerator.class.getResource("englisch_nachnamen.txt"));
-		this.firstName = NameProducerManager.INSTANCE.getListBasedNameProducer(EnglischePersonenNamenGenerator.class.getResource("englisch_vornamen.txt"));
+		this.lastname = NameProducerManager.INSTANCE.getMarkovNameProducer(VorNachnamePersonenNamenGenerator.class.getResource(nachnamenDatei));
+		this.firstName = NameProducerManager.INSTANCE.getListBasedNameProducer(VorNachnamePersonenNamenGenerator.class.getResource(vornamenDatei));
+		this.kapitalisierungen = kapitalisierungen;
 	}
 
 	private String generateLastName()
@@ -55,9 +55,9 @@ public class EnglischePersonenNamenGenerator
 			name = this.lastname.generateNext();
 		}
 
+		name = name.toLowerCase();
 		name = Character.toUpperCase(name.charAt(0)) + name.substring(1);
-
-		name = upperAfterStrings(name, "Mc", "-", "'", " ");
+		name = upperAfterStrings(name, kapitalisierungen);
 
 		return name;
 	}

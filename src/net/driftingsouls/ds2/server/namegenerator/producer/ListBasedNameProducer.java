@@ -35,6 +35,9 @@ public class ListBasedNameProducer implements NameProducer
 	@Override
 	public String generateNext()
 	{
-		return namen.get(rnd.nextInt(namen.size()));
+		String name = namen.get(rnd.nextInt(namen.size()));
+		name = name.toLowerCase();
+		name = Character.toUpperCase(name.charAt(0)) + name.substring(1);
+		return name;
 	}
 }

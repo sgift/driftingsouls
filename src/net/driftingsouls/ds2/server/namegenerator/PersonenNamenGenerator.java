@@ -54,14 +54,27 @@ public enum PersonenNamenGenerator
 	 */
 	ENGLISCH("Englisch")
 	{
-		private EnglischePersonenNamenGenerator generator = new EnglischePersonenNamenGenerator();
+		private VorNachnamePersonenNamenGenerator generator = new VorNachnamePersonenNamenGenerator("englisch_vornamen.txt", "englisch_nachnamen.txt", new String[]{"Mc", "-", "'", " "});
 
 		@Override
 		public String generiere()
 		{
 			return generator.generate();
 		}
-	};
+	},
+	/**
+	 * Englische Namen (Vor- und Nachname).
+	 */
+	FRANZOESISCH("Französisch")
+	{
+		private VorNachnamePersonenNamenGenerator generator = new VorNachnamePersonenNamenGenerator("franzoesische_vornamen.txt", "franzoesische_nachnamen.txt", new String[]{"-", "'", " "});
+
+		@Override
+		public String generiere()
+		{
+			return generator.generate();
+		}
+	};;
 
 	private final String label;
 
@@ -72,6 +85,7 @@ public enum PersonenNamenGenerator
 
 	/**
 	 * Gibt den Anzeigenamen des Namensgenerators zurueck.
+	 *
 	 * @return Der Anzeigename
 	 */
 	public String getLabel()
