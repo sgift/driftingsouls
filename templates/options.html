@@ -72,7 +72,7 @@
 	</div>
 {/endif}
 {if options.xtra}
-	<form action="ds" method="post">
+	<form action="ds" method="post" id="options-xtra">
 
 	<div class="gfxbox" style="width:560px">
 		<table style="width:100%">
@@ -114,6 +114,7 @@
 						<option value="{personenNamenGenerator.name}" {if personenNamenGenerator.selected}selected="selected"{/endif}>{personenNamenGenerator.label}</option>
 					<!-- END personenNamenGenerator.listitem -->
 				</select>
+				<input type="button" value="Beispiele" onclick="Options.generierePersonenNamenBeispiele()" />
 			</span>
 			</td>
 		</tr>

@@ -32,12 +32,17 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
+import net.sf.json.JSON;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONSerializer;
+import net.sf.json.util.JSONUtils;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -127,8 +132,8 @@ public class OptionsController extends TemplateController
 		}
 
 		t.setVar("options.changenamepwd", 1,
-				"options.changenamepwd.nickname", Common._plaintitle(user.getNickname()),
-				"options.message", changemsg);
+		"options.changenamepwd.nickname", Common._plaintitle(user.getNickname()),
+		"options.message", changemsg);
 	}
 
 	/**
@@ -151,7 +156,7 @@ public class OptionsController extends TemplateController
 		else if (reason.length() < 5)
 		{
 			t.setVar("options.message", "Bitte geben sie Gr&uuml;nde f&uuml;r die L&ouml;schung an!<br />\n",
-					"options.delaccountform", 1);
+			"options.delaccountform", 1);
 
 		}
 		else
@@ -173,7 +178,7 @@ public class OptionsController extends TemplateController
 			PM.sendToAdmins(user, "Account l&ouml;schen", msg.toString(), 0);
 
 			t.setVar("options.delaccountresp", 1,
-					"delaccountresp.admins", Configuration.getSetting("ADMIN_PMS_ACCOUNT"));
+			"delaccountresp.admins", Configuration.getSetting("ADMIN_PMS_ACCOUNT"));
 
 		}
 	}
@@ -253,6 +258,22 @@ public class OptionsController extends TemplateController
 		redirect("xtra");
 	}
 
+	@Action(ActionType.AJAX)
+	public JSON generierePersonenNamenBeispiele(PersonenNamenGenerator generator)
+	{
+		List<String> result = new ArrayList<>();
+		if (generator == null)
+		{
+			return JSONSerializer.toJSON(result);
+		}
+
+		for (int i = 0; i < 5; i++)
+		{
+			result.add(generator.generiere());
+		}
+		return JSONSerializer.toJSON(result);
+	}
+
 	/**
 	 * Zeigt die erweiterten Einstellungen des Spielers.
 	 */
@@ -263,18 +284,18 @@ public class OptionsController extends TemplateController
 		TemplateEngine t = getTemplateEngine();
 
 		t.setVar("options.xtra", 1,
-				"user.wrapfactor", user.getUserValue("TBLORDER/schiff/wrapfactor"),
-				"user.inttutorial", user.getUserValue("TBLORDER/uebersicht/inttutorial"),
-				"user.showScriptDebug", hasPermission("schiff", "script"),
-				"user.scriptdebug", user.hasFlag(User.FLAG_SCRIPT_DEBUGGING),
-				"user.defrelation", user.getRelation(0).ordinal());
+		"user.wrapfactor", user.getUserValue("TBLORDER/schiff/wrapfactor"),
+		"user.inttutorial", user.getUserValue("TBLORDER/uebersicht/inttutorial"),
+		"user.showScriptDebug", hasPermission("schiff", "script"),
+		"user.scriptdebug", user.hasFlag(User.FLAG_SCRIPT_DEBUGGING),
+		"user.defrelation", user.getRelation(0).ordinal());
 
 		t.setBlock("_OPTIONS", "personenNamenGenerator.listitem", "personenNamenGenerator.list");
-		for(PersonenNamenGenerator png : PersonenNamenGenerator.values())
+		for (PersonenNamenGenerator png : PersonenNamenGenerator.values())
 		{
 			t.setVar("personenNamenGenerator.name", png.name(),
-				"personenNamenGenerator.label", png.getLabel(),
-				"personenNamenGenerator.selected", png == user.getPersonenNamenGenerator());
+			"personenNamenGenerator.label", png.getLabel(),
+			"personenNamenGenerator.selected", png == user.getPersonenNamenGenerator());
 			t.parse("personenNamenGenerator.list", "personenNamenGenerator.listitem", true);
 		}
 	}
@@ -412,10 +433,10 @@ public class OptionsController extends TemplateController
 		}
 
 		t.setVar("options.general", 1,
-				"user.wrapfactor", user.getUserValue("TBLORDER/schiff/wrapfactor"),
-				"user.tooltip", user.getUserValue("TBLORDER/schiff/tooltips"),
-				"user.imgpath", imagepath,
-				"user.noob", user.isNoob(),
-				"vacation.maxtime", Common.ticks2DaysInDays(user.maxVacTicks()));
+		"user.wrapfactor", user.getUserValue("TBLORDER/schiff/wrapfactor"),
+		"user.tooltip", user.getUserValue("TBLORDER/schiff/tooltips"),
+		"user.imgpath", imagepath,
+		"user.noob", user.isNoob(),
+		"vacation.maxtime", Common.ticks2DaysInDays(user.maxVacTicks()));
 	}
 }
