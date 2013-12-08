@@ -1318,7 +1318,7 @@ public class FleetMgntController extends TemplateController
 		}
 		else
 		{
-			getContext().addError("Keine Werft im Sektor gefunden.");
+			addError("Keine Werft im Sektor gefunden.");
 		}
 
 		redirect();

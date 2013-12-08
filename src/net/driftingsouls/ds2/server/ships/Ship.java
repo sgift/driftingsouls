@@ -3799,29 +3799,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 	}
 
 	/**
-	 * Greift ein gegnerisches Schiff an.
-	 *
-	 * @param enemy Das Schiff, dass angegriffen werden soll.
-	 * @return Den Kampf oder null, falls kein Kampf erstellt werden konnte.
-	 */
-	public Battle attack(Ship enemy)
-	{
-		return Battle.create(this.getOwner().getId(), this.getId(), enemy.getId());
-	}
-
-	/**
-	 * Greift ein gegnerisches Schiff an.
-	 *
-	 * @param enemy Das Schiff, dass angegriffen werden soll.
-	 * @param startOwn <code>true</code>, wenn die eigenen Jaeger starten sollen
-	 * @return Den Kampf oder null, falls kein Kampf erstellt werden konnte.
-	 */
-	public Battle attack(Ship enemy, boolean startOwn)
-	{
-		return Battle.create(this.getOwner().getId(), this.getId(), enemy.getId());
-	}
-
-	/**
 	 * Gibt an, ob das Schiff auf einem anderen Schiff gelandet ist.
 	 *
 	 * @return <code>true</code>, wenn das Schiff gelandet ist, sonst <code>false</code>

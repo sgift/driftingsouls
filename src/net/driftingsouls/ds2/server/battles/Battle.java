@@ -200,20 +200,20 @@ public class Battle implements Locatable
 	private int enemySide;
 
 	@Transient
-	private List<BattleShip> ownShips = new ArrayList<BattleShip>();
+	private List<BattleShip> ownShips = new ArrayList<>();
 	@Transient
-	private List<BattleShip> enemyShips = new ArrayList<BattleShip>();
+	private List<BattleShip> enemyShips = new ArrayList<>();
 
 	@Transient
-	private List<List<Integer>> addCommanders = new ArrayList<List<Integer>>();
+	private List<List<Integer>> addCommanders = new ArrayList<>();
 
 	@Transient
 	private boolean guest = false;
 
 	@Transient
-	private Map<Integer,Integer> ownShipTypeCount = new HashMap<Integer,Integer>();
+	private Map<Integer,Integer> ownShipTypeCount = new HashMap<>();
 	@Transient
-	private Map<Integer,Integer> enemyShipTypeCount = new HashMap<Integer,Integer>();
+	private Map<Integer,Integer> enemyShipTypeCount = new HashMap<>();
 
 	@Transient
 	private int activeSOwn = 0;
@@ -617,56 +617,52 @@ public class Battle implements Locatable
         }
 	}
 
-    private static boolean checkBattleConditions(User user, User enemyUser, Ship ownShip, Ship enemyShip)
-    {
-        Context context = ContextMap.getContext();
-
-        // Kann der Spieler ueberhaupt angreifen (Noob-Schutz?)
-		if( user.isNoob() ) {
-			context.addError("Sie stehen unter GCP-Schutz und k&ouml;nnen daher keinen Gegner angreifen!<br />Hinweis: der GCP-Schutz kann unter Optionen vorzeitig beendet werden");
-			return false;
+	private static void checkBattleConditions(User user, User enemyUser, Ship ownShip, Ship enemyShip) throws IllegalArgumentException
+	{
+		// Kann der Spieler ueberhaupt angreifen (Noob-Schutz?)
+		if (user.isNoob())
+		{
+			throw new IllegalArgumentException("Sie stehen unter GCP-Schutz und k&ouml;nnen daher keinen Gegner angreifen!<br />Hinweis: der GCP-Schutz kann unter Optionen vorzeitig beendet werden");
 		}
 
-		if( (ownShip == null) || (ownShip.getId() < 0) || (ownShip.getOwner() != user) ) {
-			context.addError("Das angreifende Schiff existiert nicht oder untersteht nicht ihrem Kommando!");
-			return false;
+		if ((ownShip == null) || (ownShip.getId() < 0) || (ownShip.getOwner() != user))
+		{
+			throw new IllegalArgumentException("Das angreifende Schiff existiert nicht oder untersteht nicht ihrem Kommando!");
 		}
 
-		if( (enemyShip == null) || (enemyShip.getId() < 0) ) {
-			context.addError("Das angegebene Zielschiff existiert nicht!");
-			return false;
+		if ((enemyShip == null) || (enemyShip.getId() < 0))
+		{
+			throw new IllegalArgumentException("Das angegebene Zielschiff existiert nicht!");
 		}
 
-		if( !ownShip.getLocation().sameSector(0,enemyShip.getLocation(),0) ) {
-			context.addError("Die beiden Schiffe befinden sich nicht im selben Sektor");
-			return false;
+		if (!ownShip.getLocation().sameSector(0, enemyShip.getLocation(), 0))
+		{
+			throw new IllegalArgumentException("Die beiden Schiffe befinden sich nicht im selben Sektor");
 		}
 
 		//
 		// Kann der Spieler angegriffen werden (NOOB-Schutz?/Vac-Mode?)
 		//
 
-		if( enemyUser.isNoob() ) {
-			context.addError("Der Gegner steht unter GCP-Schutz und kann daher nicht angegriffen werden!");
-			return false;
+		if (enemyUser.isNoob())
+		{
+			throw new IllegalArgumentException("Der Gegner steht unter GCP-Schutz und kann daher nicht angegriffen werden!");
 		}
 
-		if( enemyUser.getVacationCount() != 0 && enemyUser.getWait4VacationCount() == 0 ) {
-			context.addError("Der Gegner befindet sich im Vacation-Modus und kann daher nicht angegriffen werden!");
-			return false;
+		if (enemyUser.getVacationCount() != 0 && enemyUser.getWait4VacationCount() == 0)
+		{
+			throw new IllegalArgumentException("Der Gegner befindet sich im Vacation-Modus und kann daher nicht angegriffen werden!");
 		}
 
 		//
 		// IFF-Stoersender?
 		//
-		boolean disable_iff = enemyShip.getStatus().indexOf("disable_iff") > -1;
-		if( disable_iff ) {
-			context.addError("Dieses Schiff kann nicht angegriffen werden (egal wieviel du mit der URL rumspielt!)");
-			return false;
+		boolean disable_iff = enemyShip.getStatus().contains("disable_iff");
+		if (disable_iff)
+		{
+			throw new IllegalArgumentException("Dieses Schiff kann nicht angegriffen werden (egal wieviel du mit der URL rumspielt!)");
 		}
-
-		return true;
-    }
+	}
 
 	/**
 	 * Erstellt eine neue Schlacht.
@@ -674,9 +670,10 @@ public class Battle implements Locatable
 	 * @param ownShipID Die ID des Schiffes des Spielers, der angreift
 	 * @param enemyShipID Die ID des angegriffenen Schiffes
 	 * @param startOwn <code>true</code>, falls eigene gelandete Schiffe starten sollen
-	 * @return Die Schlacht, falls sie erfolgreich erstellt werden konnte. Andernfalls <code>null</code>
+	 * @return Die Schlacht, falls sie erfolgreich erstellt werden konnte
+	 * @throws java.lang.IllegalArgumentException Falls mit den uebergebenen Parametern keine Schlacht erstellt werden kann
 	 */
-	public static Battle create( int id, int ownShipID, int enemyShipID, final boolean startOwn ) {
+	public static Battle create( int id, int ownShipID, int enemyShipID, final boolean startOwn ) throws IllegalArgumentException {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 
@@ -689,10 +686,7 @@ public class Battle implements Locatable
 		Ship tmpEnemyShip = (Ship)db.get(Ship.class, enemyShipID);
         User enemyUser = tmpEnemyShip.getOwner();
 
-        if(!checkBattleConditions(user, enemyUser, tmpOwnShip, tmpEnemyShip))
-        {
-            return null;
-        }
+        checkBattleConditions(user, enemyUser, tmpOwnShip, tmpEnemyShip);
 
 		//
 		// Schiffsliste zusammenstellen
@@ -705,8 +699,8 @@ public class Battle implements Locatable
 		BattleShip enemyBattleShip = null;
 		BattleShip ownBattleShip = null;
 
-		Set<User> ownUsers = new HashSet<User>();
-		Set<User> enemyUsers = new HashSet<User>();
+		Set<User> ownUsers = new HashSet<>();
+		Set<User> enemyUsers = new HashSet<>();
 		List<Ship> shiplist = Common.cast(db.createQuery("from Ship as s inner join fetch s.owner as u " +
                 "where s.id>:minid and s.x=:x and s.y=:y and " +
                 "s.system=:system and s.battle is null and " +
@@ -722,7 +716,7 @@ public class Battle implements Locatable
                 .list());
 
 
-		Set<BattleShip> secondRowShips = new HashSet<BattleShip>();
+		Set<BattleShip> secondRowShips = new HashSet<>();
 		boolean firstRowExists = false;
 		boolean firstRowEnemyExists = false;
 
@@ -797,17 +791,14 @@ public class Battle implements Locatable
 		//
 
 		if( ownBattleShip == null ) {
-			context.addError("Offenbar liegt ein Problem mit dem von ihnen angegebenen Schiff oder ihrem eigenen Schiff vor (wird es evt. bereits angegriffen?)");
-			return null;
+			throw new IllegalArgumentException("Offenbar liegt ein Problem mit dem von ihnen angegebenen Schiff oder ihrem eigenen Schiff vor (wird es evt. bereits angegriffen?)");
 		}
 
 		if( enemyBattleShip == null && (battle.enemyShips.size() == 0) ) {
-			context.addError("Offenbar liegt ein Problem mit den feindlichen Schiffen vor (es gibt n&aumlmlich keine die sie angreifen k&ouml;nnten)");
-			return null;
+			throw new IllegalArgumentException("Offenbar liegt ein Problem mit den feindlichen Schiffen vor. Es gibt nämlich keine die angegriffen werden könnten.");
 		}
 		else if( enemyBattleShip == null ) {
-			context.addError("Offenbar liegt ein Problem mit den feindlichen Schiffen vor (es gibt zwar welche, jedoch fehlt das Zielschiff)");
-			return null;
+			throw new IllegalArgumentException("Offenbar liegt ein Problem mit den feindlichen Schiffen vor. Es gibt zwar welche, jedoch fehlt das Zielschiff.");
 		}
 
 		//
@@ -834,8 +825,8 @@ public class Battle implements Locatable
 		int tick = context.get(ContextCommon.class).getTick();
 
 		// * Gegnerische Schiffe in die Schlacht einfuegen
-		List<Integer> idlist = new ArrayList<Integer>();
-		List<Integer> startlist = new ArrayList<Integer>();
+		List<Integer> idlist = new ArrayList<>();
+		List<Integer> startlist = new ArrayList<>();
 		Ship enemyShip = enemyBattleShip.getShip();
 		if( enemyBattleShip.getShip().isLanded() )
 		{
@@ -857,7 +848,7 @@ public class Battle implements Locatable
 			startlist.clear();
 		}
 
-		startlist = new ArrayList<Integer>();
+		startlist = new ArrayList<>();
 		battle.enemyShips.add(enemyBattleShip);
 		battle.activeSEnemy = battle.enemyShips.size()-1;
 
@@ -951,11 +942,11 @@ public class Battle implements Locatable
 
 		// Zuerst schauen wir mal ob wir es mit Allys zu tun haben und
 		// berechnen ggf die Userlisten neu
-		Set<Integer> calcedallys = new HashSet<Integer>();
+		Set<Integer> calcedallys = new HashSet<>();
 
 		db.setFlushMode(FlushMode.COMMIT);
 
-		for( User auser : new ArrayList<User>(ownUsers) ) {
+		for( User auser : new ArrayList<>(ownUsers) ) {
 			if( (auser.getAlly() != null) && !calcedallys.contains(auser.getAlly().getId()) ) {
 				List<User> allyusers = Common.cast(db.createQuery("from User u where u.ally=:ally and (u not in (:ownUsers))")
 					.setEntity("ally", auser.getAlly())
@@ -967,7 +958,7 @@ public class Battle implements Locatable
 			}
 		}
 
-		for( User auser : new ArrayList<User>(enemyUsers) ) {
+		for( User auser : new ArrayList<>(enemyUsers) ) {
 			if( (auser.getAlly() != null) && !calcedallys.contains(auser.getAlly().getId()) ) {
 				List<User> allyusers = Common.cast(db.createQuery("from User u where ally=:ally and (u not in (:enemyUsers))")
 					.setEntity("ally", auser.getAlly())
@@ -1051,16 +1042,16 @@ public class Battle implements Locatable
 			return false;
 		}
 
-		Map<Integer,Integer> shipcounts = new HashMap<Integer,Integer>();
+		Map<Integer,Integer> shipcounts = new HashMap<>();
 
 		int side = this.ownSide;
 
 		// Beziehungen aktualisieren
-		Set<Integer> calcedallys = new HashSet<Integer>();
+		Set<Integer> calcedallys = new HashSet<>();
 
-		List<User> ownUsers = new ArrayList<User>();
+		List<User> ownUsers = new ArrayList<>();
 		ownUsers.add(userobj);
-		Set<User> enemyUsers = new HashSet<User>();
+		Set<User> enemyUsers = new HashSet<>();
 
         if( userobj.getAlly() != null ) {
 			List<User> users = userobj.getAlly().getMembers();
@@ -1105,7 +1096,7 @@ public class Battle implements Locatable
             }
         }
 
-		List<Integer> shiplist = new ArrayList<Integer>();
+		List<Integer> shiplist = new ArrayList<>();
 
 		List<Ship> sid;
 		// Handelt es sich um eine Flotte?
@@ -1280,7 +1271,7 @@ public class Battle implements Locatable
 		// Darf der Spieler (evt als Gast) zusehen?
 		//
 
-		int forceSide = -1;
+		int forceSide;
 
 		if( forcejoin == 0 ) {
 			forceSide = this.getSchlachtMitglied(user);
@@ -1508,7 +1499,7 @@ public class Battle implements Locatable
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 
-		List<List<BattleShip>> sides = new ArrayList<List<BattleShip>>();
+		List<List<BattleShip>> sides = new ArrayList<>();
 		if( this.ownSide == 0 ) {
 			sides.add(this.ownShips);
 			sides.add(this.enemyShips);
@@ -1524,10 +1515,10 @@ public class Battle implements Locatable
 		//
 		for( int i=0; i < 2; i++ )
 		{
-			List<BattleShip> shipsSecond = new ArrayList<BattleShip>();
+			List<BattleShip> shipsSecond = new ArrayList<>();
 
 			// Liste kopieren um Probleme beim Entfernen von Schiffen aus der Ursprungsliste zu vermeiden
-			List<BattleShip> shiplist = new ArrayList<BattleShip>(sides.get(i));
+			List<BattleShip> shiplist = new ArrayList<>(sides.get(i));
             for (BattleShip ship : shiplist)
             {
                 if ((ship.getAction() & BS_HIT) != 0)
@@ -2393,7 +2384,7 @@ public class Battle implements Locatable
 		org.hibernate.Session db = context.getDB();
 		db.setFlushMode(FlushMode.COMMIT);
 
-		Map<Ship,BattleShip> battleShipMap = new HashMap<Ship,BattleShip>();
+		Map<Ship,BattleShip> battleShipMap = new HashMap<>();
 		for( BattleShip ship : battle.ownShips )
 		{
 			battleShipMap.put(ship.getShip(), ship);
