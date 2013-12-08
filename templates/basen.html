@@ -99,7 +99,10 @@
 		</td>
 		<td class="mangelCol">
 			<!-- BEGIN bases.mangel.listitem -->
-				<span class="nobr"><img src="{mangel.image}" alt="" title="{mangel.plainname}" />{mangel.rounds}</span>
+				<span class="nobr" title="{mangel.plainname}: verbraucht in {mangel.rounds} Ticks">
+					<img src="{mangel.image}" alt="" />
+					{if mangel.rounds < 100}{mangel.rounds}{/endif}
+				</span>
 			<!-- END bases.mangel.listitem -->
 		</td>
 		<td class="cargoCol">
