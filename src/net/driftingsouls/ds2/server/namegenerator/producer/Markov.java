@@ -18,6 +18,9 @@
  */
 package net.driftingsouls.ds2.server.namegenerator.producer;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Generiert aus einer Markov-Kette/Tabelle zufaellige Namen. Die Kette/Tabelle wird dabei aus einem
  * Eingabestrom eingelesen. Das Generieren wird von {@link MarkovTrainer} uebernommen.
@@ -27,17 +30,24 @@ package net.driftingsouls.ds2.server.namegenerator.producer;
  */
 public class Markov implements NameProducer
 {
-	private float[][][] table = new float[32][32][32];
+	private float[][][] table;
 	private int a;
 	private int b;
+	private Map<Integer,Integer> charMap;
 
 	/**
 	 * Konstruktor.
 	 * @param table Die zu verwendende Markov-Tabelle
 	 */
-	public Markov(float[][][] table)
+	public Markov(float[][][] table, Map<Integer,Integer> charMap)
 	{
 		this.table = table.clone();
+		this.charMap = new HashMap<>();
+		for (Map.Entry<Integer, Integer> entry : charMap.entrySet())
+		{
+			this.charMap.put(entry.getValue(), entry.getKey());
+		}
+
 	}
 
 	@Override
@@ -51,13 +61,21 @@ public class Markov implements NameProducer
 			int c = 0;
 			int tableIndex = 0;
 			float probability = this.table[a][b][tableIndex];
-			while( c < 32 && probability < random )
+			while( c < charMap.size() && probability < random )
 			{
 				probability += this.table[a][b][++tableIndex];
 				++c;
 			}
 
-			if( c == 0 )
+			if( c == charMap.size() - 1 )
+			{
+				a = 0;
+				b = 0;
+				word.setLength(0);
+				continue;
+			}
+
+			if( c == 0 || word.length() > 32 )
 			{
 				if( word.length() > 1 )
 				{
@@ -70,8 +88,8 @@ public class Markov implements NameProducer
 				word.append(toCharacter(c));
 			}
 
-			assert (c != 32);
-			c = c & 31;
+			assert (c != charMap.size());
+			//c = c & charMap.size();
 			a = b;
 			b = c;
 		}
@@ -81,25 +99,6 @@ public class Markov implements NameProducer
 
 	private char toCharacter(int c)
 	{
-		if( c == 27 )
-		{
-			return '-';
-		}
-		else if( c == 28 )
-		{
-			return ' ';
-		}
-		else if( c == 29 )
-		{
-			return '\'';
-		}
-		else if( c > 26 )
-		{
-			return '.';
-		}
-		else
-		{
-			return (char)('a' - 1 + c);
-		}
+		return (char)(int)this.charMap.get(c);
 	}
 }
