@@ -63,7 +63,7 @@ public enum PersonenNamenGenerator
 		}
 	},
 	/**
-	 * Englische Namen (Vor- und Nachname).
+	 * Franzoesische Namen (Vor- und Nachname).
 	 */
 	FRANZOESISCH("Französisch")
 	{
@@ -74,7 +74,20 @@ public enum PersonenNamenGenerator
 		{
 			return generator.generate();
 		}
-	};;
+	},
+	/**
+	 * Spanische Namen (Vorname und zwei Nachnamen).
+	 */
+	SPANISCH("Spanisch")
+	{
+		private SpanischeNamenGenerator generator = new SpanischeNamenGenerator("spanische_vornamen.txt", "spanische_nachnamen.txt", new String[]{"-", "'", " "});
+
+		@Override
+		public String generiere()
+		{
+			return generator.generate();
+		}
+	};
 
 	private final String label;
 

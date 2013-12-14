@@ -24,13 +24,13 @@ import net.driftingsouls.ds2.server.namegenerator.producer.NameProducerManager;
 import static net.driftingsouls.ds2.server.namegenerator.NameGeneratorUtils.*;
 
 /**
- * Generator fuer Personennamen. Die Namen werden aus einem
+ * Generator fuer spanische Namen. Die Namen werden aus zwei
  * generierten Namennamen und einem zufaellig aus einer Liste 
  * ausgewaehlten Vornamen zusammengesetzt.
  * @author Christopher Jung
  *
  */
-public class VorNachnamePersonenNamenGenerator
+public class SpanischeNamenGenerator
 {
 	private NameProducer lastname;
 	private NameProducer firstName;
@@ -39,10 +39,10 @@ public class VorNachnamePersonenNamenGenerator
 	/**
 	 * Konstruktor.
 	 */
-	public VorNachnamePersonenNamenGenerator(String vornamenDatei, String nachnamenDatei, String[] kapitalisierungen)
+	public SpanischeNamenGenerator(String vornamenDatei, String nachnamenDatei, String[] kapitalisierungen)
 	{
-		this.lastname = NameProducerManager.INSTANCE.getMarkovNameProducer(VorNachnamePersonenNamenGenerator.class.getResource(nachnamenDatei));
-		this.firstName = NameProducerManager.INSTANCE.getListBasedNameProducer(VorNachnamePersonenNamenGenerator.class.getResource(vornamenDatei));
+		this.lastname = NameProducerManager.INSTANCE.getMarkovNameProducer(SpanischeNamenGenerator.class.getResource(nachnamenDatei));
+		this.firstName = NameProducerManager.INSTANCE.getListBasedNameProducer(SpanischeNamenGenerator.class.getResource(vornamenDatei));
 		this.kapitalisierungen = kapitalisierungen;
 	}
 
@@ -63,8 +63,12 @@ public class VorNachnamePersonenNamenGenerator
 
 	public String generate()
 	{
-		String lastname = generateLastName();
-		lastname = firstName.generateNext() + " " + lastname;
-		return lastname;
+		String nachname = generateLastName();
+		String zweiterNachname;
+		do {
+			zweiterNachname = generateLastName();
+		} while( nachname.equals(zweiterNachname) );
+
+		return firstName.generateNext() + " " + nachname + " " + zweiterNachname;
 	}
 }
