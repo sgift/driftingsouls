@@ -40,6 +40,6 @@ public class ListBasedNameProducer implements NameProducer
 	public String generateNext()
 	{
 		String name = namen.get(rnd.nextInt(namen.size()));
-		return captialize ? StringUtils.capitalize(name) : name;
+		return captialize ? StringUtils.capitalize(name.toLowerCase()) : name;
 	}
 }
