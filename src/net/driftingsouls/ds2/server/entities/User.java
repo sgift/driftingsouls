@@ -378,7 +378,7 @@ public class User extends BasicUser implements JSONSupport {
 	{
 		if( this.personenNamenGenerator == null )
 		{
-			Rassen.get().rasse(this.race).getPersonenNamenGenerator();
+			return Rassen.get().rasse(this.race).getPersonenNamenGenerator();
 		}
 		return this.personenNamenGenerator;
 	}
