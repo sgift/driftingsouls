@@ -1955,4 +1955,12 @@ Die Vasudaner haben eine sehr alte Kultur mit mehreren hochentwickelten Sprachen
 
 		alter table users add column personenNamenGenerator varchar(255);
 	]]></update>
+	<update type="structure" datum="2013-12-15"><![CDATA[
+		ALTER TABLE rasse ADD COLUMN schiffsKlassenNamenGenerator varchar(255), ADD COLUMN schiffsNamenGenerator varchar(255);
+		UPDATE rasse SET schiffsKlassenNamenGenerator='KEIN_KUERZEL',schiffsNamenGenerator='SCHIFFSTYP' WHERE id=0;
+		UPDATE rasse SET schiffsKlassenNamenGenerator='VASUDANISCH',schiffsNamenGenerator='AEGYPTISCHE_NAMEN' WHERE id=2;
+		UPDATE rasse SET schiffsKlassenNamenGenerator='TERRANISCH',schiffsNamenGenerator='STAEDTE' WHERE id=1;
+
+		ALTER TABLE users ADD COLUMN schiffsKlassenNamenGenerator varchar(255), ADD COLUMN schiffsNamenGenerator varchar(255);
+	]]></update>
 </updates>

@@ -348,7 +348,7 @@ public class WerftQueueEntry {
 		ship.setHull(shipd.getHull());
 		ship.setCargo(new Cargo());
 		ship.setEnergy(shipd.getEps());
-		ship.setName(shipd.getNickname());
+		ship.setName((auser.getSchiffsKlassenNamenGenerator().generiere(shipd.getShipClass())+" "+auser.getSchiffsNamenGenerator().generiere(shipd)).trim());
 		ship.setEngine(100);
 		ship.setWeapons(100);
 		ship.setComm(100);

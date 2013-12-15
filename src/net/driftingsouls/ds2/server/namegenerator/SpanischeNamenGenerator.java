@@ -42,7 +42,7 @@ public class SpanischeNamenGenerator
 	public SpanischeNamenGenerator(String vornamenDatei, String nachnamenDatei, String[] kapitalisierungen)
 	{
 		this.lastname = NameProducerManager.INSTANCE.getMarkovNameProducer(SpanischeNamenGenerator.class.getResource(nachnamenDatei));
-		this.firstName = NameProducerManager.INSTANCE.getListBasedNameProducer(SpanischeNamenGenerator.class.getResource(vornamenDatei));
+		this.firstName = NameProducerManager.INSTANCE.getListBasedNameProducer(SpanischeNamenGenerator.class.getResource(vornamenDatei), true);
 		this.kapitalisierungen = kapitalisierungen;
 	}
 

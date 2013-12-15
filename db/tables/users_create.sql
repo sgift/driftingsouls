@@ -36,6 +36,8 @@ CREATE TABLE `users` (
   `corruption` float NOT NULL DEFAULT '0',
   `bounty` bigint(20) unsigned NOT NULL default '0',
 	personenNamenGenerator varchar(255),
+	schiffsKlassenNamenGenerator varchar(255),
+	schiffsNamenGenerator varchar(255),
   PRIMARY KEY  (`id`),
   KEY `ally` (`ally`),
   KEY `vaccount` (`vaccount`,`wait4vac`),

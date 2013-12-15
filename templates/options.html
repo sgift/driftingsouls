@@ -119,6 +119,24 @@
 			</td>
 		</tr>
 		<tr>
+			<td>Schiffsnamen:</td>
+			<td>
+				<span class="nobr">
+					<select name="schiffsKlassenNamenGenerator">
+						<!-- BEGIN schiffsKlassenNamenGenerator.listitem -->
+						<option value="{schiffsKlassenNamenGenerator.name}" {if schiffsKlassenNamenGenerator.selected}selected="selected"{/endif}>{schiffsKlassenNamenGenerator.label}</option>
+						<!-- END schiffsKlassenNamenGenerator.listitem -->
+					</select>
+					<select name="schiffsNamenGenerator">
+						<!-- BEGIN schiffsNamenGenerator.listitem -->
+						<option value="{schiffsNamenGenerator.name}" {if schiffsNamenGenerator.selected}selected="selected"{/endif}>{schiffsNamenGenerator.label}</option>
+						<!-- END schiffsNamenGenerator.listitem -->
+					</select>
+					<input type="button" value="Beispiele" onclick="Options.generiereSchiffsNamenBeispiele()" />
+				</span>
+			</td>
+		</tr>
+		<tr>
 			<td colspan="2" align="center"><br />
 				{!form_create_hidden changeXtra}
 				<input type="submit" value="speichern" />

@@ -32,8 +32,13 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
+import net.driftingsouls.ds2.server.namegenerator.SchiffsKlassenNamenGenerator;
+import net.driftingsouls.ds2.server.namegenerator.SchiffsNamenGenerator;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 import net.sf.json.util.JSONUtils;
 import org.apache.commons.fileupload.FileItem;
@@ -132,8 +137,8 @@ public class OptionsController extends TemplateController
 		}
 
 		t.setVar("options.changenamepwd", 1,
-		"options.changenamepwd.nickname", Common._plaintitle(user.getNickname()),
-		"options.message", changemsg);
+				"options.changenamepwd.nickname", Common._plaintitle(user.getNickname()),
+				"options.message", changemsg);
 	}
 
 	/**
@@ -156,7 +161,7 @@ public class OptionsController extends TemplateController
 		else if (reason.length() < 5)
 		{
 			t.setVar("options.message", "Bitte geben sie Gr&uuml;nde f&uuml;r die L&ouml;schung an!<br />\n",
-			"options.delaccountform", 1);
+					"options.delaccountform", 1);
 
 		}
 		else
@@ -178,7 +183,7 @@ public class OptionsController extends TemplateController
 			PM.sendToAdmins(user, "Account l&ouml;schen", msg.toString(), 0);
 
 			t.setVar("options.delaccountresp", 1,
-			"delaccountresp.admins", Configuration.getSetting("ADMIN_PMS_ACCOUNT"));
+					"delaccountresp.admins", Configuration.getSetting("ADMIN_PMS_ACCOUNT"));
 
 		}
 	}
@@ -193,9 +198,14 @@ public class OptionsController extends TemplateController
 	 * @param scriptdebugstatus Bei <code>true</code> wird das ScriptDebugging aktiviert
 	 * @param defrelation Die Default-Beziehung zu anderen Spielern (1 = feindlich, 2 = freundlich, sonst neutral)
 	 * @param personenNamenGenerator Der zu verwendende {@link PersonenNamenGenerator}
+	 * @param schiffsKlassenNamenGenerator Der zu verwendende {@link SchiffsKlassenNamenGenerator}
+	 * @param schiffsNamenGenerator Der zu verwendende {@link SchiffsNamenGenerator}
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeXtraAction(int shipgroupmulti, int inttutorial, int scriptdebug, boolean scriptdebugstatus, User.Relation defrelation, PersonenNamenGenerator personenNamenGenerator)
+	public void changeXtraAction(int shipgroupmulti, int inttutorial, int scriptdebug, boolean scriptdebugstatus, User.Relation defrelation,
+								 PersonenNamenGenerator personenNamenGenerator,
+								 SchiffsKlassenNamenGenerator schiffsKlassenNamenGenerator,
+								 SchiffsNamenGenerator schiffsNamenGenerator)
 	{
 		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
@@ -252,6 +262,8 @@ public class OptionsController extends TemplateController
 		}
 
 		user.setPersonenNamenGenerator(personenNamenGenerator);
+		user.setSchiffsKlassenNamenGenerator(schiffsKlassenNamenGenerator);
+		user.setSchiffsNamenGenerator(schiffsNamenGenerator);
 
 		t.setVar("options.message", changemsg);
 
@@ -274,6 +286,69 @@ public class OptionsController extends TemplateController
 		return JSONSerializer.toJSON(result);
 	}
 
+	public static class SchiffsKlasseNameBeispiel {
+		private String klasse;
+		private String name;
+
+		public SchiffsKlasseNameBeispiel(String klasse, String name)
+		{
+			this.klasse = klasse;
+			this.name = name;
+		}
+
+		public String getKlasse()
+		{
+			return klasse;
+		}
+
+		public void setKlasse(String klasse)
+		{
+			this.klasse = klasse;
+		}
+
+		public String getName()
+		{
+			return name;
+		}
+
+		public void setName(String name)
+		{
+			this.name = name;
+		}
+	}
+
+	@Action(ActionType.AJAX)
+	public JSON generiereSchiffsNamenBeispiele(SchiffsKlassenNamenGenerator schiffsKlassenNamenGenerator, SchiffsNamenGenerator schiffsNamenGenerator)
+	{
+		List<SchiffsKlasseNameBeispiel> result = new ArrayList<>();
+		if (schiffsKlassenNamenGenerator == null || schiffsNamenGenerator == null)
+		{
+			return JSONSerializer.toJSON(result);
+		}
+
+		org.hibernate.Session db = getDB();
+		for (ShipClasses cls : ShipClasses.values())
+		{
+			ShipTypeData std = (ShipTypeData)db.createQuery("from ShipType where hide=false and shipClass=:cls")
+				.setParameter("cls", cls)
+				.setMaxResults(1)
+				.uniqueResult();
+
+			if( std == null )
+			{
+				continue;
+			}
+
+			String name = (schiffsKlassenNamenGenerator.generiere(cls) + " " + schiffsNamenGenerator.generiere(std)).trim();
+			if( name.isEmpty() ) {
+				continue;
+			}
+			result.add(new SchiffsKlasseNameBeispiel(cls.getSingular(), name));
+		}
+
+		return JSONSerializer.toJSON(result);
+	}
+
 	/**
 	 * Zeigt die erweiterten Einstellungen des Spielers.
 	 */
@@ -284,19 +359,37 @@ public class OptionsController extends TemplateController
 		TemplateEngine t = getTemplateEngine();
 
 		t.setVar("options.xtra", 1,
-		"user.wrapfactor", user.getUserValue("TBLORDER/schiff/wrapfactor"),
-		"user.inttutorial", user.getUserValue("TBLORDER/uebersicht/inttutorial"),
-		"user.showScriptDebug", hasPermission("schiff", "script"),
-		"user.scriptdebug", user.hasFlag(User.FLAG_SCRIPT_DEBUGGING),
-		"user.defrelation", user.getRelation(0).ordinal());
+				"user.wrapfactor", user.getUserValue("TBLORDER/schiff/wrapfactor"),
+				"user.inttutorial", user.getUserValue("TBLORDER/uebersicht/inttutorial"),
+				"user.showScriptDebug", hasPermission("schiff", "script"),
+				"user.scriptdebug", user.hasFlag(User.FLAG_SCRIPT_DEBUGGING),
+				"user.defrelation", user.getRelation(0).ordinal());
 
 		t.setBlock("_OPTIONS", "personenNamenGenerator.listitem", "personenNamenGenerator.list");
 		for (PersonenNamenGenerator png : PersonenNamenGenerator.values())
 		{
 			t.setVar("personenNamenGenerator.name", png.name(),
-			"personenNamenGenerator.label", png.getLabel(),
-			"personenNamenGenerator.selected", png == user.getPersonenNamenGenerator());
+					"personenNamenGenerator.label", png.getLabel(),
+					"personenNamenGenerator.selected", png == user.getPersonenNamenGenerator());
 			t.parse("personenNamenGenerator.list", "personenNamenGenerator.listitem", true);
+		}
+
+		t.setBlock("_OPTIONS", "schiffsKlassenNamenGenerator.listitem", "schiffsKlassenNamenGenerator.list");
+		for (SchiffsKlassenNamenGenerator skng : SchiffsKlassenNamenGenerator.values())
+		{
+			t.setVar("schiffsKlassenNamenGenerator.name", skng.name(),
+					"schiffsKlassenNamenGenerator.label", skng.getLabel(),
+					"schiffsKlassenNamenGenerator.selected", skng == user.getSchiffsKlassenNamenGenerator());
+			t.parse("schiffsKlassenNamenGenerator.list", "schiffsKlassenNamenGenerator.listitem", true);
+		}
+
+		t.setBlock("_OPTIONS", "schiffsNamenGenerator.listitem", "schiffsNamenGenerator.list");
+		for (SchiffsNamenGenerator skng : SchiffsNamenGenerator.values())
+		{
+			t.setVar("schiffsNamenGenerator.name", skng.name(),
+					"schiffsNamenGenerator.label", skng.getLabel(),
+					"schiffsNamenGenerator.selected", skng == user.getSchiffsNamenGenerator());
+			t.parse("schiffsNamenGenerator.list", "schiffsNamenGenerator.listitem", true);
 		}
 	}
 
@@ -433,10 +526,10 @@ public class OptionsController extends TemplateController
 		}
 
 		t.setVar("options.general", 1,
-		"user.wrapfactor", user.getUserValue("TBLORDER/schiff/wrapfactor"),
-		"user.tooltip", user.getUserValue("TBLORDER/schiff/tooltips"),
-		"user.imgpath", imagepath,
-		"user.noob", user.isNoob(),
-		"vacation.maxtime", Common.ticks2DaysInDays(user.maxVacTicks()));
+				"user.wrapfactor", user.getUserValue("TBLORDER/schiff/wrapfactor"),
+				"user.tooltip", user.getUserValue("TBLORDER/schiff/tooltips"),
+				"user.imgpath", imagepath,
+				"user.noob", user.isNoob(),
+				"vacation.maxtime", Common.ticks2DaysInDays(user.maxVacTicks()));
 	}
 }

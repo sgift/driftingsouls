@@ -1,6 +1,8 @@
 package net.driftingsouls.ds2.server.entities;
 
 import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
+import net.driftingsouls.ds2.server.namegenerator.SchiffsKlassenNamenGenerator;
+import net.driftingsouls.ds2.server.namegenerator.SchiffsNamenGenerator;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.Entity;
@@ -35,8 +37,15 @@ public class Rasse
 	@JoinColumn(nullable = true)
 	@ForeignKey(name = "rasse_fk_user")
 	private User head;
+	@SuppressWarnings("UnusedDeclaration")
 	@Enumerated(EnumType.STRING)
 	private PersonenNamenGenerator personenNamenGenerator;
+	@SuppressWarnings("UnusedDeclaration")
+	@Enumerated(EnumType.STRING)
+	private SchiffsKlassenNamenGenerator schiffsKlassenNamenGenerator;
+	@SuppressWarnings("UnusedDeclaration")
+	@Enumerated(EnumType.STRING)
+	private SchiffsNamenGenerator schiffsNamenGenerator;
 	@Lob
 	private String description;
 
@@ -153,7 +162,7 @@ public class Rasse
 	 * Gibt den Namensgenerator fuer Personennamen zurueck. Es wird <code>null</code> zurueckgegeben,
 	 * falls kein Namensgenerator fuer den Typ vorhanden ist.
 	 *
-	 * @return Der Pfad zum Namensgenerator
+	 * @return Der Namensgenerator
 	 */
 	public PersonenNamenGenerator getPersonenNamenGenerator()
 	{
@@ -164,9 +173,34 @@ public class Rasse
 		return personenNamenGenerator;
 	}
 
-	protected void setPersonenNamenGenerator(PersonenNamenGenerator generator)
+	/**
+	 * Gibt den Namensgenerator fuer Schiffsklassen zurueck. Es wird <code>null</code> zurueckgegeben,
+	 * falls kein Namensgenerator fuer den Typ vorhanden ist.
+	 *
+	 * @return Der Namensgenerator
+	 */
+	public SchiffsKlassenNamenGenerator getSchiffsKlassenNamenGenerator()
 	{
-		personenNamenGenerator = generator;
+		if (schiffsKlassenNamenGenerator == null && (memberIn != null))
+		{
+			return memberIn.getSchiffsKlassenNamenGenerator();
+		}
+		return schiffsKlassenNamenGenerator;
+	}
+
+	/**
+	 * Gibt den Namensgenerator fuer Schiffsnamen zurueck. Es wird <code>null</code> zurueckgegeben,
+	 * falls kein Namensgenerator fuer den Typ vorhanden ist.
+	 *
+	 * @return Der Namensgenerator
+	 */
+	public SchiffsNamenGenerator getSchiffsNamenGenerator()
+	{
+		if (schiffsNamenGenerator == null && (memberIn != null))
+		{
+			return memberIn.getSchiffsNamenGenerator();
+		}
+		return schiffsNamenGenerator;
 	}
 
 	/**

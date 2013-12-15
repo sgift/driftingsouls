@@ -73,18 +73,19 @@ public class NameProducerManager
 	/**
 	 * Gibt fuer die angegebene Datei einen listenbasierten Namensgenerator zurueck.
 	 * @param filename Die URL der Datei
+	 * @param captialize <code>true</code>, falls die Gross-/Kleinschreibung automatisch angepasst werden soll
 	 * @return Der Generator
 	 * @throws IllegalStateException Falls die Datei nicht verarbeitet werden kann
 	 * @see ListBasedNameProducer
 	 */
-	public NameProducer getListBasedNameProducer(URL filename) throws IllegalStateException
+	public NameProducer getListBasedNameProducer(URL filename, boolean captialize) throws IllegalStateException
 	{
 		ListBasedNameProducer result = listBasedCache.get(filename);
 		if (result != null)
 		{
 			return result;
 		}
-		listBasedCache.putIfAbsent(filename, new ListBasedNameProducer(filename));
+		listBasedCache.putIfAbsent(filename, new ListBasedNameProducer(filename, captialize));
 		return listBasedCache.get(filename);
 	}
 }

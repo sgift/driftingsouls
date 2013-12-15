@@ -3,6 +3,8 @@ create table rasse (
 	description longtext,
 	name varchar(255),
 	personenNamenGenerator varchar(255),
+	schiffsKlassenNamenGenerator varchar(255),
+	schiffsNamenGenerator varchar(255),
 	playable boolean not null,
 	playableext boolean not null,
 	head_id integer,

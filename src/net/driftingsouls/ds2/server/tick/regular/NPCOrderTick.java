@@ -285,7 +285,7 @@ public class NPCOrderTick extends TickController {
 
 		Ship ship = new Ship(user, shipd, loc.getSystem(), loc.getX(), loc.getY());
 		ship.getHistory().addHistory(history);
-		ship.setName("noname");
+		ship.setName((user.getSchiffsKlassenNamenGenerator().generiere(shipd.getShipClass())+" "+user.getSchiffsNamenGenerator().generiere(shipd)).trim());
 		ship.setCrew(shipd.getCrew());
 		ship.setHull(shipd.getHull());
 		ship.setEnergy(shipd.getEps());

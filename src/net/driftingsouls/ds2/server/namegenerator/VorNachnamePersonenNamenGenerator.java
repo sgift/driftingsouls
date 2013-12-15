@@ -42,7 +42,7 @@ public class VorNachnamePersonenNamenGenerator
 	public VorNachnamePersonenNamenGenerator(String vornamenDatei, String nachnamenDatei, String[] kapitalisierungen)
 	{
 		this.lastname = NameProducerManager.INSTANCE.getMarkovNameProducer(VorNachnamePersonenNamenGenerator.class.getResource(nachnamenDatei));
-		this.firstName = NameProducerManager.INSTANCE.getListBasedNameProducer(VorNachnamePersonenNamenGenerator.class.getResource(vornamenDatei));
+		this.firstName = NameProducerManager.INSTANCE.getListBasedNameProducer(VorNachnamePersonenNamenGenerator.class.getResource(vornamenDatei), true);
 		this.kapitalisierungen = kapitalisierungen;
 	}
 

@@ -1,5 +1,7 @@
 package net.driftingsouls.ds2.server.namegenerator.producer;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,8 +18,10 @@ public class ListBasedNameProducer implements NameProducer
 {
 	private Random rnd = new Random();
 	private List<String> namen = new ArrayList<>();
+	private boolean captialize;
 
-	public ListBasedNameProducer(URL filename) {
+	public ListBasedNameProducer(URL filename, boolean capitalize) {
+		this.captialize = capitalize;
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(filename.openStream(), "UTF-8")))
 		{
 			String firstName;
@@ -36,8 +40,6 @@ public class ListBasedNameProducer implements NameProducer
 	public String generateNext()
 	{
 		String name = namen.get(rnd.nextInt(namen.size()));
-		name = name.toLowerCase();
-		name = Character.toUpperCase(name.charAt(0)) + name.substring(1);
-		return name;
+		return captialize ? StringUtils.capitalize(name) : name;
 	}
 }
