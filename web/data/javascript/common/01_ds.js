@@ -27,6 +27,22 @@ var DS = {
 		   	i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) +
 		   	(c ? d + Math.abs(n - i).toFixed(c).slice(2) : '');
 	},
+	istNichtEingeloggtFehler : function(jsonResult) {
+		if( typeof jsonResult.errors !== 'undefined' && jsonResult.errors.length > 0 ) {
+			for( var i=0; i < jsonResult.errors.length; i++ ) {
+				if( jsonResult.errors[i].description.indexOf('nicht eingeloggt') ) {
+					return true;
+				}
+			}
+		}
+		else if( typeof jsonResult.message !== 'undefined' && jsonResult.message.type === 'error' ) {
+			var msg = jsonResult.message;
+
+			return jsonResult.message.description.indexOf('nicht eingeloggt');
+		}
+
+		return false;
+	},
 	getJSON : function(params, resultFunction) {
 		var url = this.getUrl();
 

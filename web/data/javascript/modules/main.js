@@ -7,33 +7,50 @@ function checkPMStatus() {
 	if( !checkPMStatusCanceled ) {
 		setTimeout(function() {
 			checkPMStatus()
-			}, 30000
+			}, 60000
 		);
 	}
-	var url = DS.getUrl();
 	var params = {
 			module:'main',
-			action:'hasNewPm',
+			action:'statusUpdate',
 			autoAccess:true
 	};
 
-	jQuery.get( url, params, updatePMStatus );
+	DS.getJSON( params, updatePMStatus );
 }
 
-function updatePMStatus( originalRequest ) {
-	var response = originalRequest;
+function updatePMStatus( data ) {
+	if( typeof data.errors !== 'undefined' && data.errors.length > 0 ) {
+		angular.forEach(messageContainer.errors, function(error) {
+			toastr.error(error.description);
+		});
+		return false;
+	}
+	else if( typeof data.message !== 'undefined' &&
+		data.message.type === 'error' ) {
+		var msg = data.message;
 
-	if( response != null && response.indexOf('nicht eingeloggt') > -1 ) {
+		if( msg.type === 'error' ) {
+			toastr.error(data.message.description);
+			if( typeof msg.redirect !== 'undefined' && msg.redirect ) {
+				if( parent ) {
+					parent.location.href=DS.getUrl();
+				}
+				else {
+					location.href=DS.getUrl();
+				}
+			}
+			return false;
+		}
+	}
+
+	if( DS.istNichtEingeloggtFehler(data) ) {
 		checkPMStatusCanceled = true;
 		return;
 	}
 
-	if( originalRequest == '1' ) {
-		document.getElementById('mailicon').style.display='inline';
-	}
-	else {
-		document.getElementById('mailicon').style.display='none';
-	}
+	document.getElementById('mailicon').style.display= data.pm ? 'inline' : 'none';
+	document.getElementById('comneticon').style.display= data.comNet ? 'inline' : 'none';
 }
 
 

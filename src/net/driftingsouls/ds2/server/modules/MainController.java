@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.entities.ComNetService;
 import net.driftingsouls.ds2.server.entities.GuiHelpText;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -29,7 +30,9 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.sf.json.JSON;
 import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 
 import java.io.IOException;
 import java.util.List;
@@ -70,28 +73,52 @@ public class MainController extends TemplateController
 		return JSONUtils.success("gespeichert");
 	}
 
+	public static class Status
+	{
+		private boolean pm;
+		private boolean comNet;
+
+		public boolean isPm()
+		{
+			return pm;
+		}
+
+		public void setPm(boolean pm)
+		{
+			this.pm = pm;
+		}
+
+		public boolean isComNet()
+		{
+			return comNet;
+		}
+
+		public void setComNet(boolean comNet)
+		{
+			this.comNet = comNet;
+		}
+	}
+
 	/**
-	 * Prueft, ob der Spieler eine neue PM hat, welche noch nicht gelesen wurde.
+	 * Ermittelt ein Statusupdate fuer die Oberflaeche z.B.
+	 * mit der Info ob ungelesene PMs vorliegen.
 	 *
-	 * @throws IOException
 	 */
 	@Action(ActionType.AJAX)
-	public void hasNewPmAjaxAct() throws IOException
+	public JSON statusUpdateAction()
 	{
 		User user = (User) this.getUser();
 		org.hibernate.Session db = getDB();
 
+		Status status = new Status();
+
 		int pmcount = ((Number) db.createQuery("select count(*) from PM where empfaenger= :user and gelesen=0")
 				.setEntity("user", user)
 				.iterate().next()).intValue();
-		if (pmcount > 0)
-		{
-			getResponse().getWriter().append("1");
-		}
-		else
-		{
-			getResponse().getWriter().append("0");
-		}
+		status.setPm(pmcount > 0);
+		status.setComNet(new ComNetService().hatAktiverUserUngeleseneComNetNachrichten());
+
+		return JSONSerializer.toJSON(status);
 	}
 
 	/**
