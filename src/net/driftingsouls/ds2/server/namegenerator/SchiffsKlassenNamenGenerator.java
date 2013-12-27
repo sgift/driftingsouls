@@ -61,7 +61,7 @@ public enum SchiffsKlassenNamenGenerator
 				case JUGGERNAUT:
 					return "GVJ";
 				case KORVETTE:
-					return "CVCv";
+					return "GVCv";
 				case SCHWERER_KREUZER:
 				case KREUZER:
 					return "GVC";
