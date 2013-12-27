@@ -300,14 +300,14 @@ public class KasernenBuilding extends DefaultBuilding {
 
 				for(ResourceEntry res : buildcosts.getResourceList())
 				{
-					buildingcosts = buildingcosts+"<img align=\"middle\" src=\""+res.getImage()+"\" alt=\""+res.getPlainName()+"\" title=\""+res.getPlainName()+"\" />"+res.getCargo1();
+					buildingcosts = buildingcosts+" <span class='nobr'><img style=\"vertical-align:middle\" src=\""+res.getImage()+"\" alt=\""+res.getPlainName()+"\" title=\""+res.getPlainName()+"\" />"+res.getCargo1()+"</span>";
 				}
 
 				t.setVar( 	"unit.id", 			unittype.getId(),
 						"unit.name", 		unittype.getName(),
 						"unit.picture", 	unittype.getPicture(),
 						"unit.dauer", 		unittype.getDauer(),
-						"unit.buildcosts", 	buildingcosts);
+						"unit.buildcosts", 	buildingcosts.trim());
 
 				t.parse("kaserne.unitlist.list", "kaserne.unitlist.listitem", true);
 			}
