@@ -71,7 +71,7 @@ public class KaserneTick extends TickController {
 				{
 					log("\tAusbildung laeuft");
 
-					msg = "Die Ausbildung von<br />";
+					msg = "Die Ausbildung von\n";
 
 					for(KaserneEntry entry : kaserne.getQueueEntries())
 					{
@@ -79,7 +79,7 @@ public class KaserneTick extends TickController {
 						if(entry.getRemaining() <= 0)
 						{
 							UnitType unittype = entry.getUnit();
-							msg = msg+entry.getCount()+" "+unittype.getName()+"<br />";
+							msg = msg+entry.getCount()+" "+unittype.getName()+"\n";
 							entry.finishBuildProcess(base);
 							build = true;
 						}
