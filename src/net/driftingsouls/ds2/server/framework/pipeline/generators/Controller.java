@@ -20,8 +20,13 @@ package net.driftingsouls.ds2.server.framework.pipeline.generators;
 
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.JSONSupport;
+import net.driftingsouls.ds2.server.framework.JSONUtils;
 import net.driftingsouls.ds2.server.framework.PermissionResolver;
+import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.*;
+import net.sf.json.JSONSerializer;
+import net.sf.json.JsonConfig;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.FlushMode;
@@ -427,6 +432,9 @@ public abstract class Controller implements PermissionResolver
 	{
 		if (result != null)
 		{
+			if( result.getClass().isAnnotationPresent(ViewModel.class) ) {
+				result = JSONSerializer.toJSON(result);
+			}
 			getResponse().getWriter().append(result.toString());
 		}
 	}

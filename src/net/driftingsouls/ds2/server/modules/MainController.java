@@ -25,14 +25,13 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.JSONUtils;
+import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.sf.json.JSON;
 import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
 
 import java.io.IOException;
 import java.util.List;
@@ -73,6 +72,7 @@ public class MainController extends TemplateController
 		return JSONUtils.success("gespeichert");
 	}
 
+	@ViewModel
 	public static class Status
 	{
 		private boolean pm;
@@ -105,7 +105,7 @@ public class MainController extends TemplateController
 	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JSON statusUpdateAction()
+	public Status statusUpdateAction()
 	{
 		User user = (User) this.getUser();
 		org.hibernate.Session db = getDB();
@@ -118,7 +118,7 @@ public class MainController extends TemplateController
 		status.setPm(pmcount > 0);
 		status.setComNet(new ComNetService().hatAktiverUserUngeleseneComNetNachrichten());
 
-		return JSONSerializer.toJSON(status);
+		return status;
 	}
 
 	/**
