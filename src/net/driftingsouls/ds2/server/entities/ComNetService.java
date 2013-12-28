@@ -2,7 +2,6 @@ package net.driftingsouls.ds2.server.entities;
 
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import org.hibernate.Query;
 
 import java.util.HashMap;
