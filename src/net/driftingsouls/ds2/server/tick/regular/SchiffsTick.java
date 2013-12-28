@@ -858,6 +858,7 @@ public class SchiffsTick extends TickController {
 			}
 
 		}
+		.setFlushSize(1)
 		.executeFor(shipIds);
 	}
 
