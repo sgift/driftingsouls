@@ -84,7 +84,7 @@ public class KaserneTick extends TickController {
 							build = true;
 						}
 					}
-					msg = msg + "auf der Basis "+base.getName()+" ist abgeschlossen.";
+					msg = msg + "auf der Basis [base="+base.getId()+"]"+base.getName()+"[/base] ist abgeschlossen.";
 
 				}
 

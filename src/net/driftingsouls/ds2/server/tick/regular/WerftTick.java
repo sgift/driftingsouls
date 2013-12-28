@@ -27,6 +27,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tick.TickController;
+import net.driftingsouls.ds2.server.werften.BaseWerft;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 import net.driftingsouls.ds2.server.werften.WerftKomplex;
 import net.driftingsouls.ds2.server.werften.WerftObject;
@@ -63,13 +64,13 @@ public class WerftTick extends TickController {
 		werften.addAll(db.createQuery("from WerftKomplex")
 			.list());
 		int count = 0;
-		for( Iterator<?> iter=werften.iterator(); iter.hasNext(); )
+		for (WerftObject aWerften : werften)
 		{
 			try
 			{
-				processWerft(sourceUser, (WerftObject)iter.next());
+				processWerft(sourceUser, aWerften);
 			}
-			catch(Exception e)
+			catch (Exception e)
 			{
 				transaction.rollback();
 				transaction = db.beginTransaction();
@@ -77,7 +78,7 @@ public class WerftTick extends TickController {
 
 			count++;
 			int MAX_UNFLUSHED_OBJECTS = 50;
-			if(count%MAX_UNFLUSHED_OBJECTS == 0)
+			if (count % MAX_UNFLUSHED_OBJECTS == 0)
 			{
 				db.flush();
 				transaction.commit();
@@ -119,24 +120,22 @@ public class WerftTick extends TickController {
 			int maxCompleted = 60;
 
 			WerftQueueEntry[] entries = werft.getScheduledQueueEntries();
-			for( int i=0; i < entries.length; i++ )
+			for (WerftQueueEntry entry : entries)
 			{
-				WerftQueueEntry entry = entries[i];
-
 				ShipTypeData shipd = entry.getBuildShipType();
 
-				this.log("\tAktueller Auftrag: "+shipd.getTypeId()+"; dauer: "+entry.getRemainingTime());
+				this.log("\tAktueller Auftrag: " + shipd.getTypeId() + "; dauer: " + entry.getRemainingTime());
 
-				if( entry.getRequiredItem() > -1 )
+				if (entry.getRequiredItem() > -1)
 				{
-					Item item = (Item)db.get(Item.class, entry.getRequiredItem());
-					this.log("\tItem benoetigt: "+item.getName()+" ("+entry.getRequiredItem()+")");
+					Item item = (Item) db.get(Item.class, entry.getRequiredItem());
+					this.log("\tItem benoetigt: " + item.getName() + " (" + entry.getRequiredItem() + ")");
 				}
 
 				// Wenn keine volle Crew vorhanden ist, besteht hier die Moeglichkeit, dass nicht weitergebaut wird.
-				if( Math.random() <= werft.getWorkerPercentageAvailable() )
+				if (Math.random() <= werft.getWorkerPercentageAvailable())
 				{
-					if( entry.isBuildContPossible() )
+					if (entry.isBuildContPossible())
 					{
 						entry.continueBuild();
 						this.log("\tVoraussetzungen erfuellt - bau geht weiter");
@@ -144,29 +143,31 @@ public class WerftTick extends TickController {
 				}
 				else
 				{
-					this.log("Bau wegen Arbeitermangel pausiert: "+werft.getWorkerPercentageAvailable());
+					this.log("Bau wegen Arbeitermangel pausiert: " + werft.getWorkerPercentageAvailable());
 				}
 
-				if( entry.getRemainingTime() <= 0 ) {
-					this.log("\tSchiff "+shipd.getTypeId()+" gebaut");
+				if (entry.getRemainingTime() <= 0)
+				{
+					this.log("\tSchiff " + shipd.getTypeId() + " gebaut");
 
 					int shipid = entry.finishBuildProcess();
 					this.slog(entry.MESSAGE.getMessage());
 
-					if( shipid > 0 ) {
+					if (shipid > 0)
+					{
 						// MSG
-						String msg = "Auf "+werft.getName()+" wurde eine "+shipd.getNickname()+" gebaut. Sie steht bei "+werft.getLocation().displayCoordinates(false)+".";
+						String msg = "Auf " + bbcode(werft) + " wurde eine [ship=" + shipid + "]" + shipd.getNickname() + "[/ship] gebaut. Sie steht bei [map]" + werft.getLocation().displayCoordinates(false) + "[/map].";
 
 						PM.send(sourceUser, werft.getOwner().getId(), "Schiff gebaut", msg);
 					}
 
-					if( --maxCompleted <= 0 )
+					if (--maxCompleted <= 0)
 					{
 						this.log("Maximum an fertige Schiffen erreicht - abbruch");
 						PM.send(sourceUser, werft.getOwner().getId(), "Geplante Auslieferungen",
-								"Auf "+werft.getName()+" wurde die maximale Anzahl an gleichzeig zu produzierenden Schiffen erreicht. " +
-								"Weitere Fertigstellungen wurden von der Raumsicherheit als auch vom Arbeitsschutzbeauftragten der auf den " +
-								"Werften vertretenen Gewerkschaften abgeleht. Der Weiterbau wird beim nächsten Tick automatisch wieder aufgenommen.\n\ngez.\nKoordinationsbüro Werftkomplexe");
+							   "Auf " + bbcode(werft) + " wurde die maximale Anzahl an gleichzeig zu produzierenden Schiffen erreicht. " +
+							   "Weitere Fertigstellungen wurden von der Raumsicherheit als auch vom Arbeitsschutzbeauftragten der auf den " +
+							   "Werften vertretenen Gewerkschaften abgeleht. Der Weiterbau wird beim nächsten Tick automatisch wieder aufgenommen.\n\ngez.\nKoordinationsbüro Werftkomplexe");
 						break;
 					}
 				}
@@ -180,6 +181,21 @@ public class WerftTick extends TickController {
 
 			throw e;
 		}
+	}
+
+	private String bbcode(WerftObject werft) {
+		if( werft instanceof BaseWerft) {
+			return "[base="+((BaseWerft)werft).getBaseID()+"]"+werft.getName()+"[/base]";
+		}
+		if( werft instanceof ShipWerft) {
+			return "[ship="+((ShipWerft)werft).getShipID()+"]"+werft.getName()+"[/ship]";
+		}
+		if( !(werft instanceof WerftKomplex) ) {
+			return werft.getName();
+		}
+
+		WerftKomplex komplex = (WerftKomplex)werft;
+		return bbcode(komplex.getMembers()[0]);
 	}
 
 }

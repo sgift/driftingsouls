@@ -119,7 +119,7 @@ public class AcademyTick extends TickController {
 							log("\tOffizier Aus-/Weitergebildet");
 						}
 					}
-					msg = msg+" auf dem Asteroiden "+base.getName()+" wurde abgeschlossen.";
+					msg = msg+" auf dem Asteroiden [base="+base.getId()+"]"+base.getName()+"[/base] wurde abgeschlossen.";
 
 					if( build )
 					{

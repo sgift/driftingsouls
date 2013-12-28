@@ -76,7 +76,7 @@ public class ForschungsTick extends TickController {
 
 				user.addResearch( forschung.getID() );
 
-				String msg = "Das Forschungszentrum auf "+base.getName()+" hat die Forschungen an "+forschung.getName()+" abgeschlossen";
+				String msg = "Das Forschungszentrum auf [base="+base.getId()+"]"+base.getName()+"[/base] hat die Forschungen an "+forschung.getName()+" abgeschlossen";
 
 				if( forschung.hasFlag( Forschung.FLAG_DROP_NOOB_PROTECTION) && user.isNoob() )
 				{

@@ -1556,7 +1556,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 */
 	public String tick()
 	{
-		String message = "Basis " + getName() + "\n----------------------------------\n";
+		String message = "Basis [base="+this.id+"]" + getName() + "[/base]\n----------------------------------\n";
 		boolean usefullMessage = false;
 
 		String proof = proofBuildings();
