@@ -23,6 +23,7 @@ import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.config.Rang;
 import net.driftingsouls.ds2.server.entities.ComNetChannel;
 import net.driftingsouls.ds2.server.entities.ComNetEntry;
+import net.driftingsouls.ds2.server.entities.ComNetService;
 import net.driftingsouls.ds2.server.entities.ComNetVisit;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -36,8 +37,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungExc
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Query;
-import org.hibernate.Session;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -80,35 +79,27 @@ public class ComNetController extends TemplateController
 	 * Sollten keine Kriterien angegeben sein, so wird das Eingabefenster fuer die Suche angezeigt.
 	 *
 	 * @param searchtype der Suchmodus.
-	 * 1 - Suchen nach Teilen eines Titels
-	 * 2 - Suchen nach Teilen eines Posts
-	 * 3 - Suchen nach Posts eines bestimmten Spielers auf Basis der Spieler-ID
 	 * @param search Der Suchbegriff, abhaengig vom Suchmodus
 	 * @param back Der Offset der anzuzeigenden Posts. Ein Offset
 	 * von 0 bedeutet der neuste Post. Je groesser der Wert umso aelter der Post
 	 */
 	@Action(ActionType.DEFAULT)
-	public void searchAction(ComNetChannel channel, String search, int searchtype, int back)
+	public void searchAction(ComNetChannel channel, String search, ComNetService.Suchmodus searchtype, int back)
 	{
 		validiereComNetChannel(channel);
 
 		TemplateEngine t = getTemplateEngine();
-		Session db = getContext().getDB();
 		User user = (User) getUser();
 
 		t.setVar("channel.id", channel.getId(),
 				"channel.name", Common._title(channel.getName()));
-
-		final int SCAN_TITLE = 1;
-		final int SCAN_CONTENT = 2;
-		final int SCAN_ID = 3;
 
 		if (back < 0)
 		{
 			back = 0;
 		}
 
-		if (searchtype == 0)
+		if (searchtype == null)
 		{
 			t.setVar("show.searchform", 1);
 			return;
@@ -120,61 +111,20 @@ public class ComNetController extends TemplateController
 			throw new ValidierungException("Sie sind nicht berechtigt diese Frequenz zu empfangen", Common.buildUrl("default", "channel", channel.getId()));
 		}
 
+		ComNetService service = new ComNetService();
+		service.markiereKanalAlsGelesen(channel, user);
+
 		t.setVar("posts.action", "search",
 				"search.string", search,
 				"search.type", searchtype);
-
-		Object searchArgument;
-		if (searchtype == SCAN_ID)
-		{
-			try
-			{
-				searchArgument = Integer.valueOf(search);
-			}
-			catch (NumberFormatException e)
-			{
-				t.setVar("show.searchform", 1);
-				addError("'" + search + "' ist keine g&uuml;ltige User-ID");
-				return;
-			}
-		}
-		else
-		{
-			searchArgument = "%" + search + "%";
-		}
 
 		if (channel.isWriteable(user, this))
 		{
 			t.setVar("channel.writeable", 1);
 		}
 
-		ComNetVisit visit = (ComNetVisit) db.createQuery("from ComNetVisit where user=:user and channel=:channel")
-				.setParameter("user", user)
-				.setParameter("channel", channel)
-				.uniqueResult();
-		visit.setTime(Common.time());
-
-		Query query = null;
-		switch (searchtype)
-		{
-			case SCAN_TITLE:
-				query = db.createQuery("from ComNetEntry entry where entry.head like :input and channel=:channel order by entry.post desc");
-				break;
-			case SCAN_CONTENT:
-				query = db.createQuery("from ComNetEntry entry where entry.text like :input and channel=:channel order by entry.post desc");
-				break;
-			case SCAN_ID:
-				query = db.createQuery("from ComNetEntry entry where entry.user.id=:input and channel=:channel order by entry.post desc");
-				break;
-		}
-
-		if (query != null)
-		{
-			List<ComNetEntry> entries = Common.cast(query.setParameter("input", searchArgument)
-					.setParameter("channel", channel)
-					.setFirstResult(back)
-					.setMaxResults(10)
-					.list());
+		try {
+			List<ComNetEntry> entries = service.durchsucheKanal(channel, searchtype, search, back, 10);
 
 			if (entries.isEmpty())
 			{
@@ -199,7 +149,6 @@ public class ComNetController extends TemplateController
 				t.setVar("read.nextpossible", 1);
 			}
 
-			//t.setVar("posts.action","read");
 			t.setBlock("_COMNET", "posts.listitem", "posts.list");
 
 			for (ComNetEntry entry : entries)
@@ -230,6 +179,10 @@ public class ComNetController extends TemplateController
 				t.stop_record();
 				t.clear_record();
 			}
+		}
+		catch( IllegalArgumentException e ) {
+			t.setVar("show.searchform", 1);
+			addError(e.getMessage());
 		}
 	}
 
@@ -263,11 +216,8 @@ public class ComNetController extends TemplateController
 			t.setVar("channel.writeable", 1);
 		}
 
-		db.createQuery("update ComNetVisit set time= :time where user= :user and channel= :channel")
-				.setLong("time", Common.time())
-				.setEntity("user", user)
-				.setEntity("channel", channel)
-				.executeUpdate();
+		ComNetService service = new ComNetService();
+		service.markiereKanalAlsGelesen(channel, user);
 
 		if (back < 0)
 		{
