@@ -354,8 +354,8 @@ public class TradepostController extends TemplateController
 		double buyprice = buyprices.get(aitem.getID());
 		long saleslimit = saleslimits.get(aitem.getID());
 		long buylimit = buylimits.get(aitem.getID());
-		int sellrank = sellranks.get(aitem.getID());
-		int buyrank = buyranks.get(aitem.getID());
+		Integer sellrank = sellranks.get(aitem.getID());
+		Integer buyrank = buyranks.get(aitem.getID());
 		boolean salebool = salebools.containsKey(aitem.getID()) && salebools.get(aitem.getID());
 		boolean buybool = buybools.containsKey(aitem.getID()) && buybools.get(aitem.getID());
 		boolean fill = fills.containsKey(aitem.getID()) && fills.get(aitem.getID());
@@ -378,12 +378,12 @@ public class TradepostController extends TemplateController
 			buylimit = 0;
 		}
 
-		if (sellrank < 0 || !ship.getOwner().isNPC())
+		if (sellrank == null || sellrank < 0 || !ship.getOwner().isNPC())
 		{
 			sellrank = 0;
 		}
 
-		if (buyrank < 0 || !ship.getOwner().isNPC())
+		if (buyrank == null || buyrank < 0 || !ship.getOwner().isNPC())
 		{
 			buyrank = 0;
 		}
