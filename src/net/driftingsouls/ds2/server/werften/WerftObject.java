@@ -80,6 +80,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
 
 /**
  * Basisklasse fuer alle Werfttypen in DS.
@@ -2102,9 +2103,16 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		if( getKomplex() != null ) {
 			removeFromKomplex();
 		}
+
+		Session db = ContextMap.getContext().getDB();
+
+		db.flush();
+
 		clearQueue();
 
-		ContextMap.getContext().getDB().delete(this);
+		db.flush();
+
+		db.delete(this);
 	}
 
 	/**
