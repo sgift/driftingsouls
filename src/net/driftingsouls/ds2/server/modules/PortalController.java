@@ -673,9 +673,9 @@ public class PortalController extends TemplateController
 		}
 
 		t.setVar("show.login", 1,
-				"show.overview", 1,
-				"show.news", 1,
 				"login.username", username);
+
+		zeigeNewsListeAn(false);
 	}
 
 	private void doLogin()
@@ -730,12 +730,11 @@ public class PortalController extends TemplateController
 	/**
 	 * Zeigt die News an.
 	 *
-	 * @param archiv != 0, falls alte News angezeigt werden sollen
+	 * @param archiv <code>true</code>, falls alte News angezeigt werden sollen
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(int archiv)
+	public void defaultAction(boolean archiv)
 	{
-		org.hibernate.Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 
 		if (this.authManager.isRemembered())
@@ -743,15 +742,24 @@ public class PortalController extends TemplateController
 			t.setVar("is.logged.in", 1);
 		}
 
+		zeigeNewsListeAn(archiv);
+	}
+
+	private void zeigeNewsListeAn(boolean archiv)
+	{
+		org.hibernate.Session db = getDB();
+		TemplateEngine t = getTemplateEngine();
+
 		t.setVar(
 				"show.news", 1,
-				"show.overview", archiv == 0,
+				"show.overview", !archiv,
 				"show.news.archiv", archiv);
+
 		t.setBlock("_PORTAL", "news.listitem", "news.list");
 
 		List<NewsEntry> allnews = Common.cast(db.createQuery("FROM NewsEntry ORDER BY date DESC")
-				.setMaxResults(archiv != 0 ? 100 : 5)
-				.list());
+											  .setMaxResults(archiv ? 100 : 2)
+											  .list());
 		for (NewsEntry news : allnews)
 		{
 			t.setVar("news.date", Common.date("d.m.Y H:i", news.getDate()),
