@@ -170,6 +170,9 @@ public class Rasse
 		{
 			return memberIn.getPersonenNamenGenerator();
 		}
+		else if( personenNamenGenerator == null ) {
+			return PersonenNamenGenerator.ENGLISCH;
+		}
 		return personenNamenGenerator;
 	}
 
@@ -185,6 +188,9 @@ public class Rasse
 		{
 			return memberIn.getSchiffsKlassenNamenGenerator();
 		}
+		else if( schiffsKlassenNamenGenerator == null ) {
+			return SchiffsKlassenNamenGenerator.KEIN_KUERZEL;
+		}
 		return schiffsKlassenNamenGenerator;
 	}
 
@@ -199,6 +205,9 @@ public class Rasse
 		if (schiffsNamenGenerator == null && (memberIn != null))
 		{
 			return memberIn.getSchiffsNamenGenerator();
+		}
+		else if( schiffsNamenGenerator == null ) {
+			return SchiffsNamenGenerator.SCHIFFSTYP;
 		}
 		return schiffsNamenGenerator;
 	}
