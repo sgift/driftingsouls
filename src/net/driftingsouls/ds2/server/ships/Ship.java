@@ -1595,6 +1595,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		List<Ship> ships = Common.cast(db.createQuery("from Ship s inner join fetch s.owner " +
 				"where s.e > 0 and s.alarm!=:green and s.docked='' and " +
 				"	s.crew!=0 and s.system=:system and s.owner!=:owner and " +
+				"   (s.owner.vaccount=0 or s.owner.wait4vac>0) and " +
 				"	s.x in (:xSektoren) and s.y in (:ySektoren)")
 			.setParameter("green", Alert.GREEN.getCode())
 			.setParameter("system", locs[0].getSystem())
