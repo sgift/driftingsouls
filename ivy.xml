@@ -1,0 +1,9 @@
+<ivy-module version="2.0">
+	<info organisation="net.driftingsouls" module="ds2-server"/>
+	<configurations>
+		<conf name="runtime" description=""/>
+	</configurations>
+	<dependencies>
+		<dependency org="commons-lang" name="commons-lang" rev="2.4" conf="runtime->default"/>
+	</dependencies>
+</ivy-module>
