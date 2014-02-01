@@ -123,7 +123,7 @@
 
 	<target name="resolve" depends="prepare">
 		<ivy:settings file="build-utils/ivy/ivysettings.xml" />
-		<ivy:retrieve inline="false" type="jar" conf="runtime" pattern="${build.home}/WEB-INF/lib/[artifact].[ext]" overwriteMode="always"/>
+		<ivy:retrieve inline="false" type="jar" conf="compile" pattern="${build.home}/WEB-INF/lib/[artifact]-[revision].[ext]" overwriteMode="always"/>
 	</target>
 
 	<!-- ==================== Antlr Target ================================== -->

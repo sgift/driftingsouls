@@ -1,9 +1,42 @@
 <ivy-module version="2.0">
 	<info organisation="net.driftingsouls" module="ds2-server"/>
-	<configurations>
-		<conf name="runtime" description=""/>
+	<configurations defaultconfmapping="default->default">
+		<conf name="default" />
+		<conf name="provided" />
+		<conf name="compile" extends="default,provided" visibility="public"/>
+		<conf name="test" visibility="public" />
 	</configurations>
 	<dependencies>
-		<dependency org="commons-lang" name="commons-lang" rev="2.4" conf="runtime->default"/>
+		<dependency org="log4j" name="log4j" rev="1.2.15" conf="compile->default">
+			<exclude org="javax.jms" />
+			<exclude org="com.sun.jdmk" />
+			<exclude org="com.sun.jmx" />
+			<exclude org="javax.mail" />
+		</dependency>
+
+		<dependency org="javax.activation" name="activation" rev="1.1.1" conf="compile->default"/>
+		<dependency org="commons-lang" name="commons-lang" rev="2.4" conf="compile->default"/>
+		<dependency org="commons-io" name="commons-io" rev="1.2" conf="compile->default"/>
+		<dependency org="commons-fileupload" name="commons-fileupload" rev="1.2" conf="compile->default"/>
+		<dependency org="commons-logging" name="commons-logging" rev="1.1.1" conf="compile->default" />
+		<dependency org="commons-beanutils" name="commons-beanutils" rev="1.8.1" conf="compile->default"/>
+
+		<dependency org="javax.mail" name="mail" rev="1.4.7" conf="compile->default"/>
+		<dependency org="net.java.dev.rome" name="rome" rev="1.0.0" conf="compile->default"/>
+		<dependency org="org.scannotation" name="scannotation" rev="1.0.3" conf="compile->default"/>
+		<dependency org="mysql" name="mysql-connector-java" rev="5.1.28" conf="compile->default"/>
+
+		<dependency org="org.hibernate" name="hibernate-core" rev="4.1.5.SP1" conf="compile->default"/>
+		<dependency org="org.hibernate" name="hibernate-ehcache" rev="4.1.5.SP1" conf="compile->default"/>
+		<dependency org="org.hibernate" name="hibernate-c3p0" rev="4.1.5.SP1" conf="compile->default"/>
+		<dependency org="org.hibernate" name="hibernate-entitymanager" rev="4.1.5.SP1" conf="compile->default"/>
+
+		<dependency org="org.springframework" name="spring-core" rev="2.5.5" conf="compile->default"/>
+		<dependency org="commons-collections" name="commons-collections" rev="3.2" conf="compile->default"/>
+		<dependency org="org.springframework" name="spring-context" rev="2.5.5" conf="compile->default"/>
+		<dependency org="org.springframework" name="spring-context-support" rev="2.5.5" conf="compile->default"/>
+		<dependency org="org.springframework" name="spring-web" rev="2.5.5" conf="compile->default"/>
+		<dependency org="org.springframework" name="spring-tx" rev="2.5.5" conf="compile->default"/>
+		<dependency org="opensymphony" name="quartz-all" rev="1.6.0" conf="compile->default"/>
 	</dependencies>
 </ivy-module>
