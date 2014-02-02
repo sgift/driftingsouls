@@ -18,11 +18,11 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.framework.JSONSupport;
-import net.sf.json.JSON;
-import net.sf.json.JSONObject;
 import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Column;
@@ -179,16 +179,16 @@ public class JumpNode implements Locatable, JSONSupport {
 	}
 
 	@Override
-	public JSON toJSON()
+	public JsonElement toJSON()
 	{
-		JSONObject nodeObj = new JSONObject();
-		nodeObj.accumulate("system", this.system);
-		nodeObj.accumulate("x", this.x);
-		nodeObj.accumulate("y", this.y);
-		nodeObj.accumulate("name", this.name);
-		nodeObj.accumulate("systemout", this.systemOut);
-		nodeObj.accumulate("blocked", this.gcpColonistBlock);
-		nodeObj.accumulate("hidden", this.hidden != 0);
+		JsonObject nodeObj = new JsonObject();
+		nodeObj.addProperty("system", this.system);
+		nodeObj.addProperty("x", this.x);
+		nodeObj.addProperty("y", this.y);
+		nodeObj.addProperty("name", this.name);
+		nodeObj.addProperty("systemout", this.systemOut);
+		nodeObj.addProperty("blocked", this.gcpColonistBlock);
+		nodeObj.addProperty("hidden", this.hidden != 0);
 
 		return nodeObj;
 	}

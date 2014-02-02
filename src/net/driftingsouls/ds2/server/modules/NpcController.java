@@ -1,5 +1,8 @@
 package net.driftingsouls.ds2.server.modules;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
@@ -32,8 +35,6 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -90,7 +91,7 @@ public class NpcController extends AngularController
 	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject shopMenuAction() {
+	public JsonElement shopMenuAction() {
 		org.hibernate.Session db = getDB();
 		User user = (User)this.getUser();
 		
@@ -99,10 +100,10 @@ public class NpcController extends AngularController
 			return JSONUtils.error("Sie verfügen über keinen Shop und können daher diese Seite nicht aufrufen");
 		}
 		
-		JSONObject result = new JSONObject();
+		JsonObject result = new JsonObject();
 		fillCommonMenuResultData(result);
 		
-		JSONArray transpListObj = new JSONArray();
+		JsonArray transpListObj = new JsonArray();
 	
 		List<?> ships = db.createQuery("from Ship s where s.owner=:user and locate('#!/tm gany_transport',s.einstellungen.destcom)!=0")
 			.setEntity("user", user)
@@ -112,16 +113,16 @@ public class NpcController extends AngularController
 			Ship aship = (Ship) ship;
 			ShipTypeData ashiptype = aship.getTypeData();
 
-			JSONObject transObj = new JSONObject();
-			transObj.accumulate("status", "lageweile")
-					.accumulate("auftrag", "-");
+			JsonObject transObj = new JsonObject();
+			transObj.addProperty("status", "lageweile");
+			transObj.addProperty("auftrag", "-");
 
-			JSONObject shipObj = new JSONObject();
-			shipObj.accumulate("id", aship.getId())
-					.accumulate("name", aship.getName())
-					.accumulate("picture", ashiptype.getPicture());
+			JsonObject shipObj = new JsonObject();
+			shipObj.addProperty("id", aship.getId());
+			shipObj.addProperty("name", aship.getName());
+			shipObj.addProperty("picture", ashiptype.getPicture());
 
-			transObj.accumulate("ship", shipObj);
+			transObj.add("ship", shipObj);
 			transpListObj.add(transObj);
 
 			Taskmanager taskmanager = Taskmanager.getInstance();
@@ -147,7 +148,7 @@ public class NpcController extends AngularController
 				status = "anreise";
 			}
 
-			transObj.accumulate("status", status);
+			transObj.addProperty("status", status);
 
 			FactionShopOrder order = (FactionShopOrder) db
 					.get(FactionShopOrder.class, Integer.parseInt(task.getData1()));
@@ -166,10 +167,10 @@ public class NpcController extends AngularController
 				orderuser.setName("deleted user");
 			}
 
-			transObj.accumulate("auftrag", order.getId() + ": " + Common._title(orderuser.getName()) + "\n" + order.getAddData());
+			transObj.addProperty("auftrag", order.getId() + ": " + Common._title(orderuser.getName()) + "\n" + order.getAddData());
 		}
 		
-		result.accumulate("transporter", transpListObj);
+		result.add("transporter", transpListObj);
 		return result;
 	}
 
@@ -181,7 +182,7 @@ public class NpcController extends AngularController
 	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject awardMedalAction(@UrlParam(name="edituser") String edituserID, int medal, String reason) {
+	public JsonElement awardMedalAction(@UrlParam(name="edituser") String edituserID, int medal, String reason) {
 		User user = (User)this.getUser();
 
 		if( !this.isHead ) {
@@ -233,7 +234,7 @@ public class NpcController extends AngularController
 	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject changeRankAction(@UrlParam(name="edituser") String edituserID, int rank) {
+	public JsonElement changeRankAction(@UrlParam(name="edituser") String edituserID, int rank) {
 		User user = (User)this.getUser();
 
 		User edituser = User.lookupByIdentifier(edituserID);
@@ -252,7 +253,7 @@ public class NpcController extends AngularController
 	}
 
 	@Action(ActionType.AJAX)
-	public JSONObject deleteLpAction(@UrlParam(name="edituser") String edituserID, @UrlParam(name="lp") int lpId)
+	public JsonElement deleteLpAction(@UrlParam(name="edituser") String edituserID, @UrlParam(name="lp") int lpId)
 	{
 		User edituser = User.lookupByIdentifier(edituserID);
 		if( edituser == null )
@@ -293,7 +294,7 @@ public class NpcController extends AngularController
 	 * @return Das Antwortobjekt
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject editLpAction(@UrlParam(name="edituser") String edituserID, String grund, String anmerkungen, int punkte, boolean pm)
+	public JsonElement editLpAction(@UrlParam(name="edituser") String edituserID, String grund, String anmerkungen, int punkte, boolean pm)
 	{
 		User user = (User)this.getUser();
 
@@ -334,7 +335,7 @@ public class NpcController extends AngularController
 	 * @return Die JSON-Antwort
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject meldungBearbeitetAction(FraktionAktionsMeldung meldung)
+	public JsonElement meldungBearbeitetAction(FraktionAktionsMeldung meldung)
 	{
 		if( meldung == null )
 		{
@@ -351,13 +352,13 @@ public class NpcController extends AngularController
 	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject lpMenuAction(@UrlParam(name="edituser") String edituserID, boolean alleMeldungen)
+	public JsonElement lpMenuAction(@UrlParam(name="edituser") String edituserID, boolean alleMeldungen)
 	{
 		User user = (User)this.getUser();
 
-		JSONObject result = new JSONObject();
+		JsonObject result = new JsonObject();
 		fillCommonMenuResultData(result);
-		result.accumulate("alleMeldungen", alleMeldungen);
+		result.addProperty("alleMeldungen", alleMeldungen);
 
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.DAY_OF_YEAR, -14);
@@ -378,20 +379,20 @@ public class NpcController extends AngularController
 					.list());
 		}
 
-		JSONArray meldungenListObj = new JSONArray();
+		JsonArray meldungenListObj = new JsonArray();
 		for (FraktionAktionsMeldung meldung : meldungen)
 		{
-			JSONObject meldungObj = new JSONObject();
-			meldungObj.accumulate("id", meldung.getId());
-			meldungObj.accumulate("von", meldung.getGemeldetVon().toJSON());
-			meldungObj.accumulate("am", meldung.getGemeldetAm().getTime());
-			meldungObj.accumulate("fraktion", meldung.getFraktion().toJSON());
-			meldungObj.accumulate("meldungstext", meldung.getMeldungstext());
-			meldungObj.accumulate("bearbeitetAm", meldung.getBearbeitetAm() != null ? meldung.getBearbeitetAm().getTime() : null);
+			JsonObject meldungObj = new JsonObject();
+			meldungObj.addProperty("id", meldung.getId());
+			meldungObj.add("von", meldung.getGemeldetVon().toJSON());
+			meldungObj.addProperty("am", meldung.getGemeldetAm().getTime());
+			meldungObj.add("fraktion", meldung.getFraktion().toJSON());
+			meldungObj.addProperty("meldungstext", meldung.getMeldungstext());
+			meldungObj.addProperty("bearbeitetAm", meldung.getBearbeitetAm() != null ? meldung.getBearbeitetAm().getTime() : null);
 			meldungenListObj.add(meldungObj);
 		}
 
-		result.accumulate("meldungen", meldungenListObj);
+		result.add("meldungen", meldungenListObj);
 
 		User edituser = User.lookupByIdentifier(edituserID);
 
@@ -399,23 +400,23 @@ public class NpcController extends AngularController
 			return result;
 		}
 
-		result.accumulate("user", edituser.toJSON());
+		result.add("user", edituser.toJSON());
 
 		UserRank rank = edituser.getRank(user);
 
 		//DateFormat format = new SimpleDateFormat("dd.MM.yy HH:mm");
 
-		JSONArray lpListObj = new JSONArray();
+		JsonArray lpListObj = new JsonArray();
 		for( Loyalitaetspunkte lp : new TreeSet<>(edituser.getLoyalitaetspunkte()) )
 		{
-			JSONObject lpObj = lp.toJSON();
-			lpObj.accumulate("verliehenDurch", lp.getVerliehenDurch().toJSON());
+			JsonElement lpObj = lp.toJSON();
+			lpObj.getAsJsonObject().add("verliehenDurch", lp.getVerliehenDurch().toJSON());
 
 			lpListObj.add(lpObj);
 		}
-		result.accumulate("lpListe", lpListObj);
-		result.accumulate("rang", rank.getName());
-		result.accumulate("lpBeiNpc", edituser.getLoyalitaetspunkteTotalBeiNpc(user));
+		result.add("lpListe", lpListObj);
+		result.addProperty("rang", rank.getName());
+		result.addProperty("lpBeiNpc", edituser.getLoyalitaetspunkteTotalBeiNpc(user));
 
 		return result;
 	}
@@ -425,42 +426,42 @@ public class NpcController extends AngularController
 	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject raengeMenuAction(@UrlParam(name="edituser") String edituserID) {
+	public JsonElement raengeMenuAction(@UrlParam(name="edituser") String edituserID) {
 		User user = (User)this.getUser();
 
 		User edituser = User.lookupByIdentifier(edituserID);
 		
-		JSONObject result = new JSONObject();
+		JsonObject result = new JsonObject();
 		fillCommonMenuResultData(result);
 
 		if( edituser == null ) {
 			return result;
 		}
 
-		result.accumulate("user", edituser.toJSON());
+		result.add("user", edituser.toJSON());
 
 		UserRank rank = edituser.getRank(user);
-		result.accumulate("aktiverRang", rank.getRank());
+		result.addProperty("aktiverRang", rank.getRank());
 		
-		JSONArray raengeObj = new JSONArray();
+		JsonArray raengeObj = new JsonArray();
 		for( Rang rang : user.getOwnGrantableRanks() )
 		{
-			JSONObject rangObj = new JSONObject();
-			rangObj.accumulate("id", rang.getId());
+			JsonObject rangObj = new JsonObject();
+			rangObj.addProperty("id", rang.getId());
 			if( rang.getId() == 0 )
 			{
-				rangObj.accumulate("name", "-");
+				rangObj.addProperty("name", "-");
 			}
 			else
 			{
-				rangObj.accumulate("name", rang.getName());
+				rangObj.addProperty("name", rang.getName());
 			}
 			raengeObj.add(rangObj);
 		}
 		
-		result.accumulate("raenge", raengeObj);
+		result.add("raenge", raengeObj);
 
-		JSONArray medalsObj = new JSONArray();
+		JsonArray medalsObj = new JsonArray();
 		for( Medal medal : Medals.get().medals().values() ) {
 			if( medal.isAdminOnly() ) {
 				continue;
@@ -468,7 +469,7 @@ public class NpcController extends AngularController
 			
 			medalsObj.add(medal.toJSON());
 		}
-		result.accumulate("medals", medalsObj);
+		result.add("medals", medalsObj);
 		
 		return result;
 	}
@@ -479,7 +480,7 @@ public class NpcController extends AngularController
 	 * @param lieferposition Die Koordinate des Ortes, an dem die georderten Objekte erscheinen sollen
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject changeOrderLocationAction(String lieferposition) {
+	public JsonElement changeOrderLocationAction(String lieferposition) {
 		User user = (User)this.getUser();
 
 		if( lieferposition.isEmpty() )
@@ -505,7 +506,7 @@ public class NpcController extends AngularController
 	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject orderShipsAction(
+	public JsonElement orderShipsAction(
 			@UrlParam(name="shipflag_disableiff") boolean flagDisableIff,
 			@UrlParam(name="shipflag_handelsposten") boolean flagHandelsposten,
 			@UrlParam(name="shipflag_nichtkaperbar") boolean flagNichtKaperbar,
@@ -579,7 +580,7 @@ public class NpcController extends AngularController
 	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject orderAction(int order, int count) {
+	public JsonElement orderAction(int order, int count) {
 		org.hibernate.Session db = getDB();
 		User user = (User)this.getUser();
 
@@ -598,8 +599,8 @@ public class NpcController extends AngularController
 			throw new IllegalArgumentException("Unbekannte ID");
 		}
 
-		JSONObject result = new JSONObject();
-		result.accumulate("success", false);
+		JsonObject result = new JsonObject();
+		result.addProperty("success", false);
 		
 		if( costs > 0 ) {
 			if( user.getNpcPunkte() < costs ) {
@@ -622,14 +623,14 @@ public class NpcController extends AngularController
 	 * Zeigt die GUI zum Ordern von Schiffen/Offizieren.
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject orderMenuAction() {
+	public JsonElement orderMenuAction() {
 		org.hibernate.Session db = getDB();
 		User user = (User)this.getUser();
 
 		Map<Integer,Integer> shiporders = new HashMap<>();
 		Map<Integer,Integer> offiorders = new HashMap<>();
 
-		JSONObject result = new JSONObject();
+		JsonObject result = new JsonObject();
 		fillCommonMenuResultData(result);
 
 		List<?> orderList = db.createQuery("from Order where user= :user")
@@ -652,7 +653,7 @@ public class NpcController extends AngularController
 			Schiffe
 		*/
 
-		JSONArray shipResultList = new JSONArray();
+		JsonArray shipResultList = new JsonArray();
 
 		List<?> shipOrders = db.createQuery("from OrderableShip order by shipType.shipClass,shipType.id").list();
 		for (Object shipOrder : shipOrders)
@@ -664,31 +665,31 @@ public class NpcController extends AngularController
 				continue;
 			}
 
-			JSONObject resShip = new JSONObject();
+			JsonObject resShip = new JsonObject();
 
-			resShip.accumulate("klasse", ship.getShipType().getShipClass().getSingular());
+			resShip.addProperty("klasse", ship.getShipType().getShipClass().getSingular());
 
 			if (!shiporders.containsKey(ship.getId()))
 			{
 				shiporders.put(ship.getId(), 0);
 			}
 
-			resShip.accumulate("id", ship.getShipType().getId());
-			resShip.accumulate("name", ship.getShipType().getNickname());
-			resShip.accumulate("type", ship.getShipType().getId());
-			resShip.accumulate("cost", ship.getCost());
-			resShip.accumulate("ordercount", shiporders.get(ship.getId()));
+			resShip.addProperty("id", ship.getShipType().getId());
+			resShip.addProperty("name", ship.getShipType().getNickname());
+			resShip.addProperty("type", ship.getShipType().getId());
+			resShip.addProperty("cost", ship.getCost());
+			resShip.addProperty("ordercount", shiporders.get(ship.getId()));
 
 			shipResultList.add(resShip);
 		}
 		
-		result.accumulate("ships", shipResultList);
+		result.add("ships", shipResultList);
 
 		/*
 			Offiziere
 		*/
 
-		JSONArray resOffizierList = new JSONArray();
+		JsonArray resOffizierList = new JsonArray();
 
 		List<?> offizierOrders = db.createQuery("from OrderableOffizier where cost > 0 order by id").list();
 		for (Object offizierOrder : offizierOrders)
@@ -700,34 +701,34 @@ public class NpcController extends AngularController
 				offiorders.put(-offizier.getId(), 0);
 			}
 
-			JSONObject resOffizier = new JSONObject();
-			resOffizier.accumulate("name", offizier.getName());
-			resOffizier.accumulate("rang", offizier.getRang());
-			resOffizier.accumulate("cost", offizier.getCost());
-			resOffizier.accumulate("id", -offizier.getId());
-			resOffizier.accumulate("ordercount", offiorders.get(offizier.getId()));
+			JsonObject resOffizier = new JsonObject();
+			resOffizier.addProperty("name", offizier.getName());
+			resOffizier.addProperty("rang", offizier.getRang());
+			resOffizier.addProperty("cost", offizier.getCost());
+			resOffizier.addProperty("id", -offizier.getId());
+			resOffizier.addProperty("ordercount", offiorders.get(offizier.getId()));
 
 			resOffizierList.add(resOffizier);
 		}
 
-		result.accumulate("offiziere", resOffizierList);
-		result.accumulate("npcpunkte", user.getNpcPunkte());
+		result.add("offiziere", resOffizierList);
+		result.addProperty("npcpunkte", user.getNpcPunkte());
 		
 		outputLieferposition(result, user);
 		
 		return result;
 	}
 
-	private void fillCommonMenuResultData(JSONObject result)
+	private void fillCommonMenuResultData(JsonObject result)
 	{
-		JSONObject menuObj = new JSONObject();
-		menuObj.accumulate("head", this.isHead);
-		menuObj.accumulate("shop", this.shop);
+		JsonObject menuObj = new JsonObject();
+		menuObj.addProperty("head", this.isHead);
+		menuObj.addProperty("shop", this.shop);
 		
-		result.accumulate("menu", menuObj);
+		result.add("menu", menuObj);
 	}
 
-	private void outputLieferposition(JSONObject result, User user)
+	private void outputLieferposition(JsonObject result, User user)
 	{
 		Set<Location> uniqueLocations = new HashSet<>();
 
@@ -737,7 +738,7 @@ public class NpcController extends AngularController
 			lieferpos = Location.fromString(user.getNpcOrderLocation());
 		}
 		
-		JSONArray resLieferPos = new JSONArray();
+		JsonArray resLieferPos = new JsonArray();
 		for( Base base : user.getBases() )
 		{
 			// Jede Position nur einmal auflisten!
@@ -745,15 +746,14 @@ public class NpcController extends AngularController
 			{
 				continue;
 			}
-			JSONObject resPos = new JSONObject();
-			resPos
-				.accumulate("pos", base.getLocation().asString())
-				.accumulate("name", Common._plaintitle(base.getName()));
+			JsonObject resPos = new JsonObject();
+			resPos.addProperty("pos", base.getLocation().asString());
+			resPos.addProperty("name", Common._plaintitle(base.getName()));
 			
 			resLieferPos.add(resPos);
 		}
 		
-		result.accumulate("lieferpositionen", resLieferPos);
-		result.accumulate("aktuelleLieferposition", lieferpos != null ? lieferpos.asString() : null);
+		result.add("lieferpositionen", resLieferPos);
+		result.addProperty("aktuelleLieferposition", lieferpos != null ? lieferpos.asString() : null);
 	}
 }

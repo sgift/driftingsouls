@@ -18,17 +18,15 @@
  */
 package net.driftingsouls.ds2.server.bases;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.Transient;
-
+import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.sf.json.JSONObject;
+
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
 
 
 /**
@@ -154,31 +152,31 @@ public class DefaultBuilding extends Building {
 	}
 
 	@Override
-	public JSONObject outputJson(Context context, Base base, int field, int building)
+	public JsonObject outputJson(Context context, Base base, int field, int building)
 	{
-		JSONObject gui = new JSONObject();
-		JSONObject consumes = new JSONObject();
-		JSONObject produces = new JSONObject();
+		JsonObject gui = new JsonObject();
+		JsonObject consumes = new JsonObject();
+		JsonObject produces = new JsonObject();
 
 		if( !getConsumes().isEmpty() || getEVerbrauch() > 0 ) {
 			ResourceList reslist = getConsumes().getResourceList();
-			consumes.accumulate("cargo", reslist.toJSON());
+			consumes.add("cargo", reslist.toJSON());
 
-			JSONObject cEnergy = new JSONObject();
-			cEnergy.accumulate("count", getEVerbrauch());
-			consumes.accumulate("energy", cEnergy);
-			gui.accumulate("consumes", consumes);
+			JsonObject cEnergy = new JsonObject();
+			cEnergy.addProperty("count", getEVerbrauch());
+			consumes.add("energy", cEnergy);
+			gui.add("consumes", consumes);
 		}
 
 		if( !getProduces().isEmpty() || getEProduktion() > 0 ) {
 			ResourceList reslist = getProduces().getResourceList();
-			produces.accumulate("cargo", reslist.toJSON());
+			produces.add("cargo", reslist.toJSON());
 
-			JSONObject pEnergy = new JSONObject();
-			pEnergy.accumulate("count", getEProduktion());
-			produces.accumulate("energy", pEnergy);
+			JsonObject pEnergy = new JsonObject();
+			pEnergy.addProperty("count", getEProduktion());
+			produces.add("energy", pEnergy);
 
-			gui.accumulate("produces", produces);
+			gui.add("produces", produces);
 		}
 
 

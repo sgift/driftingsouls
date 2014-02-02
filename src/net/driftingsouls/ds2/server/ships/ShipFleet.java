@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -25,8 +27,6 @@ import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.JSONSupport;
 import net.driftingsouls.ds2.server.werften.WerftObject;
-import net.sf.json.JSON;
-import net.sf.json.JSONObject;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 
@@ -455,11 +455,11 @@ public class ShipFleet implements JSONSupport {
 	}
 
 	@Override
-	public JSON toJSON()
+	public JsonElement toJSON()
 	{
-		JSONObject fleetObj = new JSONObject();
-		fleetObj.accumulate("id", this.id);
-		fleetObj.accumulate("name", this.name);
+		JsonObject fleetObj = new JsonObject();
+		fleetObj.addProperty("id", this.id);
+		fleetObj.addProperty("name", this.name);
 		return fleetObj;
 	}
 }

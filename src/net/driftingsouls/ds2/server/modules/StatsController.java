@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
@@ -45,8 +47,6 @@ import net.driftingsouls.ds2.server.modules.stats.StatSpieleraktivitaet;
 import net.driftingsouls.ds2.server.modules.stats.StatWaren;
 import net.driftingsouls.ds2.server.modules.stats.StatWarenentwicklung;
 import net.driftingsouls.ds2.server.modules.stats.Statistic;
-import net.sf.json.JSON;
-import net.sf.json.JSONObject;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -194,7 +194,7 @@ public class StatsController extends Controller
 	 * @throws IOException
 	 */
 	@Action(ActionType.AJAX)
-	public JSON ajaxAction(int stat, int show) throws IOException {
+	public JsonElement ajaxAction(int stat, int show) throws IOException {
 		show = ermittleAnzuzeigendeStatistikkategorie(show);
 		if( this.statslist.get(show).size() <= stat ) {
 			stat = 1;
@@ -206,7 +206,7 @@ public class StatsController extends Controller
 		{
 			return ((AjaxStatistic)mystat.stat).generateData(this, mystat.width);
 		}
-		return new JSONObject();
+		return new JsonObject();
 	}
 
 	/**

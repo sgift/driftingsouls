@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
@@ -28,8 +30,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.ships.Ship;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 import java.io.IOException;
 import java.util.List;
@@ -62,7 +62,7 @@ public class ImpObjectsController extends Controller
 	public void jsonAction(StarSystem system) throws IOException
 	{
 		org.hibernate.Session db = getDB();
-		JSONObject json = new JSONObject();
+		JsonObject json = new JsonObject();
 		User user = (User) getUser();
 
 		if (system == null)
@@ -70,13 +70,13 @@ public class ImpObjectsController extends Controller
 			system = (StarSystem) db.get(StarSystem.class, 1);
 		}
 
-		JSONObject sysObj = new JSONObject();
-		sysObj.accumulate("name", system.getName());
-		sysObj.accumulate("id", system.getID());
-		json.accumulate("system", sysObj);
+		JsonObject sysObj = new JsonObject();
+		sysObj.addProperty("name", system.getName());
+		sysObj.addProperty("id", system.getID());
+		json.add("system", sysObj);
 
-		JSONArray jnListObj = new JSONArray();
-		JSONArray postenListObj = new JSONArray();
+		JsonArray jnListObj = new JsonArray();
+		JsonArray postenListObj = new JsonArray();
 		if (system.isVisibleFor(user))
 		{
 			/*
@@ -92,12 +92,12 @@ public class ImpObjectsController extends Controller
 
 				StarSystem systemout = (StarSystem) db.get(StarSystem.class, node.getSystemOut());
 
-				JSONObject jn = new JSONObject();
-				jn.accumulate("x", node.getX());
-				jn.accumulate("y", node.getY());
-				jn.accumulate("name", node.getName());
-				jn.accumulate("target", node.getSystemOut());
-				jn.accumulate("targetname", systemout.getName());
+				JsonObject jn = new JsonObject();
+				jn.addProperty("x", node.getX());
+				jn.addProperty("y", node.getY());
+				jn.addProperty("name", node.getName());
+				jn.addProperty("target", node.getSystemOut());
+				jn.addProperty("targetname", systemout.getName());
 
 				jnListObj.add(jn);
 			}
@@ -119,22 +119,22 @@ public class ImpObjectsController extends Controller
 					continue;
 				}
 
-				JSONObject postenObj = new JSONObject();
-				postenObj.accumulate("x", posten.getX());
-				postenObj.accumulate("y", posten.getY());
-				postenObj.accumulate("name", posten.getName());
+				JsonObject postenObj = new JsonObject();
+				postenObj.addProperty("x", posten.getX());
+				postenObj.addProperty("y", posten.getY());
+				postenObj.addProperty("name", posten.getName());
 
 				postenListObj.add(postenObj);
 			}
 		}
 
-		json.accumulate("jumpnodes", jnListObj);
-		json.accumulate("posten", postenListObj);
+		json.add("jumpnodes", jnListObj);
+		json.add("posten", postenListObj);
 
 		/*
 			Basen
 		*/
-		JSONArray baseListObj = new JSONArray();
+		JsonArray baseListObj = new JsonArray();
 
 		List<?> baseList = db.createQuery("from Base where owner=:owner and system=:sys")
 				.setEntity("owner", getUser())
@@ -144,15 +144,15 @@ public class ImpObjectsController extends Controller
 		{
 			Base base = (Base) aBaseList;
 
-			JSONObject baseObj = new JSONObject();
-			baseObj.accumulate("x", base.getX());
-			baseObj.accumulate("y", base.getY());
-			baseObj.accumulate("name", base.getName());
+			JsonObject baseObj = new JsonObject();
+			baseObj.addProperty("x", base.getX());
+			baseObj.addProperty("y", base.getY());
+			baseObj.addProperty("name", base.getName());
 
 			baseListObj.add(baseObj);
 		}
 
-		json.accumulate("bases", baseListObj);
+		json.add("bases", baseListObj);
 
 		getResponse().getWriter().append(json.toString());
 	}

@@ -1,6 +1,6 @@
 package net.driftingsouls.ds2.server.framework;
 
-import net.sf.json.JSON;
+import com.google.gson.JsonElement;
 
 /**
  * Marker-Interface fuer JSON-Support.
@@ -13,5 +13,5 @@ public interface JSONSupport
 	 * Konvertiert das Objekt in ein JSON-Objekt.
 	 * @return Das Objekt als JSON-Objekt
 	 */
-	public JSON toJSON();
+	public JsonElement toJSON();
 }

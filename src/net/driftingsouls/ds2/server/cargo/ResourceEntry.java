@@ -18,8 +18,9 @@
  */
 package net.driftingsouls.ds2.server.cargo;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.framework.JSONSupport;
-import net.sf.json.JSONObject;
 
 /**
  * Ein Eintrag innerhalb einer Resourcen-Liste.
@@ -162,21 +163,21 @@ public class ResourceEntry implements JSONSupport {
 	}
 
 	@Override
-	public JSONObject toJSON()
+	public JsonElement toJSON()
 	{
-		JSONObject obj = new JSONObject();
-		obj.accumulate("count1", this.count1);
-		obj.accumulate("cargo1", this.cargo1);
-		obj.accumulate("image", this.image);
-		obj.accumulate("name", this.name);
-		obj.accumulate("plainname", this.plainName);
-		obj.accumulate("id", this.id.toString());
+		JsonObject obj = new JsonObject();
+		obj.addProperty("count1", this.count1);
+		obj.addProperty("cargo1", this.cargo1);
+		obj.addProperty("image", this.image);
+		obj.addProperty("name", this.name);
+		obj.addProperty("plainname", this.plainName);
+		obj.addProperty("id", this.id.toString());
 
 		if( this.cargo2 != null )
 		{
-			obj.accumulate("count2", this.count2);
-			obj.accumulate("diff", this.diff);
-			obj.accumulate("cargo2", this.cargo2);
+			obj.addProperty("count2", this.count2);
+			obj.addProperty("diff", this.diff);
+			obj.addProperty("cargo2", this.cargo2);
 		}
 
 		return obj;

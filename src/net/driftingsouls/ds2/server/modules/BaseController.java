@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.BaseStatus;
 import net.driftingsouls.ds2.server.bases.Building;
@@ -35,8 +37,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateContro
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 import java.io.IOException;
 import java.util.*;
@@ -234,34 +234,33 @@ public class BaseController extends TemplateController
 	 * Zeigt die Basis an.
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject ajaxAction(@UrlParam(name="col") Base base) {
+	public JsonObject ajaxAction(@UrlParam(name="col") Base base) {
 		validate(base);
 
 		User user = (User)getUser();
 
-		JSONObject response = new JSONObject();
-		response.accumulate("col", base.getId());
+		JsonObject response = new JsonObject();
+		response.addProperty("col", base.getId());
 
-		JSONObject baseObj = new JSONObject();
-		baseObj
-			.accumulate("id", base.getId())
-			.accumulate("name", Common._plaintitle(base.getName()))
-			.accumulate("x", base.getX())
-			.accumulate("y", base.getY())
-			.accumulate("system", base.getSystem())
-			.accumulate("feeding", base.isFeeding())
-			.accumulate("loading", base.isLoading())
-			.accumulate("width", base.getWidth());
+		JsonObject baseObj = new JsonObject();
+		baseObj.addProperty("id", base.getId());
+		baseObj.addProperty("name", Common._plaintitle(base.getName()));
+		baseObj.addProperty("x", base.getX());
+		baseObj.addProperty("y", base.getY());
+		baseObj.addProperty("system", base.getSystem());
+		baseObj.addProperty("feeding", base.isFeeding());
+		baseObj.addProperty("loading", base.isLoading());
+		baseObj.addProperty("width", base.getWidth());
 
 		if( base.getCore() > 0 ) {
 			Core core = Core.getCore(base.getCore());
 
-			JSONObject coreObj = new JSONObject()
-				.accumulate("id", core.getId())
-				.accumulate("name", Common._plaintitle(core.getName()))
-				.accumulate("active", base.isCoreActive());
+			JsonObject coreObj = new JsonObject();
+			coreObj.addProperty("id", core.getId());
+			coreObj.addProperty("name", Common._plaintitle(core.getName()));
+			coreObj.addProperty("active", base.isCoreActive());
 
-			baseObj.accumulate("core", coreObj);
+			baseObj.add("core", coreObj);
 		}
 
 		BaseStatus basedata = Base.getStatus(base);
@@ -269,34 +268,33 @@ public class BaseController extends TemplateController
 		ResourceList reslist = base.getCargo().compare(basedata.getProduction(), true,true);
 		reslist.sortByID(false);
 
-		baseObj
-			.accumulate("cargo", reslist.toJSON())
-			.accumulate("cargoBilanz", -basedata.getProduction().getMass())
-			.accumulate("cargoFrei", base.getMaxCargo() - base.getCargo().getMass())
-			.accumulate("einheiten", base.getUnits().toJSON())
-			.accumulate("energyProduced", basedata.getEnergy())
-			.accumulate("energy", base.getEnergy())
-			.accumulate("bewohner", base.getBewohner())
-			.accumulate("arbeiter", base.getArbeiter())
-			.accumulate("arbeiterErforderlich", basedata.getArbeiter())
-			.accumulate("wohnraum", basedata.getLivingSpace());
+		baseObj.add("cargo", reslist.toJSON());
+		baseObj.addProperty("cargoBilanz", -basedata.getProduction().getMass());
+		baseObj.addProperty("cargoFrei", base.getMaxCargo() - base.getCargo().getMass());
+		baseObj.add("einheiten", base.getUnits().toJSON());
+		baseObj.addProperty("energyProduced", basedata.getEnergy());
+		baseObj.addProperty("energy", base.getEnergy());
+		baseObj.addProperty("bewohner", base.getBewohner());
+		baseObj.addProperty("arbeiter", base.getArbeiter());
+		baseObj.addProperty("arbeiterErforderlich", basedata.getArbeiter());
+		baseObj.addProperty("wohnraum", basedata.getLivingSpace());
 
-		response.accumulate("base", baseObj);
+		response.add("base", baseObj);
 
 		//----------------
 		// Karte
 		//----------------
 
-		JSONArray mapObj = new JSONArray();
+		JsonArray mapObj = new JsonArray();
 
 		Map<Integer,Integer> buildingonoffstatus = new TreeMap<>(new BuildingComparator());
 
 		for( int i = 0; i < base.getWidth() * base.getHeight(); i++ ) {
-			JSONObject feld = new JSONObject();
+			JsonObject feld = new JsonObject();
 
 			//Leeres Feld
 			if( base.getBebauung()[i] != 0 ) {
-				JSONObject gebaeudeObj = new JSONObject();
+				JsonObject gebaeudeObj = new JsonObject();
 
 				Building building = Building.getBuilding(base.getBebauung()[i]);
 				base.getActive()[i] = basedata.getActiveBuildings()[i];
@@ -313,43 +311,42 @@ public class BaseController extends TemplateController
 					}
 				}
 
-				gebaeudeObj.accumulate("name", Common._plaintitle(building.getName()))
-					.accumulate("id", building.getId())
-					.accumulate("supportsJSON", building.isSupportsJson())
-					.accumulate("deaktiviert", building.isDeakAble() && (base.getActive()[i] == 0))
-					.accumulate("grafik", building.getPictureForRace(user.getRace()));
+				gebaeudeObj.addProperty("name", Common._plaintitle(building.getName()));
+				gebaeudeObj.addProperty("id", building.getId());
+				gebaeudeObj.addProperty("supportsJSON", building.isSupportsJson());
+				gebaeudeObj.addProperty("deaktiviert", building.isDeakAble() && (base.getActive()[i] == 0));
+				gebaeudeObj.addProperty("grafik", building.getPictureForRace(user.getRace()));
 
-				feld.accumulate("gebaeude", gebaeudeObj);
+				feld.add("gebaeude", gebaeudeObj);
 			}
 
-			feld.accumulate("feld", i)
-				.accumulate("terrain", base.getTerrain()[i]);
+			feld.addProperty("feld", i);
+			feld.addProperty("terrain", base.getTerrain()[i]);
 
 			mapObj.add(feld);
 		}
 
-		response.accumulate("karte", mapObj);
+		response.add("karte", mapObj);
 
 		//----------------
 		// Aktionen
 		//----------------
 
-		JSONArray buildingStatus = new JSONArray();
+		JsonArray buildingStatus = new JsonArray();
 		for( Map.Entry<Integer,Integer> entry : buildingonoffstatus.entrySet() ) {
 			int bstatus = entry.getValue();
 			Building building = Building.getBuilding(entry.getKey());
 
-			JSONObject buildingObj = new JSONObject();
-			buildingObj
-				.accumulate("name", Common._plaintitle(building.getName()))
-				.accumulate("id", entry.getKey())
-				.accumulate("aktivierbar", (bstatus == -1) || (bstatus == 1))
-				.accumulate("deaktivierbar", (bstatus == -1) || (bstatus == 2));
+			JsonObject buildingObj = new JsonObject();
+			buildingObj.addProperty("name", Common._plaintitle(building.getName()));
+			buildingObj.addProperty("id", entry.getKey());
+			buildingObj.addProperty("aktivierbar", (bstatus == -1) || (bstatus == 1));
+			buildingObj.addProperty("deaktivierbar", (bstatus == -1) || (bstatus == 2));
 
 			buildingStatus.add(buildingObj);
 		}
 
-		response.accumulate("gebaeudeStatus", buildingStatus);
+		response.add("gebaeudeStatus", buildingStatus);
 
 		return response;
 	}

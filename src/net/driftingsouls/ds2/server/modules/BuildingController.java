@@ -18,6 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -32,8 +35,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -81,38 +82,38 @@ public class BuildingController extends TemplateController
 	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject startAjaxAction(@UrlParam(name = "col") Base base, int field)
+	public JsonObject startAjaxAction(@UrlParam(name = "col") Base base, int field)
 	{
 		validiereBasisUndFeld(base, field);
 		Building building = getGebaeudeFuerFeld(base, field);
 
 		User user = (User) getUser();
-		JSONObject response = new JSONObject();
-		response.accumulate("col", base.getId());
-		response.accumulate("field", field);
+		JsonObject response = new JsonObject();
+		response.addProperty("col", base.getId());
+		response.addProperty("field", field);
 
-		JSONObject buildingObj = new JSONObject();
-		buildingObj.accumulate("id", building.getId());
-		buildingObj.accumulate("name", Common._plaintitle(building.getName()));
-		buildingObj.accumulate("picture", building.getPictureForRace(user.getRace()));
-		buildingObj.accumulate("active", building.isActive(base, base.getActive()[field], field));
-		buildingObj.accumulate("deakable", building.isDeakAble());
-		buildingObj.accumulate("kommandozentrale", building.getId() == Building.KOMMANDOZENTRALE);
-		buildingObj.accumulate("type", building.getClass().getSimpleName());
+		JsonObject buildingObj = new JsonObject();
+		buildingObj.addProperty("id", building.getId());
+		buildingObj.addProperty("name", Common._plaintitle(building.getName()));
+		buildingObj.addProperty("picture", building.getPictureForRace(user.getRace()));
+		buildingObj.addProperty("active", building.isActive(base, base.getActive()[field], field));
+		buildingObj.addProperty("deakable", building.isDeakAble());
+		buildingObj.addProperty("kommandozentrale", building.getId() == Building.KOMMANDOZENTRALE);
+		buildingObj.addProperty("type", building.getClass().getSimpleName());
 
-		response.accumulate("building", buildingObj);
+		response.add("building", buildingObj);
 
 		if ((building.getArbeiter() > 0) && (building.getArbeiter() + base.getArbeiter() > base.getBewohner()))
 		{
-			response.accumulate("success", false);
-			response.accumulate("message", "Nicht genügend Arbeiter vorhanden");
+			response.addProperty("success", false);
+			response.addProperty("message", "Nicht genügend Arbeiter vorhanden");
 		}
 		else if (building.isShutDown() &&
 				(!base.getOwner().hasResearched(building.getTechRequired())
 						|| (base.getOwner().getRace() != building.getRace() && building.getRace() != 0)))
 		{
-			response.accumulate("success", false);
-			response.accumulate("message", "Sie können dieses Geb&auml;ude wegen unzureichenden Voraussetzungen nicht aktivieren");
+			response.addProperty("success", false);
+			response.addProperty("message", "Sie können dieses Geb&auml;ude wegen unzureichenden Voraussetzungen nicht aktivieren");
 		}
 		else
 		{
@@ -122,7 +123,7 @@ public class BuildingController extends TemplateController
 
 			base.setArbeiter(base.getArbeiter() + building.getArbeiter());
 
-			response.accumulate("success", true);
+			response.addProperty("success", true);
 		}
 
 		return response;
@@ -174,31 +175,31 @@ public class BuildingController extends TemplateController
 	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject shutdownAjaxAction(@UrlParam(name = "col") Base base, int field)
+	public JsonObject shutdownAjaxAction(@UrlParam(name = "col") Base base, int field)
 	{
 		validiereBasisUndFeld(base, field);
 		Building building = getGebaeudeFuerFeld(base, field);
 
 		User user = (User) getUser();
-		JSONObject response = new JSONObject();
-		response.accumulate("col", base.getId());
-		response.accumulate("field", field);
+		JsonObject response = new JsonObject();
+		response.addProperty("col", base.getId());
+		response.addProperty("field", field);
 
-		JSONObject buildingObj = new JSONObject();
-		buildingObj.accumulate("id", building.getId());
-		buildingObj.accumulate("name", Common._plaintitle(building.getName()));
-		buildingObj.accumulate("picture", building.getPictureForRace(user.getRace()));
-		buildingObj.accumulate("active", building.isActive(base, base.getActive()[field], field));
-		buildingObj.accumulate("deakable", building.isDeakAble());
-		buildingObj.accumulate("kommandozentrale", building.getId() == Building.KOMMANDOZENTRALE);
-		buildingObj.accumulate("type", building.getClass().getSimpleName());
+		JsonObject buildingObj = new JsonObject();
+		buildingObj.addProperty("id", building.getId());
+		buildingObj.addProperty("name", Common._plaintitle(building.getName()));
+		buildingObj.addProperty("picture", building.getPictureForRace(user.getRace()));
+		buildingObj.addProperty("active", building.isActive(base, base.getActive()[field], field));
+		buildingObj.addProperty("deakable", building.isDeakAble());
+		buildingObj.addProperty("kommandozentrale", building.getId() == Building.KOMMANDOZENTRALE);
+		buildingObj.addProperty("type", building.getClass().getSimpleName());
 
-		response.accumulate("building", buildingObj);
+		response.add("building", buildingObj);
 
 		if (!building.isDeakAble())
 		{
-			response.accumulate("success", false);
-			response.accumulate("message", "Sie können dieses Gebäude nicht deaktivieren");
+			response.addProperty("success", false);
+			response.addProperty("message", "Sie können dieses Gebäude nicht deaktivieren");
 		}
 		else
 		{
@@ -208,7 +209,7 @@ public class BuildingController extends TemplateController
 
 			base.setArbeiter(base.getArbeiter() - building.getArbeiter());
 
-			response.accumulate("success", true);
+			response.addProperty("success", true);
 		}
 
 		return response;
@@ -254,13 +255,13 @@ public class BuildingController extends TemplateController
 	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject demoAjaxAction(@UrlParam(name="col") Base base, int field) {
+	public JsonObject demoAjaxAction(@UrlParam(name="col") Base base, int field) {
 		validiereBasisUndFeld(base, field);
 		Building building = getGebaeudeFuerFeld(base, field);
 
-		JSONObject response = new JSONObject();
-		response.accumulate("col", base.getId());
-		response.accumulate("field", field);
+		JsonObject response = new JsonObject();
+		response.addProperty("col", base.getId());
+		response.addProperty("field", field);
 
 		Cargo buildcosts =(Cargo)building.getBuildCosts().clone();
 		buildcosts.multiply( 0.8, Cargo.Round.FLOOR );
@@ -268,17 +269,17 @@ public class BuildingController extends TemplateController
 		ResourceList reslist = buildcosts.getResourceList();
 		Cargo addcargo = buildcosts.cutCargo(base.getMaxCargo()-base.getCargo().getMass());
 
-		JSONArray c = new JSONArray();
+		JsonArray c = new JsonArray();
 
 		for( ResourceEntry res : reslist ) {
-			JSONObject resObj = res.toJSON();
+			JsonElement resObj = res.toJSON();
 			if( !addcargo.hasResource(res.getId()) ) {
-				resObj.accumulate("spaceMissing", true);
+				resObj.getAsJsonObject().addProperty("spaceMissing", true);
 			}
 			c.add(resObj);
 		}
 
-		response.accumulate("demoCargo", c);
+		response.add("demoCargo", c);
 
 		Cargo baseCargo = base.getCargo();
 		baseCargo.addCargo( addcargo );
@@ -295,7 +296,7 @@ public class BuildingController extends TemplateController
 		active[field] = 0;
 		base.setActive(active);
 
-		response.accumulate("success", true);
+		response.addProperty("success", true);
 
 		return response;
 	}
@@ -376,35 +377,35 @@ public class BuildingController extends TemplateController
 	 * @return Die GUI-Daten
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject ajaxAction(@UrlParam(name="col") Base base, int field)
+	public JsonObject ajaxAction(@UrlParam(name="col") Base base, int field)
 	{
 		validiereBasisUndFeld(base, field);
 		Building building = getGebaeudeFuerFeld(base, field);
 
 		User user = (User)getUser();
-		JSONObject json = new JSONObject();
+		JsonObject json = new JsonObject();
 
-		json.accumulate("col", base.getId());
-		json.accumulate("field", field);
+		json.addProperty("col", base.getId());
+		json.addProperty("field", field);
 
-		JSONObject buildingObj = new JSONObject();
-		buildingObj.accumulate("id", building.getId());
-		buildingObj.accumulate("name", Common._plaintitle(building.getName()));
-		buildingObj.accumulate("picture", building.getPictureForRace(user.getRace()));
-		buildingObj.accumulate("active", building.isActive( base, base.getActive()[field], field ));
-		buildingObj.accumulate("deakable", building.isDeakAble());
-		buildingObj.accumulate("kommandozentrale", building.getId() == Building.KOMMANDOZENTRALE);
-		buildingObj.accumulate("type", building.getClass().getSimpleName());
+		JsonObject buildingObj = new JsonObject();
+		buildingObj.addProperty("id", building.getId());
+		buildingObj.addProperty("name", Common._plaintitle(building.getName()));
+		buildingObj.addProperty("picture", building.getPictureForRace(user.getRace()));
+		buildingObj.addProperty("active", building.isActive(base, base.getActive()[field], field));
+		buildingObj.addProperty("deakable", building.isDeakAble());
+		buildingObj.addProperty("kommandozentrale", building.getId() == Building.KOMMANDOZENTRALE);
+		buildingObj.addProperty("type", building.getClass().getSimpleName());
 
-		json.accumulate("building", buildingObj);
+		json.add("building", buildingObj);
 
 		if( !building.isSupportsJson() )
 		{
-			json.accumulate("noJsonSupport", true);
+			json.addProperty("noJsonSupport", true);
 			return json;
 		}
 
-		json.accumulate("buildingUI", building.outputJson(getContext(), base, field, building.getId()));
+		json.add("buildingUI", building.outputJson(getContext(), base, field, building.getId()));
 
 		return json;
 	}

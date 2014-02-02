@@ -1,7 +1,7 @@
 package net.driftingsouls.ds2.server.modules.stats;
 
+import com.google.gson.JsonElement;
 import net.driftingsouls.ds2.server.modules.StatsController;
-import net.sf.json.JSON;
 
 /**
  * Ajax-Support fuer Statistikmodule.
@@ -16,5 +16,5 @@ public interface AjaxStatistic
 	 * @param size Die Anzahl der anzuzeigenden Eintraege
 	 * @return Die JSON-Antwort
 	 */
-	public JSON generateData(StatsController contr, int size);
+	public JsonElement generateData(StatsController contr, int size);
 }

@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
@@ -36,11 +38,6 @@ import net.driftingsouls.ds2.server.namegenerator.SchiffsKlassenNamenGenerator;
 import net.driftingsouls.ds2.server.namegenerator.SchiffsNamenGenerator;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.sf.json.JSON;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
-import net.sf.json.util.JSONUtils;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -271,19 +268,19 @@ public class OptionsController extends TemplateController
 	}
 
 	@Action(ActionType.AJAX)
-	public JSON generierePersonenNamenBeispiele(PersonenNamenGenerator generator)
+	public String generierePersonenNamenBeispiele(PersonenNamenGenerator generator)
 	{
 		List<String> result = new ArrayList<>();
 		if (generator == null)
 		{
-			return JSONSerializer.toJSON(result);
+			return new Gson().toJson(result);
 		}
 
 		for (int i = 0; i < 5; i++)
 		{
 			result.add(generator.generiere());
 		}
-		return JSONSerializer.toJSON(result);
+		return new Gson().toJson(result);
 	}
 
 	public static class SchiffsKlasseNameBeispiel {
@@ -318,12 +315,12 @@ public class OptionsController extends TemplateController
 	}
 
 	@Action(ActionType.AJAX)
-	public JSON generiereSchiffsNamenBeispiele(SchiffsKlassenNamenGenerator schiffsKlassenNamenGenerator, SchiffsNamenGenerator schiffsNamenGenerator)
+	public String generiereSchiffsNamenBeispiele(SchiffsKlassenNamenGenerator schiffsKlassenNamenGenerator, SchiffsNamenGenerator schiffsNamenGenerator)
 	{
 		List<SchiffsKlasseNameBeispiel> result = new ArrayList<>();
 		if (schiffsKlassenNamenGenerator == null || schiffsNamenGenerator == null)
 		{
-			return JSONSerializer.toJSON(result);
+			return new Gson().toJson(result);
 		}
 
 		org.hibernate.Session db = getDB();
@@ -346,7 +343,7 @@ public class OptionsController extends TemplateController
 			result.add(new SchiffsKlasseNameBeispiel(cls.getSingular(), name));
 		}
 
-		return JSONSerializer.toJSON(result);
+		return new Gson().toJson(result);
 	}
 
 	/**

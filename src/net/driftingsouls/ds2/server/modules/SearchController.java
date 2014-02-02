@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -27,8 +29,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.ships.Ship;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 import java.io.IOException;
 import java.util.List;
@@ -65,7 +65,7 @@ public class SearchController extends Controller
 	public void searchAction(String search, String only, int max) throws IOException
 	{
 		org.hibernate.Session db = getDB();
-		JSONObject json = new JSONObject();
+		JsonObject json = new JsonObject();
 
 		if (max <= 0 || max > MAX_OBJECTS)
 		{
@@ -82,29 +82,29 @@ public class SearchController extends Controller
 
 		if (only.isEmpty() || "bases".equals(only))
 		{
-			JSONArray baseListObj = new JSONArray();
+			JsonArray baseListObj = new JsonArray();
 
 			List<?> baseList = findBases(db, search, max - count);
 			for (Object aBaseList : baseList)
 			{
 				Base base = (Base) aBaseList;
-				JSONObject baseObj = new JSONObject();
+				JsonObject baseObj = new JsonObject();
 
-				baseObj.accumulate("id", base.getId());
-				baseObj.accumulate("name", Common._plaintitle(base.getName()));
-				baseObj.accumulate("location", base.getLocation().displayCoordinates(false));
+				baseObj.addProperty("id", base.getId());
+				baseObj.addProperty("name", Common._plaintitle(base.getName()));
+				baseObj.addProperty("location", base.getLocation().displayCoordinates(false));
 
 				baseListObj.add(baseObj);
 
 				count++;
 			}
 
-			json.accumulate("bases", baseListObj);
+			json.add("bases", baseListObj);
 		}
 
 		if (only.isEmpty() || "ships".equals(only))
 		{
-			JSONArray shipListObj = new JSONArray();
+			JsonArray shipListObj = new JsonArray();
 
 			if (count < max)
 			{
@@ -113,29 +113,29 @@ public class SearchController extends Controller
 				{
 					Ship ship = (Ship) aShipList;
 
-					JSONObject shipObj = new JSONObject();
+					JsonObject shipObj = new JsonObject();
 
-					shipObj.accumulate("id", ship.getId());
-					shipObj.accumulate("name", Common._plaintitle(ship.getName()));
-					shipObj.accumulate("location", ship.getLocation().displayCoordinates(false));
+					shipObj.addProperty("id", ship.getId());
+					shipObj.addProperty("name", Common._plaintitle(ship.getName()));
+					shipObj.addProperty("location", ship.getLocation().displayCoordinates(false));
 
-					JSONObject typeObj = new JSONObject();
-					typeObj.accumulate("name", ship.getTypeData().getNickname());
-					typeObj.accumulate("picture", ship.getTypeData().getPicture());
+					JsonObject typeObj = new JsonObject();
+					typeObj.addProperty("name", ship.getTypeData().getNickname());
+					typeObj.addProperty("picture", ship.getTypeData().getPicture());
 
-					shipObj.accumulate("type", typeObj);
+					shipObj.add("type", typeObj);
 
 					shipListObj.add(shipObj);
 
 					count++;
 				}
 			}
-			json.accumulate("ships", shipListObj);
+			json.add("ships", shipListObj);
 		}
 
 		if (only.isEmpty() || "users".equals(only))
 		{
-			JSONArray userListObj = new JSONArray();
+			JsonArray userListObj = new JsonArray();
 
 			if (count < max)
 			{
@@ -144,20 +144,20 @@ public class SearchController extends Controller
 				{
 					User auser = (User) anUserList;
 
-					JSONObject userObj = new JSONObject();
-					userObj.accumulate("id", auser.getId());
-					userObj.accumulate("name", Common._title(auser.getName()));
-					userObj.accumulate("plainname", auser.getPlainname());
+					JsonObject userObj = new JsonObject();
+					userObj.addProperty("id", auser.getId());
+					userObj.addProperty("name", Common._title(auser.getName()));
+					userObj.addProperty("plainname", auser.getPlainname());
 
 					userListObj.add(userObj);
 
 					count++;
 				}
 			}
-			json.accumulate("users", userListObj);
+			json.add("users", userListObj);
 		}
 
-		json.accumulate("maxObjects", count >= max);
+		json.addProperty("maxObjects", count >= max);
 
 		getResponse().getWriter().append(json.toString());
 	}

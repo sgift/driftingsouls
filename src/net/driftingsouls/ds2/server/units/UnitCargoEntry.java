@@ -19,9 +19,9 @@
 
 package net.driftingsouls.ds2.server.units;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.framework.JSONSupport;
-import net.sf.json.JSON;
-import net.sf.json.JSONObject;
 import org.hibernate.proxy.HibernateProxy;
 
 import javax.persistence.DiscriminatorColumn;
@@ -160,13 +160,13 @@ public abstract class UnitCargoEntry implements JSONSupport
 	}
 
 	@Override
-	public JSON toJSON()
+	public JsonElement toJSON()
 	{
-		JSONObject result = new JSONObject();
-		result.accumulate("id", this.getUnitTypeId())
-			.accumulate("count", amount)
-			.accumulate("name", this.getUnitType().getName())
-			.accumulate("picture", this.getUnitType().getPicture());
+		JsonObject result = new JsonObject();
+		result.addProperty("id", this.getUnitTypeId());
+		result.addProperty("count", amount);
+		result.addProperty("name", this.getUnitType().getName());
+		result.addProperty("picture", this.getUnitType().getPicture());
 
 		return result;
 	}

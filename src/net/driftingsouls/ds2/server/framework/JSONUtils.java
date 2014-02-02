@@ -1,6 +1,7 @@
 package net.driftingsouls.ds2.server.framework;
 
-import net.sf.json.JSONObject;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 /**
  * Hilfsklasse zur Konstruktion von JSON-Objekten.
@@ -19,14 +20,15 @@ public final class JSONUtils
 	 * @param message Der Text
 	 * @return Das JSON-Objekt
 	 */
-	public static JSONObject success(String message)
+	public static JsonElement success(String message)
 	{
-		JSONObject msgObj = new JSONObject()
-			.accumulate("description", message)
-			.accumulate("type", "success");
-		
-		return new JSONObject()
-			.accumulate("message", msgObj);
+		JsonObject msgObj = new JsonObject();
+		msgObj.addProperty("description", message);
+		msgObj.addProperty("type", "success");
+
+		JsonObject result = new JsonObject();
+		result.add("message", msgObj);
+		return result;
 	}
 	
 	/**
@@ -35,14 +37,15 @@ public final class JSONUtils
 	 * @param message Der Text
 	 * @return Das JSON-Objekt
 	 */
-	public static JSONObject failure(String message)
+	public static JsonElement failure(String message)
 	{
-		JSONObject msgObj = new JSONObject()
-			.accumulate("description", message)
-			.accumulate("type", "failure");
-		
-		return new JSONObject()
-			.accumulate("message", msgObj);
+		JsonObject msgObj = new JsonObject();
+		msgObj.addProperty("description", message);
+		msgObj.addProperty("type", "failure");
+
+		JsonObject result = new JsonObject();
+		result.add("message", msgObj);
+		return result;
 	}
 	
 	/**
@@ -52,13 +55,14 @@ public final class JSONUtils
 	 * @param message Der Text
 	 * @return Das JSON-Objekt
 	 */
-	public static JSONObject error(String message)
+	public static JsonElement error(String message)
 	{
-		JSONObject msgObj = new JSONObject()
-			.accumulate("description", message)
-			.accumulate("type", "error");
-		
-		return new JSONObject()
-			.accumulate("message", msgObj);
+		JsonObject msgObj = new JsonObject();
+		msgObj.addProperty("description", message);
+		msgObj.addProperty("type", "error");
+
+		JsonObject result = new JsonObject();
+		result.add("message", msgObj);
+		return result;
 	}
 }

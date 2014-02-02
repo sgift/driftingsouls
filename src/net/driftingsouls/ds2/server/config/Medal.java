@@ -18,9 +18,9 @@
  */
 package net.driftingsouls.ds2.server.config;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.framework.JSONSupport;
-import net.sf.json.JSON;
-import net.sf.json.JSONObject;
 
 /**
  * Repraesentiert einen Orden in DS.
@@ -122,13 +122,13 @@ public class Medal implements JSONSupport {
 	}
 
 	@Override
-	public JSON toJSON()
+	public JsonElement toJSON()
 	{
-		JSONObject medalObj = new JSONObject()
-			.accumulate("name", this.name)
-			.accumulate("id", this.id)
-			.accumulate("image", this.image)
-			.accumulate("imageSmall", this.imageSmall);
+		JsonObject medalObj = new JsonObject();
+		medalObj.addProperty("name", this.name);
+		medalObj.addProperty("id", this.id);
+		medalObj.addProperty("image", this.image);
+		medalObj.addProperty("imageSmall", this.imageSmall);
 		return medalObj;
 	}
 }

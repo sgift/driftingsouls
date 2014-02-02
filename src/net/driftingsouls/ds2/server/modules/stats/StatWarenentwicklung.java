@@ -26,6 +26,10 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
@@ -37,10 +41,6 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.StatsController;
-import net.sf.json.JSON;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
 import org.hibernate.Session;
 
 /**
@@ -92,7 +92,7 @@ public class StatWarenentwicklung implements Statistic, AjaxStatistic
 		echo.append("<div id='warenstats'></div><script type='text/javascript'>$(document).ready(function(){\n");
 		echo.append("Stats.chart('warenstats',");
 		List<WareViewModel> waren = erstelleViewModelDerWarenListe(db, user, cargos);
-		echo.append(JSONSerializer.toJSON(waren).toString());
+		echo.append(new Gson().toJson(waren));
 		echo.append(",{xaxis:{label:'Tick',pad:0,tickInterval:49}, yaxis:{label:'Menge'}, selection:'single'});\n");
 		echo.append("});</script>");
 	}
@@ -162,7 +162,7 @@ public class StatWarenentwicklung implements Statistic, AjaxStatistic
 	}
 
 	@Override
-	public JSON generateData(StatsController contr, int size)
+	public JsonElement generateData(StatsController contr, int size)
 	{
 		User user = (User) contr.getUser();
 		org.hibernate.Session db = contr.getDB();
@@ -172,30 +172,30 @@ public class StatWarenentwicklung implements Statistic, AjaxStatistic
 		Item item = (Item) db.get(Item.class, itemId.getItemID());
 		if (item == null || !user.canSeeItem(item))
 		{
-			return new JSONObject();
+			return new JsonObject();
 		}
 
 		SortedMap<ResourceID, SortedMap<Integer, Long>> data = generateDataMap(db);
-		JSONObject result = new JSONObject();
+		JsonObject result = new JsonObject();
 
-		JSONObject itemObj = new JSONObject();
-		itemObj.accumulate("id", item.getID());
-		itemObj.accumulate("name", item.getName());
-		result.accumulate("key", itemObj);
+		JsonObject itemObj = new JsonObject();
+		itemObj.addProperty("id", item.getID());
+		itemObj.addProperty("name", item.getName());
+		result.add("key", itemObj);
 
-		JSONArray dataArray = new JSONArray();
+		JsonArray dataArray = new JsonArray();
 		SortedMap<Integer, Long> itemData = data.get(itemId);
 		if (itemData != null)
 		{
 			for (Map.Entry<Integer, Long> entry : itemData.entrySet())
 			{
-				JSONObject entryObj = new JSONObject();
-				entryObj.accumulate("index", entry.getKey());
-				entryObj.accumulate("count", entry.getValue());
+				JsonObject entryObj = new JsonObject();
+				entryObj.addProperty("index", entry.getKey());
+				entryObj.addProperty("count", entry.getValue());
 				dataArray.add(entryObj);
 			}
 		}
-		result.accumulate("data", dataArray);
+		result.add("data", dataArray);
 
 		return result;
 	}

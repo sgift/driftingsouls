@@ -20,6 +20,7 @@
 		<dependency org="commons-fileupload" name="commons-fileupload" rev="1.2" conf="compile->default"/>
 		<dependency org="commons-logging" name="commons-logging" rev="1.1.1" conf="compile->default" />
 		<dependency org="commons-beanutils" name="commons-beanutils" rev="1.8.1" conf="compile->default"/>
+		<dependency org="com.google.code.gson" name="gson" rev="2.2.4" conf="compile->default"/>
 
 		<dependency org="javax.mail" name="mail" rev="1.4.7" conf="compile->default"/>
 		<dependency org="net.java.dev.rome" name="rome" rev="1.0.0" conf="compile->default"/>

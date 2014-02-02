@@ -1,5 +1,9 @@
 package net.driftingsouls.ds2.server.modules;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
@@ -29,8 +33,6 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
@@ -77,7 +79,7 @@ public class MapController extends AngularController
 	}
 
 	@Action(value = ActionType.AJAX)
-	public JSONObject speichereSystemkarteAction()
+	public JsonElement speichereSystemkarteAction()
 	{
 		if (!getUser().isAdmin())
 		{
@@ -102,12 +104,12 @@ public class MapController extends AngularController
 		return JSONUtils.success("Systeme gespeichert");
 	}
 
-	private JSONObject createResultObj(StarSystem system)
+	private JsonObject createResultObj(StarSystem system)
 	{
-		JSONObject result = new JSONObject();
-		result.accumulate("system", system != null ? system.getID() : 1);
-		result.accumulate("adminSichtVerfuegbar", getUser().isAdmin());
-		result.accumulate("systemkarteEditierbar", getUser().isAdmin());
+		JsonObject result = new JsonObject();
+		result.addProperty("system", system != null ? system.getID() : 1);
+		result.addProperty("adminSichtVerfuegbar", getUser().isAdmin());
+		result.addProperty("systemkarteEditierbar", getUser().isAdmin());
 
 		return result;
 	}
@@ -118,14 +120,14 @@ public class MapController extends AngularController
 	 * @param sys Das momentan ausgewaehlte Sternensystem
 	 */
 	@Action(value = ActionType.AJAX, readOnly = true)
-	public JSONObject systemauswahlAction(StarSystem sys)
+	public JsonObject systemauswahlAction(StarSystem sys)
 	{
 		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
 
-		JSONObject result = createResultObj(sys);
+		JsonObject result = createResultObj(sys);
 
-		JSONArray systemListObj = new JSONArray();
+		JsonArray systemListObj = new JsonArray();
 
 		List<JumpNode> jumpNodes = Common.cast(db
 				.createQuery("from JumpNode jn where " + (!user.isAdmin() ? "jn.hidden=0 and " : "") + "jn.system!=jn.systemOut")
@@ -154,17 +156,17 @@ public class MapController extends AngularController
 				systemAddInfo += "[hidden]";
 			}
 
-			JSONObject sysObj = new JSONObject();
-			sysObj.accumulate("name", system.getName());
-			sysObj.accumulate("id", system.getID());
-			sysObj.accumulate("addinfo", systemAddInfo);
-			sysObj.accumulate("npcOnly", system.getAccess() == StarSystem.AC_NPC);
-			sysObj.accumulate("adminOnly", system.getAccess() == StarSystem.AC_ADMIN);
-			sysObj.accumulate("mapX", system.getMapX());
-			sysObj.accumulate("mapY", system.getMapY());
+			JsonObject sysObj = new JsonObject();
+			sysObj.addProperty("name", system.getName());
+			sysObj.addProperty("id", system.getID());
+			sysObj.addProperty("addinfo", systemAddInfo);
+			sysObj.addProperty("npcOnly", system.getAccess() == StarSystem.AC_NPC);
+			sysObj.addProperty("adminOnly", system.getAccess() == StarSystem.AC_ADMIN);
+			sysObj.addProperty("mapX", system.getMapX());
+			sysObj.addProperty("mapY", system.getMapY());
 
 			// Sprungpunkte
-			JSONArray jnListObj = new JSONArray();
+			JsonArray jnListObj = new JsonArray();
 			for (JumpNode jn : jumpNodes)
 			{
 				if (jn.getSystem() == system.getID())
@@ -172,28 +174,28 @@ public class MapController extends AngularController
 					jnListObj.add(jn.toJSON());
 				}
 			}
-			sysObj.accumulate("sprungpunkte", jnListObj);
+			sysObj.add("sprungpunkte", jnListObj);
 
 			// Dominierende NPC-Allianzen
 			Ally maxAlly = systemFraktionen.get(system.getID());
 			if (maxAlly != null)
 			{
-				JSONObject allyObj = new JSONObject();
-				allyObj.accumulate("name", Common._title(maxAlly.getName()));
-				allyObj.accumulate("plainname", BBCodeParser.getInstance().parse(maxAlly.getName(), new String[]{"all"}));
-				allyObj.accumulate("id", maxAlly.getId());
-				sysObj.accumulate("allianz", allyObj);
+				JsonObject allyObj = new JsonObject();
+				allyObj.addProperty("name", Common._title(maxAlly.getName()));
+				allyObj.addProperty("plainname", BBCodeParser.getInstance().parse(maxAlly.getName(), new String[]{"all"}));
+				allyObj.addProperty("id", maxAlly.getId());
+				sysObj.add("allianz", allyObj);
 			}
 
 			// Basen
-			sysObj.accumulate("basis", basen.contains(system.getID()));
+			sysObj.addProperty("basis", basen.contains(system.getID()));
 
 			// Schiffe
-			sysObj.accumulate("schiff", schiffe.contains(system.getID()));
+			sysObj.addProperty("schiff", schiffe.contains(system.getID()));
 
 			systemListObj.add(sysObj);
 		}
-		result.accumulate("systeme", systemListObj);
+		result.add("systeme", systemListObj);
 		return result;
 	}
 
@@ -302,11 +304,11 @@ public class MapController extends AngularController
 	 * @param admin {@code true} falls die Adminsicht auf die Sternenkarte verwendet werden soll
 	 */
 	@Action(value = ActionType.AJAX, readOnly = true)
-	public JSONObject mapAction(StarSystem sys, int xstart, int xend, int ystart, int yend, boolean admin)
+	public JsonObject mapAction(StarSystem sys, int xstart, int xend, int ystart, int yend, boolean admin)
 	{
 		validiereSystem(sys);
 
-		JSONObject json = new JSONObject();
+		JsonObject json = new JsonObject();
 
 		org.hibernate.Session db = getDB();
 		// Flushmode aendern um autoflushes auf den grossen geladenen Datenmengen zu vermeiden.
@@ -316,11 +318,11 @@ public class MapController extends AngularController
 		{
 			User user = (User) getUser();
 
-			JSONObject sysObj = new JSONObject();
-			sysObj.accumulate("id", sys.getID());
-			sysObj.accumulate("width", sys.getWidth());
-			sysObj.accumulate("height", sys.getHeight());
-			json.accumulate("system", sysObj);
+			JsonObject sysObj = new JsonObject();
+			sysObj.addProperty("id", sys.getID());
+			sysObj.addProperty("width", sys.getWidth());
+			sysObj.addProperty("height", sys.getHeight());
+			json.add("system", sysObj);
 
 			int width = sys.getWidth();
 			int height = sys.getHeight();
@@ -367,15 +369,15 @@ public class MapController extends AngularController
 				content = new PlayerStarmap(user, sys, new int[]{xstart, ystart, xend - xstart, yend - ystart});
 			}
 
-			JSONObject sizeObj = new JSONObject();
-			sizeObj.accumulate("minx", xstart);
-			sizeObj.accumulate("miny", ystart);
-			sizeObj.accumulate("maxx", xend);
-			sizeObj.accumulate("maxy", yend);
+			JsonObject sizeObj = new JsonObject();
+			sizeObj.addProperty("minx", xstart);
+			sizeObj.addProperty("miny", ystart);
+			sizeObj.addProperty("maxx", xend);
+			sizeObj.addProperty("maxy", yend);
 
-			json.accumulate("size", sizeObj);
+			json.add("size", sizeObj);
 
-			JSONArray locationArray = new JSONArray();
+			JsonArray locationArray = new JsonArray();
 			for (int y = ystart; y <= yend; y++)
 			{
 				for (int x = xstart; x <= xend; x++)
@@ -387,21 +389,21 @@ public class MapController extends AngularController
 
 					boolean endTag = false;
 
-					JSONObject posObj = new JSONObject();
-					posObj.accumulate("x", x);
-					posObj.accumulate("y", y);
-					posObj.accumulate("scan", scannable);
+					JsonObject posObj = new JsonObject();
+					posObj.addProperty("x", x);
+					posObj.addProperty("y", y);
+					posObj.addProperty("scan", scannable);
 
 					if (sectorImage != null)
 					{
 						endTag = true;
-						posObj.accumulate("bg", sectorImage);
+						posObj.addProperty("bg", sectorImage);
 						sectorImage = sectorOverlayImage;
 					}
 					else if (scannable)
 					{
 						endTag = true;
-						posObj.accumulate("bg", content.getSectorBaseImage(position));
+						posObj.add("bg", new Gson().toJsonTree(content.getSectorBaseImage(position)));
 						sectorImage = sectorOverlayImage;
 					}
 					else if (sectorOverlayImage != null)
@@ -414,16 +416,16 @@ public class MapController extends AngularController
 					{
 						Ship scanner = content.getScanSchiffFuerSektor(position);
 
-						posObj.accumulate("scanner", scanner != null ? scanner.getId() : -1);
+						posObj.addProperty("scanner", scanner != null ? scanner.getId() : -1);
 					}
 
 					if (sectorImage != null)
 					{
-						posObj.accumulate("fg", sectorImage);
+						posObj.addProperty("fg", sectorImage);
 					}
 
-					posObj.accumulate("battle", content.isSchlachtImSektor(position));
-					posObj.accumulate("roterAlarm", content.isRoterAlarmImSektor(position));
+					posObj.addProperty("battle", content.isSchlachtImSektor(position));
+					posObj.addProperty("roterAlarm", content.isRoterAlarmImSektor(position));
 
 					if (endTag)
 					{
@@ -431,7 +433,7 @@ public class MapController extends AngularController
 					}
 				}
 			}
-			json.accumulate("locations", locationArray);
+			json.add("locations", locationArray);
 
 			// Das Anzeigen sollte keine DB-Aenderungen verursacht haben
 			db.clear();
@@ -454,14 +456,14 @@ public class MapController extends AngularController
 	 * @param admin {@code true} falls die Adminsicht auf die Sternenkarte verwendet werden soll
 	 */
 	@Action(value = ActionType.AJAX, readOnly = true)
-	public JSONObject sectorAction(StarSystem sys, int x, int y, Ship scanship, boolean admin)
+	public JsonObject sectorAction(StarSystem sys, int x, int y, Ship scanship, boolean admin)
 	{
 		validiereSystem(sys);
 
 		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
 
-		JSONObject json = new JSONObject();
+		JsonObject json = new JsonObject();
 
 		final Location loc = new Location(sys.getID(), x, y);
 
@@ -475,61 +477,61 @@ public class MapController extends AngularController
 			field = new PlayerFieldView(db, user, loc, scanship);
 		}
 
-		JSONArray users = exportSectorShips(field);
-		json.accumulate("users", users);
+		JsonArray users = exportSectorShips(field);
+		json.add("users", users);
 
-		JSONArray baseListObj = new JSONArray();
+		JsonArray baseListObj = new JsonArray();
 		for (Base base : field.getBases())
 		{
-			JSONObject baseObj = new JSONObject();
-			baseObj.accumulate("id", base.getId());
-			baseObj.accumulate("name", base.getName());
-			baseObj.accumulate("username", Common._title(base.getOwner().getName()));
-			baseObj.accumulate("image", base.getBaseImage(loc));
-			baseObj.accumulate("imageX", base.getBaseImageOffset(loc)[0]);
-			baseObj.accumulate("imageY", base.getBaseImageOffset(loc)[1]);
-			baseObj.accumulate("klasse", base.getKlasse());
-			baseObj.accumulate("typ", base.getBaseType().getName());
-			baseObj.accumulate("eigene", base.getOwner().getId() == user.getId());
+			JsonObject baseObj = new JsonObject();
+			baseObj.addProperty("id", base.getId());
+			baseObj.addProperty("name", base.getName());
+			baseObj.addProperty("username", Common._title(base.getOwner().getName()));
+			baseObj.addProperty("image", base.getBaseImage(loc));
+			baseObj.addProperty("imageX", base.getBaseImageOffset(loc)[0]);
+			baseObj.addProperty("imageY", base.getBaseImageOffset(loc)[1]);
+			baseObj.addProperty("klasse", base.getKlasse());
+			baseObj.addProperty("typ", base.getBaseType().getName());
+			baseObj.addProperty("eigene", base.getOwner().getId() == user.getId());
 
 			baseListObj.add(baseObj);
 		}
 
-		json.accumulate("bases", baseListObj);
+		json.add("bases", baseListObj);
 
-		JSONArray jumpNodeListObj = new JSONArray();
+		JsonArray jumpNodeListObj = new JsonArray();
 		for (JumpNode jumpNode : field.getJumpNodes())
 		{
-			JSONObject jnObj = new JSONObject();
-			jnObj.accumulate("id", jumpNode.getId());
-			jnObj.accumulate("name", jumpNode.getName());
-			jnObj.accumulate("blocked", jumpNode.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn(0));
+			JsonObject jnObj = new JsonObject();
+			jnObj.addProperty("id", jumpNode.getId());
+			jnObj.addProperty("name", jumpNode.getName());
+			jnObj.addProperty("blocked", jumpNode.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn(0));
 			jumpNodeListObj.add(jnObj);
 		}
-		json.accumulate("jumpnodes", jumpNodeListObj);
+		json.add("jumpnodes", jumpNodeListObj);
 
 		Nebel nebel = field.getNebel();
 		if (nebel != null)
 		{
-			JSONObject nebelObj = new JSONObject();
-			nebelObj.accumulate("type", nebel.getType().getCode());
-			nebelObj.accumulate("image", nebel.getImage());
-			json.accumulate("nebel", nebelObj);
+			JsonObject nebelObj = new JsonObject();
+			nebelObj.addProperty("type", nebel.getType().getCode());
+			nebelObj.addProperty("image", nebel.getImage());
+			json.add("nebel", nebelObj);
 		}
 
-		JSONArray battleListObj = exportSectorBattles(db, field);
-		json.accumulate("battles", battleListObj);
+		JsonArray battleListObj = exportSectorBattles(db, field);
+		json.add("battles", battleListObj);
 
-		json.accumulate("subraumspaltenCount", field.getSubraumspalten().size());
-		json.accumulate("roterAlarm", field.isRoterAlarm());
+		json.addProperty("subraumspaltenCount", field.getSubraumspalten().size());
+		json.addProperty("roterAlarm", field.isRoterAlarm());
 
 
 		return json;
 	}
 
-	private JSONArray exportSectorBattles(Session db, FieldView field)
+	private JsonArray exportSectorBattles(Session db, FieldView field)
 	{
-		JSONArray battleListObj = new JSONArray();
+		JsonArray battleListObj = new JsonArray();
 		List<Battle> battles = field.getBattles();
 		if (battles.isEmpty())
 		{
@@ -556,91 +558,91 @@ public class MapController extends AngularController
 
 		for (Battle battle : battles)
 		{
-			JSONObject battleObj = new JSONObject();
-			battleObj.accumulate("id", battle.getId());
-			battleObj.accumulate("einsehbar", viewable || battle.getSchlachtMitglied(user) != -1);
-			JSONArray sideListObj = new JSONArray();
+			JsonObject battleObj = new JsonObject();
+			battleObj.addProperty("id", battle.getId());
+			battleObj.addProperty("einsehbar", viewable || battle.getSchlachtMitglied(user) != -1);
+			JsonArray sideListObj = new JsonArray();
 
 			for (int i = 0; i < 2; i++)
 			{
-				JSONObject sideObj = new JSONObject();
-				sideObj.accumulate("commander", battle.getCommander(i).toJSON());
+				JsonObject sideObj = new JsonObject();
+				sideObj.add("commander", battle.getCommander(i).toJSON());
 				if (battle.getAlly(i) != 0)
 				{
 					Ally ally = (Ally) db.get(Ally.class, battle.getAlly(i));
-					sideObj.accumulate("ally", ally.toJSON());
+					sideObj.add("ally", ally.toJSON());
 				}
 				sideListObj.add(sideObj);
 			}
-			battleObj.accumulate("sides", sideListObj);
+			battleObj.add("sides", sideListObj);
 
 			battleListObj.add(battleObj);
 		}
 		return battleListObj;
 	}
 
-	private JSONArray exportSectorShips(FieldView field)
+	private JsonArray exportSectorShips(FieldView field)
 	{
-		JSONArray users = new JSONArray();
+		JsonArray users = new JsonArray();
 		for (Map.Entry<User, Map<ShipType, List<Ship>>> owner : field.getShips().entrySet())
 		{
-			JSONObject jsonUser = new JSONObject();
-			jsonUser.accumulate("name", Common._text(owner.getKey().getName()));
-			jsonUser.accumulate("id", owner.getKey().getId());
-			jsonUser.accumulate("race", owner.getKey().getRace());
+			JsonObject jsonUser = new JsonObject();
+			jsonUser.addProperty("name", Common._text(owner.getKey().getName()));
+			jsonUser.addProperty("id", owner.getKey().getId());
+			jsonUser.addProperty("race", owner.getKey().getRace());
 
 			boolean ownFleet = owner.getKey().getId() == getUser().getId();
-			jsonUser.accumulate("eigener", ownFleet);
+			jsonUser.addProperty("eigener", ownFleet);
 
-			JSONArray shiptypes = new JSONArray();
+			JsonArray shiptypes = new JsonArray();
 			for (Map.Entry<ShipType, List<Ship>> shiptype : owner.getValue().entrySet())
 			{
-				JSONObject jsonShiptype = new JSONObject();
-				jsonShiptype.accumulate("id", shiptype.getKey().getId());
-				jsonShiptype.accumulate("name", shiptype.getKey().getNickname());
-				jsonShiptype.accumulate("picture", shiptype.getKey().getPicture());
-				jsonShiptype.accumulate("size", shiptype.getKey().getSize());
+				JsonObject jsonShiptype = new JsonObject();
+				jsonShiptype.addProperty("id", shiptype.getKey().getId());
+				jsonShiptype.addProperty("name", shiptype.getKey().getNickname());
+				jsonShiptype.addProperty("picture", shiptype.getKey().getPicture());
+				jsonShiptype.addProperty("size", shiptype.getKey().getSize());
 
-				JSONArray ships = new JSONArray();
+				JsonArray ships = new JsonArray();
 				for (Ship ship : shiptype.getValue())
 				{
 					ShipTypeData typeData = ship.getTypeData();
-					JSONObject shipObj = new JSONObject();
-					shipObj.accumulate("id", ship.getId());
-					shipObj.accumulate("name", ship.getName());
-					shipObj.accumulate("gedockt", ship.getDockedCount());
-					shipObj.accumulate("maxGedockt", typeData.getADocks());
+					JsonObject shipObj = new JsonObject();
+					shipObj.addProperty("id", ship.getId());
+					shipObj.addProperty("name", ship.getName());
+					shipObj.addProperty("gedockt", ship.getDockedCount());
+					shipObj.addProperty("maxGedockt", typeData.getADocks());
 					if (ownFleet)
 					{
-						shipObj.accumulate("gelandet", ship.getLandedCount());
-						shipObj.accumulate("maxGelandet", typeData.getJDocks());
+						shipObj.addProperty("gelandet", ship.getLandedCount());
+						shipObj.addProperty("maxGelandet", typeData.getJDocks());
 
-						shipObj.accumulate("energie", ship.getEnergy());
-						shipObj.accumulate("maxEnergie", typeData.getEps());
+						shipObj.addProperty("energie", ship.getEnergy());
+						shipObj.addProperty("maxEnergie", typeData.getEps());
 
-						shipObj.accumulate("ueberhitzung", ship.getHeat());
+						shipObj.addProperty("ueberhitzung", ship.getHeat());
 
-						shipObj.accumulate("kannFliegen", typeData.getCost() > 0 && !ship.isDocked() && !ship.isLanded());
+						shipObj.addProperty("kannFliegen", typeData.getCost() > 0 && !ship.isDocked() && !ship.isLanded());
 
 						int sensorRange = ship.getEffectiveScanRange();
 						if (field.getNebel() != null)
 						{
 							sensorRange /= 2;
 						}
-						shipObj.accumulate("sensorRange", sensorRange);
+						shipObj.addProperty("sensorRange", sensorRange);
 					}
 
 					if (ship.getFleet() != null)
 					{
-						shipObj.accumulate("fleet", ship.getFleet().toJSON());
+						shipObj.add("fleet", ship.getFleet().toJSON());
 					}
 
 					ships.add(shipObj);
 				}
-				jsonShiptype.accumulate("ships", ships);
+				jsonShiptype.add("ships", ships);
 				shiptypes.add(jsonShiptype);
 			}
-			jsonUser.accumulate("shiptypes", shiptypes);
+			jsonUser.add("shiptypes", shiptypes);
 			users.add(jsonUser);
 		}
 		return users;

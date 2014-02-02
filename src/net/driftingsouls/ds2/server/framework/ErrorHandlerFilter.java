@@ -12,9 +12,10 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.framework.authentication.TickInProgressException;
 import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeException;
-import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -241,39 +242,39 @@ public class ErrorHandlerFilter implements Filter
 		@Override
 		public void reportTickInProgress(TickInProgressException e) throws IOException
 		{
-			JSONObject obj = JSONUtils.error("Der Tick läuft. Bitte etwas Geduld.");
-			obj.getJSONObject("message")
-				.accumulate("cls", e.getClass().getSimpleName());
+			JsonElement obj = JSONUtils.error("Der Tick läuft. Bitte etwas Geduld.");
+			obj.getAsJsonObject().getAsJsonObject("message")
+				.addProperty("cls", e.getClass().getSimpleName());
 			respondWithObject(obj);
 		}
 
 		@Override
 		public void reportStaleState(StaleStateException e) throws IOException
 		{
-			JSONObject obj = JSONUtils.error("Die Operation hat sich mit einer anderen überschnitten. " +
+			JsonElement obj = JSONUtils.error("Die Operation hat sich mit einer anderen überschnitten. " +
 					"Bitte probier es noch einmal.");
-			obj.getJSONObject("message")
-				.accumulate("cls", e.getClass().getSimpleName());
+			obj.getAsJsonObject().getAsJsonObject("message")
+				.addProperty("cls", e.getClass().getSimpleName());
 			respondWithObject(obj);
 		}
 
 		@Override
 		public void reportSqlLock(GenericJDBCException e) throws IOException
 		{
-			JSONObject obj = JSONUtils.error("Die Operation hat sich mit einer anderen überschnitten. " +
+			JsonElement obj = JSONUtils.error("Die Operation hat sich mit einer anderen überschnitten. " +
 					"Bitte probier es noch einmal.");
-			obj.getJSONObject("message")
-				.accumulate("cls", e.getClass().getSimpleName());
+			obj.getAsJsonObject().getAsJsonObject("message")
+				.addProperty("cls", e.getClass().getSimpleName());
 			respondWithObject(obj);
 		}
 
 		@Override
 		public void reportNotLoggedIn(NotLoggedInException e) throws IOException
 		{
-			JSONObject obj = JSONUtils.error("Du musst eingeloggt sein, um diese Seite zu sehen.");
-			obj.getJSONObject("message")
-				.accumulate("cls", e.getClass().getSimpleName())
-				.accumulate("redirect", true);
+			JsonElement obj = JSONUtils.error("Du musst eingeloggt sein, um diese Seite zu sehen.");
+			JsonObject msg = obj.getAsJsonObject().getAsJsonObject("message");
+			msg.addProperty("cls", e.getClass().getSimpleName());
+			msg.addProperty("redirect", true);
 			respondWithObject(obj);
 		}
 
@@ -281,7 +282,7 @@ public class ErrorHandlerFilter implements Filter
 		public void reportInVacation(AccountInVacationModeException e) throws IOException
 		{
 			
-			JSONObject obj;
+			JsonElement obj;
 			if(e.getDauer() > 1)
 			{
 				obj = JSONUtils.error("Du bist noch " + e.getDauer() + " Ticks im Vacationmodus.");
@@ -290,22 +291,22 @@ public class ErrorHandlerFilter implements Filter
 			{
 				obj = JSONUtils.error("Du bist noch " + e.getDauer() + " Tick im Vacationmodus.");
 			}
-			obj.getJSONObject("message")
-				.accumulate("cls", e.getClass().getSimpleName())
-				.accumulate("redirect", true);
+			JsonObject msg = obj.getAsJsonObject().getAsJsonObject("message");
+			msg.addProperty("cls", e.getClass().getSimpleName());
+			msg.addProperty("redirect", true);
 			respondWithObject(obj);
 		}
 
 		@Override
 		public void reportUnexpected(Throwable t) throws IOException
 		{
-			JSONObject obj = JSONUtils.error("Ein genereller Fehler ist aufgetreten. Die Entwickler arbeiten daran ihn zu beheben.");
-			obj.getJSONObject("message")
-				.accumulate("cls", t.getClass().getSimpleName());
+			JsonElement obj = JSONUtils.error("Ein genereller Fehler ist aufgetreten. Die Entwickler arbeiten daran ihn zu beheben.");
+			obj.getAsJsonObject().getAsJsonObject("message")
+				.addProperty("cls", t.getClass().getSimpleName());
 			respondWithObject(obj);
 		}
 		
-		private void respondWithObject(JSONObject obj) throws IOException
+		private void respondWithObject(JsonElement obj) throws IOException
 		{
 			Writer w = response.getWriter();
 			w.append(obj.toString());

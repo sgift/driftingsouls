@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.entities.ally;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.comm.PM;
@@ -30,8 +32,6 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.JSONSupport;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
-import net.sf.json.JSON;
-import net.sf.json.JSONObject;
 import org.hibernate.Query;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.ForeignKey;
@@ -634,12 +634,12 @@ public class Ally implements JSONSupport {
 	}
 
 	@Override
-	public JSON toJSON()
+	public JsonElement toJSON()
 	{
-		JSONObject result = new JSONObject();
-		result.accumulate("id", this.getId());
-		result.accumulate("name", Common._title(this.getName()));
-		result.accumulate("plainname", this.getPlainname());
+		JsonObject result = new JsonObject();
+		result.addProperty("id", this.getId());
+		result.addProperty("name", Common._title(this.getName()));
+		result.addProperty("plainname", this.getPlainname());
 
 		return result;
 	}

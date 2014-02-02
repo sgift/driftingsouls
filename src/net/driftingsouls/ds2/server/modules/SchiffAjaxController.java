@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -31,7 +33,6 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.Waypoint;
-import net.sf.json.JSONObject;
 
 import java.util.List;
 
@@ -75,7 +76,7 @@ public class SchiffAjaxController extends AngularController
 	 * @param alarm Die neue Alarmstufe
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject alarmAction(Ship schiff, int alarm)
+	public JsonElement alarmAction(Ship schiff, int alarm)
 	{
 		validiereSchiff(schiff);
 
@@ -107,7 +108,7 @@ public class SchiffAjaxController extends AngularController
 	 * @param sprungpunkt Die ID des Sprungpunkts
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject springenAction(Ship schiff, int sprungpunkt)
+	public JsonElement springenAction(Ship schiff, int sprungpunkt)
 	{
 		validiereSchiff(schiff);
 
@@ -123,8 +124,8 @@ public class SchiffAjaxController extends AngularController
 		}
 
 		schiff.jump(sprungpunkt, false);
-		JSONObject result = new JSONObject();
-		result.accumulate("log", Ship.MESSAGE.getMessage().trim());
+		JsonObject result = new JsonObject();
+		result.addProperty("log", Ship.MESSAGE.getMessage().trim());
 		return result;
 	}
 
@@ -135,7 +136,7 @@ public class SchiffAjaxController extends AngularController
 	 * @param sprungpunktSchiff Die ID des Schiffes mit dem Sprungpunkt
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject springenViaSchiffAction(Ship schiff, int sprungpunktSchiff)
+	public JsonElement springenViaSchiffAction(Ship schiff, int sprungpunktSchiff)
 	{
 		validiereSchiff(schiff);
 
@@ -151,8 +152,8 @@ public class SchiffAjaxController extends AngularController
 		}
 
 		schiff.jump(sprungpunktSchiff, true);
-		JSONObject result = new JSONObject();
-		result.accumulate("log", Ship.MESSAGE.getMessage().trim());
+		JsonObject result = new JsonObject();
+		result.addProperty("log", Ship.MESSAGE.getMessage().trim());
 		return result;
 	}
 
@@ -164,7 +165,7 @@ public class SchiffAjaxController extends AngularController
 	 * @param y Die Y-Koordinate des Zielsektors
 	 */
 	@Action(value = ActionType.AJAX)
-	public JSONObject fliegeSchiffAction(Ship schiff, int x, int y)
+	public JsonElement fliegeSchiffAction(Ship schiff, int x, int y)
 	{
 		validiereSchiff(schiff);
 
@@ -186,8 +187,8 @@ public class SchiffAjaxController extends AngularController
 
 		schiff.move(route, forceLowHeat, false);
 
-		JSONObject result = new JSONObject();
-		result.accumulate("log", Ship.MESSAGE.getMessage().trim());
+		JsonObject result = new JsonObject();
+		result.addProperty("log", Ship.MESSAGE.getMessage().trim());
 		return result;
 	}
 

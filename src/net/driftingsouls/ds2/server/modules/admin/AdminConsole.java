@@ -18,17 +18,16 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import java.io.IOException;
-import java.io.Writer;
-
+import com.google.gson.JsonArray;
+import com.google.gson.JsonPrimitive;
 import net.driftingsouls.ds2.server.AdminCommands;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AdminController;
-import net.sf.json.JSONArray;
-
 import org.apache.commons.lang.StringUtils;
+
+import java.io.IOException;
+import java.io.Writer;
 
 /**
  * Ermoeglicht das Absetzen von Admin-Kommandos.
@@ -49,9 +48,9 @@ public class AdminConsole implements AdminPlugin {
 		if( responseOnly == 1 ) {
 			int autoComplete = context.getRequest().getParameterInt("autoComplete");
 			if( autoComplete == 1 ) {
-				JSONArray result = new JSONArray();
+				JsonArray result = new JsonArray();
 				for( String ac : new AdminCommands().autoComplete(cmd) ) {
-					result.add(ac);
+					result.add(new JsonPrimitive(ac));
 				}
 				echo.append(result.toString());
 				return;

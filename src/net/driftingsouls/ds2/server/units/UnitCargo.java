@@ -18,12 +18,12 @@
  */
 package net.driftingsouls.ds2.server.units;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.JSONSupport;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.sf.json.JSON;
-import net.sf.json.JSONArray;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -722,9 +722,9 @@ public abstract class UnitCargo implements Cloneable, JSONSupport {
 	}
 
 	@Override
-	public JSON toJSON()
+	public JsonElement toJSON()
 	{
-		JSONArray list = new JSONArray();
+		JsonArray list = new JsonArray();
 
 		for( UnitCargoEntry aunit : units ) {
 			list.add(aunit.toJSON());

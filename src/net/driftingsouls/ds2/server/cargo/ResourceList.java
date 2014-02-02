@@ -25,8 +25,9 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import net.driftingsouls.ds2.server.framework.JSONSupport;
-import net.sf.json.JSONArray;
 
 /**
  * Liste von Resourcen aus einem Cargo.
@@ -155,9 +156,9 @@ public class ResourceList implements Iterable<ResourceEntry>, JSONSupport {
 	}
 
 	@Override
-	public JSONArray toJSON()
+	public JsonElement toJSON()
 	{
-		JSONArray a = new JSONArray();
+		JsonArray a = new JsonArray();
 		for( ResourceEntry entry : list )
 		{
 			a.add(entry.toJSON());

@@ -18,12 +18,12 @@
  */
 package net.driftingsouls.ds2.server.modules.stats;
 
+import com.google.gson.Gson;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.entities.statistik.StatAktiveSpieler;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.StatsController;
-import net.sf.json.JSONSerializer;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -81,12 +81,12 @@ public class StatSpieleraktivitaet implements Statistic {
 
 		echo.append("<div id='statspieleraktivitaet'></div><script type='text/javascript'>$(document).ready(function(){\n");
 		echo.append("DS.plot('statspieleraktivitaet', ");
-		echo.append(JSONSerializer.toJSON(statistiken).toString());
+		echo.append(new Gson().toJson(statistiken));
 		echo.append(", {");
 		echo.append("highligher: {show:true, showTooltip: false},");
 		echo.append("stackSeries:true, seriesDefaults:{fill:true}, legend: {show:true, placement:'outsideGrid'}, ");
 		echo.append("series: [{label: 'Sehr Aktiv'},{label: 'Aktiv'},{label: 'Teilweise Aktiv'},{label: 'Wenig Aktiv'},{label: 'Inaktiv'}, {label: 'Urlaub'}], ");
-		echo.append("axes:{xaxis:{ticks:").append(JSONSerializer.toJSON(ticks).toString()).append(",label:'Tick',pad:0}, yaxis:{label:'Spieleranzahl'} }");
+		echo.append("axes:{xaxis:{ticks:").append(new Gson().toJson(ticks)).append(",label:'Tick',pad:0}, yaxis:{label:'Spieleranzahl'} }");
 		echo.append("} )});");
 		echo.append("</script>");
 	}

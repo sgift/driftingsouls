@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.comm.Ordner;
@@ -40,8 +42,6 @@ import net.driftingsouls.ds2.server.namegenerator.SchiffsKlassenNamenGenerator;
 import net.driftingsouls.ds2.server.namegenerator.SchiffsNamenGenerator;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.units.UnitType;
-import net.sf.json.JSON;
-import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
@@ -370,13 +370,13 @@ public class User extends BasicUser implements JSONSupport {
 	}
 
 	@Override
-	public JSON toJSON()
+	public JsonElement toJSON()
 	{
-		JSONObject result = new JSONObject();
-		result.accumulate("race", this.race);
-		result.accumulate("id", this.getId());
-		result.accumulate("name", Common._title(this.getName()));
-		result.accumulate("plainname", this.getPlainname());
+		JsonObject result = new JsonObject();
+		result.addProperty("race", this.race);
+		result.addProperty("id", this.getId());
+		result.addProperty("name", Common._title(this.getName()));
+		result.addProperty("plainname", this.getPlainname());
 		
 		return result;
 	}

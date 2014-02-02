@@ -18,6 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
@@ -55,8 +58,6 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeChangeset;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
@@ -897,14 +898,14 @@ public class ItemInfoController extends TemplateController
 	 * Gibt alle fuer den Nutzer sichtbaren Items als JSON-Objekte zurueck.
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject ajaxAction()
+	public JsonElement ajaxAction()
 	{
 		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
 		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
 
-		JSONObject json = new JSONObject();
-		JSONArray items = new JSONArray();
+		JsonObject json = new JsonObject();
+		JsonArray items = new JsonArray();
 
 		for (Item aitem : itemlist)
 		{
@@ -917,18 +918,18 @@ public class ItemInfoController extends TemplateController
 				continue;
 			}
 
-			JSONObject itemObj = new JSONObject();
-			itemObj.accumulate("picture", aitem.getPicture());
-			itemObj.accumulate("id", itemid);
-			itemObj.accumulate("name", Common._plaintitle(aitem.getName()));
-			itemObj.accumulate("quality", aitem.getQuality().toJSON());
-			itemObj.accumulate("effectName", itemeffect.getType().getName());
-			itemObj.accumulate("cargo", aitem.getCargo());
+			JsonObject itemObj = new JsonObject();
+			itemObj.addProperty("picture", aitem.getPicture());
+			itemObj.addProperty("id", itemid);
+			itemObj.addProperty("name", Common._plaintitle(aitem.getName()));
+			itemObj.add("quality", aitem.getQuality().toJSON());
+			itemObj.addProperty("effectName", itemeffect.getType().getName());
+			itemObj.addProperty("cargo", aitem.getCargo());
 
 			items.add(itemObj);
 		}
 
-		json.accumulate("items", items);
+		json.add("items", items);
 
 		return json;
 	}

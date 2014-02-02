@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import com.google.gson.JsonElement;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.entities.ComNetService;
 import net.driftingsouls.ds2.server.entities.GuiHelpText;
@@ -31,7 +32,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.sf.json.JSONObject;
 
 import java.io.IOException;
 import java.util.List;
@@ -64,7 +64,7 @@ public class MainController extends TemplateController
 	 * @return Die JSON-Nachricht ueber den Erfolg des speicherns
 	 */
 	@Action(ActionType.AJAX)
-	public JSONObject speicherNotizen(String notizen)
+	public JsonElement speicherNotizen(String notizen)
 	{
 		User user = (User) getUser();
 		user.setUserValue("TBLORDER/main/notizen", notizen.trim());

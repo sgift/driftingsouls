@@ -9,8 +9,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.framework.JSONSupport;
-import net.sf.json.JSONObject;
 
 /**
  * Repraesentation einer Menge von vergebenen Loyalitaetspunkten durch einen NPC
@@ -146,14 +147,14 @@ public class Loyalitaetspunkte implements Comparable<Loyalitaetspunkte>, JSONSup
 	}
 
 	@Override
-	public JSONObject toJSON()
+	public JsonElement toJSON()
 	{
-		JSONObject result = new JSONObject()
-			.accumulate("id", this.id)
-			.accumulate("grund", this.grund)
-			.accumulate("anmerkungen", this.anmerkungen)
-			.accumulate("anzahlPunkte", this.anzahlPunkte)
-			.accumulate("zeitpunkt", this.zeitpunkt.getTime());
+		JsonObject result = new JsonObject();
+		result.addProperty("id", this.id);
+		result.addProperty("grund", this.grund);
+		result.addProperty("anmerkungen", this.anmerkungen);
+		result.addProperty("anzahlPunkte", this.anzahlPunkte);
+		result.addProperty("zeitpunkt", this.zeitpunkt.getTime());
 
 		return result;
 	}

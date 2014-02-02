@@ -30,13 +30,13 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.Table;
 
+import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.sf.json.JSONObject;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -664,6 +664,7 @@ public abstract class Building {
 
 	/**
 	 * Gibt alle zur jeweiligen Anzeige relevanten Informationen als JSON-Objekt zurueck.
+	 *
 	 * @param context Der aktive Kontext
 	 * @param base Die ID der Basis
 	 * @param field Das Feld, auf dem das Gebaeude steht
@@ -671,7 +672,7 @@ public abstract class Building {
 	 * @return Ein HTML-String, der die Gebaeudeseite einhaelt
 	 * @see #isSupportsJson()
 	 */
-	public JSONObject outputJson(Context context, Base base, int field, int building)
+	public JsonObject outputJson(Context context, Base base, int field, int building)
 	{
 		throw new UnsupportedOperationException();
 	}

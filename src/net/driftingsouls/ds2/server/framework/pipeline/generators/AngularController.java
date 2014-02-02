@@ -7,11 +7,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Writer;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.framework.pipeline.Error;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 /**
  * Generator fuer auf AngularJS aufbauende DS-Module.
@@ -31,19 +31,19 @@ public abstract class AngularController extends Controller
 	@Override
 	protected void printErrorListOnly(ActionType type) throws IOException
 	{
-		JSONObject result = new JSONObject();
-		JSONArray errorListObj = new JSONArray();
+		JsonObject result = new JsonObject();
+		JsonArray errorListObj = new JsonArray();
 		for( Error error : this.getErrorList() )
 		{
-			JSONObject errorObj = new JSONObject();
-			errorObj
-				.accumulate("description", error.getDescription())
-				.accumulate("url", error.getUrl());
+			JsonObject errorObj = new JsonObject();
+			errorObj.addProperty("description", error.getDescription());
+			errorObj.addProperty("url", error.getUrl());
 			errorListObj.add(errorObj);
 		}
-		result.accumulate("errors", errorListObj);
-		result.accumulate("message", new JSONObject()
-				.accumulate("type", "errorlist"));
+		result.add("errors", errorListObj);
+		JsonObject msg = new JsonObject();
+		msg.addProperty("type", "errorlist");
+		result.add("message", msg);
 		
 		getResponse().getWriter().write(result.toString());
 	}

@@ -22,11 +22,11 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffectFactory;
 import net.driftingsouls.ds2.server.framework.JSONSupport;
-import net.sf.json.JSON;
-import net.sf.json.JSONObject;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -150,11 +150,11 @@ public class Item {
 		}
 
 		@Override
-		public JSON toJSON()
+		public JsonElement toJSON()
 		{
-			JSONObject obj = new JSONObject();
-			obj.accumulate("name", toString());
-			obj.accumulate("color", this.color);
+			JsonObject obj = new JsonObject();
+			obj.addProperty("name", toString());
+			obj.addProperty("color", this.color);
 			return obj;
 		}
 	}
