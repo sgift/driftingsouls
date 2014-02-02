@@ -32,6 +32,9 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.AngularController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
+import net.driftingsouls.ds2.server.modules.viewmodels.MedalViewModel;
+import net.driftingsouls.ds2.server.modules.viewmodels.RangViewModel;
+import net.driftingsouls.ds2.server.modules.viewmodels.UserViewModel;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tasks.Task;
@@ -468,17 +471,26 @@ public class NpcController extends AngularController
 		return result;
 	}
 
+	@ViewModel
+	public static class RaengeMenuViewModel extends NpcViewModel
+	{
+		public UserViewModel user;
+		public int aktiverRang;
+		public List<RangViewModel> raenge = new ArrayList<>();
+		public List<MedalViewModel> medals = new ArrayList<>();
+	}
+
 	/**
 	 * Zeigt die GUI fuer die Vergabe von Raengen und Orden an.
 	 */
 	@Action(ActionType.AJAX)
-	public JsonElement raengeMenuAction(@UrlParam(name = "edituser") String edituserID)
+	public RaengeMenuViewModel raengeMenuAction(@UrlParam(name = "edituser") String edituserID)
 	{
 		User user = (User) this.getUser();
 
 		User edituser = User.lookupByIdentifier(edituserID);
 
-		JsonObject result = new JsonObject();
+		RaengeMenuViewModel result = new RaengeMenuViewModel();
 		fillCommonMenuResultData(result);
 
 		if (edituser == null)
@@ -486,30 +498,16 @@ public class NpcController extends AngularController
 			return result;
 		}
 
-		result.add("user", edituser.toJSON());
+		result.user = UserViewModel.map(edituser);
 
 		UserRank rank = edituser.getRank(user);
-		result.addProperty("aktiverRang", rank.getRank());
+		result.aktiverRang = rank.getRank();
 
-		JsonArray raengeObj = new JsonArray();
 		for (Rang rang : user.getOwnGrantableRanks())
 		{
-			JsonObject rangObj = new JsonObject();
-			rangObj.addProperty("id", rang.getId());
-			if (rang.getId() == 0)
-			{
-				rangObj.addProperty("name", "-");
-			}
-			else
-			{
-				rangObj.addProperty("name", rang.getName());
-			}
-			raengeObj.add(rangObj);
+			result.raenge.add(RangViewModel.map(rang));
 		}
 
-		result.add("raenge", raengeObj);
-
-		JsonArray medalsObj = new JsonArray();
 		for (Medal medal : Medals.get().medals().values())
 		{
 			if (medal.isAdminOnly())
@@ -517,9 +515,8 @@ public class NpcController extends AngularController
 				continue;
 			}
 
-			medalsObj.add(medal.toJSON());
+			result.medals.add(MedalViewModel.map(medal));
 		}
-		result.add("medals", medalsObj);
 
 		return result;
 	}
@@ -655,9 +652,6 @@ public class NpcController extends AngularController
 		{
 			throw new IllegalArgumentException("Unbekannte ID");
 		}
-
-		JsonObject result = new JsonObject();
-		result.addProperty("success", false);
 
 		if (costs > 0)
 		{

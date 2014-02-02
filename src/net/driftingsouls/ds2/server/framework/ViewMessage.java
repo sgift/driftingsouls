@@ -1,5 +1,8 @@
 package net.driftingsouls.ds2.server.framework;
 
+/**
+ * Nachrichtenklasse fuer Nachrichten an die GUI.
+ */
 @ViewModel
 public class ViewMessage
 {
