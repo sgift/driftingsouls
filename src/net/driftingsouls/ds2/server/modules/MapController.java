@@ -2,7 +2,6 @@ package net.driftingsouls.ds2.server.modules;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
@@ -15,7 +14,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.JSONUtils;
+import net.driftingsouls.ds2.server.framework.ViewMessage;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -79,11 +78,11 @@ public class MapController extends AngularController
 	}
 
 	@Action(value = ActionType.AJAX)
-	public JsonElement speichereSystemkarteAction()
+	public ViewMessage speichereSystemkarteAction()
 	{
 		if (!getUser().isAdmin())
 		{
-			return JSONUtils.error("Du bist nicht berechtigt diese Aktion auszuführen");
+			return ViewMessage.error("Du bist nicht berechtigt diese Aktion auszuführen");
 		}
 
 		org.hibernate.Session db = getDB();
@@ -101,7 +100,7 @@ public class MapController extends AngularController
 			}
 		}
 
-		return JSONUtils.success("Systeme gespeichert");
+		return ViewMessage.success("Systeme gespeichert");
 	}
 
 	private JsonObject createResultObj(StarSystem system)

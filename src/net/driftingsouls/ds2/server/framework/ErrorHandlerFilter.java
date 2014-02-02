@@ -1,8 +1,13 @@
 package net.driftingsouls.ds2.server.framework;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Map;
+import com.google.gson.Gson;
+import net.driftingsouls.ds2.server.framework.authentication.TickInProgressException;
+import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeException;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.StaleStateException;
+import org.hibernate.exception.GenericJDBCException;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -11,17 +16,9 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import net.driftingsouls.ds2.server.framework.authentication.TickInProgressException;
-import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeException;
-
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.StaleStateException;
-import org.hibernate.exception.GenericJDBCException;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Map;
 
 /**
  * Filter, um zentral alle Fehler abzufangen.
@@ -242,74 +239,68 @@ public class ErrorHandlerFilter implements Filter
 		@Override
 		public void reportTickInProgress(TickInProgressException e) throws IOException
 		{
-			JsonElement obj = JSONUtils.error("Der Tick läuft. Bitte etwas Geduld.");
-			obj.getAsJsonObject().getAsJsonObject("message")
-				.addProperty("cls", e.getClass().getSimpleName());
+			ViewMessage obj = ViewMessage.error("Der Tick läuft. Bitte etwas Geduld.");
+			obj.message.cls = e.getClass().getSimpleName();
 			respondWithObject(obj);
 		}
 
 		@Override
 		public void reportStaleState(StaleStateException e) throws IOException
 		{
-			JsonElement obj = JSONUtils.error("Die Operation hat sich mit einer anderen überschnitten. " +
+			ViewMessage obj = ViewMessage.error("Die Operation hat sich mit einer anderen überschnitten. " +
 					"Bitte probier es noch einmal.");
-			obj.getAsJsonObject().getAsJsonObject("message")
-				.addProperty("cls", e.getClass().getSimpleName());
+			obj.message.cls = e.getClass().getSimpleName();
 			respondWithObject(obj);
 		}
 
 		@Override
 		public void reportSqlLock(GenericJDBCException e) throws IOException
 		{
-			JsonElement obj = JSONUtils.error("Die Operation hat sich mit einer anderen überschnitten. " +
+			ViewMessage obj = ViewMessage.error("Die Operation hat sich mit einer anderen überschnitten. " +
 					"Bitte probier es noch einmal.");
-			obj.getAsJsonObject().getAsJsonObject("message")
-				.addProperty("cls", e.getClass().getSimpleName());
+			obj.message.cls = e.getClass().getSimpleName();
 			respondWithObject(obj);
 		}
 
 		@Override
 		public void reportNotLoggedIn(NotLoggedInException e) throws IOException
 		{
-			JsonElement obj = JSONUtils.error("Du musst eingeloggt sein, um diese Seite zu sehen.");
-			JsonObject msg = obj.getAsJsonObject().getAsJsonObject("message");
-			msg.addProperty("cls", e.getClass().getSimpleName());
-			msg.addProperty("redirect", true);
+			ViewMessage obj = ViewMessage.error("Du musst eingeloggt sein, um diese Seite zu sehen.");
+			obj.message.cls = e.getClass().getSimpleName();
+			obj.message.redirect = true;
 			respondWithObject(obj);
 		}
 
 		@Override
 		public void reportInVacation(AccountInVacationModeException e) throws IOException
 		{
-			
-			JsonElement obj;
+
+			ViewMessage obj;
 			if(e.getDauer() > 1)
 			{
-				obj = JSONUtils.error("Du bist noch " + e.getDauer() + " Ticks im Vacationmodus.");
+				obj = ViewMessage.error("Du bist noch " + e.getDauer() + " Ticks im Vacationmodus.");
 			}
 			else
 			{
-				obj = JSONUtils.error("Du bist noch " + e.getDauer() + " Tick im Vacationmodus.");
+				obj = ViewMessage.error("Du bist noch " + e.getDauer() + " Tick im Vacationmodus.");
 			}
-			JsonObject msg = obj.getAsJsonObject().getAsJsonObject("message");
-			msg.addProperty("cls", e.getClass().getSimpleName());
-			msg.addProperty("redirect", true);
+			obj.message.cls = e.getClass().getSimpleName();
+			obj.message.redirect = true;
 			respondWithObject(obj);
 		}
 
 		@Override
 		public void reportUnexpected(Throwable t) throws IOException
 		{
-			JsonElement obj = JSONUtils.error("Ein genereller Fehler ist aufgetreten. Die Entwickler arbeiten daran ihn zu beheben.");
-			obj.getAsJsonObject().getAsJsonObject("message")
-				.addProperty("cls", t.getClass().getSimpleName());
+			ViewMessage obj = ViewMessage.error("Ein genereller Fehler ist aufgetreten. Die Entwickler arbeiten daran ihn zu beheben.");
+			obj.message.cls = t.getClass().getSimpleName();
 			respondWithObject(obj);
 		}
 		
-		private void respondWithObject(JsonElement obj) throws IOException
+		private void respondWithObject(ViewMessage obj) throws IOException
 		{
 			Writer w = response.getWriter();
-			w.append(obj.toString());
+			w.append(new Gson().toJson(obj));
 		}
 	}
 }

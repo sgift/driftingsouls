@@ -24,7 +24,8 @@ import net.driftingsouls.ds2.server.entities.npcorders.OrderableOffizier;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderableShip;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.JSONUtils;
+import net.driftingsouls.ds2.server.framework.ViewMessage;
+import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
@@ -48,10 +49,10 @@ import java.util.TreeSet;
 
 /**
  * Das Interface fuer NPCs.
- * @author Christopher Jung
  *
+ * @author Christopher Jung
  */
-@Module(name="npc")
+@Module(name = "npc")
 public class NpcController extends AngularController
 {
 	private boolean isHead = false;
@@ -59,55 +60,88 @@ public class NpcController extends AngularController
 
 	/**
 	 * Konstruktor.
+	 *
 	 * @param context Der zu verwendende Kontext
 	 */
-	public NpcController(Context context) {
+	public NpcController(Context context)
+	{
 		super(context);
 
 		setPageTitle("NPC-Menue");
 	}
 
 	@Override
-	protected boolean validateAndPrepare() {
-		User user = (User)this.getUser();
-		
-		if( !user.hasFlag( User.FLAG_ORDER_MENU ) ) {
-			throw new ValidierungException("Nur NPCs können dieses Script nutzen", Common.buildUrl("default", "module", "ueber") );
+	protected boolean validateAndPrepare()
+	{
+		User user = (User) this.getUser();
+
+		if (!user.hasFlag(User.FLAG_ORDER_MENU))
+		{
+			throw new ValidierungException("Nur NPCs können dieses Script nutzen", Common.buildUrl("default", "module", "ueber"));
 		}
 
-		if( Rassen.get().rasse(user.getRace()).isHead(user.getId()) ) {
+		if (Rassen.get().rasse(user.getRace()).isHead(user.getId()))
+		{
 			this.isHead = true;
 		}
 
-		if( Faction.get(user.getId()) != null && Faction.get(user.getId()).getPages().hasPage("shop") ) {
+		if (Faction.get(user.getId()) != null && Faction.get(user.getId()).getPages().hasPage("shop"))
+		{
 			this.shop = true;
 		}
 
 		return true;
 	}
 
+	public static class NpcMenuViewModel
+	{
+		public boolean head;
+		public boolean shop;
+	}
+
+	public static abstract class NpcViewModel
+	{
+		public NpcMenuViewModel menu;
+	}
+
+	private void fillCommonMenuResultData(JsonObject result)
+	{
+		JsonObject menuObj = new JsonObject();
+		menuObj.addProperty("head", this.isHead);
+		menuObj.addProperty("shop", this.shop);
+
+		result.add("menu", menuObj);
+	}
+
+	private void fillCommonMenuResultData(NpcViewModel result)
+	{
+		result.menu = new NpcMenuViewModel();
+		result.menu.head = this.isHead;
+		result.menu.shop = this.shop;
+	}
+
 	/**
 	 * Zeigt den aktuellen Status aller fuer Ganymede-Transporte reservierten Transporter an.
-	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JsonElement shopMenuAction() {
+	public JsonElement shopMenuAction()
+	{
 		org.hibernate.Session db = getDB();
-		User user = (User)this.getUser();
-		
-		if( !this.shop )
+		User user = (User) this.getUser();
+
+		if (!this.shop)
 		{
-			return JSONUtils.error("Sie verfügen über keinen Shop und können daher diese Seite nicht aufrufen");
+			throw new ValidierungException("Sie verfügen über keinen Shop und können daher diese Seite nicht aufrufen");
 		}
-		
+
 		JsonObject result = new JsonObject();
 		fillCommonMenuResultData(result);
-		
+
 		JsonArray transpListObj = new JsonArray();
-	
+
 		List<?> ships = db.createQuery("from Ship s where s.owner=:user and locate('#!/tm gany_transport',s.einstellungen.destcom)!=0")
-			.setEntity("user", user)
-			.list();
+						.setEntity("user", user)
+						.list();
 		for (Object ship : ships)
 		{
 			Ship aship = (Ship) ship;
@@ -151,7 +185,7 @@ public class NpcController extends AngularController
 			transObj.addProperty("status", status);
 
 			FactionShopOrder order = (FactionShopOrder) db
-					.get(FactionShopOrder.class, Integer.parseInt(task.getData1()));
+														.get(FactionShopOrder.class, Integer.parseInt(task.getData1()));
 
 			if (order == null)
 			{
@@ -169,111 +203,120 @@ public class NpcController extends AngularController
 
 			transObj.addProperty("auftrag", order.getId() + ": " + Common._title(orderuser.getName()) + "\n" + order.getAddData());
 		}
-		
+
 		result.add("transporter", transpListObj);
 		return result;
 	}
 
 	/**
 	 * Zeichnet einen Spieler mit einem Orden aus.
+	 *
 	 * @param edituserID Die ID des zu bearbeitenden Spielers
 	 * @param medal Die ID des Ordens
 	 * @param reason Der Grund, warum der Orden verliehen wurde
-	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JsonElement awardMedalAction(@UrlParam(name="edituser") String edituserID, int medal, String reason) {
-		User user = (User)this.getUser();
+	public ViewMessage awardMedalAction(@UrlParam(name = "edituser") String edituserID, int medal, String reason)
+	{
+		User user = (User) this.getUser();
 
-		if( !this.isHead ) {
-			return JSONUtils.failure("Sie sind nicht berechtigt auf dieses Menü zuzugreifen");
+		if (!this.isHead)
+		{
+			return ViewMessage.failure("Sie sind nicht berechtigt auf dieses Menü zuzugreifen");
 		}
 
 		User edituser = User.lookupByIdentifier(edituserID);
 
-		if( edituser == null ) {
-			return JSONUtils.failure("Der angegebene Spieler existiert nicht");
+		if (edituser == null)
+		{
+			return ViewMessage.failure("Der angegebene Spieler existiert nicht");
 		}
 
-		if( Medals.get().medal(medal) == null ) {
-			return JSONUtils.failure("Der angegebene Orden ist nicht vorhanden");
+		if (Medals.get().medal(medal) == null)
+		{
+			return ViewMessage.failure("Der angegebene Orden ist nicht vorhanden");
 		}
 
-		if( Medals.get().medal(medal).isAdminOnly() ) {
-			return JSONUtils.failure("Diesen Orden kännen sie nicht verleihen");
+		if (Medals.get().medal(medal).isAdminOnly())
+		{
+			return ViewMessage.failure("Diesen Orden kännen sie nicht verleihen");
 		}
 
-		if( reason.length() == 0 ) {
-			return JSONUtils.failure("Sie müssen einen Grund angeben");
+		if (reason.length() == 0)
+		{
+			return ViewMessage.failure("Sie müssen einen Grund angeben");
 		}
 
 		String medallist = edituser.getMedals();
-		edituser.setMedals(medallist.trim().length() > 0 ? medallist+";"+medal : Integer.toString(medal));
+		edituser.setMedals(medallist.trim().length() > 0 ? medallist + ";" + medal : Integer.toString(medal));
 
 		int ticks = getContext().get(ContextCommon.class).getTick();
 
-		edituser.addHistory(Common.getIngameTime(ticks)+": Der Orden [img]"+
-				"./data/"+Medals.get().medal(medal).getImage(Medal.IMAGE_SMALL)+"[/img]"+
-				Medals.get().medal(medal).getName()+" wurde von [userprofile="+user.getId()+"]"+
-				user.getName()+"[/userprofile] verliehen Aufgrund der "+reason);
+		edituser.addHistory(Common.getIngameTime(ticks) + ": Der Orden [img]" +
+							"./data/" + Medals.get().medal(medal).getImage(Medal.IMAGE_SMALL) + "[/img]" +
+							Medals.get().medal(medal).getName() + " wurde von [userprofile=" + user.getId() + "]" +
+							user.getName() + "[/userprofile] verliehen Aufgrund der " + reason);
 
-		PM.send(user, edituser.getId(), "Orden '"+Medals.get().medal(medal).getName()+"' verliehen",
-				"Ich habe dir den Orden [img]"+
-				"./data/"+Medals.get().medal(medal).getImage(Medal.IMAGE_SMALL)+"[/img]'"+
-				Medals.get().medal(medal).getName()+"' verliehen Aufgrund deiner "+reason);
+		PM.send(user, edituser.getId(), "Orden '" + Medals.get().medal(medal).getName() + "' verliehen",
+			   "Ich habe dir den Orden [img]" +
+			   "./data/" + Medals.get().medal(medal).getImage(Medal.IMAGE_SMALL) + "[/img]'" +
+			   Medals.get().medal(medal).getName() + "' verliehen Aufgrund deiner " + reason);
 
-		return JSONUtils.success("Dem Spieler wurde der Orden '"+
-				Medals.get().medal(medal).getName()+
-				"' verliehen");
+		return ViewMessage.success("Dem Spieler wurde der Orden '" +
+								   Medals.get().medal(medal).getName() +
+								   "' verliehen");
 	}
 
 	/**
 	 * Befoerdert/Degradiert einen Spieler.
+	 *
 	 * @param edituserID Die ID des zu bearbeitenden Spielers
 	 * @param rank Der neue Rang
-	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JsonElement changeRankAction(@UrlParam(name="edituser") String edituserID, int rank) {
-		User user = (User)this.getUser();
+	public ViewMessage changeRankAction(@UrlParam(name = "edituser") String edituserID, int rank)
+	{
+		User user = (User) this.getUser();
 
 		User edituser = User.lookupByIdentifier(edituserID);
-		
-		if( edituser == null ) {
-			return JSONUtils.failure("Der angegebene Spieler existiert nicht");
+
+		if (edituser == null)
+		{
+			return ViewMessage.failure("Der angegebene Spieler existiert nicht");
 		}
 
-		if( rank < 0 ) {
-			return JSONUtils.failure("Sie können diesen Spieler nicht soweit degradieren");
+		if (rank < 0)
+		{
+			return ViewMessage.failure("Sie können diesen Spieler nicht soweit degradieren");
 		}
 
 		edituser.setRank(user, rank);
 
-		return JSONUtils.success("Rang geändert");
+		return ViewMessage.success("Rang geändert");
 	}
 
 	@Action(ActionType.AJAX)
-	public JsonElement deleteLpAction(@UrlParam(name="edituser") String edituserID, @UrlParam(name="lp") int lpId)
+	public ViewMessage deleteLpAction(@UrlParam(name = "edituser") String edituserID, @UrlParam(name = "lp") int lpId)
 	{
 		User edituser = User.lookupByIdentifier(edituserID);
-		if( edituser == null )
+		if (edituser == null)
 		{
-			return JSONUtils.failure("Der Spieler existiert nicht");
+			return ViewMessage.failure("Der Spieler existiert nicht");
 		}
 
 		Loyalitaetspunkte lp = null;
-		for( Loyalitaetspunkte alp : edituser.getLoyalitaetspunkte() )
+		for (Loyalitaetspunkte alp : edituser.getLoyalitaetspunkte())
 		{
-			if( alp.getId() == lpId )
+			if (alp.getId() == lpId)
 			{
 				lp = alp;
 				break;
 			}
 		}
 
-		if( lp == null )
+		if (lp == null)
 		{
-			return JSONUtils.failure("Der LP-Eintrag wurde nicht gefunden");
+			return ViewMessage.failure("Der LP-Eintrag wurde nicht gefunden");
 		}
 
 		org.hibernate.Session db = getDB();
@@ -281,11 +324,12 @@ public class NpcController extends AngularController
 		db.delete(lp);
 		edituser.getLoyalitaetspunkte().remove(lp);
 
-		return JSONUtils.success("Eintrag gelöscht");
+		return ViewMessage.success("Eintrag gelöscht");
 	}
 
 	/**
 	 * Fuegt LP zu einem Spieler hinzu.
+	 *
 	 * @param anmerkungen Weitere Anmerkungen zur Vergabe der LP
 	 * @param edituserID Die Identifikationsdaten des zu bearbeitenden Spielers
 	 * @param grund Der Grund fuer die LP
@@ -294,19 +338,19 @@ public class NpcController extends AngularController
 	 * @return Das Antwortobjekt
 	 */
 	@Action(ActionType.AJAX)
-	public JsonElement editLpAction(@UrlParam(name="edituser") String edituserID, String grund, String anmerkungen, int punkte, boolean pm)
+	public ViewMessage editLpAction(@UrlParam(name = "edituser") String edituserID, String grund, String anmerkungen, int punkte, boolean pm)
 	{
-		User user = (User)this.getUser();
+		User user = (User) this.getUser();
 
 		User edituser = User.lookupByIdentifier(edituserID);
-		if( edituser == null )
+		if (edituser == null)
 		{
-			return JSONUtils.failure("Benutzer nicht gefunden");
+			return ViewMessage.failure("Benutzer nicht gefunden");
 		}
 
-		if( punkte == 0 || grund.isEmpty() )
+		if (punkte == 0 || grund.isEmpty())
 		{
-			return JSONUtils.failure("Sie muessen den Grund und die Anzahl der Punkte angeben");
+			return ViewMessage.failure("Sie muessen den Grund und die Anzahl der Punkte angeben");
 		}
 
 		org.hibernate.Session db = getDB();
@@ -317,44 +361,45 @@ public class NpcController extends AngularController
 
 		db.persist(lp);
 
-		if( pm )
+		if (pm)
 		{
 			String pmText = "[Automatische Mitteilung]\n" +
-					"Du hast soeben "+punkte+" Loyalitätspunkte erhalten. " +
-					"Du verfügst nun insgesamt über "+edituser.getLoyalitaetspunkteTotalBeiNpc(user)+" Loyalitätspunkte bei mir.\n\n";
-			pmText += "Grund für die Vergabe: "+grund;
+							"Du hast soeben " + punkte + " Loyalitätspunkte erhalten. " +
+							"Du verfügst nun insgesamt über " + edituser.getLoyalitaetspunkteTotalBeiNpc(user) + " Loyalitätspunkte bei mir.\n\n";
+			pmText += "Grund für die Vergabe: " + grund;
 			PM.send(user, edituser.getId(), "Loyalitätspunkte erhalten", pmText, PM.FLAGS_AUTOMATIC);
 		}
 
-		return JSONUtils.success(punkte+" LP vergeben");
+		return ViewMessage.success(punkte + " LP vergeben");
 	}
 
 	/**
 	 * Markiert die Meldung einer Aktion als "bearbeitet".
+	 *
 	 * @param meldung Die Meldung
 	 * @return Die JSON-Antwort
 	 */
 	@Action(ActionType.AJAX)
-	public JsonElement meldungBearbeitetAction(FraktionAktionsMeldung meldung)
+	public ViewMessage meldungBearbeitetAction(FraktionAktionsMeldung meldung)
 	{
-		if( meldung == null )
+		if (meldung == null)
 		{
-			return JSONUtils.error("Die angegebene Meldung konnte nicht gefunden werden");
+			return ViewMessage.error("Die angegebene Meldung konnte nicht gefunden werden");
 		}
 		meldung.setBearbeitetAm(new Date());
-		return JSONUtils.success("Die Meldung wurde als bearbeitet markiert");
+		return ViewMessage.success("Die Meldung wurde als bearbeitet markiert");
 	}
 
 	/**
 	 * Zeigt die GUI fuer LP-Verwaltung an.
+	 *
 	 * @param edituserID Die Identifikationsdaten des anzuzeigenden Spielers
 	 * @param alleMeldungen <code>true</code>, falls alle Meldungen angezeigt werden sollen
-	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JsonElement lpMenuAction(@UrlParam(name="edituser") String edituserID, boolean alleMeldungen)
+	public JsonElement lpMenuAction(@UrlParam(name = "edituser") String edituserID, boolean alleMeldungen)
 	{
-		User user = (User)this.getUser();
+		User user = (User) this.getUser();
 
 		JsonObject result = new JsonObject();
 		fillCommonMenuResultData(result);
@@ -364,19 +409,20 @@ public class NpcController extends AngularController
 		cal.add(Calendar.DAY_OF_YEAR, -14);
 
 		List<FraktionAktionsMeldung> meldungen;
-		if( alleMeldungen )
+		if (alleMeldungen)
 		{
 			meldungen = Common.cast(getDB()
-					.createQuery("from FraktionAktionsMeldung where bearbeitetAm is null or bearbeitetAm>:maxBearbeitet order by bearbeitetAm,gemeldetAm")
-					.setDate("maxBearbeitet", cal.getTime())
-					.list());
+									.createQuery("from FraktionAktionsMeldung where bearbeitetAm is null or bearbeitetAm>:maxBearbeitet order by bearbeitetAm,gemeldetAm")
+									.setDate("maxBearbeitet", cal.getTime())
+									.list());
 		}
-		else {
+		else
+		{
 			meldungen = Common.cast(getDB()
-					.createQuery("from FraktionAktionsMeldung where fraktion=:user and (bearbeitetAm is null or bearbeitetAm>:maxBearbeitet) order by bearbeitetAm,gemeldetAm")
-					.setEntity("user", user)
-					.setDate("maxBearbeitet", cal.getTime())
-					.list());
+									.createQuery("from FraktionAktionsMeldung where fraktion=:user and (bearbeitetAm is null or bearbeitetAm>:maxBearbeitet) order by bearbeitetAm,gemeldetAm")
+									.setEntity("user", user)
+									.setDate("maxBearbeitet", cal.getTime())
+									.list());
 		}
 
 		JsonArray meldungenListObj = new JsonArray();
@@ -396,7 +442,8 @@ public class NpcController extends AngularController
 
 		User edituser = User.lookupByIdentifier(edituserID);
 
-		if( edituser == null ) {
+		if (edituser == null)
+		{
 			return result;
 		}
 
@@ -407,7 +454,7 @@ public class NpcController extends AngularController
 		//DateFormat format = new SimpleDateFormat("dd.MM.yy HH:mm");
 
 		JsonArray lpListObj = new JsonArray();
-		for( Loyalitaetspunkte lp : new TreeSet<>(edituser.getLoyalitaetspunkte()) )
+		for (Loyalitaetspunkte lp : new TreeSet<>(edituser.getLoyalitaetspunkte()))
 		{
 			JsonElement lpObj = lp.toJSON();
 			lpObj.getAsJsonObject().add("verliehenDurch", lp.getVerliehenDurch().toJSON());
@@ -423,18 +470,19 @@ public class NpcController extends AngularController
 
 	/**
 	 * Zeigt die GUI fuer die Vergabe von Raengen und Orden an.
-	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JsonElement raengeMenuAction(@UrlParam(name="edituser") String edituserID) {
-		User user = (User)this.getUser();
+	public JsonElement raengeMenuAction(@UrlParam(name = "edituser") String edituserID)
+	{
+		User user = (User) this.getUser();
 
 		User edituser = User.lookupByIdentifier(edituserID);
-		
+
 		JsonObject result = new JsonObject();
 		fillCommonMenuResultData(result);
 
-		if( edituser == null ) {
+		if (edituser == null)
+		{
 			return result;
 		}
 
@@ -442,13 +490,13 @@ public class NpcController extends AngularController
 
 		UserRank rank = edituser.getRank(user);
 		result.addProperty("aktiverRang", rank.getRank());
-		
+
 		JsonArray raengeObj = new JsonArray();
-		for( Rang rang : user.getOwnGrantableRanks() )
+		for (Rang rang : user.getOwnGrantableRanks())
 		{
 			JsonObject rangObj = new JsonObject();
 			rangObj.addProperty("id", rang.getId());
-			if( rang.getId() == 0 )
+			if (rang.getId() == 0)
 			{
 				rangObj.addProperty("name", "-");
 			}
@@ -458,19 +506,21 @@ public class NpcController extends AngularController
 			}
 			raengeObj.add(rangObj);
 		}
-		
+
 		result.add("raenge", raengeObj);
 
 		JsonArray medalsObj = new JsonArray();
-		for( Medal medal : Medals.get().medals().values() ) {
-			if( medal.isAdminOnly() ) {
+		for (Medal medal : Medals.get().medals().values())
+		{
+			if (medal.isAdminOnly())
+			{
 				continue;
 			}
-			
+
 			medalsObj.add(medal.toJSON());
 		}
 		result.add("medals", medalsObj);
-		
+
 		return result;
 	}
 
@@ -480,48 +530,49 @@ public class NpcController extends AngularController
 	 * @param lieferposition Die Koordinate des Ortes, an dem die georderten Objekte erscheinen sollen
 	 */
 	@Action(ActionType.AJAX)
-	public JsonElement changeOrderLocationAction(String lieferposition) {
-		User user = (User)this.getUser();
+	public ViewMessage changeOrderLocationAction(String lieferposition)
+	{
+		User user = (User) this.getUser();
 
-		if( lieferposition.isEmpty() )
+		if (lieferposition.isEmpty())
 		{
 			user.setNpcOrderLocation(null);
-			return JSONUtils.success("Lieferkoordinaten zurückgesetzt");
+			return ViewMessage.success("Lieferkoordinaten zurückgesetzt");
 		}
-		
+
 		Location loc = Location.fromString(lieferposition);
 
-		if( !Base.byLocationAndBesitzer(loc, user).isEmpty() ) {
+		if (!Base.byLocationAndBesitzer(loc, user).isEmpty())
+		{
 			user.setNpcOrderLocation(loc.asString());
 
-			return JSONUtils.success("Neue Lieferkoordinaten gespeichert");
+			return ViewMessage.success("Neue Lieferkoordinaten gespeichert");
 		}
-		
-		return JSONUtils.failure("Keine Lieferung nach "+loc.asString()+" möglich");
+
+		return ViewMessage.failure("Keine Lieferung nach " + loc.asString() + " möglich");
 	}
 
 
 	/**
 	 * Ordert eine Menge von Schiffen.
-	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JsonElement orderShipsAction(
-			@UrlParam(name="shipflag_disableiff") boolean flagDisableIff,
-			@UrlParam(name="shipflag_handelsposten") boolean flagHandelsposten,
-			@UrlParam(name="shipflag_nichtkaperbar") boolean flagNichtKaperbar,
-			@UrlParam(name="ship#_count") Map<Integer,Integer> shipCounts)
+	public ViewMessage orderShipsAction(
+									   @UrlParam(name = "shipflag_disableiff") boolean flagDisableIff,
+									   @UrlParam(name = "shipflag_handelsposten") boolean flagHandelsposten,
+									   @UrlParam(name = "shipflag_nichtkaperbar") boolean flagNichtKaperbar,
+									   @UrlParam(name = "ship#_count") Map<Integer, Integer> shipCounts)
 	{
 		org.hibernate.Session db = getDB();
-		User user = (User)this.getUser();
+		User user = (User) this.getUser();
 
 		int costs = 0;
 
 		List<Order> orderList = new ArrayList<>();
 
 		List<?> shipOrders = db
-				.createQuery("from OrderableShip s order by s.shipType.shipClass,s.shipType.id")
-				.list();
+							 .createQuery("from OrderableShip s order by s.shipType.shipClass,s.shipType.id")
+							 .list();
 		for (Object shipOrder : shipOrders)
 		{
 			OrderableShip ship = (OrderableShip) shipOrder;
@@ -556,43 +607,49 @@ public class NpcController extends AngularController
 			}
 		}
 
-		if( costs > 0 ) {
-			if( user.getNpcPunkte() < costs ) {
-				return JSONUtils.failure("Nicht genug Kommandopunkte");
+		if (costs > 0)
+		{
+			if (user.getNpcPunkte() < costs)
+			{
+				return ViewMessage.failure("Nicht genug Kommandopunkte");
 			}
 
-			for( Order order : orderList ) {
+			for (Order order : orderList)
+			{
 				db.persist(order);
 			}
 
-			user.setNpcPunkte( user.getNpcPunkte() - costs );
-			
-			return JSONUtils.success(orderList.size()+" Schiff(e) zugeteilt - wird/werden in 1 Tick(s) eintreffen");
+			user.setNpcPunkte(user.getNpcPunkte() - costs);
+
+			return ViewMessage.success(orderList.size() + " Schiff(e) zugeteilt - wird/werden in 1 Tick(s) eintreffen");
 		}
-		
-		return JSONUtils.failure("Sorry, aber umsonst bekommst du hier nichts...");
+
+		return ViewMessage.failure("Sorry, aber umsonst bekommst du hier nichts...");
 	}
 
 	/**
 	 * Ordert eine Menge von Schiffen/Offizieren.
+	 *
 	 * @param order Das zu ordernde Objekt (negativ: offizier)
 	 * @param count Die Menge der zu ordernden Objekte
-	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JsonElement orderAction(int order, int count) {
+	public ViewMessage orderAction(int order, int count)
+	{
 		org.hibernate.Session db = getDB();
-		User user = (User)this.getUser();
+		User user = (User) this.getUser();
 
 		int costs;
 
-		if( count <= 0 ) {
+		if (count <= 0)
+		{
 			count = 1;
 		}
 
-		if( order < 0 ) {
-			OrderableOffizier orderOffi = (OrderableOffizier)db.get(OrderableOffizier.class, -order);
-			costs = count*orderOffi.getCost();
+		if (order < 0)
+		{
+			OrderableOffizier orderOffi = (OrderableOffizier) db.get(OrderableOffizier.class, -order);
+			costs = count * orderOffi.getCost();
 		}
 		else
 		{
@@ -601,41 +658,80 @@ public class NpcController extends AngularController
 
 		JsonObject result = new JsonObject();
 		result.addProperty("success", false);
-		
-		if( costs > 0 ) {
-			if( user.getNpcPunkte() < costs ) {
-				return JSONUtils.failure("Nicht genug Kommandopunkte");
+
+		if (costs > 0)
+		{
+			if (user.getNpcPunkte() < costs)
+			{
+				return ViewMessage.failure("Nicht genug Kommandopunkte");
 			}
-			for( int i=0; i < count; i++ ) {
+			for (int i = 0; i < count; i++)
+			{
 				Order orderObj = new OrderOffizier(user.getId(), -order);
 				orderObj.setTick(1);
 				db.persist(orderObj);
 			}
 
-			user.setNpcPunkte( user.getNpcPunkte() - costs );
-			return JSONUtils.success("Offizier(e) zugeteilt - wird/werden in 1 Tick(s) eintreffen");
+			user.setNpcPunkte(user.getNpcPunkte() - costs);
+			return ViewMessage.success("Offizier(e) zugeteilt - wird/werden in 1 Tick(s) eintreffen");
 		}
-		
-		return JSONUtils.failure("Sorry, aber umsonst bekommst du hier nichts...");
+
+		return ViewMessage.failure("Sorry, aber umsonst bekommst du hier nichts...");
+	}
+
+	@ViewModel
+	public static class OrderMenuViewModel extends NpcViewModel
+	{
+		public static class OrderableShipViewModel
+		{
+			public String klasse;
+			public int id;
+			public String name;
+			public int type;
+			public int cost;
+			public Integer ordercount;
+		}
+
+		public static class OrderableOffizierViewModel
+		{
+			public int id;
+			public String name;
+			public int rang;
+			public int cost;
+			public Integer ordercount;
+		}
+
+		public static class LieferpositionViewModel
+		{
+			public String name;
+			public String pos;
+		}
+
+		public int npcpunkte;
+		public String aktuelleLieferposition;
+		public List<OrderableOffizierViewModel> offiziere = new ArrayList<>();
+		public List<OrderableShipViewModel> ships = new ArrayList<>();
+		public List<LieferpositionViewModel> lieferpositionen = new ArrayList<>();
 	}
 
 	/**
 	 * Zeigt die GUI zum Ordern von Schiffen/Offizieren.
 	 */
 	@Action(ActionType.AJAX)
-	public JsonElement orderMenuAction() {
+	public OrderMenuViewModel orderMenuAction()
+	{
 		org.hibernate.Session db = getDB();
-		User user = (User)this.getUser();
+		User user = (User) this.getUser();
 
-		Map<Integer,Integer> shiporders = new HashMap<>();
-		Map<Integer,Integer> offiorders = new HashMap<>();
+		Map<Integer, Integer> shiporders = new HashMap<>();
+		Map<Integer, Integer> offiorders = new HashMap<>();
 
-		JsonObject result = new JsonObject();
+		OrderMenuViewModel result = new OrderMenuViewModel();
 		fillCommonMenuResultData(result);
 
 		List<?> orderList = db.createQuery("from Order where user= :user")
-			.setInteger("user", user.getId())
-			.list();
+							.setInteger("user", user.getId())
+							.list();
 		for (Object anOrderList : orderList)
 		{
 			Order order = (Order) anOrderList;
@@ -653,8 +749,6 @@ public class NpcController extends AngularController
 			Schiffe
 		*/
 
-		JsonArray shipResultList = new JsonArray();
-
 		List<?> shipOrders = db.createQuery("from OrderableShip order by shipType.shipClass,shipType.id").list();
 		for (Object shipOrder : shipOrders)
 		{
@@ -665,31 +759,27 @@ public class NpcController extends AngularController
 				continue;
 			}
 
-			JsonObject resShip = new JsonObject();
+			OrderMenuViewModel.OrderableShipViewModel resShip = new OrderMenuViewModel.OrderableShipViewModel();
 
-			resShip.addProperty("klasse", ship.getShipType().getShipClass().getSingular());
+			resShip.klasse = ship.getShipType().getShipClass().getSingular();
 
 			if (!shiporders.containsKey(ship.getId()))
 			{
 				shiporders.put(ship.getId(), 0);
 			}
 
-			resShip.addProperty("id", ship.getShipType().getId());
-			resShip.addProperty("name", ship.getShipType().getNickname());
-			resShip.addProperty("type", ship.getShipType().getId());
-			resShip.addProperty("cost", ship.getCost());
-			resShip.addProperty("ordercount", shiporders.get(ship.getId()));
+			resShip.id = ship.getShipType().getId();
+			resShip.name = ship.getShipType().getNickname();
+			resShip.type = ship.getShipType().getId();
+			resShip.cost = ship.getCost();
+			resShip.ordercount = shiporders.get(ship.getId());
 
-			shipResultList.add(resShip);
+			result.ships.add(resShip);
 		}
-		
-		result.add("ships", shipResultList);
 
 		/*
 			Offiziere
 		*/
-
-		JsonArray resOffizierList = new JsonArray();
 
 		List<?> offizierOrders = db.createQuery("from OrderableOffizier where cost > 0 order by id").list();
 		for (Object offizierOrder : offizierOrders)
@@ -701,59 +791,48 @@ public class NpcController extends AngularController
 				offiorders.put(-offizier.getId(), 0);
 			}
 
-			JsonObject resOffizier = new JsonObject();
-			resOffizier.addProperty("name", offizier.getName());
-			resOffizier.addProperty("rang", offizier.getRang());
-			resOffizier.addProperty("cost", offizier.getCost());
-			resOffizier.addProperty("id", -offizier.getId());
-			resOffizier.addProperty("ordercount", offiorders.get(offizier.getId()));
+			OrderMenuViewModel.OrderableOffizierViewModel resOffizier = new OrderMenuViewModel.OrderableOffizierViewModel();
+			resOffizier.name = offizier.getName();
+			resOffizier.rang = offizier.getRang();
+			resOffizier.cost = offizier.getCost();
+			resOffizier.id = -offizier.getId();
+			resOffizier.ordercount = offiorders.get(offizier.getId());
 
-			resOffizierList.add(resOffizier);
+			result.offiziere.add(resOffizier);
 		}
 
-		result.add("offiziere", resOffizierList);
-		result.addProperty("npcpunkte", user.getNpcPunkte());
-		
+		result.npcpunkte = user.getNpcPunkte();
+
 		outputLieferposition(result, user);
-		
+
 		return result;
 	}
 
-	private void fillCommonMenuResultData(JsonObject result)
-	{
-		JsonObject menuObj = new JsonObject();
-		menuObj.addProperty("head", this.isHead);
-		menuObj.addProperty("shop", this.shop);
-		
-		result.add("menu", menuObj);
-	}
 
-	private void outputLieferposition(JsonObject result, User user)
+	private void outputLieferposition(OrderMenuViewModel result, User user)
 	{
 		Set<Location> uniqueLocations = new HashSet<>();
 
 		Location lieferpos = null;
-		if( user.getNpcOrderLocation() != null )
+		if (user.getNpcOrderLocation() != null)
 		{
 			lieferpos = Location.fromString(user.getNpcOrderLocation());
 		}
-		
-		JsonArray resLieferPos = new JsonArray();
-		for( Base base : user.getBases() )
+
+		for (Base base : user.getBases())
 		{
 			// Jede Position nur einmal auflisten!
-			if( !uniqueLocations.add(base.getLocation()) )
+			if (!uniqueLocations.add(base.getLocation()))
 			{
 				continue;
 			}
-			JsonObject resPos = new JsonObject();
-			resPos.addProperty("pos", base.getLocation().asString());
-			resPos.addProperty("name", Common._plaintitle(base.getName()));
-			
-			resLieferPos.add(resPos);
+			OrderMenuViewModel.LieferpositionViewModel resPos = new OrderMenuViewModel.LieferpositionViewModel();
+			resPos.pos = base.getLocation().asString();
+			resPos.name = Common._plaintitle(base.getName());
+
+			result.lieferpositionen.add(resPos);
 		}
-		
-		result.add("lieferpositionen", resLieferPos);
-		result.addProperty("aktuelleLieferposition", lieferpos != null ? lieferpos.asString() : null);
+
+		result.aktuelleLieferposition = lieferpos != null ? lieferpos.asString() : null;
 	}
 }

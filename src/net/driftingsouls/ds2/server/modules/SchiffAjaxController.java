@@ -18,12 +18,11 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.JSONUtils;
+import net.driftingsouls.ds2.server.framework.ViewMessage;
+import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.AngularController;
@@ -44,6 +43,12 @@ import java.util.List;
 @net.driftingsouls.ds2.server.framework.pipeline.Module(name = "schiffAjax")
 public class SchiffAjaxController extends AngularController
 {
+	@ViewModel
+	public static class SchiffsLogViewModel
+	{
+		public String log;
+	}
+
 	/**
 	 * Konstruktor.
 	 *
@@ -76,20 +81,20 @@ public class SchiffAjaxController extends AngularController
 	 * @param alarm Die neue Alarmstufe
 	 */
 	@Action(ActionType.AJAX)
-	public JsonElement alarmAction(Ship schiff, int alarm)
+	public ViewMessage alarmAction(Ship schiff, int alarm)
 	{
 		validiereSchiff(schiff);
 
 		User user = (User) getUser();
 		if (user.isNoob())
 		{
-			return JSONUtils.failure("Du kannst die Alarmstufe nicht ändern solange du unter GCP-Schutz stehst.");
+			return ViewMessage.failure("Du kannst die Alarmstufe nicht ändern solange du unter GCP-Schutz stehst.");
 		}
 
 		ShipTypeData shiptype = schiff.getTypeData();
 		if ((shiptype.getShipClass() == ShipClasses.GESCHUETZ) || !shiptype.isMilitary())
 		{
-			return JSONUtils.failure("Du kannst die Alarmstufe dieses Schiffs nicht ändern.");
+			return ViewMessage.failure("Du kannst die Alarmstufe dieses Schiffs nicht ändern.");
 		}
 
 		if ((alarm >= Ship.Alert.GREEN.getCode()) && (alarm <= Ship.Alert.RED.getCode()))
@@ -98,7 +103,7 @@ public class SchiffAjaxController extends AngularController
 			schiff.recalculateShipStatus();
 		}
 
-		return JSONUtils.success("Alarmstufe erfolgreich geändert");
+		return ViewMessage.success("Alarmstufe erfolgreich geändert");
 	}
 
 	/**
@@ -108,24 +113,24 @@ public class SchiffAjaxController extends AngularController
 	 * @param sprungpunkt Die ID des Sprungpunkts
 	 */
 	@Action(ActionType.AJAX)
-	public JsonElement springenAction(Ship schiff, int sprungpunkt)
+	public Object springenAction(Ship schiff, int sprungpunkt)
 	{
 		validiereSchiff(schiff);
 
 		ShipTypeData shiptype = schiff.getTypeData();
 		if ((shiptype.getCost() == 0) || (schiff.getEngine() == 0))
 		{
-			return JSONUtils.failure("Das Schiff besitzt keinen Antrieb");
+			return ViewMessage.failure("Das Schiff besitzt keinen Antrieb");
 		}
 
 		if (sprungpunkt == 0)
 		{
-			return JSONUtils.error("Es wurde kein Sprungpunkt angegeben.");
+			return ViewMessage.error("Es wurde kein Sprungpunkt angegeben.");
 		}
 
 		schiff.jump(sprungpunkt, false);
-		JsonObject result = new JsonObject();
-		result.addProperty("log", Ship.MESSAGE.getMessage().trim());
+		SchiffsLogViewModel result = new SchiffsLogViewModel();
+		result.log = Ship.MESSAGE.getMessage().trim();
 		return result;
 	}
 
@@ -136,24 +141,24 @@ public class SchiffAjaxController extends AngularController
 	 * @param sprungpunktSchiff Die ID des Schiffes mit dem Sprungpunkt
 	 */
 	@Action(ActionType.AJAX)
-	public JsonElement springenViaSchiffAction(Ship schiff, int sprungpunktSchiff)
+	public Object springenViaSchiffAction(Ship schiff, int sprungpunktSchiff)
 	{
 		validiereSchiff(schiff);
 
 		ShipTypeData shiptype = schiff.getTypeData();
 		if ((shiptype.getCost() == 0) || (schiff.getEngine() == 0))
 		{
-			return JSONUtils.failure("Das Schiff besitzt keinen Antrieb");
+			return ViewMessage.failure("Das Schiff besitzt keinen Antrieb");
 		}
 
 		if (sprungpunktSchiff == 0)
 		{
-			return JSONUtils.error("Es wurde kein Sprungpunkt angegeben.");
+			return ViewMessage.error("Es wurde kein Sprungpunkt angegeben.");
 		}
 
 		schiff.jump(sprungpunktSchiff, true);
-		JsonObject result = new JsonObject();
-		result.addProperty("log", Ship.MESSAGE.getMessage().trim());
+		SchiffsLogViewModel result = new SchiffsLogViewModel();
+		result.log = Ship.MESSAGE.getMessage().trim();
 		return result;
 	}
 
@@ -165,7 +170,7 @@ public class SchiffAjaxController extends AngularController
 	 * @param y Die Y-Koordinate des Zielsektors
 	 */
 	@Action(value = ActionType.AJAX)
-	public JsonElement fliegeSchiffAction(Ship schiff, int x, int y)
+	public Object fliegeSchiffAction(Ship schiff, int x, int y)
 	{
 		validiereSchiff(schiff);
 
@@ -176,7 +181,7 @@ public class SchiffAjaxController extends AngularController
 		List<Waypoint> route = router.findRoute(from, to);
 		if (route.isEmpty())
 		{
-			return JSONUtils.error("Es wurde keine Route nach " + to.displayCoordinates(false) + " gefunden");
+			return ViewMessage.error("Es wurde keine Route nach " + to.displayCoordinates(false) + " gefunden");
 		}
 
 		if (route.size() > 1 || route.iterator().next().distance > 1)
@@ -187,8 +192,8 @@ public class SchiffAjaxController extends AngularController
 
 		schiff.move(route, forceLowHeat, false);
 
-		JsonObject result = new JsonObject();
-		result.addProperty("log", Ship.MESSAGE.getMessage().trim());
+		SchiffsLogViewModel result = new SchiffsLogViewModel();
+		result.log = Ship.MESSAGE.getMessage().trim();
 		return result;
 	}
 
