@@ -1,8 +1,5 @@
 package net.driftingsouls.ds2.server.modules;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
@@ -32,6 +29,8 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.AngularController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
+import net.driftingsouls.ds2.server.modules.viewmodels.FraktionAktionsMeldungViewModel;
+import net.driftingsouls.ds2.server.modules.viewmodels.LoyalitaetspunkteViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.MedalViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.RangViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.UserViewModel;
@@ -107,15 +106,6 @@ public class NpcController extends AngularController
 		public NpcMenuViewModel menu;
 	}
 
-	private void fillCommonMenuResultData(JsonObject result)
-	{
-		JsonObject menuObj = new JsonObject();
-		menuObj.addProperty("head", this.isHead);
-		menuObj.addProperty("shop", this.shop);
-
-		result.add("menu", menuObj);
-	}
-
 	private void fillCommonMenuResultData(NpcViewModel result)
 	{
 		result.menu = new NpcMenuViewModel();
@@ -123,11 +113,31 @@ public class NpcController extends AngularController
 		result.menu.shop = this.shop;
 	}
 
+	@ViewModel
+	public static class ShopMenuViewModel extends NpcViewModel
+	{
+		public static class ShipViewModel
+		{
+			public int id;
+			public String name;
+			public String picture;
+		}
+
+		public static class TransporterViewModel
+		{
+			public String auftrag;
+			public String status;
+			public ShipViewModel ship;
+		}
+
+		public List<TransporterViewModel> transporter = new ArrayList<>();
+	}
+
 	/**
 	 * Zeigt den aktuellen Status aller fuer Ganymede-Transporte reservierten Transporter an.
 	 */
 	@Action(ActionType.AJAX)
-	public JsonElement shopMenuAction()
+	public ShopMenuViewModel shopMenuAction()
 	{
 		org.hibernate.Session db = getDB();
 		User user = (User) this.getUser();
@@ -137,10 +147,8 @@ public class NpcController extends AngularController
 			throw new ValidierungException("Sie verfügen über keinen Shop und können daher diese Seite nicht aufrufen");
 		}
 
-		JsonObject result = new JsonObject();
+		ShopMenuViewModel result = new ShopMenuViewModel();
 		fillCommonMenuResultData(result);
-
-		JsonArray transpListObj = new JsonArray();
 
 		List<?> ships = db.createQuery("from Ship s where s.owner=:user and locate('#!/tm gany_transport',s.einstellungen.destcom)!=0")
 						.setEntity("user", user)
@@ -150,17 +158,16 @@ public class NpcController extends AngularController
 			Ship aship = (Ship) ship;
 			ShipTypeData ashiptype = aship.getTypeData();
 
-			JsonObject transObj = new JsonObject();
-			transObj.addProperty("status", "lageweile");
-			transObj.addProperty("auftrag", "-");
+			ShopMenuViewModel.TransporterViewModel transObj = new ShopMenuViewModel.TransporterViewModel();
+			transObj.status = "lageweile";
+			transObj.auftrag = "-";
 
-			JsonObject shipObj = new JsonObject();
-			shipObj.addProperty("id", aship.getId());
-			shipObj.addProperty("name", aship.getName());
-			shipObj.addProperty("picture", ashiptype.getPicture());
+			ShopMenuViewModel.ShipViewModel shipObj = new ShopMenuViewModel.ShipViewModel();
+			shipObj.id = aship.getId();
+			shipObj.name = aship.getName();
+			shipObj.picture = ashiptype.getPicture();
 
-			transObj.add("ship", shipObj);
-			transpListObj.add(transObj);
+			transObj.ship = shipObj;
 
 			Taskmanager taskmanager = Taskmanager.getInstance();
 			Task[] tasks = taskmanager.getTasksByData(Taskmanager.Types.GANY_TRANSPORT, "*", Integer.toString(aship.getId()), "*");
@@ -185,10 +192,9 @@ public class NpcController extends AngularController
 				status = "anreise";
 			}
 
-			transObj.addProperty("status", status);
+			transObj.status = status;
 
-			FactionShopOrder order = (FactionShopOrder) db
-														.get(FactionShopOrder.class, Integer.parseInt(task.getData1()));
+			FactionShopOrder order = (FactionShopOrder) db.get(FactionShopOrder.class, Integer.parseInt(task.getData1()));
 
 			if (order == null)
 			{
@@ -204,10 +210,11 @@ public class NpcController extends AngularController
 				orderuser.setName("deleted user");
 			}
 
-			transObj.addProperty("auftrag", order.getId() + ": " + Common._title(orderuser.getName()) + "\n" + order.getAddData());
+			transObj.auftrag = order.getId() + ": " + Common._title(orderuser.getName()) + "\n" + order.getAddData();
+
+			result.transporter.add(transObj);
 		}
 
-		result.add("transporter", transpListObj);
 		return result;
 	}
 
@@ -393,6 +400,22 @@ public class NpcController extends AngularController
 		return ViewMessage.success("Die Meldung wurde als bearbeitet markiert");
 	}
 
+	@ViewModel
+	public static class LpMenuViewModel extends NpcViewModel
+	{
+		public static class LpMenuLoyalitaetspunkteViewModel extends LoyalitaetspunkteViewModel
+		{
+			public UserViewModel verliehenDurch;
+		}
+
+		public boolean alleMeldungen;
+		public List<FraktionAktionsMeldungViewModel> meldungen = new ArrayList<>();
+		public UserViewModel user;
+		public List<LpMenuLoyalitaetspunkteViewModel> lpListe = new ArrayList<>();
+		public String rang;
+		public int lpBeiNpc;
+	}
+
 	/**
 	 * Zeigt die GUI fuer LP-Verwaltung an.
 	 *
@@ -400,13 +423,13 @@ public class NpcController extends AngularController
 	 * @param alleMeldungen <code>true</code>, falls alle Meldungen angezeigt werden sollen
 	 */
 	@Action(ActionType.AJAX)
-	public JsonElement lpMenuAction(@UrlParam(name = "edituser") String edituserID, boolean alleMeldungen)
+	public LpMenuViewModel lpMenuAction(@UrlParam(name = "edituser") String edituserID, boolean alleMeldungen)
 	{
 		User user = (User) this.getUser();
 
-		JsonObject result = new JsonObject();
+		LpMenuViewModel result = new LpMenuViewModel();
 		fillCommonMenuResultData(result);
-		result.addProperty("alleMeldungen", alleMeldungen);
+		result.alleMeldungen = alleMeldungen;
 
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.DAY_OF_YEAR, -14);
@@ -428,20 +451,10 @@ public class NpcController extends AngularController
 									.list());
 		}
 
-		JsonArray meldungenListObj = new JsonArray();
 		for (FraktionAktionsMeldung meldung : meldungen)
 		{
-			JsonObject meldungObj = new JsonObject();
-			meldungObj.addProperty("id", meldung.getId());
-			meldungObj.add("von", meldung.getGemeldetVon().toJSON());
-			meldungObj.addProperty("am", meldung.getGemeldetAm().getTime());
-			meldungObj.add("fraktion", meldung.getFraktion().toJSON());
-			meldungObj.addProperty("meldungstext", meldung.getMeldungstext());
-			meldungObj.addProperty("bearbeitetAm", meldung.getBearbeitetAm() != null ? meldung.getBearbeitetAm().getTime() : null);
-			meldungenListObj.add(meldungObj);
+			result.meldungen.add(FraktionAktionsMeldungViewModel.map(meldung));
 		}
-
-		result.add("meldungen", meldungenListObj);
 
 		User edituser = User.lookupByIdentifier(edituserID);
 
@@ -450,23 +463,22 @@ public class NpcController extends AngularController
 			return result;
 		}
 
-		result.add("user", edituser.toJSON());
+		result.user = UserViewModel.map(edituser);
 
 		UserRank rank = edituser.getRank(user);
 
 		//DateFormat format = new SimpleDateFormat("dd.MM.yy HH:mm");
 
-		JsonArray lpListObj = new JsonArray();
 		for (Loyalitaetspunkte lp : new TreeSet<>(edituser.getLoyalitaetspunkte()))
 		{
-			JsonElement lpObj = lp.toJSON();
-			lpObj.getAsJsonObject().add("verliehenDurch", lp.getVerliehenDurch().toJSON());
+			LpMenuViewModel.LpMenuLoyalitaetspunkteViewModel lpObj = new LpMenuViewModel.LpMenuLoyalitaetspunkteViewModel();
+			LoyalitaetspunkteViewModel.map(lp, lpObj);
+			lpObj.verliehenDurch = UserViewModel.map(lp.getVerliehenDurch());
 
-			lpListObj.add(lpObj);
+			result.lpListe.add(lpObj);
 		}
-		result.add("lpListe", lpListObj);
-		result.addProperty("rang", rank.getName());
-		result.addProperty("lpBeiNpc", edituser.getLoyalitaetspunkteTotalBeiNpc(user));
+		result.rang = rank.getName();
+		result.lpBeiNpc = edituser.getLoyalitaetspunkteTotalBeiNpc(user);
 
 		return result;
 	}

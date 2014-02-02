@@ -1,6 +1,5 @@
 package net.driftingsouls.ds2.server.modules.viewmodels;
 
-import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Rang;
 import net.driftingsouls.ds2.server.framework.ViewModel;
 
