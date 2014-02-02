@@ -75,28 +75,8 @@ public class MainController extends TemplateController
 	@ViewModel
 	public static class Status
 	{
-		private boolean pm;
-		private boolean comNet;
-
-		public boolean isPm()
-		{
-			return pm;
-		}
-
-		public void setPm(boolean pm)
-		{
-			this.pm = pm;
-		}
-
-		public boolean isComNet()
-		{
-			return comNet;
-		}
-
-		public void setComNet(boolean comNet)
-		{
-			this.comNet = comNet;
-		}
+		public boolean pm;
+		public boolean comNet;
 	}
 
 	/**
@@ -115,8 +95,8 @@ public class MainController extends TemplateController
 		int pmcount = ((Number) db.createQuery("select count(*) from PM where empfaenger= :user and gelesen=0")
 				.setEntity("user", user)
 				.iterate().next()).intValue();
-		status.setPm(pmcount > 0);
-		status.setComNet(new ComNetService().hatAktiverUserUngeleseneComNetNachrichten());
+		status.pm = pmcount > 0;
+		status.comNet = new ComNetService().hatAktiverUserUngeleseneComNetNachrichten();
 
 		return status;
 	}
