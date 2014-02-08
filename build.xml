@@ -418,11 +418,7 @@
 
 		<junit fork="yes" haltonfailure="true" outputtoformatters="false" forkmode="perBatch">
 			<classpath>
-				<fileset dir="web/WEB-INF/lib">
-					<include name="*.jar"/>
-				</fileset>
-
-				<fileset dir="web/java">
+				<fileset dir="${build.home}/WEB-INF/lib">
 					<include name="*.jar"/>
 				</fileset>
 
