@@ -18,11 +18,8 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.framework.JSONSupport;
 import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Column;
@@ -39,7 +36,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name="jumpnodes")
 @Immutable
-public class JumpNode implements Locatable, JSONSupport {
+public class JumpNode implements Locatable {
 	@Id @GeneratedValue
 	private int id;
 	private int x;
@@ -176,20 +173,5 @@ public class JumpNode implements Locatable, JSONSupport {
 	@Override
 	public Location getLocation() {
 		return new Location(this.system, this.x, this.y);
-	}
-
-	@Override
-	public JsonElement toJSON()
-	{
-		JsonObject nodeObj = new JsonObject();
-		nodeObj.addProperty("system", this.system);
-		nodeObj.addProperty("x", this.x);
-		nodeObj.addProperty("y", this.y);
-		nodeObj.addProperty("name", this.name);
-		nodeObj.addProperty("systemout", this.systemOut);
-		nodeObj.addProperty("blocked", this.gcpColonistBlock);
-		nodeObj.addProperty("hidden", this.hidden != 0);
-
-		return nodeObj;
 	}
 }

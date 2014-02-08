@@ -15,6 +15,7 @@ import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ViewMessage;
+import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -28,6 +29,7 @@ import net.driftingsouls.ds2.server.map.PlayerFieldView;
 import net.driftingsouls.ds2.server.map.PlayerStarmap;
 import net.driftingsouls.ds2.server.map.PublicStarmap;
 import net.driftingsouls.ds2.server.map.TileCache;
+import net.driftingsouls.ds2.server.modules.viewmodels.JumpNodeViewModel;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -41,6 +43,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -103,14 +106,46 @@ public class MapController extends AngularController
 		return ViewMessage.success("Systeme gespeichert");
 	}
 
-	private JsonObject createResultObj(StarSystem system)
+	private SystemauswahlViewModel createResultObj(StarSystem system)
 	{
-		JsonObject result = new JsonObject();
-		result.addProperty("system", system != null ? system.getID() : 1);
-		result.addProperty("adminSichtVerfuegbar", getUser().isAdmin());
-		result.addProperty("systemkarteEditierbar", getUser().isAdmin());
+		SystemauswahlViewModel result = new SystemauswahlViewModel();
+		result.system = system != null ? system.getID() : 1;
+		result.adminSichtVerfuegbar = getUser().isAdmin();
+		result.systemkarteEditierbar = getUser().isAdmin();
 
 		return result;
+	}
+
+	@ViewModel
+	public static class SystemauswahlViewModel
+	{
+		public static class AllianzViewModel
+		{
+			public int id;
+			public String name;
+			public String plainname;
+		}
+
+		public static class SystemViewModel
+		{
+			public String name;
+			public int id;
+			public String addinfo;
+			public boolean npcOnly;
+			public boolean adminOnly;
+			public int mapX;
+			public int mapY;
+			public boolean basis;
+			public boolean schiff;
+			public AllianzViewModel allianz;
+
+			public List<JumpNodeViewModel> sprungpunkte = new ArrayList<>();
+		}
+
+		public int system;
+		public boolean adminSichtVerfuegbar;
+		public boolean systemkarteEditierbar;
+		public List<SystemViewModel> systeme = new ArrayList<>();
 	}
 
 	/**
@@ -119,14 +154,12 @@ public class MapController extends AngularController
 	 * @param sys Das momentan ausgewaehlte Sternensystem
 	 */
 	@Action(value = ActionType.AJAX, readOnly = true)
-	public JsonObject systemauswahlAction(StarSystem sys)
+	public SystemauswahlViewModel systemauswahlAction(StarSystem sys)
 	{
 		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
 
-		JsonObject result = createResultObj(sys);
-
-		JsonArray systemListObj = new JsonArray();
+		SystemauswahlViewModel result = createResultObj(sys);
 
 		List<JumpNode> jumpNodes = Common.cast(db
 				.createQuery("from JumpNode jn where " + (!user.isAdmin() ? "jn.hidden=0 and " : "") + "jn.system!=jn.systemOut")
@@ -155,46 +188,42 @@ public class MapController extends AngularController
 				systemAddInfo += "[hidden]";
 			}
 
-			JsonObject sysObj = new JsonObject();
-			sysObj.addProperty("name", system.getName());
-			sysObj.addProperty("id", system.getID());
-			sysObj.addProperty("addinfo", systemAddInfo);
-			sysObj.addProperty("npcOnly", system.getAccess() == StarSystem.AC_NPC);
-			sysObj.addProperty("adminOnly", system.getAccess() == StarSystem.AC_ADMIN);
-			sysObj.addProperty("mapX", system.getMapX());
-			sysObj.addProperty("mapY", system.getMapY());
+			SystemauswahlViewModel.SystemViewModel sysObj = new SystemauswahlViewModel.SystemViewModel();
+			sysObj.name = system.getName();
+			sysObj.id = system.getID();
+			sysObj.addinfo = systemAddInfo;
+			sysObj.npcOnly = system.getAccess() == StarSystem.AC_NPC;
+			sysObj.adminOnly = system.getAccess() == StarSystem.AC_ADMIN;
+			sysObj.mapX = system.getMapX();
+			sysObj.mapY = system.getMapY();
 
 			// Sprungpunkte
-			JsonArray jnListObj = new JsonArray();
 			for (JumpNode jn : jumpNodes)
 			{
 				if (jn.getSystem() == system.getID())
 				{
-					jnListObj.add(jn.toJSON());
+					sysObj.sprungpunkte.add(JumpNodeViewModel.map(jn));
 				}
 			}
-			sysObj.add("sprungpunkte", jnListObj);
 
 			// Dominierende NPC-Allianzen
 			Ally maxAlly = systemFraktionen.get(system.getID());
 			if (maxAlly != null)
 			{
-				JsonObject allyObj = new JsonObject();
-				allyObj.addProperty("name", Common._title(maxAlly.getName()));
-				allyObj.addProperty("plainname", BBCodeParser.getInstance().parse(maxAlly.getName(), new String[]{"all"}));
-				allyObj.addProperty("id", maxAlly.getId());
-				sysObj.add("allianz", allyObj);
+				sysObj.allianz = new SystemauswahlViewModel.AllianzViewModel();
+				sysObj.allianz.name = Common._title(maxAlly.getName());
+				sysObj.allianz.plainname = BBCodeParser.getInstance().parse(maxAlly.getName(), new String[]{"all"});
+				sysObj.allianz.id = maxAlly.getId();
 			}
 
 			// Basen
-			sysObj.addProperty("basis", basen.contains(system.getID()));
+			sysObj.basis = basen.contains(system.getID());
 
 			// Schiffe
-			sysObj.addProperty("schiff", schiffe.contains(system.getID()));
+			sysObj.schiff = schiffe.contains(system.getID());
 
-			systemListObj.add(sysObj);
+			result.systeme.add(sysObj);
 		}
-		result.add("systeme", systemListObj);
 		return result;
 	}
 

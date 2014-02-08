@@ -18,19 +18,18 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.ships.Ship;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,19 +52,55 @@ public class SearchController extends Controller
 		super(context);
 	}
 
+	@ViewModel
+	public static class SearchViewModel
+	{
+		public static class BaseViewModel
+		{
+			public int id;
+			public String name;
+			public String location;
+		}
+
+		public static class ShipTypeViewModel
+		{
+			public String name;
+			public String picture;
+		}
+
+		public static class ShipViewModel
+		{
+			public int id;
+			public String name;
+			public String location;
+			public ShipTypeViewModel type;
+		}
+
+		public static class UserViewModel
+		{
+			public int id;
+			public String name;
+			public String plainname;
+		}
+
+		public List<BaseViewModel> bases = new ArrayList<>();
+		public List<ShipViewModel> ships = new ArrayList<>();
+		public List<UserViewModel> users = new ArrayList<>();
+		public boolean maxObjects;
+	}
+
 	/**
 	 * AJAX-Suche mit JSON-Antwort.
 	 *
 	 * @param search Der Suchbegriff
 	 * @param only Falls angegeben der Objekttyp in dem nur gesucht werden soll
 	 * @param max Die maximale Anzahl an zu findenden Eintraegen
-	 * @throws IOException
 	 */
 	@Action(ActionType.AJAX)
-	public void searchAction(String search, String only, int max) throws IOException
+	public SearchViewModel searchAction(String search, String only, int max)
 	{
 		org.hibernate.Session db = getDB();
-		JsonObject json = new JsonObject();
+		SearchViewModel result = new SearchViewModel();
 
 		if (max <= 0 || max > MAX_OBJECTS)
 		{
@@ -74,38 +109,31 @@ public class SearchController extends Controller
 
 		if (search.length() < 1)
 		{
-			getResponse().getWriter().append(json.toString());
-			return;
+			return result;
 		}
 
 		int count = 0;
 
 		if (only.isEmpty() || "bases".equals(only))
 		{
-			JsonArray baseListObj = new JsonArray();
-
 			List<?> baseList = findBases(db, search, max - count);
 			for (Object aBaseList : baseList)
 			{
 				Base base = (Base) aBaseList;
-				JsonObject baseObj = new JsonObject();
+				SearchViewModel.BaseViewModel baseObj = new SearchViewModel.BaseViewModel();
 
-				baseObj.addProperty("id", base.getId());
-				baseObj.addProperty("name", Common._plaintitle(base.getName()));
-				baseObj.addProperty("location", base.getLocation().displayCoordinates(false));
+				baseObj.id = base.getId();
+				baseObj.name = Common._plaintitle(base.getName());
+				baseObj.location = base.getLocation().displayCoordinates(false);
 
-				baseListObj.add(baseObj);
+				result.bases.add(baseObj);
 
 				count++;
 			}
-
-			json.add("bases", baseListObj);
 		}
 
 		if (only.isEmpty() || "ships".equals(only))
 		{
-			JsonArray shipListObj = new JsonArray();
-
 			if (count < max)
 			{
 				List<?> shipList = findShips(db, search, max - count);
@@ -113,30 +141,25 @@ public class SearchController extends Controller
 				{
 					Ship ship = (Ship) aShipList;
 
-					JsonObject shipObj = new JsonObject();
+					SearchViewModel.ShipViewModel shipObj = new SearchViewModel.ShipViewModel();
 
-					shipObj.addProperty("id", ship.getId());
-					shipObj.addProperty("name", Common._plaintitle(ship.getName()));
-					shipObj.addProperty("location", ship.getLocation().displayCoordinates(false));
+					shipObj.id = ship.getId();
+					shipObj.name = Common._plaintitle(ship.getName());
+					shipObj.location = ship.getLocation().displayCoordinates(false);
 
-					JsonObject typeObj = new JsonObject();
-					typeObj.addProperty("name", ship.getTypeData().getNickname());
-					typeObj.addProperty("picture", ship.getTypeData().getPicture());
+					shipObj.type = new SearchViewModel.ShipTypeViewModel();
+					shipObj.type.name = ship.getTypeData().getNickname();
+					shipObj.type.picture = ship.getTypeData().getPicture();
 
-					shipObj.add("type", typeObj);
-
-					shipListObj.add(shipObj);
+					result.ships.add(shipObj);
 
 					count++;
 				}
 			}
-			json.add("ships", shipListObj);
 		}
 
 		if (only.isEmpty() || "users".equals(only))
 		{
-			JsonArray userListObj = new JsonArray();
-
 			if (count < max)
 			{
 				List<?> userList = findUsers(db, search, max - count);
@@ -144,28 +167,27 @@ public class SearchController extends Controller
 				{
 					User auser = (User) anUserList;
 
-					JsonObject userObj = new JsonObject();
-					userObj.addProperty("id", auser.getId());
-					userObj.addProperty("name", Common._title(auser.getName()));
-					userObj.addProperty("plainname", auser.getPlainname());
+					SearchViewModel.UserViewModel userObj = new SearchViewModel.UserViewModel();
+					userObj.id = auser.getId();
+					userObj.name = Common._title(auser.getName());
+					userObj.plainname = auser.getPlainname();
 
-					userListObj.add(userObj);
+					result.users.add(userObj);
 
 					count++;
 				}
 			}
-			json.add("users", userListObj);
 		}
 
-		json.addProperty("maxObjects", count >= max);
+		result.maxObjects = count >= max;
 
-		getResponse().getWriter().append(json.toString());
+		return result;
 	}
 
 	@Action(ActionType.AJAX)
-	public void defaultAction(String search, String only, int max) throws IOException
+	public SearchViewModel defaultAction(String search, String only, int max)
 	{
-		searchAction(search, only, max);
+		return searchAction(search, only, max);
 	}
 
 	private List<?> findUsers(org.hibernate.Session db, final String search, int count)

@@ -18,20 +18,19 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.ships.Ship;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,16 +52,53 @@ public class ImpObjectsController extends Controller
 		super(context);
 	}
 
+	@ViewModel
+	public static class JsonViewModel
+	{
+		public static class SystemViewModel
+		{
+			public String name;
+			public int id;
+		}
+
+		public static class JumpNodeViewModel
+		{
+			public int x;
+			public int y;
+			public String name;
+			public int target;
+			public String targetname;
+		}
+
+		public static class HandelspostenViewModel
+		{
+			public int x;
+			public int y;
+			public String name;
+		}
+
+		public static class BasisViewModel
+		{
+			public int x;
+			public int y;
+			public String name;
+		}
+
+		public SystemViewModel system;
+		public List<JumpNodeViewModel> jumpnodes = new ArrayList<>();
+		public List<HandelspostenViewModel> posten = new ArrayList<>();
+		public List<BasisViewModel> bases = new ArrayList<>();
+	}
+
 	/**
 	 * Liefert alle wichtigen Objekte im System als JSON-Objekt zurueck.
 	 * @param system Das anzuzeigende Sternensystem
-	 * @throws IOException
 	 */
 	@Action(ActionType.AJAX)
-	public void jsonAction(StarSystem system) throws IOException
+	public JsonViewModel jsonAction(StarSystem system)
 	{
 		org.hibernate.Session db = getDB();
-		JsonObject json = new JsonObject();
+		JsonViewModel json = new JsonViewModel();
 		User user = (User) getUser();
 
 		if (system == null)
@@ -70,13 +106,10 @@ public class ImpObjectsController extends Controller
 			system = (StarSystem) db.get(StarSystem.class, 1);
 		}
 
-		JsonObject sysObj = new JsonObject();
-		sysObj.addProperty("name", system.getName());
-		sysObj.addProperty("id", system.getID());
-		json.add("system", sysObj);
+		json.system = new JsonViewModel.SystemViewModel();
+		json.system.name = system.getName();
+		json.system.id = system.getID();
 
-		JsonArray jnListObj = new JsonArray();
-		JsonArray postenListObj = new JsonArray();
 		if (system.isVisibleFor(user))
 		{
 			/*
@@ -92,14 +125,14 @@ public class ImpObjectsController extends Controller
 
 				StarSystem systemout = (StarSystem) db.get(StarSystem.class, node.getSystemOut());
 
-				JsonObject jn = new JsonObject();
-				jn.addProperty("x", node.getX());
-				jn.addProperty("y", node.getY());
-				jn.addProperty("name", node.getName());
-				jn.addProperty("target", node.getSystemOut());
-				jn.addProperty("targetname", systemout.getName());
+				JsonViewModel.JumpNodeViewModel jn = new JsonViewModel.JumpNodeViewModel();
+				jn.x = node.getX();
+				jn.y = node.getY();
+				jn.name = node.getName();
+				jn.target = node.getSystemOut();
+				jn.targetname = systemout.getName();
 
-				jnListObj.add(jn);
+				json.jumpnodes.add(jn);
 			}
 
 			/*
@@ -119,23 +152,18 @@ public class ImpObjectsController extends Controller
 					continue;
 				}
 
-				JsonObject postenObj = new JsonObject();
-				postenObj.addProperty("x", posten.getX());
-				postenObj.addProperty("y", posten.getY());
-				postenObj.addProperty("name", posten.getName());
+				JsonViewModel.HandelspostenViewModel postenObj = new JsonViewModel.HandelspostenViewModel();
+				postenObj.x = posten.getX();
+				postenObj.y = posten.getY();
+				postenObj.name = posten.getName();
 
-				postenListObj.add(postenObj);
+				json.posten.add(postenObj);
 			}
 		}
-
-		json.add("jumpnodes", jnListObj);
-		json.add("posten", postenListObj);
 
 		/*
 			Basen
 		*/
-		JsonArray baseListObj = new JsonArray();
-
 		List<?> baseList = db.createQuery("from Base where owner=:owner and system=:sys")
 				.setEntity("owner", getUser())
 				.setInteger("sys", system.getID())
@@ -144,22 +172,20 @@ public class ImpObjectsController extends Controller
 		{
 			Base base = (Base) aBaseList;
 
-			JsonObject baseObj = new JsonObject();
-			baseObj.addProperty("x", base.getX());
-			baseObj.addProperty("y", base.getY());
-			baseObj.addProperty("name", base.getName());
+			JsonViewModel.BasisViewModel baseObj = new JsonViewModel.BasisViewModel();
+			baseObj.x = base.getX();
+			baseObj.y = base.getY();
+			baseObj.name = base.getName();
 
-			baseListObj.add(baseObj);
+			json.bases.add(baseObj);
 		}
 
-		json.add("bases", baseListObj);
-
-		getResponse().getWriter().append(json.toString());
+		return json;
 	}
 
 	@Action(ActionType.AJAX)
-	public void defaultAction(StarSystem system) throws IOException
+	public JsonViewModel defaultAction(StarSystem system)
 	{
-		jsonAction(system);
+		return jsonAction(system);
 	}
 }

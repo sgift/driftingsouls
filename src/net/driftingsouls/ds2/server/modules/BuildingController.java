@@ -18,7 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -49,6 +48,16 @@ import java.util.List;
 @Module(name="building")
 public class BuildingController extends TemplateController
 {
+	@ViewModel
+	public static class BuildingActionViewModel
+	{
+		public int col;
+		public int field;
+		public GebaeudeAufBasisViewModel building;
+		public boolean success;
+		public String message;
+	}
+
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
@@ -85,38 +94,27 @@ public class BuildingController extends TemplateController
 	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JsonObject startAjaxAction(@UrlParam(name = "col") Base base, int field)
+	public BuildingActionViewModel startAjaxAction(@UrlParam(name = "col") Base base, int field)
 	{
 		validiereBasisUndFeld(base, field);
 		Building building = getGebaeudeFuerFeld(base, field);
 
-		User user = (User) getUser();
-		JsonObject response = new JsonObject();
-		response.addProperty("col", base.getId());
-		response.addProperty("field", field);
-
-		JsonObject buildingObj = new JsonObject();
-		buildingObj.addProperty("id", building.getId());
-		buildingObj.addProperty("name", Common._plaintitle(building.getName()));
-		buildingObj.addProperty("picture", building.getPictureForRace(user.getRace()));
-		buildingObj.addProperty("active", building.isActive(base, base.getActive()[field], field));
-		buildingObj.addProperty("deakable", building.isDeakAble());
-		buildingObj.addProperty("kommandozentrale", building.getId() == Building.KOMMANDOZENTRALE);
-		buildingObj.addProperty("type", building.getClass().getSimpleName());
-
-		response.add("building", buildingObj);
+		BuildingActionViewModel response = new BuildingActionViewModel();
+		response.col = base.getId();
+		response.field = field;
+		response.building = GebaeudeAufBasisViewModel.map(building, base, field);
 
 		if ((building.getArbeiter() > 0) && (building.getArbeiter() + base.getArbeiter() > base.getBewohner()))
 		{
-			response.addProperty("success", false);
-			response.addProperty("message", "Nicht genügend Arbeiter vorhanden");
+			response.success = false;
+			response.message = "Nicht genügend Arbeiter vorhanden";
 		}
 		else if (building.isShutDown() &&
 				(!base.getOwner().hasResearched(building.getTechRequired())
 						|| (base.getOwner().getRace() != building.getRace() && building.getRace() != 0)))
 		{
-			response.addProperty("success", false);
-			response.addProperty("message", "Sie können dieses Geb&auml;ude wegen unzureichenden Voraussetzungen nicht aktivieren");
+			response.success = false;
+			response.message = "Sie können dieses Geb&auml;ude wegen unzureichenden Voraussetzungen nicht aktivieren";
 		}
 		else
 		{
@@ -126,7 +124,7 @@ public class BuildingController extends TemplateController
 
 			base.setArbeiter(base.getArbeiter() + building.getArbeiter());
 
-			response.addProperty("success", true);
+			response.success = true;
 		}
 
 		return response;
@@ -178,31 +176,20 @@ public class BuildingController extends TemplateController
 	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JsonObject shutdownAjaxAction(@UrlParam(name = "col") Base base, int field)
+	public BuildingActionViewModel shutdownAjaxAction(@UrlParam(name = "col") Base base, int field)
 	{
 		validiereBasisUndFeld(base, field);
 		Building building = getGebaeudeFuerFeld(base, field);
 
-		User user = (User) getUser();
-		JsonObject response = new JsonObject();
-		response.addProperty("col", base.getId());
-		response.addProperty("field", field);
-
-		JsonObject buildingObj = new JsonObject();
-		buildingObj.addProperty("id", building.getId());
-		buildingObj.addProperty("name", Common._plaintitle(building.getName()));
-		buildingObj.addProperty("picture", building.getPictureForRace(user.getRace()));
-		buildingObj.addProperty("active", building.isActive(base, base.getActive()[field], field));
-		buildingObj.addProperty("deakable", building.isDeakAble());
-		buildingObj.addProperty("kommandozentrale", building.getId() == Building.KOMMANDOZENTRALE);
-		buildingObj.addProperty("type", building.getClass().getSimpleName());
-
-		response.add("building", buildingObj);
+		BuildingActionViewModel response = new BuildingActionViewModel();
+		response.col = base.getId();
+		response.field = field;
+		response.building = GebaeudeAufBasisViewModel.map(building, base, field);
 
 		if (!building.isDeakAble())
 		{
-			response.addProperty("success", false);
-			response.addProperty("message", "Sie können dieses Gebäude nicht deaktivieren");
+			response.success = false;
+			response.message = "Sie können dieses Gebäude nicht deaktivieren";
 		}
 		else
 		{
@@ -212,7 +199,7 @@ public class BuildingController extends TemplateController
 
 			base.setArbeiter(base.getArbeiter() - building.getArbeiter());
 
-			response.addProperty("success", true);
+			response.success = true;
 		}
 
 		return response;
