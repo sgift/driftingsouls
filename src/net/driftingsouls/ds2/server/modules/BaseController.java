@@ -36,6 +36,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateContro
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.modules.viewmodels.GebaeudeAufBasisViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.ResourceEntryViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.UnitCargoEntryViewModel;
 import net.driftingsouls.ds2.server.units.UnitCargoEntry;
@@ -273,17 +274,7 @@ public class BaseController extends TemplateController
 		{
 			public int feld;
 			public Integer terrain;
-			public GebaeudeAufFeldViewModel gebaeude;
-		}
-
-		// TODO: Mit dem Standard-GebaeudeAufBasisViewModel mergen
-		public static class GebaeudeAufFeldViewModel
-		{
-			public String name;
-			public int id;
-			public boolean supportsJSON;
-			public boolean deaktiviert;
-			public String grafik;
+			public GebaeudeAufBasisViewModel gebaeude;
 		}
 
 		public static class GebaeudeStatusViewModel
@@ -306,8 +297,6 @@ public class BaseController extends TemplateController
 	@Action(ActionType.AJAX)
 	public AjaxViewModel ajaxAction(@UrlParam(name="col") Base base) {
 		validate(base);
-
-		User user = (User)getUser();
 
 		AjaxViewModel response = new AjaxViewModel();
 		response.col = base.getId();
@@ -369,8 +358,6 @@ public class BaseController extends TemplateController
 
 			//Leeres Feld
 			if( base.getBebauung()[i] != 0 ) {
-				AjaxViewModel.GebaeudeAufFeldViewModel gebaeudeObj = new AjaxViewModel.GebaeudeAufFeldViewModel();
-
 				Building building = Building.getBuilding(base.getBebauung()[i]);
 				base.getActive()[i] = basedata.getActiveBuildings()[i];
 
@@ -386,13 +373,7 @@ public class BaseController extends TemplateController
 					}
 				}
 
-				gebaeudeObj.name = Common._plaintitle(building.getName());
-				gebaeudeObj.id = building.getId();
-				gebaeudeObj.supportsJSON = building.isSupportsJson();
-				gebaeudeObj.deaktiviert = building.isDeakAble() && (base.getActive()[i] == 0);
-				gebaeudeObj.grafik = building.getPictureForRace(user.getRace());
-
-				feld.gebaeude = gebaeudeObj;
+				feld.gebaeude = GebaeudeAufBasisViewModel.map(building, base, i);
 			}
 
 			feld.feld = i;

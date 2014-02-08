@@ -18,8 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
@@ -27,6 +25,7 @@ import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -267,20 +266,26 @@ public class OptionsController extends TemplateController
 		redirect("xtra");
 	}
 
-	@Action(ActionType.AJAX)
-	public String generierePersonenNamenBeispiele(PersonenNamenGenerator generator)
+	@ViewModel
+	public static class GenerierePersonenNamenBeispieleViewModel
 	{
-		List<String> result = new ArrayList<>();
+		public List<String> namen = new ArrayList<>();
+	}
+
+	@Action(ActionType.AJAX)
+	public GenerierePersonenNamenBeispieleViewModel generierePersonenNamenBeispiele(PersonenNamenGenerator generator)
+	{
+		GenerierePersonenNamenBeispieleViewModel result = new GenerierePersonenNamenBeispieleViewModel();
 		if (generator == null)
 		{
-			return new Gson().toJson(result);
+			return result;
 		}
 
 		for (int i = 0; i < 5; i++)
 		{
-			result.add(generator.generiere());
+			result.namen.add(generator.generiere());
 		}
-		return new Gson().toJson(result);
+		return result;
 	}
 
 	public static class SchiffsKlasseNameBeispiel {
@@ -314,13 +319,21 @@ public class OptionsController extends TemplateController
 		}
 	}
 
-	@Action(ActionType.AJAX)
-	public String generiereSchiffsNamenBeispiele(SchiffsKlassenNamenGenerator schiffsKlassenNamenGenerator, SchiffsNamenGenerator schiffsNamenGenerator)
+	@ViewModel
+	public static class GeneriereSchiffsNamenBeispieleViewModel
 	{
-		List<SchiffsKlasseNameBeispiel> result = new ArrayList<>();
+		List<SchiffsKlasseNameBeispiel> namen = new ArrayList<>();
+	}
+
+	@Action(ActionType.AJAX)
+	public GeneriereSchiffsNamenBeispieleViewModel generiereSchiffsNamenBeispiele(
+			SchiffsKlassenNamenGenerator schiffsKlassenNamenGenerator,
+			SchiffsNamenGenerator schiffsNamenGenerator)
+	{
+		GeneriereSchiffsNamenBeispieleViewModel result = new GeneriereSchiffsNamenBeispieleViewModel();
 		if (schiffsKlassenNamenGenerator == null || schiffsNamenGenerator == null)
 		{
-			return new Gson().toJson(result);
+			return result;
 		}
 
 		org.hibernate.Session db = getDB();
@@ -340,10 +353,10 @@ public class OptionsController extends TemplateController
 			if( name.isEmpty() ) {
 				continue;
 			}
-			result.add(new SchiffsKlasseNameBeispiel(cls.getSingular(), name));
+			result.namen.add(new SchiffsKlasseNameBeispiel(cls.getSingular(), name));
 		}
 
-		return new Gson().toJson(result);
+		return result;
 	}
 
 	/**

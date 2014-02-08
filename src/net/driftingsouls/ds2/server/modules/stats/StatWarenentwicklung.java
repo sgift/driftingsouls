@@ -18,6 +18,20 @@
  */
 package net.driftingsouls.ds2.server.modules.stats;
 
+import com.google.gson.Gson;
+import net.driftingsouls.ds2.server.cargo.ItemID;
+import net.driftingsouls.ds2.server.cargo.ResourceEntry;
+import net.driftingsouls.ds2.server.cargo.ResourceID;
+import net.driftingsouls.ds2.server.cargo.ResourceIDComparator;
+import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.statistik.StatCargo;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.modules.StatsController;
+import org.hibernate.Session;
+
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -25,23 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import net.driftingsouls.ds2.server.cargo.ItemID;
-import net.driftingsouls.ds2.server.cargo.ResourceEntry;
-import net.driftingsouls.ds2.server.cargo.ResourceID;
-import net.driftingsouls.ds2.server.cargo.ResourceIDComparator;
-import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.entities.statistik.StatCargo;
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.modules.StatsController;
-import org.hibernate.Session;
 
 /**
  * Zeigt allgemeine Daten zu DS und zum Server an.
@@ -162,7 +159,7 @@ public class StatWarenentwicklung implements Statistic, AjaxStatistic
 	}
 
 	@Override
-	public JsonElement generateData(StatsController contr, int size)
+	public DataViewModel generateData(StatsController contr, int size)
 	{
 		User user = (User) contr.getUser();
 		org.hibernate.Session db = contr.getDB();
@@ -172,30 +169,27 @@ public class StatWarenentwicklung implements Statistic, AjaxStatistic
 		Item item = (Item) db.get(Item.class, itemId.getItemID());
 		if (item == null || !user.canSeeItem(item))
 		{
-			return new JsonObject();
+			return new DataViewModel();
 		}
 
 		SortedMap<ResourceID, SortedMap<Integer, Long>> data = generateDataMap(db);
-		JsonObject result = new JsonObject();
+		DataViewModel result = new DataViewModel();
 
-		JsonObject itemObj = new JsonObject();
-		itemObj.addProperty("id", item.getID());
-		itemObj.addProperty("name", item.getName());
-		result.add("key", itemObj);
+		result.key = new DataViewModel.KeyViewModel();
+		result.key.id = item.getID();
+		result.key.name = item.getName();
 
-		JsonArray dataArray = new JsonArray();
 		SortedMap<Integer, Long> itemData = data.get(itemId);
 		if (itemData != null)
 		{
 			for (Map.Entry<Integer, Long> entry : itemData.entrySet())
 			{
-				JsonObject entryObj = new JsonObject();
-				entryObj.addProperty("index", entry.getKey());
-				entryObj.addProperty("count", entry.getValue());
-				dataArray.add(entryObj);
+				DataViewModel.DataEntryViewModel entryObj = new DataViewModel.DataEntryViewModel();
+				entryObj.index = entry.getKey();
+				entryObj.count = entry.getValue();
+				result.data.add(entryObj);
 			}
 		}
-		result.add("data", dataArray);
 
 		return result;
 	}

@@ -18,8 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
@@ -194,7 +192,7 @@ public class StatsController extends Controller
 	 * @throws IOException
 	 */
 	@Action(ActionType.AJAX)
-	public JsonElement ajaxAction(int stat, int show) throws IOException {
+	public AjaxStatistic.DataViewModel ajaxAction(int stat, int show) throws IOException {
 		show = ermittleAnzuzeigendeStatistikkategorie(show);
 		if( this.statslist.get(show).size() <= stat ) {
 			stat = 1;
@@ -206,7 +204,7 @@ public class StatsController extends Controller
 		{
 			return ((AjaxStatistic)mystat.stat).generateData(this, mystat.width);
 		}
-		return new JsonObject();
+		return new AjaxStatistic.DataViewModel();
 	}
 
 	/**

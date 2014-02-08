@@ -22,13 +22,13 @@ var Options = {
 				generator: xtraForm.find('select[name=personenNamenGenerator]').val()
 			},
 			function(result) {
-				if( result.length == 0 ) {
+				if( typeof(result.namen) === 'undefinied' || result.namen.length == 0 ) {
 					Options.entferneNamenBeispieleBox();
 					return;
 				}
 
 				var box = Options.erzeugeLeereNamenBeispieleBox();
-				$(result).each(function(index,value) {
+				$(result.namen).each(function(index,value) {
 					box.append(value+"<br />");
 				});
 			}
@@ -44,14 +44,14 @@ var Options = {
 				schiffsNamenGenerator: xtraForm.find('select[name=schiffsNamenGenerator]').val()
 			},
 			function(result) {
-				if( result.length == 0 ) {
+				if( typeof(result.namen) === 'undefinied' || result.namen.length == 0 ) {
 					Options.entferneNamenBeispieleBox();
 					return;
 				}
 
 				var box = Options.erzeugeLeereNamenBeispieleBox();
 				var table = "<table>";
-				$(result).each(function(index,value) {
+				$(result.namen).each(function(index,value) {
 					table += "<tr><td>"+value.klasse+"</td><td>"+value.name+"</td></tr>";
 				});
 				table += "</table>";
