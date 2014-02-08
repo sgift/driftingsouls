@@ -530,7 +530,7 @@ public class SchiffeController extends TemplateController
 
 				if (unitcargo != null && !unitcargo.isEmpty())
 				{
-					for (Entry<UnitType, Long> unit : unitcargo.getUnitList().entrySet())
+					for (Entry<UnitType, Long> unit : unitcargo.getUnitMap().entrySet())
 					{
 						UnitType unittype = unit.getKey();
 

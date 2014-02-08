@@ -1045,7 +1045,7 @@ public class UnitTauschController extends TemplateController
 			}
 			showtarget = true;
 
-			HashMap<UnitType, Long> unitlist = toTarget.getUnits().getUnitList();
+			Map<UnitType, Long> unitlist = toTarget.getUnits().getUnitMap();
 			for (Entry<UnitType, Long> unit : unitlist.entrySet())
 			{
 				if (unit.getValue() > tocargo.getUnitCount(unit.getKey()))
@@ -1060,7 +1060,7 @@ public class UnitTauschController extends TemplateController
 		UnitCargo fromcargo = new TransientUnitCargo();
 		for (TransportTarget afrom : from)
 		{
-			HashMap<UnitType, Long> unitlist = afrom.getUnits().getUnitList();
+			Map<UnitType, Long> unitlist = afrom.getUnits().getUnitMap();
 			for (Entry<UnitType, Long> unit : unitlist.entrySet())
 			{
 				if (unit.getValue() > fromcargo.getUnitCount(unit.getKey()))

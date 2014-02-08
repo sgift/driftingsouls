@@ -567,11 +567,21 @@ public abstract class UnitCargo implements Cloneable, JSONSupport {
 
 	/**
 	 * Gibt die Einheiten im Cargo als Liste zurueck.
-	 * @return Die Liste der Einheiten
+	 * @return Die Liste
 	 */
-	public HashMap<UnitType, Long> getUnitList()
+	public List<UnitCargoEntry> getUnitList()
 	{
-		HashMap<UnitType, Long> unitlist = new HashMap<>();
+		return new ArrayList<>(units);
+	}
+
+	/**
+	 * Gibt die Einheiten im Cargo als Map zurueck. Schluessel
+	 * ist der Einheitentyp, der Wert ist die Anzahl der vorhandenen Einheiten.
+	 * @return Die Map
+	 */
+	public Map<UnitType, Long> getUnitMap()
+	{
+		Map<UnitType, Long> unitlist = new HashMap<>();
 		for(UnitCargoEntry unit : units)
 		{
 			if(unit.getAmount() != 0)

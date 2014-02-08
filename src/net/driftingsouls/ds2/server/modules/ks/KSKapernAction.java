@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import net.driftingsouls.ds2.server.ContextCommon;
@@ -178,8 +179,8 @@ public class KSKapernAction extends BasicKSAction {
 				{
 					battle.logme("Angriff erfolgreich.\n");
 					msg += "Das Schiff ist verloren.\n";
-					HashMap<UnitType, Long> ownunitlist = toteeigeneUnits.getUnitList();
-					HashMap<UnitType, Long> enemyunitlist = totefeindlicheUnits.getUnitList();
+					Map<UnitType, Long> ownunitlist = toteeigeneUnits.getUnitMap();
+					Map<UnitType, Long> enemyunitlist = totefeindlicheUnits.getUnitMap();
 
 					if(!ownunitlist.isEmpty())
 					{
@@ -215,8 +216,8 @@ public class KSKapernAction extends BasicKSAction {
 			{
 				battle.logme("Angriff abgebrochen.\n");
 				msg += "Angreifer flieht.\n";
-				HashMap<UnitType, Long> ownunitlist = toteeigeneUnits.getUnitList();
-				HashMap<UnitType, Long> enemyunitlist = totefeindlicheUnits.getUnitList();
+				Map<UnitType, Long> ownunitlist = toteeigeneUnits.getUnitMap();
+				Map<UnitType, Long> enemyunitlist = totefeindlicheUnits.getUnitMap();
 
 				if(!ownunitlist.isEmpty())
 				{
