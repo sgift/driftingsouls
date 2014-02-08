@@ -18,18 +18,14 @@
  */
 package net.driftingsouls.ds2.server.config.items;
 
+import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
+import net.driftingsouls.ds2.server.config.items.effects.ItemEffectFactory;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
-import net.driftingsouls.ds2.server.config.items.effects.ItemEffectFactory;
-import net.driftingsouls.ds2.server.framework.JSONSupport;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * Repraesentiert einen Item-Typ in DS.
@@ -46,7 +42,7 @@ public class Item {
 	 * @author Christopher Jung
 	 *
 	 */
-	public enum Quality implements JSONSupport {
+	public enum Quality {
 		/**
 		 * Gewoehnliches Item.
 		 */
@@ -147,15 +143,6 @@ public class Item {
 				return "artifact";
 			}
 			return "common";
-		}
-
-		@Override
-		public JsonElement toJSON()
-		{
-			JsonObject obj = new JsonObject();
-			obj.addProperty("name", toString());
-			obj.addProperty("color", this.color);
-			return obj;
 		}
 	}
 

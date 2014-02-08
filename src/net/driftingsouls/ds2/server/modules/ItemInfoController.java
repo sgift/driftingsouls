@@ -18,9 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
@@ -47,6 +44,7 @@ import net.driftingsouls.ds2.server.entities.statistik.StatItemLocations;
 import net.driftingsouls.ds2.server.entities.statistik.StatUserCargo;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
@@ -54,6 +52,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateContro
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.modules.viewmodels.ItemViewModel;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeChangeset;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -61,6 +60,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypes;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -748,7 +748,7 @@ public class ItemInfoController extends TemplateController
 				for (Item thisitem : itemlist)
 				{
 					if ((thisitem.getEffect().getType() == ItemEffect.Type.MODULE) &&
-							(((IEModule) thisitem.getEffect()).getSetID() == itemid))
+						(((IEModule) thisitem.getEffect()).getSetID() == itemid))
 					{
 						setitemlist.addResource(new ItemID(thisitem.getID()), 1);
 					}
@@ -802,8 +802,8 @@ public class ItemInfoController extends TemplateController
 
 		Map<Integer, String[]> reslocations = new HashMap<>();
 		List<?> modules = db.createQuery("from StatItemLocations where user=:user")
-				.setEntity("user", user)
-				.list();
+						  .setEntity("user", user)
+						  .list();
 		for (Object module : modules)
 		{
 			StatItemLocations amodule = (StatItemLocations) module;
@@ -894,44 +894,35 @@ public class ItemInfoController extends TemplateController
 		}
 	}
 
+	@ViewModel
+	public static class AjaxViewModel
+	{
+		public List<ItemViewModel> items = new ArrayList<>();
+	}
+
 	/**
 	 * Gibt alle fuer den Nutzer sichtbaren Items als JSON-Objekte zurueck.
 	 */
 	@Action(ActionType.AJAX)
-	public JsonElement ajaxAction()
+	public AjaxViewModel ajaxAction()
 	{
 		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
 		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
 
-		JsonObject json = new JsonObject();
-		JsonArray items = new JsonArray();
+		AjaxViewModel result = new AjaxViewModel();
 
 		for (Item aitem : itemlist)
 		{
-			int itemid = aitem.getID();
-
-			ItemEffect itemeffect = aitem.getEffect();
-
 			if (!user.canSeeItem(aitem))
 			{
 				continue;
 			}
 
-			JsonObject itemObj = new JsonObject();
-			itemObj.addProperty("picture", aitem.getPicture());
-			itemObj.addProperty("id", itemid);
-			itemObj.addProperty("name", Common._plaintitle(aitem.getName()));
-			itemObj.add("quality", aitem.getQuality().toJSON());
-			itemObj.addProperty("effectName", itemeffect.getType().getName());
-			itemObj.addProperty("cargo", aitem.getCargo());
-
-			items.add(itemObj);
+			result.items.add(ItemViewModel.map(aitem));
 		}
 
-		json.add("items", items);
-
-		return json;
+		return result;
 	}
 
 	/**

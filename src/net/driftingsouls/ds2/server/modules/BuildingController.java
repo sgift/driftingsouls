@@ -18,8 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
@@ -29,15 +27,20 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
+import net.driftingsouls.ds2.server.modules.viewmodels.GebaeudeAufBasisViewModel;
+import net.driftingsouls.ds2.server.modules.viewmodels.ResourceEntryViewModel;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Die Gebaeudeansicht.
@@ -248,6 +251,20 @@ public class BuildingController extends TemplateController
 		redirect();
 	}
 
+	@ViewModel
+	public static class DemoViewModel
+	{
+		public static class DemoResourceEntryViewModel extends ResourceEntryViewModel
+		{
+			public boolean spaceMissing;
+		}
+
+		public int col;
+		public int field;
+		public List<DemoResourceEntryViewModel> demoCargo = new ArrayList<>();
+		public boolean success;
+	}
+
 	/**
 	 * Reisst das Gebaeude ab.
 	 * @param base Die Basis
@@ -255,13 +272,13 @@ public class BuildingController extends TemplateController
 	 *
 	 */
 	@Action(ActionType.AJAX)
-	public JsonObject demoAjaxAction(@UrlParam(name="col") Base base, int field) {
+	public DemoViewModel demoAjaxAction(@UrlParam(name="col") Base base, int field) {
 		validiereBasisUndFeld(base, field);
 		Building building = getGebaeudeFuerFeld(base, field);
 
-		JsonObject response = new JsonObject();
-		response.addProperty("col", base.getId());
-		response.addProperty("field", field);
+		DemoViewModel response = new DemoViewModel();
+		response.col = base.getId();
+		response.field = field;
 
 		Cargo buildcosts =(Cargo)building.getBuildCosts().clone();
 		buildcosts.multiply( 0.8, Cargo.Round.FLOOR );
@@ -269,17 +286,16 @@ public class BuildingController extends TemplateController
 		ResourceList reslist = buildcosts.getResourceList();
 		Cargo addcargo = buildcosts.cutCargo(base.getMaxCargo()-base.getCargo().getMass());
 
-		JsonArray c = new JsonArray();
-
 		for( ResourceEntry res : reslist ) {
-			JsonElement resObj = res.toJSON();
-			if( !addcargo.hasResource(res.getId()) ) {
-				resObj.getAsJsonObject().addProperty("spaceMissing", true);
-			}
-			c.add(resObj);
-		}
+			DemoViewModel.DemoResourceEntryViewModel resObj = new DemoViewModel.DemoResourceEntryViewModel();
 
-		response.add("demoCargo", c);
+			ResourceEntryViewModel.map(res, resObj);
+
+			if( !addcargo.hasResource(res.getId()) ) {
+				resObj.spaceMissing = true;
+			}
+			response.demoCargo.add(resObj);
+		}
 
 		Cargo baseCargo = base.getCargo();
 		baseCargo.addCargo( addcargo );
@@ -296,7 +312,7 @@ public class BuildingController extends TemplateController
 		active[field] = 0;
 		base.setActive(active);
 
-		response.addProperty("success", true);
+		response.success = true;
 
 		return response;
 	}
@@ -370,6 +386,15 @@ public class BuildingController extends TemplateController
 		echo.append("<a class=\"back\" href=\"").append(Common.buildUrl("default", "module", "base", "col", base.getId())).append("\">zur&uuml;ck</a><br />\n");
 	}
 
+	@ViewModel
+	public static class AjaxViewModel {
+		public int col;
+		public int field;
+		public boolean noJsonSupport;
+		public Building.BuildingUiViewModel buildingUI;
+		public GebaeudeAufBasisViewModel building;
+	}
+
 	/**
 	 * Erzeugt die GUI-Daten der Basis und gibt diese als JSON-Response zurueck.
 	 * @param base Die Basis
@@ -377,35 +402,24 @@ public class BuildingController extends TemplateController
 	 * @return Die GUI-Daten
 	 */
 	@Action(ActionType.AJAX)
-	public JsonObject ajaxAction(@UrlParam(name="col") Base base, int field)
+	public AjaxViewModel ajaxAction(@UrlParam(name="col") Base base, int field)
 	{
 		validiereBasisUndFeld(base, field);
 		Building building = getGebaeudeFuerFeld(base, field);
 
-		User user = (User)getUser();
-		JsonObject json = new JsonObject();
+		AjaxViewModel json = new AjaxViewModel();
 
-		json.addProperty("col", base.getId());
-		json.addProperty("field", field);
-
-		JsonObject buildingObj = new JsonObject();
-		buildingObj.addProperty("id", building.getId());
-		buildingObj.addProperty("name", Common._plaintitle(building.getName()));
-		buildingObj.addProperty("picture", building.getPictureForRace(user.getRace()));
-		buildingObj.addProperty("active", building.isActive(base, base.getActive()[field], field));
-		buildingObj.addProperty("deakable", building.isDeakAble());
-		buildingObj.addProperty("kommandozentrale", building.getId() == Building.KOMMANDOZENTRALE);
-		buildingObj.addProperty("type", building.getClass().getSimpleName());
-
-		json.add("building", buildingObj);
+		json.col = base.getId();
+		json.field = field;
+		json.building = GebaeudeAufBasisViewModel.map(building, base, field);
 
 		if( !building.isSupportsJson() )
 		{
-			json.addProperty("noJsonSupport", true);
+			json.noJsonSupport = true;
 			return json;
 		}
 
-		json.add("buildingUI", building.outputJson(getContext(), base, field, building.getId()));
+		json.buildingUI = building.outputJson(getContext(), base, field, building.getId());
 
 		return json;
 	}

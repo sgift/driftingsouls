@@ -18,8 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.BaseStatus;
 import net.driftingsouls.ds2.server.bases.Building;
@@ -30,6 +28,7 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
@@ -37,9 +36,16 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateContro
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.modules.viewmodels.ResourceEntryViewModel;
+import net.driftingsouls.ds2.server.modules.viewmodels.UnitCargoEntryViewModel;
+import net.driftingsouls.ds2.server.units.UnitCargoEntry;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Verwaltung einer Basis.
@@ -230,37 +236,101 @@ public class BaseController extends TemplateController
 		super.printHeader();
 	}
 
+	@ViewModel
+	public static class AjaxViewModel
+	{
+		public static class BaseViewModel
+		{
+			public int id;
+			public String name;
+			public int x;
+			public int y;
+			public int system;
+			public boolean feeding;
+			public int width;
+			public boolean loading;
+			public long cargoBilanz;
+			public long cargoFrei;
+			public int energyProduced;
+			public int energy;
+			public int bewohner;
+			public int arbeiter;
+			public int arbeiterErforderlich;
+			public int wohnraum;
+			public List<ResourceEntryViewModel> cargo = new ArrayList<>();
+			public List<UnitCargoEntryViewModel> einheiten = new ArrayList<>();
+			public CoreViewModel core;
+		}
+
+		public static class CoreViewModel
+		{
+			public int id;
+			public String name;
+			public boolean active;
+		}
+
+		public static class FeldViewModel
+		{
+			public int feld;
+			public Integer terrain;
+			public GebaeudeAufFeldViewModel gebaeude;
+		}
+
+		// TODO: Mit dem Standard-GebaeudeAufBasisViewModel mergen
+		public static class GebaeudeAufFeldViewModel
+		{
+			public String name;
+			public int id;
+			public boolean supportsJSON;
+			public boolean deaktiviert;
+			public String grafik;
+		}
+
+		public static class GebaeudeStatusViewModel
+		{
+			public String name;
+			public int id;
+			public boolean aktivierbar;
+			public boolean deaktivierbar;
+		}
+
+		public int col;
+		public BaseViewModel base;
+		public List<FeldViewModel> karte = new ArrayList<>();
+		public List<GebaeudeStatusViewModel> gebaeudeStatus = new ArrayList<>();
+	}
+
 	/**
 	 * Zeigt die Basis an.
 	 */
 	@Action(ActionType.AJAX)
-	public JsonObject ajaxAction(@UrlParam(name="col") Base base) {
+	public AjaxViewModel ajaxAction(@UrlParam(name="col") Base base) {
 		validate(base);
 
 		User user = (User)getUser();
 
-		JsonObject response = new JsonObject();
-		response.addProperty("col", base.getId());
+		AjaxViewModel response = new AjaxViewModel();
+		response.col = base.getId();
 
-		JsonObject baseObj = new JsonObject();
-		baseObj.addProperty("id", base.getId());
-		baseObj.addProperty("name", Common._plaintitle(base.getName()));
-		baseObj.addProperty("x", base.getX());
-		baseObj.addProperty("y", base.getY());
-		baseObj.addProperty("system", base.getSystem());
-		baseObj.addProperty("feeding", base.isFeeding());
-		baseObj.addProperty("loading", base.isLoading());
-		baseObj.addProperty("width", base.getWidth());
+		AjaxViewModel.BaseViewModel baseObj = new AjaxViewModel.BaseViewModel();
+		baseObj.id = base.getId();
+		baseObj.name = Common._plaintitle(base.getName());
+		baseObj.x = base.getX();
+		baseObj.y = base.getY();
+		baseObj.system = base.getSystem();
+		baseObj.feeding = base.isFeeding();
+		baseObj.loading = base.isLoading();
+		baseObj.width = base.getWidth();
 
 		if( base.getCore() > 0 ) {
 			Core core = Core.getCore(base.getCore());
 
-			JsonObject coreObj = new JsonObject();
-			coreObj.addProperty("id", core.getId());
-			coreObj.addProperty("name", Common._plaintitle(core.getName()));
-			coreObj.addProperty("active", base.isCoreActive());
+			AjaxViewModel.CoreViewModel coreObj = new AjaxViewModel.CoreViewModel();
+			coreObj.id = core.getId();
+			coreObj.name = Common._plaintitle(core.getName());
+			coreObj.active = base.isCoreActive();
 
-			baseObj.add("core", coreObj);
+			baseObj.core = coreObj;
 		}
 
 		BaseStatus basedata = Base.getStatus(base);
@@ -268,33 +338,38 @@ public class BaseController extends TemplateController
 		ResourceList reslist = base.getCargo().compare(basedata.getProduction(), true,true);
 		reslist.sortByID(false);
 
-		baseObj.add("cargo", reslist.toJSON());
-		baseObj.addProperty("cargoBilanz", -basedata.getProduction().getMass());
-		baseObj.addProperty("cargoFrei", base.getMaxCargo() - base.getCargo().getMass());
-		baseObj.add("einheiten", base.getUnits().toJSON());
-		baseObj.addProperty("energyProduced", basedata.getEnergy());
-		baseObj.addProperty("energy", base.getEnergy());
-		baseObj.addProperty("bewohner", base.getBewohner());
-		baseObj.addProperty("arbeiter", base.getArbeiter());
-		baseObj.addProperty("arbeiterErforderlich", basedata.getArbeiter());
-		baseObj.addProperty("wohnraum", basedata.getLivingSpace());
+		for (ResourceEntry resourceEntry : reslist)
+		{
+			baseObj.cargo.add(ResourceEntryViewModel.map(resourceEntry));
+		}
+		for (UnitCargoEntry unitCargoEntry : base.getUnits().getUnitList())
+		{
+			baseObj.einheiten.add(UnitCargoEntryViewModel.map(unitCargoEntry));
+		}
 
-		response.add("base", baseObj);
+		baseObj.cargoBilanz = -basedata.getProduction().getMass();
+		baseObj.cargoFrei = base.getMaxCargo() - base.getCargo().getMass();
+		baseObj.energyProduced = basedata.getEnergy();
+		baseObj.energy = base.getEnergy();
+		baseObj.bewohner = base.getBewohner();
+		baseObj.arbeiter = base.getArbeiter();
+		baseObj.arbeiterErforderlich = basedata.getArbeiter();
+		baseObj.wohnraum = basedata.getLivingSpace();
+
+		response.base = baseObj;
 
 		//----------------
 		// Karte
 		//----------------
 
-		JsonArray mapObj = new JsonArray();
-
 		Map<Integer,Integer> buildingonoffstatus = new TreeMap<>(new BuildingComparator());
 
 		for( int i = 0; i < base.getWidth() * base.getHeight(); i++ ) {
-			JsonObject feld = new JsonObject();
+			AjaxViewModel.FeldViewModel feld = new AjaxViewModel.FeldViewModel();
 
 			//Leeres Feld
 			if( base.getBebauung()[i] != 0 ) {
-				JsonObject gebaeudeObj = new JsonObject();
+				AjaxViewModel.GebaeudeAufFeldViewModel gebaeudeObj = new AjaxViewModel.GebaeudeAufFeldViewModel();
 
 				Building building = Building.getBuilding(base.getBebauung()[i]);
 				base.getActive()[i] = basedata.getActiveBuildings()[i];
@@ -311,42 +386,37 @@ public class BaseController extends TemplateController
 					}
 				}
 
-				gebaeudeObj.addProperty("name", Common._plaintitle(building.getName()));
-				gebaeudeObj.addProperty("id", building.getId());
-				gebaeudeObj.addProperty("supportsJSON", building.isSupportsJson());
-				gebaeudeObj.addProperty("deaktiviert", building.isDeakAble() && (base.getActive()[i] == 0));
-				gebaeudeObj.addProperty("grafik", building.getPictureForRace(user.getRace()));
+				gebaeudeObj.name = Common._plaintitle(building.getName());
+				gebaeudeObj.id = building.getId();
+				gebaeudeObj.supportsJSON = building.isSupportsJson();
+				gebaeudeObj.deaktiviert = building.isDeakAble() && (base.getActive()[i] == 0);
+				gebaeudeObj.grafik = building.getPictureForRace(user.getRace());
 
-				feld.add("gebaeude", gebaeudeObj);
+				feld.gebaeude = gebaeudeObj;
 			}
 
-			feld.addProperty("feld", i);
-			feld.addProperty("terrain", base.getTerrain()[i]);
+			feld.feld = i;
+			feld.terrain = base.getTerrain()[i];
 
-			mapObj.add(feld);
+			response.karte.add(feld);
 		}
-
-		response.add("karte", mapObj);
 
 		//----------------
 		// Aktionen
 		//----------------
 
-		JsonArray buildingStatus = new JsonArray();
 		for( Map.Entry<Integer,Integer> entry : buildingonoffstatus.entrySet() ) {
 			int bstatus = entry.getValue();
 			Building building = Building.getBuilding(entry.getKey());
 
-			JsonObject buildingObj = new JsonObject();
-			buildingObj.addProperty("name", Common._plaintitle(building.getName()));
-			buildingObj.addProperty("id", entry.getKey());
-			buildingObj.addProperty("aktivierbar", (bstatus == -1) || (bstatus == 1));
-			buildingObj.addProperty("deaktivierbar", (bstatus == -1) || (bstatus == 2));
+			AjaxViewModel.GebaeudeStatusViewModel buildingObj = new AjaxViewModel.GebaeudeStatusViewModel();
+			buildingObj.name = Common._plaintitle(building.getName());
+			buildingObj.id = entry.getKey();
+			buildingObj.aktivierbar = (bstatus == -1) || (bstatus == 1);
+			buildingObj.deaktivierbar = (bstatus == -1) || (bstatus == 2);
 
-			buildingStatus.add(buildingObj);
+			response.gebaeudeStatus.add(buildingObj);
 		}
-
-		response.add("gebaeudeStatus", buildingStatus);
 
 		return response;
 	}

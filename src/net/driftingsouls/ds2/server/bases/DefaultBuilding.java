@@ -18,12 +18,12 @@
  */
 package net.driftingsouls.ds2.server.bases;
 
-import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.modules.viewmodels.ResourceEntryViewModel;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -33,87 +33,99 @@ import javax.persistence.Entity;
  * <h1>Das Standardgebaeude in DS.</h1>
  * Alle Gebaeude, die ueber keine eigene Gebaeudeklasse verfuegen, werden von dieser
  * Gebaeudeklasse bearbeitet.
- * @author Christopher Jung
  *
+ * @author Christopher Jung
  */
 @Entity
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.DefaultBuilding")
-public class DefaultBuilding extends Building {
+public class DefaultBuilding extends Building
+{
 	/**
 	 * Erstellt eine neue Gebaeude-Instanz.
 	 */
-	public DefaultBuilding() {
+	public DefaultBuilding()
+	{
 		// EMPTY
 	}
 
 	@Override
-	public void build(Base base, int building) {
+	public void build(Base base, int building)
+	{
 		// EMPTY
 	}
 
 	@Override
-	public void cleanup(Context context, Base base, int building) {
+	public void cleanup(Context context, Base base, int building)
+	{
 		// EMPTY
 	}
 
 	@Override
-	public String modifyStats(Base base, Cargo stats, int building) {
-		// EMPTY
-		return "";
-	}
-
-	@Override
-	public String modifyProductionStats(Base base, Cargo stats, int building) {
+	public String modifyStats(Base base, Cargo stats, int building)
+	{
 		// EMPTY
 		return "";
 	}
 
 	@Override
-	public String modifyConsumptionStats(Base base, Cargo stats, int building) {
+	public String modifyProductionStats(Base base, Cargo stats, int building)
+	{
 		// EMPTY
 		return "";
 	}
 
 	@Override
-	public boolean isActive(Base base, int status, int field) {
+	public String modifyConsumptionStats(Base base, Cargo stats, int building)
+	{
+		// EMPTY
+		return "";
+	}
+
+	@Override
+	public boolean isActive(Base base, int status, int field)
+	{
 		return status == 1;
 	}
 
 	@Override
-	public String echoShortcut(Context context, Base base, int field, int building) {
+	public String echoShortcut(Context context, Base base, int field, int building)
+	{
 		return "";
 	}
 
 	@Override
-	public boolean printHeader() {
+	public boolean printHeader()
+	{
 		return true;
 	}
 
 	@Override
-	public boolean classicDesign() {
+	public boolean classicDesign()
+	{
 		return false;
 	}
 
 	@Override
-	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
+	public String output(Context context, TemplateEngine t, Base base, int field, int building)
+	{
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("Verbraucht:<br />\n");
 		buffer.append("<div align=\"center\">\n");
 
 		boolean entry = false;
 		ResourceList reslist = getConsumes().getResourceList();
-		for( ResourceEntry res : reslist )
+		for (ResourceEntry res : reslist)
 		{
-			buffer.append("<img src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1()+" ");
+			buffer.append("<img src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCargo1()).append(" ");
 			entry = true;
 		}
 
-		if( getEVerbrauch() > 0 )
+		if (getEVerbrauch() > 0)
 		{
-			buffer.append("<img src=\""+"./data/interface/energie.gif\" alt=\"\" />"+getEVerbrauch()+" ");
+			buffer.append("<img src=\"" + "./data/interface/energie.gif\" alt=\"\" />").append(getEVerbrauch()).append(" ");
 			entry = true;
 		}
-		if( !entry )
+		if (!entry)
 		{
 			buffer.append("-");
 		}
@@ -125,19 +137,19 @@ public class DefaultBuilding extends Building {
 
 		entry = false;
 		reslist = getProduces().getResourceList();
-		for( ResourceEntry res : reslist )
+		for (ResourceEntry res : reslist)
 		{
-			buffer.append("<img src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1()+" ");
+			buffer.append("<img src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCargo1()).append(" ");
 			entry = true;
 		}
 
-		if( getEProduktion() > 0 )
+		if (getEProduktion() > 0)
 		{
-			buffer.append("<img src=\""+"./data/interface/energie.gif\" alt=\"\" />"+getEProduktion());
+			buffer.append("<img src=\"" + "./data/interface/energie.gif\" alt=\"\" />").append(getEProduktion());
 			entry = true;
 		}
 
-		if( !entry )
+		if (!entry)
 		{
 			buffer.append("-");
 		}
@@ -152,33 +164,37 @@ public class DefaultBuilding extends Building {
 	}
 
 	@Override
-	public JsonObject outputJson(Context context, Base base, int field, int building)
+	public BuildingUiViewModel outputJson(Context context, Base base, int field, int building)
 	{
-		JsonObject gui = new JsonObject();
-		JsonObject consumes = new JsonObject();
-		JsonObject produces = new JsonObject();
+		BuildingUiViewModel gui = new BuildingUiViewModel();
 
-		if( !getConsumes().isEmpty() || getEVerbrauch() > 0 ) {
+		if (!getConsumes().isEmpty() || getEVerbrauch() > 0)
+		{
+			gui.consumes = new BuildingUiViewModel.CPViewModel();
+
 			ResourceList reslist = getConsumes().getResourceList();
-			consumes.add("cargo", reslist.toJSON());
+			for (ResourceEntry resourceEntry : reslist)
+			{
+				gui.consumes.cargo.add(ResourceEntryViewModel.map(resourceEntry));
+			}
 
-			JsonObject cEnergy = new JsonObject();
-			cEnergy.addProperty("count", getEVerbrauch());
-			consumes.add("energy", cEnergy);
-			gui.add("consumes", consumes);
+			gui.consumes.energy = new BuildingUiViewModel.EnergyViewModel();
+			gui.consumes.energy.count = getEVerbrauch();
 		}
 
-		if( !getProduces().isEmpty() || getEProduktion() > 0 ) {
+		if (!getProduces().isEmpty() || getEProduktion() > 0)
+		{
+			gui.produces = new BuildingUiViewModel.CPViewModel();
+
 			ResourceList reslist = getProduces().getResourceList();
-			produces.add("cargo", reslist.toJSON());
+			for (ResourceEntry resourceEntry : reslist)
+			{
+				gui.produces.cargo.add(ResourceEntryViewModel.map(resourceEntry));
+			}
 
-			JsonObject pEnergy = new JsonObject();
-			pEnergy.addProperty("count", getEProduktion());
-			produces.add("energy", pEnergy);
-
-			gui.add("produces", produces);
+			gui.produces.energy = new BuildingUiViewModel.EnergyViewModel();
+			gui.produces.energy.count = getEProduktion();
 		}
-
 
 		return gui;
 	}

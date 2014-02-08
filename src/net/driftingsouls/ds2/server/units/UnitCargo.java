@@ -18,11 +18,8 @@
  */
 package net.driftingsouls.ds2.server.units;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.JSONSupport;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,7 +40,7 @@ import java.util.TreeSet;
  * beruecksichtigt ob die Optionen gleich sind oder die Cargos bei der Initalisierung einen unterschiedlichen Inhalt hatten.</p>
  *
  */
-public abstract class UnitCargo implements Cloneable, JSONSupport {
+public abstract class UnitCargo implements Cloneable {
 	private static final Log log = LogFactory.getLog(UnitCargo.class);
 
 	/**
@@ -729,17 +726,5 @@ public abstract class UnitCargo implements Cloneable, JSONSupport {
 		}
 
 		return meuterer;
-	}
-
-	@Override
-	public JsonElement toJSON()
-	{
-		JsonArray list = new JsonArray();
-
-		for( UnitCargoEntry aunit : units ) {
-			list.add(aunit.toJSON());
-		}
-
-		return list;
 	}
 }

@@ -1,10 +1,12 @@
 package net.driftingsouls.ds2.server.modules.viewmodels;
 
 import net.driftingsouls.ds2.server.entities.Loyalitaetspunkte;
+import net.driftingsouls.ds2.server.framework.ViewModel;
 
 /**
  * Standard-ViewModel von Loyalitaetspunkten ({@link net.driftingsouls.ds2.server.entities.Loyalitaetspunkte}).
  */
+@ViewModel
 public class LoyalitaetspunkteViewModel
 {
 	public int id;

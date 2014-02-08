@@ -1,10 +1,12 @@
 package net.driftingsouls.ds2.server.modules.viewmodels;
 
 import net.driftingsouls.ds2.server.entities.FraktionAktionsMeldung;
+import net.driftingsouls.ds2.server.framework.ViewModel;
 
 /**
  * Standard-ViewModel fuer Fraktionsaktionsmeldungen ({@link net.driftingsouls.ds2.server.entities.FraktionAktionsMeldung}).
  */
+@ViewModel
 public class FraktionAktionsMeldungViewModel
 {
 	public Long id;

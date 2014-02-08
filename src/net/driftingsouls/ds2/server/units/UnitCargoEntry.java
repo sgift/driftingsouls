@@ -19,9 +19,6 @@
 
 package net.driftingsouls.ds2.server.units;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import net.driftingsouls.ds2.server.framework.JSONSupport;
 import org.hibernate.proxy.HibernateProxy;
 
 import javax.persistence.DiscriminatorColumn;
@@ -42,7 +39,7 @@ import javax.persistence.Table;
 @Table(name="cargo_entries_units")
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="type")
-public abstract class UnitCargoEntry implements JSONSupport
+public abstract class UnitCargoEntry
 {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -157,18 +154,6 @@ public abstract class UnitCargoEntry implements JSONSupport
 	public void setAmount(long amount)
 	{
 		this.amount = amount;
-	}
-
-	@Override
-	public JsonElement toJSON()
-	{
-		JsonObject result = new JsonObject();
-		result.addProperty("id", this.getUnitTypeId());
-		result.addProperty("count", amount);
-		result.addProperty("name", this.getUnitType().getName());
-		result.addProperty("picture", this.getUnitType().getPicture());
-
-		return result;
 	}
 
 	/**

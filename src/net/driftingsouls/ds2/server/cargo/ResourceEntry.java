@@ -18,10 +18,6 @@
  */
 package net.driftingsouls.ds2.server.cargo;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import net.driftingsouls.ds2.server.framework.JSONSupport;
-
 /**
  * Ein Eintrag innerhalb einer Resourcen-Liste.
  *
@@ -29,7 +25,7 @@ import net.driftingsouls.ds2.server.framework.JSONSupport;
  * @see ResourceList
  *
  */
-public class ResourceEntry implements JSONSupport {
+public class ResourceEntry {
 	private ResourceID id;
 	private String name;
 	private String plainName;
@@ -160,26 +156,5 @@ public class ResourceEntry implements JSONSupport {
 	 */
 	public boolean showLargeImages() {
 		return largeImages;
-	}
-
-	@Override
-	public JsonElement toJSON()
-	{
-		JsonObject obj = new JsonObject();
-		obj.addProperty("count1", this.count1);
-		obj.addProperty("cargo1", this.cargo1);
-		obj.addProperty("image", this.image);
-		obj.addProperty("name", this.name);
-		obj.addProperty("plainname", this.plainName);
-		obj.addProperty("id", this.id.toString());
-
-		if( this.cargo2 != null )
-		{
-			obj.addProperty("count2", this.count2);
-			obj.addProperty("diff", this.diff);
-			obj.addProperty("cargo2", this.cargo2);
-		}
-
-		return obj;
 	}
 }
