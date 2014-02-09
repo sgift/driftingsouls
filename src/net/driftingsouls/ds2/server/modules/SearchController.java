@@ -60,6 +60,7 @@ public class SearchController extends Controller
 			public int id;
 			public String name;
 			public String location;
+			public int klasse;
 		}
 
 		public static class ShipTypeViewModel
@@ -125,6 +126,7 @@ public class SearchController extends Controller
 				baseObj.id = base.getId();
 				baseObj.name = Common._plaintitle(base.getName());
 				baseObj.location = base.getLocation().displayCoordinates(false);
+				baseObj.klasse = base.getKlasse();
 
 				result.bases.add(baseObj);
 

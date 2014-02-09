@@ -342,7 +342,7 @@
 			<img id="adminconsoleicon" src="./data/interface/menubar/adminconsole.png" alt="Adminconsole" title="Adminconsole" />
 		</a>
 	{/endif}
-	<a href="#" onclick="boxOpen('#searchbox')">
+	<a href="#" onclick="SearchBox.open()">
 		<img id="searchicon" src="./data/interface/menubar/search.png" alt="Suchen" title="Suchen" />
 	</a>
 	<a href="#" onclick="boxOpen('#noticebox')">
@@ -376,7 +376,6 @@
 {if admin.showconsole}
 	<!-- Adminconsole -->
 	<div id="adminconsolebox" class="gfxbox">
-		<h3>Adminconsole</h3>
 		<div class="content">
 			<div id="adminConsoleResponse"> </div>
 			<div class="input">
@@ -388,14 +387,12 @@
 {/endif}
 
 <!-- Suche -->
-<div id="searchbox" class="gfxbox popupbox">
-	<h3>Suchen</h3>
+<div id="searchbox" class="gfxbox">
 	<div class="content">
 		<input id="searchInput" type="text" name="search" style="width:300px" />
 		<button class="submit" type="button" style="width:60px" onclick="SearchBox.execute()">Suchen</button>
 		<div id="searchResult"></div>
 	</div>
-	<button type="button" onclick="boxClose('searchbox')" value="Schlie&szlig;en">Schlie&szlig;en</button>
 </div>
 
 <!-- Frame -->

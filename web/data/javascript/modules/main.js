@@ -107,6 +107,17 @@ var helpBox = {
 }
 
 var SearchBox = {
+	open: function() {
+		$('#searchbox').dialog({title: 'Suche', width:450, height:400});
+		var input = $('#searchInput');
+		input.off('keypress.suche');
+		input.val('');
+		input.on('keypress.suche', function(e) {
+			if(e.which == 13) {
+				SearchBox.execute();
+			}
+		});
+	},
 	execute : function() {
 		var term = $('#searchInput').val();
 		var resultDiv = $('#searchResult');
@@ -133,21 +144,21 @@ var SearchBox = {
 
 		for( var i=0; i < response.bases.length; i++ ) {
 			var base = response.bases[i];
-			out += '<tr><td><img src="./data/starmap/asti/asti.png" alt="Basis" title="Basis" /></td>';
+			out += '<tr><td><img src="./data/starmap/kolonie'+base.klasse+'_lrs/kolonie'+base.klasse+'_lrs.png" alt="Basis" title="Basis" /></td>';
 			out += '<td><a href="'+DS.getUrl()+'?module=base&col='+base.id+'&action=default" target="main">'+base.name+'</a></td>';
 			out += '<td>'+base.location+'</td></tr>';
 		}
 
 		for( var i=0; i < response.ships.length; i++ ) {
 			var ship = response.ships[i];
-			out += '<tr><td><img style="width:30px" src="'+ship.type.picture+'" alt="'+ship.type.name+'" title="'+ship.type.name+'" /></td>';
+			out += '<tr><td><img src="'+ship.type.picture+'" alt="'+ship.type.name+'" title="'+ship.type.name+'" /></td>';
 			out += '<td><a href="'+DS.getUrl()+'?module=schiff&ship='+ship.id+'&action=default" target="main">'+ship.name+'</a></td>';
 			out += '<td>'+ship.location+'</td></tr>';
 		}
 
 		for( var i=0; i < response.users.length; i++ ) {
 			var user = response.users[i];
-			out += '<tr><td><img src="./data/interface/menubar/usericon.png" alt="Spieler" title="Spieler" /></td>';
+			out += '<tr><td><img src="./data/logos/user/'+user.id+'.gif" alt="Spieler" title="Spieler" /></td>';
 			out += '<td><a href="'+DS.getUrl()+'?module=userprofile&user='+user.id+'&action=default" target="main">'+user.name+' ('+user.id+')</a></td>';
 			out += '<td></td></tr>';
 		}
@@ -333,6 +344,5 @@ $(document).ready(function() {
 		checkPMStatus();
 		notizBox.init();
 		$('#helpbox').draggable();
-		$('#searchbox').draggable();
 	}
 });

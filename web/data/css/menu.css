@@ -268,12 +268,7 @@ img {
 }
 
 /* Suchen */
-#searchbox {
-	width:450px;
-}
-
 #searchbox .content {
-	height:400px;
 	text-align:center;
 }
 
@@ -282,6 +277,14 @@ img {
 	margin:0px auto 0px auto;
 }
 
+#searchbox .datatable tbody td {
+	padding-bottom:2px;
+}
+
 #searchbox .datatable tbody td:first-child {
 	width:35px;
+}
+
+#searchbox .datatable img {
+	width:25px;
 }
