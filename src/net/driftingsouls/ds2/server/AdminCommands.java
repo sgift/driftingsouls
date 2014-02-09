@@ -136,6 +136,14 @@ public class AdminCommands {
 		return result;
 	}
 
+	public static class CommandFailedException extends RuntimeException
+	{
+		public CommandFailedException(String message)
+		{
+			super(message);
+		}
+	}
+
 	@ViewModel
 	public static class AdminCommandResultViewModel
 	{
@@ -171,24 +179,28 @@ public class AdminCommands {
 				context.autowireBean(cmdExecuter);
 				output = cmdExecuter.execute(context, command);
 			}
+			catch( CommandFailedException e )
+			{
+				return new AdminCommandResultViewModel(e.getMessage(), false);
+			}
 			catch( InstantiationException | IllegalAccessException | RuntimeException e )
 			{
-				output = "Fehler: "+e.getClass().getName()+": "+e.getMessage();
+				return new AdminCommandResultViewModel("Fehler: "+e.getClass().getName()+": "+e.getMessage(), false);
 			}
 		}
 		else {
-			output = "Unbekannter Befehl";
+			return new AdminCommandResultViewModel("Unbekannter Befehl", false);
 		}
 
 		if( output.length() == 0 ) {
 			return new AdminCommandResultViewModel("ok", true);
 		}
 
-		return new AdminCommandResultViewModel(output, false);
+		return new AdminCommandResultViewModel(output, true);
 	}
 
 	protected static interface Command {
-		public String execute(Context context, String[] command);
+		public String execute(Context context, String[] command) throws CommandFailedException;
 		public List<String> autoComplete(String[] command);
 	}
     
@@ -199,19 +211,19 @@ public class AdminCommands {
         {
             if(command.length != 3)
             {
-                return "autofire [battleId] [side=0|1]";
+				throw new CommandFailedException("autofire [battleId] [side=0|1]");
             }
             
             Battle battle = (Battle)context.getDB().get(Battle.class, Integer.valueOf(command[1]));
             if(battle == null)
             {
-                return "Schlacht existiert nicht.";
+                throw new CommandFailedException("Schlacht existiert nicht.");
             }
             
             int side = Integer.valueOf(command[2]);
             if(side != 0 && side != 1)
             {
-                return "Side war nicht 0 oder 1.";
+				throw new CommandFailedException("Side war nicht 0 oder 1.");
             }
             battle.load(battle.getCommander(side), null, null, 0);
 
@@ -254,7 +266,7 @@ public class AdminCommands {
 						}
 						catch( ClassNotFoundException e )
 						{
-							return "Unbekannter Teiltick";
+							throw new CommandFailedException("Unbekannter Teiltick");
 						}
 					}
 					else {
@@ -278,7 +290,7 @@ public class AdminCommands {
 						}
 						catch( ClassNotFoundException e )
 						{
-							return "Unbekannter Teiltick";
+							throw new CommandFailedException("Unbekannter Teiltick");
 						}
 					}
 					else {
@@ -287,7 +299,7 @@ public class AdminCommands {
 					return "Raretick wird ausgefuehrt";
 				}
 			}
-			return "Unbekannter befehl";
+			throw new CommandFailedException("Unbekannter befehl");
 		}
 
 		@Override
@@ -322,7 +334,7 @@ public class AdminCommands {
 			}
 
 			if( fleet == null ) {
-				return "Flotte '"+command[1]+"' nicht gefunden";
+				throw new CommandFailedException("Flotte '"+command[1]+"' nicht gefunden");
 			}
 
 			switch (command[2])
@@ -330,7 +342,7 @@ public class AdminCommands {
 				case "heat":
 					if (!NumberUtils.isNumber(command[3]))
 					{
-						return "Ueberhitzung ungueltig";
+						throw new CommandFailedException("Ueberhitzung ungueltig");
 					}
 					for (Ship ship : fleet.getShips())
 					{
@@ -340,7 +352,7 @@ public class AdminCommands {
 				case "engine":
 					if (!NumberUtils.isNumber(command[3]))
 					{
-						return "Antrieb ungueltig";
+						throw new CommandFailedException("Antrieb ungueltig");
 					}
 					for (Ship ship : fleet.getShips())
 					{
@@ -350,7 +362,7 @@ public class AdminCommands {
 				case "weapons":
 					if (!NumberUtils.isNumber(command[3]))
 					{
-						return "Waffen ungueltig";
+						throw new CommandFailedException("Waffen ungueltig");
 					}
 					for (Ship ship : fleet.getShips())
 					{
@@ -366,7 +378,7 @@ public class AdminCommands {
 				case "e":
 					if (!NumberUtils.isNumber(command[3]))
 					{
-						return "Energie ungueltig";
+						throw new CommandFailedException("Energie ungueltig");
 					}
 					for (Ship ship : fleet.getShips())
 					{
@@ -398,7 +410,7 @@ public class AdminCommands {
 				case "hull":
 					if (!NumberUtils.isNumber(command[3]))
 					{
-						return "Huelle ungueltig";
+						throw new CommandFailedException("Huelle ungueltig");
 					}
 					for (Ship ship : fleet.getShips())
 					{
@@ -408,7 +420,7 @@ public class AdminCommands {
 				case "shields":
 					if (!NumberUtils.isNumber(command[3]))
 					{
-						return "Schilde ungueltig";
+						throw new CommandFailedException("Schilde ungueltig");
 					}
 					for (Ship ship : fleet.getShips())
 					{
@@ -418,7 +430,7 @@ public class AdminCommands {
 				case "crew":
 					if (!NumberUtils.isNumber(command[3]))
 					{
-						return "Crew ungueltig";
+						throw new CommandFailedException("Crew ungueltig");
 					}
 					for (Ship ship : fleet.getShips())
 					{
@@ -433,20 +445,20 @@ public class AdminCommands {
 				case "additemmodule":
 					if (!NumberUtils.isNumber(command[3]))
 					{
-						return "Slot ungueltig";
+						throw new CommandFailedException("Slot ungueltig");
 					}
 					int slot = Integer.parseInt(command[3]);
 
 					if (!NumberUtils.isNumber(command[4]))
 					{
-						return "Item-ID ungueltig";
+						throw new CommandFailedException("Item-ID ungueltig");
 					}
 					int itemid = Integer.parseInt(command[4]);
 					Item item = (Item) db.get(Item.class, itemid);
 
 					if ((item == null) || (item.getEffect().getType() != ItemEffect.Type.MODULE))
 					{
-						return "Das Item passt nicht";
+						throw new CommandFailedException("Das Item passt nicht");
 					}
 
 					for (Ship ship : fleet.getShips())
@@ -492,8 +504,7 @@ public class AdminCommands {
 					output = "Modul '" + item.getName() + "'@" + slot + " eingebaut\n";
 					break;
 				default:
-					output = "Unknown editship sub-command >" + command[2] + "<";
-					break;
+					throw new CommandFailedException("Unknown editship sub-command >" + command[2] + "<");
 			}
 			for( Ship ship : fleet.getShips() )
 			{
@@ -590,14 +601,14 @@ public class AdminCommands {
 			org.hibernate.Session db = context.getDB();
 
 			if( !NumberUtils.isNumber(command[1]) ) {
-				return "Ungueltige Schiffs-ID";
+				throw new CommandFailedException("Ungueltige Schiffs-ID");
 			}
 
 			int sid = Integer.parseInt(command[1]);
 
 			Ship ship = (Ship)db.get(Ship.class, sid);
 			if( ship == null ) {
-				return "Schiff '"+sid+"' nicht gefunden";
+				throw new CommandFailedException("Schiff '"+sid+"' nicht gefunden");
 			}
 
 			switch (command[2])
@@ -605,21 +616,21 @@ public class AdminCommands {
 				case "heat":
 					if (!NumberUtils.isNumber(command[3]))
 					{
-						return "Ueberhitzung ungueltig";
+						throw new CommandFailedException("Ueberhitzung ungueltig");
 					}
 					ship.setHeat(Integer.parseInt(command[3]));
 					break;
 				case "engine":
 					if (!NumberUtils.isNumber(command[3]))
 					{
-						return "Antrieb ungueltig";
+						throw new CommandFailedException("Antrieb ungueltig");
 					}
 					ship.setEngine(Integer.parseInt(command[3]));
 					break;
 				case "weapons":
 					if (!NumberUtils.isNumber(command[3]))
 					{
-						return "Waffen ungueltig";
+						throw new CommandFailedException("Waffen ungueltig");
 					}
 					ship.setWeapons(Integer.parseInt(command[3]));
 					break;
@@ -629,7 +640,7 @@ public class AdminCommands {
 				case "e":
 					if (!NumberUtils.isNumber(command[3]))
 					{
-						return "Energie ungueltig";
+						throw new CommandFailedException("Energie ungueltig");
 					}
 					ship.setEnergy(Integer.parseInt(command[3]));
 					break;
@@ -656,21 +667,21 @@ public class AdminCommands {
 				case "hull":
 					if (!NumberUtils.isNumber(command[3]))
 					{
-						return "Huelle ungueltig";
+						throw new CommandFailedException("Huelle ungueltig");
 					}
 					ship.setHull(Integer.parseInt(command[3]));
 					break;
 				case "shields":
 					if (!NumberUtils.isNumber(command[3]))
 					{
-						return "Schilde ungueltig";
+						throw new CommandFailedException("Schilde ungueltig");
 					}
 					ship.setShields(Integer.parseInt(command[3]));
 					break;
 				case "crew":
 					if (!NumberUtils.isNumber(command[3]))
 					{
-						return "Crew ungueltig";
+						throw new CommandFailedException("Crew ungueltig");
 					}
 					ship.setCrew(Integer.parseInt(command[3]));
 					break;
@@ -698,20 +709,20 @@ public class AdminCommands {
 				{
 					if (!NumberUtils.isNumber(command[3]))
 					{
-						return "Slot ungueltig";
+						throw new CommandFailedException("Slot ungueltig");
 					}
 					int slot = Integer.parseInt(command[3]);
 
 					if (!NumberUtils.isNumber(command[4]))
 					{
-						return "Item-ID ungueltig";
+						throw new CommandFailedException("Item-ID ungueltig");
 					}
 					int itemid = Integer.parseInt(command[4]);
 					Item item = (Item) db.get(Item.class, itemid);
 
 					if ((item == null) || (item.getEffect().getType() != ItemEffect.Type.MODULE))
 					{
-						return "Das Item passt nicht";
+						throw new CommandFailedException("Das Item passt nicht");
 					}
 
 					ship.addModule(slot, ModuleType.ITEMMODULE, Integer.toString(itemid));
@@ -755,8 +766,7 @@ public class AdminCommands {
 					break;
 				}
 				default:
-					output = "Unknown editship sub-command >" + command[2] + "<";
-					break;
+					throw new CommandFailedException("Unknown editship sub-command >" + command[2] + "<");
 			}
 			ship.recalculateShipStatus();
 
@@ -841,32 +851,32 @@ public class AdminCommands {
 				resid = Resources.fromString(command[2]);
 			}
 			catch( RuntimeException e ) {
-				return "Die angegebene Resource ist ungueltig";
+				throw new CommandFailedException("Die angegebene Resource ist ungueltig");
 			}
 
 			if( !NumberUtils.isNumber(command[3]) ) {
-				return "Menge ungueltig";
+				throw new CommandFailedException("Menge ungueltig");
 			}
 			long count = Long.parseLong(command[3]);
 
 			org.hibernate.Session db = context.getDB();
 
 			if( !NumberUtils.isNumber(oid.substring(1)) ) {
-				return "ID ungueltig";
+				throw new CommandFailedException("ID ungueltig");
 			}
 
 			Cargo cargo;
 			if( oid.startsWith("b") ) {
 				Base base = (Base)db.get(Base.class, Integer.parseInt(oid.substring(1)));
 				if( base == null ) {
-					return "Objekt existiert nicht";
+					throw new CommandFailedException("Objekt existiert nicht");
 				}
 				cargo = new Cargo(base.getCargo());
 			}
 			else {
 				Ship ship = (Ship)db.get(Ship.class, Integer.parseInt(oid.substring(1)));
 				if( ship == null ) {
-					return "Objekt existiert nicht";
+					throw new CommandFailedException("Objekt existiert nicht");
 				}
 				cargo = new Cargo(ship.getCargo());
 			}
@@ -963,30 +973,30 @@ public class AdminCommands {
 				unitType = (UnitType)db.get(UnitType.class, Integer.parseInt(command[2]));
 			}
 			catch( RuntimeException e ) {
-				return "Der angegebene Einheitentyp ist ungueltig";
+				throw new CommandFailedException("Der angegebene Einheitentyp ist ungueltig");
 			}
 
 			if( !NumberUtils.isNumber(command[3]) ) {
-				return "Menge ungueltig";
+				throw new CommandFailedException("Menge ungueltig");
 			}
 			long count = Long.parseLong(command[3]);
 
 			if( !NumberUtils.isNumber(oid.substring(1)) ) {
-				return "ID ungueltig";
+				throw new CommandFailedException("ID ungueltig");
 			}
 
 			UnitCargo cargo;
 			if( oid.startsWith("b") ) {
 				Base base = (Base)db.get(Base.class, Integer.parseInt(oid.substring(1)));
 				if( base == null ) {
-					return "Objekt existiert nicht";
+					throw new CommandFailedException("Objekt existiert nicht");
 				}
 				cargo = base.getUnits();
 			}
 			else {
 				Ship ship = (Ship)db.get(Ship.class, Integer.parseInt(oid.substring(1)));
 				if( ship == null ) {
-					return "Objekt existiert nicht";
+					throw new CommandFailedException("Objekt existiert nicht");
 				}
 				cargo = ship.getUnits();
 			}
@@ -1118,8 +1128,7 @@ public class AdminCommands {
 					}
 					break;
 				default:
-					output = "Unknown quest sub-command >" + cmd + "<";
-					break;
+					throw new CommandFailedException("Unknown quest sub-command >" + cmd + "<");
 			}
 			return output;
 		}
@@ -1144,7 +1153,7 @@ public class AdminCommands {
 				Battle battle = (Battle)db.get(Battle.class, battleid);
 
 				if( battle == null ) {
-					return "Die angegebene Schlacht existiert nicht\n";
+					throw new CommandFailedException("Die angegebene Schlacht existiert nicht");
 				}
 
 				User sourceUser = (User)context.getDB().get(User.class, -1);
@@ -1156,7 +1165,7 @@ public class AdminCommands {
 				battle.endBattle(0, 0, false);
 			}
 			else {
-				output = "Unknown battle sub-command >"+cmd+"<";
+				throw new CommandFailedException("Unknown battle sub-command >"+cmd+"<");
 			}
 			return output;
 		}
@@ -1213,7 +1222,7 @@ public class AdminCommands {
 				output = num+" Schiffe entfernt";
 			}
 			else {
-				output = "Bitte Eingabe konkretisieren (Keine Einschraenkungen vorhanden)";
+				throw new CommandFailedException("Bitte Eingabe konkretisieren (Keine Einschraenkungen vorhanden)");
 			}
 
 			return output;
@@ -1316,7 +1325,7 @@ public class AdminCommands {
 			targetname = datadir+targetname;
 
 			if( !new File(baseimg+".png").isFile() ) {
-				return "FATAL ERROR: bild existiert nicht ("+baseimg+".png)<br />\n";
+				throw new CommandFailedException("FATAL ERROR: bild existiert nicht ("+baseimg+".png)");
 			}
 
 			try {
@@ -1380,7 +1389,7 @@ public class AdminCommands {
 					{
 						if (!new File(path + ".png").isFile())
 						{
-							return "Unbekannte Grafik >" + img + "<";
+							throw new CommandFailedException("Unbekannte Grafik >" + img + "<");
 						}
 					}
 					else
@@ -1443,8 +1452,7 @@ public class AdminCommands {
 					break;
 				}
 				default:
-					output = "Unbekannter Befehl " + cmd;
-					break;
+					throw new CommandFailedException("Unbekannter Befehl " + cmd);
 			}
 
 			return output;
@@ -1467,10 +1475,10 @@ public class AdminCommands {
 
 			if( Taskmanager.getInstance().getTaskByID(taskid) != null ) {
 				Taskmanager.getInstance().handleTask(taskid, message);
-				output = "Task ausgef&uuml;hrt";
+				output = "Task ausgeführt";
 			}
 			else {
-				output = "Keine g&uuml;ltige TaskID";
+				throw new CommandFailedException("Keine gültige TaskID");
 			}
 
 			return output;
