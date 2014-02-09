@@ -41,6 +41,9 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import net.driftingsouls.ds2.server.tick.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
+import net.driftingsouls.ds2.server.units.BaseUnitCargo;
+import net.driftingsouls.ds2.server.units.UnitCargo;
+import net.driftingsouls.ds2.server.units.UnitType;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -86,6 +89,7 @@ public class AdminCommands {
 		cmds.put("editfleet", EditFleetCommand.class);
 		cmds.put("recalculateshipmodules", RecalcShipModulesCommand.class);
 		cmds.put("addresource", AddResourceCommand.class);
+		cmds.put("addunits", AddUnitsCommand.class);
 		cmds.put("quest", QuestCommand.class);
 		cmds.put("battle", BattleCommand.class);
 		cmds.put("destroyship", DestroyShipCommand.class);
@@ -892,6 +896,126 @@ public class AdminCommands {
 				return "<resId>";
 			}
 			return "<"+item.getName()+" ("+item.getID()+")>";
+		}
+
+		private String getTargetAutoComplete(String[] command)
+		{
+			if( command.length < 2 || command[1].length() < 2 )
+			{
+				return "<(b|s)ObjektID>";
+			}
+			org.hibernate.Session db = ContextMap.getContext().getDB();
+
+			String id = command[1].substring(1);
+			if( !NumberUtils.isNumber(id) )
+			{
+				return "<(b|s)ObjektID>";
+			}
+			char c = command[1].charAt(0);
+
+			if( c == 'b' ) {
+				Base base = (Base)db.get(Base.class, Integer.parseInt(id));
+				if( base == null ) {
+					return "<(b|s)ObjektID>";
+				}
+				return "<Basis "+base.getName()+" ("+base.getId()+")>";
+			}
+			else if( c == 's' ){
+				Ship ship = (Ship)db.get(Ship.class, Integer.parseInt(id));
+				if( ship == null ) {
+					return "<(b|s)ObjektID>";
+				}
+				return "<Schiff "+ship.getName()+" ("+ship.getId()+")>";
+			}
+			else {
+				return "<(b|s)ObjektID>";
+			}
+		}
+
+		@Override
+		public List<String> autoComplete(String[] command)
+		{
+			return Arrays.asList(getTargetAutoComplete(command)+" "+getItemAutoComplete(command)+" <Menge>");
+		}
+	}
+
+	protected static class AddUnitsCommand implements Command {
+		@Override
+		public String execute(Context context, String[] command) {
+			String output = "";
+
+			org.hibernate.Session db = context.getDB();
+
+			String oid = command[1];
+			UnitType unitType;
+			try {
+				unitType = (UnitType)db.get(UnitType.class, Integer.parseInt(command[2]));
+			}
+			catch( RuntimeException e ) {
+				return "Der angegebene Einheitentyp ist ungueltig";
+			}
+
+			if( !NumberUtils.isNumber(command[3]) ) {
+				return "Menge ungueltig";
+			}
+			long count = Long.parseLong(command[3]);
+
+			if( !NumberUtils.isNumber(oid.substring(1)) ) {
+				return "ID ungueltig";
+			}
+
+			UnitCargo cargo;
+			if( oid.startsWith("b") ) {
+				Base base = (Base)db.get(Base.class, Integer.parseInt(oid.substring(1)));
+				if( base == null ) {
+					return "Objekt existiert nicht";
+				}
+				cargo = base.getUnits();
+			}
+			else {
+				Ship ship = (Ship)db.get(Ship.class, Integer.parseInt(oid.substring(1)));
+				if( ship == null ) {
+					return "Objekt existiert nicht";
+				}
+				cargo = ship.getUnits();
+			}
+
+			cargo.addUnit(unitType, count);
+
+			if( oid.startsWith("s") ) {
+				Ship ship = (Ship)db.get(Ship.class, Integer.parseInt(oid.substring(1)));
+				ship.setUnits(cargo);
+				ship.recalculateShipStatus();
+			}
+			else {
+				Base base = (Base)db.get(Base.class, Integer.parseInt(oid.substring(1)));
+				base.setUnits(cargo);
+			}
+
+			return output;
+		}
+
+		private String getItemAutoComplete(String[] command)
+		{
+			if( command.length < 3 )
+			{
+				return "<unitId>";
+			}
+
+			org.hibernate.Session db = ContextMap.getContext().getDB();
+
+			UnitType unitType = null;
+			try {
+				unitType = (UnitType)db.get(UnitType.class, Integer.parseInt(command[2]));
+			}
+			catch( RuntimeException e ) {
+				// EMPTY
+			}
+			if( unitType == null )
+			{
+				return "<unitId>";
+			}
+			return "<"+unitType.getName()+" ("+unitType.getId()+")>";
 		}
 
 		private String getTargetAutoComplete(String[] command)
