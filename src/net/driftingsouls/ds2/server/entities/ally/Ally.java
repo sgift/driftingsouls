@@ -18,8 +18,6 @@
  */
 package net.driftingsouls.ds2.server.entities.ally;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.comm.PM;
@@ -30,7 +28,6 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.JSONSupport;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import org.hibernate.Query;
 import org.hibernate.annotations.BatchSize;
@@ -64,7 +61,7 @@ import java.util.TreeSet;
 @Entity
 @Table(name="ally")
 @BatchSize(size=50)
-public class Ally implements JSONSupport {
+public class Ally {
 	@Id	@GeneratedValue
 	private int id;
 	@Lob
@@ -631,16 +628,5 @@ public class Ally implements JSONSupport {
 		}
 
 		return Medals.get().rang(rangNr).getName();
-	}
-
-	@Override
-	public JsonElement toJSON()
-	{
-		JsonObject result = new JsonObject();
-		result.addProperty("id", this.getId());
-		result.addProperty("name", Common._title(this.getName()));
-		result.addProperty("plainname", this.getPlainname());
-
-		return result;
 	}
 }

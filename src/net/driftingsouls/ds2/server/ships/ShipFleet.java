@@ -18,14 +18,11 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.JSONSupport;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
@@ -46,7 +43,7 @@ import java.util.List;
  */
 @Entity
 @Table(name="ship_fleets")
-public class ShipFleet implements JSONSupport {
+public class ShipFleet {
 	/**
 	 * Objekt mit Funktionsmeldungen.
 	 */
@@ -452,14 +449,5 @@ public class ShipFleet implements JSONSupport {
 				.createQuery("from Ship where fleet=:fleet")
 	 			.setParameter("fleet", this)
 	 			.list());
-	}
-
-	@Override
-	public JsonElement toJSON()
-	{
-		JsonObject fleetObj = new JsonObject();
-		fleetObj.addProperty("id", this.id);
-		fleetObj.addProperty("name", this.name);
-		return fleetObj;
 	}
 }

@@ -568,12 +568,7 @@ return function(jqElement) {
 				var posy = (loc.y-__currentSize.miny)*SECTOR_IMAGE_SIZE;
 
 				if( loc.bg != null ) {
-					if( typeof loc.bg === 'object' ) {
-						overlay += "<div style=\"top:"+posy+"px;left:"+posx+"px;background-image:url('data/starmap/"+loc.bg.image+"');background-position:"+loc.bg.x*SECTOR_IMAGE_SIZE+"px "+loc.bg.y*SECTOR_IMAGE_SIZE+"px\" >";
-					}
-					else {
-						overlay += "<div style=\"top:"+posy+"px;left:"+posx+"px;background-image:url('data/starmap/"+loc.bg+"')\" >";
-					}
+					overlay += "<div style=\"top:"+posy+"px;left:"+posx+"px;background-image:url('data/starmap/"+loc.bg.image+"');background-position:"+loc.bg.x*SECTOR_IMAGE_SIZE+"px "+loc.bg.y*SECTOR_IMAGE_SIZE+"px\" >";
 				}
 				else if( loc.fg != null ) {
 					overlay += "<div style=\"top:"+posy+"px;left:"+posx+"px\" >";

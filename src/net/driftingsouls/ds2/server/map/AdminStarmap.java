@@ -50,7 +50,7 @@ public class AdminStarmap extends PublicStarmap
 	}
 
 	@Override
-	public String getUserSectorBaseImage(Location location)
+	public SectorImage getUserSectorBaseImage(Location location)
 	{
 		List<Base> positionBases = map.getBaseMap().get(location);
 		if(positionBases != null && !positionBases.isEmpty())
@@ -58,28 +58,28 @@ public class AdminStarmap extends PublicStarmap
 			Base base = positionBases.get(0);
 			String img = base.getOverlayImage(location, adminUser, true);
 			if( img != null ) {
-				return img+".png";
+				return new SectorImage(img+".png", 0, 0);
 			}
 		}
 
 		List<JumpNode> positionNodes = map.getNodeMap().get(location);
 		if(positionNodes != null && !positionNodes.isEmpty())
 		{
-			return "jumpnode/jumpnode.png";
+			return new SectorImage("jumpnode/jumpnode.png", 0, 0);
 		}
 
 		return null;
 	}
 
 	@Override
-	public String getSectorOverlayImage(Location location)
+	public SectorImage getSectorOverlayImage(Location location)
 	{
 		final String shipImage = getShipImage(location);
 		if( shipImage == null )
 		{
 			return null;
 		}
-		return "fleet/fleet"+shipImage+".png";
+		return new SectorImage("fleet/fleet"+shipImage+".png", 0, 0);
 	}
 
 	private String getShipImage(Location location)

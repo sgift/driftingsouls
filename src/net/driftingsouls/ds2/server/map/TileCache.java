@@ -82,7 +82,7 @@ public class TileCache
 				for(int x = 0; x < TILE_SIZE; x++)
 				{
 					Location position = new Location(this.system.getID(), tileX*TILE_SIZE+x+1, tileY*TILE_SIZE+y+1);
-					PublicStarmap.SectorBaseImage sectorImageName = content.getSectorBaseImage(position);
+					PublicStarmap.SectorImage sectorImageName = content.getSectorBaseImage(position);
 
 					File path = new File(Configuration.getSetting("ABSOLUTE_PATH") + "data/starmap/" + sectorImageName.getImage());
 					if( !path.canRead() )

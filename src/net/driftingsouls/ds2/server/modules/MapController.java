@@ -1,8 +1,5 @@
 package net.driftingsouls.ds2.server.modules;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
@@ -29,7 +26,10 @@ import net.driftingsouls.ds2.server.map.PlayerFieldView;
 import net.driftingsouls.ds2.server.map.PlayerStarmap;
 import net.driftingsouls.ds2.server.map.PublicStarmap;
 import net.driftingsouls.ds2.server.map.TileCache;
+import net.driftingsouls.ds2.server.modules.viewmodels.AllyViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.JumpNodeViewModel;
+import net.driftingsouls.ds2.server.modules.viewmodels.ShipFleetViewModel;
+import net.driftingsouls.ds2.server.modules.viewmodels.UserViewModel;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -162,8 +162,8 @@ public class MapController extends AngularController
 		SystemauswahlViewModel result = createResultObj(sys);
 
 		List<JumpNode> jumpNodes = Common.cast(db
-				.createQuery("from JumpNode jn where " + (!user.isAdmin() ? "jn.hidden=0 and " : "") + "jn.system!=jn.systemOut")
-				.list());
+											   .createQuery("from JumpNode jn where " + (!user.isAdmin() ? "jn.hidden=0 and " : "") + "jn.system!=jn.systemOut")
+											   .list());
 
 		Map<Integer, Ally> systemFraktionen = ermittleDominierendeAllianzen(db);
 		Set<Integer> basen = ermittleSystemeMitEigenerBasis(db);
@@ -230,9 +230,9 @@ public class MapController extends AngularController
 	private Set<Integer> ermittleSystemeMitEigenenSchiffen(Session db)
 	{
 		List<Integer> result = Common.cast(db
-				.createQuery("select s.system from Ship s where s.owner=:user group by s.system")
-				.setEntity("user", getUser())
-				.list());
+										   .createQuery("select s.system from Ship s where s.owner=:user group by s.system")
+										   .setEntity("user", getUser())
+										   .list());
 
 		return new HashSet<>(result);
 	}
@@ -240,9 +240,9 @@ public class MapController extends AngularController
 	private Set<Integer> ermittleSystemeMitEigenerBasis(Session db)
 	{
 		List<Integer> result = Common.cast(db
-				.createQuery("select b.system from Base b where b.owner=:user group by b.system")
-				.setEntity("user", getUser())
-				.list());
+										   .createQuery("select b.system from Base b where b.owner=:user group by b.system")
+										   .setEntity("user", getUser())
+										   .list());
 
 		return new HashSet<>(result);
 	}
@@ -250,13 +250,13 @@ public class MapController extends AngularController
 	private Map<Integer, Ally> ermittleDominierendeAllianzen(Session db)
 	{
 		List<Object[]> data = Common.cast(db
-				.createQuery("select s.system,s.owner.ally,sum(s.shiptype.size) " +
-						"from Ship s join s.shiptype st left join s.modules sm " +
-						"where (s.status like :flags or sm.flags like :flags or st.flags like :flags) and s.owner.id<0 and s.owner.ally is not null " +
-						"group by s.system,s.owner.ally " +
-						"order by s.system,count(*)")
-				.setParameter("flags", "%" + ShipTypes.SF_TRADEPOST + "%")
-				.list());
+										  .createQuery("select s.system,s.owner.ally,sum(s.shiptype.size) " +
+													   "from Ship s join s.shiptype st left join s.modules sm " +
+													   "where (s.status like :flags or sm.flags like :flags or st.flags like :flags) and s.owner.id<0 and s.owner.ally is not null " +
+													   "group by s.system,s.owner.ally " +
+													   "order by s.system,count(*)")
+										  .setParameter("flags", "%" + ShipTypes.SF_TRADEPOST + "%")
+										  .list());
 
 		Map<Integer, Ally> systeme = new HashMap<>();
 		int currentSys = -1;
@@ -321,6 +321,57 @@ public class MapController extends AngularController
 		}
 	}
 
+	@ViewModel
+	public static class MapViewModel
+	{
+		public static class SystemViewModel
+		{
+			public int id;
+			public int width;
+			public int height;
+		}
+
+		public static class SizeViewModel
+		{
+			public int minx;
+			public int miny;
+			public int maxx;
+			public int maxy;
+		}
+
+		public static class SectorImageViewModel
+		{
+			public String image;
+			public int x;
+			public int y;
+
+			public static SectorImageViewModel map(PublicStarmap.SectorImage image)
+			{
+				SectorImageViewModel viewmodel = new SectorImageViewModel();
+				viewmodel.image = image.getImage();
+				viewmodel.x = image.getX();
+				viewmodel.y = image.getY();
+				return viewmodel;
+			}
+		}
+
+		public static class LocationViewModel
+		{
+			public int x;
+			public int y;
+			public boolean scan;
+			public SectorImageViewModel bg;
+			public int scanner;
+			public String fg;
+			public boolean battle;
+			public boolean roterAlarm;
+		}
+
+		public SystemViewModel system;
+		public SizeViewModel size;
+		public List<LocationViewModel> locations = new ArrayList<>();
+	}
+
 	/**
 	 * Gibt die Kartendaten des gewaehlten Ausschnitts als JSON-Response zurueck.
 	 *
@@ -332,11 +383,11 @@ public class MapController extends AngularController
 	 * @param admin {@code true} falls die Adminsicht auf die Sternenkarte verwendet werden soll
 	 */
 	@Action(value = ActionType.AJAX, readOnly = true)
-	public JsonObject mapAction(StarSystem sys, int xstart, int xend, int ystart, int yend, boolean admin)
+	public MapViewModel mapAction(StarSystem sys, int xstart, int xend, int ystart, int yend, boolean admin)
 	{
 		validiereSystem(sys);
 
-		JsonObject json = new JsonObject();
+		MapViewModel json = new MapViewModel();
 
 		org.hibernate.Session db = getDB();
 		// Flushmode aendern um autoflushes auf den grossen geladenen Datenmengen zu vermeiden.
@@ -346,11 +397,10 @@ public class MapController extends AngularController
 		{
 			User user = (User) getUser();
 
-			JsonObject sysObj = new JsonObject();
-			sysObj.addProperty("id", sys.getID());
-			sysObj.addProperty("width", sys.getWidth());
-			sysObj.addProperty("height", sys.getHeight());
-			json.add("system", sysObj);
+			json.system = new MapViewModel.SystemViewModel();
+			json.system.id = sys.getID();
+			json.system.width = sys.getWidth();
+			json.system.height = sys.getHeight();
 
 			int width = sys.getWidth();
 			int height = sys.getHeight();
@@ -397,71 +447,24 @@ public class MapController extends AngularController
 				content = new PlayerStarmap(user, sys, new int[]{xstart, ystart, xend - xstart, yend - ystart});
 			}
 
-			JsonObject sizeObj = new JsonObject();
-			sizeObj.addProperty("minx", xstart);
-			sizeObj.addProperty("miny", ystart);
-			sizeObj.addProperty("maxx", xend);
-			sizeObj.addProperty("maxy", yend);
+			json.size = new MapViewModel.SizeViewModel();
+			json.size.minx = xstart;
+			json.size.miny = ystart;
+			json.size.maxx = xend;
+			json.size.maxy = yend;
 
-			json.add("size", sizeObj);
-
-			JsonArray locationArray = new JsonArray();
 			for (int y = ystart; y <= yend; y++)
 			{
 				for (int x = xstart; x <= xend; x++)
 				{
 					Location position = new Location(sys.getID(), x, y);
-					boolean scannable = content.isScannbar(position);
-					String sectorImage = content.getUserSectorBaseImage(position);
-					String sectorOverlayImage = content.getSectorOverlayImage(position);
-
-					boolean endTag = false;
-
-					JsonObject posObj = new JsonObject();
-					posObj.addProperty("x", x);
-					posObj.addProperty("y", y);
-					posObj.addProperty("scan", scannable);
-
-					if (sectorImage != null)
+					MapViewModel.LocationViewModel locationViewModel = createMapLocationViewModel(content, position);
+					if (locationViewModel != null)
 					{
-						endTag = true;
-						posObj.addProperty("bg", sectorImage);
-						sectorImage = sectorOverlayImage;
-					}
-					else if (scannable)
-					{
-						endTag = true;
-						posObj.add("bg", new Gson().toJsonTree(content.getSectorBaseImage(position)));
-						sectorImage = sectorOverlayImage;
-					}
-					else if (sectorOverlayImage != null)
-					{
-						endTag = true;
-						sectorImage = sectorOverlayImage;
-					}
-
-					if (scannable && content.isHasSectorContent(position))
-					{
-						Ship scanner = content.getScanSchiffFuerSektor(position);
-
-						posObj.addProperty("scanner", scanner != null ? scanner.getId() : -1);
-					}
-
-					if (sectorImage != null)
-					{
-						posObj.addProperty("fg", sectorImage);
-					}
-
-					posObj.addProperty("battle", content.isSchlachtImSektor(position));
-					posObj.addProperty("roterAlarm", content.isRoterAlarmImSektor(position));
-
-					if (endTag)
-					{
-						locationArray.add(posObj);
+						json.locations.add(locationViewModel);
 					}
 				}
 			}
-			json.add("locations", locationArray);
 
 			// Das Anzeigen sollte keine DB-Aenderungen verursacht haben
 			db.clear();
@@ -474,6 +477,148 @@ public class MapController extends AngularController
 		}
 	}
 
+	private MapViewModel.LocationViewModel createMapLocationViewModel(PublicStarmap content, Location position)
+	{
+		boolean scannable = content.isScannbar(position);
+		PublicStarmap.SectorImage sectorImage = content.getUserSectorBaseImage(position);
+		PublicStarmap.SectorImage sectorOverlayImage = content.getSectorOverlayImage(position);
+
+		boolean endTag = false;
+
+		MapViewModel.LocationViewModel posObj = new MapViewModel.LocationViewModel();
+		posObj.x = position.getX();
+		posObj.y = position.getY();
+		posObj.scan = scannable;
+
+		if (sectorImage != null)
+		{
+			endTag = true;
+			posObj.bg = MapViewModel.SectorImageViewModel.map(sectorImage);
+			sectorImage = sectorOverlayImage;
+		}
+		else if (scannable)
+		{
+			endTag = true;
+			posObj.bg = MapViewModel.SectorImageViewModel.map(content.getSectorBaseImage(position));
+			sectorImage = sectorOverlayImage;
+		}
+		else if (sectorOverlayImage != null)
+		{
+			endTag = true;
+			sectorImage = sectorOverlayImage;
+		}
+
+		if (scannable && content.isHasSectorContent(position))
+		{
+			Ship scanner = content.getScanSchiffFuerSektor(position);
+
+			posObj.scanner = scanner != null ? scanner.getId() : -1;
+		}
+
+		if (sectorImage != null)
+		{
+			posObj.fg = sectorImage.getImage();
+		}
+
+		posObj.battle = content.isSchlachtImSektor(position);
+		posObj.roterAlarm = content.isRoterAlarmImSektor(position);
+
+		if (endTag)
+		{
+			return posObj;
+		}
+		return null;
+	}
+
+	@ViewModel
+	public static class SectorViewModel
+	{
+		public static class UserWithShips
+		{
+			public String name;
+			public int id;
+			public int race;
+			public boolean eigener;
+			public List<ShipTypeViewModel> shiptypes = new ArrayList<>();
+		}
+
+		public static class ShipTypeViewModel
+		{
+			public int id;
+			public String name;
+			public String picture;
+			public int size;
+			public List<ShipViewModel> ships = new ArrayList<>();
+		}
+
+		public static class ShipViewModel
+		{
+			public int id;
+			public String name;
+			public long gedockt;
+			public int maxGedockt;
+			public ShipFleetViewModel fleet;
+		}
+
+		public static class OwnShipViewModel extends ShipViewModel
+		{
+			public long gelandet;
+			public int maxGelandet;
+			public int energie;
+			public int maxEnergie;
+			public int ueberhitzung;
+			public boolean kannFliegen;
+			public int sensorRange;
+		}
+
+		public static class BaseViewModel
+		{
+			public int id;
+			public String name;
+			public String username;
+			public String image;
+			public int imageX;
+			public int imageY;
+			public int klasse;
+			public String typ;
+			public boolean eigene;
+		}
+
+		public static class JumpNodeViewModel
+		{
+			public int id;
+			public String name;
+			public boolean blocked;
+		}
+
+		public static class NebelViewModel
+		{
+			public int type;
+			public String image;
+		}
+
+		public static class BattleViewModel
+		{
+			public int id;
+			public boolean einsehbar;
+			public List<BattleSideViewModel> sides = new ArrayList<>();
+		}
+
+		public static class BattleSideViewModel
+		{
+			public UserViewModel commander;
+			public AllyViewModel ally;
+		}
+
+		public int subraumspaltenCount;
+		public boolean roterAlarm;
+		public List<UserWithShips> users = new ArrayList<>();
+		public List<BaseViewModel> bases = new ArrayList<>();
+		public List<JumpNodeViewModel> jumpnodes = new ArrayList<>();
+		public List<BattleViewModel> battles = new ArrayList<>();
+		public NebelViewModel nebel;
+	}
+
 	/**
 	 * Zeigt einen einzelnen Sektor mit allen Details an.
 	 *
@@ -484,14 +629,14 @@ public class MapController extends AngularController
 	 * @param admin {@code true} falls die Adminsicht auf die Sternenkarte verwendet werden soll
 	 */
 	@Action(value = ActionType.AJAX, readOnly = true)
-	public JsonObject sectorAction(StarSystem sys, int x, int y, Ship scanship, boolean admin)
+	public SectorViewModel sectorAction(StarSystem sys, int x, int y, Ship scanship, boolean admin)
 	{
 		validiereSystem(sys);
 
 		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
 
-		JsonObject json = new JsonObject();
+		SectorViewModel json = new SectorViewModel();
 
 		final Location loc = new Location(sys.getID(), x, y);
 
@@ -505,61 +650,53 @@ public class MapController extends AngularController
 			field = new PlayerFieldView(db, user, loc, scanship);
 		}
 
-		JsonArray users = exportSectorShips(field);
-		json.add("users", users);
+		json.users.addAll(exportSectorShips(field));
 
-		JsonArray baseListObj = new JsonArray();
 		for (Base base : field.getBases())
 		{
-			JsonObject baseObj = new JsonObject();
-			baseObj.addProperty("id", base.getId());
-			baseObj.addProperty("name", base.getName());
-			baseObj.addProperty("username", Common._title(base.getOwner().getName()));
-			baseObj.addProperty("image", base.getBaseImage(loc));
-			baseObj.addProperty("imageX", base.getBaseImageOffset(loc)[0]);
-			baseObj.addProperty("imageY", base.getBaseImageOffset(loc)[1]);
-			baseObj.addProperty("klasse", base.getKlasse());
-			baseObj.addProperty("typ", base.getBaseType().getName());
-			baseObj.addProperty("eigene", base.getOwner().getId() == user.getId());
+			SectorViewModel.BaseViewModel baseObj = new SectorViewModel.BaseViewModel();
+			baseObj.id = base.getId();
+			baseObj.name = base.getName();
+			baseObj.username = Common._title(base.getOwner().getName());
+			baseObj.image = base.getBaseImage(loc);
+			baseObj.imageX = base.getBaseImageOffset(loc)[0];
+			baseObj.imageY = base.getBaseImageOffset(loc)[1];
+			baseObj.klasse = base.getKlasse();
+			baseObj.typ = base.getBaseType().getName();
+			baseObj.eigene = base.getOwner().getId() == user.getId();
 
-			baseListObj.add(baseObj);
+			json.bases.add(baseObj);
 		}
 
-		json.add("bases", baseListObj);
-
-		JsonArray jumpNodeListObj = new JsonArray();
 		for (JumpNode jumpNode : field.getJumpNodes())
 		{
-			JsonObject jnObj = new JsonObject();
-			jnObj.addProperty("id", jumpNode.getId());
-			jnObj.addProperty("name", jumpNode.getName());
-			jnObj.addProperty("blocked", jumpNode.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn(0));
-			jumpNodeListObj.add(jnObj);
+			SectorViewModel.JumpNodeViewModel jnObj = new SectorViewModel.JumpNodeViewModel();
+			jnObj.id = jumpNode.getId();
+			jnObj.name = jumpNode.getName();
+			jnObj.blocked = jumpNode.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn(0);
+			json.jumpnodes.add(jnObj);
 		}
-		json.add("jumpnodes", jumpNodeListObj);
 
 		Nebel nebel = field.getNebel();
 		if (nebel != null)
 		{
-			JsonObject nebelObj = new JsonObject();
-			nebelObj.addProperty("type", nebel.getType().getCode());
-			nebelObj.addProperty("image", nebel.getImage());
-			json.add("nebel", nebelObj);
+			json.nebel = new SectorViewModel.NebelViewModel();
+			json.nebel.type = nebel.getType().getCode();
+			json.nebel.image = nebel.getImage();
 		}
 
-		JsonArray battleListObj = exportSectorBattles(db, field);
-		json.add("battles", battleListObj);
+		json.battles.addAll(exportSectorBattles(db, field));
 
-		json.addProperty("subraumspaltenCount", field.getSubraumspalten().size());
-		json.addProperty("roterAlarm", field.isRoterAlarm());
+		json.subraumspaltenCount = field.getSubraumspalten().size();
+		json.roterAlarm = field.isRoterAlarm();
 
 
 		return json;
 	}
 
-	private JsonArray exportSectorBattles(Session db, FieldView field)
+	private List<SectorViewModel.BattleViewModel> exportSectorBattles(Session db, FieldView field)
 	{
-		JsonArray battleListObj = new JsonArray();
+		List<SectorViewModel.BattleViewModel> battleListObj = new ArrayList<>();
 		List<Battle> battles = field.getBattles();
 		if (battles.isEmpty())
 		{
@@ -586,91 +723,93 @@ public class MapController extends AngularController
 
 		for (Battle battle : battles)
 		{
-			JsonObject battleObj = new JsonObject();
-			battleObj.addProperty("id", battle.getId());
-			battleObj.addProperty("einsehbar", viewable || battle.getSchlachtMitglied(user) != -1);
-			JsonArray sideListObj = new JsonArray();
+			SectorViewModel.BattleViewModel battleObj = new SectorViewModel.BattleViewModel();
+			battleObj.id = battle.getId();
+			battleObj.einsehbar = viewable || battle.getSchlachtMitglied(user) != -1;
 
 			for (int i = 0; i < 2; i++)
 			{
-				JsonObject sideObj = new JsonObject();
-				sideObj.add("commander", battle.getCommander(i).toJSON());
+				SectorViewModel.BattleSideViewModel sideObj = new SectorViewModel.BattleSideViewModel();
+				sideObj.commander = UserViewModel.map(battle.getCommander(i));
 				if (battle.getAlly(i) != 0)
 				{
 					Ally ally = (Ally) db.get(Ally.class, battle.getAlly(i));
-					sideObj.add("ally", ally.toJSON());
+					sideObj.ally = AllyViewModel.map(ally);
 				}
-				sideListObj.add(sideObj);
+				battleObj.sides.add(sideObj);
 			}
-			battleObj.add("sides", sideListObj);
 
 			battleListObj.add(battleObj);
 		}
 		return battleListObj;
 	}
 
-	private JsonArray exportSectorShips(FieldView field)
+	private List<SectorViewModel.UserWithShips> exportSectorShips(FieldView field)
 	{
-		JsonArray users = new JsonArray();
+		List<SectorViewModel.UserWithShips> users = new ArrayList<>();
 		for (Map.Entry<User, Map<ShipType, List<Ship>>> owner : field.getShips().entrySet())
 		{
-			JsonObject jsonUser = new JsonObject();
-			jsonUser.addProperty("name", Common._text(owner.getKey().getName()));
-			jsonUser.addProperty("id", owner.getKey().getId());
-			jsonUser.addProperty("race", owner.getKey().getRace());
+			SectorViewModel.UserWithShips jsonUser = new SectorViewModel.UserWithShips();
+			jsonUser.name = Common._text(owner.getKey().getName());
+			jsonUser.id = owner.getKey().getId();
+			jsonUser.race = owner.getKey().getRace();
 
 			boolean ownFleet = owner.getKey().getId() == getUser().getId();
-			jsonUser.addProperty("eigener", ownFleet);
+			jsonUser.eigener = ownFleet;
 
-			JsonArray shiptypes = new JsonArray();
 			for (Map.Entry<ShipType, List<Ship>> shiptype : owner.getValue().entrySet())
 			{
-				JsonObject jsonShiptype = new JsonObject();
-				jsonShiptype.addProperty("id", shiptype.getKey().getId());
-				jsonShiptype.addProperty("name", shiptype.getKey().getNickname());
-				jsonShiptype.addProperty("picture", shiptype.getKey().getPicture());
-				jsonShiptype.addProperty("size", shiptype.getKey().getSize());
+				SectorViewModel.ShipTypeViewModel jsonShiptype = new SectorViewModel.ShipTypeViewModel();
+				jsonShiptype.id = shiptype.getKey().getId();
+				jsonShiptype.name = shiptype.getKey().getNickname();
+				jsonShiptype.picture = shiptype.getKey().getPicture();
+				jsonShiptype.size = shiptype.getKey().getSize();
 
-				JsonArray ships = new JsonArray();
 				for (Ship ship : shiptype.getValue())
 				{
 					ShipTypeData typeData = ship.getTypeData();
-					JsonObject shipObj = new JsonObject();
-					shipObj.addProperty("id", ship.getId());
-					shipObj.addProperty("name", ship.getName());
-					shipObj.addProperty("gedockt", ship.getDockedCount());
-					shipObj.addProperty("maxGedockt", typeData.getADocks());
+					SectorViewModel.ShipViewModel shipObj;
 					if (ownFleet)
 					{
-						shipObj.addProperty("gelandet", ship.getLandedCount());
-						shipObj.addProperty("maxGelandet", typeData.getJDocks());
+						SectorViewModel.OwnShipViewModel ownShip = new SectorViewModel.OwnShipViewModel();
+						ownShip.gelandet = ship.getLandedCount();
+						ownShip.maxGelandet = typeData.getJDocks();
 
-						shipObj.addProperty("energie", ship.getEnergy());
-						shipObj.addProperty("maxEnergie", typeData.getEps());
+						ownShip.energie = ship.getEnergy();
+						ownShip.maxEnergie = typeData.getEps();
 
-						shipObj.addProperty("ueberhitzung", ship.getHeat());
+						ownShip.ueberhitzung = ship.getHeat();
 
-						shipObj.addProperty("kannFliegen", typeData.getCost() > 0 && !ship.isDocked() && !ship.isLanded());
+						ownShip.kannFliegen = typeData.getCost() > 0 && !ship.isDocked() && !ship.isLanded();
 
 						int sensorRange = ship.getEffectiveScanRange();
 						if (field.getNebel() != null)
 						{
 							sensorRange /= 2;
 						}
-						shipObj.addProperty("sensorRange", sensorRange);
+						ownShip.sensorRange = sensorRange;
+
+						shipObj = ownShip;
 					}
+					else
+					{
+						shipObj = new SectorViewModel.ShipViewModel();
+					}
+					shipObj.id = ship.getId();
+					shipObj.name = ship.getName();
+					shipObj.gedockt = ship.getDockedCount();
+					shipObj.maxGedockt = typeData.getADocks();
+
 
 					if (ship.getFleet() != null)
 					{
-						shipObj.add("fleet", ship.getFleet().toJSON());
+						shipObj.fleet = ShipFleetViewModel.map(ship.getFleet());
 					}
 
-					ships.add(shipObj);
+					jsonShiptype.ships.add(shipObj);
 				}
-				jsonShiptype.add("ships", ships);
-				shiptypes.add(jsonShiptype);
+				jsonUser.shiptypes.add(jsonShiptype);
 			}
-			jsonUser.add("shiptypes", shiptypes);
 			users.add(jsonUser);
 		}
 		return users;

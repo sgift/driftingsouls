@@ -18,8 +18,6 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.comm.Ordner;
@@ -35,7 +33,6 @@ import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.JSONSupport;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
 import net.driftingsouls.ds2.server.namegenerator.SchiffsKlassenNamenGenerator;
@@ -81,7 +78,7 @@ import java.util.TreeSet;
 @DiscriminatorValue("default")
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @BatchSize(size=50)
-public class User extends BasicUser implements JSONSupport {
+public class User extends BasicUser {
 	private static final Log log = LogFactory.getLog(User.class);
 
 	/**
@@ -367,18 +364,6 @@ public class User extends BasicUser implements JSONSupport {
 				pre+"knownItems", this.knownItems,
 				pre+"vaccount", this.vaccount,
 				pre+"wait4vac", this.wait4vac);
-	}
-
-	@Override
-	public JsonElement toJSON()
-	{
-		JsonObject result = new JsonObject();
-		result.addProperty("race", this.race);
-		result.addProperty("id", this.getId());
-		result.addProperty("name", Common._title(this.getName()));
-		result.addProperty("plainname", this.getPlainname());
-		
-		return result;
 	}
 
 	/**

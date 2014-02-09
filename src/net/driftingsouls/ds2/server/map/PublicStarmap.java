@@ -57,9 +57,9 @@ public class PublicStarmap
 	 * keine Flottenmarkierungen. Falls kein abweichendes Basisbild existiert
 	 * wird <code>null</code> zurueckgegeben.
 	 * @param location Der Sektor
-	 * @return Das Bild als String ohne den Pfad zum Data-Verzeichnis oder <code>null</code>.
+	 * @return Die Informationen zum Bild oder <code>null</code>.
 	 */
-	public String getUserSectorBaseImage(Location location)
+	public SectorImage getUserSectorBaseImage(Location location)
 	{
 		return null;
 	}
@@ -76,7 +76,7 @@ public class PublicStarmap
 	 * @param location Der Sektor
 	 * @return Das Bild als String ohne den Pfad zum Data-Verzeichnis oder <code>null</code>
 	 */
-	public String getSectorOverlayImage(Location location)
+	public SectorImage getSectorOverlayImage(Location location)
 	{
 		return null;
 	}
@@ -122,12 +122,13 @@ public class PublicStarmap
 	 * Die Grafik besteht aus einem Pfad sowie einem fuer die Darstellung
 	 * anzuwendenden Offset.
 	 */
-	public static class SectorBaseImage {
+	public static class SectorImage
+	{
 		private final String image;
 		private final int x;
 		private final int y;
 
-		SectorBaseImage(String image, int x, int y)
+		SectorImage(String image, int x, int y)
 		{
 			this.image = image;
 			this.x = x;
@@ -168,18 +169,18 @@ public class PublicStarmap
 	 * @param location Der Sektor
 	 * @return Das Bild als String ohne den Pfad zum Data-Verzeichnis.
 	 */
-	public SectorBaseImage getSectorBaseImage(Location location)
+	public SectorImage getSectorBaseImage(Location location)
 	{
 		if(isNebel(location))
 		{
-			return new SectorBaseImage(map.getNebulaMap().get(location).getImage()+".png", 0, 0);
+			return new SectorImage(map.getNebulaMap().get(location).getImage()+".png", 0, 0);
 		}
 		List<Base> positionBases = map.getBaseMap().get(location);
 		if(positionBases != null && !positionBases.isEmpty())
 		{
 			Base base = positionBases.get(0);
 			int[] offset = base.getBaseImageOffset(location);
-			return new SectorBaseImage(base.getBaseImage(location)+".png", offset[0], offset[1]);
+			return new SectorImage(base.getBaseImage(location)+".png", offset[0], offset[1]);
 		}
 		List<JumpNode> positionNodes = map.getNodeMap().get(location);
 		if(positionNodes != null && !positionNodes.isEmpty())
@@ -188,11 +189,11 @@ public class PublicStarmap
 			{
 				if(!node.isHidden())
 				{
-					return new SectorBaseImage("jumpnode/jumpnode.png", 0, 0);
+					return new SectorImage("jumpnode/jumpnode.png", 0, 0);
 				}
 			}
 		}
-		return new SectorBaseImage("space/space.png", 0, 0);
+		return new SectorImage("space/space.png", 0, 0);
 	}
 	
 	private boolean isNebel(Location location)
