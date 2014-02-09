@@ -18,7 +18,6 @@
  */
 package net.driftingsouls.ds2.server;
 
-import com.google.gson.Gson;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.AutoFire;
 import net.driftingsouls.ds2.server.battles.Battle;
@@ -43,7 +42,6 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import net.driftingsouls.ds2.server.tick.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
-import net.driftingsouls.ds2.server.units.BaseUnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitType;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
@@ -69,7 +67,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
