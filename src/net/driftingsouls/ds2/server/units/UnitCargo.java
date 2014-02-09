@@ -604,17 +604,30 @@ public abstract class UnitCargo implements Cloneable {
 	public boolean kapern(UnitCargo kaperunitcargo, UnitCargo gefalleneeigeneUnits, UnitCargo gefallenefeindlicheUnits, Crew feindCrew, int amulti, int defmulti)
 	{
 
-		if(getKaperValue()*amulti > (kaperunitcargo.getKaperValue()+10*feindCrew.getValue())*defmulti*3  )
+		if(getKaperValue()*amulti > (kaperunitcargo.getKaperValue()+10*feindCrew.getValue())*defmulti*3 )
 		{
 			return true;
 		}
 		if(getKaperValue()*amulti > (kaperunitcargo.getKaperValue()+10*feindCrew.getValue())*defmulti)
 		{
-			int totekapervalue = (int)Math.ceil((kaperunitcargo.getKaperValue()+10*feindCrew.getValue())*defmulti*1.0/ amulti );
-			gefallenefeindlicheUnits.addCargo(kaperunitcargo);
-			kaperunitcargo.clear();
-			feindCrew.setValue(0);
-			reduziereKaperValue(totekapervalue, gefalleneeigeneUnits);
+			// Groessere Uebermacht als 3 gewaehlt, da die Truppen bereits im "Blutrausch" oder so sind. Einfach ein passender Mittelweg zwischen alles und nichts
+			double uebermacht = 6;
+			// Gibt Anzahl der zu reduzierenden KaperValue auf beiden Seiten an. Formel nach X umgeformt: (offValue - X) > uebermacht*(deffValue - X). Nicht aufgerundet sondern +1, da es echt groesser sein soll.
+			int totekapervalue = (int) ((uebermacht * (kaperunitcargo.getKaperValue() + feindCrew.getValue() * 10) * defmulti - getKaperValue() * amulti) / (uebermacht - 1)) + 1;
+			reduziereKaperValue((int) Math.ceil(totekapervalue / amulti), gefalleneeigeneUnits);
+			// Wenn mehr theoretische tote Deffeinheiten als vorhanden
+			if (totekapervalue > kaperunitcargo.getKaperValue() * defmulti)
+			{
+				// Vllt noch mehr aufrunden? Wurde aber unten beim nicht-gekapert auch nicht gemacht
+				feindCrew.setValue(feindCrew.getValue() - ((int) Math.ceil(totekapervalue / defmulti) - kaperunitcargo.getKaperValue()) / 10);
+				totekapervalue = kaperunitcargo.getKaperValue();
+			}
+			else
+			{
+				// Einheiten nur reduzieren, welche leben lassen
+				totekapervalue = (int) Math.ceil(totekapervalue / defmulti);
+			}
+			kaperunitcargo.reduziereKaperValue(totekapervalue, gefallenefeindlicheUnits);
 			return true;
 		}
 		int totekapervalue = (int)Math.ceil((getKaperValue())*amulti*1.0/defmulti);
