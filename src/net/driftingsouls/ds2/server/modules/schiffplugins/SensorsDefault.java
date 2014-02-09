@@ -101,7 +101,7 @@ public class SensorsDefault implements SchiffPlugin {
 				"global.ship.y", ship.getLocation().getY(),
 				"global.pluginid", pluginid,
 				"ship.sensors.location", ship.getLocation().displayCoordinates(true),
-				"global.awac", shiptype.hasFlag(ShipTypes.SF_SRS_AWAC) );
+				"global.awac", shiptype.hasFlag(ShipTypes.SF_SRS_AWAC) || shiptype.hasFlag(ShipTypes.SF_SRS_EXT_AWAC) );
 
 		int sensorrange = ship.getEffectiveScanRange();
 
