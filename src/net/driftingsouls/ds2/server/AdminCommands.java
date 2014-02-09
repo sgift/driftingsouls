@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server;
 
+import com.google.gson.Gson;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.AutoFire;
 import net.driftingsouls.ds2.server.battles.Battle;
@@ -33,6 +34,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -134,16 +136,29 @@ public class AdminCommands {
 		return result;
 	}
 
+	@ViewModel
+	public static class AdminCommandResultViewModel
+	{
+		public String message;
+		public boolean success;
+
+		public AdminCommandResultViewModel(String message, boolean success)
+		{
+			this.message = message;
+			this.success = success;
+		}
+	}
+
 	/**
 	 * Fueht das angegebene Admin-Kommando aus.
 	 * @param cmd Das Kommando
 	 * @return Die vom Kommando generierte Ausgabe
 	 */
-	public String executeCommand( String cmd ) {
+	public AdminCommandResultViewModel executeCommand( String cmd ) {
 		Context context = ContextMap.getContext();
 		User user = (User)context.getActiveUser();
 		if( (user == null) || !context.hasPermission("admin", "commands") ) {
-			return "-1";
+			return new AdminCommandResultViewModel("Keine Berechtigung", false);
 		}
 
 		String output;
@@ -156,24 +171,20 @@ public class AdminCommands {
 				context.autowireBean(cmdExecuter);
 				output = cmdExecuter.execute(context, command);
 			}
-			catch( InstantiationException e )
+			catch( InstantiationException | IllegalAccessException | RuntimeException e )
 			{
-				output = "Fehler beim Ausfuehren von Befehl "+command[0];
-			}
-			catch( IllegalAccessException e )
-			{
-				output = "Fehler beim Ausfuehren von Befehl "+command[0];
+				output = "Fehler: "+e.getClass().getName()+": "+e.getMessage();
 			}
 		}
 		else {
-			output = "Unbekannter Befehl "+command[0];
+			output = "Unbekannter Befehl";
 		}
 
 		if( output.length() == 0 ) {
-			output = "1";
+			return new AdminCommandResultViewModel("ok", true);
 		}
 
-		return output;
+		return new AdminCommandResultViewModel(output, false);
 	}
 
 	protected static interface Command {

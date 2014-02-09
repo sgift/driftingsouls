@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
 import net.driftingsouls.ds2.server.AdminCommands;
@@ -56,7 +57,7 @@ public class AdminConsole implements AdminPlugin {
 				return;
 			}
 			
-			echo.append(StringUtils.replace( new AdminCommands().executeCommand(cmd), "\n", "<br />" ));
+			echo.append(new Gson().toJson(new AdminCommands().executeCommand(cmd)));
 			return;
 		}
 		
@@ -65,7 +66,7 @@ public class AdminConsole implements AdminPlugin {
 			echo.append("<table class=\"noBorderX\">\n");
 			echo.append("<tr>\n");
 			echo.append("<td class=\"noBorderX\">\n");
-			echo.append(StringUtils.replace( new AdminCommands().executeCommand(cmd), "\n", "<br />" ));
+			echo.append(StringUtils.replace( new AdminCommands().executeCommand(cmd).message, "\n", "<br />" ));
 			echo.append("</td>\n");
 			echo.append("</tr>\n");
 			echo.append("</table>\n");
@@ -95,7 +96,7 @@ public class AdminConsole implements AdminPlugin {
 			echo.append("-\n");
 			echo.append("</td>\n");
 			echo.append("<td class=\"noBorderX\">\n");
-			echo.append(StringUtils.replace( new AdminCommands().executeCommand(cmd), "\n", "<br />" ));
+			echo.append(StringUtils.replace( new AdminCommands().executeCommand(cmd).message, "\n", "<br />" ));
 			echo.append("</td>\n");
 			echo.append("</tr>\n");
 			echo.append("</table>\n");

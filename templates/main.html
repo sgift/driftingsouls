@@ -1,15 +1,15 @@
 <style type="text/css">
-	@import url("{global.datadir}data/css/menu.css");
+	@import url("./data/css/menu.css");
 </style>
 <ul id="menu">
 <li class="statusfield">
-	<a id="mailicon" href="./ds?module=comm&action=showInbox" target="main"><img src="{global.datadir}/data/interface/menubar/mail.png" alt="Neue Nachricht" title="Du hast neue Nachrichten erhalten" /></a>
-	<a id="comneticon" href="./ds?module=comnet" target="main"><img src="{global.datadir}/data/interface/menubar/cn.png" alt="Neue Com-Net Eintrag" title="Neuer Com-Net Eintrag" /></a>
+	<a id="mailicon" href="./ds?module=comm&action=showInbox" target="main"><img src="./data/interface/menubar/mail.png" alt="Neue Nachricht" title="Du hast neue Nachrichten erhalten" /></a>
+	<a id="comneticon" href="./ds?module=comnet" target="main"><img src="./data/interface/menubar/cn.png" alt="Neue Com-Net Eintrag" title="Neuer Com-Net Eintrag" /></a>
 </li>
 <li id="currentpage">
 	<dl>
 		<dt>
-			<span id="page_currentpage" class="currentPage">empty <img id="page_currentpage_dropdown" src="{global.datadir}/data/interface/menubar/submenu.png" alt="" /></span>
+			<span id="page_currentpage" class="currentPage">empty <img id="page_currentpage_dropdown" src="./data/interface/menubar/submenu.png" alt="" /></span>
 		</dt>
 	</dl>
 </li>
@@ -23,7 +23,7 @@
 <li>
 	<dl>
 		<dt>
-			<a id="page_basen" href="./ds?module=basen" target="main">Basen <img src="{global.datadir}/data/interface/menubar/submenu.png" alt="" /></a>
+			<a id="page_basen" href="./ds?module=basen" target="main">Basen <img src="./data/interface/menubar/submenu.png" alt="" /></a>
 		</dt>
 		<!-- BEGIN bases.listitem -->
 			<dd>
@@ -44,7 +44,7 @@
 		<dt>
 			<a id="page_schiffe" href="./ds?module=schiffe" target="main">Schiffe</a>
 			<a class="low" href="./ds?module=schiffe&amp;low=9" target="main">X</a>
-			<img src="{global.datadir}/data/interface/menubar/submenu.png" alt="" />
+			<img src="./data/interface/menubar/submenu.png" alt="" />
 		</dt>
 		<dd>
 			<span>
@@ -187,7 +187,7 @@
 <li>
 	<dl>
 		<dt>
-			Kommunikation <img src="{global.datadir}/data/interface/menubar/submenu.png" alt="" />
+			Kommunikation <img src="./data/interface/menubar/submenu.png" alt="" />
 		</dt>
 		<dd>
 			<a href="./ds?module=comm&action=showInbox" target="main">
@@ -227,7 +227,7 @@
 <li>
 	<dl>
 		<dt>
-			Datenbank <img src="{global.datadir}/data/interface/menubar/submenu.png" alt="" />
+			Datenbank <img src="./data/interface/menubar/submenu.png" alt="" />
 		</dt>
 		<dd>
 			<a href="./ds?module=client#/map" target="main">Sternenkarte</a>
@@ -270,7 +270,7 @@
 <li>
 	<dl>
 		<dt>
-			Optionen <img src="{global.datadir}/data/interface/menubar/submenu.png" alt="" />
+			Optionen <img src="./data/interface/menubar/submenu.png" alt="" />
 		</dt>
 		<dd>
 			<a href="./ds?module=options" target="main">
@@ -301,7 +301,7 @@
 	<li>
 		<dl>
 			<dt>
-				Spezial <img src="{global.datadir}/data/interface/menubar/submenu.png" alt="" />
+				Spezial <img src="./data/interface/menubar/submenu.png" alt="" />
 			</dt>
 			<dd>
 				<a id="page_npcorder" href="./ds?module=client#/npc/order" target="main">NPC</a>
@@ -321,7 +321,7 @@
 		<li>
 			<dl>
 				<dt>
-					Spezial <img src="{global.datadir}/data/interface/menubar/submenu.png" alt="" />
+					Spezial <img src="./data/interface/menubar/submenu.png" alt="" />
 				</dt>
 				<dd>
 					<a id="page_admin" href="./ds?module=admin" target="main">Admin</a>
@@ -335,22 +335,22 @@
 {/endif}
 <li class="actionfield">
 	<a href="#" onclick="boxOpen('#helpbox')">
-		<img id="helpicon" src="{global.datadir}/data/interface/menubar/help.png" alt="Hilfe" title="Hilfe" />
+		<img id="helpicon" src="./data/interface/menubar/help.png" alt="Hilfe" title="Hilfe" />
 	</a>
 	{if admin.showconsole}
-		<a href="#" onclick="boxOpen('#adminconsolebox')">
-			<img id="adminconsoleicon" src="{global.datadir}/data/interface/menubar/adminconsole.png" alt="Adminconsole" title="Adminconsole" />
+		<a href="#" onclick="adminBox.open()">
+			<img id="adminconsoleicon" src="./data/interface/menubar/adminconsole.png" alt="Adminconsole" title="Adminconsole" />
 		</a>
 	{/endif}
 	<a href="#" onclick="boxOpen('#searchbox')">
-		<img id="searchicon" src="{global.datadir}/data/interface/menubar/search.png" alt="Suchen" title="Suchen" />
+		<img id="searchicon" src="./data/interface/menubar/search.png" alt="Suchen" title="Suchen" />
 	</a>
 	<a href="#" onclick="boxOpen('#noticebox')">
-		<img id="noticeicon" src="{global.datadir}/data/interface/menubar/notice.png" alt="Notizen" title="Notizen verwalten" />
+		<img id="noticeicon" src="./data/interface/menubar/notice.png" alt="Notizen" title="Notizen verwalten" />
 	</a>
 	&nbsp;
 	<a href="./ds?module=logout" target="main">
-		<img src="{global.datadir}/data/interface/menubar/logout.png" alt="Logout" title="Ausloggen" />
+		<img src="./data/interface/menubar/logout.png" alt="Logout" title="Ausloggen" />
 	</a>
 </li>
 </ul>
@@ -375,14 +375,15 @@
 
 {if admin.showconsole}
 	<!-- Adminconsole -->
-	<div id="adminconsolebox" class="gfxbox popupbox">
+	<div id="adminconsolebox" class="gfxbox">
 		<h3>Adminconsole</h3>
 		<div class="content">
-			<input id="adminConsoleCommand" type="text" name="search" style="width:300px" />
-			<button type="button" onclick="adminBox.execute()" style="width:80px">ausf&uuml;hren</button>
 			<div id="adminConsoleResponse"> </div>
+			<div class="input">
+				<input id="adminConsoleCommand" type="text" name="search" />
+				<button type="button" onclick="adminBox.execute()">ausf&uuml;hren</button>
+			</div>
 		</div>
-		<button type="button" onclick="boxClose('adminconsolebox')" value="Schlie&szlig;en">Schlie&szlig;en</button>
 	</div>
 {/endif}
 

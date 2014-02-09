@@ -167,12 +167,23 @@ var SearchBox = {
 
 
 var adminBox = {
-	init : function() {
-		$('#adminconsolebox').draggable();
+	open : function() {
+		$('#adminconsolebox').dialog({title:'Admin Konsole',width:500, height:400});
 
-		$('#adminConsoleCommand').autocomplete({
+		$('#adminConsoleResponse').empty();
+
+		var input = $('#adminConsoleCommand');
+		input.autocomplete({
 			source : adminBox.__autoComplete,
-			minLength : 0
+			minLength : 0,
+			position: { my: "left bottom", at: "left top", collision: "none" },
+			appendTo: '#adminconsolebox'
+		});
+		input.off('keypress.autosubmit')
+		input.on('keypress.autosubmit', function(event){
+			if( event.which == 13 ) {
+				adminBox.execute();
+			}
 		});
 	},
 	__autoComplete : function(pattern, response) {
@@ -183,6 +194,7 @@ var adminBox = {
 				namedplugin:'net.driftingsouls.ds2.server.modules.admin.AdminConsole',
 				responseOnly:'1',
 				autoComplete:'1',
+				FORMAT: 'JSON',
 				cmd:pattern.term
 		};
 
@@ -196,25 +208,28 @@ var adminBox = {
 	},
 	execute : function() {
 		var command = $('#adminConsoleCommand').val();
-		document.getElementById('adminConsoleResponse').innerHTML = '';
 		var params = {
 				module:'admin',
 				action:'ajax',
 				namedplugin:'net.driftingsouls.ds2.server.modules.admin.AdminConsole',
 				responseOnly:'1',
+				FORMAT: 'JSON',
 				cmd:command};
-		jQuery.get(DS.getUrl(), params, adminBox.showResponse);
+		jQuery.getJSON(DS.getUrl(), params, adminBox.showResponse);
+
+		var respDiv = $('#adminConsoleResponse');
+		respDiv.append("["+new Date().toLocaleTimeString()+"] "+command+"<br />");
+		respDiv.animate({ scrollTop: respDiv.height() }, 100);
 	},
 
-	showResponse : function( originalRequest ) {
-		var response = originalRequest;
-
-		if( response.indexOf('Sie muessen sich einloggen') > -1 ) {
-			location.href = DS.getUrl()+"?module=portal&action=login";
-			return;
+	showResponse : function( response ) {
+		var cls = "success";
+		if( !response.success ) {
+			cls = "failure";
 		}
-
-		document.getElementById('adminConsoleResponse').innerHTML = response;
+		var respDiv = $('#adminConsoleResponse');
+		respDiv.append("["+new Date().toLocaleTimeString()+"] =&gt; <span class='"+cls+"'>"+response.message+"</span><br />");
+		respDiv.animate({ scrollTop: respDiv.height() }, 100);
 	}
 };
 
@@ -319,6 +334,5 @@ $(document).ready(function() {
 		notizBox.init();
 		$('#helpbox').draggable();
 		$('#searchbox').draggable();
-		adminBox.init();
 	}
 });

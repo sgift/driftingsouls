@@ -201,23 +201,55 @@ img {
 
 /* Adminconsole */
 #adminconsolebox {
-	width:450px;
+	font-size:10px;
+	font-family:monospace;
 }
 
-#adminconsolebox div {
-	text-align:center;
+#adminconsolebox .ui-autocomplete{
+	box-shadow: none;
 }
 
 #adminconsoleframe {
-	width:400px;
-	margin:0px;
-	padding:0px 0px 0px 0px;
-	height:200px;
+	margin:0;
+	padding:0 0 0 0;
 }
 
 #adminConsoleResponse {
-	height:200px;
 	overflow:auto;
+	position:absolute;
+	top:0;
+	left:5px;
+	right:5px;
+	bottom:35px;
+	background-color:black;
+	padding:4px;
+	font-size:11px;
+	border: 1px solid #A7A7A7;
+}
+
+#adminConsoleResponse .failure {
+	color:red;
+}
+
+#adminConsoleResponse .success {
+	color:green;
+}
+
+#adminconsolebox .input {
+	position:absolute;
+	bottom:0;
+	left:0;
+	right:0;
+	height:30px;
+	text-align:center;
+}
+
+#adminconsolebox .input input[type=text]  {
+	width:70%;
+}
+
+#adminconsolebox .input button {
+	width:25%;
 }
 
 /* Hilfebox */
