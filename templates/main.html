@@ -375,7 +375,7 @@
 
 {if admin.showconsole}
 	<!-- Adminconsole -->
-	<div id="adminconsolebox" class="gfxbox">
+	<div id="adminconsolebox" class="gfxbox" style="display:none">
 		<div class="content">
 			<div id="adminConsoleResponse"> </div>
 			<div class="input">
@@ -387,7 +387,7 @@
 {/endif}
 
 <!-- Suche -->
-<div id="searchbox" class="gfxbox">
+<div id="searchbox" class="gfxbox" style="display:none">
 	<div class="content">
 		<input id="searchInput" type="text" name="search" style="width:300px" />
 		<button class="submit" type="button" style="width:60px" onclick="SearchBox.execute()">Suchen</button>
