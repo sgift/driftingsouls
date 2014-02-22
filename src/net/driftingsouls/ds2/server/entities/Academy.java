@@ -18,8 +18,10 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
-import java.util.ArrayList;
-import java.util.List;
+import net.driftingsouls.ds2.server.bases.AcademyQueueEntry;
+import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.framework.ConfigService;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -30,11 +32,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
-
-import net.driftingsouls.ds2.server.bases.AcademyQueueEntry;
-import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.framework.ConfigValue;
-import net.driftingsouls.ds2.server.framework.ContextMap;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Eine Akademie.
@@ -160,8 +159,7 @@ public class Academy {
 	public void rescheduleQueue() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		
-		ConfigValue maxoffstotrainConfig = (ConfigValue)db.get(ConfigValue.class, "maxoffstotrain");
-		double maxoffstotrain = Double.valueOf(maxoffstotrainConfig.getValue());
+		double maxoffstotrain = new ConfigService().getValue(Double.class, "maxoffstotrain");
 		int trainingoffs = 0;
 		
 		List<AcademyQueueEntry> queue = this.queue;

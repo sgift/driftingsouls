@@ -23,6 +23,7 @@ import net.driftingsouls.ds2.server.battles.AutoFire;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.tick.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
@@ -45,8 +46,7 @@ public class AutofireTick extends TickController {
 	@Override
 	protected void tick() {
 		org.hibernate.Session db = getDB();
-        ConfigValue helper = (ConfigValue)db.get(ConfigValue.class, "autofire");
-        boolean isAutoFire = helper.getValue().equals("1");
+        boolean isAutoFire = new ConfigService().getValue(String.class, "autofire").equals("1");
 
         if(!isAutoFire)
         {

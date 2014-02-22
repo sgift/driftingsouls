@@ -18,24 +18,23 @@
  */
 package net.driftingsouls.ds2.server.framework.authentication;
 
-import java.util.HashSet;
-import java.util.ServiceLoader;
-import java.util.Set;
-import java.util.UUID;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ConfigValue;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Permission;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
+
+import java.util.HashSet;
+import java.util.ServiceLoader;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Verwaltungsklasse fuer Aktionen rund um das ein- und ausloggen.
@@ -122,8 +121,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	}
 
 	private void checkLoginDisabled(Context context) throws LoginDisabledException {
-		ConfigValue value = (ConfigValue)context.getDB().get(ConfigValue.class, "disablelogin");
-		String disablelogin = value.getValue();
+		String disablelogin = new ConfigService().getValue(String.class, "disablelogin");
 		if( !disablelogin.isEmpty() ) {
 			throw new LoginDisabledException(disablelogin);
 		}

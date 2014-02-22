@@ -38,6 +38,7 @@ import net.driftingsouls.ds2.server.entities.ComNetChannel;
 import net.driftingsouls.ds2.server.entities.ComNetEntry;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -217,8 +218,7 @@ public class KapernController extends TemplateController
 			{
 				user.addBounty(shipBounty);
 				//Make it public that there's a new bounty on a player, so others can go to hunt
-				ConfigValue value = (ConfigValue) db.get(ConfigValue.class, "bountychannel");
-				int bountyChannel = Integer.valueOf(value.getValue());
+				int bountyChannel = new ConfigService().getValue(Integer.class, "bountychannel");
 				ComNetChannel channel = (ComNetChannel) db.get(ComNetChannel.class, bountyChannel);
 				ComNetEntry entry = new ComNetEntry(user, channel);
 				entry.setHead("Kopfgeld");

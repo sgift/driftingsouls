@@ -26,7 +26,7 @@ import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.Handel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ConfigValue;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -174,8 +174,7 @@ public class HandelController extends TemplateController
 			t.parse("addresources.list", "addresources.listitem", true);
 		}
 
-		ConfigValue runningcost = (ConfigValue) db.get(ConfigValue.class, "adcost");
-		t.setVar("trade.runningcost", runningcost.getValue());
+		t.setVar("trade.runningcost", new ConfigService().getValue(String.class, "adcost"));
 	}
 
 	/**

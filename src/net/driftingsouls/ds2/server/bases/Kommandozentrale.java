@@ -41,6 +41,7 @@ import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.entities.statistik.StatVerkaeufe;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
@@ -152,8 +153,7 @@ public class Kommandozentrale extends DefaultBuilding {
 
 		if(!systems.contains(oldUser.getGtuDropZone()))
 		{
-			ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "gtudefaultdropzone");
-			int defaultDropZone = Integer.valueOf(value.getValue());
+			int defaultDropZone = new ConfigService().getValue(Integer.class, "gtudefaultdropzone");
 			if(oldUser.getGtuDropZone() != defaultDropZone)
 			{
 				PM.send(nullUser, oldUser.getId(), "GTU Dropzone ge&auml;ndert.", "Sie haben ihren letzten Asteroiden in System "+ oldUser.getGtuDropZone() +" aufgegeben. Ihre GTU Dropzone wurde auf System "+ defaultDropZone +" gesetzt.");

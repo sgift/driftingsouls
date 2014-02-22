@@ -18,19 +18,18 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import java.io.IOException;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.battles.Side;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ConfigValue;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-
 import org.hibernate.Session;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Ermoeglicht das Beenden der Schlacht im Falle vom einer klaren militaerischen Uebermacht gegenueber dem Gegner.
@@ -46,8 +45,8 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 			return Result.ERROR;
 		}
 		*/
-		ConfigValue endTieModifier = (ConfigValue)getDB().get(ConfigValue.class, "endtiemodifier");
-		if((battle.getBattleValue(Side.ENEMY) == 0) || (battle.getBattleValue(Side.OWN) > (battle.getBattleValue(Side.ENEMY) * Integer.valueOf(endTieModifier.getValue())))) 
+		int endTieModifier = new ConfigService().getValue(Integer.class, "endtiemodifier");
+		if((battle.getBattleValue(Side.ENEMY) == 0) || (battle.getBattleValue(Side.OWN) > (battle.getBattleValue(Side.ENEMY) * endTieModifier)))
 		{
 			return Result.OK;
 		}
@@ -69,24 +68,24 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 		
 		List<BattleShip> shiplist = battle.getShips(Side.OWN);
 		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+ContextMap.getContext().get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
-		for( int key=0; key < shiplist.size(); key++ ) {
-			BattleShip aship = shiplist.get(key);
+		for (BattleShip aship : shiplist)
+		{
 			ShipTypeData ashiptype = aship.getShip().getTypeData();
-			
-			if( this.validate(battle) == Result.OK )
+
+			if (this.validate(battle) == Result.OK)
 			{
-				if(battle.getBattleValue(Side.OWN) - aship.getBattleValue() > 0)
-				{	
-					if (((aship.getAction() & Battle.BS_SECONDROW_BLOCKED) == 0) && 
-							((aship.getAction() & Battle.BS_SHOT) == 0) && 
-							((aship.getAction() & Battle.BS_SECONDROW) == 0) && 
-							(aship.getEngine() > 0 ) && 
-							((aship.getAction() & Battle.BS_DESTROYED) == 0 ) && 
-							!aship.getShip().isLanded() && 
-							!aship.getShip().isDocked() && 
-							((aship.getAction() & Battle.BS_JOIN) == 0) && 
-							((aship.getAction() & Battle.BS_FLUCHT) == 0) && 
-							((ashiptype.getMinCrew() == 0) || (aship.getCrew() >= ashiptype.getMinCrew()/2d)) ) 
+				if (battle.getBattleValue(Side.OWN) - aship.getBattleValue() > 0)
+				{
+					if (((aship.getAction() & Battle.BS_SECONDROW_BLOCKED) == 0) &&
+						((aship.getAction() & Battle.BS_SHOT) == 0) &&
+						((aship.getAction() & Battle.BS_SECONDROW) == 0) &&
+						(aship.getEngine() > 0) &&
+						((aship.getAction() & Battle.BS_DESTROYED) == 0) &&
+						!aship.getShip().isLanded() &&
+						!aship.getShip().isDocked() &&
+						((aship.getAction() & Battle.BS_JOIN) == 0) &&
+						((aship.getAction() & Battle.BS_FLUCHT) == 0) &&
+						((ashiptype.getMinCrew() == 0) || (aship.getCrew() >= ashiptype.getMinCrew() / 2d)))
 					{
 						battle.removeShip(aship, false);
 						battle.logme(Battle.log_shiplink(aship.getShip()) + "ist durchgebrochen\n");
@@ -103,10 +102,5 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 		battle.logenemy("]]></action>\n");
 		return Result.OK;
 		
-	}
-	
-	private Session getDB()
-	{
-		return ContextMap.getContext().getDB();
 	}
 }

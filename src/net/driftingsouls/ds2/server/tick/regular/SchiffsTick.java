@@ -30,6 +30,7 @@ import net.driftingsouls.ds2.server.entities.Feeding;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
@@ -467,8 +468,7 @@ public class SchiffsTick extends TickController {
 			{
 				crewToFeed = crewToFeed - (int)Math.ceil(shipd.getUnits().getNahrung());
 				shipd.setUnits(new TransientUnitCargo());
-				ConfigValue maxverhungern = (ConfigValue)db.get(ConfigValue.class, "maxverhungern");
-				int maxverhungernfactor = Integer.parseInt(maxverhungern.getValue());
+				int maxverhungernfactor = new ConfigService().getValue(Integer.class, "maxverhungern");
 				int maxverhungernvalue = (int)Math.ceil(shiptd.getCrew() * (maxverhungernfactor/100.0));
 				int crew = shipd.getCrew();
 				if( crewToFeed*10 > maxverhungernvalue)
@@ -549,8 +549,7 @@ public class SchiffsTick extends TickController {
 		if(crew < minCrew && !user.hasFlag(User.FLAG_NO_HULL_DECAY))
 		{
 			this.log("\tSchiff hat nicht genug Crew; beschaedige Huelle.");
-			ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "nocrewhulldamagescale");
-			double scale = Double.parseDouble(value.getValue());
+			double scale = new ConfigService().getValue(Double.class, "nocrewhulldamagescale");
 			double damageFactor = (1.0 - (((double)crew) / ((double)minCrew))) / scale;
 			this.log("\tDamage factor is: " + damageFactor);
 

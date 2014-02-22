@@ -18,20 +18,19 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
-import java.math.BigInteger;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.comm.Ordner;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.Handel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ConfigValue;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.tick.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
-
 import org.hibernate.Session;
+
+import java.math.BigInteger;
+import java.util.List;
 
 /**
  * Tick fuer Aktionen, die sich auf den gesamten Account beziehen.
@@ -68,14 +67,12 @@ public class UserTick extends TickController
 				if(user.isInVacation())
 				{
 					//Set vacation points
-					ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "vacpointspervactick");
-					int costsPerTick = Integer.valueOf(value.getValue());
+					int costsPerTick = new ConfigService().getValue(Integer.class, "vacpointspervactick");
 					user.setVacpoints(user.getVacpoints() - costsPerTick);
 				}
 				else
 				{
-					ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "vacpointsperplayedtick");
-					int pointsPerTick = Integer.valueOf(value.getValue());
+					int pointsPerTick = new ConfigService().getValue(Integer.class, "vacpointsperplayedtick");
 					user.setVacpoints(user.getVacpoints() + pointsPerTick);
 					
 					//Delete all pms older than 14 days from inbox
@@ -100,8 +97,7 @@ public class UserTick extends TickController
 									 	   .setParameter("who", user)
 									 	   .uniqueResult();
 					
-					ConfigValue adCostValue = (ConfigValue)db.get(ConfigValue.class, "adcost");
-					int adCost = Integer.parseInt(adCostValue.getValue());
+					int adCost = new ConfigService().getValue(Integer.class, "adcost");
 					
 					BigInteger account = user.getKonto();
 					

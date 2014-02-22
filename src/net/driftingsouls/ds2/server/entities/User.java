@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.entities.ally.AllyPosten;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -327,8 +328,7 @@ public class User extends BasicUser {
 		this.specializationPoints = 15;
 		this.loyalitaetspunkte = new HashSet<>();
 
-		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "gtudefaultdropzone");
-		int defaultDropZone = Integer.valueOf(value.getValue());
+		int defaultDropZone = new ConfigService().getValue(Integer.class, "gtudefaultdropzone");
 		setGtuDropZone(defaultDropZone);
 	}
 
@@ -1254,9 +1254,7 @@ public class User extends BasicUser {
 	 */
 	private int vacationCostsPerTick()
 	{
-		Session db = ContextMap.getContext().getDB();
-		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "vacpointspervactick");
-		return Integer.valueOf(value.getValue());
+		return new ConfigService().getValue(Integer.class, "vacpointspervactick");
 	}
 
 	/**

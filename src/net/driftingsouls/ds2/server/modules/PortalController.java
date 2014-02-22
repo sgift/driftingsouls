@@ -35,6 +35,7 @@ import net.driftingsouls.ds2.server.entities.NewsEntry;
 import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -558,16 +559,16 @@ public class PortalController extends TemplateController
 
 		boolean showform;
 
-		ConfigValue disableregister = (ConfigValue) db.get(ConfigValue.class, "disableregister");
-		if (!"".equals(disableregister.getValue()))
+		String disableregister = new ConfigService().getValue(String.class, "disableregister");
+		if (!"".equals(disableregister))
 		{
 			t.setVar("show.register.registerdisabled", 1,
-					"register.registerdisabled.msg", Common._text(disableregister.getValue()));
+					"register.registerdisabled.msg", Common._text(disableregister));
 
 			return;
 		}
 
-		ConfigValue keys = (ConfigValue) db.get(ConfigValue.class, "keys");
+		ConfigValue keys = new ConfigService().get("keys");
 		boolean needkey = false;
 		if (keys.getValue().indexOf('*') == -1)
 		{

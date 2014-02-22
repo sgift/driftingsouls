@@ -24,6 +24,7 @@ import java.util.Map;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextInstance;
@@ -55,8 +56,7 @@ public final class ContextCommon
 	 */
 	public int getTick()
 	{
-		ConfigValue value = (ConfigValue)context.getDB().get(ConfigValue.class, "ticks");
-		return Integer.valueOf(value.getValue());
+		return new ConfigService().getValue(Integer.class, "ticks");
 	}
 
 	private Map<String, ScriptEngine> scriptParsers = new HashMap<>();

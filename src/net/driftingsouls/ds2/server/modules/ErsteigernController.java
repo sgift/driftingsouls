@@ -46,6 +46,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.entities.Versteigerung;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextInstance;
@@ -1379,8 +1380,7 @@ public class ErsteigernController extends TemplateController
 
 		List<StarSystem> result = new ArrayList<>();
 
-		ConfigValue value = (ConfigValue) db.get(ConfigValue.class, "gtudefaultdropzone");
-		int defaultDropZone = Integer.valueOf(value.getValue());
+		int defaultDropZone = new ConfigService().getValue(Integer.class, "gtudefaultdropzone");
 
 		List<?> systems = db.createCriteria(StarSystem.class).addOrder(Order.asc("id")).list();
 		for (Object system1 : systems)

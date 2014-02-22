@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.tick;
 
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.tick.regular.*;
@@ -122,8 +123,8 @@ public class RegularTick extends AbstractTickExecuter
 	{
 		Session db = getDB();
 		Transaction transaction = db.beginTransaction();
-		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "tick");
-		value.setValue("" + 1);
+		ConfigValue value = new ConfigService().get("tick");
+		value.setValue("1");
 		transaction.commit();
 	}
 	
@@ -131,8 +132,8 @@ public class RegularTick extends AbstractTickExecuter
 	{
 		Session db = getDB();
 		Transaction transaction = db.beginTransaction();
-		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, "tick");
-		value.setValue("" + 0);
+		ConfigValue value = new ConfigService().get("tick");
+		value.setValue("0");
 		transaction.commit();
 	}
 }

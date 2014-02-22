@@ -31,6 +31,7 @@ import javax.persistence.Version;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -397,10 +398,10 @@ public class BattleShip {
 			return 0;
 		}
 		
-		ConfigValue sizeModifier = (ConfigValue)getDB().get(ConfigValue.class, "bvsizemodifier");
-		ConfigValue dockModifier = (ConfigValue)getDB().get(ConfigValue.class, "bvdockmodifier");
+		int sizeModifier = new ConfigService().getValue(Integer.class, "bvsizemodifier");
+		int dockModifier = new ConfigService().getValue(Integer.class, "bvdockmodifier");
 		
-		return getTypeData().getSize() * Integer.valueOf(sizeModifier.getValue()) + getTypeData().getJDocks() * Integer.valueOf(dockModifier.getValue());
+		return getTypeData().getSize() * sizeModifier + getTypeData().getJDocks() * dockModifier;
 	}
 
     /**

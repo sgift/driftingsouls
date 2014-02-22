@@ -18,17 +18,40 @@
  */
 package net.driftingsouls.ds2.server.werften;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.Locatable;
+import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
+import net.driftingsouls.ds2.server.cargo.ResourceEntry;
+import net.driftingsouls.ds2.server.cargo.ResourceID;
+import net.driftingsouls.ds2.server.cargo.ResourceList;
+import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.cargo.modules.Module;
+import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
+import net.driftingsouls.ds2.server.cargo.modules.ModuleItemModule;
+import net.driftingsouls.ds2.server.cargo.modules.ModuleType;
+import net.driftingsouls.ds2.server.config.ModuleSlots;
+import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.config.items.effects.IEDisableShip;
+import net.driftingsouls.ds2.server.config.items.effects.IEDraftShip;
+import net.driftingsouls.ds2.server.config.items.effects.IEModule;
+import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
+import net.driftingsouls.ds2.server.entities.Offizier;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.DSObject;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipBaubar;
+import net.driftingsouls.ds2.server.ships.ShipType;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.hibernate.Session;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -47,42 +70,17 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
-
-import net.driftingsouls.ds2.server.ContextCommon;
-import net.driftingsouls.ds2.server.Locatable;
-import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.entities.Offizier;
-import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
-import net.driftingsouls.ds2.server.cargo.ResourceEntry;
-import net.driftingsouls.ds2.server.cargo.ResourceID;
-import net.driftingsouls.ds2.server.cargo.ResourceList;
-import net.driftingsouls.ds2.server.cargo.Resources;
-import net.driftingsouls.ds2.server.cargo.modules.Module;
-import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
-import net.driftingsouls.ds2.server.cargo.modules.ModuleItemModule;
-import net.driftingsouls.ds2.server.cargo.modules.ModuleType;
-import net.driftingsouls.ds2.server.config.ModuleSlots;
-import net.driftingsouls.ds2.server.config.Rassen;
-import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.config.items.effects.IEDisableShip;
-import net.driftingsouls.ds2.server.config.items.effects.IEDraftShip;
-import net.driftingsouls.ds2.server.config.items.effects.IEModule;
-import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ConfigValue;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.DSObject;
-import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipBaubar;
-import net.driftingsouls.ds2.server.ships.ShipType;
-import net.driftingsouls.ds2.server.ships.ShipTypeData;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.hibernate.Session;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * Basisklasse fuer alle Werfttypen in DS.
@@ -1052,8 +1050,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 			double damageFactor = outerDamageFactor * 0.7 + innerDamageFactor * 0.3;
 
-			ConfigValue dampening = (ConfigValue)db.get(ConfigValue.class, "repaircostdampeningfactor");
-			double dampeningFactor = Double.parseDouble(dampening.getValue());
+			double dampeningFactor = new ConfigService().getValue(Double.class, "repaircostdampeningfactor");
 
 			Cargo buildCosts = new Cargo(buildable.getCosts());
 			ResourceList buildCostList = buildCosts.getResourceList();

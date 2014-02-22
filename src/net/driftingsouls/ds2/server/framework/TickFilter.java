@@ -21,9 +21,7 @@ public class TickFilter extends DSFilter
 	{
         if(!isStaticRequest(request))
         {
-            org.hibernate.Session db = HibernateUtil.getSessionFactory().getCurrentSession();
-            ConfigValue tick = (ConfigValue)db.get(ConfigValue.class, "tick");
-            int tickState = Integer.valueOf(tick.getValue());
+          	int tickState = new ConfigService().getValue(Integer.class, "tick");
             boolean isTick = tickState == 1;
             if(isTick)
             {

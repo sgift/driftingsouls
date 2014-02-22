@@ -41,6 +41,7 @@ import net.driftingsouls.ds2.server.entities.Jump;
 import net.driftingsouls.ds2.server.entities.statistik.StatShips;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
@@ -128,8 +129,8 @@ public class RestTick extends TickController {
 			this.log("");
 			this.log("Erstelle Statistiken");
 
-			long shipcount = (Long)db.createQuery("select count(*) from Ship where id>0 and owner>0").iterate().next();
-			long crewcount = (Long)db.createQuery("select sum(crew) from Ship where id>0 and owner>0").iterate().next();
+			long shipcount = (Long)db.createQuery("select count(*) from Ship where id>0 and owner.id>0").iterate().next();
+			long crewcount = (Long)db.createQuery("select sum(crew) from Ship where id>0 and owner.id>0").iterate().next();
 
 			StatShips stat = new StatShips(shipcount, crewcount);
 			db.persist(stat);
@@ -557,7 +558,7 @@ public class RestTick extends TickController {
 				.executeUpdate();
 
 			this.log("Erhoehe Tickzahl");
-			ConfigValue value = (ConfigValue)getDB().get(ConfigValue.class, "ticks");
+			ConfigValue value = new ConfigService().get("ticks");
 			int ticks = Integer.valueOf(value.getValue()) + 1;
 			value.setValue(Integer.toString(ticks));
 			transaction.commit();

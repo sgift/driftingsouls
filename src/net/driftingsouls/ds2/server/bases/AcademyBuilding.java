@@ -24,6 +24,7 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Offiziere;
 import net.driftingsouls.ds2.server.entities.Academy;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -131,16 +132,14 @@ public class AcademyBuilding extends DefaultBuilding {
 
 	/**
 	 * Ermittelt Ausbildungskosten.
-	 * @param context der ds-context (framework)
+	 *
 	 * @param acc die akademie
+	 * @param typ gibt an ob es sich um Silizium Nahrung oder Dauer handelt (0-2)
 	 * @param offizier der auszubildende offizier
 	 * @param train Sparte/Faehigkeit die ausgebildet wird
-	 * @param typ gibt an ob es sich um Silizium Nahrung oder Dauer handelt (0-2)
 	 * @return nada
 	 */
-	public int getUpgradeCosts(Context context, Academy acc, int typ, Offizier offizier, int train) {
-		org.hibernate.Session db = context.getDB();
-
+	public int getUpgradeCosts(Academy acc, int typ, Offizier offizier, int train) {
 		Map<Integer,Offizier.Ability> dTrain = new HashMap<Integer,Offizier.Ability>();
 		dTrain.put(1, Offizier.Ability.ING);
 		dTrain.put(2, Offizier.Ability.WAF);
@@ -148,13 +147,9 @@ public class AcademyBuilding extends DefaultBuilding {
 		dTrain.put(4, Offizier.Ability.SEC);
 		dTrain.put(5, Offizier.Ability.COM);
 
-		ConfigValue nahrungfactorConfig = (ConfigValue)db.get(ConfigValue.class, "offnahrungfactor");
-		ConfigValue siliziumfactorConfig = (ConfigValue)db.get(ConfigValue.class, "offsiliziumfactor");
-		ConfigValue dauerfactorConfig = (ConfigValue)db.get(ConfigValue.class, "offdauerfactor");
-
-		double nahrungfactor = Double.valueOf(nahrungfactorConfig.getValue());
-		double siliziumfactor = Double.valueOf(siliziumfactorConfig.getValue());
-		double dauerfactor = Double.valueOf(dauerfactorConfig.getValue());
+		double nahrungfactor = new ConfigService().getValue(Double.class, "offnahrungfactor");
+		double siliziumfactor = new ConfigService().getValue(Double.class, "offsiliziumfactor");
+		double dauerfactor = new ConfigService().getValue(Double.class, "offdauerfactor");
 
 		int plus = 0;
 		List<AcademyQueueEntry> entries = acc.getQueueEntries();
@@ -243,15 +238,10 @@ public class AcademyBuilding extends DefaultBuilding {
 	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
 		org.hibernate.Session db = context.getDB();
 
-		ConfigValue siliziumcostsConfig = (ConfigValue)db.get(ConfigValue.class, "newoffsiliziumcosts");
-		ConfigValue nahrungcostsConfig = (ConfigValue)db.get(ConfigValue.class, "newoffnahrungcosts");
-		ConfigValue dauercostsConfig = (ConfigValue)db.get(ConfigValue.class, "offdauercosts");
-		ConfigValue maxoffstotrainConfig = (ConfigValue)db.get(ConfigValue.class, "maxoffstotrain");
-
-		double siliziumcosts = Double.valueOf(siliziumcostsConfig.getValue());
-		double nahrungcosts = Double.valueOf(nahrungcostsConfig.getValue());
-		double dauercosts = Double.valueOf(dauercostsConfig.getValue());
-		double maxoffstotrain = Double.valueOf(maxoffstotrainConfig.getValue());
+		double siliziumcosts = new ConfigService().getValue(Double.class, "newoffsiliziumcosts");
+		double nahrungcosts = new ConfigService().getValue(Double.class, "newoffnahrungcosts");
+		double dauercosts = new ConfigService().getValue(Double.class, "offdauercosts");
+		double maxoffstotrain = new ConfigService().getValue(Double.class, "maxoffstotrain");
 
 		int newo = context.getRequest().getParameterInt("newo");
 		int train = context.getRequest().getParameterInt("train");
@@ -401,9 +391,9 @@ public class AcademyBuilding extends DefaultBuilding {
 					dTrain.put(4, Offizier.Ability.SEC);
 					dTrain.put(5, Offizier.Ability.COM);
 
-					int sk = getUpgradeCosts(context, academy, 0, offizier, train);
-					int nk = getUpgradeCosts(context, academy, 1, offizier, train);
-					int dauer = getUpgradeCosts(context, academy, 2, offizier, train);
+					int sk = getUpgradeCosts(academy, 0, offizier, train);
+					int nk = getUpgradeCosts(academy, 1, offizier, train);
+					int dauer = getUpgradeCosts(academy, 2, offizier, train);
 
 					t.setVar(
 							"academy.show.trainoffi", 1,

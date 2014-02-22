@@ -27,6 +27,7 @@ import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
@@ -73,11 +74,9 @@ public class ShipLost {
 	 * @param ship Das Schiff, fuer das der Eintrag angelegt werden soll
 	 */
 	public ShipLost(Ship ship) {
-		ConfigValue value = (ConfigValue)ContextMap.getContext().getDB().get(ConfigValue.class, "ticks");
-		
 		this.type = ship.getType();
 		this.name = ship.getName();
-		this.tick = Integer.valueOf(value.getValue());
+		this.tick = new ConfigService().getValue(Integer.class, "ticks");
 		this.owner = ship.getOwner().getId();
 		if( ship.getOwner().getAlly() != null ) {
 			this.ally = ship.getOwner().getAlly().getId();
