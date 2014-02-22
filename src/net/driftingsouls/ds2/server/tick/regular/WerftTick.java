@@ -18,101 +18,85 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
-import java.util.Iterator;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import net.driftingsouls.ds2.server.tick.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.werften.BaseWerft;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 import net.driftingsouls.ds2.server.werften.WerftKomplex;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
-
 import org.hibernate.FlushMode;
-import org.hibernate.Transaction;
+
+import java.util.List;
 
 /**
  * Berechnung des Ticks fuer Werften.
- * @author Christopher Jung
  *
+ * @author Christopher Jung
  */
-public class WerftTick extends TickController {
+public class WerftTick extends TickController
+{
 
 	@Override
-	protected void prepare() {
+	protected void prepare()
+	{
 		// EMPTY
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected void tick() {
+	protected void tick()
+	{
 		org.hibernate.Session db = getDB();
-		FlushMode oldMode = db.getFlushMode();
 		db.setFlushMode(FlushMode.MANUAL);
-		Transaction transaction = db.beginTransaction();
-		final User sourceUser = (User)db.get(User.class, -1);
+		final User sourceUser = (User) db.get(User.class, -1);
 
-		List<WerftObject> werften = db.createQuery("from ShipWerft s inner join fetch s.ship")
-			.list();
-		werften.addAll(db.createQuery("from BaseWerft b inner join fetch b.base")
-			.list());
-		werften.addAll(db.createQuery("from WerftKomplex")
-			.list());
-		int count = 0;
-		for (WerftObject aWerften : werften)
+		List<Integer> werften = db.createQuery("select w.id from WerftObject w where size(w.queue)>0")
+								.list();
+		new EvictableUnitOfWork<Integer>("Werft Tick")
 		{
-			try
+			@Override
+			public void doWork(Integer werftId) throws Exception
 			{
-				processWerft(sourceUser, aWerften);
-			}
-			catch (Exception e)
-			{
-				transaction.rollback();
-				transaction = db.beginTransaction();
+				org.hibernate.Session db = getDB();
+				WerftObject werft = (WerftObject) db.get(WerftObject.class, werftId);
+
+				processWerft(sourceUser, werft);
 			}
 
-			count++;
-			int MAX_UNFLUSHED_OBJECTS = 50;
-			if (count % MAX_UNFLUSHED_OBJECTS == 0)
-			{
-				db.flush();
-				transaction.commit();
-				transaction = db.beginTransaction();
-			}
-		}
-		db.flush();
-		transaction.commit();
-		db.setFlushMode(oldMode);
+		}.setFlushSize(10)
+		.executeFor(werften);
 	}
 
-	private void processWerft(final User sourceUser, WerftObject werft) {
+	private void processWerft(final User sourceUser, WerftObject werft)
+	{
 		try
 		{
 			org.hibernate.Session db = getDB();
 
-			if( (werft instanceof ShipWerft) && (((ShipWerft)werft).getShipID() < 0) )
+			if ((werft instanceof ShipWerft) && (((ShipWerft) werft).getShipID() < 0))
 			{
 				return;
 			}
 
 			User owner = werft.getOwner();
-			if( (werft instanceof WerftKomplex) && !((WerftKomplex)werft).isExistant())
+			if ((werft instanceof WerftKomplex) && !((WerftKomplex) werft).isExistant())
 			{
 				return;
 			}
-			if( (owner.getVacationCount() > 0) && (owner.getWait4VacationCount() == 0) )
+			if ((owner.getVacationCount() > 0) && (owner.getWait4VacationCount() == 0))
 			{
-				this.log("xxx Ignoriere Werft "+werft.getWerftID()+" [VAC]");
+				this.log("xxx Ignoriere Werft " + werft.getWerftID() + " [VAC]");
 				return;
 			}
-			this.log("+++ Werft "+werft.getWerftID()+":");
+			this.log("+++ Werft " + werft.getWerftID() + ":");
 
-			if( !werft.isBuilding() )
+			if (!werft.isBuilding())
 			{
 				return;
 			}
@@ -173,28 +157,32 @@ public class WerftTick extends TickController {
 				}
 			}
 		}
-		catch( RuntimeException e )
+		catch (RuntimeException e)
 		{
-			this.log("Werft "+werft.getWerftID()+" failed: "+e);
+			this.log("Werft " + werft.getWerftID() + " failed: " + e);
 			e.printStackTrace();
-			Common.mailThrowable(e, "WerftTick Exception", "werft: "+werft.getWerftID());
+			Common.mailThrowable(e, "WerftTick Exception", "werft: " + werft.getWerftID());
 
 			throw e;
 		}
 	}
 
-	private String bbcode(WerftObject werft) {
-		if( werft instanceof BaseWerft) {
-			return "[base="+((BaseWerft)werft).getBaseID()+"]"+werft.getName()+"[/base]";
+	private String bbcode(WerftObject werft)
+	{
+		if (werft instanceof BaseWerft)
+		{
+			return "[base=" + ((BaseWerft) werft).getBaseID() + "]" + werft.getName() + "[/base]";
 		}
-		if( werft instanceof ShipWerft) {
-			return "[ship="+((ShipWerft)werft).getShipID()+"]"+werft.getName()+"[/ship]";
+		if (werft instanceof ShipWerft)
+		{
+			return "[ship=" + ((ShipWerft) werft).getShipID() + "]" + werft.getName() + "[/ship]";
 		}
-		if( !(werft instanceof WerftKomplex) ) {
+		if (!(werft instanceof WerftKomplex))
+		{
 			return werft.getName();
 		}
 
-		WerftKomplex komplex = (WerftKomplex)werft;
+		WerftKomplex komplex = (WerftKomplex) werft;
 		return bbcode(komplex.getMembers()[0]);
 	}
 

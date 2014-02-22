@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
@@ -42,6 +43,7 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
@@ -102,8 +104,12 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	@JoinColumn(name="linkedWerft", nullable=true)
 	private WerftKomplex linkedWerft = null;
 
+	@SuppressWarnings("UnusedDeclaration")
 	@Version
 	private int version;
+
+	@OneToMany(mappedBy = "werft", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<WerftQueueEntry> queue;
 
 
 	@Transient
@@ -113,7 +119,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * Konstruktor.
 	 *
 	 */
-	public WerftObject() {
+	protected WerftObject() {
 		// EMPTY
 	}
 
@@ -123,6 +129,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 */
 	public WerftObject(int type) {
 		this.type = type;
+		this.queue = new HashSet<>();
 	}
 
 	/**
@@ -148,12 +155,8 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * Gibt zurueck, ob in der Werft im Moment gebaut wird.
 	 * @return <code>true</code>, falls gebaut wird
 	 */
-	public final boolean isBuilding() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
-		return db.createQuery("from WerftQueueEntry where werft=:werft")
-			.setInteger("werft", this.getWerftID())
-			.iterate().hasNext();
+	public boolean isBuilding() {
+		return !this.queue.isEmpty();
 	}
 
 	/**
@@ -168,7 +171,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * Gibt die Anzahl der aktuell belegten Slots zurueck.
 	 * @return Die Anzahl der belegten Slots
 	 */
-	public final int getUsedSlots() {
+	public int getUsedSlots() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		return ((Number)db.createQuery("select sum(slots) from WerftQueueEntry where werft=:werft and scheduled=true")
@@ -181,7 +184,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * @param searched Der Bauauftrag
 	 * @return Die Zeit in Ticks bis zur Fertigstellung
 	 */
-	public final int getTicksTillFinished(WerftQueueEntry searched) {
+	public int getTicksTillFinished(WerftQueueEntry searched) {
 		List<WerftQueueEntry> entries = new ArrayList<>();
 		entries.addAll(Arrays.asList(getBuildQueue()));
 
@@ -297,10 +300,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 *
 	 */
 	public void clearQueue() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		db.createQuery("delete from WerftQueueEntry where werft=:werft")
-			.setInteger("werft", this.getWerftID())
-			.executeUpdate();
+		this.queue.clear();
 
 		this.buildFlagschiff = false;
 		this.entries = null;
@@ -485,7 +485,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 
 		if( !usedslots.containsKey(slot) ) {
-			MESSAGE.get().append(ship.getName()+" - Es befindet sich kein Modul in diesem Slot\n");
+			MESSAGE.get().append(ship.getName()).append(" - Es befindet sich kein Modul in diesem Slot\n");
 			return;
 		}
 
@@ -506,7 +506,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 
 		if( aslot == null ) {
-			MESSAGE.get().append(ship.getName()+" - Keinen passenden Slot gefunden\n");
+			MESSAGE.get().append(ship.getName()).append(" - Keinen passenden Slot gefunden\n");
 			return;
 		}
 
@@ -534,7 +534,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 		moduleUpdateShipData(ship, oldshiptype, cargo);
 
-		MESSAGE.get().append(ship.getName()+" - Modul ausgebaut\n");
+		MESSAGE.get().append(ship.getName()).append(" - Modul ausgebaut\n");
 	}
 
 	private int berecheNeuenStatusWertViaDelta(int currentVal, int oldMax, int newMax)
@@ -608,7 +608,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 				}
 			}
 
-			output.append((jdockcount-shiptype.getJDocks())+" gelandete Schiffe wurden gestartet\n");
+			output.append(jdockcount - shiptype.getJDocks()).append(" gelandete Schiffe wurden gestartet\n");
 
 			ship.start(undockarray);
 		}
@@ -627,7 +627,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 				}
 			}
 
-			output.append((adockcount-shiptype.getADocks())+" extern gedockte Schiffe wurden abgedockt\n");
+			output.append(adockcount - shiptype.getADocks()).append(" extern gedockte Schiffe wurden abgedockt\n");
 
 			ship.dock(Ship.DockMode.UNDOCK, undockarray);
 		}
@@ -671,7 +671,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 
 		if( usedslots.containsKey(slot) ) {
-			MESSAGE.get().append(ship.getName()+" - Der Slot ist bereits belegt\n");
+			MESSAGE.get().append(ship.getName()).append(" - Der Slot ist bereits belegt\n");
 			return;
 		}
 
@@ -695,18 +695,18 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 
 		if( aslot == null ) {
-			MESSAGE.get().append(ship.getName()+" - Keinen passenden Slot gefunden\n");
+			MESSAGE.get().append(ship.getName()).append(" - Keinen passenden Slot gefunden\n");
 			return;
 		}
 
 		Item item = (Item)db.get(Item.class, itemid);
 		if( !ModuleSlots.get().slot(aslot[1]).isMemberIn( ((IEModule)item.getEffect()).getSlots() ) ) {
-			MESSAGE.get().append(ship.getName()+" - Das Item passt nicht in dieses Slot\n");
+			MESSAGE.get().append(ship.getName()).append(" - Das Item passt nicht in dieses Slot\n");
 			return;
 		}
 
 		if( item.getAccessLevel() > context.getActiveUser().getAccessLevel() ) {
-			MESSAGE.get().append(ship.getName()+" - Ihre Techniker wissen nichts mit dem Modul anzufangen\n");
+			MESSAGE.get().append(ship.getName()).append(" - Ihre Techniker wissen nichts mit dem Modul anzufangen\n");
 			return;
 		}
 
@@ -722,7 +722,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 
 		if( myitem == null || myitem.getCount() <= 0 ) {
-			MESSAGE.get().append(ship.getName()+" - Kein passendes Item gefunden\n");
+			MESSAGE.get().append(ship.getName()).append(" - Kein passendes Item gefunden\n");
 			return;
 		}
 
@@ -739,7 +739,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 		moduleUpdateShipData(ship, oldshiptype, cargo);
 
-		MESSAGE.get().append(ship.getName()+" - Modul eingebaut\n");
+		MESSAGE.get().append(ship.getName()).append(" - Modul eingebaut\n");
 
 	}
 
@@ -943,7 +943,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			ship.destroy();
 		}
 
-		return ok;
+		return true;
 	}
 
 	/**
@@ -1807,6 +1807,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 				entry.setEnergyPerTick((int)Math.ceil(shipdata.getEKosten()/(double)shipdata.getDauer()));
 			}
 			db.persist(entry);
+			this.queue.add(entry);
 
 			this.entries = null;
 
@@ -1863,6 +1864,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			this.buildFlagschiff = false;
 		}
 		db.delete(entry);
+		this.removeQueueEntry(entry);
 
 		final Iterator<?> entryIter = db.createQuery("from WerftQueueEntry where werft=:werft and position>:pos order by position")
 			.setEntity("werft", entry.getWerft())
@@ -2006,6 +2008,16 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 	}
 
+	protected void addQueueEntry(WerftQueueEntry entry)
+	{
+		this.queue.add(entry);
+	}
+
+	protected void removeQueueEntry(WerftQueueEntry entry)
+	{
+		this.queue.remove(entry);
+	}
+
 	/**
 	 * Setzt den Werftkomplex, an die diese Werft gekoppelt werden soll.
 	 * @param linkedWerft Der Werftkomplex
@@ -2029,6 +2041,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		{
 			entry.copyToWerft(this.linkedWerft);
 			db.delete(entry);
+			removeQueueEntry(entry);
 		}
 
 		this.entries = null;
@@ -2071,6 +2084,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		{
 			entry.copyToWerft(this.linkedWerft);
 			db.delete(entry);
+			removeQueueEntry(entry);
 		}
 
 		this.entries = null;
@@ -2080,6 +2094,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		{
 			entry.copyToWerft(werft.linkedWerft);
 			db.delete(entry);
+			removeQueueEntry(entry);
 		}
 
 		werft.entries = null;
@@ -2105,13 +2120,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 
 		Session db = ContextMap.getContext().getDB();
-
-		db.flush();
-
 		clearQueue();
-
-		db.flush();
-
 		db.delete(this);
 	}
 

@@ -158,6 +158,8 @@ public class WerftQueueEntry {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		db.persist(entry);
 
+		targetWerft.addQueueEntry(entry);
+
 		return entry;
 	}
 
@@ -426,6 +428,7 @@ public class WerftQueueEntry {
 		}
 
 		db.delete(this);
+		this.werft.removeQueueEntry(this);
 
 		final Iterator<?> entryIter = db.createQuery("from WerftQueueEntry where werft=:werft and position>:pos order by position")
 			.setEntity("werft", this.werft)
