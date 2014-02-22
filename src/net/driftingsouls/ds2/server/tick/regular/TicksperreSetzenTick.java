@@ -1,0 +1,31 @@
+package net.driftingsouls.ds2.server.tick.regular;
+
+import net.driftingsouls.ds2.server.framework.ConfigService;
+import net.driftingsouls.ds2.server.framework.ConfigValue;
+import net.driftingsouls.ds2.server.tick.SingleUnitOfWork;
+import net.driftingsouls.ds2.server.tick.TickController;
+
+/**
+ * Setzt die allgemeine Ticksperre.
+ */
+public class TicksperreSetzenTick extends TickController
+{
+	@Override
+	protected void prepare()
+	{
+		// EMPTY
+	}
+
+	@Override
+	protected void tick()
+	{
+		new SingleUnitOfWork("Hebe Accountblock auf") {
+			@Override
+			public void doWork() {
+				ConfigValue value = new ConfigService().get("tick");
+				value.setValue("1");
+			}
+		}
+		.execute();
+	}
+}

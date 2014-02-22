@@ -19,14 +19,24 @@
 package net.driftingsouls.ds2.server.tick;
 
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.tick.regular.*;
+import net.driftingsouls.ds2.server.tick.regular.AcademyTick;
+import net.driftingsouls.ds2.server.tick.regular.AutofireTick;
+import net.driftingsouls.ds2.server.tick.regular.BaseTick;
+import net.driftingsouls.ds2.server.tick.regular.BattleTick;
+import net.driftingsouls.ds2.server.tick.regular.ForschungsTick;
+import net.driftingsouls.ds2.server.tick.regular.KaserneTick;
+import net.driftingsouls.ds2.server.tick.regular.NPCOrderTick;
+import net.driftingsouls.ds2.server.tick.regular.NPCScriptTick;
+import net.driftingsouls.ds2.server.tick.regular.RTCTick;
+import net.driftingsouls.ds2.server.tick.regular.RestTick;
+import net.driftingsouls.ds2.server.tick.regular.SchiffsTick;
+import net.driftingsouls.ds2.server.tick.regular.TicksperreAufhebenTick;
+import net.driftingsouls.ds2.server.tick.regular.TicksperreSetzenTick;
+import net.driftingsouls.ds2.server.tick.regular.UserTick;
+import net.driftingsouls.ds2.server.tick.regular.WerftTick;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 
 import java.io.File;
 
@@ -48,11 +58,13 @@ public class RegularTick extends AbstractTickExecuter
 		{
 			File lockFile = new File(Configuration.getSetting("LOXPATH")+"/regulartick.lock");
 			lockFile.createNewFile();
-			log("Blockiere Accounts");
-			blockAccs();
-			log("Accounts blockiert");
+
 			try
 			{
+				execTick(TicksperreSetzenTick.class, false);
+
+				log("Accounts blockiert");
+
 				publishStatus("berechne Nutzer");
 				execTick(UserTick.class, false);
 				
@@ -92,9 +104,9 @@ public class RegularTick extends AbstractTickExecuter
 			}
 			finally
 			{
-				log("Hebe Accountblock auf");
-				unblockAccs();
+				execTick(TicksperreAufhebenTick.class, false);
 				log("Accounts frei");
+
 				if( !lockFile.delete() )
 				{
 					log.warn("Konnte Lockdatei "+lockFile+" nicht loeschen");
@@ -117,23 +129,5 @@ public class RegularTick extends AbstractTickExecuter
 	{
 		setName("");
 		setLogPath(Configuration.getSetting("LOXPATH")+"tick/");
-	}
-	
-	private void blockAccs()
-	{
-		Session db = getDB();
-		Transaction transaction = db.beginTransaction();
-		ConfigValue value = new ConfigService().get("tick");
-		value.setValue("1");
-		transaction.commit();
-	}
-	
-	private void unblockAccs()
-	{
-		Session db = getDB();
-		Transaction transaction = db.beginTransaction();
-		ConfigValue value = new ConfigService().get("tick");
-		value.setValue("0");
-		transaction.commit();
 	}
 }

@@ -126,7 +126,7 @@ public abstract class TickController implements ApplicationContextAware
 			log("Execution-Time: "+(System.currentTimeMillis()-exectime)/1000d+"s");
 		}
 		catch( Exception e ) {
-			e.printStackTrace();
+			log.warn("Tickfehler", e);
 			Common.mailThrowable(e, "Tickabbruch "+this.getClass().getSimpleName(), "");
 		}
 	}

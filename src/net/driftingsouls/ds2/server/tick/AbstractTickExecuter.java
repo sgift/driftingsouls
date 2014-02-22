@@ -25,7 +25,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.springframework.context.ApplicationContext;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,7 +45,7 @@ public abstract class AbstractTickExecuter extends TickController
 
 	private String name = "";
 	private String status = null;
-	private Map<Class<? extends TickController>, Long> tickTimes = new LinkedHashMap<Class<? extends TickController>, Long>();
+	private Map<Class<? extends TickController>, Long> tickTimes = new LinkedHashMap<>();
 	public AbstractTickExecuter()
 	{
 		this.loxpath = Configuration.getSetting("LOXPATH");
