@@ -77,22 +77,7 @@ public class Common {
 	private Common() {
 		// EMPTY
 	}
-	
-	private static Set<StackTraceElement> stubWarnList = new HashSet<>();
-	
-	/**
-	 * Markiert eine Methode als "STUB". Beim ersten Aufruf der Methode wird eine Warnung
-	 * ausgegeben.
-	 *
-	 */
-	public static void stub() {
-		StackTraceElement[] elements = new Throwable().getStackTrace();
-		if( !stubWarnList.contains(elements[1]) ) {
-			stubWarnList.add(elements[1]);
-			log.warn("STUB: "+elements[1].toString());
-		}
-	}
-	
+
 	/**
 	 * Entfernt am Anfang und Ende jeder Zeile eines Texts ueberschuessige Zeichen (Leerzeichen usw).
 	 * @param text Der Text
