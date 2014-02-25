@@ -118,7 +118,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 *
 	 */
 	protected WerftObject() {
-		// EMPTY
+		this.queue = new HashSet<>();
 	}
 
 	/**
@@ -2080,7 +2080,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		for (WerftQueueEntry entry : entries)
 		{
 			entry.copyToWerft(this.linkedWerft);
-			db.delete(entry);
 			removeQueueEntry(entry);
 		}
 
@@ -2090,8 +2089,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		for (WerftQueueEntry entry : entries)
 		{
 			entry.copyToWerft(werft.linkedWerft);
-			db.delete(entry);
-			removeQueueEntry(entry);
+			werft.removeQueueEntry(entry);
 		}
 
 		werft.entries = null;
