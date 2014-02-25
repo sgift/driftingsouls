@@ -861,7 +861,7 @@ public class User extends BasicUser {
 	 * @return <code>true</code>, falls der Spieler noch ein Noob ist
 	 */
 	public boolean isNoob() {
-		return Configuration.getIntSetting("NOOB_PROTECTION") > 0 && this.getId() >= 0 && hasFlag(FLAG_NOOB);
+		return Configuration.getIntSetting("NOOB_PROTECTION") > 0 && hasFlag(FLAG_NOOB);
 	}
 
 	/**
