@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import org.hibernate.Session;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -68,7 +69,7 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 		
 		List<BattleShip> shiplist = battle.getShips(Side.OWN);
 		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+ContextMap.getContext().get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
-		for (BattleShip aship : shiplist)
+		for (BattleShip aship : new ArrayList<>(shiplist))
 		{
 			ShipTypeData ashiptype = aship.getShip().getTypeData();
 
