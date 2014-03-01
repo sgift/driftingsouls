@@ -417,6 +417,8 @@ public class WerftKomplex extends WerftObject {
 		}
 	}
 
+	// TODO: statt setCrew sollte es die Funktion addCrew bzw removeCrew geben.
+	// FIXME: Das hier funktioniert jedenfalls nicht richtig bei sehr grossen Werftkomplexen mit Basen.....
 	@Override
 	public void setCrew(int crew) {
 		loadData();
@@ -469,6 +471,11 @@ public class WerftKomplex extends WerftObject {
 				newCrew += crew;
 			}
 			aWerften.setCrew(newCrew);
+
+			if( crew < 0 )
+			{
+				break;
+			}
 		}
 
 		// Falls noch Crew uebrig geblieben ist, diese auf die erst beste Werft schicken
@@ -489,6 +496,14 @@ public class WerftKomplex extends WerftObject {
 				}
 			}
 		}
+	}
+
+	@Override
+	public String toString()
+	{
+		return "WerftKomplex{" +
+			   "id=" + this.getWerftID()+
+			   "}";
 	}
 
 	@Override

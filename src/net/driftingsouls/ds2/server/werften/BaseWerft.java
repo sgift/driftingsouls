@@ -255,4 +255,14 @@ public class BaseWerft extends WerftObject {
 
 		super.destroy();
 	}
+
+	@Override
+	public String toString()
+	{
+		return "BaseWerft{" +
+			   "id=" + this.getWerftID()+
+			   ", base=" + base +
+			   ", fieldid=" + fieldid +
+			   '}';
+	}
 }

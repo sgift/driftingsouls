@@ -226,6 +226,16 @@ public class ShipWerft extends WerftObject {
 	}
 
 	@Override
+	public String toString()
+	{
+		return "ShipWerft{" +
+			   "id=" + this.getWerftID()+
+			   ", ship=" + ship +
+			   ", linked=" + linked +
+			   '}';
+	}
+
+	@Override
 	public void setCrew(int crew) {
 		if( crew < 0 )
 		{
