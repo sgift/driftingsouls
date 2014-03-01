@@ -2076,7 +2076,7 @@ Die Vasudaner haben eine sehr alte Kultur mit mehreren hochentwickelten Sprachen
 		ALTER TABLE smilies MODIFY id integer not null auto_increment, MODIFY image varchar(255) not null, MODIFY tag varchar(255) not null, MODIFY version integer not null;
 
 		ALTER TABLE stat_aktive_spieler MODIFY tick integer not null, MODIFY aktiv integer not null, MODIFY gesamtanzahl integer not null, MODIFY inaktiv integer not null;
-		ALTER TABLE stat_aktive_spieler MODIFY qmaxUserId integer not null, MODIFY registrierungen integer not null, MODIFY sehrAktiv integer not null, MODIFY teilweiseAktiv integer not null, MODIFY vacation integer not null, MODIFY wenigAktiv integer not null, MODIFY `version` integer not null;
+		ALTER TABLE stat_aktive_spieler MODIFY maxUserId integer not null, MODIFY registrierungen integer not null, MODIFY sehrAktiv integer not null, MODIFY teilweiseAktiv integer not null, MODIFY vacation integer not null, MODIFY wenigAktiv integer not null, MODIFY `version` integer not null;
 		ALTER TABLE stats_cargo MODIFY tick integer not null, MODIFY cargo longtext not null, MODIFY version integer not null;
 		ALTER TABLE stats_gtu MODIFY id integer not null auto_increment, MODIFY gtugew double precision not null, MODIFY mtype integer not null, MODIFY owner integer not null, MODIFY ownername varchar(255) not null, MODIFY preis bigint not null, MODIFY type longtext not null, MODIFY userid integer not null, MODIFY username varchar(255) not null, MODIFY version integer not null;
 		ALTER TABLE stats_module_locations MODIFY id integer not null auto_increment, MODIFY item_id integer not null, MODIFY locations varchar(255) not null, MODIFY version integer not null, MODIFY user_id integer not null;
