@@ -41,8 +41,8 @@ import net.driftingsouls.ds2.server.ships.Ship;
 public class Jump implements Locatable {
 	@Id @GeneratedValue
 	private int id;
-	@OneToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="shipid")
+	@OneToOne(fetch=FetchType.LAZY, optional = false)
+	@JoinColumn(name="shipid", nullable = false)
 	private Ship ship;
 	private int x;
 	private int y;

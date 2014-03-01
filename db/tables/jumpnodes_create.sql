@@ -1,15 +1,14 @@
 CREATE TABLE `jumpnodes` (
-  `id` int(11) NOT NULL auto_increment,
-  `x` int(11) NOT NULL default '0',
-  `y` int(11) NOT NULL default '0',
-  `system` int(11) NOT NULL default '0',
-  `xout` int(11) NOT NULL default '0',
-  `yout` int(11) NOT NULL default '0',
-  `systemout` int(11) NOT NULL default '0',
-  `name` varchar(40) NOT NULL default '',
-  `wpnblock` tinyint(1) NOT NULL default '0',
-  `gcpcolonistblock` tinyint(1) NOT NULL default '0',
-  `hidden` tinyint(3) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`id`),
-  KEY `coords` (`x`,`y`,`system`)
+  `id` integer not null auto_increment,
+	`gcpcolonistblock` boolean not null,
+	`hidden` integer not null,
+	`name` varchar(255) not null,
+	`system` integer not null,
+	`systemout` integer not null,
+	`wpnblock` boolean not null,
+	`x` integer not null,
+	`xout` integer not null,
+	`y` integer not null,
+  `yout` integer not null,
+  primary key  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

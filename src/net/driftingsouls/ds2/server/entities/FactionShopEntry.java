@@ -31,6 +31,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import org.hibernate.annotations.Index;
 
 /**
  * Ein Eintrag im Shop einer Fraktion.
@@ -49,15 +50,18 @@ public class FactionShopEntry {
 
 	@Id @GeneratedValue
 	private int id;
-	@Column(name="faction_id")
+	@Column(name="faction_id", nullable = false)
+	@Index(name="faction_id")
 	private int faction;
 	@Enumerated
+	@Column(nullable = false)
 	private Type type;
+	@Column(nullable = false)
 	private String resource;
 	private long price;
 	private long lpKosten;
 	private int availability;
-    @Column(name="min_rank")
+    @Column(name="min_rank", nullable = false)
     private int minRank;
 
 	@OneToMany(mappedBy="shopEntry",cascade = CascadeType.ALL)

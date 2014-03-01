@@ -36,6 +36,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -76,7 +77,9 @@ import org.hibernate.ScrollableResults;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Index;
 import org.hibernate.annotations.OptimisticLockType;
+import org.hibernate.annotations.OptimisticLocking;
 
 /**
  * Repraesentiert eine Schlacht in DS.
@@ -84,10 +87,11 @@ import org.hibernate.annotations.OptimisticLockType;
  *
  */
 @Entity
-@org.hibernate.annotations.Entity(optimisticLock=OptimisticLockType.DIRTY)
 @Table(name="battles")
 @Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 @BatchSize(size=50)
+@org.hibernate.annotations.Table(appliesTo = "battles", indexes = {@Index(name="coords", columnNames = {"x", "y", "system"})})
+@OptimisticLocking(type = OptimisticLockType.DIRTY)
 public class Battle implements Locatable
 {
 	private static final Log log = LogFactory.getLog(Battle.class);
@@ -183,7 +187,9 @@ public class Battle implements Locatable
 	private long lastaction;
 	private long lastturn;
 	private int flags;
+	@Lob
 	private String onend;
+	@Lob
 	private String visibility;
 
 	@Version

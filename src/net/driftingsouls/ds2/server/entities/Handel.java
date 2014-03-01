@@ -24,6 +24,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
@@ -40,15 +41,20 @@ import net.driftingsouls.ds2.server.framework.Common;
 public class Handel {
 	@Id @GeneratedValue
 	private int id;
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="who")
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
+	@JoinColumn(name="who", nullable = false)
 	private User who;
 	private long time;
 	// Hinweis: Hier wird kein Cargo-Objekt verwendet, da
-	// sucht unt bietet auch "-1" enthalten kann fuer "irgendwas"
+	// sucht und bietet auch "-1" enthalten kann fuer "irgendwas"
+	@Column(nullable = false)
+	@Lob
 	private String sucht;
+	@Column(nullable = false)
+	@Lob
 	private String bietet;
-	@Column(name="comm")
+	@Column(name="comm", nullable = false)
+	@Lob
 	private String kommentar;
 	
 	@Version

@@ -1,7 +1,7 @@
 CREATE TABLE permission (
-	id INT NOT NULL auto_increment,
-	user_id INT NOT NULL,
-	category VARCHAR(64) NOT NULL,
-	action VARCHAR(255) NOT NULL,
-	PRIMARY KEY(id)
-) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_bin;
+	id integer not null auto_increment,
+	action varchar(255) not null,
+	category varchar(255) not null,
+	user_id integer not null,
+	primary key (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;

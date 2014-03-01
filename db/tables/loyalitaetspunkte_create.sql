@@ -1,10 +1,10 @@
 CREATE TABLE loyalitaetspunkte (
-	id INT NOT NULL auto_increment,
-	user_id INT NOT NULL,
-	grund VARCHAR(255) NOT NULL,
-	anmerkungen TEXT,
-	anzahlPunkte INT NOT NULL,
-	zeitpunkt DATETIME NOT NULL,
-	verliehenDurch_id INT NOT NULL,
-	PRIMARY KEY(id)
+	id integer not null auto_increment,
+	anmerkungen longtext,
+	anzahlPunkte integer NOT NULL,
+	grund varchar(255) not null,
+	zeitpunkt datetime not null,
+	user_id integer not null,
+	verliehenDurch_id integer not null,
+	primary key (id)
 ) ENGINE=InnoDB;

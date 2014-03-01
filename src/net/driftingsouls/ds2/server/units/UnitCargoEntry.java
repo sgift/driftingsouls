@@ -22,6 +22,7 @@ package net.driftingsouls.ds2.server.units;
 import org.hibernate.proxy.HibernateProxy;
 
 import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -31,22 +32,24 @@ import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 /**
  * Diese Klasse repraesentiert alle UnitCargo-Eintraege.
  */
 @Entity
-@Table(name="cargo_entries_units")
+@Table(name="cargo_entries_units",
+	  uniqueConstraints = @UniqueConstraint(name="type", columnNames = {"type", "basis_id", "schiff_id", "unittype"}))
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name="type")
+@DiscriminatorColumn(name="type", discriminatorType = DiscriminatorType.INTEGER)
 public abstract class UnitCargoEntry
 {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne
-	@JoinColumn(name="unittype")
+	@ManyToOne(optional = false)
+	@JoinColumn(name="unittype", nullable = false)
 	private UnitType unittype;
 
 	private long amount;

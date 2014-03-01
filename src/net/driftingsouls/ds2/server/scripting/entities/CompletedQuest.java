@@ -27,6 +27,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import net.driftingsouls.ds2.server.entities.User;
+import org.hibernate.annotations.Index;
 
 /**
  * Repraesentiert ein durch einen Benutzer abgeschlossenes Quest.
@@ -35,6 +36,10 @@ import net.driftingsouls.ds2.server.entities.User;
  */
 @Entity
 @Table(name="quests_completed")
+@org.hibernate.annotations.Table(
+		appliesTo = "quests_completed",
+		indexes = {@Index(name="questid", columnNames = {"questid", "userid"})}
+)
 public class CompletedQuest {
 	@Id @GeneratedValue
 	private int id;

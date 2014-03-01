@@ -27,6 +27,7 @@ import net.driftingsouls.ds2.server.werften.WerftObject;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -51,6 +52,7 @@ public class ShipFleet {
 
 	@Id @GeneratedValue
 	private int id;
+	@Column(nullable = false)
 	private String name;
 
 	@Version
@@ -67,7 +69,7 @@ public class ShipFleet {
 	 *
 	 */
 	public ShipFleet() {
-		// EMPTY
+		this.name = "";
 	}
 
 	/**

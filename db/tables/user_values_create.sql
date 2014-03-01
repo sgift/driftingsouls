@@ -1,6 +1,6 @@
 CREATE TABLE `user_values` (
   `id` int(10) unsigned NOT NULL auto_increment,
-  `user_id` int(11) NOT NULL default '0',
+  `user_id` integer NOT NULL default '0',
   `name` varchar(60) NOT NULL default '',
   `value` TEXT NOT NULL,
   `version` int(10) unsigned not null default '0',

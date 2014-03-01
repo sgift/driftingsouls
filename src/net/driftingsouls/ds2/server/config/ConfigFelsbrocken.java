@@ -1,5 +1,6 @@
 package net.driftingsouls.ds2.server.config;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -34,13 +35,14 @@ public class ConfigFelsbrocken implements Comparable<ConfigFelsbrocken>
 	@GeneratedValue
 	private int id;
 	@ManyToOne
-	@JoinColumn(name="shiptype")
+	@JoinColumn(name="shiptype", nullable = false)
 	private ShipType shiptype;
 	@ManyToOne
-	@JoinColumn(name="system")
+	@JoinColumn(name="system", nullable = false)
 	private ConfigFelsbrockenSystem system;
 	private int chance;
 	@Type(type="cargo")
+	@Column(nullable = false)
 	private Cargo cargo;
 
 	protected ConfigFelsbrocken()

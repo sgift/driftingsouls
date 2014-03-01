@@ -1,5 +1,6 @@
 package net.driftingsouls.ds2.server.framework;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -25,9 +26,11 @@ public class Permission
 	private int id;
 	@SuppressWarnings("unused")
 	@ManyToOne
-	@JoinColumn
+	@JoinColumn(nullable = false)
 	private BasicUser user;
+	@Column(nullable = false)
 	private String category;
+	@Column(nullable = false)
 	private String action;
 
 	protected Permission()

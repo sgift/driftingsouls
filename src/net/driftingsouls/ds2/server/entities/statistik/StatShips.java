@@ -38,9 +38,9 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 public class StatShips {
 	@Id
 	private int tick;
-	@Column(name="shipcount")
+	@Column(name="shipcount", nullable = false)
 	private long shipCount;
-	@Column(name="crewcount")
+	@Column(name="crewcount", nullable = false)
 	private long crewCount;
 	
 	@Version

@@ -17,6 +17,7 @@ public class ShipScriptData
 {
 	@Id @GeneratedValue
 	private int shipid;
+	@Lob
 	private String script;
 	@Lob
 	private byte[] scriptexedata;

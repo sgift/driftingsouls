@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.ships;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -38,22 +39,23 @@ import org.hibernate.annotations.Type;
 @Entity
 @Table(name="ships_baubar")
 public class ShipBaubar {
-	@Id
+	@Id @GeneratedValue
 	private int id;
-	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="type", nullable=false)
 	private ShipType type;
-	@Type(type="cargo")
+	@Type(type="largeCargo")
+	@Column(nullable = false)
 	private Cargo costs;
 	private int crew;
 	private int dauer;
-	@Column(name="ekosten")
+	@Column(name="ekosten", nullable = false)
 	private int eKosten;
 	private int race;
 	private int tr1;
 	private int tr2;
 	private int tr3;
-	@Column(name="werftslots")
+	@Column(name="werftslots", nullable = false)
 	private int werftSlots;
 	private boolean flagschiff;
 	

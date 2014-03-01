@@ -22,7 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Version;
@@ -39,9 +41,11 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 @Entity
 @Table(name="smilies")
 public class Smilie {
-	@Id
+	@Id @GeneratedValue
 	private int id;
+	@Column(nullable = false)
 	private String tag;
+	@Column(nullable = false)
 	private String image;
 	
 	@Version
@@ -52,7 +56,8 @@ public class Smilie {
 	 *
 	 */
 	public Smilie() {
-		// EMPTY
+		this.tag = "";
+		this.image = "";
 	}
 
 	/**

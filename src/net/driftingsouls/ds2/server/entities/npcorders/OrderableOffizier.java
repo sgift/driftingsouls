@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.entities.npcorders;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -36,6 +37,7 @@ import org.hibernate.annotations.Immutable;
 public class OrderableOffizier {
 	@Id @GeneratedValue
 	private int id;
+	@Column(nullable = false)
 	private String name;
 	private int rang;
 	private int ing;

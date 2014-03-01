@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.entities;
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 import org.hibernate.annotations.Immutable;
+import org.hibernate.annotations.Index;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -36,22 +37,26 @@ import javax.persistence.Table;
 @Entity
 @Table(name="jumpnodes")
 @Immutable
+@org.hibernate.annotations.Table(
+		appliesTo = "jumpnodes",
+		indexes = {@Index(name="coords", columnNames = {"x", "y", "system"})})
 public class JumpNode implements Locatable {
 	@Id @GeneratedValue
 	private int id;
 	private int x;
 	private int y;
 	private int system;
-	@Column(name="xout")
+	@Column(name="xout", nullable = false)
 	private int xOut;
-	@Column(name="yout")
+	@Column(name="yout", nullable = false)
 	private int yOut;
-	@Column(name="systemout")
+	@Column(name="systemout", nullable = false)
 	private int systemOut;
+	@Column(nullable = false)
 	private String name;
-	@Column(name="wpnblock")
+	@Column(name="wpnblock", nullable = false)
 	private boolean weaponBlock;
-	@Column(name="gcpcolonistblock")
+	@Column(name="gcpcolonistblock", nullable = false)
 	private boolean gcpColonistBlock;
 	private int hidden;
 	

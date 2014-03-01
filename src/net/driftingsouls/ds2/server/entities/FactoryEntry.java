@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -42,18 +43,22 @@ import org.hibernate.annotations.Type;
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class FactoryEntry {
 	
-	@Id
+	@Id @GeneratedValue
 	private int id;
+	@Column(nullable = false)
 	private String name;
 	private int res1;
 	private int res2;
 	private int res3;
+	@Column(nullable = false, precision = 19, scale = 5)
 	private BigDecimal dauer;
-	@Column(name="buildcosts")
+	@Column(name="buildcosts", nullable = false)
 	@Type(type="cargo")
 	private Cargo buildCosts;
+	@Column(nullable = false)
 	private String buildingid;
 	@Type(type="cargo")
+	@Column(nullable = false)
 	private Cargo produce;
 	
 	/**
@@ -89,15 +94,6 @@ public class FactoryEntry {
 	}
 
 	/**
-	 * Gibt die Gebaeude zurueck in denen dieser Eintrag gebaut werden darf.
-	 * @return Die Gebaeudeids
-	 */
-	public String getBuildingIds()
-	{
-		return buildingid;
-	}
-	
-	/**
 	 * Gibt den Cargo zurueck den der Eintrag ausspucken soll.
 	 * @return Der Cargo
 	 */
@@ -114,7 +110,7 @@ public class FactoryEntry {
 	{
 		this.produce = cargo;
 	}
-	
+
 	/**
 	 * Prueft, ob dieser Eintrag in dem Gebaeude gebaut werden darf.
 	 * @param buildingid Die Gebaeudeid
@@ -122,7 +118,7 @@ public class FactoryEntry {
 	 */
 	public boolean hasBuildingId(int buildingid)
 	{
-		String buildingids = getBuildingIds();
+		String buildingids = this.buildingid;
 		if(buildingids == null || buildingids.equals(""))
 		{
 			return false;
@@ -192,6 +188,15 @@ public class FactoryEntry {
 	}
 
 	/**
+	 * Gibt alle Building-IDs als String zurueck, wo dieser Eintrag gebaut werden darf.
+	 * @return Die IDs
+	 */
+	public String getBuildingIdString()
+	{
+		return buildingid;
+	}
+
+	/**
 	 * Setzt die Baukosten pro Einheit.
 	 * @param buildCosts Die Kosten
 	 */
@@ -216,10 +221,10 @@ public class FactoryEntry {
 	}
 
 	/**
-	 * Setzt die Gebaeudeids, wo dieser Eintrag gebaut werden darf.
+	 * Setzt die Gebaeudeids als String, wo dieser Eintrag gebaut werden darf.
 	 * @param buildingids die Ids
 	 */
-	public void setBuildingIds(String buildingids)
+	public void setBuildingIdString(String buildingids)
 	{
 		this.buildingid = buildingids;
 	}

@@ -1,5 +1,6 @@
 package net.driftingsouls.ds2.server.framework.authentication;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -18,10 +19,18 @@ public class PermanentSession
 	@Id @GeneratedValue(strategy= GenerationType.IDENTITY)
 	private Integer id;
 	private int userId;
+	@Column(nullable = false)
 	private String token;
 	private long tick;
-	private boolean useGfxPack;
 	private int version;
+
+	/**
+	 * Konstruktor.
+	 */
+	public PermanentSession()
+	{
+		this.token = "";
+	}
 	
 	/**
 	 * @return Die Id.
@@ -37,24 +46,6 @@ public class PermanentSession
 	public void setId(Integer id)
 	{
 		this.id = id;
-	}
-	
-	/**
-	 * @return <code>true</code>, wenn das Grafikpack verwendet werden soll.
-	 */
-	public boolean isUseGfxPack() 
-	{
-		return useGfxPack;
-	}
-
-	/**
-	 * Setzt, ob das Grafikpack verwendet werden soll.
-	 * 
-	 * @param useGfxPack <code>true</code>, wenn das Grafikpack verwendet werden soll.
-	 */
-	public void setUseGfxPack(boolean useGfxPack) 
-	{
-		this.useGfxPack = useGfxPack;
 	}
 
 	/**

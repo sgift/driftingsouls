@@ -23,8 +23,10 @@ import net.driftingsouls.ds2.server.config.items.effects.ItemEffectFactory;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 /**
@@ -148,10 +150,15 @@ public class Item {
 
 	@Id
 	private int id;
+	@Column(nullable = false)
 	private String name;
+	@Lob
 	private String picture = "open.gif";
+	@Lob
 	private String largepicture = "none";
+	@Lob
 	private String description = null;
+	@Lob
 	private String effect = "";
 	private long cargo = 1;
 	private boolean handel = false;	// Soll das Item im Handel angezeigt werden?

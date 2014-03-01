@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
@@ -268,6 +269,7 @@ public class Nebel implements Locatable {
 	@Id
 	private MutableLocation loc;
 	@Enumerated
+	@Column(nullable = false)
 	private Typ type;
 	
 	/**

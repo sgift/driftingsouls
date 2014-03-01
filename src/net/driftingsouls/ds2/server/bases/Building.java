@@ -29,15 +29,18 @@ import net.driftingsouls.ds2.server.modules.viewmodels.ResourceEntryViewModel;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.DiscriminatorFormula;
+import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -78,40 +81,47 @@ public abstract class Building
 		return (Building) db.get(Building.class, id);
 	}
 
-	@Id
+	@Id @GeneratedValue
 	private int id;
 	@SuppressWarnings("unused")
+	@Column(nullable = false)
 	private String module;
 	private int bewohner;
 	private int arbeiter;
+	@Column(nullable = false)
 	private String name;
+	@Column(nullable = false)
 	private String picture;
 	@ElementCollection
 	@CollectionTable(name = "building_alternativebilder")
 	private Map<Integer, String> alternativeBilder;
 	@Type(type = "cargo")
-	@Column(name = "buildcosts")
+	@Column(name = "buildcosts", nullable = false)
 	private Cargo buildCosts;
 	@Type(type = "cargo")
+	@Column(nullable = false)
 	private Cargo produces;
 	@Type(type = "cargo")
+	@Column(nullable = false)
 	private Cargo consumes;
-	@Column(name = "ever")
+	@Column(name = "ever", nullable = false)
 	private int eVerbrauch;
-	@Column(name = "eprodu")
+	@Column(name = "eprodu", nullable = false)
 	private int eProduktion;
-	@Column(name = "techreq")
+	@Column(name = "techreq", nullable = false)
 	private int techReq;
 	private int eps;
-	@Column(name = "perplanet")
+	@Column(name = "perplanet", nullable = false)
 	private int perPlanet;
-	@Column(name = "perowner")
+	@Column(name = "perowner", nullable = false)
 	private int perOwner;
+	@Index(name="category")
 	private int category;
 	private boolean ucomplex;
 	private boolean deakable;
 	private int race;
 	private boolean shutdown;
+	@Lob
 	private String terrain;
 	private String chanceress;
 

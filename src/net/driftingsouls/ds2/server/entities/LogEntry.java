@@ -18,9 +18,11 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
@@ -35,12 +37,17 @@ import net.driftingsouls.ds2.server.framework.Common;
 @Table(name="logging")
 public class LogEntry {
 	@Id @GeneratedValue
-	private long id; 
-	private String type; 
+	private long id;
+	@Column(nullable = false)
+	private String type;
+	@Column(name="user_id", nullable = false)
 	private int user; 
-	private long time; 
-	private String source; 
-	private String target; 
+	private long time;
+	@Column(nullable = false)
+	private String source;
+	@Column(nullable = false)
+	private String target;
+	@Lob
 	private String data;
 	
 	@Version

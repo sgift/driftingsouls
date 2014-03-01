@@ -28,6 +28,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.framework.Common;
+import org.hibernate.annotations.Index;
 
 /**
  * Ein Besuchseintrag eines Users fuer einen ComNet-Kanal.
@@ -36,13 +37,17 @@ import net.driftingsouls.ds2.server.framework.Common;
  */
 @Entity
 @Table(name="skn_visits")
+@org.hibernate.annotations.Table(
+		appliesTo = "skn_visits",
+		indexes = {@Index(name="user", columnNames = {"user", "channel"})}
+)
 public class ComNetVisit {
 	@Id @GeneratedValue
 	private int id;
-	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="user", nullable=false)
 	private User user;
-	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="channel", nullable=false)
 	private ComNetChannel channel;
 	private long time;

@@ -22,6 +22,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -39,29 +40,48 @@ import org.hibernate.annotations.Type;
 public class QuickQuest {
 	@Id @GeneratedValue
 	private int id;
+	@Column(nullable = false)
 	private String qid = "";
 	private int enabled;
+	@Column(nullable = false)
 	private String qname = "";
+	@Column(nullable = false)
 	private String dependsOnQuests = "";
 	private int moreThanOnce;
+	@Column(nullable = false)
 	private String head = "ars.gif";
-	@Column(name="`desc`")
+	@Lob
+	@Column(nullable = false)
 	private String description = "";
+	@Lob
+	@Column(nullable = false)
 	private String shortdesc = "";
+	@Lob
+	@Column(nullable = false)
 	private String finishtext = "";
+	@Lob
+	@Column(nullable = false)
 	private String notyettext = "";
+	@Column(nullable = false)
 	private String source = "0";
+	@Column(nullable = false)
 	private String sourcetype = "gtuposten";
+	@Column(nullable = false)
 	private String target = "0";
+	@Column(nullable = false)
 	private String targettype = "gtuposten";
-	@Type(type="cargo")
+	@Type(type="largeCargo")
+	@Column(nullable = false)
 	private Cargo startitems;
-	@Type(type="cargo")
+	@Type(type="largeCargo")
+	@Column(nullable = false)
 	private Cargo reqitems;
 	private long reqre;
-	@Type(type="cargo")
+	@Type(type="largeCargo")
+	@Column(nullable = false)
 	private Cargo awarditems;
 	private long awardre;
+	@Lob
 	private String loottable;
 	
 	/**

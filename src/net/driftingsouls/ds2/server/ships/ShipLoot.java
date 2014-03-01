@@ -29,6 +29,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.entities.User;
+import org.hibernate.annotations.Index;
 
 /**
  * Ein Looteintrag.
@@ -40,18 +41,20 @@ import net.driftingsouls.ds2.server.entities.User;
 public class ShipLoot {
 	@Id @GeneratedValue
 	private int id;
-	@Column(name="shiptype")
+	@Index(name="shiptype")
+	@Column(name="shiptype", nullable = false)
 	private int shipType;
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="owner")
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
+	@JoinColumn(name="owner", nullable = false)
 	private User owner;
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="targetuser")
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
+	@JoinColumn(name="targetuser", nullable = false)
 	private User targetUser;
 	private int chance;
+	@Column(nullable = false)
 	private String resource;
 	private int count;
-	@Column(name="totalmax")
+	@Column(name="totalmax", nullable = false)
 	private int totalMax;
 	
 	@Version
@@ -62,7 +65,7 @@ public class ShipLoot {
 	 *
 	 */
 	public ShipLoot() {
-		// EMPTY
+		this.resource = "";
 	}
 
 	/**

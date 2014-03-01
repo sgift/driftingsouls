@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.scripting.entities;
 
 import net.driftingsouls.ds2.server.entities.User;
+import org.hibernate.annotations.Index;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -42,6 +43,10 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name="quests_running")
+@org.hibernate.annotations.Table(
+		appliesTo = "quests_running",
+		indexes = {@Index(name="questid", columnNames = {"questid", "userid"})}
+)
 public class RunningQuest {
 	@Id @GeneratedValue
 	private int id;
@@ -51,11 +56,12 @@ public class RunningQuest {
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="userid", nullable=false)
 	private User user;
-	@Column(name="execdata")
 	@Lob
+	@Column(name="execdata", nullable = false)
 	private byte[] execData;
+	@Lob
 	private String uninstall;
-	@Column(name="statustext")
+	@Column(name="statustext", nullable = false)
 	private String statusText;
 	private int publish;
 	@Column(name="ontick")

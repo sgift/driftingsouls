@@ -1,7 +1,7 @@
 CREATE TABLE `user_rank` (
-  `owner` int(11) NOT NULL,
-  `rank_giver` int(11) NOT NULL,
-  `rank` int(11) NOT NULL,
-  `version` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`owner`,`rank_giver`)
+  `rank` integer not null,
+	`version` integer not null default '0',
+	`owner` integer not null,
+	`rank_giver` integer not null,
+	primary key (`owner`,`rank_giver`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;

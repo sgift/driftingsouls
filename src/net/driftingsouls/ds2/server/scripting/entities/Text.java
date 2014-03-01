@@ -18,9 +18,11 @@
  */
 package net.driftingsouls.ds2.server.scripting.entities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 /**
@@ -37,8 +39,12 @@ import javax.persistence.Table;
 public class Text {
 	@Id @GeneratedValue
 	private int id;
+	@Lob
+	@Column(nullable = false)
 	private String text;
+	@Column(nullable = false)
 	private String picture;
+	@Column(nullable = false)
 	private String comment;
 	
 	/**

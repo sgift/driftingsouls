@@ -21,7 +21,6 @@ package net.driftingsouls.ds2.server.ships;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
@@ -41,11 +40,11 @@ import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.Feeding;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
+import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.Sector;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
@@ -67,6 +66,7 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Index;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.Type;
@@ -78,6 +78,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -106,6 +107,13 @@ import java.util.Set;
 @Table(name="ships")
 @BatchSize(size=50)
 @Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
+@org.hibernate.annotations.Table(
+		appliesTo = "ships",
+		indexes = {
+				@Index(name="coords", columnNames = {"system", "x", "y"}),
+				@Index(name="owner", columnNames = {"owner", "id"})
+		}
+)
 public class Ship implements Locatable,Transfering,Feeding {
 	private static final Log log = LogFactory.getLog(Ship.class);
 
@@ -117,56 +125,81 @@ public class Ship implements Locatable,Transfering,Feeding {
 	@Id @GeneratedValue(generator="ds-shipid")
 	@GenericGenerator(name="ds-shipid", strategy = "net.driftingsouls.ds2.server.ships.ShipIdGenerator")
 	private int id;
+
 	@OneToOne(cascade={CascadeType.REFRESH,CascadeType.DETACH})
 	@JoinColumn(name="modules", nullable=true)
 	@BatchSize(size=50)
 	@NotFound(action = NotFoundAction.IGNORE)
 	private ShipModules modules;
+
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="owner", nullable=false)
 	@BatchSize(size=50)
 	private User owner;
+
+	@Column(nullable = false)
 	private String name;
+
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="type", nullable=false)
 	@BatchSize(size=50)
 	@Cache(usage=CacheConcurrencyStrategy.READ_ONLY)
 	private ShipType shiptype;
-	@Type(type="cargo")
+
+	@Type(type="largeCargo")
 	@BatchSize(size=50)
+	@Column(nullable = false)
 	private Cargo cargo;
+
 	private long nahrungcargo;
 	private int x;
 	private int y;
 	private int system;
+
+	@Column(nullable = false)
+	@Index(name = "status")
 	private String status;
+
 	private int crew;
 	private int e;
-	@Column(name="s")
+
+	@Column(name="s", nullable = false)
 	private int heat;
 	private int hull;
 	private int shields;
-	@Column(name="heat")
+
+	@Lob
+	@Column(name="heat", nullable = false)
 	private String weaponHeat;
 	private int engine;
 	private int weapons;
 	private int comm;
 	private int sensors;
+
+	@Column(nullable = false)
+	@Index(name = "docked")
 	private String docked;
+
 	private int alarm;
+
 	@OneToOne(fetch=FetchType.LAZY)
 	@BatchSize(size=100)
 	@JoinColumn
 	private SchiffEinstellungen einstellungen;
+
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="fleet", nullable=true)
 	@BatchSize(size=50)
 	private ShipFleet fleet;
+
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="battle", nullable=true)
 	@BatchSize(size=50)
 	private Battle battle;
+
 	private boolean battleAction;
+
+	@Column(nullable = false)
 	private String jumptarget;
 
 	@OneToOne(
@@ -176,8 +209,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 	@PrimaryKeyJoinColumn(name="id", referencedColumnName="id")
 	private ShipHistory history;
 
+	@Lob
 	private String oncommunicate;
 	private int ablativeArmor;
+
 	@OneToMany(
 			fetch=FetchType.LAZY,
 			targetEntity=net.driftingsouls.ds2.server.ships.ShipUnitCargoEntry.class,

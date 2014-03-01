@@ -22,6 +22,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Immutable;
@@ -37,16 +38,18 @@ import org.hibernate.annotations.Immutable;
 public class IntTutorial {
 	@Id @GeneratedValue
 	private int id;
-	@Column(name="reqbase")
+	@Column(name="reqbase", nullable = false)
 	private int reqBase;
-	@Column(name="reqship")
+	@Column(name="reqship", nullable = false)
 	private int reqShip;
-	@Column(name="reqname")
+	@Column(name="reqname", nullable = false)
 	private int reqName;
-	@Column(name="reqsheet")
+	@Column(name="reqsheet", nullable = false)
 	private int reqSheet;
-	@Column(name="headimg")
+	@Column(name="headimg", nullable = false)
 	private String headImg;
+	@Lob
+	@Column(nullable = false)
 	private String text;
 	
 	/**

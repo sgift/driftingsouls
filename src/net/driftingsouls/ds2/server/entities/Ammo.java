@@ -67,28 +67,31 @@ public class Ammo {
 	
 	@Id @GeneratedValue
 	private int id;
+	@Column(nullable = false)
 	private String name;
+	@Column(nullable = false)
 	private String type;
 	private int damage;
-	@Column(name="shielddamage")
+	@Column(name="shielddamage", nullable = false)
 	private int shieldDamage;
-	@Column(name="subdamage")
+	@Column(name="subdamage", nullable = false)
 	private int subDamage;
-	@Column(name="trefferws")
+	@Column(name="trefferws", nullable = false)
 	private int trefferWS;
-	@Column(name="smalltrefferws")
+	@Column(name="smalltrefferws", nullable = false)
 	private int smallTrefferWS;
-	@Column(name="torptrefferws")
+	@Column(name="torptrefferws", nullable = false)
 	private int torpTrefferWS;
-	@Column(name="subws")
+	@Column(name="subws", nullable = false)
 	private int subWS;
-	@Column(name="shotspershot")
+	@Column(name="shotspershot", nullable = false)
 	private int shotsPerShot;
-	@Column(name="areadamage")
+	@Column(name="areadamage", nullable = false)
 	private int areaDamage;
 	private double destroyable;
 	private int flags;
 	private int itemid;
+	@Column(nullable = false)
 	private String picture;
 	
 	/**

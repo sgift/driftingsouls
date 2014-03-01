@@ -22,12 +22,14 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.PermissionResolver;
+import org.hibernate.annotations.Index;
 
 /**
  * <p>Ein ComNet-Kanal.</p>
@@ -42,24 +44,28 @@ import net.driftingsouls.ds2.server.framework.PermissionResolver;
 public class ComNetChannel {
 	@Id @GeneratedValue
 	private int id;
+	@Column(nullable = false)
 	private String name;
-	@Column(name="allyowner")
+	@Index(name="allyowner")
+	@Column(name="allyowner", nullable = false)
 	private int allyOwner;
-	@Column(name="writeall")
+	@Column(name="writeall", nullable = false)
 	private boolean writeAll;
-	@Column(name="readall")
+	@Column(name="readall", nullable = false)
 	private boolean readAll;
-	@Column(name="readnpc")
+	@Column(name="readnpc", nullable = false)
 	private boolean readNpc;
-	@Column(name="writenpc")
+	@Column(name="writenpc", nullable = false)
 	private boolean writeNpc;
-	@Column(name="writeally")
+	@Column(name="writeally", nullable = false)
 	private int writeAlly;
-	@Column(name="readally")
+	@Column(name="readally", nullable = false)
 	private int readAlly;
-	@Column(name="readplayer")
+	@Lob
+	@Column(name="readplayer", nullable = false)
 	private String readPlayer;
-	@Column(name="writeplayer")
+	@Lob
+	@Column(name="writeplayer", nullable = false)
 	private String writePlayer;
 
 	@Version
@@ -69,7 +75,7 @@ public class ComNetChannel {
 	 * Konstruktor.
 	 *
 	 */
-	public ComNetChannel() {
+	protected ComNetChannel() {
 		// EMPTY
 	}
 

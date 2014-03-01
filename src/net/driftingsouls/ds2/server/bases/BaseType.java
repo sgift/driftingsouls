@@ -18,8 +18,11 @@
  */
 package net.driftingsouls.ds2.server.bases;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import net.driftingsouls.ds2.server.framework.Common;
@@ -32,15 +35,18 @@ import net.driftingsouls.ds2.server.framework.Common;
 @Table(name="base_types")
 public class BaseType
 {
-	@Id
+	@Id @GeneratedValue
 	private int id;
+	@Column(nullable = false)
 	private String name;
 	private int width;
 	private int height;
 	private int maxtiles;
 	private int cargo;
 	private int energy;
+	@Lob
 	private String terrain;
+	@Lob
 	private String spawnableress;
 	private int size;
 	

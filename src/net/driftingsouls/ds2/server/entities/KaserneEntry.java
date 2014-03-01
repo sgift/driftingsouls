@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.entities;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -41,13 +42,13 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class KaserneEntry {
 
-	@Id
+	@Id @GeneratedValue
 	private int id;
-	@ManyToOne
-	@JoinColumn(name="kaserne")
+	@ManyToOne(optional = false)
+	@JoinColumn(name="kaserne", nullable = false)
 	private Kaserne kaserne;
-	@ManyToOne
-	@JoinColumn(name="unitid")
+	@ManyToOne(optional = false)
+	@JoinColumn(name="unitid", nullable = false)
 	private UnitType unit;
 	private int count;
 	private int remaining;

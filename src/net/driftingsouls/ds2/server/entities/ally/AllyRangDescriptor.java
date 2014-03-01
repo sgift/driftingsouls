@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.entities.ally;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -42,11 +43,12 @@ public class AllyRangDescriptor implements Comparable<AllyRangDescriptor>
 	@Version
 	private int version;
 	
-	@ManyToOne(cascade={})
+	@ManyToOne(cascade={}, optional = false)
 	@JoinColumn
 	private Ally ally;
 	
 	private int rang;
+	@Column(nullable = false)
 	private String name;
 	private String customImg;
 	

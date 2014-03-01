@@ -21,11 +21,13 @@ package net.driftingsouls.ds2.server.entities.statistik;
 import net.driftingsouls.ds2.server.entities.Versteigerung;
 import net.driftingsouls.ds2.server.entities.VersteigerungResource;
 import net.driftingsouls.ds2.server.entities.VersteigerungSchiff;
+import org.hibernate.annotations.Index;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
@@ -39,16 +41,21 @@ import javax.persistence.Version;
 public class StatGtu {
 	@Id @GeneratedValue
 	private int id;
+	@Column(nullable = false)
 	private String username;
-	@Column(name="userid")
+	@Column(name="userid", nullable = false)
 	private int userId;
-	@Column(name="mtype")
+	@Column(name="mtype", nullable = false)
 	private int mType;
+	@Lob
+	@Column(nullable = false)
 	private String type;
+	@Index(name = "preis")
 	private long preis;
 	private int owner;
+	@Column(nullable = false)
 	private String ownername;
-	@Column(name="gtugew")
+	@Column(name="gtugew", nullable = false)
 	private double gtuGew;
 	
 	@Version
@@ -58,7 +65,7 @@ public class StatGtu {
 	 * Konstruktor.
 	 *
 	 */
-	public StatGtu() {
+	protected StatGtu() {
 		// EMPTY
 	}
 	

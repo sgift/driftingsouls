@@ -23,6 +23,7 @@ import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
@@ -40,7 +41,7 @@ import net.driftingsouls.ds2.server.units.UnitType;
 @Entity
 @Table(name="kaserne")
 public class Kaserne {
-	@Id
+	@Id @GeneratedValue
 	private int id;
 	@OneToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="col", nullable=false)

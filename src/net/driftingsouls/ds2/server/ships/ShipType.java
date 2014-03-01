@@ -20,7 +20,9 @@ package net.driftingsouls.ds2.server.ships;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
@@ -43,9 +45,11 @@ public class ShipType implements ShipTypeData {
 	 */
 	public static final int SMALL_SHIP_MAXSIZE = 3;
 	
-	@Id
+	@Id @GeneratedValue
 	private int id;
+	@Column(nullable = false)
 	private String nickname;
+	@Column(nullable = false)
 	private String picture;
 	private int ru;
 	private int rd;
@@ -59,33 +63,42 @@ public class ShipType implements ShipTypeData {
 	private long nahrungcargo;
 	private int heat;
 	private int crew;
+	@Lob
+	@Column(nullable = false)
 	private String weapons;
-	@Column(name="maxheat")
+	@Lob
+	@Column(name="maxheat", nullable = false)
 	private String maxHeat;
-	@Column(name="torpedodef")
+	@Column(name="torpedodef", nullable = false)
 	private int torpedoDef;
 	private int shields;
 	private int size;
-	@Column(name="jdocks")
+	@Column(name="jdocks", nullable = false)
 	private int jDocks;
-	@Column(name="adocks")
+	@Column(name="adocks", nullable = false)
 	private int aDocks;
-	@Column(name="sensorrange")
+	@Column(name="sensorrange", nullable = false)
 	private int sensorRange;
 	private int hydro;
-	@Column(name="recost")
+	@Column(name="recost", nullable = false)
 	private int reCost;
+	@Lob
+	@Column(nullable = false)
 	private String descrip;
-	@Column(name="deutfactor")
+	@Column(name="deutfactor", nullable = false)
 	private int deutFactor;
-	@Column(name="class")
+	@Column(name="class", nullable = false)
 	private ShipClasses shipClass;
+	@Lob
+	@Column(nullable = false)
 	private String flags;
 	private int groupwrap;
 	private int werft;
-	@Column(name="ow_werft")
+	@Column(name="ow_werft", nullable = false)
 	private int oneWayWerft;
 	private int chance4Loot;
+	@Lob
+	@Column(nullable = false)
 	private String modules;
 	private boolean hide;
 	private int ablativeArmor;
@@ -97,7 +110,8 @@ public class ShipType implements ShipTypeData {
 	private int maxunitsize;
 	private int unitspace;
 	private boolean versorger;
-    private BigInteger bounty = BigInteger.ZERO;
+	@Column(nullable = false, scale = 0)
+	private BigInteger bounty = BigInteger.ZERO;
 	
 	@Version
 	private int version;

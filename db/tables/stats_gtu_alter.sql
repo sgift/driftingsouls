@@ -1,0 +1,1 @@
+create index preis on stats_gtu (preis);

@@ -1,5 +1,5 @@
 CREATE TABLE `quests_answers` (
-  `id` mediumint(8) unsigned NOT NULL auto_increment,
-  `text` text NOT NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Dialogantworten fuer Quests'; 
+  `id` integer not null auto_increment,
+  `text` longtext not null,
+  primary key  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

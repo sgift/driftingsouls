@@ -87,6 +87,7 @@ public class Ally {
 	private boolean showastis;
 	private byte showGtuBieter;
 	private byte showlrs;
+	@Column(nullable = false)
 	private String pname;
 	@Lob
 	@Column(nullable = false)

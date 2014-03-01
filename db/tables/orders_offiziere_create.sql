@@ -1,12 +1,12 @@
 CREATE TABLE `orders_offiziere` (
-  `id` smallint(5) unsigned NOT NULL auto_increment,
-  `name` varchar(30) NOT NULL default '',
-  `rang` tinyint(3) unsigned NOT NULL default '0',
-  `ing` smallint(5) unsigned NOT NULL default '0',
-  `waf` smallint(5) unsigned NOT NULL default '0',
-  `nav` smallint(5) unsigned NOT NULL default '0',
-  `sec` smallint(5) unsigned NOT NULL default '0',
-  `com` smallint(5) unsigned NOT NULL default '0',
-  `cost` tinyint(3) NOT NULL default '1',
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Offiziers-templates für NPC-Orders'; 
+  `id` integer not null auto_increment,
+	`com` integer not null,
+	`cost` integer not null,
+	`ing` integer not null,
+	`name` varchar(255) not null,
+	`nav` integer not null,
+	`rang` integer not null,
+	`sec` integer not null,
+	`waf` integer not null,
+  primary key  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

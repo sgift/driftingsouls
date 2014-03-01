@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.entities;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Immutable;
@@ -35,6 +36,7 @@ import org.hibernate.annotations.Immutable;
 public class GuiHelpText {
 	@Id
 	private String page;
+	@Lob
 	private String text;
 	
 	/**

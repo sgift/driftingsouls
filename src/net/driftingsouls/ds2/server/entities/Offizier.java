@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.entities;
 
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.HibernateCargoType;
+import net.driftingsouls.ds2.server.cargo.HibernateLargeCargoType;
 import net.driftingsouls.ds2.server.config.Offiziere;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -30,6 +31,7 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -49,6 +51,10 @@ import java.util.List;
 		@TypeDef(
 				name="cargo",
 				typeClass = HibernateCargoType.class
+		),
+		@TypeDef(
+				name="largeCargo",
+				typeClass = HibernateLargeCargoType.class
 		)
 	}
 )
@@ -137,10 +143,11 @@ public class Offizier extends DSObject {
 
 	@Id @GeneratedValue
 	private int id;
+	@Column(nullable = false)
 	private String name;
 	private int rang;
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="userid")
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
+	@JoinColumn(name="userid", nullable = false)
 	private User owner;
 	@ManyToOne(fetch=FetchType.LAZY)
 	private Ship stationiertAufSchiff;

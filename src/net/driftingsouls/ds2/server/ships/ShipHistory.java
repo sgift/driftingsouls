@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.ships;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -50,7 +51,8 @@ public class ShipHistory
 	@SuppressWarnings("unused")
 	@OneToOne(mappedBy="history")
 	private Ship ship;
-	
+
+	@Lob
 	private String history;
 	
 	protected ShipHistory()

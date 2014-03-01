@@ -1,12 +1,12 @@
 CREATE TABLE `items_build` (
-  			`id` int(11) NOT NULL auto_increment,
-			`name` varchar(50) NOT NULL,
-			`res1` int(11) NOT NULL default '0',
-			`res2` int(11) NOT NULL default '0',
-			`res3` int(11) NOT NULL default '0',
-			`dauer` float NOT NULL default '0.01',
-			`buildcosts` varchar(120) NOT NULL default '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,',
-			`buildingid` int (11) NOT NULL,
-			`produce` varchar(120) NOT NULL default '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,',
-			PRIMARY KEY  (`id`)
-		);
+	`id` integer not null auto_increment,
+	`buildcosts` varchar(255) not null,
+	`buildingid` varchar(255) not null,
+	`dauer` decimal(19,5) not null,
+	`name` varchar(255) not null,
+	`produce` varchar(255) not null,
+	`res1` integer not null,
+	`res2` integer not null,
+	`res3` integer not null,
+	primary key  (`id`)
+) ENGINE=InnoDB;

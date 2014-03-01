@@ -6,6 +6,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
@@ -31,6 +32,7 @@ public class FraktionAktionsMeldung
 	@ManyToOne
 	@JoinColumn
 	private User fraktion;
+	@Lob
 	private String meldungstext;
 	private Date gemeldetAm;
 	private Date bearbeitetAm;

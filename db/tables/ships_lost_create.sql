@@ -1,20 +1,14 @@
 CREATE TABLE `ships_lost` (
-  `id` int(10) unsigned NOT NULL auto_increment,
-  `type` smallint(5) unsigned NOT NULL default '0',
-  `name` varchar(50) NOT NULL default '',
-  `tick` int(10) NOT NULL default '0',
-  `owner` mediumint(9) NOT NULL default '0',
-  `ally` smallint(5) unsigned NOT NULL default '0',
-  `destowner` mediumint(9) NOT NULL default '0',
-  `destally` smallint(5) unsigned NOT NULL default '0',
-  `battle` int(10) unsigned NOT NULL default '0',
-  `battlelog` varchar(120) NOT NULL default '',
-  `version` int(10) unsigned not null default '0',
-  PRIMARY KEY  (`id`),
-  KEY `owner` (`owner`),
-  KEY `ally` (`ally`),
-  KEY `battle` (`battle`),
-  KEY `battlelog` (`battlelog`),
-  KEY `destowner` (`destowner`),
-  KEY `destally` (`destally`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Liste aller zerstoerten Schiffe'; 
+  `id` integer not null auto_increment,
+	`ally` integer not null,
+	`battle` integer not null,
+	`battlelog` varchar(255),
+	`destally` integer not null,
+	`destowner` integer not null,
+  `name` varchar(255),
+	`owner` integer not null,
+  `tick` integer not null,
+	`type` integer not null,
+	`version` integer not null,
+  primary key  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

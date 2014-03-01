@@ -18,9 +18,11 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -102,6 +104,7 @@ public class Forschung {
 
 	@Id @GeneratedValue
 	private int id;
+	@Column(nullable = false)
 	private String name;
 	private String image;
 	private int req1;
@@ -109,10 +112,14 @@ public class Forschung {
 	private int req3;
 	private int time;
 	@Type(type="cargo")
+	@Column(nullable = false)
 	private Cargo costs;
+	@Lob
+	@Column(nullable = false)
 	private String description;
 	private int race;
 	private int visibility;
+	@Column(nullable = false)
 	private String flags;
 	private int specializationCosts;
 

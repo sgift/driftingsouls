@@ -1,16 +1,16 @@
 CREATE TABLE `cores` (
-  `id` int(11) NOT NULL auto_increment,
-  `name` varchar(50) NOT NULL default 'Noname',
-  `astitype` tinyint(3) unsigned NOT NULL default '1',
-  `buildcosts` varchar(120) NOT NULL default '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0',
-  `consumes` varchar(120) NOT NULL default '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0',
-  `produces` varchar(120) NOT NULL default '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0',
-  `arbeiter` int(11) NOT NULL default '0',
-  `ever` int(11) NOT NULL default '0',
-  `eprodu` int(11) NOT NULL default '0',
-  `bewohner` int(11) NOT NULL default '0',
-  `techreq` int(11) NOT NULL default '0',
-  `eps` int(11) NOT NULL default '0',
-  `shutdown` tinyint (1) NOT NULL default '0',
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
+  `id` integer not null auto_increment,
+	`arbeiter` integer not null,
+	`astitype` integer not null,
+	`bewohner` integer not null,
+	`buildcosts` varchar(255) not null,
+  `consumes` varchar(255) not null,
+	`eprodu` integer not null,
+	`ever` integer not null,
+	`eps` integer not null,
+	`name` varchar(255) not null,
+	`produces` varchar(255) not null,
+	`shutdown` boolean not null,
+	`techreq` integer not null,
+  primary key (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

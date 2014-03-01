@@ -1,7 +1,9 @@
 package net.driftingsouls.ds2.server.framework;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
@@ -19,7 +21,11 @@ public class ConfigValue
 {
 	@Id
 	private String name;
+	@Lob
+	@Column(nullable = false)
 	private String value;
+	@Lob
+	@Column(nullable = false)
 	private String description;
 	@Version
 	private int version;

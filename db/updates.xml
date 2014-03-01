@@ -1963,4 +1963,125 @@ Die Vasudaner haben eine sehr alte Kultur mit mehreren hochentwickelten Sprachen
 
 		ALTER TABLE users ADD COLUMN schiffsKlassenNamenGenerator varchar(255), ADD COLUMN schiffsNamenGenerator varchar(255);
 	]]></update>
+	<update type="structure" datum="2014-02-23"><![CDATA[
+		ALTER TABLE academy MODIFY `version` integer not null, MODIFY train boolean not null;
+		ALTER TABLE academy_queue_entry MODIFY position integer not null, MODIFY remaining integer not null, MODIFY scheduled boolean not null, MODIFY training integer not null, MODIFY trainingtype integer not null;
+		ALTER TABLE ally ADD CONSTRAINT unique (president);
+		ALTER TABLE ally_rangdescriptors MODIFY rang integer not null, MODIFY version integer not null, MODIFY name VARCHAR(255) not null;
+		ALTER TABLE ammo MODIFY id integer not null auto_increment, MODIFY areadamage integer not null, MODIFY damage integer not null, MODIFY destroyable double precision not null;
+		ALTER TABLE ammo MODIFY flags integer not null, MODIFY itemid integer not null, MODIFY name varchar(255) not null, MODIFY picture varchar(255) not null;
+		ALTER TABLE ammo MODIFY shielddamage integer not null, MODIFY shotspershot integer not null, MODIFY smalltrefferws integer not null, MODIFY subdamage integer not null;
+		ALTER TABLE ammo MODIFY subws integer not null, MODIFY torptrefferws integer not null, MODIFY trefferws integer not null, MODIFY type varchar(255) not null;
+
+		ALTER TABLE base_types MODIFY name varchar(255) not null, MODIFY terrain longtext, MODIFY spawnableress longtext;
+		ALTER TABLE battles_ships MODIFY shipid integer not null, MODIFY ablativeArmor integer not null, MODIFY action integer not null, MODIFY comm integer not null, MODIFY destroyer integer not null, MODIFY engine integer not null, MODIFY hull integer not null, MODIFY sensors integer not null, MODIFY shields integer not null, MODIFY side integer not null, MODIFY version integer not null, MODIFY weapons integer not null;
+		ALTER TABLE battles_ships DROP FOREIGN KEY battles_ships_fk_battles;
+		alter table ships drop foreign key ships_fk_battles;
+		ALTER TABLE battles_ships MODIFY battleid integer not null;
+		ALTER TABLE battles MODIFY id integer not null;
+		ALTER TABLE battles_ships ADD CONSTRAINT battles_ships_fk_battles FOREIGN KEY (battleid) REFERENCES battles(id);
+		ALTER TABLE ships MODIFY battle integer, ADD CONSTRAINT ships_fk_battles FOREIGN KEY (battle) REFERENCES battles(id);
+		ALTER TABLE battles MODIFY ally1 integer not null, MODIFY ally2 integer not null, MODIFY blockcount integer not null, MODIFY com1BETAK boolean not null, MODIFY com2BETAK boolean not null, MODIFY flags integer not null, MODIFY lastaction bigint not null, MODIFY lastturn bigint not null, MODIFY onend longtext, MODIFY ready1 boolean not null, MODIFY ready2 boolean not null, MODIFY system integer not null, MODIFY takeCommand1 integer not null, MODIFY takeCommand2 integer not null, MODIFY version integer not null, MODIFY visibility longtext, MODIFY x integer not null, MODIFY y integer not null, MODIFY commander1 integer not null, MODIFY commander2 integer not null;
+
+		ALTER TABLE buildings MODIFY `buildcosts` varchar(255) NOT NULL, MODIFY `consumes` varchar(255) NOT NULL, MODIFY `produces` varchar(255) NOT NULL;
+		ALTER TABLE buildings MODIFY arbeiter integer not null, MODIFY bewohner integer not null, MODIFY  category integer not null, MODIFY chanceress varchar(255);
+		ALTER TABLE buildings MODIFY deakable boolean not null, MODIFY eprodu integer not null, MODIFY ever integer not null, MODIFY eps integer not null, MODIFY module VARCHAR(255) not null;
+		ALTER TABLE buildings MODIFY name varchar(255) not null, MODIFY perowner integer not null, MODIFY perplanet integer not null, MODIFY picture varchar(255) not null, MODIFY race integer not null, MODIFY shutdown boolean not null, MODIFY techreq integer not null, MODIFY terrain longtext, MODIFY ucomplex boolean not null;
+		ALTER TABLE building_alternativebilder MODIFY alternativeBilder varchar(255), MODIFY alternativeBilder_KEY integer;
+
+		ALTER TABLE cargo_entries_units MODIFY amount bigint not null;
+		ALTER TABLE config_felsbrocken DROP FOREIGN KEY fk_config_felsbrocken_system;
+		ALTER TABLE config_felsbrocken MODIFY system integer not null;
+		ALTER TABLE config_felsbrocken_systems MODIFY system integer not null, MODIFY count integer not null;
+		ALTER TABLE `config_felsbrocken` ADD CONSTRAINT `fk_config_felsbrocken_system` FOREIGN KEY (`system`) REFERENCES `config_felsbrocken_systems` (`system`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+		ALTER TABLE config_felsbrocken MODIFY cargo varchar(255) not null, MODIFY chance integer not null, MODIFY shiptype integer not null, MODIFY system integer not null;
+		ALTER TABLE config MODIFY name varchar(255) not null, MODIFY version integer not null, MODIFY description longtext not null, MODIFY value longtext not null;
+		ALTER TABLE cores MODIFY arbeiter integer not null, MODIFY astitype integer not null, MODIFY bewohner integer not null, MODIFY buildcosts varchar(255) not null, MODIFY consumes varchar(255) not null, MODIFY eprodu integer not null, MODIFY ever integer not null, MODIFY eps integer not null, MODIFY name varchar(255) not null, MODIFY produces varchar(255) not null, MODIFY shutdown boolean not null, MODIFY techreq integer not null;
+
+		ALTER TABLE dynamic_content MODIFY lizenzdetails longtext;
+
+		ALTER TABLE fraktion_aktions_meldung MODIFY meldungstext longtext;
+		ALTER TABLE factions_angebote MODIFY id integer not null auto_increment, MODIFY description longtext not null, MODIFY faction integer not null, MODIFY image varchar(255) not null, MODIFY title varchar(255) not null, MODIFY version integer not null;
+		alter table factions_shop_orders drop foreign key factions_shop_orders_fk_factions_shop_entries;
+		ALTER TABLE factions_shop_entries MODIFY id integer not null auto_increment, MODIFY availability integer not null, MODIFY faction_id integer not null, MODIFY lpKosten bigint not null, MODIFY min_rank integer not null, MODIFY price bigint not null, MODIFY resource varchar(255) not null, MODIFY type integer not null, MODIFY version integer not null;
+		ALTER TABLE factions_shop_orders MODIFY id integer not null auto_increment, MODIFY adddata longtext, MODIFY count integer not null, MODIFY date bigint not null, MODIFY lpKosten bigint not null, MODIFY price bigint not null, MODIFY status integer not null, MODIFY version integer not null, MODIFY shopentry_id integer not null, MODIFY user_id integer not null;
+		ALTER TABLE factions_shop_orders ADD CONSTRAINT factions_shop_orders_fk_factions_shop_entries FOREIGN KEY (shopentry_id) REFERENCES factions_shop_entries(id);
+		ALTER TABLE factory MODIFY count integer not null, MODIFY produces longtext not null, MODIFY version integer not null;
+		ALTER TABLE forschungen MODIFY costs varchar(255) not null, MODIFY description longtext not null, MODIFY flags varchar(255) not null, MODIFY name varchar(255) not null, MODIFY race integer not null, MODIFY req1 integer not null, MODIFY req2 integer not null, MODIFY req3 integer not null, MODIFY specializationCosts integer not null, MODIFY time integer not null, MODIFY visibility integer not null;
+		ALTER TABLE fz MODIFY dauer integer not null, MODIFY version integer not null, MODIFY type integer not null;
+
+		ALTER TABLE global_sectortemplates MODIFY id varchar(255) not null, MODIFY h integer not null, MODIFY scriptid integer not null, MODIFY w integer not null, MODIFY x integer not null, MODIFY y integer not null;
+		ALTER TABLE gtu_warenkurse MODIFY place varchar(255) not null, MODIFY kurse longtext not null, MODIFY name varchar(255) not null, MODIFY version integer not null;
+		ALTER TABLE gtu_zwischenlager MODIFY id integer not null auto_increment, MODIFY cargo1 longtext not null, MODIFY cargo1need longtext not null, MODIFY cargo2 longtext not null, MODIFY cargo2need longtext not null, MODIFY version integer not null, MODIFY posten integer not null, MODIFY user1 integer not null, MODIFY user2 integer not null;
+		ALTER TABLE gui_help MODIFY page varchar(255) not null, MODIFY text longtext;
+		ALTER TABLE handel MODIFY bietet longtext not null, MODIFY comm longtext not null, MODIFY sucht longtext not null, MODIFY time bigint not null, MODIFY version integer not null, MODIFY who integer not null;
+		ALTER TABLE inttutorial MODIFY id integer not null auto_increment, MODIFY headimg varchar(255) not null, MODIFY reqbase integer not null, MODIFY reqname integer not null, MODIFY reqsheet integer not null, MODIFY reqship integer not null, MODIFY text longtext not null;
+		ALTER TABLE items MODIFY cargo bigint not null, MODIFY description longtext, MODIFY effect longtext, MODIFY handel boolean not null, MODIFY isspawnable boolean not null, MODIFY largepicture longtext, MODIFY name varchar(255) not null, MODIFY picture longtext, MODIFY quality varchar(255), MODIFY unknownItem boolean not null;
+		ALTER TABLE items_build MODIFY buildcosts varchar(255) not null, MODIFY buildingid varchar(255) not null, MODIFY dauer decimal(19,5) not null, MODIFY name varchar(255) not null, MODIFY produce varchar(255) not null, MODIFY res1 integer not null, MODIFY res2 integer not null, MODIFY res3 integer not null;
+		ALTER TABLE jumpnodes MODIFY gcpcolonistblock boolean not null, MODIFY hidden integer not null, MODIFY name varchar(255) not null, MODIFY system integer not null, MODIFY systemout integer not null, MODIFY wpnblock boolean not null, MODIFY x integer not null, MODIFY xout integer not null, MODIFY y integer not null, MODIFY yout integer not null;
+		ALTER TABLE jumps MODIFY id integer not null auto_increment, MODIFY system integer not null, MODIFY version integer not null, MODIFY x integer not null, MODIFY y integer not null, MODIFY shipid integer not null;
+		ALTER TABLE jumps ADD UNIQUE (shipid);
+
+		ALTER TABLE kaserne MODIFY id integer not null auto_increment, MODIFY col integer not null;
+		ALTER TABLE kaserne_queues MODIFY id integer not null auto_increment, MODIFY count integer not null, MODIFY remaining integer not null, MODIFY kaserne integer not null, MODIFY unitid integer not null;
+		ALTER TABLE logging MODIFY id bigint not null auto_increment, MODIFY data longtext, MODIFY source varchar(255) not null, MODIFY target varchar(255) not null, MODIFY time bigint not null, MODIFY type varchar(255) not null, MODIFY user_id integer not null, MODIFY version integer not null;
+		ALTER TABLE loyalitaetspunkte MODIFY anmerkungen longtext;
+
+		ALTER TABLE nebel MODIFY system integer not null, MODIFY x integer not null, MODIFY y integer not null, MODIFY type integer not null;
+		ALTER TABLE offiziere MODIFY id integer not null auto_increment, MODIFY com integer not null, MODIFY comu integer not null, MODIFY ing integer not null, MODIFY ingu integer not null, MODIFY name varchar(255) not null, MODIFY nav integer not null, MODIFY navu integer not null, MODIFY rang integer not null, MODIFY sec integer not null, MODIFY secu integer not null, MODIFY spec integer not null, MODIFY training boolean not null, MODIFY waf integer not null, MODIFY wafu integer not null, MODIFY userid integer not null, MODIFY stationiertAufBasis_id integer, MODIFY stationiertAufSchiff_id integer;
+		ALTER TABLE orders MODIFY ordertype varchar(31) not null, MODIFY id integer not null auto_increment, MODIFY tick integer not null, MODIFY user integer not null, MODIFY version integer not null, MODIFY type integer, MODIFY flags varchar(255);
+		ALTER TABLE orders_offiziere MODIFY id integer not null auto_increment, MODIFY com integer not null, MODIFY cost integer not null, MODIFY ing integer not null, MODIFY name varchar(255) not null, MODIFY nav integer not null, MODIFY rang integer not null, MODIFY sec integer not null, MODIFY waf integer not null;
+		ALTER TABLE orders_ships MODIFY type integer not null, MODIFY cost integer not null, MODIFY rasse integer not null;
+		ALTER TABLE ordner MODIFY id integer not null auto_increment, MODIFY flags integer not null, MODIFY name varchar(255) not null, MODIFY parent integer not null, MODIFY version integer not null, MODIFY playerid integer not null;
+		ALTER TABLE permission MODIFY category VARCHAR(255) not null;
+		ALTER TABLE portal_news MODIFY id integer not null auto_increment, MODIFY author longtext not null, MODIFY date bigint not null, MODIFY txt longtext not null, MODIFY shortDescription longtext not null, MODIFY title varchar(255) not null;
+
+		ALTER TABLE quests_completed DROP FOREIGN KEY quests_completed_fk_quests;
+		ALTER TABLE quests_running DROP FOREIGN KEY quests_running_fk_quests;
+		ALTER TABLE quests MODIFY id integer not null auto_increment, MODIFY name varchar(255) not null, MODIFY qid varchar(255) not null;
+		ALTER TABLE quests_completed MODIFY id integer not null auto_increment, MODIFY questid integer not null, MODIFY userid integer not null;
+		ALTER TABLE quests_running MODIFY id integer not null auto_increment, MODIFY execdata longblob not null, MODIFY ontick integer, MODIFY publish integer not null, MODIFY statustext varchar(255) not null, MODIFY uninstall longtext, MODIFY questid integer not null, MODIFY userid integer not null;
+		ALTER TABLE quests_running ADD CONSTRAINT quests_running_fk_quests FOREIGN KEY (questid) REFERENCES quests(id);
+		ALTER TABLE quests_completed ADD CONSTRAINT quests_completed_fk_quests FOREIGN KEY (questid) REFERENCES quests(id);
+
+		ALTER TABLE quests_answers MODIFY id integer not null auto_increment, MODIFY text longtext not null;
+		ALTER TABLE quests_quick MODIFY id integer not null auto_increment, MODIFY awarditems longtext not null, MODIFY awardre bigint not null, MODIFY dependsOnQuests varchar(255) not null, MODIFY `desc` longtext not null, MODIFY enabled integer not null, MODIFY finishtext longtext not null, MODIFY head varchar(255) not null, MODIFY loottable longtext, MODIFY moreThanOnce integer not null, MODIFY notyettext longtext not null, MODIFY qid varchar(255) not null, MODIFY qname varchar(255) not null, MODIFY reqitems longtext not null, MODIFY reqre bigint not null, MODIFY shortdesc longtext not null, MODIFY source varchar(255) not null, MODIFY sourcetype varchar(255) not null, MODIFY startitems longtext not null, MODIFY target varchar(255) not null, MODIFY targettype varchar(255) not null;
+		ALTER TABLE quests_quick CHANGE `desc` description longtext not null;
+		ALTER TABLE quests_text MODIFY id integer not null auto_increment, MODIFY comment varchar(255) not null, MODIFY picture varchar(255) not null, MODIFY text longtext not null;
+
+		ALTER TABLE schiff_einstellungen MODIFY id integer not null auto_increment, MODIFY autodeut tinyint not null, MODIFY bookmark boolean not null, MODIFY destcom longtext not null, MODIFY destsystem integer not null, MODIFY destx integer not null, MODIFY desty integer not null, MODIFY isallyfeeding boolean not null, MODIFY isfeeding boolean not null, MODIFY showtradepost integer not null, MODIFY startFighters boolean not null, MODIFY version integer not null;
+		ALTER TABLE scripts MODIFY id integer not null auto_increment, MODIFY name varchar(255) not null, MODIFY script longtext not null, DROP COLUMN comment;
+		ALTER TABLE sectors MODIFY system integer not null, MODIFY x integer not null, MODIFY y integer not null, MODIFY objects integer not null, MODIFY onenter longtext not null, MODIFY version integer not null;
+		ALTER TABLE sessions MODIFY id integer not null auto_increment, MODIFY tick bigint not null, MODIFY token varchar(255) not null, MODIFY userId integer not null, MODIFY version integer not null, DROP COLUMN usegfxpack;
+
+		ALTER TABLE ship_fleets MODIFY id integer not null auto_increment, MODIFY name varchar(255) not null, MODIFY version integer not null;
+		ALTER TABLE ship_loot MODIFY id integer not null auto_increment, MODIFY chance integer not null, MODIFY count integer not null, MODIFY resource varchar(255) not null, MODIFY shiptype integer not null, MODIFY totalmax integer not null, MODIFY version integer not null, MODIFY owner integer not null, MODIFY targetuser integer not null;
+		ALTER TABLE ship_script_data MODIFY script longtext, MODIFY scriptexedata longblob;
+		ALTER TABLE ship_history MODIFY history longtext;
+		ALTER TABLE ship_flags MODIFY version integer not null;
+		ALTER TABLE ship_types MODIFY id integer not null auto_increment, MODIFY adocks integer not null, MODIFY ablativeArmor integer not null, MODIFY bounty decimal(19,2) not null, MODIFY cargo bigint not null, MODIFY chance4Loot integer not null, MODIFY cost integer not null, MODIFY crew integer not null, MODIFY descrip longtext not null, MODIFY deutfactor integer not null, MODIFY eps integer not null, MODIFY flags longtext not null, MODIFY groupwrap integer not null, MODIFY heat integer not null, MODIFY hide boolean not null, MODIFY hull integer not null, MODIFY hydro integer not null, MODIFY jdocks integer not null, MODIFY lostInEmpChance double precision not null, MODIFY maxheat longtext not null, MODIFY maxunitsize integer not null, MODIFY minCrew integer not null, MODIFY modules longtext not null, MODIFY nahrungcargo bigint not null, MODIFY nickname varchar(255) not null, MODIFY ow_werft integer not null, MODIFY panzerung integer not null, MODIFY pickingCost integer not null, MODIFY picture varchar(255) not null, MODIFY ra integer not null, MODIFY rd integer not null, MODIFY recost integer not null, MODIFY rm integer not null, MODIFY ru integer not null, MODIFY scanCost integer not null, MODIFY sensorrange integer not null, MODIFY shields integer not null, MODIFY class integer, MODIFY size integer not null, MODIFY srs boolean not null, MODIFY torpedodef integer not null, MODIFY unitspace integer not null, MODIFY version integer not null, MODIFY versorger boolean not null, MODIFY weapons longtext not null, MODIFY werft integer not null;
+		ALTER TABLE ships DROP COLUMN respawn, DROP COLUMN unitcargo, MODIFY id integer not null auto_increment, MODIFY ablativeArmor integer not null, MODIFY alarm integer not null, MODIFY battleAction boolean not null, MODIFY cargo longtext not null, MODIFY comm integer not null, MODIFY crew integer not null, MODIFY docked varchar(255) not null, MODIFY e integer not null, MODIFY engine integer not null, MODIFY s integer not null, MODIFY hull integer not null, MODIFY jumptarget varchar(255) not null, MODIFY nahrungcargo bigint not null, MODIFY name varchar(255) not null, MODIFY oncommunicate longtext, MODIFY sensors integer not null, MODIFY shields integer not null, MODIFY status varchar(255) not null, MODIFY system integer not null, MODIFY version integer not null, MODIFY heat longtext not null, MODIFY weapons integer not null, MODIFY x integer not null, MODIFY y integer not null, MODIFY battle integer, MODIFY einstellungen_id integer, MODIFY fleet integer, MODIFY modules integer, MODIFY owner integer not null, MODIFY scriptData_id integer, MODIFY type integer not null;
+		ALTER TABLE ships_baubar DROP COLUMN systemreq, MODIFY id integer not null auto_increment, MODIFY costs longtext not null, MODIFY crew integer not null, MODIFY dauer integer not null, MODIFY ekosten integer not null, MODIFY flagschiff boolean not null, MODIFY race integer not null, MODIFY tr1 integer not null, MODIFY tr2 integer not null, MODIFY tr3 integer not null, MODIFY werftslots integer not null, MODIFY type integer not null;
+		ALTER TABLE ships_lost MODIFY id integer not null auto_increment, MODIFY ally integer not null, MODIFY battle integer not null, MODIFY battlelog varchar(255), MODIFY destally integer not null, MODIFY destowner integer not null, MODIFY name varchar(255), MODIFY owner integer not null, MODIFY tick integer not null, MODIFY type integer not null, MODIFY version integer not null;
+		ALTER TABLE ships_modules DROP COLUMN nametype, MODIFY id integer not null, MODIFY adocks integer not null, MODIFY ablativeArmor integer not null, MODIFY bounty decimal(19,2) not null, MODIFY cargo bigint not null, MODIFY cost integer not null, MODIFY crew integer not null, MODIFY deutfactor integer not null, MODIFY eps integer not null, MODIFY flags longtext not null, MODIFY heat integer not null, MODIFY hull integer not null, MODIFY hydro integer not null, MODIFY jdocks integer not null, MODIFY lostInEmpChance double precision not null, MODIFY maxheat longtext not null, MODIFY maxunitsize integer not null, MODIFY minCrew integer not null, MODIFY modules longtext not null, MODIFY nahrungcargo bigint not null, MODIFY nickname varchar(255) not null, MODIFY ow_werft integer not null, MODIFY panzerung integer not null, MODIFY pickingCost integer not null, MODIFY picture varchar(255) not null, MODIFY ra integer not null, MODIFY rd integer not null, MODIFY recost integer not null, MODIFY rm integer not null, MODIFY ru integer not null, MODIFY scanCost integer not null, MODIFY sensorrange integer not null, MODIFY shields integer not null, MODIFY size integer not null, MODIFY srs boolean not null, MODIFY torpedodef integer not null, MODIFY unitspace integer not null, MODIFY version integer not null, MODIFY versorger boolean not null, MODIFY weapons longtext not null, MODIFY werft integer not null;
+
+		ALTER TABLE skn DROP FOREIGN KEY skn_fk_skn_channels;
+		ALTER TABLE skn_visits DROP FOREIGN KEY skn_visits_fk_skn_channels;
+		ALTER TABLE skn MODIFY post integer not null auto_increment, MODIFY allypic integer not null, MODIFY head varchar(255) not null, MODIFY name varchar(255) not null, MODIFY pic integer not null, MODIFY text longtext not null, MODIFY tick integer not null, MODIFY time bigint not null, MODIFY version integer not null, MODIFY channel integer not null, MODIFY userid integer not null;
+		ALTER TABLE skn_channels MODIFY id integer not null auto_increment, MODIFY allyowner integer not null, MODIFY name varchar(255) not null, MODIFY readall boolean not null, MODIFY readally integer not null, MODIFY readnpc boolean not null, MODIFY readplayer longtext not null, MODIFY version integer not null, MODIFY writeall boolean not null, MODIFY writeally integer not null, MODIFY writenpc boolean not null, MODIFY writeplayer longtext not null;
+		ALTER TABLE skn_visits MODIFY id integer not null auto_increment, MODIFY time bigint not null, MODIFY version integer not null, MODIFY channel integer not null, MODIFY user integer not null;
+		ALTER TABLE skn_visits ADD CONSTRAINT skn_visits_fk_skn_channels FOREIGN KEY (channel) REFERENCES skn_channels(id);
+		ALTER TABLE skn ADD CONSTRAINT skn_fk_skn_channels FOREIGN KEY (channel) REFERENCES skn_channels(id);
+
+		ALTER TABLE smilies MODIFY id integer not null auto_increment, MODIFY image varchar(255) not null, MODIFY tag varchar(255) not null, MODIFY version integer not null;
+
+		ALTER TABLE stat_aktive_spieler MODIFY tick integer not null, MODIFY aktiv integer not null, MODIFY gesamtanzahl integer not null, MODIFY inaktiv integer not null;
+		ALTER TABLE stat_aktive_spieler MODIFY qmaxUserId integer not null, MODIFY registrierungen integer not null, MODIFY sehrAktiv integer not null, MODIFY teilweiseAktiv integer not null, MODIFY vacation integer not null, MODIFY wenigAktiv integer not null, MODIFY `version` integer not null;
+		ALTER TABLE stats_cargo MODIFY tick integer not null, MODIFY cargo longtext not null, MODIFY version integer not null;
+		ALTER TABLE stats_gtu MODIFY id integer not null auto_increment, MODIFY gtugew double precision not null, MODIFY mtype integer not null, MODIFY owner integer not null, MODIFY ownername varchar(255) not null, MODIFY preis bigint not null, MODIFY type longtext not null, MODIFY userid integer not null, MODIFY username varchar(255) not null, MODIFY version integer not null;
+		ALTER TABLE stats_module_locations MODIFY id integer not null auto_increment, MODIFY item_id integer not null, MODIFY locations varchar(255) not null, MODIFY version integer not null, MODIFY user_id integer not null;
+		DROP TABLE stats_unitcargo;
+
+		DROP TABLE weaponfactory;
+	]]></update>
 </updates>

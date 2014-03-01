@@ -1,7 +1,7 @@
-CREATE TABLE config (
-	`name` VARCHAR( 25 ) NOT NULL ,
-	`value` TEXT NOT NULL ,
-	`description` TEXT NOT NULL ,
-	`version` INT NOT NULL DEFAULT 0,
-	PRIMARY KEY (name)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+create table config (
+	`name` varchar(255) not null,
+	`description` longtext not null,
+	`value` longtext not null,
+	`version` integer not null,
+	primary key (name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

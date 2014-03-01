@@ -24,6 +24,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
@@ -44,18 +45,22 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 public class ComNetEntry {
 	@Id @GeneratedValue
 	private int post;
-	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="userid", nullable=false)
 	private User user;
 	private long time;
+	@Column(nullable = false)
 	private String name;
+	@Column(nullable = false)
 	private String head;
+	@Lob
+	@Column(nullable = false)
 	private String text;
 	private int pic;
-	@Column(name="allypic")
+	@Column(name="allypic", nullable = false)
 	private int allyPic;
 	private int tick;
-	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="channel", nullable=false)
 	private ComNetChannel channel;
 	
@@ -66,7 +71,7 @@ public class ComNetEntry {
 	 * Konstruktor.
 	 *
 	 */
-	public ComNetEntry() {
+	protected ComNetEntry() {
 		// EMPTY
 	}
 	
@@ -76,6 +81,8 @@ public class ComNetEntry {
 	 * @param channel Der Channel, in dem gepostet werden soll
 	 */
 	public ComNetEntry(User user, ComNetChannel channel) {
+		this.head = "";
+		this.text = "";
 		this.user = user;
 		this.channel = channel;
 		this.pic = user.getId();

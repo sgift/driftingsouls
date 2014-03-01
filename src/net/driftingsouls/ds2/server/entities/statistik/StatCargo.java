@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.entities.statistik;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -38,7 +39,8 @@ import org.hibernate.annotations.Type;
 public class StatCargo {
 	@Id
 	private int tick;
-	@Type(type="cargo")
+	@Type(type="largeCargo")
+	@Column(nullable = false)
 	private Cargo cargo;
 	
 	@Version
@@ -48,7 +50,7 @@ public class StatCargo {
 	 * Konstruktor.
 	 *
 	 */
-	public StatCargo() {
+	protected StatCargo() {
 		// EMPTY
 	}
 	

@@ -18,29 +18,27 @@
  */
 package net.driftingsouls.ds2.server.modules.stats;
 
+import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ResourceEntry;
+import net.driftingsouls.ds2.server.cargo.ResourceList;
+import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.statistik.StatItemLocations;
+import net.driftingsouls.ds2.server.entities.statistik.StatUserCargo;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.modules.StatsController;
+import net.driftingsouls.ds2.server.ships.Ship;
+import org.apache.commons.lang.StringUtils;
+
 import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.ResourceEntry;
-import net.driftingsouls.ds2.server.cargo.ResourceList;
-import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.entities.statistik.StatModuleLocation;
-import net.driftingsouls.ds2.server.entities.statistik.StatUserCargo;
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.modules.StatsController;
-import net.driftingsouls.ds2.server.ships.Ship;
-
-import org.apache.commons.lang.StringUtils;
 
 /**
  * Zeigt die insgesamt vorkommenden sowie die eigenen Waren an. Bei Items werden zudem,
@@ -89,8 +87,8 @@ public class StatWaren implements Statistic {
 
 		// Itempositionen auslesen
 		Map<Integer,String[]> reslocationlist = new HashMap<Integer,String[]>();
-		List<StatModuleLocation> modules = Common.cast(db.createQuery("FROM StatModuleLocation WHERE user=:user").setEntity("user",user).list());
-		for( StatModuleLocation amodule : modules ) {
+		List<StatItemLocations> modules = Common.cast(db.createQuery("FROM StatItemLocations WHERE user=:user").setEntity("user",user).list());
+		for( StatItemLocations amodule : modules ) {
 			reslocationlist.put(amodule.getUser().getId(), StringUtils.split(amodule.getLocations(), ';'));
 		}
 

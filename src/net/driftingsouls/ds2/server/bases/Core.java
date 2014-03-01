@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.bases;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
@@ -46,24 +47,28 @@ import org.hibernate.annotations.Type;
 @DiscriminatorFormula("1")
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public abstract class Core {
-	@Id
+	@Id @GeneratedValue
 	private int id;
+	@Column(nullable = false)
 	private String name;
-	@Column(name="astitype")
+	@Column(name="astitype", nullable = false)
 	private int astiType;
 	@Type(type="cargo")
+	@Column(nullable = false)
 	private Cargo buildcosts;
 	@Type(type="cargo")
+	@Column(nullable = false)
 	private Cargo produces;
 	@Type(type="cargo")
+	@Column(nullable = false)
 	private Cargo consumes;
 	private int arbeiter;
-	@Column(name="ever")
+	@Column(name="ever", nullable = false)
 	private int eVerbrauch;
-	@Column(name="eprodu")
+	@Column(name="eprodu", nullable = false)
 	private int eProduktion;
 	private int bewohner;
-	@Column(name="techreq")
+	@Column(name="techreq", nullable = false)
 	private int techReq;
 	private int eps;	
 	private boolean shutdown;

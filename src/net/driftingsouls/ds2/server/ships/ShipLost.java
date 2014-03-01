@@ -18,18 +18,17 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.ally.Ally;
+import net.driftingsouls.ds2.server.framework.ConfigService;
+import org.hibernate.annotations.Index;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Version;
-
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.ally.Ally;
-import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.ConfigValue;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 
 /**
  * Ein in einer Schlacht zerstoertes Schiff.
@@ -47,14 +46,20 @@ public class ShipLost {
 	private int type;
 	private String name;
 	private int tick;
+	@Index(name="owner")
 	private int owner;
+	@Index(name="ally")
 	private int ally;
-	@Column(name="destowner")
+	@Column(name="destowner", nullable = false)
+	@Index(name="destowner")
 	private int destOwner;
-	@Column(name="destally")
+	@Column(name="destally", nullable = false)
+	@Index(name="destally")
 	private int destAlly;
+	@Index(name="battle")
 	private int battle;
 	@Column(name="battlelog")
+	@Index(name="battlelog")
 	private String battleLog;
 	
 	@Version

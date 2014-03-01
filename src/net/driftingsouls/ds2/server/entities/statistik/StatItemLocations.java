@@ -40,11 +40,15 @@ import javax.persistence.Version;
 public class StatItemLocations {
 	@Id @GeneratedValue
 	private int id;
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="user_id",nullable=false)
+
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
+	@JoinColumn(name="user_id", nullable=false)
 	private User user;
-	@Column(name="item_id")
+
+	@Column(name="item_id", nullable = false)
 	private int itemId;
+
+	@Column(nullable = false)
 	private String locations;
 	
 	@Version

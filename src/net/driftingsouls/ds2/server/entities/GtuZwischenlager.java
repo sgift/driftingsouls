@@ -32,6 +32,7 @@ import javax.persistence.Version;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.ships.Ship;
 
+import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
 /**
@@ -44,25 +45,32 @@ import org.hibernate.annotations.Type;
  */
 @Entity
 @Table(name="gtu_zwischenlager")
+@org.hibernate.annotations.Table(
+		appliesTo = "gtu_zwischenlager",
+		indexes = {@Index(name="posten", columnNames = {"posten","user1","user2"})})
 public class GtuZwischenlager {
 	@Id @GeneratedValue
 	private int id;
-	@OneToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="posten")
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
+	@JoinColumn(name="posten", nullable = false)
 	private Ship posten;
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="user1")
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
+	@JoinColumn(name="user1", nullable = false)
 	private User user1;
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="user2")
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
+	@JoinColumn(name="user2", nullable = false)
 	private User user2;
-	@Type(type="cargo")
+	@Type(type="largeCargo")
+	@Column(nullable = false)
 	private Cargo cargo1;
-	@Type(type="cargo") @Column(name="cargo1need")
+	@Type(type="largeCargo")
+	@Column(name="cargo1need", nullable = false)
 	private Cargo cargo1Need;
-	@Type(type="cargo")
+	@Type(type="largeCargo")
+	@Column(nullable = false)
 	private Cargo cargo2;
-	@Type(type="cargo") @Column(name="cargo2need")
+	@Type(type="largeCargo")
+	@Column(name="cargo2need", nullable = false)
 	private Cargo cargo2Need;
 	
 	@Version

@@ -1,10 +1,10 @@
 CREATE TABLE `orders` (
-  ordertype VARCHAR(32) NOT NULL,
-  `id` int(11) NOT NULL auto_increment,
-  `type` int(11) NOT NULL default '0',
-  `tick` int(11) NOT NULL default '0',
-  `user` int(11) NOT NULL default '0',
-  `version` int(10) unsigned not null default '0',
-  flags VARCHAR(256),
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
+  ordertype varchar(31) not null,
+  `id` integer not null auto_increment,
+  `tick` integer not null,
+  `user` integer not null,
+  `version` integer not null,
+	`type` integer,
+	flags varchar(255),
+  primary key  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

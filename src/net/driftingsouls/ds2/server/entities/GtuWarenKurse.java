@@ -18,8 +18,10 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
@@ -37,8 +39,10 @@ import org.hibernate.annotations.Type;
 public class GtuWarenKurse {
 	@Id
 	private String place;
+	@Column(nullable = false)
 	private String name;
-	@Type(type="cargo")
+	@Type(type="largeCargo")
+	@Column(nullable = false)
 	private Cargo kurse;
 	
 	@Version

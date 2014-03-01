@@ -35,9 +35,9 @@ public class GlobalSectorTemplate
 	private String id;
 	private int x;
 	private int y;
-	@Column(name="h")
+	@Column(name="h", nullable = false)
 	private int heigth;
-	@Column(name="w")
+	@Column(name="w", nullable = false)
 	private int width;
 	private int scriptid;
 	

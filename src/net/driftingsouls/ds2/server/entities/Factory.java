@@ -18,10 +18,13 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
@@ -88,12 +91,14 @@ public class Factory {
 	}
 	
 	@SuppressWarnings("unused")
-	@Id
+	@Id @GeneratedValue
 	private int id;
 	@OneToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="col")
 	private Base base;
 	private int count;
+	@Lob
+	@Column(nullable=false)
 	private String produces;
 	private int buildingid;
 	

@@ -18,18 +18,18 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.Table;
-import javax.persistence.Version;
-
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Table;
+import javax.persistence.Version;
 import java.math.BigInteger;
 
 /**
@@ -47,8 +47,12 @@ public class ShipModules implements ShipTypeData {
 	@OneToOne
 	@PrimaryKeyJoinColumn
 	private Ship ship;
+	@Lob
+	@Column(nullable = false)
 	private String modules;
+	@Column(nullable = false)
 	private String nickname;
+	@Column(nullable = false)
 	private String picture;
 	private int ru;
 	private int rd;
@@ -62,27 +66,32 @@ public class ShipModules implements ShipTypeData {
 	private long nahrungcargo;
 	private int heat;
 	private int crew;
+	@Lob
+	@Column(nullable = false)
 	private String weapons;
-	@Column(name="maxheat")
+	@Lob
+	@Column(name="maxheat", nullable = false)
 	private String maxHeat;
-	@Column(name="torpedodef")
+	@Column(name="torpedodef", nullable = false)
 	private int torpedoDef;
 	private int shields;
 	private int size;
-	@Column(name="jdocks")
+	@Column(name="jdocks", nullable = false)
 	private int jDocks;
-	@Column(name="adocks")
+	@Column(name="adocks", nullable = false)
 	private int aDocks;
-	@Column(name="sensorrange")
+	@Column(name="sensorrange", nullable = false)
 	private int sensorRange;
 	private int hydro;
-	@Column(name="deutfactor")
+	@Column(name="deutfactor", nullable = false)
 	private int deutFactor;
-	@Column(name="recost")
+	@Column(name="recost", nullable = false)
 	private int reCost;
+	@Lob
+	@Column(nullable = false)
 	private String flags;
 	private int werft;
-	@Column(name="ow_werft")
+	@Column(name="ow_werft", nullable = false)
 	private int oneWayWerft;
 	private int ablativeArmor;
 	private boolean srs;
@@ -93,6 +102,7 @@ public class ShipModules implements ShipTypeData {
 	private int maxunitsize;
 	private int unitspace;
 	private boolean versorger;
+	@Column(nullable = false, scale = 0)
     private BigInteger bounty = BigInteger.ZERO;
 	
 	@Version

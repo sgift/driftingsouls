@@ -1,9 +1,9 @@
 CREATE TABLE `portal_news` (
-  `id` mediumint(9) NOT NULL auto_increment,
-  `title` varchar(50) NOT NULL default '',
-  `author` varchar(80) NOT NULL default '',
-  `date` int(11) NOT NULL default '0',
-  `txt` text NOT NULL,
-  `shortDescription` text NOT NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
+  `id` integer not null auto_increment,
+	`author` longtext not null,
+	`date` bigint not null,
+	`txt` longtext not null,
+	`shortDescription` longtext not null,
+	`title` varchar(255) not null,
+  primary key  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

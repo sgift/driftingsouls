@@ -9,4 +9,4 @@ CREATE TABLE `tasks` (
   `version` int(10) unsigned not null default '0',
   PRIMARY KEY  (`taskid`),
   KEY `type` (`type`,`time`,`data1`,`data2`,`data3`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='DS2-Tasks'; 
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

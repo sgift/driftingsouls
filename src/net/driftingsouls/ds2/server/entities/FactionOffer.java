@@ -18,9 +18,11 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
@@ -35,8 +37,12 @@ public class FactionOffer {
 	@Id @GeneratedValue
 	private int id;
 	private int faction;
+	@Column(nullable = false)
 	private String title;
+	@Column(nullable = false)
 	private String image;
+	@Lob
+	@Column(nullable = false)
 	private String description;
 
 	@Version

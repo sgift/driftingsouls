@@ -2,7 +2,9 @@ package net.driftingsouls.ds2.server.entities;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Cache;
@@ -18,6 +20,21 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class NewsEntry
 {
+	@Id @GeneratedValue
+	private int id;
+	@Column(nullable = false)
+	private String title;
+	@Lob
+	@Column(nullable = false)
+	private String author;
+	private long date;
+	@Column(nullable = false)
+	@Lob
+	private String shortDescription;
+	@Column(name="txt", nullable = false)
+	@Lob
+	private String newsText;
+
 	/**
 	 * Fuer Hibernate.
 	 */
@@ -89,14 +106,4 @@ public class NewsEntry
 	{
 		return shortDescription;
 	}
-	
-	@Id
-	private int id;
-	private String title;
-	private String author;
-	private long date;
-	private String shortDescription;
-	@Column(name="txt")
-	private String newsText;
-	
 }

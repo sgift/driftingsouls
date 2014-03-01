@@ -70,7 +70,7 @@ public class EditFactoryEntry implements AdminPlugin
 				entry.setRes3(context.getRequest().getParameterInt("res3"));
 				entry.setProduce(new Cargo(Cargo.Type.AUTO, context.getRequest().getParameterString("produce")));
 				entry.setDauer(BigDecimal.valueOf(Double.parseDouble(context.getRequest().getParameterString("dauer"))));
-				entry.setBuildingIds(context.getRequest().getParameterString("buildingids"));
+				entry.setBuildingIdString(context.getRequest().getParameterString("buildingids"));
 
 				echo.append("<p>Update abgeschlossen.</p>");
 			}
@@ -119,7 +119,7 @@ public class EditFactoryEntry implements AdminPlugin
 			echo.append("</select>");
 			echo.append("<tr><td>Produktion: </td><td><input type=\"hidden\" id=\"produces\" name=\"produce\" value=\"" + entry.getProduce().toString() + "\"></td></tr>\n");
 			echo.append("<tr><td>Dauer: </td><td><input type=\"text\" name=\"dauer\" value=\"" + entry.getDauer() + "\"></td></tr>\n");
-			echo.append("<tr><td>BuildingIDs: </td><td><input type=\"text\" name=\"buildingids\" value=\"" + entry.getBuildingIds() + "\"></td></tr>\n");
+			echo.append("<tr><td>BuildingIDs: </td><td><input type=\"text\" name=\"buildingids\" value=\"" + entry.getBuildingIdString() + "\"></td></tr>\n");
 
 
 			echo.append("<tr><td></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");

@@ -2,6 +2,7 @@ package net.driftingsouls.ds2.server.ships;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -17,7 +18,7 @@ import javax.persistence.Version;
 public class ShipFlag
 {
     @SuppressWarnings("unused")
-	@Id
+	@Id @GeneratedValue
     private int id;
 
     /* One of the flag types defined in Ship.java */
