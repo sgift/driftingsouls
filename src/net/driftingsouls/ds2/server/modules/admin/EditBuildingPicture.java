@@ -96,7 +96,7 @@ public class EditBuildingPicture extends AbstractEditPlugin<Building> implements
 		Map<Integer,String> altBilder = building.getAlternativeBilder();
 		for( Rasse rasse : Rassen.get() )
 		{
-			form.dynamicContentFieldWithRemove(rasse.getName(), "rasse" + rasse.getId(), altBilder.get(rasse.getId()));
+			form.dynamicContentField(rasse.getName(), "rasse" + rasse.getId(), altBilder.get(rasse.getId())).withRemove();
 		}
 	}
 }

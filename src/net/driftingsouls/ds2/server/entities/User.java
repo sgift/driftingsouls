@@ -217,7 +217,7 @@ public class User extends BasicUser {
 	private int race;
 	private String history;
 	private String medals;
-	private byte rang;
+	private int rang;
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="ally", nullable=true)
 	private Ally ally;
@@ -901,7 +901,7 @@ public class User extends BasicUser {
 	 * Liefert den Rang des Benutzers zurueck.
 	 * @return Der Rang
 	 */
-	public byte getRang() {
+	public int getRang() {
 		return this.rang;
 	}
 
@@ -909,7 +909,7 @@ public class User extends BasicUser {
 	 * Setzt den Rang des Benutzers.
 	 * @param rang Die ID des Rangs
 	 */
-	public void setRang( byte rang ) {
+	public void setRang( int rang ) {
 		this.rang = rang;
 	}
 

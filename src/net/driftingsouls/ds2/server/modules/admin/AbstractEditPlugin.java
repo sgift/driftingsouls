@@ -1,6 +1,7 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.bases.Building;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -11,6 +12,7 @@ import net.driftingsouls.ds2.server.modules.AdminController;
 import org.apache.commons.fileupload.FileItem;
 import org.hibernate.Session;
 
+import javax.persistence.Entity;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.Writer;
@@ -80,11 +82,11 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 		beginSelectionBox(echo, page, action);
 		for (Object entity : entities)
 		{
-			addSelectionOption(echo, db.getIdentifier(entity), generateLabelFor(entity));
+			addSelectionOption(echo, db.getIdentifier(entity), generateLabelFor(null, entity));
 		}
 		endSelectionBox(echo);
 
-		if (entityId > 0)
+		if (entityId != 0)
 		{
 			@SuppressWarnings("unchecked") T entity = (T) db.get(clazz, entityId);
 			if (entity == null)
@@ -92,9 +94,10 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 				return;
 			}
 
-			EditorForm form = beginEditorTable(echo, page, action, entityId);
-			edit(form, entity);
-			endEditorTable(echo);
+			try (EditorForm form = beginEditorTable(echo, page, action, entityId))
+			{
+				edit(form, entity);
+			}
 		}
 	}
 
@@ -145,10 +148,20 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 		return true;
 	}
 
-	protected static String generateLabelFor(Object entity)
+	protected static String generateLabelFor(Serializable identifier, Object entity)
 	{
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
+
+		if (identifier == null && entity.getClass().isAnnotationPresent(Entity.class))
+		{
+			identifier = db.getIdentifier(entity);
+		}
+
+		if( entity instanceof User)
+		{
+			return (((User) entity).getPlainname())+" ("+identifier+")";
+		}
 
 		Class<?> type = entity.getClass();
 
@@ -169,10 +182,10 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 			}
 		}
 
-		Serializable identifier = db.getIdentifier(entity);
+
 		try
 		{
-			return labelMethod.invoke(entity).toString() + " (" + identifier + ")";
+			return labelMethod.invoke(entity).toString() + (identifier != null ? " (" + identifier + ")" : "");
 		}
 		catch (IllegalAccessException | InvocationTargetException e)
 		{
@@ -269,14 +282,6 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 		echo.append("<table width=\"100%\">");
 
 		return new EditorForm(action, page, echo);
-	}
-
-	private void endEditorTable(Writer echo) throws IOException
-	{
-		echo.append("<tr><td colspan='2'></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
-		echo.append("</table>");
-		echo.append("</form>\n");
-		echo.append("</div>");
 	}
 
 	protected final boolean isResetted(String name)

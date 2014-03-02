@@ -10,7 +10,10 @@ import javax.persistence.Entity;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Klasse zum Erstellen eines Eingabeformulars.
@@ -20,6 +23,7 @@ class EditorForm implements AutoCloseable
 	private Writer echo;
 	private int action;
 	private String page;
+	private List<CustomFieldGenerator> fields = new ArrayList<>();
 
 	public EditorForm(int action, String page, Writer echo)
 	{
@@ -28,81 +32,152 @@ class EditorForm implements AutoCloseable
 		this.page = page;
 	}
 
-	public void dynamicContentField(String label, String name, String value)
+	/**
+	 * Standardinterface fuer Feldgeneratoren. Jede Instanz generiert genau
+	 * ein Feld fuer ein konkretes Form.
+	 */
+	public static interface CustomFieldGenerator
 	{
-		try
+		/**
+		 * Generiert den HTML-Code fuer das Eingabefeld.
+		 * @param echo Der Writer in den der HTML-Code geschrieben werden soll
+		 * @throws IOException Bei I/O-Fehlern
+		 */
+		public void generate(Writer echo) throws IOException;
+	}
+
+	/**
+	 * Fuegt einen Generator fuer ein Eingabefeld zum Form hinzu.
+	 * @param generator Der Generator
+	 * @param <T> Der Typ des Generators
+	 * @return Der Generator
+	 */
+	public <T extends CustomFieldGenerator> T custom(T generator)
+	{
+		fields.add(generator);
+		return generator;
+	}
+
+	public class DynamicContentFieldGenerator implements CustomFieldGenerator
+	{
+		private String label;
+		private String name;
+		private String value;
+		private boolean withRemove;
+
+		public DynamicContentFieldGenerator(String label, String name, String value)
+		{
+			this.label = label;
+			this.name = name;
+			this.value = value;
+			this.withRemove = false;
+		}
+
+		@Override
+		public void generate(Writer echo) throws IOException
 		{
 			echo.append("<tr class='dynamicContentEdit'>");
 
 			writeCommonDynamicContentPart(label, name, value);
 
-			echo.append("</tr>");
-		}
-		catch (IOException e)
-		{
-			throw new IllegalStateException(e);
-		}
-	}
+			if( withRemove )
+			{
+				String entityId = ContextMap.getContext().getRequest().getParameter("entityId");
 
-	public void dynamicContentFieldWithRemove(String label, String name, String value)
-	{
-		try
-		{
-			echo.append("<tr class='dynamicContentEdit'>");
-			writeCommonDynamicContentPart(label, name, value);
-
-			String entityId = ContextMap.getContext().getRequest().getParameter("entityId");
-
-			echo.append("<td><a title='entfernen' href='./ds?module=admin&amp;page=").append(page).append("&amp;act=").append(Integer.toString(action)).append("&amp;entityId=").append(entityId).append("&reset=").append(name).append("'>X</a>");
+				echo.append("<td><a title='entfernen' href='./ds?module=admin&amp;page=").append(page).append("&amp;act=").append(Integer.toString(action)).append("&amp;entityId=").append(entityId).append("&reset=").append(name).append("'>X</a>");
+			}
 
 			echo.append("</tr>");
 		}
-		catch (IOException e)
+
+		public DynamicContentFieldGenerator withRemove()
 		{
-			throw new IllegalStateException(e);
+			this.withRemove = true;
+			return this;
+		}
+
+		private void writeCommonDynamicContentPart(String label, String name, String value) throws IOException
+		{
+			echo.append("<td>").append(label).append(": </td>").append("<td>").append(value != null && !value.trim().isEmpty() ? "<img src='" + value + "' />" : "").append("</td>").append("<td>");
+
+			DynamicContent content = DynamicContentManager.lookupMetadata(value != null ? value : "dummy", true);
+
+			echo.append("<input type=\"file\" name=\"").append(name).append("\">");
+
+			echo.append("<table>");
+			echo.append("<tr><td>Lizenz</td><td><select name='").append(name).append("_dc_lizenz'>");
+			echo.append("<option>Bitte wählen</option>");
+			for (DynamicContent.Lizenz lizenz : DynamicContent.Lizenz.values())
+			{
+				echo.append("<option value='").append(lizenz.name()).append("' ").append(content.getLizenz() == lizenz ? "selected='selected'" : "").append(">").append(lizenz.getLabel()).append("</option>");
+			}
+			echo.append("</select></tr>");
+			echo.append("<tr><td>Lizenzdetails</td><td><textarea rows='3' cols='30' name='").append(name).append("_dc_lizenzdetails'>").append(content.getLizenzdetails()).append("</textarea></td></tr>");
+			echo.append("<tr><td>Quelle</td><td><input type='text' maxlength='255' name='").append(name).append("_dc_quelle' value='").append(content.getQuelle()).append("'/></td></tr>");
+			echo.append("<tr><td>Autor (RL-Name+Nick)</td><td><input type='text' maxlength='255' name='").append(name).append("_dc_autor' value='").append(content.getAutor()).append("'/></td></tr>");
+			echo.append("</table>");
+
+			echo.append("</td>\n");
 		}
 	}
 
-	private void writeCommonDynamicContentPart(String label, String name, String value) throws IOException
+	/**
+	 * Generiert ein Eingabefeld (Editor) fuer ein via {@link net.driftingsouls.ds2.server.framework.DynamicContent}
+	 * gemanagetes Bild.
+	 * @param label Der Label fuer das Eingabefeld
+	 * @param name Der interne Name
+	 * @param value Der momentane Wert des Felds
+	 * @return Der erzeugte Generator
+	 */
+	public DynamicContentFieldGenerator dynamicContentField(String label, String name, String value)
 	{
-		echo.append("<td>").append(label).append(": </td>").append("<td>").append(value != null && !value.trim().isEmpty() ? "<img src='" + value + "' />" : "").append("</td>").append("<td>");
-
-		DynamicContent content = DynamicContentManager.lookupMetadata(value != null ? value : "dummy", true);
-
-		echo.append("<input type=\"file\" name=\"").append(name).append("\">");
-
-		echo.append("<table>");
-		echo.append("<tr><td>Lizenz</td><td><select name='").append(name).append("_dc_lizenz'>");
-		echo.append("<option>Bitte wählen</option>");
-		for (DynamicContent.Lizenz lizenz : DynamicContent.Lizenz.values())
-		{
-			echo.append("<option value='").append(lizenz.name()).append("' ").append(content.getLizenz() == lizenz ? "selected='selected'" : "").append(">").append(lizenz.getLabel()).append("</option>");
-		}
-		echo.append("</select></tr>");
-		echo.append("<tr><td>Lizenzdetails</td><td><textarea rows='3' cols='30' name='").append(name).append("_dc_lizenzdetails'>").append(content.getLizenzdetails()).append("</textarea></td></tr>");
-		echo.append("<tr><td>Quelle</td><td><input type='text' maxlength='255' name='").append(name).append("_dc_quelle' value='").append(content.getQuelle()).append("'/></td></tr>");
-		echo.append("<tr><td>Autor (RL-Name+Nick)</td><td><input type='text' maxlength='255' name='").append(name).append("_dc_autor' value='").append(content.getAutor()).append("'/></td></tr>");
-		echo.append("</table>");
-
-		echo.append("</td>\n");
+		return custom(new DynamicContentFieldGenerator(label, name, value));
 	}
 
-	public void label(String label, Object value)
+	public class LabelGenerator implements CustomFieldGenerator
 	{
-		try
+		private final String label;
+		private final Object value;
+
+		public LabelGenerator(String label, Object value)
+		{
+			this.label = label;
+			this.value = value;
+		}
+
+		@Override
+		public void generate(Writer echo) throws IOException
 		{
 			echo.append("<tr>");
 			echo.append("<td colspan='2'>").append(label.trim().isEmpty() ? "" : label + ":").append("</td>").append("<td>").append(value != null ? value.toString() : "").append("</td></tr>\n");
 		}
-		catch (IOException e)
-		{
-			throw new IllegalStateException(e);
-		}
 	}
 
-	public void textArea(String label, String name, Object value)
+	/**
+	 * Erzeugt ein Eingabefeld (Editor) in Form eines nicht editierbaren Werts.
+	 * @param label Der Label zum Wert
+	 * @param value Der nicht editierbare Wert
+	 */
+	public LabelGenerator label(String label, Object value)
 	{
-		try
+		return custom(new LabelGenerator(label, value));
+	}
+
+	public class TextAreaGenerator implements CustomFieldGenerator
+	{
+		private final String label;
+		private final String name;
+		private final Object value;
+
+		public TextAreaGenerator(String label, String name, Object value)
+		{
+			this.label = label;
+			this.name = name;
+			this.value = value;
+		}
+
+		@Override
+		public void generate(Writer echo) throws IOException
 		{
 			echo.append("<tr>");
 			echo.append("<td colspan='2'>").append(label.trim().isEmpty() ? "" : label + ":").append("</td>");
@@ -110,31 +185,49 @@ class EditorForm implements AutoCloseable
 			echo.append("<textarea rows='3' cols='60' name=\"").append(name).append("\">").append(value != null ? value.toString() : "").append("</textarea>");
 			echo.append("</td></tr>\n");
 		}
-		catch (IOException e)
+	}
+
+	/**
+	 * Erzeugt ein Eingabefeld (Editor) in Form einer Textarea.
+	 * @param label Der Label
+	 * @param name Der interne Name
+	 * @param value Der momentane Wert
+	 */
+	public TextAreaGenerator textArea(String label, String name, Object value)
+	{
+		return custom(new TextAreaGenerator(label, name, value));
+	}
+
+	public class FieldGenerator implements CustomFieldGenerator
+	{
+		private final String label;
+		private final String name;
+		private final Class<?> type;
+		private final Object value;
+		private final Map<Serializable,Object> selectionOptions = new LinkedHashMap<>();
+
+		public FieldGenerator(String label, String name, Class<?> type, Object value)
 		{
-			throw new IllegalStateException(e);
-		}
-	}
+			this.label = label;
+			this.name = name;
+			this.type = type;
+			this.value = value;
 
-	public static interface CustomFieldGenerator
-	{
-		public void generate(Writer echo) throws IOException;
-	}
-
-	public void custom(CustomFieldGenerator generator)
-	{
-		try {
-			generator.generate(echo);
+			if( type.isAnnotationPresent(Entity.class) )
+			{
+				this.selectionOptions.putAll(generateSelectionOptions(type));
+			}
 		}
-		catch (IOException e)
+
+		public FieldGenerator withOptions(Map<? extends Serializable, ?> options)
 		{
-			throw new IllegalStateException(e);
+			this.selectionOptions.clear();
+			this.selectionOptions.putAll(options);
+			return this;
 		}
-	}
 
-	public void field(String label, String name, Class<?> type, Object value)
-	{
-		try
+		@Override
+		public void generate(Writer echo) throws IOException
 		{
 			echo.append("<tr>");
 			echo.append("<td colspan='2'>").append(label.trim().isEmpty() ? "" : label + ":").append("</td>");
@@ -144,7 +237,7 @@ class EditorForm implements AutoCloseable
 				echo.append("<input type=\"hidden\" name=\"").append(name).append("\" id='").append(name).append("' value=\"").append(value != null ? value.toString() : new Cargo().toString()).append("\">");
 				echo.append("<script type='text/javascript'>$(document).ready(function(){new CargoEditor('#").append(name).append("')});</script>");
 			}
-			else if (type.isAnnotationPresent(Entity.class))
+			else if (type.isAnnotationPresent(Entity.class) || !this.selectionOptions.isEmpty() )
 			{
 				editEntityBySelection(name, type, value);
 			}
@@ -163,34 +256,57 @@ class EditorForm implements AutoCloseable
 			}
 			echo.append("</td></tr>\n");
 		}
-		catch (IOException e)
+
+		private Map<Serializable, Object> generateSelectionOptions(Class<?> entityClass)
 		{
-			throw new IllegalStateException(e);
+			Map<Serializable,Object> result = new LinkedHashMap<>();
+			org.hibernate.Session db = ContextMap.getContext().getDB();
+
+			List<?> editities = Common.cast(db.createCriteria(entityClass).list());
+			for (Object entity : editities)
+			{
+				Serializable identifier = db.getIdentifier(entity);
+				result.put(identifier, entity);
+			}
+			return result;
+		}
+
+		private void editEntityBySelection(String name, Class<?> type, Object value) throws IOException
+		{
+			echo.append("<select size=\"1\" name=\"").append(name).append("\">");
+			org.hibernate.Session db = ContextMap.getContext().getDB();
+
+			Serializable selected = -1;
+			if (type.isInstance(value) && type.isAnnotationPresent(Entity.class))
+			{
+				selected = db.getIdentifier(value);
+			}
+			else if (value instanceof Serializable)
+			{
+				selected = (Serializable) value;
+			}
+
+			for (Map.Entry<Serializable, Object> entry : this.selectionOptions.entrySet())
+			{
+				Serializable identifier = entry.getKey();
+				echo.append("<option value=\"").append(identifier.toString()).append("\" ").append(identifier.equals(selected) ? "selected=\"selected\"" : "").append(">").append(AbstractEditPlugin.generateLabelFor(identifier, entry.getValue())).append("</option>");
+			}
+
+			echo.append("</select>");
 		}
 	}
 
-	private void editEntityBySelection(String name, Class<?> type, Object value) throws IOException
+	/**
+	 * Erzeugt ein Eingabefeld (Editor) fuer einen bestimmten Datentyp. Das konkret erzeugte Eingabefeld
+	 * kann von Datentyp zu Datentyp unterschiedlich sein.
+	 * @param label Das Anzeigelabel
+	 * @param name Der interne Name
+	 * @param type Der Datentyp
+	 * @param value Der momentane Wert
+	 */
+	public FieldGenerator field(String label, String name, Class<?> type, Object value)
 	{
-		echo.append("<select size=\"1\" name=\"").append(name).append("\">");
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
-		Serializable selected = -1;
-		if (value instanceof Number)
-		{
-			selected = (Number) value;
-		}
-		else if (type.isInstance(value))
-		{
-			selected = db.getIdentifier(value);
-		}
-
-		List<?> editities = Common.cast(db.createCriteria(type).list());
-		for (Object entity : editities)
-		{
-			Serializable identifier = db.getIdentifier(entity);
-			echo.append("<option value=\"").append(identifier.toString()).append("\" ").append(identifier.equals(selected) ? "selected=\"selected\"" : "").append(">").append(AbstractEditPlugin.generateLabelFor(entity)).append("</option>");
-		}
-		echo.append("</select>");
+		return custom(new FieldGenerator(label, name, type, value));
 	}
 
 	@Override
@@ -198,6 +314,11 @@ class EditorForm implements AutoCloseable
 	{
 		try
 		{
+			for (CustomFieldGenerator field : fields)
+			{
+				field.generate(echo);
+			}
+
 			echo.append("<tr><td colspan='2'></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
 			echo.append("</table>");
 			echo.append("</form>\n");
