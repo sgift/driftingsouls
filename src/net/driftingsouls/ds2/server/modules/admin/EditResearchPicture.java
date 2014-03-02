@@ -18,15 +18,10 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.List;
 import net.driftingsouls.ds2.server.entities.Forschung;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DynamicContentManager;
-import net.driftingsouls.ds2.server.modules.AdminController;
+
+import java.io.IOException;
 
 /**
  * Aktualisierungstool fuer Forschungsgrafiken.
@@ -34,61 +29,31 @@ import net.driftingsouls.ds2.server.modules.AdminController;
  * @author Christopher Jung
  */
 @AdminMenuEntry(category = "Techs", name = "Forschungsgrafik editieren")
-public class EditResearchPicture extends AbstractEditPlugin implements AdminPlugin
+public class EditResearchPicture extends AbstractEditPlugin<Forschung> implements AdminPlugin
 {
-	@Override
-	public void output(AdminController controller, String page, int action) throws IOException
+	public EditResearchPicture()
 	{
-		Context context = ContextMap.getContext();
-		Writer echo = context.getResponse().getWriter();
-		org.hibernate.Session db = context.getDB();
+		super(Forschung.class);
+	}
 
-		int forschungid = context.getRequest().getParameterInt("entityId");
+	@Override
+	protected void update(StatusWriter writer, Forschung forschung) throws IOException
+	{
+		String img = this.processDynamicContent("image", forschung.getImage());
 
-		this.beginSelectionBox(echo, page, action);
-		List<Forschung> forschungen = Common.cast(db.createQuery("from Forschung order by id").list());
-		for( Forschung f : forschungen )
+		String oldImg = forschung.getImage();
+		forschung.setImage("data/dynamicContent/"+img);
+
+		if( oldImg.startsWith("data/dynamicContent/") )
 		{
-			this.addSelectionOption(echo, f.getID(), f.getName()+" ("+f.getID()+")");
+			DynamicContentManager.remove(oldImg);
 		}
-		this.endSelectionBox(echo);
+	}
 
-		if(this.isUpdateExecuted() && forschungid != 0)
-		{
-			Forschung forschung = (Forschung)db.get(Forschung.class, forschungid);
-
-			if(forschung != null) {
-				String img = this.processDynamicContent("image", forschung.getImage());
-
-				String oldImg = forschung.getImage();
-				forschung.setImage("data/dynamicContent/"+img);
-
-				if( oldImg.startsWith("data/dynamicContent/") )
-				{
-					DynamicContentManager.remove(oldImg);
-				}
-
-				echo.append("<p>Update abgeschlossen.</p>");
-			}
-			else {
-				echo.append("<p>Keine Forschung gefunden.</p>");
-			}
-
-		}
-
-		if(forschungid != 0)
-		{
-			Forschung forschung = (Forschung)db.get(Forschung.class, forschungid);
-
-			if(forschung == null)
-			{
-				return;
-			}
-
-			this.beginEditorTable(echo, page, action, forschung.getID());
-			this.editLabel(echo, "Name", forschung.getName());
-			this.editDynamicContentField(echo, "Bild", "image", forschung.getImage());
-			this.endEditorTable(echo);
-		}
+	@Override
+	protected void edit(EditorForm form, Forschung forschung)
+	{
+		form.editLabel("Name", forschung.getName());
+		form.editDynamicContentField("Bild", "image", forschung.getImage());
 	}
 }

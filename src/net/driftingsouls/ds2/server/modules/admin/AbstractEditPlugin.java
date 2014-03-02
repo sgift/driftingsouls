@@ -1,5 +1,16 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.bases.Building;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.DynamicContent;
+import net.driftingsouls.ds2.server.framework.DynamicContentManager;
+import net.driftingsouls.ds2.server.framework.pipeline.Request;
+import net.driftingsouls.ds2.server.modules.AdminController;
+import org.apache.commons.fileupload.FileItem;
+import org.hibernate.Session;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.Writer;
@@ -8,44 +19,184 @@ import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.List;
 
-import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.DynamicContent;
-import net.driftingsouls.ds2.server.framework.DynamicContentManager;
-import org.apache.commons.fileupload.FileItem;
-
-import javax.persistence.Entity;
-
 /**
  * Bsisklasse fuer einfache Editor-Plugins (fuer einzelne Entities). Stellt
  * regelmaessig benoetigte Funktionen bereit.
- * @author christopherjung
  *
+ * @author christopherjung
  */
-public abstract class AbstractEditPlugin implements AdminPlugin
+public abstract class AbstractEditPlugin<T> implements AdminPlugin
 {
-	private String page;
-	private int action;
+	private Class<T> clazz;
 
-	protected String processDynamicContent(String name, String currentValue) throws IOException
+	protected AbstractEditPlugin(Class<T> clazz)
+	{
+		this.clazz = clazz;
+	}
+
+	@Override
+	public final void output(AdminController controller, String page, int action) throws IOException
+	{
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+
+		Writer echo = context.getResponse().getWriter();
+
+		Request request = context.getRequest();
+		int entityId = request.getParameterInt("entityId");
+
+		if (this.isUpdateExecuted())
+		{
+			try
+			{
+				@SuppressWarnings("unchecked") T entity = (T) db.get(this.clazz, entityId);
+				if (isUpdatePossible(entity))
+				{
+					update(new DefaultStatusWriter(echo), entity);
+					echo.append("<p>Update abgeschlossen.</p>");
+				}
+			}
+			catch (IOException | RuntimeException e)
+			{
+				echo.append("<p>Fehler bei Update: ").append(e.getMessage());
+			}
+		}
+		else if (this.isResetExecuted())
+		{
+			try
+			{
+				@SuppressWarnings("unchecked") T entity = (T) db.get(this.clazz, entityId);
+				reset(new DefaultStatusWriter(echo), entity);
+				echo.append("<p>Update abgeschlossen.</p>");
+			}
+			catch (IOException | RuntimeException e)
+			{
+				echo.append("<p>Fehler bei Reset: ").append(e.getMessage());
+			}
+		}
+
+		List<Building> entities = Common.cast(db.createCriteria(clazz).list());
+
+		beginSelectionBox(echo, page, action);
+		for (Object entity : entities)
+		{
+			addSelectionOption(echo, db.getIdentifier(entity), generateLabelFor(entity));
+		}
+		endSelectionBox(echo);
+
+		if (entityId > 0)
+		{
+			@SuppressWarnings("unchecked") T entity = (T) db.get(clazz, entityId);
+			if (entity == null)
+			{
+				return;
+			}
+
+			EditorForm form = beginEditorTable(echo, page, action, entityId);
+			edit(form, entity);
+			endEditorTable(echo);
+		}
+	}
+
+	protected final Session getDB()
+	{
+		return ContextMap.getContext().getDB();
+	}
+
+	public interface StatusWriter
+	{
+		public StatusWriter append(String text);
+	}
+
+	public class DefaultStatusWriter implements StatusWriter
+	{
+		private Writer echo;
+
+		public DefaultStatusWriter(Writer echo)
+		{
+			this.echo = echo;
+		}
+
+		@Override
+		public StatusWriter append(String text)
+		{
+			try
+			{
+				this.echo.append(text);
+			}
+			catch (IOException e)
+			{
+				throw new IllegalStateException(e);
+			}
+			return this;
+		}
+	}
+
+	protected abstract void update(StatusWriter writer, T entity) throws IOException;
+
+	protected void reset(StatusWriter writer, T entity) throws IOException
+	{
+	}
+
+	protected abstract void edit(EditorForm form, T entity);
+
+	protected boolean isUpdatePossible(T entity)
+	{
+		return true;
+	}
+
+	protected static String generateLabelFor(Object entity)
+	{
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+
+		Class<?> type = entity.getClass();
+
+		Method labelMethod;
+		try
+		{
+			labelMethod = type.getMethod("getName");
+		}
+		catch (NoSuchMethodException e)
+		{
+			try
+			{
+				labelMethod = type.getMethod("toString");
+			}
+			catch (NoSuchMethodException e1)
+			{
+				throw new AssertionError("No toString");
+			}
+		}
+
+		Serializable identifier = db.getIdentifier(entity);
+		try
+		{
+			return labelMethod.invoke(entity).toString() + " (" + identifier + ")";
+		}
+		catch (IllegalAccessException | InvocationTargetException e)
+		{
+			throw new IllegalStateException(e);
+		}
+	}
+
+	protected final String processDynamicContent(String name, String currentValue) throws IOException
 	{
 		Context context = ContextMap.getContext();
 
-		for( FileItem file : context.getRequest().getUploadedFiles() )
+		for (FileItem file : context.getRequest().getUploadedFiles())
 		{
-			if( name.equals(file.getFieldName()) && file.getSize() > 0 )
+			if (name.equals(file.getFieldName()) && file.getSize() > 0)
 			{
 				String id = DynamicContentManager.add(file);
-				if( id != null )
+				if (id != null)
 				{
 					processDynamicContentMetadata(name, id);
 					return id;
 				}
 			}
 		}
-		if( currentValue != null )
+		if (currentValue != null)
 		{
 			processDynamicContentMetadata(name, currentValue);
 		}
@@ -57,50 +208,48 @@ public abstract class AbstractEditPlugin implements AdminPlugin
 		Context context = ContextMap.getContext();
 
 		DynamicContent metadata = DynamicContentManager.lookupMetadata(id, true);
-		String lizenzStr = context.getRequest().getParameterString(name+"_dc_lizenz");
-		if( !lizenzStr.isEmpty() )
+		String lizenzStr = context.getRequest().getParameterString(name + "_dc_lizenz");
+		if (!lizenzStr.isEmpty())
 		{
 			try
 			{
 				metadata.setLizenz(DynamicContent.Lizenz.valueOf(lizenzStr));
 			}
-			catch( IllegalArgumentException e )
+			catch (IllegalArgumentException e)
 			{
 				// EMPTY
 			}
 		}
 		metadata.setLizenzdetails(context.getRequest().getParameterString(name + "_dc_lizenzdetails"));
-		metadata.setAutor(context.getRequest().getParameterString(name+"_dc_autor"));
+		metadata.setAutor(context.getRequest().getParameterString(name + "_dc_autor"));
 		metadata.setQuelle(context.getRequest().getParameterString(name + "_dc_quelle"));
 		metadata.setAenderungsdatum(new Date());
-		if( !context.getDB().contains(metadata) )
+		if (!context.getDB().contains(metadata))
 		{
 			context.getDB().persist(metadata);
 		}
 	}
 
-	protected void beginSelectionBox(Writer echo, String page, int action) throws IOException
+	private void beginSelectionBox(Writer echo, String page, int action) throws IOException
 	{
-		this.page = page;
-		this.action = action;
 		echo.append("<div class='gfxbox adminSelection' style='width:390px'>");
 		echo.append("<form action=\"./ds\" method=\"post\">");
-		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
-		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
+		echo.append("<input type=\"hidden\" name=\"page\" value=\"").append(page).append("\" />\n");
+		echo.append("<input type=\"hidden\" name=\"act\" value=\"").append(Integer.toString(action)).append("\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 		echo.append("<select size=\"1\" name=\"entityId\">");
 	}
 
-	protected void addSelectionOption(Writer echo, Object id, String label) throws IOException
+	private void addSelectionOption(Writer echo, Object id, String label) throws IOException
 	{
 		Context context = ContextMap.getContext();
 		String currentIdStr = context.getRequest().getParameter("entityId");
 		String idStr = id.toString();
 
-		echo.append("<option value=\"" + idStr + "\" " + (idStr.equals(currentIdStr) ? "selected=\"selected\"" : "") + ">" + label + "</option>");
+		echo.append("<option value=\"").append(idStr).append("\" ").append(idStr.equals(currentIdStr) ? "selected=\"selected\"" : "").append(">").append(label).append("</option>");
 	}
 
-	protected void endSelectionBox(Writer echo) throws IOException
+	private void endSelectionBox(Writer echo) throws IOException
 	{
 		echo.append("</select>");
 		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
@@ -108,21 +257,21 @@ public abstract class AbstractEditPlugin implements AdminPlugin
 		echo.append("</div>");
 	}
 
-	protected void beginEditorTable(Writer echo, String page, int action, Object entityId) throws IOException
+	private EditorForm beginEditorTable(final Writer echo, String page, int action, Object entityId) throws IOException
 	{
-		this.page = page;
-		this.action = action;
 		echo.append("<div class='gfxbox adminEditor' style='width:700px'>");
 		echo.append("<form action=\"./ds\" method=\"post\" enctype='multipart/form-data'>");
-		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
-		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
+		echo.append("<input type=\"hidden\" name=\"page\" value=\"").append(page).append("\" />\n");
+		echo.append("<input type=\"hidden\" name=\"act\" value=\"").append(Integer.toString(action)).append("\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-		echo.append("<input type=\"hidden\" name=\"entityId\" value=\"" + entityId + "\" />\n");
+		echo.append("<input type=\"hidden\" name=\"entityId\" value=\"").append(entityId != null ? entityId.toString() : "").append("\" />\n");
 
 		echo.append("<table width=\"100%\">");
+
+		return new EditorForm(action, page, echo);
 	}
 
-	protected void endEditorTable(Writer echo) throws IOException
+	private void endEditorTable(Writer echo) throws IOException
 	{
 		echo.append("<tr><td colspan='2'></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
 		echo.append("</table>");
@@ -130,159 +279,21 @@ public abstract class AbstractEditPlugin implements AdminPlugin
 		echo.append("</div>");
 	}
 
-	protected void editDynamicContentField(Writer echo, String label, String name, String value) throws IOException
-	{
-		echo.append("<tr class='dynamicContentEdit'>");
-
-		writeCommonDynamicContentPart(echo, label, name, value);
-
-		echo.append("</tr>");
-	}
-
-	protected void editDynamicContentFieldWithRemove(Writer echo, String label, String name, String value) throws IOException
-	{
-		echo.append("<tr class='dynamicContentEdit'>");
-		writeCommonDynamicContentPart(echo, label, name, value);
-
-		String entityId = ContextMap.getContext().getRequest().getParameter("entityId");
-
-		echo.append("<td><a title='entfernen' href='./ds?module=admin&amp;page="+page+"&amp;act="+action+"&amp;entityId="+entityId+"&reset="+name+"'>X</a>");
-
-		echo.append("</tr>");
-	}
-
-	private void writeCommonDynamicContentPart(Writer echo, String label, String name, String value) throws IOException
-	{
-		echo.append("<td>"+label+": </td>" +
-				"<td>"+(value != null && !value.trim().isEmpty() ? "<img src='"+value+"' />" : "")+"</td>" +
-				"<td>");
-
-		DynamicContent content = DynamicContentManager.lookupMetadata(value != null ? value : "dummy", true);
-
-		echo.append("<input type=\"file\" name=\""+name+"\">");
-
-		echo.append("<table>");
-		echo.append("<tr><td>Lizenz</td><td><select name='"+name+"_dc_lizenz'>");
-		echo.append("<option>Bitte wählen</option>");
-		for( DynamicContent.Lizenz lizenz : DynamicContent.Lizenz.values() )
-		{
-			echo.append("<option value='"+lizenz.name()+"' "+(content.getLizenz() == lizenz ? "selected='selected'" : "")+">"+lizenz.getLabel()+"</option>");
-		}
-		echo.append("</select></tr>");
-		echo.append("<tr><td>Lizenzdetails</td><td><textarea rows='3' cols='30' name='"+name+"_dc_lizenzdetails'>"+content.getLizenzdetails()+"</textarea></td></tr>");
-		echo.append("<tr><td>Quelle</td><td><input type='text' maxlength='255' name='"+name+"_dc_quelle' value='"+content.getQuelle()+"'/></td></tr>");
-		echo.append("<tr><td>Autor (RL-Name+Nick)</td><td><input type='text' maxlength='255' name='"+name+"_dc_autor' value='"+content.getAutor()+"'/></td></tr>");
-		echo.append("</table>");
-
-		echo.append("</td>\n");
-	}
-
-	protected void editLabel(Writer echo, String label, Object value) throws IOException
-	{
-		echo.append("<tr>");
-		echo.append("<td colspan='2'>"+(label.trim().isEmpty() ? "" : label+":")+"</td>"+
-				"<td>"+value+"</td></tr>\n");
-	}
-
-	protected void editTextArea(Writer echo, String label, String name, Object value) throws IOException
-	{
-		echo.append("<tr>");
-		echo.append("<td colspan='2'>").append(label.trim().isEmpty() ? "" : label + ":").append("</td>");
-		echo.append("<td>");
-		echo.append("<textarea rows='3' cols='60' name=\"").append(name).append("\">").append(value != null ? value.toString() : "").append("</textarea>");
-		echo.append("</td></tr>\n");
-	}
-
-	protected void editField(Writer echo, String label, String name, Class<?> type, Object value) throws IOException
-	{
-		echo.append("<tr>");
-		echo.append("<td colspan='2'>").append(label.trim().isEmpty() ? "" : label + ":").append("</td>");
-		echo.append("<td>");
-		if( Cargo.class.isAssignableFrom(type) )
-		{
-			echo.append("<input type=\"hidden\" name=\"").append(name).append("\" id='").append(name).append("' value=\"").append(value != null ? value.toString() : new Cargo().toString()).append("\">");
-			echo.append("<script type='text/javascript'>$(document).ready(function(){new CargoEditor('#").append(name).append("')});</script>");
-		}
-		else if( type.isAnnotationPresent(Entity.class) )
-		{
-			editEntityBySelection(echo, name, type, value);
-		}
-		else if( Boolean.class.isAssignableFrom(type) )
-		{
-			boolean bool = false;
-			if( value != null )
-			{
-				bool = (Boolean) value;
-			}
-			echo.append("<input type=\"checkbox\" name=\"").append(name).append("\" value=\"true\" ").append(bool ? "checked='checked'" : "").append(" \">");
-		}
-		else {
-			echo.append("<input type=\"text\" name=\"").append(name).append("\" value=\"").append(value != null ? value.toString() : "").append("\">");
-		}
-		echo.append("</td></tr>\n");
-	}
-
-	private void editEntityBySelection(Writer echo, String name, Class<?> type, Object value) throws IOException
-	{
-		echo.append("<select size=\"1\" name=\"").append(name).append("\">");
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
-		Serializable selected = -1;
-		if( value instanceof Number )
-		{
-			selected = (Number)value;
-		}
-		else if( type.isInstance(value) )
-		{
-			selected = db.getIdentifier(value);
-		}
-
-		Method labelMethod;
-		try
-		{
-			labelMethod = type.getMethod("getName");
-		}
-		catch( NoSuchMethodException e ) {
-			try
-			{
-				labelMethod = type.getMethod("toString");
-			}
-			catch (NoSuchMethodException e1)
-			{
-				throw new AssertionError("No toString");
-			}
-		}
-		List<?> editities = Common.cast(db.createCriteria(type).list());
-		for (Object entity : editities)
-		{
-			Serializable identifier = db.getIdentifier(entity);
-			try
-			{
-				echo.append("<option value=\"").append(identifier.toString()).append("\" ").append(identifier.equals(selected) ? "selected=\"selected\"" : "").append(">").append(labelMethod.invoke(entity).toString()).append("</option>");
-			}
-			catch (IllegalAccessException | InvocationTargetException e)
-			{
-				throw new IllegalStateException(e);
-			}
-		}
-		echo.append("</select>");
-	}
-
-	protected boolean isResetted(String name)
+	protected final boolean isResetted(String name)
 	{
 		Context context = ContextMap.getContext();
 		String reset = context.getRequest().getParameterString("reset");
 		return name.equals(reset);
 	}
 
-	protected boolean isResetExecuted()
+	private boolean isResetExecuted()
 	{
 		Context context = ContextMap.getContext();
 		String reset = context.getRequest().getParameterString("reset");
 		return reset != null && !reset.trim().isEmpty();
 	}
 
-	protected boolean isUpdateExecuted()
+	private boolean isUpdateExecuted()
 	{
 		Context context = ContextMap.getContext();
 		String change = context.getRequest().getParameterString("change");

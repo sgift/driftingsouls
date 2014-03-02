@@ -18,15 +18,10 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.List;
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DynamicContentManager;
-import net.driftingsouls.ds2.server.modules.AdminController;
+
+import java.io.IOException;
 
 /**
  * Aktualisierungstool fuer Itemgrafiken.
@@ -34,73 +29,43 @@ import net.driftingsouls.ds2.server.modules.AdminController;
  * @author Christopher Jung
  */
 @AdminMenuEntry(category = "Items", name = "Itemgrafik editieren")
-public class EditItemPicture extends AbstractEditPlugin implements AdminPlugin
+public class EditItemPicture extends AbstractEditPlugin<Item> implements AdminPlugin
 {
-	@Override
-	public void output(AdminController controller, String page, int action) throws IOException
+	public EditItemPicture()
 	{
-		Context context = ContextMap.getContext();
-		Writer echo = context.getResponse().getWriter();
-		org.hibernate.Session db = context.getDB();
+		super(Item.class);
+	}
 
-		int itemid = context.getRequest().getParameterInt("entityId");
-
-		this.beginSelectionBox(echo, page, action);
-		List<Item> items = Common.cast(db.createQuery("from Item order by id").list());
-		for( Item item : items )
+	@Override
+	protected void update(StatusWriter statusWriter, Item item) throws IOException
+	{
+		String newimg = this.processDynamicContent("picture", item.getPicture());
+		if( newimg != null )
 		{
-			this.addSelectionOption(echo, item.getID(), item.getName()+" ("+item.getID()+")");
-		}
-		this.endSelectionBox(echo);
-
-		if(isUpdateExecuted() && itemid != 0)
-		{
-			Item item = (Item)db.get(Item.class, itemid);
-
-			if(item != null) {
-				String newimg = this.processDynamicContent("picture", item.getPicture());
-				if( newimg != null )
-				{
-					String oldImg = item.getPicture();
-					item.setPicture("data/dynamicContent/"+newimg);
-					if( oldImg.startsWith("data/dynamicContent/") )
-					{
-						DynamicContentManager.remove(oldImg);
-					}
-				}
-				String newlargeimg = this.processDynamicContent("largepicture", item.getLargePicture());
-				if( newlargeimg != null )
-				{
-					String oldImg = item.getLargePicture();
-					item.setLargePicture("data/dynamicContent/"+newlargeimg);
-					if( oldImg != null && oldImg.startsWith("data/dynamicContent/") )
-					{
-						DynamicContentManager.remove(oldImg);
-					}
-				}
-
-				echo.append("<p>Update abgeschlossen.</p>");
-			}
-			else {
-				echo.append("<p>Kein Item gefunden.</p>");
-			}
-
-		}
-
-		if(itemid != 0)
-		{
-			Item item = (Item)db.get(Item.class, itemid);
-
-			if(item == null)
+			String oldImg = item.getPicture();
+			item.setPicture("data/dynamicContent/"+newimg);
+			if( oldImg.startsWith("data/dynamicContent/") )
 			{
-				return;
+				DynamicContentManager.remove(oldImg);
 			}
-
-			this.beginEditorTable(echo, page, action, item.getID());
-			this.editLabel(echo, "Name", item.getName());
-			this.editDynamicContentField(echo, "Bild", "picture", item.getPicture());
-			this.editDynamicContentField(echo, "Bild (groß)", "largepicture", item.getLargePicture());
-			this.endEditorTable(echo);
 		}
+		String newlargeimg = this.processDynamicContent("largepicture", item.getLargePicture());
+		if( newlargeimg != null )
+		{
+			String oldImg = item.getLargePicture();
+			item.setLargePicture("data/dynamicContent/"+newlargeimg);
+			if( oldImg != null && oldImg.startsWith("data/dynamicContent/") )
+			{
+				DynamicContentManager.remove(oldImg);
+			}
+		}
+	}
+
+	@Override
+	protected void edit(EditorForm form, Item item)
+	{
+		form.editLabel("Name", item.getName());
+		form.editDynamicContentField("Bild", "picture", item.getPicture());
+		form.editDynamicContentField("Bild (groß)", "largepicture", item.getLargePicture());
 	}
 }

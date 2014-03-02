@@ -18,16 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.List;
 import net.driftingsouls.ds2.server.entities.Offizier;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DynamicContentManager;
 import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
-import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipModules;
 import net.driftingsouls.ds2.server.ships.ShipType;
@@ -37,76 +30,49 @@ import org.hibernate.CacheMode;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 
+import java.io.IOException;
+
 /**
  * Aktualisierungstool fuer Schiffstypen-Grafiken.
  *
  * @author Christopher Jung
  */
 @AdminMenuEntry(category = "Schiffe", name = "Typengrafik editieren")
-public class EditShiptypePicture extends AbstractEditPlugin implements AdminPlugin
+public class EditShiptypePicture extends AbstractEditPlugin<ShipType> implements AdminPlugin
 {
 	private static final Logger log = LogManager.getLogger(EditShiptypePicture.class);
 
-	@Override
-	public void output(AdminController controller, String page, int action) throws IOException
+	public EditShiptypePicture()
 	{
-		Context context = ContextMap.getContext();
-		Writer echo = context.getResponse().getWriter();
-		org.hibernate.Session db = context.getDB();
+		super(ShipType.class);
+	}
 
-		int shipid = context.getRequest().getParameterInt("entityId");
-
-		this.beginSelectionBox(echo, page, action);
-		List<ShipType> shipTypes = Common.cast(db.createQuery("from ShipType order by id").list());
-		for( ShipType st : shipTypes )
+	@Override
+	protected void update(StatusWriter statusWriter, ShipType shipType) throws IOException
+	{
+		String img = this.processDynamicContent("image", shipType.getPicture());
+		String oldImg = shipType.getPicture();
+		shipType.setPicture("data/dynamicContent/"+img);
+		if( oldImg.startsWith("data/dynamicContent/") )
 		{
-			this.addSelectionOption(echo, st.getId(), st.getNickname()+" ("+st.getId()+")");
-		}
-		this.endSelectionBox(echo);
-
-		if(this.isUpdateExecuted() && shipid != 0)
-		{
-			ShipType shipType = (ShipType)db.get(ShipType.class, shipid);
-
-			if(shipType != null) {
-				String img = this.processDynamicContent("image", shipType.getPicture());
-				String oldImg = shipType.getPicture();
-				shipType.setPicture("data/dynamicContent/"+img);
-				if( oldImg.startsWith("data/dynamicContent/") )
-				{
-					DynamicContentManager.remove(oldImg);
-				}
-
-				echo.append("<p>Update abgeschlossen.</p>");
-			}
-			else {
-				echo.append("<p>Kein Schiffstyp gefunden.</p>");
-			}
-
-			recalculateShipModules(db, shipType);
+			DynamicContentManager.remove(oldImg);
 		}
 
-		if(shipid != 0)
-		{
-			ShipType shipType = (ShipType)db.get(ShipType.class, shipid);
+		recalculateShipModules(getDB(), shipType);
+	}
 
-			if(shipType == null)
-			{
-				return;
-			}
+	@Override
+	protected void edit(EditorForm form, ShipType shipType)
+	{
+		form.editLabel("Name", shipType.getNickname());
+		form.editDynamicContentField("Bild", "image", shipType.getPicture());
 
-			this.beginEditorTable(echo, page, action, shipid);
-			this.editLabel(echo, "Name", shipType.getNickname());
-			this.editDynamicContentField(echo, "Bild", "image", shipType.getPicture());
+		Number count = (Number)getDB().createQuery("select count(*) from Ship s where s.shiptype=:type and s.modules is not null")
+							   .setParameter("type", shipType)
+							   .iterate()
+							   .next();
 
-			Number count = (Number)db.createQuery("select count(*) from Ship s where s.shiptype=:type and s.modules is not null")
-				.setParameter("type", shipType)
-				.iterate()
-				.next();
-
-			this.editLabel(echo, "Zu aktualisieren", count + " Schiffe mit Modulen");
-			this.endEditorTable(echo);
-		}
+		form.editLabel("Zu aktualisieren", count + " Schiffe mit Modulen");
 	}
 
 	private void recalculateShipModules(org.hibernate.Session db, ShipType shipType)

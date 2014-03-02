@@ -22,76 +22,47 @@ import net.driftingsouls.ds2.server.bases.BaseType;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.modules.AdminController;
 
 import java.io.IOException;
-import java.io.Writer;
-import java.util.List;
 
 /**
  * Aktualisierungstool fuer die Basis-Klassen.
  * 
  */
 @AdminMenuEntry(category = "Asteroiden", name = "Basis-Klasse editieren")
-public class EditBaseType extends AbstractEditPlugin implements AdminPlugin
+public class EditBaseType extends AbstractEditPlugin<BaseType> implements AdminPlugin
 {
+	public EditBaseType()
+	{
+		super(BaseType.class);
+	}
+
 	@Override
-	public void output(AdminController controller, String page, int action) throws IOException
+	protected void update(StatusWriter writer, BaseType type) throws IOException
 	{
 		Context context = ContextMap.getContext();
-		Writer echo = context.getResponse().getWriter();
-		org.hibernate.Session db = context.getDB();
-		
-		int typeid = context.getRequest().getParameterInt("entityId");
+		type.setName(context.getRequest().getParameterString("name"));
+		type.setEnergy(context.getRequest().getParameterInt("energie"));
+		type.setCargo(context.getRequest().getParameterInt("cargo"));
+		type.setWidth(context.getRequest().getParameterInt("width"));
+		type.setHeight(context.getRequest().getParameterInt("height"));
+		type.setMaxTiles(context.getRequest().getParameterInt("maxtiles"));
+		type.setSize(context.getRequest().getParameterInt("size"));
+		type.setTerrain(Common.explodeToInteger(";", context.getRequest().getParameterString("terrain")));
+		type.setSpawnableRess(context.getRequest().getParameterString("spawnableress"));
+	}
 
-		List<BaseType> baseTypes = Common.cast(db.createQuery("from BaseType").list());
-
-		beginSelectionBox(echo, page, action);
-		for (BaseType type: baseTypes)
-		{
-			addSelectionOption(echo, type.getId(), type.getName()+" ("+type.getId()+")");
-		}
-		endSelectionBox(echo);
-
-		if(this.isUpdateExecuted() && typeid != 0)
-		{
-			BaseType type = (BaseType)db.get(BaseType.class, typeid);
-			
-			type.setName(context.getRequest().getParameterString("name"));
-			type.setEnergy(context.getRequest().getParameterInt("energie"));
-			type.setCargo(context.getRequest().getParameterInt("cargo"));
-			type.setWidth(context.getRequest().getParameterInt("width"));
-			type.setHeight(context.getRequest().getParameterInt("height"));
-			type.setMaxTiles(context.getRequest().getParameterInt("maxtiles"));
-			type.setSize(context.getRequest().getParameterInt("size"));
-			type.setTerrain(Common.explodeToInteger(";", context.getRequest().getParameterString("terrain")));
-			type.setSpawnableRess(context.getRequest().getParameterString("spawnableress"));
-			
-			echo.append("<p>Update abgeschlossen.</p>");
-		}
-		
-		if(typeid != 0)
-		{
-			BaseType type = (BaseType)db.get(BaseType.class, typeid);
-			
-			if(type == null)
-			{
-				return;
-			}
-
-			beginEditorTable(echo, page, action, typeid);
-
-			editField(echo, "Name", "name", String.class, type.getName());
-			editField(echo, "Energie", "energie", Integer.class, type.getEnergy());
-			editField(echo, "Cargo", "cargo", Integer.class, type.getCargo());
-			editField(echo, "Breite", "width", Integer.class, type.getWidth());
-			editField(echo, "Höhe", "height", Integer.class, type.getHeight());
-			editField(echo, "Max. Feldanzahl", "maxtiles", Integer.class, type.getMaxTiles());
-			editField(echo, "Radius", "size", Integer.class, type.getSize());
-			editField(echo, "Terrain", "terrain", String.class, (type.getTerrain() == null ? "" : Common.implode(";", type.getTerrain())));
-			editField(echo, "Zum Spawn freigegebene Ressourcen", "spawnableress", String.class, type.getSpawnableRess());
-
-			endEditorTable(echo);
-		}
+	@Override
+	protected void edit(EditorForm form, BaseType type)
+	{
+		form.editField("Name", "name", String.class, type.getName());
+		form.editField("Energie", "energie", Integer.class, type.getEnergy());
+		form.editField("Cargo", "cargo", Integer.class, type.getCargo());
+		form.editField("Breite", "width", Integer.class, type.getWidth());
+		form.editField("Höhe", "height", Integer.class, type.getHeight());
+		form.editField("Max. Feldanzahl", "maxtiles", Integer.class, type.getMaxTiles());
+		form.editField("Radius", "size", Integer.class, type.getSize());
+		form.editField("Terrain", "terrain", String.class, (type.getTerrain() == null ? "" : Common.implode(";", type.getTerrain())));
+		form.editField("Zum Spawn freigegebene Ressourcen", "spawnableress", String.class, type.getSpawnableRess());
 	}
 }

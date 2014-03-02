@@ -18,18 +18,13 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.List;
-import java.util.Map;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.Rasse;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DynamicContentManager;
-import net.driftingsouls.ds2.server.modules.AdminController;
+
+import java.io.IOException;
+import java.util.Map;
 
 /**
  * Aktualisierungstool fuer Gebaeudegrafiken.
@@ -37,105 +32,71 @@ import net.driftingsouls.ds2.server.modules.AdminController;
  * @author Christopher Jung
  */
 @AdminMenuEntry(category = "Asteroiden", name = "Gebäudegrafiken editieren")
-public class EditBuildingPicture extends AbstractEditPlugin implements AdminPlugin
+public class EditBuildingPicture extends AbstractEditPlugin<Building> implements AdminPlugin
 {
-	@Override
-	public void output(AdminController controller, String page, int action) throws IOException
+	public EditBuildingPicture()
 	{
-		Context context = ContextMap.getContext();
-		Writer echo = context.getResponse().getWriter();
-		org.hibernate.Session db = context.getDB();
+		super(Building.class);
+	}
 
-		int buildingid = context.getRequest().getParameterInt("entityId");
-
-		// Update values?
-
-		this.beginSelectionBox(echo, page, action);
-		List<Building> buildings = Common.cast(db.createQuery("from Building order by id").list());
-		for( Building building : buildings )
+	@Override
+	protected void reset(StatusWriter writer, Building building) throws IOException
+	{
+		for( Rasse rasse : Rassen.get() )
 		{
-			this.addSelectionOption(echo, building.getId(), building.getName()+" ("+building.getId()+")");
-		}
-		this.endSelectionBox(echo);
-
-		if(this.isUpdateExecuted() && buildingid != 0)
-		{
-			Building building = (Building)db.get(Building.class, buildingid);
-
-			if(building != null) {
-				Map<Integer,String> altBilder = building.getAlternativeBilder();
-
-				String buildingImg = processDynamicContent("picture", building.getDefaultPicture());
-				if( buildingImg != null )
+			if( isResetted("rasse"+rasse.getId()) )
+			{
+				String value = building.getAlternativeBilder().remove(rasse.getId());
+				if(value != null)
 				{
-					String oldImg = building.getDefaultPicture();
-					building.setDefaultPicture("data/dynamicContent/"+buildingImg);
-					if( oldImg.startsWith("data/dynamicContent/") )
-					{
-						DynamicContentManager.remove(oldImg);
-					}
-				}
-				for( Rasse rasse : Rassen.get() )
-				{
-					String rasseImg = processDynamicContent("rasse"+rasse.getId(), altBilder.get(rasse.getId()));
-					if( rasseImg != null )
-					{
-						String curPicture = altBilder.get(rasse.getId());
-						altBilder.put(rasse.getId(), "data/dynamicContent/"+rasseImg);
-						if( curPicture != null && curPicture.startsWith("data/dynamicContent/"))
-						{
-							DynamicContentManager.remove(curPicture);
-						}
-					}
+					DynamicContentManager.remove(value);
 				}
 
-				echo.append("<p>Update abgeschlossen.</p>");
-			}
-			else
-			{
-				echo.append("<p>Kein Gebäude gefunden.</p>");
+				break;
 			}
 		}
-		else if( isResetExecuted() && buildingid != 0 )
-		{
-			Building building = (Building)db.get(Building.class, buildingid);
-			for( Rasse rasse : Rassen.get() )
-			{
-				if( isResetted("rasse"+rasse.getId()) )
-				{
-					String value = building.getAlternativeBilder().remove(rasse.getId());
-					if(value != null)
-					{
-						DynamicContentManager.remove(value);
-					}
+	}
 
-					echo.append("<p>Update abgeschlossen.</p>");
-					break;
+	@Override
+	protected void update(StatusWriter writer, Building building) throws IOException
+	{
+		Map<Integer,String> altBilder = building.getAlternativeBilder();
+
+		String buildingImg = processDynamicContent("picture", building.getDefaultPicture());
+		if( buildingImg != null )
+		{
+			String oldImg = building.getDefaultPicture();
+			building.setDefaultPicture("data/dynamicContent/"+buildingImg);
+			if( oldImg.startsWith("data/dynamicContent/") )
+			{
+				DynamicContentManager.remove(oldImg);
+			}
+		}
+		for( Rasse rasse : Rassen.get() )
+		{
+			String rasseImg = processDynamicContent("rasse"+rasse.getId(), altBilder.get(rasse.getId()));
+			if( rasseImg != null )
+			{
+				String curPicture = altBilder.get(rasse.getId());
+				altBilder.put(rasse.getId(), "data/dynamicContent/"+rasseImg);
+				if( curPicture != null && curPicture.startsWith("data/dynamicContent/"))
+				{
+					DynamicContentManager.remove(curPicture);
 				}
 			}
 		}
+	}
 
-		if(buildingid != 0)
+	@Override
+	protected void edit(EditorForm form, Building building)
+	{
+		form.editLabel("Name", building.getName());
+		form.editDynamicContentField("Bild", "picture", building.getDefaultPicture());
+
+		Map<Integer,String> altBilder = building.getAlternativeBilder();
+		for( Rasse rasse : Rassen.get() )
 		{
-			Building building = (Building)db.get(Building.class, buildingid);
-
-			if(building == null)
-			{
-				return;
-			}
-
-			this.beginEditorTable(echo, page, action, buildingid);
-
-			this.editLabel(echo, "Name", building.getName());
-			this.editDynamicContentField(echo, "Bild", "picture", building.getDefaultPicture());
-
-			Map<Integer,String> altBilder = building.getAlternativeBilder();
-			for( Rasse rasse : Rassen.get() )
-			{
-				this.editDynamicContentFieldWithRemove(echo, rasse.getName(), "rasse"+rasse.getId(), altBilder.get(rasse.getId()));
-			}
-
-			this.endEditorTable(echo);
+			form.editDynamicContentFieldWithRemove(rasse.getName(), "rasse" + rasse.getId(), altBilder.get(rasse.getId()));
 		}
 	}
 }
