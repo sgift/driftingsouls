@@ -18,18 +18,17 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.ItemID;
-import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.units.UnitType;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
 
 /**
  * Aktualisierungstool fuer die Werte einer Einheit.
@@ -37,7 +36,7 @@ import net.driftingsouls.ds2.server.units.UnitType;
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Einheiten", name = "Einheit editieren")
-public class EditUnits implements AdminPlugin
+public class EditUnits extends AbstractEditPlugin
 {
 	@Override
 	public void output(AdminController controller, String page, int action) throws IOException
@@ -45,24 +44,25 @@ public class EditUnits implements AdminPlugin
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
-		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
 
-		int unitid = context.getRequest().getParameterInt("unitid");
+		int unitid = context.getRequest().getParameterInt("entityId");
 
-		// Update values?
-		boolean update = context.getRequest().getParameterString("change").equals("Aktualisieren");
+		List<UnitType> unitTypes = Common.cast(db.createCriteria(UnitType.class).list());
 
-		echo.append("<form action=\"./ds\" method=\"post\">");
-		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
-		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
-		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-		echo.append("<input type=\"text\" name=\"unitid\" value=\""+ unitid +"\" />\n");
-		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
-		echo.append("</form>");
+		beginSelectionBox(echo, page, action);
+		for (UnitType unitType : unitTypes)
+		{
+			addSelectionOption(echo, unitType.getId(), unitType.getName()+" ("+ unitType.getId()+")");
+		}
+		endSelectionBox(echo);
 
-		if(update && unitid != 0)
+		if(isUpdateExecuted())
 		{
 			UnitType unit = (UnitType)db.get(UnitType.class, unitid);
+			if( unit == null )
+			{
+				return;
+			}
 
 			unit.setName(context.getRequest().getParameterString("name"));
 			unit.setPicture(context.getRequest().getParameterString("picture"));
@@ -76,14 +76,6 @@ public class EditUnits implements AdminPlugin
 			unit.setHidden(context.getRequest().getParameterString("hidden").equals("true"));
 
 			Cargo cargo = new Cargo(Cargo.Type.ITEMSTRING, context.getRequest().getParameter("buildcosts"));
-
-			for(Item item: itemlist)
-			{
-				long amount = context.getRequest().getParameterInt("i"+item.getID());
-				int uses = context.getRequest().getParameterInt("i" + item.getID() + "uses");
-				cargo.addResource(new ItemID(item.getID(), uses, 0), amount);
-			}
-
 			unit.setBuildCosts(cargo);
 
 			echo.append("<p>Update abgeschlossen.</p>");
@@ -98,29 +90,21 @@ public class EditUnits implements AdminPlugin
 				return;
 			}
 
-			echo.append("<div class='gfxbox' style='width:600px'>");
-			echo.append("<form action=\"./ds\" method=\"post\">");
-			echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
-			echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
-			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-			echo.append("<input type=\"hidden\" name=\"unitid\" value=\"" + unitid + "\" />\n");
-			echo.append("<table width=\"100%\">");
-			echo.append("<tr><td>Name: </td><td><input type=\"text\" name=\"name\" value=\"" + unit.getName() + "\"></td></tr>\n");
-			echo.append("<tr><td>Bild: </td><td><input type=\"text\" name=\"picture\" value=\"" + unit.getPicture() + "\"></td></tr>\n");
-			echo.append("<tr><td>Nahrungskosten: </td><td><input type=\"text\" name=\"nahrungcost\" value=\"" + unit.getNahrungCost() + "\"></td></tr>\n");
-			echo.append("<tr><td>RE Kosten: </td><td><input type=\"text\" name=\"recost\" value=\"" + unit.getReCost() + "\"></td></tr>\n");
-			echo.append("<tr><td>Kaper-Wert: </td><td><input type=\"text\" name=\"kapervalue\" value=\"" + unit.getKaperValue() + "\"></td></tr>\n");
-			echo.append("<tr><td>Gr&ouml;&szlig;e: </td><td><input type=\"text\" name=\"size\" value=\"" + unit.getSize() + "\"></td></tr>\n");
-			echo.append("<tr><td>Beschreibung: </td><td><input type=\"text\" name=\"description\" value=\"" + unit.getDescription() + "\"></td></tr>\n");
-			echo.append("<tr><td>Ben&ouml;tigte Forschung: </td><td><input type=\"text\" name=\"forschung\" value=\"" + unit.getRes() + "\"></td></tr>\n");
-			echo.append("<tr><td>Dauer: </td><td><input type=\"text\" name=\"dauer\" value=\"" + unit.getDauer() + "\"></td></tr>\n");
-			echo.append("<tr><td>Hidden: </td><td><input type=\"text\" name=\"hidden\" value=\"" + unit.isHidden() + "\"></td></tr>\n");
-			echo.append("<tr><td>Baukosten:</td><td><input type='hidden' name='buildcosts' id='buildcosts' value='"+unit.getBuildCosts().toString()+"'/></td></tr>");
-			echo.append("<tr><td></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
-			echo.append("</table>");
-			echo.append("</form>\n");
-			echo.append("<script type='text/javascript'>$(document).ready(function() {new CargoEditor('#buildcosts');});</script>");
-			echo.append("</div>");
+			beginEditorTable(echo, page, action, unitid);
+
+			editField(echo, "Name", "name", String.class, unit.getName());
+			editField(echo, "Bild", "picture", String.class, unit.getPicture());
+			editField(echo, "Nahrungskosten", "nahrungcost", Double.class, unit.getNahrungCost());
+			editField(echo, "RE Kosten", "recost", Double.class, unit.getReCost());
+			editField(echo, "Kaper-Wert", "kapervalue", Integer.class, unit.getKaperValue());
+			editField(echo, "Größe", "size", Integer.class, unit.getSize());
+			editTextArea(echo, "Beschreibung", "description", unit.getDescription());
+			editField(echo, "Benötigte Forschung", "forschung", Forschung.class, unit.getRes());
+			editField(echo, "Dauer", "dauer", Integer.class, unit.getDauer());
+			editField(echo, "Hidden", "hidden", Boolean.class, unit.isHidden());
+			editField(echo, "Baukosten", "buildcosts", Cargo.class, unit.getBuildCosts());
+
+			endEditorTable(echo);
 		}
 	}
 }

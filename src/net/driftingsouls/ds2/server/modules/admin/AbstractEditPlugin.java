@@ -184,6 +184,15 @@ public abstract class AbstractEditPlugin implements AdminPlugin
 				"<td>"+value+"</td></tr>\n");
 	}
 
+	protected void editTextArea(Writer echo, String label, String name, Object value) throws IOException
+	{
+		echo.append("<tr>");
+		echo.append("<td colspan='2'>").append(label.trim().isEmpty() ? "" : label + ":").append("</td>");
+		echo.append("<td>");
+		echo.append("<textarea rows='3' cols='60' name=\"").append(name).append("\">").append(value != null ? value.toString() : "").append("</textarea>");
+		echo.append("</td></tr>\n");
+	}
+
 	protected void editField(Writer echo, String label, String name, Class<?> type, Object value) throws IOException
 	{
 		echo.append("<tr>");
