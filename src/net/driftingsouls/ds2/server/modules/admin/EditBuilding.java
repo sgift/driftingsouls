@@ -30,7 +30,7 @@ public class EditBuilding extends AbstractEditPlugin
 		org.hibernate.Session db = context.getDB();
 
 		Request request = context.getRequest();
-		int buildingId = request.getParameterInt("entityId");;
+		int buildingId = request.getParameterInt("entityId");
 
 		if( this.isUpdateExecuted() )
 		{
@@ -69,9 +69,11 @@ public class EditBuilding extends AbstractEditPlugin
 			building.setChanceRessString(request.getParameterString("chanceress"));
 			building.setShutDown(request.getParameterString("shutdown").equals("true"));
 			building.setRace(request.getParameterInt("race"));
+
+			echo.append("<p>Update abgeschlossen.</p>");
 		}
 
-		List<Building> buildings = Common.cast(db.createQuery("from Building").list());
+		List<Building> buildings = Common.cast(db.createCriteria(Building.class).list());
 
 		beginSelectionBox(echo, page, action);
 		for (Building building: buildings)
@@ -90,6 +92,7 @@ public class EditBuilding extends AbstractEditPlugin
 
 			beginEditorTable(echo, page, action, buildingId);
 
+			editLabel(echo, "Implementierung", building.getClass().getName());
 			editField(echo, "Name", "name", String.class, building.getName());
 			editField(echo, "Bild", "picture", String.class, building.getDefaultPicture());
 			editField(echo, "Arbeiter", "worker", Integer.class, building.getArbeiter());
