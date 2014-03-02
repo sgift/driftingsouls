@@ -68,27 +68,27 @@ public class EditBuilding extends AbstractEditPlugin<Building>
 	@Override
 	protected void edit(EditorForm form, Building building)
 	{
-		form.editLabel("Implementierung", building.getClass().getName());
-		form.editField("Name", "name", String.class, building.getName());
-		form.editField("Bild", "picture", String.class, building.getDefaultPicture());
-		form.editField("Arbeiter", "worker", Integer.class, building.getArbeiter());
+		form.label("Implementierung", building.getClass().getName());
+		form.field("Name", "name", String.class, building.getName());
+		form.field("Bild", "picture", String.class, building.getDefaultPicture());
+		form.field("Arbeiter", "worker", Integer.class, building.getArbeiter());
 
 		int energy = -1*building.getEVerbrauch() + building.getEProduktion();
-		form.editField("Energie", "energy", Integer.class, energy);
-		form.editField("EPS", "eps", Integer.class, building.getEPS());
-		form.editField("Wohnraum", "room", Integer.class, building.getBewohner());
-		form.editField("Forschung", "tech", Forschung.class, building.getTechRequired());
-		form.editField("Untergrundkomplex", "undergroundbuilding", Boolean.class, building.isUComplex());
-		form.editField("Max. pro Planet", "perplanet", Integer.class, building.getPerPlanetCount());
-		form.editField("Max. pro Spieler", "perowner", Integer.class, building.getPerUserCount());
-		form.editField("Abschaltbar", "deactivable", Boolean.class, building.isDeakAble());
-		form.editField("Kategorie", "category", Integer.class, building.getCategory());
-		form.editField("Terrain", "terrain", String.class, building.getTerrainString());
-		form.editField("Auto Abschalten", "shutdown", Boolean.class, building.isShutDown());
-		form.editField("ChanceRess", "chanceress", String.class, building.getChanceRessString());
-		form.editField("Rasse", "race", Rasse.class, building.getRace());
-		form.editField("Baukosten", "buildcosts", Cargo.class, building.getBuildCosts());
-		form.editField("Verbraucht", "consumes", Cargo.class, building.getConsumes());
-		form.editField("Produziert", "produces", Cargo.class, building.getProduces());
+		form.field("Energie", "energy", Integer.class, energy);
+		form.field("EPS", "eps", Integer.class, building.getEPS());
+		form.field("Wohnraum", "room", Integer.class, building.getBewohner());
+		form.field("Forschung", "tech", Forschung.class, building.getTechRequired());
+		form.field("Untergrundkomplex", "undergroundbuilding", Boolean.class, building.isUComplex());
+		form.field("Max. pro Planet", "perplanet", Integer.class, building.getPerPlanetCount());
+		form.field("Max. pro Spieler", "perowner", Integer.class, building.getPerUserCount());
+		form.field("Abschaltbar", "deactivable", Boolean.class, building.isDeakAble());
+		form.field("Kategorie", "category", Integer.class, building.getCategory());
+		form.field("Terrain", "terrain", String.class, building.getTerrainString());
+		form.field("Auto Abschalten", "shutdown", Boolean.class, building.isShutDown());
+		form.field("ChanceRess", "chanceress", String.class, building.getChanceRessString());
+		form.field("Rasse", "race", Rasse.class, building.getRace());
+		form.field("Baukosten", "buildcosts", Cargo.class, building.getBuildCosts());
+		form.field("Verbraucht", "consumes", Cargo.class, building.getConsumes());
+		form.field("Produziert", "produces", Cargo.class, building.getProduces());
 	}
 }

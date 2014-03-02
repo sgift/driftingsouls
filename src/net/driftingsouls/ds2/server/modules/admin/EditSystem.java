@@ -139,16 +139,16 @@ public class EditSystem extends AbstractEditPlugin<StarSystem> implements AdminP
 	@Override
 	protected void edit(EditorForm form, StarSystem system)
 	{
-		form.editField("Name", "name", String.class, system.getName());
-		form.editField("Breite", "width", Integer.class, system.getWidth());
-		form.editField("Höhe", "height", Integer.class, system.getHeight());
-		form.editField("Allow Military", "military", Boolean.class, system.isMilitaryAllowed());
-		form.editField("Max Colonies (-1 = keine Begrenzung)", "maxcolonies", Integer.class, system.getMaxColonies());
-		form.editField("In Sternenkarte sichtbar", "starmap", Boolean.class, system.isStarmapVisible());
-		form.editField("OrderLocations(Form: x/y|x/y)", "orderloc", String.class, system.getOrderLocationString());
-		form.editField("GTU Dropzone(Form: x/y)", "gtuDropZone", String.class, system.getDropZoneString());
-		form.editField("Zugriffsrechte(1=Jeder;2=NPC;3=Admin)", "access", Integer.class, system.getAccess());
-		form.editField("Beschreibung", "descrip", String.class, system.getDescription());
-		form.editField("Ressourcenvorkommen", "spawnableress", String.class, system.getSpawnableRess());
+		form.field("Name", "name", String.class, system.getName());
+		form.field("Breite", "width", Integer.class, system.getWidth());
+		form.field("Höhe", "height", Integer.class, system.getHeight());
+		form.field("Allow Military", "military", Boolean.class, system.isMilitaryAllowed());
+		form.field("Max Colonies (-1 = keine Begrenzung)", "maxcolonies", Integer.class, system.getMaxColonies());
+		form.field("In Sternenkarte sichtbar", "starmap", Boolean.class, system.isStarmapVisible());
+		form.field("OrderLocations(Form: x/y|x/y)", "orderloc", String.class, system.getOrderLocationString());
+		form.field("GTU Dropzone(Form: x/y)", "gtuDropZone", String.class, system.getDropZoneString());
+		form.field("Zugriffsrechte(1=Jeder;2=NPC;3=Admin)", "access", Integer.class, system.getAccess());
+		form.field("Beschreibung", "descrip", String.class, system.getDescription());
+		form.field("Ressourcenvorkommen", "spawnableress", String.class, system.getSpawnableRess());
 	}
 }

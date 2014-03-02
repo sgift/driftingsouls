@@ -55,14 +55,14 @@ public class EditBaseType extends AbstractEditPlugin<BaseType> implements AdminP
 	@Override
 	protected void edit(EditorForm form, BaseType type)
 	{
-		form.editField("Name", "name", String.class, type.getName());
-		form.editField("Energie", "energie", Integer.class, type.getEnergy());
-		form.editField("Cargo", "cargo", Integer.class, type.getCargo());
-		form.editField("Breite", "width", Integer.class, type.getWidth());
-		form.editField("Höhe", "height", Integer.class, type.getHeight());
-		form.editField("Max. Feldanzahl", "maxtiles", Integer.class, type.getMaxTiles());
-		form.editField("Radius", "size", Integer.class, type.getSize());
-		form.editField("Terrain", "terrain", String.class, (type.getTerrain() == null ? "" : Common.implode(";", type.getTerrain())));
-		form.editField("Zum Spawn freigegebene Ressourcen", "spawnableress", String.class, type.getSpawnableRess());
+		form.field("Name", "name", String.class, type.getName());
+		form.field("Energie", "energie", Integer.class, type.getEnergy());
+		form.field("Cargo", "cargo", Integer.class, type.getCargo());
+		form.field("Breite", "width", Integer.class, type.getWidth());
+		form.field("Höhe", "height", Integer.class, type.getHeight());
+		form.field("Max. Feldanzahl", "maxtiles", Integer.class, type.getMaxTiles());
+		form.field("Radius", "size", Integer.class, type.getSize());
+		form.field("Terrain", "terrain", String.class, (type.getTerrain() == null ? "" : Common.implode(";", type.getTerrain())));
+		form.field("Zum Spawn freigegebene Ressourcen", "spawnableress", String.class, type.getSpawnableRess());
 	}
 }

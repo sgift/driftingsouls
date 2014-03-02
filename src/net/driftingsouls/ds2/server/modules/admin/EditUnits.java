@@ -61,16 +61,16 @@ public class EditUnits extends AbstractEditPlugin<UnitType>
 	@Override
 	protected void edit(EditorForm form, UnitType unit)
 	{
-		form.editField("Name", "name", String.class, unit.getName());
-		form.editField("Bild", "picture", String.class, unit.getPicture());
-		form.editField("Nahrungskosten", "nahrungcost", Double.class, unit.getNahrungCost());
-		form.editField("RE Kosten", "recost", Double.class, unit.getReCost());
-		form.editField("Kaper-Wert", "kapervalue", Integer.class, unit.getKaperValue());
-		form.editField("Größe", "size", Integer.class, unit.getSize());
-		form.editTextArea("Beschreibung", "description", unit.getDescription());
-		form.editField("Benötigte Forschung", "forschung", Forschung.class, unit.getRes());
-		form.editField("Dauer", "dauer", Integer.class, unit.getDauer());
-		form.editField("Hidden", "hidden", Boolean.class, unit.isHidden());
-		form.editField("Baukosten", "buildcosts", Cargo.class, unit.getBuildCosts());
+		form.field("Name", "name", String.class, unit.getName());
+		form.field("Bild", "picture", String.class, unit.getPicture());
+		form.field("Nahrungskosten", "nahrungcost", Double.class, unit.getNahrungCost());
+		form.field("RE Kosten", "recost", Double.class, unit.getReCost());
+		form.field("Kaper-Wert", "kapervalue", Integer.class, unit.getKaperValue());
+		form.field("Größe", "size", Integer.class, unit.getSize());
+		form.textArea("Beschreibung", "description", unit.getDescription());
+		form.field("Benötigte Forschung", "forschung", Forschung.class, unit.getRes());
+		form.field("Dauer", "dauer", Integer.class, unit.getDauer());
+		form.field("Hidden", "hidden", Boolean.class, unit.isHidden());
+		form.field("Baukosten", "buildcosts", Cargo.class, unit.getBuildCosts());
 	}
 }

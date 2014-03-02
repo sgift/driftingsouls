@@ -64,8 +64,8 @@ public class EditItemPicture extends AbstractEditPlugin<Item> implements AdminPl
 	@Override
 	protected void edit(EditorForm form, Item item)
 	{
-		form.editLabel("Name", item.getName());
-		form.editDynamicContentField("Bild", "picture", item.getPicture());
-		form.editDynamicContentField("Bild (groß)", "largepicture", item.getLargePicture());
+		form.label("Name", item.getName());
+		form.dynamicContentField("Bild", "picture", item.getPicture());
+		form.dynamicContentField("Bild (groß)", "largepicture", item.getLargePicture());
 	}
 }

@@ -90,13 +90,13 @@ public class EditBuildingPicture extends AbstractEditPlugin<Building> implements
 	@Override
 	protected void edit(EditorForm form, Building building)
 	{
-		form.editLabel("Name", building.getName());
-		form.editDynamicContentField("Bild", "picture", building.getDefaultPicture());
+		form.label("Name", building.getName());
+		form.dynamicContentField("Bild", "picture", building.getDefaultPicture());
 
 		Map<Integer,String> altBilder = building.getAlternativeBilder();
 		for( Rasse rasse : Rassen.get() )
 		{
-			form.editDynamicContentFieldWithRemove(rasse.getName(), "rasse" + rasse.getId(), altBilder.get(rasse.getId()));
+			form.dynamicContentFieldWithRemove(rasse.getName(), "rasse" + rasse.getId(), altBilder.get(rasse.getId()));
 		}
 	}
 }

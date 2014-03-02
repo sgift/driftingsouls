@@ -28,7 +28,7 @@ class EditorForm implements AutoCloseable
 		this.page = page;
 	}
 
-	public void editDynamicContentField(String label, String name, String value)
+	public void dynamicContentField(String label, String name, String value)
 	{
 		try
 		{
@@ -44,7 +44,7 @@ class EditorForm implements AutoCloseable
 		}
 	}
 
-	public void editDynamicContentFieldWithRemove(String label, String name, String value)
+	public void dynamicContentFieldWithRemove(String label, String name, String value)
 	{
 		try
 		{
@@ -87,7 +87,7 @@ class EditorForm implements AutoCloseable
 		echo.append("</td>\n");
 	}
 
-	public void editLabel(String label, Object value)
+	public void label(String label, Object value)
 	{
 		try
 		{
@@ -100,7 +100,7 @@ class EditorForm implements AutoCloseable
 		}
 	}
 
-	public void editTextArea(String label, String name, Object value)
+	public void textArea(String label, String name, Object value)
 	{
 		try
 		{
@@ -132,7 +132,7 @@ class EditorForm implements AutoCloseable
 		}
 	}
 
-	public void editField(String label, String name, Class<?> type, Object value)
+	public void field(String label, String name, Class<?> type, Object value)
 	{
 		try
 		{
@@ -193,6 +193,7 @@ class EditorForm implements AutoCloseable
 		echo.append("</select>");
 	}
 
+	@Override
 	public void close()
 	{
 		try

@@ -42,17 +42,17 @@ public class EditCore extends AbstractEditPlugin<Core>
 	@Override
 	protected void edit(EditorForm form, Core core)
 	{
-		form.editField("Name", "name", String.class, core.getName());
-		form.editField("Astitype", "asti", Integer.class, core.getAstiType());
-		form.editField("Arbeiter", "worker", Integer.class, core.getArbeiter());
-		form.editField("Energieverbrauch", "everbrauch", Integer.class, core.getEVerbrauch());
-		form.editField("Energieproduktion", "eproduktion", Integer.class, core.getEProduktion());
-		form.editField("EPS", "eps", Integer.class, core.getEPS());
-		form.editField("Wohnraum", "room", Integer.class, core.getBewohner());
-		form.editField("Auto Abschalten", "shutdown", Boolean.class, core.isShutDown());
-		form.editField("Forschung", "tech", Forschung.class, core.getTechRequired());
-		form.editField("Baukosten", "buildcosts", Cargo.class, core.getBuildCosts());
-		form.editField("Verbrauch", "consumes", Cargo.class, core.getConsumes());
-		form.editField("Produktion", "produces", Cargo.class, core.getProduces());
+		form.field("Name", "name", String.class, core.getName());
+		form.field("Astitype", "asti", Integer.class, core.getAstiType());
+		form.field("Arbeiter", "worker", Integer.class, core.getArbeiter());
+		form.field("Energieverbrauch", "everbrauch", Integer.class, core.getEVerbrauch());
+		form.field("Energieproduktion", "eproduktion", Integer.class, core.getEProduktion());
+		form.field("EPS", "eps", Integer.class, core.getEPS());
+		form.field("Wohnraum", "room", Integer.class, core.getBewohner());
+		form.field("Auto Abschalten", "shutdown", Boolean.class, core.isShutDown());
+		form.field("Forschung", "tech", Forschung.class, core.getTechRequired());
+		form.field("Baukosten", "buildcosts", Cargo.class, core.getBuildCosts());
+		form.field("Verbrauch", "consumes", Cargo.class, core.getConsumes());
+		form.field("Produktion", "produces", Cargo.class, core.getProduces());
 	}
 }

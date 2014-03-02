@@ -53,7 +53,7 @@ public class EditResearchPicture extends AbstractEditPlugin<Forschung> implement
 	@Override
 	protected void edit(EditorForm form, Forschung forschung)
 	{
-		form.editLabel("Name", forschung.getName());
-		form.editDynamicContentField("Bild", "image", forschung.getImage());
+		form.label("Name", forschung.getName());
+		form.dynamicContentField("Bild", "image", forschung.getImage());
 	}
 }

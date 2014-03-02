@@ -174,18 +174,18 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 		}
 		boolean clearsystem = "true".equalsIgnoreCase(request.getParameterString("clearSystem"));
 
-		form.editField("Bildatei", "imgPath", String.class, imgPath);
+		form.field("Bildatei", "imgPath", String.class, imgPath);
 		if (loadError != null)
 		{
-			form.editLabel("", "Fehler: " + loadError.getMessage());
+			form.label("", "Fehler: " + loadError.getMessage());
 		}
 		else if (img == null)
 		{
-			form.editLabel("", "Bitte gib einen Dateipfad ein und bestätige den Dialog um weitere Konfigurationsoptionen zu erhalten");
+			form.label("", "Bitte gib einen Dateipfad ein und bestätige den Dialog um weitere Konfigurationsoptionen zu erhalten");
 		}
 		else if (img.getWidth() != sys.getWidth() || img.getHeight() != sys.getHeight())
 		{
-			form.editLabel("", "Die Grafik passt nicht zum System. Die Größenangaben weichen von einander ab. Bitte verwende eine Grafik der Größe " + img.getWidth() + "x" + img.getHeight());
+			form.label("", "Die Grafik passt nicht zum System. Die Größenangaben weichen von einander ab. Bitte verwende eine Grafik der Größe " + img.getWidth() + "x" + img.getHeight());
 		}
 		else
 		{
@@ -196,8 +196,8 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 				form.custom(new ColorFieldGenerator(baseTypes, color));
 			}
 
-			form.editField("Alte Basen/Nebel entfernen", "clearSystem", Boolean.class, clearsystem);
-			form.editField("Änderungen ausführen", "doupdate", Boolean.class, false);
+			form.field("Alte Basen/Nebel entfernen", "clearSystem", Boolean.class, clearsystem);
+			form.field("Änderungen ausführen", "doupdate", Boolean.class, false);
 		}
 	}
 

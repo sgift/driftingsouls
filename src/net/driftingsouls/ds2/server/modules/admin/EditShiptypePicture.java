@@ -64,15 +64,15 @@ public class EditShiptypePicture extends AbstractEditPlugin<ShipType> implements
 	@Override
 	protected void edit(EditorForm form, ShipType shipType)
 	{
-		form.editLabel("Name", shipType.getNickname());
-		form.editDynamicContentField("Bild", "image", shipType.getPicture());
+		form.label("Name", shipType.getNickname());
+		form.dynamicContentField("Bild", "image", shipType.getPicture());
 
 		Number count = (Number)getDB().createQuery("select count(*) from Ship s where s.shiptype=:type and s.modules is not null")
 							   .setParameter("type", shipType)
 							   .iterate()
 							   .next();
 
-		form.editLabel("Zu aktualisieren", count + " Schiffe mit Modulen");
+		form.label("Zu aktualisieren", count + " Schiffe mit Modulen");
 	}
 
 	private void recalculateShipModules(org.hibernate.Session db, ShipType shipType)
