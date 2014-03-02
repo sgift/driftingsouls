@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.bases;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -26,6 +27,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.viewmodels.ResourceEntryViewModel;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.DiscriminatorFormula;
@@ -201,17 +203,41 @@ public abstract class Building
 	}
 
 	/**
-	 * Gibt die Ressourcen zurueck die zufaellig gespawnt werden.
+	 * Gibt die Ressourcen im internen Datenformat zurueck die zufaellig gespawnt werden.
 	 *
 	 * @return die Zufalls-Ressourcen
 	 */
-	public String getChanceRess()
+	public String getChanceRessString()
 	{
 		if (this.chanceress == null || this.chanceress.equals("null"))
 		{
 			return "";
 		}
 		return chanceress;
+	}
+
+	/**
+	 * Gibt die Ressourcen, die zufaellig gespawnt werden, als Map zurueck.
+	 * @return Die Ressourcen (Key) und ihre Wahrscheinlichkeiten (Value)
+	 */
+	public Map<ItemID,Double> getChanceRessMap()
+	{
+		Map<ItemID, Double> productions = new HashMap<>();
+
+		String digbuilding = getChanceRessString();
+
+		if(digbuilding == null || digbuilding.equals(""))
+		{
+			return productions;
+		}
+
+		String[] digs = StringUtils.split(digbuilding, "|");
+		for(String dig : digs)
+		{
+			String[] thisdig = StringUtils.split(dig, ";");
+			productions.put(new ItemID(Integer.valueOf(thisdig[0])), Double.valueOf(thisdig[1]));
+		}
+		return productions;
 	}
 
 	/**
@@ -461,7 +487,7 @@ public abstract class Building
 	 *
 	 * @param chanceress Zufalls-Ressourcen
 	 */
-	public void setChanceRess(String chanceress)
+	public void setChanceRessString(String chanceress)
 	{
 		this.chanceress = chanceress;
 	}
@@ -591,7 +617,7 @@ public abstract class Building
 	 *
 	 * @return die Terrainarten auf denen das Gebaeude baubar ist
 	 */
-	public String getTerrain()
+	public String getTerrainString()
 	{
 		if (this.terrain == null || this.terrain.equals("null"))
 		{
@@ -605,7 +631,7 @@ public abstract class Building
 	 *
 	 * @param terrain die Terrainarten auf denen das Gebaeude baubar ist
 	 */
-	public void setTerrain(String terrain)
+	public void setTerrainString(String terrain)
 	{
 		this.terrain = terrain;
 	}

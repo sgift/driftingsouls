@@ -18,14 +18,6 @@
  */
 package net.driftingsouls.ds2.server.bases;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
@@ -33,7 +25,10 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
-import org.apache.commons.lang.StringUtils;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Die BuddelStaette.
@@ -59,31 +54,16 @@ public class DigBuilding extends DefaultBuilding {
 	private Cargo getProzentProduces()
 	{
 		Cargo production = new Cargo();
-		Map<Integer, Double> productions = new HashMap<Integer, Double>();
-
-		String digbuilding = getChanceRess();
-
-		if(digbuilding == null || digbuilding.equals(""))
-		{
-			return production;
-		}
-
-		String[] digs = StringUtils.split(digbuilding, "|");
-		for(String dig : digs)
-		{
-			String[] thisdig = StringUtils.split(dig, ";");
-			productions.put(Integer.valueOf(thisdig[0]), Double.valueOf(thisdig[1]));
-		}
+		Map<ItemID, Double> productions = getChanceRessMap();
 
 		if(productions.isEmpty())
 		{
 			return production;
 		}
 
-		for( Iterator<?> iter = productions.entrySet().iterator(); iter.hasNext(); )
+		for (Entry<ItemID, Double> entry : productions.entrySet())
 		{
-			Entry<Integer, Double> entry = (Entry<Integer, Double>) iter.next();
-			production.addResource(new ItemID(entry.getKey()), entry.getValue().longValue());
+			production.addResource(entry.getKey(), entry.getValue().longValue());
 		}
 
 		return production;
@@ -94,31 +74,16 @@ public class DigBuilding extends DefaultBuilding {
 	public Cargo getAllProduces()
 	{
 		Cargo production = new Cargo();
-		Map<Integer, Double> productions = new HashMap<Integer, Double>();
-
-		String digbuilding = getChanceRess();
-
-		if(digbuilding == null || digbuilding.equals(""))
-		{
-			return production;
-		}
-
-		String[] digs = StringUtils.split(digbuilding, "|");
-		for(String dig : digs)
-		{
-			String[] thisdig = StringUtils.split(dig, ";");
-			productions.put(Integer.valueOf(thisdig[0]), 1d);
-		}
+		Map<ItemID, Double> productions = getChanceRessMap();
 
 		if(productions.isEmpty())
 		{
 			return production;
 		}
 
-		for( Iterator<?> iter = productions.entrySet().iterator(); iter.hasNext(); )
+		for (Entry<ItemID, Double> entry : productions.entrySet())
 		{
-			Entry<Integer, Double> entry = (Entry<Integer, Double>) iter.next();
-			production.addResource(new ItemID(entry.getKey()), entry.getValue().longValue());
+			production.addResource(entry.getKey(), 1l);
 		}
 
 		return production;
@@ -129,34 +94,19 @@ public class DigBuilding extends DefaultBuilding {
 	public Cargo getProduces()
 	{
 		Cargo production = new Cargo();
-		Map<Integer, Double> productions = new HashMap<Integer, Double>();
-
-		String digbuilding = getChanceRess();
-
-		if(digbuilding == null || digbuilding.equals(""))
-		{
-			return production;
-		}
-
-		String[] digs = StringUtils.split(digbuilding, "|");
-		for(String dig : digs)
-		{
-			String[] thisdig = StringUtils.split(dig, ";");
-			productions.put(Integer.valueOf(thisdig[0]), Double.valueOf(thisdig[1]));
-		}
+		Map<ItemID, Double> productions = getChanceRessMap();
 
 		if(productions.isEmpty())
 		{
 			return production;
 		}
 
-		for( Iterator<?> iter = productions.entrySet().iterator(); iter.hasNext(); )
+		for (Entry<ItemID, Double> entry : productions.entrySet())
 		{
-			Entry<Integer, Double> entry = (Entry<Integer, Double>) iter.next();
 			double rnd = Math.random();
-			if( rnd <= entry.getValue()/100)
+			if (rnd <= entry.getValue() / 100)
 			{
-				production.addResource(new ItemID(entry.getKey()), 1l);
+				production.addResource(entry.getKey(), 1l);
 			}
 		}
 
@@ -177,13 +127,13 @@ public class DigBuilding extends DefaultBuilding {
 		ResourceList reslist = getConsumes().getResourceList();
 		for( ResourceEntry res : reslist )
 		{
-			buffer.append("<img src=\""+res.getImage()+"\" alt=\"\" />"+res.getCargo1()+" ");
+			buffer.append("<img src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCargo1()).append(" ");
 			entry = true;
 		}
 
 		if( getEVerbrauch() > 0 )
 		{
-			buffer.append("<img src=\"./data/interface/energie.gif\" alt=\"\" />"+getEVerbrauch()+" ");
+			buffer.append("<img src=\"./data/interface/energie.gif\" alt=\"\" />").append(getEVerbrauch()).append(" ");
 			entry = true;
 		}
 		if( !entry )
@@ -200,13 +150,13 @@ public class DigBuilding extends DefaultBuilding {
 		reslist = getProzentProduces().getResourceList();
 		for( ResourceEntry res : reslist )
 		{
-			buffer.append("<img src=\""+res.getImage()+"\" alt=\"\" />"+res.getCount1()+"% ");
+			buffer.append("<img src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCount1()).append("% ");
 			entry = true;
 		}
 
 		if( getEProduktion() > 0 )
 		{
-			buffer.append("<img src=\"./data/interface/energie.gif\" alt=\"\" />"+getEProduktion());
+			buffer.append("<img src=\"./data/interface/energie.gif\" alt=\"\" />").append(getEProduktion());
 			entry = true;
 		}
 
