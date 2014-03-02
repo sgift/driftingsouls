@@ -1,18 +1,22 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DynamicContent;
 import net.driftingsouls.ds2.server.framework.DynamicContentManager;
 import org.apache.commons.fileupload.FileItem;
+
+import javax.persistence.Entity;
 
 /**
  * Bsisklasse fuer einfache Editor-Plugins (fuer einzelne Entities). Stellt
@@ -183,48 +187,76 @@ public abstract class AbstractEditPlugin implements AdminPlugin
 	protected void editField(Writer echo, String label, String name, Class<?> type, Object value) throws IOException
 	{
 		echo.append("<tr>");
-		echo.append("<td colspan='2'>"+(label.trim().isEmpty() ? "" : label+":")+"</td>");
+		echo.append("<td colspan='2'>").append(label.trim().isEmpty() ? "" : label + ":").append("</td>");
 		echo.append("<td>");
 		if( Cargo.class.isAssignableFrom(type) )
 		{
-			echo.append("<input type=\"hidden\" name=\""+name+"\" id='"+name+"' value=\"" + (value != null ? value : new Cargo()) + "\">");
-			echo.append("<script type='text/javascript'>$(document).ready(function(){new CargoEditor('#"+name+"')});</script>");
+			echo.append("<input type=\"hidden\" name=\"").append(name).append("\" id='").append(name).append("' value=\"").append(value != null ? value.toString() : new Cargo().toString()).append("\">");
+			echo.append("<script type='text/javascript'>$(document).ready(function(){new CargoEditor('#").append(name).append("')});</script>");
 		}
-		else if( Forschung.class.isAssignableFrom(type) )
+		else if( type.isAnnotationPresent(Entity.class) )
 		{
-			echo.append("<select size=\"1\" name=\"tech\">");
-			org.hibernate.Session db = ContextMap.getContext().getDB();
-
-			int selected =-1;
-			if( value instanceof Number )
-			{
-				selected = ((Number)value).intValue();
-			}
-			else if( value instanceof Forschung )
-			{
-				selected = ((Forschung)value).getID();
-			}
-
-			List<Forschung> researchs = Common.cast(db.createQuery("from Forschung").list());
-			for (Forschung research: researchs)
-			{
-				echo.append("<option value=\"" + research.getID() + "\" " + (research.getID() == selected ? "selected=\"selected\"" : "") + ">" + research.getName() + "</option>");
-			}
-			echo.append("</select>");
+			editEntityBySelection(echo, name, type, value);
 		}
 		else if( Boolean.class.isAssignableFrom(type) )
 		{
 			boolean bool = false;
 			if( value != null )
 			{
-				bool = ((Boolean)value).booleanValue();
+				bool = (Boolean) value;
 			}
-			echo.append("<input type=\"checkbox\" name=\""+name+"\" value=\"true\" "+(bool ? "checked='checked'" : "" )+" \">");
+			echo.append("<input type=\"checkbox\" name=\"").append(name).append("\" value=\"true\" ").append(bool ? "checked='checked'" : "").append(" \">");
 		}
 		else {
-			echo.append("<input type=\"text\" name=\""+name+"\" value=\"" + value + "\">");
+			echo.append("<input type=\"text\" name=\"").append(name).append("\" value=\"").append(value != null ? value.toString() : "").append("\">");
 		}
 		echo.append("</td></tr>\n");
+	}
+
+	private void editEntityBySelection(Writer echo, String name, Class<?> type, Object value) throws IOException
+	{
+		echo.append("<select size=\"1\" name=\"").append(name).append("\">");
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+
+		Serializable selected = -1;
+		if( value instanceof Number )
+		{
+			selected = (Number)value;
+		}
+		else if( type.isInstance(value) )
+		{
+			selected = db.getIdentifier(value);
+		}
+
+		Method labelMethod;
+		try
+		{
+			labelMethod = type.getMethod("getName");
+		}
+		catch( NoSuchMethodException e ) {
+			try
+			{
+				labelMethod = type.getMethod("toString");
+			}
+			catch (NoSuchMethodException e1)
+			{
+				throw new AssertionError("No toString");
+			}
+		}
+		List<?> editities = Common.cast(db.createCriteria(type).list());
+		for (Object entity : editities)
+		{
+			Serializable identifier = db.getIdentifier(entity);
+			try
+			{
+				echo.append("<option value=\"").append(identifier.toString()).append("\" ").append(identifier.equals(selected) ? "selected=\"selected\"" : "").append(">").append(labelMethod.invoke(entity).toString()).append("</option>");
+			}
+			catch (IllegalAccessException | InvocationTargetException e)
+			{
+				throw new IllegalStateException(e);
+			}
+		}
+		echo.append("</select>");
 	}
 
 	protected boolean isResetted(String name)
