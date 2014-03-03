@@ -169,28 +169,30 @@ public class PlayerList {
 				echo.append("<td class=\"noBorderX\"><span class=\"nobr\">\n");
 
 				if( (user != null) && (aUser.getId() != user.getId()) ) {
-					if( !relationlist.toOther.containsKey(aUser.getId()) ) {
-						relationlist.toOther.put(aUser.getId(), relationlist.toOther.get(0));
+					switch (relationlist.beziehungZu(aUser))
+					{
+						case ENEMY:
+							echo.append("<img src=\"./data/interface/diplomacy/enemy1.png\" alt=\"\" title=\"Feindlich\" />");
+							break;
+						case NEUTRAL:
+							echo.append("<img src=\"./data/interface/diplomacy/neutral1.png\" alt=\"\" />");
+							break;
+						case FRIEND:
+							echo.append("<img src=\"./data/interface/diplomacy/friend1.png\" alt=\"\" title=\"Feundlich\" />");
+							break;
 					}
 
-					if( relationlist.toOther.get(aUser.getId()) == User.Relation.ENEMY ) {
-						echo.append("<img src=\"./data/interface/diplomacy/enemy1.png\" alt=\"\" title=\"Feindlich\" />");
-					}
-					else if( relationlist.toOther.get(aUser.getId()) == User.Relation.NEUTRAL ) {
-						echo.append("<img src=\"./data/interface/diplomacy/neutral1.png\" alt=\"\" />");
-					}
-					else if( relationlist.toOther.get(aUser.getId()) == User.Relation.FRIEND ) {
-						echo.append("<img src=\"./data/interface/diplomacy/friend1.png\" alt=\"\" title=\"Feundlich\" />");
-					}
-
-					if( relationlist.fromOther.get(aUser.getId()) == User.Relation.ENEMY ) {
-						echo.append("<img src=\"./data/interface/diplomacy/enemy2.png\" alt=\"\" title=\"Feindlich\" />");
-					}
-					else if( relationlist.fromOther.get(aUser.getId()) == User.Relation.NEUTRAL ) {
-						echo.append("<img src=\"./data/interface/diplomacy/neutral2.png\" alt=\"\" />");
-					}
-					else if( relationlist.fromOther.get(aUser.getId()) == User.Relation.FRIEND ) {
-						echo.append("<img src=\"./data/interface/diplomacy/friend2.png\" alt=\"\" title=\"Feundlich\" />");
+					switch (relationlist.beziehungVon(aUser))
+					{
+						case ENEMY:
+							echo.append("<img src=\"./data/interface/diplomacy/enemy2.png\" alt=\"\" title=\"Feindlich\" />");
+							break;
+						case NEUTRAL:
+							echo.append("<img src=\"./data/interface/diplomacy/neutral2.png\" alt=\"\" />");
+							break;
+						case FRIEND:
+							echo.append("<img src=\"./data/interface/diplomacy/friend2.png\" alt=\"\" title=\"Feundlich\" />");
+							break;
 					}
 				}
 

@@ -1654,18 +1654,18 @@ public class Ship implements Locatable,Transfering,Feeding {
 			boolean attack = false;
 			if(alert == Alert.RED.getCode())
 			{
-				if(relationlist.fromOther.get(owner.getId()) != User.Relation.FRIEND)
+				if(relationlist.beziehungVon(owner) != User.Relation.FRIEND)
 				{
 					attack = true;
 				}
-				else if(relationlist.toOther.get(owner.getId()) != User.Relation.FRIEND)
+				else if(relationlist.beziehungZu(owner) != User.Relation.FRIEND)
 				{
 					attack = true;
 				}
 			}
 			else if(alert == Alert.YELLOW.getCode())
 			{
-				if(relationlist.fromOther.get(owner.getId()) == User.Relation.ENEMY)
+				if(relationlist.beziehungVon(owner) == User.Relation.ENEMY)
 				{
 					attack = true;
 				}
@@ -3963,7 +3963,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	        	 return true;
 	        case NEUTRAL_AND_FRIENDS:
 	        	// check wether we are an enemy of the owner
-	        	 if( relationlist.fromOther.get(ownerid) == User.Relation.ENEMY )
+	        	 if( relationlist.beziehungVon(this.owner) == User.Relation.ENEMY )
 	        	 {
 	        		 //shit we are an enemy, we're not allowed to see the tradepost
 	        		 return false;
@@ -3972,7 +3972,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	        	 return true;
 	        case FRIENDS:
 	        	// check wether we are a friend of the owner
-	        	 if( (relationlist.fromOther.get(ownerid) == User.Relation.FRIEND) || (ownerid == observerid) )
+	        	 if( (relationlist.beziehungVon(this.owner) == User.Relation.FRIEND) || (ownerid == observerid) )
 	        	 {
 	        		 // hey cool we are, let's take a look at the tradepost
 	        		 return true;

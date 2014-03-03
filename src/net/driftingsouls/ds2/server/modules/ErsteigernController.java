@@ -47,7 +47,6 @@ import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.entities.Versteigerung;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextInstance;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
@@ -544,8 +543,9 @@ public class ErsteigernController extends TemplateController
 
 	private boolean istHandelErlaubt(User user, int faction)
 	{
-		return user.getRelation(faction) != User.Relation.ENEMY
-				&& user.getRelations().fromOther.get(faction) != User.Relation.ENEMY;
+		User factionUser = (User)getDB().get(User.class, faction);
+		return user.getRelation(factionUser) != User.Relation.ENEMY
+				&& factionUser.getRelation(user) != User.Relation.ENEMY;
 	}
 
 	private int ermittleStandardFraktionFuerSpieler(Session db, User user)
@@ -573,8 +573,8 @@ public class ErsteigernController extends TemplateController
 					continue;
 				}
 
-				if ((user.getRelation(aFactionID) != User.Relation.ENEMY)
-						&& (user.getRelations().fromOther.get(aFactionID) != User.Relation.ENEMY))
+				if ((user.getRelation(aFactionUser) != User.Relation.ENEMY)
+						&& (aFactionUser.getRelation(user) != User.Relation.ENEMY))
 				{
 					faction = aFactionID;
 					break;
