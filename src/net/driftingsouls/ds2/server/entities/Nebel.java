@@ -264,6 +264,17 @@ public class Nebel implements Locatable {
 		{
 			return !this.emp;
 		}
+
+		/**
+		 * Gibt das Bild des Nebeltyps zurueck (als Pfad).
+		 * Der Pfad ist relativ zum data-Verzeichnis.
+		 *
+		 * @return Das Bild des Nebels als Pfad.
+		 */
+		public String getImage()
+		{
+			return "fog"+this.ordinal()+"/fog"+this.ordinal();
+		}
 	}
 
 	@Id
@@ -349,6 +360,6 @@ public class Nebel implements Locatable {
 	 */
 	public String getImage()
 	{
-		return "fog"+type.ordinal()+"/fog"+type.ordinal();
+		return this.type.getImage();
 	}
 }
