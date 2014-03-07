@@ -75,7 +75,7 @@ public class DriftingSouls {
 						cls.getMethod("getInstance").invoke(null);
 						break;
 					default:
-						throw new Exception("Kann Klasse '" + className + "' nicht booten: Unbekannter Boot-Typ '" + type + "'");
+						throw new IllegalStateException("Kann Klasse '" + className + "' nicht booten: Unbekannter Boot-Typ '" + type + "'");
 				}
 			}
 		}
