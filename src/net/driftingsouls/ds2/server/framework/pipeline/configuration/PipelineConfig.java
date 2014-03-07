@@ -18,29 +18,24 @@
  */
 package net.driftingsouls.ds2.server.framework.pipeline.configuration;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import javax.annotation.PostConstruct;
-
+import net.driftingsouls.ds2.server.framework.AnnotationUtils;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.Pipeline;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.scannotation.AnnotationDB;
-import org.scannotation.ClasspathUrlFinder;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
+
+import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * <h1>Repraesentiert die Pipeline-Konfiguration.</h1>
@@ -75,10 +70,7 @@ public class PipelineConfig {
 	}
 	
 	private void scanForModules() throws IOException {
-		URL[] urls = ClasspathUrlFinder.findResourceBases("META-INF/ds.marker");
-		AnnotationDB db = new AnnotationDB();
-		db.scanArchives(urls);
-		SortedSet<String> entityClasses = new TreeSet<>(db.getAnnotationIndex().get(Module.class.getName()));
+		SortedSet<String> entityClasses = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(Module.class);
 		for( String cls : entityClasses ) 
 		{
 			try 
