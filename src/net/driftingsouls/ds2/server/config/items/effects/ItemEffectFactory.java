@@ -76,7 +76,7 @@ public class ItemEffectFactory {
 		}
 		catch(RuntimeException e)
 		{
-			LOG.error("Konnte Effekt-String '"+itemEffectString+"' nicht parsen. Fallback auf 'Kein Effekt'.", e);
+			LOG.error("Konnte Effekt-String '"+itemEffectString+"' nicht parsen. Fallback auf 'Kein Effekt'. Grund: "+e.getMessage());
 			return new IENone();
 		}
 		
