@@ -24,10 +24,9 @@
 
 		<dependency org="javax.mail" name="mail" rev="1.4.7" conf="compile->default"/>
 		<dependency org="net.java.dev.rome" name="rome" rev="1.0.0" conf="compile->default"/>
-		<dependency org="org.scannotation" name="scannotation" rev="1.0.3" conf="compile->default"/>
-		<dependency org="mysql" name="mysql-connector-java" rev="5.1.28" conf="compile->default"/>
+        <dependency org="mysql" name="mysql-connector-java" rev="5.1.28" conf="compile->default"/>
 
-		<dependency org="org.hibernate" name="hibernate-core" rev="4.1.5.SP1" conf="compile->default"/>
+		<dependency org="org.hibernate" name="hibernate-core" rev="4.1.5.SP1" conf="compile->default" />
 		<dependency org="org.hibernate" name="hibernate-ehcache" rev="4.1.5.SP1" conf="compile->default"/>
 		<dependency org="org.hibernate" name="hibernate-c3p0" rev="4.1.5.SP1" conf="compile->default"/>
 		<dependency org="org.hibernate" name="hibernate-entitymanager" rev="4.1.5.SP1" conf="compile->default"/>
@@ -39,5 +38,10 @@
 		<dependency org="org.springframework" name="spring-web" rev="2.5.5" conf="compile->default"/>
 		<dependency org="org.springframework" name="spring-tx" rev="2.5.5" conf="compile->default"/>
 		<dependency org="opensymphony" name="quartz-all" rev="1.6.0" conf="compile->default"/>
-	</dependencies>
+
+        <dependency org="org.reflections" name="reflections" rev="0.9.9-RC1" conf="compile->default" />
+
+        <dependency org="org.antlr" name="antlr" rev="3.0.1" conf="compile->default"/>
+        <dependency org="org.javassist" name="javassist" rev="3.18.1-GA" conf="compile->default"/>
+    </dependencies>
 </ivy-module>
