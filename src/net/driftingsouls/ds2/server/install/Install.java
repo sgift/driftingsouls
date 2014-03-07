@@ -1,13 +1,8 @@
 package net.driftingsouls.ds2.server.install;
 
 import net.driftingsouls.ds2.server.entities.Nebel;
-import net.driftingsouls.ds2.server.framework.DriftingSouls;
-import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.context.internal.ManagedSessionContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -15,17 +10,8 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.io.*;
+import java.sql.*;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -222,7 +208,7 @@ public class Install
 				"asti_ally/asti_ally.png"));
 		inst.store(imgs, "data/starmap/", null);
 
-		imgs = Arrays.asList(Nebel.Typ.values()).stream().map((nt) -> nt.getImage()+".png").collect(Collectors.toSet());
+		imgs = Arrays.asList(Nebel.Typ.values()).stream().map((nt) -> nt.getImage() + ".png").collect(Collectors.toSet());
 		inst.store(imgs, "data/starmap/", null);
 
 		imgs = inst.readStarmapBases(con);
