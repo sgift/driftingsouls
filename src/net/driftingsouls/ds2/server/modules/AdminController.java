@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import net.driftingsouls.ds2.server.framework.AnnotationUtils;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -26,19 +27,10 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
 import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
-import org.scannotation.AnnotationDB;
-import org.scannotation.ClasspathUrlFinder;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * Der Admin.
@@ -54,10 +46,7 @@ public class AdminController extends Controller
 	{
 		try
 		{
-			URL[] urls = ClasspathUrlFinder.findResourceBases("META-INF/ds.marker");
-			AnnotationDB db = new AnnotationDB();
-			db.scanArchives(urls);
-			SortedSet<String> entityClasses = new TreeSet<>(db.getAnnotationIndex().get(AdminMenuEntry.class.getName()));
+			SortedSet<String> entityClasses = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(AdminMenuEntry.class);
 			for (String cls : entityClasses)
 			{
 				final Class<? extends AdminPlugin> adminPluginClass = Class.forName(cls)
@@ -65,7 +54,7 @@ public class AdminController extends Controller
 				plugins.add(adminPluginClass);
 			}
 		}
-		catch (IOException | ClassNotFoundException e)
+		catch (ClassNotFoundException e)
 		{
 			throw new RuntimeException(e);
 		}
