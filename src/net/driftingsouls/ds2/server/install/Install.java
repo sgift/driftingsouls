@@ -1,7 +1,13 @@
 package net.driftingsouls.ds2.server.install;
 
+import net.driftingsouls.ds2.server.entities.Nebel;
+import net.driftingsouls.ds2.server.framework.DriftingSouls;
+import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.context.internal.ManagedSessionContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -23,6 +29,7 @@ import java.sql.Statement;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Installationstool fuer DS. Erstellt alle notwendigen Verzeichnisse und Konfigurationsdateien,
@@ -113,16 +120,25 @@ public class Install
 				System.out.println("\nDS ist nun installiert.\n");
 
 				loadImages(reader, con);
+
+				generateContent();
 			}
 
+			System.out.println("\n\nDrifting Souls wurde erfolgreich installiert");
 			System.out.println("Du solltest es nun mittels 'ant clean templates compile' erneut uebersetzen.");
-			System.out.println("Anschliessend kannst du DS mittels des Kommandos 'ant run' starten.");
+			System.out.println("Anschliessend kannst du DS mittels des Kommandos 'ant run' starten und im Browser unter http://localhost:8080/driftingsouls/ aufrufen.");
 		}
 		catch (SQLException e)
 		{
 			System.err.println("Fehler bei Datenbankoperation");
 			e.printStackTrace();
 		}
+	}
+
+	private static void generateContent()
+	{
+		ContentGenerator generator = new ContentGenerator();
+		generator.generiereContent();
 	}
 
 	private static void loadImages(BufferedReader reader, Connection con) throws IOException, SQLException
@@ -206,9 +222,14 @@ public class Install
 				"asti_ally/asti_ally.png"));
 		inst.store(imgs, "data/starmap/", null);
 
+		imgs = Arrays.asList(Nebel.Typ.values()).stream().map((nt) -> nt.getImage()+".png").collect(Collectors.toSet());
+		inst.store(imgs, "data/starmap/", null);
+
 		imgs = inst.readStarmapBases(con);
 		inst.store(imgs, "data/starmap/", null);
 
+		imgs = Arrays.asList(0,1,2,3,4,5,6,7,8,9).stream().map((g) -> "ground"+g+".png").collect(Collectors.toSet());
+		inst.store(imgs, "data/buildings/", null);
 
 		System.out.println("Alle automatisch erkannten Grafiken wurden geladen.\n");
 	}
