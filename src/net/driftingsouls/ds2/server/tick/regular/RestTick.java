@@ -129,10 +129,10 @@ public class RestTick extends TickController {
 			this.log("");
 			this.log("Erstelle Statistiken");
 
-			long shipcount = (Long)db.createQuery("select count(*) from Ship where id>0 and owner.id>0").iterate().next();
-			long crewcount = (Long)db.createQuery("select sum(crew) from Ship where id>0 and owner.id>0").iterate().next();
+			Long shipcount = (Long)db.createQuery("select count(*) from Ship where id>0 and owner.id>0").iterate().next();
+			Long crewcount = (Long)db.createQuery("select sum(crew) from Ship where id>0 and owner.id>0").iterate().next();
 
-			StatShips stat = new StatShips(shipcount, crewcount);
+			StatShips stat = new StatShips(shipcount != null ? shipcount : 0, crewcount != null ? crewcount : 0);
 			db.persist(stat);
 			transaction.commit();
 		}
