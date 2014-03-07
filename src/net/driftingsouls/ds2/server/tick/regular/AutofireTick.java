@@ -46,7 +46,7 @@ public class AutofireTick extends TickController {
 	@Override
 	protected void tick() {
 		org.hibernate.Session db = getDB();
-        boolean isAutoFire = new ConfigService().getValue(String.class, "autofire").equals("1");
+        boolean isAutoFire = "1".equals(new ConfigService().getValue(String.class, "autofire"));
 
         if(!isAutoFire)
         {
