@@ -29,12 +29,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Index;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -58,6 +61,10 @@ import java.util.List;
 @Entity
 @Table(name="transmissionen")
 @Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
+@org.hibernate.annotations.Table(
+	appliesTo = "transmissionen",
+	indexes = {@Index(name="empfaenger", columnNames = {"empfaenger", "gelesen"})}
+)
 public class PM {
 	/**
 	 * Die PM hat einen Admin-Hintergrund.
@@ -289,18 +296,23 @@ public class PM {
 	@Id @GeneratedValue
 	private int id;
 	private int gelesen;
-	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="sender", nullable=false)
 	private User sender;
-	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="empfaenger", nullable=false)
 	private User empfaenger;
+	@Column(nullable = false)
 	private String title;
 	private long time;
 	// Kein Join auf Ordner, da der Hauptordner 0 nicht in der DB existiert
 	private int ordner;
 	private int flags;
+	@Lob
+	@Column(nullable = false)
 	private String inhalt;
+	@Lob
+	@Column(nullable = false)
 	private String kommentar;
 
 	/**

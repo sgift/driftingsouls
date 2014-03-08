@@ -53,6 +53,7 @@ import org.hibernate.Session;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Index;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.Type;
@@ -65,6 +66,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -92,12 +94,17 @@ import java.util.TreeMap;
 @Table(name="bases")
 @Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 @BatchSize(size=50)
+@org.hibernate.annotations.Table(
+	appliesTo = "bases",
+	indexes = {@Index(name="owner", columnNames = {"owner", "id"}), @Index(name="coords", columnNames = {"x", "y", "system"})}
+)
 public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feeding
 {
 	@Id @GeneratedValue
 	private int id;
+	@Column(nullable = false)
 	private String name;
-	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="owner", nullable=false)
 	private User owner;
 	private int x;
@@ -105,31 +112,41 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	private int system;
 	private int bewohner;
 	private int arbeiter;
-	@Column(name="e")
+	@Column(name="e", nullable = false)
 	private int energy;
-	@Column(name="maxe")
+	@Column(name="maxe", nullable = false)
 	private int maxEnergy;
-	@Type(type="cargo")
+	@Column(nullable = false)
+	@Type(type="largeCargo")
 	private Cargo cargo;
-	@Column(name="maxcargo")
+	@Column(name="maxcargo", nullable = false)
 	private long maxCargo;
 	private int core;
-	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="klasse", nullable=false)
 	private BaseType klasse;
 	private int width;
 	private int height;
-	@Column(name="maxtiles")
+	@Column(name="maxtiles", nullable = false)
 	private int maxTiles;
 	private int size;
+	@Lob
+	@Column(nullable = false)
 	private String terrain;
+	@Lob
+	@Column(nullable = false)
 	private String bebauung;
+	@Lob
+	@Column(nullable = false)
 	private String active;
-	@Column(name="coreactive")
+	@Column(name="coreactive", nullable = false)
 	private int coreActive;
-	@Column(name="autogtuacts")
+	@Lob
+	@Column(name="autogtuacts", nullable = false)
 	private String autoGtuActs;
+	@Lob
 	private String spawnableress;
+	@Lob
 	private String spawnressavailable;
 	private boolean isloading;
 	private boolean isfeeding;

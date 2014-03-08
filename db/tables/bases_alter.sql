@@ -1,3 +1,5 @@
+create index coords on bases (x, y, system);
+create index owner on bases (owner, id);
 ALTER TABLE bases ADD CONSTRAINT bases_fk_users FOREIGN KEY (owner) REFERENCES users(id);
 ALTER TABLE bases ADD CONSTRAINT FOREIGN KEY bases_fk_academy (academy_id) REFERENCES academy(id);
 ALTER TABLE bases ADD CONSTRAINT FOREIGN KEY bases_fk_fz (forschungszentrum_id) REFERENCES fz(id);

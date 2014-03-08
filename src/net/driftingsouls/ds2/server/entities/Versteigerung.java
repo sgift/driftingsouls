@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -39,19 +41,17 @@ import org.hibernate.annotations.DiscriminatorFormula;
 @Entity
 @Table(name="versteigerungen")
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
-@DiscriminatorFormula("mtype")
+@DiscriminatorColumn(name="mtype", discriminatorType = DiscriminatorType.INTEGER)
 public abstract class Versteigerung {
 	@Id @GeneratedValue
 	private int id;
-	@SuppressWarnings("unused")
-	private int mtype;
 	private int tick;
 	private long preis;
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="bieter")
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
+	@JoinColumn(name="bieter", nullable = false)
 	private User bieter;
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="owner")
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
+	@JoinColumn(name="owner", nullable = false)
 	private User owner;
 	
 	@Version
@@ -61,20 +61,18 @@ public abstract class Versteigerung {
 	 * Konstruktor.
 	 *
 	 */
-	public Versteigerung() {
+	protected Versteigerung() {
 		// EMPTY
 	}
 	
 	/**
 	 * Erstellt eine neue Versteigerung.
 	 * @param owner Der Besitzer und zugleich default-Bieter
-	 * @param mtype Der Typ der Versteigerung
 	 * @param price Der Startpreis
 	 */
-	public Versteigerung(User owner, int mtype, long price) {
+	public Versteigerung(User owner, long price) {
 		this.owner = owner;
 		this.bieter = owner;
-		this.mtype = mtype;
 		this.preis = price;
 	}
 

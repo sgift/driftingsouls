@@ -64,21 +64,22 @@ public class WerftQueueEntry {
 
 	@Id @GeneratedValue
 	private int id;
-	@ManyToOne(fetch=FetchType.EAGER)
+	@ManyToOne(fetch=FetchType.EAGER, optional = false)
 	@JoinColumn(name="werft", nullable=false)
 	private WerftObject werft;
 	private int position;
-	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="building", nullable=false)
 	private ShipType building;
 
-	@Column(name="item")
+	@Column(name="item", nullable = false)
 	private int buildItem = -1;
 
-	@Column(name="flagschiff")
+	@Column(name="flagschiff", nullable = false)
 	private boolean buildFlagschiff = false;
 	private int remaining = 0;
-	@Type(type="cargo")
+	@Type(type="largeCargo")
+	@Column(nullable = false)
 	private Cargo costsPerTick;
 	private int energyPerTick;
 	private int slots = 1;

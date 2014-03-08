@@ -1,5 +1,5 @@
 CREATE TABLE `ships` (
-  `id` integer not null auto_increment,
+  `id` integer not null,
 	`ablativeArmor` integer not null,
 	`alarm` integer not null,
 	`battleAction` boolean not null,

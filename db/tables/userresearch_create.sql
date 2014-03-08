@@ -1,7 +1,7 @@
 CREATE TABLE `userresearch` (
-	`id` int(11) unsigned NOT NULL auto_increment,
-	`owner` integer NOT NULL,
-	`research` integer NOT NULL,
-	PRIMARY KEY  (`id`),
-	UNIQUE (`owner`,`research`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Forschungen der Spieler'; 
+	`id` integer not null auto_increment,
+	`owner` integer not null,
+	`research` integer not null,
+	primary key (`id`),
+	unique (`owner`,`research`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

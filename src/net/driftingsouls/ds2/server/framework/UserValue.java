@@ -18,11 +18,15 @@
  */
 package net.driftingsouls.ds2.server.framework;
 
+import org.hibernate.annotations.Index;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
@@ -37,15 +41,22 @@ import javax.persistence.Version;
  */
 @Entity
 @Table(name="user_values")
+@org.hibernate.annotations.Table(
+	appliesTo = "user_values",
+	indexes = {@Index(name="id", columnNames = {"user_id", "name"})}
+)
 public class UserValue {
 	@Id @GeneratedValue
 	private int id;
 	
-	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name="user_id")
+	@ManyToOne(fetch=FetchType.EAGER, optional = false)
+	@JoinColumn(name="user_id", nullable = false)
 	private BasicUser user;
-	
+
+	@Column(nullable = false)
 	private String name;
+	@Lob
+	@Column(nullable = false)
 	private String value;
 	
 	@Version
@@ -55,7 +66,7 @@ public class UserValue {
 	 * Konstruktor.
 	 *
 	 */
-	public UserValue() {
+	protected UserValue() {
 		// EMPTY
 	}
 	

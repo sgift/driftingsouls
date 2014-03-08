@@ -1,11 +1,11 @@
 CREATE TABLE `versteigerungen` (
-  `id` integer NOT NULL auto_increment,
-  `mtype` tinyint(3) unsigned NOT NULL default '0',
-  `type` varchar(120) NOT NULL default '',
-  `tick` integer NOT NULL default '0',
-  `preis` integer NOT NULL default '0',
-  `bieter` integer NOT NULL default '-2',
-  `owner` integer NOT NULL default '-2',
-  `version` int(10) unsigned not null default '0',
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
+	`mtype` integer not null,
+	`id` integer not null auto_increment,
+  `preis` bigint not null,
+	`tick` integer not null,
+	`version` integer not null,
+	`type` varchar(255),
+  `bieter` integer not null,
+  `owner` integer not null,
+  primary key (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

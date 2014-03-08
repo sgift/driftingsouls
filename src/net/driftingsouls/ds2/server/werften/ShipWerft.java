@@ -46,7 +46,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypes;
 @DiscriminatorValue("S")
 public class ShipWerft extends WerftObject {
 	@OneToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="shipid", nullable=false)
+	@JoinColumn(name="shipid")
 	private Ship ship;
 
 	@ManyToOne(fetch=FetchType.LAZY)

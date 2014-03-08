@@ -25,6 +25,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
@@ -37,19 +38,19 @@ import org.hibernate.proxy.HibernateProxy;
  *
  */
 @Entity
-@Table(name="userresearch")
+@Table(name="userresearch", uniqueConstraints = {@UniqueConstraint(name = "research", columnNames = {"owner", "research"})})
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @BatchSize(size=50)
 public class UserResearch {
 	@Id @GeneratedValue
 	private int id;
 	
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="owner")
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
+	@JoinColumn(name="owner", nullable = false)
 	private User owner;
 	
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="research")
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
+	@JoinColumn(name="research", nullable = false)
 	private Forschung research;
 	
 	/**

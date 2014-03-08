@@ -30,12 +30,12 @@ public class UserRank
 	{
 		private static final long serialVersionUID = -296524516236609133L;
 
-		@ManyToOne(fetch = FetchType.LAZY)
-		@JoinColumn(name = "owner")
+		@ManyToOne(fetch = FetchType.LAZY, optional = false)
+		@JoinColumn(name = "owner", nullable = false)
 		protected User owner;
 
-		@ManyToOne(fetch = FetchType.LAZY)
-		@JoinColumn(name = "rank_giver")
+		@ManyToOne(fetch = FetchType.LAZY, optional = false)
+		@JoinColumn(name = "rank_giver", nullable = false)
 		protected User rankGiver;
 
 		/**

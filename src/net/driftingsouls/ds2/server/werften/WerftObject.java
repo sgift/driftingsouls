@@ -95,7 +95,7 @@ import java.util.TreeMap;
 public abstract class WerftObject extends DSObject implements Locatable {
 	@Id @GeneratedValue
 	private int id;
-	@Column(name="flagschiff")
+	@Column(name="flagschiff", nullable = false)
 	private boolean buildFlagschiff = false;
 	private int type = 0;
 	@ManyToOne(fetch=FetchType.EAGER)

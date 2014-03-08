@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.DiscriminatorFormula;
+import org.hibernate.annotations.Index;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -31,6 +32,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -75,19 +77,28 @@ public abstract class BasicUser {
 	@Id
 	private int id;
 
+	@Index(name="un")
+	@Column(nullable = false)
 	private String un;
+	@Column(nullable = false)
 	private String name;
+	@Column(nullable = false)
 	private String passwort;
 	private int inakt;
 	private int signup;
+	@Column(nullable = false)
 	private String email;
-	@Column(name="log_fail")
+	@Column(name="log_fail", nullable = false)
 	private int logFail;
 	private int accesslevel;
+	@Column(nullable = false)
 	private String nickname;
+	@Column(nullable = false)
 	private String plainname;
 	private String imgpath;
 	private byte disabled;
+	@Lob
+	@Column(nullable = false)
 	private String flags;
 	@OneToMany(mappedBy="user", cascade=CascadeType.ALL)
 	private Set<Permission> permissions;

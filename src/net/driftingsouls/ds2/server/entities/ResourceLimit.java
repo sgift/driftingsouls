@@ -103,9 +103,9 @@ public class ResourceLimit {
 
 	@Id
 	private ResourceLimitKey resourceLimitKey;
-	@Column(name="maximum")
+	@Column(name="maximum", nullable = false)
 	private long limit;
-    @Column(name="min_rank")
+    @Column(name="min_rank", nullable = false)
     private int minRank;
 
 	@Version

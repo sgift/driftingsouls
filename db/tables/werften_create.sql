@@ -1,13 +1,12 @@
 CREATE TABLE `werften` (
-  `id` integer NOT NULL auto_increment,
-  `type` smallint(6) NOT NULL default '0',
-  `flagschiff` tinyint(1) unsigned NOT NULL default '0',
-  `shipid` integer default null,
-  `linked` integer default null,
-  `linkedWerft` integer default null,
-  `komplex` tinyint(1) NOT NULL default '0', 
-  `version` int(10) unsigned not null default '0',
-  `werfttype` CHAR(1) NOT NULL,
-  PRIMARY KEY  (`id`),
-  KEY `shipid` (`shipid`)
+	`werfttype` char(1) not null,
+	`id` integer not null auto_increment,
+	`flagschiff` boolean not null,
+	`type` integer not null,
+	`version` integer not null,
+	`komplex` boolean,
+	`linkedWerft` integer,
+	`linked` integer,
+	`shipid` integer,
+  primary key (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

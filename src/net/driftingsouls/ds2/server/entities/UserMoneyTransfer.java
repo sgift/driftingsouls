@@ -20,16 +20,19 @@ package net.driftingsouls.ds2.server.entities;
 
 import java.math.BigInteger;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.framework.Common;
+import org.hibernate.annotations.Index;
 
 /**
  * <p>Repraesentiert einen Eintrag im Log der durchgefuehrten Ueberweisungen
@@ -44,6 +47,10 @@ import net.driftingsouls.ds2.server.framework.Common;
  */
 @Entity
 @Table(name="user_moneytransfer")
+@org.hibernate.annotations.Table(
+	appliesTo = "user_moneytransfer",
+	indexes = {@Index(name="from", columnNames = {"from_id", "to_id"})}
+)
 public class UserMoneyTransfer {
 	/**
 	 * Der Automatisierungsgrad unter dem die Ueberweisung zu Stande kam.
@@ -65,14 +72,17 @@ public class UserMoneyTransfer {
 	
 	@Id @GeneratedValue
 	private int id;
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="`from`", nullable=false)
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
+	@JoinColumn(nullable=false)
 	private User from;
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="`to`", nullable=false)
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
+	@JoinColumn(nullable=false)
 	private User to;
 	private long time;
+	@Column(nullable = false)
 	private BigInteger count;
+	@Lob
+	@Column(nullable = false)
 	private String text;
 	private int fake;
 	private int type;

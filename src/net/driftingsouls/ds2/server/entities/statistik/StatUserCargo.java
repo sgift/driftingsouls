@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.entities.statistik;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -43,11 +44,12 @@ public class StatUserCargo {
 	@Id
 	int user_id;
 	
-	@OneToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="user_id",nullable=false)
+	@OneToOne(fetch=FetchType.LAZY, optional = false)
+	@JoinColumn(name="user_id", nullable = false)
 	private User user;
 	
-	@Type(type="cargo")
+	@Type(type="largeCargo")
+	@Column(nullable = false)
 	private Cargo cargo;
 	
 	@Version

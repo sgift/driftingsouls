@@ -46,14 +46,17 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Index;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -77,6 +80,10 @@ import java.util.TreeSet;
 @DiscriminatorValue("default")
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @BatchSize(size=50)
+@org.hibernate.annotations.Table(
+	appliesTo = "users",
+	indexes = {@Index(name="vaccount", columnNames = {"vaccount", "wait4vac"})}
+)
 public class User extends BasicUser {
 	private static final Log log = LogFactory.getLog(User.class);
 
@@ -264,6 +271,7 @@ public class User extends BasicUser {
 	}
 
 	private int race;
+	@Lob
 	private String history;
 	private String medals;
 	private int rang;
@@ -273,7 +281,7 @@ public class User extends BasicUser {
 	private BigInteger konto;
 	private int npcpunkte;
 	@OneToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="allyposten", nullable=true)
+	@JoinColumn(name="allyposten", nullable=true, unique = true)
 	private AllyPosten allyposten;
 	private int gtudropzone;
 	private String npcorderloc;
@@ -281,9 +289,11 @@ public class User extends BasicUser {
 	private short wonBattles;
 	private int destroyedShips;
 	private int lostShips;
+	@Lob
 	private String knownItems;
 	private int vacpoints;
 	private int specializationPoints;
+	@Column(nullable = false)
     private BigInteger bounty;
 	@Enumerated(EnumType.STRING)
 	private PersonenNamenGenerator personenNamenGenerator;
@@ -311,6 +321,9 @@ public class User extends BasicUser {
 	@JoinColumn(name="owner")
 	@BatchSize(size=1)
 	private Set<Ship> ships;
+
+	private int vaccount;
+	private int wait4vac;
 
 	@Transient
 	private Context context;
@@ -850,9 +863,6 @@ public class User extends BasicUser {
     {
         return this.bounty;
     }
-
-	private int vaccount;
-	private int wait4vac;
 
 	/**
 	 * Prueft, ob die angegebene Forschung durch den Benutzer erforscht wurde.

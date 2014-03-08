@@ -36,10 +36,10 @@ import net.driftingsouls.ds2.server.entities.ResourceLimit.ResourceLimitKey;
 public class SellLimit {
 	@Id
 	private ResourceLimitKey resourceLimitKey;
-	@Column(name="minimum")
+	@Column(name="minimum", nullable = false)
 	private long limit;
 	private long price;
-    @Column(name="min_rank")
+    @Column(name="min_rank", nullable = false)
     private int minRank;
 	
 	@Version

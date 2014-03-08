@@ -18,8 +18,11 @@
  */
 package net.driftingsouls.ds2.server.units;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -37,18 +40,22 @@ import org.hibernate.annotations.Type;
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class UnitType {
 	
-	@Id
+	@Id @GeneratedValue
 	private int id;
+	@Column(nullable = false)
 	private String name;
 	private int size;
+	@Lob
 	private String description;
 	private double recost;
 	private double nahrungcost;
 	private int kapervalue;
 	@Type(type="cargo")
+	@Column(nullable = false)
 	private Cargo buildcosts;
 	private int resid;
 	private int dauer;
+	@Column(nullable = false)
 	private String picture;
 	private boolean hidden;
 	
