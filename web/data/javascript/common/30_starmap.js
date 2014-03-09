@@ -560,6 +560,10 @@ return function(jqElement) {
 
 		var __renderOverlay = function(data)
 		{
+			function tile(loc) {
+				return Math.floor((loc-1)/TILE_SIZE);
+			}
+
 			var overlay = "<div id='tileOverlay' style='left:"+(__currentShiftOffset[0])+"px;top:"+(__currentShiftOffset[1])+"px'>";
 
 			var slice = (function() {
@@ -569,10 +573,6 @@ return function(jqElement) {
 				var tilex = null;
 				var tiley = null;
 				var width = 0;
-
-				function tile(loc) {
-					return Math.floor((loc-1)/TILE_SIZE);
-				}
 
 				function flush() {
 					var posx = (locx-__currentSize.minx)*SECTOR_IMAGE_SIZE;
@@ -627,8 +627,8 @@ return function(jqElement) {
 					if( loc.bg.image == null )
 					{
 						var url = DS.getUrl();
-						var tilex = Math.floor(loc.x/TILE_SIZE);
-						var tiley = Math.floor(loc.y/TILE_SIZE);
+						var tilex = tile(loc.x);
+						var tiley = tile(loc.y);
 						overlay += "<div style=\"top:"+posy+"px;left:"+posx+"px;background-image:url('"+url+"?module=map&action=tile&sys="+__currentSystem.id+"&tileX="+tilex+"&tileY="+tiley+"');background-position:-"+((loc.x-1)%TILE_SIZE)*SECTOR_IMAGE_SIZE+"px -"+((loc.y-1)%TILE_SIZE)*SECTOR_IMAGE_SIZE+"px\" >";
 					}
 					else {
