@@ -36,7 +36,6 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import org.apache.commons.io.IOUtils;
-import org.hibernate.FlushMode;
 import org.hibernate.Session;
 
 import java.io.File;
@@ -391,91 +390,82 @@ public class MapController extends AngularController
 		MapViewModel json = new MapViewModel();
 
 		org.hibernate.Session db = getDB();
-		// Flushmode aendern um autoflushes auf den grossen geladenen Datenmengen zu vermeiden.
-		FlushMode oldFlushMode = db.getFlushMode();
-		db.setFlushMode(FlushMode.MANUAL);
-		try
+
+		User user = (User) getUser();
+
+		json.system = new MapViewModel.SystemViewModel();
+		json.system.id = sys.getID();
+		json.system.width = sys.getWidth();
+		json.system.height = sys.getHeight();
+
+		int width = sys.getWidth();
+		int height = sys.getHeight();
+
+		//Limit width and height to map size
+		if (xstart < 1)
 		{
-			User user = (User) getUser();
+			xstart = 1;
+		}
 
-			json.system = new MapViewModel.SystemViewModel();
-			json.system.id = sys.getID();
-			json.system.width = sys.getWidth();
-			json.system.height = sys.getHeight();
+		if (xend > width)
+		{
+			xend = width;
+		}
 
-			int width = sys.getWidth();
-			int height = sys.getHeight();
+		if (ystart < 1)
+		{
+			ystart = 1;
+		}
 
-			//Limit width and height to map size
-			if (xstart < 1)
+		if (yend > height)
+		{
+			yend = height;
+		}
+
+		//Use sensible defaults in case of useless input
+		if (yend <= ystart)
+		{
+			yend = height;
+		}
+
+		if (xend <= xstart)
+		{
+			xend = width;
+		}
+
+		PublicStarmap content;
+		if (admin && user.isAdmin())
+		{
+			content = new AdminStarmap(sys, user, new int[]{xstart, ystart, xend - xstart, yend - ystart});
+		}
+		else
+		{
+			content = new PlayerStarmap(user, sys, new int[]{xstart, ystart, xend - xstart, yend - ystart});
+		}
+
+		json.size = new MapViewModel.SizeViewModel();
+		json.size.minx = xstart;
+		json.size.miny = ystart;
+		json.size.maxx = xend;
+		json.size.maxy = yend;
+
+		for (int y = ystart; y <= yend; y++)
+		{
+			for (int x = xstart; x <= xend; x++)
 			{
-				xstart = 1;
-			}
-
-			if (xend > width)
-			{
-				xend = width;
-			}
-
-			if (ystart < 1)
-			{
-				ystart = 1;
-			}
-
-			if (yend > height)
-			{
-				yend = height;
-			}
-
-			//Use sensible defaults in case of useless input
-			if (yend <= ystart)
-			{
-				yend = height;
-			}
-
-			if (xend <= xstart)
-			{
-				xend = width;
-			}
-
-			PublicStarmap content;
-			if (admin && user.isAdmin())
-			{
-				content = new AdminStarmap(sys, user, new int[]{xstart, ystart, xend - xstart, yend - ystart});
-			}
-			else
-			{
-				content = new PlayerStarmap(user, sys, new int[]{xstart, ystart, xend - xstart, yend - ystart});
-			}
-
-			json.size = new MapViewModel.SizeViewModel();
-			json.size.minx = xstart;
-			json.size.miny = ystart;
-			json.size.maxx = xend;
-			json.size.maxy = yend;
-
-			for (int y = ystart; y <= yend; y++)
-			{
-				for (int x = xstart; x <= xend; x++)
+				Location position = new Location(sys.getID(), x, y);
+				MapViewModel.LocationViewModel locationViewModel = createMapLocationViewModel(content, position);
+				if (locationViewModel != null)
 				{
-					Location position = new Location(sys.getID(), x, y);
-					MapViewModel.LocationViewModel locationViewModel = createMapLocationViewModel(content, position);
-					if (locationViewModel != null)
-					{
-						json.locations.add(locationViewModel);
-					}
+					json.locations.add(locationViewModel);
 				}
 			}
-
-			// Das Anzeigen sollte keine DB-Aenderungen verursacht haben
-			db.clear();
-
-			return json;
 		}
-		finally
-		{
-			db.setFlushMode(oldFlushMode);
-		}
+
+		// Das Anzeigen sollte keine DB-Aenderungen verursacht haben
+		db.clear();
+
+		return json;
 	}
 
 	private MapViewModel.LocationViewModel createMapLocationViewModel(PublicStarmap content, Location position)
