@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.map.FieldView;
 import net.driftingsouls.ds2.server.map.PlayerFieldView;
 import net.driftingsouls.ds2.server.map.PlayerStarmap;
 import net.driftingsouls.ds2.server.map.PublicStarmap;
+import net.driftingsouls.ds2.server.map.SectorImage;
 import net.driftingsouls.ds2.server.map.TileCache;
 import net.driftingsouls.ds2.server.modules.viewmodels.AllyViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.JumpNodeViewModel;
@@ -345,7 +346,7 @@ public class MapController extends AngularController
 			public int x;
 			public int y;
 
-			public static SectorImageViewModel map(PublicStarmap.SectorImage image)
+			public static SectorImageViewModel map(SectorImage image)
 			{
 				SectorImageViewModel viewmodel = new SectorImageViewModel();
 				viewmodel.image = image.getImage();
@@ -480,8 +481,8 @@ public class MapController extends AngularController
 	private MapViewModel.LocationViewModel createMapLocationViewModel(PublicStarmap content, Location position)
 	{
 		boolean scannable = content.isScannbar(position);
-		PublicStarmap.SectorImage sectorImage = content.getUserSectorBaseImage(position);
-		PublicStarmap.SectorImage sectorOverlayImage = content.getSectorOverlayImage(position);
+		SectorImage sectorImage = content.getUserSectorBaseImage(position);
+		SectorImage sectorOverlayImage = content.getSectorOverlayImage(position);
 
 		boolean endTag = false;
 

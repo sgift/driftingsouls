@@ -103,9 +103,9 @@ public class TileCache
 				for(int x = 0; x < TILE_SIZE; x++)
 				{
 					Location position = new Location(this.system.getID(), tileX*TILE_SIZE+x+1, tileY*TILE_SIZE+y+1);
-					List<PublicStarmap.RenderedSectorImage> sectorImageName = content.getSectorBaseImage(position);
+					List<RenderedSectorImage> sectorImageName = content.getSectorBaseImage(position);
 
-					for (PublicStarmap.RenderedSectorImage renderOp : sectorImageName)
+					for (RenderedSectorImage renderOp : sectorImageName)
 					{
 						BufferedImage sectorImage = loadImage(renderOp.getImage());
 
@@ -137,7 +137,7 @@ public class TileCache
 		}
 	}
 
-	private BufferedImage enhanceImage(BufferedImage image, PublicStarmap.RenderedSectorImage sectorImage)
+	private BufferedImage enhanceImage(BufferedImage image, RenderedSectorImage sectorImage)
 	{
 		if( sectorImage.getAlphaMask()[0] == 1 &&
 			sectorImage.getAlphaMask()[1] == 1 &&
