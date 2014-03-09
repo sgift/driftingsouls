@@ -592,7 +592,7 @@ return function(jqElement) {
 				};
 				var extend = function(x, y) {
 					var overlay = "";
-					if( locx !== null && (tilex !== tile(x) || locy != y) ) {
+					if( locx !== null && (tilex !== tile(x) || locy !== y || locx+width !== x) ) {
 						overlay += flush();
 						locx = null;
 					}
