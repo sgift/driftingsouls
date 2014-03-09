@@ -84,18 +84,35 @@ public class AdminCommands {
 	 */
 	public AdminCommands()
 	{
-		cmds.put("editship", EditShipCommand.class);
-		cmds.put("editfleet", EditFleetCommand.class);
-		cmds.put("recalculateshipmodules", RecalcShipModulesCommand.class);
-		cmds.put("addresource", AddResourceCommand.class);
-		cmds.put("addunits", AddUnitsCommand.class);
-		cmds.put("quest", QuestCommand.class);
-		cmds.put("battle", BattleCommand.class);
-		cmds.put("destroyship", DestroyShipCommand.class);
-		cmds.put("buildimgs", BuildImgsCommand.class);
-		cmds.put("exectask", ExecTaskCommand.class);
-		cmds.put("tick", TickCommand.class);
-        cmds.put("autofire", AutoFireCommand.class);
+		Context context = ContextMap.getContext();
+		if( context.hasPermission("admin", "EditShip") )
+		{
+			cmds.put("editship", EditShipCommand.class);
+			cmds.put("editfleet", EditFleetCommand.class);
+			cmds.put("recalculateshipmodules", RecalcShipModulesCommand.class);
+			cmds.put("destroyship", DestroyShipCommand.class);
+		}
+		if( context.hasPermission("admin", "EditShip") || context.hasPermission("admin", "EditBases") )
+		{
+			cmds.put("addresource", AddResourceCommand.class);
+			cmds.put("addunits", AddUnitsCommand.class);
+		}
+
+		if( context.hasPermission("admin", "QuestsFiles") || context.hasPermission("admin", "QuestsQuick") )
+		{
+			cmds.put("quest", QuestCommand.class);
+		}
+		if( context.hasPermission("admin", "BattleEnd") )
+		{
+			cmds.put("battle", BattleCommand.class);
+		}
+		if( context.getActiveUser().isAdmin() )
+		{
+			cmds.put("buildimgs", BuildImgsCommand.class);
+			cmds.put("exectask", ExecTaskCommand.class);
+			cmds.put("tick", TickCommand.class);
+        	cmds.put("autofire", AutoFireCommand.class);
+		}
 	}
 
 	/**
