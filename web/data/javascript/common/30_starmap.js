@@ -655,6 +655,7 @@ return function(jqElement) {
 					overlay += "</div>";
 				}
 			}
+			overlay += slice.complete();
 			overlay += "</div>";
 
 			return overlay;
