@@ -72,9 +72,9 @@ public class PlayerFieldView implements FieldView
 			if( base.getOwner().getId() == this.user.getId() )
 			{
 				bases.add(base);
-				continue;
 			}
-			if( this.user.getAlly() != null && user.getAlly().equals(base.getOwner().getAlly()) )
+			else if( (this.user.getAlly() != null && user.getAlly().equals(base.getOwner().getAlly())) ||
+					 this.user.getRelations().isOnly(base.getOwner(), Relation.FRIEND) )
 			{
 				bases.add(base);
 			}

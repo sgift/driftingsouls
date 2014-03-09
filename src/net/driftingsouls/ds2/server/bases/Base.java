@@ -53,6 +53,7 @@ import org.hibernate.Session;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
@@ -106,6 +107,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	private String name;
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="owner", nullable=false)
+	@ForeignKey(name="bases_fk_users")
 	private User owner;
 	private int x;
 	private int y;
@@ -124,6 +126,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	private int core;
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="klasse", nullable=false)
+	@ForeignKey(name="bases_fk_basetypes")
 	private BaseType klasse;
 	private int width;
 	private int height;
@@ -153,12 +156,15 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 
 	@OneToOne(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE})
 	@JoinColumn
+	@ForeignKey(name="bases_fk_academy")
 	private Academy academy;
 	@OneToOne(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE})
 	@JoinColumn
+	@ForeignKey(name="bases_fk_fz")
 	private Forschungszentrum forschungszentrum;
 	@OneToOne(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE})
 	@JoinColumn
+	@ForeignKey(name="bases_fk_werften")
 	private BaseWerft werft;
 	@OneToMany(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE})
 	@JoinColumn(name="col")
@@ -1339,7 +1345,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		{
 			return "asti_own/asti_own";
 		}
-		else if((getOwner().getId() != 0) && (user.getAlly() != null) && (getOwner().getAlly() == user.getAlly()) && user.getAlly().getShowAstis())
+		else if(((getOwner().getId() != 0) && (user.getAlly() != null) && (getOwner().getAlly() == user.getAlly()) && user.getAlly().getShowAstis()) ||
+				user.getRelations().isOnly(owner, User.Relation.FRIEND))
 		{
 			return "asti_ally/asti_ally";
 		}
