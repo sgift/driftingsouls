@@ -15,6 +15,7 @@ return function(jqElement) {
 	 * @type {number}
 	 */
 	var SECTOR_IMAGE_SIZE = 25;
+	var TILE_SIZE = 20;
 
 	/**
 	 * @name JsonSystemResponse
@@ -355,27 +356,26 @@ return function(jqElement) {
 	 * @param {Object} mapSize
 	 */
 	var Tiles = function(systemId, screenSize, mapSize) {
-		this.__TILE_SIZE = 20;
 		this.__screen = screenSize;
 		this.__currentShiftOffset = [0, 0];
 		this.__size = {minx:mapSize.minx, maxx:mapSize.maxx, miny:mapSize.miny, maxy:mapSize.maxy};
 		this.__systemId = systemId;
 		this.__renderedTiles = [];
-		this.__startPos = [Math.floor((mapSize.minx-1)/this.__TILE_SIZE), Math.floor((mapSize.miny-1)/this.__TILE_SIZE)];
+		this.__startPos = [Math.floor((mapSize.minx-1)/TILE_SIZE), Math.floor((mapSize.miny-1)/TILE_SIZE)];
 		this.__startSectorPos = [mapSize.minx, mapSize.miny];
 
 		this.__renderTiles = function(mapSize)
 		{
 			var url = DS.getUrl();
 			var tiles = '<div id="tiles">';
-			var startTileY = Math.floor((mapSize.miny-1)/this.__TILE_SIZE);
-			var startTileX = Math.floor((mapSize.minx-1)/this.__TILE_SIZE);
-			for( var y=startTileY; y <= Math.floor((mapSize.maxy-1)/this.__TILE_SIZE); y++ )
+			var startTileY = Math.floor((mapSize.miny-1)/TILE_SIZE);
+			var startTileX = Math.floor((mapSize.minx-1)/TILE_SIZE);
+			for( var y=startTileY; y <= Math.floor((mapSize.maxy-1)/TILE_SIZE); y++ )
 			{
-				for( var x=startTileX; x <= Math.floor((mapSize.maxx-1)/this.__TILE_SIZE); x++ )
+				for( var x=startTileX; x <= Math.floor((mapSize.maxx-1)/TILE_SIZE); x++ )
 				{
-					var xOffset = ((x-startTileX)*this.__TILE_SIZE-(mapSize.minx-1)%this.__TILE_SIZE)*SECTOR_IMAGE_SIZE;
-					var yOffset = ((y-startTileY)*this.__TILE_SIZE-(mapSize.miny-1)%this.__TILE_SIZE)*SECTOR_IMAGE_SIZE;
+					var xOffset = ((x-startTileX)*TILE_SIZE-(mapSize.minx-1)%TILE_SIZE)*SECTOR_IMAGE_SIZE;
+					var yOffset = ((y-startTileY)*TILE_SIZE-(mapSize.miny-1)%TILE_SIZE)*SECTOR_IMAGE_SIZE;
 					tiles += "<img style=\"left:"+xOffset+"px;top:"+yOffset+"px;\" src=\""+url+"?module=map&action=tile&sys="+this.__systemId+"&tileX="+x+"&tileY="+y+"\" />";
 					this.__renderedTiles[x+"/"+y] = true;
 				}
@@ -400,8 +400,8 @@ return function(jqElement) {
 				realSize.minx = this.__startSectorPos[0]-cntw;
 				mod = true;
 			}
-			else if( this.__currentShiftOffset[0] + (this.__size.maxx-this.__size.minx)*this.__TILE_SIZE < this.__screen.width() ) {
-				var gapw = this.__screen.width() - (this.__currentShiftOffset[0] + (this.__size.maxx-this.__size.minx)*this.__TILE_SIZE);
+			else if( this.__currentShiftOffset[0] + (this.__size.maxx-this.__size.minx)*TILE_SIZE < this.__screen.width() ) {
+				var gapw = this.__screen.width() - (this.__currentShiftOffset[0] + (this.__size.maxx-this.__size.minx)*TILE_SIZE);
 				realSize.maxx += Math.ceil(gapw / SECTOR_IMAGE_SIZE);
 				mod = true;
 			}
@@ -412,8 +412,8 @@ return function(jqElement) {
 				realSize.miny = this.__startSectorPos[1]-cnth;
 				mod = true;
 			}
-			else if( this.__currentShiftOffset[1] + (this.__size.maxy-this.__size.miny)*this.__TILE_SIZE < this.__screen.height() ) {
-				var gaph = this.__screen.height() - (this.__currentShiftOffset[1] + (this.__size.maxy-this.__size.miny)*this.__TILE_SIZE);
+			else if( this.__currentShiftOffset[1] + (this.__size.maxy-this.__size.miny)*TILE_SIZE < this.__screen.height() ) {
+				var gaph = this.__screen.height() - (this.__currentShiftOffset[1] + (this.__size.maxy-this.__size.miny)*TILE_SIZE);
 				realSize.maxy += Math.ceil(gaph / SECTOR_IMAGE_SIZE);
 				mod = true;
 			}
@@ -421,20 +421,20 @@ return function(jqElement) {
 			if( mod ) {
 				var newTiles = "";
 				var url = DS.getUrl();
-				var startTileY = Math.floor((realSize.miny-1)/this.__TILE_SIZE);
-				var startTileX = Math.floor((realSize.minx-1)/this.__TILE_SIZE);
+				var startTileY = Math.floor((realSize.miny-1)/TILE_SIZE);
+				var startTileX = Math.floor((realSize.minx-1)/TILE_SIZE);
 				if( startTileX < 0 ) {
 					throw "OutOfRange";
 				}
-				for( var y=startTileY; y <= Math.floor((realSize.maxy-1)/this.__TILE_SIZE); y++ )
+				for( var y=startTileY; y <= Math.floor((realSize.maxy-1)/TILE_SIZE); y++ )
 				{
-					for( var x=startTileX; x <= Math.floor((realSize.maxx-1)/this.__TILE_SIZE); x++ )
+					for( var x=startTileX; x <= Math.floor((realSize.maxx-1)/TILE_SIZE); x++ )
 					{
 						if( typeof this.__renderedTiles[x+"/"+y] !== "undefined" ) {
 							continue;
 						}
-						var xOffset = ((x-this.__startPos[0])*this.__TILE_SIZE-(this.__startSectorPos[0]-1)%this.__TILE_SIZE)*SECTOR_IMAGE_SIZE;
-						var yOffset = ((y-this.__startPos[1])*this.__TILE_SIZE-(this.__startSectorPos[1]-1)%this.__TILE_SIZE)*SECTOR_IMAGE_SIZE;
+						var xOffset = ((x-this.__startPos[0])*TILE_SIZE-(this.__startSectorPos[0]-1)%TILE_SIZE)*SECTOR_IMAGE_SIZE;
+						var yOffset = ((y-this.__startPos[1])*TILE_SIZE-(this.__startSectorPos[1]-1)%TILE_SIZE)*SECTOR_IMAGE_SIZE;
 						newTiles += "<img style=\"left:"+xOffset+"px;top:"+yOffset+"px;\" src=\""+url+"?module=map&action=tile&sys="+this.__systemId+"&tileX="+x+"&tileY="+y+"\" />";
 						this.__renderedTiles[x+"/"+y] = true;
 					}
@@ -568,7 +568,16 @@ return function(jqElement) {
 				var posy = (loc.y-__currentSize.miny)*SECTOR_IMAGE_SIZE;
 
 				if( loc.bg != null ) {
-					overlay += "<div style=\"top:"+posy+"px;left:"+posx+"px;background-image:url('data/starmap/"+loc.bg.image+"');background-position:"+loc.bg.x*SECTOR_IMAGE_SIZE+"px "+loc.bg.y*SECTOR_IMAGE_SIZE+"px\" >";
+					if( loc.bg.image == null )
+					{
+						var url = DS.getUrl();
+						var tilex = Math.floor(loc.x/TILE_SIZE);
+						var tiley = Math.floor(loc.y/TILE_SIZE);
+						overlay += "<div style=\"top:"+posy+"px;left:"+posx+"px;background-image:url('"+url+"?module=map&action=tile&sys="+__currentSystem.id+"&tileX="+tilex+"&tileY="+tiley+"');background-position:"+loc.x*SECTOR_IMAGE_SIZE+"px "+loc.y*SECTOR_IMAGE_SIZE+"px\" >";
+					}
+					else {
+						overlay += "<div style=\"top:"+posy+"px;left:"+posx+"px;background-image:url('data/starmap/"+loc.bg.image+"');background-position:"+loc.bg.x*SECTOR_IMAGE_SIZE+"px "+loc.bg.y*SECTOR_IMAGE_SIZE+"px\" >";
+					}
 				}
 				else if( loc.fg != null ) {
 					overlay += "<div style=\"top:"+posy+"px;left:"+posx+"px\" >";

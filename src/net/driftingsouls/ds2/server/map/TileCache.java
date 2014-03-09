@@ -16,6 +16,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Verwaltung fuer Kacheln der Sternenkarte.
@@ -62,11 +65,29 @@ public class TileCache
 		}
 	}
 
+	private Map<String,BufferedImage> imageCache = new HashMap<>();
 	private StarSystem system;
 
 	private TileCache(StarSystem system)
 	{
 		this.system = system;
+	}
+
+	private BufferedImage loadImage(String name) throws IOException
+	{
+		if( imageCache.containsKey(name) )
+		{
+			return imageCache.get(name);
+		}
+		File path = new File(Configuration.getSetting("ABSOLUTE_PATH") + "data/starmap/" + name);
+		if( !path.canRead() )
+		{
+			throw new FileNotFoundException(path.getAbsolutePath());
+		}
+		BufferedImage sectorImage = ImageIO.read(path);
+
+		imageCache.put(name, sectorImage);
+		return sectorImage;
 	}
 
 	private void createTile(File tileCacheFile, int tileX, int tileY) throws IOException
@@ -82,23 +103,24 @@ public class TileCache
 				for(int x = 0; x < TILE_SIZE; x++)
 				{
 					Location position = new Location(this.system.getID(), tileX*TILE_SIZE+x+1, tileY*TILE_SIZE+y+1);
-					PublicStarmap.SectorImage sectorImageName = content.getSectorBaseImage(position);
+					List<PublicStarmap.RenderedSectorImage> sectorImageName = content.getSectorBaseImage(position);
 
-					File path = new File(Configuration.getSetting("ABSOLUTE_PATH") + "data/starmap/" + sectorImageName.getImage());
-					if( !path.canRead() )
+					for (PublicStarmap.RenderedSectorImage renderOp : sectorImageName)
 					{
-						throw new FileNotFoundException(path.getAbsolutePath());
-					}
-					BufferedImage sectorImage = ImageIO.read(path);
-					g.drawImage(sectorImage,
-							x*SECTOR_IMAGE_SIZE,y*SECTOR_IMAGE_SIZE,
-							(x+1)*SECTOR_IMAGE_SIZE, (y+1)*SECTOR_IMAGE_SIZE,
+						BufferedImage sectorImage = loadImage(renderOp.getImage());
 
-							-sectorImageName.getX()*25,
-							-sectorImageName.getY()*25,
-							-sectorImageName.getX()*25+25,
-							-sectorImageName.getY()*25+25,
-							null);
+						sectorImage = enhanceImage(sectorImage, renderOp);
+
+						g.drawImage(sectorImage,
+								   x*SECTOR_IMAGE_SIZE,y*SECTOR_IMAGE_SIZE,
+								   (x+1)*SECTOR_IMAGE_SIZE, (y+1)*SECTOR_IMAGE_SIZE,
+
+								   -renderOp.getX()*25,
+								   -renderOp.getY()*25,
+								   -renderOp.getX()*25+25,
+								   -renderOp.getY()*25+25,
+								   null);
+					}
 				}
 			}
 		}
@@ -109,10 +131,60 @@ public class TileCache
 
 		try (OutputStream outputStream = new FileOutputStream(tileCacheFile))
 		{
-			ImageIO.write(CustomPaletteBuilder.createIndexedImage(img, 64), "png", outputStream);
+			ImageIO.write(CustomPaletteBuilder.createIndexedImage(img, 192), "png", outputStream);
 
 			outputStream.flush();
 		}
+	}
+
+	private BufferedImage enhanceImage(BufferedImage image, PublicStarmap.RenderedSectorImage sectorImage)
+	{
+		if( sectorImage.getAlphaMask()[0] == 1 &&
+			sectorImage.getAlphaMask()[1] == 1 &&
+			sectorImage.getAlphaMask()[2] == 1 &&
+			sectorImage.getAlphaMask()[3] == 1 &&
+			sectorImage.getAlphaMask()[4] == 1 &&
+			sectorImage.getAlphaMask()[5] == 1 &&
+			sectorImage.getAlphaMask()[6] == 1 &&
+			sectorImage.getAlphaMask()[7] == 1 &&
+			sectorImage.getAlphaMask()[8] == 1 ) {
+			return image;
+		}
+
+		BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+
+		final int width = image.getWidth();
+		int[] imgData = new int[width];
+
+		for (int y = 0; y < image.getHeight(); y++) {
+			// fetch a line of data from each image
+			image.getRGB(0, y, width, 1, imgData, 0, 1);
+
+			// apply the mask
+			for (int x = 0; x < width; x++) {
+				int color = imgData[x] & 0x00FFFFFF; // mask away any alpha present
+				double maskFactor = 0d;
+				for( int i=0; i < 9; i++ ) {
+					maskFactor += distanceFactor(i, x, y, width, image.getHeight())* sectorImage.getAlphaMask()[i];
+				}
+				int maskColor = ((int)(Math.min(maskFactor,1)*255)) << 24;
+				color |= maskColor;
+				imgData[x] = color;
+			}
+			// replace the data
+			newImage.setRGB(0, y, width, 1, imgData, 0, 1);
+		}
+		return newImage;
+	}
+
+	private double distanceFactor(int edge, int x, int y, int w, int h)
+	{
+		double[] edgePos = {((edge%3)/2d)*w, ((edge/3)/2d)*h};
+
+		double distance = Math.sqrt(Math.pow(edgePos[0]-x, 2)+Math.pow(edgePos[1]-y, 2));
+		double maxDistance = Math.sqrt(Math.pow(w, 2)+Math.pow(h, 2))/(edge%2==1 ? 3d : 2.5d);
+
+		return Math.max(1-distance/maxDistance, 0);
 	}
 
 	/**

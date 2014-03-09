@@ -499,7 +499,7 @@ public class MapController extends AngularController
 		else if (scannable)
 		{
 			endTag = true;
-			posObj.bg = MapViewModel.SectorImageViewModel.map(content.getSectorBaseImage(position));
+			posObj.bg = new MapViewModel.SectorImageViewModel();//MapViewModel.SectorImageViewModel.map(content.getSectorBaseImage(position));
 			sectorImage = sectorOverlayImage;
 		}
 		else if (sectorOverlayImage != null)
