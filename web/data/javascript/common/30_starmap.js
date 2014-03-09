@@ -561,8 +561,64 @@ return function(jqElement) {
 		var __renderOverlay = function(data)
 		{
 			var overlay = "<div id='tileOverlay' style='left:"+(__currentShiftOffset[0])+"px;top:"+(__currentShiftOffset[1])+"px'>";
+
+			var slice = (function() {
+				var url = DS.getUrl();
+				var locy = null;
+				var locx = null;
+				var tilex = null;
+				var tiley = null;
+				var width = 0;
+
+				function tile(loc) {
+					return Math.floor((loc-1)/TILE_SIZE);
+				}
+
+				function flush() {
+					var posx = (locx-__currentSize.minx)*SECTOR_IMAGE_SIZE;
+					var posy = (locy-__currentSize.miny)*SECTOR_IMAGE_SIZE;
+					return "<div style=\"top:"+posy+"px;left:"+posx+"px;width:"+(width*SECTOR_IMAGE_SIZE)+"px;background-image:url('"+url+"?module=map&action=tile&sys="+__currentSystem.id+"&tileX="+tilex+"&tileY="+tiley+"');background-position:-"+((locx-1)%TILE_SIZE)*SECTOR_IMAGE_SIZE+"px -"+((locy-1)%TILE_SIZE)*SECTOR_IMAGE_SIZE+"px\" ></div>";
+				}
+
+				var complete = function() {
+					if( locx == null ) {
+						return "";
+					}
+					var overlay = flush();
+					locx = null;
+					locy = null;
+					width = 0;
+					return overlay;
+				};
+				var extend = function(x, y) {
+					var overlay = "";
+					if( locx !== null && (tilex !== tile(x) || locy != y) ) {
+						overlay += flush();
+						locx = null;
+					}
+					if( locx === null ) {
+						locx = x;
+						locy = y;
+						width = 0;
+						tilex = tile(x);
+						tiley = tile(y);
+					}
+					width++;
+					return overlay;
+				};
+
+				return {complete:complete, extend:extend};
+			})();
+
 			for( var i=0; i < data.locations.length; i++ ) {
 				var loc = data.locations[i];
+
+				if( loc.bg != null && loc.bg.image == null && loc.fg == null ) {
+					overlay += slice.extend(loc.x, loc.y);
+					continue;
+				}
+
+				overlay += slice.complete();
 
 				var posx = (loc.x-__currentSize.minx)*SECTOR_IMAGE_SIZE;
 				var posy = (loc.y-__currentSize.miny)*SECTOR_IMAGE_SIZE;
@@ -573,7 +629,7 @@ return function(jqElement) {
 						var url = DS.getUrl();
 						var tilex = Math.floor(loc.x/TILE_SIZE);
 						var tiley = Math.floor(loc.y/TILE_SIZE);
-						overlay += "<div style=\"top:"+posy+"px;left:"+posx+"px;background-image:url('"+url+"?module=map&action=tile&sys="+__currentSystem.id+"&tileX="+tilex+"&tileY="+tiley+"');background-position:"+loc.x*SECTOR_IMAGE_SIZE+"px "+loc.y*SECTOR_IMAGE_SIZE+"px\" >";
+						overlay += "<div style=\"top:"+posy+"px;left:"+posx+"px;background-image:url('"+url+"?module=map&action=tile&sys="+__currentSystem.id+"&tileX="+tilex+"&tileY="+tiley+"');background-position:-"+((loc.x-1)%TILE_SIZE)*SECTOR_IMAGE_SIZE+"px -"+((loc.y-1)%TILE_SIZE)*SECTOR_IMAGE_SIZE+"px\" >";
 					}
 					else {
 						overlay += "<div style=\"top:"+posy+"px;left:"+posx+"px;background-image:url('data/starmap/"+loc.bg.image+"');background-position:"+loc.bg.x*SECTOR_IMAGE_SIZE+"px "+loc.bg.y*SECTOR_IMAGE_SIZE+"px\" >";
