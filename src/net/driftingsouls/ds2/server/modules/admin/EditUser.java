@@ -93,6 +93,7 @@ public class EditUser extends AbstractEditPlugin<User>
 	@Override
 	protected void edit(EditorForm form, User user)
 	{
+		form.label("Loginname", user.getUN());
 		form.field("Name", "name", String.class, user.getNickname());
 		form.field("Email", "email", String.class, user.getEmail());
 		form.field("Accesslevel", "accesslevel", Integer.class, user.getAccessLevel());
