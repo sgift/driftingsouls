@@ -226,6 +226,12 @@ class EditorForm implements AutoCloseable
 			return this;
 		}
 
+		public FieldGenerator withNullOption(String label)
+		{
+			this.selectionOptions.put(null, label);
+			return this;
+		}
+
 		@Override
 		public void generate(Writer echo) throws IOException
 		{
@@ -286,10 +292,16 @@ class EditorForm implements AutoCloseable
 				selected = (Serializable) value;
 			}
 
+			boolean containsIdentifier = this.selectionOptions.containsKey(selected);
+
 			for (Map.Entry<Serializable, Object> entry : this.selectionOptions.entrySet())
 			{
 				Serializable identifier = entry.getKey();
-				echo.append("<option value=\"").append(identifier.toString()).append("\" ").append(identifier.equals(selected) ? "selected=\"selected\"" : "").append(">").append(AbstractEditPlugin.generateLabelFor(identifier, entry.getValue())).append("</option>");
+				echo.append("<option value=\"").append(identifier != null ? identifier.toString() : "").append("\" ");
+				if( (identifier == null && !containsIdentifier) || (containsIdentifier && identifier != null && identifier.equals(selected)) ) {
+					echo.append("selected=\"selected\"");
+				}
+				echo.append(">").append(AbstractEditPlugin.generateLabelFor(identifier, entry.getValue())).append("</option>");
 			}
 
 			echo.append("</select>");
