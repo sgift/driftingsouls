@@ -43,7 +43,10 @@ public class HibernateSessionRequestFilter extends DSFilter
 
 				ManagedSessionContext.unbind(sf);
 
-				session.getTransaction().commit();
+				if( session.getTransaction().isActive() )
+				{
+					session.getTransaction().commit();
+				}
             }
             catch (StaleObjectStateException staleEx)
             {
