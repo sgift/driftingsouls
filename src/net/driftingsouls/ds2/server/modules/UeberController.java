@@ -588,17 +588,13 @@ public class UeberController extends TemplateController
 		String ticktime = "";
 
 		// Letzten Tick ermitteln (Zeitpunkt)
-		try
-		{
-			try (BufferedReader bf = new BufferedReader(new FileReader(Configuration.getSetting("LOXPATH") + "ticktime.log")))
-			{
-				ticktime = bf.readLine();
-			}
-		}
+        try (BufferedReader bf = new BufferedReader(new FileReader(Configuration.getSetting("LOXPATH") + "ticktime.log")))
+        {
+            ticktime = bf.readLine();
+        }
 		catch (IOException e)
 		{
-			System.err.println(e);
-			e.printStackTrace();
+			log.warn("Es konnte nicht auf die Datei ticktime.log zugegriffen werden: "+e.getMessage());
 		}
 
 		if (ticktime == null)
