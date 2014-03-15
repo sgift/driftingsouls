@@ -127,7 +127,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	@GenericGenerator(name="ds-shipid", strategy = "net.driftingsouls.ds2.server.ships.ShipIdGenerator")
 	private int id;
 
-	@OneToOne(cascade={CascadeType.REFRESH,CascadeType.DETACH})
+	@OneToOne(cascade={CascadeType.REFRESH,CascadeType.DETACH,CascadeType.REMOVE})
 	@JoinColumn(name="modules", nullable=true)
 	@BatchSize(size=50)
 	@NotFound(action = NotFoundAction.IGNORE)
@@ -3454,11 +3454,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 		{
 			db.createQuery("delete from ResourceLimit where ship=:ship").setParameter("ship", this).executeUpdate();
 			db.createQuery("delete from SellLimit where ship=:ship").setParameter("ship", this).executeUpdate();
-		}
-
-		if( this.modules != null )
-		{
-			db.delete(this.modules);
 		}
 
 		if(units != null)
