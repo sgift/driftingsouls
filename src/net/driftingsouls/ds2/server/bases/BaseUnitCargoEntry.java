@@ -2,6 +2,7 @@ package net.driftingsouls.ds2.server.bases;
 
 import net.driftingsouls.ds2.server.units.UnitCargoEntry;
 import net.driftingsouls.ds2.server.units.UnitType;
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.proxy.HibernateProxy;
 
 import javax.persistence.DiscriminatorValue;
@@ -21,6 +22,7 @@ public class BaseUnitCargoEntry extends UnitCargoEntry
 {
 	@ManyToOne(cascade = {})
 	@JoinColumn
+	@ForeignKey(name="cargo_entries_units_fk_basis")
 	private Base basis;
 
 	/**

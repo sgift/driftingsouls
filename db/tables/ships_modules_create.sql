@@ -1,5 +1,5 @@
 CREATE TABLE `ships_modules` (
-  `id` integer not null,
+	id integer not null auto_increment,
 	`adocks` integer not null,
 	`ablativeArmor` integer not null,
 	`bounty` decimal(19,2) not null,

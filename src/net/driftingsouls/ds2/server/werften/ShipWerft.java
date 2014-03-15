@@ -36,6 +36,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
+import org.hibernate.annotations.ForeignKey;
 
 /**
  * Repraesentiert eine Werft auf einem Schiff in DS.
@@ -47,10 +48,12 @@ import net.driftingsouls.ds2.server.ships.ShipTypes;
 public class ShipWerft extends WerftObject {
 	@OneToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="shipid")
+	@ForeignKey(name="werften_fk_ships")
 	private Ship ship;
 
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="linked", nullable=true)
+	@ForeignKey(name="werften_fk_bases")
 	private Base linked;
 
 	/**

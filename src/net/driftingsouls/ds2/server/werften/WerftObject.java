@@ -52,6 +52,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -100,6 +101,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	private int type = 0;
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="linkedWerft", nullable=true)
+	@ForeignKey(name="werften_fk_werften")
 	private WerftKomplex linkedWerft = null;
 
 	@SuppressWarnings("UnusedDeclaration")

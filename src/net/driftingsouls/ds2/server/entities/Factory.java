@@ -27,12 +27,14 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.framework.Common;
 
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.annotations.ForeignKey;
 
 /**
  * Eine Fabrik auf einer Basis.
@@ -40,7 +42,8 @@ import org.apache.commons.lang.StringUtils;
  */
 
 @Entity
-@Table(name="factory")
+@Table(name="factory",
+	  uniqueConstraints = {@UniqueConstraint(name = "col_buildingid_idx", columnNames = {"col", "buildingid"})})
 public class Factory {
 	/**
 	 * Ein Auftrag in einer Waffenfabrik.
@@ -95,6 +98,7 @@ public class Factory {
 	private int id;
 	@OneToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="col")
+	@ForeignKey(name="factory_fk_bases")
 	private Base base;
 	private int count;
 	@Lob

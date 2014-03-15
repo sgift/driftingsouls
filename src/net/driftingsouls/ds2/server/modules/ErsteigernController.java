@@ -38,7 +38,6 @@ import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Loyalitaetspunkte;
 import net.driftingsouls.ds2.server.entities.ResourceLimit;
-import net.driftingsouls.ds2.server.entities.ResourceLimit.ResourceLimitKey;
 import net.driftingsouls.ds2.server.entities.UpgradeInfo;
 import net.driftingsouls.ds2.server.entities.UpgradeJob;
 import net.driftingsouls.ds2.server.entities.UpgradeMaxValues;
@@ -1086,8 +1085,7 @@ public class ErsteigernController extends TemplateController
 		ResourceList reslist = kurseCargo.getResourceList();
 		for (ResourceEntry res : reslist)
 		{
-			ResourceLimitKey resourceLimitKey = new ResourceLimitKey(tradepost, res.getId());
-			ResourceLimit limit = (ResourceLimit) db.get(ResourceLimit.class, resourceLimitKey);
+			ResourceLimit limit = ResourceLimit.fuerSchiffUndItem(tradepost, res.getId());
 
 			// Kaufen wir diese Ware vom Spieler?
 			if (limit != null && !limit.willBuy(tradepost.getOwner(), user))
@@ -1113,8 +1111,7 @@ public class ErsteigernController extends TemplateController
 
 		ResourceList buyList = tradepost.getCargo().getResourceList();
 		for(ResourceEntry resource: buyList) {
-			ResourceLimitKey resourceLimitKey = new ResourceLimitKey(tradepost, resource.getId());
-			SellLimit limit = (SellLimit)db.get(SellLimit.class, resourceLimitKey);
+			SellLimit limit = SellLimit.fuerSchiffUndItem(tradepost, resource.getId());
 			if( limit == null )
 			{
 				continue;

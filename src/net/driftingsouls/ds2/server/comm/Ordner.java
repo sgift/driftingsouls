@@ -24,6 +24,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -66,8 +67,9 @@ public class Ordner {
 	private int id;
 	@Column(nullable = false)
 	private String name;
-	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="playerid", nullable=false)
+	@ForeignKey(name="ordner_fk_users")
 	private User owner;
 	private int flags;
 	private int parent;

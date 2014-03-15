@@ -29,6 +29,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.entities.User;
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
 /**
@@ -44,12 +45,17 @@ public class ShipLoot {
 	@Index(name="shiptype")
 	@Column(name="shiptype", nullable = false)
 	private int shipType;
+
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="owner", nullable = false)
+	@ForeignKey(name="ship_loot_fk_users1")
 	private User owner;
+
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="targetuser", nullable = false)
+	@ForeignKey(name="ship_loot_fk_users2")
 	private User targetUser;
+
 	private int chance;
 	@Column(nullable = false)
 	private String resource;

@@ -218,6 +218,12 @@ public class PlayerDelete implements AdminPlugin
 			.executeUpdate();
 		echo.append(count+"<br />\n");
 
+		echo.append("Entferne user-raenge...");
+		count = db.createQuery("delete from UserRank where userRankKey.owner=:user")
+				.setInteger("user", userid)
+				.executeUpdate();
+		echo.append(count+"<br />\n");
+
 		echo.append("Entferne Fraktionsaktionsmeldungen...");
 		count = db.createQuery("delete from FraktionAktionsMeldung where gemeldetVon=:user")
 				.setInteger("user", userid)
@@ -357,8 +363,8 @@ public class PlayerDelete implements AdminPlugin
 		echo.append(count+"<br />\n");
 
 		echo.append("L&ouml;sche Sessioneintrag...");
-		count = db.createQuery("delete from PermanentSession where userId=:userId")
-			.setInteger("userId", user.getId())
+		count = db.createQuery("delete from PermanentSession where user=:user")
+			.setEntity("user", user)
 			.executeUpdate();
 		echo.append(count+"<br />\n");
 

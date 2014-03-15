@@ -785,7 +785,9 @@ public class ItemInfoController extends TemplateController
 		org.hibernate.Session db = getDB();
 		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
 
-		StatUserCargo ownCargoRow = (StatUserCargo) db.get(StatUserCargo.class, user.getId());
+		StatUserCargo ownCargoRow = (StatUserCargo) db.createQuery("from StatUserCargo where user=:user")
+				.setEntity("user", user)
+				.uniqueResult();
 		Cargo owncargo;
 		if (ownCargoRow != null)
 		{

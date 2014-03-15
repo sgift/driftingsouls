@@ -29,6 +29,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.bases.Base;
+import org.hibernate.annotations.ForeignKey;
 
 /**
  * Ein Forschungszentrum.
@@ -45,6 +46,7 @@ public class Forschungszentrum {
 	private int type;
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="forschung", nullable=true)
+	@ForeignKey(name="fz_fk_forschungen")
 	private Forschung forschung;
 	private int dauer;
 	

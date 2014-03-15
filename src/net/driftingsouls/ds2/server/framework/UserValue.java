@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.framework;
 
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
 import javax.persistence.Column;
@@ -51,6 +52,7 @@ public class UserValue {
 	
 	@ManyToOne(fetch=FetchType.EAGER, optional = false)
 	@JoinColumn(name="user_id", nullable = false)
+	@ForeignKey(name="user_values_fk_users")
 	private BasicUser user;
 
 	@Column(nullable = false)

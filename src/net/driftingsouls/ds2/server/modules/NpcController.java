@@ -593,7 +593,7 @@ public class NpcController extends AngularController
 
 				for (int i = 0; i < count; i++)
 				{
-					OrderShip orderObj = new OrderShip(user.getId(), ship.getId());
+					OrderShip orderObj = new OrderShip(user.getId(), ship.getShipType().getId());
 					orderObj.setTick(1);
 					if (flagDisableIff)
 					{
@@ -769,7 +769,7 @@ public class NpcController extends AngularController
 
 			resShip.klasse = ship.getShipType().getShipClass().getSingular();
 
-			if (!shiporders.containsKey(ship.getId()))
+			if (!shiporders.containsKey(ship.getShipType().getId()))
 			{
 				shiporders.put(ship.getId(), 0);
 			}
@@ -778,7 +778,7 @@ public class NpcController extends AngularController
 			resShip.name = ship.getShipType().getNickname();
 			resShip.type = ship.getShipType().getId();
 			resShip.cost = ship.getCost();
-			resShip.ordercount = shiporders.get(ship.getId());
+			resShip.ordercount = shiporders.get(ship.getShipType().getId());
 
 			result.ships.add(resShip);
 		}

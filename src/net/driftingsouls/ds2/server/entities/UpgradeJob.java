@@ -29,6 +29,7 @@ import javax.persistence.Table;
 
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.ships.Ship;
+import org.hibernate.annotations.ForeignKey;
 
 /**
  * Ein Auftrag zum Basisausbau.
@@ -44,20 +45,29 @@ public class UpgradeJob
 	private int id;
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "baseid", nullable = false)
+	@ForeignKey(name="upgrade_job_fk_base")
 	private Base base;
+
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "userid", nullable = false)
+	@ForeignKey(name="upgrade_job_fk_user")
 	private User user;
+
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "tiles", nullable = false)
+	@ForeignKey(name="upgrade_job_fk_mod_tiles")
 	private UpgradeInfo tiles;
+
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "cargo", nullable = false)
+	@ForeignKey(name="upgrade_job_fk_mod_cargo")
 	private UpgradeInfo cargo;
 	private boolean bar;
 	private boolean payed;
+
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "colonizerid", nullable = true)
+	@ForeignKey(name="upgrade_job_fk_ships")
 	private Ship colonizer;
 	private int end;
 

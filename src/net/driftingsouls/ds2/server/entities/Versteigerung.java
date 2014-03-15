@@ -32,6 +32,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 import org.hibernate.annotations.DiscriminatorFormula;
+import org.hibernate.annotations.ForeignKey;
 
 /**
  * Basisklasse fuer Versteigerungen.
@@ -49,9 +50,11 @@ public abstract class Versteigerung {
 	private long preis;
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="bieter", nullable = false)
+	@ForeignKey(name="versteigerungen_fk_users")
 	private User bieter;
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="owner", nullable = false)
+	@ForeignKey(name="versteigerungen_fk_users2")
 	private User owner;
 	
 	@Version

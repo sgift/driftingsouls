@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.framework.DSObject;
 import net.driftingsouls.ds2.server.ships.Ship;
 import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 
@@ -148,10 +149,13 @@ public class Offizier extends DSObject {
 	private int rang;
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="userid", nullable = false)
+	@ForeignKey(name="offiziere_fk_users")
 	private User owner;
 	@ManyToOne(fetch=FetchType.LAZY)
+	@ForeignKey(name="offiziere_fk_ships")
 	private Ship stationiertAufSchiff;
 	@ManyToOne(fetch=FetchType.LAZY)
+	@ForeignKey(name="offiziere_fk_bases")
 	private Base stationiertAufBasis;
 	private boolean training;
 	private int ing;

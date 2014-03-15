@@ -1,16 +1,20 @@
 package net.driftingsouls.ds2.server.entities;
 
-import java.io.Serializable;
+import net.driftingsouls.ds2.server.cargo.ItemID;
+import net.driftingsouls.ds2.server.cargo.ResourceID;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.ships.Ship;
+import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.Column;
-import javax.persistence.Embeddable;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
-
-import net.driftingsouls.ds2.server.cargo.ResourceID;
-import net.driftingsouls.ds2.server.ships.Ship;
 
 /**
  * A limit for a single resource.
@@ -18,95 +22,24 @@ import net.driftingsouls.ds2.server.ships.Ship;
  * @author Sebastian Gift
  */
 @Entity
-@Table(name="tradepost_buy_limit")
-public class ResourceLimit {
-	/**
-	 * Der Primaerschluessel eines Resourcenlimits.
-	 */
-	@Embeddable
-	public static class ResourceLimitKey implements Serializable {
-		private static final long serialVersionUID = 1510394179895753873L;
-
-		private int shipid;
-		private int resourceid;
-
-		/**
-		 * Konstruktor.
-		 */
-		public ResourceLimitKey() {
-			// EMPTY
-		}
-
-		/**
-		 * Erstellt einen neuen Key.
-		 * @param ship Das Schiff
-		 * @param resourceId Die ID der Resource
-		 */
-		public ResourceLimitKey(Ship ship, ResourceID resourceId) {
-			this.shipid = ship.getId();
-			this.resourceid = -1 * resourceId.getItemID();
-		}
-
-		/**
-		 * Gibt die ID der Resource zurueck.
-		 * @return Die ID
-		 */
-		public int getResourceId() {
-			return resourceid;
-		}
-
-		/**
-		 * Gibt die ID des Schiffes zurueck.
-		 * @return Die ID
-		 */
-		public int getShipId() {
-			return shipid;
-		}
-
-		@Override
-		public int hashCode()
-		{
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + resourceid;
-			result = prime * result + shipid;
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj)
-		{
-			if (this == obj)
-			{
-				return true;
-			}
-			if (obj == null)
-			{
-				return false;
-			}
-			if (getClass() != obj.getClass())
-			{
-				return false;
-			}
-			ResourceLimitKey other = (ResourceLimitKey) obj;
-			if (resourceid != other.resourceid)
-			{
-				return false;
-			}
-			if (shipid != other.shipid)
-			{
-				return false;
-			}
-			return true;
-		}
-	}
-
+@Table(name = "tradepost_buy_limit", uniqueConstraints = {@UniqueConstraint(name="ship_itemid_uniq", columnNames = {"shipid", "resourceid"})})
+public class ResourceLimit
+{
 	@Id
-	private ResourceLimitKey resourceLimitKey;
-	@Column(name="maximum", nullable = false)
+	@GeneratedValue
+	private Long id;
+
+	@ManyToOne(optional = false)
+	@JoinColumn(name = "shipid")
+	@ForeignKey(name = "tradepost_buy_limit_fk_ships")
+	private Ship ship;
+
+	private int resourceid;
+
+	@Column(name = "maximum", nullable = false)
 	private long limit;
-    @Column(name="min_rank", nullable = false)
-    private int minRank;
+	@Column(name = "min_rank", nullable = false)
+	private int minRank;
 
 	@Version
 	private int version;
@@ -114,79 +47,138 @@ public class ResourceLimit {
 	/**
 	 * Konstruktor.
 	 */
-	public ResourceLimit() {
+	protected ResourceLimit()
+	{
 		//Empty
 	}
 
 	/**
 	 * generates an new ResourceLimit with key and limit as parameters.
-	 * @param resourcelimitkey the key of the resourcelimit
+	 *
+	 * @param ship Das Schiff zu dem das Limit gehoert
+	 * @param resourceid Die ID des Items
 	 * @param limit the limit of this kind of resources
 	 * @param rank Der minimale Rang ab dem die Ressource verkauft werden darf
 	 */
-	public ResourceLimit(ResourceLimitKey resourcelimitkey, long limit, int rank) {
-		this.resourceLimitKey = resourcelimitkey;
+	public ResourceLimit(Ship ship, ItemID resourceid, long limit, int rank)
+	{
+		this.ship = ship;
+		this.resourceid = resourceid.getItemID();
 		this.limit = limit;
 		this.minRank = rank;
-
 	}
 
 	/**
-	 * Gibt die ID des Resourcenlimits zurueck.
+	 * Gibt das Schiff zurueck, zu dem das Limit gehoert.
+	 *
+	 * @return Das Schiff
+	 */
+	public Ship getShip()
+	{
+		return ship;
+	}
+
+	/**
+	 * Setzt das Schiff, zu dem das Limit gehoert.
+	 *
+	 * @param ship Das Schiff
+	 */
+	public void setShip(Ship ship)
+	{
+		this.ship = ship;
+	}
+
+	/**
+	 * Gibt die ID des limitierten Items zurueck.
+	 *
 	 * @return Die ID
 	 */
-	public ResourceLimitKey getId() {
-		return this.resourceLimitKey;
+	public ItemID getResourceId()
+	{
+		return new ItemID(resourceid);
+	}
+
+	/**
+	 * Setzt die ID des limitierten Items.
+	 *
+	 * @param resourceid Die ID
+	 */
+	public void setResourceId(ItemID resourceid)
+	{
+		this.resourceid = resourceid.getItemID();
 	}
 
 	/**
 	 * Gibt das Limit der Resource zurueck.
+	 *
 	 * @return Das Limit
 	 */
-	public long getLimit() {
+	public long getLimit()
+	{
 		return limit;
 	}
 
 	/**
 	 * Gibt die Versionsnummer zurueck.
+	 *
 	 * @return Die Nummer
 	 */
-	public int getVersion() {
+	public int getVersion()
+	{
 		return this.version;
 	}
 
 	/**
 	 * Sets the limit for this ResourceLimit.
+	 *
 	 * @param limit the limit for this kind of resource
 	 */
-	public void setLimit(long limit) {
+	public void setLimit(long limit)
+	{
 		this.limit = limit;
 	}
 
-    /**
-     * @param rank The rank a player needs with the seller to buy this resource.
-     */
-    public void setMinRank(int rank)
-    {
-        this.minRank = rank;
-    }
+	/**
+	 * @param rank The rank a player needs with the seller to buy this resource.
+	 */
+	public void setMinRank(int rank)
+	{
+		this.minRank = rank;
+	}
 
-    /**
-     * @return The rank a player needs with the seller to buy this resource.
-     */
-    public int getMinRank()
-    {
-        return this.minRank;
-    }
+	/**
+	 * @return The rank a player needs with the seller to buy this resource.
+	 */
+	public int getMinRank()
+	{
+		return this.minRank;
+	}
 
-    /**
-     * @param buyer The owner of the trade post.
-     * @param seller The user who wants to buy the resource.
-     * @return <code>true</code>, if the seller can sell the resource to the buyer.
-     */
-    public boolean willBuy(User buyer, User seller)
-    {
-        int rank = seller.getRank(buyer).getRank();
-        return rank >= this.minRank;
-    }
+	/**
+	 * @param buyer The owner of the trade post.
+	 * @param seller The user who wants to buy the resource.
+	 * @return <code>true</code>, if the seller can sell the resource to the buyer.
+	 */
+	public boolean willBuy(User buyer, User seller)
+	{
+		int rank = seller.getRank(buyer).getRank();
+		return rank >= this.minRank;
+	}
+
+	/**
+	 * Laedt ein einzelnes Limit fuer ein bestimmtes Schiff und ein bestimmtes Item.
+	 * Falls kein Limit existiert wird <code>null</code> zurueckgegeben.
+	 *
+	 * @param ship Das Schiff
+	 * @param resource Die ID des Items
+	 * @return Das Limit oder <code>null</code>
+	 */
+	public static ResourceLimit fuerSchiffUndItem(Ship ship, ResourceID resource)
+	{
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		return (ResourceLimit) db.createQuery("from ResourceLimit where ship=:ship and resourceid=:resourceid")
+				.setEntity("ship", ship)
+				.setInteger("resourceid", resource.getItemID())
+				.uniqueResult();
+	}
 }

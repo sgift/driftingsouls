@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.entities.statistik;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
@@ -30,6 +31,7 @@ import javax.persistence.Version;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 
 import net.driftingsouls.ds2.server.entities.User;
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Type;
 
 /**
@@ -40,12 +42,12 @@ import org.hibernate.annotations.Type;
 @Entity
 @Table(name="stats_user_cargo")
 public class StatUserCargo {
-	// TODO: Warum mag Hibernate die Variante "private User user" nicht als ID?
-	@Id
-	int user_id;
+	@Id @GeneratedValue
+	private Long id;
 	
 	@OneToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="user_id", nullable = false)
+	@ForeignKey(name="stats_user_cargo_fk_user_id")
 	private User user;
 	
 	@Type(type="largeCargo")
@@ -103,7 +105,6 @@ public class StatUserCargo {
 	 */
 	public final void setUser(final User user) {
 		this.user = user;
-		this.user_id = user.getId();
 	}
 
 	/**

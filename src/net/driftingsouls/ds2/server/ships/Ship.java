@@ -65,6 +65,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.NotFound;
@@ -130,11 +131,13 @@ public class Ship implements Locatable,Transfering,Feeding {
 	@JoinColumn(name="modules", nullable=true)
 	@BatchSize(size=50)
 	@NotFound(action = NotFoundAction.IGNORE)
+	@ForeignKey(name="ships_fk_ships_modules")
 	private ShipModules modules;
 
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="owner", nullable=false)
 	@BatchSize(size=50)
+	@ForeignKey(name="ships_fk_users")
 	private User owner;
 
 	@Column(nullable = false)
@@ -144,6 +147,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	@JoinColumn(name="type", nullable=false)
 	@BatchSize(size=50)
 	@Cache(usage=CacheConcurrencyStrategy.READ_ONLY)
+	@ForeignKey(name="ships_type_fk")
 	private ShipType shiptype;
 
 	@Type(type="largeCargo")
@@ -185,16 +189,19 @@ public class Ship implements Locatable,Transfering,Feeding {
 	@OneToOne(fetch=FetchType.LAZY)
 	@BatchSize(size=100)
 	@JoinColumn
+	@ForeignKey(name="ships_fk_schiff_einstellungen")
 	private SchiffEinstellungen einstellungen;
 
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="fleet", nullable=true)
 	@BatchSize(size=50)
+	@ForeignKey(name="ships_fk_ship_fleets")
 	private ShipFleet fleet;
 
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="battle", nullable=true)
 	@BatchSize(size=50)
+	@ForeignKey(name="ships_fk_battles")
 	private Battle battle;
 
 	private boolean battleAction;
@@ -204,7 +211,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 	@OneToOne(
 			fetch=FetchType.LAZY,
-			optional=false,
 			cascade={CascadeType.MERGE,CascadeType.REFRESH,CascadeType.REMOVE,CascadeType.DETACH})
 	@PrimaryKeyJoinColumn(name="id", referencedColumnName="id")
 	private ShipHistory history;
@@ -233,9 +239,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 	@OneToOne(fetch=FetchType.LAZY, cascade={CascadeType.ALL,CascadeType.DETACH})
 	@JoinColumn(name="scriptData_id")
 	@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+	@ForeignKey(name="ships_fk_ship_script_data")
 	private ShipScriptData scriptData;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "ship")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "ship", orphanRemoval = true)
     private Set<ShipFlag> flags;
 
 	@Version
@@ -3424,6 +3431,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		// Und nun loeschen wir es...
+		this.flags.clear();
+
 		db.createQuery("delete from Offizier where stationiertAufSchiff=:dest")
 			.setEntity("dest", this)
 			.executeUpdate();
@@ -3443,8 +3452,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 		// Delete Trade Limits if necessary
 		if (this.isTradepost())
 		{
-			db.createQuery("delete from ResourceLimit where shipid=:shipid").setParameter("shipid", this.id).executeUpdate();
-			db.createQuery("delete from SellLimit where shipid=:shipid").setParameter("shipid", this.id).executeUpdate();
+			db.createQuery("delete from ResourceLimit where ship=:ship").setParameter("ship", this).executeUpdate();
+			db.createQuery("delete from SellLimit where ship=:ship").setParameter("ship", this).executeUpdate();
 		}
 
 		if( this.modules != null )

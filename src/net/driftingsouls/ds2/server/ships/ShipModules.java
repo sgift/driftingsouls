@@ -24,10 +24,10 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Version;
 import java.math.BigInteger;
@@ -42,10 +42,9 @@ import java.math.BigInteger;
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @BatchSize(size=50)
 public class ShipModules implements ShipTypeData {
-	@Id
+	@Id @GeneratedValue
 	private int id;
-	@OneToOne
-	@PrimaryKeyJoinColumn
+	@OneToOne(mappedBy = "modules")
 	private Ship ship;
 	@Lob
 	@Column(nullable = false)
@@ -112,7 +111,7 @@ public class ShipModules implements ShipTypeData {
 	 * Konstruktor.
 	 *
 	 */
-	public ShipModules() {
+	protected ShipModules() {
 		// EMPTY
 	}
 	
@@ -122,7 +121,6 @@ public class ShipModules implements ShipTypeData {
 	 * @param ship Das Schiff
 	 */
 	public ShipModules(Ship ship) {
-		this.id = ship.getId();
 		this.ship = ship;
 		this.flags = "";
 		this.weapons = "";

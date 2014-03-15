@@ -29,6 +29,7 @@ import javax.persistence.Table;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Type;
 
 /**
@@ -43,7 +44,9 @@ public class ShipBaubar {
 	private int id;
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="type", nullable=false)
+	@ForeignKey(name="ships_baubar_type_fk")
 	private ShipType type;
+
 	@Type(type="largeCargo")
 	@Column(nullable = false)
 	private Cargo costs;

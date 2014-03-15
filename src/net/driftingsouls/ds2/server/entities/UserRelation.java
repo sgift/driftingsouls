@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
 import javax.persistence.Entity;
@@ -46,10 +47,12 @@ public class UserRelation {
 	
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="user_id", nullable = false)
+	@ForeignKey(name="user_relations_fk_users1")
 	private User user;
 	
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="target_id", nullable = false)
+	@ForeignKey(name="user_relations_fk_users2")
 	private User target;
 	
 	private int status;

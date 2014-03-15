@@ -30,6 +30,7 @@ import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.proxy.HibernateProxy;
 
 /**
@@ -47,10 +48,12 @@ public class UserResearch {
 	
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="owner", nullable = false)
+	@ForeignKey(name="userresearch_fk_users")
 	private User owner;
 	
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="research", nullable = false)
+	@ForeignKey(name="userresearch_fk_forschungen")
 	private Forschung research;
 	
 	/**

@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.ships;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -28,6 +29,7 @@ import javax.persistence.Table;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
@@ -49,7 +51,9 @@ public class ShipHistory
 	private int id;
 	
 	@SuppressWarnings("unused")
-	@OneToOne(mappedBy="history")
+	@OneToOne(optional = false)
+	@JoinColumn(name="id", nullable = false)
+	@ForeignKey(name="ship_history_fk_ships")
 	private Ship ship;
 
 	@Lob

@@ -1,6 +1,8 @@
 CREATE TABLE `stats_user_cargo` (
-  `user_id` integer not null,
-  `cargo` longtext not null,
+	id bigint not null auto_increment,
+	`cargo` longtext not null,
   `version` integer not null,
-  primary key  (`user_id`)
+	`user_id` integer not null,
+	primary key  (`id`),
+	unique (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

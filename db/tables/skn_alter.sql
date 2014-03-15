@@ -1,2 +1,2 @@
-ALTER TABLE skn ADD CONSTRAINT skn_fk_skn_channels FOREIGN KEY (channel) REFERENCES skn_channels(id);
-ALTER TABLE skn ADD CONSTRAINT skn_fk_users FOREIGN KEY (userid) REFERENCES users(id);
+alter table skn add index skn_fk_users (userid), add constraint skn_fk_users foreign key (userid) references users (id);
+alter table skn add index skn_fk_skn_channels (channel), add constraint skn_fk_skn_channels foreign key (channel) references skn_channels (id);

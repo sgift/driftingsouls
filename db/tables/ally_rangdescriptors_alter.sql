@@ -1,1 +1,1 @@
-ALTER TABLE ally_rangdescriptors ADD CONSTRAINT ally_rangdescriptors_fk_ally FOREIGN KEY (ally_id) REFERENCES ally(id);
+alter table ally_rangdescriptors add index ally_rangdescriptors_fk_ally (ally_id), add constraint ally_rangdescriptors_fk_ally foreign key (ally_id) references ally(id);

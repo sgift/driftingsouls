@@ -32,6 +32,7 @@ import javax.persistence.Version;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import org.hibernate.annotations.ForeignKey;
 
 /**
  * <p>Ein Post im ComNet.</p>
@@ -47,6 +48,7 @@ public class ComNetEntry {
 	private int post;
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="userid", nullable=false)
+	@ForeignKey(name="skn_fk_users")
 	private User user;
 	private long time;
 	@Column(nullable = false)
@@ -60,8 +62,10 @@ public class ComNetEntry {
 	@Column(name="allypic", nullable = false)
 	private int allyPic;
 	private int tick;
+
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="channel", nullable=false)
+	@ForeignKey(name="skn_fk_skn_channels")
 	private ComNetChannel channel;
 	
 	@Version

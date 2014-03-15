@@ -1,8 +1,10 @@
 CREATE TABLE `tradepost_buy_limit` (
-	`resourceid` integer not null,
-	`shipid` integer not null,
-  `maximum` bigint not null,
+	id bigint not null auto_increment,
+	`maximum` bigint not null,
   `min_rank` integer not null,
-  `version` integer not null,
-  primary key  (`resourceid`,`shipid`)
+	`resourceid` integer not null,
+	`version` integer not null,
+	`shipid` integer not null,
+	primary key (id),
+	unique (shipid, resourceid)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -1,2 +1,2 @@
-ALTER TABLE battles_ships ADD CONSTRAINT battles_ships_fk_battles FOREIGN KEY (battleid) REFERENCES battles(id);
-ALTER TABLE battles_ships ADD CONSTRAINT battles_ships_fk_ships FOREIGN KEY (shipid) REFERENCES ships(id);
+alter table battles_ships add index FK56245F3364F29ED2 (shipid), add constraint FK56245F3364F29ED2 foreign key (shipid) references ships (id);
+alter table battles_ships add index battles_ships_fk_battles (battleid), add constraint battles_ships_fk_battles foreign key (battleid) references battles(id);

@@ -19,6 +19,7 @@
 
 package net.driftingsouls.ds2.server.units;
 
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.proxy.HibernateProxy;
 
 import javax.persistence.DiscriminatorColumn;
@@ -50,6 +51,7 @@ public abstract class UnitCargoEntry
 
 	@ManyToOne(optional = false)
 	@JoinColumn(name="unittype", nullable = false)
+	@ForeignKey(name="cargo_entries_units_fk_unittype")
 	private UnitType unittype;
 
 	private long amount;

@@ -1,1 +1,1 @@
-ALTER TABLE building_alternativebilder ADD CONSTRAINT building_alternativebilder_fk_building FOREIGN KEY (Building_id) REFERENCES buildings(id);
+alter table building_alternativebilder add index building_alternativebilder_fk_building (Building_id), add constraint building_alternativebilder_fk_building foreign key (Building_id) references buildings (id);

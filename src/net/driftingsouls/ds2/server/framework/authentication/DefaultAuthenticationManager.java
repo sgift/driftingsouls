@@ -115,7 +115,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		PermanentSession permanentSession = new PermanentSession();
 		permanentSession.setTick(context.get(ContextCommon.class).getTick());
 		permanentSession.setToken(Common.md5(uuid.toString()));
-		permanentSession.setUserId(user.getId());
+		permanentSession.setUser(user);
 
 		db.save(permanentSession);
 	}
@@ -134,8 +134,8 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		JavaSession session = context.get(JavaSession.class);
 		if(session != null)
 		{
-			db.createQuery("delete from PermanentSession where userId=:userId")
-			  .setParameter("userId", session.getUser().getId())
+			db.createQuery("delete from PermanentSession where user=:user")
+			  .setParameter("user", session.getUser())
 			  .executeUpdate();
 		}
 
@@ -274,7 +274,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 			Request request = context.getRequest();
 			Common.writeLog("login.log", Common.date( "j.m.Y H:i:s")+": <"+request.getRemoteAddress()+"> ("+user.getId()+") <"+user.getUN()+"> ***ACC DISABLED*** von Browser <"+request.getUserAgent()+">\n");
 
-			db.createQuery("delete from PermanentSession where userId=:user")
+			db.createQuery("delete from PermanentSession where user=:user")
 				.setEntity("user", user)
 				.executeUpdate();
 
@@ -306,7 +306,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		}
 
 		db.delete(session);
-		BasicUser user = (BasicUser)db.get(BasicUser.class, session.getUserId());
+		BasicUser user = session.getUser();
 
 		return finishLogin(user, true);
 	}
@@ -334,8 +334,8 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		String token = parts[1];
 
 		return (PermanentSession)db
-			.createQuery("from PermanentSession where userId=:userId and token=:token")
-			.setParameter("userId", userId)
+			.createQuery("from PermanentSession where user.id=:user and token=:token")
+			.setParameter("user", userId)
 			.setParameter("token", Common.md5(token))
 			.uniqueResult();
 	}

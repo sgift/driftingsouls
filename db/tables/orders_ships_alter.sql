@@ -1,1 +1,1 @@
-ALTER TABLE orders_ships ADD CONSTRAINT orders_ships_fk_ship_types FOREIGN KEY (type) REFERENCES ship_types(id);
+alter table orders_ships add index orders_ships_fk_shiptypes (type), add constraint orders_ships_fk_shiptypes foreign key (type) references ship_types (id);

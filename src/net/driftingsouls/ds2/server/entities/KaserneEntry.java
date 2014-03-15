@@ -32,6 +32,7 @@ import net.driftingsouls.ds2.server.units.UnitType;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.ForeignKey;
 
 /**
  * Ein Eintrag der Kaserne.
@@ -46,9 +47,11 @@ public class KaserneEntry {
 	private int id;
 	@ManyToOne(optional = false)
 	@JoinColumn(name="kaserne", nullable = false)
+	@ForeignKey(name="kaserne_queues_fk_kaserne")
 	private Kaserne kaserne;
 	@ManyToOne(optional = false)
 	@JoinColumn(name="unitid", nullable = false)
+	@ForeignKey(name="kaserne_queues_fk_unittype")
 	private UnitType unit;
 	private int count;
 	private int remaining;

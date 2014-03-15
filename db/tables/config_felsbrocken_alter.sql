@@ -1,3 +1,2 @@
-ALTER TABLE `config_felsbrocken`
-  ADD CONSTRAINT `fk_config_felsbrocken_system` FOREIGN KEY (`system`) REFERENCES `config_felsbrocken_systems` (`system`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `fk_config_felsbrocken_shiptype` FOREIGN KEY (`shiptype`) REFERENCES `ship_types` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+alter table config_felsbrocken add index fk_config_felsbrocken_shiptype (shiptype), add constraint fk_config_felsbrocken_shiptype foreign key (shiptype) references ship_types (id);
+alter table config_felsbrocken add index fk_config_felsbrocken_system (system), add constraint fk_config_felsbrocken_system foreign key (system) references config_felsbrocken_systems (system);

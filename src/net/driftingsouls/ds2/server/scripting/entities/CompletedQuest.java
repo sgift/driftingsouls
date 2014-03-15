@@ -27,6 +27,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import net.driftingsouls.ds2.server.entities.User;
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
 /**
@@ -45,9 +46,11 @@ public class CompletedQuest {
 	private int id;
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="questid", nullable=false)
+	@ForeignKey(name="quests_completed_fk_quests")
 	private Quest quest;
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="userid", nullable=false)
+	@ForeignKey(name="quests_completed_fk_users")
 	private User user;
 	
 	/**

@@ -1,4 +1,3 @@
-ALTER TABLE offiziere
-	ADD CONSTRAINT offiziere_fk_users FOREIGN KEY (userid) REFERENCES users(id),
-	ADD CONSTRAINT offiziere_fk_ships FOREIGN KEY (stationiertAufSchiff_id) REFERENCES ships(id),
-	ADD CONSTRAINT offiziere_fk_bases FOREIGN KEY (stationiertAufBasis_id) REFERENCES bases(id);
+alter table offiziere add index offiziere_fk_bases (stationiertAufBasis_id), add constraint offiziere_fk_bases foreign key (stationiertAufBasis_id) references bases (id);
+alter table offiziere add index offiziere_fk_ships (stationiertAufSchiff_id), add constraint offiziere_fk_ships foreign key (stationiertAufSchiff_id) references ships (id);
+alter table offiziere add index offiziere_fk_users (userid), add constraint offiziere_fk_users foreign key (userid) references users (id);

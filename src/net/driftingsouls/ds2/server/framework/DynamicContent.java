@@ -1,5 +1,7 @@
 package net.driftingsouls.ds2.server.framework;
 
+import org.hibernate.annotations.ForeignKey;
+
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -53,6 +55,7 @@ public class DynamicContent implements Serializable
 	private Date aenderungsdatum;
 	@ManyToOne
 	@JoinColumn
+	@ForeignKey(name="dynamic_content_fk_users")
 	private BasicUser hochgeladenDurch;
 	private String quelle;
 	private String autor;

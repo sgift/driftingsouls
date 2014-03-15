@@ -29,6 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
 import javax.persistence.Column;
@@ -298,9 +299,11 @@ public class PM {
 	private int gelesen;
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="sender", nullable=false)
+	@ForeignKey(name="transmissionen_fk_users1")
 	private User sender;
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="empfaenger", nullable=false)
+	@ForeignKey(name="transmissionen_fk_users2")
 	private User empfaenger;
 	@Column(nullable = false)
 	private String title;

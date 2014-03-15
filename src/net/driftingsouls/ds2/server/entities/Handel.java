@@ -30,6 +30,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.framework.Common;
+import org.hibernate.annotations.ForeignKey;
 
 /**
  * Ein Handelseintrag.
@@ -43,6 +44,7 @@ public class Handel {
 	private int id;
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="who", nullable = false)
+	@ForeignKey(name="handel_fk_users")
 	private User who;
 	private long time;
 	// Hinweis: Hier wird kein Cargo-Objekt verwendet, da

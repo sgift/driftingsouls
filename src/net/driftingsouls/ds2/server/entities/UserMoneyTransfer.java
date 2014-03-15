@@ -32,6 +32,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.framework.Common;
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
 /**
@@ -74,9 +75,11 @@ public class UserMoneyTransfer {
 	private int id;
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(nullable=false)
+	@ForeignKey(name="user_moneytransfer_fk_users1")
 	private User from;
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(nullable=false)
+	@ForeignKey(name="user_moneytransfer_fk_users2")
 	private User to;
 	private long time;
 	@Column(nullable = false)

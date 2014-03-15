@@ -12,6 +12,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.config.Medals;
+import org.hibernate.annotations.ForeignKey;
 
 /**
  * Der Rang eines Spielers bei einem anderen Spieler.
@@ -32,10 +33,12 @@ public class UserRank
 
 		@ManyToOne(fetch = FetchType.LAZY, optional = false)
 		@JoinColumn(name = "owner", nullable = false)
+		@ForeignKey(name="user_rank_fk_users1")
 		protected User owner;
 
 		@ManyToOne(fetch = FetchType.LAZY, optional = false)
 		@JoinColumn(name = "rank_giver", nullable = false)
+		@ForeignKey(name="user_rank_fk_users2")
 		protected User rankGiver;
 
 		/**

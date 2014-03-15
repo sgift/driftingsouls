@@ -1,1 +1,1 @@
-ALTER TABLE dynamic_content ADD CONSTRAINT dynamic_content_fk_users FOREIGN KEY (hochgeladenDurch_id) REFERENCES users(id);
+alter table dynamic_content add index dynamic_content_fk_users (hochgeladenDurch_id), add constraint dynamic_content_fk_users foreign key (hochgeladenDurch_id) references users (id);

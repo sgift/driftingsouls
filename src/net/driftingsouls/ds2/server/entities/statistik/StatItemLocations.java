@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.entities.statistik;
 
 import net.driftingsouls.ds2.server.entities.User;
+import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -43,6 +44,7 @@ public class StatItemLocations {
 
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="user_id", nullable=false)
+	@ForeignKey(name="stats_module_locations_fk_user_id")
 	private User user;
 
 	@Column(name="item_id", nullable = false)

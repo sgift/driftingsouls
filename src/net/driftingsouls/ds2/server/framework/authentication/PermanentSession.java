@@ -1,10 +1,15 @@
 package net.driftingsouls.ds2.server.framework.authentication;
 
+import net.driftingsouls.ds2.server.framework.BasicUser;
+import org.hibernate.annotations.ForeignKey;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 /**
@@ -18,7 +23,10 @@ public class PermanentSession
 {
 	@Id @GeneratedValue(strategy= GenerationType.IDENTITY)
 	private Integer id;
-	private int userId;
+	@ManyToOne(optional = false)
+	@JoinColumn(name="userId", nullable = false)
+	@ForeignKey(name="sessions_fk_users")
+	private BasicUser user;
 	@Column(nullable = false)
 	private String token;
 	private long tick;
@@ -49,21 +57,21 @@ public class PermanentSession
 	}
 
 	/**
-	 * @return Die user id.
+	 * @return Der User.
 	 */
-	public int getUserId() 
+	public BasicUser getUser()
 	{
-		return userId;
+		return user;
 	}
 	
 	/**
-	 * User id setzen.
+	 * User setzen.
 	 * 
-	 * @param userId Die user id.
+	 * @param user Der User
 	 */
-	public void setUserId(int userId) 
+	public void setUser(BasicUser user)
 	{
-		this.userId = userId;
+		this.user = user;
 	}
 	
 	/**

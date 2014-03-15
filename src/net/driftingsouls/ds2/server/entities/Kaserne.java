@@ -33,6 +33,7 @@ import javax.persistence.Table;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.units.UnitType;
+import org.hibernate.annotations.ForeignKey;
 
 /**
  * Repraesentiert eine Kaserne auf einer Basis in DS.
@@ -45,6 +46,7 @@ public class Kaserne {
 	private int id;
 	@OneToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="col", nullable=false)
+	@ForeignKey(name="kaserne_fk_bases")
 	private Base base;
 
 	@OneToMany(mappedBy="kaserne")

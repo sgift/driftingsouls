@@ -18,10 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.Map;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
@@ -29,11 +25,10 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.ResourceLimit;
-import net.driftingsouls.ds2.server.entities.ResourceLimit.ResourceLimitKey;
 import net.driftingsouls.ds2.server.entities.SellLimit;
-import net.driftingsouls.ds2.server.entities.statistik.StatVerkaeufe;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
+import net.driftingsouls.ds2.server.entities.statistik.StatVerkaeufe;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
@@ -44,10 +39,13 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Map;
 
 /**
  * Verkauft Waren an einem Handelsposten.
@@ -117,8 +115,6 @@ public class TradeController extends TemplateController
 	@Action(ActionType.DEFAULT)
 	public void buyAction(@UrlParam(name = "#from") Map<String, Long> fromMap, Ship tradepost, Ship ship)
 	{
-		org.hibernate.Session db = getDB();
-
 		validiereSchiff(ship);
 		validiereHandelsposten(ship, tradepost);
 
@@ -140,8 +136,7 @@ public class TradeController extends TemplateController
 			}
 
 			//Preis und Minimum holen
-			ResourceLimitKey resourceLimitKey = new ResourceLimitKey(tradepost, resource.getId());
-			SellLimit limit = (SellLimit) db.get(SellLimit.class, resourceLimitKey);
+			SellLimit limit = SellLimit.fuerSchiffUndItem(tradepost, resource.getId());
 
 			//Ware wird nicht verkauft
 			if (limit == null || limit.getPrice() <= 0)
@@ -278,8 +273,7 @@ public class TradeController extends TemplateController
 				long resourceMass = Cargo.getResourceMass(res.getId(), 1);
 
 				//Wir wollen eventuell nur bis zu einem Limit ankaufen
-				ResourceLimitKey resourceLimitKey = new ResourceLimitKey(tradepost, res.getId());
-				ResourceLimit resourceLimit = (ResourceLimit) db.get(ResourceLimit.class, resourceLimitKey);
+				ResourceLimit resourceLimit = ResourceLimit.fuerSchiffUndItem(tradepost, res.getId());
 
 				long limit = Long.MAX_VALUE;
 				if (resourceLimit != null)
@@ -436,8 +430,7 @@ public class TradeController extends TemplateController
 					continue;
 				}
 
-				ResourceLimitKey resourceLimitKey = new ResourceLimitKey(tradepost, res.getId());
-				ResourceLimit limit = (ResourceLimit) db.get(ResourceLimit.class, resourceLimitKey);
+				ResourceLimit limit = ResourceLimit.fuerSchiffUndItem(tradepost, res.getId());
 
 				// Kaufen wir diese Ware vom Spieler?
 				if (limit != null && !limit.willBuy(tradepost.getOwner(), user))
@@ -476,8 +469,7 @@ public class TradeController extends TemplateController
 		ResourceList buyList = tradepost.getCargo().getResourceList();
 		for (ResourceEntry resource : buyList)
 		{
-			ResourceLimitKey resourceLimitKey = new ResourceLimitKey(tradepost, resource.getId());
-			SellLimit limit = (SellLimit) db.get(SellLimit.class, resourceLimitKey);
+			SellLimit limit = SellLimit.fuerSchiffUndItem(tradepost, resource.getId());
 
 			//Nicht kaeuflich
 			if (limit == null || limit.getPrice() <= 0)

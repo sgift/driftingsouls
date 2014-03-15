@@ -46,6 +46,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
 import javax.persistence.CascadeType;
@@ -277,11 +278,13 @@ public class User extends BasicUser {
 	private int rang;
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="ally", nullable=true)
+	@ForeignKey(name="users_fk_ally")
 	private Ally ally;
 	private BigInteger konto;
 	private int npcpunkte;
 	@OneToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="allyposten", nullable=true, unique = true)
+	@ForeignKey(name="users_fk_ally_posten")
 	private AllyPosten allyposten;
 	private int gtudropzone;
 	private String npcorderloc;

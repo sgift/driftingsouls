@@ -1,1 +1,1 @@
-ALTER TABLE ally_posten ADD CONSTRAINT ally_posten_fk_ally FOREIGN KEY (ally) REFERENCES ally(id);
+alter table ally_posten add index ally_posten_fk_ally (ally), add constraint ally_posten_fk_ally foreign key (ally) references ally(id);
