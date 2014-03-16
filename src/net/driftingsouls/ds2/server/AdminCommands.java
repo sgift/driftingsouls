@@ -179,7 +179,7 @@ public class AdminCommands {
 	public AdminCommandResultViewModel executeCommand( String cmd ) {
 		Context context = ContextMap.getContext();
 		User user = (User)context.getActiveUser();
-		if( (user == null) || !context.hasPermission("admin", "commands") ) {
+		if( (user == null) || !context.hasPermission("admin", "AdminConsole") ) {
 			return new AdminCommandResultViewModel("Keine Berechtigung", false);
 		}
 
