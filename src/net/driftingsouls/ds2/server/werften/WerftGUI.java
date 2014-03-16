@@ -946,7 +946,7 @@ public class WerftGUI {
 
 		Cargo cargo = werft.getCargo(false);
 
-		ShipBaubar shipdata = werft.getShipBuildData( build, itemid );
+		ShipBaubar shipdata = werft.getShipBuildData( build, itemid ).getBaudaten();
 		if( (shipdata == null) ) {
 			t.setVar("werftgui.msg", "<span style=\"color:red\">"+werft.getMessage()+"</span>");
 			return;

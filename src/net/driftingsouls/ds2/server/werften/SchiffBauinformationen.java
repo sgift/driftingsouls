@@ -1,7 +1,13 @@
 package net.driftingsouls.ds2.server.werften;
 
+import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
+import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.config.items.effects.IEDraftShip;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
+import org.hibernate.Session;
 
 /**
  * Die Bauinformationen fuer ein Schiff zusammen mit ihren Quellinformationen.
@@ -46,6 +52,24 @@ public class SchiffBauinformationen implements Comparable<SchiffBauinformationen
 		return item;
 	}
 
+	/**
+	 * Generiert die ID fuer diesen Satz von Bauinformationen;
+	 * @return Die ID
+	 */
+	public String getId()
+	{
+		String id = quelle.name()+"_";
+		if( quelle == BauinformationenQuelle.FORSCHUNG )
+		{
+			id += baudaten.getId();
+		}
+		else
+		{
+			id += item.toString();
+		}
+		return id;
+	}
+
 	@Override
 	public int compareTo(SchiffBauinformationen schiffBauinformationen)
 	{
@@ -61,9 +85,82 @@ public class SchiffBauinformationen implements Comparable<SchiffBauinformationen
 			{
 				return diff;
 			}
-			return this.baudaten.getType().getId()-schiffBauinformationen.baudaten.getType().getId();
+			return this.baudaten.getId()-schiffBauinformationen.baudaten.getId();
 		}
 
 		return this.item.getItemID()-schiffBauinformationen.item.getItemID();
+	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o)
+		{
+			return true;
+		}
+		if (o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
+
+		SchiffBauinformationen that = (SchiffBauinformationen) o;
+
+		if (baudaten != null ? !baudaten.equals(that.baudaten) : that.baudaten != null)
+		{
+			return false;
+		}
+		if (item != null ? !item.equals(that.item) : that.item != null)
+		{
+			return false;
+		}
+		if (quelle != that.quelle)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result = baudaten != null ? baudaten.hashCode() : 0;
+		result = 31 * result + quelle.hashCode();
+		result = 31 * result + (item != null ? item.hashCode() : 0);
+		return result;
+	}
+
+	/**
+	 * Laedt die Bauinformationen zu einer Bauinformationen-ID.
+	 * @param id Die ID
+	 * @return Die Bauinformationen
+	 * @see #getId()
+	 */
+	public static SchiffBauinformationen fromId(String id)
+	{
+		if( id == null || id.trim().length() < 3 || !id.contains("_") )
+		{
+			throw new IllegalArgumentException("Keine gueltige ID: "+id);
+		}
+		String quelleStr = id.substring(0, id.indexOf('_')).trim();
+		String idStr = id.substring(id.indexOf('_')+1);
+
+		ShipBaubar baudaten;
+		ResourceID item = null;
+		BauinformationenQuelle quelle = BauinformationenQuelle.valueOf(quelleStr);
+
+		Session db = ContextMap.getContext().getDB();
+		if( quelle == BauinformationenQuelle.FORSCHUNG )
+		{
+			baudaten = (ShipBaubar) db.get(ShipBaubar.class, Integer.parseInt(idStr));
+		}
+		else
+		{
+			item = ItemID.fromString(idStr);
+			Item itemData = (Item) db.get(Item.class, item.getItemID());
+			baudaten = ((IEDraftShip)itemData.getEffect()).toShipBaubar();
+		}
+
+		return new SchiffBauinformationen(baudaten, quelle, item);
 	}
 }
