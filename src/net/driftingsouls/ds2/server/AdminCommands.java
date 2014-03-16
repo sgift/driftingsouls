@@ -34,6 +34,7 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.ViewModel;
+import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -51,6 +52,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.hibernate.Cache;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.imageio.ImageIO;
@@ -112,6 +115,7 @@ public class AdminCommands {
 			cmds.put("exectask", ExecTaskCommand.class);
 			cmds.put("tick", TickCommand.class);
         	cmds.put("autofire", AutoFireCommand.class);
+			cmds.put("clearcache", ClearCache.class);
 		}
 	}
 
@@ -1543,6 +1547,27 @@ public class AdminCommands {
 			db.beginTransaction();
 
 			output = "Es wurden "+count.get()+" Schiffe in "+ (System.currentTimeMillis() - start)/1000d +" Sekunden neu berechnet.";
+			return output;
+		}
+
+		@Override
+		public List<String> autoComplete(String[] command)
+		{
+			return Arrays.asList("");
+		}
+	}
+
+	protected static class ClearCache implements Command {
+		@Override
+		public String execute(Context context, String[] command) {
+			String output = "Cache cleared";
+
+			SessionFactory sf = HibernateUtil.getSessionFactory();
+			Cache c = sf.getCache();
+			c.evictEntityRegions();
+			c.evictCollectionRegions();
+			c.evictQueryRegions();
+
 			return output;
 		}
 
