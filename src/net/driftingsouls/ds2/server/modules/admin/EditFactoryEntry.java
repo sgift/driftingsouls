@@ -23,6 +23,7 @@ import net.driftingsouls.ds2.server.entities.FactoryEntry;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.pipeline.Request;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -45,18 +46,21 @@ public class EditFactoryEntry extends AbstractEditPlugin<FactoryEntry>
 	{
 		Context context = ContextMap.getContext();
 
-		entry.setBuildCosts(new Cargo(Cargo.Type.ITEMSTRING, context.getRequest().getParameterString("buildcosts")));
-		entry.setRes1(context.getRequest().getParameterInt("res1"));
-		entry.setRes2(context.getRequest().getParameterInt("res2"));
-		entry.setRes3(context.getRequest().getParameterInt("res3"));
-		entry.setProduce(new Cargo(Cargo.Type.ITEMSTRING, context.getRequest().getParameterString("produces")));
-		entry.setDauer(BigDecimal.valueOf(Double.parseDouble(context.getRequest().getParameterString("dauer"))));
-		entry.setBuildingIdString(context.getRequest().getParameterString("buildingids"));
+		Request request = context.getRequest();
+		entry.setName(request.getParameterString("name"));
+		entry.setBuildCosts(new Cargo(Cargo.Type.ITEMSTRING, request.getParameterString("buildcosts")));
+		entry.setRes1(request.getParameterInt("res1"));
+		entry.setRes2(request.getParameterInt("res2"));
+		entry.setRes3(request.getParameterInt("res3"));
+		entry.setProduce(new Cargo(Cargo.Type.ITEMSTRING, request.getParameterString("produces")));
+		entry.setDauer(BigDecimal.valueOf(Double.parseDouble(request.getParameterString("dauer"))));
+		entry.setBuildingIdString(request.getParameterString("buildingids"));
 	}
 
 	@Override
 	protected void edit(EditorForm form, FactoryEntry entry)
 	{
+		form.field("Name", "name", String.class, entry.getName());
 		form.field("Baukosten", "buildcosts", Cargo.class, entry.getBuildCosts());
 		form.field("Forschung 1", "res1", Forschung.class, entry.getRes1());
 		form.field("Forschung 2", "res2", Forschung.class, entry.getRes2());
