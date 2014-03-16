@@ -1,0 +1,30 @@
+#shipsinfo .gfxbox {
+	width:50%;
+	margin-bottom:20px;
+}
+
+#shipsinfo h1 {
+	text-align: center;
+}
+
+#shipsinfo .datatable {
+	width:100%;
+	border-spacing: 3px;
+	border-collapse: separate;
+}
+
+#shipsinfo .datatable img {
+	vertical-align:middle;
+}
+
+#shipsinfo td:first-child {
+	width:170px;
+}
+
+#shipsinfo td:nth-child(2) {
+	width:250px;
+}
+
+#shipsinfo td:first-child img {
+	max-width:150px
+}

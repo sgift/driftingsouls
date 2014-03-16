@@ -1,29 +1,22 @@
-<div class="gfxbox" style="width:50%">
-    <table class="datatable" cellspacing="3" width="100%">
-    <colgroup>
-        <col/>
-        <col/>
-        <col/>
-    </colgroup>
+<div id="shipsinfo">
+<div class="gfxbox">
+	<h1>Baubar auf Asteroiden</h1>
+    <table class="datatable">
     <thead>
         <tr>
-            <th colspan="3">Baubar auf Asteroiden</th>
-        </tr>
-        <tr>
-            <th></th>
-            <th>Name</th>
+            <th colspan="2">Name</th>
             <th>Baukosten</th>
         </tr>
     </thead>
     <tbody>
         <!-- BEGIN asteroidinfo.shiplist.listitem -->
         <tr>
-            <td><img style="vertical-align:middle" height="150px" src="{ship.picture}" alt="{ship.name}" /></td>
+            <td><img src="{ship.picture}" alt="{ship.name}" /></td>
             <td>{!link_to $ship.name, default, module:schiffinfo, ship:$ship.id}</td>
             <td>
                 {if ship.buildcosts.asteroid.list}
                 <!-- BEGIN ship.buildcosts.asteroid.listitem -->
-                <img style="vertical-align:middle" src="{res.image}" alt="" title="{res.plainname}" />{res.cargo}
+                <img src="{res.image}" alt="" title="{res.plainname}" />{res.cargo}
                 <!-- END ship.buildcosts.asteroid.listitem -->
                 {else}
                 -
@@ -34,33 +27,24 @@
     </tbody>
     </table>
 </div>
-<div>&nbsp;</div>
-<div class="gfxbox" style="width:50%">
-    <table class="datatable" cellspacing="3" width="100%">
-        <colgroup>
-            <col/>
-            <col/>
-            <col/>
-        </colgroup>
+<div class="gfxbox">
+	<h1>Baubar in Raumwerften</h1>
+    <table class="datatable">
         <thead>
             <tr>
-                <th colspan="3">Baubar in Raumwerften</th>
-            </tr>
-            <tr>
-                <th></th>
-                <th>Name</th>
+				<th colspan="2">Name</th>
                 <th>Baukosten</th>
             </tr>
         </thead>
         <tbody>
         <!-- BEGIN ganymedinfo.shiplist.listitem -->
         <tr>
-            <td><img style="vertical-align:middle" height="150px" src="{ship.picture}" alt="{ship.name}" /></td>
+            <td><img src="{ship.picture}" alt="{ship.name}" /></td>
             <td>{!link_to $ship.name, default, module:schiffinfo, ship:$ship.id}</td>
             <td>
                 {if ship.buildcosts.ganymed.list}
                 <!-- BEGIN ship.buildcosts.ganymed.listitem -->
-                <img style="vertical-align:middle" src="{res.image}" alt="" title="{res.plainname}" />{res.cargo}
+                <img src="{res.image}" alt="" title="{res.plainname}" />{res.cargo}
                 <!-- END ship.buildcosts.ganymed.listitem -->
                 {else}
                 -
@@ -71,33 +55,24 @@
         </tbody>
     </table>
 </div>
-<div>&nbsp;</div>
-<div class="gfxbox" style="width:50%">
-    <table class="datatable" cellspacing="3" width="100%">
-        <colgroup>
-            <col/>
-            <col/>
-            <col/>
-        </colgroup>
+<div class="gfxbox">
+	<h1>Erforschbar</h1>
+    <table class="datatable">
         <thead>
         <tr>
-            <th colspan="3">Erforschbar</th>
-        </tr>
-        <tr>
-            <th></th>
-            <th>Name</th>
+			<th colspan="2">Name</th>
             <th>Baukosten</th>
         </tr>
         </thead>
         <tbody>
         <!-- BEGIN researchableinfo.shiplist.listitem -->
         <tr>
-            <td><img style="vertical-align:middle" height="150px" src="{ship.picture}" alt="{ship.name}" /></td>
+            <td><img src="{ship.picture}" alt="{ship.name}" /></td>
             <td>{!link_to $ship.name, default, module:schiffinfo, ship:$ship.id}</td>
             <td>
                 {if ship.buildcosts.ganymed.list}
                 <!-- BEGIN ship.buildcosts.researchable.listitem -->
-                <img style="vertical-align:middle" src="{res.image}" alt="" title="{res.plainname}" />{res.cargo}
+                <img src="{res.image}" alt="" title="{res.plainname}" />{res.cargo}
                 <!-- END ship.buildcosts.researchable.listitem -->
                 {else}
                 -
@@ -108,33 +83,24 @@
         </tbody>
     </table>
 </div>
-<div>&nbsp;</div>
-<div class="gfxbox" style="width:50%">
-    <table class="datatable" cellspacing="3" width="100%">
-        <colgroup>
-            <col/>
-            <col/>
-            <col/>
-        </colgroup>
+<div class="gfxbox">
+	<h1>Baubar von anderen Spezies</h1>
+    <table class="datatable">
         <thead>
         <tr>
-            <th colspan="3">Baubar von anderen Spezies</th>
-        </tr>
-        <tr>
-            <th></th>
-            <th>Name</th>
+			<th colspan="2">Name</th>
             <th>Baukosten</th>
         </tr>
         </thead>
         <tbody>
         <!-- BEGIN otherinfo.shiplist.listitem -->
         <tr>
-            <td><img style="vertical-align:middle" height="150px" src="{ship.picture}" alt="{ship.name}" /></td>
+            <td><img src="{ship.picture}" alt="{ship.name}" /></td>
             <td>{!link_to $ship.name, default, module:schiffinfo, ship:$ship.id}</td>
             <td>
                 {if ship.buildcosts.ganymed.list}
                 <!-- BEGIN ship.buildcosts.others.listitem -->
-                <img style="vertical-align:middle" src="{res.image}" alt="" title="{res.plainname}" />{res.cargo}
+                <img src="{res.image}" alt="" title="{res.plainname}" />{res.cargo}
                 <!-- END ship.buildcosts.others.listitem -->
                 {else}
                 -
@@ -145,28 +111,19 @@
         </tbody>
     </table>
 </div>
-<div>&nbsp;</div>
-<div class="gfxbox" style="width:50%">
-    <table class="datatable" cellspacing="3" width="100%">
-        <colgroup>
-            <col/>
-            <col/>
-            <col/>
-        </colgroup>
+<div class="gfxbox">
+	<h1>Nicht baubar</h1>
+    <table class="datatable">
         <thead>
             <tr>
-                <th colspan="3">Nicht baubar</th>
-            </tr>
-            <tr>
-                <th></th>
-                <th>Name</th>
+				<th colspan="2">Name</th>
                 <th>Baukosten</th>
             </tr>
         </thead>
         <tbody>
         <!-- BEGIN restinfo.shiplist.listitem -->
         <tr>
-            <td><img style="vertical-align:middle" height="150px" src="{ship.picture}" alt="{ship.name}" /></td>
+            <td><img src="{ship.picture}" alt="{ship.name}" /></td>
             <td>{!link_to $ship.name, default, module:schiffinfo, ship:$ship.id}</td>
             <td>
                 -
@@ -175,4 +132,5 @@
         <!-- END restinfo.shiplist.listitem -->
         </tbody>
     </table>
+</div>
 </div>

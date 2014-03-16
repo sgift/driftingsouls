@@ -1,5 +1,6 @@
 package net.driftingsouls.ds2.server.modules;
 
+import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Rassen;
@@ -15,7 +16,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateContro
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipType;
-import net.driftingsouls.ds2.server.werften.BaseWerft;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import java.util.Comparator;
@@ -94,8 +94,7 @@ public class ShipsInfoController extends TemplateController
 
 	private Map<BuildKind, Set<ShipType>> sortTypes(User user, Map<Integer, ShipBaubar> buildableShips, List<ShipType> shipTypes)
 	{
-		BaseWerft asteroidYard = new BaseWerft(null);
-		int slotsOnAsteroids = asteroidYard.getWerftSlots();
+		int slotsOnAsteroids = berechneMaxWerftSlotsAufBasen(user);
 
 		Map<BuildKind, Set<ShipType>> sortedShipTypes = new HashMap<>();
 		sortedShipTypes.put(BuildKind.ASTEROID, new TreeSet<>(sortTypeByName));
@@ -153,6 +152,19 @@ public class ShipsInfoController extends TemplateController
 		}
 
 		return sortedShipTypes;
+	}
+
+	private int berechneMaxWerftSlotsAufBasen(User user)
+	{
+		int slotsOnAsteroids = 0;
+		for (Base base : user.getBases())
+		{
+			if( base.getWerft() != null && base.getWerft().getWerftSlots() > slotsOnAsteroids )
+			{
+				slotsOnAsteroids = base.getWerft().getWerftSlots();
+			}
+		}
+		return slotsOnAsteroids;
 	}
 
 	private enum BuildKind
