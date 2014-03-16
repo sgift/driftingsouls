@@ -154,10 +154,10 @@ public class WerftGUI {
 					);
 
 			// Resourcenliste
-			List<WerftObject.SchiffBauinformationen> shipdata = werft.getBuildShipList();
+			List<SchiffBauinformationen> shipdata = werft.getBuildShipList();
 
 			Cargo costs = new Cargo();
-			for (WerftObject.SchiffBauinformationen aShipdata : shipdata)
+			for (SchiffBauinformationen aShipdata : shipdata)
 			{
 				costs.addCargo(aShipdata.getBaudaten().getCosts());
 			}
@@ -472,7 +472,7 @@ public class WerftGUI {
 		}
 	}
 
-	private void out_buildShipList(WerftObject werft, List<WerftObject.SchiffBauinformationen> shipdata) {
+	private void out_buildShipList(WerftObject werft, List<SchiffBauinformationen> shipdata) {
 		t.setVar("werftgui.buildshiplist", 1);
 		t.setBlock("_WERFT.WERFTGUI", "buildshiplist.listitem", "buildshiplist.list");
 		t.setBlock("buildshiplist.listitem", "buildship.res.listitem", "buildship.res.list");
@@ -482,7 +482,7 @@ public class WerftGUI {
 		int energy = werft.getEnergy();
 		int crew = werft.getCrew();
 
-		for (WerftObject.SchiffBauinformationen ashipdata : shipdata)
+		for (SchiffBauinformationen ashipdata : shipdata)
 		{
 			t.start_record();
 
@@ -495,7 +495,7 @@ public class WerftGUI {
 				ResourceID itemdata = ashipdata.getItem();
 
 				t.setVar("buildship.item.id", itemdata.getItemID(),
-						"buildship.item.color", ashipdata.getQuelle() == WerftObject.BauinformationenQuelle.LOKALES_ITEM ? "#EECC44" : "#44EE44",
+						"buildship.item.color", ashipdata.getQuelle() == BauinformationenQuelle.LOKALES_ITEM ? "#EECC44" : "#44EE44",
 						"buildship.item.uses", itemdata.getUses());
 			}
 
@@ -537,7 +537,7 @@ public class WerftGUI {
 
 			ShipTypeData shiptype = ashipdata.getBaudaten().getType();
 
-			t.setVar("buildship.id", ashipdata.getQuelle() == WerftObject.BauinformationenQuelle.FORSCHUNG ? ashipdata.getBaudaten().getId() : -1,
+			t.setVar("buildship.id", ashipdata.getQuelle() == BauinformationenQuelle.FORSCHUNG ? ashipdata.getBaudaten().getId() : -1,
 					"buildship.type.id", shiptype.getTypeId(),
 					"buildship.type.image", shiptype.getPicture(),
 					"buildship.flagschiff", ashipdata.getBaudaten().isFlagschiff(),
@@ -901,7 +901,7 @@ public class WerftGUI {
 
 		Cargo cargo = werft.getCargo(false);
 
-		WerftObject.RepairCosts repairCost = werft.getRepairCosts(ship);
+		RepairCosts repairCost = werft.getRepairCosts(ship);
 
 		//Kosten ausgeben
 		ResourceList reslist = repairCost.cost.compare( cargo, false, false, true );

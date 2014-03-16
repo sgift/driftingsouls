@@ -1015,25 +1015,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	}
 
 	/**
-	 * Die Reparaturkosten eines Schiffes.
-	 *
-	 */
-	public static class RepairCosts {
-		/**
-		 * Die Energiekosten.
-		 */
-		public int e;
-		/**
-		 * Die Resourcenkosten.
-		 */
-		public Cargo cost;
-
-		protected RepairCosts() {
-			//EMPTY
-		}
-	}
-
-	/**
 	 * Berechnet die Reparaturkosten fuer ein Schiff.
 	 * @param ship Das Schiff
 	 *
@@ -1390,60 +1371,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 
 		return new Cargo();
-	}
-
-	/**
-	 * Die Quelle aus der Bauinformationen stammen.
-	 */
-	public static enum BauinformationenQuelle
-	{
-		FORSCHUNG,
-		ALLIANZ_ITEM,
-		LOKALES_ITEM
-	}
-
-	/**
-	 * Die Bauinformationen fuer ein Schiff zusammen mit ihren Quellinformationen.
-	 */
-	public static class SchiffBauinformationen
-	{
-		private ShipBaubar baudaten;
-		private BauinformationenQuelle quelle;
-		private ResourceID item;
-
-		SchiffBauinformationen(ShipBaubar baudaten, BauinformationenQuelle quelle, ResourceID item)
-		{
-			this.baudaten = baudaten;
-			this.quelle = quelle;
-			this.item = item;
-		}
-
-		/**
-		 * Gibt die konkreten Daten zum Bau des Schiffes zurueck.
-		 * @return Die Baudaten
-		 */
-		public ShipBaubar getBaudaten()
-		{
-			return baudaten;
-		}
-
-		/**
-		 * Gibt die Quelle zurueck, aus der die Bauinformationen stammen.
-		 * @return Die Quelle
-		 */
-		public BauinformationenQuelle getQuelle()
-		{
-			return quelle;
-		}
-
-		/**
-		 * Gibt das evt. zum Bau benoetigte Item zurueck.
-		 * @return Das Item oder <code>null</code>
-		 */
-		public ResourceID getItem()
-		{
-			return item;
-		}
 	}
 
 	/**
@@ -1810,6 +1737,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 				ship.setEnergy(newtype.getEps());
 				ship.setEnergy(newtype.getEps());
 				ship.setOwner(user);
+				ship.recalculateModules();
 
 				this.type = WerftTyp.EINWEG;
 
