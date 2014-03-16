@@ -2194,4 +2194,10 @@ Die Vasudaner haben eine sehr alte Kultur mit mehreren hochentwickelten Sprachen
 		alter table ship_types add index ship_types_fk_ship_types (ow_werft), add constraint ship_types_fk_ship_types foreign key (ow_werft) references ship_types (id);
 		alter table ships_modules add index ship_modules_fk_ships_types (ow_werft), add constraint ship_modules_fk_ships_types foreign key (ow_werft) references ship_types (id);
 	]]></update>
+	<update type="structure" datum="2014-03-16"><![CDATA[
+		alter table tasks drop index `key`;
+		create index taskkey_idx on tasks (type, time, data1, data2, data3);
+		alter table user_moneytransfer drop index `from`;
+		create index from_idx on user_moneytransfer (from_id, to_id);
+	]]></update>
 </updates>

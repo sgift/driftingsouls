@@ -50,7 +50,7 @@ import org.hibernate.annotations.Index;
 @Table(name="user_moneytransfer")
 @org.hibernate.annotations.Table(
 	appliesTo = "user_moneytransfer",
-	indexes = {@Index(name="from", columnNames = {"from_id", "to_id"})}
+	indexes = {@Index(name="from_idx", columnNames = {"from_id", "to_id"})}
 )
 public class UserMoneyTransfer {
 	/**

@@ -38,7 +38,7 @@ import org.hibernate.annotations.Index;
 @Table(name="tasks")
 @org.hibernate.annotations.Table(
 	appliesTo = "tasks",
-	indexes = {@Index(name="key", columnNames = {"type", "time", "data1", "data2", "data3"})}
+	indexes = {@Index(name="taskkey_idx", columnNames = {"type", "time", "data1", "data2", "data3"})}
 )
 public class Task {
 	@Id()
