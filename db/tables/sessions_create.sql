@@ -3,6 +3,6 @@ CREATE TABLE `sessions` (
 	`tick` bigint not null,
 	`token` varchar(255) not null,
 	`version` integer not null,
-	`userid` integer not null,
+	`userId` integer not null,
   primary key(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
