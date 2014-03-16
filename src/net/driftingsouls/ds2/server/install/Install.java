@@ -115,7 +115,7 @@ public class Install
 				loadImages(reader, con);
 			}
 
-			System.out.println("Du solltest es nun mittels 'ant clean templates compile' erneut uebersetzen.");
+			System.out.println("Du solltest es nun mittels 'ant clean compile' erneut uebersetzen.");
 			System.out.println("Anschliessend kannst du DS mittels des Kommandos 'ant run' starten.");
 		}
 		catch (SQLException e)
