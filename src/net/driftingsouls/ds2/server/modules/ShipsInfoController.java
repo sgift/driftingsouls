@@ -94,7 +94,7 @@ public class ShipsInfoController extends TemplateController
 
 	private Map<BuildKind, Set<ShipType>> sortTypes(User user, Map<Integer, ShipBaubar> buildableShips, List<ShipType> shipTypes)
 	{
-		BaseWerft asteroidYard = new BaseWerft();
+		BaseWerft asteroidYard = new BaseWerft(null);
 		int slotsOnAsteroids = asteroidYard.getWerftSlots();
 
 		Map<BuildKind, Set<ShipType>> sortedShipTypes = new HashMap<>();
