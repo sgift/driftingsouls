@@ -137,7 +137,7 @@ public class WerftGUI {
 		else {
 			String show = context.getRequest().getParameterString("show");
 			if( show.length() == 0 ) {
-				show = "build";
+				show = werft.getType() != WerftTyp.EINWEG ? "build" : "queue";
 			}
 
 			t.setVar("werftgui.main", 1);
@@ -148,7 +148,9 @@ public class WerftGUI {
 					"werftgui.picture",	werft.getWerftPicture(),
 					"werftgui.crew",	werft.getCrew(),
 					"werftgui.werftslots",	werft.getWerftSlots(),
-					"werftgui.totalqueueentries",	queue.length
+					"werftgui.totalqueueentries",	queue.length,
+					"werftgui.allowBuild", werft.getType() != WerftTyp.EINWEG,
+					"werftgui.allowRepair", werft.getType() != WerftTyp.EINWEG
 					);
 
 			// Resourcenliste
@@ -427,7 +429,8 @@ public class WerftGUI {
 					"queueship.slots",	entry.getSlots(),
 					"queueship.building",	entry.isScheduled(),
 					"queueship.uppossible", i > 0,
-					"queueship.downpossible",	i < queue.length-1);
+					"queueship.downpossible",	i < queue.length-1,
+					"queueship.cancelpossible", werft.getType() != WerftTyp.EINWEG);
 
 			if( entry.getRequiredItem() != -1 ) {
 				Item item = (Item)db.get(Item.class, entry.getRequiredItem());

@@ -98,7 +98,8 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	private int id;
 	@Column(name="flagschiff", nullable = false)
 	private boolean buildFlagschiff = false;
-	private int type = 0;
+	@Column(nullable = false)
+	private WerftTyp type = WerftTyp.SCHIFF;
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="linkedWerft", nullable=true)
 	@ForeignKey(name="werften_fk_werften")
@@ -127,7 +128,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * Erstellt eine neue Werft.
 	 * @param type Der Typ der Werft
 	 */
-	public WerftObject(int type) {
+	public WerftObject(WerftTyp type) {
 		this.type = type;
 		this.queue = new HashSet<>();
 	}
@@ -237,7 +238,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * Gibt den Typ der Werft zurueck.
 	 * @return Typ der Werft
 	 */
-	public int getType() {
+	public WerftTyp getType() {
 		return type;
 	}
 
@@ -255,7 +256,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * Berechnet, welche Eintraege der Bauschlange im Moment gebaut werden und welche nicht.
 	 *
 	 */
-	protected void rescheduleQueue() {
+	public void rescheduleQueue() {
 		int freeSlots = this.getWerftSlots();
 
 		final Cargo cargo = new Cargo(this.getCargo(true));
@@ -310,8 +311,8 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * Gibt das Einweg-Flag der Werft zurueck.
 	 * @return Das Einweg-Flag
 	 */
-	public int getOneWayFlag() {
-		return 0;
+	public ShipType getOneWayFlag() {
+		return null;
 	}
 
 	/**
@@ -478,6 +479,11 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 *
 	 */
 	public void removeModule( Ship ship, int slot ) {
+		if(this.type == WerftTyp.EINWEG)
+		{
+			MESSAGE.get().append("Diese Werft ist vollständig auf ihr einziges Bauprojekt konzentriert.");
+			return;
+		}
 		Map<Integer,Integer> usedslots = new HashMap<>();
 		ModuleEntry[] modules = ship.getModules();
 		for( int i=0; i < modules.length; i++ ) {
@@ -661,6 +667,11 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 *
 	 */
 	public void addModule( Ship ship, int slot, int itemid ) {
+		if(this.type == WerftTyp.EINWEG)
+		{
+			MESSAGE.get().append("Diese Werft ist vollständig auf ihr einziges Bauprojekt konzentriert.");
+			return;
+		}
 		Map<Integer,Integer> usedslots = new HashMap<>();
 		ModuleEntry[] modules = ship.getModules();
 		Context context = ContextMap.getContext();
@@ -874,6 +885,11 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * @return true, wenn kein Fehler aufgetreten ist
 	 */
 	public boolean dismantleShip(Ship ship, boolean testonly) {
+		if(this.type == WerftTyp.EINWEG)
+		{
+			MESSAGE.get().append("Diese Werft ist vollständig auf ihr einziges Bauprojekt konzentriert.");
+			return false;
+		}
 		log.debug("Dismantling ship " + ship.getId());
 		StringBuilder output = MESSAGE.get();
 
@@ -1191,6 +1207,11 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * @return true, wenn kein Fehler aufgetreten ist
 	 */
 	public boolean repairShip(Ship ship, boolean testonly) {
+		if(this.type == WerftTyp.EINWEG)
+		{
+			MESSAGE.get().append("Diese Werft ist vollständig auf ihr einziges Bauprojekt konzentriert.");
+			return false;
+		}
         if(ship.hasFlag(Ship.FLAG_RECENTLY_REPAIRED))
         {
             MESSAGE.get().append("Das Schiff wurde k&uuml;rzlich repariert und kann derzeit nicht repariert werden.");
@@ -1659,6 +1680,12 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	public boolean buildShip( int build, int item, boolean costsPerTick, boolean testonly ) {
 		StringBuilder output = MESSAGE.get();
 
+		if( this.type == WerftTyp.EINWEG )
+		{
+			output.append("Diese Werft kann nur ein einziges Bauprojekt durchführen");
+			return false;
+		}
+
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		User user = this.getOwner();
@@ -1763,12 +1790,12 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			this.setCrew(frei);
 
 			// TODO: Ab nach ShipWerft...
-			if( this.getOneWayFlag() != 0 && this instanceof ShipWerft ) {
+			if( this.getOneWayFlag() != null && this instanceof ShipWerft ) {
 				// Einweg-Werft-Code
 
 				ShipWerft werft = (ShipWerft)this;
 
-				ShipType newtype = (ShipType)db.get(ShipType.class, this.getOneWayFlag());
+				ShipType newtype = this.getOneWayFlag();
 
 				String currentTime = Common.getIngameTime(context.get(ContextCommon.class).getTick());
 				String history = "Baubeginn am "+currentTime+" durch "+user.getName()+" ("+user.getId()+")";
@@ -1778,13 +1805,16 @@ public abstract class WerftObject extends DSObject implements Locatable {
 				ship.setName("Baustelle");
 				ship.setBaseType(newtype);
 				ship.setHull(newtype.getHull());
+				ship.setAblativeArmor(newtype.getAblativeArmor());
+				ship.setCrew(newtype.getCrew());
+				ship.setEnergy(newtype.getEps());
 				ship.setEnergy(newtype.getEps());
 				ship.setOwner(user);
 
-				this.type = 2;
+				this.type = WerftTyp.EINWEG;
 
 			}
-			else if( this.getOneWayFlag() != 0 ) {
+			else if( this.getOneWayFlag() != null ) {
 				output.append("WARNING: UNKNOWN OW_WERFT (possible: building) in buildShip@WerftObject");
 
 				return false;
@@ -1853,6 +1883,11 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * @param entry Das Bauvorhaben
 	 */
 	public void cancelBuild(WerftQueueEntry entry) {
+		if(this.type == WerftTyp.EINWEG)
+		{
+			MESSAGE.get().append("Diese Werft ist vollständig auf ihr einziges Bauprojekt konzentriert. Es kann nicht abgebrochen werden.");
+			return;
+		}
 		if( entry.getWerft().getWerftID() != this.getWerftID() ) {
 			throw new IllegalArgumentException("Das WerftQueue-Objekt gehoert nicht zu dieser Werft");
 		}

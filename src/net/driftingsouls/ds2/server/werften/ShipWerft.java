@@ -34,6 +34,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import org.hibernate.annotations.ForeignKey;
@@ -74,7 +75,7 @@ public class ShipWerft extends WerftObject {
 	}
 
 	@Override
-	public int getOneWayFlag() {
+	public ShipType getOneWayFlag() {
 		return this.ship.getTypeData().getOneWayWerft();
 	}
 
@@ -414,7 +415,7 @@ public class ShipWerft extends WerftObject {
 		super.onFinishedBuildProcess(shipid);
 
 		// Falls es sich um eine Einwegwerft handelt, dann diese zerstoeren
-		if( getType() == 2 ) {
+		if( getType() == WerftTyp.EINWEG ) {
 			getShip().destroy();
 		}
 	}

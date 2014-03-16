@@ -28,8 +28,6 @@ import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tick.EvictableUnitOfWork;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -45,8 +43,6 @@ import java.util.Map;
 @AdminMenuEntry(category = "Schiffe", name = "Typen editieren")
 public class EditShiptypes extends AbstractEditPlugin<ShipType>
 {
-	private static final Log log = LogFactory.getLog(EditShiptypes.class);
-
 	public EditShiptypes()
 	{
 		super(ShipType.class);
@@ -202,7 +198,7 @@ public class EditShiptypes extends AbstractEditPlugin<ShipType>
 		shiptype.setFlags(flags);
 		shiptype.setGroupwrap(groupwrap);
 		shiptype.setWerft(werft);
-		shiptype.setOneWayWerft(oneWayWerft);
+		shiptype.setOneWayWerft(oneWayWerft != 0 ? (ShipType)db.get(ShipType.class, oneWayWerft) : null);
 		shiptype.setChance4Loot(chance4Loot);
 		shiptype.setModules(modules);
 		shiptype.setHide(hide);
@@ -223,100 +219,64 @@ public class EditShiptypes extends AbstractEditPlugin<ShipType>
 			public void doWork(Integer shipId) throws Exception
 			{
 				Ship ship = (Ship) getDB().get(Ship.class, shipId);
+				boolean modules = ship.getModules().length > 0;
 				ShipTypeData type = ship.getTypeData();
+
 				// Weight the difference between the old and the new value
 				Map<String, Double> factor = new HashMap<>();
-				if( type.getEps() == shiptype.getEps() ) { // Schiff ohne Module
-					factor.put("eps", ship.getEnergy() / (double) oldeps);
-				}
-				else {// Schiff mit Modulen
-					factor.put("eps", ship.getEnergy() / (double) type.getEps());
-				}
-				if( type.getHull() == shiptype.getHull() ) {
-					factor.put("hull", ship.getHull() / (double) oldhull);
-				}
-				else {
-					factor.put("hull", ship.getHull() / (double) type.getHull());
-				}
-				if( type.getCrew() == shiptype.getCrew() ) {
-					factor.put("crew", ship.getCrew() / (double) oldcrew);
-				}
-				else {
-					factor.put("crew", ship.getCrew() / (double) type.getCrew());
-				}
-				if( type.getShields() == shiptype.getShields() ) {
-					factor.put("shields", ship.getShields() / (double) oldshields);
-				}
-				else {
-					factor.put("shields", ship.getShields() / (double) type.getShields());
-				}
-				if( type.getAblativeArmor() == shiptype.getAblativeArmor() ) {
-					factor.put("ablativearmor", ship.getAblativeArmor() / (double) oldablativearmor);
-				}
-				else {
-					factor.put("ablativearmor", ship.getAblativeArmor() / (double) type.getAblativeArmor());
-				}
-				if( type.getNahrungCargo() == shiptype.getNahrungCargo() ) {
-					factor.put("nahrungcargo", ship.getNahrungCargo() / (double) oldnahrungcargo);
-				}
-				else {
-					factor.put("nahrungcargo", ship.getNahrungCargo() / (double) type.getNahrungCargo());
-				}
-				try
+				factor.put("eps", ship.getEnergy() / (double) (modules ? type.getEps() : oldeps));
+				factor.put("hull", ship.getHull() / (double) (modules ? type.getHull() : oldhull));
+				factor.put("crew", ship.getCrew() / (double) (modules ? type.getCrew() : oldcrew));
+				factor.put("shields", ship.getShields() / (double) (modules ? type.getShields() : oldshields));
+				factor.put("ablativearmor", ship.getAblativeArmor() / (double) (modules ? type.getAblativeArmor() : oldablativearmor));
+				factor.put("nahrungcargo", ship.getNahrungCargo() / (double) (modules ? type.getAblativeArmor() : oldnahrungcargo));
+
+				ship.recalculateModules();
+				type = ship.getTypeData();
+
+				ship.setEnergy((int)Math.floor(type.getEps() * factor.get("eps")));
+				ship.setHull((int)Math.floor(type.getHull() * factor.get("hull")));
+				ship.setCrew((int)Math.floor(type.getCrew() * factor.get("crew")));
+				ship.setShields((int)Math.floor(type.getShields() * factor.get("shields")));
+				ship.setAblativeArmor((int)Math.floor(type.getAblativeArmor() * factor.get("ablativearmor")));
+				ship.setNahrungCargo((long)Math.floor(type.getNahrungCargo() * factor.get("nahrungcargo")));
+
+				int fighterDocks = ship.getTypeData().getJDocks();
+				if (ship.getLandedCount() > fighterDocks)
 				{
-					ship.recalculateModules();
-					type = ship.getTypeData();
+					List<Ship> fighters = ship.getLandedShips();
+					long toStart = fighters.size() - fighterDocks;
+					int fighterCount = 0;
 
-					ship.setEnergy((int)Math.floor(type.getEps() * factor.get("eps")));
-					ship.setHull((int)Math.floor(type.getHull() * factor.get("hull")));
-					ship.setCrew((int)Math.floor(type.getCrew() * factor.get("crew")));
-					ship.setShields((int)Math.floor(type.getShields() * factor.get("shields")));
-					ship.setAblativeArmor((int)Math.floor(type.getAblativeArmor() * factor.get("ablativearmor")));
-					ship.setNahrungCargo((long)Math.floor(type.getNahrungCargo() * factor.get("nahrungcargo")));
-
-					int fighterDocks = ship.getTypeData().getJDocks();
-					if (ship.getLandedCount() > fighterDocks)
+					for (Iterator<Ship> iter2 = fighters.iterator(); iter2.hasNext() && fighterCount < toStart;)
 					{
-						List<Ship> fighters = ship.getLandedShips();
-						long toStart = fighters.size() - fighterDocks;
-						int fighterCount = 0;
+						Ship fighter = iter2.next();
 
-						for (Iterator<Ship> iter2 = fighters.iterator(); iter2.hasNext() && fighterCount < toStart;)
-						{
-							Ship fighter = iter2.next();
-
-							fighter.setDocked("");
-							fighterCount++;
-						}
+						fighter.setDocked("");
+						fighterCount++;
 					}
-
-					//Docked
-					int outerDocks = ship.getTypeData().getADocks();
-					if (ship.getDockedCount() > outerDocks)
-					{
-						List<Ship> outerDocked = ship.getDockedShips();
-						long toStart = outerDocked.size() - outerDocks;
-						int dockedCount = 0;
-
-						for (Iterator<?> iter2 = outerDocked.iterator(); iter2.hasNext() && dockedCount < toStart;)
-						{
-							Ship outer = (Ship) iter2.next();
-							outer.setDocked("");
-
-							dockedCount++;
-						}
-					}
-
-					if(ship.getId() >= 0)
-					{
-						ship.recalculateShipStatus();
-					}
-
 				}
-				catch(RuntimeException e)
+
+				//Docked
+				int outerDocks = ship.getTypeData().getADocks();
+				if (ship.getDockedCount() > outerDocks)
 				{
-					//Riskant, aber, dass nach einem Fehler alle anderen Schiffe nicht aktualisiert werden muss verhindert werden
-					log.error("Das Schiff mit der ID " + ship.getId() + " konnte nicht aktualisiert werden. Fehler: " + e.getMessage());
+					List<Ship> outerDocked = ship.getDockedShips();
+					long toStart = outerDocked.size() - outerDocks;
+					int dockedCount = 0;
+
+					for (Iterator<?> iter2 = outerDocked.iterator(); iter2.hasNext() && dockedCount < toStart;)
+					{
+						Ship outer = (Ship) iter2.next();
+						outer.setDocked("");
+
+						dockedCount++;
+					}
+				}
+
+				if(ship.getId() >= 0)
+				{
+					ship.recalculateShipStatus();
 				}
 			}
 		}.setFlushSize(10).executeFor(shipIds);
@@ -352,16 +312,10 @@ public class EditShiptypes extends AbstractEditPlugin<ShipType>
 				else {
 					factor.put("ablativearmor", battleShip.getAblativeArmor() / (double) type.getAblativeArmor());
 				}
-				try
-				{
-					battleShip.setShields((int)Math.floor(type.getShields() * factor.get("shields")));
-					battleShip.setHull((int)Math.floor(type.getHull() * factor.get("hull")));
-					battleShip.setAblativeArmor((int)Math.floor(type.getAblativeArmor() * factor.get("ablativearmor")));
-				}
-				catch(RuntimeException e)
-				{
-					log.error("Der Kampfeintrag zum Schiff mit der ID " + battleShip.getId() + " konnte nicht aktualisiert werden. Fehler: " + e.getMessage());
-				}
+
+				battleShip.setShields((int)Math.floor(type.getShields() * factor.get("shields")));
+				battleShip.setHull((int)Math.floor(type.getHull() * factor.get("hull")));
+				battleShip.setAblativeArmor((int)Math.floor(type.getAblativeArmor() * factor.get("ablativearmor")));
 			}
 		}.setFlushSize(10).executeFor(battleShipIds);
 	}

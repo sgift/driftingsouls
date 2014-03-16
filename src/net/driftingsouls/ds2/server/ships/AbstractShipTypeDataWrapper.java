@@ -159,7 +159,7 @@ public abstract class AbstractShipTypeDataWrapper implements ShipTypeData {
 	}
 
 	@Override
-	public int getOneWayWerft() {
+	public ShipType getOneWayWerft() {
 		return inner.getOneWayWerft();
 	}
 

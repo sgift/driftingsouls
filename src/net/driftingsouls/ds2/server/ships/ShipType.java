@@ -22,12 +22,15 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.ForeignKey;
 
 import java.math.BigInteger;
 
@@ -94,8 +97,10 @@ public class ShipType implements ShipTypeData {
 	private String flags;
 	private int groupwrap;
 	private int werft;
-	@Column(name="ow_werft", nullable = false)
-	private int oneWayWerft;
+	@ManyToOne
+	@JoinColumn(name="ow_werft")
+	@ForeignKey(name="ship_types_fk_ship_types")
+	private ShipType oneWayWerft;
 	private int chance4Loot;
 	@Lob
 	@Column(nullable = false)
@@ -242,7 +247,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	@Override
-	public int getOneWayWerft() {
+	public ShipType getOneWayWerft() {
 		return oneWayWerft;
 	}
 
@@ -557,10 +562,10 @@ public class ShipType implements ShipTypeData {
 
 	/**
 	 * Setzt das Gegenstueck beim Bau, falls es sich um eine Einwegwerft handelt.
-	 * Falls der Wert 0 ist handelt es sich nicht um eine Einwegwerft
+	 * Falls der Wert <code>null</code> ist handelt es sich nicht um eine Einwegwerft
 	 * @param oneWayWerft Der Schiffstyp
 	 */
-	public void setOneWayWerft(int oneWayWerft) {
+	public void setOneWayWerft(ShipType oneWayWerft) {
 		this.oneWayWerft = oneWayWerft;
 	}
 

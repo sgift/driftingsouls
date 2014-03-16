@@ -31,10 +31,12 @@ import java.util.Map.Entry;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.hibernate.Session;
 
 /**
  * Ein Changeset fuer Schiffstypendaten-Aenderungen, wie sie z.B. von
@@ -466,8 +468,13 @@ public class ShipTypeChangeset {
 	 * Gibt die Einweg-Werftdaten zurueck.
 	 * @return Die Einweg-Werftdaten
 	 */
-	public int getOneWayWerft() {
-		return oneWayWerft;
+	public ShipType getOneWayWerft() {
+		if( oneWayWerft == 0 )
+		{
+			return null;
+		}
+		Session db = ContextMap.getContext().getDB();
+		return (ShipType) db.get(ShipType.class, oneWayWerft);
 	}
 
 	/**
@@ -781,7 +788,7 @@ public class ShipTypeChangeset {
 		if ( getWerft() != 0) {
 			itemstring = itemstring + "werftslots," + getWerft() + "|";
 		}
-		if ( getOneWayWerft() != 0) {
+		if ( this.oneWayWerft != 0) {
 			itemstring = itemstring + "onewaywerft," + getOneWayWerft() + "|";
 		}
 		if ( getScanCost() != 0) {
@@ -1125,8 +1132,8 @@ public class ShipTypeChangeset {
 		}
 
 		@Override
-		public int getOneWayWerft() {
-			if( ShipTypeChangeset.this.getOneWayWerft() == 0 ) {
+		public ShipType getOneWayWerft() {
+			if( ShipTypeChangeset.this.getOneWayWerft() == null ) {
 				return inner.getOneWayWerft();
 			}
 			return ShipTypeChangeset.this.getOneWayWerft();

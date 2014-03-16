@@ -295,12 +295,16 @@
 		<h3>Aktionen</h3>
 		<table class="noBorderX" style="width:90%; margin-left:auto; margin-right:auto">
 		<tr>
+			{if werftgui.allowBuild}
 			<td class="noBorderX" style="text-align:center">
 				<a class="forschinfo" href="{werftgui.urlbase}&amp;show=build">Bau</a>
 			</td>
+			{/endif}
+			{if werftgui.allowRepair}
 			<td class="noBorderX" style="text-align:center">
 				<a class="forschinfo" href="{werftgui.urlbase}&amp;show=repair">Wartung</a>
 			</td>
+			{/endif}
 			<td class="noBorderX" style="text-align:center">
 				<a class="forschinfo" href="{werftgui.urlbase}&amp;show=queue">Bauschlange</a>
 			</td>
@@ -462,9 +466,11 @@
 									<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/spacer.png" alt="" />
 									<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/spacer.png" alt="" />
 								{/endif}
-								<a href="javascript:ask('Soll der Bau wirklich abgebrochen werden?','{werftgui.urlbase}&amp;werftact=canclebuild&entry={queueship.position}&amp;show=queue')">
-									<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/delete.gif" alt="Abbrechen" title="Abbrechen" />
-								</a>
+								{if queueship.cancelpossible}
+									<a href="javascript:ask('Soll der Bau wirklich abgebrochen werden?','{werftgui.urlbase}&amp;werftact=canclebuild&entry={queueship.position}&amp;show=queue')">
+										<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/delete.gif" alt="Abbrechen" title="Abbrechen" />
+									</a>
+								{/endif}
 							</td>
 							
 						</tr>		
