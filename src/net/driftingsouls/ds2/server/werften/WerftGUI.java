@@ -946,11 +946,13 @@ public class WerftGUI {
 
 		Cargo cargo = werft.getCargo(false);
 
-		ShipBaubar shipdata = werft.getShipBuildData( build, itemid ).getBaudaten();
-		if( (shipdata == null) ) {
+		SchiffBauinformationen shipBuildData = werft.getShipBuildData(build, itemid);
+		if( (shipBuildData == null) )
+		{
 			t.setVar("werftgui.msg", "<span style=\"color:red\">"+werft.getMessage()+"</span>");
 			return;
 		}
+		ShipBaubar shipdata = shipBuildData.getBaudaten();
 
 		ShipTypeData shiptype = shipdata.getType();
 
