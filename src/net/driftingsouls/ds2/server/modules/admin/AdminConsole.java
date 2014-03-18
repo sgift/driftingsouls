@@ -43,7 +43,6 @@ public class AdminConsole implements AdminPlugin {
 		Writer echo = context.getResponse().getWriter();
 		
 		String cmd = context.getRequest().getParameterString("cmd");
-		int cleanpage = context.getRequest().getParameterInt("cleanpage");
 		int responseOnly = context.getRequest().getParameterInt("responseOnly");
 
 		if( responseOnly == 1 ) {
@@ -61,7 +60,7 @@ public class AdminConsole implements AdminPlugin {
 			return;
 		}
 		
-		if( (cmd.length() > 0) && (cleanpage == 0) ) {
+		if( cmd.length() > 0 ) {
 			echo.append("<div class='gfxbox' style='width:440px'>");
 			echo.append("<table class=\"noBorderX\">\n");
 			echo.append("<tr>\n");
@@ -73,34 +72,17 @@ public class AdminConsole implements AdminPlugin {
 			echo.append("</div>");
 			echo.append("<br /><br />\n");
 		}
-		if( cleanpage == 0 ) {
-			echo.append("<table class=\"noBorderS\">\n");
-			echo.append("<tr>\n");
-			echo.append("<td class=\"noBorderS\">\n");
-		}
-		
+		echo.append("<table class=\"noBorderS\">\n");
+		echo.append("<tr>\n");
+		echo.append("<td class=\"noBorderS\">\n");
+
 		echo.append("<form action=\"./ds\" method=\"post\">\n");
 		echo.append("Command: <input type=\"text\" name=\"cmd\" value=\""+cmd+"\" size=\"60\" />\n");
 		echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
 		echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-		if( cleanpage != 0 ) {
-			echo.append("<input type=\"hidden\" name=\"cleanpage\" value=\"1\" />\n");	
-		}
 		echo.append("<input type=\"submit\" value=\"ausf&uuml;hren\" />\n");
 		echo.append("</form>\n");
-		
-		if( (cmd.length() > 0) && (cleanpage != 0) ) {
-			echo.append("</td>\n");
-			echo.append("<td class=\"noBorderX\" style=\"width:20px;text-align:center\">\n");
-			echo.append("-\n");
-			echo.append("</td>\n");
-			echo.append("<td class=\"noBorderX\">\n");
-			echo.append(StringUtils.replace( new AdminCommands().executeCommand(cmd).message, "\n", "<br />" ));
-			echo.append("</td>\n");
-			echo.append("</tr>\n");
-			echo.append("</table>\n");
-		}
 	}
 
 }
