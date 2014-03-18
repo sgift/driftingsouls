@@ -1,4 +1,4 @@
-package net.driftingsouls.ds2.server.modules.admin;
+package net.driftingsouls.ds2.server.modules.admin.editoren;
 
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.entities.User;
@@ -7,14 +7,17 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.modules.AdminController;
+import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 import org.hibernate.Session;
 
 import javax.persistence.Entity;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.Writer;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -25,11 +28,13 @@ import java.util.List;
  */
 public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 {
-	private Class<T> clazz;
+	private Class<? extends T> clazz;
+	private Class<T> baseClass;
 
 	protected AbstractEditPlugin8(Class<T> clazz)
 	{
 		this.clazz = clazz;
+		this.baseClass = clazz;
 	}
 
 	@Override
@@ -43,6 +48,9 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		Request request = context.getRequest();
 		int entityId = request.getParameterInt("entityId");
 
+		EditorForm8<T> form = new EditorForm8<>(EditorMode.UPDATE, action, page, echo);
+		configureFor(form);
+
 		if (this.isUpdateExecuted())
 		{
 			try
@@ -50,15 +58,29 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 				@SuppressWarnings("unchecked") T entity = (T) db.get(this.clazz, entityId);
 				if (isUpdatePossible(entity))
 				{
-					EditorForm8 form = new EditorForm8(action, page, echo);
-					configureFor(form, entity);
-					form.applyRequestValues(request);
+					form.applyRequestValues(request, entity);
 					echo.append("<p>Update abgeschlossen.</p>");
 				}
 			}
 			catch (IOException | RuntimeException e)
 			{
 				echo.append("<p>Fehler bei Update: ").append(e.getMessage());
+			}
+		}
+		else if (this.isAddExecuted())
+		{
+			try
+			{
+				T entity = createEntity();
+				form = new EditorForm8<>(EditorMode.CREATE, action, page, echo);
+				configureFor(form);
+				form.applyRequestValues(request, entity);
+				db.persist(entity);
+				echo.append("<p>Hinzufügen abgeschlossen.</p>");
+			}
+			catch (IOException | RuntimeException e)
+			{
+				echo.append("<p>Fehler bei Update: ").append(e.getMessage()).append("</p>");
 			}
 		}
 		else if (this.isResetExecuted())
@@ -71,18 +93,21 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 			}
 			catch (IOException | RuntimeException e)
 			{
-				echo.append("<p>Fehler bei Reset: ").append(e.getMessage());
+				echo.append("<p>Fehler bei Reset: ").append(e.getMessage()).append("</p>");
 			}
 		}
 
 		List<Building> entities = Common.cast(db.createCriteria(clazz).list());
 
+		echo.append("<div class='gfxbox adminSelection' style='width:390px'>");
 		beginSelectionBox(echo, page, action);
 		for (Object entity : entities)
 		{
 			addSelectionOption(echo, db.getIdentifier(entity), generateLabelFor(null, entity));
 		}
 		endSelectionBox(echo);
+		addForm(echo, page, action);
+		echo.append("</div>");
 
 		if (entityId != 0)
 		{
@@ -92,9 +117,56 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 				return;
 			}
 
-			EditorForm8 form = beginEditorTable(echo, page, action, entityId);
-			configureFor(form, entity);
-			form.generateForm();
+			beginEditorTable(echo, page, action, entityId);
+			form.generateForm(entity);
+		}
+		else if( isAddDisplayed() )
+		{
+			T entity = createEntity();
+			form = new EditorForm8<>(EditorMode.CREATE, action, page, echo);
+			configureFor(form);
+			beginEditorTable(echo, page, action, -1);
+			form.generateForm(entity);
+		}
+	}
+
+	protected void setEntityClass(String name)
+	{
+		try
+		{
+			this.clazz = Class.forName(name).asSubclass(this.baseClass);
+		}
+		catch (ClassNotFoundException e)
+		{
+			throw new IllegalArgumentException("Unbekannte Klasse "+name);
+		}
+	}
+
+	protected void setEntityClass(Class<? extends T> clazz)
+	{
+		this.clazz = clazz;
+	}
+
+	protected String getEntityClass()
+	{
+		return this.clazz.getName();
+	}
+
+	private T createEntity()
+	{
+		try
+		{
+			Constructor<? extends T> constructor = this.clazz.getConstructor();
+			constructor.setAccessible(true);
+			return constructor.newInstance();
+		}
+		catch (NoSuchMethodException e)
+		{
+			throw new AssertionError("Kein default-Konstruktor vorhanden");
+		}
+		catch (InvocationTargetException | InstantiationException | IllegalAccessException e)
+		{
+			throw new IllegalStateException("Konnte Entity nicht instantiieren");
 		}
 	}
 
@@ -134,9 +206,10 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 
 	protected void reset(StatusWriter writer, T entity) throws IOException
 	{
+		// TODO
 	}
 
-	protected abstract void configureFor(EditorForm8 form, T entity);
+	protected abstract void configureFor(EditorForm8<T> form);
 
 	protected boolean isUpdatePossible(T entity)
 	{
@@ -146,7 +219,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 	protected static String generateLabelFor(Serializable identifier, Object entity)
 	{
 		Context context = ContextMap.getContext();
-		Session db = context.getDB();
+		org.hibernate.Session db = context.getDB();
 
 		if (identifier == null && entity.getClass().isAnnotationPresent(Entity.class))
 		{
@@ -160,23 +233,24 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 
 		Class<?> type = entity.getClass();
 
-		Method labelMethod;
-		try
-		{
-			labelMethod = type.getMethod("getName");
-		}
-		catch (NoSuchMethodException e)
+		Method labelMethod = null;
+		for (String m : Arrays.asList("getName", "getNickname", "toString"))
 		{
 			try
 			{
-				labelMethod = type.getMethod("toString");
+				labelMethod = type.getMethod(m);
+				break;
 			}
-			catch (NoSuchMethodException e1)
+			catch (NoSuchMethodException e)
 			{
-				throw new AssertionError("No toString");
+				// Ignore
 			}
 		}
 
+		if( labelMethod == null )
+		{
+			throw new AssertionError("No toString");
+		}
 
 		try
 		{
@@ -190,7 +264,6 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 
 	private void beginSelectionBox(Writer echo, String page, int action) throws IOException
 	{
-		echo.append("<div class='gfxbox adminSelection' style='width:390px'>");
 		echo.append("<form action=\"./ds\" method=\"post\">");
 		echo.append("<input type=\"hidden\" name=\"page\" value=\"").append(page).append("\" />\n");
 		echo.append("<input type=\"hidden\" name=\"act\" value=\"").append(Integer.toString(action)).append("\" />\n");
@@ -212,10 +285,19 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		echo.append("</select>");
 		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
 		echo.append("</form>");
-		echo.append("</div>");
 	}
 
-	private EditorForm8 beginEditorTable(final Writer echo, String page, int action, Object entityId) throws IOException
+	private void addForm(Writer echo, String page, int action) throws IOException
+	{
+		echo.append("<form action=\"./ds\" method=\"post\">");
+		echo.append("<input type=\"hidden\" name=\"page\" value=\"").append(page).append("\" />\n");
+		echo.append("<input type=\"hidden\" name=\"act\" value=\"").append(Integer.toString(action)).append("\" />\n");
+		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
+		echo.append("<input type=\"submit\" name=\"add\" value=\"+\" />");
+		echo.append("</form>");
+	}
+
+	private void beginEditorTable(final Writer echo, String page, int action, Object entityId) throws IOException
 	{
 		echo.append("<div class='gfxbox adminEditor' style='width:700px'>");
 		echo.append("<form action=\"./ds\" method=\"post\" enctype='multipart/form-data'>");
@@ -225,8 +307,6 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		echo.append("<input type=\"hidden\" name=\"entityId\" value=\"").append(entityId != null ? entityId.toString() : "").append("\" />\n");
 
 		echo.append("<table width=\"100%\">");
-
-		return new EditorForm8(action, page, echo);
 	}
 
 	protected final boolean isResetted(String name)
@@ -248,5 +328,19 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		Context context = ContextMap.getContext();
 		String change = context.getRequest().getParameterString("change");
 		return "Aktualisieren".equals(change);
+	}
+
+	private boolean isAddExecuted()
+	{
+		Context context = ContextMap.getContext();
+		String change = context.getRequest().getParameterString("change");
+		return "Hinzufügen".equals(change);
+	}
+
+	private boolean isAddDisplayed()
+	{
+		Context context = ContextMap.getContext();
+		String change = context.getRequest().getParameterString("add");
+		return !change.trim().isEmpty();
 	}
 }

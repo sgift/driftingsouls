@@ -1,4 +1,4 @@
-package net.driftingsouls.ds2.server.modules.admin;
+package net.driftingsouls.ds2.server.modules.admin.editoren;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.framework.*;
@@ -8,24 +8,29 @@ import org.apache.commons.fileupload.FileItem;
 import javax.persistence.Entity;
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
  * Klasse zum Erstellen eines Eingabeformulars.
  */
-class EditorForm8
+public class EditorForm8<V>
 {
+	private final EditorMode modus;
 	private Writer echo;
 	private int action;
 	private String page;
-	private List<CustomFieldGenerator> fields = new ArrayList<>();
+	private List<CustomFieldGenerator<V>> fields = new ArrayList<>();
 	private int counter;
 
-	public EditorForm8(int action, String page, Writer echo)
+	public EditorForm8(EditorMode modus, int action, String page, Writer echo)
 	{
+		this.modus = modus;
 		this.echo = echo;
 		this.action = action;
 		this.page = page;
@@ -36,16 +41,24 @@ class EditorForm8
 	 * Standardinterface fuer Feldgeneratoren. Jede Instanz generiert genau
 	 * ein Feld fuer ein konkretes Form.
 	 */
-	public static interface CustomFieldGenerator
+	public static interface CustomFieldGenerator<V>
 	{
 		/**
 		 * Generiert den HTML-Code fuer das Eingabefeld.
 		 * @param echo Der Writer in den der HTML-Code geschrieben werden soll
+		 * @param entity Die Entity-Instanz zu der das Feld generiert werden soll
 		 * @throws java.io.IOException Bei I/O-Fehlern
 		 */
-		public void generate(Writer echo) throws IOException;
+		public void generate(Writer echo, V entity) throws IOException;
 
-        public void applyRequestValues(Request request) throws IOException;
+		/**
+		 * Liesst die Angaben zum Feld aus der Request und speichert sie an der
+		 * angebenen Entity.
+		 * @param request Die Request
+		 * @param entity Die Entity
+		 * @throws IOException Bei IO-Fehlern
+		 */
+        public void applyRequestValues(Request request, V entity) throws IOException;
     }
 
 	/**
@@ -54,21 +67,21 @@ class EditorForm8
 	 * @param <T> Der Typ des Generators
 	 * @return Der Generator
 	 */
-	public <T extends CustomFieldGenerator> T custom(T generator)
+	public <T extends CustomFieldGenerator<V>> T custom(T generator)
 	{
 		fields.add(generator);
 		return generator;
 	}
 
-	public class DynamicContentFieldGenerator implements CustomFieldGenerator
+	public class DynamicContentFieldGenerator<V> implements CustomFieldGenerator<V>
 	{
 		private String label;
 		private String name;
-		private Supplier<String> getter;
-		private Consumer<String> setter;
+		private Function<V,String> getter;
+		private BiConsumer<V,String> setter;
 		private boolean withRemove;
 
-		public DynamicContentFieldGenerator(String label, String name, Supplier<String> getter, Consumer<String> setter)
+		public DynamicContentFieldGenerator(String label, String name, Function<V,String> getter, BiConsumer<V,String> setter)
 		{
 			this.label = label;
 			this.name = name;
@@ -78,11 +91,11 @@ class EditorForm8
 		}
 
 		@Override
-		public void generate(Writer echo) throws IOException
+		public void generate(Writer echo, V entity) throws IOException
 		{
 			echo.append("<tr class='dynamicContentEdit'>");
 
-			writeCommonDynamicContentPart(label, name, getter.get());
+			writeCommonDynamicContentPart(label, name, getter.apply(entity));
 
 			if( withRemove )
 			{
@@ -144,13 +157,13 @@ class EditorForm8
 		}
 
         @Override
-        public void applyRequestValues(Request request) throws IOException
+        public void applyRequestValues(Request request, V entity) throws IOException
         {
-			String img = processDynamicContent(request, this.name, getter.get());
-            setter.accept(img);
+			String img = processDynamicContent(request, this.name, getter.apply(entity));
+            setter.accept(entity,img);
         }
 
-        public DynamicContentFieldGenerator withRemove()
+        public DynamicContentFieldGenerator<V> withRemove()
 		{
 			this.withRemove = true;
 			return this;
@@ -188,32 +201,32 @@ class EditorForm8
 	 * @param getter Der getter für das Feld
 	 * @return Der erzeugte Generator
 	 */
-	public DynamicContentFieldGenerator dynamicContentField(String label, Supplier<String> getter, Consumer<String> setter)
+	public DynamicContentFieldGenerator<V> dynamicContentField(String label, Function<V,String> getter, BiConsumer<V,String> setter)
 	{
-		return custom(new DynamicContentFieldGenerator(label, generateName(getter.getClass().getSimpleName()), getter, setter));
+		return custom(new DynamicContentFieldGenerator<V>(label, generateName(getter.getClass().getSimpleName()), getter, setter));
 	}
 
-	public class LabelGenerator<T> implements CustomFieldGenerator
+	public class LabelGenerator<V,T> implements CustomFieldGenerator<V>
 	{
 		private final String label;
-		private final Supplier<T> getter;
+		private final Function<V,T> getter;
 
-		public LabelGenerator(String label, Supplier<T> getter)
+		public LabelGenerator(String label, Function<V,T> getter)
 		{
 			this.label = label;
 			this.getter = getter;
 		}
 
 		@Override
-		public void generate(Writer echo) throws IOException
+		public void generate(Writer echo, V entity) throws IOException
 		{
-			T value = getter.get();
+			T value = getter.apply(entity);
 			echo.append("<tr>");
 			echo.append("<td colspan='2'>").append(label.trim().isEmpty() ? "" : label + ":").append("</td>").append("<td>").append(value != null ? value.toString() : "").append("</td></tr>\n");
 		}
 
         @Override
-        public void applyRequestValues(Request request)
+        public void applyRequestValues(Request request, V entity)
         {
         }
     }
@@ -223,19 +236,19 @@ class EditorForm8
 	 * @param label Der Label zum Wert
 	 * @param getter Der getter des Werts
 	 */
-	public <T> LabelGenerator label(String label, Supplier<T> getter)
+	public <T> LabelGenerator<V,T> label(String label, Function<V,T> getter)
 	{
-		return custom(new LabelGenerator<T>(label, getter));
+		return custom(new LabelGenerator<V,T>(label, getter));
 	}
 
-	public class TextAreaGenerator implements CustomFieldGenerator
+	public class TextAreaGenerator<V> implements CustomFieldGenerator<V>
 	{
 		private final String label;
 		private final String name;
-		private final Supplier<String> getter;
-		private final Consumer<String> setter;
+		private final Function<V,String> getter;
+		private final BiConsumer<V,String> setter;
 
-		public TextAreaGenerator(String label, String name, Supplier<String> getter, Consumer<String> setter)
+		public TextAreaGenerator(String label, String name, Function<V,String> getter, BiConsumer<V,String> setter)
 		{
 			this.label = label;
 			this.name = name;
@@ -244,9 +257,9 @@ class EditorForm8
 		}
 
 		@Override
-		public void generate(Writer echo) throws IOException
+		public void generate(Writer echo, V entity) throws IOException
 		{
-			String value = getter.get();
+			String value = getter.apply(entity);
 			echo.append("<tr>");
 			echo.append("<td colspan='2'>").append(label.trim().isEmpty() ? "" : label + ":").append("</td>");
 			echo.append("<td>");
@@ -255,10 +268,10 @@ class EditorForm8
 		}
 
         @Override
-        public void applyRequestValues(Request request)
+        public void applyRequestValues(Request request, V entity)
         {
 			String value = request.getParameterString(this.name);
-			setter.accept(value);
+			setter.accept(entity,value);
         }
     }
 
@@ -268,23 +281,23 @@ class EditorForm8
 	 * @param getter Der Getter fuer den momentanen Wert
 	 * @param setter Der Setter fuer den momentanen Wert
 	 */
-	public TextAreaGenerator textArea(String label, Supplier<String> getter, Consumer<String> setter)
+	public TextAreaGenerator<V> textArea(String label, Function<V,String> getter, BiConsumer<V,String> setter)
 	{
-		return custom(new TextAreaGenerator(label, generateName(getter.getClass().getSimpleName()), getter, setter));
+		return custom(new TextAreaGenerator<V>(label, generateName(getter.getClass().getSimpleName()), getter, setter));
 	}
 
-	public class FieldGenerator<T> implements CustomFieldGenerator
+	public class FieldGenerator<V,T> implements CustomFieldGenerator<V>
 	{
 		private final String label;
 		private final String name;
 		private final Class<?> viewType;
 		private final Class<T> dataType;
-		private final Supplier<T> getter;
-        private final Consumer<T> setter;
+		private final Function<V,T> getter;
+        private final BiConsumer<V,T> setter;
 		private final Map<Serializable,Object> selectionOptions = new LinkedHashMap<>();
 		private boolean readOnly;
 
-		public FieldGenerator(String label, String name, Class<?> viewType, Class<T> dataType, Supplier<T> getter, Consumer<T> setter)
+		public FieldGenerator(String label, String name, Class<?> viewType, Class<T> dataType, Function<V,T> getter, BiConsumer<V,T> setter)
 		{
 			this.label = label;
 			this.name = name;
@@ -299,23 +312,29 @@ class EditorForm8
 			}
 		}
 
-		public FieldGenerator withOptions(Map<? extends Serializable, ?> options)
+		public FieldGenerator<V,T> withOptions(Map<? extends Serializable, ?> options)
 		{
 			this.selectionOptions.clear();
 			this.selectionOptions.putAll(options);
 			return this;
 		}
 
-		public FieldGenerator readOnly(boolean readOnly)
+		public FieldGenerator<V,T> withNullOption(String label)
+		{
+			this.selectionOptions.put(null, label);
+			return this;
+		}
+
+		public FieldGenerator<V,T> readOnly(boolean readOnly)
 		{
 			this.readOnly = readOnly;
 			return this;
 		}
 
 		@Override
-		public void generate(Writer echo) throws IOException
+		public void generate(Writer echo, V entity) throws IOException
 		{
-            T value = getter.get();
+            T value = getter.apply(entity);
 
 			echo.append("<tr>");
 			echo.append("<td colspan='2'>").append(label.trim().isEmpty() ? "" : label + ":").append("</td>");
@@ -348,7 +367,7 @@ class EditorForm8
 
         @SuppressWarnings("unchecked")
 		@Override
-        public void applyRequestValues(Request request)
+        public void applyRequestValues(Request request, V entity)
         {
 			if( this.readOnly )
 			{
@@ -363,23 +382,23 @@ class EditorForm8
 			}
 			if( Integer.class.isAssignableFrom(type) )
 			{
-				setter.accept((T)Integer.valueOf(val));
+				setter.accept(entity, (T)Integer.valueOf(val));
 			}
 			else if( Double.class.isAssignableFrom(type) )
 			{
-				setter.accept((T)Double.valueOf(val));
+				setter.accept(entity, (T)Double.valueOf(val));
 			}
 			else if( String.class.isAssignableFrom(type) )
 			{
-				setter.accept((T)val);
+				setter.accept(entity, (T)val);
 			}
 			else if( Cargo.class.isAssignableFrom(type) )
 			{
-				setter.accept((T)new Cargo(Cargo.Type.ITEMSTRING, val));
+				setter.accept(entity, (T)new Cargo(Cargo.Type.ITEMSTRING, val));
 			}
 			else if( Boolean.class.isAssignableFrom(type) )
 			{
-				setter.accept((T)Boolean.valueOf(val));
+				setter.accept(entity, (T)Boolean.valueOf(val));
 			}
 			else
 			{
@@ -416,10 +435,25 @@ class EditorForm8
 				selected = (Serializable) value;
 			}
 
+			boolean containsIdentifier = this.selectionOptions.containsKey(selected);
+
 			for (Map.Entry<Serializable, Object> entry : this.selectionOptions.entrySet())
 			{
 				Serializable identifier = entry.getKey();
-				echo.append("<option value=\"").append(identifier.toString()).append("\" ").append(identifier.equals(selected) ? "selected=\"selected\"" : "").append(">").append(AbstractEditPlugin.generateLabelFor(identifier, entry.getValue())).append("</option>");
+				echo.append("<option value=\"").append(identifier != null ? identifier.toString() : "").append("\" ");
+				if( (identifier == null && !containsIdentifier) || (containsIdentifier && identifier != null && identifier.equals(selected)) ) {
+					echo.append("selected=\"selected\"");
+				}
+				String label;
+				if( entry.getValue() instanceof String )
+				{
+					label = (String)entry.getValue();
+				}
+				else
+				{
+					label = AbstractEditPlugin8.generateLabelFor(identifier, entry.getValue());
+				}
+				echo.append(">").append(label).append("</option>");
 			}
 
 			echo.append("</select>");
@@ -435,9 +469,9 @@ class EditorForm8
 	 * @param getter Der getter fuer den momentanen Wert
      * @param setter Der setter fuer den momentanen Wert
 	 */
-	public <T> FieldGenerator field(String label, Class<?> viewType, Class<T> dataType, Supplier<T> getter, Consumer<T> setter)
+	public <T> FieldGenerator<V,T> field(String label, Class<?> viewType, Class<T> dataType, Function<V,T> getter, BiConsumer<V,T> setter)
 	{
-		return custom(new FieldGenerator<T>(label, generateName(getter.getClass().getSimpleName()), viewType, dataType, getter, setter));
+		return custom(new FieldGenerator<V,T>(label, generateName(getter.getClass().getSimpleName()), viewType, dataType, getter, setter));
 	}
 
 	/**
@@ -448,7 +482,7 @@ class EditorForm8
 	 * @param getter Der getter fuer den momentanen Wert
 	 * @param setter Der setter fuer den momentanen Wert
 	 */
-	public <T> FieldGenerator field(String label, Class<T> type, Supplier<T> getter, Consumer<T> setter)
+	public <T> FieldGenerator<V,T> field(String label, Class<T> type, Function<V,T> getter, BiConsumer<V,T> setter)
 	{
 		return field(label, type, type, getter, setter);
 	}
@@ -458,16 +492,17 @@ class EditorForm8
 		return "field"+(counter++)+"_"+suffix.replace('/', '_').replace('$', '_');
 	}
 
-	public void generateForm()
+	public void generateForm(V entity)
 	{
 		try
 		{
-			for (CustomFieldGenerator field : fields)
+			for (CustomFieldGenerator<V> field : fields)
 			{
-				field.generate(echo);
+				field.generate(echo, entity);
 			}
 
-			echo.append("<tr><td colspan='2'></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
+			String label = modus == EditorMode.UPDATE ? "Aktualisieren" : "Hinzufügen";
+			echo.append("<tr><td colspan='2'></td><td><input type=\"submit\" name=\"change\" value=\"").append(label).append("\"></td></tr>\n");
 			echo.append("</table>");
 			echo.append("</form>\n");
 			echo.append("</div>");
@@ -478,11 +513,29 @@ class EditorForm8
 		}
 	}
     
-    public void applyRequestValues(Request request) throws IOException
+    public void applyRequestValues(Request request, V entity) throws IOException
 	{
-        for (CustomFieldGenerator field : fields)
+        for (CustomFieldGenerator<V> field : fields)
         {
-            field.applyRequestValues(request);
+            field.applyRequestValues(request, entity);
         }
     }
+
+	public EditorForm8<V> ifAdding()
+	{
+		if( modus == EditorMode.CREATE )
+		{
+			return this;
+		}
+		return new EditorForm8<>(EditorMode.CREATE, action, page, new StringWriter());
+	}
+
+	public EditorForm8<V> ifUpdating()
+	{
+		if( modus == EditorMode.UPDATE )
+		{
+			return this;
+		}
+		return new EditorForm8<>(EditorMode.UPDATE, action, page, new StringWriter());
+	}
 }
