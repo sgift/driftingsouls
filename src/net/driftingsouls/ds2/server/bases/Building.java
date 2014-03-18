@@ -30,13 +30,13 @@ import net.driftingsouls.ds2.server.modules.viewmodels.ResourceEntryViewModel;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.DiscriminatorFormula;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.DiscriminatorColumn;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -60,7 +60,7 @@ import java.util.Map;
 @Entity
 @Table(name = "buildings")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorFormula("module")
+@DiscriminatorColumn(name = "module")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public abstract class Building
 {
@@ -86,9 +86,6 @@ public abstract class Building
 
 	@Id @GeneratedValue
 	private int id;
-	@SuppressWarnings("unused")
-	@Column(nullable = false)
-	private String module;
 	private int bewohner;
 	private int arbeiter;
 	@Column(nullable = false)
@@ -135,6 +132,9 @@ public abstract class Building
 	public Building()
 	{
 		this.alternativeBilder = new HashMap<>();
+		this.buildCosts = new Cargo();
+		this.produces = new Cargo();
+		this.consumes = new Cargo();
 	}
 
 	/**
