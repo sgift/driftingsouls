@@ -189,7 +189,7 @@ public class AdminController extends Controller
 	public void defaultAction(int act, String page, String namedplugin) throws IOException
 	{
 		Writer echo = getContext().getResponse().getWriter();
-
+		echo.append("<div id='admin'>\n");
 		echo.append("<div class='gfxbox' style='width:900px;text-align:center;margin:0px auto'>\n");
 		echo.append("<ui class='menu'>");
 		for (MenuEntry entry : this.menu.values())
@@ -232,6 +232,7 @@ public class AdminController extends Controller
 		}
 
 		echo.append("</td></tr></table>");
+		echo.append("</div>");
 	}
 
 	private void callNamedPlugin(String namedplugin)

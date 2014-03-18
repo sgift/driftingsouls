@@ -1,0 +1,42 @@
+#admin .adminSelection form {
+    display:inline;
+}
+
+#admin .adminSelection select {
+    width:80%;
+}
+
+#admin .adminEditor table {
+    min-width:50%;
+    border-spacing: 5px;
+}
+
+#admin .adminEditor input[type=text],
+#admin .adminEditor select {
+    width:100%
+}
+
+#admin .adminEditor .dynamicContentEdit td {
+    vertical-align: top;
+}
+#admin .adminEditor .dynamicContentEdit table {
+    width:100%;
+    margin-bottom:15px;
+    background-color:#222222;
+    background: -webkit-linear-gradient(top left, #333333, rgba(0,0,0,0));
+    background: linear-gradient(bottom right, #333333, rgba(0,0,0,0));
+    font-size:12px;
+    border-spacing:4px;
+}
+#admin .adminEditor .dynamicContentEdit a {
+    color:red;
+    margin-left:5px;
+}
+#admin .adminEditor .dynamicContentEdit img {
+    max-width:200px;
+}
+#admin .adminEditor .dynamicContentEdit input,
+#admin .adminEditor .dynamicContentEdit select,
+#admin .adminEditor .dynamicContentEdit textarea{
+    width:100%;
+}

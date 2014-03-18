@@ -306,7 +306,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 		echo.append("<input type=\"hidden\" name=\"entityId\" value=\"").append(entityId != null ? entityId.toString() : "").append("\" />\n");
 
-		echo.append("<table width=\"100%\">");
+		echo.append("<table>");
 	}
 
 	protected final boolean isResetted(String name)
