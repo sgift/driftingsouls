@@ -1,3 +1,3 @@
 create index questid on quests_running (questid, userid);
-ALTER TABLE quests_running ADD CONSTRAINT quests_running_fk_users FOREIGN KEY (userid) REFERENCES users(id);
-ALTER TABLE quests_running ADD CONSTRAINT quests_running_fk_quests FOREIGN KEY (questid) REFERENCES quests(id);
+alter table quests_running add index quests_running_fk_quests (questid), add constraint quests_running_fk_quests foreign key (questid) references quests (id);
+alter table quests_running add index quests_running_fk_users (userid), add constraint quests_running_fk_users foreign key (userid) references users (id);

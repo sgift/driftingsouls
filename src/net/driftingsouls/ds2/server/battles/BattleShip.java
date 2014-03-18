@@ -42,6 +42,7 @@ import net.driftingsouls.ds2.server.units.UnitCargo;
 import org.hibernate.Session;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.ForeignKey;
 
 /**
  * Repraesentiert ein Schiff in einer Schlacht.
@@ -53,12 +54,17 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 public class BattleShip {
 	@Id
+	@ForeignKey(name="battles_ships_fk_ships")
 	private int shipid;
-	@OneToOne(fetch=FetchType.LAZY)
+
 	@PrimaryKeyJoinColumn
+	@OneToOne(fetch=FetchType.LAZY, optional = false)
+	@JoinColumn(name="shipid", nullable = false)
+	@ForeignKey(name="battles_ships_fk_ships")
 	private Ship ship;
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="battleid", nullable=false)
+	@ForeignKey(name="battles_ships_fk_battles")
 	private Battle battle;
 	private int side;
 	private int hull;

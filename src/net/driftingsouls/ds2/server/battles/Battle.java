@@ -77,6 +77,7 @@ import org.hibernate.ScrollableResults;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.OptimisticLockType;
 import org.hibernate.annotations.OptimisticLocking;
@@ -173,9 +174,11 @@ public class Battle implements Locatable
 	private int ally2;
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="commander1", nullable=false)
+	@ForeignKey(name="battles_fk_users1")
 	private User commander1;
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="commander2", nullable=false)
+	@ForeignKey(name="battles_fk_users2")
 	private User commander2;
 	private boolean ready1;
 	private boolean ready2;

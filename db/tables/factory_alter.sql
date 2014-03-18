@@ -1,2 +1,1 @@
-ALTER TABLE factory ADD UNIQUE col_buildingid_idx (col, buildingid);
-ALTER TABLE factory ADD CONSTRAINT factory_fk_bases FOREIGN KEY (col) REFERENCES bases(id);
+alter table factory add index factory_fk_bases (col), add constraint factory_fk_bases foreign key (col) references bases (id);

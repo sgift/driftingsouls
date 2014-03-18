@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.entities.ally;
 
+import org.hibernate.annotations.ForeignKey;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -45,6 +47,7 @@ public class AllyRangDescriptor implements Comparable<AllyRangDescriptor>
 	
 	@ManyToOne(cascade={}, optional = false)
 	@JoinColumn
+	@ForeignKey(name = "ally_rangdescriptors_fk_ally")
 	private Ally ally;
 	
 	private int rang;

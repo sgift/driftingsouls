@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.map;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.driftingsouls.ds2.server.Location;
@@ -118,70 +119,25 @@ public class PublicStarmap
 	}
 
 	/**
-	 * Die Beschreibung einer fuer einen Sektor zu verwendenden Grafik.
-	 * Die Grafik besteht aus einem Pfad sowie einem fuer die Darstellung
-	 * anzuwendenden Offset.
-	 */
-	public static class SectorImage
-	{
-		private final String image;
-		private final int x;
-		private final int y;
-
-		SectorImage(String image, int x, int y)
-		{
-			this.image = image;
-			this.x = x;
-			this.y = y;
-		}
-
-		/**
-		 * Gibt den Pfad zur Grafik zurueck.
-		 * @return Der Pfad
-		 */
-		public String getImage()
-		{
-			return image;
-		}
-
-		/**
-		 * Gibt den x-Offset in Sektoren der Grafik fuer die Darstellung zurueck (vgl. CSS-Sprites).
-		 * @return Der x-Offset in Sektoren
-		 */
-		public int getX()
-		{
-			return x;
-		}
-
-		/**
-		 * Gibt den y-Offset in Sektoren der Grafik fuer die Darstellung zurueck (vgl. CSS-Sprites).
-		 * @return Der y-Offset in Sektoren
-		 */
-		public int getY()
-		{
-			return y;
-		}
-	}
-
-	/**
-	 * Gibt das Basisbild des Sektors zurueck. Das Bild enthaelt
-	 * keine Flottenmarkierungen.
+	 * Gibt alle fuer den Sektor notwendigen Renderoperationen zurueck. Die Operationen
+	 * sind in der Reinfolge abzuarbeiten um den Sektor korrekt darzustellen. Die Renderoperationen
+	 * enthalten keine benutzerspezifischen Markierungen/Darstellungen
 	 * @param location Der Sektor
-	 * @return Das Bild als String ohne den Pfad zum Data-Verzeichnis.
+	 * @return Die Renderanweisungen
 	 */
-	public SectorImage getSectorBaseImage(Location location)
+	public List<RenderedSectorImage> getSectorBaseImage(Location location)
 	{
-		if(isNebel(location))
-		{
-			return new SectorImage(map.getNebulaMap().get(location).getImage()+".png", 0, 0);
-		}
+		List<RenderedSectorImage> renderList = new ArrayList<>();
+		renderList.add(new RenderedSectorImage("space/space.png", 0, 0, RenderedSectorImage.DEFAULT_MASK));
+
 		List<Base> positionBases = map.getBaseMap().get(location);
 		if(positionBases != null && !positionBases.isEmpty())
 		{
 			Base base = positionBases.get(0);
 			int[] offset = base.getBaseImageOffset(location);
-			return new SectorImage(base.getBaseImage(location)+".png", offset[0], offset[1]);
+			renderList.add(new RenderedSectorImage(base.getBaseImage(location)+".png", offset[0], offset[1], RenderedSectorImage.DEFAULT_MASK));
 		}
+
 		List<JumpNode> positionNodes = map.getNodeMap().get(location);
 		if(positionNodes != null && !positionNodes.isEmpty())
 		{
@@ -189,16 +145,27 @@ public class PublicStarmap
 			{
 				if(!node.isHidden())
 				{
-					return new SectorImage("jumpnode/jumpnode.png", 0, 0);
+					renderList.add(new RenderedSectorImage("jumpnode/jumpnode.png", 0, 0, RenderedSectorImage.DEFAULT_MASK));
 				}
 			}
 		}
-		return new SectorImage("space/space.png", 0, 0);
-	}
-	
-	private boolean isNebel(Location location)
-	{
-		return map.isNebula(location);
+		if(map.isNebula(location))
+		{
+			double[] nebulas = new double[9];
+			for( int i=0; i < 9; i++ )
+			{
+ 				nebulas[i] = map.isNebula(new Location(location.getSystem(), location.getX()+(i%3-1), location.getY()+(i/3-1))) ? 1.0 : 0.0;
+			}
+
+			double[] mask = new double[] {
+				nebulas[1]/3+nebulas[3]/3+nebulas[0]/3, nebulas[1], nebulas[2]/3+nebulas[1]/3+nebulas[5]/3,
+				nebulas[3], nebulas[4], nebulas[5],
+				nebulas[3]/3+nebulas[6]/3+nebulas[7]/3, nebulas[7], nebulas[7]/3+nebulas[5]/3+nebulas[8]/3
+			};
+
+			renderList.add(new RenderedSectorImage(map.getNebulaMap().get(location).getImage()+".png", 0, 0, mask));
+		}
+		return renderList;
 	}
 
 	/**

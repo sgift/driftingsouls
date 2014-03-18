@@ -5,5 +5,6 @@ CREATE TABLE `factory` (
 	`produces` longtext not null,
 	`version` integer not null,
 	`col` integer,
-	primary key  (`id`)
+	primary key  (`id`),
+	unique (col, buildingid)
 ) ENGINE=InnoDB;

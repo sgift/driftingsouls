@@ -64,7 +64,9 @@ public class StatWaren implements Statistic {
 		}
 		Cargo cargo = new Cargo((Cargo) iterator.next());
 
-		StatUserCargo userCargo = (StatUserCargo)db.get(StatUserCargo.class, user.getId());
+		StatUserCargo userCargo = (StatUserCargo) db.createQuery("from StatUserCargo where user=:user")
+				.setEntity("user", user)
+				.uniqueResult();
 		Cargo ownCargo = null;
 		if( userCargo != null )
 		{

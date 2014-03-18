@@ -18,6 +18,7 @@ import java.io.Serializable;
 import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -165,23 +166,24 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 
 		Class<?> type = entity.getClass();
 
-		Method labelMethod;
-		try
-		{
-			labelMethod = type.getMethod("getName");
-		}
-		catch (NoSuchMethodException e)
+		Method labelMethod = null;
+		for (String m : Arrays.asList("getName", "getNickname", "toString"))
 		{
 			try
 			{
-				labelMethod = type.getMethod("toString");
+				labelMethod = type.getMethod(m);
+				break;
 			}
-			catch (NoSuchMethodException e1)
+			catch (NoSuchMethodException e)
 			{
-				throw new AssertionError("No toString");
+				// Ignore
 			}
 		}
 
+		if( labelMethod == null )
+		{
+			throw new AssertionError("No toString");
+		}
 
 		try
 		{

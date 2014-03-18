@@ -18,32 +18,22 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.pipeline.Request;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
+import net.driftingsouls.ds2.server.ships.ShipType;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import net.driftingsouls.ds2.server.tick.EvictableUnitOfWork;
+
 import java.io.IOException;
-import java.io.Writer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import net.driftingsouls.ds2.server.entities.Offizier;
-import net.driftingsouls.ds2.server.battles.BattleShip;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
-import net.driftingsouls.ds2.server.framework.pipeline.Request;
-import net.driftingsouls.ds2.server.modules.AdminController;
-import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipClasses;
-import net.driftingsouls.ds2.server.ships.ShipModules;
-import net.driftingsouls.ds2.server.ships.ShipType;
-import net.driftingsouls.ds2.server.ships.ShipTypeData;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.CacheMode;
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
-import org.hibernate.Session;
 
 /**
  * Aktualisierungstool fuer die Werte von Schiffstypen.
@@ -51,112 +41,79 @@ import org.hibernate.Session;
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Schiffe", name = "Typen editieren")
-public class EditShiptypes implements AdminPlugin
+public class EditShiptypes extends AbstractEditPlugin<ShipType>
 {
-	private static final Log log = LogFactory.getLog(EditShiptypes.class);
-
-	@Override
-	public void output(AdminController controller, String page, int action) throws IOException
+	public EditShiptypes()
 	{
-		Context context = ContextMap.getContext();
-		Writer echo = context.getResponse().getWriter();
-		org.hibernate.Session db = context.getDB();
-
-		int shiptypeId = context.getRequest().getParameterInt("shiptype");
-
-		// Update values?
-		boolean update = context.getRequest().getParameterString("change").equals("Aktualisieren");
-		List<?> shiptypes = db.createQuery("from ShipType").list();
-
-		echo.append("<form action=\"./ds\" method=\"post\">");
-		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
-		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
-		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-		echo.append("<select size=\"1\" name=\"shiptype\">");
-		for (Iterator<?> iter = shiptypes.iterator(); iter.hasNext();)
-		{
-			ShipType shiptype = (ShipType) iter.next();
-
-			echo.append("<option value=\"" + shiptype.getId() + "\" " + (shiptype.getId() == shiptypeId ? "selected=\"selected\"" : "") + ">" + shiptype.getNickname() + " ("+shiptype.getId()+")</option>");
-		}
-		echo.append("</select>");
-		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
-		echo.append("</form>");
-
-		if (update && shiptypeId > 0)
-		{
-			update(context, echo, db, shiptypeId);
-		}
-
-		// Ship choosen - get the values
-		if (shiptypeId > 0)
-		{
-			ShipType ship = (ShipType) db.get(ShipType.class, shiptypeId);
-
-			long shipCount = (Long)db
-					.createQuery("select count(*) from Ship s where s.shiptype=:type")
-					.setEntity("type", ship)
-					.uniqueResult();
-
-			echo.append("<form action=\"./ds\" method=\"post\">");
-			echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
-			echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
-			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-			echo.append("<input type=\"hidden\" name=\"shiptype\" value=\"" + shiptypeId + "\" />\n");
-			echo.append("<div class='gfxbox' style='width:600px'>");
-			echo.append("Anzahl vorhandener Schiffe: "+shipCount+"<br />");
-			echo.append("<table width=\"100%\">");
-			echo.append("<tr><td>Name: </td><td><input type=\"text\" name=\"nickname\" value=\"" + ship.getNickname() + "\"></td></tr>\n");
-			echo.append("<tr><td>Bild: </td><td><input type=\"text\" name=\"picture\" value=\"" + ship.getPicture() + "\"></td></tr>\n");
-			echo.append("<tr><td>Uranreaktor: </td><td><input type=\"text\" name=\"reactoruran\" value=\"" + ship.getRu() + "\"></td></tr>\n");
-			echo.append("<tr><td>Deuteriumreaktor: </td><td><input type=\"text\" name=\"reactordeut\" value=\"" + ship.getRd() + "\"></td></tr>\n");
-			echo.append("<tr><td>Antimateriereaktor: </td><td><input type=\"text\" name=\"reactoram\" value=\"" + ship.getRa() + "\"></td></tr>\n");
-			echo.append("<tr><td>Reaktor Maximal: </td><td><input type=\"text\" name=\"reactormaximum\" value=\"" + ship.getRm() + "\"></td></tr>\n");
-			echo.append("<tr><td>EPS: </td><td><input type=\"text\" name=\"eps\" value=\"" + ship.getEps() + "\"></td></tr>\n");
-			echo.append("<tr><td>Flugkosten: </td><td><input type=\"text\" name=\"flycost\" value=\"" + ship.getCost() + "\"></td></tr>\n");
-			echo.append("<tr><td>H&uuml;lle: </td><td><input type=\"text\" name=\"hull\" value=\"" + ship.getHull() + "\"></td></tr>\n");
-			echo.append("<tr><td>Panzerung: </td><td><input type=\"text\" name=\"armor\" value=\"" + ship.getPanzerung() + "\"></td></tr>\n");
-			echo.append("<tr><td>Cargo: </td><td><input type=\"text\" name=\"cargo\" value=\"" + ship.getCargo() + "\"></td></tr>\n");
-			echo.append("<tr><td>Nahrungsspeicher: </td><td><input type=\"text\" name=\"nahrungcargo\" value=\"" + ship.getNahrungCargo() + "\"></td></tr>\n");
-			echo.append("<tr><td>Hitze: </td><td><input type=\"text\" name=\"heat\" value=\"" + ship.getHeat() + "\"></td></tr>\n");
-			echo.append("<tr><td>Crew: </td><td><input type=\"text\" name=\"crew\" value=\"" + ship.getCrew() + "\"></td></tr>\n");
-			echo.append("<tr><td>Maximale Gr&ouml;&szlig;e f&ouml;r Einheiten: </td><td><input type=\"text\" name=\"maxunitsize\" value=\"" + ship.getMaxUnitSize() + "\"></td></tr>\n");
-			echo.append("<tr><td>Laderaum f&uuml;r Einheiten: </td><td><input type=\"text\" name=\"unitspace\" value=\"" + ship.getUnitSpace() + "\"></td></tr>\n");
-			echo.append("<tr><td>Waffen: </td><td><textarea cols=\"50\" rows=\"10\" name=\"weapons\">" + ship.getWeapons() + "</textarea></td></tr>\n");
-			echo.append("<tr><td>Maximale Hitze: </td><td><textarea cols=\"50\" rows=\"10\" name=\"maxheat\">" + ship.getMaxHeat() + "</textarea></td></tr>\n");
-			echo.append("<tr><td>Torpedoabwehr: </td><td><input type=\"text\" name=\"torpedodef\" value=\"" + ship.getTorpedoDef() + "\"></td></tr>\n");
-			echo.append("<tr><td>Schilde: </td><td><input type=\"text\" name=\"shields\" value=\"" + ship.getShields() + "\"></td></tr>\n");
-			echo.append("<tr><td>Gr&ouml;&szlig;e: </td><td><input type=\"text\" name=\"size\" value=\"" + ship.getSize() + "\"></td></tr>\n");
-			echo.append("<tr><td>J&auml;gerdocks: </td><td><input type=\"text\" name=\"fighterdocks\" value=\"" + ship.getJDocks() + "\"></td></tr>\n");
-			echo.append("<tr><td>Aussendocks: </td><td><input type=\"text\" name=\"hulldocks\" value=\"" + ship.getADocks() + "\"></td></tr>\n");
-			echo.append("<tr><td>Sensorreichweite: </td><td><input type=\"text\" name=\"sensorrange\" value=\"" + ship.getSensorRange() + "\"></td></tr>\n");
-			echo.append("<tr><td>Hydros: </td><td><input type=\"text\" name=\"hydro\" value=\"" + ship.getHydro() + "\"></td></tr>\n");
-			echo.append("<tr><td>RE Kosten: </td><td><input type=\"text\" name=\"recosts\" value=\"" + ship.getReCost() + "\"></td></tr>\n");
-			echo.append("<tr><td>Beschreibung: </td><td><textarea cols=\"50\" rows=\"10\" name=\"description\">" + ship.getDescrip() + "</textarea></td></tr>\n");
-			echo.append("<tr><td>Deuteriumsammeln: </td><td><input type=\"text\" name=\"deutfactor\" value=\"" + ship.getDeutFactor() + "\"></td></tr>\n");
-			echo.append("<tr><td>Schiffsklasse: </td><td><input type=\"text\" name=\"class\" value=\"" + ship.getShipClass().ordinal() + "\"></td></tr>\n");
-			echo.append("<tr><td>Flags: </td><td><input type=\"text\" name=\"flags\" value=\"" + ship.getFlags() + "\"></td></tr>\n");
-			echo.append("<tr><td>Groupwrap: </td><td><input type=\"text\" name=\"groupwrap\" value=\"" + ship.getGroupwrap() + "\"></td></tr>\n");
-			echo.append("<tr><td>Werft: </td><td><input type=\"text\" name=\"dockyard\" value=\"" + ship.getWerft() + "\"></td></tr>\n");
-			echo.append("<tr><td>Einmalwerft: </td><td><input type=\"text\" name=\"onewaydockyard\" value=\"" + ship.getOneWayWerft() + "\"></td></tr>\n");
-			echo.append("<tr><td>Loot-Chance: </td><td><input type=\"text\" name=\"chanceforloot\" value=\"" + ship.getChance4Loot() + "\"></td></tr>\n");
-			echo.append("<tr><td>Module: </td><td><input type=\"text\" name=\"modules\" value=\"" + ship.getModules() + "\"></td></tr>\n");
-			echo.append("<tr><td>Verstecken: </td><td><input type=\"text\" name=\"hide\" value=\"" + ship.isHide() + "\"></td></tr>\n");
-			echo.append("<tr><td>Ablative Panzerung: </td><td><input type=\"text\" name=\"ablativearmor\" value=\"" + ship.getAblativeArmor() + "\"></td></tr>\n");
-			echo.append("<tr><td>Besitzt SRS: </td><td><input type=\"text\" name=\"srs\" value=\"" + ship.hasSrs() + "\"></td></tr>\n");
-			echo.append("<tr><td>Scankosten: </td><td><input type=\"text\" name=\"scancosts\" value=\"" + ship.getScanCost() + "\"></td></tr>\n");
-			echo.append("<tr><td>Picking-Kosten: </td><td><input type=\"text\" name=\"pickingcosts\" value=\"" + ship.getPickingCost() + "\"></td></tr>\n");
-			echo.append("<tr><td>Mindest-Crew: </td><td><input type=\"text\" name=\"mincrew\" value=\"" + ship.getMinCrew() + "\"></td></tr>\n");
-			echo.append("<tr><td>EMP verfliegen: </td><td><input type=\"text\" name=\"lostinempchance\" value=\"" + ship.getLostInEmpChance() + "\"></td></tr>\n");
-			echo.append("<tr><td></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
-			echo.append("</table>");
-			echo.append("</div>");
-			echo.append("</form>\n");
-		}
+		super(ShipType.class);
 	}
 
-	private void update(Context context, Writer echo, Session db, int shiptypeId) throws IOException {
+	@Override
+	protected void edit(EditorForm form, ShipType ship)
+	{
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+		long shipCount = (Long) db
+				.createQuery("select count(*) from Ship s where s.shiptype=:type")
+				.setEntity("type", ship)
+				.uniqueResult();
+
+		form.label("Anzahl vorhandener Schiffe", shipCount);
+		form.field("Name", "nickname", String.class, ship.getNickname());
+		form.field("Bild", "picture", String.class, ship.getPicture());
+		form.field("Uranreaktor", "reactoruran", Integer.class, ship.getRu());
+		form.field("Deuteriumreaktor", "reactordeut", Integer.class, ship.getRd());
+		form.field("Antimateriereaktor", "reactoram", Integer.class, ship.getRa());
+		form.field("Reaktor Maximal", "reactormaximum", Integer.class, ship.getRm());
+		form.field("EPS", "eps", Integer.class, ship.getEps());
+		form.field("Flugkosten", "flycost", Integer.class, ship.getCost());
+		form.field("Hülle", "hull", Integer.class, ship.getHull());
+		form.field("Panzerung", "armor", Integer.class, ship.getPanzerung());
+		form.field("Cargo", "cargo", Long.class, ship.getCargo());
+		form.field("Nahrungsspeicher", "nahrungcargo", Long.class, ship.getNahrungCargo());
+		form.field("Hitze", "heat", Integer.class, ship.getHeat());
+		form.field("Crew", "crew", Integer.class, ship.getCrew());
+		form.field("Maximale Größe für Einheiten", "maxunitsize", Integer.class, ship.getMaxUnitSize());
+		form.field("Laderaum für Einheiten", "unitspace", Integer.class, ship.getUnitSpace());
+		form.field("Waffen", "weapons", String.class, ship.getWeapons());
+		form.field("Maximale Hitze", "maxheat", String.class, ship.getMaxHeat());
+		form.field("Torpedoabwehr", "torpedodef", Integer.class, ship.getTorpedoDef());
+		form.field("Schilde", "shields", Integer.class, ship.getShields());
+		form.field("Größe", "size", Integer.class, ship.getSize());
+		form.field("Jägerdocks", "fighterdocks", Integer.class, ship.getJDocks());
+		form.field("Aussendocks", "hulldocks", Integer.class, ship.getADocks());
+		form.field("Sensorreichweite", "sensorrange", Integer.class, ship.getSensorRange());
+		form.field("Hydros", "hydro", Integer.class, ship.getHydro());
+		form.field("RE Kosten", "recosts", Integer.class, ship.getReCost());
+		form.textArea("Beschreibung", "description", ship.getDescrip());
+		form.field("Deuteriumsammeln", "deutfactor", Integer.class, ship.getDeutFactor());
+		Map<Integer,String> shipClasses = new HashMap<>();
+		for (ShipClasses sc : ShipClasses.values())
+		{
+			shipClasses.put(sc.ordinal(), sc.getSingular());
+		}
+		form.field("Schiffsklasse", "class", Integer.class, ship.getShipClass().ordinal()).withOptions(shipClasses);
+		form.field("Flags", "flags", String.class, ship.getFlags());
+		form.field("Groupwrap", "groupwrap", Integer.class, ship.getGroupwrap());
+		form.field("Werft (Slots)", "dockyard", Integer.class, ship.getWerft());
+		form.field("Einmalwerft", "onewaydockyard", ShipType.class, ship.getOneWayWerft()).withNullOption("Deaktiviert");
+		form.field("Loot-Chance", "chanceforloot", Integer.class, ship.getChance4Loot());
+		form.field("Module", "modules", String.class, ship.getModules());
+		form.field("Verstecken", "hide", Boolean.class, ship.isHide());
+		form.field("Ablative Panzerung", "ablativearmor", Integer.class, ship.getAblativeArmor());
+		form.field("Besitzt SRS", "srs", Boolean.class, ship.hasSrs());
+		form.field("Scankosten", "scancosts", Integer.class, ship.getScanCost());
+		form.field("Picking-Kosten", "pickingcosts", Integer.class, ship.getPickingCost());
+		form.field("Mindest-Crew", "mincrew", Integer.class, ship.getMinCrew());
+		form.field("EMP verfliegen", "lostinempchance", Double.class, ship.getLostInEmpChance());
+	}
+
+	@Override
+	protected void update(StatusWriter echo, final ShipType shiptype) throws IOException
+	{
+		Context context = ContextMap.getContext();
 		Request request = context.getRequest();
+		org.hibernate.Session db = context.getDB();
 
 		int ru = request.getParameterInt("reactoruran");
 		int rd = request.getParameterInt("reactordeut");
@@ -194,20 +151,19 @@ public class EditShiptypes implements AdminPlugin
 		int oneWayWerft = request.getParameterInt("onewaydockyard");
 		int chance4Loot = request.getParameterInt("chanceforloot");
 		String modules = request.getParameter("modules");
-		boolean hide = request.getParameterString("hide").trim().toLowerCase().equals("true");
-		boolean srs = request.getParameter("srs").trim().toLowerCase().equals("true");
+		boolean hide = "true".equals(request.getParameterString("hide").trim().toLowerCase());
+		boolean srs = "true".equals(request.getParameter("srs").trim().toLowerCase());
 		int scanCost = request.getParameterInt("scancosts");
 		int pickingCost = request.getParameterInt("pickingcosts");
 		int minCrew = request.getParameterInt("mincrew");
 		double lostInEmpChance = Double.parseDouble(request.getParameter("lostinempchance"));
 
-		ShipType shiptype = (ShipType) db.get(ShipType.class, shiptypeId);
-		int oldeps = shiptype.getEps();
-		int oldhull = shiptype.getHull();
-		int oldcrew = shiptype.getCrew();
-		int oldshields = shiptype.getShields();
-		int oldablativearmor = shiptype.getAblativeArmor();
-		long oldnahrungcargo = shiptype.getNahrungCargo();
+		final int oldeps = shiptype.getEps();
+		final int oldhull = shiptype.getHull();
+		final int oldcrew = shiptype.getCrew();
+		final int oldshields = shiptype.getShields();
+		final int oldablativearmor = shiptype.getAblativeArmor();
+		final long oldnahrungcargo = shiptype.getNahrungCargo();
 
 		shiptype.setRu(ru);
 		shiptype.setRd(rd);
@@ -242,7 +198,7 @@ public class EditShiptypes implements AdminPlugin
 		shiptype.setFlags(flags);
 		shiptype.setGroupwrap(groupwrap);
 		shiptype.setWerft(werft);
-		shiptype.setOneWayWerft(oneWayWerft);
+		shiptype.setOneWayWerft(oneWayWerft != 0 ? (ShipType)db.get(ShipType.class, oneWayWerft) : null);
 		shiptype.setChance4Loot(chance4Loot);
 		shiptype.setModules(modules);
 		shiptype.setHide(hide);
@@ -252,54 +208,29 @@ public class EditShiptypes implements AdminPlugin
 		shiptype.setMinCrew(minCrew);
 		shiptype.setLostInEmpChance(lostInEmpChance);
 
-		// Update ships
-		int count = 0;
+		db.getTransaction().commit();
 
-		ScrollableResults ships = db.createQuery("from Ship s left join fetch s.modules where s.shiptype= :type").setEntity("type", shiptype).setCacheMode(CacheMode.IGNORE).scroll(ScrollMode.FORWARD_ONLY);
-		while (ships.next())
-		{
-			Ship ship = (Ship) ships.get(0);
-			ShipTypeData type = ship.getTypeData();
-			// Weight the difference between the old and the new value
-			Map<String, Double> factor = new HashMap<String, Double>();
-			if( type.getEps() == eps ) { // Schiff ohne Module
-				factor.put("eps", ship.getEnergy() / (double) oldeps);
-			}
-			else {// Schiff mit Modulen
-				factor.put("eps", ship.getEnergy() / (double) type.getEps());
-			}
-			if( type.getHull() == hull ) {
-				factor.put("hull", ship.getHull() / (double) oldhull);
-			}
-			else {
-				factor.put("hull", ship.getHull() / (double) type.getHull());
-			}
-			if( type.getCrew() == crew ) {
-				factor.put("crew", ship.getCrew() / (double) oldcrew);
-			}
-			else {
-				factor.put("crew", ship.getCrew() / (double) type.getCrew());
-			}
-			if( type.getShields() == shields ) {
-				factor.put("shields", ship.getShields() / (double) oldshields);
-			}
-			else {
-				factor.put("shields", ship.getShields() / (double) type.getShields());
-			}
-			if( type.getAblativeArmor() == ablativeArmor ) {
-				factor.put("ablativearmor", ship.getAblativeArmor() / (double) oldablativearmor);
-			}
-			else {
-				factor.put("ablativearmor", ship.getAblativeArmor() / (double) type.getAblativeArmor());
-			}
-			if( type.getNahrungCargo() == nahrungcargo ) {
-				factor.put("nahrungcargo", ship.getNahrungCargo() / (double) oldnahrungcargo);
-			}
-			else {
-				factor.put("nahrungcargo", ship.getNahrungCargo() / (double) type.getNahrungCargo());
-			}
-			try
+		List<Integer> shipIds = Common.cast(db
+				.createQuery("select s.id from Ship s where s.shiptype= :type")
+				.setEntity("type", shiptype)
+				.list());
+		new EvictableUnitOfWork<Integer>("EditShiptypes - Ship Update") {
+			@Override
+			public void doWork(Integer shipId) throws Exception
 			{
+				Ship ship = (Ship) getDB().get(Ship.class, shipId);
+				boolean modules = ship.getModules().length > 0;
+				ShipTypeData type = ship.getTypeData();
+
+				// Weight the difference between the old and the new value
+				Map<String, Double> factor = new HashMap<>();
+				factor.put("eps", ship.getEnergy() / (double) (modules ? type.getEps() : oldeps));
+				factor.put("hull", ship.getHull() / (double) (modules ? type.getHull() : oldhull));
+				factor.put("crew", ship.getCrew() / (double) (modules ? type.getCrew() : oldcrew));
+				factor.put("shields", ship.getShields() / (double) (modules ? type.getShields() : oldshields));
+				factor.put("ablativearmor", ship.getAblativeArmor() / (double) (modules ? type.getAblativeArmor() : oldablativearmor));
+				factor.put("nahrungcargo", ship.getNahrungCargo() / (double) (modules ? type.getAblativeArmor() : oldnahrungcargo));
+
 				ship.recalculateModules();
 				type = ship.getTypeData();
 
@@ -347,81 +278,45 @@ public class EditShiptypes implements AdminPlugin
 				{
 					ship.recalculateShipStatus();
 				}
+			}
+		}.setFlushSize(10).executeFor(shipIds);
 
-				count++;
-				if (count % 20 == 0)
-				{
-					db.flush();
-					HibernateUtil.getSessionFactory().getCurrentSession().evict(Ship.class);
-					HibernateUtil.getSessionFactory().getCurrentSession().evict(ShipModules.class);
-					HibernateUtil.getSessionFactory().getCurrentSession().evict(Offizier.class);
+		List<Integer> battleShipIds = Common.cast(db.createQuery("select id from BattleShip where ship.shiptype=:type")
+				.setEntity("type", shiptype)
+				.list());
+
+		new EvictableUnitOfWork<Integer>("EditShiptypes - BattleShip Update") {
+			@Override
+			public void doWork(Integer battleShipId) throws Exception
+			{
+				BattleShip battleShip = (BattleShip) getDB().get(BattleShip.class, battleShipId);
+	
+				ShipTypeData type = battleShip.getShip().getTypeData();
+				// Weight the difference between the old and the new value
+				Map<String, Double> factor = new HashMap<>();
+				if( type.getHull() == shiptype.getHull() ) {
+					factor.put("hull", battleShip.getHull() / (double) oldhull);
 				}
-			}
-			catch(Exception e)
-			{
-				//Riskant, aber, dass nach einem Fehler alle anderen Schiffe nicht aktualisiert werden muss verhindert werden
-				log.error("Das Schiff mit der ID " + ship.getId() + " konnte nicht aktualisiert werden. Fehler: " + e.getMessage());
-			}
-		}
-		db.flush();
-		HibernateUtil.getSessionFactory().getCurrentSession().evict(Ship.class);
-		HibernateUtil.getSessionFactory().getCurrentSession().evict(ShipModules.class);
-		HibernateUtil.getSessionFactory().getCurrentSession().evict(Offizier.class);
+				else {
+					factor.put("hull", battleShip.getHull() / (double) type.getHull());
+				}
+				if( type.getShields() == shiptype.getShields() ) {
+					factor.put("shields", battleShip.getShields() / (double) oldshields);
+				}
+				else {
+					factor.put("shields", battleShip.getShields() / (double) type.getShields());
+				}
+				if( type.getAblativeArmor() == shiptype.getAblativeArmor() ) {
+					factor.put("ablativearmor", battleShip.getAblativeArmor() / (double) oldablativearmor);
+				}
+				else {
+					factor.put("ablativearmor", battleShip.getAblativeArmor() / (double) type.getAblativeArmor());
+				}
 
-		ScrollableResults battleShips = db.createQuery("from BattleShip where ship.shiptype=:type")
-			.setEntity("type", shiptype)
-			.setCacheMode(CacheMode.IGNORE)
-			.scroll(ScrollMode.FORWARD_ONLY);
-
-		count = 0;
-		while (battleShips.next())
-		{
-			BattleShip battleShip = (BattleShip) battleShips.get(0);
-
-			ShipTypeData type = battleShip.getShip().getTypeData();
-			// Weight the difference between the old and the new value
-			Map<String, Double> factor = new HashMap<String, Double>();
-			if( type.getHull() == hull ) {
-				factor.put("hull", battleShip.getHull() / (double) oldhull);
-			}
-			else {
-				factor.put("hull", battleShip.getHull() / (double) type.getHull());
-			}
-			if( type.getShields() == shields ) {
-				factor.put("shields", battleShip.getShields() / (double) oldshields);
-			}
-			else {
-				factor.put("shields", battleShip.getShields() / (double) type.getShields());
-			}
-			if( type.getAblativeArmor() == ablativeArmor ) {
-				factor.put("ablativearmor", battleShip.getAblativeArmor() / (double) oldablativearmor);
-			}
-			else {
-				factor.put("ablativearmor", battleShip.getAblativeArmor() / (double) type.getAblativeArmor());
-			}
-			try
-			{
 				battleShip.setShields((int)Math.floor(type.getShields() * factor.get("shields")));
 				battleShip.setHull((int)Math.floor(type.getHull() * factor.get("hull")));
 				battleShip.setAblativeArmor((int)Math.floor(type.getAblativeArmor() * factor.get("ablativearmor")));
-				count++;
-				//All unflushed changes are part of the sessioncache, so we need to clean it regularly
-				if (count % 20 == 0)
-				{
-					db.flush();
-					HibernateUtil.getSessionFactory().getCurrentSession().evict(Ship.class);
-					HibernateUtil.getSessionFactory().getCurrentSession().evict(BattleShip.class);
-				}
 			}
-			catch(Exception e)
-			{
-				log.error("Der Kampfeintrag zum Schiff mit der ID " + battleShip.getId() + " konnte nicht aktualisiert werden. Fehler: " + e.getMessage());
-			}
-		}
-		db.flush();
-		HibernateUtil.getSessionFactory().getCurrentSession().evict(Ship.class);
-		HibernateUtil.getSessionFactory().getCurrentSession().evict(BattleShip.class);
-
-		echo.append("<p>Update abgeschlossen.</p>");
+		}.setFlushSize(10).executeFor(battleShipIds);
 	}
 }

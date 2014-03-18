@@ -191,7 +191,7 @@ public class UserProfileController extends TemplateController
 		{
 			if ((user.getAlly() == null) || (user.getAlly() != ausgewaehlterBenutzer.getAlly()))
 			{
-				User.Relation relation = user.getRelation(ausgewaehlterBenutzer.getId());
+				User.Relation relation = user.getRelation(ausgewaehlterBenutzer);
 
 				if (relation == User.Relation.ENEMY)
 				{
@@ -246,7 +246,7 @@ public class UserProfileController extends TemplateController
 		String relcolor = "#c7c7c7";
 		if (user.getId() != ausgewaehlterBenutzer.getId())
 		{
-			User.Relation relation = ausgewaehlterBenutzer.getRelation(user.getId());
+			User.Relation relation = ausgewaehlterBenutzer.getRelation(user);
 			switch (relation)
 			{
 				case ENEMY:

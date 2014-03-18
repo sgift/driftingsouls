@@ -32,6 +32,7 @@ import javax.persistence.Version;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.ships.Ship;
 
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
@@ -51,15 +52,22 @@ import org.hibernate.annotations.Type;
 public class GtuZwischenlager {
 	@Id @GeneratedValue
 	private int id;
+
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="posten", nullable = false)
+	@ForeignKey(name="gtu_zwischenlager_fk_ships")
 	private Ship posten;
+
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="user1", nullable = false)
+	@ForeignKey(name="gtu_zwischenlager_fk_users1")
 	private User user1;
+
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="user2", nullable = false)
+	@ForeignKey(name="gtu_zwischenlager_fk_users2")
 	private User user2;
+
 	@Type(type="largeCargo")
 	@Column(nullable = false)
 	private Cargo cargo1;

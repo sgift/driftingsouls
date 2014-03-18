@@ -1,3 +1,3 @@
-ALTER TABLE cargo_entries_units
-ADD CONSTRAINT `cargo_entries_units_fk_basis` FOREIGN KEY (`basis_id`) REFERENCES `bases` (`id`),
-ADD CONSTRAINT `cargo_entries_units_fk_schiff` FOREIGN KEY (`schiff_id`) REFERENCES `ships` (`id`);
+alter table cargo_entries_units add index cargo_entries_units_fk_schiff (schiff_id), add constraint `cargo_entries_units_fk_schiff` foreign key (`schiff_id`) references `ships` (`id`);
+alter table cargo_entries_units add index cargo_entries_units_fk_basis (basis_id), add constraint `cargo_entries_units_fk_basis` foreign key (`basis_id`) references `bases` (`id`);
+alter table cargo_entries_units add index cargo_entries_units_fk_unittype (unittype), add constraint cargo_entries_units_fk_unittype foreign key (unittype) references unit_types (id);

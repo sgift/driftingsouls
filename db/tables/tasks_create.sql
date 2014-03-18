@@ -1,12 +1,11 @@
 CREATE TABLE `tasks` (
-  `taskid` varchar(60) NOT NULL default '',
-  `type` tinyint(3) unsigned NOT NULL default '0',
-  `time` int(10) unsigned NOT NULL default '0',
-  `timeout` smallint(5) unsigned NOT NULL default '0',
-  `data1` varchar(60) NOT NULL default '',
-  `data2` varchar(60) NOT NULL default '',
-  `data3` varchar(60) NOT NULL default '',
-  `version` int(10) unsigned not null default '0',
-  PRIMARY KEY  (`taskid`),
-  KEY `type` (`type`,`time`,`data1`,`data2`,`data3`)
+  `taskid` varchar(255) not null,
+	`data1` varchar(255),
+	`data2` varchar(255),
+	`data3` varchar(255),
+	`time` bigint not null,
+	`timeout` integer not null,
+	`type` integer not null,
+  `version` integer not null,
+  primary key  (`taskid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

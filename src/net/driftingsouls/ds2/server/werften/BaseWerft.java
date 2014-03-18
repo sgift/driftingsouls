@@ -52,7 +52,7 @@ public class BaseWerft extends WerftObject {
 	 * Konstruktor.
 	 *
 	 */
-	public BaseWerft() {
+	protected BaseWerft() {
 		// EMPTY
 	}
 
@@ -61,7 +61,7 @@ public class BaseWerft extends WerftObject {
 	 * @param base Die Basis auf der die Werft stehen soll
 	 */
 	public BaseWerft(Base base) {
-		super(1);
+		super(WerftTyp.BASIS);
 		this.base = base;
 	}
 

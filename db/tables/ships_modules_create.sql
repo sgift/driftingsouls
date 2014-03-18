@@ -1,5 +1,5 @@
 CREATE TABLE `ships_modules` (
-  `id` integer not null,
+	id integer not null auto_increment,
 	`adocks` integer not null,
 	`ablativeArmor` integer not null,
 	`bounty` decimal(19,2) not null,
@@ -20,7 +20,6 @@ CREATE TABLE `ships_modules` (
 	`modules` longtext not null,
 	`nahrungcargo` bigint not null,
 	`nickname` varchar(255) not null,
-	`ow_werft` integer not null,
 	`panzerung` integer not null,
 	`pickingCost` integer not null,
 	`picture` varchar(255) not null,
@@ -40,5 +39,6 @@ CREATE TABLE `ships_modules` (
 	`versorger` boolean not null,
 	`weapons` longtext not null,
   `werft` integer not null,
+	`ow_werft` integer,
 	primary key (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

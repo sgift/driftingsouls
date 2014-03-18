@@ -1,5 +1,7 @@
 package net.driftingsouls.ds2.server.entities;
 
+import org.hibernate.annotations.ForeignKey;
+
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -28,6 +30,7 @@ public class Loyalitaetspunkte implements Comparable<Loyalitaetspunkte>
 
 	@ManyToOne(optional = false)
 	@JoinColumn(nullable = false)
+	@ForeignKey(name="loyalitaetspunkte_fk_users_1")
 	private User user;
 	@Column(nullable = false)
 	private String grund;
@@ -38,6 +41,7 @@ public class Loyalitaetspunkte implements Comparable<Loyalitaetspunkte>
 	private Date zeitpunkt;
 	@ManyToOne(optional = false)
 	@JoinColumn(nullable = false)
+	@ForeignKey(name="loyalitaetspunkte_fk_users_2")
 	private User verliehenDurch;
 
 	/**

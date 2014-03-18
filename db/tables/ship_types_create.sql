@@ -24,7 +24,6 @@ CREATE TABLE `ship_types` (
 	`modules` longtext not null,
 	`nahrungcargo` bigint not null,
 	`nickname` varchar(255) not null,
-	`ow_werft` integer not null,
 	`panzerung` integer not null,
 	`pickingCost` integer not null,
 	`picture` varchar(255) not null,
@@ -45,5 +44,6 @@ CREATE TABLE `ship_types` (
 	`versorger` boolean not null,
   `weapons` longtext not null,
   `werft` integer not null,
-  primary key  (`id`)
+	`ow_werft` integer,
+	primary key  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

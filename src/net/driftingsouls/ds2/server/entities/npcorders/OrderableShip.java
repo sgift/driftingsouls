@@ -20,13 +20,17 @@ package net.driftingsouls.ds2.server.entities.npcorders;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
 import net.driftingsouls.ds2.server.ships.ShipType;
 
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Immutable;
 
 /**
@@ -38,10 +42,11 @@ import org.hibernate.annotations.Immutable;
 @Table(name="orders_ships")
 @Immutable
 public class OrderableShip {
-	@Id
-	private int type;
-	@OneToOne(fetch=FetchType.LAZY)
-	@PrimaryKeyJoinColumn
+	@Id @GeneratedValue
+	private int id;
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
+	@JoinColumn(name="type", nullable = false)
+	@ForeignKey(name="orders_ships_fk_shiptypes")
 	private ShipType shipType;
 	private int cost;
 	private int rasse;
@@ -84,6 +89,6 @@ public class OrderableShip {
 	 * @return Die ID
 	 */
 	public int getId() {
-		return this.type;
+		return this.id;
 	}
 }

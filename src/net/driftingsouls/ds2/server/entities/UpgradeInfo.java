@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.entities;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -31,13 +32,13 @@ import javax.persistence.Table;
 @Entity
 @Table(name="upgrade_info")
 public class UpgradeInfo {
-	@Id
+	@Id @GeneratedValue
 	private int id;
 	private int type;
 	private int mod;
 	private boolean cargo;
 	private int price;
-	@Column(name="miningexplosive")
+	@Column(name="miningexplosive", nullable = false)
 	private int miningExplosive;
 	private int ore;
 

@@ -46,6 +46,7 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Type;
 
 /**
@@ -64,21 +65,24 @@ public class WerftQueueEntry {
 
 	@Id @GeneratedValue
 	private int id;
-	@ManyToOne(fetch=FetchType.EAGER)
+	@ManyToOne(fetch=FetchType.EAGER, optional = false)
 	@JoinColumn(name="werft", nullable=false)
+	@ForeignKey(name="werft_queues_fk_werften")
 	private WerftObject werft;
 	private int position;
-	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="building", nullable=false)
+	@ForeignKey(name="werft_queues_fk_ship_types")
 	private ShipType building;
 
-	@Column(name="item")
+	@Column(name="item", nullable = false)
 	private int buildItem = -1;
 
-	@Column(name="flagschiff")
+	@Column(name="flagschiff", nullable = false)
 	private boolean buildFlagschiff = false;
 	private int remaining = 0;
-	@Type(type="cargo")
+	@Type(type="largeCargo")
+	@Column(nullable = false)
 	private Cargo costsPerTick;
 	private int energyPerTick;
 	private int slots = 1;

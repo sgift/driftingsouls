@@ -56,7 +56,7 @@ public class VersteigerungResource extends Versteigerung {
 	 * @param price Der Startpreis
 	 */
 	public VersteigerungResource(User owner, Cargo res, long price) {
-		super(owner, 2, price);
+		super(owner, price);
 		
 		if( res.isEmpty() ) {
 			throw new IllegalArgumentException("Der Cargo darf nicht leer sein");

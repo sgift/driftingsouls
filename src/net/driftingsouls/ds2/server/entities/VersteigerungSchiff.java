@@ -50,7 +50,7 @@ public class VersteigerungSchiff extends Versteigerung {
 	 * @param price Der Startpreis
 	 */
 	public VersteigerungSchiff(User owner, ShipType type, long price) {
-		super(owner, 1, price);
+		super(owner, price);
 		
 		this.type = Integer.toString(type.getTypeId());
 	}

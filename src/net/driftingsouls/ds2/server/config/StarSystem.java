@@ -22,7 +22,9 @@ import java.util.ArrayList;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -55,23 +57,26 @@ public class StarSystem {
 	 */
 	public static final int AC_ADMIN = 3;
 
-	@Column(name="Name")
+	@Column(name="Name", nullable = false)
 	private String name = "";
-	@Id
+	@Id @GeneratedValue
 	private int id = 0;
 	private int width = 200;
 	private int height = 200;
 	private int maxColonies = -1;
-	@Column(name="military")
+	@Column(name="military", nullable = false)
 	private boolean allowMilitary = true;
-	@Column(name="access")
+	@Column(name="access", nullable = false)
 	private int starmap = StarSystem.AC_NORMAL;
 	private String gtuDropZone = null;
+	@Lob
 	private String orderloc = "";
+	@Lob
 	@Column(name="descrip")
 	private String description = "";
-	@Column(name="starmap")
+	@Column(name="starmap", nullable = false)
 	private boolean isStarmapVisible = false;
+	@Lob
 	private String spawnableress = "";
 	private int mapX;
 	private int mapY;

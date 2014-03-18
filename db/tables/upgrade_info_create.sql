@@ -1,10 +1,10 @@
 CREATE TABLE `upgrade_info` (
-  `id` integer NOT NULL default '0',
-  `type` int(5) NOT NULL default '1',
-  `mod` integer NOT NULL default '0',
-  `cargo` bool NOT NULL default FALSE,
-  `price` integer NOT NULL default '0',
-  `miningexplosive` integer NOT NULL default '0',
-  `ore` integer NOT NULL default '0',
-  PRIMARY KEY  (`id`)
+  `id` integer not null auto_increment,
+	`cargo` boolean not null,
+	`miningexplosive` integer not null,
+	`mod` integer not null,
+	`ore` integer not null,
+	`price` integer not null,
+	`type` integer not null,
+  primary key (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

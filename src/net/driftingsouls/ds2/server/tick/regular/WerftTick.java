@@ -103,6 +103,8 @@ public class WerftTick extends TickController
 
 			int maxCompleted = 60;
 
+			werft.rescheduleQueue();
+
 			WerftQueueEntry[] entries = werft.getScheduledQueueEntries();
 			for (WerftQueueEntry entry : entries)
 			{

@@ -30,7 +30,6 @@ import net.driftingsouls.ds2.server.entities.ally.AllyPosten;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -44,18 +43,21 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -79,6 +81,10 @@ import java.util.TreeSet;
 @DiscriminatorValue("default")
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @BatchSize(size=50)
+@org.hibernate.annotations.Table(
+	appliesTo = "users",
+	indexes = {@Index(name="vaccount", columnNames = {"vaccount", "wait4vac"})}
+)
 public class User extends BasicUser {
 	private static final Log log = LogFactory.getLog(User.class);
 
@@ -190,15 +196,17 @@ public class User extends BasicUser {
 		 * Die Beziehungen des Spielers zu anderen Spielern.
 		 * Schluessel ist die Spieler-ID
 		 */
-		public Map<Integer,Relation> toOther = new HashMap<>();
+		protected Map<Integer,Relation> toOther = new HashMap<>();
 		/**
 		 * Die Beziehungen von anderen Spielern zum Spieler selbst.
 		 * Schluessel ist die Spieler-ID.
 		 */
-		public Map<Integer,Relation> fromOther = new HashMap<>();
+		protected Map<Integer,Relation> fromOther = new HashMap<>();
 
-		protected Relations() {
-			// EMPTY
+		private User user;
+
+		protected Relations(User user) {
+			this.user = user;
 		}
 
 		/**
@@ -210,21 +218,73 @@ public class User extends BasicUser {
 		 */
 		public boolean isOnly(User otherUser, Relation relation)
 		{
-			return this.toOther.get(otherUser.getId()) == relation && this.fromOther.get(otherUser) == relation;
+			return beziehungZu(otherUser) == relation && beziehungVon(otherUser) == relation;
+		}
+
+		/**
+		 * Gibt die Beziehung des Spielers zu einem anderen Spieler zurueck.
+		 * @param otherUser Der andere Spieler
+		 * @return Der Beziehungstyp
+		 */
+		public Relation beziehungZu(User otherUser)
+		{
+			if( user.getAlly() != null && user.getAlly().getMembers().contains(otherUser) )
+			{
+				// Allianzen sind immer befreundet
+				return Relation.FRIEND;
+			}
+
+			Relation relation = this.toOther.get(otherUser.getId());
+			if( relation != null )
+			{
+				return relation;
+			}
+			relation = this.toOther.get(0);
+			if( relation != null )
+			{
+				return relation;
+			}
+			// Keine Default-Beziehung definiert -> Neutral
+			return Relation.NEUTRAL;
+		}
+
+		/**
+		 * Gibt die Beziehung eines anderen Spielers zu diesem Spieler zurueck.
+		 * @param otherUser Der andere Spieler
+		 * @return Der Beziehungstyp
+		 */
+		public Relation beziehungVon(User otherUser)
+		{
+			if( user.getAlly() != null && user.getAlly().getMembers().contains(otherUser) )
+			{
+				// Allianzen sind immer befreundet
+				return Relation.FRIEND;
+			}
+
+			Relation relation = this.fromOther.get(otherUser.getId());
+			if( relation != null )
+			{
+				return relation;
+			}
+			// Keine Default-Beziehung definiert -> Neutral
+			return Relation.NEUTRAL;
 		}
 	}
 
 	private int race;
+	@Lob
 	private String history;
 	private String medals;
 	private int rang;
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="ally", nullable=true)
+	@ForeignKey(name="users_fk_ally")
 	private Ally ally;
 	private BigInteger konto;
 	private int npcpunkte;
 	@OneToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="allyposten", nullable=true)
+	@JoinColumn(name="allyposten", nullable=true, unique = true)
+	@ForeignKey(name="users_fk_ally_posten")
 	private AllyPosten allyposten;
 	private int gtudropzone;
 	private String npcorderloc;
@@ -232,9 +292,11 @@ public class User extends BasicUser {
 	private short wonBattles;
 	private int destroyedShips;
 	private int lostShips;
+	@Lob
 	private String knownItems;
 	private int vacpoints;
 	private int specializationPoints;
+	@Column(nullable = false)
     private BigInteger bounty;
 	@Enumerated(EnumType.STRING)
 	private PersonenNamenGenerator personenNamenGenerator;
@@ -262,6 +324,9 @@ public class User extends BasicUser {
 	@JoinColumn(name="owner")
 	@BatchSize(size=1)
 	private Set<Ship> ships;
+
+	private int vaccount;
+	private int wait4vac;
 
 	@Transient
 	private Context context;
@@ -493,12 +558,14 @@ public class User extends BasicUser {
 	 */
 	public Relations getRelations() {
 		if( this.relations == null ) {
-			Relations relations = new Relations();
+			Relations relations = new Relations(this);
 
 			org.hibernate.Session db = context.getDB();
 
+			Map<User,Relation> defaults = new HashMap<>();
+
 			List<?> relationlist = db.createQuery("from UserRelation " +
-					"where user= :user OR target= :user OR (user!= :user AND target=0) " +
+					"where user= :user OR target= :user OR (user!= :user AND target.id=0) " +
 					"order by abs(target.id) desc")
 				.setEntity("user", this)
 				.list();
@@ -510,11 +577,25 @@ public class User extends BasicUser {
 				{
 					relations.toOther.put(relation.getTarget().getId(), Relation.values()[relation.getStatus()]);
 				}
-				else if (!relations.fromOther.containsKey(relation.getUser().getId()))
+				else if( relation.getTarget().getId() == 0 )
+				{
+					defaults.put(relation.getUser(), Relation.values()[relation.getStatus()]);
+				}
+				else
 				{
 					relations.fromOther.put(relation.getUser().getId(), Relation.values()[relation.getStatus()]);
 				}
 			}
+
+			for (Map.Entry<User, Relation> userRelationEntry : defaults.entrySet())
+			{
+				if( relations.fromOther.containsKey(userRelationEntry.getKey().getId()) )
+				{
+					continue;
+				}
+				relations.fromOther.put(userRelationEntry.getKey().getId(), userRelationEntry.getValue());
+			}
+
 
 			if( !relations.toOther.containsKey(0) ) {
 				relations.toOther.put(0, Relation.NEUTRAL);
@@ -526,7 +607,7 @@ public class User extends BasicUser {
 			this.relations = relations;
 		}
 
-		Relations rel = new Relations();
+		Relations rel = new Relations(this);
 		rel.fromOther.putAll(relations.fromOther);
 		rel.toOther.putAll(relations.toOther);
 		return rel;
@@ -534,12 +615,21 @@ public class User extends BasicUser {
 
 	/**
 	 * Gibt den Status der Beziehung des Spielers zu einem anderen Spieler zurueck.
-	 * @param userid Die ID des anderen Spielers
+	 * @param user Der andere Spieler oder <code>null</code>, falls die Standardbeziehung abgefragt werden soll
 	 * @return Der Status der Beziehungen zu dem anderen Spieler
 	 */
-	public Relation getRelation(int userid)
+	public Relation getRelation(User user)
 	{
-		if( userid == this.getId() )
+		if( user == this )
+		{
+			return Relation.FRIEND;
+		}
+
+		if( user == null ) {
+			user = (User)context.getDB().get(User.class, 0);
+		}
+
+		if( this.ally != null && this.ally.getMembers().contains(user) )
 		{
 			return Relation.FRIEND;
 		}
@@ -550,12 +640,12 @@ public class User extends BasicUser {
 			UserRelation currelation = (UserRelation)context.getDB()
 				.createQuery("from UserRelation WHERE user=:user AND target=:userid")
 				.setInteger("user", this.getId())
-				.setInteger("userid", userid)
+				.setInteger("userid", user.getId())
 				.uniqueResult();
 
 			if( currelation == null ) {
 				currelation = (UserRelation)context.getDB()
-					.createQuery("from UserRelation WHERE user=:user AND target=0")
+					.createQuery("from UserRelation WHERE user=:user AND target.id=0")
 					.setInteger("user", this.getId())
 					.uniqueResult();
 			}
@@ -565,8 +655,8 @@ public class User extends BasicUser {
 			}
 		}
 		else {
-			if( relations.toOther.containsKey(userid) ) {
-				rel = relations.toOther.get(userid);
+			if( relations.toOther.containsKey(user.getId()) ) {
+				rel = relations.toOther.get(user.getId());
 			}
 		}
 		return rel;
@@ -599,7 +689,7 @@ public class User extends BasicUser {
 				}
 			}
 			UserRelation defrelation = (UserRelation)db
-				.createQuery("from UserRelation WHERE user=:user AND target=0")
+				.createQuery("from UserRelation WHERE user=:user AND target.id=0")
 				.setInteger("user", this.getId())
 				.uniqueResult();
 
@@ -637,7 +727,7 @@ public class User extends BasicUser {
 				if( relations != null ) {
 					relations.toOther.put(0, Relation.NEUTRAL);
 				}
-				db.createQuery("delete from UserRelation where user=:user and target=0")
+				db.createQuery("delete from UserRelation where user=:user and target.id=0")
 					.setInteger("user", this.getId())
 					.executeUpdate();
 			}
@@ -655,7 +745,7 @@ public class User extends BasicUser {
 					db.persist(currelation);
 				}
 			}
-			db.createQuery("delete from UserRelation where user=:user and status=:status AND target!=0")
+			db.createQuery("delete from UserRelation where user=:user and status=:status AND target.id!=0")
 				.setInteger("user", this.getId())
 				.setInteger("status", relation.ordinal())
 				.executeUpdate();
@@ -776,9 +866,6 @@ public class User extends BasicUser {
     {
         return this.bounty;
     }
-
-	private int vaccount;
-	private int wait4vac;
 
 	/**
 	 * Prueft, ob die angegebene Forschung durch den Benutzer erforscht wurde.

@@ -18,16 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Set;
-
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -48,9 +38,18 @@ import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.werften.SchiffBauinformationen;
 import net.driftingsouls.ds2.server.werften.WerftObject;
-
 import org.apache.commons.lang.StringUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Die Flottenverwaltung.
@@ -919,7 +918,7 @@ public class FleetMgntController extends TemplateController
 	 */
 	@Action(ActionType.DEFAULT)
 	@SuppressWarnings("unchecked")
-	public void buildAction(ShipFleet fleet, int buildcount, int buildid)
+	public void buildAction(ShipFleet fleet, int buildcount, String buildid)
 	{
 		validiereGueltigeFlotteVorhanden(fleet);
 
@@ -966,7 +965,7 @@ public class FleetMgntController extends TemplateController
 				{
 					shipyard = shipyard.getKomplex();
 				}
-				if (shipyard.buildShip(buildid, false, false))
+				if (shipyard.buildShip(SchiffBauinformationen.fromId(buildid), false, false))
 				{
 					buildcount--;
 				}
@@ -1399,41 +1398,20 @@ public class FleetMgntController extends TemplateController
 			t.parse("ships.list", "ships.listitem", true);
 		}
 
-		Set<ShipType> buildableShips = new HashSet<>();
+		Set<SchiffBauinformationen> buildableShips = new TreeSet<>();
 		for (WerftObject werft : werften)
 		{
-			buildableShips.addAll(werft.getBuildableShips());
+			buildableShips.addAll(werft.getBuildShipList());
 		}
 
 		//List of buildable ships
 		if (!buildableShips.isEmpty())
 		{
 			t.setBlock("_FLEETMGNT", "buildableships.listitem", "buildableships.list");
-			PriorityQueue<ShipType> sortedBuildableShips = new PriorityQueue<>(11, new Comparator<ShipType>()
-			{
-				@Override
-				public int compare(ShipType o1, ShipType o2)
-				{
-					if (o1.getId() == o2.getId())
-					{
-						return 0;
-					}
-
-					if (o1.getId() > o2.getId())
-					{
-						return 1;
-					}
-					return -1;
-				}
-			});
-
-			sortedBuildableShips.addAll(buildableShips);
-
-			ShipType ship;
-			while ((ship = sortedBuildableShips.poll()) != null)
+			for (SchiffBauinformationen ship : buildableShips)
 			{
 				t.setVar("buildableships.id", ship.getId(),
-						"buildableships.name", ship.getNickname());
+						"buildableships.name", ship.getBaudaten().getType().getNickname());
 
 				t.parse("buildableships.list", "buildableships.listitem", true);
 			}

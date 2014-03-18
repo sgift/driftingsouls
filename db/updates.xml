@@ -2084,4 +2084,120 @@ Die Vasudaner haben eine sehr alte Kultur mit mehreren hochentwickelten Sprachen
 
 		DROP TABLE weaponfactory;
 	]]></update>
+	<update type="structure" datum="2014-03-08">
+		ALTER TABLE battles MODIFY id integer not null auto_increment;
+		ALTER TABLE stats_user_cargo MODIFY user_id integer not null, MODIFY cargo longtext not null, MODIFY version integer not null;
+		ALTER TABLE stats_verkaeufe MODIFY id integer not null auto_increment, MODIFY place varchar(255) not null, MODIFY stats longtext not null, MODIFY system integer not null, MODIFY tick integer not null, MODIFY version integer not null;
+		ALTER TABLE systems MODIFY id integer not null auto_increment, MODIFY military boolean not null, MODIFY descrip longtext, MODIFY gtuDropZone varchar(255), MODIFY height integer not null, MODIFY starmap boolean not null, MODIFY mapX integer not null, MODIFY mapY integer not null, MODIFY maxColonies integer not null, MODIFY Name varchar(255) not null, MODIFY orderloc longtext, MODIFY spawnableress longtext, MODIFY access integer not null, MODIFY width integer not null;
+		ALTER TABLE tasks MODIFY taskid varchar(255) not null, MODIFY data1 varchar(255), MODIFY data2 varchar(255), MODIFY data3 varchar(255), MODIFY time bigint not null, MODIFY timeout integer not null, MODIFY type integer not null, MODIFY version integer not null;
+		ALTER TABLE tradepost_buy_limit MODIFY resourceid integer not null, MODIFY shipid integer not null, MODIFY maximum bigint not null, MODIFY min_rank integer not null, MODIFY version integer not null;
+		ALTER TABLE tradepost_sell MODIFY resourceid integer not null, MODIFY shipid integer not null, MODIFY minimum bigint not null, MODIFY min_rank integer not null, MODIFY price bigint not null, MODIFY version integer not null;
+		ALTER TABLE transmissionen MODIFY id integer not null auto_increment, MODIFY flags integer not null, MODIFY gelesen integer not null, MODIFY inhalt longtext not null, MODIFY kommentar longtext not null, MODIFY ordner integer not null, MODIFY time bigint not null, MODIFY title varchar(255) not null, MODIFY version integer not null, MODIFY empfaenger integer not null, MODIFY sender integer not null;
+		ALTER TABLE unit_types MODIFY id integer not null auto_increment, MODIFY buildcosts varchar(255) not null, MODIFY dauer integer not null, MODIFY description longtext, MODIFY hidden boolean not null, MODIFY kapervalue integer not null, MODIFY nahrungcost double precision not null, MODIFY name varchar(255) not null, MODIFY picture varchar(255) not null, MODIFY recost double precision not null, MODIFY resid integer not null, MODIFY size integer not null;
+		ALTER TABLE upgrade_info MODIFY id integer not null auto_increment, MODIFY cargo boolean not null, MODIFY miningexplosive integer not null, MODIFY `mod` integer not null, MODIFY ore integer not null, MODIFY price integer not null, MODIFY type integer not null;
+		ALTER TABLE upgrade_job MODIFY id integer not null auto_increment, MODIFY bar boolean not null, MODIFY `end` integer not null, MODIFY payed boolean not null, MODIFY baseid integer not null, MODIFY cargo integer not null, MODIFY colonizerid integer, MODIFY tiles integer not null, MODIFY userid integer not null;
+		ALTER TABLE upgrade_maxvalues MODIFY type integer not null, MODIFY maxcargo integer not null, MODIFY maxtiles integer not null;
+		ALTER TABLE user_moneytransfer DROP FOREIGN KEY user_moneytransfer_fk_users1, DROP FOREIGN KEY user_moneytransfer_fk_users2, MODIFY id integer not null auto_increment, MODIFY count decimal(19,2) not null, MODIFY fake integer not null, MODIFY text longtext not null, MODIFY time bigint not null, MODIFY type integer not null, MODIFY version integer not null, CHANGE `from` from_id integer not null, CHANGE `to` to_id integer not null;
+		ALTER TABLE user_moneytransfer ADD CONSTRAINT user_moneytransfer_fk_users1 FOREIGN KEY (`from_id`) REFERENCES users(id), ADD CONSTRAINT user_moneytransfer_fk_users2 FOREIGN KEY (`to_id`) REFERENCES users(id);
+		ALTER TABLE user_rank MODIFY rank integer not null, MODIFY version integer not null, MODIFY owner integer not null, MODIFY rank_giver integer not null;
+		ALTER TABLE user_relations MODIFY id integer not null auto_increment, MODIFY status integer not null, MODIFY version integer not null, MODIFY target_id integer not null, MODIFY user_id integer not null;
+		ALTER TABLE user_values MODIFY id integer not null auto_increment, MODIFY name varchar(255) not null, MODIFY value longtext not null, MODIFY version integer not null, MODIFY user_id integer not null;
+		ALTER TABLE userresearch MODIFY id integer not null auto_increment, MODIFY owner integer not null, MODIFY research integer not null;
+		ALTER TABLE users DROP COLUMN corruption, DROP INDEX users_allyposten_unique;
+		ALTER TABLE users MODIFY id integer not null, MODIFY accesslevel integer not null, MODIFY disabled tinyint not null, MODIFY email varchar(255) not null, MODIFY flags longtext not null, MODIFY imgpath varchar(255), MODIFY inakt integer not null, MODIFY log_fail integer not null, MODIFY name varchar(255) not null, MODIFY nickname varchar(255) not null, MODIFY passwort varchar(255) not null, MODIFY plainname varchar(255) not null, MODIFY signup integer not null, MODIFY un varchar(255) not null, MODIFY version integer not null, MODIFY bounty decimal(19,2) not null, MODIFY destroyedShips integer, MODIFY gtudropzone integer, MODIFY history longtext, MODIFY knownItems longtext, MODIFY konto decimal(19,2), MODIFY lostBattles smallint, MODIFY lostShips integer, MODIFY medals varchar(255), MODIFY npcorderloc varchar(255), MODIFY npcpunkte integer, MODIFY personenNamenGenerator varchar(255), MODIFY race integer, MODIFY rang integer, MODIFY schiffsKlassenNamenGenerator varchar(255), MODIFY schiffsNamenGenerator varchar(255), MODIFY specializationPoints integer, MODIFY vaccount integer, MODIFY vacpoints integer, MODIFY wait4vac integer, MODIFY wonBattles smallint, MODIFY ally integer, MODIFY allyposten integer unique;
+		ALTER TABLE versteigerungen MODIFY mtype integer not null, MODIFY id integer not null auto_increment, MODIFY preis bigint not null, MODIFY tick integer not null, MODIFY version integer not null, MODIFY type varchar(255), MODIFY bieter integer not null, MODIFY owner integer not null;
+		ALTER TABLE werft_queues MODIFY id integer not null auto_increment, MODIFY flagschiff boolean not null, MODIFY item integer not null, MODIFY costsPerTick longtext not null, MODIFY energyPerTick integer not null, MODIFY position integer not null, MODIFY remaining integer not null, MODIFY scheduled boolean not null, MODIFY slots integer not null, MODIFY building integer not null, MODIFY werft integer not null;
+		ALTER TABLE werften MODIFY werfttype char(1) not null, MODIFY id integer not null auto_increment, MODIFY flagschiff boolean not null, MODIFY type integer not null, MODIFY version integer not null, MODIFY komplex boolean, MODIFY linkedWerft integer, MODIFY linked integer, MODIFY shipid integer;
+		ALTER TABLE bases DROP COLUMN unitcargo, MODIFY id integer not null auto_increment, MODIFY active longtext not null, MODIFY arbeiter integer not null, MODIFY autogtuacts longtext not null, MODIFY bebauung longtext not null, MODIFY bewohner integer not null, MODIFY cargo longtext not null, MODIFY core integer not null, MODIFY coreactive integer not null, MODIFY e integer not null, MODIFY height integer not null, MODIFY isfeeding boolean not null, MODIFY isloading boolean not null, MODIFY maxcargo bigint not null, MODIFY maxe integer not null, MODIFY maxtiles integer not null, MODIFY name varchar(255) not null, MODIFY size integer not null, MODIFY spawnableress longtext, MODIFY spawnressavailable longtext, MODIFY system integer not null, MODIFY terrain longtext not null, MODIFY version integer not null, MODIFY width integer not null, MODIFY x integer not null, MODIFY y integer not null, MODIFY academy_id integer, MODIFY forschungszentrum_id integer, MODIFY klasse integer not null, MODIFY owner integer not null, MODIFY werft_id integer;
+		ALTER TABLE ships MODIFY id integer not null;
+	</update>
+	<update type="structure" datum="2014-03-15"><![CDATA[
+		ALTER TABLE bases DROP FOREIGN KEY bases_ibfk_1, DROP FOREIGN KEY bases_ibfk_2, DROP FOREIGN KEY bases_ibfk_3;
+		alter table bases add constraint bases_fk_academy foreign key (academy_id) references academy (id);
+		alter table bases add constraint bases_fk_werften foreign key (werft_id) references werften (id);
+		alter table bases add constraint bases_fk_fz foreign key (forschungszentrum_id) references fz (id);
+		alter table bases add index bases_fk_basetypes (klasse), add constraint bases_fk_basetypes foreign key (klasse) references base_types (id);
+		alter table bases add index bases_fk_users (owner);
+		alter table battles_ships add index battles_ships_fk_battles (battleid);
+		alter table building_alternativebilder add index building_alternativebilder_fk_building (Building_id);
+		alter table cargo_entries_units add index cargo_entries_units_fk_unittype (unittype), add constraint cargo_entries_units_fk_unittype foreign key (unittype) references unit_types (id);
+		alter table factory drop index col_buildingid_idx, add constraint unique (col, buildingid);
+		alter table kaserne add index kaserne_fk_bases (col), add constraint kaserne_fk_bases foreign key (col) references bases (id);
+		alter table kaserne_queues add index kaserne_queues_fk_unittype (unitid), add constraint kaserne_queues_fk_unittype foreign key (unitid) references unit_types (id);
+		alter table kaserne_queues add index kaserne_queues_fk_kaserne (kaserne), add constraint kaserne_queues_fk_kaserne foreign key (kaserne) references kaserne (id);
+		alter table userresearch add index userresearch_fk_users (owner);
+		alter table versteigerungen add index versteigerungen_fk_users2 (owner), add constraint versteigerungen_fk_users2 foreign key (owner) references users (id);
+		delete from user_rank where owner not in (select id from users);
+		alter table user_rank add index user_rank_fk_users2 (rank_giver), add constraint user_rank_fk_users2 foreign key (rank_giver) references users (id);
+		alter table user_rank add index user_rank_fk_users1 (owner), add constraint user_rank_fk_users1 foreign key (owner) references users (id);
+		alter table stats_module_locations add index stats_module_locations_fk_user_id (user_id);
+		alter table transmissionen add index transmissionen_fk_users1 (sender);
+		alter table transmissionen add index transmissionen_fk_users2 (empfaenger);
+		alter table ship_loot add index ship_loot_fk_users1 (owner);
+		delete from ship_flags where ship not in (select id from ships);
+		alter table ship_flags add index ship_flags_fk_ships (ship), add constraint ship_flags_fk_ships foreign key (ship) references ships (id);
+		alter table ordner add index ordner_fk_users (playerid);
+		alter table factory add index factory_fk_bases (col), add constraint factory_fk_bases foreign key (col) references bases (id);
+		alter table user_moneytransfer add index user_moneytransfer_fk_users2 (to_id);
+		alter table user_moneytransfer add index user_moneytransfer_fk_users1 (from_id);
+		alter table skn_visits add index skn_visits_fk_users (user);
+		alter table skn add index skn_fk_skn_channels (channel);
+		alter table user_values add index user_values_fk_users (user_id);
+		alter table jumps add index jumps_fk_ships (shipid);
+		alter table factions_shop_orders add index factions_shop_orders_fk_factions_shop_entries (shopentry_id);
+		alter table factions_shop_orders add index factions_shop_orders_fk_users (user_id);
+		ALTER TABLE config_felsbrocken DROP FOREIGN KEY fk_config_felsbrocken_shiptype, DROP FOREIGN KEY fk_config_felsbrocken_system;
+		alter table config_felsbrocken add constraint fk_config_felsbrocken_shiptype foreign key (shiptype) references ship_types (id);
+		alter table config_felsbrocken add index fk_config_felsbrocken_system (system), add constraint fk_config_felsbrocken_system foreign key (system) references config_felsbrocken_systems (system);
+		alter table gtu_zwischenlager add index gtu_zwischenlager_fk_ships (posten);
+		alter table offiziere add index offiziere_fk_users (userid);
+		alter table quests_completed add index quests_completed_fk_quests (questid);
+		alter table quests_running add index quests_running_fk_quests (questid);
+		alter table ships add index ships_fk_battles (battle);
+		alter table ships add index ships_type_fk (type);
+		alter table ships add index ships_fk_users (owner);
+		alter table ships add index ships_fk_ships_modules (modules), add constraint ships_fk_ships_modules foreign key (modules) references ships_modules (id);
+		alter table ships_modules drop foreign key ships_modules_fk_ships;
+		alter table ships_modules MODIFY id integer not null auto_increment;
+		alter table user_relations add index user_relations_fk_users1 (user_id);
+		alter table users add index users_fk_ally (ally);
+		alter table werft_queues add index werft_queues_fk_werften (werft);
+		alter table werften add index werften_fk_ships (shipid);
+		alter table tradepost_sell drop foreign key tradepost_sell_ibfk_1;
+		alter table tradepost_sell drop primary key, add id bigint not null auto_increment first, add primary key (id);
+		alter table tradepost_sell add unique (shipid, resourceid);
+		alter table tradepost_sell add index tradepost_sell_fk_ships (shipid), add constraint tradepost_sell_fk_ships foreign key (shipid) references ships (id);
+		update tradepost_sell set resourceid=-1*resourceid;
+		alter table tradepost_buy_limit drop foreign key tradepost_buy_limit_ibfk_1;
+		alter table tradepost_buy_limit drop primary key, add id bigint not null auto_increment first, add primary key (id);
+		alter table tradepost_buy_limit add unique (shipid, resourceid);
+		delete from tradepost_buy_limit where resourceid>0;
+		update tradepost_buy_limit set resourceid=-1*resourceid;
+		alter table tradepost_buy_limit add index tradepost_buy_limit_fk_ships (shipid), add constraint tradepost_buy_limit_fk_ships foreign key (shipid) references ships (id);
+		alter table orders_ships drop foreign key orders_ships_fk_ship_types;
+		alter table orders_ships drop primary key, add column id integer not null auto_increment first, add primary key (id);
+		alter table orders_ships add index orders_ships_fk_shiptypes (type), add constraint orders_ships_fk_shiptypes foreign key (type) references ship_types (id);
+		alter table stats_user_cargo drop foreign key stats_user_cargo_fk_user_id;
+		alter table stats_user_cargo drop primary key, add column id bigint not null auto_increment first, add primary key (id);
+		alter table stats_user_cargo add unique (user_id);
+		alter table stats_user_cargo add index stats_user_cargo_fk_user_id (user_id), add constraint stats_user_cargo_fk_user_id foreign key (user_id) references users (id);
+		alter table battles_ships drop foreign key battles_ships_fk_ships;
+		alter table battles_ships add index FK56245F3364F29ED2 (shipid), add constraint FK56245F3364F29ED2 foreign key (shipid) references ships (id);
+		alter table ship_history drop foreign key ship_history_fk_ships;
+		alter table ship_history add index FKC59569919ACA6396 (id), add constraint FKC59569919ACA6396 foreign key (id) references ships (id);
+	]]></update>
+	<update type="structure" datum="2014-03-16"><![CDATA[
+		alter table ship_types modify ow_werft integer;
+		alter table ships_modules modify ow_werft integer;
+		update ship_types set ow_werft=null where ow_werft=0;
+		update ships_modules set ow_werft=null where ow_werft=0;
+		alter table ship_types add index ship_types_fk_ship_types (ow_werft), add constraint ship_types_fk_ship_types foreign key (ow_werft) references ship_types (id);
+		alter table ships_modules add index ship_modules_fk_ships_types (ow_werft), add constraint ship_modules_fk_ships_types foreign key (ow_werft) references ship_types (id);
+	]]></update>
+	<update type="structure" datum="2014-03-16"><![CDATA[
+		alter table tasks drop index `key`;
+		create index taskkey_idx on tasks (type, time, data1, data2, data3);
+		alter table user_moneytransfer drop index `from`;
+		create index from_idx on user_moneytransfer (from_id, to_id);
+	]]></update>
 </updates>

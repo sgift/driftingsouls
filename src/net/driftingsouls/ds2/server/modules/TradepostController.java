@@ -3,11 +3,11 @@ package net.driftingsouls.ds2.server.modules;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemID;
+import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.ResourceLimit;
-import net.driftingsouls.ds2.server.entities.ResourceLimit.ResourceLimitKey;
 import net.driftingsouls.ds2.server.entities.SellLimit;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -96,8 +96,8 @@ public class TradepostController extends TemplateController
 		t.setVar("ship.owner.isnpc", user.isNPC());
 
 		// generate Maps which contain the SellLimits and den ResourceLimits of the Tradepost
-		Map<Integer, SellLimit> selllistmap = new LinkedHashMap<>();
-		Map<Integer, ResourceLimit> buylistmap = new LinkedHashMap<>();
+		Map<ResourceID, SellLimit> selllistmap = new LinkedHashMap<>();
+		Map<ResourceID, ResourceLimit> buylistmap = new LinkedHashMap<>();
 		GtuWarenKurse kurse = ladeAnUndVerkaufsdaten(ship, selllistmap, buylistmap);
 		Cargo buylistgtu = kurse.getKurse();
 
@@ -125,10 +125,9 @@ public class TradepostController extends TemplateController
 
 	}
 
-	private void itemAnzeigen(TemplateEngine t, User user, Map<Integer, SellLimit> selllistmap, Map<Integer, ResourceLimit> buylistmap, Cargo buylistgtu, Item aitem)
+	private void itemAnzeigen(TemplateEngine t, User user, Map<ResourceID, SellLimit> selllistmap, Map<ResourceID, ResourceLimit> buylistmap, Cargo buylistgtu, Item aitem)
 	{
-		int itemid = aitem.getID();
-		ItemID itemidobejct = new ItemID(aitem.getID());
+		ItemID itemId = new ItemID(aitem.getID());
 
 		// check if user is allowed to see the item and go to next item if not
 		if (!user.canSeeItem(aitem))
@@ -146,18 +145,18 @@ public class TradepostController extends TemplateController
 
 		// read actual values of limits
 		// check if the List of items to sell contains current item
-		if (selllistmap.containsKey(itemid * -1))
+		if (selllistmap.containsKey(itemId))
 		{
-			salesprice = selllistmap.get(itemid * -1).getPrice();
-			saleslimit = selllistmap.get(itemid * -1).getLimit();
-			salesrank = selllistmap.get(itemid * -1).getMinRank();
+			salesprice = selllistmap.get(itemId).getPrice();
+			saleslimit = selllistmap.get(itemId).getLimit();
+			salesrank = selllistmap.get(itemId).getMinRank();
 		}
 		// check if the List of items to buy contains current item
-		if (buylistmap.containsKey(itemid * -1))
+		if (buylistmap.containsKey(itemId))
 		{
-			buylimit = buylistmap.get(itemid * -1).getLimit();
-			buyprice = buylistgtu.getResourceCount(itemidobejct) / 1000d;
-			buyrank = buylistmap.get(itemid * -1).getMinRank();
+			buylimit = buylistmap.get(itemId).getLimit();
+			buyprice = buylistgtu.getResourceCount(itemId) / 1000d;
+			buyrank = buylistmap.get(itemId).getMinRank();
 		}
 
 		// hier wollte ich einen intelligenten kommentar einfuegen
@@ -168,12 +167,12 @@ public class TradepostController extends TemplateController
 		}
 
 		t.setVar("item.picture", aitem.getPicture(),
-				"item.id", itemid,
+				"item.id", itemId.getItemID(),
 				"item.name", name,
 				"item.cargo", Common.ln(aitem.getCargo()),
 				"item.paramid", "i" + aitem.getID());
 
-		if (selllistmap.containsKey(itemid * -1) || buylistmap.containsKey(itemid * -1))
+		if (selllistmap.containsKey(itemId) || buylistmap.containsKey(itemId))
 		{
 			t.setVar("item.salesprice", Common.ln(salesprice),
 					"item.buyprice", Common.ln(buyprice),
@@ -181,8 +180,8 @@ public class TradepostController extends TemplateController
 					"item.buylimit", buylimit,
 					"item.sellrank", salesrank,
 					"item.buyrank", buyrank,
-					"item.salebool", selllistmap.containsKey(itemid * -1),
-					"item.buybool", buylistmap.containsKey(itemid * -1));
+					"item.salebool", selllistmap.containsKey(itemId),
+					"item.buybool", buylistmap.containsKey(itemId));
 
 			t.parse("tradepost.post", "tradepost.list", true);
 		}
@@ -192,27 +191,27 @@ public class TradepostController extends TemplateController
 		}
 	}
 
-	private GtuWarenKurse ladeAnUndVerkaufsdaten(Ship ship, Map<Integer, SellLimit> selllistmap, Map<Integer, ResourceLimit> buylistmap)
+	private GtuWarenKurse ladeAnUndVerkaufsdaten(Ship ship, Map<ResourceID, SellLimit> selllistmap, Map<ResourceID, ResourceLimit> buylistmap)
 	{
 		Session db = getDB();
 
 		// get all SellLimits of this ship
-		List<SellLimit> selllimitlist = Common.cast(db.createQuery("from SellLimit where shipid=:shipid").setParameter("shipid", ship.getId()).list());
+		List<SellLimit> selllimitlist = Common.cast(db.createQuery("from SellLimit where ship=:ship").setParameter("ship", ship).list());
 
 		// get all ResourceLimits of this ship
-		List<ResourceLimit> buylimitlist = Common.cast(db.createQuery("from ResourceLimit where shipid=:shipid").setParameter("shipid", ship.getId()).list());
+		List<ResourceLimit> buylimitlist = Common.cast(db.createQuery("from ResourceLimit where ship=:ship").setParameter("ship", ship).list());
 		// get GtuWarenKurse cause of fucking database structure
 		GtuWarenKurse kurse = ermittleKurseFuerSchiff(ship);
 
 		for (SellLimit limit : selllimitlist)
 		{
 			// add a sepcific selllimit to the map at position of his id
-			selllistmap.put(limit.getId().getResourceId(), limit);
+			selllistmap.put(limit.getResourceId(), limit);
 		}
 		for (ResourceLimit limit : buylimitlist)
 		{
 			// add a specific buylimit to the map at position of his id
-			buylistmap.put(limit.getId().getResourceId(), limit);
+			buylistmap.put(limit.getResourceId(), limit);
 		}
 		return kurse;
 	}
@@ -292,8 +291,8 @@ public class TradepostController extends TemplateController
 			return;
 		}
 		// generate Maps which contain the SellLimits and den ResourceLimits of the Tradepost
-		Map<Integer, SellLimit> selllistmap = new LinkedHashMap<>();
-		Map<Integer, ResourceLimit> buylistmap = new LinkedHashMap<>();
+		Map<ResourceID, SellLimit> selllistmap = new LinkedHashMap<>();
+		Map<ResourceID, ResourceLimit> buylistmap = new LinkedHashMap<>();
 
 		GtuWarenKurse kurse = ladeAnUndVerkaufsdaten(ship, selllistmap, buylistmap);
 
@@ -318,7 +317,7 @@ public class TradepostController extends TemplateController
 		}
 	}
 
-	private void processItem(Ship ship, GtuWarenKurse kurse, Map<Integer, SellLimit> selllistmap, Map<Integer, ResourceLimit> buylistmap, Item aitem,
+	private void processItem(Ship ship, GtuWarenKurse kurse, Map<ResourceID, SellLimit> selllistmap, Map<ResourceID, ResourceLimit> buylistmap, Item aitem,
 							 Map<Integer,Long> salesprices,
 							 Map<Integer,Double> buyprices,
 							 Map<Integer,Long> saleslimits,
@@ -333,10 +332,7 @@ public class TradepostController extends TemplateController
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 
-		int itemid = aitem.getID();
 		final ItemID rid = new ItemID(aitem.getID());
-
-		ResourceLimitKey resourcekey = new ResourceLimitKey(ship, rid);
 
 		// check if user is allowed to see the item and go to next item if not
 		if (!user.canSeeItem(aitem))
@@ -398,18 +394,18 @@ public class TradepostController extends TemplateController
 		// check if we dont want to sell the resource any more
 		if (!salebool || salesprice <= 0)
 		{
-			if (selllistmap.containsKey(itemid * -1))
+			if (selllistmap.containsKey(rid))
 			{
-				itemsell = selllistmap.get(itemid * -1);
+				itemsell = selllistmap.get(rid);
 				db.delete(itemsell);
 			}
 		}
 		else
 		{
 			// check if the List of items to sell contains current item
-			if (selllistmap.containsKey(itemid * -1))
+			if (selllistmap.containsKey(rid))
 			{
-				itemsell = selllistmap.get(itemid * -1);
+				itemsell = selllistmap.get(rid);
 				itemsell.setPrice(salesprice);
 				itemsell.setLimit(saleslimit);
 				itemsell.setMinRank(sellrank);
@@ -417,7 +413,7 @@ public class TradepostController extends TemplateController
 			else
 			{
 				// create new object
-				itemsell = new SellLimit(resourcekey, salesprice, saleslimit, sellrank);
+				itemsell = new SellLimit(ship, rid, salesprice, saleslimit, sellrank);
 				db.persist(itemsell);
 			}
 
@@ -436,18 +432,18 @@ public class TradepostController extends TemplateController
 		// check if we dont want to buy the resource any more
 		if (!buybool || buyprice <= 0)
 		{
-			if (buylistmap.containsKey(itemid * -1))
+			if (buylistmap.containsKey(rid))
 			{
-				itembuy = buylistmap.get(itemid * -1);
+				itembuy = buylistmap.get(rid);
 				db.delete(itembuy);
 			}
 		}
 		else
 		{
 			// check if the List of items to buy contains current item
-			if (buylistmap.containsKey(itemid * -1))
+			if (buylistmap.containsKey(rid))
 			{
-				itembuy = buylistmap.get(itemid * -1);
+				itembuy = buylistmap.get(rid);
 
 				itembuy.setLimit(buylimit);
 				itembuy.setMinRank(buyrank);
@@ -455,7 +451,7 @@ public class TradepostController extends TemplateController
 			else
 			{
 				// create new object
-				itembuy = new ResourceLimit(resourcekey, buylimit, buyrank);
+				itembuy = new ResourceLimit(ship, rid, buylimit, buyrank);
 				db.persist(itembuy);
 			}
 			Cargo kcargo = kurse.getKurse();

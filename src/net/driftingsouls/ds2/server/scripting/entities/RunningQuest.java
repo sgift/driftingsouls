@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.scripting.entities;
 
 import net.driftingsouls.ds2.server.entities.User;
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
 import javax.persistence.Column;
@@ -50,12 +51,16 @@ import javax.persistence.Table;
 public class RunningQuest {
 	@Id @GeneratedValue
 	private int id;
-	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="questid", nullable=false)
+	@ForeignKey(name="quests_running_fk_quests")
 	private Quest quest;
-	@ManyToOne(fetch=FetchType.LAZY)
+
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="userid", nullable=false)
+	@ForeignKey(name="quests_running_fk_users")
 	private User user;
+
 	@Lob
 	@Column(name="execdata", nullable = false)
 	private byte[] execData;

@@ -30,6 +30,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.framework.Common;
+import org.hibernate.annotations.ForeignKey;
 
 /**
  * Eine Bestellung in einem Fraktionsshop.
@@ -43,9 +44,11 @@ public class FactionShopOrder {
 	private int id;
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="shopentry_id", nullable=false)
+	@ForeignKey(name="factions_shop_orders_fk_factions_shop_entries")
 	private FactionShopEntry shopEntry;
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="user_id", nullable=false)
+	@ForeignKey(name="factions_shop_orders_fk_users")
 	private User user;
 	private long price;
 	private long lpKosten;

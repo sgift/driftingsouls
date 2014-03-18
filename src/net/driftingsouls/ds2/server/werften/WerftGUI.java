@@ -137,7 +137,7 @@ public class WerftGUI {
 		else {
 			String show = context.getRequest().getParameterString("show");
 			if( show.length() == 0 ) {
-				show = "build";
+				show = werft.getType() != WerftTyp.EINWEG ? "build" : "queue";
 			}
 
 			t.setVar("werftgui.main", 1);
@@ -148,14 +148,16 @@ public class WerftGUI {
 					"werftgui.picture",	werft.getWerftPicture(),
 					"werftgui.crew",	werft.getCrew(),
 					"werftgui.werftslots",	werft.getWerftSlots(),
-					"werftgui.totalqueueentries",	queue.length
+					"werftgui.totalqueueentries",	queue.length,
+					"werftgui.allowBuild", werft.getType() != WerftTyp.EINWEG,
+					"werftgui.allowRepair", werft.getType() != WerftTyp.EINWEG
 					);
 
 			// Resourcenliste
-			List<WerftObject.SchiffBauinformationen> shipdata = werft.getBuildShipList();
+			List<SchiffBauinformationen> shipdata = werft.getBuildShipList();
 
 			Cargo costs = new Cargo();
-			for (WerftObject.SchiffBauinformationen aShipdata : shipdata)
+			for (SchiffBauinformationen aShipdata : shipdata)
 			{
 				costs.addCargo(aShipdata.getBaudaten().getCosts());
 			}
@@ -427,7 +429,8 @@ public class WerftGUI {
 					"queueship.slots",	entry.getSlots(),
 					"queueship.building",	entry.isScheduled(),
 					"queueship.uppossible", i > 0,
-					"queueship.downpossible",	i < queue.length-1);
+					"queueship.downpossible",	i < queue.length-1,
+					"queueship.cancelpossible", werft.getType() != WerftTyp.EINWEG);
 
 			if( entry.getRequiredItem() != -1 ) {
 				Item item = (Item)db.get(Item.class, entry.getRequiredItem());
@@ -469,7 +472,7 @@ public class WerftGUI {
 		}
 	}
 
-	private void out_buildShipList(WerftObject werft, List<WerftObject.SchiffBauinformationen> shipdata) {
+	private void out_buildShipList(WerftObject werft, List<SchiffBauinformationen> shipdata) {
 		t.setVar("werftgui.buildshiplist", 1);
 		t.setBlock("_WERFT.WERFTGUI", "buildshiplist.listitem", "buildshiplist.list");
 		t.setBlock("buildshiplist.listitem", "buildship.res.listitem", "buildship.res.list");
@@ -479,7 +482,7 @@ public class WerftGUI {
 		int energy = werft.getEnergy();
 		int crew = werft.getCrew();
 
-		for (WerftObject.SchiffBauinformationen ashipdata : shipdata)
+		for (SchiffBauinformationen ashipdata : shipdata)
 		{
 			t.start_record();
 
@@ -492,7 +495,7 @@ public class WerftGUI {
 				ResourceID itemdata = ashipdata.getItem();
 
 				t.setVar("buildship.item.id", itemdata.getItemID(),
-						"buildship.item.color", ashipdata.getQuelle() == WerftObject.BauinformationenQuelle.LOKALES_ITEM ? "#EECC44" : "#44EE44",
+						"buildship.item.color", ashipdata.getQuelle() == BauinformationenQuelle.LOKALES_ITEM ? "#EECC44" : "#44EE44",
 						"buildship.item.uses", itemdata.getUses());
 			}
 
@@ -534,7 +537,7 @@ public class WerftGUI {
 
 			ShipTypeData shiptype = ashipdata.getBaudaten().getType();
 
-			t.setVar("buildship.id", ashipdata.getQuelle() == WerftObject.BauinformationenQuelle.FORSCHUNG ? ashipdata.getBaudaten().getId() : -1,
+			t.setVar("buildship.id", ashipdata.getQuelle() == BauinformationenQuelle.FORSCHUNG ? ashipdata.getBaudaten().getId() : -1,
 					"buildship.type.id", shiptype.getTypeId(),
 					"buildship.type.image", shiptype.getPicture(),
 					"buildship.flagschiff", ashipdata.getBaudaten().isFlagschiff(),
@@ -898,7 +901,7 @@ public class WerftGUI {
 
 		Cargo cargo = werft.getCargo(false);
 
-		WerftObject.RepairCosts repairCost = werft.getRepairCosts(ship);
+		RepairCosts repairCost = werft.getRepairCosts(ship);
 
 		//Kosten ausgeben
 		ResourceList reslist = repairCost.cost.compare( cargo, false, false, true );
@@ -943,7 +946,7 @@ public class WerftGUI {
 
 		Cargo cargo = werft.getCargo(false);
 
-		ShipBaubar shipdata = werft.getShipBuildData( build, itemid );
+		ShipBaubar shipdata = werft.getShipBuildData( build, itemid ).getBaudaten();
 		if( (shipdata == null) ) {
 			t.setVar("werftgui.msg", "<span style=\"color:red\">"+werft.getMessage()+"</span>");
 			return;

@@ -8,6 +8,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Type;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -36,9 +37,11 @@ public class ConfigFelsbrocken implements Comparable<ConfigFelsbrocken>
 	private int id;
 	@ManyToOne
 	@JoinColumn(name="shiptype", nullable = false)
+	@ForeignKey(name="fk_config_felsbrocken_shiptype")
 	private ShipType shiptype;
 	@ManyToOne
 	@JoinColumn(name="system", nullable = false)
+	@ForeignKey(name="fk_config_felsbrocken_system")
 	private ConfigFelsbrockenSystem system;
 	private int chance;
 	@Type(type="cargo")

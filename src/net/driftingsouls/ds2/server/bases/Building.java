@@ -31,6 +31,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.DiscriminatorFormula;
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
@@ -96,6 +97,7 @@ public abstract class Building
 	private String picture;
 	@ElementCollection
 	@CollectionTable(name = "building_alternativebilder")
+	@ForeignKey(name="building_alternativebilder_fk_building")
 	private Map<Integer, String> alternativeBilder;
 	@Type(type = "cargo")
 	@Column(name = "buildcosts", nullable = false)

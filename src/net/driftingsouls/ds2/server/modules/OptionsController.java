@@ -238,7 +238,7 @@ public class OptionsController extends TemplateController
 			user.setUserValue("TBLORDER/uebersicht/inttutorial", Integer.toString(inttutorial));
 		}
 
-		if (defrelation != user.getRelation(0))
+		if (defrelation != user.getRelation(null))
 		{
 			changemsg += "Diplomatiehaltung ge&auml;ndert...<br />\n";
 
@@ -373,7 +373,7 @@ public class OptionsController extends TemplateController
 				"user.inttutorial", user.getUserValue("TBLORDER/uebersicht/inttutorial"),
 				"user.showScriptDebug", hasPermission("schiff", "script"),
 				"user.scriptdebug", user.hasFlag(User.FLAG_SCRIPT_DEBUGGING),
-				"user.defrelation", user.getRelation(0).ordinal());
+				"user.defrelation", user.getRelation(null).ordinal());
 
 		t.setBlock("_OPTIONS", "personenNamenGenerator.listitem", "personenNamenGenerator.list");
 		for (PersonenNamenGenerator png : PersonenNamenGenerator.values())

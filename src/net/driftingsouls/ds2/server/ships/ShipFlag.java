@@ -1,5 +1,7 @@
 package net.driftingsouls.ds2.server.ships;
 
+import org.hibernate.annotations.ForeignKey;
+
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -29,6 +31,7 @@ public class ShipFlag
     @SuppressWarnings("unused")
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="ship", nullable = false)
+	@ForeignKey(name="ship_flags_fk_ships")
     private Ship ship;
     @SuppressWarnings("unused")
 	@Version

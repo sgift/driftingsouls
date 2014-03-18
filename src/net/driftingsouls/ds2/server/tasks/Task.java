@@ -27,6 +27,7 @@ import javax.persistence.Version;
 import org.apache.commons.lang.math.RandomUtils;
 
 import net.driftingsouls.ds2.server.framework.Common;
+import org.hibernate.annotations.Index;
 
 /**
  * Eine Task im Taskmanager.
@@ -35,6 +36,10 @@ import net.driftingsouls.ds2.server.framework.Common;
  */
 @Entity
 @Table(name="tasks")
+@org.hibernate.annotations.Table(
+	appliesTo = "tasks",
+	indexes = {@Index(name="taskkey_idx", columnNames = {"type", "time", "data1", "data2", "data3"})}
+)
 public class Task {
 	@Id()
 	@Column(name="taskid")

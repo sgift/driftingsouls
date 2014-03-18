@@ -1,1 +1,1 @@
-ALTER TABLE ship_history ADD CONSTRAINT ship_history_fk_ships FOREIGN KEY (id) REFERENCES ships(id);
+alter table ship_history add index FKC59569919ACA6396 (id), add constraint FKC59569919ACA6396 foreign key (id) references ships (id);

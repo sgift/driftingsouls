@@ -1,1 +1,1 @@
-ALTER TABLE handel ADD CONSTRAINT handel_fk_users FOREIGN KEY (who) REFERENCES users(id);
+alter table handel add index handel_fk_users (who), add constraint handel_fk_users foreign key (who) references users (id);

@@ -18,24 +18,20 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
-import java.io.Serializable;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Properties;
-
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.jdbc.spi.SqlExceptionHelper;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.id.Configurable;
-import org.hibernate.id.IdentifierGeneratorHelper;
-import org.hibernate.id.IdentityGenerator;
-import org.hibernate.id.PostInsertIdentifierGenerator;
-import org.hibernate.id.PostInsertIdentityPersister;
-import org.hibernate.id.insert.InsertGeneratedIdentifierDelegate;
+import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.type.Type;
+
+import java.io.Serializable;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Properties;
 
 /**
  * Generiert IDs fuer die Schiffsklasse. Die IDs werden entweder von der DB generiert (falls keine ID gesetzt wurde)
@@ -43,8 +39,10 @@ import org.hibernate.type.Type;
  * @author Christopher Jung
  *
  */
-public class ShipIdGenerator implements PostInsertIdentifierGenerator, Configurable {
-	private IdentityGenerator ident;
+public class ShipIdGenerator implements IdentifierGenerator, Configurable {
+	private String targetColumn;
+	private String targetTable;
+	private int maxId;
 
 	@Override
 	public synchronized Serializable generate(SessionImplementor session, Object object) throws HibernateException {
@@ -53,20 +51,23 @@ public class ShipIdGenerator implements PostInsertIdentifierGenerator, Configura
 		if( ship.getId() > 0 ) {
 			return getIntelliId( session, ship.getId() );
 		}
-		return IdentifierGeneratorHelper.POST_INSERT_INDICATOR;
-	}
+		synchronized (this) {
+			int maxId = getMaxId(session);
+			if( maxId < this.maxId )
+			{
+				maxId = this.maxId;
+			}
 
-	@Override
-	public InsertGeneratedIdentifierDelegate getInsertGeneratedIdentifierDelegate(
-			PostInsertIdentityPersister persister,
-	        Dialect dialect,
-	        boolean isGetGeneratedKeysEnabled) throws HibernateException {
-		return ident.getInsertGeneratedIdentifierDelegate(persister, dialect, isGetGeneratedKeysEnabled);
+			this.maxId = maxId+1;
+
+			return this.maxId;
+		}
 	}
 
 	@Override
 	public void configure(Type type, Properties params, Dialect dialect) throws MappingException {
-		this.ident = new IdentityGenerator();
+		this.targetColumn = params.getProperty("target_column");
+		this.targetTable = params.getProperty("target_table");
 	}
 
 	private int getIntelliId( SessionImplementor session, int startId ) {
@@ -100,6 +101,37 @@ public class ShipIdGenerator implements PostInsertIdentifierGenerator, Configura
 				sqle,
 				"Stored Procedure newIntelliShipId failed",
 				sql
+			);
+		}
+	}
+
+	private int getMaxId( SessionImplementor session ) {
+		final String sql = "SELECT max( "+this.targetColumn+" ) FROM "+this.targetTable;
+		try {
+			try (PreparedStatement st = session.connection().prepareStatement(sql))
+			{
+				try (ResultSet rs = st.executeQuery())
+				{
+					if (rs.next())
+					{
+						return rs.getInt(1);
+					}
+					throw new HibernateException("Konnte max(id) nicht berechnen");
+				}
+			}
+
+		}
+		catch (SQLException sqle) {
+			SqlExceptionHelper helper = session
+										.getTransactionCoordinator()
+										.getTransactionContext()
+										.getTransactionEnvironment()
+										.getJdbcServices()
+										.getSqlExceptionHelper();
+			throw helper.convert(
+								sqle,
+								"Konnte max(id) nicht berechnen",
+								sql
 			);
 		}
 	}

@@ -198,7 +198,9 @@ public class SchiffInfoController extends TemplateController
 
 		if ((user != null) && hasPermission("schiffstyp", "npckostenSichtbar"))
 		{
-			OrderableShip order = (OrderableShip) db.get(OrderableShip.class, ship.getTypeId());
+			OrderableShip order = (OrderableShip) db.createQuery("from OrderableShip where shipType=:type")
+				.setEntity("type", ship)
+				.uniqueResult();
 
 			if (order != null)
 			{

@@ -18,6 +18,9 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
+
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -34,16 +37,22 @@ import javax.persistence.Version;
  */
 @Entity
 @Table(name="user_relations")
+@org.hibernate.annotations.Table(
+	appliesTo = "user_relations",
+	indexes = {@Index(name="user_id", columnNames = {"user_id", "target_id"})}
+)
 public class UserRelation {
 	@Id @GeneratedValue
 	private int id;
 	
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="user_id")
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
+	@JoinColumn(name="user_id", nullable = false)
+	@ForeignKey(name="user_relations_fk_users1")
 	private User user;
 	
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="target_id")
+	@ManyToOne(fetch=FetchType.LAZY, optional = false)
+	@JoinColumn(name="target_id", nullable = false)
+	@ForeignKey(name="user_relations_fk_users2")
 	private User target;
 	
 	private int status;

@@ -1,2 +1,2 @@
-ALTER TABLE factions_shop_orders ADD CONSTRAINT factions_shop_orders_fk_factions_shop_entries FOREIGN KEY (shopentry_id) REFERENCES factions_shop_entries(id);
-ALTER TABLE factions_shop_orders ADD CONSTRAINT factions_shop_orders_fk_users FOREIGN KEY (user_id) REFERENCES users(id);
+alter table factions_shop_orders add index factions_shop_orders_fk_factions_shop_entries (shopentry_id), add constraint factions_shop_orders_fk_factions_shop_entries foreign key (shopentry_id) references factions_shop_entries (id);
+alter table factions_shop_orders add index factions_shop_orders_fk_users (user_id), add constraint factions_shop_orders_fk_users foreign key (user_id) references users (id);

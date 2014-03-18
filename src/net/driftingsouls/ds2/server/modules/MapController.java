@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.map.FieldView;
 import net.driftingsouls.ds2.server.map.PlayerFieldView;
 import net.driftingsouls.ds2.server.map.PlayerStarmap;
 import net.driftingsouls.ds2.server.map.PublicStarmap;
+import net.driftingsouls.ds2.server.map.SectorImage;
 import net.driftingsouls.ds2.server.map.TileCache;
 import net.driftingsouls.ds2.server.modules.viewmodels.AllyViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.JumpNodeViewModel;
@@ -35,7 +36,6 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import org.apache.commons.io.IOUtils;
-import org.hibernate.FlushMode;
 import org.hibernate.Session;
 
 import java.io.File;
@@ -345,7 +345,7 @@ public class MapController extends AngularController
 			public int x;
 			public int y;
 
-			public static SectorImageViewModel map(PublicStarmap.SectorImage image)
+			public static SectorImageViewModel map(SectorImage image)
 			{
 				SectorImageViewModel viewmodel = new SectorImageViewModel();
 				viewmodel.image = image.getImage();
@@ -390,98 +390,89 @@ public class MapController extends AngularController
 		MapViewModel json = new MapViewModel();
 
 		org.hibernate.Session db = getDB();
-		// Flushmode aendern um autoflushes auf den grossen geladenen Datenmengen zu vermeiden.
-		FlushMode oldFlushMode = db.getFlushMode();
-		db.setFlushMode(FlushMode.MANUAL);
-		try
+
+		User user = (User) getUser();
+
+		json.system = new MapViewModel.SystemViewModel();
+		json.system.id = sys.getID();
+		json.system.width = sys.getWidth();
+		json.system.height = sys.getHeight();
+
+		int width = sys.getWidth();
+		int height = sys.getHeight();
+
+		//Limit width and height to map size
+		if (xstart < 1)
 		{
-			User user = (User) getUser();
+			xstart = 1;
+		}
 
-			json.system = new MapViewModel.SystemViewModel();
-			json.system.id = sys.getID();
-			json.system.width = sys.getWidth();
-			json.system.height = sys.getHeight();
+		if (xend > width)
+		{
+			xend = width;
+		}
 
-			int width = sys.getWidth();
-			int height = sys.getHeight();
+		if (ystart < 1)
+		{
+			ystart = 1;
+		}
 
-			//Limit width and height to map size
-			if (xstart < 1)
+		if (yend > height)
+		{
+			yend = height;
+		}
+
+		//Use sensible defaults in case of useless input
+		if (yend <= ystart)
+		{
+			yend = height;
+		}
+
+		if (xend <= xstart)
+		{
+			xend = width;
+		}
+
+		PublicStarmap content;
+		if (admin && user.isAdmin())
+		{
+			content = new AdminStarmap(sys, user, new int[]{xstart, ystart, xend - xstart, yend - ystart});
+		}
+		else
+		{
+			content = new PlayerStarmap(user, sys, new int[]{xstart, ystart, xend - xstart, yend - ystart});
+		}
+
+		json.size = new MapViewModel.SizeViewModel();
+		json.size.minx = xstart;
+		json.size.miny = ystart;
+		json.size.maxx = xend;
+		json.size.maxy = yend;
+
+		for (int y = ystart; y <= yend; y++)
+		{
+			for (int x = xstart; x <= xend; x++)
 			{
-				xstart = 1;
-			}
-
-			if (xend > width)
-			{
-				xend = width;
-			}
-
-			if (ystart < 1)
-			{
-				ystart = 1;
-			}
-
-			if (yend > height)
-			{
-				yend = height;
-			}
-
-			//Use sensible defaults in case of useless input
-			if (yend <= ystart)
-			{
-				yend = height;
-			}
-
-			if (xend <= xstart)
-			{
-				xend = width;
-			}
-
-			PublicStarmap content;
-			if (admin && user.isAdmin())
-			{
-				content = new AdminStarmap(sys, user, new int[]{xstart, ystart, xend - xstart, yend - ystart});
-			}
-			else
-			{
-				content = new PlayerStarmap(user, sys, new int[]{xstart, ystart, xend - xstart, yend - ystart});
-			}
-
-			json.size = new MapViewModel.SizeViewModel();
-			json.size.minx = xstart;
-			json.size.miny = ystart;
-			json.size.maxx = xend;
-			json.size.maxy = yend;
-
-			for (int y = ystart; y <= yend; y++)
-			{
-				for (int x = xstart; x <= xend; x++)
+				Location position = new Location(sys.getID(), x, y);
+				MapViewModel.LocationViewModel locationViewModel = createMapLocationViewModel(content, position);
+				if (locationViewModel != null)
 				{
-					Location position = new Location(sys.getID(), x, y);
-					MapViewModel.LocationViewModel locationViewModel = createMapLocationViewModel(content, position);
-					if (locationViewModel != null)
-					{
-						json.locations.add(locationViewModel);
-					}
+					json.locations.add(locationViewModel);
 				}
 			}
-
-			// Das Anzeigen sollte keine DB-Aenderungen verursacht haben
-			db.clear();
-
-			return json;
 		}
-		finally
-		{
-			db.setFlushMode(oldFlushMode);
-		}
+
+		// Das Anzeigen sollte keine DB-Aenderungen verursacht haben
+		db.clear();
+
+		return json;
 	}
 
 	private MapViewModel.LocationViewModel createMapLocationViewModel(PublicStarmap content, Location position)
 	{
 		boolean scannable = content.isScannbar(position);
-		PublicStarmap.SectorImage sectorImage = content.getUserSectorBaseImage(position);
-		PublicStarmap.SectorImage sectorOverlayImage = content.getSectorOverlayImage(position);
+		SectorImage sectorImage = content.getUserSectorBaseImage(position);
+		SectorImage sectorOverlayImage = content.getSectorOverlayImage(position);
 
 		boolean endTag = false;
 
@@ -499,7 +490,7 @@ public class MapController extends AngularController
 		else if (scannable)
 		{
 			endTag = true;
-			posObj.bg = MapViewModel.SectorImageViewModel.map(content.getSectorBaseImage(position));
+			posObj.bg = new MapViewModel.SectorImageViewModel();//MapViewModel.SectorImageViewModel.map(content.getSectorBaseImage(position));
 			sectorImage = sectorOverlayImage;
 		}
 		else if (sectorOverlayImage != null)

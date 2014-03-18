@@ -130,7 +130,7 @@ public class MainController extends TemplateController
 		t.setVar(
 				"user.npc", user.hasFlag(User.FLAG_ORDER_MENU),
 				"user.adminSichtbar", hasPermission("admin", "sichtbar"),
-				"admin.showconsole", user.getUserValue("TBLORDER/admin/show_cmdline"),
+				"admin.showconsole", hasPermission("admin", "AdminConsole"),
 				"user.notizen", user.getUserValue("TBLORDER/main/notizen"));
 
 		t.setBlock("_MAIN", "bases.listitem", "bases.list");

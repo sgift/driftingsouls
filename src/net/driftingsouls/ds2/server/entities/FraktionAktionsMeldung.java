@@ -1,5 +1,7 @@
 package net.driftingsouls.ds2.server.entities;
 
+import org.hibernate.annotations.ForeignKey;
+
 import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -28,9 +30,11 @@ public class FraktionAktionsMeldung
 
 	@ManyToOne
 	@JoinColumn
+	@ForeignKey(name="fraktion_aktions_meldung_fk_users")
 	private User gemeldetVon;
 	@ManyToOne
 	@JoinColumn
+	@ForeignKey(name="fraktion_aktions_meldung_fk_users2")
 	private User fraktion;
 	@Lob
 	private String meldungstext;

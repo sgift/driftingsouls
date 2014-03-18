@@ -28,6 +28,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.framework.Common;
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
 /**
@@ -46,9 +47,11 @@ public class ComNetVisit {
 	private int id;
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="user", nullable=false)
+	@ForeignKey(name="skn_visits_fk_users")
 	private User user;
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="channel", nullable=false)
+	@ForeignKey(name="skn_visits_fk_skn_channels")
 	private ComNetChannel channel;
 	private long time;
 	

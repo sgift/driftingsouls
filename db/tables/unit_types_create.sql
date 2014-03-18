@@ -1,15 +1,15 @@
 CREATE TABLE `unit_types` (
-	`id` integer NOT NULL AUTO_INCREMENT,
-	`name` varchar(50) NOT NULL,
-	`size` tinyint(4) NOT NULL DEFAULT '1',
-	`description` text,
-	`recost` float NOT NULL,
-	`nahrungcost` float NOT NULL,
-	`kapervalue` integer NOT NULL DEFAULT '1',
-	`buildcosts` varchar(120) NOT NULL DEFAULT '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,',
-	`dauer` integer NOT NULL DEFAULT '1',
-	`resid` integer NOT NULL DEFAULT '0',
-	`picture` varchar(50) DEFAULT NULL,
-	`hidden` tinyint(1) DEFAULT '0',
-	PRIMARY KEY (`id`)
+	`id` integer not null auto_increment,
+	`buildcosts` varchar(255) not null,
+	`dauer` integer not null,
+	`description` longtext,
+	`hidden` boolean not null,
+	`kapervalue` integer not null,
+	`nahrungcost` double precision not null,
+	`name` varchar(255) not null,
+	`picture` varchar(255) not null,
+	`recost` double precision not null,
+	`resid` integer not null,
+	`size` integer not null,
+	primary key (`id`)
 ) ENGINE=InnoDB;

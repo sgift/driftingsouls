@@ -169,7 +169,7 @@ public interface ShipTypeData extends Cloneable {
 	 * Gibt die Einweg-Werftdaten zurueck.
 	 * @return Die Einweg-Werftdaten
 	 */
-	public int getOneWayWerft();
+	public ShipType getOneWayWerft();
 
 	/**
 	 * Gibt die Panzerung zurueck.

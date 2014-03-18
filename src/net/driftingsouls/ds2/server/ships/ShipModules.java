@@ -21,13 +21,16 @@ package net.driftingsouls.ds2.server.ships;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Version;
 import java.math.BigInteger;
@@ -42,10 +45,9 @@ import java.math.BigInteger;
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @BatchSize(size=50)
 public class ShipModules implements ShipTypeData {
-	@Id
+	@Id @GeneratedValue
 	private int id;
-	@OneToOne
-	@PrimaryKeyJoinColumn
+	@OneToOne(mappedBy = "modules")
 	private Ship ship;
 	@Lob
 	@Column(nullable = false)
@@ -91,8 +93,10 @@ public class ShipModules implements ShipTypeData {
 	@Column(nullable = false)
 	private String flags;
 	private int werft;
-	@Column(name="ow_werft", nullable = false)
-	private int oneWayWerft;
+	@ManyToOne
+	@JoinColumn(name="ow_werft")
+	@ForeignKey(name="ship_modules_fk_ships_types")
+	private ShipType oneWayWerft;
 	private int ablativeArmor;
 	private boolean srs;
 	private int scanCost;
@@ -112,7 +116,7 @@ public class ShipModules implements ShipTypeData {
 	 * Konstruktor.
 	 *
 	 */
-	public ShipModules() {
+	protected ShipModules() {
 		// EMPTY
 	}
 	
@@ -122,7 +126,6 @@ public class ShipModules implements ShipTypeData {
 	 * @param ship Das Schiff
 	 */
 	public ShipModules(Ship ship) {
-		this.id = ship.getId();
 		this.ship = ship;
 		this.flags = "";
 		this.weapons = "";
@@ -373,7 +376,7 @@ public class ShipModules implements ShipTypeData {
 	}
 
 	@Override
-	public int getOneWayWerft() {
+	public ShipType getOneWayWerft() {
 		return oneWayWerft;
 	}
 
@@ -381,7 +384,7 @@ public class ShipModules implements ShipTypeData {
 	 * Setzt die Einweg-Werftdaten.
 	 * @param oneWayWerft Die Einweg-Werftdaten
 	 */
-	public void setOneWayWerft(int oneWayWerft) {
+	public void setOneWayWerft(ShipType oneWayWerft) {
 		this.oneWayWerft = oneWayWerft;
 	}
 

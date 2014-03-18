@@ -10,8 +10,17 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
-import java.io.*;
-import java.sql.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -111,7 +120,7 @@ public class Install
 			}
 
 			System.out.println("\n\nDrifting Souls wurde erfolgreich installiert");
-			System.out.println("Du solltest es nun mittels 'ant clean templates compile' erneut uebersetzen.");
+			System.out.println("Du solltest es nun mittels 'ant clean compile' erneut uebersetzen.");
 			System.out.println("Anschliessend kannst du DS mittels des Kommandos 'ant run' starten und im Browser unter http://localhost:8080/driftingsouls/ aufrufen.");
 		}
 		catch (SQLException e)

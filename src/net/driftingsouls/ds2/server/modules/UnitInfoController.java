@@ -131,7 +131,7 @@ public class UnitInfoController extends TemplateController
 
 		t.setVar("unitinfo.details", 1,
 				"unit.picture", unittype.getPicture(),
-				"unit.name", name + ((unittype.isHidden() && hasPermission("unittype", "versteckteSichtbar")) ? " [hidden]" : ""),
+				"unit.name", name + ((unittype.isHidden() && hasPermission("unit", "versteckteSichtbar")) ? " [hidden]" : ""),
 				"unit.size", Common.ln(unittype.getSize()),
 				"unit.nahrungcost", Common.ln(unittype.getNahrungCost()),
 				"unit.recost", Common.ln(unittype.getReCost()),

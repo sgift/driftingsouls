@@ -30,6 +30,7 @@ import javax.persistence.Version;
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.ships.Ship;
+import org.hibernate.annotations.ForeignKey;
 
 /**
  * Ein Sprung eines Schiffes durch den Subraum (Subraumspalte).
@@ -43,6 +44,7 @@ public class Jump implements Locatable {
 	private int id;
 	@OneToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="shipid", nullable = false)
+	@ForeignKey(name="jumps_fk_ships")
 	private Ship ship;
 	private int x;
 	private int y;

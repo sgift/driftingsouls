@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.entities.statistik;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -26,6 +27,7 @@ import javax.persistence.Version;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 
+import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
 /**
@@ -36,13 +38,21 @@ import org.hibernate.annotations.Type;
  */
 @Entity
 @Table(name="stats_verkaeufe")
+@org.hibernate.annotations.Table(
+		appliesTo = "stats_verkaeufe",
+		indexes = {@Index(name = "place", columnNames = {"place", "system"})}
+)
 public class StatVerkaeufe {
 	@Id @GeneratedValue
 	private int id;
+	@Index(name = "tick")
 	private int tick;
+	@Column(nullable = false)
 	private String place;
+	@Index(name = "system")
 	private int system;
-	@Type(type="cargo")
+	@Type(type="largeCargo")
+	@Column(nullable = false)
 	private Cargo stats;
 	
 	@Version
