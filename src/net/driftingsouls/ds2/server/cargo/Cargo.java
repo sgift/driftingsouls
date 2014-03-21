@@ -18,23 +18,22 @@
  */
 package net.driftingsouls.ds2.server.cargo;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
-
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Repraesentiert einen Cargo, also eine Liste von Waren und Items mit jeweils einer bestimmten Menge, in DS.
@@ -1076,7 +1075,7 @@ public class Cargo implements Cloneable {
 
 			if (item == null)
 			{
-				throw new RuntimeException("Unbekanntes Item " + itemid);
+				continue;
 			}
 			if (item.getEffect().getType() != itemeffectid)
 			{
@@ -1270,7 +1269,7 @@ public class Cargo implements Cloneable {
 				// Item erfolgreich lokalisiert
 				found = true;
 
-				if( item[1] != item2[1] ) {
+				if(!item[1].equals(item2[1])) {
 					return false;
 				}
 
