@@ -1,7 +1,11 @@
 package net.driftingsouls.ds2.server.modules.admin.editoren;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.framework.*;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.DynamicContent;
+import net.driftingsouls.ds2.server.framework.DynamicContentManager;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import org.apache.commons.fileupload.FileItem;
 
@@ -10,23 +14,50 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.*;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * Klasse zum Erstellen eines Eingabeformulars.
  */
-public class EditorForm8<V>
+public class EditorForm8<E>
 {
+	public static class Job<E,T>
+	{
+		public final String name;
+		public final Function<E,? extends Collection<T>> supplier;
+		public final Consumer<T> job;
+
+		public Job(String name, Function<E, ? extends Collection<T>> supplier, Consumer<T> job)
+		{
+			this.name = name;
+			this.supplier = supplier;
+			this.job = job;
+		}
+
+		public static <E> Job<E,Boolean> forRunnable(String name, Runnable job)
+		{
+			return new Job<>(name, (entity) -> Arrays.asList(Boolean.TRUE), (b) -> job.run());
+		}
+	}
+
 	private final EditorMode modus;
 	private Writer echo;
 	private int action;
 	private String page;
-	private List<CustomFieldGenerator<V>> fields = new ArrayList<>();
+	private List<CustomFieldGenerator<E>> fields = new ArrayList<>();
 	private int counter;
+	private boolean allowAdd;
+	private List<Job<E,?>> updateTasks = new ArrayList<>();
 
 	public EditorForm8(EditorMode modus, int action, String page, Writer echo)
 	{
@@ -35,6 +66,39 @@ public class EditorForm8<V>
 		this.action = action;
 		this.page = page;
 		this.counter = 0;
+		this.allowAdd = false;
+	}
+
+	/**
+	 * Aktiviert das Hinzufuegen von Entities.
+	 */
+	public void allowAdd()
+	{
+		this.allowAdd = true;
+	}
+
+	/**
+	 * Gibt zurueck, ob das Hinzufuegen von Entities erlaubt ist.
+	 * @return <code>true</code> falls dem so ist
+	 */
+	public boolean isAddAllowed()
+	{
+		return this.allowAdd;
+	}
+
+	public void addUpdateTask(String name, Runnable job)
+	{
+		updateTasks.add(Job.forRunnable(name, job));
+	}
+
+	public <T> void updateTask(String name, Function<E, ? extends Collection<T>> supplier, Consumer<T> job)
+	{
+		updateTasks.add(new Job<>(name, supplier, job));
+	}
+
+	public List<Job<E,?>> getUpdateTasks()
+	{
+		return this.updateTasks;
 	}
 
 	/**
@@ -67,27 +131,31 @@ public class EditorForm8<V>
 	 * @param <T> Der Typ des Generators
 	 * @return Der Generator
 	 */
-	public <T extends CustomFieldGenerator<V>> T custom(T generator)
+	public <T extends CustomFieldGenerator<E>> T custom(T generator)
 	{
 		fields.add(generator);
 		return generator;
 	}
 
-	public class DynamicContentFieldGenerator<V> implements CustomFieldGenerator<V>
+	public static class DynamicContentFieldGenerator<V> implements CustomFieldGenerator<V>
 	{
 		private String label;
 		private String name;
 		private Function<V,String> getter;
 		private BiConsumer<V,String> setter;
 		private boolean withRemove;
+		private int action;
+		private String page;
 
-		public DynamicContentFieldGenerator(String label, String name, Function<V,String> getter, BiConsumer<V,String> setter)
+		public DynamicContentFieldGenerator(int action, String page, String label, String name, Function<V, String> getter, BiConsumer<V, String> setter)
 		{
 			this.label = label;
 			this.name = name;
 			this.getter = getter;
 			this.setter = setter;
 			this.withRemove = false;
+			this.action = action;
+			this.page = page;
 		}
 
 		@Override
@@ -95,7 +163,7 @@ public class EditorForm8<V>
 		{
 			echo.append("<tr class='dynamicContentEdit'>");
 
-			writeCommonDynamicContentPart(label, name, getter.apply(entity));
+			writeCommonDynamicContentPart(echo, getter.apply(entity));
 
 			if( withRemove )
 			{
@@ -160,16 +228,25 @@ public class EditorForm8<V>
         public void applyRequestValues(Request request, V entity) throws IOException
         {
 			String img = processDynamicContent(request, this.name, getter.apply(entity));
-            setter.accept(entity,img);
+			String oldImg = getter.apply(entity);
+			setter.accept(entity, "data/dynamicContent/"+img);
+			if( oldImg.startsWith("data/dynamicContent/") )
+			{
+				DynamicContentManager.remove(oldImg);
+			}
         }
 
+		/**
+		 * Aktiviert die Funktion zum Entfernen von Bildern.
+		 * @return Die Instanz
+		 */
         public DynamicContentFieldGenerator<V> withRemove()
 		{
 			this.withRemove = true;
 			return this;
 		}
 
-		private void writeCommonDynamicContentPart(String label, String name, String value) throws IOException
+		private void writeCommonDynamicContentPart(Writer echo, String value) throws IOException
 		{
 			echo.append("<td>").append(label).append(": </td>").append("<td>").append(value != null && !value.trim().isEmpty() ? "<img src='" + value + "' />" : "").append("</td>").append("<td>");
 
@@ -201,12 +278,12 @@ public class EditorForm8<V>
 	 * @param getter Der getter für das Feld
 	 * @return Der erzeugte Generator
 	 */
-	public DynamicContentFieldGenerator<V> dynamicContentField(String label, Function<V,String> getter, BiConsumer<V,String> setter)
+	public DynamicContentFieldGenerator<E> dynamicContentField(String label, Function<E,String> getter, BiConsumer<E,String> setter)
 	{
-		return custom(new DynamicContentFieldGenerator<V>(label, generateName(getter.getClass().getSimpleName()), getter, setter));
+		return custom(new DynamicContentFieldGenerator<>(action, page, label, generateName(getter.getClass().getSimpleName()), getter, setter));
 	}
 
-	public class LabelGenerator<V,T> implements CustomFieldGenerator<V>
+	public static class LabelGenerator<V, T> implements CustomFieldGenerator<V>
 	{
 		private final String label;
 		private final Function<V,T> getter;
@@ -236,12 +313,12 @@ public class EditorForm8<V>
 	 * @param label Der Label zum Wert
 	 * @param getter Der getter des Werts
 	 */
-	public <T> LabelGenerator<V,T> label(String label, Function<V,T> getter)
+	public <T> LabelGenerator<E,T> label(String label, Function<E,T> getter)
 	{
-		return custom(new LabelGenerator<V,T>(label, getter));
+		return custom(new LabelGenerator<>(label, getter));
 	}
 
-	public class TextAreaGenerator<V> implements CustomFieldGenerator<V>
+	public static class TextAreaGenerator<V> implements CustomFieldGenerator<V>
 	{
 		private final String label;
 		private final String name;
@@ -281,12 +358,12 @@ public class EditorForm8<V>
 	 * @param getter Der Getter fuer den momentanen Wert
 	 * @param setter Der Setter fuer den momentanen Wert
 	 */
-	public TextAreaGenerator<V> textArea(String label, Function<V,String> getter, BiConsumer<V,String> setter)
+	public TextAreaGenerator<E> textArea(String label, Function<E,String> getter, BiConsumer<E,String> setter)
 	{
-		return custom(new TextAreaGenerator<V>(label, generateName(getter.getClass().getSimpleName()), getter, setter));
+		return custom(new TextAreaGenerator<>(label, generateName(getter.getClass().getSimpleName()), getter, setter));
 	}
 
-	public class FieldGenerator<V,T> implements CustomFieldGenerator<V>
+	public static class FieldGenerator<V,T> implements CustomFieldGenerator<V>
 	{
 		private final String label;
 		private final String name;
@@ -347,7 +424,7 @@ public class EditorForm8<V>
 			}
 			else if (viewType.isAnnotationPresent(Entity.class) || !this.selectionOptions.isEmpty() )
 			{
-				editEntityBySelection(name, viewType, value);
+				editEntityBySelection(echo, name, viewType, value);
 			}
 			else if (Boolean.class.isAssignableFrom(viewType))
 			{
@@ -360,12 +437,53 @@ public class EditorForm8<V>
 			}
 			else
 			{
-				echo.append("<input type=\"text\" ").append(readOnly ? "disable='disabled' " : "").append("name=\"").append(name).append("\" value=\"").append(value != null ? value.toString() : "").append("\">");
+				echo.append("<input type=\"text\" ").append("id=\"").append(name).append("\" ").append(readOnly ? "disable='disabled' " : "").append("name=\"").append(name).append("\" value=\"").append(value != null ? value.toString() : "").append("\">");
+				if( Number.class.isAssignableFrom(viewType) )
+				{
+					writeAutoNumberJavaScript(echo);
+				}
 			}
 			echo.append("</td></tr>\n");
 		}
 
-        @SuppressWarnings("unchecked")
+		private void writeAutoNumberJavaScript(Writer echo) throws IOException
+		{
+			int mDec = 0;
+			Number minValue = -999999999.99;
+			Number maxValue = 999999999.99;
+			if( viewType == Double.class || viewType == Float.class || viewType == BigDecimal.class )
+			{
+				mDec = 8;
+			}
+			if( viewType == Integer.class )
+			{
+				minValue = Integer.MIN_VALUE;
+				maxValue = Integer.MAX_VALUE;
+			}
+			else if( viewType == Long.class )
+			{
+				minValue = Long.MIN_VALUE;
+				maxValue = Long.MAX_VALUE;
+			}
+			else if( viewType == Short.class )
+			{
+				minValue = Short.MIN_VALUE;
+				maxValue = Short.MAX_VALUE;
+			}
+			else if( viewType == Byte.class )
+			{
+				minValue = Byte.MIN_VALUE;
+				maxValue = Byte.MAX_VALUE;
+			}
+
+			echo.append("<script type=\"text/javascript\">\n");
+			echo.append("$('#").append(name).append("').autoNumeric('init', {aSep:'', vMin:").append(minValue.toString())
+					.append(", vMax:").append(maxValue.toString())
+					.append(", lZero: 'deny', mDec:").append(Integer.toString(mDec)).append("});\n");
+			echo.append("</script>");
+		}
+
+		@SuppressWarnings("unchecked")
 		@Override
         public void applyRequestValues(Request request, V entity)
         {
@@ -420,7 +538,7 @@ public class EditorForm8<V>
 			return result;
 		}
 
-		private void editEntityBySelection(String name, Class<?> type, Object value) throws IOException
+		private void editEntityBySelection(Writer echo, String name, Class<?> type, Object value) throws IOException
 		{
 			echo.append("<select size=\"1\" ").append(readOnly ? "disabled='disabled' " : "").append("name=\"").append(name).append("\">");
 			org.hibernate.Session db = ContextMap.getContext().getDB();
@@ -469,9 +587,9 @@ public class EditorForm8<V>
 	 * @param getter Der getter fuer den momentanen Wert
      * @param setter Der setter fuer den momentanen Wert
 	 */
-	public <T> FieldGenerator<V,T> field(String label, Class<?> viewType, Class<T> dataType, Function<V,T> getter, BiConsumer<V,T> setter)
+	public <T> FieldGenerator<E,T> field(String label, Class<?> viewType, Class<T> dataType, Function<E,T> getter, BiConsumer<E,T> setter)
 	{
-		return custom(new FieldGenerator<V,T>(label, generateName(getter.getClass().getSimpleName()), viewType, dataType, getter, setter));
+		return custom(new FieldGenerator<>(label, generateName(getter.getClass().getSimpleName()), viewType, dataType, getter, setter));
 	}
 
 	/**
@@ -482,7 +600,7 @@ public class EditorForm8<V>
 	 * @param getter Der getter fuer den momentanen Wert
 	 * @param setter Der setter fuer den momentanen Wert
 	 */
-	public <T> FieldGenerator<V,T> field(String label, Class<T> type, Function<V,T> getter, BiConsumer<V,T> setter)
+	public <T> FieldGenerator<E,T> field(String label, Class<T> type, Function<E,T> getter, BiConsumer<E,T> setter)
 	{
 		return field(label, type, type, getter, setter);
 	}
@@ -492,20 +610,29 @@ public class EditorForm8<V>
 		return "field"+(counter++)+"_"+suffix.replace('/', '_').replace('$', '_');
 	}
 
-	public void generateForm(V entity)
+	public void generateForm(E entity)
 	{
 		try
 		{
-			for (CustomFieldGenerator<V> field : fields)
+			for (CustomFieldGenerator<E> field : fields)
 			{
 				field.generate(echo, entity);
 			}
 
+			if( modus == EditorMode.UPDATE && !updateTasks.isEmpty() )
+			{
+				StringBuilder str = new StringBuilder("<ul>");
+				for (EditorForm8.Job<E, ?> tJob : updateTasks)
+				{
+					Collection<?> jobParams = tJob.supplier.apply(entity);
+					str.append("<li>").append(jobParams.size()).append("x ").append(tJob.name).append("</li>");
+				}
+				str.append("</ul>");
+				new LabelGenerator<>("Bei Aktualisierung", (e) -> str.toString()).generate(echo, entity);
+			}
+
 			String label = modus == EditorMode.UPDATE ? "Aktualisieren" : "Hinzufügen";
 			echo.append("<tr><td colspan='2'></td><td><input type=\"submit\" name=\"change\" value=\"").append(label).append("\"></td></tr>\n");
-			echo.append("</table>");
-			echo.append("</form>\n");
-			echo.append("</div>");
 		}
 		catch (IOException e)
 		{
@@ -513,15 +640,15 @@ public class EditorForm8<V>
 		}
 	}
     
-    public void applyRequestValues(Request request, V entity) throws IOException
+    public void applyRequestValues(Request request, E entity) throws IOException
 	{
-        for (CustomFieldGenerator<V> field : fields)
+        for (CustomFieldGenerator<E> field : fields)
         {
             field.applyRequestValues(request, entity);
         }
     }
 
-	public EditorForm8<V> ifAdding()
+	public EditorForm8<E> ifAdding()
 	{
 		if( modus == EditorMode.CREATE )
 		{
@@ -530,7 +657,7 @@ public class EditorForm8<V>
 		return new EditorForm8<>(EditorMode.CREATE, action, page, new StringWriter());
 	}
 
-	public EditorForm8<V> ifUpdating()
+	public EditorForm8<E> ifUpdating()
 	{
 		if( modus == EditorMode.UPDATE )
 		{

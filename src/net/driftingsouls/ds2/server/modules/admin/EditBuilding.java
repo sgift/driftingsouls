@@ -13,6 +13,7 @@ import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -52,8 +53,10 @@ public class EditBuilding extends AbstractEditPlugin8<Building>
 	}
 
 	@Override
-	protected void configureFor(EditorForm8<Building> form)
+	protected void configureFor(@NotNull EditorForm8<Building> form)
 	{
+		form.allowAdd();
+
 		Map<String,String> clsOptions = Arrays.asList(DefaultBuilding.class, AcademyBuilding.class, DigBuilding.class, Fabrik.class, ForschungszentrumBuilding.class, KasernenBuilding.class, Werft.class)
 												   .stream()
 												   .collect(Collectors.toMap((c) -> c.getName(), (c) -> c.getSimpleName()));

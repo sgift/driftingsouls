@@ -8,8 +8,11 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
+import net.driftingsouls.ds2.server.tick.EvictableUnitOfWork;
 import org.hibernate.Session;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.persistence.Entity;
 import java.io.IOException;
 import java.io.Serializable;
@@ -18,6 +21,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -59,6 +63,8 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 				if (isUpdatePossible(entity))
 				{
 					form.applyRequestValues(request, entity);
+					// TODO: Jobs
+					processJobs(entity, form.getUpdateTasks());
 					echo.append("<p>Update abgeschlossen.</p>");
 				}
 			}
@@ -71,10 +77,17 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		{
 			try
 			{
-				T entity = createEntity();
 				form = new EditorForm8<>(EditorMode.CREATE, action, page, echo);
 				configureFor(form);
+
+				T entity = createEntity();
 				form.applyRequestValues(request, entity);
+				if( entity.getClass() != this.clazz )
+				{
+					// Klasse wurde geaendert - erneut anwenden
+					entity = createEntity();
+					form.applyRequestValues(request, entity);
+				}
 				db.persist(entity);
 				echo.append("<p>Hinzufügen abgeschlossen.</p>");
 			}
@@ -106,7 +119,10 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 			addSelectionOption(echo, db.getIdentifier(entity), generateLabelFor(null, entity));
 		}
 		endSelectionBox(echo);
-		addForm(echo, page, action);
+		if( form.isAddAllowed() )
+		{
+			addForm(echo, page, action);
+		}
 		echo.append("</div>");
 
 		if (entityId != 0)
@@ -119,6 +135,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 
 			beginEditorTable(echo, page, action, entityId);
 			form.generateForm(entity);
+			endEditorTable(echo);
 		}
 		else if( isAddDisplayed() )
 		{
@@ -128,6 +145,34 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 			beginEditorTable(echo, page, action, -1);
 			form.generateForm(entity);
 		}
+	}
+
+	private void processJobs(T entity, List<EditorForm8.Job<T, ?>> updateTasks)
+	{
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		db.getTransaction().commit();
+
+		for (final EditorForm8.Job<T, ?> updateTask : updateTasks)
+		{
+			@SuppressWarnings("unchecked") final EditorForm8.Job<T, Object> updateTask1 = (EditorForm8.Job<T, Object>) updateTask;
+			Collection<Object> jobData = updateTask1.supplier.apply(entity);
+			new EvictableUnitOfWork<Object>(updateTask.name) {
+				@Override
+				public void doWork(Object object) throws Exception
+				{
+					updateTask1.job.accept(object);
+				}
+			}.setFlushSize(10).executeFor(jobData);
+		}
+
+		db.getTransaction().begin();
+	}
+
+	private void endEditorTable(Writer echo) throws IOException
+	{
+		echo.append("</table>");
+		echo.append("</form>\n");
+		echo.append("</div>");
 	}
 
 	protected void setEntityClass(String name)
@@ -147,7 +192,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		this.clazz = clazz;
 	}
 
-	protected String getEntityClass()
+	protected @Nonnull String getEntityClass()
 	{
 		return this.clazz.getName();
 	}
@@ -170,7 +215,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		}
 	}
 
-	protected final Session getDB()
+	protected final @Nonnull Session getDB()
 	{
 		return ContextMap.getContext().getDB();
 	}
@@ -209,14 +254,14 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		// TODO
 	}
 
-	protected abstract void configureFor(EditorForm8<T> form);
+	protected abstract void configureFor(@Nonnull EditorForm8<T> form);
 
-	protected boolean isUpdatePossible(T entity)
+	protected boolean isUpdatePossible(@Nonnull T entity)
 	{
 		return true;
 	}
 
-	protected static String generateLabelFor(Serializable identifier, Object entity)
+	protected static String generateLabelFor(@Nullable Serializable identifier, @Nonnull Object entity)
 	{
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
