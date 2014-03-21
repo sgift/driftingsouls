@@ -184,67 +184,54 @@ public class AdminController extends Controller
 	 * @param act Die ID der Aktion auf einer Seite
 	 * @param page Der Name der Seite
 	 * @param namedplugin Der exakte Pluginname falls ein bestimmtes Adminplugin ausgefuehrt werden soll
-	 * @param cleanpage {@code true} falls kein Seitenkopf (Menue) ausgegeben werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(boolean cleanpage, int act, String page, String namedplugin) throws IOException
+	public void defaultAction(int act, String page, String namedplugin) throws IOException
 	{
 		Writer echo = getContext().getResponse().getWriter();
-		if (!cleanpage)
+
+		echo.append("<div class='gfxbox' style='width:900px;text-align:center;margin:0px auto'>\n");
+		echo.append("<ui class='menu'>");
+		for (MenuEntry entry : this.menu.values())
 		{
-			echo.append("<div class='gfxbox' style='width:900px;text-align:center;margin:0px auto'>\n");
-			echo.append("<ui class='menu'>");
-			for (MenuEntry entry : this.menu.values())
-			{
-				echo.append("<li><a class=\"forschinfo\" href=\"./ds?module=admin&page=").append(entry.name).append("\">").append(entry.name).append("</a></li>\n");
-			}
-			echo.append("</ul>\n");
-			echo.append("</div><br />\n");
+			echo.append("<li><a class=\"forschinfo\" href=\"./ds?module=admin&page=").append(entry.name).append("\">").append(entry.name).append("</a></li>\n");
 		}
-		else
-		{
-			this.setDisableDebugOutput(true);
-			this.setDisablePageMenu(true);
-		}
+		echo.append("</ul>\n");
+		echo.append("</div><br />\n");
+
 
 		if (page.length() > 0 || namedplugin.length() > 0)
 		{
-			if (!cleanpage)
-			{
-				echo.append("<table class=\"noBorder\"><tr><td class=\"noBorder\" valign=\"top\">\n");
+			echo.append("<table class=\"noBorder\"><tr><td class=\"noBorder\" valign=\"top\">\n");
 
-				echo.append("<div class='gfxbox' style='width:250px'>");
-				echo.append("<table width=\"100%\">\n");
-				echo.append("<tr><td align=\"center\">Aktionen:</td></tr>\n");
-				if (this.menu.containsKey(page) && (this.menu.get(page).actions.size() > 0))
+			echo.append("<div class='gfxbox' style='width:250px'>");
+			echo.append("<table width=\"100%\">\n");
+			echo.append("<tr><td align=\"center\">Aktionen:</td></tr>\n");
+			if (this.menu.containsKey(page) && (this.menu.get(page).actions.size() > 0))
+			{
+				SortedSet<MenuEntry> actions = this.menu.get(page).actions;
+				int index = 1;
+				for (MenuEntry entry : actions)
 				{
-					SortedSet<MenuEntry> actions = this.menu.get(page).actions;
-					int index = 1;
-					for (MenuEntry entry : actions)
-					{
-						echo.append("<tr><td align=\"left\"><a class=\"forschinfo\" href=\"./ds?module=admin&page=" + page + "&act=" + (index++) + "\">" + entry.name + "</a></td></tr>\n");
-					}
+					echo.append("<tr><td align=\"left\"><a class=\"forschinfo\" href=\"./ds?module=admin&page=" + page + "&act=" + (index++) + "\">" + entry.name + "</a></td></tr>\n");
 				}
-				echo.append("</table>\n");
-				echo.append("</div>");
+			}
+			echo.append("</table>\n");
+			echo.append("</div>");
 
-				echo.append("</td><td class=\"noBorder\" valign=\"top\" width=\"40\">&nbsp;&nbsp;&nbsp;</td>\n");
-				echo.append("<td class=\"noBorder\" valign=\"top\">\n");
-			}
-			if (act > 0)
-			{
-				callPlugin(page, act);
-			}
-			else if ((namedplugin.length() > 0) && (validPlugins.contains(namedplugin)))
-			{
-				callNamedPlugin(namedplugin);
-			}
-
-			if (!cleanpage)
-			{
-				echo.append("</td></tr></table>");
-			}
+			echo.append("</td><td class=\"noBorder\" valign=\"top\" width=\"40\">&nbsp;&nbsp;&nbsp;</td>\n");
+			echo.append("<td class=\"noBorder\" valign=\"top\">\n");
 		}
+		if (act > 0)
+		{
+			callPlugin(page, act);
+		}
+		else if ((namedplugin.length() > 0) && (validPlugins.contains(namedplugin)))
+		{
+			callNamedPlugin(namedplugin);
+		}
+
+		echo.append("</td></tr></table>");
 	}
 
 	private void callNamedPlugin(String namedplugin)
@@ -276,11 +263,7 @@ public class AdminController extends Controller
 			getContext().autowireBean(plugin);
 			plugin.output(this, page, act);
 		}
-		catch (IOException e)
-		{
-			throw new ValidierungException("Fehler beim Aufruf des Admin-Plugins: " + e);
-		}
-		catch (RuntimeException e)
+		catch (IOException | RuntimeException e)
 		{
 			throw new ValidierungException("Fehler beim Aufruf des Admin-Plugins: " + e);
 		}
