@@ -1,11 +1,11 @@
 package net.driftingsouls.ds2.server.framework.db;
 
 import net.driftingsouls.ds2.server.framework.AnnotationUtils;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.MySQL5InnoDBDialect;
 import org.hibernate.dialect.function.SQLFunctionTemplate;
 import org.hibernate.dialect.function.StandardSQLFunction;
@@ -32,17 +32,17 @@ import java.util.TreeMap;
  */
 public class HibernateUtil
 {
-    static
+    public static synchronized void init(String configdir, String dbUrl, String dbUser, String dbPassword)
     {
         try
         {
         	org.hibernate.cfg.Configuration configuration = new org.hibernate.cfg.Configuration();
-        	configuration.configure(new File(Configuration.getSetting("configdir")+"hibernate.xml"));
+        	configuration.configure(new File(configdir+"hibernate.xml"));
 
     		// Configure connection
-    		configuration.setProperty("hibernate.connection.url", Configuration.getSetting("db_url"));
-    		configuration.setProperty("hibernate.connection.username", Configuration.getSetting("db_user"));
-    		configuration.setProperty("hibernate.connection.password", Configuration.getSetting("db_password"));
+    		configuration.setProperty("hibernate.connection.url", dbUrl);
+    		configuration.setProperty("hibernate.connection.username", dbUser);
+    		configuration.setProperty("hibernate.connection.password", dbPassword);
 
     		// Add ds-specific utility functions
     		configuration.addSqlFunction("pow", new StandardSQLFunction("pow", DoubleType.INSTANCE));
@@ -66,12 +66,8 @@ public class HibernateUtil
 				}
 			}
 
-			if( !"true".equals(Configuration.getSetting("PRODUCTION")) )
-			{
-				writeSchemaToDisk(configuration);
-			}
-
 			// Create the SessionFactory from hibernate.xml
+			HibernateUtil.configuration = configuration;
 			sessionFactory = configuration.buildSessionFactory();
         }
         catch (Throwable ex)
@@ -82,11 +78,11 @@ public class HibernateUtil
         }
     }
 
-	private static void writeSchemaToDisk(org.hibernate.cfg.Configuration configuration) throws IOException
+	public static void writeSchemaToDisk(String targetFile) throws IOException
 	{
 		String[] dropSQL = configuration.generateDropSchemaScript( new MySQL5InnoDBDialect() );
-		String[] createSQL = configuration.generateSchemaCreationScript( new MySQL5InnoDBDialect()  );
-		try (FileOutputStream writer = new FileOutputStream(new File(Configuration.getSetting("configdir") + "schema.sql")))
+		String[] createSQL = configuration.generateSchemaCreationScript(new MySQL5InnoDBDialect());
+		try (FileOutputStream writer = new FileOutputStream(new File(targetFile)))
 		{
 			IOUtils.write(StringUtils.join(dropSQL, ";\n"), writer, "UTF-8");
 			IOUtils.write("\n\n\n\n", writer, "UTF-8");
@@ -100,12 +96,14 @@ public class HibernateUtil
      *
      * @return Die SessionFactory.
      */
-    public static SessionFactory getSessionFactory()
+    public synchronized static SessionFactory getSessionFactory()
     {
         return sessionFactory;
     }
+	public synchronized static Configuration getConfiguration() { return configuration; }
 
-    private static final SessionFactory sessionFactory;
+    private static SessionFactory sessionFactory;
+	private static Configuration configuration;
 
     /**
      * Gibt den momentanen Inhalt der Session, aufgelistet nach Entitynamen/Collectionrolle und der zugehoerigen Anzahl

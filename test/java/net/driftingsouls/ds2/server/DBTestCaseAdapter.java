@@ -19,7 +19,7 @@
 package net.driftingsouls.ds2.server;
 
 import net.driftingsouls.ds2.server.framework.Configuration;
-
+import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import org.dbunit.DBTestCase;
 import org.dbunit.PropertiesBasedJdbcDatabaseTester;
 import org.dbunit.database.IDatabaseConnection;
@@ -42,6 +42,7 @@ class DBTestCaseAdapter extends DBTestCase {
 		this.testable = testable;
 		try {
 			Configuration.init("./test/cfg/");
+			HibernateUtil.init("./test/cfg/", Configuration.getSetting("db_url"), Configuration.getSetting("db_user"), Configuration.getSetting("db_password"));
 			
 			System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_DRIVER_CLASS, "com.mysql.jdbc.Driver" );
 			System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_CONNECTION_URL, Configuration.getSetting("db_url") );

@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.framework;
 
+import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,6 +53,12 @@ public class DriftingSouls {
 		LOG.info("----------- DS2 Startup "+new Date()+" -----------");
 		LOG.info("Reading "+configdir+"config.xml");
 		Configuration.init(configdir);
+		LOG.info("Initializing Hibernate");
+		HibernateUtil.init(Configuration.getSetting("configdir"), Configuration.getSetting("db_url"), Configuration.getSetting("db_user"), Configuration.getSetting("db_password"));
+		if( !"true".equals(Configuration.getSetting("PRODUCTION")) )
+		{
+			HibernateUtil.writeSchemaToDisk(Configuration.getSetting("configdir") + "schema.sql");
+		}
 
 		Common.setLocale(Locale.GERMAN);
 
