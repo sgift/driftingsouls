@@ -14,8 +14,10 @@ import net.driftingsouls.ds2.server.config.ConfigFelsbrockenSystem;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.NewsEntry;
+import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderableOffizier;
+import net.driftingsouls.ds2.server.entities.npcorders.OrderableShip;
 import net.driftingsouls.ds2.server.framework.BasicContext;
 import net.driftingsouls.ds2.server.framework.CmdLineRequest;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -25,11 +27,11 @@ import net.driftingsouls.ds2.server.framework.DriftingSouls;
 import net.driftingsouls.ds2.server.framework.EmptyPermissionResolver;
 import net.driftingsouls.ds2.server.framework.SimpleResponse;
 import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
+import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
+import net.driftingsouls.ds2.server.framework.db.batch.SingleUnitOfWork;
 import net.driftingsouls.ds2.server.map.TileCache;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipType;
-import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
-import net.driftingsouls.ds2.server.framework.db.batch.SingleUnitOfWork;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -71,6 +73,15 @@ public class ContentGenerator
 				db.persist(new OrderableOffizier("Navigator", 1, 0, 5, 10, 30, 5, 10));
 				db.persist(new OrderableOffizier("Sicherheitsexperte", 1, 0, 10, 25, 5, 35, 5));
 				db.persist(new OrderableOffizier("Captain", 1, 0, 10, 10, 15, 5, 35));
+
+				Rasse rasse = (Rasse)db.get(Rasse.class, 0);
+				List<ShipType> shipTypes = Common.cast(db.createQuery("from ShipType order by rand()")
+						.setMaxResults(10)
+						.list());
+				for (ShipType shipType : shipTypes)
+				{
+					db.persist(new OrderableShip(shipType, rasse, (int)(10*Math.random())));
+				}
 			});
 
 			mitTransaktion("Fuelle Systeme mit Inhalt",
