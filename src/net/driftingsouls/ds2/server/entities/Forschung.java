@@ -18,19 +18,18 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Type;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
-
-import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Type;
 
 /**
  * <h1>Repraesentiert eine Forschung in DS.</h1>
@@ -128,7 +127,7 @@ public class Forschung {
 	 *
 	 */
 	public Forschung() {
-		// EMPTY
+		this.flags = "";
 	}
 
 	/**
@@ -170,6 +169,15 @@ public class Forschung {
 	 */
 	public int getTime() {
 		return this.time;
+	}
+
+	/**
+	 * Setzt die Forschungskosten einer Forschung.
+	 * @param costs Die Forschungskosten
+	 */
+	public void setCosts(Cargo costs)
+	{
+		this.costs = costs;
 	}
 
 	/**
