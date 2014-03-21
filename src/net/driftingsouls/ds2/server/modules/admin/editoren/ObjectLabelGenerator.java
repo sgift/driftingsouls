@@ -25,6 +25,7 @@ public class ObjectLabelGenerator
 
 	public ObjectLabelGenerator()
 	{
+		registerSpecialGenerator(ShipBaubar.class, (sb) -> sb.getType().getNickname());
 		registerSpecialGenerator(User.class, User::getPlainname);
 	}
 
