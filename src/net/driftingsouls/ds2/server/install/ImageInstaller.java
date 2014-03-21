@@ -209,6 +209,7 @@ public class ImageInstaller
 					int klasse = result.getInt("id");
 
 					imgs.add("kolonie" + klasse + "_starmap.png");
+					imgs.add("kolonie" + klasse + "_srs.png");
 					imgs.add("kolonie" + klasse + "_lrs/kolonie" + klasse + "_lrs.png");
 					imgs.add("kolonie" + klasse + "_lrs/kolonie" + klasse + "_lrs.jpg");
 				}
