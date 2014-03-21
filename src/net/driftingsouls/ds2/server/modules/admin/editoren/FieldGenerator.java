@@ -4,11 +4,14 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
+import org.hibernate.Session;
 
 import javax.persistence.Entity;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -156,7 +159,12 @@ public class FieldGenerator<V, T> implements CustomFieldGenerator<V>
 		{
 			return;
 		}
-		if (Integer.class.isAssignableFrom(type))
+
+		if (this.dataType.isAnnotationPresent(Entity.class) )
+		{
+			applyEntityAsRequestValue(entity, val);
+		}
+		else if (Integer.class.isAssignableFrom(type))
 		{
 			setter.accept(entity, (T) Integer.valueOf(val));
 		}
@@ -179,6 +187,22 @@ public class FieldGenerator<V, T> implements CustomFieldGenerator<V>
 		else
 		{
 			throw new UnsupportedOperationException("Datentyp " + type.getName() + " nicht unterstuetzt");
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void applyEntityAsRequestValue(V entity, String val)
+	{
+		Session db = ContextMap.getContext().getDB();
+		Class<?> identifierCls = db.getSessionFactory().getClassMetadata(this.dataType).getIdentifierType().getReturnedClass();
+		try
+		{
+			Method valueOf = identifierCls.getMethod("valueOf", String.class);
+			setter.accept(entity, (T) db.get(this.dataType, (Serializable)valueOf.invoke(null, val)));
+		}
+		catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e)
+		{
+			throw new UnsupportedOperationException("Kann Identifier fuer Entity nicht konvertieren. Datentyp "+identifierCls+" nicht unterstuetzt.");
 		}
 	}
 
