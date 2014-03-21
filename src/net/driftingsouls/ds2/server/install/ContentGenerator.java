@@ -42,9 +42,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class ContentGenerator
@@ -64,64 +66,67 @@ public class ContentGenerator
 		mitHibernateSession((session) -> mitContext((context) -> {
 			Session db = context.getDB();
 
-			LOG.info("Erzeuge NPC-Bestelldaten");
-			new SingleUnitOfWork("NPC-Bestelldaten erzeugen") {
-				@Override
-				public void doWork() throws Exception
-				{
-					db.persist(new OrderableOffizier("Ingenieur", 1, 0, 25, 20, 10, 5, 5));
-					db.persist(new OrderableOffizier("Navigator", 1, 0, 5, 10, 30, 5, 10));
-					db.persist(new OrderableOffizier("Sicherheitsexperte", 1, 0, 10, 25, 5, 35, 5));
-					db.persist(new OrderableOffizier("Captain", 1, 0, 10, 10, 15, 5, 35));
-				}
-			}.execute();
+			mitTransaktion("Erzeuge NPC-Bestelldaten", () -> {
+				db.persist(new OrderableOffizier("Ingenieur", 1, 0, 25, 20, 10, 5, 5));
+				db.persist(new OrderableOffizier("Navigator", 1, 0, 5, 10, 30, 5, 10));
+				db.persist(new OrderableOffizier("Sicherheitsexperte", 1, 0, 10, 25, 5, 35, 5));
+				db.persist(new OrderableOffizier("Captain", 1, 0, 10, 10, 15, 5, 35));
+			});
 
-			LOG.info("Fuelle Systeme mit Inhalt");
-			List<StarSystem> list = Common.cast(db.createCriteria(StarSystem.class).add(Restrictions.gt("id", 0)).list());
-			new EvictableUnitOfWork<StarSystem>("Fuelle Systeme") {
-				@Override
-				public void doWork(StarSystem sys) throws Exception
-				{
-					LOG.info("Fuelle System "+sys.getName()+" ("+sys.getID()+")");
+			mitTransaktion("Fuelle Systeme mit Inhalt",
+					() -> Common.cast(db.createCriteria(StarSystem.class).add(Restrictions.gt("id", 0)).list()),
+					(StarSystem sys) -> {
+						LOG.info("Fuelle System " + sys.getName() + " (" + sys.getID() + ")");
 
-					List<BaseType> baseTypes = Common.cast(db.createCriteria(BaseType.class).list());
-					TileCache.forSystem(sys).resetCache();
-					fuelleSystemMitAsteroiden(sys, baseTypes.stream().filter((bt) -> bt.getSize() == 0).collect(Collectors.toList()), (size) -> (int)Math.pow(size, 0.6));
-					fuelleSystemMitAsteroiden(sys, baseTypes.stream().filter((bt) -> bt.getSize() > 0).collect(Collectors.toList()), (size) -> (int) Math.pow(size, 0.2));
-					fuelleSystemMitNebeln(sys);
-					fuelleSystemMitFelsbrockenKonfigurationen(sys);
-				}
-			}.setFlushSize(1).executeFor(list);
+						List<BaseType> baseTypes = Common.cast(db.createCriteria(BaseType.class).list());
+						TileCache.forSystem(sys).resetCache();
+						fuelleSystemMitAsteroiden(sys, baseTypes.stream().filter((bt) -> bt.getSize() == 0).collect(Collectors.toList()), (size) -> (int) Math.pow(size, 0.6));
+						fuelleSystemMitAsteroiden(sys, baseTypes.stream().filter((bt) -> bt.getSize() > 0).collect(Collectors.toList()), (size) -> (int) Math.pow(size, 0.2));
+						fuelleSystemMitNebeln(sys);
+						fuelleSystemMitFelsbrockenKonfigurationen(sys);
+					}
+			);
 
-			LOG.info("Kolonisiere Asteroiden mit bestehenden Benutzern");
+			mitTransaktion("Kolonisiere Asteroiden mit bestehenden Benutzern",
+					() -> Common.cast(db.createCriteria(User.class).add(Restrictions.ne("id", 0)).list()),
+					(User user) -> kolonisiereAsteroidenFuer(user, RandomUtils.nextInt(8) + 1));
 
-			List<User> users = Common.cast(db.createCriteria(User.class).add(Restrictions.ne("id", 0)).list());
-			new EvictableUnitOfWork<User>("Kolonisiere Asteroiden") {
-				@Override
-				public void doWork(User user) throws Exception
-				{
-					kolonisiereAsteroidenFuer(user, RandomUtils.nextInt(8)+1);
-				}
-			}
-			.setFlushSize(1).executeFor(users);
+			mitTransaktion("Erzeuge Newseintrag", () -> {
+				NewsEntry news = new NewsEntry(
+						"Willkommen bei DS2",
+						"Installationsprogramm",
+						Common.time(),
+						"Willkommen bei DS2",
+						"Willkommen bei DS2\r\nDu hasst den Demodatensatz erfolgreich installiert.\r\nViel Spass beim Testen und Patchen!");
 
-			LOG.info("Erzeuge Newseintrag");
-
-			new SingleUnitOfWork("Portal-News erzeugen") {
-				@Override
-				public void doWork() throws Exception
-				{
-					NewsEntry news = new NewsEntry(
-							"Willkommen bei DS2",
-							"Installationsprogramm",
-							Common.time(),
-							"Willkommen bei DS2",
-							"Willkommen bei DS2\r\nDu hasst den Demodatensatz erfolgreich installiert.\r\nViel Spass beim Testen und Patchen!");
-
-					db.persist(news);
-				}
-			}.execute();
+				db.persist(news);
+			});
 		}));
+	}
+
+	private <T> void mitTransaktion(final String name, final Supplier<? extends Collection<T>> jobDataGenerator, final Consumer<T> job)
+	{
+		LOG.info(name);
+		new EvictableUnitOfWork<T>(name) {
+			@Override
+			public void doWork(T object) throws Exception
+			{
+				job.accept(object);
+			}
+		}
+		.setFlushSize(1).executeFor(jobDataGenerator.get());
+	}
+
+	private void mitTransaktion(final String name, final Runnable job)
+	{
+		LOG.info(name);
+		new SingleUnitOfWork(name) {
+			@Override
+			public void doWork() throws Exception
+			{
+				job.run();
+			}
+		}.setErrorReporter((uow, fo, e) -> {}).execute();
 	}
 
 	private void fuelleSystemMitFelsbrockenKonfigurationen(StarSystem sys)
