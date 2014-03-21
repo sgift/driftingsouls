@@ -214,35 +214,6 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		return ContextMap.getContext().getDB();
 	}
 
-	public interface StatusWriter
-	{
-		public StatusWriter append(String text);
-	}
-
-	public class DefaultStatusWriter implements StatusWriter
-	{
-		private Writer echo;
-
-		public DefaultStatusWriter(Writer echo)
-		{
-			this.echo = echo;
-		}
-
-		@Override
-		public StatusWriter append(String text)
-		{
-			try
-			{
-				this.echo.append(text);
-			}
-			catch (IOException e)
-			{
-				throw new IllegalStateException(e);
-			}
-			return this;
-		}
-	}
-
 	protected void reset(StatusWriter writer, T entity) throws IOException
 	{
 		// TODO
