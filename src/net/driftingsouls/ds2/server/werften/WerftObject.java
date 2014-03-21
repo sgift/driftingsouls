@@ -1480,8 +1480,8 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		if( itemcount == 0 )
 		{
 			quelle = BauinformationenQuelle.ALLIANZ_ITEM;
+			itemcount = allyitems.getItem( itemid ).size();
 		}
-		itemcount = allyitems.getItem( itemid ).size();
 
 		if( itemcount == 0 ) {
 			MESSAGE.get().append("Kein passendes Item vorhanden");
