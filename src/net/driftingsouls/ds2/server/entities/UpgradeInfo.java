@@ -35,6 +35,7 @@ public class UpgradeInfo {
 	@Id @GeneratedValue
 	private int id;
 	private int type;
+	@Column(name="`mod`", nullable = false)
 	private int mod;
 	private boolean cargo;
 	private int price;
