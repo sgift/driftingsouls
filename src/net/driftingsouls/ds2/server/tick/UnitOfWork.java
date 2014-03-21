@@ -18,14 +18,8 @@
  */
 package net.driftingsouls.ds2.server.tick;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -33,6 +27,12 @@ import org.hibernate.FlushMode;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.Transaction;
 import org.hibernate.exception.GenericJDBCException;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * <p>Klasse zur Durchfuehrung isolierter Arbeitsaufgaben (= 1 Transaktion) im Tick.
@@ -48,10 +48,11 @@ public abstract class UnitOfWork<T>
 {
 	private static final Logger LOG = LogManager.getLogger(UnitOfWork.class);
 
-	private String name;
+	private final String name;
 	private int flushSize = 50;
 	private org.hibernate.Session db;
 	private List<T> unsuccessfulWork;
+	private UnitOfWorkErrorReporter<T> errorReporter;
 	
 	/**
 	 * Konstruktor.
@@ -61,9 +62,30 @@ public abstract class UnitOfWork<T>
 	{
 		this.name = name;
 		this.db = ContextMap.getContext().getDB();
-		this.unsuccessfulWork = new ArrayList<T>();
+		this.unsuccessfulWork = new ArrayList<>();
+		this.errorReporter = UnitOfWork::mailException;
 	}
-	
+
+	/**
+	 * Gibt den Namen dieser Arbeitsaufgabe zurueck.
+	 * @return Der Name
+	 */
+	public String getName()
+	{
+		return name;
+	}
+
+	/**
+	 * Setzt die Methode, die zur Meldung von Fehlern beim Ausfuehren dieser Arbeitsaufgabe verwendet wird.
+	 * @param errorReporter Die Methodenreferenz
+	 * @return Die Instanz
+	 */
+	public UnitOfWork<T> setErrorReporter(UnitOfWorkErrorReporter<T> errorReporter)
+	{
+		this.errorReporter = errorReporter;
+		return this;
+	}
+
 	/**
 	 * Setzt die Flushgroesse, d.h. die Anzahl der abzuarbeitenden Arbeitsaufgaben
 	 * bevor ein Flush durchgefuehrt wird.
@@ -97,7 +119,7 @@ public abstract class UnitOfWork<T>
 			db.setFlushMode(FlushMode.MANUAL);
 			Transaction transaction = db.beginTransaction();
 
-			List<T> unflushedObjects = new ArrayList<T>();
+			List<T> unflushedObjects = new ArrayList<>();
 
 			int count = 0;
 			for( Iterator<T> iter=work.iterator(); iter.hasNext(); ) 
@@ -147,8 +169,8 @@ public abstract class UnitOfWork<T>
 								// Parsen der Fehlermeldung nicht moeglich - normal weiter machen 
 							}
 						}
-						LOG.warn(name+" - on flush von "+unflushedObjects, e);
-						Common.mailThrowable(e, this.name + " Exception", "on flush von "+unflushedObjects);
+						LOG.warn(name + " - on flush von " + unflushedObjects, e);
+						errorReporter.report(this, unflushedObjects, e);
 					}
 					
 					onFlushed();
@@ -168,12 +190,17 @@ public abstract class UnitOfWork<T>
 		}
 	}
 
+	private static <T> void mailException(UnitOfWork<T> unitOfWork, List<T> failedObjects, Throwable e)
+	{
+		Common.mailThrowable(e, unitOfWork.name + " Exception", "Fehlgeschlagene Objekte: " + failedObjects);
+	}
+
 	/**
 	 * Gibt alle Objekte zurueck, fuer die die Verarbeitung nicht erfolgreich war.
 	 * @return Die nicht erfolgreich bearbeiteten Objekte
 	 */
 	public List<T> getUnsuccessfulWork() {
-		return new ArrayList<T>(this.unsuccessfulWork);
+		return new ArrayList<>(this.unsuccessfulWork);
 	}
 	
 	/**
@@ -206,9 +233,8 @@ public abstract class UnitOfWork<T>
 				db.evict(workObject);
 			}
 
-			LOG.warn(name+" - Object: "+workObject, e);
-			e.printStackTrace();
-			Common.mailThrowable(e, name+" Exception", "Object: " + workObject);
+			LOG.warn(name + " - Object: " + workObject, e);
+			errorReporter.report(this, Arrays.asList(workObject), e);
 			
 			return false;
 		}
