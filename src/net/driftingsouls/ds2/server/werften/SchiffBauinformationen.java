@@ -104,7 +104,7 @@ public class SchiffBauinformationen implements Comparable<SchiffBauinformationen
 
 		SchiffBauinformationen that = (SchiffBauinformationen) o;
 
-		if (baudaten != null ? !baudaten.equals(that.baudaten) : that.baudaten != null)
+		if (quelle != that.quelle)
 		{
 			return false;
 		}
@@ -112,10 +112,14 @@ public class SchiffBauinformationen implements Comparable<SchiffBauinformationen
 		{
 			return false;
 		}
-		if (quelle != that.quelle)
+		if( quelle == BauinformationenQuelle.FORSCHUNG )
 		{
-			return false;
+			if (baudaten != null ? !baudaten.equals(that.baudaten) : that.baudaten != null)
+			{
+				return false;
+			}
 		}
+
 
 		return true;
 	}
