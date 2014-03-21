@@ -18,13 +18,13 @@
  */
 package net.driftingsouls.ds2.server.entities.npcorders;
 
+import org.hibernate.annotations.Immutable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.Immutable;
 
 /**
  * Ein fuer NPCs bestellbarer Offizier.
@@ -46,13 +46,35 @@ public class OrderableOffizier {
 	private int sec;
 	private int com;
 	private int cost;
-	
+
 	/**
 	 * Konstruktor.
 	 *
 	 */
-	public OrderableOffizier() {
+	protected OrderableOffizier() {
 		// EMPTY
+	}
+
+	/**
+	 * Konstruktor.
+	 * @param name Der Name des Eintrags
+	 * @param cost Die Kosten (NPC-Punkte)
+	 * @param rang Der Rang
+	 * @param ing Die Ingenieursfaehigkeit
+	 * @param waf Die Waffenfaehigkeit
+	 * @param nav Die Navigationsfaehigkeit
+	 * @param sec Die Sicherheitsfaehigkeit
+	 * @param com Die Kommunikationsfaehigkeit
+	 */
+	public OrderableOffizier(String name, int cost, int rang, int ing, int waf, int nav, int sec, int com) {
+		this.name = name;
+		this.rang = rang;
+		this.ing = ing;
+		this.waf = waf;
+		this.nav = nav;
+		this.sec = sec;
+		this.com = com;
+		this.cost = cost;
 	}
 
 	/**

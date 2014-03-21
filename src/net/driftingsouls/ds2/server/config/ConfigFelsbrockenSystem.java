@@ -1,15 +1,15 @@
 package net.driftingsouls.ds2.server.config;
 
-import java.util.SortedSet;
-import java.util.TreeSet;
+import org.hibernate.annotations.Sort;
+import org.hibernate.annotations.SortType;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.Sort;
-import org.hibernate.annotations.SortType;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Die Gesamtkonfiguration fuer in einem System spawnende Felsbrocken
@@ -27,7 +27,7 @@ public class ConfigFelsbrockenSystem
 	@Id
 	private int system;
 	private int count;
-	@OneToMany(mappedBy="system")
+	@OneToMany(mappedBy="system", cascade = CascadeType.ALL)
 	@Sort(type=SortType.NATURAL)
 	private SortedSet<ConfigFelsbrocken> felsbrocken;
 
@@ -37,6 +37,19 @@ public class ConfigFelsbrockenSystem
 	protected ConfigFelsbrockenSystem()
 	{
 		this.felsbrocken = new TreeSet<>();
+	}
+
+	/**
+	 * Konstruktor.
+	 * @param system Das Sternensystem
+	 * @param anzahl Die maximale Anzahl an Felsbrocken
+	 */
+	public ConfigFelsbrockenSystem(StarSystem system, int anzahl)
+	{
+		this();
+
+		this.system = system.getID();
+		this.count = anzahl;
 	}
 
 	/**
