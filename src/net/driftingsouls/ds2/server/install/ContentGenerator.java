@@ -7,13 +7,29 @@ import net.driftingsouls.ds2.server.bases.BaseStatus;
 import net.driftingsouls.ds2.server.bases.BaseType;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
+import net.driftingsouls.ds2.server.cargo.ResourceID;
+import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.config.ConfigFelsbrocken;
+import net.driftingsouls.ds2.server.config.ConfigFelsbrockenSystem;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Nebel;
+import net.driftingsouls.ds2.server.entities.NewsEntry;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.*;
+import net.driftingsouls.ds2.server.entities.npcorders.OrderableOffizier;
+import net.driftingsouls.ds2.server.framework.BasicContext;
+import net.driftingsouls.ds2.server.framework.CmdLineRequest;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.DriftingSouls;
+import net.driftingsouls.ds2.server.framework.EmptyPermissionResolver;
+import net.driftingsouls.ds2.server.framework.SimpleResponse;
 import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import net.driftingsouls.ds2.server.map.TileCache;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
+import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.tick.EvictableUnitOfWork;
+import net.driftingsouls.ds2.server.tick.SingleUnitOfWork;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -25,6 +41,7 @@ import org.quartz.impl.StdScheduler;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -45,10 +62,22 @@ public class ContentGenerator
 			throw new IllegalStateException("Konnte DS nicht starten", e);
 		}
 		mitHibernateSession((session) -> mitContext((context) -> {
-			LOG.info("Fuelle Systeme mit Inhalt");
 			Session db = context.getDB();
-			List<StarSystem> list = Common.cast(db.createCriteria(StarSystem.class).add(Restrictions.gt("id", 0)).list());
 
+			LOG.info("Erzeuge NPC-Bestelldaten");
+			new SingleUnitOfWork("NPC-Bestelldaten erzeugen") {
+				@Override
+				public void doWork() throws Exception
+				{
+					db.persist(new OrderableOffizier("Ingenieur", 1, 0, 25, 20, 10, 5, 5));
+					db.persist(new OrderableOffizier("Navigator", 1, 0, 5, 10, 30, 5, 10));
+					db.persist(new OrderableOffizier("Sicherheitsexperte", 1, 0, 10, 25, 5, 35, 5));
+					db.persist(new OrderableOffizier("Captain", 1, 0, 10, 10, 15, 5, 35));
+				}
+			}.execute();
+
+			LOG.info("Fuelle Systeme mit Inhalt");
+			List<StarSystem> list = Common.cast(db.createCriteria(StarSystem.class).add(Restrictions.gt("id", 0)).list());
 			new EvictableUnitOfWork<StarSystem>("Fuelle Systeme") {
 				@Override
 				public void doWork(StarSystem sys) throws Exception
@@ -60,6 +89,7 @@ public class ContentGenerator
 					fuelleSystemMitAsteroiden(sys, baseTypes.stream().filter((bt) -> bt.getSize() == 0).collect(Collectors.toList()), (size) -> (int)Math.pow(size, 0.6));
 					fuelleSystemMitAsteroiden(sys, baseTypes.stream().filter((bt) -> bt.getSize() > 0).collect(Collectors.toList()), (size) -> (int) Math.pow(size, 0.2));
 					fuelleSystemMitNebeln(sys);
+					fuelleSystemMitFelsbrockenKonfigurationen(sys);
 				}
 			}.setFlushSize(1).executeFor(list);
 
@@ -74,7 +104,65 @@ public class ContentGenerator
 				}
 			}
 			.setFlushSize(1).executeFor(users);
+
+			LOG.info("Erzeuge Newseintrag");
+
+			new SingleUnitOfWork("Portal-News erzeugen") {
+				@Override
+				public void doWork() throws Exception
+				{
+					NewsEntry news = new NewsEntry(
+							"Willkommen bei DS2",
+							"Installationsprogramm",
+							Common.time(),
+							"Willkommen bei DS2",
+							"Willkommen bei DS2\r\nDu hasst den Demodatensatz erfolgreich installiert.\r\nViel Spass beim Testen und Patchen!");
+
+					db.persist(news);
+				}
+			}.execute();
 		}));
+	}
+
+	private void fuelleSystemMitFelsbrockenKonfigurationen(StarSystem sys)
+	{
+		if( Math.random() < 0.5 )
+		{
+			return;
+		}
+		Session db = ContextMap.getContext().getDB();
+		ShipType felsbrockenType = (ShipType)db.createQuery("from ShipType where shipClass=:cls")
+				.setParameter("cls", ShipClasses.FELSBROCKEN)
+				.setMaxResults(1)
+				.uniqueResult();
+		if( felsbrockenType == null )
+		{
+			LOG.warn("Es existiert kein Schiffstyp der Klasse "+ShipClasses.FELSBROCKEN.getSingular());
+			return;
+		}
+
+		ConfigFelsbrockenSystem cfs = new ConfigFelsbrockenSystem(sys, (int)Math.pow(sys.getWidth()*sys.getHeight(),0.4));
+
+		for( int i=0; i < 3; i++ )
+		{
+			Cargo cargo = new Cargo();
+			for (ResourceID resId : Arrays.asList(Resources.ADAMATIUM, Resources.PLATIN, Resources.ERZ, Resources.SILIZIUM, Resources.SHIVARTE, Resources.TITAN, Resources.URAN))
+			{
+				int anzahl = (int)(Math.random()*40)-20;
+				if( anzahl < 0 )
+				{
+					continue;
+				}
+				cargo.addResource(resId, anzahl);
+			}
+			if( cargo.isEmpty() )
+			{
+				continue;
+			}
+
+			cfs.getFelsbrocken().add(new ConfigFelsbrocken(cfs, felsbrockenType, (int) (Math.random() * 100), cargo));
+		}
+		db.persist(cfs);
 	}
 
 	private void kolonisiereAsteroidenFuer(User user, int anzahl)
