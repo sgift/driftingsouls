@@ -1,6 +1,5 @@
 package net.driftingsouls.ds2.server.werften;
 
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.config.items.Item;
@@ -58,7 +57,7 @@ public class SchiffBauinformationen implements Comparable<SchiffBauinformationen
 	 */
 	public String getId()
 	{
-		String id = quelle.name()+"_";
+		String id = quelle.name()+"#";
 		if( quelle == BauinformationenQuelle.FORSCHUNG )
 		{
 			id += baudaten.getId();
@@ -138,12 +137,12 @@ public class SchiffBauinformationen implements Comparable<SchiffBauinformationen
 	 */
 	public static SchiffBauinformationen fromId(String id)
 	{
-		if( id == null || id.trim().length() < 3 || !id.contains("_") )
+		if( id == null || id.trim().length() < 3 || !id.contains("#") )
 		{
 			throw new IllegalArgumentException("Keine gueltige ID: "+id);
 		}
-		String quelleStr = id.substring(0, id.indexOf('_')).trim();
-		String idStr = id.substring(id.indexOf('_')+1);
+		String quelleStr = id.substring(0, id.indexOf('#')).trim();
+		String idStr = id.substring(id.indexOf('#')+1);
 
 		ShipBaubar baudaten;
 		ResourceID item = null;
