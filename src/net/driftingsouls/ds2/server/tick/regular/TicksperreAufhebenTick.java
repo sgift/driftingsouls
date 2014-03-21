@@ -2,7 +2,7 @@ package net.driftingsouls.ds2.server.tick.regular;
 
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
-import net.driftingsouls.ds2.server.tick.SingleUnitOfWork;
+import net.driftingsouls.ds2.server.framework.db.batch.SingleUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
 
 /**

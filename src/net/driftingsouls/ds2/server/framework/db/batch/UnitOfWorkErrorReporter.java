@@ -1,4 +1,4 @@
-package net.driftingsouls.ds2.server.tick;
+package net.driftingsouls.ds2.server.framework.db.batch;
 
 import javax.annotation.Nonnull;
 import java.util.List;
