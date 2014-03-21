@@ -60,7 +60,7 @@ import java.util.Map;
 @Entity
 @Table(name = "buildings")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "module")
+@DiscriminatorColumn(name = "module", length=255)
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public abstract class Building
 {
