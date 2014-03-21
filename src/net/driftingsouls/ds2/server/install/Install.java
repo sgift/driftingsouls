@@ -171,7 +171,7 @@ public class Install
 
 		Set<String> imgs;
 
-		ImageInstaller inst = new ImageInstaller();
+		ImageDownloader inst = new ImageDownloader();
 		imgs = inst.readFromDb(con, "ally", "id");
 		inst.store(imgs, "data/logos/ally/", ".gif");
 

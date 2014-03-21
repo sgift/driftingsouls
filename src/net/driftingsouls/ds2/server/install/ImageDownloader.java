@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 /**
  * Funktionen zum identifizieren und nachladen von Grafiken fuer die DS-Installation.
  */
-public class ImageInstaller
+public class ImageDownloader
 {
 	/**
 	 * Laedt das angegebene Set von Grafiken vom DS-Server und speichert es im lokalen
