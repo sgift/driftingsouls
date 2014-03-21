@@ -1484,13 +1484,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * Berechnet die durch Module verursachten Effekte des Schiffes neu.
 	 */
 	public void recalculateModules() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
 		if( this.modules == null ) {
 			return;
 		}
 
-		ShipModules shipModules = (ShipModules)db.get(ShipModules.class, this.id);
+		ShipModules shipModules = this.modules;
 
 		List<ModuleEntry> moduletbl = new ArrayList<>();
 		moduletbl.addAll(Arrays.asList(getModules()));
