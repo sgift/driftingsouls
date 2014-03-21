@@ -1,5 +1,10 @@
 package net.driftingsouls.ds2.server.config;
 
+import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.ships.ShipType;
+import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Type;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -7,12 +12,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Type;
-
-import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.ships.ShipType;
 
 /**
  * <p>Eine Konfiguration eines konkreten Felsbrockentyps
@@ -51,6 +50,21 @@ public class ConfigFelsbrocken implements Comparable<ConfigFelsbrocken>
 	protected ConfigFelsbrocken()
 	{
 		// EMPTY
+	}
+
+	/**
+	 * Konstruktor.
+	 * @param configFelsbrockenSystem Die Systemkonfiguration
+	 * @param shipType Der Schiffstyp
+	 * @param chance Die Wahrscheinlichkeit fuer diese Konfiguration
+	 * @param cargo Der Cargo
+	 */
+	public ConfigFelsbrocken(ConfigFelsbrockenSystem configFelsbrockenSystem, ShipType shipType, int chance, Cargo cargo)
+	{
+		this.system = configFelsbrockenSystem;
+		this.shiptype = shipType;
+		this.chance = chance;
+		this.cargo = new Cargo(cargo);
 	}
 
 	/**
