@@ -3,6 +3,7 @@ package net.driftingsouls.ds2.server.modules.admin.editoren;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.ships.ShipBaubar;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -11,12 +12,28 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Generator fuer Labels zu Objekten.
  */
 public class ObjectLabelGenerator
 {
+	private  Map<Class<?>, Function<Object,String>> specialLabelGenerators = new HashMap<>();
+
+	public ObjectLabelGenerator()
+	{
+		registerSpecialGenerator(User.class, User::getPlainname);
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T> void registerSpecialGenerator(Class<T> cls, Function<T,String> transformer)
+	{
+		specialLabelGenerators.put(cls, (Function<Object, String>) transformer);
+	}
+
 	/**
 	 * Generiert ein Label fuer eine Kombination von ID und Objektinstanz.
 	 * @param identifier Die ID des Objekts
@@ -33,11 +50,21 @@ public class ObjectLabelGenerator
 			identifier = db.getIdentifier(entity);
 		}
 
-		if( entity instanceof User)
+		String label;
+		if( specialLabelGenerators.containsKey(entity.getClass()) )
 		{
-			return (((User) entity).getPlainname())+" ("+identifier+")";
+			label = specialLabelGenerators.get(entity.getClass()).apply(entity);
+		}
+		else
+		{
+			label = generateDefaultLabel(entity);
 		}
 
+		return label + (identifier != null ? " (" + identifier + ")" : "");
+	}
+
+	private String generateDefaultLabel(Object entity)
+	{
 		Class<?> type = entity.getClass();
 
 		Method labelMethod = null;
@@ -61,7 +88,7 @@ public class ObjectLabelGenerator
 
 		try
 		{
-			return labelMethod.invoke(entity).toString() + (identifier != null ? " (" + identifier + ")" : "");
+			return labelMethod.invoke(entity).toString();
 		}
 		catch (IllegalAccessException | InvocationTargetException e)
 		{
