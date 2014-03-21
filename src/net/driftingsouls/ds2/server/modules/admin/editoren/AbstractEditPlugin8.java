@@ -1,7 +1,6 @@
 package net.driftingsouls.ds2.server.modules.admin.editoren;
 
 import net.driftingsouls.ds2.server.bases.Building;
-import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -12,15 +11,10 @@ import net.driftingsouls.ds2.server.tick.EvictableUnitOfWork;
 import org.hibernate.Session;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.persistence.Entity;
 import java.io.IOException;
-import java.io.Serializable;
 import java.io.Writer;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -116,7 +110,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		beginSelectionBox(echo, page, action);
 		for (Object entity : entities)
 		{
-			addSelectionOption(echo, db.getIdentifier(entity), generateLabelFor(null, entity));
+			addSelectionOption(echo, db.getIdentifier(entity), new ObjectLabelGenerator().generateFor(null, entity));
 		}
 		endSelectionBox(echo);
 		if( form.isAddAllowed() )
@@ -259,52 +253,6 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 	protected boolean isUpdatePossible(@Nonnull T entity)
 	{
 		return true;
-	}
-
-	protected static String generateLabelFor(@Nullable Serializable identifier, @Nonnull Object entity)
-	{
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
-		if (identifier == null && entity.getClass().isAnnotationPresent(Entity.class))
-		{
-			identifier = db.getIdentifier(entity);
-		}
-
-		if( entity instanceof User)
-		{
-			return (((User) entity).getPlainname())+" ("+identifier+")";
-		}
-
-		Class<?> type = entity.getClass();
-
-		Method labelMethod = null;
-		for (String m : Arrays.asList("getName", "getNickname", "toString"))
-		{
-			try
-			{
-				labelMethod = type.getMethod(m);
-				break;
-			}
-			catch (NoSuchMethodException e)
-			{
-				// Ignore
-			}
-		}
-
-		if( labelMethod == null )
-		{
-			throw new AssertionError("No toString");
-		}
-
-		try
-		{
-			return labelMethod.invoke(entity).toString() + (identifier != null ? " (" + identifier + ")" : "");
-		}
-		catch (IllegalAccessException | InvocationTargetException e)
-		{
-			throw new IllegalStateException(e);
-		}
 	}
 
 	private void beginSelectionBox(Writer echo, String page, int action) throws IOException

@@ -569,7 +569,7 @@ public class EditorForm8<E>
 				}
 				else
 				{
-					label = AbstractEditPlugin8.generateLabelFor(identifier, entry.getValue());
+					label = new ObjectLabelGenerator().generateFor(identifier, entry.getValue());
 				}
 				echo.append(">").append(label).append("</option>");
 			}
