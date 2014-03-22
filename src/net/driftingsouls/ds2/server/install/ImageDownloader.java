@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 /**
  * Funktionen zum identifizieren und nachladen von Grafiken fuer die DS-Installation.
  */
-public class ImageInstaller
+public class ImageDownloader
 {
 	/**
 	 * Laedt das angegebene Set von Grafiken vom DS-Server und speichert es im lokalen
@@ -209,6 +209,7 @@ public class ImageInstaller
 					int klasse = result.getInt("id");
 
 					imgs.add("kolonie" + klasse + "_starmap.png");
+					imgs.add("kolonie" + klasse + "_srs.png");
 					imgs.add("kolonie" + klasse + "_lrs/kolonie" + klasse + "_lrs.png");
 					imgs.add("kolonie" + klasse + "_lrs/kolonie" + klasse + "_lrs.jpg");
 				}

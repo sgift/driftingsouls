@@ -18,6 +18,10 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
+import net.driftingsouls.ds2.server.cargo.Cargo;
+import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Type;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -26,11 +30,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-
-import net.driftingsouls.ds2.server.cargo.Cargo;
-
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Type;
 
 /**
  * Ein Baueintrag fuer einen Schiffstyp.
@@ -157,6 +156,15 @@ public class ShipBaubar {
 	 */
 	public ShipType getType() {
 		return type;
+	}
+
+	/**
+	 * Setzt den Schiffstyp, welcher hiermit gebaut werden kann.
+	 * @param type Der Schiffstyp
+	 */
+	public void setType(ShipType type)
+	{
+		this.type = type;
 	}
 
 	/**

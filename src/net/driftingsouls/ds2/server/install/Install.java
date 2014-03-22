@@ -1,7 +1,12 @@
 package net.driftingsouls.ds2.server.install;
 
+import net.driftingsouls.ds2.server.entities.Nebel;
+import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.hibernate.dialect.MySQL5InnoDBDialect;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -23,6 +28,7 @@ import java.sql.Statement;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Installationstool fuer DS. Erstellt alle notwendigen Verzeichnisse und Konfigurationsdateien,
@@ -33,6 +39,10 @@ public class Install
 {
 	public static void main(String[] args) throws IOException
 	{
+		// Unnoetige Logmeldungen unterdruecken
+		Logger.getRootLogger().setLevel(Level.ERROR);
+		Logger.getLogger("net.driftingsouls.ds2.server.install").setLevel(Level.INFO);
+
 		Set<String> params = new HashSet<>(Arrays.asList(args));
 		final boolean skipDatabase = params.contains("--skip-database");
 		final boolean skipConfiguraiton = params.contains("--skip-configuration");
@@ -73,8 +83,12 @@ public class Install
 			db = "ds2";
 		}
 
-		System.out.print("MySQL-Benutzername: ");
+		System.out.print("MySQL-Benutzername [root]: ");
 		String user = reader.readLine();
+		if( user == null || user.trim().isEmpty() )
+		{
+			user = "root";
+		}
 
 		System.out.print("MySQL-Passwort: ");
 		String pw = reader.readLine();
@@ -85,7 +99,11 @@ public class Install
 
 		try
 		{
-			try (Connection con = DriverManager.getConnection("jdbc:mysql://" + dblocation + "/" + db, user, pw))
+			String dburl = "jdbc:mysql://" + dblocation + "/" + db;
+
+			HibernateUtil.init("web/WEB-INF/cfg/", dburl, user, pw);
+
+			try (Connection con = DriverManager.getConnection(dburl, user, pw))
 			{
 				System.out.println("Datenbankverbindung hergestellt");
 
@@ -97,6 +115,7 @@ public class Install
 					}
 
 					setupDatabase(con);
+					fillDatabase(con);
 
 					System.out.println("Datenbank installiert\n");
 				}
@@ -113,16 +132,25 @@ public class Install
 				System.out.println("\nDS ist nun installiert.\n");
 
 				loadImages(reader, con);
+
+				generateContent();
 			}
 
+			System.out.println("\n\nDrifting Souls wurde erfolgreich installiert");
 			System.out.println("Du solltest es nun mittels 'ant clean compile' erneut uebersetzen.");
-			System.out.println("Anschliessend kannst du DS mittels des Kommandos 'ant run' starten.");
+			System.out.println("Anschliessend kannst du DS mittels des Kommandos 'ant run' starten und im Browser unter http://localhost:8080/driftingsouls/ aufrufen.");
 		}
 		catch (SQLException e)
 		{
 			System.err.println("Fehler bei Datenbankoperation");
 			e.printStackTrace();
 		}
+	}
+
+	private static void generateContent()
+	{
+		ContentGenerator generator = new ContentGenerator();
+		generator.generiereContent();
 	}
 
 	private static void loadImages(BufferedReader reader, Connection con) throws IOException, SQLException
@@ -143,7 +171,7 @@ public class Install
 
 		Set<String> imgs;
 
-		ImageInstaller inst = new ImageInstaller();
+		ImageDownloader inst = new ImageDownloader();
 		imgs = inst.readFromDb(con, "ally", "id");
 		inst.store(imgs, "data/logos/ally/", ".gif");
 
@@ -206,9 +234,17 @@ public class Install
 				"asti_ally/asti_ally.png"));
 		inst.store(imgs, "data/starmap/", null);
 
+		imgs = Arrays.asList(Nebel.Typ.values()).stream().map((nt) -> nt.getImage() + ".png").collect(Collectors.toSet());
+		inst.store(imgs, "data/starmap/", null);
+
 		imgs = inst.readStarmapBases(con);
 		inst.store(imgs, "data/starmap/", null);
 
+		imgs = Arrays.asList(0,1,2,3,4,5,6,7,8,9).stream().map((g) -> "ground"+g+".png").collect(Collectors.toSet());
+		inst.store(imgs, "data/buildings/", null);
+
+		imgs = Arrays.asList(0,1,2,3,4,5,6).stream().map((g) -> "off"+g+".png").collect(Collectors.toSet());
+		inst.store(imgs, "data/interface/offiziere/", null);
 
 		System.out.println("Alle automatisch erkannten Grafiken wurden geladen.\n");
 	}
@@ -350,21 +386,33 @@ public class Install
 
 	private static void setupDatabase(Connection con) throws SQLException
 	{
+		System.out.println("Erstelle Tabellenstruktur");
+		String[] create = HibernateUtil.getConfiguration().generateSchemaCreationScript(new MySQL5InnoDBDialect());
+		for (String s : create)
+		{
+			try (Statement stmt = con.createStatement())
+			{
+				stmt.executeUpdate(s);
+			}
+			catch (SQLException e)
+			{
+				System.err.println("Konnte Statement nicht ausfuehren: " + s);
+				throw e;
+			}
+		}
+
+		InstallUtils.installSqlFile(con, new File("db/functions.sql"));
+	}
+
+	private static void fillDatabase(Connection con) throws SQLException
+	{
 		try (Statement stmt = con.createStatement())
 		{
 			stmt.execute("SET SESSION sql_mode='NO_AUTO_VALUE_ON_ZERO'");
+			stmt.execute("SET FOREIGN_KEY_CHECKS=0");
 		}
-
-		System.out.println("Erstelle Tabellen...");
 
 		File tableDir = new File("db/tables");
-		File[] createFiles = tableDir.listFiles((FileFilter) FileFilterUtils.suffixFileFilter("_create.sql"));
-		for (File createFile : createFiles)
-		{
-			System.out.println("Fuehre Script '"+createFile.getName()+"' aus");
-			InstallUtils.installSqlFile(con, createFile);
-		}
-
 		System.out.println("Schreibe Datensaetze...");
 
 		File[] insertFiles = tableDir.listFiles((FileFilter) FileFilterUtils.suffixFileFilter("_insert.sql"));
@@ -374,15 +422,9 @@ public class Install
 			InstallUtils.installSqlFile(con, insertFile);
 		}
 
-		System.out.println("Erstelle Constraints...");
-
-		File[] alterFiles = tableDir.listFiles((FileFilter) FileFilterUtils.suffixFileFilter("_alter.sql"));
-		for (File alterFile : alterFiles)
+		try (Statement stmt = con.createStatement())
 		{
-			System.out.println("Fuehre Script '"+alterFile.getName()+"' aus");
-			InstallUtils.installSqlFile(con, alterFile);
+			stmt.execute("SET FOREIGN_KEY_CHECKS=1");
 		}
-
-		InstallUtils.installSqlFile(con, new File("db/functions.sql"));
 	}
 }

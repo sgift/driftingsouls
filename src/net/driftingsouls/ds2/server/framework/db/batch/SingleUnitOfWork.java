@@ -1,4 +1,4 @@
-package net.driftingsouls.ds2.server.tick;
+package net.driftingsouls.ds2.server.framework.db.batch;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,8 +36,14 @@ public abstract class SingleUnitOfWork extends UnitOfWork<Void>
 	 */
 	public void execute()
 	{
-		List<Void> fakeParamList = new ArrayList<Void>();
+		List<Void> fakeParamList = new ArrayList<>();
 		fakeParamList.add(null);
 		executeFor(fakeParamList);
+	}
+
+	@Override
+	public SingleUnitOfWork setErrorReporter(UnitOfWorkErrorReporter<Void> errorReporter)
+	{
+		return (SingleUnitOfWork)super.setErrorReporter(errorReporter);
 	}
 }

@@ -32,8 +32,8 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.map.TileCache;
-import net.driftingsouls.ds2.server.tick.EvictableUnitOfWork;
-import net.driftingsouls.ds2.server.tick.UnitOfWork;
+import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
+import net.driftingsouls.ds2.server.framework.db.batch.UnitOfWork;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Session;
 

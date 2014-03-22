@@ -12,6 +12,7 @@ import java.net.URL;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 /**
  * Hilfsmethoden zum Umgang mit Annotations.
@@ -40,11 +41,6 @@ public class AnnotationUtils
 	public SortedSet<String> findeKlassenMitAnnotation(Class<? extends Annotation> annotationCls)
 	{
 		Set<Class<?>> typesAnnotatedWith = reflections.getTypesAnnotatedWith(annotationCls);
-		SortedSet<String> result = new TreeSet<>();
-		for (Class<?> aClass : typesAnnotatedWith)
-		{
-			result.add(aClass.getName());
-		}
-		return result;
+		return new TreeSet<>(typesAnnotatedWith.stream().map(c -> c.getName()).collect(Collectors.toList()));
 	}
 }

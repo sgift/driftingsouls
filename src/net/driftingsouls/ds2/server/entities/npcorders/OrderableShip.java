@@ -18,20 +18,18 @@
  */
 package net.driftingsouls.ds2.server.entities.npcorders;
 
+import net.driftingsouls.ds2.server.entities.Rasse;
+import net.driftingsouls.ds2.server.ships.ShipType;
+import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Immutable;
+
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
-
-import net.driftingsouls.ds2.server.ships.ShipType;
-
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Immutable;
 
 /**
  * Eine NPC-Schiffsbestellung.
@@ -57,6 +55,19 @@ public class OrderableShip {
 	 */
 	public OrderableShip() {
 		// EMPTY
+	}
+
+	/**
+	 * Konstruktor.
+	 * @param shipType Der Schiffstyp
+	 * @param rasse Die Rasse, die die Bestellung aufgeben kann
+	 * @param cost Die Kosten in NPC-Punkten
+	 */
+	public OrderableShip(ShipType shipType, Rasse rasse, int cost)
+	{
+		this.shipType = shipType;
+		this.rasse = rasse.getId();
+		this.cost = cost;
 	}
 
 	/**

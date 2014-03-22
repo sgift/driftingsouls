@@ -1,14 +1,23 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.bases.AcademyBuilding;
 import net.driftingsouls.ds2.server.bases.Building;
+import net.driftingsouls.ds2.server.bases.DefaultBuilding;
+import net.driftingsouls.ds2.server.bases.DigBuilding;
+import net.driftingsouls.ds2.server.bases.Fabrik;
+import net.driftingsouls.ds2.server.bases.ForschungszentrumBuilding;
+import net.driftingsouls.ds2.server.bases.KasernenBuilding;
+import net.driftingsouls.ds2.server.bases.Werft;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.Rasse;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.pipeline.Request;
+import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Editiert die Werte von Gebaeudetypen.
@@ -16,31 +25,24 @@ import java.io.IOException;
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Asteroiden", name = "Gebäude editieren")
-public class EditBuilding extends AbstractEditPlugin<Building>
+public class EditBuilding extends AbstractEditPlugin8<Building>
 {
 	public EditBuilding()
 	{
 		super(Building.class);
+		setEntityClass(DefaultBuilding.class);
 	}
 
-	@Override
-	protected void update(StatusWriter statusWriter, Building building) throws IOException
+	private static int getEnergiebilanz(Building building)
 	{
-		Context context = ContextMap.getContext();
-		Request request = context.getRequest();
+		return -1 * building.getEVerbrauch() + building.getEProduktion();
+	}
 
-		Cargo buildcosts = new Cargo(Cargo.Type.ITEMSTRING, request.getParameter("buildcosts"));
-		Cargo produces = new Cargo(Cargo.Type.ITEMSTRING, request.getParameter("produces"));
-		Cargo consumes = new Cargo(Cargo.Type.ITEMSTRING, request.getParameter("consumes"));
-
-		building.setName(request.getParameterString("name"));
-		building.setDefaultPicture(request.getParameterString("picture"));
-		building.setArbeiter(request.getParameterInt("worker"));
-		int energy = request.getParameterInt("energy");
-		if(energy < 0)
+	private static void setEnergiebilanz(Building building, int energy)
+	{
+		if (energy < 0)
 		{
-			energy = -1 * energy;
-			building.setEVerbrauch(energy);
+			building.setEVerbrauch(-energy);
 			building.setEProduktion(0);
 		}
 		else
@@ -48,47 +50,37 @@ public class EditBuilding extends AbstractEditPlugin<Building>
 			building.setEProduktion(energy);
 			building.setEVerbrauch(0);
 		}
-		building.setEps(request.getParameterInt("eps"));
-		building.setBewohner(request.getParameterInt("room"));
-		building.setTechReq(request.getParameterInt("tech"));
-		building.setUcomplex(request.getParameterString("undergroundbuilding").equals("true"));
-		building.setPerPlanet(request.getParameterInt("perplanet"));
-		building.setPerOwner(request.getParameterInt("perowner"));
-		building.setDeakable(request.getParameterString("deactivable").equals("true"));
-		building.setCategory(request.getParameterInt("category"));
-		building.setTerrainString(request.getParameterString("terrain"));
-		building.setBuildCosts(buildcosts);
-		building.setProduces(produces);
-		building.setConsumes(consumes);
-		building.setChanceRessString(request.getParameterString("chanceress"));
-		building.setShutDown(request.getParameterString("shutdown").equals("true"));
-		building.setRace(request.getParameterInt("race"));
 	}
 
 	@Override
-	protected void edit(EditorForm form, Building building)
+	protected void configureFor(@NotNull EditorForm8<Building> form)
 	{
-		form.label("Implementierung", building.getClass().getName());
-		form.field("Name", "name", String.class, building.getName());
-		form.field("Bild", "picture", String.class, building.getDefaultPicture());
-		form.field("Arbeiter", "worker", Integer.class, building.getArbeiter());
+		form.allowAdd();
 
-		int energy = -1*building.getEVerbrauch() + building.getEProduktion();
-		form.field("Energie", "energy", Integer.class, energy);
-		form.field("EPS", "eps", Integer.class, building.getEPS());
-		form.field("Wohnraum", "room", Integer.class, building.getBewohner());
-		form.field("Forschung", "tech", Forschung.class, building.getTechRequired());
-		form.field("Untergrundkomplex", "undergroundbuilding", Boolean.class, building.isUComplex());
-		form.field("Max. pro Planet", "perplanet", Integer.class, building.getPerPlanetCount());
-		form.field("Max. pro Spieler", "perowner", Integer.class, building.getPerUserCount());
-		form.field("Abschaltbar", "deactivable", Boolean.class, building.isDeakAble());
-		form.field("Kategorie", "category", Integer.class, building.getCategory());
-		form.field("Terrain", "terrain", String.class, building.getTerrainString());
-		form.field("Auto Abschalten", "shutdown", Boolean.class, building.isShutDown());
-		form.field("ChanceRess", "chanceress", String.class, building.getChanceRessString());
-		form.field("Rasse", "race", Rasse.class, building.getRace());
-		form.field("Baukosten", "buildcosts", Cargo.class, building.getBuildCosts());
-		form.field("Verbraucht", "consumes", Cargo.class, building.getConsumes());
-		form.field("Produziert", "produces", Cargo.class, building.getProduces());
+		Map<String,String> clsOptions = Arrays.asList(DefaultBuilding.class, AcademyBuilding.class, DigBuilding.class, Fabrik.class, ForschungszentrumBuilding.class, KasernenBuilding.class, Werft.class)
+												   .stream()
+												   .collect(Collectors.toMap((c) -> c.getName(), (c) -> c.getSimpleName()));
+		form.ifAdding().field("Implementierung", String.class, (Building b) -> this.getEntityClass(), (Building b,String s) -> this.setEntityClass(s)).withOptions(clsOptions);
+		form.ifUpdating().label("Implementierung", (b) -> b.getClass().getName());
+		form.field("Name", String.class, Building::getName, Building::setName);
+		form.field("Bild", String.class, Building::getDefaultPicture, Building::setDefaultPicture);
+		form.field("Arbeiter", Integer.class, Building::getArbeiter, Building::setArbeiter);
+
+		form.field("Energie", Integer.class, EditBuilding::getEnergiebilanz, EditBuilding::setEnergiebilanz);
+		form.field("EPS", Integer.class, Building::getEPS, Building::setEps);
+		form.field("Wohnraum", Integer.class, Building::getBewohner, Building::setBewohner);
+		form.field("Forschung", Forschung.class, Integer.class, Building::getTechRequired, Building::setTechReq);
+		form.field("Untergrundkomplex", Boolean.class, Building::isUComplex, Building::setUcomplex);
+		form.field("Max. pro Planet", Integer.class, Building::getPerPlanetCount, Building::setPerPlanet);
+		form.field("Max. pro Spieler", Integer.class, Building::getPerUserCount, Building::setPerOwner);
+		form.field("Abschaltbar", Boolean.class, Building::isDeakAble, Building::setDeakable);
+		form.field("Kategorie", Integer.class, Building::getCategory, Building::setCategory);
+		form.field("Terrain", String.class, Building::getTerrainString, Building::setTerrainString);
+		form.field("Auto Abschalten", Boolean.class, Building::isShutDown, Building::setShutDown);
+		form.field("ChanceRess", String.class, Building::getChanceRessString, Building::setChanceRessString);
+		form.field("Rasse", Rasse.class, Integer.class, Building::getRace, Building::setRace);
+		form.field("Baukosten", Cargo.class, Building::getBuildCosts, Building::setBuildCosts);
+		form.field("Verbraucht", Cargo.class, Building::getConsumes, Building::setConsumes);
+		form.field("Produziert", Cargo.class, Building::getProduces, Building::setProduces);
 	}
 }
