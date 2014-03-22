@@ -2,6 +2,7 @@ create index coords on ships (system, x, y);
 create index docked on ships (docked);
 create index status on ships (status);
 create index owner on ships (owner, id);
+alter table ships add index FK6856DB7B6B202B4 (id), add constraint FK6856DB7B6B202B4 foreign key (id) references ship_history (id);
 alter table ships add index ships_fk_ship_script_data (scriptData_id), add constraint ships_fk_ship_script_data foreign key (scriptData_id) references ship_script_data (shipid);
 alter table ships add index ships_fk_ship_fleets (fleet), add constraint ships_fk_ship_fleets foreign key (fleet) references ship_fleets (id);
 alter table ships add index ships_fk_battles (battle), add constraint ships_fk_battles foreign key (battle) references battles(id);

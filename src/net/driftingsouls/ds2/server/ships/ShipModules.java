@@ -22,6 +22,7 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -105,6 +106,7 @@ public class ShipModules implements ShipTypeData {
 	private double lostInEmpChance;
 	private int maxunitsize;
 	private int unitspace;
+	@Index(name="versorger")
 	private boolean versorger;
 	@Column(nullable = false, scale = 0)
     private BigInteger bounty = BigInteger.ZERO;

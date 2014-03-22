@@ -49,11 +49,10 @@ public class ShipHistory
 	@Id @GeneratedValue(generator="foreign")   
 	@GenericGenerator(name="foreign", strategy = "foreign", parameters={@Parameter(name="property",value="ship")})  
 	private int id;
-	
+
 	@SuppressWarnings("unused")
-	@OneToOne(optional = false)
-	@JoinColumn(name="id", nullable = false)
-	@ForeignKey(name="ship_history_fk_ships")
+	@OneToOne()
+	@JoinColumn(name="id")
 	private Ship ship;
 
 	@Lob

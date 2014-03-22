@@ -31,6 +31,7 @@ import javax.persistence.Version;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 
 import java.math.BigInteger;
 
@@ -114,6 +115,7 @@ public class ShipType implements ShipTypeData {
 	private double lostInEmpChance;
 	private int maxunitsize;
 	private int unitspace;
+	@Index(name="versorger")
 	private boolean versorger;
 	@Column(nullable = false, scale = 0)
 	private BigInteger bounty = BigInteger.ZERO;

@@ -35,6 +35,7 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Immutable;
+import org.hibernate.annotations.Index;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -279,6 +280,7 @@ public class Nebel implements Locatable {
 
 	@Id
 	private MutableLocation loc;
+	@Index(name="idx_nebulatype")
 	@Enumerated
 	@Column(nullable = false)
 	private Typ type;

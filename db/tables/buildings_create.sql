@@ -1,5 +1,6 @@
 CREATE TABLE `buildings` (
-  `id` integer not null auto_increment,
+	`module` varchar(255) not null,
+	`id` integer not null auto_increment,
 	`arbeiter` integer not null,
 	`bewohner` integer not null,
 	`buildcosts` varchar(255) not null,
@@ -10,7 +11,6 @@ CREATE TABLE `buildings` (
 	`eprodu` integer not null,
 	`ever` integer not null,
 	`eps` integer not null,
-	`module` varchar(255) not null,
 	`name` varchar(255) not null,
 	`perowner` integer not null,
 	`perplanet` integer not null,

@@ -296,7 +296,6 @@ public class NPCOrderTick extends TickController {
 		ship.setSensors(100);
 		ship.setAblativeArmor(shipd.getAblativeArmor());
 		int id = (Integer)db.save(ship);
-		db.save(ship.getHistory());
 
 		if( shipd.getWerft() != 0 ) {
 			ShipWerft awerft = new ShipWerft(ship);

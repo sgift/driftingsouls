@@ -81,6 +81,7 @@ public class UserMoneyTransfer {
 	@JoinColumn(nullable=false)
 	@ForeignKey(name="user_moneytransfer_fk_users2")
 	private User to;
+	@Index(name="time")
 	private long time;
 	@Column(nullable = false)
 	private BigInteger count;

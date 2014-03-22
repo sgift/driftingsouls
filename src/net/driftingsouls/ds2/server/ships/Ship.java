@@ -211,7 +211,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 	@OneToOne(
 			fetch=FetchType.LAZY,
-			cascade={CascadeType.MERGE,CascadeType.REFRESH,CascadeType.REMOVE,CascadeType.DETACH})
+			cascade=CascadeType.ALL,
+			optional = false)
 	@PrimaryKeyJoinColumn(name="id", referencedColumnName="id")
 	private ShipHistory history;
 
@@ -3365,7 +3366,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 		truemmer.setCargo(cargo);
 		truemmer.setHull(Configuration.getIntSetting("CONFIG_TRUEMMER_HUELLE"));
 		int id = (Integer)db.save(truemmer);
-		db.save(truemmer.getHistory());
 
 
 		Taskmanager.getInstance().addTask(Taskmanager.Types.SHIP_DESTROY_COUNTDOWN, 21, Integer.toString(id), "", "" );

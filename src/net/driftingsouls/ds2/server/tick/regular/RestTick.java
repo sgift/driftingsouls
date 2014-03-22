@@ -412,7 +412,6 @@ public class RestTick extends TickController {
 
 						// Schiffseintrag einfuegen
 						db.save(brocken);
-						db.save(brocken.getHistory());
 
 						this.log("");
 

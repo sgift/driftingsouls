@@ -477,7 +477,6 @@ public class CreateObjects implements AdminPlugin {
 				shipObj.setComm(100);
 				shipObj.setSensors(100);
 				int id = (Integer)db.save(shipObj);
-				db.save(shipObj.getHistory());
 				
 				// Offizier
 				Element offiElement = (Element)XMLUtils.firstNodeByTagName(ship, "offizier");

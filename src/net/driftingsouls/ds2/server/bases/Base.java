@@ -152,6 +152,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	@Lob
 	private String spawnressavailable;
 	private boolean isloading;
+	@Index(name="idx_feeding")
 	private boolean isfeeding;
 
 	@OneToOne(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE})

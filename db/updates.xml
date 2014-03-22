@@ -2200,4 +2200,8 @@ Die Vasudaner haben eine sehr alte Kultur mit mehreren hochentwickelten Sprachen
 		alter table user_moneytransfer drop index `from`;
 		create index from_idx on user_moneytransfer (from_id, to_id);
 	]]></update>
+	<update type="structure" datum="2014-03-22"><![CDATA[
+		alter table ships add index FK6856DB7B6B202B4 (id), add constraint FK6856DB7B6B202B4 foreign key (id) references ship_history (id);
+		alter table ship_history drop index FKC59569919ACA6396, drop foreign key FKC59569919ACA6396;
+	]]></update>
 </updates>

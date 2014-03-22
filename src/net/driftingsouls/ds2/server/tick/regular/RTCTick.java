@@ -150,7 +150,6 @@ public class RTCTick extends TickController {
 					ship.setNahrungCargo(Math.min(shiptype.getNahrungCargo(), ship.getFoodConsumption() * 3));
 
 					db.save(ship);
-					db.save(ship.getHistory());
 
 					if( shiptype.getWerft() != 0 )
 					{
