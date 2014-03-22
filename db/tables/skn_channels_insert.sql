@@ -1,5 +1,0 @@
-INSERT INTO `skn_channels` (`id`, `name`, `allyowner`, `writeall`, `readall`, `writenpc`, `readnpc`, `writeally`, `readally`, `writeplayer`, `readplayer`) VALUES (1, 'Standard', 0, 1, 1, 0, 0, 0, 0, '', '');
-INSERT INTO `skn_channels` (`id`, `name`, `allyowner`, `writeall`, `readall`, `writenpc`, `readnpc`, `writeally`, `readally`, `writeplayer`, `readplayer`) VALUES (2, 'Notfrequenz', 0, 1, 1, 0, 0, 0, 0, '', '');
-INSERT INTO `skn_channels` (`id`, `name`, `allyowner`, `writeall`, `readall`, `writenpc`, `readnpc`, `writeally`, `readally`, `writeplayer`, `readplayer`) VALUES (3, 'GNN News Network', 0, 0, 1, 1, 0, 0, 0, '', '');
-INSERT INTO `skn_channels` (`id`, `name`, `allyowner`, `writeall`, `readall`, `writenpc`, `readnpc`, `writeally`, `readally`, `writeplayer`, `readplayer`) VALUES (4, 'Non-RPG', 0, 1, 1, 0, 0, 0, 0, '', '');
-INSERT INTO `skn_channels` (`id`, `name`, `allyowner`, `writeall`, `readall`, `writenpc`, `readnpc`, `writeally`, `readally`, `writeplayer`, `readplayer`) VALUES (5, '-  TESTER  CN -', 1, 1, 1, 0, 0, 0, 0, '', '');
