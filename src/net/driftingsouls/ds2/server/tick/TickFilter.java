@@ -1,9 +1,9 @@
 package net.driftingsouls.ds2.server.tick;
 
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.DSFilter;
 import net.driftingsouls.ds2.server.framework.authentication.TickInProgressException;
-import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -23,7 +23,7 @@ public class TickFilter extends DSFilter
 	{
         if(!isStaticRequest(request))
         {
-          	int tickState = new ConfigService().getValue(Integer.class, "tick");
+          	int tickState = new ConfigService().getValue(WellKnownConfigValue.TICK);
             boolean isTick = tickState == 1;
             if(isTick)
             {

@@ -18,17 +18,8 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import javax.script.Bindings;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
@@ -38,8 +29,8 @@ import net.driftingsouls.ds2.server.config.ConfigFelsbrocken;
 import net.driftingsouls.ds2.server.config.ConfigFelsbrockenSystem;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Jump;
-import net.driftingsouls.ds2.server.entities.statistik.StatShips;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.statistik.StatShips;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
@@ -52,10 +43,18 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import net.driftingsouls.ds2.server.tick.TickController;
-
 import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.Transaction;
+
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Berechnet sonstige Tick-Aktionen, welche keinen eigenen TickController haben.
@@ -557,7 +556,7 @@ public class RestTick extends TickController {
 				.executeUpdate();
 
 			this.log("Erhoehe Tickzahl");
-			ConfigValue value = new ConfigService().get("ticks");
+			ConfigValue value = new ConfigService().get(WellKnownConfigValue.TICKS);
 			int ticks = Integer.valueOf(value.getValue()) + 1;
 			value.setValue(Integer.toString(ticks));
 			transaction.commit();

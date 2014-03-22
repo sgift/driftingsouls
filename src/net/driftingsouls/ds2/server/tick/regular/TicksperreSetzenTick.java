@@ -1,5 +1,6 @@
 package net.driftingsouls.ds2.server.tick.regular;
 
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.tick.SingleUnitOfWork;
@@ -22,7 +23,7 @@ public class TicksperreSetzenTick extends TickController
 		new SingleUnitOfWork("Hebe Accountblock auf") {
 			@Override
 			public void doWork() {
-				ConfigValue value = new ConfigService().get("tick");
+				ConfigValue value = new ConfigService().get(WellKnownConfigValue.TICK);
 				value.setValue("1");
 			}
 		}

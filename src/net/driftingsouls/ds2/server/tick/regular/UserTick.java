@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.comm.Ordner;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.Handel;
@@ -60,19 +61,19 @@ public class UserTick extends TickController
 			@Override
 			public void doWork(Integer userID) throws Exception
 			{
-				org.hibernate.Session db = getDB();
+				Session db = getDB();
 				
 				User user = (User)db.get(User.class, userID);
 				
 				if(user.isInVacation())
 				{
 					//Set vacation points
-					int costsPerTick = new ConfigService().getValue(Integer.class, "vacpointspervactick");
+					int costsPerTick = new ConfigService().getValue(WellKnownConfigValue.VAC_POINTS_PER_VAC_TICK);
 					user.setVacpoints(user.getVacpoints() - costsPerTick);
 				}
 				else
 				{
-					int pointsPerTick = new ConfigService().getValue(Integer.class, "vacpointsperplayedtick");
+					int pointsPerTick = new ConfigService().getValue(WellKnownConfigValue.VAC_POINTS_PER_PLAYED_TICK);
 					user.setVacpoints(user.getVacpoints() + pointsPerTick);
 					
 					//Delete all pms older than 14 days from inbox
@@ -97,7 +98,7 @@ public class UserTick extends TickController
 									 	   .setParameter("who", user)
 									 	   .uniqueResult();
 					
-					int adCost = new ConfigService().getValue(Integer.class, "adcost");
+					int adCost = new ConfigService().getValue(WellKnownConfigValue.AD_COST);
 					
 					BigInteger account = user.getKonto();
 					

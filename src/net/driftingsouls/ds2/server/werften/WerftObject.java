@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.werften;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.ItemID;
@@ -1050,7 +1051,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 			double damageFactor = outerDamageFactor * 0.7 + innerDamageFactor * 0.3;
 
-			double dampeningFactor = new ConfigService().getValue(Double.class, "repaircostdampeningfactor");
+			double dampeningFactor = new ConfigService().getValue(WellKnownConfigValue.REPAIR_COST_DAMPENING_FACTOR);
 
 			Cargo buildCosts = new Cargo(buildable.getCosts());
 			ResourceList buildCostList = buildCosts.getResourceList();

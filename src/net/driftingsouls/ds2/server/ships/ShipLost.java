@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.ConfigService;
@@ -81,7 +82,7 @@ public class ShipLost {
 	public ShipLost(Ship ship) {
 		this.type = ship.getType();
 		this.name = ship.getName();
-		this.tick = new ConfigService().getValue(Integer.class, "ticks");
+		this.tick = new ConfigService().getValue(WellKnownConfigValue.TICKS);
 		this.owner = ship.getOwner().getId();
 		if( ship.getOwner().getAlly() != null ) {
 			this.ally = ship.getOwner().getAlly().getId();

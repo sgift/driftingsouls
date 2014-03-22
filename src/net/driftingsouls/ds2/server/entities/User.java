@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.comm.Ordner;
@@ -393,7 +394,7 @@ public class User extends BasicUser {
 		this.specializationPoints = 15;
 		this.loyalitaetspunkte = new HashSet<>();
 
-		int defaultDropZone = new ConfigService().getValue(Integer.class, "gtudefaultdropzone");
+		int defaultDropZone = new ConfigService().getValue(WellKnownConfigValue.GTU_DEFAULT_DROPZONE);
 		setGtuDropZone(defaultDropZone);
 	}
 
@@ -1341,7 +1342,7 @@ public class User extends BasicUser {
 	 */
 	private int vacationCostsPerTick()
 	{
-		return new ConfigService().getValue(Integer.class, "vacpointspervactick");
+		return new ConfigService().getValue(WellKnownConfigValue.VAC_POINTS_PER_VAC_TICK);
 	}
 
 	/**

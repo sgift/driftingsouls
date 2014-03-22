@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.bases;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.ItemID;
@@ -42,7 +43,6 @@ import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.entities.statistik.StatVerkaeufe;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -153,7 +153,7 @@ public class Kommandozentrale extends DefaultBuilding {
 
 		if(!systems.contains(oldUser.getGtuDropZone()))
 		{
-			int defaultDropZone = new ConfigService().getValue(Integer.class, "gtudefaultdropzone");
+			int defaultDropZone = new ConfigService().getValue(WellKnownConfigValue.GTU_DEFAULT_DROPZONE);
 			if(oldUser.getGtuDropZone() != defaultDropZone)
 			{
 				PM.send(nullUser, oldUser.getId(), "GTU Dropzone ge&auml;ndert.", "Sie haben ihren letzten Asteroiden in System "+ oldUser.getGtuDropZone() +" aufgegeben. Ihre GTU Dropzone wurde auf System "+ defaultDropZone +" gesetzt.");

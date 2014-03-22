@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.SectorTemplateManager;
 import net.driftingsouls.ds2.server.bases.AutoGTUAction;
@@ -554,12 +555,11 @@ public class PortalController extends TemplateController
 	@Action(ActionType.DEFAULT)
 	public void registerAction(String username, int race, String email, String key, StarSystem system)
 	{
-		Session db = getDB();
 		TemplateEngine t = getTemplateEngine();
 
 		boolean showform;
 
-		String disableregister = new ConfigService().getValue(String.class, "disableregister");
+		String disableregister = new ConfigService().getValue(WellKnownConfigValue.DISABLE_REGISTER);
 		if (!"".equals(disableregister))
 		{
 			t.setVar("show.register.registerdisabled", 1,
@@ -568,7 +568,7 @@ public class PortalController extends TemplateController
 			return;
 		}
 
-		ConfigValue keys = new ConfigService().get("keys");
+		ConfigValue keys = new ConfigService().get(WellKnownConfigValue.KEYS);
 		boolean needkey = false;
 		if (keys.getValue().indexOf('*') == -1)
 		{

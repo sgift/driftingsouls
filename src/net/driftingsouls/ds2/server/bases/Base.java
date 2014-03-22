@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.bases;
 
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
@@ -1958,8 +1959,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		{
 			int immigrants = maxInhabitants - inhabitants;
 
-			double immigrationFactor = new ConfigService().getValue(Double.class, "immigrationfactor");
-			boolean randomizeImmigration = new ConfigService().getValue(Boolean.class, "randomizeimmigration");
+			double immigrationFactor = new ConfigService().getValue(WellKnownConfigValue.IMMIGRATION_FACTOR);
+			boolean randomizeImmigration = new ConfigService().getValue(WellKnownConfigValue.RANDOMIZE_IMMIGRATION);
 
 			immigrants *= immigrationFactor;
 			if(randomizeImmigration)

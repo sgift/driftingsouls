@@ -18,14 +18,14 @@
  */
 package net.driftingsouls.ds2.server.bases;
 
-import net.driftingsouls.ds2.server.entities.Offizier;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Offiziere;
 import net.driftingsouls.ds2.server.entities.Academy;
+import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
@@ -49,8 +49,8 @@ import java.util.Map;
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.AcademyBuilding")
 public class AcademyBuilding extends DefaultBuilding {
 	private static final Log log = LogFactory.getLog(AcademyBuilding.class);
-	private static final Map<Integer,String> offis = new HashMap<Integer,String>();
-	private static final Map<Integer,String> attributes = new HashMap<Integer,String>();
+	private static final Map<Integer,String> offis = new HashMap<>();
+	private static final Map<Integer,String> attributes = new HashMap<>();
 
 	static {
 		offis.put(1, "Ingenieur");
@@ -140,16 +140,16 @@ public class AcademyBuilding extends DefaultBuilding {
 	 * @return nada
 	 */
 	public int getUpgradeCosts(Academy acc, int typ, Offizier offizier, int train) {
-		Map<Integer,Offizier.Ability> dTrain = new HashMap<Integer,Offizier.Ability>();
+		Map<Integer,Offizier.Ability> dTrain = new HashMap<>();
 		dTrain.put(1, Offizier.Ability.ING);
 		dTrain.put(2, Offizier.Ability.WAF);
 		dTrain.put(3, Offizier.Ability.NAV);
 		dTrain.put(4, Offizier.Ability.SEC);
 		dTrain.put(5, Offizier.Ability.COM);
 
-		double nahrungfactor = new ConfigService().getValue(Double.class, "offnahrungfactor");
-		double siliziumfactor = new ConfigService().getValue(Double.class, "offsiliziumfactor");
-		double dauerfactor = new ConfigService().getValue(Double.class, "offdauerfactor");
+		double nahrungfactor = new ConfigService().getValue(WellKnownConfigValue.OFFIZIER_NAHRUNG_FACTOR);
+		double siliziumfactor = new ConfigService().getValue(WellKnownConfigValue.OFFIZIER_SILIZIUM_FACTOR);
+		double dauerfactor = new ConfigService().getValue(WellKnownConfigValue.OFFIZIER_DAUER_FACTOR);
 
 		int plus = 0;
 		List<AcademyQueueEntry> entries = acc.getQueueEntries();
@@ -238,10 +238,10 @@ public class AcademyBuilding extends DefaultBuilding {
 	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
 		org.hibernate.Session db = context.getDB();
 
-		double siliziumcosts = new ConfigService().getValue(Double.class, "newoffsiliziumcosts");
-		double nahrungcosts = new ConfigService().getValue(Double.class, "newoffnahrungcosts");
-		double dauercosts = new ConfigService().getValue(Double.class, "offdauercosts");
-		double maxoffstotrain = new ConfigService().getValue(Double.class, "maxoffstotrain");
+		int siliziumcosts = new ConfigService().getValue(WellKnownConfigValue.NEW_OFF_SILIZIUM_COSTS);
+		int nahrungcosts = new ConfigService().getValue(WellKnownConfigValue.NEW_OFF_NAHRUNG_COSTS);
+		int dauercosts = new ConfigService().getValue(WellKnownConfigValue.OFF_DAUER_COSTS);
+		int maxoffstotrain = new ConfigService().getValue(WellKnownConfigValue.MAX_OFFS_TO_TRAIN);
 
 		int newo = context.getRequest().getParameterInt("newo");
 		int train = context.getRequest().getParameterInt("train");
@@ -269,7 +269,7 @@ public class AcademyBuilding extends DefaultBuilding {
 				"base.id",		base.getId(),
 				"base.field",	field,
 				"academy.actualbuilds", academy.getNumberScheduledQueueEntries(),
-				"academy.maxbuilds", (int)maxoffstotrain);
+				"academy.maxbuilds", maxoffstotrain);
 
 		//--------------------------------
 		// Als erstes ueberpruefen wir, ob eine Aktion durchgefuehrt wurde
@@ -364,10 +364,10 @@ public class AcademyBuilding extends DefaultBuilding {
 			if( ok ) {
 				t.setVar("trainnewoffi.train", 1);
 
-				cargo.substractResource( Resources.SILIZIUM, (int)siliziumcosts );
-				cargo.substractResource( Resources.NAHRUNG, (int)nahrungcosts );
+				cargo.substractResource( Resources.SILIZIUM, siliziumcosts);
+				cargo.substractResource( Resources.NAHRUNG, nahrungcosts);
 				academy.setTrain(true);
-				AcademyQueueEntry entry = new AcademyQueueEntry(academy, -newo, (int)dauercosts);
+				AcademyQueueEntry entry = new AcademyQueueEntry(academy, -newo, dauercosts);
 				base.setCargo(cargo);
 				db.save(entry);
 				academy.addQueueEntry(entry);
@@ -384,7 +384,7 @@ public class AcademyBuilding extends DefaultBuilding {
 			if(offizier != null )
 			{
 				if( offizier.getStationiertAufBasis() != null && offizier.getStationiertAufBasis().getId() == base.getId() ) {
-					Map<Integer,Offizier.Ability> dTrain = new HashMap<Integer,Offizier.Ability>();
+					Map<Integer,Offizier.Ability> dTrain = new HashMap<>();
 					dTrain.put(1, Offizier.Ability.ING);
 					dTrain.put(2, Offizier.Ability.WAF);
 					dTrain.put(3, Offizier.Ability.NAV);
@@ -481,7 +481,7 @@ public class AcademyBuilding extends DefaultBuilding {
 
 			t.setBlock("_BUILDING", "academy.training.listitem", "academy.training.list");
 
-			List<AcademyQueueEntry> entries = new ArrayList<AcademyQueueEntry>(academy.getQueueEntries());
+			List<AcademyQueueEntry> entries = new ArrayList<>(academy.getQueueEntries());
 			Collections.sort(entries, new AcademyQueueEntryComparator());
 			for( AcademyQueueEntry entry : entries )
 			{
@@ -541,9 +541,9 @@ public class AcademyBuilding extends DefaultBuilding {
 				"academy.show.trainnew",	1,
 				"resource.silizium.image",	Cargo.getResourceImage(Resources.SILIZIUM),
 				"resource.nahrung.image",	Cargo.getResourceImage(Resources.NAHRUNG),
-				"resource.silizium.costs",	(int)siliziumcosts,
-				"resource.nahrung.costs",	(int)nahrungcosts,
-				"dauer.costs",				(int)dauercosts
+				"resource.silizium.costs", siliziumcosts,
+				"resource.nahrung.costs", nahrungcosts,
+				"dauer.costs", dauercosts
 				);
 
 		t.setBlock("_BUILDING", "academy.trainnew.listitem", "academy.trainnew.list");

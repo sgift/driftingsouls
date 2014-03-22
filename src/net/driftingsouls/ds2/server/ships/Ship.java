@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.ships;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
@@ -3326,7 +3327,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			return;
 		}
 
-		int truemmerMaxItems = new ConfigService().getValue(Integer.class, "truemmer_maxitems");
+		int truemmerMaxItems = new ConfigService().getValue(WellKnownConfigValue.TRUEMMER_MAX_ITEMS);
 
 		// Und nun den Loot generieren
 		Cargo cargo = new Cargo();

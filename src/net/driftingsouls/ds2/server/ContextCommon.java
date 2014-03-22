@@ -18,18 +18,16 @@
  */
 package net.driftingsouls.ds2.server;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-
 import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextInstance;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
+
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Kontextlokale Operationen.
@@ -56,7 +54,7 @@ public final class ContextCommon
 	 */
 	public int getTick()
 	{
-		return new ConfigService().getValue(Integer.class, "ticks");
+		return new ConfigService().getValue(WellKnownConfigValue.TICKS);
 	}
 
 	private Map<String, ScriptEngine> scriptParsers = new HashMap<>();

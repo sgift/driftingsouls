@@ -18,6 +18,21 @@
  */
 package net.driftingsouls.ds2.server.battles;
 
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
+import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.entities.Offizier;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.ConfigService;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.units.UnitCargo;
+import org.hibernate.Session;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.ForeignKey;
+
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -27,22 +42,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Version;
-
-import net.driftingsouls.ds2.server.entities.Offizier;
-import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.ConfigValue;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
-import net.driftingsouls.ds2.server.units.UnitCargo;
-
-import org.hibernate.Session;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
 
 /**
  * Repraesentiert ein Schiff in einer Schlacht.
@@ -404,8 +403,8 @@ public class BattleShip {
 			return 0;
 		}
 		
-		int sizeModifier = new ConfigService().getValue(Integer.class, "bvsizemodifier");
-		int dockModifier = new ConfigService().getValue(Integer.class, "bvdockmodifier");
+		int sizeModifier = new ConfigService().getValue(WellKnownConfigValue.BATTLE_VALUE_SIZE_MODIFIER);
+		int dockModifier = new ConfigService().getValue(WellKnownConfigValue.BATTLE_VALUE_DOCK_MODIFIER);
 		
 		return getTypeData().getSize() * sizeModifier + getTypeData().getJDocks() * dockModifier;
 	}

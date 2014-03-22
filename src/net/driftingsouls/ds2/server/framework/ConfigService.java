@@ -12,30 +12,34 @@ public class ConfigService
 	/**
 	 * Gibt das Konfigurationsobjekt mit dem angegebenen Schluessel zurueck. Die Methode sollte
 	 * nur verwendet werden, wenn wirklich das gesamte Konfigurationsobjekt benoetigt wird.
-	 * Fuer direkte Zugriffe auf den Wert existiert die Methode {@link #getValue(Class, String)}.
-	 * @param key Der Schluessel des Konfigurationsobjekts
+	 * Fuer direkte Zugriffe auf den Wert existiert die Methode {@link #getValue(ConfigValueDescriptor)}.
+	 * @param descriptor Der Schluessel des Konfigurationsobjekts
 	 * @return Das Konfigurationsobjekt
-	 * @see #getValue(Class, String)
+	 * @see #getValue(ConfigValueDescriptor)
 	 */
-	public ConfigValue get(String key)
+	public ConfigValue get(ConfigValueDescriptor<?> descriptor)
 	{
 		Session db = ContextMap.getContext().getDB();
-		return (ConfigValue)db.get(ConfigValue.class, key);
+		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, descriptor.getName());
+		if( value == null )
+		{
+			value = new ConfigValue(descriptor.getName(), descriptor.getDefaultValue(), descriptor.getDescription());
+			db.persist(value);
+		}
+		return value;
 	}
 
 	/**
-	 * Gibt den Wert des Konfigurationsobjekts mit dem angegebenen Schluessel im gewuenschten Typ
-	 * zurueck. Die Methode wandelt den String-Wert soweit moeglich in den Zieltyp um. Wird der
-	 * Zieltyp nicht unterstuetzt wird ein Fehler geworfen.
-	 * @param type Der Zieltyp (z.B. {@link java.lang.Integer}).
-	 * @param key Der Schluessel des Konfigurationsobjekts
+	 * Gibt den momentanen Wert der angegebenen Konfigurationseinstellung
+	 * zurueck.
+	 * @param descriptor Der Descriptor fuer die Konfigurationseinstellung
 	 * @param <T> Der Zieltyp
-	 * @return Der Wert des Konfigurationsobjekts im gewueschten Zieltyp
+	 * @return Der Wert des Konfigurationsobjekts im Zieldatentyp
 	 */
-	@SuppressWarnings("unchecked")
-	public <T> T getValue(Class<T> type, String key)
+	public <T> T getValue(ConfigValueDescriptor<T> descriptor)
 	{
-		ConfigValue configValue = get(key);
-		return StringToTypeConverter.convert(type, configValue.getValue());
+		Session db = ContextMap.getContext().getDB();
+		ConfigValue configValue = (ConfigValue)db.get(ConfigValue.class, descriptor.getName());
+		return StringToTypeConverter.convert(descriptor.getType(), configValue != null ? configValue.getValue() : descriptor.getDefaultValue());
 	}
 }

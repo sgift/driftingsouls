@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemID;
@@ -1377,7 +1378,7 @@ public class ErsteigernController extends TemplateController
 
 		List<StarSystem> result = new ArrayList<>();
 
-		int defaultDropZone = new ConfigService().getValue(Integer.class, "gtudefaultdropzone");
+		int defaultDropZone = new ConfigService().getValue(WellKnownConfigValue.GTU_DEFAULT_DROPZONE);
 
 		List<?> systems = db.createCriteria(StarSystem.class).addOrder(Order.asc("id")).list();
 		for (Object system1 : systems)

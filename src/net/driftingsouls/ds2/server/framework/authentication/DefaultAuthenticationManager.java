@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.framework.authentication;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
@@ -53,7 +54,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		org.hibernate.Session db = context.getDB();
 		Request request = context.getRequest();
 
-		checkLoginDisabled(context);
+		checkLoginDisabled();
 
 		String enc_pw = Common.md5(password);
 
@@ -120,8 +121,8 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		db.save(permanentSession);
 	}
 
-	private void checkLoginDisabled(Context context) throws LoginDisabledException {
-		String disablelogin = new ConfigService().getValue(String.class, "disablelogin");
+	private void checkLoginDisabled() throws LoginDisabledException {
+		String disablelogin = new ConfigService().getValue(WellKnownConfigValue.DISABLE_LOGIN);
 		if( !disablelogin.isEmpty() ) {
 			throw new LoginDisabledException(disablelogin);
 		}
@@ -164,7 +165,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 
 		try
 		{
-			checkLoginDisabled(context);
+			checkLoginDisabled();
 		}
 		catch (LoginDisabledException e)
 		{

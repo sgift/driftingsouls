@@ -18,17 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import net.driftingsouls.ds2.server.ContextCommon;
-import net.driftingsouls.ds2.server.entities.Offizier;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
@@ -36,10 +27,10 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.ComNetChannel;
 import net.driftingsouls.ds2.server.entities.ComNetEntry;
+import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
@@ -58,9 +49,16 @@ import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo.Crew;
 import net.driftingsouls.ds2.server.units.UnitType;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
-
 import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.Session;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Ermoeglicht das Kapern eines Schiffes sowie verlinkt auf das Pluendern des Schiffes.
@@ -218,12 +216,15 @@ public class KapernController extends TemplateController
 			{
 				user.addBounty(shipBounty);
 				//Make it public that there's a new bounty on a player, so others can go to hunt
-				int bountyChannel = new ConfigService().getValue(Integer.class, "bountychannel");
+				int bountyChannel = new ConfigService().getValue(WellKnownConfigValue.BOUNTY_CHANNEL);
 				ComNetChannel channel = (ComNetChannel) db.get(ComNetChannel.class, bountyChannel);
-				ComNetEntry entry = new ComNetEntry(user, channel);
-				entry.setHead("Kopfgeld");
-				entry.setText("Gesuchter: " + user.getNickname() + "[BR]Wegen: Diebstahl von Schiffen[BR]Betrag: " + shipBounty);
-				db.persist(entry);
+				if( channel != null )
+				{
+					ComNetEntry entry = new ComNetEntry(user, channel);
+					entry.setHead("Kopfgeld");
+					entry.setText("Gesuchter: " + user.getNickname() + "[BR]Wegen: Diebstahl von Schiffen[BR]Betrag: " + shipBounty);
+					db.persist(entry);
+				}
 			}
 		}
 

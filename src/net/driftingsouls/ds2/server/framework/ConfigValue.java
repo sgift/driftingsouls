@@ -29,7 +29,27 @@ public class ConfigValue
 	private String description;
 	@Version
 	private int version;
-	
+
+	/**
+	 * Konstruktor.
+	 */
+	protected ConfigValue()
+	{
+	}
+
+	/**
+	 * Konstruktor.
+	 * @param name Der name der Konfigurationseinstellung
+	 * @param value Der Wert
+	 * @param description Die Beschreibung
+	 */
+	public ConfigValue(String name, String value, String description)
+	{
+		this.name = name;
+		this.value = value;
+		this.description = description;
+	}
+
 	/**
 	 * Gibt den Namen der Konfigurationsoption zurueck.
 	 * @return Der Name

@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.battles.Side;
@@ -26,7 +27,6 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import org.hibernate.Session;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 			return Result.ERROR;
 		}
 		*/
-		int endTieModifier = new ConfigService().getValue(Integer.class, "endtiemodifier");
+		int endTieModifier = new ConfigService().getValue(WellKnownConfigValue.END_TIE_MODIFIER);
 		if((battle.getBattleValue(Side.ENEMY) == 0) || (battle.getBattleValue(Side.OWN) > (battle.getBattleValue(Side.ENEMY) * endTieModifier)))
 		{
 			return Result.OK;

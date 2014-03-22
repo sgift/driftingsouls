@@ -19,7 +19,7 @@
 package net.driftingsouls.ds2.server.tick.regular;
 
 import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.entities.Offizier;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
@@ -28,10 +28,10 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.entities.Feeding;
 import net.driftingsouls.ds2.server.entities.Nebel;
+import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipFlag;
@@ -468,7 +468,7 @@ public class SchiffsTick extends TickController {
 			{
 				crewToFeed = crewToFeed - (int)Math.ceil(shipd.getUnits().getNahrung());
 				shipd.setUnits(new TransientUnitCargo());
-				int maxverhungernfactor = new ConfigService().getValue(Integer.class, "maxverhungern");
+				int maxverhungernfactor = new ConfigService().getValue(WellKnownConfigValue.MAX_VERHUNGERN);
 				int maxverhungernvalue = (int)Math.ceil(shiptd.getCrew() * (maxverhungernfactor/100.0));
 				int crew = shipd.getCrew();
 				if( crewToFeed*10 > maxverhungernvalue)
@@ -549,7 +549,7 @@ public class SchiffsTick extends TickController {
 		if(crew < minCrew && !user.hasFlag(User.FLAG_NO_HULL_DECAY))
 		{
 			this.log("\tSchiff hat nicht genug Crew; beschaedige Huelle.");
-			double scale = new ConfigService().getValue(Double.class, "nocrewhulldamagescale");
+			double scale = new ConfigService().getValue(WellKnownConfigValue.NO_CREW_HULL_DAMAGE_SCALE);
 			double damageFactor = (1.0 - (((double)crew) / ((double)minCrew))) / scale;
 			this.log("\tDamage factor is: " + damageFactor);
 

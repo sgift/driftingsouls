@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
@@ -174,7 +175,7 @@ public class HandelController extends TemplateController
 			t.parse("addresources.list", "addresources.listitem", true);
 		}
 
-		t.setVar("trade.runningcost", new ConfigService().getValue(String.class, "adcost"));
+		t.setVar("trade.runningcost", new ConfigService().getValue(WellKnownConfigValue.AD_COST));
 	}
 
 	/**
