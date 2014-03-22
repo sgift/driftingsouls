@@ -1,11 +1,15 @@
 package net.driftingsouls.ds2.server.framework;
 
-import org.scannotation.AnnotationDB;
-import org.scannotation.ClasspathUrlFinder;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.reflections.Reflections;
+import org.reflections.scanners.TypeAnnotationsScanner;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.net.URL;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -14,21 +18,16 @@ import java.util.TreeSet;
  */
 public class AnnotationUtils
 {
-	public static final AnnotationUtils INSTANCE = new AnnotationUtils();
+	private static final Logger LOG = LogManager.getLogger(AnnotationUtils.class);
 
-	private final AnnotationDB annotationDb = new AnnotationDB();
+	public static final AnnotationUtils INSTANCE = new AnnotationUtils();
+	private final Reflections reflections;
 
 	private AnnotationUtils()
 	{
-		URL[] urls = ClasspathUrlFinder.findResourceBases("META-INF/ds.marker");
-		try
-		{
-			annotationDb.scanArchives(urls);
-		}
-		catch (IOException e)
-		{
-			throw new IllegalStateException("Konnte Annotation-Datenbank nicht aufbauen");
-		}
+		Set<URL> urls = ClasspathHelper.forPackage("net.driftingsouls.ds2.server");
+		LOG.info("Scanning urls " + urls);
+		reflections = new Reflections(new ConfigurationBuilder().setUrls(urls).setScanners(new TypeAnnotationsScanner()));
 	}
 
 	/**
@@ -40,6 +39,12 @@ public class AnnotationUtils
 	 */
 	public SortedSet<String> findeKlassenMitAnnotation(Class<? extends Annotation> annotationCls)
 	{
-		return new TreeSet<>(this.annotationDb.getAnnotationIndex().get(annotationCls.getName()));
+		Set<Class<?>> typesAnnotatedWith = reflections.getTypesAnnotatedWith(annotationCls);
+		SortedSet<String> result = new TreeSet<>();
+		for (Class<?> aClass : typesAnnotatedWith)
+		{
+			result.add(aClass.getName());
+		}
+		return result;
 	}
 }
