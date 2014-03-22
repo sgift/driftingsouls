@@ -18,12 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -33,6 +27,12 @@ import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Aktualisierungstool fuer die Werte eines Schiffes.
@@ -113,8 +113,9 @@ public class EditShip implements AdminPlugin
 			ShipTypeData type = ship.getTypeData();
 
 			Map<Integer, String> alarms = new HashMap<Integer, String>();
-			alarms.put(0, "Gelb");
-			alarms.put(1, "Rot");
+			alarms.put(0, "Gr&uuml;n");
+			alarms.put(1, "Gelb");
+			alarms.put(2, "Rot");
 
 
 			Map<Integer, String> shiptypes = new HashMap<Integer, String>();

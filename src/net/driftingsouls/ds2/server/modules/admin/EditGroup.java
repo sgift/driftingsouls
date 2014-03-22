@@ -18,13 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.config.items.Item;
@@ -34,8 +27,14 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
-
 import org.hibernate.Query;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Ein Menue um mehrere Schiffe mit dem selben Typ zu editieren.
@@ -153,8 +152,9 @@ public class EditGroup implements AdminPlugin
 			}
 			
 			Map<Integer, String> alarms = new HashMap<Integer, String>();
-			alarms.put(0, "Gelb");
-			alarms.put(1, "Rot");
+			alarms.put(0, "Gr&uuml;n");
+			alarms.put(1, "Gelb");
+			alarms.put(2, "Rot");
 			
 			//Name -> Klasse
 			Map<Integer, String> groupOptions = new HashMap<Integer, String>();
