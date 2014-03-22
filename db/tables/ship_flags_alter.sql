@@ -1,1 +1,0 @@
-alter table ship_flags add index ship_flags_fk_ships (ship), add constraint ship_flags_fk_ships foreign key (ship) references ships (id);

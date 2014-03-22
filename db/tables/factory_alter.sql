@@ -1,1 +1,0 @@
-alter table factory add index factory_fk_bases (col), add constraint factory_fk_bases foreign key (col) references bases (id);

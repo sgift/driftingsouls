@@ -1,1 +1,0 @@
-create index coords on jumpnodes (x, y, system);

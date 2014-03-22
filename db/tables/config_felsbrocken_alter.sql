@@ -1,2 +1,0 @@
-alter table config_felsbrocken add index fk_config_felsbrocken_shiptype (shiptype), add constraint fk_config_felsbrocken_shiptype foreign key (shiptype) references ship_types (id);
-alter table config_felsbrocken add index fk_config_felsbrocken_system (system), add constraint fk_config_felsbrocken_system foreign key (system) references config_felsbrocken_systems (system);

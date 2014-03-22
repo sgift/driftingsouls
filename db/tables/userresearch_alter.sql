@@ -1,2 +1,0 @@
-alter table userresearch add index userresearch_fk_users (owner), add constraint userresearch_fk_users foreign key (owner) references users (id);
-alter table userresearch add index userresearch_fk_forschungen (research), add constraint userresearch_fk_forschungen foreign key (research) references forschungen(id);

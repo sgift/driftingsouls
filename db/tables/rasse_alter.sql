@@ -1,2 +1,0 @@
-alter table rasse add index rasse_fk_rasse (memberIn_id), add constraint rasse_fk_rasse foreign key (memberIn_id) references rasse (id);
-alter table rasse add index rasse_fk_user (head_id), add constraint rasse_fk_user foreign key (head_id) references users (id);

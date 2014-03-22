@@ -1,1 +1,0 @@
-alter table sessions add index sessions_fk_users (userId), add constraint sessions_fk_users foreign key (userId) references users (id);

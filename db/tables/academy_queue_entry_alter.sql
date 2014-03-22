@@ -1,1 +1,0 @@
-alter table academy_queue_entry add index academy_queues_fk_academy (academy_id), add constraint academy_queues_fk_academy foreign key (academy_id) references academy(id);

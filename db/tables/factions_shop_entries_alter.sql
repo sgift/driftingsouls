@@ -1,1 +1,0 @@
-create index faction_id on factions_shop_entries (faction_id);

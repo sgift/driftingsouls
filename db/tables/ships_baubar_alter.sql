@@ -1,1 +1,0 @@
-alter table ships_baubar add index ships_baubar_type_fk (type), add constraint ships_baubar_type_fk foreign key (type) references ship_types (id);

@@ -1,1 +1,0 @@
-create index category on buildings (category);

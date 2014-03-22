@@ -1,1 +1,0 @@
-alter table kaserne add index kaserne_fk_bases (col), add constraint kaserne_fk_bases foreign key (col) references bases (id);
