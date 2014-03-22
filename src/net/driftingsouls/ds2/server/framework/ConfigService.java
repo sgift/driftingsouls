@@ -1,5 +1,6 @@
 package net.driftingsouls.ds2.server.framework;
 
+import net.driftingsouls.ds2.server.framework.utils.StringToTypeConverter;
 import org.hibernate.Session;
 
 /**
@@ -35,27 +36,6 @@ public class ConfigService
 	public <T> T getValue(Class<T> type, String key)
 	{
 		ConfigValue configValue = get(key);
-		if( type == String.class )
-		{
-			return (T)configValue.getValue();
-		}
-		if( type == Integer.class )
-		{
-			return (T)Integer.valueOf(configValue.getValue());
-		}
-		if( type == Long.class )
-		{
-			return (T)Long.valueOf(configValue.getValue());
-		}
-		if( type == Double.class )
-		{
-			return (T)Double.valueOf(configValue.getValue());
-		}
-		if( type == Boolean.class )
-		{
-			return (T)Boolean.valueOf(configValue.getValue());
-		}
-
-		throw new IllegalArgumentException("Der Zieltyp "+type.getName()+" wird nicht unterstuetzt");
+		return StringToTypeConverter.convert(type, configValue.getValue());
 	}
 }
