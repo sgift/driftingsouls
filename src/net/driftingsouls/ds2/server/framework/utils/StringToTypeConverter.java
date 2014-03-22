@@ -62,6 +62,6 @@ public final class StringToTypeConverter
 			// fall through
 		}
 
-		throw new IllegalArgumentException("Der Zieltyp "+type.getName()+" wird nicht unterstuetzt");
+		throw new UnsupportedOperationException("Der Zieltyp "+type.getName()+" wird nicht unterstuetzt");
 	}
 }
