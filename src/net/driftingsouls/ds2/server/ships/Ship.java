@@ -3469,9 +3469,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 			this.scriptData = null;
 		}
 
-		db.delete(this.history);
-		this.history = null;
-
 		if( this.einstellungen != null )
 		{
 			db.delete(this.einstellungen);
