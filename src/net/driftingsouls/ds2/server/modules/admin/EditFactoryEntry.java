@@ -21,11 +21,10 @@ package net.driftingsouls.ds2.server.modules.admin;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.FactoryEntry;
 import net.driftingsouls.ds2.server.entities.Forschung;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.pipeline.Request;
+import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 
-import java.io.IOException;
+import javax.annotation.Nonnull;
 import java.math.BigDecimal;
 
 /**
@@ -33,8 +32,8 @@ import java.math.BigDecimal;
  *
  * @author Sebastian Gift
  */
-@AdminMenuEntry(category = "Fabriken", name = "Fabrikeintraege editieren")
-public class EditFactoryEntry extends AbstractEditPlugin<FactoryEntry>
+@AdminMenuEntry(category = "Items", name = "Fabrikeintraege editieren")
+public class EditFactoryEntry extends AbstractEditPlugin8<FactoryEntry>
 {
 	public EditFactoryEntry()
 	{
@@ -42,31 +41,16 @@ public class EditFactoryEntry extends AbstractEditPlugin<FactoryEntry>
 	}
 
 	@Override
-	protected void update(StatusWriter writer, FactoryEntry entry) throws IOException
+	protected void configureFor(@Nonnull EditorForm8<FactoryEntry> form)
 	{
-		Context context = ContextMap.getContext();
-
-		Request request = context.getRequest();
-		entry.setName(request.getParameterString("name"));
-		entry.setBuildCosts(new Cargo(Cargo.Type.ITEMSTRING, request.getParameterString("buildcosts")));
-		entry.setRes1(request.getParameterInt("res1"));
-		entry.setRes2(request.getParameterInt("res2"));
-		entry.setRes3(request.getParameterInt("res3"));
-		entry.setProduce(new Cargo(Cargo.Type.ITEMSTRING, request.getParameterString("produces")));
-		entry.setDauer(BigDecimal.valueOf(Double.parseDouble(request.getParameterString("dauer"))));
-		entry.setBuildingIdString(request.getParameterString("buildingids"));
-	}
-
-	@Override
-	protected void edit(EditorForm form, FactoryEntry entry)
-	{
-		form.field("Name", "name", String.class, entry.getName());
-		form.field("Baukosten", "buildcosts", Cargo.class, entry.getBuildCosts());
-		form.field("Forschung 1", "res1", Forschung.class, entry.getRes1());
-		form.field("Forschung 2", "res2", Forschung.class, entry.getRes2());
-		form.field("Forschung 3", "res3", Forschung.class, entry.getRes3());
-		form.field("Produktion", "produces", Cargo.class, entry.getProduce());
-		form.field("Dauer", "dauer", BigDecimal.class, entry.getDauer());
-		form.field("BuildingIDs", "buildingids", String.class, entry.getBuildingIdString());
+		form.allowAdd();
+		form.field("Name", String.class, FactoryEntry::getName, FactoryEntry::setName);
+		form.field("Baukosten", Cargo.class, FactoryEntry::getBuildCosts, FactoryEntry::setBuildCosts);
+		form.field("Forschung 1", Forschung.class, Integer.class, FactoryEntry::getRes1, FactoryEntry::setRes1);
+		form.field("Forschung 2", Forschung.class, Integer.class, FactoryEntry::getRes2, FactoryEntry::setRes2);
+		form.field("Forschung 3", Forschung.class, Integer.class, FactoryEntry::getRes3, FactoryEntry::setRes3);
+		form.field("Produktion", Cargo.class, FactoryEntry::getProduce, FactoryEntry::setProduce);
+		form.field("Dauer", BigDecimal.class, FactoryEntry::getDauer, FactoryEntry::setDauer);
+		form.field("BuildingIDs", String.class, FactoryEntry::getBuildingIdString, FactoryEntry::setBuildingIdString);
 	}
 }

@@ -18,21 +18,19 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
-import java.math.BigDecimal;
+import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
+import net.driftingsouls.ds2.server.framework.Common;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
-import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
-import net.driftingsouls.ds2.server.framework.Common;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Type;
+import java.math.BigDecimal;
 
 /**
  * Ein Eintrag der Fabriken.
@@ -66,7 +64,11 @@ public class FactoryEntry {
 	 *
 	 */
 	public FactoryEntry() {
-		// EMPTY
+		this.buildCosts = new Cargo();
+		this.produce = new Cargo();
+		this.name = "";
+		this.dauer = BigDecimal.ONE;
+		this.buildingid = "";
 	}
 
 	/**

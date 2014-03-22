@@ -104,7 +104,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 			}
 		}
 
-		List<Building> entities = Common.cast(db.createCriteria(clazz).list());
+		List<Building> entities = Common.cast(db.createCriteria(baseClass).list());
 
 		echo.append("<div class='gfxbox adminSelection' style='width:390px'>");
 		beginSelectionBox(echo, page, action);

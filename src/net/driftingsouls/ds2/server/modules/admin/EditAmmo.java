@@ -19,11 +19,10 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.entities.Ammo;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.pipeline.Request;
+import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 
-import java.io.IOException;
+import javax.annotation.Nonnull;
 
 /**
  * Adminpanel zum Bearbeiten der Munitionswerte.
@@ -31,7 +30,7 @@ import java.io.IOException;
  *
  */
 @AdminMenuEntry(category = "Items", name = "Munition bearbeiten")
-public class EditAmmo extends AbstractEditPlugin<Ammo>
+public class EditAmmo extends AbstractEditPlugin8<Ammo>
 {
 	public EditAmmo()
 	{
@@ -39,42 +38,22 @@ public class EditAmmo extends AbstractEditPlugin<Ammo>
 	}
 
 	@Override
-	protected void update(StatusWriter writer, Ammo ammo) throws IOException
+	protected void configureFor(@Nonnull EditorForm8<Ammo> form)
 	{
-		Context context = ContextMap.getContext();
-		Request request = context.getRequest();
-		ammo.setAreaDamage(request.getParameterInt("area"));
-		ammo.setShotsPerShot(request.getParameterInt("shotspershot"));
-		ammo.setFlags(request.getParameterInt("flags"));
-		ammo.setDestroyable(Double.valueOf(request.getParameterString("destroyable")));
-		ammo.setSubDamage(request.getParameterInt("subdamage"));
-		ammo.setShieldDamage(request.getParameterInt("sdamage"));
-		ammo.setDamage(request.getParameterInt("damage"));
-		ammo.setTorpTrefferWS(request.getParameterInt("ttws"));
-		ammo.setSubWS(request.getParameterInt("subtws"));
-		ammo.setSmallTrefferWS(request.getParameterInt("stws"));
-		ammo.setTrefferWS(request.getParameterInt("tws"));
-		ammo.setPicture(request.getParameterString("picture"));
-		ammo.setType(request.getParameterString("type"));
-		ammo.setName(request.getParameterString("name"));
-	}
-
-	@Override
-	protected void edit(EditorForm form, Ammo ammo)
-	{
-		form.field("Name", "name", String.class, ammo.getName());
-		form.field("Bild", "picture", String.class, ammo.getPicture());
-		form.field("Typ", "type", String.class, ammo.getType());
-		form.field("Treffer-WS", "tws", Integer.class, ammo.getTrefferWS());
-		form.field("Small Treffer-WS", "stws", Integer.class, ammo.getSmallTrefferWS());
-		form.field("Torp Treffer-WS", "ttws", Integer.class, ammo.getTorpTrefferWS());
-		form.field("Subsystem Treffer-WS", "subtws", Integer.class, ammo.getSubWS());
-		form.field("Schaden", "damage", Integer.class, ammo.getDamage());
-		form.field("Schildschaden", "sdamage", Integer.class, ammo.getShieldDamage());
-		form.field("Subsystemschaden", "subdamage", Integer.class, ammo.getSubDamage());
-		form.field("Zerstoerbar", "destroyable", Double.class, ammo.getDestroyable());
-		form.field("Flags", "flags", Integer.class, ammo.getFlags());
-		form.field("Schüsse pro Schuss", "shotspershot", Integer.class, ammo.getShotsPerShot());
-		form.field("Flächenschaden", "area", Integer.class, ammo.getAreaDamage());
+		form.allowAdd();
+		form.field("Name", String.class, Ammo::getName, Ammo::setName);
+		form.field("Bild", String.class, Ammo::getPicture, Ammo::setPicture);
+		form.field("Typ", String.class, Ammo::getType, Ammo::setType);
+		form.field("Treffer-WS", Integer.class, Ammo::getTrefferWS, Ammo::setTrefferWS);
+		form.field("Small Treffer-WS", Integer.class, Ammo::getSmallTrefferWS, Ammo::setSmallTrefferWS);
+		form.field("Torp Treffer-WS", Integer.class, Ammo::getTorpTrefferWS, Ammo::setTorpTrefferWS);
+		form.field("Subsystem Treffer-WS", Integer.class, Ammo::getSubWS, Ammo::setSubWS);
+		form.field("Schaden", Integer.class, Ammo::getDamage, Ammo::setDamage);
+		form.field("Schildschaden", Integer.class, Ammo::getShieldDamage, Ammo::setShieldDamage);
+		form.field("Subsystemschaden", Integer.class, Ammo::getSubDamage, Ammo::setSubDamage);
+		form.field("Zerstoerbar", Double.class, Ammo::getDestroyable, Ammo::setDestroyable);
+		form.field("Flags", Integer.class, Ammo::getFlags, Ammo::setFlags);
+		form.field("Schüsse pro Schuss", Integer.class, Ammo::getShotsPerShot, Ammo::setShotsPerShot);
+		form.field("Flächenschaden", Integer.class, Ammo::getAreaDamage, Ammo::setAreaDamage);
 	}
 }

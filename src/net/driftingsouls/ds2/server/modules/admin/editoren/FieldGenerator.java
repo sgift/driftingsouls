@@ -4,6 +4,7 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
+import net.driftingsouls.ds2.server.framework.utils.StringToTypeConverter;
 import org.hibernate.Session;
 
 import javax.persistence.Entity;
@@ -152,7 +153,7 @@ public class FieldGenerator<V, T> implements CustomFieldGenerator<V>
 		{
 			return;
 		}
-		Class<?> type = this.dataType;
+		Class<T> type = this.dataType;
 		// TODO: Datentyp aus Lambda bestimmen - leider nicht so einfach wegen type erasure :(
 		String val = request.getParameter(this.name);
 		if (val == null)
@@ -164,29 +165,13 @@ public class FieldGenerator<V, T> implements CustomFieldGenerator<V>
 		{
 			applyEntityAsRequestValue(entity, val);
 		}
-		else if (Integer.class.isAssignableFrom(type))
-		{
-			setter.accept(entity, (T) Integer.valueOf(val));
-		}
-		else if (Double.class.isAssignableFrom(type))
-		{
-			setter.accept(entity, (T) Double.valueOf(val));
-		}
-		else if (String.class.isAssignableFrom(type))
-		{
-			setter.accept(entity, (T) val);
-		}
 		else if (Cargo.class.isAssignableFrom(type))
 		{
 			setter.accept(entity, (T) new Cargo(Cargo.Type.ITEMSTRING, val));
 		}
-		else if (Boolean.class.isAssignableFrom(type))
-		{
-			setter.accept(entity, (T) Boolean.valueOf(val));
-		}
 		else
 		{
-			throw new UnsupportedOperationException("Datentyp " + type.getName() + " nicht unterstuetzt");
+			setter.accept(entity, StringToTypeConverter.convert(type, val));
 		}
 	}
 

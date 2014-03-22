@@ -19,9 +19,10 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.entities.Forschung;
-import net.driftingsouls.ds2.server.framework.DynamicContentManager;
+import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 
-import java.io.IOException;
+import javax.annotation.Nonnull;
 
 /**
  * Aktualisierungstool fuer Forschungsgrafiken.
@@ -29,7 +30,7 @@ import java.io.IOException;
  * @author Christopher Jung
  */
 @AdminMenuEntry(category = "Techs", name = "Forschungsgrafik editieren")
-public class EditResearchPicture extends AbstractEditPlugin<Forschung> implements AdminPlugin
+public class EditResearchPicture extends AbstractEditPlugin8<Forschung> implements AdminPlugin
 {
 	public EditResearchPicture()
 	{
@@ -37,23 +38,9 @@ public class EditResearchPicture extends AbstractEditPlugin<Forschung> implement
 	}
 
 	@Override
-	protected void update(StatusWriter writer, Forschung forschung) throws IOException
+	protected void configureFor(@Nonnull EditorForm8<Forschung> form)
 	{
-		String img = this.processDynamicContent("image", forschung.getImage());
-
-		String oldImg = forschung.getImage();
-		forschung.setImage("data/dynamicContent/"+img);
-
-		if( oldImg.startsWith("data/dynamicContent/") )
-		{
-			DynamicContentManager.remove(oldImg);
-		}
-	}
-
-	@Override
-	protected void edit(EditorForm form, Forschung forschung)
-	{
-		form.label("Name", forschung.getName());
-		form.dynamicContentField("Bild", "image", forschung.getImage());
+		form.label("Name", Forschung::getName);
+		form.dynamicContentField("Bild", Forschung::getImage, Forschung::setImage);
 	}
 }

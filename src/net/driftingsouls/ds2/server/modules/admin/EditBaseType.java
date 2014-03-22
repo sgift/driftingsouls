@@ -20,17 +20,17 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.bases.BaseType;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 
-import java.io.IOException;
+import javax.annotation.Nonnull;
 
 /**
  * Aktualisierungstool fuer die Basis-Klassen.
  * 
  */
 @AdminMenuEntry(category = "Asteroiden", name = "Basis-Klasse editieren")
-public class EditBaseType extends AbstractEditPlugin<BaseType> implements AdminPlugin
+public class EditBaseType extends AbstractEditPlugin8<BaseType> implements AdminPlugin
 {
 	public EditBaseType()
 	{
@@ -38,31 +38,17 @@ public class EditBaseType extends AbstractEditPlugin<BaseType> implements AdminP
 	}
 
 	@Override
-	protected void update(StatusWriter writer, BaseType type) throws IOException
+	protected void configureFor(@Nonnull EditorForm8<BaseType> form)
 	{
-		Context context = ContextMap.getContext();
-		type.setName(context.getRequest().getParameterString("name"));
-		type.setEnergy(context.getRequest().getParameterInt("energie"));
-		type.setCargo(context.getRequest().getParameterInt("cargo"));
-		type.setWidth(context.getRequest().getParameterInt("width"));
-		type.setHeight(context.getRequest().getParameterInt("height"));
-		type.setMaxTiles(context.getRequest().getParameterInt("maxtiles"));
-		type.setSize(context.getRequest().getParameterInt("size"));
-		type.setTerrain(Common.explodeToInteger(";", context.getRequest().getParameterString("terrain")));
-		type.setSpawnableRess(context.getRequest().getParameterString("spawnableress"));
-	}
-
-	@Override
-	protected void edit(EditorForm form, BaseType type)
-	{
-		form.field("Name", "name", String.class, type.getName());
-		form.field("Energie", "energie", Integer.class, type.getEnergy());
-		form.field("Cargo", "cargo", Integer.class, type.getCargo());
-		form.field("Breite", "width", Integer.class, type.getWidth());
-		form.field("Höhe", "height", Integer.class, type.getHeight());
-		form.field("Max. Feldanzahl", "maxtiles", Integer.class, type.getMaxTiles());
-		form.field("Radius", "size", Integer.class, type.getSize());
-		form.field("Terrain", "terrain", String.class, (type.getTerrain() == null ? "" : Common.implode(";", type.getTerrain())));
-		form.field("Zum Spawn freigegebene Ressourcen", "spawnableress", String.class, type.getSpawnableRess());
+		form.allowAdd();
+		form.field("Name", String.class, BaseType::getName, BaseType::setName);
+		form.field("Energie", Integer.class, BaseType::getEnergy, BaseType::setEnergy);
+		form.field("Cargo", Integer.class, BaseType::getCargo, BaseType::setCargo);
+		form.field("Breite", Integer.class, BaseType::getWidth, BaseType::setWidth);
+		form.field("Höhe", Integer.class, BaseType::getHeight, BaseType::setHeight);
+		form.field("Max. Feldanzahl", Integer.class, BaseType::getMaxTiles, BaseType::setMaxTiles);
+		form.field("Radius", Integer.class, BaseType::getSize, BaseType::setSize);
+		form.field("Terrain", String.class, (bt) -> bt.getTerrain() == null ? "" : Common.implode(";", bt.getTerrain()), (bt, value) -> bt.setTerrain(Common.explodeToInteger(";", value)));
+		form.field("Zum Spawn freigegebene Ressourcen", String.class, BaseType::getSpawnableRess, BaseType::setSpawnableRess);
 	}
 }

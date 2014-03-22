@@ -3,6 +3,7 @@ package net.driftingsouls.ds2.server.framework.utils;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
 
 /**
  * Hilfsklasse zum Konvertieren von Strings in eine Reihe von bekannten Datentypen.
@@ -35,6 +36,10 @@ public final class StringToTypeConverter
 		{
 			return (T)value;
 		}
+		if( type == BigDecimal.class )
+		{
+			return (T)new BigDecimal(value);
+		}
 
 		try
 		{
@@ -44,13 +49,17 @@ public final class StringToTypeConverter
 				return (T)valueOfMethod.invoke(null, value);
 			}
 		}
-		catch (NoSuchMethodException | IllegalAccessException e)
+		catch (IllegalAccessException e)
 		{
 			throw new UnsupportedOperationException("Der Datentyp "+type+" besitzt zwar eine valueOf-Methode, diese kann aber nicht aufgerufen werden", e);
 		}
 		catch (InvocationTargetException e)
 		{
 			throw new IllegalArgumentException("Der Wert '"+value+"' kann nicht in den Datentyp "+type+" konvertiert werden", e);
+		}
+		catch (NoSuchMethodException e)
+		{
+			// fall through
 		}
 
 		throw new IllegalArgumentException("Der Zieltyp "+type.getName()+" wird nicht unterstuetzt");

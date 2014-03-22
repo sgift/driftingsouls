@@ -1,12 +1,14 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.bases.BaseType;
 import net.driftingsouls.ds2.server.bases.Core;
+import net.driftingsouls.ds2.server.bases.DefaultCore;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.Forschung;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.pipeline.Request;
+import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 
-import java.io.IOException;
+import javax.annotation.Nonnull;
 
 /**
  * Editiert die Werte von Cores.
@@ -14,45 +16,29 @@ import java.io.IOException;
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Asteroiden", name = "Core editieren")
-public class EditCore extends AbstractEditPlugin<Core>
+public class EditCore extends AbstractEditPlugin8<Core>
 {
 	public EditCore()
 	{
 		super(Core.class);
+		setEntityClass(DefaultCore.class);
 	}
 
 	@Override
-	protected void update(StatusWriter writer, Core core) throws IOException
+	protected void configureFor(@Nonnull EditorForm8<Core> form)
 	{
-		Request req = ContextMap.getContext().getRequest();
-		core.setName(req.getParameterString("name"));
-		core.setAstiType(req.getParameterInt("asti"));
-		core.setArbeiter(req.getParameterInt("worker"));
-		core.setEVerbrauch(req.getParameterInt("everbrauch"));
-		core.setEProduktion(req.getParameterInt("eproduktion"));
-		core.setEps(req.getParameterInt("eps"));
-		core.setBewohner(req.getParameterInt("room"));
-		core.setShutDown("true".equals(req.getParameterString("shutdown")));
-		core.setTechReq(req.getParameterInt("tech"));
-		core.setBuildcosts(new Cargo(Cargo.Type.ITEMSTRING, req.getParameterString("buildcosts")));
-		core.setConsumes(new Cargo(Cargo.Type.ITEMSTRING, req.getParameterString("consumes")));
-		core.setProduces(new Cargo(Cargo.Type.ITEMSTRING, req.getParameterString("produces")));
-	}
-
-	@Override
-	protected void edit(EditorForm form, Core core)
-	{
-		form.field("Name", "name", String.class, core.getName());
-		form.field("Astitype", "asti", Integer.class, core.getAstiType());
-		form.field("Arbeiter", "worker", Integer.class, core.getArbeiter());
-		form.field("Energieverbrauch", "everbrauch", Integer.class, core.getEVerbrauch());
-		form.field("Energieproduktion", "eproduktion", Integer.class, core.getEProduktion());
-		form.field("EPS", "eps", Integer.class, core.getEPS());
-		form.field("Wohnraum", "room", Integer.class, core.getBewohner());
-		form.field("Auto Abschalten", "shutdown", Boolean.class, core.isShutDown());
-		form.field("Forschung", "tech", Forschung.class, core.getTechRequired());
-		form.field("Baukosten", "buildcosts", Cargo.class, core.getBuildCosts());
-		form.field("Verbrauch", "consumes", Cargo.class, core.getConsumes());
-		form.field("Produktion", "produces", Cargo.class, core.getProduces());
+		form.allowAdd();
+		form.field("Name", String.class, Core::getName, Core::setName);
+		form.field("Astitype", BaseType.class, Integer.class, Core::getAstiType, Core::setAstiType);
+		form.field("Arbeiter", Integer.class, Core::getArbeiter, Core::setArbeiter);
+		form.field("Energieverbrauch", Integer.class, Core::getEVerbrauch, Core::setEVerbrauch);
+		form.field("Energieproduktion", Integer.class, Core::getEProduktion, Core::setEProduktion);
+		form.field("EPS", Integer.class, Core::getEPS, Core::setEps);
+		form.field("Wohnraum", Integer.class, Core::getBewohner, Core::setBewohner);
+		form.field("Auto Abschalten", Boolean.class, Core::isShutDown, Core::setShutDown);
+		form.field("Forschung", Forschung.class, Integer.class, Core::getTechRequired, Core::setTechReq);
+		form.field("Baukosten", Cargo.class, Core::getBuildCosts, Core::setBuildcosts);
+		form.field("Verbrauch", Cargo.class, Core::getConsumes, Core::setConsumes);
+		form.field("Produktion", Cargo.class, Core::getProduces, Core::setProduces);
 	}
 }
