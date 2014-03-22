@@ -23,7 +23,7 @@ public class TicksperreAufhebenTick extends TickController
 		new SingleUnitOfWork("Hebe Accountblock auf") {
 			@Override
 			public void doWork() {
-				ConfigValue value = new ConfigService().get(WellKnownConfigValue.TICKS);
+				ConfigValue value = new ConfigService().get(WellKnownConfigValue.TICK);
 				value.setValue("0");
 			}
 		}
