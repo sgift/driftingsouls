@@ -1,5 +1,7 @@
-package net.driftingsouls.ds2.server.framework;
+package net.driftingsouls.ds2.server.tick;
 
+import net.driftingsouls.ds2.server.framework.ConfigService;
+import net.driftingsouls.ds2.server.framework.DSFilter;
 import net.driftingsouls.ds2.server.framework.authentication.TickInProgressException;
 import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 

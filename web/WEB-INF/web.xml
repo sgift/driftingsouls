@@ -54,7 +54,7 @@
 
 	<filter>
 		<filter-name>TickInProgress</filter-name>
-		<filter-class>net.driftingsouls.ds2.server.framework.TickFilter</filter-class>
+		<filter-class>net.driftingsouls.ds2.server.tick.TickFilter</filter-class>
 	</filter>
 
 	<filter>
