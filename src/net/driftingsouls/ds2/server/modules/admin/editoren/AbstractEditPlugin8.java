@@ -57,8 +57,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 				if (isUpdatePossible(entity))
 				{
 					form.applyRequestValues(request, entity);
-					// TODO: Jobs
-					processJobs(entity, form.getUpdateTasks());
+					processJobs(echo, entity, form.getUpdateTasks());
 					echo.append("<p>Update abgeschlossen.</p>");
 				}
 			}
@@ -141,7 +140,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		}
 	}
 
-	private void processJobs(T entity, List<EditorForm8.Job<T, ?>> updateTasks)
+	private void processJobs(Writer echo, T entity, List<EditorForm8.Job<T, ?>> updateTasks) throws IOException
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		db.getTransaction().commit();
@@ -154,9 +153,16 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 				@Override
 				public void doWork(Object object) throws Exception
 				{
-					updateTask1.job.accept(object);
+					updateTask1.job.accept(entity,object);
 				}
 			}.setFlushSize(10).executeFor(jobData);
+
+			echo.append(updateTask.name);
+			if( jobData.size() > 1 )
+			{
+				echo.append(": ").append(Integer.toString(jobData.size())).append(" Objekte aktualisiert");
+			}
+			echo.append("<br />");
 		}
 
 		db.getTransaction().begin();

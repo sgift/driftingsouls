@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -21,19 +20,19 @@ public class EditorForm8<E>
 	public static class Job<E,T>
 	{
 		public final String name;
-		public final Function<E,? extends Collection<T>> supplier;
-		public final Consumer<T> job;
+		public final Function<E, ? extends Collection<T>> supplier;
+		public final BiConsumer<E, T> job;
 
-		public Job(String name, Function<E, ? extends Collection<T>> supplier, Consumer<T> job)
+		public Job(String name, Function<E, ? extends Collection<T>> supplier, BiConsumer<E, T> job)
 		{
 			this.name = name;
 			this.supplier = supplier;
 			this.job = job;
 		}
 
-		public static <E> Job<E,Boolean> forRunnable(String name, Runnable job)
+		public static <E> Job<E, Boolean> forRunnable(String name, Runnable job)
 		{
-			return new Job<>(name, (entity) -> Arrays.asList(Boolean.TRUE), (b) -> job.run());
+			return new Job<>(name, (entity) -> Arrays.asList(Boolean.TRUE), (e, b) -> job.run());
 		}
 	}
 
@@ -73,12 +72,27 @@ public class EditorForm8<E>
 		return this.allowAdd;
 	}
 
-	public void addUpdateTask(String name, Runnable job)
+	/**
+	 * Fuegt eine Arbeitsaufgabe hinzu, die nach der Aktualisierung (Update) durchgefuehrt werden soll.
+	 * Die Aufgabe wird in einer eigenen Transaktion durchgefuehrt.
+	 * @param name Der Name der Aufgabe
+	 * @param job Die Aufgabe
+	 */
+	public void postUpdateTask(String name, Runnable job)
 	{
 		updateTasks.add(Job.forRunnable(name, job));
 	}
 
-	public <T> void updateTask(String name, Function<E, ? extends Collection<T>> supplier, Consumer<T> job)
+	/**
+	 * Fuegt eine Arbeitsaufgabe hinzu, die nach der Aktualisierung (Update) durchgefuehrt werden soll.
+	 * Die Arbeitsaufgabe wird fuer eine Menge von Objekten durchgefuehrt. Fuer jedes Objekt wird die
+	 * Arbeitsaufgabe einzeln aufgerufen. Die Aufgabe wird in einer eigenen Transaktion durchgefuehrt.
+	 * Bei groesseren Objektmengen kann die Verarbeitung auch automatisch auf mehrere Transaktionen aufgeteilt werden.
+	 * @param name Der Name der Aufgabe
+	 * @param supplier Der Generator fuer die Menge der abzuarbeitenden Objekte
+	 * @param job Die Aufgabe
+	 */
+	public <T> void postUpdateTask(String name, Function<E, ? extends Collection<T>> supplier, BiConsumer<E, T> job)
 	{
 		updateTasks.add(new Job<>(name, supplier, job));
 	}
@@ -179,8 +193,7 @@ public class EditorForm8<E>
 				StringBuilder str = new StringBuilder("<ul>");
 				for (EditorForm8.Job<E, ?> tJob : updateTasks)
 				{
-					Collection<?> jobParams = tJob.supplier.apply(entity);
-					str.append("<li>").append(jobParams.size()).append("x ").append(tJob.name).append("</li>");
+					str.append("<li>").append(tJob.name).append("</li>");
 				}
 				str.append("</ul>");
 				new LabelGenerator<>("Bei Aktualisierung", (e) -> str.toString()).generate(echo, entity);

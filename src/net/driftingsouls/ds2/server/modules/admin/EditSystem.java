@@ -19,26 +19,24 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.MutableLocation;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.config.StarSystem;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
-import net.driftingsouls.ds2.server.framework.pipeline.Request;
+import net.driftingsouls.ds2.server.entities.Nebel;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.ships.Ship;
-import org.hibernate.CacheMode;
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
 
-import java.io.IOException;
+import javax.annotation.Nonnull;
 
 /**
  * Aktualisierungstool fuer die Systeme.
  *
  */
 @AdminMenuEntry(category = "Systeme", name = "System editieren")
-public class EditSystem extends AbstractEditPlugin<StarSystem> implements AdminPlugin
+public class EditSystem extends AbstractEditPlugin8<StarSystem> implements AdminPlugin
 {
 	public EditSystem()
 	{
@@ -46,109 +44,102 @@ public class EditSystem extends AbstractEditPlugin<StarSystem> implements AdminP
 	}
 
 	@Override
-	protected void update(StatusWriter statusWriter, StarSystem system) throws IOException
+	protected void configureFor(@Nonnull EditorForm8<StarSystem> form)
 	{
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = getDB();
-		Request request = context.getRequest();
+		form.allowAdd();
 
-		String name = request.getParameterString("name");
-		int width = request.getParameterInt("width");
-		int height = request.getParameterInt("height");
-		boolean military = request.getParameterString("military").equals("true");
-		int maxcolonies = request.getParameterInt("maxcolonies");
-		boolean starmap = request.getParameterString("starmap").equals("true");
-		String orderloc = request.getParameterString("orderloc");
-		String gtuDropZoneString = request.getParameterString("gtuDropZone");
-		int access = request.getParameterInt("access");
-		String descrip = request.getParameterString("descrip");
-		String spawnableress = request.getParameterString("spawnableress");
+		form.field("Name", String.class, StarSystem::getName, StarSystem::setName);
+		form.field("Breite", Integer.class, StarSystem::getWidth, StarSystem::setWidth);
+		form.field("Höhe", Integer.class, StarSystem::getHeight, StarSystem::setHeight);
+		form.field("Allow Military", Boolean.class, StarSystem::isMilitaryAllowed, StarSystem::setMilitaryAllowed);
+		form.field("Max Colonies (-1 = keine Begrenzung)", Integer.class, StarSystem::getMaxColonies, StarSystem::setMaxColonies);
+		form.field("In Sternenkarte sichtbar", Boolean.class, StarSystem::isStarmapVisible, StarSystem::setStarmapVisible);
+		form.field("OrderLocations(Form: x/y|x/y)", String.class, StarSystem::getOrderLocationString, StarSystem::setOrderLocations);
+		form.field("GTU Dropzone(Form: x/y)", String.class, StarSystem::getDropZoneString, (s, v) -> s.setDropZone(!"".equals(v) ? Location.fromString(v) : new Location(0, 0, 0)));
+		form.field("Zugriffsrechte(1=Jeder;2=NPC;3=Admin)", Integer.class, StarSystem::getAccess, StarSystem::setAccess);
+		form.field("Beschreibung", String.class, StarSystem::getDescription, StarSystem::setDescription);
+		form.field("Ressourcenvorkommen", String.class, StarSystem::getSpawnableRess, StarSystem::setSpawnableRess);
 
-		system.setName(name);
-		system.setWidth(width);
-		system.setHeight(height);
-		system.setMilitaryAllowed(military);
-		system.setMaxColonies(maxcolonies);
-		system.setStarmapVisible(starmap);
-		system.setOrderLocations(orderloc);
-		if(!"".equals(gtuDropZoneString)) {
-			system.setDropZone(Location.fromString(gtuDropZoneString));
-		}
-		else
+
+		form.postUpdateTask("Schiffe an Systemgrenzen anpassen",
+				(s) -> Common.cast(getDB().createQuery("select id from Ship where system = :system and (x>:width or y>:height)")
+						.setInteger("system", s.getID())
+						.setInteger("width", s.getWidth())
+						.setInteger("height", s.getHeight())
+						.list()),
+				this::aktualisiereSchiffe
+		);
+		form.postUpdateTask("Schlachten an Systemgrenzen anpassen",
+				(s) -> Common.cast(getDB().createQuery("select id from Battle where system = :system and (x>:width or y>:height)")
+						.setInteger("system", s.getID())
+						.setInteger("width", s.getWidth())
+						.setInteger("height", s.getHeight())
+						.list()),
+				this::aktualisiereSchlachten
+		);
+		form.postUpdateTask("Basen an Systemgrenzen anpassen",
+				(s) -> Common.cast(getDB().createQuery("select id from Base where system = :system and (x>:width or y>:height)")
+						.setInteger("system", s.getID())
+						.setInteger("width", s.getWidth())
+						.setInteger("height", s.getHeight())
+						.list()),
+				this::aktualisiereBasen
+		);
+		form.postUpdateTask("Ueberfluessige Nebel entfernen",
+				(s) -> Common.cast(getDB().createQuery("select loc from Nebel where loc.system = :system and (loc.x>:width or loc.y>:height)")
+						.setInteger("system", s.getID())
+						.setInteger("width", s.getWidth())
+						.setInteger("height", s.getHeight())
+						.list()),
+				this::entferneNebel
+		);
+	}
+
+	private void entferneNebel(StarSystem system, MutableLocation loc)
+	{
+		if( loc.getX() > system.getWidth() || loc.getY() > system.getHeight() )
 		{
-			system.setDropZone(new Location(0, 0, 0));
-		}
-		system.setAccess(access);
-		system.setDescription(descrip);
-		system.setSpawnableRess(spawnableress);
-
-		// Update ships
-		int count = 0;
-
-		ScrollableResults ships = db.createQuery("from Ship where system = :system").setInteger("system", system.getID()).setCacheMode(CacheMode.IGNORE).scroll(ScrollMode.FORWARD_ONLY);
-		while (ships.next())
-		{
-			Ship ship = (Ship) ships.get(0);
-			if(ship.getX() > system.getWidth()) {
-				ship.setX(system.getWidth());
-			}
-			if(ship.getY() > system.getHeight()) {
-				ship.setY(system.getHeight());
-			}
-			count++;
-			if (count % 20 == 0)
-			{
-				db.flush();
-				HibernateUtil.getSessionFactory().getCurrentSession().evict(Ship.class);
-			}
-		}
-
-		ScrollableResults battles = db.createQuery("from Battle where system = :system").setInteger("system", system.getID()).setCacheMode(CacheMode.IGNORE).scroll(ScrollMode.FORWARD_ONLY);
-		while (battles.next())
-		{
-			Battle battle = (Battle) battles.get(0);
-			if(battle.getX() > system.getWidth())
-			{
-				battle.setX(system.getWidth());
-			}
-			if(battle.getY() > system.getHeight())
-			{
-				battle.setY(system.getHeight());
-			}
-			db.flush();
-			HibernateUtil.getSessionFactory().getCurrentSession().evict(Battle.class);
-		}
-
-		ScrollableResults bases = db.createQuery("from Base where system = :system").setInteger("system", system.getID()).setCacheMode(CacheMode.IGNORE).scroll(ScrollMode.FORWARD_ONLY);
-		while(bases.next())
-		{
-			Base base = (Base) bases.get(0);
-			if(base.getX() > system.getWidth())
-			{
-				base.setX(system.getWidth());
-			}
-			if(base.getY() > system.getHeight())
-			{
-				base.setY(system.getHeight());
-			}
-			db.flush();
-			HibernateUtil.getSessionFactory().getCurrentSession().evict(Base.class);
+			Nebel nebel = (Nebel) getDB().get(Nebel.class, loc);
+			getDB().delete(nebel);
 		}
 	}
 
-	@Override
-	protected void edit(EditorForm form, StarSystem system)
+	private void aktualisiereBasen(StarSystem system, Integer id)
 	{
-		form.field("Name", "name", String.class, system.getName());
-		form.field("Breite", "width", Integer.class, system.getWidth());
-		form.field("Höhe", "height", Integer.class, system.getHeight());
-		form.field("Allow Military", "military", Boolean.class, system.isMilitaryAllowed());
-		form.field("Max Colonies (-1 = keine Begrenzung)", "maxcolonies", Integer.class, system.getMaxColonies());
-		form.field("In Sternenkarte sichtbar", "starmap", Boolean.class, system.isStarmapVisible());
-		form.field("OrderLocations(Form: x/y|x/y)", "orderloc", String.class, system.getOrderLocationString());
-		form.field("GTU Dropzone(Form: x/y)", "gtuDropZone", String.class, system.getDropZoneString());
-		form.field("Zugriffsrechte(1=Jeder;2=NPC;3=Admin)", "access", Integer.class, system.getAccess());
-		form.field("Beschreibung", "descrip", String.class, system.getDescription());
-		form.field("Ressourcenvorkommen", "spawnableress", String.class, system.getSpawnableRess());
+		Base base = (Base) getDB().get(Base.class, id);
+		if (base.getX() > system.getWidth())
+		{
+			base.setX(system.getWidth());
+		}
+		if (base.getY() > system.getHeight())
+		{
+			base.setY(system.getHeight());
+		}
+	}
+
+	private void aktualisiereSchlachten(StarSystem system, Integer id)
+	{
+		Battle battle = (Battle) getDB().get(Battle.class, id);
+		if (battle.getX() > system.getWidth())
+		{
+			battle.setX(system.getWidth());
+		}
+		if (battle.getY() > system.getHeight())
+		{
+			battle.setY(system.getHeight());
+		}
+	}
+
+	private void aktualisiereSchiffe(StarSystem system, Integer id)
+	{
+		Ship ship = (Ship) getDB().get(Ship.class, id);
+		if (ship.getX() > system.getWidth())
+		{
+			ship.setX(system.getWidth());
+		}
+		if (ship.getY() > system.getHeight())
+		{
+			ship.setY(system.getHeight());
+		}
 	}
 }

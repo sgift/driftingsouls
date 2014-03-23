@@ -47,7 +47,7 @@ public class EditShiptypePicture extends AbstractEditPlugin8<ShipType> implement
 								   .list());
 	}
 
-	private void aktualisiereSchiff(Integer schiffsId)
+	private void aktualisiereSchiff(ShipType shipType, Integer schiffsId)
 	{
 		Ship ship = (Ship)getDB().get(Ship.class, schiffsId);
 		ship.recalculateModules();
@@ -59,6 +59,6 @@ public class EditShiptypePicture extends AbstractEditPlugin8<ShipType> implement
 		form.label("Name", ShipType::getNickname);
 		form.dynamicContentField("Bild", ShipType::getPicture, ShipType::setPicture);
 
-		form.updateTask("Schiffe mit Modulen neu berechnen", this::liefereZuAktualisierendeSchiffe, this::aktualisiereSchiff);
+		form.postUpdateTask("Schiffe mit Modulen neu berechnen", this::liefereZuAktualisierendeSchiffe, this::aktualisiereSchiff);
 	}
 }
