@@ -179,11 +179,11 @@ public class MapController extends AngularController
 
 			String systemAddInfo = " ";
 
-			if (system.getAccess() == StarSystem.AC_ADMIN)
+			if (system.getAccess() == StarSystem.Access.ADMIN)
 			{
 				systemAddInfo += "[admin]";
 			}
-			else if (system.getAccess() == StarSystem.AC_NPC)
+			else if (system.getAccess() == StarSystem.Access.NPC)
 			{
 				systemAddInfo += "[hidden]";
 			}
@@ -192,8 +192,8 @@ public class MapController extends AngularController
 			sysObj.name = system.getName();
 			sysObj.id = system.getID();
 			sysObj.addinfo = systemAddInfo;
-			sysObj.npcOnly = system.getAccess() == StarSystem.AC_NPC;
-			sysObj.adminOnly = system.getAccess() == StarSystem.AC_ADMIN;
+			sysObj.npcOnly = system.getAccess() == StarSystem.Access.NPC;
+			sysObj.adminOnly = system.getAccess() == StarSystem.Access.ADMIN;
 			sysObj.mapX = system.getMapX();
 			sysObj.mapY = system.getMapY();
 

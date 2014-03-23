@@ -14,11 +14,13 @@ import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Generator fuer ein normales Eigabefeld.
@@ -45,7 +47,7 @@ public class FieldGenerator<V, T> implements CustomFieldGenerator<V>
 		this.setter = setter;
 		this.dataType = dataType;
 
-		if (this.viewType.isAnnotationPresent(Entity.class))
+		if (this.viewType.isAnnotationPresent(Entity.class) || this.viewType.isEnum())
 		{
 			this.selectionOptions.putAll(generateSelectionOptions(this.viewType));
 		}
@@ -194,13 +196,21 @@ public class FieldGenerator<V, T> implements CustomFieldGenerator<V>
 	private Map<Serializable, Object> generateSelectionOptions(Class<?> entityClass)
 	{
 		Map<Serializable, Object> result = new LinkedHashMap<>();
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
-		List<?> editities = Common.cast(db.createCriteria(entityClass).list());
-		for (Object entity : editities)
+		if( entityClass.isEnum() )
 		{
-			Serializable identifier = db.getIdentifier(entity);
-			result.put(identifier, entity);
+			Object[] enumConstants = entityClass.getEnumConstants();
+			result.putAll(Arrays.asList(enumConstants).stream().collect(Collectors.toMap((o) -> (Serializable)o, (o) -> o)));
+		}
+		else
+		{
+			org.hibernate.Session db = ContextMap.getContext().getDB();
+
+			List<?> editities = Common.cast(db.createCriteria(entityClass).list());
+			for (Object entity : editities)
+			{
+				Serializable identifier = db.getIdentifier(entity);
+				result.put(identifier, entity);
+			}
 		}
 		return result;
 	}
@@ -231,9 +241,9 @@ public class FieldGenerator<V, T> implements CustomFieldGenerator<V>
 				echo.append("selected=\"selected\"");
 			}
 			String label;
-			if (entry.getValue() instanceof String)
+			if (entry.getValue() instanceof String || entry.getKey() == entry.getValue())
 			{
-				label = (String) entry.getValue();
+				label = entry.getValue() != null ? entry.getValue().toString() : "";
 			}
 			else
 			{

@@ -1490,18 +1490,7 @@ public class ErsteigernController extends TemplateController
 		}
 
 		StarSystem system = (StarSystem) db.get(StarSystem.class, targetsystem);
-		if ((system.getAccess() == StarSystem.AC_ADMIN)
-				&& !user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS))
-		{
-			addError("Die angegebene Zielsystem konnte nicht lokalisiert werden");
-			unsetParameter("targetsystem");
-
-			redirect("shopOrderGanymede");
-			return;
-		}
-		else if ((system.getAccess() == StarSystem.AC_NPC)
-				&& !user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS)
-				&& !user.hasFlag(User.FLAG_VIEW_SYSTEMS))
+		if (system.isVisibleFor(user))
 		{
 			addError("Die angegebene Zielsystem konnte nicht lokalisiert werden");
 			unsetParameter("targetsystem");
@@ -1814,14 +1803,7 @@ public class ErsteigernController extends TemplateController
 		first = true;
 		for (StarSystem system : systems)
 		{
-			if ((system.getAccess() == StarSystem.AC_ADMIN)
-					&& !user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS))
-			{
-				continue;
-			}
-			else if ((system.getAccess() == StarSystem.AC_NPC)
-					&& !user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS)
-					&& !user.hasFlag(User.FLAG_VIEW_SYSTEMS))
+			if ( !system.isVisibleFor(user) )
 			{
 				continue;
 			}

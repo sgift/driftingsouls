@@ -2,6 +2,7 @@ package net.driftingsouls.ds2.server.modules.admin.editoren;
 
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 
+import javax.persistence.Entity;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.function.Function;
@@ -26,8 +27,17 @@ public class LabelGenerator<V, T> implements CustomFieldGenerator<V>
 	public void generate(Writer echo, V entity) throws IOException
 	{
 		T value = getter.apply(entity);
+		String valueStr;
+		if( value != null && value.getClass().isAnnotationPresent(Entity.class) )
+		{
+			valueStr = new ObjectLabelGenerator().generateFor(null, value);
+		}
+		else
+		{
+			valueStr = value != null ? value.toString() : "";
+		}
 		echo.append("<tr>");
-		echo.append("<td colspan='2'>").append(label.trim().isEmpty() ? "" : label + ":").append("</td>").append("<td>").append(value != null ? value.toString() : "").append("</td></tr>\n");
+		echo.append("<td colspan='2'>").append(label.trim().isEmpty() ? "" : label + ":").append("</td>").append("<td>").append(valueStr).append("</td></tr>\n");
 	}
 
 	@Override

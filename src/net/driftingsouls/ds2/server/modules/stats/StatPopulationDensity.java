@@ -73,15 +73,17 @@ public class StatPopulationDensity implements Statistic {
 				log.warn("Asteroiden im ungueltigen System "+data[0]+" vorhanden");
 				continue;
 			}
-			if( (system.getAccess() == StarSystem.AC_ADMIN) && user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS) ) {
-				systemAddInfo = "<span style=\"font-style:italic\">[admin]</span>";
-			}
-			else if( (system.getAccess() == StarSystem.AC_NPC) && (user.hasFlag(User.FLAG_VIEW_SYSTEMS) || user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS) ) ) {
-				systemAddInfo = "<span style=\"font-style:italic\">[hidden]</span>";
-			}
-			else if( (system.getAccess() == StarSystem.AC_ADMIN) || (system.getAccess() == StarSystem.AC_NPC) ) {
+			if( !system.isVisibleFor(user) )
+			{
 				continue;
 			}
+			if( system.getAccess() == StarSystem.Access.ADMIN ) {
+				systemAddInfo = "<span style=\"font-style:italic\">[admin]</span>";
+			}
+			else if( system.getAccess() == StarSystem.Access.NPC ) {
+				systemAddInfo = "<span style=\"font-style:italic\">[npc]</span>";
+			}
+
 			if( systemAddInfo.length() > 0 ) {
 				systemAddInfo += " ";
 			}

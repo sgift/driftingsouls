@@ -18,20 +18,20 @@
  */
 package net.driftingsouls.ds2.server.config;
 
-import java.util.ArrayList;
+import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.entities.User;
+import org.apache.commons.lang.StringUtils;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-
-import org.apache.commons.lang.StringUtils;
-
-import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.entities.User;
+import java.util.ArrayList;
 
 /**
  * Repraesentiert ein Sternensystem in DS.
@@ -44,18 +44,25 @@ import net.driftingsouls.ds2.server.entities.User;
 @Entity
 @Table(name="systems")
 public class StarSystem {
-	/**
-	 * Normaler Zugriffslevel - Alle Benutzer koennen das System sehen.
-	 */
-	public static final int AC_NORMAL = 1;
-	/**
-	 * NPC Zugriffslevel - Nur NPCs und Admins koennen das System sehen.
-	 */
-	public static final int AC_NPC = 2;
-	/**
-	 * Admin Zugriffslevel - Nur Admins koennen das System sehen.
-	 */
-	public static final int AC_ADMIN = 3;
+	public enum Access
+	{
+		/**
+		 * Das System ist grundsaetzlich nicht im Spiel sichtbar.
+		 */
+		NICHT_SICHTBAR,
+		/**
+		 * Normaler Zugriffslevel - Alle Benutzer koennen das System sehen.
+		 */
+		NORMAL,
+		/**
+		 * NPC Zugriffslevel - Nur NPCs und Admins koennen das System sehen.
+		 */
+		NPC,
+		/**
+		 * Admin Zugriffslevel - Nur Admins koennen das System sehen.
+		 */
+		ADMIN;
+	}
 
 	@Column(name="Name", nullable = false)
 	private String name = "";
@@ -67,7 +74,8 @@ public class StarSystem {
 	@Column(name="military", nullable = false)
 	private boolean allowMilitary = true;
 	@Column(name="access", nullable = false)
-	private int starmap = StarSystem.AC_NORMAL;
+	@Enumerated(EnumType.ORDINAL)
+	private Access starmap = Access.NORMAL;
 	private String gtuDropZone = null;
 	@Lob
 	private String orderloc = "";
@@ -299,7 +307,7 @@ public class StarSystem {
 	 * Der Zugriffslevel wird ueber entsprechende User-Flags festgelegt.
 	 * @return Der Zugriffslevel
 	 */
-	public int getAccess() {
+	public Access getAccess() {
 		return this.starmap;
 	}
 
@@ -307,7 +315,7 @@ public class StarSystem {
 	 * Setzt den Zugriffslevel, ab dem das Sternensystem sichtbar ist.
 	 * @param access Der Zugriffslevel
 	 */
-	public void setAccess(int access) {
+	public void setAccess(Access access) {
 		this.starmap = access;
 	}
 
@@ -429,15 +437,19 @@ public class StarSystem {
 	 */
 	public boolean isVisibleFor(User user)
 	{
+		if( this.starmap == Access.NICHT_SICHTBAR )
+		{
+			return false;
+		}
 		if( user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS) )
 		{
 			return true;
 		}
-		if( this.starmap == AC_ADMIN )
+		if( this.starmap == Access.ADMIN )
 		{
 			return false;
 		}
-		if( this.starmap == AC_NPC )
+		if( this.starmap == Access.NPC )
 		{
 			return user.hasFlag(User.FLAG_VIEW_SYSTEMS);
 		}
