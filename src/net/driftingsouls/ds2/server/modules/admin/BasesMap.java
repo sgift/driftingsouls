@@ -18,16 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.List;
-
-import javax.imageio.ImageIO;
-
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -35,6 +25,14 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AdminController;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
 
 /**
  * Generiert eine Karte eines Systems.
@@ -151,7 +149,7 @@ public class BasesMap implements AdminPlugin
 			
 			try 
 			{
-				File pngdir = new File(Configuration.getSetting("ABSOLUTE_PATH")+
+				File pngdir = new File(Configuration.getAbsolutePath()+
 						"downloads/"+context.getActiveUser().getId()+"/");
 				
 				if( !pngdir.isDirectory() ) 
@@ -159,7 +157,7 @@ public class BasesMap implements AdminPlugin
 					pngdir.mkdirs();
 				}
 				
-				ImageIO.write(image, "png", new File(Configuration.getSetting("ABSOLUTE_PATH")+
+				ImageIO.write(image, "png", new File(Configuration.getAbsolutePath()+
 						"downloads/"+context.getActiveUser().getId()+"/admin.bases.map.png"));
 			}
 			catch( IOException e ) 

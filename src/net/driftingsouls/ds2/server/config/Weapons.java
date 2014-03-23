@@ -18,23 +18,22 @@
  */
 package net.driftingsouls.ds2.server.config;
 
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Repraesentiert die Liste aller bekannten Waffen in DS sowie einige
@@ -121,7 +120,7 @@ public class Weapons implements Iterable<Weapon> {
 		try {
 			final Class<Weapon> wpnClass = Weapon.class;
 			
-			Document doc = XMLUtils.readFile(Configuration.getSetting("configdir")+"weapons.xml");
+			Document doc = XMLUtils.readFile(Configuration.getConfigPath()+"weapons.xml");
 			NodeList nodes = XMLUtils.getNodesByXPath(doc, "weapons/weapon");
 			for( int i=0; i < nodes.getLength(); i++ ) {
 				Node node = nodes.item(i);

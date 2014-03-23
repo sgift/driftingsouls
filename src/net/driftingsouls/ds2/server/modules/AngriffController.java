@@ -18,13 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.entities.Offizier;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -34,9 +29,10 @@ import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.Nebel;
+import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
@@ -85,10 +81,14 @@ import net.driftingsouls.ds2.server.modules.ks.KSUndockAllAction;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.units.UnitCargo;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Das UI fuer Schlachten.
@@ -126,7 +126,7 @@ public class AngriffController extends TemplateController
 		ACTIONS.put("batterien_single", KSDischargeBatteriesSingleAction.class);
 		ACTIONS.put("batterien_all", KSDischargeBatteriesAllAction.class);
 		ACTIONS.put("batterien_class", KSDischargeBatteriesClassAction.class);
-		if( Configuration.getIntSetting("ENABLE_CHEATS") != 0 ) {
+		if( new ConfigService().getValue(WellKnownConfigValue.ENABLE_CHEATS) ) {
 			ACTIONS.put("cheat_regenerate", KSCheatRegenerateOwnAction.class);
 			ACTIONS.put("cheat_regenerateenemy", KSCheatRegenerateEnemyAction.class);
 		}
@@ -143,7 +143,7 @@ public class AngriffController extends TemplateController
 		MENUACTIONS.put("new_commander", KSMenuBattleConsignAction.class);
 		MENUACTIONS.put("other", KSMenuOtherAction.class);
 		MENUACTIONS.put("shields", KSMenuShieldsAction.class);
-		if( Configuration.getIntSetting("ENABLE_CHEATS") != 0 ) {
+		if( new ConfigService().getValue(WellKnownConfigValue.ENABLE_CHEATS) ) {
 			MENUACTIONS.put("cheats", KSMenuCheatsAction.class);
 		}
 	}

@@ -18,18 +18,17 @@
  */
 package net.driftingsouls.ds2.server.config;
 
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Repraesentiert die Liste aller in DS bekannten Modul-Slots.
@@ -86,7 +85,7 @@ public class ModuleSlots implements Iterable<ModuleSlot> {
 		 * moduleslots.xml parsen
 		 */
 		try {
-			Document doc = XMLUtils.readFile(Configuration.getSetting("configdir")+"moduleslots.xml");
+			Document doc = XMLUtils.readFile(Configuration.getConfigPath()+"moduleslots.xml");
 			NodeList nodes = XMLUtils.getNodesByXPath(doc, "slots/slot");
 			for( int i=0; i < nodes.getLength(); i++ ) {
 				Node node = nodes.item(i);

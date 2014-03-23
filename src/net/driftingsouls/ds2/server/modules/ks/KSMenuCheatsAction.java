@@ -18,9 +18,10 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
-import net.driftingsouls.ds2.server.framework.Configuration;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
@@ -41,7 +42,7 @@ public class KSMenuCheatsAction extends BasicKSMenuAction {
 		
 		Context context = ContextMap.getContext();
 		
-		if( Configuration.getIntSetting("ENABLE_CHEATS") == 0 ) {
+		if( !new ConfigService().getValue(WellKnownConfigValue.DESTROYABLE_SHIPS) ) {
 			context.addError("Cheats sind deaktiviert!");
 			return Result.HALT;
 		}

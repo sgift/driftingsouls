@@ -18,17 +18,16 @@
  */
 package net.driftingsouls.ds2.server.config;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
+
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Klasse mit Konfigurationsdaten zu den einzelnen Fraktionen.
@@ -119,7 +118,7 @@ public class Faction {
 		 * factions.xml parsen
 		 */
 		try {
-			Document doc = XMLUtils.readFile(Configuration.getSetting("configdir")+"factions.xml");
+			Document doc = XMLUtils.readFile(Configuration.getConfigPath()+"factions.xml");
 			NodeList nodes = XMLUtils.getNodesByXPath(doc, "factions/faction");
 			for( int i=0; i < nodes.getLength(); i++ ) {
 				FactionPages fp = FactionPages.fromXML(nodes.item(i));

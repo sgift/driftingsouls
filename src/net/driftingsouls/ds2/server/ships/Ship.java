@@ -3359,13 +3359,13 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		// Truemmer-Schiff hinzufuegen und entfernen-Task setzen
-		ShipType truemmertype = (ShipType) db.get(ShipType.class, Configuration.getIntSetting("CONFIG_TRUEMMER"));
+		ShipType truemmertype = (ShipType) db.get(ShipType.class, new ConfigService().getValue(WellKnownConfigValue.TRUEMMER_SHIPTYPE));
 		User truemmerbesitzer = (User) db.get(User.class, -1);
 
 		Ship truemmer = new Ship(truemmerbesitzer, truemmertype, this.system, this.x, this.y);
-		truemmer.setName("Tr&uuml;mmerteile");
+		truemmer.setName("Trümmerteile");
 		truemmer.setCargo(cargo);
-		truemmer.setHull(Configuration.getIntSetting("CONFIG_TRUEMMER_HUELLE"));
+		truemmer.setHull(truemmertype.getHull());
 		int id = (Integer)db.save(truemmer);
 
 

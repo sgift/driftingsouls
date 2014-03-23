@@ -56,7 +56,7 @@ public class RegularTick extends AbstractTickExecuter
 		
 		try
 		{
-			File lockFile = new File(Configuration.getSetting("LOXPATH")+"/regulartick.lock");
+			File lockFile = new File(Configuration.getLogPath()+"/regulartick.lock");
 			lockFile.createNewFile();
 
 			try
@@ -128,6 +128,6 @@ public class RegularTick extends AbstractTickExecuter
 	protected void prepare()
 	{
 		setName("");
-		setLogPath(Configuration.getSetting("LOXPATH")+"tick/");
+		setLogPath(Configuration.getLogPath()+"tick/");
 	}
 }

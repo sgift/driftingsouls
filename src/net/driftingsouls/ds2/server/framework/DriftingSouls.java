@@ -54,10 +54,10 @@ public class DriftingSouls {
 		LOG.info("Reading "+configdir+"config.xml");
 		Configuration.init(configdir);
 		LOG.info("Initializing Hibernate");
-		HibernateUtil.init(Configuration.getSetting("configdir"), Configuration.getSetting("db_url"), Configuration.getSetting("db_user"), Configuration.getSetting("db_password"));
+		HibernateUtil.init(Configuration.getConfigPath(), Configuration.getSetting("db_url"), Configuration.getSetting("db_user"), Configuration.getSetting("db_password"));
 		if( !"true".equals(Configuration.getSetting("PRODUCTION")) )
 		{
-			HibernateUtil.writeSchemaToDisk(Configuration.getSetting("configdir") + "schema.sql");
+			HibernateUtil.writeSchemaToDisk(Configuration.getConfigPath() + "schema.sql");
 		}
 
 		Common.setLocale(Locale.GERMAN);
@@ -65,7 +65,7 @@ public class DriftingSouls {
 		if( boot ) {
 			LOG.info("Booting Classes...");
 
-			Document doc = XMLUtils.readFile(Configuration.getSetting("configdir")+"boot.xml");
+			Document doc = XMLUtils.readFile(Configuration.getConfigPath()+"boot.xml");
 			NodeList nodes = XMLUtils.getNodesByXPath(doc, "/bootlist/boot");
 			for( int i=0; i < nodes.getLength(); i++ ) {
 				String className = XMLUtils.getStringByXPath(nodes.item(i), "@class");

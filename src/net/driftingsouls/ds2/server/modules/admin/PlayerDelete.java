@@ -45,7 +45,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -335,7 +334,7 @@ public class PlayerDelete implements AdminPlugin
 			.executeUpdate();
 
 		echo.append("L&ouml;sche Userlogo...<br />\n");
-		new File(Configuration.getSetting("ABSOLUTE_PATH") + "data/logos/user/" + userid + ".gif")
+		new File(Configuration.getAbsolutePath() + "data/logos/user/" + userid + ".gif")
 				.delete();
 
 		echo.append("L&ouml;sche Offiziere...");

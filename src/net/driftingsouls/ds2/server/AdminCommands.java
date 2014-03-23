@@ -1263,7 +1263,7 @@ public class AdminCommands {
 
 			try {
 				Font font;
-				if( !new File(Configuration.getSetting("ABSOLUTE_PATH")+"data/bnkgothm.ttf").isFile() ) {
+				if( !new File(Configuration.getAbsolutePath()+"data/bnkgothm.ttf").isFile() ) {
 					log.warn("bnkgothm.ttf nicht auffindbar");
 					font = Font.getFont("bankgothic md bt");
 					if( font == null ) {
@@ -1272,7 +1272,7 @@ public class AdminCommands {
 				}
 				else {
 					font = Font.createFont(Font.TRUETYPE_FONT,
-							new File(Configuration.getSetting("ABSOLUTE_PATH")+"data/bnkgothm.ttf"));
+							new File(Configuration.getAbsolutePath()+"data/bnkgothm.ttf"));
 				}
 
 				BufferedImage baseImage = ImageIO.read(new FileInputStream(baseimg+".png"));
@@ -1337,7 +1337,7 @@ public class AdminCommands {
 		}
 
 		private String splitplanetimgs( String baseimg, String targetname ) {
-			String datadir = Configuration.getSetting("ABSOLUTE_PATH")+"data/starmap/";
+			String datadir = Configuration.getAbsolutePath()+"data/starmap/";
 
 			baseimg = datadir+baseimg;
 			targetname = datadir+targetname;
@@ -1402,7 +1402,7 @@ public class AdminCommands {
 					boolean sizedimg = false;
 					int imgcount = 0;
 
-					String path = Configuration.getSetting("ABSOLUTE_PATH") + "data/starmap/" + img + "/" + img;
+					String path = Configuration.getAbsolutePath() + "data/starmap/" + img + "/" + img;
 					if (!new File(path + "0.png").isFile())
 					{
 						if (!new File(path + ".png").isFile())

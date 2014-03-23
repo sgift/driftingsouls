@@ -848,7 +848,7 @@ public class AllyController extends TemplateController
 			return;
 		}
 
-		String uploaddir = Configuration.getSetting("ABSOLUTE_PATH") + "data/logos/ally/";
+		String uploaddir = Configuration.getAbsolutePath() + "data/logos/ally/";
 		try
 		{
 			File uploadedFile = new File(uploaddir + this.ally.getId() + ".gif");

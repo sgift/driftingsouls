@@ -18,9 +18,10 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
-import net.driftingsouls.ds2.server.framework.Configuration;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 
 import java.io.IOException;
 
@@ -41,7 +42,7 @@ public class KSMenuOtherAction extends BasicKSMenuAction {
 		BattleShip enemyShip = battle.getEnemyShip();
 		
 		//Cheat-Menue
-		if( Configuration.getIntSetting("ENABLE_CHEATS") != 0 ) {
+		if( new ConfigService().getValue(WellKnownConfigValue.DESTROYABLE_SHIPS) ) {
 			menuEntry("Cheats",	"ship",		ownShip.getId(),
 								"attack",	enemyShip.getId(),
 								"ksaction",	"cheats" );

@@ -18,34 +18,10 @@
  */
 package net.driftingsouls.ds2.server.battles;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.Version;
-import javax.script.ScriptEngine;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Weapons;
@@ -53,6 +29,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -64,7 +41,6 @@ import net.driftingsouls.ds2.server.ships.ShipLost;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -81,6 +57,29 @@ import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.OptimisticLockType;
 import org.hibernate.annotations.OptimisticLocking;
+
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.Version;
+import javax.script.ScriptEngine;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Repraesentiert eine Schlacht in DS.
@@ -731,7 +730,7 @@ public class Battle implements Locatable
 
         for (Ship aShip : shiplist) {
             // Loot-Truemmer sollten in keine Schlacht wandern... (nicht schoen, gar nicht schoen geloest)
-            if ((aShip.getOwner().getId() == -1) && (aShip.getType() == Configuration.getIntSetting("CONFIG_TRUEMMER"))) {
+            if ((aShip.getOwner().getId() == -1) && (aShip.getType() == new ConfigService().getValue(WellKnownConfigValue.TRUEMMER_SHIPTYPE))) {
                 continue;
             }
             User tmpUser = aShip.getOwner();
@@ -889,7 +888,7 @@ public class Battle implements Locatable
 		//
 
 		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(Configuration.getSetting("LOXPATH")+"battles/battle_id"+battle.id+".log"));
+			BufferedWriter writer = new BufferedWriter(new FileWriter(Configuration.getLogPath()+"battles/battle_id"+battle.id+".log"));
 			writer.append("<?xml version='1.0' encoding='UTF-8'?>\n");
 			writer.append("<battle>\n");
 			writer.append("<fileinfo format=\""+LOGFORMAT+"\" />\n");
@@ -937,7 +936,7 @@ public class Battle implements Locatable
             writer.close();
 
 			if( SystemUtils.IS_OS_UNIX ) {
-				Runtime.getRuntime().exec("chmod 0666 "+Configuration.getSetting("LOXPATH")+"battles/battle_id"+battle.id+".log");
+				Runtime.getRuntime().exec("chmod 0666 "+Configuration.getLogPath()+"battles/battle_id"+battle.id+".log");
 			}
 		}
 		catch( IOException e ) {
@@ -1543,7 +1542,7 @@ public class Battle implements Locatable
                 }
                 else if ((ship.getAction() & BS_DESTROYED) != 0)
                 {
-                    if (Configuration.getIntSetting("DESTROYABLE_SHIPS") != 0)
+                    if ( new ConfigService().getValue(WellKnownConfigValue.DESTROYABLE_SHIPS) )
                     {
                         //
                         // Verluste verbuchen (zerstoerte/verlorene Schiffe)
@@ -1565,7 +1564,7 @@ public class Battle implements Locatable
                         ShipLost lost = new ShipLost(ship.getShip());
                         lost.setDestAlly(destroyerAlly);
                         lost.setDestOwner(destroyer);
-                        lost.setBattleLog(Configuration.getSetting("LOXPATH") + "battles/battle_id" + getId() + ".log");
+                        lost.setBattleLog(Configuration.getLogPath() + "battles/battle_id" + getId() + ".log");
                         db.save(lost);
 
                         destroyShip(ship);
@@ -1850,8 +1849,8 @@ public class Battle implements Locatable
 
 		Common.writeLog("battles/battle_id"+this.id+".log", "</battle>");
 
-		final String newlog = Configuration.getSetting("LOXPATH")+"battles/ended/"+Common.time()+"_id"+this.id+".log";
-		new File(Configuration.getSetting("LOXPATH")+"battles/battle_id"+this.id+".log")
+		final String newlog = Configuration.getLogPath()+"battles/ended/"+Common.time()+"_id"+this.id+".log";
+		new File(Configuration.getLogPath()+"battles/battle_id"+this.id+".log")
 			.renameTo(new File(newlog));
 
 		db.createQuery("update ShipLost set battle=0,battleLog=:log where battle=:battle")

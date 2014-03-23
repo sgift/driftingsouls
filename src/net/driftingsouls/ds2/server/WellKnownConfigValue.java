@@ -125,6 +125,26 @@ public class WellKnownConfigValue<T> implements ConfigValueDescriptor<T>
 	 * Schluessel mit denen man sich registrieren kann, wenn der Wert * ist braucht man keinen Schluessel zum registrieren.
 	 */
 	public static final ConfigValueDescriptor<String> KEYS = new WellKnownConfigValue<>(String.class, "keys", "*", "Schluessel mit denen man sich registrieren kann, wenn der Wert * ist braucht man keinen Schluessel zum registrieren");
+	/**
+	 * Schiffstyp, der fuer Truemmerobjekte (Loot) verwendet wird.
+	 */
+	public static final ConfigValueDescriptor<Integer> TRUEMMER_SHIPTYPE = new WellKnownConfigValue<>(Integer.class, "truemmer_shiptype", "49", "Schiffstyp, der fuer Truemmerobjekte (Loot) verwendet wird");
+	/**
+	 * Ist das zerstoeren von Schiffen in einer Schlacht erlaubt?
+	 */
+	public static final ConfigValueDescriptor<Boolean> DESTROYABLE_SHIPS = new WellKnownConfigValue<>(Boolean.class, "destroyable_ships", "true", "Ist das zerstoeren von Schiffen in einer Schlacht erlaubt?");
+	/**
+	 * Ist der Noob-Schutz fuer neue Spieler aktiviert?
+	 */
+	public static final ConfigValueDescriptor<Boolean> NOOB_PROTECTION = new WellKnownConfigValue<>(Boolean.class, "noob_protection", "true", "Ist der Noob-Schutz fuer neue Spieler aktiviert?");
+	/**
+	 * Sind Cheats im Kampfsystem erlaubt?
+	 */
+	public static final ConfigValueDescriptor<Boolean> ENABLE_CHEATS = new WellKnownConfigValue<>(Boolean.class, "enable_cheats", "false", "Sind Cheats im Kampfsystem erlaubt?");
+	/**
+	 * Die ID des NPCs, der die Begruessungs-PMs bei der Registrierung versendet.
+	 */
+	public static final ConfigValueDescriptor<Integer> REGISTER_PM_SENDER = new WellKnownConfigValue<>(Integer.class, "register_pm_sender", "-16", "Sind Cheats im Kampfsystem erlaubt?");
 
 	private String name;
 	private String description;

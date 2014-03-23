@@ -63,7 +63,7 @@ class HandleAllyFound implements TaskHandler {
 					Ally ally = new Ally(allyname, allymember[0]);
 					int allyid = (Integer) db.save(ally);
 
-					Common.copyFile(Configuration.getSetting("ABSOLUTE_PATH") + "data/logos/ally/0.gif", Configuration.getSetting("ABSOLUTE_PATH") + "data/logos/ally" + allyid + ".gif");
+					Common.copyFile(Configuration.getAbsolutePath() + "data/logos/ally/0.gif", Configuration.getAbsolutePath() + "data/logos/ally" + allyid + ".gif");
 
 					for (User anAllymember : allymember)
 					{

@@ -18,18 +18,17 @@
  */
 package net.driftingsouls.ds2.server.config;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Repraesentiert die Liste aller in DS bekannten Orden und Raenge.
@@ -114,7 +113,7 @@ public class Medals {
 		 * medals.xml parsen
 		 */
 		try {
-			Document doc = XMLUtils.readFile(Configuration.getSetting("configdir")+"medals.xml");
+			Document doc = XMLUtils.readFile(Configuration.getConfigPath()+"medals.xml");
 			NodeList nodes = XMLUtils.getNodesByXPath(doc, "medals/medal");
 			for( int i=0; i < nodes.getLength(); i++ ) {
 				Node node = nodes.item(i);

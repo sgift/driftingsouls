@@ -107,9 +107,7 @@ public class PortalController extends TemplateController
 	{
 		TemplateEngine t = getTemplateEngine();
 
-		t.setVar("TUTORIAL_ID", Configuration.getSetting("ARTICLE_TUTORIAL"),
-				"FAQ_ID", Configuration.getSetting("ARTICLE_FAQ"),
-				"URL", Configuration.getSetting("URL"));
+		t.setVar("URL", Configuration.getSetting("URL"));
 
 		return true;
 	}
@@ -446,15 +444,15 @@ public class PortalController extends TemplateController
 		}
 
 		//Willkommens-PM versenden
-		User source = (User) db.get(User.class, Configuration.getIntSetting("REGISTER_PM_SENDER"));
+		User source = (User) db.get(User.class, new ConfigService().getValue(WellKnownConfigValue.REGISTER_PM_SENDER));
 		PM.send(source, newid, "Willkommen bei Drifting Souls 2",
 				Configuration.getSetting("REGISTER_PM"));
 
 		t.setVar("show.register.msg.ok", 1,
 				"register.newid", newid);
 
-		Common.copyFile(Configuration.getSetting("ABSOLUTE_PATH") + "data/logos/user/0.gif",
-				Configuration.getSetting("ABSOLUTE_PATH") + "data/logos/user/" + newid + ".gif");
+		Common.copyFile(Configuration.getAbsolutePath() + "data/logos/user/0.gif",
+				Configuration.getAbsolutePath() + "data/logos/user/" + newid + ".gif");
 
 		versendeRegistrierungsEmail(username, email, password);
 

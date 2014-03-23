@@ -7,11 +7,10 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
 import javax.imageio.ImageIO;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -79,7 +78,7 @@ public class TileCache
 		{
 			return imageCache.get(name);
 		}
-		File path = new File(Configuration.getSetting("ABSOLUTE_PATH") + "data/starmap/" + name);
+		File path = new File(Configuration.getAbsolutePath() + "data/starmap/" + name);
 		if( !path.canRead() )
 		{
 			throw new FileNotFoundException(path.getAbsolutePath());
@@ -211,7 +210,7 @@ public class TileCache
 
 	private String getTilePath()
 	{
-		return Configuration.getSetting("ABSOLUTE_PATH")+"data/starmap/_tilecache/";
+		return Configuration.getAbsolutePath()+"data/starmap/_tilecache/";
 	}
 
 	/**
@@ -224,13 +223,7 @@ public class TileCache
 			return;
 		}
 
-		File[] files = cacheDir.listFiles(new FileFilter() {
-			@Override
-			public boolean accept(File pathname)
-			{
-				return pathname.isFile() && pathname.getName().startsWith(TileCache.this.system.getID() + "_");
-			}
-		});
+		File[] files = cacheDir.listFiles(pathname -> pathname.isFile() && pathname.getName().startsWith(TileCache.this.system.getID() + "_"));
 
 		for( File file : files )
 		{

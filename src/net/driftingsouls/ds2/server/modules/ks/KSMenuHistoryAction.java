@@ -367,7 +367,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 					"global.showlog.actionstr",		actionstr );
 		
 		try {
-			File ksLog = new File(Configuration.getSetting("LOXPATH")+"battles/battle_id"+battle.getId()+".log");
+			File ksLog = new File(Configuration.getLogPath()+"battles/battle_id"+battle.getId()+".log");
 			if( !ksLog.isFile() ) {
 				t.setVar( "global.showlog.log", "Fehler: Konnte Kampflog nicht &ouml;ffnen");
 				return Result.ERROR;

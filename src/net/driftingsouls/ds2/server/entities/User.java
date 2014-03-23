@@ -31,7 +31,6 @@ import net.driftingsouls.ds2.server.entities.ally.AllyPosten;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
@@ -949,7 +948,7 @@ public class User extends BasicUser {
 	 * @return <code>true</code>, falls der Spieler noch ein Noob ist
 	 */
 	public boolean isNoob() {
-		return Configuration.getIntSetting("NOOB_PROTECTION") > 0 && hasFlag(FLAG_NOOB);
+		return new ConfigService().getValue(WellKnownConfigValue.NOOB_PROTECTION) && hasFlag(FLAG_NOOB);
 	}
 
 	/**

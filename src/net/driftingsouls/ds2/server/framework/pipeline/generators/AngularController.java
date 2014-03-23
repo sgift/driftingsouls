@@ -72,7 +72,7 @@ public abstract class AngularController extends Controller
 	{
 		Writer echo = getResponse().getWriter();
 
-		File tmpl = new File(Configuration.getSetting("ABSOLUTE_PATH")+"data/cltemplates/ds.html");
+		File tmpl = new File(Configuration.getAbsolutePath()+"data/cltemplates/ds.html");
 		try (BufferedReader reader = new BufferedReader(
 				new InputStreamReader(new FileInputStream(tmpl), "UTF-8")))
 		{

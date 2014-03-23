@@ -87,7 +87,7 @@ class HtmlOutputHelper extends OutputHelper {
 
 	private void appendDevModeCss(Writer sb) throws IOException
 	{
-		File cssdir = new File(Configuration.getSetting("ABSOLUTE_PATH")+"data/css/common");
+		File cssdir = new File(Configuration.getAbsolutePath()+"data/css/common");
 
 		for( String filename : new TreeSet<>(Arrays.asList(cssdir.list())) )
 		{
@@ -97,7 +97,7 @@ class HtmlOutputHelper extends OutputHelper {
 
 	private void appendDevModeJavascript(Writer sb) throws IOException
 	{
-		File jsdir = new File(Configuration.getSetting("ABSOLUTE_PATH")+"data/javascript/");
+		File jsdir = new File(Configuration.getAbsolutePath()+"data/javascript/");
 		File libdir = new File(jsdir.getAbsolutePath()+"/libs");
 		File commondir = new File(jsdir.getAbsolutePath()+"/common");
 

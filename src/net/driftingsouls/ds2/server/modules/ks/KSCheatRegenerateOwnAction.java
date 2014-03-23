@@ -19,10 +19,11 @@
 package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -44,7 +45,7 @@ public class KSCheatRegenerateOwnAction extends BasicKSAction {
 		
 		Context context = ContextMap.getContext();
 		
-		if( Configuration.getIntSetting("ENABLE_CHEATS") == 0 ) {
+		if( !new ConfigService().getValue(WellKnownConfigValue.ENABLE_CHEATS) ) {
 			context.addError("Cheats sind deaktiviert!");
 			return Result.HALT;
 		}

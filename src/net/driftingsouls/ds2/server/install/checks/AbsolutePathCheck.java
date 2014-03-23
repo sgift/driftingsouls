@@ -18,9 +18,9 @@
  */
 package net.driftingsouls.ds2.server.install.checks;
 
-import java.io.File;
-
 import net.driftingsouls.ds2.server.framework.Configuration;
+
+import java.io.File;
 
 /**
  * Ueberprueft, ob die config.xml existiert.
@@ -30,7 +30,7 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 public class AbsolutePathCheck implements Checkable {
 	@Override
 	public void doCheck() throws CheckFailedException {
-		final String absolutePath = Configuration.getSetting("ABSOLUTE_PATH");
+		final String absolutePath = Configuration.getAbsolutePath();
 		if( !new File(absolutePath).isDirectory() ) {
 			throw new CheckFailedException("ABSOLUTE_PATH ist ungueltig");
 		}

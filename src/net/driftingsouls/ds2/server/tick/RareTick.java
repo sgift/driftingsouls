@@ -40,7 +40,7 @@ public class RareTick extends AbstractTickExecuter
 	{
 		try
 		{
-			File lockFile = new File(Configuration.getSetting("LOXPATH")+"/raretick.lock");
+			File lockFile = new File(Configuration.getLogPath()+"/raretick.lock");
 			lockFile.createNewFile();
 			try
 			{
@@ -68,6 +68,6 @@ public class RareTick extends AbstractTickExecuter
 	protected void prepare()
 	{
 		setName("");
-		setLogPath(Configuration.getSetting("LOXPATH")+"raretick/");
+		setLogPath(Configuration.getLogPath()+"raretick/");
 	}
 }

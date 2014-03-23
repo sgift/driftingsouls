@@ -19,7 +19,7 @@
 package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.ContextCommon;
-import net.driftingsouls.ds2.server.entities.Offizier;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -30,9 +30,10 @@ import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.config.items.effects.IEAmmo;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.Ammo;
+import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
@@ -745,7 +746,7 @@ public class KSAttackAction extends BasicKSAction {
 			else {
 				battle.logme( "[color=red]+ Schiff zerst&ouml;rt[/color]\n" );
 				battle.logenemy( "[color=red]+ Schiff zerst&ouml;rt[/color]\n" );
-				if(Configuration.getIntSetting("DESTROYABLE_SHIPS") == 0 ) {
+				if( !new ConfigService().getValue(WellKnownConfigValue.DESTROYABLE_SHIPS) ) {
 					if( eShip.getHull() < 1 ) {
 						eShip.setHull(1);
 					}
@@ -1197,7 +1198,7 @@ public class KSAttackAction extends BasicKSAction {
 		}
 
 		boolean mydamage = this.calcDamage( battle, aeShip, aeShipType, hit, (int)(shieldSchaden*damagemod), (int)(schaden*damagemod), tmpsubdmgs, "" );
-		if( !mydamage && (Configuration.getIntSetting("DESTROYABLE_SHIPS") != 0) ) {
+		if( !mydamage && new ConfigService().getValue(WellKnownConfigValue.DESTROYABLE_SHIPS) ) {
 			this.destroyShip(this.ownShip.getOwner().getId(), battle, aeShip);
 		}
 	}
@@ -1617,7 +1618,7 @@ public class KSAttackAction extends BasicKSAction {
                 /*
                      *	Schiff falls notwendig zerstoeren
                      */
-                if( !savedamage && (Configuration.getIntSetting("DESTROYABLE_SHIPS") != 0) )
+                if( !savedamage && new ConfigService().getValue(WellKnownConfigValue.DESTROYABLE_SHIPS) )
                 {
                     this.destroyShip(this.ownShip.getOwner().getId(), battle, this.enemyShip);
                     int newindex = battle.getNewTargetIndex();
@@ -1640,7 +1641,7 @@ public class KSAttackAction extends BasicKSAction {
                     battle.logme( "[color=red]+ Angreifer zerst&ouml;rt[/color]\n" );
                     battle.logenemy( "[color=red]+ Angreifer zerst&ouml;rt[/color]\n" );
 
-                    if( Configuration.getIntSetting("DESTROYABLE_SHIPS") != 0 )
+                    if( new ConfigService().getValue(WellKnownConfigValue.DESTROYABLE_SHIPS) )
                     {
                         this.destroyShipOnly(this.ownShip.getOwner().getId(), battle, this.ownShip, false, false);
 

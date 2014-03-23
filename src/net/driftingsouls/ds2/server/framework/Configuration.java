@@ -18,17 +18,16 @@
  */
 package net.driftingsouls.ds2.server.framework;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.HashMap;
-import java.util.Map;
-
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Configuration kann Konfigurationsdateien parsen und die darin enthaltenen Einstellungen in die
@@ -177,14 +176,29 @@ public class Configuration
 	}
 
 	/**
-	 * Liefert eine Konfigurationseinstellung als Integer zurueck, sofern diese bereits als Integer
-	 * vorliegt. Es wird keine Umwandlung String nach Integer durchgefuehrt!
-	 * 
-	 * @param setting Name der Konfigurationseinstellung
-	 * @return Wert der Konfigurationseinstellung
+	 * Gibt den Dateisystempfad zu DS zurueck. Der Pfad endet mit einem Pfadseparator.
+	 * @return Der Dateisystempfad
 	 */
-	public int getInt(String setting)
+	public static String getAbsolutePath()
 	{
-		return getIntSetting(setting);
+		return getSetting("ABSOLUTE_PATH");
+	}
+
+	/**
+	 * Gibt den Dateisystempfad zum Logverzeichnis zurueck. Der Pfad endet mit einem Pfadseparator.
+	 * @return Der Dateisystempfad
+	 */
+	public static String getLogPath()
+	{
+		return getSetting("LOXPATH");
+	}
+
+	/**
+	 * Gibt den Dateisystempfad zum Konfigurationsverzeichnis zurueck. Der Pfad endet mit einem Pfadseparator.
+	 * @return Der Dateisystempfad
+	 */
+	public static String getConfigPath()
+	{
+		return getSetting("configdir");
 	}
 }

@@ -1,5 +1,6 @@
 package net.driftingsouls.ds2.server.install;
 
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.BaseStatus;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -14,6 +15,7 @@ import net.driftingsouls.ds2.server.entities.npcorders.OrderableShip;
 import net.driftingsouls.ds2.server.framework.BasicContext;
 import net.driftingsouls.ds2.server.framework.CmdLineRequest;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DriftingSouls;
@@ -55,6 +57,10 @@ public class ContentGenerator
 		}
 		mitHibernateSession((session) -> mitContext((context) -> {
 			Session db = context.getDB();
+
+			mitTransaktion("Setze Konfigurationseinstellungen", () -> {
+				new ConfigService().get(WellKnownConfigValue.ENABLE_CHEATS).setValue("true");
+			});
 
 			mitTransaktion("Erzeuge ComNet-Kanaele", this::erzeugeComNetKanaele);
 

@@ -18,11 +18,11 @@
  */
 package net.driftingsouls.ds2.server.framework;
 
+import org.apache.commons.fileupload.FileItem;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
-
-import org.apache.commons.fileupload.FileItem;
 
 /**
  * Verwaltungsklasse fuer durch Spieler hochgeladene Dateien.
@@ -62,7 +62,7 @@ public class DynamicContentManager
 			suffix = item.getName().substring(item.getName().lastIndexOf('.'));
 		}
 
-		String uploaddir = Configuration.getSetting("ABSOLUTE_PATH")+"data/dynamicContent/";
+		String uploaddir = Configuration.getAbsolutePath()+"data/dynamicContent/";
 		try {
 			File uploadedFile = new File(uploaddir+id+suffix);
 			item.write(uploadedFile);
@@ -88,7 +88,7 @@ public class DynamicContentManager
 		{
 			id = id.substring("data/dynamicContent/".length());
 		}
-		String uploaddir = Configuration.getSetting("ABSOLUTE_PATH")+"data/dynamicContent/";
+		String uploaddir = Configuration.getAbsolutePath()+"data/dynamicContent/";
 		new File(uploaddir+id).delete();
 
 		DynamicContent metadata = lookupMetadata(id, false);

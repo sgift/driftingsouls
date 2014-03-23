@@ -427,7 +427,7 @@ public class OptionsController extends TemplateController
 			return;
 		}
 
-		String uploaddir = Configuration.getSetting("ABSOLUTE_PATH") + "data/logos/user/";
+		String uploaddir = Configuration.getAbsolutePath() + "data/logos/user/";
 		try
 		{
 			File uploadedFile = new File(uploaddir + getUser().getId() + ".gif");
