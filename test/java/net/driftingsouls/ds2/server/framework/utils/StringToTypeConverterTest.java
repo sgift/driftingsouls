@@ -2,6 +2,9 @@ package net.driftingsouls.ds2.server.framework.utils;
 
 import org.junit.Test;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import static org.junit.Assert.*;
 
 public class StringToTypeConverterTest
@@ -76,5 +79,31 @@ public class StringToTypeConverterTest
 
 		// assert
 		assertNull(convert);
+	}
+
+	@Test
+	public void gegebenEinDoubleAlsWertUndBigDecimalAlsZieldatentyp_convert_sollteDenStringInEinBigDecimalKonvertieren() throws Exception
+	{
+		// setup
+		String valueStr = "42.01";
+
+		// run
+		BigDecimal convert = StringToTypeConverter.convert(BigDecimal.class, valueStr);
+
+		// assert
+		assertEquals(new BigDecimal("42.01"), convert);
+	}
+
+	@Test
+	public void gegebenEinIntegerAlsWertUndBigIntegerAlsZieldatentyp_convert_sollteDenStringInEinBigIntegerKonvertieren() throws Exception
+	{
+		// setup
+		String valueStr = "4242";
+
+		// run
+		BigInteger convert = StringToTypeConverter.convert(BigInteger.class, valueStr);
+
+		// assert
+		assertEquals(BigInteger.valueOf(4242), convert);
 	}
 }

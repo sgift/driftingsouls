@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
  * Hilfsklasse zum Konvertieren von Strings in eine Reihe von bekannten Datentypen.
@@ -39,6 +40,10 @@ public final class StringToTypeConverter
 		if( type == BigDecimal.class )
 		{
 			return (T)new BigDecimal(value);
+		}
+		else if( type == BigInteger.class )
+		{
+			return (T)new BigInteger(value);
 		}
 
 		try

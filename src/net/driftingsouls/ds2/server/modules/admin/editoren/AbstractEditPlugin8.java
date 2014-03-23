@@ -1,6 +1,7 @@
 package net.driftingsouls.ds2.server.modules.admin.editoren;
 
 import net.driftingsouls.ds2.server.bases.Building;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -54,7 +55,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 			try
 			{
 				@SuppressWarnings("unchecked") T entity = (T) db.get(this.clazz, entityId);
-				if (isUpdatePossible(entity))
+				if (form.isUpdateAllowed(entity) && isUpdatePossible(entity))
 				{
 					form.applyRequestValues(request, entity);
 					processJobs(echo, entity, form.getUpdateTasks());
@@ -312,5 +313,10 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		Context context = ContextMap.getContext();
 		String change = context.getRequest().getParameterString("add");
 		return !change.trim().isEmpty();
+	}
+
+	protected final User getActiveUser()
+	{
+		return (User)ContextMap.getContext().getActiveUser();
 	}
 }

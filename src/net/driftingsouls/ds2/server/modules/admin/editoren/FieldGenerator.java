@@ -24,21 +24,21 @@ import java.util.stream.Collectors;
 
 /**
  * Generator fuer ein normales Eigabefeld.
- * @param <V> Der Typ der Entity
+ * @param <E> Der Typ der Entity
  * @param <T> Der Datentyp des Eingabefelds
  */
-public class FieldGenerator<V, T> implements CustomFieldGenerator<V>
+public class FieldGenerator<E, T> implements CustomFieldGenerator<E>
 {
 	private final String label;
 	private final String name;
 	private final Class<?> viewType;
 	private final Class<T> dataType;
-	private final Function<V, T> getter;
-	private final BiConsumer<V, T> setter;
+	private final Function<E, T> getter;
+	private final BiConsumer<E, T> setter;
 	private final Map<Serializable, Object> selectionOptions = new LinkedHashMap<>();
-	private boolean readOnly;
+	private Function<E,Boolean> readOnly;
 
-	public FieldGenerator(String label, String name, Class<?> viewType, Class<T> dataType, Function<V, T> getter, BiConsumer<V, T> setter)
+	public FieldGenerator(String label, String name, Class<?> viewType, Class<T> dataType, Function<E, T> getter, BiConsumer<E, T> setter)
 	{
 		this.label = label;
 		this.name = name;
@@ -46,6 +46,7 @@ public class FieldGenerator<V, T> implements CustomFieldGenerator<V>
 		this.getter = getter;
 		this.setter = setter;
 		this.dataType = dataType;
+		this.readOnly = (e) -> false;
 
 		if (this.viewType.isAnnotationPresent(Entity.class) || this.viewType.isEnum())
 		{
@@ -53,27 +54,33 @@ public class FieldGenerator<V, T> implements CustomFieldGenerator<V>
 		}
 	}
 
-	public FieldGenerator<V, T> withOptions(Map<? extends Serializable, ?> options)
+	public FieldGenerator<E, T> withOptions(Map<? extends Serializable, ?> options)
 	{
 		this.selectionOptions.clear();
 		this.selectionOptions.putAll(options);
 		return this;
 	}
 
-	public FieldGenerator<V, T> withNullOption(String label)
+	public FieldGenerator<E, T> withNullOption(String label)
 	{
 		this.selectionOptions.put(null, label);
 		return this;
 	}
 
-	public FieldGenerator<V, T> readOnly(boolean readOnly)
+	public FieldGenerator<E, T> readOnly(Function<E,Boolean> readOnly)
 	{
 		this.readOnly = readOnly;
 		return this;
 	}
 
+	public FieldGenerator<E, T> readOnly(boolean readOnly)
+	{
+		this.readOnly = (e) -> readOnly;
+		return this;
+	}
+
 	@Override
-	public void generate(Writer echo, V entity) throws IOException
+	public void generate(Writer echo, E entity) throws IOException
 	{
 		T value = getter.apply(entity);
 
@@ -88,7 +95,7 @@ public class FieldGenerator<V, T> implements CustomFieldGenerator<V>
 		}
 		else if (viewType.isAnnotationPresent(Entity.class) || !this.selectionOptions.isEmpty())
 		{
-			editEntityBySelection(echo, name, viewType, value);
+			editEntityBySelection(echo, name, viewType, value, entity);
 		}
 		else if (Boolean.class.isAssignableFrom(viewType))
 		{
@@ -97,11 +104,11 @@ public class FieldGenerator<V, T> implements CustomFieldGenerator<V>
 			{
 				bool = (Boolean) value;
 			}
-			echo.append("<input type=\"checkbox\" name=\"").append(name).append("\" value=\"true\" ").append(bool ? "checked='checked' " : "").append(readOnly ? "disabled='disabled' " : "").append(" \">");
+			echo.append("<input type=\"checkbox\" name=\"").append(name).append("\" value=\"true\" ").append(bool ? "checked='checked' " : "").append(readOnly.apply(entity) ? "disabled='disabled' " : "").append(" \">");
 		}
 		else
 		{
-			echo.append("<input type=\"text\" ").append("id=\"").append(name).append("\" ").append(readOnly ? "disable='disabled' " : "").append("name=\"").append(name).append("\" value=\"").append(value != null ? value.toString() : "").append("\">");
+			echo.append("<input type=\"text\" ").append("id=\"").append(name).append("\" ").append(readOnly.apply(entity) ? "disable='disabled' " : "").append("name=\"").append(name).append("\" value=\"").append(value != null ? value.toString() : "").append("\">");
 			if (Number.class.isAssignableFrom(viewType))
 			{
 				writeAutoNumberJavaScript(echo);
@@ -149,9 +156,9 @@ public class FieldGenerator<V, T> implements CustomFieldGenerator<V>
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void applyRequestValues(Request request, V entity)
+	public void applyRequestValues(Request request, E entity)
 	{
-		if (this.readOnly)
+		if (this.readOnly.apply(entity))
 		{
 			return;
 		}
@@ -178,7 +185,7 @@ public class FieldGenerator<V, T> implements CustomFieldGenerator<V>
 	}
 
 	@SuppressWarnings("unchecked")
-	private void applyEntityAsRequestValue(V entity, String val)
+	private void applyEntityAsRequestValue(E entity, String val)
 	{
 		Session db = ContextMap.getContext().getDB();
 		Class<?> identifierCls = db.getSessionFactory().getClassMetadata(this.dataType).getIdentifierType().getReturnedClass();
@@ -215,9 +222,9 @@ public class FieldGenerator<V, T> implements CustomFieldGenerator<V>
 		return result;
 	}
 
-	private void editEntityBySelection(Writer echo, String name, Class<?> type, Object value) throws IOException
+	private void editEntityBySelection(Writer echo, String name, Class<?> type, Object value, E entity) throws IOException
 	{
-		echo.append("<select size=\"1\" ").append(readOnly ? "disabled='disabled' " : "").append("name=\"").append(name).append("\">");
+		echo.append("<select size=\"1\" ").append(readOnly.apply(entity) ? "disabled='disabled' " : "").append("name=\"").append(name).append("\">");
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		Serializable selected = -1;

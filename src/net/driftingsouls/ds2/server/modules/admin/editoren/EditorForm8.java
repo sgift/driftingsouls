@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -30,9 +31,9 @@ public class EditorForm8<E>
 			this.job = job;
 		}
 
-		public static <E> Job<E, Boolean> forRunnable(String name, Runnable job)
+		public static <E> Job<E, Boolean> forRunnable(String name, Consumer<E> job)
 		{
-			return new Job<>(name, (entity) -> Arrays.asList(Boolean.TRUE), (e, b) -> job.run());
+			return new Job<>(name, (entity) -> Arrays.asList(Boolean.TRUE), (e, b) -> job.accept(e));
 		}
 	}
 
@@ -43,6 +44,7 @@ public class EditorForm8<E>
 	private List<CustomFieldGenerator<E>> fields = new ArrayList<>();
 	private int counter;
 	private boolean allowAdd;
+	private Function<E,Boolean> allowUpdate;
 	private List<Job<E,?>> updateTasks = new ArrayList<>();
 
 	public EditorForm8(EditorMode modus, int action, String page, Writer echo)
@@ -64,6 +66,14 @@ public class EditorForm8<E>
 	}
 
 	/**
+	 * Setzt unter welchen Bedingungen das Aktualisieren von Entities moeglich ist.
+	 */
+	public void allowUpdate(Function<E,Boolean> allowUpdateCondition)
+	{
+		this.allowUpdate = allowUpdateCondition;
+	}
+
+	/**
 	 * Gibt zurueck, ob das Hinzufuegen von Entities erlaubt ist.
 	 * @return <code>true</code> falls dem so ist
 	 */
@@ -73,12 +83,21 @@ public class EditorForm8<E>
 	}
 
 	/**
+	 * Gibt zurueck, ob diese Entity aktualisiert (geaendert) werden kann.
+	 * @return <code>true</code> falls dem so ist
+	 */
+	public boolean isUpdateAllowed(E entity)
+	{
+		return this.allowUpdate.apply(entity);
+	}
+
+	/**
 	 * Fuegt eine Arbeitsaufgabe hinzu, die nach der Aktualisierung (Update) durchgefuehrt werden soll.
 	 * Die Aufgabe wird in einer eigenen Transaktion durchgefuehrt.
 	 * @param name Der Name der Aufgabe
 	 * @param job Die Aufgabe
 	 */
-	public void postUpdateTask(String name, Runnable job)
+	public void postUpdateTask(String name, Consumer<E> job)
 	{
 		updateTasks.add(Job.forRunnable(name, job));
 	}
@@ -188,7 +207,7 @@ public class EditorForm8<E>
 				field.generate(echo, entity);
 			}
 
-			if( modus == EditorMode.UPDATE && !updateTasks.isEmpty() )
+			if (modus == EditorMode.UPDATE && !updateTasks.isEmpty())
 			{
 				StringBuilder str = new StringBuilder("<ul>");
 				for (EditorForm8.Job<E, ?> tJob : updateTasks)
@@ -199,8 +218,14 @@ public class EditorForm8<E>
 				new LabelGenerator<>("Bei Aktualisierung", (e) -> str.toString()).generate(echo, entity);
 			}
 
-			String label = modus == EditorMode.UPDATE ? "Aktualisieren" : "Hinzufügen";
-			echo.append("<tr><td colspan='2'></td><td><input type=\"submit\" name=\"change\" value=\"").append(label).append("\"></td></tr>\n");
+			if (modus == EditorMode.UPDATE && this.allowUpdate.apply(entity))
+			{
+				echo.append("<tr><td colspan='2'></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
+			}
+			else if (modus == EditorMode.CREATE)
+			{
+				echo.append("<tr><td colspan='2'></td><td><input type=\"submit\" name=\"change\" value=\"Hinzufügen\"></td></tr>\n");
+			}
 		}
 		catch (IOException e)
 		{

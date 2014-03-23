@@ -18,17 +18,16 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import org.apache.commons.lang.StringUtils;
 
-import java.io.IOException;
+import javax.annotation.Nonnull;
 import java.math.BigInteger;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Aktualisierungstool fuer die Werte eines Spielers.
@@ -36,7 +35,7 @@ import java.util.Map;
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Spieler", name = "Spieler editieren")
-public class EditUser extends AbstractEditPlugin<User>
+public class EditUser extends AbstractEditPlugin8<User>
 {
 	public EditUser()
 	{
@@ -44,20 +43,33 @@ public class EditUser extends AbstractEditPlugin<User>
 	}
 
 	@Override
-	protected void update(StatusWriter writer, User user) throws IOException
+	protected void configureFor(@Nonnull EditorForm8<User> form)
 	{
-		Context context = ContextMap.getContext();
-		if( user.getAccessLevel() > context.getActiveUser().getAccessLevel() )
-		{
-			writer.append("Keine Berechtigung zum Bearbeiten dieses Benutzers");
-			return;
-		}
+		form.allowUpdate((u) -> u.getAccessLevel() <= getActiveUser().getAccessLevel());
 
-		boolean disableAccount = "true".equals(context.getRequest().getParameterString("blockuser"));
+		form.label("Loginname", User::getUN);
+		form.field("Name", String.class, User::getNickname, this::updateName);
+		form.field("Email", String.class, User::getEmail, User::setEmail);
+		form.field("Accesslevel", Integer.class, User::getAccessLevel, (u,level) -> u.setAccesslevel(Math.min(level, getActiveUser().getAccessLevel())));
+		form.field("Rasse", Rasse.class, Integer.class, User::getRace, User::setRace);
+		form.field("Vacation", Integer.class, User::getVacationCount, User::setVacationCount);
+		form.field("Wait4Vac", Integer.class, User::getWait4VacationCount, User::setWait4VacationCount);
+		form.field("Konto", BigInteger.class, User::getKonto, User::setKonto);
+		form.field("Flags", String.class, User::getFlags, User::setFlags);
+		form.field("Rang", Integer.class, User::getRang, User::setRang).withOptions(Medals.get().raenge());
+		form.textArea("History", User::getHistory, User::setHistory);
+		form.field("NPC-Punkte", Integer.class, User::getNpcPunkte, User::setNpcPunkte);
+		form.field("Medaillen", String.class, User::getMedals, User::setMedals);
+		form.field("Vac-Punkte", Integer.class, User::getVacpoints, User::setVacpoints);
+		form.field("Spezialisierungspunkte", Integer.class, User::getSpecializationPoints, User::setSpecializationPoints);
+		form.field("Zugang sperren", Boolean.class, User::getDisabled, User::setDisabled);
+		form.label("Vorhandene Medallien", (u) -> Medals.get().medals().values().stream().map((medal) -> medal.getID() + "=" + medal.getName()).collect(Collectors.joining(",")));
 
-		user.setDisabled(disableAccount);
+		form.postUpdateTask("Vacation-Markierung setzen/entfernen", this::doVacation);
+	}
 
-		String name = context.getRequest().getParameterString("name");
+	private void updateName(User user, String name)
+	{
 		user.setNickname(name);
 		String newname = name;
 		if( user.getAlly() != null ) {
@@ -65,57 +77,6 @@ public class EditUser extends AbstractEditPlugin<User>
 			newname = StringUtils.replace(newname, "[name]", name);
 		}
 		user.setName(newname);
-
-
-		user.setRace(context.getRequest().getParameterInt("race"));
-		user.setVacationCount(context.getRequest().getParameterInt("vacation"));
-		user.setWait4VacationCount(context.getRequest().getParameterInt("wait4vac"));
-		user.setKonto(new BigInteger(context.getRequest().getParameterString("account")));
-		user.setFlags(context.getRequest().getParameterString("flags"));
-		user.setRang(Byte.valueOf(context.getRequest().getParameterString("rank")));
-		user.setHistory(context.getRequest().getParameterString("history"));
-		user.setNpcPunkte(context.getRequest().getParameterInt("npcpoints"));
-		user.setMedals(context.getRequest().getParameterString("medals"));
-		user.setVacpoints(context.getRequest().getParameterInt("vacationpoints"));
-		user.setSpecializationPoints(context.getRequest().getParameterInt("specializationpoints"));
-		user.setEmail(context.getRequest().getParameterString("email"));
-
-		int accesslevel = context.getRequest().getParameterInt("accesslevel");
-		if( accesslevel > context.getActiveUser().getAccessLevel() )
-		{
-			accesslevel = context.getActiveUser().getAccessLevel();
-		}
-		user.setAccesslevel(accesslevel);
-
-		doVacation(user);
-	}
-
-	@Override
-	protected void edit(EditorForm form, User user)
-	{
-		form.label("Loginname", user.getUN());
-		form.field("Name", "name", String.class, user.getNickname());
-		form.field("Email", "email", String.class, user.getEmail());
-		form.field("Accesslevel", "accesslevel", Integer.class, user.getAccessLevel());
-		form.field("Rasse", "race", Rasse.class, user.getRace());
-		form.field("Vacation", "vacation", Integer.class, user.getVacationCount());
-		form.field("Wait4Vac", "wait4vac", Integer.class, user.getWait4VacationCount());
-		form.field("Konto", "account", BigInteger.class, user.getKonto());
-		form.field("Flags", "flags", String.class, user.getFlags());
-		form.field("Rang", "rank", Integer.class, user.getRang()).withOptions(Medals.get().raenge());
-		form.textArea("History", "history", user.getHistory());
-		form.field("NPC-Punkte", "npcpoints", Integer.class, user.getNpcPunkte());
-		form.field("Medaillen", "medals", String.class, user.getMedals());
-		form.field("Vac-Punkte", "vacationpoints", Integer.class, user.getVacpoints());
-		form.field("Spezialisierungspunkte", "specializationpoints", Integer.class, user.getSpecializationPoints());
-		form.field("Zugang sperren", "blockuser", Boolean.class, user.getDisabled());
-
-		StringBuilder echo = new StringBuilder();
-		for(Map.Entry<Integer, Medal> medal: Medals.get().medals().entrySet())
-		{
-			echo.append(medal.getValue().getID()).append("=").append(medal.getValue().getName()).append(", ");
-		}
-		form.label("Vorhandene Medallien", echo);
 	}
 
 	private void doVacation(User user)
