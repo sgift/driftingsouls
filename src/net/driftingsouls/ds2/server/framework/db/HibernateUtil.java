@@ -11,6 +11,7 @@ import org.hibernate.dialect.function.SQLFunctionTemplate;
 import org.hibernate.dialect.function.StandardSQLFunction;
 import org.hibernate.engine.spi.CollectionKey;
 import org.hibernate.engine.spi.EntityKey;
+import org.hibernate.tool.hbm2ddl.DatabaseMetadata;
 import org.hibernate.type.DoubleType;
 import org.hibernate.type.IntegerType;
 import org.hibernate.type.LongType;
@@ -18,6 +19,8 @@ import org.hibernate.type.LongType;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -77,6 +80,15 @@ public class HibernateUtil
             throw new ExceptionInInitializerError(ex);
         }
     }
+
+	public static void writeSchemaUpdateToDisk(Connection con, String targetFile) throws IOException, SQLException
+	{
+		String[] updateSQL = configuration.generateSchemaUpdateScript(new MySQL5InnoDBDialect(), new DatabaseMetadata(con, new MySQL5InnoDBDialect()));
+		try (FileOutputStream writer = new FileOutputStream(new File(targetFile)))
+		{
+			IOUtils.write(StringUtils.join(updateSQL, ";\n"), writer, "UTF-8");
+		}
+	}
 
 	public static void writeSchemaToDisk(String targetFile) throws IOException
 	{
