@@ -20,11 +20,11 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.Forschung;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.units.UnitType;
 
-import java.io.IOException;
+import javax.annotation.Nonnull;
 
 /**
  * Aktualisierungstool fuer die Werte einer Einheit.
@@ -32,7 +32,7 @@ import java.io.IOException;
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Einheiten", name = "Einheit editieren")
-public class EditUnits extends AbstractEditPlugin<UnitType>
+public class EditUnits extends AbstractEditPlugin8<UnitType>
 {
 	public EditUnits()
 	{
@@ -40,37 +40,19 @@ public class EditUnits extends AbstractEditPlugin<UnitType>
 	}
 
 	@Override
-	protected void update(StatusWriter writer, UnitType unit) throws IOException
+	protected void configureFor(@Nonnull EditorForm8<UnitType> form)
 	{
-		Context context = ContextMap.getContext();
-		unit.setName(context.getRequest().getParameterString("name"));
-		unit.setPicture(context.getRequest().getParameterString("picture"));
-		unit.setDauer(context.getRequest().getParameterInt("dauer"));
-		unit.setNahrungCost(Double.parseDouble(context.getRequest().getParameterString("nahrungcost")));
-		unit.setReCost(Double.parseDouble(context.getRequest().getParameterString("recost")));
-		unit.setKaperValue(context.getRequest().getParameterInt("kapervalue"));
-		unit.setSize(context.getRequest().getParameterInt("size"));
-		unit.setDescription(context.getRequest().getParameterString("description"));
-		unit.setRes(context.getRequest().getParameterInt("forschung"));
-		unit.setHidden(context.getRequest().getParameterString("hidden").equals("true"));
-
-		Cargo cargo = new Cargo(Cargo.Type.ITEMSTRING, context.getRequest().getParameter("buildcosts"));
-		unit.setBuildCosts(cargo);
-	}
-
-	@Override
-	protected void edit(EditorForm form, UnitType unit)
-	{
-		form.field("Name", "name", String.class, unit.getName());
-		form.field("Bild", "picture", String.class, unit.getPicture());
-		form.field("Nahrungskosten", "nahrungcost", Double.class, unit.getNahrungCost());
-		form.field("RE Kosten", "recost", Double.class, unit.getReCost());
-		form.field("Kaper-Wert", "kapervalue", Integer.class, unit.getKaperValue());
-		form.field("Größe", "size", Integer.class, unit.getSize());
-		form.textArea("Beschreibung", "description", unit.getDescription());
-		form.field("Benötigte Forschung", "forschung", Forschung.class, unit.getRes());
-		form.field("Dauer", "dauer", Integer.class, unit.getDauer());
-		form.field("Hidden", "hidden", Boolean.class, unit.isHidden());
-		form.field("Baukosten", "buildcosts", Cargo.class, unit.getBuildCosts());
+		form.allowAdd();
+		form.field("Name", String.class, UnitType::getName, UnitType::setName);
+		form.field("Bild", String.class, UnitType::getPicture, UnitType::setPicture);
+		form.field("Nahrungskosten", Double.class, UnitType::getNahrungCost, UnitType::setNahrungCost);
+		form.field("RE Kosten", Double.class, UnitType::getReCost, UnitType::setReCost);
+		form.field("Kaper-Wert", Integer.class, UnitType::getKaperValue, UnitType::setKaperValue);
+		form.field("Größe", Integer.class, UnitType::getSize, UnitType::setSize);
+		form.textArea("Beschreibung", UnitType::getDescription, UnitType::setDescription);
+		form.field("Benötigte Forschung", Forschung.class, Integer.class, UnitType::getRes, UnitType::setRes);
+		form.field("Dauer", Integer.class, UnitType::getDauer, UnitType::setDauer);
+		form.field("Hidden", Boolean.class, UnitType::isHidden, UnitType::setHidden);
+		form.field("Baukosten", Cargo.class, UnitType::getBuildCosts, UnitType::setBuildCosts);
 	}
 }
