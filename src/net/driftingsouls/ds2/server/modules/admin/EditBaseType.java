@@ -42,6 +42,7 @@ public class EditBaseType extends AbstractEditPlugin8<BaseType> implements Admin
 	{
 		form.allowAdd();
 		form.field("Name", String.class, BaseType::getName, BaseType::setName);
+		form.picture("Bild", (bt) -> "data/starmap/kolonie"+bt.getId()+"_lrs/kolonie"+bt.getId()+"_lrs.png");
 		form.field("Energie", Integer.class, BaseType::getEnergy, BaseType::setEnergy);
 		form.field("Cargo", Integer.class, BaseType::getCargo, BaseType::setCargo);
 		form.field("Breite", Integer.class, BaseType::getWidth, BaseType::setWidth);

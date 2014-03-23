@@ -43,7 +43,7 @@ public class EditResearch extends AbstractEditPlugin8<Forschung> {
 	{
 		form.allowAdd();
 		form.field("Name", String.class, Forschung::getName, Forschung::setName);
-		form.field("Bild", String.class, Forschung::getImage, Forschung::setImage);
+		form.picture("Bild", Forschung::getImage);
 		form.field("Rasse", Rasse.class, Integer.class, Forschung::getRace, Forschung::setRace);
 		form.field("Dauer", Integer.class, Forschung::getTime, Forschung::setTime);
 		form.field("Forschungskosten", Cargo.class, Forschung::getCosts, Forschung::setCosts);

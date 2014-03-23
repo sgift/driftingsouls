@@ -2207,4 +2207,7 @@ Die Vasudaner haben eine sehr alte Kultur mit mehreren hochentwickelten Sprachen
 	<update type="structure" datum="2014-03-23"><![CDATA[
 		alter table config drop column description;
 	]]></update>
+	<update type="structure" datum="2014-03-23"><![CDATA[
+		alter table ammo drop column picture;
+	]]></update>
 </updates>

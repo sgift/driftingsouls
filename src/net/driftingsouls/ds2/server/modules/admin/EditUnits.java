@@ -44,7 +44,7 @@ public class EditUnits extends AbstractEditPlugin8<UnitType>
 	{
 		form.allowAdd();
 		form.field("Name", String.class, UnitType::getName, UnitType::setName);
-		form.field("Bild", String.class, UnitType::getPicture, UnitType::setPicture);
+		form.picture("Bild", UnitType::getPicture);
 		form.field("Nahrungskosten", Double.class, UnitType::getNahrungCost, UnitType::setNahrungCost);
 		form.field("RE Kosten", Double.class, UnitType::getReCost, UnitType::setReCost);
 		form.field("Kaper-Wert", Integer.class, UnitType::getKaperValue, UnitType::setKaperValue);

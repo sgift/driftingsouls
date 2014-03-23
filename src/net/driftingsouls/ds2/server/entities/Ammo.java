@@ -18,14 +18,14 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * Die Munition.
@@ -91,9 +91,7 @@ public class Ammo {
 	private double destroyable;
 	private int flags;
 	private int itemid;
-	@Column(nullable = false)
-	private String picture;
-	
+
 	/**
 	 * Konstruktor.
 	 *
@@ -167,14 +165,6 @@ public class Ammo {
 	 */
 	public int getId() {
 		return id;
-	}
-
-	/**
-	 * Gibt das Bild der Ammo zurueck.
-	 * @return Das Bild
-	 */
-	public String getPicture() {
-		return picture;
 	}
 
 	/**
@@ -284,14 +274,6 @@ public class Ammo {
 	}
 
 	/**
-	 * Setzt den Pfad zum Bild der Munition.
-	 * @param picture Der Pfad
-	 */
-	public void setPicture(String picture) {
-		this.picture = picture;
-	}
-
-	/**
 	 * Setzt den Schaden bei Schilden.
 	 * @param shieldDamage Der Schaden
 	 */
@@ -353,5 +335,14 @@ public class Ammo {
 	 */
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	/**
+	 * Setzt die ID des zugehoerigen Items.
+	 * @param itemid Die ID
+	 */
+	public void setItemId(int itemid)
+	{
+		this.itemid = itemid;
 	}
 }

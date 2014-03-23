@@ -55,6 +55,7 @@ public class EditorForm8<E>
 		this.page = page;
 		this.counter = 0;
 		this.allowAdd = false;
+		this.allowUpdate = (entity) -> true;
 	}
 
 	/**
@@ -153,6 +154,16 @@ public class EditorForm8<E>
 	public <T> LabelGenerator<E,T> label(String label, Function<E,T> getter)
 	{
 		return custom(new LabelGenerator<>(label, getter));
+	}
+
+	/**
+	 * Erzeugt ein Editor ohne Aenderungsfunktionen fuer ein Bild.
+	 * @param label Der Label zum Wert
+	 * @param getter Der getter des Werts
+	 */
+	public PictureGenerator<E> picture(String label, Function<E,String> getter)
+	{
+		return custom(new PictureGenerator<>(label, getter));
 	}
 
 	/**

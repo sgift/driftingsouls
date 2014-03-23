@@ -63,7 +63,7 @@ public class EditBuilding extends AbstractEditPlugin8<Building>
 		form.ifAdding().field("Implementierung", String.class, (Building b) -> this.getEntityClass(), (Building b,String s) -> this.setEntityClass(s)).withOptions(clsOptions);
 		form.ifUpdating().label("Implementierung", (b) -> b.getClass().getName());
 		form.field("Name", String.class, Building::getName, Building::setName);
-		form.field("Bild", String.class, Building::getDefaultPicture, Building::setDefaultPicture);
+		form.picture("Bild", Building::getDefaultPicture);
 		form.field("Arbeiter", Integer.class, Building::getArbeiter, Building::setArbeiter);
 
 		form.field("Energie", Integer.class, EditBuilding::getEnergiebilanz, EditBuilding::setEnergiebilanz);

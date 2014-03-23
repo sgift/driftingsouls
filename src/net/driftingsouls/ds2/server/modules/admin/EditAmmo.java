@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.Ammo;
 import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
@@ -42,7 +43,6 @@ public class EditAmmo extends AbstractEditPlugin8<Ammo>
 	{
 		form.allowAdd();
 		form.field("Name", String.class, Ammo::getName, Ammo::setName);
-		form.field("Bild", String.class, Ammo::getPicture, Ammo::setPicture);
 		form.field("Typ", String.class, Ammo::getType, Ammo::setType);
 		form.field("Treffer-WS", Integer.class, Ammo::getTrefferWS, Ammo::setTrefferWS);
 		form.field("Small Treffer-WS", Integer.class, Ammo::getSmallTrefferWS, Ammo::setSmallTrefferWS);
@@ -55,5 +55,6 @@ public class EditAmmo extends AbstractEditPlugin8<Ammo>
 		form.field("Flags", Integer.class, Ammo::getFlags, Ammo::setFlags);
 		form.field("Schüsse pro Schuss", Integer.class, Ammo::getShotsPerShot, Ammo::setShotsPerShot);
 		form.field("Flächenschaden", Integer.class, Ammo::getAreaDamage, Ammo::setAreaDamage);
+		form.field("Zugehoeriges Item", Item.class, Integer.class, Ammo::getItemId, Ammo::setItemId);
 	}
 }
