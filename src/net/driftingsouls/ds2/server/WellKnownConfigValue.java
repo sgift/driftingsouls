@@ -189,7 +189,7 @@ public class WellKnownConfigValue<T> implements ConfigValueDescriptor<T>
 	 * Gibt alle Konfigurationseinstellungen zurueck.
 	 * @return Die Konfigurationseinstellungen
 	 */
-	public WellKnownConfigValue[] values()
+	public static WellKnownConfigValue[] values()
 	{
 		return VALUES.toArray(new WellKnownConfigValue[VALUES.size()]);
 	}
