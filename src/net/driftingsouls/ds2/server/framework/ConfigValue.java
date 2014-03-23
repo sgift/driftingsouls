@@ -24,9 +24,6 @@ public class ConfigValue
 	@Lob
 	@Column(nullable = false)
 	private String value;
-	@Lob
-	@Column(nullable = false)
-	private String description;
 	@Version
 	private int version;
 
@@ -41,13 +38,11 @@ public class ConfigValue
 	 * Konstruktor.
 	 * @param name Der name der Konfigurationseinstellung
 	 * @param value Der Wert
-	 * @param description Die Beschreibung
 	 */
-	public ConfigValue(String name, String value, String description)
+	public ConfigValue(String name, String value)
 	{
 		this.name = name;
 		this.value = value;
-		this.description = description;
 	}
 
 	/**
@@ -67,16 +62,7 @@ public class ConfigValue
 	{
 		return value;
 	}
-	
-	/**
-	 * Gibt eine Beschreibung der Konfigurationsoption und ihrer moeglichen Werte zurueck.
-	 * @return Die Beschreibung
-	 */
-	public String getDescription()
-	{
-		return description;
-	}
-	
+
 	/**
 	 * Gibt die Versionsnummer zurueck (Hibernate-Interna).
 	 * @return Die Versionsnummer
@@ -103,16 +89,7 @@ public class ConfigValue
 	{
 		this.value = value;
 	}
-	
-	/**
-	 * Setzt eine Beschreibung der Konfigurationsoption und ihrer moeglichen Werte.
-	 * @param description Die Beschreibung
-	 */
-	public void setDescription(String description)
-	{
-		this.description = description;
-	}
-	
+
 	/**
 	 * Setzt die Versionsnummer (Hibernate-Interna).
 	 * @param version Die Versionsnummer

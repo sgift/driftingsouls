@@ -2204,4 +2204,7 @@ Die Vasudaner haben eine sehr alte Kultur mit mehreren hochentwickelten Sprachen
 		alter table ships add index FK6856DB7B6B202B4 (id), add constraint FK6856DB7B6B202B4 foreign key (id) references ship_history (id);
 		alter table ship_history drop index FKC59569919ACA6396, drop foreign key FKC59569919ACA6396;
 	]]></update>
+	<update type="structure" datum="2014-03-23"><![CDATA[
+		alter table config drop column description;
+	]]></update>
 </updates>

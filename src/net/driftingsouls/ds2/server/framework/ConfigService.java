@@ -23,7 +23,7 @@ public class ConfigService
 		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, descriptor.getName());
 		if( value == null )
 		{
-			value = new ConfigValue(descriptor.getName(), descriptor.getDefaultValue(), descriptor.getDescription());
+			value = new ConfigValue(descriptor.getName(), descriptor.getDefaultValue());
 			db.persist(value);
 		}
 		return value;
