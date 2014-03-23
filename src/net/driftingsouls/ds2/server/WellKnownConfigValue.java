@@ -92,7 +92,7 @@ public class WellKnownConfigValue<T> implements ConfigValueDescriptor<T>
 	/**
 	 * Begruendung, weshalb der Login abgeschalten ist (Leeres Feld == Login moeglich).
 	 */
-	public static final ConfigValueDescriptor<Integer> END_TIE_MODIFIER = new WellKnownConfigValue<>(Integer.class, "disablelogin", "5", "Faktor fuer die Anzahl der Schiffe, die man mehr haben muss, um einen Kampf unentschieden zu beenden");
+	public static final ConfigValueDescriptor<Integer> END_TIE_MODIFIER = new WellKnownConfigValue<>(Integer.class, "endtiemodifier", "5", "Faktor fuer die Anzahl der Schiffe, die man mehr haben muss, um einen Kampf unentschieden zu beenden");
 	/**
 	 * Die maximale Anzahl an Gegenstaenden (Items/Waren) pro Schiffs-Truemmerteil.
 	 */
