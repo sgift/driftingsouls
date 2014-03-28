@@ -18,8 +18,19 @@
  */
 package net.driftingsouls.ds2.server.werften;
 
-import java.util.Iterator;
-import java.util.List;
+import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
+import net.driftingsouls.ds2.server.cargo.ItemID;
+import net.driftingsouls.ds2.server.cargo.ResourceEntry;
+import net.driftingsouls.ds2.server.cargo.ResourceList;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.ships.SchiffHinzufuegenService;
+import net.driftingsouls.ds2.server.ships.ShipType;
+import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -30,24 +41,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-
-import net.driftingsouls.ds2.server.ContextCommon;
-import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
-import net.driftingsouls.ds2.server.cargo.ItemID;
-import net.driftingsouls.ds2.server.cargo.ResourceEntry;
-import net.driftingsouls.ds2.server.cargo.ResourceList;
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipType;
-import net.driftingsouls.ds2.server.ships.ShipTypeData;
-
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Type;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Ein Eintrag in der WerftQueue.
@@ -337,37 +332,12 @@ public class WerftQueueEntry {
 			return 0;
 		}
 
-		ShipTypeData shipd = this.getBuildShipType();
-
-		int x = this.werft.getX();
-		int y = this.werft.getY();
-		int system = this.werft.getSystem();
+		ShipType shipd = this.getBuildShipType();
 
 		User auser = this.werft.getOwner();
 
-		String currentTime = Common.getIngameTime(context.get(ContextCommon.class).getTick());
-		String history = "Indienststellung am "+currentTime+" durch "+auser.getName()+" ("+auser.getId()+")";
-
-		Ship ship = new Ship(auser, (ShipType)db.get(ShipType.class, shipd.getTypeId()), system, x, y);
-		ship.getHistory().addHistory(history);
-		ship.setCrew(shipd.getCrew());
-		ship.setHull(shipd.getHull());
-		ship.setCargo(new Cargo());
-		ship.setEnergy(shipd.getEps());
-		ship.setName((auser.getSchiffsKlassenNamenGenerator().generiere(shipd.getShipClass())+" "+auser.getSchiffsNamenGenerator().generiere(shipd)).trim());
-		ship.setEngine(100);
-		ship.setWeapons(100);
-		ship.setComm(100);
-		ship.setSensors(100);
-		ship.setAblativeArmor(shipd.getAblativeArmor());
-
-		int id = (Integer)db.save(ship);
-
-		if( shipd.getWerft() != 0 ) {
-			ShipWerft awerft = new ShipWerft(ship);
-			db.persist(awerft);
-			MESSAGE.get().append("\tWerft '"+shipd.getWerft()+"' in Liste der Werften eingetragen\n");
-		}
+		SchiffHinzufuegenService schiffHinzufuegenService = new SchiffHinzufuegenService();
+		schiffHinzufuegenService.erstelle(auser, shipd, this.werft.getLocation());
 
 		// Item benutzen
 		if( this.getRequiredItem() > -1 ) {
@@ -423,8 +393,6 @@ public class WerftQueueEntry {
 				}
 			}
 		}
-
-		ship.recalculateShipStatus();
 
 		if( this.isBuildFlagschiff() ) {
 			this.werft.setBuildFlagschiff(false);

@@ -18,34 +18,32 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleType;
 import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.npcorders.Order;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderOffizier;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderShip;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderableOffizier;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
-import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.framework.db.batch.SingleUnitOfWork;
+import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
+import net.driftingsouls.ds2.server.ships.SchiffHinzufuegenService;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.tick.TickController;
-import net.driftingsouls.ds2.server.werften.ShipWerft;
-
 import org.apache.commons.lang.math.RandomUtils;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Berechnet NPC-Bestellungen.
@@ -58,13 +56,10 @@ public class NPCOrderTick extends TickController {
 	private static final Location DEFAULT_LOCATION = new Location(2,30,35);
 
 	private Map<Integer,StringBuilder> pmcache;
-	private String currentTime;
 
 	@Override
 	protected void prepare() {
 		this.pmcache = new HashMap<>();
-
-		this.currentTime = Common.getIngameTime(getContext().get(ContextCommon.class).getTick());
 	}
 
 	private String getOffiName(User user) {
@@ -101,7 +96,7 @@ public class NPCOrderTick extends TickController {
 				int owner = order.getUser();
 				User user = (User)getDB().get(User.class, owner);
 
-				Location loc = ermittleLieferposition(db, user);
+				Location loc = ermittleLieferposition(user);
 
 				log("  Lieferung erfolgt bei "+loc.getSystem()+":"+loc.getX()+"/"+loc.getY());
 
@@ -169,7 +164,7 @@ public class NPCOrderTick extends TickController {
 				order.getUser()+" geliefert");
 
 		Ship newShip;
-		Ship ship = createShip(db, user, shipd, loc);
+		Ship ship = createShip(user, shipd, loc);
 
 		newShip = ship;
 
@@ -211,9 +206,7 @@ public class NPCOrderTick extends TickController {
 		Ship newShip = null;
 		if( bases.isEmpty() )
 		{
-			Ship ship = createShip(db, user, shipd, loc);
-
-			newShip = ship;
+			newShip = createShip(user, shipd, loc);
 
 			this.log("* Order "+order.getId()+" ready: Offizier wird mittels "+
 					shipd.getNickname()+" ("+shipd.getId()+") wird zu User "+order.getUser()+" geliefert");
@@ -273,39 +266,22 @@ public class NPCOrderTick extends TickController {
 		return newShip;
 	}
 
-	private Ship createShip(org.hibernate.Session db, User user, ShipType shipd, Location loc)
+	private Ship createShip(User user, ShipType shipd, Location loc)
 	{
 		Cargo cargo = new Cargo();
 		cargo.addResource( Resources.DEUTERIUM, shipd.getRd()*10 );
 		cargo.addResource( Resources.URAN, shipd.getRu()*10 );
 		cargo.addResource( Resources.ANTIMATERIE, shipd.getRa()*10 );
 
-		String history = "Indienststellung am "+this.currentTime+" durch "+user.getName()+" ("+user.getId()+") [hide]NPC-Order[/hide]";
-
-		Ship ship = new Ship(user, shipd, loc.getSystem(), loc.getX(), loc.getY());
-		ship.getHistory().addHistory(history);
-		ship.setName((user.getSchiffsKlassenNamenGenerator().generiere(shipd.getShipClass())+" "+user.getSchiffsNamenGenerator().generiere(shipd)).trim());
-		ship.setCrew(shipd.getCrew());
-		ship.setHull(shipd.getHull());
-		ship.setEnergy(shipd.getEps());
+		SchiffHinzufuegenService schiffHinzufuegenService = new SchiffHinzufuegenService();
+		Ship ship = schiffHinzufuegenService.erstelle(user, shipd, loc, "[hide]NPC-Order[/hide]");
 		ship.setCargo(cargo);
-		ship.setEngine(100);
-		ship.setWeapons(100);
-		ship.setComm(100);
-		ship.setSensors(100);
-		ship.setAblativeArmor(shipd.getAblativeArmor());
-		int id = (Integer)db.save(ship);
 
-		if( shipd.getWerft() != 0 ) {
-			ShipWerft awerft = new ShipWerft(ship);
-			db.persist(awerft);
-		}
-
-		this.log("Schiff "+id+" erzeugt");
+		this.log("Schiff "+ship.getId()+" erzeugt");
 		return ship;
 	}
 
-	private Location ermittleLieferposition(org.hibernate.Session db, User user)
+	private Location ermittleLieferposition(User user)
 	{
 		if( user.getNpcOrderLocation() != null )
 		{
