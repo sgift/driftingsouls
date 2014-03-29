@@ -18,16 +18,14 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import net.driftingsouls.ds2.server.cargo.Cargo;
+import org.hibernate.annotations.Type;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Version;
-
-import net.driftingsouls.ds2.server.cargo.Cargo;
-
-import org.hibernate.annotations.Type;
 
 /**
  * Die Warenkurse an einem Ort.
@@ -52,7 +50,7 @@ public class GtuWarenKurse {
 	 * Konstruktor.
 	 *
 	 */
-	public GtuWarenKurse() {
+	protected GtuWarenKurse() {
 		// EMPTY
 	}
 	

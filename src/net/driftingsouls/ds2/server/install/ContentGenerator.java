@@ -60,6 +60,7 @@ public class ContentGenerator
 
 			mitTransaktion("Setze Konfigurationseinstellungen", () -> {
 				new ConfigService().get(WellKnownConfigValue.ENABLE_CHEATS).setValue("true");
+				new ConfigService().get(WellKnownConfigValue.REGISTER_PM_SENDER).setValue("-10");
 			});
 
 			mitTransaktion("Erzeuge ComNet-Kanaele", this::erzeugeComNetKanaele);
@@ -71,7 +72,7 @@ public class ContentGenerator
 				db.persist(new OrderableOffizier("Captain", 1, 0, 10, 10, 15, 5, 35));
 
 				Rasse rasse = (Rasse) db.get(Rasse.class, 0);
-				List<ShipType> shipTypes = Common.cast(db.createQuery("from ShipType order by rand()")
+				List<ShipType> shipTypes = Common.cast(db.createCriteria(ShipType.class).add(Restrictions.sqlRestriction("1=1 order by rand()"))
 						.setMaxResults(10)
 						.list());
 				for (ShipType shipType : shipTypes)
@@ -99,6 +100,13 @@ public class ContentGenerator
 
 				db.persist(news);
 			});
+
+			mitTransaktion("Erzeuge Verkaufsdaten fuer GTU", () -> new GtuContentGenerator().erzeugeVerkaufsdaten());
+
+			mitTransaktion("Erzeuge Handelsposten",
+					() -> Common.cast(db.createCriteria(StarSystem.class).add(Restrictions.gt("id", 0)).list()),
+					(StarSystem sys) -> new GtuContentGenerator().erzeugeHandelspostenInSystem(sys)
+			);
 		}));
 	}
 
@@ -154,11 +162,16 @@ public class ContentGenerator
 
 	private void kolonisiereAsteroidenFuer(User user, int anzahl)
 	{
+		LOG.info("Kolonisiere "+anzahl+" Basen fuer Benutzer "+user.getId());
+
 		Session db = ContextMap.getContext().getDB();
-		List<Base> basen = Common.cast(db.createQuery("from Base where owner.id=0 order by rand()")
+		User nullUser = (User)db.get(User.class, 0);
+
+		List<Base> basen = Common.cast(db.createCriteria(Base.class).add(Restrictions.eq("owner", nullUser)).add(Restrictions.sqlRestriction("1=1 order by rand()"))
 				.setMaxResults(anzahl)
 				.list());
-		basen.forEach((b) -> {
+		for( Base b : basen )
+		{
 			Integer[] bebauung = b.getBebauung();
 			Integer[] active = b.getActive();
 			bebauung[0] = 1;
@@ -174,11 +187,11 @@ public class ContentGenerator
 			Cargo cargo = status.getProduction();
 			for (ResourceEntry resourceEntry : cargo.getResourceList())
 			{
-				cargo.addResource(resourceEntry.getId(), Math.abs(resourceEntry.getCount1()*10000));
+				cargo.addResource(resourceEntry.getId(), Math.abs(resourceEntry.getCount1() * 10000));
 			}
 
 			b.setCargo(cargo);
-		});
+		}
 	}
 
 	private void mitContext(Consumer<Context> contextConsumer)

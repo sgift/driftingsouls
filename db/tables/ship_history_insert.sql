@@ -1,1 +1,1 @@
-INSERT INTO ship_history (id, history) VALUES (2, ''), (3, ''), (5, ''), (6, ''), (666, '');
+INSERT INTO ship_history (id, history) VALUES (2, ''), (3, ''), (5, ''), (6, '');
