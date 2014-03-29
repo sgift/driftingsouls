@@ -114,6 +114,10 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		{
 			addSelectionOption(echo, db.getIdentifier(entity), new ObjectLabelGenerator().generateFor(null, entity));
 		}
+		if( isAddDisplayed() )
+		{
+			addSelectionOption(echo, null, "[Neu]");
+		}
 		endSelectionBox(echo);
 		if( form.isAddAllowed() )
 		{
@@ -248,9 +252,10 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 	{
 		Context context = ContextMap.getContext();
 		String currentIdStr = context.getRequest().getParameter("entityId");
-		String idStr = id.toString();
+		String idStr = id != null ? id.toString() : null;
+		boolean selektiert = idStr != null ? idStr.equals(currentIdStr) : null == currentIdStr;
 
-		echo.append("<option value=\"").append(idStr).append("\" ").append(idStr.equals(currentIdStr) ? "selected=\"selected\"" : "").append(">").append(label).append("</option>");
+		echo.append("<option value=\"").append(idStr).append("\" ").append(selektiert ? "selected=\"selected\"" : "").append(">").append(label).append("</option>");
 	}
 
 	private void endSelectionBox(Writer echo) throws IOException
