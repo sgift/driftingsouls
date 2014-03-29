@@ -38,6 +38,7 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypes;
 import org.hibernate.annotations.ForeignKey;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Repraesentiert eine Werft auf einem Schiff in DS.
@@ -429,14 +430,14 @@ public class ShipWerft extends WerftObject {
 	}
 
 	@Override
-	public void removeModule( Ship ship, int slot ) {
+	public void removeModule( @NotNull Ship ship, int slot ) {
 		super.removeModule( ship, slot );
 
 		this.ship.recalculateShipStatus();
 	}
 
 	@Override
-	public void addModule( Ship ship, int slot, int item ) {
+	public void addModule( @NotNull Ship ship, int slot, int item ) {
 		super.addModule( ship, slot, item );
 
 		this.ship.recalculateShipStatus();
