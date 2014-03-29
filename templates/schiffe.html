@@ -1,3 +1,4 @@
+<div id="modul-schiffe">
 <script type="text/javascript">
 <!--
 	function FleetWnd(params)
@@ -130,7 +131,7 @@
 		{/endif}		
 		</td>
 		<td class="schiffData" nowrap><span style="color:{ship.crewcolor}">{ship.crew}</span>{ship.offi}<br />{if ship.mangel_nahrung}<span style="color:red">{else}<span style="color:green">{/endif}{ship.nahrungcargo}</span><img src="data/resources/Nahrung.gif" alt="" />{if ship.versorger}{if ship.feedingstatus == 1}<img src="data/interface/schiffe/feedingstatus1.gif" />{else}{if ship.feedingstatus == 2}<img src="data/interface/schiffe/feedingstatus2.gif" />{else}<img src="data/interface/schiffe/feedingstatus3.gif" />{/endif}{/endif}{/endif}</td>
-		<td class="schiffData"><img src="{URL}data/interface/alarm/{ship.alarm}.jpg" alt="" /></td>
+		<td class="schiffData"><div class="alarm {ship.alarm}" ></div></td>
 		<td class="schiffData">{ship.e}</td>
 		<td class="schiffData">
 		<!-- BEGIN schiffe.resitem -->
@@ -170,3 +171,4 @@
 	<tr><td class="noBorderS" colspan="2"><br />{!link_to Sammelbefehl an alle Tanker, default, module:deutall, css_class:ok}</td></tr>
 {/endif}
 </table>
+</div>

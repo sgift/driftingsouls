@@ -1,0 +1,16 @@
+#modul-schiffe .alarm {
+	width:20px;
+	height:10px;
+}
+
+#modul-schiffe .alarm.red {
+	background-color:red;
+}
+
+#modul-schiffe .alarm.yellow {
+	background-color:yellow;
+}
+
+#modul-schiffe .alarm.green {
+	background-color:#00ff00;
+}
