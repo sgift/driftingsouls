@@ -19,9 +19,10 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.framework.DynamicContentManager;
+import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 
-import java.io.IOException;
+import javax.annotation.Nonnull;
 
 /**
  * Aktualisierungstool fuer Itemgrafiken.
@@ -29,7 +30,7 @@ import java.io.IOException;
  * @author Christopher Jung
  */
 @AdminMenuEntry(category = "Items", name = "Itemgrafik editieren")
-public class EditItemPicture extends AbstractEditPlugin<Item> implements AdminPlugin
+public class EditItemPicture extends AbstractEditPlugin8<Item> implements AdminPlugin
 {
 	public EditItemPicture()
 	{
@@ -37,35 +38,10 @@ public class EditItemPicture extends AbstractEditPlugin<Item> implements AdminPl
 	}
 
 	@Override
-	protected void update(StatusWriter statusWriter, Item item) throws IOException
+	protected void configureFor(@Nonnull EditorForm8<Item> form)
 	{
-		String newimg = this.processDynamicContent("picture", item.getPicture());
-		if( newimg != null )
-		{
-			String oldImg = item.getPicture();
-			item.setPicture("data/dynamicContent/"+newimg);
-			if( oldImg.startsWith("data/dynamicContent/") )
-			{
-				DynamicContentManager.remove(oldImg);
-			}
-		}
-		String newlargeimg = this.processDynamicContent("largepicture", item.getLargePicture());
-		if( newlargeimg != null )
-		{
-			String oldImg = item.getLargePicture();
-			item.setLargePicture("data/dynamicContent/"+newlargeimg);
-			if( oldImg != null && oldImg.startsWith("data/dynamicContent/") )
-			{
-				DynamicContentManager.remove(oldImg);
-			}
-		}
-	}
-
-	@Override
-	protected void edit(EditorForm form, Item item)
-	{
-		form.label("Name", item.getName());
-		form.dynamicContentField("Bild", "picture", item.getPicture());
-		form.dynamicContentField("Bild (groß)", "largepicture", item.getLargePicture());
+		form.label("Name", Item::getName);
+		form.dynamicContentField("Bild", Item::getPicture, Item::setPicture);
+		form.dynamicContentField("Bild (groß)", Item::getLargePicture, Item::setLargePicture);
 	}
 }

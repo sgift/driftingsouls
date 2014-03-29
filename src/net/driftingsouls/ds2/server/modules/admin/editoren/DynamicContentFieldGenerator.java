@@ -104,23 +104,23 @@ public class DynamicContentFieldGenerator<V> implements CustomFieldGenerator<V>
 		}
 	}
 
-@Override
-public void applyRequestValues(Request request, V entity) throws IOException
-{
+	@Override
+	public void applyRequestValues(Request request, V entity) throws IOException
+	{
 		String img = processDynamicContent(request, this.name, getter.apply(entity));
 		String oldImg = getter.apply(entity);
-		setter.accept(entity, "data/dynamicContent/"+img);
-		if( oldImg.startsWith("data/dynamicContent/") )
+		setter.accept(entity, "data/dynamicContent/" + img);
+		if (oldImg != null && oldImg.startsWith("data/dynamicContent/"))
 		{
 			DynamicContentManager.remove(oldImg);
 		}
-}
+	}
 
 	/**
 	 * Aktiviert die Funktion zum Entfernen von Bildern.
 	 * @return Die Instanz
 	 */
-public DynamicContentFieldGenerator<V> withRemove()
+	public DynamicContentFieldGenerator<V> withRemove()
 	{
 		this.withRemove = true;
 		return this;
