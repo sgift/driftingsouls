@@ -95,7 +95,7 @@ public class EditSystem extends AbstractEditPlugin8<StarSystem> implements Admin
 		);
 	}
 
-	private void entferneNebel(StarSystem system, MutableLocation loc)
+	private void entferneNebel(StarSystem oldsystem, StarSystem system, MutableLocation loc)
 	{
 		if( loc.getX() > system.getWidth() || loc.getY() > system.getHeight() )
 		{
@@ -104,7 +104,7 @@ public class EditSystem extends AbstractEditPlugin8<StarSystem> implements Admin
 		}
 	}
 
-	private void aktualisiereBasen(StarSystem system, Integer id)
+	private void aktualisiereBasen(StarSystem oldsystem, StarSystem system, Integer id)
 	{
 		Base base = (Base) getDB().get(Base.class, id);
 		if (base.getX() > system.getWidth())
@@ -117,7 +117,7 @@ public class EditSystem extends AbstractEditPlugin8<StarSystem> implements Admin
 		}
 	}
 
-	private void aktualisiereSchlachten(StarSystem system, Integer id)
+	private void aktualisiereSchlachten(StarSystem oldsystem, StarSystem system, Integer id)
 	{
 		Battle battle = (Battle) getDB().get(Battle.class, id);
 		if (battle.getX() > system.getWidth())
@@ -130,7 +130,7 @@ public class EditSystem extends AbstractEditPlugin8<StarSystem> implements Admin
 		}
 	}
 
-	private void aktualisiereSchiffe(StarSystem system, Integer id)
+	private void aktualisiereSchiffe(StarSystem oldsystem, StarSystem system, Integer id)
 	{
 		Ship ship = (Ship) getDB().get(Ship.class, id);
 		if (ship.getX() > system.getWidth())

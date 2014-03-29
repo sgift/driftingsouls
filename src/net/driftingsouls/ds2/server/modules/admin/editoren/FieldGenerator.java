@@ -7,6 +7,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.utils.StringToTypeConverter;
 import org.hibernate.Session;
 
+import javax.annotation.Nonnull;
 import javax.persistence.Entity;
 import java.io.IOException;
 import java.io.Serializable;
@@ -185,8 +186,13 @@ public class FieldGenerator<E, T> implements CustomFieldGenerator<E>
 	}
 
 	@SuppressWarnings("unchecked")
-	private void applyEntityAsRequestValue(E entity, String val)
+	private void applyEntityAsRequestValue(@Nonnull E entity, @Nonnull String val)
 	{
+		if( val.isEmpty() )
+		{
+			setter.accept(entity, null);
+			return;
+		}
 		Session db = ContextMap.getContext().getDB();
 		Class<?> identifierCls = db.getSessionFactory().getClassMetadata(this.dataType).getIdentifierType().getReturnedClass();
 		try
@@ -242,10 +248,11 @@ public class FieldGenerator<E, T> implements CustomFieldGenerator<E>
 		for (Map.Entry<Serializable, Object> entry : this.selectionOptions.entrySet())
 		{
 			Serializable identifier = entry.getKey();
-			echo.append("<option value=\"").append(identifier != null ? identifier.toString() : "").append("\" ");
+			echo.append("<option ");
+			echo.append(" value=\"").append(identifier != null ? identifier.toString() : "").append("\"");
 			if ((identifier == null && !containsIdentifier) || (containsIdentifier && identifier != null && identifier.equals(selected)))
 			{
-				echo.append("selected=\"selected\"");
+				echo.append(" selected=\"selected\"");
 			}
 			String label;
 			if (entry.getValue() instanceof String || entry.getKey() == entry.getValue())

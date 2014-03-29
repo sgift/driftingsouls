@@ -57,8 +57,10 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 				@SuppressWarnings("unchecked") T entity = (T) db.get(this.clazz, entityId);
 				if (form.isUpdateAllowed(entity) && isUpdatePossible(entity))
 				{
-					form.applyRequestValues(request, entity);
-					processJobs(echo, entity, form.getUpdateTasks());
+					db.evict(entity);
+					@SuppressWarnings("unchecked") T updatedEntity = (T) db.get(this.clazz, entityId);
+					form.applyRequestValues(request, updatedEntity);
+					processJobs(echo, entity, updatedEntity, form.getUpdateTasks());
 					echo.append("<p>Update abgeschlossen.</p>");
 				}
 			}
@@ -141,7 +143,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		}
 	}
 
-	private void processJobs(Writer echo, T entity, List<EditorForm8.Job<T, ?>> updateTasks) throws IOException
+	private void processJobs(Writer echo, T entity, T updatedEntity, List<EditorForm8.Job<T, ?>> updateTasks) throws IOException
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		db.getTransaction().commit();
@@ -149,12 +151,12 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		for (final EditorForm8.Job<T, ?> updateTask : updateTasks)
 		{
 			@SuppressWarnings("unchecked") final EditorForm8.Job<T, Object> updateTask1 = (EditorForm8.Job<T, Object>) updateTask;
-			Collection<Object> jobData = updateTask1.supplier.apply(entity);
+			Collection<Object> jobData = updateTask1.supplier.apply(updatedEntity);
 			new EvictableUnitOfWork<Object>(updateTask.name) {
 				@Override
 				public void doWork(Object object) throws Exception
 				{
-					updateTask1.job.accept(entity,object);
+					updateTask1.job.accept(entity,updatedEntity,object);
 				}
 			}.setFlushSize(10).executeFor(jobData);
 

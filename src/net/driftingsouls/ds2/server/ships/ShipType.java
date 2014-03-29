@@ -18,6 +18,11 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -27,12 +32,6 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-
 import java.math.BigInteger;
 
 /**
@@ -128,7 +127,10 @@ public class ShipType implements ShipTypeData {
 	 *
 	 */
 	public ShipType() {
-		// EMPTY
+		this.picture = "";
+		this.weapons = "";
+		this.maxHeat = "";
+		this.flags = "";
 	}
 
     @Override

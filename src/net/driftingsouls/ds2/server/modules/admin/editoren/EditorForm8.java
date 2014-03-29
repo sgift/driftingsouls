@@ -22,9 +22,9 @@ public class EditorForm8<E>
 	{
 		public final String name;
 		public final Function<E, ? extends Collection<T>> supplier;
-		public final BiConsumer<E, T> job;
+		public final PostUpdateTaskConsumer<E, T> job;
 
-		public Job(String name, Function<E, ? extends Collection<T>> supplier, BiConsumer<E, T> job)
+		public Job(String name, Function<E, ? extends Collection<T>> supplier, PostUpdateTaskConsumer<E, T> job)
 		{
 			this.name = name;
 			this.supplier = supplier;
@@ -33,7 +33,7 @@ public class EditorForm8<E>
 
 		public static <E> Job<E, Boolean> forRunnable(String name, Consumer<E> job)
 		{
-			return new Job<>(name, (entity) -> Arrays.asList(Boolean.TRUE), (e, b) -> job.accept(e));
+			return new Job<>(name, (entity) -> Arrays.asList(Boolean.TRUE), (o, e, b) -> job.accept(e));
 		}
 	}
 
@@ -112,7 +112,7 @@ public class EditorForm8<E>
 	 * @param supplier Der Generator fuer die Menge der abzuarbeitenden Objekte
 	 * @param job Die Aufgabe
 	 */
-	public <T> void postUpdateTask(String name, Function<E, ? extends Collection<T>> supplier, BiConsumer<E, T> job)
+	public <T> void postUpdateTask(String name, Function<E, ? extends Collection<T>> supplier, PostUpdateTaskConsumer<E, T> job)
 	{
 		updateTasks.add(new Job<>(name, supplier, job));
 	}

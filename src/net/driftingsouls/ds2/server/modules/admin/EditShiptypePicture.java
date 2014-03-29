@@ -47,7 +47,7 @@ public class EditShiptypePicture extends AbstractEditPlugin8<ShipType> implement
 								   .list());
 	}
 
-	private void aktualisiereSchiff(ShipType shipType, Integer schiffsId)
+	private void aktualisiereSchiff(ShipType oldshipType, ShipType shipType, Integer schiffsId)
 	{
 		Ship ship = (Ship)getDB().get(Ship.class, schiffsId);
 		ship.recalculateModules();
