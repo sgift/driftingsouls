@@ -870,11 +870,21 @@ public class User extends BasicUser {
 	/**
 	 * Prueft, ob die angegebene Forschung durch den Benutzer erforscht wurde.
 	 *
+	 * @param research Die zu pruefende Forschung
+	 * @return <code>true</code>, falls die Forschung erforscht wurde
+	 */
+	public boolean hasResearched( Forschung research ) {
+		return getUserResearch(research) != null;
+	}
+
+	/**
+	 * Prueft, ob die angegebene Forschung durch den Benutzer erforscht wurde.
+	 *
 	 * @param researchID Die ID der zu pruefenden Forschung
 	 * @return <code>true</code>, falls die Forschung erforscht wurde
 	 */
 	public boolean hasResearched( int researchID ) {
-		return getUserResearch(Forschung.getInstance(researchID)) != null;
+		return hasResearched(Forschung.getInstance(researchID));
 	}
 
 	/**

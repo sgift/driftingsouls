@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.bases;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
+import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -43,7 +44,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -109,8 +112,10 @@ public abstract class Building
 	private int eVerbrauch;
 	@Column(name = "eprodu", nullable = false)
 	private int eProduktion;
-	@Column(name = "techreq", nullable = false)
-	private int techReq;
+	@ManyToOne(optional = false)
+	@JoinColumn(name = "techreq", nullable = false)
+	@ForeignKey(name="building_fk_forschung")
+	private Forschung techReq;
 	private int eps;
 	@Column(name = "perplanet", nullable = false)
 	private int perPlanet;
@@ -313,11 +318,11 @@ public abstract class Building
 	}
 
 	/**
-	 * Gibt die ID der zum Bau benoetigten Forschung zurueck.
+	 * Gibt die zum Bau benoetigte Forschung zurueck.
 	 *
 	 * @return die benoetigte Forschung
 	 */
-	public int getTechRequired()
+	public Forschung getTechRequired()
 	{
 		return techReq;
 	}
@@ -539,7 +544,7 @@ public abstract class Building
 	 *
 	 * @param techReq Forschung
 	 */
-	public void setTechReq(int techReq)
+	public void setTechReq(Forschung techReq)
 	{
 		this.techReq = techReq;
 	}

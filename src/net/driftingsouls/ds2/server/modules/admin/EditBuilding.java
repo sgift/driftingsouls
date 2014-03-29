@@ -69,7 +69,7 @@ public class EditBuilding extends AbstractEditPlugin8<Building>
 		form.field("Energie", Integer.class, EditBuilding::getEnergiebilanz, EditBuilding::setEnergiebilanz);
 		form.field("EPS", Integer.class, Building::getEPS, Building::setEps);
 		form.field("Wohnraum", Integer.class, Building::getBewohner, Building::setBewohner);
-		form.field("Forschung", Forschung.class, Integer.class, Building::getTechRequired, Building::setTechReq);
+		form.field("Forschung", Forschung.class, Building::getTechRequired, Building::setTechReq);
 		form.field("Untergrundkomplex", Boolean.class, Building::isUComplex, Building::setUcomplex);
 		form.field("Max. pro Planet", Integer.class, Building::getPerPlanetCount, Building::setPerPlanet);
 		form.field("Max. pro Spieler", Integer.class, Building::getPerUserCount, Building::setPerOwner);

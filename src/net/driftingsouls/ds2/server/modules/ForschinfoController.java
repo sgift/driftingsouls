@@ -273,7 +273,7 @@ public class ForschinfoController extends TemplateController
 		boolean firstentry = true;
 
 		Iterator<?> buildingIter = db.createQuery("from Building where techReq=:tech")
-				.setInteger("tech", research.getID())
+				.setParameter("tech", research)
 				.iterate();
 		for (; buildingIter.hasNext(); )
 		{
