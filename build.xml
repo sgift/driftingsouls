@@ -155,6 +155,7 @@
 			<classpath refid="compile.classpath"/>
 			<compilerarg value="-AfullyAnnotationConfigured=true" />
 			<compilerarg value="-proc:only" />
+			<compilerarg value="-parameters" />
 		</javac>
 		<javac debug="${compile.debug}"
 			   deprecation="${compile.deprecation}"
@@ -167,6 +168,7 @@
 			<src path="${src.home}" />
 			<classpath refid="compile.classpath"/>
 			<compilerarg value="-proc:none" />
+			<compilerarg value="-parameters" />
 		</javac>
 	</target>
 
@@ -199,6 +201,7 @@
 					includes="**/server/templates/**">
 				<classpath refid="compile.classpath"/>
 				<compilerarg value="-proc:none" />
+				<compilerarg value="-parameters" />
 			</javac>
 	</target>
 
@@ -334,6 +337,7 @@
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>
+			<compilerarg value="-parameters" />
 		</javac>
 
 		<java classname="net.driftingsouls.ds2.server.embedded.RunEmbedded" fork="true">
@@ -411,6 +415,7 @@
 			encoding="UTF-8"
 			verbose="true">
 			<classpath refid="test.classpath"/>
+			<compilerarg value="-parameters" />
 		</javac>
 
 		<copy todir="${build.home}/test/classes">

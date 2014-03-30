@@ -29,12 +29,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
-import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,7 +49,6 @@ import java.util.Map;
 public abstract class Controller implements PermissionResolver
 {
 	private static final Log log = LogFactory.getLog(Controller.class);
-	private static final LocalVariableTableParameterNameDiscoverer PARAMETER_NAME_DISCOVERER = new LocalVariableTableParameterNameDiscoverer();
 
 	private ActionType actionType;
 	private OutputHelper actionTypeHandler;
@@ -130,7 +129,7 @@ public abstract class Controller implements PermissionResolver
 			method.setAccessible(true);
 			Annotation[][] annotations = method.getParameterAnnotations();
 			Type[] parameterTypes = method.getGenericParameterTypes();
-			String[] parameterNames = PARAMETER_NAME_DISCOVERER.getParameterNames(method);
+			Parameter[] parameterNames = method.getParameters();
 
 			Object[] params = new Object[annotations.length];
 			for (int i = 0; i < params.length; i++)
@@ -152,7 +151,7 @@ public abstract class Controller implements PermissionResolver
 				}
 
 				Type type = parameterTypes[i];
-				params[i] = this.parameterReader.readParameterAsType(paramAnnotation == null ? parameterNames[i] : paramAnnotation.name(), type);
+				params[i] = this.parameterReader.readParameterAsType(paramAnnotation == null ? parameterNames[i].getName() : paramAnnotation.name(), type);
 			}
 
 			return method.invoke(objekt, params);
@@ -396,7 +395,7 @@ public abstract class Controller implements PermissionResolver
 		method.setAccessible(true);
 		Annotation[][] annotations = method.getParameterAnnotations();
 		Type[] parameterTypes = method.getGenericParameterTypes();
-		String[] parameterNames = PARAMETER_NAME_DISCOVERER.getParameterNames(method);
+		Parameter[] parameterNames = method.getParameters();
 
 		Object[] params = new Object[annotations.length];
 		for (int i = 0; i < params.length; i++)
@@ -412,7 +411,7 @@ public abstract class Controller implements PermissionResolver
 			}
 
 			Type type = parameterTypes[i];
-			String paramName = paramAnnotation == null ? parameterNames[i] : paramAnnotation.name();
+			String paramName = paramAnnotation == null ? parameterNames[i].getName() : paramAnnotation.name();
 			if (arguments.containsKey(paramName))
 			{
 				params[i] = arguments.get(paramName);
