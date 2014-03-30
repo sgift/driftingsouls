@@ -26,8 +26,8 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
-import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -1822,8 +1822,8 @@ public class Battle implements Locatable
 			if( (onendhandler != null) && (onendhandler.length() > 0) ) {
 				ScriptEngine scriptparser = context.get(ContextCommon.class).getScriptParser("DSQuestScript");
 				if( context.getActiveUser() != null ) {
-					BasicUser activeuser = context.getActiveUser();
-					if( !activeuser.hasFlag(User.FLAG_SCRIPT_DEBUGGING) ) {
+					User activeuser = (User)context.getActiveUser();
+					if( !activeuser.hasFlag(UserFlag.SCRIPT_DEBUGGING) ) {
 						scriptparser.getContext().setErrorWriter(new NullLogger());
 					}
 				}

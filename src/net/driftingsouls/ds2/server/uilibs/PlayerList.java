@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.uilibs;
 
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 
@@ -205,13 +206,13 @@ public class PlayerList {
 				else {
 					echo.append("<td class=\"noBorderX\">"+Common._title(aUser.getName()));
 				}
-				if( aUser.hasFlag(User.FLAG_HIDE) ) {
+				if( aUser.hasFlag(UserFlag.HIDE) ) {
 					echo.append(" <span style=\"color:red;font-style:italic\" title=\"hidden\">[h]</span>");
 				}
-				if( (user != null) && context.hasPermission("statistik", "erweiterteSpielerliste") && aUser.hasFlag(User.FLAG_ORDER_MENU) ) {
+				if( (user != null) && context.hasPermission("statistik", "erweiterteSpielerliste") && aUser.hasFlag(UserFlag.ORDER_MENU) ) {
 					echo.append(" <span style=\"color:red;font-style:italic\" title=\"order menu\">[om]</span>");
 				}
-				if( (user != null) && context.hasPermission("statistik", "erweiterteSpielerliste") && aUser.hasFlag(User.FLAG_EXEC_NOTES) ) {
+				if( (user != null) && context.hasPermission("statistik", "erweiterteSpielerliste") && aUser.hasFlag(UserFlag.EXEC_NOTES) ) {
 					echo.append(" <span style=\"color:red;font-style:italic\" title=\"exec notes\">[en]</span>");
 				}
 				echo.append("</span></td>\n");

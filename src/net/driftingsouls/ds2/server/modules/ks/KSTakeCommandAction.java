@@ -18,14 +18,15 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import java.io.IOException;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+
+import java.io.IOException;
 
 /**
  * Leitet die Uebernahme des Kommandos der Schlacht ein, wenn der aktuelle Kommandant inaktiv ist.
@@ -53,7 +54,7 @@ public class KSTakeCommandAction extends BasicKSAction {
 
 		User user = (User)context.getActiveUser();
 
-        if(!user.hasFlag(User.FLAG_KS_TAKE_BATTLES))
+        if(!user.hasFlag(UserFlag.KS_TAKE_BATTLES))
         {
             if( (battle.getAlly(battle.getOwnSide()) == 0) ||
                 ((user.getAlly() != null) && (battle.getAlly(battle.getOwnSide()) != user.getAlly().getId())) ) {

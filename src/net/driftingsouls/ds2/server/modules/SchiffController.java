@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -763,7 +764,7 @@ public class SchiffController extends TemplateController
 		final Bindings engineBindings = scriptparser.getContext().getBindings(ScriptContext.ENGINE_SCOPE);
 
 		engineBindings.put("_SHIP", ship);
-		if (!user.hasFlag(User.FLAG_SCRIPT_DEBUGGING))
+		if (!user.hasFlag(UserFlag.SCRIPT_DEBUGGING))
 		{
 			scriptparser.getContext().setErrorWriter(new NullLogger());
 		}
@@ -803,7 +804,7 @@ public class SchiffController extends TemplateController
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
 
-		if (!user.hasFlag(User.FLAG_NPC_ISLAND))
+		if (!user.hasFlag(UserFlag.NPC_ISLAND))
 		{
 			redirect();
 			return;
@@ -999,7 +1000,7 @@ public class SchiffController extends TemplateController
 		}
 
 		// Tooltip: Schiffscripte
-		if (user.hasFlag(User.FLAG_EXEC_NOTES))
+		if (user.hasFlag(UserFlag.EXEC_NOTES))
 		{
 
 			String script = StringUtils.replace(ship.getScript(), "\r\n", "\n");
@@ -1019,7 +1020,7 @@ public class SchiffController extends TemplateController
 			t.setVar("tooltip.admin", tooltiptext.toString());
 		}
 
-		if (user.hasFlag(User.FLAG_NPC_ISLAND))
+		if (user.hasFlag(UserFlag.NPC_ISLAND))
 		{
 			t.setVar("ship.npcislandlink", 1);
 		}

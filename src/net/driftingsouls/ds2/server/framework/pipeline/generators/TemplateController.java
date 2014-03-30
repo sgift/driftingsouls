@@ -18,13 +18,12 @@
  */
 package net.driftingsouls.ds2.server.framework.pipeline.generators;
 
-import java.io.File;
-import java.io.IOException;
-
-import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.Version;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Generator fuer Module mit Templates.
@@ -69,17 +68,7 @@ public abstract class TemplateController extends Controller
 
 		templateEngine = new TemplateEngine();
 
-		if (getUser() != null)
-		{
-			templateEngine.setVar("global.datadir", getUser().getImagePath());
-		}
-		else
-		{
-			templateEngine.setVar("global.datadir", BasicUser.getDefaultImagePath());
-		}
-
 		templateEngine.setVar("global.module", getModule());
-
 		templateEngine.setVar("global.version", new Version().getHgVersion());
 	}
 

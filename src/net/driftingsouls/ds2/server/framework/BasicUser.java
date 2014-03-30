@@ -20,7 +20,6 @@ package net.driftingsouls.ds2.server.framework;
 
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.DiscriminatorFormula;
@@ -32,15 +31,12 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 
@@ -55,10 +51,7 @@ import java.util.Set;
 @DiscriminatorFormula("'default'")
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public abstract class BasicUser {
-
-	private static String defaultImagePath = null;
-
-	/**
+/**
 	 * Sortiert die Benutzer entsprechend ihres Anzeigenamens.
 	 */
 	public static final Comparator<BasicUser> PLAINNAME_ORDER = new Comparator<BasicUser>() {
@@ -95,11 +88,7 @@ public abstract class BasicUser {
 	private String nickname;
 	@Column(nullable = false)
 	private String plainname;
-	private String imgpath;
 	private byte disabled;
-	@Lob
-	@Column(nullable = false)
-	private String flags;
 	@OneToMany(mappedBy="user", cascade=CascadeType.ALL)
 	private Set<Permission> permissions;
 
@@ -107,16 +96,13 @@ public abstract class BasicUser {
 	private int version;
 
 	@Transient
-	private Context context;
-	@Transient
-	private BasicUser attachedUser;
+	protected BasicUser attachedUser;
 
 	/**
 	 * Konstruktor.
 	 *
 	 */
 	public BasicUser() {
-		context = ContextMap.getContext();
 		attachedUser = null;
 		this.permissions = new HashSet<>();
 	}
@@ -181,153 +167,7 @@ public abstract class BasicUser {
 				pre+"accesslevel", this.accesslevel,
 				pre+"nickname", this.nickname,
 				pre+"plainname", this.plainname,
-				pre+"imgpath", this.imgpath,
-				pre+"disabled", this.disabled,
-				pre+"flags", this.flags);
-	}
-
-	/**
-	 * Liefert den Standard-Image-Path zurueck.
-	 * @return Der Standard-Image-Path
-	 */
-	public static String getDefaultImagePath() {
-		if( defaultImagePath == null ) {
-			defaultImagePath = Configuration.getSetting("IMAGE_URL");
-			if( defaultImagePath == null ) {
-				defaultImagePath = Configuration.getSetting("URL");
-			}
-		}
-		return defaultImagePath;
-	}
-
-	/**
-	 * Liefert den Image-Path dieses Benutzers zurueck.
-	 *
-	 * @return Der Image-Path des Benutzers
-	 */
-	public String getUserImagePath() {
-		//return imgpath;
-		return getDefaultImagePath();
-	}
-
-	/**
-	 * Ueberprueft, ob ein Flag fuer den Benutzer aktiv ist.
-	 * @param flag Das zu ueberpruefende Flag
-	 * @return <code>true</code>, falls das Flag aktiv ist
-	 */
-	public boolean hasFlag( String flag ) {
-		return flags.contains(flag) || (attachedUser != null) && attachedUser.hasFlag(flag);
-
-	}
-
-	/**
-	 * Setzt ein Flag fuer den User entweder auf aktiviert (<code>true</code>)
-	 * oder auf deaktiviert (<code>false</code>).
-	 * @param flag Das zu setzende Flag
-	 * @param on true, falls es aktiviert werden soll
-	 */
-	public void setFlag( String flag, boolean on ) {
-		String flagstring;
-		if( on ) {
-			if( !"".equals(flags) ) {
-				flagstring = flags+" "+flag;
-			}
-			else {
-				flagstring = flag;
-			}
-		}
-		else {
-			StringBuilder newflags = new StringBuilder();
-
-			String[] flags = StringUtils.split(this.flags,' ');
-			for( String aflag : flags ) {
-				if( !aflag.equals(flag) ) {
-					if( newflags.length() > 0 ) {
-						newflags.append(" ");
-					}
-					newflags.append(aflag);
-				}
-			}
-			flagstring = newflags.toString();
-		}
-
-		this.flags = flagstring;
-	}
-
-	/**
-	 * Aktiviert ein Flag fuer den User.
-	 * @param flag Das zu aktivierende Flag
-	 */
-	public void setFlag( String flag ) {
-		setFlag( flag, true );
-	}
-
-	/**
-	 * Liefert den Wert eines User-Values zurueck. Sofern mehrere Eintraege zu diesem
-	 * User-Value existieren wird der aelteste zurueckgegeben.
-	 * User-Values sind die Eintraege, welche sich in der Tabelle user_values befinden.
-	 *
-	 * @param valuename Name des User-Values
-	 * @return Wert des User-Values
-	 */
-	public String getUserValue( String valuename ) {
-		UserValue value = (UserValue)context.getDB()
-			.createQuery("from UserValue where user in (:id,0) and name=:name order by abs(user) desc,id")
-			.setInteger("id", this.id)
-			.setString("name", valuename)
-			.setMaxResults(1)
-			.uniqueResult();
-
-		if( value == null ) {
-			return "";
-		}
-		return value.getValue();
-	}
-
-	/**
-	 * Liefert alle Werte eines User-Values zurueck.
-	 * User-Values sind die Eintraege, welche sich in der Tabelle user_values befinden.
-	 *
-	 * @param valuename Name des User-Values
-	 * @return Werte des User-Values
-	 */
-	public List<String> getUserValues( String valuename ) {
-		List<UserValue> values = Common.cast(context.getDB()
-				.createQuery("from UserValue where user in (:id,0) and name=:name order by abs(user) desc,id")
-				.setInteger("id", this.id)
-				.setString("name", valuename)
-				.list());
-
-		List<String> result = new ArrayList<>();
-		for (UserValue value : values)
-		{
-			result.add(value.getValue());
-		}
-		return result;
-	}
-
-	/**
-	 * Setzt ein User-Value auf einen bestimmten Wert. Sollten mehrere Eintraege
-	 * existieren wird nur der aelteste aktualisiert.
-	 * @see #getUserValue(String)
-	 *
-	 * @param valuename Name des User-Values
-	 * @param newvalue neuer Wert des User-Values
-	 */
-	public void setUserValue( String valuename, String newvalue ) {
-		UserValue valuen = (UserValue)context.getDB().createQuery("from UserValue where user=:user and name=:name order by id")
-			.setInteger("user", this.id)
-			.setString("name", valuename)
-			.uniqueResult();
-
-		// Existiert noch kein Eintag?
-		if( valuen == null ) {
-			valuen = new UserValue(this, valuename, newvalue);
-			context.getDB().persist(valuen);
-		}
-		else {
-			valuen.setValue(newvalue);
-		}
+				pre+"disabled", this.disabled);
 	}
 
 	/**
@@ -479,22 +319,6 @@ public abstract class BasicUser {
 	}
 
 	/**
-	 * Gibt den Image-Pfad des Spielers zurueck.
-	 * @return Der Image-Pfad des Spielers
-	 */
-	public String getImagePath() {
-		return getDefaultImagePath();
-	}
-
-	/**
-	 * Setzt den Image-Pfad des Spielers auf den angegebenen Wert.
-	 * @param value Der neue Image-Pfad des Spielers
-	 */
-	public void setImagePath(String value) {
-		this.imgpath = value;
-	}
-
-	/**
 	 * Gibt <code>true</code> zurueck, falls der Account deaktiviert ist.
 	 * @return <code>true</code>, falls der Account deaktiviert ist
 	 */
@@ -568,24 +392,6 @@ public abstract class BasicUser {
 	 */
 	public void setAccesslevel(int accesslevel) {
 		this.accesslevel = accesslevel;
-	}
-
-	/**
-	 * Gibt die Flags des Benutzers zurueck.
-	 * @return Die Flags
-	 */
-	public String getFlags()
-	{
-		return flags;
-	}
-
-	/**
-	 * Setzt die Flags des Benutzers.
-	 * @param flags Die Flags
-	 */
-	public void setFlags(String flags)
-	{
-		this.flags = flags;
 	}
 
 	@Override

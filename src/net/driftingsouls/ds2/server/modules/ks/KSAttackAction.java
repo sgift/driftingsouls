@@ -32,6 +32,7 @@ import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.Ammo;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -1541,7 +1542,7 @@ public class KSAttackAction extends BasicKSAction {
                 int navskill = ownShip.getNavigationalValue();
                 int defensivskill = enemyShip.getDefensiveValue();
 
-                if( battle.getCommander(ownShip.getSide()).hasFlag( User.FLAG_KS_DEBUG )) {
+                if( battle.getCommander(ownShip.getSide()).hasFlag( UserFlag.KS_DEBUG )) {
                     battle.logme( "Offensivskill: "+offensivskill+"\n" );
                     battle.logme( "Navskill: "+navskill+"\n" );
                     battle.logme( "Defensivskill: "+defensivskill+"\n" );
@@ -1728,7 +1729,7 @@ public class KSAttackAction extends BasicKSAction {
 		for( int i=1; i <= gesamtSchuesse; i++)
 		{
 			int rnd = RandomUtils.nextInt(101);
-			if( battle.getCommander(ownShip.getSide()).hasFlag( User.FLAG_KS_DEBUG )) {
+			if( battle.getCommander(ownShip.getSide()).hasFlag( UserFlag.KS_DEBUG )) {
 				battle.logme( i + ". Schuss: " + rnd + "%\n");
 			}
 			if( rnd <= trefferWS )
@@ -1777,7 +1778,7 @@ public class KSAttackAction extends BasicKSAction {
 		if( this.localweapon.getSubDamage() > 0 )
 		{
 			int subWS = this.getTrefferWS( battle, this.localweapon.getSubWs(), this.enemyShip, enemyShipType, defensivskill, navskill );
-			if( battle.getCommander(ownShip.getSide()).hasFlag( User.FLAG_KS_DEBUG )) {
+			if( battle.getCommander(ownShip.getSide()).hasFlag( UserFlag.KS_DEBUG )) {
 				battle.logme( "SubsystemTWS: "+ subWS +"%\n" );
 			}
 			else
@@ -1818,7 +1819,7 @@ public class KSAttackAction extends BasicKSAction {
 
         if(useBattleLog)
         {
-            if( battle.getCommander(ownShip.getSide()).hasFlag( User.FLAG_KS_DEBUG )) {
+            if( battle.getCommander(ownShip.getSide()).hasFlag( UserFlag.KS_DEBUG )) {
                 battle.logme( "Basis-TrefferWS: "+ trefferWS +"%\n");
                 battle.logme( "FighterDef: "+ fighterdef +"%\n");
                 battle.logme( "AntitorpTrefferWS: "+ antitorptrefferws +"%\n");
@@ -1837,7 +1838,7 @@ public class KSAttackAction extends BasicKSAction {
 		else {
 			trefferWS -= fighterdef;
 		}
-		if( battle.getCommander(ownShip.getSide()).hasFlag( User.FLAG_KS_DEBUG )) {
+		if( battle.getCommander(ownShip.getSide()).hasFlag( UserFlag.KS_DEBUG )) {
 			battle.logme( "TrefferWS: "+ trefferWS +"%\n" );
 		}
 		else

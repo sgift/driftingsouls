@@ -18,25 +18,25 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.Writer;
-import java.util.List;
-
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.scripting.EngineIdentifier;
 import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.tick.TickController;
-
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.Transaction;
+
+import javax.annotation.Nonnull;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Writer;
+import java.util.List;
 
 /**
  * Fuehrt NPC-Aktionsscripte aus.
@@ -60,7 +60,7 @@ public class NPCScriptTick extends TickController {
 		}
 
 		@Override
-		public void write(char[] cbuf, int off, int len) {
+		public void write(@Nonnull char[] cbuf, int off, int len) {
 			if( first ) {
 				NPCScriptTick.this.slog("###################Scriptparser [Debug]###################\n");
 				first = false;
@@ -85,7 +85,7 @@ public class NPCScriptTick extends TickController {
 		for( User user : users )
 		{
 			Writer logger = new NullLogger();
-			if( user.hasFlag( User.FLAG_SCRIPT_DEBUGGING ) )
+			if( user.hasFlag( UserFlag.SCRIPT_DEBUGGING ) )
 			{
 				logger = new TickLogger();
 			}

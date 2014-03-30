@@ -18,13 +18,11 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.util.List;
-import java.util.Set;
-
 import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.entities.UserRank;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -36,8 +34,10 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateContro
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-
 import org.apache.commons.lang.StringUtils;
+
+import java.util.List;
+import java.util.Set;
 
 /**
  * Zeigt das Profil eines Benutzers an.
@@ -61,7 +61,7 @@ public class UserProfileController extends TemplateController
 
 	private void validiereBenutzer(User benutzer)
 	{
-		if ((benutzer == null) || (benutzer.hasFlag(User.FLAG_HIDE) && !hasPermission("user", "versteckteSichtbar")))
+		if ((benutzer == null) || (benutzer.hasFlag(UserFlag.HIDE) && !hasPermission("user", "versteckteSichtbar")))
 		{
 			throw new ValidierungException("Ihnen ist kein Benutzer unter der angegebenen ID bekannt", Common.buildUrl("default", "module", "ueber"));
 		}

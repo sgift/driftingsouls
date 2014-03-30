@@ -21,12 +21,14 @@ package net.driftingsouls.ds2.server.modules.admin;
 import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.Nonnull;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 /**
@@ -50,12 +52,13 @@ public class EditUser extends AbstractEditPlugin8<User>
 		form.label("Loginname", User::getUN);
 		form.field("Name", String.class, User::getNickname, this::updateName);
 		form.field("Email", String.class, User::getEmail, User::setEmail);
-		form.field("Accesslevel", Integer.class, User::getAccessLevel, (u,level) -> u.setAccesslevel(Math.min(level, getActiveUser().getAccessLevel())));
+		form.field("Accesslevel", Integer.class, User::getAccessLevel, (u, level) -> u.setAccesslevel(Math.min(level, getActiveUser().getAccessLevel())));
 		form.field("Rasse", Rasse.class, Integer.class, User::getRace, User::setRace);
 		form.field("Vacation", Integer.class, User::getVacationCount, User::setVacationCount);
 		form.field("Wait4Vac", Integer.class, User::getWait4VacationCount, User::setWait4VacationCount);
 		form.field("Konto", BigInteger.class, User::getKonto, User::setKonto);
-		form.field("Flags", String.class, User::getFlags, User::setFlags);
+		form.multiSelection("Flags", UserFlag.class, User::getFlags, User::setFlags)
+				.withOptions(Arrays.asList(UserFlag.values()).stream().collect(Collectors.toMap((f) -> f, UserFlag::getFlag)));
 		form.field("Rang", Integer.class, User::getRang, User::setRang).withOptions(Medals.get().raenge());
 		form.textArea("History", User::getHistory, User::setHistory);
 		form.field("NPC-Punkte", Integer.class, User::getNpcPunkte, User::setNpcPunkte);

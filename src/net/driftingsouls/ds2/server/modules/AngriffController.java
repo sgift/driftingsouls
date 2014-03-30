@@ -31,6 +31,7 @@ import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -452,7 +453,7 @@ public class AngriffController extends TemplateController
 					}
 				}
 
-                if(user.hasFlag(User.FLAG_KS_TAKE_BATTLES) && (battle.getTakeCommand(battle.getOwnSide()) == 0))
+                if(user.hasFlag(UserFlag.KS_TAKE_BATTLES) && (battle.getTakeCommand(battle.getOwnSide()) == 0))
                 {
                     historyobj.showTakeCommand(true);
                 }

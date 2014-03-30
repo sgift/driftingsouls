@@ -13,6 +13,7 @@ import net.driftingsouls.ds2.server.entities.FactionShopOrder;
 import net.driftingsouls.ds2.server.entities.FraktionAktionsMeldung;
 import net.driftingsouls.ds2.server.entities.Loyalitaetspunkte;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.entities.UserRank;
 import net.driftingsouls.ds2.server.entities.npcorders.Order;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderOffizier;
@@ -77,7 +78,7 @@ public class NpcController extends AngularController
 	{
 		User user = (User) this.getUser();
 
-		if (!user.hasFlag(User.FLAG_ORDER_MENU))
+		if (!user.hasFlag(UserFlag.ORDER_MENU))
 		{
 			throw new ValidierungException("Nur NPCs können dieses Script nutzen", Common.buildUrl("default", "module", "ueber"));
 		}

@@ -30,15 +30,16 @@ import net.driftingsouls.ds2.server.entities.Feeding;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
+import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
+import net.driftingsouls.ds2.server.framework.db.batch.UnitOfWork;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipFlag;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
-import net.driftingsouls.ds2.server.framework.db.batch.UnitOfWork;
 import net.driftingsouls.ds2.server.units.TransientUnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo.Crew;
@@ -546,7 +547,7 @@ public class SchiffsTick extends TickController {
 		int minCrew = shiptd.getMinCrew();
 		User user = shipd.getOwner();
 		this.log("\tCrew " + crew + "("+minCrew+")");
-		if(crew < minCrew && !user.hasFlag(User.FLAG_NO_HULL_DECAY))
+		if(crew < minCrew && !user.hasFlag(UserFlag.NO_HULL_DECAY))
 		{
 			this.log("\tSchiff hat nicht genug Crew; beschaedige Huelle.");
 			double scale = new ConfigService().getValue(WellKnownConfigValue.NO_CREW_HULL_DAMAGE_SCALE);
@@ -608,7 +609,7 @@ public class SchiffsTick extends TickController {
 			User nobody = (User)db.get(User.class, -1);
 			nobody.transferMoneyFrom(owner.getId(), reCost);
 		}
-		else if(!owner.hasFlag(User.FLAG_NO_DESERTEUR))
+		else if(!owner.hasFlag(UserFlag.NO_DESERTEUR))
 		{
 			BigInteger reCostHelper = BigInteger.valueOf(shiptd.getReCost());
 			// Wartungskosten koennen aufgebracht werden.

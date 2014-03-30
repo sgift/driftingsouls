@@ -30,6 +30,7 @@ import net.driftingsouls.ds2.server.config.ConfigFelsbrockenSystem;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Jump;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.entities.statistik.StatShips;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
@@ -274,21 +275,21 @@ public class RestTick extends TickController {
 			this.log("");
 			this.log("Bearbeite Noob-Protection");
 
-			List<?> noobUsers = db.createQuery("from User where id>0 and flags LIKE '%" + User.FLAG_NOOB+"%'").list();
+			List<?> noobUsers = db.createQuery("from User where id>0 and flags LIKE '%" + UserFlag.NOOB.getFlag()+"%'").list();
 			int noobDays = 30;
 			int noobTime = 24*60*60*noobDays;
 			for( Iterator<?> iter=noobUsers.iterator(); iter.hasNext(); )
 			{
 				User user = (User)iter.next();
 
-				if( !user.hasFlag(User.FLAG_NOOB) )
+				if( !user.hasFlag(UserFlag.NOOB) )
 				{
 					continue;
 				}
 
 				if (user.getSignup() <= Common.time() - noobTime)
 				{
-					user.setFlag(User.FLAG_NOOB, false);
+					user.setFlag(UserFlag.NOOB, false);
 					this.log("Entferne Noob-Schutz bei "+user.getId());
 
 					User nullUser = (User)db.get(User.class, 0);

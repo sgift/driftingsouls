@@ -27,6 +27,7 @@ import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -67,7 +68,8 @@ public class SensorsDefault implements SchiffPlugin {
 			if( !order.equals("id") && !order.equals("name") && !order.equals("owner") && !order.equals("shiptype") ) {
 				order = "id";
 			}
-			controller.getUser().setUserValue("TBLORDER/schiff/sensororder", order );
+			User user = (User)controller.getUser();
+			user.setUserValue("TBLORDER/schiff/sensororder", order);
 		}
 
 		return "";
@@ -204,7 +206,7 @@ public class SensorsDefault implements SchiffPlugin {
 		// superdock - Kann der aktuelle Benutzer alles andocken?
 		boolean superdock = false;
 		if( shiptype.getADocks() > dockCount ) {
-			superdock = user.hasFlag( User.FLAG_SUPER_DOCK );
+			superdock = user.hasFlag( UserFlag.SUPER_DOCK );
 		}
 
 		// fullcount - Die Anzahl der freien Landeplaetze auf dem aktuell ausgewaehlten Traeger
@@ -946,7 +948,7 @@ public class SensorsDefault implements SchiffPlugin {
 			{
 				blocked = 1;
 			}
-			if( user.hasFlag( User.FLAG_NO_JUMPNODE_BLOCK ) )
+			if( user.hasFlag( UserFlag.NO_JUMPNODE_BLOCK ) )
 			{
 				blocked = 0;
 			}

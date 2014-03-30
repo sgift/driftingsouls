@@ -173,7 +173,6 @@ public class ImageDownloader
 		{
 			String match = matcher.group(1);
 			match = match.replace("{URL}", "");
-			match = match.replace("{global.datadir}", "");
 			if( match.contains("{") )
 			{
 				// Nicht identifizierbar

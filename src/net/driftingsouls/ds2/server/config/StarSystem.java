@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.config;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserFlag;
 import org.apache.commons.lang.StringUtils;
 
 import javax.persistence.Column;
@@ -441,7 +442,7 @@ public class StarSystem {
 		{
 			return false;
 		}
-		if( user.hasFlag(User.FLAG_VIEW_ALL_SYSTEMS) )
+		if( user.hasFlag(UserFlag.VIEW_ALL_SYSTEMS) )
 		{
 			return true;
 		}
@@ -451,7 +452,7 @@ public class StarSystem {
 		}
 		if( this.starmap == Access.NPC )
 		{
-			return user.hasFlag(User.FLAG_VIEW_SYSTEMS);
+			return user.hasFlag(UserFlag.VIEW_SYSTEMS);
 		}
 		return this.isStarmapVisible;
 	}

@@ -21,7 +21,7 @@ package net.driftingsouls.ds2.server.modules;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.BasicUser;
+import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -217,9 +217,9 @@ public class OptionsController extends TemplateController
 
 		if ((scriptdebug != 0) && hasPermission("schiff", "script"))
 		{
-			if (scriptdebugstatus != user.hasFlag(User.FLAG_SCRIPT_DEBUGGING))
+			if (scriptdebugstatus != user.hasFlag(UserFlag.SCRIPT_DEBUGGING))
 			{
-				user.setFlag(User.FLAG_SCRIPT_DEBUGGING, scriptdebugstatus);
+				user.setFlag(UserFlag.SCRIPT_DEBUGGING, scriptdebugstatus);
 
 				changemsg += "Scriptdebugging " + (scriptdebugstatus ? "" : "de") + "aktiviert<br />\n";
 			}
@@ -372,7 +372,7 @@ public class OptionsController extends TemplateController
 				"user.wrapfactor", user.getUserValue("TBLORDER/schiff/wrapfactor"),
 				"user.inttutorial", user.getUserValue("TBLORDER/uebersicht/inttutorial"),
 				"user.showScriptDebug", hasPermission("schiff", "script"),
-				"user.scriptdebug", user.hasFlag(User.FLAG_SCRIPT_DEBUGGING),
+				"user.scriptdebug", user.hasFlag(UserFlag.SCRIPT_DEBUGGING),
 				"user.defrelation", user.getRelation(null).ordinal());
 
 		t.setBlock("_OPTIONS", "personenNamenGenerator.listitem", "personenNamenGenerator.list");
@@ -511,7 +511,7 @@ public class OptionsController extends TemplateController
 
 		if (user.isNoob())
 		{
-			user.setFlag(User.FLAG_NOOB, false);
+			user.setFlag(UserFlag.NOOB, false);
 			t.setVar("options.message", "GCP-Schutz wurde vorzeitig aufgehoben.<br />");
 		}
 
@@ -528,17 +528,9 @@ public class OptionsController extends TemplateController
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
 
-		String imagepath = user.getUserImagePath();
-
-		if (BasicUser.getDefaultImagePath().equals(imagepath))
-		{
-			imagepath = "";
-		}
-
 		t.setVar("options.general", 1,
 				"user.wrapfactor", user.getUserValue("TBLORDER/schiff/wrapfactor"),
 				"user.tooltip", user.getUserValue("TBLORDER/schiff/tooltips"),
-				"user.imgpath", imagepath,
 				"user.noob", user.isNoob(),
 				"vacation.maxtime", Common.ticks2DaysInDays(user.maxVacTicks()));
 	}

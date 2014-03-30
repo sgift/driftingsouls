@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.IntTutorial;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.entities.UserRank;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -133,10 +134,11 @@ public class UeberController extends TemplateController
 	@Action(ActionType.DEFAULT)
 	public void boxAction(String box)
 	{
-		String boxSetting = getUser().getUserValue("TBLORDER/uebersicht/box");
+		User user = (User)getUser();
+		String boxSetting = user.getUserValue("TBLORDER/uebersicht/box");
 		if (box != null && !box.equals(boxSetting))
 		{
-			getUser().setUserValue("TBLORDER/uebersicht/box", box);
+			user.setUserValue("TBLORDER/uebersicht/box", box);
 		}
 
 		redirect();
@@ -150,7 +152,8 @@ public class UeberController extends TemplateController
 	@Action(ActionType.DEFAULT)
 	public void stopQuestAction(@UrlParam(name = "questid") RunningQuest questdata)
 	{
-		if ((questdata == null) || (questdata.getUser().getId() != getUser().getId()))
+		User user = (User)getUser();
+		if ((questdata == null) || (questdata.getUser().getId() != user.getId()))
 		{
 			addError("Sie k&ouml;nnen dieses Quest nicht abbrechen");
 			redirect();
@@ -158,7 +161,7 @@ public class UeberController extends TemplateController
 		}
 
 		ScriptEngine scriptparser = new ScriptEngineManager().getEngineByName("DSQuestScript");
-		if (!getUser().hasFlag(User.FLAG_SCRIPT_DEBUGGING))
+		if (!user.hasFlag(UserFlag.SCRIPT_DEBUGGING))
 		{
 			scriptparser.getContext().setErrorWriter(new NullLogger());
 		}
@@ -179,7 +182,7 @@ public class UeberController extends TemplateController
 		}
 		final Bindings engineBindings = scriptparser.getContext().getBindings(ScriptContext.ENGINE_SCOPE);
 
-		engineBindings.put("USER", Integer.toString(getUser().getId()));
+		engineBindings.put("USER", Integer.toString(user.getId()));
 		engineBindings.put("QUEST", "r" + questdata.getId());
 		engineBindings.put("_PARAMETERS", "0");
 		try
@@ -509,7 +512,7 @@ public class UeberController extends TemplateController
 				query += " or ally1 = :ally or ally2 = :ally";
 			}
 			// ach haengen wir mal den quest kram dran
-			if (user.hasFlag(User.FLAG_QUEST_BATTLES))
+			if (user.hasFlag(UserFlag.QUEST_BATTLES))
 			{
 				query += " or quest is not null";
 			}

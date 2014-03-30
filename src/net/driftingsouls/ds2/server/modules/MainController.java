@@ -22,6 +22,7 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.entities.ComNetService;
 import net.driftingsouls.ds2.server.entities.GuiHelpText;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ViewMessage;
@@ -128,7 +129,7 @@ public class MainController extends TemplateController
 		t.setVar("SCRIPT_FORUM", SCRIPT_FORUM);
 
 		t.setVar(
-				"user.npc", user.hasFlag(User.FLAG_ORDER_MENU),
+				"user.npc", user.hasFlag(UserFlag.ORDER_MENU),
 				"user.adminSichtbar", hasPermission("admin", "sichtbar"),
 				"admin.showconsole", hasPermission("admin", "AdminConsole"),
 				"user.notizen", user.getUserValue("TBLORDER/main/notizen"));

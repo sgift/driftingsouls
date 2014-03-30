@@ -2213,4 +2213,13 @@ Die Vasudaner haben eine sehr alte Kultur mit mehreren hochentwickelten Sprachen
 	<update type="structure" datum="2014-03-29"><![CDATA[
 		alter table buildings add index building_fk_forschung (techreq), add constraint building_fk_forschung foreign key (techreq) references forschungen (id);
 	]]></update>
+	<update type="structure" datum="2014-03-30"><![CDATA[
+		alter table users drop column imgpath;
+		update users set flags=replace(flags, 'NO_IP_SESS', '');
+		update users set flags=replace(flags, 'NO_AUTOLOGOUT', '');
+		update users set flags=replace(flags, 'NO_AUTOLOGGOUT', '');
+		update users set flags=replace(flags, 'null', '');
+		update users set flags=replace(flags, 'noactionblocking', '');
+		update users set flags=replace(flags, ' ', '');
+	]]></update>
 </updates>

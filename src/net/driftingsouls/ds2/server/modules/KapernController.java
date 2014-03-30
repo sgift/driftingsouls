@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.entities.ComNetChannel;
 import net.driftingsouls.ds2.server.entities.ComNetEntry;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -204,7 +205,7 @@ public class KapernController extends TemplateController
 		StringBuilder msg = new StringBuilder();
 
 		//Trying to steal a ship already costs bounty or one could help another player to get a ship without any penalty
-		if (!targetUser.hasFlag(User.FLAG_NO_AUTO_BOUNTY))
+		if (!targetUser.hasFlag(UserFlag.NO_AUTO_BOUNTY))
 		{
 			BigDecimal account = new BigDecimal(targetUser.getKonto());
 			account = account.movePointLeft(1).setScale(0, RoundingMode.HALF_EVEN);

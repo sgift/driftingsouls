@@ -18,16 +18,17 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
-import java.util.List;
-
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
+
+import java.util.List;
 
 /**
  * <h1>Der Forschungstick.</h1>
@@ -81,7 +82,7 @@ public class ForschungsTick extends TickController {
 				if( forschung.hasFlag( Forschung.FLAG_DROP_NOOB_PROTECTION) && user.isNoob() )
 				{
 					msg += "\n\n[color=red]Durch die Erforschung dieser Technologie stehen sie nicht l&auml;nger unter GCP-Schutz.\nSie k&ouml;nnen nun sowohl angreifen als auch angegriffen werden![/color]";
-					user.setFlag( User.FLAG_NOOB, false );
+					user.setFlag( UserFlag.NOOB, false );
 
 					log("\t"+user.getId()+" steht nicht laenger unter gcp-schutz");
 				}

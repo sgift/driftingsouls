@@ -33,6 +33,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.UserValue;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
 import net.driftingsouls.ds2.server.namegenerator.SchiffsKlassenNamenGenerator;
@@ -63,6 +64,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 import java.math.BigInteger;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -70,6 +72,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 
 /**
@@ -87,83 +90,6 @@ import java.util.TreeSet;
 )
 public class User extends BasicUser {
 	private static final Log log = LogFactory.getLog(User.class);
-
-	/**
-	 * Der Spieler taucht in der Spielerliste nicht auf.
-	 */
-	public static final String FLAG_HIDE = "hide";
-	/**
-	 * Der Spieler kann auch in entmilitarisierte Systeme mit Militaerschiffen springen.
-	 */
-	public static final String FLAG_MILITARY_JUMPS = "miljumps";
-	/**
-	 * Der Spieler hat Zugriff auf das NPC-Menue.
-	 */
-	public static final String FLAG_ORDER_MENU = "ordermenu";
-	/**
-	 * Der Spieler kann auch NPC-Systeme sehen.
-	 */
-	public static final String FLAG_VIEW_SYSTEMS = "viewsystems";
-	/**
-	 * Der Spieler kann sowohl Admin- als auch NPC-Systeme sehen.
-	 */
-	public static final String FLAG_VIEW_ALL_SYSTEMS = "viewallsystems";
-	/**
-	 * Der Spieler kann Schiffsscripte benutzen.
-	 */
-	public static final String FLAG_EXEC_NOTES = "execnotes";
-	/**
-	 * Der Spieler kann Questschlachten leiten (und uebernehmen).
-	 */
-	public static final String FLAG_QUEST_BATTLES = "questbattles";
-	/**
-	 * Der Spieler sieht den Debug-Output des Scriptparsers.
-	 */
-	public static final String FLAG_SCRIPT_DEBUGGING = "scriptdebug";
-	/**
-	 * Der Spieler sieht zusaetzliche Anzeigen der TWs im Kampf.
-	 */
-	public static final String FLAG_KS_DEBUG = "ks_debug";
-	/**
-	 * Dem Spieler koennen keine Schiffe uebergeben werden.
-	 */
-	public static final String FLAG_NO_SHIP_CONSIGN = "noshipconsign";
-	/**
-	 * Der Spieler kann mit Schiffen jederzeit ins System 99 springen.
-	 */
-	public static final String FLAG_NPC_ISLAND = "npc_island";
-	/**
-	 * Sprungpunkte sind fuer den Spieler immer passierbar.
-	 */
-	public static final String FLAG_NO_JUMPNODE_BLOCK = "nojnblock";
-	/**
-	 * Der Spieler kann jedes Schiff, egal welcher Besitzer und wie Gross andocken.
-	 */
-	public static final String FLAG_SUPER_DOCK = "superdock";
-	/**
-	 * Der Spieler ist ein Noob.
-	 */
-	public static final String FLAG_NOOB = "noob";
-	/**
-	 * Die Schiffe des Spielers werden nicht beschaedigt, wenn sie zu wenig Crew haben.
-	 */
-	public static final String FLAG_NO_HULL_DECAY = "nohulldecay";
-	/**
-	 * Die Schiffe des Spielers laufen nicht zur Ratte ueber, wenn zu wenig Geld auf dem Konto ist.
-	 */
-	public static final String FLAG_NO_DESERTEUR = "nodeserteur";
-    /**
-     * Kann alle Kaempfe uebernehmen, egal wer sie gerade kommandiert.
-     */
-    public static final String FLAG_KS_TAKE_BATTLES = "cantakeallbattles";
-    /**
-     * Dieser Spieler setzt nie automatisch Kopfgeld aus.
-     */
-    public static final String FLAG_NO_AUTO_BOUNTY = "noautobounty";
-    /**
-     * Dieser Spieler braucht keine Nahrung.
-     */
-    public static String FLAG_NO_FOOD_CONSUMPTION = "nofoodconsumption";
 
     /**
 	 * Die Arten von Beziehungen zwischen zwei Spielern.
@@ -328,6 +254,10 @@ public class User extends BasicUser {
 	private int vaccount;
 	private int wait4vac;
 
+	@Lob
+	@Column
+	private String flags;
+
 	@Transient
 	private Context context;
 
@@ -360,9 +290,8 @@ public class User extends BasicUser {
 		this.history = history;
 		setEmail(email);
 		setUn(name);
-		setFlag(User.FLAG_NOOB);
-		setSignup((int)Common.time());
-		setImagePath(BasicUser.getDefaultImagePath());
+		setFlag(UserFlag.NOOB);
+		setSignup((int) Common.time());
 		setInactivity(0);
 		setMedals("");
 		setRang(Byte.valueOf("0"));
@@ -958,7 +887,7 @@ public class User extends BasicUser {
 	 * @return <code>true</code>, falls der Spieler noch ein Noob ist
 	 */
 	public boolean isNoob() {
-		return new ConfigService().getValue(WellKnownConfigValue.NOOB_PROTECTION) && hasFlag(FLAG_NOOB);
+		return new ConfigService().getValue(WellKnownConfigValue.NOOB_PROTECTION) && hasFlag(UserFlag.NOOB);
 	}
 
 	/**
@@ -1371,7 +1300,7 @@ public class User extends BasicUser {
 	 */
 	public long[] getFullBalance()
 	{
-		if( !this.hasFlag(FLAG_NO_FOOD_CONSUMPTION) )
+		if( !this.hasFlag(UserFlag.NO_FOOD_CONSUMPTION) )
 		{
 			return new long[] {this.getNahrungBalance(), getReBalance()};
 		}
@@ -1747,5 +1676,146 @@ public class User extends BasicUser {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Liefert den Wert eines User-Values zurueck. Sofern mehrere Eintraege zu diesem
+	 * User-Value existieren wird der aelteste zurueckgegeben.
+	 * User-Values sind die Eintraege, welche sich in der Tabelle user_values befinden.
+	 *
+	 * @param valuename Name des User-Values
+	 * @return Wert des User-Values
+	 */
+	public String getUserValue( String valuename ) {
+		UserValue value = (UserValue)context.getDB()
+				.createQuery("from UserValue where user in (:id,0) and name=:name order by abs(user) desc,id")
+				.setInteger("id", this.getId())
+				.setString("name", valuename)
+				.setMaxResults(1)
+				.uniqueResult();
+
+		if( value == null ) {
+			return "";
+		}
+		return value.getValue();
+	}
+
+	/**
+	 * Liefert alle Werte eines User-Values zurueck.
+	 * User-Values sind die Eintraege, welche sich in der Tabelle user_values befinden.
+	 *
+	 * @param valuename Name des User-Values
+	 * @return Werte des User-Values
+	 */
+	public List<String> getUserValues( String valuename ) {
+		List<UserValue> values = Common.cast(context.getDB()
+				.createQuery("from UserValue where user in (:id,0) and name=:name order by abs(user) desc,id")
+				.setInteger("id", this.getId())
+				.setString("name", valuename)
+				.list());
+
+		return values.stream().map(UserValue::getValue).collect(Collectors.toList());
+	}
+
+	/**
+	 * Setzt ein User-Value auf einen bestimmten Wert. Sollten mehrere Eintraege
+	 * existieren wird nur der aelteste aktualisiert.
+	 * @see #getUserValue(String)
+	 *
+	 * @param valuename Name des User-Values
+	 * @param newvalue neuer Wert des User-Values
+	 */
+	public void setUserValue( String valuename, String newvalue ) {
+		UserValue valuen = (UserValue)context.getDB().createQuery("from UserValue where user=:user and name=:name order by id")
+				.setInteger("user", this.getId())
+				.setString("name", valuename)
+				.uniqueResult();
+
+		// Existiert noch kein Eintag?
+		if( valuen == null ) {
+			valuen = new UserValue(this, valuename, newvalue);
+			context.getDB().persist(valuen);
+		}
+		else {
+			valuen.setValue(newvalue);
+		}
+	}
+
+	/**
+	 * Ueberprueft, ob ein Flag fuer den Benutzer aktiv ist.
+	 * @param flag Das zu ueberpruefende Flag
+	 * @return <code>true</code>, falls das Flag aktiv ist
+	 */
+	public boolean hasFlag( UserFlag flag ) {
+		if( this.attachedUser != null && this.attachedUser instanceof User )
+		{
+			if( ((User)this.attachedUser).hasFlag(flag) )
+			{
+				return true;
+			}
+		}
+		return flags.contains(flag.getFlag());
+
+	}
+
+	/**
+	 * Setzt ein Flag fuer den User entweder auf aktiviert (<code>true</code>)
+	 * oder auf deaktiviert (<code>false</code>).
+	 * @param flag Das zu setzende Flag
+	 * @param on true, falls es aktiviert werden soll
+	 */
+	public void setFlag( UserFlag flag, boolean on ) {
+		String flagstring;
+		if( on ) {
+			if( !"".equals(flags) ) {
+				flagstring = flags+" "+flag.getFlag();
+			}
+			else {
+				flagstring = flag.getFlag();
+			}
+		}
+		else {
+			StringBuilder newflags = new StringBuilder();
+
+			String[] flags = StringUtils.split(this.flags,' ');
+			for( String aflag : flags ) {
+				if( !aflag.equals(flag.getFlag()) ) {
+					if( newflags.length() > 0 ) {
+						newflags.append(" ");
+					}
+					newflags.append(aflag);
+				}
+			}
+			flagstring = newflags.toString();
+		}
+
+		this.flags = flagstring;
+	}
+
+	/**
+	 * Aktiviert ein Flag fuer den User.
+	 * @param flag Das zu aktivierende Flag
+	 */
+	public void setFlag( UserFlag flag ) {
+		setFlag( flag, true );
+	}
+
+
+	/**
+	 * Gibt die Flags des Benutzers zurueck.
+	 * @return Die Flags
+	 */
+	public Set<UserFlag> getFlags()
+	{
+		return UserFlag.parseFlags(flags);
+	}
+
+	/**
+	 * Setzt die Flags des Benutzers.
+	 * @param flags Die Flags
+	 */
+	public void setFlags(Set<UserFlag> flags)
+	{
+		this.flags = flags.stream().map(UserFlag::getFlag).collect(Collectors.joining(" "));
 	}
 }

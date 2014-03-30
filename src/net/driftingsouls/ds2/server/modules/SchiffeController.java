@@ -80,7 +80,8 @@ public class SchiffeController extends TemplateController
 	{
 		if (mode.equals("carg") || mode.equals("norm"))
 		{
-			getUser().setUserValue("TBLORDER/schiffe/mode", mode);
+			User user = (User)getUser();
+			user.setUserValue("TBLORDER/schiffe/mode", mode);
 		}
 
 		redirect();
@@ -96,7 +97,8 @@ public class SchiffeController extends TemplateController
 	{
 		if (Common.inArray(order, new String[]{"id", "name", "type", "sys", "crew", "hull", "e"}))
 		{
-			getUser().setUserValue("TBLORDER/schiffe/order", order);
+			User user = (User)getUser();
+			user.setUserValue("TBLORDER/schiffe/order", order);
 		}
 
 		this.redirect();
@@ -110,7 +112,8 @@ public class SchiffeController extends TemplateController
 	@Action(ActionType.DEFAULT)
 	public void changeJDockedAction(int showLJaeger)
 	{
-		this.getUser().setUserValue("TBLORDER/schiffe/showjaeger", Integer.toString(showLJaeger));
+		User user = (User)getUser();
+		user.setUserValue("TBLORDER/schiffe/showjaeger", Integer.toString(showLJaeger));
 
 		this.redirect();
 	}

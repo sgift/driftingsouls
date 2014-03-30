@@ -44,6 +44,7 @@ import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.Sector;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -883,7 +884,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * @return die Typen-Daten
 	 */
 	public ShipTypeData getTypeData() {
-		return getShipType(this.shiptype, this.modules, false);
+		if( this.modules != null ) {
+			return this.modules;
+		}
+
+		return this.shiptype;
 	}
 
 	private static final int MANGEL_TICKS = 9;
@@ -1170,7 +1175,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * @return Amount of food this ship consumes
 	 */
 	public int getFoodConsumption() {
-		if(this.getOwner().hasFlag(User.FLAG_NO_FOOD_CONSUMPTION) || this.isLanded() || this.isDocked())
+		if(this.getOwner().hasFlag(UserFlag.NO_FOOD_CONSUMPTION) || this.isLanded() || this.isDocked())
 		{
 			return 0;
 		}
@@ -1297,7 +1302,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		//rebuild
 		moduletbl.add(new ModuleEntry(slot, moduleid, data ));
 
-		ShipTypeData type = Ship.getShipType( this.shiptype, null, true );
+		ShipTypeData type = this.shiptype;
 
 		Map<Integer,String[]>slotlist = new HashMap<>();
 		String[] tmpslotlist = StringUtils.splitPreserveAllTokens(type.getTypeModules(), ';');
@@ -1405,7 +1410,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		//check modules
 
 		//rebuild
-		ShipTypeData type = Ship.getShipType( this.shiptype, null, true );
+		ShipTypeData type = this.shiptype;
 
 		Map<Integer,String[]>slotlist = new HashMap<>();
 		String[] tmpslotlist = StringUtils.split(type.getTypeModules(), ';');
@@ -1498,7 +1503,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		//check modules
 
 		//rebuild
-		ShipTypeData type = Ship.getShipType( this.shiptype, null, true );
+		ShipTypeData type = this.shiptype;
 
 		Map<Integer,String[]>slotlist = new HashMap<>();
 		String[] tmpslotlist = StringUtils.split(type.getTypeModules(), ';');
@@ -2435,7 +2440,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 							final Bindings engineBindings = scriptparser.getContext().getBindings(ScriptContext.ENGINE_SCOPE);
 
 							engineBindings.put("_SHIP", this);
-							if( !user.hasFlag(User.FLAG_SCRIPT_DEBUGGING) ) {
+							if( !user.hasFlag(UserFlag.SCRIPT_DEBUGGING) ) {
 								scriptparser.getContext().setErrorWriter(new NullLogger());
 							}
 
@@ -2572,7 +2577,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 			nodetarget = node.getName()+" ("+node.getSystemOut()+")";
 
-			if( (user.getId() > 0) && node.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn( 0 ) && !user.hasFlag(User.FLAG_NO_JUMPNODE_BLOCK) ) {
+			if( (user.getId() > 0) && node.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn( 0 ) && !user.hasFlag(UserFlag.NO_JUMPNODE_BLOCK) ) {
 				outputbuffer.append("<span style=\"color:red\">Die GCP hat diesen Sprungpunkt f&uuml;r Kolonisten gesperrt</span><br />\n");
 				return true;
 			}
@@ -2764,7 +2769,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			if( !knode ) {
 				JumpNode node = (JumpNode)nodeObj;
 
-				if( node.isWeaponBlock() && !user.hasFlag(User.FLAG_MILITARY_JUMPS) ) {
+				if( node.isWeaponBlock() && !user.hasFlag(UserFlag.MILITARY_JUMPS) ) {
 					//Schiff ueberprfen
 					if( shiptype.isMilitary() ) {
 						outputbuffer.append("<span style=\"color:red\">").append(ship.getName()).append(" (").append(ship.getId()).append("): Die GCP verwehrt ihrem Kriegsschiff den Einflug nach ").append(node.getName()).append("</span><br />\n");
@@ -3074,7 +3079,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 
-		boolean superdock = owner.hasFlag(User.FLAG_SUPER_DOCK);
+		boolean superdock = owner.hasFlag(UserFlag.SUPER_DOCK);
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		StringBuilder outputbuffer = MESSAGE.get();
@@ -3516,7 +3521,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			return true;
 		}
 
-		if( newowner.hasFlag( User.FLAG_NO_SHIP_CONSIGN ) ) {
+		if( newowner.hasFlag( UserFlag.NO_SHIP_CONSIGN ) ) {
 			MESSAGE.get().append("Sie k&ouml;nnen diesem Spieler keine Schiffe &uuml;bergeben");
 			return true;
 		}
@@ -3638,33 +3643,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	public static ShipTypeData getShipType( int shiptype ) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		ShipType type = (ShipType)db.get(ShipType.class, shiptype);
-		if(type != null)
-		{
-			return getShipType(type, null, false);
-		}
-		return null;
-	}
-
-	private static ShipTypeData getShipType( ShipType type, ShipModules shipdata, boolean plaindata ) {
-		if( !plaindata ) {
-			String picture;
-			if( shipdata == null ) {
-				picture = type.getPicture();
-			}
-			else {
-				picture = shipdata.getPicture();
-			}
-
-			return new ShipTypeDataPictureWrapper(shipdata != null ? shipdata : type,
-					!type.getPicture().equals(picture));
-		}
-
-		if( shipdata != null ) {
-			return shipdata;
-		}
-
-		return type;
+		return (ShipType)db.get(ShipType.class, shiptype);
 	}
 
 	/**
