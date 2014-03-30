@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.ships;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Diverse Funktionen rund um Schiffstypen.
@@ -214,6 +215,15 @@ public class ShipTypes {
 			return "";
 		}
 		return shipTypeFlagDescs.get(flag);
+	}
+
+	/**
+	 * Gibt alle bekannten Schiffstypenflags zurueck.
+	 * @return Die Flags
+	 */
+	public static Set<String> getShipTypeFlags()
+	{
+		return shipTypeFlagNames.keySet();
 	}
 		
 	/**
