@@ -284,23 +284,14 @@ public class UserProfileController extends TemplateController
 	{
 		t.setBlock("_USERPROFILE", "medals.listitem", "medals.list");
 
-		if (ausgewaehlterBenutzer.getMedals().length() != 0)
+		int idx = 0;
+		for( Medal medal : ausgewaehlterBenutzer.getMedals() )
 		{
-			int[] medals = Common.explodeToInt(";", ausgewaehlterBenutzer.getMedals());
+			t.setVar("medal.index", idx++,
+					"medal.image", medal.getImage(Medal.IMAGE_NORMAL),
+					"medal.image.highlight", medal.getImage(Medal.IMAGE_HIGHLIGHT));
 
-			for (int i = 0; i < medals.length; i++)
-			{
-				int medal = medals[i];
-				if (Medals.get().medal(medal) == null)
-				{
-					continue;
-				}
-				t.setVar("medal.index", i,
-						"medal.image", Medals.get().medal(medal).getImage(Medal.IMAGE_NORMAL),
-						"medal.image.highlight", Medals.get().medal(medal).getImage(Medal.IMAGE_HIGHLIGHT));
-
-				t.parse("medals.list", "medals.listitem", true);
-			}
+			t.parse("medals.list", "medals.listitem", true);
 		}
 	}
 

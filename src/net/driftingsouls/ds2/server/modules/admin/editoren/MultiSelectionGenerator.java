@@ -197,6 +197,17 @@ public class MultiSelectionGenerator<E, T> implements CustomFieldGenerator<E>
 		{
 			selected = (Serializable)value;
 		}
+		else if( value != null ) {
+			// Workaround fuer per XML konfigurierte Objekte
+			try
+			{
+				return (Serializable)value.getClass().getMethod("getId").invoke(value);
+			}
+			catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e)
+			{
+				// Ignore
+			}
+		}
 		return selected;
 	}
 }

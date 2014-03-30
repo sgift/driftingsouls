@@ -49,7 +49,7 @@ public class Medals {
 	}
 
 	private void addMedal( Medal mmedal ) {
-		list.put(mmedal.getID(), mmedal);
+		list.put(mmedal.getId(), mmedal);
 	}
 	
 	private void addRang( Rang mrang ) {

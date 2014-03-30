@@ -22,6 +22,7 @@ import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.comm.Ordner;
+import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.config.Rang;
 import net.driftingsouls.ds2.server.config.Rassen;
@@ -64,7 +65,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 import java.math.BigInteger;
-import java.util.EnumSet;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -293,22 +294,22 @@ public class User extends BasicUser {
 		setFlag(UserFlag.NOOB);
 		setSignup((int) Common.time());
 		setInactivity(0);
-		setMedals("");
-		setRang(Byte.valueOf("0"));
-		setKonto(BigInteger.valueOf(0));
+		this.medals = "";
+		this.rang = (int) Byte.valueOf("0");
+		this.konto = BigInteger.valueOf(0);
 		setLoginFailedCount(0);
 		setAccesslevel(0);
-		setNpcPunkte(0);
+		this.npcpunkte = 0;
 		setNickname("Kolonist");
 		setPlainname("Kolonist");
-		setNpcOrderLocation("");
+		this.npcorderloc = "";
 		setDisabled(false);
-		setVacationCount(0);
-		setWait4VacationCount(0);
-		setLostBattles(Short.valueOf("0"));
-		setLostShips(0);
-		setWonBattles(Short.valueOf("0"));
-		setDestroyedShips(0);
+		this.vaccount = 0;
+		this.wait4vac = 0;
+		this.lostBattles = Short.valueOf("0");
+		this.lostShips = 0;
+		this.wonBattles = Short.valueOf("0");
+		this.destroyedShips = 0;
 		int newUserId = (Integer)db.createQuery("SELECT max(id) from User").uniqueResult();
 		newUserId++;
 		setId(newUserId);
@@ -911,16 +912,18 @@ public class User extends BasicUser {
 	 * Die einzelnen Orden-IDs sind mittels ; verbunden
 	 * @return Die Liste aller Orden
 	 */
-	public String getMedals() {
-		return this.medals;
+	public Set<Medal> getMedals() {
+		int[] medals = Common.explodeToInt(";", this.medals);
+
+		return Arrays.stream(medals).boxed().map((id) -> Medals.get().medal(id)).filter((m) -> m != null).collect(Collectors.toSet());
 	}
 
 	/**
 	 * Setzt die Liste der Orden des Spielers.
 	 * @param medals Eine mittels ; separierte Liste von Orden
 	 */
-	public void setMedals( String medals ) {
-		this.medals = medals;
+	public void setMedals( Set<Medal> medals ) {
+		this.medals = medals.stream().map((m) -> Integer.toString(m.getId())).collect(Collectors.joining(";"));
 	}
 
 	/**

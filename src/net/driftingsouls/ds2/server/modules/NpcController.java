@@ -258,8 +258,9 @@ public class NpcController extends AngularController
 			return ViewMessage.failure("Sie müssen einen Grund angeben");
 		}
 
-		String medallist = edituser.getMedals();
-		edituser.setMedals(medallist.trim().length() > 0 ? medallist + ";" + medal : Integer.toString(medal));
+		Set<Medal> medallist = edituser.getMedals();
+		medallist.add(Medals.get().medal(medal));
+		edituser.setMedals(medallist);
 
 		int ticks = getContext().get(ContextCommon.class).getTick();
 

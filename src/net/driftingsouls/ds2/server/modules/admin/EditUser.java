@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.entities.User;
@@ -62,11 +63,11 @@ public class EditUser extends AbstractEditPlugin8<User>
 		form.field("Rang", Integer.class, User::getRang, User::setRang).withOptions(Medals.get().raenge());
 		form.textArea("History", User::getHistory, User::setHistory);
 		form.field("NPC-Punkte", Integer.class, User::getNpcPunkte, User::setNpcPunkte);
-		form.field("Medaillen", String.class, User::getMedals, User::setMedals);
+		form.multiSelection("Medaillen", Medal.class, User::getMedals, User::setMedals)
+				.withOptions(Medals.get().medals().values().stream().collect(Collectors.toMap(Medal::getId, Medal::getName)));
 		form.field("Vac-Punkte", Integer.class, User::getVacpoints, User::setVacpoints);
 		form.field("Spezialisierungspunkte", Integer.class, User::getSpecializationPoints, User::setSpecializationPoints);
 		form.field("Zugang sperren", Boolean.class, User::getDisabled, User::setDisabled);
-		form.label("Vorhandene Medallien", (u) -> Medals.get().medals().values().stream().map((medal) -> medal.getID() + "=" + medal.getName()).collect(Collectors.joining(",")));
 
 		form.postUpdateTask("Vacation-Markierung setzen/entfernen", this::doVacation);
 	}

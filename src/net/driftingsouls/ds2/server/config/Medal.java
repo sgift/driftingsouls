@@ -87,7 +87,7 @@ public class Medal {
 	 * Gibt die ID des Ordens zurueck.
 	 * @return die ID des Ordens
 	 */
-	public int getID() {
+	public int getId() {
 		return id;	
 	}
 	
@@ -115,5 +115,15 @@ public class Medal {
 			return imageSmall;	
 		}
 		return null;
+	}
+
+	/**
+	 * Konvertiert die angegebene ID in einen Orden.
+	 * @param medalId Die ID
+	 * @return Der Orden oder <code>null</code>
+	 */
+	public static Medal valueOf(String medalId)
+	{
+		return Medals.get().medal(Integer.parseInt(medalId));
 	}
 }
