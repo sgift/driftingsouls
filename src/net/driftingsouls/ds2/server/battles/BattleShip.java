@@ -26,7 +26,7 @@ import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import org.hibernate.Session;
 import org.hibernate.annotations.Cache;
@@ -415,7 +415,7 @@ public class BattleShip {
     public int calcPossibleDamage()
     {
         int possibleDamage = Integer.MAX_VALUE;
-        if(getTypeData().hasFlag(ShipTypes.SF_ZERSTOERERPANZERUNG))
+        if(getTypeData().hasFlag(ShipTypeFlag.ZERSTOERERPANZERUNG))
         {
             possibleDamage = (int)(getHull() * 0.33 - (getShip().getHull() - getHull()));
         }

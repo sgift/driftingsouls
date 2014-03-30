@@ -18,27 +18,28 @@
  */
 package net.driftingsouls.ds2.server.werften;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-
-import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
+import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.hibernate.annotations.ForeignKey;
 import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 
 /**
  * Repraesentiert eine Werft auf einem Schiff in DS.
@@ -331,7 +332,7 @@ public class ShipWerft extends WerftObject {
 				.iterate().next()).intValue();
 			int maxoffis = 1;
 			ShipTypeData shiptype = this.ship.getTypeData();
-			if( shiptype.hasFlag(ShipTypes.SF_OFFITRANSPORT) ) {
+			if( shiptype.hasFlag(ShipTypeFlag.OFFITRANSPORT) ) {
 				maxoffis = shiptype.getCrew();
 			}
 			if( officount >= maxoffis ) {
@@ -422,7 +423,7 @@ public class ShipWerft extends WerftObject {
 	}
 
 	@Override
-	public boolean repairShip(Ship ship, boolean testonly) {
+	public boolean repairShip(@Nonnull Ship ship, boolean testonly) {
 		boolean result = super.repairShip(ship, testonly);
 
 		this.ship.recalculateShipStatus();
@@ -437,14 +438,14 @@ public class ShipWerft extends WerftObject {
 	}
 
 	@Override
-	public void addModule( @NotNull Ship ship, int slot, int item ) {
+	public void addModule(@Nonnull Ship ship, int slot, int item ) {
 		super.addModule( ship, slot, item );
 
 		this.ship.recalculateShipStatus();
 	}
 
 	@Override
-	public boolean dismantleShip(Ship ship, boolean testonly) {
+	public boolean dismantleShip(@Nonnull Ship ship, boolean testonly) {
 		boolean result = super.dismantleShip(ship, testonly);
 
 		this.ship.recalculateShipStatus();
@@ -471,7 +472,7 @@ public class ShipWerft extends WerftObject {
 
 	@Override
 	public boolean isLinkableWerft() {
-		return this.ship.getTypeData().hasFlag(ShipTypes.SF_WERFTKOMPLEX);
+		return this.ship.getTypeData().hasFlag(ShipTypeFlag.WERFTKOMPLEX);
 	}
 
 	@Override
@@ -480,7 +481,7 @@ public class ShipWerft extends WerftObject {
 	}
 
 	@Override
-	public void addToKomplex(WerftKomplex linkedWerft) {
+	public void addToKomplex(@Nonnull WerftKomplex linkedWerft) {
 		super.addToKomplex(linkedWerft);
 
 		// Falls notwendig den Link auf die Basis entfernen - in einem Komplex darf eine Basis
@@ -509,7 +510,7 @@ public class ShipWerft extends WerftObject {
 	}
 
 	@Override
-	public void createKomplexWithWerft(WerftObject werft) {
+	public void createKomplexWithWerft(@Nonnull WerftObject werft) {
 		super.createKomplexWithWerft(werft);
 
 		// Falls notwendig den Link auf die Basis entfernen - in einem Komplex darf eine Basis

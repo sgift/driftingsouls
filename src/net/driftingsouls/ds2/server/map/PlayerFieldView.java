@@ -14,7 +14,7 @@ import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.hibernate.Session;
 
 import java.util.ArrayList;
@@ -196,7 +196,7 @@ public class PlayerFieldView implements FieldView
 			{
 				if (!shipInSector)
 				{
-					if (type.hasFlag(ShipTypes.SF_SEHR_KLEIN))
+					if (type.hasFlag(ShipTypeFlag.SEHR_KLEIN))
 					{
 						continue;
 					}
@@ -204,7 +204,7 @@ public class PlayerFieldView implements FieldView
 					if (viewableShip.isDocked())
 					{
 						Ship mship = viewableShip.getBaseShip();
-						if (mship.getTypeData().hasFlag(ShipTypes.SF_SEHR_KLEIN))
+						if (mship.getTypeData().hasFlag(ShipTypeFlag.SEHR_KLEIN))
 						{
 							continue;
 						}

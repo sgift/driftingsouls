@@ -18,11 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.util.Iterator;
-import java.util.List;
-
-import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -36,7 +33,10 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
+
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Transferiert Offiziere von und zu Schiffen/Basen.
@@ -177,7 +177,7 @@ public class TCController extends TemplateController
 
 		// Check ob noch fuer einen weiteren Offi platz ist
 		int maxoffis = 1;
-		if (tarShipType.hasFlag(ShipTypes.SF_OFFITRANSPORT))
+		if (tarShipType.hasFlag(ShipTypeFlag.OFFITRANSPORT))
 		{
 			maxoffis = tarShipType.getCrew();
 		}
@@ -501,7 +501,7 @@ public class TCController extends TemplateController
 			).longValue();
 
 			int maxoffis = 1;
-			if (tarShipType.hasFlag(ShipTypes.SF_OFFITRANSPORT))
+			if (tarShipType.hasFlag(ShipTypeFlag.OFFITRANSPORT))
 			{
 				maxoffis = tarShipType.getCrew();
 			}

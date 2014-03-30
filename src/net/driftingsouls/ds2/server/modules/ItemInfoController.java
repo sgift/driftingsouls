@@ -56,14 +56,16 @@ import net.driftingsouls.ds2.server.modules.viewmodels.ItemViewModel;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeChangeset;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Zeigt Informationen zu Items an.
@@ -272,15 +274,8 @@ public class ItemInfoController extends TemplateController
 
 		if (mods.getFlags() != null)
 		{
-			String[] flags = StringUtils.split(mods.getFlags(), ' ');
-			for (int i = 0; i < flags.length; i++)
-			{
-				if (i > 0)
-				{
-					effecttext.append("<br />\n");
-				}
-				effecttext.append(ShipTypes.getShipTypeFlagName(flags[i]));
-			}
+			EnumSet<ShipTypeFlag> flags = ShipTypeFlag.parseFlags(mods.getFlags());
+			effecttext.append(flags.stream().map(ShipTypeFlag::getLabel).collect(Collectors.joining("<br />")));
 			effecttext.append("<br />\n");
 		}
 

@@ -34,7 +34,7 @@ import net.driftingsouls.ds2.server.modules.viewmodels.UserViewModel;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.apache.commons.io.IOUtils;
 import org.hibernate.Session;
 
@@ -255,7 +255,7 @@ public class MapController extends AngularController
 													   "where (s.status like :flags or sm.flags like :flags or st.flags like :flags) and s.owner.id<0 and s.owner.ally is not null " +
 													   "group by s.system,s.owner.ally " +
 													   "order by s.system,count(*)")
-										  .setParameter("flags", "%" + ShipTypes.SF_TRADEPOST + "%")
+										  .setParameter("flags", "%" + ShipTypeFlag.TRADEPOST.getFlag() + "%")
 										  .list());
 
 		Map<Integer, Ally> systeme = new HashMap<>();

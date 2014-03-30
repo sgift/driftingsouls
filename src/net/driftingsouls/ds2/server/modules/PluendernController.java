@@ -36,7 +36,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 
 import java.util.Map;
 
@@ -140,12 +140,12 @@ public class PluendernController extends TemplateController
 			throw new ValidierungException("Feindliches Schiff nicht bewegungsunf&auml;hig", errorurl);
 		}
 
-		if (shipTypeTo.hasFlag(ShipTypes.SF_KEIN_TRANSFER))
+		if (shipTypeTo.hasFlag(ShipTypeFlag.KEIN_TRANSFER))
 		{
 			throw new ValidierungException("Sie k&ouml;nnen keine Waren zu oder von diesem Schiff transferieren", errorurl);
 		}
 
-		if (shipTypeTo.hasFlag(ShipTypes.SF_NICHT_PLUENDERBAR))
+		if (shipTypeTo.hasFlag(ShipTypeFlag.NICHT_PLUENDERBAR))
 		{
 			throw new ValidierungException("Sie k&ouml;nnen keine Waren von diesem Schiff pl&uuml;ndern", errorurl);
 		}
@@ -156,7 +156,7 @@ public class PluendernController extends TemplateController
 		}
 
 		ShipTypeData shipTypeFrom = eigenesSchiff.getTypeData();
-		if (shipTypeFrom.hasFlag(ShipTypes.SF_KEIN_TRANSFER))
+		if (shipTypeFrom.hasFlag(ShipTypeFlag.KEIN_TRANSFER))
 		{
 			throw new ValidierungException("Sie k&ouml;nnen keine Waren zu oder von ihrem Schiff transferieren", errorurl);
 		}
@@ -358,7 +358,7 @@ public class PluendernController extends TemplateController
 
 		// Falls das Schiff instabil ist, dann diesem den "destory"-Status geben,
 		// damit der Schiffstick dieses zerstoert
-		if ((totaltransferfcount > 0) && shipTypeTo.hasFlag(ShipTypes.SF_INSTABIL))
+		if ((totaltransferfcount > 0) && shipTypeTo.hasFlag(ShipTypeFlag.INSTABIL))
 		{
 			t.setVar("toship.isinstabil", 1);
 

@@ -18,17 +18,16 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Zeigt das Menue zum Aufladen der Schilde an.
@@ -40,14 +39,15 @@ public class KSMenuShieldsAction extends BasicKSMenuAction {
 	public Result validate(Battle battle) {
 		boolean showshields = false;
 		List<BattleShip> ownShips = battle.getOwnShips();
-		for( int i=0; i < ownShips.size(); i++ ) {
-			BattleShip aship = ownShips.get(i);
+		for (BattleShip aship : ownShips)
+		{
 			ShipTypeData ashiptype = aship.getTypeData();
-			
-			if( (ashiptype.getShields() > 0) && (aship.getShip().getShields() < ashiptype.getShields()) ) {
+
+			if ((ashiptype.getShields() > 0) && (aship.getShip().getShields() < ashiptype.getShields()))
+			{
 				showshields = true;
 				break;
-			}	
+			}
 		}
 
 		//Schilde aufladen
@@ -81,7 +81,7 @@ public class KSMenuShieldsAction extends BasicKSMenuAction {
 		}
 				
 		int shieldidlist = 0;
-		Map<ShipClasses,Integer> shieldclasslist = new HashMap<ShipClasses,Integer>();
+		Map<ShipClasses,Integer> shieldclasslist = new HashMap<>();
 		
 		List<BattleShip> ownShips = battle.getOwnShips();
 		for (BattleShip aship : ownShips)

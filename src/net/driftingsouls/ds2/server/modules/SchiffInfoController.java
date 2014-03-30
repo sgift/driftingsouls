@@ -40,15 +40,15 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipType;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Session;
 
-import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Die Schiffstypen-Infos.
@@ -310,16 +310,11 @@ public class SchiffInfoController extends TemplateController
 		t.setBlock("_SCHIFFINFO", "shiptypeflags.listitem", "shiptypeflags.list");
 		t.setVar("shiptypeflags.list", "");
 
-		String[] flaglist = Ship.getShipTypeFlagList(ship);
-		Arrays.sort(flaglist);
-		for (String aFlaglist : flaglist)
+		Set<ShipTypeFlag> flaglist = new TreeSet<>(ship.getFlags());
+		for (ShipTypeFlag aFlaglist : flaglist)
 		{
-			if (aFlaglist.length() == 0)
-			{
-				continue;
-			}
-			t.setVar("shiptypeflag.name", ShipTypes.getShipTypeFlagName(aFlaglist),
-					"shiptypeflag.description", ShipTypes.getShipTypeFlagDescription(aFlaglist));
+			t.setVar("shiptypeflag.name", aFlaglist.getLabel(),
+					"shiptypeflag.description", aFlaglist.getDescription());
 
 			t.parse("shiptypeflags.list", "shiptypeflags.listitem", true);
 		}

@@ -18,14 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -41,7 +33,15 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Laesst den Benutzer fuer eine ammobasierte Waffe die gewuenschte Munition auswaehlen (sofern
@@ -94,20 +94,21 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 		
 		ShipTypeData ownShipType = ownShip.getTypeData();
 		
-		if( (enemyShip.getAction() & Battle.BS_FLUCHT) != 0 &&	!ownShipType.hasFlag(ShipTypes.SF_ABFANGEN) ) {
+		if( (enemyShip.getAction() & Battle.BS_FLUCHT) != 0 &&	!ownShipType.hasFlag(ShipTypeFlag.ABFANGEN) ) {
 			return Result.ERROR;
 		}
 		
 		boolean gotone = true;			
-		if( ownShipType.hasFlag(ShipTypes.SF_DROHNE) ) {
+		if( ownShipType.hasFlag(ShipTypeFlag.DROHNE) ) {
 			gotone = false;
 			List<BattleShip> ownShips = battle.getOwnShips();
-			for( int i=0; i < ownShips.size(); i++ ) {
-				BattleShip aship = ownShips.get(i);
+			for (BattleShip aship : ownShips)
+			{
 				ShipTypeData ashiptype = aship.getTypeData();
-				if( ashiptype.hasFlag(ShipTypes.SF_DROHNEN_CONTROLLER) ) {
+				if (ashiptype.hasFlag(ShipTypeFlag.DROHNEN_CONTROLLER))
+				{
 					gotone = true;
-					break;	
+					break;
 				}
 			}
 		}

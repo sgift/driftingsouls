@@ -18,11 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -30,7 +25,12 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Zeigt das Menue fuer die verschiedenen Fluchtaktionen.
@@ -76,14 +76,15 @@ public class KSMenuFluchtAction extends BasicKSMenuAction {
 		
 		if( possible ) {
 			boolean gotone = false;
-			if( ownShipType.hasFlag(ShipTypes.SF_DROHNE) ) {
+			if( ownShipType.hasFlag(ShipTypeFlag.DROHNE) ) {
 				List<BattleShip> ownShips = battle.getOwnShips();
-				for( int i=0; i < ownShips.size(); i++ ) {
-					BattleShip aship = ownShips.get(i);
+				for (BattleShip aship : ownShips)
+				{
 					ShipTypeData ashiptype = aship.getTypeData();
-					if( ashiptype.hasFlag(ShipTypes.SF_DROHNEN_CONTROLLER) ) {
+					if (ashiptype.hasFlag(ShipTypeFlag.DROHNEN_CONTROLLER))
+					{
 						gotone = true;
-						break;	
+						break;
 					}
 				}
 			}

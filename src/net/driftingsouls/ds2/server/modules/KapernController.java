@@ -43,7 +43,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import net.driftingsouls.ds2.server.units.TransientUnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo.Crew;
@@ -193,7 +193,7 @@ public class KapernController extends TemplateController
 
 		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", eigenesSchiff.getId());
 
-		if (zielSchiff.getTypeData().hasFlag(ShipTypes.SF_NICHT_KAPERBAR))
+		if (zielSchiff.getTypeData().hasFlag(ShipTypeFlag.NICHT_KAPERBAR))
 		{
 			throw new ValidierungException("Sie k&ouml;nnen dieses Schiff nicht kapern", errorurl);
 		}
@@ -562,7 +562,7 @@ public class KapernController extends TemplateController
 			{
 				t.setVar("targetship.status", "verlassen",
 						"menu.showpluendern", 1,
-						"menu.showkapern", !zielSchiff.getTypeData().hasFlag(ShipTypes.SF_NICHT_KAPERBAR));
+						"menu.showkapern", !zielSchiff.getTypeData().hasFlag(ShipTypeFlag.NICHT_KAPERBAR));
 			}
 			else
 			{
@@ -573,7 +573,7 @@ public class KapernController extends TemplateController
 		{
 			t.setVar("targetship.status", "bewegungsunf&auml;hig",
 					"menu.showpluendern", (zielSchiff.getCrew() == 0),
-					"menu.showkapern", !zielSchiff.getTypeData().hasFlag(ShipTypes.SF_NICHT_KAPERBAR));
+					"menu.showkapern", !zielSchiff.getTypeData().hasFlag(ShipTypeFlag.NICHT_KAPERBAR));
 		}
 	}
 }

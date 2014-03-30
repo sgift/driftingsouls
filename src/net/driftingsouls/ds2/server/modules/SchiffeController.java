@@ -18,13 +18,13 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.entities.Nebel;
+import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -37,7 +37,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitType;
 import net.driftingsouls.ds2.server.werften.WerftObject;
@@ -394,7 +394,7 @@ public class SchiffeController extends TemplateController
 						"ship.crew", Common.ln(ship.getCrew()),
 						"ship.nahrungcargo", Common.ln(ship.getNahrungCargo()),
 						"ship.mangel_nahrung", (ship.getStatus().contains("mangel_nahrung")),
-						"ship.versorger", shiptype.hasFlag(ShipTypes.SF_VERSORGER),
+						"ship.versorger", shiptype.hasFlag(ShipTypeFlag.VERSORGER),
 						"ship.feedingstatus", (ship.getEinstellungen().isFeeding() && !ship.getEinstellungen().isAllyFeeding()) ? 1 : (ship.getEinstellungen().isFeeding()) ? 2 : 3,
 						"ship.unitspace", Common.ln(shiptype.getUnitSpace()),
 						"ship.alarm", alarms[ship.getAlarm()],

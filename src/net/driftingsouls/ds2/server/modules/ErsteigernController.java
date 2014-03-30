@@ -60,7 +60,7 @@ import net.driftingsouls.ds2.server.ships.JumpNodeRouter;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -2253,7 +2253,7 @@ public class ErsteigernController extends TemplateController
 
 			if (colonizer == null || !colonizer.getOwner().equals(user)
 					|| !colonizer.getLocation().equals(base.getLocation())
-					|| !colonizer.getTypeData().hasFlag(ShipTypes.SF_COLONIZER))
+					|| !colonizer.getTypeData().hasFlag(ShipTypeFlag.COLONIZER))
 			{
 				addError("Der ausgew&auml;hlte Colonizer ist ung&uuml;ltig");
 				redirect();
@@ -2403,9 +2403,12 @@ public class ErsteigernController extends TemplateController
 				.createQuery(
 						"from Ship where shiptype.flags like :colonizer and "
 								+ "owner=:user and system=:baseSystem and x=:baseX AND y=:baseY order by id")
-				.setString("colonizer", ShipTypes.SF_COLONIZER).setParameter("user", user)
-				.setInteger("baseSystem", selectedBase.getSystem()).setInteger("baseX",
-						selectedBase.getX()).setInteger("baseY", selectedBase.getY()).list();
+				.setString("colonizer", ShipTypeFlag.COLONIZER.getFlag())
+				.setParameter("user", user)
+				.setInteger("baseSystem", selectedBase.getSystem())
+				.setInteger("baseX", selectedBase.getX())
+				.setInteger("baseY", selectedBase.getY())
+				.list();
 
 		User factionUser = (User) db.get(User.class, faction);
 		for (Ship acolonizer : colonizers)

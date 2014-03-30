@@ -18,7 +18,9 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
+import javax.annotation.Nonnull;
 import java.math.BigInteger;
+import java.util.EnumSet;
 
 /**
  * Interface fuer Schiffstypendaten eines Schiffes.
@@ -90,14 +92,14 @@ public interface ShipTypeData extends Cloneable {
 	 * Gibt die Flags zurueck.
 	 * @return Die Flags
 	 */
-	public String getFlags();
-	
+	public EnumSet<ShipTypeFlag> getFlags();
+
 	/**
 	 * Prueft, ob das angegebene Flag gesetzt ist.
 	 * @param flag Das ShipType-Flag
 	 * @return <code>true</code>, falls das Flag gesetzt ist
 	 */
-	public boolean hasFlag(String flag);
+	public boolean hasFlag(@Nonnull ShipTypeFlag flag);
 
 	/**
 	 * Gibt zurueck, ab wievielen Schiffen in der Anzeige Gruppen gebildet werden sollen.

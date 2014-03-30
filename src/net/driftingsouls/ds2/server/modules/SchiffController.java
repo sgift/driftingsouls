@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.ContextCommon;
-import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.Resources;
@@ -28,6 +27,7 @@ import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleItemModule;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Weapons;
+import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -46,7 +46,7 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -57,12 +57,14 @@ import javax.script.ScriptEngine;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Die Schiffsansicht.
@@ -148,7 +150,7 @@ public class SchiffController extends TemplateController
 			pluginMapper.put("werft", getPluginByName("WerftDefault"));
 		}
 
-		if (shiptype.hasFlag(ShipTypes.SF_JUMPDRIVE_SHIVAN))
+		if (shiptype.hasFlag(ShipTypeFlag.JUMPDRIVE_SHIVAN))
 		{
 			pluginMapper.put("jumpdrive", getPluginByName("JumpdriveShivan"));
 		}
@@ -1178,19 +1180,11 @@ public class SchiffController extends TemplateController
 			}
 
 			// Flags
-			String[] newflaglist = StringUtils.split(type.getFlags(), ' ');
-			for (String aNewflaglist : newflaglist)
-			{
-				if (aNewflaglist.equals(""))
-				{
-					continue;
-				}
-
-				if (!basetype.hasFlag(aNewflaglist))
-				{
-					tooltiplines.add("<span class='nobr' style='color:green'>" + ShipTypes.getShipTypeFlagName(aNewflaglist) + "</span><br />");
-				}
-			}
+			EnumSet<ShipTypeFlag> newflaglist = type.getFlags();
+			tooltiplines.addAll(newflaglist.stream()
+					.filter(aNewflaglist -> !basetype.hasFlag(aNewflaglist))
+					.map(aNewflaglist -> "<span class='nobr' style='color:green'>" + aNewflaglist.getLabel() + "</span><br />")
+					.collect(Collectors.toList()));
 
 			StringBuilder tooltiptext = new StringBuilder(100);
 			if (tooltiplines.size() > 15)

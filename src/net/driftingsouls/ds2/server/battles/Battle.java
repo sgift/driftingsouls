@@ -40,7 +40,7 @@ import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipLost;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -404,7 +404,7 @@ public class Battle implements Locatable
             for (BattleShip aship : added) {
                 ShipTypeData type = aship.getTypeData();
 
-                if (!type.hasFlag(ShipTypes.SF_SECONDROW)) {
+                if (!type.hasFlag(ShipTypeFlag.SECONDROW)) {
                     continue;
                 }
 
@@ -775,7 +775,7 @@ public class Battle implements Locatable
                 }
             }
 
-            if (shiptype.hasFlag(ShipTypes.SF_SECONDROW)) {
+            if (shiptype.hasFlag(ShipTypeFlag.SECONDROW)) {
                 secondRowShips.add(battleShip);
             }
             else
@@ -1162,8 +1162,8 @@ public class Battle implements Locatable
 
 
                 // Das neue Schiff in die Liste der eigenen Schiffe eintragen
-                if (!shiptype.hasFlag(ShipTypes.SF_INSTANT_BATTLE_ENTER) &&
-                        !stype.hasFlag(ShipTypes.SF_INSTANT_BATTLE_ENTER)) {
+                if (!shiptype.hasFlag(ShipTypeFlag.INSTANT_BATTLE_ENTER) &&
+                        !stype.hasFlag(ShipTypeFlag.INSTANT_BATTLE_ENTER)) {
                     sid2Action = sid2Action | BS_JOIN;
                 }
 
@@ -1183,7 +1183,7 @@ public class Battle implements Locatable
             int sidAction = 0;
 
             // Das neue Schiff in die Liste der eigenen Schiffe eintragen
-            if (!shiptype.hasFlag(ShipTypes.SF_INSTANT_BATTLE_ENTER)) {
+            if (!shiptype.hasFlag(ShipTypeFlag.INSTANT_BATTLE_ENTER)) {
                 sidAction = BS_JOIN;
             }
 
@@ -1614,7 +1614,7 @@ public class Battle implements Locatable
 
                 if ((ship.getAction() & BS_JOIN) != 0) {
                     ShipTypeData ashipType = ship.getTypeData();
-					if (ashipType.hasFlag(ShipTypes.SF_SECONDROW)) {
+					if (ashipType.hasFlag(ShipTypeFlag.SECONDROW)) {
 						shipsSecond.add(ship);
 					}
                     ship.setAction(ship.getAction() ^ BS_JOIN);
@@ -2415,7 +2415,7 @@ public class Battle implements Locatable
                 List<Ship> landedShips = ship.getShip().getLandedShips();
                 for(Ship landedShip: landedShips)
                 {
-                    if(!landedShip.getTypeData().hasFlag(ShipTypes.SF_SECONDROW))
+                    if(!landedShip.getTypeData().hasFlag(ShipTypeFlag.SECONDROW))
                     {
                         continue;
                     }

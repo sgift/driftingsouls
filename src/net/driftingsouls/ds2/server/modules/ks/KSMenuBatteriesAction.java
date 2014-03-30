@@ -18,11 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -30,7 +25,11 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Zeigt das Menue fuer Batterieentladeaktionen an.
@@ -43,16 +42,17 @@ public class KSMenuBatteriesAction extends BasicKSMenuAction {
 		int battships = 0;
 		
 		List<BattleShip> ownShips = battle.getOwnShips();
-		for( int i=0; i < ownShips.size(); i++ ) {
-			BattleShip aship = ownShips.get(i);
-			
+		for (BattleShip aship : ownShips)
+		{
 			ShipTypeData ashiptype = aship.getTypeData();
-			if( aship.getShip().getEnergy() >= ashiptype.getEps() ) {
+			if (aship.getShip().getEnergy() >= ashiptype.getEps())
+			{
 				continue;
 			}
-			
+
 			Cargo mycargo = aship.getCargo();
-			if( mycargo.hasResource( Resources.BATTERIEN ) ) {
+			if (mycargo.hasResource(Resources.BATTERIEN))
+			{
 				battships++;
 				break;
 			}
@@ -83,7 +83,7 @@ public class KSMenuBatteriesAction extends BasicKSMenuAction {
 		}
 				
 		int battsidlist = 0;
-		Map<ShipClasses,Integer> battsclasslist = new HashMap<ShipClasses, Integer>();
+		Map<ShipClasses,Integer> battsclasslist = new HashMap<>();
 				
 		List<BattleShip> ownShips = battle.getOwnShips();
 		for (BattleShip aship : ownShips)

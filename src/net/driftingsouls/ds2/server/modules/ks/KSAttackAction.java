@@ -39,11 +39,11 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.LockMode;
+import org.hibernate.LockOptions;
 import org.hibernate.Session;
 
 import java.io.IOException;
@@ -611,7 +611,7 @@ public class KSAttackAction extends BasicKSAction {
 		if( hit != 0 ) {
 			int hulldamage = hit*schaden;
 
-			if( eShipType.hasFlag(ShipTypes.SF_ZERSTOERERPANZERUNG) ) {
+			if( eShipType.hasFlag(ShipTypeFlag.ZERSTOERERPANZERUNG) ) {
 				int dmgThisTurn = eShip.getShip().getHull()-eShip.getHull()+hulldamage;
 				if( dmgThisTurn / (double)eShipType.getHull() > 0.33 ) {
 					int newhulldamage = (int)(eShipType.getHull()*0.33 - (eShip.getShip().getHull()-eShip.getHull()));
@@ -651,7 +651,7 @@ public class KSAttackAction extends BasicKSAction {
 			}
 			eShip.setAblativeArmor(ablativeArmor);
 
-			if( eShipType.hasFlag(ShipTypes.SF_GOD_MODE ) ) {
+			if( eShipType.hasFlag(ShipTypeFlag.GOD_MODE ) ) {
 				if( eShip.getHull() - hulldamage < 1 ) {
 					hulldamage = eShip.getHull() - 1;
 					battle.logme("+ Schiff nicht zerst&ouml;rbar\n");
@@ -1041,7 +1041,7 @@ public class KSAttackAction extends BasicKSAction {
 			return false;
 		}
 
-		return !selectedShip.getTypeData().hasFlag(ShipTypes.SF_JAEGER);
+		return !selectedShip.getTypeData().hasFlag(ShipTypeFlag.JAEGER);
 	}
 
 	private boolean shipHasTorpDef(ShipTypeData type) {
@@ -1126,7 +1126,7 @@ public class KSAttackAction extends BasicKSAction {
 
 		int listmiddle = shiplist.size()/2;
 
-		List<BattleShip> areashiplist = new ArrayList<BattleShip>(shiplist.size());
+		List<BattleShip> areashiplist = new ArrayList<>(shiplist.size());
 		for( int i=0; i < shiplist.size()+1; i++ ) {
 			areashiplist.add(emptyRow);
 		}
@@ -1377,13 +1377,13 @@ public class KSAttackAction extends BasicKSAction {
         }
 
         boolean gotone = false;
-        if( ownShipType.hasFlag(ShipTypes.SF_DROHNE) )
+        if( ownShipType.hasFlag(ShipTypeFlag.DROHNE) )
         {
             List<BattleShip> ownShips = battle.getOwnShips();
             for (BattleShip aship : ownShips)
             {
                 ShipTypeData ashiptype = aship.getTypeData();
-                if (ashiptype.hasFlag(ShipTypes.SF_DROHNEN_CONTROLLER))
+                if (ashiptype.hasFlag(ShipTypeFlag.DROHNEN_CONTROLLER))
                 {
                     gotone = true;
                     break;
@@ -1431,7 +1431,7 @@ public class KSAttackAction extends BasicKSAction {
         {
             // Nun das gegnerische Schiff laden und checken
             this.enemyShip = battle.getEnemyShip();
-            db.refresh(this.enemyShip, LockMode.READ);
+            db.refresh(this.enemyShip, LockOptions.READ);
 
             for( int innerloop=0; innerloop < sameShipLoop; innerloop++ )
             {
@@ -1489,7 +1489,7 @@ public class KSAttackAction extends BasicKSAction {
                     break;
                 }
 
-                if( (this.enemyShip.getAction() & Battle.BS_FLUCHT) != 0 && !ownShipType.hasFlag(ShipTypes.SF_ABFANGEN) )
+                if( (this.enemyShip.getAction() & Battle.BS_FLUCHT) != 0 && !ownShipType.hasFlag(ShipTypeFlag.ABFANGEN) )
                 {
                     battle.logme( "Ihr Schiff kann keine fl&uuml;chtenden Schiffe abfangen\n" );
                     breakFlag = true;

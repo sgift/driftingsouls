@@ -18,33 +18,32 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import net.driftingsouls.ds2.server.ContextCommon;
-import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import net.driftingsouls.ds2.server.units.TransientUnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo.Crew;
 import net.driftingsouls.ds2.server.units.UnitType;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Laesst das aktuell ausgewaehlte Schiff versuchen das aktuell ausgewaehlte Zielschiff zu kapern.
@@ -80,9 +79,9 @@ public class KSKapernAction extends BasicKSAction {
 		ShipTypeData enemyShipType = enemyShip.getTypeData();
 
 		//		 Geschuetze sind nicht kaperbar
-		if( !enemyShipType.getShipClass().isKaperbar() ||
+		if(!enemyShipType.getShipClass().isKaperbar() ||
 				((enemyShipType.getCost() != 0) && (enemyShip.getShip().getEngine() != 0) && (enemyShip.getCrew() != 0)) ||
-				(ownShip.getCrew() == 0) || enemyShipType.hasFlag(ShipTypes.SF_NICHT_KAPERBAR) ) {
+				enemyShipType.hasFlag(ShipTypeFlag.NICHT_KAPERBAR)) {
 			return Result.ERROR;
 		}
 
@@ -104,7 +103,7 @@ public class KSKapernAction extends BasicKSAction {
 		}
 
 		// IFF-Stoersender
-		boolean disableIFF = enemyShip.getShip().getStatus().indexOf("disable_iff") > -1;
+		boolean disableIFF = enemyShip.getShip().getStatus().contains("disable_iff");
 
 		if( disableIFF ) {
 			return Result.ERROR;

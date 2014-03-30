@@ -18,25 +18,26 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.hibernate.Session;
+
+import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.io.Writer;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Ein Changeset fuer Schiffstypendaten-Aenderungen, wie sie z.B. von
@@ -841,7 +842,7 @@ public class ShipTypeChangeset {
 	private class ShipTypeDataAdapter implements ShipTypeData {
 		private ShipTypeData inner;
 		private String[] weaponrepl;
-		private volatile String flags;
+		private volatile EnumSet<ShipTypeFlag> flags;
 		private volatile String weapons;
 		private volatile String maxheat;
 		private volatile String baseWeapons;
@@ -969,24 +970,10 @@ public class ShipTypeChangeset {
 		}
 
 		@Override
-		public String getFlags() {
+		public EnumSet<ShipTypeFlag> getFlags() {
 			if( this.flags == null ) {
-				String flags = inner.getFlags();
-
-				if( ShipTypeChangeset.this.getFlags() != null ) {
-					String[] flagArray = StringUtils.split(ShipTypeChangeset.this.getFlags(), ' ');
-					for (String aflag : flagArray)
-					{
-						if ((flags.length() != 0) && !flags.contains(aflag))
-						{
-							flags += ' ' + aflag;
-						}
-						else if (flags.length() == 0)
-						{
-							flags = aflag;
-						}
-					}
-				}
+				EnumSet<ShipTypeFlag> flags = inner.getFlags().clone();
+				flags.addAll(ShipTypeFlag.parseFlags(ShipTypeChangeset.this.getFlags()));
 				this.flags = flags;
 			}
 			return flags;
@@ -1286,7 +1273,8 @@ public class ShipTypeChangeset {
 		}
 
 		@Override
-		public boolean hasFlag(String flag) {
+		public boolean hasFlag(@Nonnull ShipTypeFlag flag)
+		{
 			return getFlags().contains(flag);
 		}
 

@@ -39,7 +39,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang.mutable.MutableLong;
@@ -384,7 +384,7 @@ public class TransportController extends TemplateController
 
 			ShipTypeData tmptype = ship.getTypeData();
 
-			if (tmptype.hasFlag(ShipTypes.SF_KEIN_TRANSFER))
+			if (tmptype.hasFlag(ShipTypeFlag.KEIN_TRANSFER))
 			{
 				throw new ValidierungException("Sie k&ouml;nnen keine Waren zu oder von diesem Schiff (id:" + ship.getId() + ") transferieren");
 			}

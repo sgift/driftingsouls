@@ -18,15 +18,15 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import java.io.IOException;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Laesst alle Schiffe einer Seite fliehen.
@@ -100,18 +100,18 @@ public class KSFluchtAllAction extends BasicKSAction {
 				continue;
 			}
 	
-			if( (gotone == null) && ashipType.hasFlag(ShipTypes.SF_DROHNE) ) {
+			if( (gotone == null) && ashipType.hasFlag(ShipTypeFlag.DROHNE) ) {
 				gotone = Boolean.FALSE;
 				for( int j=0; j < ownShips.size(); j++ ) {
 					BattleShip as = ownShips.get(j);
 					ShipTypeData ast = as.getTypeData();
-					if( ast.hasFlag(ShipTypes.SF_DROHNEN_CONTROLLER) ) {
+					if( ast.hasFlag(ShipTypeFlag.DROHNEN_CONTROLLER) ) {
 						gotone = Boolean.TRUE;
 						break;	
 					}
 				}
 			}
-			if( (gotone == Boolean.FALSE) && ashipType.hasFlag(ShipTypes.SF_DROHNE) ) {
+			if( (gotone == Boolean.FALSE) && ashipType.hasFlag(ShipTypeFlag.DROHNE) ) {
 				continue;
 			}
 			

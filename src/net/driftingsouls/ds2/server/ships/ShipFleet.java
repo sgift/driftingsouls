@@ -159,7 +159,7 @@ public class ShipFleet {
 					.setInteger("system", ship.getSystem())
 					.setInteger("x", ship.getX())
 					.setInteger("y", ship.getY())
-					.setString("jaegerFlag", ShipTypes.SF_JAEGER);
+					.setString("jaegerFlag", ShipTypeFlag.JAEGER.getFlag());
 
 			if (jaegertypeID > 0)
 			{

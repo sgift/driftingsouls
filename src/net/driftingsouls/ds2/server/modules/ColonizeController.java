@@ -18,13 +18,13 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.config.StarSystem;
+import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -37,7 +37,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungExc
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -74,7 +74,7 @@ public class ColonizeController extends TemplateController
 		}
 
 		ShipTypeData shiptype = ship.getTypeData();
-		if (!shiptype.hasFlag(ShipTypes.SF_COLONIZER))
+		if (!shiptype.hasFlag(ShipTypeFlag.COLONIZER))
 		{
 			throw new ValidierungException("Fehler: Das angegebene Schiff kann keine Planeten kolonisieren", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
 		}

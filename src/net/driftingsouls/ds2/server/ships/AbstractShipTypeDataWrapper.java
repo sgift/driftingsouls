@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
+import javax.annotation.Nonnull;
 import java.math.BigInteger;
 
 /**
@@ -119,7 +120,7 @@ public abstract class AbstractShipTypeDataWrapper implements ShipTypeData {
 	}
 
 	@Override
-	public String getFlags() {
+	public java.util.EnumSet<ShipTypeFlag> getFlags() {
 		return inner.getFlags();
 	}
 
@@ -249,7 +250,8 @@ public abstract class AbstractShipTypeDataWrapper implements ShipTypeData {
 	}
 
 	@Override
-	public boolean hasFlag(String flag) {
+	public boolean hasFlag(@Nonnull ShipTypeFlag flag)
+	{
 		return inner.hasFlag(flag);
 	}
 

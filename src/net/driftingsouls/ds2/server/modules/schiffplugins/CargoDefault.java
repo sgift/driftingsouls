@@ -28,7 +28,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.SchiffEinstellungen;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 
 /**
  * Schiffsmodul fuer die Anzeige des Schiffscargos.
@@ -240,7 +240,7 @@ public class CargoDefault implements SchiffPlugin {
 					"schiff.cargo.tanker.autodeut",			ship.getEinstellungen().getAutoDeut(),
 					"schiff.cargo.traeger",					shiptype.getJDocks() > 0 ? 1 : 0,
 					"schiff.cargo.traeger.startfighter",	ship.getEinstellungen().startFighters(),
-					"schiff.cargo.versorger",				shiptype.hasFlag(ShipTypes.SF_VERSORGER),
+					"schiff.cargo.versorger",				shiptype.hasFlag(ShipTypeFlag.VERSORGER),
 					"schiff.cargo.versorger.isfeeding",		ship.getEinstellungen().isFeeding(),
 					"schiff.cargo.versorger.isallyfeeding",	ship.getEinstellungen().isAllyFeeding(),
 					"schiff.cargo.mangel_nahrung",			(ship.getStatus().contains("mangel_nahrung")),

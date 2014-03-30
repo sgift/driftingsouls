@@ -37,7 +37,7 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import net.driftingsouls.ds2.server.werften.SchiffBauinformationen;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 import org.apache.commons.lang.StringUtils;
@@ -1465,7 +1465,7 @@ public class FleetMgntController extends TemplateController
 				"where s.owner=:owner and locate(:flag,s.shiptype.flags)!=0 and s.docked='' and (" + sectorstring + ") " +
 				"group by s.shiptype")
 				.setEntity("owner", user)
-				.setString("flag", ShipTypes.SF_JAEGER)
+				.setString("flag", ShipTypeFlag.JAEGER.getFlag())
 				.list();
 		for (Object shiptype1 : shiptypes)
 		{

@@ -24,6 +24,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
+import javax.annotation.Nonnull;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -35,6 +36,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 import java.math.BigInteger;
+import java.util.EnumSet;
 
 /**
  * Die Moduldaten eines Schiffes.
@@ -263,8 +265,8 @@ public class ShipModules implements ShipTypeData {
 	}
 
 	@Override
-	public String getFlags() {
-		return flags;
+	public EnumSet<ShipTypeFlag> getFlags() {
+		return ShipTypeFlag.parseFlags(flags);
 	}
 
 	/**
@@ -619,12 +621,13 @@ public class ShipModules implements ShipTypeData {
 	public ShipTypeData getType() {
 		return getShip().getBaseType();
 	}
-	
+
 	@Override
-	public boolean hasFlag(String flag) {
+	public boolean hasFlag(@Nonnull ShipTypeFlag flag)
+	{
 		return getFlags().contains(flag);
 	}
-	
+
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		return super.clone();

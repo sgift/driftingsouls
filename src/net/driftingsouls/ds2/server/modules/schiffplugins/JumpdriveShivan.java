@@ -28,7 +28,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,7 +78,7 @@ public class JumpdriveShivan implements SchiffPlugin
 						Ship aship = (Ship) aSList;
 
 						ShipTypeData st = aship.getTypeData();
-						if (!st.hasFlag(ShipTypes.SF_JUMPDRIVE_SHIVAN))
+						if (!st.hasFlag(ShipTypeFlag.JUMPDRIVE_SHIVAN))
 						{
 							continue;
 						}
@@ -144,7 +144,7 @@ public class JumpdriveShivan implements SchiffPlugin
 						Ship aship = (Ship) aSList;
 
 						ShipTypeData st = aship.getTypeData();
-						if (!st.hasFlag(ShipTypes.SF_JUMPDRIVE_SHIVAN))
+						if (!st.hasFlag(ShipTypeFlag.JUMPDRIVE_SHIVAN))
 						{
 							continue;
 						}
@@ -193,7 +193,7 @@ public class JumpdriveShivan implements SchiffPlugin
 					{
 						Ship aship = (Ship) aSList;
 						ShipTypeData st = aship.getTypeData();
-						if (!st.hasFlag(ShipTypes.SF_JUMPDRIVE_SHIVAN))
+						if (!st.hasFlag(ShipTypeFlag.JUMPDRIVE_SHIVAN))
 						{
 							continue;
 						}

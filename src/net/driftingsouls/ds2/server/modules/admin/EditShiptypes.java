@@ -28,13 +28,11 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
-import org.apache.commons.lang.StringUtils;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -96,8 +94,8 @@ public class EditShiptypes extends AbstractEditPlugin8<ShipType>
 
 		Map<ShipClasses, String> shipClasses = Arrays.asList(ShipClasses.values()).stream().collect(Collectors.toMap((sc) -> sc, ShipClasses::getSingular));
 		form.field("Schiffsklasse", ShipClasses.class, ShipType::getShipClass, ShipType::setShipClass).withOptions(shipClasses);
-		form.multiSelection("Flags", String.class, (st) -> new HashSet<>(Arrays.asList(StringUtils.split(st.getFlags(), ' '))), (st,flags) -> st.setFlags(StringUtils.join(flags, ' ')))
-			.withOptions(ShipTypes.getShipTypeFlags().stream().collect(Collectors.toMap((s) -> s, ShipTypes::getShipTypeFlagName)));
+		form.multiSelection("Flags", ShipTypeFlag.class, ShipType::getFlags, (st, flags) -> st.setFlags(flags.stream().map(ShipTypeFlag::getFlag).collect(Collectors.joining(" "))))
+			.withOptions(Arrays.asList(ShipTypeFlag.values()).stream().collect(Collectors.toMap((f) -> f, ShipTypeFlag::getLabel)));
 		form.field("Groupwrap", Integer.class, ShipType::getGroupwrap, ShipType::setGroupwrap);
 		form.field("Werft (Slots)", Integer.class, ShipType::getWerft, ShipType::setWerft);
 		form.field("Einmalwerft", ShipType.class, ShipType::getOneWayWerft, ShipType::setOneWayWerft).withNullOption("Deaktiviert");

@@ -1,11 +1,5 @@
 package net.driftingsouls.ds2.server.map;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
@@ -17,7 +11,13 @@ import net.driftingsouls.ds2.server.entities.User.Relation;
 import net.driftingsouls.ds2.server.entities.User.Relations;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipTypes;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Eine Sicht auf eine bestimmte Sternenkarte.
@@ -227,7 +227,7 @@ public class PlayerStarmap extends PublicStarmap
 					{
 						boolean scannable = true;
 						
-						if(ship.getTypeData().hasFlag(ShipTypes.SF_SEHR_KLEIN) )
+						if(ship.getTypeData().hasFlag(ShipTypeFlag.SEHR_KLEIN) )
 						{
 							scannable = false;
 						}
@@ -241,7 +241,7 @@ public class PlayerStarmap extends PublicStarmap
 						if( scannable && ship.isDocked() )
 						{
 							Ship mship = ship.getBaseShip();
-							if( mship.getTypeData().hasFlag(ShipTypes.SF_SEHR_KLEIN)) 
+							if( mship.getTypeData().hasFlag(ShipTypeFlag.SEHR_KLEIN))
 							{
 								scannable = false;
 							}

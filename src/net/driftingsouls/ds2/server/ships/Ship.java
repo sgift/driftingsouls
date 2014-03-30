@@ -46,7 +46,6 @@ import net.driftingsouls.ds2.server.entities.Sector;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -99,6 +98,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Repraesentiert ein Schiff in DS.
@@ -757,7 +757,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	public boolean isTradepost()
 	{
-		return this.getStatus().contains("tradepost") || this.getTypeData().hasFlag(ShipTypes.SF_TRADEPOST);
+		return this.getStatus().contains("tradepost") || this.getTypeData().hasFlag(ShipTypeFlag.TRADEPOST);
 	}
 
 	/**
@@ -1366,7 +1366,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		shipModules.setHydro(type.getHydro());
 		shipModules.setDeutFactor(type.getDeutFactor());
 		shipModules.setReCost(type.getReCost());
-		shipModules.setFlags(type.getFlags());
+		shipModules.setFlags(type.getFlags().stream().map(ShipTypeFlag::getFlag).collect(Collectors.joining(" ")));
 		shipModules.setWerft(type.getWerft());
 		shipModules.setOneWayWerft(type.getOneWayWerft());
 		shipModules.setAblativeArmor(type.getAblativeArmor());
@@ -2869,7 +2869,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		List<Ship> ships = Common.cast(
 			db.createQuery("from Ship s where locate(:fighter, shiptype.flags) > -1 and s in (:dockships)")
 				.setParameterList("dockships", dockships)
-				.setParameter("fighter", ShipTypes.SF_JAEGER)
+				.setParameter("fighter", ShipTypeFlag.JAEGER.getFlag())
 				.list());
 
 		if(ships.size() < dockships.length)
@@ -3629,16 +3629,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 	@Override
 	public Location getLocation() {
 		return new Location(this.system, this.x, this.y);
-	}
-
-	/**
-	 * Gibt die Liste aller Flags zurueck, ueber die der angegebene
-	 * Schiffstyp verfuegt.
-	 * @param shiptype Die Daten des Schiffstyps
-	 * @return Die Liste der Flags
-	 */
-	public static String[] getShipTypeFlagList(ShipTypeData shiptype) {
-		return StringUtils.split( shiptype.getFlags(), ' ');
 	}
 
 	/**
