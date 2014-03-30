@@ -102,52 +102,9 @@ public class AngriffController extends TemplateController
 	
 	private static final int SHIPGROUPSIZE = 50;
 	
-	private static final Map<String,Class<? extends BasicKSAction>> ACTIONS = new HashMap<>();
-	static {
-		ACTIONS.put("flucht_single", KSFluchtSingleAction.class);
-		ACTIONS.put("flucht_all", KSFluchtAllAction.class);
-		ACTIONS.put("flucht_class", KSFluchtClassAction.class);
-		ACTIONS.put("attack2", KSAttackAction.class);
-		ACTIONS.put("kapern", KSKapernAction.class);
-		ACTIONS.put("secondrow", KSSecondRowAction.class);
-		ACTIONS.put("leavesecondrow", KSLeaveSecondRowAction.class);
-		ACTIONS.put("secondrowengage", KSSecondRowEngageAction.class);
-		ACTIONS.put("secondrowattack", KSSecondRowAttackAction.class);
-		ACTIONS.put("endbattleequal", KSEndBattleEqualAction.class);
-		ACTIONS.put("endturn", KSEndTurnAction.class);
-		ACTIONS.put("alleabdocken", KSUndockAllAction.class);
-		ACTIONS.put("new_commander2", KSNewCommanderAction.class);
-		ACTIONS.put("take_command", KSTakeCommandAction.class);
-		ACTIONS.put("stop_take_command", KSStopTakeCommandAction.class);
-		ACTIONS.put("endbattle", KSEndBattleCivilAction.class);
-		ACTIONS.put("shields_single", KSRegenerateShieldsSingleAction.class);
-		ACTIONS.put("shields_all", KSRegenerateShieldsAllAction.class);
-		ACTIONS.put("shields_class", KSRegenerateShieldsClassAction.class);
-		ACTIONS.put("batterien_single", KSDischargeBatteriesSingleAction.class);
-		ACTIONS.put("batterien_all", KSDischargeBatteriesAllAction.class);
-		ACTIONS.put("batterien_class", KSDischargeBatteriesClassAction.class);
-		if( new ConfigService().getValue(WellKnownConfigValue.ENABLE_CHEATS) ) {
-			ACTIONS.put("cheat_regenerate", KSCheatRegenerateOwnAction.class);
-			ACTIONS.put("cheat_regenerateenemy", KSCheatRegenerateEnemyAction.class);
-		}
-	}
-	
-	private static final Map<String,Class<? extends BasicKSMenuAction>> MENUACTIONS = new HashMap<>();
-	static {
-		MENUACTIONS.put("attack", KSMenuAttackAction.class);
-		MENUACTIONS.put("attack_select", KSMenuAttackMuniSelectAction.class);
-		MENUACTIONS.put("batterien", KSMenuBatteriesAction.class);
-		MENUACTIONS.put("default", KSMenuDefaultAction.class);
-		MENUACTIONS.put("flucht", KSMenuFluchtAction.class);
-		MENUACTIONS.put("history", KSMenuHistoryAction.class);
-		MENUACTIONS.put("new_commander", KSMenuBattleConsignAction.class);
-		MENUACTIONS.put("other", KSMenuOtherAction.class);
-		MENUACTIONS.put("shields", KSMenuShieldsAction.class);
-		if( new ConfigService().getValue(WellKnownConfigValue.ENABLE_CHEATS) ) {
-			MENUACTIONS.put("cheats", KSMenuCheatsAction.class);
-		}
-	}
-	
+	private final Map<String,Class<? extends BasicKSAction>> actions = new HashMap<>();
+	private final Map<String,Class<? extends BasicKSMenuAction>> menuActions = new HashMap<>();
+
 	/**
 	 * Konstruktor.
 	 * @param context Der zu verwendende Kontext
@@ -156,6 +113,46 @@ public class AngriffController extends TemplateController
 		super(context);
 
 		setPageTitle("Schlacht");
+
+		menuActions.put("attack", KSMenuAttackAction.class);
+		menuActions.put("attack_select", KSMenuAttackMuniSelectAction.class);
+		menuActions.put("batterien", KSMenuBatteriesAction.class);
+		menuActions.put("default", KSMenuDefaultAction.class);
+		menuActions.put("flucht", KSMenuFluchtAction.class);
+		menuActions.put("history", KSMenuHistoryAction.class);
+		menuActions.put("new_commander", KSMenuBattleConsignAction.class);
+		menuActions.put("other", KSMenuOtherAction.class);
+		menuActions.put("shields", KSMenuShieldsAction.class);
+		if( new ConfigService().getValue(WellKnownConfigValue.ENABLE_CHEATS) ) {
+			menuActions.put("cheats", KSMenuCheatsAction.class);
+		}
+
+		actions.put("flucht_single", KSFluchtSingleAction.class);
+		actions.put("flucht_all", KSFluchtAllAction.class);
+		actions.put("flucht_class", KSFluchtClassAction.class);
+		actions.put("attack2", KSAttackAction.class);
+		actions.put("kapern", KSKapernAction.class);
+		actions.put("secondrow", KSSecondRowAction.class);
+		actions.put("leavesecondrow", KSLeaveSecondRowAction.class);
+		actions.put("secondrowengage", KSSecondRowEngageAction.class);
+		actions.put("secondrowattack", KSSecondRowAttackAction.class);
+		actions.put("endbattleequal", KSEndBattleEqualAction.class);
+		actions.put("endturn", KSEndTurnAction.class);
+		actions.put("alleabdocken", KSUndockAllAction.class);
+		actions.put("new_commander2", KSNewCommanderAction.class);
+		actions.put("take_command", KSTakeCommandAction.class);
+		actions.put("stop_take_command", KSStopTakeCommandAction.class);
+		actions.put("endbattle", KSEndBattleCivilAction.class);
+		actions.put("shields_single", KSRegenerateShieldsSingleAction.class);
+		actions.put("shields_all", KSRegenerateShieldsAllAction.class);
+		actions.put("shields_class", KSRegenerateShieldsClassAction.class);
+		actions.put("batterien_single", KSDischargeBatteriesSingleAction.class);
+		actions.put("batterien_all", KSDischargeBatteriesAllAction.class);
+		actions.put("batterien_class", KSDischargeBatteriesClassAction.class);
+		if( new ConfigService().getValue(WellKnownConfigValue.ENABLE_CHEATS) ) {
+			actions.put("cheat_regenerate", KSCheatRegenerateOwnAction.class);
+			actions.put("cheat_regenerateenemy", KSCheatRegenerateEnemyAction.class);
+		}
 	}
 	
 	@Override
@@ -420,9 +417,9 @@ public class AngriffController extends TemplateController
 						action.append("default");
 					}
 					
-					if( MENUACTIONS.containsKey(action.toString()) ) {
+					if( menuActions.containsKey(action.toString()) ) {
 						try {
-							BasicKSMenuAction actionobj = MENUACTIONS.get(action.toString()).newInstance();
+							BasicKSMenuAction actionobj = menuActions.get(action.toString()).newInstance();
 							actionobj.setController(this);
 							
 							BasicKSAction.Result result = actionobj.execute(battle);
@@ -612,9 +609,9 @@ public class AngriffController extends TemplateController
 		
 		----------------------------------------------------------------*/
 
-		if( (ksaction.length() > 0) && ACTIONS.containsKey(ksaction) ) {
+		if( (ksaction.length() > 0) && actions.containsKey(ksaction) ) {
 			try {
-				BasicKSAction actionobj = ACTIONS.get(ksaction).newInstance();
+				BasicKSAction actionobj = actions.get(ksaction).newInstance();
 				actionobj.setController(this);
 				
 				if( actionobj.execute(battle) == BasicKSAction.Result.HALT ) {

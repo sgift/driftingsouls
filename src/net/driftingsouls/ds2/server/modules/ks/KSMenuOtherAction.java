@@ -42,7 +42,7 @@ public class KSMenuOtherAction extends BasicKSMenuAction {
 		BattleShip enemyShip = battle.getEnemyShip();
 		
 		//Cheat-Menue
-		if( new ConfigService().getValue(WellKnownConfigValue.DESTROYABLE_SHIPS) ) {
+		if( new ConfigService().getValue(WellKnownConfigValue.ENABLE_CHEATS) ) {
 			menuEntry("Cheats",	"ship",		ownShip.getId(),
 								"attack",	enemyShip.getId(),
 								"ksaction",	"cheats" );
