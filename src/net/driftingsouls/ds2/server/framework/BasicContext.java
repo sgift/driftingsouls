@@ -104,7 +104,7 @@ public class BasicContext implements Context
 	@Override
 	public org.hibernate.Session getDB()
 	{
-		return HibernateUtil.getSessionFactory().getCurrentSession();
+		return (org.hibernate.Session) HibernateUtil.getCurrentEntityManager().getDelegate();
 	}
 
 	@Override

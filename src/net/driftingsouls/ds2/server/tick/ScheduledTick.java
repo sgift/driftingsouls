@@ -22,6 +22,7 @@ import net.driftingsouls.ds2.server.framework.BasicContext;
 import net.driftingsouls.ds2.server.framework.CmdLineRequest;
 import net.driftingsouls.ds2.server.framework.EmptyPermissionResolver;
 import net.driftingsouls.ds2.server.framework.SimpleResponse;
+import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.SchedulerException;
@@ -74,25 +75,14 @@ public class ScheduledTick extends QuartzJobBean implements StatefulJob
 			tick.execute();
 			tick.dispose();
 		}
-		catch( IOException e )
-		{
-			throw new JobExecutionException(e);
-		}
-		catch( ClassNotFoundException e )
-		{
-			throw new JobExecutionException(e);
-		}
-		catch( InstantiationException e )
-		{
-			throw new JobExecutionException(e);
-		}
-		catch( IllegalAccessException e )
+		catch( IOException | ClassNotFoundException | InstantiationException | IllegalAccessException e )
 		{
 			throw new JobExecutionException(e);
 		}
 		finally
 		{
 			basicContext.free();
+			HibernateUtil.removeCurrentEntityManager();
 		}
 	}
 

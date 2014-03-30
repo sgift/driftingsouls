@@ -3,11 +3,9 @@ package net.driftingsouls.ds2.server.framework.db;
 import net.driftingsouls.ds2.server.framework.DSFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.StaleObjectStateException;
-import org.hibernate.context.internal.ManagedSessionContext;
 
+import javax.persistence.EntityManager;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -22,18 +20,18 @@ import java.io.IOException;
  */
 public class HibernateSessionRequestFilter extends DSFilter
 {
+	private static Log log = LogFactory.getLog(HibernateSessionRequestFilter.class);
+
 	@Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException
     {
         if(!isStaticRequest(request))
         {
-			Session session = sf.openSession();
+			EntityManager em = HibernateUtil.getCurrentEntityManager();
 			try
             {
-				ManagedSessionContext.bind(session);
-
                 log.debug("Starting a database transaction");
-				session.beginTransaction();
+				em.getTransaction().begin();
 
                 // Call the next filter (continue request processing)
                 chain.doFilter(request, response);
@@ -41,19 +39,16 @@ public class HibernateSessionRequestFilter extends DSFilter
                 // Commit and cleanup
                 log.debug("Committing the database transaction");
 
-				ManagedSessionContext.unbind(sf);
-
-				if( session.getTransaction().isActive() )
+				if( em.getTransaction().isActive() )
 				{
-					session.getTransaction().commit();
+					em.getTransaction().commit();
 				}
             }
             catch (StaleObjectStateException staleEx)
             {
-				ManagedSessionContext.unbind(sf);
-				if (session.getTransaction().isActive())
+				if (em.getTransaction().isActive())
 				{
-					session.getTransaction().rollback();
+					em.getTransaction().rollback();
 				}
 
                 log.error("This interceptor does not implement optimistic concurrency control!");
@@ -66,13 +61,12 @@ public class HibernateSessionRequestFilter extends DSFilter
             }
             catch (Throwable ex)
             {
-				ManagedSessionContext.unbind(sf);
-                try
+			    try
                 {
-                    if (session.getTransaction().isActive())
+                    if (em.getTransaction().isActive())
                     {
                         log.debug("Trying to rollback database transaction after exception");
-						session.getTransaction().rollback();
+						em.getTransaction().rollback();
                     }
                 }
                 catch (Throwable rbEx)
@@ -84,7 +78,8 @@ public class HibernateSessionRequestFilter extends DSFilter
             }
 			finally
 			{
-				session.close();
+				HibernateUtil.removeCurrentEntityManager();
+				em.close();
 			}
 		}
         else
@@ -94,16 +89,5 @@ public class HibernateSessionRequestFilter extends DSFilter
     }
 
 	@Override
-	protected void initFilterBean() throws ServletException
-	{
-		log.debug("Initializing filter...");
-		log.debug("Obtaining SessionFactory from static HibernateUtil singleton");
-		sf = HibernateUtil.getSessionFactory();
-	}
-
-	@Override
     public void destroy() {}
-
-    private static Log log = LogFactory.getLog(HibernateSessionRequestFilter.class);
-    private SessionFactory sf;
 }

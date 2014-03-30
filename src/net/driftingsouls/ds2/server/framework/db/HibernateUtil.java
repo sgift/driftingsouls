@@ -9,13 +9,19 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.MySQL5InnoDBDialect;
 import org.hibernate.dialect.function.SQLFunctionTemplate;
 import org.hibernate.dialect.function.StandardSQLFunction;
+import org.hibernate.ejb.EntityManagerFactoryImpl;
 import org.hibernate.engine.spi.CollectionKey;
 import org.hibernate.engine.spi.EntityKey;
+import org.hibernate.service.ServiceRegistry;
+import org.hibernate.service.ServiceRegistryBuilder;
 import org.hibernate.tool.hbm2ddl.DatabaseMetadata;
 import org.hibernate.type.DoubleType;
 import org.hibernate.type.IntegerType;
 import org.hibernate.type.LongType;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.spi.PersistenceUnitTransactionType;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -35,6 +41,24 @@ import java.util.TreeMap;
  */
 public class HibernateUtil
 {
+	private static final ThreadLocal<EntityManager> CURRENT_ENTITY_MANAGER = new ThreadLocal<EntityManager>() {
+		@Override
+		protected EntityManager initialValue()
+		{
+			return entityManagerFactory.createEntityManager();
+		}
+	};
+
+	public static EntityManager getCurrentEntityManager()
+	{
+		return CURRENT_ENTITY_MANAGER.get();
+	}
+
+	public static void removeCurrentEntityManager()
+	{
+		CURRENT_ENTITY_MANAGER.remove();
+	}
+
     public static synchronized void init(String configdir, String dbUrl, String dbUser, String dbPassword)
     {
         try
@@ -69,9 +93,17 @@ public class HibernateUtil
 				}
 			}
 
+
+			final ServiceRegistry serviceRegistry =  new ServiceRegistryBuilder()
+					.applySettings(configuration.getProperties())
+					.buildServiceRegistry();
+
 			// Create the SessionFactory from hibernate.xml
 			HibernateUtil.configuration = configuration;
-			sessionFactory = configuration.buildSessionFactory();
+//			sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+
+			HibernateUtil.entityManagerFactory = new EntityManagerFactoryImpl(PersistenceUnitTransactionType.RESOURCE_LOCAL, true, null, configuration, serviceRegistry, null);
+			sessionFactory = entityManagerFactory.getSessionFactory();
         }
         catch (Throwable ex)
         {
@@ -113,9 +145,11 @@ public class HibernateUtil
         return sessionFactory;
     }
 	public synchronized static Configuration getConfiguration() { return configuration; }
+	public synchronized static EntityManagerFactory getEntityManagerFactory() { return entityManagerFactory; }
 
     private static SessionFactory sessionFactory;
 	private static Configuration configuration;
+	private static EntityManagerFactoryImpl entityManagerFactory;
 
     /**
      * Gibt den momentanen Inhalt der Session, aufgelistet nach Entitynamen/Collectionrolle und der zugehoerigen Anzahl
