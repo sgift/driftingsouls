@@ -80,12 +80,12 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  * <p>Repraesentiert eine Basis in DS.</p>
@@ -216,7 +216,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		this.autoGtuActs = "";
 		this.owner = owner;
 		this.name = "Leerer Asteroid";
-		this.units = new HashSet<BaseUnitCargoEntry>();
+		this.units = new HashSet<>();
 	}
 
 	/**
@@ -546,7 +546,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 */
 	public BaseUnitCargo getUnits()
 	{
-		List<UnitCargoEntry> entries = new ArrayList<UnitCargoEntry>(units);
+		List<UnitCargoEntry> entries = new ArrayList<>(units);
 		return new BaseUnitCargo(entries, this);
 	}
 
@@ -698,7 +698,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 */
 	public List<AutoGTUAction> getAutoGTUActs()
 	{
-		List<AutoGTUAction> acts = new ArrayList<AutoGTUAction>();
+		List<AutoGTUAction> acts = new ArrayList<>();
 		acts.addAll(this.autoGtuActsObj);
 
 		return acts;
@@ -758,8 +758,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 
 		SpawnableRessMap()
 		{
-			this.chanceMap = new LinkedHashMap<Integer,SpawnableRess>();
-			this.itemMap = new LinkedHashMap<Integer, SpawnableRess>();
+			this.chanceMap = new LinkedHashMap<>();
+			this.itemMap = new LinkedHashMap<>();
 			this.totalChance = 0;
 		}
 
@@ -1042,7 +1042,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		int e = 0;
 		int arbeiter = 0;
 		int bewohner = 0;
-		Map<Integer,Integer> buildinglocs = new TreeMap<Integer,Integer>();
+		Map<Integer,Integer> buildinglocs = new TreeMap<>();
 
 		if( (base.getCore() > 0) && base.isCoreActive() ) {
 			Core core = Core.getCore(base.getCore());
@@ -1134,7 +1134,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 			base.bebauungObj = this.getBebauung().clone();
 			base.cargo = (Cargo)this.getCargo().clone();
 
-			base.autoGtuActsObj = new ArrayList<AutoGTUAction>();
+			base.autoGtuActsObj = new ArrayList<>();
 			for( int i=0; i < this.autoGtuActsObj.size(); i++ )
 			{
 				base.autoGtuActsObj.add((AutoGTUAction)this.autoGtuActsObj.get(i).clone());
@@ -1154,13 +1154,14 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		this.activeObj = Common.explodeToInteger("|",this.active);
 
 		String[] autogtuacts = StringUtils.split(this.autoGtuActs,";");
-		List<AutoGTUAction> acts = new ArrayList<AutoGTUAction>();
-		for( int i=0; i < autogtuacts.length; i++ )
+		List<AutoGTUAction> acts = new ArrayList<>();
+		for (String autogtuact : autogtuacts)
 		{
-			String[] split = StringUtils.split(autogtuacts[i],":");
+			String[] split = StringUtils.split(autogtuact, ":");
 			ResourceID rid = Resources.fromString(split[0]);
-			if( rid != null ) {
-				acts.add(new AutoGTUAction(rid, Integer.parseInt(split[1]), Long.parseLong(split[2])) );
+			if (rid != null)
+			{
+				acts.add(new AutoGTUAction(rid, Integer.parseInt(split[1]), Long.parseLong(split[2])));
 			}
 		}
 		this.autoGtuActsObj = acts;
@@ -1487,9 +1488,9 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 								.setInteger("y", getY())
 								.list();
 
-		for(Iterator<?> iter=ships.iterator();iter.hasNext();)
+		for (Object ship1 : ships)
 		{
-			Ship ship = (Ship)iter.next();
+			Ship ship = (Ship) ship1;
 			savenahrung += ship.getFoodConsumption();
 		}
 
@@ -1810,8 +1811,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		Cargo prices = kurs.getKurse();
 		double price = prices.getResourceCount(resource) / 1000d;
 
-		long pay = Math.round(price * count);
-		return pay;
+		return Math.round(price * count);
 	}
 
 	private boolean rebalanceEnergy(BaseStatus state)
@@ -2040,9 +2040,11 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 			return 0;
 		}
 		String[] spawnress = StringUtils.split(getAvailableSpawnableRess(), ";");
-		for(int i = 0; i < spawnress.length; i++) {
-			String[] thisress = StringUtils.split(spawnress[i], ",");
-			if(Integer.valueOf(thisress[0]) == itemid) {
+		for (String spawnres : spawnress)
+		{
+			String[] thisress = StringUtils.split(spawnres, ",");
+			if (Integer.valueOf(thisress[0]) == itemid)
+			{
 				return Integer.valueOf(thisress[1]);
 			}
 		}
@@ -2058,12 +2060,13 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		String[] spawnress = StringUtils.split(getAvailableSpawnableRess(), ";");
 		String newspawnress = "";
 		boolean found = false;
-		for(int i = 0; i < spawnress.length; i++)
+		for (String spawnres : spawnress)
 		{
-			String[] thisress = StringUtils.split(spawnress[i], ",");
-			if(Integer.valueOf(thisress[0]) == itemid) {
+			String[] thisress = StringUtils.split(spawnres, ",");
+			if (Integer.valueOf(thisress[0]) == itemid)
+			{
 				found = true;
-				if( value > 0)
+				if (value > 0)
 				{
 					newspawnress = newspawnress + itemid + "," + value + ";";
 				}
@@ -2116,14 +2119,6 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 */
 	public static List<Base> byLocationAndBesitzer(Location loc, User besitzer)
 	{
-		List<Base> bases = new ArrayList<Base>();
-		for( Base base : besitzer.getBases() )
-		{
-			if( base.getLocation().equals(loc) )
-			{
-				bases.add(base);
-			}
-		}
-		return bases;
+		return besitzer.getBases().stream().filter(base -> base.getLocation().equals(loc)).collect(Collectors.toList());
 	}
 }
