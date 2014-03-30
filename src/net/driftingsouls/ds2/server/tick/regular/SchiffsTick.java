@@ -175,9 +175,9 @@ public class SchiffsTick extends TickController {
 			this.log("Berechne Allianzversorger");
 			List<Ship> allyShips = Common.cast(db.createQuery("select s from Ship as s left join s.modules m " +
 					" where s.id>0 and s.owner!=:owner and s.owner.ally=:ally and (s.owner.vaccount=0 or" +
-					" s.owner.wait4vac!=0) and system!=0 and" +
-					" (s.shiptype.versorger=1 or m.versorger=1) and" +
-					" s.einstellungen.isfeeding=1 and s.einstellungen.isallyfeeding=1 and s.nahrungcargo>0" +
+					" s.owner.wait4vac!=0) and s.system!=0 and" +
+					" (s.shiptype.versorger=true or m.versorger=true) and" +
+					" s.einstellungen.isfeeding=true and s.einstellungen.isallyfeeding=true and s.nahrungcargo>0" +
 					" order by s.nahrungcargo DESC")
 					.setEntity("owner", user)
 					.setEntity("ally", user.getAlly())
@@ -246,10 +246,10 @@ public class SchiffsTick extends TickController {
 			shipd.setHeat(shipd.getHeat()-Math.min(shipd.getHeat(),70));
 		}
 
-		berechneNahrungsverbrauch(db, shipd, shiptd, feedingBases);
+		berechneNahrungsverbrauch(shipd, shiptd, feedingBases);
 
 		//Damage ships which don't have enough crew
-		if( !berechneVerfallWegenCrewmangel(db, shipd, shiptd) )
+		if( !berechneVerfallWegenCrewmangel(shipd, shiptd) )
 		{
 			return;
 		}
@@ -401,8 +401,8 @@ public class SchiffsTick extends TickController {
 		return e;
 	}
 
-	private void berechneNahrungsverbrauch(org.hibernate.Session db, Ship shipd,
-			ShipTypeData shiptd, Map<Location, List<Base>> feedingBases)
+	private void berechneNahrungsverbrauch(Ship shipd,
+										   ShipTypeData shiptd, Map<Location, List<Base>> feedingBases)
 	{
 		//Eigene Basen im selben Sektor
 		List<Base> bases = feedingBases.get(shipd.getLocation());
@@ -535,8 +535,8 @@ public class SchiffsTick extends TickController {
 		}
 	}
 
-	private boolean berechneVerfallWegenCrewmangel(org.hibernate.Session db, Ship shipd,
-			ShipTypeData shiptd)
+	private boolean berechneVerfallWegenCrewmangel(Ship shipd,
+												   ShipTypeData shiptd)
 	{
 		if( shipd.getBattle() != null )
 		{
@@ -720,7 +720,7 @@ public class SchiffsTick extends TickController {
 			Location location = base.getLocation();
 			if(!feedingBases.containsKey(location))
 			{
-				feedingBases.put(location, new ArrayList<Base>());
+				feedingBases.put(location, new ArrayList<>());
 			}
 			feedingBases.get(location).add(base);
 		}
