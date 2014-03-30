@@ -18,12 +18,13 @@
  */
 package net.driftingsouls.ds2.server.framework.pipeline;
 
+import org.apache.commons.fileupload.FileItem;
+
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.fileupload.FileItem;
 
 /**
  * Standardinterface fuer Requestdaten.
@@ -31,6 +32,14 @@ import org.apache.commons.fileupload.FileItem;
  *
  */
 public interface Request {
+	/**
+	 * Gibt zu einem Parameter des Aufrufs alle uebergebenen Werte zurueck.
+	 * Falls der Parameter nicht angegeben wurde wird ein leeres Array zurueckgegeben
+	 * @param parameter Der Name des Parameters
+	 * @return Die Wert
+	 */
+	public @Nonnull String[] getParameterValues(@Nonnull String parameter);
+
 	/**
 	 * Gibt einen Parameter des Aufrufs zurueck.
 	 * Falls der Parameter nicht angegeben wurde wird <code>null</code> zurueckgegeben

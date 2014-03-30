@@ -18,6 +18,12 @@
  */
 package net.driftingsouls.ds2.server.framework;
 
+import net.driftingsouls.ds2.server.framework.pipeline.Request;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -25,12 +31,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import net.driftingsouls.ds2.server.framework.pipeline.Request;
-
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Repraesentiert eine Request auf Basis von Kommandozeilenparametern.
@@ -84,6 +84,18 @@ public class CmdLineRequest implements Request {
 	@Override
 	public InputStream getInputStream() throws IOException {
 		return null;
+	}
+
+	@Nonnull
+	@Override
+	public String[] getParameterValues(@Nonnull String parameter)
+	{
+		String val = params.get(parameter);
+		if( val == null )
+		{
+			return new String[0];
+		}
+		return new String[] {val};
 	}
 
 	@Override

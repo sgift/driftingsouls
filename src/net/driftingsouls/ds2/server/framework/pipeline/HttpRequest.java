@@ -18,21 +18,6 @@
  */
 package net.driftingsouls.ds2.server.framework.pipeline;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileUploadException;
@@ -40,6 +25,21 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import javax.annotation.Nonnull;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Implementiert das Request-Interface fuer HTTP-Requests.
@@ -49,7 +49,7 @@ import org.apache.commons.logging.LogFactory;
 public class HttpRequest implements Request {
 	private static final Log log = LogFactory.getLog(HttpRequest.class);
 	private HttpServletRequest request = null;
-	private Map<String,String> parameters = new HashMap<>();
+	private Map<String,String[]> parameters = new HashMap<>();
 	private boolean isMultipart = false;
 	private List<?> uploadedFiles = null;
 
@@ -80,13 +80,7 @@ public class HttpRequest implements Request {
 		}
 		else
 		{
-			for (Map.Entry<String, String[]> stringEntry : request.getParameterMap().entrySet())
-			{
-				if (stringEntry.getValue().length > 0)
-				{
-					this.parameters.put(stringEntry.getKey(), stringEntry.getValue()[0]);
-				}
-			}
+			this.parameters.putAll(request.getParameterMap());
 		}
 	}
 
@@ -104,7 +98,18 @@ public class HttpRequest implements Request {
 				{
 					continue;
 				}
-				parameters.put(item.getFieldName(), item.getString("UTF-8"));
+				String[] vals = parameters.get(item.getFieldName());
+				if( vals != null )
+				{
+					String[] newVals = new String[vals.length+1];
+					System.arraycopy(vals, 0, newVals, 0, vals.length);
+					newVals[newVals.length-1] = item.getString("UTF-8");
+					parameters.put(item.getFieldName(), newVals);
+				}
+				else
+				{
+					parameters.put(item.getFieldName(), new String[]{item.getString("UTF-8")});
+				}
 			}
 		}
 		catch( FileUploadException | UnsupportedEncodingException e ) {
@@ -112,9 +117,26 @@ public class HttpRequest implements Request {
 		}
 	}
 
+	@Nonnull
+	@Override
+	public String[] getParameterValues(@Nonnull String parameter)
+	{
+		String[] values = this.parameters.get(parameter);
+		if( values == null )
+		{
+			return new String[0];
+		}
+		return values.clone();
+	}
+
 	@Override
 	public String getParameter(String parameter) {
-		return parameters.get(parameter);
+		String[] vals = parameters.get(parameter);
+		if( vals == null || vals.length == 0 )
+		{
+			return null;
+		}
+		return vals[0];
 	}
 
 	@Override
@@ -152,7 +174,7 @@ public class HttpRequest implements Request {
 
 	@Override
 	public void setParameter(String parameter, String value) {
-		parameters.put(parameter, value);
+		parameters.put(parameter, new String[] {value});
 	}
 
 	@Override
@@ -205,7 +227,9 @@ public class HttpRequest implements Request {
 	@Override
 	public Map<String,String> getParameterMap()
 	{
-		return Collections.unmodifiableMap(this.parameters);
+		return this.parameters.entrySet().stream()
+				.filter((e) -> e.getValue() != null && e.getValue().length > 0)
+				.collect(Collectors.toMap(Map.Entry<String, String[]>::getKey, (e) -> e.getValue()[0]));
 	}
 
 	@Override

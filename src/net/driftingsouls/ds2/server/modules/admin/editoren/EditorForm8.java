@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -202,6 +203,18 @@ public class EditorForm8<E>
 	public <T> FieldGenerator<E,T> field(String label, Class<T> type, Function<E,T> getter, BiConsumer<E,T> setter)
 	{
 		return field(label, type, type, getter, setter);
+	}
+
+	/**
+	 * Erzeugt ein Auswahlfeld mit einer Mehrfachauswahl (Editor) fuer einen bestimmten Datentyp.
+	 * @param label Das Anzeigelabel
+	 * @param type Der Datentyp des Views und des Models
+	 * @param getter Der getter fuer den momentanen Wert
+	 * @param setter Der setter fuer den momentanen Wert
+	 */
+	public <T> MultiSelectionGenerator<E,T> multiSelection(String label, Class<T> type, Function<E,Set<T>> getter, BiConsumer<E,Set<T>> setter)
+	{
+		return custom(new MultiSelectionGenerator<>(label, generateName(getter.getClass().getSimpleName()), type, type, getter, setter));
 	}
 
 	private String generateName(String suffix)
