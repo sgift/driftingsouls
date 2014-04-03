@@ -238,7 +238,7 @@ public class User extends BasicUser {
     @OneToMany(mappedBy="user", cascade=CascadeType.ALL)
     private Set<Loyalitaetspunkte> loyalitaetspunkte;
 
-	@OneToMany(cascade = {CascadeType.DETACH,CascadeType.REFRESH})
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name="owner")
 	private Set<UserResearch> researches;
 
@@ -785,7 +785,7 @@ public class User extends BasicUser {
 	 */
     public void addBounty(BigInteger add)
     {
-        this.bounty.add(add);
+        this.bounty = this.bounty.add(add);
     }
 
     /**
@@ -796,6 +796,37 @@ public class User extends BasicUser {
     {
         return this.bounty;
     }
+
+	/**
+	 * Gibt alle durch den Spieler erforschten Forschungen zurueck.
+	 * @return Die Forschungen
+	 */
+	public Set<Forschung> getForschungen()
+	{
+		return this.researches.stream().map(UserResearch::getResearch).collect(Collectors.toSet());
+	}
+
+	/**
+	 * Setzt alle durch den Spieler erforschten Forschungen.
+	 * @param forschungen Die Forschungen
+	 */
+	public void setForschungen(Set<Forschung> forschungen)
+	{
+		Set<Forschung> aktuellErforscht = getForschungen();
+		Set<Forschung> zuEntfernen = new HashSet<>(aktuellErforscht);
+		zuEntfernen.removeAll(forschungen);
+
+		Set<Forschung> hinzuzufuegen = new HashSet<>(forschungen);
+		hinzuzufuegen.removeAll(aktuellErforscht);
+
+		for (Forschung forschung : hinzuzufuegen)
+		{
+			UserResearch userres = new UserResearch(this, forschung);
+			this.researches.add(userres);
+		}
+
+		this.researches.removeIf((ur) -> zuEntfernen.contains(ur.getResearch()));
+	}
 
 	/**
 	 * Prueft, ob die angegebene Forschung durch den Benutzer erforscht wurde.
@@ -816,12 +847,9 @@ public class User extends BasicUser {
 	 * @param research Die erforschte Technologie
 	 */
 	public void addResearch( Forschung research ) {
-		org.hibernate.Session db = context.getDB();
-
 		if( this.getUserResearch(research) == null )
 		{
 			UserResearch userres = new UserResearch(this, research);
-			db.persist(userres);
 			this.researches.add(userres);
 		}
 	}

@@ -2269,5 +2269,7 @@ Die Vasudaner haben eine sehr alte Kultur mit mehreren hochentwickelten Sprachen
 
 		delete from userresearch where research=0;
 		delete from forschungen where id=0;
+
+		alter table userresearch modify owner integer;
 	]]></update>
 </updates>

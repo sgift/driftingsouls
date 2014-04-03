@@ -18,6 +18,12 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.ForeignKey;
+import org.hibernate.proxy.HibernateProxy;
+
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -26,12 +32,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.proxy.HibernateProxy;
 
 /**
  * Repraesentiert eine durch einen Spieler erforschte Technologie.
@@ -46,8 +46,8 @@ public class UserResearch {
 	@Id @GeneratedValue
 	private int id;
 	
-	@ManyToOne(fetch=FetchType.LAZY, optional = false)
-	@JoinColumn(name="owner", nullable = false)
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="owner")
 	@ForeignKey(name="userresearch_fk_users")
 	private User owner;
 	

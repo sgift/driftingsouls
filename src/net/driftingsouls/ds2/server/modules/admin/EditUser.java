@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Medals;
+import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
@@ -68,6 +69,7 @@ public class EditUser extends AbstractEditPlugin8<User>
 		form.field("Vac-Punkte", Integer.class, User::getVacpoints, User::setVacpoints);
 		form.field("Spezialisierungspunkte", Integer.class, User::getSpecializationPoints, User::setSpecializationPoints);
 		form.field("Zugang sperren", Boolean.class, User::getDisabled, User::setDisabled);
+		form.multiSelection("Forschungen", Forschung.class, User::getForschungen, User::setForschungen);
 
 		form.postUpdateTask("Vacation-Markierung setzen/entfernen", this::doVacation);
 	}
