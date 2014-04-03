@@ -20,10 +20,12 @@ package net.driftingsouls.ds2.server.bases;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
+import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.DiscriminatorFormula;
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
@@ -32,6 +34,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 //TODO: Warum Verbrauch/Produktion unterscheiden?
@@ -67,8 +71,10 @@ public abstract class Core {
 	@Column(name="eprodu", nullable = false)
 	private int eProduktion;
 	private int bewohner;
-	@Column(name="techreq", nullable = false)
-	private int techReq;
+	@ForeignKey(name="core_fk_forschung")
+	@ManyToOne(optional = false)
+	@JoinColumn(name="techreq", nullable = false)
+	private Forschung techReq;
 	private int eps;	
 	private boolean shutdown;
 	
@@ -197,7 +203,7 @@ public abstract class Core {
 	 * Gibt die ID der Forschung zurueck, welche zum errichten der Core benoetigt wird.
 	 * @return Die ID der benoetigten Forschung
 	 */
-	public int getTechRequired() {
+	public Forschung getTechRequired() {
 		return techReq;
 	}
 	
@@ -304,7 +310,7 @@ public abstract class Core {
 	 * 
 	 * @param techReq Forschung
 	 */
-	public void setTechReq(int techReq)
+	public void setTechReq(Forschung techReq)
 	{
 		this.techReq = techReq;
 	}

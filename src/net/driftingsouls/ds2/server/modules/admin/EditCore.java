@@ -36,7 +36,7 @@ public class EditCore extends AbstractEditPlugin8<Core>
 		form.field("EPS", Integer.class, Core::getEPS, Core::setEps);
 		form.field("Wohnraum", Integer.class, Core::getBewohner, Core::setBewohner);
 		form.field("Auto Abschalten", Boolean.class, Core::isShutDown, Core::setShutDown);
-		form.field("Forschung", Forschung.class, Integer.class, Core::getTechRequired, Core::setTechReq);
+		form.field("Forschung", Forschung.class, Core::getTechRequired, Core::setTechReq);
 		form.field("Baukosten", Cargo.class, Core::getBuildCosts, Core::setBuildcosts);
 		form.field("Verbrauch", Cargo.class, Core::getConsumes, Core::setConsumes);
 		form.field("Produktion", Cargo.class, Core::getProduces, Core::setProduces);
