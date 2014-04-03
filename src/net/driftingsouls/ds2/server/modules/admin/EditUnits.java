@@ -50,7 +50,7 @@ public class EditUnits extends AbstractEditPlugin8<UnitType>
 		form.field("Kaper-Wert", Integer.class, UnitType::getKaperValue, UnitType::setKaperValue);
 		form.field("Größe", Integer.class, UnitType::getSize, UnitType::setSize);
 		form.textArea("Beschreibung", UnitType::getDescription, UnitType::setDescription);
-		form.field("Benötigte Forschung", Forschung.class, Integer.class, UnitType::getRes, UnitType::setRes);
+		form.field("Benötigte Forschung", Forschung.class, UnitType::getRes, UnitType::setRes);
 		form.field("Dauer", Integer.class, UnitType::getDauer, UnitType::setDauer);
 		form.field("Hidden", Boolean.class, UnitType::isHidden, UnitType::setHidden);
 		form.field("Baukosten", Cargo.class, UnitType::getBuildCosts, UnitType::setBuildCosts);

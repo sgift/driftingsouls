@@ -18,8 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.util.List;
-
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.User;
@@ -33,6 +31,8 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateContro
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.units.UnitType;
+
+import java.util.List;
 
 /**
  * Zeigt Informationen zu Einheiten an.
@@ -111,7 +111,7 @@ public class UnitInfoController extends TemplateController
 			buildcosts = buildcosts + " <img style=\"vertical-align:middle\" src=\"" + res.getImage() + "\" alt=\"\" />" + res.getCargo1();
 		}
 
-		Forschung forschung = Forschung.getInstance(unittype.getRes());
+		Forschung forschung = unittype.getRes();
 		String forschungstring = "";
 
 		if (forschung != null && forschung.isVisibile(user))

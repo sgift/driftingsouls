@@ -2230,5 +2230,7 @@ Die Vasudaner haben eine sehr alte Kultur mit mehreren hochentwickelten Sprachen
 		alter table items_build add index factoryentry_fk_forschung2 (res2_id), add constraint factoryentry_fk_forschung2 foreign key (res2_id) references forschungen (id);
 		alter table items_build add index factoryentry_fk_forschung1 (res1_id), add constraint factoryentry_fk_forschung1 foreign key (res1_id) references forschungen (id);
 		alter table items_build add index factoryentry_fk_forschung3 (res3_id), add constraint factoryentry_fk_forschung3 foreign key (res3_id) references forschungen (id);
+		alter table unit_types change column resid res_id integer not null;
+		alter table unit_types add index unitttype_fk_forschung (res_id), add constraint unitttype_fk_forschung foreign key (res_id) references forschungen (id)
 	]]></update>
 </updates>

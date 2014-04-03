@@ -18,18 +18,21 @@
  */
 package net.driftingsouls.ds2.server.units;
 
+import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.entities.Forschung;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Type;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-
-import net.driftingsouls.ds2.server.cargo.Cargo;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Type;
 
 /**
  * Ein Einheitentyp.
@@ -53,7 +56,10 @@ public class UnitType {
 	@Type(type="cargo")
 	@Column(nullable = false)
 	private Cargo buildcosts;
-	private int resid;
+	@ManyToOne(optional = false)
+	@JoinColumn(nullable = false)
+	@ForeignKey(name="unitttype_fk_forschung")
+	private Forschung res;
 	private int dauer;
 	@Column(nullable = false)
 	private String picture;
@@ -144,9 +150,9 @@ public class UnitType {
 	 * Gibt die Forschung zu dieser Einheit zurueck.
 	 * @return Die Forschung
 	 */
-	public int getRes() 
+	public Forschung getRes()
 	{
-		return resid;
+		return res;
 	}
 	
 	/**
@@ -242,9 +248,9 @@ public class UnitType {
 	 * Setzt die benoetigte Forschung.
 	 * @param resid Die Forschung
 	 */
-	public void setRes(int resid) 
+	public void setRes(Forschung resid)
 	{
-		this.resid = resid;
+		this.res = resid;
 	}
 	
 	/**
