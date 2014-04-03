@@ -187,9 +187,14 @@ public enum ShipTypeFlag
 	 * @return Die Enum-Objekte
 	 * @throws java.lang.IllegalArgumentException Falls die ID eines Flags unbekannt ist
 	 */
-	public static @Nonnull EnumSet<ShipTypeFlag> parseFlags(@Nonnull String flagString) throws IllegalArgumentException
+	public static @Nonnull EnumSet<ShipTypeFlag> parseFlags(String flagString) throws IllegalArgumentException
 	{
 		EnumSet<ShipTypeFlag> flagSet = EnumSet.noneOf(ShipTypeFlag.class);
+
+		if( flagString == null )
+		{
+			return flagSet;
+		}
 
 		String[] flagArray = StringUtils.split(flagString, ' ');
 		for (String aflag : flagArray)
