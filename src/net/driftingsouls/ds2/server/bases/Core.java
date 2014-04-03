@@ -72,8 +72,8 @@ public abstract class Core {
 	private int eProduktion;
 	private int bewohner;
 	@ForeignKey(name="core_fk_forschung")
-	@ManyToOne(optional = false)
-	@JoinColumn(name="techreq", nullable = false)
+	@ManyToOne
+	@JoinColumn
 	private Forschung techReq;
 	private int eps;	
 	private boolean shutdown;
