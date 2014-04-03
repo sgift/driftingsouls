@@ -27,6 +27,8 @@ import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -60,31 +62,21 @@ public class Forschung {
 		/**
 		 * Erst sichtbar, wenn die Forschung auch erforschbar ist.
 		 */
-		IF_RESEARCHABLE(0, "Sichtbar, wenn erforschbar"),
+		IF_RESEARCHABLE("Sichtbar, wenn erforschbar"),
 		/**
 		 * Immer sichtbar.
 		 */
-		ALWAYS(1, "Sichtbar"),
+		ALWAYS("Sichtbar"),
 		/**
 		 * Niemals sichtbar.
 		 */
-		NEVER(2, "Unsichtbar");
+		NEVER("Unsichtbar");
 
 
-		private int bit;
 		private String description;
 
-		private Visibility(int bit, String description) {
-			this.bit = bit;
+		private Visibility(String description) {
 			this.description = description;
-		}
-
-		/**
-		 * Gibt das zum Flag gehoerende Bitmuster zurueck.
-		 * @return Das Bitmuster
-		 */
-		public int getBits() {
-			return this.bit;
 		}
 
 		@Override
@@ -129,7 +121,9 @@ public class Forschung {
 	@Column(nullable = false)
 	private String description;
 	private int race;
-	private int visibility;
+	@Enumerated(EnumType.ORDINAL)
+	@Column(nullable = false)
+	private Visibility visibility;
 	@Column(nullable = false)
 	private String flags;
 	private int specializationCosts;
@@ -140,6 +134,7 @@ public class Forschung {
 	 */
 	public Forschung() {
 		this.flags = "";
+		this.visibility = Visibility.IF_RESEARCHABLE;
 	}
 
 	/**
@@ -222,7 +217,7 @@ public class Forschung {
 	 * @return <code>true</code>, falls die Sichtbarkeit gegeben ist
 	 */
 	public boolean hasVisibility(Forschung.Visibility visibility) {
-		return (this.visibility & visibility.getBits()) != 0;
+		return this.visibility == visibility;
 	}
 
 	/**
@@ -320,8 +315,17 @@ public class Forschung {
 	 *
 	 * @param visibility Die neue Sichtbarkeitsstufe.
 	 */
-	public void setVisibility(int visibility) {
+	public void setVisibility(Visibility visibility) {
 		this.visibility = visibility;
+	}
+
+	/**
+	 * Gibt die Sichtbarkeit der Forschung zurueck.
+	 * @return Die Sichtbarkeitsstufe
+	 */
+	public Visibility getVisibility()
+	{
+		return visibility;
 	}
 
 	/**
