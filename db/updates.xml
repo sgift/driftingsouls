@@ -2252,5 +2252,9 @@ Die Vasudaner haben eine sehr alte Kultur mit mehreren hochentwickelten Sprachen
 		update forschungen set req1_id=null where req1_id=0;
 		update forschungen set req2_id=null where req2_id=0;
 		update forschungen set req3_id=null where req3_id=0;
+
+		update items_build set res1_id=null where res1_id=0;
+		update items_build set res2_id=null where res2_id=0;
+		update items_build set res3_id=null where res3_id=0;
 	]]></update>
 </updates>
