@@ -198,14 +198,14 @@ public class ForschinfoController extends TemplateController
 		{
 			t.start_record();
 
-			if ((i > 1) && ((research.getRequiredResearch(i) > 0) || (research.getRequiredResearch(i) == -1)))
+			if ((i > 1) && research.getRequiredResearch(i) != null)
 			{
 				t.setVar("tech.needs.item.break", true);
 			}
 
-			if (research.getRequiredResearch(i) > 0)
+			if (research.getRequiredResearch(i) != null && research.getRequiredResearch(i).getID() > 0)
 			{
-				Forschung dat = Forschung.getInstance(research.getRequiredResearch(i));
+				Forschung dat = research.getRequiredResearch(i);
 
 				t.setVar("tech.needs.item.researchable", true,
 						"tech.needs.item.id", research.getRequiredResearch(i),
@@ -213,7 +213,7 @@ public class ForschinfoController extends TemplateController
 
 				t.parse("tech.needs.list", "tech.needs.listitem", true);
 			}
-			else if (research.getRequiredResearch(i) == -1)
+			else if (research.getRequiredResearch(i) != null && research.getRequiredResearch(i).getID() == -1)
 			{
 				t.setVar("tech.needs.item.researchable", false);
 
@@ -396,7 +396,7 @@ public class ForschinfoController extends TemplateController
 
 		firstentry = true;
 		List<?> ships = db.createQuery("from ShipBaubar " +
-				"where tr1= :fid or tr2= :fid or tr3= :fid")
+				"where res1= :fid or res2= :fid or res3= :fid")
 				.setInteger("fid", research.getID())
 				.list();
 		for (Object ship1 : ships)
@@ -408,9 +408,9 @@ public class ForschinfoController extends TemplateController
 			//Schiff sichtbar???
 			for (int i = 1; i <= 3; i++)
 			{
-				if (ship.getRes(i) > 0)
+				if (ship.getRes(i) != null)
 				{
-					Forschung tmpres = Forschung.getInstance(ship.getRes(i));
+					Forschung tmpres = ship.getRes(i);
 					if (!tmpres.isVisibile(user) &&
 							(!user.hasResearched(ship.getRes(i)) || !user.hasResearched(tmpres.getRequiredResearch(1)) ||
 									!user.hasResearched(tmpres.getRequiredResearch(2)) || !user.hasResearched(tmpres.getRequiredResearch(3))
@@ -450,9 +450,9 @@ public class ForschinfoController extends TemplateController
 			Resources.echoResList(t, reslist, "tech.ship.costs.list");
 
 			//Benoetigt dieses Schiff noch weitere Forschungen???
-			if (((ship.getRes(1) != 0) && (ship.getRes(1) != research.getID())) ||
-					((ship.getRes(2) != 0) && (ship.getRes(2) != research.getID())) ||
-					((ship.getRes(3) != 0) && (ship.getRes(3) != research.getID())))
+			if (((ship.getRes(1) != null) && (ship.getRes(1).getID() != research.getID())) ||
+					((ship.getRes(2) != null) && (ship.getRes(2).getID() != research.getID())) ||
+					((ship.getRes(3) != null) && (ship.getRes(3).getID() != research.getID())))
 			{
 				firstentry = true;
 
@@ -460,11 +460,11 @@ public class ForschinfoController extends TemplateController
 				t.setVar("tech.ship.techs.list", "");
 				for (int b = 1; b <= 3; b++)
 				{
-					if ((ship.getRes(b) != 0) && (ship.getRes(b) != research.getID()))
+					if ((ship.getRes(b) != null) && (ship.getRes(b).getID() != research.getID()))
 					{
 						t.setVar("tech.ship.tech.break", !firstentry,
 								"tech.ship.tech.id", ship.getRes(b),
-								"tech.ship.tech.name", Forschung.getInstance(ship.getRes(b)).getName());
+								"tech.ship.tech.name", ship.getRes(b).getName());
 
 						if (firstentry)
 						{

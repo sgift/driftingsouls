@@ -18,13 +18,6 @@
  */
 package net.driftingsouls.ds2.server.bases;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
@@ -37,8 +30,11 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Das Forschungszentrum.
@@ -48,7 +44,6 @@ import org.apache.commons.logging.LogFactory;
 @Entity(name="ForschungszentrumBuilding")
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.ForschungszentrumBuilding")
 public class ForschungszentrumBuilding extends DefaultBuilding {
-	private static final Log log = LogFactory.getLog(ForschungszentrumBuilding.class);
 
 	/**
 	 * Erstellt eine neue Forschungszentrum-Instanz.
@@ -165,7 +160,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		Base base = fz.getBase();
 		Cargo cargo = base.getCargo();
 
-		List<Integer> researches = new ArrayList<Integer>();
+		List<Integer> researches = new ArrayList<>();
 		List<?> researchList = db.createQuery("from Forschungszentrum " +
 				"where forschung is not null and base.owner=:owner")
 				.setEntity("owner", user)
@@ -195,7 +190,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 			{
 				continue;
 			}
-			if (user.hasResearched(tech.getID()))
+			if (user.hasResearched(tech))
 			{
 				continue;
 			}
@@ -209,7 +204,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 
 			for (int k = 1; k <= 3; k++)
 			{
-				if ((tech.getRequiredResearch(k) != 0) && !user.hasResearched(tech.getRequiredResearch(k)))
+				if (tech.getRequiredResearch(k) != null && !user.hasResearched(tech.getRequiredResearch(k)))
 				{
 					ok = false;
 				}
@@ -281,7 +276,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		while( forschungIter.hasNext() ) {
 			Forschung tech = (Forschung)forschungIter.next();
 
-			if( tech.isVisibile(user) && user.hasResearched(tech.getID()) ) {
+			if( tech.isVisibile(user) && user.hasResearched(tech) ) {
 				echo.append("<tr><td class=\"noBorderX\">\n");
 				echo.append("<a class=\"forschinfo\" href=\"./ds?module=forschinfo&amp;res="+tech.getID()+"\">"+Common._plaintitle(tech.getName())+"</a>");
 				echo.append("</td><td class=\"noBorderX\"><img src=\"./data/interface/forschung/specpoints.gif\" alt=\"Spezialisierungskosten\">"+tech.getSpecializationCosts()+"</td>");

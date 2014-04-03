@@ -49,8 +49,8 @@ public class EditResearch extends AbstractEditPlugin8<Forschung> {
 		form.field("Forschungskosten", Cargo.class, Forschung::getCosts, Forschung::setCosts);
 		form.field("Spezialisierungspunkte", Integer.class, Forschung::getSpecializationCosts, Forschung::setSpecializationCosts);
 		form.textArea("Beschreibung", Forschung::getDescription, Forschung::setDescription);
-		form.field("Benötigt 1", Forschung.class, Integer.class, (f) -> f.getRequiredResearch(1), Forschung::setReq1);
-		form.field("Benötigt 2", Forschung.class, Integer.class, (f) -> f.getRequiredResearch(2), Forschung::setReq2);
-		form.field("Benötigt 3", Forschung.class, Integer.class, (f) -> f.getRequiredResearch(3), Forschung::setReq3);
+		form.field("Benötigt 1", Forschung.class, (f) -> f.getRequiredResearch(1), Forschung::setReq1);
+		form.field("Benötigt 2", Forschung.class, (f) -> f.getRequiredResearch(2), Forschung::setReq2);
+		form.field("Benötigt 3", Forschung.class, (f) -> f.getRequiredResearch(3), Forschung::setReq3);
 	}
 }

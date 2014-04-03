@@ -2242,5 +2242,15 @@ Die Vasudaner haben eine sehr alte Kultur mit mehreren hochentwickelten Sprachen
 		update ships_baubar set res1_id=null where res1_id=0;
 		update ships_baubar set res2_id=null where res2_id=0;
 		update ships_baubar set res3_id=null where res3_id=0;
+
+		alter table forschungen change column req1 req1_id integer;
+		alter table forschungen change column req2 req2_id integer;
+		alter table forschungen change column req3 req3_id integer;
+		alter table forschungen add index forschung_fk_forschung3 (req3_id), add constraint forschung_fk_forschung3 foreign key (req3_id) references forschungen (id);
+		alter table forschungen add index forschung_fk_forschung2 (req2_id), add constraint forschung_fk_forschung2 foreign key (req2_id) references forschungen (id);
+		alter table forschungen add index forschung_fk_forschung1 (req1_id), add constraint forschung_fk_forschung1 foreign key (req1_id) references forschungen (id);
+		update forschungen set req1_id=null where req1_id=0;
+		update forschungen set req2_id=null where req2_id=0;
+		update forschungen set req3_id=null where req3_id=0;
 	]]></update>
 </updates>

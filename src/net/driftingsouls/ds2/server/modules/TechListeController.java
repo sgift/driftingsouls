@@ -174,15 +174,16 @@ public class TechListeController extends TemplateController
 			// Benoetigte Forschungen ausgeben
 			if( !gruppenname.equals("researchable") ) {
 				for( int i=1; i <= 3; i++ ) {
-					if( result.getRequiredResearch(i) > 0) {
-						String req = Forschung.getInstance(result.getRequiredResearch(i)).getName();
+					Forschung forschung = result.getRequiredResearch(i);
+					if( forschung != null && forschung.getID() > 0) {
+						String req = forschung.getName();
 
-						t.setVar(	"tech.req"+i+".id",		result.getRequiredResearch(i),
+						t.setVar(	"tech.req"+i+".id", forschung,
 									"tech.req"+i+".name",	req );
 
 						resentry = true;
 					}
-					else if( (result.getRequiredResearch(i) < 0) && hasPermission("forschung", "allesSichtbar") ) {
+					else if( forschung != null && forschung.getID() < 0 && hasPermission("forschung", "allesSichtbar") ) {
 						t.setVar(	"tech.req"+i+".id",		"1",
 									"tech.req"+i+".name",	"<span style=\"color:#C7C7C7; font-weight:normal\">### Nicht erf&uuml;llbar</span>");
 

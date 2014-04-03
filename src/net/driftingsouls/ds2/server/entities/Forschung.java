@@ -22,13 +22,16 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 /**
@@ -106,9 +109,18 @@ public class Forschung {
 	@Column(nullable = false)
 	private String name;
 	private String image;
-	private int req1;
-	private int req2;
-	private int req3;
+	@ManyToOne
+	@JoinColumn
+	@ForeignKey(name="forschung_fk_forschung1")
+	private Forschung req1;
+	@ManyToOne
+	@JoinColumn
+	@ForeignKey(name="forschung_fk_forschung2")
+	private Forschung req2;
+	@ManyToOne
+	@JoinColumn
+	@ForeignKey(name="forschung_fk_forschung3")
+	private Forschung req3;
 	private int time;
 	@Type(type="cargo")
 	@Column(nullable = false)
@@ -147,11 +159,11 @@ public class Forschung {
 	}
 
 	/**
-	 * Gibt die ID einer der fuer diese Forschung benoetigten Forschungen zurueck.
+	 * Gibt die fuer diese Forschung benoetigten Forschungen zurueck.
 	 * @param number Die Nummer der benoetigten Forschung (1-3)
-	 * @return Die ID oder 0
+	 * @return Die Forschung oder <code>null</code>
 	 */
-	public int getRequiredResearch( int number ) {
+	public Forschung getRequiredResearch( int number ) {
 		switch(number) {
 		case 1:
 			return this.req1;
@@ -272,25 +284,25 @@ public class Forschung {
 
 	/**
 	 * Setzt die erste benoetigte Forschung .
-	 * @param req1 Die ID der Forschung.
+	 * @param req1 Die Forschung.
 	 */
-	public void setReq1(int req1) {
+	public void setReq1(Forschung req1) {
 		this.req1 = req1;
 	}
 
 	/**
 	 * Setzt die zweite benoetigte Forschung .
-	 * @param req2 Die ID der Forschung.
+	 * @param req2 Die Forschung.
 	 */
-	public void setReq2(int req2) {
+	public void setReq2(Forschung req2) {
 		this.req2 = req2;
 	}
 
 	/**
 	 * Setzt die zweite benoetigte Forschung.
-	 * @param req3 Die ID der Forschung.
+	 * @param req3 Die Forschung.
 	 */
-	public void setReq3(int req3) {
+	public void setReq3(Forschung req3) {
 		this.req3 = req3;
 	}
 
@@ -318,7 +330,7 @@ public class Forschung {
 	 * @return <code>true</code>, falls die Forschung das Flag besitzt
 	 */
 	public boolean hasFlag( String flag ) {
-		return this.flags.indexOf(flag) > -1;
+		return this.flags.contains(flag);
 	}
 
 	/**
