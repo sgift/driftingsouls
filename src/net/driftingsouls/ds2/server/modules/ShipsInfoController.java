@@ -125,9 +125,9 @@ public class ShipsInfoController extends TemplateController
 					}
 					else
 					{
-						Forschung res1 = Forschung.getInstance(buildData.getRes(1));
-						Forschung res2 = Forschung.getInstance(buildData.getRes(2));
-						Forschung res3 = Forschung.getInstance(buildData.getRes(3));
+						Forschung res1 = buildData.getRes(1);
+						Forschung res2 = buildData.getRes(2);
+						Forschung res3 = buildData.getRes(3);
 
 						boolean visible = (res1.getID() == 0 || res1.isVisibile(user)) && (res2.getID() == 0 || res2.isVisibile(user)) && (res3.getID() == 0 || res3.isVisibile(user));
 						if (visible)

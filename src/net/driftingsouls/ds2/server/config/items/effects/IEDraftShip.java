@@ -18,18 +18,18 @@
  */
 package net.driftingsouls.ds2.server.config.items.effects;
 
-import java.io.IOException;
-import java.io.Writer;
-
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
+import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipType;
-
 import org.apache.commons.lang.StringUtils;
+
+import java.io.IOException;
+import java.io.Writer;
 
 /**
  * Item-Effekt "Schiffsbauplan".
@@ -231,9 +231,9 @@ public class IEDraftShip extends ItemEffect {
 		baudaten.setDauer(this.dauer);
 		baudaten.setEKosten(this.e);
 		baudaten.setRace(this.race);
-		baudaten.setRes1(this.getTechReq(1));
-		baudaten.setRes2(this.getTechReq(2));
-		baudaten.setRes3(this.getTechReq(3));
+		baudaten.setRes1(Forschung.getInstance(this.getTechReq(1)));
+		baudaten.setRes2(Forschung.getInstance(this.getTechReq(2)));
+		baudaten.setRes3(Forschung.getInstance(this.getTechReq(3)));
 		baudaten.setWerftSlots(this.werftslots);
 		baudaten.setFlagschiff(this.flagschiff);
 

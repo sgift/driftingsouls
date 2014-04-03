@@ -98,10 +98,10 @@ public class SchiffInfoController extends TemplateController
 		{
 			for (int i = 1; i <= 3; i++)
 			{
-				if (shipBuildData.getRes(i) != 0)
+				if (shipBuildData.getRes(i) != null)
 				{
 					User user = (User) getUser();
-					Forschung research = Forschung.getInstance(shipBuildData.getRes(i));
+					Forschung research = shipBuildData.getRes(i);
 					UserResearch userResearch = user.getUserResearch(research);
 					String cssClass = "error";
 					//Has the user this research?
@@ -120,9 +120,9 @@ public class SchiffInfoController extends TemplateController
 		{
 			for (int i = 1; i <= 3; i++)
 			{
-				if (shipBuildData.getRes(i) != 0)
+				if (shipBuildData.getRes(i) != null)
 				{
-					Forschung f = Forschung.getInstance(shipBuildData.getRes(i));
+					Forschung f = shipBuildData.getRes(i);
 
 					t.setVar("shiptype.tr" + i, shipBuildData.getRes(i),
 							"shiptype.tr" + i + ".name", Common._title(f.getName()));
@@ -183,16 +183,16 @@ public class SchiffInfoController extends TemplateController
 		ShipBaubar shipBuildData = ermittleBauInformationen(db, ship.getTypeId());
 
 		//Kann der User sehen, dass das Schiff baubar ist?
-		int visible = ermittleSichtbarkeitDesSchiffstyps(user, shipBuildData);
+		Forschung visible = ermittleSichtbarkeitDesSchiffstyps(user, shipBuildData);
 
-		if (visible > 0)
+		if (visible != null)
 		{
 			shipBuildData = null;
 
 			if ((user != null) && hasPermission("schiffstyp", "versteckteSichtbar"))
 			{
 				t.setVar("shiptype.showbuildable", 1,
-						"shiptype.visibletech", visible);
+						"shiptype.visibletech", visible.getID());
 			}
 		}
 
@@ -438,17 +438,17 @@ public class SchiffInfoController extends TemplateController
 		}
 	}
 
-	private int ermittleSichtbarkeitDesSchiffstyps(User user, ShipBaubar shipBuildData)
+	private Forschung ermittleSichtbarkeitDesSchiffstyps(User user, ShipBaubar shipBuildData)
 	{
-		int visible = -1;
+		Forschung visible = null;
 
 		if (shipBuildData != null)
 		{
 			for (int i = 1; i <= 3; i++)
 			{
-				if (shipBuildData.getRes(i) != 0)
+				if (shipBuildData.getRes(i) != null)
 				{
-					Forschung research = Forschung.getInstance(shipBuildData.getRes(i));
+					Forschung research = shipBuildData.getRes(i);
 
 					if (!research.isVisibile(user) &&
 							(user == null || !user.hasResearched(research.getRequiredResearch(1)) ||

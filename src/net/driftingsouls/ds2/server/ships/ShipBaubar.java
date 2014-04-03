@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.ships;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.entities.Forschung;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Type;
 
@@ -54,9 +55,18 @@ public class ShipBaubar {
 	@Column(name="ekosten", nullable = false)
 	private int eKosten;
 	private int race;
-	private int tr1;
-	private int tr2;
-	private int tr3;
+	@ManyToOne
+	@JoinColumn
+	@ForeignKey(name="ships_baubar_fk_forschung1")
+	private Forschung res1;
+	@ManyToOne
+	@JoinColumn
+	@ForeignKey(name="ships_baubar_fk_forschung2")
+	private Forschung res2;
+	@ManyToOne
+	@JoinColumn
+	@ForeignKey(name="ships_baubar_fk_forschung3")
+	private Forschung res3;
 	@Column(name="werftslots", nullable = false)
 	private int werftSlots;
 	private boolean flagschiff;
@@ -138,14 +148,14 @@ public class ShipBaubar {
 	 * @param res Die Nummer der Forschung (1-3)
 	 * @return Die Forschung
 	 */
-	public int getRes(int res) {
+	public Forschung getRes(int res) {
 		switch(res) {
 		case 1:
-			return tr1;
+			return res1;
 		case 2:
-			return tr2;
+			return res2;
 		case 3:
-			return tr3;
+			return res3;
 		}
 		throw new IllegalArgumentException("Ungueltige Forschungsnummer '"+res+"'");
 	}
@@ -227,24 +237,24 @@ public class ShipBaubar {
 	 * Setzt die Forschung Nummer 1.
 	 * @param res Die ID der neuen Forschung
 	 */
-	public void setRes1(int res) {
-		this.tr1 = res;
+	public void setRes1(Forschung res) {
+		this.res1 = res;
 	}
 	
 	/**
 	 * Setzt die Forschung Nummer 2.
 	 * @param res Die ID der neuen Forschung
 	 */
-	public void setRes2(int res) {
-		this.tr2 = res;
+	public void setRes2(Forschung res) {
+		this.res2 = res;
 	}
 	
 	/**
 	 * Setzt die Forschung Nummer 3.
 	 * @param res Die ID der neuen Forschung
 	 */
-	public void setRes3(int res) {
-		this.tr3 = res;
+	public void setRes3(Forschung res) {
+		this.res3 = res;
 	}
 	
 	/**
