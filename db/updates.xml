@@ -2224,5 +2224,11 @@ Die Vasudaner haben eine sehr alte Kultur mit mehreren hochentwickelten Sprachen
 	]]></update>
 	<update type="structure" datum="2014-04-03"><![CDATA[
 		alter table cores add index core_fk_forschung (techreq), add constraint core_fk_forschung foreign key (techreq) references forschungen (id);
+		alter table items_build change column res1 res1_id integer;
+		alter table items_build change column res2 res2_id integer;
+		alter table items_build change column res3 res3_id integer;
+		alter table items_build add index factoryentry_fk_forschung2 (res2_id), add constraint factoryentry_fk_forschung2 foreign key (res2_id) references forschungen (id);
+		alter table items_build add index factoryentry_fk_forschung1 (res1_id), add constraint factoryentry_fk_forschung1 foreign key (res1_id) references forschungen (id);
+		alter table items_build add index factoryentry_fk_forschung3 (res3_id), add constraint factoryentry_fk_forschung3 foreign key (res3_id) references forschungen (id);
 	]]></update>
 </updates>

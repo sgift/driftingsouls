@@ -23,12 +23,15 @@ import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
 import net.driftingsouls.ds2.server.framework.Common;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 
@@ -45,9 +48,17 @@ public class FactoryEntry {
 	private int id;
 	@Column(nullable = false)
 	private String name;
-	private int res1;
-	private int res2;
-	private int res3;
+	@ManyToOne
+	@JoinColumn
+	@ForeignKey(name="factoryentry_fk_forschung1")
+	private Forschung res1;
+	@ManyToOne
+	@ForeignKey(name="factoryentry_fk_forschung2")
+	private Forschung res2;
+	@ManyToOne
+	@JoinColumn
+	@ForeignKey(name="factoryentry_fk_forschung3")
+	private Forschung res3;
 	@Column(nullable = false, precision = 19, scale = 5)
 	private BigDecimal dauer;
 	@Column(name="buildcosts", nullable = false)
@@ -148,7 +159,7 @@ public class FactoryEntry {
 	 * Gibt die erste benoetigte Forschung zurueck.
 	 * @return Die erste benoetigte Forschung
 	 */
-	public int getRes1() {
+	public Forschung getRes1() {
 		return res1;
 	}
 
@@ -156,7 +167,7 @@ public class FactoryEntry {
 	 * Gibt die zweite benoetigte Forschung zurueck.
 	 * @return Die zweite benoetigte Forschung
 	 */
-	public int getRes2() {
+	public Forschung getRes2() {
 		return res2;
 	}
 
@@ -164,7 +175,7 @@ public class FactoryEntry {
 	 * Gibt die dritte benoetigte Forschung zurueck.
 	 * @return Die erste benoetigte Forschung
 	 */
-	public int getRes3() {
+	public Forschung getRes3() {
 		return res3;
 	}
 	
@@ -176,7 +187,7 @@ public class FactoryEntry {
 	 * @see #getRes2()
 	 * @see #getRes3()
 	 */
-	public int getRes(int i) {
+	public Forschung getRes(int i) {
 		switch(i) {
 		case 1:
 			return getRes1();
@@ -235,7 +246,7 @@ public class FactoryEntry {
 	 * Setzt die erste benoetigte Forschung.
 	 * @param res1 Die Forschung
 	 */
-	public void setRes1(int res1) {
+	public void setRes1(Forschung res1) {
 		this.res1 = res1;
 	}
 
@@ -243,7 +254,7 @@ public class FactoryEntry {
 	 * Setzt die zweite benoetigte Forschung.
 	 * @param res2 Die Forschung
 	 */
-	public void setRes2(int res2) {
+	public void setRes2(Forschung res2) {
 		this.res2 = res2;
 	}
 
@@ -251,7 +262,7 @@ public class FactoryEntry {
 	 * Setzt die dritte benoetigte Forschung.
 	 * @param res3 Die Forschung
 	 */
-	public void setRes3(int res3) {
+	public void setRes3(Forschung res3) {
 		this.res3 = res3;
 	}
 }

@@ -46,9 +46,9 @@ public class EditFactoryEntry extends AbstractEditPlugin8<FactoryEntry>
 		form.allowAdd();
 		form.field("Name", String.class, FactoryEntry::getName, FactoryEntry::setName);
 		form.field("Baukosten", Cargo.class, FactoryEntry::getBuildCosts, FactoryEntry::setBuildCosts);
-		form.field("Forschung 1", Forschung.class, Integer.class, FactoryEntry::getRes1, FactoryEntry::setRes1);
-		form.field("Forschung 2", Forschung.class, Integer.class, FactoryEntry::getRes2, FactoryEntry::setRes2);
-		form.field("Forschung 3", Forschung.class, Integer.class, FactoryEntry::getRes3, FactoryEntry::setRes3);
+		form.field("Forschung 1", Forschung.class, FactoryEntry::getRes1, FactoryEntry::setRes1);
+		form.field("Forschung 2", Forschung.class, FactoryEntry::getRes2, FactoryEntry::setRes2);
+		form.field("Forschung 3", Forschung.class, FactoryEntry::getRes3, FactoryEntry::setRes3);
 		form.field("Produktion", Cargo.class, FactoryEntry::getProduce, FactoryEntry::setProduce);
 		form.field("Dauer", BigDecimal.class, FactoryEntry::getDauer, FactoryEntry::setDauer);
 		form.field("BuildingIDs", String.class, FactoryEntry::getBuildingIdString, FactoryEntry::setBuildingIdString);
