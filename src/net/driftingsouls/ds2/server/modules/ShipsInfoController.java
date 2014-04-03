@@ -129,7 +129,7 @@ public class ShipsInfoController extends TemplateController
 						Forschung res2 = buildData.getRes(2);
 						Forschung res3 = buildData.getRes(3);
 
-						boolean visible = (res1.getID() == 0 || res1.isVisibile(user)) && (res2.getID() == 0 || res2.isVisibile(user)) && (res3.getID() == 0 || res3.isVisibile(user));
+						boolean visible = (res1 == null || res1.isVisibile(user)) && (res2 == null || res2.isVisibile(user)) && (res3 == null || res3.isVisibile(user));
 						if (visible)
 						{
 							sortedShipTypes.get(BuildKind.LACKING_RESEARCH).add(shipType);

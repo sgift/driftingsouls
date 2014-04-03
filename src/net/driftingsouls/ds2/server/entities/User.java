@@ -51,6 +51,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
+import javax.annotation.Nullable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
@@ -319,7 +320,6 @@ public class User extends BasicUser {
 		Ordner trash = Ordner.createNewOrdner("Papierkorb", Ordner.getOrdnerByID(0, this), this);
 		trash.setFlags(Ordner.FLAG_TRASH);
 		this.researches = new HashSet<>();
-		addResearch(Forschung.getInstance(0));
 		this.specializationPoints = 15;
 		this.loyalitaetspunkte = new HashSet<>();
 
@@ -799,12 +799,14 @@ public class User extends BasicUser {
 
 	/**
 	 * Prueft, ob die angegebene Forschung durch den Benutzer erforscht wurde.
+	 * Falls <code>null</code> uebergeben wird, wird <code>true</code> zurueckgegeben
+	 * (Nichts ist immer erforscht).
 	 *
 	 * @param research Die zu pruefende Forschung
 	 * @return <code>true</code>, falls die Forschung erforscht wurde
 	 */
-	public boolean hasResearched( Forschung research ) {
-		return getUserResearch(research) != null;
+	public boolean hasResearched( @Nullable Forschung research ) {
+		return research == null || getUserResearch(research) != null;
 	}
 
 	/**
@@ -1407,10 +1409,12 @@ public class User extends BasicUser {
 	public long getFreeSpecializationPoints()
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		long usedSpecpoints =  (Long)db
+		Long usedSpecpoints =  (Long)db
 				.createQuery("select sum(res.research.specializationCosts) from UserResearch res where res.owner=:owner")
 				.setParameter("owner", this)
 		  		.uniqueResult();
+
+		usedSpecpoints = usedSpecpoints == null ? 0 : usedSpecpoints;
 
 		//Add researchs, which are currently developed in research centers
 		List<Forschungszentrum> researchcenters = Common.cast(db

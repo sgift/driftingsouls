@@ -2266,5 +2266,8 @@ Die Vasudaner haben eine sehr alte Kultur mit mehreren hochentwickelten Sprachen
 		alter table cores change techreq techreq_id integer;
 		update cores set techreq_id=null where techreq_id=0;
 		alter table cores add index core_fk_forschung (techreq_id), add constraint core_fk_forschung foreign key (techreq_id) references forschungen (id);
+
+		delete from userresearch where research=0;
+		delete from forschungen where id=0;
 	]]></update>
 </updates>

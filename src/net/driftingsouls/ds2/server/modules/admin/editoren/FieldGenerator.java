@@ -233,7 +233,7 @@ public class FieldGenerator<E, T> implements CustomFieldGenerator<E>
 		echo.append("<select size=\"1\" ").append(readOnly.apply(entity) ? "disabled='disabled' " : "").append("name=\"").append(name).append("\">");
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		Serializable selected = -1;
+		Serializable selected = null;
 		if (type.isInstance(value) && type.isAnnotationPresent(Entity.class))
 		{
 			selected = db.getIdentifier(value);
@@ -243,14 +243,12 @@ public class FieldGenerator<E, T> implements CustomFieldGenerator<E>
 			selected = (Serializable) value;
 		}
 
-		boolean containsIdentifier = this.selectionOptions.containsKey(selected);
-
 		for (Map.Entry<Serializable, Object> entry : this.selectionOptions.entrySet())
 		{
 			Serializable identifier = entry.getKey();
 			echo.append("<option ");
 			echo.append(" value=\"").append(identifier != null ? identifier.toString() : "").append("\"");
-			if ((identifier == null && !containsIdentifier) || (containsIdentifier && identifier != null && identifier.equals(selected)))
+			if ((identifier == null && selected == null) || (identifier != null && identifier.equals(selected)))
 			{
 				echo.append(" selected=\"selected\"");
 			}
