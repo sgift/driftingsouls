@@ -112,8 +112,8 @@ public abstract class Building
 	private int eVerbrauch;
 	@Column(name = "eprodu", nullable = false)
 	private int eProduktion;
-	@ManyToOne(optional = false)
-	@JoinColumn(name = "techreq", nullable = false)
+	@ManyToOne
+	@JoinColumn
 	@ForeignKey(name="building_fk_forschung")
 	private Forschung techReq;
 	private int eps;
