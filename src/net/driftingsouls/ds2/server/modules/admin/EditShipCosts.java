@@ -51,9 +51,9 @@ public class EditShipCosts extends AbstractEditPlugin8<ShipBaubar>
 		form.field("Rasse", Rasse.class, Integer.class, ShipBaubar::getRace, ShipBaubar::setRace);
 		form.field("Benötigtige Werftslots", Integer.class, ShipBaubar::getWerftSlots, ShipBaubar::setWerftSlots);
 		form.field("Flagschiff", Boolean.class, ShipBaubar::isFlagschiff, ShipBaubar::setFlagschiff);
-		form.field("Forschung 1", Forschung.class, (sb) -> sb.getRes(1), ShipBaubar::setRes1);
-		form.field("Forschung 2", Forschung.class, (sb) -> sb.getRes(2), ShipBaubar::setRes2);
-		form.field("Forschung 3", Forschung.class, (sb) -> sb.getRes(3), ShipBaubar::setRes3);
+		form.field("Forschung 1", Forschung.class, (sb) -> sb.getRes(1), ShipBaubar::setRes1).withNullOption("[keine]");
+		form.field("Forschung 2", Forschung.class, (sb) -> sb.getRes(2), ShipBaubar::setRes2).withNullOption("[keine]");
+		form.field("Forschung 3", Forschung.class, (sb) -> sb.getRes(3), ShipBaubar::setRes3).withNullOption("[keine]");
 		form.field("Baukosten", Cargo.class, ShipBaubar::getCosts, ShipBaubar::setCosts);
 	}
 }
