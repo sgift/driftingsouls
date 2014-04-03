@@ -112,12 +112,12 @@ public class IEDraftShip extends ItemEffect {
 	 * @param index Der Index (1-3)
 	 * @return Die Tech
 	 */
-	public int getTechReq(int index) {
+	public Forschung getTechReq(int index) {
 		index--;
 		if( (index < 0) || (index >= techs.length) ) {
-			return 0;
+			return null;
 		}
-		return techs[index];
+		return Forschung.getInstance(techs[index]);
 	}
 	
 	/**
@@ -231,9 +231,9 @@ public class IEDraftShip extends ItemEffect {
 		baudaten.setDauer(this.dauer);
 		baudaten.setEKosten(this.e);
 		baudaten.setRace(this.race);
-		baudaten.setRes1(Forschung.getInstance(this.getTechReq(1)));
-		baudaten.setRes2(Forschung.getInstance(this.getTechReq(2)));
-		baudaten.setRes3(Forschung.getInstance(this.getTechReq(3)));
+		baudaten.setRes1(this.getTechReq(1));
+		baudaten.setRes2(this.getTechReq(2));
+		baudaten.setRes3(this.getTechReq(3));
 		baudaten.setWerftSlots(this.werftslots);
 		baudaten.setFlagschiff(this.flagschiff);
 

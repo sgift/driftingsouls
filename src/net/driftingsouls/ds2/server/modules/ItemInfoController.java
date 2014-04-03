@@ -443,9 +443,9 @@ public class ItemInfoController extends TemplateController
 				boolean entry = false;
 				for (int i = 0; i < 3; i++)
 				{
-					if (effect.getTechReq(i) != 0)
+					if (effect.getTechReq(i) != null)
 					{
-						Forschung dat = Forschung.getInstance(effect.getTechReq(i));
+						Forschung dat = effect.getTechReq(i);
 						if (!dat.isVisibile(user) && (!user.hasResearched(dat.getRequiredResearch(1)) || !user.hasResearched(dat.getRequiredResearch(2)) || !user.hasResearched(dat.getRequiredResearch(3))))
 						{
 							data.append("Unbekannt");

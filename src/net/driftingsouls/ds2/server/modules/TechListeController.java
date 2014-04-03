@@ -241,7 +241,7 @@ public class TechListeController extends TemplateController
 			}
 
 			// Status der Forschung (erforscht/verfuegbar/nicht verfuegbar) ermitteln
-			if( f.isVisibile(user) && user.hasResearched(f.getID()) ) {
+			if( f.isVisibile(user) && user.hasResearched(f) ) {
 				researched.put(f.getID(), f);
 			}
 			else if( f.isVisibile(user) && user.hasResearched(f.getRequiredResearch(1)) && user.hasResearched(f.getRequiredResearch(2)) &&

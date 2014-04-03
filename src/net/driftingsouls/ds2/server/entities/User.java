@@ -319,7 +319,7 @@ public class User extends BasicUser {
 		Ordner trash = Ordner.createNewOrdner("Papierkorb", Ordner.getOrdnerByID(0, this), this);
 		trash.setFlags(Ordner.FLAG_TRASH);
 		this.researches = new HashSet<>();
-		addResearch(0);
+		addResearch(Forschung.getInstance(0));
 		this.specializationPoints = 15;
 		this.loyalitaetspunkte = new HashSet<>();
 
@@ -808,24 +808,13 @@ public class User extends BasicUser {
 	}
 
 	/**
-	 * Prueft, ob die angegebene Forschung durch den Benutzer erforscht wurde.
-	 *
-	 * @param researchID Die ID der zu pruefenden Forschung
-	 * @return <code>true</code>, falls die Forschung erforscht wurde
-	 */
-	public boolean hasResearched( int researchID ) {
-		return hasResearched(Forschung.getInstance(researchID));
-	}
-
-	/**
 	 * Fuegt eine Forschung zur Liste der durch den Benutzer erforschten Technologien hinzu,
 	 * wenn er sie noch nicht hatte.
 	 *
-	 * @param researchID Die ID der erforschten Technologie
+	 * @param research Die erforschte Technologie
 	 */
-	public void addResearch( int researchID ) {
+	public void addResearch( Forschung research ) {
 		org.hibernate.Session db = context.getDB();
-		Forschung research = Forschung.getInstance(researchID);
 
 		if( this.getUserResearch(research) == null )
 		{

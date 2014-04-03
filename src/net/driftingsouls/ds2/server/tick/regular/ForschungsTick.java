@@ -75,7 +75,7 @@ public class ForschungsTick extends TickController {
 
 				log("\t"+forschung.getName()+" ("+forschung.getID()+") erforscht");
 
-				user.addResearch( forschung.getID() );
+				user.addResearch( forschung );
 
 				String msg = "Das Forschungszentrum auf [base="+base.getId()+"]"+base.getName()+"[/base] hat die Forschungen an "+forschung.getName()+" abgeschlossen";
 
