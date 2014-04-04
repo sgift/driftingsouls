@@ -34,6 +34,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Ein Eintrag der Fabriken.
@@ -178,26 +180,28 @@ public class FactoryEntry {
 	public Forschung getRes3() {
 		return res3;
 	}
-	
+
 	/**
-	 * Gibt die benoetigte Forschung zurueck.
-	 * @param i Die Nummer der Forschung (1-3)
-	 * @return Die Forschung
-	 * @see #getRes1()
-	 * @see #getRes2()
-	 * @see #getRes3()
+	 * Gibt alle benoetigten Forschungen zurueck.
+	 * @return Die benoetigten Forschungen
 	 */
-	public Forschung getRes(int i) {
-		switch(i) {
-		case 1:
-			return getRes1();
-		case 2:
-			return getRes2();
-		case 3:
-			return getRes3();
-		default:
-			throw new RuntimeException("Ungueltiger Forschungsindex '"+i+"'");
+	public Set<Forschung> getBenoetigteForschungen()
+	{
+		Set<Forschung> result = new HashSet<>();
+		if( this.res1 != null )
+		{
+			result.add(this.res1);
 		}
+		if( this.res2 != null )
+		{
+			result.add(this.res2);
+		}
+		if( this.res3 != null )
+		{
+			result.add(this.res3);
+		}
+
+		return result;
 	}
 
 	/**

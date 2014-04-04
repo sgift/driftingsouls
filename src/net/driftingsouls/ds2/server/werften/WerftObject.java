@@ -212,7 +212,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 					slots -= entries.get(i).getSlots();
 
 					if( !scheduled.containsKey(time+entry.getRemainingTime()) ) {
-						scheduled.put(time+entry.getRemainingTime(), new ArrayList<WerftQueueEntry>());
+						scheduled.put(time+entry.getRemainingTime(), new ArrayList<>());
 					}
 					scheduled.get(time+entry.getRemainingTime()).add(entry);
 					entries.remove(i--);
@@ -1251,86 +1251,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	}
 
 	/**
-	 * Gibt alle Schiffstypen zurueck, die diese Werft derzeit nicht bauen kann.
-	 *
-	 * @return Schiffstypen, die nicht baubar sind.
-	 */
-	private Set<ShipType> getDisabledShips() {
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
-		Cargo availablecargo = this.getCargo(false);
-		Cargo allyitems = getAllyItems();
-		Set<ShipType> disabledShips = new HashSet<>();
-
-		Cargo allitems = new Cargo();
-		allitems.addCargo(allyitems);
-		allitems.addCargo(availablecargo);
-
-		for(ItemCargoEntry item: allitems.getItemsWithEffect( ItemEffect.Type.DISABLE_SHIP ))
-		{
-			IEDisableShip disableShip = (IEDisableShip)item.getItemEffect();
-			disabledShips.add((ShipType)db.load(ShipType.class, disableShip.getShipType()));
-		}
-
-		return disabledShips;
-	}
-
-	private Set<ItemCargoEntry> getAllItems() {
-		Cargo allyitems = getAllyItems();
-		Cargo shipyardCargo = this.getCargo(false);
-
-		Set<ItemCargoEntry> items = new HashSet<>();
-		items.addAll(allyitems.getItemsWithEffect(ItemEffect.Type.DRAFT_SHIP));
-		items.addAll(shipyardCargo.getItemsWithEffect(ItemEffect.Type.DRAFT_SHIP));
-
-		return items;
-	}
-
-	/**
-	 * Gibt alle Bauplaene auf der Werft zurueck, die derzeit benutzt werden koennen.
-	 *
-	 * @return Nutzbare Bauplaene.
-	 */
-	private Set<IEDraftShip> getUsableShipDrafts() {
-		User owner = this.getOwner();
-		Set<IEDraftShip> shipDrafts = new HashSet<>();
-
-
-		//All Drafts - ally and local
-		Set<ItemCargoEntry> items = getAllItems();
-
-		for(ItemCargoEntry item: items) {
-			if(item.getItemEffect().getType() != ItemEffect.Type.DRAFT_SHIP) {
-				continue;
-			}
-
-			IEDraftShip draft = (IEDraftShip)item.getItemEffect();
-
-			if( draft.getWerftSlots() > this.getWerftSlots() ) {
-				continue;
-			}
-
-			if(!owner.hasResearched(draft.getTechReq(1)) || !owner.hasResearched(draft.getTechReq(2)) || !owner.hasResearched(draft.getTechReq(3))) {
-				continue;
-			}
-
-			shipDrafts.add(draft);
-		}
-
-		return shipDrafts;
-	}
-
-	private Cargo getAllyItems() {
-		User owner = this.getOwner();
-		if( owner.getAlly() != null ) {
-			return new Cargo(Cargo.Type.ITEMSTRING, owner.getAlly().getItems());
-		}
-
-		return new Cargo();
-	}
-
-	/**
 	 * Liefert die Liste aller theoretisch baubaren Schiffe auf dieser Werft.
 	 * Das vorhanden sein von Resourcen wird hierbei nicht beruecksichtigt.
 	 * @return array mit Schiffsbaudaten (ships_baubar) sowie
@@ -1386,9 +1306,8 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			}
 
 			//Forschungen checken
-			if( !user.hasResearched(sb.getRes(1)) ||
-				!user.hasResearched(sb.getRes(2)) ||
-				!user.hasResearched(sb.getRes(3))) {
+			if( !user.hasResearched(sb.getBenoetigteForschungen()) )
+			{
 				continue;
 			}
 
@@ -1408,7 +1327,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			}
 
 			//Forschungen checken
-			if (!user.hasResearched(effect.getTechReq(1)) || !user.hasResearched(effect.getTechReq(2)) || !user.hasResearched(effect.getTechReq(3)))
+			if (!user.hasResearched(effect.getBenoetigteForschungen()) )
 			{
 				continue;
 			}
@@ -1427,7 +1346,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			}
 
 			//Forschungen checken
-			if (!user.hasResearched(effect.getTechReq(1)) || !user.hasResearched(effect.getTechReq(2)) || !user.hasResearched(effect.getTechReq(3)))
+			if (!user.hasResearched(effect.getBenoetigteForschungen()) )
 			{
 				continue;
 			}
@@ -1515,6 +1434,11 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	public boolean buildShip( int build, int item, boolean costsPerTick, boolean testonly )
 	{
 		SchiffBauinformationen shipdata = this.getShipBuildData( build, item );
+		if( shipdata == null )
+		{
+			MESSAGE.get().append("Diese Werft dieses Bauprojekt nicht durchführen");
+			return false;
+		}
 		return buildShip(shipdata, costsPerTick, testonly);
 	}
 

@@ -30,6 +30,8 @@ import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Item-Effekt "Schiffsbauplan".
@@ -118,6 +120,20 @@ public class IEDraftShip extends ItemEffect {
 			return null;
 		}
 		return Forschung.getInstance(techs[index]);
+	}
+
+	/**
+	 * Gibt alle benoetigten Forschungen zurueck.
+	 * @return Die Forschungen
+	 */
+	public Set<Forschung> getBenoetigteForschungen()
+	{
+		Set<Forschung> result = new HashSet<>();
+		for (int tech : techs)
+		{
+			result.add(Forschung.getInstance(tech));
+		}
+		return result;
 	}
 	
 	/**

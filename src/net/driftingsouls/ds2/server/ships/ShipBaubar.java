@@ -31,6 +31,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Ein Baueintrag fuer einen Schiffstyp.
@@ -141,6 +143,28 @@ public class ShipBaubar {
 	 */
 	public int getRace() {
 		return race;
+	}
+
+	/**
+	 * Gibt alle benoetigten Forschungen zurueck.
+	 * @return Die Forschungen
+	 */
+	public Set<Forschung> getBenoetigteForschungen()
+	{
+		Set<Forschung> result = new HashSet<>();
+		if( this.res1 != null )
+		{
+			result.add(this.res1);
+		}
+		if( this.res2 != null )
+		{
+			result.add(this.res2);
+		}
+		if( this.res3 != null )
+		{
+			result.add(this.res3);
+		}
+		return result;
 	}
 
 	/**

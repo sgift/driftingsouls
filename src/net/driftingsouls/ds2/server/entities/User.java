@@ -51,6 +51,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -67,6 +68,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -829,6 +831,16 @@ public class User extends BasicUser {
 	}
 
 	/**
+	 * Prueft, ob alle angegebenen Forschungen durch den Spieler erforscht wurden.
+	 * @param forschungen Die Forschungen
+	 * @return <code>true</code>, falls alle Forschungen erforscht wurden
+	 */
+	public boolean hasResearched( @Nonnull Collection<Forschung> forschungen )
+	{
+		return forschungen.stream().noneMatch((f) -> !hasResearched(f));
+	}
+
+	/**
 	 * Prueft, ob die angegebene Forschung durch den Benutzer erforscht wurde.
 	 * Falls <code>null</code> uebergeben wird, wird <code>true</code> zurueckgegeben
 	 * (Nichts ist immer erforscht).
@@ -836,7 +848,8 @@ public class User extends BasicUser {
 	 * @param research Die zu pruefende Forschung
 	 * @return <code>true</code>, falls die Forschung erforscht wurde
 	 */
-	public boolean hasResearched( @Nullable Forschung research ) {
+	public boolean hasResearched( @Nullable Forschung research )
+	{
 		return research == null || getUserResearch(research) != null;
 	}
 

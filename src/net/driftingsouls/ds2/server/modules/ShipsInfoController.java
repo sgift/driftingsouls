@@ -4,7 +4,6 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Rassen;
-import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -110,7 +109,7 @@ public class ShipsInfoController extends TemplateController
 			{
 				if (Rassen.get().rasse(user.getRace()).isMemberIn(buildData.getRace()))
 				{
-					boolean researched = user.hasResearched(buildData.getRes(1)) && user.hasResearched(buildData.getRes(2)) && user.hasResearched(buildData.getRes(3));
+					boolean researched = user.hasResearched(buildData.getBenoetigteForschungen());
 					if (researched)
 					{
 						int slotsNeeded = buildData.getWerftSlots();
@@ -125,11 +124,7 @@ public class ShipsInfoController extends TemplateController
 					}
 					else
 					{
-						Forschung res1 = buildData.getRes(1);
-						Forschung res2 = buildData.getRes(2);
-						Forschung res3 = buildData.getRes(3);
-
-						boolean visible = (res1 == null || res1.isVisibile(user)) && (res2 == null || res2.isVisibile(user)) && (res3 == null || res3.isVisibile(user));
+						boolean visible = buildData.getBenoetigteForschungen().stream().allMatch((f) -> f.isVisibile(user));
 						if (visible)
 						{
 							sortedShipTypes.get(BuildKind.LACKING_RESEARCH).add(shipType);

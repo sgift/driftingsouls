@@ -444,20 +444,12 @@ public class SchiffInfoController extends TemplateController
 
 		if (shipBuildData != null)
 		{
-			for (int i = 1; i <= 3; i++)
+			for (Forschung forschung : shipBuildData.getBenoetigteForschungen())
 			{
-				if (shipBuildData.getRes(i) != null)
+				if (!forschung.isVisibile(user) && (user == null || !user.hasResearched(forschung.getBenoetigteForschungen())))
 				{
-					Forschung research = shipBuildData.getRes(i);
 
-					if (!research.isVisibile(user) &&
-							(user == null || !user.hasResearched(research.getRequiredResearch(1)) ||
-									!user.hasResearched(research.getRequiredResearch(2)) ||
-									!user.hasResearched(research.getRequiredResearch(3))))
-					{
-
-						visible = shipBuildData.getRes(i);
-					}
+					visible = forschung;
 				}
 			}
 		}

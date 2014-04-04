@@ -203,17 +203,17 @@ public class ForschinfoController extends TemplateController
 				t.setVar("tech.needs.item.break", true);
 			}
 
-			if (research.getRequiredResearch(i) != null && research.getRequiredResearch(i).getID() > 0)
+			if (research.getRequiredResearch(i) != null && research.isVisibile((User)getUser()))
 			{
 				Forschung dat = research.getRequiredResearch(i);
 
 				t.setVar("tech.needs.item.researchable", true,
-						"tech.needs.item.id", research.getRequiredResearch(i),
+						"tech.needs.item.id", research.getRequiredResearch(i).getID(),
 						"tech.needs.item.name", Common._plaintitle(dat.getName()));
 
 				t.parse("tech.needs.list", "tech.needs.listitem", true);
 			}
-			else if (research.getRequiredResearch(i) != null && research.getRequiredResearch(i).getID() == -1)
+			else if (research.getRequiredResearch(i) != null)
 			{
 				t.setVar("tech.needs.item.researchable", false);
 
@@ -238,7 +238,7 @@ public class ForschinfoController extends TemplateController
 			Forschung res = (Forschung) result;
 
 			if (res.isVisibile(user) ||
-					(!res.isVisibile(user) && user.hasResearched(res.getRequiredResearch(1)) && user.hasResearched(res.getRequiredResearch(2)) && user.hasResearched(res.getRequiredResearch(3))))
+					(!res.isVisibile(user) && user.hasResearched(res.getBenoetigteForschungen())))
 			{
 				t.setVar("tech.allows.item.break", entry,
 						"tech.allows.item.id", res.getID(),
@@ -406,19 +406,12 @@ public class ForschinfoController extends TemplateController
 			boolean show = true;
 
 			//Schiff sichtbar???
-			for (int i = 1; i <= 3; i++)
+			for( Forschung tmpres : ship.getBenoetigteForschungen() )
 			{
-				if (ship.getRes(i) != null)
+				if (!tmpres.isVisibile(user) && (!user.hasResearched(tmpres) || !user.hasResearched(tmpres.getBenoetigteForschungen())))
 				{
-					Forschung tmpres = ship.getRes(i);
-					if (!tmpres.isVisibile(user) &&
-							(!user.hasResearched(ship.getRes(i)) || !user.hasResearched(tmpres.getRequiredResearch(1)) ||
-									!user.hasResearched(tmpres.getRequiredResearch(2)) || !user.hasResearched(tmpres.getRequiredResearch(3))
-							))
-					{
-						show = false;
-						break;
-					}
+					show = false;
+					break;
 				}
 			}
 
@@ -450,21 +443,19 @@ public class ForschinfoController extends TemplateController
 			Resources.echoResList(t, reslist, "tech.ship.costs.list");
 
 			//Benoetigt dieses Schiff noch weitere Forschungen???
-			if (((ship.getRes(1) != null) && (ship.getRes(1).getID() != research.getID())) ||
-					((ship.getRes(2) != null) && (ship.getRes(2).getID() != research.getID())) ||
-					((ship.getRes(3) != null) && (ship.getRes(3).getID() != research.getID())))
+			if ( ship.getBenoetigteForschungen().stream().filter((f) -> f.getID() != research.getID()).findAny().isPresent() )
 			{
 				firstentry = true;
 
 				//Es benoetigt weitere!
 				t.setVar("tech.ship.techs.list", "");
-				for (int b = 1; b <= 3; b++)
+				for (Forschung benoetigt : ship.getBenoetigteForschungen())
 				{
-					if ((ship.getRes(b) != null) && (ship.getRes(b).getID() != research.getID()))
+					if (benoetigt.getID() != research.getID())
 					{
 						t.setVar("tech.ship.tech.break", !firstentry,
-								"tech.ship.tech.id", ship.getRes(b),
-								"tech.ship.tech.name", ship.getRes(b).getName());
+								"tech.ship.tech.id", benoetigt.getID(),
+								"tech.ship.tech.name", benoetigt.getName());
 
 						if (firstentry)
 						{

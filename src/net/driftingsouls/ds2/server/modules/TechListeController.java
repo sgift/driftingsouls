@@ -175,17 +175,11 @@ public class TechListeController extends TemplateController
 			if( !gruppenname.equals("researchable") ) {
 				for( int i=1; i <= 3; i++ ) {
 					Forschung forschung = result.getRequiredResearch(i);
-					if( forschung != null && forschung.getID() > 0) {
+					if( forschung != null && (forschung.isVisibile((User)getUser()) || hasPermission("forschung", "allesSichtbar")) ) {
 						String req = forschung.getName();
 
 						t.setVar(	"tech.req"+i+".id", forschung,
 									"tech.req"+i+".name",	req );
-
-						resentry = true;
-					}
-					else if( forschung != null && forschung.getID() < 0 && hasPermission("forschung", "allesSichtbar") ) {
-						t.setVar(	"tech.req"+i+".id",		"1",
-									"tech.req"+i+".name",	"<span style=\"color:#C7C7C7; font-weight:normal\">### Nicht erf&uuml;llbar</span>");
 
 						resentry = true;
 					}
@@ -244,8 +238,7 @@ public class TechListeController extends TemplateController
 			if( f.isVisibile(user) && user.hasResearched(f) ) {
 				researched.put(f.getID(), f);
 			}
-			else if( f.isVisibile(user) && user.hasResearched(f.getRequiredResearch(1)) && user.hasResearched(f.getRequiredResearch(2)) &&
-					user.hasResearched(f.getRequiredResearch(3)) ) {
+			else if( f.isVisibile(user) && user.hasResearched(f.getBenoetigteForschungen()) ) {
 				researchable.put(f.getID(), f);
 			}
 			else if( !f.isVisibile(user) ) {

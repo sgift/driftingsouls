@@ -35,6 +35,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * <h1>Repraesentiert eine Forschung in DS.</h1>
@@ -154,6 +156,28 @@ public class Forschung {
 	}
 
 	/**
+	 * Gibt alle fuer diese Forschung benoetigten Forschungen zurueck.
+	 * @return Die benoetigten Forschungen
+	 */
+	public Set<Forschung> getBenoetigteForschungen()
+	{
+		Set<Forschung> result = new HashSet<>();
+		if( this.req1 != null )
+		{
+			result.add(req1);
+		}
+		if( this.req2 != null )
+		{
+			result.add(req2);
+		}
+		if( this.req3 != null )
+		{
+			result.add(req3);
+		}
+		return result;
+	}
+
+	/**
 	 * Gibt die fuer diese Forschung benoetigten Forschungen zurueck.
 	 * @param number Die Nummer der benoetigten Forschung (1-3)
 	 * @return Die Forschung oder <code>null</code>
@@ -241,10 +265,9 @@ public class Forschung {
 			return false;
 		}
 
-		for(int i = 1; i <= 3; i++) {
-			if(!user.hasResearched(getRequiredResearch(i))) {
-				return false;
-			}
+		if( !user.hasResearched(getBenoetigteForschungen()) )
+		{
+			return false;
 		}
 
 		return true;

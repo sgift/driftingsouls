@@ -446,7 +446,7 @@ public class ItemInfoController extends TemplateController
 					if (effect.getTechReq(i) != null)
 					{
 						Forschung dat = effect.getTechReq(i);
-						if (!dat.isVisibile(user) && (!user.hasResearched(dat.getRequiredResearch(1)) || !user.hasResearched(dat.getRequiredResearch(2)) || !user.hasResearched(dat.getRequiredResearch(3))))
+						if (!dat.isVisibile(user) && !user.hasResearched(dat.getBenoetigteForschungen()))
 						{
 							data.append("Unbekannt");
 							if (hasPermission("forschung", "allesSichtbar"))

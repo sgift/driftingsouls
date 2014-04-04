@@ -18,20 +18,6 @@
  */
 package net.driftingsouls.ds2.server.bases;
 
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
@@ -47,10 +33,22 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextInstance;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Die Fabrik.
@@ -269,7 +267,7 @@ public class Fabrik extends DefaultBuilding
 		List<FactoryEntry> entrylist = Common.cast(db.createQuery("from FactoryEntry").list());
 		for (FactoryEntry entry : entrylist)
 		{
-			if (!user.hasResearched(entry.getRes1()) || !user.hasResearched(entry.getRes2()) || !user.hasResearched(entry.getRes3()) || !entry.hasBuildingId(buildingid))
+			if (!user.hasResearched(entry.getBenoetigteForschungen()) || !entry.hasBuildingId(buildingid))
 			{
 				continue;
 			}
@@ -552,7 +550,7 @@ public class Fabrik extends DefaultBuilding
 		{
 			FactoryEntry entry = (FactoryEntry) itemsIter.next();
 
-			if (!user.hasResearched(entry.getRes1()) || !user.hasResearched(entry.getRes2()) || !user.hasResearched(entry.getRes3()) || !entry.hasBuildingId(building))
+			if (!user.hasResearched(entry.getBenoetigteForschungen()) || !entry.hasBuildingId(building))
 			{
 				continue;
 			}

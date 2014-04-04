@@ -130,7 +130,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 			StringBuilder popup = new StringBuilder();
 			popup.append(this.getName()+":<br />");
 			Forschung forschung = fz.getForschung();
-			popup.append("<img align='left' border='0' src='./data/tech/"+fz.getForschung().getID()+".gif' alt='' />");
+			popup.append("<img align='left' border='0' src='"+fz.getForschung().getImage()+"' alt='' />");
 			popup.append(forschung.getName()+"<br />");
 			popup.append("Dauer: noch <img src='./data/interface/time.gif' alt='noch ' />"+fz.getDauer()+"<br />");
 
@@ -202,12 +202,9 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 
 			boolean ok = true;
 
-			for (int k = 1; k <= 3; k++)
+			if( !user.hasResearched(tech.getBenoetigteForschungen()) )
 			{
-				if (tech.getRequiredResearch(k) != null && !user.hasResearched(tech.getRequiredResearch(k)))
-				{
-					ok = false;
-				}
+				ok = false;
 			}
 
 			if (ok)
@@ -289,7 +286,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 	private boolean currentResearch(Context context, StringBuilder echo, Forschungszentrum fz, int field ) {
 		Forschung tech = fz.getForschung();
 		if( tech != null ) {
-			echo.append("<img style=\"float:left;border:0px\" src=\"./data/tech/"+tech.getID()+".gif\" alt=\"\" />");
+			echo.append("<img style=\"float:left;border:0px\" src=\""+tech.getImage()+"\" alt=\"\" />");
 			echo.append("Erforscht: <a class=\"forschinfo\" href=\"./ds?module=forschinfo&amp;res="+tech.getID()+"\">"+Common._plaintitle(tech.getName())+"</a>\n");
 			echo.append("[<a class=\"error\" href=\"./ds?module=building&amp;col="+fz.getBase().getId()+"&amp;field="+field+"&amp;kill=yes\">x</a>]<br />\n");
 			echo.append("Dauer: noch <img style=\"vertical-align:middle\" src=\"./data/interface/time.gif\" alt=\"\" />"+fz.getDauer()+" Runden\n");
@@ -356,11 +353,9 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		}
 
 		// Besitzt der Spieler alle fuer die Forschung noetigen Forschungen?
-		for( int i=1; i <= 3; i++ ) {
-			if( !user.hasResearched(tech.getRequiredResearch(i)) ) {
-				ok = false;
-				break;
-			}
+		if( !user.hasResearched(tech.getBenoetigteForschungen()) )
+		{
+			ok = false;
 		}
 
 		if(user.getFreeSpecializationPoints() < tech.getSpecializationCosts())
