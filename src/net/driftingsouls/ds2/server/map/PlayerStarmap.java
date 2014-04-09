@@ -35,17 +35,7 @@ public class PlayerStarmap extends PublicStarmap
 	private final Set<Location> bekannteOrte;
 	private final User user;
 	private final Relations relations;
-	
-	/**
-	 * Legt eine neue Sicht an.
-	 * 
-	 * @param user Der Spieler fuer den die Sicht gelten soll.
-	 * @param system Die ID des zu Grunde liegenden Sternensystems.
-	 */
-	public PlayerStarmap(User user, StarSystem system) {
-		this(user, system, null);
-	}
-	
+
 	/**
 	 * Legt eine neue Sicht an.
 	 * 
@@ -67,8 +57,8 @@ public class PlayerStarmap extends PublicStarmap
 		}
 		this.relations = user.getRelations();
 
-		this.scannableLocations = new HashMap<Location, Ship>();
-		this.sektorenMitBefreundetenSchiffen = new HashSet<Location>();
+		this.scannableLocations = new HashMap<>();
+		this.sektorenMitBefreundetenSchiffen = new HashSet<>();
 		buildScannableLocations(user);
 
 		this.bekannteOrte = findeBekannteOrte(user);
@@ -77,7 +67,7 @@ public class PlayerStarmap extends PublicStarmap
 
 	private Set<Location> findeSektorenMitRotemAlarm(User user)
 	{
-		Set<Location> zuPruefendeSektoren = new HashSet<Location>();
+		Set<Location> zuPruefendeSektoren = new HashSet<>();
 		for (Location sektor : this.sektorenMitBefreundetenSchiffen)
 		{
 			for( int x=-1; x <= 1; x++ )
@@ -95,7 +85,7 @@ public class PlayerStarmap extends PublicStarmap
 
 	private Set<Location> findeBekannteOrte(User user)
 	{
-		Set<Location> result = new HashSet<Location>();
+		Set<Location> result = new HashSet<>();
 		for (JumpNode jumpNode : this.map.getJumpNodes())
 		{
 			if( jumpNode.isHidden() )
