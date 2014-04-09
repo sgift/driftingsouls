@@ -23,10 +23,8 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 class ModuleSetting implements Cloneable {
 	Class<? extends Controller> generator = null;
 
-	ModuleSetting(String generator) throws ClassNotFoundException {
-		if( (generator != null) && !"".equals(generator.trim()) ) {
-			this.generator = Class.forName(generator).asSubclass(Controller.class);
-		}
+	ModuleSetting(Class<?> generator) {
+		this.generator = generator.asSubclass(Controller.class);
 	}
 	
 	/**

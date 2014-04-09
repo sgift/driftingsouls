@@ -73,25 +73,18 @@ public class PipelineConfig {
 		SortedSet<Class<?>> entityClasses = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(Module.class);
 		for( Class<?> cls : entityClasses )
 		{
-			try 
+			Module modConfig = cls.getAnnotation(Module.class);
+			if( modConfig.defaultModule() )
 			{
-				Module modConfig = cls.getAnnotation(Module.class);
-				if( modConfig.defaultModule() )
+				if( this.defaultModule != null )
 				{
-					if( this.defaultModule != null )
-					{
-						log.error("Multiple Default-Modules detected: "+this.defaultModule.getClass().getName()+" and "+cls);
-					}
-					this.defaultModule = new ModuleSetting(cls.getName());
+					log.error("Multiple Default-Modules detected: "+this.defaultModule.getClass().getName()+" and "+cls);
 				}
-				else
-				{
-					this.modules.put(modConfig.name(), new ModuleSetting(cls.getName()));
-				}
+				this.defaultModule = new ModuleSetting(cls);
 			}
-			catch( ClassNotFoundException e ) 
+			else
 			{
-				// Not all classes are always available - ignore
+				this.modules.put(modConfig.name(), new ModuleSetting(cls));
 			}
 		}
 	}
