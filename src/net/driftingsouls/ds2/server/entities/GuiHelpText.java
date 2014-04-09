@@ -23,15 +23,12 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Immutable;
-
 /**
  * Repraesentiert einen Hilfeeintrag zu einer Seite in DS.
  * @author Christopher Jung
  *
  */
 @Entity
-@Immutable
 @Table(name="gui_help")
 public class GuiHelpText {
 	@Id
@@ -61,5 +58,23 @@ public class GuiHelpText {
 	 */
 	public String getText() {
 		return text;
+	}
+
+	/**
+	 * Setzt den Namen der Seite. Der Name fungiert gleichzeitig als ID.
+	 * @param page Der Name der Seite
+	 */
+	public void setPage(String page)
+	{
+		this.page = page;
+	}
+
+	/**
+	 * Setzt den Hilfetext.
+	 * @param text Der Hilfetext
+	 */
+	public void setText(String text)
+	{
+		this.text = text;
 	}
 }

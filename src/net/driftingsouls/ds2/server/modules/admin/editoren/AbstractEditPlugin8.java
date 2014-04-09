@@ -6,6 +6,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
+import net.driftingsouls.ds2.server.framework.utils.StringToTypeConverter;
 import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
@@ -13,6 +14,7 @@ import org.hibernate.Session;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.Writer;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -45,7 +47,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		Writer echo = context.getResponse().getWriter();
 
 		Request request = context.getRequest();
-		int entityId = request.getParameterInt("entityId");
+		String entityId = request.getParameter("entityId");
 
 		EditorForm8<T> form = new EditorForm8<>(EditorMode.UPDATE, action, page, echo);
 		configureFor(form);
@@ -54,11 +56,11 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		{
 			try
 			{
-				@SuppressWarnings("unchecked") T entity = (T) db.get(this.clazz, entityId);
+				@SuppressWarnings("unchecked") T entity = (T) db.get(this.clazz, toEntityId(this.clazz, entityId));
 				if (form.isUpdateAllowed(entity) && isUpdatePossible(entity))
 				{
 					db.evict(entity);
-					@SuppressWarnings("unchecked") T updatedEntity = (T) db.get(this.clazz, entityId);
+					@SuppressWarnings("unchecked") T updatedEntity = (T) db.get(this.clazz, toEntityId(this.clazz, entityId));
 					form.applyRequestValues(request, updatedEntity);
 					processJobs(echo, entity, updatedEntity, form.getUpdateTasks());
 					echo.append("<p>Update abgeschlossen.</p>");
@@ -96,7 +98,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		{
 			try
 			{
-				@SuppressWarnings("unchecked") T entity = (T) db.get(this.clazz, entityId);
+				@SuppressWarnings("unchecked") T entity = (T) db.get(this.clazz, toEntityId(this.clazz, entityId));
 				reset(new DefaultStatusWriter(echo), entity);
 				echo.append("<p>Update abgeschlossen.</p>");
 			}
@@ -125,9 +127,9 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		}
 		echo.append("</div>");
 
-		if (entityId != 0)
+		if (entityId != null && !entityId.isEmpty())
 		{
-			@SuppressWarnings("unchecked") T entity = (T) db.get(clazz, entityId);
+			@SuppressWarnings("unchecked") T entity = (T) db.get(clazz, toEntityId(this.clazz, entityId));
 			if (entity == null)
 			{
 				return;
@@ -145,6 +147,13 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 			beginEditorTable(echo, page, action, -1);
 			form.generateForm(entity);
 		}
+	}
+
+	private Serializable toEntityId(Class<?> entity, String idString)
+	{
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		Class<?> targetType = db.getSessionFactory().getClassMetadata(entity).getIdentifierType().getReturnedClass();
+		return (Serializable)StringToTypeConverter.convert(targetType, idString);
 	}
 
 	private void processJobs(Writer echo, T entity, T updatedEntity, List<EditorForm8.Job<T, ?>> updateTasks) throws IOException
