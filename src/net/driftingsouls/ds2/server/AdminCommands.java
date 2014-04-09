@@ -710,7 +710,7 @@ public class AdminCommands {
 					output += "Schiff: " + sid + "\n";
 					output += "Typ: " + shiptype.getNickname() + " (" + ship.getType() + ")\n";
 					output += "Besitzer: " + ship.getOwner().getId() + "\n";
-					output += "Position: " + ship.getLocation() + "\n";
+					output += "Position: " + ship.getLocation().asString() + "\n";
 					output += "Energie: " + ship.getEnergy() + "\n";
 					output += "Heat: " + ship.getHeat() + "\n";
 					output += "Huelle: " + ship.getHull() + "\n";
