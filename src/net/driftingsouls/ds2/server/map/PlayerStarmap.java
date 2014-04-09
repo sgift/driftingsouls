@@ -404,21 +404,13 @@ public class PlayerStarmap extends PublicStarmap
 			if(!ship.getOwner().equals(user))
 			{
 				//See allied scans?
-				if(ally != null && ally.getShowLrs())
+				if (!relations.isOnly(ship.getOwner(), Relation.FRIEND))
 				{
-					//Allied ship?
-					Ally ownerAlly = ship.getOwner().getAlly();
-					if(ownerAlly == null || !ownerAlly.equals(ally))
-					{
-						continue;
-					}
+					continue;
 				}
-				else
+				if (ally != null && !ally.getShowLrs() && ally.equals(ship.getOwner().getAlly()))
 				{
-					if( !relations.isOnly(ship.getOwner(), Relation.FRIEND) )
-					{
-						continue;
-					}
+					continue;
 				}
 			}
 
