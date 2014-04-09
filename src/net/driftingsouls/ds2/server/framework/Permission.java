@@ -1,5 +1,8 @@
 package net.driftingsouls.ds2.server.framework;
 
+import org.hibernate.annotations.ForeignKey;
+import org.hibernate.proxy.HibernateProxy;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -7,9 +10,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.proxy.HibernateProxy;
 
 /**
  * Eine einzelne Permission fuer einen konkreten Benutzer.
@@ -20,7 +20,7 @@ import org.hibernate.proxy.HibernateProxy;
  */
 @Entity
 @Table(name="permission")
-public class Permission
+public class Permission implements Comparable<Permission>
 {
 	@SuppressWarnings("unused")
 	@Id @GeneratedValue
@@ -110,5 +110,16 @@ public class Permission
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public int compareTo(Permission o)
+	{
+		int diff = this.category.compareTo(o.category);
+		if( diff != 0 )
+		{
+			return diff;
+		}
+		return this.action.compareTo(o.action);
 	}
 }

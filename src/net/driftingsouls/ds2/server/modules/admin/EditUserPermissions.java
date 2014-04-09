@@ -18,14 +18,15 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import java.io.IOException;
-import java.io.Writer;
-
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Permission;
 import net.driftingsouls.ds2.server.modules.AdminController;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.stream.Collectors;
 
 /**
  * Aktualisierungstool fuer die Permissions eines Spielers.
@@ -60,11 +61,27 @@ public class EditUserPermissions implements AdminPlugin
 		echo.append("</form>");
 		echo.append("</div>");
 
+		User user = null;
+		if( userid != 0 )
+		{
+			user = (User)db.get(User.class, userid);
+			if( user.getAccessLevel() > context.getActiveUser().getAccessLevel() )
+			{
+				echo.append("<p>Du bist nicht berechtigt diesen Benutzer zu bearbeiten</p>");
+				delete = false;
+				add = false;
+			}
+		}
+
+		if( (add || delete) && !context.hasPermission(pcategory, paction) )
+		{
+			delete = false;
+			add = false;
+			echo.append("<p>Du bist nicht berechtigt diese Berechtigung zu ändern</p>");
+		}
 
 		if(delete && userid != 0)
 		{
-			User user = (User)db.get(User.class, userid);
-
 			for( Permission p : user.getPermissions() )
 			{
 				if( pcategory.equals(p.getCategory()) && paction.equals(p.getAction()) )
@@ -80,7 +97,6 @@ public class EditUserPermissions implements AdminPlugin
 		}
 		else if( add && userid != 0 )
 		{
-			User user = (User)db.get(User.class, userid);
 			Permission p = new Permission(user, pcategory, paction);
 			if( user.getPermissions().add(p) )
 			{
@@ -91,8 +107,6 @@ public class EditUserPermissions implements AdminPlugin
 
 		if(userid != 0)
 		{
-			User user = (User)db.get(User.class, userid);
-
 			if(user == null)
 			{
 				return;
@@ -102,7 +116,7 @@ public class EditUserPermissions implements AdminPlugin
 			echo.append("<table width=\"100%\">");
 			echo.append("<thead><tr><th>Kategorie</th><th>Aktion</th><th></th></tr><thead>");
 			echo.append("<tbody>");
-			for( Permission p : user.getPermissions() )
+			for( Permission p : user.getPermissions().stream().sorted().collect(Collectors.toList()) )
 			{
 				echo.append("<tr><td>"+p.getCategory()+"</td><td>"+p.getAction()+"</td>");
 				echo.append("<td>");
