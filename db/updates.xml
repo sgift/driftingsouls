@@ -2272,4 +2272,11 @@ Die Vasudaner haben eine sehr alte Kultur mit mehreren hochentwickelten Sprachen
 
 		alter table userresearch modify owner integer;
 	]]></update>
+	<update type="structure"><![CDATA[
+		create table users_forschungen (users_id integer not null, forschungen_id integer not null, primary key (users_id, forschungen_id)) ENGINE=InnoDB;
+		alter table users_forschungen add index users_forschungen_fk_users (forschungen_id), add constraint users_forschungen_fk_users foreign key (forschungen_id) references forschungen (id);
+		alter table users_forschungen add index users_fk_forschungen (users_id), add constraint users_fk_forschungen foreign key (users_id) references users (id);
+		insert into users_forschungen select owner,research from userresearch;
+		drop table userresearch;
+	]]></update>
 </updates>

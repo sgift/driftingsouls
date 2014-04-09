@@ -211,12 +211,6 @@ public class PlayerDelete implements AdminPlugin
 			.executeUpdate();
 		echo.append(count+"<br />\n");
 
-		echo.append("Entferne user-forschungen...");
-		count = db.createQuery("delete from UserResearch where owner=:user")
-			.setInteger("user", userid)
-			.executeUpdate();
-		echo.append(count+"<br />\n");
-
 		echo.append("Entferne user-raenge...");
 		count = db.createQuery("delete from UserRank where userRankKey.owner=:user")
 				.setInteger("user", userid)

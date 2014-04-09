@@ -88,7 +88,7 @@ public class ForschinfoController extends TemplateController
 		validiereForschung(research);
 
 		User user = (User) getUser();
-		if (user.getUserResearch(research) == null)
+		if (!user.hasResearched(research))
 		{
 			return;
 		}
@@ -185,7 +185,7 @@ public class ForschinfoController extends TemplateController
 		//
 		munitionZurForschungAnzeigen(db, t, research);
 
-		if (research.getSpecializationCosts() > 0 && user.getUserResearch(research) != null)
+		if (research.getSpecializationCosts() > 0 && user.hasResearched(research))
 		{
 			t.setVar("tech.dropable", 1);
 		}

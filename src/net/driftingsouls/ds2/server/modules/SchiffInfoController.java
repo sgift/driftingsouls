@@ -30,7 +30,6 @@ import net.driftingsouls.ds2.server.config.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.UserResearch;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderableShip;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -102,10 +101,9 @@ public class SchiffInfoController extends TemplateController
 				{
 					User user = (User) getUser();
 					Forschung research = shipBuildData.getRes(i);
-					UserResearch userResearch = user.getUserResearch(research);
 					String cssClass = "error";
 					//Has the user this research?
-					if (userResearch != null)
+					if (user.hasResearched(research))
 					{
 						cssClass = "ok";
 					}

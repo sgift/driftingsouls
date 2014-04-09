@@ -6,6 +6,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.EJB3NamingStrategy;
 import org.hibernate.dialect.MySQL5InnoDBDialect;
 import org.hibernate.dialect.function.SQLFunctionTemplate;
 import org.hibernate.dialect.function.StandardSQLFunction;
@@ -65,6 +66,29 @@ public class HibernateUtil
         {
         	org.hibernate.cfg.Configuration configuration = new org.hibernate.cfg.Configuration();
         	configuration.configure(new File(configdir+"hibernate.xml"));
+			configuration.setNamingStrategy(new EJB3NamingStrategy() {
+				@Override
+				public String classToTableName(String className)
+				{
+					return addUnderscores(super.classToTableName(className));
+				}
+
+				protected String addUnderscores(String name)
+				{
+					StringBuilder buf = new StringBuilder(name);
+					for (int i = 1; i < buf.length() - 1; i++)
+					{
+						if (Character.isLowerCase(buf.charAt(i - 1)) &&
+								Character.isUpperCase(buf.charAt(i)) &&
+								Character.isLowerCase(buf.charAt(i + 1))
+								)
+						{
+							buf.insert(i++, '_');
+						}
+					}
+					return buf.toString().toLowerCase();
+				}
+			});
 
     		// Configure connection
     		configuration.setProperty("hibernate.connection.url", dbUrl);

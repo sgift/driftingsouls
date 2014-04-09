@@ -61,7 +61,9 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -240,9 +242,10 @@ public class User extends BasicUser {
     @OneToMany(mappedBy="user", cascade=CascadeType.ALL)
     private Set<Loyalitaetspunkte> loyalitaetspunkte;
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name="owner")
-	private Set<UserResearch> researches;
+	@ManyToMany
+	@JoinTable
+	@ForeignKey(name="users_fk_forschungen", inverseName = "users_forschungen_fk_users")
+	private Set<Forschung> forschungen;
 
 	@OneToMany(cascade = {CascadeType.DETACH,CascadeType.REFRESH})
 	@JoinColumn(name="owner")
@@ -321,7 +324,7 @@ public class User extends BasicUser {
 		db.persist(this);
 		Ordner trash = Ordner.createNewOrdner("Papierkorb", Ordner.getOrdnerByID(0, this), this);
 		trash.setFlags(Ordner.FLAG_TRASH);
-		this.researches = new HashSet<>();
+		this.forschungen = new HashSet<>();
 		this.specializationPoints = 15;
 		this.loyalitaetspunkte = new HashSet<>();
 
@@ -805,7 +808,7 @@ public class User extends BasicUser {
 	 */
 	public Set<Forschung> getForschungen()
 	{
-		return this.researches.stream().map(UserResearch::getResearch).collect(Collectors.toSet());
+		return new HashSet<>(this.forschungen);
 	}
 
 	/**
@@ -821,13 +824,9 @@ public class User extends BasicUser {
 		Set<Forschung> hinzuzufuegen = new HashSet<>(forschungen);
 		hinzuzufuegen.removeAll(aktuellErforscht);
 
-		for (Forschung forschung : hinzuzufuegen)
-		{
-			UserResearch userres = new UserResearch(this, forschung);
-			this.researches.add(userres);
-		}
+		this.forschungen.addAll(hinzuzufuegen);
 
-		this.researches.removeIf((ur) -> zuEntfernen.contains(ur.getResearch()));
+		this.forschungen.removeAll(zuEntfernen);
 	}
 
 	/**
@@ -850,7 +849,7 @@ public class User extends BasicUser {
 	 */
 	public boolean hasResearched( @Nullable Forschung research )
 	{
-		return research == null || getUserResearch(research) != null;
+		return research == null || this.forschungen.contains(research);
 	}
 
 	/**
@@ -860,10 +859,9 @@ public class User extends BasicUser {
 	 * @param research Die erforschte Technologie
 	 */
 	public void addResearch( Forschung research ) {
-		if( this.getUserResearch(research) == null )
+		if( !this.hasResearched(research) )
 		{
-			UserResearch userres = new UserResearch(this, research);
-			this.researches.add(userres);
+			this.forschungen.add(research);
 		}
 	}
 
@@ -1199,28 +1197,6 @@ public class User extends BasicUser {
     }
 
 	/**
-	 * Gibt zur angegebenen Forschung die Forschungsdaten des Benutzers zurueck.
-	 * Falls der Benutzer die Forschung noch nicht hat wird <code>null</code> zurueckgegeben.
-	 * @param research Die Forschung
-	 * @return Die Forschungsdaten oder <code>null</code>
-	 */
-	public UserResearch getUserResearch(Forschung research) {
-		if(research == null)
-		{
-			return null;
-		}
-
-		for( UserResearch aresearch : this.researches )
-		{
-			if( aresearch.getResearch().equals(research) )
-			{
-				return aresearch;
-			}
-		}
-		return null;
-	}
-
-	/**
 	 * Setzt die Rasse eines Users.
 	 *
 	 * @param race Rassenid
@@ -1450,12 +1426,7 @@ public class User extends BasicUser {
 	public long getFreeSpecializationPoints()
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		Long usedSpecpoints =  (Long)db
-				.createQuery("select sum(res.research.specializationCosts) from UserResearch res where res.owner=:owner")
-				.setParameter("owner", this)
-		  		.uniqueResult();
-
-		usedSpecpoints = usedSpecpoints == null ? 0 : usedSpecpoints;
+		int usedSpecpoints =  this.forschungen.stream().mapToInt(Forschung::getSpecializationCosts).sum();
 
 		//Add researchs, which are currently developed in research centers
 		List<Forschungszentrum> researchcenters = Common.cast(db
@@ -1477,8 +1448,7 @@ public class User extends BasicUser {
 	 */
 	public void dropResearch(Forschung research)
 	{
-		UserResearch userResearch = getUserResearch(research);
-		if(userResearch == null)
+		if(!this.forschungen.contains(research))
 		{
 			return;
 		}
@@ -1489,12 +1459,8 @@ public class User extends BasicUser {
 									  			  .setInteger("fid", research.getID())
 									  			  .list());
 
-		for(Forschung dependentResearch: dependentResearchs)
-		{
-			dropResearch(dependentResearch);
-		}
-
-		db.delete(userResearch);
+		dependentResearchs.forEach(this::dropResearch);
+		this.forschungen.remove(research);
 	}
 
 	/**
