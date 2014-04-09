@@ -44,19 +44,11 @@ public class AdminController extends Controller
 
 	static
 	{
-		try
+		SortedSet<Class<?>> entityClasses = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(AdminMenuEntry.class);
+		for (Class<?> cls : entityClasses)
 		{
-			SortedSet<String> entityClasses = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(AdminMenuEntry.class);
-			for (String cls : entityClasses)
-			{
-				final Class<? extends AdminPlugin> adminPluginClass = Class.forName(cls)
-						.asSubclass(AdminPlugin.class);
-				plugins.add(adminPluginClass);
-			}
-		}
-		catch (ClassNotFoundException e)
-		{
-			throw new RuntimeException(e);
+			final Class<? extends AdminPlugin> adminPluginClass = cls.asSubclass(AdminPlugin.class);
+			plugins.add(adminPluginClass);
 		}
 	}
 

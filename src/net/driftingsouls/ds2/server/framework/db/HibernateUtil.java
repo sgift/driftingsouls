@@ -79,18 +79,10 @@ public class HibernateUtil
     		configuration.addSqlFunction("bit_or", new SQLFunctionTemplate(IntegerType.INSTANCE, "?1 | ?2"));
 
             //Find all annotated classes and add to configuration
-			SortedSet<String> entityClasses = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(javax.persistence.Entity.class);
-			for( String cls : entityClasses )
+			SortedSet<Class<?>> entityClasses = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(javax.persistence.Entity.class);
+			for( Class<?> cls : entityClasses )
 			{
-				try
-				{
-					Class<?> clsObject = Class.forName(cls);
-					configuration.addAnnotatedClass(clsObject);
-				}
-				catch( ClassNotFoundException e )
-				{
-					// Not all classes are always available - ignore
-				}
+				configuration.addAnnotatedClass(cls);
 			}
 
 

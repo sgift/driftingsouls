@@ -28,27 +28,22 @@ public class ParameterReader
 
 	static
 	{
-		SortedSet<String> klassenNamen = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(UrlParamKonverterFuer.class);
-		for (String s : klassenNamen)
+		SortedSet<Class<?>> klassenNamen = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(UrlParamKonverterFuer.class);
+		for (Class<?> cls : klassenNamen)
 		{
 			try
 			{
-				Class<?> cls = Class.forName(s);
 				if (!UrlParamKonverter.class.isAssignableFrom(cls))
 				{
-					LOG.warn("Konverterklasse " + s + " implementiert nicht das korrekte Interface");
+					LOG.warn("Konverterklasse " + cls.getName() + " implementiert nicht das korrekte Interface");
 					continue;
 				}
 				UrlParamKonverterFuer annotation = cls.getAnnotation(UrlParamKonverterFuer.class);
 				konverter.put(annotation.value(), cls.asSubclass(UrlParamKonverter.class).newInstance());
 			}
-			catch (ClassNotFoundException e)
-			{
-				LOG.warn("Konnte Konverterklasse " + s + " nicht laden", e);
-			}
 			catch (InstantiationException | IllegalAccessException e)
 			{
-				LOG.warn("Konnte Konverterklasse " + s + " nicht instantiieren", e);
+				LOG.warn("Konnte Konverterklasse " + cls.getName() + " nicht instantiieren", e);
 			}
 		}
 

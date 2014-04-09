@@ -70,24 +70,23 @@ public class PipelineConfig {
 	}
 	
 	private void scanForModules() throws IOException {
-		SortedSet<String> entityClasses = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(Module.class);
-		for( String cls : entityClasses ) 
+		SortedSet<Class<?>> entityClasses = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(Module.class);
+		for( Class<?> cls : entityClasses )
 		{
 			try 
 			{
-				Class<?> clsObject = Class.forName(cls);
-				Module modConfig = clsObject.getAnnotation(Module.class);
+				Module modConfig = cls.getAnnotation(Module.class);
 				if( modConfig.defaultModule() )
 				{
 					if( this.defaultModule != null )
 					{
 						log.error("Multiple Default-Modules detected: "+this.defaultModule.getClass().getName()+" and "+cls);
 					}
-					this.defaultModule = new ModuleSetting(cls);
+					this.defaultModule = new ModuleSetting(cls.getName());
 				}
 				else
 				{
-					this.modules.put(modConfig.name(), new ModuleSetting(cls));
+					this.modules.put(modConfig.name(), new ModuleSetting(cls.getName()));
 				}
 			}
 			catch( ClassNotFoundException e ) 
