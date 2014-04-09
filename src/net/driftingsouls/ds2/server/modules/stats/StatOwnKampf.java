@@ -87,7 +87,7 @@ public class StatOwnKampf implements Statistic {
 
 
 				echo.append("<td class=\"noBorderX\" style=\"vertical-align:top; text-align:center\">");
-				echo.append(Common.getIngameTime(tick)+"<br />");
+				echo.append(Common.getIngameTime(tick)).append("<br />");
 
 				for( Object o2 : s )
 				{
@@ -98,9 +98,9 @@ public class StatOwnKampf implements Statistic {
 
 					echo.append(count+" ");
 					if( shiptype != null ) {
-						echo.append("<a target=\"_blank\" onclick='ShiptypeBox.show("+shiptype.getTypeId()+");return false;' " +
-								"href=\"./ds?module=schiffinfo&ship="+shiptype.getTypeId()+"\">" +
-								shiptype.getNickname()+"</a>");
+						echo.append("<a target=\"_blank\" onclick='ShiptypeBox.show(" + shiptype.getTypeId() + ");return false;' " +
+								"href=\"./ds?module=schiffinfo&ship=" + shiptype.getTypeId() + "\">" +
+								shiptype.getNickname() + "</a>");
 					}
 					else
 					{
@@ -109,10 +109,10 @@ public class StatOwnKampf implements Statistic {
 
 					User auser = (User)context.getDB().get(User.class, (Integer)data[2]);
 					if( auser != null ) {
-						echo.append(" von: "+auser.getProfileLink()+"<br />");
+						echo.append(" von: ").append(auser.getProfileLink()).append("<br />");
 					}
 					else {
-						echo.append(" von: Unbekannter Spieler ("+data[2]+")<br />");
+						echo.append(" von: Unbekannter Spieler (" + data[2] + ")<br />");
 					}
 				}
 				echo.append("</td>\n");
@@ -130,7 +130,7 @@ public class StatOwnKampf implements Statistic {
 			echo.append("</tr>\n");
 			echo.append("<tr><td class=\"noBorderX\" align=\"left\" colspan=\"2\">\n");
 			if( destpos-10 >= 0 ) {
-				echo.append("<a class=\"forschinfo\" href=\""+Common.buildUrl("default", "show", 4, "destpos", destpos-10)+"\">zur&uuml;ck</a>\n");
+				echo.append("<a class=\"forschinfo\" href=\"").append(Common.buildUrl("default", "show", 4, "destpos", destpos - 10)).append("\">zur&uuml;ck</a>\n");
 			}
 			else {
 				echo.append("zur&uuml;ck");
@@ -138,7 +138,7 @@ public class StatOwnKampf implements Statistic {
 			echo.append("</td>");
 			echo.append("<td class=\"noBorderX\" align=\"right\" colspan=\"3\">\n");
 			if( destpos+10 < destcount ) {
-				echo.append("<a class=\"forschinfo\" href=\""+Common.buildUrl("default", "show", 4, "destpos", destpos+10)+"\">vor</a>\n");
+				echo.append("<a class=\"forschinfo\" href=\"").append(Common.buildUrl("default", "show", 4, "destpos", destpos + 10)).append("\">vor</a>\n");
 			}
 			else {
 				echo.append("vor");
@@ -177,7 +177,7 @@ public class StatOwnKampf implements Statistic {
 			List<?> t = db.createQuery("SELECT distinct tick FROM ShipLost WHERE owner=:user ORDER BY tick DESC")
 					.setEntity("user", user)
 					.setMaxResults(10)
-					.setFirstResult(destpos)
+					.setFirstResult(lostpos)
 					.list();
 			for( Object o : t )
 			{
@@ -188,7 +188,7 @@ public class StatOwnKampf implements Statistic {
 				counter++;
 
 				echo.append("<td class=\"noBorderX\" style=\"vertical-align:top; text-align:center\">");
-				echo.append(Common.getIngameTime(tick)+"<br />");
+				echo.append(Common.getIngameTime(tick)).append("<br />");
 
 
 				List<?> s = db.createQuery("SELECT distinct count(*),type,destOwner FROM ShipLost WHERE owner=:user AND tick=:tick GROUP BY type,destOwner")
@@ -217,7 +217,7 @@ public class StatOwnKampf implements Statistic {
 					User auser = (User)context.getDB().get(User.class, (Integer)data[2]);
 
 					if( auser != null ) {
-						echo.append(" durch: "+auser.getProfileLink()+"<br />");
+						echo.append(" durch: ").append(auser.getProfileLink()).append("<br />");
 					}
 					else {
 						echo.append(" durch: Unbekannter Spieler ("+data[2]+")<br />");
@@ -237,7 +237,7 @@ public class StatOwnKampf implements Statistic {
 			echo.append("</tr>\n");
 			echo.append("<tr><td class=\"noBorderX\" align=\"left\" colspan=\"2\">\n");
 			if( lostpos-10 >= 0 ) {
-				echo.append("<a class=\"forschinfo\" href=\""+Common.buildUrl("default", "show", 4, "lostpos", lostpos-10)+"\">zur&uuml;ck</a>\n");
+				echo.append("<a class=\"forschinfo\" href=\"").append(Common.buildUrl("default", "show", 4, "lostpos", lostpos - 10)).append("\">zur&uuml;ck</a>\n");
 			}
 			else {
 				echo.append("zur&uuml;ck");
@@ -245,7 +245,7 @@ public class StatOwnKampf implements Statistic {
 			echo.append("</td>");
 			echo.append("<td class=\"noBorderX\" align=\"right\" colspan=\"3\">");
 			if( lostpos+10 < lostcount ) {
-				echo.append("<a class=\"forschinfo\" href=\""+Common.buildUrl("default", "show", 4, "lostpos", lostpos+10)+"\">vor</a>\n");
+				echo.append("<a class=\"forschinfo\" href=\"").append(Common.buildUrl("default", "show", 4, "lostpos", lostpos + 10)).append("\">vor</a>\n");
 			}
 			else {
 				echo.append("vor");
