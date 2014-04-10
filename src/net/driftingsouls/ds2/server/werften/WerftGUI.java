@@ -142,13 +142,13 @@ public class WerftGUI {
 
 			t.setVar("werftgui.main", 1);
 
-			WerftQueueEntry[] queue = werft.getBuildQueue();
+			List<WerftQueueEntry> queue = werft.getBuildQueue();
 			t.setVar(
 					"werftgui.name",	werft.getWerftName(),
 					"werftgui.picture",	werft.getWerftPicture(),
 					"werftgui.crew",	werft.getCrew(),
 					"werftgui.werftslots",	werft.getWerftSlots(),
-					"werftgui.totalqueueentries",	queue.length,
+					"werftgui.totalqueueentries",	queue.size(),
 					"werftgui.allowBuild", werft.getType() != WerftTyp.EINWEG,
 					"werftgui.allowRepair", werft.getType() != WerftTyp.EINWEG
 					);
@@ -410,14 +410,14 @@ public class WerftGUI {
 		}
 	}
 
-	private void out_queueShipList(WerftObject werft, WerftQueueEntry[] queue) {
+	private void out_queueShipList(WerftObject werft, List<WerftQueueEntry> queue) {
 		t.setBlock("_WERFT.WERFTGUI", "queueshiplist.listitem", "queueshiplist.list");
 		t.setBlock("queueshiplist.listitem", "queueship.buildcosts.listitem", "queueship.buildcosts.list");
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		for( int i=0; i < queue.length; i++ ) {
+		for( int i=0; i < queue.size(); i++ ) {
 			t.start_record();
-			WerftQueueEntry entry = queue[i];
+			WerftQueueEntry entry = queue.get(i);
 
 			t.setVar(
 					"queueship.buildcosts.list",	"",
@@ -429,7 +429,7 @@ public class WerftGUI {
 					"queueship.slots",	entry.getSlots(),
 					"queueship.building",	entry.isScheduled(),
 					"queueship.uppossible", i > 0,
-					"queueship.downpossible",	i < queue.length-1,
+					"queueship.downpossible",	i < queue.size()-1,
 					"queueship.cancelpossible", werft.getType() != WerftTyp.EINWEG);
 
 			if( entry.getRequiredItem() != -1 ) {

@@ -357,7 +357,7 @@ public class SchiffeController extends TemplateController
 							werft = werft.getKomplex();
 						}
 
-						final WerftQueueEntry[] entries = werft.getBuildQueue();
+						final List<WerftQueueEntry> entries = werft.getBuildQueue();
 						final int totalSlots = werft.getWerftSlots();
 						int usedSlots = 0;
 						int buildingCount = 0;
@@ -375,11 +375,11 @@ public class SchiffeController extends TemplateController
 						StringBuilder popup = new StringBuilder(100);
 						popup.append("Belegte Werftslots: <img style='vertical-align:middle;border:0px' src='./data/interface/schiffinfo/werftslots.png' alt='' />").append(usedSlots).append("/").append(totalSlots).append("<br />");
 						popup.append("Im Bau: ").append(buildingCount).append(" Schiffe<br />");
-						popup.append("In der Warteschlange: ").append(entries.length - buildingCount);
+						popup.append("In der Warteschlange: ").append(entries.size() - buildingCount);
 						popup.append(imBau);
 
 						t.setVar("ship.werft.popup", popup.toString(),
-								"ship.werft.entries", entries.length,
+								"ship.werft.entries", entries.size(),
 								"ship.werft.building", 1);
 					}
 				}

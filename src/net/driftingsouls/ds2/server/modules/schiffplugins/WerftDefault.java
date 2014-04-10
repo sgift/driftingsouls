@@ -26,6 +26,8 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 
+import java.util.List;
+
 /**
  * Schiffsmodul fuer die Anzeige des Werftstatus.
  * @author Christopher Jung
@@ -57,7 +59,7 @@ public class WerftDefault implements SchiffPlugin {
 				werft = werft.getKomplex();
 			}
 
-			final WerftQueueEntry[] entries = werft.getBuildQueue();
+			final List<WerftQueueEntry> entries = werft.getBuildQueue();
 			final int totalSlots = werft.getWerftSlots();
 			int usedSlots = 0;
 			int buildingCount = 0;
@@ -77,7 +79,7 @@ public class WerftDefault implements SchiffPlugin {
 					"schiff.werft.usedslots",	usedSlots,
 					"schiff.werft.totalslots",	totalSlots,
 					"schiff.werft.scheduled",	buildingCount,
-					"schiff.werft.waiting",		entries.length-buildingCount,
+					"schiff.werft.waiting",		entries.size()-buildingCount,
 					"schiff.werft.bau", imBau
 					);
 

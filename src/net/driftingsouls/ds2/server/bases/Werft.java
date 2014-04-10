@@ -18,9 +18,6 @@
  */
 package net.driftingsouls.ds2.server.bases;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
@@ -28,6 +25,10 @@ import net.driftingsouls.ds2.server.werften.BaseWerft;
 import net.driftingsouls.ds2.server.werften.WerftGUI;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
+
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import java.util.List;
 
 /**
  * Die Werft.
@@ -93,31 +94,32 @@ public class Werft extends DefaultBuilding {
 				result.append(base.getId());
 				result.append("&amp;field=");
 				result.append(field);
-				result.append("\">[W]<span class='ttcontent'>"+this.getName()+"</span></a>");
+				result.append("\">[W]<span class='ttcontent'>").append(this.getName()).append("</span></a>");
 			}
 			else {
 				WerftObject werftObj = werft;
 				if( werftObj.getKomplex() != null ) {
 					werftObj = werftObj.getKomplex();
 				}
-				final WerftQueueEntry[] entries = werftObj.getBuildQueue();
+				final List<WerftQueueEntry> entries = werftObj.getBuildQueue();
 				final int totalSlots = werftObj.getWerftSlots();
 				int usedSlots = 0;
 				int buildingCount = 0;
 				String imBau = "";
-				for( int i=0; i < entries.length; i++ ) {
-					if( entries[i].isScheduled() ) {
-						usedSlots += entries[i].getSlots();
+				for (WerftQueueEntry entry : entries)
+				{
+					if( entry.isScheduled() ) {
+						usedSlots += entry.getSlots();
 						buildingCount++;
-						imBau = imBau+"<br />Aktuell im Bau: "+entries[i].getBuildShipType().getNickname()+" <img src='./data/interface/time.gif' alt='Dauer: ' />"+entries[i].getRemainingTime();
+						imBau = imBau+"<br />Aktuell im Bau: "+entry.getBuildShipType().getNickname()+" <img src='./data/interface/time.gif' alt='Dauer: ' />"+entry.getRemainingTime();
 					}
 				}
 
 				StringBuilder popup = new StringBuilder(100);
-				popup.append(this.getName()+":<br />");
-				popup.append("Belegte Werftslots: <img style='vertical-align:middle;border:0px' src='./data/interface/schiffinfo/werftslots.png' alt='' />"+usedSlots+"/"+totalSlots+"<br />");
-				popup.append("Im Bau: "+buildingCount+" Schiffe<br />");
-				popup.append("In der Warteschlange: "+(entries.length - buildingCount));
+				popup.append(this.getName()).append(":<br />");
+				popup.append("Belegte Werftslots: <img style='vertical-align:middle;border:0px' src='./data/interface/schiffinfo/werftslots.png' alt='' />").append(usedSlots).append("/").append(totalSlots).append("<br />");
+				popup.append("Im Bau: ").append(buildingCount).append(" Schiffe<br />");
+				popup.append("In der Warteschlange: ").append(entries.size() - buildingCount);
 				popup.append(imBau);
 
 				result.append("<a class=\"error tooltip\" href=\"./ds?module=building");
@@ -126,8 +128,8 @@ public class Werft extends DefaultBuilding {
 				result.append("&amp;field=");
 				result.append(field);
 				result.append("\">[W]<span style=\"font-weight:normal\">");
-				result.append(entries.length);
-				result.append("</span><span class='ttcontent'>"+popup+"</span></a>");
+				result.append(entries.size());
+				result.append("</span><span class='ttcontent'>").append(popup).append("</span></a>");
 			}
 		}
 

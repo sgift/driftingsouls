@@ -77,7 +77,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -87,6 +86,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  * Basisklasse fuer alle Werfttypen in DS.
@@ -192,7 +192,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 */
 	public int getTicksTillFinished(@Nonnull WerftQueueEntry searched) {
 		List<WerftQueueEntry> entries = new ArrayList<>();
-		entries.addAll(Arrays.asList(getBuildQueue()));
+		entries.addAll(getBuildQueue());
 
 		int slots = this.getWerftSlots();
 		int time = 0;
@@ -253,7 +253,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * @param shipid Die ID des neugebauten Schiffes
 	 */
 	protected void onFinishedBuildProcess(int shipid) {
-		this.entries = null;
 		rescheduleQueue();
 	}
 
@@ -272,7 +271,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			cargo.addCargo( allyitems );
 		}
 
-		final WerftQueueEntry[] entries = getBuildQueue();
+		final List<WerftQueueEntry> entries = getBuildQueue();
 		for (final WerftQueueEntry entry : entries)
 		{
 			// Falls ein Item benoetigt wird pruefen, ob es vorhanden ist
@@ -309,7 +308,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		this.queue.clear();
 
 		this.buildFlagschiff = false;
-		this.entries = null;
 	}
 
 	/**
@@ -973,20 +971,20 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 */
 	public void moveBuildQueueEntryToBottom(int position)
 	{
-		WerftQueueEntry[] queue = this.getBuildQueue();
-		final int queueSize = queue.length;
+		List<WerftQueueEntry> queue = this.getBuildQueue();
+		final int queueSize = queue.size();
 		int index = 0;
 		for( ; index < queueSize; index++ )
 		{
-			if( queue[index].getPosition() == position )
+			if( queue.get(index).getPosition() == position )
 			{
 				break;
 			}
 		}
 		for( ; index < queueSize-1; index++ )
 		{
-			WerftQueueEntry entry = queue[index];
-			WerftQueueEntry entry2 = queue[index+1];
+			WerftQueueEntry entry = queue.get(index);
+			WerftQueueEntry entry2 = queue.get(index+1);
 			if( (entry != null) && (entry2 != null) ) {
 				this.swapQueueEntries(entry, entry2);
 			}
@@ -1000,19 +998,19 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 */
 	public void moveBuildQueueEntryToTop(int position)
 	{
-		WerftQueueEntry[] queue = this.getBuildQueue();
-		int index = queue.length-1;
+		List<WerftQueueEntry> queue = this.getBuildQueue();
+		int index = queue.size()-1;
 		for( ; index > 0; index-- )
 		{
-			if( queue[index].getPosition() == position )
+			if( queue.get(index).getPosition() == position )
 			{
 				break;
 			}
 		}
 		for( ; index > 0; index-- )
 		{
-			WerftQueueEntry entry = queue[index];
-			WerftQueueEntry entry2 = queue[index-1];
+			WerftQueueEntry entry = queue.get(index);
+			WerftQueueEntry entry2 = queue.get(index-1);
 			if( (entry != null) && (entry2 != null) ) {
 				this.swapQueueEntries(entry, entry2);
 			}
@@ -1579,45 +1577,20 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			db.persist(entry);
 			this.queue.add(entry);
 
-			this.entries = null;
-
 			rescheduleQueue();
 
 			return true;
 		}
 	}
 
-	@Transient
-	private WerftQueueEntry[] entries = null;
-
 	/**
 	 * Gibt die Bauschlange der Werft zurueck (inkl gerade im Bau befindlicher Schiffe)
 	 * in sortierter Reihenfolge (Position in der Bauschlange) zurueck.
 	 * @return Die Bauschlange
 	 */
-	public @Nonnull WerftQueueEntry[] getBuildQueue() {
-		if( entries != null ) {
-			return entries.clone();
-		}
-
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
-		List<?> queue = db.createQuery("from WerftQueueEntry where werft=:werft order by position asc")
-			.setInteger("werft", this.getWerftID())
-			.list();
-
-		WerftQueueEntry[] list = new WerftQueueEntry[queue.size()];
-		int index = 0;
-		for (Object aQueue : queue)
-		{
-			list[index++] = (WerftQueueEntry) aQueue;
-		}
-
-		this.entries = list;
-
-		return list;
+	public @Nonnull List<WerftQueueEntry> getBuildQueue() {
+		return this.queue.stream().sorted((e1, e2) -> e1.getPosition()-e2.getPosition()).collect(Collectors.toList());
 	}
-
 
 	/**
 	 * Bricht das Bauvorhaben ab.
@@ -1650,7 +1623,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			aEntry.setPosition(aEntry.getPosition()-1);
 		}
 
-		this.entries = null;
 		this.rescheduleQueue();
 	}
 
@@ -1758,17 +1730,15 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			// (falls notwendig) loeschen
 			final WerftObject largest = werften[0].getWerftSlots() > werften[1].getWerftSlots() ? werften[0] : werften[1];
 
-			WerftQueueEntry[] entries = komplex.getBuildQueue();
+			List<WerftQueueEntry> entries = komplex.getBuildQueue();
 			for (WerftQueueEntry entry : entries)
 			{
 				if (entry.getSlots() <= largest.getWerftSlots())
 				{
 					entry.copyToWerft(largest);
 				}
-				db.delete(entry);
+				komplex.removeQueueEntry(entry);
 			}
-
-			this.entries = null;
 
 			db.delete(komplex);
 			db.flush();
@@ -1809,17 +1779,13 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 		this.linkedWerft = linkedWerft;
 
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
-		WerftQueueEntry[] entries = this.getBuildQueue();
+		List<WerftQueueEntry> entries = this.getBuildQueue();
 		for (WerftQueueEntry entry : entries)
 		{
 			entry.copyToWerft(this.linkedWerft);
-			db.delete(entry);
+			this.removeQueueEntry(entry);
 			removeQueueEntry(entry);
 		}
-
-		this.entries = null;
 
 		linkedWerft.refresh();
 		this.linkedWerft.rescheduleQueue();
@@ -1854,14 +1820,12 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		this.linkedWerft = komplex;
 		werft.linkedWerft = komplex;
 
-		WerftQueueEntry[] entries = this.getBuildQueue();
+		List<WerftQueueEntry> entries = this.getBuildQueue();
 		for (WerftQueueEntry entry : entries)
 		{
 			entry.copyToWerft(this.linkedWerft);
 			removeQueueEntry(entry);
 		}
-
-		this.entries = null;
 
 		entries = werft.getBuildQueue();
 		for (WerftQueueEntry entry : entries)
@@ -1869,8 +1833,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			entry.copyToWerft(werft.linkedWerft);
 			werft.removeQueueEntry(entry);
 		}
-
-		werft.entries = null;
 
 		db.flush();
 
