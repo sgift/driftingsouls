@@ -1,5 +1,6 @@
 package net.driftingsouls.ds2.server.modules.admin.editoren;
 
+import net.driftingsouls.ds2.server.entities.FraktionsGuiEintrag;
 import net.driftingsouls.ds2.server.entities.GuiHelpText;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -29,6 +30,7 @@ public class ObjectLabelGenerator
 		registerSpecialGenerator(ShipBaubar.class, (sb) -> sb.getType().getNickname());
 		registerSpecialGenerator(User.class, User::getPlainname);
 		registerSpecialGenerator(GuiHelpText.class, GuiHelpText::getPage);
+		registerSpecialGenerator(FraktionsGuiEintrag.class, (fge) -> fge.getUser().getPlainname());
 	}
 
 	@SuppressWarnings("unchecked")

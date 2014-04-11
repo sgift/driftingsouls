@@ -32,7 +32,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 	private Class<? extends T> clazz;
 	private Class<T> baseClass;
 
-	protected AbstractEditPlugin8(Class<T> clazz)
+	public AbstractEditPlugin8(Class<T> clazz)
 	{
 		this.clazz = clazz;
 		this.baseClass = clazz;
