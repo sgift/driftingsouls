@@ -18,27 +18,12 @@
  */
 package net.driftingsouls.ds2.server.config;
 
-import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 /**
  * Klasse mit Konfigurationsdaten zu den einzelnen Fraktionen.
  * @author Christopher Jung
  *
  */
 public class Faction {
-	private static final Log log = LogFactory.getLog(Faction.class);
-
-	private static Map<Integer,Faction> factionList = new LinkedHashMap<>();
-
 	/**
 	 * Die Spieler-ID der GTU.
 	 */
@@ -49,87 +34,7 @@ public class Faction {
 	public static final int GTU_RASSE = 8;
 
 	/**
-	 * Die Spieler-ID der Bank der Lost Lands.
-	 */
-	public static final int BANK = -8;
-
-	/**
-	 * Die Spieler-ID von Demolition Inc.
-	 */
-	public static final int DI = -19;
-
-	/**
-	 * Die Spieler-ID von Ito.
-	 */
-	public static final int ITO = -26;
-
-	/**
 	 * Die Spieler-ID des Piraten-Accounts.
 	 */
 	public static final int PIRATE = -15;
-
-	/**
-	 * Die Spieler-ID des Regulus Syndikats.
-	 */
-	public static final int XR = -32;
-
-	/**
-	 * Gibt die angegebene Fraktion zurueck. Sollte keine passende Fraktion existieren, so wird <code>null</code> zurueckgegeben.
-	 * @param id Die ID der Fraktion
-	 * @return Die angegebene Fraktion oder <code>null</code>
-	 */
-	public static Faction get(int id) {
-		return factionList.get(id);
-	}
-
-	/**
-	 * Gibt die Liste aller bekannten Fraktionen zurueck.
-	 * @return Die Liste der bekannten Fraktionen
-	 */
-	public static Map<Integer,Faction> getFactions() {
-		return Collections.unmodifiableMap(factionList);
-	}
-
-	private FactionPages pages = null;
-	private int id = 0;
-
-	private Faction(int id) {
-		this.id = id;
-	}
-
-	/**
-	 * Gibt die Beschreibung der Fraktionsseite zurueck.
-	 * @return Die Fraktionsseite
-	 */
-	public FactionPages getPages() {
-		return pages;
-	}
-
-	/**
-	 * Gibt die ID der Fraktion zurueck.
-	 * @return Die ID
-	 */
-	public int getID() {
-		return this.id;
-	}
-
-	static {
-		/*
-		 * factions.xml parsen
-		 */
-		try {
-			Document doc = XMLUtils.readFile(Configuration.getConfigPath()+"factions.xml");
-			NodeList nodes = XMLUtils.getNodesByXPath(doc, "factions/faction");
-			for( int i=0; i < nodes.getLength(); i++ ) {
-				FactionPages fp = FactionPages.fromXML(nodes.item(i));
-				Faction fac = new Faction(fp.getID());
-				fac.pages = fp;
-
-				factionList.put(fac.getID(), fac);
-			}
-		}
-		catch( Exception e ) {
-			log.fatal("FAILED: Kann Items nicht laden",e);
-		}
-	}
 }

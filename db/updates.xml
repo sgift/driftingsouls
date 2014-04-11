@@ -2279,4 +2279,22 @@ Die Vasudaner haben eine sehr alte Kultur mit mehreren hochentwickelten Sprachen
 		insert into users_forschungen select owner,research from userresearch;
 		drop table userresearch;
 	]]></update>
+	<update type="structure" datum="2014-04-10"><![CDATA[
+		create table fraktions_gui_eintrag (id bigint not null auto_increment, text longtext, version integer not null, user_id integer not null, primary key (id), unique (user_id)) ENGINE=InnoDB;
+		create table fraktions_gui_eintrag_seiten (FraktionsGuiEintrag_id bigint not null, seiten varchar(255)) ENGINE=InnoDB;
+		alter table fraktions_gui_eintrag add index fraktionsguieintrag_fk_user (user_id), add constraint fraktionsguieintrag_fk_user foreign key (user_id) references users (id);
+		alter table fraktions_gui_eintrag_seiten add index fraktionsguieintrag_fk_fraktionsguieintrag_seiten (FraktionsGuiEintrag_id), add constraint fraktionsguieintrag_fk_fraktionsguieintrag_seiten foreign key (FraktionsGuiEintrag_id) references fraktions_gui_eintrag (id);
+		alter table factions_angebote add index factions_angebote_fk_user (faction), add constraint factions_angebote_fk_user foreign key (faction) references users (id);
+		alter table factions_shop_entries add index factions_shop_entries_fk_users (faction_id), add constraint factions_shop_entries_fk_users foreign key (faction_id) references users (id);
+		alter table factions_shop_entries drop index faction_id;
+
+		insert into fraktions_gui_eintrag (id,version,user_id,text) VALUES (1,1,-2,null);
+		insert into fraktions_gui_eintrag_seiten VALUES (1,'VERSTEIGERUNG'), (1, 'SHOP'), (1, 'SONSTIGES');
+		insert into fraktions_gui_eintrag (id,version,user_id,text) VALUES (3,1,-1,'Die Bank der Lost Lands ist das größte Kredit- und Geldunternehmen in den gesamten Lost Lands.');
+		insert into fraktions_gui_eintrag_seiten VALUES (3,'ALLGEMEIN'), (3, 'BANK');
+		insert into fraktions_gui_eintrag (id,version,user_id,text) VALUES (4,1,-15,null);
+		insert into fraktions_gui_eintrag_seiten VALUES (4,'SHOP'), (4, 'AKTION_MELDEN');
+		insert into fraktions_gui_eintrag (id,version,user_id,text) VALUES (5,1,-19,'Demolition Incorporated ist das führende Unternehmen auf dem Gebiet des modernen Bergbaus.');
+		insert into fraktions_gui_eintrag_seiten VALUES (5,'ALLGEMEIN'), (5, 'ANGEBOTE'), (5, 'AUSBAU');
+	]]></update>
 </updates>

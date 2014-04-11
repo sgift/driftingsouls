@@ -18,20 +18,21 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
-import java.util.HashSet;
-import java.util.Set;
+import org.hibernate.annotations.ForeignKey;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Version;
-
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import org.hibernate.annotations.Index;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Ein Eintrag im Shop einer Fraktion.
@@ -50,9 +51,11 @@ public class FactionShopEntry {
 
 	@Id @GeneratedValue
 	private int id;
-	@Column(name="faction_id", nullable = false)
-	@Index(name="faction_id")
-	private int faction;
+	// TODO: Verweist auf User
+	@ManyToOne(optional = false)
+	@JoinColumn(name="faction_id", nullable = false)
+	@ForeignKey(name="factions_shop_entries_fk_users")
+	private User faction;
 	@Enumerated
 	@Column(nullable = false)
 	private Type type;
@@ -84,11 +87,11 @@ public class FactionShopEntry {
 	 * @param type Der Typ des Eintrags
 	 * @param resource Die Eintragsdaten
 	 */
-	public FactionShopEntry(int faction, Type type, String resource) {
+	public FactionShopEntry(User faction, Type type, String resource) {
 		this.faction = faction;
 		this.type = type;
 		this.resource = resource;
-		this.orders = new HashSet<FactionShopOrder>();
+		this.orders = new HashSet<>();
 	}
 
 	/**
@@ -137,9 +140,9 @@ public class FactionShopEntry {
 
 	/**
 	 * Gibt die Fraktion zurueck, der der Eintrag gehoert.
-	 * @return Die Fraktions-ID
+	 * @return Die Fraktion
 	 */
-	public int getFaction() {
+	public User getFaction() {
 		return faction;
 	}
 
@@ -147,7 +150,7 @@ public class FactionShopEntry {
 	 * Setzt die Fraktion, der der Eintrag gehoert.
 	 * @param faction Die Fraktions-ID
 	 */
-	public final void setFaction(final int faction) {
+	public final void setFaction(final User faction) {
 		this.faction = faction;
 	}
 
@@ -252,13 +255,11 @@ public class FactionShopEntry {
      */
     public boolean canBuy(User buyer)
     {
-    	if( buyer.getId() == this.faction )
+    	if( buyer == this.faction )
     	{
     		return true;
     	}
-        org.hibernate.Session db = ContextMap.getContext().getDB();
-        User owner = (User)db.get(User.class, this.faction);
-        UserRank rank = buyer.getRank(owner);
+        UserRank rank = buyer.getRank(faction);
         return rank.getRank() >= minRank;
     }
 

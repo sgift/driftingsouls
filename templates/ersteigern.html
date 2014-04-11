@@ -198,14 +198,14 @@
 {/endif}
 {if show.angebote}
 	<div class="smallfont">
-		<div style="text-align:center">Sollten sie Interesse an einem Angebot haben, kontaktieren sie uns via PM unter der ID {global.faction}</div>
+		<div style="text-align:center">Sollten sie Interesse an einem Angebot haben, kontaktieren sie uns via {!link_to PM, default, module:comm, to:$global.faction}</div>
 		<br />
 	</div>
 	<table class="noBorder" cellpadding="4" cellspacing="4" width="81%">
 	<tr>
 		<!-- BEGIN angebote.item -->
 		<td class="noBorder" style="width:27%" valign="top">
-			<div class="gfxbox" style="width:100%;text-align:center">
+			<div class="gfxbox" style="width:100%;text-align:center;-moz-box-sizing:border-box;box-sizing: border-box">
 				<div style="font-weight:bold; font-size:15px; text-align:center">{angebot.title}<br />
 				<img src="{URL}{angebot.image}" alt="" /></div><br />
 				<div style="text-align:left">

@@ -4,13 +4,14 @@ import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.comm.PM;
-import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.config.Rang;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.FactionShopOrder;
 import net.driftingsouls.ds2.server.entities.FraktionAktionsMeldung;
+import net.driftingsouls.ds2.server.entities.FraktionsGuiEintrag;
+import net.driftingsouls.ds2.server.entities.FraktionsGuiEintragService;
 import net.driftingsouls.ds2.server.entities.Loyalitaetspunkte;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
@@ -88,7 +89,8 @@ public class NpcController extends AngularController
 			this.isHead = true;
 		}
 
-		if (Faction.get(user.getId()) != null && Faction.get(user.getId()).getPages().hasPage("shop"))
+		FraktionsGuiEintrag fraktionsGuiEintrag = new FraktionsGuiEintragService().findeNachUser(user);
+		if (fraktionsGuiEintrag != null && fraktionsGuiEintrag.getSeiten().contains(FraktionsGuiEintrag.Seite.SHOP))
 		{
 			this.shop = true;
 		}

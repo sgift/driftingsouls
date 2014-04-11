@@ -7,6 +7,7 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.ComNetChannel;
+import net.driftingsouls.ds2.server.entities.FraktionsGuiEintrag;
 import net.driftingsouls.ds2.server.entities.NewsEntry;
 import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.entities.User;
@@ -61,6 +62,15 @@ public class ContentGenerator
 			mitTransaktion("Setze Konfigurationseinstellungen", () -> {
 				new ConfigService().get(WellKnownConfigValue.ENABLE_CHEATS).setValue("true");
 				new ConfigService().get(WellKnownConfigValue.REGISTER_PM_SENDER).setValue("-10");
+			});
+
+			mitTransaktion("Erzeuge Fraktionsmaske", () -> {
+				db.persist(new FraktionsGuiEintrag((User) db.get(User.class, -2), FraktionsGuiEintrag.Seite.VERSTEIGERUNG, FraktionsGuiEintrag.Seite.SHOP, FraktionsGuiEintrag.Seite.SONSTIGES));
+				db.persist(new FraktionsGuiEintrag((User) db.get(User.class, -15), FraktionsGuiEintrag.Seite.AKTION_MELDEN));
+				db.persist(new FraktionsGuiEintrag((User) db.get(User.class, -1), FraktionsGuiEintrag.Seite.BANK));
+				FraktionsGuiEintrag di = new FraktionsGuiEintrag((User) db.get(User.class, -19), FraktionsGuiEintrag.Seite.ALLGEMEIN, FraktionsGuiEintrag.Seite.AUSBAU);
+				di.setText("Demolition Incorporated ist das führende Unternehmen auf dem Gebiet des modernen Bergbaus.");
+				db.persist(di);
 			});
 
 			mitTransaktion("Erzeuge ComNet-Kanaele", this::erzeugeComNetKanaele);

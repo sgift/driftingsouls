@@ -18,11 +18,6 @@
  */
 package net.driftingsouls.ds2.server.tasks;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.FactionShopEntry;
@@ -34,8 +29,12 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.JumpNodeRouter;
 import net.driftingsouls.ds2.server.ships.Ship;
-
 import org.apache.commons.lang.StringUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * TASK_GANY_TRANSPORT
@@ -187,7 +186,7 @@ class HandleGanyTransport implements TaskHandler
 				script.append(":error\n");
 				script.append("#title = \"Shop-Fehler: Order "+order.getId()+"\"\n");
 				script.append("#msg = \"Der Besitzer der Gany "+ganyid+" konnte nicht korrekt &uuml;berpr&uuml;ft werden. Erwartet wurde ID "+order.getUser().getId()+"\"\n");
-				script.append("!MSG "+entry.getFaction()+" #title #msg\n");
+				script.append("!MSG "+entry.getFaction().getId()+" #title #msg\n");
 				script.append("!EXECUTETASK "+task.getTaskID()+" error\n");
 				for( int i=0; i < pathback.path.size(); i++ ) {
 					JumpNode jn = pathback.path.get(i);
@@ -243,14 +242,14 @@ class HandleGanyTransport implements TaskHandler
 		List<Ship> shiptrans = Common.cast(db.createQuery("from Ship s " +
 				"WHERE s.owner= :owner AND s.system= :system AND " +
 						"s.scriptData is null AND locate('#!/tm gany_transport',s.einstellungen.destcom)!=0")
-				.setInteger("owner", entryowner.getFaction())
+				.setEntity("owner", entryowner.getFaction())
 				.setInteger("system", source.getSystem())
 				.list());
 		if( shiptrans.isEmpty() ) {
 			shiptrans = Common.cast(db.createQuery("from Ship s " +
 					"WHERE s.owner= :owner AND s.system= :system AND " +
 						"s.scriptData is null AND locate('#!/tm gany_transport',s.einstellungen.destcom)!=0")
-				.setInteger("owner", entryowner.getFaction())
+				.setEntity("owner", entryowner.getFaction())
 				.setInteger("system", target.getSystem())
 				.list());
 		}
@@ -258,7 +257,7 @@ class HandleGanyTransport implements TaskHandler
 			Common.cast(db.createQuery("from Ship s " +
 					"WHERE s.owner= :owner AND " +
 						"s.scriptData is null AND locate('#!/tm gany_transport',s.einstellungen.destcom)!=0")
-				.setInteger("owner", entryowner.getFaction())
+				.setEntity("owner", entryowner.getFaction())
 				.list());
 		}
 		if( !shiptrans.isEmpty() )

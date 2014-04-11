@@ -13,6 +13,7 @@ import org.hibernate.dialect.function.StandardSQLFunction;
 import org.hibernate.ejb.EntityManagerFactoryImpl;
 import org.hibernate.engine.spi.CollectionKey;
 import org.hibernate.engine.spi.EntityKey;
+import org.hibernate.internal.util.StringHelper;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.ServiceRegistryBuilder;
 import org.hibernate.tool.hbm2ddl.DatabaseMetadata;
@@ -71,6 +72,14 @@ public class HibernateUtil
 				public String classToTableName(String className)
 				{
 					return addUnderscores(super.classToTableName(className));
+				}
+
+				@Override
+				public String collectionTableName(String ownerEntity, String ownerEntityTable, String associatedEntity, String associatedEntityTable, String propertyName)
+				{
+					return addUnderscores(ownerEntityTable) + "_" + addUnderscores(associatedEntityTable != null ?
+							associatedEntityTable :
+							StringHelper.unqualify(propertyName));
 				}
 
 				protected String addUnderscores(String name)

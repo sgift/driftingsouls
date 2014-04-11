@@ -18,11 +18,15 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import org.hibernate.annotations.ForeignKey;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
@@ -36,7 +40,10 @@ import javax.persistence.Version;
 public class FactionOffer {
 	@Id @GeneratedValue
 	private int id;
-	private int faction;
+	@ManyToOne(optional = false)
+	@JoinColumn(name="faction", nullable = false)
+	@ForeignKey(name="factions_angebote_fk_user")
+	private User faction;
 	@Column(nullable = false)
 	private String title;
 	@Column(nullable = false)
@@ -61,7 +68,7 @@ public class FactionOffer {
 	 * @param faction Die Fraktion, der das Angebot gehoert
 	 * @param title Der Titel des Angebots
 	 */
-	public FactionOffer(int faction, String title) {
+	public FactionOffer(User faction, String title) {
 		setFaction(faction);
 		setTitle(title);
 	}
@@ -86,7 +93,7 @@ public class FactionOffer {
 	 * Gibt die ID der Fraktion zurueck.
 	 * @return Die ID der Fraktion
 	 */
-	public int getFaction() {
+	public User getFaction() {
 		return faction;
 	}
 
@@ -94,7 +101,7 @@ public class FactionOffer {
 	 * Setzt die Fraktion der das Angebot gehoert.
 	 * @param faction Die ID der Fraktion
 	 */
-	public final void setFaction(int faction) {
+	public final void setFaction(User faction) {
 		this.faction = faction;
 	}
 
