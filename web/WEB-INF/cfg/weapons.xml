@@ -169,7 +169,7 @@
 	
 	<weapon id="AAAf">
 		<name>Anti-Jaeger Strahlengeschuetze</name>
-		<treffer-ws default="95" small="70" torpedo="3" sub="0" />
+		<treffer-ws default="95" small="70" torpedo="1" sub="0" />
 		<cost ap="2" e="4" />
 		<damage hull="98" shields="98" />
 		<shots single="3" />
