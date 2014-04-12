@@ -2299,5 +2299,6 @@ Die Vasudaner haben eine sehr alte Kultur mit mehreren hochentwickelten Sprachen
 	]]></update>
 	<update type="structure" datum="2014-04-10"><![CDATA[
 		alter table upgrade_info change `mod` modWert integer not null;
+		alter table cores add index core_fk_basetype (astitype), add constraint core_fk_basetype foreign key (astitype) references base_types (id);
 	]]></update>
 </updates>

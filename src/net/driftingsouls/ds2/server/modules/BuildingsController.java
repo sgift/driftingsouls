@@ -187,7 +187,7 @@ public class BuildingsController extends TemplateController
 		t.setBlock("cores.listitem", "core.consumes.listitem", "core.consumes.list");
 
 
-		Iterator<?> coreIter = db.createQuery("from Core order by name,astiType").iterate();
+		Iterator<?> coreIter = db.createQuery("from Core order by name,astiType.id").iterate();
 		for (; coreIter.hasNext(); )
 		{
 			Core core = (Core) coreIter.next();
@@ -196,9 +196,9 @@ public class BuildingsController extends TemplateController
 				continue;
 			}
 
-			BaseType baseType = (BaseType) db.get(BaseType.class, core.getAstiType());
+			BaseType baseType = core.getAstiType();
 
-			t.setVar("core.astitype", core.getAstiType(),
+			t.setVar("core.astitype", core.getAstiType().getId(),
 					"core.basetype.name", baseType.getName(),
 					"core.name", Common._plaintitle(core.getName()),
 					"core.arbeiter", core.getArbeiter(),

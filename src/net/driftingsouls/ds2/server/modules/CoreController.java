@@ -97,7 +97,7 @@ public class CoreController extends TemplateController
 			throw new ValidierungException("Sie haben nicht alle ben&ouml;tigten Forschungen", Common.buildUrl("default", "module", "base", "col", base.getId()));
 		}
 
-		if (core.getAstiType() != base.getKlasse().getId())
+		if (core.getAstiType() != base.getKlasse())
 		{
 			throw new ValidierungException("Diese Core passt nicht in diesen Asteroiden rein", Common.buildUrl("default", "module", "base", "col", base.getId()));
 		}
@@ -233,7 +233,7 @@ public class CoreController extends TemplateController
 
 		Core core = Core.getCore(base.getCore());
 
-		t.setVar("core.astitype", core.getAstiType(),
+		t.setVar("core.astitype", core.getAstiType().getId(),
 				"core.name", Common._plaintitle(core.getName()),
 				"core.activated", base.isCoreActive(),
 				"core.ever", core.getEVerbrauch(),

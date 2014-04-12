@@ -54,8 +54,10 @@ public abstract class Core {
 	private int id;
 	@Column(nullable = false)
 	private String name;
-	@Column(name="astitype", nullable = false)
-	private int astiType;
+	@ManyToOne(optional = false)
+	@JoinColumn(nullable = false, name="astitype")
+	@ForeignKey(name="core_fk_basetype")
+	private BaseType astiType;
 	@Type(type="cargo")
 	@Column(nullable = false)
 	private Cargo buildcosts;
@@ -123,7 +125,7 @@ public abstract class Core {
 	 * @return der Basistyp
 	 * @see Base#getKlasse()
 	 */
-	public int getAstiType() {
+	public BaseType getAstiType() {
 		return astiType;
 	}
 	
@@ -230,7 +232,7 @@ public abstract class Core {
 	 * 
 	 * @param astiType Astityp
 	 */
-	public void setAstiType(int astiType)
+	public void setAstiType(BaseType astiType)
 	{
 		this.astiType = astiType;
 	}

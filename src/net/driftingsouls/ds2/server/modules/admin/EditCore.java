@@ -29,7 +29,7 @@ public class EditCore extends AbstractEditPlugin8<Core>
 	{
 		form.allowAdd();
 		form.field("Name", String.class, Core::getName, Core::setName);
-		form.field("Astitype", BaseType.class, Integer.class, Core::getAstiType, Core::setAstiType);
+		form.field("Basistyp", BaseType.class, Core::getAstiType, Core::setAstiType);
 		form.field("Arbeiter", Integer.class, Core::getArbeiter, Core::setArbeiter);
 		form.field("Energieverbrauch", Integer.class, Core::getEVerbrauch, Core::setEVerbrauch);
 		form.field("Energieproduktion", Integer.class, Core::getEProduktion, Core::setEProduktion);
