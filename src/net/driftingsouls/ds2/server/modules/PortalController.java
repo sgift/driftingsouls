@@ -520,10 +520,10 @@ public class PortalController extends TemplateController
 		base.setHeight(basetype.getHeight());
 		base.setMaxCargo(basetype.getCargo());
 		base.setCargo(new Cargo(Cargo.Type.AUTO, Configuration.getSetting("REGISTER_BASECARGO")));
-		base.setCore(0);
+		base.setCore(null);
 		base.setUnits(new TransientUnitCargo());
 		base.setCoreActive(false);
-		base.setAutoGTUActs(new ArrayList<AutoGTUAction>());
+		base.setAutoGTUActs(new ArrayList<>());
 
 		for (Offizier offi : Offizier.getOffiziereByDest(base))
 		{

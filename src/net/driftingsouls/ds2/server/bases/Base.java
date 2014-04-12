@@ -124,7 +124,10 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	private Cargo cargo;
 	@Column(name="maxcargo", nullable = false)
 	private long maxCargo;
-	private int core;
+	@ManyToOne
+	@JoinColumn
+	@ForeignKey(name="bases_fk_core")
+	private Core core;
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
 	@JoinColumn(name="klasse", nullable=false)
 	@ForeignKey(name="bases_fk_basetypes")
@@ -410,23 +413,23 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	}
 
 	/**
-	 * Gibt die ID der installierten Core der Basis zurueck.
-	 * Falls es keine Core auf der Basis gibt, so wird 0 zurueckgegeben.
+	 * Gibt die installierte Core der Basis zurueck.
+	 * Falls es keine Core auf der Basis gibt, so wird <code>null</code> zurueckgegeben.
 	 *
-	 * @return Die ID der Core oder 0
+	 * @return Die Core
 	 */
-	public int getCore()
+	public Core getCore()
 	{
 		return this.core;
 	}
 
 	/**
-	 * Setzt den neuen Kern der Basis. <code>0</code> bedeutet,
+	 * Setzt den neuen Kern der Basis. <code>null</code> bedeutet,
 	 * dass kein Kern vorhanden ist.
 	 *
-	 * @param core der neue Kern oder <code>0</code>
+	 * @param core der neue Kern oder <code>null</code>
 	 */
-	public void setCore(int core)
+	public void setCore(Core core)
 	{
 		this.core = core;
 	}
@@ -664,6 +667,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 * in benachbarte Felder hat (Normalfall).
 	 * @return Der Radius
 	 */
+	// TODO: Sollte aus dem BaseType ermittelt werden
 	public int getSize()
 	{
 		return this.size;
@@ -944,9 +948,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	private Cargo getNettoConsumption()
 	{
 		Cargo stat = new Cargo();
-		if( (getCore() > 0) && isCoreActive() ) {
-			Core core = Core.getCore(getCore());
-
+		if( (this.core != null) && isCoreActive() ) {
 			stat.addCargo(core.getConsumes());
 		}
 
@@ -984,9 +986,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	private Cargo getNettoProduction()
 	{
 		Cargo stat = new Cargo();
-		if( (getCore() > 0) && isCoreActive() ) {
-			Core core = Core.getCore(getCore());
-
+		if( (this.core != null) && isCoreActive() ) {
 			stat.addCargo(core.getProduces());
 		}
 
@@ -1030,8 +1030,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		int bewohner = 0;
 		Map<Integer,Integer> buildinglocs = new TreeMap<>();
 
-		if( (base.getCore() > 0) && base.isCoreActive() ) {
-			Core core = Core.getCore(base.getCore());
+		if( (base.getCore() != null) && base.isCoreActive() ) {
+			Core core = base.getCore();
 
 			stat.substractCargo(core.getConsumes());
 			stat.addCargo(core.getProduces());
@@ -1642,9 +1642,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		User owner = getOwner();
 		String msg = "";
 
-		if( (getCore() > 0) && isCoreActive() ) {
-			Core core = Core.getCore(getCore());
-
+		if( (this.core != null) && isCoreActive() ) {
 			if( core.isShutDown() && !owner.hasResearched(core.getTechRequired()) )
 			{
 				setCoreActive(false);

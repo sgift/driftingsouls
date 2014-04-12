@@ -311,8 +311,8 @@ public class BaseController extends TemplateController
 		baseObj.loading = base.isLoading();
 		baseObj.width = base.getWidth();
 
-		if( base.getCore() > 0 ) {
-			Core core = Core.getCore(base.getCore());
+		if( base.getCore() != null ) {
+			Core core = base.getCore();
 
 			AjaxViewModel.CoreViewModel coreObj = new AjaxViewModel.CoreViewModel();
 			coreObj.id = core.getId();
@@ -419,7 +419,7 @@ public class BaseController extends TemplateController
 					"base.x",				base.getX(),
 					"base.y",				base.getY(),
 					"base.system",			base.getSystem(),
-					"base.core",			base.getCore(),
+					"base.core",			base.getCore() != null ? base.getCore().getId() : 0,
 					"base.core.active",		base.isCoreActive(),
 					"base.isfeeding",		base.isFeeding(),
 					"base.isloading",		base.isLoading(),
@@ -432,8 +432,8 @@ public class BaseController extends TemplateController
 		//------------------
 		// Core
 		//------------------
-		if( base.getCore() > 0 ) {
-			Core core = Core.getCore(base.getCore());
+		if( base.getCore() != null ) {
+			Core core = base.getCore();
 			t.setVar( "core.name", Common._plaintitle(core.getName()) );
 		}
 

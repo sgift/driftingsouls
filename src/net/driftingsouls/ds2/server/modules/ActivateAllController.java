@@ -82,9 +82,9 @@ public class ActivateAllController extends TemplateController
 		/*
 			Alle Gebaeude deaktivieren
 		*/
-		Core core = Core.getCore(base.getCore());
+		Core core = base.getCore();
 		
-		if( (base.getCore() != 0) && base.isCoreActive() ) {
+		if( (core != null) && base.isCoreActive() ) {
 			base.setArbeiter(base.getArbeiter() - core.getArbeiter());
 			base.setCoreActive(false);
 
@@ -117,7 +117,7 @@ public class ActivateAllController extends TemplateController
 			Falls gewuenscht, nun alle Gebaeude nacheinander aktivieren
 		*/
 		if( !deaconly ) {
-			if( base.getCore() != 0 ) {
+			if( core != null ) {
 				if( base.getBewohner() >= base.getArbeiter()+core.getArbeiter() ) {
 					base.setArbeiter(base.getArbeiter() + core.getArbeiter());
 					base.setCoreActive(true);

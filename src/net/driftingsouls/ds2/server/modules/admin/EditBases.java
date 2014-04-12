@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.modules.admin;
 import net.driftingsouls.ds2.server.bases.AutoGTUAction;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.BaseType;
+import net.driftingsouls.ds2.server.bases.Core;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.entities.User;
@@ -58,7 +59,7 @@ public class EditBases extends AbstractEditPlugin8<Base>
 		form.field("Maximale Energie", Integer.class, Base::getMaxEnergy, Base::setMaxEnergy);
 		form.field("Cargo", Cargo.class, Base::getCargo, Base::setCargo);
 		form.field("Maximaler Cargo", Long.class, Base::getMaxCargo, Base::setMaxCargo);
-		form.field("Core", Integer.class, Base::getCore, Base::setCore);
+		form.field("Core", Core.class, Base::getCore, Base::setCore).withNullOption("[Keine]");
 		form.field("Klasse", BaseType.class, Base::getKlasse, Base::setKlasse);
 		form.field("Breite", Integer.class, Base::getWidth, Base::setWidth);
 		form.field("Höhe", Integer.class, Base::getHeight, Base::setHeight);

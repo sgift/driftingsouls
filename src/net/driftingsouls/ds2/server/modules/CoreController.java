@@ -82,7 +82,7 @@ public class CoreController extends TemplateController
 
 		t.setVar("base.id", base.getId());
 
-		if (base.getCore() > 0)
+		if (base.getCore() != null)
 		{
 			throw new ValidierungException("Sie k&ouml;nnen nur eine Core pro Asteroid bauen", Common.buildUrl("default", "module", "base", "col", base.getId()));
 		}
@@ -130,7 +130,7 @@ public class CoreController extends TemplateController
 		// Genuegend Res vorhanden -> Bauen
 		if (ok)
 		{
-			base.setCore(core.getId());
+			base.setCore(core);
 
 			base.setCoreActive(false);
 
@@ -146,7 +146,7 @@ public class CoreController extends TemplateController
 			cargo.substractCargo(costs);
 
 			base.setCargo(cargo);
-			base.setCore(core.getId());
+			base.setCore(core);
 
 			if (base.isCoreActive())
 			{
@@ -177,7 +177,7 @@ public class CoreController extends TemplateController
 			return;
 		}
 
-		Core core = Core.getCore(base.getCore());
+		Core core = base.getCore();
 
 		base.setArbeiter(base.getArbeiter() - core.getArbeiter());
 		base.setCoreActive(false);
@@ -207,7 +207,7 @@ public class CoreController extends TemplateController
 			return;
 		}
 
-		Core core = Core.getCore(base.getCore());
+		Core core = base.getCore();
 		if (core.getArbeiter() + base.getArbeiter() > base.getBewohner())
 		{
 			t.setVar("core.message", "<span style=\"color:#ff0000\">Nicht gen&uuml;gend Arbeiter</span>");
@@ -231,7 +231,7 @@ public class CoreController extends TemplateController
 	{
 		TemplateEngine t = getTemplateEngine();
 
-		Core core = Core.getCore(base.getCore());
+		Core core = base.getCore();
 
 		t.setVar("core.astitype", core.getAstiType().getId(),
 				"core.name", Common._plaintitle(core.getName()),
@@ -357,9 +357,9 @@ public class CoreController extends TemplateController
 
 		TemplateEngine t = getTemplateEngine();
 		t.setVar("base.id", base.getId());
-		t.setVar("base.core", base.getCore());
+		t.setVar("base.core", base.getCore() != null ? base.getCore().getId() : 0);
 
-		if (base.getCore() > 0)
+		if (base.getCore() != null)
 		{
 			showCore(base);
 		}

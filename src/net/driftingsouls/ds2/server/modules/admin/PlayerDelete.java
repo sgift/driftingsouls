@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.ContextCommon;
-import net.driftingsouls.ds2.server.bases.AutoGTUAction;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -273,13 +272,13 @@ public class PlayerDelete implements AdminPlugin
 			base.setOwner(nullUser);
 			base.setName("Verlassener Asteroid");
 			base.setActive(new Integer[] { 0 });
-			base.setCore(0);
+			base.setCore(null);
 			base.setCoreActive(false);
 			base.setEnergy(0);
 			base.setBewohner(0);
 			base.setArbeiter(0);
 			base.setCargo(new Cargo());
-			base.setAutoGTUActs(new ArrayList<AutoGTUAction>());
+			base.setAutoGTUActs(new ArrayList<>());
 		}
 
 		echo.append(baselist.size() + " Basen bearbeitet<br />\n");
