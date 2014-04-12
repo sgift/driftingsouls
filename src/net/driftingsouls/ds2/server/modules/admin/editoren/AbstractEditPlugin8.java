@@ -158,6 +158,10 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 			else
 			{
 				String currentIdStr = ContextMap.getContext().getRequest().getParameter("entityId");
+				if( currentIdStr == null )
+				{
+					currentIdStr = "";
+				}
 				echo.append("<input type=\"text\" name=\"entityId\" value=\""+currentIdStr+"\" ").append(isAddDisplayed() ? "readonly=\"readonly\"" : "").append(" />");
 			}
 
