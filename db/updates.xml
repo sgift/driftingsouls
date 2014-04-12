@@ -2302,5 +2302,9 @@ Die Vasudaner haben eine sehr alte Kultur mit mehreren hochentwickelten Sprachen
 		alter table cores add index core_fk_basetype (astitype), add constraint core_fk_basetype foreign key (astitype) references base_types (id);
 		alter table upgrade_info change column type type_id integer not null;
 		alter table upgrade_info add index upgrade_info_fk_basetype (type_id), add constraint upgrade_info_fk_basetype foreign key (type_id) references base_types (id);
+
+		alter table upgrade_maxvalues drop primary key;
+		alter table upgrade_maxvalues add column id integer not null auto_increment, add primary key(id);
+		alter table upgrade_maxvalues add index upgrade_max_values_fk_basetype (type), add constraint upgrade_max_values_fk_basetype foreign key (type) references base_types (id);
 	]]></update>
 </updates>

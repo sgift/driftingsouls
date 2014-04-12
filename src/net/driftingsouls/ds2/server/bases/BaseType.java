@@ -18,14 +18,16 @@
  */
 package net.driftingsouls.ds2.server.bases;
 
+import net.driftingsouls.ds2.server.entities.fraktionsgui.UpgradeMaxValues;
+import net.driftingsouls.ds2.server.framework.Common;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
-
-import net.driftingsouls.ds2.server.framework.Common;
 
 /**
  * <p>Repraesentiert eine Basis-Klasse in DS.</p>
@@ -49,6 +51,8 @@ public class BaseType
 	@Lob
 	private String spawnableress;
 	private int size;
+	@OneToOne(mappedBy="type")
+	private UpgradeMaxValues upgradeMaxValues;
 	
 	/**
 	 * Konstruktor.
@@ -255,5 +259,23 @@ public class BaseType
 	public void setSize(int size)
 	{
 		this.size = size;
+	}
+
+	/**
+	 * Gibt die Maximalwerte fuer den Ausbau von Basen dieses Typs zurueck.
+	 * @return Die Maximalwerte oder <code>null</code>, falls kein Ausbau moeglich ist
+	 */
+	public UpgradeMaxValues getUpgradeMaxValues()
+	{
+		return upgradeMaxValues;
+	}
+
+	/**
+	 * Setzt die Maximalwerte fuer den Ausbau von Basen dieses Typs.
+	 * @param upgradeMaxValues Die Maximalwerte oder <code>null</code>, falls kein Ausbau moeglich ist
+	 */
+	public void setUpgradeMaxValues(UpgradeMaxValues upgradeMaxValues)
+	{
+		this.upgradeMaxValues = upgradeMaxValues;
 	}
 }

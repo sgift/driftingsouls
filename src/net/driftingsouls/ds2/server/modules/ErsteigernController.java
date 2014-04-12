@@ -2263,8 +2263,7 @@ public class ErsteigernController extends TemplateController
 				return;
 			}
 
-			final UpgradeMaxValues maxvalues = (UpgradeMaxValues) db.get(UpgradeMaxValues.class,
-					base.getKlasse().getId());
+			final UpgradeMaxValues maxvalues = base.getKlasse().getUpgradeMaxValues();
 			if (maxvalues == null)
 			{
 				addError("Dieser Asteroid kann leider nicht ausgebaut werden");
@@ -2357,8 +2356,7 @@ public class ErsteigernController extends TemplateController
 		Base selectedBase = null;
 		for (Base asti : astis)
 		{
-			final UpgradeMaxValues maxvalues = (UpgradeMaxValues) db.get(UpgradeMaxValues.class,
-					asti.getKlasse().getId());
+			final UpgradeMaxValues maxvalues = asti.getKlasse().getUpgradeMaxValues();
 			if (maxvalues == null)
 			{
 				continue;
@@ -2412,8 +2410,7 @@ public class ErsteigernController extends TemplateController
 			t.parse("ausbau.colonizer.list", "ausbau.colonizer.listitem", true);
 		}
 
-		final UpgradeMaxValues maxvalues = (UpgradeMaxValues) db.get(UpgradeMaxValues.class,
-				selectedBase.getKlasse().getId());
+		final UpgradeMaxValues maxvalues = selectedBase.getKlasse().getUpgradeMaxValues();
 
 		// Setze die ausbau-mods, finde heraus welche bereits angewendet wurden und Typ des Astis
 		List<UpgradeInfo> possibleMods = Common.cast(db.createQuery(

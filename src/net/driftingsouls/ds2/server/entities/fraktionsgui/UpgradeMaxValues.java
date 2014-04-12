@@ -18,8 +18,14 @@
  */
 package net.driftingsouls.ds2.server.entities.fraktionsgui;
 
+import net.driftingsouls.ds2.server.bases.BaseType;
+import org.hibernate.annotations.ForeignKey;
+
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 /**
@@ -33,8 +39,13 @@ import javax.persistence.Table;
 @Table(name="upgrade_maxvalues")
 public class UpgradeMaxValues
 {
-	@Id
-	private int type;
+	@Id @GeneratedValue
+	private int id;
+
+	@OneToOne(optional = false)
+	@JoinColumn(name="type", nullable = false)
+	@ForeignKey(name="upgrade_max_values_fk_basetype")
+	private BaseType type;
 	private int maxcargo;
 	private int maxtiles;
 	
@@ -49,7 +60,7 @@ public class UpgradeMaxValues
 	 * Gibt den Asteroidentyp zurueck.
 	 * @return Der Typ
 	 */
-	public int getType()
+	public BaseType getType()
 	{
 		return type;
 	}
@@ -58,7 +69,7 @@ public class UpgradeMaxValues
 	 * Setzt den Asteroidentyp.
 	 * @param type Der Typ
 	 */
-	public void setType(int type)
+	public void setType(BaseType type)
 	{
 		this.type = type;
 	}
