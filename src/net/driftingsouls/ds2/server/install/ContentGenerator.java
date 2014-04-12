@@ -3,14 +3,17 @@ package net.driftingsouls.ds2.server.install;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.BaseStatus;
+import net.driftingsouls.ds2.server.bases.BaseType;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.ComNetChannel;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag;
 import net.driftingsouls.ds2.server.entities.NewsEntry;
 import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag;
+import net.driftingsouls.ds2.server.entities.fraktionsgui.UpgradeInfo;
+import net.driftingsouls.ds2.server.entities.fraktionsgui.UpgradeMaxValues;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderableOffizier;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderableShip;
 import net.driftingsouls.ds2.server.framework.BasicContext;
@@ -90,6 +93,48 @@ public class ContentGenerator
 					db.persist(new OrderableShip(shipType, rasse, (int) (10 * Math.random())));
 				}
 			});
+
+			mitTransaktion("Erzeuge Maximalwerte fuer Basis-Upgrades",
+					() -> Common.cast(db.createCriteria(BaseType.class).list()),
+					(BaseType bt) -> {
+						UpgradeMaxValues values = new UpgradeMaxValues();
+						values.setType(bt);
+						values.setMaxCargo(bt.getCargo() * 2);
+						values.setMaxTiles((int)(bt.getMaxTiles()*1.5));
+						db.persist(values);
+					}
+			);
+
+			mitTransaktion("Erzeuge Upgrade-Optionen fuer Basis-Upgrades",
+					() -> Common.cast(db.createCriteria(BaseType.class).list()),
+					(BaseType bt) -> {
+						int cargoStep = Math.max(1000,(bt.getUpgradeMaxValues().getMaxCargo()-bt.getCargo())/5);
+						for( int i=0; i*cargoStep <= bt.getUpgradeMaxValues().getMaxCargo()-bt.getCargo(); i++)
+						{
+							UpgradeInfo info = new UpgradeInfo();
+							info.setType(bt);
+							info.setCargo(true);
+							info.setModWert(i*cargoStep);
+							info.setMiningExplosive(100+i*50);
+							info.setOre(1000+i*250);
+							info.setPrice(10000+i*10000);
+							db.persist(info);
+						}
+
+						int tileStep = Math.max(5,(bt.getUpgradeMaxValues().getMaxTiles()-bt.getMaxTiles())/5);
+						for( int i=0; i*tileStep <= bt.getUpgradeMaxValues().getMaxTiles()-bt.getMaxTiles(); i++)
+						{
+							UpgradeInfo info = new UpgradeInfo();
+							info.setType(bt);
+							info.setCargo(false);
+							info.setModWert(i*tileStep);
+							info.setMiningExplosive(50+i*30);
+							info.setOre(2000+i*500);
+							info.setPrice(20000+i*30000);
+							db.persist(info);
+						}
+					}
+			);
 
 			mitTransaktion("Fuelle Systeme mit Inhalt",
 					() -> Common.cast(db.createCriteria(StarSystem.class).add(Restrictions.gt("id", 0)).list()),
