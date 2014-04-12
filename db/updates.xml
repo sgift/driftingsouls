@@ -2297,4 +2297,7 @@ Die Vasudaner haben eine sehr alte Kultur mit mehreren hochentwickelten Sprachen
 		insert into fraktions_gui_eintrag (id,version,user_id,text) VALUES (5,1,-19,'Demolition Incorporated ist das führende Unternehmen auf dem Gebiet des modernen Bergbaus.');
 		insert into fraktions_gui_eintrag_seiten VALUES (5,'ALLGEMEIN'), (5, 'ANGEBOTE'), (5, 'AUSBAU');
 	]]></update>
+	<update type="structure" datum="2014-04-10"><![CDATA[
+		alter table upgrade_info change `mod` modWert integer not null;
+	]]></update>
 </updates>

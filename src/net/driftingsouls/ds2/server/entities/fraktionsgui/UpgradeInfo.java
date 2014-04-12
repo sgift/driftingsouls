@@ -35,8 +35,7 @@ public class UpgradeInfo {
 	@Id @GeneratedValue
 	private int id;
 	private int type;
-	@Column(name="`mod`", nullable = false)
-	private int mod;
+	private int modWert;
 	private boolean cargo;
 	private int price;
 	@Column(name="miningexplosive", nullable = false)
@@ -87,16 +86,16 @@ public class UpgradeInfo {
 	 * Gibt den Zahlenwert der Modifikation zurueck.
 	 * @return Zahlenwert der Modifikation
 	 */
-	public int getMod() {
-		return mod;
+	public int getModWert() {
+		return modWert;
 	}
 
 	/**
 	 * Setzt den Zahlenwert der Modifikation.
 	 * @param mod Zahlenwert der Modifikation
 	 */
-	public void setMod(int mod) {
-		this.mod = mod;
+	public void setModWert(int mod) {
+		this.modWert = mod;
 	}
 
 	/**

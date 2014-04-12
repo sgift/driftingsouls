@@ -95,7 +95,7 @@ class HandleUpgradeJob implements TaskHandler
 			if( order.getEnd() <= tick )
 			{
 				// Setzen der Base-Informationen
-				int tilemod = order.getTiles().getMod();
+				int tilemod = order.getTiles().getModWert();
 				if( tilemod > 0 ) {
 					if( tilemod % base.getHeight() == 0 ) {
 						base.setWidth(base.getWidth() + tilemod / base.getHeight());
@@ -104,7 +104,7 @@ class HandleUpgradeJob implements TaskHandler
 						base.setHeight(base.getHeight() + tilemod / base.getWidth());
 					}
 				}
-				base.setMaxCargo(base.getMaxCargo() + order.getCargo().getMod());
+				base.setMaxCargo(base.getMaxCargo() + order.getCargo().getModWert());
 
 				Map<Integer,Integer> bases = new HashMap<>();
 				bases.put(base.getSystem(), 0);

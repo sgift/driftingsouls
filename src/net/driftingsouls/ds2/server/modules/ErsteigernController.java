@@ -2204,7 +2204,6 @@ public class ErsteigernController extends TemplateController
 	 * @param order Soll wirklich bestellt werden (bestellen)?
 	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
-	@SuppressWarnings("unchecked")
 	@Action(ActionType.DEFAULT)
 	public void ausbauAction(User faction,
 							 @UrlParam(name = "astiid") Base base,
@@ -2281,21 +2280,21 @@ public class ErsteigernController extends TemplateController
 				return;
 			}
 
-			if (felder.getMod() > 0 && (base.getMaxTiles() + felder.getMod() > maxvalues.getMaxTiles()))
+			if (felder.getModWert() > 0 && (base.getMaxTiles() + felder.getModWert() > maxvalues.getMaxTiles()))
 			{
 				addError("Der Asteroid hat zuviele Felder nach diesem Ausbau");
 				redirect();
 				return;
 			}
 
-			if (cargo.getMod() > 0 && (base.getMaxCargo() + cargo.getMod() > maxvalues.getMaxCargo()))
+			if (cargo.getModWert() > 0 && (base.getMaxCargo() + cargo.getModWert() > maxvalues.getMaxCargo()))
 			{
 				addError("Der Asteroid hat zuviel Lagerraum nach diesem Ausbau.");
 				redirect();
 				return;
 			}
 
-			if (felder.getMod() <= 0 && cargo.getMod() <= 0)
+			if (felder.getModWert() <= 0 && cargo.getModWert() <= 0)
 			{
 				redirect();
 				return;
@@ -2353,8 +2352,8 @@ public class ErsteigernController extends TemplateController
 		t.setBlock("_ERSTEIGERN", "ausbau.felder.listitem", "ausbau.felder.list");
 
 		// Hole alle Astis des Spielers und markiere gewaehlten Asti
-		List<Base> astis = db.createQuery("from Base where owner=:user order by id")
-				.setParameter("user", user).list();
+		List<Base> astis = Common.cast(db.createQuery("from Base where owner=:user order by id")
+				.setParameter("user", user).list());
 		Base selectedBase = null;
 		for (Base asti : astis)
 		{
@@ -2390,7 +2389,7 @@ public class ErsteigernController extends TemplateController
 				ITEM_BBS)), "bbs.image", Cargo.getResourceImage(new ItemID(ITEM_BBS)));
 
 		// Hole die Colos des ausgewaehlten Astis
-		List<Ship> colonizers = db
+		List<Ship> colonizers = Common.cast(db
 				.createQuery(
 						"from Ship where shiptype.flags like :colonizer and "
 								+ "owner=:user and system=:baseSystem and x=:baseX AND y=:baseY order by id")
@@ -2399,7 +2398,7 @@ public class ErsteigernController extends TemplateController
 				.setInteger("baseSystem", selectedBase.getSystem())
 				.setInteger("baseX", selectedBase.getX())
 				.setInteger("baseY", selectedBase.getY())
-				.list();
+				.list());
 
 		User factionUser = factionObj.getUser();
 		for (Ship acolonizer : colonizers)
@@ -2417,17 +2416,18 @@ public class ErsteigernController extends TemplateController
 				selectedBase.getKlasse());
 
 		// Setze die ausbau-mods, finde heraus welche bereits angewendet wurden und Typ des Astis
-		List<UpgradeInfo> possibleMods = db.createQuery(
-				"from UpgradeInfo where type=:asteroidClass order by id").setParameter(
-				"asteroidClass", selectedBase.getKlasse()).list();
+		List<UpgradeInfo> possibleMods = Common.cast(db.createQuery(
+				"from UpgradeInfo where type=:asteroidClass order by id")
+				.setParameter("asteroidClass", selectedBase.getKlasse())
+				.list());
 		for (UpgradeInfo info : possibleMods)
 		{
 			if (info.getCargo())
 			{
 				// Testen ob info den Cargo modifiziert
-				if (info.getMod() == 0 || selectedBase.getMaxCargo() + info.getMod() <= maxvalues.getMaxCargo())
+				if (info.getModWert() == 0 || selectedBase.getMaxCargo() + info.getModWert() <= maxvalues.getMaxCargo())
 				{
-					t.setVar("cargo.mod", info.getMod(),
+					t.setVar("cargo.mod", info.getModWert(),
 							"cargo.id", info.getId(),
 							"cargo.preis", info.getPrice(),
 							"cargo.bbs", info.getMiningExplosive(),
@@ -2437,9 +2437,9 @@ public class ErsteigernController extends TemplateController
 			}
 			else
 			{ // Es handelt sich um ein Felder Ausbau
-				if (info.getMod() == 0 || selectedBase.getMaxTiles() + info.getMod() <= maxvalues.getMaxTiles())
+				if (info.getModWert() == 0 || selectedBase.getMaxTiles() + info.getModWert() <= maxvalues.getMaxTiles())
 				{
-					t.setVar("felder.mod", info.getMod(),
+					t.setVar("felder.mod", info.getModWert(),
 							"felder.id", info.getId(),
 							"felder.preis", info.getPrice(),
 							"felder.bbs", info.getMiningExplosive(),
