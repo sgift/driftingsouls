@@ -7,7 +7,7 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.ComNetChannel;
-import net.driftingsouls.ds2.server.entities.FraktionsGuiEintrag;
+import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag;
 import net.driftingsouls.ds2.server.entities.NewsEntry;
 import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.entities.User;

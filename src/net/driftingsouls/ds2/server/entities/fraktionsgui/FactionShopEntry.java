@@ -16,8 +16,10 @@
  *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.driftingsouls.ds2.server.entities;
+package net.driftingsouls.ds2.server.entities.fraktionsgui;
 
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserRank;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.CascadeType;

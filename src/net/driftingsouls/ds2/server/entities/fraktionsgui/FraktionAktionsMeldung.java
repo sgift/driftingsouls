@@ -1,5 +1,6 @@
-package net.driftingsouls.ds2.server.entities;
+package net.driftingsouls.ds2.server.entities.fraktionsgui;
 
+import net.driftingsouls.ds2.server.entities.User;
 import org.hibernate.annotations.ForeignKey;
 
 import java.util.Date;

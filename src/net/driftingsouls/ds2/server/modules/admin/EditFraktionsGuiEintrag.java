@@ -1,6 +1,6 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
-import net.driftingsouls.ds2.server.entities.FraktionsGuiEintrag;
+import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;

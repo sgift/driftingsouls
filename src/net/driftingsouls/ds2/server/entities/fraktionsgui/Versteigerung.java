@@ -16,7 +16,10 @@
  *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.driftingsouls.ds2.server.entities;
+package net.driftingsouls.ds2.server.entities.fraktionsgui;
+
+import net.driftingsouls.ds2.server.entities.User;
+import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
@@ -30,9 +33,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
-
-import org.hibernate.annotations.DiscriminatorFormula;
-import org.hibernate.annotations.ForeignKey;
 
 /**
  * Basisklasse fuer Versteigerungen.

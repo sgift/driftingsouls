@@ -20,8 +20,8 @@ package net.driftingsouls.ds2.server.tasks;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.comm.PM;
-import net.driftingsouls.ds2.server.entities.FactionShopEntry;
-import net.driftingsouls.ds2.server.entities.FactionShopOrder;
+import net.driftingsouls.ds2.server.entities.fraktionsgui.FactionShopEntry;
+import net.driftingsouls.ds2.server.entities.fraktionsgui.FactionShopOrder;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;

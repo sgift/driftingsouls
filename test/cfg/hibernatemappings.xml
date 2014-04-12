@@ -26,9 +26,9 @@
 	<!-- config_felsbrocken_systems -->
 	<mapping class="net.driftingsouls.ds2.server.bases.Core" />
 	<mapping class="net.driftingsouls.ds2.server.bases.DefaultCore" />
-	<mapping class="net.driftingsouls.ds2.server.entities.FactionOffer" />
-	<mapping class="net.driftingsouls.ds2.server.entities.FactionShopEntry" />
-	<mapping class="net.driftingsouls.ds2.server.entities.FactionShopOrder" />
+	<mapping class="net.driftingsouls.ds2.server.entities.fraktionsgui.FactionOffer" />
+	<mapping class="net.driftingsouls.ds2.server.entities.fraktionsgui.FactionShopEntry" />
+	<mapping class="net.driftingsouls.ds2.server.entities.fraktionsgui.FactionShopOrder" />
 	<mapping class="net.driftingsouls.ds2.server.entities.Forschung" />
 	<mapping class="net.driftingsouls.ds2.server.entities.Forschungszentrum" />
 	<!-- global_sectortemplates [net.driftingsouls.ds2.server.SectorTemplateManager migrieren] -->
@@ -82,9 +82,9 @@
 	<!-- user_f -->
 	<mapping class="net.driftingsouls.ds2.server.entities.UserMoneyTransfer" />
 	<mapping class="net.driftingsouls.ds2.server.entities.UserRelation" />
-	<mapping class="net.driftingsouls.ds2.server.entities.Versteigerung" />
-	<mapping class="net.driftingsouls.ds2.server.entities.VersteigerungSchiff" />
-	<mapping class="net.driftingsouls.ds2.server.entities.VersteigerungResource" />
+	<mapping class="net.driftingsouls.ds2.server.entities.fraktionsgui.Versteigerung" />
+	<mapping class="net.driftingsouls.ds2.server.entities.fraktionsgui.VersteigerungSchiff" />
+	<mapping class="net.driftingsouls.ds2.server.entities.fraktionsgui.VersteigerungResource" />
 	<mapping class="net.driftingsouls.ds2.server.entities.PaketVersteigerung" />
 	<mapping class="net.driftingsouls.ds2.server.entities.WeaponFactory" />
 	<mapping class="net.driftingsouls.ds2.server.werften.WerftObject" />
