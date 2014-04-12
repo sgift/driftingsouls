@@ -97,7 +97,7 @@ public class CoreController extends TemplateController
 			throw new ValidierungException("Sie haben nicht alle ben&ouml;tigten Forschungen", Common.buildUrl("default", "module", "base", "col", base.getId()));
 		}
 
-		if (core.getAstiType() != base.getKlasse())
+		if (core.getAstiType() != base.getKlasse().getId())
 		{
 			throw new ValidierungException("Diese Core passt nicht in diesen Asteroiden rein", Common.buildUrl("default", "module", "base", "col", base.getId()));
 		}
@@ -275,7 +275,7 @@ public class CoreController extends TemplateController
 		t.setBlock("_CORE", "cores.listitem", "cores.list");
 
 		Iterator<?> coreIter = db.createQuery("from Core where astiType=:type")
-				.setInteger("type", base.getKlasse())
+				.setInteger("type", base.getKlasse().getId())
 				.iterate();
 		for (; coreIter.hasNext(); )
 		{

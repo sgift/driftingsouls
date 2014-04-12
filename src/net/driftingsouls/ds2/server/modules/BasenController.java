@@ -144,7 +144,7 @@ public class BasenController extends TemplateController
 			BaseStatus basedata = Base.getStatus(base);
 
 			t.setVar("base.id", base.getId(),
-					"base.klasse", base.getKlasse(),
+					"base.klasse", base.getKlasse().getId(),
 					"base.name", Common._plaintitle(base.getName()),
 					"base.system", base.getSystem(),
 					"base.x", base.getX(),

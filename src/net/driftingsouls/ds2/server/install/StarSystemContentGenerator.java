@@ -86,7 +86,7 @@ public class StarSystemContentGenerator
 		final User nullUser = (User) db.get(User.class, 0);
 
 		Base base = new Base(new Location(sys.getID(), x, y), nullUser);
-		base.setKlasse(type.getId());
+		base.setKlasse(type);
 		base.setWidth(type.getWidth());
 		base.setHeight(type.getHeight());
 		base.setMaxTiles(type.getMaxTiles());

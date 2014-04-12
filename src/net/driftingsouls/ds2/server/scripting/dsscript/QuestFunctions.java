@@ -447,7 +447,7 @@ public class QuestFunctions {
 					}
 					else if ("klasse".equals(value[1]))
 					{
-						val = base.getKlasse();
+						val = base.getKlasse().getId();
 					}
 					break;
 				case "jumpnode":

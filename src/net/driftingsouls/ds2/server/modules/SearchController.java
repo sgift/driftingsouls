@@ -126,7 +126,7 @@ public class SearchController extends Controller
 				baseObj.id = base.getId();
 				baseObj.name = Common._plaintitle(base.getName());
 				baseObj.location = base.getLocation().displayCoordinates(false);
-				baseObj.klasse = base.getKlasse();
+				baseObj.klasse = base.getKlasse().getId();
 
 				result.bases.add(baseObj);
 

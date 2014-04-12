@@ -360,7 +360,7 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 
 		User user = (User) context.getDB().get(User.class, 0);
 		Base base = new Base(loc, user);
-		base.setKlasse(bt.getId());
+		base.setKlasse(bt);
 		base.setWidth(bt.getWidth());
 		base.setHeight(bt.getHeight());
 		base.setMaxTiles(bt.getMaxTiles());

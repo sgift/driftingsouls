@@ -634,23 +634,18 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 * Gibt die Klassennummer der Basis zurueck (= Der Astityp).
 	 * @return Die Klassennummer
 	 */
-	public int getKlasse()
+	public BaseType getKlasse()
 	{
-		return this.klasse.getId();
+		return this.klasse;
 	}
 
 	/**
 	 * Setzt die Klasse der Basis.
 	 * @param klasse Die Klasse
 	 */
-	public void setKlasse(int klasse)
+	public void setKlasse(BaseType klasse)
 	{
-		org.hibernate.Session db = getDB();
-		BaseType type = (BaseType)db.get(BaseType.class, klasse);
-		if(type != null)
-		{
-			this.klasse = type;
-		}
+		this.klasse = klasse;
 	}
 
 	/**

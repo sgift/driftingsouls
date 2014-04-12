@@ -652,7 +652,7 @@ public class MapController extends AngularController
 			baseObj.image = base.getBaseImage(loc);
 			baseObj.imageX = base.getBaseImageOffset(loc)[0];
 			baseObj.imageY = base.getBaseImageOffset(loc)[1];
-			baseObj.klasse = base.getKlasse();
+			baseObj.klasse = base.getKlasse().getId();
 			baseObj.typ = base.getBaseType().getName();
 			baseObj.eigene = base.getOwner().getId() == user.getId();
 

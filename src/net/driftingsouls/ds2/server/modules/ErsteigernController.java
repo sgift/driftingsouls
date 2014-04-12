@@ -2264,7 +2264,7 @@ public class ErsteigernController extends TemplateController
 			}
 
 			final UpgradeMaxValues maxvalues = (UpgradeMaxValues) db.get(UpgradeMaxValues.class,
-					base.getKlasse());
+					base.getKlasse().getId());
 			if (maxvalues == null)
 			{
 				addError("Dieser Asteroid kann leider nicht ausgebaut werden");
@@ -2273,7 +2273,7 @@ public class ErsteigernController extends TemplateController
 			}
 
 			// Teste ob die übergebenen felder und cargo Parameter korrekt sind
-			if (!cargo.getCargo() || felder.getCargo() || cargo.getType() != base.getKlasse() || felder.getType() != base.getKlasse())
+			if (!cargo.getCargo() || felder.getCargo() || cargo.getType() != base.getKlasse().getId() || felder.getType() != base.getKlasse().getId())
 			{ // Da es selbst für den leeren Ausbau Einträge gibt, funktioniert das hier
 				addError("Es wurden illegale Ausbauten ausgew&auml;hlt");
 				redirect();
@@ -2358,7 +2358,7 @@ public class ErsteigernController extends TemplateController
 		for (Base asti : astis)
 		{
 			final UpgradeMaxValues maxvalues = (UpgradeMaxValues) db.get(UpgradeMaxValues.class,
-					asti.getKlasse());
+					asti.getKlasse().getId());
 			if (maxvalues == null)
 			{
 				continue;
@@ -2413,12 +2413,12 @@ public class ErsteigernController extends TemplateController
 		}
 
 		final UpgradeMaxValues maxvalues = (UpgradeMaxValues) db.get(UpgradeMaxValues.class,
-				selectedBase.getKlasse());
+				selectedBase.getKlasse().getId());
 
 		// Setze die ausbau-mods, finde heraus welche bereits angewendet wurden und Typ des Astis
 		List<UpgradeInfo> possibleMods = Common.cast(db.createQuery(
 				"from UpgradeInfo where type=:asteroidClass order by id")
-				.setParameter("asteroidClass", selectedBase.getKlasse())
+				.setParameter("asteroidClass", selectedBase.getKlasse().getId())
 				.list());
 		for (UpgradeInfo info : possibleMods)
 		{

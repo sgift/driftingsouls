@@ -414,7 +414,7 @@ public class CreateObjects implements AdminPlugin {
 				}
 				
 				Base base = new Base(source, ownerObj);
-				base.setKlasse(klasse);
+				base.setKlasse((BaseType)db.get(BaseType.class, klasse));
 				base.setSize(size);
 				base.setName(name);
 				base.setWidth(10);
@@ -579,27 +579,27 @@ public class CreateObjects implements AdminPlugin {
 
 				// Normaler Asteroid
 				case 0xff0000FF:
-					createPlanet(db, loc, 1);
+					createPlanet(db, loc, (BaseType)db.get(BaseType.class, 1));
 					break;
 
 				// Grosser Asteroid
 				case 0xff0000AF:
-					createPlanet(db, loc, 3);
+					createPlanet(db, loc, (BaseType)db.get(BaseType.class, 3));
 					break;
 
 				// Kleiner Asteroid
 				case 0xff00006F:
-					createPlanet(db, loc, 4);
+					createPlanet(db, loc, (BaseType)db.get(BaseType.class, 4));
 					break;
 
 				// Sehr kleiner Asteroid
 				case 0xff40406F:
-					createPlanet(db, loc, 5);
+					createPlanet(db, loc, (BaseType)db.get(BaseType.class, 5));
 					break;
 
 				// Sehr grosser Asteroid
 				case 0xff4040AF:
-					createPlanet(db, loc, 2);
+					createPlanet(db, loc, (BaseType)db.get(BaseType.class, 2));
 					break;
 
 				default:
@@ -609,50 +609,13 @@ public class CreateObjects implements AdminPlugin {
 		}
 	}
 
-	private void createPlanet( org.hibernate.Session db, Location loc, int klasse ) throws IOException {
-		Writer echo = ContextMap.getContext().getResponse().getWriter();
-		
-		int height = 0;
-		int width = 0;
-		long cargo = 0;
-		switch( klasse ) {
-		case 1:
-			height = 8;
-			width = 5;
-			cargo = 100000;
-			break;
-			
-		case 2:
-			height = 10;
-			width = 10;
-			cargo = 180000;
-			break;
-		
-		case 3:
-			height = 10;
-			width = 6;
-			cargo = 150000;
-			break;
-			
-		case 4:
-			height = 4;
-			width = 5;
-			cargo = 70000;
-			break;
-			
-		case 5:
-			height = 3;
-			width = 5;
-			cargo = 50000;
-			break;
-			
-		default:
-			echo.append("Ungueltiger Asti-Typ "+klasse+"<br />");
-			return;
-		}
-		
+	private void createPlanet( org.hibernate.Session db, Location loc, BaseType klasse ) throws IOException {
+		int height = klasse.getHeight();
+		int width = klasse.getWidth();
+		long cargo = klasse.getCargo();
+
 		User nullUser = (User)db.get(User.class, 0);
-		
+
 		Base base = new Base(loc, nullUser);
 		base.setKlasse(klasse);
 		base.setWidth(width);
@@ -722,7 +685,7 @@ public class CreateObjects implements AdminPlugin {
 			int y = RandomUtils.nextInt(maxY-minY+1)+minY;
 
 			Base base = new Base(new Location(system, x, y), nullUser);
-			base.setKlasse(klasse);
+			base.setKlasse((BaseType)db.get(BaseType.class, klasse));
 			base.setWidth(type.getWidth());
 			base.setHeight(type.getHeight());
 			base.setMaxTiles(type.getMaxTiles());

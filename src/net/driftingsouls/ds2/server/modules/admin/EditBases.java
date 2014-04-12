@@ -18,14 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.commons.lang.StringUtils;
-
 import net.driftingsouls.ds2.server.bases.AutoGTUAction;
 import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.bases.BaseType;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.entities.User;
@@ -33,6 +28,12 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AdminController;
+import org.apache.commons.lang.StringUtils;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Aktualisierungstool fuer die Werte eines Spielers.
@@ -79,7 +80,7 @@ public class EditBases implements AdminPlugin
 			base.setCargo(new Cargo(Cargo.Type.AUTO, context.getRequest().getParameterString("cargo")));
 			base.setMaxCargo(context.getRequest().getParameterInt("maxcargo"));
 			base.setCore(context.getRequest().getParameterInt("core"));
-			base.setKlasse(context.getRequest().getParameterInt("klasse"));
+			base.setKlasse((BaseType)db.get(BaseType.class, context.getRequest().getParameterInt("klasse")));
 			base.setWidth(context.getRequest().getParameterInt("width"));
 			base.setHeight(context.getRequest().getParameterInt("height"));
 			base.setMaxTiles(context.getRequest().getParameterInt("maxtiles"));
@@ -93,12 +94,12 @@ public class EditBases implements AdminPlugin
 			base.setSpawnableRess(context.getRequest().getParameterString("spawnableress"));
 			base.setAvailableSpawnableRess(context.getRequest().getParameterString("availableress"));
 			String[] autogtuacts = StringUtils.split(context.getRequest().getParameterString("autogtuacts"),";");
-			List<AutoGTUAction> acts = new ArrayList<AutoGTUAction>();
-			for( int i=0; i < autogtuacts.length; i++ )
+			List<AutoGTUAction> acts = new ArrayList<>();
+			for (String autogtuact : autogtuacts)
 			{
-				String[] split = StringUtils.split(autogtuacts[i],":");
+				String[] split = StringUtils.split(autogtuact, ":");
 
-				acts.add(new AutoGTUAction(Resources.fromString(split[0]), Integer.parseInt(split[1]), Long.parseLong(split[2])) );
+				acts.add(new AutoGTUAction(Resources.fromString(split[0]), Integer.parseInt(split[1]), Long.parseLong(split[2])));
 			}
 			base.setAutoGTUActs(acts);
 
@@ -131,7 +132,7 @@ public class EditBases implements AdminPlugin
 			echo.append("<tr><td>Cargo: </td><td><input type=\"hidden\" size=\"40\" id=\"cargo\" name=\"cargo\" value=\"" + base.getCargo().toString() + "\"></td></tr>\n");
 			echo.append("<tr><td>maximaler Cargo: </td><td><input type=\"text\" size=\"40\" name=\"maxcargo\" value=\"" + base.getMaxCargo() + "\"></td></tr>\n");
 			echo.append("<tr><td>Core: </td><td><input type=\"text\" size=\"40\" name=\"core\" value=\"" + base.getCore() + "\"></td></tr>\n");
-			echo.append("<tr><td>Klasse: </td><td><input type=\"text\" size=\"40\" name=\"klasse\" value=\"" + base.getKlasse() + "\"></td></tr>\n");
+			echo.append("<tr><td>Klasse: </td><td><input type=\"text\" size=\"40\" name=\"klasse\" value=\"" + base.getKlasse().getId() + "\"></td></tr>\n");
 			echo.append("<tr><td>Breite: </td><td><input type=\"text\" size=\"40\" name=\"width\" value=\"" + base.getWidth() + "\"></td></tr>\n");
 			echo.append("<tr><td>H&ouml;he: </td><td><input type=\"text\" size=\"40\" name=\"height\" value=\"" + base.getHeight() + "\"></td></tr>\n");
 			echo.append("<tr><td>Feldergr&ouml;&szlig;e: </td><td><input type=\"text\" size=\"40\" name=\"maxtiles\" value=\"" + base.getMaxTiles() + "\"></td></tr>\n");

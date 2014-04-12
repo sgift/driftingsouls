@@ -146,7 +146,7 @@ public class MainController extends TemplateController
 			t.setVar(
 					"base.id", base.getId(),
 					"base.name", base.getName(),
-					"base.klasse", base.getKlasse(),
+					"base.klasse", base.getKlasse().getId(),
 					"base.location", base.getLocation());
 
 			t.parse("bases.list", "bases.listitem", true);
