@@ -622,15 +622,6 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	}
 
 	/**
-	 * Gibt die Basis-Klasse zurueck.
-	 * @return die Klasse
-	 */
-	public BaseType getBaseType()
-	{
-		return this.klasse;
-	}
-
-	/**
 	 * Gibt die Klassennummer der Basis zurueck (= Der Astityp).
 	 * @return Die Klassennummer
 	 */
@@ -808,7 +799,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		org.hibernate.Session db = getDB();
 		StarSystem system = (StarSystem)db.get(StarSystem.class, this.system);
 
-		if(getSpawnableRess() == null && system.getSpawnableRess() == null && getBaseType().getSpawnableRess() == null)
+		if(getSpawnableRess() == null && system.getSpawnableRess() == null && getKlasse().getSpawnableRess() == null)
 		{
 			return null;
 		}
@@ -857,9 +848,9 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 				}
 			}
 		}
-		if( getBaseType().getSpawnableRess() != null && !getBaseType().getSpawnableRess().isEmpty() )
+		if( getKlasse().getSpawnableRess() != null && !getKlasse().getSpawnableRess().isEmpty() )
 		{
-			String[] spawnableresstype = StringUtils.split(getBaseType().getSpawnableRess(), ";");
+			String[] spawnableresstype = StringUtils.split(getKlasse().getSpawnableRess(), ";");
 			for (String aSpawnableresstype : spawnableresstype)
 			{
 				String[] thisress = StringUtils.split(aSpawnableresstype, ",");
@@ -1168,7 +1159,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		{
 			Integer[] terrain = new Integer[getWidth()*getHeight()];
 			System.arraycopy(getTerrain(), 0, terrain, 0, getTerrain().length );
-			Integer[] allowedterrain = getBaseType().getTerrain();
+			Integer[] allowedterrain = getKlasse().getTerrain();
 			for( int i=Math.max(getTerrain().length,0); i < getWidth()*getHeight(); i++ )
 			{
 				if(allowedterrain == null || allowedterrain.length == 0)
