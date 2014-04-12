@@ -11,6 +11,7 @@ import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import org.hibernate.Session;
+import org.hibernate.criterion.Projections;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -108,24 +109,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 			}
 		}
 
-		List<Building> entities = Common.cast(db.createCriteria(baseClass).list());
-
-		echo.append("<div class='gfxbox adminSelection' style='width:390px'>");
-		beginSelectionBox(echo, page, action);
-		for (Object entity : entities)
-		{
-			addSelectionOption(echo, db.getIdentifier(entity), new ObjectLabelGenerator().generateFor(null, entity));
-		}
-		if( isAddDisplayed() )
-		{
-			addSelectionOption(echo, null, "[Neu]");
-		}
-		endSelectionBox(echo);
-		if( form.isAddAllowed() )
-		{
-			addForm(echo, page, action);
-		}
-		echo.append("</div>");
+		outputEntitySelection(page, action, db, echo, form);
 
 		if (entityId != null && !entityId.isEmpty())
 		{
@@ -147,6 +131,43 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 			beginEditorTable(echo, page, action, -1);
 			form.generateForm(entity);
 		}
+	}
+
+	private void outputEntitySelection(String page, int action, Session db, Writer echo, EditorForm8<T> form) throws IOException
+	{
+		echo.append("<div class='gfxbox adminSelection' style='width:390px'>");
+		Long count = (Long)db.createCriteria(baseClass).setProjection(Projections.rowCount()).uniqueResult();
+		if( count != null )
+		{
+			beginSelectionBox(echo, page, action);
+
+			if (count < 500)
+			{
+				List<Building> entities = Common.cast(db.createCriteria(baseClass).list());
+				echo.append("<select size=\"1\" name=\"entityId\">");
+				for (Object entity : entities)
+				{
+					addSelectionOption(echo, db.getIdentifier(entity), new ObjectLabelGenerator().generateFor(null, entity));
+				}
+				if (isAddDisplayed())
+				{
+					addSelectionOption(echo, null, "[Neu]");
+				}
+				echo.append("</select>");
+			}
+			else
+			{
+				String currentIdStr = ContextMap.getContext().getRequest().getParameter("entityId");
+				echo.append("<input type=\"text\" name=\"entityId\" value=\""+currentIdStr+"\" ").append(isAddDisplayed() ? "readonly=\"readonly\"" : "").append(" />");
+			}
+
+			endSelectionBox(echo);
+		}
+		if (form.isAddAllowed())
+		{
+			addForm(echo, page, action);
+		}
+		echo.append("</div>");
 	}
 
 	private Serializable toEntityId(Class<?> entity, String idString)
@@ -254,7 +275,6 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		echo.append("<input type=\"hidden\" name=\"page\" value=\"").append(page).append("\" />\n");
 		echo.append("<input type=\"hidden\" name=\"act\" value=\"").append(Integer.toString(action)).append("\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-		echo.append("<select size=\"1\" name=\"entityId\">");
 	}
 
 	private void addSelectionOption(Writer echo, Object id, String label) throws IOException
@@ -269,7 +289,6 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 
 	private void endSelectionBox(Writer echo) throws IOException
 	{
-		echo.append("</select>");
 		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
 		echo.append("</form>");
 	}
