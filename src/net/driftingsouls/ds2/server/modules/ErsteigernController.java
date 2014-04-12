@@ -2236,7 +2236,7 @@ public class ErsteigernController extends TemplateController
 
 			if (!base.getOwner().equals(getUser()))
 			{
-				addError("Dieser Asteroid geh&ouml;rt Ihnen nicht");
+				addError("Dieser Asteroid gehört Ihnen nicht");
 				redirect();
 				return;
 			}
@@ -2245,7 +2245,7 @@ public class ErsteigernController extends TemplateController
 					|| !colonizer.getLocation().equals(base.getLocation())
 					|| !colonizer.getTypeData().hasFlag(ShipTypeFlag.COLONIZER))
 			{
-				addError("Der ausgew&auml;hlte Colonizer ist ung&uuml;ltig");
+				addError("Der ausgewählte Colonizer ist ungültig");
 				redirect();
 				return;
 			}
@@ -2273,9 +2273,9 @@ public class ErsteigernController extends TemplateController
 			}
 
 			// Teste ob die übergebenen felder und cargo Parameter korrekt sind
-			if (!cargo.getCargo() || felder.getCargo() || cargo.getType() != base.getKlasse().getId() || felder.getType() != base.getKlasse().getId())
+			if (!cargo.getCargo() || felder.getCargo() || cargo.getType() != base.getKlasse() || felder.getType() != base.getKlasse())
 			{ // Da es selbst für den leeren Ausbau Einträge gibt, funktioniert das hier
-				addError("Es wurden illegale Ausbauten ausgew&auml;hlt");
+				addError("Es wurden illegale Ausbauten ausgewählt");
 				redirect();
 				return;
 			}
@@ -2312,7 +2312,7 @@ public class ErsteigernController extends TemplateController
 								new BigDecimal(felder.getPrice() + cargo.getPrice())
 										.toBigInteger()) < 0)
 				{
-					addError("Sie verf&uuml;gen nicht &uuml;ber genug Geld</span>");
+					addError("Sie verfügen nicht über genug Geld");
 					redirect();
 					return;
 				}
@@ -2338,7 +2338,7 @@ public class ErsteigernController extends TemplateController
 
 			t.setVar(
 					"show.message",
-					"Ihr Auftrag wurde an den zust&auml;ndigen Sachbearbeiter weitergeleitet. Die Bauma&szlig;nahmen werden in k&uuml;rze beginnen.");
+					"Ihr Auftrag wurde an den zuständigen Sachbearbeiter weitergeleitet. Die Baumaßnahmen werden in kürze beginnen.");
 
 			redirect();
 			return;
@@ -2418,7 +2418,7 @@ public class ErsteigernController extends TemplateController
 		// Setze die ausbau-mods, finde heraus welche bereits angewendet wurden und Typ des Astis
 		List<UpgradeInfo> possibleMods = Common.cast(db.createQuery(
 				"from UpgradeInfo where type=:asteroidClass order by id")
-				.setParameter("asteroidClass", selectedBase.getKlasse().getId())
+				.setParameter("asteroidClass", selectedBase.getKlasse())
 				.list());
 		for (UpgradeInfo info : possibleMods)
 		{

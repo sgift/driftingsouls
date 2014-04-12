@@ -18,10 +18,15 @@
  */
 package net.driftingsouls.ds2.server.entities.fraktionsgui;
 
+import net.driftingsouls.ds2.server.bases.BaseType;
+import org.hibernate.annotations.ForeignKey;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 /**
@@ -34,7 +39,10 @@ import javax.persistence.Table;
 public class UpgradeInfo {
 	@Id @GeneratedValue
 	private int id;
-	private int type;
+	@ManyToOne(optional = false)
+	@JoinColumn(nullable = false)
+	@ForeignKey(name="upgrade_info_fk_basetype")
+	private BaseType type;
 	private int modWert;
 	private boolean cargo;
 	private int price;
@@ -70,7 +78,7 @@ public class UpgradeInfo {
 	 * Gibt die Klasse der Asteroiden zurueck, fuer die der Ausbau zutrifft.
 	 * @return Die Klasse des Asteroiden
 	 */
-	public int getType() {
+	public BaseType getType() {
 		return type;
 	}
 
@@ -78,7 +86,7 @@ public class UpgradeInfo {
 	 * Setzt die Klasse.
 	 * @param type Die neue Klasse des Asteroiden
 	 */
-	public void setType(int type) {
+	public void setType(BaseType type) {
 		this.type = type;
 	}
 
