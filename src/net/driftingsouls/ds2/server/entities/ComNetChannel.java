@@ -18,6 +18,12 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import net.driftingsouls.ds2.server.WellKnownPermission;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.PermissionResolver;
+import org.hibernate.annotations.Index;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -25,11 +31,6 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Version;
-
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.PermissionResolver;
-import org.hibernate.annotations.Index;
 
 /**
  * <p>Ein ComNet-Kanal.</p>
@@ -260,20 +261,20 @@ public class ComNetChannel {
 	/**
 	 * Prueft, ob der ComNet-Kanal fuer den angegebenen Benutzer lesbar ist.
 	 * @param user Der Benutzer
-	 * @param permissionResolver Der zu verwendende PermissionResolver
+	 * @param presolver Der zu verwendende PermissionResolver
 	 * @return <code>true</code>, falls er lesbar ist
 	 */
 	public boolean isReadable( User user, PermissionResolver presolver ) {
 		if( this.readAll || ((user.getId() < 0) && this.readNpc) ||
 			((user.getAlly() != null) && (this.readAlly == user.getAlly().getId())) ||
-			presolver.hasPermission("comnet", "allesLesbar") ) {
+			presolver.hasPermission(WellKnownPermission.COMNET_ALLES_LESBAR) ) {
 
 			return true;
 		}
 
 		if( this.writeAll || ((user.getId() < 0) && this.writeNpc) ||
 			((user.getAlly() != null) && (this.writeAlly == user.getAlly().getId())) ||
-			presolver.hasPermission("comnet", "allesLesbar") ) {
+			presolver.hasPermission(WellKnownPermission.COMNET_ALLES_LESBAR) ) {
 
 			return true;
 		}
@@ -304,7 +305,7 @@ public class ComNetChannel {
 	public boolean isWriteable( User user, PermissionResolver presolver ) {
 		if( this.writeAll || ((user.getId() < 0) && this.writeNpc) ||
 				((user.getAlly() != null) && (this.writeAlly == user.getAlly().getId())) ||
-				presolver.hasPermission("comnet", "allesSchreibbar") ) {
+				presolver.hasPermission(WellKnownPermission.COMNET_ALLES_SCHREIBBAR) ) {
 
 				return true;
 			}

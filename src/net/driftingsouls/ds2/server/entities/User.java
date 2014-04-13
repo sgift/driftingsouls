@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.entities;
 
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
+import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.comm.Ordner;
@@ -1301,7 +1302,7 @@ public class User extends BasicUser {
 	 */
 	public boolean canSeeItem(Item aitem) {
 		return aitem.getAccessLevel() <= this.getAccessLevel() &&
-				(!aitem.isUnknownItem() || this.isKnownItem(aitem.getID()) || ContextMap.getContext().hasPermission("item", "unbekannteSichtbar"));
+				(!aitem.isUnknownItem() || this.isKnownItem(aitem.getID()) || ContextMap.getContext().hasPermission(WellKnownPermission.ITEM_UNBEKANNTE_SICHTBAR));
 
 	}
 
@@ -1469,7 +1470,7 @@ public class User extends BasicUser {
 	 * @return <code>true</code>, falls die Einheit dem User bekannt ist, sonst <code>false</code>
 	 */
 	public boolean isKnownUnit(UnitType unitType) {
-		if( !unitType.isHidden() || ContextMap.getContext().hasPermission("unit", "versteckteSichtbar") )
+		if( !unitType.isHidden() || ContextMap.getContext().hasPermission(WellKnownPermission.UNIT_VERSTECKTE_SICHTBAR) )
 		{
 			return true;
 		}

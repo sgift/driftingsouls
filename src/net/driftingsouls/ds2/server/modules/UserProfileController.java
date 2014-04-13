@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.config.Rassen;
@@ -61,7 +62,7 @@ public class UserProfileController extends TemplateController
 
 	private void validiereBenutzer(User benutzer)
 	{
-		if ((benutzer == null) || (benutzer.hasFlag(UserFlag.HIDE) && !hasPermission("user", "versteckteSichtbar")))
+		if ((benutzer == null) || (benutzer.hasFlag(UserFlag.HIDE) && !hasPermission(WellKnownPermission.USER_VERSTECKTE_SICHTBAR)))
 		{
 			throw new ValidierungException("Ihnen ist kein Benutzer unter der angegebenen ID bekannt", Common.buildUrl("default", "module", "ueber"));
 		}

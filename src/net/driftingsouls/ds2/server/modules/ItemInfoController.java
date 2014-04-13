@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
@@ -369,7 +370,7 @@ public class ItemInfoController extends TemplateController
 			return;
 		}
 
-		if (item.isUnknownItem() && !user.isKnownItem(itemid) && !hasPermission("item", "unbekannteSichtbar"))
+		if (item.isUnknownItem() && !user.isKnownItem(itemid) && !hasPermission(WellKnownPermission.ITEM_UNBEKANNTE_SICHTBAR))
 		{
 			t.setVar("iteminfo.message", "Es ist kein Item mit dieser Identifikationsnummer bekannt");
 
@@ -415,7 +416,7 @@ public class ItemInfoController extends TemplateController
 				}
 				else if (shiptype.isHide())
 				{
-					if (hasPermission("schiffstyp", "versteckteSichtbar"))
+					if (hasPermission(WellKnownPermission.SCHIFFSTYP_VERSTECKTE_SICHTBAR))
 					{
 						data.append("<a class=\"forschinfo\" onclick='ShiptypeBox.show(").append(effect.getShipType()).append(");return false;' href=\"").append(Common.buildUrl("default", "module", "schiffinfo", "ship", effect.getShipType())).append("\">").append(shiptype.getNickname()).append("</a><br /><span style=\"font-style:italic;color:red\" class=\"verysmallfont\">[unsichtbar]</span>\n");
 					}
@@ -449,7 +450,7 @@ public class ItemInfoController extends TemplateController
 						if (!dat.isVisibile(user) && !user.hasResearched(dat.getBenoetigteForschungen()))
 						{
 							data.append("Unbekannt");
-							if (hasPermission("forschung", "allesSichtbar"))
+							if (hasPermission(WellKnownPermission.FORSCHUNG_ALLES_SICHTBAR))
 							{
 								data.append(" [ID:").append(effect.getTechReq(i)).append("]");
 							}
@@ -732,7 +733,7 @@ public class ItemInfoController extends TemplateController
 		 */
 			case MODULE_SET_META:
 			{
-				if (hasPermission("item", "modulSetMetaSichtbar"))
+				if (hasPermission(WellKnownPermission.ITEM_MODULESETMETA_SICHTBAR))
 				{
 					return;
 				}
@@ -973,7 +974,7 @@ public class ItemInfoController extends TemplateController
 				continue;
 			}
 
-			if (itemobject.isUnknownItem() && !user.isKnownItem(item.getItemID()) && !hasPermission("item", "unbekannteSichtbar"))
+			if (itemobject.isUnknownItem() && !user.isKnownItem(item.getItemID()) && !hasPermission(WellKnownPermission.ITEM_UNBEKANNTE_SICHTBAR))
 			{
 				continue;
 			}

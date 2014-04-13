@@ -18,12 +18,11 @@
  */
 package net.driftingsouls.ds2.server.bbcodes;
 
+import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeFunction;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import org.apache.commons.lang.math.NumberUtils;
 
@@ -49,7 +48,7 @@ public class TagShipType implements BBCodeFunction
 		User user = (User) ContextMap.getContext().getActiveUser();
 
 		if ((shiptype == null) ||
-				(shiptype.isHide() && ((user == null) || !ContextMap.getContext().hasPermission("schiffstyp", "versteckteSichtbar"))))
+				(shiptype.isHide() && ((user == null) || !ContextMap.getContext().hasPermission(WellKnownPermission.SCHIFFSTYP_VERSTECKTE_SICHTBAR))))
 		{
 
 			return "Unbekannter Schiffstyp (" + content + ")";

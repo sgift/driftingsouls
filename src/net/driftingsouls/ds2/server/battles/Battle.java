@@ -22,6 +22,7 @@ import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
+import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.Weapons;
@@ -1286,7 +1287,7 @@ public class Battle implements Locatable
 			if( forceSide == -1 )
 			{
 				//Mehr ueber den Spieler herausfinden
-				if( context.hasPermission("schlacht", "alleAufrufbar") ) {
+				if( context.hasPermission(WellKnownPermission.SCHLACHT_ALLE_AUFRUFBAR) ) {
 					this.guest = true;
 				}
 				else

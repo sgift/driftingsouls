@@ -15,4 +15,14 @@ public interface PermissionResolver
 	 * @return <code>true</code> falls der Benutzer die Berechtigung hat.
 	 */
 	public boolean hasPermission(String category, String action);
+
+	/**
+	 * Gibt zurueck, ob der momentan aktive Benutzer die entsprechende Berechtigung besitzt.
+	 * @param permission Die Beschreibung der benoetigten Berechtigung
+	 * @return <code>true</code> falls der Benutzer die Berechtigung hat.
+	 */
+	public default boolean hasPermission(PermissionDescriptor permission)
+	{
+		return hasPermission(permission.getCategory(), permission.getAction());
+	}
 }

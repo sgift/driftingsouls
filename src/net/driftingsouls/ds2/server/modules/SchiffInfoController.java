@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
@@ -74,7 +75,7 @@ public class SchiffInfoController extends TemplateController
 		User user = (User) getUser();
 
 		if ((ship == null) ||
-				(ship.isHide() && ((user == null) || !hasPermission("schiffstyp", "versteckteSichtbar"))))
+				(ship.isHide() && ((user == null) || !hasPermission(WellKnownPermission.SCHIFFSTYP_VERSTECKTE_SICHTBAR))))
 		{
 
 			throw new ValidierungException("Über diesen Schiffstyp liegen leider keine Daten vor");
@@ -173,7 +174,7 @@ public class SchiffInfoController extends TemplateController
 
 		t.setVar("global.login", (getUser() != null));
 
-		if (ship.isHide() && (user != null) && hasPermission("schiffstyp", "versteckteSichtbar"))
+		if (ship.isHide() && (user != null) && hasPermission(WellKnownPermission.SCHIFFSTYP_VERSTECKTE_SICHTBAR))
 		{
 			t.setVar("shiptype.showinvisible", 1);
 		}
@@ -187,14 +188,14 @@ public class SchiffInfoController extends TemplateController
 		{
 			shipBuildData = null;
 
-			if ((user != null) && hasPermission("schiffstyp", "versteckteSichtbar"))
+			if ((user != null) && hasPermission(WellKnownPermission.SCHIFFSTYP_VERSTECKTE_SICHTBAR))
 			{
 				t.setVar("shiptype.showbuildable", 1,
 						"shiptype.visibletech", visible.getID());
 			}
 		}
 
-		if ((user != null) && hasPermission("schiffstyp", "npckostenSichtbar"))
+		if ((user != null) && hasPermission(WellKnownPermission.SCHIFFSTYP_NPCKOSTEN_SICHTBAR))
 		{
 			OrderableShip order = (OrderableShip) db.createQuery("from OrderableShip where shipType=:type")
 				.setEntity("type", ship)

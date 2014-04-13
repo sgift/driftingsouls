@@ -18,8 +18,7 @@
  */
 package net.driftingsouls.ds2.server.bbcodes;
 
-import java.util.Iterator;
-
+import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
@@ -31,6 +30,8 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeFunction;
+
+import java.util.Iterator;
 
 /**
  * BBCode fuer Resourcen.
@@ -80,7 +81,7 @@ public class TagResource implements BBCodeFunction {
 					return unknstr;
 				}
 
-				if( item.isUnknownItem() && !user.isKnownItem(item.getID()) && !context.hasPermission("item", "unbekannteSichtbar") ) {
+				if( item.isUnknownItem() && !user.isKnownItem(item.getID()) && !context.hasPermission(WellKnownPermission.ITEM_UNBEKANNTE_SICHTBAR) ) {
 					return unknstr;
 				}
 			}

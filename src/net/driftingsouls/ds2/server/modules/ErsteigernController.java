@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
+import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemID;
@@ -651,7 +652,7 @@ public class ErsteigernController extends TemplateController
 			{
 				bietername = bieter.getName();
 			}
-			else if (hasPermission("fraktionen", "bietername"))
+			else if (hasPermission(WellKnownPermission.FRAKTIONEN_BIETERNAME))
 			{
 				bietername = bieter.getName();
 			}
@@ -1253,7 +1254,7 @@ public class ErsteigernController extends TemplateController
 			{
 				bietername = bieter.getName();
 			}
-			else if (hasPermission("fraktionen", "bietername"))
+			else if (hasPermission(WellKnownPermission.FRAKTIONEN_BIETERNAME))
 			{
 				bietername = bieter.getName();
 			}
@@ -1267,7 +1268,7 @@ public class ErsteigernController extends TemplateController
 
 			String ownername = "";
 
-			if (hasPermission("fraktionen", "anbietername") && (entry.getOwner() != factionObj.getUser())
+			if (hasPermission(WellKnownPermission.FRAKTIONEN_ANBIETERNAME) && (entry.getOwner() != factionObj.getUser())
 					&& (entry.getOwner() != user))
 			{
 				ownername = Common._title(entry.getOwner().getName());

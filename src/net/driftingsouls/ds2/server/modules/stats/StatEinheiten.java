@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.stats;
 
+import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -105,12 +106,12 @@ public class StatEinheiten implements Statistic {
 			}
 
 			// Daten ausgeben, wenn der Spieler sehen darf oder selber welche besitzt
-			if( !unittype.isHidden() || context.hasPermission("unit", "versteckteSichtbar") || baseunitsuser + shipunitsuser > 0)
+			if( !unittype.isHidden() || context.hasPermission(WellKnownPermission.UNIT_VERSTECKTE_SICHTBAR) || baseunitsuser + shipunitsuser > 0)
 			{
 				// Daten zur Einheit ausgeben
 	      		echo.append("<tr>\n");
 	      		echo.append("<td style=\"white-space:nowrap\"><img style=\"vertical-align:middle\" src=\""+unittype.getPicture()+"\" alt=\"\"><a href=\""+Common.buildUrl("default", "module", "unitinfo", "unit", unittype.getId())+"\" >"+unittype.getName()+"</a>");
-	      		if( unittype.isHidden() && context.hasPermission("unit", "versteckteSichtbar"))
+	      		if( unittype.isHidden() && context.hasPermission(WellKnownPermission.UNIT_VERSTECKTE_SICHTBAR))
 	      		{
 	      			echo.append("[hidden]");
 	      		}

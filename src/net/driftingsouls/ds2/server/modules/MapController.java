@@ -1,6 +1,7 @@
 package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.config.Rassen;
@@ -162,7 +163,7 @@ public class MapController extends AngularController
 		SystemauswahlViewModel result = createResultObj(sys);
 
 		List<JumpNode> jumpNodes = Common.cast(db
-				.createQuery("from JumpNode jn where " + (!hasPermission("admin","starmapView") ? "jn.hidden=0 and " : "") + "jn.system!=jn.systemOut")
+				.createQuery("from JumpNode jn where " + (!hasPermission("admin", "starmapView") ? "jn.hidden=0 and " : "") + "jn.system!=jn.systemOut")
 				.list());
 
 		Map<Integer, Ally> systemFraktionen = ermittleDominierendeAllianzen(db);
@@ -695,7 +696,7 @@ public class MapController extends AngularController
 		}
 
 		User user = (User) getUser();
-		boolean viewable = getContext().hasPermission("schlacht", "alleAufrufbar");
+		boolean viewable = getContext().hasPermission(WellKnownPermission.SCHLACHT_ALLE_AUFRUFBAR);
 
 		if (!viewable)
 		{

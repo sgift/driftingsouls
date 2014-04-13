@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
+import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
@@ -190,7 +191,7 @@ public class HandelController extends TemplateController
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 
-		if ((entry != null) && (entry.getWho().equals(user) || hasPermission("handel", "angeboteLoeschen")))
+		if ((entry != null) && (entry.getWho().equals(user) || hasPermission(WellKnownPermission.HANDEL_ANGEBOTE_LOESCHEN)))
 		{
 			db.delete(entry);
 			t.setVar("handel.message", "Angebot gel&ouml;scht");
@@ -276,7 +277,7 @@ public class HandelController extends TemplateController
 					"angebot.description.overflow", Common._text(entry.getKommentar()).length() > 220,
 					"angebot.newline", (count % 3 == 0),
 					"angebot.endline", (count % 3 == 0) && (count > 0),
-					"angebot.showdelete", entry.getWho().equals(user) || hasPermission("handel", "angeboteLoeschen"));
+					"angebot.showdelete", entry.getWho().equals(user) || hasPermission(WellKnownPermission.HANDEL_ANGEBOTE_LOESCHEN));
 
 			count++;
 

@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
@@ -215,7 +216,7 @@ public class OptionsController extends TemplateController
 			user.setUserValue("TBLORDER/schiff/wrapfactor", Integer.toString(shipgroupmulti));
 		}
 
-		if ((scriptdebug != 0) && hasPermission("schiff", "script"))
+		if ((scriptdebug != 0) && hasPermission(WellKnownPermission.SCHIFF_SCRIPT))
 		{
 			if (scriptdebugstatus != user.hasFlag(UserFlag.SCRIPT_DEBUGGING))
 			{
@@ -371,7 +372,7 @@ public class OptionsController extends TemplateController
 		t.setVar("options.xtra", 1,
 				"user.wrapfactor", user.getUserValue("TBLORDER/schiff/wrapfactor"),
 				"user.inttutorial", user.getUserValue("TBLORDER/uebersicht/inttutorial"),
-				"user.showScriptDebug", hasPermission("schiff", "script"),
+				"user.showScriptDebug", hasPermission(WellKnownPermission.SCHIFF_SCRIPT),
 				"user.scriptdebug", user.hasFlag(UserFlag.SCRIPT_DEBUGGING),
 				"user.defrelation", user.getRelation(null).ordinal());
 

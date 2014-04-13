@@ -20,7 +20,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name="permission")
-public class Permission implements Comparable<Permission>
+public class Permission implements Comparable<Permission>, PermissionDescriptor
 {
 	@SuppressWarnings("unused")
 	@Id @GeneratedValue
@@ -47,11 +47,13 @@ public class Permission implements Comparable<Permission>
 		this.action = action;
 	}
 
+	@Override
 	public String getCategory()
 	{
 		return category;
 	}
 
+	@Override
 	public String getAction()
 	{
 		return action;

@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.BaseStatus;
 import net.driftingsouls.ds2.server.battles.Battle;
@@ -500,7 +501,7 @@ public class UeberController extends TemplateController
 			}
 		}
 
-		if (!hasPermission("schlacht", "liste"))
+		if (!hasPermission(WellKnownPermission.SCHLACHT_LISTE))
 		{
 			// Zwei separate Queries fuer alle Schlachten um einen sehr unvorteilhaften Join zu vermeiden
 			String query = "from Battle " +

@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.bases.Core;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -73,7 +74,7 @@ public class ForschinfoController extends TemplateController
 			throw new ValidierungException("&Uuml;ber diese Forschung liegen aktuell keine Informationen vor");
 		}
 
-		if (!forschung.isVisibile(user) && !hasPermission("forschung", "allesSichtbar"))
+		if (!forschung.isVisibile(user) && !hasPermission(WellKnownPermission.FORSCHUNG_ALLES_SICHTBAR))
 		{
 			throw new ValidierungException("&Uuml;ber diese Forschung liegen aktuell keine Informationen vor");
 		}
@@ -248,7 +249,7 @@ public class ForschinfoController extends TemplateController
 
 				t.parse("tech.allows.list", "tech.allows.listitem", true);
 			}
-			else if (hasPermission("forschung", "allesSichtbar") && !res.isVisibile(user))
+			else if (hasPermission(WellKnownPermission.FORSCHUNG_ALLES_SICHTBAR) && !res.isVisibile(user))
 			{
 				t.setVar("tech.allows.item.break", entry,
 						"tech.allows.item.id", res.getID(),

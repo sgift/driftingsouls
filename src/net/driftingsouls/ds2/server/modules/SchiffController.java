@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.Resources;
@@ -1012,7 +1013,7 @@ public class SchiffController extends TemplateController
 		}
 
 		// Tooltip: Schiffsstatusfeld
-		if (hasPermission("schiff", "statusFeld"))
+		if (hasPermission(WellKnownPermission.SCHIFF_STATUSFELD))
 		{
 			StringBuilder tooltiptext = new StringBuilder(100);
 			tooltiptext.append("<span style='text-decoration:underline'>Schiffsstatus:</span><br />").append(ship.getStatus().trim().replace(" ", "<br />"));

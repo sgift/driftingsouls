@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.uilibs;
 
+import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
@@ -85,7 +86,7 @@ public class PlayerList {
 		}
 
 		// Ein Admin bekommt mehr zu sehen...
-		if( (comPopup == 0) && (user != null) && context.hasPermission("statistik", "erweiterteSpielerliste") ) {
+		if( (comPopup == 0) && (user != null) && context.hasPermission(WellKnownPermission.STATISTIK_ERWEITERTE_SPIELERLISTE) ) {
 			echo.append("<td class=\"noBorderX\" align=\"center\"><a class=\"forschinfo\" href=\""+url+"&ord=inakt\">Inaktiv</a></td>");
 			echo.append("<td class=\"noBorderX\" align=\"center\">Astis</td>\n");
 			echo.append("<td class=\"noBorderX\" align=\"center\">Schiffe</td>\n");
@@ -96,7 +97,7 @@ public class PlayerList {
 		HashMap<Integer,Integer> shipcount = null;
 
 		String query;
-		if( (user == null) || !context.hasPermission("statistik", "erweiterteSpielerliste") ) {
+		if( (user == null) || !context.hasPermission(WellKnownPermission.STATISTIK_ERWEITERTE_SPIELERLISTE) ) {
 			query = "select u from User u left join fetch u.ally a where locate('hide',u.flags)=0 order by ";
 		}
 		else {
@@ -131,7 +132,7 @@ public class PlayerList {
 		else if( "id".equals(ord) || "name".equals("ord") || "race".equals(ord) || "signup".equals(ord) || "ally".equals(ord) ) {
 			query += "u."+ord;
 		}
-		else if( "inakt".equals(ord) && (user != null) && context.hasPermission("statistik", "erweiterteSpielerliste") ) {
+		else if( "inakt".equals(ord) && (user != null) && context.hasPermission(WellKnownPermission.STATISTIK_ERWEITERTE_SPIELERLISTE) ) {
 			query += "u.inakt";
 		}
 		else {
@@ -209,10 +210,10 @@ public class PlayerList {
 				if( aUser.hasFlag(UserFlag.HIDE) ) {
 					echo.append(" <span style=\"color:red;font-style:italic\" title=\"hidden\">[h]</span>");
 				}
-				if( (user != null) && context.hasPermission("statistik", "erweiterteSpielerliste") && aUser.hasFlag(UserFlag.ORDER_MENU) ) {
+				if( (user != null) && context.hasPermission(WellKnownPermission.STATISTIK_ERWEITERTE_SPIELERLISTE) && aUser.hasFlag(UserFlag.ORDER_MENU) ) {
 					echo.append(" <span style=\"color:red;font-style:italic\" title=\"order menu\">[om]</span>");
 				}
-				if( (user != null) && context.hasPermission("statistik", "erweiterteSpielerliste") && aUser.hasFlag(UserFlag.EXEC_NOTES) ) {
+				if( (user != null) && context.hasPermission(WellKnownPermission.STATISTIK_ERWEITERTE_SPIELERLISTE) && aUser.hasFlag(UserFlag.EXEC_NOTES) ) {
 					echo.append(" <span style=\"color:red;font-style:italic\" title=\"exec notes\">[en]</span>");
 				}
 				echo.append("</span></td>\n");
@@ -232,7 +233,7 @@ public class PlayerList {
 				echo.append("<td class=\"noBorderX\">"+ally+"</td>\n");
 
 				// Die Spezial-Admin-Infos anzeigen
-				if( (user != null) && context.hasPermission("statistik", "erweiterteSpielerliste") ) {
+				if( (user != null) && context.hasPermission(WellKnownPermission.STATISTIK_ERWEITERTE_SPIELERLISTE) ) {
 					echo.append("<td class=\"noBorderX\">"+aUser.getInactivity()+"</td>\n");
 					if( !asticount.containsKey(aUser.getId()) ) {
 						asticount.put(aUser.getId(), 0);

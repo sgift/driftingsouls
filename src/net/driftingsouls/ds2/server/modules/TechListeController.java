@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
@@ -175,7 +176,7 @@ public class TechListeController extends TemplateController
 			if( !gruppenname.equals("researchable") ) {
 				for( int i=1; i <= 3; i++ ) {
 					Forschung forschung = result.getRequiredResearch(i);
-					if( forschung != null && (forschung.isVisibile((User)getUser()) || hasPermission("forschung", "allesSichtbar")) ) {
+					if( forschung != null && (forschung.isVisibile((User)getUser()) || hasPermission(WellKnownPermission.FORSCHUNG_ALLES_SICHTBAR)) ) {
 						String req = forschung.getName();
 
 						t.setVar(	"tech.req"+i+".id", forschung,
@@ -242,7 +243,7 @@ public class TechListeController extends TemplateController
 				researchable.put(f.getID(), f);
 			}
 			else if( !f.isVisibile(user) ) {
-				if( hasPermission("forschung", "allesSichtbar") ) {
+				if( hasPermission(WellKnownPermission.FORSCHUNG_ALLES_SICHTBAR) ) {
 					invisible.put(f.getID(), f);
 				}
 			}

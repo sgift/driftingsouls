@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.bbcodes.TagIntrnlConfTask;
 import net.driftingsouls.ds2.server.comm.Ordner;
 import net.driftingsouls.ds2.server.comm.PM;
@@ -509,11 +510,11 @@ public class CommController extends TemplateController
 			title = title.substring(0, 60);
 		}
 
-		if (special.equals("admin") && !hasPermission("comm", "adminPM"))
+		if (special.equals("admin") && !hasPermission(WellKnownPermission.COMM_ADMIN_PM))
 		{
 			special = "";
 		}
-		if (special.equals("official") && !hasPermission("comm", "offiziellePM"))
+		if (special.equals("official") && !hasPermission(WellKnownPermission.COMM_OFFIZIELLE_PM))
 		{
 			special = "";
 		}
@@ -863,11 +864,11 @@ public class CommController extends TemplateController
 
 		Map<String, String> specialuilist = new LinkedHashMap<>();
 		specialuilist.put("nichts", "");
-		if (hasPermission("comm", "adminPM"))
+		if (hasPermission(WellKnownPermission.COMM_ADMIN_PM))
 		{
 			specialuilist.put("admin", "admin");
 		}
-		if (hasPermission("comm", "offiziellePM"))
+		if (hasPermission(WellKnownPermission.COMM_OFFIZIELLE_PM))
 		{
 			specialuilist.put("official", "Offizielle PM");
 		}
@@ -1028,22 +1029,22 @@ public class CommController extends TemplateController
 			title = title.substring(0, 60);
 		}
 
-		if ("admin".equals(special) && !hasPermission("comm", "adminPM"))
+		if ("admin".equals(special) && !hasPermission(WellKnownPermission.COMM_ADMIN_PM))
 		{
 			special = "";
 		}
-		if ("official".equals(special) && !hasPermission("comm", "offiziellePM"))
+		if ("official".equals(special) && !hasPermission(WellKnownPermission.COMM_OFFIZIELLE_PM))
 		{
 			special = "";
 		}
 
 		Map<String, String> specialuilist = new LinkedHashMap<>();
 		specialuilist.put("nichts", "");
-		if (hasPermission("comm", "adminPM"))
+		if (hasPermission(WellKnownPermission.COMM_ADMIN_PM))
 		{
 			specialuilist.put("admin", "admin");
 		}
-		if (hasPermission("comm", "offiziellePM"))
+		if (hasPermission(WellKnownPermission.COMM_OFFIZIELLE_PM))
 		{
 			specialuilist.put("Offizielle PM", "official");
 		}

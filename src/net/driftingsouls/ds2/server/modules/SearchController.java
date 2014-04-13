@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -194,7 +195,7 @@ public class SearchController extends Controller
 
 	private List<?> findUsers(org.hibernate.Session db, final String search, int count)
 	{
-		List<?> userList = db.createQuery("from User where " + (hasPermission("user", "versteckteSichtbar") ? "" : "locate('hide',flags)=0 and ") +
+		List<?> userList = db.createQuery("from User where " + (hasPermission(WellKnownPermission.USER_VERSTECKTE_SICHTBAR) ? "" : "locate('hide',flags)=0 and ") +
 				" (plainname like :search or id like :searchid)")
 				.setString("search", "%" + search + "%")
 				.setString("searchid", search + "%")

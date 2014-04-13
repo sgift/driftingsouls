@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.User;
@@ -73,7 +74,7 @@ public class UnitInfoController extends TemplateController
 			if (!unit.isHidden() || user.isKnownUnit(unit))
 			{
 				t.setVar("unit.id", unit.getId(),
-						"unit.name", unit.getName() + ((unit.isHidden() && hasPermission("unit", "versteckteSichtbar")) ? " [hidden]" : ""),
+						"unit.name", unit.getName() + ((unit.isHidden() && hasPermission(WellKnownPermission.UNIT_VERSTECKTE_SICHTBAR)) ? " [hidden]" : ""),
 						"unit.groesse", Common.ln(unit.getSize()),
 						"unit.picture", unit.getPicture());
 
@@ -121,7 +122,7 @@ public class UnitInfoController extends TemplateController
 		else if (forschung != null)
 		{
 			forschungstring = "Unbekannte Technologie";
-			if (hasPermission("forschung", "allesSichtbar"))
+			if (hasPermission(WellKnownPermission.FORSCHUNG_ALLES_SICHTBAR))
 			{
 				forschungstring = forschungstring + " [" + forschung.getID() + "]";
 			}
@@ -131,7 +132,7 @@ public class UnitInfoController extends TemplateController
 
 		t.setVar("unitinfo.details", 1,
 				"unit.picture", unittype.getPicture(),
-				"unit.name", name + ((unittype.isHidden() && hasPermission("unit", "versteckteSichtbar")) ? " [hidden]" : ""),
+				"unit.name", name + ((unittype.isHidden() && hasPermission(WellKnownPermission.UNIT_VERSTECKTE_SICHTBAR)) ? " [hidden]" : ""),
 				"unit.size", Common.ln(unittype.getSize()),
 				"unit.nahrungcost", Common.ln(unittype.getNahrungCost()),
 				"unit.recost", Common.ln(unittype.getReCost()),
