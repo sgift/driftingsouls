@@ -26,7 +26,7 @@ import net.driftingsouls.ds2.server.config.ModuleSlots;
 import net.driftingsouls.ds2.server.config.NoSuchSlotException;
 import net.driftingsouls.ds2.server.config.NoSuchWeaponException;
 import net.driftingsouls.ds2.server.config.Rassen;
-import net.driftingsouls.ds2.server.config.Weapon;
+import net.driftingsouls.ds2.server.entities.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.User;
@@ -351,7 +351,7 @@ public class SchiffInfoController extends TemplateController
 			descrip.append("<span style=\\'font-size:12px\\'>");
 
 			descrip.append("AP-Kosten: ");
-			descrip.append(weapon.getAPCost());
+			descrip.append(weapon.getApCost());
 			descrip.append("<br />");
 			descrip.append("Energie-Kosten: ");
 			descrip.append(Common.ln(weapon.getECost()));
@@ -369,22 +369,22 @@ public class SchiffInfoController extends TemplateController
 			descrip.append("<br />");
 
 			descrip.append("Schaden (H/S/Sub): ");
-			if (weapon.getAmmoType().length > 0)
+			if (!weapon.getMunitionstypen().isEmpty())
 			{
 				descrip.append("Munition<br />");
 			}
 			else
 			{
-				descrip.append(Common.ln(weapon.getBaseDamage(ship)));
+				descrip.append(Common.ln(weapon.getBaseDamage()));
 				descrip.append("/");
-				descrip.append(Common.ln(weapon.getShieldDamage(ship)));
+				descrip.append(Common.ln(weapon.getShieldDamage()));
 				descrip.append("/");
-				descrip.append(Common.ln(weapon.getSubDamage(ship)));
+				descrip.append(Common.ln(weapon.getSubDamage()));
 				descrip.append("<br />");
 			}
 
 			descrip.append("Trefferws (C/J/Torp): ");
-			if (weapon.getAmmoType().length > 0)
+			if (!weapon.getMunitionstypen().isEmpty())
 			{
 				descrip.append("Munition<br />");
 			}

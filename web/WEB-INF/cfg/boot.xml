@@ -18,10 +18,7 @@
  	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 -->
 <bootlist>
-	<boot class="net.driftingsouls.ds2.server.config.Rassen" type="static" />
-	<boot class="net.driftingsouls.ds2.server.config.Weapons" type="static" />
 	<boot class="net.driftingsouls.ds2.server.config.ModuleSlots" type="static" />
 	<boot class="net.driftingsouls.ds2.server.config.Medals" type="static" />
-	<boot class="net.driftingsouls.ds2.server.config.Faction" type="static" />
 	<boot class="net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser" type="singleton" />
 </bootlist>

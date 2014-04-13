@@ -22,7 +22,7 @@ import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
-import net.driftingsouls.ds2.server.config.Weapon;
+import net.driftingsouls.ds2.server.entities.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.effects.IEAmmo;
@@ -50,8 +50,8 @@ import java.util.Set;
  *
  */
 public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {	
-	private static final Map<String,String> ATTMODES = new HashMap<String,String>();
-	private static final Map<String,String> NEXTATTMODES = new HashMap<String,String>();
+	private static final Map<String,String> ATTMODES = new HashMap<>();
+	private static final Map<String,String> NEXTATTMODES = new HashMap<>();
 	
 	static {
 		ATTMODES.put("single", "Einzelsalve");
@@ -199,10 +199,10 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 		 */
 
 		if( Weapons.get().weapon(weapon).hasFlag(Weapon.Flags.AMMO_SELECT) ) {
-			Set<Integer> ammoids = new HashSet<Integer>();
+			Set<Integer> ammoids = new HashSet<>();
 
 			Iterator<?> ammoIter = db.createQuery("from Ammo " +
-					"where type in ('"+Common.implode("','", Weapons.get().weapon(weapon).getAmmoType())+"')")
+					"where type in ('"+Common.implode("','", Weapons.get().weapon(weapon).getMunitionstypen())+"')")
 				.iterate();
 
 			while( ammoIter.hasNext() ) {
@@ -214,19 +214,19 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 			Cargo mycargo = ownShip.getCargo();
 
 			List<ItemCargoEntry> items = mycargo.getItemsWithEffect( ItemEffect.Type.AMMO );
-			for( int i=0; i < items.size(); i++ ) {
-				ItemCargoEntry item = items.get(i);
-				
-				IEAmmo effect = (IEAmmo)item.getItemEffect();
+			for (ItemCargoEntry item : items)
+			{
+				IEAmmo effect = (IEAmmo) item.getItemEffect();
 				Item itemobject = item.getItemObject();
-						
-				if( ammoids.contains(effect.getAmmo().getId()) ) {
-					menuEntry(itemobject.getName(),	"ship",		ownShip.getId(),
-													"attack",	enemyShip.getId(),
-													"ksaction",	"attack2",
-													"weapon",	weapon,
-													"ammoid",	item.getItemID(),
-													"attmode",	attmode);
+
+				if (ammoids.contains(effect.getAmmo().getId()))
+				{
+					menuEntry(itemobject.getName(), "ship", ownShip.getId(),
+							"attack", enemyShip.getId(),
+							"ksaction", "attack2",
+							"weapon", weapon,
+							"ammoid", item.getItemID(),
+							"attmode", attmode);
 				}
 			}
 		}

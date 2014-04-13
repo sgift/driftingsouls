@@ -18,22 +18,17 @@
  */
 package net.driftingsouls.ds2.server.config;
 
+import net.driftingsouls.ds2.server.entities.Weapon;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.hibernate.Session;
 
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Repraesentiert die Liste aller bekannten Waffen in DS sowie einige
@@ -42,8 +37,6 @@ import java.util.Map;
  *
  */
 public class Weapons implements Iterable<Weapon> {
-	private static final Log log = LogFactory.getLog(Weapons.class);
-	private Map<String, Weapon> list = new LinkedHashMap<>();
 	private static Weapons instance = new Weapons();
 	
 	private Weapons() {
@@ -57,12 +50,14 @@ public class Weapons implements Iterable<Weapon> {
 	public static Weapons get() {
 		return instance;
 	}
-	
+
 	@Override
 	public Iterator<Weapon> iterator() {
-		return list.values().iterator();
+		Session db = ContextMap.getContext().getDB();
+		List<Weapon> wpn = Common.cast(db.createCriteria(Weapon.class).list());
+		return wpn.iterator();
 	}
-	
+
 	/**
 	 * Gibt die Instanz einer Waffe mit der angegebenen Waffen-ID zurueck.
 	 * Sollte keine passende Waffe bekannt sein, so wird eine {@link NoSuchWeaponException} geworfen.
@@ -71,10 +66,12 @@ public class Weapons implements Iterable<Weapon> {
 	 * @throws NoSuchWeaponException Falls die angeforderte Waffe nicht existiert
 	 */
 	public Weapon weapon(String wpn) throws NoSuchWeaponException {
-		if( !list.containsKey(wpn) ) {
+		Weapon weapon = (Weapon)ContextMap.getContext().getDB().get(Weapon.class, wpn);
+		if( weapon == null )
+		{
 			throw new NoSuchWeaponException(wpn);
 		}
-		return list.get(wpn);
+		return weapon;
 	}
 	
 	/**
@@ -104,54 +101,8 @@ public class Weapons implements Iterable<Weapon> {
 	 * @return der Waffen-String
 	 */
 	public static String packWeaponList(Map<String,String> weapons) {
-		List<String> weaponlist = new ArrayList<>();
-
-		for( Map.Entry<String, String> wpnEntry : weapons.entrySet() ) {
-			weaponlist.add(wpnEntry.getKey() + '=' + wpnEntry.getValue());
-		}
+		List<String> weaponlist = weapons.entrySet().stream().map(wpnEntry -> wpnEntry.getKey() + '=' + wpnEntry.getValue()).collect(Collectors.toList());
 
 		return Common.implode("|",weaponlist);
-	}
-	
-	static {
-		/*
-		 * items.xml parsen
-		 */
-		try {
-			final Class<Weapon> wpnClass = Weapon.class;
-			
-			Document doc = XMLUtils.readFile(Configuration.getConfigPath()+"weapons.xml");
-			NodeList nodes = XMLUtils.getNodesByXPath(doc, "weapons/weapon");
-			for( int i=0; i < nodes.getLength(); i++ ) {
-				Node node = nodes.item(i);
-				
-				String id = XMLUtils.getStringAttribute(node, "id");
-				
-				String version = XMLUtils.getStringAttribute(node, "version");
-				if( (version != null) && !version.equalsIgnoreCase(Configuration.getSetting("VERSION_TYPE")) ) {
-					continue;
-				}
-				
-				if( instance.list.containsKey(id) ) {
-					throw new RuntimeException("Waffen-ID '"+id+"' bereits vergeben");
-				}
-				
-				String cls = XMLUtils.getStringAttribute(node, "handler");
-				
-				Class<? extends Weapon> concreteClass = wpnClass;
-				
-				if( cls != null ) {
-					concreteClass = Class.forName(cls).asSubclass(Weapon.class);
-				}
-				
-				Constructor<? extends Weapon> constr = concreteClass.getConstructor(Node.class);
-				Weapon wpn = constr.newInstance(node);
-				
-				instance.list.put(id, wpn);
-			}
-		}
-		catch( Exception e ) {
-			log.fatal("FAILED: Kann Waffen nicht laden",e);
-		}
 	}
 }

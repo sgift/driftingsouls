@@ -2,14 +2,12 @@ package net.driftingsouls.ds2.server.battles;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
-import net.driftingsouls.ds2.server.config.Weapon;
+import net.driftingsouls.ds2.server.entities.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.config.items.effects.IEAmmo;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.Ammo;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.ks.BasicKSAction;
 import net.driftingsouls.ds2.server.modules.ks.KSAttackAction;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -19,7 +17,14 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Erlaubt das automatische Feuern in einer Schlacht.
@@ -88,12 +93,12 @@ public class AutoFire
             
             for(Map.Entry<Weapon, Integer> weapon: shipWeapons.entrySet())
             {
-                log.info("\tFiring weapon: " + weapon.getKey().getInternalName());
-                int maxHeat = Integer.valueOf(maxHeats.get(weapon.getKey().getInternalName()));
+                log.info("\tFiring weapon: " + weapon.getKey().getId());
+                int maxHeat = Integer.valueOf(maxHeats.get(weapon.getKey().getId()));
                 int heat =  0;
-                if(heats.containsKey(weapon.getKey().getInternalName()))
+                if(heats.containsKey(weapon.getKey().getId()))
                 {
-                    heat = Integer.valueOf(heats.get(weapon.getKey().getInternalName()));
+                    heat = Integer.valueOf(heats.get(weapon.getKey().getId()));
                 }
                 
                 Set<Ammo> ammunition = getPossibleAmmunition(firingShip.getShip(), weapon.getKey());
@@ -165,28 +170,25 @@ public class AutoFire
     {
         //Load all ammunition from cargo
         Set<Integer> ammos = new HashSet<>();
-        if(weapon.getAmmoType().length > 0)
+        if(!weapon.getMunitionstypen().isEmpty())
         {
             Cargo mycargo = ship.getCargo();
             List<ItemCargoEntry> itemList = mycargo.getItemsWithEffect(ItemEffect.Type.AMMO);
             if(weapon.hasFlag(Weapon.Flags.AMMO_SELECT))
             {
-                for(int i=0; i < itemList.size(); i++)
-                {
-                    ammos.add(itemList.get(i).getItemID());
-                }
+				ammos.addAll(itemList.stream().map(ItemCargoEntry::getItemID).collect(Collectors.toList()));
             }
             else
             {
-                for(int i=0; i < itemList.size(); i++)
-                {
-                    IEAmmo effect = (IEAmmo)itemList.get(i).getItemEffect();
-                    if(Common.inArray(effect.getAmmo().getType(), weapon.getAmmoType()))
-                    {
-                        ammos.add(effect.getAmmo().getItemId());
-                        break;
-                    }
-                }
+				for (ItemCargoEntry anItemList : itemList)
+				{
+					IEAmmo effect = (IEAmmo) anItemList.getItemEffect();
+					if (weapon.getMunitionstypen().contains(effect.getAmmo().getType()))
+					{
+						ammos.add(effect.getAmmo().getItemId());
+						break;
+					}
+				}
             }
         }
 
@@ -200,9 +202,9 @@ public class AutoFire
         {
             for(int ammoId: ammos)
             {
-                Iterator<Object> iterator = db.createQuery("from Ammo where itemid=:id and type in (:ammo)")
+                Iterator<?> iterator = db.createQuery("from Ammo where itemid=:id and type in (:ammo)")
                                                 .setInteger("id", ammoId)
-                                                .setParameterList("ammo", weapon.getAmmoType()).iterate();
+                                                .setParameterList("ammo", weapon.getMunitionstypen()).iterate();
                 if(iterator.hasNext())
                 {
                     log.info("Ammo type " + ammoId + " allowed by weapon.");
@@ -236,12 +238,12 @@ public class AutoFire
 
         //Always fire on the same kind of ship unless the weapon is a special big ship or small ship attack weapon (i.e. torpedos on bombers)
         boolean attackSmall = firingShip.getTypeData().getSize() < ShipType.SMALL_SHIP_MAXSIZE;
-        if(weapon.getInternalName().equals("torpedo") || weapon.getInternalName().equals("mjolnir"))
+        if(weapon.getId().equals("torpedo") || weapon.getId().equals("mjolnir"))
         {
             attackSmall = false;
         }
 
-        if(weapon.getInternalName().contains("flak") || weapon.getInternalName().contains("AAA"))
+        if(weapon.getId().contains("flak") || weapon.getId().contains("AAA"))
         {
             attackSmall = true;
         }
@@ -261,9 +263,9 @@ public class AutoFire
         else
         {
 
-            if(weapon.getSubDamage(firingShip.getTypeData()) <= 0)
+            if(weapon.getSubDamage() <= 0)
             {
-                baseDamage = weapon.getBaseDamage(firingShip.getTypeData());
+                baseDamage = weapon.getBaseDamage();
             }
         }
 
@@ -302,7 +304,7 @@ public class AutoFire
             }
 
             KSAttackAction currentFiringAction = new KSAttackAction(user, weapon, "single", 1);
-            if(!currentFiringAction.init(battle, weapon.getInternalName(), ammoId))
+            if(!currentFiringAction.init(battle, weapon.getId(), ammoId))
             {
                 log.info("\t\tWeapon cannot attack Ship. Ignoring.");
                 continue;
@@ -391,7 +393,6 @@ public class AutoFire
         for(Map.Entry<String, String> entry: weaponList.entrySet())
         {
             Weapon weapon = Weapons.get().weapon(entry.getKey());
-            weapon.setInternalName(entry.getKey());
             shipWeapons.put(weapon, Integer.valueOf(entry.getValue()));
         }
 

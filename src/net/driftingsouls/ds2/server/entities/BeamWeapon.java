@@ -16,27 +16,39 @@
  *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.driftingsouls.ds2.server.config;
+package net.driftingsouls.ds2.server.entities;
 
+import net.driftingsouls.ds2.server.entities.Weapon;
 import net.driftingsouls.ds2.server.ships.AbstractShipTypeDataWrapper;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
-import org.w3c.dom.Node;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
 
 /**
  * Ein Strahlengeschuetz in DS.
  * @author Christopher Jung
  *
  */
-public class BeamWeapon extends Weapon {
+@Entity
+@DiscriminatorValue("BeamWeapon")
+public class BeamWeapon extends Weapon
+{
 	/**
 	 * Konstruktor.
-	 * @param node Der zu landende XML-Knoten
-	 * @throws Exception
 	 */
-	public BeamWeapon(Node node) throws Exception {
-		super(node);
+	protected BeamWeapon()
+	{
+	}
+
+	/**
+	 * Konstruktor.
+	 * @param id Die ID der Waffe
+	 */
+	public BeamWeapon(String id)
+	{
+		super(id);
 	}
 
 	@Override

@@ -20,7 +20,7 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
-import net.driftingsouls.ds2.server.config.Weapon;
+import net.driftingsouls.ds2.server.entities.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -204,12 +204,12 @@ public class KSMenuAttackAction extends BasicKSMenuAction {
 				continue;
 			}
 
-			String schaden = "";
-			if( weapon.getAmmoType().length > 0 ) {
+			String schaden;
+			if( !weapon.getMunitionstypen().isEmpty() ) {
 				schaden = "Munitionstyp";
 			}
 			else {
-				schaden = weapon.getBaseDamage(ownShipType)+"/Schuss";
+				schaden = weapon.getBaseDamage()+"/Schuss";
 			}
 			
 			if( attmode.equals("alphastrike_max") || attmode.equals("strafe_max") ) {

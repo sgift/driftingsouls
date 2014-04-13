@@ -28,7 +28,7 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.ModuleSlots;
 import net.driftingsouls.ds2.server.config.NoSuchSlotException;
 import net.driftingsouls.ds2.server.config.Rassen;
-import net.driftingsouls.ds2.server.config.Weapon;
+import net.driftingsouls.ds2.server.entities.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.effects.IEAmmo;
@@ -701,7 +701,7 @@ public class ItemInfoController extends TemplateController
 					StringBuilder weapons = new StringBuilder(50);
 					for (Weapon weapon : Weapons.get())
 					{
-						if (!Common.inArray(ammo.getType(), weapon.getAmmoType()))
+						if (!weapon.getMunitionstypen().contains(ammo.getType()))
 						{
 							continue;
 						}
