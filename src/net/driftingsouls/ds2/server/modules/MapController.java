@@ -83,7 +83,7 @@ public class MapController extends AngularController
 	@Action(value = ActionType.AJAX)
 	public ViewMessage speichereSystemkarteAction()
 	{
-		if (!getUser().isAdmin())
+		if (!hasPermission("admin", "starmapSystemauswahl"))
 		{
 			return ViewMessage.error("Du bist nicht berechtigt diese Aktion auszuführen");
 		}
@@ -110,8 +110,8 @@ public class MapController extends AngularController
 	{
 		SystemauswahlViewModel result = new SystemauswahlViewModel();
 		result.system = system != null ? system.getID() : 1;
-		result.adminSichtVerfuegbar = getUser().isAdmin();
-		result.systemkarteEditierbar = getUser().isAdmin();
+		result.adminSichtVerfuegbar = hasPermission("admin", "starmapView");
+		result.systemkarteEditierbar = hasPermission("admin", "starmapSystemauswahl");
 
 		return result;
 	}
@@ -162,8 +162,8 @@ public class MapController extends AngularController
 		SystemauswahlViewModel result = createResultObj(sys);
 
 		List<JumpNode> jumpNodes = Common.cast(db
-											   .createQuery("from JumpNode jn where " + (!user.isAdmin() ? "jn.hidden=0 and " : "") + "jn.system!=jn.systemOut")
-											   .list());
+				.createQuery("from JumpNode jn where " + (!hasPermission("admin","starmapView") ? "jn.hidden=0 and " : "") + "jn.system!=jn.systemOut")
+				.list());
 
 		Map<Integer, Ally> systemFraktionen = ermittleDominierendeAllianzen(db);
 		Set<Integer> basen = ermittleSystemeMitEigenerBasis(db);
@@ -434,7 +434,7 @@ public class MapController extends AngularController
 		}
 
 		PublicStarmap content;
-		if (admin && user.isAdmin())
+		if (admin && hasPermission("admin", "starmapView"))
 		{
 			content = new AdminStarmap(sys, user, new int[]{xstart, ystart, xend - xstart, yend - ystart});
 		}
@@ -632,7 +632,7 @@ public class MapController extends AngularController
 		final Location loc = new Location(sys.getID(), x, y);
 
 		FieldView field;
-		if (admin && user.isAdmin())
+		if (admin && hasPermission("admin", "starmapView"))
 		{
 			field = new AdminFieldView(db, user, loc);
 		}

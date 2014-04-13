@@ -415,11 +415,8 @@ public class StarSystem {
 	 * Gibt einen String mit Ressourcen zurueck, die in diesem System vorkommen koennen.
 	 * @return Die vorkommenden Ressourcen (itemid,chance,maxmenge)
 	 */
-	public String getSpawnableRess() {
-		if( this.spawnableress == null)
-		{
-			return null;
-		}
+	public String getSpawnableRess()
+	{
 		return this.spawnableress;
 	}
 
