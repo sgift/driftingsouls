@@ -127,6 +127,15 @@ public class Weapon {
     }
 
 	/**
+	 * Setzt die ID der Waffe.
+	 * @param id Die ID
+	 */
+	public void setId(String id)
+	{
+		this.id = id;
+	}
+
+	/**
 	 * Gibt die zum Abfeuern benoetigten AP zurueck.
 	 * @return Die AP-Kosten
 	 */

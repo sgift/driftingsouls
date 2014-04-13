@@ -242,17 +242,17 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 	{
 		try
 		{
-			Constructor<? extends T> constructor = this.clazz.getConstructor();
+			Constructor<? extends T> constructor = this.clazz.getDeclaredConstructor();
 			constructor.setAccessible(true);
 			return constructor.newInstance();
 		}
 		catch (NoSuchMethodException e)
 		{
-			throw new AssertionError("Kein default-Konstruktor vorhanden");
+			throw new AssertionError("Kein default-Konstruktor fuer Entity '"+this.clazz.getName()+"' vorhanden");
 		}
 		catch (InvocationTargetException | InstantiationException | IllegalAccessException e)
 		{
-			throw new IllegalStateException("Konnte Entity nicht instantiieren");
+			throw new IllegalStateException("Konnte Entity '"+this.clazz.getName()+"' nicht instantiieren");
 		}
 	}
 
