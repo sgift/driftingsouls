@@ -2528,7 +2528,7 @@ public class ErsteigernController extends TemplateController
 						"orderentry.link", shopEntryObj.getLink(),
 						"orderentry.id", order.getId(),
 						"orderentry.price", Common.ln(order.getPrice()),
-						"orderentry.lpkosten", order.getLpKosten() > 0 ? Common.ln(shopentry.getLpKosten()) : "",
+						"orderentry.lpkosten", order.getLpKosten() > 0 ? Common.ln(shopentry.getLpKosten()*order.getCount()) : "",
 						"orderentry.count", Common.ln(order.getCount()),
 						"orderentry.status", getStatusName(order.getStatus()),
 						"orderentry.bgcolor", getStatusColor(order.getStatus()));
