@@ -34,7 +34,7 @@ import net.driftingsouls.ds2.server.modules.AdminController;
 public class PlayerStatistics implements AdminPlugin {
 
 	@Override
-	public void output(AdminController controller, String page, int action) throws IOException
+	public void output(AdminController controller) throws IOException
 	{
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();

@@ -28,9 +28,17 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungExc
 import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
 import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.NavigableMap;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * Der Admin.
@@ -52,10 +60,54 @@ public class AdminController extends Controller
 		}
 	}
 
-	private static class MenuEntry implements Comparable<MenuEntry>
+	private static class MenuCategory implements Comparable<MenuCategory>
 	{
 		String name;
 		SortedSet<MenuEntry> actions = new TreeSet<>();
+
+		MenuCategory(String name)
+		{
+			this.name = name;
+		}
+
+		@Override
+		public int compareTo(@Nonnull MenuCategory o)
+		{
+			return name.compareTo(o.name);
+		}
+
+		@Override
+		public boolean equals(Object object)
+		{
+			if (object == null)
+			{
+				return false;
+			}
+
+			if (object.getClass() != this.getClass())
+			{
+				return false;
+			}
+
+			MenuCategory other = (MenuCategory) object;
+			return this.name.equals(other.name);
+		}
+
+		public boolean containsNamedPlugin(String namedPlugin)
+		{
+			return this.actions.stream().anyMatch((a) -> a.cls.getName().equals(namedPlugin));
+		}
+
+		@Override
+		public int hashCode()
+		{
+			return this.name.hashCode();
+		}
+	}
+
+	private static class MenuEntry implements Comparable<MenuEntry>
+	{
+		String name;
 		Class<? extends AdminPlugin> cls;
 
 		MenuEntry(String name)
@@ -64,7 +116,7 @@ public class AdminController extends Controller
 		}
 
 		@Override
-		public int compareTo(MenuEntry o)
+		public int compareTo(@Nonnull MenuEntry o)
 		{
 			return name.compareTo(o.name);
 		}
@@ -93,8 +145,8 @@ public class AdminController extends Controller
 		}
 	}
 
-	TreeMap<String, MenuEntry> menu = new TreeMap<>();
-	Set<String> validPlugins = new HashSet<>();
+	private NavigableMap<String, MenuCategory> menu = new TreeMap<>();
+	private Set<String> validPlugins = new HashSet<>();
 
 	/**
 	 * Konstruktor.
@@ -110,7 +162,7 @@ public class AdminController extends Controller
 	{
 		if (!this.menu.containsKey(menuentry))
 		{
-			this.menu.put(menuentry, new MenuEntry(menuentry));
+			this.menu.put(menuentry, new MenuCategory(menuentry));
 		}
 
 		MenuEntry entry = new MenuEntry(submenuentry);
@@ -150,47 +202,41 @@ public class AdminController extends Controller
 	/**
 	 * Fuehrt ein Admin-Plugin aus.
 	 *
-	 * @param act Die ID der Aktion auf einer Seite
-	 * @param page Der Name der Seite
 	 * @param namedplugin Der exakte Pluginname falls ein bestimmtes Adminplugin ausgefuehrt werden soll
 	 */
 	@Action(ActionType.AJAX)
-	public void ajaxAction(int act, String page, String namedplugin)
+	public void ajaxAction(String namedplugin)
 	{
-		if (page.length() > 0 || namedplugin.length() > 0)
+		if ((namedplugin.length() > 0) && (validPlugins.contains(namedplugin)))
 		{
-			if (act > 0)
-			{
-				callPlugin(page, act);
-			}
-			else if ((namedplugin.length() > 0) && (validPlugins.contains(namedplugin)))
-			{
-				callNamedPlugin(namedplugin);
-			}
+			callNamedPlugin(namedplugin);
 		}
 	}
 
 	/**
 	 * Zeigt die Gui an und fuehrt ein Admin-Plugin (sofern ausgewaehlt) aus.
 	 *
-	 * @param act Die ID der Aktion auf einer Seite
 	 * @param page Der Name der Seite
 	 * @param namedplugin Der exakte Pluginname falls ein bestimmtes Adminplugin ausgefuehrt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(int act, String page, String namedplugin) throws IOException
+	public void defaultAction(String page, String namedplugin) throws IOException
 	{
 		Writer echo = getContext().getResponse().getWriter();
 		echo.append("<div id='admin'>\n");
 		echo.append("<div class='gfxbox' style='width:900px;text-align:center;margin:0px auto'>\n");
 		echo.append("<ui class='menu'>");
-		for (MenuEntry entry : this.menu.values())
+		for (MenuCategory entry : this.menu.values())
 		{
 			echo.append("<li><a class=\"forschinfo\" href=\"./ds?module=admin&page=").append(entry.name).append("\">").append(entry.name).append("</a></li>\n");
 		}
 		echo.append("</ul>\n");
 		echo.append("</div><br />\n");
 
+		if( !namedplugin.isEmpty() )
+		{
+			page = this.menu.entrySet().stream().filter((e) -> e.getValue().containsNamedPlugin(namedplugin)).map((e) -> e.getKey()).findFirst().get();
+		}
 
 		if (page.length() > 0 || namedplugin.length() > 0)
 		{
@@ -202,10 +248,9 @@ public class AdminController extends Controller
 			if (this.menu.containsKey(page) && (this.menu.get(page).actions.size() > 0))
 			{
 				SortedSet<MenuEntry> actions = this.menu.get(page).actions;
-				int index = 1;
 				for (MenuEntry entry : actions)
 				{
-					echo.append("<tr><td align=\"left\"><a class=\"forschinfo\" href=\"./ds?module=admin&page=" + page + "&act=" + (index++) + "\">" + entry.name + "</a></td></tr>\n");
+					echo.append("<tr><td align=\"left\"><a class=\"forschinfo\" href=\"./ds?module=admin&namedplugin=").append(entry.cls.getCanonicalName()).append("\">").append(entry.name).append("</a></td></tr>\n");
 				}
 			}
 			echo.append("</table>\n");
@@ -214,11 +259,7 @@ public class AdminController extends Controller
 			echo.append("</td><td class=\"noBorder\" valign=\"top\" width=\"40\">&nbsp;&nbsp;&nbsp;</td>\n");
 			echo.append("<td class=\"noBorder\" valign=\"top\">\n");
 		}
-		if (act > 0)
-		{
-			callPlugin(page, act);
-		}
-		else if ((namedplugin.length() > 0) && (validPlugins.contains(namedplugin)))
+		if ((namedplugin.length() > 0) && (validPlugins.contains(namedplugin)))
 		{
 			callNamedPlugin(namedplugin);
 		}
@@ -231,30 +272,11 @@ public class AdminController extends Controller
 	{
 		try
 		{
-			int act = 0;
-			String page = "";
-
-			Class<? extends AdminPlugin> aClass = null;
-			for (String aPage : this.menu.keySet())
-			{
-				int index = 1;
-				SortedSet<MenuEntry> actions = this.menu.get(aPage).actions;
-				for (MenuEntry entry : actions)
-				{
-					if (entry.cls.getName().equals(namedplugin))
-					{
-						aClass = entry.cls;
-						page = aPage;
-						act = index;
-						break;
-					}
-					index++;
-				}
-			}
+			Class<? extends AdminPlugin> aClass = Class.forName(namedplugin).asSubclass(AdminPlugin.class);
 
 			AdminPlugin plugin = aClass.newInstance();
 			getContext().autowireBean(plugin);
-			plugin.output(this, page, act);
+			plugin.output(this);
 		}
 		catch (IOException | RuntimeException e)
 		{
@@ -265,43 +287,6 @@ public class AdminController extends Controller
 			e.printStackTrace();
 			throw new ValidierungException("Fehler beim Aufruf des Admin-Plugins: " + e);
 
-		}
-	}
-
-	private void callPlugin(String page, int act)
-	{
-		if (this.menu.containsKey(page) && (this.menu.get(page).actions.size() > 0))
-		{
-			SortedSet<MenuEntry> actions = this.menu.get(page).actions;
-			if (act <= actions.size())
-			{
-				int index = 1;
-				MenuEntry calledEntry = null;
-				for (MenuEntry entry : actions)
-				{
-					if (act == index++)
-					{
-						calledEntry = entry;
-						break;
-					}
-				}
-				Class<? extends AdminPlugin> cls = calledEntry.cls;
-				try
-				{
-					AdminPlugin plugin;
-					plugin = cls.newInstance();
-					getContext().autowireBean(plugin);
-					plugin.output(this, page, act);
-				}
-				catch (ReflectiveOperationException e)
-				{
-					throw new ValidierungException("Fehler beim Aufruf des Admin-Plugins: " + e);
-				}
-				catch (IOException e)
-				{
-					throw new ValidierungException("Fehler beim Aufruf des Admin-Plugins: " + e);
-				}
-			}
 		}
 	}
 }

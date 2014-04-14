@@ -274,7 +274,7 @@ public class CreateObjects implements AdminPlugin {
 	}
 	
 	@Override
-	public void output(AdminController controller, String page, int action) throws IOException {
+	public void output(AdminController controller) throws IOException {
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
 		
@@ -288,7 +288,7 @@ public class CreateObjects implements AdminPlugin {
 		echo.append("<script type=\"text/javascript\">\n");
 		echo.append("<!--\n");
 		echo.append("function Go(x) {\n");
-	   	echo.append("self.location.href = \"./ds?module=admin&page="+page+"&act="+action+"&objekt=\"+x;\n");
+	   	echo.append("self.location.href = \"./ds?module=admin&namedplugin=").append(getClass().getName()).append("&objekt=\"+x;\n");
 		echo.append("}\n");
 		echo.append("//-->\n");
 		echo.append("</script>\n");
@@ -311,15 +311,15 @@ public class CreateObjects implements AdminPlugin {
 		echo.append("</select></td></tr>");
 
 		DialogEntry[] entries = OPTIONS.get(objekt);
-		for( int i=0; i < entries.length; i++ ) {
-			echo.append(entries[i].toHtml(context.getRequest()));
+		for (DialogEntry entry : entries)
+		{
+			echo.append(entry.toHtml(context.getRequest()));
 		}
 		
 		echo.append("<tr><td class=\"noBorderX\" colspan=\"2\" align=\"center\"><input type=\"submit\" value=\".: create\" />&nbsp");
 		echo.append("<input type=\"reset\" value=\".: reset\" /></td></tr>");
 		echo.append("</table>\n");
-		echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
-		echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");
+		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 		echo.append("</form>");
 		echo.append("</font>");
@@ -327,19 +327,22 @@ public class CreateObjects implements AdminPlugin {
 		echo.append("</div>");
 		
 		if( system != 0 ) {
-			echo.append("Bearbeite System: "+system+"<br />\n");
-			
-			if( objekt.equals("Base") ) {
-				handleBase(context, echo, system);
-			}
-			if( objekt.equals("Nebel") ) {
-				handleNebel(context, system);
-			}
-			else if( objekt.equals("Jumpnode") ) {
-				handleJumpnode(context, echo, system);
-			}
-			else if( objekt.equals("SystemXML") ) {
-				handleSystemXML(context, echo, system);
+			echo.append("Bearbeite System: " + system + "<br />\n");
+
+			switch (objekt)
+			{
+				case "Base":
+					handleBase(context, echo, system);
+					break;
+				case "Nebel":
+					handleNebel(context, system);
+					break;
+				case "Jumpnode":
+					handleJumpnode(context, echo, system);
+					break;
+				case "SystemXML":
+					handleSystemXML(context, echo, system);
+					break;
 			}
 			TileCache.forSystem(system).resetCache();
 		} 

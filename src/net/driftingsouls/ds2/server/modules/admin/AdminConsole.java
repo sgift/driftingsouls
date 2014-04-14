@@ -38,7 +38,7 @@ import java.io.Writer;
 @AdminMenuEntry(category="Sonstiges", name="Admin-Konsole")
 public class AdminConsole implements AdminPlugin {
 	@Override
-	public void output(AdminController controller, String page, int action) throws IOException {
+	public void output(AdminController controller) throws IOException {
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
 		
@@ -77,9 +77,8 @@ public class AdminConsole implements AdminPlugin {
 		echo.append("<td class=\"noBorderS\">\n");
 
 		echo.append("<form action=\"./ds\" method=\"post\">\n");
-		echo.append("Command: <input type=\"text\" name=\"cmd\" value=\""+cmd+"\" size=\"60\" />\n");
-		echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
-		echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");
+		echo.append("Command: <input type=\"text\" name=\"cmd\" value=\"").append(cmd).append("\" size=\"60\" />\n");
+		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 		echo.append("<input type=\"submit\" value=\"ausf&uuml;hren\" />\n");
 		echo.append("</form>\n");

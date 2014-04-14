@@ -18,15 +18,14 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Iterator;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AdminController;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
 
 /**
  * Loeschtool fuer die Systeme.
@@ -36,7 +35,7 @@ import net.driftingsouls.ds2.server.modules.AdminController;
 public class DeleteSystem implements AdminPlugin
 {
 	@Override
-	public void output(AdminController controller, String page, int action) throws IOException
+	public void output(AdminController controller) throws IOException
 	{
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
@@ -49,13 +48,12 @@ public class DeleteSystem implements AdminPlugin
 		List<?> systems = db.createQuery("from StarSystem").list();
 
 		echo.append("<form action=\"./ds\" method=\"post\">");
-		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
-		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
+		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 		echo.append("<select size=\"1\" name=\"systemid\">");
-		for (Iterator<?> iter = systems.iterator(); iter.hasNext();)
+		for (Object system1 : systems)
 		{
-			StarSystem system = (StarSystem) iter.next();
+			StarSystem system = (StarSystem) system1;
 
 			echo.append("<option value=\"" + system.getID() + "\" " + (system.getID() == systemid ? "selected=\"selected\"" : "") + ">" + system.getName() + " (" + system.getID() + ")</option>");
 		}

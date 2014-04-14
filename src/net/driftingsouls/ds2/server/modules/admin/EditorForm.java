@@ -21,15 +21,13 @@ import java.util.Map;
 class EditorForm implements AutoCloseable
 {
 	private Writer echo;
-	private int action;
-	private String page;
+	private Class<? extends AdminPlugin> plugin;
 	private List<CustomFieldGenerator> fields = new ArrayList<>();
 
-	public EditorForm(int action, String page, Writer echo)
+	public EditorForm(Class<? extends AdminPlugin> plugin, Writer echo)
 	{
 		this.echo = echo;
-		this.action = action;
-		this.page = page;
+		this.plugin = plugin;
 	}
 
 	/**
@@ -84,7 +82,7 @@ class EditorForm implements AutoCloseable
 			{
 				String entityId = ContextMap.getContext().getRequest().getParameter("entityId");
 
-				echo.append("<td><a title='entfernen' href='./ds?module=admin&amp;page=").append(page).append("&amp;act=").append(Integer.toString(action)).append("&amp;entityId=").append(entityId).append("&reset=").append(name).append("'>X</a>");
+				echo.append("<td><a title='entfernen' href='./ds?module=admin&amp;namedplugin=").append(plugin.getClass().getName()).append("&amp;entityId=").append(entityId).append("&reset=").append(name).append("'>X</a>");
 			}
 
 			echo.append("</tr>");

@@ -50,7 +50,7 @@ public class PlayerLoginSuper implements AdminPlugin {
 	}
 	
 	@Override
-	public void output(AdminController controller, String page, int action) throws IOException {
+	public void output(AdminController controller) throws IOException {
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
 		
@@ -62,15 +62,13 @@ public class PlayerLoginSuper implements AdminPlugin {
 			echo.append("ID: <input type=\"text\" name=\"user\" size=\"10\" value=\"0\" />\n");
 			echo.append("<br /><br />\n");
 			echo.append("<input type=\"checkbox\" name=\"usesessid\" id=\"form[usesessid]\" value=\"1\" /><label for=\"usesessid\">Rechte vererben?</label><br /><br />\n");
-			echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />");
-			echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />");
+			echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("<input type=\"submit\" value=\"Login\" style=\"width:100px\" />");
 			echo.append("</form>");
 		}
 		else {
-			int uid = user;
-			User userObj = (User)context.getDB().get(User.class, uid);
+			User userObj = (User)context.getDB().get(User.class, user);
 			if( userObj == null ) {
 				echo.append("<span style=\"color:red\">Der angegebene Spieler existiert nicht</span>");
 				return;
@@ -82,7 +80,7 @@ public class PlayerLoginSuper implements AdminPlugin {
 				echo.append("<a class=\"ok\" target=\"_blank\" href=\"./ds?module=main\">Zum Account</a>\n");
 			}
 			catch( AuthenticationException e ) {
-				echo.append("<span style=\"color:red\">"+e.getMessage()+"</span>");
+				echo.append("<span style=\"color:red\">").append(e.getMessage()).append("</span>");
 			}
 		}
 	}

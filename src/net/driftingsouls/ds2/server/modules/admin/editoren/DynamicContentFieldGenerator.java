@@ -5,6 +5,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DynamicContent;
 import net.driftingsouls.ds2.server.framework.DynamicContentManager;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
+import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 import org.apache.commons.fileupload.FileItem;
 
 import java.io.IOException;
@@ -24,18 +25,16 @@ public class DynamicContentFieldGenerator<V> implements CustomFieldGenerator<V>
 	private Function<V,String> getter;
 	private BiConsumer<V,String> setter;
 	private boolean withRemove;
-	private int action;
-	private String page;
+	private Class<? extends AdminPlugin> plugin;
 
-	public DynamicContentFieldGenerator(int action, String page, String label, String name, Function<V, String> getter, BiConsumer<V, String> setter)
+	public DynamicContentFieldGenerator(Class<? extends AdminPlugin> plugin, String label, String name, Function<V, String> getter, BiConsumer<V, String> setter)
 	{
 		this.label = label;
 		this.name = name;
 		this.getter = getter;
 		this.setter = setter;
 		this.withRemove = false;
-		this.action = action;
-		this.page = page;
+		this.plugin = plugin;
 	}
 
 	@Override
@@ -49,7 +48,7 @@ public class DynamicContentFieldGenerator<V> implements CustomFieldGenerator<V>
 		{
 			String entityId = ContextMap.getContext().getRequest().getParameter("entityId");
 
-			echo.append("<td><a title='entfernen' href='./ds?module=admin&amp;page=").append(page).append("&amp;act=").append(Integer.toString(action)).append("&amp;entityId=").append(entityId).append("&reset=").append(name).append("'>X</a>");
+			echo.append("<td><a title='entfernen' href='./ds?module=admin&amp;namedplugin=").append(plugin.getName()).append("&amp;entityId=").append(entityId).append("&reset=").append(name).append("'>X</a>");
 		}
 
 		echo.append("</tr>");

@@ -18,10 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
@@ -35,6 +31,10 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
+
 /**
  * Ermoeglicht das Einfuegen von neuen Versteigerungen in die GTU.
  * @author Christopher Jung
@@ -43,7 +43,7 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 @AdminMenuEntry(category="GTU", name="Versteigern")
 public class AddGtu implements AdminPlugin {
 	@Override
-	public void output(AdminController controller, String page, int action) throws IOException {
+	public void output(AdminController controller) throws IOException {
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
 		
@@ -70,8 +70,7 @@ public class AddGtu implements AdminPlugin {
 			echo.append("<tr><td class=\"noBorderS\">Dauer:</td><td class=\"noBorderS\"><input type=\"text\" name=\"dauer\" size=\"10\" value=\"30\" /></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Gebot:</td><td class=\"noBorderS\"><input type=\"text\" name=\"preis\" size=\"10\" /></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\" colspan=\"2\" align=\"center\">\n");
-			echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
-			echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");
+			echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("<input type=\"submit\" value=\"einf&uuml;gen\" style=\"width:100px\"/></td></tr>\n");
 			echo.append("</table>\n");
@@ -93,8 +92,7 @@ public class AddGtu implements AdminPlugin {
 			echo.append("<tr><td class=\"noBorderS\">Dauer:</td><td class=\"noBorderS\"><input type=\"text\" name=\"dauer\" size=\"10\" value=\"30\" /></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Gebot:</td><td class=\"noBorderS\"><input type=\"text\" name=\"preis\" size=\"10\" /></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\" colspan=\"2\" align=\"center\">\n");
-			echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
-			echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");
+			echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\""+getClass().getName()+"\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("<input type=\"submit\" value=\"einf&uuml;gen\" style=\"width:100px\"/></td></tr>\n");
 			echo.append("</table>\n");

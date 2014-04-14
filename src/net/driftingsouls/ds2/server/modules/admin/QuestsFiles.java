@@ -56,7 +56,7 @@ public class QuestsFiles implements AdminPlugin {
 	}
 	
 	@Override
-	public void output(AdminController controller, String page, int action) throws IOException {
+	public void output(AdminController controller) throws IOException {
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
 		
@@ -68,9 +68,8 @@ public class QuestsFiles implements AdminPlugin {
 
 		echo.append("<div class='gfxbox' style='width:590px'>");
 		echo.append("<form action=\"./ds\" method=\"post\">\n");
-		echo.append("<input type=\"text\" name=\"installfile\" value=\""+(installfile.length() == 0 ? "Datei" : installfile)+"\" size=\"50\" />\n");
-		echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
-		echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");
+		echo.append("<input type=\"text\" name=\"installfile\" value=\"" + (installfile.length() == 0 ? "Datei" : installfile) + "\" size=\"50\" />\n");
+		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 		echo.append("<input type=\"submit\" value=\"installieren\" />\n");
 		echo.append("</form>\n");
@@ -94,8 +93,8 @@ public class QuestsFiles implements AdminPlugin {
 			if( conf == 0 ) {
 				echo.append("<div class='gfxbox' style='width:590px;text-align:center'>");
 				echo.append("Wollen sie die Quest-XML "+unlinkName+" wirklich l&ouml;schen?<br />\n");
-				echo.append("<a class=\"error\" href=\"./ds?module=admin&act="+action+"&page="+page+"&unlink="+unlink+"&conf=1\">ja</a> - \n");
-				echo.append("<a class=\"ok\" href=\"./ds?module=admin&act="+action+"&page="+page+"\">nein</a>\n");
+				echo.append("<a class=\"error\" href=\"./ds?module=admin&namedplugin="+getClass().getName()+"&unlink="+unlink+"&conf=1\">ja</a> - \n");
+				echo.append("<a class=\"ok\" href=\"./ds?module=admin&namedplugin="+getClass().getName()+"\">nein</a>\n");
 				
 				echo.append("</div>");
 				echo.append("<br />\n");
@@ -200,23 +199,25 @@ public class QuestsFiles implements AdminPlugin {
 		
 		File questdir = new File(questpath);
 		File[] childlist = questdir.listFiles();
-		for( int i=0; i < childlist.length; i++ ) {
-			if( !childlist[i].isFile() ) {
+		for (File aChildlist : childlist)
+		{
+			if (!aChildlist.isFile())
+			{
 				continue;
 			}
-			
-			if( childlist[i].getName().indexOf(".xml") > -1 ) {
-				echo.append(basename(childlist[i].getName(),".xml")+"\n");
-				echo.append(" - <a class=\"error\" href=\"./ds?module=admin&act="+action+"&page="+page+"&unlink="+basename(childlist[i].getName(),".xml")+"\">X</a>\n");
-				echo.append("<a class=\"forschinfo\" href=\"./ds?module=admin&act="+action+"&page="+page+"&info="+basename(childlist[i].getName(),".xml")+"\">info</a><br />\n");
-			}	
+
+			if (aChildlist.getName().contains(".xml"))
+			{
+				echo.append(basename(aChildlist.getName(), ".xml") + "\n");
+				echo.append(" - <a class=\"error\" href=\"./ds?module=admin&namedplugin=" + getClass().getName() + "&unlink=" + basename(aChildlist.getName(), ".xml") + "\">X</a>\n");
+				echo.append("<a class=\"forschinfo\" href=\"./ds?module=admin&namedplugin=" + getClass().getName() + "&info=" + basename(aChildlist.getName(), ".xml") + "\">info</a><br />\n");
+			}
 		}
 		echo.append("<br />\n");
 		echo.append("<form action=\"./ds\" method=\"post\" enctype=\"multipart/form-data\">\n");
 		echo.append("<input type=\"file\" name=\"questfile\" size=\"40\" />\n");
 		echo.append("<input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"307200\" />\n");
-		echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");
-		echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
+		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 		echo.append("<input type=\"hidden\" name=\"upload\" value=\"1\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 		echo.append("<input type=\"submit\" value=\"hochladen\" />\n");

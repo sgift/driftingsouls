@@ -18,15 +18,15 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import java.io.IOException;
-import java.io.Writer;
-
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.Item.Quality;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffectFactory;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AdminController;
+
+import java.io.IOException;
+import java.io.Writer;
 
 /**
  * Aktualisierungstool fuer die Werte eines Schiffes.
@@ -37,7 +37,7 @@ import net.driftingsouls.ds2.server.modules.AdminController;
 public class EditItem implements AdminPlugin
 {
 	@Override
-	public void output(AdminController controller, String page, int action) throws IOException
+	public void output(AdminController controller) throws IOException
 	{
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
@@ -49,8 +49,7 @@ public class EditItem implements AdminPlugin
 		boolean update = context.getRequest().getParameterString("change").equals("Aktualisieren");
 
 		echo.append("<form action=\"./ds\" method=\"post\">");
-		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
-		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
+		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 		echo.append("<input type=\"text\" name=\"itemid\" value=\""+ itemid +"\" />\n");
 		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
@@ -93,8 +92,7 @@ public class EditItem implements AdminPlugin
 			echo.append("<div class='gfxbox' style='width:500px'>");
 			echo.append("<form action=\"./ds\" method=\"post\" >");
 			echo.append("<table class=\"noBorder\" width=\"100%\">");
-			echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
-			echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
+			echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("<input type=\"hidden\" name=\"itemid\" value=\"" + itemid + "\" />\n");
 			echo.append("<tr><td class=\"noBorderS\">Name: </td><td><input type=\"text\" name=\"name\" value=\"" + item.getName() + "\"></td></tr>\n");

@@ -18,16 +18,15 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import java.io.IOException;
-import java.io.Writer;
-
 import net.driftingsouls.ds2.server.entities.NewsEntry;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AdminController;
-
 import org.hibernate.Session;
+
+import java.io.IOException;
+import java.io.Writer;
 
 /**
  * Ermoeglicht das Verfassen von neuen News im Portal.
@@ -37,7 +36,7 @@ import org.hibernate.Session;
 @AdminMenuEntry(category="Portal", name="News schreiben")
 public class PortalNews implements AdminPlugin {
 	@Override
-	public void output(AdminController controller, String page, int action) throws IOException {
+	public void output(AdminController controller) throws IOException {
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
 		
@@ -51,8 +50,7 @@ public class PortalNews implements AdminPlugin {
 			echo.append("Titel: <input type=\"text\" name=\"title\" size=\"50\" /><br />");
 			echo.append("<textarea name=\"shortdescription\" rows=\"2\" cols=\"50\"></textarea><br />");
 			echo.append("<textarea name=\"news\" rows=\"20\" cols=\"50\"></textarea><br />");
-			echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />");
-			echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />");
+			echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("<center><input type=\"submit\" value=\"senden\" style=\"width:200px\" /></center>");
 			echo.append("</form>");

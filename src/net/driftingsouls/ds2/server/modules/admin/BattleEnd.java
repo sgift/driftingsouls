@@ -18,10 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.AdminCommands;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
@@ -29,6 +25,10 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AdminController;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
 
 /**
  * Ermoeglicht das Beenden von Schlachten.
@@ -39,7 +39,7 @@ import net.driftingsouls.ds2.server.modules.AdminController;
 public class BattleEnd implements AdminPlugin 
 {
 	@Override
-	public void output(AdminController controller, String page, int action) throws IOException 
+	public void output(AdminController controller) throws IOException
 	{
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
@@ -88,8 +88,7 @@ public class BattleEnd implements AdminPlugin
 			echo.append("<hr style=\"height:1px; border:0px; background-color:#606060; color:#606060\" />\n");
 			echo.append("<form action=\"./ds\" method=\"post\">");
 			echo.append("BattleID: <input type=\"text\" name=\"battleid\" value=\"0\" />\n");
-			echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />");
-			echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />");
+			echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");		
 			echo.append("<input type=\"submit\" value=\"beenden\" style=\"width:100px\"/>");
 			echo.append("</form>");

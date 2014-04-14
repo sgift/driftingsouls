@@ -18,10 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
@@ -34,6 +30,10 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.ships.Ship;
 
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
+
 /**
  * Ermoeglicht das Einfuegen von neuen Versteigerungen in die GTU.
  * @author Christopher Jung
@@ -43,7 +43,7 @@ import net.driftingsouls.ds2.server.ships.Ship;
 public class GtuVerkaeufe implements AdminPlugin
 {
 	@Override
-	public void output(AdminController controller, String page, int action) throws IOException
+	public void output(AdminController controller) throws IOException
 	{
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
@@ -93,8 +93,7 @@ public class GtuVerkaeufe implements AdminPlugin
 			echo.append("</select>\n");
 			echo.append("</td></tr>\n");
 			echo.append("<tr><td colspan=\"2\" style=\"text-align:center\">\n");
-			echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
-			echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");
+			echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("<input type=\"submit\" value=\"anzeigen\" style=\"width:100px\"/></td></tr>\n");
 			echo.append("</table>\n");

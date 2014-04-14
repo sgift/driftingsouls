@@ -40,7 +40,7 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 public class GtuPrices implements AdminPlugin {
 
 	@Override
-	public void output(AdminController controller, String page, int action) throws IOException {
+	public void output(AdminController controller) throws IOException {
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
 

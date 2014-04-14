@@ -20,7 +20,7 @@ public class EditConfigValues implements AdminPlugin
 {
 	@Override
 	@SuppressWarnings("unchecked")
-	public void output(AdminController controller, String page, int action) throws IOException
+	public void output(AdminController controller) throws IOException
 	{
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
@@ -42,8 +42,7 @@ public class EditConfigValues implements AdminPlugin
 
 		echo.append("<div class='gfxbox' style='width:790px'>");
 		echo.append("<form action=\"./ds\" method=\"post\">");
-		echo.append("<input type=\"hidden\" name=\"page\" value=\"").append(page).append("\" />\n");
-		echo.append("<input type=\"hidden\" name=\"act\" value=\"").append(Integer.toString(action)).append("\" />\n");
+		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 		echo.append("<table width=\"100%\">");
 		for(WellKnownConfigValue value: configValues)

@@ -38,7 +38,7 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 	}
 
 	@Override
-	public final void output(AdminController controller, String page, int action) throws IOException
+	public final void output(AdminController controller) throws IOException
 	{
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
@@ -80,7 +80,7 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 
 		List<Building> entities = Common.cast(db.createCriteria(clazz).list());
 
-		beginSelectionBox(echo, page, action);
+		beginSelectionBox(echo);
 		for (Object entity : entities)
 		{
 			addSelectionOption(echo, db.getIdentifier(entity), generateLabelFor(null, entity));
@@ -95,7 +95,7 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 				return;
 			}
 
-			try (EditorForm form = beginEditorTable(echo, page, action, entityId))
+			try (EditorForm form = beginEditorTable(echo, entityId))
 			{
 				edit(form, entity);
 			}
@@ -245,12 +245,11 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 		}
 	}
 
-	private void beginSelectionBox(Writer echo, String page, int action) throws IOException
+	private void beginSelectionBox(Writer echo) throws IOException
 	{
 		echo.append("<div class='gfxbox adminSelection' style='width:390px'>");
 		echo.append("<form action=\"./ds\" method=\"post\">");
-		echo.append("<input type=\"hidden\" name=\"page\" value=\"").append(page).append("\" />\n");
-		echo.append("<input type=\"hidden\" name=\"act\" value=\"").append(Integer.toString(action)).append("\" />\n");
+		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 		echo.append("<select size=\"1\" name=\"entityId\">");
 	}
@@ -272,18 +271,17 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 		echo.append("</div>");
 	}
 
-	private EditorForm beginEditorTable(final Writer echo, String page, int action, Object entityId) throws IOException
+	private EditorForm beginEditorTable(final Writer echo, Object entityId) throws IOException
 	{
 		echo.append("<div class='gfxbox adminEditor' style='width:700px'>");
 		echo.append("<form action=\"./ds\" method=\"post\" enctype='multipart/form-data'>");
-		echo.append("<input type=\"hidden\" name=\"page\" value=\"").append(page).append("\" />\n");
-		echo.append("<input type=\"hidden\" name=\"act\" value=\"").append(Integer.toString(action)).append("\" />\n");
+		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 		echo.append("<input type=\"hidden\" name=\"entityId\" value=\"").append(entityId != null ? entityId.toString() : "").append("\" />\n");
 
 		echo.append("<table>");
 
-		return new EditorForm(action, page, echo);
+		return new EditorForm(getClass(), echo);
 	}
 
 	protected final boolean isResetted(String name)

@@ -1,6 +1,7 @@
 package net.driftingsouls.ds2.server.modules.admin.editoren;
 
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
+import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -40,23 +41,21 @@ public class EditorForm8<E>
 
 	private final EditorMode modus;
 	private Writer echo;
-	private int action;
-	private String page;
+	private Class<? extends AdminPlugin> plugin;
 	private List<CustomFieldGenerator<E>> fields = new ArrayList<>();
 	private int counter;
 	private boolean allowAdd;
 	private Function<E,Boolean> allowUpdate;
 	private List<Job<E,?>> updateTasks = new ArrayList<>();
 
-	public EditorForm8(EditorMode modus, int action, String page, Writer echo)
+	public EditorForm8(EditorMode modus, Class<? extends AdminPlugin> plugin, Writer echo)
 	{
 		this.modus = modus;
 		this.echo = echo;
-		this.action = action;
-		this.page = page;
 		this.counter = 0;
 		this.allowAdd = false;
 		this.allowUpdate = (entity) -> true;
+		this.plugin = plugin;
 	}
 
 	/**
@@ -144,7 +143,7 @@ public class EditorForm8<E>
 	 */
 	public DynamicContentFieldGenerator<E> dynamicContentField(String label, Function<E,String> getter, BiConsumer<E,String> setter)
 	{
-		return custom(new DynamicContentFieldGenerator<>(action, page, label, generateName(getter.getClass().getSimpleName()), getter, setter));
+		return custom(new DynamicContentFieldGenerator<>(plugin, label, generateName(getter.getClass().getSimpleName()), getter, setter));
 	}
 
 	/**
@@ -271,7 +270,7 @@ public class EditorForm8<E>
 		{
 			return this;
 		}
-		return new EditorForm8<>(EditorMode.CREATE, action, page, new StringWriter());
+		return new EditorForm8<>(EditorMode.CREATE, plugin, new StringWriter());
 	}
 
 	public EditorForm8<E> ifUpdating()
@@ -280,6 +279,6 @@ public class EditorForm8<E>
 		{
 			return this;
 		}
-		return new EditorForm8<>(EditorMode.UPDATE, action, page, new StringWriter());
+		return new EditorForm8<>(EditorMode.UPDATE, plugin, new StringWriter());
 	}
 }

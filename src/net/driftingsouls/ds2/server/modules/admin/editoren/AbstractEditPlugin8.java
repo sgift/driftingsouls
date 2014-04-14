@@ -40,7 +40,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 	}
 
 	@Override
-	public final void output(AdminController controller, String page, int action) throws IOException
+	public final void output(AdminController controller) throws IOException
 	{
 		Context context = ContextMap.getContext();
 		Session db = context.getDB();
@@ -50,7 +50,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		Request request = context.getRequest();
 		String entityId = request.getParameter("entityId");
 
-		EditorForm8<T> form = new EditorForm8<>(EditorMode.UPDATE, action, page, echo);
+		EditorForm8<T> form = new EditorForm8<>(EditorMode.UPDATE, this.getClass(), echo);
 		configureFor(form);
 
 		if (this.isUpdateExecuted())
@@ -76,7 +76,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		{
 			try
 			{
-				form = new EditorForm8<>(EditorMode.CREATE, action, page, echo);
+				form = new EditorForm8<>(EditorMode.CREATE, this.getClass(), echo);
 				configureFor(form);
 
 				T entity = createEntity();
@@ -109,7 +109,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 			}
 		}
 
-		outputEntitySelection(page, action, db, echo, form);
+		outputEntitySelection(db, echo, form);
 
 		if (entityId != null && !entityId.isEmpty())
 		{
@@ -119,27 +119,27 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 				return;
 			}
 
-			beginEditorTable(echo, page, action, entityId);
+			beginEditorTable(echo, this.getClass(), entityId);
 			form.generateForm(entity);
 			endEditorTable(echo);
 		}
 		else if( isAddDisplayed() )
 		{
 			T entity = createEntity();
-			form = new EditorForm8<>(EditorMode.CREATE, action, page, echo);
+			form = new EditorForm8<>(EditorMode.CREATE, this.getClass(), echo);
 			configureFor(form);
-			beginEditorTable(echo, page, action, -1);
+			beginEditorTable(echo, this.getClass(), -1);
 			form.generateForm(entity);
 		}
 	}
 
-	private void outputEntitySelection(String page, int action, Session db, Writer echo, EditorForm8<T> form) throws IOException
+	private void outputEntitySelection(Session db, Writer echo, EditorForm8<T> form) throws IOException
 	{
 		echo.append("<div class='gfxbox adminSelection' style='width:390px'>");
 		Long count = (Long)db.createCriteria(baseClass).setProjection(Projections.rowCount()).uniqueResult();
 		if( count != null )
 		{
-			beginSelectionBox(echo, page, action);
+			beginSelectionBox(echo, this.getClass());
 
 			if (count < 500)
 			{
@@ -169,7 +169,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		}
 		if (form.isAddAllowed())
 		{
-			addForm(echo, page, action);
+			addForm(echo, this.getClass());
 		}
 		echo.append("</div>");
 	}
@@ -273,11 +273,10 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		return true;
 	}
 
-	private void beginSelectionBox(Writer echo, String page, int action) throws IOException
+	private void beginSelectionBox(Writer echo, Class<? extends AdminPlugin> plugin) throws IOException
 	{
 		echo.append("<form action=\"./ds\" method=\"post\">");
-		echo.append("<input type=\"hidden\" name=\"page\" value=\"").append(page).append("\" />\n");
-		echo.append("<input type=\"hidden\" name=\"act\" value=\"").append(Integer.toString(action)).append("\" />\n");
+		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(plugin.getName()).append("\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 	}
 
@@ -297,22 +296,20 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		echo.append("</form>");
 	}
 
-	private void addForm(Writer echo, String page, int action) throws IOException
+	private void addForm(Writer echo, Class<? extends AdminPlugin> plugin) throws IOException
 	{
 		echo.append("<form action=\"./ds\" method=\"post\">");
-		echo.append("<input type=\"hidden\" name=\"page\" value=\"").append(page).append("\" />\n");
-		echo.append("<input type=\"hidden\" name=\"act\" value=\"").append(Integer.toString(action)).append("\" />\n");
+		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(plugin.getName()).append("\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 		echo.append("<input type=\"submit\" name=\"add\" value=\"+\" />");
 		echo.append("</form>");
 	}
 
-	private void beginEditorTable(final Writer echo, String page, int action, Object entityId) throws IOException
+	private void beginEditorTable(final Writer echo, Class<? extends AdminPlugin> plugin, Object entityId) throws IOException
 	{
 		echo.append("<div class='gfxbox adminEditor' style='width:700px'>");
 		echo.append("<form action=\"./ds\" method=\"post\" enctype='multipart/form-data'>");
-		echo.append("<input type=\"hidden\" name=\"page\" value=\"").append(page).append("\" />\n");
-		echo.append("<input type=\"hidden\" name=\"act\" value=\"").append(Integer.toString(action)).append("\" />\n");
+		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(plugin.getName()).append("\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 		echo.append("<input type=\"hidden\" name=\"entityId\" value=\"").append(entityId != null ? entityId.toString() : "").append("\" />\n");
 

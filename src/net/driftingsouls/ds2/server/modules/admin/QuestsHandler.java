@@ -40,7 +40,7 @@ import java.util.List;
 @AdminMenuEntry(category="Quests", name="Handler")
 public class QuestsHandler implements AdminPlugin {
 	@Override
-	public void output(AdminController controller, String page, int action) throws IOException {
+	public void output(AdminController controller) throws IOException {
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
 
@@ -51,7 +51,7 @@ public class QuestsHandler implements AdminPlugin {
 
 		Session db = context.getDB();
 
-		final String URLBASE = "./ds?module=admin&page="+page+"&act="+action;
+		final String URLBASE = "./ds?module=admin&namedplugin="+getClass().getName();
 
 		if( event.length() == 0 ) {
 			echo.append("<div class='gfxbox' style='width:740px;text-align:center'>");
@@ -62,8 +62,7 @@ public class QuestsHandler implements AdminPlugin {
 			echo.append("<option value=\"onendbattle\">onendbattle</option>\n");
 			echo.append("</select>\n");
 			echo.append("<input type=\"text\" name=\"oid\" value=\"object-id\" />\n");
-			echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
-			echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");
+			echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("<input type=\"submit\" value=\"bearbeiten\" />\n");
 			echo.append("</form>\n");
@@ -126,40 +125,42 @@ public class QuestsHandler implements AdminPlugin {
 			echo.append("</div>");
 		}
 		else if( save == 0 ) {
-			if( event.equals("oncommunicate") ) {
-				handler = (String)db
-						.createQuery("select oncommunicate from Ship where id>0 and id=:id")
-						.setInteger("id", Integer.parseInt(oid))
-						.uniqueResult();
-			}
-			else if( event.equals("ontick_rquest") ) {
-				handler = (String)db
-						.createQuery("select onTick from RunningQuest where id=:id")
-						.setInteger("id", Integer.parseInt(oid))
-						.uniqueResult();
-			}
-			else if( event.equals("onendbattle") ) {
-				handler = (String)db
-						.createQuery("select onend from Battle where id=:id")
-						.setInteger("id", Integer.parseInt(oid))
-						.uniqueResult();
-			}
-			else {
-				echo.append("WARNUNG: Ung&uuml;ltiges Event &gt;"+event+"&lt; <br />\n");
-				handler = "";
-				event = "";
-				oid = "";
+			switch (event)
+			{
+				case "oncommunicate":
+					handler = (String) db
+							.createQuery("select oncommunicate from Ship where id>0 and id=:id")
+							.setInteger("id", Integer.parseInt(oid))
+							.uniqueResult();
+					break;
+				case "ontick_rquest":
+					handler = (String) db
+							.createQuery("select onTick from RunningQuest where id=:id")
+							.setInteger("id", Integer.parseInt(oid))
+							.uniqueResult();
+					break;
+				case "onendbattle":
+					handler = (String) db
+							.createQuery("select onend from Battle where id=:id")
+							.setInteger("id", Integer.parseInt(oid))
+							.uniqueResult();
+					break;
+				default:
+					echo.append("WARNUNG: Ung&uuml;ltiges Event &gt;").append(event).append("&lt; <br />\n");
+					handler = "";
+					event = "";
+					oid = "";
+					break;
 			}
 
 			echo.append("<div class='gfxbox' style='width:740px'>");
 
 			echo.append("<form action=\"./ds\" method=\"post\">\n");
-			echo.append("<input type=\"text\" name=\"handler\" size=\"50\" value=\""+handler+"\" />\n");
-			echo.append("<input type=\"hidden\" name=\"event\" value=\""+event+"\" />\n");
-			echo.append("<input type=\"hidden\" name=\"oid\" value=\""+oid+"\" />\n");
+			echo.append("<input type=\"text\" name=\"handler\" size=\"50\" value=\"").append(handler).append("\" />\n");
+			echo.append("<input type=\"hidden\" name=\"event\" value=\"").append(event).append("\" />\n");
+			echo.append("<input type=\"hidden\" name=\"oid\" value=\"").append(oid).append("\" />\n");
 			echo.append("<input type=\"hidden\" name=\"save\" value=\"1\" />\n");
-			echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
-			echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");
+			echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("<input type=\"submit\" value=\"bearbeiten\" />\n");
 			echo.append("</form>\n");
@@ -167,44 +168,53 @@ public class QuestsHandler implements AdminPlugin {
 			echo.append("</div>");
 		}
 		else {
-			if( event.equals("oncommunicate") ) {
-				Ship ship = (Ship)db
-						.createQuery("from Ship where id>0 and id=:id")
-						.setInteger("id", Integer.parseInt(oid))
-						.uniqueResult();
-				if( handler.length() != 0 ) {
-					ship.setOnCommunicate(handler);
-				}
-				else {
-					ship.setOnCommunicate(null);
-				}
-			}
-			else if( event.equals("ontick_rquest") ) {
-				RunningQuest rquest = (RunningQuest)db
-						.createQuery("select onTick from RunningQuest where id=:id")
-						.setInteger("id", Integer.parseInt(oid))
-						.uniqueResult();
-				if( handler.length() != 0 ) {
-					rquest.setOnTick(Integer.parseInt(handler));
-				}
-				else {
-					rquest.setOnTick(null);
-				}
-			}
-			else if( event.equals("onendbattle") ) {
-				Battle battle = (Battle)db
-						.createQuery("select onend from Battle where id=:id")
-						.setInteger("id", Integer.parseInt(oid))
-						.uniqueResult();
-				if( handler.length() != 0 ) {
-					battle.setOnEnd(handler);
-				}
-				else {
-					battle.setOnEnd(null);
-				}
-			}
-			else {
-				echo.append("WARNUNG: Ung&uuml;ltiges Event &gt;"+event+"&lt; <br />\n");
+			switch (event)
+			{
+				case "oncommunicate":
+					Ship ship = (Ship) db
+							.createQuery("from Ship where id>0 and id=:id")
+							.setInteger("id", Integer.parseInt(oid))
+							.uniqueResult();
+					if (handler.length() != 0)
+					{
+						ship.setOnCommunicate(handler);
+					}
+					else
+					{
+						ship.setOnCommunicate(null);
+					}
+					break;
+				case "ontick_rquest":
+					RunningQuest rquest = (RunningQuest) db
+							.createQuery("select onTick from RunningQuest where id=:id")
+							.setInteger("id", Integer.parseInt(oid))
+							.uniqueResult();
+					if (handler.length() != 0)
+					{
+						rquest.setOnTick(Integer.parseInt(handler));
+					}
+					else
+					{
+						rquest.setOnTick(null);
+					}
+					break;
+				case "onendbattle":
+					Battle battle = (Battle) db
+							.createQuery("select onend from Battle where id=:id")
+							.setInteger("id", Integer.parseInt(oid))
+							.uniqueResult();
+					if (handler.length() != 0)
+					{
+						battle.setOnEnd(handler);
+					}
+					else
+					{
+						battle.setOnEnd(null);
+					}
+					break;
+				default:
+					echo.append("WARNUNG: Ung&uuml;ltiges Event &gt;").append(event).append("&lt; <br />\n");
+					break;
 			}
 			echo.append("&Auml;nderungen durchgef&uuml;hrt<br />");
 		}

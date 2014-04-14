@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 public class EditUserPermissions implements AdminPlugin
 {
 	@Override
-	public void output(AdminController controller, String page, int action) throws IOException
+	public void output(AdminController controller) throws IOException
 	{
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
@@ -53,8 +53,7 @@ public class EditUserPermissions implements AdminPlugin
 
 		echo.append("<div class='gfxbox' style='width:400px'>");
 		echo.append("<form action=\"./ds\" method=\"post\">");
-		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
-		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
+		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 		echo.append("User: <input type=\"text\" name=\"userid\" value=\""+ userid +"\" />\n");
 		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
@@ -121,8 +120,7 @@ public class EditUserPermissions implements AdminPlugin
 				echo.append("<tr><td>"+p.getCategory()+"</td><td>"+p.getAction()+"</td>");
 				echo.append("<td>");
 				echo.append("<form action=\"./ds\" method=\"post\">");
-				echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
-				echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
+				echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 				echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 				echo.append("<input type=\"hidden\" name=\"userid\" value=\"" + userid + "\" />\n");
 				echo.append("<input type=\"hidden\" name=\"paction\" value=\"" + p.getAction() + "\" />\n");
@@ -141,8 +139,7 @@ public class EditUserPermissions implements AdminPlugin
 			echo.append("<input type='text' name='paction' value='' />");
 			echo.append("</td>");
 			echo.append("<td>");
-			echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
-			echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
+			echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("<input type=\"hidden\" name=\"userid\" value=\"" + userid + "\" />\n");
 			echo.append("<input type='submit' name='change' value='hinzufügen' />");

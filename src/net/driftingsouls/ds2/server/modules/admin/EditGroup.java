@@ -32,7 +32,6 @@ import org.hibernate.Query;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -50,7 +49,7 @@ public class EditGroup implements AdminPlugin
 	private static int MAX_WEAPONS = 100;
 	
 	@Override
-	public void output(AdminController controller, String page, int action) throws IOException
+	public void output(AdminController controller) throws IOException
 	{
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
@@ -64,14 +63,11 @@ public class EditGroup implements AdminPlugin
 		List<ShipType> shiptypes = Common.cast(db.createQuery("from ShipType").list());
 
 		echo.append("<form action=\"./ds\" method=\"post\">");
-		echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
-		echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
+		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 		echo.append("<select size=\"1\" name=\"shiptype\">");
-		for (Iterator<ShipType> iter = shiptypes.iterator(); iter.hasNext();)
+		for (ShipType shiptype : shiptypes)
 		{
-			ShipType shiptype = iter.next();
-
 			echo.append("<option value=\"" + shiptype.getId() + "\" " + (shiptype.getId() == shiptypeId ? "selected=\"selected\"" : "") + ">" + shiptype.getNickname() + "</option>");
 		}
 		echo.append("</select>");
@@ -164,8 +160,7 @@ public class EditGroup implements AdminPlugin
 			
 			echo.append("<form action=\"./ds\" method=\"post\">");
 			echo.append("<table class=\"noBorder\" width=\"100%\">");
-			echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />\n");
-			echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />\n");
+			echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("<input type=\"hidden\" name=\"shiptype\" value=\"" + shiptypeId + "\" />\n");
 			echo.append("<tr><td class=\"noBorderS\">Wo: </td><td><select size=\"1\" name=\"groupoption\" \">");

@@ -58,7 +58,7 @@ public class PlayerDelete implements AdminPlugin
 	private static final Log log = LogFactory.getLog(PlayerDelete.class);
 
     @Override
-	public void output(AdminController controller, String page, int action) throws IOException
+	public void output(AdminController controller) throws IOException
 	{
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
@@ -76,8 +76,7 @@ public class PlayerDelete implements AdminPlugin
 			echo.append("<input type=\"text\" name=\"userid\" size=\"6\" />");
 			echo.append("</td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\" colspan=\"2\" align=\"center\">");
-			echo.append("<input type=\"hidden\" name=\"page\" value=\"" + page + "\" />");
-			echo.append("<input type=\"hidden\" name=\"act\" value=\"" + action + "\" />");
+			echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("<input type=\"submit\" value=\"l&ouml;schen\" style=\"width:100px\"/></td></tr>");
 			echo.append("</table>\n");

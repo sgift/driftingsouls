@@ -57,7 +57,7 @@ import java.util.Set;
 @AdminMenuEntry(category="Schiffe", name="hinzuf&uuml;gen")
 public class AddShips implements AdminPlugin {
     @Override
-	public void output(AdminController controller, String page, int action) throws IOException {
+	public void output(AdminController controller) throws IOException {
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
@@ -233,8 +233,7 @@ public class AddShips implements AdminPlugin {
 			echo.append("</td>\n");
 			echo.append("</tr>\n");
 			echo.append("<tr><td class=\"noBorderX\" colspan=\"2\" align=\"center\">\n");
-			echo.append("<input type=\"hidden\" name=\"page\" value=\""+page+"\" />\n");
-			echo.append("<input type=\"hidden\" name=\"act\" value=\""+action+"\" />\n");
+			echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("<br /><input type=\"submit\" value=\"senden\" style=\"width:200px\" />\n");
 			echo.append("</td>\n");

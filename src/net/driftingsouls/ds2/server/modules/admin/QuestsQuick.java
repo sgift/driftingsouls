@@ -18,19 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import javax.script.Bindings;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-import javax.script.ScriptException;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
@@ -43,8 +30,19 @@ import net.driftingsouls.ds2.server.scripting.entities.CompletedQuest;
 import net.driftingsouls.ds2.server.scripting.entities.Quest;
 import net.driftingsouls.ds2.server.scripting.entities.QuickQuest;
 import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
-
 import org.apache.commons.lang.StringUtils;
+
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Ermoeglicht das Verwalten von Quick-Quests.
@@ -54,7 +52,7 @@ import org.apache.commons.lang.StringUtils;
 @AdminMenuEntry(category="Quests", name="QuickQuests")
 public class QuestsQuick implements AdminPlugin {
 	@Override
-	public void output(AdminController controller, String page, int action) throws IOException {
+	public void output(AdminController controller) throws IOException {
 		Context context = ContextMap.getContext();
 		Writer echo = context.getResponse().getWriter();
 
@@ -166,19 +164,16 @@ public class QuestsQuick implements AdminPlugin {
 				echo.append("<tr><td class=\"noBorderX\">"+qquest.getQid()+"</td>\n");
 				echo.append("<td class=\"noBorderX\">&nbsp;&nbsp;&nbsp;" +
 						"<a class=\"forschinfo\" " +
-							"href=\"./ds?module=admin&page="+page+"&act="+action+"&id="+qquest.getId()+"&qact=details\"" +
+							"href=\"./ds?module=admin&namedplugin="+getClass().getName()+"&id="+qquest.getId()+"&qact=details\"" +
 						">"+qquest.getQName()+"</a>" +
 						"&nbsp;&nbsp;&nbsp;</td>\n");
 				echo.append("<td class=\"noBorderX\">");
 				if( qquest.getEnabled() == 0 ) {
-					echo.append("[<a class=\"error\" href=\"./ds?module=admin&page="+page+"&act="+action+"&id="+qquest.getId()+"&qact=enable\">inaktiv</a>]");
+					echo.append("[<a class=\"error\" href=\"./ds?module=admin&namedplugin="+getClass().getName()+"&id="+qquest.getId()+"&qact=enable\">inaktiv</a>]");
 				}
 				else {
-					echo.append("[<a class=\"ok\" href=\"./ds?module=admin&page="+page+"&act="+action+"&id="+qquest.getId()+"&qact=disable\">aktiv</a>]");
+					echo.append("[<a class=\"ok\" href=\"./ds?module=admin&namedplugin="+getClass().getName()+"&id="+qquest.getId()+"&qact=disable\">aktiv</a>]");
 				}
-				/*echo.append(" - [<a class=\"forschinfo\" " +
-				"href=\"./ds?module=admin&sess="+context.getSession()+"&page="+page+"&act="+action+"&id="+qquest.getId()+"&qact=script\"" +
-				">export</a>]");*/
 				echo.append("</td></tr>\n");
 			}
 			echo.append("</table>\n");
