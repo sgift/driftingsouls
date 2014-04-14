@@ -216,56 +216,37 @@ public class AdminController extends Controller
 	/**
 	 * Zeigt die Gui an und fuehrt ein Admin-Plugin (sofern ausgewaehlt) aus.
 	 *
-	 * @param page Der Name der Seite
 	 * @param namedplugin Der exakte Pluginname falls ein bestimmtes Adminplugin ausgefuehrt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(String page, String namedplugin) throws IOException
+	public void defaultAction(String namedplugin) throws IOException
 	{
 		Writer echo = getContext().getResponse().getWriter();
 		echo.append("<div id='admin'>\n");
-		echo.append("<div class='gfxbox' style='width:900px;text-align:center;margin:0px auto'>\n");
-		echo.append("<ui class='menu'>");
-		for (MenuCategory entry : this.menu.values())
+		echo.append("<div class='gfxbox treemenu'>\n");
+		echo.append("<ul>");
+		for (MenuCategory category : this.menu.values())
 		{
-			echo.append("<li><a class=\"forschinfo\" href=\"./ds?module=admin&page=").append(entry.name).append("\">").append(entry.name).append("</a></li>\n");
+			echo.append("<li ").append(category.containsNamedPlugin(namedplugin) ? "class='expanded'" : "").append(">");
+			echo.append("<p>").append(category.name);
+			echo.append("</p><ul>\n");
+			for (MenuEntry entry : category.actions)
+			{
+				boolean active = entry.cls.getName().equals(namedplugin);
+				echo.append("<li><a class=\"forschinfo ").append(active?"active" : "").append("\" href=\"./ds?module=admin&namedplugin=").append(entry.cls.getCanonicalName()).append("\">").append(entry.name).append("</a></li>\n");
+			}
+			echo.append("</ul></li>");
 		}
 		echo.append("</ul>\n");
 		echo.append("</div><br />\n");
 
-		if( !namedplugin.isEmpty() )
-		{
-			page = this.menu.entrySet().stream().filter((e) -> e.getValue().containsNamedPlugin(namedplugin)).map((e) -> e.getKey()).findFirst().get();
-		}
-
-		if (page.length() > 0 || namedplugin.length() > 0)
-		{
-			echo.append("<table class=\"noBorder\"><tr><td class=\"noBorder\" valign=\"top\">\n");
-
-			echo.append("<div class='gfxbox' style='width:250px'>");
-			echo.append("<table width=\"100%\">\n");
-			echo.append("<tr><td align=\"center\">Aktionen:</td></tr>\n");
-			if (this.menu.containsKey(page) && (this.menu.get(page).actions.size() > 0))
-			{
-				SortedSet<MenuEntry> actions = this.menu.get(page).actions;
-				for (MenuEntry entry : actions)
-				{
-					echo.append("<tr><td align=\"left\"><a class=\"forschinfo\" href=\"./ds?module=admin&namedplugin=").append(entry.cls.getCanonicalName()).append("\">").append(entry.name).append("</a></td></tr>\n");
-				}
-			}
-			echo.append("</table>\n");
-			echo.append("</div>");
-
-			echo.append("</td><td class=\"noBorder\" valign=\"top\" width=\"40\">&nbsp;&nbsp;&nbsp;</td>\n");
-			echo.append("<td class=\"noBorder\" valign=\"top\">\n");
-		}
 		if ((namedplugin.length() > 0) && (validPlugins.contains(namedplugin)))
 		{
 			callNamedPlugin(namedplugin);
 		}
 
-		echo.append("</td></tr></table>");
 		echo.append("</div>");
+		echo.append("<script type='text/javascript'>$(document).ready(function() {Admin.initMenu();});</script>");
 	}
 
 	private void callNamedPlugin(String namedplugin)

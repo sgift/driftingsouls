@@ -1,3 +1,69 @@
+#admin {
+	padding-left:300px;
+	position:relative;
+}
+
+/**
+	MENU
+**/
+
+#admin .treemenu
+{
+	position:absolute;
+	left:0;
+	top:0;
+	width:250px;
+}
+
+#admin .treemenu {
+	margin-top:15px;
+}
+
+#admin .treemenu p {
+	margin:0;
+	padding:0;
+	display:inline;
+	color:inherit;
+}
+
+#admin .treemenu ul,
+#admin .treemenu li {
+	list-style: none;
+	margin:0;
+	padding:0;
+	cursor: pointer;
+}
+
+#admin .treemenu li {
+	line-height:140%;
+	text-indent:0;
+	padding-left: 15px;
+}
+
+#admin .treemenu .collapsed:before {
+	content: "+ ";
+	display: inline-block;
+	width:15px;
+}
+
+#admin .treemenu .expanded:before {
+	content: "- ";
+	display: inline-block;
+	width:15px;
+}
+
+#admin .treemenu .active:before {
+	content: "> ";
+}
+
+#admin .treemenu .active {
+	color: #F0A000;
+}
+
+/**
+	FORM
+**/
+
 #admin .adminSelection form {
     display:inline;
 }
