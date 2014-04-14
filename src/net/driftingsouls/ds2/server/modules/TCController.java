@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -231,13 +232,18 @@ public class TCController extends TemplateController
 		}
 
 		User tarUser = tarShip.getOwner();
-
+		
 		// Transfer!
 		offizier.stationierenAuf(tarShip);
 		offizier.setOwner(tarUser);
 
 		ship.recalculateShipStatus();
 		tarShip.recalculateShipStatus();
+		
+		if(tarUser != user){
+			String msg = "Die " + ship.getName() + " ("+ship.getId()+") hat den Offizier " + offizier.getName() + " (" + offizier.getID() + ") an die [ship="+tarShip.getId()+"]"+tarShip.getName() + " ("+tarShip.getId()+")[/ship] &uuml;bergeben.";
+			PM.send(user, tarUser.getId(), "Offizier &uuml;bergeben", msg);
+		}
 	}
 
 	/**

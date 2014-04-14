@@ -144,7 +144,7 @@ public class WellKnownConfigValue<T> implements ConfigValueDescriptor<T>
 	/**
 	 * Die ID des NPCs, der die Begruessungs-PMs bei der Registrierung versendet.
 	 */
-	public static final ConfigValueDescriptor<Integer> REGISTER_PM_SENDER = new WellKnownConfigValue<>(Integer.class, "register_pm_sender", "-16", "Sind Cheats im Kampfsystem erlaubt?");
+	public static final ConfigValueDescriptor<Integer> REGISTER_PM_SENDER = new WellKnownConfigValue<>(Integer.class, "register_pm_sender", "-16", "Absender der Begruessungs-PMs");
 
 	private String name;
 	private String description;
