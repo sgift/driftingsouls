@@ -9,7 +9,6 @@ import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 import org.apache.commons.fileupload.FileItem;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.Date;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -38,7 +37,7 @@ public class DynamicContentFieldGenerator<V> implements CustomFieldGenerator<V>
 	}
 
 	@Override
-	public void generate(Writer echo, V entity) throws IOException
+	public void generate(StringBuilder echo, V entity) throws IOException
 	{
 		echo.append("<tr class='dynamicContentEdit'>");
 
@@ -125,7 +124,7 @@ public class DynamicContentFieldGenerator<V> implements CustomFieldGenerator<V>
 		return this;
 	}
 
-	private void writeCommonDynamicContentPart(Writer echo, String value) throws IOException
+	private void writeCommonDynamicContentPart(StringBuilder echo, String value) throws IOException
 	{
 		echo.append("<td>").append(label).append(": </td>").append("<td>").append(value != null && !value.trim().isEmpty() ? "<img src='" + value + "' />" : "").append("</td>").append("<td>");
 

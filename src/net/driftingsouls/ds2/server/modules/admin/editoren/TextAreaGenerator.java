@@ -3,7 +3,6 @@ package net.driftingsouls.ds2.server.modules.admin.editoren;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -27,7 +26,7 @@ public class TextAreaGenerator<V> implements CustomFieldGenerator<V>
 	}
 
 	@Override
-	public void generate(Writer echo, V entity) throws IOException
+	public void generate(StringBuilder echo, V entity) throws IOException
 	{
 		String value = getter.apply(entity);
 		echo.append("<tr>");

@@ -10,7 +10,6 @@ import javax.annotation.Nonnull;
 import javax.persistence.Entity;
 import java.io.IOException;
 import java.io.Serializable;
-import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -75,7 +74,7 @@ public class MultiSelectionGenerator<E, T> implements CustomFieldGenerator<E>
 	}
 
 	@Override
-	public void generate(Writer echo, E entity) throws IOException
+	public void generate(StringBuilder echo, E entity) throws IOException
 	{
 		echo.append("<tr>");
 		echo.append("<td colspan='2'>").append(label.trim().isEmpty() ? "" : label + ":").append("</td>");
@@ -153,7 +152,7 @@ public class MultiSelectionGenerator<E, T> implements CustomFieldGenerator<E>
 		return result;
 	}
 
-	private void editEntityBySelection(Writer echo, String name, Class<?> type, E entity) throws IOException
+	private void editEntityBySelection(StringBuilder echo, String name, Class<?> type, E entity) throws IOException
 	{
 		echo.append("<select multiple=\"multiple\" size=\"10\" ").append(readOnly.apply(entity) ? "disabled='disabled' " : "").append("name=\"").append(name).append("\">");
 

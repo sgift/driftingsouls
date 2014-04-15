@@ -24,7 +24,6 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.modules.AdminController;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -43,11 +42,10 @@ import java.util.List;
 public class BasesMap implements AdminPlugin 
 {
     @Override
-	public void output(AdminController controller) throws IOException
+	public void output(StringBuilder echo) throws IOException
 	{
 		Context context = ContextMap.getContext();
-		Writer echo = context.getResponse().getWriter();
-		
+
 		int user = context.getRequest().getParameterInt("user");
 		int sysid = context.getRequest().getParameterInt("system");
 		int otherastis = context.getRequest().getParameterInt("otherastis");
@@ -62,10 +60,10 @@ public class BasesMap implements AdminPlugin
 		echo.append("Karte:\n");
 		echo.append("<form action=\"./ds\" method=\"post\">");
 		echo.append("<table class=\"noBorder\" width=\"300\">\n");
-		echo.append("<tr><td class=\"noBorderS\">User:</td><td class=\"noBorderS\"><input type=\"text\" name=\"user\" size=\"10\" value=\""+user+"\" /></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">System:</td><td class=\"noBorderS\"><input type=\"text\" name=\"system\" size=\"10\" value=\""+sysid+"\" /></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">Scale:</td><td class=\"noBorderS\"><input type=\"text\" name=\"scale\" size=\"10\" value=\""+scale+"\" /></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\" colspan=\"2\"><input type=\"checkbox\" name=\"otherastis\" id=\"form_otherastis\" value=\"1\" "+(otherastis != 0 ? "checked=\"checked\"":"")+" /><label for=\"form_otherastis\">Asteroiden anderer Spieler anzeigen</label></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">User:</td><td class=\"noBorderS\"><input type=\"text\" name=\"user\" size=\"10\" value=\"").append(user).append("\" /></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">System:</td><td class=\"noBorderS\"><input type=\"text\" name=\"system\" size=\"10\" value=\"").append(sysid).append("\" /></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">Scale:</td><td class=\"noBorderS\"><input type=\"text\" name=\"scale\" size=\"10\" value=\"").append(scale).append("\" /></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\" colspan=\"2\"><input type=\"checkbox\" name=\"otherastis\" id=\"form_otherastis\" value=\"1\" ").append(otherastis != 0 ? "checked=\"checked\"" : "").append(" /><label for=\"form_otherastis\">Asteroiden anderer Spieler anzeigen</label></td></tr>\n");
 		echo.append("<tr><td class=\"noBorderS\" colspan=\"2\" align=\"center\">\n");
 		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
@@ -82,7 +80,7 @@ public class BasesMap implements AdminPlugin
 				return;
 			}
 			
-			echo.append("<img src=\"./downloads/"+context.getActiveUser().getId()+"/admin.bases.map.png\" alt=\"\" />\n");
+			echo.append("<img src=\"./downloads/").append(context.getActiveUser().getId()).append("/admin.bases.map.png\" alt=\"\" />\n");
 			
 			BufferedImage image = new BufferedImage(system.getWidth()*scale, system.getHeight()*scale, BufferedImage.TYPE_INT_RGB);
 			Color black = new Color(0, 0, 0);
@@ -121,7 +119,7 @@ public class BasesMap implements AdminPlugin
 			}
 			
 			g.setColor(red);
-			List<Object[]> nebel = Common.cast(db.createQuery("select loc.x,loc.y from Nebel where system= :system")
+			List<Object[]> nebel = Common.cast(db.createQuery("select loc.x,loc.y from Nebel where loc.system= :system")
 				.setInteger("system", system.getID())
 				.list());
 			for( Object[] aNebel : nebel ) 
@@ -140,9 +138,9 @@ public class BasesMap implements AdminPlugin
 			
 			g.setColor(blue);
 			Location[] locs = system.getOrderLocations();
-			for( int i=0; i < locs.length; i++ ) 
+			for (Location loc : locs)
 			{
-				g.fillRect(locs[i].getX()*scale, locs[i].getY()*scale, scale, scale);
+				g.fillRect(loc.getX() * scale, loc.getY() * scale, scale, scale);
 			}
 			g.dispose();
 			
@@ -161,7 +159,7 @@ public class BasesMap implements AdminPlugin
 			}
 			catch( IOException e ) 
 			{
-				echo.append("Konnte png nicht schreiben: "+e);
+				echo.append("Konnte png nicht schreiben: ").append(e);
 			}
 		}
 	}

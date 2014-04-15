@@ -4,8 +4,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 
 import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,7 +38,7 @@ public class EditorForm8<E>
 	}
 
 	private final EditorMode modus;
-	private Writer echo;
+	private StringBuilder echo;
 	private Class<? extends AdminPlugin> plugin;
 	private List<CustomFieldGenerator<E>> fields = new ArrayList<>();
 	private int counter;
@@ -48,7 +46,7 @@ public class EditorForm8<E>
 	private Function<E,Boolean> allowUpdate;
 	private List<Job<E,?>> updateTasks = new ArrayList<>();
 
-	public EditorForm8(EditorMode modus, Class<? extends AdminPlugin> plugin, Writer echo)
+	public EditorForm8(EditorMode modus, Class<? extends AdminPlugin> plugin, StringBuilder echo)
 	{
 		this.modus = modus;
 		this.echo = echo;
@@ -270,7 +268,7 @@ public class EditorForm8<E>
 		{
 			return this;
 		}
-		return new EditorForm8<>(EditorMode.CREATE, plugin, new StringWriter());
+		return new EditorForm8<>(EditorMode.CREATE, plugin, new StringBuilder());
 	}
 
 	public EditorForm8<E> ifUpdating()
@@ -279,6 +277,6 @@ public class EditorForm8<E>
 		{
 			return this;
 		}
-		return new EditorForm8<>(EditorMode.UPDATE, plugin, new StringWriter());
+		return new EditorForm8<>(EditorMode.UPDATE, plugin, new StringBuilder());
 	}
 }

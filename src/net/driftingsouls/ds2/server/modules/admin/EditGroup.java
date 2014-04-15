@@ -24,13 +24,11 @@ import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import org.hibernate.Query;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,10 +47,9 @@ public class EditGroup implements AdminPlugin
 	private static int MAX_WEAPONS = 100;
 	
 	@Override
-	public void output(AdminController controller) throws IOException
+	public void output(StringBuilder echo) throws IOException
 	{
 		Context context = ContextMap.getContext();
-		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
 		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
 		
@@ -68,7 +65,7 @@ public class EditGroup implements AdminPlugin
 		echo.append("<select size=\"1\" name=\"shiptype\">");
 		for (ShipType shiptype : shiptypes)
 		{
-			echo.append("<option value=\"" + shiptype.getId() + "\" " + (shiptype.getId() == shiptypeId ? "selected=\"selected\"" : "") + ">" + shiptype.getNickname() + "</option>");
+			echo.append("<option value=\"").append(shiptype.getId()).append("\" ").append(shiptype.getId() == shiptypeId ? "selected=\"selected\"" : "").append(">").append(shiptype.getNickname()).append("</option>");
 		}
 		echo.append("</select>");
 		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
@@ -162,38 +159,38 @@ public class EditGroup implements AdminPlugin
 			echo.append("<table class=\"noBorder\" width=\"100%\">");
 			echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-			echo.append("<input type=\"hidden\" name=\"shiptype\" value=\"" + shiptypeId + "\" />\n");
+			echo.append("<input type=\"hidden\" name=\"shiptype\" value=\"").append(shiptypeId).append("\" />\n");
 			echo.append("<tr><td class=\"noBorderS\">Wo: </td><td><select size=\"1\" name=\"groupoption\" \">");
 			for(Map.Entry<Integer, String> groupOption: groupOptions.entrySet())
 			{
-				echo.append("<option value=\""+ groupOption.getKey() +"\"/>"+groupOption.getValue()+"</option>");
+				echo.append("<option value=\"").append(groupOption.getKey()).append("\"/>").append(groupOption.getValue()).append("</option>");
 			}
 			echo.append("</select></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">System: </td><td><input type=\"text\" name=\"system\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">x: </td><td><input type=\"text\" name=\"x\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">y: </td><td><input type=\"text\" name=\"y\"></td></tr>\n");
 			echo.append("<tr></tr>");
-			echo.append("<tr><td class=\"noBorderS\">Huelle: </td><td><input type=\"text\" name=\"hull\" value=\"" + type.getHull() + "\"></td><td class=\"noBorderS\">/ "+type.getHull()+"</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Ablative Panzerung: </td><td><input type=\"text\" name=\"ablativearmor\" value=\"" + type.getAblativeArmor() + "\"></td><td class=\"noBorderS\">/ "+type.getAblativeArmor()+"</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Schilde: </td><td><input type=\"text\" name=\"shields\" value=\"" + type.getShields() + "\"></td><td class=\"noBorderS\">/ "+type.getShields()+"</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Crew: </td><td><input type=\"text\" name=\"crew\" value=\"" + type.getCrew() + "\"></td><td class=\"noBorderS\">/ "+type.getCrew()+"</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Energie: </td><td><input type=\"text\" name=\"energy\" value=\"" + type.getEps() + "\"></td><td class=\"noBorderS\">/ "+type.getEps()+"</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Sensoren: </td><td><input type=\"text\" name=\"sensors\" value=\"" + MAX_SENSORS + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Antrieb: </td><td><input type=\"text\" name=\"engine\" value=\"" + MAX_ENGINE + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Kommunikation: </td><td><input type=\"text\" name=\"comm\" value=\"" + MAX_COMM + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Waffen: </td><td><input type=\"text\" name=\"weapons\" value=\"" + MAX_WEAPONS + "\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Huelle: </td><td><input type=\"text\" name=\"hull\" value=\"").append(type.getHull()).append("\"></td><td class=\"noBorderS\">/ ").append(type.getHull()).append("</td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Ablative Panzerung: </td><td><input type=\"text\" name=\"ablativearmor\" value=\"").append(type.getAblativeArmor()).append("\"></td><td class=\"noBorderS\">/ ").append(type.getAblativeArmor()).append("</td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Schilde: </td><td><input type=\"text\" name=\"shields\" value=\"").append(type.getShields()).append("\"></td><td class=\"noBorderS\">/ ").append(type.getShields()).append("</td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Crew: </td><td><input type=\"text\" name=\"crew\" value=\"").append(type.getCrew()).append("\"></td><td class=\"noBorderS\">/ ").append(type.getCrew()).append("</td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Energie: </td><td><input type=\"text\" name=\"energy\" value=\"").append(type.getEps()).append("\"></td><td class=\"noBorderS\">/ ").append(type.getEps()).append("</td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Sensoren: </td><td><input type=\"text\" name=\"sensors\" value=\"").append(MAX_SENSORS).append("\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Antrieb: </td><td><input type=\"text\" name=\"engine\" value=\"").append(MAX_ENGINE).append("\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Kommunikation: </td><td><input type=\"text\" name=\"comm\" value=\"").append(MAX_COMM).append("\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Waffen: </td><td><input type=\"text\" name=\"weapons\" value=\"").append(MAX_WEAPONS).append("\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Hitze: </td><td><input type=\"text\" name=\"heat\" value=\"0\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Alarm: </td><td><select size=\"1\" name=\"alarm\" \">");
 			for(Map.Entry<Integer, String> alarm: alarms.entrySet())
 			{
-				echo.append("<option value=\""+ alarm.getKey() +"\"/>"+alarm.getValue()+"</option>");
+				echo.append("<option value=\"").append(alarm.getKey()).append("\"/>").append(alarm.getValue()).append("</option>");
 			}
 			echo.append("</select></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\"></td><td class=\"noBorderS\">Menge</td><td class=\"noBorderS\">Nutzungen</td></tr>");
 			for(Item item: itemlist)
 			{
 				int uses = 0;
-				echo.append("<tr><td class=\"noBorderS\"><img src=\""+item.getPicture()+"\" alt=\"\" />"+item.getName()+": </td><td><input type=\"text\" name=\"i"+item.getID()+"\"></td><td><input type=\"text\" name=\"i"+item.getID()+"u\" value=\"" + uses + "\"></td></tr>");
+				echo.append("<tr><td class=\"noBorderS\"><img src=\"").append(item.getPicture()).append("\" alt=\"\" />").append(item.getName()).append(": </td><td><input type=\"text\" name=\"i").append(item.getID()).append("\"></td><td><input type=\"text\" name=\"i").append(item.getID()).append("u\" value=\"").append(uses).append("\"></td></tr>");
 			}
 			echo.append("<tr><td class=\"noBorderS\"></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
 			echo.append("</table>");

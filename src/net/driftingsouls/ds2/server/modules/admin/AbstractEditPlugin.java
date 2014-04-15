@@ -8,14 +8,12 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DynamicContent;
 import net.driftingsouls.ds2.server.framework.DynamicContentManager;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
-import net.driftingsouls.ds2.server.modules.AdminController;
 import org.apache.commons.fileupload.FileItem;
 import org.hibernate.Session;
 
 import javax.persistence.Entity;
 import java.io.IOException;
 import java.io.Serializable;
-import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -38,12 +36,10 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 	}
 
 	@Override
-	public final void output(AdminController controller) throws IOException
+	public final void output(StringBuilder echo) throws IOException
 	{
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
-
-		Writer echo = context.getResponse().getWriter();
 
 		Request request = context.getRequest();
 		int entityId = request.getParameterInt("entityId");
@@ -114,9 +110,9 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 
 	public class DefaultStatusWriter implements StatusWriter
 	{
-		private Writer echo;
+		private StringBuilder echo;
 
-		public DefaultStatusWriter(Writer echo)
+		public DefaultStatusWriter(StringBuilder echo)
 		{
 			this.echo = echo;
 		}
@@ -124,14 +120,7 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 		@Override
 		public StatusWriter append(String text)
 		{
-			try
-			{
-				this.echo.append(text);
-			}
-			catch (IOException e)
-			{
-				throw new IllegalStateException(e);
-			}
+			this.echo.append(text);
 			return this;
 		}
 	}
@@ -245,7 +234,7 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 		}
 	}
 
-	private void beginSelectionBox(Writer echo) throws IOException
+	private void beginSelectionBox(StringBuilder echo) throws IOException
 	{
 		echo.append("<div class='gfxbox adminSelection' style='width:390px'>");
 		echo.append("<form action=\"./ds\" method=\"post\">");
@@ -254,7 +243,7 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 		echo.append("<select size=\"1\" name=\"entityId\">");
 	}
 
-	private void addSelectionOption(Writer echo, Object id, String label) throws IOException
+	private void addSelectionOption(StringBuilder echo, Object id, String label) throws IOException
 	{
 		Context context = ContextMap.getContext();
 		String currentIdStr = context.getRequest().getParameter("entityId");
@@ -263,7 +252,7 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 		echo.append("<option value=\"").append(idStr).append("\" ").append(idStr.equals(currentIdStr) ? "selected=\"selected\"" : "").append(">").append(label).append("</option>");
 	}
 
-	private void endSelectionBox(Writer echo) throws IOException
+	private void endSelectionBox(StringBuilder echo) throws IOException
 	{
 		echo.append("</select>");
 		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
@@ -271,7 +260,7 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 		echo.append("</div>");
 	}
 
-	private EditorForm beginEditorTable(final Writer echo, Object entityId) throws IOException
+	private EditorForm beginEditorTable(final StringBuilder echo, Object entityId) throws IOException
 	{
 		echo.append("<div class='gfxbox adminEditor' style='width:700px'>");
 		echo.append("<form action=\"./ds\" method=\"post\" enctype='multipart/form-data'>");

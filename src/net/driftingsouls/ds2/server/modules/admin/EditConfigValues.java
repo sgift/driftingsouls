@@ -5,10 +5,8 @@ import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.modules.AdminController;
 
 import java.io.IOException;
-import java.io.Writer;
 
 /**
  * Ein Tool, um die diversen globalen Konfigurationswerte zu aendern.
@@ -20,10 +18,9 @@ public class EditConfigValues implements AdminPlugin
 {
 	@Override
 	@SuppressWarnings("unchecked")
-	public void output(AdminController controller) throws IOException
+	public void output(StringBuilder echo) throws IOException
 	{
 		Context context = ContextMap.getContext();
-		Writer echo = context.getResponse().getWriter();
 
 		WellKnownConfigValue[] configValues = WellKnownConfigValue.values();
 		ConfigService configService = new ConfigService();

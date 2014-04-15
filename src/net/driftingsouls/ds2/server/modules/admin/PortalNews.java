@@ -22,11 +22,9 @@ import net.driftingsouls.ds2.server.entities.NewsEntry;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.modules.AdminController;
 import org.hibernate.Session;
 
 import java.io.IOException;
-import java.io.Writer;
 
 /**
  * Ermoeglicht das Verfassen von neuen News im Portal.
@@ -36,10 +34,9 @@ import java.io.Writer;
 @AdminMenuEntry(category="Portal", name="News schreiben")
 public class PortalNews implements AdminPlugin {
 	@Override
-	public void output(AdminController controller) throws IOException {
+	public void output(StringBuilder echo) throws IOException {
 		Context context = ContextMap.getContext();
-		Writer echo = context.getResponse().getWriter();
-		
+
 		String news = context.getRequest().getParameterString("news");
 		String title = context.getRequest().getParameterString("title");
 		String shortDescription = context.getRequest().getParameterString("shortdescription");

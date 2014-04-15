@@ -23,12 +23,10 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.authentication.AuthenticationException;
 import net.driftingsouls.ds2.server.framework.authentication.AuthenticationManager;
-import net.driftingsouls.ds2.server.modules.AdminController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.io.IOException;
-import java.io.Writer;
 
 /**
  * Ermoeglicht das Einloggen in einen anderen Account ohne Passwort.
@@ -50,10 +48,9 @@ public class PlayerLoginSuper implements AdminPlugin {
 	}
 	
 	@Override
-	public void output(AdminController controller) throws IOException {
+	public void output(StringBuilder echo) throws IOException {
 		Context context = ContextMap.getContext();
-		Writer echo = context.getResponse().getWriter();
-		
+
 		int user = context.getRequest().getParameterInt("user");
 		int usesessid = context.getRequest().getParameterInt("usesessid");
 		

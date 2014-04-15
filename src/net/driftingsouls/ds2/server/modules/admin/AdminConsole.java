@@ -24,11 +24,9 @@ import com.google.gson.JsonPrimitive;
 import net.driftingsouls.ds2.server.AdminCommands;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.modules.AdminController;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
-import java.io.Writer;
 
 /**
  * Ermoeglicht das Absetzen von Admin-Kommandos.
@@ -38,10 +36,9 @@ import java.io.Writer;
 @AdminMenuEntry(category="Sonstiges", name="Admin-Konsole")
 public class AdminConsole implements AdminPlugin {
 	@Override
-	public void output(AdminController controller) throws IOException {
+	public void output(StringBuilder echo) throws IOException {
 		Context context = ContextMap.getContext();
-		Writer echo = context.getResponse().getWriter();
-		
+
 		String cmd = context.getRequest().getParameterString("cmd");
 		int responseOnly = context.getRequest().getParameterInt("responseOnly");
 

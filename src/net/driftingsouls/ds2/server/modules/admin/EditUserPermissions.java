@@ -22,10 +22,8 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Permission;
-import net.driftingsouls.ds2.server.modules.AdminController;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.stream.Collectors;
 
 /**
@@ -37,10 +35,9 @@ import java.util.stream.Collectors;
 public class EditUserPermissions implements AdminPlugin
 {
 	@Override
-	public void output(AdminController controller) throws IOException
+	public void output(StringBuilder echo) throws IOException
 	{
 		Context context = ContextMap.getContext();
-		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
 
 		int userid = context.getRequest().getParameterInt("userid");
@@ -55,7 +52,7 @@ public class EditUserPermissions implements AdminPlugin
 		echo.append("<form action=\"./ds\" method=\"post\">");
 		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-		echo.append("User: <input type=\"text\" name=\"userid\" value=\""+ userid +"\" />\n");
+		echo.append("User: <input type=\"text\" name=\"userid\" value=\"").append(userid).append("\" />\n");
 		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
 		echo.append("</form>");
 		echo.append("</div>");
@@ -117,14 +114,14 @@ public class EditUserPermissions implements AdminPlugin
 			echo.append("<tbody>");
 			for( Permission p : user.getPermissions().stream().sorted().collect(Collectors.toList()) )
 			{
-				echo.append("<tr><td>"+p.getCategory()+"</td><td>"+p.getAction()+"</td>");
+				echo.append("<tr><td>").append(p.getCategory()).append("</td><td>").append(p.getAction()).append("</td>");
 				echo.append("<td>");
 				echo.append("<form action=\"./ds\" method=\"post\">");
 				echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 				echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-				echo.append("<input type=\"hidden\" name=\"userid\" value=\"" + userid + "\" />\n");
-				echo.append("<input type=\"hidden\" name=\"paction\" value=\"" + p.getAction() + "\" />\n");
-				echo.append("<input type=\"hidden\" name=\"pcategory\" value=\"" + p.getCategory() + "\" />\n");
+				echo.append("<input type=\"hidden\" name=\"userid\" value=\"").append(userid).append("\" />\n");
+				echo.append("<input type=\"hidden\" name=\"paction\" value=\"").append(p.getAction()).append("\" />\n");
+				echo.append("<input type=\"hidden\" name=\"pcategory\" value=\"").append(p.getCategory()).append("\" />\n");
 				echo.append("<input type='submit' name='change' value='löschen' />");
 				echo.append("</form>");
 				echo.append("</td></tr>");
@@ -141,7 +138,7 @@ public class EditUserPermissions implements AdminPlugin
 			echo.append("<td>");
 			echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-			echo.append("<input type=\"hidden\" name=\"userid\" value=\"" + userid + "\" />\n");
+			echo.append("<input type=\"hidden\" name=\"userid\" value=\"").append(userid).append("\" />\n");
 			echo.append("<input type='submit' name='change' value='hinzufügen' />");
 			echo.append("</form>\n");
 			echo.append("</td></tr></tfoot></table>");

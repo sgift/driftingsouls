@@ -31,7 +31,6 @@ import net.driftingsouls.ds2.server.entities.npcorders.OrderableOffizier;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
@@ -41,7 +40,6 @@ import net.driftingsouls.ds2.server.werften.ShipWerft;
 import org.apache.commons.lang.math.RandomUtils;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -57,9 +55,8 @@ import java.util.Set;
 @AdminMenuEntry(category="Schiffe", name="hinzuf&uuml;gen")
 public class AddShips implements AdminPlugin {
     @Override
-	public void output(AdminController controller) throws IOException {
+	public void output(StringBuilder echo) throws IOException {
 		Context context = ContextMap.getContext();
-		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
 		User user = (User)context.getActiveUser();
 
@@ -67,24 +64,24 @@ public class AddShips implements AdminPlugin {
 		int count = context.getRequest().getParameterInt("count");
 
 		if( shipTypeId == 0 ) {
-			List<ShipType> stlist = new ArrayList<ShipType>();
+			List<ShipType> stlist = new ArrayList<>();
 
 			echo.append("<script type=\"text/javascript\">\n");
 			echo.append("<!--\n");
 			echo.append("var shipdata = new Array();\n");
 
-			Set<String> knownwpntypes = new HashSet<String>();
+			Set<String> knownwpntypes = new HashSet<>();
 
 			final Iterator<?> shipTypeIter = db.createQuery("from ShipType order by id").iterate();
 			while( shipTypeIter.hasNext() ) {
 				ShipType st = (ShipType)shipTypeIter.next();
 
 				stlist.add(st);
-				echo.append("shipdata["+st.getId()+"] = Array();\n");
-				echo.append("shipdata["+st.getId()+"][0] = "+st.getJDocks()+";\n");
-				echo.append("shipdata["+st.getId()+"][1] = Array();\n");
+				echo.append("shipdata[").append(st.getId()).append("] = Array();\n");
+				echo.append("shipdata[").append(st.getId()).append("][0] = ").append(st.getJDocks()).append(";\n");
+				echo.append("shipdata[").append(st.getId()).append("][1] = Array();\n");
 
-				Set<String> thisammolist = new HashSet<String>();
+				Set<String> thisammolist = new HashSet<>();
 				int i = 0;
 				Map<String,String> weapons = Weapons.parseWeaponList(st.getWeapons());
 				for( String weapon : weapons.keySet() ) {
@@ -99,7 +96,7 @@ public class AddShips implements AdminPlugin {
 						knownwpntypes.add(ammotype);
 						if( !thisammolist.contains(ammotype) ) {
 							thisammolist.add(ammotype);
-							echo.append("shipdata["+st.getId()+"][1]["+(i++)+"] = \""+ammotype+"\";\n");
+							echo.append("shipdata[").append(st.getId()).append("][1][").append(i++).append("] = \"").append(ammotype).append("\";\n");
 						}
 					}
 				}
@@ -108,7 +105,7 @@ public class AddShips implements AdminPlugin {
 			echo.append("var ammodata = Array();\n");
 			int i = 0;
 			for( String ammo : knownwpntypes ) {
-				echo.append("ammodata["+(i++)+"] = \""+ammo+"\"\n");
+				echo.append("ammodata[").append(i++).append("] = \"").append(ammo).append("\"\n");
 			}
 
 			echo.append("-->\n");
@@ -123,7 +120,7 @@ public class AddShips implements AdminPlugin {
 			echo.append("<td class=\"noBorderX\">");
 			echo.append("<select name=\"ship\" size=\"1\" onchange=\"Admin_AddShips.shipSelectChange(this.options[this.options.selectedIndex].value)\">");
 			for( i=0; i < stlist.size(); i++ ) {
-				echo.append("<option value=\""+stlist.get(i).getId()+"\">"+Common._plaintitle(stlist.get(i).getNickname())+" ("+stlist.get(i).getId()+")</option>\n");
+				echo.append("<option value=\"").append(stlist.get(i).getId()).append("\">").append(Common._plaintitle(stlist.get(i).getNickname())).append(" (").append(stlist.get(i).getId()).append(")</option>\n");
 			}
 			echo.append("</select>\n");
 			echo.append("</td>\n");
@@ -151,15 +148,15 @@ public class AddShips implements AdminPlugin {
 			echo.append("<td class=\"noBorderX\">\n");
 			echo.append("<div id=\"tbl_ammo_div\" style=\"margin:0px;border:0px;padding:0px;position:relative;top:0px;left:0px;\">\n");
 			for( String ammo : knownwpntypes ) {
-				echo.append("<div style=\"margin:0px;border:0px;padding:0px;display:inline;position:absolute;top:0px;left:0px\" id=\"select_ammo_"+ammo+"\">\n");
-				echo.append("<select id=\"select_ammo_"+ammo+"_element\" name=\"ammo_"+ammo+"\" size=\"1\">\n");
+				echo.append("<div style=\"margin:0px;border:0px;padding:0px;display:inline;position:absolute;top:0px;left:0px\" id=\"select_ammo_").append(ammo).append("\">\n");
+				echo.append("<select id=\"select_ammo_").append(ammo).append("_element\" name=\"ammo_").append(ammo).append("\" size=\"1\">\n");
 				echo.append("<option id=\"0\">[Nichts]</option>\n");
 				final Iterator<?> ammoIter = db.createQuery("from Ammo where type= :ammo")
 					.setString("ammo", ammo)
 					.iterate();
 				while( ammoIter.hasNext() ) {
 					Ammo ammoObj = (Ammo)ammoIter.next();
-					echo.append("<option value=\""+ammoObj.getItemId()+"\">"+Common._plaintitle(ammoObj.getName())+"</option>\n");
+					echo.append("<option value=\"").append(ammoObj.getItemId()).append("\">").append(Common._plaintitle(ammoObj.getName())).append("</option>\n");
 				}
 				echo.append("</select>\n");
 				echo.append("</div>\n");
@@ -173,9 +170,10 @@ public class AddShips implements AdminPlugin {
 			echo.append("<select name=\"offitype\" size=\"1\">\n");
 			echo.append("<option value=\"-1\" selected=\"selected\">keiner</option>\n");
 			List<?> orderOffiList = db.createQuery("from OrderableOffizier").list();
-			for( Iterator<?> iter=orderOffiList.iterator(); iter.hasNext(); ) {
-				OrderableOffizier offi = (OrderableOffizier)iter.next();
-				echo.append("<option value=\""+offi.getId()+"\">"+offi.getName()+"</option>\n");
+			for (Object anOrderOffiList : orderOffiList)
+			{
+				OrderableOffizier offi = (OrderableOffizier) anOrderOffiList;
+				echo.append("<option value=\"").append(offi.getId()).append("\">").append(offi.getName()).append("</option>\n");
 			}
 			echo.append("</select>\n");
 			echo.append("<input type=\"text\" name=\"offiname\" value=\"Captain\" />\n");
@@ -191,7 +189,7 @@ public class AddShips implements AdminPlugin {
 				.iterate();
 			while( jaegerIter.hasNext() ) {
 				ShipType st = (ShipType)jaegerIter.next();
-				echo.append("<option value=\""+st.getId()+"\">"+Common._plaintitle(st.getNickname())+" ("+st.getId()+")</option>\n");
+				echo.append("<option value=\"").append(st.getId()).append("\">").append(Common._plaintitle(st.getNickname())).append(" (").append(st.getId()).append(")</option>\n");
 			}
 			echo.append("</select>\n");
 			echo.append("</td>\n");
@@ -201,15 +199,15 @@ public class AddShips implements AdminPlugin {
 			echo.append("<td class=\"noBorderX\">\n");
 			echo.append("<div id=\"tbl_jaeger_ammo_div\" style=\"margin:0px;border:0px;padding:0px;position:relative;top:0px;left:0px;\">\n");
 			for( String ammo : knownwpntypes ) {
-				echo.append("<div style=\"margin:0px;border:0px;padding:0px;display:inline;position:absolute;top:0px;left:0px\" id=\"select_jaeger_ammo_"+ammo+"\">\n");
-				echo.append("<select name=\"jaeger_ammo_"+ammo+"\" size=\"1\">\n");
+				echo.append("<div style=\"margin:0px;border:0px;padding:0px;display:inline;position:absolute;top:0px;left:0px\" id=\"select_jaeger_ammo_").append(ammo).append("\">\n");
+				echo.append("<select name=\"jaeger_ammo_").append(ammo).append("\" size=\"1\">\n");
 				echo.append("<option id=\"0\">[Nichts]</option>\n");
 				final Iterator<?> ammoIter = db.createQuery("from Ammo where type= :ammo")
 					.setString("ammo", ammo)
 					.iterate();
 				while( ammoIter.hasNext() ) {
 					Ammo ammoObj = (Ammo)ammoIter.next();
-					echo.append("<option value=\""+ammoObj.getItemId()+"\">"+Common._plaintitle(ammoObj.getName())+"</option>\n");
+					echo.append("<option value=\"").append(ammoObj.getItemId()).append("\">").append(Common._plaintitle(ammoObj.getName())).append("</option>\n");
 				}
 				echo.append("</select>\n");
 				echo.append("</div>\n");
@@ -319,7 +317,7 @@ public class AddShips implements AdminPlugin {
 					db.persist(werft);
 				}
 
-				echo.append("<a href='ds?module=schiff&action=default&ship="+ship.getId()+"'>Schiff ("+ship.getId()+")</a> hinzugef&uuml;gt<br />");
+				echo.append("<a href='ds?module=schiff&action=default&ship=").append(ship.getId()).append("'>Schiff (").append(ship.getId()).append(")</a> hinzugef&uuml;gt<br />");
 
 				// Offizier einfuegen
 				if( (offitype > 0) && (offiname.length() > 0) &&
@@ -338,7 +336,7 @@ public class AddShips implements AdminPlugin {
 						offizier.setSpecial(Offizier.Special.values()[RandomUtils.nextInt(Offizier.Special.values().length)]);
 						db.persist(offizier);
 
-						echo.append("Offizier '"+offiname+"' hinzugef&uuml;gt<br />\n");
+						echo.append("Offizier '").append(offiname).append("' hinzugef&uuml;gt<br />\n");
 					}
 				}
 
@@ -402,7 +400,7 @@ public class AddShips implements AdminPlugin {
 
 						jaeger.recalculateShipStatus();
 
-						echo.append("J&auml;ger ("+jaeger.getId()+") hinzugef&uuml;gt<br />");
+						echo.append("J&auml;ger (").append(jaeger.getId()).append(") hinzugef&uuml;gt<br />");
 					} // For jdocks
 				} // if Jaeger
 

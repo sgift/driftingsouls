@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.config.items.effects;
 
 import java.io.IOException;
-import java.io.Writer;
 
 import net.driftingsouls.ds2.server.framework.Context;
 
@@ -61,7 +60,7 @@ public class IEDisableIFF extends ItemEffect {
 	 * @throws IOException Exception falls ein fehler auftritt
 	 */
 	@Override
-	public void getAdminTool(Writer echo) throws IOException {
+	public void getAdminTool(StringBuilder echo) throws IOException {
 		
 		echo.append("<input type=\"hidden\" name=\"type\" value=\"disable-iff\" >");
 	}

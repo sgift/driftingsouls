@@ -23,13 +23,11 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
 import net.driftingsouls.ds2.server.ships.Ship;
 import org.hibernate.Session;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.List;
 
 /**
@@ -40,9 +38,8 @@ import java.util.List;
 @AdminMenuEntry(category="Quests", name="Handler")
 public class QuestsHandler implements AdminPlugin {
 	@Override
-	public void output(AdminController controller) throws IOException {
+	public void output(StringBuilder echo) throws IOException {
 		Context context = ContextMap.getContext();
-		Writer echo = context.getResponse().getWriter();
 
 		int save = context.getRequest().getParameterInt("save");
 		String event = context.getRequest().getParameterString("event");
@@ -80,11 +77,11 @@ public class QuestsHandler implements AdminPlugin {
 			for( Object obj : ships )
 			{
 				Ship ship = (Ship)obj;
-				echo.append("* <a class=\"forschinfo\" href=\""+URLBASE+"&event=oncommunicate&oid="+ship.getId()+"\">");
+				echo.append("* <a class=\"forschinfo\" href=\"").append(URLBASE).append("&event=oncommunicate&oid=").append(ship.getId()).append("\">");
 
 				User owner = ship.getOwner();
 
-				echo.append(ship.getName()+" ("+ship.getId()+") ["+Common._title(owner.getName())+"]");
+				echo.append(ship.getName()).append(" (").append(ship.getId()).append(") [").append(Common._title(owner.getName())).append("]");
 
 				echo.append("</a><br />\n");
 			}
@@ -96,11 +93,11 @@ public class QuestsHandler implements AdminPlugin {
 			for( Object obj : rquests )
 			{
 				RunningQuest rquest = (RunningQuest)obj;
-				echo.append("* <a class=\"forschinfo\" href=\""+URLBASE+"&event=ontick_rquest&oid="+rquest.getId()+"\">");
+				echo.append("* <a class=\"forschinfo\" href=\"").append(URLBASE).append("&event=ontick_rquest&oid=").append(rquest.getId()).append("\">");
 
 				User owner = rquest.getUser();
 
-				echo.append(rquest.getQuest().getName()+" ("+rquest.getId()+") ["+Common._title(owner.getName())+"]");
+				echo.append(rquest.getQuest().getName()).append(" (").append(rquest.getId()).append(") [").append(Common._title(owner.getName())).append("]");
 
 				echo.append("</a><br />\n");
 			}
@@ -112,12 +109,12 @@ public class QuestsHandler implements AdminPlugin {
 			for( Object obj : battles )
 			{
 				Battle battle = (Battle)obj;
-				echo.append("* <a class=\"forschinfo\" href=\""+URLBASE+"&event=onendbattle&oid="+battle.getId()+"\">");
+				echo.append("* <a class=\"forschinfo\" href=\"").append(URLBASE).append("&event=onendbattle&oid=").append(battle.getId()).append("\">");
 
 				User com1 = battle.getCommander(0);
 				User com2 = battle.getCommander(1);
 
-				echo.append(battle.getSystem()+":"+battle.getX()+"/"+battle.getY()+" ("+battle.getId()+") ["+Common._title(com1.getName())+" vs "+Common._title(com2.getName())+"]");
+				echo.append(battle.getSystem()).append(":").append(battle.getX()).append("/").append(battle.getY()).append(" (").append(battle.getId()).append(") [").append(Common._title(com1.getName())).append(" vs ").append(Common._title(com2.getName())).append("]");
 
 				echo.append("</a><br />\n");
 			}

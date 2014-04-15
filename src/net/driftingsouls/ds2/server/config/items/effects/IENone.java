@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.config.items.effects;
 
 import java.io.IOException;
-import java.io.Writer;
 
 
 /**
@@ -38,7 +37,7 @@ public class IENone extends ItemEffect {
 	 * @throws IOException Exception falls ein fehler auftritt
 	 */
 	@Override
-	public void getAdminTool(Writer echo) throws IOException {
+	public void getAdminTool(StringBuilder echo) throws IOException {
 	}
 	
 	/**

@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.config.items.effects;
 
 import java.io.IOException;
-import java.io.Writer;
 
 import net.driftingsouls.ds2.server.entities.Ammo;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -95,7 +94,7 @@ public class IEAmmo extends ItemEffect {
 	 * @throws IOException Exception falls ein fehler auftritt
 	 */
 	@Override
-	public void getAdminTool(Writer echo) throws IOException {
+	public void getAdminTool(StringBuilder echo) throws IOException {
 		
 		echo.append("<input type=\"hidden\" name=\"type\" value=\"ammo\" >");
 		echo.append("<tr><td class=\"noBorderS\">AmmoId: </td><td><input type=\"text\" name=\"ammoid\" value=\"" + ammoId + "\"></td></tr>\n");

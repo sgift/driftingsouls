@@ -18,12 +18,10 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import java.io.IOException;
-import java.io.Writer;
-
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.modules.AdminController;
+
+import java.io.IOException;
 
 /**
  * Erweiterte Spielerstatistik.
@@ -34,50 +32,52 @@ import net.driftingsouls.ds2.server.modules.AdminController;
 public class PlayerStatistics implements AdminPlugin {
 
 	@Override
-	public void output(AdminController controller) throws IOException
+	public void output(StringBuilder echo) throws IOException
 	{
-		Context context = ContextMap.getContext();
-		Writer echo = context.getResponse().getWriter();
+		echo.append("<div class='gfxbox' style='width:700px'>");
+		echo.append("<script type='text/javascript'>$(document).ready(function(){");
+		echo.append("var data = [");
+		echo.append(
+				getJsValue(
+						"Aktive Spieler (<=49 Ticks)",
+						"select count(*) from User where inakt<=49 and id>4 and (vaccount=0 OR wait4vac>0)")
+		);
+		echo.append(",");
+		echo.append(
+				getJsValue(
+						"tw. aktive Spieler (50 - 98 Ticks)",
+						"select count(*) from User where inakt>49 and inakt<=98 and id>4 and (vaccount=0 OR wait4vac>0)")
+		);
+		echo.append(",");
+		echo.append(
+				getJsValue(
+						"tw. inaktive Spieler (99 - 299 Ticks)",
+						"select count(*) from User where inakt>98 and inakt<300 and id>4 and (vaccount=0 OR wait4vac>0)")
+		);
+		echo.append(",");
+		echo.append(
+				getJsValue(
+						"Inaktive Spieler (>=300 Ticks)",
+						"select count(*) from User where inakt>=300 and id>4 and (vaccount=0 OR wait4vac>0)")
+		);
+		echo.append(",");
+		echo.append(
+				getJsValue(
+						"Spieler in Vacation",
+						"select count(*) from User where id>4 and (vaccount>0 AND wait4vac=0)")
+		);
+		echo.append("];\n");
+		echo.append("var plot = DS.plot('chart1', [data], { title:'Spieler', seriesDefaults : {");
+		echo.append("renderer: $.jqplot.PieRenderer, rendererOptions:{showDataLabels:true, dataLabels:'value', dataLabelThreshold:0}}, ");
+		echo.append("legend:{show:true, location:'e'},");
+		echo.append("highlighter: {show:true}");
+		echo.append("});");
+		echo.append("});</script>");
+		echo.append("<div id='chart1' style='height:300px'></div>");
 
-		echo.write("<div class='gfxbox' style='width:700px'>");
-		echo.write("<script type='text/javascript'>$(document).ready(function(){");
-		echo.write("var data = [");
-		echo.write(
-			getJsValue(
-				"Aktive Spieler (<=49 Ticks)",
-				"select count(*) from User where inakt<=49 and id>4 and (vaccount=0 OR wait4vac>0)"));
-		echo.write(",");
-		echo.write(
-			getJsValue(
-				"tw. aktive Spieler (50 - 98 Ticks)",
-				"select count(*) from User where inakt>49 and inakt<=98 and id>4 and (vaccount=0 OR wait4vac>0)"));
-		echo.write(",");
-		echo.write(
-			getJsValue(
-				"tw. inaktive Spieler (99 - 299 Ticks)",
-				"select count(*) from User where inakt>98 and inakt<300 and id>4 and (vaccount=0 OR wait4vac>0)"));
-		echo.write(",");
-		echo.write(
-			getJsValue(
-				"Inaktive Spieler (>=300 Ticks)",
-				"select count(*) from User where inakt>=300 and id>4 and (vaccount=0 OR wait4vac>0)"));
-		echo.write(",");
-		echo.write(
-			getJsValue(
-				"Spieler in Vacation",
-				"select count(*) from User where id>4 and (vaccount>0 AND wait4vac=0)"));
-		echo.write("];\n");
-		echo.write("var plot = DS.plot('chart1', [data], { title:'Spieler', seriesDefaults : {");
-		echo.write("renderer: $.jqplot.PieRenderer, rendererOptions:{showDataLabels:true, dataLabels:'value', dataLabelThreshold:0}}, ");
-		echo.write("legend:{show:true, location:'e'},");
-		echo.write("highlighter: {show:true}");
-		echo.write("});");
-		echo.write("});</script>");
-		echo.write("<div id='chart1' style='height:300px'></div>");
 
-
-		echo.write("<table><thead><tr><th>Gruppe</th><th>Anzahl</th></tr></thead>");
-		echo.write("<tbody>");
+		echo.append("<table><thead><tr><th>Gruppe</th><th>Anzahl</th></tr></thead>");
+		echo.append("<tbody>");
 
 		addValue(echo,
 				"Spieler",
@@ -99,8 +99,8 @@ public class PlayerStatistics implements AdminPlugin {
 				"Inaktive NPCs (>=300 Ticks)",
 				"select count(*) from User where inakt>=300 and id<5 and (vaccount=0 OR wait4vac>0)");
 
-		echo.write("</tbody></table>");
-		echo.write("</div>");
+		echo.append("</tbody></table>");
+		echo.append("</div>");
 	}
 
 	private String getJsValue(String label, String query) throws IOException
@@ -114,7 +114,7 @@ public class PlayerStatistics implements AdminPlugin {
 		return "['"+label+"',"+count+"]";
 	}
 
-	private void addValue(Writer echo, String label, String query) throws IOException
+	private void addValue(StringBuilder echo, String label, String query) throws IOException
 	{
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
@@ -122,6 +122,6 @@ public class PlayerStatistics implements AdminPlugin {
 		long count = (Long)db
 			.createQuery(query)
 			.uniqueResult();
-		echo.write("<tr><td>"+label+"</td><td>"+count+"</td></tr>");
+		echo.append("<tr><td>").append(label).append("</td><td>").append(count).append("</td></tr>");
 	}
 }

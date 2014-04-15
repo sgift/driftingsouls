@@ -11,7 +11,6 @@ import javax.annotation.Nonnull;
 import javax.persistence.Entity;
 import java.io.IOException;
 import java.io.Serializable;
-import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -81,7 +80,7 @@ public class FieldGenerator<E, T> implements CustomFieldGenerator<E>
 	}
 
 	@Override
-	public void generate(Writer echo, E entity) throws IOException
+	public void generate(StringBuilder echo, E entity) throws IOException
 	{
 		T value = getter.apply(entity);
 
@@ -118,7 +117,7 @@ public class FieldGenerator<E, T> implements CustomFieldGenerator<E>
 		echo.append("</td></tr>\n");
 	}
 
-	private void writeAutoNumberJavaScript(Writer echo) throws IOException
+	private void writeAutoNumberJavaScript(StringBuilder echo) throws IOException
 	{
 		int mDec = 0;
 		Number minValue = -999999999.99;
@@ -228,7 +227,7 @@ public class FieldGenerator<E, T> implements CustomFieldGenerator<E>
 		return result;
 	}
 
-	private void editEntityBySelection(Writer echo, String name, Class<?> type, Object value, E entity) throws IOException
+	private void editEntityBySelection(StringBuilder echo, String name, Class<?> type, Object value, E entity) throws IOException
 	{
 		echo.append("<select size=\"1\" ").append(readOnly.apply(entity) ? "disabled='disabled' " : "").append("name=\"").append(name).append("\">");
 		org.hibernate.Session db = ContextMap.getContext().getDB();

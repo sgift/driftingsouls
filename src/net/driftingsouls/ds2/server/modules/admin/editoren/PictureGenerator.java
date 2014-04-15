@@ -3,7 +3,6 @@ package net.driftingsouls.ds2.server.modules.admin.editoren;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.function.Function;
 
 /**
@@ -22,7 +21,7 @@ public class PictureGenerator<E> implements CustomFieldGenerator<E>
 	}
 
 	@Override
-	public void generate(Writer echo, E entity) throws IOException
+	public void generate(StringBuilder echo, E entity) throws IOException
 	{
 		String value = getter.apply(entity);
 		echo.append("<tr>");

@@ -21,10 +21,8 @@ package net.driftingsouls.ds2.server.modules.admin;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.modules.AdminController;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.List;
 
 /**
@@ -35,10 +33,9 @@ import java.util.List;
 public class DeleteSystem implements AdminPlugin
 {
 	@Override
-	public void output(AdminController controller) throws IOException
+	public void output(StringBuilder echo) throws IOException
 	{
 		Context context = ContextMap.getContext();
-		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
 
 		int systemid = context.getRequest().getParameterInt("systemid");
@@ -55,7 +52,7 @@ public class DeleteSystem implements AdminPlugin
 		{
 			StarSystem system = (StarSystem) system1;
 
-			echo.append("<option value=\"" + system.getID() + "\" " + (system.getID() == systemid ? "selected=\"selected\"" : "") + ">" + system.getName() + " (" + system.getID() + ")</option>");
+			echo.append("<option value=\"").append(system.getID()).append("\" ").append(system.getID() == systemid ? "selected=\"selected\"" : "").append(">").append(system.getName()).append(" (").append(system.getID()).append(")</option>");
 		}
 		echo.append("</select>");
 		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");

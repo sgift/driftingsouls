@@ -41,7 +41,6 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.io.Writer;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -212,7 +211,7 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 			this.color = color;
 		}
 
-		public void generate(Writer echo) throws IOException
+		public void generate(StringBuilder echo) throws IOException
 		{
 			String hex = Integer.toHexString(color & 0xFFFFFF);
 			hex = StringUtils.leftPad(hex, 6, '0');

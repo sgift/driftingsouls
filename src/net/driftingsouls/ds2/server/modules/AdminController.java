@@ -257,7 +257,9 @@ public class AdminController extends Controller
 
 			AdminPlugin plugin = aClass.newInstance();
 			getContext().autowireBean(plugin);
-			plugin.output(this);
+			StringBuilder output = new StringBuilder();
+			plugin.output(output);
+			getContext().getResponse().getWriter().write(output.toString());
 		}
 		catch (IOException | RuntimeException e)
 		{

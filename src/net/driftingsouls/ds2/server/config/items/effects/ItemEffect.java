@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.config.items.effects;
 
 import java.io.IOException;
-import java.io.Writer;
 
 
 /**
@@ -118,7 +117,7 @@ public abstract class ItemEffect {
 	 * Gibt das passende Fenster fuer das Adminmenue aus.
 	 * @param echo Der Writer des Adminmenues
 	 */
-	public void getAdminTool(Writer echo) throws IOException {
+	public void getAdminTool(StringBuilder echo) throws IOException {
 	}
 
 	/**

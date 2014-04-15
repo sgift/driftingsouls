@@ -29,7 +29,6 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -217,7 +216,7 @@ public class IEDraftShip extends ItemEffect {
 	 * @throws IOException Exception falls ein fehler auftritt
 	 */
 	@Override
-	public void getAdminTool(Writer echo) throws IOException {
+	public void getAdminTool(StringBuilder echo) throws IOException {
 		
 		echo.append("<input type=\"hidden\" name=\"type\" value=\"draft-ship\" >");
 		echo.append("<tr><td class=\"noBorderS\">SchiffsId: </td><td><input type=\"text\" name=\"shiptype\" value=\"" + getShipType() + "\"></td></tr>\n");

@@ -18,8 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import net.driftingsouls.ds2.server.modules.AdminController;
-
 import java.io.IOException;
 
 /**
@@ -30,8 +28,8 @@ import java.io.IOException;
 public interface AdminPlugin {
 	/**
 	 * Fuert das Adminplugin aus.
-	 * @param controller Der Admin-Controller
 	 * @throws IOException
+	 * @param echo Der Builder in den die Ausgabe geschrieben werden soll
 	 */
-	public void output(AdminController controller) throws IOException;
+	public void output(StringBuilder echo) throws IOException;
 }

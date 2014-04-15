@@ -1,13 +1,10 @@
 package net.driftingsouls.ds2.server.modules.admin.editoren;
 
-import java.io.IOException;
-import java.io.Writer;
-
 class DefaultStatusWriter implements StatusWriter
 {
-	private Writer echo;
+	private StringBuilder echo;
 
-	public DefaultStatusWriter(Writer echo)
+	public DefaultStatusWriter(StringBuilder echo)
 	{
 		this.echo = echo;
 	}
@@ -15,14 +12,7 @@ class DefaultStatusWriter implements StatusWriter
 	@Override
 	public StatusWriter append(String text)
 	{
-		try
-		{
-			this.echo.append(text);
-		}
-		catch (IOException e)
-		{
-			throw new IllegalStateException(e);
-		}
+		this.echo.append(text);
 		return this;
 	}
 }

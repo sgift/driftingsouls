@@ -21,7 +21,6 @@ package net.driftingsouls.ds2.server.modules.admin;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.MutableLocation;
-import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.BaseType;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -29,6 +28,7 @@ import net.driftingsouls.ds2.server.config.Offiziere;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
+import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -36,7 +36,6 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 import net.driftingsouls.ds2.server.map.TileCache;
-import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import org.apache.commons.beanutils.BeanUtils;
@@ -56,7 +55,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
-import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -234,11 +232,11 @@ public class CreateObjects implements AdminPlugin {
 		}
 	}
 	
-	private static final Map<String,DialogEntry[]> OPTIONS = new LinkedHashMap<String,DialogEntry[]>();
+	private static final Map<String,DialogEntry[]> OPTIONS = new LinkedHashMap<>();
 	static {
 		OPTIONS.put("Base", new DialogEntry[] {
 				new TextEntry("Anzahl", "anzahl", 18, "0"),
-				new EntityEntry<BaseType>("Klasse", "klasse", BaseType.class, "name"),
+				new EntityEntry<>("Klasse", "klasse", BaseType.class, "name"),
 				new TextEntry("Vorhandene Spawn-Ressourcen", "availspawnress", 18, "0"),
 				new TextEntry("System", "system", 18, "0"),
 				new TextEntry("Min X", "minX", 18, "0"),
@@ -249,7 +247,7 @@ public class CreateObjects implements AdminPlugin {
 		
 		OPTIONS.put("Nebel", new DialogEntry[] {
 				new TextEntry("Anzahl", "anzahl", 18, "0"),
-				new EnumEntry<Nebel.Typ>("Typ", "type", Nebel.Typ.values()),
+				new EnumEntry<>("Typ", "type", Nebel.Typ.values()),
 				new TextEntry("System", "system", 18, "0"),
 				new TextEntry("Min X", "minX", 18, "0"),
 				new TextEntry("Min Y", "minY", 18, "0"),
@@ -274,10 +272,9 @@ public class CreateObjects implements AdminPlugin {
 	}
 	
 	@Override
-	public void output(AdminController controller) throws IOException {
+	public void output(StringBuilder echo) throws IOException {
 		Context context = ContextMap.getContext();
-		Writer echo = context.getResponse().getWriter();
-		
+
 		String objekt = context.getRequest().getParameterString("objekt");
 		int system = context.getRequest().getParameterInt("system");
 		
@@ -301,10 +298,10 @@ public class CreateObjects implements AdminPlugin {
 		echo.append("<select name=\"objekt\" onChange=\"Go(this.form.objekt.options[this.form.objekt.options.selectedIndex].value)\">\n");
 		for( String key : OPTIONS.keySet() ) {
 			if( objekt.equals(key) ) {
-				echo.append("<option selected=\"selected\" value=\""+key+"\">"+key+"</option>\n");
+				echo.append("<option selected=\"selected\" value=\"").append(key).append("\">").append(key).append("</option>\n");
 			}
 			else {
-				echo.append("<option value=\""+key+"\">"+key+"</option>\n");
+				echo.append("<option value=\"").append(key).append("\">").append(key).append("</option>\n");
 			}
 		}
 		
@@ -327,7 +324,7 @@ public class CreateObjects implements AdminPlugin {
 		echo.append("</div>");
 		
 		if( system != 0 ) {
-			echo.append("Bearbeite System: " + system + "<br />\n");
+			echo.append("Bearbeite System: ").append(system).append("<br />\n");
 
 			switch (objekt)
 			{
@@ -348,14 +345,14 @@ public class CreateObjects implements AdminPlugin {
 		} 
 	}
 
-	private void handleSystemXML(Context context, Writer echo, int system) throws IOException {
+	private void handleSystemXML(Context context, StringBuilder echo, int system) throws IOException {
 		org.hibernate.Session db = context.getDB();
 		
 		final String xmlpath = context.getRequest().getParameterString("xmlpath");
 		
 		File xml = new File(xmlpath);
 		if( !xml.isFile() ) {
-			echo.append("File not found: "+xmlpath+"<br />\n");
+			echo.append("File not found: ").append(xmlpath).append("<br />\n");
 			return;
 		}
 		
@@ -412,7 +409,7 @@ public class CreateObjects implements AdminPlugin {
 				
 				User ownerObj = (User)db.get(User.class, owner);
 				if( ownerObj == null ) {
-					echo.append("Fehler: large-object Besitzer '"+owner+"' existiert nicht");
+					echo.append("Fehler: large-object Besitzer '").append(owner).append("' existiert nicht");
 					return;
 				}
 				
@@ -447,13 +444,13 @@ public class CreateObjects implements AdminPlugin {
 				
 				User ownerObj = (User)db.get(User.class, owner);
 				if( ownerObj == null ) {
-					echo.append("Fehler: Schiff Besitzer '"+owner+"' existiert nicht");
+					echo.append("Fehler: Schiff Besitzer '").append(owner).append("' existiert nicht");
 					return;
 				}
 				
 				ShipType type = (ShipType)db.get(ShipType.class, typeId);
 				if( type == null ) {
-					echo.append("Fehler: Schiff Typ '"+typeId+"' existiert nicht");
+					echo.append("Fehler: Schiff Typ '").append(typeId).append("' existiert nicht");
 					return;
 				}
 				
@@ -510,13 +507,10 @@ public class CreateObjects implements AdminPlugin {
 			}
 		}
 		catch( IOException e ) {
-			echo.append("Kann XML "+xmlpath+" nicht oeffnen: "+e);
+			echo.append("Kann XML ").append(xmlpath).append(" nicht oeffnen: ").append(e);
 		}
-		catch( SAXException e ) {
-			echo.append("Kann XML "+xmlpath+" nicht parsen: "+e);
-		}
-		catch( ParserConfigurationException e ) {
-			echo.append("Kann XML "+xmlpath+" nicht parsen: "+e);
+		catch( SAXException | ParserConfigurationException e ) {
+			echo.append("Kann XML ").append(xmlpath).append(" nicht parsen: ").append(e);
 		}
 	}
 
@@ -530,7 +524,7 @@ public class CreateObjects implements AdminPlugin {
 		return Location.fromString(system+":"+location);
 	}
 
-	private void parsePngFile(org.hibernate.Session db, Writer echo, int system, File png) throws IOException {
+	private void parsePngFile(Session db, StringBuilder echo, int system, File png) throws IOException {
 		BufferedImage image = ImageIO.read(new FileInputStream(png));
 
 		StarSystem thissystem = (StarSystem)db.get(StarSystem.class, system);
@@ -606,7 +600,7 @@ public class CreateObjects implements AdminPlugin {
 					break;
 
 				default:
-					echo.append("Unknown color: #"+Integer.toHexString(colorhex)+"<br />");
+					echo.append("Unknown color: #").append(Integer.toHexString(colorhex)).append("<br />");
 				}
 			}
 		}
@@ -629,7 +623,7 @@ public class CreateObjects implements AdminPlugin {
 		db.persist(base);
 	}
 
-	private void handleJumpnode(Context context, Writer echo, int system) throws IOException {
+	private void handleJumpnode(Context context, StringBuilder echo, int system) throws IOException {
 		org.hibernate.Session db = context.getDB();
 		
 		final int minX = context.getRequest().getParameterInt("minX");
@@ -663,7 +657,7 @@ public class CreateObjects implements AdminPlugin {
 		}
 	}
 
-	private void handleBase(Context context, Writer echo, int system) throws IOException {
+	private void handleBase(Context context, StringBuilder echo, int system) throws IOException {
 		org.hibernate.Session db = context.getDB();
 		
 		final int anzahl = context.getRequest().getParameterInt("anzahl");

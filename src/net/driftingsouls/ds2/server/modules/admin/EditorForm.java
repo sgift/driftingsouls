@@ -9,7 +9,6 @@ import net.driftingsouls.ds2.server.framework.DynamicContentManager;
 import javax.persistence.Entity;
 import java.io.IOException;
 import java.io.Serializable;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -20,11 +19,11 @@ import java.util.Map;
  */
 class EditorForm implements AutoCloseable
 {
-	private Writer echo;
+	private StringBuilder echo;
 	private Class<? extends AdminPlugin> plugin;
 	private List<CustomFieldGenerator> fields = new ArrayList<>();
 
-	public EditorForm(Class<? extends AdminPlugin> plugin, Writer echo)
+	public EditorForm(Class<? extends AdminPlugin> plugin, StringBuilder echo)
 	{
 		this.echo = echo;
 		this.plugin = plugin;
@@ -41,7 +40,7 @@ class EditorForm implements AutoCloseable
 		 * @param echo Der Writer in den der HTML-Code geschrieben werden soll
 		 * @throws IOException Bei I/O-Fehlern
 		 */
-		public void generate(Writer echo) throws IOException;
+		public void generate(StringBuilder echo) throws IOException;
 	}
 
 	/**
@@ -72,7 +71,7 @@ class EditorForm implements AutoCloseable
 		}
 
 		@Override
-		public void generate(Writer echo) throws IOException
+		public void generate(StringBuilder echo) throws IOException
 		{
 			echo.append("<tr class='dynamicContentEdit'>");
 
@@ -144,7 +143,7 @@ class EditorForm implements AutoCloseable
 		}
 
 		@Override
-		public void generate(Writer echo) throws IOException
+		public void generate(StringBuilder echo) throws IOException
 		{
 			echo.append("<tr>");
 			echo.append("<td colspan='2'>").append(label.trim().isEmpty() ? "" : label + ":").append("</td>").append("<td>").append(value != null ? value.toString() : "").append("</td></tr>\n");
@@ -159,41 +158,6 @@ class EditorForm implements AutoCloseable
 	public LabelGenerator label(String label, Object value)
 	{
 		return custom(new LabelGenerator(label, value));
-	}
-
-	public class TextAreaGenerator implements CustomFieldGenerator
-	{
-		private final String label;
-		private final String name;
-		private final Object value;
-
-		public TextAreaGenerator(String label, String name, Object value)
-		{
-			this.label = label;
-			this.name = name;
-			this.value = value;
-		}
-
-		@Override
-		public void generate(Writer echo) throws IOException
-		{
-			echo.append("<tr>");
-			echo.append("<td colspan='2'>").append(label.trim().isEmpty() ? "" : label + ":").append("</td>");
-			echo.append("<td>");
-			echo.append("<textarea rows='3' cols='60' name=\"").append(name).append("\">").append(value != null ? value.toString() : "").append("</textarea>");
-			echo.append("</td></tr>\n");
-		}
-	}
-
-	/**
-	 * Erzeugt ein Eingabefeld (Editor) in Form einer Textarea.
-	 * @param label Der Label
-	 * @param name Der interne Name
-	 * @param value Der momentane Wert
-	 */
-	public TextAreaGenerator textArea(String label, String name, Object value)
-	{
-		return custom(new TextAreaGenerator(label, name, value));
 	}
 
 	public class FieldGenerator implements CustomFieldGenerator
@@ -231,7 +195,7 @@ class EditorForm implements AutoCloseable
 		}
 
 		@Override
-		public void generate(Writer echo) throws IOException
+		public void generate(StringBuilder echo) throws IOException
 		{
 			echo.append("<tr>");
 			echo.append("<td colspan='2'>").append(label.trim().isEmpty() ? "" : label + ":").append("</td>");

@@ -24,7 +24,6 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
 import net.driftingsouls.ds2.server.scripting.entities.CompletedQuest;
 import net.driftingsouls.ds2.server.scripting.entities.Quest;
@@ -38,7 +37,6 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.Writer;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -52,9 +50,8 @@ import java.util.Set;
 @AdminMenuEntry(category="Quests", name="QuickQuests")
 public class QuestsQuick implements AdminPlugin {
 	@Override
-	public void output(AdminController controller) throws IOException {
+	public void output(StringBuilder echo) throws IOException {
 		Context context = ContextMap.getContext();
-		Writer echo = context.getResponse().getWriter();
 
 		int id = context.getRequest().getParameterInt("id");
 		String qact = context.getRequest().getParameterString("qact");
@@ -88,31 +85,36 @@ public class QuestsQuick implements AdminPlugin {
 			List<?> rquestList = db.createQuery("from RunningQuest where quest= :qid")
 				.setInteger("qid", qquest.getEnabled())
 				.list();
-			for( Iterator<?> iter=rquestList.iterator(); iter.hasNext(); ) {
-				RunningQuest rquest = (RunningQuest)iter.next();
+			for (Object aRquestList : rquestList)
+			{
+				RunningQuest rquest = (RunningQuest) aRquestList;
 
-				try {
+				try
+				{
 					byte[] execdata = rquest.getExecData();
 					scriptparser.setContext(
 							ScriptParserContext.fromStream(new ByteArrayInputStream(execdata))
 					);
 				}
-				catch( Exception e ) {
-					echo.append("WARNUNG: Konnte Questdaten nicht laden: Laufendes Quest "+rquest.getId()+"<br />\n");
+				catch (Exception e)
+				{
+					echo.append("WARNUNG: Konnte Questdaten nicht laden: Laufendes Quest ").append(rquest.getId()).append("<br />\n");
 				}
 
 				final Bindings engineBindings = scriptparser.getContext().getBindings(ScriptContext.ENGINE_SCOPE);
 
 				engineBindings.put("USER", rquest.getUser().getId());
-				engineBindings.put("QUEST", "r"+rquest.getId());
+				engineBindings.put("QUEST", "r" + rquest.getId());
 				engineBindings.put("_PARAMETERS", "0");
-				try {
+				try
+				{
 					scriptparser.eval(":0\n!ENDQUEST\n!QUIT");
 				}
-				catch( ScriptException e ) {
+				catch (ScriptException e)
+				{
 					throw new RuntimeException(e);
 				}
-				echo.append("Beende Quest bei Spieler "+rquest.getUser().getId()+"<br />\n");
+				echo.append("Beende Quest bei Spieler ").append(rquest.getUser().getId()).append("<br />\n");
 			}
 
 			qquest.setEnabled(0);
@@ -130,10 +132,11 @@ public class QuestsQuick implements AdminPlugin {
 				List<?> rquestList = db.createQuery("from RunningQuest rq inner join fetch rq.user where rq.quest= :qid order by rq.user")
 					.setInteger("qid", qquest.getEnabled())
 					.list();
-				for( Iterator<?> iter=rquestList.iterator(); iter.hasNext(); ) {
-					RunningQuest rquest = (RunningQuest)iter.next();
+				for (Object aRquestList : rquestList)
+				{
+					RunningQuest rquest = (RunningQuest) aRquestList;
 
-					echo.append("<li>"+Common._title(rquest.getUser().getName())+" ("+rquest.getUser().getId()+")</li>\n");
+					echo.append("<li>").append(Common._title(rquest.getUser().getName())).append(" (").append(rquest.getUser().getId()).append(")</li>\n");
 				}
 				echo.append("</ul><br />\n");
 			}
@@ -143,10 +146,11 @@ public class QuestsQuick implements AdminPlugin {
 					"where q.qid = :qid order by cq.user")
 				.setString("qid", qquest.getQid())
 				.list();
-			for( Iterator<?> iter=cquestList.iterator(); iter.hasNext(); ) {
-				CompletedQuest cq = (CompletedQuest)iter.next();
+			for (Object aCquestList : cquestList)
+			{
+				CompletedQuest cq = (CompletedQuest) aCquestList;
 
-				echo.append("<li>"+Common._title(cq.getUser().getName())+" ("+cq.getUser().getId()+")</li>\n");
+				echo.append("<li>").append(Common._title(cq.getUser().getName())).append(" (").append(cq.getUser().getId()).append(")</li>\n");
 			}
 			echo.append("</ul><br />\n");
 
@@ -158,21 +162,20 @@ public class QuestsQuick implements AdminPlugin {
 			echo.append("<table class=\"noBorderX\">\n");
 
 			List<?> qquestList = db.createQuery("from QuickQuest order by qid").list();
-			for( Iterator<?> iter=qquestList.iterator(); iter.hasNext(); ) {
-				QuickQuest qquest = (QuickQuest)iter.next();
+			for (Object aQquestList : qquestList)
+			{
+				QuickQuest qquest = (QuickQuest) aQquestList;
 
-				echo.append("<tr><td class=\"noBorderX\">"+qquest.getQid()+"</td>\n");
-				echo.append("<td class=\"noBorderX\">&nbsp;&nbsp;&nbsp;" +
-						"<a class=\"forschinfo\" " +
-							"href=\"./ds?module=admin&namedplugin="+getClass().getName()+"&id="+qquest.getId()+"&qact=details\"" +
-						">"+qquest.getQName()+"</a>" +
-						"&nbsp;&nbsp;&nbsp;</td>\n");
+				echo.append("<tr><td class=\"noBorderX\">").append(qquest.getQid()).append("</td>\n");
+				echo.append("<td class=\"noBorderX\">&nbsp;&nbsp;&nbsp;" + "<a class=\"forschinfo\" " + "href=\"./ds?module=admin&namedplugin=").append(getClass().getName()).append("&id=").append(qquest.getId()).append("&qact=details\"").append(">").append(qquest.getQName()).append("</a>").append("&nbsp;&nbsp;&nbsp;</td>\n");
 				echo.append("<td class=\"noBorderX\">");
-				if( qquest.getEnabled() == 0 ) {
-					echo.append("[<a class=\"error\" href=\"./ds?module=admin&namedplugin="+getClass().getName()+"&id="+qquest.getId()+"&qact=enable\">inaktiv</a>]");
+				if (qquest.getEnabled() == 0)
+				{
+					echo.append("[<a class=\"error\" href=\"./ds?module=admin&namedplugin=").append(getClass().getName()).append("&id=").append(qquest.getId()).append("&qact=enable\">inaktiv</a>]");
 				}
-				else {
-					echo.append("[<a class=\"ok\" href=\"./ds?module=admin&namedplugin="+getClass().getName()+"&id="+qquest.getId()+"&qact=disable\">aktiv</a>]");
+				else
+				{
+					echo.append("[<a class=\"ok\" href=\"./ds?module=admin&namedplugin=").append(getClass().getName()).append("&id=").append(qquest.getId()).append("&qact=disable\">aktiv</a>]");
 				}
 				echo.append("</td></tr>\n");
 			}
@@ -210,7 +213,7 @@ public class QuestsQuick implements AdminPlugin {
 			echo.append("<div class='gfxbox' style='width:640px'>");
 			echo.append("<span class=\"nobr\">\n");
 
-			Set<String> reqFileList = new HashSet<String>();
+			Set<String> reqFileList = new HashSet<>();
 			if( qquest.getSourceType().equals("gtuposten") ||
 				qquest.getTargetType().equals("gtuposten") ) {
 
@@ -225,35 +228,36 @@ public class QuestsQuick implements AdminPlugin {
 
 			if( qquest.getDependsOnQuests().length() > 0 ) {
 				String[] dquests = StringUtils.split(qquest.getDependsOnQuests(), ';');
-				for( int i=0; i < dquests.length; i++ ) {
-					String[] tmp = StringUtils.split(dquests[i], ':');
-					reqFileList.add(tmp[0]+".xml");
+				for (String dquest : dquests)
+				{
+					String[] tmp = StringUtils.split(dquest, ':');
+					reqFileList.add(tmp[0] + ".xml");
 				}
 			}
 
 			echo.append("&lt;?xml version='1.0' encoding='UTF-8'?&gt;<br />\n");
-			echo.append("&lt;quest id=\""+qquest.getQid()+"\" name=\""+qquest.getQName()+"\"&gt;<br />\n");
+			echo.append("&lt;quest id=\"").append(qquest.getQid()).append("\" name=\"").append(qquest.getQName()).append("\"&gt;<br />\n");
 			for( String file : reqFileList ) {
-				echo.append("&lt;require file=\""+file+"\" /&gt;<br />\n");
+				echo.append("&lt;require file=\"").append(file).append("\" /&gt;<br />\n");
 			}
 
 			/*
 			 * Dialog Questbeschreibung ("info")
 			 */
-			echo.append("&lt;dialog id=\"info\" picture=\""+qquest.getHead()+"\"&gt;<br />\n");
-			echo.append(nl2br(qquest_shortdesc)+"<br />\n");
+			echo.append("&lt;dialog id=\"info\" picture=\"").append(qquest.getHead()).append("\"&gt;<br />\n");
+			echo.append(nl2br(qquest_shortdesc)).append("<br />\n");
 			echo.append("[hr]<br />\n");
-			echo.append(nl2br(qquest_desc)+"<br />\n<br />\n");
+			echo.append(nl2br(qquest_desc)).append("<br />\n<br />\n");
 			if( !qquest.getReqItems().isEmpty() || (qquest.getReqRe() > 0) ) {
 				echo.append("Benötigt:[color=red]<br />\n");
 				if( !qquest.getReqItems().isEmpty() ) {
 					ResourceList reslist = qquest.getReqItems().getResourceList();
 					for( ResourceEntry res : reslist ) {
-						echo.append("[resource="+res.getId()+"]"+res.getCount1()+"[/resource]<br />\n");
+						echo.append("[resource=").append(res.getId()).append("]").append(res.getCount1()).append("[/resource]<br />\n");
 					}
 				}
 				if( qquest.getReqRe() > 0 ) {
-					echo.append(Common.ln(qquest.getReqRe())+" RE\n");
+					echo.append(Common.ln(qquest.getReqRe())).append(" RE\n");
 				}
 				echo.append("[/color]<br /><br />\n\n");
 			}
@@ -262,48 +266,48 @@ public class QuestsQuick implements AdminPlugin {
 
 				ResourceList reslist = qquest.getAwardItems().getResourceList();
 				for( ResourceEntry res : reslist ) {
-					echo.append("[resource="+res.getId()+"]"+res.getCount1()+"[/resource]<br />\n");
+					echo.append("[resource=").append(res.getId()).append("]").append(res.getCount1()).append("[/resource]<br />\n");
 				}
 			}
 			if( qquest.getAwardRe() != 0 ) {
-				echo.append("Belohnung in RE: "+Common.ln(qquest.getAwardRe())+"<br />\n");
+				echo.append("Belohnung in RE: ").append(Common.ln(qquest.getAwardRe())).append("<br />\n");
 			}
 			echo.append("&lt;/dialog&gt;<br />\n");
 
 			/*
 			 * Dialog Quest noch nicht erfuellt ("notyet")
 			 */
-			echo.append("&lt;dialog id=\"notyet\" picture=\""+qquest.getHead()+"\"&gt;<br />\n");
+			echo.append("&lt;dialog id=\"notyet\" picture=\"").append(qquest.getHead()).append("\"&gt;<br />\n");
 			if( qquest_notyettext.length() == 0 ) {
 				echo.append("Tut mir leid. Du hast die Aufgabe noch nicht komplett erledigt.<br />\n");
 			}
 			else {
-				echo.append(nl2br(qquest_notyettext)+"<br />\n");
+				echo.append(nl2br(qquest_notyettext)).append("<br />\n");
 			}
 			echo.append("&lt;/dialog&gt;<br />\n");
 
 			/*
 			 * Dialog Quest beendet ("ready")
 			 */
-			echo.append("&lt;dialog id=\"ready\" picture=\""+qquest.getHead()+"\"&gt;<br />\n");
+			echo.append("&lt;dialog id=\"ready\" picture=\"").append(qquest.getHead()).append("\"&gt;<br />\n");
 			if( qquest_finishtext.length() == 0 ) {
 				echo.append("Sehr gut! Du hast deine Aufgabe beendet.<br />\n");
 				echo.append("Hier hast du ein paar Dinge die du sicher gut gebrauchen kannst:<br />\n<br />\n");
 			}
 			else {
-				echo.append(nl2br(qquest_finishtext)+"<br />\n<br />\n");
+				echo.append(nl2br(qquest_finishtext)).append("<br />\n<br />\n");
 			}
 			if( !qquest.getAwardItems().isEmpty() ) {
 				echo.append("Belohnung in Waren:<br />\n");
 
 				ResourceList reslist = qquest.getAwardItems().getResourceList();
 				for( ResourceEntry res : reslist ) {
-					echo.append("[resource="+res.getId()+"]"+res.getCount1()+"[/resource]<br />\n");
+					echo.append("[resource=").append(res.getId()).append("]").append(res.getCount1()).append("[/resource]<br />\n");
 				}
 				echo.append("<br />\n");
 			}
 			if( qquest.getAwardRe() != 0 ) {
-				echo.append("Belohnung in RE: "+Common.ln(qquest.getAwardRe())+"<br />\n");
+				echo.append("Belohnung in RE: ").append(Common.ln(qquest.getAwardRe())).append("<br />\n");
 			}
 			echo.append("&lt;/dialog&gt;<br />\n");
 
@@ -312,8 +316,8 @@ public class QuestsQuick implements AdminPlugin {
 			 */
 			echo.append("&lt;answer id=\"yes\"&gt;Annehmen&lt;/answer&gt;<br />\n");
 			echo.append("&lt;answer id=\"no\"&gt;Ablehnen&lt;/answer&gt;<br />\n");
-			echo.append("&lt;answer id=\"endquest\"&gt;Auftrag &amp;gt;"+qquest.getQName()+"&amp;lt; beenden&lt;/answer&gt;<br />\n");
-			echo.append("&lt;answer id=\"startquest\"&gt;Auftrag &amp;gt;"+qquest.getQName()+"&amp;lt;&lt;/answer&gt;<br />\n");
+			echo.append("&lt;answer id=\"endquest\"&gt;Auftrag &amp;gt;").append(qquest.getQName()).append("&amp;lt; beenden&lt;/answer&gt;<br />\n");
+			echo.append("&lt;answer id=\"startquest\"&gt;Auftrag &amp;gt;").append(qquest.getQName()).append("&amp;lt;&lt;/answer&gt;<br />\n");
 
 			/*
 			 *
@@ -325,25 +329,25 @@ public class QuestsQuick implements AdminPlugin {
 
 			// Menu
 			StringBuilder tsMenu = new StringBuilder();
-			tsMenu.append("!LoadQuestContext &lt;questid id=\""+qquest.getQid()+"\" /&gt;<br />\n");
+			tsMenu.append("!LoadQuestContext &lt;questid id=\"").append(qquest.getQid()).append("\" /&gt;<br />\n");
 			tsMenu.append("!GETQUESTID #QUEST<br />\n");
-			tsMenu.append("!COMPARE #A &lt;questid id=\""+qquest.getQid()+"\" /&gt;<br />\n");
-			tsMenu.append("!JNE 0_questfinal"+qquest.getQid()+"_endcont<br />\n");
+			tsMenu.append("!COMPARE #A &lt;questid id=\"").append(qquest.getQid()).append("\" /&gt;<br />\n");
+			tsMenu.append("!JNE 0_questfinal").append(qquest.getQid()).append("_endcont<br />\n");
 
 			tsMenu.append("!COMPARE #QSTATUS 1<br />\n");
-			tsMenu.append("!JNE 0_questfinal"+qquest.getQid()+"_endcont<br />\n");
+			tsMenu.append("!JNE 0_questfinal").append(qquest.getQid()).append("_endcont<br />\n");
 
-			tsMenu.append("!ADDANSWER &lt;answerid id=\"endquest\" /&gt; "+qquest.getQid()+"_finish<br />\n");
-			tsMenu.append("!JUMP 0_questfinal"+qquest.getQid()+"_endcont<br />\n");
+			tsMenu.append("!ADDANSWER &lt;answerid id=\"endquest\" /&gt; ").append(qquest.getQid()).append("_finish<br />\n");
+			tsMenu.append("!JUMP 0_questfinal").append(qquest.getQid()).append("_endcont<br />\n");
 
-			tsMenu.append(":0_questfinal"+qquest.getQid()+"_endcont<br />\n<br />\n");
+			tsMenu.append(":0_questfinal").append(qquest.getQid()).append("_endcont<br />\n<br />\n");
 
 			// Code
 			StringBuilder tsCode = new StringBuilder();
-			tsCode.append(":"+qquest.getQid()+"_finish<br />\n");
-			tsCode.append("!LoadQuestContext &lt;questid id=\""+qquest.getQid()+"\" /&gt;<br />\n");
+			tsCode.append(":").append(qquest.getQid()).append("_finish<br />\n");
+			tsCode.append("!LoadQuestContext &lt;questid id=\"").append(qquest.getQid()).append("\" /&gt;<br />\n");
 			tsCode.append("!GETQUESTID #QUEST<br />\n");
-			tsCode.append("!COMPARE #A &lt;questid id=\""+qquest.getQid()+"\" /&gt;<br />\n");
+			tsCode.append("!COMPARE #A &lt;questid id=\"").append(qquest.getQid()).append("\" /&gt;<br />\n");
 			tsCode.append("!JNE 0<br />\n");
 			tsCode.append("!COMPARE #QSTATUS 1<br />\n");
 			tsCode.append("!JNE 0<br />\n");
@@ -355,14 +359,14 @@ public class QuestsQuick implements AdminPlugin {
 				ResourceList reslist = qquest.getReqItems().getResourceList();
 				for( ResourceEntry res : reslist ) {
 					if( res.getId().getQuest() != 0 ) {
-						tsCode.append("!HASQUESTITEM #ship "+res.getId().getItemID()+" "+res.getCount1()+"<br />\n");
-						tsCode.append("!JLE "+qquest.getQid()+"_finish_notyet<br />\n");
-						tsCode.append("!ADDQUESTITEM #ship "+res.getId().getItemID()+" -"+res.getCount1()+"<br />\n");
+						tsCode.append("!HASQUESTITEM #ship ").append(res.getId().getItemID()).append(" ").append(res.getCount1()).append("<br />\n");
+						tsCode.append("!JLE ").append(qquest.getQid()).append("_finish_notyet<br />\n");
+						tsCode.append("!ADDQUESTITEM #ship ").append(res.getId().getItemID()).append(" -").append(res.getCount1()).append("<br />\n");
 					}
 					else {
-						tsCode.append("!HASRESOURCE #ship "+res.getId()+" "+res.getCount1()+"<br />\n");
-						tsCode.append("!JLE "+qquest.getQid()+"_finish_notyet<br />\n");
-						tsCode.append("!ADDRESOURCE #ship "+res.getId()+" -"+res.getCount1()+"<br />\n");
+						tsCode.append("!HASRESOURCE #ship ").append(res.getId()).append(" ").append(res.getCount1()).append("<br />\n");
+						tsCode.append("!JLE ").append(qquest.getQid()).append("_finish_notyet<br />\n");
+						tsCode.append("!ADDRESOURCE #ship ").append(res.getId()).append(" -").append(res.getCount1()).append("<br />\n");
 					}
 				}
 				tsCode.append("!COPY #ship 0<br />\n");
@@ -370,8 +374,8 @@ public class QuestsQuick implements AdminPlugin {
 			if( qquest.getReqRe() > 0 ) {
 				tsCode.append("// RE ueberpruefen<br />\n");
 				tsCode.append("!GETMONEY #USER<br />\n");
-				tsCode.append("!COMPARE #A "+qquest.getReqRe()+"<br />\n");
-				tsCode.append("!JL "+qquest.getQid()+"_finish_notyet<br />\n");
+				tsCode.append("!COMPARE #A ").append(qquest.getReqRe()).append("<br />\n");
+				tsCode.append("!JL ").append(qquest.getQid()).append("_finish_notyet<br />\n");
 			}
 
 			// Nun die Items/RE auch wirklich abbuchen...
@@ -381,18 +385,18 @@ public class QuestsQuick implements AdminPlugin {
 				ResourceList reslist = qquest.getReqItems().getResourceList();
 				for( ResourceEntry res : reslist ) {
 					if( res.getId().getQuest() != 0 ) {
-						tsCode.append("!ADDQUESTITEM #ship "+res.getId().getItemID()+" -"+res.getCount1()+"<br />\n");
+						tsCode.append("!ADDQUESTITEM #ship ").append(res.getId().getItemID()).append(" -").append(res.getCount1()).append("<br />\n");
 					}
 					else {
-						tsCode.append("!ADDRESOURCE #ship "+res.getId()+" -"+res.getCount1()+"<br />\n");
+						tsCode.append("!ADDRESOURCE #ship ").append(res.getId()).append(" -").append(res.getCount1()).append("<br />\n");
 					}
 				}
 				tsCode.append("!SAVEVAR shipsource.cargo #ship<br />\n");
 				tsCode.append("!COPY #ship 0<br />\n");
 			}
 			if( qquest.getReqRe() > 0 ) {
-				tsCode.append("#reqmoneytext = \"Kosten Quest \'"+qquest.getQName()+"\'\"<br />\n");
-				tsCode.append("!ADDMONEY 0 #USER "+qquest.getReqRe()+" #reqmoneytext 0<br />\n");
+				tsCode.append("#reqmoneytext = \"Kosten Quest \'").append(qquest.getQName()).append("\'\"<br />\n");
+				tsCode.append("!ADDMONEY 0 #USER ").append(qquest.getReqRe()).append(" #reqmoneytext 0<br />\n");
 			}
 
 			// Belohnungen (Waren/RE)
@@ -402,14 +406,14 @@ public class QuestsQuick implements AdminPlugin {
 
 				ResourceList reslist = qquest.getAwardItems().getResourceList();
 				for( ResourceEntry res : reslist ) {
-					tsCode.append("!ADDRESOURCE #ship "+res.getId()+" "+res.getCount1()+"<br />\n");
+					tsCode.append("!ADDRESOURCE #ship ").append(res.getId()).append(" ").append(res.getCount1()).append("<br />\n");
 				}
 				tsCode.append("!SAVEVAR shipsource.cargo #ship<br />\n");
 				tsCode.append("!COPY #ship 0<br />\n");
 			}
 			if( qquest.getAwardRe() != 0 ) {
-				tsCode.append("#addmoneytext = \"Belohnung Quest \'"+qquest.getQName()+"\'\"<br />\n");
-				tsCode.append("!ADDMONEY #USER 0 "+qquest.getAwardRe()+" #addmoneytext 1<br />\n");
+				tsCode.append("#addmoneytext = \"Belohnung Quest \'").append(qquest.getQName()).append("\'\"<br />\n");
+				tsCode.append("!ADDMONEY #USER 0 ").append(qquest.getAwardRe()).append(" #addmoneytext 1<br />\n");
 			}
 			tsCode.append("!COMPLETEQUEST #QUEST<br />\n");
 			tsCode.append("!LOADDIALOG &lt;dialogid id=\"ready\" /&gt;<br />\n");
@@ -418,7 +422,7 @@ public class QuestsQuick implements AdminPlugin {
 			tsCode.append("!ENDQUEST<br />\n");
 			tsCode.append("!PAUSE<br />\n<br />\n");
 
-			tsCode.append(":"+qquest.getQid()+"_finish_notyet<br />\n");
+			tsCode.append(":").append(qquest.getQid()).append("_finish_notyet<br />\n");
 			tsCode.append("!LOADDIALOG &lt;dialogid id=\"notyet\" /&gt;<br />\n");
 			tsCode.append("!ADDANSWER &lt;answerid id=\"gtu-posten-generic:ende\" /&gt; quit<br />\n");
 			tsCode.append("!INITDIALOG<br />\n");
@@ -431,15 +435,15 @@ public class QuestsQuick implements AdminPlugin {
 			 */
 
 			if( qquest.getSourceType().equals("gtuposten") ) {
-				echo.append("&lt;injectscript id=\"gtu-posten-"+sourceobjectid+":posten\"&gt;<br />\n");
+				echo.append("&lt;injectscript id=\"gtu-posten-").append(sourceobjectid).append(":posten\"&gt;<br />\n");
 			}
 			else {
-				echo.append("WARNUNG: unbekannter sourcetype '"+qquest.getSourceType()+"' - injectscript muss manuell eingefuegt werden<br />\n");
+				echo.append("WARNUNG: unbekannter sourcetype '").append(qquest.getSourceType()).append("' - injectscript muss manuell eingefuegt werden<br />\n");
 			}
 			echo.append("&lt;part id=\"parameters\"&gt;");
-			echo.append(qquest.getQid()+" "+qquest.getQid()+"_yes");
+			echo.append(qquest.getQid()).append(" ").append(qquest.getQid()).append("_yes");
 			if( sourceobjectid == targetobjectid ) {
-				echo.append(" "+tsParams);
+				echo.append(" ").append(tsParams);
 			}
 			echo.append("&lt;/part&gt;<br />\n");
 
@@ -447,76 +451,79 @@ public class QuestsQuick implements AdminPlugin {
 			echo.append("&lt;part id=\"menu\"&gt;<br />\n");
 			echo.append("// Quest bereits beendet? Dann zum naechsten Quest<br />\n");
 			if( !qquest.getMoreThanOnce() ) {
-				echo.append("!HASQUESTCOMPLETED &lt;questid id=\""+qquest.getQid()+"\" /&gt;<br />\n");
-				echo.append("!JG 0_quest"+qquest.getQid()+"_endcont<br />\n");
+				echo.append("!HASQUESTCOMPLETED &lt;questid id=\"").append(qquest.getQid()).append("\" /&gt;<br />\n");
+				echo.append("!JG 0_quest").append(qquest.getQid()).append("_endcont<br />\n");
 			}
 
 			if( qquest.getDependsOnQuests().length() > 0 ) {
 				String[] dquests = StringUtils.split(qquest.getDependsOnQuests(), ';');
-				for( int i=0; i < dquests.length; i++ ) {
-					echo.append("!HASQUESTCOMPLETED &lt;questid id=\""+dquests[i]+"\" /&gt;<br />\n");
-					echo.append("!JLE 0_quest"+qquest.getQid()+"_endcont<br />\n");
+				for (String dquest : dquests)
+				{
+					echo.append("!HASQUESTCOMPLETED &lt;questid id=\"").append(dquest).append("\" /&gt;<br />\n");
+					echo.append("!JLE 0_quest").append(qquest.getQid()).append("_endcont<br />\n");
 				}
 			}
 
 			echo.append("// Hat der Spieler das Quest bereits angenommen?<br />\n");
-			echo.append("!LoadQuestContext &lt;questid id=\""+qquest.getQid()+"\" /&gt;<br />\n");
+			echo.append("!LoadQuestContext &lt;questid id=\"").append(qquest.getQid()).append("\" /&gt;<br />\n");
 			echo.append("!COMPARE #QSTATUS 1<br />\n");
-			echo.append("!JGE 0_quest"+qquest.getQid()+"_endcont<br />\n");
-			echo.append("!ADDANSWER &lt;answerid id=\"startquest\" /&gt; "+qquest.getQid()+"<br />\n");
-			echo.append("!JUMP 0_quest"+qquest.getQid()+"_endcont<br />\n");
-			echo.append(":0_quest"+qquest.getQid()+"_endcont<br />\n<br />\n");
+			echo.append("!JGE 0_quest").append(qquest.getQid()).append("_endcont<br />\n");
+			echo.append("!ADDANSWER &lt;answerid id=\"startquest\" /&gt; ").append(qquest.getQid()).append("<br />\n");
+			echo.append("!JUMP 0_quest").append(qquest.getQid()).append("_endcont<br />\n");
+			echo.append(":0_quest").append(qquest.getQid()).append("_endcont<br />\n<br />\n");
 			if( sourceobjectid == targetobjectid ) {
-				echo.append("<br />\n"+tsMenu);
+				echo.append("<br />\n").append(tsMenu);
 			}
 			echo.append("&lt;/part&gt;<br /><br />\n");
 
 			// Codepart (Start)
 			echo.append("&lt;part id=\"code\"&gt;<br />\n");
-			echo.append("// Auftrag "+qquest.getQid()+"<br />\n");
-			echo.append(":"+qquest.getQid()+"<br />\n");
-			echo.append("!LoadQuestContext &lt;questid id=\""+qquest.getQid()+"\" /&gt;<br />\n");
+			echo.append("// Auftrag ").append(qquest.getQid()).append("<br />\n");
+			echo.append(":").append(qquest.getQid()).append("<br />\n");
+			echo.append("!LoadQuestContext &lt;questid id=\"").append(qquest.getQid()).append("\" /&gt;<br />\n");
 			echo.append("!GETQUESTID #QUEST<br />\n");
-			echo.append("!COMPARE #A &lt;questid id=\""+qquest.getQid()+"\" /&gt;<br />\n");
+			echo.append("!COMPARE #A &lt;questid id=\"").append(qquest.getQid()).append("\" /&gt;<br />\n");
 			echo.append("!JE 0<br />\n");
 			if( !qquest.getMoreThanOnce() ) {
-				echo.append("!HASQUESTCOMPLETED &lt;questid id=\""+qquest.getQid()+"\" /&gt;<br />\n");
+				echo.append("!HASQUESTCOMPLETED &lt;questid id=\"").append(qquest.getQid()).append("\" /&gt;<br />\n");
 				echo.append("!JG 0<br />\n");
 			}
 
 			if( qquest.getDependsOnQuests().length() > 0 ) {
 				String[] dquests = StringUtils.split(qquest.getDependsOnQuests(), ';');
-				for( int i=0; i < dquests.length; i++ ) {
-					echo.append("!HASQUESTCOMPLETED &lt;questid id=\""+dquests[i]+"\" /&gt;<br />\n");
+				for (String dquest : dquests)
+				{
+					echo.append("!HASQUESTCOMPLETED &lt;questid id=\"").append(dquest).append("\" /&gt;<br />\n");
 					echo.append("!JLE 0<br />\n");
 				}
 			}
 			echo.append("!LOADDIALOG &lt;dialogid id=\"info\" /&gt;<br />\n");
-			echo.append("!ADDANSWER &lt;answerid id=\"yes\" /&gt; "+qquest.getQid()+"_yes<br />\n");
+			echo.append("!ADDANSWER &lt;answerid id=\"yes\" /&gt; ").append(qquest.getQid()).append("_yes<br />\n");
 			echo.append("!ADDANSWER &lt;answerid id=\"no\" /&gt; 0<br />\n");
 			echo.append("!INITDIALOG<br />\n");
 			echo.append("!PAUSE<br />\n<br />\n");
 
 
 			// Quest ist angenommen - also los
-			echo.append(":"+qquest.getQid()+"_yes<br />\n");
-			echo.append("!LoadQuestContext &lt;questid id=\""+qquest.getQid()+"\" /&gt;<br />\n");
+			echo.append(":").append(qquest.getQid()).append("_yes<br />\n");
+			echo.append("!LoadQuestContext &lt;questid id=\"").append(qquest.getQid()).append("\" /&gt;<br />\n");
 			echo.append("!GETQUESTID #QUEST<br />\n");
-			echo.append("!COMPARE #A &lt;questid id=\""+qquest.getQid()+"\" /&gt;<br />\n");
+			echo.append("!COMPARE #A &lt;questid id=\"").append(qquest.getQid()).append("\" /&gt;<br />\n");
 			echo.append("!JE 0<br />\n");
 			if( !qquest.getMoreThanOnce() ) {
-				echo.append("!HASQUESTCOMPLETED &lt;questid id=\""+qquest.getQid()+"\" /&gt;<br />\n");
+				echo.append("!HASQUESTCOMPLETED &lt;questid id=\"").append(qquest.getQid()).append("\" /&gt;<br />\n");
 				echo.append("!JG 0<br />\n");
 			}
 
 			if( qquest.getDependsOnQuests().length() > 0 ) {
 				String[] dquests = StringUtils.split(qquest.getDependsOnQuests(), ';');
-				for( int i=0; i < dquests.length; i++ ) {
-					echo.append("!HASQUESTCOMPLETED &lt;questid id=\""+dquests[i]+"\" /&gt;<br />\n");
+				for (String dquest : dquests)
+				{
+					echo.append("!HASQUESTCOMPLETED &lt;questid id=\"" + dquest + "\" /&gt;<br />\n");
 					echo.append("!JLE 0<br />\n");
 				}
 			}
-			echo.append("!INITQUEST &lt;questid id=\""+qquest.getQid()+"\" /&gt;<br />\n");
+			echo.append("!INITQUEST &lt;questid id=\"").append(qquest.getQid()).append("\" /&gt;<br />\n");
 			echo.append("!COPY #QSTATUS 1<br />\n");
 
 			// Evt fuer das Quest benoetigte Items auf das Schiff transferieren
@@ -527,10 +534,10 @@ public class QuestsQuick implements AdminPlugin {
 				ResourceList reslist = qquest.getStartItems().getResourceList();
 				for( ResourceEntry res : reslist ) {
 					if( res.getId().getQuest() != 0 ) {
-						echo.append("!ADDQUESTITEM #ship "+res.getId().getItemID()+" "+res.getCount1()+"<br />\n");
+						echo.append("!ADDQUESTITEM #ship ").append(res.getId().getItemID()).append(" ").append(res.getCount1()).append("<br />\n");
 					}
 					else {
-						echo.append("!ADDRESOURCE #ship "+res.getId()+" "+res.getCount1()+"<br />\n");
+						echo.append("!ADDRESOURCE #ship ").append(res.getId()).append(" ").append(res.getCount1()).append("<br />\n");
 					}
 				}
 				echo.append("!SAVEVAR shipsource.cargo #ship<br />\n");
@@ -540,19 +547,22 @@ public class QuestsQuick implements AdminPlugin {
 			// Loottable ergaenzen
 			if( qquest.getLoottable().length() > 0 ) {
 				String[] loottable = StringUtils.split(qquest.getLoottable(), ';');
-				for( int i=0; i < loottable.length; i++ ) {
-					String[] atable = StringUtils.split(loottable[i], ',');
-					if( atable.length > 4 ) {
-						echo.append("!ADDLOOTTABLE "+atable[0]+" "+atable[1]+" "+atable[2]+" "+atable[3]+" "+atable[4]);
-						if( atable.length > 5 ) {
-							echo.append(" "+atable[5]);
+				for (String aLoottable : loottable)
+				{
+					String[] atable = StringUtils.split(aLoottable, ',');
+					if (atable.length > 4)
+					{
+						echo.append("!ADDLOOTTABLE ").append(atable[0]).append(" ").append(atable[1]).append(" ").append(atable[2]).append(" ").append(atable[3]).append(" ").append(atable[4]);
+						if (atable.length > 5)
+						{
+							echo.append(" ").append(atable[5]);
 						}
 						echo.append("<br />\n");
 					}
 				}
 			}
-			echo.append("#quest"+qquest.getQid()+"_status=\""+qquest_shortdesc+"\"<br />\n");
-			echo.append("!SETQUESTUISTATUS #quest"+qquest.getQid()+"_status 1<br />\n");
+			echo.append("#quest").append(qquest.getQid()).append("_status=\"").append(qquest_shortdesc).append("\"<br />\n");
+			echo.append("!SETQUESTUISTATUS #quest").append(qquest.getQid()).append("_status 1<br />\n");
 			echo.append("!PAUSE<br />\n<br />\n");
 			if( sourceobjectid == targetobjectid ) {
 				echo.append(tsCode);
@@ -565,12 +575,12 @@ public class QuestsQuick implements AdminPlugin {
 			 */
 			if( sourceobjectid != targetobjectid ) {
 				if( qquest.getTargetType().equals("gtuposten") ) {
-					echo.append("&lt;injectscript id=\"gtu-posten-"+targetobjectid+":posten\"&gt;<br />\n");
+					echo.append("&lt;injectscript id=\"gtu-posten-").append(targetobjectid).append(":posten\"&gt;<br />\n");
 				}
 				else {
-					echo.append("WARNUNG: unbekannter targettype '"+qquest.getTargetType()+"' - injectscript muss manuell eingefuegt werden<br />\n");
+					echo.append("WARNUNG: unbekannter targettype '").append(qquest.getTargetType()).append("' - injectscript muss manuell eingefuegt werden<br />\n");
 				}
-				echo.append("&lt;part id=\"parameters\"&gt;"+tsParams+"&lt;/part&gt;<br />\n");
+				echo.append("&lt;part id=\"parameters\"&gt;").append(tsParams).append("&lt;/part&gt;<br />\n");
 				echo.append("&lt;part id=\"menu\"&gt;<br />\n");
 				echo.append(tsMenu);
 				echo.append("&lt;/part&gt;<br />\n");

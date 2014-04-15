@@ -27,11 +27,9 @@ import net.driftingsouls.ds2.server.entities.statistik.StatVerkaeufe;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.ships.Ship;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.List;
 
 /**
@@ -43,10 +41,9 @@ import java.util.List;
 public class GtuVerkaeufe implements AdminPlugin
 {
 	@Override
-	public void output(AdminController controller) throws IOException
+	public void output(StringBuilder echo) throws IOException
 	{
 		Context context = ContextMap.getContext();
-		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
 
 		int system = context.getRequest().getParameterInt("system");
@@ -64,7 +61,7 @@ public class GtuVerkaeufe implements AdminPlugin
 
 			for( StarSystem sys : systems )
 			{
-				echo.append("<option value=\""+sys.getID()+"\">"+sys.getName()+" ("+sys.getID()+")</option>\n");
+				echo.append("<option value=\"").append(sys.getID()).append("\">").append(sys.getName()).append(" (").append(sys.getID()).append(")</option>\n");
 			}
 
 			echo.append("</select>\n");
@@ -88,7 +85,7 @@ public class GtuVerkaeufe implements AdminPlugin
 				{
 					continue;
 				}
-				echo.append("<option value='"+place+"'>"+s.getName()+" ("+s.getLocation().displayCoordinates(false)+")</option>");
+				echo.append("<option value='").append(place).append("'>").append(s.getName()).append(" (").append(s.getLocation().displayCoordinates(false)).append(")</option>");
 			}
 			echo.append("</select>\n");
 			echo.append("</td></tr>\n");
@@ -126,7 +123,7 @@ public class GtuVerkaeufe implements AdminPlugin
 			}
 
 			echo.append("<div class='gfxbox' style='width:400px'>");
-			echo.append("System: "+system+" - Type: "+type+"<br /><br />");
+			echo.append("System: ").append(system).append(" - Type: ").append(type).append("<br /><br />");
 			echo.append("<table width=\"100%\">\n");
 			echo.append("<tr>\n");
 			echo.append("<td>Item</td>");
@@ -139,8 +136,8 @@ public class GtuVerkaeufe implements AdminPlugin
 			{
 				echo.append("<tr>\n");
 				echo.append("<td>\n");
-				echo.append("<img src=\""+res.getImage()+"\" alt=\"\" title=\""+res.getPlainName()+"\" />"+res.getName()+"</td>");
-				echo.append("<td>&#216;"+Common.ln(Math.round(res.getCount1()/(double)entryCount))+"\n</td>");
+				echo.append("<img src=\"").append(res.getImage()).append("\" alt=\"\" title=\"").append(res.getPlainName()).append("\" />").append(res.getName()).append("</td>");
+				echo.append("<td>&#216;").append(Common.ln(Math.round(res.getCount1() / (double) entryCount))).append("\n</td>");
 				echo.append("</td>\n");
 				echo.append("<td>");
 				echo.append(Common.ln(Math.round(cargo.getResourceCount(res.getId())/7d)));

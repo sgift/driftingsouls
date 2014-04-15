@@ -1,8 +1,9 @@
-package net.driftingsouls.ds2.server.modules.admin.editoren;
+package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.entities.BeamWeapon;
 import net.driftingsouls.ds2.server.entities.Weapon;
-import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
+import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.Nonnull;

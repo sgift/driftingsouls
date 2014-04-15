@@ -24,10 +24,8 @@ import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.modules.AdminController;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.List;
 
 /**
@@ -39,11 +37,10 @@ import java.util.List;
 public class BattleEnd implements AdminPlugin 
 {
 	@Override
-	public void output(AdminController controller) throws IOException
+	public void output(StringBuilder echo) throws IOException
 	{
 		Context context = ContextMap.getContext();
-		Writer echo = context.getResponse().getWriter();
-		
+
 		int battleid = context.getRequest().getParameterInt("battleid");
 				
 		if( battleid == 0 ) 
@@ -57,11 +54,11 @@ public class BattleEnd implements AdminPlugin
 			for( Battle battle : battles )
 			{
 				echo.append("<tr>\n");
-				echo.append("<td class=\"noBorderX\">ID "+battle.getId()+"&nbsp;&nbsp;</td>\n");
-				echo.append("<td class=\"noBorderX\">"+battle.getSystem()+":"+battle.getX()+"/"+battle.getY()+"</td>\n");
+				echo.append("<td class=\"noBorderX\">ID ").append(battle.getId()).append("&nbsp;&nbsp;</td>\n");
+				echo.append("<td class=\"noBorderX\">").append(battle.getSystem()).append(":").append(battle.getX()).append("/").append(battle.getY()).append("</td>\n");
 				
-				String commander1 = null;
-				String commander2 = null;
+				String commander1;
+				String commander2;
 				
 				if( battle.getAlly(0) != 0 ) 
 				{
@@ -81,7 +78,7 @@ public class BattleEnd implements AdminPlugin
 				{
 					commander2 = Common._title(battle.getCommander(1).getName());
 				} 
-				echo.append("<td class=\"noBorderX\" style=\"text-align:center\">"+commander1+"<br />vs<br />"+commander2+"</td>\n");
+				echo.append("<td class=\"noBorderX\" style=\"text-align:center\">").append(commander1).append("<br />vs<br />").append(commander2).append("</td>\n");
 				echo.append("</tr>\n");
 			}
 			echo.append("</table>\n");

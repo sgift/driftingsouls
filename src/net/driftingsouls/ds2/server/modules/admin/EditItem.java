@@ -23,10 +23,8 @@ import net.driftingsouls.ds2.server.config.items.Item.Quality;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffectFactory;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.modules.AdminController;
 
 import java.io.IOException;
-import java.io.Writer;
 
 /**
  * Aktualisierungstool fuer die Werte eines Schiffes.
@@ -37,10 +35,9 @@ import java.io.Writer;
 public class EditItem implements AdminPlugin
 {
 	@Override
-	public void output(AdminController controller) throws IOException
+	public void output(StringBuilder echo) throws IOException
 	{
 		Context context = ContextMap.getContext();
-		Writer echo = context.getResponse().getWriter();
 		org.hibernate.Session db = context.getDB();
 
 		int itemid = context.getRequest().getParameterInt("itemid");
@@ -51,7 +48,7 @@ public class EditItem implements AdminPlugin
 		echo.append("<form action=\"./ds\" method=\"post\">");
 		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-		echo.append("<input type=\"text\" name=\"itemid\" value=\""+ itemid +"\" />\n");
+		echo.append("<input type=\"text\" name=\"itemid\" value=\"").append(itemid).append("\" />\n");
 		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
 		echo.append("</form>");
 
@@ -94,17 +91,17 @@ public class EditItem implements AdminPlugin
 			echo.append("<table class=\"noBorder\" width=\"100%\">");
 			echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-			echo.append("<input type=\"hidden\" name=\"itemid\" value=\"" + itemid + "\" />\n");
-			echo.append("<tr><td class=\"noBorderS\">Name: </td><td><input type=\"text\" name=\"name\" value=\"" + item.getName() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Bild: </td><td><input type=\"text\" name=\"picture\" size='50' value=\"" + item.getPicture() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Bild (gro&szlig;): </td><td><input type=\"text\" size='50' name=\"largepicture\" value=\"" + (item.getLargePicture() == null ? "" : item.getLargePicture()) + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Cargo: </td><td><input type=\"text\" name=\"itemcargo\" value=\"" + item.getCargo() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Qualit&auml;t: </td><td><input type=\"text\" name=\"quality\" value=\"" + item.getQuality().toString() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Beschreibung: </td><td><input type=\"text\" name=\"description\" value=\"" + item.getDescription() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Handel: </td><td><input type=\"text\" name=\"handel\" value=\"" + item.getHandel() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Accesslevel: </td><td><input type=\"text\" name=\"accesslevel\" value=\"" + item.getAccessLevel() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Unbekanntes Item: </td><td><input type=\"text\" name=\"unknownitem\" value=\"" + item.isUnknownItem() + "\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Spawn-Ressource: </td><td><input type=\"text\" name=\"spawnableress\" value=\"" + item.isSpawnableRess() + "\"></td></tr>\n");
+			echo.append("<input type=\"hidden\" name=\"itemid\" value=\"").append(itemid).append("\" />\n");
+			echo.append("<tr><td class=\"noBorderS\">Name: </td><td><input type=\"text\" name=\"name\" value=\"").append(item.getName()).append("\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Bild: </td><td><input type=\"text\" name=\"picture\" size='50' value=\"").append(item.getPicture()).append("\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Bild (gro&szlig;): </td><td><input type=\"text\" size='50' name=\"largepicture\" value=\"").append(item.getLargePicture() == null ? "" : item.getLargePicture()).append("\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Cargo: </td><td><input type=\"text\" name=\"itemcargo\" value=\"").append(item.getCargo()).append("\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Qualit&auml;t: </td><td><input type=\"text\" name=\"quality\" value=\"").append(item.getQuality().toString()).append("\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Beschreibung: </td><td><input type=\"text\" name=\"description\" value=\"").append(item.getDescription()).append("\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Handel: </td><td><input type=\"text\" name=\"handel\" value=\"").append(item.getHandel()).append("\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Accesslevel: </td><td><input type=\"text\" name=\"accesslevel\" value=\"").append(item.getAccessLevel()).append("\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Unbekanntes Item: </td><td><input type=\"text\" name=\"unknownitem\" value=\"").append(item.isUnknownItem()).append("\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Spawn-Ressource: </td><td><input type=\"text\" name=\"spawnableress\" value=\"").append(item.isSpawnableRess()).append("\"></td></tr>\n");
 			item.getEffect().getAdminTool(echo);
 			echo.append("<tr><td class=\"noBorderS\"></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
 			echo.append("</table>");

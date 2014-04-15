@@ -4,7 +4,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.Request;
 
 import javax.persistence.Entity;
 import java.io.IOException;
-import java.io.Writer;
 import java.util.function.Function;
 
 /**
@@ -24,7 +23,7 @@ public class LabelGenerator<V, T> implements CustomFieldGenerator<V>
 	}
 
 	@Override
-	public void generate(Writer echo, V entity) throws IOException
+	public void generate(StringBuilder echo, V entity) throws IOException
 	{
 		T value = getter.apply(entity);
 		String valueStr;

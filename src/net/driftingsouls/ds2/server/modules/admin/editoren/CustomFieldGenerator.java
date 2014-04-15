@@ -3,7 +3,6 @@ package net.driftingsouls.ds2.server.modules.admin.editoren;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 
 import java.io.IOException;
-import java.io.Writer;
 
 /**
  * Standardinterface fuer Feldgeneratoren. Jede Instanz generiert genau
@@ -17,7 +16,7 @@ public interface CustomFieldGenerator<V>
 	 * @param entity Die Entity-Instanz zu der das Feld generiert werden soll
 	 * @throws java.io.IOException Bei I/O-Fehlern
 	 */
-	public void generate(Writer echo, V entity) throws IOException;
+	public void generate(StringBuilder echo, V entity) throws IOException;
 
 	/**
 	 * Liesst die Angaben zum Feld aus der Request und speichert sie an der

@@ -22,10 +22,8 @@ import net.driftingsouls.ds2.server.entities.GlobalSectorTemplate;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.modules.AdminController;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.List;
 
 /**
@@ -36,10 +34,9 @@ import java.util.List;
 @AdminMenuEntry(category="Quests", name="Sectortemplates")
 public class QuestsSTM implements AdminPlugin {
 	@Override
-	public void output(AdminController controller) throws IOException {
+	public void output(StringBuilder echo) throws IOException {
 		Context context = ContextMap.getContext();
-		Writer echo = context.getResponse().getWriter();
-		
+
 		String stmid = context.getRequest().getParameterString("stmid");
 		String stmaction = context.getRequest().getParameterString("stmaction");
 		int x = context.getRequest().getParameterInt("x");
@@ -73,12 +70,12 @@ public class QuestsSTM implements AdminPlugin {
 					echo.append("<div class='gfxbox' style='width:590px'>");
 					echo.append("<div align=\"center\">STM-ID bearbeiten:</div><br />\n");
 					echo.append("<form action=\"./ds\" method=\"post\">\n");
-					echo.append("id: <input type=\"text\" name=\"newstmid\" value=\"" + template.getId() + "\" /><br />\n");
-					echo.append("Pos: <input type=\"text\" name=\"x\" value=\"" + template.getX() + "\" size=\"4\" />/\n");
-					echo.append("<input type=\"text\" name=\"y\" value=\"" + template.getY() + "\" size=\"4\"  /><br />\n");
-					echo.append("groesse (optional): <input type=\"text\" name=\"w\" value=\"" + template.getWidth() + "\" size=\"4\"  />/\n");
-					echo.append("<input type=\"text\" name=\"h\" value=\"" + template.getHeigth() + "\" size=\"4\"  /><br /><br />\n");
-					echo.append("<input type=\"hidden\" name=\"stmid\" value=\"" + stmid + "\" />\n");
+					echo.append("id: <input type=\"text\" name=\"newstmid\" value=\"").append(template.getId()).append("\" /><br />\n");
+					echo.append("Pos: <input type=\"text\" name=\"x\" value=\"").append(template.getX()).append("\" size=\"4\" />/\n");
+					echo.append("<input type=\"text\" name=\"y\" value=\"").append(template.getY()).append("\" size=\"4\"  /><br />\n");
+					echo.append("groesse (optional): <input type=\"text\" name=\"w\" value=\"").append(template.getWidth()).append("\" size=\"4\"  />/\n");
+					echo.append("<input type=\"text\" name=\"h\" value=\"").append(template.getHeigth()).append("\" size=\"4\"  /><br /><br />\n");
+					echo.append("<input type=\"hidden\" name=\"stmid\" value=\"").append(stmid).append("\" />\n");
 					echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 					echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 					echo.append("<input type=\"hidden\" name=\"stmaction\" value=\"edit2\" /></div>\n");
@@ -117,7 +114,7 @@ public class QuestsSTM implements AdminPlugin {
 
 					GlobalSectorTemplate template = (GlobalSectorTemplate) db.get(GlobalSectorTemplate.class, stmid);
 					db.delete(template);
-					echo.append("Sectortemplate '" + stmid + "' gel&ouml;scht");
+					echo.append("Sectortemplate '").append(stmid).append("' gel&ouml;scht");
 
 					echo.append("</div>");
 					echo.append("<br />\n");
@@ -147,19 +144,19 @@ public class QuestsSTM implements AdminPlugin {
 		List<GlobalSectorTemplate> templates = Common.cast(db.createQuery("from GlobalSectorTemplate").list());
 		
 		for(GlobalSectorTemplate template : templates ) {
-			echo.append("* <a class=\"forschinfo\" href=\"./ds?module=admin&namedplugin="+getClass().getName()+"&stmid="+template.getId()+"&stmaction=edit1\">");
-			echo.append(template.getId()+"</a> - "+template.getX()+"/"+template.getY());
+			echo.append("* <a class=\"forschinfo\" href=\"./ds?module=admin&namedplugin=").append(getClass().getName()).append("&stmid=").append(template.getId()).append("&stmaction=edit1\">");
+			echo.append(template.getId()).append("</a> - ").append(template.getX()).append("/").append(template.getY());
 			if( (template.getWidth() != 0) || (template.getHeigth() != 0) ) {
-				echo.append(" (Groesse: "+template.getWidth()+"x"+template.getHeigth()+")");	
+				echo.append(" (Groesse: ").append(template.getWidth()).append("x").append(template.getHeigth()).append(")");
 			}	
 			if( template.getScriptId() != 0 ) {
-				echo.append(" - Scriptid: "+template.getScriptId());	
+				echo.append(" - Scriptid: ").append(template.getScriptId());
 			} 
-			echo.append(" <a class=\"error\" href=\"./ds?module=admin&namedplugin="+getClass().getName()+"&stmid="+template.getId()+"&stmaction=delete1\">X</a>");
+			echo.append(" <a class=\"error\" href=\"./ds?module=admin&namedplugin=").append(getClass().getName()).append("&stmid=").append(template.getId()).append("&stmaction=delete1\">X</a>");
 			echo.append("<br />\n");
 		}
 		echo.append("<br />\n");
-		echo.append("<div align=\"center\"><a class=\"forschinfo\" href=\"./ds?module=admin&namedplugin="+getClass().getName()+"&newstm=1\">&gt; neu &lt;</div>\n");
+		echo.append("<div align=\"center\"><a class=\"forschinfo\" href=\"./ds?module=admin&namedplugin=").append(getClass().getName()).append("&newstm=1\">&gt; neu &lt;</div>\n");
 		echo.append("</div>");
 	}
 }

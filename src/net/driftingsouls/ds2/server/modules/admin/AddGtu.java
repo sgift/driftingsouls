@@ -28,11 +28,9 @@ import net.driftingsouls.ds2.server.entities.fraktionsgui.VersteigerungSchiff;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.List;
 
 /**
@@ -43,10 +41,9 @@ import java.util.List;
 @AdminMenuEntry(category="GTU", name="Versteigern")
 public class AddGtu implements AdminPlugin {
 	@Override
-	public void output(AdminController controller) throws IOException {
+	public void output(StringBuilder echo) throws IOException {
 		Context context = ContextMap.getContext();
-		Writer echo = context.getResponse().getWriter();
-		
+
 		int ship = context.getRequest().getParameterInt("ship");
 		String resource = context.getRequest().getParameterString("resource");
 		int dauer = context.getRequest().getParameterInt("dauer");

@@ -5,18 +5,16 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.utils.StringToTypeConverter;
-import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
-import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.Serializable;
-import java.io.Writer;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
@@ -40,12 +38,10 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 	}
 
 	@Override
-	public final void output(AdminController controller) throws IOException
+	public final void output(StringBuilder echo) throws IOException
 	{
 		Context context = ContextMap.getContext();
 		Session db = context.getDB();
-
-		Writer echo = context.getResponse().getWriter();
 
 		Request request = context.getRequest();
 		String entityId = request.getParameter("entityId");
@@ -133,7 +129,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		}
 	}
 
-	private void outputEntitySelection(Session db, Writer echo, EditorForm8<T> form) throws IOException
+	private void outputEntitySelection(Session db, StringBuilder echo, EditorForm8<T> form) throws IOException
 	{
 		echo.append("<div class='gfxbox adminSelection' style='width:390px'>");
 		Long count = (Long)db.createCriteria(baseClass).setProjection(Projections.rowCount()).uniqueResult();
@@ -181,7 +177,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		return (Serializable)StringToTypeConverter.convert(targetType, idString);
 	}
 
-	private void processJobs(Writer echo, T entity, T updatedEntity, List<EditorForm8.Job<T, ?>> updateTasks) throws IOException
+	private void processJobs(StringBuilder echo, T entity, T updatedEntity, List<EditorForm8.Job<T, ?>> updateTasks) throws IOException
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		db.getTransaction().commit();
@@ -209,7 +205,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		db.getTransaction().begin();
 	}
 
-	private void endEditorTable(Writer echo) throws IOException
+	private void endEditorTable(StringBuilder echo) throws IOException
 	{
 		echo.append("</table>");
 		echo.append("</form>\n");
@@ -273,14 +269,14 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		return true;
 	}
 
-	private void beginSelectionBox(Writer echo, Class<? extends AdminPlugin> plugin) throws IOException
+	private void beginSelectionBox(StringBuilder echo, Class<? extends AdminPlugin> plugin) throws IOException
 	{
 		echo.append("<form action=\"./ds\" method=\"post\">");
 		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(plugin.getName()).append("\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 	}
 
-	private void addSelectionOption(Writer echo, Object id, String label) throws IOException
+	private void addSelectionOption(StringBuilder echo, Object id, String label) throws IOException
 	{
 		Context context = ContextMap.getContext();
 		String currentIdStr = context.getRequest().getParameter("entityId");
@@ -290,13 +286,13 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		echo.append("<option value=\"").append(idStr).append("\" ").append(selektiert ? "selected=\"selected\"" : "").append(">").append(label).append("</option>");
 	}
 
-	private void endSelectionBox(Writer echo) throws IOException
+	private void endSelectionBox(StringBuilder echo) throws IOException
 	{
 		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
 		echo.append("</form>");
 	}
 
-	private void addForm(Writer echo, Class<? extends AdminPlugin> plugin) throws IOException
+	private void addForm(StringBuilder echo, Class<? extends AdminPlugin> plugin) throws IOException
 	{
 		echo.append("<form action=\"./ds\" method=\"post\">");
 		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(plugin.getName()).append("\" />\n");
@@ -305,7 +301,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		echo.append("</form>");
 	}
 
-	private void beginEditorTable(final Writer echo, Class<? extends AdminPlugin> plugin, Object entityId) throws IOException
+	private void beginEditorTable(final StringBuilder echo, Class<? extends AdminPlugin> plugin, Object entityId) throws IOException
 	{
 		echo.append("<div class='gfxbox adminEditor' style='width:700px'>");
 		echo.append("<form action=\"./ds\" method=\"post\" enctype='multipart/form-data'>");

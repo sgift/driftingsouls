@@ -21,7 +21,6 @@ package net.driftingsouls.ds2.server.modules.admin;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.scripting.QuestXMLParser;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
@@ -29,7 +28,6 @@ import org.apache.commons.lang.SystemUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Writer;
 import java.util.Map;
 
 /**
@@ -56,10 +54,9 @@ public class QuestsFiles implements AdminPlugin {
 	}
 	
 	@Override
-	public void output(AdminController controller) throws IOException {
+	public void output(StringBuilder echo) throws IOException {
 		Context context = ContextMap.getContext();
-		Writer echo = context.getResponse().getWriter();
-		
+
 		String unlink = context.getRequest().getParameterString("unlink");
 		String installfile = context.getRequest().getParameterString("installfile");
 		int conf = context.getRequest().getParameterInt("conf");
@@ -68,7 +65,7 @@ public class QuestsFiles implements AdminPlugin {
 
 		echo.append("<div class='gfxbox' style='width:590px'>");
 		echo.append("<form action=\"./ds\" method=\"post\">\n");
-		echo.append("<input type=\"text\" name=\"installfile\" value=\"" + (installfile.length() == 0 ? "Datei" : installfile) + "\" size=\"50\" />\n");
+		echo.append("<input type=\"text\" name=\"installfile\" value=\"").append(installfile.length() == 0 ? "Datei" : installfile).append("\" size=\"50\" />\n");
 		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 		echo.append("<input type=\"submit\" value=\"installieren\" />\n");
@@ -92,9 +89,9 @@ public class QuestsFiles implements AdminPlugin {
 			
 			if( conf == 0 ) {
 				echo.append("<div class='gfxbox' style='width:590px;text-align:center'>");
-				echo.append("Wollen sie die Quest-XML "+unlinkName+" wirklich l&ouml;schen?<br />\n");
-				echo.append("<a class=\"error\" href=\"./ds?module=admin&namedplugin="+getClass().getName()+"&unlink="+unlink+"&conf=1\">ja</a> - \n");
-				echo.append("<a class=\"ok\" href=\"./ds?module=admin&namedplugin="+getClass().getName()+"\">nein</a>\n");
+				echo.append("Wollen sie die Quest-XML ").append(unlinkName).append(" wirklich l&ouml;schen?<br />\n");
+				echo.append("<a class=\"error\" href=\"./ds?module=admin&namedplugin=").append(getClass().getName()).append("&unlink=").append(unlink).append("&conf=1\">ja</a> - \n");
+				echo.append("<a class=\"ok\" href=\"./ds?module=admin&namedplugin=").append(getClass().getName()).append("\">nein</a>\n");
 				
 				echo.append("</div>");
 				echo.append("<br />\n");
@@ -135,7 +132,7 @@ public class QuestsFiles implements AdminPlugin {
 				echo.append("Die QuestXML wurde auf dem Server gespeichert<br />");
 			}
 			catch( Exception e ) {
-				echo.append("Upload gescheitert: "+e+"<br />");
+				echo.append("Upload gescheitert: ").append(e).append("<br />");
 				e.printStackTrace();
 			}
 			
@@ -149,14 +146,14 @@ public class QuestsFiles implements AdminPlugin {
 			if( new File(questpath+info+".install").exists() ) {
 				QuestXMLParser questXML = new QuestXMLParser(QuestXMLParser.Mode.READ, info);
 				
-				echo.append("<div align=\"center\">&gt;"+info+"&lt;</div>\n");
+				echo.append("<div align=\"center\">&gt;").append(info).append("&lt;</div>\n");
 				
 				Map<String,Integer> questids = questXML.getInstallData("questids");
 				if( questids.size() > 0 ) {
 					echo.append("Quests:<br />");
 					for( Map.Entry<String, Integer> entry: questids.entrySet()) {
 						String xid = entry.getKey();
-						echo.append("* "+xid+" [DB: "+entry.getValue()+"]<br />");	
+						echo.append("* ").append(xid).append(" [DB: ").append(entry.getValue()).append("]<br />");
 					}
 				}
 				
@@ -165,7 +162,7 @@ public class QuestsFiles implements AdminPlugin {
 					echo.append("<br />Antworten:<br />");
 					for( Map.Entry<String, Integer> entry: answerids.entrySet() ) {
 						String xid = entry.getKey();
-						echo.append("* "+xid+" [DB: "+entry.getValue()+"]<br />");
+						echo.append("* ").append(xid).append(" [DB: ").append(entry.getValue()).append("]<br />");
 					}
 				}
 				
@@ -174,7 +171,7 @@ public class QuestsFiles implements AdminPlugin {
 					echo.append("<br />Dialoge:<br />");
 					for( Map.Entry<String, Integer> entry: dialogids.entrySet() ) {
 						String xid = entry.getKey();
-						echo.append("* "+xid+" [DB: "+entry.getValue()+"]<br />");
+						echo.append("* ").append(xid).append(" [DB: ").append(entry.getValue()).append("]<br />");
 					}
 				}
 				
@@ -182,7 +179,7 @@ public class QuestsFiles implements AdminPlugin {
 				if( scriptids.size() > 0 ) {
 					echo.append("<br />Scripte:<br />"); 
 					for( Map.Entry<String,Integer> entry : scriptids.entrySet() ) {
-						echo.append("* "+entry.getKey()+" [DB: "+entry.getValue()+"]<br />");
+						echo.append("* ").append(entry.getKey()).append(" [DB: ").append(entry.getValue()).append("]<br />");
 					}
 				}
 			}
@@ -208,9 +205,9 @@ public class QuestsFiles implements AdminPlugin {
 
 			if (aChildlist.getName().contains(".xml"))
 			{
-				echo.append(basename(aChildlist.getName(), ".xml") + "\n");
-				echo.append(" - <a class=\"error\" href=\"./ds?module=admin&namedplugin=" + getClass().getName() + "&unlink=" + basename(aChildlist.getName(), ".xml") + "\">X</a>\n");
-				echo.append("<a class=\"forschinfo\" href=\"./ds?module=admin&namedplugin=" + getClass().getName() + "&info=" + basename(aChildlist.getName(), ".xml") + "\">info</a><br />\n");
+				echo.append(basename(aChildlist.getName(), ".xml")).append("\n");
+				echo.append(" - <a class=\"error\" href=\"./ds?module=admin&namedplugin=").append(getClass().getName()).append("&unlink=").append(basename(aChildlist.getName(), ".xml")).append("\">X</a>\n");
+				echo.append("<a class=\"forschinfo\" href=\"./ds?module=admin&namedplugin=").append(getClass().getName()).append("&info=").append(basename(aChildlist.getName(), ".xml")).append("\">info</a><br />\n");
 			}
 		}
 		echo.append("<br />\n");

@@ -28,7 +28,6 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.modules.AdminController;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
 /**
@@ -40,9 +39,8 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 public class GtuPrices implements AdminPlugin {
 
 	@Override
-	public void output(AdminController controller) throws IOException {
+	public void output(StringBuilder echo) throws IOException {
 		Context context = ContextMap.getContext();
-		Writer echo = context.getResponse().getWriter();
 
 		org.hibernate.Session db = context.getDB();
 
@@ -79,12 +77,12 @@ public class GtuPrices implements AdminPlugin {
 			long menge = ((Number)row[2]).longValue();
 
 			echo.append("<tr><td>");
-			echo.append(res.getCount1()+"x</td><td><img src=\""+res.getImage()+"\" alt=\"\" />"+res.getName());
+			echo.append(res.getCount1()).append("x</td><td><img src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getName());
 			echo.append("</td>\n");
-			echo.append("<td>"+Common.ln(menge)+"x</td>\n");
-			echo.append("<td>"+Common.ln(avprice)+" RE\n");
+			echo.append("<td>").append(Common.ln(menge)).append("x</td>\n");
+			echo.append("<td>").append(Common.ln(avprice)).append(" RE\n");
 			if( res.getCount1() > 1 ) {
-				echo.append(" &#216;"+Common.ln(avprice/res.getCount1())+"/E\n");
+				echo.append(" &#216;").append(Common.ln(avprice / res.getCount1())).append("/E\n");
 			}
 			echo.append("</td></tr>\n");
 		}
@@ -102,11 +100,9 @@ public class GtuPrices implements AdminPlugin {
 			Object[] row = (Object[])obj;
 			ShipType type = (ShipType)row[0];
 
-			echo.append("<tr><td></td><td><a class=\"forschinfo\" " +
-					"href=\"./ds?module=schiffinfo&sess=$sess&ship="+type.getId()+"\">"+
-					type.getNickname()+"</a> ("+type.getId()+")</td>\n");
-			echo.append("<td>"+row[2]+"x</td>\n");
-			echo.append("<td>"+Common.ln((Number)row[1])+" RE</td></tr>\n");
+			echo.append("<tr><td></td><td><a class=\"forschinfo\" " + "href=\"./ds?module=schiffinfo&sess=$sess&ship=").append(type.getId()).append("\">").append(type.getNickname()).append("</a> (").append(type.getId()).append(")</td>\n");
+			echo.append("<td>").append(row[2]).append("x</td>\n");
+			echo.append("<td>").append(Common.ln((Number) row[1])).append(" RE</td></tr>\n");
 		}
 
 		echo.append("</tbody>");

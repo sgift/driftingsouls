@@ -645,7 +645,7 @@ public class ShipTypeChangeset {
 	 * @param append Der Zusatz der bei diesem Changeset genutzt werden soll (Fuer Meta-Sets)
 	 * @throws IOException Exception falls ein fehler auftritt
 	 */
-	public void getAdminTool(Writer echo, String append) throws IOException {
+	public void getAdminTool(StringBuilder echo, String append) throws IOException {
 
 		String weaponstring = "";
 		Map<String, Integer[]> weapons = getWeapons();

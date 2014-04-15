@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.config.items.effects;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -137,7 +136,7 @@ public class IEModuleSetMeta extends ItemEffect {
 	 * @throws IOException Exception falls ein fehler auftritt
 	 */
 	@Override
-	public void getAdminTool(Writer echo) throws IOException {
+	public void getAdminTool(StringBuilder echo) throws IOException {
 		Map<Integer, ShipTypeChangeset> combos = getCombos();
 		
 		echo.append("<input type=\"hidden\" name=\"type\" value=\"module-set-meta\" >");
