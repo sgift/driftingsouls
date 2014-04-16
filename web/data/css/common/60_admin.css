@@ -1,5 +1,5 @@
 #admin {
-	padding-left:300px;
+	padding-left:270px;
 	position:relative;
 }
 
@@ -10,7 +10,7 @@
 #admin .treemenu
 {
 	position:absolute;
-	left:0;
+	left:-30px;
 	top:0;
 	width:250px;
 }
@@ -38,6 +38,10 @@
 	line-height:140%;
 	text-indent:0;
 	padding-left: 15px;
+}
+
+#admin .treemenu li img {
+	padding-right:3px;
 }
 
 #admin .treemenu .collapsed:before {

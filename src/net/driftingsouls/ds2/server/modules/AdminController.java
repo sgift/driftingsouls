@@ -27,6 +27,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
 import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
+import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -233,7 +234,16 @@ public class AdminController extends Controller
 			for (MenuEntry entry : category.actions)
 			{
 				boolean active = entry.cls.getName().equals(namedplugin);
-				echo.append("<li><a class=\"forschinfo ").append(active?"active" : "").append("\" href=\"./ds?module=admin&namedplugin=").append(entry.cls.getCanonicalName()).append("\">").append(entry.name).append("</a></li>\n");
+				echo.append("<li>");
+				if(AbstractEditPlugin8.class.isAssignableFrom(entry.cls) )
+				{
+					echo.append("<img src='data/interface/admin/editor.png' />");
+				}
+				else
+				{
+					echo.append("<img src='data/interface/admin/tool.png' />");
+				}
+				echo.append("<a class=\"forschinfo ").append(active?"active" : "").append("\" href=\"./ds?module=admin&namedplugin=").append(entry.cls.getCanonicalName()).append("\">").append(entry.name).append("</a></li>\n");
 			}
 			echo.append("</ul></li>");
 		}
