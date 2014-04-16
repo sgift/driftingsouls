@@ -29,7 +29,7 @@ import javax.annotation.Nonnull;
  *
  * @author Christopher Jung
  */
-@AdminMenuEntry(category = "Einheiten", name = "Einheitengrafik editieren")
+@AdminMenuEntry(category = "Einheiten", name = "Einheitengrafik")
 public class EditUnitPicture extends AbstractEditPlugin8<UnitType> implements AdminPlugin
 {
 	public EditUnitPicture()

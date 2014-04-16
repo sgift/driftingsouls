@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@AdminMenuEntry(category = "Schiffe", name = "Waffen editieren")
+@AdminMenuEntry(category = "Schiffe", name = "Waffe")
 public class EditWeapon extends AbstractEditPlugin8<Weapon>
 {
 

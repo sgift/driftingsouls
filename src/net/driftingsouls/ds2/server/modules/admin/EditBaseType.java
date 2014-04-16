@@ -29,7 +29,7 @@ import javax.annotation.Nonnull;
  * Aktualisierungstool fuer die Basis-Klassen.
  * 
  */
-@AdminMenuEntry(category = "Asteroiden", name = "Basis-Klasse editieren")
+@AdminMenuEntry(category = "Asteroiden", name = "Basis-Klasse")
 public class EditBaseType extends AbstractEditPlugin8<BaseType> implements AdminPlugin
 {
 	public EditBaseType()

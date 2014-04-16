@@ -31,7 +31,7 @@ import javax.annotation.Nonnull;
  *
  * @author Sebastian Gift
  */
-@AdminMenuEntry(category = "Einheiten", name = "Einheit editieren")
+@AdminMenuEntry(category = "Einheiten", name = "Einheit")
 public class EditUnits extends AbstractEditPlugin8<UnitType>
 {
 	public EditUnits()

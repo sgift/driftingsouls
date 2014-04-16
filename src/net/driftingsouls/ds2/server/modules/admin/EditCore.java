@@ -15,7 +15,7 @@ import javax.annotation.Nonnull;
  *
  * @author Sebastian Gift
  */
-@AdminMenuEntry(category = "Asteroiden", name = "Core editieren")
+@AdminMenuEntry(category = "Asteroiden", name = "Core")
 public class EditCore extends AbstractEditPlugin8<Core>
 {
 	public EditCore()

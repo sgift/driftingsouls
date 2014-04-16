@@ -31,7 +31,7 @@ import javax.annotation.Nonnull;
 /**
  * Aktualisierungstool fuer die Kosten von Schiffstypen.
  */
-@AdminMenuEntry(category = "Schiffe", name = "Baukosten editieren")
+@AdminMenuEntry(category = "Schiffe", name = "Baukosten")
 public class EditShipCosts extends AbstractEditPlugin8<ShipBaubar>
 {
 	public EditShipCosts()

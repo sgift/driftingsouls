@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  *
  * @author Sebastian Gift
  */
-@AdminMenuEntry(category = "Asteroiden", name = "Gebäude editieren")
+@AdminMenuEntry(category = "Asteroiden", name = "Gebäude")
 public class EditBuilding extends AbstractEditPlugin8<Building>
 {
 	public EditBuilding()

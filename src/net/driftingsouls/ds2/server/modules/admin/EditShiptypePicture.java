@@ -32,7 +32,7 @@ import java.util.List;
  *
  * @author Christopher Jung
  */
-@AdminMenuEntry(category = "Schiffe", name = "Typengrafik editieren")
+@AdminMenuEntry(category = "Schiffe", name = "Typengrafik")
 public class EditShiptypePicture extends AbstractEditPlugin8<ShipType> implements AdminPlugin
 {
 	public EditShiptypePicture()

@@ -35,7 +35,7 @@ import javax.annotation.Nonnull;
  * Aktualisierungstool fuer die Systeme.
  *
  */
-@AdminMenuEntry(category = "Systeme", name = "System editieren")
+@AdminMenuEntry(category = "Systeme", name = "System")
 public class EditSystem extends AbstractEditPlugin8<StarSystem> implements AdminPlugin
 {
 	public EditSystem()

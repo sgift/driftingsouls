@@ -29,7 +29,7 @@ import javax.annotation.Nonnull;
  *
  * @author Christopher Jung
  */
-@AdminMenuEntry(category = "Items", name = "Itemgrafik editieren")
+@AdminMenuEntry(category = "Items", name = "Itemgrafik")
 public class EditItemPicture extends AbstractEditPlugin8<Item> implements AdminPlugin
 {
 	public EditItemPicture()

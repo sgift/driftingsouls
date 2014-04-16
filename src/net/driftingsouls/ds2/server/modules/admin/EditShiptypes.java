@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  *
  * @author Sebastian Gift
  */
-@AdminMenuEntry(category = "Schiffe", name = "Typen editieren")
+@AdminMenuEntry(category = "Schiffe", name = "Typ")
 public class EditShiptypes extends AbstractEditPlugin8<ShipType>
 {
 	public EditShiptypes()

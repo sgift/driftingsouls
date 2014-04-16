@@ -39,7 +39,7 @@ import java.util.List;
  *
  * @author Sebastian Gift
  */
-@AdminMenuEntry(category = "Asteroiden", name = "Basis editieren")
+@AdminMenuEntry(category = "Asteroiden", name = "Basis")
 public class EditBases extends AbstractEditPlugin8<Base>
 {
 	public EditBases()

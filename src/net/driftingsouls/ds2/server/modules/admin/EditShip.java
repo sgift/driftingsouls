@@ -34,7 +34,7 @@ import java.util.Map;
  *
  * @author Sebastian Gift
  */
-@AdminMenuEntry(category = "Schiffe", name = "Schiff editieren")
+@AdminMenuEntry(category = "Schiffe", name = "Schiff")
 public class EditShip extends AbstractEditPlugin8<Ship>
 {
 	public EditShip()

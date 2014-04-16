@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  *
  * @author Sebastian Gift
  */
-@AdminMenuEntry(category = "Spieler", name = "Spieler editieren")
+@AdminMenuEntry(category = "Spieler", name = "Spieler")
 public class EditUser extends AbstractEditPlugin8<User>
 {
 	public EditUser()

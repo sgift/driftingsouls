@@ -30,7 +30,7 @@ import javax.annotation.Nonnull;
  * @author Sebastian Gift
  *
  */
-@AdminMenuEntry(category = "Items", name = "Munition bearbeiten")
+@AdminMenuEntry(category = "Items", name = "Munition")
 public class EditAmmo extends AbstractEditPlugin8<Ammo>
 {
 	public EditAmmo()

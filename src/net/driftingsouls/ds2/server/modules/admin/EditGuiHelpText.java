@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@AdminMenuEntry(category = "Sonstiges", name = "Hilfetexte")
+@AdminMenuEntry(category = "Sonstiges", name = "Hilfetext")
 public class EditGuiHelpText extends AbstractEditPlugin8<GuiHelpText>
 {
 	public EditGuiHelpText()

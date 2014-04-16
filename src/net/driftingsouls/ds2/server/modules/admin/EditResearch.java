@@ -31,7 +31,7 @@ import javax.annotation.Nonnull;
  * @author Christopher Jung
  *
  */
-@AdminMenuEntry(category="Techs", name="Bearbeiten")
+@AdminMenuEntry(category="Techs", name="Forschung")
 public class EditResearch extends AbstractEditPlugin8<Forschung> {
 	public EditResearch()
 	{

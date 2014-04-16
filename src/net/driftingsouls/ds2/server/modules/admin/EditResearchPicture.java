@@ -29,7 +29,7 @@ import javax.annotation.Nonnull;
  *
  * @author Christopher Jung
  */
-@AdminMenuEntry(category = "Techs", name = "Forschungsgrafik editieren")
+@AdminMenuEntry(category = "Techs", name = "Forschungsgrafik")
 public class EditResearchPicture extends AbstractEditPlugin8<Forschung> implements AdminPlugin
 {
 	public EditResearchPicture()

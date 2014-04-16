@@ -32,7 +32,7 @@ import java.math.BigDecimal;
  *
  * @author Sebastian Gift
  */
-@AdminMenuEntry(category = "Items", name = "Fabrikeintraege editieren")
+@AdminMenuEntry(category = "Items", name = "Fabrikeintrag")
 public class EditFactoryEntry extends AbstractEditPlugin8<FactoryEntry>
 {
 	public EditFactoryEntry()
