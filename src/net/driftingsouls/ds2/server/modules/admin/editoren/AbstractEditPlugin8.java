@@ -158,7 +158,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 				{
 					currentIdStr = "";
 				}
-				echo.append("<input type=\"text\" name=\"entityId\" value=\""+currentIdStr+"\" ").append(isAddDisplayed() ? "readonly=\"readonly\"" : "").append(" />");
+				HtmlUtils.textInput(echo, "entityId", isAddDisplayed(), db.getSessionFactory().getClassMetadata(baseClass).getIdentifierType().getReturnedClass(), currentIdStr);
 			}
 
 			endSelectionBox(echo);

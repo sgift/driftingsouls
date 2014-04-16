@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -108,50 +107,9 @@ public class FieldGenerator<E, T> implements CustomFieldGenerator<E>
 		}
 		else
 		{
-			echo.append("<input type=\"text\" ").append("id=\"").append(name).append("\" ").append(readOnly.apply(entity) ? "disable='disabled' " : "").append("name=\"").append(name).append("\" value=\"").append(value != null ? value.toString() : "").append("\">");
-			if (Number.class.isAssignableFrom(viewType))
-			{
-				writeAutoNumberJavaScript(echo);
-			}
+			HtmlUtils.textInput(echo, name, readOnly.apply(entity), viewType, value);
 		}
 		echo.append("</td></tr>\n");
-	}
-
-	private void writeAutoNumberJavaScript(StringBuilder echo) throws IOException
-	{
-		int mDec = 0;
-		Number minValue = -999999999.99;
-		Number maxValue = 999999999.99;
-		if (viewType == Double.class || viewType == Float.class || viewType == BigDecimal.class)
-		{
-			mDec = 8;
-		}
-		if (viewType == Integer.class)
-		{
-			minValue = Integer.MIN_VALUE;
-			maxValue = Integer.MAX_VALUE;
-		}
-		else if (viewType == Long.class)
-		{
-			minValue = Long.MIN_VALUE;
-			maxValue = Long.MAX_VALUE;
-		}
-		else if (viewType == Short.class)
-		{
-			minValue = Short.MIN_VALUE;
-			maxValue = Short.MAX_VALUE;
-		}
-		else if (viewType == Byte.class)
-		{
-			minValue = Byte.MIN_VALUE;
-			maxValue = Byte.MAX_VALUE;
-		}
-
-		echo.append("<script type=\"text/javascript\">\n");
-		echo.append("$('#").append(name).append("').autoNumeric('init', {aSep:'', vMin:").append(minValue.toString())
-				.append(", vMax:").append(maxValue.toString())
-				.append(", lZero: 'deny', mDec:").append(Integer.toString(mDec)).append("});\n");
-		echo.append("</script>");
 	}
 
 	@SuppressWarnings("unchecked")

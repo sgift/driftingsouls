@@ -5,6 +5,7 @@ import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.modules.admin.editoren.HtmlUtils;
 
 import java.io.IOException;
 
@@ -48,8 +49,9 @@ public class EditConfigValues implements AdminPlugin
 			echo.append("<tr><td>").append(value.getName()).append("</td>");
 			if( Number.class.isAssignableFrom(value.getType()) )
 			{
-				echo.append("<td><input type=\"text\" name=\"").append(value.getName()).append("\" value=\"");
-				echo.append(configServiceValue != null ? configServiceValue.toString() : "").append("\" /></td>");
+				echo.append("<td>");
+				HtmlUtils.textInput(echo, value.getName(), false, value.getType(), configServiceValue);
+				echo.append("</td>");
 			}
 			else if( Boolean.class.isAssignableFrom(value.getType()) )
 			{
