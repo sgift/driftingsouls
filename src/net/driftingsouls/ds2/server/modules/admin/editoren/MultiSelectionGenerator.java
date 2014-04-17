@@ -110,6 +110,19 @@ public class MultiSelectionGenerator<E, T> implements CustomFieldGenerator<E>
 		}
 	}
 
+	@Override
+	public ColumnDefinition getColumnDefinition()
+	{
+		return new ColumnDefinition(name, label, viewType);
+	}
+
+	@Override
+	public String serializedValueOf(E entity)
+	{
+		Set<T> selectedValues = getter.apply(entity);
+		return selectedValues.stream().map((v) -> new ObjectLabelGenerator().generateFor(getIdentifierFor(viewType, v), v)).collect(Collectors.joining(","));
+	}
+
 	@SuppressWarnings("unchecked")
 	private T convertToEntity(@Nonnull String val)
 	{

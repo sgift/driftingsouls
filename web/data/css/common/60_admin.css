@@ -110,3 +110,26 @@
 #admin .adminEditor .dynamicContentEdit textarea{
     width:100%;
 }
+
+/**
+	GRID
+**/
+#admin #entityListWrapper {
+	width:95%;
+	overflow-x:auto;
+	min-height:600px;
+	margin-top:20px;
+}
+
+#admin .gridpicture {
+	max-height:30px;
+}
+
+#admin .gridcargo img {
+	max-height:30px;
+}
+
+#admin .gridtextarea {
+	max-height:30px;
+	text-overflow: ellipsis;
+}

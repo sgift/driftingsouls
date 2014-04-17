@@ -51,7 +51,6 @@ class HtmlOutputHelper extends OutputHelper {
 		sb.append("<title>Drifting Souls 2</title>\n");
 		sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n");
 		sb.append("<meta http-equiv=\"X-UA-Compatible\" content=\"IE=9\">\n");
-		sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"./data/css/ui-darkness/jquery-ui-1.8.20.css\" />\n");
 		if( devMode )
 		{
 			appendDevModeCss(sb);
@@ -60,6 +59,7 @@ class HtmlOutputHelper extends OutputHelper {
 		{
 			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"./data/css/v").append(version.getHgVersion()).append("/format.css\" />\n");
 		}
+		sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"./data/css/ui-darkness/jquery-ui-1.8.20.css\" />\n");
 
 		sb.append("<!--[if IE]>\n");
 		sb.append("<style type=\"text/css\">@import url(./data/css/v").append(version.getHgVersion()).append("/format_fuer_den_dummen_ie.css);</style>\n");

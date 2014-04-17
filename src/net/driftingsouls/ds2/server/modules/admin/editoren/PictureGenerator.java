@@ -11,11 +11,13 @@ import java.util.function.Function;
  */
 public class PictureGenerator<E> implements CustomFieldGenerator<E>
 {
+	private final String id;
 	private final String label;
 	private final Function<E,String> getter;
 
-	public PictureGenerator(String label, Function<E, String> getter)
+	public PictureGenerator(String id, String label, Function<E, String> getter)
 	{
+		this.id = id;
 		this.label = label;
 		this.getter = getter;
 	}
@@ -36,5 +38,17 @@ public class PictureGenerator<E> implements CustomFieldGenerator<E>
 	@Override
 	public void applyRequestValues(Request request, E entity)
 	{
+	}
+
+	@Override
+	public ColumnDefinition getColumnDefinition()
+	{
+		return new ColumnDefinition(id, label, String.class, "picture");
+	}
+
+	@Override
+	public String serializedValueOf(E entity)
+	{
+		return getter.apply(entity);
 	}
 }

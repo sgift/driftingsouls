@@ -42,4 +42,16 @@ public class TextAreaGenerator<V> implements CustomFieldGenerator<V>
 			String value = request.getParameterString(this.name);
 			setter.accept(entity,value);
 	}
+
+	@Override
+	public ColumnDefinition getColumnDefinition()
+	{
+		return new ColumnDefinition(name, label, String.class, "textarea");
+	}
+
+	@Override
+	public String serializedValueOf(V entity)
+	{
+		return this.getter.apply(entity);
+	}
 }

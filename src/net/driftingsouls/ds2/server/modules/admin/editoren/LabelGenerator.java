@@ -13,11 +13,13 @@ import java.util.function.Function;
  */
 public class LabelGenerator<V, T> implements CustomFieldGenerator<V>
 {
+	private final String id;
 	private final String label;
 	private final Function<V,T> getter;
 
-	public LabelGenerator(String label, Function<V, T> getter)
+	public LabelGenerator(String id, String label, Function<V, T> getter)
 	{
+		this.id = id;
 		this.label = label;
 		this.getter = getter;
 	}
@@ -25,7 +27,26 @@ public class LabelGenerator<V, T> implements CustomFieldGenerator<V>
 	@Override
 	public void generate(StringBuilder echo, V entity) throws IOException
 	{
-		T value = getter.apply(entity);
+		String valueStr = serializedValueOf(entity);
+		echo.append("<tr>");
+		echo.append("<td colspan='2'>").append(label.trim().isEmpty() ? "" : label + ":").append("</td>").append("<td>").append(valueStr).append("</td></tr>\n");
+	}
+
+	@Override
+	public void applyRequestValues(Request request, V entity)
+	{
+	}
+
+	@Override
+	public ColumnDefinition getColumnDefinition()
+	{
+		return new ColumnDefinition(id, label, String.class);
+	}
+
+	@Override
+	public String serializedValueOf(V entity)
+	{
+		T value = this.getter.apply(entity);
 		String valueStr;
 		if( value != null && value.getClass().isAnnotationPresent(Entity.class) )
 		{
@@ -35,12 +56,6 @@ public class LabelGenerator<V, T> implements CustomFieldGenerator<V>
 		{
 			valueStr = value != null ? value.toString() : "";
 		}
-		echo.append("<tr>");
-		echo.append("<td colspan='2'>").append(label.trim().isEmpty() ? "" : label + ":").append("</td>").append("<td>").append(valueStr).append("</td></tr>\n");
-	}
-
-	@Override
-	public void applyRequestValues(Request request, V entity)
-	{
+		return valueStr;
 	}
 }

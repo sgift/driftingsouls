@@ -1,5 +1,6 @@
 package net.driftingsouls.ds2.server.modules.admin.editoren;
 
+import com.google.gson.Gson;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -127,6 +128,34 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 			beginEditorTable(echo, this.getClass(), -1);
 			form.generateForm(entity);
 		}
+		else
+		{
+			outputEntityTable(db, echo, form);
+		}
+	}
+
+	private void outputEntityTable(Session db, StringBuilder echo, EditorForm8<T> form)
+	{
+		JqGridViewModel model = new JqGridViewModel();
+		model.url = "./ds?module=admin&namedplugin="+this.getClass().getName()+"&action=tableData&FORMAT=JSON";
+		model.pager = "#pager";
+		model.colNames.add("Id");
+		model.colModel.add(new JqGridColumnViewModel("id", null));
+		model.colModel.get(0).width = 50;
+		for (ColumnDefinition columnDefinition : form.getColumnDefinitions())
+		{
+			model.colNames.add(columnDefinition.getLabel());
+			model.colModel.add(new JqGridColumnViewModel(columnDefinition.getId(), columnDefinition.getFormatter()));
+		}
+
+		echo.append("<script type='text/javascript'>\n");
+		echo.append("Admin.createEntityTable(\n");
+		echo.append(new Gson().toJson(model));
+		echo.append(");\n</script>");
+		echo.append("<div id='entityListWrapper'>");
+		echo.append("<table id='entityList'><tr><td></td></tr></table>");
+		echo.append("<div id='pager'></div>");
+		echo.append("</div>");
 	}
 
 	private void outputEntitySelection(Session db, StringBuilder echo, EditorForm8<T> form) throws IOException
@@ -350,5 +379,38 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 	protected final User getActiveUser()
 	{
 		return (User)ContextMap.getContext().getActiveUser();
+	}
+
+	public JqGridTableDataViewModel generateTableData(int page, int rows)
+	{
+		EditorForm8<T> form = new EditorForm8<>(EditorMode.UPDATE, this.getClass(), new StringBuilder());
+		configureFor(form);
+
+		if( page <= 0 )
+		{
+			page = 1;
+		}
+
+		Number rowCount = (Number)getDB().createCriteria(baseClass).setProjection(Projections.rowCount()).uniqueResult();
+
+		JqGridTableDataViewModel model = new JqGridTableDataViewModel();
+		model.page = page;
+		model.records = rowCount != null ? rowCount.intValue() : 0;
+		model.total = rowCount != null ? rowCount.intValue()/rows+1 : 1;
+
+		List<T> entities = Common.cast(getDB()
+				.createCriteria(baseClass)
+				.setFirstResult((page - 1) * rows)
+				.setMaxResults(rows)
+				.list());
+
+		for (T entity : entities)
+		{
+			JqGridRowDataViewModel rowModel = new JqGridRowDataViewModel(getDB().getIdentifier(entity).toString(), form.getEntityValues(entity));
+			rowModel.cell.add(0, rowModel.id);
+			model.rows.add(rowModel);
+		}
+
+		return model;
 	}
 }

@@ -65,6 +65,11 @@ public class ObjectLabelGenerator
 			label = generateDefaultLabel(entity);
 		}
 
+		if( entity.getClass().isEnum() && label.equals(identifier) )
+		{
+			return label;
+		}
+
 		return label + (identifier != null ? " (" + identifier + ")" : "");
 	}
 

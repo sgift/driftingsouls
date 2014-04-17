@@ -114,6 +114,18 @@ public class DynamicContentFieldGenerator<V> implements CustomFieldGenerator<V>
 		}
 	}
 
+	@Override
+	public ColumnDefinition getColumnDefinition()
+	{
+		return new ColumnDefinition(name, label, String.class);
+	}
+
+	@Override
+	public String serializedValueOf(V entity)
+	{
+		return getter.apply(entity);
+	}
+
 	/**
 	 * Aktiviert die Funktion zum Entfernen von Bildern.
 	 * @return Die Instanz

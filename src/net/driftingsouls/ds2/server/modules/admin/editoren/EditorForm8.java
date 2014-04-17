@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Klasse zum Erstellen eines Eingabeformulars.
@@ -151,7 +152,7 @@ public class EditorForm8<E>
 	 */
 	public <T> LabelGenerator<E,T> label(String label, Function<E,T> getter)
 	{
-		return custom(new LabelGenerator<>(label, getter));
+		return custom(new LabelGenerator<>(generateName(getter.getClass().getSimpleName()), label, getter));
 	}
 
 	/**
@@ -161,7 +162,7 @@ public class EditorForm8<E>
 	 */
 	public PictureGenerator<E> picture(String label, Function<E,String> getter)
 	{
-		return custom(new PictureGenerator<>(label, getter));
+		return custom(new PictureGenerator<>(generateName(getter.getClass().getSimpleName()), label, getter));
 	}
 
 	/**
@@ -219,7 +220,7 @@ public class EditorForm8<E>
 		return "field"+(counter++)+"_"+suffix.replace('/', '_').replace('$', '_');
 	}
 
-	public void generateForm(E entity)
+	protected void generateForm(E entity)
 	{
 		try
 		{
@@ -236,7 +237,7 @@ public class EditorForm8<E>
 					str.append("<li>").append(tJob.name).append("</li>");
 				}
 				str.append("</ul>");
-				new LabelGenerator<>("Bei Aktualisierung", (e) -> str.toString()).generate(echo, entity);
+				new LabelGenerator<>("", "Bei Aktualisierung", (e) -> str.toString()).generate(echo, entity);
 			}
 
 			if (modus == EditorMode.UPDATE && this.allowUpdate.apply(entity))
@@ -254,7 +255,7 @@ public class EditorForm8<E>
 		}
 	}
     
-    public void applyRequestValues(Request request, E entity) throws IOException
+    protected void applyRequestValues(Request request, E entity) throws IOException
 	{
         for (CustomFieldGenerator<E> field : fields)
         {
@@ -278,5 +279,15 @@ public class EditorForm8<E>
 			return this;
 		}
 		return new EditorForm8<>(EditorMode.UPDATE, plugin, new StringBuilder());
+	}
+
+	protected List<ColumnDefinition> getColumnDefinitions()
+	{
+		return this.fields.stream().map(CustomFieldGenerator<E>::getColumnDefinition).collect(Collectors.toList());
+	}
+
+	protected List<String> getEntityValues(E entity)
+	{
+		return this.fields.stream().map((f) -> f.serializedValueOf(entity)).collect(Collectors.toList());
 	}
 }

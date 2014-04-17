@@ -142,6 +142,48 @@ public class FieldGenerator<E, T> implements CustomFieldGenerator<E>
 		}
 	}
 
+	@Override
+	public ColumnDefinition getColumnDefinition()
+	{
+		return new ColumnDefinition(name, label, viewType, Cargo.class.isAssignableFrom(viewType) ? "cargo" : null);
+	}
+
+	@Override
+	public String serializedValueOf(E entity)
+	{
+		T value = getter.apply(entity);
+
+		if (Cargo.class.isAssignableFrom(viewType))
+		{
+			return value != null ? value.toString() : new Cargo().toString();
+		}
+		else if (viewType.isAnnotationPresent(Entity.class) || !this.selectionOptions.isEmpty())
+		{
+			if( value == null ) {
+				Object val = this.selectionOptions.get(null);
+				if( val == null )
+				{
+					val = "";
+				}
+				return val.toString();
+			}
+			return new ObjectLabelGenerator().generateFor(selectedValueIdentifier(viewType, entity), value);
+		}
+		else if (Boolean.class.isAssignableFrom(viewType))
+		{
+			boolean bool = false;
+			if (value != null)
+			{
+				bool = (Boolean) value;
+			}
+			return Boolean.toString(bool);
+		}
+		else
+		{
+			return value != null ? value.toString() : "";
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	private void applyEntityAsRequestValue(@Nonnull E entity, @Nonnull String val)
 	{
@@ -188,17 +230,8 @@ public class FieldGenerator<E, T> implements CustomFieldGenerator<E>
 	private void editEntityBySelection(StringBuilder echo, String name, Class<?> type, Object value, E entity) throws IOException
 	{
 		echo.append("<select size=\"1\" ").append(readOnly.apply(entity) ? "disabled='disabled' " : "").append("name=\"").append(name).append("\">");
-		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		Serializable selected = null;
-		if (type.isInstance(value) && type.isAnnotationPresent(Entity.class))
-		{
-			selected = db.getIdentifier(value);
-		}
-		else if (value instanceof Serializable)
-		{
-			selected = (Serializable) value;
-		}
+		Serializable selected = selectedValueIdentifier(type, value);
 
 		for (Map.Entry<Serializable, Object> entry : this.selectionOptions.entrySet())
 		{
@@ -222,5 +255,21 @@ public class FieldGenerator<E, T> implements CustomFieldGenerator<E>
 		}
 
 		echo.append("</select>");
+	}
+
+	private Serializable selectedValueIdentifier(Class<?> type, Object value)
+	{
+		Serializable selected = null;
+		if (type.isInstance(value) && type.isAnnotationPresent(Entity.class))
+		{
+			org.hibernate.Session db = ContextMap.getContext().getDB();
+
+			selected = db.getIdentifier(value);
+		}
+		else if (value instanceof Serializable)
+		{
+			selected = (Serializable) value;
+		}
+		return selected;
 	}
 }

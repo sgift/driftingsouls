@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungExc
 import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
 import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.JqGridTableDataViewModel;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -211,6 +212,38 @@ public class AdminController extends Controller
 		if ((namedplugin.length() > 0) && (validPlugins.contains(namedplugin)))
 		{
 			callNamedPlugin(namedplugin);
+		}
+	}
+
+	@Action(ActionType.AJAX)
+	public JqGridTableDataViewModel tableDataAction(String namedplugin, int page, int rows)
+	{
+		if (namedplugin.isEmpty() || !validPlugins.contains(namedplugin))
+		{
+			throw new ValidierungException("Ungueltiges Plugin: '"+namedplugin+"'");
+		}
+
+		try
+		{
+			Class<? extends AdminPlugin> aClass = Class.forName(namedplugin).asSubclass(AdminPlugin.class);
+			if( !AbstractEditPlugin8.class.isAssignableFrom(aClass) )
+			{
+				throw new ValidierungException("Fuer dieses Plugin koennen keine Tabellendaten generiert werden: '"+namedplugin+"'");
+			}
+
+			AbstractEditPlugin8 plugin = aClass.asSubclass(AbstractEditPlugin8.class).newInstance();
+			getContext().autowireBean(plugin);
+			return plugin.generateTableData(page, rows);
+		}
+		catch (ClassNotFoundException e)
+		{
+			e.printStackTrace();
+			throw new ValidierungException("Fehler beim Aufruf des Admin-Plugins: " + e);
+		}
+		catch (ReflectiveOperationException e)
+		{
+			e.printStackTrace();
+			throw new ValidierungException("Fehler beim Aufruf des Admin-Plugins: " + e);
 		}
 	}
 

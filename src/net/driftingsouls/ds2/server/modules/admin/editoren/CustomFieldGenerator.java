@@ -26,4 +26,17 @@ public interface CustomFieldGenerator<V>
 	 * @throws java.io.IOException Bei IO-Fehlern
 	 */
 	public void applyRequestValues(Request request, V entity) throws IOException;
+
+	/**
+	 * Liefert die Spaltendefinition fuer diesen Editor fuer eine Darstellung in einem Grid.
+	 * @return Die Spaltendefinition
+	 */
+	public ColumnDefinition getColumnDefinition();
+
+	/**
+	 * Konvertiert den von diesem Editor bearbeiteten Wert der Entity in einen fuer Benutzer lesbaren Anzeigestring.
+	 * @param entity Die Entity-Instanz
+	 * @return Der Anzeigestring
+	 */
+	public String serializedValueOf(V entity);
 }
