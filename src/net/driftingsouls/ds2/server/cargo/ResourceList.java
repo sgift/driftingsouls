@@ -24,6 +24,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Liste von Resourcen aus einem Cargo.
@@ -149,5 +151,13 @@ public class ResourceList implements Iterable<ResourceEntry> {
 	@Override
 	public Iterator<ResourceEntry> iterator() {
 		return new ResourceIterator(list.iterator());
+	}
+
+	/**
+	 * Wandelt die Resourcenliste in einem Stream um.
+	 * @return Der Stream
+	 */
+	public Stream<ResourceEntry> stream() {
+		return StreamSupport.stream(spliterator(), false);
 	}
 }

@@ -229,32 +229,9 @@ public class FieldGenerator<E, T> implements CustomFieldGenerator<E>
 
 	private void editEntityBySelection(StringBuilder echo, String name, Class<?> type, Object value, E entity) throws IOException
 	{
-		echo.append("<select size=\"1\" ").append(readOnly.apply(entity) ? "disabled='disabled' " : "").append("name=\"").append(name).append("\">");
-
 		Serializable selected = selectedValueIdentifier(type, value);
 
-		for (Map.Entry<Serializable, Object> entry : this.selectionOptions.entrySet())
-		{
-			Serializable identifier = entry.getKey();
-			echo.append("<option ");
-			echo.append(" value=\"").append(identifier != null ? identifier.toString() : "").append("\"");
-			if ((identifier == null && selected == null) || (identifier != null && identifier.equals(selected)))
-			{
-				echo.append(" selected=\"selected\"");
-			}
-			String label;
-			if (entry.getValue() instanceof String || entry.getKey() == entry.getValue())
-			{
-				label = entry.getValue() != null ? entry.getValue().toString() : "";
-			}
-			else
-			{
-				label = new ObjectLabelGenerator().generateFor(identifier, entry.getValue());
-			}
-			echo.append(">").append(label).append("</option>");
-		}
-
-		echo.append("</select>");
+		HtmlUtils.select(echo, name, readOnly.apply(entity), this.selectionOptions, selected);
 	}
 
 	private Serializable selectedValueIdentifier(Class<?> type, Object value)

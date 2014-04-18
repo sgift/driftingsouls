@@ -1,6 +1,9 @@
 package net.driftingsouls.ds2.server.modules.admin.editoren;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Hilfsfunktionen fuer die Generierung von HTML-Code.
@@ -10,6 +13,42 @@ public final class HtmlUtils
 	private HtmlUtils()
 	{
 		// EMPTY
+	}
+
+	/**
+	 * Generiert ein HTML-Select.
+	 * @param echo Der Buffer in den der HTML-Code geschrieben werden soll
+	 * @param name Der Formname des Elements, gleichzeitig auch die ID
+	 * @param readOnly <code>true</code>, falls das Element readonly sein soll
+	 * @param options Die Auswahloptionen des Selects, Key ist der interne Wert, Value der Anzeigewert
+	 * @param selected Der momentan ausgewaehlte Wert (interner Wert)
+	 */
+	public static void select(StringBuilder echo, String name, boolean readOnly, Map<Serializable,Object> options, Serializable selected)
+	{
+		echo.append("<select size=\"1\" ").append(readOnly ? "disabled='disabled' " : "").append("name=\"").append(name).append("\">");
+
+		for (Map.Entry<Serializable, Object> entry : new TreeMap<>(options).entrySet())
+		{
+			Serializable identifier = entry.getKey();
+			echo.append("<option ");
+			echo.append(" value=\"").append(identifier != null ? identifier.toString() : "").append("\"");
+			if ((identifier == null && selected == null) || (identifier != null && identifier.equals(selected)))
+			{
+				echo.append(" selected=\"selected\"");
+			}
+			String label;
+			if (entry.getValue() instanceof String || entry.getKey() == entry.getValue())
+			{
+				label = entry.getValue() != null ? entry.getValue().toString() : "";
+			}
+			else
+			{
+				label = new ObjectLabelGenerator().generateFor(identifier, entry.getValue());
+			}
+			echo.append(">").append(label).append("</option>");
+		}
+
+		echo.append("</select>");
 	}
 
 	/**

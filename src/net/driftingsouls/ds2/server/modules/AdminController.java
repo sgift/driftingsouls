@@ -29,6 +29,8 @@ import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
 import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.JqGridTableDataViewModel;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -50,6 +52,8 @@ import java.util.TreeSet;
 @Module(name = "admin")
 public class AdminController extends Controller
 {
+	private static final Logger LOG = LogManager.getLogger(AdminController.class);
+
 	private static final List<Class<? extends AdminPlugin>> plugins = new ArrayList<>();
 
 	static
@@ -235,14 +239,9 @@ public class AdminController extends Controller
 			getContext().autowireBean(plugin);
 			return plugin.generateTableData(page, rows);
 		}
-		catch (ClassNotFoundException e)
-		{
-			e.printStackTrace();
-			throw new ValidierungException("Fehler beim Aufruf des Admin-Plugins: " + e);
-		}
 		catch (ReflectiveOperationException e)
 		{
-			e.printStackTrace();
+			LOG.warn("Fehler beim Aufruf des Admin-Plugins "+namedplugin, e);
 			throw new ValidierungException("Fehler beim Aufruf des Admin-Plugins: " + e);
 		}
 	}
@@ -283,13 +282,18 @@ public class AdminController extends Controller
 		echo.append("</ul>\n");
 		echo.append("</div><br />\n");
 
-		if ((namedplugin.length() > 0) && (validPlugins.contains(namedplugin)))
+		try
 		{
-			callNamedPlugin(namedplugin);
+			if ((namedplugin.length() > 0) && (validPlugins.contains(namedplugin)))
+			{
+				callNamedPlugin(namedplugin);
+			}
 		}
-
-		echo.append("</div>");
-		echo.append("<script type='text/javascript'>$(document).ready(function() {Admin.initMenu();});</script>");
+		finally
+		{
+			echo.append("</div>");
+			echo.append("<script type='text/javascript'>$(document).ready(function() {Admin.initMenu();});</script>");
+		}
 	}
 
 	private void callNamedPlugin(String namedplugin)
@@ -304,15 +308,10 @@ public class AdminController extends Controller
 			plugin.output(output);
 			getContext().getResponse().getWriter().write(output.toString());
 		}
-		catch (IOException | RuntimeException e)
+		catch (IOException | RuntimeException | ReflectiveOperationException e)
 		{
+			LOG.warn("Fehler beim Aufruf des Admin-Plugins "+namedplugin, e);
 			throw new ValidierungException("Fehler beim Aufruf des Admin-Plugins: " + e);
-		}
-		catch (ReflectiveOperationException e)
-		{
-			e.printStackTrace();
-			throw new ValidierungException("Fehler beim Aufruf des Admin-Plugins: " + e);
-
 		}
 	}
 }

@@ -20,7 +20,7 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.ResourceEntry;
+import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.VersteigerungResource;
@@ -28,10 +28,12 @@ import net.driftingsouls.ds2.server.entities.fraktionsgui.VersteigerungSchiff;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.modules.admin.editoren.HtmlUtils;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Ermoeglicht das Einfuegen von neuen Versteigerungen in die GTU.
@@ -53,47 +55,52 @@ public class AddGtu implements AdminPlugin {
 		org.hibernate.Session db = context.getDB();
 		
 		if( (ship == 0) && ((resource.length() == 0) || resource.equals("-1") ) ) {
+			echo.append("<div class='gfxbox adminEditor' style='width:700px'>");
 			echo.append("Schiffe:\n");
 			echo.append("<form action=\"./ds\" method=\"post\">");
-			echo.append("<table class=\"noBorder\" width=\"300\">\n");
-			echo.append("<tr><td class=\"noBorderS\" width=\"60\">Schifftyp:</td><td class=\"noBorderS\">");
-			echo.append("<select name=\"ship\" size=\"1\">\n");
+			echo.append("<table width=\"300\">\n");
+			echo.append("<tr><td width=\"60\">Schifftyp:</td><td>");
 			List<ShipType> shipTypes = Common.cast(db.createQuery("from ShipType").list());
-			for( ShipType shipType : shipTypes ) {
-				echo.append("<option value=\""+shipType.getId()+"\">"+shipType.getNickname()+" ("+shipType.getId()+")</option>\n");
-			}
-			echo.append("</select>\n");
+			HtmlUtils.select(echo, "ship", false, shipTypes.stream().collect(Collectors.toMap(ShipType::getId, (st) -> st)), null);
 			echo.append("</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Dauer:</td><td class=\"noBorderS\"><input type=\"text\" name=\"dauer\" size=\"10\" value=\"30\" /></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Gebot:</td><td class=\"noBorderS\"><input type=\"text\" name=\"preis\" size=\"10\" /></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\" colspan=\"2\" align=\"center\">\n");
+			echo.append("<tr><td>Dauer:</td><td>");
+			HtmlUtils.textInput(echo, "dauer", false, Integer.class, 30);
+			echo.append("</td></tr>\n");
+			echo.append("<tr><td>Gebot:</td><td>");
+			HtmlUtils.textInput(echo, "preis", false, Integer.class, null);
+			echo.append("</td></tr>\n");
+			echo.append("<tr><td colspan=\"2\" align=\"center\">\n");
 			echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("<input type=\"submit\" value=\"einf&uuml;gen\" style=\"width:100px\"/></td></tr>\n");
 			echo.append("</table>\n");
 			echo.append("</form>\n");
+			echo.append("</div>");
 			echo.append("<br />\n");
-			
+
+			echo.append("<div class='gfxbox adminEditor' style='width:700px'>");
 			echo.append("Resourcen:\n");
 			echo.append("<form action=\"./ds\" method=\"post\">");
-			echo.append("<table class=\"noBorder\" width=\"300\">\n");
-			echo.append("<tr><td class=\"noBorderS\" width=\"60\">Artefakt:</td><td class=\"noBorderS\">");
-			echo.append("<select name=\"resource\" size=\"1\">\n");
-			echo.append("<option value=\"-1\">--------</option>\n");
-			for( ResourceEntry res : Resources.getResourceList().getResourceList() ) {
-				echo.append("<option value=\""+res.getId()+"\">"+res.getPlainName()+"("+res.getId().getItemID()+")"+"</option>\n");
-			}
-			echo.append("</select>\n");
+			echo.append("<table width=\"300\">\n");
+			echo.append("<tr><td width=\"60\">Item:</td><td>");
+			HtmlUtils.select(echo, "resource", false, Resources.getResourceList().getResourceList().stream().collect(Collectors.toMap((r) -> r.getId().getItemID(), (r) -> r)), null);
 			echo.append("</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Menge:</td><td class=\"noBorderS\"><input type=\"text\" name=\"menge\" size=\"10\" value=\"1\" /></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Dauer:</td><td class=\"noBorderS\"><input type=\"text\" name=\"dauer\" size=\"10\" value=\"30\" /></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Gebot:</td><td class=\"noBorderS\"><input type=\"text\" name=\"preis\" size=\"10\" /></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\" colspan=\"2\" align=\"center\">\n");
-			echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\""+getClass().getName()+"\" />\n");
+			echo.append("<tr><td>Menge:</td><td>");
+			HtmlUtils.textInput(echo, "menge", false, Integer.class, 1);
+			echo.append("</td></tr>\n");
+			echo.append("<tr><td>Dauer:</td><td>");
+			HtmlUtils.textInput(echo, "dauer", false, Integer.class, 30);
+			echo.append("</td></tr>\n");
+			echo.append("<tr><td>Gebot:</td><td>");
+			HtmlUtils.textInput(echo, "preis", false, Integer.class, null);
+			echo.append("</td></tr>\n");
+			echo.append("<tr><td colspan=\"2\" align=\"center\">\n");
+			echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("<input type=\"submit\" value=\"einf&uuml;gen\" style=\"width:100px\"/></td></tr>\n");
 			echo.append("</table>\n");
 			echo.append("</form>\n");
+			echo.append("</div>");
 		}
 		else if( ship != 0 ) {
 			int tick = context.get(ContextCommon.class).getTick();
@@ -107,11 +114,11 @@ public class AddGtu implements AdminPlugin {
 
 			echo.append("Schiff eingef&uuml;gt<br />");
 		}
-		else if( (resource.length() > 0) && !resource.equals("-1") ) {
+		else if( resource.length() > 0 ) {
 			int tick = context.get(ContextCommon.class).getTick();
 
 			Cargo cargo = new Cargo();
-			cargo.addResource( Resources.fromString(resource), menge );
+			cargo.addResource( new ItemID(Integer.parseInt(resource)), menge );
 
 			User gtu = (User)db.get(User.class, -2);
 			
