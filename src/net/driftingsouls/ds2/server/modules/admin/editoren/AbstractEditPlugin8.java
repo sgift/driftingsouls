@@ -50,12 +50,22 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		EditorForm8<T> form = new EditorForm8<>(EditorMode.UPDATE, this.getClass(), echo);
 		configureFor(form);
 
-		if (this.isUpdateExecuted())
+		if(this.isDeleteExecuted())
+		{
+			@SuppressWarnings("unchecked") T entity = (T) db.get(this.clazz, toEntityId(this.clazz, entityId));
+			if( entity != null && form.isDeleteAllowed(entity) )
+			{
+				db.delete(entity);
+				echo.append("<p>Löschen abgeschlossen.</p>");
+				entityId = null;
+			}
+		}
+		else if (this.isUpdateExecuted())
 		{
 			try
 			{
 				@SuppressWarnings("unchecked") T entity = (T) db.get(this.clazz, toEntityId(this.clazz, entityId));
-				if (form.isUpdateAllowed(entity) && isUpdatePossible(entity))
+				if ( entity != null && form.isUpdateAllowed(entity) && isUpdatePossible(entity))
 				{
 					db.evict(entity);
 					@SuppressWarnings("unchecked") T updatedEntity = (T) db.get(this.clazz, toEntityId(this.clazz, entityId));
@@ -209,14 +219,14 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		return (Serializable)StringToTypeConverter.convert(targetType, idString);
 	}
 
-	private void processJobs(StringBuilder echo, T entity, T updatedEntity, List<EditorForm8.Job<T, ?>> updateTasks) throws IOException
+	private void processJobs(StringBuilder echo, T entity, T updatedEntity, List<Job<T, ?>> updateTasks) throws IOException
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		db.getTransaction().commit();
 
-		for (final EditorForm8.Job<T, ?> updateTask : updateTasks)
+		for (final Job<T, ?> updateTask : updateTasks)
 		{
-			@SuppressWarnings("unchecked") final EditorForm8.Job<T, Object> updateTask1 = (EditorForm8.Job<T, Object>) updateTask;
+			@SuppressWarnings("unchecked") final Job<T, Object> updateTask1 = (Job<T, Object>) updateTask;
 			Collection<Object> jobData = updateTask1.supplier.apply(updatedEntity);
 			new EvictableUnitOfWork<Object>(updateTask.name) {
 				@Override
@@ -370,6 +380,13 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		Context context = ContextMap.getContext();
 		String change = context.getRequest().getParameterString("change");
 		return "Hinzufügen".equals(change);
+	}
+
+	private boolean isDeleteExecuted()
+	{
+		Context context = ContextMap.getContext();
+		String change = context.getRequest().getParameterString("change");
+		return "Löschen".equals(change);
 	}
 
 	private boolean isAddDisplayed()

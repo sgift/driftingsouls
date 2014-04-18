@@ -5,7 +5,6 @@ import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -19,25 +18,8 @@ import java.util.stream.Collectors;
  */
 public class EditorForm8<E>
 {
-	public static class Job<E,T>
-	{
-		public final String name;
-		public final Function<E, ? extends Collection<T>> supplier;
-		public final PostUpdateTaskConsumer<E, T> job;
 
-		public Job(String name, Function<E, ? extends Collection<T>> supplier, PostUpdateTaskConsumer<E, T> job)
-		{
-			this.name = name;
-			this.supplier = supplier;
-			this.job = job;
-		}
-
-		public static <E> Job<E, Boolean> forRunnable(String name, Consumer<E> job)
-		{
-			return new Job<>(name, (entity) -> Arrays.asList(Boolean.TRUE), (o, e, b) -> job.accept(e));
-		}
-	}
-
+	private Function<E,Boolean> allowDelete;
 	private final EditorMode modus;
 	private StringBuilder echo;
 	private Class<? extends AdminPlugin> plugin;
@@ -53,6 +35,7 @@ public class EditorForm8<E>
 		this.echo = echo;
 		this.counter = 0;
 		this.allowAdd = false;
+		this.allowDelete = (entity) -> false;
 		this.allowUpdate = (entity) -> true;
 		this.plugin = plugin;
 	}
@@ -63,6 +46,22 @@ public class EditorForm8<E>
 	public void allowAdd()
 	{
 		this.allowAdd = true;
+	}
+
+	/**
+	 * Aktiviert das Loeschen von Entities.
+	 */
+	public void allowDelete()
+	{
+		this.allowDelete = (entity) -> true;
+	}
+
+	/**
+	 * Aktiviert das Loeschen von bestimmten Entities
+	 */
+	public void allowDelete(Function<E,Boolean> condition)
+	{
+		this.allowDelete = condition;
 	}
 
 	/**
@@ -83,7 +82,18 @@ public class EditorForm8<E>
 	}
 
 	/**
+	 * Gibt zurueck, ob das Loeschen der angegebenen Entity erlaubt ist.
+	 * @param entity Die Entity
+	 * @return <code>true</code> falls dem so ist
+	 */
+	public boolean isDeleteAllowed(E entity)
+	{
+		return this.allowDelete.apply(entity);
+	}
+
+	/**
 	 * Gibt zurueck, ob diese Entity aktualisiert (geaendert) werden kann.
+	 * @param entity Die Entity
 	 * @return <code>true</code> falls dem so ist
 	 */
 	public boolean isUpdateAllowed(E entity)
@@ -232,7 +242,7 @@ public class EditorForm8<E>
 			if (modus == EditorMode.UPDATE && !updateTasks.isEmpty())
 			{
 				StringBuilder str = new StringBuilder("<ul>");
-				for (EditorForm8.Job<E, ?> tJob : updateTasks)
+				for (Job<E, ?> tJob : updateTasks)
 				{
 					str.append("<li>").append(tJob.name).append("</li>");
 				}
@@ -247,6 +257,11 @@ public class EditorForm8<E>
 			else if (modus == EditorMode.CREATE)
 			{
 				echo.append("<tr><td colspan='2'></td><td><input type=\"submit\" name=\"change\" value=\"Hinzufügen\"></td></tr>\n");
+			}
+
+			if( this.allowDelete.apply(entity) )
+			{
+				echo.append("<tr><td colspan='2'></td><td><input type=\"submit\" name=\"change\" value=\"Löschen\" onclick=\"return confirm('Sicher?')\"></td></tr>\n");
 			}
 		}
 		catch (IOException e)

@@ -22,6 +22,7 @@ public class EditConfigFelsbrockenSystem extends AbstractEditPlugin8<ConfigFelsb
 	protected void configureFor(@Nonnull EditorForm8<ConfigFelsbrockenSystem> form)
 	{
 		form.allowAdd();
+		form.allowDelete();
 		form.ifUpdating().label("Sternensystem", ConfigFelsbrockenSystem::getSystem);
 		List<StarSystem> systeme = Common.cast(getDB().createQuery("from StarSystem s where s not in(select system from ConfigFelsbrockenSystem)")
 				.list());

@@ -39,8 +39,8 @@ public class TextAreaGenerator<V> implements CustomFieldGenerator<V>
 	@Override
 	public void applyRequestValues(Request request, V entity)
 	{
-			String value = request.getParameterString(this.name);
-			setter.accept(entity,value);
+		String value = request.getParameterString(this.name);
+		setter.accept(entity,value);
 	}
 
 	@Override
@@ -52,6 +52,7 @@ public class TextAreaGenerator<V> implements CustomFieldGenerator<V>
 	@Override
 	public String serializedValueOf(V entity)
 	{
-		return this.getter.apply(entity);
+		String val = this.getter.apply(entity);
+		return val != null ? val : "";
 	}
 }

@@ -21,6 +21,7 @@ public class EditConfigFelsbrocken extends AbstractEditPlugin8<ConfigFelsbrocken
 	protected void configureFor(@Nonnull EditorForm8<ConfigFelsbrocken> form)
 	{
 		form.allowAdd();
+		form.allowDelete();
 		form.field("System mit Felsbrocken", ConfigFelsbrockenSystem.class, ConfigFelsbrocken::getSystem, ConfigFelsbrocken::setSystem);
 		form.field("Schiffstyp", ShipType.class, ConfigFelsbrocken::getShiptype, ConfigFelsbrocken::setShiptype);
 		form.field("Wahrscheinlichkeitsfaktor", Integer.class, ConfigFelsbrocken::getChance, ConfigFelsbrocken::setChance);
