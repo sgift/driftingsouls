@@ -286,7 +286,8 @@ public class AdminController extends Controller
 		{
 			if ((namedplugin.length() > 0) && (validPlugins.contains(namedplugin)))
 			{
-				callNamedPlugin(namedplugin);
+				String content = callNamedPlugin(namedplugin);
+				echo.append(content);
 			}
 		}
 		finally
@@ -296,7 +297,7 @@ public class AdminController extends Controller
 		}
 	}
 
-	private void callNamedPlugin(String namedplugin)
+	private String callNamedPlugin(String namedplugin)
 	{
 		try
 		{
@@ -306,7 +307,7 @@ public class AdminController extends Controller
 			getContext().autowireBean(plugin);
 			StringBuilder output = new StringBuilder();
 			plugin.output(output);
-			getContext().getResponse().getWriter().write(output.toString());
+			return output.toString();
 		}
 		catch (IOException | RuntimeException | ReflectiveOperationException e)
 		{

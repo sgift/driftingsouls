@@ -86,6 +86,8 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 				}
 				db.persist(entity);
 				echo.append("<p>Hinzufügen abgeschlossen.</p>");
+
+				entityId = null;
 			}
 			catch (IOException | RuntimeException e)
 			{
@@ -127,6 +129,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 			configureFor(form);
 			beginEditorTable(echo, this.getClass(), -1);
 			form.generateForm(entity);
+			endEditorTable(echo);
 		}
 		else
 		{

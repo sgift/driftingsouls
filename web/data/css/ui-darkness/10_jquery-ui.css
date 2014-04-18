@@ -112,3 +112,6 @@
 .ui-jqgrid .ui-jqgrid-hdiv {
 	background:none;
 }
+.ui-jqgrid .loading {
+	background: #0F1513;
+}
