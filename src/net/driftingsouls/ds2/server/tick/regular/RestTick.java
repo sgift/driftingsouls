@@ -346,7 +346,7 @@ public class RestTick extends TickController {
 						"from Ship s " +
 						"where s.system=:system and " +
 							"s.shiptype in (select shiptype from ConfigFelsbrocken where system=:cfs)")
-					.setInteger("system", cfs.getSystem())
+					.setInteger("system", cfs.getSystem().getID())
 					.setEntity("cfs", cfs)
 					.iterate().next();
 
@@ -372,7 +372,7 @@ public class RestTick extends TickController {
 							continue;
 						}
 
-						StarSystem thissystem = (StarSystem)db.get(StarSystem.class, cfs.getSystem());
+						StarSystem thissystem = cfs.getSystem();
 
 						// Koords ermitteln
 						int x = RandomUtils.nextInt(thissystem.getWidth())+1;
@@ -382,7 +382,7 @@ public class RestTick extends TickController {
 							.setInteger(0, ++shouldId)
 							.uniqueResult();
 
-						this.log("\t*System "+cfs.getSystem()+": Fuege Felsbrocken "+shouldId+" ein");
+						this.log("\t*System "+cfs.getSystem().getID()+": Fuege Felsbrocken "+shouldId+" ein");
 
 						// Ladung einfuegen
 						this.log("\t- Loadout: ");
@@ -395,7 +395,7 @@ public class RestTick extends TickController {
 
 						ShipType shiptype = aloadout.getShiptype();
 
-						Ship brocken = new Ship(owner, shiptype, cfs.getSystem(), x, y);
+						Ship brocken = new Ship(owner, shiptype, cfs.getSystem().getID(), x, y);
 						brocken.getHistory().addHistory("Indienststellung als Felsbrocken am "+currentTime+" durch den Tick");
 						brocken.setName("Felsbrocken");
 						brocken.setId(shouldId);

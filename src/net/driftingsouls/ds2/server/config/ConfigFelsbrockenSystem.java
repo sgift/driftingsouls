@@ -1,12 +1,16 @@
 package net.driftingsouls.ds2.server.config;
 
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Sort;
 import org.hibernate.annotations.SortType;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -24,19 +28,23 @@ import java.util.TreeSet;
 @Table(name="config_felsbrocken_systems")
 public class ConfigFelsbrockenSystem
 {
-	@Id
-	private int system;
+	@Id @GeneratedValue
+	private Long id;
+	@OneToOne(optional = false)
+	@JoinColumn(nullable = false)
+	@ForeignKey(name="config_felsbrocken_systems_fk_system")
+	private StarSystem system;
 	private int count;
 	@OneToMany(mappedBy="system", cascade = CascadeType.ALL)
 	@Sort(type=SortType.NATURAL)
-	private SortedSet<ConfigFelsbrocken> felsbrocken;
+	private SortedSet<ConfigFelsbrocken> felsbrocken = new TreeSet<>();
 
 	/**
 	 * Konfiguration.
 	 */
 	protected ConfigFelsbrockenSystem()
 	{
-		this.felsbrocken = new TreeSet<>();
+		// EMPTY
 	}
 
 	/**
@@ -46,9 +54,7 @@ public class ConfigFelsbrockenSystem
 	 */
 	public ConfigFelsbrockenSystem(StarSystem system, int anzahl)
 	{
-		this();
-
-		this.system = system.getID();
+		this.system = system;
 		this.count = anzahl;
 	}
 
@@ -90,12 +96,20 @@ public class ConfigFelsbrockenSystem
 	}
 
 	/**
-	 * Gibt die ID des Systems zurueck, in dem die Felsbrocken
-	 * spawnen sollen.
-	 * @return Die ID
+	 * Gibt das System zurueck, in dem die Felsbrocken spawnen sollen.
+	 * @return Das System
 	 */
-	public int getSystem()
+	public StarSystem getSystem()
 	{
 		return system;
+	}
+
+	/**
+	 * Setzt das System, in dem die Felsbrocken spawnen sollen.
+	 * @param system Das System
+	 */
+	public void setSystem(StarSystem system)
+	{
+		this.system = system;
 	}
 }

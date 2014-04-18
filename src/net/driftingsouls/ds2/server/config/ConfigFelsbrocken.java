@@ -34,12 +34,12 @@ public class ConfigFelsbrocken implements Comparable<ConfigFelsbrocken>
 	@Id
 	@GeneratedValue
 	private int id;
-	@ManyToOne
+	@ManyToOne(optional = false)
 	@JoinColumn(name="shiptype", nullable = false)
 	@ForeignKey(name="fk_config_felsbrocken_shiptype")
 	private ShipType shiptype;
-	@ManyToOne
-	@JoinColumn(name="system", nullable = false)
+	@ManyToOne(optional = false)
+	@JoinColumn(nullable = false)
 	@ForeignKey(name="fk_config_felsbrocken_system")
 	private ConfigFelsbrockenSystem system;
 	private int chance;

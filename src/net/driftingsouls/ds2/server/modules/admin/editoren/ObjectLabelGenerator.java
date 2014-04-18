@@ -1,6 +1,8 @@
 package net.driftingsouls.ds2.server.modules.admin.editoren;
 
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
+import net.driftingsouls.ds2.server.config.ConfigFelsbrocken;
+import net.driftingsouls.ds2.server.config.ConfigFelsbrockenSystem;
 import net.driftingsouls.ds2.server.entities.GuiHelpText;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag;
@@ -32,7 +34,9 @@ public class ObjectLabelGenerator
 		registerSpecialGenerator(User.class, User::getPlainname);
 		registerSpecialGenerator(GuiHelpText.class, GuiHelpText::getPage);
 		registerSpecialGenerator(FraktionsGuiEintrag.class, (fge) -> fge.getUser().getPlainname());
-		registerSpecialGenerator(ResourceEntry.class, (r) -> r.getPlainName());
+		registerSpecialGenerator(ResourceEntry.class, ResourceEntry::getPlainName);
+		registerSpecialGenerator(ConfigFelsbrockenSystem.class, (cfs) -> cfs.getSystem().getName());
+		registerSpecialGenerator(ConfigFelsbrocken.class, (cs) -> cs.getSystem().getSystem().getName()+"#"+cs.getChance());
 	}
 
 	@SuppressWarnings("unchecked")

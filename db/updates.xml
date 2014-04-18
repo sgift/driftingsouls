@@ -2450,4 +2450,15 @@ Die Vasudaner haben eine sehr alte Kultur mit mehreren hochentwickelten Sprachen
 		INSERT INTO `weapon_munition` VALUES ('standard_flak_ld','flak');
 		INSERT INTO `weapon_munition` VALUES ('torpedos','torp');
 	]]></update>
+	<update type="structure" datum="2014-04-18"><![CDATA[
+		alter table config_felsbrocken drop foreign key fk_config_felsbrocken_system;
+		alter table config_felsbrocken_systems drop primary key, add column id bigint not null auto_increment, add primary key (id);
+		alter table config_felsbrocken_systems change column system system_id integer not null;
+		update config_felsbrocken set system=(select id from config_felsbrocken_systems cfs where cfs.system_id=system);
+		alter table config_felsbrocken change system system_id bigint not null;
+		alter table config_felsbrocken add CONSTRAINT fk_config_felsbrocken_system FOREIGN KEY (system_id) REFERENCES config_felsbrocken_systems (id);
+		alter table config_felsbrocken_systems add index config_felsbrocken_systems_fk_system (system_id), add constraint config_felsbrocken_systems_fk_system foreign key (system_id) references systems (id);
+		alter table config_felsbrocken_systems add unique system_id (system_id);
+		alter table upgrade_maxvalues add unique type (type);
+	]]></update>
 </updates>
