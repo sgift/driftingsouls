@@ -85,3 +85,7 @@
 	width:14px;
 	height:14px;
 }
+
+.ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
+	font-size:13px;
+}

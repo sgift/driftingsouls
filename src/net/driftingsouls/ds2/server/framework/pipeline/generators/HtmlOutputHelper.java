@@ -59,7 +59,8 @@ class HtmlOutputHelper extends OutputHelper {
 		{
 			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"./data/css/v").append(version.getHgVersion()).append("/format.css\" />\n");
 		}
-		sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"./data/css/ui-darkness/jquery-ui-1.8.20.css\" />\n");
+		sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"./data/css/ui-darkness/00_jquery-ui-1.8.20.css\" />\n");
+		sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"./data/css/ui-darkness/10_jquery-ui.css\" />\n");
 
 		sb.append("<!--[if IE]>\n");
 		sb.append("<style type=\"text/css\">@import url(./data/css/v").append(version.getHgVersion()).append("/format_fuer_den_dummen_ie.css);</style>\n");
