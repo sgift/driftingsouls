@@ -350,7 +350,7 @@ public class RestTick extends TickController {
 					.setEntity("cfs", cfs)
 					.iterate().next();
 
-				this.log("\tSystem "+cfs.getSystem()+": "+shipcount+" / "+cfs.getCount()+" Felsbrocken");
+				this.log("\tSystem "+cfs.getSystem().getID()+"("+cfs.getName()+"): "+shipcount+" / "+cfs.getCount()+" Felsbrocken");
 
 				if( cfs.getCount() < shipcount )
 				{
@@ -359,9 +359,11 @@ public class RestTick extends TickController {
 
 				Set<ConfigFelsbrocken> loadout = cfs.getFelsbrocken();
 
-				while( shipcount < cfs.getCount() )
+				long maxchance = loadout.stream().mapToInt(ConfigFelsbrocken::getChance).sum();
+
+				while( shipcount < cfs.getCount() && maxchance > 0)
 				{
-					int rnd = RandomUtils.nextInt(100)+1;
+					int rnd = RandomUtils.nextInt((int)maxchance-1)+1;
 					int currnd = 0;
 					for( ConfigFelsbrocken aloadout : loadout )
 					{
@@ -382,7 +384,7 @@ public class RestTick extends TickController {
 							.setInteger(0, ++shouldId)
 							.uniqueResult();
 
-						this.log("\t*System "+cfs.getSystem().getID()+": Fuege Felsbrocken "+shouldId+" ein");
+						this.log("\t*System "+cfs.getSystem().getID()+": Fuege "+cfs.getName()+" "+shouldId+" ein");
 
 						// Ladung einfuegen
 						this.log("\t- Loadout: ");
@@ -396,8 +398,8 @@ public class RestTick extends TickController {
 						ShipType shiptype = aloadout.getShiptype();
 
 						Ship brocken = new Ship(owner, shiptype, cfs.getSystem().getID(), x, y);
-						brocken.getHistory().addHistory("Indienststellung als Felsbrocken am "+currentTime+" durch den Tick");
-						brocken.setName("Felsbrocken");
+						brocken.getHistory().addHistory("Indienststellung als "+cfs.getName()+" am "+currentTime+" durch den Tick");
+						brocken.setName(cfs.getName());
 						brocken.setId(shouldId);
 						brocken.setHull(shiptype.getHull());
 						brocken.setCrew(shiptype.getCrew());

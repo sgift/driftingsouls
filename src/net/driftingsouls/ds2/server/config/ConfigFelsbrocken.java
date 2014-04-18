@@ -49,7 +49,7 @@ public class ConfigFelsbrocken implements Comparable<ConfigFelsbrocken>
 
 	protected ConfigFelsbrocken()
 	{
-		// EMPTY
+		this.cargo = new Cargo();
 	}
 
 	/**

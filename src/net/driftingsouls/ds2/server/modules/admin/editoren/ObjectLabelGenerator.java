@@ -35,8 +35,8 @@ public class ObjectLabelGenerator
 		registerSpecialGenerator(GuiHelpText.class, GuiHelpText::getPage);
 		registerSpecialGenerator(FraktionsGuiEintrag.class, (fge) -> fge.getUser().getPlainname());
 		registerSpecialGenerator(ResourceEntry.class, ResourceEntry::getPlainName);
-		registerSpecialGenerator(ConfigFelsbrockenSystem.class, (cfs) -> cfs.getSystem().getName());
-		registerSpecialGenerator(ConfigFelsbrocken.class, (cs) -> cs.getSystem().getSystem().getName()+"#"+cs.getChance());
+		registerSpecialGenerator(ConfigFelsbrockenSystem.class, (cfs) -> cfs.getName()+"#"+cfs.getSystem().getName());
+		registerSpecialGenerator(ConfigFelsbrocken.class, (cs) -> cs.getSystem().getName()+"#"+cs.getSystem().getSystem().getName()+"#"+cs.getChance());
 	}
 
 	@SuppressWarnings("unchecked")

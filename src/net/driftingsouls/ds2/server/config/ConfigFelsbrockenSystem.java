@@ -9,8 +9,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -30,7 +30,8 @@ public class ConfigFelsbrockenSystem
 {
 	@Id @GeneratedValue
 	private Long id;
-	@OneToOne(optional = false)
+    private String name;
+	@ManyToOne(optional = false)
 	@JoinColumn(nullable = false)
 	@ForeignKey(name="config_felsbrocken_systems_fk_system")
 	private StarSystem system;
@@ -57,6 +58,18 @@ public class ConfigFelsbrockenSystem
 		this.system = system;
 		this.count = anzahl;
 	}
+
+    /**
+     * Gibt den Namen der Schiffe zurueck, die gespawnt werden.
+     * @return der Name
+     */
+    public String getName() { return name; }
+
+    /**
+     * Setzt den Namen der Schiffe, die gespawnt werden.
+     * @param name der Name
+     */
+    public void setName(String name) { this.name = name; }
 
 	/**
 	 * Gibt die Maximalanzahl an Felsbrocken im System zurueck.
