@@ -25,6 +25,7 @@ public class EditGuiHelpText extends AbstractEditPlugin8<GuiHelpText>
 	protected void configureFor(@Nonnull EditorForm8<GuiHelpText> form)
 	{
 		form.allowAdd();
+		form.allowDelete();
 		form.ifAdding().field("Seite", String.class, GuiHelpText::getPage, GuiHelpText::setPage)
 				.withOptions(generatePageOptions());
 		form.ifUpdating().label("Seite", GuiHelpText::getPage);
