@@ -16,6 +16,12 @@
 
 .ui-widget-content {
 	background: #0f1513;
+	color: #C7C7C7;
+}
+
+
+.ui-state-default, .ui-widget-content .ui-state-default  {
+	background: none;
 }
 
 .ui-state-hover,
@@ -27,7 +33,12 @@
     background: #243717;
     color: #FFFFFF;
     font-weight: bold;
-    border:1px solid black;
+	border: 1px solid #666666;
+}
+
+.ui-state-highlight, .ui-widget-content .ui-state-highlight, .ui-widget-header .ui-state-highlight {
+	background: #bf7100;
+	color: #FFFFFF;
 }
 
 .ui-corner-all {
@@ -42,10 +53,6 @@
 .ui-dialog .ui-dialog-titlebar {
 	padding:5px 10px;
 	font-size:14px;
-}
-
-.ui-widget-content .ui-icon {
-	background-image:none;
 }
 
 .ui-dialog-titlebar {
@@ -86,6 +93,22 @@
 	height:14px;
 }
 
+.ui-resizable-handle.ui-icon {
+	background-image:none;
+}
+
 .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
 	font-size:13px;
+}
+
+/*
+	jqgrid
+*/
+
+.ui-th-column.ui-state-default {
+	color: #FEB626;
+	font-weight: bold;
+}
+.ui-jqgrid .ui-jqgrid-hdiv {
+	background:none;
 }
