@@ -211,12 +211,13 @@ public class AdminController extends Controller
 	 * @param namedplugin Der exakte Pluginname falls ein bestimmtes Adminplugin ausgefuehrt werden soll
 	 */
 	@Action(ActionType.AJAX)
-	public void ajaxAction(String namedplugin)
+	public String ajaxAction(String namedplugin)
 	{
 		if ((namedplugin.length() > 0) && (validPlugins.contains(namedplugin)))
 		{
-			callNamedPlugin(namedplugin);
+			return callNamedPlugin(namedplugin);
 		}
+		return null;
 	}
 
 	@Action(ActionType.AJAX)
@@ -241,7 +242,7 @@ public class AdminController extends Controller
 		}
 		catch (ReflectiveOperationException e)
 		{
-			LOG.warn("Fehler beim Aufruf des Admin-Plugins "+namedplugin, e);
+			LOG.warn("Fehler beim Aufruf des Admin-Plugins " + namedplugin, e);
 			throw new ValidierungException("Fehler beim Aufruf des Admin-Plugins: " + e);
 		}
 	}
