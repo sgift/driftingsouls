@@ -121,9 +121,9 @@ public class FieldGenerator<E, T> implements CustomFieldGenerator<E>
 			return;
 		}
 		Class<T> type = this.dataType;
-		// TODO: Datentyp aus Lambda bestimmen - leider nicht so einfach wegen type erasure :(
+
 		String val = request.getParameter(this.name);
-		if (val == null)
+		if (!this.dataType.isAssignableFrom(Boolean.class) && val == null)
 		{
 			return;
 		}
@@ -135,6 +135,10 @@ public class FieldGenerator<E, T> implements CustomFieldGenerator<E>
 		else if (Cargo.class.isAssignableFrom(type))
 		{
 			setter.accept(entity, (T) new Cargo(Cargo.Type.ITEMSTRING, val));
+		}
+		else if (Boolean.class.isAssignableFrom(type))
+		{
+			setter.accept(entity, (T)Boolean.valueOf(val != null && !val.isEmpty()));
 		}
 		else
 		{
