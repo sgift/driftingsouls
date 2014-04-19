@@ -3,9 +3,10 @@ package net.driftingsouls.ds2.server.modules.admin;
 import net.driftingsouls.ds2.server.entities.GuiHelpText;
 import net.driftingsouls.ds2.server.framework.AnnotationUtils;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
-import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -14,15 +15,16 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @AdminMenuEntry(category = "Sonstiges", name = "Hilfetext")
-public class EditGuiHelpText extends AbstractEditPlugin8<GuiHelpText>
+public class EditGuiHelpText implements EntityEditor<GuiHelpText>
 {
-	public EditGuiHelpText()
+	@Override
+	public Class<GuiHelpText> getEntityType()
 	{
-		super(GuiHelpText.class);
+		return GuiHelpText.class;
 	}
 
 	@Override
-	protected void configureFor(@Nonnull EditorForm8<GuiHelpText> form)
+	public void configureFor(@Nonnull EditorForm8<GuiHelpText> form)
 	{
 		form.allowAdd();
 		form.allowDelete();
@@ -34,7 +36,7 @@ public class EditGuiHelpText extends AbstractEditPlugin8<GuiHelpText>
 
 	private Map<String, String> generatePageOptions()
 	{
-		List<GuiHelpText> list = Common.cast(getDB().createCriteria(GuiHelpText.class).list());
+		List<GuiHelpText> list = Common.cast(ContextMap.getContext().getDB().createCriteria(GuiHelpText.class).list());
 		Set<String> modulesWithHelp = list.stream().map(GuiHelpText::getPage).collect(Collectors.toSet());
 		return AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(Module.class).stream()
 				.map((cls) -> cls.getAnnotation(Module.class).name())

@@ -22,8 +22,8 @@ import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipType;
@@ -44,15 +44,16 @@ import java.util.stream.Collectors;
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Schiffe", name = "Typ")
-public class EditShiptypes extends AbstractEditPlugin8<ShipType>
+public class EditShiptypes implements EntityEditor<ShipType>
 {
-	public EditShiptypes()
+	@Override
+	public Class<ShipType> getEntityType()
 	{
-		super(ShipType.class);
+		return ShipType.class;
 	}
 
 	@Override
-	protected void configureFor(@Nonnull EditorForm8<ShipType> form)
+	public void configureFor(@Nonnull EditorForm8<ShipType> form)
 	{
 		form.allowAdd();
 		form.ifUpdating().label("Anzahl vorhandener Schiffe", (ship) -> {
@@ -128,7 +129,7 @@ public class EditShiptypes extends AbstractEditPlugin8<ShipType>
 
 	private void aktualisiereSchiffInSchlacht(ShipType oldShiptype, ShipType shiptype, Integer battleShipId)
 	{
-		BattleShip battleShip = (BattleShip) getDB().get(BattleShip.class, battleShipId);
+		BattleShip battleShip = (BattleShip) ContextMap.getContext().getDB().get(BattleShip.class, battleShipId);
 
 		ShipTypeData type = battleShip.getShip().getTypeData();
 		// Weight the difference between the old and the new value
@@ -165,7 +166,7 @@ public class EditShiptypes extends AbstractEditPlugin8<ShipType>
 
 	private void aktualisiereSchiff(ShipType oldShiptype, Integer shipId)
 	{
-		Ship ship = (Ship) getDB().get(Ship.class, shipId);
+		Ship ship = (Ship) ContextMap.getContext().getDB().get(Ship.class, shipId);
 		boolean modules = ship.getModules().length > 0;
 		ShipTypeData oldType = modules ? ship.getTypeData() : oldShiptype;
 

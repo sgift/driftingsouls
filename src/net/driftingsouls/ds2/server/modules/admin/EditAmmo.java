@@ -20,8 +20,8 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.Ammo;
-import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
 import javax.annotation.Nonnull;
 
@@ -31,15 +31,16 @@ import javax.annotation.Nonnull;
  *
  */
 @AdminMenuEntry(category = "Items", name = "Munition")
-public class EditAmmo extends AbstractEditPlugin8<Ammo>
+public class EditAmmo implements EntityEditor<Ammo>
 {
-	public EditAmmo()
+	@Override
+	public Class<Ammo> getEntityType()
 	{
-		super(Ammo.class);
+		return Ammo.class;
 	}
 
 	@Override
-	protected void configureFor(@Nonnull EditorForm8<Ammo> form)
+	public void configureFor(@Nonnull EditorForm8<Ammo> form)
 	{
 		form.allowAdd();
 		form.field("Name", String.class, Ammo::getName, Ammo::setName);

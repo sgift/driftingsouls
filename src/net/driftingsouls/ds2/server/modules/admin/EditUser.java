@@ -24,8 +24,9 @@ import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
-import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.Nonnull;
@@ -39,22 +40,23 @@ import java.util.stream.Collectors;
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Spieler", name = "Spieler")
-public class EditUser extends AbstractEditPlugin8<User>
+public class EditUser implements EntityEditor<User>
 {
-	public EditUser()
+	@Override
+	public Class<User> getEntityType()
 	{
-		super(User.class);
+		return User.class;
 	}
 
 	@Override
-	protected void configureFor(@Nonnull EditorForm8<User> form)
+	public void configureFor(@Nonnull EditorForm8<User> form)
 	{
-		form.allowUpdate((u) -> u.getAccessLevel() <= getActiveUser().getAccessLevel());
+		form.allowUpdate((u) -> u.getAccessLevel() <= ContextMap.getContext().getActiveUser().getAccessLevel());
 
 		form.label("Loginname", User::getUN);
 		form.field("Name", String.class, User::getNickname, this::updateName);
 		form.field("Email", String.class, User::getEmail, User::setEmail);
-		form.field("Accesslevel", Integer.class, User::getAccessLevel, (u, level) -> u.setAccesslevel(Math.min(level, getActiveUser().getAccessLevel())));
+		form.field("Accesslevel", Integer.class, User::getAccessLevel, (u, level) -> u.setAccesslevel(Math.min(level, ContextMap.getContext().getActiveUser().getAccessLevel())));
 		form.field("Rasse", Rasse.class, Integer.class, User::getRace, User::setRace);
 		form.field("Vacation", Integer.class, User::getVacationCount, User::setVacationCount);
 		form.field("Wait4Vac", Integer.class, User::getWait4VacationCount, User::setWait4VacationCount);

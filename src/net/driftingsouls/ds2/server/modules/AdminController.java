@@ -28,6 +28,8 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungExc
 import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
 import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EditPlugin8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import net.driftingsouls.ds2.server.modules.admin.editoren.JqGridTableDataViewModel;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -43,6 +45,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 /**
  * Der Admin.
@@ -54,16 +57,12 @@ public class AdminController extends Controller
 {
 	private static final Logger LOG = LogManager.getLogger(AdminController.class);
 
-	private static final List<Class<? extends AdminPlugin>> plugins = new ArrayList<>();
+	private static final List<Class<?>> plugins = new ArrayList<>();
 
 	static
 	{
 		SortedSet<Class<?>> entityClasses = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(AdminMenuEntry.class);
-		for (Class<?> cls : entityClasses)
-		{
-			final Class<? extends AdminPlugin> adminPluginClass = cls.asSubclass(AdminPlugin.class);
-			plugins.add(adminPluginClass);
-		}
+		plugins.addAll(entityClasses.stream().filter(cls -> AdminPlugin.class.isAssignableFrom(cls) || EntityEditor.class.isAssignableFrom(cls)).collect(Collectors.toList()));
 	}
 
 	private static class MenuCategory implements Comparable<MenuCategory>
@@ -114,7 +113,7 @@ public class AdminController extends Controller
 	private static class MenuEntry implements Comparable<MenuEntry>
 	{
 		String name;
-		Class<? extends AdminPlugin> cls;
+		Class<?> cls;
 
 		MenuEntry(String name)
 		{
@@ -164,7 +163,7 @@ public class AdminController extends Controller
 		super(context);
 	}
 
-	private void addMenuEntry(Class<? extends AdminPlugin> cls, String menuentry, String submenuentry)
+	private void addMenuEntry(Class<?> cls, String menuentry, String submenuentry)
 	{
 		if (!this.menu.containsKey(menuentry))
 		{
@@ -184,7 +183,7 @@ public class AdminController extends Controller
 			throw new ValidierungException("Sie sind nicht berechtigt diese Seite aufzurufen");
 		}
 
-		for (Class<? extends AdminPlugin> cls : plugins)
+		for (Class<?> cls : plugins)
 		{
 
 			if (validPlugins.contains(cls.getName()))
@@ -230,15 +229,13 @@ public class AdminController extends Controller
 
 		try
 		{
-			Class<? extends AdminPlugin> aClass = Class.forName(namedplugin).asSubclass(AdminPlugin.class);
-			if( !AbstractEditPlugin8.class.isAssignableFrom(aClass) )
+			AdminPlugin plugin = instantiate(Class.forName(namedplugin));
+			if( !(plugin instanceof AbstractEditPlugin8) )
 			{
 				throw new ValidierungException("Fuer dieses Plugin koennen keine Tabellendaten generiert werden: '"+namedplugin+"'");
 			}
 
-			AbstractEditPlugin8 plugin = aClass.asSubclass(AbstractEditPlugin8.class).newInstance();
-			getContext().autowireBean(plugin);
-			return plugin.generateTableData(page, rows);
+			return ((AbstractEditPlugin8)plugin).generateTableData(page, rows);
 		}
 		catch (ReflectiveOperationException e)
 		{
@@ -268,7 +265,7 @@ public class AdminController extends Controller
 			{
 				boolean active = entry.cls.getName().equals(namedplugin);
 				echo.append("<li>");
-				if(AbstractEditPlugin8.class.isAssignableFrom(entry.cls) )
+				if(EntityEditor.class.isAssignableFrom(entry.cls) )
 				{
 					echo.append("<img src='data/interface/admin/editor.png' />");
 				}
@@ -302,10 +299,9 @@ public class AdminController extends Controller
 	{
 		try
 		{
-			Class<? extends AdminPlugin> aClass = Class.forName(namedplugin).asSubclass(AdminPlugin.class);
+			Class<?> aClass = Class.forName(namedplugin);
 
-			AdminPlugin plugin = aClass.newInstance();
-			getContext().autowireBean(plugin);
+			AdminPlugin plugin = instantiate(aClass);
 			StringBuilder output = new StringBuilder();
 			plugin.output(output);
 			return output.toString();
@@ -315,5 +311,19 @@ public class AdminController extends Controller
 			LOG.warn("Fehler beim Aufruf des Admin-Plugins "+namedplugin, e);
 			throw new ValidierungException("Fehler beim Aufruf des Admin-Plugins: " + e);
 		}
+	}
+
+	private AdminPlugin instantiate(Class<?> aClass) throws InstantiationException, IllegalAccessException
+	{
+		if( AdminPlugin.class.isAssignableFrom(aClass) )
+		{
+			AdminPlugin plugin = aClass.asSubclass(AdminPlugin.class).newInstance();
+			getContext().autowireBean(plugin);
+			return plugin;
+		}
+		EntityEditor<?> editor = aClass.asSubclass(EntityEditor.class).newInstance();
+		EditPlugin8<?> plugin = new EditPlugin8<>(editor);
+		getContext().autowireBean(plugin);
+		return plugin;
 	}
 }

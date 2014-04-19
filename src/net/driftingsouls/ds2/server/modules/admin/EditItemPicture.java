@@ -19,8 +19,8 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
 import javax.annotation.Nonnull;
 
@@ -30,15 +30,16 @@ import javax.annotation.Nonnull;
  * @author Christopher Jung
  */
 @AdminMenuEntry(category = "Items", name = "Itemgrafik")
-public class EditItemPicture extends AbstractEditPlugin8<Item> implements AdminPlugin
+public class EditItemPicture implements EntityEditor<Item>
 {
-	public EditItemPicture()
+	@Override
+	public Class<Item> getEntityType()
 	{
-		super(Item.class);
+		return Item.class;
 	}
 
 	@Override
-	protected void configureFor(@Nonnull EditorForm8<Item> form)
+	public void configureFor(@Nonnull EditorForm8<Item> form)
 	{
 		form.label("Name", Item::getName);
 		form.dynamicContentField("Bild", Item::getPicture, Item::setPicture);

@@ -7,6 +7,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
+import net.driftingsouls.ds2.server.framework.db.batch.SingleUnitOfWork;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.utils.StringToTypeConverter;
 import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
@@ -47,8 +48,9 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		Request request = context.getRequest();
 		String entityId = request.getParameter("entityId");
 
-		EditorForm8<T> form = new EditorForm8<>(EditorMode.UPDATE, this.getClass(), echo);
+		EditorForm8<T> form = new EditorForm8<>(EditorMode.UPDATE, getPluginClass(), echo);
 		configureFor(form);
+		this.clazz = form.getDefaultEntityClass().orElse(this.clazz);
 
 		if(this.isDeleteExecuted())
 		{
@@ -81,28 +83,32 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		}
 		else if (this.isAddExecuted())
 		{
-			try
-			{
-				form = new EditorForm8<>(EditorMode.CREATE, this.getClass(), echo);
-				configureFor(form);
+			db.getTransaction().commit();
 
-				T entity = createEntity();
-				form.applyRequestValues(request, entity);
-				if( entity.getClass() != this.clazz )
+			new SingleUnitOfWork("Hinzufuegen") {
+				@Override
+				public void doWork() throws Exception
 				{
-					// Klasse wurde geaendert - erneut anwenden
-					entity = createEntity();
-					form.applyRequestValues(request, entity);
-				}
-				db.persist(entity);
-				echo.append("<p>Hinzufügen abgeschlossen.</p>");
+					EditorForm8<T> form = new EditorForm8<>(EditorMode.CREATE, AbstractEditPlugin8.this.getPluginClass(), echo);
+					configureFor(form);
 
-				entityId = null;
-			}
-			catch (IOException | RuntimeException e)
-			{
-				echo.append("<p>Fehler bei Update: ").append(e.getMessage()).append("</p>");
-			}
+					T entity = createEntity();
+					form.applyRequestValues(request, entity);
+					AbstractEditPlugin8.this.clazz = form.getEntityClassRequestValue(request, entity);
+					if( entity.getClass() != AbstractEditPlugin8.this.clazz )
+					{
+						// Klasse wurde geaendert - erneut anwenden
+						entity = createEntity();
+						form.applyRequestValues(request, entity);
+					}
+					db.persist(entity);
+					echo.append("<p>Hinzufügen abgeschlossen.</p>");
+				}
+			}.setErrorReporter((uow,w,t) -> echo.append("<p>Fehler bei Update: ").append(t.getMessage()).append("</p>"))
+					.execute();
+
+			entityId = null;
+			db.beginTransaction();
 		}
 		else if (this.isResetExecuted())
 		{
@@ -128,16 +134,16 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 				return;
 			}
 
-			beginEditorTable(echo, this.getClass(), entityId);
+			beginEditorTable(echo, this.getPluginClass(), entityId);
 			form.generateForm(entity);
 			endEditorTable(echo);
 		}
 		else if( isAddDisplayed() )
 		{
 			T entity = createEntity();
-			form = new EditorForm8<>(EditorMode.CREATE, this.getClass(), echo);
+			form = new EditorForm8<>(EditorMode.CREATE, this.getPluginClass(), echo);
 			configureFor(form);
-			beginEditorTable(echo, this.getClass(), -1);
+			beginEditorTable(echo, this.getPluginClass(), -1);
 			form.generateForm(entity);
 			endEditorTable(echo);
 		}
@@ -147,10 +153,15 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		}
 	}
 
+	protected Class<?> getPluginClass()
+	{
+		return this.getClass();
+	}
+
 	private void outputEntityTable(Session db, StringBuilder echo, EditorForm8<T> form)
 	{
 		JqGridViewModel model = new JqGridViewModel();
-		model.url = "./ds?module=admin&namedplugin="+this.getClass().getName()+"&action=tableData&FORMAT=JSON";
+		model.url = "./ds?module=admin&namedplugin="+this.getPluginClass().getName()+"&action=tableData&FORMAT=JSON";
 		model.pager = "#pager";
 		model.colNames.add("Id");
 		model.colModel.add(new JqGridColumnViewModel("id", null));
@@ -177,7 +188,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		Long count = (Long)db.createCriteria(baseClass).setProjection(Projections.rowCount()).uniqueResult();
 		if( count != null )
 		{
-			beginSelectionBox(echo, this.getClass());
+			beginSelectionBox(echo, this.getPluginClass());
 
 			if (count < 500)
 			{
@@ -207,7 +218,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		}
 		if (form.isAddAllowed())
 		{
-			addForm(echo, this.getClass());
+			addForm(echo, this.getPluginClass());
 		}
 		echo.append("</div>");
 	}
@@ -254,28 +265,6 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		echo.append("</div>");
 	}
 
-	protected void setEntityClass(String name)
-	{
-		try
-		{
-			this.clazz = Class.forName(name).asSubclass(this.baseClass);
-		}
-		catch (ClassNotFoundException e)
-		{
-			throw new IllegalArgumentException("Unbekannte Klasse "+name);
-		}
-	}
-
-	protected void setEntityClass(Class<? extends T> clazz)
-	{
-		this.clazz = clazz;
-	}
-
-	protected @Nonnull String getEntityClass()
-	{
-		return this.clazz.getName();
-	}
-
 	private T createEntity()
 	{
 		try
@@ -311,7 +300,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		return true;
 	}
 
-	private void beginSelectionBox(StringBuilder echo, Class<? extends AdminPlugin> plugin) throws IOException
+	private void beginSelectionBox(StringBuilder echo, Class<?> plugin) throws IOException
 	{
 		echo.append("<form action=\"./ds\" method=\"post\">");
 		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(plugin.getName()).append("\" />\n");
@@ -334,7 +323,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		echo.append("</form>");
 	}
 
-	private void addForm(StringBuilder echo, Class<? extends AdminPlugin> plugin) throws IOException
+	private void addForm(StringBuilder echo, Class<?> plugin) throws IOException
 	{
 		echo.append("<form action=\"./ds\" method=\"post\">");
 		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(plugin.getName()).append("\" />\n");
@@ -343,7 +332,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		echo.append("</form>");
 	}
 
-	private void beginEditorTable(final StringBuilder echo, Class<? extends AdminPlugin> plugin, Object entityId) throws IOException
+	private void beginEditorTable(final StringBuilder echo, Class<?> plugin, Object entityId) throws IOException
 	{
 		echo.append("<div class='gfxbox adminEditor' style='width:700px'>");
 		echo.append("<form action=\"./ds\" method=\"post\" enctype='multipart/form-data'>");
@@ -403,7 +392,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 
 	public JqGridTableDataViewModel generateTableData(int page, int rows)
 	{
-		EditorForm8<T> form = new EditorForm8<>(EditorMode.UPDATE, this.getClass(), new StringBuilder());
+		EditorForm8<T> form = new EditorForm8<>(EditorMode.UPDATE, this.getPluginClass(), new StringBuilder());
 		configureFor(form);
 
 		if( page <= 0 )

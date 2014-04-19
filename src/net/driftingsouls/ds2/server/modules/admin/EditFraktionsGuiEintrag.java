@@ -1,22 +1,23 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
-import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
+import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
 import javax.annotation.Nonnull;
 
 @AdminMenuEntry(category = "Spieler", name = "Fraktions-GUI")
-public class EditFraktionsGuiEintrag extends AbstractEditPlugin8<FraktionsGuiEintrag>
+public class EditFraktionsGuiEintrag implements EntityEditor<FraktionsGuiEintrag>
 {
-	public EditFraktionsGuiEintrag()
+	@Override
+	public Class<FraktionsGuiEintrag> getEntityType()
 	{
-		super(FraktionsGuiEintrag.class);
+		return FraktionsGuiEintrag.class;
 	}
 
 	@Override
-	protected void configureFor(@Nonnull EditorForm8<FraktionsGuiEintrag> form)
+	public void configureFor(@Nonnull EditorForm8<FraktionsGuiEintrag> form)
 	{
 		form.allowAdd();
 		form.field("Spieler", User.class, FraktionsGuiEintrag::getUser, FraktionsGuiEintrag::setUser);

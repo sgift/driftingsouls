@@ -20,8 +20,8 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.bases.BaseType;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
 import javax.annotation.Nonnull;
 
@@ -30,15 +30,16 @@ import javax.annotation.Nonnull;
  * 
  */
 @AdminMenuEntry(category = "Asteroiden", name = "Basis-Klasse")
-public class EditBaseType extends AbstractEditPlugin8<BaseType> implements AdminPlugin
+public class EditBaseType implements EntityEditor<BaseType>
 {
-	public EditBaseType()
+	@Override
+	public Class<BaseType> getEntityType()
 	{
-		super(BaseType.class);
+		return BaseType.class;
 	}
 
 	@Override
-	protected void configureFor(@Nonnull EditorForm8<BaseType> form)
+	public void configureFor(@Nonnull EditorForm8<BaseType> form)
 	{
 		form.allowAdd();
 		form.field("Name", String.class, BaseType::getName, BaseType::setName);

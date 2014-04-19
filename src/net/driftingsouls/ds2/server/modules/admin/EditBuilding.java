@@ -11,13 +11,9 @@ import net.driftingsouls.ds2.server.bases.Werft;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.Rasse;
-import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Arrays;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Editiert die Werte von Gebaeudetypen.
@@ -25,14 +21,8 @@ import java.util.stream.Collectors;
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Asteroiden", name = "Gebäude")
-public class EditBuilding extends AbstractEditPlugin8<Building>
+public class EditBuilding implements EntityEditor<Building>
 {
-	public EditBuilding()
-	{
-		super(Building.class);
-		setEntityClass(DefaultBuilding.class);
-	}
-
 	private static int getEnergiebilanz(Building building)
 	{
 		return -1 * building.getEVerbrauch() + building.getEProduktion();
@@ -53,15 +43,18 @@ public class EditBuilding extends AbstractEditPlugin8<Building>
 	}
 
 	@Override
-	protected void configureFor(@NotNull EditorForm8<Building> form)
+	public Class<Building> getEntityType()
+	{
+		return Building.class;
+	}
+
+	@Override
+	public void configureFor(@NotNull EditorForm8<Building> form)
 	{
 		form.allowAdd();
 
-		Map<String,String> clsOptions = Arrays.asList(DefaultBuilding.class, AcademyBuilding.class, DigBuilding.class, Fabrik.class, ForschungszentrumBuilding.class, KasernenBuilding.class, Werft.class)
-												   .stream()
-												   .collect(Collectors.toMap((c) -> c.getName(), (c) -> c.getSimpleName()));
-		form.ifAdding().field("Implementierung", String.class, (Building b) -> this.getEntityClass(), (Building b,String s) -> this.setEntityClass(s)).withOptions(clsOptions);
-		form.ifUpdating().label("Implementierung", (b) -> b.getClass().getName());
+		form.entityClass("Implementierung", DefaultBuilding.class, AcademyBuilding.class, DigBuilding.class, Fabrik.class, ForschungszentrumBuilding.class, KasernenBuilding.class, Werft.class);
+
 		form.field("Name", String.class, Building::getName, Building::setName);
 		form.picture("Bild", Building::getDefaultPicture);
 		form.field("Arbeiter", Integer.class, Building::getArbeiter, Building::setArbeiter);

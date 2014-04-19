@@ -21,8 +21,8 @@ package net.driftingsouls.ds2.server.modules.admin;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.Rasse;
-import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
@@ -32,15 +32,16 @@ import javax.annotation.Nonnull;
  * Aktualisierungstool fuer die Kosten von Schiffstypen.
  */
 @AdminMenuEntry(category = "Schiffe", name = "Baukosten")
-public class EditShipCosts extends AbstractEditPlugin8<ShipBaubar>
+public class EditShipCosts implements EntityEditor<ShipBaubar>
 {
-	public EditShipCosts()
+	@Override
+	public Class<ShipBaubar> getEntityType()
 	{
-		super(ShipBaubar.class);
+		return ShipBaubar.class;
 	}
 
 	@Override
-	protected void configureFor(@Nonnull EditorForm8<ShipBaubar> form)
+	public void configureFor(@Nonnull EditorForm8<ShipBaubar> form)
 	{
 		form.allowAdd();
 		form.ifAdding().field("Schiffstyp", ShipType.class, ShipBaubar::getType, ShipBaubar::setType);

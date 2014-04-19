@@ -18,8 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import net.driftingsouls.ds2.server.units.UnitType;
 
 import javax.annotation.Nonnull;
@@ -30,15 +30,16 @@ import javax.annotation.Nonnull;
  * @author Christopher Jung
  */
 @AdminMenuEntry(category = "Einheiten", name = "Einheitengrafik")
-public class EditUnitPicture extends AbstractEditPlugin8<UnitType> implements AdminPlugin
+public class EditUnitPicture implements EntityEditor<UnitType>
 {
-	public EditUnitPicture()
+	@Override
+	public Class<UnitType> getEntityType()
 	{
-		super(UnitType.class);
+		return UnitType.class;
 	}
 
 	@Override
-	protected void configureFor(@Nonnull EditorForm8<UnitType> form)
+	public void configureFor(@Nonnull EditorForm8<UnitType> form)
 	{
 		form.label("Name", UnitType::getName);
 		form.dynamicContentField("Bild", UnitType::getPicture, UnitType::setPicture);

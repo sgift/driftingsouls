@@ -1,12 +1,12 @@
 package net.driftingsouls.ds2.server.modules.admin.editoren;
 
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
-import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -22,14 +22,15 @@ public class EditorForm8<E>
 	private Function<E,Boolean> allowDelete;
 	private final EditorMode modus;
 	private StringBuilder echo;
-	private Class<? extends AdminPlugin> plugin;
+	private Class<?> plugin;
 	private List<CustomFieldGenerator<E>> fields = new ArrayList<>();
 	private int counter;
 	private boolean allowAdd;
 	private Function<E,Boolean> allowUpdate;
 	private List<Job<E,?>> updateTasks = new ArrayList<>();
+	private Class<? extends E> defaultEntityClass = null;
 
-	public EditorForm8(EditorMode modus, Class<? extends AdminPlugin> plugin, StringBuilder echo)
+	public EditorForm8(EditorMode modus, Class<?> plugin, StringBuilder echo)
 	{
 		this.modus = modus;
 		this.echo = echo;
@@ -214,6 +215,22 @@ public class EditorForm8<E>
 	}
 
 	/**
+	 * Erzeugt eine Auswahl fuer die zu verwendende Entity-Klasse. Es darf nur ein solches Eingabeelement pro Form existieren.
+	 * @param label Das Anzeigelabel
+	 * @param defaultEntityClass Die Standardmaessig zu verwendende Entity-Klasse
+	 * @param options Alle weiteren moeglichen Entity-Klassen
+	 */
+	public EntityClassGenerator<E> entityClass(String label, Class<? extends E> defaultEntityClass, Class<?> ... options)
+	{
+		if( this.defaultEntityClass != null )
+		{
+			throw new IllegalStateException("Es wurde bereits eine Standard-Entityklasse gesetzt. Wurden evt. zwei EntityClass-Felder registriert?");
+		}
+		this.defaultEntityClass = defaultEntityClass;
+		return custom(new EntityClassGenerator<>(label, generateName("entityClass"), modus == EditorMode.CREATE, defaultEntityClass, options));
+	}
+
+	/**
 	 * Erzeugt ein Auswahlfeld mit einer Mehrfachauswahl (Editor) fuer einen bestimmten Datentyp.
 	 * @param label Das Anzeigelabel
 	 * @param type Der Datentyp des Views und des Models
@@ -304,5 +321,23 @@ public class EditorForm8<E>
 	protected List<String> getEntityValues(E entity)
 	{
 		return this.fields.stream().map((f) -> f.serializedValueOf(entity)).collect(Collectors.toList());
+	}
+
+	@SuppressWarnings("unchecked")
+	protected Class<? extends E> getEntityClassRequestValue(Request request, E entity) throws IOException
+	{
+		Optional<CustomFieldGenerator<E>> field = fields.stream().filter((f) -> f instanceof EntityClassGenerator).findFirst();
+		if( !field.isPresent() )
+		{
+			return (Class<? extends E>) entity.getClass();
+		}
+		EntityClassGenerator<E> customFieldGenerator = (EntityClassGenerator<E>) field.get();
+		customFieldGenerator.applyRequestValues(request, entity);
+		return customFieldGenerator.getCurrentEntityClass();
+	}
+
+	protected Optional<Class<? extends E>> getDefaultEntityClass()
+	{
+		return Optional.ofNullable(this.defaultEntityClass);
 	}
 }

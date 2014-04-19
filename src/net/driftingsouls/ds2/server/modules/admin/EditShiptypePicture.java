@@ -19,8 +19,9 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
@@ -33,28 +34,29 @@ import java.util.List;
  * @author Christopher Jung
  */
 @AdminMenuEntry(category = "Schiffe", name = "Typengrafik")
-public class EditShiptypePicture extends AbstractEditPlugin8<ShipType> implements AdminPlugin
+public class EditShiptypePicture implements EntityEditor<ShipType>
 {
-	public EditShiptypePicture()
-	{
-		super(ShipType.class);
-	}
-
 	private List<Integer> liefereZuAktualisierendeSchiffe(ShipType shipType)
 	{
-		return Common.cast(getDB().createQuery("select s.id from Ship s where s.shiptype=:type and s.modules is not null")
+		return Common.cast(ContextMap.getContext().getDB().createQuery("select s.id from Ship s where s.shiptype=:type and s.modules is not null")
 								   .setEntity("type", shipType)
 								   .list());
 	}
 
 	private void aktualisiereSchiff(ShipType oldshipType, ShipType shipType, Integer schiffsId)
 	{
-		Ship ship = (Ship)getDB().get(Ship.class, schiffsId);
+		Ship ship = (Ship)ContextMap.getContext().getDB().get(Ship.class, schiffsId);
 		ship.recalculateModules();
 	}
 
 	@Override
-	protected void configureFor(@Nonnull EditorForm8<ShipType> form)
+	public Class<ShipType> getEntityType()
+	{
+		return ShipType.class;
+	}
+
+	@Override
+	public void configureFor(@Nonnull EditorForm8<ShipType> form)
 	{
 		form.label("Name", ShipType::getNickname);
 		form.dynamicContentField("Bild", ShipType::getPicture, ShipType::setPicture);

@@ -5,7 +5,6 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DynamicContent;
 import net.driftingsouls.ds2.server.framework.DynamicContentManager;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
-import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 import org.apache.commons.fileupload.FileItem;
 
 import java.io.IOException;
@@ -24,9 +23,9 @@ public class DynamicContentFieldGenerator<V> implements CustomFieldGenerator<V>
 	private Function<V,String> getter;
 	private BiConsumer<V,String> setter;
 	private boolean withRemove;
-	private Class<? extends AdminPlugin> plugin;
+	private Class<?> plugin;
 
-	public DynamicContentFieldGenerator(Class<? extends AdminPlugin> plugin, String label, String name, Function<V, String> getter, BiConsumer<V, String> setter)
+	public DynamicContentFieldGenerator(Class<?> plugin, String label, String name, Function<V, String> getter, BiConsumer<V, String> setter)
 	{
 		this.label = label;
 		this.name = name;

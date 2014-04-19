@@ -140,6 +140,7 @@ public abstract class Building
 		this.buildCosts = new Cargo();
 		this.produces = new Cargo();
 		this.consumes = new Cargo();
+		this.picture = "";
 	}
 
 	/**

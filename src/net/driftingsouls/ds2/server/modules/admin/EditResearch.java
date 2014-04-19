@@ -21,8 +21,8 @@ package net.driftingsouls.ds2.server.modules.admin;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.Rasse;
-import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
 import javax.annotation.Nonnull;
 
@@ -32,14 +32,16 @@ import javax.annotation.Nonnull;
  *
  */
 @AdminMenuEntry(category="Techs", name="Forschung")
-public class EditResearch extends AbstractEditPlugin8<Forschung> {
-	public EditResearch()
+public class EditResearch implements EntityEditor<Forschung>
+{
+	@Override
+	public Class<Forschung> getEntityType()
 	{
-		super(Forschung.class);
+		return Forschung.class;
 	}
 
 	@Override
-	protected void configureFor(@Nonnull EditorForm8<Forschung> form)
+	public void configureFor(@Nonnull EditorForm8<Forschung> form)
 	{
 		form.allowAdd();
 		form.field("Name", String.class, Forschung::getName, Forschung::setName);

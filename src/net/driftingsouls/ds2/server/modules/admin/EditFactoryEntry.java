@@ -21,8 +21,8 @@ package net.driftingsouls.ds2.server.modules.admin;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.FactoryEntry;
 import net.driftingsouls.ds2.server.entities.Forschung;
-import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
 import javax.annotation.Nonnull;
 import java.math.BigDecimal;
@@ -33,15 +33,16 @@ import java.math.BigDecimal;
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Items", name = "Fabrikeintrag")
-public class EditFactoryEntry extends AbstractEditPlugin8<FactoryEntry>
+public class EditFactoryEntry implements EntityEditor<FactoryEntry>
 {
-	public EditFactoryEntry()
+	@Override
+	public Class<FactoryEntry> getEntityType()
 	{
-		super(FactoryEntry.class);
+		return FactoryEntry.class;
 	}
 
 	@Override
-	protected void configureFor(@Nonnull EditorForm8<FactoryEntry> form)
+	public void configureFor(@Nonnull EditorForm8<FactoryEntry> form)
 	{
 		form.allowAdd();
 		form.field("Name", String.class, FactoryEntry::getName, FactoryEntry::setName);

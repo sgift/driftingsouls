@@ -2,21 +2,22 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.config.ConfigFelsbrockenSystem;
 import net.driftingsouls.ds2.server.config.StarSystem;
-import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
 import javax.annotation.Nonnull;
 
 @AdminMenuEntry(category = "Systeme", name="Felsbrocken-System")
-public class EditConfigFelsbrockenSystem extends AbstractEditPlugin8<ConfigFelsbrockenSystem>
+public class EditConfigFelsbrockenSystem implements EntityEditor<ConfigFelsbrockenSystem>
 {
-	public EditConfigFelsbrockenSystem()
+	@Override
+	public Class<ConfigFelsbrockenSystem> getEntityType()
 	{
-		super(ConfigFelsbrockenSystem.class);
+		return ConfigFelsbrockenSystem.class;
 	}
 
 	@Override
-	protected void configureFor(@Nonnull EditorForm8<ConfigFelsbrockenSystem> form)
+	public void configureFor(@Nonnull EditorForm8<ConfigFelsbrockenSystem> form)
 	{
 		form.allowAdd();
 		form.allowDelete();

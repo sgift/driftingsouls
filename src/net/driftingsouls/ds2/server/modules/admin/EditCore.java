@@ -5,8 +5,8 @@ import net.driftingsouls.ds2.server.bases.Core;
 import net.driftingsouls.ds2.server.bases.DefaultCore;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.Forschung;
-import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
 import javax.annotation.Nonnull;
 
@@ -16,18 +16,19 @@ import javax.annotation.Nonnull;
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Asteroiden", name = "Core")
-public class EditCore extends AbstractEditPlugin8<Core>
+public class EditCore implements EntityEditor<Core>
 {
-	public EditCore()
+	@Override
+	public Class<Core> getEntityType()
 	{
-		super(Core.class);
-		setEntityClass(DefaultCore.class);
+		return Core.class;
 	}
 
 	@Override
-	protected void configureFor(@Nonnull EditorForm8<Core> form)
+	public void configureFor(@Nonnull EditorForm8<Core> form)
 	{
 		form.allowAdd();
+		form.entityClass("Implementierung", DefaultCore.class);
 		form.field("Name", String.class, Core::getName, Core::setName);
 		form.field("Basistyp", BaseType.class, Core::getAstiType, Core::setAstiType);
 		form.field("Arbeiter", Integer.class, Core::getArbeiter, Core::setArbeiter);

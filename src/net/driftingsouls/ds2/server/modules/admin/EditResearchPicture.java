@@ -19,8 +19,8 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.entities.Forschung;
-import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
 import javax.annotation.Nonnull;
 
@@ -30,15 +30,16 @@ import javax.annotation.Nonnull;
  * @author Christopher Jung
  */
 @AdminMenuEntry(category = "Techs", name = "Forschungsgrafik")
-public class EditResearchPicture extends AbstractEditPlugin8<Forschung> implements AdminPlugin
+public class EditResearchPicture implements EntityEditor<Forschung>
 {
-	public EditResearchPicture()
+	@Override
+	public Class<Forschung> getEntityType()
 	{
-		super(Forschung.class);
+		return Forschung.class;
 	}
 
 	@Override
-	protected void configureFor(@Nonnull EditorForm8<Forschung> form)
+	public void configureFor(@Nonnull EditorForm8<Forschung> form)
 	{
 		form.label("Name", Forschung::getName);
 		form.dynamicContentField("Bild", Forschung::getImage, Forschung::setImage);

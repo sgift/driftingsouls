@@ -23,6 +23,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.hibernate.AssertionFailure;
 import org.hibernate.FlushMode;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.Transaction;
@@ -134,45 +135,8 @@ public abstract class UnitOfWork<T>
 				count++;
 				if(count%this.flushSize == 0)
 				{
-					try {
-						db.flush();
-						transaction.commit();
-					}
-					catch( Exception e ) {
-						this.unsuccessfulWork.addAll(unflushedObjects);
-						transaction.rollback();
-						
-						if( e instanceof StaleObjectStateException ) {
-							StaleObjectStateException sose = (StaleObjectStateException)e;
-							final Object staleObject = db.get(sose.getEntityName(), sose.getIdentifier());
-							db.evict(staleObject);
-						}
-						else if( e instanceof GenericJDBCException ) {
-							GenericJDBCException ge = (GenericJDBCException)e;
-							final String msg = ge.getMessage();
-							try {
-								// Im Falle von z.B. Locking-Fehlermeldungen versuchen die entsprechende Entity zu entfernen,
-								// damit zumindest der Rest weiterlaufen kann
-								if( msg != null && msg.startsWith("could not update: [") ) {
-									String entity = msg.substring(msg.indexOf('[')+1, msg.length()-1);
-									String id = entity.substring(entity.indexOf('#')+1);
-									entity = entity.substring(0, entity.indexOf('#'));
-									if( NumberUtils.isNumber(id) ) {
-										Object entityObj = db.get(entity, NumberUtils.toInt(id));
-										if( entityObj != null ) {
-											db.evict(entityObj);
-										}
-									}
-								}
-							}
-							catch( RuntimeException e2 ) {
-								// Parsen der Fehlermeldung nicht moeglich - normal weiter machen 
-							}
-						}
-						LOG.warn(name + " - on flush von " + unflushedObjects, e);
-						errorReporter.report(this, unflushedObjects, e);
-					}
-					
+					flushAndCommit(transaction, unflushedObjects);
+
 					onFlushed();
 
 					unflushedObjects.clear();
@@ -180,13 +144,59 @@ public abstract class UnitOfWork<T>
 					transaction = db.beginTransaction();
 				}
 			}
-			db.flush();
-			transaction.commit();
+
+			flushAndCommit(transaction, unflushedObjects);
 			
 			onFlushed();
 		}
 		finally {		
 			db.setFlushMode(oldMode);
+		}
+	}
+
+	private void flushAndCommit(Transaction transaction, List<T> unflushedObjects)
+	{
+		try {
+			db.flush();
+			transaction.commit();
+		}
+		catch( Exception e ) {
+			this.unsuccessfulWork.addAll(unflushedObjects);
+			transaction.rollback();
+
+			if( e instanceof StaleObjectStateException) {
+				StaleObjectStateException sose = (StaleObjectStateException)e;
+				final Object staleObject = db.get(sose.getEntityName(), sose.getIdentifier());
+				db.evict(staleObject);
+			}
+			else if( e instanceof GenericJDBCException) {
+				GenericJDBCException ge = (GenericJDBCException)e;
+				final String msg = ge.getMessage();
+				try {
+					// Im Falle von z.B. Locking-Fehlermeldungen versuchen die entsprechende Entity zu entfernen,
+					// damit zumindest der Rest weiterlaufen kann
+					if( msg != null && msg.startsWith("could not update: [") ) {
+						String entity = msg.substring(msg.indexOf('[')+1, msg.length()-1);
+						String id = entity.substring(entity.indexOf('#')+1);
+						entity = entity.substring(0, entity.indexOf('#'));
+						if( NumberUtils.isNumber(id) ) {
+							Object entityObj = db.get(entity, NumberUtils.toInt(id));
+							if( entityObj != null ) {
+								db.evict(entityObj);
+							}
+						}
+					}
+				}
+				catch( RuntimeException e2 ) {
+					// Parsen der Fehlermeldung nicht moeglich - normal weiter machen
+				}
+			}
+			else if( e instanceof AssertionFailure )
+			{
+				db.clear();
+			}
+			LOG.warn(name + " - on flush von " + unflushedObjects, e);
+			errorReporter.report(this, unflushedObjects, e);
 		}
 	}
 

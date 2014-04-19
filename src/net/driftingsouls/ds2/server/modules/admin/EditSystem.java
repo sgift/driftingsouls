@@ -25,8 +25,9 @@ import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import net.driftingsouls.ds2.server.ships.Ship;
 
 import javax.annotation.Nonnull;
@@ -36,15 +37,16 @@ import javax.annotation.Nonnull;
  *
  */
 @AdminMenuEntry(category = "Systeme", name = "System")
-public class EditSystem extends AbstractEditPlugin8<StarSystem> implements AdminPlugin
+public class EditSystem implements EntityEditor<StarSystem>
 {
-	public EditSystem()
+	@Override
+	public Class<StarSystem> getEntityType()
 	{
-		super(StarSystem.class);
+		return StarSystem.class;
 	}
 
 	@Override
-	protected void configureFor(@Nonnull EditorForm8<StarSystem> form)
+	public void configureFor(@Nonnull EditorForm8<StarSystem> form)
 	{
 		form.allowAdd();
 
@@ -62,7 +64,7 @@ public class EditSystem extends AbstractEditPlugin8<StarSystem> implements Admin
 
 
 		form.postUpdateTask("Schiffe an Systemgrenzen anpassen",
-				(s) -> Common.cast(getDB().createQuery("select id from Ship where system = :system and (x>:width or y>:height)")
+				(s) -> Common.cast(ContextMap.getContext().getDB().createQuery("select id from Ship where system = :system and (x>:width or y>:height)")
 						.setInteger("system", s.getID())
 						.setInteger("width", s.getWidth())
 						.setInteger("height", s.getHeight())
@@ -70,7 +72,7 @@ public class EditSystem extends AbstractEditPlugin8<StarSystem> implements Admin
 				this::aktualisiereSchiffe
 		);
 		form.postUpdateTask("Schlachten an Systemgrenzen anpassen",
-				(s) -> Common.cast(getDB().createQuery("select id from Battle where system = :system and (x>:width or y>:height)")
+				(s) -> Common.cast(ContextMap.getContext().getDB().createQuery("select id from Battle where system = :system and (x>:width or y>:height)")
 						.setInteger("system", s.getID())
 						.setInteger("width", s.getWidth())
 						.setInteger("height", s.getHeight())
@@ -78,7 +80,7 @@ public class EditSystem extends AbstractEditPlugin8<StarSystem> implements Admin
 				this::aktualisiereSchlachten
 		);
 		form.postUpdateTask("Basen an Systemgrenzen anpassen",
-				(s) -> Common.cast(getDB().createQuery("select id from Base where system = :system and (x>:width or y>:height)")
+				(s) -> Common.cast(ContextMap.getContext().getDB().createQuery("select id from Base where system = :system and (x>:width or y>:height)")
 						.setInteger("system", s.getID())
 						.setInteger("width", s.getWidth())
 						.setInteger("height", s.getHeight())
@@ -86,7 +88,7 @@ public class EditSystem extends AbstractEditPlugin8<StarSystem> implements Admin
 				this::aktualisiereBasen
 		);
 		form.postUpdateTask("Ueberfluessige Nebel entfernen",
-				(s) -> Common.cast(getDB().createQuery("select loc from Nebel where loc.system = :system and (loc.x>:width or loc.y>:height)")
+				(s) -> Common.cast(ContextMap.getContext().getDB().createQuery("select loc from Nebel where loc.system = :system and (loc.x>:width or loc.y>:height)")
 						.setInteger("system", s.getID())
 						.setInteger("width", s.getWidth())
 						.setInteger("height", s.getHeight())
@@ -99,14 +101,14 @@ public class EditSystem extends AbstractEditPlugin8<StarSystem> implements Admin
 	{
 		if( loc.getX() > system.getWidth() || loc.getY() > system.getHeight() )
 		{
-			Nebel nebel = (Nebel) getDB().get(Nebel.class, loc);
-			getDB().delete(nebel);
+			Nebel nebel = (Nebel) ContextMap.getContext().getDB().get(Nebel.class, loc);
+			ContextMap.getContext().getDB().delete(nebel);
 		}
 	}
 
 	private void aktualisiereBasen(StarSystem oldsystem, StarSystem system, Integer id)
 	{
-		Base base = (Base) getDB().get(Base.class, id);
+		Base base = (Base) ContextMap.getContext().getDB().get(Base.class, id);
 		if (base.getX() > system.getWidth())
 		{
 			base.setX(system.getWidth());
@@ -119,7 +121,7 @@ public class EditSystem extends AbstractEditPlugin8<StarSystem> implements Admin
 
 	private void aktualisiereSchlachten(StarSystem oldsystem, StarSystem system, Integer id)
 	{
-		Battle battle = (Battle) getDB().get(Battle.class, id);
+		Battle battle = (Battle) ContextMap.getContext().getDB().get(Battle.class, id);
 		if (battle.getX() > system.getWidth())
 		{
 			battle.setX(system.getWidth());
@@ -132,7 +134,7 @@ public class EditSystem extends AbstractEditPlugin8<StarSystem> implements Admin
 
 	private void aktualisiereSchiffe(StarSystem oldsystem, StarSystem system, Integer id)
 	{
-		Ship ship = (Ship) getDB().get(Ship.class, id);
+		Ship ship = (Ship) ContextMap.getContext().getDB().get(Ship.class, id);
 		if (ship.getX() > system.getWidth())
 		{
 			ship.setX(system.getWidth());

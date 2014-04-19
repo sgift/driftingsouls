@@ -20,8 +20,8 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
@@ -35,15 +35,16 @@ import java.util.Map;
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Schiffe", name = "Schiff")
-public class EditShip extends AbstractEditPlugin8<Ship>
+public class EditShip implements EntityEditor<Ship>
 {
-	public EditShip()
+	@Override
+	public Class<Ship> getEntityType()
 	{
-		super(Ship.class);
+		return Ship.class;
 	}
 
 	@Override
-	protected void configureFor(@Nonnull EditorForm8<Ship> form)
+	public void configureFor(@Nonnull EditorForm8<Ship> form)
 	{
 		form.field("Name", String.class, Ship::getName, Ship::setName);
 		form.field("Besitzer", User.class, Ship::getOwner, Ship::setOwner);

@@ -26,8 +26,8 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.Nonnull;
@@ -40,15 +40,16 @@ import java.util.List;
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Asteroiden", name = "Basis")
-public class EditBases extends AbstractEditPlugin8<Base>
+public class EditBases implements EntityEditor<Base>
 {
-	public EditBases()
+	@Override
+	public Class<Base> getEntityType()
 	{
-		super(Base.class);
+		return Base.class;
 	}
 
 	@Override
-	protected void configureFor(@Nonnull EditorForm8<Base> form)
+	public void configureFor(@Nonnull EditorForm8<Base> form)
 	{
 		form.field("Name", String.class, Base::getName, Base::setName);
 		form.field("Besitzer", User.class, Base::getOwner, Base::setOwner);
