@@ -8,4 +8,5 @@
 	<bbcode tag="base" params="2"><![CDATA[<a class="profile" href="ds?module=base&col=$2">$1</a>]]></bbcode>
 	<bbcode tag="ship" params="2"><![CDATA[<a class="profile" href="ds?module=schiff&ship=$2">$1</a>]]></bbcode>
 	<bbcode tag="map" params="1" handler="net.driftingsouls.ds2.server.bbcodes.TagMap" />
+	<bbcode tag="youtube" params="3" handler="net.driftingsouls.ds2.server.bbcodes.TagYoutube" />
 </bbcodes>

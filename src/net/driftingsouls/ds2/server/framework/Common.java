@@ -768,7 +768,7 @@ public class Common {
 	/**
 	 * Liste von BBCodes, welche bei einzeligem Text problematisch sind.
 	 */
-	private static final String[] _TITLE_NAME = new String[] {"img(1)","url(1)","url(2)","imglf(1)","imgrf(1)","email(1)","email(2)","list(1)","list(2)","size(2)"};
+	private static final String[] _TITLE_NAME = new String[] {"img(1)","url(1)","url(2)","imglf(1)","imgrf(1)","email(1)","email(2)","list(1)","list(2)","size(2)","youtube(3)"};
 	
 	/**
 	 * Formatiert einen Text in HTML-Code. Zeilenumbrueche werden ignoriert. Ebenso werden einige
