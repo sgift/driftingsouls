@@ -60,6 +60,16 @@ public class BBCodeViewController extends TemplateController
 		codes.add("[b] text [/b]<br />");
 		codes.add("[i] text [/i]<br />");
 		codes.add("[u] text [/u]<br />");
+		codes.add("[youtube=breite,h&ouml;he]Youtube-Code[/youtube]<br />");
+		codes.add("Zudem gibt es auch einige speziellere Tags:<br />");
+		codes.add("[shiptype]ShiffsTyp-Id[/shiptype]<br />");
+		codes.add("[ship=ID]Eine Beschreibung[/ship]<br />");
+		codes.add("[map]Sys:X/Y[/map]<br />");
+		codes.add("[base=BaseID]Eine Beschreibung[/base]<br />");
+		codes.add("[userprofile=SpielerID]Eine Beschreibung[/userprofile]<br />");
+		codes.add("[resource=iID|0|0,PARAM]Anzahl[/resource]");
+		codes.add("Als PARAM kann i oder n angegeben werden, um nur den Namen oder nur das Bild anzeigen zu lassen. Das ,PARAM kann aber auch komplett weggelassen werden.");
+		codes.add("Beispiel f&uuml;r 5 Nahrung: [resource=i16|0|0]5[/resource]<br />");
 	}
 
 	/**
