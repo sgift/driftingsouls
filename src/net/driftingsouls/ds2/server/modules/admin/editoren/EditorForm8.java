@@ -28,6 +28,7 @@ public class EditorForm8<E>
 	private boolean allowAdd;
 	private Function<E,Boolean> allowUpdate;
 	private List<Job<E,?>> updateTasks = new ArrayList<>();
+	private List<Job<E,?>> deleteTasks = new ArrayList<>();
 	private Class<? extends E> defaultEntityClass = null;
 
 	public EditorForm8(EditorMode modus, Class<?> plugin, StringBuilder echo)
@@ -127,9 +128,38 @@ public class EditorForm8<E>
 		updateTasks.add(new Job<>(name, supplier, job));
 	}
 
-	public List<Job<E,?>> getUpdateTasks()
+	/**
+	 * Fuegt eine Arbeitsaufgabe hinzu, die vor dem Loeschvorgang durchgefuehrt werden soll.
+	 * Die Arbeitsaufgabe wird fuer eine Menge von Objekten durchgefuehrt. Fuer jedes Objekt wird die
+	 * Arbeitsaufgabe einzeln aufgerufen. Die Aufgabe wird in einer eigenen Transaktion durchgefuehrt.
+	 * Bei groesseren Objektmengen kann die Verarbeitung auch automatisch auf mehrere Transaktionen aufgeteilt werden.
+	 * @param name Der Name der Aufgabe
+	 * @param supplier Der Generator fuer die Menge der abzuarbeitenden Objekte
+	 * @param job Die Aufgabe
+	 */
+	public <T> void preDeleteTask(String name, Function<E, ? extends Collection<T>> supplier, PostUpdateTaskConsumer<E, T> job)
+	{
+		deleteTasks.add(new Job<>(name, supplier, job));
+	}
+
+	/**
+	 * Fuegt eine Arbeitsaufgabe hinzu, die vor dem Loeschvorgang durchgefuehrt werden soll.
+	 * Die Aufgabe wird in einer eigenen Transaktion durchgefuehrt.
+	 * @param name Der Name der Aufgabe
+	 * @param job Die Aufgabe
+	 */
+	public void preDeleteTask(String name, Consumer<E> job)
+	{
+		deleteTasks.add(Job.forRunnable(name, job));
+	}
+
+	protected List<Job<E,?>> getUpdateTasks()
 	{
 		return this.updateTasks;
+	}
+	protected List<Job<E,?>> getDeleteTasks()
+	{
+		return this.deleteTasks;
 	}
 
 	/**
@@ -258,13 +288,8 @@ public class EditorForm8<E>
 
 			if (modus == EditorMode.UPDATE && !updateTasks.isEmpty())
 			{
-				StringBuilder str = new StringBuilder("<ul>");
-				for (Job<E, ?> tJob : updateTasks)
-				{
-					str.append("<li>").append(tJob.name).append("</li>");
-				}
-				str.append("</ul>");
-				new LabelGenerator<>("", "Bei Aktualisierung", (e) -> str.toString()).generate(echo, entity);
+				String str = "<ul>"+updateTasks.stream().map((t) -> "<li>"+t.name+"</li>").collect(Collectors.joining())+"</ul>";
+				new LabelGenerator<>("", "Bei Aktualisierung", (e) -> str).generate(echo, entity);
 			}
 
 			if (modus == EditorMode.UPDATE && this.allowUpdate.apply(entity))
@@ -278,6 +303,11 @@ public class EditorForm8<E>
 
 			if( this.allowDelete.apply(entity) )
 			{
+				if (modus == EditorMode.UPDATE && !deleteTasks.isEmpty())
+				{
+					String str = "<ul>" + deleteTasks.stream().map((t) -> "<li>" + t.name + "</li>").collect(Collectors.joining()) + "</ul>";
+					new LabelGenerator<>("", "Beim Löschen", (e) -> str).generate(echo, entity);
+				}
 				echo.append("<tr><td colspan='2'></td><td><input type=\"submit\" name=\"change\" value=\"Löschen\" onclick=\"return confirm('Sicher?')\"></td></tr>\n");
 			}
 		}

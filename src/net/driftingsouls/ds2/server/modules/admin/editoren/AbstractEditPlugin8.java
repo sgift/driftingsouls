@@ -54,13 +54,9 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 
 		if(this.isDeleteExecuted())
 		{
-			@SuppressWarnings("unchecked") T entity = (T) db.get(this.clazz, toEntityId(this.clazz, entityId));
-			if( entity != null && form.isDeleteAllowed(entity) )
-			{
-				db.delete(entity);
-				echo.append("<p>Löschen abgeschlossen.</p>");
-				entityId = null;
-			}
+			executeDelete(echo, form);
+
+			entityId = null;
 		}
 		else if (this.isUpdateExecuted())
 		{
@@ -83,32 +79,9 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		}
 		else if (this.isAddExecuted())
 		{
-			db.getTransaction().commit();
-
-			new SingleUnitOfWork("Hinzufuegen") {
-				@Override
-				public void doWork() throws Exception
-				{
-					EditorForm8<T> form = new EditorForm8<>(EditorMode.CREATE, AbstractEditPlugin8.this.getPluginClass(), echo);
-					configureFor(form);
-
-					T entity = createEntity();
-					form.applyRequestValues(request, entity);
-					AbstractEditPlugin8.this.clazz = form.getEntityClassRequestValue(request, entity);
-					if( entity.getClass() != AbstractEditPlugin8.this.clazz )
-					{
-						// Klasse wurde geaendert - erneut anwenden
-						entity = createEntity();
-						form.applyRequestValues(request, entity);
-					}
-					db.persist(entity);
-					echo.append("<p>Hinzufügen abgeschlossen.</p>");
-				}
-			}.setErrorReporter((uow,w,t) -> echo.append("<p>Fehler bei Update: ").append(t.getMessage()).append("</p>"))
-					.execute();
+			executeAdd(echo);
 
 			entityId = null;
-			db.beginTransaction();
 		}
 		else if (this.isResetExecuted())
 		{
@@ -149,7 +122,73 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		}
 		else
 		{
-			outputEntityTable(db, echo, form);
+			outputEntityTable(echo, form);
+		}
+	}
+
+	private void executeAdd(final StringBuilder echo)
+	{
+		Context context = ContextMap.getContext();
+		Session db = context.getDB();
+
+		Request request = context.getRequest();
+
+		db.getTransaction().commit();
+
+		new SingleUnitOfWork("Hinzufuegen") {
+			@Override
+			public void doWork() throws Exception
+			{
+				EditorForm8<T> form = new EditorForm8<>(EditorMode.CREATE, AbstractEditPlugin8.this.getPluginClass(), echo);
+				configureFor(form);
+
+				T entity = createEntity();
+				form.applyRequestValues(request, entity);
+				AbstractEditPlugin8.this.clazz = form.getEntityClassRequestValue(request, entity);
+				if( entity.getClass() != AbstractEditPlugin8.this.clazz )
+				{
+					// Klasse wurde geaendert - erneut anwenden
+					entity = createEntity();
+					form.applyRequestValues(request, entity);
+				}
+				db.persist(entity);
+				echo.append("<p>Hinzufügen abgeschlossen.</p>");
+			}
+		}.setErrorReporter((uow,w,t) -> echo.append("<p>Fehler bei Update: ").append(t.getMessage()).append("</p>"))
+				.execute();
+
+		db.beginTransaction();
+	}
+
+	private void executeDelete(final StringBuilder echo, EditorForm8<T> form) throws IOException
+	{
+		Context context = ContextMap.getContext();
+		Session db = context.getDB();
+
+		Request request = context.getRequest();
+		String entityId = request.getParameter("entityId");
+
+		@SuppressWarnings("unchecked") T entity = (T) db.get(this.clazz, toEntityId(this.clazz, entityId));
+		if( entity != null && form.isDeleteAllowed(entity) )
+		{
+			processJobs(echo, entity, entity, form.getDeleteTasks());
+
+			db.getTransaction().commit();
+
+			new SingleUnitOfWork("Hinzufuegen")
+			{
+				@Override
+				public void doWork() throws Exception
+				{
+					//noinspection unchecked
+					T deletedEntity = (T) db.get(AbstractEditPlugin8.this.clazz, toEntityId(AbstractEditPlugin8.this.clazz, request.getParameter("entityId")));
+					db.delete(deletedEntity);
+					echo.append("<p>Löschen abgeschlossen.</p>");
+				}
+			}.setErrorReporter((uow,w,t) -> echo.append("<p>Fehler beim Loeschen: ").append(t.getMessage()).append("</p>"))
+						.execute();
+
+			db.getTransaction().begin();
 		}
 	}
 
@@ -158,7 +197,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		return this.getClass();
 	}
 
-	private void outputEntityTable(Session db, StringBuilder echo, EditorForm8<T> form)
+	private void outputEntityTable(StringBuilder echo, EditorForm8<T> form)
 	{
 		JqGridViewModel model = new JqGridViewModel();
 		model.url = "./ds?module=admin&namedplugin="+this.getPluginClass().getName()+"&action=tableData&FORMAT=JSON";
@@ -243,7 +282,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 				@Override
 				public void doWork(Object object) throws Exception
 				{
-					updateTask1.job.accept(entity,updatedEntity,object);
+					updateTask1.job.accept(entity, updatedEntity,object);
 				}
 			}.setFlushSize(10).executeFor(jobData);
 
