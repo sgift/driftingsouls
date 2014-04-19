@@ -2,6 +2,7 @@ package net.driftingsouls.ds2.server.modules.admin.editoren;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -25,30 +26,42 @@ public final class HtmlUtils
 	 */
 	public static void select(StringBuilder echo, String name, boolean readOnly, Map<Serializable,Object> options, Serializable selected)
 	{
-		echo.append("<select size=\"1\" ").append(readOnly ? "disabled='disabled' " : "").append("name=\"").append(name).append("\">");
+		echo.append("<select size=\"1\" ").append(readOnly ? "disabled=\"disabled\" " : "").append("name=\"").append(name).append("\">");
 
-		for (Map.Entry<Serializable, Object> entry : new TreeMap<>(options).entrySet())
+		// TreeMap mag keine null-Keys
+		Map<Serializable,Object> optionsIntrl = new HashMap<>(options);
+		if( optionsIntrl.containsKey(null) )
 		{
-			Serializable identifier = entry.getKey();
-			echo.append("<option ");
-			echo.append(" value=\"").append(identifier != null ? identifier.toString() : "").append("\"");
-			if ((identifier == null && selected == null) || (identifier != null && identifier.equals(selected)))
-			{
-				echo.append(" selected=\"selected\"");
-			}
-			String label;
-			if (entry.getValue() instanceof String || entry.getKey() == entry.getValue())
-			{
-				label = entry.getValue() != null ? entry.getValue().toString() : "";
-			}
-			else
-			{
-				label = new ObjectLabelGenerator().generateFor(identifier, entry.getValue());
-			}
-			echo.append(">").append(label).append("</option>");
+			option(echo, selected, null, optionsIntrl.get(null));
+			optionsIntrl.remove(null);
+		}
+
+		for (Map.Entry<Serializable, Object> entry : new TreeMap<>(optionsIntrl).entrySet())
+		{
+			option(echo, selected, entry.getKey(), entry.getValue());
 		}
 
 		echo.append("</select>");
+	}
+
+	private static void option(StringBuilder echo, Serializable selected, Serializable identifier, Object value)
+	{
+		echo.append("<option ");
+		echo.append("value=\"").append(identifier != null ? identifier.toString() : "").append("\"");
+		if ((identifier == null && selected == null) || (identifier != null && identifier.equals(selected)))
+		{
+			echo.append(" selected=\"selected\"");
+		}
+		String label;
+		if (value instanceof String || identifier == value)
+		{
+			label = value != null ? value.toString() : "";
+		}
+		else
+		{
+			label = new ObjectLabelGenerator().generateFor(identifier, value);
+		}
+		echo.append(">").append(label).append("</option>");
 	}
 
 	/**
