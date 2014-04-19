@@ -5,6 +5,7 @@ import net.driftingsouls.ds2.server.namegenerator.SchiffsKlassenNamenGenerator;
 import net.driftingsouls.ds2.server.namegenerator.SchiffsNamenGenerator;
 import org.hibernate.annotations.ForeignKey;
 
+import javax.annotation.Nonnull;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -99,7 +100,11 @@ public class Rasse
 		return false;
 	}
 
-	protected void setHead(User user)
+	/**
+	 * Setzt den Kopf der Rasse.
+	 * @param user Der Spieler (NPC)
+	 */
+	public void setHead(User user)
 	{
 		head = user;
 	}
@@ -107,12 +112,21 @@ public class Rasse
 	/**
 	 * Prueft, ob ein Spieler ein Kopf der Rasse ist.
 	 *
-	 * @param id die ID des Spielers
+	 * @param user Der Spielers
 	 * @return <code>true</code>, falls der Spieler ein Kopf der Rasse ist
 	 */
-	public boolean isHead(int id)
+	public boolean isHead(@Nonnull User user)
 	{
-		return head != null && head.getId() == id;
+		return head != null && head == user;
+	}
+
+	/**
+	 * Gibt den Kopf der Rasse zurueck.
+	 * @return Der Spieler (NPC)
+	 */
+	public User getHead()
+	{
+		return head;
 	}
 
 	/**
@@ -136,6 +150,16 @@ public class Rasse
 	}
 
 	/**
+	 * Setzt den Namen der Rasse.
+	 *
+	 * @param name der Name
+	 */
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	/**
 	 * Gibt zurueck, ob die Rasse spielbar ist, d.h. ob Spieler sich unter Angabe dieser Rasse
 	 * registrieren koennen.
 	 *
@@ -144,6 +168,17 @@ public class Rasse
 	public boolean isPlayable()
 	{
 		return playable;
+	}
+
+	/**
+	 * Setzt, ob die Rasse spielbar ist, d.h. ob Spieler sich unter Angabe dieser Rasse
+	 * registrieren koennen.
+	 *
+	 * @param playable <code>true</code>, falls die Rasse spielbar ist
+	 */
+	public void setPlayable(boolean playable)
+	{
+		this.playable = playable;
 	}
 
 	/**
@@ -159,12 +194,23 @@ public class Rasse
 	}
 
 	/**
-	 * Gibt den Namensgenerator fuer Personennamen zurueck. Es wird <code>null</code> zurueckgegeben,
-	 * falls kein Namensgenerator fuer den Typ vorhanden ist.
+	 * Setzt, ob die Rasse "erweitert" spielbar ist. Diese Rassen werden im Forschungsbaum
+	 * usw aufgelistet und koennen zu einem spaeteren Zeitpunkt im Spiel ausgewaehlt werden. Sie
+	 * stehen jedoch nicht bei der Registrierung zur Auswahl.
+	 *
+	 * @param playableext <code>true</code>, falls die Rasse erweitert spielbar ist
+	 */
+	public void setExtPlayable(boolean playableext)
+	{
+		this.playableext = playableext;
+	}
+
+	/**
+	 * Gibt den Namensgenerator fuer Personennamen zurueck.
 	 *
 	 * @return Der Namensgenerator
 	 */
-	public PersonenNamenGenerator getPersonenNamenGenerator()
+	public @Nonnull PersonenNamenGenerator getPersonenNamenGenerator()
 	{
 		if (personenNamenGenerator == null && (memberIn != null))
 		{
@@ -177,12 +223,21 @@ public class Rasse
 	}
 
 	/**
-	 * Gibt den Namensgenerator fuer Schiffsklassen zurueck. Es wird <code>null</code> zurueckgegeben,
-	 * falls kein Namensgenerator fuer den Typ vorhanden ist.
+	 * Setzt Namensgenerator fuer Personennamen zurueck.
+	 *
+	 * @param personenNamenGenerator Der Namensgenerator oder <code>null</code>
+	 */
+	public void setPersonenNamenGenerator(@Nonnull PersonenNamenGenerator personenNamenGenerator)
+	{
+		this.personenNamenGenerator = personenNamenGenerator;
+	}
+
+	/**
+	 * Gibt den Namensgenerator fuer Schiffsklassen zurueck.
 	 *
 	 * @return Der Namensgenerator
 	 */
-	public SchiffsKlassenNamenGenerator getSchiffsKlassenNamenGenerator()
+	public @Nonnull SchiffsKlassenNamenGenerator getSchiffsKlassenNamenGenerator()
 	{
 		if (schiffsKlassenNamenGenerator == null && (memberIn != null))
 		{
@@ -195,12 +250,21 @@ public class Rasse
 	}
 
 	/**
-	 * Gibt den Namensgenerator fuer Schiffsnamen zurueck. Es wird <code>null</code> zurueckgegeben,
-	 * falls kein Namensgenerator fuer den Typ vorhanden ist.
+	 * Setzt den Namensgenerator fuer Schiffsklassen.
+	 *
+	 * @param schiffsKlassenNamenGenerator Der Namensgenerator
+	 */
+	public void setSchiffsKlassenNamenGenerator(@Nonnull SchiffsKlassenNamenGenerator schiffsKlassenNamenGenerator)
+	{
+		this.schiffsKlassenNamenGenerator = schiffsKlassenNamenGenerator;
+	}
+
+	/**
+	 * Gibt den Namensgenerator fuer Schiffsnamen zurueck.
 	 *
 	 * @return Der Namensgenerator
 	 */
-	public SchiffsNamenGenerator getSchiffsNamenGenerator()
+	public @Nonnull SchiffsNamenGenerator getSchiffsNamenGenerator()
 	{
 		if (schiffsNamenGenerator == null && (memberIn != null))
 		{
@@ -213,6 +277,16 @@ public class Rasse
 	}
 
 	/**
+	 * Setzt den Namensgenerator fuer Schiffsnamen.
+	 *
+	 * @param schiffsNamenGenerator Der Namensgenerator
+	 */
+	public void setSchiffsNamenGenerator(@Nonnull SchiffsNamenGenerator schiffsNamenGenerator)
+	{
+		this.schiffsNamenGenerator = schiffsNamenGenerator;
+	}
+
+	/**
 	 * Gibt die Beschreibung der Rasse zurueck.
 	 *
 	 * @return Die Beschreibung der Rasse
@@ -222,8 +296,31 @@ public class Rasse
 		return description;
 	}
 
-	protected void setDescription(String description)
+	/**
+	 * Setzt die Beschreibung der Rasse.
+	 *
+	 * @param description Die Beschreibung der Rasse
+	 */
+	public void setDescription(String description)
 	{
 		this.description = description;
+	}
+
+	/**
+	 * Gibt zurueck, zu welcher Rasse diese Rasse gehoert.
+	 * @return Die Rasse oder <code>null</code>
+	 */
+	public Rasse getMemberIn()
+	{
+		return memberIn;
+	}
+
+	/**
+	 * Setzt, zu welcher Rasse diese Rasse gehoert.
+	 * @param memberIn Die Rasse oder <code>null</code>
+	 */
+	public void setMemberIn(Rasse memberIn)
+	{
+		this.memberIn = memberIn;
 	}
 }

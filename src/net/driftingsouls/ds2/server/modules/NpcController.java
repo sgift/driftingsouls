@@ -84,7 +84,7 @@ public class NpcController extends AngularController
 			throw new ValidierungException("Nur NPCs können dieses Script nutzen", Common.buildUrl("default", "module", "ueber"));
 		}
 
-		if (Rassen.get().rasse(user.getRace()).isHead(user.getId()))
+		if (Rassen.get().rasse(user.getRace()).isHead(user))
 		{
 			this.isHead = true;
 		}
