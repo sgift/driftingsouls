@@ -160,7 +160,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	}
 
 	@Override
-	public boolean authenticateCurrentSession(boolean automaticAccess) {
+	public boolean authenticateCurrentSession() {
 		Context context = ContextMap.getContext();
 
 		try
@@ -174,7 +174,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 
 		JavaSession jsession = context.get(JavaSession.class);
 
-		BasicUser user = null;
+		BasicUser user;
 		if( DEV_MODE && context.getRequest().getParameterInt("devUserId") != 0 )
 		{
 			// In der lokalen Entwicklungsumgebung den schnellen Wechsel zwischen Usern erlauben
@@ -191,7 +191,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 				}
 			}
 		}
-		else if( (jsession == null || jsession.getUser() == null) && !automaticAccess )
+		else if( jsession == null || jsession.getUser() == null )
 		{
 			// Laden des Users aus einem Cookie versuchen
 			try
@@ -203,7 +203,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 				return false;
 			}
 		}
-		else if( jsession != null )
+		else
 		{
 			// User aus der Session laden
 			user = jsession.getUser();
@@ -230,11 +230,6 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		}
 		catch( AuthenticationException e ) {
 			return false;
-		}
-
-		if(!automaticAccess)
-		{
-			user.setInactivity(0);
 		}
 
 		if( jsession.getAttach() != null ) {

@@ -12,8 +12,7 @@ function checkPMStatus() {
 	}
 	var params = {
 			module:'main',
-			action:'statusUpdate',
-			autoAccess:true
+			action:'statusUpdate'
 	};
 
 	DS.getJSON( params, updatePMStatus );

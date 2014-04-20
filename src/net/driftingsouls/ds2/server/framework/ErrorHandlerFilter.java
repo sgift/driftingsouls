@@ -164,25 +164,19 @@ public class ErrorHandlerFilter implements Filter
 		@Override
 		public void reportNotLoggedIn(NotLoggedInException e) throws IOException
 		{
-			if(!isAutomaticAccess(request))
-			{
-				redirectToPortal(response, "Du musst eingeloggt sein, um diese Seite zu sehen.");
-			}
+			redirectToPortal(response, "Du musst eingeloggt sein, um diese Seite zu sehen.");
 		}
 
 		@Override
 		public void reportInVacation(AccountInVacationModeException e) throws IOException
 		{
-			if(!isAutomaticAccess(request))
+			if(e.getDauer() > 1)
 			{
-				if(e.getDauer() > 1)
-				{
-					printBoxedErrorMessage(response, "Du bist noch " + e.getDauer() + " Ticks im Vacationmodus.");
-				}
-				else
-				{
-					printBoxedErrorMessage(response, "Du bist noch " + e.getDauer() + " Tick im Vacationmodus.");
-				}
+				printBoxedErrorMessage(response, "Du bist noch " + e.getDauer() + " Ticks im Vacationmodus.");
+			}
+			else
+			{
+				printBoxedErrorMessage(response, "Du bist noch " + e.getDauer() + " Tick im Vacationmodus.");
 			}
 		}
 
@@ -218,12 +212,6 @@ public class ErrorHandlerFilter implements Filter
 			sb.append("</ul>");
 			sb.append("</div>");
 			sb.append("</div>\n");
-		}
-		
-		private boolean isAutomaticAccess(ServletRequest request)
-		{
-			String automaticAccessParameter = request.getParameter("autoAccess");
-			return automaticAccessParameter != null && automaticAccessParameter.equals("true");
 		}
 	}
 	

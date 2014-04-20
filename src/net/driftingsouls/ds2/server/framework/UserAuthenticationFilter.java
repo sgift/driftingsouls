@@ -31,15 +31,7 @@ public class UserAuthenticationFilter extends SessionBasedFilter
         {
             if(manager != null)
             {
-                String automaticAccessParameter = request.getParameter("autoAccess");
-                if(automaticAccessParameter != null && automaticAccessParameter.equals("true"))
-                {
-                    authenticatedUser = manager.authenticateCurrentSession(true);
-                }
-                else
-                {
-                    authenticatedUser = manager.authenticateCurrentSession(false);
-                }
+				authenticatedUser = manager.authenticateCurrentSession();
             }
         }
         else
