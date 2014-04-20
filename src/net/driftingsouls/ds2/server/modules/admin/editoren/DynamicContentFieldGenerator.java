@@ -105,6 +105,10 @@ public class DynamicContentFieldGenerator<V> implements CustomFieldGenerator<V>
 	public void applyRequestValues(Request request, V entity) throws IOException
 	{
 		String img = processDynamicContent(request, this.name, getter.apply(entity));
+		if( img == null )
+		{
+			return;
+		}
 		String oldImg = getter.apply(entity);
 		setter.accept(entity, "data/dynamicContent/" + img);
 		if (oldImg != null && oldImg.startsWith("data/dynamicContent/"))
@@ -116,7 +120,7 @@ public class DynamicContentFieldGenerator<V> implements CustomFieldGenerator<V>
 	@Override
 	public ColumnDefinition getColumnDefinition()
 	{
-		return new ColumnDefinition(name, label, String.class);
+		return new ColumnDefinition(name, label, String.class, "picture");
 	}
 
 	@Override

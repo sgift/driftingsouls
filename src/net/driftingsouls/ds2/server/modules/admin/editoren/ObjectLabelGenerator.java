@@ -4,6 +4,7 @@ import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.config.ConfigFelsbrocken;
 import net.driftingsouls.ds2.server.config.ConfigFelsbrockenSystem;
 import net.driftingsouls.ds2.server.entities.GuiHelpText;
+import net.driftingsouls.ds2.server.entities.IntTutorial;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -37,6 +38,7 @@ public class ObjectLabelGenerator
 		registerSpecialGenerator(ResourceEntry.class, ResourceEntry::getPlainName);
 		registerSpecialGenerator(ConfigFelsbrockenSystem.class, (cfs) -> cfs.getName()+"#"+cfs.getSystem().getName());
 		registerSpecialGenerator(ConfigFelsbrocken.class, (cs) -> cs.getSystem().getName()+"#"+cs.getSystem().getSystem().getName()+"#"+cs.getChance());
+		registerSpecialGenerator(IntTutorial.class, (it) -> (it.isReqBase()?"Basis,":"")+(it.isReqShip()?"Schiff,":"")+(it.isReqName()?"Name,":"")+(it.getBenoetigteSeite()!=null?""+it.getBenoetigteSeite().getId():""));
 	}
 
 	@SuppressWarnings("unchecked")

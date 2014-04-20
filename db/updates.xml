@@ -2466,4 +2466,10 @@ Die Vasudaner haben eine sehr alte Kultur mit mehreren hochentwickelten Sprachen
         alter table config_felsbrocken_systems drop index system_id;
         update config_felsbrocken_systems set name="Felsbrocken";
     ]]></update>
+	<update type="structure" datum="2014-04-20"><![CDATA[
+		alter table inttutorial change column reqsheet benoetigteSeite_id integer, change reqbase reqBase boolean not null, change reqname reqName boolean not null, change reqship reqShip boolean not null;
+		update inttutorial set benoetigteSeite_id=null where benoetigteSeite_id=0;
+		alter table inttutorial add index inttutorial_fk_inttutorial (benoetigteSeite_id), add constraint inttutorial_fk_inttutorial foreign key (benoetigteSeite_id) references inttutorial (id);
+		update inttutorial set headimg=concat('data/interface/interactivetutorial/',headimg);
+	]]></update>
 </updates>

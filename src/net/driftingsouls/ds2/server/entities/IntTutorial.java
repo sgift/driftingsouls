@@ -18,14 +18,19 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import org.hibernate.annotations.ForeignKey;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.Immutable;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Eine Tutorialseite.
@@ -34,23 +39,23 @@ import org.hibernate.annotations.Immutable;
  */
 @Entity
 @Table(name="inttutorial")
-@Immutable
 public class IntTutorial {
 	@Id @GeneratedValue
 	private int id;
-	@Column(name="reqbase", nullable = false)
-	private int reqBase;
-	@Column(name="reqship", nullable = false)
-	private int reqShip;
-	@Column(name="reqname", nullable = false)
-	private int reqName;
-	@Column(name="reqsheet", nullable = false)
-	private int reqSheet;
+	private boolean reqBase;
+	private boolean reqShip;
+	private boolean reqName;
+	@ManyToOne
+	@JoinColumn
+	@ForeignKey(name="inttutorial_fk_inttutorial")
+	private IntTutorial benoetigteSeite;
 	@Column(name="headimg", nullable = false)
 	private String headImg;
 	@Lob
 	@Column(nullable = false)
 	private String text;
+	@OneToMany(mappedBy = "benoetigteSeite")
+	private Set<IntTutorial> abhaengigeSeiten = new HashSet<>();
 	
 	/**
 	 * Konstruktor.
@@ -80,8 +85,8 @@ public class IntTutorial {
 	 * Gibt zurueck, ob diese Tutorialseite eine Basis erfordert.
 	 * @return <code>true</code>, falls eine Basis benoetigt wird
 	 */
-	public boolean getReqBase() {
-		return reqBase != 0;
+	public boolean isReqBase() {
+		return reqBase;
 	}
 
 	/**
@@ -89,23 +94,23 @@ public class IntTutorial {
 	 * sich einen Namen gegeben hat.
 	 * @return <code>true</code>, falls ein Name erforderlich ist
 	 */
-	public int getReqName() {
+	public boolean isReqName() {
 		return reqName;
 	}
 
 	/**
-	 * Gibt die Nummer der Tutorialseite zurueck, die vorher eingeblendet werden muss.
-	 * @return Die Nummer der Tutorialseite
+	 * Gibt die Tutorialseite zurueck, die vorher eingeblendet werden muss.
+	 * @return Die Tutorialseite
 	 */
-	public int getReqSheet() {
-		return reqSheet;
+	public IntTutorial getBenoetigteSeite() {
+		return benoetigteSeite;
 	}
 
 	/**
 	 * Gibt zurueck, ob fuer diese Tutorialseite ein Schiff benoetigt wird.
 	 * @return <code>true</code>, falls ein Schiff erforderlich ist
 	 */
-	public int getReqShip() {
+	public boolean isReqShip() {
 		return reqShip;
 	}
 
@@ -115,5 +120,69 @@ public class IntTutorial {
 	 */
 	public String getText() {
 		return text;
+	}
+
+	/**
+	 * Setzt, ob diese Tutorialseite eine Basis erfordert.
+	 * @param reqBase <code>true</code>, falls eine Basis benoetigt wird
+	 */
+	public void setReqBase(boolean reqBase)
+	{
+		this.reqBase = reqBase;
+	}
+
+	/**
+	 * Setzt, ob fuer diese Tutorialseite ein Schiff benoetigt wird.
+	 * @param reqShip <code>true</code>, falls ein Schiff erforderlich ist
+	 */
+	public void setReqShip(boolean reqShip)
+	{
+		this.reqShip = reqShip;
+	}
+
+	/**
+	 * Setzt, ob diese Tutorialseite erfordert, dass der Spieler
+	 * sich einen Namen gegeben hat.
+	 * @param reqName <code>true</code>, falls ein Name erforderlich ist
+	 */
+	public void setReqName(boolean reqName)
+	{
+		this.reqName = reqName;
+	}
+
+	/**
+	 * Setzt die Tutorialseite, die vorher eingeblendet werden muss.
+	 * @param reqSheet Die Tutorialseite
+	 */
+	public void setBenoetigteSeite(IntTutorial reqSheet)
+	{
+		this.benoetigteSeite = reqSheet;
+	}
+
+	/**
+	 * Setzt die anzuzeigene Kopfgrafik.
+	 * @param headImg Die Grafik
+	 */
+	public void setHeadImg(String headImg)
+	{
+		this.headImg = headImg;
+	}
+
+	/**
+	 * Setzt den Text der Tutorialseite.
+	 * @param text Der Text
+	 */
+	public void setText(String text)
+	{
+		this.text = text;
+	}
+
+	/**
+	 * Gibt alle von dieser Tutorialseite abhaengigen Seiten zurueck.
+	 * @return Die Menge der Tutorialseiten
+	 */
+	public Set<IntTutorial> getAbhaengigeSeiten()
+	{
+		return abhaengigeSeiten;
 	}
 }

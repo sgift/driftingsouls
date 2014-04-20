@@ -614,24 +614,9 @@ public class UeberController extends TemplateController
 		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
 
-		boolean reqname = false;
-		boolean reqship = false;
-		boolean reqbase = false;
-
-		if (!user.getName().equals("Kolonist"))
-		{
-			reqname = true;
-		}
-
-		if (shipcount > 0)
-		{
-			reqship = true;
-		}
-
-		if (bases > 0)
-		{
-			reqbase = true;
-		}
+		boolean reqname = !"Kolonist".equals(user.getName());
+		boolean reqship = shipcount > 0;
+		boolean reqbase = bases > 0;
 
 		if (!reqship)
 		{
@@ -646,18 +631,18 @@ public class UeberController extends TemplateController
 
 		IntTutorial sheet = (IntTutorial) db.createQuery("from IntTutorial where id= :id and reqName= :reqname and reqBase= :reqbase and reqShip= :reqship")
 				.setInteger("id", inttutorial)
-				.setInteger("reqname", reqname ? 1 : 0)
-				.setInteger("reqbase", reqbase ? 1 : 0)
-				.setInteger("reqship", reqship ? 1 : 0)
+				.setBoolean("reqname", reqname)
+				.setBoolean("reqbase", reqbase)
+				.setBoolean("reqship", reqship)
 				.uniqueResult();
 
 		// Ist die aktuelle Tutorialseite veraltet?
 		if ((sheet == null) || (sheet.getId() != inttutorial))
 		{
 			sheet = (IntTutorial) db.createQuery("from IntTutorial where reqName= :reqname and reqBase= :reqbase and reqShip= :reqship order by id")
-					.setInteger("reqname", reqname ? 1 : 0)
-					.setInteger("reqbase", reqbase ? 1 : 0)
-					.setInteger("reqship", reqship ? 1 : 0)
+					.setBoolean("reqname", reqname)
+					.setBoolean("reqbase", reqbase)
+					.setBoolean("reqship", reqship)
 					.setMaxResults(1)
 					.uniqueResult();
 
@@ -673,11 +658,11 @@ public class UeberController extends TemplateController
 		}
 
 		// Existiert eine Nachfolgerseite?
-		IntTutorial nextsheet = (IntTutorial) db.createQuery("from IntTutorial where reqSheet= :reqsheet and reqName= :reqname and reqBase= :reqbase and reqShip= :reqship")
-				.setInteger("reqsheet", sheet.getId())
-				.setInteger("reqname", reqname ? 1 : 0)
-				.setInteger("reqbase", reqbase ? 1 : 0)
-				.setInteger("reqship", reqship ? 1 : 0)
+		IntTutorial nextsheet = (IntTutorial) db.createQuery("from IntTutorial where benoetigteSeite= :reqsheet and reqName= :reqname and reqBase= :reqbase and reqShip= :reqship")
+				.setEntity("reqsheet", sheet)
+				.setBoolean("reqname", reqname)
+				.setBoolean("reqbase", reqbase)
+				.setBoolean("reqship", reqship)
 				.setMaxResults(1)
 				.uniqueResult();
 
