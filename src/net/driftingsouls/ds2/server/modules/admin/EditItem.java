@@ -19,7 +19,7 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.config.items.Item.Quality;
+import net.driftingsouls.ds2.server.config.items.Quality;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffectFactory;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;

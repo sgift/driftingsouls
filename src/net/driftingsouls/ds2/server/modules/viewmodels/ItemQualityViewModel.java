@@ -1,10 +1,10 @@
 package net.driftingsouls.ds2.server.modules.viewmodels;
 
-import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.config.items.Quality;
 import net.driftingsouls.ds2.server.framework.ViewModel;
 
 /**
- * Standard-ViewModel von Qualitaetsleveln von Items ({@link net.driftingsouls.ds2.server.config.items.Item.Quality}).
+ * Standard-ViewModel von Qualitaetsleveln von Items ({@link net.driftingsouls.ds2.server.config.items.Quality}).
  */
 @ViewModel
 public class ItemQualityViewModel
@@ -17,7 +17,7 @@ public class ItemQualityViewModel
 	 * @param model Die zu mappende Entity
 	 * @return Das ViewModel
 	 */
-	public static ItemQualityViewModel map(Item.Quality model)
+	public static ItemQualityViewModel map(Quality model)
 	{
 		ItemQualityViewModel viewModel = new ItemQualityViewModel();
 		map(model, viewModel);
@@ -29,7 +29,7 @@ public class ItemQualityViewModel
 	 * @param model Die zu mappende Entity
 	 * @param viewModel Die Zielinstanz des ViewModels
 	 */
-	public static void map(Item.Quality model, ItemQualityViewModel viewModel)
+	public static void map(Quality model, ItemQualityViewModel viewModel)
 	{
 		viewModel.name = model.name();
 		viewModel.color = model.color();
