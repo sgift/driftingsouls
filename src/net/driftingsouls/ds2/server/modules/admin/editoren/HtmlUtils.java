@@ -1,5 +1,7 @@
 package net.driftingsouls.ds2.server.modules.admin.editoren;
 
+import net.driftingsouls.ds2.server.framework.Common;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -74,7 +76,7 @@ public final class HtmlUtils
 	 */
 	public static void textInput(StringBuilder echo, String name, boolean readOnly, Class<?> dataType, Object value)
 	{
-		echo.append("<input type=\"text\" ").append("id=\"").append(name).append("\" ").append(readOnly ? "disable='disabled' " : "").append("name=\"").append(name).append("\" value=\"").append(value != null ? value.toString() : "").append("\">");
+		echo.append("<input type=\"text\" ").append("id=\"").append(name).append("\" ").append(readOnly ? "disabled=\"disabled\" " : "").append("name=\"").append(name).append("\" value=\"").append(value != null ? Common.escapeHTML(value.toString()) : "").append("\" />");
 		if (Number.class.isAssignableFrom(dataType))
 		{
 			writeAutoNumberJavaScript(echo, name, dataType);

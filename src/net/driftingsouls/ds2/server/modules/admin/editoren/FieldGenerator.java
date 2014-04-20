@@ -103,7 +103,7 @@ public class FieldGenerator<E, T> implements CustomFieldGenerator<E>
 			{
 				bool = (Boolean) value;
 			}
-			echo.append("<input type=\"checkbox\" name=\"").append(name).append("\" value=\"true\" ").append(bool ? "checked='checked' " : "").append(readOnly.apply(entity) ? "disabled='disabled' " : "").append(" \">");
+			echo.append("<input type=\"checkbox\" name=\"").append(name).append("\" value=\"true\" ").append(bool ? "checked=\"checked\" " : "").append(readOnly.apply(entity) ? "disabled=\"disabled\" " : "").append("/>");
 		}
 		else
 		{
