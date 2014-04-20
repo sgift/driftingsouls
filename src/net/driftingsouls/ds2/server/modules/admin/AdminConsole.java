@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
 import net.driftingsouls.ds2.server.AdminCommands;
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.apache.commons.lang.StringUtils;
@@ -33,7 +34,7 @@ import java.io.IOException;
  * @author Christopher Jung
  *
  */
-@AdminMenuEntry(category="Sonstiges", name="Admin-Konsole")
+@AdminMenuEntry(category="Sonstiges", name="Admin-Konsole", permission = WellKnownAdminPermission.CONSOLE)
 public class AdminConsole implements AdminPlugin {
 	@Override
 	public void output(StringBuilder echo) throws IOException {

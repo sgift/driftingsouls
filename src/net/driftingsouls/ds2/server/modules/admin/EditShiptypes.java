@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -43,7 +44,7 @@ import java.util.stream.Collectors;
  *
  * @author Sebastian Gift
  */
-@AdminMenuEntry(category = "Schiffe", name = "Typ")
+@AdminMenuEntry(category = "Schiffe", name = "Typ", permission = WellKnownAdminPermission.EDIT_SHIPTYPES)
 public class EditShiptypes implements EntityEditor<ShipType>
 {
 	@Override

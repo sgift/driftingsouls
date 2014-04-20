@@ -1,12 +1,13 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.entities.IntTutorial;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
 import javax.annotation.Nonnull;
 
-@AdminMenuEntry(category = "Sonstiges", name="Tutorial")
+@AdminMenuEntry(category = "Sonstiges", name="Tutorial", permission = WellKnownAdminPermission.EDIT_INT_TUTORIAL)
 public class EditIntTutorial implements EntityEditor<IntTutorial>
 {
 	@Override

@@ -1,5 +1,6 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
@@ -10,7 +11,7 @@ import net.driftingsouls.ds2.server.namegenerator.SchiffsNamenGenerator;
 
 import javax.annotation.Nonnull;
 
-@AdminMenuEntry(category = "Spieler", name = "Rasse")
+@AdminMenuEntry(category = "Spieler", name = "Rasse", permission = WellKnownAdminPermission.EDIT_RASSE)
 public class EditRasse implements EntityEditor<Rasse>
 {
 	@Override

@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.config.items.Item;
@@ -38,7 +39,7 @@ import java.util.Map;
  * 
  * @author Sebastian Gift
  */
-@AdminMenuEntry(category = "Schiffe", name = "Schiffsgruppe editieren")
+@AdminMenuEntry(category = "Schiffe", name = "Schiffsgruppe editieren", permission = WellKnownAdminPermission.EDIT_GROUP)
 public class EditGroup implements AdminPlugin
 {
 	private static int MAX_SENSORS = 100;

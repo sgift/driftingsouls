@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.Resources;
@@ -40,7 +41,7 @@ import java.util.stream.Collectors;
  * @author Christopher Jung
  *
  */
-@AdminMenuEntry(category="GTU", name="Versteigern")
+@AdminMenuEntry(category="GTU", name="Versteigern", permission = WellKnownAdminPermission.ADD_GTU)
 public class AddGtu implements AdminPlugin {
 	@Override
 	public void output(StringBuilder echo) throws IOException {

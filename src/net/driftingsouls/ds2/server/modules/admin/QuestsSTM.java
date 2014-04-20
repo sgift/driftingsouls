@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.entities.GlobalSectorTemplate;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -31,7 +32,7 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
-@AdminMenuEntry(category="Quests", name="Sectortemplates")
+@AdminMenuEntry(category="Quests", name="Sectortemplates", permission = WellKnownAdminPermission.QUESTS_STM)
 public class QuestsSTM implements AdminPlugin {
 	@Override
 	public void output(StringBuilder echo) throws IOException {

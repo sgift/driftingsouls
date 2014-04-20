@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.bases.AutoGTUAction;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.BaseType;
@@ -39,7 +40,7 @@ import java.util.List;
  *
  * @author Sebastian Gift
  */
-@AdminMenuEntry(category = "Asteroiden", name = "Basis")
+@AdminMenuEntry(category = "Asteroiden", name = "Basis", permission = WellKnownAdminPermission.EDIT_BASES)
 public class EditBases implements EntityEditor<Base>
 {
 	@Override

@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.Rasse;
@@ -31,7 +32,7 @@ import javax.annotation.Nonnull;
 /**
  * Aktualisierungstool fuer die Kosten von Schiffstypen.
  */
-@AdminMenuEntry(category = "Schiffe", name = "Baukosten")
+@AdminMenuEntry(category = "Schiffe", name = "Baukosten", permission = WellKnownAdminPermission.EDIT_SHIP_COSTS)
 public class EditShipCosts implements EntityEditor<ShipBaubar>
 {
 	@Override

@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -33,7 +34,7 @@ import java.io.IOException;
  * @author Christopher Jung
  *
  */
-@AdminMenuEntry(category="Spieler", name="Masterlogin")
+@AdminMenuEntry(category="Spieler", name="Masterlogin", permission = WellKnownAdminPermission.PLAYER_LOGIN_SUPER)
 public class PlayerLoginSuper implements AdminPlugin {
 	private AuthenticationManager authManager;
 	

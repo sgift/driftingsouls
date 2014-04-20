@@ -289,9 +289,9 @@ public class BasicContext implements Context
 	}
 
 	@Override
-	public boolean hasPermission(String category, String action)
+	public boolean hasPermission(PermissionDescriptor permission)
 	{
-		return this.permissionResolver.hasPermission(category, action);
+		return this.permissionResolver.hasPermission(permission);
 	}
 
 	@Override

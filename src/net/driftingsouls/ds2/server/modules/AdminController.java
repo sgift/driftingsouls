@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.framework.AnnotationUtils;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
@@ -178,7 +179,7 @@ public class AdminController extends Controller
 	@Override
 	protected boolean validateAndPrepare()
 	{
-		if (!hasPermission("admin", "sichtbar"))
+		if (!hasPermission(WellKnownAdminPermission.SICHTBAR))
 		{
 			throw new ValidierungException("Sie sind nicht berechtigt diese Seite aufzurufen");
 		}
@@ -190,13 +191,12 @@ public class AdminController extends Controller
 			{
 				continue;
 			}
-			if (!hasPermission("admin", cls.getSimpleName()))
+			AdminMenuEntry adminMenuEntry = cls.getAnnotation(AdminMenuEntry.class);
+			if (!hasPermission(adminMenuEntry.permission()))
 			{
 				continue;
 			}
 			validPlugins.add(cls.getName());
-
-			AdminMenuEntry adminMenuEntry = cls.getAnnotation(AdminMenuEntry.class);
 
 			addMenuEntry(cls, adminMenuEntry.category(), adminMenuEntry.name());
 		}

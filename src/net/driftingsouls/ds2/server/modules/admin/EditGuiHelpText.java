@@ -1,5 +1,6 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.entities.GuiHelpText;
 import net.driftingsouls.ds2.server.framework.AnnotationUtils;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -14,7 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@AdminMenuEntry(category = "Sonstiges", name = "Hilfetext")
+@AdminMenuEntry(category = "Sonstiges", name = "Hilfetext", permission = WellKnownAdminPermission.EDIT_GUI_HELP_TEXT)
 public class EditGuiHelpText implements EntityEditor<GuiHelpText>
 {
 	@Override

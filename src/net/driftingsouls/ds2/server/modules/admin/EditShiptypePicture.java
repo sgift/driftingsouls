@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
@@ -33,7 +34,7 @@ import java.util.List;
  *
  * @author Christopher Jung
  */
-@AdminMenuEntry(category = "Schiffe", name = "Typengrafik")
+@AdminMenuEntry(category = "Schiffe", name = "Typengrafik", permission = WellKnownAdminPermission.EDIT_SHIPTYPE_PICTRUE)
 public class EditShiptypePicture implements EntityEditor<ShipType>
 {
 	private List<Integer> liefereZuAktualisierendeSchiffe(ShipType shipType)

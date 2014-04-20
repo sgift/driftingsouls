@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import net.driftingsouls.ds2.server.units.UnitType;
@@ -29,7 +30,7 @@ import javax.annotation.Nonnull;
  *
  * @author Christopher Jung
  */
-@AdminMenuEntry(category = "Einheiten", name = "Einheitengrafik")
+@AdminMenuEntry(category = "Einheiten", name = "Einheitengrafik", permission = WellKnownAdminPermission.EDIT_UNIT_PICTURE)
 public class EditUnitPicture implements EntityEditor<UnitType>
 {
 	@Override

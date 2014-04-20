@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -42,4 +44,10 @@ public @interface AdminMenuEntry {
 	 * Gibt den Namen des Plugins selbst zurueck.
 	 */
 	String name();
+
+	/**
+	 * Gibt die notwendige Berechtigung zur Benutzung des Adminmoduls zurueck.
+	 * @return Die Berechtigung
+	 */
+	WellKnownAdminPermission permission();
 }

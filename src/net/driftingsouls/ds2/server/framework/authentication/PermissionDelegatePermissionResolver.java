@@ -1,9 +1,10 @@
 package net.driftingsouls.ds2.server.framework.authentication;
 
-import java.util.Set;
-
 import net.driftingsouls.ds2.server.framework.Permission;
+import net.driftingsouls.ds2.server.framework.PermissionDescriptor;
 import net.driftingsouls.ds2.server.framework.PermissionResolver;
+
+import java.util.Set;
 
 /**
  * PermissionResolver auf Basis eines expliziten Permission-Satzes ({@link Permission}) mit Fallback.
@@ -30,24 +31,24 @@ public class PermissionDelegatePermissionResolver implements PermissionResolver
 	}
 
 	@Override
-	public boolean hasPermission(String category, String action)
+	public boolean hasPermission(PermissionDescriptor permission)
 	{
-		if( category == null || action == null )
+		if( permission == null )
 		{
-			throw new IllegalArgumentException("category und action duerfen nicht null sein");
+			throw new IllegalArgumentException("permission darf nicht null sein");
 		}
 
 		for( Permission p : this.permissions )
 		{
-			if( category.equals(p.getCategory()) )
+			if( permission.getCategory().equals(p.getCategory()) )
 			{
-				if( "*".equals(p.getAction()) || action.equals(p.getAction()) )
+				if( "*".equals(p.getAction()) || permission.getAction().equals(p.getAction()) )
 				{
 					return true;
 				}
 			}
 		}
-		return this.inner.hasPermission(category, action);
+		return this.inner.hasPermission(permission);
 	}
 
 }

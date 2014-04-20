@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.Rasse;
@@ -31,7 +32,7 @@ import java.util.Map;
  *
  * @author Christopher Jung
  */
-@AdminMenuEntry(category = "Asteroiden", name = "Gebäudegrafiken editieren")
+@AdminMenuEntry(category = "Asteroiden", name = "Gebäudegrafiken editieren", permission = WellKnownAdminPermission.EDIT_BUILDING_PICTURE)
 public class EditBuildingPicture extends AbstractEditPlugin<Building> implements AdminPlugin
 {
 	public EditBuildingPicture()

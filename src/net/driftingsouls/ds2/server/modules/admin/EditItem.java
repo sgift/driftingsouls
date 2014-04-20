@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.Quality;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffectFactory;
@@ -31,7 +32,7 @@ import java.io.IOException;
  *
  * @author Sebastian Gift
  */
-@AdminMenuEntry(category = "Items", name = "Item editieren")
+@AdminMenuEntry(category = "Items", name = "Item editieren", permission = WellKnownAdminPermission.EDIT_ITEM)
 public class EditItem implements AdminPlugin
 {
 	@Override

@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.FactoryEntry;
 import net.driftingsouls.ds2.server.entities.Forschung;
@@ -32,7 +33,7 @@ import java.math.BigDecimal;
  *
  * @author Sebastian Gift
  */
-@AdminMenuEntry(category = "Items", name = "Fabrikeintrag")
+@AdminMenuEntry(category = "Items", name = "Fabrikeintrag", permission = WellKnownAdminPermission.EDIT_FACTORY_ENTRY)
 public class EditFactoryEntry implements EntityEditor<FactoryEntry>
 {
 	@Override

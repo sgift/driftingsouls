@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -35,7 +36,7 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
-@AdminMenuEntry(category="Quests", name="Handler")
+@AdminMenuEntry(category="Quests", name="Handler", permission = WellKnownAdminPermission.QUESTS_HANDLER)
 public class QuestsHandler implements AdminPlugin {
 	@Override
 	public void output(StringBuilder echo) throws IOException {

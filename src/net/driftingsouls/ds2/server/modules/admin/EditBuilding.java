@@ -1,5 +1,6 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.bases.AcademyBuilding;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.bases.DefaultBuilding;
@@ -20,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Sebastian Gift
  */
-@AdminMenuEntry(category = "Asteroiden", name = "Gebäude")
+@AdminMenuEntry(category = "Asteroiden", name = "Gebäude", permission = WellKnownAdminPermission.EDIT_BUILDING)
 public class EditBuilding implements EntityEditor<Building>
 {
 	private static int getEnergiebilanz(Building building)

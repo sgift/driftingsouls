@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.Rasse;
@@ -31,7 +32,7 @@ import javax.annotation.Nonnull;
  * @author Christopher Jung
  *
  */
-@AdminMenuEntry(category="Techs", name="Forschung")
+@AdminMenuEntry(category="Techs", name="Forschung", permission = WellKnownAdminPermission.EDIT_RESEARCH)
 public class EditResearch implements EntityEditor<Forschung>
 {
 	@Override

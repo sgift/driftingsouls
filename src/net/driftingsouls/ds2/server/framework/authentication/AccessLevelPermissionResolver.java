@@ -1,10 +1,11 @@
 package net.driftingsouls.ds2.server.framework.authentication;
 
+import net.driftingsouls.ds2.server.framework.PermissionDescriptor;
+import net.driftingsouls.ds2.server.framework.PermissionResolver;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-
-import net.driftingsouls.ds2.server.framework.PermissionResolver;
 
 /**
  * Ein PermissionResolver auf Basis des Accesslevels eines Benutzers.
@@ -23,7 +24,7 @@ public class AccessLevelPermissionResolver implements PermissionResolver, Serial
 	}
 
 	@Override
-	public boolean hasPermission(String category, String action)
+	public boolean hasPermission(PermissionDescriptor permission)
 	{
 		Map<String,Integer> perms = new HashMap<>();
 		perms.put("admin#*", 30);
@@ -46,6 +47,9 @@ public class AccessLevelPermissionResolver implements PermissionResolver, Serial
 		perms.put("schlacht#alleAufrufbar", 20);
 		perms.put("user#versteckteSichtbar", 20);
 		perms.put("unit#versteckteSichtbar", 30);
+
+		String category = permission.getCategory();
+		String action = permission.getAction();
 
 		if( perms.containsKey(category+"#"+action) )
 		{

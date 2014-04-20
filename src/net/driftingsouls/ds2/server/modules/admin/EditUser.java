@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.entities.Forschung;
@@ -39,7 +40,7 @@ import java.util.stream.Collectors;
  *
  * @author Sebastian Gift
  */
-@AdminMenuEntry(category = "Spieler", name = "Spieler")
+@AdminMenuEntry(category = "Spieler", name = "Spieler", permission = WellKnownAdminPermission.EDIT_USER)
 public class EditUser implements EntityEditor<User>
 {
 	@Override

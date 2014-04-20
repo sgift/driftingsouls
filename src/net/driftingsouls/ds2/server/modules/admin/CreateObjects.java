@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.modules.admin;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.MutableLocation;
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.BaseType;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -65,7 +66,7 @@ import java.util.Map;
  * @author Christopher Jung
  *
  */
-@AdminMenuEntry(category="Objekte", name="hinzuf&uuml;gen")
+@AdminMenuEntry(category="Objekte", name="hinzufügen", permission = WellKnownAdminPermission.CREATE_OBJECTS)
 public class CreateObjects implements AdminPlugin {
 	private static interface DialogEntry {
 		/**

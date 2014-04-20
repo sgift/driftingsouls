@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
@@ -31,7 +32,7 @@ import javax.annotation.Nonnull;
  *
  * @author Sebastian Gift
  */
-@AdminMenuEntry(category = "Einheiten", name = "Einheit")
+@AdminMenuEntry(category = "Einheiten", name = "Einheit", permission = WellKnownAdminPermission.EDIT_UNITS)
 public class EditUnits implements EntityEditor<UnitType>
 {
 	@Override

@@ -89,7 +89,7 @@ public abstract class BasicUser {
 	@Column(nullable = false)
 	private String plainname;
 	private byte disabled;
-	@OneToMany(mappedBy="user", cascade=CascadeType.ALL)
+	@OneToMany(mappedBy="user", cascade=CascadeType.ALL, orphanRemoval = true)
 	private Set<Permission> permissions;
 
 	@Version

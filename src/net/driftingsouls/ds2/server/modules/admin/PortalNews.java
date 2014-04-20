@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.entities.NewsEntry;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -31,7 +32,7 @@ import java.io.IOException;
  * @author Christopher Jung
  *
  */
-@AdminMenuEntry(category="Portal", name="News schreiben")
+@AdminMenuEntry(category="Portal", name="News schreiben", permission = WellKnownAdminPermission.PORTAL_NEWS)
 public class PortalNews implements AdminPlugin {
 	@Override
 	public void output(StringBuilder echo) throws IOException {

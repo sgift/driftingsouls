@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.bases.BaseType;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
@@ -29,7 +30,7 @@ import javax.annotation.Nonnull;
  * Aktualisierungstool fuer die Basis-Klassen.
  * 
  */
-@AdminMenuEntry(category = "Asteroiden", name = "Basis-Klasse")
+@AdminMenuEntry(category = "Asteroiden", name = "Basis-Klasse", permission = WellKnownAdminPermission.EDIT_BASE_TYPE)
 public class EditBaseType implements EntityEditor<BaseType>
 {
 	@Override

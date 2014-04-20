@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.entities.ComNetService;
 import net.driftingsouls.ds2.server.entities.GuiHelpText;
@@ -130,8 +131,8 @@ public class MainController extends TemplateController
 
 		t.setVar(
 				"user.npc", user.hasFlag(UserFlag.ORDER_MENU),
-				"user.adminSichtbar", hasPermission("admin", "sichtbar"),
-				"admin.showconsole", hasPermission("admin", "AdminConsole"),
+				"user.adminSichtbar", hasPermission(WellKnownAdminPermission.SICHTBAR),
+				"admin.showconsole", hasPermission(WellKnownAdminPermission.CONSOLE),
 				"user.notizen", user.getUserValue("TBLORDER/main/notizen"));
 
 		t.setBlock("_MAIN", "bases.listitem", "bases.list");

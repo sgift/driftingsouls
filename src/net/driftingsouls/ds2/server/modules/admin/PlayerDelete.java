@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -50,7 +51,7 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
-@AdminMenuEntry(category = "Spieler", name = "Spieler l&ouml;schen")
+@AdminMenuEntry(category = "Spieler", name = "Spieler löschen", permission = WellKnownAdminPermission.PLAYER_DELETE)
 public class PlayerDelete implements AdminPlugin
 {
 	private static final Log log = LogFactory.getLog(PlayerDelete.class);

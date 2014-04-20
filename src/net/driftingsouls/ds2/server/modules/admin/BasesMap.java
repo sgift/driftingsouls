@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -30,7 +31,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.io.Writer;
 import java.util.List;
 
 /**
@@ -38,7 +38,7 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
-@AdminMenuEntry(category="Objekte", name="Karte")
+@AdminMenuEntry(category="Objekte", name="Karte", permission = WellKnownAdminPermission.BASES_MAP)
 public class BasesMap implements AdminPlugin 
 {
     @Override

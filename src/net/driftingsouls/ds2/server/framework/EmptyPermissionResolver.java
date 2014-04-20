@@ -9,7 +9,7 @@ package net.driftingsouls.ds2.server.framework;
 public class EmptyPermissionResolver implements PermissionResolver
 {
 	@Override
-	public boolean hasPermission(String category, String action)
+	public boolean hasPermission(PermissionDescriptor permission)
 	{
 		return false;
 	}

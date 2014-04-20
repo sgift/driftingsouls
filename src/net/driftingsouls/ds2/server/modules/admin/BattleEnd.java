@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.AdminCommands;
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -33,7 +34,7 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
-@AdminMenuEntry(category="Sonstiges", name="Schlacht beenden")
+@AdminMenuEntry(category="Sonstiges", name="Schlacht beenden", permission = WellKnownAdminPermission.BATTLE_END)
 public class BattleEnd implements AdminPlugin 
 {
 	@Override

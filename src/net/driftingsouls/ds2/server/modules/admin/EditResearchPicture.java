@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
@@ -29,7 +30,7 @@ import javax.annotation.Nonnull;
  *
  * @author Christopher Jung
  */
-@AdminMenuEntry(category = "Techs", name = "Forschungsgrafik")
+@AdminMenuEntry(category = "Techs", name = "Forschungsgrafik", permission = WellKnownAdminPermission.EDIT_RESEARCH_PICTURE)
 public class EditResearchPicture implements EntityEditor<Forschung>
 {
 	@Override

@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.MutableLocation;
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.config.StarSystem;
@@ -36,7 +37,7 @@ import javax.annotation.Nonnull;
  * Aktualisierungstool fuer die Systeme.
  *
  */
-@AdminMenuEntry(category = "Systeme", name = "System")
+@AdminMenuEntry(category = "Systeme", name = "System", permission = WellKnownAdminPermission.EDIT_SYSTEM)
 public class EditSystem implements EntityEditor<StarSystem>
 {
 	@Override

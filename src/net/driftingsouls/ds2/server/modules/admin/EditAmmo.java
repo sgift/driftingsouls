@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.Ammo;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
@@ -30,7 +31,7 @@ import javax.annotation.Nonnull;
  * @author Sebastian Gift
  *
  */
-@AdminMenuEntry(category = "Items", name = "Munition")
+@AdminMenuEntry(category = "Items", name = "Munition", permission = WellKnownAdminPermission.EDIT_AMMO)
 public class EditAmmo implements EntityEditor<Ammo>
 {
 	@Override

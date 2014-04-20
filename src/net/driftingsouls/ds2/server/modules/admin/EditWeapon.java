@@ -1,5 +1,6 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.entities.BeamWeapon;
 import net.driftingsouls.ds2.server.entities.Weapon;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
@@ -10,7 +11,7 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.HashSet;
 
-@AdminMenuEntry(category = "Schiffe", name = "Waffe")
+@AdminMenuEntry(category = "Schiffe", name = "Waffe", permission = WellKnownAdminPermission.EDIT_WEAPON)
 public class EditWeapon implements EntityEditor<Weapon>
 {
 	@Override

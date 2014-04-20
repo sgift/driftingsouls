@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
@@ -29,7 +30,7 @@ import javax.annotation.Nonnull;
  *
  * @author Christopher Jung
  */
-@AdminMenuEntry(category = "Items", name = "Itemgrafik")
+@AdminMenuEntry(category = "Items", name = "Itemgrafik", permission = WellKnownAdminPermission.EDIT_ITEM_PICTURE)
 public class EditItemPicture implements EntityEditor<Item>
 {
 	@Override

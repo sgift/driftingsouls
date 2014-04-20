@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
@@ -28,7 +29,7 @@ import java.io.IOException;
  * @author Christopher Jung
  *
  */
-@AdminMenuEntry(category="Spieler", name="Erw. Statistik")
+@AdminMenuEntry(category="Spieler", name="Erw. Statistik", permission = WellKnownAdminPermission.PLAYER_STATISTICS)
 public class PlayerStatistics implements AdminPlugin {
 
 	@Override

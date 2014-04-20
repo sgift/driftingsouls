@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
@@ -37,7 +38,7 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
-@AdminMenuEntry(category="GTU", name="Verkaufsdaten")
+@AdminMenuEntry(category="GTU", name="Verkaufsdaten", permission = WellKnownAdminPermission.GTU_VERKAEUFE)
 public class GtuVerkaeufe implements AdminPlugin
 {
 	@Override

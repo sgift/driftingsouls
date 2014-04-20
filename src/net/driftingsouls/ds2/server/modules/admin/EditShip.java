@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
@@ -34,7 +35,7 @@ import java.util.Map;
  *
  * @author Sebastian Gift
  */
-@AdminMenuEntry(category = "Schiffe", name = "Schiff")
+@AdminMenuEntry(category = "Schiffe", name = "Schiff", permission = WellKnownAdminPermission.EDIT_SHIP)
 public class EditShip implements EntityEditor<Ship>
 {
 	@Override

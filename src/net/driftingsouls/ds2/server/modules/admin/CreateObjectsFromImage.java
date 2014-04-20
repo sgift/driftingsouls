@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.MutableLocation;
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.BaseType;
 import net.driftingsouls.ds2.server.bases.Building;
@@ -53,7 +54,7 @@ import java.util.TreeSet;
  *
  * @author Christopher Jung
  */
-@AdminMenuEntry(category = "Objekte", name = "hinzuf&uuml;gen aus Grafik")
+@AdminMenuEntry(category = "Objekte", name = "hinzufügen aus Grafik", permission = WellKnownAdminPermission.CREATE_OBJECTS_FROM_IMAGE)
 public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> implements AdminPlugin
 {
 	public CreateObjectsFromImage()

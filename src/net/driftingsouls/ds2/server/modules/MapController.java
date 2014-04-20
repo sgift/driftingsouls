@@ -1,6 +1,7 @@
 package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
@@ -84,7 +85,7 @@ public class MapController extends AngularController
 	@Action(value = ActionType.AJAX)
 	public ViewMessage speichereSystemkarteAction()
 	{
-		if (!hasPermission("admin", "starmapSystemauswahl"))
+		if (!hasPermission(WellKnownAdminPermission.STARMAP_SYSTEMAUSWAHL))
 		{
 			return ViewMessage.error("Du bist nicht berechtigt diese Aktion auszuführen");
 		}
@@ -111,8 +112,8 @@ public class MapController extends AngularController
 	{
 		SystemauswahlViewModel result = new SystemauswahlViewModel();
 		result.system = system != null ? system.getID() : 1;
-		result.adminSichtVerfuegbar = hasPermission("admin", "starmapView");
-		result.systemkarteEditierbar = hasPermission("admin", "starmapSystemauswahl");
+		result.adminSichtVerfuegbar = hasPermission(WellKnownAdminPermission.STARMAP_VIEW);
+		result.systemkarteEditierbar = hasPermission(WellKnownAdminPermission.STARMAP_SYSTEMAUSWAHL);
 
 		return result;
 	}
@@ -163,7 +164,7 @@ public class MapController extends AngularController
 		SystemauswahlViewModel result = createResultObj(sys);
 
 		List<JumpNode> jumpNodes = Common.cast(db
-				.createQuery("from JumpNode jn where " + (!hasPermission("admin", "starmapView") ? "jn.hidden=0 and " : "") + "jn.system!=jn.systemOut")
+				.createQuery("from JumpNode jn where " + (!hasPermission(WellKnownAdminPermission.STARMAP_VIEW) ? "jn.hidden=0 and " : "") + "jn.system!=jn.systemOut")
 				.list());
 
 		Map<Integer, Ally> systemFraktionen = ermittleDominierendeAllianzen(db);
@@ -435,7 +436,7 @@ public class MapController extends AngularController
 		}
 
 		PublicStarmap content;
-		if (admin && hasPermission("admin", "starmapView"))
+		if (admin && hasPermission(WellKnownAdminPermission.STARMAP_VIEW))
 		{
 			content = new AdminStarmap(sys, user, new int[]{xstart, ystart, xend - xstart, yend - ystart});
 		}
@@ -633,7 +634,7 @@ public class MapController extends AngularController
 		final Location loc = new Location(sys.getID(), x, y);
 
 		FieldView field;
-		if (admin && hasPermission("admin", "starmapView"))
+		if (admin && hasPermission(WellKnownAdminPermission.STARMAP_VIEW))
 		{
 			field = new AdminFieldView(db, user, loc);
 		}

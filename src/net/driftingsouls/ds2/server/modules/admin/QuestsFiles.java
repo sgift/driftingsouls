@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -35,7 +36,7 @@ import java.util.Map;
  * @author Christopher Jung
  *
  */
-@AdminMenuEntry(category="Quests", name="Quest-XMLs")
+@AdminMenuEntry(category="Quests", name="Quest-XMLs", permission = WellKnownAdminPermission.QUESTS_FILES)
 public class QuestsFiles implements AdminPlugin {
 	private String basename( String file ) {
 		int pos = file.lastIndexOf('/');

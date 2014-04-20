@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -47,7 +48,7 @@ import java.util.Set;
  * @author Christopher Jung
  *
  */
-@AdminMenuEntry(category="Quests", name="QuickQuests")
+@AdminMenuEntry(category="Quests", name="QuickQuests", permission = WellKnownAdminPermission.QUESTS_QUICK)
 public class QuestsQuick implements AdminPlugin {
 	@Override
 	public void output(StringBuilder echo) throws IOException {

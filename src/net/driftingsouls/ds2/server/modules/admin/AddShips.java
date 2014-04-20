@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.Resources;
@@ -52,7 +53,7 @@ import java.util.Set;
  * @author Christopher Jung
  *
  */
-@AdminMenuEntry(category="Schiffe", name="hinzuf&uuml;gen")
+@AdminMenuEntry(category="Schiffe", name="hinzufügen", permission = WellKnownAdminPermission.ADD_SHIPS)
 public class AddShips implements AdminPlugin {
     @Override
 	public void output(StringBuilder echo) throws IOException {

@@ -88,24 +88,24 @@ public class AdminCommands {
 	public AdminCommands()
 	{
 		Context context = ContextMap.getContext();
-		if( context.hasPermission("admin", "EditShip") )
+		if( context.hasPermission(WellKnownAdminPermission.EDIT_SHIP) )
 		{
 			cmds.put("editship", EditShipCommand.class);
 			cmds.put("editfleet", EditFleetCommand.class);
 			cmds.put("recalculateshipmodules", RecalcShipModulesCommand.class);
 			cmds.put("destroyship", DestroyShipCommand.class);
 		}
-		if( context.hasPermission("admin", "EditShip") || context.hasPermission("admin", "EditBases") )
+		if( context.hasPermission(WellKnownAdminPermission.EDIT_SHIP) || context.hasPermission(WellKnownAdminPermission.EDIT_BASES) )
 		{
 			cmds.put("addresource", AddResourceCommand.class);
 			cmds.put("addunits", AddUnitsCommand.class);
 		}
 
-		if( context.hasPermission("admin", "QuestsFiles") || context.hasPermission("admin", "QuestsQuick") )
+		if( context.hasPermission(WellKnownAdminPermission.QUESTS_FILES) || context.hasPermission(WellKnownAdminPermission.QUESTS_QUICK) )
 		{
 			cmds.put("quest", QuestCommand.class);
 		}
-		if( context.hasPermission("admin", "BattleEnd") )
+		if( context.hasPermission(WellKnownAdminPermission.BATTLE_END) )
 		{
 			cmds.put("battle", BattleCommand.class);
 		}
@@ -183,7 +183,7 @@ public class AdminCommands {
 	public AdminCommandResultViewModel executeCommand( String cmd ) {
 		Context context = ContextMap.getContext();
 		User user = (User)context.getActiveUser();
-		if( (user == null) || !context.hasPermission("admin", "AdminConsole") ) {
+		if( (user == null) || !context.hasPermission(WellKnownAdminPermission.CONSOLE) ) {
 			return new AdminCommandResultViewModel("Keine Berechtigung", false);
 		}
 

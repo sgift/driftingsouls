@@ -1,5 +1,6 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
@@ -14,7 +15,7 @@ import java.io.IOException;
  * 
  * @author Sebastian Gift
  */
-@AdminMenuEntry(category = "Sonstiges", name = "Configwerte editieren")
+@AdminMenuEntry(category = "Sonstiges", name = "Configwerte editieren", permission = WellKnownAdminPermission.EDIT_CONFIG_VALUES)
 public class EditConfigValues implements AdminPlugin
 {
 	@Override

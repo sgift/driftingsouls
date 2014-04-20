@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.framework.pipeline.generators;
 import com.google.gson.Gson;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.PermissionDescriptor;
 import net.driftingsouls.ds2.server.framework.PermissionResolver;
 import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
@@ -242,9 +243,9 @@ public abstract class Controller implements PermissionResolver
 	}
 
 	@Override
-	public boolean hasPermission(String category, String action)
+	public boolean hasPermission(PermissionDescriptor permission)
 	{
-		return this.context.hasPermission(category, action);
+		return this.context.hasPermission(permission);
 	}
 
 	private static final class RedirectInvocationException extends RuntimeException

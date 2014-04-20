@@ -1,5 +1,6 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.bases.BaseType;
 import net.driftingsouls.ds2.server.bases.Core;
 import net.driftingsouls.ds2.server.bases.DefaultCore;
@@ -15,7 +16,7 @@ import javax.annotation.Nonnull;
  *
  * @author Sebastian Gift
  */
-@AdminMenuEntry(category = "Asteroiden", name = "Core")
+@AdminMenuEntry(category = "Asteroiden", name = "Core", permission = WellKnownAdminPermission.EDIT_CORE)
 public class EditCore implements EntityEditor<Core>
 {
 	@Override
