@@ -5,6 +5,8 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -24,6 +26,7 @@ import java.util.Map;
  */
 public class TileCache
 {
+	private static final Logger LOG = LogManager.getLogger(TileCache.class);
 	private static final int TILE_SIZE = 20;
 	private static final int SECTOR_IMAGE_SIZE = 25;
 
@@ -220,14 +223,19 @@ public class TileCache
 	{
 		final File cacheDir = new File(getTilePath());
 		if( !cacheDir.isDirectory() ) {
+			LOG.error("Konnte TileCache-Verzeichnis nicht finden: "+cacheDir.getAbsolutePath());
 			return;
 		}
 
 		File[] files = cacheDir.listFiles(pathname -> pathname.isFile() && pathname.getName().startsWith(TileCache.this.system.getID() + "_"));
 
+		LOG.info("Loesche "+files.length+" Tiles aus dem Cache");
+
 		for( File file : files )
 		{
-			file.delete();
+			if( !file.delete() ) {
+				LOG.warn("Konnte Tile "+file.getName()+" nicht loeschen");
+			}
 		}
 	}
 }
