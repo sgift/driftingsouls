@@ -2472,4 +2472,8 @@ Die Vasudaner haben eine sehr alte Kultur mit mehreren hochentwickelten Sprachen
 		alter table inttutorial add index inttutorial_fk_inttutorial (benoetigteSeite_id), add constraint inttutorial_fk_inttutorial foreign key (benoetigteSeite_id) references inttutorial (id);
 		update inttutorial set headimg=concat('data/interface/interactivetutorial/',headimg);
 	]]></update>
+	<update type="structure" datum="2014-04-20"><![CDATA[
+		create table rang (id integer not null, image varchar(255), name varchar(255), primary key (id)) ENGINE=InnoDB;
+		INSERT INTO `rang` VALUES (0,'data/interface/medals/rang0.png','Ensign'),(1,'data/interface/medals/rang1.png','Leutnant'),(2,'data/interface/medals/rang2.png','Oberleutnant'),(3,'data/interface/medals/rang3.png','Kapitän'),(4,'data/interface/medals/rang4.png','Kommodore'),(5,'data/interface/medals/rang5.png','Flottenkommodore'),(6,'data/interface/medals/rang6.png','Konteradmiral'),(7,'data/interface/medals/rang7.png','Vizeadmiral'),(8,'data/interface/medals/rang8.png','Admiral'),(9,'data/interface/medals/rang9.png','Flottenadmiral'),(10,'data/interface/medals/rang10.png','Sternenadmiral'),(11,'data/interface/medals/rang11.png','Oberkommandierender'),(12,'data/interface/medals/rang12.png','Oberkommandierender'),(13,'data/interface/medals/rang13.png','Oberkommandierender'),(14,'data/interface/medals/rang14.png','Oberkommandierender'),(15,'data/interface/medals/rang15.png','Oberkommandierender'),(16,'data/interface/medals/rang16.png','Oberkommandierender'),(25,'data/dynamicContent/c788cba9-1a39-4703-972b-ae6b84377dd9.gif','asd'),(99,'data/interface/medals/rang99.png','Admin'),(100,'data/interface/medals/rang100.png','Gott');
+	]]></update>
 </updates>

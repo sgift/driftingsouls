@@ -444,7 +444,7 @@ public abstract class AbstractEditPlugin8<T> implements AdminPlugin
 		JqGridTableDataViewModel model = new JqGridTableDataViewModel();
 		model.page = page;
 		model.records = rowCount != null ? rowCount.intValue() : 0;
-		model.total = rowCount != null ? rowCount.intValue()/rows+1 : 1;
+		model.total = rowCount != null ? (rowCount.intValue()-1)/rows+1 : 1;
 
 		List<T> entities = Common.cast(getDB()
 				.createCriteria(baseClass)

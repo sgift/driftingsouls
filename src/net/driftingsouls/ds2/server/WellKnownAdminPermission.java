@@ -33,6 +33,7 @@ public enum WellKnownAdminPermission implements PermissionDescriptor
 	EDIT_INT_TUTORIAL("EditIntTutorial"),
 	EDIT_ITEM("EditItem"),
 	EDIT_ITEM_PICTURE("EditItemPicture"),
+	EDIT_RANG("EditRang"),
 	EDIT_RASSE("EditRasse"),
 	EDIT_RESEARCH("EditResearch"),
 	EDIT_RESEARCH_PICTURE("EditResearchPicture"),

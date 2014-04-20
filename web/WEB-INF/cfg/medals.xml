@@ -18,27 +18,6 @@
  	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 -->
 <medals>
-	<raenge>
-		<rang id="0" name="Ensign" />
-		<rang id="1" name="Leutnant" />
-		<rang id="2" name="Oberleutnant" />
-		<rang id="3" name="Kapitän" />
-		<rang id="4" name="Kommodore" />
-		<rang id="5" name="Flottenkommodore" />
-		<rang id="6" name="Konteradmiral" />
-		<rang id="7" name="Vizeadmiral" />
-		<rang id="8" name="Admiral" />
-		<rang id="9" name="Flottenadmiral" />
-		<rang id="10" name="Sternenadmiral" />
-		<rang id="11" name="Oberkommandierender" />
-		<rang id="12" name="Oberkommandierender" />
-		<rang id="13" name="Oberkommandierender" />
-		<rang id="14" name="Oberkommandierender" />
-		<rang id="15" name="Oberkommandierender" />
-		<rang id="16" name="Oberkommandierender" />
-		<rang id="99" name="Admin" />
-		<rang id="100" name="Gott" />
-	</raenge>
 	<medal id="0" name="Orden der Tapferkeit">
 		<image>interface/medals/tapferkeit1.png</image>
 		<highlight>interface/medals/tapferkeit1_h.png</highlight>

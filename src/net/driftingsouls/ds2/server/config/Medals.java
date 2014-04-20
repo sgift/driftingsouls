@@ -18,7 +18,9 @@
  */
 package net.driftingsouls.ds2.server.config;
 
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,7 +30,10 @@ import org.w3c.dom.NodeList;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  * Repraesentiert die Liste aller in DS bekannten Orden und Raenge.
@@ -42,7 +47,6 @@ public class Medals {
 	private static final Log log = LogFactory.getLog(Medals.class);
 	private static Medals medalList = new Medals();
 	private Map<Integer, Medal> list = new LinkedHashMap<>();
-	private Map<Integer, Rang> raenge = new LinkedHashMap<>();
 	
 	private Medals() {
 		// EMPTY
@@ -51,10 +55,7 @@ public class Medals {
 	private void addMedal( Medal mmedal ) {
 		list.put(mmedal.getId(), mmedal);
 	}
-	
-	private void addRang( Rang mrang ) {
-		raenge.put(mrang.getId(), mrang );
-	}
+
 	
 	/**
 	 * Gibt die Instanz der Orden/Raenge-Liste zurueck.
@@ -73,9 +74,10 @@ public class Medals {
 	 * @return Der Rang oder der Standardrang
 	 */
 	public Rang rang( int id ) {
-		Rang rang = raenge.get(id);
-		if( rang == null ) {
-			return raenge.get(0);
+		Rang rang = (Rang)ContextMap.getContext().getDB().get(Rang.class, id);
+		if( rang == null )
+		{
+			rang = (Rang)ContextMap.getContext().getDB().get(Rang.class, 0);
 		}
 		return rang;
 	}
@@ -85,7 +87,8 @@ public class Medals {
 	 * @return die Liste der Raenge
 	 */
 	public Map<Integer,Rang> raenge() {
-		return Collections.unmodifiableMap(raenge);
+		List<Rang> raenge = Common.cast(ContextMap.getContext().getDB().createCriteria(Rang.class).list());
+		return new TreeMap<>(raenge.stream().collect(Collectors.toMap(Rang::getId, r -> r)));
 	}
 	
 	/**
@@ -115,17 +118,19 @@ public class Medals {
 		try {
 			Document doc = XMLUtils.readFile(Configuration.getConfigPath()+"medals.xml");
 			NodeList nodes = XMLUtils.getNodesByXPath(doc, "medals/medal");
-			for( int i=0; i < nodes.getLength(); i++ ) {
+			for( int i=0; i < nodes.getLength(); i++ )
+			{
 				Node node = nodes.item(i);
-				int id = (int)XMLUtils.getLongAttribute(node, "id");
+				int id = (int) XMLUtils.getLongAttribute(node, "id");
 				String name = XMLUtils.getStringAttribute(node, "name");
-				
+
 				Medal medal = new Medal(id, name);
-				
+
 				medalList.addMedal(medal);
-				
+
 				String adminonly = XMLUtils.getStringAttribute(node, "admin-only");
-				if( adminonly != null ) {
+				if (adminonly != null)
+				{
 					medal.setAdminOnly(Boolean.parseBoolean(adminonly));
 				}
 
@@ -133,16 +138,6 @@ public class Medals {
 				String highlight = XMLUtils.getStringByXPath(node, "highlight/text()");
 				String small = XMLUtils.getStringByXPath(node, "small/text()");
 				medal.setImages(image, highlight, small);
-			}
-			nodes = XMLUtils.getNodesByXPath(doc, "medals/raenge/rang");
-			for( int i=0; i < nodes.getLength(); i++ ) {
-				Node node = nodes.item(i);
-				int id = (int)XMLUtils.getLongAttribute(node, "id");
-				String name = XMLUtils.getStringAttribute(node, "name");
-				
-				Rang rang = new Rang(id, name, "data/interface/medals/rang"+id+".png");
-				
-				medalList.addRang(rang);
 			}
 		}
 		catch( Exception e ) {

@@ -6,6 +6,7 @@ import net.driftingsouls.ds2.server.bases.BaseStatus;
 import net.driftingsouls.ds2.server.bases.BaseType;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
+import net.driftingsouls.ds2.server.config.Rang;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.ComNetChannel;
 import net.driftingsouls.ds2.server.entities.IntTutorial;
@@ -92,6 +93,28 @@ public class ContentGenerator
 				tutorial3.setHeadImg("data/interface/interactivetutorial/ars.gif");
 				tutorial3.setText("[font=arial]Es empfiehlt sich den Tanker im Nebel stehen zu lassen und das Deuterium [img]http://ds2.drifting-souls.net/current/data/resources/Deuterium.gif[/img] jeweils mit dem Frachter abzuholen.\r\nNoch ein Wort zur Versorgung der Schiffe: Alle Produktion von Nahrung fliesst in den sogenannten Pool, aus dem im Tick Nahrung f&uuml;r Bev&ouml;lkerung auf den Asteroiden und Besatzungen auf den Schiffen entnommen wird, solange Ihre Produktion im positiven Bereich bleibt - zu sehen in der &Uuml;bersicht nach dem Nahrungssymbol [img]http://ds2.drifting-souls.net/current/data/resources/Nahrung.gif[/img] - wird nichts passieren. Sollten Sie aber zu viele Schiffe haben, kann es sein, dass sich der Pool leert - in diesem Falle werden Besatzungen auf den Schiffen verhungern und k&ouml;nnen von anderen Siedlern oder Piraten gekapert werden. Der Pool kann mit gekaufter Nahrung beladen werden, in dem Sie sie auf dem Asteroiden abladen und mit Hilfe des gr&uuml;nen Pfeils hinter Nahrung in der Asteroiden-Detail-Ansicht die Menge angeben, die sie in den Pool laden wollen (Angabe einer negativen Zahl entl&auml;dt den Pool)\r\n\r\nSoweit meine kleine Einf&uuml;hrung.\r\n\r\nDenken Sie daran, Sie k&ouml;nnen mich auch jeder Zeit via PM an ID -16 weitere Dinge fragen.\r\nEs lohnt sich &uuml;brigens auch, mal im IRC (irc.euirc.net - #ds und #ds-help) vorbei zu schauen. Dort finden sich garantiert Siedler, die Ihnen umsonst oder zu einem geringen Preis einige Rohstoffe &uuml;berlassen oder wertvolle Tipps geben k&ouml;nnen. Ein Java-Chat-Client befindet sich auf der Startseite ( oder hier: [url=http://ds.drifting-souls.net/index.php?action=javachat]Java-Chat[/url] )\r\n\r\nDer komplette Text dieser Einf&uuml;hrung ist auch in der Wiki zu finden [url=http://wiki.drifting-souls.net/Das_Ingame-Tutorial]Tutorial[/url]\r\n\r\nM&ouml;gen Sie viel Erfolg in den Lost Lands haben![/font]");
 				db.persist(tutorial3);
+			});
+
+			mitTransaktion("Erzeuge Raenge", () -> {
+				db.persist(new Rang(0, "data/interface/medals/rang0.png", "Ensign"));
+				db.persist(new Rang(1, "data/interface/medals/rang1.png", "Leutnant"));
+				db.persist(new Rang(2, "data/interface/medals/rang2.png", "Oberleutnant"));
+				db.persist(new Rang(3, "data/interface/medals/rang3.png", "Kapitän"));
+				db.persist(new Rang(4, "data/interface/medals/rang4.png", "Kommodore"));
+				db.persist(new Rang(5, "data/interface/medals/rang5.png", "Flottenkommodore"));
+				db.persist(new Rang(6, "data/interface/medals/rang6.png", "Konteradmiral"));
+				db.persist(new Rang(7, "data/interface/medals/rang7.png", "Vizeadmiral"));
+				db.persist(new Rang(8, "data/interface/medals/rang8.png", "Admiral"));
+				db.persist(new Rang(9, "data/interface/medals/rang9.png", "Flottenadmiral"));
+				db.persist(new Rang(10, "data/interface/medals/rang10.png", "Sternenadmiral"));
+				db.persist(new Rang(11, "data/interface/medals/rang11.png", "Oberkommandierender"));
+				db.persist(new Rang(12, "data/interface/medals/rang12.png", "Oberkommandierender"));
+				db.persist(new Rang(13, "data/interface/medals/rang13.png", "Oberkommandierender"));
+				db.persist(new Rang(14, "data/interface/medals/rang14.png", "Oberkommandierender"));
+				db.persist(new Rang(15, "data/interface/medals/rang15.png", "Oberkommandierender"));
+				db.persist(new Rang(16, "data/interface/medals/rang16.png", "Oberkommandierender"));
+				db.persist(new Rang(99, "data/interface/medals/rang99.png", "Admin"));
+				db.persist(new Rang(100, "data/interface/medals/rang100.png", "Gott"));
 			});
 
 			mitTransaktion("Erzeuge Fraktionsmaske", () -> {

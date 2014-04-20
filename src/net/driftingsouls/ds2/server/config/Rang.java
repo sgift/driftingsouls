@@ -18,47 +18,76 @@
  */
 package net.driftingsouls.ds2.server.config;
 
+import javax.annotation.Nonnull;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
 /**
  * Repraesentiert einen Rang in DS.
  * @author Christopher Jung
  *
  */
-public class Rang implements Comparable<Rang> {
+@Entity
+public class Rang implements Comparable<Rang>
+{
+	@Id
 	private int id;
-	private String name;	
+	private String name;
 	private String image;
-	
+
+	protected Rang()
+	{
+		// EMPTY
+	}
+
 	/**
 	 * Erstellt einen neuen Rang.
+	 *
 	 * @param id die ID des Ranges
 	 * @param name der Name des Ranges
 	 * @param image Das zum Rang gehoerende Bild
 	 */
-	public Rang(int id, String name, String image) {
+	public Rang(int id, String name, String image)
+	{
 		super();
 		this.id = id;
 		this.name = name;
 		this.image = image;
 	}
-	
+
 	/**
 	 * Gibt die ID des Ranges zurueck.
+	 *
 	 * @return die ID des Ranges
 	 */
-	public int getId() {
+	public int getId()
+	{
 		return id;
 	}
-	
+
+	/**
+	 * Setzt die ID des Ranges.
+	 *
+	 * @param id die ID des Ranges
+	 */
+	public void setId(int id)
+	{
+		this.id = id;
+	}
+
 	/**
 	 * Gibt den Namen des Ranges zurueck.
+	 *
 	 * @return der Name des Ranges
 	 */
-	public String getName() {
+	public String getName()
+	{
 		return name;
 	}
-	
+
 	/**
 	 * Gibt den Pfad zur Ranggrafik zurueck.
+	 *
 	 * @return Der Pfad
 	 */
 	public String getImage()
@@ -66,8 +95,28 @@ public class Rang implements Comparable<Rang> {
 		return this.image;
 	}
 
+	/**
+	 * Setzt den Namen des Ranges.
+	 *
+	 * @param name der Name des Ranges
+	 */
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	/**
+	 * Setzt den Pfad zur Ranggrafik.
+	 *
+	 * @param image Der Pfad
+	 */
+	public void setImage(String image)
+	{
+		this.image = image;
+	}
+
 	@Override
-	public int compareTo(Rang o)
+	public int compareTo(@Nonnull Rang o)
 	{
 		return this.id - o.id;
 	}
@@ -84,14 +133,14 @@ public class Rang implements Comparable<Rang> {
 	@Override
 	public boolean equals(Object obj)
 	{
-		if( this == obj )
+		if (this == obj)
 			return true;
-		if( obj == null )
+		if (obj == null)
 			return false;
-		if( getClass() != obj.getClass() )
+		if (getClass() != obj.getClass())
 			return false;
-		Rang other = (Rang)obj;
-		if( id != other.id )
+		Rang other = (Rang) obj;
+		if (id != other.id)
 			return false;
 		return true;
 	}
