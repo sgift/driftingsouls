@@ -18,17 +18,16 @@
  */
 package net.driftingsouls.ds2.server.config.items.effects;
 
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.ships.ShipTypeChangeset;
+import org.apache.commons.lang.StringUtils;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.ships.ShipTypeChangeset;
-
-import org.apache.commons.lang.StringUtils;
 
 /**
  * Item-Effekt "Meta-Effekt fuer Item-Modul-Sets".
@@ -37,7 +36,7 @@ import org.apache.commons.lang.StringUtils;
  */
 public class IEModuleSetMeta extends ItemEffect {
 	private String name;
-	private Map<Integer,ShipTypeChangeset> combos = new HashMap<Integer,ShipTypeChangeset>();
+	private Map<Integer,ShipTypeChangeset> combos = new HashMap<>();
 	
 	protected IEModuleSetMeta(String name) {
 		super(ItemEffect.Type.MODULE_SET_META);
@@ -68,7 +67,7 @@ public class IEModuleSetMeta extends ItemEffect {
 	 * @return Die Aenderungseffekte fuer die Anzahl
 	 */
 	public ShipTypeChangeset[] getCombo(int itemCount) {
-		List<ShipTypeChangeset> combos = new ArrayList<ShipTypeChangeset>();
+		List<ShipTypeChangeset> combos = new ArrayList<>();
 		for( int i=1; i <= itemCount; i++ ) {
 			ShipTypeChangeset currentCombo = this.combos.get(i);
 			if( currentCombo == null ) {

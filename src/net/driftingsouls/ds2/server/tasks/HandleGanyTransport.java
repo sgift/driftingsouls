@@ -116,7 +116,7 @@ class HandleGanyTransport implements TaskHandler
 				{
 					JumpNode jn = (JumpNode)obj;
 					if( !jumpnodes.containsKey(jn.getSystem()) ) {
-						jumpnodes.put(jn.getSystem(), new ArrayList<JumpNode>());
+						jumpnodes.put(jn.getSystem(), new ArrayList<>());
 					}
 					jumpnodes.get(jn.getSystem()).add(jn);
 					jumpnodeindex.put(jn.getId(), jn);

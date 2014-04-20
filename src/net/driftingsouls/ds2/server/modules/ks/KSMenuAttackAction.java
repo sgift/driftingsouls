@@ -39,8 +39,8 @@ import java.util.Map;
  *
  */
 public class KSMenuAttackAction extends BasicKSMenuAction {
-	private static final Map<String,String> ATTMODES = new HashMap<String,String>();
-	private static final Map<String,String> NEXTATTMODES = new HashMap<String,String>();
+	private static final Map<String,String> ATTMODES = new HashMap<>();
+	private static final Map<String,String> NEXTATTMODES = new HashMap<>();
 	
 	static {
 		ATTMODES.put("single", "Einzelsalve");

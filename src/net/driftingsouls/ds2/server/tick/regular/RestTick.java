@@ -81,23 +81,23 @@ public class RestTick extends TickController {
 		{
 			this.log("Sprungantrieb");
 			List<?> jumps = db.createQuery("from Jump as j inner join fetch j.ship").list();
-			for( Iterator<?> iter=jumps.iterator(); iter.hasNext(); )
+			for (Object jump1 : jumps)
 			{
-				Jump jump = (Jump)iter.next();
+				Jump jump = (Jump) jump1;
 
-				this.log( jump.getShip().getId()+" springt nach "+jump.getLocation());
+				this.log(jump.getShip().getId() + " springt nach " + jump.getLocation());
 
 				jump.getShip().setSystem(jump.getSystem());
 				jump.getShip().setX(jump.getX());
 				jump.getShip().setY(jump.getY());
 
 				db.createQuery("update Ship set x= :x, y= :y, system= :system where docked in (:dock,:land)")
-					.setInteger("x", jump.getX())
-					.setInteger("y", jump.getY())
-					.setInteger("system", jump.getSystem())
-					.setString("dock", Integer.toString(jump.getShip().getId()))
-					.setString("land", "l "+jump.getShip().getId())
-					.executeUpdate();
+						.setInteger("x", jump.getX())
+						.setInteger("y", jump.getY())
+						.setInteger("system", jump.getSystem())
+						.setString("dock", Integer.toString(jump.getShip().getId()))
+						.setString("land", "l " + jump.getShip().getId())
+						.executeUpdate();
 
 				db.delete(jump);
 			}
@@ -163,13 +163,13 @@ public class RestTick extends TickController {
 			this.log("Bearbeite Vacation-Modus");
 
 			List<?> vacLeaveUsers = db.createQuery("from User where vaccount=1").list();
-			for( Iterator<?> iter=vacLeaveUsers.iterator(); iter.hasNext(); )
+			for (Object vacLeaveUser : vacLeaveUsers)
 			{
-				User user = (User)iter.next();
+				User user = (User) vacLeaveUser;
 				user.setName(user.getName().replace(" [VAC]", ""));
 				user.setNickname(user.getNickname().replace(" [VAC]", ""));
 
-				this.log("\t"+user.getPlainname()+" ("+user.getId()+") verlaesst den VAC-Modus");
+				this.log("\t" + user.getPlainname() + " (" + user.getId() + ") verlaesst den VAC-Modus");
 			}
 
 			db.createQuery("update User set vaccount=vaccount-1 where vaccount>0 and wait4vac=0")
@@ -190,26 +190,26 @@ public class RestTick extends TickController {
 				List<?> battles = db.createQuery("from Battle where commander1= :user or commander2= :user")
 					.setEntity("user", user)
 					.list();
-				for( Iterator<?> iter=battles.iterator(); iter.hasNext(); )
+				for (Object battle1 : battles)
 				{
-					Battle battle = (Battle)iter.next();
-					battle.load(user, null, null, 0 );
+					Battle battle = (Battle) battle1;
+					battle.load(user, null, null, 0);
 
-					if( newcommander != null )
+					if (newcommander != null)
 					{
-						this.log("\t\tUser"+user.getId()+": Die Leitung der Schlacht "+battle.getId()+" wurde an "+newcommander.getName()+" ("+newcommander.getId()+") uebergeben");
+						this.log("\t\tUser" + user.getId() + ": Die Leitung der Schlacht " + battle.getId() + " wurde an " + newcommander.getName() + " (" + newcommander.getId() + ") uebergeben");
 
-						battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+getContext().get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
+						battle.logenemy("<action side=\"" + battle.getOwnSide() + "\" time=\"" + Common.time() + "\" tick=\"" + getContext().get(ContextCommon.class).getTick() + "\"><![CDATA[\n");
 
-						PM.send(user, newcommander.getId(), "Schlacht &uuml;bernommen", "Die Leitung der Schlacht bei "+battle.getLocation()+" wurde dir automatisch &uuml;bergeben, da der bisherige Kommandant in den Vacationmodus gewechselt ist");
+						PM.send(user, newcommander.getId(), "Schlacht &uuml;bernommen", "Die Leitung der Schlacht bei " + battle.getLocation() + " wurde dir automatisch &uuml;bergeben, da der bisherige Kommandant in den Vacationmodus gewechselt ist");
 
-						battle.logenemy(Common._titleNoFormat(newcommander.getName())+" kommandiert nun die gegnerischen Truppen\n\n");
+						battle.logenemy(Common._titleNoFormat(newcommander.getName()) + " kommandiert nun die gegnerischen Truppen\n\n");
 
 						battle.setCommander(battle.getOwnSide(), newcommander);
 
 						battle.logenemy("]]></action>\n");
 
-						battle.logenemy("<side"+(battle.getOwnSide()+1)+" commander=\""+battle.getCommander(battle.getOwnSide()).getId()+"\" ally=\""+battle.getAlly(battle.getOwnSide())+"\" />\n");
+						battle.logenemy("<side" + (battle.getOwnSide() + 1) + " commander=\"" + battle.getCommander(battle.getOwnSide()).getId() + "\" ally=\"" + battle.getAlly(battle.getOwnSide()) + "\" />\n");
 
 						battle.setTakeCommand(battle.getOwnSide(), 0);
 
@@ -217,10 +217,10 @@ public class RestTick extends TickController {
 					}
 					else
 					{
-						this.log("\t\tUser"+user.getId()+": Die Schlacht "+battle.getId()+" wurde beendet");
+						this.log("\t\tUser" + user.getId() + ": Die Schlacht " + battle.getId() + " wurde beendet");
 
 						battle.endBattle(0, 0, true);
-						PM.send(battle.getCommander(battle.getOwnSide()), battle.getCommander(battle.getEnemySide()).getId(), "Schlacht beendet", "Die Schlacht bei "+battle.getLocation()+" wurde automatisch beim wechseln in den Vacation-Modus beendet, da kein Ersatzkommandant ermittelt werden konnte!");
+						PM.send(battle.getCommander(battle.getOwnSide()), battle.getCommander(battle.getEnemySide()).getId(), "Schlacht beendet", "Die Schlacht bei " + battle.getLocation() + " wurde automatisch beim wechseln in den Vacation-Modus beendet, da kein Ersatzkommandant ermittelt werden konnte!");
 					}
 				}
 
@@ -278,11 +278,11 @@ public class RestTick extends TickController {
 			List<?> noobUsers = db.createQuery("from User where id>0 and flags LIKE '%" + UserFlag.NOOB.getFlag()+"%'").list();
 			int noobDays = 30;
 			int noobTime = 24*60*60*noobDays;
-			for( Iterator<?> iter=noobUsers.iterator(); iter.hasNext(); )
+			for (Object noobUser : noobUsers)
 			{
-				User user = (User)iter.next();
+				User user = (User) noobUser;
 
-				if( !user.hasFlag(UserFlag.NOOB) )
+				if (!user.hasFlag(UserFlag.NOOB))
 				{
 					continue;
 				}
@@ -290,14 +290,15 @@ public class RestTick extends TickController {
 				if (user.getSignup() <= Common.time() - noobTime)
 				{
 					user.setFlag(UserFlag.NOOB, false);
-					this.log("Entferne Noob-Schutz bei "+user.getId());
+					this.log("Entferne Noob-Schutz bei " + user.getId());
 
-					User nullUser = (User)db.get(User.class, 0);
+					User nullUser = (User) db.get(User.class, 0);
 					PM.send(nullUser, user.getId(), "GCP-Schutz aufgehoben",
 							"Ihr GCP-Schutz wurde durch das System aufgehoben. " +
-							"Dies passiert automatisch "+noobDays+" Tage nach der Registrierung. " +
-							"Sie sind nun angreifbar, koennen aber auch selbst angreifen.",
-							PM.FLAGS_AUTOMATIC | PM.FLAGS_IMPORTANT);
+									"Dies passiert automatisch " + noobDays + " Tage nach der Registrierung. " +
+									"Sie sind nun angreifbar, koennen aber auch selbst angreifen.",
+							PM.FLAGS_AUTOMATIC | PM.FLAGS_IMPORTANT
+					);
 				}
 			}
 			transaction.commit();
@@ -517,10 +518,10 @@ public class RestTick extends TickController {
 
 			Taskmanager taskmanager = Taskmanager.getInstance();
 			Task[] tasklist = taskmanager.getTasksByTimeout(1);
-			for( int i=0; i < tasklist.length; i++ )
+			for (Task aTasklist : tasklist)
 			{
-				this.log("* "+tasklist[i].getTaskID()+" ("+tasklist[i].getType()+") -> sending tick_timeout");
-				taskmanager.handleTask( tasklist[i].getTaskID(), "tick_timeout" );
+				this.log("* " + aTasklist.getTaskID() + " (" + aTasklist.getType() + ") -> sending tick_timeout");
+				taskmanager.handleTask(aTasklist.getTaskID(), "tick_timeout");
 			}
 
 			taskmanager.reduceTimeout(1);

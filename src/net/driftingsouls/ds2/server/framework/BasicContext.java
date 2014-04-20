@@ -252,7 +252,7 @@ public class BasicContext implements Context
 		{
 			if( !variables.containsKey(cls) )
 			{
-				variables.put(cls, new HashMap<String, Object>());
+				variables.put(cls, new HashMap<>());
 			}
 		}
 		Map<String, Object> map = variables.get(cls);

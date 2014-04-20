@@ -83,26 +83,14 @@ abstract class AbstractStatistic implements Statistic {
 	/**
 	 * Link-Generator fuer User-Entities.
 	 */
-	protected static final LinkGenerator<User> USER_LINK_GENERATOR = new LinkGenerator<User>() {
-		@Override
-		public String generate(User object)
-		{
-			return "<a class=\"profile\" href=\"./ds?module=userprofile&amp;user="+object.getId()+"\">"+
-				Common._title(object.getName())+" ("+object.getId()+")</a>";
-		}
-	};
+	protected static final LinkGenerator<User> USER_LINK_GENERATOR = object -> "<a class=\"profile\" href=\"./ds?module=userprofile&amp;user="+object.getId()+"\">"+
+		Common._title(object.getName())+" ("+object.getId()+")</a>";
 
 	/**
 	 * Link-Generator fuer Ally-Entities.
 	 */
-	protected static final LinkGenerator<Ally> ALLY_LINK_GENERATOR = new LinkGenerator<Ally>() {
-		@Override
-		public String generate(Ally object)
-		{
-			return "<a class=\"profile\" href=\"./ds?module=allylist&amp;action=details&amp;details="+object.getId()+"\">"+
-				Common._title(object.getName())+" ("+object.getId()+")</a>";
-		}
-	};
+	protected static final LinkGenerator<Ally> ALLY_LINK_GENERATOR = object -> "<a class=\"profile\" href=\"./ds?module=allylist&amp;action=details&amp;details="+object.getId()+"\">"+
+		Common._title(object.getName())+" ("+object.getId()+")</a>";
 
 	/**
 	 * Generiert eine Statistik mit Platz, Namen und (optional) Anzahl.

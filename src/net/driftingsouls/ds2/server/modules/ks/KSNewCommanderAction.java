@@ -18,9 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import java.io.IOException;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
@@ -29,6 +26,9 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Uebergibt das Kommando ueber die Schlacht an einen anderen Spieler.
@@ -66,8 +66,10 @@ public class KSNewCommanderAction extends BasicKSAction {
 			
 			boolean found = false;
 			List<BattleShip> ownShips = battle.getOwnShips();
-			for( int i=0; i < ownShips.size(); i++ ) {
-				if( ownShips.get(i).getOwner() == com ) {
+			for (BattleShip ownShip : ownShips)
+			{
+				if (ownShip.getOwner() == com)
+				{
 					found = true;
 					break;
 				}

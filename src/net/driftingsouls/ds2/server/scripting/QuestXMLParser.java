@@ -442,7 +442,7 @@ public class QuestXMLParser extends DSObject {
 						if( indexid == null ) {
 							throw new RuntimeException("QuestXML: illegaler/kein inject-index fuer "+currentdata.get("id")+"\n");	
 						}
-						String tmp = scripts.get(this.currentInjectScript).script.get(indexid.intValue()) + " "+data.script.get(0)+" ";
+						String tmp = scripts.get(this.currentInjectScript).script.get(indexid) + " "+data.script.get(0)+" ";
 						scripts.get(this.currentInjectScript).script.set(indexid, tmp);
 					}
 					else {
@@ -511,7 +511,7 @@ public class QuestXMLParser extends DSObject {
 			if( this.validTags.contains(localName.toLowerCase()) ) {
 				this.currentTag.push(localName.toLowerCase());
 
-				this.currentData.push(new HashMap<String,Object>());
+				this.currentData.push(new HashMap<>());
 				Map<String,Object> currentdata = this.currentData.peek();
 		
 				if( this.currentTag.peek().equals("quest") ) {

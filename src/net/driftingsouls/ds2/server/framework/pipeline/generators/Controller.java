@@ -170,7 +170,7 @@ public abstract class Controller implements PermissionResolver
 	 */
 	protected void redirect(String action)
 	{
-		redirect(action, new HashMap<String, Object>());
+		redirect(action, new HashMap<>());
 	}
 
 	/**
@@ -285,7 +285,7 @@ public abstract class Controller implements PermissionResolver
 	 */
 	protected void redirect()
 	{
-		redirect("default", new HashMap<String, Object>());
+		redirect("default", new HashMap<>());
 	}
 
 	private Method getMethodForAction(Object objekt, String action) throws NoSuchMethodException
@@ -350,7 +350,7 @@ public abstract class Controller implements PermissionResolver
 
 				try
 				{
-					Object result = invokeActionMethod(method, new HashMap<String, Object>());
+					Object result = invokeActionMethod(method, new HashMap<>());
 					writeResultObject(result, actionDescriptor.value());
 				}
 				catch (InvocationTargetException | RedirectInvocationException e)

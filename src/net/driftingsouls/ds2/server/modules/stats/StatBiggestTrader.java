@@ -73,7 +73,7 @@ public class StatBiggestTrader extends AbstractStatistic implements Statistic {
 					.setMaxResults(size)
 					.list();
 
-			Map<User,Long> result = new LinkedHashMap<User,Long>();
+			Map<User,Long> result = new LinkedHashMap<>();
 			for (Object o : tmp)
 			{
 				Object[] data = (Object[])o;
@@ -98,7 +98,7 @@ public class StatBiggestTrader extends AbstractStatistic implements Statistic {
 					.setMaxResults(size)
 					.list();
 
-			Map<Ally,Long> result = new LinkedHashMap<Ally, Long>();
+			Map<Ally,Long> result = new LinkedHashMap<>();
 			for (Object o : tmp)
 			{
 				Object[] data = (Object[])o;

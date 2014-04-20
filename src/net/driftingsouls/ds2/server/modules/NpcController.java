@@ -6,16 +6,15 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Medals;
-import net.driftingsouls.ds2.server.config.Rang;
 import net.driftingsouls.ds2.server.config.Rassen;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.FactionShopOrder;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionAktionsMeldung;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintragService;
 import net.driftingsouls.ds2.server.entities.Loyalitaetspunkte;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.entities.UserRank;
+import net.driftingsouls.ds2.server.entities.fraktionsgui.FactionShopOrder;
+import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionAktionsMeldung;
+import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag;
+import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintragService;
 import net.driftingsouls.ds2.server.entities.npcorders.Order;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderOffizier;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderShip;
@@ -50,6 +49,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 /**
  * Das Interface fuer NPCs.
@@ -455,10 +455,7 @@ public class NpcController extends AngularController
 									.list());
 		}
 
-		for (FraktionAktionsMeldung meldung : meldungen)
-		{
-			result.meldungen.add(FraktionAktionsMeldungViewModel.map(meldung));
-		}
+		result.meldungen.addAll(meldungen.stream().map(FraktionAktionsMeldungViewModel::map).collect(Collectors.toList()));
 
 		User edituser = User.lookupByIdentifier(edituserID);
 
@@ -519,10 +516,7 @@ public class NpcController extends AngularController
 		UserRank rank = edituser.getRank(user);
 		result.aktiverRang = rank.getRank();
 
-		for (Rang rang : user.getOwnGrantableRanks())
-		{
-			result.raenge.add(RangViewModel.map(rang));
-		}
+		result.raenge.addAll(user.getOwnGrantableRanks().stream().map(RangViewModel::map).collect(Collectors.toList()));
 
 		for (Medal medal : Medals.get().medals().values())
 		{
@@ -627,10 +621,7 @@ public class NpcController extends AngularController
 				return ViewMessage.failure("Nicht genug Kommandopunkte");
 			}
 
-			for (Order order : orderList)
-			{
-				db.persist(order);
-			}
+			orderList.forEach(db::persist);
 
 			user.setNpcPunkte(user.getNpcPunkte() - costs);
 

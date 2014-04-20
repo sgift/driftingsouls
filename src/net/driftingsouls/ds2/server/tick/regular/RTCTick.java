@@ -18,9 +18,6 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
-import java.util.Iterator;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -29,19 +26,20 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
-import net.driftingsouls.ds2.server.entities.statistik.StatGtu;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.Versteigerung;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.VersteigerungResource;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.VersteigerungSchiff;
+import net.driftingsouls.ds2.server.entities.statistik.StatGtu;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
-
 import org.hibernate.Transaction;
+
+import java.util.List;
 
 /**
  * Berechnung des Ticks fuer GTU-Versteigerungen.
@@ -81,17 +79,17 @@ public class RTCTick extends TickController {
 		List<?> entries = db.createQuery("from Versteigerung where tick<= :tick order by id")
 			.setInteger("tick", this.ticks)
 			.list();
-		for( Iterator<?> iter=entries.iterator(); iter.hasNext(); )
+		for (Object entry1 : entries)
 		{
-			Versteigerung entry = (Versteigerung)iter.next();
+			Versteigerung entry = (Versteigerung) entry1;
 
 			try
 			{
-				if( entry.getBieter() == this.gtuuser )
+				if (entry.getBieter() == this.gtuuser)
 				{
-					this.log("Die Versteigerung um "+entry.getObjectName()+" (id: "+entry.getId()+(entry.getOwner() != this.gtuuser ? " - User: "+entry.getOwner().getId() : "")+") wurde um 5 Runden verlaengert. Der Preis wurde um "+(long)(entry.getPreis()*1/10d)+" RE reduziert");
-					entry.setTick(this.ticks+5);
-					entry.setPreis((long)(entry.getPreis()*1/10d));
+					this.log("Die Versteigerung um " + entry.getObjectName() + " (id: " + entry.getId() + (entry.getOwner() != this.gtuuser ? " - User: " + entry.getOwner().getId() : "") + ") wurde um 5 Runden verlaengert. Der Preis wurde um " + (long) (entry.getPreis() * 1 / 10d) + " RE reduziert");
+					entry.setTick(this.ticks + 5);
+					entry.setPreis((long) (entry.getPreis() * 1 / 10d));
 
 					continue;
 				}
@@ -99,13 +97,13 @@ public class RTCTick extends TickController {
 				User winner = entry.getBieter();
 				long price = entry.getPreis();
 				int dropzone = winner.getGtuDropZone();
-				StarSystem system = (StarSystem)db.get(StarSystem.class, dropzone);
+				StarSystem system = (StarSystem) db.get(StarSystem.class, dropzone);
 
 				Location loc = system.getDropZone();
 
-				if( loc == null )
+				if (loc == null)
 				{
-					system = (StarSystem)db.get(StarSystem.class, 2);
+					system = (StarSystem) db.get(StarSystem.class, 2);
 
 					loc = system.getDropZone();
 				}
@@ -113,7 +111,7 @@ public class RTCTick extends TickController {
 				int gtucost = 100;
 				User targetuser = null;
 
-				if( entry.getOwner() != this.gtuuser )
+				if (entry.getOwner() != this.gtuuser)
 				{
 					targetuser = entry.getOwner();
 
@@ -122,16 +120,16 @@ public class RTCTick extends TickController {
 
 				String entryname = "";
 
-				if( entry instanceof VersteigerungSchiff )
+				if (entry instanceof VersteigerungSchiff)
 				{
-					VersteigerungSchiff shipEntry = (VersteigerungSchiff)entry;
+					VersteigerungSchiff shipEntry = (VersteigerungSchiff) entry;
 
 					ShipType shiptype = shipEntry.getShipType();
-					entryname = "eine "+shiptype.getNickname();
+					entryname = "eine " + shiptype.getNickname();
 
-					this.log("Es wurde "+entryname+" (shipid: "+shiptype.getTypeId()+") von ID "+winner+" fuer "+price+" RE ersteigert");
+					this.log("Es wurde " + entryname + " (shipid: " + shiptype.getTypeId() + ") von ID " + winner + " fuer " + price + " RE ersteigert");
 
-					String history = "Indienststellung am "+this.currentTime+" durch "+this.gtuuser.getName()+" (Versteigerung) f&uuml;r "+winner.getName()+" ("+winner.getId()+")";
+					String history = "Indienststellung am " + this.currentTime + " durch " + this.gtuuser.getName() + " (Versteigerung) f&uuml;r " + winner.getName() + " (" + winner.getId() + ")";
 
 					Cargo cargo = new Cargo();
 					cargo = cargo.cutCargo(shiptype.getCargo());
@@ -151,63 +149,63 @@ public class RTCTick extends TickController {
 
 					db.save(ship);
 
-					if( shiptype.getWerft() != 0 )
+					if (shiptype.getWerft() != 0)
 					{
 						ShipWerft werft = new ShipWerft(ship);
 						db.persist(werft);
 
-						this.log("\tWerft '"+shiptype.getWerft()+"' in Liste der Werften eingetragen");
+						this.log("\tWerft '" + shiptype.getWerft() + "' in Liste der Werften eingetragen");
 					}
 
 					ship.recalculateShipStatus();
 
-					String msg = "Sie haben "+entryname+" f&uumlr; +"+Common.ln(price)+" RE ersteigert.\nDas Objekt wurde ihnen bei "+loc.displayCoordinates(false)+" &uuml;bergeben.\n\nJack Miller\nHan Ronalds";
-					PM.send(gtuuser, winner.getId(), entryname+" ersteigert", msg);
+					String msg = "Sie haben " + entryname + " f&uumlr; +" + Common.ln(price) + " RE ersteigert.\nDas Objekt wurde ihnen bei " + loc.displayCoordinates(false) + " &uuml;bergeben.\n\nJack Miller\nHan Ronalds";
+					PM.send(gtuuser, winner.getId(), entryname + " ersteigert", msg);
 
-					if( entry.getOwner() != this.gtuuser )
+					if (entry.getOwner() != this.gtuuser)
 					{
-						msg = "Es wurde ihre "+entryname+" versteigert.\nDas Objekt wurde dem Gewinner "+winner.getName()+" f&uuml;r den Preis von "+Common.ln(price)+" RE &uuml;bergeben. Die GTU berechnet ihnen "+gtucost+"% des Gewinnes als Preis. Dies entspricht "+Common.ln(Math.ceil(price*gtucost/100d))+" RE. Ihnen bleiben somit noch "+Common.ln(price-Math.ceil(price*gtucost/100d))+" RE\n\nJack Miller\nHan Ronalds";
-						PM.send(gtuuser, entry.getOwner().getId(), entryname+" versteigert", msg);
+						msg = "Es wurde ihre " + entryname + " versteigert.\nDas Objekt wurde dem Gewinner " + winner.getName() + " f&uuml;r den Preis von " + Common.ln(price) + " RE &uuml;bergeben. Die GTU berechnet ihnen " + gtucost + "% des Gewinnes als Preis. Dies entspricht " + Common.ln(Math.ceil(price * gtucost / 100d)) + " RE. Ihnen bleiben somit noch " + Common.ln(price - Math.ceil(price * gtucost / 100d)) + " RE\n\nJack Miller\nHan Ronalds";
+						PM.send(gtuuser, entry.getOwner().getId(), entryname + " versteigert", msg);
 
-						msg = "Es wurde "+entryname+" im Auftrag von "+entry.getOwner().getId()+" versteigert.\nDas Objekt wurde bei "+loc.displayCoordinates(false)+" dem Gewinner "+winner.getId()+" f&uuml;r den Preis von "+Common.ln(price)+" RE &uuml;bergeben. Einnahme: "+Common.ln(Math.ceil(price*gtucost/100d))+" RE ("+gtucost+"%)";
-						PM.send(sourceUser, Faction.GTU, entryname+" ersteigert", msg);
+						msg = "Es wurde " + entryname + " im Auftrag von " + entry.getOwner().getId() + " versteigert.\nDas Objekt wurde bei " + loc.displayCoordinates(false) + " dem Gewinner " + winner.getId() + " f&uuml;r den Preis von " + Common.ln(price) + " RE &uuml;bergeben. Einnahme: " + Common.ln(Math.ceil(price * gtucost / 100d)) + " RE (" + gtucost + "%)";
+						PM.send(sourceUser, Faction.GTU, entryname + " ersteigert", msg);
 					}
 					else
 					{
-						msg = "Es wurde "+entryname+" versteigert.\nDas Objekt wurde bei "+loc.displayCoordinates(false)+" dem Gewinner "+winner.getId()+" f&uuml;r den Preis von "+Common.ln(price)+" RE &uuml;bergeben.";
-						PM.send(winner, Faction.GTU, entryname+" versteigert", msg);
+						msg = "Es wurde " + entryname + " versteigert.\nDas Objekt wurde bei " + loc.displayCoordinates(false) + " dem Gewinner " + winner.getId() + " f&uuml;r den Preis von " + Common.ln(price) + " RE &uuml;bergeben.";
+						PM.send(winner, Faction.GTU, entryname + " versteigert", msg);
 					}
 				}
-				else if( entry instanceof VersteigerungResource )
+				else if (entry instanceof VersteigerungResource)
 				{
-					VersteigerungResource resEntry = (VersteigerungResource)entry;
+					VersteigerungResource resEntry = (VersteigerungResource) entry;
 
 					Cargo mycargo = resEntry.getCargo();
 					ResourceEntry resource = mycargo.getResourceList().iterator().next();
 
-					entryname = Cargo.getResourceName( resource.getId() );
+					entryname = Cargo.getResourceName(resource.getId());
 
 					Ship posten = findBestTradepostForLocation(db, loc);
 
-					this.log("Es wurde "+entryname+" von ID "+winner.getId()+" fuer "+price+" RE ersteigert");
+					this.log("Es wurde " + entryname + " von ID " + winner.getId() + " fuer " + price + " RE ersteigert");
 
 					loc = posten.getLocation();
 
-					String msg = "Sie haben "+entryname+" f&uumlr; "+Common.ln(price)+" RE ersteigert.\nDas Objekt wurde ihnen bei "+loc.displayCoordinates(false)+" auf dem Handelsposten hinterlegt.\n\nGaltracorp Unlimited";
-					PM.send(gtuuser, winner.getId(), entryname+" ersteigert", msg);
+					String msg = "Sie haben " + entryname + " f&uumlr; " + Common.ln(price) + " RE ersteigert.\nDas Objekt wurde ihnen bei " + loc.displayCoordinates(false) + " auf dem Handelsposten hinterlegt.\n\nGaltracorp Unlimited";
+					PM.send(gtuuser, winner.getId(), entryname + " ersteigert", msg);
 
-					if( entry.getOwner() != this.gtuuser )
+					if (entry.getOwner() != this.gtuuser)
 					{
-						msg = "Es wurde ihr "+entryname+" versteigert.\nDas Objekt wurde dem Gewinner "+winner.getName()+" f&uuml;r den Preis von "+Common.ln(price)+" RE &uuml;bergeben. Die GTU berechnet ihnen "+gtucost+"% des Gewinnes als Preis. Dies entspricht "+Common.ln(Math.ceil(price*gtucost/100d))+" RE. Ihnen bleiben somit noch "+Common.ln((price-Math.ceil(price*gtucost/100d)))+" RE\n\nJack Miller\nHan Ronalds";
-						PM.send(gtuuser, entry.getOwner().getId(), entryname+" versteigert", msg);
+						msg = "Es wurde ihr " + entryname + " versteigert.\nDas Objekt wurde dem Gewinner " + winner.getName() + " f&uuml;r den Preis von " + Common.ln(price) + " RE &uuml;bergeben. Die GTU berechnet ihnen " + gtucost + "% des Gewinnes als Preis. Dies entspricht " + Common.ln(Math.ceil(price * gtucost / 100d)) + " RE. Ihnen bleiben somit noch " + Common.ln((price - Math.ceil(price * gtucost / 100d))) + " RE\n\nJack Miller\nHan Ronalds";
+						PM.send(gtuuser, entry.getOwner().getId(), entryname + " versteigert", msg);
 
-						msg = "Es wurde "+entryname+" im Auftrag von "+entry.getOwner().getId()+" versteigert.\nDas Objekt wurde bei "+loc.displayCoordinates(false)+" dem Gewinner "+winner.getId()+" f&uuml;r den Preis von "+Common.ln(price)+" RE hinterlegt. Einnahme: "+Common.ln(Math.ceil(price*gtucost/100d))+" RE ("+gtucost+"%)";
-						PM.send(sourceUser, Faction.GTU, entryname+" ersteigert", msg);
+						msg = "Es wurde " + entryname + " im Auftrag von " + entry.getOwner().getId() + " versteigert.\nDas Objekt wurde bei " + loc.displayCoordinates(false) + " dem Gewinner " + winner.getId() + " f&uuml;r den Preis von " + Common.ln(price) + " RE hinterlegt. Einnahme: " + Common.ln(Math.ceil(price * gtucost / 100d)) + " RE (" + gtucost + "%)";
+						PM.send(sourceUser, Faction.GTU, entryname + " ersteigert", msg);
 					}
 					else
 					{
-						msg = "Es wurde "+entryname+" versteigert.\nDas Objekt wurde bei "+loc.displayCoordinates(false)+" dem Gewinner "+winner.getName()+" f&uuml;r den Preis von "+Common.ln(price)+" RE hinterlegt.";
-						PM.send(sourceUser, Faction.GTU, entryname+" ersteigert", msg);
+						msg = "Es wurde " + entryname + " versteigert.\nDas Objekt wurde bei " + loc.displayCoordinates(false) + " dem Gewinner " + winner.getName() + " f&uuml;r den Preis von " + Common.ln(price) + " RE hinterlegt.";
+						PM.send(sourceUser, Faction.GTU, entryname + " ersteigert", msg);
 					}
 
 					GtuZwischenlager lager = new GtuZwischenlager(posten, winner, entry.getOwner());
@@ -218,14 +216,14 @@ public class RTCTick extends TickController {
 				}
 				else
 				{
-					entryname = "Unbekannter Typ <"+entry.getClass().getName()+">";
+					entryname = "Unbekannter Typ <" + entry.getClass().getName() + ">";
 				}
 
-				if( entry.getOwner() != this.gtuuser )
+				if (entry.getOwner() != this.gtuuser)
 				{
-					targetuser.transferMoneyFrom( Faction.GTU, price-(long)Math.ceil(price*gtucost/100d), 
-							"Gewinn Versteigerung #2"+entry.getId()+" abzgl. "+gtucost+"% Auktionskosten", 
-							false, UserMoneyTransfer.Transfer.AUTO );
+					targetuser.transferMoneyFrom(Faction.GTU, price - (long) Math.ceil(price * gtucost / 100d),
+							"Gewinn Versteigerung #2" + entry.getId() + " abzgl. " + gtucost + "% Auktionskosten",
+							false, UserMoneyTransfer.Transfer.AUTO);
 				}
 
 				StatGtu stat = new StatGtu(entry, gtucost);
@@ -235,12 +233,12 @@ public class RTCTick extends TickController {
 				transaction.commit();
 				transaction = db.beginTransaction();
 			}
-			catch( RuntimeException e )
+			catch (RuntimeException e)
 			{
 				transaction.rollback();
-				this.log("Versteigerung "+entry.getId()+" failed: "+e);
+				this.log("Versteigerung " + entry.getId() + " failed: " + e);
 				e.printStackTrace();
-				Common.mailThrowable(e, "RTCTick Exception", "versteigerung: "+entry.getId());
+				Common.mailThrowable(e, "RTCTick Exception", "versteigerung: " + entry.getId());
 
 				throw e;
 			}

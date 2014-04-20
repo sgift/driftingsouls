@@ -18,16 +18,9 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.MutableLocation;
-
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ships;
@@ -37,6 +30,11 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.Index;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Enumerated;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -71,7 +69,7 @@ public class Nebel implements Locatable {
 
 		Map<Location,Boolean> map = (Map<Location,Boolean>)context.getVariable(Ships.class, "getNebula(Location)#Nebel");
 		if( map == null ) {
-			map = new HashMap<Location,Boolean>();
+			map = new HashMap<>();
 			context.putVariable(Ships.class, "getNebula(Location)#Nebel", map);
 		}
 		if( !map.containsKey(loc) ) {
@@ -232,7 +230,7 @@ public class Nebel implements Locatable {
 		 */
 		public static List<Typ> getEmpNebel()
 		{
-			List<Typ> result = new ArrayList<Typ>();
+			List<Typ> result = new ArrayList<>();
 			for( Typ typ : values() )
 			{
 				if( typ.isEmp() )

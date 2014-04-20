@@ -112,9 +112,9 @@ public class KSFluchtSingleAction extends BasicKSAction {
 
 		int remove = 1;
 		List<BattleShip> ownShips = battle.getOwnShips();
-		for( int j=0; j < ownShips.size(); j++ ) {
-			BattleShip s = ownShips.get(j);
-			if(s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == ownShip.getId())
+		for (BattleShip s : ownShips)
+		{
+			if (s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == ownShip.getId())
 			{
 				s.setAction(s.getAction() | fluchtflag);
 

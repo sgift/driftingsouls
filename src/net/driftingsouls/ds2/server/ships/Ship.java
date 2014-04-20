@@ -557,7 +557,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			List<UnitCargoEntry> entries;
 			if(getTypeData().getUnitSpace() > 0 && units != null)
 			{
-				entries = new ArrayList<UnitCargoEntry>(units);
+				entries = new ArrayList<>(units);
 			}
 			else
 			{
@@ -1626,7 +1626,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		Set<Location> locations = new HashSet<>();
 		for(Location location: locs)
 		{
-			results.put(location, new ArrayList<Ship>());
+			results.put(location, new ArrayList<>());
 			locations.add(location);
 			xSektoren.add(location.getX());
 			ySektoren.add(location.getY());

@@ -77,7 +77,7 @@ public class Kommandozentrale extends DefaultBuilding {
 		org.hibernate.Session db = context.getDB();
 
 		// Loesche alle GTU-Aktionen
-		base.setAutoGTUActs(new ArrayList<AutoGTUAction>());
+		base.setAutoGTUActs(new ArrayList<>());
 		// Setze Besitzer auf 0
 		User nullUser = (User)context.getDB().get(User.class, 0);
 		User oldUser = base.getOwner();

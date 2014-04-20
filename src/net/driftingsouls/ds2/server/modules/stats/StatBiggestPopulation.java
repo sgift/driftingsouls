@@ -50,14 +50,14 @@ public class StatBiggestPopulation extends AbstractStatistic implements Statisti
 	public void show(StatsController contr, int size) throws IOException {
 		if( !allys ) {
 			Map<User,Long> bevcounts = getUserPopulationData(contr);
-			SortedMap<User,Long> sortedBevCounts = new TreeMap<User,Long>(new MapValueDescComparator<User>(bevcounts));
+			SortedMap<User,Long> sortedBevCounts = new TreeMap<>(new MapValueDescComparator<>(bevcounts));
 			sortedBevCounts.putAll(bevcounts);
 
 			this.generateStatistic("Die größten Völker:", sortedBevCounts, USER_LINK_GENERATOR, false, size);
 		}
 		else {
 			Map<Ally,Long> bevcounts = getAllyPopulationData(contr);
-			SortedMap<Ally,Long> sortedBevCounts = new TreeMap<Ally,Long>(new MapValueDescComparator<Ally>(bevcounts));
+			SortedMap<Ally,Long> sortedBevCounts = new TreeMap<>(new MapValueDescComparator<>(bevcounts));
 			sortedBevCounts.putAll(bevcounts);
 
 			this.generateStatistic("Die größten Völker:", sortedBevCounts, ALLY_LINK_GENERATOR, false, size);
@@ -68,7 +68,7 @@ public class StatBiggestPopulation extends AbstractStatistic implements Statisti
 	{
 		org.hibernate.Session db = contr.getDB();
 
-		Map<User,Long> bev = new HashMap<User,Long>();
+		Map<User,Long> bev = new HashMap<>();
 
 		List<Object[]> rows = Common.cast(db
 			.createQuery("select sum(s.crew), s.owner from Ship s " +
@@ -105,7 +105,7 @@ public class StatBiggestPopulation extends AbstractStatistic implements Statisti
 	public Map<Ally,Long> getAllyPopulationData(StatsController contr)
 	{
 		org.hibernate.Session db = contr.getDB();
-		Map<Ally,Long> bev = new HashMap<Ally,Long>();
+		Map<Ally,Long> bev = new HashMap<>();
 
 		List<Object[]> rows = Common.cast(db
 				.createQuery("select sum(s.crew), s.owner.ally " +

@@ -150,7 +150,7 @@ public class StatWarenentwicklung implements Statistic, AjaxStatistic
 			{
 				if (!cargos.containsKey(entry.getId()))
 				{
-					cargos.put(entry.getId(), new TreeMap<Integer, Long>());
+					cargos.put(entry.getId(), new TreeMap<>());
 				}
 				cargos.get(entry.getId()).put(sc.getTick(), entry.getCount1());
 			}

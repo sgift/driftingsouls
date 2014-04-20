@@ -88,15 +88,15 @@ public class StatWaren implements Statistic {
 		echo.append("</tr>\n");
 
 		// Itempositionen auslesen
-		Map<Integer,String[]> reslocationlist = new HashMap<Integer,String[]>();
+		Map<Integer,String[]> reslocationlist = new HashMap<>();
 		List<StatItemLocations> modules = Common.cast(db.createQuery("FROM StatItemLocations WHERE user=:user").setEntity("user",user).list());
 		for( StatItemLocations amodule : modules ) {
 			reslocationlist.put(amodule.getUser().getId(), StringUtils.split(amodule.getLocations(), ';'));
 		}
 
 		// Caches fuer Schiffe und Basen
-		Map<Integer,Base> basecache = new HashMap<Integer,Base>();
-		Map<Integer,String> shipnamecache = new HashMap<Integer,String>();
+		Map<Integer,Base> basecache = new HashMap<>();
+		Map<Integer,String> shipnamecache = new HashMap<>();
 
 		// Diese Grafiken kennzeichen bei Itempositionen den Typ der Position
 		final String shipimage = "<td class='noBorderX' style='text-align:right'><img style='vertical-align:middle' src='./data/interface/schiffe/"+user.getRace()+"/icon_schiff.gif' alt='' title='Schiff' /></td>";
@@ -130,63 +130,67 @@ public class StatWaren implements Statistic {
 
 				// Alle Positionen durchgehen
 				String[] locations = reslocationlist.get(res.getId().getItemID());
-				for( int i=0; i < locations.length; i++ ) {
-					String alocation = locations[i];
-
+				for (String alocation : locations)
+				{
 					// Das erste Zeichen ist der Typ der Position. Der Rest ist die ID
 					int objectid = Integer.parseInt(alocation.substring(1));
 
 					tooltip.append("<tr>");
-					switch( alocation.charAt(0) ) {
-					// Positionstyp Schiff
-					case 's':
-						if( !shipnamecache.containsKey(objectid) ) {
-							Ship ship = (Ship)db.get(Ship.class, objectid);
-							if( ship == null ) {
-								tooltip.append("</tr>");
-								continue;
-							}
-							shipnamecache.put(objectid, Common._plaintitle(ship.getName()));
-						}
-						tooltip.append(shipimage+"<td class='noBorderX'>" +
-								"<a style='font-size:14px' class='forschinfo' " +
-								"href='"+Common.buildUrl("default", "module", "schiff", "ship", objectid)+"'>"+
-								shipnamecache.get(objectid)+" ("+objectid+")</a></td>");
-						break;
-
-					// Positionstyp Basis
-					case 'b':
-						if( !basecache.containsKey(objectid) ) {
-							Base base = (Base)db.get(Base.class, objectid);
-							if(base != null)
+					switch (alocation.charAt(0))
+					{
+						// Positionstyp Schiff
+						case 's':
+							if (!shipnamecache.containsKey(objectid))
 							{
-								basecache.put(objectid, base);
-							}
-						}
-						tooltip.append(baseimage+"<td class='noBorderX'>" +
-								"<a style='font-size:14px' class='forschinfo' " +
-								"href='"+Common.buildUrl("default", "module", "base", "col", objectid)+"'>"+
-								Common._plaintitle(basecache.get(objectid).getName())+" - "+
-								basecache.get(objectid).getLocation().displayCoordinates(false)+
-								"</a></td>");
-						break;
-
-					// Positionstyp Gtu-Zwischenlager
-					case 'g':
-						if( !shipnamecache.containsKey(objectid) ) {
-							Ship ship = (Ship)db.get(Ship.class, objectid);
-							if(ship != null)
-							{
+								Ship ship = (Ship) db.get(Ship.class, objectid);
+								if (ship == null)
+								{
+									tooltip.append("</tr>");
+									continue;
+								}
 								shipnamecache.put(objectid, Common._plaintitle(ship.getName()));
 							}
-						}
-						tooltip.append("<td colspan='2' class='noBorderX' style='font-size:14px'>"+
-								shipnamecache.get(objectid)+"</td>");
-						break;
+							tooltip.append(shipimage + "<td class='noBorderX'>" +
+									"<a style='font-size:14px' class='forschinfo' " +
+									"href='" + Common.buildUrl("default", "module", "schiff", "ship", objectid) + "'>" +
+									shipnamecache.get(objectid) + " (" + objectid + ")</a></td>");
+							break;
 
-					// Falls der Typ unbekannt ist: Warnmeldung ausgeben
-					default:
-						tooltip.append("<td colspan='2' class='noBorderX' style='font-size:14px'>Unbekanntes Objekt "+alocation+"</td>");
+						// Positionstyp Basis
+						case 'b':
+							if (!basecache.containsKey(objectid))
+							{
+								Base base = (Base) db.get(Base.class, objectid);
+								if (base != null)
+								{
+									basecache.put(objectid, base);
+								}
+							}
+							tooltip.append(baseimage + "<td class='noBorderX'>" +
+									"<a style='font-size:14px' class='forschinfo' " +
+									"href='" + Common.buildUrl("default", "module", "base", "col", objectid) + "'>" +
+									Common._plaintitle(basecache.get(objectid).getName()) + " - " +
+									basecache.get(objectid).getLocation().displayCoordinates(false) +
+									"</a></td>");
+							break;
+
+						// Positionstyp Gtu-Zwischenlager
+						case 'g':
+							if (!shipnamecache.containsKey(objectid))
+							{
+								Ship ship = (Ship) db.get(Ship.class, objectid);
+								if (ship != null)
+								{
+									shipnamecache.put(objectid, Common._plaintitle(ship.getName()));
+								}
+							}
+							tooltip.append("<td colspan='2' class='noBorderX' style='font-size:14px'>" +
+									shipnamecache.get(objectid) + "</td>");
+							break;
+
+						// Falls der Typ unbekannt ist: Warnmeldung ausgeben
+						default:
+							tooltip.append("<td colspan='2' class='noBorderX' style='font-size:14px'>Unbekanntes Objekt " + alocation + "</td>");
 					}
 
 					tooltip.append("</tr>");

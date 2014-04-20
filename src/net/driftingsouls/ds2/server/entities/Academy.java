@@ -34,6 +34,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Eine Akademie.
@@ -68,7 +69,7 @@ public class Academy {
 	 */
 	public Academy(Base base) {
 		this.base = base;
-		this.queue = new ArrayList<AcademyQueueEntry>();
+		this.queue = new ArrayList<>();
 	}
 
 	/**
@@ -123,17 +124,9 @@ public class Academy {
 	 * Gibt die aktuell ausgebildeten Offiziere zurueck.
 	 * @return Die Liste der zur Ausbildung vorgesehenen Bauschlangeneintraege
 	 */
-	public List<AcademyQueueEntry> getScheduledQueueEntries() {
-		List<AcademyQueueEntry> queuelist = new ArrayList<AcademyQueueEntry>();
-		
-		for( AcademyQueueEntry entry : this.queue ) {
-			if(entry.isScheduled())
-			{
-				queuelist.add(entry);
-			}
-		}
-		
-		return queuelist;
+	public List<AcademyQueueEntry> getScheduledQueueEntries()
+	{
+		return this.queue.stream().filter(AcademyQueueEntry::isScheduled).collect(Collectors.toList());
 	}
 	
 	/**

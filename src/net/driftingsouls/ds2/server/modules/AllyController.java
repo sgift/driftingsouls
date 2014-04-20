@@ -51,6 +51,7 @@ import org.hibernate.Session;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Zeigt die Allianzseite an.
@@ -1479,10 +1480,7 @@ public class AllyController extends TemplateController
 				.setInteger("ally", this.ally.getId())
 				.setMaxResults(2)
 				.list();
-		for (Object aChannelList : channelList)
-		{
-			channels.add((ComNetChannel) aChannelList);
-		}
+		channels.addAll(channelList.stream().map(aChannelList -> (ComNetChannel) aChannelList).collect(Collectors.toList()));
 		channels.add(null);
 
 		t.setBlock("_ALLY", "show.einstellungen.channels.listitem", "show.einstellungen.channels.list");

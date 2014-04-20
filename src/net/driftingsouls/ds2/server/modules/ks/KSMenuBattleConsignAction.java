@@ -18,12 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.entities.User;
@@ -31,6 +25,11 @@ import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+
+import java.io.IOException;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Zeigt das Menue zur Uebergabe der Schlacht an einen anderen an der Schlacht
@@ -61,10 +60,11 @@ public class KSMenuBattleConsignAction extends BasicKSMenuAction {
 			.setInteger("sideId", battle.getOwnSide())
 			.list();
 		
-		Set<User> users = new LinkedHashSet<User>();
-		
-		for( Iterator<?> iter=sideUsers.iterator(); iter.hasNext(); ) {
-			users.add((User)iter.next());
+		Set<User> users = new LinkedHashSet<>();
+
+		for (Object sideUser : sideUsers)
+		{
+			users.add((User) sideUser);
 		}
 		
 		if( battle.getAlly(battle.getOwnSide()) > 0 ) {

@@ -18,9 +18,6 @@
  */
 package net.driftingsouls.ds2.server.install;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.install.checks.AbsolutePathCheck;
 import net.driftingsouls.ds2.server.install.checks.CheckFailedException;
 import net.driftingsouls.ds2.server.install.checks.Checkable;
@@ -30,13 +27,16 @@ import net.driftingsouls.ds2.server.install.checks.ConfigXmlValidXmlCheck;
 import net.driftingsouls.ds2.server.install.checks.DatabaseConnectionCheck;
 import net.driftingsouls.ds2.server.install.checks.LoxPathCheck;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Ueberprueft die Installation von Drifting Souls auf moegliche Probleme.
  * @author Christopher Jung
  *
  */
 public class CheckInstallation {
-	private static final List<Checkable> checks = new ArrayList<Checkable>();
+	private static final List<Checkable> checks = new ArrayList<>();
 
 	static {
 		checks.add(new ConfigXmlExistsCheck());
@@ -79,9 +79,8 @@ public class CheckInstallation {
 	public static void main(String[] args) {
 		System.out.println("Ueberpruefe DriftingSouls Installation");
 		try {
-			for( int i=0; i < checks.size(); i++ ) {
-				final Checkable check = checks.get(i);
-
+			for (final Checkable check : checks)
+			{
 				System.out.print(toFixedLength(check.getDescription(), 40));
 				check.doCheck();
 				System.out.println("[OK]");

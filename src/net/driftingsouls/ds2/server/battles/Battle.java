@@ -251,8 +251,8 @@ public class Battle implements Locatable
 	 *
 	 */
 	public Battle() {
-		this.addCommanders.add(0, new ArrayList<Integer>());
-		this.addCommanders.add(1, new ArrayList<Integer>());
+		this.addCommanders.add(0, new ArrayList<>());
+		this.addCommanders.add(1, new ArrayList<>());
 	}
 
 	/**

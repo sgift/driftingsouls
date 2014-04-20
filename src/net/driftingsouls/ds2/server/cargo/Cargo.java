@@ -1290,25 +1290,22 @@ public class Cargo implements Cloneable {
 
 		// Items in eine Sortierung bringen, damit zwei Cargos mit gleichen Items aber
 		// unterschiedlicher Reihenfolge den selben hashCode haben
-		Comparator<Long[]> comp = new Comparator<Long[]>() {
-			@Override
-			public int compare(Long[] o1, Long[] o2) {
-				// IDs vergleichen
-				if( !o1[0].equals(o2[0]) ) {
-					return o1[0] > o2[0] ? 1 : -1;
-				}
-				// Quests vergleichen
-				if( !o1[3].equals(o2[3]) ) {
-					return o1[3] > o2[3] ? 1 : -1;
-				}
-				// Benutzungen vergleichen
-				if( !o1[2].equals(o2[2]) ) {
-					return o1[2] > o2[2] ? 1 : -1;
-				}
-
-				// Menge vergleichen
-				return o1[1] > o2[1] ? 1 : (o1[1] < o2[1] ? -1 : 0);
+		Comparator<Long[]> comp = (o1, o2) -> {
+			// IDs vergleichen
+			if( !o1[0].equals(o2[0]) ) {
+				return o1[0] > o2[0] ? 1 : -1;
 			}
+			// Quests vergleichen
+			if( !o1[3].equals(o2[3]) ) {
+				return o1[3] > o2[3] ? 1 : -1;
+			}
+			// Benutzungen vergleichen
+			if( !o1[2].equals(o2[2]) ) {
+				return o1[2] > o2[2] ? 1 : -1;
+			}
+
+			// Menge vergleichen
+			return o1[1] > o2[1] ? 1 : (o1[1] < o2[1] ? -1 : 0);
 		};
 
 		List<Long[]> items = new ArrayList<>();

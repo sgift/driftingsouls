@@ -74,8 +74,8 @@ public class RestTick extends TickController {
 		{
 			this.log("Berechne Gesamtcargo:");
 			Cargo cargo = new Cargo();
-			Map<User,Cargo> usercargos = new HashMap<User,Cargo>();
-			Map<User,Map<Integer,Set<String>>> useritemlocations = new HashMap<User, Map<Integer, Set<String>>>();
+			Map<User,Cargo> usercargos = new HashMap<>();
+			Map<User,Map<Integer,Set<String>>> useritemlocations = new HashMap<>();
 
 			ermittleCargoStatistiken(db, cargo, usercargos, useritemlocations);
 
@@ -169,19 +169,18 @@ public class RestTick extends TickController {
 
 
 				List<ItemCargoEntry> itemlist = bcargo.getItems();
-				for (int i = 0; i < itemlist.size(); i++)
+				for (ItemCargoEntry aitem : itemlist)
 				{
-					ItemCargoEntry aitem = itemlist.get(i);
 					if (aitem.getItemEffect().getType() != ItemEffect.Type.AMMO)
 					{
 						if (!useritemlocations.containsKey(base.getOwner()))
 						{
-							useritemlocations.put(base.getOwner(), new HashMap<Integer, Set<String>>());
+							useritemlocations.put(base.getOwner(), new HashMap<>());
 						}
 						Map<Integer, Set<String>> itemlocs = useritemlocations.get(base.getOwner());
 						if (!itemlocs.containsKey(aitem.getItemID()))
 						{
-							itemlocs.put(aitem.getItemID(), new HashSet<String>());
+							itemlocs.put(aitem.getItemID(), new HashSet<>());
 						}
 						itemlocs.get(aitem.getItemID()).add("b" + base.getId());
 					}
@@ -230,19 +229,18 @@ public class RestTick extends TickController {
 				}
 
 				List<ItemCargoEntry> itemlist = scargo.getItems();
-				for (int i = 0; i < itemlist.size(); i++)
+				for (ItemCargoEntry aitem : itemlist)
 				{
-					ItemCargoEntry aitem = itemlist.get(i);
 					if (aitem.getItemEffect().getType() != ItemEffect.Type.AMMO)
 					{
 						if (!useritemlocations.containsKey(ship.getOwner()))
 						{
-							useritemlocations.put(ship.getOwner(), new HashMap<Integer, Set<String>>());
+							useritemlocations.put(ship.getOwner(), new HashMap<>());
 						}
 						Map<Integer, Set<String>> itemlocs = useritemlocations.get(ship.getOwner());
 						if (!itemlocs.containsKey(aitem.getItemID()))
 						{
-							itemlocs.put(aitem.getItemID(), new HashSet<String>());
+							itemlocs.put(aitem.getItemID(), new HashSet<>());
 						}
 						itemlocs.get(aitem.getItemID()).add("s" + ship.getId());
 					}
@@ -250,10 +248,8 @@ public class RestTick extends TickController {
 
 				ModuleEntry[] modulelist = ship.getModules();
 
-				for (int i = 0; i < modulelist.length; i++)
+				for (ModuleEntry amodule : modulelist)
 				{
-					ModuleEntry amodule = modulelist[i];
-
 					Module shipmodule = amodule.createModule();
 					if (shipmodule instanceof ModuleItemModule)
 					{
@@ -265,12 +261,12 @@ public class RestTick extends TickController {
 						usercargos.get(ship.getOwner()).addResource(itemmodule.getItemID(), 1);
 						if (!useritemlocations.containsKey(ship.getOwner()))
 						{
-							useritemlocations.put(ship.getOwner(), new HashMap<Integer, Set<String>>());
+							useritemlocations.put(ship.getOwner(), new HashMap<>());
 						}
 						Map<Integer, Set<String>> itemlocs = useritemlocations.get(ship.getOwner());
 						if (!itemlocs.containsKey(itemmodule.getItemID().getItemID()))
 						{
-							itemlocs.put(itemmodule.getItemID().getItemID(), new HashSet<String>());
+							itemlocs.put(itemmodule.getItemID().getItemID(), new HashSet<>());
 						}
 						itemlocs.get(itemmodule.getItemID().getItemID()).add("s" + ship.getId());
 					}
@@ -300,17 +296,20 @@ public class RestTick extends TickController {
 			}
 
 			List<ItemCargoEntry> itemlist = acargo.getItems();
-			for( int i=0; i < itemlist.size(); i++ ) {
-				ItemCargoEntry aitem = itemlist.get(i);
-				if( aitem.getItemEffect().getType() != ItemEffect.Type.AMMO ) {
-					if( !useritemlocations.containsKey(entry.getUser1()) ) {
-						useritemlocations.put(entry.getUser1(), new HashMap<Integer,Set<String>>());
+			for (ItemCargoEntry aitem : itemlist)
+			{
+				if (aitem.getItemEffect().getType() != ItemEffect.Type.AMMO)
+				{
+					if (!useritemlocations.containsKey(entry.getUser1()))
+					{
+						useritemlocations.put(entry.getUser1(), new HashMap<>());
 					}
-					Map<Integer,Set<String>> itemlocs = useritemlocations.get(entry.getUser1());
-					if( !itemlocs.containsKey(aitem.getItemID()) ) {
-						itemlocs.put(aitem.getItemID(), new HashSet<String>());
+					Map<Integer, Set<String>> itemlocs = useritemlocations.get(entry.getUser1());
+					if (!itemlocs.containsKey(aitem.getItemID()))
+					{
+						itemlocs.put(aitem.getItemID(), new HashSet<>());
 					}
-					itemlocs.get(aitem.getItemID()).add("g"+entry.getPosten().getId());
+					itemlocs.get(aitem.getItemID()).add("g" + entry.getPosten().getId());
 				}
 			}
 
@@ -326,17 +325,20 @@ public class RestTick extends TickController {
 			}
 
 			itemlist = acargo.getItems();
-			for( int i=0; i < itemlist.size(); i++ ) {
-				ItemCargoEntry aitem = itemlist.get(i);
-				if( aitem.getItemEffect().getType() != ItemEffect.Type.AMMO ) {
-					if( !useritemlocations.containsKey(entry.getUser2()) ) {
-						useritemlocations.put(entry.getUser2(), new HashMap<Integer,Set<String>>());
+			for (ItemCargoEntry aitem : itemlist)
+			{
+				if (aitem.getItemEffect().getType() != ItemEffect.Type.AMMO)
+				{
+					if (!useritemlocations.containsKey(entry.getUser2()))
+					{
+						useritemlocations.put(entry.getUser2(), new HashMap<>());
 					}
-					Map<Integer,Set<String>> itemlocs = useritemlocations.get(entry.getUser2());
-					if( !itemlocs.containsKey(aitem.getItemID()) ) {
-						itemlocs.put(aitem.getItemID(), new HashSet<String>());
+					Map<Integer, Set<String>> itemlocs = useritemlocations.get(entry.getUser2());
+					if (!itemlocs.containsKey(aitem.getItemID()))
+					{
+						itemlocs.put(aitem.getItemID(), new HashSet<>());
 					}
-					itemlocs.get(aitem.getItemID()).add("g"+entry.getPosten().getId());
+					itemlocs.get(aitem.getItemID()).add("g" + entry.getPosten().getId());
 				}
 			}
 		}
@@ -365,7 +367,7 @@ public class RestTick extends TickController {
 				Set<String> locations = innerEntry.getValue();
 				int itemid = innerEntry.getKey();
 
-				List<String> locationlist = new ArrayList<String>();
+				List<String> locationlist = new ArrayList<>();
 				for( String loc : locations ) {
 					locationlist.add(loc);
 

@@ -102,12 +102,13 @@ public class KSFluchtAllAction extends BasicKSAction {
 	
 			if( (gotone == null) && ashipType.hasFlag(ShipTypeFlag.DROHNE) ) {
 				gotone = Boolean.FALSE;
-				for( int j=0; j < ownShips.size(); j++ ) {
-					BattleShip as = ownShips.get(j);
+				for (BattleShip as : ownShips)
+				{
 					ShipTypeData ast = as.getTypeData();
-					if( ast.hasFlag(ShipTypeFlag.DROHNEN_CONTROLLER) ) {
+					if (ast.hasFlag(ShipTypeFlag.DROHNEN_CONTROLLER))
+					{
 						gotone = Boolean.TRUE;
-						break;	
+						break;
 					}
 				}
 			}
@@ -124,9 +125,9 @@ public class KSFluchtAllAction extends BasicKSAction {
 			aship.setAction(aship.getAction() | Battle.BS_FLUCHTNEXT);
 			
 			int remove = 1;
-			for( int j=0; j < ownShips.size(); j++ ) {
-				BattleShip s = ownShips.get(j);
-				if(s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == aship.getId())
+			for (BattleShip s : ownShips)
+			{
+				if (s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == aship.getId())
 				{
 					s.setAction(s.getAction() | fluchtflag);
 

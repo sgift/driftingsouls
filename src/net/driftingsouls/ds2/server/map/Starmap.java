@@ -175,7 +175,7 @@ class Starmap
 
 			if(!nodeMap.containsKey(position))
 			{
-				nodeMap.put(position, new ArrayList<T>());
+				nodeMap.put(position, new ArrayList<>());
 			}
 
 			nodeMap.get(position).add(node);
@@ -193,7 +193,7 @@ class Starmap
 			Location position = base.getLocation();
 			if(!baseMap.containsKey(position))
 			{
-				baseMap.put(position, new ArrayList<Base>());
+				baseMap.put(position, new ArrayList<>());
 			}
 
 			int size = base.getSize();
@@ -211,7 +211,7 @@ class Starmap
 
 						if(!baseMap.containsKey(loc))
 						{
-							baseMap.put(loc, new ArrayList<Base>());
+							baseMap.put(loc, new ArrayList<>());
 						}
 
 						baseMap.get(loc).add(0, base); //Big objects are always printed first

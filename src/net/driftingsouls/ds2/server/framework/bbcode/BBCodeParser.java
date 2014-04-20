@@ -18,25 +18,23 @@
  */
 package net.driftingsouls.ds2.server.framework.bbcode;
 
-import java.net.URL;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 /**
  * <p>Der BBCodeParser formatiert einen Text mittels BBCodes. Bei BBCodes
@@ -180,7 +178,7 @@ public class BBCodeParser {
 		}
 
 		if( !tags.containsKey(tag) ) {
-			tags.put(tag, new HashSet<Integer>());
+			tags.put(tag, new HashSet<>());
 		}
 		tags.get(tag).add(params);
 		
@@ -360,6 +358,6 @@ public class BBCodeParser {
 	 * @return Der formatierte Text
 	 */
 	public String parse( String text ) {
-		return parse( new StringBuilder(text), new HashSet<String>() ).toString();
+		return parse( new StringBuilder(text), new HashSet<>() ).toString();
 	}
 }

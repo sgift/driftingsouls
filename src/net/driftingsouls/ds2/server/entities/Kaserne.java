@@ -18,8 +18,10 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
-import java.util.ArrayList;
-import java.util.List;
+import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.units.UnitType;
+import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -29,11 +31,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-
-import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.units.UnitType;
-import org.hibernate.annotations.ForeignKey;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Repraesentiert eine Kaserne auf einer Basis in DS.
@@ -68,7 +67,7 @@ public class Kaserne {
 	public Kaserne(Base base)
 	{
 		this.base = base;
-		this.entries = new ArrayList<KaserneEntry>();
+		this.entries = new ArrayList<>();
 	}
 
 	/**
@@ -86,7 +85,7 @@ public class Kaserne {
 	 */
 	public List<KaserneEntry> getQueueEntries()
 	{
-		return new ArrayList<KaserneEntry>(this.entries);
+		return new ArrayList<>(this.entries);
 	}
 
 	/**

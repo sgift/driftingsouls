@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  * Eine Sicht auf ein bestimmtes Sternenkartenfeld.
@@ -88,13 +89,7 @@ public class PlayerFieldView implements FieldView
 		
 		if( !nebula && this.inScanRange )
 		{
-			for( Base base : this.field.getBases() ) 
-			{
-				if( !bases.contains(base) )
-				{
-					bases.add(base);
-				}
-			}
+			bases.addAll(this.field.getBases().stream().filter(base -> !bases.contains(base)).collect(Collectors.toList()));
 		}
 		
 		return bases;
@@ -220,12 +215,12 @@ public class PlayerFieldView implements FieldView
 
 			if (!ships.containsKey(owner))
 			{
-				ships.put(owner, new HashMap<ShipType, List<Ship>>());
+				ships.put(owner, new HashMap<>());
 			}
 
 			if (!ships.get(owner).containsKey(type))
 			{
-				ships.get(owner).put(type, new ArrayList<Ship>());
+				ships.get(owner).put(type, new ArrayList<>());
 			}
 
 			ships.get(owner).get(type).add(viewableShip);

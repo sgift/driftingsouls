@@ -18,21 +18,21 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.bases.AcademyQueueEntry;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Offiziere;
 import net.driftingsouls.ds2.server.entities.Academy;
+import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.framework.db.batch.SingleUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <h1>Berechnung des Ticks fuer Akademien.</h1>
@@ -45,12 +45,12 @@ import net.driftingsouls.ds2.server.tick.TickController;
  */
 public class AcademyTick extends TickController {
 	private Map<Integer,Offizier.Ability> dTrain;
-	private static final Map<Integer,String> offis = new HashMap<Integer,String>();
+	private static final Map<Integer,String> offis = new HashMap<>();
 
 	@Override
 	protected void prepare()
 	{
-		dTrain = new HashMap<Integer,Offizier.Ability>();
+		dTrain = new HashMap<>();
 		dTrain.put(1, Offizier.Ability.ING);
 		dTrain.put(2, Offizier.Ability.WAF);
 		dTrain.put(3, Offizier.Ability.NAV);

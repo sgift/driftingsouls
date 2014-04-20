@@ -275,11 +275,11 @@ public class KSKapernAction extends BasicKSAction {
 			Cargo cargo = enemyShip.getCargo();
 
 			List<ItemCargoEntry> itemlist = cargo.getItems();
-			for( int i=0; i < itemlist.size(); i++ ) {
-				ItemCargoEntry item = itemlist.get(i);
-
+			for (ItemCargoEntry item : itemlist)
+			{
 				Item itemobject = item.getItemObject();
-				if( itemobject.isUnknownItem() ) {
+				if (itemobject.isUnknownItem())
+				{
 					user.addKnownItem(item.getItemID());
 				}
 			}
@@ -303,7 +303,7 @@ public class KSKapernAction extends BasicKSAction {
 			enemyShip.getShip().setBattleAction(true);
 			enemyShip.setSide(battle.getOwnSide());
 
-			List<Integer> kaperlist = new ArrayList<Integer>();
+			List<Integer> kaperlist = new ArrayList<>();
 			kaperlist.add(enemyShip.getId());
 
 			List<Ship> docked = Common.cast(db.createQuery("from Ship where id>0 and docked in (:docked,:landed)")

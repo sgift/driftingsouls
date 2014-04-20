@@ -80,7 +80,7 @@ public class TemplateEngine {
 		// EMPTY
 	}
 
-	private static Map<String,Template> templateMap = Collections.synchronizedMap(new HashMap<String,Template>());
+	private static Map<String,Template> templateMap = Collections.synchronizedMap(new HashMap<>());
 	
 	/**
 	 * Registriert eine Template-Datei im TemplateEngine unter einem bestimmten Namen.

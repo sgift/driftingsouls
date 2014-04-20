@@ -59,7 +59,7 @@ public class StatRichestUser extends AbstractStatistic implements Statistic {
 				.setMaxResults(size)
 				.list());
 
-			Map<User,Long> displayMap = new LinkedHashMap<User,Long>();
+			Map<User,Long> displayMap = new LinkedHashMap<>();
 			for( User user : users )
 			{
 				displayMap.put(user, user.getKonto().longValue());
@@ -75,7 +75,7 @@ public class StatRichestUser extends AbstractStatistic implements Statistic {
 				.setMaxResults(size)
 				.list());
 
-			Map<Ally,Long> displayMap = new LinkedHashMap<Ally,Long>();
+			Map<Ally,Long> displayMap = new LinkedHashMap<>();
 			for( Object[] allianz : allianzen )
 			{
 				displayMap.put((Ally)allianz[0], ((Number)allianz[1]).longValue());

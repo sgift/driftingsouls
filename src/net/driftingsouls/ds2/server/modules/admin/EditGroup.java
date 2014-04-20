@@ -145,13 +145,13 @@ public class EditGroup implements AdminPlugin
 				return;
 			}
 			
-			Map<Integer, String> alarms = new HashMap<Integer, String>();
+			Map<Integer, String> alarms = new HashMap<>();
 			alarms.put(0, "Gr&uuml;n");
 			alarms.put(1, "Gelb");
 			alarms.put(2, "Rot");
 			
 			//Name -> Klasse
-			Map<Integer, String> groupOptions = new HashMap<Integer, String>();
+			Map<Integer, String> groupOptions = new HashMap<>();
 			groupOptions.put(0, "Im Sektor");
 			groupOptions.put(1, "Im System");
 			groupOptions.put(2, "Ueberall");

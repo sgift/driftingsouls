@@ -54,17 +54,13 @@ public abstract class BasicUser {
 /**
 	 * Sortiert die Benutzer entsprechend ihres Anzeigenamens.
 	 */
-	public static final Comparator<BasicUser> PLAINNAME_ORDER = new Comparator<BasicUser>() {
-		@Override
-		public int compare(BasicUser o1, BasicUser o2)
+	public static final Comparator<BasicUser> PLAINNAME_ORDER = (o1, o2) -> {
+		int diff = o1.getPlainname().compareToIgnoreCase(o2.getPlainname());
+		if( diff != 0 )
 		{
-			int diff = o1.getPlainname().compareToIgnoreCase(o2.getPlainname());
-			if( diff != 0 )
-			{
-				return diff;
-			}
-			return o1.getId()-o2.getId();
+			return diff;
 		}
+		return o1.getId()-o2.getId();
 	};
 
 	@Id

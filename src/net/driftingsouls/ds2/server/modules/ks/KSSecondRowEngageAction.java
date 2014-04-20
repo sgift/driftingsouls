@@ -18,15 +18,15 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import java.io.IOException;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Ermoeglicht das Vorruecken gegen eine instabile zweite Reihe des Gegners.
@@ -65,10 +65,10 @@ public class KSSecondRowEngageAction extends BasicKSAction {
 		Context context = ContextMap.getContext();
 		
 		List<BattleShip> enemyShips = battle.getEnemyShips();
-		for( int i=0; i < enemyShips.size(); i++ ) {
-			BattleShip eShip = enemyShips.get(i);
-			
-			if( (eShip.getAction() & Battle.BS_SECONDROW) != 0 ) {
+		for (BattleShip eShip : enemyShips)
+		{
+			if ((eShip.getAction() & Battle.BS_SECONDROW) != 0)
+			{
 				eShip.setAction(eShip.getAction() ^ Battle.BS_SECONDROW);
 			}
 		}

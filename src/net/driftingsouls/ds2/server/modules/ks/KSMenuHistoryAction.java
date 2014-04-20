@@ -63,15 +63,15 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 	
 	private StringBuilder history_text = new StringBuilder();
 	private String history_tag = "";
-	private final Set<String >history_validTags = new HashSet<String>();
+	private final Set<String >history_validTags = new HashSet<>();
 	private boolean trimHistory = false;
 	private int historyPage = -1;
 	private int historyCurrentpage = 0;
 	private int historyMaxpage = 0;
-	private Map<Integer,String> historySides = new HashMap<Integer,String>();
+	private Map<Integer,String> historySides = new HashMap<>();
 	private boolean historyShowtag = true;
 	
-	private final Map<Integer,Boolean> filter = new HashMap<Integer,Boolean>();
+	private final Map<Integer,Boolean> filter = new HashMap<>();
 
 	/**
 	 * Konstruktor.
@@ -218,7 +218,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 		}
 		else
 		{
-			List<String> params = new ArrayList<String>();
+			List<String> params = new ArrayList<>();
 	
 			for( int i=0; i < atts.getLength(); i++ )
 			{
@@ -386,15 +386,11 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 		
 			t.setVar("global.showlog.log", StringUtils.replace(bbcodeparser.parse(this.history_text.toString()), "\n", "<br />"));
 		}
-		catch( SAXException e ) {
+		catch( SAXException | IOException e ) {
 			t.setVar("global.showlog.log", "Fehler beim Anzeigen der Kampfhistorie: "+e);
 			log.error("", e);
 		}
-		catch( IOException e ) {
-			t.setVar("global.showlog.log", "Fehler beim Anzeigen der Kampfhistorie: "+e);
-			log.error("", e);
-		}
-		
+
 		return Result.OK;
 	}
 
@@ -403,12 +399,9 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 		XMLReader parser = XMLReaderFactory.createXMLReader();
 		
 		parser.setContentHandler(this);
-		InputStream in = new SequenceInputStream(new FileInputStream(ksLog), new ByteArrayInputStream("</battle>".getBytes()));
-		try {
+		try (InputStream in = new SequenceInputStream(new FileInputStream(ksLog), new ByteArrayInputStream("</battle>".getBytes())))
+		{
 			parser.parse(new InputSource(in));
-		}
-		finally {
-			in.close();
 		}
 	}
 }

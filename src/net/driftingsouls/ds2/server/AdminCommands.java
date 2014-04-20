@@ -73,6 +73,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * Fueht spezielle Admin-Kommandos aus.
@@ -147,9 +148,7 @@ public class AdminCommands {
 			throw new IllegalStateException(e);
 		}
 
-		for( String ac : subAutoCompletes ) {
-			result.add(command[0]+" "+ac);
-		}
+		result.addAll(subAutoCompletes.stream().map(ac -> command[0] + " " + ac).collect(Collectors.toList()));
 
 		return result;
 	}
@@ -547,11 +546,7 @@ public class AdminCommands {
 
 			if( command.length == 2 ||
 					!validCommands.contains(command[2]) ) {
-				List<String> autoComplete = new ArrayList<>();
-				for( String cmd : validCommands )
-				{
-					autoComplete.add(autoCompleteFleet(command)+" "+cmd+" ... ");
-				}
+				List<String> autoComplete = validCommands.stream().map(cmd -> autoCompleteFleet(command) + " " + cmd + " ... ").collect(Collectors.toList());
 				return autoComplete;
 			}
 
@@ -806,11 +801,7 @@ public class AdminCommands {
 
 			if( command.length == 2 ||
 					!validCommands.contains(command[2]) ) {
-				List<String> autoComplete = new ArrayList<>();
-				for( String cmd : validCommands )
-				{
-					autoComplete.add(autoCompleteShip(command)+" "+cmd+" ... ");
-				}
+				List<String> autoComplete = validCommands.stream().map(cmd -> autoCompleteShip(command) + " " + cmd + " ... ").collect(Collectors.toList());
 				return autoComplete;
 			}
 

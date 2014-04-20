@@ -128,7 +128,7 @@ public class Ally {
 		this.showGtuBieter = 0;
 		this.showlrs = 1;
 		this.items = "";
-		this.rangDescriptors = new TreeSet<AllyRangDescriptor>();
+		this.rangDescriptors = new TreeSet<>();
 
 		this.name = name;
 		this.plainname = Common._titleNoFormat(name);
@@ -496,7 +496,7 @@ public class Ally {
 			.executeUpdate();
 
 		// Delete Ally from running Battles
-		Set<Battle> battles = new LinkedHashSet<Battle>();
+		Set<Battle> battles = new LinkedHashSet<>();
 
 		Query battleQuery = db.createQuery("from Battle " +
 				"where ally1 = :ally or ally2 = :ally")
@@ -597,16 +597,13 @@ public class Ally {
 	 */
 	public SortedSet<Rang> getFullRangNameList()
 	{
-		SortedSet<Rang> result = new TreeSet<Rang>();
+		SortedSet<Rang> result = new TreeSet<>();
 		for( AllyRangDescriptor rang : this.rangDescriptors )
 		{
 			result.add(new Rang(rang.getRang(), rang.getName(), rang.getImage()));
 		}
 
-		for( Rang rang : Medals.get().raenge().values() )
-		{
-			result.add(rang);
-		}
+		result.addAll(Medals.get().raenge().values());
 
 		return result;
 	}

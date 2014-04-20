@@ -32,7 +32,6 @@ import org.hibernate.exception.GenericJDBCException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -123,17 +122,17 @@ public abstract class UnitOfWork<T>
 			List<T> unflushedObjects = new ArrayList<>();
 
 			int count = 0;
-			for( Iterator<T> iter=work.iterator(); iter.hasNext(); ) 
+			for (final T workObject : work)
 			{
-				final T workObject = iter.next();
-				if( !tryWork(db, transaction, workObject) ) {
+				if (!tryWork(db, transaction, workObject))
+				{
 					transaction = db.beginTransaction();
 				}
 
 				unflushedObjects.add(workObject);
-				
+
 				count++;
-				if(count%this.flushSize == 0)
+				if (count % this.flushSize == 0)
 				{
 					flushAndCommit(transaction, unflushedObjects);
 

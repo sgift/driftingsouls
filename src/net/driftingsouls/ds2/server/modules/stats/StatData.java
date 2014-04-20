@@ -94,31 +94,26 @@ public class StatData implements Statistic {
 
 		if( new File("/proc/uptime").canRead() ) {
 			try {
-				BufferedReader f = new BufferedReader(new FileReader("/proc/uptime"));
-				try
+				try (BufferedReader f = new BufferedReader(new FileReader("/proc/uptime")))
 				{
 					String line = f.readLine();
-					if(line != null && !line.equals(""))
+					if (line != null && !line.equals(""))
 					{
 						String[] uptime = line.split(" ");
 
 						double uptime_sec = Double.parseDouble(uptime[0]);
-						long uptime_days = (long)(uptime_sec / 86400);
-						uptime_sec -= uptime_days*86400;
+						long uptime_days = (long) (uptime_sec / 86400);
+						uptime_sec -= uptime_days * 86400;
 
-						long uptime_hours = (long)(uptime_sec / 3600);
-						uptime_sec -= uptime_hours*3600;
+						long uptime_hours = (long) (uptime_sec / 3600);
+						uptime_sec -= uptime_hours * 3600;
 
-						long uptime_min = (long)(uptime_sec / 60);
-						uptime_sec -= uptime_min*60;
+						long uptime_min = (long) (uptime_sec / 60);
+						uptime_sec -= uptime_min * 60;
 
 						echo.append("<tr><td align=\"left\">Uptime des Servers:</td>\n");
-						echo.append("<td align=\"left\">"+uptime_days+" Tage "+uptime_hours+" Stunden "+uptime_min+" Minuten</td></tr>\n");
+						echo.append("<td align=\"left\">" + uptime_days + " Tage " + uptime_hours + " Stunden " + uptime_min + " Minuten</td></tr>\n");
 					}
-				}
-				finally
-				{
-					f.close();
 				}
 			}
 			catch( IOException e ) {
@@ -128,19 +123,16 @@ public class StatData implements Statistic {
 
 		if( new File("/proc/loadavg").canRead() ) {
 			try {
-				BufferedReader f = new BufferedReader(new FileReader("/proc/loadavg"));
-				try {
+				try (BufferedReader f = new BufferedReader(new FileReader("/proc/loadavg")))
+				{
 					String line = f.readLine();
-					if(line != null && !line.equals(""))
+					if (line != null && !line.equals(""))
 					{
 						String[] load = line.split(" ");
 
 						echo.append("<tr><td align=\"left\">Auslastung:</td>\n");
-						echo.append("<td align=\"left\">"+load[0]+" "+load[1]+" "+load[2]+"</td></tr>\n");
+						echo.append("<td align=\"left\">" + load[0] + " " + load[1] + " " + load[2] + "</td></tr>\n");
 					}
-				}
-				finally {
-					f.close();
 				}
 			}
 			catch( IOException e ) {

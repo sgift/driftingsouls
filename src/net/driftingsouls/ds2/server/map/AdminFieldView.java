@@ -66,12 +66,12 @@ public class AdminFieldView implements FieldView
 
 			if (!ships.containsKey(owner))
 			{
-				ships.put(owner, new HashMap<ShipType, List<Ship>>());
+				ships.put(owner, new HashMap<>());
 			}
 
 			if (!ships.get(owner).containsKey(type))
 			{
-				ships.get(owner).put(type, new ArrayList<Ship>());
+				ships.get(owner).put(type, new ArrayList<>());
 			}
 
 			ships.get(owner).get(type).add(viewableShip);

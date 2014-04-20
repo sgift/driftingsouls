@@ -59,10 +59,10 @@ public class KSMenuFluchtAction extends BasicKSMenuAction {
 			fluchtmode = "next";	
 		}
 		
-		Map<String,String> fluchtmodes = new HashMap<String,String>();
+		Map<String,String> fluchtmodes = new HashMap<>();
 		fluchtmodes.put("next", "N&auml;chste Runde");
 							
-		Map<String,String> nextfluchtmode = new HashMap<String,String>();
+		Map<String,String> nextfluchtmode = new HashMap<>();
 		nextfluchtmode.put("next", "current");
 							  
 		this.menuEntry( "<span style=\"font-size:3px\">&nbsp;<br /></span>Fluchtzeitpunkt: "+fluchtmodes.get(fluchtmode)+"<br />\n"+
@@ -109,7 +109,7 @@ public class KSMenuFluchtAction extends BasicKSMenuAction {
 			}
 					
 			int fluchtidlist = 0;
-			Map<ShipClasses,Integer> fluchtclasslist = new HashMap<ShipClasses, Integer>();
+			Map<ShipClasses,Integer> fluchtclasslist = new HashMap<>();
 			
 			List<BattleShip> ownShips = battle.getOwnShips();
 			for (BattleShip aship : ownShips)

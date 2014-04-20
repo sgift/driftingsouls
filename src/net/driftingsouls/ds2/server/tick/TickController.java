@@ -61,7 +61,7 @@ public abstract class TickController implements ApplicationContextAware
 	 */
 	public TickController()
 	{
-		logTargets = new HashMap<String,Writer>();
+		logTargets = new HashMap<>();
 		exectime = System.currentTimeMillis();
 		db = HibernateUtil.getSessionFactory().openSession();
 	}

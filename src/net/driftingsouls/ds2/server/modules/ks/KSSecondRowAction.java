@@ -160,12 +160,11 @@ public class KSSecondRowAction extends BasicKSAction {
 
 		int remove = 1;
 		List<BattleShip> ownShips = battle.getOwnShips();
-		for( int i=0; i < ownShips.size(); i++ ) {
-			BattleShip s = ownShips.get(i);
-			
-			if(s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == ownShip.getId())
+		for (BattleShip s : ownShips)
+		{
+			if (s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == ownShip.getId())
 			{
-				s.setAction(s.getAction() | Battle.BS_SECONDROW | Battle.BS_SECONDROW_BLOCKED);	
+				s.setAction(s.getAction() | Battle.BS_SECONDROW | Battle.BS_SECONDROW_BLOCKED);
 				remove++;
 			}
 		}

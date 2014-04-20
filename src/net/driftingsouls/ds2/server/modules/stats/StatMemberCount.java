@@ -47,7 +47,7 @@ public class StatMemberCount extends AbstractStatistic implements Statistic {
 				.setMaxResults(size)
 				.list();
 
-		Map<Ally,Long> result = new LinkedHashMap<Ally,Long>();
+		Map<Ally,Long> result = new LinkedHashMap<>();
 		for( Object obj : tmp )
 		{
 			Object[] values = (Object[])obj;

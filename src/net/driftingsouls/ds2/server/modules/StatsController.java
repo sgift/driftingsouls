@@ -130,7 +130,7 @@ public class StatsController extends Controller
 		}
 
 		if( !this.statslist.containsKey(this.catlist.get(cat)) ) {
-			this.statslist.put(this.catlist.get(cat), new ArrayList<StatEntry>());
+			this.statslist.put(this.catlist.get(cat), new ArrayList<>());
 		}
 		this.statslist.get(this.catlist.get(cat)).add(new StatEntry(stat, name, size));
 	}

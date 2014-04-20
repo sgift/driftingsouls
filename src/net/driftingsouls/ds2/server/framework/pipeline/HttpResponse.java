@@ -18,21 +18,19 @@
  */
 package net.driftingsouls.ds2.server.framework.pipeline;
 
+import net.driftingsouls.ds2.server.framework.utils.StringBufferWriter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import net.driftingsouls.ds2.server.framework.utils.StringBufferWriter;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Implementiert das Response-Interface fuer HTTP-Antworten.
@@ -140,9 +138,10 @@ public class HttpResponse implements Response {
 		if( this.request.isRequestedSessionIdFromCookie()) {
 			return str;
 		}
-		
-		for( int i=0; i < URL_PATTERNS.length; i++ ) {
-			str = encodeUrlsWithPattern(str, URL_PATTERNS[i]);
+
+		for (Pattern URL_PATTERN : URL_PATTERNS)
+		{
+			str = encodeUrlsWithPattern(str, URL_PATTERN);
 		}
 		
 		return str;

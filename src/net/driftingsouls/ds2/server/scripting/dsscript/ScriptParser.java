@@ -18,6 +18,20 @@
  */
 package net.driftingsouls.ds2.server.scripting.dsscript;
 
+import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
+import net.driftingsouls.ds2.server.ships.Ship;
+import org.apache.commons.lang.StringUtils;
+
+import javax.script.AbstractScriptEngine;
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngineFactory;
+import javax.script.ScriptException;
+import javax.script.SimpleBindings;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -28,22 +42,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
-
-import javax.script.AbstractScriptEngine;
-import javax.script.Bindings;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngineFactory;
-import javax.script.ScriptException;
-import javax.script.SimpleBindings;
-
-import net.driftingsouls.ds2.server.comm.PM;
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
-import net.driftingsouls.ds2.server.ships.Ship;
-
-import org.apache.commons.lang.StringUtils;
 
 /**
  * Der ScriptParser.
@@ -114,7 +112,7 @@ public class ScriptParser extends AbstractScriptEngine {
 		}
 	}
 	
-	private static Map<String,Integer[]> JUMP_FUNCTIONS = new HashMap<String,Integer[]>();
+	private static Map<String,Integer[]> JUMP_FUNCTIONS = new HashMap<>();
 	
 	static {
 		JUMP_FUNCTIONS.put("!JL", new Integer[] {-1});
@@ -139,8 +137,8 @@ public class ScriptParser extends AbstractScriptEngine {
 		this.factory = factory;
 		
 		this.namespace = namespace;
-		this.funcregister = new HashMap<String,SPFunction>();
-		this.funcargregister = new HashMap<String,Args[]>();
+		this.funcregister = new HashMap<>();
+		this.funcargregister = new HashMap<>();
 		
 		new CommonFunctions().registerFunctions(this);
 		
@@ -285,7 +283,7 @@ public class ScriptParser extends AbstractScriptEngine {
 		}
 	}
 
-	private static  Set<Character> validops = new HashSet<Character>();
+	private static  Set<Character> validops = new HashSet<>();
 	static {
 		validops.add('+');
 		validops.add('-');
@@ -296,13 +294,13 @@ public class ScriptParser extends AbstractScriptEngine {
 		validops.add('.');
 	}
 	
-	private static Set<Character> validbrackets = new HashSet<Character>();
+	private static Set<Character> validbrackets = new HashSet<>();
 	static {
 		validbrackets.add('(');
 		validbrackets.add(')');
 	}
 	
-	private static Set<Character> validnumbers = new HashSet<Character>();
+	private static Set<Character> validnumbers = new HashSet<>();
 	static {
 		validnumbers.add('0');
 		validnumbers.add('1');
@@ -316,7 +314,7 @@ public class ScriptParser extends AbstractScriptEngine {
 		validnumbers.add('9');
 	}
 	
-	private static Set<Character> regends = new HashSet<Character>();
+	private static Set<Character> regends = new HashSet<>();
 	static {
 		regends.add('+');
 		regends.add('-');
@@ -335,7 +333,7 @@ public class ScriptParser extends AbstractScriptEngine {
 	 */
 	private String evalTerm( String term ) {
 		int index = 0;
-		Stack<TermElement> stack = new Stack<TermElement>();
+		Stack<TermElement> stack = new Stack<>();
 		
 		String current = "";
 		char operator = 0;
@@ -437,7 +435,7 @@ public class ScriptParser extends AbstractScriptEngine {
 			return 0;
 		}
 	
-		return attr.intValue();
+		return attr;
 	}
 	
 	private void setLastCommand(int ip) {
@@ -479,15 +477,15 @@ public class ScriptParser extends AbstractScriptEngine {
 		script = StringUtils.replace(script,"\r\n","\n");
 		String[] lines = StringUtils.split(script, '\n');
 	
-		List<String[]> commands = new ArrayList<String[]>();
-		Map<String,Integer> parameterlist = new HashMap<String,Integer>();
+		List<String[]> commands = new ArrayList<>();
+		Map<String,Integer> parameterlist = new HashMap<>();
 		
 		// Gueltige Parameter beim Scriptaufruf (gilt nicht fuer jumps! und den 0-Parameter)
 		// werden gesetzt via §parameter param1 param2 param3 ...
-		Set<String> validparameters = new HashSet<String>();
+		Set<String> validparameters = new HashSet<>();
 		
 		// Interne immer gueltige Parameter beim Scriptaufruf
-		Set<String> validInternalParams = new HashSet<String>();
+		Set<String> validInternalParams = new HashSet<>();
 		validInternalParams.add("0");
 		
 		// limitexeccount bestimmt wieviele befehle maximal abgearbeitet werden duerfen 
@@ -495,37 +493,46 @@ public class ScriptParser extends AbstractScriptEngine {
 		int limitexeccount = 5000;
 		
 		int index = 0;
-		for(int i=0; i < lines.length; i++ ) {
-			String line = lines[i].trim();
-			if( line.length() == 0 ) {
+		for (String line1 : lines)
+		{
+			String line = line1.trim();
+			if (line.length() == 0)
+			{
 				continue;
 			}
-			
-			if( line.charAt(0) == '!' ) { 
+
+			if (line.charAt(0) == '!')
+			{
 				String[] acommand = StringUtils.split(line, ' ');
 				commands.add(index, acommand);
 				index++;
 			}
-			else if( (line.charAt(0) == '#') && (line.indexOf('=') > -1) ) {
+			else if ((line.charAt(0) == '#') && (line.indexOf('=') > -1))
+			{
 				int pos = line.indexOf('=');
 				String reg = line.substring(0, pos);
-				String term = line.substring(pos+1);
-				commands.add(index, new String[] {reg.trim(), term.trim()});
+				String term = line.substring(pos + 1);
+				commands.add(index, new String[]{reg.trim(), term.trim()});
 				index++;
 			}
-			else if( line.charAt(0) == ':' ) {
+			else if (line.charAt(0) == ':')
+			{
 				parameterlist.put(line, index);
 			}
-			else if( line.charAt(0) == '§' ) {
+			else if (line.charAt(0) == '§')
+			{
 				String[] acommand = StringUtils.split(line, ' ');
-				if( acommand[0].equals("§parameter") ) {
-					for( int j=1; j < acommand.length; j++ ) {
+				if (acommand[0].equals("§parameter"))
+				{
+					for (int j = 1; j < acommand.length; j++)
+					{
 						validparameters.add(acommand[j]);
 					}
 				}
-				else if( acommand[0].equals("§limitexec") ) {
-					limitexeccount = Integer.parseInt( acommand[1] );	
-					this.log("+++ Setzte max. Befehle auf "+limitexeccount+"\n\n");
+				else if (acommand[0].equals("§limitexec"))
+				{
+					limitexeccount = Integer.parseInt(acommand[1]);
+					this.log("+++ Setzte max. Befehle auf " + limitexeccount + "\n\n");
 				}
 			}
 		}
@@ -538,7 +545,7 @@ public class ScriptParser extends AbstractScriptEngine {
 			parameter = "";
 		}
 
-		List<String> addparams = new ArrayList<String>();
+		List<String> addparams = new ArrayList<>();
 		getContext().setAttribute("_ADDPARAMETERLIST", addparams, ScriptContext.ENGINE_SCOPE);
 		for( int i=1; i < addparameterlist.length; i++ ) {
 			addparams.add(addparameterlist[i]);
@@ -693,8 +700,10 @@ public class ScriptParser extends AbstractScriptEngine {
 					int compResult = new Double(this.getRegister("cmp")).compareTo(0d);
 					
 					Integer[] vals = JUMP_FUNCTIONS.get(funcname);
-					for( int i=0; i < vals.length; i++ ) {
-						if( vals[i] == compResult ) {
+					for (Integer val : vals)
+					{
+						if (val == compResult)
+						{
 							ok = true;
 							break;
 						}
@@ -743,30 +752,37 @@ public class ScriptParser extends AbstractScriptEngine {
 				else if( funcname.equals("!DUMP") ) {
 					this.log("*COMMAND: !DUMP\n");
 					String dump = command[1];
-					
-					if( dump.equals("register") ) {
-						this.log("################# register ###################\n");
-						for( String reg : context.getBindings(ScriptContext.ENGINE_SCOPE).keySet() ) {
-							if( reg.equals("_SHIP") ) {
-								continue;
+
+					switch (dump)
+					{
+						case "register":
+							this.log("################# register ###################\n");
+							for (String reg : context.getBindings(ScriptContext.ENGINE_SCOPE).keySet())
+							{
+								if (reg.equals("_SHIP"))
+								{
+									continue;
+								}
+								this.log(reg + " (" + context.getBindings(ScriptContext.ENGINE_SCOPE).get(reg) + "), ");
 							}
-							this.log(reg+" ("+context.getBindings(ScriptContext.ENGINE_SCOPE).get(reg)+"), ");
-						}
-						this.log("\n\n");
-					}
-					else if( dump.equals("jumpaddrs") ) {
-						this.log("################# jumpaddrs ###################\n");
-						for( Map.Entry<String, Integer> entry: parameterlist.entrySet() ) {
-							this.log(entry.getKey()+" ("+entry.getValue()+"), ");
-						}
-						this.log("\n\n");
-					}
-					else if( dump.equals("code") ) {
-						this.log("################# commands ###################\n");
-						for( int i=0; i < commands.size(); i++ ) {
-							this.log(i+": "+Common.implode(" ",commands.get(i))+"\n");
-						}
-						this.log("\n\n");
+							this.log("\n\n");
+							break;
+						case "jumpaddrs":
+							this.log("################# jumpaddrs ###################\n");
+							for (Map.Entry<String, Integer> entry : parameterlist.entrySet())
+							{
+								this.log(entry.getKey() + " (" + entry.getValue() + "), ");
+							}
+							this.log("\n\n");
+							break;
+						case "code":
+							this.log("################# commands ###################\n");
+							for (int i = 0; i < commands.size(); i++)
+							{
+								this.log(i + ": " + Common.implode(" ", commands.get(i)) + "\n");
+							}
+							this.log("\n\n");
+							break;
 					}
 					
 					this.log("############### END OF DUMP #################\n");

@@ -18,12 +18,12 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
+import net.driftingsouls.ds2.server.entities.JumpNode;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import net.driftingsouls.ds2.server.entities.JumpNode;
 
 /**
  * Findet den kuerzesten Weg zwischen zwei Systemen.
@@ -45,18 +45,18 @@ public class JumpNodeRouter
 		/**
 		 * Der Pfad. Elemente sind die zu benutzenden Jumpnodes.
 		 */
-		public List<JumpNode> path = new ArrayList<JumpNode>();
+		public List<JumpNode> path = new ArrayList<>();
 
 		@Override
 		public String toString()
 		{
 			StringBuilder builder = new StringBuilder("[distance: "+distance+"\npath: ");
-			for( int i=0; i < path.size(); i++ )
+			for (JumpNode pathElem : path)
 			{
-				JumpNode pathElem = path.get(i);
 				builder.append(
-						pathElem.getSystem()+":"+pathElem.getX()+"/"+pathElem.getY()+" -> "+
-						pathElem.getSystemOut()+":"+pathElem.getXOut()+"/"+pathElem.getYOut()+"\n");
+						pathElem.getSystem() + ":" + pathElem.getX() + "/" + pathElem.getY() + " -> " +
+								pathElem.getSystemOut() + ":" + pathElem.getXOut() + "/" + pathElem.getYOut() + "\n"
+				);
 			}
 
 			builder.append("]");
@@ -64,8 +64,8 @@ public class JumpNodeRouter
 		}
 	}
 
-	private Map<Integer,Integer> systemInterestLevel = new HashMap<Integer,Integer>();
-	private Map<Integer,List<JumpNode>> jnlist = new HashMap<Integer,List<JumpNode>>();
+	private Map<Integer,Integer> systemInterestLevel = new HashMap<>();
+	private Map<Integer,List<JumpNode>> jnlist = new HashMap<>();
 
 	/**
 	 * Konstruktor.
@@ -76,7 +76,7 @@ public class JumpNodeRouter
 		for( Map.Entry<Integer, List<JumpNode>> entry: jns.entrySet())
 		{
 			List<JumpNode> jnlist = entry.getValue();
-			this.jnlist.put(entry.getKey(), new ArrayList<JumpNode>(jnlist));
+			this.jnlist.put(entry.getKey(), new ArrayList<>(jnlist));
 		}
 	}
 

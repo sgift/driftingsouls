@@ -53,7 +53,7 @@ public class StatSpieleraktivitaet implements Statistic {
 
 		List<List<Integer>> statistiken = new ArrayList<>();
 		for( int i=0; i < 6; i++ ) {
-			statistiken.add(new ArrayList<Integer>());
+			statistiken.add(new ArrayList<>());
 		}
 		List<List<Integer>> ticks = new ArrayList<>();
 

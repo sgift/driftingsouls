@@ -18,9 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import java.io.IOException;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
@@ -30,6 +27,9 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Entlaedt alle Batterien auf Schiffen der eigenen Seite.
@@ -68,41 +68,44 @@ public class KSDischargeBatteriesAllAction extends BasicKSAction {
 		StringBuilder ebattslog = new StringBuilder();
 		
 		List<BattleShip> ownShips = battle.getOwnShips();
-		for( int i=0; i < ownShips.size(); i++ ) {
-			BattleShip aship = ownShips.get(i);
-			
+		for (BattleShip aship : ownShips)
+		{
 			ShipTypeData ownShipType = aship.getTypeData();
-			
-			if( aship.getShip().getEnergy() >= ownShipType.getEps() ) {
+
+			if (aship.getShip().getEnergy() >= ownShipType.getEps())
+			{
 				continue;
 			}
-			
-			if( !validateShipExt(aship, ownShipType) ) {
+
+			if (!validateShipExt(aship, ownShipType))
+			{
 				continue;
 			}
-			
+
 			Cargo mycargo = aship.getCargo();
-			if( !mycargo.hasResource( Resources.BATTERIEN ) ) {
+			if (!mycargo.hasResource(Resources.BATTERIEN))
+			{
 				continue;
 			}
 
-			long batterien = mycargo.getResourceCount( Resources.BATTERIEN );
+			long batterien = mycargo.getResourceCount(Resources.BATTERIEN);
 
-			if( batterien > ownShipType.getEps()-aship.getShip().getEnergy() ) {
-				batterien = ownShipType.getEps()-aship.getShip().getEnergy();
-			}	
+			if (batterien > ownShipType.getEps() - aship.getShip().getEnergy())
+			{
+				batterien = ownShipType.getEps() - aship.getShip().getEnergy();
+			}
 
-			aship.getShip().setEnergy((int)(aship.getShip().getEnergy()+batterien));
+			aship.getShip().setEnergy((int) (aship.getShip().getEnergy() + batterien));
 			aship.getShip().setBattleAction(true);
-		
-			mycargo.substractResource( Resources.BATTERIEN, batterien );
-			mycargo.addResource( Resources.LBATTERIEN, batterien );
-			
+
+			mycargo.substractResource(Resources.BATTERIEN, batterien);
+			mycargo.addResource(Resources.LBATTERIEN, batterien);
+
 			aship.getShip().setCargo(mycargo);
-			
-			battle.logme( aship.getName()+": "+batterien+" Reservebatterien entladen\n" );
-			ebattslog.append(Battle.log_shiplink(aship.getShip())+": Reservebatterien entladen\n");
-			
+
+			battle.logme(aship.getName() + ": " + batterien + " Reservebatterien entladen\n");
+			ebattslog.append(Battle.log_shiplink(aship.getShip()) + ": Reservebatterien entladen\n");
+
 			//aship.getShip().recalculateShipStatus();
 			shipcount++;
 		}

@@ -79,7 +79,7 @@ public class WerftKomplex extends WerftObject {
 
 			if (!werftPos.containsKey(loc))
 			{
-				werftPos.put(loc, new ArrayList<WerftObject>());
+				werftPos.put(loc, new ArrayList<>());
 			}
 
 			werftPos.get(loc).add(aWerften);
