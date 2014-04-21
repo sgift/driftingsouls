@@ -28,7 +28,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
 import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
-import net.driftingsouls.ds2.server.modules.admin.editoren.AbstractEditPlugin8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditPlugin8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import net.driftingsouls.ds2.server.modules.admin.editoren.JqGridTableDataViewModel;
@@ -230,12 +229,12 @@ public class AdminController extends Controller
 		try
 		{
 			AdminPlugin plugin = instantiate(Class.forName(namedplugin));
-			if( !(plugin instanceof AbstractEditPlugin8) )
+			if( !(plugin instanceof EditPlugin8) )
 			{
 				throw new ValidierungException("Fuer dieses Plugin koennen keine Tabellendaten generiert werden: '"+namedplugin+"'");
 			}
 
-			return ((AbstractEditPlugin8)plugin).generateTableData(page, rows);
+			return ((EditPlugin8)plugin).generateTableData(page, rows);
 		}
 		catch (ReflectiveOperationException e)
 		{
