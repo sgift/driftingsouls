@@ -18,39 +18,29 @@
  */
 package net.driftingsouls.ds2.server.config;
 
-import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.hibernate.Session;
 
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
 
 /**
  * Repraesentiert die Liste aller in DS bekannten Modul-Slots.
- * Die Liste wird beim Start von DS aus der <code>moduleslots.xml</code>
- * geladen.
- * 
+ *
  * @author Christopher Jung
  *
  */
 public class ModuleSlots implements Iterable<ModuleSlot> {
 	private static final Log log = LogFactory.getLog(ModuleSlots.class);
 	private static ModuleSlots moduleList = new ModuleSlots();
-	private Map<String, ModuleSlot> list = new LinkedHashMap<>();
 	
 	private ModuleSlots() {
 		// EMPTY
 	}
 
-	private void addModuleSlot( ModuleSlot mslot ) {
-		list.put(mslot.getSlotType(), mslot);
-	}
-	
 	/**
 	 * Gibt die Instanz der ModuleSlot-Liste zurueck.
 	 * @return Die ModuleSlot-Listen-Instanz
@@ -61,7 +51,9 @@ public class ModuleSlots implements Iterable<ModuleSlot> {
 	
 	@Override
 	public Iterator<ModuleSlot> iterator() {
-		return list.values().iterator();
+		Session db = ContextMap.getContext().getDB();
+		List<ModuleSlot> list = Common.cast(db.createCriteria(ModuleSlot.class).list());
+		return list.iterator();
 	}
 	
 	/**
@@ -74,36 +66,11 @@ public class ModuleSlots implements Iterable<ModuleSlot> {
 	 * @throws NoSuchSlotException Falls der angeforderte Slottyp nicht existiert
 	 */
 	public ModuleSlot slot( String id ) throws NoSuchSlotException {
-		if( !list.containsKey(id) ) {
+		Session db = ContextMap.getContext().getDB();
+		ModuleSlot slot = (ModuleSlot) db.get(ModuleSlot.class, id);
+		if( slot == null ) {
 			throw new NoSuchSlotException(id);
 		}
-		return list.get(id);
-	}
-	
-	static {
-		/*
-		 * moduleslots.xml parsen
-		 */
-		try {
-			Document doc = XMLUtils.readFile(Configuration.getConfigPath()+"moduleslots.xml");
-			NodeList nodes = XMLUtils.getNodesByXPath(doc, "slots/slot");
-			for( int i=0; i < nodes.getLength(); i++ ) {
-				Node node = nodes.item(i);
-				String id = XMLUtils.getStringAttribute(node, "id");
-				String name = XMLUtils.getStringAttribute(node, "name");
-				if( id == null || name == null ) {
-					throw new Exception("Jeder Slot muss ueber eine ID und einen Namen verfuegen");
-				}
-				
-				String parent = XMLUtils.getStringAttribute(node, "parent");
-				
-				ModuleSlot slot = new ModuleSlot(id, name, parent);
-				
-				moduleList.addModuleSlot(slot);
-			}
-		}
-		catch( Exception e ) {
-			log.fatal("FAILED: Kann Modul-Slots nicht laden",e);
-		}
+		return slot;
 	}
 }

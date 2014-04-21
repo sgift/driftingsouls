@@ -11,8 +11,6 @@ import javax.annotation.Nonnull;
 import javax.persistence.Entity;
 import java.io.IOException;
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -198,15 +196,7 @@ public class FieldGenerator<E, T> implements CustomFieldGenerator<E>
 		}
 		Session db = ContextMap.getContext().getDB();
 		Class<?> identifierCls = db.getSessionFactory().getClassMetadata(this.dataType).getIdentifierType().getReturnedClass();
-		try
-		{
-			Method valueOf = identifierCls.getMethod("valueOf", String.class);
-			setter.accept(entity, (T) db.get(this.dataType, (Serializable)valueOf.invoke(null, val)));
-		}
-		catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e)
-		{
-			throw new UnsupportedOperationException("Kann Identifier fuer Entity nicht konvertieren. Datentyp "+identifierCls+" nicht unterstuetzt.");
-		}
+		setter.accept(entity, (T) db.get(this.dataType, (Serializable)StringToTypeConverter.convert(identifierCls, val)));
 	}
 
 	private Map<Serializable, Object> generateSelectionOptions(Class<?> entityClass)

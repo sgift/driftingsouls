@@ -29,9 +29,7 @@ import java.util.stream.Collectors;
 
 /**
  * Repraesentiert die Liste aller in DS bekannten Orden und Raenge.
- * Die Liste wird beim Start von DS aus der <code>medals.xml</code>
- * geladen.
- * 
+ *
  * @author Christopher Jung
  *
  */

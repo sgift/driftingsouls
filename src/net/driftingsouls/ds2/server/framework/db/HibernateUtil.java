@@ -3,6 +3,8 @@ package net.driftingsouls.ds2.server.framework.db;
 import net.driftingsouls.ds2.server.framework.AnnotationUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -43,6 +45,8 @@ import java.util.TreeMap;
  */
 public class HibernateUtil
 {
+	private static final Logger LOG = LogManager.getLogger(HibernateUtil.class);
+
 	private static final ThreadLocal<EntityManager> CURRENT_ENTITY_MANAGER = new ThreadLocal<EntityManager>() {
 		@Override
 		protected EntityManager initialValue()
@@ -144,6 +148,14 @@ public class HibernateUtil
 		try (FileOutputStream writer = new FileOutputStream(new File(targetFile)))
 		{
 			IOUtils.write(StringUtils.join(updateSQL, ";\n"), writer, "UTF-8");
+		}
+		if( updateSQL.length == 0 )
+		{
+			LOG.info("Datenbank ist auf dem aktuellsten Stand");
+		}
+		else
+		{
+			LOG.info("Updatescript mit "+updateSQL.length+" Statements erzeugt");
 		}
 	}
 

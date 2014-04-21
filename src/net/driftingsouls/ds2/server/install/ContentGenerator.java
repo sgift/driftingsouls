@@ -70,6 +70,8 @@ public class ContentGenerator
 				new ConfigService().get(WellKnownConfigValue.REGISTER_PM_SENDER).setValue("-10");
 			});
 
+			mitTransaktion("Erzeuge Modulslots", () -> new SchiffContentGenerator().erzeugeModulSlots());
+
 			mitTransaktion("Erzeuge Tutorial", () -> {
 				IntTutorial tutorial = new IntTutorial();
 				tutorial.setReqBase(true);

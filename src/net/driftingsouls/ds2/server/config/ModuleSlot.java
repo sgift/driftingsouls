@@ -18,6 +18,12 @@
  */
 package net.driftingsouls.ds2.server.config;
 
+import org.hibernate.annotations.ForeignKey;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import java.util.List;
 
 /**
@@ -28,12 +34,31 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
+@Entity
 public class ModuleSlot {
+	@Id
 	private String slottype = null;
 	private String name = null;
-	private String parent = null;
+	@ManyToOne
+	@JoinColumn
+	@ForeignKey(name="module_slot_fk_module_slot")
+	private ModuleSlot parent = null;
 
-	protected ModuleSlot( String slottype, String name, String parent ) {
+	/**
+	 * Konstruktor.
+	 */
+	protected ModuleSlot()
+	{
+		// EMPTY
+	}
+
+	/**
+	 * Konstruktor.
+	 * @param slottype Die ID des Slots (Slottyp)
+	 * @param name Der Name
+	 * @param parent Der Elternslot
+	 */
+	public ModuleSlot( String slottype, String name, ModuleSlot parent ) {
 		this.slottype = slottype;
 		this.name = name;
 		this.parent = parent;
@@ -46,7 +71,16 @@ public class ModuleSlot {
 	public String getSlotType() {
 		return slottype;
 	}
-	
+
+	/**
+	 * Setzt die Typen-ID des Slots.
+	 * @param slottype Die Typen-ID des Slots
+	 */
+	public void setSlotType(String slottype)
+	{
+		this.slottype = slottype;
+	}
+
 	/**
 	 * Gibt den Namen/Beschreibung des Slots zurueck.
 	 * @return der Name/Beschreibung
@@ -54,7 +88,36 @@ public class ModuleSlot {
 	public String getName() {
 		return name;	
 	}
-	
+
+	/**
+	 * Setzt den Namen/Beschreibung des Slots.
+	 * @param name der Name/Beschreibung
+	 */
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	/**
+	 * Gibt den Elternslot, sofern vorhanden, zurueck. Module fuer den Elternslot
+	 * sind auch immer mit diesem kompatibel.
+	 * @return Der Elternslot oder <code>null</code>
+	 */
+	public ModuleSlot getParent()
+	{
+		return parent;
+	}
+
+	/**
+	 * Setzt den Elternslot. Module fuer den Elternslot
+	 * sind auch immer mit diesem kompatibel.
+	 * @param parent Der Elternslot oder <code>null</code>
+	 */
+	public void setParent(ModuleSlot parent)
+	{
+		this.parent = parent;
+	}
+
 	/**
 	 * Prueft, ob der Slot kompatibel (d.h., dass Module, die in diesen Slot passen,
 	 * in einen anderen Slot passen) zu einem der aufgelisteten Slots ist.
@@ -108,9 +171,6 @@ public class ModuleSlot {
 			return true;
 		}
 
-		if( (parent != null) && (parent.length() > 0) ) {
-			return ModuleSlots.get().slot(parent).isMemberIn( slottype );
-		}
-		return false;
+		return parent != null && parent.isMemberIn(slottype);
 	}
 }

@@ -195,12 +195,18 @@ public class EditPlugin8<T> implements AdminPlugin
 
 	private void outputEntityTable(StringBuilder echo, EditorForm8<T> form)
 	{
+		Session db = ContextMap.getContext().getDB();
+
 		JqGridViewModel model = new JqGridViewModel();
 		model.url = "./ds?module=admin&namedplugin="+this.getPluginClass().getName()+"&action=tableData&FORMAT=JSON";
 		model.pager = "#pager";
 		model.colNames.add("Id");
 		model.colModel.add(new JqGridColumnViewModel("id", null));
-		model.colModel.get(0).width = 50;
+		Class identifierClass = db.getSessionFactory().getClassMetadata(this.clazz).getIdentifierType().getReturnedClass();
+		if( Number.class.isAssignableFrom(identifierClass) )
+		{
+			model.colModel.get(0).width = 50;
+		}
 		for (ColumnDefinition columnDefinition : form.getColumnDefinitions())
 		{
 			model.colNames.add(columnDefinition.getLabel());

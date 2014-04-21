@@ -202,7 +202,7 @@ public class UeberController extends TemplateController
 	 * Zeigt die Uebersicht an.
 	 */
 	@Override
-	@Action(value = ActionType.DEFAULT/*, readOnly = true*/)
+	@Action(value = ActionType.DEFAULT, readOnly = true)
 	public void defaultAction()
 	{
 		org.hibernate.Session db = getDB();

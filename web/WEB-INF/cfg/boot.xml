@@ -18,6 +18,5 @@
  	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 -->
 <bootlist>
-	<boot class="net.driftingsouls.ds2.server.config.ModuleSlots" type="static" />
 	<boot class="net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser" type="singleton" />
 </bootlist>
