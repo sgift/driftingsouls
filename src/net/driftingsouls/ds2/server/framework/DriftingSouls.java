@@ -22,12 +22,10 @@ import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.util.Resource;
 import com.googlecode.flyway.core.util.scanner.classpath.ClassPathScanner;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
-import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
 
 import java.io.IOException;
 import java.util.Date;
@@ -73,30 +71,8 @@ public class DriftingSouls {
 
 		Common.setLocale(Locale.GERMAN);
 
-		if( boot ) {
-			LOG.info("Booting Classes...");
-
-			Document doc = XMLUtils.readFile(Configuration.getConfigPath()+"boot.xml");
-			NodeList nodes = XMLUtils.getNodesByXPath(doc, "/bootlist/boot");
-			for( int i=0; i < nodes.getLength(); i++ ) {
-				String className = XMLUtils.getStringByXPath(nodes.item(i), "@class");
-				String type = XMLUtils.getStringByXPath(nodes.item(i), "@type");
-				LOG.info("["+type+"] Booting "+className);
-
-				switch (type)
-				{
-					case "static":
-						Class.forName(className);
-						break;
-					case "singleton":
-						Class<?> cls = Class.forName(className);
-						cls.getMethod("getInstance").invoke(null);
-						break;
-					default:
-						throw new IllegalStateException("Kann Klasse '" + className + "' nicht booten: Unbekannter Boot-Typ '" + type + "'");
-				}
-			}
-		}
+		// Init BBCodeParser
+		BBCodeParser.getInstance();
 	}
 
 	private void upgradeDatabase() throws IOException
