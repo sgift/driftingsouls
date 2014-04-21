@@ -6,6 +6,7 @@ import net.driftingsouls.ds2.server.bases.BaseStatus;
 import net.driftingsouls.ds2.server.bases.BaseType;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
+import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Rang;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.ComNetChannel;
@@ -115,6 +116,11 @@ public class ContentGenerator
 				db.persist(new Rang(16, "data/interface/medals/rang16.png", "Oberkommandierender"));
 				db.persist(new Rang(99, "data/interface/medals/rang99.png", "Admin"));
 				db.persist(new Rang(100, "data/interface/medals/rang100.png", "Gott"));
+			});
+
+			mitTransaktion("Erzeuge Orden", () -> {
+				db.persist(new Medal("Orden der Tapferkeit", "data/interface/medals/tapferkeit1.png", "data/interface/medals/tapferkeit1_s.png"));
+				db.persist(new Medal("Drifting Souls 2 Team", "data/interface/medals/ds2team.png", "data/interface/medals/ds2team_s.png"));
 			});
 
 			mitTransaktion("Erzeuge Fraktionsmaske", () -> {

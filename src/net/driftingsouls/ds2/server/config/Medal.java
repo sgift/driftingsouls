@@ -47,6 +47,19 @@ public class Medal {
 	}
 
 	/**
+	 * Konstruktor.
+	 * @param name Der Name
+	 * @param image Das Standardbild
+	 * @param imageSmall Das Icon
+	 */
+	public Medal(String name, String image, String imageSmall)
+	{
+		this.name = name;
+		this.image = image;
+		this.imageSmall = imageSmall;
+	}
+
+	/**
 	 * Soll der Orden nur von Admins verliehen werden koennen?
 	 * @param value <code>true</code>, falls nur Admins den Orden verleihen koennen duerfen
 	 */
