@@ -19,17 +19,9 @@
 package net.driftingsouls.ds2.server.config;
 
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.hibernate.Session;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -44,19 +36,12 @@ import java.util.stream.Collectors;
  *
  */
 public class Medals {
-	private static final Log log = LogFactory.getLog(Medals.class);
 	private static Medals medalList = new Medals();
-	private Map<Integer, Medal> list = new LinkedHashMap<>();
-	
+
 	private Medals() {
 		// EMPTY
 	}
 
-	private void addMedal( Medal mmedal ) {
-		list.put(mmedal.getId(), mmedal);
-	}
-
-	
 	/**
 	 * Gibt die Instanz der Orden/Raenge-Liste zurueck.
 	 * @return Die Medals-Listen-Instanz
@@ -100,48 +85,15 @@ public class Medals {
 	 * @return Der Orden oder <code>null</code>
 	 */
 	public Medal medal( int id ) {
-		return list.get(id);
+		return (Medal)ContextMap.getContext().getDB().get(Medal.class, id);
 	}
 	
 	/**
 	 * Gibt die Liste der Orden zurueck.
 	 * @return die Liste der Orden
 	 */
-	public Map<Integer,Medal> medals() {
-		return Collections.unmodifiableMap(list);
-	}
-	
-	static {
-		/*
-		 * medals.xml parsen
-		 */
-		try {
-			Document doc = XMLUtils.readFile(Configuration.getConfigPath()+"medals.xml");
-			NodeList nodes = XMLUtils.getNodesByXPath(doc, "medals/medal");
-			for( int i=0; i < nodes.getLength(); i++ )
-			{
-				Node node = nodes.item(i);
-				int id = (int) XMLUtils.getLongAttribute(node, "id");
-				String name = XMLUtils.getStringAttribute(node, "name");
-
-				Medal medal = new Medal(id, name);
-
-				medalList.addMedal(medal);
-
-				String adminonly = XMLUtils.getStringAttribute(node, "admin-only");
-				if (adminonly != null)
-				{
-					medal.setAdminOnly(Boolean.parseBoolean(adminonly));
-				}
-
-				String image = XMLUtils.getStringByXPath(node, "image/text()");
-				String highlight = XMLUtils.getStringByXPath(node, "highlight/text()");
-				String small = XMLUtils.getStringByXPath(node, "small/text()");
-				medal.setImages(image, highlight, small);
-			}
-		}
-		catch( Exception e ) {
-			log.fatal("FAILED: Kann Orden/Raenge nicht laden",e);
-		}
+	public List<Medal> medals() {
+		Session db = ContextMap.getContext().getDB();
+		return Common.cast(db.createCriteria(Medal.class).list());
 	}
 }

@@ -32,7 +32,7 @@
 				<hr noshade="noshade" size="1" style="color:#cccccc" />
 				<form ng-submit="medailleVergeben()">
 					<div class="medal" ng-repeat="medal in medals">
-						<img ng-src="data/{{medal.image}}" alt="" /><br />
+						<img ng-src="{{medal.image}}" alt="" /><br />
 						<input type="radio" id="medal{{medal.id}}" ng-model="$parent.medalSelected" value="{{medal.id}}"/>
 						<label for="medal{{medal.id}}">{{medal.name}}</label>
 					</div>

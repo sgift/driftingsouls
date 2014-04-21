@@ -289,8 +289,8 @@ public class UserProfileController extends TemplateController
 		for( Medal medal : ausgewaehlterBenutzer.getMedals() )
 		{
 			t.setVar("medal.index", idx++,
-					"medal.image", medal.getImage(Medal.IMAGE_NORMAL),
-					"medal.image.highlight", medal.getImage(Medal.IMAGE_HIGHLIGHT));
+					"medal.name", medal.getName(),
+					"medal.image", medal.getImage());
 
 			t.parse("medals.list", "medals.listitem", true);
 		}

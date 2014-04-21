@@ -18,55 +18,34 @@
  */
 package net.driftingsouls.ds2.server.config;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
 /**
  * Repraesentiert einen Orden in DS.
  * @author Chirstopher Jung
  *
  */
+@Entity
 public class Medal {
-	/**
-	 * Das normale Bild.
-	 */
-	public static final int IMAGE_NORMAL = 1;
-	/**
-	 * Das Highlight-Bild.
-	 */
-	public static final int IMAGE_HIGHLIGHT = 2;
-	/**
-	 * Das kleine Bild.
-	 */
-	public static final int IMAGE_SMALL = 3;
-	
+	@Id
+	@GeneratedValue
+	private int id;
+
 	private String name;
 	private String image;
-	private String imageHighlight;
 	private	String imageSmall;
-	private int id;
 	private boolean adminOnly;
-	
+
 	/**
-	 * Erstellt einen neuen Orden.
-	 * @param id die ID des Ordens
-	 * @param name der Name des Ordens
+	 * Konstruktor.
 	 */
-	public Medal(int id, String name ) {
-		this.id = id;
-		this.name = name;
-		this.adminOnly = false;
+	protected Medal()
+	{
+		// EMPTY
 	}
-	
-	/**
-	 * Setzt die Bilder des Ordens.
-	 * @param image Das normale Bild
-	 * @param imageh Das highlight-Bild
-	 * @param imagesmall das kleine Bild
-	 */
-	public void setImages( String image, String imageh, String imagesmall ) {
-		this.image = image;
-		this.imageHighlight = imageh;
-		this.imageSmall = imagesmall;	
-	}
-	
+
 	/**
 	 * Soll der Orden nur von Admins verliehen werden koennen?
 	 * @param value <code>true</code>, falls nur Admins den Orden verleihen koennen duerfen
@@ -98,23 +77,49 @@ public class Medal {
 	public String getName() {
 		return name;	
 	}
-	
+
 	/**
-	 * Gibt das angegebene Bild des Ordens zurueck.
-	 * @param imageid der Typ des Bildes
+	 * Gibt Bild des Ordens in Miniaturform zurueck.
 	 * @return der Pfad zum Bild oder <code>null</code>
 	 */
-	public String getImage( int imageid ) {
-		if( imageid == IMAGE_NORMAL ) {
-			return image;
-		}
-		else if( imageid == IMAGE_HIGHLIGHT ) {
-			return imageHighlight;	
-		}
-		else if( imageid == IMAGE_SMALL ) {
-			return imageSmall;	
-		}
-		return null;
+	public String getImageSmall()
+	{
+		return imageSmall;
+	}
+
+	/**
+	 * Gibt Bild des Ordens in normaler Groesse zurueck.
+	 * @return der Pfad zum Bild oder <code>null</code>
+	 */
+	public String getImage() {
+		return image;
+	}
+
+	/**
+	 * Setzt den Namen des Ordens.
+	 * @param name der Name des Ordens
+	 */
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	/**
+	 * Setzt Bild des Ordens in normaler Groesse.
+	 * @param image der Pfad zum Bild oder <code>null</code>
+	 */
+	public void setImage(String image)
+	{
+		this.image = image;
+	}
+
+	/**
+	 * Setzt Bild des Ordens in Miniaturform.
+	 * @param imageSmall der Pfad zum Bild oder <code>null</code>
+	 */
+	public void setImageSmall(String imageSmall)
+	{
+		this.imageSmall = imageSmall;
 	}
 
 	/**

@@ -68,7 +68,7 @@ public class EditUser implements EntityEditor<User>
 		form.textArea("History", User::getHistory, User::setHistory);
 		form.field("NPC-Punkte", Integer.class, User::getNpcPunkte, User::setNpcPunkte);
 		form.multiSelection("Medaillen", Medal.class, User::getMedals, User::setMedals)
-				.withOptions(Medals.get().medals().values().stream().collect(Collectors.toMap(Medal::getId, Medal::getName)));
+				.withOptions(Medals.get().medals().stream().collect(Collectors.toMap(Medal::getId, Medal::getName)));
 		form.field("Vac-Punkte", Integer.class, User::getVacpoints, User::setVacpoints);
 		form.field("Spezialisierungspunkte", Integer.class, User::getSpecializationPoints, User::setSpecializationPoints);
 		form.field("Zugang sperren", Boolean.class, User::getDisabled, User::setDisabled);

@@ -24,8 +24,8 @@ public class MedalViewModel
 		MedalViewModel viewModel = new MedalViewModel();
 		viewModel.name = medal.getName();
 		viewModel.id = medal.getId();
-		viewModel.image = medal.getImage(Medal.IMAGE_NORMAL);
-		viewModel.imageSmall = medal.getImage(Medal.IMAGE_SMALL);
+		viewModel.image = medal.getImage();
+		viewModel.imageSmall = medal.getImageSmall();
 		return viewModel;
 	}
 }

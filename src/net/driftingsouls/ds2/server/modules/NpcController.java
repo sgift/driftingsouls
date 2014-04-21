@@ -266,15 +266,13 @@ public class NpcController extends AngularController
 
 		int ticks = getContext().get(ContextCommon.class).getTick();
 
-		edituser.addHistory(Common.getIngameTime(ticks) + ": Der Orden [img]" +
-							"./data/" + Medals.get().medal(medal).getImage(Medal.IMAGE_SMALL) + "[/img]" +
-							Medals.get().medal(medal).getName() + " wurde von [userprofile=" + user.getId() + "]" +
+		edituser.addHistory(Common.getIngameTime(ticks) + ": Der Orden [medal]"+medal+"[/medal]" +
+							" wurde von [userprofile=" + user.getId() + "]" +
 							user.getName() + "[/userprofile] verliehen Aufgrund der " + reason);
 
 		PM.send(user, edituser.getId(), "Orden '" + Medals.get().medal(medal).getName() + "' verliehen",
-			   "Ich habe dir den Orden [img]" +
-			   "./data/" + Medals.get().medal(medal).getImage(Medal.IMAGE_SMALL) + "[/img]'" +
-			   Medals.get().medal(medal).getName() + "' verliehen Aufgrund deiner " + reason);
+			   "Ich habe dir den Orden [medal]" + medal + "[/medal]" +
+			   " verliehen Aufgrund deiner " + reason);
 
 		return ViewMessage.success("Dem Spieler wurde der Orden '" +
 								   Medals.get().medal(medal).getName() +
@@ -518,7 +516,7 @@ public class NpcController extends AngularController
 
 		result.raenge.addAll(user.getOwnGrantableRanks().stream().map(RangViewModel::map).collect(Collectors.toList()));
 
-		for (Medal medal : Medals.get().medals().values())
+		for (Medal medal : Medals.get().medals())
 		{
 			if (medal.isAdminOnly())
 			{

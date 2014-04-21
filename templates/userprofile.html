@@ -85,32 +85,11 @@
 	</td>
 </tr>
 </table>
-<script type="text/javascript" language="JavaScript">
-<!--
-	function loadImage(url) {
-		res = new Image();
-		res.src = url;
-		return res;
-	}
-
-	function bildwechsel(bildid,bildobjekt) {
- 		window.document.images[bildid].src = bildobjekt.src;
-	}
--->
-</script>
 <div class="gfxbox" style="width:840px;text-align:left">
 	<div style="width:760px; height:124px; overflow:auto">
 		<!-- BEGIN medals.listitem -->
-			<script type="text/javascript" language="JavaScript">
-			<!--
-				_medalimg{medal.index} = loadImage('{URL}data/{medal.image}');
-				_medalimg{medal.index}_h = loadImage('{URL}data/{medal.image.highlight}');
-			-->
-			</script>
-			<img onmouseover="javascript:bildwechsel('_medal{medal.index}',_medalimg{medal.index}_h)"
-				onmouseout="javascript:bildwechsel('_medal{medal.index}',_medalimg{medal.index})"
-				id="_medal{medal.index}" name="_medal{medal.index}"
-				src="{URL}data/{medal.image}" alt="" />
+			<img class="medalimg" id="_medal{medal.index}" name="_medal{medal.index}"
+				src="{medal.image}" alt="" title="{medal.name}" />
 		<!-- END medals.listitem -->
 	</div>
 </div>
