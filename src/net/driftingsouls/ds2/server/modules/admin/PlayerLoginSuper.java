@@ -56,6 +56,7 @@ public class PlayerLoginSuper implements AdminPlugin {
 		int usesessid = context.getRequest().getParameterInt("usesessid");
 		
 		if( user == 0 ) {
+			echo.append("<div class=\"gfxbox\" style=\"width:300px\">");
 			echo.append("<form action=\"./ds\" method=\"post\">");
 			echo.append("ID: <input type=\"text\" name=\"user\" size=\"10\" value=\"0\" />\n");
 			echo.append("<br /><br />\n");
@@ -64,11 +65,26 @@ public class PlayerLoginSuper implements AdminPlugin {
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("<input type=\"submit\" value=\"Login\" style=\"width:100px\" />");
 			echo.append("</form>");
+			echo.append("</div>");
 		}
 		else {
 			User userObj = (User)context.getDB().get(User.class, user);
 			if( userObj == null ) {
 				echo.append("<span style=\"color:red\">Der angegebene Spieler existiert nicht</span>");
+				return;
+			}
+
+			int currentAccessLevel = context.getActiveUser().getAccessLevel();
+
+			if( userObj.getAccessLevel() > currentAccessLevel )
+			{
+				echo.append("<span style=\"color:red\">Du hast nicht die Berechtigung dich in diesen Account einzuloggen</span>");
+				return;
+			}
+
+			if( userObj.getPermissions().stream().anyMatch(p -> !context.hasPermission(p)) )
+			{
+				echo.append("<span style=\"color:red\">Der angegebene Benutzer hat mehr Rechte als du. Login abgelehnt.</span>");
 				return;
 			}
 			
