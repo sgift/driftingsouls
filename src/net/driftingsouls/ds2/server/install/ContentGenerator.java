@@ -70,6 +70,8 @@ public class ContentGenerator
 				new ConfigService().get(WellKnownConfigValue.REGISTER_PM_SENDER).setValue("-10");
 			});
 
+			mitTransaktion("Erzeuge Sternensysteme", () -> new StarSystemContentGenerator().generiereSysteme(5));
+
 			mitTransaktion("Erzeuge Modulslots", () -> new SchiffContentGenerator().erzeugeModulSlots());
 
 			mitTransaktion("Erzeuge Tutorial", () -> {
@@ -195,9 +197,11 @@ public class ContentGenerator
 			);
 
 			mitTransaktion("Fuelle Systeme mit Inhalt",
-					() -> Common.cast(db.createCriteria(StarSystem.class).add(Restrictions.gt("id", 0)).list()),
+					() -> Common.cast(db.createCriteria(StarSystem.class).list()),
 					(StarSystem sys) -> new StarSystemContentGenerator().fuelleSystem(sys)
 			);
+
+			mitTransaktion("Erzeuge Sprungpunkte zwischen den Systemen", () -> new StarSystemContentGenerator().generiereSprungpunkte());
 
 			mitTransaktion("Kolonisiere Asteroiden mit bestehenden Benutzern",
 					() -> Common.cast(db.createCriteria(User.class).add(Restrictions.ne("id", 0)).list()),

@@ -10,6 +10,7 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.ConfigFelsbrocken;
 import net.driftingsouls.ds2.server.config.ConfigFelsbrockenSystem;
 import net.driftingsouls.ds2.server.config.StarSystem;
+import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -32,8 +33,100 @@ public class StarSystemContentGenerator
 {
 	private static final Logger LOG = LogManager.getLogger(StarSystemContentGenerator.class);
 
+	public void generiereSysteme(int anzahl)
+	{
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+
+		String[] prefixe = new String[] {"Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Sigma", "Yalon", "Nuevo"};
+		String[] namen = new String[] {"Serpentis", "Regulus", "Pegasi", "Chyron", "Boreolus", "Draconis", "Tarh", "Castello", "Centauri", "Cygni", "Aquilae", "Djemm"};
+		String[] suffixe = new String[] {"Rift", "Nebulae"};
+
+		for( int i=0; i < anzahl; i++ )
+		{
+			StarSystem sys = new StarSystem();
+			sys.setWidth(50+(int)(Math.random()*75));
+			sys.setHeight(50 + (int) (Math.random() * 75));
+			sys.setAccess(StarSystem.Access.NORMAL);
+			sys.setStarmapVisible(true);
+			sys.setOrderLocations("25/25");
+
+			String prefix = prefixe[RandomUtils.nextInt(prefixe.length)];
+			String name = namen[RandomUtils.nextInt(namen.length)];
+			String suffix = suffixe[RandomUtils.nextInt(suffixe.length)];
+
+			sys.setName((RandomUtils.nextInt(10)>1 ? prefix+" " : "")+name+(RandomUtils.nextInt(10) > 7 ? " "+suffix : ""));
+
+			db.persist(sys);
+			sys.setDropZone(new Location(sys.getID(), 25, 25));
+		}
+	}
+
+	public void generiereSprungpunkte()
+	{
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		List<StarSystem> list = Common.cast(db.createCriteria(StarSystem.class).list());
+		list = list.stream().filter((s) -> s.getAccess() != StarSystem.Access.NICHT_SICHTBAR).collect(Collectors.toList());
+
+		// Alle Sternensysteme einmal miteinander verbinden
+		StarSystem last = null;
+		for (StarSystem starSystem : list)
+		{
+			if( last != null )
+			{
+				generiereSprungpunkt(starSystem, last);
+			}
+
+			last = starSystem;
+		}
+
+		// Noch ein paar zufaellige Verbindungen ergaenzen
+		for( int i=0; i < list.size()/2; i++ )
+		{
+			StarSystem sys1 = list.get(RandomUtils.nextInt(list.size()));
+			StarSystem sys2 = list.get(RandomUtils.nextInt(list.size()));
+			generiereSprungpunkt(sys1, sys2);
+		}
+	}
+
+	private void generiereSprungpunkt(StarSystem sys1, StarSystem sys2)
+	{
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+
+		int x1 = RandomUtils.nextInt(sys1.getWidth() + 1);
+		int y1 = RandomUtils.nextInt(sys1.getHeight() + 1);
+
+		int x2 = RandomUtils.nextInt(sys2.getWidth() + 1);
+		int y2 = RandomUtils.nextInt(sys2.getHeight() + 1);
+
+		JumpNode node1 = new JumpNode();
+		node1.setSystem(sys1.getID());
+		node1.setX(x1);
+		node1.setY(y1);
+		node1.setSystemOut(sys2.getID());
+		node1.setXOut(x2);
+		node1.setYOut(y2);
+		node1.setName(sys2.getName() + " (" + sys2.getID() + ":" + x2 + "/" + y2 + ")");
+		db.persist(node1);
+
+		JumpNode node2 = new JumpNode();
+		node2.setSystemOut(sys1.getID());
+		node2.setXOut(x1);
+		node2.setYOut(y1);
+		node2.setSystem(sys2.getID());
+		node2.setX(x2);
+		node2.setY(y2);
+		node2.setName(sys1.getName() + " (" + sys1.getID() + ":" + x1 + "/" + y1 + ")");
+
+		db.persist(node2);
+	}
+
 	public void fuelleSystem(StarSystem sys)
 	{
+		if( sys.getAccess() == StarSystem.Access.NICHT_SICHTBAR )
+		{
+			return;
+		}
+		
 		LOG.info("Fuelle System " + sys.getName() + " (" + sys.getID() + ")");
 
 		org.hibernate.Session db = ContextMap.getContext().getDB();
