@@ -32,6 +32,7 @@
 			<exclude org="c3p0" />
 		</dependency>
 		<dependency org="org.hibernate" name="hibernate-entitymanager" rev="4.1.12.Final" conf="compile->default"/>
+		<dependency org="org.hibernate" name="hibernate-jpamodelgen" rev="1.2.0.Final" conf="compile->default"/>
 		<dependency org="com.mchange" name="c3p0" rev="0.9.2" conf="compile->default"/>
 
 		<dependency org="org.springframework" name="spring-core" rev="2.5.5" conf="compile->default"/>

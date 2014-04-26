@@ -31,6 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
 
+import javax.persistence.EntityManager;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -231,6 +232,14 @@ public abstract class Controller implements PermissionResolver
 	 */
 	public final Session getDB() {
 		return context.getDB();
+	}
+
+	/**
+	 * Gibt den aktuellen Hibernate-EntityManager zurueck.
+	 * @return Der aktuelle Hibernate-EntityManager
+	 */
+	public final EntityManager getEM() {
+		return context.getEM();
 	}
 
 	/**

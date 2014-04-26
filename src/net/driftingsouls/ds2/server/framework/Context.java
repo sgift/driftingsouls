@@ -22,6 +22,8 @@ import net.driftingsouls.ds2.server.framework.pipeline.Error;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.pipeline.Response;
 
+import javax.persistence.EntityManager;
+
 /**
  * Repraesentiert einen Kontext. Bei einem Kontext handelt es sich um einen
  * Aufruf des Systems z.B. ueber HTTP. Die mit dem Aufruf verbundenen Daten koennen
@@ -33,6 +35,13 @@ import net.driftingsouls.ds2.server.framework.pipeline.Response;
  *
  */
 public interface Context extends PermissionResolver {
+	/**
+	 * Gibt die passende Instanz des EntityManagers zurueck.
+	 * @return Die EntityManager-Instanz
+	 * @see #getDB()
+	 */
+	public EntityManager getEM();
+
 	/**
 	 * Liefert eine Instanz der berwendeten DB-Session zurueck.
 	 * @return Die DB-Session

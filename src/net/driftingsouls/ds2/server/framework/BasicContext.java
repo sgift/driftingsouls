@@ -28,6 +28,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -99,6 +100,12 @@ public class BasicContext implements Context
 		catch( BeansException e ) {
 			throw new IllegalArgumentException("Die angegebene Bean konnte nicht gefunden werden", e);
 		}
+	}
+
+	@Override
+	public EntityManager getEM()
+	{
+		return HibernateUtil.getCurrentEntityManager();
 	}
 
 	@Override
