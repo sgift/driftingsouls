@@ -27,6 +27,7 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.map.TileCache;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import org.apache.commons.lang.StringUtils;
@@ -74,6 +75,8 @@ public class EditBases implements EntityEditor<Base>
 		form.field("Zum Spawn freigegebene Ressourcen", String.class, Base::getSpawnableRess, Base::setSpawnableRess);
 		form.field("Aktuell verfügbare Ressourcen", String.class, Base::getAvailableSpawnableRess, Base::setAvailableSpawnableRess);
 		form.field("Automatischer Verkauf", String.class, (base) -> Common.implode(";", base.getAutoGTUActs()) , this::updateAutoGtuActs);
+
+		form.postUpdateTask("Sternenkarten-Cache leeren", (base) -> TileCache.forSystem(base.getSystem()).resetCache());
 	}
 
 	private void updateAutoGtuActs(Base base, String s)
