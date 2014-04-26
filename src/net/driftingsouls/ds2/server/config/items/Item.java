@@ -24,8 +24,11 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.Column;
+import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 
@@ -37,8 +40,10 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name="items")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "typ", length=255)
 @Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
-public class Item {
+public abstract class Item {
 
 	@Id
 	private int id;
@@ -62,7 +67,7 @@ public class Item {
 	/**
 	 * Leerer Konstruktor.
 	 */
-	public Item() {
+	protected Item() {
 		//Empty
 	}
 

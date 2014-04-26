@@ -18,11 +18,11 @@
  */
 package net.driftingsouls.ds2.server.config.items.effects;
 
-import java.io.IOException;
-
 import net.driftingsouls.ds2.server.entities.Ammo;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+
+import java.io.IOException;
 
 /**
  * <h1>Item-Effekt "Ammo".</h1>
@@ -39,7 +39,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 public class IEAmmo extends ItemEffect {
 	private int ammoId;
 	
-	protected IEAmmo(int ammoid) {
+	public IEAmmo(int ammoid) {
 		super(ItemEffect.Type.AMMO);
 		this.ammoId = ammoid;
 	}
@@ -65,7 +65,7 @@ public class IEAmmo extends ItemEffect {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		Ammo ammoEntry = (Ammo)db.get(Ammo.class, ammo);
 		if( ammoEntry == null ) {
-			return new IENone();
+			throw new IllegalArgumentException("Munition nicht gefunden: "+ammo);
 		}
 		
 		return new IEAmmo(ammo);
