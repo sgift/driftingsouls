@@ -21,6 +21,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Adapter fuer {@link net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor}-Module
@@ -127,7 +128,7 @@ public class EditPlugin8<T> implements AdminPlugin
 		}
 	}
 
-	private void executeAdd(final StringBuilder echo)
+	private void executeAdd(final StringBuilder echo) throws IOException
 	{
 		Context context = ContextMap.getContext();
 		Session db = context.getDB();
@@ -136,29 +137,42 @@ public class EditPlugin8<T> implements AdminPlugin
 
 		db.getTransaction().commit();
 
+		EditorForm8<T> form = new EditorForm8<>(EditorMode.CREATE, EditPlugin8.this.getPluginClass(), echo);
+		configureFor(form);
+
+		T entity = createEntity();
+		form.applyRequestValues(request, entity);
+
+		EditPlugin8.this.clazz = form.getEntityClassRequestValue(request, entity);
+		if( entity.getClass() != EditPlugin8.this.clazz )
+		{
+			// Klasse wurde geaendert - erneut anwenden
+			entity = createEntity();
+			form.applyRequestValues(request, entity);
+		}
+
+		final T entityToPersist = entity;
+		AtomicBoolean failed = new AtomicBoolean(false);
+
 		new SingleUnitOfWork("Hinzufuegen") {
 			@Override
 			public void doWork() throws Exception
 			{
-				EditorForm8<T> form = new EditorForm8<>(EditorMode.CREATE, EditPlugin8.this.getPluginClass(), echo);
-				configureFor(form);
-
-				T entity = createEntity();
-				form.applyRequestValues(request, entity);
-				EditPlugin8.this.clazz = form.getEntityClassRequestValue(request, entity);
-				if( entity.getClass() != EditPlugin8.this.clazz )
-				{
-					// Klasse wurde geaendert - erneut anwenden
-					entity = createEntity();
-					form.applyRequestValues(request, entity);
-				}
-				db.persist(entity);
+				db.persist(entityToPersist);
 				echo.append("<p>Hinzufügen abgeschlossen.</p>");
 			}
-		}.setErrorReporter((uow,w,t) -> echo.append("<p>Fehler bei Update: ").append(t.getMessage()).append("</p>"))
+		}.setErrorReporter((uow,w,t) -> {echo.append("<p>Fehler bei Update: ").append(t.getMessage()).append("</p>"); failed.set(true);})
 				.execute();
 
-		db.beginTransaction();
+		if( !failed.get() )
+		{
+			processJobs(echo, entityToPersist, entityToPersist, form.getPostAddTasks());
+		}
+
+		if( !db.getTransaction().isActive() )
+		{
+			db.beginTransaction();
+		}
 	}
 
 	private void executeDelete(final StringBuilder echo, EditorForm8<T> form) throws IOException
@@ -274,7 +288,10 @@ public class EditPlugin8<T> implements AdminPlugin
 	private void processJobs(StringBuilder echo, T entity, T updatedEntity, List<Job<T, ?>> updateTasks) throws IOException
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		db.getTransaction().commit();
+		if( db.getTransaction().isActive() )
+		{
+			db.getTransaction().commit();
+		}
 
 		for (final Job<T, ?> updateTask : updateTasks)
 		{

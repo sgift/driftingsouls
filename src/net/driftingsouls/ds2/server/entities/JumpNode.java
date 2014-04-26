@@ -20,7 +20,6 @@ package net.driftingsouls.ds2.server.entities;
 
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
-import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.Index;
 
 import javax.persistence.Column;
@@ -36,7 +35,6 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name="jumpnodes")
-@Immutable
 @org.hibernate.annotations.Table(
 		appliesTo = "jumpnodes",
 		indexes = {@Index(name="coords", columnNames = {"x", "y", "system"})})
@@ -58,7 +56,7 @@ public class JumpNode implements Locatable {
 	private boolean weaponBlock;
 	@Column(name="gcpcolonistblock", nullable = false)
 	private boolean gcpColonistBlock;
-	private int hidden;
+	private boolean hidden;
 	
 	/**
 	 * Konstruktor.
@@ -84,7 +82,7 @@ public class JumpNode implements Locatable {
 		this.name = name;
 		this.weaponBlock = false;
 		this.gcpColonistBlock = false;
-		this.hidden = 0;
+		this.hidden = false;
 	}
 
 	/**
@@ -96,11 +94,29 @@ public class JumpNode implements Locatable {
 	}
 
 	/**
+	 * Setzt, ob die Jumpnode fuer Kolonisten blockiert ist.
+	 * @param gcpColonistBlock <code>true</code>, falls sie blockiert ist
+	 */
+	public void setGcpColonistBlock(boolean gcpColonistBlock)
+	{
+		this.gcpColonistBlock = gcpColonistBlock;
+	}
+
+	/**
 	 * Gibt zurueck, ob die Jumpnode versteckt ist.
 	 * @return <code>true</code>, falls sie versteckt ist
 	 */
 	public boolean isHidden() {
-		return hidden != 0;
+		return hidden;
+	}
+
+	/**
+	 * Setzt, ob die Jumpnode versteckt ist.
+	 * @param hidden <code>true</code>, falls sie versteckt ist
+	 */
+	public void setHidden(boolean hidden)
+	{
+		this.hidden = hidden;
 	}
 
 	/**
@@ -120,11 +136,29 @@ public class JumpNode implements Locatable {
 	}
 
 	/**
+	 * Setzt den Namen der Jumpnode.
+	 * @param name  Der Name
+	 */
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	/**
 	 * Gibt das Eingangssystem zurueck.
 	 * @return Das eingangssystem
 	 */
 	public int getSystem() {
 		return system;
+	}
+
+	/**
+	 * Setzt das Eingangssystem.
+	 * @param system Das eingangssystem
+	 */
+	public void setSystem(int system)
+	{
+		this.system = system;
 	}
 
 	/**
@@ -136,11 +170,29 @@ public class JumpNode implements Locatable {
 	}
 
 	/**
+	 * Setzt das Ausgangssystem.
+	 * @param systemOut Das Ausgangssystem
+	 */
+	public void setSystemOut(int systemOut)
+	{
+		this.systemOut = systemOut;
+	}
+
+	/**
 	 * Gibt zurueck, ob Schiffe mit Waffen geblockt sind.
 	 * @return <code>true</code>, falls sie geblockt sind
 	 */
 	public boolean isWeaponBlock() {
 		return weaponBlock;
+	}
+
+	/**
+	 * Setzt, ob Schiffe mit Waffen geblockt sind.
+	 * @param weaponBlock <code>true</code>, falls sie geblockt sind
+	 */
+	public void setWeaponBlock(boolean weaponBlock)
+	{
+		this.weaponBlock = weaponBlock;
 	}
 
 	/**
@@ -152,11 +204,29 @@ public class JumpNode implements Locatable {
 	}
 
 	/**
+	 * Setzt die Eingangs-X-Koordinate.
+	 * @param x Die Eingangs-X-Koordinate
+	 */
+	public void setX(int x)
+	{
+		this.x = x;
+	}
+
+	/**
 	 * Gibt die Ausgangs-X-Koordinate zurueck.
 	 * @return Die Ausgangs-X-Koordinate
 	 */
 	public int getXOut() {
 		return xOut;
+	}
+
+	/**
+	 * Setzt die Ausgangs-X-Koordinate.
+	 * @param xOut Die Ausgangs-X-Koordinate
+	 */
+	public void setXOut(int xOut)
+	{
+		this.xOut = xOut;
 	}
 
 	/**
@@ -168,11 +238,29 @@ public class JumpNode implements Locatable {
 	}
 
 	/**
+	 * Setzt die Eingangs-Y-Koordinate.
+	 * @param y Die Eingangs-Y-Koordinate
+	 */
+	public void setY(int y)
+	{
+		this.y = y;
+	}
+
+	/**
 	 * Gibt die Ausgangs-Y-Koordinate zurueck.
 	 * @return Die Ausgangs-Y-Koordinate
 	 */
 	public int getYOut() {
 		return yOut;
+	}
+
+	/**
+	 * Setzt die Ausgangs-Y-Koordinate.
+	 * @param yOut Die Ausgangs-Y-Koordinate
+	 */
+	public void setYOut(int yOut)
+	{
+		this.yOut = yOut;
 	}
 
 	@Override

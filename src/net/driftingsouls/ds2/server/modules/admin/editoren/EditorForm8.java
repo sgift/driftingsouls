@@ -27,6 +27,7 @@ public class EditorForm8<E>
 	private int counter;
 	private boolean allowAdd;
 	private Function<E,Boolean> allowUpdate;
+	private List<Job<E,?>> postAddTasks = new ArrayList<>();
 	private List<Job<E,?>> updateTasks = new ArrayList<>();
 	private List<Job<E,?>> deleteTasks = new ArrayList<>();
 	private Class<? extends E> defaultEntityClass = null;
@@ -129,6 +130,31 @@ public class EditorForm8<E>
 	}
 
 	/**
+	 * Fuegt eine Arbeitsaufgabe hinzu, die nach der Hinzufuegen (Add) durchgefuehrt werden soll.
+	 * Die Aufgabe wird in einer eigenen Transaktion durchgefuehrt.
+	 * @param name Der Name der Aufgabe
+	 * @param job Die Aufgabe
+	 */
+	public void postAddTask(String name, Consumer<E> job)
+	{
+		postAddTasks.add(Job.forRunnable(name, job));
+	}
+
+	/**
+	 * Fuegt eine Arbeitsaufgabe hinzu, die nach der Hinzufuegen (Add) durchgefuehrt werden soll.
+	 * Die Arbeitsaufgabe wird fuer eine Menge von Objekten durchgefuehrt. Fuer jedes Objekt wird die
+	 * Arbeitsaufgabe einzeln aufgerufen. Die Aufgabe wird in einer eigenen Transaktion durchgefuehrt.
+	 * Bei groesseren Objektmengen kann die Verarbeitung auch automatisch auf mehrere Transaktionen aufgeteilt werden.
+	 * @param name Der Name der Aufgabe
+	 * @param supplier Der Generator fuer die Menge der abzuarbeitenden Objekte
+	 * @param job Die Aufgabe
+	 */
+	public <T> void postAddTask(String name, Function<E, ? extends Collection<T>> supplier, PostUpdateTaskConsumer<E, T> job)
+	{
+		postAddTasks.add(new Job<>(name, supplier, job));
+	}
+
+	/**
 	 * Fuegt eine Arbeitsaufgabe hinzu, die vor dem Loeschvorgang durchgefuehrt werden soll.
 	 * Die Arbeitsaufgabe wird fuer eine Menge von Objekten durchgefuehrt. Fuer jedes Objekt wird die
 	 * Arbeitsaufgabe einzeln aufgerufen. Die Aufgabe wird in einer eigenen Transaktion durchgefuehrt.
@@ -160,6 +186,10 @@ public class EditorForm8<E>
 	protected List<Job<E,?>> getDeleteTasks()
 	{
 		return this.deleteTasks;
+	}
+	protected List<Job<E,?>> getPostAddTasks()
+	{
+		return this.postAddTasks;
 	}
 
 	/**
@@ -290,6 +320,11 @@ public class EditorForm8<E>
 			{
 				String str = "<ul>"+updateTasks.stream().map((t) -> "<li>"+t.name+"</li>").collect(Collectors.joining())+"</ul>";
 				new LabelGenerator<>("", "Bei Aktualisierung", (e) -> str).generate(echo, entity);
+			}
+			else if (modus == EditorMode.CREATE && !postAddTasks.isEmpty())
+			{
+				String str = "<ul>"+postAddTasks.stream().map((t) -> "<li>"+t.name+"</li>").collect(Collectors.joining())+"</ul>";
+				new LabelGenerator<>("", "Bei Hinzufügen", (e) -> str).generate(echo, entity);
 			}
 
 			if (modus == EditorMode.UPDATE && this.allowUpdate.apply(entity))

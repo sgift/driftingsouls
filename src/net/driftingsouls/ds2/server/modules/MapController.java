@@ -164,7 +164,7 @@ public class MapController extends AngularController
 		SystemauswahlViewModel result = createResultObj(sys);
 
 		List<JumpNode> jumpNodes = Common.cast(db
-				.createQuery("from JumpNode jn where " + (!hasPermission(WellKnownAdminPermission.STARMAP_VIEW) ? "jn.hidden=0 and " : "") + "jn.system!=jn.systemOut")
+				.createQuery("from JumpNode jn where " + (!hasPermission(WellKnownAdminPermission.STARMAP_VIEW) ? "jn.hidden=false and " : "") + "jn.system!=jn.systemOut")
 				.list());
 
 		Map<Integer, Ally> systemFraktionen = ermittleDominierendeAllianzen(db);

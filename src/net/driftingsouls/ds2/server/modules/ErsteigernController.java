@@ -1498,7 +1498,7 @@ public class ErsteigernController extends TemplateController
 
 		// Weg finden und Preis ausrechnen
 		Map<Integer, List<JumpNode>> jumpnodes = new HashMap<>();
-		List<?> jnList = db.createQuery("from JumpNode where hidden=0 and (systemOut!=:source or system=:source)")
+		List<?> jnList = db.createQuery("from JumpNode where hidden=false and (systemOut!=:source or system=:source)")
 				.setInteger("source", sourcesystem)
 				.list();
 

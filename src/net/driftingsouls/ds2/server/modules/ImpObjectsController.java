@@ -116,7 +116,7 @@ public class ImpObjectsController extends Controller
 				Sprungpunkte
 			*/
 
-			List<?> jnList = db.createQuery("from JumpNode where system=:sys and hidden=0")
+			List<?> jnList = db.createQuery("from JumpNode where system=:sys and hidden=false")
 					.setInteger("sys", system.getID())
 					.list();
 			for (Object aJnList : jnList)

@@ -110,7 +110,7 @@ class HandleGanyTransport implements TaskHandler
 				Map<Integer,List<JumpNode>> jumpnodes = new HashMap<>();
 				Map<Integer,JumpNode> jumpnodeindex = new HashMap<>();
 
-				List<?> jnList = db.createQuery("from JumpNode where hidden=0")
+				List<?> jnList = db.createQuery("from JumpNode where hidden=false")
 					.list();
 				for( Object obj : jnList )
 				{
