@@ -3462,10 +3462,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		if(units != null)
 		{
-			for(UnitCargoEntry unit: units)
-			{
-				db.delete(unit);
-			}
+			units.forEach(db::delete);
 		}
 
 		if( this.scriptData != null )

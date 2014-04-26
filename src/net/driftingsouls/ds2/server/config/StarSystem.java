@@ -23,6 +23,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
 import org.apache.commons.lang.StringUtils;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -30,9 +31,12 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Repraesentiert ein Sternensystem in DS.
@@ -89,6 +93,9 @@ public class StarSystem {
 	private String spawnableress = "";
 	private int mapX;
 	private int mapY;
+
+	@OneToMany(mappedBy = "system", cascade = CascadeType.ALL)
+	private Set<ConfigFelsbrockenSystem> felsbrockenKonfigurationen = new HashSet<>();
 
 	@Transient
 	private ArrayList<Location> orderlocs = new ArrayList<>();
@@ -453,4 +460,14 @@ public class StarSystem {
 		}
 		return this.isStarmapVisible;
 	}
+
+	/**
+	 * Gibt alle Felsbrocken-Konfigurationen des Sternensystems zurueck.
+	 * @return Die Felsbrocken-Konfigurationen
+	 */
+	public Set<ConfigFelsbrockenSystem> getFelsbrockenKonfigurationen()
+	{
+		return felsbrockenKonfigurationen;
+	}
+
 }

@@ -22,16 +22,21 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.MutableLocation;
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.config.StarSystem;
+import net.driftingsouls.ds2.server.entities.Jump;
+import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import net.driftingsouls.ds2.server.ships.Ship;
+import org.hibernate.Session;
 
 import javax.annotation.Nonnull;
+import java.io.Serializable;
 
 /**
  * Aktualisierungstool fuer die Systeme.
@@ -50,7 +55,7 @@ public class EditSystem implements EntityEditor<StarSystem>
 	public void configureFor(@Nonnull EditorForm8<StarSystem> form)
 	{
 		form.allowAdd();
-
+		form.allowDelete();
 		form.field("Name", String.class, StarSystem::getName, StarSystem::setName);
 		form.field("Breite", Integer.class, StarSystem::getWidth, StarSystem::setWidth);
 		form.field("Höhe", Integer.class, StarSystem::getHeight, StarSystem::setHeight);
@@ -96,6 +101,99 @@ public class EditSystem implements EntityEditor<StarSystem>
 						.list()),
 				this::entferneNebel
 		);
+
+
+
+		form.preDeleteTask("Nebel entfernen",
+				(s) -> Common.cast(ContextMap.getContext().getDB().createQuery("select loc from Nebel where loc.system = :system")
+						.setInteger("system", s.getID())
+						.list()),
+				this::entferneNebel
+		);
+
+		form.preDeleteTask("Schlachten beenden",
+				(s) -> Common.cast(ContextMap.getContext().getDB().createQuery("select id from Battle where system = :system")
+						.setInteger("system", s.getID())
+						.list()),
+				this::schlachtBeenden
+		);
+
+		form.preDeleteTask("Schiffe entfernen",
+				(s) -> Common.cast(ContextMap.getContext().getDB().createQuery("select id from Ship where system = :system")
+						.setInteger("system", s.getID())
+						.list()),
+				this::destroyShip
+		);
+
+		form.preDeleteTask("Jumps entfernen",
+				(s) -> Common.cast(ContextMap.getContext().getDB().createQuery("select id from Jump where system = :system")
+						.setInteger("system", s.getID())
+						.list()),
+				this::destroyJump
+		);
+
+		form.preDeleteTask("Sprungpunkte entfernen",
+				(s) -> Common.cast(ContextMap.getContext().getDB().createQuery("select id from JumpNode where system = :system or systemOut = :system")
+						.setInteger("system", s.getID())
+						.list()),
+				this::destroyJumpNode
+		);
+
+		form.preDeleteTask("Basen entfernen",
+				(s) -> Common.cast(ContextMap.getContext().getDB().createQuery("select id from Base where system = :system")
+						.setInteger("system", s.getID())
+						.list()),
+				this::destroyBase
+		);
+	}
+
+	private void destroyBase(StarSystem oldsystem, StarSystem system, Serializable baseid)
+	{
+		Session db = ContextMap.getContext().getDB();
+		Base base = (Base)db.get(Base.class, baseid);
+
+		Integer[] bebauung = base.getBebauung();
+		for (Integer aBebauung : bebauung)
+		{
+			if (aBebauung == 0)
+			{
+				continue;
+			}
+
+			Building building = Building.getBuilding(aBebauung);
+			building.cleanup(ContextMap.getContext(), base, aBebauung);
+		}
+
+		db.delete(base);
+	}
+
+	private void schlachtBeenden(StarSystem oldsystem, StarSystem system, Serializable battleid)
+	{
+		Session db = ContextMap.getContext().getDB();
+		Battle battle = (Battle)db.get(Battle.class, battleid);
+
+		battle.load(battle.getCommander(0), null, null, 0);
+		battle.endBattle(0, 0, false);
+	}
+
+	private void destroyJump(StarSystem oldsystem, StarSystem system, Serializable jumpid)
+	{
+		Session db = ContextMap.getContext().getDB();
+		Jump jumpNode = (Jump) db.get(Jump.class, jumpid);
+		db.delete(jumpNode);
+	}
+
+	private void destroyJumpNode(StarSystem oldsystem, StarSystem system, Serializable jumpnodeid)
+	{
+		Session db = ContextMap.getContext().getDB();
+		JumpNode jumpNode = (JumpNode) db.get(JumpNode.class, jumpnodeid);
+		db.delete(jumpNode);
+	}
+
+	private void destroyShip(StarSystem oldsystem, StarSystem system, Serializable shipid)
+	{
+		Ship ship = (Ship) ContextMap.getContext().getDB().get(Ship.class, shipid);
+		ship.destroy();
 	}
 
 	private void entferneNebel(StarSystem oldsystem, StarSystem system, MutableLocation loc)

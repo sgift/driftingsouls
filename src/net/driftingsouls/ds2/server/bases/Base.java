@@ -37,6 +37,7 @@ import net.driftingsouls.ds2.server.entities.Factory;
 import net.driftingsouls.ds2.server.entities.Feeding;
 import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
+import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -174,6 +175,9 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	@OneToMany(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE})
 	@JoinColumn(name="col")
 	private Set<Factory> factories;
+
+	@OneToMany(fetch=FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "stationiertAufBasis")
+	private Set<Offizier> offiziere = new HashSet<>();
 
 	@OneToMany(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE},
 			targetEntity=net.driftingsouls.ds2.server.bases.BaseUnitCargoEntry.class,
@@ -2104,5 +2108,14 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	public static List<Base> byLocationAndBesitzer(Location loc, User besitzer)
 	{
 		return besitzer.getBases().stream().filter(base -> base.getLocation().equals(loc)).collect(Collectors.toList());
+	}
+
+	/**
+	 * Gibt alle auf der Basis stationierten Offiziere zurueck.
+	 * @return Die Offiziere
+	 */
+	public Set<Offizier> getOffiziere()
+	{
+		return offiziere;
 	}
 }
