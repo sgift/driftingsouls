@@ -196,13 +196,13 @@ public class KSAttackAction extends BasicKSAction {
 		@Override
 		public boolean isAreaDamageFull()
 		{
-			return ammo.hasFlag(Ammo.Flags.AD_FULL);
+			return ammo.hasFlag(Ammo.Flag.AD_FULL);
 		}
 
 		@Override
 		public boolean isArmorRedux()
 		{
-			return ammo.hasFlag(Ammo.Flags.ARMOR_REDUX);
+			return ammo.hasFlag(Ammo.Flag.ARMOR_REDUX);
 		}
 
 		@Override

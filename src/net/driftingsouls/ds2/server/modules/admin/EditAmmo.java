@@ -54,7 +54,7 @@ public class EditAmmo implements EntityEditor<Ammo>
 		form.field("Schildschaden", Integer.class, Ammo::getShieldDamage, Ammo::setShieldDamage);
 		form.field("Subsystemschaden", Integer.class, Ammo::getSubDamage, Ammo::setSubDamage);
 		form.field("Zerstoerbar", Double.class, Ammo::getDestroyable, Ammo::setDestroyable);
-		form.field("Flags", Integer.class, Ammo::getFlags, Ammo::setFlags);
+		form.multiSelection("Flags", Ammo.Flag.class, Ammo::getFlags, Ammo::setFlags);
 		form.field("Schüsse pro Schuss", Integer.class, Ammo::getShotsPerShot, Ammo::setShotsPerShot);
 		form.field("Flächenschaden", Integer.class, Ammo::getAreaDamage, Ammo::setAreaDamage);
 		form.field("Zugehoeriges Item", Item.class, Integer.class, Ammo::getItemId, Ammo::setItemId);

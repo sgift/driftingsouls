@@ -95,10 +95,6 @@ public class MultiSelectionGenerator<E, T> implements CustomFieldGenerator<E>
 		}
 		Class<T> type = this.dataType;
 		String[] vals = request.getParameterValues(this.name);
-		if (vals.length == 0)
-		{
-			return;
-		}
 
 		if (this.dataType.isAnnotationPresent(Entity.class) )
 		{
@@ -120,7 +116,9 @@ public class MultiSelectionGenerator<E, T> implements CustomFieldGenerator<E>
 	public String serializedValueOf(E entity)
 	{
 		Set<T> selectedValues = getter.apply(entity);
-		return selectedValues.stream().map((v) -> new ObjectLabelGenerator().generateFor(getIdentifierFor(viewType, v), v)).collect(Collectors.joining(","));
+		Set<Serializable> selectedIdentifiers = selectedValues.stream().map((v) -> getIdentifierFor(viewType, v)).collect(Collectors.toSet());
+
+		return this.selectionOptions.entrySet().stream().filter((e) -> selectedIdentifiers.contains(e.getKey())).map((e) -> generateLabel(e.getKey(), e.getValue())).collect(Collectors.joining(","));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -181,19 +179,25 @@ public class MultiSelectionGenerator<E, T> implements CustomFieldGenerator<E>
 			{
 				echo.append(" selected=\"selected\"");
 			}
-			String label;
-			if (entry.getValue() instanceof String || entry.getKey() == entry.getValue())
-			{
-				label = entry.getValue() != null ? entry.getValue().toString() : "";
-			}
-			else
-			{
-				label = new ObjectLabelGenerator().generateFor(identifier, entry.getValue());
-			}
-			echo.append(">").append(label).append("</option>");
+			Object value = entry.getValue();
+			echo.append(">").append(generateLabel(identifier, value)).append("</option>");
 		}
 
 		echo.append("</select>");
+	}
+
+	private String generateLabel(Serializable identifier, Object value)
+	{
+		String label;
+		if (value instanceof String || identifier == value)
+		{
+			label = value != null ? value.toString() : "";
+		}
+		else
+		{
+			label = new ObjectLabelGenerator().generateFor(identifier, value);
+		}
+		return label;
 	}
 
 	private Serializable getIdentifierFor(Class<?> type, T value)

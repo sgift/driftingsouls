@@ -20,12 +20,16 @@ package net.driftingsouls.ds2.server.entities;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.ForeignKey;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Set;
 
 /**
  * Die Munition.
@@ -39,30 +43,17 @@ public class Ammo {
 	/**
 	 * Ammoflags.
 	 */
-	public enum Flags {
+	public enum Flag
+	{
 		/**
 		 * Area-Damage ueber die Distanz nicht reduzieren.
 		 */
-		AD_FULL(1),
+		AD_FULL,
 		
 		/**
 		 * Schaden der Munition wird durch Panzerung dividiert.
 		 */
-		ARMOR_REDUX(2);
-		
-		private int bit;
-		private Flags(int bit) {
-			this.bit = bit;
-		}
-		
-		/**
-		 * Gibt das zum Flag gehoerende Bitmuster zurueck.
-		 * @return Das Bitmuster
-		 */
-		public int getBits() {
-			return this.bit;
-		}
-		
+		ARMOR_REDUX
 	}
 	
 	@Id @GeneratedValue
@@ -89,7 +80,10 @@ public class Ammo {
 	@Column(name="areadamage", nullable = false)
 	private int areaDamage;
 	private double destroyable;
-	private int flags;
+	@ElementCollection
+	@CollectionTable
+	@ForeignKey(name="ammo_flag_fk_ammo")
+	private Set<Flag> flags;
 	private int itemid;
 
 	/**
@@ -146,7 +140,7 @@ public class Ammo {
 	 * Gibt die Flags der Ammo zurueck.
 	 * @return Die Flags
 	 */
-	public int getFlags() {
+	public Set<Flag> getFlags() {
 		return flags;
 	}
 	
@@ -155,8 +149,8 @@ public class Ammo {
 	 * @param flag Das Flag
 	 * @return <code>true</code>, falls die Ammo das Flag hat
 	 */
-	public boolean hasFlag(Flags flag) {
-		return (this.flags & flag.getBits()) != 0;
+	public boolean hasFlag(Flag flag) {
+		return this.flags.contains(flag);
 	}
 
 	/**
@@ -269,7 +263,7 @@ public class Ammo {
 	 * Setzt die Flags der Munition.
 	 * @param flags Die Flags
 	 */
-	public void setFlags(int flags) {
+	public void setFlags(Set<Flag> flags) {
 		this.flags = flags;
 	}
 
