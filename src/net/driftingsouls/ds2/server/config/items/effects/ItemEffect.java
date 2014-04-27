@@ -18,9 +18,6 @@
  */
 package net.driftingsouls.ds2.server.config.items.effects;
 
-import java.io.IOException;
-
-
 /**
  * Basisklasse fuer Item-Effekte in DS.
  * @author Christopher Jung
@@ -111,13 +108,6 @@ public abstract class ItemEffect {
 	 */
 	public boolean hasAllyEffect() {
 		return allyEffect;
-	}
-
-	/**
-	 * Gibt das passende Fenster fuer das Adminmenue aus.
-	 * @param echo Der Writer des Adminmenues
-	 */
-	public void getAdminTool(StringBuilder echo) throws IOException {
 	}
 
 	/**

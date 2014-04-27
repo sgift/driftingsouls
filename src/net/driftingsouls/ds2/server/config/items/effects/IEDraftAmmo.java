@@ -18,10 +18,7 @@
  */
 package net.driftingsouls.ds2.server.config.items.effects;
 
-import java.io.IOException;
-
 import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.apache.commons.lang.StringUtils;
 
@@ -74,47 +71,9 @@ public class IEDraftAmmo extends ItemEffect {
 			throw new IllegalArgumentException("Illegaler Ammo-Typ '"+ammo+"' im Item-Effekt 'Munitionsbauplan'");
 		}
 		
-		if( allyEffect ) {
-			return new IEDraftAmmo(allyEffect, ammo);
-		}
-		return new IEDraftAmmo(false, ammo);
+		return new IEDraftAmmo(allyEffect, ammo);
 	}
-	
-	/**
-	 * Laedt einen ItemEffect aus einem Context.
-	 * @param context Der Context
-	 * @return Der Effect
-	 */
-	public static ItemEffect fromContext(Context context) {
-		
-		int ammoid = context.getRequest().getParameterInt("ammoid");
-		Boolean allyEffect = context.getRequest().getParameterString("allyeffect").equals("true");
-		
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		Munitionsdefinition ammoEntry = (Munitionsdefinition)db.get(Munitionsdefinition.class, ammoid);
-		if( ammoEntry == null) {
-			return new IENone();
-		}
-		if(allyEffect) {
-			return new IEDraftAmmo(allyEffect, ammoid);
-		}
-		return new IEDraftAmmo(false,ammoid);
-		
-	}
-	
-	/**
-	 * Gibt das passende Fenster fuer das Adminmenue aus.
-	 * @param echo Der Writer des Adminmenues
-	 * @throws IOException Exception falls ein fehler auftritt
-	 */
-	@Override
-	public void getAdminTool(StringBuilder echo) throws IOException {
-		
-		echo.append("<input type=\"hidden\" name=\"type\" value=\"draft-ammo\" >");
-		echo.append("<tr><td class=\"noBorderS\">AmmoId: </td><td><input type=\"text\" name=\"ammoid\" value=\"" + ammoId + "\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">Ally-Effekt (true/false): </td><td><input type=\"text\" name=\"allyeffect\" value=\"" + hasAllyEffect() + "\"></td></tr>\n");
-	}
-	
+
 	/**
 	 * Gibt den Itemeffect als String aus.
 	 * @return der Effect als String

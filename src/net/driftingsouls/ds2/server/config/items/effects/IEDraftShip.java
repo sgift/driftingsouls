@@ -22,13 +22,11 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import org.apache.commons.lang.StringUtils;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -175,60 +173,6 @@ public class IEDraftShip extends ItemEffect {
 		}
 		
 		return draft;
-	}
-	
-	/**
-	 * Laedt ein ItemEffect aus dem angegebenen Context.
-	 * @param context Der Context
-	 * @return Der Effect
-	 */
-	public static ItemEffect fromContext(Context context) {
-		IEDraftShip draft = new IEDraftShip(false);
-		
-		draft.shiptype = context.getRequest().getParameterInt("shiptype");
-		
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
-		ShipType shipType = (ShipType)db.get(ShipType.class, draft.shiptype);
-		if( shipType == null) {
-			return null;
-		}
-		
-		draft.race = context.getRequest().getParameterInt("race");
-		draft.flagschiff = context.getRequest().getParameterString("flagschiff").equals("true");
-		draft.crew = context.getRequest().getParameterInt("crew");
-		draft.e = context.getRequest().getParameterInt("energie");
-		draft.dauer = context.getRequest().getParameterInt("dauer");
-		draft.werftslots = context.getRequest().getParameterInt("werftslots");
-		draft.buildcosts = new UnmodifiableCargo(new Cargo(Cargo.Type.AUTO, context.getRequest().getParameterString("buildcosts")));
-		String[] techs = StringUtils.split(context.getRequest().getParameterString("techs"), ",");
-		draft.techs = new int[techs.length];
-		for(int i = 0; i < techs.length; i++) {
-			draft.techs[i] = Integer.parseInt(techs[i]);
-		}
-		
-		return draft;
-	}
-	
-	/**
-	 * Gibt das passende Fenster fuer das Adminmenue aus.
-	 * @param echo Der Writer des Adminmenues
-	 * @throws IOException Exception falls ein fehler auftritt
-	 */
-	@Override
-	public void getAdminTool(StringBuilder echo) throws IOException {
-		
-		echo.append("<input type=\"hidden\" name=\"type\" value=\"draft-ship\" >");
-		echo.append("<tr><td class=\"noBorderS\">SchiffsId: </td><td><input type=\"text\" name=\"shiptype\" value=\"" + getShipType() + "\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">Rasse: </td><td><input type=\"text\" name=\"race\" value=\"" + getRace() + "\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">Flagschiff (true/false): </td><td><input type=\"text\" name=\"flagschiff\" value=\"" + isFlagschiff() + "\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">Benoetigte Crew: </td><td><input type=\"text\" name=\"crew\" value=\"" + getCrew() + "\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">Benoetigte Energie: </td><td><input type=\"text\" name=\"energie\" value=\"" + getE() + "\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">Benoetigte Dauer: </td><td><input type=\"text\" name=\"dauer\" value=\"" + getDauer() + "\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">Benoetigte Werftslots: </td><td><input type=\"text\" name=\"werftslots\" value=\"" + getWerftSlots() + "\"></td></tr>\n");
-		echo.append("<tr><td class=\"noBorderS\">Baukosten: </td><td><input type=\"text\" name=\"buildcosts\" value=\"" + getBuildCosts().save() + "\"></td></tr>\n");
-		String techs = Common.implode(",", this.techs);
-		echo.append("<tr><td class=\"noBorderS\">Ben�tigte Technologien: </td><td><input type=\"text\" name=\"techs\" value=\"" + techs + "\"></td></tr>\n");
 	}
 
 	/**

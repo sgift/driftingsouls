@@ -20,8 +20,6 @@ package net.driftingsouls.ds2.server.config.items.effects;
 
 import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
 
-import java.io.IOException;
-
 /**
  * <h1>Item-Effekt "Ammo".</h1>
  * Repraesentiert eine Munitionseinheit als Wareneinheit innerhalb von Drifting Souls.<br>
@@ -51,18 +49,6 @@ public class IEAmmo extends ItemEffect {
 		return munitionsdefinition;
 	}
 
-	/**
-	 * Gibt das passende Fenster fuer das Adminmenue aus.
-	 * @param echo Der Writer des Adminmenues
-	 * @throws IOException Exception falls ein fehler auftritt
-	 */
-	@Override
-	public void getAdminTool(StringBuilder echo) throws IOException {
-		
-		echo.append("<input type=\"hidden\" name=\"type\" value=\"ammo\" >");
-		echo.append("<tr><td class=\"noBorderS\">AmmoId: </td><td><input type=\"text\" name=\"ammoid\" value=\"" + munitionsdefinition + "\"></td></tr>\n");
-	}
-	
 	/**
 	 * Gibt den Itemeffect als String aus.
 	 * @return der Effect als String
