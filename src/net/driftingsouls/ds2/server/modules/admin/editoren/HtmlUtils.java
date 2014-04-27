@@ -49,7 +49,7 @@ public final class HtmlUtils
 	private static void option(StringBuilder echo, Serializable selected, Serializable identifier, Object value)
 	{
 		echo.append("<option ");
-		echo.append("value=\"").append(identifier != null ? identifier.toString() : "").append("\"");
+		echo.append("value=\"").append(identifierToString(identifier)).append("\"");
 		if ((identifier == null && selected == null) || (identifier != null && identifier.equals(selected)))
 		{
 			echo.append(" selected=\"selected\"");
@@ -64,6 +64,15 @@ public final class HtmlUtils
 			label = new ObjectLabelGenerator().generateFor(identifier, value);
 		}
 		echo.append(">").append(label).append("</option>");
+	}
+
+	private static String identifierToString(Serializable identifier)
+	{
+		if( identifier instanceof Enum )
+		{
+			return ((Enum)identifier).name();
+		}
+		return identifier != null ? identifier.toString() : "";
 	}
 
 	/**

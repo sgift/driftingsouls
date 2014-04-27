@@ -150,4 +150,36 @@ public class HtmlUtilsTest
 		assertTrue(out.length() > 0);
 		assertEquals("<select size=\"1\" name=\"test\"><option value=\"\">:P</option><option value=\"2\">Bar</option><option value=\"3\" selected=\"selected\">FooFoo</option></select>", out.toString());
 	}
+
+	private enum TestEnum {
+		TEST1,
+		TEST2,
+		TEST3;
+
+		@Override
+		public String toString()
+		{
+			return "foobar!";
+		}
+	}
+
+	@Test
+	public void gegebenMehrereEnumOptions_select_sollteEinPassendesHtmlSelectErzeugenUndDabeiNameStattToStringFuerDenValueVerwenden()
+	{
+		// setup
+		StringBuilder out = new StringBuilder();
+		String name = "test";
+		Map<Serializable,Object> options = new HashMap<>();
+		options.put(TestEnum.TEST1, TestEnum.TEST1);
+		options.put(TestEnum.TEST2, TestEnum.TEST2);
+		options.put(TestEnum.TEST3, TestEnum.TEST3);
+
+		// run
+		HtmlUtils.select(out, name, false, options, null);
+
+		// assert
+		assertTrue(out.length() > 0);
+		assertEquals("<select size=\"1\" name=\"test\"><option value=\"TEST1\">foobar!</option><option value=\"TEST2\">foobar!</option><option value=\"TEST3\">foobar!</option></select>", out.toString());
+	}
+
 }
