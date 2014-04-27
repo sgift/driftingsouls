@@ -345,7 +345,7 @@ public class KapernController extends TemplateController
 		List<ItemCargoEntry> itemlist = cargo.getItems();
 		for (ItemCargoEntry item : itemlist)
 		{
-			Item itemobject = item.getItemObject();
+			Item itemobject = item.getItem();
 			if (itemobject.isUnknownItem())
 			{
 				user.addKnownItem(item.getItemID());

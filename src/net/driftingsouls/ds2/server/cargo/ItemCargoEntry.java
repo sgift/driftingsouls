@@ -108,7 +108,7 @@ public class ItemCargoEntry {
 	 * Gibt den Itemtyp als Objekt zurueck.
 	 * @return Der Itemtyp
 	 */
-	public Item getItemObject() {
+	public Item getItem() {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		
@@ -120,7 +120,7 @@ public class ItemCargoEntry {
 	 * @return Der Item-Effekt
 	 */
 	public ItemEffect getItemEffect() {
-		return getItemObject().getEffect();
+		return getItem().getEffect();
 	}
 	
 	/**
@@ -136,7 +136,7 @@ public class ItemCargoEntry {
 	 * @return Die Masse
 	 */
 	public long getMass() {
-		return getItemObject().getCargo() * count;
+		return getItem().getCargo() * count;
 	}
 	
 	/**

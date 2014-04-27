@@ -457,7 +457,7 @@ public class Kommandozentrale extends DefaultBuilding {
 				Ally ally = user.getAlly();
 				if( ally != null ) {
 					for( ItemCargoEntry item : itemlist ) {
-						Item itemobject = item.getItemObject();
+						Item itemobject = item.getItem();
 						if( itemobject.getEffect().hasAllyEffect() ) {
 							t.setVar(	"item.id",		item.getItemID(),
 										"item.name",	itemobject.getName() );

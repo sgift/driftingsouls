@@ -564,7 +564,7 @@ public class Fabrik extends DefaultBuilding
 		List<ItemCargoEntry> itemlist = cargo.getItemsWithEffect(ItemEffect.Type.DRAFT_AMMO);
 		for (ItemCargoEntry item : itemlist)
 		{
-			Item itemobject = item.getItemObject();
+			Item itemobject = item.getItem();
 			final FactoryEntry entry = (FactoryEntry) db.get(FactoryEntry.class, ((IEDraftAmmo) itemobject.getEffect()).getAmmo().getId());
 
 			if (!itemslist.contains(entry))
@@ -582,7 +582,7 @@ public class Fabrik extends DefaultBuilding
 			itemlist = allyitems.getItemsWithEffect(ItemEffect.Type.DRAFT_AMMO);
 			for (ItemCargoEntry item : itemlist)
 			{
-				Item itemobject = item.getItemObject();
+				Item itemobject = item.getItem();
 				final FactoryEntry entry = (FactoryEntry) db.get(FactoryEntry.class, ((IEDraftAmmo) itemobject.getEffect()).getAmmo().getId());
 
 				if (!itemslist.contains(entry))

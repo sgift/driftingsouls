@@ -217,7 +217,7 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 			for (ItemCargoEntry item : items)
 			{
 				IEAmmo effect = (IEAmmo) item.getItemEffect();
-				Item itemobject = item.getItemObject();
+				Item itemobject = item.getItem();
 
 				if (ammoids.contains(effect.getAmmo().getId()))
 				{

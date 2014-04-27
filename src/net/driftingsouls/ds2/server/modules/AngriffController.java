@@ -348,7 +348,7 @@ public class AngriffController extends TemplateController
 			List<ItemCargoEntry> itemlist = mycargo.getItemsWithEffect( ItemEffect.Type.AMMO );
             for (ItemCargoEntry item : itemlist) {
                 if (item.getCount() > 0) {
-                    Item itemobject = item.getItemObject();
+                    Item itemobject = item.getItem();
 
                     t.setVar("ammo.image", itemobject.getPicture(),
                             "ammo.name", itemobject.getName(),

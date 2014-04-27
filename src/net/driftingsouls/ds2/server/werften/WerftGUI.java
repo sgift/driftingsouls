@@ -816,7 +816,7 @@ public class WerftGUI {
 					{
 						continue;
 					}
-					Item itemobj = anItemlist.getItemObject();
+					Item itemobj = anItemlist.getItem();
 					if (itemobj.getAccessLevel() > user.getAccessLevel())
 					{
 						continue;

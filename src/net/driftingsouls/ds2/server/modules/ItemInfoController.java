@@ -962,7 +962,7 @@ public class ItemInfoController extends TemplateController
 		List<ItemCargoEntry> myitemlist = itemlist.getItems();
 		for (ItemCargoEntry item : myitemlist)
 		{
-			Item itemobject = item.getItemObject();
+			Item itemobject = item.getItem();
 
 			if (itemobject == null)
 			{
