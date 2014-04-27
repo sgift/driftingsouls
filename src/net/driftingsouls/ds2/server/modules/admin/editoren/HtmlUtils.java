@@ -1,9 +1,9 @@
 package net.driftingsouls.ds2.server.modules.admin.editoren;
 
+import com.google.gson.Gson;
 import net.driftingsouls.ds2.server.framework.Common;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -94,38 +94,9 @@ public final class HtmlUtils
 
 	private static void writeAutoNumberJavaScript(StringBuilder echo, String name, Class<?> dataType)
 	{
-		int mDec = 0;
-		Number minValue = -999999999.99;
-		Number maxValue = 999999999.99;
-		if (dataType == Double.class || dataType == Float.class || dataType == BigDecimal.class)
-		{
-			mDec = 8;
-		}
-		if (dataType == Integer.class)
-		{
-			minValue = Integer.MIN_VALUE;
-			maxValue = Integer.MAX_VALUE;
-		}
-		else if (dataType == Long.class)
-		{
-			minValue = Long.MIN_VALUE;
-			maxValue = Long.MAX_VALUE;
-		}
-		else if (dataType == Short.class)
-		{
-			minValue = Short.MIN_VALUE;
-			maxValue = Short.MAX_VALUE;
-		}
-		else if (dataType == Byte.class)
-		{
-			minValue = Byte.MIN_VALUE;
-			maxValue = Byte.MAX_VALUE;
-		}
-
+		AutoNumericViewModel model = AutoNumericViewModel.forClass(dataType);
 		echo.append("<script type=\"text/javascript\">\n");
-		echo.append("$('#").append(name).append("').autoNumeric('init', {aSep:'', vMin:").append(minValue.toString())
-				.append(", vMax:").append(maxValue.toString())
-				.append(", lZero: 'deny', mDec:").append(Integer.toString(mDec)).append("});\n");
+		echo.append("$('#").append(name).append("').autoNumeric('init', ").append(new Gson().toJson(model)).append(");\n");
 		echo.append("</script>");
 	}
 }
