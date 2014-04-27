@@ -54,7 +54,7 @@
     		overflowToDisk="true"
     />
 
-	<cache  name="net.driftingsouls.ds2.server.entities.Ammo"
+	<cache  name="net.driftingsouls.ds2.server.entities.Munitionsdefinition"
 			maxElementsInMemory="100"
 			eternal="true"
 			overflowToDisk="true"

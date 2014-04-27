@@ -2,11 +2,11 @@ package net.driftingsouls.ds2.server.battles;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
+import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
 import net.driftingsouls.ds2.server.entities.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.config.items.effects.IEAmmo;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
-import net.driftingsouls.ds2.server.entities.Ammo;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.modules.ks.BasicKSAction;
 import net.driftingsouls.ds2.server.modules.ks.KSAttackAction;
@@ -101,8 +101,8 @@ public class AutoFire
                     heat = Integer.valueOf(heats.get(weapon.getKey().getId()));
                 }
                 
-                Set<Ammo> ammunition = getPossibleAmmunition(firingShip.getShip(), weapon.getKey());
-                for(Ammo ammo: ammunition)
+                Set<Munitionsdefinition> ammunition = getPossibleAmmunition(firingShip.getShip(), weapon.getKey());
+                for(Munitionsdefinition ammo: ammunition)
                 {
                     if(firingShip.getShip().getEnergy() == 0)
                     {
@@ -166,7 +166,7 @@ public class AutoFire
         battle.writeLog();
     }
     
-    private Set<Ammo> getPossibleAmmunition(Ship ship, Weapon weapon)
+    private Set<Munitionsdefinition> getPossibleAmmunition(Ship ship, Weapon weapon)
     {
         //Load all ammunition from cargo
         Set<Integer> ammos = new HashSet<>();
@@ -193,7 +193,7 @@ public class AutoFire
         }
 
         //Filter ammunition the weapon cannot fire
-        Set<Ammo> filteredAmmos = new HashSet<>();
+        Set<Munitionsdefinition> filteredAmmos = new HashSet<>();
         if(ammos.isEmpty())
         {
             filteredAmmos.add(null);
@@ -202,13 +202,13 @@ public class AutoFire
         {
             for(int ammoId: ammos)
             {
-                Iterator<?> iterator = db.createQuery("from Ammo where itemid=:id and type in (:ammo)")
+                Iterator<?> iterator = db.createQuery("from Munitionsdefinition where itemid=:id and type in (:ammo)")
                                                 .setInteger("id", ammoId)
                                                 .setParameterList("ammo", weapon.getMunitionstypen()).iterate();
                 if(iterator.hasNext())
                 {
                     log.info("Ammo type " + ammoId + " allowed by weapon.");
-                    Ammo ammo = (Ammo)iterator.next();
+                    Munitionsdefinition ammo = (Munitionsdefinition)iterator.next();
                     filteredAmmos.add(ammo);
                 }
                 else
@@ -221,7 +221,7 @@ public class AutoFire
         return filteredAmmos;
     }
 
-    private KSAttackAction findTarget(User user, BattleShip firingShip, Map.Entry<Weapon, Integer> shipWeapon, Ammo ammo, List<BattleShip> possibleTargets)
+    private KSAttackAction findTarget(User user, BattleShip firingShip, Map.Entry<Weapon, Integer> shipWeapon, Munitionsdefinition ammo, List<BattleShip> possibleTargets)
     {
         log.info("\t\tCalculating best target");
         if(possibleTargets.isEmpty())

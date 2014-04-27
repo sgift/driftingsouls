@@ -18,7 +18,7 @@
  */
 package net.driftingsouls.ds2.server.config.items.effects;
 
-import net.driftingsouls.ds2.server.entities.Ammo;
+import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
@@ -38,7 +38,13 @@ import java.io.IOException;
  */
 public class IEAmmo extends ItemEffect {
 	private int ammoId;
-	
+
+	public IEAmmo(Munitionsdefinition munitionsdefinition)
+	{
+		super(ItemEffect.Type.AMMO);
+		this.ammoId = munitionsdefinition.getId();
+	}
+
 	public IEAmmo(int ammoid) {
 		super(ItemEffect.Type.AMMO);
 		this.ammoId = ammoid;
@@ -48,9 +54,9 @@ public class IEAmmo extends ItemEffect {
 	 * Gibt die zugehoerigen Ammodaten zurueck.
 	 * @return Die Ammodaten
 	 */
-	public Ammo getAmmo() {
+	public Munitionsdefinition getAmmo() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		return (Ammo)db.get(Ammo.class, this.ammoId);
+		return (Munitionsdefinition)db.get(Munitionsdefinition.class, this.ammoId);
 	}
 	
 	/**
@@ -63,7 +69,7 @@ public class IEAmmo extends ItemEffect {
 		int ammo = Integer.parseInt(effectString);
 		
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		Ammo ammoEntry = (Ammo)db.get(Ammo.class, ammo);
+		Munitionsdefinition ammoEntry = (Munitionsdefinition)db.get(Munitionsdefinition.class, ammo);
 		if( ammoEntry == null ) {
 			throw new IllegalArgumentException("Munition nicht gefunden: "+ammo);
 		}
@@ -80,7 +86,7 @@ public class IEAmmo extends ItemEffect {
 		int ammoid = context.getRequest().getParameterInt("ammoid");
 		
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		Ammo ammoEntry = (Ammo)db.get(Ammo.class, ammoid);
+		Munitionsdefinition ammoEntry = (Munitionsdefinition)db.get(Munitionsdefinition.class, ammoid);
 		if( ammoEntry == null) {
 			return new IENone();
 		}

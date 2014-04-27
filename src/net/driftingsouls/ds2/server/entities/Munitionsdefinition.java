@@ -28,6 +28,7 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 import java.util.Set;
 
@@ -39,7 +40,8 @@ import java.util.Set;
 @Entity
 @Table(name="ammo")
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class Ammo {
+public class Munitionsdefinition
+{
 	/**
 	 * Ammoflags.
 	 */
@@ -81,7 +83,7 @@ public class Ammo {
 	private int areaDamage;
 	private double destroyable;
 	@ElementCollection
-	@CollectionTable
+	@CollectionTable(name="ammo_flags", joinColumns = {@JoinColumn(name="ammo_id")})
 	@ForeignKey(name="ammo_flag_fk_ammo")
 	private Set<Flag> flags;
 	private int itemid;
@@ -90,7 +92,7 @@ public class Ammo {
 	 * Konstruktor.
 	 *
 	 */
-	public Ammo() {
+	public Munitionsdefinition() {
 		// EMPTY
 	}
 

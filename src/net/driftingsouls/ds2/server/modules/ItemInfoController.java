@@ -38,7 +38,7 @@ import net.driftingsouls.ds2.server.config.items.effects.IEDraftShip;
 import net.driftingsouls.ds2.server.config.items.effects.IEModule;
 import net.driftingsouls.ds2.server.config.items.effects.IEModuleSetMeta;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
-import net.driftingsouls.ds2.server.entities.Ammo;
+import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.statistik.StatItemLocations;
@@ -646,7 +646,7 @@ public class ItemInfoController extends TemplateController
 			{
 				IEAmmo effect = (IEAmmo) item.getEffect();
 
-				Ammo ammo = effect.getAmmo();
+				Munitionsdefinition ammo = effect.getAmmo();
 
 				if (ammo == null)
 				{

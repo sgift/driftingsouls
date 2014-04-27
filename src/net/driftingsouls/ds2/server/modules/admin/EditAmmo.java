@@ -20,7 +20,7 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.entities.Ammo;
+import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
@@ -32,31 +32,31 @@ import javax.annotation.Nonnull;
  *
  */
 @AdminMenuEntry(category = "Items", name = "Munition", permission = WellKnownAdminPermission.EDIT_AMMO)
-public class EditAmmo implements EntityEditor<Ammo>
+public class EditAmmo implements EntityEditor<Munitionsdefinition>
 {
 	@Override
-	public Class<Ammo> getEntityType()
+	public Class<Munitionsdefinition> getEntityType()
 	{
-		return Ammo.class;
+		return Munitionsdefinition.class;
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<Ammo> form)
+	public void configureFor(@Nonnull EditorForm8<Munitionsdefinition> form)
 	{
 		form.allowAdd();
-		form.field("Name", String.class, Ammo::getName, Ammo::setName);
-		form.field("Typ", String.class, Ammo::getType, Ammo::setType);
-		form.field("Treffer-WS", Integer.class, Ammo::getTrefferWS, Ammo::setTrefferWS);
-		form.field("Small Treffer-WS", Integer.class, Ammo::getSmallTrefferWS, Ammo::setSmallTrefferWS);
-		form.field("Torp Treffer-WS", Integer.class, Ammo::getTorpTrefferWS, Ammo::setTorpTrefferWS);
-		form.field("Subsystem Treffer-WS", Integer.class, Ammo::getSubWS, Ammo::setSubWS);
-		form.field("Schaden", Integer.class, Ammo::getDamage, Ammo::setDamage);
-		form.field("Schildschaden", Integer.class, Ammo::getShieldDamage, Ammo::setShieldDamage);
-		form.field("Subsystemschaden", Integer.class, Ammo::getSubDamage, Ammo::setSubDamage);
-		form.field("Zerstoerbar", Double.class, Ammo::getDestroyable, Ammo::setDestroyable);
-		form.multiSelection("Flags", Ammo.Flag.class, Ammo::getFlags, Ammo::setFlags);
-		form.field("Schüsse pro Schuss", Integer.class, Ammo::getShotsPerShot, Ammo::setShotsPerShot);
-		form.field("Flächenschaden", Integer.class, Ammo::getAreaDamage, Ammo::setAreaDamage);
-		form.field("Zugehoeriges Item", Item.class, Integer.class, Ammo::getItemId, Ammo::setItemId);
+		form.field("Name", String.class, Munitionsdefinition::getName, Munitionsdefinition::setName);
+		form.field("Typ", String.class, Munitionsdefinition::getType, Munitionsdefinition::setType);
+		form.field("Treffer-WS", Integer.class, Munitionsdefinition::getTrefferWS, Munitionsdefinition::setTrefferWS);
+		form.field("Small Treffer-WS", Integer.class, Munitionsdefinition::getSmallTrefferWS, Munitionsdefinition::setSmallTrefferWS);
+		form.field("Torp Treffer-WS", Integer.class, Munitionsdefinition::getTorpTrefferWS, Munitionsdefinition::setTorpTrefferWS);
+		form.field("Subsystem Treffer-WS", Integer.class, Munitionsdefinition::getSubWS, Munitionsdefinition::setSubWS);
+		form.field("Schaden", Integer.class, Munitionsdefinition::getDamage, Munitionsdefinition::setDamage);
+		form.field("Schildschaden", Integer.class, Munitionsdefinition::getShieldDamage, Munitionsdefinition::setShieldDamage);
+		form.field("Subsystemschaden", Integer.class, Munitionsdefinition::getSubDamage, Munitionsdefinition::setSubDamage);
+		form.field("Zerstoerbar", Double.class, Munitionsdefinition::getDestroyable, Munitionsdefinition::setDestroyable);
+		form.multiSelection("Flags", Munitionsdefinition.Flag.class, Munitionsdefinition::getFlags, Munitionsdefinition::setFlags);
+		form.field("Schüsse pro Schuss", Integer.class, Munitionsdefinition::getShotsPerShot, Munitionsdefinition::setShotsPerShot);
+		form.field("Flächenschaden", Integer.class, Munitionsdefinition::getAreaDamage, Munitionsdefinition::setAreaDamage);
+		form.field("Zugehoeriges Item", Item.class, Integer.class, Munitionsdefinition::getItemId, Munitionsdefinition::setItemId);
 	}
 }

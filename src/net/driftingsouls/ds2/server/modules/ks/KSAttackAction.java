@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.entities.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.config.items.effects.IEAmmo;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
-import net.driftingsouls.ds2.server.entities.Ammo;
+import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
@@ -110,12 +110,12 @@ public class KSAttackAction extends BasicKSAction {
 	 */
 	private static class AmmoBasierteWaffenbeschreibung extends Waffenbeschreibung
 	{
-		private Ammo ammo;
+		private Munitionsdefinition ammo;
 		private Weapon weapon;
 		private boolean kleinesZiel;
 		private ItemCargoEntry ammoitem;
 
-		private AmmoBasierteWaffenbeschreibung(Weapon weapon, Ammo ammo, ItemCargoEntry ammoitem, boolean kleinesZiel)
+		private AmmoBasierteWaffenbeschreibung(Weapon weapon, Munitionsdefinition ammo, ItemCargoEntry ammoitem, boolean kleinesZiel)
 		{
 			this.weapon = weapon;
 			this.ammo = ammo;
@@ -196,13 +196,13 @@ public class KSAttackAction extends BasicKSAction {
 		@Override
 		public boolean isAreaDamageFull()
 		{
-			return ammo.hasFlag(Ammo.Flag.AD_FULL);
+			return ammo.hasFlag(Munitionsdefinition.Flag.AD_FULL);
 		}
 
 		@Override
 		public boolean isArmorRedux()
 		{
-			return ammo.hasFlag(Ammo.Flag.ARMOR_REDUX);
+			return ammo.hasFlag(Munitionsdefinition.Flag.ARMOR_REDUX);
 		}
 
 		@Override
@@ -798,7 +798,7 @@ public class KSAttackAction extends BasicKSAction {
         }
 		int weaponCount = Integer.parseInt(weapons.get(weaponName));
 
-		Ammo ammo = null;
+		Munitionsdefinition ammo = null;
 		ItemCargoEntry ammoitem;
 
 		// Munition
@@ -822,7 +822,7 @@ public class KSAttackAction extends BasicKSAction {
 				return null;
 			}
 
-            ammo = (Ammo)context.getDB().createQuery("from Ammo " +
+            ammo = (Munitionsdefinition)context.getDB().createQuery("from Munitionsdefinition " +
                     "where itemid=:id and type in (:ammo)")
                     .setInteger("id", ammoId)
                     .setParameterList("ammo", this.weapon.getMunitionstypen())
@@ -898,9 +898,9 @@ public class KSAttackAction extends BasicKSAction {
 			else if( !weapon.getMunitionstypen().isEmpty() )
 			{
 				// Load possible ammo from database
-				List<Ammo> ammo = Common.cast(context.getDB().createQuery("from Ammo where type in ('"+Common.implode("','", weapon.getMunitionstypen())+"')").list());
+				List<Munitionsdefinition> ammo = Common.cast(context.getDB().createQuery("from Munitionsdefinition where type in ('"+Common.implode("','", weapon.getMunitionstypen())+"')").list());
 				// iterate through whole ammo
-				for(Ammo munition: ammo)
+				for(Munitionsdefinition munition: ammo)
 				{
 					ItemID ammoId = new ItemID(munition.getItemId());
 					int ammocount = (int) enemyCargo.getResourceCount(ammoId);

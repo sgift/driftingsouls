@@ -20,7 +20,7 @@ package net.driftingsouls.ds2.server.config.items.effects;
 
 import java.io.IOException;
 
-import net.driftingsouls.ds2.server.entities.Ammo;
+import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.apache.commons.lang.StringUtils;
@@ -51,9 +51,9 @@ public class IEDraftAmmo extends ItemEffect {
 	 * Gibt die zugehoerigen Ammodaten zurueck.
 	 * @return Die Ammodaten
 	 */
-	public Ammo getAmmo() {
+	public Munitionsdefinition getAmmo() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		return (Ammo)db.get(Ammo.class, this.ammoId);
+		return (Munitionsdefinition)db.get(Munitionsdefinition.class, this.ammoId);
 	}
 	
 	/**
@@ -69,7 +69,7 @@ public class IEDraftAmmo extends ItemEffect {
 		Boolean allyEffect = effects[1].equals("true");
 		
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		Ammo ammoEntry = (Ammo)db.get(Ammo.class, ammo);
+		Munitionsdefinition ammoEntry = (Munitionsdefinition)db.get(Munitionsdefinition.class, ammo);
 		if( ammoEntry == null ) {
 			throw new IllegalArgumentException("Illegaler Ammo-Typ '"+ammo+"' im Item-Effekt 'Munitionsbauplan'");
 		}
@@ -91,7 +91,7 @@ public class IEDraftAmmo extends ItemEffect {
 		Boolean allyEffect = context.getRequest().getParameterString("allyeffect").equals("true");
 		
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		Ammo ammoEntry = (Ammo)db.get(Ammo.class, ammoid);
+		Munitionsdefinition ammoEntry = (Munitionsdefinition)db.get(Munitionsdefinition.class, ammoid);
 		if( ammoEntry == null) {
 			return new IENone();
 		}

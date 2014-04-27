@@ -27,7 +27,7 @@ import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.effects.IEAmmo;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
-import net.driftingsouls.ds2.server.entities.Ammo;
+import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -201,12 +201,12 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 		if( Weapons.get().weapon(weapon).hasFlag(Weapon.Flags.AMMO_SELECT) ) {
 			Set<Integer> ammoids = new HashSet<>();
 
-			Iterator<?> ammoIter = db.createQuery("from Ammo " +
+			Iterator<?> ammoIter = db.createQuery("from Munitionsdefinition " +
 					"where type in ('"+Common.implode("','", Weapons.get().weapon(weapon).getMunitionstypen())+"')")
 				.iterate();
 
 			while( ammoIter.hasNext() ) {
-				Ammo ammo = (Ammo)ammoIter.next();
+				Munitionsdefinition ammo = (Munitionsdefinition)ammoIter.next();
 				ammoids.add(ammo.getId());
 			}
 

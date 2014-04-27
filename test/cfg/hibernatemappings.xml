@@ -10,7 +10,7 @@
 	<mapping class="net.driftingsouls.ds2.server.entities.Academy" />
 	<mapping class="net.driftingsouls.ds2.server.entities.Ally" />
 	<mapping class="net.driftingsouls.ds2.server.entities.AllyPosten" />
-	<mapping class="net.driftingsouls.ds2.server.entities.Ammo" />
+	<mapping class="net.driftingsouls.ds2.server.entities.Munitionsdefinition" />
 	<mapping class="net.driftingsouls.ds2.server.bases.Base" />
 	<mapping class="net.driftingsouls.ds2.server.battles.Battle" />
 	<mapping class="net.driftingsouls.ds2.server.battles.BattleShip" />
