@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 /**
  * Klasse zum Erstellen eines Eingabeformulars.
  */
-public class EditorForm8<E>
+public class EditorForm8<E> implements FormElementCreator<E>
 {
 
 	private Function<E,Boolean> allowDelete;
@@ -192,84 +192,45 @@ public class EditorForm8<E>
 		return this.postAddTasks;
 	}
 
-	/**
-	 * Fuegt einen Generator fuer ein Eingabefeld zum Form hinzu.
-	 * @param generator Der Generator
-	 * @param <T> Der Typ des Generators
-	 * @return Der Generator
-	 */
+	@Override
 	public <T extends CustomFieldGenerator<E>> T custom(T generator)
 	{
 		fields.add(generator);
 		return generator;
 	}
 
-	/**
-	 * Generiert ein Eingabefeld (Editor) fuer ein via {@link net.driftingsouls.ds2.server.framework.DynamicContent}
-	 * gemanagetes Bild.
-	 * @param label Der Label fuer das Eingabefeld
-	 * @param getter Der getter für das Feld
-	 * @return Der erzeugte Generator
-	 */
-	public DynamicContentFieldGenerator<E> dynamicContentField(String label, Function<E,String> getter, BiConsumer<E,String> setter)
+	@Override
+	public DynamicContentFieldGenerator<E> dynamicContentField(String label, Function<E, String> getter, BiConsumer<E, String> setter)
 	{
-		return custom(new DynamicContentFieldGenerator<>(plugin, label, generateName(getter.getClass().getSimpleName()), getter, setter));
+		return custom(new DynamicContentFieldGenerator<>(plugin, label, generateName(getter), getter, setter));
 	}
 
-	/**
-	 * Erzeugt ein Eingabefeld (Editor) in Form eines nicht editierbaren Werts.
-	 * @param label Der Label zum Wert
-	 * @param getter Der getter des Werts
-	 */
-	public <T> LabelGenerator<E,T> label(String label, Function<E,T> getter)
+	@Override
+	public <T> LabelGenerator<E,T> label(String label, Function<E, T> getter)
 	{
-		return custom(new LabelGenerator<>(generateName(getter.getClass().getSimpleName()), label, getter));
+		return custom(new LabelGenerator<>(generateName(getter), label, getter));
 	}
 
-	/**
-	 * Erzeugt ein Editor ohne Aenderungsfunktionen fuer ein Bild.
-	 * @param label Der Label zum Wert
-	 * @param getter Der getter des Werts
-	 */
-	public PictureGenerator<E> picture(String label, Function<E,String> getter)
+	@Override
+	public PictureGenerator<E> picture(String label, Function<E, String> getter)
 	{
-		return custom(new PictureGenerator<>(generateName(getter.getClass().getSimpleName()), label, getter));
+		return custom(new PictureGenerator<>(generateName(getter), label, getter));
 	}
 
-	/**
-	 * Erzeugt ein Eingabefeld (Editor) in Form einer Textarea.
-	 * @param label Der Label
-	 * @param getter Der Getter fuer den momentanen Wert
-	 * @param setter Der Setter fuer den momentanen Wert
-	 */
-	public TextAreaGenerator<E> textArea(String label, Function<E,String> getter, BiConsumer<E,String> setter)
+	@Override
+	public TextAreaGenerator<E> textArea(String label, Function<E, String> getter, BiConsumer<E, String> setter)
 	{
-		return custom(new TextAreaGenerator<>(label, generateName(getter.getClass().getSimpleName()), getter, setter));
+		return custom(new TextAreaGenerator<>(label, generateName(getter), getter, setter));
 	}
 
-	/**
-	 * Erzeugt ein Eingabefeld (Editor) fuer einen bestimmten Datentyp. Das konkret erzeugte Eingabefeld
-	 * kann von Datentyp zu Datentyp unterschiedlich sein.
-	 * @param label Das Anzeigelabel
-	 * @param viewType Der Datentyp des Views
-	 * @param dataType Der Datentyp des Models
-	 * @param getter Der getter fuer den momentanen Wert
-     * @param setter Der setter fuer den momentanen Wert
-	 */
-	public <T> FieldGenerator<E,T> field(String label, Class<?> viewType, Class<T> dataType, Function<E,T> getter, BiConsumer<E,T> setter)
+	@Override
+	public <T> FieldGenerator<E,T> field(String label, Class<?> viewType, Class<T> dataType, Function<E, T> getter, BiConsumer<E, T> setter)
 	{
-		return custom(new FieldGenerator<>(label, generateName(getter.getClass().getSimpleName()), viewType, dataType, getter, setter));
+		return custom(new FieldGenerator<>(label, generateName(getter), viewType, dataType, getter, setter));
 	}
 
-	/**
-	 * Erzeugt ein Eingabefeld (Editor) fuer einen bestimmten Datentyp. Das konkret erzeugte Eingabefeld
-	 * kann von Datentyp zu Datentyp unterschiedlich sein.
-	 * @param label Das Anzeigelabel
-	 * @param type Der Datentyp des Views und des Models
-	 * @param getter Der getter fuer den momentanen Wert
-	 * @param setter Der setter fuer den momentanen Wert
-	 */
-	public <T> FieldGenerator<E,T> field(String label, Class<T> type, Function<E,T> getter, BiConsumer<E,T> setter)
+	@Override
+	public <T> FieldGenerator<E,T> field(String label, Class<T> type, Function<E, T> getter, BiConsumer<E, T> setter)
 	{
 		return field(label, type, type, getter, setter);
 	}
@@ -290,21 +251,16 @@ public class EditorForm8<E>
 		return custom(new EntityClassGenerator<>(label, generateName("entityClass"), modus == EditorMode.CREATE, defaultEntityClass, options));
 	}
 
-	/**
-	 * Erzeugt ein Auswahlfeld mit einer Mehrfachauswahl (Editor) fuer einen bestimmten Datentyp.
-	 * @param label Das Anzeigelabel
-	 * @param type Der Datentyp des Views und des Models
-	 * @param getter Der getter fuer den momentanen Wert
-	 * @param setter Der setter fuer den momentanen Wert
-	 */
-	public <T> MultiSelectionGenerator<E,T> multiSelection(String label, Class<T> type, Function<E,Set<T>> getter, BiConsumer<E,Set<T>> setter)
+	@Override
+	public <T> MultiSelectionGenerator<E,T> multiSelection(String label, Class<T> type, Function<E, Set<T>> getter, BiConsumer<E, Set<T>> setter)
 	{
-		return custom(new MultiSelectionGenerator<>(label, generateName(getter.getClass().getSimpleName()), type, type, getter, setter));
+		return custom(new MultiSelectionGenerator<>(label, generateName(getter), type, type, getter, setter));
 	}
 
-	private String generateName(String suffix)
+	private String generateName(Object object)
 	{
-		return "field"+(counter++)+"_"+suffix.replace('/', '_').replace('$', '_');
+		String suffix = object instanceof String ? (String)object : object.getClass().getSimpleName();
+		return "field"+(counter++)+"_"+ suffix.replace('/', '_').replace('$', '_');
 	}
 
 	protected void generateForm(E entity)
@@ -360,6 +316,7 @@ public class EditorForm8<E>
         }
     }
 
+	@Override
 	public EditorForm8<E> ifAdding()
 	{
 		if( modus == EditorMode.CREATE )
@@ -369,6 +326,7 @@ public class EditorForm8<E>
 		return new EditorForm8<>(EditorMode.CREATE, plugin, new StringBuilder());
 	}
 
+	@Override
 	public EditorForm8<E> ifUpdating()
 	{
 		if( modus == EditorMode.UPDATE )
@@ -378,9 +336,20 @@ public class EditorForm8<E>
 		return new EditorForm8<>(EditorMode.UPDATE, plugin, new StringBuilder());
 	}
 
+	/**
+	 * Schraenkt die Anzeige eines Eingabeelements auf die angegebene Entity-Klasse ein.
+	 * @param entityClass Die Entity-Klasse
+	 * @return Das Objekt zum Erstellen von Formelementen
+	 */
+	@SuppressWarnings("unchecked")
+	public <T extends E> FormElementCreator<T> ifEntityClass(Class<T> entityClass)
+	{
+		return new ConditionalFormElementCreator<>(plugin, this::generateName, (FormElementCreator<T>) this, entity -> entityClass.isAssignableFrom(entity.getClass()));
+	}
+
 	protected List<ColumnDefinition> getColumnDefinitions()
 	{
-		return this.fields.stream().map(CustomFieldGenerator<E>::getColumnDefinition).collect(Collectors.toList());
+		return this.fields.stream().map(CustomFieldGenerator::getColumnDefinition).collect(Collectors.toList());
 	}
 
 	protected List<String> getEntityValues(E entity)

@@ -8,7 +8,7 @@ import java.io.IOException;
  * Standardinterface fuer Feldgeneratoren. Jede Instanz generiert genau
  * ein Feld fuer ein konkretes Form.
  */
-public interface CustomFieldGenerator<V>
+public interface CustomFieldGenerator<E>
 {
 	/**
 	 * Generiert den HTML-Code fuer das Eingabefeld.
@@ -16,7 +16,7 @@ public interface CustomFieldGenerator<V>
 	 * @param entity Die Entity-Instanz zu der das Feld generiert werden soll
 	 * @throws java.io.IOException Bei I/O-Fehlern
 	 */
-	public void generate(StringBuilder echo, V entity) throws IOException;
+	public void generate(StringBuilder echo, E entity) throws IOException;
 
 	/**
 	 * Liesst die Angaben zum Feld aus der Request und speichert sie an der
@@ -25,7 +25,7 @@ public interface CustomFieldGenerator<V>
 	 * @param entity Die Entity
 	 * @throws java.io.IOException Bei IO-Fehlern
 	 */
-	public void applyRequestValues(Request request, V entity) throws IOException;
+	public void applyRequestValues(Request request, E entity) throws IOException;
 
 	/**
 	 * Liefert die Spaltendefinition fuer diesen Editor fuer eine Darstellung in einem Grid.
@@ -38,5 +38,5 @@ public interface CustomFieldGenerator<V>
 	 * @param entity Die Entity-Instanz
 	 * @return Der Anzeigestring
 	 */
-	public String serializedValueOf(V entity);
+	public String serializedValueOf(E entity);
 }

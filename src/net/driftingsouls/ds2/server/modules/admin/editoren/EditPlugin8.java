@@ -64,11 +64,11 @@ public class EditPlugin8<T> implements AdminPlugin
 		{
 			try
 			{
-				@SuppressWarnings("unchecked") T entity = (T) db.get(this.clazz, toEntityId(this.clazz, entityId));
+				@SuppressWarnings("unchecked") T entity = (T) db.get(this.baseClass, toEntityId(this.baseClass, entityId));
 				if ( entity != null && form.isUpdateAllowed(entity) && isUpdatePossible(entity))
 				{
 					db.evict(entity);
-					@SuppressWarnings("unchecked") T updatedEntity = (T) db.get(this.clazz, toEntityId(this.clazz, entityId));
+					@SuppressWarnings("unchecked") T updatedEntity = (T) db.get(this.baseClass, toEntityId(this.baseClass, entityId));
 					form.applyRequestValues(request, updatedEntity);
 					processJobs(echo, entity, updatedEntity, form.getUpdateTasks());
 					echo.append("<p>Update abgeschlossen.</p>");
@@ -89,7 +89,7 @@ public class EditPlugin8<T> implements AdminPlugin
 		{
 			try
 			{
-				@SuppressWarnings("unchecked") T entity = (T) db.get(this.clazz, toEntityId(this.clazz, entityId));
+				@SuppressWarnings("unchecked") T entity = (T) db.get(this.baseClass, toEntityId(this.baseClass, entityId));
 				reset(new DefaultStatusWriter(echo), entity);
 				echo.append("<p>Update abgeschlossen.</p>");
 			}
@@ -103,7 +103,7 @@ public class EditPlugin8<T> implements AdminPlugin
 
 		if (entityId != null && !entityId.isEmpty())
 		{
-			@SuppressWarnings("unchecked") T entity = (T) db.get(clazz, toEntityId(this.clazz, entityId));
+			@SuppressWarnings("unchecked") T entity = (T) db.get(baseClass, toEntityId(this.baseClass, entityId));
 			if (entity == null)
 			{
 				return;
