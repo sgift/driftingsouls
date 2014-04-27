@@ -43,6 +43,6 @@ public class Ware extends Item
 	@Override
 	public IENone getEffect()
 	{
-		return (IENone)super.getEffect();
+		return new IENone();
 	}
 }

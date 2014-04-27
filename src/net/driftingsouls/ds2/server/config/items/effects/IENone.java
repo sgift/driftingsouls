@@ -27,7 +27,7 @@ import java.io.IOException;
  *
  */
 public class IENone extends ItemEffect {
-	protected IENone() {
+	public IENone() {
 		super(ItemEffect.Type.NONE);
 	}
 	
