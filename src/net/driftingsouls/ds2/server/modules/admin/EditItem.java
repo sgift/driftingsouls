@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.config.items.Schiffsmodul;
 import net.driftingsouls.ds2.server.config.items.SchiffsmodulSet;
 import net.driftingsouls.ds2.server.config.items.Schiffsverbot;
 import net.driftingsouls.ds2.server.config.items.Ware;
+import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
@@ -39,7 +40,7 @@ import javax.annotation.Nonnull;
  *
  * @author Sebastian Gift
  */
-@AdminMenuEntry(category = "Items", name = "Item editieren", permission = WellKnownAdminPermission.EDIT_ITEM)
+@AdminMenuEntry(category = "Items", name = "Item", permission = WellKnownAdminPermission.EDIT_ITEM)
 public class EditItem implements EntityEditor<Item>
 {
 
@@ -63,5 +64,6 @@ public class EditItem implements EntityEditor<Item>
 		form.field("Unbekanntes Item?", Boolean.class, Item::isUnknownItem, Item::setUnknownItem);
 		form.field("Darf auf Basen spawnen", Boolean.class, Item::isSpawnableRess, Item::setSpawnableRess);
 		form.textArea("Beschreibung", Item::getDescription, Item::setDescription);
+		form.ifEntityClass(Munition.class).field("Munitionsdefinition", Munitionsdefinition.class, Munition::getMunitionsdefinition, Munition::setMunitionsdefinition);
 	}
 }

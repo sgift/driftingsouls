@@ -5,7 +5,6 @@ import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.config.items.Munition;
 import net.driftingsouls.ds2.server.config.items.effects.IEAmmo;
-import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.Weapon;
 import net.driftingsouls.ds2.server.modules.ks.BasicKSAction;
@@ -20,7 +19,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -101,8 +99,8 @@ public class AutoFire
                     heat = Integer.valueOf(heats.get(weapon.getKey().getId()));
                 }
                 
-                Set<Munitionsdefinition> ammunition = getPossibleAmmunition(firingShip.getShip(), weapon.getKey());
-                for(Munitionsdefinition ammo: ammunition)
+                Set<Munition> ammunition = getPossibleAmmunition(firingShip.getShip(), weapon.getKey());
+                for(Munition ammo: ammunition)
                 {
                     if(firingShip.getShip().getEnergy() == 0)
                     {
@@ -166,17 +164,17 @@ public class AutoFire
         battle.writeLog();
     }
     
-    private Set<Munitionsdefinition> getPossibleAmmunition(Ship ship, Weapon weapon)
+    private Set<Munition> getPossibleAmmunition(Ship ship, Weapon weapon)
     {
         //Load all ammunition from cargo
-        Set<Integer> ammos = new HashSet<>();
+        Set<Munition> ammos = new HashSet<>();
         if(!weapon.getMunitionstypen().isEmpty())
         {
             Cargo mycargo = ship.getCargo();
             List<ItemCargoEntry<Munition>> itemList = mycargo.getItemsOfType(Munition.class);
             if(weapon.hasFlag(Weapon.Flags.AMMO_SELECT))
             {
-				ammos.addAll(itemList.stream().map(ItemCargoEntry::getItemID).collect(Collectors.toList()));
+				ammos.addAll(itemList.stream().map(ItemCargoEntry::getItem).collect(Collectors.toList()));
             }
             else
             {
@@ -185,7 +183,7 @@ public class AutoFire
 					IEAmmo effect = item.getItem().getEffect();
 					if (weapon.getMunitionstypen().contains(effect.getAmmo().getType()))
 					{
-						ammos.add(item.getItemID());
+						ammos.add(item.getItem());
 						break;
 					}
 				}
@@ -193,35 +191,31 @@ public class AutoFire
         }
 
         //Filter ammunition the weapon cannot fire
-        Set<Munitionsdefinition> filteredAmmos = new HashSet<>();
+        Set<Munition> filteredAmmos = new HashSet<>();
         if(ammos.isEmpty())
         {
             filteredAmmos.add(null);
         }
         else
         {
-            for(int ammoId: ammos)
-            {
-                Iterator<?> iterator = db.createQuery("from Munitionsdefinition where itemid=:id and type in (:ammo)")
-                                                .setInteger("id", ammoId)
-                                                .setParameterList("ammo", weapon.getMunitionstypen()).iterate();
-                if(iterator.hasNext())
-                {
-                    log.info("Ammo type " + ammoId + " allowed by weapon.");
-                    Munitionsdefinition ammo = (Munitionsdefinition)iterator.next();
-                    filteredAmmos.add(ammo);
-                }
-                else
-                {
-                    log.info("Ammo type " + ammoId + " not allowed by weapon.");
-                }
-            }
+            for(Munition ammo : ammos)
+			{
+				if (weapon.getMunitionstypen().contains(ammo.getEffect().getAmmo().getType()))
+				{
+					log.info("Ammo type " + ammo + " allowed by weapon.");
+					filteredAmmos.add(ammo);
+				}
+				else
+				{
+					log.info("Ammo type " + ammo + " not allowed by weapon.");
+				}
+			}
         }
 
         return filteredAmmos;
     }
 
-    private KSAttackAction findTarget(User user, BattleShip firingShip, Map.Entry<Weapon, Integer> shipWeapon, Munitionsdefinition ammo, List<BattleShip> possibleTargets)
+    private KSAttackAction findTarget(User user, BattleShip firingShip, Map.Entry<Weapon, Integer> shipWeapon, Munition ammo, List<BattleShip> possibleTargets)
     {
         log.info("\t\tCalculating best target");
         if(possibleTargets.isEmpty())
@@ -229,11 +223,6 @@ public class AutoFire
             return null;
         }
 
-        int ammoId = 0;
-        if(ammo != null)
-        {
-            ammoId = ammo.getItemId();
-        }
         Weapon weapon = shipWeapon.getKey();
 
         //Always fire on the same kind of ship unless the weapon is a special big ship or small ship attack weapon (i.e. torpedos on bombers)
@@ -255,9 +244,9 @@ public class AutoFire
         int baseDamage = 0;
         if(ammo != null)
         {
-            if(ammo.getSubDamage() <= 0)
+            if(ammo.getEffect().getAmmo().getSubDamage() <= 0)
             {
-                baseDamage = ammo.getDamage();
+                baseDamage = ammo.getEffect().getAmmo().getDamage();
             }
         }
         else
@@ -304,7 +293,7 @@ public class AutoFire
             }
 
             KSAttackAction currentFiringAction = new KSAttackAction(user, weapon, "single", 1);
-            if(!currentFiringAction.init(battle, weapon.getId(), ammoId))
+            if(!currentFiringAction.init(battle, weapon.getId(), ammo))
             {
                 log.info("\t\tWeapon cannot attack Ship. Ignoring.");
                 continue;

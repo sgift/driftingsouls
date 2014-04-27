@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.NoSuchWeaponException;
 import net.driftingsouls.ds2.server.config.Weapons;
+import net.driftingsouls.ds2.server.config.items.Munition;
 import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
@@ -152,12 +153,12 @@ public class AddShips implements AdminPlugin {
 				echo.append("<div style=\"margin:0px;border:0px;padding:0px;display:inline;position:absolute;top:0px;left:0px\" id=\"select_ammo_").append(ammo).append("\">\n");
 				echo.append("<select id=\"select_ammo_").append(ammo).append("_element\" name=\"ammo_").append(ammo).append("\" size=\"1\">\n");
 				echo.append("<option id=\"0\">[Nichts]</option>\n");
-				final Iterator<?> ammoIter = db.createQuery("from Munitionsdefinition where type= :ammo")
+				final Iterator<?> ammoIter = db.createQuery("from Munition where munitionsdefinition.type = :ammo")
 					.setString("ammo", ammo)
 					.iterate();
 				while( ammoIter.hasNext() ) {
-					Munitionsdefinition ammoObj = (Munitionsdefinition)ammoIter.next();
-					echo.append("<option value=\"").append(ammoObj.getItemId()).append("\">").append(Common._plaintitle(ammoObj.getName())).append("</option>\n");
+					Munition ammoObj = (Munition)ammoIter.next();
+					echo.append("<option value=\"").append(ammoObj.getID()).append("\">").append(Common._plaintitle(ammoObj.getName())).append("</option>\n");
 				}
 				echo.append("</select>\n");
 				echo.append("</div>\n");
@@ -203,12 +204,12 @@ public class AddShips implements AdminPlugin {
 				echo.append("<div style=\"margin:0px;border:0px;padding:0px;display:inline;position:absolute;top:0px;left:0px\" id=\"select_jaeger_ammo_").append(ammo).append("\">\n");
 				echo.append("<select name=\"jaeger_ammo_").append(ammo).append("\" size=\"1\">\n");
 				echo.append("<option id=\"0\">[Nichts]</option>\n");
-				final Iterator<?> ammoIter = db.createQuery("from Munitionsdefinition where type= :ammo")
+				final Iterator<?> ammoIter = db.createQuery("from Munition where munitionsdefinition.type= :ammo")
 					.setString("ammo", ammo)
 					.iterate();
 				while( ammoIter.hasNext() ) {
-					Munitionsdefinition ammoObj = (Munitionsdefinition)ammoIter.next();
-					echo.append("<option value=\"").append(ammoObj.getItemId()).append("\">").append(Common._plaintitle(ammoObj.getName())).append("</option>\n");
+					Munition ammoObj = (Munition)ammoIter.next();
+					echo.append("<option value=\"").append(ammoObj.getID()).append("\">").append(Common._plaintitle(ammoObj.getName())).append("</option>\n");
 				}
 				echo.append("</select>\n");
 				echo.append("</div>\n");

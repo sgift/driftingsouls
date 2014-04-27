@@ -19,8 +19,6 @@
 package net.driftingsouls.ds2.server.config.items.effects;
 
 import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 
 import java.io.IOException;
 
@@ -37,17 +35,12 @@ import java.io.IOException;
  *
  */
 public class IEAmmo extends ItemEffect {
-	private int ammoId;
+	private Munitionsdefinition munitionsdefinition;
 
 	public IEAmmo(Munitionsdefinition munitionsdefinition)
 	{
 		super(ItemEffect.Type.AMMO);
-		this.ammoId = munitionsdefinition.getId();
-	}
-
-	public IEAmmo(int ammoid) {
-		super(ItemEffect.Type.AMMO);
-		this.ammoId = ammoid;
+		this.munitionsdefinition = munitionsdefinition;
 	}
 	
 	/**
@@ -55,45 +48,9 @@ public class IEAmmo extends ItemEffect {
 	 * @return Die Ammodaten
 	 */
 	public Munitionsdefinition getAmmo() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		return (Munitionsdefinition)db.get(Munitionsdefinition.class, this.ammoId);
+		return munitionsdefinition;
 	}
-	
-	/**
-	 * Liest die Ammodaten aus einem String aus.
-	 * @param effectString Der String mit dem Effect
-	 * @return Der Effect
-	 * @throws IllegalArgumentException falls der Effect nicht richtig geladen werden konnte
-	 */
-	public static ItemEffect fromString(String effectString) throws IllegalArgumentException {
-		int ammo = Integer.parseInt(effectString);
-		
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		Munitionsdefinition ammoEntry = (Munitionsdefinition)db.get(Munitionsdefinition.class, ammo);
-		if( ammoEntry == null ) {
-			throw new IllegalArgumentException("Munition nicht gefunden: "+ammo);
-		}
-		
-		return new IEAmmo(ammo);
-	}
-	
-	/**
-	 * Liest die Ammodaten aus einem Context aus.
-	 * @param context der Context
-	 * @return der Effect
-	 */
-	public static ItemEffect fromContext(Context context) {
-		int ammoid = context.getRequest().getParameterInt("ammoid");
-		
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		Munitionsdefinition ammoEntry = (Munitionsdefinition)db.get(Munitionsdefinition.class, ammoid);
-		if( ammoEntry == null) {
-			return new IENone();
-		}
-		
-		return new IEAmmo(ammoid);
-	}
-	
+
 	/**
 	 * Gibt das passende Fenster fuer das Adminmenue aus.
 	 * @param echo Der Writer des Adminmenues
@@ -103,7 +60,7 @@ public class IEAmmo extends ItemEffect {
 	public void getAdminTool(StringBuilder echo) throws IOException {
 		
 		echo.append("<input type=\"hidden\" name=\"type\" value=\"ammo\" >");
-		echo.append("<tr><td class=\"noBorderS\">AmmoId: </td><td><input type=\"text\" name=\"ammoid\" value=\"" + ammoId + "\"></td></tr>\n");
+		echo.append("<tr><td class=\"noBorderS\">AmmoId: </td><td><input type=\"text\" name=\"ammoid\" value=\"" + munitionsdefinition + "\"></td></tr>\n");
 	}
 	
 	/**
@@ -112,7 +69,6 @@ public class IEAmmo extends ItemEffect {
 	 */
 	@Override
 	public String toString() {
-		String itemstring = "ammo:" + ammoId;
-		return itemstring;
+		return "ammo:" + munitionsdefinition.getId();
 	}
 }

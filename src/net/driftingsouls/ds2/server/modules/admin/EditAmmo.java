@@ -57,6 +57,5 @@ public class EditAmmo implements EntityEditor<Munitionsdefinition>
 		form.multiSelection("Flags", Munitionsdefinition.Flag.class, Munitionsdefinition::getFlags, Munitionsdefinition::setFlags);
 		form.field("Schüsse pro Schuss", Integer.class, Munitionsdefinition::getShotsPerShot, Munitionsdefinition::setShotsPerShot);
 		form.field("Flächenschaden", Integer.class, Munitionsdefinition::getAreaDamage, Munitionsdefinition::setAreaDamage);
-		form.field("Zugehoeriges Item", Item.class, Integer.class, Munitionsdefinition::getItemId, Munitionsdefinition::setItemId);
 	}
 }

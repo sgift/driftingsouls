@@ -24,7 +24,6 @@ import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
-import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.config.items.Munition;
 import net.driftingsouls.ds2.server.config.items.effects.IEAmmo;
@@ -333,7 +332,6 @@ public class KSAttackAction extends BasicKSAction {
 	private BattleShip enemyShip;
 	private Waffenbeschreibung localweapon;
     private String weaponName;
-    private int ammoId;
 	private String attmode;
 	private int attcount;
 
@@ -356,7 +354,6 @@ public class KSAttackAction extends BasicKSAction {
         this.ownShip = null;
         this.enemyShip = null;
         this.localweapon = null;
-        this.ammoId = 0;
         this.weaponName = null;
 
         this.attmode = attMode;
@@ -784,7 +781,7 @@ public class KSAttackAction extends BasicKSAction {
 		return new WaffenBasierteWaffenbeschreibung(this.weapon, enemyShipType.getSize() <= ShipType.SMALL_SHIP_MAXSIZE, ownShipType);
 	}
 
-	private Waffenbeschreibung getAmmoBasedWeaponData( Battle battle, final String weaponName, final int ammoId) {
+	private Waffenbeschreibung getAmmoBasedWeaponData( Battle battle, final String weaponName, final Munition munition) {
 		Context context = ContextMap.getContext();
 		BattleShip ownShip = this.ownShip;
 
@@ -798,7 +795,7 @@ public class KSAttackAction extends BasicKSAction {
         }
 		int weaponCount = Integer.parseInt(weapons.get(weaponName));
 
-		Munitionsdefinition ammo = null;
+		Munitionsdefinition munitionsdefinition = null;
 		ItemCargoEntry ammoitem;
 
 		// Munition
@@ -806,22 +803,18 @@ public class KSAttackAction extends BasicKSAction {
 		List<ItemCargoEntry<Munition>> itemlist = mycargo.getItemsOfType(Munition.class);
 
 		if( this.weapon.hasFlag(Weapon.Flags.AMMO_SELECT) ) {
-			boolean item = itemlist.stream().anyMatch(i -> i.getItemID() == ammoId);
+			boolean item = itemlist.stream().anyMatch(i -> i.getItem() == munition);
 
 			if( !item ) {
 				battle.logme( "Sie verf&uuml;gen nicht &uuml;ber den angegebenen Munitionstyp\n" );
 				return null;
 			}
 
-            ammo = (Munitionsdefinition)context.getDB().createQuery("from Munitionsdefinition " +
-                    "where itemid=:id and type in (:ammo)")
-                    .setInteger("id", ammoId)
-                    .setParameterList("ammo", this.weapon.getMunitionstypen())
-                    .iterate().next();
+			munitionsdefinition = munition.getEffect().getAmmo();
 
-            if(ammo == null)
+            if(!this.weapon.getMunitionstypen().contains(munitionsdefinition.getType()))
             {
-                log.info("Ein nicht existierender Ammotyp wurde geladen: " + ammoId);
+                log.info("Ein nicht existierender Ammotyp wurde geladen: " + munition);
                 for(String ammoType: this.weapon.getMunitionstypen())
                 {
                     log.info("Allowed ammoType: " + ammoType);
@@ -836,12 +829,12 @@ public class KSAttackAction extends BasicKSAction {
 
 				if( this.weapon.getMunitionstypen().contains(effect.getAmmo().getType()) )
 				{
-					ammo = effect.getAmmo();
+					munitionsdefinition = effect.getAmmo();
 					break;
 				}
 			}
 
-			if( ammo == null ) {
+			if( munitionsdefinition == null ) {
 				battle.logme( "Sie verf&uuml;gen &uuml;ber keine Munition\n" );
 				return null;
 			}
@@ -851,7 +844,7 @@ public class KSAttackAction extends BasicKSAction {
 		for (ItemCargoEntry<Munition> anItemlist : itemlist)
 		{
 			IEAmmo effect = anItemlist.getItem().getEffect();
-			if (effect.getAmmo() == ammo)
+			if (effect.getAmmo() == munitionsdefinition)
 			{
 				ammoitem = anItemlist;
 			}
@@ -862,9 +855,9 @@ public class KSAttackAction extends BasicKSAction {
 			return null;
 		}
 
-		battle.logme( "Feuere "+ammo.getName()+" ab...\n" );
+		battle.logme( "Feuere "+munitionsdefinition.getName()+" ab...\n" );
 
-		return new AmmoBasierteWaffenbeschreibung(this.weapon, ammo, ammoitem, enemyShipType.getSize() <= ShipType.SMALL_SHIP_MAXSIZE);
+		return new AmmoBasierteWaffenbeschreibung(this.weapon, munitionsdefinition, ammoitem, enemyShipType.getSize() <= ShipType.SMALL_SHIP_MAXSIZE);
 	}
 
 	public int getAntiTorpTrefferWS(ShipTypeData enemyShipType, BattleShip enemyShip) {
@@ -887,25 +880,25 @@ public class KSAttackAction extends BasicKSAction {
 			}
 			else if( !weapon.getMunitionstypen().isEmpty() )
 			{
-				// Load possible ammo from database
-				List<Munitionsdefinition> ammo = Common.cast(context.getDB().createQuery("from Munitionsdefinition where type in ('"+Common.implode("','", weapon.getMunitionstypen())+"')").list());
-				// iterate through whole ammo
-				for(Munitionsdefinition munition: ammo)
+				for (ItemCargoEntry<Munition> entry : enemyCargo.getItemsOfType(Munition.class))
 				{
-					ItemID ammoId = new ItemID(munition.getItemId());
-					int ammocount = (int) enemyCargo.getResourceCount(ammoId);
-					int shots = weapon.getSingleShots()*count;
-					// check if there's enough ammo to fire
-					if(	ammocount >= shots && munition.getTorpTrefferWS() != 0)
+					Munitionsdefinition munitionsdefinition = entry.getItem().getEffect().getAmmo();
+					if( weapon.getMunitionstypen().contains(munitionsdefinition.getType()) )
 					{
-						// increase antitorptws
-						antitorptrefferws += munition.getTorpTrefferWS()*count;
-						// reduce amount of ammo in cargo
-						enemyCargo.setResource(ammoId, ammocount - shots);
-						enemyShip.getShip().setCargo(enemyCargo);
-						// stop iteration of ammo here
-						// TODO maybe we should check if there's a better ammo in cargo
-						break;
+						int ammocount = (int) entry.getCount();
+						int shots = weapon.getSingleShots()*count;
+						// check if there's enough ammo to fire
+						if(	ammocount >= shots && munitionsdefinition.getTorpTrefferWS() != 0)
+						{
+							// increase antitorptws
+							antitorptrefferws += munitionsdefinition.getTorpTrefferWS()*count;
+							// reduce amount of ammo in cargo
+							enemyCargo.setResource(entry.getResourceID(), ammocount - shots);
+							enemyShip.getShip().setCargo(enemyCargo);
+							// stop iteration of ammo here
+							// TODO maybe we should check if there's a better ammo in cargo
+							break;
+						}
 					}
 				}
 			}
@@ -1212,12 +1205,13 @@ public class KSAttackAction extends BasicKSAction {
         Context context = ContextMap.getContext();
         final String weaponName = context.getRequest().getParameterString("weapon");
         int ammoId = context.getRequest().getParameterInt("ammoid");
-        init(battle, weaponName, ammoId);
+
+        init(battle, weaponName, ammoId != 0 ? (Munition) context.getDB().get(Munition.class, ammoId) : null);
 
         return attack(battle);
 	}
 
-    public boolean init(Battle battle, String weaponName, int ammoId)
+    public boolean init(Battle battle, String weaponName, Munition munition)
     {
         this.ownShip = battle.getOwnShip();
         this.enemyShip = battle.getEnemyShip();
@@ -1231,7 +1225,7 @@ public class KSAttackAction extends BasicKSAction {
 
         if( !this.weapon.getMunitionstypen().isEmpty() )
         {
-            localweapon = this.getAmmoBasedWeaponData(battle, weaponName, ammoId);
+            localweapon = this.getAmmoBasedWeaponData(battle, weaponName, munition);
         }
         else
         {
@@ -1255,7 +1249,6 @@ public class KSAttackAction extends BasicKSAction {
 
         this.localweapon = localweapon;
         this.weaponName = weaponName;
-        this.ammoId = ammoId;
 
         return true;
     }

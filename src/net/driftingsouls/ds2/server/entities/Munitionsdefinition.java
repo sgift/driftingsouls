@@ -86,7 +86,6 @@ public class Munitionsdefinition
 	@CollectionTable(name="ammo_flags", joinColumns = {@JoinColumn(name="ammo_id")})
 	@ForeignKey(name="ammo_flag_fk_ammo")
 	private Set<Flag> flags;
-	private int itemid;
 
 	/**
 	 * Konstruktor.
@@ -120,16 +119,7 @@ public class Munitionsdefinition
 	{
 		return this.name;
 	}
-	
-	/**
-	 * Gibt die ItemID zurueck.
-	 * @return Die ItemID
-	 */
-	public int getItemId()
-	{
-		return this.itemid;
-	}
-	
+
 	/**
 	 * Gibt den Zerstoerbarkeitsfaktor zurueck.
 	 * @return Der Zerstoerbarkeitsfaktor
@@ -331,14 +321,5 @@ public class Munitionsdefinition
 	 */
 	public void setType(String type) {
 		this.type = type;
-	}
-
-	/**
-	 * Setzt die ID des zugehoerigen Items.
-	 * @param itemid Die ID
-	 */
-	public void setItemId(int itemid)
-	{
-		this.itemid = itemid;
 	}
 }
