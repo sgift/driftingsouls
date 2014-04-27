@@ -18,7 +18,6 @@
  */
 package net.driftingsouls.ds2.server.werften;
 
-import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
@@ -29,8 +28,9 @@ import net.driftingsouls.ds2.server.cargo.modules.Module;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
 import net.driftingsouls.ds2.server.config.ModuleSlots;
 import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.config.items.Schiffsmodul;
 import net.driftingsouls.ds2.server.config.items.effects.IEModule;
-import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
+import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -786,7 +786,7 @@ public class WerftGUI {
 		}
 
 		Cargo cargo = werft.getCargo(false);
-		List<ItemCargoEntry> itemlist = cargo.getItemsWithEffect( ItemEffect.Type.MODULE );
+		List<ItemCargoEntry<Schiffsmodul>> itemlist = cargo.getItemsOfType(Schiffsmodul.class);
 
 		// Slots (Mit Belegung) ausgeben
 		for (String[] aslot : moduleslots)
@@ -809,9 +809,9 @@ public class WerftGUI {
 			}
 			else
 			{
-				for (ItemCargoEntry anItemlist : itemlist)
+				for (ItemCargoEntry<Schiffsmodul> anItemlist : itemlist)
 				{
-					IEModule effect = (IEModule) anItemlist.getItemEffect();
+					IEModule effect = anItemlist.getItem().getEffect();
 					if (!ModuleSlots.get().slot(aslot[1]).isMemberIn(effect.getSlots()))
 					{
 						continue;

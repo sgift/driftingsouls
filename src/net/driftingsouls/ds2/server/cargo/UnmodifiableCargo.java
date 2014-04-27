@@ -18,10 +18,10 @@
  */
 package net.driftingsouls.ds2.server.cargo;
 
+import net.driftingsouls.ds2.server.config.items.Item;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 
 /**
  * <h1>Wrapper-Klasse fuer <code>Cargo</code>-Objekte.</h1>
@@ -85,13 +85,15 @@ public class UnmodifiableCargo extends Cargo {
 	}
 
 	@Override
-	public List<ItemCargoEntry> getItemsWithEffect(ItemEffect.Type itemeffectid) {
-		return innerCargo.getItemsWithEffect(itemeffectid);
+	public <T extends Item> ItemCargoEntry<T> getItemOfType(Class<T> itemType)
+	{
+		return innerCargo.getItemOfType(itemType);
 	}
 
 	@Override
-	public ItemCargoEntry getItemWithEffect(ItemEffect.Type itemeffectid) {
-		return innerCargo.getItemWithEffect(itemeffectid);
+	public <T extends Item> List<ItemCargoEntry<T>> getItemsOfType(Class<T> itemType)
+	{
+		return innerCargo.getItemsOfType(itemType);
 	}
 
 	@Override

@@ -25,13 +25,13 @@ import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.modules.Module;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleItemModule;
-import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
+import net.driftingsouls.ds2.server.config.items.Munition;
 import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.statistik.StatAktiveSpieler;
 import net.driftingsouls.ds2.server.entities.statistik.StatCargo;
 import net.driftingsouls.ds2.server.entities.statistik.StatItemLocations;
 import net.driftingsouls.ds2.server.entities.statistik.StatUserCargo;
-import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -135,17 +135,17 @@ public class RestTick extends TickController {
 	private void ermittleCargoStatistiken(Session db, Cargo cargo, Map<User, Cargo> usercargos, Map<User, Map<Integer, Set<String>>> useritemlocations)
 	{
 		int counter = 0;
-		long baseCount = (Long)db.createQuery("select count(*) from Base where owner!=0").iterate().next();
+		long baseCount = (Long) db.createQuery("select count(*) from Base where owner!=0").iterate().next();
 
-		this.log("\tLese "+baseCount+" Basen ein");
+		this.log("\tLese " + baseCount + " Basen ein");
 
-		while(counter < baseCount)
+		while (counter < baseCount)
 		{
 			List<?> bases = db.createQuery("from Base as b inner join fetch b.owner where b.owner!=0")
-				.setCacheMode(CacheMode.IGNORE)
-				.setFirstResult(counter)
-				.setFetchSize(50)
-				.list();
+					.setCacheMode(CacheMode.IGNORE)
+					.setFirstResult(counter)
+					.setFetchSize(50)
+					.list();
 			for (Object base1 : bases)
 			{
 				Base base = (Base) base1;
@@ -171,37 +171,40 @@ public class RestTick extends TickController {
 				List<ItemCargoEntry> itemlist = bcargo.getItems();
 				for (ItemCargoEntry aitem : itemlist)
 				{
-					if (aitem.getItemEffect().getType() != ItemEffect.Type.AMMO)
+					if (aitem.getItem() instanceof Munition)
 					{
-						if (!useritemlocations.containsKey(base.getOwner()))
-						{
-							useritemlocations.put(base.getOwner(), new HashMap<>());
-						}
-						Map<Integer, Set<String>> itemlocs = useritemlocations.get(base.getOwner());
-						if (!itemlocs.containsKey(aitem.getItemID()))
-						{
-							itemlocs.put(aitem.getItemID(), new HashSet<>());
-						}
-						itemlocs.get(aitem.getItemID()).add("b" + base.getId());
+						continue;
 					}
+
+					if (!useritemlocations.containsKey(base.getOwner()))
+					{
+						useritemlocations.put(base.getOwner(), new HashMap<>());
+					}
+					Map<Integer, Set<String>> itemlocs = useritemlocations.get(base.getOwner());
+					if (!itemlocs.containsKey(aitem.getItemID()))
+					{
+						itemlocs.put(aitem.getItemID(), new HashSet<>());
+					}
+					itemlocs.get(aitem.getItemID()).add("b" + base.getId());
 				}
 
 				db.evict(base);
 			}
 		}
-		long shipCount = (Long)db.createQuery("select count(*) from Ship where id>0")
-			.iterate()
-			.next();
+		long shipCount = (Long) db.createQuery("select count(*) from Ship where id>0")
+				.iterate()
+				.next();
 
 		counter = 0;
 
-		this.log("\tLese "+shipCount+" Schiffe ein");
-		while( counter < shipCount ) {
+		this.log("\tLese " + shipCount + " Schiffe ein");
+		while (counter < shipCount)
+		{
 			List<?> ships = db.createQuery("from Ship as s left join fetch s.modules where s.id>0")
-				.setCacheMode(CacheMode.IGNORE)
-				.setFirstResult(counter)
-				.setMaxResults(50)
-				.list();
+					.setCacheMode(CacheMode.IGNORE)
+					.setFirstResult(counter)
+					.setMaxResults(50)
+					.list();
 			for (Object ship1 : ships)
 			{
 				Ship ship = (Ship) ship1;
@@ -231,19 +234,20 @@ public class RestTick extends TickController {
 				List<ItemCargoEntry> itemlist = scargo.getItems();
 				for (ItemCargoEntry aitem : itemlist)
 				{
-					if (aitem.getItemEffect().getType() != ItemEffect.Type.AMMO)
+					if (aitem.getItem() instanceof Munition)
 					{
-						if (!useritemlocations.containsKey(ship.getOwner()))
-						{
-							useritemlocations.put(ship.getOwner(), new HashMap<>());
-						}
-						Map<Integer, Set<String>> itemlocs = useritemlocations.get(ship.getOwner());
-						if (!itemlocs.containsKey(aitem.getItemID()))
-						{
-							itemlocs.put(aitem.getItemID(), new HashSet<>());
-						}
-						itemlocs.get(aitem.getItemID()).add("s" + ship.getId());
+						continue;
 					}
+					if (!useritemlocations.containsKey(ship.getOwner()))
+					{
+						useritemlocations.put(ship.getOwner(), new HashMap<>());
+					}
+					Map<Integer, Set<String>> itemlocs = useritemlocations.get(ship.getOwner());
+					if (!itemlocs.containsKey(aitem.getItemID()))
+					{
+						itemlocs.put(aitem.getItemID(), new HashSet<>());
+					}
+					itemlocs.get(aitem.getItemID()).add("s" + ship.getId());
 				}
 
 				ModuleEntry[] modulelist = ship.getModules();
@@ -278,68 +282,77 @@ public class RestTick extends TickController {
 
 		this.log("\tLese Zwischenlager ein");
 		ScrollableResults entrylist = db.createQuery("from GtuZwischenlager")
-			.setCacheMode(CacheMode.GET)
-			.scroll(ScrollMode.FORWARD_ONLY);
-		while( entrylist.next() ) {
-			GtuZwischenlager entry = (GtuZwischenlager)entrylist.get(0);
+				.setCacheMode(CacheMode.GET)
+				.scroll(ScrollMode.FORWARD_ONLY);
+		while (entrylist.next())
+		{
+			GtuZwischenlager entry = (GtuZwischenlager) entrylist.get(0);
 
 			Cargo acargo = entry.getCargo1();
-			if( entry.getUser1().getId() > 0 ) {
-				cargo.addCargo( acargo );
+			if (entry.getUser1().getId() > 0)
+			{
+				cargo.addCargo(acargo);
 			}
 
-			if( !usercargos.containsKey(entry.getUser1()) ) {
+			if (!usercargos.containsKey(entry.getUser1()))
+			{
 				usercargos.put(entry.getUser1(), new Cargo(acargo));
 			}
-			else {
-				usercargos.get(entry.getUser1()).addCargo( acargo );
+			else
+			{
+				usercargos.get(entry.getUser1()).addCargo(acargo);
 			}
 
 			List<ItemCargoEntry> itemlist = acargo.getItems();
 			for (ItemCargoEntry aitem : itemlist)
 			{
-				if (aitem.getItemEffect().getType() != ItemEffect.Type.AMMO)
+				if (aitem.getItem() instanceof Munition)
 				{
-					if (!useritemlocations.containsKey(entry.getUser1()))
-					{
-						useritemlocations.put(entry.getUser1(), new HashMap<>());
-					}
-					Map<Integer, Set<String>> itemlocs = useritemlocations.get(entry.getUser1());
-					if (!itemlocs.containsKey(aitem.getItemID()))
-					{
-						itemlocs.put(aitem.getItemID(), new HashSet<>());
-					}
-					itemlocs.get(aitem.getItemID()).add("g" + entry.getPosten().getId());
+					continue;
 				}
+				if (!useritemlocations.containsKey(entry.getUser1()))
+				{
+					useritemlocations.put(entry.getUser1(), new HashMap<>());
+				}
+				Map<Integer, Set<String>> itemlocs = useritemlocations.get(entry.getUser1());
+				if (!itemlocs.containsKey(aitem.getItemID()))
+				{
+					itemlocs.put(aitem.getItemID(), new HashSet<>());
+				}
+				itemlocs.get(aitem.getItemID()).add("g" + entry.getPosten().getId());
 			}
 
 			acargo = entry.getCargo2();
-			if( entry.getUser2().getId() > 0 ) {
-				cargo.addCargo( acargo );
+			if (entry.getUser2().getId() > 0)
+			{
+				cargo.addCargo(acargo);
 			}
-			if( !usercargos.containsKey(entry.getUser2()) ) {
+			if (!usercargos.containsKey(entry.getUser2()))
+			{
 				usercargos.put(entry.getUser2(), new Cargo(acargo));
 			}
-			else {
-				usercargos.get(entry.getUser2()).addCargo( acargo );
+			else
+			{
+				usercargos.get(entry.getUser2()).addCargo(acargo);
 			}
 
 			itemlist = acargo.getItems();
 			for (ItemCargoEntry aitem : itemlist)
 			{
-				if (aitem.getItemEffect().getType() != ItemEffect.Type.AMMO)
+				if (aitem.getItem() instanceof Munition)
 				{
-					if (!useritemlocations.containsKey(entry.getUser2()))
-					{
-						useritemlocations.put(entry.getUser2(), new HashMap<>());
-					}
-					Map<Integer, Set<String>> itemlocs = useritemlocations.get(entry.getUser2());
-					if (!itemlocs.containsKey(aitem.getItemID()))
-					{
-						itemlocs.put(aitem.getItemID(), new HashSet<>());
-					}
-					itemlocs.get(aitem.getItemID()).add("g" + entry.getPosten().getId());
+					continue;
 				}
+				if (!useritemlocations.containsKey(entry.getUser2()))
+				{
+					useritemlocations.put(entry.getUser2(), new HashMap<>());
+				}
+				Map<Integer, Set<String>> itemlocs = useritemlocations.get(entry.getUser2());
+				if (!itemlocs.containsKey(aitem.getItemID()))
+				{
+					itemlocs.put(aitem.getItemID(), new HashSet<>());
+				}
+				itemlocs.get(aitem.getItemID()).add("g" + entry.getPosten().getId());
 			}
 		}
 	}

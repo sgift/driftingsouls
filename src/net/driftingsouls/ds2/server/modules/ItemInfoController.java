@@ -979,7 +979,7 @@ public class ItemInfoController extends TemplateController
 				continue;
 			}
 
-			ItemEffect itemeffect = item.getItemEffect();
+			ItemEffect itemeffect = item.getItem().getEffect();
 
 			String name = Common._plaintitle(itemobject.getName());
 			if (itemobject.getQuality().color().length() > 0)

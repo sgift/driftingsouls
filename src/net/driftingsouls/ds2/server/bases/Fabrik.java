@@ -23,8 +23,8 @@ import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.config.items.Munitionsbauplan;
 import net.driftingsouls.ds2.server.config.items.effects.IEDraftAmmo;
-import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.Factory;
 import net.driftingsouls.ds2.server.entities.FactoryEntry;
 import net.driftingsouls.ds2.server.entities.User;
@@ -161,10 +161,10 @@ public class Fabrik extends DefaultBuilding
 
 		Cargo cargo = base.getCargo();
 
-		List<ItemCargoEntry> list = cargo.getItemsWithEffect(ItemEffect.Type.DRAFT_AMMO);
-		for (ItemCargoEntry item : list)
+		List<ItemCargoEntry<Munitionsbauplan>> list = cargo.getItemsOfType(Munitionsbauplan.class);
+		for (ItemCargoEntry<Munitionsbauplan> item : list)
 		{
-			IEDraftAmmo itemeffect = (IEDraftAmmo) item.getItemEffect();
+			IEDraftAmmo itemeffect = item.getItem().getEffect();
 			FactoryEntry entry = (FactoryEntry) db.get(FactoryEntry.class, itemeffect.getAmmo().getId());
 
 			thisitemslist.add(entry);
@@ -278,10 +278,10 @@ public class Fabrik extends DefaultBuilding
 		{
 			Cargo itemlist = new Cargo(Cargo.Type.ITEMSTRING, user.getAlly().getItems());
 
-			List<ItemCargoEntry> list = itemlist.getItemsWithEffect(ItemEffect.Type.DRAFT_AMMO);
-			for (ItemCargoEntry item : list)
+			List<ItemCargoEntry<Munitionsbauplan>> list = itemlist.getItemsOfType(Munitionsbauplan.class);
+			for (ItemCargoEntry<Munitionsbauplan> item : list)
 			{
-				IEDraftAmmo itemeffect = (IEDraftAmmo) item.getItemEffect();
+				IEDraftAmmo itemeffect = item.getItem().getEffect();
 				FactoryEntry entry = (FactoryEntry) db.get(FactoryEntry.class, itemeffect.getAmmo().getId());
 
 				vars.allvars.get(buildingid).owneritemsbase.add(entry);
@@ -561,11 +561,11 @@ public class Fabrik extends DefaultBuilding
 		Cargo cargo = base.getCargo();
 
 		// Lokale Ammobauplaene ermitteln
-		List<ItemCargoEntry> itemlist = cargo.getItemsWithEffect(ItemEffect.Type.DRAFT_AMMO);
-		for (ItemCargoEntry item : itemlist)
+		List<ItemCargoEntry<Munitionsbauplan>> itemlist = cargo.getItemsOfType(Munitionsbauplan.class);
+		for (ItemCargoEntry<Munitionsbauplan> item : itemlist)
 		{
-			Item itemobject = item.getItem();
-			final FactoryEntry entry = (FactoryEntry) db.get(FactoryEntry.class, ((IEDraftAmmo) itemobject.getEffect()).getAmmo().getId());
+			Munitionsbauplan itemobject = item.getItem();
+			final FactoryEntry entry = (FactoryEntry) db.get(FactoryEntry.class, itemobject.getEffect().getAmmo().getId());
 
 			if (!itemslist.contains(entry))
 			{
@@ -579,11 +579,11 @@ public class Fabrik extends DefaultBuilding
 		{
 			Cargo allyitems = new Cargo(Cargo.Type.ITEMSTRING, user.getAlly().getItems());
 
-			itemlist = allyitems.getItemsWithEffect(ItemEffect.Type.DRAFT_AMMO);
-			for (ItemCargoEntry item : itemlist)
+			itemlist = allyitems.getItemsOfType(Munitionsbauplan.class);
+			for (ItemCargoEntry<Munitionsbauplan> item : itemlist)
 			{
-				Item itemobject = item.getItem();
-				final FactoryEntry entry = (FactoryEntry) db.get(FactoryEntry.class, ((IEDraftAmmo) itemobject.getEffect()).getAmmo().getId());
+				Munitionsbauplan itemobject = item.getItem();
+				final FactoryEntry entry = (FactoryEntry) db.get(FactoryEntry.class, itemobject.getEffect().getAmmo().getId());
 
 				if (!itemslist.contains(entry))
 				{

@@ -26,8 +26,7 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Weapons;
-import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
+import net.driftingsouls.ds2.server.config.items.Munition;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
@@ -345,10 +344,10 @@ public class AngriffController extends TemplateController
 			Cargo mycargo = ship.getCargo();
 			
 			t.setVar("shipinfo.ammo.list","");
-			List<ItemCargoEntry> itemlist = mycargo.getItemsWithEffect( ItemEffect.Type.AMMO );
-            for (ItemCargoEntry item : itemlist) {
+			List<ItemCargoEntry<Munition>> itemlist = mycargo.getItemsOfType(Munition.class);
+            for (ItemCargoEntry<Munition> item : itemlist) {
                 if (item.getCount() > 0) {
-                    Item itemobject = item.getItem();
+					Munition itemobject = item.getItem();
 
                     t.setVar("ammo.image", itemobject.getPicture(),
                             "ammo.name", itemobject.getName(),

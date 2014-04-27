@@ -22,13 +22,13 @@ import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
-import net.driftingsouls.ds2.server.entities.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.config.items.Munition;
 import net.driftingsouls.ds2.server.config.items.effects.IEAmmo;
-import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.Weapon;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -213,10 +213,10 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 			// Munition
 			Cargo mycargo = ownShip.getCargo();
 
-			List<ItemCargoEntry> items = mycargo.getItemsWithEffect( ItemEffect.Type.AMMO );
-			for (ItemCargoEntry item : items)
+			List<ItemCargoEntry<Munition>> items = mycargo.getItemsOfType(Munition.class);
+			for (ItemCargoEntry<Munition> item : items)
 			{
-				IEAmmo effect = (IEAmmo) item.getItemEffect();
+				IEAmmo effect = item.getItem().getEffect();
 				Item itemobject = item.getItem();
 
 				if (ammoids.contains(effect.getAmmo().getId()))

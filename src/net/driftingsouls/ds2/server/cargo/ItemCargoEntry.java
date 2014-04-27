@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.cargo;
 
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
@@ -29,12 +28,22 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
  * @author Christopher Jung
  *
  */
-public class ItemCargoEntry {
+public class ItemCargoEntry<T extends Item> {
+	private T item = null;
 	private Cargo cargo = null;
 	private int itemid = 0;
 	private long count = 0;
 	private int uses = 0;
 	private int data = 0;
+
+	protected ItemCargoEntry( Cargo cargo, T item, long count, int uses, int data ) {
+		this.cargo = cargo;
+		this.itemid = item.getID();
+		this.count = count;
+		this.uses = uses;
+		this.data = data;
+		this.item = item;
+	}
 
 	protected ItemCargoEntry( Cargo cargo, int itemid, long count, int uses, int data ) {
 		this.cargo = cargo;
@@ -108,21 +117,19 @@ public class ItemCargoEntry {
 	 * Gibt den Itemtyp als Objekt zurueck.
 	 * @return Der Itemtyp
 	 */
-	public Item getItem() {
+	@SuppressWarnings("unchecked")
+	public T getItem() {
+		if( item != null )
+		{
+			return item;
+		}
+
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		
-		return (Item)db.get(Item.class, itemid);
+		return (T)db.get(Item.class, itemid);
 	}
-	
-	/**
-	 * Gibt den zum Itemtyp zugeordneten Item-Effekt als Objekt zurueck.
-	 * @return Der Item-Effekt
-	 */
-	public ItemEffect getItemEffect() {
-		return getItem().getEffect();
-	}
-	
+
 	/**
 	 * Gibt die im Cargo vorhandene Menge des Items zurueck.
 	 * @return Die Menge
@@ -138,15 +145,7 @@ public class ItemCargoEntry {
 	public long getMass() {
 		return getItem().getCargo() * count;
 	}
-	
-	/**
-	 * Gibt den Cargo zurueck, zu dem das Item gehoert.
-	 * @return der Cargo
-	 */
-	public Cargo getCargoObject() {		
-		return cargo;
-	}
-	
+
 	/**
 	 * Kopiert das Item in einen anderen Cargo.
 	 * @param cargo der Cargo

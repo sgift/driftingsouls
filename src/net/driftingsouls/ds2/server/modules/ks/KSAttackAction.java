@@ -25,14 +25,14 @@ import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.ItemID;
-import net.driftingsouls.ds2.server.entities.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
+import net.driftingsouls.ds2.server.config.items.Munition;
 import net.driftingsouls.ds2.server.config.items.effects.IEAmmo;
-import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
+import net.driftingsouls.ds2.server.entities.Weapon;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -803,21 +803,12 @@ public class KSAttackAction extends BasicKSAction {
 
 		// Munition
 		Cargo mycargo = ownShip.getCargo();
-		List<ItemCargoEntry> itemlist;
+		List<ItemCargoEntry<Munition>> itemlist = mycargo.getItemsOfType(Munition.class);
 
 		if( this.weapon.hasFlag(Weapon.Flags.AMMO_SELECT) ) {
-			ItemCargoEntry item = null;
-			itemlist = mycargo.getItemsWithEffect( ItemEffect.Type.AMMO );
-			for (ItemCargoEntry anItemlist : itemlist)
-			{
-				if (anItemlist.getItemID() == ammoId)
-				{
-					item = anItemlist;
-					break;
-				}
-			}
+			boolean item = itemlist.stream().anyMatch(i -> i.getItemID() == ammoId);
 
-			if( item == null ) {
+			if( !item ) {
 				battle.logme( "Sie verf&uuml;gen nicht &uuml;ber den angegebenen Munitionstyp\n" );
 				return null;
 			}
@@ -839,10 +830,9 @@ public class KSAttackAction extends BasicKSAction {
             }
 		}
 		else {
-			itemlist = mycargo.getItemsWithEffect( ItemEffect.Type.AMMO );
-			for (ItemCargoEntry anItemlist : itemlist)
+			for (ItemCargoEntry<Munition> anItemlist : itemlist)
 			{
-				IEAmmo effect = (IEAmmo) anItemlist.getItemEffect();
+				IEAmmo effect = anItemlist.getItem().getEffect();
 
 				if( this.weapon.getMunitionstypen().contains(effect.getAmmo().getType()) )
 				{
@@ -858,9 +848,9 @@ public class KSAttackAction extends BasicKSAction {
 		}
 
 		ammoitem = null;
-		for (ItemCargoEntry anItemlist : itemlist)
+		for (ItemCargoEntry<Munition> anItemlist : itemlist)
 		{
-			IEAmmo effect = (IEAmmo) anItemlist.getItemEffect();
+			IEAmmo effect = anItemlist.getItem().getEffect();
 			if (effect.getAmmo() == ammo)
 			{
 				ammoitem = anItemlist;

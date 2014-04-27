@@ -36,6 +36,7 @@ import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleType;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
+import net.driftingsouls.ds2.server.config.items.IffDeaktivierenItem;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.Feeding;
@@ -964,7 +965,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		// Die Items nach IFF und Hydros durchsuchen
 
-		if( cargo.getItemWithEffect(ItemEffect.Type.DISABLE_IFF) != null ) {
+		if( cargo.getItemOfType(IffDeaktivierenItem.class) != null ) {
 			status.add("disable_iff");
 		}
 

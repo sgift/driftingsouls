@@ -36,6 +36,9 @@ import net.driftingsouls.ds2.server.cargo.modules.ModuleType;
 import net.driftingsouls.ds2.server.config.ModuleSlots;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.config.items.Schiffsbauplan;
+import net.driftingsouls.ds2.server.config.items.Schiffsmodul;
+import net.driftingsouls.ds2.server.config.items.Schiffsverbot;
 import net.driftingsouls.ds2.server.config.items.effects.IEDisableShip;
 import net.driftingsouls.ds2.server.config.items.effects.IEDraftShip;
 import net.driftingsouls.ds2.server.config.items.effects.IEModule;
@@ -690,7 +693,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 
 		Cargo cargo = this.getCargo(false);
-		List<ItemCargoEntry> itemlist = cargo.getItemsWithEffect( ItemEffect.Type.MODULE );
+		List<ItemCargoEntry<Schiffsmodul>> itemlist = cargo.getItemsOfType(Schiffsmodul.class);
 
 		ShipTypeData shiptype = ship.getTypeData();
 
@@ -726,7 +729,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 		ItemCargoEntry myitem = null;
 
-		for (ItemCargoEntry anItemlist : itemlist)
+		for (ItemCargoEntry<Schiffsmodul> anItemlist : itemlist)
 		{
 			if (anItemlist.getItemID() == itemid)
 			{
@@ -1275,17 +1278,15 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 		Map<Integer,Boolean> disableShips = new HashMap<>();
 
-		List<ItemCargoEntry> itemlist = availablecargo.getItemsWithEffect( ItemEffect.Type.DISABLE_SHIP );
-		for (ItemCargoEntry anItemlist : itemlist)
+		for (ItemCargoEntry<Schiffsverbot> anItemlist : availablecargo.getItemsOfType(Schiffsverbot.class))
 		{
-			IEDisableShip effect = (IEDisableShip) anItemlist.getItemEffect();
+			IEDisableShip effect = anItemlist.getItem().getEffect();
 			disableShips.put(effect.getShipType(), true);
 		}
 
-		itemlist = allyitems.getItemsWithEffect( ItemEffect.Type.DISABLE_SHIP );
-		for (ItemCargoEntry anItemlist : itemlist)
+		for (ItemCargoEntry<Schiffsverbot> anItemlist : allyitems.getItemsOfType(Schiffsverbot.class))
 		{
-			IEDisableShip effect = (IEDisableShip) anItemlist.getItemEffect();
+			IEDisableShip effect = anItemlist.getItem().getEffect();
 			disableShips.put(effect.getShipType(), true);
 		}
 
@@ -1314,10 +1315,9 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 		//Items
 		Cargo localcargo = this.getCargo(true);
-		itemlist = localcargo.getItemsWithEffect( ItemEffect.Type.DRAFT_SHIP );
-		for (ItemCargoEntry item : itemlist)
+		for (ItemCargoEntry<Schiffsbauplan> item : localcargo.getItemsOfType(Schiffsbauplan.class))
 		{
-			IEDraftShip effect = (IEDraftShip) item.getItemEffect();
+			IEDraftShip effect = item.getItem().getEffect();
 
 			if (effect.getWerftSlots() > this.getWerftSlots())
 			{
@@ -1333,10 +1333,9 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			result.add(new SchiffBauinformationen(effect.toShipBaubar(), BauinformationenQuelle.LOKALES_ITEM, item.getResourceID()));
 		}
 
-		itemlist = allyitems.getItemsWithEffect( ItemEffect.Type.DRAFT_SHIP );
-		for (ItemCargoEntry item : itemlist)
+		for (ItemCargoEntry<Schiffsbauplan> item : allyitems.getItemsOfType(Schiffsbauplan.class))
 		{
-			IEDraftShip effect = (IEDraftShip) item.getItemEffect();
+			IEDraftShip effect = item.getItem().getEffect();
 
 			if (effect.getWerftSlots() > this.getWerftSlots())
 			{

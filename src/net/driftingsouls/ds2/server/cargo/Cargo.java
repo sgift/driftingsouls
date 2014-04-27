@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.cargo;
 
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
@@ -1033,55 +1032,59 @@ public class Cargo implements Cloneable {
 		}
 	}
 
+
+
 	/**
-	 * Gibt das erstbeste Item mit dem angegebenen Effekt zurueck.
+	 * Gibt das erstbeste Item des angebenen Typs zurueck.
 	 * Wenn kein Item diesen Effekt besitzt, wird <code>null</code> zurueckgegeben.
-	 * @param itemeffectid Der gesuchte Item-Effekt
-	 * @return Ein Item mit dem Effekt oder <code>null</code>
+	 * @param itemType Der gesuchte Item-Typ
+	 * @return Ein Item oder <code>null</code>
 	 */
-	public ItemCargoEntry getItemWithEffect( ItemEffect.Type itemeffectid ) {
+	public <T extends Item> ItemCargoEntry<T> getItemOfType( Class<T> itemType )
+	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		for (Long[] aitem : items)
 		{
 			final int itemid = aitem[0].intValue();
-			Item item = (Item) db.get(Item.class, itemid);
+			@SuppressWarnings("unchecked") T item = (T) db.get(Item.class, itemid);
 			if (item == null)
 			{
 				throw new RuntimeException("Unbekanntes Item " + itemid);
 			}
-			if (item.getEffect().getType() != itemeffectid)
+			if (!itemType.isInstance(item))
 			{
 				continue;
 			}
-			return new ItemCargoEntry(this, itemid, aitem[1], aitem[2].intValue(), aitem[3].intValue());
+			return new ItemCargoEntry<>(this, item, aitem[1], aitem[2].intValue(), aitem[3].intValue());
 		}
 		return null;
 	}
 
 	/**
-	 * Gibt eine Liste aller Items im Cargo mit dem gesuchten Effekt zurueck.
-	 * Wenn kein Item den Effekt hat, wird eine leere Liste zurueckgegeben.
-	 * @param itemeffectid Der gesuchte Item-Effekt
-	 * @return Die Liste aller Items mit dem gesuchten Effekt
+	 * Gibt eine Liste aller Items des gewuenschten Typs im Cargo zurueck.
+	 * Wenn kein Item den passenden Typ hat, wird eine leere Liste zurueckgegeben.
+	 * @param itemType Der gesuchte Item-Typ
+	 * @return Die Liste aller Items des gesuchten Typs
 	 */
-	public List<ItemCargoEntry> getItemsWithEffect( ItemEffect.Type itemeffectid ) {
-		List<ItemCargoEntry> itemlist = new ArrayList<>();
+	public <T extends Item> List<ItemCargoEntry<T>> getItemsOfType(Class<T> itemType)
+	{
+		List<ItemCargoEntry<T>> itemlist = new ArrayList<>();
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		for (Long[] aitem : items)
 		{
 			final int itemid = aitem[0].intValue();
-			Item item = (Item) db.get(Item.class, itemid);
+			@SuppressWarnings("unchecked") T item = (T) db.get(Item.class, itemid);
 
 			if (item == null)
 			{
 				continue;
 			}
-			if (item.getEffect().getType() != itemeffectid)
+			if (!itemType.isInstance(item))
 			{
 				continue;
 			}
-			itemlist.add(new ItemCargoEntry(this, itemid, aitem[1], aitem[2].intValue(), aitem[3].intValue()));
+			itemlist.add(new ItemCargoEntry<>(this, item, aitem[1], aitem[2].intValue(), aitem[3].intValue()));
 		}
 
 		return itemlist;

@@ -2,12 +2,12 @@ package net.driftingsouls.ds2.server.battles;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
-import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
-import net.driftingsouls.ds2.server.entities.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
+import net.driftingsouls.ds2.server.config.items.Munition;
 import net.driftingsouls.ds2.server.config.items.effects.IEAmmo;
-import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
+import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.Weapon;
 import net.driftingsouls.ds2.server.modules.ks.BasicKSAction;
 import net.driftingsouls.ds2.server.modules.ks.KSAttackAction;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -173,19 +173,19 @@ public class AutoFire
         if(!weapon.getMunitionstypen().isEmpty())
         {
             Cargo mycargo = ship.getCargo();
-            List<ItemCargoEntry> itemList = mycargo.getItemsWithEffect(ItemEffect.Type.AMMO);
+            List<ItemCargoEntry<Munition>> itemList = mycargo.getItemsOfType(Munition.class);
             if(weapon.hasFlag(Weapon.Flags.AMMO_SELECT))
             {
 				ammos.addAll(itemList.stream().map(ItemCargoEntry::getItemID).collect(Collectors.toList()));
             }
             else
             {
-				for (ItemCargoEntry anItemList : itemList)
+				for (ItemCargoEntry<Munition> item : itemList)
 				{
-					IEAmmo effect = (IEAmmo) anItemList.getItemEffect();
+					IEAmmo effect = item.getItem().getEffect();
 					if (weapon.getMunitionstypen().contains(effect.getAmmo().getType()))
 					{
-						ammos.add(effect.getAmmo().getItemId());
+						ammos.add(item.getItemID());
 						break;
 					}
 				}
