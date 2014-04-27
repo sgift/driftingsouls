@@ -18,9 +18,7 @@
  */
 package net.driftingsouls.ds2.server.config.items.effects;
 
-import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import org.apache.commons.lang.StringUtils;
+import net.driftingsouls.ds2.server.entities.FactoryEntry;
 
 /**
  * <h1>Item-Effekt "Ammo-Bauplan".</h1>
@@ -37,41 +35,19 @@ import org.apache.commons.lang.StringUtils;
  *
  */
 public class IEDraftAmmo extends ItemEffect {
-	private int ammoId;
-	
-	protected IEDraftAmmo(boolean allyEffect, int ammo) {
+	private FactoryEntry fabrikeintrag;
+
+	protected IEDraftAmmo(boolean allyEffect, FactoryEntry ammo) {
 		super(ItemEffect.Type.DRAFT_AMMO, allyEffect);
-		this.ammoId = ammo;
+		this.fabrikeintrag = ammo;
 	}
 	
 	/**
 	 * Gibt die zugehoerigen Ammodaten zurueck.
 	 * @return Die Ammodaten
 	 */
-	public Munitionsdefinition getAmmo() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		return (Munitionsdefinition)db.get(Munitionsdefinition.class, this.ammoId);
-	}
-	
-	/**
-	 * Laedt einen Effect aus einem String.
-	 * @param effectString Der Effect als String
-	 * @return Der Effect
-	 * @throws IllegalArgumentException falls der Effect nicht richtig geladen werden konnte
-	 */
-	public static ItemEffect fromString(String effectString) throws IllegalArgumentException {
-		
-		String[] effects = StringUtils.split(effectString, "&");
-		int ammo = Integer.parseInt(effects[0]);
-		Boolean allyEffect = effects[1].equals("true");
-		
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		Munitionsdefinition ammoEntry = (Munitionsdefinition)db.get(Munitionsdefinition.class, ammo);
-		if( ammoEntry == null ) {
-			throw new IllegalArgumentException("Illegaler Ammo-Typ '"+ammo+"' im Item-Effekt 'Munitionsbauplan'");
-		}
-		
-		return new IEDraftAmmo(allyEffect, ammo);
+	public FactoryEntry getAmmo() {
+		return fabrikeintrag;
 	}
 
 	/**
@@ -80,7 +56,6 @@ public class IEDraftAmmo extends ItemEffect {
 	 */
 	@Override
 	public String toString() {
-		String itemstring = "draft-ammo:" + ammoId + "&" + hasAllyEffect();
-		return itemstring;
+		return "draft-ammo:" + fabrikeintrag.getId() + "&" + hasAllyEffect();
 	}
 }

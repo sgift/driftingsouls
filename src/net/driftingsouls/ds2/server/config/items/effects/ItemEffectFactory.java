@@ -55,7 +55,7 @@ public class ItemEffectFactory {
 				return IEDraftShip.fromString(effects[1]);
 			}
 			if( effects[0].equals("draft-ammo") ) {
-				return IEDraftAmmo.fromString(effects[1]);
+				throw new UnsupportedOperationException();
 			}
 			if( effects[0].equals("module") ) {
 				return IEModule.fromString(effects[1]);
@@ -67,7 +67,7 @@ public class ItemEffectFactory {
 				return IEDisableShip.fromString(effects[1]);
 			}
 			if( effects[0].equals("disable-iff") ) {
-				return IEDisableIFF.fromString(effects[1]);
+				throw new UnsupportedOperationException();
 			}
 			if( effects[0].equals("module-set-meta") ) {
 				return IEModuleSetMeta.fromString(effects[1]);

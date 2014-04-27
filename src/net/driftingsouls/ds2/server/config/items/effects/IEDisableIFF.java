@@ -27,20 +27,10 @@ package net.driftingsouls.ds2.server.config.items.effects;
  *
  */
 public class IEDisableIFF extends ItemEffect {
-	protected IEDisableIFF() {
+	public IEDisableIFF() {
 		super(ItemEffect.Type.DISABLE_IFF);
 	}
-	
-	/**
-	 * Laedt einen Effect aus einem String.
-	 * @param effectString Der Effect als String
-	 * @return Der Effect
-	 * @throws IllegalArgumentException falls der Effect nicht richtig geladen werden konnte
-	 */
-	public static ItemEffect fromString(String effectString) throws IllegalArgumentException {
-		return new IEDisableIFF();
-	}
-	
+
 	/**
 	 * Gibt den Itemeffect als String aus.
 	 * @return der Effect als String

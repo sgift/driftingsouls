@@ -22,7 +22,6 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
-import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.Munitionsbauplan;
 import net.driftingsouls.ds2.server.config.items.effects.IEDraftAmmo;
 import net.driftingsouls.ds2.server.entities.Factory;
@@ -165,7 +164,7 @@ public class Fabrik extends DefaultBuilding
 		for (ItemCargoEntry<Munitionsbauplan> item : list)
 		{
 			IEDraftAmmo itemeffect = item.getItem().getEffect();
-			FactoryEntry entry = (FactoryEntry) db.get(FactoryEntry.class, itemeffect.getAmmo().getId());
+			FactoryEntry entry = itemeffect.getAmmo();
 
 			thisitemslist.add(entry);
 		}
@@ -282,7 +281,7 @@ public class Fabrik extends DefaultBuilding
 			for (ItemCargoEntry<Munitionsbauplan> item : list)
 			{
 				IEDraftAmmo itemeffect = item.getItem().getEffect();
-				FactoryEntry entry = (FactoryEntry) db.get(FactoryEntry.class, itemeffect.getAmmo().getId());
+				FactoryEntry entry = itemeffect.getAmmo();
 
 				vars.allvars.get(buildingid).owneritemsbase.add(entry);
 			}
@@ -565,7 +564,7 @@ public class Fabrik extends DefaultBuilding
 		for (ItemCargoEntry<Munitionsbauplan> item : itemlist)
 		{
 			Munitionsbauplan itemobject = item.getItem();
-			final FactoryEntry entry = (FactoryEntry) db.get(FactoryEntry.class, itemobject.getEffect().getAmmo().getId());
+			final FactoryEntry entry = itemobject.getEffect().getAmmo();
 
 			if (!itemslist.contains(entry))
 			{
@@ -583,7 +582,7 @@ public class Fabrik extends DefaultBuilding
 			for (ItemCargoEntry<Munitionsbauplan> item : itemlist)
 			{
 				Munitionsbauplan itemobject = item.getItem();
-				final FactoryEntry entry = (FactoryEntry) db.get(FactoryEntry.class, itemobject.getEffect().getAmmo().getId());
+				final FactoryEntry entry = itemobject.getEffect().getAmmo();
 
 				if (!itemslist.contains(entry))
 				{

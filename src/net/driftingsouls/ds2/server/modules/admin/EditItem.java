@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.config.items.Schiffsmodul;
 import net.driftingsouls.ds2.server.config.items.SchiffsmodulSet;
 import net.driftingsouls.ds2.server.config.items.Schiffsverbot;
 import net.driftingsouls.ds2.server.config.items.Ware;
+import net.driftingsouls.ds2.server.entities.FactoryEntry;
 import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
@@ -65,5 +66,7 @@ public class EditItem implements EntityEditor<Item>
 		form.field("Darf auf Basen spawnen", Boolean.class, Item::isSpawnableRess, Item::setSpawnableRess);
 		form.textArea("Beschreibung", Item::getDescription, Item::setDescription);
 		form.ifEntityClass(Munition.class).field("Munitionsdefinition", Munitionsdefinition.class, Munition::getMunitionsdefinition, Munition::setMunitionsdefinition);
+		form.ifEntityClass(Munitionsbauplan.class).field("Ermöglicht Fabrikeintrag", FactoryEntry.class, Munitionsbauplan::getFabrikeintrag, Munitionsbauplan::setFabrikeintrag);
+		form.ifEntityClass(Munitionsbauplan.class).field("Als Allianzbauplan verwendbar", Boolean.class, Munitionsbauplan::isAllianzEffekt, Munitionsbauplan::setAllianzEffekt);
 	}
 }

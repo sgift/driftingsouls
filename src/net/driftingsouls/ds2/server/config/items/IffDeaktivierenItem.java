@@ -43,6 +43,6 @@ public class IffDeaktivierenItem extends Item
 	@Override
 	public IEDisableIFF getEffect()
 	{
-		return (IEDisableIFF)super.getEffect();
+		return new IEDisableIFF();
 	}
 }
