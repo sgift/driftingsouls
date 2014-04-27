@@ -105,7 +105,7 @@ public class HandelController extends TemplateController
 			String name;
 
 			Item item = (Item) db.get(Item.class, res.getId().getItemID());
-			if (!item.getHandel())
+			if (!item.isHandel())
 			{
 				continue;
 			}
@@ -164,7 +164,7 @@ public class HandelController extends TemplateController
 		for (ResourceEntry res : reslist)
 		{
 			Item item = (Item) db.get(Item.class, res.getId().getItemID());
-			if (!item.getHandel())
+			if (!item.isHandel())
 			{
 				continue;
 			}

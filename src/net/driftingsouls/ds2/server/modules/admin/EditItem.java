@@ -19,13 +19,20 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
+import net.driftingsouls.ds2.server.config.items.IffDeaktivierenItem;
 import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.config.items.Munition;
+import net.driftingsouls.ds2.server.config.items.Munitionsbauplan;
 import net.driftingsouls.ds2.server.config.items.Quality;
-import net.driftingsouls.ds2.server.config.items.effects.ItemEffectFactory;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.config.items.Schiffsbauplan;
+import net.driftingsouls.ds2.server.config.items.Schiffsmodul;
+import net.driftingsouls.ds2.server.config.items.SchiffsmodulSet;
+import net.driftingsouls.ds2.server.config.items.Schiffsverbot;
+import net.driftingsouls.ds2.server.config.items.Ware;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
-import java.io.IOException;
+import javax.annotation.Nonnull;
 
 /**
  * Aktualisierungstool fuer die Werte eines Schiffes.
@@ -33,81 +40,28 @@ import java.io.IOException;
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Items", name = "Item editieren", permission = WellKnownAdminPermission.EDIT_ITEM)
-public class EditItem implements AdminPlugin
+public class EditItem implements EntityEditor<Item>
 {
+
 	@Override
-	public void output(StringBuilder echo) throws IOException
+	public Class<Item> getEntityType()
 	{
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
+		return Item.class;
+	}
 
-		int itemid = context.getRequest().getParameterInt("itemid");
-
-		// Update values?
-		boolean update = context.getRequest().getParameterString("change").equals("Aktualisieren");
-
-		echo.append("<form action=\"./ds\" method=\"post\">");
-		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
-		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-		echo.append("<input type=\"text\" name=\"itemid\" value=\"").append(itemid).append("\" />\n");
-		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
-		echo.append("</form>");
-
-		if(update && itemid != 0)
-		{
-			Item item = (Item)db.get(Item.class, itemid);
-
-			if(item != null) {
-				item.setName(context.getRequest().getParameterString("name"));
-				item.setPicture(context.getRequest().getParameterString("picture"));
-				item.setLargePicture(context.getRequest().getParameterString("largepicture"));
-				item.setCargo(context.getRequest().getParameterInt("itemcargo"));
-				item.setEffect(ItemEffectFactory.fromContext(context));
-				item.setQuality(Quality.fromString(context.getRequest().getParameterString("quality")));
-				item.setDescription(context.getRequest().getParameterString("description"));
-				item.setHandel(context.getRequest().getParameterString("handel").equals("true"));
-				item.setAccessLevel(context.getRequest().getParameterInt("accesslevel"));
-				item.setUnknownItem(context.getRequest().getParameterString("unknownitem").equals("true"));
-				item.setSpawnableRess(context.getRequest().getParameterString("spawnableress").equals("true"));
-
-				echo.append("<p>Update abgeschlossen.</p>");
-			}
-			else {
-				echo.append("<p>Kein Item gefunden.</p>");
-			}
-
-		}
-
-		if(itemid != 0)
-		{
-			Item item = (Item)db.get(Item.class, itemid);
-
-			if(item == null)
-			{
-				return;
-			}
-
-			echo.append("<div class='gfxbox' style='width:500px'>");
-			echo.append("<form action=\"./ds\" method=\"post\" >");
-			echo.append("<table class=\"noBorder\" width=\"100%\">");
-			echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
-			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-			echo.append("<input type=\"hidden\" name=\"itemid\" value=\"").append(itemid).append("\" />\n");
-			echo.append("<tr><td class=\"noBorderS\">Name: </td><td><input type=\"text\" name=\"name\" value=\"").append(item.getName()).append("\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Bild: </td><td><input type=\"text\" name=\"picture\" size='50' value=\"").append(item.getPicture()).append("\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Bild (gro&szlig;): </td><td><input type=\"text\" size='50' name=\"largepicture\" value=\"").append(item.getLargePicture() == null ? "" : item.getLargePicture()).append("\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Cargo: </td><td><input type=\"text\" name=\"itemcargo\" value=\"").append(item.getCargo()).append("\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Qualit&auml;t: </td><td><input type=\"text\" name=\"quality\" value=\"").append(item.getQuality().toString()).append("\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Beschreibung: </td><td><input type=\"text\" name=\"description\" value=\"").append(item.getDescription()).append("\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Handel: </td><td><input type=\"text\" name=\"handel\" value=\"").append(item.getHandel()).append("\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Accesslevel: </td><td><input type=\"text\" name=\"accesslevel\" value=\"").append(item.getAccessLevel()).append("\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Unbekanntes Item: </td><td><input type=\"text\" name=\"unknownitem\" value=\"").append(item.isUnknownItem()).append("\"></td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Spawn-Ressource: </td><td><input type=\"text\" name=\"spawnableress\" value=\"").append(item.isSpawnableRess()).append("\"></td></tr>\n");
-			item.getEffect().getAdminTool(echo);
-			echo.append("<tr><td class=\"noBorderS\"></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
-			echo.append("</table>");
-			echo.append("</form>\n");
-			echo.append("</div>");
-		}
+	@Override
+	public void configureFor(@Nonnull EditorForm8<Item> form)
+	{
+		form.entityClass("Typ", Ware.class, IffDeaktivierenItem.class, Munition.class, Munitionsbauplan.class, Schiffsbauplan.class, Schiffsmodul.class, SchiffsmodulSet.class, Schiffsverbot.class);
+		form.field("Name", String.class, Item::getName, Item::setName);
+		form.picture("Bild", Item::getPicture);
+		form.picture("Bild (groß)", Item::getLargePicture);
+		form.field("Größe", Long.class, Item::getCargo, Item::setCargo);
+		form.field("Unter Handel anzeigen", Boolean.class, Item::isHandel, Item::setHandel);
+		form.field("Ben. Accesslevel", Integer.class, Item::getAccessLevel, Item::setAccessLevel);
+		form.field("Qualität", Quality.class, Item::getQuality, Item::setQuality);
+		form.field("Unbekanntes Item?", Boolean.class, Item::isUnknownItem, Item::setUnknownItem);
+		form.field("Darf auf Basen spawnen", Boolean.class, Item::isSpawnableRess, Item::setSpawnableRess);
+		form.textArea("Beschreibung", Item::getDescription, Item::setDescription);
 	}
 }

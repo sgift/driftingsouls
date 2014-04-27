@@ -177,7 +177,7 @@ public abstract class Item {
 	 *
 	 * @return <code>true</code>, falls es explizit angezeigt werden soll
 	 */
-	public boolean getHandel() {
+	public boolean isHandel() {
 		return this.handel;
 	}
 
