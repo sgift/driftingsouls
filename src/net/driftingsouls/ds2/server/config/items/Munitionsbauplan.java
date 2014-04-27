@@ -56,7 +56,7 @@ public class Munitionsbauplan extends Item
 	@Override
 	public IEDraftAmmo getEffect()
 	{
-		return (IEDraftAmmo) super.getEffect();
+		return new IEDraftAmmo(allianzEffekt, fabrikeintrag);
 	}
 
 	/**
