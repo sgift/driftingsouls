@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.config.items;
 
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
-import net.driftingsouls.ds2.server.config.items.effects.ItemEffectFactory;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -56,7 +55,7 @@ public abstract class Item {
 	@Lob
 	private String description = null;
 	@Lob
-	private String effect = "";
+	protected String effect = "";
 	private long cargo = 1;
 	private boolean handel = false;	// Soll das Item im Handel angezeigt werden?
 	private int accesslevel = 0;
@@ -162,14 +161,7 @@ public abstract class Item {
 	 * Gibt den mit dem Item assoziierten Effekt zurueck.
 	 * @return der Effekt des Items
 	 */
-	public ItemEffect getEffect() {
-		try {
-			return ItemEffectFactory.fromString(this.effect);
-		}
-		catch (Exception e) {
-			throw new IllegalStateException("Konnte keinen Effekt fuer Item "+id+" ermitteln",e);
-		}
-	}
+	public abstract ItemEffect getEffect();
 
 	/**
 	 * Gibt <code>true</code> zurueck, falls dieses Item in Menues explizit

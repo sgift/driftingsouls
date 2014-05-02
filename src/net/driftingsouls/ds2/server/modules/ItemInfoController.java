@@ -442,38 +442,34 @@ public class ItemInfoController extends TemplateController
 
 				data.setLength(0);
 				boolean entry = false;
-				for (int i = 0; i < 3; i++)
+				for( Forschung forschung : effect.getBenoetigteForschungen() )
 				{
-					if (effect.getTechReq(i) != null)
+					if (!forschung.isVisibile(user) && !user.hasResearched(forschung.getBenoetigteForschungen()))
 					{
-						Forschung dat = effect.getTechReq(i);
-						if (!dat.isVisibile(user) && !user.hasResearched(dat.getBenoetigteForschungen()))
+						data.append("Unbekannt");
+						if (hasPermission(WellKnownPermission.FORSCHUNG_ALLES_SICHTBAR))
 						{
-							data.append("Unbekannt");
-							if (hasPermission(WellKnownPermission.FORSCHUNG_ALLES_SICHTBAR))
-							{
-								data.append(" [ID:").append(effect.getTechReq(i)).append("]");
-							}
-							data.append("<br />\n");
-							entry = true;
-
-							continue;
+							data.append(" [ID:").append(forschung.getID()).append("]");
 						}
-
-						data.append("<a class=\"nonbold\" href=\"").append(Common.buildUrl("default", "module", "forschinfo", "res", effect.getTechReq(i))).append("\">");
-
-						if (user.hasResearched(effect.getTechReq(i)))
-						{
-							data.append("<span style=\"color:green; font-size:14px\">");
-						}
-						else
-						{
-							data.append("<span style=\"color:red; font-size:14px\">");
-						}
-						data.append(dat.getName());
-						data.append("</span></a><br />\n");
+						data.append("<br />\n");
 						entry = true;
+
+						continue;
 					}
+
+					data.append("<a class=\"nonbold\" href=\"").append(Common.buildUrl("default", "module", "forschinfo", "res", forschung.getID())).append("\">");
+
+					if (user.hasResearched(forschung))
+					{
+						data.append("<span style=\"color:green; font-size:14px\">");
+					}
+					else
+					{
+						data.append("<span style=\"color:red; font-size:14px\">");
+					}
+					data.append(forschung.getName());
+					data.append("</span></a><br />\n");
+					entry = true;
 				}
 				if (!entry)
 				{

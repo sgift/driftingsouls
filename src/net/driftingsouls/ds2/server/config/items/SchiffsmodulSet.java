@@ -1,6 +1,7 @@
 package net.driftingsouls.ds2.server.config.items;
 
 import net.driftingsouls.ds2.server.config.items.effects.IEModuleSetMeta;
+import net.driftingsouls.ds2.server.config.items.effects.ItemEffectFactory;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -44,6 +45,11 @@ public class SchiffsmodulSet extends Item
 	@Override
 	public IEModuleSetMeta getEffect()
 	{
-		return (IEModuleSetMeta) super.getEffect();
+		try {
+			return (IEModuleSetMeta)ItemEffectFactory.fromString(this.effect);
+		}
+		catch (Exception e) {
+			throw new IllegalStateException("Konnte keinen Effekt fuer Item "+getID()+" ermitteln",e);
+		}
 	}
 }

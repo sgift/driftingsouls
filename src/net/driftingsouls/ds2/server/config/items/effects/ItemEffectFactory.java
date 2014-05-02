@@ -51,23 +51,8 @@ public class ItemEffectFactory {
 
 		try
 		{
-			if( effects[0].equals("draft-ship")) {
-				return IEDraftShip.fromString(effects[1]);
-			}
-			if( effects[0].equals("draft-ammo") ) {
-				throw new UnsupportedOperationException();
-			}
 			if( effects[0].equals("module") ) {
 				return IEModule.fromString(effects[1]);
-			}
-			if( effects[0].equals("ammo") ) {
-				throw new UnsupportedOperationException();
-			}
-			if( effects[0].equals("disable-ship") ) {
-				throw new UnsupportedOperationException();
-			}
-			if( effects[0].equals("disable-iff") ) {
-				throw new UnsupportedOperationException();
 			}
 			if( effects[0].equals("module-set-meta") ) {
 				return IEModuleSetMeta.fromString(effects[1]);

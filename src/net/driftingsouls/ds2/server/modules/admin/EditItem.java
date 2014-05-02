@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
+import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.config.items.IffDeaktivierenItem;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.Munition;
@@ -30,7 +31,9 @@ import net.driftingsouls.ds2.server.config.items.SchiffsmodulSet;
 import net.driftingsouls.ds2.server.config.items.Schiffsverbot;
 import net.driftingsouls.ds2.server.config.items.Ware;
 import net.driftingsouls.ds2.server.entities.FactoryEntry;
+import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
+import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import net.driftingsouls.ds2.server.ships.ShipType;
@@ -71,5 +74,15 @@ public class EditItem implements EntityEditor<Item>
 		form.ifEntityClass(Munitionsbauplan.class).field("Als Allianzbauplan verwendbar", Boolean.class, Munitionsbauplan::isAllianzEffekt, Munitionsbauplan::setAllianzEffekt);
 		form.ifEntityClass(Schiffsverbot.class).field("Verbotener Schiffstyp", ShipType.class, Schiffsverbot::getSchiffstyp, Schiffsverbot::setSchiffstyp);
 		form.ifEntityClass(Schiffsverbot.class).field("Als Allianzitem verwendbar", Boolean.class, Schiffsverbot::isAllianzEffekt, Schiffsverbot::setAllianzEffekt);
+		form.ifEntityClass(Schiffsbauplan.class).field("Schiffstyp", ShipType.class, Schiffsbauplan::getSchiffstyp, Schiffsbauplan::setSchiffstyp);
+		form.ifEntityClass(Schiffsbauplan.class).field("Als Allianzbauplan verwendbar", Boolean.class, Schiffsbauplan::isAllianzEffekt, Schiffsbauplan::setAllianzEffekt);
+		form.ifEntityClass(Schiffsbauplan.class).field("Rasse", Rasse.class, Schiffsbauplan::getRasse, Schiffsbauplan::setRasse);
+		form.ifEntityClass(Schiffsbauplan.class).field("Flagschiff", Boolean.class, Schiffsbauplan::isFlagschiff, Schiffsbauplan::setFlagschiff);
+		form.ifEntityClass(Schiffsbauplan.class).field("Baukosten", Cargo.class, Schiffsbauplan::getBaukosten, Schiffsbauplan::setBaukosten);
+		form.ifEntityClass(Schiffsbauplan.class).field("Crew", Integer.class, Schiffsbauplan::getCrew, Schiffsbauplan::setCrew);
+		form.ifEntityClass(Schiffsbauplan.class).field("Energiekosten", Integer.class, Schiffsbauplan::getEnergiekosten, Schiffsbauplan::setEnergiekosten);
+		form.ifEntityClass(Schiffsbauplan.class).field("Dauer", Integer.class, Schiffsbauplan::getDauer, Schiffsbauplan::setDauer);
+		form.ifEntityClass(Schiffsbauplan.class).field("Werftslots", Integer.class, Schiffsbauplan::getWerftSlots, Schiffsbauplan::setWerftSlots);
+		form.ifEntityClass(Schiffsbauplan.class).multiSelection("Forschungen", Forschung.class, Schiffsbauplan::getBenoetigteForschungen, Schiffsbauplan::setBenoetigteForschungen);
 	}
 }

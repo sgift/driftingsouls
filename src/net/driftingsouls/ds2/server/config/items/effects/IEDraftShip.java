@@ -19,16 +19,14 @@
 package net.driftingsouls.ds2.server.config.items.effects;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
+import net.driftingsouls.ds2.server.config.items.Schiffsbauplan;
 import net.driftingsouls.ds2.server.entities.Forschung;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipType;
-import org.apache.commons.lang.StringUtils;
 
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Item-Effekt "Schiffsbauplan".
@@ -36,18 +34,11 @@ import java.util.Set;
  *
  */
 public class IEDraftShip extends ItemEffect {
-	private int shiptype = 0;
-	private int race = 0;
-	private boolean flagschiff = false;
-	private Cargo buildcosts = null;
-	private int crew = 0;
-	private int e = 0;
-	private int dauer = 0;
-	private int[] techs = null;
-	private int werftslots = 1;
+	private Schiffsbauplan schiffsbauplan;
 	
-	protected IEDraftShip(boolean allyEffect) {
-		super(ItemEffect.Type.DRAFT_SHIP, allyEffect);
+	public IEDraftShip(Schiffsbauplan schiffsbauplan) {
+		super(ItemEffect.Type.DRAFT_SHIP, schiffsbauplan.isAllianzEffekt());
+		this.schiffsbauplan = schiffsbauplan;
 	}
 	
 	/**
@@ -55,7 +46,7 @@ public class IEDraftShip extends ItemEffect {
 	 * @return Der Typ
 	 */
 	public int getShipType() {
-		return shiptype;
+		return schiffsbauplan.getSchiffstyp().getId();
 	}
 	
 	/**
@@ -63,7 +54,7 @@ public class IEDraftShip extends ItemEffect {
 	 * @return Die Rasse
 	 */
 	public int getRace() {
-		return race;
+		return schiffsbauplan.getRasse().getId();
 	}
 	
 	/**
@@ -71,7 +62,7 @@ public class IEDraftShip extends ItemEffect {
 	 * @return Die Baukosten
 	 */
 	public Cargo getBuildCosts() {
-		return buildcosts;
+		return schiffsbauplan.getBaukosten();
 	}
 	
 	/**
@@ -79,7 +70,7 @@ public class IEDraftShip extends ItemEffect {
 	 * @return Die benoetigte Crew
 	 */
 	public int getCrew() {
-		return crew;
+		return schiffsbauplan.getCrew();
 	}
 	
 	/**
@@ -87,7 +78,7 @@ public class IEDraftShip extends ItemEffect {
 	 * @return die benoetigte Energie
 	 */
 	public int getE() {
-		return e;
+		return schiffsbauplan.getEnergiekosten();
 	}
 	
 	/**
@@ -95,7 +86,7 @@ public class IEDraftShip extends ItemEffect {
 	 * @return <code>true</code>, wenn es ein Flagschiff ist
 	 */
 	public boolean isFlagschiff() {
-		return flagschiff;
+		return schiffsbauplan.isFlagschiff();
 	}
 	
 	/**
@@ -103,20 +94,7 @@ public class IEDraftShip extends ItemEffect {
 	 * @return Die Baudauer
 	 */
 	public int getDauer() {
-		return dauer;
-	}
-	
-	/**
-	 * Gibt die benoetigte Tech mit dem Index zurueck.
-	 * @param index Der Index (1-3)
-	 * @return Die Tech
-	 */
-	public Forschung getTechReq(int index) {
-		index--;
-		if( (index < 0) || (index >= techs.length) ) {
-			return null;
-		}
-		return Forschung.getInstance(techs[index]);
+		return schiffsbauplan.getDauer();
 	}
 
 	/**
@@ -125,12 +103,7 @@ public class IEDraftShip extends ItemEffect {
 	 */
 	public Set<Forschung> getBenoetigteForschungen()
 	{
-		Set<Forschung> result = new HashSet<>();
-		for (int tech : techs)
-		{
-			result.add(Forschung.getInstance(tech));
-		}
-		return result;
+		return schiffsbauplan.getBenoetigteForschungen();
 	}
 	
 	/**
@@ -138,41 +111,7 @@ public class IEDraftShip extends ItemEffect {
 	 * @return Die Werftslots
 	 */
 	public int getWerftSlots() {
-		return werftslots;
-	}
-	
-	/**
-	 * Laedt einen Effect aus einem String.
-	 * @param effectString Der Effect als String
-	 * @return Der Effect
-	 * @throws IllegalArgumentException falls der Effect nicht richtig geladen werden konnte
-	 */
-	public static ItemEffect fromString(String effectString) throws IllegalArgumentException {
-		IEDraftShip draft = new IEDraftShip(false);
-		
-		String[] effects = StringUtils.split(effectString, "&");
-		draft.shiptype = Integer.parseInt(effects[0]);
-		
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		ShipType shipType = (ShipType)db.get(ShipType.class, draft.shiptype);
-		if( shipType == null ) {
-			throw new IllegalArgumentException("Illegaler Schiffstyp '"+draft.shiptype+"' im Item-Effekt 'Schiffsbauplan'");
-		}
-		
-		draft.race = Integer.parseInt(effects[1]);
-		draft.flagschiff = effects[2].equals("true");
-		draft.crew = Integer.parseInt(effects[3]);
-		draft.e = Integer.parseInt(effects[4]);
-		draft.dauer = Integer.parseInt(effects[5]);
-		draft.werftslots = Integer.parseInt(effects[6]);
-		draft.buildcosts = new UnmodifiableCargo(new Cargo(Cargo.Type.AUTO, effects[7]));
-		String[] techs = StringUtils.split(effects[8], ",");
-		draft.techs = new int[techs.length];
-		for(int i = 0; i < techs.length; i++) {
-			draft.techs[i] = Integer.parseInt(techs[i]);
-		}
-		
-		return draft;
+		return schiffsbauplan.getWerftSlots();
 	}
 
 	/**
@@ -181,20 +120,29 @@ public class IEDraftShip extends ItemEffect {
 	 */
 	public ShipBaubar toShipBaubar()
 	{
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		ShipType type = (ShipType)db.get(ShipType.class, this.shiptype);
+		ShipType type = schiffsbauplan.getSchiffstyp();
 
 		ShipBaubar baudaten = new ShipBaubar(type);
-		baudaten.setCosts(this.buildcosts);
-		baudaten.setCrew(this.crew);
-		baudaten.setDauer(this.dauer);
-		baudaten.setEKosten(this.e);
-		baudaten.setRace(this.race);
-		baudaten.setRes1(this.getTechReq(1));
-		baudaten.setRes2(this.getTechReq(2));
-		baudaten.setRes3(this.getTechReq(3));
-		baudaten.setWerftSlots(this.werftslots);
-		baudaten.setFlagschiff(this.flagschiff);
+		baudaten.setCosts(this.schiffsbauplan.getBaukosten());
+		baudaten.setCrew(this.schiffsbauplan.getCrew());
+		baudaten.setDauer(this.schiffsbauplan.getDauer());
+		baudaten.setEKosten(this.schiffsbauplan.getEnergiekosten());
+		baudaten.setRace(this.schiffsbauplan.getRasse().getId());
+		Iterator<Forschung> iter = this.schiffsbauplan.getBenoetigteForschungen().iterator();
+		if( iter.hasNext() )
+		{
+			baudaten.setRes1(iter.next());
+		}
+		if( iter.hasNext() )
+		{
+			baudaten.setRes2(iter.next());
+		}
+		if( iter.hasNext() )
+		{
+			baudaten.setRes3(iter.next());
+		}
+		baudaten.setWerftSlots(this.schiffsbauplan.getWerftSlots());
+		baudaten.setFlagschiff(this.schiffsbauplan.isFlagschiff());
 
 		return baudaten;
 	}
@@ -206,7 +154,7 @@ public class IEDraftShip extends ItemEffect {
 	@Override
 	public String toString() {
 		String itemstring = "draft-ship:" + getShipType() + "&" + getRace() + "&" + isFlagschiff() + "&" + getCrew() + "&" + getE() + "&" + getDauer() + "&" + getWerftSlots() + "&" + getBuildCosts().save();
-		String techs = Common.implode(",", this.techs);
+		String techs = this.schiffsbauplan.getBenoetigteForschungen().stream().map(f -> Integer.toString(f.getID())).collect(Collectors.joining(","));
 		if( techs.equals("")) {
 			techs = ",";
 		}

@@ -116,7 +116,6 @@
 **/
 #admin #entityListWrapper {
 	width:95%;
-	overflow-x:auto;
 	min-height:600px;
 	margin-top:20px;
 }
