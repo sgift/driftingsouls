@@ -5,11 +5,10 @@
  * Matchen mehrere Felder so wird nur das erste beruecksichtigt.
  * Es ist empfehlenswert ein hidden-Inputfeld zu verwenden.
  * @param selector Der Selektor
- * @returns Der CargoEditor
+ * @returns {CargoEditor} Der CargoEditor oder null
  */
 var CargoEditor = function(selector) {
 	var CargoEditorView = function(target) {
-		var target = target;
 		var cargoEditorView = null;
 
 		function render(cargo, itemlist) {
@@ -42,7 +41,7 @@ var CargoEditor = function(selector) {
 				cargoEditorView.trigger('newEntry', {id:itemId, count:count});
 				return false;
 			});
-		};
+		}
 
 		this.updateNewEntrySection = function(itemlist) {
 			var tmpl = '{{#itemlist}}'+
@@ -65,7 +64,7 @@ var CargoEditor = function(selector) {
 
 				cargoEditorView.trigger("entryChanged", {id:itemId, count:count});
 			});
-		}
+		};
 
 		function renderCargoEntry(entry) {
 			var tmpl = '<tr>'+
@@ -84,7 +83,7 @@ var CargoEditor = function(selector) {
 			for( var i=0, length=cargo.length; i < length; i++ ) {
 				var entry = cargo[i];
 				tableContent.append(renderCargoEntry(entry));
-			};
+			}
 
 			tableContent.find('.itemCount').on('change', function(event) {
 				var itemId = parseInt($(this).attr('item-id'));
@@ -125,17 +124,21 @@ var CargoEditor = function(selector) {
 				}
 
 				this.updateCargoEntry(entry);
-			};
-		}
+			}
+		};
 
 		render();
 	};
 
 	var CargoEditorController = function(target) {
 		var view = new CargoEditorView(target);
-		var itemlist = new ItemListModel();
-		var target = target;
 		var cargo = new CargoModel(target.val());
+
+		var itemlist = null;
+		ItemListFactory.visibleItems(function(model) {
+			itemlist = model;
+			renderInitialCargoEditor();
+		});
 
 		function cargoEntryToViewModel(entry) {
 			var item = itemlist.getById(entry.id);
@@ -169,7 +172,7 @@ var CargoEditor = function(selector) {
 			view.renderMain(viewCargo, itemlist.missingInCargo(cargo));
 
 			cargo.onchange(function() {
-				view.updateItemList(transformCargoToViewModel())
+				view.updateItemList(transformCargoToViewModel());
 				view.updateNewEntrySection(itemlist.missingInCargo(cargo));
 				target.val(cargo.save());
 			});
@@ -183,15 +186,11 @@ var CargoEditor = function(selector) {
 				}
 			});
 		}
-
-		itemlist.fillWithVisibleItems(function() {
-			renderInitialCargoEditor();
-		});
 	};
 
-	target = $(selector).first();
+	var target = $(selector).first();
 	if( target.size() == 0 ) {
-		return;
+		return null;
 	}
 	new CargoEditorController(target);
 };

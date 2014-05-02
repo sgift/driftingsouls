@@ -88,9 +88,18 @@ Admin.openEntityEditor = function(namedplugin) {
 };
 
 Admin.createEntityTable = function(params) {
-	var items = new ItemListModel([]);
+	var items = null;
+	ItemListFactory.visibleItems(function(itemmodel) {
+		items = itemmodel;
+		updateCargos();
+	});
+
 	var updateCargos = function() {
 		$("#admin .gridcargo:not(.done)").each(function(idx, el) {
+			if( items == null ) {
+				return;
+			}
+
 			el = $(el);
 			var cargoModel = new CargoModel(el.text());
 			el.empty();
@@ -105,8 +114,6 @@ Admin.createEntityTable = function(params) {
 			el.addClass("done");
 		});
 	};
-
-	items.fillWithVisibleItems(updateCargos);
 
 	$(document).ready(function() {
 		params.onSelectRow = function (id) {

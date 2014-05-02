@@ -2,6 +2,7 @@
  * Ein Cargo-Modell analog zur Cargo-Klasse.
  * Der Konstruktor nimmt genau einen Parameter entgegen,
  * einen serialisierten Cargo-String im Item-Format.
+ * @param {String} cargoStr Der serialisierte Cargo-String
  */
 var CargoModel = function(cargoStr) {
 	var changeEventListener = [];
@@ -27,10 +28,11 @@ var CargoModel = function(cargoStr) {
 			itemArray.push(item)
 		}
 		return itemArray;
-	};
+	}
 
 	/**
 	 * Gibt den gesamten Cargo als Array zurueck.
+	 * @return {Array} Der Cargo-Inhalt
 	 */
 	this.getAll = function() {
 		return cargo;
@@ -71,7 +73,7 @@ var CargoModel = function(cargoStr) {
 			}
 		}
 		return 0;
-	}
+	};
 
 	/**
 	 * Gibt zurueck, ob das angegebene Item mit einer Menge
@@ -81,10 +83,11 @@ var CargoModel = function(cargoStr) {
 	 */
 	this.containsItem = function(item) {
 		return this.getResourceCount(item) > 0;
-	}
+	};
 
 	/**
 	 * Serialisiert den Cargo als Cargo-String im Item-Format.
+	 * @return {String} Der serialisierte Cargo-String
 	 */
 	this.save = function() {
 		var result = "";
@@ -95,7 +98,7 @@ var CargoModel = function(cargoStr) {
 			result += cargo[i][0]+"|"+cargo[i][1]+"|"+cargo[i][2]+"|"+cargo[i][3];
 		}
 		return result;
-	}
+	};
 
 	/**
 	 * Setzt, wie haeufig das angegebene Item im Cargo
@@ -123,7 +126,7 @@ var CargoModel = function(cargoStr) {
 		}
 		cargo.push([item.id, count, 0, 0]);
 		fireChangeEvent();
-	}
+	};
 
 	function fireChangeEvent() {
 		for( var i=0, length=changeEventListener.length; i < length; i++ ) {
@@ -138,7 +141,7 @@ var CargoModel = function(cargoStr) {
 	 */
 	this.onchange = function(listener) {
 		changeEventListener.push(listener);
-	}
+	};
 
 	var cargo = parseCargo(cargoStr);
 };
