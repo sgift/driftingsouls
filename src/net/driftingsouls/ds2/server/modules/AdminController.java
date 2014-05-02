@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.modules;
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.framework.AnnotationUtils;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
@@ -30,7 +31,9 @@ import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
 import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditPlugin8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
+import net.driftingsouls.ds2.server.modules.admin.editoren.EntitySelectionViewModel;
 import net.driftingsouls.ds2.server.modules.admin.editoren.JqGridTableDataViewModel;
+import net.driftingsouls.ds2.server.modules.admin.editoren.JqGridViewModel;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -218,6 +221,42 @@ public class AdminController extends Controller
 		return null;
 	}
 
+	@ViewModel
+	public static class EntityPluginOverviewViewModel
+	{
+		public JqGridViewModel table;
+		public EntitySelectionViewModel entitySelection;
+	}
+
+	@Action(ActionType.AJAX)
+	public EntityPluginOverviewViewModel entityPluginOverviewAction(String namedplugin, int page, int rows)
+	{
+		if (namedplugin.isEmpty() || !validPlugins.contains(namedplugin))
+		{
+			throw new ValidierungException("Ungueltiges Plugin: '"+namedplugin+"'");
+		}
+
+		try
+		{
+			AdminPlugin plugin = instantiate(Class.forName(namedplugin));
+			if( !(plugin instanceof EditPlugin8) )
+			{
+				throw new ValidierungException("Fuer dieses Plugin koennen keine Tabellendaten generiert werden: '"+namedplugin+"'");
+			}
+
+			EditPlugin8 eplugin = (EditPlugin8)plugin;
+			EntityPluginOverviewViewModel model = new EntityPluginOverviewViewModel();
+			model.entitySelection = eplugin.generateEntitySelectionViewModel();
+			model.table = eplugin.generateEntityTableModel();
+			return model;
+		}
+		catch (ReflectiveOperationException e)
+		{
+			LOG.warn("Fehler beim Aufruf des Admin-Plugins " + namedplugin, e);
+			throw new ValidierungException("Fehler beim Aufruf des Admin-Plugins: " + e);
+		}
+	}
+
 	@Action(ActionType.AJAX)
 	public JqGridTableDataViewModel tableDataAction(String namedplugin, int page, int rows)
 	{
@@ -267,17 +306,19 @@ public class AdminController extends Controller
 				if(EntityEditor.class.isAssignableFrom(entry.cls) )
 				{
 					echo.append("<img src='data/interface/admin/editor.png' />");
+					echo.append("<a class=\"forschinfo ").append(active?"active" : "").append("\" href=\"#\" data-namedplugin=\"").append(entry.cls.getCanonicalName()).append("\" onclick=\"Admin.openEntityEditor('").append(entry.cls.getCanonicalName()).append("');\">").append(entry.name).append("</a></li>\n");
 				}
 				else
 				{
 					echo.append("<img src='data/interface/admin/tool.png' />");
+					echo.append("<a class=\"forschinfo ").append(active?"active" : "").append("\" href=\"./ds?module=admin&namedplugin=").append(entry.cls.getCanonicalName()).append("\">").append(entry.name).append("</a></li>\n");
 				}
-				echo.append("<a class=\"forschinfo ").append(active?"active" : "").append("\" href=\"./ds?module=admin&namedplugin=").append(entry.cls.getCanonicalName()).append("\">").append(entry.name).append("</a></li>\n");
+
 			}
 			echo.append("</ul></li>");
 		}
 		echo.append("</ul>\n");
-		echo.append("</div><br />\n");
+		echo.append("</div><br /><div id=\"adminplugin\">\n");
 
 		try
 		{
@@ -289,7 +330,7 @@ public class AdminController extends Controller
 		}
 		finally
 		{
-			echo.append("</div>");
+			echo.append("</div></div>");
 			echo.append("<script type='text/javascript'>$(document).ready(function() {Admin.initMenu();});</script>");
 		}
 	}

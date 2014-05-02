@@ -1,7 +1,6 @@
 package net.driftingsouls.ds2.server.modules.admin.editoren;
 
 import com.google.gson.Gson;
-import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -20,8 +19,11 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 /**
  * Adapter fuer {@link net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor}-Module
@@ -50,7 +52,7 @@ public class EditPlugin8<T> implements AdminPlugin
 		Request request = context.getRequest();
 		String entityId = request.getParameter("entityId");
 
-		EditorForm8<T> form = new EditorForm8<>(EditorMode.UPDATE, getPluginClass(), echo);
+		EditorForm8<T> form = new EditorForm8<>(EditorMode.UPDATE, getPluginClass());
 		configureFor(form);
 		this.clazz = form.getDefaultEntityClass().orElse(this.clazz);
 
@@ -110,16 +112,16 @@ public class EditPlugin8<T> implements AdminPlugin
 			}
 
 			beginEditorTable(echo, this.getPluginClass(), entityId);
-			form.generateForm(entity);
+			form.generateForm(echo, entity);
 			endEditorTable(echo);
 		}
 		else if( isAddDisplayed() )
 		{
 			T entity = createEntity();
-			form = new EditorForm8<>(EditorMode.CREATE, this.getPluginClass(), echo);
+			form = new EditorForm8<>(EditorMode.CREATE, this.getPluginClass());
 			configureFor(form);
 			beginEditorTable(echo, this.getPluginClass(), -1);
-			form.generateForm(entity);
+			form.generateForm(echo, entity);
 			endEditorTable(echo);
 		}
 		else
@@ -137,7 +139,7 @@ public class EditPlugin8<T> implements AdminPlugin
 
 		db.getTransaction().commit();
 
-		EditorForm8<T> form = new EditorForm8<>(EditorMode.CREATE, EditPlugin8.this.getPluginClass(), echo);
+		EditorForm8<T> form = new EditorForm8<>(EditorMode.CREATE, EditPlugin8.this.getPluginClass());
 		configureFor(form);
 
 		T entity = createEntity();
@@ -207,6 +209,32 @@ public class EditPlugin8<T> implements AdminPlugin
 		}
 	}
 
+	public JqGridViewModel generateEntityTableModel()
+	{
+		EditorForm8<T> form = new EditorForm8<>(EditorMode.UPDATE, getPluginClass());
+		this.entityEditor.configureFor(form);
+
+		Session db = ContextMap.getContext().getDB();
+
+		JqGridViewModel model = new JqGridViewModel();
+		model.url = "./ds?module=admin&namedplugin="+this.getPluginClass().getName()+"&action=tableData&FORMAT=JSON";
+		model.pager = "#pager";
+		model.colNames.add("Id");
+		model.colModel.add(new JqGridColumnViewModel("id", null));
+		Class identifierClass = db.getSessionFactory().getClassMetadata(this.clazz).getIdentifierType().getReturnedClass();
+		if( Number.class.isAssignableFrom(identifierClass) )
+		{
+			model.colModel.get(0).width = 50;
+		}
+		for (ColumnDefinition columnDefinition : form.getColumnDefinitions())
+		{
+			model.colNames.add(columnDefinition.getLabel());
+			model.colModel.add(new JqGridColumnViewModel(columnDefinition.getId(), columnDefinition.getFormatter()));
+		}
+
+		return model;
+	}
+
 	private void outputEntityTable(StringBuilder echo, EditorForm8<T> form)
 	{
 		Session db = ContextMap.getContext().getDB();
@@ -237,6 +265,46 @@ public class EditPlugin8<T> implements AdminPlugin
 		echo.append("</div>");
 	}
 
+	public EntitySelectionViewModel generateEntitySelectionViewModel()
+	{
+		Session db = ContextMap.getContext().getDB();
+
+		EditorForm8<T> form = new EditorForm8<>(EditorMode.UPDATE, getPluginClass());
+		this.entityEditor.configureFor(form);
+
+		EntitySelectionViewModel model = new EntitySelectionViewModel();
+		Long count = (Long)db.createCriteria(baseClass).setProjection(Projections.rowCount()).uniqueResult();
+		if( count != null )
+		{
+			model.allowSelection = true;
+			if (count < 500)
+			{
+				String currentIdStr = ContextMap.getContext().getRequest().getParameter("entityId");
+
+				Map<Serializable,Object> options = new HashMap<>();
+
+				List<?> entities = db.createCriteria(baseClass).list();
+				options.putAll(entities.stream().collect(Collectors.toMap(db::getIdentifier, v -> new ObjectLabelGenerator().generateFor(null, v))));
+				if (isAddDisplayed())
+				{
+					options.put(null, "[Neu]");
+				}
+				model.input = HtmlUtils.jsSelect("entityId", false, options, toEntityId(baseClass, currentIdStr));
+			}
+			else {
+				String currentIdStr = ContextMap.getContext().getRequest().getParameter("entityId");
+				if( currentIdStr == null )
+				{
+					currentIdStr = "";
+				}
+				model.input = HtmlUtils.jsTextInput("entityId", isAddDisplayed(), db.getSessionFactory().getClassMetadata(baseClass).getIdentifierType().getReturnedClass(), currentIdStr);
+			}
+		}
+		model.allowAdd = form.isAddAllowed();
+
+		return model;
+	}
+
 	private void outputEntitySelection(Session db, StringBuilder echo, EditorForm8<T> form) throws IOException
 	{
 		echo.append("<div class='gfxbox adminSelection' style='width:390px'>");
@@ -247,17 +315,17 @@ public class EditPlugin8<T> implements AdminPlugin
 
 			if (count < 500)
 			{
-				List<Building> entities = Common.cast(db.createCriteria(baseClass).list());
-				echo.append("<select size=\"1\" name=\"entityId\">");
-				for (Object entity : entities)
-				{
-					addSelectionOption(echo, db.getIdentifier(entity), new ObjectLabelGenerator().generateFor(null, entity));
-				}
+				String currentIdStr = ContextMap.getContext().getRequest().getParameter("entityId");
+
+				Map<Serializable,Object> options = new HashMap<>();
+
+				List<?> entities = db.createCriteria(baseClass).list();
+				options.putAll(entities.stream().collect(Collectors.toMap(db::getIdentifier, v -> new ObjectLabelGenerator().generateFor(null, v))));
 				if (isAddDisplayed())
 				{
-					addSelectionOption(echo, null, "[Neu]");
+					options.put(null, "[Neu]");
 				}
-				echo.append("</select>");
+				HtmlUtils.select(echo, "entityId", false, options, toEntityId(baseClass, currentIdStr));
 			}
 			else
 			{
@@ -280,6 +348,9 @@ public class EditPlugin8<T> implements AdminPlugin
 
 	private Serializable toEntityId(Class<?> entity, String idString)
 	{
+		if( idString == null || idString.isEmpty() ) {
+			return null;
+		}
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		Class<?> targetType = db.getSessionFactory().getClassMetadata(entity).getIdentifierType().getReturnedClass();
 		return (Serializable) StringToTypeConverter.convert(targetType, idString);
@@ -448,7 +519,7 @@ public class EditPlugin8<T> implements AdminPlugin
 
 	public JqGridTableDataViewModel generateTableData(int page, int rows)
 	{
-		EditorForm8<T> form = new EditorForm8<>(EditorMode.UPDATE, this.getPluginClass(), new StringBuilder());
+		EditorForm8<T> form = new EditorForm8<>(EditorMode.UPDATE, this.getPluginClass());
 		configureFor(form);
 
 		if( page <= 0 )

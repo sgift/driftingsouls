@@ -22,6 +22,71 @@ Admin.initMenu = function() {
 		.children('ul').hide();
 };
 
+Admin._createInput = function(inputModel) {
+	if( inputModel.typ === "select" ) {
+		var select = $('<select size="1" name="'+inputModel.name+'"></select>');
+		if( inputModel.nullOption != null ) {
+			select.append($('<option></option>').html(v))
+		}
+		$.each(inputModel.options, function(k, v) {
+			select.append($('<option></option>').val(k).html(v));
+		});
+		select.val(inputModel.selected);
+		select.prop('disabled', inputModel.disabled);
+		return select;
+	}
+	else if( inputModel.typ === "textfield" ) {
+		var input = $('<input type="text" name="'+inputModel.name+'" id="'+inputModel.id+'" />');
+		if( inputModel.autoNumeric ) {
+			input.autoNumeric('init', inputModel.autoNumeric);
+		}
+		input.val(input.value);
+		input.prop('disabled', inputModel.disabled);
+		return input;
+	}
+	return "Unbekanntes Eingabeelement";
+};
+
+Admin.openEntityEditor = function(namedplugin) {
+	function beginSelectionBox(jq) {
+		jq.append('<form action="./ds" method="post">' +
+			'<input type="hidden" name="namedplugin" value="'+namedplugin+'" />' +
+			'<input type="hidden" name="module" value="admin" />'+
+			'<input type="submit" name="choose" value="Ok" /></form>');
+	}
+
+	function addForm(jq) {
+		jq.append('<form action="./ds" method="post">'+
+			'<input type="hidden" name="namedplugin" value="'+namedplugin+'" />' +
+			'<input type="hidden" name="module" value="admin" />' +
+			'<input type="submit" name="add" value="+" />' +
+			'</form>');
+	}
+
+	DS.getJSON({module:'admin', action:'entityPluginOverviewAction', namedplugin:namedplugin}, function(data) {
+		var adminplugin = $('#adminplugin');
+		adminplugin.empty().append('<div class="gfxbox adminSelection" style="width:390px"></div>' +
+			'<div id="entityListWrapper"><table id="entityList"><tr><td></td></tr></table><div id="pager"></div></div>');
+
+		var selection = adminplugin.find('.adminSelection');
+		if( data.entitySelection.allowSelection ) {
+			beginSelectionBox(selection);
+			var form = selection.find('form');
+
+			form.prepend(Admin._createInput(data.entitySelection.input));
+		}
+		if( data.entitySelection.allowAdd ){
+			addForm(selection);
+		}
+
+		Admin.createEntityTable(data.table);
+
+		var admin = $('#admin');
+		admin.find('.treemenu a').removeClass("active");
+		admin.find('.treemenu a[data-namedplugin="'+namedplugin+'"]').addClass("active");
+	});
+};
+
 Admin.createEntityTable = function(params) {
 	var items = new ItemListModel([]);
 	var updateCargos = function() {

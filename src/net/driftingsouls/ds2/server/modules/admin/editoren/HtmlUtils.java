@@ -19,6 +19,45 @@ public final class HtmlUtils
 	}
 
 	/**
+	 * Generiert das ViewModel zu einem HTML-Select.
+	 * @param name Der Formname des Elements, gleichzeitig auch die ID
+	 * @param readOnly <code>true</code>, falls das Element readonly sein soll
+	 * @param options Die Auswahloptionen des Selects, Key ist der interne Wert, Value der Anzeigewert
+	 * @param selected Der momentan ausgewaehlte Wert (interner Wert)
+	 * @return Das ViewModel
+	 */
+	public static SelectViewModel jsSelect(String name, boolean readOnly, Map<Serializable,Object> options, Serializable selected)
+	{
+		SelectViewModel model = new SelectViewModel(name);
+		model.disabled = readOnly;
+		model.selected = selected != null ? identifierToString(selected) : null;
+
+		// TreeMap mag keine null-Keys
+		Map<Serializable,Object> optionsIntrl = new HashMap<>(options);
+		if( optionsIntrl.containsKey(null) )
+		{
+			Object label = optionsIntrl.remove(null);
+			model.nullOption = label instanceof String ? (String)label : new ObjectLabelGenerator().generateFor(null, label);
+		}
+
+		for (Map.Entry<Serializable, Object> entry : new TreeMap<>(optionsIntrl).entrySet())
+		{
+			String label;
+			if (entry.getValue() instanceof String || entry.getKey() == entry.getValue())
+			{
+				label = entry.getValue() != null ? entry.getValue().toString() : "";
+			}
+			else
+			{
+				label = new ObjectLabelGenerator().generateFor(entry.getKey(), entry.getValue());
+			}
+
+			model.options.put(identifierToString(entry.getKey()), label);
+		}
+		return model;
+	}
+
+	/**
 	 * Generiert ein HTML-Select.
 	 * @param echo Der Buffer in den der HTML-Code geschrieben werden soll
 	 * @param name Der Formname des Elements, gleichzeitig auch die ID
@@ -98,5 +137,23 @@ public final class HtmlUtils
 		echo.append("<script type=\"text/javascript\">\n");
 		echo.append("$('#").append(name).append("').autoNumeric('init', ").append(new Gson().toJson(model)).append(");\n");
 		echo.append("</script>");
+	}
+
+	/**
+	 * Generiert ein ViewModel zu einem <code>&lt;input type="text"/&gt;</code>-Element.
+	 * @param name Der Formname des Elements, gleichzeitig auch die ID
+	 * @param readOnly <code>true</code>, falls das Element readonly sein soll
+	 * @param dataType Der Datentyp des hinterlegten Werts, wird u.a. zur Generierung von clientseitiger Validierungslogik verwendet
+	 * @param value Der momentane Wert oder <code>null</code>
+	 * @return Das ViewModel
+	 */
+	public static TextFieldViewModel jsTextInput(String name, boolean readOnly, Class<?> dataType, Object value)
+	{
+		TextFieldViewModel model = new TextFieldViewModel(name);
+		model.id = name;
+		model.disabled = readOnly;
+		model.value = value != null ? value.toString() : "";
+		model.autoNumeric = AutoNumericViewModel.forClass(dataType);
+		return model;
 	}
 }

@@ -21,7 +21,6 @@ public class EditorForm8<E> implements FormElementCreator<E>
 
 	private Function<E,Boolean> allowDelete;
 	private final EditorMode modus;
-	private StringBuilder echo;
 	private Class<?> plugin;
 	private List<CustomFieldGenerator<E>> fields = new ArrayList<>();
 	private int counter;
@@ -32,10 +31,9 @@ public class EditorForm8<E> implements FormElementCreator<E>
 	private List<Job<E,?>> deleteTasks = new ArrayList<>();
 	private Class<? extends E> defaultEntityClass = null;
 
-	public EditorForm8(EditorMode modus, Class<?> plugin, StringBuilder echo)
+	public EditorForm8(EditorMode modus, Class<?> plugin)
 	{
 		this.modus = modus;
-		this.echo = echo;
 		this.counter = 0;
 		this.allowAdd = false;
 		this.allowDelete = (entity) -> false;
@@ -263,7 +261,7 @@ public class EditorForm8<E> implements FormElementCreator<E>
 		return "field"+(counter++)+"_"+ suffix.replace('/', '_').replace('$', '_');
 	}
 
-	protected void generateForm(E entity)
+	protected void generateForm(StringBuilder echo, E entity)
 	{
 		try
 		{
@@ -323,7 +321,7 @@ public class EditorForm8<E> implements FormElementCreator<E>
 		{
 			return this;
 		}
-		return new EditorForm8<>(EditorMode.CREATE, plugin, new StringBuilder());
+		return new EditorForm8<>(EditorMode.CREATE, plugin);
 	}
 
 	@Override
@@ -333,7 +331,7 @@ public class EditorForm8<E> implements FormElementCreator<E>
 		{
 			return this;
 		}
-		return new EditorForm8<>(EditorMode.UPDATE, plugin, new StringBuilder());
+		return new EditorForm8<>(EditorMode.UPDATE, plugin);
 	}
 
 	/**
