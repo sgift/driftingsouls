@@ -88,7 +88,7 @@ public class EditUser implements EntityEditor<User>
 		user.setName(newname);
 	}
 
-	private void doVacation(User user)
+	private void doVacation(User orguser, User user)
 	{
 		if(user.getVacationCount() == 0)
 		{

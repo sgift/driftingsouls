@@ -229,7 +229,7 @@ public class TileCache
 
 		File[] files = cacheDir.listFiles(pathname -> pathname.isFile() && pathname.getName().startsWith(TileCache.this.system.getID() + "_"));
 
-		LOG.info("Loesche "+files.length+" Tiles aus dem Cache");
+		LOG.info("System "+this.system.getID()+": Loesche "+files.length+" Tiles aus dem Cache");
 
 		for( File file : files )
 		{

@@ -108,7 +108,7 @@ public class EditorForm8<E> implements FormElementCreator<E>
 	 * @param name Der Name der Aufgabe
 	 * @param job Die Aufgabe
 	 */
-	public void postUpdateTask(String name, Consumer<E> job)
+	public void postUpdateTask(String name, BiConsumer<E, E> job)
 	{
 		updateTasks.add(Job.forRunnable(name, job));
 	}

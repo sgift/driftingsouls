@@ -76,7 +76,10 @@ public class EditBases implements EntityEditor<Base>
 		form.field("Aktuell verfügbare Ressourcen", String.class, Base::getAvailableSpawnableRess, Base::setAvailableSpawnableRess);
 		form.field("Automatischer Verkauf", String.class, (base) -> Common.implode(";", base.getAutoGTUActs()) , this::updateAutoGtuActs);
 
-		form.postUpdateTask("Sternenkarten-Cache leeren", (base) -> TileCache.forSystem(base.getSystem()).resetCache());
+		form.postUpdateTask("Sternenkarten-Cache leeren", (orgbase,base) -> {
+			TileCache.forSystem(orgbase.getSystem()).resetCache();
+			TileCache.forSystem(base.getSystem()).resetCache();
+		});
 	}
 
 	private void updateAutoGtuActs(Base base, String s)

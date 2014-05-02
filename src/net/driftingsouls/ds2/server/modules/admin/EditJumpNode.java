@@ -33,7 +33,10 @@ public class EditJumpNode implements EntityEditor<JumpNode>
 		form.field("Versteckt", Boolean.class, JumpNode::isHidden, JumpNode::setHidden);
 		form.field("Für bewaffnete Schiffe blockiert", Boolean.class, JumpNode::isWeaponBlock, JumpNode::setWeaponBlock);
 
-		form.postUpdateTask("Sternenkarten-Cache leeren", (jumpnode) -> TileCache.forSystem(jumpnode.getSystem()).resetCache());
+		form.postUpdateTask("Sternenkarten-Cache leeren", (orgjumpnode,jumpnode) -> {
+			TileCache.forSystem(orgjumpnode.getSystem()).resetCache();
+			TileCache.forSystem(jumpnode.getSystem()).resetCache();
+		});
 		form.preDeleteTask("Sternenkarten-Cache leeren", (jumpnode) -> TileCache.forSystem(jumpnode.getSystem()).resetCache());
 	}
 }
