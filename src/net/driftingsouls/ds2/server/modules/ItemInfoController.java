@@ -532,7 +532,7 @@ public class ItemInfoController extends TemplateController
 				ShipTypeData shiptype = effect.getShipType();
 				if (shiptype != null)
 				{
-					t.setVar("entry.data", "<a class=\"forschinfo\" onclick='ShiptypeBox.show(" + effect.getShipType().getId() + ");return false;' href=\"" + Common.buildUrl("default", "module", "schiffinfo", "ship", effect.getShipType()) + "\">" + shiptype.getNickname() + "</a>");
+					t.setVar("entry.data", "<a class=\"forschinfo\" onclick='ShiptypeBox.show(" + effect.getShipType().getId() + ");return false;' href=\"" + Common.buildUrl("default", "module", "schiffinfo", "ship", effect.getShipType().getId()) + "\">" + shiptype.getNickname() + "</a>");
 				}
 				else
 				{
