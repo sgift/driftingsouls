@@ -28,7 +28,7 @@ public enum ShipTypeFlag
 	/**
 	 * Das angegebene Schiff kann in Kaempfen fluechtende Schiffe abfangen.
 	 */
-	ABFANGEN("abfangen", "Abfangen", "Schiffe mit der Eigenschaft Abfangen können im Kampf auf flüuchtende Schiffe feuern - gegen leicht erhöhte AP-Kosten"),
+	ABFANGEN("abfangen", "Abfangen", "Schiffe mit der Eigenschaft Abfangen können im Kampf auf flüchtende Schiffe feuern - gegen leicht erhöhte AP-Kosten"),
 
 	/**
 	 * Das angegebene Schiff ist nicht kaperbar.
