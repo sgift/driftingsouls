@@ -64,7 +64,7 @@ public class ItemEffectFactory {
 				throw new UnsupportedOperationException();
 			}
 			if( effects[0].equals("disable-ship") ) {
-				return IEDisableShip.fromString(effects[1]);
+				throw new UnsupportedOperationException();
 			}
 			if( effects[0].equals("disable-iff") ) {
 				throw new UnsupportedOperationException();

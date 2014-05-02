@@ -33,6 +33,7 @@ import net.driftingsouls.ds2.server.entities.FactoryEntry;
 import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
+import net.driftingsouls.ds2.server.ships.ShipType;
 
 import javax.annotation.Nonnull;
 
@@ -68,5 +69,7 @@ public class EditItem implements EntityEditor<Item>
 		form.ifEntityClass(Munition.class).field("Munitionsdefinition", Munitionsdefinition.class, Munition::getMunitionsdefinition, Munition::setMunitionsdefinition);
 		form.ifEntityClass(Munitionsbauplan.class).field("Ermöglicht Fabrikeintrag", FactoryEntry.class, Munitionsbauplan::getFabrikeintrag, Munitionsbauplan::setFabrikeintrag);
 		form.ifEntityClass(Munitionsbauplan.class).field("Als Allianzbauplan verwendbar", Boolean.class, Munitionsbauplan::isAllianzEffekt, Munitionsbauplan::setAllianzEffekt);
+		form.ifEntityClass(Schiffsverbot.class).field("Verbotener Schiffstyp", ShipType.class, Schiffsverbot::getSchiffstyp, Schiffsverbot::setSchiffstyp);
+		form.ifEntityClass(Schiffsverbot.class).field("Als Allianzitem verwendbar", Boolean.class, Schiffsverbot::isAllianzEffekt, Schiffsverbot::setAllianzEffekt);
 	}
 }

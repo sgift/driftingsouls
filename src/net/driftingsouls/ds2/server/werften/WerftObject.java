@@ -1276,7 +1276,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			allyitems = new Cargo();
 		}
 
-		Map<Integer,Boolean> disableShips = new HashMap<>();
+		Map<ShipType,Boolean> disableShips = new HashMap<>();
 
 		for (ItemCargoEntry<Schiffsverbot> anItemlist : availablecargo.getItemsOfType(Schiffsverbot.class))
 		{
@@ -1297,7 +1297,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		for( Object obj : baubarList )
 		{
 			ShipBaubar sb = (ShipBaubar)obj;
-			if( disableShips.containsKey(sb.getType().getId()) ) {
+			if( disableShips.containsKey(sb.getType()) ) {
 				continue;
 			}
 			if( !Rassen.get().rasse(user.getRace()).isMemberIn(sb.getRace()) ) {

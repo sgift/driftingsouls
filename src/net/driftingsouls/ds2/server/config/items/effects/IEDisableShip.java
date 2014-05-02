@@ -18,9 +18,7 @@
  */
 package net.driftingsouls.ds2.server.config.items.effects;
 
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipType;
-import org.apache.commons.lang.StringUtils;
 
 /**
  * Item-Effekt "Schiffsbauplan deaktivieren".
@@ -38,9 +36,9 @@ import org.apache.commons.lang.StringUtils;
  *
  */
 public class IEDisableShip extends ItemEffect {
-	private int shipType;
+	private ShipType shipType;
 	
-	protected IEDisableShip(boolean allyEffect, int shiptype) {
+	public IEDisableShip(boolean allyEffect, ShipType shiptype) {
 		super(ItemEffect.Type.DISABLE_SHIP, allyEffect);
 		this.shipType = shiptype;
 	}
@@ -49,29 +47,8 @@ public class IEDisableShip extends ItemEffect {
 	 * Gibt die Typen-ID des durch diesen Effekt deaktivierten Schifftyps zurueck.
 	 * @return Die Schiffstypen-ID
 	 */
-	public int getShipType() {
+	public ShipType getShipType() {
 		return shipType;
-	}
-	
-	/**
-	 * Laedt einen Effect aus einem String.
-	 * @param effectString Der Effect als String
-	 * @return Der Effect
-	 * @throws IllegalArgumentException falls der Effect nicht richtig geladen werden konnte
-	 */
-	public static ItemEffect fromString(String effectString) throws IllegalArgumentException {
-		
-		String[] effects = StringUtils.split(effectString, "&");
-		Boolean allyEffect = effects[1].equals("true");
-		int shiptype = Integer.parseInt(effects[0]);
-		
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		ShipType shipType = (ShipType)db.get(ShipType.class, shiptype);
-		if( shipType == null ) {
-			throw new IllegalArgumentException("Illegaler Schiffstyp '"+shiptype+"' im Item-Effekt 'Schiffsbauplan deaktivieren'");
-		}
-		
-		return new IEDisableShip(allyEffect, shiptype);
 	}
 
 	/**
@@ -80,6 +57,6 @@ public class IEDisableShip extends ItemEffect {
 	 */
 	@Override
 	public String toString() {
-		return "disable-ship:" + getShipType() + "&" + hasAllyEffect();
+		return "disable-ship:" + shipType.getId() + "&" + hasAllyEffect();
 	}
 }
