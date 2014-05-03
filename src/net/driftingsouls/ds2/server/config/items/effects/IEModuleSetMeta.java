@@ -18,7 +18,7 @@
  */
 package net.driftingsouls.ds2.server.config.items.effects;
 
-import net.driftingsouls.ds2.server.ships.ShipTypeChangeset;
+import net.driftingsouls.ds2.server.ships.SchiffstypModifikation;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ import java.util.Map;
  */
 public class IEModuleSetMeta extends ItemEffect {
 	private String name;
-	private Map<Integer,ShipTypeChangeset> combos = new HashMap<>();
+	private Map<Integer,SchiffstypModifikation> combos = new HashMap<>();
 	
 	protected IEModuleSetMeta(String name) {
 		super(ItemEffect.Type.MODULE_SET_META);
@@ -42,7 +42,7 @@ public class IEModuleSetMeta extends ItemEffect {
 		this.name = name;
 	}
 	
-	protected void addCombo(int itemCount, ShipTypeChangeset combo) {
+	protected void addCombo(int itemCount, SchiffstypModifikation combo) {
 		if( itemCount < 1 ) {
 			throw new IndexOutOfBoundsException("Die Anzahl der Items muss groesser oder gleich 1 sein!");
 		}
@@ -64,16 +64,16 @@ public class IEModuleSetMeta extends ItemEffect {
 	 * @param itemCount Die Anzahl an Items des Sets
 	 * @return Die Aenderungseffekte fuer die Anzahl
 	 */
-	public ShipTypeChangeset[] getCombo(int itemCount) {
-		List<ShipTypeChangeset> combos = new ArrayList<>();
+	public SchiffstypModifikation[] getCombo(int itemCount) {
+		List<SchiffstypModifikation> combos = new ArrayList<>();
 		for( int i=1; i <= itemCount; i++ ) {
-			ShipTypeChangeset currentCombo = this.combos.get(i);
+			SchiffstypModifikation currentCombo = this.combos.get(i);
 			if( currentCombo == null ) {
 				continue;
 			}
 			combos.add(currentCombo);
 		}
-		return combos.toArray(new ShipTypeChangeset[combos.size()]);
+		return combos.toArray(new SchiffstypModifikation[combos.size()]);
 	}
 	
 	/**
@@ -83,7 +83,7 @@ public class IEModuleSetMeta extends ItemEffect {
 	 * Stufen sowie des Effekts der Stufe selbst.
 	 * @return Die Combos
 	 */
-	public Map<Integer,ShipTypeChangeset> getCombos() {
+	public Map<Integer,SchiffstypModifikation> getCombos() {
 		return Collections.unmodifiableMap(combos);
 	}
 	
@@ -101,7 +101,7 @@ public class IEModuleSetMeta extends ItemEffect {
 		for( int i=1; i< effects.length; i++)
 		{
 			String[] combo = StringUtils.split(effects[i], "\\");
-			effect.addCombo(Integer.parseInt(combo[0]), new ShipTypeChangeset(combo[1]));
+			effect.addCombo(Integer.parseInt(combo[0]), new SchiffstypModifikation(combo[1]));
 		}
 		
 		return effect;
@@ -113,7 +113,7 @@ public class IEModuleSetMeta extends ItemEffect {
 	 */
 	@Override
 	public String toString() {
-		Map<Integer, ShipTypeChangeset> combos = getCombos();
+		Map<Integer, SchiffstypModifikation> combos = getCombos();
 		String itemstring = "module-set-meta:" + getName() + "&";
 		for(int i = 1; i <= 10; i++) {
 			if( combos.containsKey(i)) {

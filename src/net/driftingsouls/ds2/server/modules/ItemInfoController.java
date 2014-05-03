@@ -29,18 +29,19 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.ModuleSlots;
 import net.driftingsouls.ds2.server.config.NoSuchSlotException;
 import net.driftingsouls.ds2.server.config.Rassen;
-import net.driftingsouls.ds2.server.entities.Weapon;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.config.items.Schiffsmodul;
 import net.driftingsouls.ds2.server.config.items.effects.IEAmmo;
 import net.driftingsouls.ds2.server.config.items.effects.IEDisableShip;
 import net.driftingsouls.ds2.server.config.items.effects.IEDraftShip;
 import net.driftingsouls.ds2.server.config.items.effects.IEModule;
 import net.driftingsouls.ds2.server.config.items.effects.IEModuleSetMeta;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
-import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
 import net.driftingsouls.ds2.server.entities.Forschung;
+import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.Weapon;
 import net.driftingsouls.ds2.server.entities.statistik.StatItemLocations;
 import net.driftingsouls.ds2.server.entities.statistik.StatUserCargo;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -54,18 +55,19 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.viewmodels.ItemViewModel;
+import net.driftingsouls.ds2.server.ships.SchiffstypModifikation;
+import net.driftingsouls.ds2.server.ships.Schiffswaffenkonfiguration;
 import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipTypeChangeset;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -101,7 +103,7 @@ public class ItemInfoController extends TemplateController
 		}
 	}
 
-	private String parseModuleModifiers(ShipTypeChangeset mods)
+	private String parseModuleModifiers(SchiffstypModifikation mods)
 	{
 		StringBuilder effecttext = new StringBuilder(300);
 
@@ -273,58 +275,36 @@ public class ItemInfoController extends TemplateController
 			effecttext.append("</span><br />\n");
 		}
 
-		if (mods.getFlags() != null)
+		if (!mods.getFlags().isEmpty())
 		{
-			EnumSet<ShipTypeFlag> flags = ShipTypeFlag.parseFlags(mods.getFlags());
+			Set<ShipTypeFlag> flags = mods.getFlags();
 			effecttext.append(flags.stream().map(ShipTypeFlag::getLabel).collect(Collectors.joining("<br />")));
 			effecttext.append("<br />\n");
 		}
 
-		if (mods.getWeapons() != null)
+		Set<Schiffswaffenkonfiguration> weaponlist = mods.getWaffen();
+
+		StringBuilder wpntext = new StringBuilder(50);
+		for (Schiffswaffenkonfiguration weaponclass : weaponlist)
 		{
-			Map<String, Integer[]> weaponlist = mods.getWeapons();
-
-			StringBuilder wpntext = new StringBuilder(50);
-			for (Map.Entry<String, Integer[]> weaponclass : weaponlist.entrySet())
+			if (wpntext.length() > 0)
 			{
-				String weaponclassname = weaponclass.getKey();
-				Integer[] weaponmods = weaponclass.getValue();
-
-				int weaponcount = weaponmods[0];
-				int weaponheat = weaponmods[1];
-
-				if (wpntext.length() > 0)
-				{
-					wpntext.append("<br />");
-				}
-				wpntext.append("<span class=\"nobr\">");
-				if (Math.abs(weaponcount) > 1)
-				{
-					wpntext.append(weaponcount).append("x ");
-				}
-				wpntext.append(Weapons.get().weapon(weaponclassname).getName());
-				wpntext.append("</span><br />[Max. Hitze: ").append(weaponheat).append("]");
+				wpntext.append("<br />");
 			}
-			effecttext.append(wpntext);
-			effecttext.append("<br />\n");
+			wpntext.append("<span class=\"nobr\">");
+			if (Math.abs(weaponclass.getAnzahl()) > 1)
+			{
+				wpntext.append(weaponclass.getAnzahl()).append("x ");
+			}
+			wpntext.append(weaponclass.getWaffe().getName());
+			wpntext.append("</span><br />[Hitze: ").append(weaponclass.getHitze()).append("]");
+			if( weaponclass.getMaxUeberhitzung() != 0 ) {
+				effecttext.append("<br />\n");
+				wpntext.append("[Max-Hitze: ").append(weaponclass.getMaxUeberhitzung()).append("]");
+			}
 		}
-
-		if (mods.getMaxHeat() != null)
+		if( wpntext.length() > 0 )
 		{
-			Map<String, Integer> weaponlist = mods.getMaxHeat();
-
-			StringBuilder wpntext = new StringBuilder(50);
-			for (Map.Entry<String, Integer> weaponclass : weaponlist.entrySet())
-			{
-				String weaponclassname = weaponclass.getKey();
-				int weaponheat = weaponclass.getValue();
-
-				if (wpntext.length() > 0)
-				{
-					wpntext.append("<br />");
-				}
-				wpntext.append(Weapons.get().weapon(weaponclassname).getName()).append(":<br />+").append(weaponheat).append(" Max-Hitze");
-			}
 			effecttext.append(wpntext);
 			effecttext.append("<br />\n");
 		}
@@ -549,8 +529,7 @@ public class ItemInfoController extends TemplateController
 				IEModule effect = (IEModule) item.getEffect();
 
 				StringBuilder targetslots = new StringBuilder(50);
-				List<String> slots = effect.getSlots();
-				for (String aslot : slots)
+				for (String aslot : effect.getSlots())
 				{
 					if (targetslots.length() > 0)
 					{
@@ -571,15 +550,11 @@ public class ItemInfoController extends TemplateController
 				{
 					int setcount = 0;
 
-					List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
+					List<Schiffsmodul> itemlist = Common.cast(db.createQuery("from Schiffsmodul").list());
 
-					for (Item aitem : itemlist)
+					for (Schiffsmodul aitem : itemlist)
 					{
-						if (aitem.getEffect().getType() != ItemEffect.Type.MODULE)
-						{
-							continue;
-						}
-						if (((IEModule) aitem.getEffect()).getSetID() != effect.getSetID())
+						if (aitem.getEffect().getSetID() != effect.getSetID())
 						{
 							continue;
 						}
@@ -613,12 +588,12 @@ public class ItemInfoController extends TemplateController
 				{
 					Item setItem = (Item) db.get(Item.class, effect.getSetID());
 					IEModuleSetMeta meta = ((IEModuleSetMeta) setItem.getEffect());
-					Map<Integer, ShipTypeChangeset> modlist = meta.getCombos();
+					Map<Integer, SchiffstypModifikation> modlist = meta.getCombos();
 
-					for (Map.Entry<Integer, ShipTypeChangeset> entry : modlist.entrySet())
+					for (Map.Entry<Integer, SchiffstypModifikation> entry : modlist.entrySet())
 					{
 						Integer modulecount = entry.getKey();
-						ShipTypeChangeset mods = entry.getValue();
+						SchiffstypModifikation mods = entry.getValue();
 
 						if (modulecount <= setknowncount)
 						{
@@ -735,12 +710,11 @@ public class ItemInfoController extends TemplateController
 				}
 				Cargo setitemlist = new Cargo();
 
-				List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
+				List<Schiffsmodul> itemlist = Common.cast(db.createQuery("from Schiffsmodul ").list());
 
-				for (Item thisitem : itemlist)
+				for (Schiffsmodul thisitem : itemlist)
 				{
-					if ((thisitem.getEffect().getType() == ItemEffect.Type.MODULE) &&
-						(((IEModule) thisitem.getEffect()).getSetID() == itemid))
+					if (thisitem.getEffect().getSetID() == itemid)
 					{
 						setitemlist.addResource(new ItemID(thisitem.getID()), 1);
 					}

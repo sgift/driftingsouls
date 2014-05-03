@@ -18,23 +18,23 @@
  */
 package net.driftingsouls.ds2.server.cargo.modules;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.config.items.Schiffsmodul;
 import net.driftingsouls.ds2.server.config.items.effects.IEModule;
 import net.driftingsouls.ds2.server.config.items.effects.IEModuleSetMeta;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.ships.ShipTypeChangeset;
+import net.driftingsouls.ds2.server.ships.SchiffstypModifikation;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Repraesentiert ein Modul auf Item-Basis.
@@ -83,9 +83,9 @@ public class ModuleItemModule extends Module {
 				}
 				ModuleItemModule itemModule = (ModuleItemModule)moduleobj;
 
-				Item ModuleItem = (Item)db.get(Item.class, itemModule.getItemID().getItemID());
+				Schiffsmodul moduleItem = (Schiffsmodul)db.get(Schiffsmodul.class, itemModule.getItemID().getItemID());
 
-				if( ((IEModule)ModuleItem.getEffect()).getSetID() != effect.getSetID() ) {
+				if( moduleItem.getEffect().getSetID() != effect.getSetID() ) {
 					continue;
 				}
 
@@ -100,8 +100,8 @@ public class ModuleItemModule extends Module {
 			}
 
 			Item effectSet = (Item)db.get(Item.class, effect.getSetID());
-			ShipTypeChangeset[] mods = ((IEModuleSetMeta)effectSet.getEffect()).getCombo(count);
-			for (ShipTypeChangeset mod : mods)
+			SchiffstypModifikation[] mods = ((IEModuleSetMeta)effectSet.getEffect()).getCombo(count);
+			for (SchiffstypModifikation mod : mods)
 			{
 				stats = mod.applyTo(stats, this.weaponrepl);
 			}

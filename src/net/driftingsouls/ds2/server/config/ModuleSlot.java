@@ -24,7 +24,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Repraesentiert einen Modulslot-Typ in DS.
@@ -124,7 +124,7 @@ public class ModuleSlot {
 	 * @param slottype Eine Liste von Slot-IDs
 	 * @return <code>true</code>, falls einer der aufgelisteten Slots kompatibel ist
 	 */
-	public boolean isMemberIn( List<String> slottype ) {
+	public boolean isMemberIn( Collection<String> slottype ) {
 		return isMemberIn(slottype.toArray(new String[slottype.size()]), "or");
 	}
 	

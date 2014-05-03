@@ -51,9 +51,6 @@ public class ItemEffectFactory {
 
 		try
 		{
-			if( effects[0].equals("module") ) {
-				return IEModule.fromString(effects[1]);
-			}
 			if( effects[0].equals("module-set-meta") ) {
 				return IEModuleSetMeta.fromString(effects[1]);
 			}

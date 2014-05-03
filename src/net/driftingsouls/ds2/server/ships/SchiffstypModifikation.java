@@ -19,21 +19,33 @@
 package net.driftingsouls.ds2.server.ships;
 
 import net.driftingsouls.ds2.server.config.Weapons;
+import net.driftingsouls.ds2.server.entities.Weapon;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.hibernate.Session;
+import org.hibernate.annotations.ForeignKey;
 
 import javax.annotation.Nonnull;
+import javax.persistence.CollectionTable;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Version;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Ein Changeset fuer Schiffstypendaten-Aenderungen, wie sie z.B. von
@@ -41,7 +53,14 @@ import java.util.Map.Entry;
  * @author Christopher Jung
  *
  */
-public class ShipTypeChangeset {
+@Entity
+public class SchiffstypModifikation
+{
+	@Id
+	@GeneratedValue
+	private Long id;
+	@Version
+	private int version;
 
 	private String nickname;
 	private String picture;
@@ -58,8 +77,10 @@ public class ShipTypeChangeset {
 	private long nahrungcargo;
 	private int heat;
 	private int crew;
-	private Map<String,Integer[]> weapons = new HashMap<>();
-	private Map<String,Integer> maxHeat;
+	@OneToMany(orphanRemoval = true)
+	@JoinColumn(name = "schiffstyp_modifikation_id")
+	@ForeignKey(name="schiffstyp_modifikation_waffen_fk_schiffstyp_modifikation")
+	private Set<Schiffswaffenkonfiguration> waffen = new HashSet<>();
 	private int torpedoDef;
 	private int shields;
 	private int size;
@@ -69,9 +90,15 @@ public class ShipTypeChangeset {
 	private int hydro;
 	private int deutFactor;
 	private int reCost;
-	private String flags;
+	@ElementCollection
+	@CollectionTable
+	@ForeignKey(name="schiffstypmodifikation_flags_fk_schiffstypmodifikation")
+	private Set<ShipTypeFlag> flags = new HashSet<>();
 	private int werft;
-	private int oneWayWerft;
+	@ManyToOne
+	@JoinColumn
+	@ForeignKey(name="schiffstypmodifikation_fk_schiffstyp")
+	private ShipType oneWayWerft;
 	private Boolean srs;
 	private int scanCost;
 	private int pickingCost;
@@ -84,7 +111,7 @@ public class ShipTypeChangeset {
 	/**
 	 * Leerer Konstruktor.
 	 */
-	public ShipTypeChangeset()
+	public SchiffstypModifikation()
 	{
 		// Leerer Konstruktor
 	}
@@ -92,13 +119,15 @@ public class ShipTypeChangeset {
 	 * Konstruktor.
 	 * @param changesetString Der String mit den Changeset-Informationen
 	 */
-	public ShipTypeChangeset(String changesetString)
+	public SchiffstypModifikation(String changesetString)
 	{
-
 		if( changesetString.equals(""))
 		{
 			throw new RuntimeException("Keine Shiptype-Changeset-Informationen vorhanden");
 		}
+
+		Map<Weapon,Schiffswaffenkonfiguration> waffen = new HashMap<>();
+
 		String[] changesets = StringUtils.split(changesetString, "|");
 		for (String changeset1 : changesets)
 		{
@@ -108,123 +137,129 @@ public class ShipTypeChangeset {
 				case "weapons":
 					String[] weapon = StringUtils.split(changeset[1], "/");
 
-					// Sicherstellen, dass die Waffe existiert
-					Weapons.get().weapon(weapon[0]);
-
-					weapons.put(weapon[0], new Integer[]{Integer.parseInt(weapon[1]), Integer.parseInt(weapon[2])});
+					Weapon waffe = Weapons.get().weapon(weapon[0]);
+					waffen.putIfAbsent(waffe, new Schiffswaffenkonfiguration(waffe, 0, 0, 0));
+					waffen.get(waffe).setAnzahl(Integer.parseInt(weapon[1]));
+					waffen.get(waffe).setHitze(Integer.parseInt(weapon[2]));
 					break;
 				case "flags":
 					List<String> flagList = new ArrayList<>();
 					String[] flags = StringUtils.split(changeset[1], "/");
 					Collections.addAll(flagList, flags);
-					this.flags = Common.implode(" ", flagList);
+					this.flags = ShipTypeFlag.parseFlags(Common.implode(" ", flagList));
 					break;
-				case "nickname":
+				case "nickname"://
 					this.nickname = changeset[1];
 					break;
-				case "picture":
+				case "picture"://
 					this.picture = changeset[1];
 					break;
-				case "ru":
+				case "ru": //
 					this.ru = Integer.parseInt(changeset[1]);
 					break;
-				case "rd":
+				case "rd"://
 					this.rd = Integer.parseInt(changeset[1]);
 					break;
-				case "ra":
+				case "ra"://
 					this.ra = Integer.parseInt(changeset[1]);
 					break;
-				case "rm":
+				case "rm"://
 					this.rm = Integer.parseInt(changeset[1]);
 					break;
-				case "eps":
+				case "eps"://
 					this.eps = Integer.parseInt(changeset[1]);
 					break;
-				case "cost":
+				case "cost"://
 					this.cost = Integer.parseInt(changeset[1]);
 					break;
-				case "hull":
+				case "hull"://
 					this.hull = Integer.parseInt(changeset[1]);
 					break;
-				case "panzerung":
+				case "panzerung"://
 					this.panzerung = Integer.parseInt(changeset[1]);
 					break;
-				case "ablativearmor":
+				case "ablativearmor"://
 					this.ablativeArmor = Integer.parseInt(changeset[1]);
 					break;
-				case "cargo":
+				case "cargo"://
 					this.cargo = Long.parseLong(changeset[1]);
 					break;
-				case "nahrungcargo":
+				case "nahrungcargo": //
 					this.nahrungcargo = Long.parseLong(changeset[1]);
 					break;
-				case "heat":
+				case "heat"://
 					this.heat = Integer.parseInt(changeset[1]);
 					break;
-				case "crew":
+				case "crew"://
 					this.crew = Integer.parseInt(changeset[1]);
 					break;
-				case "maxunitsize":
+				case "maxunitsize"://
 					this.maxunitsize = Integer.parseInt(changeset[1]);
 					break;
-				case "unitspace":
+				case "unitspace"://
 					this.unitspace = Integer.parseInt(changeset[1]);
 					break;
-				case "torpdeff":
+				case "torpdeff"://
 					this.torpedoDef = Integer.parseInt(changeset[1]);
 					break;
-				case "shields":
+				case "shields"://
 					this.shields = Integer.parseInt(changeset[1]);
 					break;
-				case "size":
+				case "size"://
 					this.size = Integer.parseInt(changeset[1]);
 					break;
-				case "jdocks":
+				case "jdocks"://
 					this.jDocks = Integer.parseInt(changeset[1]);
 					break;
-				case "adocks":
+				case "adocks"://
 					this.aDocks = Integer.parseInt(changeset[1]);
 					break;
-				case "sensorrange":
+				case "sensorrange"://
 					this.sensorRange = Integer.parseInt(changeset[1]);
 					break;
-				case "hydro":
+				case "hydro"://
 					this.hydro = Integer.parseInt(changeset[1]);
 					break;
-				case "deutfactor":
+				case "deutfactor"://
 					this.deutFactor = Integer.parseInt(changeset[1]);
 					break;
-				case "recost":
+				case "recost"://
 					this.reCost = Integer.parseInt(changeset[1]);
 					break;
-				case "werftslots":
+				case "werftslots"://
 					this.werft = Integer.parseInt(changeset[1]);
 					break;
-				case "onewaywerft":
-					this.oneWayWerft = Integer.parseInt(changeset[1]);
+				case "onewaywerft"://
+					int oneWayWerft = Integer.parseInt(changeset[1]);
+					if( oneWayWerft != 0 )
+					{
+						this.oneWayWerft = (ShipType)ContextMap.getContext().getDB().get(ShipType.class,oneWayWerft);
+					}
 					break;
-				case "srs":
+				case "srs"://
 					this.srs = Boolean.parseBoolean(changeset[1]);
 					break;
-				case "scancost":
+				case "scancost"://
 					this.scanCost = Integer.parseInt(changeset[1]);
 					break;
-				case "pickingcost":
+				case "pickingcost"://
 					this.pickingCost = Integer.parseInt(changeset[1]);
 					break;
-				case "mincrew":
+				case "mincrew"://
 					this.minCrew = Integer.parseInt(changeset[1]);
 					break;
-				case "lostinempchance":
+				case "lostinempchance"://
 					this.lostInEmpChance = Double.parseDouble(changeset[1]);
 					break;
-				case "bounty":
+				case "bounty"://
 					this.bounty = new BigInteger(changeset[1]);
 					break;
 				default:
 					throw new RuntimeException("Unbekannte Changeset-Eigenschaft '" + changeset[0] + "'");
 			}
 		}
+
+		this.waffen = new HashSet<>(waffen.values());
 	}
 
 	/**
@@ -312,7 +347,7 @@ public class ShipTypeChangeset {
 	 * Gibt zurueck, welche Flags zusaetzlich gesetzt werden.
 	 * @return Die neuen Flags
 	 */
-	public String getFlags() {
+	public Set<ShipTypeFlag> getFlags() {
 		return flags;
 	}
 
@@ -349,17 +384,6 @@ public class ShipTypeChangeset {
 	}
 
 	/**
-	 * Gibt zurueck, wie die Waffenueberhitzung modifiziert wird.
-	 * @return Die Waffenueberhitzung
-	 */
-	public Map<String, Integer> getMaxHeat() {
-		if( this.maxHeat == null ) {
-			return null;
-		}
-		return Collections.unmodifiableMap(maxHeat);
-	}
-
-	/**
 	 * Gibt den neuen Nickname zurueck.
 	 * @return Der Name
 	 */
@@ -372,12 +396,7 @@ public class ShipTypeChangeset {
 	 * @return Die Einweg-Werftdaten
 	 */
 	public ShipType getOneWayWerft() {
-		if( oneWayWerft == 0 )
-		{
-			return null;
-		}
-		Session db = ContextMap.getContext().getDB();
-		return (ShipType) db.get(ShipType.class, oneWayWerft);
+		return oneWayWerft;
 	}
 
 	/**
@@ -480,15 +499,9 @@ public class ShipTypeChangeset {
 	 * Gibt die Modifikationsdaten der Waffen zurueck.
 	 * @return Die Modifikationsdaten der Waffen
 	 */
-	public Map<String, Integer[]> getWeapons() {
-		if( this.weapons == null ) {
-			return null;
-		}
-		Map<String,Integer[]> map = new HashMap<>();
-		for( Entry<String,Integer[]> entry : this.weapons.entrySet() ) {
-			map.put(entry.getKey(), entry.getValue().clone());
-		}
-		return map;
+	public Set<Schiffswaffenkonfiguration> getWaffen()
+	{
+		return this.waffen;
 	}
 
 	/**
@@ -626,8 +639,8 @@ public class ShipTypeChangeset {
 		if ( getWerft() != 0) {
 			itemstring = itemstring + "werftslots," + getWerft() + "|";
 		}
-		if ( this.oneWayWerft != 0) {
-			itemstring = itemstring + "onewaywerft," + getOneWayWerft() + "|";
+		if ( this.oneWayWerft != null) {
+			itemstring = itemstring + "onewaywerft," + this.oneWayWerft.getId() + "|";
 		}
 		if ( getScanCost() != 0) {
 			itemstring = itemstring + "scancost," + getScanCost() + "|";
@@ -641,17 +654,14 @@ public class ShipTypeChangeset {
 		if ( getLostInEmpChance() != 0) {
 			itemstring = itemstring + "getlostinempchance," + getLostInEmpChance() + "|";
 		}
-		if ( getFlags() != null) {
-			itemstring = itemstring + "flags," + getFlags().replaceAll(" ", "/") + "|";
+		if ( !getFlags().isEmpty()) {
+			itemstring = itemstring + "flags," + getFlags().stream().map(ShipTypeFlag::getFlag).collect(Collectors.joining("/")) + "|";
 		}
 		if ( hasSrs() != null && hasSrs()) {
 			itemstring = itemstring + "srs,true|";
 		}
-		if ( getWeapons() != null) {
-			Map<String,Integer[]> weapons = getWeapons();
-			for( Entry<String,Integer[]> entry : weapons.entrySet()) {
-				itemstring = itemstring + "weapons," + entry.getKey() + "/" + entry.getValue()[0] + "/" + entry.getValue()[1] + "|";
-			}
+		for( Schiffswaffenkonfiguration conf: getWaffen()) {
+			itemstring = itemstring + "weapons," + conf.getWaffe().getId() + "/" + conf.getAnzahl() + "/" + conf.getHitze() + "|";
 		}
 		itemstring = itemstring.substring(0, itemstring.length() - 1);
 		return itemstring;
@@ -705,7 +715,7 @@ public class ShipTypeChangeset {
 
 		@Override
 		public int getADocks() {
-			int value = inner.getADocks() + ShipTypeChangeset.this.getADocks();
+			int value = inner.getADocks() + SchiffstypModifikation.this.getADocks();
 			if( value < 0 ) {
 				return 0;
 			}
@@ -714,7 +724,7 @@ public class ShipTypeChangeset {
 
 		@Override
 		public long getCargo() {
-			long value = inner.getCargo() + ShipTypeChangeset.this.getCargo();
+			long value = inner.getCargo() + SchiffstypModifikation.this.getCargo();
 			if( value < 0 ) {
 				return 0;
 			}
@@ -723,7 +733,7 @@ public class ShipTypeChangeset {
 
 		@Override
 		public long getNahrungCargo() {
-			long value = inner.getNahrungCargo() + ShipTypeChangeset.this.getNahrungCargo();
+			long value = inner.getNahrungCargo() + SchiffstypModifikation.this.getNahrungCargo();
 			if( value < 0) {
 				return 0;
 			}
@@ -738,7 +748,7 @@ public class ShipTypeChangeset {
 		@Override
 		public int getCost() {
 			if( getType().getCost() > 0 ) {
-				int value = inner.getCost() + ShipTypeChangeset.this.getCost();
+				int value = inner.getCost() + SchiffstypModifikation.this.getCost();
 				if( value < 1 ) {
 					return 1;
 				}
@@ -750,7 +760,7 @@ public class ShipTypeChangeset {
 		@Override
 		public int getCrew() {
 			if( getType().getCrew() > 0 ) {
-				int value = inner.getCrew() + ShipTypeChangeset.this.getCrew();
+				int value = inner.getCrew() + SchiffstypModifikation.this.getCrew();
 				if( value < 1 ) {
 					return 1;
 				}
@@ -762,7 +772,7 @@ public class ShipTypeChangeset {
 		@Override
 		public int getMaxUnitSize() {
 			if( getType().getMaxUnitSize() > 0 ) {
-				int value = inner.getMaxUnitSize() + ShipTypeChangeset.this.getMaxUnitSize();
+				int value = inner.getMaxUnitSize() + SchiffstypModifikation.this.getMaxUnitSize();
 					if( value < 1 ) {
 						return 1;
 					}
@@ -774,7 +784,7 @@ public class ShipTypeChangeset {
 		@Override
 		public int getUnitSpace() {
 			if( getType().getUnitSpace() > 0 ) {
-				int value = inner.getUnitSpace() + ShipTypeChangeset.this.getUnitSpace();
+				int value = inner.getUnitSpace() + SchiffstypModifikation.this.getUnitSpace();
 					if( value < 0 ) {
 						return 0;
 					}
@@ -790,7 +800,7 @@ public class ShipTypeChangeset {
 
 		@Override
 		public int getDeutFactor() {
-			int value = inner.getDeutFactor() + ShipTypeChangeset.this.getDeutFactor();
+			int value = inner.getDeutFactor() + SchiffstypModifikation.this.getDeutFactor();
 			if( value < 0 ) {
 				return 0;
 			}
@@ -799,7 +809,7 @@ public class ShipTypeChangeset {
 
 		@Override
 		public int getEps() {
-			int value = inner.getEps() + ShipTypeChangeset.this.getEps();
+			int value = inner.getEps() + SchiffstypModifikation.this.getEps();
 			if( value < 0 ) {
 				return 0;
 			}
@@ -810,7 +820,7 @@ public class ShipTypeChangeset {
 		public EnumSet<ShipTypeFlag> getFlags() {
 			if( this.flags == null ) {
 				EnumSet<ShipTypeFlag> flags = inner.getFlags().clone();
-				flags.addAll(ShipTypeFlag.parseFlags(ShipTypeChangeset.this.getFlags()));
+				flags.addAll(SchiffstypModifikation.this.getFlags());
 				this.flags = flags;
 			}
 			return flags;
@@ -824,7 +834,7 @@ public class ShipTypeChangeset {
 		@Override
 		public int getHeat() {
 			if( getType().getHeat() > 0 ) {
-				int value = inner.getHeat() + ShipTypeChangeset.this.getHeat();
+				int value = inner.getHeat() + SchiffstypModifikation.this.getHeat();
 				if( value < 2 ) {
 					return 2;
 				}
@@ -835,7 +845,7 @@ public class ShipTypeChangeset {
 
 		@Override
 		public int getHull() {
-			int value = inner.getHull() + ShipTypeChangeset.this.getHull();
+			int value = inner.getHull() + SchiffstypModifikation.this.getHull();
 			if( value < 1 ) {
 				return 1;
 			}
@@ -844,7 +854,7 @@ public class ShipTypeChangeset {
 
 		@Override
 		public int getHydro() {
-			int value = inner.getHydro() + ShipTypeChangeset.this.getHydro();
+			int value = inner.getHydro() + SchiffstypModifikation.this.getHydro();
 			if( value < 0 ) {
 				return 0;
 			}
@@ -853,7 +863,7 @@ public class ShipTypeChangeset {
 
 		@Override
 		public int getJDocks() {
-			int value = inner.getJDocks() + ShipTypeChangeset.this.getJDocks();
+			int value = inner.getJDocks() + SchiffstypModifikation.this.getJDocks();
 			if( value < 0 ) {
 				return 0;
 			}
@@ -873,63 +883,62 @@ public class ShipTypeChangeset {
 			Map<String,String> heatlist = Weapons.parseWeaponList(baseHeat);
 
 			// Weapons
-			Map<String,Integer[]> mod = ShipTypeChangeset.this.getWeapons();
-			if( mod != null ) {
-				for( Map.Entry<String, Integer[]> entry: mod.entrySet() ) {
-					String aweapon = entry.getKey();
-					Integer[] awpnmods = entry.getValue();
+			Set<Schiffswaffenkonfiguration> mod = SchiffstypModifikation.this.getWaffen();
+			for( Schiffswaffenkonfiguration wpn: mod ) {
+				String aweapon = wpn.getWaffe().getId();
+				int acount = wpn.getAnzahl();
+				int aheat = wpn.getHitze();
 
-					int acount = awpnmods[0];
-					int aheat = awpnmods[1];
+				if( wpnrpl != null ) {
+					if( NumberUtils.toInt(weaponlist.get(wpnrpl)) > 0 ) {
+						if( NumberUtils.toInt(weaponlist.get(wpnrpl)) > acount ) {
+							int rplCount = NumberUtils.toInt(weaponlist.get(wpnrpl));
+							int rplHeat = NumberUtils.toInt(heatlist.get(wpnrpl));
+							heatlist.put(wpnrpl, Integer.toString(rplHeat - acount*(rplHeat/rplCount)));
+							weaponlist.put(wpnrpl, Integer.toString(rplCount - acount));
 
-					if( wpnrpl != null ) {
-						if( NumberUtils.toInt(weaponlist.get(wpnrpl)) > 0 ) {
-							if( NumberUtils.toInt(weaponlist.get(wpnrpl)) > acount ) {
-								int rplCount = NumberUtils.toInt(weaponlist.get(wpnrpl));
-								int rplHeat = NumberUtils.toInt(heatlist.get(wpnrpl));
-								heatlist.put(wpnrpl, Integer.toString(rplHeat - acount*(rplHeat/rplCount)));
-								weaponlist.put(wpnrpl, Integer.toString(rplCount - acount));
+							weaponlist.put(aweapon, Integer.toString(NumberUtils.toInt(weaponlist.get(aweapon)) + acount));
+							heatlist.put(aweapon,  Integer.toString(NumberUtils.toInt(heatlist.get(aweapon)) + aheat));
+						}
+						else {
+							heatlist.remove(wpnrpl);
+							weaponlist.remove(wpnrpl);
 
-								weaponlist.put(aweapon, Integer.toString(NumberUtils.toInt(weaponlist.get(aweapon)) + acount));
-								heatlist.put(aweapon,  Integer.toString(NumberUtils.toInt(heatlist.get(aweapon)) + aheat));
-							}
-							else {
-								heatlist.remove(wpnrpl);
-								weaponlist.remove(wpnrpl);
-
-								weaponlist.put(aweapon, Integer.toString(NumberUtils.toInt(weaponlist.get(aweapon)) + acount));
-								heatlist.put(aweapon,  Integer.toString(NumberUtils.toInt(heatlist.get(aweapon)) + aheat));
-							}
+							weaponlist.put(aweapon, Integer.toString(NumberUtils.toInt(weaponlist.get(aweapon)) + acount));
+							heatlist.put(aweapon,  Integer.toString(NumberUtils.toInt(heatlist.get(aweapon)) + aheat));
 						}
 					}
-					else {
-						weaponlist.put(aweapon, Integer.toString(NumberUtils.toInt(weaponlist.get(aweapon)) + acount));
-						heatlist.put(aweapon,  Integer.toString(NumberUtils.toInt(heatlist.get(aweapon)) + aheat));
-
-						if( NumberUtils.toInt(weaponlist.get(aweapon)) <= 0 ) {
-							heatlist.remove(aweapon);
-							weaponlist.remove(aweapon);
-						}
-					}
-
-					wpnrpl = wpnrpllist.length > index ? wpnrpllist[index++] : null;
 				}
+				else {
+					weaponlist.put(aweapon, Integer.toString(NumberUtils.toInt(weaponlist.get(aweapon)) + acount));
+					heatlist.put(aweapon,  Integer.toString(NumberUtils.toInt(heatlist.get(aweapon)) + aheat));
+
+					if( NumberUtils.toInt(weaponlist.get(aweapon)) <= 0 ) {
+						heatlist.remove(aweapon);
+						weaponlist.remove(aweapon);
+					}
+				}
+
+				wpnrpl = wpnrpllist.length > index ? wpnrpllist[index++] : null;
 			}
 
 			// MaxHeat
-			Map<String,Integer> modHeats = ShipTypeChangeset.this.getMaxHeat();
-			if( modHeats != null ) {
-				for( Map.Entry<String, Integer> entry: modHeats.entrySet() ) {
-					String weapon = entry.getKey();
-					Integer modheat = modHeats.get(weapon);
-					if( !heatlist.containsKey(weapon) ) {
-						heatlist.put(weapon, Integer.toString(modheat));
-					}
-					else {
-						String heatweapon = heatlist.get(weapon);
-						heatlist.put(weapon, Integer.toString(Integer.parseInt(heatweapon)+modheat));
-
-					}
+			for( Schiffswaffenkonfiguration entry: SchiffstypModifikation.this.getWaffen() )
+			{
+				String weapon = entry.getWaffe().getId();
+				int modheat = entry.getMaxUeberhitzung();
+				if (modheat == 0)
+				{
+					continue;
+				}
+				if (!heatlist.containsKey(weapon))
+				{
+					heatlist.put(weapon, Integer.toString(modheat));
+				}
+				else
+				{
+					String heatweapon = heatlist.get(weapon);
+					heatlist.put(weapon, Integer.toString(Integer.parseInt(heatweapon) + modheat));
 				}
 			}
 
@@ -949,23 +958,23 @@ public class ShipTypeChangeset {
 
 		@Override
 		public String getNickname() {
-			if( ShipTypeChangeset.this.getNickname() == null ) {
+			if( SchiffstypModifikation.this.getNickname() == null ) {
 				return inner.getNickname();
 			}
-			return ShipTypeChangeset.this.getNickname();
+			return SchiffstypModifikation.this.getNickname();
 		}
 
 		@Override
 		public ShipType getOneWayWerft() {
-			if( ShipTypeChangeset.this.getOneWayWerft() == null ) {
+			if( SchiffstypModifikation.this.getOneWayWerft() == null ) {
 				return inner.getOneWayWerft();
 			}
-			return ShipTypeChangeset.this.getOneWayWerft();
+			return SchiffstypModifikation.this.getOneWayWerft();
 		}
 
 		@Override
 		public int getPanzerung() {
-			int value = inner.getPanzerung() + ShipTypeChangeset.this.getPanzerung();
+			int value = inner.getPanzerung() + SchiffstypModifikation.this.getPanzerung();
 			if( value < 0 ) {
 				return 0;
 			}
@@ -974,15 +983,15 @@ public class ShipTypeChangeset {
 
 		@Override
 		public String getPicture() {
-			if( ShipTypeChangeset.this.getPicture() == null ) {
+			if( SchiffstypModifikation.this.getPicture() == null ) {
 				return inner.getPicture();
 			}
-			return ShipTypeChangeset.this.getPicture();
+			return SchiffstypModifikation.this.getPicture();
 		}
 
 		@Override
 		public int getRa() {
-			int value = inner.getRa() + ShipTypeChangeset.this.getRa();
+			int value = inner.getRa() + SchiffstypModifikation.this.getRa();
 			if( value < 0 ) {
 				return 0;
 			}
@@ -991,7 +1000,7 @@ public class ShipTypeChangeset {
 
 		@Override
 		public int getRd() {
-			int value = inner.getRd() + ShipTypeChangeset.this.getRd();
+			int value = inner.getRd() + SchiffstypModifikation.this.getRd();
 			if( value < 0 ) {
 				return 0;
 			}
@@ -1000,7 +1009,7 @@ public class ShipTypeChangeset {
 
 		@Override
 		public int getReCost() {
-			int value = inner.getReCost() + ShipTypeChangeset.this.getReCost();
+			int value = inner.getReCost() + SchiffstypModifikation.this.getReCost();
 			if( value < 0 ) {
 				return 0;
 			}
@@ -1009,7 +1018,7 @@ public class ShipTypeChangeset {
 
 		@Override
 		public int getRm() {
-			int value = inner.getRm() + ShipTypeChangeset.this.getRm();
+			int value = inner.getRm() + SchiffstypModifikation.this.getRm();
 			if( value < 0 ) {
 				return 0;
 			}
@@ -1018,7 +1027,7 @@ public class ShipTypeChangeset {
 
 		@Override
 		public int getRu() {
-			int value = inner.getRu() + ShipTypeChangeset.this.getRu();
+			int value = inner.getRu() + SchiffstypModifikation.this.getRu();
 			if( value < 0 ) {
 				return 0;
 			}
@@ -1027,7 +1036,7 @@ public class ShipTypeChangeset {
 
 		@Override
 		public int getSensorRange() {
-			int value = inner.getSensorRange() + ShipTypeChangeset.this.getSensorRange();
+			int value = inner.getSensorRange() + SchiffstypModifikation.this.getSensorRange();
 			if( value < 0 ) {
 				return 0;
 			}
@@ -1040,7 +1049,7 @@ public class ShipTypeChangeset {
 
 		@Override
 		public int getShields() {
-			int value = inner.getShields() + ShipTypeChangeset.this.getShields();
+			int value = inner.getShields() + SchiffstypModifikation.this.getShields();
 			if( value < 0 ) {
 				return 0;
 			}
@@ -1055,14 +1064,14 @@ public class ShipTypeChangeset {
 		@Override
 		public int getSize() {
 			if( getType().getSize() > ShipType.SMALL_SHIP_MAXSIZE ) {
-				int value = inner.getSize() + ShipTypeChangeset.this.getSize();
+				int value = inner.getSize() + SchiffstypModifikation.this.getSize();
 				if( value <= ShipType.SMALL_SHIP_MAXSIZE ) {
 					return ShipType.SMALL_SHIP_MAXSIZE+1;
 				}
 				return value;
 			}
 
-			int value = inner.getSize() + ShipTypeChangeset.this.getSize();
+			int value = inner.getSize() + SchiffstypModifikation.this.getSize();
 			if( value > ShipType.SMALL_SHIP_MAXSIZE ) {
 				return 3;
 			}
@@ -1074,7 +1083,7 @@ public class ShipTypeChangeset {
 
 		@Override
 		public int getTorpedoDef() {
-			int value = inner.getTorpedoDef() + ShipTypeChangeset.this.getTorpedoDef();
+			int value = inner.getTorpedoDef() + SchiffstypModifikation.this.getTorpedoDef();
 			if( value < 0 ) {
 				return 0;
 			}
@@ -1102,7 +1111,7 @@ public class ShipTypeChangeset {
 
 		@Override
 		public int getWerft() {
-			int value = inner.getWerft() + ShipTypeChangeset.this.getWerft();
+			int value = inner.getWerft() + SchiffstypModifikation.this.getWerft();
 			if( value < 0 ) {
 				return 0;
 			}
@@ -1137,7 +1146,7 @@ public class ShipTypeChangeset {
 
 		@Override
 		public int getAblativeArmor() {
-			int value = inner.getAblativeArmor() + ShipTypeChangeset.this.getAblativeArmor();
+			int value = inner.getAblativeArmor() + SchiffstypModifikation.this.getAblativeArmor();
 			if( value < 0 ) {
 				return 0;
 			}
@@ -1146,33 +1155,33 @@ public class ShipTypeChangeset {
 
 		@Override
 		public boolean hasSrs() {
-			if( ShipTypeChangeset.this.hasSrs() == null ) {
+			if( SchiffstypModifikation.this.hasSrs() == null ) {
 				return inner.hasSrs();
 			}
-			return inner.hasSrs() && ShipTypeChangeset.this.hasSrs();
+			return inner.hasSrs() && SchiffstypModifikation.this.hasSrs();
 		}
 
 		@Override
 		public int getPickingCost() {
-			return ShipTypeChangeset.this.getPickingCost() + inner.getPickingCost();
+			return SchiffstypModifikation.this.getPickingCost() + inner.getPickingCost();
 		}
 
 
 		@Override
 		public int getScanCost() {
-			return ShipTypeChangeset.this.getScanCost() + inner.getScanCost();
+			return SchiffstypModifikation.this.getScanCost() + inner.getScanCost();
 		}
 
 		@Override
 		public int getMinCrew()
 		{
-			return ShipTypeChangeset.this.getMinCrew() + inner.getMinCrew();
+			return SchiffstypModifikation.this.getMinCrew() + inner.getMinCrew();
 		}
 
         @Override
 		public BigInteger getBounty()
         {
-            return ShipTypeChangeset.this.getBounty().add(inner.getBounty());
+            return SchiffstypModifikation.this.getBounty().add(inner.getBounty());
         }
 
 		/**
@@ -1183,7 +1192,7 @@ public class ShipTypeChangeset {
 		@Override
 		public double getLostInEmpChance()
 		{
-			return ShipTypeChangeset.this.getLostInEmpChance() + inner.getLostInEmpChance();
+			return SchiffstypModifikation.this.getLostInEmpChance() + inner.getLostInEmpChance();
 		}
 	}
 }
