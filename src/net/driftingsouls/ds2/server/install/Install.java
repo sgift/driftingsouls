@@ -178,9 +178,6 @@ public class Install
 		imgs = inst.readFromDb(con, "ally_rangdescriptors", "customImg");
 		inst.store(imgs, "data/dynamicContent/", null);
 
-		imgs = inst.readFromDb(con, "ammo", "picture");
-		inst.store(imgs, "data/ammo/", null);
-
 		imgs = inst.readFromDb(con, "buildings", "picture");
 		inst.store(imgs, null, null);
 
