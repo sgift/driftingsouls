@@ -34,9 +34,9 @@ update items set set_id=substring(eff, 1, LOCATE('&', eff)-1) where typ='Schiffs
 update items set set_id=null where set_id=0;
 update items set eff = substring(eff, LOCATE('&', eff)+1) where typ='Schiffsmodul';
 
-update items set mods_id=id where typ='Schiffsmodul';
 alter table schiffstyp_modifikation add column eff longtext after id;
 insert into schiffstyp_modifikation select id,eff,0,0,null,0,0,0,0,0,0, 0,0,0,0,0,0,0,null, null,0,0,null,0,0,0,0,0,0,0,0,0,null,0,0,0,0 from items where typ='Schiffsmodul';
+update items set mods_id=id where typ='Schiffsmodul';
 update schiffstyp_modifikation set eff=CONCAT('|',eff,'|');
 update schiffstyp_modifikation set nahrungcargo=substring(eff, LOCATE(',',eff, LOCATE('|nahrungcargo,', eff))+1, LOCATE('|', eff, LOCATE('|nahrungcargo,', eff)+1)-LOCATE(',',eff,LOCATE('|nahrungcargo,', eff)+1)-1) where eff like "%|nahrungcargo,%";
 update schiffstyp_modifikation set nickname=substring(eff, LOCATE(',',eff, LOCATE('|nickname,', eff))+1, LOCATE('|', eff, LOCATE('|nickname,', eff)+1)-LOCATE(',',eff,LOCATE('|nickname,', eff)+1)-1) where eff like "%|nickname,%";
