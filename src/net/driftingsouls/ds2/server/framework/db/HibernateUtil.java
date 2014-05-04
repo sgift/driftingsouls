@@ -65,71 +65,18 @@ public class HibernateUtil
 		CURRENT_ENTITY_MANAGER.remove();
 	}
 
-    public static synchronized void init(String configdir, String dbUrl, String dbUser, String dbPassword)
+    public static synchronized void init(String hibernateConfigFile, String dbUrl, String dbUser, String dbPassword)
     {
         try
         {
-        	org.hibernate.cfg.Configuration configuration = new org.hibernate.cfg.Configuration();
-        	configuration.configure(new File(configdir+"hibernate.xml"));
-			configuration.setNamingStrategy(new EJB3NamingStrategy() {
-				@Override
-				public String classToTableName(String className)
-				{
-					return addUnderscores(super.classToTableName(className));
-				}
-
-				@Override
-				public String collectionTableName(String ownerEntity, String ownerEntityTable, String associatedEntity, String associatedEntityTable, String propertyName)
-				{
-					return addUnderscores(ownerEntityTable) + "_" + addUnderscores(associatedEntityTable != null ?
-							associatedEntityTable :
-							StringHelper.unqualify(propertyName));
-				}
-
-				protected String addUnderscores(String name)
-				{
-					StringBuilder buf = new StringBuilder(name);
-					for (int i = 1; i < buf.length() - 1; i++)
-					{
-						if (Character.isLowerCase(buf.charAt(i - 1)) &&
-								Character.isUpperCase(buf.charAt(i)) &&
-								Character.isLowerCase(buf.charAt(i + 1))
-								)
-						{
-							buf.insert(i++, '_');
-						}
-					}
-					return buf.toString().toLowerCase();
-				}
-			});
-
-    		// Configure connection
-    		configuration.setProperty("hibernate.connection.url", dbUrl);
-    		configuration.setProperty("hibernate.connection.username", dbUser);
-    		configuration.setProperty("hibernate.connection.password", dbPassword);
-
-    		// Add ds-specific utility functions
-    		configuration.addSqlFunction("pow", new StandardSQLFunction("pow", DoubleType.INSTANCE));
-    		configuration.addSqlFunction("floor", new StandardSQLFunction("floor", LongType.INSTANCE));
-    		configuration.addSqlFunction("ncp", new NullCompFunction());
-    		configuration.addSqlFunction("bit_and", new SQLFunctionTemplate(IntegerType.INSTANCE, "?1 & ?2"));
-    		configuration.addSqlFunction("bit_or", new SQLFunctionTemplate(IntegerType.INSTANCE, "?1 | ?2"));
-
-            //Find all annotated classes and add to configuration
-			SortedSet<Class<?>> entityClasses = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(javax.persistence.Entity.class);
-			for( Class<?> cls : entityClasses )
+			if( configuration == null )
 			{
-				configuration.addAnnotatedClass(cls);
+				initConfiguration(hibernateConfigFile, dbUrl, dbUser, dbPassword);
 			}
-
 
 			final ServiceRegistry serviceRegistry =  new ServiceRegistryBuilder()
 					.applySettings(configuration.getProperties())
 					.buildServiceRegistry();
-
-			// Create the SessionFactory from hibernate.xml
-			HibernateUtil.configuration = configuration;
-//			sessionFactory = configuration.buildSessionFactory(serviceRegistry);
 
 			HibernateUtil.entityManagerFactory = new EntityManagerFactoryImpl(PersistenceUnitTransactionType.RESOURCE_LOCAL, true, null, configuration, serviceRegistry, null);
 			sessionFactory = entityManagerFactory.getSessionFactory();
@@ -137,10 +84,36 @@ public class HibernateUtil
         catch (Throwable ex)
         {
             // Make sure you log the exception, as it might be swallowed
-            System.err.println("Initial SessionFactory creation failed." + ex);
+            LOG.fatal("Initial SessionFactory creation failed." + ex.getMessage(), ex);
             throw new ExceptionInInitializerError(ex);
         }
     }
+
+	private static void initConfiguration(String hibernateConfigFile, String dbUrl, String dbUser, String dbPassword)
+	{
+		Configuration configuration = new Configuration();
+		configuration.configure(new File(hibernateConfigFile));
+		configuration.setNamingStrategy(new DsNamingStrategy());
+
+		// Configure connection
+		configuration.setProperty("hibernate.connection.url", dbUrl);
+		configuration.setProperty("hibernate.connection.username", dbUser);
+		configuration.setProperty("hibernate.connection.password", dbPassword);
+
+		// Add ds-specific utility functions
+		configuration.addSqlFunction("pow", new StandardSQLFunction("pow", DoubleType.INSTANCE));
+		configuration.addSqlFunction("floor", new StandardSQLFunction("floor", LongType.INSTANCE));
+		configuration.addSqlFunction("ncp", new NullCompFunction());
+		configuration.addSqlFunction("bit_and", new SQLFunctionTemplate(IntegerType.INSTANCE, "?1 & ?2"));
+		configuration.addSqlFunction("bit_or", new SQLFunctionTemplate(IntegerType.INSTANCE, "?1 | ?2"));
+
+		//Find all annotated classes and add to configuration
+		SortedSet<Class<?>> entityClasses = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(javax.persistence.Entity.class);
+		entityClasses.forEach(configuration::addAnnotatedClass);
+
+		// Create the SessionFactory from hibernate.xml
+		HibernateUtil.configuration = configuration;
+	}
 
 	public static void writeSchemaUpdateToDisk(Connection con, String targetFile) throws IOException, SQLException
 	{
@@ -223,4 +196,49 @@ public class HibernateUtil
 		}
 		return counter;
     }
+
+	public static void shutdown()
+	{
+		if( entityManagerFactory != null ) {
+			entityManagerFactory.close();
+		}
+		if( sessionFactory != null ) {
+			sessionFactory.close();
+		}
+		entityManagerFactory = null;
+		sessionFactory = null;
+	}
+
+	private static class DsNamingStrategy extends EJB3NamingStrategy
+	{
+		@Override
+		public String classToTableName(String className)
+		{
+			return addUnderscores(super.classToTableName(className));
+		}
+
+		@Override
+		public String collectionTableName(String ownerEntity, String ownerEntityTable, String associatedEntity, String associatedEntityTable, String propertyName)
+		{
+			return addUnderscores(ownerEntityTable) + "_" + addUnderscores(associatedEntityTable != null ?
+					associatedEntityTable :
+					StringHelper.unqualify(propertyName));
+		}
+
+		protected String addUnderscores(String name)
+		{
+			StringBuilder buf = new StringBuilder(name);
+			for (int i = 1; i < buf.length() - 1; i++)
+			{
+				if (Character.isLowerCase(buf.charAt(i - 1)) &&
+						Character.isUpperCase(buf.charAt(i)) &&
+						Character.isLowerCase(buf.charAt(i + 1))
+						)
+				{
+					buf.insert(i++, '_');
+				}
+			}
+			return buf.toString().toLowerCase();
+		}
+	}
 }

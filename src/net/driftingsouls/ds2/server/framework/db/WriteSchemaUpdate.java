@@ -19,7 +19,7 @@ public class WriteSchemaUpdate
 		String dbUser = Configuration.getSetting("db_user");
 		String dbPassword = Configuration.getSetting("db_password");
 
-		HibernateUtil.init(Configuration.getConfigPath(), dbUrl, dbUser, dbPassword);
+		HibernateUtil.init(Configuration.getConfigPath()+"hibernate.xml", dbUrl, dbUser, dbPassword);
 
 		try( Connection con = DriverManager.getConnection(dbUrl, dbUser, dbPassword) )
 		{
