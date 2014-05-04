@@ -77,7 +77,7 @@ public class NPCOrderTick extends TickController {
 		org.hibernate.Session db = getDB();
 
 		List<Integer> orders = Common.cast(db
-				.createQuery("select id from Order order by user")
+				.createQuery("select id from Order order by user.id")
 				.list());
 		new EvictableUnitOfWork<Integer>("NPCOrderTick")
 		{
@@ -93,8 +93,7 @@ public class NPCOrderTick extends TickController {
 					return;
 				}
 
-				int owner = order.getUser();
-				User user = (User)getDB().get(User.class, owner);
+				User user = order.getUser();
 
 				Location loc = ermittleLieferposition(user);
 
@@ -104,7 +103,7 @@ public class NPCOrderTick extends TickController {
 
 				if( order instanceof OrderShip )
 				{
-					newShip = processOrderShip(db, order, user, loc);
+					newShip = processOrderShip(order, user, loc);
 				}
 				else if( order instanceof OrderOffizier )
 				{
@@ -154,14 +153,12 @@ public class NPCOrderTick extends TickController {
 		.executeFor(users);
 	}
 
-	private Ship processOrderShip(org.hibernate.Session db, Order order, User user, Location loc)
+	private Ship processOrderShip(Order order, User user, Location loc)
 	{
-		int type = ((OrderShip)order).getType();
-
-		ShipType shipd = (ShipType)db.get(ShipType.class, type);
+		ShipType shipd = ((OrderShip)order).getShipType();
 
 		this.log("* Order "+order.getId()+" ready: "+shipd.getNickname()+" ("+shipd.getId()+") wird zu User "+
-				order.getUser()+" geliefert");
+				order.getUser().getId()+" geliefert");
 
 		Ship newShip;
 		Ship ship = createShip(user, shipd, loc);
@@ -209,11 +206,11 @@ public class NPCOrderTick extends TickController {
 			newShip = createShip(user, shipd, loc);
 
 			this.log("* Order "+order.getId()+" ready: Offizier wird mittels "+
-					shipd.getNickname()+" ("+shipd.getId()+") wird zu User "+order.getUser()+" geliefert");
+					shipd.getNickname()+" ("+shipd.getId()+") wird zu User "+order.getUser().getId()+" geliefert");
 		}
 		else
 		{
-			this.log("* Order "+order.getId()+" ready: Offizier wird zu User "+order.getUser()+" - Basis "+bases.get(0).getId()+" geliefert");
+			this.log("* Order "+order.getId()+" ready: Offizier wird zu User "+order.getUser().getId()+" - Basis "+bases.get(0).getId()+" geliefert");
 		}
 
 		OrderableOffizier offizier = (OrderableOffizier)db.get(OrderableOffizier.class, ((OrderOffizier)order).getType());

@@ -1,11 +1,16 @@
 package net.driftingsouls.ds2.server.entities.npcorders;
 
+import net.driftingsouls.ds2.server.entities.User;
+import org.hibernate.annotations.ForeignKey;
+
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
@@ -22,7 +27,10 @@ public abstract class Order {
 	@Id @GeneratedValue
 	private int id;
 	private int tick;
-	private int user;
+	@ManyToOne
+	@JoinColumn
+	@ForeignKey(name="orders_fk_user")
+	private User user;
 	
 	@Version
 	private int version;
@@ -39,7 +47,7 @@ public abstract class Order {
 	 * Konstruktor.
 	 * @param user Der User, fuer den der Auftrag abgewickelt werden soll
 	 */
-	public Order(int user) {
+	public Order(User user) {
 		setUser(user);
 	}
 
@@ -63,7 +71,7 @@ public abstract class Order {
 	 * Gibt den User zurueck, fuer den der Auftrag abgewickelt werden soll.
 	 * @return Der User
 	 */
-	public int getUser() {
+	public User getUser() {
 		return user;
 	}
 
@@ -71,7 +79,7 @@ public abstract class Order {
 	 * Setzt den User fuer den der Auftrag abgewickelt werden soll.
 	 * @param user Der User
 	 */
-	public final void setUser(final int user) {
+	public final void setUser(final User user) {
 		this.user = user;
 	}
 

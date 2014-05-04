@@ -36,6 +36,7 @@ import net.driftingsouls.ds2.server.modules.viewmodels.MedalViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.RangViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.UserViewModel;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
@@ -589,7 +590,7 @@ public class NpcController extends AngularController
 
 				for (int i = 0; i < count; i++)
 				{
-					OrderShip orderObj = new OrderShip(user.getId(), ship.getShipType().getId());
+					OrderShip orderObj = new OrderShip(user, ship.getShipType());
 					orderObj.setTick(1);
 					if (flagDisableIff)
 					{
@@ -666,7 +667,7 @@ public class NpcController extends AngularController
 			}
 			for (int i = 0; i < count; i++)
 			{
-				Order orderObj = new OrderOffizier(user.getId(), -order);
+				Order orderObj = new OrderOffizier(user, -order);
 				orderObj.setTick(1);
 				db.persist(orderObj);
 			}
@@ -722,7 +723,7 @@ public class NpcController extends AngularController
 		org.hibernate.Session db = getDB();
 		User user = (User) this.getUser();
 
-		Map<Integer, Integer> shiporders = new HashMap<>();
+		Map<ShipType, Integer> shiporders = new HashMap<>();
 		Map<Integer, Integer> offiorders = new HashMap<>();
 
 		OrderMenuViewModel result = new OrderMenuViewModel();
@@ -736,7 +737,7 @@ public class NpcController extends AngularController
 			Order order = (Order) anOrderList;
 			if (order instanceof OrderShip)
 			{
-				Common.safeIntInc(shiporders, ((OrderShip) order).getType());
+				Common.safeIntInc(shiporders, ((OrderShip) order).getShipType());
 			}
 			else if (order instanceof OrderOffizier)
 			{
@@ -762,16 +763,12 @@ public class NpcController extends AngularController
 
 			resShip.klasse = ship.getShipType().getShipClass().getSingular();
 
-			if (!shiporders.containsKey(ship.getShipType().getId()))
-			{
-				shiporders.put(ship.getId(), 0);
-			}
-
+			shiporders.putIfAbsent(ship.getShipType(), 0);
 			resShip.id = ship.getShipType().getId();
 			resShip.name = ship.getShipType().getNickname();
 			resShip.type = ship.getShipType().getId();
 			resShip.cost = ship.getCost();
-			resShip.ordercount = shiporders.get(ship.getShipType().getId());
+			resShip.ordercount = shiporders.get(ship.getShipType());
 
 			result.ships.add(resShip);
 		}
@@ -785,10 +782,7 @@ public class NpcController extends AngularController
 		{
 			OrderableOffizier offizier = (OrderableOffizier) offizierOrder;
 
-			if (!offiorders.containsKey(-offizier.getId()))
-			{
-				offiorders.put(-offizier.getId(), 0);
-			}
+			offiorders.putIfAbsent(-offizier.getId(), 0);
 
 			OrderMenuViewModel.OrderableOffizierViewModel resOffizier = new OrderMenuViewModel.OrderableOffizierViewModel();
 			resOffizier.name = offizier.getName();

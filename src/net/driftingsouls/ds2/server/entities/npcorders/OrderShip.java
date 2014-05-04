@@ -18,8 +18,14 @@
  */
 package net.driftingsouls.ds2.server.entities.npcorders;
 
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.ships.ShipType;
+import org.hibernate.annotations.ForeignKey;
+
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 /**
  * Die Bestellung eines Schiffes duch einen NPC (NPC-Order).
@@ -30,7 +36,10 @@ import javax.persistence.Entity;
 @DiscriminatorValue("ship")
 public class OrderShip extends Order
 {
-	private int type;
+	@ManyToOne
+	@JoinColumn
+	@ForeignKey(name="order_ship_fk_ship_type")
+	private ShipType shipType;
 	private String flags;
 	
 	protected OrderShip()
@@ -43,29 +52,29 @@ public class OrderShip extends Order
 	 * @param user Der User, fuer den der Auftrag abgewickelt werden soll
 	 * @param type Der Typ, der abgewickelt werden soll
 	 */
-	public OrderShip(int user, int type)
+	public OrderShip(User user, ShipType type)
 	{
 		setUser(user);
-		setType(type);
+		this.shipType = type;
 		this.flags = "";
 	}
 	
 	/**
-	 * Gibt den abzuwickelnden Auftragstyp an.
-	 * @return Der Auftragstyp
+	 * Gibt den bestellten Schiffstyp zurueck.
+	 * @return Der Schiffstyp
 	 */
-	public int getType()
+	public ShipType getShipType()
 	{
-		return type;
+		return shipType;
 	}
 
 	/**
-	 * Setzt den abzuwickelnden Auftragstyp.
-	 * @param type Der Typ
+	 * Setzt den bestellten Schiffstyp.
+	 * @param type Der Schiffstyp
 	 */
-	public final void setType(final int type)
+	public final void setShipType(final ShipType type)
 	{
-		this.type = type;
+		this.shipType = type;
 	}
 
 	/**

@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.entities.npcorders;
 
+import net.driftingsouls.ds2.server.entities.User;
+
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
@@ -42,7 +44,7 @@ public class OrderOffizier extends Order
 	 * @param user Der User, fuer den der Auftrag abgewickelt werden soll
 	 * @param type Der Typ, der abgewickelt werden soll
 	 */
-	public OrderOffizier(int user, int type)
+	public OrderOffizier(User user, int type)
 	{
 		setUser(user);
 		setType(type);
