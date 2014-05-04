@@ -18,6 +18,7 @@ import org.hibernate.engine.spi.EntityKey;
 import org.hibernate.internal.util.StringHelper;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.ServiceRegistryBuilder;
+import org.hibernate.service.internal.StandardServiceRegistryImpl;
 import org.hibernate.tool.hbm2ddl.DatabaseMetadata;
 import org.hibernate.type.DoubleType;
 import org.hibernate.type.IntegerType;
@@ -47,6 +48,11 @@ public class HibernateUtil
 {
 	private static final Logger LOG = LogManager.getLogger(HibernateUtil.class);
 
+	private static SessionFactory sessionFactory;
+	private static Configuration configuration;
+	private static EntityManagerFactoryImpl entityManagerFactory;
+	private static ServiceRegistry serviceRegistry;
+
 	private static final ThreadLocal<EntityManager> CURRENT_ENTITY_MANAGER = new ThreadLocal<EntityManager>() {
 		@Override
 		protected EntityManager initialValue()
@@ -69,7 +75,7 @@ public class HibernateUtil
     {
         try
         {
-			final ServiceRegistry serviceRegistry =  new ServiceRegistryBuilder()
+			serviceRegistry =  new ServiceRegistryBuilder()
 					.applySettings(configuration.getProperties())
 					.buildServiceRegistry();
 
@@ -156,10 +162,6 @@ public class HibernateUtil
 	public synchronized static Configuration getConfiguration() { return configuration; }
 	public synchronized static EntityManagerFactory getEntityManagerFactory() { return entityManagerFactory; }
 
-    private static SessionFactory sessionFactory;
-	private static Configuration configuration;
-	private static EntityManagerFactoryImpl entityManagerFactory;
-
     /**
      * Gibt den momentanen Inhalt der Session, aufgelistet nach Entitynamen/Collectionrolle und der zugehoerigen Anzahl
      * an Eintraegen in der Session zurueck.
@@ -204,8 +206,10 @@ public class HibernateUtil
 		if( sessionFactory != null ) {
 			sessionFactory.close();
 		}
+		( (StandardServiceRegistryImpl) serviceRegistry ).destroy();
 		entityManagerFactory = null;
 		sessionFactory = null;
+		serviceRegistry = null;
 	}
 
 	private static class DsNamingStrategy extends EJB3NamingStrategy

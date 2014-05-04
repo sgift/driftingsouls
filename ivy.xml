@@ -53,5 +53,6 @@
 		<dependency org="com.googlecode.flyway" name="flyway-gradle-plugin" rev="2.3" conf="compile->default" />
 
 		<dependency org="junit" name="junit" rev="4.11" conf="test->default" />
-    </dependencies>
+		<dependency org="org.apache.derby" name="derby" rev="10.10.2.0" conf="test->default" />
+	</dependencies>
 </ivy-module>
