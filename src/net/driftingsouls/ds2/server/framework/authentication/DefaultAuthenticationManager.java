@@ -232,8 +232,13 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 			return false;
 		}
 
-		if( jsession.getAttach() != null ) {
+		if( jsession.getAttach() != null )
+		{
 			user.attachToUser(jsession.getAttach());
+		}
+		else
+		{
+			user.setInactivity(0);
 		}
 
 		context.setActiveUser(user);
