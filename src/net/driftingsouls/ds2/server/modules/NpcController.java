@@ -230,7 +230,7 @@ public class NpcController extends AngularController
 	 * @param reason Der Grund, warum der Orden verliehen wurde
 	 */
 	@Action(ActionType.AJAX)
-	public ViewMessage awardMedalAction(@UrlParam(name = "edituser") String edituserID, int medal, String reason)
+	public ViewMessage awardMedalAction(@UrlParam(name = "edituser") String edituserID, Medal medal, String reason)
 	{
 		User user = (User) this.getUser();
 
@@ -246,12 +246,12 @@ public class NpcController extends AngularController
 			return ViewMessage.failure("Der angegebene Spieler existiert nicht");
 		}
 
-		if (Medals.get().medal(medal) == null)
+		if (medal == null)
 		{
 			return ViewMessage.failure("Der angegebene Orden ist nicht vorhanden");
 		}
 
-		if (Medals.get().medal(medal).isAdminOnly())
+		if (medal.isAdminOnly())
 		{
 			return ViewMessage.failure("Diesen Orden kännen sie nicht verleihen");
 		}
@@ -262,7 +262,7 @@ public class NpcController extends AngularController
 		}
 
 		Set<Medal> medallist = edituser.getMedals();
-		medallist.add(Medals.get().medal(medal));
+		medallist.add(medal);
 		edituser.setMedals(medallist);
 
 		int ticks = getContext().get(ContextCommon.class).getTick();
@@ -271,12 +271,12 @@ public class NpcController extends AngularController
 							" wurde von [userprofile=" + user.getId() + "]" +
 							user.getName() + "[/userprofile] verliehen Aufgrund der " + reason);
 
-		PM.send(user, edituser.getId(), "Orden '" + Medals.get().medal(medal).getName() + "' verliehen",
+		PM.send(user, edituser.getId(), "Orden '" + medal.getName() + "' verliehen",
 			   "Ich habe dir den Orden [medal]" + medal + "[/medal]" +
 			   " verliehen Aufgrund deiner " + reason);
 
 		return ViewMessage.success("Dem Spieler wurde der Orden '" +
-								   Medals.get().medal(medal).getName() +
+								   medal.getName() +
 								   "' verliehen");
 	}
 

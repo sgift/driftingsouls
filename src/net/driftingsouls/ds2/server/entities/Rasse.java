@@ -55,16 +55,15 @@ public class Rasse
 		// Hibernate Constructor
 	}
 
-	public Rasse(int id, String name, boolean playable)
+	public Rasse(String name, boolean playable)
 	{
 		this.name = name;
-		this.id = id;
 		this.playable = playable;
 	}
 
-	public Rasse(int id, String name, boolean playable, boolean playableext, Rasse memberIn)
+	public Rasse(String name, boolean playable, boolean playableext, Rasse memberIn)
 	{
-		this(id, name, playable);
+		this(name, playable);
 		this.memberIn = memberIn;
 
 		this.playableext = playable || playableext;

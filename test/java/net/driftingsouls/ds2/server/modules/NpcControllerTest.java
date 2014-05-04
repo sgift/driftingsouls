@@ -5,6 +5,8 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.BaseType;
 import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
@@ -22,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static net.driftingsouls.ds2.server.ViewMessageAssert.*;
 import static org.junit.Assert.*;
 
 public class NpcControllerTest extends DBSingleTransactionTest
@@ -30,8 +33,10 @@ public class NpcControllerTest extends DBSingleTransactionTest
 
 	@Before
 	public void createController() {
-		User user = new User("Test", "1234", 0, "", new Cargo(), "test@localhost");
+		Rasse rasse = persist(new Rasse("SuperUsers", true));
+		User user = persist(new User("Test", "1234", rasse.getId(), "", new Cargo(), "test@localhost"));
 		user.setFlag(UserFlag.ORDER_MENU);
+		rasse.setHead(user);
 
 		getContext().setActiveUser(user);
 		controller = new NpcController(getContext());
@@ -49,7 +54,7 @@ public class NpcControllerTest extends DBSingleTransactionTest
 		ViewMessage message = controller.orderAction(offi, 1);
 
 		// assert
-		assertEquals("success", message.message.type);
+		assertSuccess(message);
 		assertEquals(9, getUser().getNpcPunkte());
 
 		OrderOffizier order = (OrderOffizier) getDB().createQuery("from OrderOffizier where user=:user")
@@ -70,7 +75,7 @@ public class NpcControllerTest extends DBSingleTransactionTest
 		ViewMessage message = controller.orderAction(null, 1);
 
 		// assert
-		assertEquals("failure", message.message.type);
+		assertFailure(message);
 	}
 
 	@Test
@@ -85,7 +90,7 @@ public class NpcControllerTest extends DBSingleTransactionTest
 		ViewMessage message = controller.orderAction(offi, 1);
 
 		// assert
-		assertEquals("failure", message.message.type);
+		assertFailure(message);
 		assertEquals(10, getUser().getNpcPunkte());
 
 		OrderOffizier order = (OrderOffizier) getDB().createQuery("from OrderOffizier where user=:user")
@@ -100,7 +105,7 @@ public class NpcControllerTest extends DBSingleTransactionTest
 	{
 		// setup
 		ShipType type = persist(new ShipType());
-		Rasse rasse = persist(new Rasse(0, "GCP", true));
+		Rasse rasse = persist(new Rasse("GCP", true));
 		OrderableShip ship = persist(new OrderableShip(type, rasse, 5));
 
 		getUser().setNpcPunkte(10);
@@ -112,7 +117,7 @@ public class NpcControllerTest extends DBSingleTransactionTest
 		ViewMessage message = controller.orderShipsAction(false, false, false, shipMap);
 
 		// assert
-		assertEquals("success", message.message.type);
+		assertSuccess(message);
 		assertEquals(5, getUser().getNpcPunkte());
 
 		OrderShip order = (OrderShip) getDB().createQuery("from OrderShip where user=:user")
@@ -130,7 +135,7 @@ public class NpcControllerTest extends DBSingleTransactionTest
 		// setup
 		ShipType type1 = persist(new ShipType());
 		ShipType type2 = persist(new ShipType());
-		Rasse rasse = persist(new Rasse(0, "GCP", true));
+		Rasse rasse = persist(new Rasse("GCP", true));
 		OrderableShip ship1 = persist(new OrderableShip(type1, rasse, 5));
 		OrderableShip ship2 = persist(new OrderableShip(type2, rasse, 2));
 
@@ -144,7 +149,7 @@ public class NpcControllerTest extends DBSingleTransactionTest
 		ViewMessage message = controller.orderShipsAction(false, false, false, shipMap);
 
 		// assert
-		assertEquals("success", message.message.type);
+		assertSuccess(message);
 		assertEquals(1, getUser().getNpcPunkte());
 
 		List<OrderShip> order = Common.cast(getDB().createQuery("from OrderShip where user=:user")
@@ -168,7 +173,7 @@ public class NpcControllerTest extends DBSingleTransactionTest
 		ViewMessage message = controller.orderShipsAction(false, false, false, shipMap);
 
 		// assert
-		assertEquals("failure", message.message.type);
+		assertFailure(message);
 
 		OrderShip order = (OrderShip) getDB().createQuery("from OrderShip where user=:user")
 				.setParameter("user", getUser())
@@ -187,7 +192,7 @@ public class NpcControllerTest extends DBSingleTransactionTest
 		ViewMessage message = controller.changeOrderLocationAction("");
 
 		// assert
-		assertEquals("success", message.message.type);
+		assertSuccess(message);
 
 		assertNull(getUser().getNpcOrderLocation());
 	}
@@ -205,7 +210,7 @@ public class NpcControllerTest extends DBSingleTransactionTest
 		ViewMessage message = controller.changeOrderLocationAction(loc.asString());
 
 		// assert
-		assertEquals("success", message.message.type);
+		assertSuccess(message);
 
 		assertEquals(loc.asString(), getUser().getNpcOrderLocation());
 	}
@@ -221,7 +226,83 @@ public class NpcControllerTest extends DBSingleTransactionTest
 		ViewMessage message = controller.changeOrderLocationAction(loc.asString());
 
 		// assert
-		assertEquals("failure", message.message.type);
+		assertFailure(message);
 		assertEquals("1:2/3", getUser().getNpcOrderLocation());
+	}
+
+	@Test
+	public void gegebenEinOrden_awardMedalAction_sollteDenOrdenDemBenutzerHinzufuegenUndEinePmVersenden()
+	{
+		// setup
+		User zielUser = persist(new User("Test2", "1234", 0, "", new Cargo(), "test@localhost"));
+		Medal medal = persist(new Medal("Testorden", "", ""));
+		String reason = "Ein Grund 14242332343222434546";
+
+		// run
+		controller.validateAndPrepare();
+		ViewMessage message = controller.awardMedalAction(Integer.toString(zielUser.getId()), medal, reason);
+
+		// assert
+		assertSuccess(message);
+		assertTrue(zielUser.getMedals().contains(medal));
+		assertTrue(zielUser.getHistory().contains(reason));
+
+		PM pm = (PM)getDB().createQuery("from PM where sender=:user and empfaenger=:zielUser")
+				.setParameter("user", getUser())
+				.setParameter("zielUser", zielUser)
+				.uniqueResult();
+		assertNotNull(pm);
+		assertTrue(pm.getInhalt().contains(reason));
+	}
+
+	@Test
+	public void gegebenEinNurFuerAdminsVerwendbarerOrden_awardMedalAction_sollteEinenFehlerMelden()
+	{
+		// setup
+		User zielUser = persist(new User("Test2", "1234", 0, "", new Cargo(), "test@localhost"));
+		Medal medal = persist(new Medal("Testorden", "", ""));
+		medal.setAdminOnly(true);
+		String reason = "Ein Grund 14242332343222434546";
+
+		// run
+		controller.validateAndPrepare();
+		ViewMessage message = controller.awardMedalAction(Integer.toString(zielUser.getId()), medal, reason);
+
+		// assert
+		assertFailure(message);
+		assertFalse(zielUser.getMedals().contains(medal));
+	}
+
+	@Test
+	public void gegebenEinNichtBekannterBenutzer_awardMedalAction_sollteEinenFehlerMelden()
+	{
+		// setup
+		Medal medal = persist(new Medal("Testorden", "", ""));
+		String reason = "Ein Grund 14242332343222434546";
+
+		// run
+		controller.validateAndPrepare();
+		ViewMessage message = controller.awardMedalAction("1234", medal, reason);
+
+		// assert
+		assertFailure(message);
+	}
+
+	@Test
+	public void gegebenEinNpcDerNichtKopfSeinerRasseIst_awardMedalAction_sollteEinenFehlerMelden()
+	{
+		// setup
+		Rasse rasse = (Rasse)getDB().get(Rasse.class,getUser().getRace());
+		rasse.setHead(null);
+		User zielUser = persist(new User("Test2", "1234", 0, "", new Cargo(), "test@localhost"));
+		Medal medal = persist(new Medal("Testorden", "", ""));
+		String reason = "Ein Grund 14242332343222434546";
+
+		// run
+		controller.validateAndPrepare();
+		ViewMessage message = controller.awardMedalAction(Integer.toString(zielUser.getId()), medal, reason);
+
+		// assert
+		assertFailure(message);
 	}
 }
