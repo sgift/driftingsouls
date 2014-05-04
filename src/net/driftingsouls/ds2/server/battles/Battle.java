@@ -90,7 +90,7 @@ import java.util.Set;
 @Table(name="battles")
 @Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 @BatchSize(size=50)
-@org.hibernate.annotations.Table(appliesTo = "battles", indexes = {@Index(name="coords", columnNames = {"x", "y", "system"})})
+@org.hibernate.annotations.Table(appliesTo = "battles", indexes = {@Index(name="battle_coords", columnNames = {"x", "y", "system"})})
 @OptimisticLocking(type = OptimisticLockType.DIRTY)
 public class Battle implements Locatable
 {

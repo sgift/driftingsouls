@@ -121,7 +121,7 @@ public abstract class Building
 	private int perPlanet;
 	@Column(name = "perowner", nullable = false)
 	private int perOwner;
-	@Index(name="category")
+	@Index(name="building_category")
 	private int category;
 	private boolean ucomplex;
 	private boolean deakable;

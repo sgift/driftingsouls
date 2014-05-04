@@ -114,8 +114,8 @@ import java.util.stream.Collectors;
 @org.hibernate.annotations.Table(
 		appliesTo = "ships",
 		indexes = {
-				@Index(name="coords", columnNames = {"system", "x", "y"}),
-				@Index(name="owner", columnNames = {"owner", "id"})
+				@Index(name="ship_coords", columnNames = {"system", "x", "y"}),
+				@Index(name="ship_owner", columnNames = {"owner", "id"})
 		}
 )
 public class Ship implements Locatable,Transfering,Feeding {
@@ -164,7 +164,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	private int system;
 
 	@Column(nullable = false)
-	@Index(name = "status")
+	@Index(name = "ship_status")
 	private String status;
 
 	private int crew;
@@ -184,7 +184,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	private int sensors;
 
 	@Column(nullable = false)
-	@Index(name = "docked")
+	@Index(name = "ship_docked")
 	private String docked;
 
 	private int alarm;

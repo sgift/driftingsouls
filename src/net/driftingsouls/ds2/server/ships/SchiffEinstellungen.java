@@ -1,5 +1,11 @@
 package net.driftingsouls.ds2.server.ships;
 
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Index;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
@@ -8,13 +14,6 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Version;
-
-import net.driftingsouls.ds2.server.framework.ContextMap;
-
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Index;
 
 @Entity
 @Table(name="schiff_einstellungen")
@@ -36,13 +35,13 @@ public class SchiffEinstellungen
 	@Lob
 	@Column(nullable = false)
 	private String destcom;
-	@Index(name="bookmark")
+	@Index(name="schiffeinstellungen_bookmark")
 	private boolean bookmark;
 	private byte autodeut;
 	private boolean startFighters;
-	@Index(name="idx_feeding")
+	@Index(name="schiffeinstellungen_feeding")
 	private boolean isfeeding;
-	@Index(name="idx_allyfeeding")
+	@Index(name="schiffeinstellungen_allyfeeding")
 	private boolean isallyfeeding;
 	@Column(nullable = false)
 	private TradepostVisibility showtradepost;

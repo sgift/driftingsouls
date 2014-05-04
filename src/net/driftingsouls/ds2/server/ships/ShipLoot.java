@@ -18,6 +18,10 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
+import net.driftingsouls.ds2.server.entities.User;
+import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -27,10 +31,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
-
-import net.driftingsouls.ds2.server.entities.User;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 
 /**
  * Ein Looteintrag.
@@ -42,7 +42,7 @@ import org.hibernate.annotations.Index;
 public class ShipLoot {
 	@Id @GeneratedValue
 	private int id;
-	@Index(name="shiptype")
+	@Index(name="shiploot_shiptype")
 	@Column(name="shiptype", nullable = false)
 	private int shipType;
 

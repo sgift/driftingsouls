@@ -47,20 +47,20 @@ public class ShipLost {
 	private int type;
 	private String name;
 	private int tick;
-	@Index(name="owner")
+	@Index(name="shiplost_owner")
 	private int owner;
-	@Index(name="ally")
+	@Index(name="shiplost_ally")
 	private int ally;
 	@Column(name="destowner", nullable = false)
-	@Index(name="destowner")
+	@Index(name="shiplost_destowner")
 	private int destOwner;
 	@Column(name="destally", nullable = false)
-	@Index(name="destally")
+	@Index(name="shiplost_destally")
 	private int destAlly;
-	@Index(name="battle")
+	@Index(name="shiplost_battle")
 	private int battle;
 	@Column(name="battlelog")
-	@Index(name="battlelog")
+	@Index(name="shiplost_battlelog")
 	private String battleLog;
 	
 	@Version

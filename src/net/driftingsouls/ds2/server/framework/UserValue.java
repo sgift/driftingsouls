@@ -44,7 +44,7 @@ import javax.persistence.Version;
 @Table(name="user_values")
 @org.hibernate.annotations.Table(
 	appliesTo = "user_values",
-	indexes = {@Index(name="id", columnNames = {"user_id", "name"})}
+	indexes = {@Index(name="uservalue_id", columnNames = {"user_id", "name"})}
 )
 public class UserValue {
 	@Id @GeneratedValue

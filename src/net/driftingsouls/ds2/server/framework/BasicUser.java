@@ -66,7 +66,7 @@ public abstract class BasicUser {
 	@Id
 	private int id;
 
-	@Index(name="un")
+	@Index(name="basicuser_un")
 	@Column(nullable = false)
 	private String un;
 	@Column(nullable = false)

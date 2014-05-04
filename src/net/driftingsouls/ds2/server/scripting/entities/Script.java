@@ -38,7 +38,7 @@ public class Script {
 	@Id @GeneratedValue
 	private int id;
 	@Column(nullable = false)
-	@Index(name="name")
+	@Index(name="script_name")
 	private String name;
 	@Lob
 	@Column(nullable = false)

@@ -18,6 +18,10 @@
  */
 package net.driftingsouls.ds2.server.scripting.entities;
 
+import net.driftingsouls.ds2.server.entities.User;
+import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
+
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -25,10 +29,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-
-import net.driftingsouls.ds2.server.entities.User;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 
 /**
  * Repraesentiert ein durch einen Benutzer abgeschlossenes Quest.
@@ -39,7 +39,7 @@ import org.hibernate.annotations.Index;
 @Table(name="quests_completed")
 @org.hibernate.annotations.Table(
 		appliesTo = "quests_completed",
-		indexes = {@Index(name="questid", columnNames = {"questid", "userid"})}
+		indexes = {@Index(name="completedquest_questid", columnNames = {"questid", "userid"})}
 )
 public class CompletedQuest {
 	@Id @GeneratedValue

@@ -37,7 +37,7 @@ import javax.persistence.Table;
 @Table(name="jumpnodes")
 @org.hibernate.annotations.Table(
 		appliesTo = "jumpnodes",
-		indexes = {@Index(name="coords", columnNames = {"x", "y", "system"})})
+		indexes = {@Index(name="jumpnode_coords", columnNames = {"x", "y", "system"})})
 public class JumpNode implements Locatable {
 	@Id @GeneratedValue
 	private int id;

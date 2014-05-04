@@ -110,7 +110,7 @@ public class ShipModules implements ShipTypeData {
 	private double lostInEmpChance;
 	private int maxunitsize;
 	private int unitspace;
-	@Index(name="versorger")
+	@Index(name="shipmodules_versorger")
 	private boolean versorger;
 	@Column(nullable = false, scale = 0)
     private BigInteger bounty = BigInteger.ZERO;
