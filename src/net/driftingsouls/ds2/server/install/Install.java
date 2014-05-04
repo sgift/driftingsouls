@@ -101,7 +101,8 @@ public class Install
 		{
 			String dburl = "jdbc:mysql://" + dblocation + "/" + db;
 
-			HibernateUtil.init("web/WEB-INF/cfg/hibernate.xml", dburl, user, pw);
+			HibernateUtil.initConfiguration("web/WEB-INF/cfg/hibernate.xml", dburl, user, pw);
+			HibernateUtil.createFactories();
 
 			try (Connection con = DriverManager.getConnection(dburl, user, pw))
 			{

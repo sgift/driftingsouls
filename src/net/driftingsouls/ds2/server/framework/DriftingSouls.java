@@ -63,7 +63,8 @@ public class DriftingSouls {
 		}
 
 		LOG.info("Initializing Hibernate");
-		HibernateUtil.init(Configuration.getConfigPath()+"hibernate.xml", Configuration.getSetting("db_url"), Configuration.getSetting("db_user"), Configuration.getSetting("db_password"));
+		HibernateUtil.initConfiguration(Configuration.getConfigPath()+"hibernate.xml", Configuration.getSetting("db_url"), Configuration.getSetting("db_user"), Configuration.getSetting("db_password"));
+		HibernateUtil.createFactories();
 		if( !"true".equals(Configuration.getSetting("PRODUCTION")) )
 		{
 			HibernateUtil.writeSchemaToDisk(Configuration.getConfigPath() + "schema.sql");

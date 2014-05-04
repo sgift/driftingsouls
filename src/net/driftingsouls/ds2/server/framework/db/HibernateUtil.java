@@ -65,15 +65,10 @@ public class HibernateUtil
 		CURRENT_ENTITY_MANAGER.remove();
 	}
 
-    public static synchronized void init(String hibernateConfigFile, String dbUrl, String dbUser, String dbPassword)
+    public static synchronized void createFactories()
     {
         try
         {
-			if( configuration == null )
-			{
-				initConfiguration(hibernateConfigFile, dbUrl, dbUser, dbPassword);
-			}
-
 			final ServiceRegistry serviceRegistry =  new ServiceRegistryBuilder()
 					.applySettings(configuration.getProperties())
 					.buildServiceRegistry();
@@ -89,8 +84,12 @@ public class HibernateUtil
         }
     }
 
-	private static void initConfiguration(String hibernateConfigFile, String dbUrl, String dbUser, String dbPassword)
+	public static synchronized void initConfiguration(String hibernateConfigFile, String dbUrl, String dbUser, String dbPassword)
 	{
+		if( configuration != null )
+		{
+			return;
+		}
 		Configuration configuration = new Configuration();
 		configuration.configure(new File(hibernateConfigFile));
 		configuration.setNamingStrategy(new DsNamingStrategy());
