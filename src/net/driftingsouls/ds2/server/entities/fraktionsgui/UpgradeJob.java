@@ -70,7 +70,7 @@ public class UpgradeJob
 	@JoinColumn(name = "colonizerid", nullable = true)
 	@ForeignKey(name="upgrade_job_fk_ships")
 	private Ship colonizer;
-	private int end;
+	private int endTick;
 
 	/**
 	 * Konstruktor.
@@ -99,7 +99,7 @@ public class UpgradeJob
 		this.bar = bar;
 		this.payed = false;
 		this.colonizer = colonizer;
-		this.end = 0;
+		this.endTick = 0;
 	}
 
 	/**
@@ -269,7 +269,7 @@ public class UpgradeJob
 	 */
 	public int getEnd()
 	{
-		return end;
+		return endTick;
 	}
 
 	/**
@@ -279,6 +279,6 @@ public class UpgradeJob
 	 */
 	public void setEnd(int end)
 	{
-		this.end = end;
+		this.endTick = end;
 	}
 }

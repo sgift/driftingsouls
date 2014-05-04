@@ -1,0 +1,1 @@
+alter table upgrade_job change column end endTick integer not null;
