@@ -18,6 +18,10 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import net.driftingsouls.ds2.server.framework.Common;
+import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
+
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -26,10 +30,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
-
-import net.driftingsouls.ds2.server.framework.Common;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 
 /**
  * Ein Besuchseintrag eines Users fuer einen ComNet-Kanal.
@@ -40,17 +40,17 @@ import org.hibernate.annotations.Index;
 @Table(name="skn_visits")
 @org.hibernate.annotations.Table(
 		appliesTo = "skn_visits",
-		indexes = {@Index(name="user", columnNames = {"user", "channel"})}
+		indexes = {@Index(name="skn_visits_user", columnNames = {"user_id", "channel_id"})}
 )
 public class ComNetVisit {
 	@Id @GeneratedValue
 	private int id;
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
-	@JoinColumn(name="user", nullable=false)
+	@JoinColumn(nullable=false)
 	@ForeignKey(name="skn_visits_fk_users")
 	private User user;
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
-	@JoinColumn(name="channel", nullable=false)
+	@JoinColumn(nullable=false)
 	@ForeignKey(name="skn_visits_fk_skn_channels")
 	private ComNetChannel channel;
 	private long time;
