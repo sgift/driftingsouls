@@ -427,6 +427,9 @@
 
 		<junit fork="yes" haltonfailure="true" outputtoformatters="false" forkmode="perBatch">
 			<classpath>
+				<pathelement location="${build.home}/test/classes"/>
+				<pathelement location="${build.home}/WEB-INF/classes"/>
+
 				<fileset dir="${build.home}/WEB-INF/lib">
 					<include name="*.jar"/>
 				</fileset>
@@ -434,12 +437,9 @@
 				<fileset dir="${build.home}/test/lib">
 					<include name="*.jar"/>
 				</fileset>
-
-			    <pathelement location="${build.home}/test/classes"/>
-				<pathelement location="${build.home}/WEB-INF/classes"/>
 			</classpath>
 
-			<batchtest todir="${build.home}/test-output">
+			<batchtest todir="${build.home}/test-output" skipNonTests="true">
 				<fileset dir="${build.home}/test/classes">
 					<include name="**/*Test.class"/>
 				</fileset>

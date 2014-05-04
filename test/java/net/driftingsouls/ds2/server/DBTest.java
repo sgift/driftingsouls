@@ -88,7 +88,10 @@ public class DBTest
 		em.close();
 
 		BasicContext context = (BasicContext) ContextMap.getContext();
-		context.free();
+		if( context != null )
+		{
+			context.free();
+		}
 
 		LOG.info("Stoppe Hibernate");
 		HibernateUtil.shutdown();
