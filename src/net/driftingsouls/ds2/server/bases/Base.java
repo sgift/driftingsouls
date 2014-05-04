@@ -211,7 +211,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 * @param loc Die Position
 	 * @param owner Der Besitzer
 	 */
-	public Base(Location loc, User owner)
+	public Base(Location loc, User owner, BaseType klasse)
 	{
 		this.x = loc.getX();
 		this.y = loc.getY();
@@ -224,6 +224,14 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		this.owner = owner;
 		this.name = "Leerer Asteroid";
 		this.units = new HashSet<>();
+		this.klasse = klasse;
+		this.size = klasse.getSize();
+		this.width = klasse.getWidth();
+		this.height = klasse.getHeight();
+		this.maxCargo = klasse.getCargo();
+		this.maxEnergy = klasse.getEnergy();
+		this.spawnressavailable = klasse.getSpawnableRess();
+		this.maxTiles = klasse.getMaxTiles();
 	}
 
 	/**

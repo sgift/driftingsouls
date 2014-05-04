@@ -55,14 +55,14 @@ public class Rasse
 		// Hibernate Constructor
 	}
 
-	protected Rasse(int id, String name, boolean playable)
+	public Rasse(int id, String name, boolean playable)
 	{
 		this.name = name;
 		this.id = id;
 		this.playable = playable;
 	}
 
-	protected Rasse(int id, String name, boolean playable, boolean playableext, Rasse memberIn)
+	public Rasse(int id, String name, boolean playable, boolean playableext, Rasse memberIn)
 	{
 		this(id, name, playable);
 		this.memberIn = memberIn;

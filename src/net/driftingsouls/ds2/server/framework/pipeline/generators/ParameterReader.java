@@ -2,7 +2,9 @@ package net.driftingsouls.ds2.server.framework.pipeline.generators;
 
 import net.driftingsouls.ds2.server.framework.AnnotationUtils;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
+import net.driftingsouls.ds2.server.framework.utils.StringToTypeConverter;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -320,20 +322,14 @@ public class ParameterReader
 
 	private Object mapKeyToType(Class<?> firstParamType, String mapKey)
 	{
-		if (firstParamType == String.class)
+		if(firstParamType.isAnnotationPresent(Entity.class))
 		{
-			return mapKey;
-		}
-		else if (firstParamType == Integer.class)
-		{
-			return parseNumber(mapKey).intValue();
-		}
-		else if (firstParamType == Long.class)
-		{
-			return parseNumber(mapKey).longValue();
+			Session db = ContextMap.getContext().getDB();
+			Class<?> idClass = db.getSessionFactory().getClassMetadata(firstParamType).getIdentifierType().getReturnedClass();
+			return db.get(firstParamType, (Serializable)StringToTypeConverter.convert(idClass, mapKey));
 		}
 
-		throw new IllegalArgumentException("Der Typ " + firstParamType.getName() + " wird nicht als Map-Key unterstuetzt");
+		return StringToTypeConverter.convert(firstParamType, mapKey);
 	}
 
 	private Class<?> extractClass(Type typeDescription)

@@ -134,6 +134,10 @@ public class ShipType implements ShipTypeData {
 		this.weapons = "";
 		this.maxHeat = "";
 		this.flags = "";
+		this.descrip = "";
+		this.modules = "";
+		this.nickname = "";
+		this.shipClass = ShipClasses.UNBEKANNT;
 	}
 
     @Override

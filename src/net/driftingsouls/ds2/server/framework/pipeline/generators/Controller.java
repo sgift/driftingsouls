@@ -86,8 +86,6 @@ public abstract class Controller implements PermissionResolver
 		this.pageTitle = null;
 		this.pageMenuEntries = new ArrayList<>();
 		this.disablePageMenu = false;
-
-		setActionType(ActionType.DEFAULT);
 	}
 
 	protected String getModule()

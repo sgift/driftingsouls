@@ -58,9 +58,18 @@ public class BaseType
 	 * Konstruktor.
 	 *
 	 */
-	public BaseType()
+	protected BaseType()
 	{
 		// EMPTY
+	}
+
+	/**
+	 * Konstruktor.
+	 * @param name Der Name des Typs
+	 */
+	public BaseType(String name)
+	{
+		this.name = name;
 	}
 
 	/**

@@ -178,15 +178,7 @@ public class StarSystemContentGenerator
 		Session db = ContextMap.getContext().getDB();
 		final User nullUser = (User) db.get(User.class, 0);
 
-		Base base = new Base(new Location(sys.getID(), x, y), nullUser);
-		base.setKlasse(type);
-		base.setWidth(type.getWidth());
-		base.setHeight(type.getHeight());
-		base.setMaxTiles(type.getMaxTiles());
-		base.setMaxCargo(type.getCargo());
-		base.setMaxEnergy(type.getEnergy());
-		base.setAvailableSpawnableRess(type.getSpawnableRess());
-		base.setSize(type.getSize());
+		Base base = new Base(new Location(sys.getID(), x, y), nullUser, type);
 		base.setBebauung(new Integer[0]);
 		base.setActive(new Integer[0]);
 		base.setTerrain(new Integer[0]);

@@ -359,15 +359,8 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 		BaseType bt = parseBaseTypeFromRequest(context, color);
 
 		User user = (User) context.getDB().get(User.class, 0);
-		Base base = new Base(loc, user);
-		base.setKlasse(bt);
-		base.setWidth(bt.getWidth());
-		base.setHeight(bt.getHeight());
-		base.setMaxTiles(bt.getMaxTiles());
-		base.setMaxCargo(bt.getCargo());
-		base.setMaxEnergy(bt.getEnergy());
+		Base base = new Base(loc, user, bt);
 		base.setAvailableSpawnableRess(null);
-		base.setSize(bt.getSize());
 		context.getDB().persist(base);
 	}
 

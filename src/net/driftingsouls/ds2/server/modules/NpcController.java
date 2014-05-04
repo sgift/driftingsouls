@@ -567,7 +567,7 @@ public class NpcController extends AngularController
 									   @UrlParam(name = "shipflag_disableiff") boolean flagDisableIff,
 									   @UrlParam(name = "shipflag_handelsposten") boolean flagHandelsposten,
 									   @UrlParam(name = "shipflag_nichtkaperbar") boolean flagNichtKaperbar,
-									   @UrlParam(name = "ship#_count") Map<Integer, Integer> shipCounts)
+									   @UrlParam(name = "ship#_count") Map<OrderableShip, Integer> shipCounts)
 	{
 		org.hibernate.Session db = getDB();
 		User user = (User) this.getUser();
@@ -576,40 +576,37 @@ public class NpcController extends AngularController
 
 		List<Order> orderList = new ArrayList<>();
 
-		List<?> shipOrders = db
-							 .createQuery("from OrderableShip s order by s.shipType.shipClass,s.shipType.id")
-							 .list();
-		for (Object shipOrder : shipOrders)
+		for (Map.Entry<OrderableShip, Integer> entry : shipCounts.entrySet())
 		{
-			OrderableShip ship = (OrderableShip) shipOrder;
-
-			Integer count = shipCounts.get(ship.getShipType().getId());
-			if (count != null && count > 0)
+			if( entry.getValue() == null || entry.getValue() <= 0 )
 			{
-				costs += count * ship.getCost();
+				continue;
+			}
+			int count = entry.getValue();
+			OrderableShip ship = entry.getKey();
+			costs += count * ship.getCost();
 
-				for (int i = 0; i < count; i++)
+			for (int i = 0; i < count; i++)
+			{
+				OrderShip orderObj = new OrderShip(user, ship.getShipType());
+				orderObj.setTick(1);
+				if (flagDisableIff)
 				{
-					OrderShip orderObj = new OrderShip(user, ship.getShipType());
-					orderObj.setTick(1);
-					if (flagDisableIff)
-					{
-						orderObj.addFlag("disable_iff");
-						costs += 5;
-					}
-					if (flagNichtKaperbar || flagHandelsposten)
-					{
-						orderObj.addFlag("nicht_kaperbar");
-						costs += 5;
-					}
-					if (flagHandelsposten)
-					{
-						orderObj.addFlag("tradepost");
-						costs += 5;
-					}
-
-					orderList.add(orderObj);
+					orderObj.addFlag("disable_iff");
+					costs += 5;
 				}
+				if (flagNichtKaperbar || flagHandelsposten)
+				{
+					orderObj.addFlag("nicht_kaperbar");
+					costs += 5;
+				}
+				if (flagHandelsposten)
+				{
+					orderObj.addFlag("tradepost");
+					costs += 5;
+				}
+
+				orderList.add(orderObj);
 			}
 		}
 
@@ -631,13 +628,13 @@ public class NpcController extends AngularController
 	}
 
 	/**
-	 * Ordert eine Menge von Schiffen/Offizieren.
+	 * Ordert eine Menge von Offizieren.
 	 *
-	 * @param order Das zu ordernde Objekt (negativ: offizier)
-	 * @param count Die Menge der zu ordernden Objekte
+	 * @param order Der zu ordernde Offizier
+	 * @param count Die Menge
 	 */
 	@Action(ActionType.AJAX)
-	public ViewMessage orderAction(int order, int count)
+	public ViewMessage orderAction(OrderableOffizier order, int count)
 	{
 		org.hibernate.Session db = getDB();
 		User user = (User) this.getUser();
@@ -649,16 +646,12 @@ public class NpcController extends AngularController
 			count = 1;
 		}
 
-		if (order < 0)
+		if( order == null )
 		{
-			OrderableOffizier orderOffi = (OrderableOffizier) db.get(OrderableOffizier.class, -order);
-			costs = count * orderOffi.getCost();
-		}
-		else
-		{
-			throw new IllegalArgumentException("Unbekannte ID");
+			return ViewMessage.failure("Es gibt keinen solchen Offizier");
 		}
 
+		costs = count * order.getCost();
 		if (costs > 0)
 		{
 			if (user.getNpcPunkte() < costs)
@@ -667,7 +660,7 @@ public class NpcController extends AngularController
 			}
 			for (int i = 0; i < count; i++)
 			{
-				Order orderObj = new OrderOffizier(user, -order);
+				Order orderObj = new OrderOffizier(user, order.getId());
 				orderObj.setTick(1);
 				db.persist(orderObj);
 			}
@@ -764,7 +757,7 @@ public class NpcController extends AngularController
 			resShip.klasse = ship.getShipType().getShipClass().getSingular();
 
 			shiporders.putIfAbsent(ship.getShipType(), 0);
-			resShip.id = ship.getShipType().getId();
+			resShip.id = ship.getId();
 			resShip.name = ship.getShipType().getNickname();
 			resShip.type = ship.getShipType().getId();
 			resShip.cost = ship.getCost();
@@ -788,7 +781,7 @@ public class NpcController extends AngularController
 			resOffizier.name = offizier.getName();
 			resOffizier.rang = offizier.getRang();
 			resOffizier.cost = offizier.getCost();
-			resOffizier.id = -offizier.getId();
+			resOffizier.id = offizier.getId();
 			resOffizier.ordercount = offiorders.get(offizier.getId());
 
 			result.offiziere.add(resOffizier);

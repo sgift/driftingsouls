@@ -413,9 +413,9 @@ public class CreateObjects implements AdminPlugin {
 					echo.append("Fehler: large-object Besitzer '").append(owner).append("' existiert nicht");
 					return;
 				}
-				
-				Base base = new Base(source, ownerObj);
-				base.setKlasse((BaseType)db.get(BaseType.class, klasse));
+
+				BaseType type = (BaseType) db.get(BaseType.class, klasse);
+				Base base = new Base(source, ownerObj, type);
 				base.setSize(size);
 				base.setName(name);
 				base.setWidth(10);
@@ -610,15 +610,10 @@ public class CreateObjects implements AdminPlugin {
 	private void createPlanet( org.hibernate.Session db, Location loc, BaseType klasse ) throws IOException {
 		int height = klasse.getHeight();
 		int width = klasse.getWidth();
-		long cargo = klasse.getCargo();
 
 		User nullUser = (User)db.get(User.class, 0);
 
-		Base base = new Base(loc, nullUser);
-		base.setKlasse(klasse);
-		base.setWidth(width);
-		base.setHeight(height);
-		base.setMaxCargo(cargo);
+		Base base = new Base(loc, nullUser, klasse);
 		base.setMaxTiles(width*height);
 		base.setMaxEnergy(1000);
 		db.persist(base);
@@ -682,15 +677,8 @@ public class CreateObjects implements AdminPlugin {
 			int x = RandomUtils.nextInt(maxX-minX+1)+minX;
 			int y = RandomUtils.nextInt(maxY-minY+1)+minY;
 
-			Base base = new Base(new Location(system, x, y), nullUser);
-			base.setKlasse((BaseType)db.get(BaseType.class, klasse));
-			base.setWidth(type.getWidth());
-			base.setHeight(type.getHeight());
-			base.setMaxTiles(type.getMaxTiles());
-			base.setMaxCargo(type.getCargo());
-			base.setMaxEnergy(type.getEnergy());
+			Base base = new Base(new Location(system, x, y), nullUser, type);
 			base.setAvailableSpawnableRess(availablespawnableress);
-			base.setSize(type.getSize());
 			db.persist(base);
 
 			echo.append("Erstelle Kolonie...<br />\n");

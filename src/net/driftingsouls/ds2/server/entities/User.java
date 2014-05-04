@@ -317,9 +317,8 @@ public class User extends BasicUser {
 		this.lostShips = 0;
 		this.wonBattles = Short.valueOf("0");
 		this.destroyedShips = 0;
-		int newUserId = (Integer)db.createQuery("SELECT max(id) from User").uniqueResult();
-		newUserId++;
-		setId(newUserId);
+		Integer newUserId = (Integer)db.createQuery("SELECT max(id) from User").uniqueResult();
+		setId(newUserId != null ? ++newUserId : 1);
 		this.knownItems = "";
         bounty = BigInteger.ZERO;
 		db.persist(this);
@@ -328,6 +327,8 @@ public class User extends BasicUser {
 		this.forschungen = new HashSet<>();
 		this.specializationPoints = 15;
 		this.loyalitaetspunkte = new HashSet<>();
+		this.bases = new HashSet<>();
+		this.ships = new HashSet<>();
 
 		int defaultDropZone = new ConfigService().getValue(WellKnownConfigValue.GTU_DEFAULT_DROPZONE);
 		setGtuDropZone(defaultDropZone);
