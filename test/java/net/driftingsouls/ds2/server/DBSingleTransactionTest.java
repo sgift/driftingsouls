@@ -3,53 +3,51 @@ package net.driftingsouls.ds2.server;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import org.hibernate.Session;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
 import javax.persistence.EntityManager;
 
 /**
- * Basisklasse fuer Datenbank-Tests via Hibernate. Kuemmert sich um das Starten und Stoppen von
- * Memory-Datenbank, Hibernate und des Contexts.
+ * Variante des {@link DBTest}, in dem die Transaktionsverwaltung automatisch erfolgt
+ * und pro Testfall eine eigene Transaktion gestartet wird. <b>Achtung:</b> die Testfaelle
+ * duerfen ausdruecklich <b>nicht</b> auf die Transaktionssteuerung zugreifen.
  */
-public class DBTest
+public class DBSingleTransactionTest
 {
 	@BeforeClass
-	public static void setUpHibernateConfig()
+	public static void setUpDatabase()
 	{
 		DBTestUtils.ladeHibernateKonfiguration();
-	}
-
-	@Before
-	public void setUpDB()
-	{
 		DBTestUtils.startDerby();
 		DBTestUtils.erzeugeDbSchema();
 		DBTestUtils.starteHibernate();
 		DBTestUtils.erzeugeContext();
+	}
 
-		HibernateUtil.getCurrentEntityManager();
+	@Before
+	public void startTransaction()
+	{
+		getEM().getTransaction().begin();
 	}
 
 	@After
-	public void tearDownDB() throws Exception
+	public void stoppeTransaktion() throws Exception
+	{
+		getEM().getTransaction().rollback();
+		getEM().clear();
+	}
+
+	@AfterClass
+	public static void tearDownDB() throws Exception
 	{
 		DBTestUtils.stoppeEntityManager();
 		DBTestUtils.stoppeContext();
 		DBTestUtils.stoppeHibernate();
 		DBTestUtils.stopDerby();
-	}
-
-	/**
-	 * Fuehrt den angegebenen Code (Lambda) in einer Transaktion aus.
-	 * @param handler Der auszufuehrende Code
-	 */
-	public void mitTransaktion(Runnable handler)
-	{
-		DBTestUtils.mitTransaktion(handler);
 	}
 
 	/**
