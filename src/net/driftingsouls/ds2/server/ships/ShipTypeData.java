@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.ships;
 import javax.annotation.Nonnull;
 import java.math.BigInteger;
 import java.util.EnumSet;
+import java.util.Map;
 
 /**
  * Interface fuer Schiffstypendaten eines Schiffes.
@@ -153,7 +154,7 @@ public interface ShipTypeData extends Cloneable {
 	 * Gibt die maximale Hitze der einzelnen Waffen zurueck.
 	 * @return Die max. Hitze der Waffen
 	 */
-	public String getMaxHeat();
+	public Map<String, Integer> getMaxHeat();
 
 	/**
 	 * Gibt die verfuegbaren Modulsteckplaetze zurueck.
@@ -249,7 +250,7 @@ public interface ShipTypeData extends Cloneable {
 	 * Gibt die Waffen des Schiffes zurueck.
 	 * @return Die Waffen
 	 */
-	public String getWeapons();
+	public Map<String, Integer> getWeapons();
 
 	/**
 	 * Gibt die Anzahl der verfuegbaren Werftslots zurueck.

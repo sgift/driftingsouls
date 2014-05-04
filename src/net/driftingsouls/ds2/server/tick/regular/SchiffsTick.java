@@ -289,7 +289,7 @@ public class SchiffsTick extends TickController {
 		shipd.setEnergy(e);
 		if( shipd.getBattle() == null )
 		{
-			shipd.setWeaponHeat("");
+			shipd.setWeaponHeat(new HashMap<>());
 		}
 		shipd.setCargo(shipc);
 

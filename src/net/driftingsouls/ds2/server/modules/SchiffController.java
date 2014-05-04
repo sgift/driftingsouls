@@ -1119,48 +1119,48 @@ public class SchiffController extends TemplateController
 			}
 
 			// Weapons
-			Map<String, String> weaponlist = Weapons.parseWeaponList(type.getWeapons());
-			Map<String, String> defweaponlist = Weapons.parseWeaponList(basetype.getWeapons());
+			Map<String, Integer> weaponlist = type.getWeapons();
+			Map<String, Integer> defweaponlist = basetype.getWeapons();
 
-			for (Map.Entry<String, String> entry : weaponlist.entrySet())
+			for (Map.Entry<String, Integer> entry : weaponlist.entrySet())
 			{
 				String aweapon = entry.getKey();
-				int aweaponcount = Integer.parseInt(entry.getValue());
+				int aweaponcount = entry.getValue();
 				if (!defweaponlist.containsKey(aweapon))
 				{
 					tooltiplines.add("<span class='nobr' style='color:green'>+" + aweaponcount + " " + Weapons.get().weapon(aweapon).getName() + "</span><br />");
 				}
 				else
 				{
-					String defweapon = defweaponlist.get(aweapon);
-					if (Integer.parseInt(defweapon) < aweaponcount)
+					int defweapon = defweaponlist.get(aweapon);
+					if (defweapon < aweaponcount)
 					{
-						tooltiplines.add("<span class='nobr' style='color:green'>+" + (aweaponcount - Integer.parseInt(defweapon)) + " " + Weapons.get().weapon(aweapon).getName() + "</span><br />");
+						tooltiplines.add("<span class='nobr' style='color:green'>+" + (aweaponcount - defweapon) + " " + Weapons.get().weapon(aweapon).getName() + "</span><br />");
 					}
-					else if (Integer.parseInt(defweapon) > aweaponcount)
+					else if (defweapon > aweaponcount)
 					{
-						tooltiplines.add("<span class='nobr' style='color:red'>" + (aweaponcount - Integer.parseInt(defweapon)) + " " + Weapons.get().weapon(aweapon).getName() + "</span><br />");
+						tooltiplines.add("<span class='nobr' style='color:red'>" + (aweaponcount - defweapon) + " " + Weapons.get().weapon(aweapon).getName() + "</span><br />");
 					}
 				}
 			}
 
-			for (Map.Entry<String, String> entry : defweaponlist.entrySet())
+			for (Map.Entry<String, Integer> entry : defweaponlist.entrySet())
 			{
 				String aweapon = entry.getKey();
 				if (!weaponlist.containsKey(aweapon))
 				{
-					int weaponint = Integer.parseInt(entry.getValue());
+					int weaponint = entry.getValue();
 					tooltiplines.add("<span class='nobr' style='color:red'>-" + weaponint + " " + Weapons.get().weapon(aweapon).getName() + "</span><br />");
 				}
 			}
 
 			// MaxHeat
-			Map<String, String> heatlist = Weapons.parseWeaponList(type.getMaxHeat());
-			Map<String, String> defheatlist = Weapons.parseWeaponList(basetype.getMaxHeat());
+			Map<String, Integer> heatlist = type.getMaxHeat();
+			Map<String, Integer> defheatlist = basetype.getMaxHeat();
 
-			for (Map.Entry<String, String> entry : heatlist.entrySet())
+			for (Map.Entry<String, Integer> entry : heatlist.entrySet())
 			{
-				int aweaponheat = Integer.parseInt(entry.getValue());
+				int aweaponheat = entry.getValue();
 				String aweapon = entry.getKey();
 
 				if (!defheatlist.containsKey(aweapon))
@@ -1169,7 +1169,7 @@ public class SchiffController extends TemplateController
 				}
 				else
 				{
-					int defweaponheat = Integer.parseInt(defheatlist.get(aweapon));
+					int defweaponheat = defheatlist.get(aweapon);
 					if (defweaponheat < aweaponheat)
 					{
 						tooltiplines.add("<span class='nobr' style='color:green'>+" + (aweaponheat - defweaponheat) + " " + Weapons.get().weapon(aweapon).getName() + " Max-Hitze</span><br />");

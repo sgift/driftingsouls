@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.ships;
 
 import javax.annotation.Nonnull;
 import java.math.BigInteger;
+import java.util.Map;
 
 /**
  * Basisklasse fuer ShipTypeData-Wrapper.
@@ -150,7 +151,7 @@ public abstract class AbstractShipTypeDataWrapper implements ShipTypeData {
 	}
 
 	@Override
-	public String getMaxHeat() {
+	public Map<String, Integer> getMaxHeat() {
 		return inner.getMaxHeat();
 	}
 
@@ -240,7 +241,7 @@ public abstract class AbstractShipTypeDataWrapper implements ShipTypeData {
 	}
 
 	@Override
-	public String getWeapons() {
+	public Map<String, Integer> getWeapons() {
 		return inner.getWeapons();
 	}
 

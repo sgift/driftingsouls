@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -81,8 +82,8 @@ public class EditShiptypes implements EntityEditor<ShipType>
 		form.field("Crew", Integer.class, ShipType::getCrew, ShipType::setCrew);
 		form.field("Maximale Größe für Einheiten", Integer.class, ShipType::getMaxUnitSize, ShipType::setMaxUnitSize);
 		form.field("Laderaum für Einheiten", Integer.class, ShipType::getUnitSpace, ShipType::setUnitSpace);
-		form.field("Waffen", String.class, ShipType::getWeapons, ShipType::setWeapons);
-		form.field("Maximale Hitze", String.class, ShipType::getMaxHeat, ShipType::setMaxHeat);
+		form.field("Waffen", String.class, (st) -> Weapons.packWeaponList(st.getWeapons()), (st,s) -> st.setWeapons(Weapons.parseWeaponList(s)));
+		form.field("Maximale Hitze", String.class, (st) -> Weapons.packWeaponList(st.getMaxHeat()), (st,s) -> st.setMaxHeat(Weapons.parseWeaponList(s)));
 		form.field("Torpedoabwehr", Integer.class, ShipType::getTorpedoDef, ShipType::setTorpedoDef);
 		form.field("Schilde", Integer.class, ShipType::getShields, ShipType::setShields);
 		form.field("Größe", Integer.class, ShipType::getSize, ShipType::setSize);

@@ -76,15 +76,15 @@ public class AutoFire
                 continue;
             }
 
-            Map<String, String> maxHeats = Weapons.parseWeaponList(firingShip.getTypeData().getMaxHeat());
-            Map<String, String> heats = Weapons.parseWeaponList(firingShip.getWeaponHeat());
+            Map<String, Integer> maxHeats = firingShip.getTypeData().getMaxHeat();
+            Map<String, Integer> heats = firingShip.getWeaponHeat();
             
-            for(Map.Entry<String, String> heatLog: maxHeats.entrySet())
+            for(Map.Entry<String, Integer> heatLog: maxHeats.entrySet())
             {
                 log.info("Weapon: " + heatLog.getKey() + " Max heat: " + heatLog.getValue());
             }
 
-            for(Map.Entry<String, String> heatLog: heats.entrySet())
+            for(Map.Entry<String, Integer> heatLog: heats.entrySet())
             {
                 log.info("Weapon: " + heatLog.getKey() + " Heat: " + heatLog.getValue());
             }
@@ -378,8 +378,8 @@ public class AutoFire
     {
         Map<Weapon, Integer> shipWeapons = new HashMap<>();
 
-        Map<String,String> weaponList = Weapons.parseWeaponList(ship.getTypeData().getWeapons());
-        for(Map.Entry<String, String> entry: weaponList.entrySet())
+        Map<String,Integer> weaponList = ship.getTypeData().getWeapons();
+        for(Map.Entry<String, Integer> entry: weaponList.entrySet())
         {
             Weapon weapon = Weapons.get().weapon(entry.getKey());
             shipWeapons.put(weapon, Integer.valueOf(entry.getValue()));

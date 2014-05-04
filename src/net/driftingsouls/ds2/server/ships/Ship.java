@@ -36,9 +36,9 @@ import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleType;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
+import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.config.items.IffDeaktivierenItem;
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.Feeding;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
@@ -653,16 +653,16 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * Gibt die Waffenhitze zurueck.
 	 * @return heat Die Waffenhitze
 	 */
-	public String getWeaponHeat() {
-		return this.weaponHeat;
+	public Map<String,Integer> getWeaponHeat() {
+		return Weapons.parseWeaponList(this.weaponHeat);
 	}
 
 	/**
 	 * Setzt die Waffenhitze.
 	 * @param heat Die neue Waffenhitze
 	 */
-	public void setWeaponHeat(String heat) {
-		this.weaponHeat = heat;
+	public void setWeaponHeat(Map<String,Integer> heat) {
+		this.weaponHeat = Weapons.packWeaponList(heat);
 	}
 
 	/**

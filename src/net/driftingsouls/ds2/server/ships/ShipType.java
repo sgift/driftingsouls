@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
+import net.driftingsouls.ds2.server.config.Weapons;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
@@ -34,6 +35,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 import java.math.BigInteger;
+import java.util.Map;
 
 /**
  * Ein Schiffstyp.
@@ -229,8 +231,8 @@ public class ShipType implements ShipTypeData {
 	}
 
 	@Override
-	public String getMaxHeat() {
-		return maxHeat;
+	public Map<String, Integer> getMaxHeat() {
+		return Weapons.parseWeaponList(maxHeat);
 	}
 	
 	/**
@@ -322,8 +324,8 @@ public class ShipType implements ShipTypeData {
 	}
 	
 	@Override
-	public String getWeapons() {
-		return weapons;
+	public Map<String, Integer> getWeapons() {
+		return Weapons.parseWeaponList(weapons);
 	}
 
 	@Override
@@ -343,7 +345,7 @@ public class ShipType implements ShipTypeData {
 	
 	@Override
 	public boolean isMilitary() {
-		return getWeapons().indexOf('=') > -1;
+		return !getWeapons().isEmpty();
 	}
 	
 	/**
@@ -546,8 +548,8 @@ public class ShipType implements ShipTypeData {
 	 * Setzt die maximale Ueberhitzung der Waffen.
 	 * @param maxHeat Die max. Hitze
 	 */
-	public void setMaxHeat(String maxHeat) {
-		this.maxHeat = maxHeat;
+	public void setMaxHeat(Map<String,Integer> maxHeat) {
+		this.maxHeat = Weapons.packWeaponList(maxHeat);
 	}
 
 	/**
@@ -699,8 +701,8 @@ public class ShipType implements ShipTypeData {
 	 * Setzt die Waffen des Schiffes.
 	 * @param weapons Die Waffen
 	 */
-	public void setWeapons(String weapons) {
-		this.weapons = weapons;
+	public void setWeapons(Map<String,Integer> weapons) {
+		this.weapons = Weapons.packWeaponList(weapons);
 	}
 
 	/**

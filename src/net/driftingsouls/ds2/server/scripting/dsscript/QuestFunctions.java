@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.scripting.dsscript;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.MutableLocation;
+import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.Offizier.Ability;
 import net.driftingsouls.ds2.server.SectorTemplateManager;
@@ -640,7 +641,7 @@ public class QuestFunctions {
 							ship.setShields(Value.Int(val.toString()));
 							break;
 						case "heat":
-							ship.setWeaponHeat(val.toString());
+							ship.setWeaponHeat(Weapons.parseWeaponList(val.toString()));
 							break;
 						case "engine":
 							ship.setEngine(Value.Int(val.toString()));

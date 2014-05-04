@@ -25,7 +25,6 @@ import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.StarSystem;
-import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
@@ -1621,17 +1620,17 @@ public class Battle implements Locatable
                     ship.setAction(ship.getAction() ^ BS_JOIN);
                 }
 
-                Map<String, String> heat = Weapons.parseWeaponList(ship.getWeaponHeat());
+                Map<String, Integer> heat = ship.getWeaponHeat();
 
                 for (String weaponName : heat.keySet()) {
-                    heat.put(weaponName, "0");
+                    heat.put(weaponName, 0);
                 }
 
                 if ((ship.getAction() & BS_FLUCHTNEXT) != 0) {
                     ship.setAction((ship.getAction() ^ BS_FLUCHTNEXT) | BS_FLUCHT);
                 }
 
-                ship.getShip().setWeaponHeat(Weapons.packWeaponList(heat));
+                ship.getShip().setWeaponHeat(heat);
                 ship.getShip().setBattleAction(false);
             }
 

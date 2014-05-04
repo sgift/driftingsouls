@@ -782,18 +782,17 @@ public class KSAttackAction extends BasicKSAction {
 	}
 
 	private Waffenbeschreibung getAmmoBasedWeaponData( Battle battle, final String weaponName, final Munition munition) {
-		Context context = ContextMap.getContext();
 		BattleShip ownShip = this.ownShip;
 
 		ShipTypeData enemyShipType = this.enemyShip.getTypeData();
 		ShipTypeData ownShipType = ownShip.getTypeData();
 
-		Map<String,String> weapons = Weapons.parseWeaponList(ownShipType.getWeapons());
+		Map<String,Integer> weapons = ownShipType.getWeapons();
         if(!weapons.containsKey(weaponName))
         {
             throw new IllegalArgumentException("Weapon: " + weaponName + " not found on ship: " + ownShip.getId());
         }
-		int weaponCount = Integer.parseInt(weapons.get(weaponName));
+		int weaponCount = weapons.get(weaponName);
 
 		Munitionsdefinition munitionsdefinition = null;
 		ItemCargoEntry ammoitem;
@@ -867,12 +866,11 @@ public class KSAttackAction extends BasicKSAction {
         }
 
 		Cargo enemyCargo = enemyShip.getCargo();
-		Context context = ContextMap.getContext();
-		Map<String,String> eweapons = Weapons.parseWeaponList(enemyShipType.getWeapons());
+		Map<String,Integer> eweapons = enemyShipType.getWeapons();
 		double antitorptrefferws = 0;
 
-		for( Map.Entry<String,String> wpn : eweapons.entrySet() ) {
-			final int count = Integer.parseInt(wpn.getValue());
+		for( Map.Entry<String,Integer> wpn : eweapons.entrySet() ) {
+			final int count = wpn.getValue();
 			final Weapon weapon = Weapons.get().weapon(wpn.getKey());
 
 			if( weapon.getTorpTrefferWS() != 0 ) {
@@ -1237,14 +1235,14 @@ public class KSAttackAction extends BasicKSAction {
             return false;
         }
 
-        Map<String,String> weaponList = Weapons.parseWeaponList(shipType.getWeapons());
+        Map<String,Integer> weaponList = shipType.getWeapons();
         if(!weaponList.containsKey(weaponName))
         {
             //Ship doesn't have this weapon
             return false;
         }
 
-        int weapons = Integer.parseInt(weaponList.get(weaponName));
+        int weapons = weaponList.get(weaponName);
         localweapon.setCount(weapons);
 
         this.localweapon = localweapon;
@@ -1277,9 +1275,9 @@ public class KSAttackAction extends BasicKSAction {
 
         ShipTypeData ownShipType = this.ownShip.getTypeData();
 
-        Map<String,String> weaponList = Weapons.parseWeaponList(ownShipType.getWeapons());
-        Map<String,String> maxheatList = Weapons.parseWeaponList(ownShipType.getMaxHeat());
-        Map<String,String> heatList = Weapons.parseWeaponList(this.ownShip.getWeaponHeat());
+        Map<String,Integer> weaponList = ownShipType.getWeapons();
+        Map<String,Integer> maxheatList = ownShipType.getMaxHeat();
+        Map<String,Integer> heatList = this.ownShip.getWeaponHeat();
 
         if( !weaponList.containsKey(weaponName) )
         {
@@ -1288,11 +1286,11 @@ public class KSAttackAction extends BasicKSAction {
         }
 
         int weapons = this.localweapon.getCount();
-        int maxheat = Integer.parseInt(maxheatList.get(weaponName));
+        int maxheat = maxheatList.get(weaponName);
         int heat = 0;
         if( heatList.containsKey(weaponName) )
         {
-            heat = Integer.parseInt(heatList.get(weaponName));
+            heat = heatList.get(weaponName);
         }
 
         // Feststellen wie oft wird welchen Feuerloop durchlaufen sollen
@@ -1585,8 +1583,8 @@ public class KSAttackAction extends BasicKSAction {
                     this.ownShip.getShip().setCargo(mycargo);
                 }
 
-                heatList.put(weaponName, Integer.toString(heat));
-                this.ownShip.getShip().setWeaponHeat(Weapons.packWeaponList(heatList));
+                heatList.put(weaponName, heat);
+                this.ownShip.getShip().setWeaponHeat(heatList);
 
 
                 /*

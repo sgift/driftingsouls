@@ -79,8 +79,8 @@ public class Weapons implements Iterable<Weapon> {
 	 * @param weaponlist der Waffen-String
 	 * @return die Waffen-Map
 	 */
-	public static Map<String,String> parseWeaponList(String weaponlist) {
-		Map<String,String> result = new LinkedHashMap<>();
+	public static Map<String,Integer> parseWeaponList(String weaponlist) {
+		Map<String,Integer> result = new LinkedHashMap<>();
 		String[] weaponArray = StringUtils.split(weaponlist, '|');
 
 		for (String aWeaponArray : weaponArray)
@@ -88,7 +88,7 @@ public class Weapons implements Iterable<Weapon> {
 			String[] weapon = StringUtils.split(aWeaponArray, '=');
 			if (!weapon[0].equals(""))
 			{
-				result.put(weapon[0], weapon[1]);
+				result.put(weapon[0], Integer.valueOf(weapon[1]));
 			}
 		}
 
@@ -100,7 +100,7 @@ public class Weapons implements Iterable<Weapon> {
 	 * @param weapons die Waffen-Map
 	 * @return der Waffen-String
 	 */
-	public static String packWeaponList(Map<String,String> weapons) {
+	public static String packWeaponList(Map<String,Integer> weapons) {
 		List<String> weaponlist = weapons.entrySet().stream().map(wpnEntry -> wpnEntry.getKey() + '=' + wpnEntry.getValue()).collect(Collectors.toList());
 
 		return Common.implode("|",weaponlist);

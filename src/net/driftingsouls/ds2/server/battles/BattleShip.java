@@ -42,6 +42,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Version;
+import java.util.Map;
 
 /**
  * Repraesentiert ein Schiff in einer Schlacht.
@@ -347,7 +348,7 @@ public class BattleShip {
 	 * @return heat Die Waffenhitze
 	 * @see net.driftingsouls.ds2.server.ships.Ship#getWeaponHeat()
 	 */
-	public String getWeaponHeat() {
+	public Map<String,Integer> getWeaponHeat() {
 		return ship.getWeaponHeat();
 	}
 

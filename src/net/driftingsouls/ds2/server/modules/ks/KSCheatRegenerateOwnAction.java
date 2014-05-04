@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 /**
  * Cheat eigenes Schiff regenerieren.
@@ -64,7 +65,7 @@ public class KSCheatRegenerateOwnAction extends BasicKSAction {
 		ownShip.getShip().setSensors(100);
 		ownShip.getShip().setComm(100);
 		ownShip.getShip().setHeat(0);
-		ownShip.getShip().setWeaponHeat("");
+		ownShip.getShip().setWeaponHeat(new HashMap<>());
 		
 		ownShip.setHull(ownShip.getShip().getHull());
 		ownShip.setShields(ownShip.getShip().getShields());

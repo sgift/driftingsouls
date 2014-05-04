@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 /**
  * Cheat Gegner regenerieren.
@@ -64,7 +65,7 @@ public class KSCheatRegenerateEnemyAction extends BasicKSAction {
 		enemyShip.getShip().setSensors(100);
 		enemyShip.getShip().setComm(100);
 		enemyShip.getShip().setHeat(0);
-		enemyShip.getShip().setWeaponHeat("");
+		enemyShip.getShip().setWeaponHeat(new HashMap<>());
 		
 		enemyShip.setHull(enemyShip.getShip().getHull());
 		enemyShip.setShields(enemyShip.getShip().getShields());

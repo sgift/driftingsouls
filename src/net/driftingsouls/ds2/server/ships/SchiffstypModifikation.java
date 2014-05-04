@@ -23,7 +23,6 @@ import net.driftingsouls.ds2.server.entities.Weapon;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.annotation.Nonnull;
@@ -690,10 +689,8 @@ public class SchiffstypModifikation
 		private ShipTypeData inner;
 		private String[] weaponrepl;
 		private volatile EnumSet<ShipTypeFlag> flags;
-		private volatile String weapons;
-		private volatile String maxheat;
-		private volatile String baseWeapons;
-		private volatile String baseHeat;
+		private volatile Map<String, Integer> weapons;
+		private volatile Map<String, Integer> maxheat;
 
 		ShipTypeDataAdapter(ShipTypeData type, String[] weaponrepl) {
 			this.inner = type;
@@ -876,11 +873,8 @@ public class SchiffstypModifikation
 
 			String wpnrpl = wpnrpllist.length > index ? wpnrpllist[index++] : null;
 
-			String baseWeapons = inner.getWeapons();
-			String baseHeat = inner.getMaxHeat();
-
-			Map<String,String> weaponlist = Weapons.parseWeaponList(baseWeapons);
-			Map<String,String> heatlist = Weapons.parseWeaponList(baseHeat);
+			Map<String,Integer> weaponlist = inner.getWeapons();
+			Map<String,Integer> heatlist = inner.getMaxHeat();
 
 			// Weapons
 			Set<Schiffswaffenkonfiguration> mod = SchiffstypModifikation.this.getWaffen();
@@ -890,30 +884,30 @@ public class SchiffstypModifikation
 				int aheat = wpn.getHitze();
 
 				if( wpnrpl != null ) {
-					if( NumberUtils.toInt(weaponlist.get(wpnrpl)) > 0 ) {
-						if( NumberUtils.toInt(weaponlist.get(wpnrpl)) > acount ) {
-							int rplCount = NumberUtils.toInt(weaponlist.get(wpnrpl));
-							int rplHeat = NumberUtils.toInt(heatlist.get(wpnrpl));
-							heatlist.put(wpnrpl, Integer.toString(rplHeat - acount*(rplHeat/rplCount)));
-							weaponlist.put(wpnrpl, Integer.toString(rplCount - acount));
+					if( weaponlist.get(wpnrpl) > 0 ) {
+						if( weaponlist.get(wpnrpl) > acount ) {
+							int rplCount = weaponlist.get(wpnrpl);
+							int rplHeat = heatlist.get(wpnrpl);
+							heatlist.put(wpnrpl, rplHeat - acount*(rplHeat/rplCount));
+							weaponlist.put(wpnrpl, rplCount - acount);
 
-							weaponlist.put(aweapon, Integer.toString(NumberUtils.toInt(weaponlist.get(aweapon)) + acount));
-							heatlist.put(aweapon,  Integer.toString(NumberUtils.toInt(heatlist.get(aweapon)) + aheat));
+							weaponlist.put(aweapon, weaponlist.get(aweapon) + acount);
+							heatlist.put(aweapon,  heatlist.get(aweapon) + aheat);
 						}
 						else {
 							heatlist.remove(wpnrpl);
 							weaponlist.remove(wpnrpl);
 
-							weaponlist.put(aweapon, Integer.toString(NumberUtils.toInt(weaponlist.get(aweapon)) + acount));
-							heatlist.put(aweapon,  Integer.toString(NumberUtils.toInt(heatlist.get(aweapon)) + aheat));
+							weaponlist.put(aweapon, weaponlist.get(aweapon) + acount);
+							heatlist.put(aweapon,  heatlist.get(aweapon) + aheat);
 						}
 					}
 				}
 				else {
-					weaponlist.put(aweapon, Integer.toString(NumberUtils.toInt(weaponlist.get(aweapon)) + acount));
-					heatlist.put(aweapon,  Integer.toString(NumberUtils.toInt(heatlist.get(aweapon)) + aheat));
+					weaponlist.put(aweapon, weaponlist.get(aweapon) + acount);
+					heatlist.put(aweapon,  heatlist.get(aweapon) + aheat);
 
-					if( NumberUtils.toInt(weaponlist.get(aweapon)) <= 0 ) {
+					if( weaponlist.get(aweapon) <= 0 ) {
 						heatlist.remove(aweapon);
 						weaponlist.remove(aweapon);
 					}
@@ -933,24 +927,22 @@ public class SchiffstypModifikation
 				}
 				if (!heatlist.containsKey(weapon))
 				{
-					heatlist.put(weapon, Integer.toString(modheat));
+					heatlist.put(weapon, modheat);
 				}
 				else
 				{
-					String heatweapon = heatlist.get(weapon);
-					heatlist.put(weapon, Integer.toString(Integer.parseInt(heatweapon) + modheat));
+					int heatweapon = heatlist.get(weapon);
+					heatlist.put(weapon, heatweapon + modheat);
 				}
 			}
 
-			this.baseWeapons = baseWeapons;
-			this.baseHeat = baseHeat;
-			this.weapons = Weapons.packWeaponList(weaponlist);
-			this.maxheat = Weapons.packWeaponList(heatlist);
+			this.weapons = weaponlist;
+			this.maxheat = heatlist;
 		}
 
 		@Override
-		public String getMaxHeat() {
-			if( (this.maxheat == null) || !inner.getMaxHeat().equals(baseHeat) ) {
+		public Map<String, Integer> getMaxHeat() {
+			if( this.maxheat == null ) {
 				calcWeaponData();
 			}
 			return this.maxheat;
@@ -1101,8 +1093,8 @@ public class SchiffstypModifikation
 		}
 
 		@Override
-		public String getWeapons() {
-			if( (this.weapons == null) || !inner.getWeapons().equals(baseWeapons) ) {
+		public Map<String, Integer> getWeapons() {
+			if( this.weapons == null ) {
 				calcWeaponData();
 			}
 
@@ -1131,7 +1123,7 @@ public class SchiffstypModifikation
 
 		@Override
 		public boolean isMilitary() {
-			return getWeapons().indexOf('=') > -1;
+			return !getWeapons().isEmpty();
 		}
 
 		@Override

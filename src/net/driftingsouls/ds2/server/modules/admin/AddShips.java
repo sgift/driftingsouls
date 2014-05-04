@@ -85,7 +85,7 @@ public class AddShips implements AdminPlugin {
 
 				Set<String> thisammolist = new HashSet<>();
 				int i = 0;
-				Map<String,String> weapons = Weapons.parseWeaponList(st.getWeapons());
+				Map<String,Integer> weapons = st.getWeapons();
 				for( String weapon : weapons.keySet() ) {
 					try {
 						Weapons.get().weapon(weapon);
@@ -268,7 +268,7 @@ public class AddShips implements AdminPlugin {
 			cargo.addResource( Resources.URAN, shiptype.getRu()*10 );
 			cargo.addResource( Resources.ANTIMATERIE, shiptype.getRa()*10 );
 
-			Map<String,String> weapons = Weapons.parseWeaponList(shiptype.getWeapons());
+			Map<String,Integer> weapons = shiptype.getWeapons();
 			for( String weapon : weapons.keySet() ) {
 				for( String ammotype : Weapons.get().weapon(weapon).getMunitionstypen() )
 				{
@@ -276,7 +276,7 @@ public class AddShips implements AdminPlugin {
 					{
 						cargo.addResource(
 								new ItemID(context.getRequest().getParameterInt("ammo_" + ammotype)),
-								Integer.parseInt(weapons.get(weapon)) * 10);
+								weapons.get(weapon) * 10);
 					}
 				}
 			}
@@ -357,14 +357,14 @@ public class AddShips implements AdminPlugin {
 					jcargo.addResource( Resources.URAN, jshiptype.getRu()*10 );
 					jcargo.addResource( Resources.ANTIMATERIE, jshiptype.getRa()*10 );
 
-					weapons = Weapons.parseWeaponList(jshiptype.getWeapons());
+					weapons = jshiptype.getWeapons();
 					for( String weapon : weapons.keySet() ) {
 						for (String ammotype : Weapons.get().weapon(weapon).getMunitionstypen())
 						{
 							if( context.getRequest().getParameterInt("jaeger_ammo_"+ammotype) > 0 )	{
 								jcargo.addResource(
 										new ItemID(context.getRequest().getParameterInt("jaeger_ammo_"+ammotype)),
-										Integer.parseInt(weapons.get(weapon))*10 );
+										weapons.get(weapon)*10 );
 							}
 						}
 					}

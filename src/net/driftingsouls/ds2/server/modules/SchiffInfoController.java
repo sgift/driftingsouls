@@ -323,13 +323,13 @@ public class SchiffInfoController extends TemplateController
 	{
 		TemplateEngine t = getTemplateEngine();
 
-		Map<String, String> weapons = Weapons.parseWeaponList(ship.getWeapons());
-		Map<String, String> maxheat = Weapons.parseWeaponList(ship.getMaxHeat());
+		Map<String, Integer> weapons = ship.getWeapons();
+		Map<String, Integer> maxheat = ship.getMaxHeat();
 
 		t.setBlock("_SCHIFFINFO", "shiptype.weapons.listitem", "shiptype.weapons.list");
-		for (Map.Entry<String, String> entry : weapons.entrySet())
+		for (Map.Entry<String, Integer> entry : weapons.entrySet())
 		{
-			int count = Integer.parseInt(entry.getValue());
+			int count = entry.getValue();
 			String weaponname = entry.getKey();
 
 			Weapon weapon;

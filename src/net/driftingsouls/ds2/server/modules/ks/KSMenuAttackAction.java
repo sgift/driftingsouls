@@ -178,14 +178,14 @@ public class KSMenuAttackAction extends BasicKSMenuAction {
 			ask = "Wenn sie auf das gew&auml;hlte Ziel feuern, versto&szlig;en sie gegen die BETAK-Konvention. Wollen sie dies wirklich tun?";
 		} 
 
-		Map<String,String> currentheatlist = Weapons.parseWeaponList(ownShip.getWeaponHeat());
+		Map<String,Integer> currentheatlist = ownShip.getWeaponHeat();
 
-		Map<String,String> heatlist = Weapons.parseWeaponList(ownShipType.getMaxHeat());
-		Map<String,String> weaponlist = Weapons.parseWeaponList(ownShipType.getWeapons());
+		Map<String,Integer> heatlist = ownShipType.getMaxHeat();
+		Map<String,Integer> weaponlist = ownShipType.getWeapons();
 
-		for( Map.Entry<String, String> entry: weaponlist.entrySet() ) {
+		for( Map.Entry<String, Integer> entry: weaponlist.entrySet() ) {
 			String weaponname = entry.getKey();
-			int weaponcount = Integer.parseInt(entry.getValue());
+			int weaponcount = entry.getValue();
 			
 			if( weaponcount == 0 ) {
 				continue;
@@ -213,9 +213,9 @@ public class KSMenuAttackAction extends BasicKSMenuAction {
 			}
 			
 			if( attmode.equals("alphastrike_max") || attmode.equals("strafe_max") ) {
-				int maxheat = Integer.parseInt(heatlist.get(weaponname));
+				int maxheat = heatlist.get(weaponname);
 				if( currentheatlist.containsKey(weaponname) ) {
-					maxheat -= Integer.parseInt(currentheatlist.get(weaponname));
+					maxheat -= currentheatlist.get(weaponname);
 				}
 			}
 			

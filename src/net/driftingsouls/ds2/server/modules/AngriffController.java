@@ -328,13 +328,13 @@ public class AngriffController extends TemplateController
 
 		if( !enemy ) {
 			// Waffen
-			Map<String,String> weapons = Weapons.parseWeaponList(shipType.getWeapons());
-			Map<String,String> heat = Weapons.parseWeaponList(ship.getWeaponHeat());
-			Map<String,String> maxheat = Weapons.parseWeaponList(shipType.getMaxHeat());
+			Map<String,Integer> weapons = shipType.getWeapons();
+			Map<String,Integer> heat = ship.getWeaponHeat();
+			Map<String,Integer> maxheat = shipType.getMaxHeat();
 
 			for( String weaponName : weapons.keySet() ) {
 				t.setVar(	"shipinfo.weapon.name",		Weapons.get().weapon(weaponName).getName(),
-							"shipinfo.weapon.heat",		heat.containsKey(weaponName) ? Integer.parseInt(heat.get(weaponName)) : 0,
+							"shipinfo.weapon.heat",		heat.containsKey(weaponName) ? heat.get(weaponName) : 0,
 							"shipinfo.weapon.maxheat",	maxheat.get(weaponName) );
 
 				t.parse("shipinfo.weapons.list","shipinfo.weapons.listitem",true);

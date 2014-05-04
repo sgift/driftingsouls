@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
+import net.driftingsouls.ds2.server.config.Weapons;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -37,6 +38,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 import java.math.BigInteger;
 import java.util.EnumSet;
+import java.util.Map;
 
 /**
  * Die Moduldaten eines Schiffes.
@@ -338,16 +340,16 @@ public class ShipModules implements ShipTypeData {
 	}
 
 	@Override
-	public String getMaxHeat() {
-		return maxHeat;
+	public Map<String, Integer> getMaxHeat() {
+		return Weapons.parseWeaponList(maxHeat);
 	}
 
 	/**
 	 * Setzt die max. Waffenueberhitzungs.
 	 * @param maxHeat Die Waffenueberhitzung
 	 */
-	public void setMaxHeat(String maxHeat) {
-		this.maxHeat = maxHeat;
+	public void setMaxHeat(Map<String,Integer> maxHeat) {
+		this.maxHeat = Weapons.packWeaponList(maxHeat);
 	}
 
 	/**
@@ -536,16 +538,16 @@ public class ShipModules implements ShipTypeData {
 	}
 
 	@Override
-	public String getWeapons() {
-		return weapons;
+	public Map<String, Integer> getWeapons() {
+		return Weapons.parseWeaponList(weapons);
 	}
 
 	/**
 	 * Setzt die Waffen.
 	 * @param weapons Die Waffen
 	 */
-	public void setWeapons(String weapons) {
-		this.weapons = weapons;
+	public void setWeapons(Map<String,Integer> weapons) {
+		this.weapons = Weapons.packWeaponList(weapons);
 	}
 
 	@Override
@@ -593,7 +595,7 @@ public class ShipModules implements ShipTypeData {
 	
 	@Override
 	public boolean isMilitary() {
-		return getWeapons().indexOf('=') > -1;
+		return !getWeapons().isEmpty();
 	}
 	
 	/**
