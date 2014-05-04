@@ -884,6 +884,8 @@ public class SchiffstypModifikation
 				int aheat = wpn.getHitze();
 
 				if( wpnrpl != null ) {
+					weaponlist.putIfAbsent(wpnrpl, 0);
+					heatlist.putIfAbsent(wpnrpl, 0);
 					if( weaponlist.get(wpnrpl) > 0 ) {
 						if( weaponlist.get(wpnrpl) > acount ) {
 							int rplCount = weaponlist.get(wpnrpl);
@@ -904,6 +906,8 @@ public class SchiffstypModifikation
 					}
 				}
 				else {
+					weaponlist.putIfAbsent(aweapon, 0);
+					heatlist.putIfAbsent(aweapon, 0);
 					weaponlist.put(aweapon, weaponlist.get(aweapon) + acount);
 					heatlist.put(aweapon,  heatlist.get(aweapon) + aheat);
 
