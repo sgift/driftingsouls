@@ -86,7 +86,7 @@ public class StatSpieleraktivitaet implements Statistic {
 		echo.append("highligher: {show:true, showTooltip: false},");
 		echo.append("stackSeries:true, seriesDefaults:{fill:true}, legend: {show:true, placement:'outsideGrid'}, ");
 		echo.append("series: [{label: 'Sehr Aktiv'},{label: 'Aktiv'},{label: 'Teilweise Aktiv'},{label: 'Wenig Aktiv'},{label: 'Inaktiv'}, {label: 'Urlaub'}], ");
-		echo.append("axes:{xaxis:{ticks:").append(new Gson().toJson(ticks)).append(",label:'Tick',pad:0}, yaxis:{label:'Spieleranzahl'} }");
+		echo.append("axes:{xaxis:{ticks:").append(new Gson().toJson(ticks)).append(",label:'Tick',pad:0}, yaxis:{label:'Spieleranzahl', min:0, tickOptions: {formatString: '%d'}} }");
 		echo.append("} )});");
 		echo.append("</script>");
 	}
