@@ -1279,7 +1279,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	public int transferCrew(Ship ship, int amount)
 	{
 		//Check ship position
-		if(ship.getSystem() != getSystem() || ship.getX() != getX() || ship.getY() != getY())
+		if( !getLocation().sameSector(this.size, ship, 0))
 		{
 			return 0;
 		}
@@ -1289,7 +1289,10 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		int workless = getBewohner() - getArbeiter();
 		amount = Math.min(amount, maxAmount);
 		amount = Math.min(amount, workless);
-
+		if( amount <= 0 )
+		{
+			return 0;
+		}
 		ship.setCrew(ship.getCrew() + amount);
 		setBewohner(getBewohner() - amount);
 

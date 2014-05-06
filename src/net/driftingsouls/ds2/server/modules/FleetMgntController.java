@@ -1213,9 +1213,10 @@ public class FleetMgntController extends TemplateController
 
 		getTemplateEngine().setVar("fleet.id", fleet.getId());
 
+		crewinpercent = Math.min(crewinpercent, 100);
+		crewinpercent = Math.max(crewinpercent, 0);
+
 		double crewInPercent = crewinpercent / 100.0;
-		crewInPercent = Math.min(crewInPercent, 100.0);
-		crewInPercent = Math.max(crewInPercent, 0.0);
 
 		List<Ship> ships = Common.cast(db.createQuery("from Ship " +
 				"where id>0 and owner=:owner and fleet=:fleet order by id")
@@ -1223,22 +1224,15 @@ public class FleetMgntController extends TemplateController
 				.setEntity("fleet", fleet)
 				.list());
 
-		List<Base> bases = Common.cast(db.createQuery("from Base where owner=:owner")
-				.setParameter("owner", user)
-				.list());
-
 		for (Ship ship : ships)
 		{
 			int amount = (int) (Math.round((ship.getTypeData().getCrew() * crewInPercent)) - ship.getCrew());
-			for (Base base : bases)
+			for (Base base : user.getBases())
 			{
-				if (amount > 0)
+				amount -= base.transferCrew(ship, amount);
+				if (amount <= 0)
 				{
-					amount -= base.transferCrew(ship, amount);
-				}
-				else
-				{
-					amount += ship.transferCrew(base, Math.abs(amount));
+					break;
 				}
 			}
 		}

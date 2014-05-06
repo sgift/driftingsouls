@@ -3790,7 +3790,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	public int transferCrew(Base base, int amount) {
 		//Check ship position
-		if(base.getSystem() != getSystem() || base.getX() != getX() || base.getY() != getY()) {
+		if(!getLocation().sameSector(0, base, base.getSize()))
+		{
 			return 0;
 		}
 
