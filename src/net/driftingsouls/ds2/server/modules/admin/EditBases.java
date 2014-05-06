@@ -60,6 +60,7 @@ public class EditBases implements EntityEditor<Base>
 		form.field("y", Integer.class, Base::getY, Base::setY);
 		form.field("Aktuelle Energie", Integer.class, Base::getEnergy, Base::setEnergy);
 		form.field("Maximale Energie", Integer.class, Base::getMaxEnergy, Base::setMaxEnergy);
+		form.field("Aktuelle Bewohner", Integer.class, Base::getBewohner, Base::setBewohner);
 		form.field("Cargo", Cargo.class, Base::getCargo, Base::setCargo);
 		form.field("Maximaler Cargo", Long.class, Base::getMaxCargo, Base::setMaxCargo);
 		form.field("Core", Core.class, Base::getCore, Base::setCore).withNullOption("[Keine]");
