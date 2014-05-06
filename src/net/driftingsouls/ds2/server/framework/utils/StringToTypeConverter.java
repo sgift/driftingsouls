@@ -51,6 +51,7 @@ public final class StringToTypeConverter
 			Method valueOfMethod = type.getMethod("valueOf", String.class);
 			if( (valueOfMethod.getModifiers() & Modifier.STATIC) != 0 )
 			{
+				valueOfMethod.setAccessible(true);
 				return (T)valueOfMethod.invoke(null, value);
 			}
 		}

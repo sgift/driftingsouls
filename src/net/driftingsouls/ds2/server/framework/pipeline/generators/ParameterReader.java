@@ -82,38 +82,6 @@ public class ParameterReader
 		subParameter = subparam;
 	}
 
-	/**
-	 * Registriert einen Parameter im System als Zahl. Der Parameter
-	 * kann anschliessend ueber entsprechende Funktionen erfragt werden.
-	 *
-	 * @param parameter Der Name des Parameters
-	 */
-	public void parameterNumber(String parameter)
-	{
-		parameter = buildParameterName(parameter);
-		if ((this.request.getParameter(parameter) != null) && !"".equals(this.request.getParameter(parameter)))
-		{
-			String val = this.request.getParameter(parameter);
-			this.parameter.put(parameter, parseNumber(val));
-		}
-		else
-		{
-			this.parameter.put(parameter, 0d);
-		}
-	}
-
-	private Number parseNumber(String value)
-	{
-		try
-		{
-			return Common.getNumberFormat().parse(value.trim());
-		}
-		catch (NumberFormatException | ParseException e)
-		{
-			return 0d;
-		}
-	}
-
 	private String buildParameterName(String parameter)
 	{
 		if (!subParameter.equals(""))
@@ -308,7 +276,7 @@ public class ParameterReader
 
 		for (String key : this.request.getParameterMap().keySet())
 		{
-			if (!key.startsWith(prefix) || !key.endsWith(suffix))
+			if (!key.startsWith(prefix) || !key.endsWith(suffix) || (prefix + suffix).equals(key))
 			{
 				continue;
 			}

@@ -24,6 +24,14 @@ public class TestRequest implements Request
 	private Map<String,String> params = new HashMap<>();
 
 	/**
+	 * Erstellt ein neues (leeres) Request-Objekt.
+	 */
+	public TestRequest()
+	{
+		// EMPTY
+	}
+
+	/**
 	 * Erstellt ein neues Request-Objekt.
 	 * @param params Die Parameter
 	 */
@@ -39,6 +47,18 @@ public class TestRequest implements Request
 	 */
 	public TestRequest(String paramKey, String paramValue) {
 		params.put(paramKey, paramValue);
+	}
+
+	/**
+	 * Fuegt einen Parameter zur Request hinzu.
+	 * @param paramKey Der Name des Parameters
+	 * @param paramValue Der Wert des Parameters
+	 * @return Die Request
+	 */
+	public TestRequest addParameter(String paramKey, String paramValue)
+	{
+		params.put(paramKey, paramValue);
+		return this;
 	}
 
 	@Override
