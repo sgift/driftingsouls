@@ -18,7 +18,8 @@ public class RunEmbedded {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		Server server = new Server(8080);
+		String dsPort = System.getProperty("DS_PORT");
+		Server server = new Server(dsPort != null ? Integer.parseInt(dsPort) : 8080);
 
 		WebAppContext webapp = new WebAppContext();
 		webapp.setContextPath("/driftingsouls");
