@@ -1772,7 +1772,7 @@ public class User extends BasicUser {
 	public void setFlag( UserFlag flag, boolean on ) {
 		String flagstring;
 		if( on ) {
-			if( !"".equals(flags) ) {
+			if( !"".equals(flags) && flags != null ) { // NULL muss extra abgefangen werden, sonst wird beim erzeugen eines Spielers 'null' hinzugefuegt
 				flagstring = flags+" "+flag.getFlag();
 			}
 			else {
