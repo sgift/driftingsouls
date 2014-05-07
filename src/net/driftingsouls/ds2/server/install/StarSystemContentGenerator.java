@@ -2,6 +2,7 @@ package net.driftingsouls.ds2.server.install;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.MutableLocation;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.BaseType;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -14,6 +15,8 @@ import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
+import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.map.TileCache;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
@@ -59,6 +62,16 @@ public class StarSystemContentGenerator
 			db.persist(sys);
 			sys.setDropZone(new Location(sys.getID(), 25, 25));
 		}
+
+        // Standard-DropZone setzen
+		ConfigService config = new ConfigService();
+		ConfigValue value = config.get(WellKnownConfigValue.GTU_DEFAULT_DROPZONE);
+
+		StarSystem sys = (StarSystem)db.createQuery("from StarSystem where starmap!=:nichtSichtbar")
+				.setParameter("nichtSichtbar", StarSystem.Access.NICHT_SICHTBAR)
+				.setMaxResults(1)
+				.uniqueResult();
+		value.setValue(Integer.toString(sys.getID()));
 	}
 
 	public void generiereSprungpunkte()

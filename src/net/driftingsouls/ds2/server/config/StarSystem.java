@@ -66,7 +66,7 @@ public class StarSystem {
 		/**
 		 * Admin Zugriffslevel - Nur Admins koennen das System sehen.
 		 */
-		ADMIN;
+		ADMIN
 	}
 
 	@Column(name="Name", nullable = false)
