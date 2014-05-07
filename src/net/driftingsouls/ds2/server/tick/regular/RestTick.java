@@ -400,7 +400,7 @@ public class RestTick extends TickController {
 
 						Ship brocken = new Ship(owner, shiptype, cfs.getSystem().getID(), x, y);
 						brocken.getHistory().addHistory("Indienststellung als "+cfs.getName()+" am "+currentTime+" durch den Tick");
-						brocken.setName(cfs.getName());
+						brocken.setName(cfs.getName() == null ? "Felsbrocken" : cfs.getName());
 						brocken.setId(shouldId);
 						brocken.setHull(shiptype.getHull());
 						brocken.setCrew(shiptype.getCrew());
