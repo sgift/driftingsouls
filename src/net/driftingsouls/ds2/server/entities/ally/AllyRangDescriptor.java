@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.entities.ally;
 
+import net.driftingsouls.ds2.server.config.Medals;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.Column;
@@ -148,6 +149,6 @@ public class AllyRangDescriptor implements Comparable<AllyRangDescriptor>
 		{
 			return "data/dynamicContent/"+this.customImg;
 		}
-		return "data/interface/medals/rang"+this.rang+".png";
+		return Medals.get().rang(this.rang).getImage();
 	}
 }

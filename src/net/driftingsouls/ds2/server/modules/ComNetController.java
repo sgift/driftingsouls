@@ -275,6 +275,7 @@ public class ComNetController extends TemplateController
 
 			t.setVar("post", post,
 					"post.user.rang.name", Medals.get().rang(post.getUser().getRang()).getName(),
+					"post.user.rang.image", Medals.get().rang(post.getUser().getRang()).getImage(),
 					"post.postid", postNumber,
 					"post.name", Common._title(post.getName()),
 					"post.time", Common.date("d.m.Y H:i:s", post.getTime()),
@@ -377,16 +378,6 @@ public class ComNetController extends TemplateController
 		int tick = getContext().get(ContextCommon.class).getTick();
 
 		Rang userRank = Medals.get().rang(user.getRang());
-		String userRankName = "";
-		if (userRank != null)
-		{
-			userRankName = userRank.getName();
-		}
-		else
-		{
-			log.debug("Illegal user rank for user " + user.getId() + " rankid: " + user.getRang());
-		}
-
 		t.setVar("show.vorschau", 1,
 				"show.inputform", 1,
 				"post.title", tmpHead,
@@ -395,7 +386,8 @@ public class ComNetController extends TemplateController
 				"post.raw.text", text,
 				"post.postid", 1,
 				"user", user,
-				"user.rang.name", userRankName,
+				"user.rang.name", userRank.getName(),
+				"user.rang.image", userRank.getImage(),
 				"post.name", Common._title(user.getName()),
 				"post.id", user.getId(),
 				"post.pic", user.getId(),

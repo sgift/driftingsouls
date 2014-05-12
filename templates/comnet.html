@@ -15,7 +15,7 @@
 		<td style="width:90px; text-align:center; vertical-align:top" class="noBorderX">
 			{!link_to $post.name, default, module:userprofile, css_class:profile, user:$post.id}
 			<span class="tooltip">
-				<img align="middle" src="{URL}data/interface/medals/rang{user.rang}.png" alt=""/>
+				<img align="middle" src="{user.rang.image}" alt=""/>
 				<span class="ttcontent">
 					{user.rang.name}
 				</span>
@@ -242,7 +242,7 @@
 			<td style="width:90px; text-align:center; vertical-align:top" class="noBorderX">
 				{!link_to $post.name, default, module:userprofile, css_class:profile, user:$post.user.id}<br />
 				<span class="tooltip">
-					<img align="middle" src="{URL}data/interface/medals/rang{post.user.rang}.png" alt=""/>
+					<img align="middle" src="{post.user.rang.image}" alt=""/>
 					<span class="ttcontent">
 						{post.user.rang.name}
 					</span>
