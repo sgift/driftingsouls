@@ -277,11 +277,11 @@ angular.module('ds.map', ['ds.service.ds','ds.starmap'])
 			ansicht.toggleNpcSystemeAnzeigen = function() {
 				this.npcSystemeAnzeigen = !this.npcSystemeAnzeigen;
 				refresh();
-			}
+			};
 			ansicht.toggleAdminSystemeAnzeigen = function() {
 				this.adminSystemeAnzeigen = !this.adminSystemeAnzeigen;
 				refresh();
-			}
+			};
 		}
 		$scope.ansicht = ansicht;
 		$scope.$on('dsPopupOpen', function(event, popup) {

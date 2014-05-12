@@ -108,10 +108,9 @@ public class MapController extends AngularController
 		return ViewMessage.success("Systeme gespeichert");
 	}
 
-	private SystemauswahlViewModel createResultObj(StarSystem system)
+	private SystemauswahlViewModel createResultObj()
 	{
 		SystemauswahlViewModel result = new SystemauswahlViewModel();
-		result.system = system != null ? system.getID() : 1;
 		result.adminSichtVerfuegbar = hasPermission(WellKnownAdminPermission.STARMAP_VIEW);
 		result.systemkarteEditierbar = hasPermission(WellKnownAdminPermission.STARMAP_SYSTEMAUSWAHL);
 
@@ -161,7 +160,7 @@ public class MapController extends AngularController
 		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
 
-		SystemauswahlViewModel result = createResultObj(sys);
+		SystemauswahlViewModel result = createResultObj();
 
 		List<JumpNode> jumpNodes = Common.cast(db
 				.createQuery("from JumpNode jn where " + (!hasPermission(WellKnownAdminPermission.STARMAP_VIEW) ? "jn.hidden=false and " : "") + "jn.system!=jn.systemOut")
@@ -177,6 +176,11 @@ public class MapController extends AngularController
 			if (!system.isVisibleFor(user))
 			{
 				continue;
+			}
+
+			if( sys == null )
+			{
+				sys = system;
 			}
 
 			String systemAddInfo = " ";
@@ -226,6 +230,9 @@ public class MapController extends AngularController
 
 			result.systeme.add(sysObj);
 		}
+
+		result.system = sys != null ? sys.getID() : 0;
+
 		return result;
 	}
 
