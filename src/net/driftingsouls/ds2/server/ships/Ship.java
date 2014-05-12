@@ -1533,8 +1533,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 			}
 		}
 
-		for( int i=0; i < moduleobjlist.size(); i++ ) {
-			type = moduleobjlist.get(i).modifyStats( type, moduleobjlist );
+		for (Module module : moduleobjlist) {
+			type = module.modifyStats( type, moduleobjlist );
 		}
 
 		shipModules.setModules(Common.implode(";",moduleSlotData));

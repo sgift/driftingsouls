@@ -22,9 +22,8 @@ import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.Schiffsmodul;
+import net.driftingsouls.ds2.server.config.items.SchiffsmodulSet;
 import net.driftingsouls.ds2.server.config.items.effects.IEModule;
-import net.driftingsouls.ds2.server.config.items.effects.IEModuleSetMeta;
-import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.SchiffstypModifikation;
@@ -62,13 +61,12 @@ public class ModuleItemModule extends Module {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 
-		Item item = (Item)db.get(Item.class, this.itemid);
-		ItemEffect itemEffect = item.getEffect();
-		if( itemEffect.getType() != ItemEffect.Type.MODULE ) {
-			log.warn("WARNUNG: Ungueltiger Itemeffect in CModuleItemModule ("+this.itemid+")<br />\n");
+		Schiffsmodul item = (Schiffsmodul)db.get(Schiffsmodul.class, this.itemid);
+		if( item == null ) {
+			log.warn("WARNUNG: Ungueltiges Schiffsmodul ("+this.itemid+")");
 			return stats;
 		}
-		IEModule effect = (IEModule)itemEffect;
+		IEModule effect = item.getEffect();
 
 		stats = effect.getMods().applyTo(stats, this.weaponrepl);
 
@@ -99,8 +97,8 @@ public class ModuleItemModule extends Module {
 				count++;
 			}
 
-			Item effectSet = (Item)db.get(Item.class, effect.getSetID());
-			SchiffstypModifikation[] mods = ((IEModuleSetMeta)effectSet.getEffect()).getCombo(count);
+			SchiffsmodulSet effectSet = (SchiffsmodulSet)db.get(SchiffsmodulSet.class, effect.getSetID());
+			SchiffstypModifikation[] mods = effectSet.getEffect().getCombo(count);
 			for (SchiffstypModifikation mod : mods)
 			{
 				stats = mod.applyTo(stats, this.weaponrepl);
