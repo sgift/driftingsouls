@@ -287,4 +287,12 @@ public class BaseType
 	{
 		this.upgradeMaxValues = upgradeMaxValues;
 	}
+
+	/**
+	 * Gibt den Pfad zum LRS-Bild des Basistyps zurueck.
+	 * @return Das LRS-Bild
+	 */
+	public String getLrsImage() {
+		return "data/starmap/kolonie"+this.id+"_lrs/kolonie"+this.id+"_lrs.png";
+	}
 }

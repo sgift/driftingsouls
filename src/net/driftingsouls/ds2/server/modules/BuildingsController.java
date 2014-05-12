@@ -199,6 +199,7 @@ public class BuildingsController extends TemplateController
 			BaseType baseType = core.getAstiType();
 
 			t.setVar("core.astitype", core.getAstiType().getId(),
+					"core.astitype.lrsimage", core.getAstiType().getLrsImage(),
 					"core.basetype.name", baseType.getName(),
 					"core.name", Common._plaintitle(core.getName()),
 					"core.arbeiter", core.getArbeiter(),

@@ -145,6 +145,7 @@ public class BasenController extends TemplateController
 
 			t.setVar("base.id", base.getId(),
 					"base.klasse", base.getKlasse().getId(),
+					"base.klasse.lrsimage", base.getKlasse().getLrsImage(),
 					"base.name", Common._plaintitle(base.getName()),
 					"base.system", base.getSystem(),
 					"base.x", base.getX(),
