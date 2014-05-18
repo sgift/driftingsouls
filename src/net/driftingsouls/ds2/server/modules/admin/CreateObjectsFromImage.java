@@ -35,6 +35,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.map.TileCache;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.framework.db.batch.UnitOfWork;
+import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Session;
 
@@ -131,11 +132,10 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 	{
 		Context context = ContextMap.getContext();
 		Request request = context.getRequest();
-		String imgPath = request.getParameterString("imgPath");
 
 		boolean clearsystem = "true".equalsIgnoreCase(request.getParameterString("clearSystem"));
 
-		SystemImg img = new SystemImg(imgPath);
+		SystemImg img = loadImageFromRequest();
 		if (clearsystem)
 		{
 			clearSystem(statusWriter, system.getID());
@@ -154,27 +154,50 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 		TileCache.forSystem(system.getID()).resetCache();
 	}
 
+	private SystemImg loadImageFromRequest() throws IOException
+	{
+		Request request = ContextMap.getContext().getRequest();
+		String imgName = request.getParameterString("imgName");
+		if( imgName != null && !imgName.trim().isEmpty() && imgName.matches("[a-zA-Z0-9]+") )
+		{
+			return new SystemImg(new File(System.getProperty("java.io.tmpdir"), imgName).getAbsolutePath());
+		}
+		for (FileItem fileItem : request.getUploadedFiles())
+		{
+			if( "imgPath".equals(fileItem.getFieldName()) )
+			{
+				File img = File.createTempFile(getClass().getSimpleName(), "img");
+				try
+				{
+					fileItem.write(img);
+					return new SystemImg(img.getAbsolutePath());
+				}
+				catch (Exception e)
+				{
+					throw new IOException(e);
+				}
+			}
+		}
+		return null;
+	}
+
 	@Override
 	protected void edit(EditorForm form, StarSystem sys)
 	{
 		SystemImg img = null;
 		Exception loadError = null;
 		Request request = ContextMap.getContext().getRequest();
-		String imgPath = request.getParameterString("imgPath");
-		if (imgPath != null && !imgPath.trim().isEmpty())
+		try
 		{
-			try
-			{
-				img = new SystemImg(imgPath);
-			}
-			catch (IOException e)
-			{
-				loadError = e;
-			}
+			img = loadImageFromRequest();
+		}
+		catch (IOException e)
+		{
+			loadError = e;
 		}
 		boolean clearsystem = "true".equalsIgnoreCase(request.getParameterString("clearSystem"));
 
-		form.field("Bildatei", "imgPath", String.class, imgPath);
+		form.custom(new UploadFieldGenerator("Bildatei", "imgPath", img));
 		if (loadError != null)
 		{
 			form.label("", "Fehler: " + loadError.getMessage());
@@ -198,6 +221,33 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 
 			form.field("Alte Basen/Nebel entfernen", "clearSystem", Boolean.class, clearsystem);
 			form.field("Änderungen ausführen", "doupdate", Boolean.class, false);
+		}
+	}
+
+	private static class UploadFieldGenerator implements  EditorForm.CustomFieldGenerator
+	{
+		private String label;
+		private String name;
+		private SystemImg img;
+
+		private UploadFieldGenerator(String label, String name, SystemImg img)
+		{
+			this.label = label;
+			this.name = name;
+			this.img = img;
+		}
+
+		@Override
+		public void generate(StringBuilder echo) throws IOException
+		{
+			echo.append("<tr>");
+			echo.append("<td colspan='2'>").append(label).append("</td>");
+			echo.append("<td><input type=\"file\" name=\"").append(name).append("\" />");
+			if( img != null )
+			{
+				echo.append("<input type=\"hidden\" name=\"imgName\" value=\"").append(new File(img.getPath()).getName()).append("\" />");
+			}
+			echo.append("</td></tr>\n");
 		}
 	}
 
@@ -285,10 +335,7 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 											.createQuery("from Nebel where loc.system=:sys")
 											.setInteger("sys", systemid)
 											.list());
-		for (Nebel nebel : nebelList)
-		{
-			db.delete(nebel);
-		}
+		nebelList.forEach(db::delete);
 
 		db.getTransaction().commit();
 
@@ -317,10 +364,7 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 					bebauung[i] = 0;
 				}
 
-				for (Offizier offizier : Offizier.getOffiziereByDest(base))
-				{
-					db.delete(offizier);
-				}
+				Offizier.getOffiziereByDest(base).forEach(db::delete);
 
 				db.delete(base);
 			}

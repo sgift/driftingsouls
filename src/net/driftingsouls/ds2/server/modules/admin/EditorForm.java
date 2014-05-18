@@ -5,6 +5,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DynamicContent;
 import net.driftingsouls.ds2.server.framework.DynamicContentManager;
+import net.driftingsouls.ds2.server.modules.admin.editoren.HtmlUtils;
 
 import javax.persistence.Entity;
 import java.io.IOException;
@@ -220,7 +221,7 @@ class EditorForm implements AutoCloseable
 			}
 			else
 			{
-				echo.append("<input type=\"text\" name=\"").append(name).append("\" value=\"").append(value != null ? value.toString() : "").append("\">");
+				HtmlUtils.textInput(echo, name, false, type, value);
 			}
 			echo.append("</td></tr>\n");
 		}
@@ -241,7 +242,6 @@ class EditorForm implements AutoCloseable
 
 		private void editEntityBySelection(String name, Class<?> type, Object value) throws IOException
 		{
-			echo.append("<select size=\"1\" name=\"").append(name).append("\">");
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 
 			Serializable selected = -1;
@@ -254,19 +254,7 @@ class EditorForm implements AutoCloseable
 				selected = (Serializable) value;
 			}
 
-			boolean containsIdentifier = this.selectionOptions.containsKey(selected);
-
-			for (Map.Entry<Serializable, Object> entry : this.selectionOptions.entrySet())
-			{
-				Serializable identifier = entry.getKey();
-				echo.append("<option value=\"").append(identifier != null ? identifier.toString() : "").append("\" ");
-				if( (identifier == null && !containsIdentifier) || (containsIdentifier && identifier != null && identifier.equals(selected)) ) {
-					echo.append("selected=\"selected\"");
-				}
-				echo.append(">").append(AbstractEditPlugin.generateLabelFor(identifier, entry.getValue())).append("</option>");
-			}
-
-			echo.append("</select>");
+			HtmlUtils.select(echo, name, false, this.selectionOptions, selected);
 		}
 	}
 
