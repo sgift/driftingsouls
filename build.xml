@@ -186,6 +186,7 @@
 			<arg value="${ds2.configdir}" />
 			<arg value="${basedir}/templates" />
 			<arg value="${templates.compiledir}" />
+			<arg value="${build.home}/WEB-INF/classes" />
 			<classpath>
 				<pathelement path="${build.home}/WEB-INF/classes" />
 			</classpath>
@@ -193,25 +194,7 @@
 		</java>
 	</target>
 
-	<!-- ==================== compile-templates Target ================================== -->
-
-	<target name="compile-templates" depends="templates" description="Compile template sources">
-			<javac srcdir="${templates.srchome}"
-				   destdir="${build.home}/WEB-INF/classes"
-				   debug="${compile.debug}"
-				   deprecation="${compile.deprecation}"
-				   optimize="${compile.optimize}"
-				   source="1.8"
-				   target="1.8"
-				   encoding="UTF-8"
-					includes="**/server/templates/**">
-				<classpath refid="compile.classpath"/>
-				<compilerarg value="-proc:none" />
-				<compilerarg value="-parameters" />
-			</javac>
-	</target>
-
-	<target name="compile" depends="compile-ds,compile-templates" description="Compile meta target">
+	<target name="compile" depends="compile-ds" description="Compile meta target">
 	</target>
 
 	<!-- ==================== jar Target ===================================== -->
