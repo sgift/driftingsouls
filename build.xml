@@ -194,7 +194,7 @@
 		</java>
 	</target>
 
-	<target name="compile" depends="compile-ds" description="Compile meta target">
+	<target name="compile" depends="compile-ds,templates" description="Compile meta target">
 	</target>
 
 	<!-- ==================== jar Target ===================================== -->
