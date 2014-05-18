@@ -1,14 +1,14 @@
 package net.driftingsouls.ds2.server.entities;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * Ein Newseintrag.
@@ -105,5 +105,45 @@ public class NewsEntry
 	public String getShortDescription()
 	{
 		return shortDescription;
+	}
+
+	/**
+	 * @param title Titel des Newseintrags.
+	 */
+	public void setTitle(String title)
+	{
+		this.title = title;
+	}
+
+	/**
+	 * @param author Autor, html-formatiert.
+	 */
+	public void setAuthor(String author)
+	{
+		this.author = author;
+	}
+
+	/**
+	 * @param date Datum des Eintrags in Sekunden/1000.
+	 */
+	public void setDate(long date)
+	{
+		this.date = date;
+	}
+
+	/**
+	 * @param shortDescription Die Kurzbeschreibung des Newseintrags.
+	 */
+	public void setShortDescription(String shortDescription)
+	{
+		this.shortDescription = shortDescription;
+	}
+
+	/**
+	 * @param newsText Text des Newseintrags.
+	 */
+	public void setNewsText(String newsText)
+	{
+		this.newsText = newsText;
 	}
 }
