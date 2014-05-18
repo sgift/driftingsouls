@@ -71,7 +71,7 @@ public class UnitType {
 	 */
 	public UnitType() 
 	{
-		// EMPTY
+		this.picture = "";
 	}
 
 	/**
