@@ -41,7 +41,7 @@
 	<property name="jetty.contextpath" value="/driftingsouls"/>
 	<property name="jetty.jvmargs" value="-DdummyDaLeereArgsNichtFunktionieren"/>
 	<property name="jetty.jmxport"    value="8008"/>
-	<property name="jetty.debugport"    value="8008"/>
+	<property name="jetty.debugport"    value="8000"/>
 	<property name="jetty.port"    value="8080"/>
 
 	<!--  ==================== Compilation Control Options ==================== -->
