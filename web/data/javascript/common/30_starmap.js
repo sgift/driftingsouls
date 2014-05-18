@@ -632,7 +632,7 @@ return function(jqElement) {
 						overlay += "<div style=\"top:"+posy+"px;left:"+posx+"px;background-image:url('"+url+"?module=map&action=tile&sys="+__currentSystem.id+"&tileX="+tilex+"&tileY="+tiley+"');background-position:-"+((loc.x-1)%TILE_SIZE)*SECTOR_IMAGE_SIZE+"px -"+((loc.y-1)%TILE_SIZE)*SECTOR_IMAGE_SIZE+"px\" >";
 					}
 					else {
-						overlay += "<div style=\"top:"+posy+"px;left:"+posx+"px;background-image:url('data/starmap/"+loc.bg.image+"');background-position:"+loc.bg.x*SECTOR_IMAGE_SIZE+"px "+loc.bg.y*SECTOR_IMAGE_SIZE+"px\" >";
+						overlay += "<div style=\"top:"+posy+"px;left:"+posx+"px;background-image:url('"+loc.bg.image+"');background-position:"+loc.bg.x*SECTOR_IMAGE_SIZE+"px "+loc.bg.y*SECTOR_IMAGE_SIZE+"px\" >";
 					}
 				}
 				else if( loc.fg != null ) {
@@ -647,8 +647,7 @@ return function(jqElement) {
 					else if( loc.roterAlarm ) {
 						classes += " roter-alarm";
 					}
-					overlay += "<img class='"+classes+"' "+
-						"src=\"data/starmap/"+loc.fg+"\" alt=\""+loc.x+"/"+loc.y+"\" />";
+					overlay += '<img class="'+classes+'" src="'+loc.fg+'" alt="'+loc.x+'/'+loc.y+'" />';
 				}
 
 				if( loc.fg != null || loc.bg != null ) {

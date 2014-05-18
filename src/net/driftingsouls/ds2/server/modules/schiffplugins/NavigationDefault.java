@@ -174,50 +174,35 @@ public class NavigationDefault implements SchiffPlugin {
 			for (Object aJnlist : jnlist)
 			{
 				JumpNode jn = (JumpNode) aJnlist;
-				sectorimgs[jn.getX() - x + 1][jn.getY() - y + 1] = new SectorImage("jumpnode/jumpnode");
+				sectorimgs[jn.getX() - x + 1][jn.getY() - y + 1] = new SectorImage("./data/starmap/jumpnode/jumpnode.png");
 			}
 
-			List<?> baselist = db.createQuery("select distinct b from Base b where b.system=:sys and floor(sqrt(pow(:x-b.x,2)+pow(:y-b.y,2))) <= b.size+1")
+			List<Base> baselist = Common.cast(db.createQuery("select distinct b from Base b where b.system=:sys and floor(sqrt(pow(:x-b.x,2)+pow(:y-b.y,2))) <= b.size+1")
 				.setInteger("sys", sys)
 				.setInteger("x", x)
 				.setInteger("y", y)
-				.list();
-			for (Object aBaselist : baselist)
-			{
-				Base aBase = (Base) aBaselist;
+				.list());
 
-				if ((aBase.getSize() == 0) && (sectorimgs[aBase.getX() - x + 1][aBase.getY() - y + 1] == null))
+			for (int ny = 0; ny <= 2; ny++)
+			{
+				for (int nx = 0; nx <= 2; nx++)
 				{
-					if (aBase.getOwner() == user)
-					{
-						sectorimgs[aBase.getX() - x + 1][aBase.getY() - y + 1] = new SectorImage("asti_own/asti_own");
-					}
-					else
-					{
-						int[] offset = aBase.getBaseImageOffset(aBase.getLocation());
-						sectorimgs[aBase.getX() - x + 1][aBase.getY() - y + 1] = new SectorImage(aBase.getBaseImage(aBase.getLocation()), aBase.getSize(), offset[0], offset[1]);
-					}
-				}
-				else if (aBase.getSize() > 0)
-				{
-					Location loc = aBase.getLocation();
-					for (int by = aBase.getY() - aBase.getSize(); by <= aBase.getY() + aBase.getSize(); by++)
-					{
-						for (int bx = aBase.getX() - aBase.getSize(); bx <= aBase.getX() + aBase.getSize(); bx++)
-						{
-							Location curLoc = new Location(aBase.getSystem(), bx, by);
-							if (!loc.sameSector(aBase.getSize(), curLoc, 0))
-							{
-								continue;
-							}
-							if (Math.abs(x - bx) > 1 || Math.abs(y - by) > 1)
-							{
-								continue;
-							}
+					Location curLoc = new Location(sys, x + nx - 1, y + ny - 1);
+
+					int cx = nx;
+					int cy = ny;
+					baselist.stream()
+						.filter(b -> b.getOwner() != user)
+						.filter(b -> curLoc.sameSector(0, b.getLocation(), b.getSize()))
+						.forEach(aBase -> {
 							int[] offset = aBase.getBaseImageOffset(curLoc);
-							sectorimgs[bx - x + 1][by - y + 1] = new SectorImage(aBase.getBaseImage(curLoc), aBase.getSize(), offset[0], offset[1]);
-						}
-					}
+							sectorimgs[cx][cy] = new SectorImage(aBase.getBaseImage(aBase.getLocation()), aBase.getSize(), offset[0], offset[1]);
+						});
+
+					baselist.stream()
+							.filter(b -> b.getOwner() == user)
+							.filter(b -> curLoc.sameSector(0, b.getLocation(), b.getSize()))
+							.forEach(aBase -> sectorimgs[cx][cy] = new SectorImage("./data/starmap/asti_own/asti_own.png"));
 				}
 			}
 
@@ -260,7 +245,7 @@ public class NavigationDefault implements SchiffPlugin {
 					SectorImage img = sectorimgs[nx][ny];
 					if( img == null )
 					{
-						img = new SectorImage("space/space");
+						img = new SectorImage("./data/starmap/space/space.png");
 					}
 
 					int sizeX = (img.size*2+1)*37;
@@ -269,7 +254,7 @@ public class NavigationDefault implements SchiffPlugin {
 					Location sector = new Location(sys, x + nx - 1, y + ny - 1);
 					t.setVar(	"schiff.navigation.nav.direction",		tmp,
 								"schiff.navigation.nav.location",		sector.displayCoordinates(true),
-								"schiff.navigation.nav.sectorimage",	"./data/starmap/"+ img.image+".png",
+								"schiff.navigation.nav.sectorimage",	img.image,
 								"schiff.navigation.nav.sectorimage.x",	img.x*37,
 								"schiff.navigation.nav.sectorimage.y",	img.y*37,
 								"schiff.navigation.nav.sectorimage.w",	sizeX,

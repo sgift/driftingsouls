@@ -272,7 +272,7 @@ public class Nebel implements Locatable {
 		 */
 		public String getImage()
 		{
-			return "fog"+this.ordinal()+"/fog"+this.ordinal();
+			return "data/starmap/fog"+this.ordinal()+"/fog"+this.ordinal()+".png";
 		}
 	}
 

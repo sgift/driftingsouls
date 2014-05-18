@@ -1347,16 +1347,16 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		}
 		else if(getOwner().getId() == user.getId())
 		{
-			return "asti_own/asti_own";
+			return "data/starmap/asti_own/asti_own.png";
 		}
 		else if(((getOwner().getId() != 0) && (user.getAlly() != null) && (getOwner().getAlly() == user.getAlly()) && user.getAlly().getShowAstis()) ||
 				user.getRelations().isOnly(owner, User.Relation.FRIEND))
 		{
-			return "asti_ally/asti_ally";
+			return "data/starmap/asti_ally/asti_ally.png";
 		}
 		else if(scanned && !getOwner().equals(nobody) && !getOwner().equals(zero))
 		{
-			return "asti_enemy/asti_enemy";
+			return "data/starmap/asti_enemy/asti_enemy.png";
 		}
 		else
 		{
@@ -1375,30 +1375,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 */
 	public int[] getBaseImageOffset(Location location)
 	{
-		if( size == 0 || !location.sameSector(0, getLocation(), size))
-		{
-			return new int[] {0,0};
-		}
-
-		Location centerLoc = getLocation();
-		for(int by = getY() - getSize(); by <= getY() + getSize(); by++)
-		{
-			for(int bx = getX() - getSize(); bx <= getX() + getSize(); bx++)
-			{
-				Location loc = new Location(getSystem(), bx, by);
-
-				if( !centerLoc.sameSector(0, loc, getSize()))
-				{
-					continue;
-				}
-
-				if(location.equals(loc))
-				{
-					return new int[] {-bx+x-size, -by+y-size};
-				}
-			}
-		}
-		return new int[] {0,0};
+		return this.klasse.getSectorImageOffset(location, this.getLocation());
 	}
 
 	/**
@@ -1414,12 +1391,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 */
 	public String getBaseImage(Location location)
 	{
-		if(!location.sameSector(0, getLocation(), size))
-		{
-			return "";
-		}
-
-		return "kolonie"+this.klasse.getId()+"_starmap";
+		return this.klasse.getSectorImage(location, this.getLocation());
 	}
 
 	/**

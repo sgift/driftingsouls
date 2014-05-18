@@ -81,7 +81,7 @@ public class TileCache
 		{
 			return imageCache.get(name);
 		}
-		File path = new File(Configuration.getAbsolutePath() + "data/starmap/" + name);
+		File path = new File(Configuration.getAbsolutePath() + name);
 		if( !path.canRead() )
 		{
 			throw new FileNotFoundException(path.getAbsolutePath());

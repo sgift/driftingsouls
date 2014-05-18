@@ -73,7 +73,7 @@
 	<div ng-show="geladen">
 		<div class="header"><span>Sektor {{position.system}}:{{position.x}}/{{position.y}}</span></div>
 		<div class="warnung" ui-if="sektor.roterAlarm"><span>Warnung: Mindestens ein feindliches Schiff hat seine Waffensysteme aktiviert und wird angreifen solltest du mit einem Schiff in den Sektor fliegen.</span></div>
-		<div ui-if="sektor.nebel"><img class="nebel" ng-src="data/objects/nebel{{sektor.nebel.type}}.png" alt="Nebel" /></div>
+		<div ui-if="sektor.nebel"><img class="nebel" ng-src="{{sektor.nebel.type}}" alt="Nebel" /></div>
 		<div ui-if="sektor.jumpnodes.length>0">
 			<ul class='jumpnodes'>
 				<li ng-repeat="jumpnode in sektor.jumpnodes">
@@ -87,7 +87,7 @@
 		<div ui-if="sektor.bases.length>0">
 			<ul class='bases'>
 				<li ng-repeat="base in sektor.bases">
-					<img ng-src='./data/starmap/kolonie{{base.klasse}}_srs.png' />
+					<img ng-src='{{base.image}}' />
 					<div class='name'>
 						<a ui-if="base.eigene" href="./ds?module=base&action=default&col={{base.id}}">{{base.name}}</a>
 						<span ui-if="!base.eigene">{{base.name}}</span>

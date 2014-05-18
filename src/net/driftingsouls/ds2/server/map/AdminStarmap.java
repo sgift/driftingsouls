@@ -58,14 +58,14 @@ public class AdminStarmap extends PublicStarmap
 			Base base = positionBases.get(0);
 			String img = base.getOverlayImage(location, adminUser, true);
 			if( img != null ) {
-				return new SectorImage(img+".png", 0, 0);
+				return new SectorImage(img, 0, 0);
 			}
 		}
 
 		List<JumpNode> positionNodes = map.getNodeMap().get(location);
 		if(positionNodes != null && !positionNodes.isEmpty())
 		{
-			return new SectorImage("jumpnode/jumpnode.png", 0, 0);
+			return new SectorImage("data/starmap/jumpnode/jumpnode.png", 0, 0);
 		}
 
 		return null;
@@ -79,7 +79,7 @@ public class AdminStarmap extends PublicStarmap
 		{
 			return null;
 		}
-		return new SectorImage("fleet/fleet"+shipImage+".png", 0, 0);
+		return new SectorImage("data/starmap/fleet/fleet"+shipImage+".png", 0, 0);
 	}
 
 	private String getShipImage(Location location)

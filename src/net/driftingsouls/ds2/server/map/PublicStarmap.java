@@ -128,14 +128,14 @@ public class PublicStarmap
 	public List<RenderedSectorImage> getSectorBaseImage(Location location)
 	{
 		List<RenderedSectorImage> renderList = new ArrayList<>();
-		renderList.add(new RenderedSectorImage("space/space.png", 0, 0, RenderedSectorImage.DEFAULT_MASK));
+		renderList.add(new RenderedSectorImage("data/starmap/space/space.png", 0, 0, RenderedSectorImage.DEFAULT_MASK));
 
 		List<Base> positionBases = map.getBaseMap().get(location);
 		if(positionBases != null && !positionBases.isEmpty())
 		{
 			Base base = positionBases.get(0);
 			int[] offset = base.getBaseImageOffset(location);
-			renderList.add(new RenderedSectorImage(base.getBaseImage(location)+".png", offset[0], offset[1], RenderedSectorImage.DEFAULT_MASK));
+			renderList.add(new RenderedSectorImage(base.getBaseImage(location), offset[0], offset[1], RenderedSectorImage.DEFAULT_MASK));
 		}
 
 		List<JumpNode> positionNodes = map.getNodeMap().get(location);
@@ -145,7 +145,7 @@ public class PublicStarmap
 			{
 				if(!node.isHidden())
 				{
-					renderList.add(new RenderedSectorImage("jumpnode/jumpnode.png", 0, 0, RenderedSectorImage.DEFAULT_MASK));
+					renderList.add(new RenderedSectorImage("data/starmap/jumpnode/jumpnode.png", 0, 0, RenderedSectorImage.DEFAULT_MASK));
 				}
 			}
 		}
@@ -163,7 +163,7 @@ public class PublicStarmap
 				nebulas[3]/3+nebulas[6]/3+nebulas[7]/3, nebulas[7], nebulas[7]/3+nebulas[5]/3+nebulas[8]/3
 			};
 
-			renderList.add(new RenderedSectorImage(map.getNebulaMap().get(location).getImage()+".png", 0, 0, mask));
+			renderList.add(new RenderedSectorImage(map.getNebulaMap().get(location).getImage(), 0, 0, mask));
 		}
 		return renderList;
 	}

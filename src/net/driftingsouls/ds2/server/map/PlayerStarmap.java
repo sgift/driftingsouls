@@ -149,7 +149,7 @@ public class PlayerStarmap extends PublicStarmap
 				{
 					String img = base.getOverlayImage(location, user, isScannbar(location));
 					if( img != null ) {
-						return new SectorImage(img+".png", 0, 0);
+						return new SectorImage(img, 0, 0);
 					}
 				}
 			}
@@ -162,7 +162,7 @@ public class PlayerStarmap extends PublicStarmap
 			{
 				if(!node.isHidden() || scannableLocations.containsKey(location))
 				{
-					return new SectorImage("jumpnode/jumpnode.png", 0, 0);
+					return new SectorImage("data/starmap/jumpnode/jumpnode.png", 0, 0);
 				}
 			}
 		}
@@ -182,7 +182,7 @@ public class PlayerStarmap extends PublicStarmap
 		{
 			return null;
 		}
-		return new SectorImage("fleet/fleet"+shipImage+".png", 0, 0);
+		return new SectorImage("data/starmap/fleet/fleet"+shipImage+".png", 0, 0);
 	}
 	
 	private String getShipImage(Location location)

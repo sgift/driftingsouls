@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.bases;
 
+import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.UpgradeMaxValues;
 import net.driftingsouls.ds2.server.framework.Common;
 
@@ -294,5 +295,73 @@ public class BaseType
 	 */
 	public String getLrsImage() {
 		return "data/starmap/kolonie"+this.id+"_lrs/kolonie"+this.id+"_lrs.png";
+	}
+
+	/**
+	 * Gibt den Pfad zum SRS-Bild des Basistyps zurueck.
+	 * @return Das SRS-Bild
+	 */
+	public String getSrsImage()
+	{
+		return "data/starmap/kolonie"+this.id+"_srs.png";
+	}
+
+	/**
+	 * Gibt das Bild der Basis zurueck.
+	 * Dabei werden Ausdehnung und Besitzer beruecksichtigt. Zudem
+	 * kann das zurueckgelieferte Bild mehrere Sektoren umfassen. Der korrekte
+	 * Offset zur Darstellung des angefragten Sektors kann mittels
+	 * {@link #getSectorImageOffset(net.driftingsouls.ds2.server.Location,net.driftingsouls.ds2.server.Location)}
+	 * ermittelt werden.
+	 *
+	 * @param location Koordinate fuer die das Bild der Basis ermittelt werden soll.
+	 * @param baseLocation Die Koordinate der Basis (Mittelpunkt)
+	 * @return Der Bildstring der Basis oder einen Leerstring, wenn die Basis die Koordinaten nicht schneidet
+	 */
+	public String getSectorImage(Location location, Location baseLocation)
+	{
+		if(!location.sameSector(0, baseLocation, size))
+		{
+			return "";
+		}
+
+		return "data/starmap/kolonie"+this.id+"_starmap.png";
+	}
+
+	/**
+	 * Ermittelt den Offset in Sektoren fuer die Darstellung des von
+	 * {@link #getSectorImage(net.driftingsouls.ds2.server.Location,net.driftingsouls.ds2.server.Location)} ermittelten Bildes.
+	 * Der ermittelte Offset ist immer Negativ oder <code>0</code> und stellt
+	 * die Verschiebung der Grafik selbst dar (vgl. CSS-Sprites).
+	 *
+	 * @param location Koordinate fuer die das Bild der Basis ermittelt werden soll.
+	 * @param baseLocation Die Koordinate der Basis (Mittelpunkt)
+	 * @return Der Offset als Array (<code>[x,y]</code>)
+	 */
+	public int[] getSectorImageOffset(Location location, Location baseLocation)
+	{
+		if( size == 0 || !location.sameSector(0, baseLocation, size))
+		{
+			return new int[] {0,0};
+		}
+
+		for(int by = baseLocation.getY() - getSize(); by <= baseLocation.getY() + getSize(); by++)
+		{
+			for(int bx = baseLocation.getX() - getSize(); bx <= baseLocation.getX() + getSize(); bx++)
+			{
+				Location loc = new Location(baseLocation.getSystem(), bx, by);
+
+				if( !baseLocation.sameSector(0, loc, getSize()))
+				{
+					continue;
+				}
+
+				if(location.equals(loc))
+				{
+					return new int[] {-bx+baseLocation.getX()-size, -by+baseLocation.getY()-size};
+				}
+			}
+		}
+		return new int[] {0,0};
 	}
 }

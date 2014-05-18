@@ -232,8 +232,8 @@ public class Install
 				"asti_ally/asti_ally.png"));
 		inst.store(imgs, "data/starmap/", null);
 
-		imgs = Arrays.asList(Nebel.Typ.values()).stream().map((nt) -> nt.getImage() + ".png").collect(Collectors.toSet());
-		inst.store(imgs, "data/starmap/", null);
+		imgs = Arrays.asList(Nebel.Typ.values()).stream().map(Nebel.Typ::getImage).collect(Collectors.toSet());
+		inst.store(imgs, null, null);
 
 		imgs = inst.readStarmapBases(con);
 		inst.store(imgs, "data/starmap/", null);
