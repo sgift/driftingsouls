@@ -44,14 +44,18 @@ public class PortalNews implements AdminPlugin {
 		
 		if( (news.length() == 0) || (title.length() == 0) ) 
 		{
+			echo.append("<div class='gfxbox adminEditor' style='width:700px'>");
 			echo.append("<form action=\"./ds\" method=\"post\">");
-			echo.append("Titel: <input type=\"text\" name=\"title\" size=\"50\" /><br />");
-			echo.append("<textarea name=\"shortdescription\" rows=\"2\" cols=\"50\"></textarea><br />");
-			echo.append("<textarea name=\"news\" rows=\"20\" cols=\"50\"></textarea><br />");
+			echo.append("<table>");
+			echo.append("<tr><td>Titel:</td><td><input type=\"text\" name=\"title\" size=\"50\" /></td></tr>");
+			echo.append("<tr><td>Kurzfassung:</td><td><textarea name=\"shortdescription\" rows=\"2\" cols=\"50\"></textarea></td></tr>");
+			echo.append("<tr><td>Text:</td><td><textarea name=\"news\" rows=\"20\" cols=\"50\"></textarea></td></tr>");
+			echo.append("<tr><td></td><td><input type=\"submit\" value=\"senden\" /></td></tr>");
+			echo.append("</table>");
 			echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
-			echo.append("<center><input type=\"submit\" value=\"senden\" style=\"width:200px\" /></center>");
 			echo.append("</form>");
+			echo.append("</div>");
 		}
 		else 
 		{
