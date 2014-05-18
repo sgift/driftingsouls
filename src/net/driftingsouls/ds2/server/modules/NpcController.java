@@ -267,12 +267,12 @@ public class NpcController extends AngularController
 
 		int ticks = getContext().get(ContextCommon.class).getTick();
 
-		edituser.addHistory(Common.getIngameTime(ticks) + ": Der Orden [medal]"+medal+"[/medal]" +
+		edituser.addHistory(Common.getIngameTime(ticks) + ": Der Orden [medal]"+medal.getId()+"[/medal]" +
 							" wurde von [userprofile=" + user.getId() + "]" +
 							user.getName() + "[/userprofile] verliehen Aufgrund der " + reason);
 
 		PM.send(user, edituser.getId(), "Orden '" + medal.getName() + "' verliehen",
-			   "Ich habe dir den Orden [medal]" + medal + "[/medal]" +
+			   "Ich habe dir den Orden [medal]" + medal.getId() + "[/medal]" +
 			   " verliehen Aufgrund deiner " + reason);
 
 		return ViewMessage.success("Dem Spieler wurde der Orden '" +

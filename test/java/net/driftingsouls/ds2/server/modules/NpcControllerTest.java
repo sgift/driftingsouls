@@ -246,6 +246,7 @@ public class NpcControllerTest extends DBSingleTransactionTest
 		assertSuccess(message);
 		assertTrue(zielUser.getMedals().contains(medal));
 		assertTrue(zielUser.getHistory().contains(reason));
+		assertTrue(zielUser.getHistory().contains("[medal]"+medal.getId()+"[/medal]"));
 
 		PM pm = (PM)getDB().createQuery("from PM where sender=:user and empfaenger=:zielUser")
 				.setParameter("user", getUser())
@@ -253,6 +254,7 @@ public class NpcControllerTest extends DBSingleTransactionTest
 				.uniqueResult();
 		assertNotNull(pm);
 		assertTrue(pm.getInhalt().contains(reason));
+		assertTrue(pm.getInhalt().contains("[medal]"+medal.getId()+"[/medal]"));
 	}
 
 	@Test
