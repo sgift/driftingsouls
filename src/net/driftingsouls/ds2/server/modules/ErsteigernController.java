@@ -30,6 +30,7 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.StarSystem;
+import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.*;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FactionOffer;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FactionShopEntry;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FactionShopOrder;
@@ -41,16 +42,10 @@ import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Loyalitaetspunkte;
 import net.driftingsouls.ds2.server.entities.ResourceLimit;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.UpgradeInfo;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.UpgradeJob;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.UpgradeMaxValues;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.Versteigerung;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextInstance;
+import net.driftingsouls.ds2.server.framework.*;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
@@ -81,6 +76,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Zeigt die Fraktionsseiten an.
@@ -2199,9 +2195,8 @@ public class ErsteigernController extends TemplateController
 	 *
 	 * @param base Die ID des auszubauenden Asteroiden
 	 * @param bar Die Zahlungsmethode, {@code true} bedeutet Barzahlung, sonst Abbuchung
-	 * @param cargo Die ID der Cargoerweiterung
 	 * @param colonizer Die ID des zu verwendenden Colonizers
-	 * @param felder Die ID der Felderweiterung
+     * @param upgradeInfoMap Die Upgrades, die eingebaut werden sollen
 	 * @param order Soll wirklich bestellt werden (bestellen)?
 	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
@@ -2209,8 +2204,7 @@ public class ErsteigernController extends TemplateController
 	public void ausbauAction(User faction,
 							 @UrlParam(name = "astiid") Base base,
 							 @UrlParam(name = "colonizerid") Ship colonizer,
-							 UpgradeInfo felder,
-							 UpgradeInfo cargo,
+                             @UrlParam(name = "upgrade#") Map<String,UpgradeInfo> upgradeInfoMap,
 							 boolean bar,
 							 String order)
 	{
@@ -2226,7 +2220,7 @@ public class ErsteigernController extends TemplateController
 			return;
 		}
 
-		if ("bestellen".equals(order) && felder != null && cargo != null)
+		if ("bestellen".equals(order) && !upgradeInfoMap.isEmpty())
 		{
 			if (base == null)
 			{
@@ -2251,6 +2245,8 @@ public class ErsteigernController extends TemplateController
 				return;
 			}
 
+            List<UpgradeInfo> upgrades = new ArrayList<>(upgradeInfoMap.values());
+
 			// Alle Werte wurden übergeben, nur noch testen ob sie akzeptabel sind
 			// Für jeden Asti darf maximal ein Auftrag in der DB sein
 			UpgradeJob auftrag = (UpgradeJob) db.createQuery("from UpgradeJob where base=:base")
@@ -2264,60 +2260,34 @@ public class ErsteigernController extends TemplateController
 				return;
 			}
 
-			final UpgradeMaxValues maxvalues = base.getKlasse().getUpgradeMaxValues();
-			if (maxvalues == null)
-			{
-				addError("Dieser Asteroid kann leider nicht ausgebaut werden");
-				redirect();
-				return;
-			}
-
-			// Teste ob die übergebenen felder und cargo Parameter korrekt sind
-			if (!cargo.getCargo() || felder.getCargo() || cargo.getType() != base.getKlasse() || felder.getType() != base.getKlasse())
-			{ // Da es selbst für den leeren Ausbau Einträge gibt, funktioniert das hier
-				addError("Es wurden illegale Ausbauten ausgewählt");
-				redirect();
-				return;
-			}
-
-			if (felder.getModWert() > 0 && (base.getMaxTiles() + felder.getModWert() > maxvalues.getMaxTiles()))
-			{
-				addError("Der Asteroid hat zuviele Felder nach diesem Ausbau");
-				redirect();
-				return;
-			}
-
-			if (cargo.getModWert() > 0 && (base.getMaxCargo() + cargo.getModWert() > maxvalues.getMaxCargo()))
-			{
-				addError("Der Asteroid hat zuviel Lagerraum nach diesem Ausbau.");
-				redirect();
-				return;
-			}
-
-			if (felder.getModWert() <= 0 && cargo.getModWert() <= 0)
-			{
-				redirect();
-				return;
-			}
+            // Teste, ob die upgrades zulaessig sind
+			for(UpgradeInfo upgrade : upgrades)
+            {
+                if(!upgrade.getUpgradeType().checkUpgrade(upgrade, base)) {
+                    addError(upgrade.getUpgradeType().errorMsg());
+                    redirect();
+                    return;
+                }
+            }
 
 			// Erstelle einen neuen Auftrag
-			auftrag = new UpgradeJob(base, user, felder, cargo, bar, colonizer);
+			auftrag = new UpgradeJob(base, user, bar, colonizer);
+            for(UpgradeInfo upgrade : upgrades)
+			{
+				auftrag.addUpgrade(upgrade);
+			}
 
 			User factionUser = factionObj.getUser();
 			if (!bar)
 			{
 				// Testen ob genuegend Geld vorhanden ist um es uns untern Nagel zu reiszen
-				if (user.getKonto()
-						.compareTo(
-								new BigDecimal(felder.getPrice() + cargo.getPrice())
-										.toBigInteger()) < 0)
+				if (user.getKonto().compareTo(new BigDecimal(auftrag.getPrice()).toBigInteger()) < 0)
 				{
 					addError("Sie verfügen nicht über genug Geld");
 					redirect();
 					return;
 				}
-				factionUser.transferMoneyFrom(user.getId(), felder.getPrice()
-						+ cargo.getPrice(), "Ausbau von " + base.getName());
+				factionUser.transferMoneyFrom(user.getId(), auftrag.getPrice(), "Ausbau von " + base.getName());
 			}
 
 			// Den Besitzer des Colonizers ändern
@@ -2348,17 +2318,25 @@ public class ErsteigernController extends TemplateController
 
 		t.setBlock("_ERSTEIGERN", "ausbau.asti.listitem", "ausbau.asti.list");
 		t.setBlock("_ERSTEIGERN", "ausbau.colonizer.listitem", "ausbau.colonizer.list");
-		t.setBlock("_ERSTEIGERN", "ausbau.cargo.listitem", "ausbau.cargo.list");
-		t.setBlock("_ERSTEIGERN", "ausbau.felder.listitem", "ausbau.felder.list");
+		t.setBlock("_ERSTEIGERN", "ausbau.upgradetypes.listitem", "ausbau.upgradetypes.list");
+        t.setBlock("_ERSTEIGERN", "ausbau.upgradetypes.javascript.1.listitem", "ausbau.upgradetypes.javascript.1.list");
+        t.setBlock("_ERSTEIGERN", "ausbau.upgradetypes.javascript.2.listitem", "ausbau.upgradetypes.javascript.2.list");
+        t.setBlock("ausbau.upgradetypes.listitem", "ausbau.upgradetypes.mods.listitem", "ausbau.upgradetypes.mods.list");
 
-		// Hole alle Astis des Spielers und markiere gewaehlten Asti
-		List<Base> astis = Common.cast(db.createQuery("from Base where owner=:user order by id")
-				.setParameter("user", user).list());
+        ConfigValue configrabattfaktor = new ConfigService().get(WellKnownConfigValue.DI_FAKTOR_RABATT);
+        ConfigValue configzeitfaktor = new ConfigService().get(WellKnownConfigValue.DI_FAKTOR_ZEIT);
+        double rabattfaktor = Double.valueOf(configrabattfaktor.getValue());
+        double zeitfaktor = Double.valueOf(configzeitfaktor.getValue());
+
+        t.setVar("ausbau.rabattfaktordi", rabattfaktor,
+                 "ausbau.zeitfaktordi", zeitfaktor );
+
+        // Hole alle Astis des Spielers und markiere gewaehlten Asti
+		Set<Base> astis = user.getBases();
 		Base selectedBase = null;
 		for (Base asti : astis)
 		{
-			final UpgradeMaxValues maxvalues = asti.getKlasse().getUpgradeMaxValues();
-			if (maxvalues == null)
+			if (asti.getKlasse().getUpgradeMaxValues().isEmpty())
 			{
 				continue;
 			}
@@ -2375,7 +2353,7 @@ public class ErsteigernController extends TemplateController
 
 		if (selectedBase == null && !astis.isEmpty())
 		{
-			selectedBase = astis.get(0);
+			selectedBase = astis.iterator().next();
 		}
 
 		if (selectedBase == null)
@@ -2411,41 +2389,37 @@ public class ErsteigernController extends TemplateController
 			t.parse("ausbau.colonizer.list", "ausbau.colonizer.listitem", true);
 		}
 
-		final UpgradeMaxValues maxvalues = selectedBase.getKlasse().getUpgradeMaxValues();
-
 		// Setze die ausbau-mods, finde heraus welche bereits angewendet wurden und Typ des Astis
-		List<UpgradeInfo> possibleMods = Common.cast(db.createQuery(
-				"from UpgradeInfo where type=:asteroidClass order by id")
-				.setParameter("asteroidClass", selectedBase.getKlasse())
-				.list());
-		for (UpgradeInfo info : possibleMods)
-		{
-			if (info.getCargo())
+        for(UpgradeType upgradeType : UpgradeType.values()) {
+			List<UpgradeInfo> possibleMods = selectedBase.getKlasse().getUpgradeInfos().stream().filter(u -> u.getUpgradeType() == upgradeType).sorted().collect(Collectors.toList());
+			if (possibleMods.isEmpty())
 			{
-				// Testen ob info den Cargo modifiziert
-				if (info.getModWert() == 0 || selectedBase.getMaxCargo() + info.getModWert() <= maxvalues.getMaxCargo())
-				{
-					t.setVar("cargo.mod", info.getModWert(),
-							"cargo.id", info.getId(),
-							"cargo.preis", info.getPrice(),
-							"cargo.bbs", info.getMiningExplosive(),
-							"cargo.erz", info.getOre());
-					t.parse("ausbau.cargo.list", "ausbau.cargo.listitem", true);
+				continue;
+			}
+
+			t.setVar(
+					"upgradetypes.selectionname", upgradeType.getDescription(),
+					"upgradetypes.name", upgradeType.getName(),
+					"upgradetypes.nullmod", upgradeType.getUpgradeText(0),
+					"ausbau.upgradetypes.mods.list", ""
+			);
+
+			for (UpgradeInfo info : possibleMods) {
+				if (upgradeType.checkUpgrade(info, selectedBase)) {
+					t.setVar("upgradetypes.mods.mod", upgradeType.getUpgradeText(info.getModWert()),
+							"upgradetypes.mods.id", info.getId(),
+							"upgradetypes.mods.preis", info.getPrice(),
+							"upgradetypes.mods.bbs", info.getMiningExplosive(),
+							"upgradetypes.mods.erz", info.getOre(),
+							"upgradetypes.mods.minticks", info.getMinTicks(),
+							"upgradetypes.mods.maxticks", info.getMaxTicks());
+					t.parse("ausbau.upgradetypes.mods.list", "ausbau.upgradetypes.mods.listitem", true);
 				}
 			}
-			else
-			{ // Es handelt sich um ein Felder Ausbau
-				if (info.getModWert() == 0 || selectedBase.getMaxTiles() + info.getModWert() <= maxvalues.getMaxTiles())
-				{
-					t.setVar("felder.mod", info.getModWert(),
-							"felder.id", info.getId(),
-							"felder.preis", info.getPrice(),
-							"felder.bbs", info.getMiningExplosive(),
-							"felder.erz", info.getOre());
-					t.parse("ausbau.felder.list", "ausbau.felder.listitem", true);
-				}
-			}
-		}
+			t.parse("ausbau.upgradetypes.list", "ausbau.upgradetypes.listitem", true);
+			t.parse("ausbau.upgradetypes.javascript.1.list", "ausbau.upgradetypes.javascript.1.listitem", true);
+			t.parse("ausbau.upgradetypes.javascript.2.list", "ausbau.upgradetypes.javascript.2.listitem", true);
+        }
 	}
 
 	/**

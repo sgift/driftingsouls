@@ -26,6 +26,7 @@ public enum WellKnownAdminPermission implements PermissionDescriptor
 	EDIT_CONFIG_FELSBROCKEN_SYSTEM("EditConfigFelsbrockenSystem"),
 	EDIT_CONFIG_VALUES("EditConfigValues"),
 	EDIT_CORE("EditCore"),
+    EDIT_DI("EditDI"),
 	EDIT_FACTORY_ENTRY("EditFactoryEntry"),
 	EDIT_FRAKTIONS_GUI_EINTRAG("EditFraktionsGuiEintrag"),
 	EDIT_GROUP("EditGroup"),

@@ -16,11 +16,12 @@
  *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.driftingsouls.ds2.server.entities.fraktionsgui;
+package net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade;
 
 import net.driftingsouls.ds2.server.bases.BaseType;
 import org.hibernate.annotations.ForeignKey;
 
+import javax.annotation.Nonnull;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -36,7 +37,9 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name="upgrade_info")
-public class UpgradeInfo {
+public class UpgradeInfo implements Comparable<UpgradeInfo> {
+
+
 	@Id @GeneratedValue
 	private int id;
 	@ManyToOne(optional = false)
@@ -44,20 +47,35 @@ public class UpgradeInfo {
 	@ForeignKey(name="upgrade_info_fk_basetype")
 	private BaseType type;
 	private int modWert;
-	private boolean cargo;
+	@Column(nullable = false)
+	private UpgradeType upgradetype;
 	private int price;
 	@Column(name="miningexplosive", nullable = false)
 	private int miningExplosive;
 	private int ore;
+    private int minticks;
+    private int maxticks;
 
 	/**
 	 * Konstruktor.
 	 *
 	 */
-	public UpgradeInfo() {
+	protected UpgradeInfo()
+	{
 		// EMPTY
 	}
-	
+
+	/**
+	 * Konstruktor.
+	 * @param type Der Basistyp
+	 * @param upgradetype Die Art des Ausbaus
+	 */
+	public UpgradeInfo(BaseType type, UpgradeType upgradetype)
+	{
+		this.type = type;
+		this.upgradetype = upgradetype;
+	}
+
 	/**
 	 * Gibt die ID zurueck.
 	 * @return Die ID
@@ -90,6 +108,24 @@ public class UpgradeInfo {
 		this.type = type;
 	}
 
+    /**
+     * Gibt den UpgradeType zurueck.
+     * @return der UpgradeType oder <code>null</code> falls nicht vorhanden
+     */
+    public UpgradeType getUpgradeType()
+    {
+        return upgradetype;
+    }
+
+    /**
+     * Setzt den UpgradeType.
+     * @param upgradetype der neue UpgradeType
+     */
+    public void setUpgradeType(UpgradeType upgradetype)
+    {
+        this.upgradetype = upgradetype;
+    }
+
 	/**
 	 * Gibt den Zahlenwert der Modifikation zurueck.
 	 * @return Zahlenwert der Modifikation
@@ -104,22 +140,6 @@ public class UpgradeInfo {
 	 */
 	public void setModWert(int mod) {
 		this.modWert = mod;
-	}
-
-	/**
-	 * Weist aus, ob die Modifikation die Felder oder den Cargo betrifft.
-	 * @return Cargo-Flag
-	 */
-	public boolean getCargo() {
-		return cargo;
-	}
-
-	/**
-	 * Setzt das Cargo-oder-Felder-Flag.
-	 * @param cargo Cargo-Flag
-	 */
-	public void setCargo(boolean cargo) {
-		this.cargo = cargo;
 	}
 
 	/**
@@ -168,5 +188,48 @@ public class UpgradeInfo {
 	 */
 	public void setOre(int ore) {
 		this.ore = ore;
+	}
+
+    /**
+     * Gibt die Mindestanzahl die dieser Auftarg zum bearbeiten braucht zurueck.
+     * @return die Mindestanzahl der Ticks
+     */
+    public int getMinTicks() { return minticks; }
+
+    /**
+     * Setzt die Mindestanzahl die dieser Auftrag zum bearbeiten braucht.
+     * @param minticks die neue Mindestanzahl der Ticks
+     */
+    public void setMinTicks(int minticks) { this.minticks = minticks; }
+
+    /**
+     * Gibt die Maximalanzahl die dieser Auftarg zum bearbeiten braucht zurueck.
+     * @return die Maximalanzahl der Ticks
+     */
+    public int getMaxTicks() { return maxticks; }
+
+    /**
+     * Setzt dieMaximalanzahl die dieser Auftrag zum bearbeiten braucht.
+     * @param maxticks die neue Maximalanzahl der Ticks
+     */
+    public void setMaxTicks(int maxticks) { this.maxticks = maxticks; }
+
+    @Override
+    public boolean equals(Object other)
+    {
+        if(!(other instanceof UpgradeInfo)) { return false; }
+        UpgradeInfo o = (UpgradeInfo)other;
+        return o.getId() == this.getId();
+    }
+
+	@Override
+	public int compareTo(@Nonnull UpgradeInfo o)
+	{
+		int diff = this.upgradetype.compareTo(o.getUpgradeType());
+		if( diff != 0 )
+		{
+			return diff;
+		}
+		return this.modWert - o.modWert;
 	}
 }

@@ -145,6 +145,14 @@ public class WellKnownConfigValue<T> implements ConfigValueDescriptor<T>
 	 * Die ID des NPCs, der die Begruessungs-PMs bei der Registrierung versendet.
 	 */
 	public static final ConfigValueDescriptor<Integer> REGISTER_PM_SENDER = new WellKnownConfigValue<>(Integer.class, "register_pm_sender", "-16", "Absender der Begruessungs-PMs");
+    /**
+     * Der Rabatt Faktor fuer DI Auftraege
+     */
+    public static final ConfigValueDescriptor<Double> DI_FAKTOR_RABATT = new WellKnownConfigValue<>(Double.class, "rabattfaktordi", "1", "Der Rabatt den DI bei mehreren Upgrades gleichzeitig gibt.");
+    /**
+     * Der Zeit Faktor fuer DI Auftraege
+     */
+    public static final ConfigValueDescriptor<Double> DI_FAKTOR_ZEIT = new WellKnownConfigValue<>(Double.class, "zeitfaktordi", "1", "Der Zeitfaktor bei mehreren DI Ausbauten gleichzeitig.");
 
 	private String name;
 	private String description;

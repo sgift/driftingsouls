@@ -19,7 +19,8 @@
 package net.driftingsouls.ds2.server.bases;
 
 import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.UpgradeMaxValues;
+import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeInfo;
+import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeMaxValues;
 import net.driftingsouls.ds2.server.framework.Common;
 
 import javax.persistence.Column;
@@ -27,8 +28,10 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
-import javax.persistence.OneToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * <p>Repraesentiert eine Basis-Klasse in DS.</p>
@@ -52,8 +55,10 @@ public class BaseType
 	@Lob
 	private String spawnableress;
 	private int size;
-	@OneToOne(mappedBy="type")
-	private UpgradeMaxValues upgradeMaxValues;
+    @OneToMany(mappedBy="type")
+    private Set<UpgradeMaxValues> upgradeMaxValues = new HashSet<>();
+	@OneToMany(mappedBy="type")
+	private Set<UpgradeInfo> upgradeInfos = new HashSet<>();
 	
 	/**
 	 * Konstruktor.
@@ -271,22 +276,40 @@ public class BaseType
 		this.size = size;
 	}
 
+    /**
+     * Gibt die Maximalwerte fuer den Ausbau von Basen dieses Typs zurueck.
+     * @return Die Maximalwerte oder <code>null</code>, falls kein Ausbau moeglich ist
+     */
+    public Set<UpgradeMaxValues> getUpgradeMaxValues()
+    {
+        return upgradeMaxValues;
+    }
+
+    /**
+     * Setzt die Maximalwerte fuer den Ausbau von Basen dieses Typs.
+     * @param upgradeMaxValues Die Maximalwerte oder <code>null</code>, falls kein Ausbau moeglich ist
+     */
+    public void setUpgradeMaxValues(Set<UpgradeMaxValues> upgradeMaxValues)
+    {
+        this.upgradeMaxValues = upgradeMaxValues;
+    }
+
 	/**
-	 * Gibt die Maximalwerte fuer den Ausbau von Basen dieses Typs zurueck.
-	 * @return Die Maximalwerte oder <code>null</code>, falls kein Ausbau moeglich ist
+	 * Gibt alle moeglichen Ausbauoptionen fuer Basen dieses Typs zurueck.
+	 * @return Die Ausbauoptionen
 	 */
-	public UpgradeMaxValues getUpgradeMaxValues()
+	public Set<UpgradeInfo> getUpgradeInfos()
 	{
-		return upgradeMaxValues;
+		return upgradeInfos;
 	}
 
 	/**
-	 * Setzt die Maximalwerte fuer den Ausbau von Basen dieses Typs.
-	 * @param upgradeMaxValues Die Maximalwerte oder <code>null</code>, falls kein Ausbau moeglich ist
+	 * Setzt alle moeglichen Ausbauoptionen fuer Basen dieses Typs.
+	 * @param upgradeInfos Die Ausbauoptionen
 	 */
-	public void setUpgradeMaxValues(UpgradeMaxValues upgradeMaxValues)
+	public void setUpgradeInfos(Set<UpgradeInfo> upgradeInfos)
 	{
-		this.upgradeMaxValues = upgradeMaxValues;
+		this.upgradeInfos = upgradeInfos;
 	}
 
 	/**

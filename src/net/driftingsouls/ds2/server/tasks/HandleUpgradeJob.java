@@ -18,23 +18,25 @@
  */
 package net.driftingsouls.ds2.server.tasks;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.UpgradeJob;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeInfo;
+import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeJob;
+import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeType;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * TASK_AUSBAU_AUFTRAG
@@ -68,7 +70,7 @@ class HandleUpgradeJob implements TaskHandler
 		int orderid = Integer.parseInt(task.getData1());
 		int tick = context.get(ContextCommon.class).getTick();
 		UpgradeJob order = (UpgradeJob) db.get(UpgradeJob.class, orderid);
-		int preis = (order.getTiles().getPrice() + order.getCargo().getPrice());
+		int preis = order.getPrice();
 		Base base = order.getBase();
 		User user = order.getUser();
 		Ship colonizer = order.getColonizer();
@@ -95,16 +97,14 @@ class HandleUpgradeJob implements TaskHandler
 			if( order.getEnd() <= tick )
 			{
 				// Setzen der Base-Informationen
-				int tilemod = order.getTiles().getModWert();
-				if( tilemod > 0 ) {
-					if( tilemod % base.getHeight() == 0 ) {
-						base.setWidth(base.getWidth() + tilemod / base.getHeight());
-					}
-					else {
-						base.setHeight(base.getHeight() + tilemod / base.getWidth());
-					}
-				}
-				base.setMaxCargo(base.getMaxCargo() + order.getCargo().getModWert());
+				for(UpgradeInfo upgrade : order.getUpgrades())
+                {
+                    UpgradeType upgradetype = upgrade.getUpgradeType();
+                    if(upgradetype != null)
+                    {
+                        upgrade.getUpgradeType().doWork(upgrade, base);
+                    }
+                }
 
 				Map<Integer,Integer> bases = new HashMap<>();
 				bases.put(base.getSystem(), 0);
@@ -146,6 +146,12 @@ class HandleUpgradeJob implements TaskHandler
 				colonizer.getCargo().substractResource(new ItemID(ITEM_RE), preis);
 				order.setPayed(true);
 			}
+            else if( base.getCargo().hasResource(new ItemID(ITEM_RE), preis))
+            {
+                // Genug Geld vorhanden
+                base.getCargo().substractResource(new ItemID(ITEM_RE), preis);
+                order.setPayed(true);
+            }
 			else
 			{
 				// Setze den Try-Counter hoch
@@ -156,8 +162,8 @@ class HandleUpgradeJob implements TaskHandler
 		// Es wurde bereits gezahlt
 		else
 		{
-			int bbsRequired = order.getTiles().getMiningExplosive() + order.getCargo().getMiningExplosive();
-			int erzRequired = order.getTiles().getOre() + order.getCargo().getOre();
+			int bbsRequired = order.getMiningExplosive();
+			int erzRequired = order.getOre();
 			if( base.getCargo().hasResource(new ItemID(ITEM_BBS), bbsRequired) &&
 					base.getCargo().hasResource(Resources.ERZ, erzRequired) )
 			{
@@ -179,7 +185,9 @@ class HandleUpgradeJob implements TaskHandler
 				colonizer.destroy();
 
 				// Setzen wann wir fertig sind
-				order.setEnd( tick + new Random().nextInt(63)+7 );
+                int dauer = new Random().nextInt(order.getMaxTicks()-order.getMinTicks()+1)+order.getMinTicks();
+				order.setEnd( tick + dauer );
+                task.setTimeout(dauer);
 			}
 			else
 			{
@@ -202,11 +210,11 @@ class HandleUpgradeJob implements TaskHandler
 
 		if( order.getBar() && order.getPayed() )
 		{
-			order.getBase().getCargo().addResource(new ItemID(ITEM_RE), order.getTiles().getPrice() + order.getCargo().getPrice());
+			order.getBase().getCargo().addResource(new ItemID(ITEM_RE), order.getPrice());
 		}
 		else if( !order.getBar() )
 		{
-			order.getUser().transferMoneyFrom( faction, order.getTiles().getPrice() + order.getCargo().getPrice(), "Ausbau von " + order.getBase().getName() + " aufgrund von Ressourcenknappheit fehlgeschlagen.");
+			order.getUser().transferMoneyFrom( faction, order.getPrice(), "Ausbau von " + order.getBase().getName() + " aufgrund von Ressourcenknappheit fehlgeschlagen.");
 		}
 
 		// Loesche den Auftrag und den Task
@@ -222,14 +230,14 @@ class HandleUpgradeJob implements TaskHandler
 			"gerne führen wir den von ihnen beauftragten Ausbau des Asteroids '"+order.getBase().getName()+"' ("+order.getBase().getId()+") durch. Bitte stellen sie die folgenden Dinge sicher: [list]\n";
 		if( !order.getPayed() ) {
 			if( order.getBar() ) {
-				message += "[*] Es müssen sich mindestens "+(order.getTiles().getPrice() + order.getCargo().getPrice())+" RE auf dem angegebenen Colonizer befinden.\n";
+				message += "[*] Es müssen sich mindestens "+order.getPrice()+" RE auf dem angegebenen Colonizer oder der Basis befinden.\n";
 			}
 			else {
-				message += "[*] Sie müssen mindestens "+(order.getTiles().getPrice() + order.getCargo().getPrice())+" RE auf ihrem Konto haben.\n";
+				message += "[*] Sie müssen mindestens "+order.getPrice()+" RE auf ihrem Konto haben.\n";
 			}
 		}
-		message += "[*] Es müssen [resource=i"+ITEM_BBS+"|0|0]"+(order.getTiles().getMiningExplosive() + order.getCargo().getMiningExplosive())+"[/resource] "+
-			"und [resource="+Resources.ERZ.toString()+"]"+(order.getTiles().getOre()+order.getCargo().getOre())+"[/resource] auf dem Asteroiden vorhanden sein.\n";
+		message += "[*] Es müssen [resource=i"+ITEM_BBS+"|0|0]"+order.getMiningExplosive()+"[/resource] "+
+			"und [resource="+Resources.ERZ.toString()+"]"+order.getOre()+"[/resource] auf dem Asteroiden vorhanden sein.\n";
 
 		message += "[/list]\n";
 		message += "Bitte erfüllen sie die genannten Bedingungen zeitnah, da andernfalls ihre Bestellung storniert werden muss.\n\n";

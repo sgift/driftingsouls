@@ -1,4 +1,3 @@
-
 <table class="show" cellspacing="2" cellpadding="2">
 <tr>
 <td class="noBorderS" align="center" style="width:160px;text-align:center">
@@ -230,53 +229,59 @@
 		<div style="text-align:center">
 			{!form_create_hidden ausbau, faction:$global.faction}
 			<script type="text/javascript">
-				var felderPreis = 0;
-				var cargoPreis = 0;
-				var felderBBS = 0;
-				var cargoBBS = 0;
-				var felderErz = 0;
-				var cargoErz = 0;
+                <!-- BEGIN ausbau.upgradetypes.javascript.1.listitem -->
+                var id_{upgradetypes.name} = 0;
+                var preis_{upgradetypes.name} = 0;
+                var bbs_{upgradetypes.name} = 0;
+                var erz_{upgradetypes.name} = 0;
+                var min_ticks_{upgradetypes.name} = 0;
+                var max_ticks_{upgradetypes.name} = 0;
 
-				function updateFelder(preis, bbs, erz) {
-					felderPreis = parseInt(preis);
-					felderBBS = parseInt(bbs);
-					felderErz = parseInt(erz);
-					updateCosts();
-				}
-
-				function updateCargo(preis, bbs, erz) {
-					cargoPreis = parseInt(preis);
-					cargoBBS = parseInt(bbs);
-					cargoErz = parseInt(erz);
-					updateCosts();
-				}
-				
-				function updateFelderFromSelect(select) {
-					var option = select.options[select.selectedIndex];
+                function updateFrom{upgradetypes.name}Select(select) {
+                    var option = select.options[select.selectedIndex];
 					if( option == null ) {
 						return;
 					}
-					var preis = option.getAttribute('ds-preis');
-					var bbs = option.getAttribute('ds-bbs');
-					var erz = option.getAttribute('ds-erz');
-					updateFelder(preis,bbs,erz);
-				}
-				
-				function updateCargoFromSelect(select) {
-					var option = select.options[select.selectedIndex];
-					if( option == null ) {
-						return;
-					}
-					var preis = option.getAttribute('ds-preis');
-					var bbs = option.getAttribute('ds-bbs');
-					var erz = option.getAttribute('ds-erz');
-					updateCargo(preis,bbs,erz);
-				}
+					id_{upgradetypes.name} = option.getAttribute('ds-id');
+					preis_{upgradetypes.name} = option.getAttribute('ds-preis');
+					bbs_{upgradetypes.name} = option.getAttribute('ds-bbs');
+					erz_{upgradetypes.name} = option.getAttribute('ds-erz');
+					min_ticks_{upgradetypes.name} = option.getAttribute('ds-min-ticks');
+					max_ticks_{upgradetypes.name} = option.getAttribute('ds-max-ticks');
+					updateCosts();
+                }
+
+                <!-- END ausbau.upgradetypes.javascript.1.listitem -->
 
 				function updateCosts() {
-					$("#RE_Display").text(felderPreis + cargoPreis);
-					$("#BBS_Display").text(felderBBS + cargoBBS);
-					$("#Erz_Display").text(felderErz + cargoErz);
+				    var ids = "";
+				    var Preis = 0;
+				    var BBS = 0;
+				    var Erz = 0;
+				    var min_ticks = 0;
+				    var max_ticks = 0;
+				    var anzahl = 0;
+				    <!-- BEGIN ausbau.upgradetypes.javascript.2.listitem -->
+				    if (id_{upgradetypes.name} > 0)
+				    {
+				        anzahl = anzahl+1;
+				        ids = ids + "," + id_{upgradetypes.name};
+                        Preis = parseInt(Preis) + parseInt(preis_{upgradetypes.name});
+                        BBS = parseInt(BBS) + parseInt(bbs_{upgradetypes.name});
+                        Erz = parseInt(Erz) + parseInt(erz_{upgradetypes.name});
+                        min_ticks = parseInt(min_ticks) + parseInt(min_ticks_{upgradetypes.name});
+                        max_ticks = parseInt(max_ticks) + parseInt(max_ticks_{upgradetypes.name});
+				    }
+				    <!-- END ausbau.upgradetypes.javascript.2.listitem -->
+                    Preis = parseInt(Math.pow({ausbau.rabattfaktordi}, anzahl-1)*parseInt(Preis));
+                    min_ticks = parseInt(Math.pow({ausbau.zeitfaktordi}, anzahl-1)*parseInt(min_ticks));
+                    max_ticks = parseInt(Math.pow({ausbau.zeitfaktordi}, anzahl-1)*parseInt(max_ticks));
+				    ids = ids.substring(1, ids.length);
+					$("#RE_Display").text(Preis);
+					$("#BBS_Display").text(BBS);
+					$("#Erz_Display").text(Erz);
+					$("#Ticks_Display").text(min_ticks + "-" + max_ticks + " Runden");
+					document.getElementById('upgradeids').value = ids;
 				}
 
 				function astiChanged() {
@@ -316,36 +321,24 @@
 						</select>
 					</td>
 				</tr>
+                <!-- BEGIN ausbau.upgradetypes.listitem -->
 				<tr>
 					<td class="noBorderX" style="width:150px; text-align:right">
-						Felder-Erweiterung:
+						{upgradetypes.selectionname}:
 					</td>
 					<td class="noBorderX" style="width:20px">
 						&nbsp;
 					</td>
 					<td class="noBorderX" style="text-align:left">
-						<select name="felder" size="1" style="width:220px" onchange="updateFelderFromSelect(this)">
-						<!-- BEGIN ausbau.felder.listitem -->
-							<option value="{felder.id}" ds-preis="{felder.preis}" ds-bbs="{felder.bbs}" ds-erz="{felder.erz}">+ {felder.mod} Felder</option>
-						<!-- END ausbau.felder.listitem -->
+						<select name="upgrade{upgradetypes.name}" size="1" style="width:220px" onchange="updateFrom{upgradetypes.name}Select(this)">
+						    <option value="0" ds-id="0" ds-preis="0" ds-bbs="0" ds-erz="0" ds-min-ticks="0" ds-max-ticks="0">{upgradetypes.nullmod}</option>
+                        <!-- BEGIN ausbau.upgradetypes.mods.listitem -->
+							<option value="{upgradetypes.mods.id}" ds-id="{upgradetypes.mods.id}" ds-preis="{upgradetypes.mods.preis}" ds-bbs="{upgradetypes.mods.bbs}" ds-erz="{upgradetypes.mods.erz}" ds-min-ticks="{upgradetypes.mods.minticks}" ds-max-ticks="{upgradetypes.mods.maxticks}">{upgradetypes.mods.mod}</option>
+						<!-- END ausbau.upgradetypes.mods.listitem -->
 						</select>
 					</td>
 				</tr>
-				<tr>
-					<td class="noBorderX" style="width:150px; text-align:right">
-						Cargo-Erweiterung:
-					</td>
-					<td class="noBorderX" style="width:20px">
-						&nbsp;
-					</td>
-					<td class="noBorderX" style="text-align:left">
-						<select name="cargo" size="1" style="width:220px" onchange="updateCargoFromSelect(this)">
-						<!-- BEGIN ausbau.cargo.listitem -->
-							<option value="{cargo.id}" ds-preis="{cargo.preis}" ds-bbs="{cargo.bbs}" ds-erz="{cargo.erz}">+ {cargo.mod} Lagerraum</option>
-						<!-- END ausbau.cargo.listitem -->
-						</select>
-					</td>
-				</tr>
+                <!-- END ausbau.upgradetypes.listitem -->
 				<tr>
 					<td class="noBorderX" style="width:150px; text-align:right">
 						Zahlungsmethode:
@@ -391,9 +384,21 @@
 					0
 					</td>
 				</tr>
+                <tr>
+                    <td class="noBorderX" style="width:150px; text-align:right">
+                        Dauer:
+                    </td>
+                    <td class="noBorderX" style="width:20px">
+                        &nbsp;
+                    </td>
+                    <td class="noBorderX" style="text-align:left" id="Ticks_Display">
+                        0 Runden
+                    </td>
+                </tr>
 				<tr>
 					<td class="noBorderX" colspan="3" style="text-align:center">
 						<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+                        <input type="hidden" name="upgradestring" value="" id="upgradeids"/>
 						<input type="submit" name="order" style="width:110px" value="bestellen" />
 					</td>
 				</tr>
