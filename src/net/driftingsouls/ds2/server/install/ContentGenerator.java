@@ -160,7 +160,7 @@ public class ContentGenerator
                     (BaseType bt) -> {
                         db.persist(new UpgradeMaxValues(bt, UpgradeType.CARGO, bt.getCargo()*2));
                         int step = Math.max(1000, (bt.getCargo()*2 - bt.getCargo()) / 5);
-                        for (int i = 0; i * step <= (bt.getCargo()*2 - bt.getCargo()); i++) {
+                        for (int i = 1; i * step <= (bt.getCargo()*2 - bt.getCargo()); i++) {
                             UpgradeInfo info = new UpgradeInfo(bt, UpgradeType.CARGO);
                             info.setModWert(i * step);
                             info.setMiningExplosive(100 + i * 50);
@@ -170,7 +170,7 @@ public class ContentGenerator
                         }
                         db.persist(new UpgradeMaxValues(bt, UpgradeType.FIELD, (int) (bt.getMaxTiles() * 1.5)));
                         step = Math.max(5, ((int)(bt.getMaxTiles()*1.5) - bt.getCargo()) / 5);
-                        for (int i = 0; i * step <= (int)(bt.getMaxTiles()*1.5) - bt.getCargo(); i++) {
+                        for (int i = 1; i * step <= (int)(bt.getMaxTiles()*1.5) - bt.getCargo(); i++) {
                             UpgradeInfo info = new UpgradeInfo(bt, UpgradeType.FIELD);
                             info.setModWert(i * step);
                             info.setMiningExplosive(50 + i * 30);

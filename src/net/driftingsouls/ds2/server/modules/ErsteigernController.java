@@ -2262,20 +2262,19 @@ public class ErsteigernController extends TemplateController
 
             // Teste, ob die upgrades zulaessig sind
 			for(UpgradeInfo upgrade : upgrades)
-            {
-                if(!upgrade.getUpgradeType().checkUpgrade(upgrade, base)) {
-                    addError(upgrade.getUpgradeType().errorMsg());
-                    redirect();
-                    return;
-                }
-            }
+			{
+				// Die Standardwerte 0 sind nicht als UpgradeInfo vorhanden. Sind diese ausgewählt wird null hinzugefügt
+				if (upgrade != null && !upgrade.getUpgradeType().checkUpgrade(upgrade, base))
+				{
+					addError(upgrade.getUpgradeType().errorMsg());
+					redirect();
+					return;
+				}
+			}
 
 			// Erstelle einen neuen Auftrag
 			auftrag = new UpgradeJob(base, user, bar, colonizer);
-            for(UpgradeInfo upgrade : upgrades)
-			{
-				auftrag.addUpgrade(upgrade);
-			}
+			upgrades.stream().filter(upgrade -> upgrade != null).forEach(auftrag::addUpgrade);
 
 			User factionUser = factionObj.getUser();
 			if (!bar)
