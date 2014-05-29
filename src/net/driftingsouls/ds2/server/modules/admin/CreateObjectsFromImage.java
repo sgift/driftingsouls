@@ -387,14 +387,16 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 		Request request = context.getRequest();
 
 		String objectType = request.getParameterString("color" + color);
+        // Grafik fängt bei 0/0 an. Systemkoordinaten erst bei 1/1: Anpassung notwendig.
+        Location loc = new Location(system, x+1, y+1);
 		if (objectType.startsWith("basetype_"))
 		{
-			createBase(new Location(system, x, y), color, context);
+			createBase(loc, color, context);
 		}
 		else if (objectType.startsWith("nebel_"))
 		{
 			String nebel = objectType.substring(objectType.indexOf('_') + 1);
-			createNebula(context.getDB(), new Location(system, x, y), Nebel.Typ.valueOf(nebel));
+			createNebula(context.getDB(), loc, Nebel.Typ.valueOf(nebel));
 		}
 	}
 
