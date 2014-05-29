@@ -18,13 +18,11 @@
  */
 package net.driftingsouls.ds2.server.config.items.effects;
 
-import net.driftingsouls.ds2.server.config.ModuleSlots;
+import net.driftingsouls.ds2.server.config.items.SchiffsmodulSet;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.ships.SchiffstypModifikation;
-import org.apache.commons.lang.StringUtils;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -34,10 +32,10 @@ import java.util.Set;
  */
 public class IEModule extends ItemEffect {
 	private Set<String> slots;
-	private int set;
+	private SchiffsmodulSet set;
 	private SchiffstypModifikation mods;
 	
-	public IEModule(Set<String> slots, SchiffstypModifikation mods, int set) {
+	public IEModule(Set<String> slots, SchiffstypModifikation mods, SchiffsmodulSet set) {
 		super(ItemEffect.Type.MODULE);
 		
 		this.slots = Collections.unmodifiableSet(slots);
@@ -54,11 +52,11 @@ public class IEModule extends ItemEffect {
 	}
 	
 	/**
-	 * Gibt die ID des zugehoerigen Sets zurueck oder <code>-1</code>, falls
+	 * Gibt Set-Item des zugehoerigen Sets zurueck oder <code>null</code>, falls
 	 * das Modul zu keinem Set gehoert.
-	 * @return Die Set-ID oder <code>-1</code>
+	 * @return Das Set-Item oder <code>null</code>
 	 */
-	public int getSetID() {
+	public SchiffsmodulSet getSet() {
 		return set;
 	}
 	
@@ -69,33 +67,6 @@ public class IEModule extends ItemEffect {
 	public SchiffstypModifikation getMods() {
 		return mods;
 	}
-	
-	/**
-	 * Laedt einen Effect aus einem String.
-	 * @param effectString Der Effect als String
-	 * @return Der Effect
-	 * @throws IllegalArgumentException falls der Effect nicht richtig geladen werden konnte
-	 */
-	public static ItemEffect fromString(String effectString) throws IllegalArgumentException {
-		Set<String> slots = new HashSet<>();
-		String[] effects = StringUtils.split(effectString, "&");
-		String[] theslots = StringUtils.split(effects[0], ";");
-		for (String theslot : theslots)
-		{
-
-			// Sicherstellen, dass der Slot existiert
-			// sonst -> NoSuchSlotException
-			ModuleSlots.get().slot(theslot);
-
-			slots.add(theslot);
-		}
-		
-		int setId = Integer.parseInt(effects[1]);
-		
-		SchiffstypModifikation mods = new SchiffstypModifikation(effects[2]);
-		
-		return new IEModule(slots, mods, setId);
-	}
 
 	/**
 	 * Gibt den Itemeffect als String aus.
@@ -103,6 +74,6 @@ public class IEModule extends ItemEffect {
 	 */
 	@Override
 	public String toString() {
-		return "module:" + Common.implode(";", getSlots()) + "&" + getSetID() + "&" + getMods().toString();
+		return "module:" + Common.implode(";", getSlots()) + "&" + (getSet() != null ? getSet().getID() : "-1") + "&" + getMods().toString();
 	}
 }

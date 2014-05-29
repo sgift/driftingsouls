@@ -70,7 +70,7 @@ public class ModuleItemModule extends Module {
 
 		stats = effect.getMods().applyTo(stats, this.weaponrepl);
 
-		if( calculateSetEffect && (effect.getSetID() != 0) ) {
+		if( calculateSetEffect && (effect.getSet() != null) ) {
 			// Set-Item-Count ausrechnen
 			List<Integer> gotitems = new ArrayList<>();
 			int count = 0;
@@ -83,7 +83,7 @@ public class ModuleItemModule extends Module {
 
 				Schiffsmodul moduleItem = (Schiffsmodul)db.get(Schiffsmodul.class, itemModule.getItemID().getItemID());
 
-				if( moduleItem.getEffect().getSetID() != effect.getSetID() ) {
+				if( moduleItem.getEffect().getSet() != effect.getSet() ) {
 					continue;
 				}
 
@@ -97,7 +97,7 @@ public class ModuleItemModule extends Module {
 				count++;
 			}
 
-			SchiffsmodulSet effectSet = (SchiffsmodulSet)db.get(SchiffsmodulSet.class, effect.getSetID());
+			SchiffsmodulSet effectSet = effect.getSet();
 			SchiffstypModifikation[] mods = effectSet.getEffect().getCombo(count);
 			for (SchiffstypModifikation mod : mods)
 			{

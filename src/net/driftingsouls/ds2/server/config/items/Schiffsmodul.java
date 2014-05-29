@@ -1,12 +1,10 @@
 package net.driftingsouls.ds2.server.config.items;
 
 import net.driftingsouls.ds2.server.config.items.effects.IEModule;
-import net.driftingsouls.ds2.server.config.items.effects.ItemEffectFactory;
 import net.driftingsouls.ds2.server.ships.SchiffstypModifikation;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.CollectionTable;
-import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -26,8 +24,10 @@ public class Schiffsmodul extends Item
 	@CollectionTable(name = "schiffsmodul_slots")
 	@ForeignKey(name = "schiffsmodul_slots_fk_schiffsmodul")
 	private Set<String> slots = new HashSet<>();
-	@Column(name = "set_id")
-	private Integer set;
+	@ManyToOne
+	@JoinColumn
+	@ForeignKey(name = "schiffsmodul_fk_schiffsmodulset")
+	private SchiffsmodulSet set;
 	@ManyToOne
 	@JoinColumn
 	@ForeignKey(name = "schiffsmodul_fk_schiffseffekt")
@@ -82,19 +82,19 @@ public class Schiffsmodul extends Item
 	}
 
 	/**
-	 * Gibt die ID des Sets zurueck, zu dem das Modul gehoert.
-	 * @return Die Set-ID oder <code>null</code>
+	 * Gibt das Set-Item zurueck, zu dem das Modul gehoert.
+	 * @return Das Set oder <code>null</code>
 	 */
-	public Integer getSet()
+	public SchiffsmodulSet getSet()
 	{
 		return set;
 	}
 
 	/**
-	 * Setzt die ID des Sets, zu dem das Modul gehoert.
-	 * @param set Die Set-ID oder <code>null</code>
+	 * Setzt das Set-Item, zu dem das Modul gehoert.
+	 * @param set Das Set-Item oder <code>null</code>
 	 */
-	public void setSet(Integer set)
+	public void setSet(SchiffsmodulSet set)
 	{
 		this.set = set;
 	}
@@ -120,6 +120,6 @@ public class Schiffsmodul extends Item
 	@Override
 	public IEModule getEffect()
 	{
-		return new IEModule(slots, mods, set != null ? set : 0);
+		return new IEModule(slots, mods, set);
 	}
 }

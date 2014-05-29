@@ -1,0 +1,1 @@
+alter table items add index schiffsmodul_fk_schiffsmodulset (set_id), add constraint schiffsmodul_fk_schiffsmodulset foreign key (set_id) references items (id);

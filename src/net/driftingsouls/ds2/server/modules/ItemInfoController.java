@@ -32,6 +32,7 @@ import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.Schiffsmodul;
+import net.driftingsouls.ds2.server.config.items.SchiffsmodulSet;
 import net.driftingsouls.ds2.server.config.items.effects.IEAmmo;
 import net.driftingsouls.ds2.server.config.items.effects.IEDisableShip;
 import net.driftingsouls.ds2.server.config.items.effects.IEDraftShip;
@@ -546,7 +547,7 @@ public class ItemInfoController extends TemplateController
 				}
 
 				int setknowncount = 0;
-				if (effect.getSetID() != 0)
+				if (effect.getSet() != null)
 				{
 					int setcount = 0;
 
@@ -554,7 +555,7 @@ public class ItemInfoController extends TemplateController
 
 					for (Schiffsmodul aitem : itemlist)
 					{
-						if (aitem.getEffect().getSetID() != effect.getSetID())
+						if (aitem.getEffect().getSet() != effect.getSet())
 						{
 							continue;
 						}
@@ -565,9 +566,9 @@ public class ItemInfoController extends TemplateController
 						}
 					}
 
-					Item setItem = (Item) db.get(Item.class, effect.getSetID());
+					SchiffsmodulSet setItem = effect.getSet();
 					t.setVar("entry.name", "Set",
-							"entry.data", ((IEModuleSetMeta) setItem.getEffect()).getName() + " (" + setcount + ")");
+							"entry.data", setItem.getEffect().getName() + " (" + setcount + ")");
 
 					t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 				}
@@ -584,10 +585,10 @@ public class ItemInfoController extends TemplateController
 
 				t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 
-				if (effect.getSetID() != 0)
+				if (effect.getSet() != null)
 				{
-					Item setItem = (Item) db.get(Item.class, effect.getSetID());
-					IEModuleSetMeta meta = ((IEModuleSetMeta) setItem.getEffect());
+					SchiffsmodulSet setItem = effect.getSet();
+					IEModuleSetMeta meta = setItem.getEffect();
 					Map<Integer, SchiffstypModifikation> modlist = meta.getCombos();
 
 					for (Map.Entry<Integer, SchiffstypModifikation> entry : modlist.entrySet())
@@ -714,7 +715,7 @@ public class ItemInfoController extends TemplateController
 
 				for (Schiffsmodul thisitem : itemlist)
 				{
-					if (thisitem.getEffect().getSetID() == itemid)
+					if (thisitem.getEffect().getSet() == item)
 					{
 						setitemlist.addResource(new ItemID(thisitem.getID()), 1);
 					}
