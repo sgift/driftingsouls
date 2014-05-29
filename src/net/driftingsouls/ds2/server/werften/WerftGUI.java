@@ -128,7 +128,7 @@ public class WerftGUI {
 		if( build != 0 ) {
 			this.out_buildShip(build, werft);
 		}
-		// Werkstadt
+		// Werkstatt
 		else if( ws != 0 )
 		{
 			this.out_ws(werft, ws);
@@ -149,8 +149,8 @@ public class WerftGUI {
 					"werftgui.crew",	werft.getCrew(),
 					"werftgui.werftslots",	werft.getWerftSlots(),
 					"werftgui.totalqueueentries",	queue.size(),
-					"werftgui.allowBuild", werft.getType() != WerftTyp.EINWEG,
-					"werftgui.allowRepair", werft.getType() != WerftTyp.EINWEG
+					"werftgui.allowBuild", !werft.isEinwegWerft(),
+					"werftgui.allowRepair", !werft.isEinwegWerft()
 					);
 
 			// Resourcenliste
@@ -334,35 +334,32 @@ public class WerftGUI {
 			Ship ship = ((ShipWerft)werft).getShip();
 			Base linkedbase = ((ShipWerft)werft).getLinkedBase();
 
-			ShipTypeData shiptype = ship.getTypeData();
-			if( shiptype.getCost() == 0 ) {
-				t.setBlock("_WERFT.WERFTGUI", "werftgui.linkedbase.listitem", "werftgui.linkedbase.list");
+            t.setBlock("_WERFT.WERFTGUI", "werftgui.linkedbase.listitem", "werftgui.linkedbase.list");
 
-				if( linkedbase != null ) {
-					t.setVar(	"linkedbase.selected",	false,
-								"linkedbase.value",		"-1",
-								"linkedbase.name",		"kein Ziel" );
+            if( linkedbase != null ) {
+                t.setVar(	"linkedbase.selected",	false,
+                            "linkedbase.value",		"-1",
+                            "linkedbase.name",		"kein Ziel" );
 
-					t.parse("werftgui.linkedbase.list", "werftgui.linkedbase.listitem", true);
-				}
+                t.parse("werftgui.linkedbase.list", "werftgui.linkedbase.listitem", true);
+            }
 
-				List<?> bases = db.createQuery("from Base " +
-							"where x=:x and y=:y and system=:sys and owner=:owner order by id")
-							.setInteger("x", werft.getX())
-							.setInteger("y", werft.getY())
-							.setInteger("sys", werft.getSystem())
-							.setEntity("owner", werft.getOwner())
-							.list();
-				for (Object base1 : bases)
-				{
-					Base base = (Base) base1;
+            List<?> bases = db.createQuery("from Base " +
+                        "where x=:x and y=:y and system=:sys and owner=:owner order by id")
+                        .setInteger("x", werft.getX())
+                        .setInteger("y", werft.getY())
+                        .setInteger("sys", werft.getSystem())
+                        .setEntity("owner", werft.getOwner())
+                        .list();
+            for (Object base1 : bases)
+            {
+                Base base = (Base) base1;
 
-					t.setVar("linkedbase.selected", (linkedbase == base),
-							"linkedbase.value", base.getId(),
-							"linkedbase.name", base.getName() + " (" + base.getId() + ")");
-					t.parse("werftgui.linkedbase.list", "werftgui.linkedbase.listitem", true);
-				}
-			}
+                t.setVar("linkedbase.selected", (linkedbase == base),
+                        "linkedbase.value", base.getId(),
+                        "linkedbase.name", base.getName() + " (" + base.getId() + ")");
+                t.parse("werftgui.linkedbase.list", "werftgui.linkedbase.listitem", true);
+            }
 		}
 	}
 

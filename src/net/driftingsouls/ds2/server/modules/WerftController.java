@@ -123,20 +123,18 @@ public class WerftController extends TemplateController
 			}
 			else
 			{
-				if (ship.getTypeData().getCost() == 0)
-				{
-					Base base = (Base) db.get(Base.class, linkedbase);
-					if ((base == null) || (base.getOwner() != ship.getOwner()) ||
-							!base.getLocation().sameSector(base.getSize(), ship.getLocation(), 0))
-					{
-						echo.append("<span style=\"color:red\">Sie k&ouml;nnen die Werft nicht an diese Basis koppeln!</span><br />\n");
-					}
-					else
-					{
-						werft.setLink(base);
-						echo.append("<span style=\"color:green\">Werft an den Asteroiden ").append(Common._plaintitle(base.getName())).append(" gekoppelt</span><br />\n");
-					}
-				}
+
+                Base base = (Base) db.get(Base.class, linkedbase);
+                if ((base == null) || (base.getOwner() != ship.getOwner()) ||
+                        !base.getLocation().sameSector(base.getSize(), ship.getLocation(), 0))
+                {
+                    echo.append("<span style=\"color:red\">Sie k&ouml;nnen die Werft nicht an diese Basis koppeln!</span><br />\n");
+                }
+                else
+                {
+                    werft.setLink(base);
+                    echo.append("<span style=\"color:green\">Werft an den Asteroiden ").append(Common._plaintitle(base.getName())).append(" gekoppelt</span><br />\n");
+                }
 			}
 			echo.append("</span><br />\n");
 		}

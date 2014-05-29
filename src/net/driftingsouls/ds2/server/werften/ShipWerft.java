@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.werften;
 
+import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
@@ -25,6 +26,7 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
@@ -452,10 +454,46 @@ public class ShipWerft extends WerftObject {
 		return result;
 	}
 
+    @Override
+    public boolean isEinwegWerft()
+    {
+        return this.getType() == WerftTyp.EINWEG || this.getOneWayFlag() != null;
+    }
+
 	@Override
 	public boolean buildShip( int build, int item, boolean costsPerTick, boolean testonly ) {
 		boolean result = super.buildShip(build, item, costsPerTick, testonly);
 
+        // Reste aufräumen, die hier reingehören.
+        if(result && !testonly)
+        {
+            if( this.getOneWayFlag() != null) {
+                // Einweg-Werft-Code
+                Context context = ContextMap.getContext();
+                User user = this.getOwner();
+
+                ShipWerft werft = (ShipWerft)this;
+
+                ShipType newtype = this.getOneWayFlag();
+
+                String currentTime = Common.getIngameTime(context.get(ContextCommon.class).getTick());
+                String history = "Baubeginn am "+currentTime+" durch "+user.getName()+" ("+user.getId()+")";
+
+                Ship ship = werft.getShip();
+                ship.getHistory().addHistory(history);
+                ship.setName("Baustelle");
+                ship.setBaseType(newtype);
+                ship.setHull(newtype.getHull());
+                ship.setAblativeArmor(newtype.getAblativeArmor());
+                ship.setCrew(newtype.getCrew());
+                ship.setEnergy(newtype.getEps());
+                ship.setEnergy(newtype.getEps());
+                ship.setOwner(user);
+                ship.recalculateModules();
+
+                this.setType(WerftTyp.EINWEG);
+            }
+        }
 		this.ship.recalculateShipStatus();
 		return result;
 	}

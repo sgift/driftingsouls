@@ -981,15 +981,23 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		this.status = Common.implode(" ", status);
 
-		// Ueberpruefen, ob ein evt vorhandener Werftkomplex nicht exisitert
+		// Ueberpruefen, ob ein evt vorhandener Werftkomplex nicht exisitert.
+        // Oder ein Link zu einem Asteroiden resettet werden muss.
 		if( type.getWerft() != 0 ) {
 			ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=:ship")
 				.setEntity("ship", this)
 				.uniqueResult();
 
-			if( (werft != null) && (werft.getKomplex() != null) ) {
-				werft.getKomplex().checkWerftLocations();
-			}
+			if(werft != null) {
+                if (werft.getKomplex() != null) {
+                    werft.getKomplex().checkWerftLocations();
+                }
+                if(werft.isLinked()) {
+                    if(!werft.getLinkedBase().getLocation().sameSector(werft.getLinkedBase().getSize(), getLocation(), 0)) {
+                        werft.resetLink();
+                    }
+                }
+            }
 			else if( werft == null ) {
 				log.error("Das Schiff "+this.id+" besitzt keinen Werfteintrag");
 			}
@@ -2179,7 +2187,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		if( shiptype.getCost() == 0 ) {
-			out.append("Fehler: Das Objekt kann nicht fliegen, da es keinen Antieb hat\n");
+			out.append("Fehler: Das Objekt kann nicht fliegen, da es keinen Antrieb hat\n");
 			return MovementStatus.SHIP_FAILURE;
 		}
 

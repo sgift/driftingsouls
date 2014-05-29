@@ -41,6 +41,7 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import net.driftingsouls.ds2.server.werften.BaseWerft;
+import net.driftingsouls.ds2.server.werften.ShipWerft;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -662,7 +663,14 @@ public class SensorsDefault implements SchiffPlugin {
 				//Schiff in die Werft fliegen
 				if ((aship.getOwner().getId() == user.getId()) && (ashiptype.getWerft() != 0))
 				{
-					t.setVar("sships.action.repair", 1);
+                    //Werft sammeln und auf EinwegWerft prüfen
+                    ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=:ship")
+                            .setEntity("ship", aship)
+                            .uniqueResult();
+
+                    if(werft != null && !werft.isEinwegWerft()) {
+                        t.setVar("sships.action.repair", 1);
+                    }
 				}
 
 				//Externe Docks: andocken

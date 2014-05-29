@@ -18,7 +18,6 @@
  */
 package net.driftingsouls.ds2.server.werften;
 
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
@@ -45,7 +44,6 @@ import net.driftingsouls.ds2.server.config.items.effects.IEModule;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -249,6 +247,14 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	public @NotNull WerftTyp getType() {
 		return type;
 	}
+
+    /**
+     * Setzt den Typ der Werft.
+     * @param type Der neue Typ der Werft
+     */
+    public void setType(@NotNull WerftTyp type) {
+        this.type = type;
+    }
 
 	/**
 	 * Wird von Bauschlangeneintraegen aufgerufen, nachdem sie erfolgreich abgeschlossen wurden.
@@ -660,6 +666,16 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 	}
 
+    /**
+     * Gibt zurueck, ob es sich bei dieser Werft um eine Einwegwerft oder dessen Vorstufe handelt.
+     * Einwegwerften können nur ein Schiff bauen und werden dann zerstört.
+     * @return <code>true</code>, falls es sich um eine Einwegwerft handelt, sonst <code>false</code>
+     */
+    public boolean isEinwegWerft()
+    {
+        return false;
+    }
+
 	//--------------------------------------------------------------------------------------------------------------
 
 	/**
@@ -673,7 +689,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 *
 	 */
 	public void addModule( @Nonnull Ship ship, int slot, int itemid ) {
-		if(this.type == WerftTyp.EINWEG)
+		if(this.isEinwegWerft())
 		{
 			MESSAGE.get().append("Diese Werft ist vollständig auf ihr einziges Bauprojekt konzentriert.");
 			return;
@@ -891,7 +907,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * @return true, wenn kein Fehler aufgetreten ist
 	 */
 	public boolean dismantleShip(@Nonnull Ship ship, boolean testonly) {
-		if(this.type == WerftTyp.EINWEG)
+		if(this.isEinwegWerft())
 		{
 			MESSAGE.get().append("Diese Werft ist vollständig auf ihr einziges Bauprojekt konzentriert.");
 			return false;
@@ -1194,7 +1210,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * @return true, wenn kein Fehler aufgetreten ist
 	 */
 	public boolean repairShip(@Nonnull Ship ship, boolean testonly) {
-		if(this.type == WerftTyp.EINWEG)
+		if(this.isEinwegWerft())
 		{
 			MESSAGE.get().append("Diese Werft ist vollständig auf ihr einziges Bauprojekt konzentriert.");
 			return false;
@@ -1525,38 +1541,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 				this.setEnergy(e);
 			}
 			this.setCrew(frei);
-
-			// TODO: Ab nach ShipWerft...
-			if( this.getOneWayFlag() != null && this instanceof ShipWerft ) {
-				// Einweg-Werft-Code
-
-				ShipWerft werft = (ShipWerft)this;
-
-				ShipType newtype = this.getOneWayFlag();
-
-				String currentTime = Common.getIngameTime(context.get(ContextCommon.class).getTick());
-				String history = "Baubeginn am "+currentTime+" durch "+user.getName()+" ("+user.getId()+")";
-
-				Ship ship = werft.getShip();
-				ship.getHistory().addHistory(history);
-				ship.setName("Baustelle");
-				ship.setBaseType(newtype);
-				ship.setHull(newtype.getHull());
-				ship.setAblativeArmor(newtype.getAblativeArmor());
-				ship.setCrew(newtype.getCrew());
-				ship.setEnergy(newtype.getEps());
-				ship.setEnergy(newtype.getEps());
-				ship.setOwner(user);
-				ship.recalculateModules();
-
-				this.type = WerftTyp.EINWEG;
-
-			}
-			else if( this.getOneWayFlag() != null ) {
-				output.append("WARNING: UNKNOWN OW_WERFT (possible: building) in buildShip@WerftObject");
-
-				return false;
-			}
 
 			/*
 				Werftauftrag einstellen
