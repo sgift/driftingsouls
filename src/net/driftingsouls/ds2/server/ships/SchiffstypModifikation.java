@@ -26,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.annotation.Nonnull;
+import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -76,7 +77,7 @@ public class SchiffstypModifikation
 	private long nahrungcargo;
 	private int heat;
 	private int crew;
-	@OneToMany(orphanRemoval = true)
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "schiffstyp_modifikation_id")
 	@ForeignKey(name="schiffstyp_modifikation_waffen_fk_schiffstyp_modifikation")
 	private Set<Schiffswaffenkonfiguration> waffen = new HashSet<>();

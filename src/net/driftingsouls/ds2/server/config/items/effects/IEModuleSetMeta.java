@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.config.items.effects;
 
 import net.driftingsouls.ds2.server.ships.SchiffstypModifikation;
-import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,19 +35,13 @@ public class IEModuleSetMeta extends ItemEffect {
 	private String name;
 	private Map<Integer,SchiffstypModifikation> combos = new HashMap<>();
 	
-	protected IEModuleSetMeta(String name) {
+	public IEModuleSetMeta(String name, Map<Integer,SchiffstypModifikation> combos) {
 		super(ItemEffect.Type.MODULE_SET_META);
 		
+		this.combos.putAll(combos);
 		this.name = name;
 	}
-	
-	protected void addCombo(int itemCount, SchiffstypModifikation combo) {
-		if( itemCount < 1 ) {
-			throw new IndexOutOfBoundsException("Die Anzahl der Items muss groesser oder gleich 1 sein!");
-		}
-		combos.put(itemCount, combo);
-	}
-	
+
 	/**
 	 * Gibt den Namen des Sets zurueck.
 	 * @return Der Name des Sets
@@ -85,26 +78,6 @@ public class IEModuleSetMeta extends ItemEffect {
 	 */
 	public Map<Integer,SchiffstypModifikation> getCombos() {
 		return Collections.unmodifiableMap(combos);
-	}
-	
-	/**
-	 * Laedt einen Effect aus einem String.
-	 * @param itemeffectString Der Effect als String
-	 * @return Der Effect
-	 * @throws IllegalArgumentException falls der Effect nicht richtig geladen werden konnte
-	 */
-	public static ItemEffect fromString(String itemeffectString) throws IllegalArgumentException {
-		String[] effects = StringUtils.split(itemeffectString, "&");
-		
-		IEModuleSetMeta effect = new IEModuleSetMeta(effects[0]);
-		
-		for( int i=1; i< effects.length; i++)
-		{
-			String[] combo = StringUtils.split(effects[i], "\\");
-			effect.addCombo(Integer.parseInt(combo[0]), new SchiffstypModifikation(combo[1]));
-		}
-		
-		return effect;
 	}
 
 	/**

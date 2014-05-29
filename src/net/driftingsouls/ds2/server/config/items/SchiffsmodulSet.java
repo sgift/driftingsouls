@@ -1,10 +1,16 @@
 package net.driftingsouls.ds2.server.config.items;
 
 import net.driftingsouls.ds2.server.config.items.effects.IEModuleSetMeta;
-import net.driftingsouls.ds2.server.config.items.effects.ItemEffectFactory;
+import net.driftingsouls.ds2.server.ships.SchiffstypModifikation;
+import org.hibernate.annotations.ForeignKey;
 
+import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Ein Item, dass Set-Effekte bei mehreren eingebauten {@link net.driftingsouls.ds2.server.config.items.Schiffsmodul}en
@@ -14,6 +20,11 @@ import javax.persistence.Entity;
 @DiscriminatorValue("SchiffsmodulSet")
 public class SchiffsmodulSet extends Item
 {
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable
+	@ForeignKey(name="schiffsmodulset_fk_schiffstypmodifikation", inverseName = "schiffstypmodifikation_fk_schiffsmodulset")
+	private Map<Integer,SchiffstypModifikation> setEffekte  = new HashMap<>();
+
 	/**
 	 * Konstruktor.
 	 */
@@ -45,11 +56,6 @@ public class SchiffsmodulSet extends Item
 	@Override
 	public IEModuleSetMeta getEffect()
 	{
-		try {
-			return (IEModuleSetMeta)ItemEffectFactory.fromString(this.effect);
-		}
-		catch (Exception e) {
-			throw new IllegalStateException("Konnte keinen Effekt fuer Item "+getID()+" ermitteln",e);
-		}
+		return new IEModuleSetMeta(this.getName(), this.setEffekte);
 	}
 }

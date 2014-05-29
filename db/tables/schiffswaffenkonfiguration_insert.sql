@@ -81,3 +81,12 @@ INSERT INTO `schiffswaffenkonfiguration` (`id`, `anzahl`, `hitze`, `maxUeberhitz
 INSERT INTO `schiffswaffenkonfiguration` (`id`, `anzahl`, `hitze`, `maxUeberhitzung`, `version`, `waffe_id`, `schiffstyp_modifikation_id`) VALUES (81,2,50,0,0,'standard_flak',411);
 INSERT INTO `schiffswaffenkonfiguration` (`id`, `anzahl`, `hitze`, `maxUeberhitzung`, `version`, `waffe_id`, `schiffstyp_modifikation_id`) VALUES (82,-6,0,0,0,'Terran_Turret',411);
 INSERT INTO `schiffswaffenkonfiguration` (`id`, `anzahl`, `hitze`, `maxUeberhitzung`, `version`, `waffe_id`, `schiffstyp_modifikation_id`) VALUES (83,3,24,0,0,'AAAf',415);
+INSERT INTO schiffswaffenkonfiguration (id, anzahl, hitze, maxUeberhitzung, version, waffe_id, schiffstyp_modifikation_id) VALUES (null, 1, 1, 0, 0, 'set_hol_shrine_of_sacrifice', 9535);
+INSERT INTO schiffswaffenkonfiguration (id, anzahl, hitze, maxUeberhitzung, version, waffe_id, schiffstyp_modifikation_id) VALUES (null, 0, 120, 0, 0, 'AAAf', 9536);
+INSERT INTO schiffswaffenkonfiguration (id, anzahl, hitze, maxUeberhitzung, version, waffe_id, schiffstyp_modifikation_id) VALUES (null, 0, 80, 0, 0, 'heavy_flak', 9536);
+INSERT INTO schiffswaffenkonfiguration (id, anzahl, hitze, maxUeberhitzung, version, waffe_id, schiffstyp_modifikation_id) VALUES (null, 0, 40, 0, 0, 'BGreen', 9536);
+INSERT INTO schiffswaffenkonfiguration (id, anzahl, hitze, maxUeberhitzung, version, waffe_id, schiffstyp_modifikation_id) VALUES (null, 0, 120, 0, 0, 'standard_flak', 9536);
+INSERT INTO schiffswaffenkonfiguration (id, anzahl, hitze, maxUeberhitzung, version, waffe_id, schiffstyp_modifikation_id) VALUES (null, 8, 80, 0, 0, 'BVas', 9537);
+INSERT INTO schiffswaffenkonfiguration (id, anzahl, hitze, maxUeberhitzung, version, waffe_id, schiffstyp_modifikation_id) VALUES (null, 10, 100, 0, 0, 'heavy_flak', 9537);
+INSERT INTO schiffswaffenkonfiguration (id, anzahl, hitze, maxUeberhitzung, version, waffe_id, schiffstyp_modifikation_id) VALUES (null, 6, 60, 0, 0, 'AAAf', 9537);
+INSERT INTO schiffswaffenkonfiguration (id, anzahl, hitze, maxUeberhitzung, version, waffe_id, schiffstyp_modifikation_id) VALUES (null, 1, 3, 0, 0, 'set_ewige_verdammnis', 9537);
