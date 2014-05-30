@@ -18,11 +18,6 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
-import net.driftingsouls.ds2.server.config.Weapons;
-import net.driftingsouls.ds2.server.entities.Weapon;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.annotation.Nonnull;
@@ -37,12 +32,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Version;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -114,152 +105,6 @@ public class SchiffstypModifikation
 	public SchiffstypModifikation()
 	{
 		// Leerer Konstruktor
-	}
-	/**
-	 * Konstruktor.
-	 * @param changesetString Der String mit den Changeset-Informationen
-	 */
-	public SchiffstypModifikation(String changesetString)
-	{
-		if( changesetString.equals(""))
-		{
-			throw new RuntimeException("Keine Shiptype-Changeset-Informationen vorhanden");
-		}
-
-		Map<Weapon,Schiffswaffenkonfiguration> waffen = new HashMap<>();
-
-		String[] changesets = StringUtils.split(changesetString, "|");
-		for (String changeset1 : changesets)
-		{
-			String[] changeset = StringUtils.split(changeset1, ",");
-			switch (changeset[0])
-			{
-				case "weapons":
-					String[] weapon = StringUtils.split(changeset[1], "/");
-
-					Weapon waffe = Weapons.get().weapon(weapon[0]);
-					waffen.putIfAbsent(waffe, new Schiffswaffenkonfiguration(waffe, 0, 0, 0));
-					waffen.get(waffe).setAnzahl(Integer.parseInt(weapon[1]));
-					waffen.get(waffe).setHitze(Integer.parseInt(weapon[2]));
-					break;
-				case "flags":
-					List<String> flagList = new ArrayList<>();
-					String[] flags = StringUtils.split(changeset[1], "/");
-					Collections.addAll(flagList, flags);
-					this.flags = ShipTypeFlag.parseFlags(Common.implode(" ", flagList));
-					break;
-				case "nickname"://
-					this.nickname = changeset[1];
-					break;
-				case "picture"://
-					this.picture = changeset[1];
-					break;
-				case "ru": //
-					this.ru = Integer.parseInt(changeset[1]);
-					break;
-				case "rd"://
-					this.rd = Integer.parseInt(changeset[1]);
-					break;
-				case "ra"://
-					this.ra = Integer.parseInt(changeset[1]);
-					break;
-				case "rm"://
-					this.rm = Integer.parseInt(changeset[1]);
-					break;
-				case "eps"://
-					this.eps = Integer.parseInt(changeset[1]);
-					break;
-				case "cost"://
-					this.cost = Integer.parseInt(changeset[1]);
-					break;
-				case "hull"://
-					this.hull = Integer.parseInt(changeset[1]);
-					break;
-				case "panzerung"://
-					this.panzerung = Integer.parseInt(changeset[1]);
-					break;
-				case "ablativearmor"://
-					this.ablativeArmor = Integer.parseInt(changeset[1]);
-					break;
-				case "cargo"://
-					this.cargo = Long.parseLong(changeset[1]);
-					break;
-				case "nahrungcargo": //
-					this.nahrungcargo = Long.parseLong(changeset[1]);
-					break;
-				case "heat"://
-					this.heat = Integer.parseInt(changeset[1]);
-					break;
-				case "crew"://
-					this.crew = Integer.parseInt(changeset[1]);
-					break;
-				case "maxunitsize"://
-					this.maxunitsize = Integer.parseInt(changeset[1]);
-					break;
-				case "unitspace"://
-					this.unitspace = Integer.parseInt(changeset[1]);
-					break;
-				case "torpdeff"://
-					this.torpedoDef = Integer.parseInt(changeset[1]);
-					break;
-				case "shields"://
-					this.shields = Integer.parseInt(changeset[1]);
-					break;
-				case "size"://
-					this.size = Integer.parseInt(changeset[1]);
-					break;
-				case "jdocks"://
-					this.jDocks = Integer.parseInt(changeset[1]);
-					break;
-				case "adocks"://
-					this.aDocks = Integer.parseInt(changeset[1]);
-					break;
-				case "sensorrange"://
-					this.sensorRange = Integer.parseInt(changeset[1]);
-					break;
-				case "hydro"://
-					this.hydro = Integer.parseInt(changeset[1]);
-					break;
-				case "deutfactor"://
-					this.deutFactor = Integer.parseInt(changeset[1]);
-					break;
-				case "recost"://
-					this.reCost = Integer.parseInt(changeset[1]);
-					break;
-				case "werftslots"://
-					this.werft = Integer.parseInt(changeset[1]);
-					break;
-				case "onewaywerft"://
-					int oneWayWerft = Integer.parseInt(changeset[1]);
-					if( oneWayWerft != 0 )
-					{
-						this.oneWayWerft = (ShipType)ContextMap.getContext().getDB().get(ShipType.class,oneWayWerft);
-					}
-					break;
-				case "srs"://
-					this.srs = Boolean.parseBoolean(changeset[1]);
-					break;
-				case "scancost"://
-					this.scanCost = Integer.parseInt(changeset[1]);
-					break;
-				case "pickingcost"://
-					this.pickingCost = Integer.parseInt(changeset[1]);
-					break;
-				case "mincrew"://
-					this.minCrew = Integer.parseInt(changeset[1]);
-					break;
-				case "lostinempchance"://
-					this.lostInEmpChance = Double.parseDouble(changeset[1]);
-					break;
-				case "bounty"://
-					this.bounty = new BigInteger(changeset[1]);
-					break;
-				default:
-					throw new RuntimeException("Unbekannte Changeset-Eigenschaft '" + changeset[0] + "'");
-			}
-		}
-
-		this.waffen = new HashSet<>(waffen.values());
 	}
 
 	/**
