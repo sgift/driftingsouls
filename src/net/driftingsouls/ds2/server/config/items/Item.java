@@ -54,8 +54,6 @@ public abstract class Item {
 	private String largepicture = "none";
 	@Lob
 	private String description = null;
-	@Lob
-	protected String effect = "";
 	private long cargo = 1;
 	private boolean handel = false;	// Soll das Item im Handel angezeigt werden?
 	private int accesslevel = 0;
@@ -147,14 +145,6 @@ public abstract class Item {
 	 */
 	public void setCargo(long cargo) {
 		this.cargo = cargo;
-	}
-
-	/**
-	 * Setzt den Effekt des Item-Typs.
-	 * @param effect Der neue Effekt
-	 */
-	public void setEffect(ItemEffect effect) {
-		this.effect = effect.toString();
 	}
 
 	/**
