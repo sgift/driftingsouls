@@ -208,7 +208,11 @@
 		  <arg line="id -i"/>
 		</exec>
 
-		<echo file="${build.home}/WEB-INF/classes/META-INF/ds.version" append="false">build-time=${touch.time}${line.separator}hg-version=${hg-version}</echo>
+		<exec dir="${basedir}" executable="git" failonerror="false" failifexecutionfails="false" outputproperty="git-version">
+			<arg line="rev-parse HEAD"/>
+		</exec>
+
+		<echo file="${build.home}/WEB-INF/classes/META-INF/ds.version" append="false">build-time=${touch.time}${line.separator}hg-version=${hg-version}${line.separator}git-version=${git-version}${line.separator}bamboo-build=${bamboo.build}</echo>
 
 		<jar jarfile="${build.home}/WEB-INF/lib/${app.name}-framework.jar" basedir="${build.home}/WEB-INF/classes" includes="META-INF/ds.marker,**/server/framework/**" />
 		<jar jarfile="${build.home}/WEB-INF/lib/${app.name}-templates.jar" basedir="${build.home}/WEB-INF/classes" includes="META-INF/ds.marker,**/server/templates/**" />
