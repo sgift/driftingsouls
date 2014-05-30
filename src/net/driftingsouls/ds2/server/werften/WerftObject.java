@@ -38,7 +38,6 @@ import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.Schiffsbauplan;
 import net.driftingsouls.ds2.server.config.items.Schiffsmodul;
 import net.driftingsouls.ds2.server.config.items.Schiffsverbot;
-import net.driftingsouls.ds2.server.config.items.effects.IEDisableShip;
 import net.driftingsouls.ds2.server.config.items.effects.IEDraftShip;
 import net.driftingsouls.ds2.server.config.items.effects.IEModule;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
@@ -1296,14 +1295,12 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 		for (ItemCargoEntry<Schiffsverbot> anItemlist : availablecargo.getItemsOfType(Schiffsverbot.class))
 		{
-			IEDisableShip effect = anItemlist.getItem().getEffect();
-			disableShips.put(effect.getShipType(), true);
+			disableShips.put(anItemlist.getItem().getSchiffstyp(), true);
 		}
 
 		for (ItemCargoEntry<Schiffsverbot> anItemlist : allyitems.getItemsOfType(Schiffsverbot.class))
 		{
-			IEDisableShip effect = anItemlist.getItem().getEffect();
-			disableShips.put(effect.getShipType(), true);
+			disableShips.put(anItemlist.getItem().getSchiffstyp(), true);
 		}
 
 		List<?> baubarList = db
@@ -1481,7 +1478,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
-		User user = this.getOwner();
 
 		Cargo cargo = new Cargo(this.getCargo(false));
 

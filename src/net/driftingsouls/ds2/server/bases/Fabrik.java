@@ -23,7 +23,6 @@ import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.config.items.Munitionsbauplan;
-import net.driftingsouls.ds2.server.config.items.effects.IEDraftAmmo;
 import net.driftingsouls.ds2.server.entities.Factory;
 import net.driftingsouls.ds2.server.entities.FactoryEntry;
 import net.driftingsouls.ds2.server.entities.User;
@@ -163,8 +162,7 @@ public class Fabrik extends DefaultBuilding
 		List<ItemCargoEntry<Munitionsbauplan>> list = cargo.getItemsOfType(Munitionsbauplan.class);
 		for (ItemCargoEntry<Munitionsbauplan> item : list)
 		{
-			IEDraftAmmo itemeffect = item.getItem().getEffect();
-			FactoryEntry entry = itemeffect.getAmmo();
+			FactoryEntry entry = item.getItem().getFabrikeintrag();
 
 			thisitemslist.add(entry);
 		}
@@ -280,8 +278,7 @@ public class Fabrik extends DefaultBuilding
 			List<ItemCargoEntry<Munitionsbauplan>> list = itemlist.getItemsOfType(Munitionsbauplan.class);
 			for (ItemCargoEntry<Munitionsbauplan> item : list)
 			{
-				IEDraftAmmo itemeffect = item.getItem().getEffect();
-				FactoryEntry entry = itemeffect.getAmmo();
+				FactoryEntry entry = item.getItem().getFabrikeintrag();
 
 				vars.allvars.get(buildingid).owneritemsbase.add(entry);
 			}
@@ -564,7 +561,7 @@ public class Fabrik extends DefaultBuilding
 		for (ItemCargoEntry<Munitionsbauplan> item : itemlist)
 		{
 			Munitionsbauplan itemobject = item.getItem();
-			final FactoryEntry entry = itemobject.getEffect().getAmmo();
+			final FactoryEntry entry = itemobject.getFabrikeintrag();
 
 			if (!itemslist.contains(entry))
 			{
@@ -582,7 +579,7 @@ public class Fabrik extends DefaultBuilding
 			for (ItemCargoEntry<Munitionsbauplan> item : itemlist)
 			{
 				Munitionsbauplan itemobject = item.getItem();
-				final FactoryEntry entry = itemobject.getEffect().getAmmo();
+				final FactoryEntry entry = itemobject.getFabrikeintrag();
 
 				if (!itemslist.contains(entry))
 				{
