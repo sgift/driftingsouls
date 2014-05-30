@@ -1277,6 +1277,118 @@ public class Ship implements Locatable,Transfering,Feeding {
 		return result.toArray(new ModuleEntry[result.size()]);
 	}
 
+	private int berecheNeuenStatusWertViaDelta(int currentVal, int oldMax, int newMax)
+	{
+		int delta = newMax - oldMax;
+		currentVal += delta;
+		if( currentVal > newMax ) {
+			currentVal = newMax;
+		}
+		else if( currentVal < 0 ) {
+			currentVal = 0;
+		}
+		return currentVal;
+	}
+
+	/**
+	 * Aktualisiert die Schiffswerte nach einer Aenderung an den Typendaten des Schiffs.
+	 * @param oldshiptype Die Schiffstypendaten des Schiffstyps vor der Modifikation
+	 * @return Der Cargo, der nun nicht mehr auf das Schiff passt
+	 */
+	public Cargo postUpdateShipType(ShipTypeData oldshiptype) {
+		ShipTypeData shiptype = this.getTypeData();
+
+		if( hull != shiptype.getHull() ) {
+			this.hull = berecheNeuenStatusWertViaDelta(hull, oldshiptype.getHull(), shiptype.getHull());
+		}
+
+		if( shields != shiptype.getShields() ) {
+			this.shields = berecheNeuenStatusWertViaDelta(shields, oldshiptype.getShields(), shiptype.getShields());
+		}
+
+		if( ablativeArmor != shiptype.getAblativeArmor() ) {
+			this.ablativeArmor = berecheNeuenStatusWertViaDelta(ablativeArmor, oldshiptype.getAblativeArmor(), shiptype.getAblativeArmor());
+		}
+
+		if( ablativeArmor > shiptype.getAblativeArmor() ) {
+			this.ablativeArmor = shiptype.getAblativeArmor();
+		}
+
+		if( e != shiptype.getEps() ) {
+			this.e = berecheNeuenStatusWertViaDelta(e, oldshiptype.getEps(), shiptype.getEps());
+		}
+
+		if( crew != shiptype.getCrew() ) {
+			this.crew = berecheNeuenStatusWertViaDelta(crew, oldshiptype.getCrew(), shiptype.getCrew());
+		}
+
+		Cargo cargo = new Cargo();
+		if( this.cargo.getMass() > shiptype.getCargo() ) {
+			Cargo newshipcargo = this.cargo.cutCargo( shiptype.getCargo() );
+			cargo.addCargo( this.cargo );
+			this.cargo = newshipcargo;
+		}
+
+		StringBuilder output = MESSAGE.get();
+
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+
+		int jdockcount = (int)this.getLandedCount();
+		if( jdockcount > shiptype.getJDocks() ) {
+			int count = 0;
+
+			// toArray(T[]) fuehrt hier leider zu Warnungen...
+			Ship[] undockarray = new Ship[jdockcount-shiptype.getJDocks()];
+			for( Ship lship : this.getLandedShips() ) {
+				undockarray[count++] = lship;
+				if( count >= undockarray.length )
+				{
+					break;
+				}
+			}
+
+			output.append(jdockcount - shiptype.getJDocks()).append(" gelandete Schiffe wurden gestartet\n");
+
+			this.start(undockarray);
+		}
+
+		int adockcount = (int)this.getDockedCount();
+		if( adockcount > shiptype.getADocks() ) {
+			int count = 0;
+
+			// toArray(T[]) fuehrt hier leider zu Warnungen...
+			Ship[] undockarray = new Ship[adockcount-shiptype.getADocks()];
+			for( Ship lship : getDockedShips() ) {
+				undockarray[count++] = lship;
+				if( count >= undockarray.length )
+				{
+					break;
+				}
+			}
+
+			output.append(adockcount - shiptype.getADocks()).append(" extern gedockte Schiffe wurden abgedockt\n");
+
+			this.dock(Ship.DockMode.UNDOCK, undockarray);
+		}
+
+		if( shiptype.getWerft() == 0 ) {
+			db.createQuery("delete from ShipWerft where ship=:ship")
+					.setEntity("ship", this)
+					.executeUpdate();
+		}
+		else {
+			ShipWerft w = (ShipWerft)db.createQuery("from ShipWerft where ship=:ship")
+					.setEntity("ship", this)
+					.uniqueResult();
+			if( w == null ) {
+				w = new ShipWerft(this);
+				db.persist(w);
+			}
+		}
+
+		return cargo;
+	}
+
 	/**
 	 * Fuegt ein Modul in das Schiff ein.
 	 * @param slot Der Slot, in den das Modul eingebaut werden soll

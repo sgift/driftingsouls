@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.config.ModuleSlot;
 import net.driftingsouls.ds2.server.config.items.IffDeaktivierenItem;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.Munition;
@@ -34,11 +35,19 @@ import net.driftingsouls.ds2.server.entities.FactoryEntry;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
 import net.driftingsouls.ds2.server.entities.Rasse;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
+import net.driftingsouls.ds2.server.ships.SchiffstypModifikation;
+import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Aktualisierungstool fuer die Werte eines Schiffes.
@@ -84,5 +93,36 @@ public class EditItem implements EntityEditor<Item>
 		form.ifEntityClass(Schiffsbauplan.class).field("Dauer", Integer.class, Schiffsbauplan::getDauer, Schiffsbauplan::setDauer);
 		form.ifEntityClass(Schiffsbauplan.class).field("Werftslots", Integer.class, Schiffsbauplan::getWerftSlots, Schiffsbauplan::setWerftSlots);
 		form.ifEntityClass(Schiffsbauplan.class).multiSelection("Forschungen", Forschung.class, Schiffsbauplan::getBenoetigteForschungen, Schiffsbauplan::setBenoetigteForschungen);
+
+		List<ModuleSlot> list = Common.cast(ContextMap.getContext().getDB().createCriteria(ModuleSlot.class).list());
+		form.ifEntityClass(Schiffsmodul.class).multiSelection("Slots", String.class, Schiffsmodul::getSlots, Schiffsmodul::setSlots)
+				.withOptions(list.stream().collect(Collectors.toMap(ModuleSlot::getSlotType, ModuleSlot::getName)));
+		form.ifEntityClass(Schiffsmodul.class).field("Modifikation", SchiffstypModifikation.class, Schiffsmodul::getMods, Schiffsmodul::setMods);
+		form.ifEntityClass(Schiffsmodul.class).field("Set", SchiffsmodulSet.class, Schiffsmodul::getSet, Schiffsmodul::setSet).withNullOption("[Kein Set]");
+
+		form.postUpdateTask("Schiffe mit Modulen aktualisieren",
+				(Item item) -> item instanceof Schiffsmodul ? Common.cast(ContextMap.getContext().getDB()
+						.createQuery("select s.id from Ship s where s.modules is not null")
+						.list()) : new ArrayList<>(),
+				(Item oldItem, Item item, Integer shipId) -> aktualisiereSchiff(shipId, oldItem, item)
+		);
+	}
+
+	private void aktualisiereSchiff(Integer shipId, Item oldItem, Item item)
+	{
+		if( ((Schiffsmodul)oldItem).getMods() == ((Schiffsmodul)item).getMods() )
+		{
+			return;
+		}
+
+		Ship ship = (Ship) ContextMap.getContext().getDB().get(Ship.class, shipId);
+		ShipTypeData oldTypeData = ship.getTypeData();
+		ship.recalculateModules();
+		ship.postUpdateShipType(oldTypeData);
+
+		if (ship.getId() >= 0)
+		{
+			ship.recalculateShipStatus();
+		}
 	}
 }

@@ -43,6 +43,10 @@ public final class StringToTypeConverter
 		}
 		else if( type == BigInteger.class )
 		{
+			if( value.isEmpty() )
+			{
+				return null;
+			}
 			return (T)new BigInteger(value);
 		}
 

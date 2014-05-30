@@ -11,6 +11,7 @@ import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeMax
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.ships.SchiffstypModifikation;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
 
 import javax.annotation.Nonnull;
@@ -43,6 +44,7 @@ public class ObjectLabelGenerator
 		registerSpecialGenerator(IntTutorial.class, (it) -> (it.isReqBase()?"Basis,":"")+(it.isReqShip()?"Schiff,":"")+(it.isReqName()?"Name,":"")+(it.getBenoetigteSeite()!=null?""+it.getBenoetigteSeite().getId():""));
 	    registerSpecialGenerator(UpgradeMaxValues.class, (umv) -> umv.getType().getName()+"#"+umv.getUpgradeType());
         registerSpecialGenerator(UpgradeInfo.class, (ui) -> ui.getType().getName()+"#"+ui.getUpgradeType());
+		registerSpecialGenerator(SchiffstypModifikation.class, (sm) -> "["+sm.getId()+"] "+sm.toString());
     }
 
 	@SuppressWarnings("unchecked")

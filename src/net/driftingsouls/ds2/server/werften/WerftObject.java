@@ -549,120 +549,22 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 		ship.removeModule( module );
 
-		moduleUpdateShipData(ship, oldshiptype, cargo);
+		Cargo transferCargoZurWerft = ship.postUpdateShipType(oldshiptype);
 
+		if( this.getMaxCargo(false) - cargo.getMass() > 0 ) {
+			Cargo addwerftcargo = transferCargoZurWerft.cutCargo( this.getMaxCargo(false) - cargo.getMass() );
+			cargo.addCargo( addwerftcargo );
+
+			if( !transferCargoZurWerft.isEmpty() )
+			{
+				Cargo shipCargo = ship.getCargo();
+				shipCargo.addCargo(transferCargoZurWerft);
+				ship.setCargo(shipCargo);
+			}
+		}
+
+		MESSAGE.get().append(Ship.MESSAGE.get());
 		MESSAGE.get().append(ship.getName()).append(" - Modul ausgebaut\n");
-	}
-
-	private int berecheNeuenStatusWertViaDelta(int currentVal, int oldMax, int newMax)
-	{
-		int delta = newMax - oldMax;
-		currentVal += delta;
-		if( currentVal > newMax ) {
-			currentVal = newMax;
-		}
-		else if( currentVal < 0 ) {
-			currentVal = 0;
-		}
-		return currentVal;
-	}
-
-	private void moduleUpdateShipData(Ship ship, ShipTypeData oldshiptype, Cargo cargo) {
-		ShipTypeData shiptype = ship.getTypeData();
-
-		if( ship.getHull() != shiptype.getHull() ) {
-			ship.setHull(berecheNeuenStatusWertViaDelta(ship.getHull(), oldshiptype.getHull(), shiptype.getHull()));
-		}
-
-		if( ship.getShields() != shiptype.getShields() ) {
-			ship.setShields(berecheNeuenStatusWertViaDelta(ship.getShields(), oldshiptype.getShields(), shiptype.getShields()));
-		}
-
-		if( ship.getAblativeArmor() != shiptype.getAblativeArmor() ) {
-			ship.setAblativeArmor(berecheNeuenStatusWertViaDelta(ship.getAblativeArmor(), oldshiptype.getAblativeArmor(), shiptype.getAblativeArmor()));
-		}
-
-		if( ship.getAblativeArmor() > shiptype.getAblativeArmor() ) {
-			ship.setAblativeArmor(shiptype.getAblativeArmor());
-		}
-
-		if( ship.getEnergy() != shiptype.getEps() ) {
-			ship.setEnergy(berecheNeuenStatusWertViaDelta(ship.getEnergy(), oldshiptype.getEps(), shiptype.getEps()));
-		}
-
-		if( ship.getCrew() != shiptype.getCrew() ) {
-			ship.setCrew(berecheNeuenStatusWertViaDelta(ship.getCrew(), oldshiptype.getCrew(), shiptype.getCrew()));
-		}
-
-		Cargo shipcargo = ship.getCargo();
-		if( shipcargo.getMass() > shiptype.getCargo() ) {
-			Cargo newshipcargo = shipcargo.cutCargo( shiptype.getCargo() );
-			if( this.getMaxCargo(false) - cargo.getMass() > 0 ) {
-				Cargo addwerftcargo = shipcargo.cutCargo( this.getMaxCargo(false) - cargo.getMass() );
-				cargo.addCargo( addwerftcargo );
-			}
-			shipcargo = newshipcargo;
-			ship.setCargo(shipcargo);
-		}
-
-		this.setCargo( cargo, false );
-
-		StringBuilder output = MESSAGE.get();
-
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
-		int jdockcount = (int)ship.getLandedCount();
-		if( jdockcount > shiptype.getJDocks() ) {
-			int count = 0;
-
-			// toArray(T[]) fuehrt hier leider zu Warnungen...
-			Ship[] undockarray = new Ship[jdockcount-shiptype.getJDocks()];
-			for( Ship lship : ship.getLandedShips() ) {
-				undockarray[count++] = lship;
-				if( count >= undockarray.length )
-				{
-					break;
-				}
-			}
-
-			output.append(jdockcount - shiptype.getJDocks()).append(" gelandete Schiffe wurden gestartet\n");
-
-			ship.start(undockarray);
-		}
-
-		int adockcount = (int)ship.getDockedCount();
-		if( adockcount > shiptype.getADocks() ) {
-			int count = 0;
-
-			// toArray(T[]) fuehrt hier leider zu Warnungen...
-			Ship[] undockarray = new Ship[adockcount-shiptype.getADocks()];
-			for( Ship lship : ship.getDockedShips() ) {
-				undockarray[count++] = lship;
-				if( count >= undockarray.length )
-				{
-					break;
-				}
-			}
-
-			output.append(adockcount - shiptype.getADocks()).append(" extern gedockte Schiffe wurden abgedockt\n");
-
-			ship.dock(Ship.DockMode.UNDOCK, undockarray);
-		}
-
-		if( shiptype.getWerft() == 0 ) {
-			db.createQuery("delete from ShipWerft where ship=:ship")
-				.setEntity("ship", ship)
-				.executeUpdate();
-		}
-		else {
-			ShipWerft w = (ShipWerft)db.createQuery("from ShipWerft where ship=:ship")
-				.setEntity("ship", ship)
-				.uniqueResult();
-			if( w == null ) {
-				w = new ShipWerft(ship);
-				db.persist(w);
-			}
-		}
 	}
 
     /**
@@ -769,7 +671,21 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		ship.addModule( slot, ModuleType.ITEMMODULE, Integer.toString(itemid) );
 		cargo.substractResource( myitem.getResourceID(), 1 );
 
-		moduleUpdateShipData(ship, oldshiptype, cargo);
+		Cargo transferCargoZurWerft = ship.postUpdateShipType(oldshiptype);
+
+		if( this.getMaxCargo(false) - cargo.getMass() > 0 ) {
+			Cargo addwerftcargo = transferCargoZurWerft.cutCargo( this.getMaxCargo(false) - cargo.getMass() );
+			cargo.addCargo( addwerftcargo );
+
+			if( !transferCargoZurWerft.isEmpty() )
+			{
+				Cargo shipCargo = ship.getCargo();
+				shipCargo.addCargo(transferCargoZurWerft);
+				ship.setCargo(shipCargo);
+			}
+		}
+
+		MESSAGE.get().append(Ship.MESSAGE.get());
 
 		MESSAGE.get().append(ship.getName()).append(" - Modul eingebaut\n");
 

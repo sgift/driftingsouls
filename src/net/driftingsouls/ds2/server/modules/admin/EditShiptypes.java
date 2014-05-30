@@ -33,6 +33,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 
 import javax.annotation.Nonnull;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -111,6 +112,7 @@ public class EditShiptypes implements EntityEditor<ShipType>
 		form.field("Picking-Kosten", Integer.class, ShipType::getPickingCost, ShipType::setPickingCost);
 		form.field("Mindest-Crew", Integer.class, ShipType::getMinCrew, ShipType::setMinCrew);
 		form.field("EMP verfliegen", Double.class, ShipType::getLostInEmpChance, ShipType::setLostInEmpChance);
+		form.field("Kopfgeld", BigInteger.class, ShipType::getBounty, ShipType::setBounty);
 
 		form.postUpdateTask("Schiffe aktualisieren",
 				(ShipType shiptype) -> Common.cast(ContextMap.getContext().getDB()

@@ -42,6 +42,7 @@ public enum WellKnownAdminPermission implements PermissionDescriptor
 	EDIT_RASSE("EditRasse"),
 	EDIT_RESEARCH("EditResearch"),
 	EDIT_RESEARCH_PICTURE("EditResearchPicture"),
+	EDIT_SCHIFFSTYPMODIFIKATION("EditSchiffstypModifikation"),
 	EDIT_SHIP("EditShip"),
 	EDIT_SHIP_COSTS("EditShipCosts"),
 	EDIT_SHIPTYPES("EditShiptypes"),

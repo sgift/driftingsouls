@@ -101,6 +101,9 @@ public class EditPlugin8<T> implements AdminPlugin
 			}
 		}
 
+		form = new EditorForm8<>(EditorMode.UPDATE, getPluginClass());
+		configureFor(form);
+
 		outputEntitySelection(db, echo, form);
 
 		if (entityId != null && !entityId.isEmpty())
