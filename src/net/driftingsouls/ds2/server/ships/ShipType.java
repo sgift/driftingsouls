@@ -140,6 +140,17 @@ public class ShipType implements ShipTypeData {
 		this.shipClass = ShipClasses.UNBEKANNT;
 	}
 
+	/**
+	 * Konstruktor.
+	 * @param cls Die Klasse zu der der neue Schiffstyp gehoert
+	 */
+	public ShipType(ShipClasses cls)
+	{
+		this();
+
+		this.shipClass = cls;
+	}
+
     @Override
     public BigInteger getBounty()
     {

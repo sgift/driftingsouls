@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.cargo;
 
+import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.framework.Common;
 
 /**
@@ -40,6 +41,15 @@ public class ItemID implements ResourceID
 	public ItemID(int itemid)
 	{
 		this.itemid = itemid;
+	}
+
+	/**
+	 * Erstellt eine neue Item-ID.
+	 * @param item Der Item-Typ
+	 */
+	public ItemID(Item item)
+	{
+		this.itemid = item.getID();
 	}
 	
 	/**
