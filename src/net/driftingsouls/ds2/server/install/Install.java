@@ -1,9 +1,17 @@
 package net.driftingsouls.ds2.server.install;
 
+import net.driftingsouls.ds2.server.bases.BaseType;
+import net.driftingsouls.ds2.server.bases.Building;
+import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.entities.Forschung;
+import net.driftingsouls.ds2.server.entities.IntTutorial;
 import net.driftingsouls.ds2.server.entities.Nebel;
+import net.driftingsouls.ds2.server.entities.ally.AllyRangDescriptor;
 import net.driftingsouls.ds2.server.framework.DriftingSouls;
 import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
+import net.driftingsouls.ds2.server.ships.ShipType;
+import net.driftingsouls.ds2.server.units.UnitType;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -30,6 +38,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static net.driftingsouls.ds2.server.install.InstallUtils.*;
 
 /**
  * Installationstool fuer DS. Erstellt alle notwendigen Verzeichnisse und Konfigurationsdateien,
@@ -191,30 +201,6 @@ public class Install
 		imgs = inst.readFromDb(con, "ally", "id");
 		inst.store(imgs, "data/logos/ally/", ".gif");
 
-		imgs = inst.readFromDb(con, "ally_rangdescriptors", "customImg");
-		inst.store(imgs, "data/dynamicContent/", null);
-
-		imgs = inst.readFromDb(con, "buildings", "picture");
-		inst.store(imgs, null, null);
-
-		imgs = inst.readFromDb(con, "building_alternativebilder", "alternativeBilder");
-		inst.store(imgs, null, null);
-
-		imgs = inst.readFromDb(con, "forschungen", "image");
-		inst.store(imgs, null, null);
-
-		imgs = inst.readFromDb(con, "inttutorial", "headimg");
-		inst.store(imgs, "data/interface/interactivetutorial/", null);
-
-		imgs = inst.readFromDb(con, "items", "picture", "largepicture");
-		inst.store(imgs, null, null);
-
-		imgs = inst.readFromDb(con, "ship_types", "picture");
-		inst.store(imgs, null, null);
-
-		imgs = inst.readFromDb(con, "unit_types", "picture");
-		inst.store(imgs, null, null);
-
 		imgs = inst.readFromDb(con, "users", "id");
 		inst.store(imgs, "data/logos/user/", ".gif");
 
@@ -222,21 +208,21 @@ public class Install
 		for (File cssFile : cssFiles)
 		{
 			imgs = inst.readFromCss(cssFile);
-			inst.store(imgs, null, null);
+			inst.store(imgs);
 		}
 
 		cssFiles = new File("web/data/css/common").listFiles((FileFilter) FileFilterUtils.suffixFileFilter(".css"));
 		for (File cssFile : cssFiles)
 		{
 			imgs = inst.readFromCss(cssFile);
-			inst.store(imgs, null, null);
+			inst.store(imgs);
 		}
 
 		File[] templateFiles = new File("templates").listFiles((FileFilter) FileFilterUtils.suffixFileFilter(".html"));
 		for (File templateFile : templateFiles)
 		{
 			imgs = inst.readFromTemplate(templateFile);
-			inst.store(imgs, null, null);
+			inst.store(imgs);
 		}
 
 		imgs = new HashSet<>(Arrays.asList(
@@ -248,16 +234,25 @@ public class Install
 		inst.store(imgs, "data/starmap/", null);
 
 		imgs = Arrays.asList(Nebel.Typ.values()).stream().map(Nebel.Typ::getImage).collect(Collectors.toSet());
-		inst.store(imgs, null, null);
-
-		imgs = inst.readStarmapBases(con);
-		inst.store(imgs, "data/starmap/", null);
+		inst.store(imgs);
 
 		imgs = Arrays.asList(0,1,2,3,4,5,6,7,8,9).stream().map((g) -> "ground"+g+".png").collect(Collectors.toSet());
 		inst.store(imgs, "data/buildings/", null);
 
 		imgs = Arrays.asList(0,1,2,3,4,5,6).stream().map((g) -> "off"+g+".png").collect(Collectors.toSet());
 		inst.store(imgs, "data/interface/offiziere/", null);
+
+		mitContextUndSession((context) -> {
+			inst.store(inst.readFromEntity(AllyRangDescriptor.class, AllyRangDescriptor::getImage));
+			inst.store(inst.readFromEntity(Building.class, Building::getDefaultPicture));
+			inst.store(inst.readMultipleFromEntity(Building.class, (b) -> b.getAlternativeBilder().values()));
+			inst.store(inst.readFromEntity(Forschung.class, Forschung::getImage));
+			inst.store(inst.readFromEntity(ShipType.class, ShipType::getPicture));
+			inst.store(inst.readFromEntity(UnitType.class, UnitType::getPicture));
+			inst.store(inst.readFromEntity(IntTutorial.class, IntTutorial::getHeadImg));
+			inst.store(inst.readFromEntity(Item.class, Item::getPicture, Item::getLargePicture));
+			inst.store(inst.readFromEntity(BaseType.class, BaseType::getStarmapImage, BaseType::getSmallImage, BaseType::getLargeImage));
+		});
 
 		System.out.println("Alle automatisch erkannten Grafiken wurden geladen.\n");
 	}

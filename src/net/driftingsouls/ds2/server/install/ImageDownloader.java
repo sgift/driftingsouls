@@ -1,7 +1,10 @@
 package net.driftingsouls.ds2.server.install;
 
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.Session;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,10 +17,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Funktionen zum identifizieren und nachladen von Grafiken fuer die DS-Installation.
@@ -26,9 +33,22 @@ public class ImageDownloader
 {
 	/**
 	 * Laedt das angegebene Set von Grafiken vom DS-Server und speichert es im lokalen
+	 * Dateisystem ab. Die Methode ist fehlertollerant, d.h. bei einem IO-Fehler bei einem Bild
+	 * wird nur dieses nicht verarbeitet. Sollte die Grafik bereits vorhanden sein wird
+	 * diese nicht ueberschrieben.
+	 * @param imgs Das zu bearbeitende Grafikset
+	 */
+	public void store(Set<String> imgs)
+	{
+		store(imgs, null, null);
+	}
+
+	/**
+	 * Laedt das angegebene Set von Grafiken vom DS-Server und speichert es im lokalen
 	 * Dateisystem ab. Jeder Grafik kann dabei optional ein Prefix und ein Suffix mitgegeben
 	 * werden. Die Methode ist fehlertollerant, d.h. bei einem IO-Fehler bei einem Bild
-	 * wird nur dieses nicht verarbeitet.
+	 * wird nur dieses nicht verarbeitet. Sollte die Grafik bereits vorhanden sein wird
+	 * diese nicht ueberschrieben.
 	 * @param imgs Das zu bearbeitende Grafikset
 	 * @param prefix Das fuer alle Grafiken zu verwendende Prefix (optional)
 	 * @param suffix Das fuer alle Grafiken zu verwendende Suffix (optional)
@@ -190,29 +210,45 @@ public class ImageDownloader
 	}
 
 	/**
-	 * Laedt alle fuer die Sternenkarte benoetigten Basengrafiken.
-	 * @param con Die zu verwendende Datenbankconnection.
+	 * Laedt ein Set von Grafiken (Pfaden) aus allen verfuegbaren Entities eines Typs.
+	 * Es wird eine vorhandene Hibernate Session und ein vorhandener Context vorausgesetzt.
+	 * @param entityClass Der Entitytyp
+	 * @param getters Die Getter zum Ermitteln der Pfade auf der Entity
 	 * @return Das resultierende Set an Grafikpfaden
-	 * @throws SQLException Bei SQL-Fehlern
 	 */
-	public Set<String> readStarmapBases(Connection con) throws SQLException
+	@SafeVarargs
+	public final <T> Set<String> readMultipleFromEntity(Class<T> entityClass, Function<T, Collection<String>>... getters)
 	{
 		Set<String> imgs = new HashSet<>();
 
-		try (PreparedStatement stmt = con.prepareStatement("select id,size from base_types"))
+		Session db = ContextMap.getContext().getDB();
+		List<T> list = Common.cast(db.createCriteria(entityClass).list());
+		for (Function<T, Collection<String>> getter : getters)
 		{
-			try (ResultSet result = stmt.executeQuery())
-			{
-				while (result.next())
-				{
-					int klasse = result.getInt("id");
+			imgs.addAll(list.stream().flatMap((e) -> getter.apply(e).stream()).collect(Collectors.toList()));
+		}
 
-					imgs.add("kolonie" + klasse + "_starmap.png");
-					imgs.add("kolonie" + klasse + "_srs.png");
-					imgs.add("kolonie" + klasse + "_lrs/kolonie" + klasse + "_lrs.png");
-					imgs.add("kolonie" + klasse + "_lrs/kolonie" + klasse + "_lrs.jpg");
-				}
-			}
+		return imgs;
+	}
+
+
+	/**
+	 * Laedt ein Set von Grafiken (Pfaden) aus allen verfuegbaren Entities eines Typs.
+	 * Es wird eine vorhandene Hibernate Session und ein vorhandener Context vorausgesetzt.
+	 * @param entityClass Der Entitytyp
+	 * @param getters Die Getter zum Ermitteln der Pfade auf der Entity
+	 * @return Das resultierende Set an Grafikpfaden
+	 */
+	@SafeVarargs
+	public final <T> Set<String> readFromEntity(Class<T> entityClass, Function<T, String>... getters)
+	{
+		Set<String> imgs = new HashSet<>();
+
+		Session db = ContextMap.getContext().getDB();
+		List<T> list = Common.cast(db.createCriteria(entityClass).list());
+		for (Function<T, String> getter : getters)
+		{
+			imgs.addAll(list.stream().map(getter::apply).collect(Collectors.toList()));
 		}
 
 		return imgs;
