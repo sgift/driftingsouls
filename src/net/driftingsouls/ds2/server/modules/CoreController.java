@@ -234,7 +234,7 @@ public class CoreController extends TemplateController
 		Core core = base.getCore();
 
 		t.setVar("core.astitype", core.getAstiType().getId(),
-				"core.astitype.lrsimage", core.getAstiType().getLrsImage(),
+				"core.astitype.lrsimage", core.getAstiType().getSmallImage(),
 				"core.name", Common._plaintitle(core.getName()),
 				"core.activated", base.isCoreActive(),
 				"core.ever", core.getEVerbrauch(),

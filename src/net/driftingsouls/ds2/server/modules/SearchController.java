@@ -129,7 +129,7 @@ public class SearchController extends Controller
 				baseObj.name = Common._plaintitle(base.getName());
 				baseObj.location = base.getLocation().displayCoordinates(false);
 				baseObj.klasse = base.getKlasse().getId();
-				baseObj.image = base.getKlasse().getLrsImage();
+				baseObj.image = base.getKlasse().getSmallImage();
 
 				result.bases.add(baseObj);
 

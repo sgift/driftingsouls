@@ -656,7 +656,7 @@ public class MapController extends AngularController
 			baseObj.id = base.getId();
 			baseObj.name = base.getName();
 			baseObj.username = Common._title(base.getOwner().getName());
-			baseObj.image = base.getKlasse().getSrsImage();
+			baseObj.image = base.getKlasse().getLargeImage();
 			baseObj.klasse = base.getKlasse().getId();
 			baseObj.typ = base.getKlasse().getName();
 			baseObj.eigene = base.getOwner().getId() == user.getId();

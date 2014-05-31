@@ -838,7 +838,7 @@ public class SensorsDefault implements SchiffPlugin {
 					"base.name", base.getName(),
 					"base.klasse", base.getKlasse().getId(),
 					"base.size", base.getSize(),
-					"base.image", base.getKlasse().getSrsImage(),
+					"base.image", base.getKlasse().getLargeImage(),
 					"base.transfer", (base.getOwner().getId() != 0),
 					"base.unittausch", (base.getOwner().getId() == caller.ship.getOwner().getId() && caller.shiptype.getUnitSpace() > 0),
 					"base.colonize", ((base.getOwner().getId() == 0) || (base.getOwner().getId() == -1)) && caller.shiptype.hasFlag(ShipTypeFlag.COLONIZER),

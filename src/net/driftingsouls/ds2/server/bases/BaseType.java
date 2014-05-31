@@ -59,6 +59,9 @@ public class BaseType
     private Set<UpgradeMaxValues> upgradeMaxValues = new HashSet<>();
 	@OneToMany(mappedBy="type")
 	private Set<UpgradeInfo> upgradeInfos = new HashSet<>();
+	private String smallImage;
+	private String largeImage;
+	private String starmapImage;
 	
 	/**
 	 * Konstruktor.
@@ -95,6 +98,9 @@ public class BaseType
 		this.terrain = baseType.terrain;
 		this.spawnableress = baseType.spawnableress;
 		this.size = baseType.size;
+		this.smallImage = baseType.smallImage;
+		this.largeImage = baseType.largeImage;
+		this.starmapImage = baseType.starmapImage;
 	}
 	
 	/**
@@ -313,25 +319,43 @@ public class BaseType
 	}
 
 	/**
-	 * Gibt den Pfad zum LRS-Bild des Basistyps zurueck.
-	 * @return Das LRS-Bild
+	 * Gibt den Pfad zum kleinen Bild des Basistyps zurueck, z.B. zur Verwendung als Icon in der Basisliste.
+	 * @return Das Bild
 	 */
-	public String getLrsImage() {
-		return "data/starmap/kolonie"+this.id+"_lrs/kolonie"+this.id+"_lrs.png";
+	public String getSmallImage() {
+		return smallImage;
 	}
 
 	/**
-	 * Gibt den Pfad zum SRS-Bild des Basistyps zurueck.
-	 * @return Das SRS-Bild
+	 * Setzt den Pfad zum kleinen Bild des Basistyps, z.B. zur Verwendung als Icon in der Basisliste.
+	 * @param smallImage Das Bild
 	 */
-	public String getSrsImage()
+	public void setSmallImage(String smallImage)
 	{
-		return "data/starmap/kolonie"+this.id+"_srs.png";
+		this.smallImage = smallImage;
 	}
 
 	/**
-	 * Gibt das Bild der Basis zurueck.
-	 * Dabei werden Ausdehnung und Besitzer beruecksichtigt. Zudem
+	 * Gibt den Pfad zum grossen Bild des Basistyps zurueck, z.B. zur Verwendung in der SRS-Ansicht.
+	 * @return Das Bild
+	 */
+	public String getLargeImage()
+	{
+		return largeImage;
+	}
+
+	/**
+	 * Setzt den Pfad zum grossen Bild des Basistyps, z.B. zur Verwendung in der SRS-Ansicht.
+	 * @param largeImage  Das Bild
+	 */
+	public void setLargeImage(String largeImage)
+	{
+		this.largeImage = largeImage;
+	}
+
+	/**
+	 * Gibt das Bild der in einem Sektor der Sternenkarte zurueck.
+	 * Dabei wird die Ausdehnung beruecksichtigt. Zudem
 	 * kann das zurueckgelieferte Bild mehrere Sektoren umfassen. Der korrekte
 	 * Offset zur Darstellung des angefragten Sektors kann mittels
 	 * {@link #getSectorImageOffset(net.driftingsouls.ds2.server.Location,net.driftingsouls.ds2.server.Location)}
@@ -348,7 +372,28 @@ public class BaseType
 			return "";
 		}
 
-		return "data/starmap/kolonie"+this.id+"_starmap.png";
+		return starmapImage;
+	}
+
+	/**
+	 * Gibt den Pfad zum Bild auf der Sternenkarte zurueck. Das Bild kann mehrere Sektoren umfassen. Fuer
+	 * die Abfrage zwecks Darstellung in einem Sektor sollte die Methode
+	 * {@link #getSectorImage(net.driftingsouls.ds2.server.Location, net.driftingsouls.ds2.server.Location)}
+	 * verwendet werden.
+	 * @return Der Pfad zum Bild
+	 */
+	public String getStarmapImage()
+	{
+		return starmapImage;
+	}
+
+	/**
+	 * Setzt den Pfad zum Bild auf der Sternenkarte. Das Bild kann mehrere Sektoren umfassen.
+	 * @param starmapImage Der Pfad zum Bild
+	 */
+	public void setStarmapImage(String starmapImage)
+	{
+		this.starmapImage = starmapImage;
 	}
 
 	/**

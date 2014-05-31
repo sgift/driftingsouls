@@ -21,10 +21,14 @@ package net.driftingsouls.ds2.server.modules.admin;
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.bases.BaseType;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.map.TileCache;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
+import org.hibernate.Session;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
  * Aktualisierungstool fuer die Basis-Klassen.
@@ -44,7 +48,9 @@ public class EditBaseType implements EntityEditor<BaseType>
 	{
 		form.allowAdd();
 		form.field("Name", String.class, BaseType::getName, BaseType::setName);
-		form.picture("Bild", BaseType::getLrsImage);
+		form.dynamicContentField("Bild (klein)", BaseType::getSmallImage, BaseType::setSmallImage);
+		form.dynamicContentField("Bild (groß)", BaseType::getLargeImage, BaseType::setLargeImage);
+		form.dynamicContentField("Bild (Sternenkarte)", BaseType::getStarmapImage, BaseType::setStarmapImage);
 		form.field("Energie", Integer.class, BaseType::getEnergy, BaseType::setEnergy);
 		form.field("Cargo", Integer.class, BaseType::getCargo, BaseType::setCargo);
 		form.field("Breite", Integer.class, BaseType::getWidth, BaseType::setWidth);
@@ -53,5 +59,11 @@ public class EditBaseType implements EntityEditor<BaseType>
 		form.field("Radius", Integer.class, BaseType::getSize, BaseType::setSize);
 		form.field("Terrain", String.class, (bt) -> bt.getTerrain() == null ? "" : Common.implode(";", bt.getTerrain()), (bt, value) -> bt.setTerrain(Common.explodeToInteger(";", value)));
 		form.field("Zum Spawn freigegebene Ressourcen", String.class, BaseType::getSpawnableRess, BaseType::setSpawnableRess);
+
+		form.postUpdateTask("Sternenkartencache leeren", (btOld, bt) -> {
+			Session db = ContextMap.getContext().getDB();
+			List<Integer> systems = Common.cast(db.createQuery("select distinct system from Base where klasse=:bt").setParameter("bt", bt).list());
+			systems.forEach(s -> TileCache.forSystem(s).resetCache());
+		});
 	}
 }

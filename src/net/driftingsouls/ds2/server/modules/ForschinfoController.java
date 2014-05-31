@@ -345,7 +345,7 @@ public class ForschinfoController extends TemplateController
 			t.start_record();
 
 			t.setVar("tech.core.astitype", core.getAstiType().getId(),
-					"tech.core.astitype.lrsimage", core.getAstiType().getLrsImage(),
+					"tech.core.astitype.lrsimage", core.getAstiType().getSmallImage(),
 					"tech.core.name", Common._plaintitle(core.getName()),
 					"tech.core.hr", !firstentry,
 					"tech.core.arbeiter", core.getArbeiter(),
