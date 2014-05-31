@@ -145,6 +145,10 @@ public class WellKnownConfigValue<T> implements ConfigValueDescriptor<T>
 	 * Die ID des NPCs, der die Begruessungs-PMs bei der Registrierung versendet.
 	 */
 	public static final ConfigValueDescriptor<Integer> REGISTER_PM_SENDER = new WellKnownConfigValue<>(Integer.class, "register_pm_sender", "-16", "Absender der Begruessungs-PMs");
+	/**
+	 * Absender der PM bei einer zwangsweisen Allianzaufloesung wegen zu weniger Mitglieder.
+	 */
+	public static final ConfigValueDescriptor<Integer> ALLIANZAUFLOESUNG_PM_SENDER = new WellKnownConfigValue<>(Integer.class, "allianzaufloesung_pm_sender", "0", "Absender der PM bei einer zwangsweisen Allianzauflösung wegen zu weniger Mitglieder");
     /**
      * Der Rabatt Faktor fuer DI Auftraege
      */
