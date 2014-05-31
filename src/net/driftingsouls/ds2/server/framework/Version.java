@@ -18,13 +18,13 @@
  */
 package net.driftingsouls.ds2.server.framework;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Versionsinformationen zum momentanen DS-Build. Diese Klasse extrahiert ihre Informationen
@@ -36,7 +36,7 @@ public class Version
 {
 	private static final Log log = LogFactory.getLog(Version.class);
 	
-	private String HG_VERSION = "000000000000";
+	private String VERSION = "000000000000";
 	private String BUILD_TIME = "1970-01-01 00:00";
 	
 	/**
@@ -79,8 +79,11 @@ public class Version
 		String key = line.substring(0, index);
 		String value = line.substring(index+1,line.length());
 		
-		if( "hg-version".equals(key) ) {
-			HG_VERSION = value;
+		if( "hg-version".equals(key) && value.matches("[a-zA-Z0-9]+") ) {
+			VERSION = value;
+		}
+		else if( "git-version".equals(key) && value.matches("[a-zA-Z0-9]+") ) {
+			VERSION = value;
 		}
 		else if ( "build-time".equals(key) ) {
 			BUILD_TIME = value;
@@ -88,13 +91,12 @@ public class Version
 	}
 	
 	/**
-	 * Gibt die Mercurial-Versionsid zurueck. Wenn keine Versionsid bekannt ist wird <code>null</code>
-	 * zurueckgegeben. 
-	 * @return Die Versionsid oder <code>null</code>
+	 * Gibt die Versions-ID zurueck.
+	 * @return Die Versions-ID
 	 */
-	public String getHgVersion()
+	public String getVersion()
 	{
-		return HG_VERSION;
+		return VERSION;
 	}
 	
 	/**

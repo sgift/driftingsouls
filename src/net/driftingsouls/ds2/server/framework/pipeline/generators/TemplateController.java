@@ -69,7 +69,7 @@ public abstract class TemplateController extends Controller
 		templateEngine = new TemplateEngine();
 
 		templateEngine.setVar("global.module", getModule());
-		templateEngine.setVar("global.version", new Version().getHgVersion());
+		templateEngine.setVar("global.version", new Version().getVersion());
 	}
 
 	/**

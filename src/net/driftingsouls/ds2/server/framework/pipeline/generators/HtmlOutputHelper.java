@@ -57,13 +57,13 @@ class HtmlOutputHelper extends OutputHelper {
 		}
 		else
 		{
-			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"./data/css/v").append(version.getHgVersion()).append("/format.css\" />\n");
+			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"./data/css/v").append(version.getVersion()).append("/format.css\" />\n");
 		}
 		sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"./data/css/ui-darkness/00_jquery-ui-1.8.20.css\" />\n");
 		sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"./data/css/ui-darkness/10_jquery-ui.css\" />\n");
 
 		sb.append("<!--[if IE]>\n");
-		sb.append("<style type=\"text/css\">@import url(./data/css/v").append(version.getHgVersion()).append("/format_fuer_den_dummen_ie.css);</style>\n");
+		sb.append("<style type=\"text/css\">@import url(./data/css/v").append(version.getVersion()).append("/format_fuer_den_dummen_ie.css);</style>\n");
 		sb.append("<![endif]-->\n");
 
 		if( this.getAttribute("header") != null ) {
@@ -81,7 +81,7 @@ class HtmlOutputHelper extends OutputHelper {
 		}
 		else
 		{
-			sb.append("<script src=\"./data/javascript/v").append(version.getHgVersion()).append("/ds.js\" type=\"text/javascript\"></script>\n");
+			sb.append("<script src=\"./data/javascript/v").append(version.getVersion()).append("/ds.js\" type=\"text/javascript\"></script>\n");
 		}
 		sb.append("<div id=\"error-placeholder\"></div>\n");
 	}
@@ -142,7 +142,7 @@ class HtmlOutputHelper extends OutputHelper {
 			}
 			if( this.version.getBuildTime() != null )
 			{
-				sb.append(" -- Version: ").append(this.version.getHgVersion()).append(", ").append(this.version.getBuildTime());
+				sb.append(" -- Version: ").append(this.version.getVersion()).append(", ").append(this.version.getBuildTime());
 			}
 			//	echo "<a class=\"forschinfo\" target=\"none\" style=\"font-size:11px\" href=\"http://ds2.drifting-souls.net/mantis/\">Zum Bugtracker</a><br />\n";
 			sb.append("</div>\n");
