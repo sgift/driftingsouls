@@ -79,16 +79,15 @@ public class HandelController extends TemplateController
 		Cargo need = new Cargo();
 		Cargo have = new Cargo();
 
-
 		// Egal - "-1" (Spezialfall)
-		long needcount = needMap.get("-1");
-		long havecount;
+		Long needcount = needMap.get("-1");
+		Long havecount;
 
-		if (needcount <= 0)
+		if (needcount == null || needcount <= 0)
 		{
 			havecount = haveMap.get("-1");
 
-			if (havecount > 0)
+			if (havecount != null && havecount > 0)
 			{
 				haveeverything = true;
 			}
@@ -111,21 +110,19 @@ public class HandelController extends TemplateController
 			}
 			name = "i" + res.getId().getItemID();
 
-			needcount = needMap.containsKey(name) ? needMap.get(name) : 0;
-			havecount = 0;
+			needcount = needMap.getOrDefault(name, 0L);
 
-			if (needcount <= 0)
+			if (needcount == null || needcount <= 0)
 			{
-				havecount = haveMap.containsKey(name) ? haveMap.get(name) : 0;
+				havecount = haveMap.getOrDefault(name, 0L);
+				if (havecount != null && havecount > 0)
+				{
+					have.addResource(res.getId(), havecount);
+				}
 			}
-
-			if (needcount > 0)
+			else
 			{
 				need.addResource(res.getId(), needcount);
-			}
-			if (havecount > 0)
-			{
-				have.addResource(res.getId(), havecount);
 			}
 		}
 
