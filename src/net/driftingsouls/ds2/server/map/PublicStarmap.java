@@ -18,15 +18,14 @@
  */
 package net.driftingsouls.ds2.server.map;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
-
 import net.driftingsouls.ds2.server.ships.Ship;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Die allgemeine Sicht auf eine Sternenkarte ohne nutzerspezifische Anzeigen.
@@ -41,15 +40,14 @@ public class PublicStarmap
 	/**
 	 * Konstruktor.
 	 * @param system Die ID des Systems
+	 * @param ausschnitt Der gewaehlte Ausschnitt <code>[x, y, w, h]</code> oder <code>null</code>, falls kein Ausschnitt verwendet werden soll
 	 */
-	public PublicStarmap(StarSystem system)
+	public PublicStarmap(StarSystem system, int[] ausschnitt)
 	{
-		this.map = createMap(system);
-	}
-
-	private Starmap createMap(StarSystem system)
-	{
-		return new Starmap(system.getID());
+		this.map = new Starmap(system.getID());
+		if( ausschnitt != null ) {
+			this.map = new ClippedStarmap(this.map, ausschnitt);
+		}
 	}
 
 	/**

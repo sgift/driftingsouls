@@ -24,14 +24,11 @@ public class AdminStarmap extends PublicStarmap
 	 * Konstruktor.
 	 *
 	 * @param system Die ID des Systems
+	 * @param ausschnitt Der gewaehlte Ausschnitt <code>[x, y, w, h]</code> oder <code>null</code>, falls kein Ausschnitt verwendet werden soll
 	 */
 	public AdminStarmap(StarSystem system, User adminUser, int[] ausschnitt)
 	{
-		super(system);
-
-		if( ausschnitt != null ) {
-			this.map = new ClippedStarmap(null, this.map, ausschnitt);
-		}
+		super(system, ausschnitt);
 
 		this.adminUser = adminUser;
 		this.scannableLocations = buildScannableLocations();

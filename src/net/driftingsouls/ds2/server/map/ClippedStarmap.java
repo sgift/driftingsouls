@@ -18,24 +18,22 @@
  */
 package net.driftingsouls.ds2.server.map;
 
+import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.entities.JumpNode;
+import net.driftingsouls.ds2.server.entities.Nebel;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.ships.Ship;
+import org.hibernate.Session;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.entities.JumpNode;
-import net.driftingsouls.ds2.server.entities.Nebel;
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.ships.Ship;
-
-import org.hibernate.Session;
-
 /**
- * Eine auf einen Teilausschnitt fuer einen Benutzer reduzierte Version eines Sternensystems.
+ * Eine auf einen Teilausschnitt reduzierte Version eines Sternensystems.
  * Implementiert alle Standardfunktionen. Innerhalb des gewaehlten Ausschnitts entspricht
  * die Funktionalitaet der normalen Sternensystem-Klasse. Ausserhalb ist die Funktionsweise nicht
  * definiert.
@@ -53,18 +51,17 @@ public class ClippedStarmap extends Starmap
 
 	/**
 	 * Konstruktor.
-	 * @param user Der Benutzer
 	 * @param inner Das zu Grunde liegende eigentliche Sternensystem
 	 * @param ausschnitt Der gewaehlte Ausschnitt <code>[x, y, w, h]</code>
 	 */
-	public ClippedStarmap(User user, Starmap inner, int[] ausschnitt)
+	public ClippedStarmap(Starmap inner, int[] ausschnitt)
 	{
 		super(inner.getSystem());
 		this.db = ContextMap.getContext().getDB();
 		this.inner = inner;
 		this.ausschnitt = ausschnitt.clone();
-		this.clippedShipMap = this.buildClippedShipMap(user);
-		this.clippedNebulaMap = this.buildClippedNebulaMap(user);
+		this.clippedShipMap = this.buildClippedShipMap();
+		this.clippedNebulaMap = this.buildClippedNebulaMap();
 		this.clippedBaseMap = this.buildClippedBaseMap();
 	}
 
@@ -110,7 +107,7 @@ public class ClippedStarmap extends Starmap
 		return Collections.unmodifiableMap(this.clippedNebulaMap);
 	}
 
-	private Map<Location, List<Ship>> buildClippedShipMap(User user2)
+	private Map<Location, List<Ship>> buildClippedShipMap()
 	{
 		// Nur solche Schiffe laden, deren LRS potentiell in den Ausschnitt hinein ragen oder die
 		// sich komplett im Ausschnitt befinden.
@@ -131,7 +128,7 @@ public class ClippedStarmap extends Starmap
 		return this.buildLocatableMap(shipList);
 	}
 
-	private Map<Location, Nebel> buildClippedNebulaMap(User user2)
+	private Map<Location, Nebel> buildClippedNebulaMap()
 	{
 		int[] load = new int[] {
 				this.ausschnitt[0],

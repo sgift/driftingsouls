@@ -94,7 +94,7 @@ public class TileCache
 
 	private void createTile(File tileCacheFile, int tileX, int tileY) throws IOException
 	{
-		PublicStarmap content = new PublicStarmap(this.system);
+		PublicStarmap content = new PublicStarmap(this.system, null);
 
 		BufferedImage img = new BufferedImage(TILE_SIZE*25,TILE_SIZE*25,BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = img.createGraphics();

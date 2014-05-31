@@ -41,15 +41,12 @@ public class PlayerStarmap extends PublicStarmap
 	 * 
 	 * @param user Der Spieler fuer den die Sicht gelten soll.
 	 * @param system Die ID des zu Grunde liegenden Sternensystems.
-	 * @param ausschnitt Der Ausschnitt (x, y, w, h) auf den die Sicht beschraenkt werden soll.
+	 * @param ausschnitt Der gewaehlte Ausschnitt <code>[x, y, w, h]</code> oder <code>null</code>, falls kein Ausschnitt verwendet werden soll
 	 */
 	public PlayerStarmap(User user, StarSystem system, int[] ausschnitt)
 	{
-		super(system);
-		
-		if( ausschnitt != null ) {
-			this.map = new ClippedStarmap(user, this.map, ausschnitt);
-		}
+		super(system, ausschnitt);
+
 		this.user = user;
 		if(this.user == null)
 		{
