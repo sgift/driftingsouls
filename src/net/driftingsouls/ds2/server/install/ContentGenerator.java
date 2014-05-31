@@ -14,40 +14,25 @@ import net.driftingsouls.ds2.server.entities.IntTutorial;
 import net.driftingsouls.ds2.server.entities.NewsEntry;
 import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeInfo;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeMaxValues;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeType;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderableOffizier;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderableShip;
-import net.driftingsouls.ds2.server.framework.BasicContext;
-import net.driftingsouls.ds2.server.framework.CmdLineRequest;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.DriftingSouls;
-import net.driftingsouls.ds2.server.framework.EmptyPermissionResolver;
-import net.driftingsouls.ds2.server.framework.SimpleResponse;
-import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
-import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
-import net.driftingsouls.ds2.server.framework.db.batch.SingleUnitOfWork;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.context.internal.ManagedSessionContext;
 import org.hibernate.criterion.Restrictions;
-import org.quartz.impl.StdScheduler;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+
+import static net.driftingsouls.ds2.server.install.InstallUtils.*;
 
 public class ContentGenerator
 {
@@ -55,15 +40,7 @@ public class ContentGenerator
 
 	public void generiereContent()
 	{
-		try
-		{
-			new DriftingSouls("web/WEB-INF/cfg/", true);
-		}
-		catch (Exception e)
-		{
-			throw new IllegalStateException("Konnte DS nicht starten", e);
-		}
-		mitHibernateSession((session) -> mitContext((context) -> {
+		mitContextUndSession((context) -> {
 			Session db = context.getDB();
 
 			mitTransaktion("Setze Konfigurationseinstellungen", () -> {
@@ -209,7 +186,7 @@ public class ContentGenerator
 					() -> Common.cast(db.createCriteria(StarSystem.class).add(Restrictions.gt("id", 0)).list()),
 					(StarSystem sys) -> new GtuContentGenerator().erzeugeHandelspostenInSystem(sys)
 			);
-		}));
+		});
 	}
 
 	private void erzeugeComNetKanaele()
@@ -235,31 +212,6 @@ public class ContentGenerator
 		nonRpg.setReadAll(true);
 		nonRpg.setWriteNpc(true);
 		db.persist(nonRpg);
-	}
-
-	private <T> void mitTransaktion(final String name, final Supplier<? extends Collection<T>> jobDataGenerator, final Consumer<T> job)
-	{
-		LOG.info(name);
-		new EvictableUnitOfWork<T>(name) {
-			@Override
-			public void doWork(T object) throws Exception
-			{
-				job.accept(object);
-			}
-		}
-		.setFlushSize(1).setErrorReporter((uow, fo, e) -> LOG.error("Fehler bei "+uow.getName()+": Objekte "+fo+" fehlgeschlagen", e)).executeFor(jobDataGenerator.get());
-	}
-
-	private void mitTransaktion(final String name, final Runnable job)
-	{
-		LOG.info(name);
-		new SingleUnitOfWork(name) {
-			@Override
-			public void doWork() throws Exception
-			{
-				job.run();
-			}
-		}.setErrorReporter((uow, fo, e) -> LOG.error("Fehler bei "+uow.getName(), e)).execute();
 	}
 
 	private void kolonisiereAsteroidenFuer(User user, int anzahl)
@@ -293,61 +245,6 @@ public class ContentGenerator
 			}
 
 			b.setCargo(cargo);
-		}
-	}
-
-	private void mitContext(Consumer<Context> contextConsumer)
-	{
-		try
-		{
-			ApplicationContext springContext = new FileSystemXmlApplicationContext("web/WEB-INF/cfg/spring.xml");
-
-			// Ticks provisorisch deaktivieren
-			StdScheduler quartzSchedulerFactory = (StdScheduler) springContext.getBean("quartzSchedulerFactory");
-			quartzSchedulerFactory.shutdown();
-
-			BasicContext context = new BasicContext(new CmdLineRequest(new String[0]), new SimpleResponse(), new EmptyPermissionResolver(), springContext);
-			try
-			{
-				ContextMap.addContext(context);
-
-				contextConsumer.accept(context);
-			}
-			finally
-			{
-				context.free();
-			}
-		}
-		catch (Exception e)
-		{
-			LOG.error("Konnte Content nicht generieren", e);
-		}
-	}
-
-	private void mitHibernateSession(Consumer<Session> handler)
-	{
-		SessionFactory sf = HibernateUtil.getSessionFactory();
-		Session session = sf.openSession();
-		try
-		{
-			ManagedSessionContext.bind(session);
-
-			// Call the next filter (continue request processing)
-			handler.accept(session);
-
-			// Commit and cleanup
-			LOG.debug("Committing the database transaction");
-
-			ManagedSessionContext.unbind(sf);
-
-		}
-		catch (RuntimeException e)
-		{
-			LOG.error("", e);
-		}
-		finally
-		{
-			session.close();
 		}
 	}
 }

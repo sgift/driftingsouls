@@ -1,6 +1,7 @@
 package net.driftingsouls.ds2.server.install;
 
 import net.driftingsouls.ds2.server.entities.Nebel;
+import net.driftingsouls.ds2.server.framework.DriftingSouls;
 import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
@@ -130,6 +131,8 @@ public class Install
 					}
 				}
 
+				boot();
+
 				System.out.println("\nDS ist nun installiert.\n");
 
 				loadImages(reader, con);
@@ -145,6 +148,18 @@ public class Install
 		{
 			System.err.println("Fehler bei Datenbankoperation");
 			e.printStackTrace();
+		}
+	}
+
+	private static void boot()
+	{
+		try
+		{
+			new DriftingSouls("web/WEB-INF/cfg/", true);
+		}
+		catch (Exception e)
+		{
+			throw new IllegalStateException("Konnte DS nicht starten", e);
 		}
 	}
 
