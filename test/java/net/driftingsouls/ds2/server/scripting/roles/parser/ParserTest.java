@@ -18,11 +18,11 @@
  */
 package net.driftingsouls.ds2.server.scripting.roles.parser;
 
+import net.driftingsouls.ds2.server.Location;
+import org.junit.Test;
+
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
-import net.driftingsouls.ds2.server.Location;
-
-import org.junit.Test;
 
 /**
  * Testcases fuer den Rollenparser
@@ -59,9 +59,25 @@ public class ParserTest {
 		catch( ParsingException e ) {
 			// Erwartet
 		}
+
+		try {
+			Parser.parse("role:\t");
+			fail("ParsingException erwartet");
+		}
+		catch( ParsingException e ) {
+			// Erwartet
+		}
 		
 		try {
 			Parser.parse("role: 0");
+			fail("ParsingException erwartet");
+		}
+		catch( ParsingException e ) {
+			// Erwartet
+		}
+
+		try {
+			Parser.parse("role: 0\r");
 			fail("ParsingException erwartet");
 		}
 		catch( ParsingException e ) {
@@ -91,7 +107,7 @@ public class ParserTest {
 		RoleDefinition role = Parser.parse(roleDef);
 		assertNotNull(role);
 		assertThat(role.getRoleName(), is("TestRole"));
-		assertEquals(Long.valueOf(5), role.getAttribute("Attribute1"));
+		assertEquals((long) 5, role.getAttribute("Attribute1"));
 		assertEquals("Test\"0123\\Test", role.getAttribute("Attribute2"));
 	}
 	
@@ -106,5 +122,29 @@ public class ParserTest {
 		assertNotNull(role);
 		assertThat(role.getRoleName(), is("TestRole2"));
 		assertEquals(new Location(1, 23, 45), role.getAttribute("Attribute1"));
+	}
+
+	@Test
+	public void testDerParserKannAuchMitCrLfUmgehen() {
+		final String roleDef = "role: DeutTransporter\r\n" +
+				"nebel: 1:44/49\r\n"+
+				"base: 146";
+		RoleDefinition role = Parser.parse(roleDef);
+		assertNotNull(role);
+		assertThat(role.getRoleName(), is("DeutTransporter"));
+		assertEquals(new Location(1, 44, 49), role.getAttribute("nebel"));
+		assertEquals(146L, role.getAttribute("base"));
+	}
+
+	@Test
+	public void testDerParserAkzeptiertNachEinemDoppelpunktAuchEinTab() {
+		final String roleDef = "role:\tDeutTransporter\r\n" +
+				"nebel:\t1:44/49\r\n"+
+				"base:\t146";
+		RoleDefinition role = Parser.parse(roleDef);
+		assertNotNull(role);
+		assertThat(role.getRoleName(), is("DeutTransporter"));
+		assertEquals(new Location(1, 44, 49), role.getAttribute("nebel"));
+		assertEquals(146L, role.getAttribute("base"));
 	}
 }

@@ -1003,13 +1003,8 @@ public class SchiffController extends TemplateController
 		// Tooltip: Schiffscripte
 		if (user.hasFlag(UserFlag.EXEC_NOTES))
 		{
-
-			String script = StringUtils.replace(ship.getScript(), "\r\n", "\n");
-			script = StringUtils.replace(script, "\n", "\\n");
-			script = StringUtils.replace(script, "\"", "\\\"");
-
 			t.setVar("tooltip.execnotes", 1,
-					"tooltip.execnotes.script", script);
+					"tooltip.execnotes.script", Common.escapeHTML(ship.getScript()));
 		}
 
 		// Tooltip: Schiffsstatusfeld

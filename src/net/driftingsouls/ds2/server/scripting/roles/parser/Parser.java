@@ -67,8 +67,9 @@ public class Parser {
 
 		int index = 0;
 		for( ; index < tree.getChildCount(); index++ ) {
-			if( tree.getChild(index).getType() == RoleParser.Identifier ) {
-				roleDef.setRoleName(tree.getChild(index).getText());
+			Tree child = tree.getChild(index);
+			if( child.getType() == RoleParser.Identifier ) {
+				roleDef.setRoleName(child.getText());
 				index++;
 				break;
 			}
@@ -76,14 +77,15 @@ public class Parser {
 		
 		// Attribute lesen
 		for( ; index < tree.getChildCount(); index++ ) {
-			if( tree.getChild(index).getType() == RoleParser.Identifier ) {
-				String name = tree.getChild(index).getText();
+			Tree child = tree.getChild(index);
+			if( child.getType() == RoleParser.Identifier ) {
+				String name = child.getText();
 				index += 2; // IS ignorieren und direkt zum uebernaechsten Element springen
-				
+
 				int type = tree.getChild(index).getType();
 				String valueStr = tree.getChild(index).getText();
 				Object value = null;
-				
+
 				switch( type ) {
 				case RoleParser.Text:
 					// " entfernen
@@ -91,16 +93,16 @@ public class Parser {
 					// \ vor Escape-Chars entfernen
 					value = valueStr.replaceAll("\\\\([\"\\\\]{1})", "$1");
 					break;
-					
+
 				case RoleParser.Number:
 					value = Long.parseLong(valueStr);
 					break;
-					
+
 				case RoleParser.Location:
 					value = Location.fromString(valueStr);
 					break;
 				}
-				
+
 				roleDef.setAttribute(name, value);
 			}
 		}

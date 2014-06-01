@@ -1,7 +1,7 @@
 grammar Role;
 options {output = AST; }
 tokens {
-        ROLENAME = 'role: ' ;
+        ROLENAME = 'role';
 }
 
 @header {
@@ -30,7 +30,7 @@ tokens {
 }
 
 roleDefinition
-        :       ROLENAME Identifier (EOL attributeList)? EOF
+        :       ROLENAME IS Identifier (EOL attributeList)? EOF
         ;
 
 attributeList
@@ -75,8 +75,12 @@ fragment
 Digit   :       '0'..'9'
         ;
 
-EOL     :       '\n'
+EOL     :       ('\r'? '\n')+
         ;
-        
-IS      :       ': '
+
+fragment
+SPACE   :       ' ' | '\t'
+        ;
+
+IS      :       (':' SPACE*)
         ;
