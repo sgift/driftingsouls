@@ -23,7 +23,6 @@ import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.bases.Core;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
@@ -42,10 +41,9 @@ public class ActivateAllController extends TemplateController
 {
 	/**
 	 * Konstruktor.
-	 * @param context Der zu verwendende Kontext
 	 */
-	public ActivateAllController(Context context) {
-		super(context);
+	public ActivateAllController() {
+		super();
 		
 		setPageTitle("Alles Aktivieren");
 	}

@@ -35,7 +35,6 @@ import net.driftingsouls.ds2.server.entities.UserRank;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
@@ -79,11 +78,10 @@ public class UeberController extends TemplateController
 	/**
 	 * Konstruktor.
 	 *
-	 * @param context Der zu verwendende Kontext
 	 */
-	public UeberController(Context context)
+	public UeberController()
 	{
-		super(context);
+		super();
 	}
 
 	/**

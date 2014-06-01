@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.framework.pipeline.generators;
 import com.google.gson.Gson;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.PermissionDescriptor;
 import net.driftingsouls.ds2.server.framework.PermissionResolver;
 import net.driftingsouls.ds2.server.framework.ViewModel;
@@ -67,11 +68,10 @@ public abstract class Controller implements PermissionResolver
 	/**
 	 * Konstruktor.
 	 *
-	 * @param context Der Kontext
 	 */
-	public Controller(Context context)
+	public Controller()
 	{
-		this.context = context;
+		this.context = ContextMap.getContext();
 		this.parameterReader = new ParameterReader(getRequest(), this.getDB());
 
 		this.parameterReader.parameterString("module");

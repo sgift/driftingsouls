@@ -23,7 +23,6 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
@@ -50,11 +49,10 @@ public class TCController extends TemplateController
 	/**
 	 * Konstruktor.
 	 *
-	 * @param context Der zu verwendende Kontext
 	 */
-	public TCController(Context context)
+	public TCController()
 	{
-		super(context);
+		super();
 
 		setPageTitle("Offizierstransfer");
 	}

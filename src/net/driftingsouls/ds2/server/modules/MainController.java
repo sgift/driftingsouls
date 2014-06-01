@@ -25,7 +25,6 @@ import net.driftingsouls.ds2.server.entities.GuiHelpText;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ViewMessage;
 import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
@@ -50,11 +49,10 @@ public class MainController extends TemplateController
 	/**
 	 * Konstruktor.
 	 *
-	 * @param context Der zu verwendende Kontext
 	 */
-	public MainController(Context context)
+	public MainController()
 	{
-		super(context);
+		super();
 
 		setDisableDebugOutput(true);
 	}

@@ -2,7 +2,6 @@ package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.entities.NewsEntry;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
@@ -22,11 +21,10 @@ public class NewsDetailController extends TemplateController
 	/**
 	 * Legt den News Detail Eintrag an.
 	 *
-	 * @param context Der Kontext.
 	 */
-	public NewsDetailController(Context context)
+	public NewsDetailController()
 	{
-		super(context);
+		super();
 	}
 
 	@Override

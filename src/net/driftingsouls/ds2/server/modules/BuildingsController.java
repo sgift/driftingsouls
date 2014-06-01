@@ -26,7 +26,6 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
@@ -48,11 +47,10 @@ public class BuildingsController extends TemplateController
 	/**
 	 * Konstruktor.
 	 *
-	 * @param context Der zu verwendende Kontext
 	 */
-	public BuildingsController(Context context)
+	public BuildingsController()
 	{
-		super(context);
+		super();
 
 		setPageTitle("Gebäude");
 	}

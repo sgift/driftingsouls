@@ -20,7 +20,6 @@ package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ViewMessage;
 import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -52,11 +51,10 @@ public class SchiffAjaxController extends AngularController
 	/**
 	 * Konstruktor.
 	 *
-	 * @param context Der zu verwendende Kontext
 	 */
-	public SchiffAjaxController(Context context)
+	public SchiffAjaxController()
 	{
-		super(context);
+		super();
 	}
 
 	private void validiereSchiff(Ship ship)

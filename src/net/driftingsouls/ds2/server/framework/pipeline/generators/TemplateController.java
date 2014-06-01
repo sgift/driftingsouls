@@ -18,7 +18,6 @@
  */
 package net.driftingsouls.ds2.server.framework.pipeline.generators;
 
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.Version;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
@@ -38,11 +37,10 @@ public abstract class TemplateController extends Controller
 	/**
 	 * Konstruktor.
 	 *
-	 * @param context Der Kontext
 	 */
-	public TemplateController(Context context)
+	public TemplateController()
 	{
-		super(context);
+		super();
 
 		templateEngine = null;
 		masterTemplateID = "";

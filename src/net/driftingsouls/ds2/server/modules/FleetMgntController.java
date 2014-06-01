@@ -62,11 +62,10 @@ public class FleetMgntController extends TemplateController
 	/**
 	 * Konstruktor.
 	 *
-	 * @param context Der zu verwendende Kontext
 	 */
-	public FleetMgntController(Context context)
+	public FleetMgntController()
 	{
-		super(context);
+		super();
 	}
 
 	private int ermittleIdEinesGeeignetenSchiffsDerFlotte(ShipFleet fleet)

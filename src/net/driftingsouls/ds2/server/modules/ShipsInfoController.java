@@ -6,7 +6,6 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -31,9 +30,9 @@ import java.util.TreeSet;
 @Module(name = "shipsinfo")
 public class ShipsInfoController extends TemplateController
 {
-	public ShipsInfoController(Context context)
+	public ShipsInfoController()
 	{
-		super(context);
+		super();
 		setPageTitle("Schiffsliste");
 	}
 

@@ -1,6 +1,5 @@
 package net.driftingsouls.ds2.server.modules;
 
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.AngularController;
 
@@ -15,9 +14,8 @@ public class ClientController extends AngularController
 {
 	/**
 	 * Konstruktor.
-	 * @param context Der zu verwendende Kontext
 	 */
-	public ClientController(Context context) {
-		super(context);
+	public ClientController() {
+		super();
 	}
 }

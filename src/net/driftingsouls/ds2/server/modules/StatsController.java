@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
@@ -82,10 +81,9 @@ public class StatsController extends Controller
 
 	/**
 	 * Konstruktor.
-	 * @param context Der zu verwendende Kontext
 	 */
-	public StatsController(Context context) {
-		super(context);
+	public StatsController() {
+		super();
 
 		setPageTitle("Statistik");
 

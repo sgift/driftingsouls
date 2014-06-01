@@ -459,11 +459,10 @@ public class ErsteigernController extends TemplateController
 	/**
 	 * Konstruktor.
 	 *
-	 * @param context Der zu verwendende Kontext
 	 */
-	public ErsteigernController(Context context)
+	public ErsteigernController()
 	{
-		super(context);
+		super();
 
 		setPageTitle("Fraktionen");
 	}

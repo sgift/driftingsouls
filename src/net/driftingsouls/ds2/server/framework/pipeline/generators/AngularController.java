@@ -2,7 +2,6 @@ package net.driftingsouls.ds2.server.framework.pipeline.generators;
 
 import com.google.gson.Gson;
 import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.Error;
 
@@ -22,9 +21,9 @@ import java.util.List;
  */
 public abstract class AngularController extends Controller
 {	
-	public AngularController(Context context)
+	public AngularController()
 	{
-		super(context);
+		super();
 		
 		this.addBodyParameter("ng-app", "ds.application");
 		this.setDisableDebugOutput(true);

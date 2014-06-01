@@ -69,11 +69,10 @@ public class AllyController extends TemplateController
 	/**
 	 * Konstruktor.
 	 *
-	 * @param context Der zu verwendende Kontext
 	 */
-	public AllyController(Context context)
+	public AllyController()
 	{
-		super(context);
+		super();
 
 		setPageTitle("Allianz");
 	}

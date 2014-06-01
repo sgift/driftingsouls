@@ -20,7 +20,6 @@ package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.framework.AnnotationUtils;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -159,11 +158,10 @@ public class AdminController extends Controller
 	/**
 	 * Konstruktor.
 	 *
-	 * @param context Der zu verwendende Kontext
 	 */
-	public AdminController(Context context)
+	public AdminController()
 	{
-		super(context);
+		super();
 	}
 
 	private void addMenuEntry(Class<?> cls, String menuentry, String submenuentry)

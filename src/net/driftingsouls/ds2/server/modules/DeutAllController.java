@@ -25,7 +25,6 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
@@ -48,10 +47,9 @@ public class DeutAllController extends TemplateController
 
 	/**
 	 * Konstruktor.
-	 * @param context Der zu verwendende Kontext
 	 */
-	public DeutAllController(Context context) {
-		super(context);
+	public DeutAllController() {
+		super();
 
 		setPageTitle("Deut. sammeln");
 	}

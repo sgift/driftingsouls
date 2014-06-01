@@ -46,11 +46,10 @@ public class SearchController extends Controller
 	/**
 	 * Konstruktor.
 	 *
-	 * @param context Der zu verwendende Kontext
 	 */
-	public SearchController(Context context)
+	public SearchController()
 	{
-		super(context);
+		super();
 	}
 
 	@ViewModel

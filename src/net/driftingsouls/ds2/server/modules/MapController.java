@@ -12,7 +12,6 @@ import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ViewMessage;
 import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
@@ -63,12 +62,9 @@ public class MapController extends AngularController
 	/**
 	 * Legt den MapController an.
 	 *
-	 * @param context Der Kontext.
 	 */
-	public MapController(Context context)
+	public MapController()
 	{
-		super(context);
-
 		setPageTitle("Sternenkarte");
 	}
 

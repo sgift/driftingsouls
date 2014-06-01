@@ -107,10 +107,9 @@ public class AngriffController extends TemplateController
 
 	/**
 	 * Konstruktor.
-	 * @param context Der zu verwendende Kontext
 	 */
-	public AngriffController(Context context) {
-		super(context);
+	public AngriffController() {
+		super();
 
 		setPageTitle("Schlacht");
 

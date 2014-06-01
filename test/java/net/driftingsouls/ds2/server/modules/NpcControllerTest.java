@@ -39,7 +39,7 @@ public class NpcControllerTest extends DBSingleTransactionTest
 		rasse.setHead(user);
 
 		getContext().setActiveUser(user);
-		controller = new NpcController(getContext());
+		controller = new NpcController();
 	}
 
 	@Test

@@ -10,7 +10,6 @@ import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedOutput;
 import net.driftingsouls.ds2.server.entities.NewsEntry;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
@@ -37,11 +36,10 @@ public class NewsController extends TemplateController
 	/**
 	 * Legt den RSS Feed an.
 	 *
-	 * @param context Der Kontext.
 	 */
-	public NewsController(Context context)
+	public NewsController()
 	{
-		super(context);
+		super();
 	}
 
 	@Override

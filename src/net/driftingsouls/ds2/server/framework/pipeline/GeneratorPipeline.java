@@ -18,12 +18,11 @@
  */
 package net.driftingsouls.ds2.server.framework.pipeline;
 
-import java.lang.reflect.Constructor;
-
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
-
 import org.w3c.dom.Node;
+
+import java.lang.reflect.Constructor;
 
 /**
  * Eine Generator-basierte Pipeline bestehend aus Generator, Transformer und Serializer,
@@ -43,10 +42,9 @@ public class GeneratorPipeline implements Pipeline {
 	}
 	
 	private void generateContent(Context context, Class<? extends Controller> generator) throws Exception {
-		Constructor<? extends Controller> constr = generator.getConstructor(Context.class);
-		constr.setAccessible(true);
+		Constructor<? extends Controller> constr = generator.getConstructor();
 
-		Controller cntl = constr.newInstance(context);
+		Controller cntl = constr.newInstance();
 		context.autowireBean(cntl);
 
 		cntl.handleAction(context.getRequest().getParameter("action"));

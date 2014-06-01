@@ -82,11 +82,10 @@ public class ItemInfoController extends TemplateController
 	/**
 	 * Konstruktor.
 	 *
-	 * @param context Der zu verwendende Kontext
 	 */
-	public ItemInfoController(Context context)
+	public ItemInfoController()
 	{
-		super(context);
+		super();
 
 		setPageTitle("Item");
 	}

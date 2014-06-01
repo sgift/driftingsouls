@@ -18,16 +18,15 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Hilfeseite fuer BBCodes (Popup).
@@ -74,10 +73,9 @@ public class BBCodeViewController extends TemplateController
 
 	/**
 	 * Konstruktor.
-	 * @param context Der zu verwendende Kontext
 	 */
-	public BBCodeViewController(Context context) {
-		super(context);
+	public BBCodeViewController() {
+		super();
 	}
 
 	/**
