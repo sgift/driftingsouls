@@ -13,6 +13,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.EmptyHeaderFooterOutputHandler;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
@@ -42,19 +43,11 @@ public class NewsController extends TemplateController
 		super();
 	}
 
-	@Override
-	protected void printHeader() throws IOException
-	{}
-
-	@Override
-	protected void printFooter(String action) throws IOException
-	{}
-
 	/**
 	 * Gibt den News RSS Feed aus.
 	 */
 	@Override
-	@Action(ActionType.DEFAULT)
+	@Action(value = ActionType.DEFAULT, outputHandler = EmptyHeaderFooterOutputHandler.class)
 	public void defaultAction() throws IOException
 	{
 		SyndFeed feed = new SyndFeedImpl();
@@ -66,19 +59,19 @@ public class NewsController extends TemplateController
 		Session db = getDB();
 		List<SyndEntry> entries = new ArrayList<>();
 		List<NewsEntry> allNews = Common.cast(db.createQuery("from NewsEntry").list());
-		for(NewsEntry news: allNews)
+		for (NewsEntry news : allNews)
 		{
-	     SyndEntry entry = new SyndEntryImpl();
-	     entry.setTitle(news.getTitle());
-	     entry.setPublishedDate(new Date(news.getDate() * 1000));
-	     entry.setLink("./ds?module=newsdetail&action=default&newsid=" + news.getId());
+			SyndEntry entry = new SyndEntryImpl();
+			entry.setTitle(news.getTitle());
+			entry.setPublishedDate(new Date(news.getDate() * 1000));
+			entry.setLink("./ds?module=newsdetail&action=default&newsid=" + news.getId());
 
-	     SyndContent description = new SyndContentImpl();
-	     description.setType("text/plain");
-	     description.setValue(news.getShortDescription());
-	     entry.setDescription(description);
+			SyndContent description = new SyndContentImpl();
+			description.setType("text/plain");
+			description.setValue(news.getShortDescription());
+			entry.setDescription(description);
 
-	     entries.add(entry);
+			entries.add(entry);
 		}
 		feed.setEntries(entries);
 
@@ -89,7 +82,7 @@ public class NewsController extends TemplateController
 		{
 			result.output(feed, writer);
 		}
-		catch( FeedException e )
+		catch (FeedException e)
 		{
 			log.error("Could not write out rss feed due to errors", e);
 		}

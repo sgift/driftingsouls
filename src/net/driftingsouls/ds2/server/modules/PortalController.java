@@ -47,6 +47,7 @@ import net.driftingsouls.ds2.server.framework.authentication.WrongPasswordExcept
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.EmptyHeaderOutputHandler;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.units.TransientUnitCargo;
@@ -67,7 +68,7 @@ import java.util.List;
  *
  * @author Christopher Jung
  */
-@Module(name = "portal", defaultModule = true)
+@Module(name = "portal", defaultModule = true, outputHandler = EmptyHeaderOutputHandler.class)
 public class PortalController extends TemplateController
 {
 	private AuthenticationManager authManager;
@@ -91,12 +92,6 @@ public class PortalController extends TemplateController
 	public void setAuthenticationManager(AuthenticationManager authManager)
 	{
 		this.authManager = authManager;
-	}
-
-	@Override
-	protected void printHeader()
-	{
-		// EMPTY
 	}
 
 	@Override

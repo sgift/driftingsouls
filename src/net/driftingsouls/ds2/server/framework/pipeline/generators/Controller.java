@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.PermissionDescriptor;
 import net.driftingsouls.ds2.server.framework.PermissionResolver;
 import net.driftingsouls.ds2.server.framework.ViewModel;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.pipeline.Response;
 import org.apache.commons.logging.Log;
@@ -54,7 +55,7 @@ public abstract class Controller implements PermissionResolver
 	private static final Log log = LogFactory.getLog(Controller.class);
 
 	private ActionType actionType;
-	private OutputHelper actionTypeHandler;
+	private OutputHandler actionTypeHandler;
 
 	private boolean disableDebugOutput;
 	private long startTime;
@@ -337,13 +338,13 @@ public abstract class Controller implements PermissionResolver
 			Method method = getMethodForAction(this, action);
 
 			Action actionDescriptor = method.getAnnotation(Action.class);
-			setActionType(actionDescriptor.value());
+			setActionType(actionDescriptor);
 
 			try
 			{
 				if ((getErrorList().length != 0) || !validateAndPrepare())
 				{
-					printErrorListOnly(actionDescriptor.value());
+					printErrorListOnly();
 
 					return;
 				}
@@ -373,7 +374,7 @@ public abstract class Controller implements PermissionResolver
 			catch (ValidierungException e)
 			{
 				addError(e.getMessage(), e.getUrl());
-				printErrorListOnly(actionDescriptor.value());
+				printErrorListOnly();
 				return;
 			}
 		}
@@ -393,7 +394,7 @@ public abstract class Controller implements PermissionResolver
 
 		this.parameterReader.parseSubParameter("");
 
-		printErrorList(this.actionType);
+		printErrorList();
 
 		printFooter(action);
 	}
@@ -459,7 +460,7 @@ public abstract class Controller implements PermissionResolver
 		}
 	}
 
-	protected void printErrorList(ActionType type) throws IOException
+	private void printErrorList() throws IOException
 	{
 		if (getErrorList().length > 0)
 		{
@@ -467,11 +468,11 @@ public abstract class Controller implements PermissionResolver
 		}
 	}
 
-	protected void printErrorListOnly(ActionType type) throws IOException
+	private void printErrorListOnly() throws IOException
 	{
 		actionTypeHandler.printHeader();
 
-		printErrorList(type);
+		printErrorList();
 
 		actionTypeHandler.printFooter();
 	}
@@ -569,24 +570,45 @@ public abstract class Controller implements PermissionResolver
 		bodyParameters.put(parameter, value);
 	}
 
-	protected final void setActionType(ActionType type)
+	private void setActionType(Action type) throws IllegalAccessException, InstantiationException
 	{
-		if (type == ActionType.DEFAULT)
+		if (type.value() == ActionType.DEFAULT)
 		{
-			actionTypeHandler = new HtmlOutputHelper();
+			actionTypeHandler = new HtmlOutputHandler();
 		}
-		else if (type == ActionType.AJAX)
+		else if (type.value() == ActionType.AJAX)
 		{
-			actionTypeHandler = new AjaxOutputHelper();
+			actionTypeHandler = new AjaxOutputHandler();
 		}
-		else if (type == ActionType.BINARY)
+		else if (type.value() == ActionType.BINARY)
 		{
-			actionTypeHandler = new BinaryOutputHelper();
+			actionTypeHandler = new BinaryOutputHandler();
+		}
+
+		if (type.outputHandler() != OutputHandler.class)
+		{
+			actionTypeHandler = type.outputHandler().newInstance();
+		}
+		else
+		{
+			Class<?> aClass = getClass();
+			do
+			{
+				if (aClass.isAnnotationPresent(Module.class))
+				{
+					Module annotation = aClass.getAnnotation(Module.class);
+					if (annotation.outputHandler() != OutputHandler.class)
+					{
+						actionTypeHandler = annotation.outputHandler().newInstance();
+						break;
+					}
+				}
+			} while ((aClass = aClass.getSuperclass()) != null);
 		}
 
 		getContext().autowireBean(actionTypeHandler);
 
-		actionType = type;
+		actionType = type.value();
 	}
 
 	/**
@@ -604,7 +626,7 @@ public abstract class Controller implements PermissionResolver
 	 *
 	 * @return Die Ausgabehilfe
 	 */
-	protected final OutputHelper getOutputHelper()
+	protected final OutputHandler getOutputHelper()
 	{
 		return actionTypeHandler;
 	}

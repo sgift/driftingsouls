@@ -42,4 +42,11 @@ public @interface Action {
 	 * dem Datenbanksystem einige Optimierungen (z.B. keine flushes usw).
 	 */
 	boolean readOnly() default false;
+
+	/**
+	 * Die fuer die Ausgabe von Header, Footer und Fehlern zustaendige Implementierung.
+	 * Standardmaessig waehlt das Framework selbst die passende Implementierung in
+	 * Abhaengigkeit von gewaehlten {@link ActionType}.
+	 */
+	Class<? extends OutputHandler> outputHandler() default OutputHandler.class;
 }

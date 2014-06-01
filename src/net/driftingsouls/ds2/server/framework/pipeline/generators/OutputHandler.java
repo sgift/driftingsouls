@@ -11,7 +11,7 @@ import java.util.Map;
  * Basisklasse fuer Objekte zur Ausgabe von Header, Footer und Fehlern.
  *
  */
-abstract class OutputHelper
+public abstract class OutputHandler
 {
 	private Context context = null;
 	private Map<String,Object> attributes = new HashMap<>();
@@ -20,7 +20,7 @@ abstract class OutputHelper
 	 * Konstruktor.
 	 *
 	 */
-	public OutputHelper() {
+	public OutputHandler() {
 		context = ContextMap.getContext();
 	}
 

@@ -1,9 +1,6 @@
 package net.driftingsouls.ds2.server.framework.pipeline.generators;
 
-import com.google.gson.Gson;
 import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.ViewModel;
-import net.driftingsouls.ds2.server.framework.pipeline.Error;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,8 +8,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Generator fuer auf AngularJS aufbauende DS-Module.
@@ -27,42 +22,6 @@ public abstract class AngularController extends Controller
 		
 		this.addBodyParameter("ng-app", "ds.application");
 		this.setDisableDebugOutput(true);
-	}
-
-	@ViewModel
-	public static class ErrorResult
-	{
-		public static class MessageViewModel
-		{
-			public String type;
-		}
-
-		public static class ErrorViewModel
-		{
-			public String description;
-			public String url;
-		}
-
-		public MessageViewModel message;
-		public List<ErrorViewModel> errors = new ArrayList<>();
-	}
-
-	@Override
-	protected void printErrorListOnly(ActionType type) throws IOException
-	{
-		ErrorResult result = new ErrorResult();
-		for( Error error : this.getErrorList() )
-		{
-			ErrorResult.ErrorViewModel errorObj = new ErrorResult.ErrorViewModel();
-			errorObj.description = error.getDescription();
-			errorObj.url = error.getUrl();
-			result.errors.add(errorObj);
-		}
-
-		result.message = new ErrorResult.MessageViewModel();
-		result.message.type = "errorlist";
-		
-		getResponse().getWriter().write(new Gson().toJson(result));
 	}
 
 	@Override

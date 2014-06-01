@@ -22,7 +22,8 @@ import java.util.TreeSet;
  * </ul>
  *
  */
-class HtmlOutputHelper extends OutputHelper {
+public class HtmlOutputHandler extends OutputHandler
+{
 	private Version version;
 
 	/**

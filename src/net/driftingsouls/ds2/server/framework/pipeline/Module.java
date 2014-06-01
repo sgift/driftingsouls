@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.framework.pipeline;
 
+import net.driftingsouls.ds2.server.framework.pipeline.generators.OutputHandler;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -25,7 +27,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marker fuer Pipeline-Module.
+ * Marker fuer Pipeline-Module. Eine hiermit annotierte Klasse muss
+ * von {@link net.driftingsouls.ds2.server.framework.pipeline.generators.Controller} abgeleitet sein.
  * @author Christopher Jung
  *
  */
@@ -43,4 +46,13 @@ public @interface Module
 	 * verwendet werden soll. Es darf zu jedem Zeitpunkt nur ein Default-Module geben.
 	 */
 	boolean defaultModule() default false;
+
+	/**
+	 * Die fuer die Ausgabe von Header, Footer und Fehlern zustaendige Implementierung.
+	 * Standardmaessig waehlt das Framework selbst die passende Implementierung in
+	 * Abhaengigkeit von gewaehlten {@link net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType}.
+	 * Der hier angegebene Handler kann noch durch eine explizite Angabe von {@link net.driftingsouls.ds2.server.framework.pipeline.generators.Action#outputHandler}
+	 * ueberschrieben werden.
+	 */
+	Class<? extends OutputHandler> outputHandler() default OutputHandler.class;
 }

@@ -33,7 +33,6 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -495,17 +494,7 @@ public class AngriffController extends TemplateController
 		int mangelnahrungcount;
 		int mangelreaktorcount;
 	}
-	
-	@Override
-	protected void printHeader() throws IOException {
-		TemplateEngine t = getTemplateEngine();
-		
-		t.setBlock("_BASE", "header", "none" );
-		t.parse("__HEADER","header");
-		
-		super.printHeader();
-	}
-	
+
 	/**
 	 * Zeigt die GUI an.
 	 * @throws IOException 

@@ -5,6 +5,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.EmptyHeaderOutputHandler;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
@@ -27,15 +28,10 @@ public class NewsDetailController extends TemplateController
 		super();
 	}
 
-	@Override
-	protected void printHeader()
-	{
-	}
-
 	/**
 	 * Zeigt den Newseintrag an.
 	 */
-	@Action(ActionType.DEFAULT)
+	@Action(value = ActionType.DEFAULT, outputHandler = EmptyHeaderOutputHandler.class)
 	public void defaultAction(NewsEntry newsid) throws IOException
 	{
 		TemplateEngine t = getTemplateEngine();
