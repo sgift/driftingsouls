@@ -88,7 +88,7 @@ public abstract class Controller implements PermissionResolver
 		this.disablePageMenu = false;
 	}
 
-	protected String getModule()
+	protected final String getModule()
 	{
 		return this.parameterReader.getString("module");
 	}
@@ -99,7 +99,7 @@ public abstract class Controller implements PermissionResolver
 	 *
 	 * @param parameter Der Parametername
 	 */
-	public void unsetParameter(String parameter)
+	public final void unsetParameter(String parameter)
 	{
 		this.parameterReader.unsetParameter(parameter);
 	}
@@ -117,7 +117,7 @@ public abstract class Controller implements PermissionResolver
 	 * @return Das Ergebnis der Methode
 	 * @throws ReflectiveOperationException Falls die Reflection-Operation schief laeuft
 	 */
-	protected Object rufeAlsSubActionAuf(String subparam, Object objekt, String methode, Object... args) throws ReflectiveOperationException
+	protected final Object rufeAlsSubActionAuf(String subparam, Object objekt, String methode, Object... args) throws ReflectiveOperationException
 	{
 		if (subparam != null)
 		{
@@ -167,7 +167,7 @@ public abstract class Controller implements PermissionResolver
 	 *
 	 * @param action Der Name der Aktion
 	 */
-	protected void redirect(String action)
+	protected final void redirect(String action)
 	{
 		redirect(action, new HashMap<>());
 	}
@@ -245,12 +245,12 @@ public abstract class Controller implements PermissionResolver
 	 * wird <code>null</code> zurueckgegeben.
 	 * @return Der User oder <code>null</code>
 	 */
-	public BasicUser getUser() {
+	public final BasicUser getUser() {
 		return getContext().getActiveUser();
 	}
 
 	@Override
-	public boolean hasPermission(PermissionDescriptor permission)
+	public final boolean hasPermission(PermissionDescriptor permission)
 	{
 		return this.context.hasPermission(permission);
 	}
@@ -269,7 +269,7 @@ public abstract class Controller implements PermissionResolver
 	 * @param action Der Name der Aktion
 	 * @param arguments An diese Action zu uebergebende Parameter. Diese Parameter haben vorrang vor URL-Parametern.
 	 */
-	protected void redirect(String action, Map<String, Object> arguments)
+	protected final void redirect(String action, Map<String, Object> arguments)
 	{
 		try
 		{
@@ -290,7 +290,7 @@ public abstract class Controller implements PermissionResolver
 	/**
 	 * Ruft die Standardaktion auf.
 	 */
-	protected void redirect()
+	protected final void redirect()
 	{
 		redirect("default", new HashMap<>());
 	}
@@ -325,7 +325,7 @@ public abstract class Controller implements PermissionResolver
 		throw new NoSuchMethodException();
 	}
 
-	public void handleAction(String action) throws IOException
+	public final void handleAction(String action) throws IOException
 	{
 		if ((action == null) || action.isEmpty())
 		{
@@ -433,7 +433,7 @@ public abstract class Controller implements PermissionResolver
 		return method.invoke(this, params);
 	}
 
-	protected void writeResultObject(Object result, ActionType value) throws IOException
+	protected final void writeResultObject(Object result, ActionType value) throws IOException
 	{
 		if (result != null)
 		{
@@ -500,7 +500,7 @@ public abstract class Controller implements PermissionResolver
 	 *
 	 * @param value <code>true</code> zur Deaktivierung
 	 */
-	public void setDisableDebugOutput(boolean value)
+	public final void setDisableDebugOutput(boolean value)
 	{
 		disableDebugOutput = value;
 	}
@@ -510,7 +510,7 @@ public abstract class Controller implements PermissionResolver
 	 *
 	 * @param title Die Bezeichnung
 	 */
-	public void setPageTitle(String title)
+	public final void setPageTitle(String title)
 	{
 		this.pageTitle = title;
 	}
@@ -521,7 +521,7 @@ public abstract class Controller implements PermissionResolver
 	 * @param title Die Titel des Eintrags
 	 * @param url Die URL
 	 */
-	public void addPageMenuEntry(String title, String url)
+	public final void addPageMenuEntry(String title, String url)
 	{
 		this.pageMenuEntries.add(new PageMenuEntry(title, url));
 	}
@@ -531,7 +531,7 @@ public abstract class Controller implements PermissionResolver
 	 *
 	 * @param value <code>true</code>, falls es nicht verwendet werden soll
 	 */
-	public void setDisablePageMenu(boolean value)
+	public final void setDisablePageMenu(boolean value)
 	{
 		this.disablePageMenu = value;
 	}
@@ -564,12 +564,12 @@ public abstract class Controller implements PermissionResolver
 	 * @param parameter Der Name des Attributs
 	 * @param value Der Wert
 	 */
-	public void addBodyParameter(String parameter, String value)
+	public final void addBodyParameter(String parameter, String value)
 	{
 		bodyParameters.put(parameter, value);
 	}
 
-	protected void setActionType(ActionType type)
+	protected final void setActionType(ActionType type)
 	{
 		if (type == ActionType.DEFAULT)
 		{
@@ -594,7 +594,7 @@ public abstract class Controller implements PermissionResolver
 	 *
 	 * @return Der Aktionstyp
 	 */
-	protected ActionType getActionType()
+	protected final ActionType getActionType()
 	{
 		return actionType;
 	}
@@ -604,7 +604,7 @@ public abstract class Controller implements PermissionResolver
 	 *
 	 * @return Die Ausgabehilfe
 	 */
-	protected OutputHelper getOutputHelper()
+	protected final OutputHelper getOutputHelper()
 	{
 		return actionTypeHandler;
 	}
