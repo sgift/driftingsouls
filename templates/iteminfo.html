@@ -60,35 +60,6 @@
 	</div>
 {/endif}
 
-{if iteminfo.itemlist}
-	<div class="gfxbox" style="min-width:460px;display:inline-block">
-		<table cellpadding="3">
-		<thead>
-			<tr>
-				<th>&nbsp;</th>
-				<th>Name</th>
-				<th>Typ</th>
-				<th>Gr&ouml;&szlig;e</th>
-				<th>Menge</th>
-			</tr>
-		</thead>
-		<tbody>
-		<!-- BEGIN itemlist.listitem -->
-			<tr>
-				<td><img src="{item.picture}" alt="" /></td>
-				<td>
-					{!link_to $item.name, details, item:$item.id}
-				</td>
-				<td>{item.class}</td>
-				<td align="center">{item.cargo}</td>
-				<td>{item.count}</td>
-			</tr>
-		<!-- END itemlist.listitem -->
-		</tbody>
-		</table>
-	</div>
-{/endif}
-
 {if iteminfo.knownlist}
 	<div class="gfxbox" style="min-width:460px;display:inline-block">
 		<table cellpadding="3">

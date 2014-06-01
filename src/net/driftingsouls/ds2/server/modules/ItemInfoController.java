@@ -21,7 +21,6 @@ package net.driftingsouls.ds2.server.modules;
 import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
@@ -46,14 +45,12 @@ import net.driftingsouls.ds2.server.entities.Weapon;
 import net.driftingsouls.ds2.server.entities.statistik.StatItemLocations;
 import net.driftingsouls.ds2.server.entities.statistik.StatUserCargo;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.viewmodels.ItemViewModel;
 import net.driftingsouls.ds2.server.ships.SchiffstypModifikation;
@@ -318,11 +315,16 @@ public class ItemInfoController extends TemplateController
 	 * @param itemStr Die ID des anzuzeigenden Items
 	 */
 	@Action(ActionType.DEFAULT)
-	public void detailsAction(@UrlParam(name = "item") String itemStr)
+	public void detailsAction(@UrlParam(name = "item") String itemStr, @UrlParam(name = "itemlist") String itemlistStr)
 	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
+
+		if( itemlistStr != null && !itemlistStr.trim().isEmpty() )
+		{
+			itemStr = itemlistStr;
+		}
 
 		int itemid = -1;
 		if (ItemID.isItemRID(itemStr))
@@ -901,70 +903,6 @@ public class ItemInfoController extends TemplateController
 	@Action(ActionType.DEFAULT)
 	public void defaultAction(@UrlParam(name = "itemlist") String itemlistStr)
 	{
-		TemplateEngine t = this.getTemplateEngine();
-		User user = (User) getUser();
-
-		Cargo itemlist;
-
-		try
-		{
-			itemlist = new Cargo();
-			itemlist.addResource(Resources.fromString(itemlistStr), 1);
-		}
-		catch (Exception e)
-		{
-			try
-			{
-				// Offenbar keine Item-ID
-				// Jetzt versuchen, die Liste als Itemliste zu parsen
-				itemlist = new Cargo(Cargo.Type.ITEMSTRING, itemlistStr);
-			}
-			catch (Exception f)
-			{
-				throw new ValidierungException("Kein gueltiges Item angegeben");
-			}
-		}
-
-		t.setVar("iteminfo.itemlist", 1);
-
-		t.setBlock("_ITEMINFO", "itemlist.listitem", "itemlist.list");
-
-		List<ItemCargoEntry> myitemlist = itemlist.getItems();
-		for (ItemCargoEntry item : myitemlist)
-		{
-			Item itemobject = item.getItem();
-
-			if (itemobject == null)
-			{
-				continue;
-			}
-
-			if (itemobject.getAccessLevel() > user.getAccessLevel())
-			{
-				continue;
-			}
-
-			if (itemobject.isUnknownItem() && !user.isKnownItem(item.getItemID()) && !hasPermission(WellKnownPermission.ITEM_UNBEKANNTE_SICHTBAR))
-			{
-				continue;
-			}
-
-			ItemEffect itemeffect = item.getItem().getEffect();
-
-			String name = Common._plaintitle(itemobject.getName());
-			if (itemobject.getQuality().color().length() > 0)
-			{
-				name = "<span style=\"color:" + itemobject.getQuality().color() + "\">" + name + "</span>";
-			}
-
-			t.setVar("item.picture", itemobject.getPicture(),
-					"item.id", item.getItemID(),
-					"item.name", name,
-					"item.class", itemeffect.getType().getName(),
-					"item.cargo", itemobject.getCargo(),
-					"item.count", item.getCount());
-
-			t.parse("itemlist.list", "itemlist.listitem", true);
-		}
+		redirect("details");
 	}
 }
