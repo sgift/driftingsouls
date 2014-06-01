@@ -50,7 +50,7 @@ public class EditShip implements EntityEditor<Ship>
 	{
 		form.field("Name", String.class, Ship::getName, Ship::setName);
 		form.field("Besitzer", User.class, Ship::getOwner, Ship::setOwner).dbColumn(Ship_.owner);
-		form.field("System", Integer.class, Ship::getSystem, Ship::setSystem);
+		form.field("System", Integer.class, Ship::getSystem, Ship::setSystem).dbColumn(Ship_.system);
 		form.field("x", Integer.class, Ship::getX, Ship::setX);
 		form.field("y", Integer.class, Ship::getY, Ship::setY);
 		form.field("Schiffstyp", ShipType.class, Ship::getBaseType, Ship::setBaseType).dbColumn(Ship_.shiptype);

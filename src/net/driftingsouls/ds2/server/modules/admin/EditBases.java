@@ -56,7 +56,7 @@ public class EditBases implements EntityEditor<Base>
 	{
 		form.field("Name", String.class, Base::getName, Base::setName);
 		form.field("Besitzer", User.class, Base::getOwner, Base::setOwner).dbColumn(Base_.owner);
-		form.field("System", Integer.class, Base::getSystem, Base::setSystem);
+		form.field("System", Integer.class, Base::getSystem, Base::setSystem).dbColumn(Base_.system);
 		form.field("x", Integer.class, Base::getX, Base::setX);
 		form.field("y", Integer.class, Base::getY, Base::setY);
 		form.field("Aktuelle Energie", Integer.class, Base::getEnergy, Base::setEnergy);
