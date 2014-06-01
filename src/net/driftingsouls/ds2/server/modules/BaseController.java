@@ -40,7 +40,6 @@ import net.driftingsouls.ds2.server.modules.viewmodels.ResourceEntryViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.UnitCargoEntryViewModel;
 import net.driftingsouls.ds2.server.units.UnitCargoEntry;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -194,45 +193,6 @@ public class BaseController extends TemplateController
 		}
 
 		redirect();
-	}
-
-	@Override
-	protected void printHeader() throws IOException {
-		TemplateEngine t = getTemplateEngine();
-
-		// TODO: Diese gesamte Methode gehoert eliminiert. Es muss (und wird)
-		// einen Weg geben mit einem festen Satz an CSS-Stilen fuer beliebig grosse
-		// Basen auszukommen
-		t.setBlock("_BASE", "header", "none" );
-		t.setBlock("header", "tiles.listitem", "tiles.list");
-
-		int colId = getContext().getRequest().getParameterInt("col");
-		Base base = (Base)getDB().get(Base.class, colId);
-		if( base == null || base.getOwner() != getUser() )
-		{
-			return;
-		}
-
-		int topOffset = 5;
-		int leftOffset = 5;
-
-		for( int i = 0; i < base.getHeight(); i++ ) {
-			for( int j = 0; j < base.getWidth(); j++ ) {
-				int top = topOffset + ((j % 2)+ i * 2) * 22;
-	   			int left = leftOffset + j * 39;
-
-   				t.setVar(	"tile.id",		base.getWidth()*i+j,
-   							"tile.top",		top,
-   							"tile.left",	left );
-
-   				t.parse("tiles.list", "tiles.listitem", true);
-			}
-
-		}
-
-		t.parse("__HEADER","header");
-
-		super.printHeader();
 	}
 
 	@ViewModel
@@ -421,7 +381,7 @@ public class BaseController extends TemplateController
 					"base.core.active",		base.isCoreActive(),
 					"base.isfeeding",		base.isFeeding(),
 					"base.isloading",		base.isLoading(),
-					"base.map.width",		(base.getWidth()*39+20 > 410 ? 410 : base.getWidth()*39+20),
+					"base.map.width",		base.getWidth()*39+20,
 					"base.cargo.height",	(mapheight < 280 ? "280" : mapheight),
 					"base.cargo.empty",		Common.ln(base.getMaxCargo() - base.getCargo().getMass()) );
 
@@ -484,9 +444,11 @@ public class BaseController extends TemplateController
 							"tile.building.json", building.isSupportsJson());
 			}
 
-			t.setVar(	"tile.field",			i,
-						"tile.building.image",	image,
-						"tile.id",				i );
+			t.setVar("tile.field", i,
+					"tile.building.image", image,
+					"tile.id", i,
+					"tile.beginrow", i%base.getWidth() == 0,
+					"tile.endrow", (i+1)%base.getWidth() == 0);
 
 			t.parse("base.map.list", "base.map.listitem", true);
 

@@ -123,13 +123,13 @@ function BaseView() {
 	this.updateGebaeudeAktionen = updateGebaeudeAktionen;
 	this.updateStats = updateStats;
 	this.showNameInput = showNameInput;
-};
+}
 
 var Base = {
 	view : new BaseView(),
 	highlightBuilding : function(buildingCls) {
 		$('#baseMap').addClass('fade');
-		$('#baseMap .'+buildingCls).addClass('highlight');
+		$('#baseMap .'+buildingCls).closest('.tile').addClass('highlight');
 	},
 	noBuildingHighlight : function() {
 		$('#baseMap').removeClass('fade');
@@ -236,7 +236,7 @@ function BuildingUi(base, tileId) {
 					center:true
 				});
 			}
-		};
+		}
 
 		function renderEmpty() {
 			if( $('#buildingBox').size() == 0 ) {
@@ -252,7 +252,7 @@ function BuildingUi(base, tileId) {
 			var content = buildingBox.find('.content');
 			content.empty();
 			content.append('Lade...');
-		};
+		}
 
 		function renderBuilding(model) {
 			var content = $('#buildingBox .content');
@@ -298,7 +298,7 @@ function BuildingUi(base, tileId) {
 
 			content.append(out);
 			DsTooltip.update(content);
-		};
+		}
 
 		function doShutdown() {
 			$('#startStopBuilding').text('aktivieren');
@@ -338,7 +338,7 @@ function BuildingUi(base, tileId) {
 		}
 
 		function renderDemoResponse(demoModel) {
-			tmpl = '<div align="center">Rückerstattung:</div><br />'+
+			var tmpl = '<div align="center">Rückerstattung:</div><br />'+
 				'{{#demoCargo}}'+
 				'<img src="{{image}}" alt="" />{{{cargo1}}}'+
 				'{{#spaceMissing}} - <span style="color:red">Nicht genug Platz für alle Waren</span>{{/spaceMissing}}'+
@@ -367,7 +367,7 @@ function BuildingUi(base, tileId) {
 		this.renderMessage = renderMessage;
 		this.renderAskDemo = renderAskDemo;
 		this.renderDemoResponse = renderDemoResponse;
-	};
+	}
 
 	var view = new BuildingView();
 
@@ -384,13 +384,13 @@ function BuildingUi(base, tileId) {
 			);
 			return false;
 		});
-	};
+	}
 
 	function parseDemoBuilding(demoModel) {
 		view.renderDemoResponse(demoModel);
 
 		base.refreshAll();
-	};
+	}
 
 	function __parseBuildingResponse(model) {
 		if( model.noJsonSupport ) {
@@ -412,7 +412,7 @@ function BuildingUi(base, tileId) {
 		}
 
 		__bindBuildingStartStop(model.col, model.field, model.building.active);
-	};
+	}
 
 	function __bindBuildingStartStop(col, field, active) {
 		$('#startStopBuilding').unbind('click.startStop');
@@ -435,7 +435,7 @@ function BuildingUi(base, tileId) {
 				return false;
 			});
 		}
-	};
+	}
 	function __parseBuildingShutdown(resp) {
 		if( !resp.success ) {
 			view.renderMessage(resp.message);
@@ -443,9 +443,10 @@ function BuildingUi(base, tileId) {
 			return;
 		}
 
-		var link = $('#baseMap .p'+resp.field).html();
+		var buildingTile = $('#baseMap .p' + resp.field);
+		var link = buildingTile.html();
 
-		$('#baseMap').append('<div class="o'+resp.field+' overlay">'+link+'</div>');
+		buildingTile.closest('.tile').append('<div class="o'+resp.field+' overlay">'+link+'</div>');
 		$('#baseMap .o'+resp.field+' img').attr('src','./data/buildings/overlay_offline.png');
 
 		view.doShutdown();
@@ -453,7 +454,7 @@ function BuildingUi(base, tileId) {
 		__bindBuildingStartStop(resp.col, resp.field, false);
 
 		base.refreshCargoAndActions();
-	};
+	}
 	function __parseBuildingStart(resp) {
 		if( !resp.success ) {
 			view.renderMessage(resp.message);
@@ -468,7 +469,7 @@ function BuildingUi(base, tileId) {
 		__bindBuildingStartStop(resp.col, resp.field, true);
 
 		base.refreshCargoAndActions();
-	};
+	}
 
 	view.renderEmpty();
 
@@ -478,4 +479,4 @@ function BuildingUi(base, tileId) {
 		col:base.getBaseId(),
 		field:tileId
 	}, __parseBuildingResponse);
-};
+}

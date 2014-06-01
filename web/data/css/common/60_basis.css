@@ -8,12 +8,37 @@
 	top:0px;
 	overflow:auto;
 	left:0px;
+	padding-left:5px;
+	padding-top:5px;
+}
+
+
+#baseMap .tilerow {
+	height:43px;
+	float: left;
+	margin-top:1px;
+}
+
+#baseMap .tile:first-child {
+	margin-left: 0;
 }
 
 #baseMap .tile {
 	width:49px;
 	height:43px;
+	float:left;
+	margin-left: -10px;
+	position: relative;
+}
+
+#baseMap .tile:nth-child(even) {
+	margin-top:22px;
+}
+
+#baseMap .overlay {
 	position:absolute;
+	top:0;
+	left:0;
 }
 
 #baseMap.fade .tile,

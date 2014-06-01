@@ -1,13 +1,3 @@
-<!-- BEGIN header -->
-	<style type="text/css">
-	<!--
-		<!-- BEGIN tiles.listitem -->
-			div.p{tile.id} {position: absolute; top:{tile.top}px; left:{tile.left}px; z-index: 2}
-			div.o{tile.id} {position: absolute; top:{tile.top}px; left:{tile.left}px; z-index: 3}
-		<!-- END tiles.listitem -->
-	-->
-	</style>
-<!-- END header -->
 <div id="baseContent">
 	{if base.message}
 		<div class="smallfont">
@@ -48,31 +38,39 @@
 		<div id="baseMap" style="width:{base.map.width}px; height:{base.cargo.height}px;">
 		<!-- +START+ Karte -->
 		<!-- BEGIN base.map.listitem -->
-			<div class="p{tile.id} tile {if tile.building}building{tile.building.id}{/endif}">
-				{if ! tile.overlay}
-					{if tile.building}
-						<a class="tooltip" {if tile.building.json}onclick="Base.showBuilding({tile.field});return false;"{/endif}
-							href="./ds?module=building&amp;col={base.id}&amp;field={tile.field}">
-							<span class="ttcontent">{tile.building.name}</span>
-					{else}
-						<a href="./ds?module=build&amp;col={base.id}&amp;field={tile.field}">
+			{if tile.beginrow}
+			<div class="tilerow">
+			{/endif}
+			<div class="tile">
+				<div class="p{tile.id} {if tile.building}building{tile.building.id}{/endif}">
+					{if ! tile.overlay}
+						{if tile.building}
+							<a class="tooltip" {if tile.building.json}onclick="Base.showBuilding({tile.field});return false;"{/endif}
+								href="./ds?module=building&amp;col={base.id}&amp;field={tile.field}">
+								<span class="ttcontent">{tile.building.name}</span>
+						{else}
+							<a href="./ds?module=build&amp;col={base.id}&amp;field={tile.field}">
+						{/endif}
 					{/endif}
-				{/endif}
-				<img style="border:0px" src="{URL}{tile.building.image}" alt="" />
-				{if ! tile.overlay}</a>{/endif}
-			</div>
-			{if tile.overlay}
-				<div class="o{tile.id} overlay">
-					{if tile.building}
-						<a class="tooltip" {if tile.building.json}onclick="Base.showBuilding({tile.field});return false;"{/endif}
-							href="./ds?module=building&amp;col={base.id}&amp;field={tile.field}">
-							<span class="ttcontent">{tile.building.name}</span>
-					{else}
-						<a href="./ds?module=build&amp;col={base.id}&amp;field={tile.field}">
-					{/endif}
-					<img style="border:0px" src="{URL}data/buildings/{tile.overlay.image}" alt="" />
-					</a>
+					<img style="border:0px" src="{URL}{tile.building.image}" alt="" />
+					{if ! tile.overlay}</a>{/endif}
 				</div>
+				{if tile.overlay}
+					<div class="o{tile.id} overlay">
+						{if tile.building}
+							<a class="tooltip" {if tile.building.json}onclick="Base.showBuilding({tile.field});return false;"{/endif}
+								href="./ds?module=building&amp;col={base.id}&amp;field={tile.field}">
+								<span class="ttcontent">{tile.building.name}</span>
+						{else}
+							<a href="./ds?module=build&amp;col={base.id}&amp;field={tile.field}">
+						{/endif}
+						<img style="border:0px" src="{URL}data/buildings/{tile.overlay.image}" alt="" />
+						</a>
+					</div>
+				{/endif}
+			</div>
+			{if tile.endrow}
+			</div>
 			{/endif}
 		<!-- END base.map.listitem -->
 		<!-- +END+ Karte -->
