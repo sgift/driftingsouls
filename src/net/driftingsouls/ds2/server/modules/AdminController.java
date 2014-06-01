@@ -31,6 +31,7 @@ import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditPlugin8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntitySelectionViewModel;
+import net.driftingsouls.ds2.server.modules.admin.editoren.JqGridSortOrder;
 import net.driftingsouls.ds2.server.modules.admin.editoren.JqGridTableDataViewModel;
 import net.driftingsouls.ds2.server.modules.admin.editoren.JqGridViewModel;
 import org.apache.log4j.LogManager;
@@ -256,7 +257,7 @@ public class AdminController extends Controller
 	}
 
 	@Action(ActionType.AJAX)
-	public JqGridTableDataViewModel tableDataAction(String namedplugin, int page, int rows)
+	public JqGridTableDataViewModel tableDataAction(String namedplugin, int page, int rows, String sidx, String sord)
 	{
 		if (namedplugin.isEmpty() || !validPlugins.contains(namedplugin))
 		{
@@ -271,7 +272,10 @@ public class AdminController extends Controller
 				throw new ValidierungException("Fuer dieses Plugin koennen keine Tabellendaten generiert werden: '"+namedplugin+"'");
 			}
 
-			return ((EditPlugin8)plugin).generateTableData(page, rows);
+			return ((EditPlugin8)plugin).generateTableData(page,
+					rows,
+					sidx != null && !sidx.isEmpty() ? sidx : null,
+					sord != null && !sord.isEmpty() ? JqGridSortOrder.valueOf(sord.toUpperCase()) : null);
 		}
 		catch (ReflectiveOperationException e)
 		{

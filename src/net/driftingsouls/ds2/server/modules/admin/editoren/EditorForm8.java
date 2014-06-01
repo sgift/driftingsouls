@@ -345,7 +345,7 @@ public class EditorForm8<E> implements FormElementCreator<E>
 		return new ConditionalFormElementCreator<>(plugin, this::generateName, (FormElementCreator<T>) this, entity -> entityClass.isAssignableFrom(entity.getClass()));
 	}
 
-	protected List<ColumnDefinition> getColumnDefinitions()
+	protected List<ColumnDefinition<E>> getColumnDefinitions()
 	{
 		return this.fields.stream().map(CustomFieldGenerator::getColumnDefinition).collect(Collectors.toList());
 	}

@@ -44,9 +44,9 @@ public class TextAreaGenerator<V> implements CustomFieldGenerator<V>
 	}
 
 	@Override
-	public ColumnDefinition getColumnDefinition()
+	public ColumnDefinition<V> getColumnDefinition()
 	{
-		return new ColumnDefinition(name, label, String.class, "textarea");
+		return new ColumnDefinition<>(name, label, String.class, "textarea");
 	}
 
 	@Override

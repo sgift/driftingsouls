@@ -22,6 +22,7 @@ import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.bases.AutoGTUAction;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.BaseType;
+import net.driftingsouls.ds2.server.bases.Base_;
 import net.driftingsouls.ds2.server.bases.Core;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
@@ -54,7 +55,7 @@ public class EditBases implements EntityEditor<Base>
 	public void configureFor(@Nonnull EditorForm8<Base> form)
 	{
 		form.field("Name", String.class, Base::getName, Base::setName);
-		form.field("Besitzer", User.class, Base::getOwner, Base::setOwner);
+		form.field("Besitzer", User.class, Base::getOwner, Base::setOwner).dbColumn(Base_.owner);
 		form.field("System", Integer.class, Base::getSystem, Base::setSystem);
 		form.field("x", Integer.class, Base::getX, Base::setX);
 		form.field("y", Integer.class, Base::getY, Base::setY);
@@ -64,7 +65,7 @@ public class EditBases implements EntityEditor<Base>
 		form.field("Cargo", Cargo.class, Base::getCargo, Base::setCargo);
 		form.field("Maximaler Cargo", Long.class, Base::getMaxCargo, Base::setMaxCargo);
 		form.field("Core", Core.class, Base::getCore, Base::setCore).withNullOption("[Keine]");
-		form.field("Klasse", BaseType.class, Base::getKlasse, Base::setKlasse);
+		form.field("Klasse", BaseType.class, Base::getKlasse, Base::setKlasse).dbColumn(Base_.klasse);
 		form.field("Breite", Integer.class, Base::getWidth, Base::setWidth);
 		form.field("Höhe", Integer.class, Base::getHeight, Base::setHeight);
 		form.field("Feldanzahl für Ausbauten", Integer.class, Base::getMaxTiles, Base::setMaxTiles);

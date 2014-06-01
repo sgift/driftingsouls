@@ -107,9 +107,9 @@ public class MultiSelectionGenerator<E, T> implements CustomFieldGenerator<E>
 	}
 
 	@Override
-	public ColumnDefinition getColumnDefinition()
+	public ColumnDefinition<E> getColumnDefinition()
 	{
-		return new ColumnDefinition(name, label, viewType);
+		return new ColumnDefinition<>(name, label, viewType);
 	}
 
 	@Override

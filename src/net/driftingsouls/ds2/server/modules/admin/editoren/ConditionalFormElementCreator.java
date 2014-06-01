@@ -39,7 +39,7 @@ class ConditionalFormElementCreator<E> implements FormElementCreator<E>
 		}
 
 		@Override
-		public ColumnDefinition getColumnDefinition()
+		public ColumnDefinition<E> getColumnDefinition()
 		{
 			return this.inner.getColumnDefinition();
 		}

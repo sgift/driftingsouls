@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
+import net.driftingsouls.ds2.server.ships.Ship_;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -48,11 +49,11 @@ public class EditShip implements EntityEditor<Ship>
 	public void configureFor(@Nonnull EditorForm8<Ship> form)
 	{
 		form.field("Name", String.class, Ship::getName, Ship::setName);
-		form.field("Besitzer", User.class, Ship::getOwner, Ship::setOwner);
+		form.field("Besitzer", User.class, Ship::getOwner, Ship::setOwner).dbColumn(Ship_.owner);
 		form.field("System", Integer.class, Ship::getSystem, Ship::setSystem);
 		form.field("x", Integer.class, Ship::getX, Ship::setX);
 		form.field("y", Integer.class, Ship::getY, Ship::setY);
-		form.field("Schiffstyp", ShipType.class, Ship::getBaseType, Ship::setBaseType);
+		form.field("Schiffstyp", ShipType.class, Ship::getBaseType, Ship::setBaseType).dbColumn(Ship_.shiptype);
 		form.field("Hülle", Integer.class, Ship::getHull, Ship::setHull);
 		form.field("Ablative Panzerung", Integer.class, Ship::getAblativeArmor, Ship::setAblativeArmor);
 		form.field("Schilde", Integer.class, Ship::getShields, Ship::setShields);

@@ -9,6 +9,7 @@ import org.hibernate.Session;
 
 import javax.annotation.Nonnull;
 import javax.persistence.Entity;
+import javax.persistence.metamodel.SingularAttribute;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
@@ -34,6 +35,7 @@ public class FieldGenerator<E, T> implements CustomFieldGenerator<E>
 	private final BiConsumer<E, T> setter;
 	private final Map<Serializable, Object> selectionOptions = new LinkedHashMap<>();
 	private Function<E,Boolean> readOnly;
+	private SingularAttribute<E, T> dbColumn;
 
 	public FieldGenerator(String label, String name, Class<?> viewType, Class<T> dataType, Function<E, T> getter, BiConsumer<E, T> setter)
 	{
@@ -73,6 +75,12 @@ public class FieldGenerator<E, T> implements CustomFieldGenerator<E>
 	public FieldGenerator<E, T> readOnly(boolean readOnly)
 	{
 		this.readOnly = (e) -> readOnly;
+		return this;
+	}
+
+	public FieldGenerator<E,T> dbColumn(SingularAttribute<E,T> dbColumn)
+	{
+		this.dbColumn = dbColumn;
 		return this;
 	}
 
@@ -145,9 +153,9 @@ public class FieldGenerator<E, T> implements CustomFieldGenerator<E>
 	}
 
 	@Override
-	public ColumnDefinition getColumnDefinition()
+	public ColumnDefinition<E> getColumnDefinition()
 	{
-		return new ColumnDefinition(name, label, viewType, Cargo.class.isAssignableFrom(viewType) ? "cargo" : null);
+		return new ColumnDefinition<>(name, label, viewType, Cargo.class.isAssignableFrom(viewType) ? "cargo" : null, dbColumn);
 	}
 
 	@Override

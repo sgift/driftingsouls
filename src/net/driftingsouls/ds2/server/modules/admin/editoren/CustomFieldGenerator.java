@@ -31,7 +31,7 @@ public interface CustomFieldGenerator<E>
 	 * Liefert die Spaltendefinition fuer diesen Editor fuer eine Darstellung in einem Grid.
 	 * @return Die Spaltendefinition
 	 */
-	public ColumnDefinition getColumnDefinition();
+	public ColumnDefinition<E> getColumnDefinition();
 
 	/**
 	 * Konvertiert den von diesem Editor bearbeiteten Wert der Entity in einen fuer Benutzer lesbaren Anzeigestring.

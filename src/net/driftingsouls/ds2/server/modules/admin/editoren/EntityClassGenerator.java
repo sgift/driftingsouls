@@ -93,9 +93,9 @@ public class EntityClassGenerator<E> implements CustomFieldGenerator<E>
 	}
 
 	@Override
-	public ColumnDefinition getColumnDefinition()
+	public ColumnDefinition<E> getColumnDefinition()
 	{
-		return new ColumnDefinition(name, label, Class.class, null);
+		return new ColumnDefinition<>(name, label, Class.class);
 	}
 
 	@Override

@@ -2,7 +2,6 @@ package net.driftingsouls.ds2.server.modules.admin.editoren;
 
 import com.google.gson.Gson;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
@@ -14,6 +13,10 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 
 import javax.annotation.Nonnull;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+import javax.persistence.metamodel.SingularAttribute;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
@@ -232,7 +235,9 @@ public class EditPlugin8<T> implements AdminPlugin
 		for (ColumnDefinition columnDefinition : form.getColumnDefinitions())
 		{
 			model.colNames.add(columnDefinition.getLabel());
-			model.colModel.add(new JqGridColumnViewModel(columnDefinition.getId(), columnDefinition.getFormatter()));
+			JqGridColumnViewModel colModel = new JqGridColumnViewModel(columnDefinition.getId(), columnDefinition.getFormatter());
+			colModel.sortable = columnDefinition.getDbColumn() != null;
+			model.colModel.add(colModel);
 		}
 
 		return model;
@@ -420,6 +425,11 @@ public class EditPlugin8<T> implements AdminPlugin
 		return ContextMap.getContext().getDB();
 	}
 
+	protected final @Nonnull javax.persistence.EntityManager getEM()
+	{
+		return ContextMap.getContext().getEM();
+	}
+
 	protected void reset(StatusWriter writer, T entity) throws IOException
 	{
 		// TODO
@@ -520,7 +530,7 @@ public class EditPlugin8<T> implements AdminPlugin
 		return (User)ContextMap.getContext().getActiveUser();
 	}
 
-	public JqGridTableDataViewModel generateTableData(int page, int rows)
+	public JqGridTableDataViewModel generateTableData(int page, int rows, String sortColumn, JqGridSortOrder order)
 	{
 		EditorForm8<T> form = new EditorForm8<>(EditorMode.UPDATE, this.getPluginClass());
 		configureFor(form);
@@ -530,18 +540,39 @@ public class EditPlugin8<T> implements AdminPlugin
 			page = 1;
 		}
 
-		Number rowCount = (Number)getDB().createCriteria(baseClass).setProjection(Projections.rowCount()).uniqueResult();
+		CriteriaBuilder builder = getEM().getCriteriaBuilder();
+		CriteriaQuery<Long> countQuery = builder.createQuery(Long.class);
+		countQuery.select(builder.count(countQuery.from(baseClass)));
+		Number rowCount = getEM().createQuery(countQuery).getSingleResult();
 
 		JqGridTableDataViewModel model = new JqGridTableDataViewModel();
 		model.page = page;
 		model.records = rowCount != null ? rowCount.intValue() : 0;
 		model.total = rowCount != null ? (rowCount.intValue()-1)/rows+1 : 1;
 
-		List<T> entities = Common.cast(getDB()
-				.createCriteria(baseClass)
-				.setFirstResult((page - 1) * rows)
+		CriteriaQuery<T> entityQuery = builder.createQuery(baseClass);
+		Root<T> entityRoot = entityQuery.from(baseClass);
+
+		if( sortColumn != null )
+		{
+			SingularAttribute<T, ?> dbSortColumn = null;
+			for (ColumnDefinition<T> columnDefinition : form.getColumnDefinitions())
+			{
+				if( sortColumn.equals(columnDefinition.getId()) )
+				{
+					dbSortColumn = columnDefinition.getDbColumn();
+				}
+			}
+			if( dbSortColumn != null )
+			{
+				entityQuery.orderBy(order == JqGridSortOrder.DESC ? builder.desc(entityRoot.get(dbSortColumn)) : builder.asc(entityRoot.get(dbSortColumn)));
+			}
+		}
+
+		List<T> entities = getEM().createQuery(entityQuery)
+				.setFirstResult((page-1)*rows)
 				.setMaxResults(rows)
-				.list());
+				.getResultList();
 
 		for (T entity : entities)
 		{
