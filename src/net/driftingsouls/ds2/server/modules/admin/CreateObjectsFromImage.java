@@ -459,6 +459,7 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 		if (nebel != null)
 		{
 			db.delete(nebel);
+            db.flush();
 		}
 		nebel = new Nebel(new MutableLocation(loc), type);
 		db.persist(nebel);
