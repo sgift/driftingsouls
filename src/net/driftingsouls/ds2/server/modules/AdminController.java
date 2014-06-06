@@ -220,6 +220,15 @@ public class AdminController extends Controller
 		return null;
 	}
 
+	@Action(ActionType.BINARY)
+	public void binaryAction(String namedplugin)
+	{
+		if ((namedplugin.length() > 0) && (validPlugins.contains(namedplugin)))
+		{
+			callNamedPlugin(namedplugin);
+		}
+	}
+
 	@ViewModel
 	public static class EntityPluginOverviewViewModel
 	{
