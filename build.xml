@@ -29,8 +29,6 @@
 	<property name="app.path"      value="/${app.name}"/>
 	<property name="app.version"   value="2"/>
 	<property name="build.home"    value="${basedir}/build"/>
-	<property name="dist.home"     value="${basedir}/dist"/>
-	<property name="docs.home"     value="${basedir}/docs"/>
 	<property name="manager.url"   value="http://localhost:8080/manager"/>
 	<property name="src.home"      value="${basedir}/src"/>
 	<property name="src.tests"      value="${basedir}/test/java"/>
@@ -85,7 +83,7 @@
 
 	<!-- ==================== All Target ====================================== -->
 
-	<target name="all" depends="clean,templates,compile"
+	<target name="all" depends="clean,compile"
 		description="Clean build and dist directories, then compile"/>
 
 	<!-- ==================== Clean Target ==================================== -->
@@ -99,7 +97,6 @@
 		<delete failonerror="false" dir="${build.home}/data/javascript" />
 		<delete failonerror="false" dir="${build.home}/data/css" />
 		<delete failonerror="false" dir="${build.home}/WEB-INF" />
-		<delete failonerror="false" dir="${dist.home}"/>
 		<delete failonerror="false" dir="${templates.compiledir}" />
 	</target>
 
@@ -204,46 +201,13 @@
 			<format property="touch.time" pattern="yyyy-MM-dd HH:mm"/>
 		</tstamp>
 
-		<exec dir="${basedir}" executable="hg" failonerror="false" failifexecutionfails="false" outputproperty="hg-version">
-		  <arg line="id -i"/>
-		</exec>
-
 		<exec dir="${basedir}" executable="git" failonerror="false" failifexecutionfails="false" outputproperty="git-version">
 			<arg line="rev-parse HEAD"/>
 		</exec>
 
-		<echo file="${build.home}/WEB-INF/classes/META-INF/ds.version" append="false">build-time=${touch.time}${line.separator}hg-version=${hg-version}${line.separator}git-version=${git-version}${line.separator}bamboo-build=${bamboo.build}</echo>
+		<echo file="${build.home}/WEB-INF/classes/META-INF/ds.version" append="false">build-time=${touch.time}${line.separator}git-version=${git-version}${line.separator}bamboo-build=${bamboo.build}</echo>
 
-		<jar jarfile="${build.home}/WEB-INF/lib/${app.name}-framework.jar" basedir="${build.home}/WEB-INF/classes" includes="META-INF/ds.marker,**/server/framework/**" />
-		<jar jarfile="${build.home}/WEB-INF/lib/${app.name}-templates.jar" basedir="${build.home}/WEB-INF/classes" includes="META-INF/ds.marker,**/server/templates/**" />
-		<jar jarfile="${build.home}/WEB-INF/lib/${app.name}-ds-pipeline.jar" basedir="${build.home}/WEB-INF/classes" includes="META-INF/ds.marker,**/server/modules/**" />
-		<jar jarfile="${build.home}/WEB-INF/lib/${app.name}-ds-tick.jar" basedir="${build.home}/WEB-INF/classes" includes="META-INF/ds.marker,**/server/tick/**" />
-		<jar jarfile="${build.home}/WEB-INF/lib/${app.name}-ds.jar" basedir="${build.home}/WEB-INF/classes" excludes="**/server/framework/**,**/server/templates/**,**/server/modules/**,**/server/tick/**" />
-	</target>
-
-	<!-- ==================== Dist Target ===================================== -->
-
-	<target name="dist" depends="compile,javadoc"
-		description="Create binary distribution">
-
-		<mkdir dir="${dist.home}/docs"/>
-		<copy todir="${dist.home}/docs">
-			<fileset dir="${docs.home}">
-				<exclude name="**/thirdparty/*" />
-				<exclude name="**/thirdparty" />
-			</fileset>
-		</copy>
-
-		<jar jarfile="${dist.home}/${app.name}-${app.version}.war" basedir="${build.home}"/>
-	</target>
-
-	<!-- ==================== Javadoc Target ================================== -->
-
-	<target name="javadoc" depends="compile" description="Create Javadoc API documentation">
-		<mkdir dir="${dist.home}/docs/api"/>
-		<javadoc sourcepath="${src.home}" destdir="${dist.home}/docs/api" packagenames="*">
-			<classpath refid="compile.classpath" />
-		</javadoc>
+		<jar jarfile="${build.home}/WEB-INF/lib/${app.name}.jar" basedir="${build.home}/WEB-INF/classes" />
 	</target>
 
 	<!-- ==================== Javascript Target ================================== -->
