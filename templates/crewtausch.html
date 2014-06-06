@@ -1,12 +1,12 @@
 <span class="smallfont">
 {if crewtausch.transfer}
-	<img src="{URL}data/interface/besatzung.gif" alt="Crew" />{transfer.count} {if transfer.way.to}zur{else}von{/endif} {target.name} transferiert<br /><br />
+	<img src="data/interface/besatzung.gif" alt="Crew" />{transfer.count} {if transfer.way.to}zur{else}von{/endif} {target.name} transferiert<br /><br />
 {/endif}
 <div class="gfxbox" style="width:440px">
 	<div align="center">
 		{ship.name} ({ship.id}) zu {target.name} ({target.id})<br /><br />
 	</div>
-	<img src="{URL}data/interface/besatzung.gif" alt="Crew" />{ship.crew}/{ship.maxcrew}<br />
+	<img src="data/interface/besatzung.gif" alt="Crew" />{ship.crew}/{ship.maxcrew}<br />
 
 	<form action="./ds" method="post">
 		<input name="send" type="text" size="3" value="{target.send}" />
@@ -15,7 +15,7 @@
 		<input type="submit" value="zu {target.name} transferieren" /><br />
 	</form><br />
 
-	<img src="{URL}data/interface/besatzung.gif" alt="Crew" />{target.crew}/{target.maxcrew}<br />
+	<img src="data/interface/besatzung.gif" alt="Crew" />{target.crew}/{target.maxcrew}<br />
 
 	<form action="./ds" method="post">
 		<input name="rec" type="text" size="3" value="{ship.receive}" />

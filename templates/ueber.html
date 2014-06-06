@@ -23,18 +23,18 @@
 					&nbsp;<span style="color:green">+{user.nahrung.new}</span>
 				{/endif}
 				<br />
-				<img src="{URL}data/interface/forschung/specpoints.gif" alt="Spezialisierungspunkte" />{user.specpoints} / {user.maxspecpoints}
+				<img src="data/interface/forschung/specpoints.gif" alt="Spezialisierungspunkte" />{user.specpoints} / {user.maxspecpoints}
 			</td>
 			<td class="noBorderS" style="width:180px; text-align:center">
 				<table class="noBorder">
 				<tr>
 					<td class="noBorderS" valign="middle" align="center">
-						<img src="{URL}data/logos/user/{user.id}.gif" width="75" height="75" alt="Kein Logo vorhanden" />
+						<img src="data/logos/user/{user.id}.gif" width="75" height="75" alt="Kein Logo vorhanden" />
 					</td>
 
 					{if ally.logo}
 						<td class="noBorderS" valign="middle" align="center">
-							<img src="{URL}data/logos/ally/{ally.logo}.gif" width="75" height="75" alt="Kein Allylogo vorhanden" />
+							<img src="data/logos/ally/{ally.logo}.gif" width="75" height="75" alt="Kein Allylogo vorhanden" />
 						</td>
 					{/endif}
 
@@ -148,57 +148,57 @@
 	<td class="noBorderS" colspan="2" valign="top" align="center" style="font-size:17px">
 			<a title="Schiffe mit Vorr&auml;ten f&uuml;r weniger als 10 Runden" class="error" href="./ds?module=schiffe&amp;low=9">
 				{if schiffe.mangel}
-					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_mangel.gif" alt="" />
+					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_mangel.gif" alt="" />
 				{else}
-					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_mangel_none.gif" alt="" />
+					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_mangel_none.gif" alt="" />
 				{/endif}
 			</a> 
 			{schiffe.mangel}
 			 - 
 			<a title="Schiffe ohne volle Crew" class="error" href="./ds?module=schiffe&amp;crewless=1">
 				{if schiffe.nocrew}
-					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_nocrew.gif" alt="" />
+					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_nocrew.gif" alt="" />
 				{else}
-					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_nocrew_none.gif" alt="" />
+					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_nocrew_none.gif" alt="" />
 				{/endif}
 			</a> 
 			{schiffe.nocrew}
 			 - 
 			<a title="Asteroiden mit Vorr&auml;ten welche f&uuml;r weniger als 10 Runden reichen" class="error" href="./ds?module=basen">
 				{if astis.mangel}
-					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_mangel_asti.gif" alt="" />
+					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_mangel_asti.gif" alt="" />
 				{else}
-					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_mangel_asti_none.gif" alt="" />
+					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_mangel_asti_none.gif" alt="" />
 				{/endif}
 			</a> 
 			{astis.mangel}
 			 - 
 			<a title="Neue ungelesene PMs" class="error" href="./ds?module=comm&amp;action=showInbox">
 				{if user.newmsgs}
-					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_pm.gif" alt="" />
+					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_pm.gif" alt="" />
 				{else}
-					<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_pm_none.gif" alt="" />
+					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_pm_none.gif" alt="" />
 				{/endif}
 			</a> 
 			{user.newmsgs}
 			 - 
 			<a title="Schlachten die du verloren hast" class="error" href="#">
-				<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_battle_lost.gif" alt="" />
+				<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_battle_lost.gif" alt="" />
 			</a> 
 			{user.lostBattles}
 			 - 
 			<a title="Schlachten die du gewonnen hast" class="error" href="#">
-				<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_battle_won.gif" alt="" />
+				<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_battle_won.gif" alt="" />
 			</a> 
 			{user.wonBattles}
 			 - 
 			<a title="Schiffe die du verloren hast" class="error" href="#">
-				<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_lost_ships.gif" alt="" />
+				<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_lost_ships.gif" alt="" />
 			</a> 
 			{user.lostShips}
 			 - 
 			<a title="Schiffe die von deinen Schiffen zerst&ouml;rt wurden" class="error" href="#">
-				<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_destroyed_ships.gif" alt="" />
+				<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_destroyed_ships.gif" alt="" />
 			</a> 
 			{user.destroyedShips}
 	</td>

@@ -12,7 +12,7 @@
 	</tr>
 
 	<tr>
-	<td class="noBorderX"><img src="{URL}{tech.image}" alt="Kein Bild vorhanden" /></td>
+	<td class="noBorderX"><img src="{tech.image}" alt="Kein Bild vorhanden" /></td>
 	{if tech.race.notall}
 		<td class="noBorderX" width="80">{tech.race.name}</td>
 	{/endif}
@@ -30,8 +30,8 @@
 	<!-- END tech.needs.listitem -->
 	&nbsp;</td>
 	<td class="noBorderX">
-	<img style="vertical-align:middle" src="{URL}data/interface/time.gif" alt="Dauer" />{tech.time}
-	<img style="vertical-align:middle" src="{URL}data/interface/forschung/specpoints.gif" alt="Spezialisierungskosten" />{tech.speccosts}
+	<img style="vertical-align:middle" src="data/interface/time.gif" alt="Dauer" />{tech.time}
+	<img style="vertical-align:middle" src="data/interface/forschung/specpoints.gif" alt="Spezialisierungskosten" />{tech.speccosts}
 	<!-- BEGIN tech.res.listitem -->
 		<img style="vertical-align:middle" src="{tech.res.item.image}" alt="" />{tech.res.item.cargo}
 	<!-- END tech.res.listitem -->
@@ -78,7 +78,7 @@
 			{/endif}
 			<tr>
 				<td class="noBorderX">
-					<img src="{URL}{tech.building.picture}" alt="" />
+					<img src="{tech.building.picture}" alt="" />
 				</td>
 				<td class="noBorderX">{tech.building.name}</td>
 				<td class="noBorderX" valign="top">
@@ -108,13 +108,13 @@
 				{/endif}
 				</td><td class="noBorderX" valign="top">
 				{if tech.building.arbeiter}
-					<img src="{URL}data/interface/narbeiter.gif" alt="Arbeiter" />{tech.building.arbeiter}
+					<img src="data/interface/narbeiter.gif" alt="Arbeiter" />{tech.building.arbeiter}
 				{else}
 					-
 				{/endif}
 				</td><td class="noBorderX" valign="top">
 				{if tech.building.bewohner}
-					<img src="{URL}data/interface/arbeiter.gif" alt="Bev&ouml;lkerung" />{tech.building.bewohner}
+					<img src="data/interface/arbeiter.gif" alt="Bev&ouml;lkerung" />{tech.building.bewohner}
 				{else}
 					-
 				{/endif}
@@ -176,14 +176,14 @@
 			</td>
 			<td class="noBorderX" valign="top">
 				{if tech.core.arbeiter}
-					<img src="{URL}data/interface/narbeiter.gif" alt="Arbeiter" />{tech.core.arbeiter}
+					<img src="data/interface/narbeiter.gif" alt="Arbeiter" />{tech.core.arbeiter}
 				{else}
 					-
 				{/endif}
 			</td>
 			<td class="noBorderX" valign="top">
 				{if tech.core.bewohner}
-					<img src="{URL}data/interface/arbeiter.gif" alt="Bev&ouml;lkerung" />{tech.core.bewohner}
+					<img src="data/interface/arbeiter.gif" alt="Bev&ouml;lkerung" />{tech.core.bewohner}
 				{else}
 					-
 				{/endif}
@@ -216,16 +216,16 @@
 				</td>
 				<td class="noBorderX">
 					{if tech.ship.dauer}
-						<img src="{URL}data/interface/time.gif" alt="Dauer" />{tech.ship.dauer}
+						<img src="data/interface/time.gif" alt="Dauer" />{tech.ship.dauer}
 					{/endif}
 					<!-- BEGIN tech.ship.costs.listitem -->
 						<img style="vertical-align:middle" src="{res.image}" alt="" />{res.cargo}
 					<!-- END tech.ship.costs.listitem -->
 					{if tech.ship.ekosten}
-						<img src="{URL}data/interface/energie.gif" alt="Energie" />{tech.ship.ekosten}
+						<img src="data/interface/energie.gif" alt="Energie" />{tech.ship.ekosten}
 					{/endif}
 					{if tech.ship.crew}
-						<img src="{URL}data/interface/narbeiter.gif" alt="Crew" />{tech.ship.crew}
+						<img src="data/interface/narbeiter.gif" alt="Crew" />{tech.ship.crew}
 					{/endif}
 				</td>
 				<td class="noBorderX">
@@ -265,7 +265,7 @@
 					<!-- END tech.fac.production.listitem -->
 				</td>
 				<td class="noBorderX">
-					<img src="{URL}data/interface/time.gif" alt="Dauer" />{tech.fac.dauer}
+					<img src="data/interface/time.gif" alt="Dauer" />{tech.fac.dauer}
 					<!-- BEGIN tech.fac.buildcosts.listitem -->
 						<img style="vertical-align:middle" src="{res.image}" alt="" />{res.cargo}
 					<!-- END tech.fac.buildcosts.listitem -->

@@ -270,8 +270,8 @@
 				</td>
 				<td class="noBorderX" width="50"></td>
 				<td class="noBorderX" style="vertical-align:top">
-					Freies Personal: <img style="vertical-align:middle" src="{URL}data/interface/arbeitslos.gif" alt="" /> {werftgui.crew}<br />
-					Werftkapazit&auml;t: <img style="vertical-align:middle" src="{URL}data/interface/schiffinfo/werftslots.png" alt="" /> {werftgui.werftslots}
+					Freies Personal: <img style="vertical-align:middle" src="data/interface/arbeitslos.gif" alt="" /> {werftgui.crew}<br />
+					Werftkapazit&auml;t: <img style="vertical-align:middle" src="data/interface/schiffinfo/werftslots.png" alt="" /> {werftgui.werftslots}
 				</td>
 			    <td class="noBorderX" width="50"></td>
 				<td class="noBorderX" style="vertical-align:top">
@@ -426,10 +426,10 @@
 								</a>
 							</td>
 							<td class="noBorderX">
-								Fertigstellung in: <img vertical-align="middle" src="{URL}data/interface/time.gif" alt="Dauer" title="Dauer" />{queueship.remainingtotal}<br />
-								Ben&ouml;tigte Slots: <img vertical-align="middle" src="{URL}data/interface/schiffinfo/werftslots.png" alt="Werftslots" title="Werftslots" />{queueship.slots}
+								Fertigstellung in: <img vertical-align="middle" src="data/interface/time.gif" alt="Dauer" title="Dauer" />{queueship.remainingtotal}<br />
+								Ben&ouml;tigte Slots: <img vertical-align="middle" src="data/interface/schiffinfo/werftslots.png" alt="Werftslots" title="Werftslots" />{queueship.slots}
 								{if queueship.reqitem}
-									<br />Ben&ouml;tigt: <img style="vertical-align:middle" src="{URL}data/items/{queueship.item.picture}" alt="{queueship.item.name}" />{queueship.item.name}
+									<br />Ben&ouml;tigt: <img style="vertical-align:middle" src="data/items/{queueship.item.picture}" alt="{queueship.item.name}" />{queueship.item.name}
 								{/endif}
 								{if queueship.buildcosts.list}
 									<br />Pro Tick: 
@@ -440,35 +440,35 @@
 							</td>
 							<td class="noBorderX">
 								{if queueship.building}
-									<img vertical-align="middle" src="{URL}data/interface/werft/active.png" alt="wird gebaut" title="wird gebaut" />
+									<img vertical-align="middle" src="data/interface/werft/active.png" alt="wird gebaut" title="wird gebaut" />
 								{/endif}
 							</td>
 							<td class="noBorderX">
 								{if queueship.uppossible}
 									<a href="{werftgui.urlbase}&amp;werftact=queuetop&entry={queueship.position}&amp;show=queue" title="Ganz nach oben verschieben">
-										<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/top.png" alt="Runter"/>
+										<img style="vertical-align:middle;border:0px" src="data/interface/werft/top.png" alt="Runter"/>
 									</a>
 									<a href="{werftgui.urlbase}&amp;werftact=queueup&entry={queueship.position}&amp;show=queue" title="Nach oben verschieben">
-										<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/up.png" alt="Runter" />
+										<img style="vertical-align:middle;border:0px" src="data/interface/werft/up.png" alt="Runter" />
 									</a>
 								{else}
-									<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/spacer.png" alt="" />
-									<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/spacer.png" alt="" />
+									<img style="vertical-align:middle;border:0px" src="data/interface/werft/spacer.png" alt="" />
+									<img style="vertical-align:middle;border:0px" src="data/interface/werft/spacer.png" alt="" />
 								{/endif}
 								{if queueship.downpossible}
 									<a href="{werftgui.urlbase}&amp;werftact=queuedown&entry={queueship.position}&amp;show=queue" title="Nach unten verschieben">
-										<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/down.png" alt="Hoch" />
+										<img style="vertical-align:middle;border:0px" src="data/interface/werft/down.png" alt="Hoch" />
 									</a>
 									<a href="{werftgui.urlbase}&amp;werftact=queuebottom&entry={queueship.position}&amp;show=queue" title="Ganz nach unten verschieben">
-										<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/bottom.png" alt="Hoch" />
+										<img style="vertical-align:middle;border:0px" src="data/interface/werft/bottom.png" alt="Hoch" />
 									</a>
 								{else}
-									<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/spacer.png" alt="" />
-									<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/spacer.png" alt="" />
+									<img style="vertical-align:middle;border:0px" src="data/interface/werft/spacer.png" alt="" />
+									<img style="vertical-align:middle;border:0px" src="data/interface/werft/spacer.png" alt="" />
 								{/endif}
 								{if queueship.cancelpossible}
 									<a href="javascript:ask('Soll der Bau wirklich abgebrochen werden?','{werftgui.urlbase}&amp;werftact=canclebuild&entry={queueship.position}&amp;show=queue')">
-										<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/delete.gif" alt="Abbrechen" title="Abbrechen" />
+										<img style="vertical-align:middle;border:0px" src="data/interface/werft/delete.gif" alt="Abbrechen" title="Abbrechen" />
 									</a>
 								{/endif}
 							</td>
@@ -517,7 +517,7 @@
 							</td>
 							<td class="noBorderX">
 								<a href="{werftgui.urlbase}&amp;werftact=removefromkomplex&entry={komplexpart.id}&amp;show=options">
-									<img style="vertical-align:middle;border:0px" src="{URL}data/interface/werft/delete.gif" alt="Entfernen" title="Entfernen" />
+									<img style="vertical-align:middle;border:0px" src="data/interface/werft/delete.gif" alt="Entfernen" title="Entfernen" />
 								</a>
 							</td>
 							

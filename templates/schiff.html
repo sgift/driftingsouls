@@ -25,7 +25,7 @@
 		<td class="schiff">Navigation</td>
 		<td class="schiff" style="width:10px" align="right">
 			<a id="systeminfo" name="systeminfo" class="noborder" onclick="Schiff.openImpObjects({ship.location.system})" href="#">
-				<img src="{URL}data/interface/impobjects.gif" alt="?" />
+				<img src="data/interface/impobjects.gif" alt="?" />
 			</a>
 		</td>
 		<td class="schiff">Cargo</td>
@@ -108,16 +108,16 @@
 				<br />
 			{/endif}
 			<a class="noborder" href="./ds?module=schiff&amp;action=destroy&amp;sess={global.sess}&amp;ship={ship.id}">
-				<img src="{URL}data/interface/schiffe/schiff_selfdest.gif" alt="Selbstzerst&amp;ouml;rung" />
+				<img src="data/interface/schiffe/schiff_selfdest.gif" alt="Selbstzerst&amp;ouml;rung" />
 			</a>
 			{if shiptype.werft}
 				<a class="forschinfo" href="./ds?module=werft&amp;sess={global.sess}&amp;ship={ship.id}">
-					<img src="{URL}data/interface/schiffe/werft.gif" alt="Werftfunktionen" />
+					<img src="data/interface/schiffe/werft.gif" alt="Werftfunktionen" />
 				</a>
 			{/endif}
 			{if sector.handel}
 				<a class="noborder tooltip" href="./ds?module=trade&amp;sess={global.sess}&amp;ship={ship.id}&amp;tradepost={sector.handel}">
-					<img src="{URL}data/interface/schiffe/schiff_handel.gif" alt="Handeln" />
+					<img src="data/interface/schiffe/schiff_handel.gif" alt="Handeln" />
 					<span class="ttcontent">mit {sector.handel.name} handeln</span>
 				</a>
 			{/endif}
@@ -151,18 +151,18 @@
 				</div>
 
 				<a id="shipscripttip" name="shipscripttip" class="noborder" onclick="scripttooltip();" href="#">
-					<img src="{URL}data/interface/computer.png" alt="?" />
+					<img src="data/interface/computer.png" alt="?" />
 				</a>
 			{/endif}
 			{if tooltip.admin}
 				<a id="shipstatustip" class="noborder tooltip" href="#">
-					<img src="{URL}data/interface/admin.png" alt="?" />
+					<img src="data/interface/admin.png" alt="?" />
 					<span class="ttcontent">{tooltip.admin}</span>
 				</a>
 			{/endif}
 			{if ship.npcislandlink}
 				<a class="noborder tooltip" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=insel">
-					<img src="{URL}data/interface/schiffe/tunnel.png" alt="Insel der Gl&uuml;cksehligkeit" />
+					<img src="data/interface/schiffe/tunnel.png" alt="Insel der Gl&uuml;cksehligkeit" />
 					<span class="ttcontent">
 						zur Insel
 					</span>
@@ -170,7 +170,7 @@
 			{/endif}
 			{if tooltip.module}
 				<a class="noborder tooltip" href="#">
-					<img src="{URL}data/interface/info.png" alt="?" />
+					<img src="data/interface/info.png" alt="?" />
 					<span class="ttcontent">{tooltip.module}</span>
 				</a>
 			{/endif}
@@ -185,12 +185,12 @@
 					});
 				</script>
 				<a class="noborder" onclick="$('#moduleextBox').dsBox('show')" href="#">
-					<img src="{URL}data/interface/info.png" alt="?" />
+					<img src="data/interface/info.png" alt="?" />
 				</a>
 			{/endif}
 			{if tooltip.tradepost}
 				<a class="noborder tooltip" href="./ds?module=tradepost&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=default">
-					<img src="{URL}data/interface/hppref.png" alt="Handelsposten" />
+					<img src="data/interface/hppref.png" alt="Handelsposten" />
 					<span class="ttcontent">Konfiguration des Handelspostens</span>
 				</a>
 			{/endif}

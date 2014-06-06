@@ -37,8 +37,8 @@
 	<div class="gfxbox" style="width:750px">
 		<div style="position:relative; width:635px; height:240px; margin: 0px; position: relative; top: 0px; left: 0px; overflow:auto">
 			{if pm.bgimage}
-				<div style="position:absolute; top:0px; left:0px; margin:0px; padding:0px; width:570px; overflow:hidden; background-image: url('{URL}data/interface/pms/{pm.bgimage}');'">
-					 <img src="{URL}data/interface/pms/{pm.bgimage}" width="570" alt="" />
+				<div style="position:absolute; top:0px; left:0px; margin:0px; padding:0px; width:570px; overflow:hidden; background-image: url('data/interface/pms/{pm.bgimage}');'">
+					 <img src="data/interface/pms/{pm.bgimage}" width="570" alt="" />
 				</div>
 			{/endif}
 			<div style="width:570px; position:absolute; z-index:0; top:0px; left:0px; top:0px; left:0px; margin:0px; padding:0px;">
@@ -199,7 +199,7 @@
 							{/endif}
 						</td>
 						<td class="noBorderX">
-								<img style="border:0px" src="{URL}data/interface/pms/{if ! ordner.flags.trash}ordner{/endif}{if ordner.flags.trash}trash{if ordner.pms}-full{/endif}{/endif}.png" />
+								<img style="border:0px" src="data/interface/pms/{if ! ordner.flags.trash}ordner{/endif}{if ordner.flags.trash}trash{if ordner.pms}-full{/endif}{/endif}.png" />
 
 						</td>
 						<td class="noBorderX">
@@ -217,20 +217,20 @@
 						</td>
 						<td class="noBorderX">
 							<a href="./ds?module=comm&amp;action=showInbox&amp;ordner={ordner.id}" >
-								<img style="border:0px" src="{URL}data/interface/text.png" alt="&ouml;ffnen" title="&ouml;ffnen" />
+								<img style="border:0px" src="data/interface/text.png" alt="&ouml;ffnen" title="&ouml;ffnen" />
 							</a>
 							{if ordner.flags.trash}
 									<a href="javascript:ask('Wollen sie wirklich alle gel&ouml;schten PMs wiederherstellen?',getDsUrl()+'?module=comm&amp;action=recoverAll&amp;ordner={ordner.parent}')">
-									<img style="border:0px" src="{URL}data/interface/pms/recover.png" alt="wiederherstellen" title="wiederherstellen" />
+									<img style="border:0px" src="data/interface/pms/recover.png" alt="wiederherstellen" title="wiederherstellen" />
 								</a>
 							{/endif}
 							{if ! ordner.flags.trash}
 								{if ! ordner.flags.up}
 									<a href="javascript:setRenameAction({ordner.id});" >
-										<img style="border:0px" src="{URL}data/interface/pen.gif" alt="umbenennen" title="umbenennen" />
+										<img style="border:0px" src="data/interface/pen.gif" alt="umbenennen" title="umbenennen" />
 									</a>
 									<a href="javascript:ask('Wollen sie wirklich diesen Ordner samt enthaltener PMs und Unterordner löschen?',getDsUrl()+'?module=comm&amp;action=delete&amp;ordner={ordner.parent}&amp;delord={ordner.id}')">
-										<img style="border:0px" src="{URL}data/interface/delete.gif" alt="umbenennen" title="L&ouml;schen" /></a>
+										<img style="border:0px" src="data/interface/delete.gif" alt="umbenennen" title="L&ouml;schen" /></a>
 								{/endif}
 							{/endif}
 						</td>
@@ -264,7 +264,7 @@
 							{pm.time}&nbsp;
 						</td>
 						<td class="noBorderX">
-							<a href="javascript:showpm({pm.id});" ><img style="border:0px" src="{URL}data/interface/text.png" alt="lesen" /></a>
+							<a href="javascript:showpm({pm.id});" ><img style="border:0px" src="data/interface/text.png" alt="lesen" /></a>
 							{!image_link_to interface/pen.gif, default, reply:$pm.id}
 							{if ! pm.trash}
 								{!image_link_to interface/delete.gif, delete, ordner:$ordner.parent, delete:$pm.id}
@@ -356,7 +356,7 @@
 					</td>
 					<td class="noBorderX">
 						<a href="javascript:showpm({pm.id});">
-							<img style="border:0px" src="{URL}data/interface/text.png" alt="lesen" />
+							<img style="border:0px" src="data/interface/text.png" alt="lesen" />
 						</a>
 						{!image_link_to interface/pen.gif, default, reply:$pm.id}
 					</td>
@@ -375,7 +375,7 @@
 	<div id="pmcontent">
 		{if pm.bgimage}
 			<div style="z-index:1; position:absolute; top:0px; left:0px; margin:0px; padding:0px; width:100%; overflow:hidden; background: url('./data/interface/pms/{pm.bgimage}') no-repeat;'">
-				 <img src="{URL}data/interface/pms/{pm.bgimage}" width="570" alt="" />
+				 <img src="data/interface/pms/{pm.bgimage}" width="570" alt="" />
 			</div>
 		{/endif}
 		<table class="noBorderX" width="100%">

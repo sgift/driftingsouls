@@ -4,7 +4,7 @@
 	<span class="verysmallfont">
 		<div class="dropdown" style="width:160px">
 			<dl>
-				<dt>{global.faction.name}<img style="vertical-align:middle; border:0px" src="{URL}data/interface/uebersicht/icon_dropdown.gif" alt="" /></dt>
+				<dt>{global.faction.name}<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_dropdown.gif" alt="" /></dt>
 				<!-- BEGIN global.factionmenu.listitem -->
 					<dd>
 						<a class='profile' href='./ds?module=ersteigern&action=default&faction={item.faction.id}'>{item.faction.name}</a>
@@ -206,7 +206,7 @@
 		<td class="noBorder" style="width:27%" valign="top">
 			<div class="gfxbox" style="width:100%;text-align:center;-moz-box-sizing:border-box;box-sizing: border-box">
 				<div style="font-weight:bold; font-size:15px; text-align:center">{angebot.title}<br />
-				<img src="{URL}{angebot.image}" alt="" /></div><br />
+				<img src="{angebot.image}" alt="" /></div><br />
 				<div style="text-align:left">
 					{angebot.description}
 				</div>
@@ -846,7 +846,7 @@
 					{if shop.owner}
 						<input type="text" size="3" name="entryRang" value="{entry.rang}" />
 					{else}
-						<img title="{entry.npcrang.name}" src="{URL}{entry.npcrang.image}" alt="" />
+						<img title="{entry.npcrang.name}" src="{entry.npcrang.image}" alt="" />
 					{/endif}
 				</td>
 				<td class="noBorderX">

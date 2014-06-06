@@ -63,7 +63,7 @@
 		<tr>
 		<td class="schiffData">{!link_to $ship.id, default, module:schiff, ship:$ship.id}</td>
 		{if ship.battle}
-			<td class="schiffData"><a href="./ds?module=angriff&amp;sess={global.sess}&amp;battle={ship.battle}&amp;ship={ship.id}"><img style="vertical-align:middle" src="{URL}battle_small.gif" alt="Schlacht" /></a> {ship.name}
+			<td class="schiffData"><a href="./ds?module=angriff&amp;sess={global.sess}&amp;battle={ship.battle}&amp;ship={ship.id}"><img style="vertical-align:middle" src="battle_small.gif" alt="Schlacht" /></a> {ship.name}
 		{else}
 			<td class="schiffData" nowrap>{ship.name}
 		{/endif}
@@ -79,17 +79,17 @@
 		{if ship.docks}
 			<br />
 			{if ship.adocks}
-				<img src="{URL}data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}">[{ship.adocks.docked}/{ship.adocks}]</a>
+				<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}">[{ship.adocks.docked}/{ship.adocks}]</a>
 				<br />
 			{/endif}
 			{if ship.jdocks}
-				<img src="{URL}data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}">[{ship.jdocks.docked}/{ship.jdocks}]</a>
+				<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}">[{ship.jdocks.docked}/{ship.jdocks}]</a>
 			{/endif}
 		{/endif}
 		{if ship.werft}
 			{if ship.werft.building}
 				<br />
-				<img src="{URL}data/interface/schiffinfo/werftslots.png" alt="Werft" title="Werft" />
+				<img src="data/interface/schiffinfo/werftslots.png" alt="Werft" title="Werft" />
 				<a style="color:#CCAA33" class="nonbold tooltip" href="./ds?module=werft&amp;sess={global.sess}&amp;ship={ship.id}">
 					[{ship.werft.entries}]
 					<span class="ttcontent">
@@ -138,17 +138,17 @@
 			<img src="{res.image}" alt="" title="{res.plainname}" />{if res.color}<span style="color:{res.color}">{/endif}{res.count}{if res.color}</span>{/endif}
 		<!-- END schiffe.resitem -->
 		{if ship.restcargo.show}
-			<img src="{URL}data/interface/leer.gif" alt="" title="Leer" />{ship.restcargo}
+			<img src="data/interface/leer.gif" alt="" title="Leer" />{ship.restcargo}
 		{/endif}
 		{if ship.e.none}
-			<img src="{URL}data/interface/energie.gif" alt="" title="Energie" /><span style="color:red">x</span>
+			<img src="data/interface/energie.gif" alt="" title="Energie" /><span style="color:red">x</span>
 		{/endif}
 		&nbsp;</td>
 		<td class="schiffData">
 		<!-- BEGIN schiffe.unititem -->
 			<img src="{unit.picture}" alt="" title="{unit.name}" />{!link_to $unit.count, default, module:unitinfo, unit:$unit.id}
 		<!-- END schiffe.unititem -->
-		<img src="{URL}data/interface/leer.gif" alt="" title="Leer" />{ship.unitspace}
+		<img src="data/interface/leer.gif" alt="" title="Leer" />{ship.unitspace}
 		&nbsp;</td>
 		</tr>
 	<!-- END schiffe.listitem -->

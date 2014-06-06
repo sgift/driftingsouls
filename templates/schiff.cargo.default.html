@@ -2,7 +2,7 @@
 	<img style="vertical-align:middle" src="{res.image}" alt="" />{res.name} {res.cargo}
 	<br />
 <!-- END schiff.cargo.reslist.listitem -->
-<img src="{URL}data/interface/leer.gif" alt="Leer" />Leer {schiff.cargo.empty}<br />
+<img src="data/interface/leer.gif" alt="Leer" />Leer {schiff.cargo.empty}<br />
 {if schiff.cargo.speicher}
 	<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
 	Nahrungsspeicher: {if schiff.cargo.mangel_nahrung}<span style="color:red">{else}<span style="color:green">{/endif}{schiff.cargo.speicher.amount}</span> / {schiff.cargo.speicher.maxamount}

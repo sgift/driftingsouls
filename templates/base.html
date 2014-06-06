@@ -52,7 +52,7 @@
 							<a href="./ds?module=build&amp;col={base.id}&amp;field={tile.field}">
 						{/endif}
 					{/endif}
-					<img style="border:0px" src="{URL}{tile.building.image}" alt="" />
+					<img style="border:0px" src="{tile.building.image}" alt="" />
 					{if ! tile.overlay}</a>{/endif}
 				</div>
 				{if tile.overlay}
@@ -64,7 +64,7 @@
 						{else}
 							<a href="./ds?module=build&amp;col={base.id}&amp;field={tile.field}">
 						{/endif}
-						<img style="border:0px" src="{URL}data/buildings/{tile.overlay.image}" alt="" />
+						<img style="border:0px" src="data/buildings/{tile.overlay.image}" alt="" />
 						</a>
 					</div>
 				{/endif}
@@ -86,7 +86,7 @@
 				{res.name} {res.cargo1} {if res.plaincount2}{res.cargo2}{/endif}
 				</li>
 			<!-- END base.cargo.listitem -->
-			<img src="{URL}data/interface/leer.gif" alt="" />Leer {base.cargo.empty} {base.cstat}<br />
+			<img src="data/interface/leer.gif" alt="" />Leer {base.cargo.empty} {base.cstat}<br />
 			<!-- +END+ Cargo -->
 		</ul>
 	</td>
