@@ -19,55 +19,6 @@
 -->
 <pipeline>
 	<rules>
-		<!-- Downloads -->
-		<match pattern="/downloads/auth/.*">
-			<actions>
-				<action class="net.driftingsouls.ds2.server.framework.pipeline.actions.AuthenticateAction" />
-			</actions>
-			<execute-reader>
-				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.FileReader" />
-				<file pattern="/downloads/(.*)" file="downloads/$1" />
-			</execute-reader>
-		</match>
-		<match pattern="/downloads/auth/.*">
-			<execute-reader>
-				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.ErrorReader" />
-				<file file="404:data/errors/no_pipeline.html" />
-			</execute-reader>
-		</match>
-		<match pattern="/downloads/-?[0-9]+/.+">
-			<actions>
-				<action class="net.driftingsouls.ds2.server.framework.pipeline.actions.AuthenticateAction">
-					<parameter name="userid">
-						<urldirectory number="-2" />
-					</parameter>
-				</action>
-			</actions>
-			<execute-reader>
-				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.FileReader" />
-				<file pattern="/downloads/(.*)" file="downloads/$1" />
-			</execute-reader>
-		</match>
-		<match pattern="/downloads/-?[0-9]+/.+">
-			<actions>
-				<action class="net.driftingsouls.ds2.server.framework.pipeline.actions.AuthenticateAction">
-					<parameter name="userid">
-						<urldirectory number="-2" />
-					</parameter>
-				</action>
-			</actions>
-			<execute-reader>
-				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.ErrorReader" />
-				<file file="404:data/errors/no_pipeline.html" />
-			</execute-reader>
-		</match>
-		<match pattern="/downloads/[^/]+">
-			<execute-reader>
-				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.FileReader" />
-				<file pattern="/downloads/(.*)" file="downloads/$1" />
-			</execute-reader>
-		</match>
-
 		<!-- Grafiken -->
 
 		<match pattern="/data/(javascript|css)/v[a-fA-F0-9]*/.*\.(js|css)">

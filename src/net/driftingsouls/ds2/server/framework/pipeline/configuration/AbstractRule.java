@@ -18,140 +18,97 @@
  */
 package net.driftingsouls.ds2.server.framework.pipeline.configuration;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.Pipeline;
+import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.pipeline.Pipeline;
-import net.driftingsouls.ds2.server.framework.pipeline.actions.Action;
-import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 // TODO: Behandlung Module, Reader und Servlet in eigene Klassen auslagern
-abstract class AbstractRule implements Rule {
+abstract class AbstractRule implements Rule
+{
 	private final Node config;
-	
-	// actions
-	private final List<Action> actions = new ArrayList<>();
-	private final List<Map<String,Parameter>> actionParams = new ArrayList<>();
-	
+
 	private final Executer executer;
 
 	private final ParameterMap parameterMap;
 
-	AbstractRule( PipelineConfig pipelineConfig, Node matchNode ) throws Exception {
-
-		NodeList nodes = XMLUtils.getNodesByXPath(matchNode, "actions/*");
-		if( nodes != null ) {
-			setupActions(nodes);
-		}
-		
+	AbstractRule(PipelineConfig pipelineConfig, Node matchNode) throws Exception
+	{
 		Node config = XMLUtils.getNodeByXPath(matchNode, "config");
-		if( config != null )  {
+		if (config != null)
+		{
 			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
 			doc.appendChild(doc.importNode(config, true));
 			this.config = doc.getFirstChild();
 		}
-		else {
+		else
+		{
 			this.config = null;
 		}
-		
+
 		Node paramMap = XMLUtils.getNodeByXPath(matchNode, "parameter-map");
-		if( paramMap != null )  {
+		if (paramMap != null)
+		{
 			this.parameterMap = new ParameterMap(paramMap);
 		}
-		else {
+		else
+		{
 			this.parameterMap = null;
 		}
-		
+
 		Node node = XMLUtils.getNodeByXPath(matchNode, "execute-module");
-		if( node != null ) {
+		if (node != null)
+		{
 			this.executer = new ModuleExecuter(pipelineConfig, node);
 			return;
 		}
 
 		node = XMLUtils.getNodeByXPath(matchNode, "execute-reader");
-		if( node != null ) {
+		if (node != null)
+		{
 			this.executer = new ReaderExecuter(node);
 			return;
 		}
-		
+
 		node = XMLUtils.getNodeByXPath(matchNode, "execute-servlet");
-		if( node != null ) {
+		if (node != null)
+		{
 			this.executer = new ServletExecuter();
 			return;
 		}
-		
+
 		throw new Exception("Unable to determine execution type of rule");
 	}
-	
-	private void setupActions(NodeList nodes) throws Exception {
-		for( int i=0; i < nodes.getLength(); i++ ) {
-			Node node = nodes.item(i);
-			if( !"action".equals(node.getNodeName()) ) {
-				continue;
-			}
-			
-			Class<?> cls = Class.forName(XMLUtils.getStringByXPath(node, "@class"));
-			actions.add((Action)cls.newInstance());
-			HashMap<String,Parameter> map = new HashMap<>();
-			
-			NodeList paramNodes = XMLUtils.getNodesByXPath(node, "parameter");
-			for( int j=0; j < paramNodes.getLength(); j++ ) {
-				Node paramNode = paramNodes.item(j);
-				String name = XMLUtils.getStringByXPath(paramNode, "@name");
-				if( (name == null) || "".equals(name) ) {
-					continue;
-				}
-				Parameter param = new Parameter(paramNode);
-				map.put(name, param);
-			}
-			
-			actionParams.add(map);
-		}
-	}
-	
+
 	@Override
-	public boolean executeable(Context context) throws Exception {
-		if( actions.size() == 0 ) {
-			return true;
-		}
-		for( int i=0; i < actions.size(); i++ ) {
-			Action act = actions.get(i);
-			act.reset();
-			for( String paramName : actionParams.get(i).keySet() ) {
-				act.setParameter(paramName, actionParams.get(i).get(paramName).getValue(context) );
-			}
-			if( !act.action(context) ) {
-				return false;
-			}
-		}
+	public boolean executeable(Context context) throws Exception
+	{
 		return true;
 	}
-	
+
 	@Override
-	public Pipeline execute(Context context) throws Exception {
-		if( !executeable(context) ) {
+	public Pipeline execute(Context context) throws Exception
+	{
+		if (!executeable(context))
+		{
 			return null;
 		}
-		
-		if( parameterMap != null ) {
+
+		if (parameterMap != null)
+		{
 			parameterMap.apply(context);
 		}
-		
+
 		Pipeline pipe = this.executer.execute(context);
-		
-		if( pipe != null ) {
+
+		if (pipe != null)
+		{
 			pipe.setConfiguration(config);
 		}
-		
+
 		return pipe;
 	}
 }
