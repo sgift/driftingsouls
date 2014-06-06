@@ -90,12 +90,15 @@ public class BasicContext implements Context
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T getBean(Class<T> cls, String name) throws IllegalArgumentException
 	{
 		try {
-			return (T)this.applicationContext.getBean(name, cls);
+			if( name != null )
+			{
+				return this.applicationContext.getBean(name, cls);
+			}
+			return this.applicationContext.getBean(cls);
 		}
 		catch( BeansException e ) {
 			throw new IllegalArgumentException("Die angegebene Bean konnte nicht gefunden werden", e);

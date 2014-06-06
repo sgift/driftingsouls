@@ -9,15 +9,6 @@
 
 	<context:annotation-config/>
 
-	<!-- Framework -->
-
-    <bean id="configuration" class="net.driftingsouls.ds2.server.framework.Configuration" lazy-init="true" />
-    <bean id="version" class="net.driftingsouls.ds2.server.framework.Version" lazy-init="true" />
-	<bean id="pipelineConfig" class="net.driftingsouls.ds2.server.framework.pipeline.configuration.PipelineConfig" lazy-init="true">
-		<property name="configuration" ref="configuration" />
-	</bean>
-	<bean id="authenticationManager" class="net.driftingsouls.ds2.server.framework.authentication.DefaultAuthenticationManager" lazy-init="true" />
-
 	<!-- Server -->
 
 	<bean id="regularTickJob" class="org.springframework.scheduling.quartz.JobDetailBean">

@@ -21,6 +21,8 @@ package net.driftingsouls.ds2.server.framework;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -38,6 +40,8 @@ import java.util.Map;
  * @author Christopher Jung
  * 
  */
+@Component
+@Lazy
 public class Configuration
 {
 	private static final Log log = LogFactory.getLog(Configuration.class);

@@ -19,6 +19,8 @@
 package net.driftingsouls.ds2.server.framework.pipeline;
 
 import net.driftingsouls.ds2.server.framework.pipeline.generators.OutputHandler;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -34,6 +36,8 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
+@Component
+@Scope("prototype")
 @Documented
 public @interface Module
 {

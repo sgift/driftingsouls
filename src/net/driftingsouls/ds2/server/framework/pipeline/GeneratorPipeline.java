@@ -42,10 +42,7 @@ public class GeneratorPipeline implements Pipeline {
 	}
 	
 	private void generateContent(Context context, Class<? extends Controller> generator) throws Exception {
-		Constructor<? extends Controller> constr = generator.getConstructor();
-
-		Controller cntl = constr.newInstance();
-		context.autowireBean(cntl);
+		Controller cntl = context.getBean(generator, null);
 
 		cntl.handleAction(context.getRequest().getParameter("action"));
 	}

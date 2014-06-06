@@ -31,6 +31,9 @@ import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.ServiceLoader;
@@ -42,6 +45,8 @@ import java.util.UUID;
  * @author Christopher Jung
  *
  */
+@Service
+@Lazy
 public class DefaultAuthenticationManager implements AuthenticationManager {
 	private static final Log log = LogFactory.getLog(DefaultAuthenticationManager.class);
 	private static final ServiceLoader<LoginEventListener> loginListenerList = ServiceLoader.load(LoginEventListener.class);

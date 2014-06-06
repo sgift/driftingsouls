@@ -33,8 +33,14 @@
 		<param-value>org.apache.commons.logging.impl.SimpleLog</param-value>
 	</context-param>
 	<context-param>
+		<param-name>contextClass</param-name>
+		<param-value>
+			org.springframework.web.context.support.AnnotationConfigWebApplicationContext
+		</param-value>
+	</context-param>
+	<context-param>
 		<param-name>contextConfigLocation</param-name>
-		<param-value>/WEB-INF/cfg/spring*.xml</param-value>
+		<param-value>net.driftingsouls.ds2.server.framework</param-value>
 	</context-param>
 
 	<filter>

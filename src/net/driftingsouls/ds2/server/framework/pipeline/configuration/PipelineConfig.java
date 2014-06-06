@@ -26,6 +26,9 @@ import net.driftingsouls.ds2.server.framework.pipeline.Pipeline;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -44,6 +47,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author Christopher Jung
  *
  */
+@Component
+@Lazy
 public class PipelineConfig {
 	private static final Log log = LogFactory.getLog(PipelineConfig.class);
 	
@@ -65,6 +70,7 @@ public class PipelineConfig {
 	 * Injiziert die DS-Konfiguration.
 	 * @param config Die DS-Konfiguration
 	 */
+	@Autowired
 	public void setConfiguration(Configuration config) {
 		this.configuration = config;
 	}
