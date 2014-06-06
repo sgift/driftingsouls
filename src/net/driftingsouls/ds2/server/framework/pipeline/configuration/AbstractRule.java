@@ -73,13 +73,6 @@ abstract class AbstractRule implements Rule
 			return;
 		}
 
-		node = XMLUtils.getNodeByXPath(matchNode, "execute-servlet");
-		if (node != null)
-		{
-			this.executer = new ServletExecuter();
-			return;
-		}
-
 		throw new Exception("Unable to determine execution type of rule");
 	}
 
