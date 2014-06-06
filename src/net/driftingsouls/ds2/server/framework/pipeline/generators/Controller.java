@@ -477,7 +477,7 @@ public abstract class Controller implements PermissionResolver
 		actionTypeHandler.printFooter();
 	}
 
-	protected void printHeader() throws IOException
+	private void printHeader() throws IOException
 	{
 		actionTypeHandler.setAttribute("module", this.parameterReader.getString("module"));
 		actionTypeHandler.setAttribute("bodyParameters", this.getBodyParameters());

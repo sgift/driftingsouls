@@ -148,16 +148,4 @@ public abstract class TemplateController extends Controller
 		}
 		super.printFooter(action);
 	}
-
-	@Override
-	protected void printHeader() throws IOException
-	{
-		//this.getContext().getResponse().activateOutputCache();
-
-		if ((getActionType() == ActionType.DEFAULT) && (this.templateEngine != null))
-		{
-			getOutputHelper().setAttribute("header", getTemplateEngine().getVar("__HEADER"));
-		}
-		super.printHeader();
-	}
 }
