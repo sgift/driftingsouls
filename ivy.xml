@@ -35,13 +35,13 @@
 		<dependency org="org.hibernate" name="hibernate-jpamodelgen" rev="1.2.0.Final" conf="compile->default"/>
 		<dependency org="com.mchange" name="c3p0" rev="0.9.2" conf="compile->default"/>
 
-		<dependency org="org.springframework" name="spring-core" rev="2.5.5" conf="compile->default"/>
-		<dependency org="commons-collections" name="commons-collections" rev="3.2" conf="compile->default"/>
-		<dependency org="org.springframework" name="spring-context" rev="2.5.5" conf="compile->default"/>
-		<dependency org="org.springframework" name="spring-context-support" rev="2.5.5" conf="compile->default"/>
-		<dependency org="org.springframework" name="spring-web" rev="2.5.5" conf="compile->default"/>
-		<dependency org="org.springframework" name="spring-tx" rev="2.5.5" conf="compile->default"/>
-		<dependency org="opensymphony" name="quartz-all" rev="1.6.0" conf="compile->default"/>
+		<dependency org="org.springframework" name="spring-core" rev="4.0.5.RELEASE" conf="compile->default"/>
+		<!--<dependency org="commons-collections" name="commons-collections" rev="3.2" conf="compile->default"/>-->
+		<dependency org="org.springframework" name="spring-context" rev="4.0.5.RELEASE" conf="compile->default"/>
+		<dependency org="org.springframework" name="spring-context-support" rev="4.0.5.RELEASE" conf="compile->default"/>
+		<dependency org="org.springframework" name="spring-web" rev="4.0.5.RELEASE" conf="compile->default"/>
+		<dependency org="org.springframework" name="spring-tx" rev="4.0.5.RELEASE" conf="compile->default"/>
+		<dependency org="org.quartz-scheduler" name="quartz" rev="1.8.6" conf="compile->default"/>
 
         <dependency org="org.reflections" name="reflections" rev="0.9.9-RC1" conf="compile->default" />
 
