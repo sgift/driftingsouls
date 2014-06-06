@@ -192,7 +192,6 @@ public class ImageDownloader
 		while( matcher.find() )
 		{
 			String match = matcher.group(1);
-			match = match.replace("{URL}", "");
 			if( match.contains("{") )
 			{
 				// Nicht identifizierbar

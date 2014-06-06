@@ -18,9 +18,9 @@
  */
 package net.driftingsouls.ds2.server.install.checks;
 
-import java.io.File;
-
 import net.driftingsouls.ds2.server.framework.Configuration;
+
+import java.io.File;
 
 /**
  * Ueberprueft, ob die config.xml existiert.
@@ -30,7 +30,7 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 public class LoxPathCheck implements Checkable {
 	@Override
 	public void doCheck() throws CheckFailedException {
-		final String path = Configuration.getSetting("LOXPATH");
+		final String path = Configuration.getLogPath();
 		if( !new File(path).isDirectory() ) {
 			throw new CheckFailedException("LOXPATH ist ungueltig");
 		}

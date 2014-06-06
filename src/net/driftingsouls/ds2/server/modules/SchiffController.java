@@ -32,7 +32,6 @@ import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
@@ -826,25 +825,24 @@ public class SchiffController extends TemplateController
 		{
 			return;
 		}
-		final String url = Configuration.getSetting("URL");
 
 		Map<String, String> mo = new HashMap<>();
 		// Nur Number-Spalten!
 		mo.put("getRu", "<img align='middle' src='" + Cargo.getResourceImage(Resources.URAN) + "' alt='' />Reaktor ");
 		mo.put("getRd", "<img align='middle' src='" + Cargo.getResourceImage(Resources.DEUTERIUM) + "' alt='' />Reaktor ");
 		mo.put("getRa", "<img align='middle' src='" + Cargo.getResourceImage(Resources.ANTIMATERIE) + "' alt='' />Reaktor ");
-		mo.put("getRm", "<img align='middle' src='" + url + "data/interface/energie.gif' alt='' />Reaktor ");
-		mo.put("getCargo", "<img align='middle' src='" + url + "data/interface/leer.gif' alt='' />Cargo ");
-		mo.put("getEps", "<img align='middle' src='" + url + "data/interface/energie.gif' alt='' />Energiespeicher ");
-		mo.put("getHull", "<img align='middle' src='" + url + "data/interface/schiffe/panzerplatte.png' alt='' />H&uuml;lle ");
+		mo.put("getRm", "<img align='middle' src='data/interface/energie.gif' alt='' />Reaktor ");
+		mo.put("getCargo", "<img align='middle' src='data/interface/leer.gif' alt='' />Cargo ");
+		mo.put("getEps", "<img align='middle' src='data/interface/energie.gif' alt='' />Energiespeicher ");
+		mo.put("getHull", "<img align='middle' src='data/interface/schiffe/panzerplatte.png' alt='' />H&uuml;lle ");
 		mo.put("getShields", "Shields ");
 		mo.put("getCost", "Flugkosten ");
 		mo.put("getHeat", "&Uuml;berhitzung ");
-		mo.put("getPanzerung", "<img align='middle' src='" + url + "data/interface/schiffe/panzerplatte.png' alt='' />Panzerung ");
+		mo.put("getPanzerung", "<img align='middle' src='data/interface/schiffe/panzerplatte.png' alt='' />Panzerung ");
 		mo.put("getTorpedoDef", "Torpedoabwehr ");
-		mo.put("getCrew", "<img align='middle' src='" + url + "data/interface/besatzung.gif' alt='' />Crew ");
+		mo.put("getCrew", "<img align='middle' src='data/interface/besatzung.gif' alt='' />Crew ");
 		mo.put("getHydro", "<img align='middle' src='" + Cargo.getResourceImage(Resources.NAHRUNG) + "' alt='' />Produktion ");
-		mo.put("getSensorRange", "<img align='middle' src='" + url + "data/interface/schiffe/sensorrange.png' alt='' />Sensorreichweite ");
+		mo.put("getSensorRange", "<img align='middle' src='data/interface/schiffe/sensorrange.png' alt='' />Sensorreichweite ");
 		mo.put("getDeutFactor", "Tanker: <img align='middle' src='" + Cargo.getResourceImage(Resources.DEUTERIUM) + "' alt='' />");
 		mo.put("getReCost", "Wartungskosten ");
 		mo.put("getADocks", "Externe Docks ");

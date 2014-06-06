@@ -19,8 +19,6 @@
 package net.driftingsouls.ds2.server.framework;
 
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
@@ -44,10 +42,7 @@ import java.util.Map;
 @Lazy
 public class Configuration
 {
-	private static final Log log = LogFactory.getLog(Configuration.class);
-
 	private static Map<String, String> config = new HashMap<>();
-	private static Map<String, Integer> configInt = new HashMap<>();
 
 	/**
 	 * Laedt alle Konfigurationseinstellungen aus der config.xml im angegebenen Verzeichnis. Alle
@@ -65,9 +60,8 @@ public class Configuration
 					+ configdir + " finden");
 		}
 		config.clear();
-		configInt.clear();
 
-		putSetting("configdir", configdir);
+		config.put("configdir", configdir);
 
 		Document doc = XMLUtils.readFile(configdir + "config.xml");
 		NodeList nodes = XMLUtils.getNodesByXPath(doc, "/config/setting");
@@ -90,11 +84,7 @@ public class Configuration
 
 			if( "string".equalsIgnoreCase(type) )
 			{
-				Configuration.putSetting(name, value);
-			}
-			else if( "number".equalsIgnoreCase(type) )
-			{
-				Configuration.putIntSetting(name, Integer.parseInt(value));
+				config.put(name, value);
 			}
 			else
 			{
@@ -104,79 +94,39 @@ public class Configuration
 	}
 
 	/**
-	 * Liefert eine Konfigurationseinstellung als String zurueck.
-	 * 
-	 * @param setting Name der Konfigurationseinstellung
-	 * @return Wert der Konfigurationseinstellung
+	 * Gibt zurueck, ob es sich um ein Produktivsetup handelt
+	 * @return <code>true</code>, falls dem so ist
 	 */
-	public static String getSetting(String setting)
+	public static boolean isProduction()
 	{
-		if( config.containsKey(setting) )
-		{
-			return config.get(setting);
-		}
-		Integer value = configInt.get(setting);
-		if( value != null )
-		{
-			return value.toString();
-		}
-		log.error("couldn't read " + setting + " from Configuration");
-
-		return null;
+		return config.containsKey("PRODUCTION") && "true".equals(config.get("PRODUCTION"));
 	}
 
 	/**
-	 * Liefert eine Konfigurationseinstellung als Integer zurueck, sofern diese bereits als Integer
-	 * vorliegt. Es wird keine Umwandlung String nach Integer durchgefuehrt!
-	 * 
-	 * @param setting Name der Konfigurationseinstellung
-	 * @return Wert der Konfigurationseinstellung
+	 * Gibt die JDBC-Url fuer DS zurueck.
+	 * @return Die Url
 	 */
-	public static int getIntSetting(String setting)
+	public static String getDbUrl()
 	{
-		Integer val = configInt.get(setting);
-		if( val == null )
-		{
-			log.error("couldn't read integer " + setting + " from Configuration");
-			throw new RuntimeException("couldn't read integer " + setting + " from Configuration");
-		}
-
-		return val;
+		return config.get("db_url");
 	}
 
 	/**
-	 * Setzt eine Konfigurationseinstellung auf einen String-Wert.
-	 * 
-	 * @param setting Name der Konfigurationseinstellung
-	 * @param value Wert der Konfigurationseinstellung
+	 * Gibt den Datenbank-User fuer DS zurueck.
+	 * @return Der User
 	 */
-	private static synchronized void putSetting(String setting, String value)
+	public static String getDbUser()
 	{
-		config.put(setting, value);
-		configInt.remove(setting);
+		return config.get("db_user");
 	}
 
 	/**
-	 * Setzt eine Konfigurationseinstellung auf einen Integer-Wert.
-	 * 
-	 * @param setting Name der Konfigurationseinstellung
-	 * @param value Wert der Konfigurationseinstellung
+	 * Gibt das Passwort fuer den Datenbank-User fuer DS zurueck.
+	 * @return Das Passwort
 	 */
-	private static synchronized void putIntSetting(String setting, int value)
+	public static String getDbPassword()
 	{
-		configInt.put(setting, value);
-		config.remove(setting);
-	}
-
-	/**
-	 * Liefert eine Konfigurationseinstellung als String zurueck.
-	 * 
-	 * @param setting Name der Konfigurationseinstellung
-	 * @return Wert der Konfigurationseinstellung
-	 */
-	public String get(String setting)
-	{
-		return getSetting(setting);
+		return config.get("db_password");
 	}
 
 	/**
@@ -185,7 +135,7 @@ public class Configuration
 	 */
 	public static String getAbsolutePath()
 	{
-		return getSetting("ABSOLUTE_PATH");
+		return config.get("ABSOLUTE_PATH");
 	}
 
 	/**
@@ -194,7 +144,7 @@ public class Configuration
 	 */
 	public static String getLogPath()
 	{
-		return getSetting("LOXPATH");
+		return config.get("LOXPATH");
 	}
 
 	/**
@@ -203,6 +153,45 @@ public class Configuration
 	 */
 	public static String getConfigPath()
 	{
-		return getSetting("configdir");
+		return config.get("configdir");
+	}
+
+	/**
+	 * Gibt den Namen des SMTP-Servers fuer den Mailversandt zurueck.
+	 * @return Der Servername
+	 */
+	public static String getSmtpServer()
+	{
+		return config.get("SMTP-SERVER");
+	}
+
+	/**
+	 * Gibt den Pfad zum Questverzeichnis zurueck.
+	 * @return Der Pfad
+	 */
+	public static String getQuestPath()
+	{
+		return config.get("QUESTPATH");
+	}
+
+	/**
+	 * Gibt die Email-Adresse zurueck, an die Fehler- oder Statusmeldungen
+	 * gesendet werden sollen. Mehrere Adressen koennen ueber ein <code>;</code>
+	 * separiert werden.
+	 * @return Die Email-Adresse
+	 */
+	public static String getExceptionMailAddress()
+	{
+		return config.get("EXCEPTION_MAIL");
+	}
+
+	/**
+	 * Gibt den Prefix zurueck, der vor den Titel von Fehler- oder Statusemails
+	 * gesetzt werden soll.
+	 * @return Der Prefix
+	 */
+	public static String getExceptionMailPrefix()
+	{
+		return config.get("EXCEPTION_MAIL_PREFIX");
 	}
 }

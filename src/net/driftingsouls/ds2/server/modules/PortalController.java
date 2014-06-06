@@ -94,16 +94,6 @@ public class PortalController extends TemplateController
 		this.authManager = authManager;
 	}
 
-	@Override
-	protected boolean validateAndPrepare()
-	{
-		TemplateEngine t = getTemplateEngine();
-
-		t.setVar("URL", Configuration.getSetting("URL"));
-
-		return true;
-	}
-
 	/**
 	 * Ermoeglicht das generieren eines neuen Passworts und anschliessenden
 	 * zumailens dessen.
@@ -137,7 +127,14 @@ public class PortalController extends TemplateController
 
 					String subject = "Neues Passwort fuer Drifting Souls 2";
 
-					String message = Configuration.getSetting("PWNEW_EMAIL").replace("{username}", username);
+					String message = "Hallo {username},\n" +
+							"du hast ein neues Password angefordert. Dein neues Password lautet \"{password}\" und wurde verschluesselt gespeichert. Wenn es verloren geht, musst du dir ueber die \"Passwort vergessen?\" Funktion der Login-Seite ein neue\n" +
+							"s erstellen lassen.\n" +
+							"Bitte beachte, dass dein Passwort nicht an andere Nutzer weiter gegeben werden darf.\n" +
+							"Das Admin-Team wuenscht weiterhin einen angenehmen Aufenthalt in Drifting Souls 2\n" +
+							"Gruss Guzman\n" +
+							"Admin\n" +
+							"{date} Serverzeit".replace("{username}", username);
 					message = message.replace("{password}", password);
 					message = message.replace("{date}", Common.date("H:i j.m.Y"));
 
@@ -438,7 +435,23 @@ public class PortalController extends TemplateController
 		//Willkommens-PM versenden
 		User source = (User) db.get(User.class, new ConfigService().getValue(WellKnownConfigValue.REGISTER_PM_SENDER));
 		PM.send(source, newid, "Willkommen bei Drifting Souls 2",
-				Configuration.getSetting("REGISTER_PM"));
+				"[font=arial]Herzlich willkommen bei Drifting Souls 2.\n" +
+						"Diese PM wird automatisch an alle neuen Spieler versandt, um\n" +
+						"ihnen Hilfsquellen fuer den relativ komplizierten Einstieg zu\n" +
+						"nennen.\n" +
+						" Falls Probleme auftreten sollten, gibt es:\n" +
+						"- eine Wiki ([url=http://wiki.drifting-souls.net/]Wiki zu Drifing-Souls[/url])\n" +
+						"- Informationen via Menue/Technische Datenbank\n" +
+						"- das Forum via Menue/Technische Datenbank oder [url=http://forum.drifting-souls.net/phpbb3/]Forum-Link[/url]\n" +
+						"- einen IRC-Chat (Server: irc.euirc.net / Chan #ds2 oder\n" +
+						"- #ds-help) - Eine Anleitung findest Du im Forum: [url=http://forum.drifting-souls.net/phpbb3/viewtopic.php?f=50&amp;t=1595]Chat-Anleitung[/url]\n" +
+						"- und die Moeglichkeit via PM an die ID -16 Fragen zu stellen.\n" +
+						"\n" +
+						"Unter\n" +
+						"[url=http://wiki.drifting-souls.net/confluence/display/inf/Ingame-Tutorial]Wiki:Ingame-Tuturial[/url] findest du den Text aus der Einfuehrung.\n" +
+						"\n" +
+						"\n" +
+						"Viel Spass noch bei DS wuenschen dir die Admins[/font]");
 
 		t.setVar("show.register.msg.ok", 1,
 				"register.newid", newid);
@@ -453,7 +466,13 @@ public class PortalController extends TemplateController
 
 	private void versendeRegistrierungsEmail(String username, String email, String password)
 	{
-		String message = Configuration.getSetting("REGISTER_EMAIL");
+		String message = "Hallo {username},\n" +
+				"du hast dich als \"{username}\" angemeldet. Dein Passwort lautet \"{password}\" (ohne \\\"\\\"). Im Spiel heisst du noch Kolonist. Dies sowie das Passwort kannst du aber unter \"Optionen\" aendern.\n" +
+				"\n" +
+				"Das Admin-Team wuenscht einen angenehmen Aufenthalt in DS\n" +
+				"Gruss Guzman\n" +
+				"Admin\n" +
+				"{date} Serverzeit";
 		message = message.replace("{username}", username);
 		message = message.replace("{password}", password);
 		message = message.replace("{date}", Common.date("H:i j.m.Y"));
@@ -463,7 +482,7 @@ public class PortalController extends TemplateController
 
 	private void erstelleStartBasis(Session db, User newuser, Base base)
 	{
-		String[] baselayoutStr = Configuration.getSetting("REGISTER_BASELAYOUT").split(",");
+		String[] baselayoutStr = new ConfigService().getValue(WellKnownConfigValue.REGISTER_BASELAYOUT).split(",");
 		Integer[] activebuildings = new Integer[baselayoutStr.length];
 		Integer[] baselayout = new Integer[baselayoutStr.length];
 		int bewohner = 0;
@@ -511,7 +530,7 @@ public class PortalController extends TemplateController
 		base.setWidth(basetype.getWidth());
 		base.setHeight(basetype.getHeight());
 		base.setMaxCargo(basetype.getCargo());
-		base.setCargo(new Cargo(Cargo.Type.AUTO, Configuration.getSetting("REGISTER_BASECARGO")));
+		base.setCargo(new Cargo(Cargo.Type.AUTO, new ConfigService().getValue(WellKnownConfigValue.REGISTER_BASECARGO)));
 		base.setCore(null);
 		base.setUnits(new TransientUnitCargo());
 		base.setCoreActive(false);

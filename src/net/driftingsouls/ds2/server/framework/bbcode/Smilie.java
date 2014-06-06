@@ -18,9 +18,10 @@
  */
 package net.driftingsouls.ds2.server.framework.bbcode;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -28,10 +29,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Version;
-
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.ContextMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Ein Smilie.
@@ -103,7 +103,7 @@ public class Smilie {
 				List<Smilie> smilies = Common.cast(db.createQuery("from Smilie").list());
 				for( Smilie smilie : smilies ) {
 					smiliesSearch.add(Pattern.compile("(?<=.\\W|\\W.|^\\W)"+Pattern.quote(smilie.getTag())+"(?=.\\W|\\W.|\\W$)"));
-					smiliesReplace.add("<img style=\"border:0px\" src=\""+Configuration.getSetting("SMILIE_PATH")+"/"+smilie.getImage()+"\" alt=\""+smilie.getTag()+"\" title=\""+smilie.getTag()+"\" />");
+					smiliesReplace.add("<img style=\"border:0px\" src=\""+new ConfigService().getValue(WellKnownConfigValue.SMILIE_PATH)+"/"+smilie.getImage()+"\" alt=\""+smilie.getTag()+"\" title=\""+smilie.getTag()+"\" />");
 				}
 			}
 		}

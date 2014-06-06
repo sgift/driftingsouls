@@ -57,15 +57,15 @@ public class DriftingSouls {
 		LOG.info("Reading "+configdir+"config.xml");
 		Configuration.init(configdir);
 
-		if( !"true".equals(Configuration.getSetting("PRODUCTION")) )
+		if( !Configuration.isProduction() )
 		{
 			upgradeDatabase();
 		}
 
 		LOG.info("Initializing Hibernate");
-		HibernateUtil.initConfiguration(Configuration.getConfigPath()+"hibernate.xml", Configuration.getSetting("db_url"), Configuration.getSetting("db_user"), Configuration.getSetting("db_password"));
+		HibernateUtil.initConfiguration(Configuration.getConfigPath()+"hibernate.xml", Configuration.getDbUrl(), Configuration.getDbUser(), Configuration.getDbPassword());
 		HibernateUtil.createFactories();
-		if( !"true".equals(Configuration.getSetting("PRODUCTION")) )
+		if( !Configuration.isProduction() )
 		{
 			HibernateUtil.writeSchemaToDisk(Configuration.getConfigPath() + "schema.sql");
 		}
@@ -80,7 +80,7 @@ public class DriftingSouls {
 	{
 		LOG.info("Aktualisiere Datenbank");
 		Flyway flyway = new Flyway();
-		flyway.setDataSource(Configuration.getSetting("db_url"), Configuration.getSetting("db_user"), Configuration.getSetting("db_password"));
+		flyway.setDataSource(Configuration.getDbUrl(), Configuration.getDbUser(), Configuration.getDbPassword());
 		flyway.setInitOnMigrate(true);
 		flyway.setSqlMigrationPrefix("");
 		flyway.setLocations("db/migration");

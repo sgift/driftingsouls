@@ -18,10 +18,10 @@
  */
 package net.driftingsouls.ds2.server.install.checks;
 
+import net.driftingsouls.ds2.server.framework.Configuration;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
-
-import net.driftingsouls.ds2.server.framework.Configuration;
 
 /**
  * Ueberprueft, ob die config.xml existiert.
@@ -34,9 +34,9 @@ public class DatabaseConnectionCheck implements Checkable {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			
-			final String url = Configuration.getSetting("db_url");
-			final String user = Configuration.getSetting("db_user");
-			final String pw = Configuration.getSetting("db_password");
+			final String url = Configuration.getDbUrl();
+			final String user = Configuration.getDbUser();
+			final String pw = Configuration.getDbPassword();
 			Connection con = DriverManager.getConnection(url, user, pw);
 			con.close();
 		}

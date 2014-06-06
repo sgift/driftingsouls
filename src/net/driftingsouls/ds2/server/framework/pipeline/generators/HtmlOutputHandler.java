@@ -4,6 +4,7 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Version;
 import net.driftingsouls.ds2.server.framework.pipeline.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +23,7 @@ import java.util.TreeSet;
  * </ul>
  *
  */
+@Component
 public class HtmlOutputHandler extends OutputHandler
 {
 	private Version version;
@@ -44,7 +46,7 @@ public class HtmlOutputHandler extends OutputHandler
 
 		Writer sb = response.getWriter();
 
-		final boolean devMode = !"true".equals(Configuration.getSetting("PRODUCTION"));
+		final boolean devMode = !Configuration.isProduction();
 
 		sb.append("<!DOCTYPE html>\n");
 		sb.append("<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"de\" lang=\"de\">\n");

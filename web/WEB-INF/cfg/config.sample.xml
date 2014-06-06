@@ -25,67 +25,13 @@
 
 	<!-- Sonstiges -->
 	<setting type="string" name="SMTP-SERVER" value="localhost" />
-	<setting type="string" name="URL" value="/driftingsouls/" />
 	<!-- [Optional; default false] <setting type="string" name="PRODUCTION" value="true" />-->
-	<!-- [Optional; default <URL>] <setting type="string" name="IMAGE_URL" value="http://localhost:8080/driftingsouls/" /> -->
 	<setting type="string" name="ABSOLUTE_PATH" value="/home/bktheg/Projects/dsj/web/" />
 	<setting type="string" name="QUESTPATH" value="/home/bktheg/public_html/ds2/quests/" />
 	<setting type="string" name="LOXPATH" value="/home/bktheg/public_html/ds2/lox/" />
-	<setting type="string" name="SMILIE_PATH" value="http://forum.drifting-souls.net/phpbb3/images/smiles" />
-	<setting type="string" name="ADMIN_PMS_ACCOUNT" value="-90,-99" />
 	<setting type="string" name="EXCEPTION_MAIL" value="bktheg@web.de" />
 	<setting type="string" name="EXCEPTION_MAIL_PREFIX" value="[DS2J]" />
-	<setting type="string" name="VERSION_TYPE" value="stable" />
-
 	<!-- Register -->
 	<setting type="string" name="REGISTER_BASELAYOUT" value="1,0,2,6,17,0,0,2,0,0,0,0,0,0,0,7,0,0,0,0,7,0,0,0,0,4,0,0,0,3,4,0,0,0,5,4,0,0,0,5" />
 	<setting type="string" name="REGISTER_BASECARGO" value="16|3500|0|0;17|1500|0|0;18|2500|0|0;19|3500|0|0;20|3500|0|0;22|1000|0|0;23|2500|0|0;24|2500|0|0;25|500|0|0" />
-
-	<!--
-		EMails / PMs
-	 -->
-    <setting type="string">
-        <name>PWNEW_EMAIL</name>
-        <value>Hallo {username},
-du hast ein neues Password angefordert. Dein neues Password lautet "{password}" und wurde verschluesselt gespeichert. Wenn es verloren geht, musst du dir ueber die "Passwort vergessen?" Funktion der Login-Seite ein neues erstellen lassen.
-Bitte beachte, dass dein Passwort nicht an andere Nutzer weiter gegeben werden darf.
-Das Admin-Team wuenscht weiterhin einen angenehmen Aufenthalt in Drifting Souls 2
-Gruss Guzman
-Admin
-{date} Serverzeit</value>
-    </setting>
-	<setting type="string">
-		<name>PWCHANGE_EMAIL</name>
-		<value>Hallo {username},
-du hast dein Password geaendert. Dein Password wird kodiert gespeichert. Wenn es verloren geht, musst Du Dir ueber die "neues Password zuteilen" Funktion der Login-Seite ein neues erstellen lassen.
-Das Admin-Team wuenscht einen angenehmen Aufenthalt in DS
-Gruss Guzman
-Admin
-{date} Serverzeit</value>
-	</setting>
-	<setting type="string">
-		<name>REGISTER_EMAIL</name>
-		<value>Hallo {username},
-du hast dich als "{username}" angemeldet. Dein Passwort lautet "{password}" (ohne \"\"). Im Spiel heisst du noch Kolonist. Dies sowie das Passwort kannst du aber unter "Optionen" aendern.
-
-Das Admin-Team wuenscht einen angenehmen Aufenthalt in DS
-Gruss Guzman
-Admin
-{date} Serverzeit</value>
-	</setting>
-	<setting type="string">
-		<name>REGISTER_PM</name>
-		<value>[font=arial]Herzlich willkommen bei Drifting Souls 2.
-		 Diese PM wird automatisch an alle neuen Spieler versandt, um ihnen Hilfsquellen fuer den relativ komplizierten Einstieg zu nennen.
-		 Falls Probleme auftreten sollten, gibt es:
-		 - eine Wiki ([url=http://wiki.drifting-souls.net]Wiki zu Drifing-Souls[/url])
-		 - Informationen via Menue/Technische Datenbank
-		 - einen IRC-Chat (Server: irc.eurirc.net / Chan #ds oder #ds-help - Erreichbar auch ueber die Startseite->Chat)
-		 - das Forum via Menue/Technische Datenbank oder [url=http://forum.drifting-souls.net/phpBB2/]Forum-Link[/url]
-		 und die Moeglichkeit via PM an die ID -16 Fragen zu stellen.
-
-		 Unter [url=http://wiki.drifting-souls.net/Das_Ingame-Tutorial]Wiki:Ingame-Tutorial[/url] findest du den Text aus der Einfuehrung.
-
-		 Viel Spass; noch bei DS wuenschen dir die Admins[/font]</value>
-	</setting>
 </config>

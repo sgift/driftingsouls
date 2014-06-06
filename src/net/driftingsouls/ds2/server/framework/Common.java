@@ -977,7 +977,7 @@ public class Common {
 	 */
 	public static synchronized void mail( String address, String subject, String text ) {
 		if( mailSession == null ) {
-			String mailServer = Configuration.getSetting("SMTP-SERVER");
+			String mailServer = Configuration.getSmtpServer();
 			if(mailServer.isEmpty())
 			{
 				return;
@@ -1010,7 +1010,7 @@ public class Common {
 	 * @param title der Titel der Mail
 	 */
 	public static void mailThrowable(Throwable t, String title, String addInfo) {
-		if( Configuration.getSetting("EXCEPTION_MAIL") == null ) {
+		if( Configuration.getExceptionMailAddress() == null ) {
 			return;
 		}
 
@@ -1031,9 +1031,9 @@ public class Common {
 	 */
 	public static void sendMailToAdmins(String title, String msg)
 	{
-		String prefix = Configuration.getSetting("EXCEPTION_MAIL_PREFIX");
+		String prefix = Configuration.getExceptionMailPrefix();
 		
-		String[] mailAddrs = StringUtils.split(Configuration.getSetting("EXCEPTION_MAIL"), ';');
+		String[] mailAddrs = StringUtils.split(Configuration.getExceptionMailAddress(), ';');
 		for (String mailAddr : mailAddrs)
 		{
 			Common.mail(mailAddr, prefix + " " + (title != null && title.length() > 0 ? title : "Exception"), msg);

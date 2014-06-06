@@ -19,11 +19,13 @@
 package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
@@ -118,7 +120,12 @@ public class OptionsController extends TemplateController
 			changemsg += "<span style=\"color:red\">Das Password wurde ge&auml;ndert</span><br />\n";
 
 			String subject = "Drifting Souls - Passwortaenderung";
-			String message = Common.trimLines(Configuration.getSetting("PWCHANGE_EMAIL"));
+			String message = "Hallo {username},\n" +
+					"du hast dein Password geaendert. Dein Password wird kodiert gespeichert. Wenn es verloren geht, musst Du Dir ueber die \"neues Password zuteilen\" Funktion der Login-Seite ein neues erstellen lassen.\n" +
+					"Das Admin-Team wuenscht einen angenehmen Aufenthalt in Drifting Souls 2\n" +
+					"Gruss Guzman\n" +
+					"Admin\n" +
+					"{date} Serverzeit";
 			message = StringUtils.replace(message, "{username}", user.getUN());
 			message = StringUtils.replace(message, "{date}", Common.date("H:i j.m.Y"));
 
@@ -178,7 +185,7 @@ public class OptionsController extends TemplateController
 			PM.sendToAdmins(user, "Account l&ouml;schen", msg.toString(), 0);
 
 			t.setVar("options.delaccountresp", 1,
-					"delaccountresp.admins", Configuration.getSetting("ADMIN_PMS_ACCOUNT"));
+					"delaccountresp.admins", new ConfigService().getValue(WellKnownConfigValue.ADMIN_PMS_ACCOUNT));
 
 		}
 	}

@@ -157,6 +157,22 @@ public class WellKnownConfigValue<T> implements ConfigValueDescriptor<T>
      * Der Zeit Faktor fuer DI Auftraege
      */
     public static final ConfigValueDescriptor<Double> DI_FAKTOR_ZEIT = new WellKnownConfigValue<>(Double.class, "zeitfaktordi", "1", "Der Zeitfaktor bei mehreren DI Ausbauten gleichzeitig.");
+	/**
+	 * Die Accounts, die administrative PMs (z.B. Loeschantraege) erhalten sollen. Mehrere IDs sind mit einem Komma zu separieren.
+	 */
+	public static final ConfigValueDescriptor<String> ADMIN_PMS_ACCOUNT = new WellKnownConfigValue<>(String.class, "admin_pms_account", "-2", "Die Accounts, die administrative PMs (z.B. Loeschantraege) erhalten sollen. Mehrere IDs sind mit einem Komma zu separieren.");
+	/**
+	 * Die URL zu den Smilie-Grafiken.
+	 */
+	public static final ConfigValueDescriptor<String> SMILIE_PATH = new WellKnownConfigValue<>(String.class, "smilie_path", "http://forum.drifting-souls.net/phpbb3/images/smiles", "Die URL zu den Smilie-Grafiken.");
+	/**
+	 * Das Gebaeudelayout der beim Registrieren automatisch zugewiesenen Basis.
+	 */
+	public static final ConfigValueDescriptor<String> REGISTER_BASELAYOUT = new WellKnownConfigValue<>(String.class, "register_baselayout", "1,0,2,6,17,0,0,2,0,0,0,0,0,0,0,7,0,0,0,0,7,0,0,0,0,4,0,0,0,3,4,0,0,0,5,4,0,0,0,5", "Das Gebaeudelayout der beim Registrieren automatisch zugewiesenen Basis.");
+	/**
+	 * Der Cargo der beim Registrieren automatisch zugewiesenen Basis.
+	 */
+	public static final ConfigValueDescriptor<String> REGISTER_BASECARGO = new WellKnownConfigValue<>(String.class, "register_basecargo", "16|3500|0|0;17|1500|0|0;18|2500|0|0;19|3500|0|0;20|3500|0|0;22|1000|0|0;23|2500|0|0;24|2500|0|0;25|500|0|0", "Der Cargo der beim Registrieren automatisch zugewiesenen Basis.");
 
 	private String name;
 	private String description;

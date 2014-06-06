@@ -104,9 +104,9 @@ public class PipelineConfig {
 		if( !this.rules.isEmpty() ) {
 			throw new IllegalStateException("Die Pipeline wurde bereits geladen");
 		}
-		log.info("Reading "+this.configuration.get("configdir")+"pipeline.xml");
+		log.info("Reading "+Configuration.getConfigPath()+"pipeline.xml");
 		
-		Document doc = XMLUtils.readFile(this.configuration.get("configdir")+"pipeline.xml");
+		Document doc = XMLUtils.readFile(Configuration.getConfigPath()+"pipeline.xml");
 	
 		// Module
 		scanForModules();

@@ -319,7 +319,7 @@ public class QuestXMLParser extends DSObject {
 		this.dialogids.clear();
 		this.scripts.clear();
 		
-		File installXML = new File(Configuration.getSetting("QUESTPATH")+file+".install");
+		File installXML = new File(Configuration.getQuestPath()+file+".install");
 		// Wurde das Quest bereits installiert?
 		if( installXML.exists() ) {
 			try {
@@ -638,7 +638,7 @@ public class QuestXMLParser extends DSObject {
 			this.currentFile = mycurrentfile;
 			
 			// Wurde das Quest bereits installiert?
-			File installFile = new File(Configuration.getSetting("QUESTPATH")+this.currentFile+".install");
+			File installFile = new File(Configuration.getQuestPath()+this.currentFile+".install");
 			if( installFile.exists() ) {
 				try {
 					XMLReader parser = XMLReaderFactory.createXMLReader();
@@ -658,7 +658,7 @@ public class QuestXMLParser extends DSObject {
 			addInstallData(this.currentFile, "<?xml version='1.0' encoding='UTF-8'?>\n");
 			addInstallData(this.currentFile, "<install>\n");
 			
-			File questFile = new File(Configuration.getSetting("QUESTPATH")+file);
+			File questFile = new File(Configuration.getQuestPath()+file);
 			
 			try {
 				XMLReader parser = XMLReaderFactory.createXMLReader();
@@ -698,7 +698,7 @@ public class QuestXMLParser extends DSObject {
 	private void parsexml(String file) {
 		MESSAGE.get().append("parsing "+file+"...\n");
 		
-		File questFile = new File(Configuration.getSetting("QUESTPATH")+file);
+		File questFile = new File(Configuration.getQuestPath()+file);
 		if( !questFile.exists() ) {
 			MESSAGE.get().append("QuestXML konnte nicht gefunden werden");
 			return;
@@ -709,7 +709,7 @@ public class QuestXMLParser extends DSObject {
 		this.compiledFiles.add(this.currentFile);
 		
 		// Wurde das Quest bereits installiert?
-		File installFile = new File(Configuration.getSetting("QUESTPATH")+this.currentFile+".install");
+		File installFile = new File(Configuration.getQuestPath()+this.currentFile+".install");
 		if( installFile.exists() ) {
 			try {
 				XMLReader parser = XMLReaderFactory.createXMLReader();
@@ -759,7 +759,7 @@ public class QuestXMLParser extends DSObject {
 		for( String filename : this.installFiles.keySet() ) {
 			String instfile = this.installFiles.get(filename);
 			instfile += "</install>\n";
-			installFile = new File(Configuration.getSetting("QUESTPATH")+filename+".install");
+			installFile = new File(Configuration.getQuestPath()+filename+".install");
 			if( installFile.exists() ) {
 				installFile.delete();
 			}

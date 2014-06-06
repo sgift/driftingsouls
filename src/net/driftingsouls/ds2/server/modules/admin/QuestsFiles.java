@@ -74,7 +74,7 @@ public class QuestsFiles implements AdminPlugin {
 		echo.append("</div>");
 		echo.append("<br />\n");
 		
-		final String questpath = Configuration.getSetting("QUESTPATH");
+		final String questpath = Configuration.getQuestPath();
 		
 		if( installfile.length() > 0 ) {
 			echo.append("<div class='gfxbox' style='width:590px'>");

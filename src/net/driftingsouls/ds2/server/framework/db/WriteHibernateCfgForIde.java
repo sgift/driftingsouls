@@ -23,9 +23,9 @@ public class WriteHibernateCfgForIde
 		}
 		Configuration.init(args[0]);
 
-		String dbUrl = Configuration.getSetting("db_url");
-		String dbUser = Configuration.getSetting("db_user");
-		String dbPassword = Configuration.getSetting("db_password");
+		String dbUrl = Configuration.getDbUrl();
+		String dbUser = Configuration.getDbUser();
+		String dbPassword = Configuration.getDbPassword();
 
 		HibernateUtil.initConfiguration(Configuration.getConfigPath()+"hibernate.xml", dbUrl, dbUser, dbPassword);
 		HibernateUtil.createFactories();

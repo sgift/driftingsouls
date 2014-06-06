@@ -18,10 +18,11 @@
  */
 package net.driftingsouls.ds2.server.comm;
 
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
@@ -220,7 +221,7 @@ public class PM {
 	 * @param flags Flags, welche die PM erhalten soll
 	 */
 	public static void sendToAdmins(User from, String title, String txt, int flags  ) {
-		String[] adminlist = Configuration.getSetting("ADMIN_PMS_ACCOUNT").split(",");
+		String[] adminlist = new ConfigService().getValue(WellKnownConfigValue.ADMIN_PMS_ACCOUNT).split(",");
 		for( String admin : adminlist ) {
 			send(from, Integer.parseInt(admin), title, txt, flags);
 		}

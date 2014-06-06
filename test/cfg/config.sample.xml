@@ -26,5 +26,4 @@
 	<!-- Sonstiges -->
 	<setting type="string" name="ABSOLUTE_PATH" value="/path/to/ds/test/" />
 	<setting type="string" name="LOXPATH" value="/path/to/ds/test/lox/" />
-	<setting type="string" name="URL" value="http://localhost:8080/driftingsouls/" />
 </config>
