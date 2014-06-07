@@ -24,7 +24,6 @@ public abstract class AngularController extends Controller
 		this.setDisableDebugOutput(true);
 	}
 
-	@Override
 	@Action(ActionType.DEFAULT)
 	public final void defaultAction() throws IOException
 	{

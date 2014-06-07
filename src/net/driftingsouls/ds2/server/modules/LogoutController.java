@@ -56,7 +56,6 @@ public class LogoutController extends TemplateController
 	/**
 	 * Loggt den Spieler aus.
 	 */
-	@Override
 	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		this.authManager.logout();

@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.pipeline.Response;
+import net.driftingsouls.ds2.server.framework.pipeline.ViewResult;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.FlushMode;
@@ -280,7 +281,7 @@ public abstract class Controller implements PermissionResolver
 			doActionOptimizations(actionDescriptor);
 
 			Object result = invokeActionMethod(method, arguments);
-			writeResultObject(result, actionDescriptor.value());
+			writeResultObject(result);
 		}
 		catch (Exception e)
 		{
@@ -359,7 +360,7 @@ public abstract class Controller implements PermissionResolver
 				try
 				{
 					Object result = invokeActionMethod(method, new HashMap<>());
-					writeResultObject(result, actionDescriptor.value());
+					writeResultObject(result);
 				}
 				catch (InvocationTargetException | RedirectInvocationException e)
 				{
@@ -434,10 +435,16 @@ public abstract class Controller implements PermissionResolver
 		return method.invoke(this, params);
 	}
 
-	protected final void writeResultObject(Object result, ActionType value) throws IOException
+	private void writeResultObject(Object result) throws IOException
 	{
 		if (result != null)
 		{
+			if( result instanceof ViewResult )
+			{
+				((ViewResult) result).writeToResponse(getResponse());
+				return;
+			}
+
 			if( result.getClass().isAnnotationPresent(ViewModel.class) ) {
 				result = new Gson().toJson(result);
 			}
@@ -634,15 +641,5 @@ public abstract class Controller implements PermissionResolver
 	protected boolean validateAndPrepare()
 	{
 		return true;
-	}
-
-	/**
-	 * Die Default-HTML-Aktion.
-	 *
-	 * @throws IOException
-	 */
-	public void defaultAction() throws IOException
-	{
-		getResponse().getWriter().append("DEFAULT");
 	}
 }

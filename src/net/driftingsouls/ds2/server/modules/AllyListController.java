@@ -256,7 +256,6 @@ public class AllyListController extends TemplateController
 	/**
 	 * Zeigt die Liste der Allianzen in DS an.
 	 */
-	@Override
 	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();

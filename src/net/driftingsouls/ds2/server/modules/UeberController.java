@@ -38,9 +38,10 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
 import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
@@ -51,6 +52,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
@@ -71,17 +73,15 @@ import java.util.Set;
  * @author Christopher Jung
  */
 @Module(name = "ueber")
-public class UeberController extends TemplateController
+public class UeberController extends Controller
 {
 	private static final Log log = LogFactory.getLog(UeberController.class);
+	private TemplateViewResultFactory templateViewResultFactory;
 
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public UeberController()
+	@Autowired
+	public UeberController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 	}
 
 	/**
@@ -95,7 +95,6 @@ public class UeberController extends TemplateController
 		user.setVacationCount(0);
 		user.setWait4VacationCount(0);
 
-		user.setTemplateVars(this.getTemplateEngine());
 		Common.writeLog("login.log", Common.date("j+m+Y H:i:s") + ": <" + getRequest().getRemoteAddress() + "> (" + user.getId() + ") <" + user.getUN() + "> Abbruch Vac-Vorlauf Browser <" + getRequest().getUserAgent() + "> \n");
 
 		redirect();
@@ -199,13 +198,12 @@ public class UeberController extends TemplateController
 	/**
 	 * Zeigt die Uebersicht an.
 	 */
-	@Override
 	@Action(value = ActionType.DEFAULT, readOnly = true)
-	public void defaultAction()
+	public TemplateEngine defaultAction()
 	{
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		String ticktime = getTickTime();
 
 		String race = "???";
@@ -287,7 +285,7 @@ public class UeberController extends TemplateController
 					"where id>0 and owner= :user")
 					.setEntity("user", user)
 					.iterate().next();
-			showTutorialPages(anzahlBasen, shipcount, inttutorial);
+			showTutorialPages(t, anzahlBasen, shipcount, inttutorial);
 		}
 
 		//------------------------------------
@@ -370,6 +368,8 @@ public class UeberController extends TemplateController
 		// Die Quests
 		//------------------------------------
 		questsAnzeigen(db, user, t);
+
+		return t;
 	}
 
 	private void questsAnzeigen(Session db, User user, TemplateEngine t)
@@ -606,11 +606,10 @@ public class UeberController extends TemplateController
 		return ticktime;
 	}
 
-	private void showTutorialPages(int bases, long shipcount, int inttutorial)
+	private void showTutorialPages(TemplateEngine t, int bases, long shipcount, int inttutorial)
 	{
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
 
 		boolean reqname = !"Kolonist".equals(user.getName());
 		boolean reqship = shipcount > 0;

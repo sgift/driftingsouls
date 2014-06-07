@@ -523,7 +523,6 @@ public class TCController extends TemplateController
 		}
 	}
 
-	@Override
 	@Action(ActionType.DEFAULT)
 	public void defaultAction()
 	{

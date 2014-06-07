@@ -527,7 +527,6 @@ public class OptionsController extends TemplateController
 	/**
 	 * Uebersicht ueber die Einstellungen.
 	 */
-	@Override
 	@Action(ActionType.DEFAULT)
 	public void defaultAction()
 	{

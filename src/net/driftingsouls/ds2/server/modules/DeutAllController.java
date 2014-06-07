@@ -57,7 +57,6 @@ public class DeutAllController extends TemplateController
 	/**
 	 * Sammelt das Deuterium auf den Tankern.
 	 */
-	@Override
 	@Action(ActionType.DEFAULT)
 	public void defaultAction() {
 		TemplateEngine t = getTemplateEngine();

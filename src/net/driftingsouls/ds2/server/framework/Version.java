@@ -20,7 +20,6 @@ package net.driftingsouls.ds2.server.framework;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -35,7 +34,6 @@ import java.io.InputStreamReader;
  *
  */
 @Component
-@Lazy
 public class Version
 {
 	private static final Log log = LogFactory.getLog(Version.class);

@@ -18,6 +18,13 @@
  */
 package net.driftingsouls.ds2.server.framework.templates;
 
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.pipeline.Response;
+import net.driftingsouls.ds2.server.framework.pipeline.ViewResult;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -31,12 +38,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 // TODO: Runtime-functions
 
 /**
@@ -44,7 +45,8 @@ import org.apache.commons.logging.LogFactory;
  * @author Christopher Jung
  * 
  */
-public class TemplateEngine {
+public class TemplateEngine implements ViewResult
+{
 	private static final String PACKAGE = "net.driftingsouls.ds2.server.templates";
 	private static final Log log = LogFactory.getLog(TemplateEngine.class);
 
@@ -72,12 +74,20 @@ public class TemplateEngine {
 	private Map<String,TemplateBlock> registeredBlockObj = new HashMap<>();
 	
 	private Map<String,String> varNameMap = new HashMap<>();
-	
+	private String masterTemplateId;
+
 	/**
 	 * Konstruktor.
 	 */
 	public TemplateEngine() {
 		// EMPTY
+	}
+
+	/**
+	 * Konstruktor.
+	 */
+	public TemplateEngine(String masterTemplateId) {
+		this.masterTemplateId = masterTemplateId;
 	}
 
 	private static Map<String,Template> templateMap = Collections.synchronizedMap(new HashMap<>());
@@ -516,4 +526,19 @@ public class TemplateEngine {
 		context.addError("Template: "+msg);
 		log.error(msg);
  	}
+
+	@Override
+	public void writeToResponse(Response response) throws IOException
+	{
+		if( this.masterTemplateId == null )
+		{
+			throw new IllegalStateException("Keine MasterTemplateId vergeben");
+		}
+		this.parse("OUT", this.masterTemplateId);
+
+		log.debug("out: OUT");
+
+		Object value = varvals.get("OUT");
+		response.getWriter().append(value.toString());
+	}
 }

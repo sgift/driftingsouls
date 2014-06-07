@@ -202,7 +202,6 @@ public class HandelController extends TemplateController
 	/**
 	 * Zeigt die vorhandenen Handelsangebote an.
 	 */
-	@Override
 	@Action(ActionType.DEFAULT)
 	public void defaultAction()
 	{

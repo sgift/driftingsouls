@@ -36,7 +36,6 @@ public class ShipsInfoController extends TemplateController
 		setPageTitle("Schiffsliste");
 	}
 
-	@Override
 	@Action(ActionType.DEFAULT)
 	public void defaultAction()
 	{

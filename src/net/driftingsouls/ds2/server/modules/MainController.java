@@ -117,7 +117,6 @@ public class MainController extends TemplateController
 	/**
 	 * Generiert das Hauptframe.
 	 */
-	@Override
 	@Action(ActionType.DEFAULT)
 	public void defaultAction()
 	{

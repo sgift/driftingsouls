@@ -30,11 +30,13 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -46,7 +48,7 @@ import java.util.Map;
  * @author Christopher Jung
  */
 @Module(name="basen")
-public class BasenController extends TemplateController
+public class BasenController extends Controller
 {
 	private static final Map<String,List<String>> ordmapper = new HashMap<>();
 	static {
@@ -58,11 +60,11 @@ public class BasenController extends TemplateController
 		ordmapper.put("e", Arrays.asList("energy"));
 	}
 
-	/**
-	 * Konstruktor.
-	 */
-	public BasenController() {
-		super();
+	private TemplateViewResultFactory templateViewResultFactory;
+
+	@Autowired
+	public BasenController(TemplateViewResultFactory templateViewResultFactory) {
+		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Basen");
 	}
@@ -74,9 +76,9 @@ public class BasenController extends TemplateController
 	 * @param order Falls == 1 wird absteigend sortiert
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(Integer l, String ord, Integer order) {
+	public TemplateEngine defaultAction(Integer l, String ord, Integer order) {
 		User user = (User)getUser();
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		org.hibernate.Session db = getDB();
 
 		String ordSetting = user.getUserValue("TBLORDER/basen/order");
@@ -213,6 +215,8 @@ public class BasenController extends TemplateController
 
 			t.parse("bases.list", "bases.listitem", true);
 		}
+
+		return t;
 	}
 
 }

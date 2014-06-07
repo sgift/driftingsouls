@@ -46,7 +46,6 @@ public class NewsController extends TemplateController
 	/**
 	 * Gibt den News RSS Feed aus.
 	 */
-	@Override
 	@Action(value = ActionType.DEFAULT, outputHandler = EmptyHeaderFooterOutputHandler.class)
 	public void defaultAction() throws IOException
 	{

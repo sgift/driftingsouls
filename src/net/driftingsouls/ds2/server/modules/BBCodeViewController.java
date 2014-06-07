@@ -22,8 +22,10 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +37,7 @@ import java.util.List;
  *
  */
 @Module(name="bbcodeview")
-public class BBCodeViewController extends TemplateController
+public class BBCodeViewController extends Controller
 {
 	private static List<String> codes = new ArrayList<>();
 	static {
@@ -71,21 +73,23 @@ public class BBCodeViewController extends TemplateController
 		codes.add("Beispiel f&uuml;r 5 Nahrung: [resource=i16|0|0]5[/resource]<br />");
 	}
 
-	/**
-	 * Konstruktor.
-	 */
-	public BBCodeViewController() {
-		super();
+	private TemplateViewResultFactory templateViewResultFactory;
+
+	@Autowired
+	public BBCodeViewController(TemplateViewResultFactory templateViewResultFactory)
+	{
+		this.templateViewResultFactory = templateViewResultFactory;
 	}
 
 	/**
 	 * Anzeigen der BBCode-Liste.
 	 */
-	@Override
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(){
-		TemplateEngine t = getTemplateEngine();
+	public TemplateEngine defaultAction(){
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 
 		t.setVar("bbcode.text", Common.implode("<br />", codes));
+
+		return t;
 	}
 }

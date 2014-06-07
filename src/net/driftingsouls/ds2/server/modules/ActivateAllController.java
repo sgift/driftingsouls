@@ -26,10 +26,12 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * (De)aktivierung aller Gebaeude auf einer Basis.
@@ -37,14 +39,14 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  *
  */
 @Module(name="activateall")
-public class ActivateAllController extends TemplateController
+public class ActivateAllController extends Controller
 {
-	/**
-	 * Konstruktor.
-	 */
-	public ActivateAllController() {
-		super();
-		
+	private TemplateViewResultFactory templateViewResultFactory;
+
+	@Autowired
+	public ActivateAllController(TemplateViewResultFactory templateViewResultFactory) {
+		this.templateViewResultFactory = templateViewResultFactory;
+
 		setPageTitle("Alles Aktivieren");
 	}
 	
@@ -63,49 +65,58 @@ public class ActivateAllController extends TemplateController
 	 * @param deaconly <code>true</code>, falls die Gebaeude/Cores nur deaktiviert, nicht aber aktiviert werden sollen
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(@UrlParam(name="col") Base base, boolean deaconly) {
+	public TemplateEngine defaultAction(@UrlParam(name="col") Base base, boolean deaconly)
+	{
 		validateBase(base);
 
-		TemplateEngine t = getTemplateEngine();
-		
+		TemplateEngine t = templateViewResultFactory.createFor(this);
+
 		t.setVar("base.id", base.getId());
 
-		if( deaconly ) {
+		if (deaconly)
+		{
 			t.setBlock("_ACTIVATEALL", "deak.listitem", "deak.list");
 		}
-		else {
-			t.setBlock("_ACTIVATEALL", "activate.listitem", "activate.list");	
+		else
+		{
+			t.setBlock("_ACTIVATEALL", "activate.listitem", "activate.list");
 		}
 		
 		/*
 			Alle Gebaeude deaktivieren
 		*/
 		Core core = base.getCore();
-		
-		if( (core != null) && base.isCoreActive() ) {
+
+		if ((core != null) && base.isCoreActive())
+		{
 			base.setArbeiter(base.getArbeiter() - core.getArbeiter());
 			base.setCoreActive(false);
 
-			if( deaconly ) {
-				t.setVar("deak.name", Common._plaintitle(core.getName()) );
+			if (deaconly)
+			{
+				t.setVar("deak.name", Common._plaintitle(core.getName()));
 				t.parse("deak.list", "deak.listitem", true);
 			}
 		}
 
 		Integer[] ondb = base.getActive();
-		for( int i=0; i < base.getWidth()*base.getHeight(); i++ ) {
-			if( (base.getBebauung()[i] != 0) && (ondb[i] == 1 ) ) {
+		for (int i = 0; i < base.getWidth() * base.getHeight(); i++)
+		{
+			if ((base.getBebauung()[i] != 0) && (ondb[i] == 1))
+			{
 				Building building = Building.getBuilding(base.getBebauung()[i]);
-				
-				if( building.isDeakAble() ) {
+
+				if (building.isDeakAble())
+				{
 					ondb[i] = 0;
 					base.setArbeiter(base.getArbeiter() - building.getArbeiter());
-					
-					if( deaconly ) {
-						t.setVar("deak.name", Common._plaintitle(building.getName()) );
+
+					if (deaconly)
+					{
+						t.setVar("deak.name", Common._plaintitle(building.getName()));
 						t.parse("deak.list", "deak.listitem", true);
 					}
-				} 
+				}
 			}
 		}
 
@@ -114,43 +125,52 @@ public class ActivateAllController extends TemplateController
 		/*
 			Falls gewuenscht, nun alle Gebaeude nacheinander aktivieren
 		*/
-		if( !deaconly ) {
-			if( core != null ) {
-				if( base.getBewohner() >= base.getArbeiter()+core.getArbeiter() ) {
+		if (!deaconly)
+		{
+			if (core != null)
+			{
+				if (base.getBewohner() >= base.getArbeiter() + core.getArbeiter())
+				{
 					base.setArbeiter(base.getArbeiter() + core.getArbeiter());
 					base.setCoreActive(true);
-					
-					t.setVar(	"activate.name",	Common._plaintitle(core.getName()),
-								"activate.success",	1 );
-				} 
-				else {
-					t.setVar(	"activate.name",	Common._plaintitle(core.getName()),
-								"activate.success",	0 );
+
+					t.setVar("activate.name", Common._plaintitle(core.getName()),
+							"activate.success", 1);
+				}
+				else
+				{
+					t.setVar("activate.name", Common._plaintitle(core.getName()),
+							"activate.success", 0);
 				}
 				t.parse("activate.list", "activate.listitem", true);
 			}
 
-			for( int i=0; i < base.getWidth()*base.getHeight(); i++ ) {
-				if( base.getBebauung()[i] != 0 ) {
+			for (int i = 0; i < base.getWidth() * base.getHeight(); i++)
+			{
+				if (base.getBebauung()[i] != 0)
+				{
 					Building building = Building.getBuilding(base.getBebauung()[i]);
-					
-					if( building.isDeakAble() && (base.getBewohner() >= base.getArbeiter()+building.getArbeiter()) ) {
+
+					if (building.isDeakAble() && (base.getBewohner() >= base.getArbeiter() + building.getArbeiter()))
+					{
 						ondb[i] = 1;
 						base.setArbeiter(base.getArbeiter() + building.getArbeiter());
-						
-						t.setVar(	"activate.name",	Common._plaintitle(building.getName()),
-									"activate.success",	1 );
-					} 
-					else if( building.isDeakAble() ) {
-						t.setVar(	"activate.name",	Common._plaintitle(building.getName()),
-									"activate.success",	0 );
-					}				
+
+						t.setVar("activate.name", Common._plaintitle(building.getName()),
+								"activate.success", 1);
+					}
+					else if (building.isDeakAble())
+					{
+						t.setVar("activate.name", Common._plaintitle(building.getName()),
+								"activate.success", 0);
+					}
 					t.parse("activate.list", "activate.listitem", true);
 				}
 			}
-			
-			base.setActive(ondb);
-		} 
-	}
 
+			base.setActive(ondb);
+		}
+
+		return t;
+	}
 }
