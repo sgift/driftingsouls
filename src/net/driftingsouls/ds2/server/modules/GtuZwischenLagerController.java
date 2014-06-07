@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
@@ -98,12 +99,11 @@ public class GtuZwischenLagerController extends TemplateController
 	/**
 	 * Transferiert nach der Bezahlung (jetzt) eigene Waren aus einem Handelsuebereinkommen
 	 * auf das aktuelle Schiff.
-	 *
-	 * @param ship Die ID des Schiffes, welches auf das GTU-Zwischenlager zugreifen will
+	 *  @param ship Die ID des Schiffes, welches auf das GTU-Zwischenlager zugreifen will
 	 * @param tradeentry Die ID des Zwischenlager-Eintrags
 	 */
 	@Action(ActionType.DEFAULT)
-	public void transportOwnAction(Ship ship, @UrlParam(name = "entry") GtuZwischenlager tradeentry)
+	public RedirectViewResult transportOwnAction(Ship ship, @UrlParam(name = "entry") GtuZwischenlager tradeentry)
 	{
 		org.hibernate.Session db = getDB();
 		User user = (User) this.getUser();
@@ -148,9 +148,7 @@ public class GtuZwischenLagerController extends TemplateController
 		if (freecargo <= 0)
 		{
 			addError("Sie verf&uuml;gen nicht &uuml;ber genug freien Cargo um Waren abholen zu k&ouml;nnen");
-			this.redirect("viewEntry");
-
-			return;
+			return new RedirectViewResult("viewEntry");
 		}
 		else if (freecargo < tradecargo.getMass())
 		{
@@ -179,7 +177,7 @@ public class GtuZwischenLagerController extends TemplateController
 
 			t.setVar("transferlist.backlink", 1);
 
-			return;
+			return null;
 		}
 
 		if (tradeentry.getUser1() == user)
@@ -193,7 +191,7 @@ public class GtuZwischenLagerController extends TemplateController
 			tradeentry.setCargo2Need(tradecargoneed);
 		}
 
-		this.redirect("viewEntry");
+		return new RedirectViewResult("viewEntry");
 	}
 
 	private void validiereGtuZwischenlager(GtuZwischenlager tradeentry, Ship ship)

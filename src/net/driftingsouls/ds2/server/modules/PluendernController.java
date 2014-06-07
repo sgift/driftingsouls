@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
@@ -162,19 +163,18 @@ public class PluendernController extends TemplateController
 
 	/**
 	 * Transferiert Waren zwischen den Schiffen.
-	 *
-	 * @param toMap Die Menge der Ware (Key), welche zum Zielschiff transferiert werden soll
+	 *  @param toMap Die Menge der Ware (Key), welche zum Zielschiff transferiert werden soll
 	 * @param fromMap Die Menge der Ware (Key), welche vom Zielschiff herunter transferiert werden soll
-	 * @param fromkapern <code>true</code>, falls das Modul vom Kapern-Modul aus aufgerufen wurde
 	 * @param shipFrom Die ID des Schiffes, mit dem ein anderes Schiff gepluendert werden soll
 	 * @param shipTo Die ID des zu pluendernden Schiffes
+	 * @param fromkapern <code>true</code>, falls das Modul vom Kapern-Modul aus aufgerufen wurde
 	 */
 	@Action(ActionType.DEFAULT)
-	public void transferAction(@UrlParam(name = "#to") Map<String, Long> toMap,
-			@UrlParam(name = "#from") Map<String, Long> fromMap,
-			@UrlParam(name="from") Ship shipFrom,
-			@UrlParam(name="to") Ship shipTo,
-			boolean fromkapern)
+	public RedirectViewResult transferAction(@UrlParam(name = "#to") Map<String, Long> toMap,
+											 @UrlParam(name = "#from") Map<String, Long> fromMap,
+											 @UrlParam(name = "from") Ship shipFrom,
+											 @UrlParam(name = "to") Ship shipTo,
+											 boolean fromkapern)
 	{
 		TemplateEngine t = this.getTemplateEngine();
 		User user = (User) this.getUser();
@@ -331,7 +331,7 @@ public class PluendernController extends TemplateController
 			aktualisiereSchiffNachWarentransfer(t, shipTypeTo, newCargoTo, newCargoFrom, totaltransferfcount, shipFrom, shipTo);
 		}
 
-		this.redirect();
+		return new RedirectViewResult("default");
 	}
 
 	private void versendeNachrichtNachTransfer(StringBuilder msg, Ship shipFrom, Ship shipTo)

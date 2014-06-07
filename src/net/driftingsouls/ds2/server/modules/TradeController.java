@@ -33,6 +33,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
@@ -107,11 +108,11 @@ public class TradeController extends TemplateController
 	/**
 	 * Kauft die angegebenen Waren vom Handelsposten.
 	 *
-	 * @param ship die ID des Schiffes, das Waren verkaufen moechte
 	 * @param tradepost die ID des Handelspostens, an dem die Waren verkauft werden sollen
+	 * @param ship die ID des Schiffes, das Waren verkaufen moechte
 	 */
 	@Action(ActionType.DEFAULT)
-	public void buyAction(@UrlParam(name = "#from") Map<String, Long> fromMap, Ship tradepost, Ship ship)
+	public RedirectViewResult buyAction(@UrlParam(name = "#from") Map<String, Long> fromMap, Ship tradepost, Ship ship)
 	{
 		validiereSchiff(ship);
 		validiereHandelsposten(ship, tradepost);
@@ -198,18 +199,17 @@ public class TradeController extends TemplateController
 							"Warenkauf Handelsposten bei " + tradepost.getLocation().displayCoordinates(false),
 							false, UserMoneyTransfer.Transfer.SEMIAUTO);
 		}
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
 	 * Verkauft die angegebenen Waren.
-	 *
-	 * @param ship die ID des Schiffes, das Waren verkaufen moechte
-	 * @param toMap Verkauft die Resource mit der ID (Key) in der angegebenen Menge
+	 *  @param toMap Verkauft die Resource mit der ID (Key) in der angegebenen Menge
 	 * @param tradepost die ID des Handelspostens, an dem die Waren verkauft werden sollen
+	 * @param ship die ID des Schiffes, das Waren verkaufen moechte
 	 */
 	@Action(ActionType.DEFAULT)
-	public void sellAction(@UrlParam(name = "#to") Map<String, Long> toMap, Ship tradepost, Ship ship)
+	public RedirectViewResult sellAction(@UrlParam(name = "#to") Map<String, Long> toMap, Ship tradepost, Ship ship)
 	{
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
@@ -380,7 +380,7 @@ public class TradeController extends TemplateController
 					UserMoneyTransfer.Transfer.SEMIAUTO);
 		}
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	private boolean isFull(Ship handelsposten)

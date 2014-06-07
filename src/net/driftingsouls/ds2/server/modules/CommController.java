@@ -31,6 +31,7 @@ import net.driftingsouls.ds2.server.framework.bbcode.Smilie;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
@@ -83,7 +84,7 @@ public class CommController extends TemplateController
 	 * @param ordner Die ID des Ordners
 	 */
 	@Action(ActionType.DEFAULT)
-	public void readAllAction(Ordner ordner)
+	public RedirectViewResult readAllAction(Ordner ordner)
 	{
 		TemplateEngine t = getTemplateEngine();
 
@@ -91,7 +92,7 @@ public class CommController extends TemplateController
 
 		t.setVar("show.message", "<span style=\"color:red\">Alle Nachrichten als gelesen markiert</span>");
 
-		redirect("showInbox");
+		return new RedirectViewResult("showInbox");
 	}
 
 	/**
@@ -100,7 +101,7 @@ public class CommController extends TemplateController
 	 * @param ordner Der Ordner, dessen PMs geloescht werden sollen
 	 */
 	@Action(ActionType.DEFAULT)
-	public void deleteAllAction(Ordner ordner)
+	public RedirectViewResult deleteAllAction(Ordner ordner)
 	{
 		TemplateEngine t = getTemplateEngine();
 
@@ -108,17 +109,16 @@ public class CommController extends TemplateController
 
 		t.setVar("show.message", "<span style=\"color:red\">Alle Nachrichten gel&ouml;scht</span>");
 
-		redirect("showInbox");
+		return new RedirectViewResult("showInbox");
 	}
 
 	/**
 	 * Loescht einen Ordner/eine PM.
-	 *
-	 * @param delete Falls eine PM zu loeschen ist, dann enthaelt dies die ID der PM. Andernfalls 0
+	 *  @param delete Falls eine PM zu loeschen ist, dann enthaelt dies die ID der PM. Andernfalls 0
 	 * @param delord Die ID des zu loeschenden Ordners, andernfalls 0.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void deleteAction(int delete, Ordner delord)
+	public RedirectViewResult deleteAction(int delete, Ordner delord)
 	{
 		org.hibernate.Session db = getContext().getDB();
 		User user = (User) getUser();
@@ -136,8 +136,7 @@ public class CommController extends TemplateController
 			if (pm == null)
 			{
 				t.setVar("show.message", "<span style=\"color:red\">Die angegebene Nachricht existiert nicht</span>");
-				redirect("showInbox");
-				return;
+				return new RedirectViewResult("showInbox");
 			}
 			if (pm.getEmpfaenger() == user)
 			{
@@ -159,39 +158,38 @@ public class CommController extends TemplateController
 				break;
 		}
 
-		redirect("showInbox");
+		return new RedirectViewResult("showInbox");
 	}
 
 	/**
 	 * Erstellt einen neuen Ordner.
 	 *
-	 * @param ordner Der Basisordner
 	 * @param ordnername Der Name des neuen Ordners
+	 * @param ordner Der Basisordner
 	 */
 	@Action(ActionType.DEFAULT)
-	public void newOrdnerAction(String ordnername, Ordner ordner)
+	public RedirectViewResult newOrdnerAction(String ordnername, Ordner ordner)
 	{
 		User user = (User) getUser();
 
 		if (ordner == null)
 		{
-			redirect("showInbox");
-			return;
+			return new RedirectViewResult("showInbox");
 		}
 
 		Ordner.createNewOrdner(ordnername, ordner, user);
 
-		redirect("showInbox");
+		return new RedirectViewResult("showInbox");
 	}
 
 	/**
 	 * Verschiebt alle PMs von einem Ordner in einen anderen.
 	 *
-	 * @param ordner Der Ausgangsordner
 	 * @param moveto Der Zielordner
+	 * @param ordner Der Ausgangsordner
 	 */
 	@Action(ActionType.DEFAULT)
-	public void moveAllAction(Ordner moveto, Ordner ordner)
+	public RedirectViewResult moveAllAction(Ordner moveto, Ordner ordner)
 	{
 		User user = (User) getUser();
 
@@ -200,31 +198,29 @@ public class CommController extends TemplateController
 			PM.moveAllToOrdner(ordner, moveto, user);
 		}
 
-		redirect("showInbox");
+		return new RedirectViewResult("showInbox");
 	}
 
 	/**
 	 * Benennt einen Ordner um.
-	 *
-	 * @param ordnername Der neue Name des Ordners
+	 *  @param ordnername Der neue Name des Ordners
 	 * @param ordner Die ID des Ordners
 	 */
 	@Action(ActionType.DEFAULT)
-	public void renameAction(String ordnername, @UrlParam(name = "subject") Ordner ordner)
+	public RedirectViewResult renameAction(String ordnername, @UrlParam(name = "subject") Ordner ordner)
 	{
 		ordner.setName(ordnername);
 
-		redirect("showInbox");
+		return new RedirectViewResult("showInbox");
 	}
 
 	/**
 	 * Loescht alle PMs von einem bestimmten Spieler in einem Ordner.
-	 *
-	 * @param player Die ID des Spielers
+	 *  @param player Die ID des Spielers
 	 * @param ordner Die ID des Ordners
 	 */
 	@Action(ActionType.DEFAULT)
-	public void deletePlayerAction(@UrlParam(name = "playerid") User player, Ordner ordner)
+	public RedirectViewResult deletePlayerAction(@UrlParam(name = "playerid") User player, Ordner ordner)
 	{
 		TemplateEngine t = getTemplateEngine();
 
@@ -239,7 +235,7 @@ public class CommController extends TemplateController
 			t.setVar("show.message", "<span style=\"color:red\">Der angegebene Spieler existiert nicht</span>");
 		}
 
-		redirect("showInbox");
+		return new RedirectViewResult("showInbox");
 	}
 
 	/**
@@ -248,7 +244,7 @@ public class CommController extends TemplateController
 	 * @param pms Die IDs aller aös gelesen zu markierenden PMs
 	 */
 	@Action(ActionType.DEFAULT)
-	public void readSelectedAction(@UrlParam(name = "pm_#") Map<Integer, Integer> pms)
+	public RedirectViewResult readSelectedAction(@UrlParam(name = "pm_#") Map<Integer, Integer> pms)
 	{
 		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
@@ -271,7 +267,7 @@ public class CommController extends TemplateController
 
 		t.setVar("show.message", "<span style=\"color:red\">Nachrichten als gelesen markiert</span>");
 
-		redirect("showInbox");
+		return new RedirectViewResult("showInbox");
 	}
 
 	/**
@@ -348,14 +344,13 @@ public class CommController extends TemplateController
 
 	/**
 	 * Verschiebt die ausgewaehlten Nachrichten/Ordner von einem Basisordner in einen anderen.
-	 *
+	 *  @param moveto Die ID des Zielordners
 	 * @param source Der Basisordner
-	 * @param moveto Die ID des Zielordners
 	 * @param ordnerMap Die IDs der zu verschiebenden Ordner
 	 * @param pmMap Die IDs der zu verschiebenden PMs
 	 */
 	@Action(ActionType.DEFAULT)
-	public void moveSelectedAction(Ordner moveto, @UrlParam(name = "ordner") Ordner source, @UrlParam(name = "ordner_#") Map<Integer, Ordner> ordnerMap, @UrlParam(name = "pm_#") Map<Integer, Integer> pmMap)
+	public RedirectViewResult moveSelectedAction(Ordner moveto, @UrlParam(name = "ordner") Ordner source, @UrlParam(name = "ordner_#") Map<Integer, Ordner> ordnerMap, @UrlParam(name = "pm_#") Map<Integer, Integer> pmMap)
 	{
 		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
@@ -365,15 +360,13 @@ public class CommController extends TemplateController
 		if (moveto == null || source == null)
 		{
 			t.setVar("show.message", "<span style=\"color:red\">Der angegebene Ordner existiert nicht</span>");
-			redirect("showInbox");
-			return;
+			return new RedirectViewResult("showInbox");
 		}
 
 		if (trash.getId() == moveto.getId())
 		{
 			t.setVar("show.message", "<span style=\"color:red\">Es d&uuml;rfen keine Nachrichten/Ordner in den Papierkorb verschoben werden.</span>");
-			redirect("showInbox");
-			return;
+			return new RedirectViewResult("showInbox");
 		}
 
 		List<PM> pms = source.getPms();
@@ -400,8 +393,7 @@ public class CommController extends TemplateController
 			if (tomove.getAllChildren().contains(moveto))
 			{
 				t.setVar("show.message", "<span style=\"color:red\">Es d&uuml;rfen keine Ordner in ihre eignen Unterordner verschoben werden.</span>");
-				redirect("showInbox");
-				return;
+				return new RedirectViewResult("showInbox");
 			}
 
 
@@ -420,18 +412,17 @@ public class CommController extends TemplateController
 			}
 		}
 
-		redirect("showInbox");
+		return new RedirectViewResult("showInbox");
 	}
 
 	/**
 	 * Loescht die ausgewaehlten Nachrichten/Ordner in einem Basisordner.
-	 *
-	 * @param ordner Der Basisordner
+	 *  @param ordner Der Basisordner
 	 * @param ordnerMap Die IDd der zu loeschenden Ordner
 	 * @param pmMap Die IDs der zu loeschenden PMs
 	 */
 	@Action(ActionType.DEFAULT)
-	public void deleteSelectedAction(Ordner ordner, @UrlParam(name="ordner_#") Map<Integer,Ordner> ordnerMap, @UrlParam(name="pm_#") Map<Integer,Integer> pmMap)
+	public RedirectViewResult deleteSelectedAction(Ordner ordner, @UrlParam(name = "ordner_#") Map<Integer, Ordner> ordnerMap, @UrlParam(name = "pm_#") Map<Integer, Integer> pmMap)
 	{
 		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
@@ -470,7 +461,7 @@ public class CommController extends TemplateController
 
 		t.setVar("show.message", "<span style=\"color:red\">Nachrichten gel&ouml;scht</span>");
 
-		redirect("showInbox");
+		return new RedirectViewResult("showInbox");
 	}
 
 	/**
@@ -682,7 +673,7 @@ public class CommController extends TemplateController
 	 * @param recover Die wiederherzustellende Nachricht
 	 */
 	@Action(ActionType.DEFAULT)
-	public void recoverAction(PM recover)
+	public RedirectViewResult recoverAction(PM recover)
 	{
 		User user = (User) getUser();
 
@@ -691,14 +682,14 @@ public class CommController extends TemplateController
 			recover.recover();
 		}
 
-		redirect("showInbox");
+		return new RedirectViewResult("showInbox");
 	}
 
 	/**
 	 * Stellt alle geloeschten Nachrichten aus dem Papierkorb wieder her.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void recoverAllAction()
+	public RedirectViewResult recoverAllAction()
 	{
 		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
@@ -707,7 +698,7 @@ public class CommController extends TemplateController
 
 		t.setVar("show.message", "<span style=\"color:red\">Nachrichten wiederhergestellt</span>");
 
-		redirect("showInbox");
+		return new RedirectViewResult("showInbox");
 	}
 
 	/**
@@ -944,11 +935,11 @@ public class CommController extends TemplateController
 	/**
 	 * Speichert einen Kommentar zu einer Nachricht.
 	 *
-	 * @param msg Der Kommentar
 	 * @param pm Die ID der Nachricht
+	 * @param msg Der Kommentar
 	 */
 	@Action(ActionType.DEFAULT)
-	public void sendCommentAction(@UrlParam(name = "pmid") PM pm, String msg)
+	public RedirectViewResult sendCommentAction(@UrlParam(name = "pmid") PM pm, String msg)
 	{
 		User user = (User) getUser();
 
@@ -957,7 +948,7 @@ public class CommController extends TemplateController
 			pm.setKommentar(msg);
 		}
 
-		redirect("showInbox");
+		return new RedirectViewResult("showInbox");
 	}
 
 	/**

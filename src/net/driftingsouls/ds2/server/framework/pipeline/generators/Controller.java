@@ -165,16 +165,6 @@ public abstract class Controller implements PermissionResolver
 	}
 
 	/**
-	 * Fuehrt eine Aktion aus. Die zur Aktion gehoerende Funktion wird aufgerufen.
-	 *
-	 * @param action Der Name der Aktion
-	 */
-	protected final void redirect(String action)
-	{
-		redirect(action, new HashMap<>());
-	}
-
-	/**
 	 * Fuegt einen Fehler zur Fehlerliste hinzu.
 	 *
 	 * @param error Die Beschreibung des Fehlers
@@ -265,38 +255,6 @@ public abstract class Controller implements PermissionResolver
 		}
 	}
 
-	/**
-	 * Fuehrt eine Aktion aus. Die zur Aktion gehoerende Funktion wird aufgerufen.
-	 *
-	 * @param action Der Name der Aktion
-	 * @param arguments An diese Action zu uebergebende Parameter. Diese Parameter haben vorrang vor URL-Parametern.
-	 */
-	protected final void redirect(String action, Map<String, Object> arguments)
-	{
-		try
-		{
-			Method method = getMethodForAction(this, action);
-
-			final Action actionDescriptor = method.getAnnotation(Action.class);
-			doActionOptimizations(actionDescriptor);
-
-			Object result = invokeActionMethod(method, arguments);
-			writeResultObject(result);
-		}
-		catch (Exception e)
-		{
-			throw new RedirectInvocationException(e);
-		}
-	}
-
-	/**
-	 * Ruft die Standardaktion auf.
-	 */
-	protected final void redirect()
-	{
-		redirect("default", new HashMap<>());
-	}
-
 	private Method getMethodForAction(Object objekt, String action) throws NoSuchMethodException
 	{
 		Method[] methods = objekt.getClass().getMethods();
@@ -355,11 +313,21 @@ public abstract class Controller implements PermissionResolver
 					printHeader();
 				}
 
-				doActionOptimizations(actionDescriptor);
-
 				try
 				{
-					Object result = invokeActionMethod(method, new HashMap<>());
+					Object result = null;
+					do
+					{
+						doActionOptimizations(actionDescriptor);
+
+						result = invokeActionMethod(method, result != null ? (RedirectViewResult) result : null);
+						if (result instanceof RedirectViewResult)
+						{
+							method = getMethodForAction(this, ((RedirectViewResult) result).getTargetAction());
+							actionDescriptor = method.getAnnotation(Action.class);
+						}
+					} while( result instanceof RedirectViewResult);
+
 					writeResultObject(result);
 				}
 				catch (InvocationTargetException | RedirectInvocationException e)
@@ -400,7 +368,7 @@ public abstract class Controller implements PermissionResolver
 		printFooter(action);
 	}
 
-	private Object invokeActionMethod(Method method, Map<String, Object> arguments) throws InvocationTargetException, IllegalAccessException
+	private Object invokeActionMethod(Method method, RedirectViewResult viewResult) throws InvocationTargetException, IllegalAccessException
 	{
 		method.setAccessible(true);
 		Annotation[][] annotations = method.getParameterAnnotations();
@@ -422,9 +390,13 @@ public abstract class Controller implements PermissionResolver
 
 			Type type = parameterTypes[i];
 			String paramName = paramAnnotation == null ? parameterNames[i].getName() : paramAnnotation.name();
-			if (arguments.containsKey(paramName))
+			if( viewResult != null && "message".equals(paramName) )
 			{
-				params[i] = arguments.get(paramName);
+				params[i] = viewResult.getMessage();
+			}
+			else if (viewResult != null && viewResult.getParameters().containsKey(paramName))
+			{
+				params[i] = viewResult.getParameters().get(paramName);
 			}
 			else
 			{
@@ -626,16 +598,6 @@ public abstract class Controller implements PermissionResolver
 	protected final ActionType getActionType()
 	{
 		return actionType;
-	}
-
-	/**
-	 * Gibt die Ausgabehilfe zurueck.
-	 *
-	 * @return Die Ausgabehilfe
-	 */
-	protected final OutputHandler getOutputHelper()
-	{
-		return actionTypeHandler;
 	}
 
 	protected boolean validateAndPrepare()

@@ -24,6 +24,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
@@ -277,14 +278,13 @@ public class CrewtauschController extends TemplateController
 
 	/**
 	 * Transferiert Crew vom Ausgangsschiff zum Zielschiff/Basis.
-	 *
-	 * @param ship Die ID des Schiffes von dem/zu dem transferiert werden soll
+	 *  @param ship Die ID des Schiffes von dem/zu dem transferiert werden soll
 	 * @param tar Die ID der Basis/des Schiffes, welches als Gegenstueck beim transfer fungiert. Die Bedeutung ist abhaengig vom Parameter <code>mode</code>
 	 * @param mode Der Transfermodus. Entweder ss (Schiff zu Schiff) oder sb (Schiff zu Basis)
 	 * @param send Die Anzahl der zu transferierenden Crew
 	 */
 	@Action(ActionType.DEFAULT)
-	public void sendAction(Ship ship, int tar, String mode, int send)
+	public RedirectViewResult sendAction(Ship ship, int tar, String mode, int send)
 	{
 		validiereSchiff(ship);
 
@@ -317,19 +317,18 @@ public class CrewtauschController extends TemplateController
 			ship.recalculateShipStatus();
 		}
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
 	 * Transfer in umgekehrter Richtung.
-	 *
-	 * @param ship Die ID des Schiffes von dem/zu dem transferiert werden soll
+	 *  @param ship Die ID des Schiffes von dem/zu dem transferiert werden soll
 	 * @param tar Die ID der Basis/des Schiffes, welches als Gegenstueck beim transfer fungiert. Die Bedeutung ist abhaengig vom Parameter <code>mode</code>
 	 * @param mode Der Transfermodus. Entweder ss (Schiff zu Schiff) oder sb (Schiff zu Basis)
 	 * @param rec Die Anzahl der zu transferierenden Crew
 	 */
 	@Action(ActionType.DEFAULT)
-	public void recAction(Ship ship, int tar, String mode, int rec)
+	public RedirectViewResult recAction(Ship ship, int tar, String mode, int rec)
 	{
 		validiereSchiff(ship);
 
@@ -363,7 +362,7 @@ public class CrewtauschController extends TemplateController
 			ship.recalculateShipStatus();
 		}
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**

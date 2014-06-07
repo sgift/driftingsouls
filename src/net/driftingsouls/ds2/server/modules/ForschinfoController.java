@@ -33,6 +33,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
@@ -82,18 +83,18 @@ public class ForschinfoController extends TemplateController
 	 * Wirft eine Forschung - mit allen davon abhaengigen Forschungen - weg.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void dropAction(@UrlParam(name = "res") Forschung research)
+	public RedirectViewResult dropAction(@UrlParam(name = "res") Forschung research)
 	{
 		validiereForschung(research);
 
 		User user = (User) getUser();
 		if (!user.hasResearched(research))
 		{
-			return;
+			return null;
 		}
 
 		user.dropResearch(research);
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	@Action(ActionType.DEFAULT)

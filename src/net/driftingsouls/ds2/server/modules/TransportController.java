@@ -31,6 +31,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
@@ -702,12 +703,11 @@ public class TransportController extends TemplateController
 
 	/**
 	 * Transferiert die Waren.
-	 *
-	 * @param toMap Die Menge des entsprechenden Gegenstands (key), welche zum Zielschiff transferiert werden soll
+	 *  @param toMap Die Menge des entsprechenden Gegenstands (key), welche zum Zielschiff transferiert werden soll
 	 * @param fromMap Die Menge des entsprechenden Gegenstands (key), welche von Zielschiff runter zum Quellschiff transferiert werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void transferAction(
+	public RedirectViewResult transferAction(
 			@UrlParam(name = "from") String fromString,
 			@UrlParam(name = "to") String toString,
 			@UrlParam(name = "#to") Map<String, Integer> toMap,
@@ -848,8 +848,7 @@ public class TransportController extends TemplateController
 						{
 							addError("Das geh&ouml;rt dir nicht!");
 
-							redirect();
-							return;
+							return new RedirectViewResult("default");
 						}
 
 						t.setVar("transfer.target.name", Common._plaintitle(toTarget.getObjectName()));
@@ -919,9 +918,7 @@ public class TransportController extends TemplateController
 
 		if (!transfer)
 		{
-			redirect();
-
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		/*
@@ -952,7 +949,7 @@ public class TransportController extends TemplateController
 			to.get(k).write();
 		}
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	@Action(ActionType.DEFAULT)

@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
@@ -81,25 +82,22 @@ public class AllyListController extends TemplateController
 
 	/**
 	 * Setzt die Beziehungen des Spielers zu allen Mitgliedern der Allianz.
-	 *
-	 * @param ally     Die Allianz
+	 *  @param ally     Die Allianz
 	 * @param relation Die neue Beziehung
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeRelationAction(@UrlParam(name="details") Ally ally, User.Relation relation) {
+	public RedirectViewResult changeRelationAction(@UrlParam(name = "details") Ally ally, User.Relation relation) {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 
 		if( ally == null ) {
 			addError("Die angegebene Allianz existiert nicht");
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 		
 		if( (user.getAlly() != null) && (ally.getId() == user.getAlly().getId()) ) {
 			addError("Sie k&ouml;nnen nicht die Beziehungen zu sich selbst &auml;ndern");
-			redirect("details");
-			return;
+			return new RedirectViewResult("details");
 		}
 
 		List<User> allymembers = ally.getMembers();
@@ -107,9 +105,9 @@ public class AllyListController extends TemplateController
 			user.setRelation(allymember.getId(), relation);
 		}
 
-		t.setVar("ally.message", "Beziehungsstatus ge&auml;ndert");	 
-		
-		redirect("details");
+		t.setVar("ally.message", "Beziehungsstatus ge&auml;ndert");
+
+		return new RedirectViewResult("details");
 	}
 
 	/**
@@ -118,32 +116,28 @@ public class AllyListController extends TemplateController
 	 * @param relation Die neue Beziehung
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeRelationAllyAction(@UrlParam(name="details") Ally ally, User.Relation relation) {
+	public RedirectViewResult changeRelationAllyAction(@UrlParam(name = "details") Ally ally, User.Relation relation) {
 		User user = (User)getUser();
 		TemplateEngine t = getTemplateEngine();
 
 		if( user.getAlly() == null ) {
 			addError("Sie sind in keiner Allianz");
-			redirect("details");
-			return;
+			return new RedirectViewResult("details");
 		}
 
 		if( ally == null ) {
 			addError("Die angegebene Allianz existiert nicht");
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 		
 		if( ally.getId() == user.getAlly().getId() ) {
 			addError("Sie k&ouml;nnen nicht die Beziehungen zu sich selbst &auml;ndern");
-			redirect("details");
-			return;
+			return new RedirectViewResult("details");
 		}
 		
 		if( user.getAlly().getPresident().getId() != user.getId() ) {
 			addError("Sie sind nicht der Pr&auml;sident der Allianz");
-			redirect("details");
-			return;
+			return new RedirectViewResult("details");
 		}
 
 		List<User> users = user.getAlly().getMembers();
@@ -155,8 +149,8 @@ public class AllyListController extends TemplateController
 		}
 			
 		t.setVar("ally.message", "Beziehungsstatus ge&auml;ndert");
-		
-		redirect("details");
+
+		return new RedirectViewResult("details");
 	}
 	
 	/**

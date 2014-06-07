@@ -32,6 +32,7 @@ import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
@@ -192,22 +193,21 @@ public class OptionsController extends TemplateController
 
 	/**
 	 * Aendert die erweiterten Einstellungen des Spielers.
-	 *
-	 * @param shipgroupmulti der neue Schiffsgruppierungswert
+	 *  @param shipgroupmulti der neue Schiffsgruppierungswert
 	 * @param inttutorial Die Seite des Tutorials in der Uebersicht (0 = deaktiviert)
 	 * @param scriptdebug Ist fuer den Spieler die Option zum Debugging
-	 * von (ScriptParser-)Scripten sichtbar gewesen?
+ * von (ScriptParser-)Scripten sichtbar gewesen?
 	 * @param scriptdebugstatus Bei <code>true</code> wird das ScriptDebugging aktiviert
 	 * @param defrelation Die Default-Beziehung zu anderen Spielern (1 = feindlich, 2 = freundlich, sonst neutral)
-	 * @param personenNamenGenerator Der zu verwendende {@link PersonenNamenGenerator}
-	 * @param schiffsKlassenNamenGenerator Der zu verwendende {@link SchiffsKlassenNamenGenerator}
-	 * @param schiffsNamenGenerator Der zu verwendende {@link SchiffsNamenGenerator}
+	 * @param personenNamenGenerator Der zu verwendende {@link net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator}
+	 * @param schiffsKlassenNamenGenerator Der zu verwendende {@link net.driftingsouls.ds2.server.namegenerator.SchiffsKlassenNamenGenerator}
+	 * @param schiffsNamenGenerator Der zu verwendende {@link net.driftingsouls.ds2.server.namegenerator.SchiffsNamenGenerator}
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeXtraAction(int shipgroupmulti, int inttutorial, int scriptdebug, boolean scriptdebugstatus, User.Relation defrelation,
-								 PersonenNamenGenerator personenNamenGenerator,
-								 SchiffsKlassenNamenGenerator schiffsKlassenNamenGenerator,
-								 SchiffsNamenGenerator schiffsNamenGenerator)
+	public RedirectViewResult changeXtraAction(int shipgroupmulti, int inttutorial, int scriptdebug, boolean scriptdebugstatus, User.Relation defrelation,
+											   PersonenNamenGenerator personenNamenGenerator,
+											   SchiffsKlassenNamenGenerator schiffsKlassenNamenGenerator,
+											   SchiffsNamenGenerator schiffsNamenGenerator)
 	{
 		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
@@ -269,7 +269,7 @@ public class OptionsController extends TemplateController
 
 		t.setVar("options.message", changemsg);
 
-		redirect("xtra");
+		return new RedirectViewResult("xtra");
 	}
 
 	@ViewModel
@@ -415,22 +415,20 @@ public class OptionsController extends TemplateController
 	 * Aendert das Logo des Spielers.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void logoAction()
+	public RedirectViewResult logoAction()
 	{
 		TemplateEngine t = getTemplateEngine();
 
 		List<FileItem> list = getContext().getRequest().getUploadedFiles();
 		if (list.size() == 0)
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		if (list.get(0).getSize() > MAX_UPLOAD_SIZE)
 		{
 			t.setVar("options.message", "Das Logo ist leider zu gro&szlig;. Bitte w&auml;hle eine Datei mit maximal 300kB Gr&ouml;&stlig;e<br />");
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		String uploaddir = Configuration.getAbsolutePath() + "data/logos/user/";
@@ -445,7 +443,7 @@ public class OptionsController extends TemplateController
 			t.setVar("options.message", "Offenbar ging beim Upload etwas schief (Ist die Datei evt. zu gro&szlig;?)<br />");
 			log.warn(e);
 		}
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
@@ -454,7 +452,7 @@ public class OptionsController extends TemplateController
 	 * @param vacdays Die Anzahl der Tage im Vacationmodus
 	 */
 	@Action(ActionType.DEFAULT)
-	public void vacModeAction(int vacdays)
+	public RedirectViewResult vacModeAction(int vacdays)
 	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
@@ -464,23 +462,21 @@ public class OptionsController extends TemplateController
 		if (!user.checkVacationRequest(vacTicks))
 		{
 			t.setVar("options.message", "Dein Urlaubskonto reicht nicht aus f&uuml;r soviele Tage Urlaub.");
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		user.activateVacation(vacTicks);
 		t.setVar("options.message", "Der Vorlauf f&uuml;r deinen Urlaub wurde gestartet.");
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
 	 * Speichert die neuen Optionen.
-	 *
-	 * @param showtooltip Falls != 0 werden die Hilfstooltips aktiviert
+	 *  @param showtooltip Falls != 0 werden die Hilfstooltips aktiviert
 	 * @param wrapfactor Der neue Schiffsgruppierungsfaktor (0 = keine Gruppierung)
 	 */
 	@Action(ActionType.DEFAULT)
-	public void saveOptionsAction(boolean showtooltip, int wrapfactor)
+	public RedirectViewResult saveOptionsAction(boolean showtooltip, int wrapfactor)
 	{
 		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
@@ -503,14 +499,14 @@ public class OptionsController extends TemplateController
 
 		t.setVar("options.message", changemsg);
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
 	 * Deaktiviert den Noob-Schutz des Spielers.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void dropNoobProtectionAction()
+	public RedirectViewResult dropNoobProtectionAction()
 	{
 		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
@@ -521,7 +517,7 @@ public class OptionsController extends TemplateController
 			t.setVar("options.message", "GCP-Schutz wurde vorzeitig aufgehoben.<br />");
 		}
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**

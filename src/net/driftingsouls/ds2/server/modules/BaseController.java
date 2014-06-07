@@ -31,6 +31,7 @@ import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
@@ -79,7 +80,7 @@ public class BaseController extends TemplateController
 	 * @param feeding Der neue Versorgungsstatus der Basis
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeFeedingAction(@UrlParam(name="col") Base base, int feeding) {
+	public RedirectViewResult changeFeedingAction(@UrlParam(name = "col") Base base, int feeding) {
 		validate(base);
 
 		TemplateEngine t = getTemplateEngine();
@@ -101,7 +102,7 @@ public class BaseController extends TemplateController
 			t.setVar("base.message", "Automatisches auff&uuml;llen angeschaltet.");
 		}
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
@@ -109,7 +110,7 @@ public class BaseController extends TemplateController
 	 * @param newname Der neue Name der Basis
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeNameAction(@UrlParam(name="col") Base base, String newname) {
+	public RedirectViewResult changeNameAction(@UrlParam(name = "col") Base base, String newname) {
 		validate(base);
 
 		TemplateEngine t = getTemplateEngine();
@@ -126,7 +127,7 @@ public class BaseController extends TemplateController
 
 		t.setVar("base.message", "Name zu "+Common._plaintitle(newname)+" ge&auml;ndert");
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
@@ -135,7 +136,7 @@ public class BaseController extends TemplateController
 	 * @param buildingonoff Die ID des Gebaeudetyps, dessen Gebaeude (de)aktiviert werden sollen
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeBuildingStatusAction(@UrlParam(name="col") Base base, boolean act, int buildingonoff) {
+	public RedirectViewResult changeBuildingStatusAction(@UrlParam(name = "col") Base base, boolean act, int buildingonoff) {
 		validate(base);
 
 		TemplateEngine t = getTemplateEngine();
@@ -192,7 +193,7 @@ public class BaseController extends TemplateController
 			t.setVar("base.message", "<span style=\"color:red\">Sie k&ouml;nnen diese Geb&auml;ude nicht deaktivieren</span>");
 		}
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	@ViewModel

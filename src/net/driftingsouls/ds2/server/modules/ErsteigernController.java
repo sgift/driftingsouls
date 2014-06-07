@@ -49,6 +49,7 @@ import net.driftingsouls.ds2.server.framework.*;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
@@ -563,18 +564,17 @@ public class ErsteigernController extends TemplateController
 	/**
 	 * Aendert das System, in dem ersteigerte Dinge gespawnt werden sollen.
 	 *
-	 * @param favsys Die ID des neuen Systems, in dem ersteigerte Dinge gespawnt werden sollen
 	 * @param faction Die ID der anzuzeigenden Fraktion
+	 * @param favsys Die ID des neuen Systems, in dem ersteigerte Dinge gespawnt werden sollen
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeDropZoneAction(User faction, StarSystem favsys)
+	public RedirectViewResult changeDropZoneAction(User faction, StarSystem favsys)
 	{
 		FraktionsGuiEintrag factionObj = ermittleFraktionUndErstelleMenue(faction);
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.VERSTEIGERUNG))
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		User user = (User) getUser();
@@ -586,26 +586,25 @@ public class ErsteigernController extends TemplateController
 			t.setVar("show.newcoords", 1);
 		}
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
 	 * Gibt ein Gebot auf eine Versteigerung ab bzw zeigt, falls kein Gebot angegeben wurde, die
 	 * angegebene Versteigerung an.
 	 *
+	 * @param faction Die ID der anzuzeigenden Fraktion
 	 * @param bid Der gebotene Betrag oder 0
 	 * @param entry Die Auktion auf die geboten werden soll
-	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void bidEntryAction(User faction, int bid, @UrlParam(name = "auk") Versteigerung entry)
+	public RedirectViewResult bidEntryAction(User faction, int bid, @UrlParam(name = "auk") Versteigerung entry)
 	{
 		FraktionsGuiEintrag factionObj = ermittleFraktionUndErstelleMenue(faction);
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.VERSTEIGERUNG))
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		User user = (User) getUser();
@@ -613,8 +612,7 @@ public class ErsteigernController extends TemplateController
 		if (!istHandelErlaubt(user, factionObj))
 		{
 			addError("Die angegebene Fraktion weigert sich mit ihnen zu handeln solange die Beziehungen feindlich sind");
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		TemplateEngine t = getTemplateEngine();
@@ -622,8 +620,7 @@ public class ErsteigernController extends TemplateController
 		if (entry == null || (entry.getOwner().getId() == user.getId()))
 		{
 			addError("Sie können nicht bei eigenen Versteigerungen mitbieten");
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		// Wenn noch kein Gebot abgegeben wurde -> Versteigerung anzeigen
@@ -676,7 +673,7 @@ public class ErsteigernController extends TemplateController
 					"bid.player.id", bieter.getId(),
 					"bid.price", cost,
 					"bid.id", entry.getId());
-			return;
+			return null;
 		}
 		// Gebot bestaetigt -> Versteigerung aktuallisieren
 		else if (bid > 0)
@@ -731,7 +728,7 @@ public class ErsteigernController extends TemplateController
 			}
 		}
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
@@ -775,29 +772,27 @@ public class ErsteigernController extends TemplateController
 	 * Ueberweist einen bestimmten Geldbetrag an einen anderen Spieler. Wenn die Ueberweisung noch
 	 * nicht explizit bestaetigt wurde, wird die Bestaetigung erfragt.
 	 *
+	 * @param faction Die ID der anzuzeigenden Fraktion
+	 * @param to Der Spieler an den ueberwiesen werden soll
 	 * @param ack yes falls die Uberweisung bestaetigt wurde (Sicherheitsabfrage)
 	 * @param count Die zu ueberweisenden RE
-	 * @param to Der Spieler an den ueberwiesen werden soll
 	 * @param requestToken Ein Sicherheitstoken zur Bestaetigung der Ueberweisung
-	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void ueberweisenAction(User faction, String to, String ack, int count, @UrlParam(name = "token") String requestToken)
+	public RedirectViewResult ueberweisenAction(User faction, String to, String ack, int count, @UrlParam(name = "token") String requestToken)
 	{
 		FraktionsGuiEintrag factionObj = ermittleFraktionUndErstelleMenue(faction);
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.BANK))
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		User user = (User) getUser();
 		if (!istHandelErlaubt(user, factionObj))
 		{
 			addError("Die angegebene Fraktion weigert sich mit ihnen zu handeln solange die Beziehungen feindlich sind");
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		TemplateEngine t = getTemplateEngine();
@@ -809,16 +804,14 @@ public class ErsteigernController extends TemplateController
 
 		if (count <= 0)
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		User tmp = User.lookupByIdentifier(to);
 		if (tmp == null)
 		{
 			addError("Der angegebene Spieler konnte nicht gefunden werden");
-			redirect("bank");
-			return;
+			return new RedirectViewResult("bank");
 		}
 
 		UeberweisungsTokenContainer token = getContext().get(UeberweisungsTokenContainer.class);
@@ -836,7 +829,7 @@ public class ErsteigernController extends TemplateController
 					"ueberweisen.to", tmp.getId(),
 					"ueberweisen.token", token.getToken());
 
-			return;
+			return null;
 		}
 
 		int ticks = getContext().get(ContextCommon.class).getTick();
@@ -854,24 +847,23 @@ public class ErsteigernController extends TemplateController
 		user.setTemplateVars(t);
 		t.setVar("user.konto", Common.ln(user.getKonto()));
 
-		redirect("bank");
+		return new RedirectViewResult("bank");
 	}
 
 	/**
 	 * Aendert den Anzeigetyp fuer Kontotransaktionen.
 	 *
-	 * @param type Der neue Anzeigetyp (0-2)
 	 * @param faction Die ID der anzuzeigenden Fraktion
+	 * @param type Der neue Anzeigetyp (0-2)
 	 */
 	@Action(ActionType.DEFAULT)
-	public void showKontoTransactionTypeAction(User faction, int type)
+	public RedirectViewResult showKontoTransactionTypeAction(User faction, int type)
 	{
 		FraktionsGuiEintrag factionObj = ermittleFraktionUndErstelleMenue(faction);
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.VERSTEIGERUNG))
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		User user = (User) getUser();
@@ -880,7 +872,7 @@ public class ErsteigernController extends TemplateController
 		{
 			user.setUserValue("TBLORDER/factions/konto_maxtype", Integer.toString(type));
 		}
-		redirect("bank");
+		return new RedirectViewResult("bank");
 	}
 
 	/**
@@ -889,14 +881,13 @@ public class ErsteigernController extends TemplateController
 	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void bankAction(User faction)
+	public RedirectViewResult bankAction(User faction)
 	{
 		FraktionsGuiEintrag factionObj = ermittleFraktionUndErstelleMenue(faction);
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.BANK))
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		TemplateEngine t = this.getTemplateEngine();
@@ -980,6 +971,7 @@ public class ErsteigernController extends TemplateController
 			t.parse("moneytransfer.list", "moneytransfer.listitem", true);
 		}
 
+		return null;
 	}
 
 	/**
@@ -988,14 +980,13 @@ public class ErsteigernController extends TemplateController
 	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void otherAction(User faction)
+	public RedirectViewResult otherAction(User faction)
 	{
 		FraktionsGuiEintrag factionObj = ermittleFraktionUndErstelleMenue(faction);
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.SONSTIGES))
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		TemplateEngine t = this.getTemplateEngine();
@@ -1036,6 +1027,7 @@ public class ErsteigernController extends TemplateController
 
 			outputHandelspostenKurse(t, db, user, tradepost);
 		}
+		return null;
 	}
 
 	private void outputHandelspostenKurse(TemplateEngine t, org.hibernate.Session db, User user, Ship tradepost)
@@ -1152,14 +1144,13 @@ public class ErsteigernController extends TemplateController
 	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void angeboteAction(User faction)
+	public RedirectViewResult angeboteAction(User faction)
 	{
 		FraktionsGuiEintrag factionObj = ermittleFraktionUndErstelleMenue(faction);
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.ANGEBOTE))
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		TemplateEngine t = getTemplateEngine();
@@ -1192,6 +1183,7 @@ public class ErsteigernController extends TemplateController
 			count++;
 			t.parse("angebote.list", "angebote.emptyitem", true);
 		}
+		return null;
 	}
 
 	/**
@@ -1200,7 +1192,7 @@ public class ErsteigernController extends TemplateController
 	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void versteigerungAction(User faction)
+	public RedirectViewResult versteigerungAction(User faction)
 	{
 		TemplateEngine t = this.getTemplateEngine();
 		org.hibernate.Session db = getDB();
@@ -1210,8 +1202,7 @@ public class ErsteigernController extends TemplateController
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.VERSTEIGERUNG))
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		t.setVar("show.versteigerungen", 1);
@@ -1295,6 +1286,7 @@ public class ErsteigernController extends TemplateController
 
 
 		dropZoneAuswahlAnzeigen(t, db, user);
+		return null;
 	}
 
 	private void handelsvereinbarungenAnzeigen(TemplateEngine t, Session db, User user)
@@ -1378,7 +1370,7 @@ public class ErsteigernController extends TemplateController
 	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void generalAction(User faction)
+	public RedirectViewResult generalAction(User faction)
 	{
 		TemplateEngine t = getTemplateEngine();
 
@@ -1386,28 +1378,28 @@ public class ErsteigernController extends TemplateController
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.ALLGEMEIN))
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		t.setVar("show.general", 1, "global.faction.text", Common._text(factionObj.getText()));
 
+		return null;
 	}
 
 	/**
 	 * Berechnet die Kosten eines Transportauftrags und speichert ihn in der Datenbank.
 	 *
+	 * @param faction Die ID der anzuzeigenden Fraktion
 	 * @param sourcesystem Das Ausgangssystem
 	 * @param ganymedeid Die ID der zu transportierenden Ganymede
 	 * @param targetsystem Die ID des Zielsystems
 	 * @param targetx Die Ziel-X-Koordinate
 	 * @param targety Die Ziel-Y-Koordinate
 	 * @param transport Sofert der Wert <code>1</code>, wird der Transportauftrag
-	 * bestaetigt und abgespeichert
-	 * @param faction Die ID der anzuzeigenden Fraktion
+* bestaetigt und abgespeichert
 	 */
 	@Action(ActionType.DEFAULT)
-	public void shopOrderGanymedeSummaryAction(User faction, int sourcesystem, int ganymedeid, int targetsystem, int targetx, int targety, int transport)
+	public RedirectViewResult shopOrderGanymedeSummaryAction(User faction, int sourcesystem, int ganymedeid, int targetsystem, int targetx, int targety, int transport)
 	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
@@ -1417,15 +1409,13 @@ public class ErsteigernController extends TemplateController
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.SHOP))
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		if (!istHandelErlaubt(user, factionObj))
 		{
 			addError("Die angegebene Fraktion weigert sich mit ihnen zu handeln solange die Beziehungen feindlich sind");
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		FactionShopEntry shopentry = (FactionShopEntry) db
@@ -1436,8 +1426,7 @@ public class ErsteigernController extends TemplateController
 
 		if (shopentry == null)
 		{
-			this.redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		Ship gany = (Ship) db.get(Ship.class, ganymedeid);
@@ -1451,8 +1440,7 @@ public class ErsteigernController extends TemplateController
 			unsetParameter("sourcesystem");
 			unsetParameter("ganymedeid");
 
-			redirect("shopOrderGanymede");
-			return;
+			return new RedirectViewResult("shopOrderGanymede");
 		}
 
 		FactionShopOrder sameorder = (FactionShopOrder) db
@@ -1466,8 +1454,7 @@ public class ErsteigernController extends TemplateController
 			unsetParameter("sourcesystem");
 			unsetParameter("ganymedeid");
 
-			redirect("shopOrderGanymede");
-			return;
+			return new RedirectViewResult("shopOrderGanymede");
 		}
 
 		StarSystem system = (StarSystem) db.get(StarSystem.class, targetsystem);
@@ -1476,8 +1463,7 @@ public class ErsteigernController extends TemplateController
 			addError("Die angegebene Zielsystem konnte nicht lokalisiert werden");
 			unsetParameter("targetsystem");
 
-			redirect("shopOrderGanymede");
-			return;
+			return new RedirectViewResult("shopOrderGanymede");
 		}
 
 		if ((targetx < 1) || (targetx > system.getWidth()) || (targety < 1)
@@ -1487,8 +1473,7 @@ public class ErsteigernController extends TemplateController
 			unsetParameter("targetx");
 			unsetParameter("targety");
 
-			redirect("shopOrderGanymede");
-			return;
+			return new RedirectViewResult("shopOrderGanymede");
 		}
 
 		// Weg finden und Preis ausrechnen
@@ -1621,22 +1606,23 @@ public class ErsteigernController extends TemplateController
 					+ " f&uuml;r " + Common.ln(totalcost)
 					+ " erhalten und vom System best&auml;tigt.<br />Einen angenehmen Tag noch!");
 
-			redirect("shop");
+			return new RedirectViewResult("shop");
 		}
+		return null;
 	}
 
 	/**
 	 * Zeigt die GUI zur Erstellung eines Ganymede-Transportauftrags.
 	 *
+	 * @param faction Die ID der anzuzeigenden Fraktion
 	 * @param sourcesystem Das Ausgangssystem
 	 * @param ganymedeid Die ID der zu transportierenden Ganymede
 	 * @param targetsystem Die ID des Zielsystems
 	 * @param targetx Die Ziel-X-Koordinate
 	 * @param targety Die Ziel-Y-Koordinate
-	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void shopOrderGanymedeAction(User faction, int sourcesystem, int ganymedeid, int targetsystem, int targetx, int targety)
+	public RedirectViewResult shopOrderGanymedeAction(User faction, int sourcesystem, int ganymedeid, int targetsystem, int targetx, int targety)
 	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
@@ -1646,15 +1632,13 @@ public class ErsteigernController extends TemplateController
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.SHOP))
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		if (!istHandelErlaubt(user, factionObj))
 		{
 			addError("Die angegebene Fraktion weigert sich mit ihnen zu handeln solange die Beziehungen feindlich sind");
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		FactionShopEntry entry = (FactionShopEntry) db
@@ -1665,8 +1649,7 @@ public class ErsteigernController extends TemplateController
 
 		if (entry == null)
 		{
-			this.redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		// Wenn alle Parameter eingegebene wurden -> shopOrderGanymedeSummary
@@ -1674,8 +1657,7 @@ public class ErsteigernController extends TemplateController
 				&& targetx != 0 && targety != 0 && sourcesystem != 0)
 		{
 
-			redirect("shopOrderGanymedeSummary");
-			return;
+			return new RedirectViewResult("shopOrderGanymedeSummary");
 		}
 
 		t.setBlock("_ERSTEIGERN", "ganytrans.sourcesystem.listitem", "ganytrans.sourcesystem.list");
@@ -1744,7 +1726,7 @@ public class ErsteigernController extends TemplateController
 		// Wenn nicht -> Ende
 		if (first || sourcesystem == 0)
 		{
-			return;
+			return null;
 		}
 
 		t.setVar("sourcesystem.known", 1);
@@ -1804,21 +1786,22 @@ public class ErsteigernController extends TemplateController
 
 			t.parse("ganytrans.targetsystem.list", "ganytrans.targetsystem.listitem", true);
 		}
+		return null;
 	}
 
 	/**
 	 * Fuehrt eine Bestellung im Shop aus. Der User muss dazu eine gewuenschte Lieferposition
 	 * angeben. Wenn diese noch nicht angegeben wurde, wird sie erfragt.
 	 *
+	 * @param faction Die ID der anzuzeigenden Fraktion
 	 * @param shopentry Die ID des Shopeintrags, der bestellt werden soll
 	 * @param ordercount Die Liefermenge
 	 * @param ordersys Das Liefersystem
 	 * @param orderx Die X-Komponente der Lieferkoordinate
 	 * @param ordery Die Y-Komponente der Lieferkoordinate
-	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void shopOrderAction(User faction, FactionShopEntry shopentry, int ordercount, int ordersys, int orderx, int ordery)
+	public RedirectViewResult shopOrderAction(User faction, FactionShopEntry shopentry, int ordercount, int ordersys, int orderx, int ordery)
 	{
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
@@ -1828,53 +1811,45 @@ public class ErsteigernController extends TemplateController
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.SHOP))
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		if (!istHandelErlaubt(user, factionObj))
 		{
 			addError("Die angegebene Fraktion weigert sich mit ihnen zu handeln solange die Beziehungen feindlich sind");
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		if (shopentry == null)
 		{
 			t.setVar("show.message",
 					"<span style=\"color:red\">Es existiert kein passendes Angebot</span>");
-			redirect("shop");
-			return;
+			return new RedirectViewResult("shop");
 		}
 
 		if (!shopentry.canBuy(user))
 		{
 			t.setVar("show.message",
 					"<span style=\"color:red\">Es existiert kein passendes Angebot</span>");
-			redirect("shop");
-			return;
+			return new RedirectViewResult("shop");
 		}
 
 		if (shopentry.getAvailability() == 2)
 		{
 			t.setVar("show.message",
 					"<span style=\"color:red\">Das Angebot ist nicht verf&uuml;gbar</span>");
-			redirect("shop");
-			return;
+			return new RedirectViewResult("shop");
 		}
 
 		// Ganymed-Transporte verarbeiten
 		if (shopentry.getType() == FactionShopEntry.Type.TRANSPORT)
 		{
-			redirect("shopOrderGanymede");
-
-			return;
+			return new RedirectViewResult("shopOrderGanymede");
 		}
 
 		if (ordercount < 1)
 		{
-			redirect("shop");
-			return;
+			return new RedirectViewResult("shop");
 		}
 
 		ShopEntry entry;
@@ -1897,8 +1872,7 @@ public class ErsteigernController extends TemplateController
 		{
 			t.setVar("show.message",
 					"<span style=\"color:red\">Sie verf&uuml;gen nicht &uuml;ber genug Geld</span>");
-			redirect("shop");
-			return;
+			return new RedirectViewResult("shop");
 		}
 
 		User factionUser = factionObj.getUser();
@@ -1906,8 +1880,7 @@ public class ErsteigernController extends TemplateController
 		{
 			t.setVar("show.message",
 					"<span style=\"color:red\">Sie verfügen nicht über genug Loyalitätspunkte</span>");
-			redirect("shop");
-			return;
+			return new RedirectViewResult("shop");
 		}
 
 		if (ordersys == 0 || orderx == 0 || ordery == 0)
@@ -1960,21 +1933,22 @@ public class ErsteigernController extends TemplateController
 							+ (entry.getLpKosten() > 0 ? " und " + Common.ln(entry.getLpKosten()) + " LP " : "")
 							+ " erhalten und vom System best&auml;tigt.<br />Sollten noch R&uuml;ckfragen bestehend so wird sich ein Sachbearbeiter bei ihnen melden.<br />Einen angenehmen Tag noch!");
 
-			redirect("shop");
+			return new RedirectViewResult("shop");
 		}
+		return null;
 	}
 
 	/**
 	 * Erstellt einen neuen Shop-Eintrag.
 	 *
-	 * @param entryCost Die Kosten des Eintrags in LP
-	 * @param entryLpKosten Die Kosten des Eintrags in RE
+	 * @param faction Die ID der anzuzeigenden Fraktion
 	 * @param entryType Der Typ des Eintrags (ship,item,transport)
 	 * @param entryTypeId Die ID der anzubietenden Ware des angegebenen Eintragtyps
-	 * @param faction Die ID der anzuzeigenden Fraktion
+	 * @param entryCost Die Kosten des Eintrags in LP
+	 * @param entryLpKosten Die Kosten des Eintrags in RE
 	 */
 	@Action(ActionType.DEFAULT)
-	public void shopEntryCreate(User faction, String entryType, String entryTypeId, int entryCost, int entryLpKosten)
+	public RedirectViewResult shopEntryCreate(User faction, String entryType, String entryTypeId, int entryCost, int entryLpKosten)
 	{
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
@@ -1984,8 +1958,7 @@ public class ErsteigernController extends TemplateController
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.SHOP))
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		if (factionObj.getUser() == user)
@@ -1998,15 +1971,13 @@ public class ErsteigernController extends TemplateController
 					if (!NumberUtils.isNumber(entryTypeId))
 					{
 						t.setVar("show.message", "<span style=\"color:red\">Format ungueltig</span>");
-						redirect("shop");
-						return;
+						return new RedirectViewResult("shop");
 					}
 					ShipType st = (ShipType) db.get(ShipType.class, Integer.parseInt(entryTypeId));
 					if (st == null)
 					{
 						t.setVar("show.message", "<span style=\"color:red\">Kein bekannter Schiffstyp</span>");
-						redirect("shop");
-						return;
+						return new RedirectViewResult("shop");
 					}
 					break;
 				case "item":
@@ -2015,8 +1986,7 @@ public class ErsteigernController extends TemplateController
 					{
 						t.setVar("show.message", "<span style=\"color:red\">Format ungueltig</span>");
 
-						redirect("shop");
-						return;
+						return new RedirectViewResult("shop");
 					}
 					break;
 				case "transport":
@@ -2025,8 +1995,7 @@ public class ErsteigernController extends TemplateController
 					{
 						t.setVar("show.message", "<span style=\"color:red\">Format ungueltig</span>");
 
-						redirect("shop");
-						return;
+						return new RedirectViewResult("shop");
 					}
 					break;
 			}
@@ -2039,22 +2008,22 @@ public class ErsteigernController extends TemplateController
 			db.persist(entry);
 		}
 
-		redirect("shop");
+		return new RedirectViewResult("shop");
 	}
 
 	/**
 	 * Aendert einen Shopeintrag.
 	 *
-	 * @param availability Die neue Verfuegbarkeit
-	 * @param entryLpKosten Die LP-Kosten
-	 * @param entryPrice Der Preis
-	 * @param entryRang Der Rang
+	 * @param faction Die ID der anzuzeigenden Fraktion
 	 * @param operation Die auszufuehrende Aktion (ändern, löschen)
 	 * @param shopentry Die ID des Shopeintrags
-	 * @param faction Die ID der anzuzeigenden Fraktion
+	 * @param availability Die neue Verfuegbarkeit
+	 * @param entryRang Der Rang
+	 * @param entryPrice Der Preis
+	 * @param entryLpKosten Die LP-Kosten
 	 */
 	@Action(ActionType.DEFAULT)
-	public void shopChangeEntryAction(User faction, String operation, FactionShopEntry shopentry, int availability, int entryRang, long entryPrice, long entryLpKosten)
+	public RedirectViewResult shopChangeEntryAction(User faction, String operation, FactionShopEntry shopentry, int availability, int entryRang, long entryPrice, long entryLpKosten)
 	{
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
@@ -2064,8 +2033,7 @@ public class ErsteigernController extends TemplateController
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.SHOP))
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		if (factionObj.getUser() == user)
@@ -2073,8 +2041,7 @@ public class ErsteigernController extends TemplateController
 			if ((shopentry == null) || (shopentry.getFaction() != factionObj.getUser()))
 			{
 				addError("Es konnte kein passender Shopeintrag gefunden werden");
-				redirect("shop");
-				return;
+				return new RedirectViewResult("shop");
 			}
 
 			if ("löschen".equalsIgnoreCase(operation))
@@ -2082,22 +2049,19 @@ public class ErsteigernController extends TemplateController
 				if (shopentry.getAnzahlOffeneBestellungen() > 0)
 				{
 					addError("Es gibt noch offene Bestellungen zu diesem Shopeintrag");
-					redirect("shop");
-					return;
+					return new RedirectViewResult("shop");
 				}
 
 				db.delete(shopentry);
 
 				t.setVar("show.message", "Eintrag gelöscht");
-				redirect("shop");
-				return;
+				return new RedirectViewResult("shop");
 			}
 
 			if (availability < 0 || availability > 2)
 			{
 				addError("Ung&uuml;ltiger Status");
-				redirect("shop");
-				return;
+				return new RedirectViewResult("shop");
 			}
 
 			shopentry.setAvailability(availability);
@@ -2107,18 +2071,18 @@ public class ErsteigernController extends TemplateController
 
 			t.setVar("show.message", "Eintrag geaendert");
 		}
-		redirect("shop");
+		return new RedirectViewResult("shop");
 	}
 
 	/**
 	 * Aendert den Auftragsstatus einer Bestellung.
 	 *
+	 * @param faction Die ID der anzuzeigenden Fraktion
 	 * @param orderentry Die ID des Auftrags
 	 * @param orderstatus Der neue Auftragsstatus
-	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeShopOrderStatusAction(User faction, FactionShopOrder orderentry, int orderstatus)
+	public RedirectViewResult changeShopOrderStatusAction(User faction, FactionShopOrder orderentry, int orderstatus)
 	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
@@ -2127,8 +2091,7 @@ public class ErsteigernController extends TemplateController
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.SHOP))
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		if (factionObj.getUser() == user)
@@ -2137,22 +2100,20 @@ public class ErsteigernController extends TemplateController
 					|| (orderentry.getShopEntry().getFaction() != factionObj.getUser()))
 			{
 				addError("Es konnte kein passender Ordereintrag gefunden werden");
-				redirect("shop");
-				return;
+				return new RedirectViewResult("shop");
 			}
 
 			if (orderstatus < 0 || orderstatus > 4)
 			{
 				addError("Ung&uuml;ltiger Status");
-				redirect("shop");
-				return;
+				return new RedirectViewResult("shop");
 			}
 
 			orderentry.setStatus(orderstatus);
 
 			t.setVar("show.message", "Neuer Status erfolgreich zugewiesen");
 		}
-		redirect("shop");
+		return new RedirectViewResult("shop");
 	}
 
 	private String getStatusColor(int status)
@@ -2192,20 +2153,20 @@ public class ErsteigernController extends TemplateController
 	/**
 	 * Zeigt die GUI für den Asti-Asubau an.
 	 *
-	 * @param base Die ID des auszubauenden Asteroiden
-	 * @param bar Die Zahlungsmethode, {@code true} bedeutet Barzahlung, sonst Abbuchung
-	 * @param colonizer Die ID des zu verwendenden Colonizers
-     * @param upgradeInfoMap Die Upgrades, die eingebaut werden sollen
-	 * @param order Soll wirklich bestellt werden (bestellen)?
 	 * @param faction Die ID der anzuzeigenden Fraktion
+	 * @param base Die ID des auszubauenden Asteroiden
+	 * @param colonizer Die ID des zu verwendenden Colonizers
+	 * @param upgradeInfoMap Die Upgrades, die eingebaut werden sollen
+	 * @param bar Die Zahlungsmethode, {@code true} bedeutet Barzahlung, sonst Abbuchung
+	 * @param order Soll wirklich bestellt werden (bestellen)?
 	 */
 	@Action(ActionType.DEFAULT)
-	public void ausbauAction(User faction,
-							 @UrlParam(name = "astiid") Base base,
-							 @UrlParam(name = "colonizerid") Ship colonizer,
-                             @UrlParam(name = "upgrade#") Map<String,UpgradeInfo> upgradeInfoMap,
-							 boolean bar,
-							 String order)
+	public RedirectViewResult ausbauAction(User faction,
+										   @UrlParam(name = "astiid") Base base,
+										   @UrlParam(name = "colonizerid") Ship colonizer,
+										   @UrlParam(name = "upgrade#") Map<String, UpgradeInfo> upgradeInfoMap,
+										   boolean bar,
+										   String order)
 	{
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
@@ -2215,8 +2176,7 @@ public class ErsteigernController extends TemplateController
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.AUSBAU))
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		if ("bestellen".equals(order) && !upgradeInfoMap.isEmpty())
@@ -2224,15 +2184,13 @@ public class ErsteigernController extends TemplateController
 			if (base == null)
 			{
 				addError("Der angew&auml;hlte Asteroid existiert nicht");
-				redirect();
-				return;
+				return new RedirectViewResult("default");
 			}
 
 			if (!base.getOwner().equals(getUser()))
 			{
 				addError("Dieser Asteroid gehört Ihnen nicht");
-				redirect();
-				return;
+				return new RedirectViewResult("default");
 			}
 
 			if (colonizer == null || !colonizer.getOwner().equals(user)
@@ -2240,8 +2198,7 @@ public class ErsteigernController extends TemplateController
 					|| !colonizer.getTypeData().hasFlag(ShipTypeFlag.COLONIZER))
 			{
 				addError("Der ausgewählte Colonizer ist ungültig");
-				redirect();
-				return;
+				return new RedirectViewResult("default");
 			}
 
             List<UpgradeInfo> upgrades = new ArrayList<>(upgradeInfoMap.values());
@@ -2255,8 +2212,7 @@ public class ErsteigernController extends TemplateController
 			if (auftrag != null)
 			{
 				addError("F&uuml;r diesen Asteroid besteht bereits ein Auftrag");
-				redirect();
-				return;
+				return new RedirectViewResult("default");
 			}
 
             // Teste, ob die upgrades zulaessig sind
@@ -2266,8 +2222,7 @@ public class ErsteigernController extends TemplateController
 				if (upgrade != null && !upgrade.getUpgradeType().checkUpgrade(upgrade, base))
 				{
 					addError(upgrade.getUpgradeType().errorMsg());
-					redirect();
-					return;
+					return new RedirectViewResult("default");
 				}
 			}
 
@@ -2282,8 +2237,7 @@ public class ErsteigernController extends TemplateController
 				if (user.getKonto().compareTo(new BigDecimal(auftrag.getPrice()).toBigInteger()) < 0)
 				{
 					addError("Sie verfügen nicht über genug Geld");
-					redirect();
-					return;
+					return new RedirectViewResult("default");
 				}
 				factionUser.transferMoneyFrom(user.getId(), auftrag.getPrice(), "Ausbau von " + base.getName());
 			}
@@ -2292,8 +2246,7 @@ public class ErsteigernController extends TemplateController
 			if (colonizer.consign(factionUser, false))
 			{
 				addError("Der Colonizer konnte nicht übergeben werden.");
-				redirect();
-				return;
+				return new RedirectViewResult("default");
 			}
 
 			// Auftrag speichern
@@ -2308,8 +2261,7 @@ public class ErsteigernController extends TemplateController
 					"show.message",
 					"Ihr Auftrag wurde an den zuständigen Sachbearbeiter weitergeleitet. Die Baumaßnahmen werden in kürze beginnen.");
 
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		t.setVar("show.ausbau", 1);
@@ -2356,7 +2308,7 @@ public class ErsteigernController extends TemplateController
 
 		if (selectedBase == null)
 		{
-			return;
+			return null;
 		}
 
 		t.setVar("erz.name", Cargo.getResourceName(Resources.ERZ), "erz.image", Cargo
@@ -2418,6 +2370,7 @@ public class ErsteigernController extends TemplateController
 			t.parse("ausbau.upgradetypes.javascript.1.list", "ausbau.upgradetypes.javascript.1.listitem", true);
 			t.parse("ausbau.upgradetypes.javascript.2.list", "ausbau.upgradetypes.javascript.2.listitem", true);
         }
+		return null;
 	}
 
 	/**
@@ -2426,7 +2379,7 @@ public class ErsteigernController extends TemplateController
 	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void shopAction(User faction)
+	public RedirectViewResult shopAction(User faction)
 	{
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
@@ -2436,8 +2389,7 @@ public class ErsteigernController extends TemplateController
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.SHOP))
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		User factionUser = factionObj.getUser();
@@ -2638,6 +2590,7 @@ public class ErsteigernController extends TemplateController
 
 			t.parse("shop.list", "shop.listitem", true);
 		}
+		return null;
 	}
 
 	/**
@@ -2646,7 +2599,7 @@ public class ErsteigernController extends TemplateController
 	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void aktionMeldenAction(User faction)
+	public RedirectViewResult aktionMeldenAction(User faction)
 	{
 		TemplateEngine t = getTemplateEngine();
 
@@ -2654,21 +2607,21 @@ public class ErsteigernController extends TemplateController
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.AKTION_MELDEN))
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		t.setVar("show.aktionmelden", 1);
+		return null;
 	}
 
 	/**
 	 * Erstellt eine LP-Meldung bei der momentanen Fraktion.
 	 *
-	 * @param meldungstext Der Beschreibungstext der Aktion
 	 * @param faction Die ID der anzuzeigenden Fraktion
+	 * @param meldungstext Der Beschreibungstext der Aktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void aktionsMeldungErstellenAction(User faction, String meldungstext)
+	public RedirectViewResult aktionsMeldungErstellenAction(User faction, String meldungstext)
 	{
 		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
@@ -2678,8 +2631,7 @@ public class ErsteigernController extends TemplateController
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.AKTION_MELDEN))
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		User factionUser = factionObj.getUser();
@@ -2687,8 +2639,7 @@ public class ErsteigernController extends TemplateController
 		if (meldungstext == null || meldungstext.trim().length() < 10)
 		{
 			addError("Bitte gib eine genaue Beschreibung deiner Aktion ein");
-			redirect("aktionMelden");
-			return;
+			return new RedirectViewResult("aktionMelden");
 		}
 
 		FraktionAktionsMeldung meldung = new FraktionAktionsMeldung(user, factionUser);
@@ -2697,7 +2648,7 @@ public class ErsteigernController extends TemplateController
 
 		t.setVar("show.message", "Die Aktionsmeldung wurde der Fraktion erfolgreich übermittelt");
 
-		redirect("aktionMelden");
+		return new RedirectViewResult("aktionMelden");
 	}
 
 	/**
@@ -2706,10 +2657,10 @@ public class ErsteigernController extends TemplateController
 	 * @param faction Die ID der anzuzeigenden Fraktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(User faction)
+	public RedirectViewResult defaultAction(User faction)
 	{
 		FraktionsGuiEintrag factionObj = ermittleFraktionUndErstelleMenue(faction);
-		this.redirect(factionObj.getErsteSeite().getId());
+		return new RedirectViewResult(factionObj.getErsteSeite().getId());
 
 	}
 }

@@ -34,6 +34,7 @@ import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
@@ -175,27 +176,24 @@ public class SchiffController extends TemplateController
 
 	/**
 	 * Wechselt die Alarmstufe des Schiffes.
-	 *
-	 * @param ship Die ID des anzuzeigenden Schiffes
+	 *  @param ship Die ID des anzuzeigenden Schiffes
 	 * @param alarm Die neue Alarmstufe
 	 */
 	@Action(ActionType.DEFAULT)
-	public void alarmAction(Ship ship, int alarm)
+	public RedirectViewResult alarmAction(Ship ship, int alarm)
 	{
 		validiereSchiff(ship);
 
 		User user = (User)getUser();
 		if (user.isNoob())
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		ShipTypeData shiptype = ship.getTypeData();
 		if ((shiptype.getShipClass() == ShipClasses.GESCHUETZ) || !shiptype.isMilitary())
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		if ((alarm >= Ship.Alert.GREEN.getCode()) && (alarm <= Ship.Alert.RED.getCode()))
@@ -207,18 +205,17 @@ public class SchiffController extends TemplateController
 
 		ship.recalculateShipStatus();
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
 	 * Uebergibt das Schiff an einen anderen Spieler.
-	 *
-	 * @param ship Die ID des anzuzeigenden Schiffes
+	 *  @param ship Die ID des anzuzeigenden Schiffes
 	 * @param newownerID Die ID des neuen Besitzers
 	 * @param conf 1, falls die Sicherheitsabfrage positiv bestaetigt wurde
 	 */
 	@Action(ActionType.DEFAULT)
-	public void consignAction(Ship ship, @UrlParam(name = "newowner") String newownerID, int conf)
+	public RedirectViewResult consignAction(Ship ship, @UrlParam(name = "newowner") String newownerID, int conf)
 	{
 		validiereSchiff(ship);
 
@@ -230,8 +227,7 @@ public class SchiffController extends TemplateController
 		if (newowner == null)
 		{
 			t.setVar("ship.message", "<span style=\"color:red\">Der Spieler existiert nicht</span><br />");
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		if (conf == 0)
@@ -240,8 +236,7 @@ public class SchiffController extends TemplateController
 			text += "<a class=\"ok\" href=\"" + Common.buildUrl("consign", "ship", ship.getId(), "conf", 1, "newowner", newowner.getId()) + "\">&Uuml;bergeben</a></span><br />";
 			t.setVar("ship.message", text);
 
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		ShipFleet fleet = ship.getFleet();
@@ -252,7 +247,7 @@ public class SchiffController extends TemplateController
 		{
 			t.setVar("ship.message", Ship.MESSAGE.getMessage());
 
-			redirect();
+			return new RedirectViewResult("default");
 		}
 		else
 		{
@@ -280,6 +275,7 @@ public class SchiffController extends TemplateController
 			}
 		}
 
+		return null;
 	}
 
 	/**
@@ -288,7 +284,7 @@ public class SchiffController extends TemplateController
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void destroyAction(Ship ship, int conf)
+	public RedirectViewResult destroyAction(Ship ship, int conf)
 	{
 		validiereSchiff(ship);
 
@@ -297,8 +293,7 @@ public class SchiffController extends TemplateController
 		if (ship.isNoSuicide())
 		{
 			t.setVar("ship.message", "<span style=\"color:red\">Dieses Schiff kann sich nicht selbstzerst&ouml;ren.</span><br />");
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		if (conf == 0)
@@ -307,23 +302,22 @@ public class SchiffController extends TemplateController
 			text += "<a class=\"error\" href=\"" + Common.buildUrl("destroy", "ship", ship.getId(), "conf", 1) + "\">Selbstzerst&ouml;rung</a></span><br />";
 			t.setVar("ship.message", text);
 
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		ship.destroy();
 
 		t.setVar("ship.message", "<span style=\"color:white\">Das Schiff hat sich selbstzerst&ouml;rt</span><br />");
+		return null;
 	}
 
 	/**
 	 * Springt durch den angegebenen Sprungpunkt.
-	 *
-	 * @param ship Die ID des anzuzeigenden Schiffes
+	 *  @param ship Die ID des anzuzeigenden Schiffes
 	 * @param node Die ID des Sprungpunkts
 	 */
 	@Action(ActionType.DEFAULT)
-	public void jumpAction(Ship ship, int node)
+	public RedirectViewResult jumpAction(Ship ship, int node)
 	{
 		validiereSchiff(ship);
 
@@ -332,8 +326,7 @@ public class SchiffController extends TemplateController
 		ShipTypeData shiptype = ship.getTypeData();
 		if ((shiptype.getCost() == 0) || (ship.getEngine() == 0))
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		if (node != 0)
@@ -342,17 +335,16 @@ public class SchiffController extends TemplateController
 			t.setVar("ship.message", Ship.MESSAGE.getMessage());
 		}
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
 	 * Benutzt einen an ein Schiff assoziierten Sprungpunkt.
-	 *
-	 * @param ship Die ID des anzuzeigenden Schiffes
+	 *  @param ship Die ID des anzuzeigenden Schiffes
 	 * @param knode Die ID des Schiffes mit dem Sprungpunkt
 	 */
 	@Action(ActionType.DEFAULT)
-	public void kjumpAction(Ship ship, int knode)
+	public RedirectViewResult kjumpAction(Ship ship, int knode)
 	{
 		validiereSchiff(ship);
 
@@ -361,8 +353,7 @@ public class SchiffController extends TemplateController
 		ShipTypeData shiptype = ship.getTypeData();
 		if ((shiptype.getCost() == 0) || (ship.getEngine() == 0))
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		if (knode != 0)
@@ -371,17 +362,16 @@ public class SchiffController extends TemplateController
 			t.setVar("ship.message", Ship.MESSAGE.getMessage());
 		}
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
 	 * Benennt das Schiff um.
-	 *
-	 * @param ship Die ID des anzuzeigenden Schiffes
+	 *  @param ship Die ID des anzuzeigenden Schiffes
 	 * @param newname Der neue Name des Schiffes
 	 */
 	@Action(ActionType.DEFAULT)
-	public void renameAction(Ship ship, String newname)
+	public RedirectViewResult renameAction(Ship ship, String newname)
 	{
 		validiereSchiff(ship);
 
@@ -390,18 +380,17 @@ public class SchiffController extends TemplateController
 		ship.setName(newname);
 		t.setVar("ship.message", "Name zu " + Common._plaintitle(newname) + " ge&auml;ndert<br />");
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
 	 * Fuehrt Aktionen eines Plugins aus. Plugin-spezifische
 	 * Parameter haben die Form $PluginName_ops[$ParameterName].
-	 *
-	 * @param ship Die ID des anzuzeigenden Schiffes
+	 *  @param ship Die ID des anzuzeigenden Schiffes
 	 * @param plugin Der Name des Plugins
 	 */
 	@Action(ActionType.DEFAULT)
-	public void pluginAction(Ship ship, String plugin) throws ReflectiveOperationException
+	public RedirectViewResult pluginAction(Ship ship, String plugin) throws ReflectiveOperationException
 	{
 		validiereSchiff(ship);
 
@@ -418,24 +407,22 @@ public class SchiffController extends TemplateController
 		Map<String, SchiffPlugin> pluginMapper = ermittlePluginsFuer(shiptype);
 		if (!pluginMapper.containsKey(plugin))
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		String ergebnis = (String)rufeAlsSubActionAuf(plugin+"_ops", pluginMapper.get(plugin), "action", caller);
 		t.setVar("ship.message", ergebnis);
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
 	 * Landet die angegebenen Schiffe auf dem aktuellen Schiff.
-	 *
-	 * @param ship Die ID des anzuzeigenden Schiffes
+	 *  @param ship Die ID des anzuzeigenden Schiffes
 	 * @param shipIdList Eine mit | separierte Liste an Schiffs-IDs
 	 */
 	@Action(ActionType.DEFAULT)
-	public void landAction(Ship ship, @UrlParam(name = "shiplist") String shipIdList)
+	public RedirectViewResult landAction(Ship ship, @UrlParam(name = "shiplist") String shipIdList)
 	{
 		validiereSchiff(ship);
 
@@ -444,8 +431,7 @@ public class SchiffController extends TemplateController
 		if (shipIdList.equals(""))
 		{
 			t.setVar("ship.message", "Es wurden keine Schiffe angegeben");
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		int[] shipidlist = Common.explodeToInt("|", shipIdList);
@@ -456,8 +442,7 @@ public class SchiffController extends TemplateController
 			if (aship == null)
 			{
 				addError("Eines der angegebenen Schiffe existiert nicht");
-				redirect();
-				return;
+				return new RedirectViewResult("default");
 			}
 			shiplist[i] = aship;
 		}
@@ -465,17 +450,16 @@ public class SchiffController extends TemplateController
 		ship.land(shiplist);
 		t.setVar("ship.message", Ship.MESSAGE.getMessage());
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
 	 * Startet die angegebenen Schiffe vom aktuellen Schiff.
-	 *
-	 * @param ship Die ID des anzuzeigenden Schiffes
+	 *  @param ship Die ID des anzuzeigenden Schiffes
 	 * @param shipIdList Eine mit | separierte Liste von Schiffs-IDs
 	 */
 	@Action(ActionType.DEFAULT)
-	public void startAction(Ship ship, @UrlParam(name = "shiplist") String shipIdList)
+	public RedirectViewResult startAction(Ship ship, @UrlParam(name = "shiplist") String shipIdList)
 	{
 		validiereSchiff(ship);
 
@@ -484,8 +468,7 @@ public class SchiffController extends TemplateController
 		if (shipIdList.equals(""))
 		{
 			t.setVar("ship.message", "Es wurden keine Schiffe angegeben");
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		int[] shipidlist = Common.explodeToInt("|", shipIdList);
@@ -496,8 +479,7 @@ public class SchiffController extends TemplateController
 			if (aship == null)
 			{
 				addError("Eines der angegebenen Schiffe existiert nicht");
-				redirect();
-				return;
+				return new RedirectViewResult("default");
 			}
 			shiplist[i] = aship;
 		}
@@ -505,17 +487,16 @@ public class SchiffController extends TemplateController
 		ship.start(shiplist);
 		t.setVar("ship.message", Ship.MESSAGE.getMessage());
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
 	 * Dockt die angegebenen Schiffe an das aktuelle Schiff an.
-	 *
-	 * @param ship Die ID des anzuzeigenden Schiffes
+	 *  @param ship Die ID des anzuzeigenden Schiffes
 	 * @param shipIdList Eine mit | separierte Liste von Schiffs-IDs
 	 */
 	@Action(ActionType.DEFAULT)
-	public void aufladenAction(Ship ship, @UrlParam(name = "tar") String shipIdList)
+	public RedirectViewResult aufladenAction(Ship ship, @UrlParam(name = "tar") String shipIdList)
 	{
 		validiereSchiff(ship);
 
@@ -525,7 +506,7 @@ public class SchiffController extends TemplateController
 		if (shipIdList.equals(""))
 		{
 			t.setVar("ship.message", "Es wurden keine Schiffe angegeben");
-			redirect();
+			return new RedirectViewResult("default");
 		}
 
 		int[] shipidlist = Common.explodeToInt("|", shipIdList);
@@ -541,8 +522,7 @@ public class SchiffController extends TemplateController
 			if (docked.getOwner() != user)
 			{
 				addError("Eines der Schiffe gehoert nicht ihnen");
-				redirect();
-				return;
+				return new RedirectViewResult("default");
 			}
 
 			Ship targetShip = docked.getBaseShip();
@@ -557,8 +537,7 @@ public class SchiffController extends TemplateController
 			if (aship == null)
 			{
 				addError("Eines der angegebenen Schiffe existiert nicht");
-				redirect();
-				return;
+				return new RedirectViewResult("default");
 			}
 			shiplist[i] = aship;
 		}
@@ -566,17 +545,16 @@ public class SchiffController extends TemplateController
 		ship.dock(shiplist);
 		t.setVar("ship.message", Ship.MESSAGE.getMessage());
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
 	 * Dockt die angegebenen Schiffe vom aktuellen Schiff ab.
-	 *
-	 * @param ship Die ID des anzuzeigenden Schiffes
+	 *  @param ship Die ID des anzuzeigenden Schiffes
 	 * @param shipIdList Eine mit | separierte Liste von Schiffs-IDs
 	 */
 	@Action(ActionType.DEFAULT)
-	public void abladenAction(Ship ship, @UrlParam(name = "tar") String shipIdList)
+	public RedirectViewResult abladenAction(Ship ship, @UrlParam(name = "tar") String shipIdList)
 	{
 		validiereSchiff(ship);
 
@@ -585,7 +563,7 @@ public class SchiffController extends TemplateController
 		if (shipIdList.equals(""))
 		{
 			t.setVar("ship.message", "Es wurden keine Schiffe angegeben");
-			redirect();
+			return new RedirectViewResult("default");
 		}
 
 		int[] shipidlist = Common.explodeToInt("|", shipIdList);
@@ -596,8 +574,7 @@ public class SchiffController extends TemplateController
 			if (aship == null)
 			{
 				addError("Eines der angegebenen Schiffe existiert nicht");
-				redirect();
-				return;
+				return new RedirectViewResult("default");
 			}
 			shiplist[i] = aship;
 		}
@@ -605,17 +582,16 @@ public class SchiffController extends TemplateController
 		ship.undock(shiplist);
 		t.setVar("ship.message", Ship.MESSAGE.getMessage());
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
 	 * Laesst ein Schiff einer Flotte beitreten oder aus der aktuellen Flotte austreten.
-	 *
-	 * @param ship Die ID des anzuzeigenden Schiffes
+	 *  @param ship Die ID des anzuzeigenden Schiffes
 	 * @param join Die ID der Flotte, der das Schiff beitreten soll oder <code>0</code>, falls es aus der aktuellen Flotte austreten soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void joinAction(Ship ship, int join)
+	public RedirectViewResult joinAction(Ship ship, int join)
 	{
 		validiereSchiff(ship);
 
@@ -636,8 +612,7 @@ public class SchiffController extends TemplateController
 			Ship fleetship = (Ship) db.get(Ship.class, join);
 			if ((fleetship == null) || (fleetship.getId() < 0))
 			{
-				redirect();
-				return;
+				return new RedirectViewResult("default");
 			}
 
 			ShipFleet fleet = fleetship.getFleet();
@@ -645,8 +620,7 @@ public class SchiffController extends TemplateController
 			if (fleet == null)
 			{
 				t.setVar("ship.message", "<span style=\"color:red\">Sie m&uuml;ssen erst eine Flotte erstellen</span><br />");
-				redirect();
-				return;
+				return new RedirectViewResult("default");
 			}
 
 			if (!ship.getLocation().sameSector(0, fleetship.getLocation(), 0) || (fleetship.getOwner() != user))
@@ -660,17 +634,16 @@ public class SchiffController extends TemplateController
 			}
 		}
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
 	 * Laedt die Schilde des aktuellen Schiffes auf.
-	 *
-	 * @param ship Die ID des anzuzeigenden Schiffes
+	 *  @param ship Die ID des anzuzeigenden Schiffes
 	 * @param shup Die Menge an Energie, die zum Aufladen der Schilde verwendet werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void shupAction(Ship ship, int shup)
+	public RedirectViewResult shupAction(Ship ship, int shup)
 	{
 		validiereSchiff(ship);
 
@@ -705,19 +678,18 @@ public class SchiffController extends TemplateController
 
 		ship.recalculateShipStatus();
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
 	 * Speichert ein neues Schiffsaktionsscript und setzt optional
 	 * die aktuellen Ausfuehrungsdaten wieder zurueck.
-	 *
-	 * @param ship Die ID des anzuzeigenden Schiffes
+	 *  @param ship Die ID des anzuzeigenden Schiffes
 	 * @param script das neue Schfifsaktionsscript
 	 * @param reset Wenn der Wert != 0 ist, dann werden die Ausfuehrungsdaten zurueckgesetzt
 	 */
 	@Action(ActionType.DEFAULT)
-	public void scriptAction(Ship ship, String script, boolean reset)
+	public RedirectViewResult scriptAction(Ship ship, String script, boolean reset)
 	{
 		validiereSchiff(ship);
 
@@ -739,18 +711,17 @@ public class SchiffController extends TemplateController
 
 		t.setVar("ship.message", "Script gespeichert<br />");
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
 	 * Behandelt ein OnCommunicate-Ereigniss.
-	 *
-	 * @param ship Die ID des anzuzeigenden Schiffes
+	 *  @param ship Die ID des anzuzeigenden Schiffes
 	 * @param communicate Die ID des Schiffes, mit dem kommuniziert werden soll
 	 * @param execparameter Weitere Ausfuehrungsdaten
 	 */
 	@Action(ActionType.DEFAULT)
-	public void communicateAction(Ship ship, int communicate, String execparameter)
+	public RedirectViewResult communicateAction(Ship ship, int communicate, String execparameter)
 	{
 		validiereSchiff(ship);
 
@@ -781,12 +752,11 @@ public class SchiffController extends TemplateController
 		if ((targetship == null) || (targetship.getId() < 0) || !targetship.getLocation().sameSector(0, ship.getLocation(), 0))
 		{
 			t.setVar("ship.message", "<span style=\"color:red\">Sie k&ouml;nnen nur mit Schiffen im selben Sektor kommunizieren</span><br />");
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 		Quests.executeEvent(scriptparser, targetship.getOnCommunicate(), user, execparameter, false);
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
@@ -795,7 +765,7 @@ public class SchiffController extends TemplateController
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void inselAction(Ship ship)
+	public RedirectViewResult inselAction(Ship ship)
 	{
 		validiereSchiff(ship);
 
@@ -804,8 +774,7 @@ public class SchiffController extends TemplateController
 
 		if (!user.hasFlag(UserFlag.NPC_ISLAND))
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		ship.setX(10);
@@ -814,7 +783,7 @@ public class SchiffController extends TemplateController
 
 		t.setVar("ship.message", "<span style=\"color:green\">Willkommen auf der Insel</span><br />");
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	private static final Map<String, String> moduleOutputList = new HashMap<>();

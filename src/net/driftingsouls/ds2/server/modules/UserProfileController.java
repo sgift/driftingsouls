@@ -30,6 +30,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
@@ -68,12 +69,11 @@ public class UserProfileController extends TemplateController
 
 	/**
 	 * Setzt die Beziehung des Users mit dem aktuell angezeigtem User.
-	 *
-	 * @param ausgewaehlterBenutzer Die ID des anzuzeigenden Benutzers
+	 *  @param ausgewaehlterBenutzer Die ID des anzuzeigenden Benutzers
 	 * @param relation Die neue Beziehung. 1 fuer feindlich, 2 fuer freundlich und neural bei allen anderen Werten
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeRelationAction(@UrlParam(name = "user") User ausgewaehlterBenutzer, User.Relation relation)
+	public RedirectViewResult changeRelationAction(@UrlParam(name = "user") User ausgewaehlterBenutzer, User.Relation relation)
 	{
 		validiereBenutzer(ausgewaehlterBenutzer);
 
@@ -82,25 +82,23 @@ public class UserProfileController extends TemplateController
 
 		if (ausgewaehlterBenutzer.getId() == user.getId())
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		user.setRelation(ausgewaehlterBenutzer.getId(), relation);
 		t.setVar("userprofile.message", "Beziehungsstatus ge&auml;ndert");
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
 	 * Setzt die Beziehung aller User der Ally des aktiven Users mit dem aktuell angezeigtem User.
 	 * Die Operation kann nur vom Allianzpraesidenten ausgefuehrt werden.
-	 *
-	 * @param ausgewaehlterBenutzer Die ID des anzuzeigenden Benutzers
+	 *  @param ausgewaehlterBenutzer Die ID des anzuzeigenden Benutzers
 	 * @param relation Die neue Beziehung. 1 fuer feindlich, 2 fuer freundlich und neural bei allen anderen Werten
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeRelationAllyAction(@UrlParam(name = "user") User ausgewaehlterBenutzer, User.Relation relation)
+	public RedirectViewResult changeRelationAllyAction(@UrlParam(name = "user") User ausgewaehlterBenutzer, User.Relation relation)
 	{
 		validiereBenutzer(ausgewaehlterBenutzer);
 
@@ -110,23 +108,20 @@ public class UserProfileController extends TemplateController
 		if (user.getAlly() == null)
 		{
 			addError("Sie sind in keiner Allianz");
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		if (user.getAlly() == ausgewaehlterBenutzer.getAlly())
 		{
 			addError("Sie befinden sich in der selben Allianz");
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		User allypresi = user.getAlly().getPresident();
 		if (allypresi.getId() != user.getId())
 		{
 			addError("Sie sind nicht der Pr&auml;sident der Allianz");
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		List<User> allymemberList = user.getAlly().getMembers();
@@ -137,7 +132,7 @@ public class UserProfileController extends TemplateController
 
 		t.setVar("userprofile.message", "Beziehungsstatus ge&auml;ndert");
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**

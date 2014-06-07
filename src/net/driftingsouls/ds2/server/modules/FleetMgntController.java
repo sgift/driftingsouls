@@ -25,10 +25,10 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
@@ -43,11 +43,9 @@ import net.driftingsouls.ds2.server.werften.WerftObject;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -193,12 +191,11 @@ public class FleetMgntController extends TemplateController
 
 	/**
 	 * Erstellt eine Flotte aus einer Schiffsliste oder einer Koordinaten/Typen-Angabe.
-	 *
 	 * @param fleetname der Name der neuen Flotte
 	 * @param shiplist Die Liste der Schiffe (IDs) getrennt durch {@code |}
 	 */
 	@Action(ActionType.DEFAULT)
-	public void create2Action(String fleetname, String shiplist)
+	public RedirectViewResult create2Action(String fleetname, String shiplist)
 	{
 		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
@@ -209,7 +206,7 @@ public class FleetMgntController extends TemplateController
 		if (shiplist.length() == 0)
 		{
 			t.setVar("fleetmgnt.message", "Sie haben keine Schiffe angegeben");
-			return;
+			return null;
 		}
 
 		if (shiplist.charAt(0) != 'g')
@@ -218,7 +215,7 @@ public class FleetMgntController extends TemplateController
 			if ((shiplist.length() == 0) || shiplistInt.length == 0)
 			{
 				t.setVar("fleetmgnt.message", "Sie haben keine Schiffe angegeben");
-				return;
+				return null;
 			}
 
 			boolean nonEmpty = db.createQuery("from Ship where id in (:shipIds) and (owner!=:user or id < 0)")
@@ -228,7 +225,7 @@ public class FleetMgntController extends TemplateController
 			if (nonEmpty)
 			{
 				t.setVar("fleetmgnt.message", "Alle Schiffe m&uuml;ssen ihrem Kommando unterstehen");
-				return;
+				return null;
 			}
 		}
 		else
@@ -241,7 +238,7 @@ public class FleetMgntController extends TemplateController
 			if ((sectorShip == null) || (sectorShip.getOwner() != user) || (sectorShip.getId() < 0))
 			{
 				t.setVar("fleetmgnt.message", "Das Schiff untersteht nicht ihrem Kommando");
-				return;
+				return null;
 			}
 
 			List<?> ships = db.createQuery("from Ship where id>0 and owner=:owner and system=:sys and x=:x and y=:y and shiptype=:type and docked='' order by fleet.id,id asc")
@@ -286,14 +283,12 @@ public class FleetMgntController extends TemplateController
 					"jscript.reloadmain.ship", shiplistInt[0],
 					"fleet.id", fleet.getId());
 
-			Map<String,Object> params = new HashMap<>();
-			params.put("fleet", fleet);
-			this.redirect("default", params);
+			return new RedirectViewResult("default").setParameter("fleet", fleet);
 		}
 		else
 		{
 			t.setVar("fleetmgnt.message", "Sie m&uuml;ssen einen Namen angeben");
-			redirect("create");
+			return new RedirectViewResult("create");
 		}
 	}
 
@@ -395,7 +390,7 @@ public class FleetMgntController extends TemplateController
 	 * @param fleetname Der neue Name der Flotte
 	 */
 	@Action(ActionType.DEFAULT)
-	public void rename2Action(ShipFleet fleet, String fleetname)
+	public RedirectViewResult rename2Action(ShipFleet fleet, String fleetname)
 	{
 		validiereGueltigeFlotteVorhanden(fleet);
 
@@ -413,13 +408,13 @@ public class FleetMgntController extends TemplateController
 			t.setVar("fleetmgnt.message", "Flotte " + Common._plaintitle(fleetname) + " umbenannt",
 					"jscript.reloadmain", 1);
 
-			redirect();
+			return new RedirectViewResult("default");
 		}
 		else
 		{
 			t.setVar("fleetmgnt.message", "Sie m&uuml;ssen einen Namen angeben");
 
-			redirect("rename");
+			return new RedirectViewResult("rename");
 		}
 	}
 
@@ -485,7 +480,7 @@ public class FleetMgntController extends TemplateController
 	 * @param newowner Die ID des Users, an den die Flotte uebergeben werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void newowner2Action(ShipFleet fleet, @UrlParam(name = "ownerid") User newowner)
+	public RedirectViewResult newowner2Action(ShipFleet fleet, @UrlParam(name = "ownerid") User newowner)
 	{
 		validiereGueltigeFlotteVorhanden(fleet);
 
@@ -505,8 +500,9 @@ public class FleetMgntController extends TemplateController
 		{
 			t.setVar("fleetmgnt.message", "Der angegebene Spieler existiert nicht");
 
-			redirect("newowner");
+			return new RedirectViewResult("newowner");
 		}
+		return null;
 	}
 
 	/**
@@ -515,7 +511,7 @@ public class FleetMgntController extends TemplateController
 	 * @param newowner Die ID des neuen Besitzers
 	 */
 	@Action(ActionType.DEFAULT)
-	public void newowner3Action(ShipFleet fleet, @UrlParam(name = "ownerid") User newowner)
+	public RedirectViewResult newowner3Action(ShipFleet fleet, @UrlParam(name = "ownerid") User newowner)
 	{
 		validiereGueltigeFlotteVorhanden(fleet);
 
@@ -554,15 +550,16 @@ public class FleetMgntController extends TemplateController
 		{
 			t.setVar("fleetmgnt.message", "Der angegebene Spieler existiert nicht");
 
-			redirect("newowner");
+			return new RedirectViewResult("newowner");
 		}
+		return null;
 	}
 
 	/**
 	 * Laedt die Schilde aller Schiffe in der Flotte auf.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void shupAction(ShipFleet fleet)
+	public RedirectViewResult shupAction(ShipFleet fleet)
 	{
 		validiereGueltigeFlotteVorhanden(fleet);
 
@@ -603,14 +600,14 @@ public class FleetMgntController extends TemplateController
 
 		t.setVar("fleetmgnt.message", message + " Die Schilde wurden aufgeladen");
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
 	 * Entlaedt die Batterien auf den Schiffen der Flotte, um die EPS wieder aufzuladen.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void dischargeBatteriesAction(ShipFleet fleet)
+	public RedirectViewResult dischargeBatteriesAction(ShipFleet fleet)
 	{
 		validiereGueltigeFlotteVorhanden(fleet);
 
@@ -653,14 +650,14 @@ public class FleetMgntController extends TemplateController
 
 		t.setVar("fleetmgnt.message", message + "Batterien wurden entladen");
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
 	 * Laedt die Batterien auf den Schiffen der Flotte auf.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void chargeBatteriesAction(ShipFleet fleet)
+	public RedirectViewResult chargeBatteriesAction(ShipFleet fleet)
 	{
 		validiereGueltigeFlotteVorhanden(fleet);
 
@@ -700,7 +697,7 @@ public class FleetMgntController extends TemplateController
 
 		t.setVar("fleetmgnt.message", message + "Batterien wurden aufgeladen");
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
@@ -739,7 +736,7 @@ public class FleetMgntController extends TemplateController
 	 * Dockt alle Schiffe der Flotte ab.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void undockAction(ShipFleet fleet)
+	public RedirectViewResult undockAction(ShipFleet fleet)
 	{
 		validiereGueltigeFlotteVorhanden(fleet);
 
@@ -755,14 +752,14 @@ public class FleetMgntController extends TemplateController
 		t.setVar("fleetmgnt.message", "Alle gedockten Schiffe wurden gestartet",
 				"jscript.reloadmain", 1);
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
 	 * Sammelt alle nicht gedockten eigenen Container im Sektor auf (sofern genug Platz vorhanden ist).
 	 */
 	@Action(ActionType.DEFAULT)
-	public void redockAction(ShipFleet fleet)
+	public RedirectViewResult redockAction(ShipFleet fleet)
 	{
 		validiereGueltigeFlotteVorhanden(fleet);
 
@@ -779,14 +776,14 @@ public class FleetMgntController extends TemplateController
 		t.setVar("fleetmgnt.message", "Container wurden aufgesammelt",
 				"jscript.reloadmain", 1);
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
 	 * Startet alle Jaeger der Flotte.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void jstartAction(ShipFleet fleet)
+	public RedirectViewResult jstartAction(ShipFleet fleet)
 	{
 		validiereGueltigeFlotteVorhanden(fleet);
 
@@ -802,14 +799,14 @@ public class FleetMgntController extends TemplateController
 		t.setVar("fleetmgnt.message", "Alle J&auml;ger sind gestartet",
 				"jscript.reloadmain", 1);
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
 	 * Sammelt alle nicht gelandeten eigenen Jaeger im Sektor auf (sofern genug Platz vorhanden ist).
 	 */
 	@Action(ActionType.DEFAULT)
-	public void jlandAction(ShipFleet fleet, int jaegertype)
+	public RedirectViewResult jlandAction(ShipFleet fleet, int jaegertype)
 	{
 		validiereGueltigeFlotteVorhanden(fleet);
 
@@ -826,7 +823,7 @@ public class FleetMgntController extends TemplateController
 		t.setVar("fleetmgnt.message", "J&auml;ger wurden aufgesammelt",
 				"jscript.reloadmain", 1);
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
@@ -835,7 +832,7 @@ public class FleetMgntController extends TemplateController
 	 * @param targetFleet Die ID der Flotte, deren Schiffe zur aktiven Flotte hinzugefuegt werden sollen
 	 */
 	@Action(ActionType.DEFAULT)
-	public void fleetcombineAction(ShipFleet fleet, @UrlParam(name = "fleetcombine") ShipFleet targetFleet)
+	public RedirectViewResult fleetcombineAction(ShipFleet fleet, @UrlParam(name = "fleetcombine") ShipFleet targetFleet)
 	{
 		validiereGueltigeFlotteVorhanden(fleet);
 
@@ -847,16 +844,14 @@ public class FleetMgntController extends TemplateController
 		if (targetFleet == null)
 		{
 			addError("Die angegebene Flotte existiert nicht!");
-			this.redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		User aowner = targetFleet.getOwner();
 		if (aowner == null || (aowner != user))
 		{
 			addError("Die angegebene Flotte geh&ouml;rt nicht ihnen!");
-			this.redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		fleet.joinFleet(targetFleet);
@@ -867,7 +862,7 @@ public class FleetMgntController extends TemplateController
 		t.setVar("fleetmgnt.message", "Alle Schiffe der Flotte '" + Common._plaintitle(targetFleet.getName()) + "' sind beigetreten",
 				"jscript.reloadmain", 1);
 
-		this.redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
@@ -876,7 +871,7 @@ public class FleetMgntController extends TemplateController
 	 * @param alarm Die neue Alarmstufe
 	 */
 	@Action(ActionType.DEFAULT)
-	public void alarmAction(ShipFleet fleet, int alarm)
+	public RedirectViewResult alarmAction(ShipFleet fleet, int alarm)
 	{
 		validiereGueltigeFlotteVorhanden(fleet);
 
@@ -892,7 +887,7 @@ public class FleetMgntController extends TemplateController
 		t.setVar("fleetmgnt.message", "Die Alarmstufe wurde ge&auml;ndert",
 				"jscript.reloadmain", 1);
 
-		this.redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
@@ -917,7 +912,7 @@ public class FleetMgntController extends TemplateController
 	 */
 	@Action(ActionType.DEFAULT)
 	@SuppressWarnings("unchecked")
-	public void buildAction(ShipFleet fleet, int buildcount, String buildid)
+	public RedirectViewResult buildAction(ShipFleet fleet, int buildcount, String buildid)
 	{
 		validiereGueltigeFlotteVorhanden(fleet);
 
@@ -927,7 +922,7 @@ public class FleetMgntController extends TemplateController
 
 		if (buildcount <= 0)
 		{
-			return;
+			return null;
 		}
 
 		org.hibernate.Session db = getDB();
@@ -948,7 +943,7 @@ public class FleetMgntController extends TemplateController
 
 		if (shipyards.isEmpty())
 		{
-			return;
+			return null;
 		}
 
 		//Build
@@ -992,7 +987,7 @@ public class FleetMgntController extends TemplateController
 		t.setVar("jscript.reloadmain.ship", shipid);
 		t.setVar("jscript.reloadmain", 1);
 
-		this.redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
@@ -1165,7 +1160,7 @@ public class FleetMgntController extends TemplateController
 	 * @param name Das Namensmuster
 	 */
 	@Action(ActionType.DEFAULT)
-	public void renameShips2Action(ShipFleet fleet, String name)
+	public RedirectViewResult renameShips2Action(ShipFleet fleet, String name)
 	{
 		validiereGueltigeFlotteVorhanden(fleet);
 
@@ -1193,7 +1188,7 @@ public class FleetMgntController extends TemplateController
 		t.setVar("fleetmgnt.message", "Die Namen wurden ge&auml;ndert",
 				"jscript.reloadmain", 1);
 
-		this.redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
@@ -1203,7 +1198,7 @@ public class FleetMgntController extends TemplateController
 	 * @param crewinpercent Anzahl der Crew in Prozent (der Maxcrew des Zielschiffes)
 	 */
 	@Action(ActionType.DEFAULT)
-	public void getCrewAction(ShipFleet fleet, int crewinpercent)
+	public RedirectViewResult getCrewAction(ShipFleet fleet, int crewinpercent)
 	{
 		validiereGueltigeFlotteVorhanden(fleet);
 
@@ -1236,7 +1231,7 @@ public class FleetMgntController extends TemplateController
 			}
 		}
 
-		this.redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
@@ -1258,7 +1253,7 @@ public class FleetMgntController extends TemplateController
 	 * Demontiert die Flotte.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void dismantleAction(ShipFleet fleet)
+	public RedirectViewResult dismantleAction(ShipFleet fleet)
 	{
 		validiereGueltigeFlotteVorhanden(fleet);
 
@@ -1304,7 +1299,7 @@ public class FleetMgntController extends TemplateController
 					t.setVar("fleetmgnt.message", "Die Flotte '" + fleet.getName() + "' wurde demontiert.",
 							"jscript.reloadmain", 1);
 
-					return;
+					return null;
 				}
 			}
 		}
@@ -1313,7 +1308,7 @@ public class FleetMgntController extends TemplateController
 			addError("Keine Werft im Sektor gefunden.");
 		}
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	@Action(value = ActionType.DEFAULT, readOnly = true)

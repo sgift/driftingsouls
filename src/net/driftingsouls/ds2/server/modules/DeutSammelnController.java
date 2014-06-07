@@ -27,6 +27,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
@@ -140,12 +141,12 @@ public class DeutSammelnController extends TemplateController
 	/**
 	 * Sammelnt fuer eine angegebene Menge Energie Deuterium aus einem Nebel.
 	 *
-	 * @param e Die Menge Energie, fuer die Deuterium gesammelt werden soll
-	 * @param fleet Die Tankerflotte
 	 * @param ship Der Tanker
+	 * @param fleet Die Tankerflotte
+	 * @param e Die Menge Energie, fuer die Deuterium gesammelt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void sammelnAction(Ship ship, ShipFleet fleet, long e)
+	public RedirectViewResult sammelnAction(Ship ship, ShipFleet fleet, long e)
 	{
 		List<Ship> shipList = erzeugeSchiffsliste(ship, fleet);
 		Nebel nebel = ermittleNebelFuerSchiffsliste(shipList);
@@ -174,7 +175,7 @@ public class DeutSammelnController extends TemplateController
 
 		t.setVar("deutsammeln.message", message);
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**

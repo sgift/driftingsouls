@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
@@ -77,13 +78,12 @@ public class BuildController extends TemplateController
 
 	/**
 	 * Baut ein Gebaeute auf der Kolonie.
-	 *
-	 * @param base Die Basis, auf der das Gebaeude gebaut werden soll
+	 *  @param base Die Basis, auf der das Gebaeude gebaut werden soll
 	 * @param build Die ID des zu bauenden Gebaeudes
 	 * @param field Die ID des Feldes, auf dem das Gebaeude gebaut werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void buildAction(@UrlParam(name = "col") Base base, Building build, int field)
+	public RedirectViewResult buildAction(@UrlParam(name = "col") Base base, Building build, int field)
 	{
 		validiereBasis(base);
 		validiereGebaeude(build);
@@ -115,8 +115,7 @@ public class BuildController extends TemplateController
 			{
 				addError("Sie k&ouml;nnen dieses Geb&auml;de maximal " + build.getPerPlanetCount() + " Mal pro Asteroid bauen");
 
-				redirect();
-				return;
+				return new RedirectViewResult("default");
 			}
 		}
 
@@ -127,8 +126,7 @@ public class BuildController extends TemplateController
 			{
 				addError("Sie k&ouml;nnen dieses Geb&auml;de maximal " + build.getPerUserCount() + " Mal insgesamt bauen");
 
-				redirect();
-				return;
+				return new RedirectViewResult("default");
 			}
 		}
 
@@ -137,16 +135,14 @@ public class BuildController extends TemplateController
 		{
 			addError("Dieses Geb&auml;ude ist nicht auf diesem Terrainfeld baubar.");
 
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		if (base.getBebauung()[field] != 0)
 		{
 			addError("Es existiert bereits ein Geb&auml;ude an dieser Stelle");
 
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		if (build.isUComplex())
@@ -158,22 +154,19 @@ public class BuildController extends TemplateController
 			{
 				addError("Es ist nicht m&ouml;glich, hier mehr als " + grenze + " Unterirdische Komplexe zu installieren");
 
-				redirect();
-				return;
+				return new RedirectViewResult("default");
 			}
 		}
 		if (!Rassen.get().rasse(user.getRace()).isMemberIn(build.getRace()))
 		{
 			addError("Sie geh&ouml;ren der falschen Spezies an und k&ouml;nnen dieses Geb&auml;ude nicht selbst errichten.");
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 		if (!user.hasResearched(build.getTechRequired()))
 		{
 			addError("Sie verf&uuml;gen nicht &uuml;ber alle n&ouml;tigen Forschungen um dieses Geb&auml;ude zu bauen");
 
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		t.setVar("show.build", 1);
@@ -232,6 +225,7 @@ public class BuildController extends TemplateController
 			build.build(base, build.getId());
 		}
 
+		return null;
 	}
 
 	private int berechneMaximaleAnzahlUnterirdischerKomplexe(Base base)

@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
@@ -66,12 +67,11 @@ public class CoreController extends TemplateController
 	/**
 	 * Baut eine neue Core auf dem Asteroiden, sofern noch keine Core auf dem
 	 * Asteroiden vorhanden ist.
-	 *
-	 * @param base Die Basis
+	 *  @param base Die Basis
 	 * @param core Die zu bauende Core
 	 */
 	@Action(ActionType.DEFAULT)
-	public void buildAction(@UrlParam(name = "col") Base base, @UrlParam(name = "build") Core core)
+	public RedirectViewResult buildAction(@UrlParam(name = "col") Base base, @UrlParam(name = "build") Core core)
 	{
 		validiereBasis(base);
 
@@ -153,7 +153,7 @@ public class CoreController extends TemplateController
 			}
 		}
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
@@ -162,7 +162,7 @@ public class CoreController extends TemplateController
 	 * @param base Die Basis
 	 */
 	@Action(ActionType.DEFAULT)
-	public void deactivateAction(@UrlParam(name = "col") Base base)
+	public RedirectViewResult deactivateAction(@UrlParam(name = "col") Base base)
 	{
 		validiereBasis(base);
 
@@ -171,8 +171,7 @@ public class CoreController extends TemplateController
 
 		if (!base.isCoreActive())
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		Core core = base.getCore();
@@ -182,7 +181,7 @@ public class CoreController extends TemplateController
 
 		t.setVar("core.message", "<span class=\"error\">Core deaktiviert</span>");
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
@@ -192,7 +191,7 @@ public class CoreController extends TemplateController
 	 * @param base Die Basis
 	 */
 	@Action(ActionType.DEFAULT)
-	public void activateAction(@UrlParam(name = "col") Base base)
+	public RedirectViewResult activateAction(@UrlParam(name = "col") Base base)
 	{
 		validiereBasis(base);
 
@@ -201,8 +200,7 @@ public class CoreController extends TemplateController
 
 		if (base.isCoreActive())
 		{
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		Core core = base.getCore();
@@ -222,7 +220,7 @@ public class CoreController extends TemplateController
 			t.setVar("core.message", "<span class=\"ok\">Core aktiviert</span>");
 		}
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	private void showCore(Base base)

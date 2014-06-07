@@ -27,6 +27,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
@@ -751,16 +752,15 @@ public class UnitTauschController extends TemplateController
 
 	/**
 	 * Transferiert die Einheiten.
-	 *
-	 * @param toMap Die Menge der entsprechenden Einheit (key), welche zum Zielschiff transferiert werden soll
+	 *  @param toMap Die Menge der entsprechenden Einheit (key), welche zum Zielschiff transferiert werden soll
 	 * @param fromMap Die Menge der entsprechenden Einheit (key), welche von Zielschiff runter zum Quellschiff transferiert werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void transferAction(@UrlParam(name = "#to") Map<Integer, Integer> toMap,
-							   @UrlParam(name = "#from") Map<Integer, Integer> fromMap,
-							   @UrlParam(name = "from") String rawFrom,
-							   @UrlParam(name = "to") String rawTo,
-							   @UrlParam(name = "way") String rawWay)
+	public RedirectViewResult transferAction(@UrlParam(name = "#to") Map<Integer, Integer> toMap,
+											 @UrlParam(name = "#from") Map<Integer, Integer> fromMap,
+											 @UrlParam(name = "from") String rawFrom,
+											 @UrlParam(name = "to") String rawTo,
+											 @UrlParam(name = "way") String rawWay)
 	{
 		String[] way = StringUtils.split(rawWay, "to");
 
@@ -900,8 +900,7 @@ public class UnitTauschController extends TemplateController
 						{
 							addError("Das geh&ouml;rt dir nicht!");
 
-							redirect();
-							return;
+							return new RedirectViewResult("default");
 						}
 
 						t.setVar("transfer.target.name", Common._plaintitle(toTarget.getObjectName()));
@@ -971,9 +970,7 @@ public class UnitTauschController extends TemplateController
 
 		if (!transfer)
 		{
-			redirect();
-
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		/*
@@ -996,7 +993,7 @@ public class UnitTauschController extends TemplateController
 			to.get(k).write();
 		}
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	@Action(ActionType.DEFAULT)

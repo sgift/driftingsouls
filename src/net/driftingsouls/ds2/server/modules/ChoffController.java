@@ -24,6 +24,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
@@ -70,7 +71,7 @@ public class ChoffController extends TemplateController
 	 * @param name Der neue Name des Offiziers
 	 */
 	@Action(ActionType.DEFAULT)
-	public void renameAction(Offizier off, String name)
+	public RedirectViewResult renameAction(Offizier off, String name)
 	{
 		validiereOffizier(off);
 
@@ -94,7 +95,7 @@ public class ChoffController extends TemplateController
 			t.setVar("choff.message", "<span style=\"color:red\">Sie m&uuml;ssen einen Namen angeben</span>");
 		}
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	@Action(ActionType.DEFAULT)

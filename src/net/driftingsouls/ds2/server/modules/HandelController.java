@@ -32,6 +32,7 @@ import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
@@ -62,13 +63,12 @@ public class HandelController extends TemplateController
 
 	/**
 	 * Speichert ein neues Handelsangebot in der Datenbank.
-	 *
-	 * @param comm Die Beschreibung
+	 *  @param comm Die Beschreibung
 	 * @param needMap Benoetigte Waren
 	 * @param haveMap Angebotene Waren
 	 */
 	@Action(ActionType.DEFAULT)
-	public void enterAction(String comm, @UrlParam(name = "#need") Map<String, Long> needMap, @UrlParam(name = "#have") Map<String, Long> haveMap)
+	public RedirectViewResult enterAction(String comm, @UrlParam(name = "#need") Map<String, Long> needMap, @UrlParam(name = "#have") Map<String, Long> haveMap)
 	{
 		org.hibernate.Session db = getDB();
 
@@ -139,7 +139,7 @@ public class HandelController extends TemplateController
 
 		db.persist(entry);
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
@@ -180,7 +180,7 @@ public class HandelController extends TemplateController
 	 * @param entry Die ID des zu loeschenden Handelsangebots
 	 */
 	@Action(ActionType.DEFAULT)
-	public void deleteAction(@UrlParam(name = "del") Handel entry)
+	public RedirectViewResult deleteAction(@UrlParam(name = "del") Handel entry)
 	{
 		User user = (User) getUser();
 		TemplateEngine t = getTemplateEngine();
@@ -196,7 +196,7 @@ public class HandelController extends TemplateController
 			addError("Sie haben keine Berechtigung das Angebot zu l&ouml;schen");
 		}
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**

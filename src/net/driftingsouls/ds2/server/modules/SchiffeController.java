@@ -30,6 +30,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
@@ -74,7 +75,7 @@ public class SchiffeController extends TemplateController
 	 * @param mode Der Anzeigemodus fuer den Cargo (<code>carg</code> oder <code>norm</code>)
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeModeAction(String mode)
+	public RedirectViewResult changeModeAction(String mode)
 	{
 		if (mode.equals("carg") || mode.equals("norm"))
 		{
@@ -82,7 +83,7 @@ public class SchiffeController extends TemplateController
 			user.setUserValue("TBLORDER/schiffe/mode", mode);
 		}
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
@@ -91,7 +92,7 @@ public class SchiffeController extends TemplateController
 	 * @param order Das neue Sortierkriterium
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeOrderAction(String order)
+	public RedirectViewResult changeOrderAction(String order)
 	{
 		if (Common.inArray(order, new String[]{"id", "name", "type", "sys", "crew", "hull", "e"}))
 		{
@@ -99,7 +100,7 @@ public class SchiffeController extends TemplateController
 			user.setUserValue("TBLORDER/schiffe/order", order);
 		}
 
-		this.redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
@@ -108,12 +109,12 @@ public class SchiffeController extends TemplateController
 	 * @param showLJaeger Falls != 0 werden gelandete Jaeger angezeigt
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeJDockedAction(int showLJaeger)
+	public RedirectViewResult changeJDockedAction(int showLJaeger)
 	{
 		User user = (User)getUser();
 		user.setUserValue("TBLORDER/schiffe/showjaeger", Integer.toString(showLJaeger));
 
-		this.redirect();
+		return new RedirectViewResult("default");
 	}
 
 	private static final int MAX_SHIPS_PER_PAGE = 250;

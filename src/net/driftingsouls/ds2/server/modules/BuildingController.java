@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
@@ -136,7 +137,7 @@ public class BuildingController extends TemplateController
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void startAction(@UrlParam(name = "col") Base base, int field) throws IOException
+	public RedirectViewResult startAction(@UrlParam(name = "col") Base base, int field) throws IOException
 	{
 		validiereBasisUndFeld(base, field);
 		Building building = getGebaeudeFuerFeld(base, field);
@@ -164,7 +165,7 @@ public class BuildingController extends TemplateController
 			echo.append("<span style=\"color:#00ff00\">Geb&auml;ude aktiviert</span><br /><br />\n");
 		}
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
@@ -211,7 +212,7 @@ public class BuildingController extends TemplateController
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void shutdownAction(@UrlParam(name = "col") Base base, int field) throws IOException
+	public RedirectViewResult shutdownAction(@UrlParam(name = "col") Base base, int field) throws IOException
 	{
 		validiereBasisUndFeld(base, field);
 		Building building = getGebaeudeFuerFeld(base, field);
@@ -233,7 +234,7 @@ public class BuildingController extends TemplateController
 			echo.append("<span style=\"color:#ff0000\">Geb&auml;ude deaktiviert</span><br /><br />\n");
 		}
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	@ViewModel

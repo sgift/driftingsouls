@@ -39,6 +39,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
@@ -88,7 +89,7 @@ public class UeberController extends Controller
 	 * Beendet den Vacation-Modus-Vorlauf.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void stopWait4VacAction()
+	public RedirectViewResult stopWait4VacAction()
 	{
 		User user = (User) getUser();
 
@@ -97,7 +98,7 @@ public class UeberController extends Controller
 
 		Common.writeLog("login.log", Common.date("j+m+Y H:i:s") + ": <" + getRequest().getRemoteAddress() + "> (" + user.getId() + ") <" + user.getUN() + "> Abbruch Vac-Vorlauf Browser <" + getRequest().getUserAgent() + "> \n");
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
@@ -106,7 +107,7 @@ public class UeberController extends Controller
 	 * @param tutorial 1, falls die naechste Tutorialseite angezeigt werden soll. Zum Beenden -1
 	 */
 	@Action(ActionType.DEFAULT)
-	public void tutorialAction(int tutorial)
+	public RedirectViewResult tutorialAction(int tutorial)
 	{
 		User user = (User) getUser();
 
@@ -121,7 +122,7 @@ public class UeberController extends Controller
 			user.setUserValue("TBLORDER/uebersicht/inttutorial", "0");
 		}
 
-		this.redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
@@ -130,7 +131,7 @@ public class UeberController extends Controller
 	 * @param box Der Name des neuen Anzeigemodus
 	 */
 	@Action(ActionType.DEFAULT)
-	public void boxAction(String box)
+	public RedirectViewResult boxAction(String box)
 	{
 		User user = (User)getUser();
 		String boxSetting = user.getUserValue("TBLORDER/uebersicht/box");
@@ -139,7 +140,7 @@ public class UeberController extends Controller
 			user.setUserValue("TBLORDER/uebersicht/box", box);
 		}
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**
@@ -148,14 +149,13 @@ public class UeberController extends Controller
 	 * @param questdata Die ID des zu beendenden Quests
 	 */
 	@Action(ActionType.DEFAULT)
-	public void stopQuestAction(@UrlParam(name = "questid") RunningQuest questdata)
+	public RedirectViewResult stopQuestAction(@UrlParam(name = "questid") RunningQuest questdata)
 	{
 		User user = (User)getUser();
 		if ((questdata == null) || (questdata.getUser().getId() != user.getId()))
 		{
 			addError("Sie k&ouml;nnen dieses Quest nicht abbrechen");
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 
 		ScriptEngine scriptparser = new ScriptEngineManager().getEngineByName("DSQuestScript");
@@ -175,8 +175,7 @@ public class UeberController extends Controller
 		catch (Exception e)
 		{
 			log.warn("Loading Script-ExecData failed (Quest: " + questdata.getId() + ": ", e);
-			redirect();
-			return;
+			return new RedirectViewResult("default");
 		}
 		final Bindings engineBindings = scriptparser.getContext().getBindings(ScriptContext.ENGINE_SCOPE);
 
@@ -192,7 +191,7 @@ public class UeberController extends Controller
 			throw new RuntimeException(e);
 		}
 
-		redirect();
+		return new RedirectViewResult("default");
 	}
 
 	/**

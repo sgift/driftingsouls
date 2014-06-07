@@ -49,6 +49,7 @@ import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
@@ -901,8 +902,8 @@ public class ItemInfoController extends TemplateController
 	 * @param itemlistStr Die Itemliste
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(@UrlParam(name = "itemlist") String itemlistStr)
+	public RedirectViewResult defaultAction(@UrlParam(name = "itemlist") String itemlistStr)
 	{
-		redirect("details");
+		return new RedirectViewResult("details");
 	}
 }
