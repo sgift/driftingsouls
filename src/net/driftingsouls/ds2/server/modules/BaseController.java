@@ -31,15 +31,17 @@ import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.modules.viewmodels.GebaeudeAufBasisViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.ResourceEntryViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.UnitCargoEntryViewModel;
 import net.driftingsouls.ds2.server.units.UnitCargoEntry;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -52,13 +54,13 @@ import java.util.TreeMap;
  * @author Christopher Jung
  */
 @Module(name="base")
-public class BaseController extends TemplateController
+public class BaseController extends Controller
 {
-	/**
-	 * Konstruktor.
-	 */
-	public BaseController() {
-		super();
+	private TemplateViewResultFactory templateViewResultFactory;
+
+	@Autowired
+	public BaseController(TemplateViewResultFactory templateViewResultFactory) {
+		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Basis");
 	}
@@ -83,26 +85,28 @@ public class BaseController extends TemplateController
 	public RedirectViewResult changeFeedingAction(@UrlParam(name = "col") Base base, int feeding) {
 		validate(base);
 
-		TemplateEngine t = getTemplateEngine();
+		String message = null;
+		switch (feeding)
+		{
+			case 0:
+				base.setFeeding(false);
+				message = "Versorgung abgeschaltet!";
+				break;
+			case 1:
+				base.setFeeding(true);
+				message = "Versorgung angeschaltet.";
+				break;
+			case 2:
+				base.setLoading(false);
+				message = "Automatisches auffüllen abgeschaltet!";
+				break;
+			case 3:
+				base.setLoading(true);
+				message = "Automatisches auffüllen angeschaltet.";
+				break;
+		}
 
-		if( feeding == 0 ) {
-			base.setFeeding(false);
-			t.setVar("base.message", "Versorgung abgeschaltet!");
-		}
-		else if( feeding == 1 ) {
-			base.setFeeding(true);
-			t.setVar("base.message", "Versorgung angeschaltet.");
-		}
-		else if( feeding == 2 ) {
-			base.setLoading(false);
-			t.setVar("base.message", "Automatisches auff&uuml;llen abgeschaltet!");
-		}
-		else if( feeding == 3 ) {
-			base.setLoading(true);
-			t.setVar("base.message", "Automatisches auff&uuml;llen angeschaltet.");
-		}
-
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage(message);
 	}
 
 	/**
@@ -112,8 +116,6 @@ public class BaseController extends TemplateController
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult changeNameAction(@UrlParam(name = "col") Base base, String newname) {
 		validate(base);
-
-		TemplateEngine t = getTemplateEngine();
 
 		if( newname.length() > 50 ) {
 			newname = newname.substring(0,50);
@@ -125,9 +127,7 @@ public class BaseController extends TemplateController
 
 		base.setName(newname);
 
-		t.setVar("base.message", "Name zu "+Common._plaintitle(newname)+" ge&auml;ndert");
-
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage("Name zu " + Common._plaintitle(newname) + " geändert");
 	}
 
 	/**
@@ -139,12 +139,11 @@ public class BaseController extends TemplateController
 	public RedirectViewResult changeBuildingStatusAction(@UrlParam(name = "col") Base base, boolean act, int buildingonoff) {
 		validate(base);
 
-		TemplateEngine t = getTemplateEngine();
-
 		int bebstatus = act ? 1 : 0;
 
 		Building building = Building.getBuilding(buildingonoff);
 
+		String message = null;
 		// Wenn das Gebaude automatisch abschalten soll und der Besitzer
 		// die entsprechenden Forschungen oder die Rasse nicht hat
 		// bleibt das Gebaeude aus (Rasse != GCP)
@@ -152,7 +151,7 @@ public class BaseController extends TemplateController
 				(!base.getOwner().hasResearched(building.getTechRequired())
 						|| ((base.getOwner().getRace() != building.getRace()) && building.getRace() != 0)))
 		{
-			t.setVar("base.message", "<span style=\"color:red\">Sie haben nicht die notwendigen Voraussetzungen um diese Geb&auml;ude aktivieren zu k&ouml;nnen</span>");
+			message = "<span style=\"color:red\">Sie haben nicht die notwendigen Voraussetzungen um diese Gebäude aktivieren zu können</span>";
 		}
 		else if( building.isDeakAble() ) {
 			int count = 0;
@@ -184,16 +183,16 @@ public class BaseController extends TemplateController
 				else {
 					result = "<span style=\"color:red\">";
 				}
-				result += count+" Geb&auml;ude wurde"+(count > 1 ? "n" : "")+' '+(bebstatus != 0 ? "" : "de")+"aktiviert</span>";
+				result += count+" Gebäude wurde"+(count > 1 ? "n" : "")+' '+(bebstatus != 0 ? "" : "de")+"aktiviert</span>";
 
-				t.setVar("base.message", result);
+				message = result;
 			}
 		}
 		else {
-			t.setVar("base.message", "<span style=\"color:red\">Sie k&ouml;nnen diese Geb&auml;ude nicht deaktivieren</span>");
+			message = "<span style=\"color:red\">Sie können diese Gebäude nicht deaktivieren</span>";
 		}
 
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage(message);
 	}
 
 	@ViewModel
@@ -365,26 +364,28 @@ public class BaseController extends TemplateController
 	 * Zeigt die Basis an.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(@UrlParam(name="col") Base base) {
+	public TemplateEngine defaultAction(@UrlParam(name = "col") Base base, RedirectViewResult redirect) {
 		validate(base);
 
+		TemplateEngine t = templateViewResultFactory.createFor(this);
+
 		User user = (User)getUser();
-		TemplateEngine t = getTemplateEngine();
 
 		int mapheight = (1 + base.getHeight() * 2) * 22+25;
 
-		t.setVar(	"base.id",				base.getId(),
-					"base.name",			Common._plaintitle(base.getName()),
-					"base.x",				base.getX(),
-					"base.y",				base.getY(),
-					"base.system",			base.getSystem(),
-					"base.core",			base.getCore() != null ? base.getCore().getId() : 0,
-					"base.core.active",		base.isCoreActive(),
-					"base.isfeeding",		base.isFeeding(),
-					"base.isloading",		base.isLoading(),
-					"base.map.width",		base.getWidth()*39+20,
-					"base.cargo.height",	(mapheight < 280 ? "280" : mapheight),
-					"base.cargo.empty",		Common.ln(base.getMaxCargo() - base.getCargo().getMass()) );
+		t.setVar("base.id",	 base.getId(),
+				"base.name", Common._plaintitle(base.getName()),
+				"base.x", base.getX(),
+				"base.y", base.getY(),
+				"base.system", base.getSystem(),
+				"base.core", base.getCore() != null ? base.getCore().getId() : 0,
+				"base.core.active", base.isCoreActive(),
+				"base.isfeeding", base.isFeeding(),
+				"base.isloading", base.isLoading(),
+				"base.map.width", base.getWidth()*39+20,
+				"base.cargo.height", (mapheight < 280 ? "280" : mapheight),
+				"base.cargo.empty",	Common.ln(base.getMaxCargo() - base.getCargo().getMass()),
+				"base.message", redirect != null ? redirect.getMessage() : null);
 
 		BaseStatus basedata = Base.getStatus(base);
 
@@ -540,6 +541,8 @@ public class BaseController extends TemplateController
 			"arbeitslosProzent", arbeitslosProzent,
 			"wohnraumFreiProzent", wohnraumFreiProzent,
 			"wohnraumFehltProzent", wohnraumFehltProzent);
+
+		return t;
 	}
 
 	private static class BuildingComparator implements Comparator<Integer> {

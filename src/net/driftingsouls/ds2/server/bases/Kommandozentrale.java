@@ -178,7 +178,7 @@ public class Kommandozentrale extends DefaultBuilding {
 	}
 
 	@Override
-	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
+	public String output(Context context, Base base, int field, int building) {
 		org.hibernate.Session db = context.getDB();
 		User user = (User)context.getActiveUser();
 
@@ -192,6 +192,7 @@ public class Kommandozentrale extends DefaultBuilding {
 			show = "general";
 		}
 
+		TemplateEngine t = new TemplateEngine();
 		if( !t.setFile( "_BUILDING", "buildings.kommandozentrale.html" ) ) {
 			context.addError("Konnte das Template-Engine nicht initialisieren");
 			return "";

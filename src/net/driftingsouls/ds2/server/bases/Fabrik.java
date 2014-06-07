@@ -30,7 +30,6 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextInstance;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -517,7 +516,7 @@ public class Fabrik extends DefaultBuilding
 	}
 
 	@Override
-	public String output(Context context, TemplateEngine t, Base base, int field, int building)
+	public String output(Context context, Base base, int field, int building)
 	{
 		org.hibernate.Session db = context.getDB();
 		User user = (User) context.getActiveUser();

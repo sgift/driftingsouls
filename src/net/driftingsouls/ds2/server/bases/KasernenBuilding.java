@@ -18,12 +18,6 @@
  */
 package net.driftingsouls.ds2.server.bases;
 
-import java.math.BigInteger;
-import java.util.List;
-
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.Resources;
@@ -35,6 +29,11 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.units.UnitType;
+
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import java.math.BigInteger;
+import java.util.List;
 
 /**
  * Die Kaserne.
@@ -141,7 +140,7 @@ public class KasernenBuilding extends DefaultBuilding {
 	}
 
 	@Override
-	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
+	public String output(Context context, Base base, int field, int building) {
 		org.hibernate.Session db = context.getDB();
 
 		Kaserne kaserne = (Kaserne)db.createQuery("from Kaserne where base=:base")
@@ -155,6 +154,7 @@ public class KasernenBuilding extends DefaultBuilding {
 		int newunit = context.getRequest().getParameterInt("unitid");
 		int newcount = context.getRequest().getParameterInt("count");
 
+		TemplateEngine t = new TemplateEngine();
 		if( !t.setFile( "_BUILDING", "buildings.kaserne.html" ) ) {
 			context.addError("Konnte das Template-Engine nicht initialisieren");
 			return "";

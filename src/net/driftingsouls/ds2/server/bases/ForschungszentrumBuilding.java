@@ -28,7 +28,6 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -394,7 +393,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 	}
 
 	@Override
-	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
+	public String output(Context context, Base base, int field, int building) {
 
 		int research = context.getRequest().getParameterInt("res");
 		String confirm = context.getRequest().getParameterString("conf");

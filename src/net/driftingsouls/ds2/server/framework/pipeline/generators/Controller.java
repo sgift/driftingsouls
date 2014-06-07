@@ -390,9 +390,9 @@ public abstract class Controller implements PermissionResolver
 
 			Type type = parameterTypes[i];
 			String paramName = paramAnnotation == null ? parameterNames[i].getName() : paramAnnotation.name();
-			if( viewResult != null && "message".equals(paramName) )
+			if( type.equals(RedirectViewResult.class) )
 			{
-				params[i] = viewResult.getMessage();
+				params[i] = viewResult;
 			}
 			else if (viewResult != null && viewResult.getParameters().containsKey(paramName))
 			{

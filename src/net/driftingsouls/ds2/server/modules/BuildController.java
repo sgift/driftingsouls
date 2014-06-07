@@ -29,12 +29,14 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -46,15 +48,14 @@ import java.util.Map;
  * @author Christopher Jung
  */
 @Module(name = "build")
-public class BuildController extends TemplateController
+public class BuildController extends Controller
 {
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public BuildController()
+	private TemplateViewResultFactory templateViewResultFactory;
+
+	@Autowired
+	public BuildController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Bauen");
 	}
@@ -83,13 +84,13 @@ public class BuildController extends TemplateController
 	 * @param field Die ID des Feldes, auf dem das Gebaeude gebaut werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public RedirectViewResult buildAction(@UrlParam(name = "col") Base base, Building build, int field)
+	public Object buildAction(@UrlParam(name = "col") Base base, Building build, int field)
 	{
 		validiereBasis(base);
 		validiereGebaeude(build);
 
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 
 		t.setVar("base.id", base.getId(),
 				"base.name", Common._plaintitle(base.getName()),
@@ -113,7 +114,7 @@ public class BuildController extends TemplateController
 		{
 			if (buildingcount.containsKey(build.getId()) && build.getPerPlanetCount() <= buildingcount.get(build.getId()))
 			{
-				addError("Sie k&ouml;nnen dieses Geb&auml;de maximal " + build.getPerPlanetCount() + " Mal pro Asteroid bauen");
+				addError("Sie können dieses Gebäude maximal " + build.getPerPlanetCount() + " Mal pro Asteroid bauen");
 
 				return new RedirectViewResult("default");
 			}
@@ -124,7 +125,7 @@ public class BuildController extends TemplateController
 		{
 			if (ownerbuildingcount.containsKey(build.getId()) && build.getPerUserCount() <= ownerbuildingcount.get(build.getId()))
 			{
-				addError("Sie k&ouml;nnen dieses Geb&auml;de maximal " + build.getPerUserCount() + " Mal insgesamt bauen");
+				addError("Sie können dieses Gebäude maximal " + build.getPerUserCount() + " Mal insgesamt bauen");
 
 				return new RedirectViewResult("default");
 			}
@@ -133,14 +134,14 @@ public class BuildController extends TemplateController
 		// Pruefe auf richtiges Terrain
 		if (!build.hasTerrain(base.getTerrain()[field]))
 		{
-			addError("Dieses Geb&auml;ude ist nicht auf diesem Terrainfeld baubar.");
+			addError("Dieses Gebäude ist nicht auf diesem Terrainfeld baubar.");
 
 			return new RedirectViewResult("default");
 		}
 
 		if (base.getBebauung()[field] != 0)
 		{
-			addError("Es existiert bereits ein Geb&auml;ude an dieser Stelle");
+			addError("Es existiert bereits ein Gebäude an dieser Stelle");
 
 			return new RedirectViewResult("default");
 		}
@@ -152,19 +153,19 @@ public class BuildController extends TemplateController
 
 			if (c > grenze - 1)
 			{
-				addError("Es ist nicht m&ouml;glich, hier mehr als " + grenze + " Unterirdische Komplexe zu installieren");
+				addError("Es ist nicht möglich, hier mehr als " + grenze + " Unterirdische Komplexe zu installieren");
 
 				return new RedirectViewResult("default");
 			}
 		}
 		if (!Rassen.get().rasse(user.getRace()).isMemberIn(build.getRace()))
 		{
-			addError("Sie geh&ouml;ren der falschen Spezies an und k&ouml;nnen dieses Geb&auml;ude nicht selbst errichten.");
+			addError("Sie gehören der falschen Spezies an und können dieses Gebäude nicht selbst errichten.");
 			return new RedirectViewResult("default");
 		}
 		if (!user.hasResearched(build.getTechRequired()))
 		{
-			addError("Sie verf&uuml;gen nicht &uuml;ber alle n&ouml;tigen Forschungen um dieses Geb&auml;ude zu bauen");
+			addError("Sie verfügen nicht über alle nötigen Forschungen um dieses Gebäude zu bauen");
 
 			return new RedirectViewResult("default");
 		}
@@ -225,7 +226,7 @@ public class BuildController extends TemplateController
 			build.build(base, build.getId());
 		}
 
-		return null;
+		return t;
 	}
 
 	private int berechneMaximaleAnzahlUnterirdischerKomplexe(Base base)
@@ -235,17 +236,16 @@ public class BuildController extends TemplateController
 
 	/**
 	 * Zeigt die Liste der baubaren Gebaeude, sortiert nach Kategorien, an.
-	 *
-	 * @param base Die Basis, auf der das Gebaeude gebaut werden soll
+	 *  @param base Die Basis, auf der das Gebaeude gebaut werden soll
 	 * @param field Die ID des Feldes, auf dem das Gebaeude gebaut werden soll
 	 * @param cat Die anzuzeigende Kategorie
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(@UrlParam(name = "col") Base base, int field, int cat)
+	public TemplateEngine defaultAction(@UrlParam(name = "col") Base base, int field, int cat)
 	{
 		validiereBasis(base);
 
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
 
@@ -346,6 +346,8 @@ public class BuildController extends TemplateController
 
 			t.parse("buildings.list", "buildings.listitem", true);
 		}
+
+		return t;
 	}
 
 	private Map<Integer, Integer> berechneGebaeudeanzahlDieserBasis(Base base)

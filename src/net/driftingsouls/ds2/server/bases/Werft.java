@@ -148,7 +148,7 @@ public class Werft extends DefaultBuilding {
 	}
 
 	@Override
-	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
+	public String output(Context context, Base base, int field, int building) {
 		StringBuilder response = new StringBuilder(500);
 
 		BaseWerft werft = base.getWerft();
@@ -159,6 +159,7 @@ public class Werft extends DefaultBuilding {
 
 		werft.setBaseField(field);
 
+		TemplateEngine t = new TemplateEngine();
 		WerftGUI werftgui = new WerftGUI( context, t );
 		response.append(werftgui.execute( werft ));
 

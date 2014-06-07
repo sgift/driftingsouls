@@ -235,8 +235,9 @@ public class AcademyBuilding extends DefaultBuilding {
 	}
 
 	@Override
-	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
+	public String output(Context context, Base base, int field, int building) {
 		org.hibernate.Session db = context.getDB();
+		TemplateEngine t = new TemplateEngine();
 
 		int siliziumcosts = new ConfigService().getValue(WellKnownConfigValue.NEW_OFF_SILIZIUM_COSTS);
 		int nahrungcosts = new ConfigService().getValue(WellKnownConfigValue.NEW_OFF_NAHRUNG_COSTS);

@@ -29,8 +29,8 @@ import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.modules.viewmodels.GebaeudeAufBasisViewModel;
@@ -46,7 +46,7 @@ import java.util.List;
  * @author Christopher Jung
  */
 @Module(name="building")
-public class BuildingController extends TemplateController
+public class BuildingController extends Controller
 {
 	@ViewModel
 	public static class BuildingActionViewModel
@@ -58,12 +58,7 @@ public class BuildingController extends TemplateController
 		public String message;
 	}
 
-	/**
-	 * Konstruktor.
-	 */
 	public BuildingController() {
-		super();
-
 		setPageTitle("Gebäude");
 	}
 
@@ -416,85 +411,99 @@ public class BuildingController extends TemplateController
 	 * @param field Die ID des Feldes auf dem das Gebaeude steht
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(@UrlParam(name="col") Base base, int field) {
+	public String defaultAction(@UrlParam(name = "col") Base base, int field)
+	{
 		validiereBasisUndFeld(base, field);
 		Building building = getGebaeudeFuerFeld(base, field);
 
-		User user = (User)getUser();
-		try {
-			Writer echo = getResponse().getWriter();
+		User user = (User) getUser();
+		StringBuilder echo = new StringBuilder();
 
-			boolean classicDesign = building.classicDesign();
+		boolean classicDesign = building.classicDesign();
 
-			if( building.printHeader() ) {
-				if( !classicDesign ) {
-					echo.append("<div class='gfxbox' style='width:470px'>");
+		if (building.printHeader())
+		{
+			if (!classicDesign)
+			{
+				echo.append("<div class='gfxbox' style='width:470px'>");
 
-					echo.append("<div style=\"text-align:center\">\n");
-					echo.append("<img style=\"vertical-align:middle\" src=\"./").append(building.getPictureForRace(user.getRace())).append("\" alt=\"\" /> ").append(Common._plaintitle(building.getName())).append("<br /></div>\n");
-				}
-				else {
-					echo.append("<div>\n");
-					echo.append("<span style=\"font-weight:bold\">").append(Common._plaintitle(building.getName())).append("</span><br />\n");
-				}
-
-				echo.append("Status: ");
-				if( building.isActive( base, base.getActive()[field], field ) ) {
-					echo.append("<span style=\"color:#00ff00\">Aktiv</span><br />\n");
-				}
-				else {
-					echo.append("<span style=\"color:#ff0000\">Inaktiv</span><br />\n");
-				}
-
-				echo.append("<br />");
-				if( classicDesign ) {
-					echo.append("</div>");
-				}
+				echo.append("<div style=\"text-align:center\">\n");
+				echo.append("<img style=\"vertical-align:middle\" src=\"./").append(building.getPictureForRace(user.getRace())).append("\" alt=\"\" /> ").append(Common._plaintitle(building.getName())).append("<br /></div>\n");
 			}
-
-			echo.append(building.output( getContext(), getTemplateEngine(), base, field, building.getId() ));
-
-			if( !classicDesign ) {
-				echo.append("Aktionen: ");
-			}
-			else {
+			else
+			{
 				echo.append("<div>\n");
+				echo.append("<span style=\"font-weight:bold\">").append(Common._plaintitle(building.getName())).append("</span><br />\n");
 			}
 
-			if( building.isDeakAble() ) {
-				if( base.getActive()[field] == 1 ) {
-					echo.append("<a style=\"font-size:16px\" class=\"forschinfo\" href=\"").append(Common.buildUrl("shutdown", "col", base.getId(), "field", field)).append("\">deaktivieren</a>");
-				}
-				else {
-					echo.append("<a style=\"font-size:16px\" class=\"forschinfo\" href=\"").append(Common.buildUrl("start", "col", base.getId(), "field", field)).append("\">aktivieren</a>");
-				}
-
-				if( classicDesign ) {
-					echo.append("<br />\n");
-				}
-				else {
-					echo.append(", ");
-				}
+			echo.append("Status: ");
+			if (building.isActive(base, base.getActive()[field], field))
+			{
+				echo.append("<span style=\"color:#00ff00\">Aktiv</span><br />\n");
+			}
+			else
+			{
+				echo.append("<span style=\"color:#ff0000\">Inaktiv</span><br />\n");
 			}
 
-			if( building.getId() != Building.KOMMANDOZENTRALE ) {
-				echo.append("<a style=\"font-size:16px\" class=\"error\" href=\"").append(Common.buildUrl("demo", "col", base.getId(), "field", field)).append("\">abreissen</a><br />");
-			}
-			else {
-				echo.append("<a style=\"font-size:16px\" class=\"error\" href=\"javascript:ask(\'Wollen sie den Asteroiden wirklich aufgeben?\',\'").append(Common.buildUrl("demo", "col", base.getId(), "field", field)).append("\');\">Asteroid aufgeben</a><br />");
-			}
-
-			if( !classicDesign ) {
-				echo.append("<br />\n");
+			echo.append("<br />");
+			if (classicDesign)
+			{
 				echo.append("</div>");
-				echo.append("<div>\n");
-				echo.append("<br />\n");
+			}
+		}
+
+		echo.append(building.output(getContext(), base, field, building.getId()));
+
+		if (!classicDesign)
+		{
+			echo.append("Aktionen: ");
+		}
+		else
+		{
+			echo.append("<div>\n");
+		}
+
+		if (building.isDeakAble())
+		{
+			if (base.getActive()[field] == 1)
+			{
+				echo.append("<a style=\"font-size:16px\" class=\"forschinfo\" href=\"").append(Common.buildUrl("shutdown", "col", base.getId(), "field", field)).append("\">deaktivieren</a>");
+			}
+			else
+			{
+				echo.append("<a style=\"font-size:16px\" class=\"forschinfo\" href=\"").append(Common.buildUrl("start", "col", base.getId(), "field", field)).append("\">aktivieren</a>");
 			}
 
-			echo.append("<br /><a style=\"font-size:16px\" class=\"back\" href=\"").append(Common.buildUrl("default", "module", "base", "col", base.getId())).append("\">zur&uuml;ck zur Basis</a><br /></div>\n");
+			if (classicDesign)
+			{
+				echo.append("<br />\n");
+			}
+			else
+			{
+				echo.append(", ");
+			}
 		}
-		catch( IOException e ) {
-			throw new RuntimeException(e);
+
+		if (building.getId() != Building.KOMMANDOZENTRALE)
+		{
+			echo.append("<a style=\"font-size:16px\" class=\"error\" href=\"").append(Common.buildUrl("demo", "col", base.getId(), "field", field)).append("\">abreissen</a><br />");
 		}
+		else
+		{
+			echo.append("<a style=\"font-size:16px\" class=\"error\" href=\"javascript:ask(\'Wollen sie den Asteroiden wirklich aufgeben?\',\'").append(Common.buildUrl("demo", "col", base.getId(), "field", field)).append("\');\">Asteroid aufgeben</a><br />");
+		}
+
+		if (!classicDesign)
+		{
+			echo.append("<br />\n");
+			echo.append("</div>");
+			echo.append("<div>\n");
+			echo.append("<br />\n");
+		}
+
+		echo.append("<br /><a style=\"font-size:16px\" class=\"back\" href=\"").append(Common.buildUrl("default", "module", "base", "col", base.getId())).append("\">zur&uuml;ck zur Basis</a><br /></div>\n");
+
+		return echo.toString();
 	}
 }

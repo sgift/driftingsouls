@@ -29,10 +29,12 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Iterator;
 
@@ -42,30 +44,28 @@ import java.util.Iterator;
  * @author Christopher Jung
  */
 @Module(name = "buildings")
-public class BuildingsController extends TemplateController
+public class BuildingsController extends Controller
 {
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public BuildingsController()
+	private TemplateViewResultFactory templateViewResultFactory;
+
+	@Autowired
+	public BuildingsController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Gebäude");
 	}
 
 	/**
 	 * Zeigt die Liste aller baubaren Gebaeude und Cores an.
-	 *
-	 * @param col Die ID der Basis, auf die der zurueck-Link zeigen soll
+	 *  @param col Die ID der Basis, auf die der zurueck-Link zeigen soll
 	 * @param field Die ID des Feldes, dessen Gebaeude der zurueck-Link ansteuern soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(@UrlParam(name = "col") int col, int field)
+	public TemplateEngine defaultAction(@UrlParam(name = "col") int col, int field)
 	{
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		org.hibernate.Session db = getDB();
 		int userrasse = user.getRace();
 
@@ -80,6 +80,8 @@ public class BuildingsController extends TemplateController
 
 		t.setVar("base.id", col,
 				"base.field", field);
+
+		return t;
 	}
 
 	private void gebaeudeListeAnzeigen(User user, TemplateEngine t, Session db, int userrasse)

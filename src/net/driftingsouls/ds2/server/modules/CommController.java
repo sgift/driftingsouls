@@ -31,13 +31,15 @@ import net.driftingsouls.ds2.server.framework.bbcode.Smilie;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -53,29 +55,21 @@ import java.util.regex.Pattern;
  * @author Christian Peltz
  */
 @Module(name = "comm")
-public class CommController extends TemplateController
+public class CommController extends Controller
 {
 	private static final Log log = LogFactory.getLog(CommController.class);
 
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public CommController()
+	private TemplateViewResultFactory templateViewResultFactory;
+
+	@Autowired
+	public CommController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("PMs");
 		addPageMenuEntry("Neue Nachricht", Common.buildUrl("default", "to", 0));
 		addPageMenuEntry("Posteingang", Common.buildUrl("showInbox"));
 		addPageMenuEntry("Postausgang", Common.buildUrl("showOutbox"));
-	}
-
-	@Override
-	protected boolean validateAndPrepare()
-	{
-		getTemplateEngine().setVar("show.menu", 1);
-		return true;
 	}
 
 	/**
@@ -86,13 +80,9 @@ public class CommController extends TemplateController
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult readAllAction(Ordner ordner)
 	{
-		TemplateEngine t = getTemplateEngine();
-
 		ordner.markAllAsRead();
 
-		t.setVar("show.message", "<span style=\"color:red\">Alle Nachrichten als gelesen markiert</span>");
-
-		return new RedirectViewResult("showInbox");
+		return new RedirectViewResult("showInbox").withMessage("<span style=\"color:red\">Alle Nachrichten als gelesen markiert</span>");
 	}
 
 	/**
@@ -103,13 +93,9 @@ public class CommController extends TemplateController
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult deleteAllAction(Ordner ordner)
 	{
-		TemplateEngine t = getTemplateEngine();
-
 		ordner.deleteAllPms();
 
-		t.setVar("show.message", "<span style=\"color:red\">Alle Nachrichten gel&ouml;scht</span>");
-
-		return new RedirectViewResult("showInbox");
+		return new RedirectViewResult("showInbox").withMessage("<span style=\"color:red\">Alle Nachrichten gelöscht</span>");
 	}
 
 	/**
@@ -122,7 +108,6 @@ public class CommController extends TemplateController
 	{
 		org.hibernate.Session db = getContext().getDB();
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
 
 		int result = 0;
 		if ((delord != null) && (delete == 0))
@@ -135,8 +120,7 @@ public class CommController extends TemplateController
 			PM pm = (PM) db.get(PM.class, delete);
 			if (pm == null)
 			{
-				t.setVar("show.message", "<span style=\"color:red\">Die angegebene Nachricht existiert nicht</span>");
-				return new RedirectViewResult("showInbox");
+				return new RedirectViewResult("showInbox").withMessage("<span style=\"color:red\">Die angegebene Nachricht existiert nicht</span>");
 			}
 			if (pm.getEmpfaenger() == user)
 			{
@@ -145,20 +129,21 @@ public class CommController extends TemplateController
 			}
 		}
 
+		String message = null;
 		switch (result)
 		{
 			case 0:
-				t.setVar("show.message", "<span style=\"color:red\">" + (delete != 0 ? "Nachricht" : "Ordner") + " gel&ouml;scht</span>");
+				message = "<span style=\"color:red\">" + (delete != 0 ? "Nachricht" : "Ordner") + " gelöscht</span>";
 				break;
 			case 1:
-				t.setVar("show.message", "<span style=\"color:red\">Sie m&uuml;ssen diese Nachricht erst lesen</span>");
+				message = "<span style=\"color:red\">Sie müssen diese Nachricht erst lesen</span>";
 				break;
 			case 2:
 				addError("Fehler: L&ouml;schen " + (delete != 0 ? "der PM" : "des Ordners") + " ist fehlgeschlagen");
 				break;
 		}
 
-		return new RedirectViewResult("showInbox");
+		return new RedirectViewResult("showInbox").withMessage(message);
 	}
 
 	/**
@@ -222,20 +207,19 @@ public class CommController extends TemplateController
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult deletePlayerAction(@UrlParam(name = "playerid") User player, Ordner ordner)
 	{
-		TemplateEngine t = getTemplateEngine();
-
+		String message;
 		if (player != null)
 		{
 			ordner.deletePmsByUser(player);
 
-			t.setVar("show.message", "<span style=\"color:red\">Alle Nachrichten von " + Common._title(player.getName()) + " gel&ouml;scht</span>");
+			message = "<span style=\"color:red\">Alle Nachrichten von " + Common._title(player.getName()) + " gelöscht</span>";
 		}
 		else
 		{
-			t.setVar("show.message", "<span style=\"color:red\">Der angegebene Spieler existiert nicht</span>");
+			message = "<span style=\"color:red\">Der angegebene Spieler existiert nicht</span>";
 		}
 
-		return new RedirectViewResult("showInbox");
+		return new RedirectViewResult("showInbox").withMessage(message);
 	}
 
 	/**
@@ -247,7 +231,6 @@ public class CommController extends TemplateController
 	public RedirectViewResult readSelectedAction(@UrlParam(name = "pm_#") Map<Integer, Integer> pms)
 	{
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 
 		List<?> pmList = db.createQuery("from PM where empfaenger=:user and gelesen < 1")
@@ -265,9 +248,7 @@ public class CommController extends TemplateController
 			}
 		}
 
-		t.setVar("show.message", "<span style=\"color:red\">Nachrichten als gelesen markiert</span>");
-
-		return new RedirectViewResult("showInbox");
+		return new RedirectViewResult("showInbox").withMessage("<span style=\"color:red\">Nachrichten als gelesen markiert</span>");
 	}
 
 	/**
@@ -280,7 +261,7 @@ public class CommController extends TemplateController
 	 * @throws IOException
 	 */
 	@Action(ActionType.AJAX)
-	public void moveAjaxAct(Ordner moveto, @UrlParam(name = "ordner") Ordner source, @UrlParam(name = "ordner_#") Map<Integer, Ordner> ordnerMap, @UrlParam(name = "pm_#") Map<Integer, Integer> pmMap) throws IOException
+	public String moveAjaxAct(Ordner moveto, @UrlParam(name = "ordner") Ordner source, @UrlParam(name = "ordner_#") Map<Integer, Ordner> ordnerMap, @UrlParam(name = "pm_#") Map<Integer, Integer> pmMap) throws IOException
 	{
 		User user = (User) getUser();
 
@@ -288,14 +269,12 @@ public class CommController extends TemplateController
 
 		if (moveto == null || source == null)
 		{
-			getContext().getResponse().getWriter().append("Der angegebene Ordner existiert nicht");
-			return;
+			return "Der angegebene Ordner existiert nicht";
 		}
 
 		if (trash == moveto)
 		{
-			getContext().getResponse().getWriter().append("ERROR: Es duerfen keine Nachrichten/Ordner in den Papierkorb verschoben werden");
-			return;
+			return "ERROR: Es duerfen keine Nachrichten/Ordner in den Papierkorb verschoben werden";
 		}
 
 		List<PM> pms = source.getPms();
@@ -317,8 +296,7 @@ public class CommController extends TemplateController
 
 			if (tomove.getAllChildren().contains(moveto))
 			{
-				getContext().getResponse().getWriter().append("ERROR: Es duerfen keine Ordner in ihre eignen Unterordner verschoben werden");
-				return;
+				return "ERROR: Es duerfen keine Ordner in ihre eignen Unterordner verschoben werden";
 			}
 
 
@@ -339,7 +317,7 @@ public class CommController extends TemplateController
 			}
 		}
 
-		getContext().getResponse().getWriter().append(Integer.toString(counter));
+		return Integer.toString(counter);
 	}
 
 	/**
@@ -353,20 +331,17 @@ public class CommController extends TemplateController
 	public RedirectViewResult moveSelectedAction(Ordner moveto, @UrlParam(name = "ordner") Ordner source, @UrlParam(name = "ordner_#") Map<Integer, Ordner> ordnerMap, @UrlParam(name = "pm_#") Map<Integer, Integer> pmMap)
 	{
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
 
 		Ordner trash = Ordner.getTrash(user);
 
 		if (moveto == null || source == null)
 		{
-			t.setVar("show.message", "<span style=\"color:red\">Der angegebene Ordner existiert nicht</span>");
-			return new RedirectViewResult("showInbox");
+			return new RedirectViewResult("showInbox").withMessage("<span style=\"color:red\">Der angegebene Ordner existiert nicht</span>");
 		}
 
 		if (trash.getId() == moveto.getId())
 		{
-			t.setVar("show.message", "<span style=\"color:red\">Es d&uuml;rfen keine Nachrichten/Ordner in den Papierkorb verschoben werden.</span>");
-			return new RedirectViewResult("showInbox");
+			return new RedirectViewResult("showInbox").withMessage("<span style=\"color:red\">Es dürfen keine Nachrichten/Ordner in den Papierkorb verschoben werden.</span>");
 		}
 
 		List<PM> pms = source.getPms();
@@ -392,8 +367,7 @@ public class CommController extends TemplateController
 
 			if (tomove.getAllChildren().contains(moveto))
 			{
-				t.setVar("show.message", "<span style=\"color:red\">Es d&uuml;rfen keine Ordner in ihre eignen Unterordner verschoben werden.</span>");
-				return new RedirectViewResult("showInbox");
+				return new RedirectViewResult("showInbox").withMessage("<span style=\"color:red\">Es dürfen keine Ordner in ihre eignen Unterordner verschoben werden.</span>");
 			}
 
 
@@ -425,7 +399,6 @@ public class CommController extends TemplateController
 	public RedirectViewResult deleteSelectedAction(Ordner ordner, @UrlParam(name = "ordner_#") Map<Integer, Ordner> ordnerMap, @UrlParam(name = "pm_#") Map<Integer, Integer> pmMap)
 	{
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
 
 		List<PM> pms = ordner.getPms();
 		List<Ordner> ordners = ordner.getChildren();
@@ -459,25 +432,22 @@ public class CommController extends TemplateController
 			}
 		}
 
-		t.setVar("show.message", "<span style=\"color:red\">Nachrichten gel&ouml;scht</span>");
-
-		return new RedirectViewResult("showInbox");
+		return new RedirectViewResult("showInbox").withMessage("<span style=\"color:red\">Nachrichten gelöscht</span>");
 	}
 
 	/**
 	 * Versendet eine Nachricht.
-	 *
-	 * @param to Der Empfaenger (Eine ID oder "task" oder "ally")
+	 *  @param to Der Empfaenger (Eine ID oder "task" oder "ally")
 	 * @param reply Falls != 0, dann die ID der Nachricht auf die geantwortet wird (Titel wird dann generiert)
 	 * @param msg Der Text der Nachricht
 	 * @param title Falls es sich nicht um eine Antwort handelt, dann der Titel der Nachricht
 	 * @param special Falls es sich nicht um eine Antwort handelt, dann das Spezialflag der Nachricht
 	 */
 	@Action(ActionType.DEFAULT)
-	public void sendAction(String to, PM reply, String msg, String sendeziel, String title, String special)
+	public TemplateEngine sendAction(String to, PM reply, String msg, String sendeziel, String title, String special)
 	{
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 
 		if (reply != null)
 		{
@@ -532,7 +502,7 @@ public class CommController extends TemplateController
 			{
 				t.setVar("show.message", "<span style=\"color:red; font-weight:bold\">Sie sind in keiner Allianz Mitglied</span>");
 
-				return;
+				return t;
 			}
 
 			t.setVar("show.message",
@@ -546,32 +516,34 @@ public class CommController extends TemplateController
 			if (auser == null)
 			{
 				t.setVar("show.message", "<span style=\"color:#ff0000\">Sie m&uuml;ssen einen gülten Empf&auml;nger angeben</span>");
-				return;
+				return t;
 			}
 			t.setVar("show.message", "<span style=\"color:#00ff55\">Nachricht versendet an</span> " + Common._title(auser.getName()));
 
 			PM.send(user, auser.getId(), title, msg, flags);
 		}
+
+		return t;
 	}
 
 	/**
 	 * Zeigt eine empfangene/gesendete PM an.
-	 *
-	 * @param pm Die ID der Nachricht
+	 *  @param pm Die ID der Nachricht
 	 * @param ordner Die ID des Ordners, in dem sich die Nachricht befindet
 	 */
 	@Action(ActionType.DEFAULT)
-	public void showPmAction(@UrlParam(name="pmid") PM pm, Ordner ordner)
+	public TemplateEngine showPmAction(@UrlParam(name = "pmid") PM pm, Ordner ordner)
 	{
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
+
 		BBCodeParser bbcodeparser = BBCodeParser.getNewInstance();
 
 		t.setVar("show.pm", 1);
 
 		if ((pm == null) || (!user.equals(pm.getEmpfaenger()) && !user.equals(pm.getSender())))
 		{
-			return;
+			return t;
 		}
 
 		User sender;
@@ -665,6 +637,8 @@ public class CommController extends TemplateController
 				"pm.time", Common.date("j.n.Y G:i", pm.getTime()),
 				"pm.text", Smilie.parseSmilies(text),
 				"pm.kommentar", Smilie.parseSmilies(Common._text(pm.getKommentar())));
+
+		return t;
 	}
 
 	/**
@@ -692,13 +666,10 @@ public class CommController extends TemplateController
 	public RedirectViewResult recoverAllAction()
 	{
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
 
 		PM.recoverAll(user);
 
-		t.setVar("show.message", "<span style=\"color:red\">Nachrichten wiederhergestellt</span>");
-
-		return new RedirectViewResult("showInbox");
+		return new RedirectViewResult("showInbox").withMessage("<span style=\"color:red\">Nachrichten wiederhergestellt</span>");
 	}
 
 	/**
@@ -707,15 +678,16 @@ public class CommController extends TemplateController
 	 * @param ordner Der anzuzeigende Ordner (0 ist die oberste Ebene)
 	 */
 	@Action(ActionType.DEFAULT)
-	public void showInboxAction(Ordner ordner)
+	public TemplateEngine showInboxAction(Ordner ordner, RedirectViewResult redirect)
 	{
 		org.hibernate.Session db = getDB();
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 
 		t.setVar(
 				"show.inbox", 1,
-				"currentordner.id", ordner.getId());
+				"currentordner.id", ordner.getId(),
+				"show.message", redirect != null ? redirect.getMessage() : null);
 
 		t.setBlock("_COMM", "pms.listitem", "pms.list");
 		t.setBlock("_COMM", "ordner.listitem", "ordner.list");
@@ -795,16 +767,19 @@ public class CommController extends TemplateController
 
 			t.parse("pms.list", "pms.listitem", true);
 		}
+
+		return t;
 	}
 
 	/**
 	 * Zeigt die Liste aller versendeten und noch nicht geloeschten PMs.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void showOutboxAction()
+	public TemplateEngine showOutboxAction()
 	{
 		org.hibernate.Session db = getDB();
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
+
 		User user = (User) getUser();
 
 		t.setVar("show.outbox", 1);
@@ -834,21 +809,23 @@ public class CommController extends TemplateController
 
 			t.parse("pms.out.list", "pms.out.listitem", true);
 		}
+
+		return t;
 	}
 
 	/**
 	 * Zeigt eine Preview einer geschriebenen Nachricht an.
-	 *
-	 * @param msg Die Nachricht
+	 *  @param msg Die Nachricht
 	 * @param to Der Empfaenger der Nachricht
 	 * @param title Der Titel der Nachricht
 	 * @param special Spezialflag der Nachricht
 	 * @param sendeziel Der Empfaengertyp der Nachricht
 	 */
 	@Action(ActionType.DEFAULT)
-	public void previewAction(String msg, String to, String title, String special, String sendeziel)
+	public TemplateEngine previewAction(String msg, String to, String title, String special, String sendeziel)
 	{
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
+
 		User user = (User) getUser();
 
 		Map<String, String> specialuilist = new LinkedHashMap<>();
@@ -901,18 +878,20 @@ public class CommController extends TemplateController
 				"show.preview", 1,
 				"show.write", 1,
 				"system.time", Common.getIngameTime(getContext().get(ContextCommon.class).getTick()));
+
+		return t;
 	}
 
 	/**
 	 * Zeigt die GUI zum anlegen/bearbeiten eines Kommentars zu einer Nachricht an.
-	 *
-	 * @param pm Die Nachricht
+	 *  @param pm Die Nachricht
 	 * @param ordner Der Ordner, in dem sich die Nachricht befindet
 	 */
 	@Action(ActionType.DEFAULT)
-	public void editCommentAction(PM pm, Ordner ordner)
+	public TemplateEngine editCommentAction(PM pm, Ordner ordner)
 	{
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
+
 		User user = (User) getUser();
 
 		if ((pm != null) && pm.getEmpfaenger().equals(user))
@@ -930,6 +909,8 @@ public class CommController extends TemplateController
 			t.setVar("system.time", Common.getIngameTime(getContext().get(ContextCommon.class).getTick()));
 			t.setVar("user.signature", user.getUserValue("PMS/signatur"));
 		}
+
+		return t;
 	}
 
 	/**
@@ -953,17 +934,17 @@ public class CommController extends TemplateController
 
 	/**
 	 * Zeigt die GUI zum Versenden einer PM.
-	 *
-	 * @param toStr Der Empfaenger der neuen PM
+	 *  @param toStr Der Empfaenger der neuen PM
 	 * @param reply Die ID der PM, auf die geantwortet wird
 	 * @param msg Der Text der PM
 	 * @param title Der Titel der PM
 	 * @param special Die Spezialmarkierung (admin, official)
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(@UrlParam(name = "to") String toStr, PM reply, String msg, String title, String special)
+	public TemplateEngine defaultAction(@UrlParam(name = "to") String toStr, PM reply, String msg, String title, String special)
 	{
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
+
 		User user = (User) getUser();
 
 		if (reply != null && (reply.getEmpfaenger().equals(user) || reply.getSender().equals(user)))
@@ -1057,5 +1038,7 @@ public class CommController extends TemplateController
 				t.parse("write.specialui.list", "write.specialui.listitem", true);
 			}
 		}
+
+		return t;
 	}
 }

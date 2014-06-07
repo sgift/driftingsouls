@@ -23,7 +23,6 @@ import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -114,7 +113,7 @@ public class DigBuilding extends DefaultBuilding {
 	}
 
 	@Override
-	public String output(Context context, TemplateEngine t, Base base, int field, int building) {
+	public String output(Context context, Base base, int field, int building) {
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("Dieses Geb&auml;de ist eine Buddelst&auml;tte.<br />\n");
 		buffer.append("Die bei der Produktion angegebenen Werte sind die Chancen die entsprechende Ressource zu finden.<br />\n");

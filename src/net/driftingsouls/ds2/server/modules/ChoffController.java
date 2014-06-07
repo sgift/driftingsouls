@@ -24,10 +24,12 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Ansicht eines bestimmten Offiziers. Die Ansicht bietet eine Uebersicht
@@ -37,15 +39,14 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
  * @author Christopher Jung
  */
 @Module(name = "choff")
-public class ChoffController extends TemplateController
+public class ChoffController extends Controller
 {
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public ChoffController()
+	private TemplateViewResultFactory  templateViewResultFactory;
+
+	@Autowired
+	public ChoffController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Offizier");
 	}
@@ -75,35 +76,39 @@ public class ChoffController extends TemplateController
 	{
 		validiereOffizier(off);
 
-		TemplateEngine t = getTemplateEngine();
+		String message = null;
 
 		if (name.length() != 0)
 		{
 			int MAX_NAME_LENGTH = 60; //See db/offiziere_create.sql
 			if (name.length() > MAX_NAME_LENGTH)
 			{
-				t.setVar("choff.message", "<span style=\"color:red\">Der eingegebene Name ist zu lang (maximal " + MAX_NAME_LENGTH + " Zeichen)</span>");
+				message = "<span style=\"color:red\">Der eingegebene Name ist zu lang (maximal " + MAX_NAME_LENGTH + " Zeichen)</span>";
 			}
 			else
 			{
 				off.setName(name);
-				t.setVar("choff.message", "Der Name wurde in " + Common._plaintitle(name) + " ge&auml;ndert");
+				message = "Der Name wurde in " + Common._plaintitle(name) + " geändert";
 			}
 		}
 		else
 		{
-			t.setVar("choff.message", "<span style=\"color:red\">Sie m&uuml;ssen einen Namen angeben</span>");
+			message = "<span style=\"color:red\">Sie müssen einen Namen angeben</span>";
 		}
 
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage(message);
 	}
 
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(Offizier off)
+	public TemplateEngine defaultAction(Offizier off, RedirectViewResult redirect)
 	{
 		validiereOffizier(off);
 
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
+		if( redirect != null )
+		{
+			t.setVar("choff.message", redirect.getMessage());
+		}
 
 		t.setVar("offizier.id", off.getID(),
 				"offizier.name", Common._plaintitle(off.getName()),
@@ -116,6 +121,8 @@ public class ChoffController extends TemplateController
 				"offizier.special", off.getSpecial().getName(),
 				"base.id", off.getStationiertAufBasis() != null ? off.getStationiertAufBasis().getId() : 0,
 				"ship.id", off.getStationiertAufSchiff() != null ? off.getStationiertAufSchiff().getId() : 0);
+
+		return t;
 	}
 
 

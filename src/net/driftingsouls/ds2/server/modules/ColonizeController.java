@@ -30,13 +30,16 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
+import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -48,15 +51,14 @@ import java.util.Map;
  * @author Christopher Jung
  */
 @Module(name = "colonize")
-public class ColonizeController extends TemplateController
+public class ColonizeController extends Controller
 {
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public ColonizeController()
+	private TemplateViewResultFactory templateViewResultFactory;
+
+	@Autowired
+	public ColonizeController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Kolonisieren");
 	}
@@ -64,8 +66,6 @@ public class ColonizeController extends TemplateController
 	private void validiereSchiffUndBasis(Ship ship, Base base)
 	{
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
-
 		if ((ship == null) || (ship.getOwner() != user))
 		{
 			throw new ValidierungException("Fehler: Das angegebene Schiff existiert nicht oder geh&ouml;rt ihnen nicht", Common.buildUrl("default", "module", "schiffe"));
@@ -86,24 +86,21 @@ public class ColonizeController extends TemplateController
 		{
 			throw new ValidierungException("Fehler: Der Asteroid befindet sich nicht im selben Sektor wie das Schiff", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
 		}
-
-		t.setVar("ship.id", ship.getId());
 	}
 
 	/**
 	 * Der Kolonisiervorgang.
-	 *
-	 * @param ship Die Schiffs-ID des Colonizers
+	 *  @param ship Die Schiffs-ID des Colonizers
 	 * @param base Die Basis-ID des zu kolonisierenden Asteroiden
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(Ship ship, @UrlParam(name = "col") Base base)
+	public TemplateEngine defaultAction(Ship ship, @UrlParam(name = "col") Base base)
 	{
 		validiereSchiffUndBasis(ship, base);
 
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 
 		t.setVar("ship.id", ship.getId());
 
@@ -126,7 +123,7 @@ public class ColonizeController extends TemplateController
 		{
 			t.setVar("colonize.message", "<span style=\"color:#ff0000; font-weight:bold\">Kolonisierung unzul&auml;ssig, da dies die Gesamtzahl an zul&auml;ssigen Oberfl&auml;chenfeldern " + user.getUserValue("GAMEPLAY/bases/maxtiles") + " &uuml;bersteigen w&uuml;rde.</span>");
 
-			return;
+			return t;
 		}
 
 		StarSystem system = (StarSystem) db.get(StarSystem.class, base.getSystem());
@@ -136,7 +133,7 @@ public class ColonizeController extends TemplateController
 		{
 			t.setVar("colonize.message", "<span style=\"color:#ff0000\">Sie d&uuml;rfen lediglich " + system.getMaxColonies() + " Asteroiden in " + system.getName() + " (" + base.getSystem() + ") kolonisieren");
 
-			return;
+			return t;
 		}
 
 		int crew = ship.getCrew();
@@ -147,52 +144,8 @@ public class ColonizeController extends TemplateController
 		 * Evt muessen einige Gebaeude entfernt werden, wenn der betreffende Spieler sonst zu viele haette
 		 *
 		 */
-		//Anzahl der Gebaeude pro Spieler berechnen
-		Map<Integer, Integer> ownerBuildingCount = new HashMap<>();
 
-		for (Base aBase : user.getBases())
-		{
-			Integer[] abeb = aBase.getBebauung();
-			for (Integer anAbeb : abeb)
-			{
-				if (ownerBuildingCount.containsKey(anAbeb))
-				{
-					ownerBuildingCount.put(anAbeb, ownerBuildingCount.get(anAbeb) + 1);
-				}
-				else
-				{
-					ownerBuildingCount.put(anAbeb, 1);
-				}
-			}
-		}
-
-		// Problematische Gebaeude ermitteln
-		Map<Integer, Integer> problematicBuildings = new HashMap<>();
-		Iterator<?> buildingIter = db.createQuery("from Building where perOwner>0").iterate();
-		for (; buildingIter.hasNext(); )
-		{
-			Building aBuilding = (Building) buildingIter.next();
-			problematicBuildings.put(aBuilding.getId(), aBuilding.getPerUserCount());
-		}
-
-		// Nun die Gebaeude auf dem Asti durchlaufen und bei Bedarf einige entfernen
-		for (int index = 0; index < bebauung.length; index++)
-		{
-			final Integer building = bebauung[index];
-			if (problematicBuildings.containsKey(building) && ownerBuildingCount.containsKey(building) &&
-					(ownerBuildingCount.get(building) + 1 > problematicBuildings.get(building)))
-			{
-				bebauung[index] = 0;
-				bebon[index] = 0;
-				Building gebaeude = Building.getBuilding(building);
-				gebaeude.cleanup(getContext(), base, building);
-			}
-			if (!ownerBuildingCount.containsKey(building))
-			{
-				ownerBuildingCount.put(building, 0);
-			}
-			ownerBuildingCount.put(building, ownerBuildingCount.get(building) + 1);
-		}
+		nichtErlaubteGebaeudeEntfernen(base, db, user, bebauung, bebon);
 
 		/*
 		 *
@@ -240,6 +193,57 @@ public class ColonizeController extends TemplateController
 		}
 
 		t.setVar("base.id", base.getId());
+		return t;
+	}
+
+	private void nichtErlaubteGebaeudeEntfernen(Base base, Session db, User user, Integer[] bebauung, Integer[] bebon)
+	{
+		//Anzahl der Gebaeude pro Spieler berechnen
+		Map<Integer, Integer> ownerBuildingCount = new HashMap<>();
+
+		for (Base aBase : user.getBases())
+		{
+			Integer[] abeb = aBase.getBebauung();
+			for (Integer anAbeb : abeb)
+			{
+				if (ownerBuildingCount.containsKey(anAbeb))
+				{
+					ownerBuildingCount.put(anAbeb, ownerBuildingCount.get(anAbeb) + 1);
+				}
+				else
+				{
+					ownerBuildingCount.put(anAbeb, 1);
+				}
+			}
+		}
+
+		// Problematische Gebaeude ermitteln
+		Map<Integer, Integer> problematicBuildings = new HashMap<>();
+		Iterator<?> buildingIter = db.createQuery("from Building where perOwner>0").iterate();
+		for (; buildingIter.hasNext(); )
+		{
+			Building aBuilding = (Building) buildingIter.next();
+			problematicBuildings.put(aBuilding.getId(), aBuilding.getPerUserCount());
+		}
+
+		// Nun die Gebaeude auf dem Asti durchlaufen und bei Bedarf einige entfernen
+		for (int index = 0; index < bebauung.length; index++)
+		{
+			final Integer building = bebauung[index];
+			if (problematicBuildings.containsKey(building) && ownerBuildingCount.containsKey(building) &&
+					(ownerBuildingCount.get(building) + 1 > problematicBuildings.get(building)))
+			{
+				bebauung[index] = 0;
+				bebon[index] = 0;
+				Building gebaeude = Building.getBuilding(building);
+				gebaeude.cleanup(getContext(), base, building);
+			}
+			if (!ownerBuildingCount.containsKey(building))
+			{
+				ownerBuildingCount.put(building, 0);
+			}
+			ownerBuildingCount.put(building, ownerBuildingCount.get(building) + 1);
+		}
 	}
 
 }

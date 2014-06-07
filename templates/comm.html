@@ -8,24 +8,22 @@
 //]]>
 // -->
 </script>
-{if show.menu}
-	<table class="show" cellspacing="2" cellpadding="2">
-	<tr>
-		<td class="noBorderS">Kommunikation</td>
-		<td class="noBorder">&nbsp;</td>
-		<td class="noBorder">
-			<div class="gfxbox" style="width:590px;text-align:center">
-				{!link_to Nachricht schreiben, default}
-				&nbsp;&nbsp;|&nbsp;&nbsp;
-				{!link_to Posteingang, showInbox}
-				&nbsp;&nbsp;|&nbsp;&nbsp;
-				{!link_to Postausgang, showOutbox}
-			</div>
-		</td>
-	</tr>
-	</table>
-	<div><br /></div>
-{/endif}
+<table class="show" cellspacing="2" cellpadding="2">
+<tr>
+	<td class="noBorderS">Kommunikation</td>
+	<td class="noBorder">&nbsp;</td>
+	<td class="noBorder">
+		<div class="gfxbox" style="width:590px;text-align:center">
+			{!link_to Nachricht schreiben, default}
+			&nbsp;&nbsp;|&nbsp;&nbsp;
+			{!link_to Posteingang, showInbox}
+			&nbsp;&nbsp;|&nbsp;&nbsp;
+			{!link_to Postausgang, showOutbox}
+		</div>
+	</td>
+</tr>
+</table>
+<div><br /></div>
 {if show.message}
 	<div class="smallfont">
 		{show.message}

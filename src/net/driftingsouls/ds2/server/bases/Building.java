@@ -757,13 +757,12 @@ public abstract class Building
 	 * Gibt die eigendliche UI des Gebaeudes aus.
 	 *
 	 * @param context Der aktive Kontext
-	 * @param t Eine Instanz des zu verwendenden TemplateEngines
 	 * @param base Die ID der Basis
 	 * @param field Das Feld, auf dem das Gebaeude steht
 	 * @param building die ID des Gebaeudetyps
 	 * @return Ein HTML-String, der die Gebaeudeseite einhaelt
 	 */
-	public abstract String output(Context context, TemplateEngine t, Base base, int field, int building);
+	public abstract String output(Context context, Base base, int field, int building);
 
 	/**
 	 * Gibt zurueck, ob das Gebaeude die Darstellung via Javascript/Json unterstuetzt.
