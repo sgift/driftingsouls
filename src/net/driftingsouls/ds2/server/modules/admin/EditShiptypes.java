@@ -31,6 +31,7 @@ import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
+import net.driftingsouls.ds2.server.ships.ShipType_;
 
 import javax.annotation.Nonnull;
 import java.math.BigInteger;
@@ -97,7 +98,7 @@ public class EditShiptypes implements EntityEditor<ShipType>
 		form.field("Deuteriumsammeln", Integer.class, ShipType::getDeutFactor, ShipType::setDeutFactor);
 
 		Map<ShipClasses, String> shipClasses = Arrays.asList(ShipClasses.values()).stream().collect(Collectors.toMap((sc) -> sc, ShipClasses::getSingular));
-		form.field("Schiffsklasse", ShipClasses.class, ShipType::getShipClass, ShipType::setShipClass).withOptions(shipClasses);
+		form.field("Schiffsklasse", ShipClasses.class, ShipType::getShipClass, ShipType::setShipClass).withOptions(shipClasses).dbColumn(ShipType_.shipClass);
 		form.multiSelection("Flags", ShipTypeFlag.class, ShipType::getFlags, (st, flags) -> st.setFlags(flags.stream().map(ShipTypeFlag::getFlag).collect(Collectors.joining(" "))))
 			.withOptions(Arrays.asList(ShipTypeFlag.values()).stream().collect(Collectors.toMap((f) -> f, ShipTypeFlag::getLabel)));
 		form.field("Groupwrap", Integer.class, ShipType::getGroupwrap, ShipType::setGroupwrap);
