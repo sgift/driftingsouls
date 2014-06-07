@@ -3,21 +3,23 @@ package net.driftingsouls.ds2.server.framework.pipeline.generators;
 import net.driftingsouls.ds2.server.framework.AnnotationUtils;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.SortedSet;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class ControllerKonformitaetTest
 {
 	@Test
-	public void alleAnnotiertenControllerBesitzenEinenSichtbarenParameterlosenKonstruktor()
+	public void alleAnnotiertenControllerBesitzenEinenSichtbarenParameterlosenOderSindMitAutowiredAnnotiertKonstruktor()
 	{
 		SortedSet<Class<?>> classes = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(Module.class);
 		for (Class<?> aClass : classes)
 		{
+			assertEquals(1, aClass.getConstructors().length);
 			try
 			{
 				Constructor<?> constructor = aClass.getConstructor();
@@ -25,10 +27,19 @@ public class ControllerKonformitaetTest
 				{
 					fail("Der parameterlose Konstruktor von "+aClass.getCanonicalName()+" ist nicht public");
 				}
+				if( constructor.isAnnotationPresent(Autowired.class) )
+				{
+					fail("Der parameterlose Konstruktor von "+aClass.getCanonicalName()+" ist mit Autowired annotiert");
+				}
 			}
 			catch (NoSuchMethodException e)
 			{
-				fail(aClass.getCanonicalName()+" besitzt keinen parameterlosen Konstruktor");
+				Constructor<?> constructor = aClass.getConstructors()[0];
+				if( (constructor.getModifiers() & Modifier.PUBLIC) == 0 )
+				{
+					fail("Der Konstruktor von "+aClass.getCanonicalName()+" ist nicht public");
+				}
+				assertTrue(constructor.isAnnotationPresent(Autowired.class));
 			}
 		}
 
