@@ -225,7 +225,7 @@ public class JumpdriveShivan implements SchiffPlugin
 
 		org.hibernate.Session db = controller.getDB();
 
-		TemplateEngine t = controller.getTemplateEngine();
+		TemplateEngine t = caller.t;
 		t.setFile("_PLUGIN_"+pluginid, "schiff.jumpdrive.shivan.html");
 
 		Jump jump = (Jump)db.createQuery("from Jump where ship=:ship")

@@ -30,12 +30,14 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Set;
@@ -46,15 +48,14 @@ import java.util.Set;
  * @author Christopher Jung
  */
 @Module(name = "userprofile")
-public class UserProfileController extends TemplateController
+public class UserProfileController extends Controller
 {
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public UserProfileController()
+	private TemplateViewResultFactory templateViewResultFactory;
+
+	@Autowired
+	public UserProfileController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Profil");
 	}
@@ -78,7 +79,6 @@ public class UserProfileController extends TemplateController
 		validiereBenutzer(ausgewaehlterBenutzer);
 
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
 
 		if (ausgewaehlterBenutzer.getId() == user.getId())
 		{
@@ -86,9 +86,8 @@ public class UserProfileController extends TemplateController
 		}
 
 		user.setRelation(ausgewaehlterBenutzer.getId(), relation);
-		t.setVar("userprofile.message", "Beziehungsstatus ge&auml;ndert");
 
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage("Beziehungsstatus geändert");
 	}
 
 	/**
@@ -103,7 +102,6 @@ public class UserProfileController extends TemplateController
 		validiereBenutzer(ausgewaehlterBenutzer);
 
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
 
 		if (user.getAlly() == null)
 		{
@@ -120,7 +118,7 @@ public class UserProfileController extends TemplateController
 		User allypresi = user.getAlly().getPresident();
 		if (allypresi.getId() != user.getId())
 		{
-			addError("Sie sind nicht der Pr&auml;sident der Allianz");
+			addError("Sie sind nicht der Präsident der Allianz");
 			return new RedirectViewResult("default");
 		}
 
@@ -130,9 +128,7 @@ public class UserProfileController extends TemplateController
 			auser.setRelation(ausgewaehlterBenutzer.getId(), relation);
 		}
 
-		t.setVar("userprofile.message", "Beziehungsstatus ge&auml;ndert");
-
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage("Beziehungsstatus geändert");
 	}
 
 	/**
@@ -141,12 +137,14 @@ public class UserProfileController extends TemplateController
 	 * @param ausgewaehlterBenutzer Die ID des anzuzeigenden Benutzers
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(@UrlParam(name = "user") User ausgewaehlterBenutzer)
+	public TemplateEngine defaultAction(@UrlParam(name = "user") User ausgewaehlterBenutzer, RedirectViewResult redirect)
 	{
 		validiereBenutzer(ausgewaehlterBenutzer);
 
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
+
+		t.setVar("userprofile.message", redirect != null ? redirect.getMessage() : null);
 
 		ausgewaehlterBenutzer.setTemplateVars(t);
 
@@ -232,6 +230,8 @@ public class UserProfileController extends TemplateController
 
 		// Orden
 		ordenAnzeigen(ausgewaehlterBenutzer, t);
+
+		return t;
 	}
 
 	private void beziehungZumBenutzerAnzeigen(User ausgewaehlterBenutzer, TemplateEngine t, User user)

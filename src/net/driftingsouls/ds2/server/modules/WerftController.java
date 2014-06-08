@@ -24,11 +24,13 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 import net.driftingsouls.ds2.server.werften.WerftGUI;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -40,15 +42,14 @@ import java.io.Writer;
  * @author Christopher Jung
  */
 @Module(name = "werft")
-public class WerftController extends TemplateController
+public class WerftController extends Controller
 {
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public WerftController()
+	private TemplateViewResultFactory templateViewResultFactory;
+
+	@Autowired
+	public WerftController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Werft");
 	}
@@ -137,7 +138,7 @@ public class WerftController extends TemplateController
 			echo.append("</span><br />\n");
 		}
 
-		WerftGUI werftgui = new WerftGUI(getContext(), getTemplateEngine());
+		WerftGUI werftgui = new WerftGUI(getContext(), templateViewResultFactory.createEmpty());
 		echo.append(werftgui.execute(werft));
 
 		echo.append("<br /><a class=\"back\" href=\"").append(Common.buildUrl("default", "module", "schiff", "ship", ship.getId())).append("\">Zur&uuml;ck zum Schiff</a><br />\n");

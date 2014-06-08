@@ -34,11 +34,12 @@ import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.modules.schiffplugins.Parameters;
 import net.driftingsouls.ds2.server.modules.schiffplugins.SchiffPlugin;
 import net.driftingsouls.ds2.server.scripting.NullLogger;
@@ -51,6 +52,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
@@ -73,17 +75,15 @@ import java.util.stream.Collectors;
  * @author Christopher Jung
  */
 @net.driftingsouls.ds2.server.framework.pipeline.Module(name = "schiff")
-public class SchiffController extends TemplateController
+public class SchiffController extends Controller
 {
 	private Log log = LogFactory.getLog(SchiffController.class);
+	private TemplateViewResultFactory templateViewResultFactory;
 
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public SchiffController()
+	@Autowired
+	public SchiffController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Schiff");
 	}
@@ -196,16 +196,17 @@ public class SchiffController extends TemplateController
 			return new RedirectViewResult("default");
 		}
 
+		String message = null;
 		if ((alarm >= Ship.Alert.GREEN.getCode()) && (alarm <= Ship.Alert.RED.getCode()))
 		{
 			ship.setAlarm(alarm);
 
-			getTemplateEngine().setVar("ship.message", "Alarmstufe erfolgreich ge&auml;ndert<br />");
+			message = "Alarmstufe erfolgreich geändert<br />";
 		}
 
 		ship.recalculateShipStatus();
 
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage(message);
 	}
 
 	/**
@@ -215,28 +216,25 @@ public class SchiffController extends TemplateController
 	 * @param conf 1, falls die Sicherheitsabfrage positiv bestaetigt wurde
 	 */
 	@Action(ActionType.DEFAULT)
-	public RedirectViewResult consignAction(Ship ship, @UrlParam(name = "newowner") String newownerID, int conf)
+	public Object consignAction(Ship ship, @UrlParam(name = "newowner") String newownerID, int conf)
 	{
 		validiereSchiff(ship);
 
 		org.hibernate.Session db = getDB();
-		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
 
 		User newowner = User.lookupByIdentifier(newownerID);
 		if (newowner == null)
 		{
-			t.setVar("ship.message", "<span style=\"color:red\">Der Spieler existiert nicht</span><br />");
-			return new RedirectViewResult("default");
+			return new RedirectViewResult("default").withMessage("<span style=\"color:red\">Der Spieler existiert nicht</span><br />");
 		}
 
 		if (conf == 0)
 		{
 			String text = "<span style=\"color:white\">Wollen sie das Schiff " + Common._plaintitle(ship.getName()) + " (" + ship.getId() + ") wirklich an " + newowner.getProfileLink() + " &uuml;bergeben?</span><br />";
 			text += "<a class=\"ok\" href=\"" + Common.buildUrl("consign", "ship", ship.getId(), "conf", 1, "newowner", newowner.getId()) + "\">&Uuml;bergeben</a></span><br />";
-			t.setVar("ship.message", text);
 
-			return new RedirectViewResult("default");
+			return new RedirectViewResult("default").withMessage(text);
 		}
 
 		ShipFleet fleet = ship.getFleet();
@@ -245,12 +243,12 @@ public class SchiffController extends TemplateController
 
 		if (result)
 		{
-			t.setVar("ship.message", Ship.MESSAGE.getMessage());
-
-			return new RedirectViewResult("default");
+			return new RedirectViewResult("default").withMessage(Ship.MESSAGE.getMessage());
 		}
 		else
 		{
+			TemplateEngine t = templateViewResultFactory.createFor(this);
+
 			ShipTypeData shiptype = ship.getTypeData();
 			String msg = "Ich habe dir die " + ship.getName() + " (" + ship.getId() + "), ein Schiff der " + shiptype.getNickname() + "-Klasse, &uuml;bergeben\nSie steht bei " + ship.getLocation().displayCoordinates(false);
 			PM.send(user, newowner.getId(), "Schiff &uuml;bergeben", msg);
@@ -273,9 +271,9 @@ public class SchiffController extends TemplateController
 					db.delete(fleet);
 				}
 			}
-		}
 
-		return null;
+			return t;
+		}
 	}
 
 	/**
@@ -284,31 +282,27 @@ public class SchiffController extends TemplateController
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public RedirectViewResult destroyAction(Ship ship, int conf)
+	public Object destroyAction(Ship ship, int conf)
 	{
 		validiereSchiff(ship);
 
-		TemplateEngine t = getTemplateEngine();
-
 		if (ship.isNoSuicide())
 		{
-			t.setVar("ship.message", "<span style=\"color:red\">Dieses Schiff kann sich nicht selbstzerst&ouml;ren.</span><br />");
-			return new RedirectViewResult("default");
+			return new RedirectViewResult("default").withMessage("<span style=\"color:red\">Dieses Schiff kann sich nicht selbstzerstören.</span><br />");
 		}
 
 		if (conf == 0)
 		{
-			String text = "<span style=\"color:white\">Wollen sie Selbstzerst&ouml;rung des Schiffes " + Common._plaintitle(ship.getName()) + " (" + ship.getId() + ") wirklich ausf&uuml;hren?</span><br />\n";
-			text += "<a class=\"error\" href=\"" + Common.buildUrl("destroy", "ship", ship.getId(), "conf", 1) + "\">Selbstzerst&ouml;rung</a></span><br />";
-			t.setVar("ship.message", text);
-
-			return new RedirectViewResult("default");
+			String text = "<span style=\"color:white\">Wollen sie Selbstzerst&ouml;rung des Schiffes " + Common._plaintitle(ship.getName()) + " (" + ship.getId() + ") wirklich ausführen?</span><br />\n";
+			text += "<a class=\"error\" href=\"" + Common.buildUrl("destroy", "ship", ship.getId(), "conf", 1) + "\">Selbstzerstörung</a></span><br />";
+			return new RedirectViewResult("default").withMessage(text);
 		}
 
 		ship.destroy();
 
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		t.setVar("ship.message", "<span style=\"color:white\">Das Schiff hat sich selbstzerst&ouml;rt</span><br />");
-		return null;
+		return t;
 	}
 
 	/**
@@ -321,21 +315,20 @@ public class SchiffController extends TemplateController
 	{
 		validiereSchiff(ship);
 
-		TemplateEngine t = getTemplateEngine();
-
 		ShipTypeData shiptype = ship.getTypeData();
 		if ((shiptype.getCost() == 0) || (ship.getEngine() == 0))
 		{
 			return new RedirectViewResult("default");
 		}
 
+		String message = null;
 		if (node != 0)
 		{
 			ship.jump(node, false);
-			t.setVar("ship.message", Ship.MESSAGE.getMessage());
+			message = Ship.MESSAGE.getMessage();
 		}
 
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage(message);
 	}
 
 	/**
@@ -348,21 +341,20 @@ public class SchiffController extends TemplateController
 	{
 		validiereSchiff(ship);
 
-		TemplateEngine t = getTemplateEngine();
-
 		ShipTypeData shiptype = ship.getTypeData();
 		if ((shiptype.getCost() == 0) || (ship.getEngine() == 0))
 		{
 			return new RedirectViewResult("default");
 		}
 
+		String message = null;
 		if (knode != 0)
 		{
 			ship.jump(knode, true);
-			t.setVar("ship.message", Ship.MESSAGE.getMessage());
+			message = Ship.MESSAGE.getMessage();
 		}
 
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage(message);
 	}
 
 	/**
@@ -375,12 +367,9 @@ public class SchiffController extends TemplateController
 	{
 		validiereSchiff(ship);
 
-		TemplateEngine t = getTemplateEngine();
-
 		ship.setName(newname);
-		t.setVar("ship.message", "Name zu " + Common._plaintitle(newname) + " ge&auml;ndert<br />");
 
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage("Name zu " + Common._plaintitle(newname) + " geändert<br />");
 	}
 
 	/**
@@ -393,8 +382,6 @@ public class SchiffController extends TemplateController
 	public RedirectViewResult pluginAction(Ship ship, String plugin) throws ReflectiveOperationException
 	{
 		validiereSchiff(ship);
-
-		TemplateEngine t = getTemplateEngine();
 
 		ShipTypeData shiptype = ship.getTypeData();
 		Parameters caller = new Parameters();
@@ -411,9 +398,8 @@ public class SchiffController extends TemplateController
 		}
 
 		String ergebnis = (String)rufeAlsSubActionAuf(plugin+"_ops", pluginMapper.get(plugin), "action", caller);
-		t.setVar("ship.message", ergebnis);
 
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage(ergebnis);
 	}
 
 	/**
@@ -426,12 +412,9 @@ public class SchiffController extends TemplateController
 	{
 		validiereSchiff(ship);
 
-		TemplateEngine t = getTemplateEngine();
-
 		if (shipIdList.equals(""))
 		{
-			t.setVar("ship.message", "Es wurden keine Schiffe angegeben");
-			return new RedirectViewResult("default");
+			return new RedirectViewResult("default").withMessage("Es wurden keine Schiffe angegeben");
 		}
 
 		int[] shipidlist = Common.explodeToInt("|", shipIdList);
@@ -448,9 +431,8 @@ public class SchiffController extends TemplateController
 		}
 
 		ship.land(shiplist);
-		t.setVar("ship.message", Ship.MESSAGE.getMessage());
 
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage(Ship.MESSAGE.getMessage());
 	}
 
 	/**
@@ -463,12 +445,9 @@ public class SchiffController extends TemplateController
 	{
 		validiereSchiff(ship);
 
-		TemplateEngine t = getTemplateEngine();
-
 		if (shipIdList.equals(""))
 		{
-			t.setVar("ship.message", "Es wurden keine Schiffe angegeben");
-			return new RedirectViewResult("default");
+			return new RedirectViewResult("default").withMessage("Es wurden keine Schiffe angegeben");
 		}
 
 		int[] shipidlist = Common.explodeToInt("|", shipIdList);
@@ -485,9 +464,8 @@ public class SchiffController extends TemplateController
 		}
 
 		ship.start(shiplist);
-		t.setVar("ship.message", Ship.MESSAGE.getMessage());
 
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage(Ship.MESSAGE.getMessage());
 	}
 
 	/**
@@ -500,13 +478,11 @@ public class SchiffController extends TemplateController
 	{
 		validiereSchiff(ship);
 
-		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
 
 		if (shipIdList.equals(""))
 		{
-			t.setVar("ship.message", "Es wurden keine Schiffe angegeben");
-			return new RedirectViewResult("default");
+			return new RedirectViewResult("default").withMessage("Es wurden keine Schiffe angegeben");
 		}
 
 		int[] shipidlist = Common.explodeToInt("|", shipIdList);
@@ -543,9 +519,8 @@ public class SchiffController extends TemplateController
 		}
 
 		ship.dock(shiplist);
-		t.setVar("ship.message", Ship.MESSAGE.getMessage());
 
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage(Ship.MESSAGE.getMessage());
 	}
 
 	/**
@@ -558,12 +533,9 @@ public class SchiffController extends TemplateController
 	{
 		validiereSchiff(ship);
 
-		TemplateEngine t = getTemplateEngine();
-
 		if (shipIdList.equals(""))
 		{
-			t.setVar("ship.message", "Es wurden keine Schiffe angegeben");
-			return new RedirectViewResult("default");
+			return new RedirectViewResult("default").withMessage("Es wurden keine Schiffe angegeben");
 		}
 
 		int[] shipidlist = Common.explodeToInt("|", shipIdList);
@@ -580,9 +552,8 @@ public class SchiffController extends TemplateController
 		}
 
 		ship.undock(shiplist);
-		t.setVar("ship.message", Ship.MESSAGE.getMessage());
 
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage(Ship.MESSAGE.getMessage());
 	}
 
 	/**
@@ -596,15 +567,15 @@ public class SchiffController extends TemplateController
 		validiereSchiff(ship);
 
 		org.hibernate.Session db = getDB();
-		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
 
+		String message = null;
 		// Austreten
 		if (join == 0)
 		{
 			ship.removeFromFleet();
 
-			t.setVar("ship.message", "<span style=\"color:green\">" + Ship.MESSAGE.getMessage() + "</span><br />");
+			message = "<span style=\"color:green\">" + Ship.MESSAGE.getMessage() + "</span><br />";
 		}
 		// Beitreten
 		else
@@ -619,22 +590,21 @@ public class SchiffController extends TemplateController
 
 			if (fleet == null)
 			{
-				t.setVar("ship.message", "<span style=\"color:red\">Sie m&uuml;ssen erst eine Flotte erstellen</span><br />");
-				return new RedirectViewResult("default");
+				return new RedirectViewResult("default").withMessage("<span style=\"color:red\">Sie müssen erst eine Flotte erstellen</span><br />");
 			}
 
 			if (!ship.getLocation().sameSector(0, fleetship.getLocation(), 0) || (fleetship.getOwner() != user))
 			{
-				t.setVar("ship.message", "<span style=\"color:red\">Beitritt zur Flotte &quot;" + Common._plaintitle(fleet.getName()) + "&quot; nicht m&ouml;glich</span><br />");
+				message = "<span style=\"color:red\">Beitritt zur Flotte &quot;" + Common._plaintitle(fleet.getName()) + "&quot; nicht möglich</span><br />";
 			}
 			else
 			{
 				ship.setFleet(fleet);
-				t.setVar("ship.message", "<span style=\"color:green\">Flotte &quot;" + Common._plaintitle(fleet.getName()) + "&quot; beigetreten</span><br />");
+				message = "<span style=\"color:green\">Flotte &quot;" + Common._plaintitle(fleet.getName()) + "&quot; beigetreten</span><br />";
 			}
 		}
 
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage(message);
 	}
 
 	/**
@@ -646,8 +616,6 @@ public class SchiffController extends TemplateController
 	public RedirectViewResult shupAction(Ship ship, int shup)
 	{
 		validiereSchiff(ship);
-
-		TemplateEngine t = getTemplateEngine();
 
 		ShipTypeData shiptype = ship.getTypeData();
 		int shieldfactor = 100;
@@ -666,7 +634,7 @@ public class SchiffController extends TemplateController
 			shup = ship.getEnergy();
 		}
 
-		t.setVar("ship.message", "Schilde +" + (shup * shieldfactor) + "<br />");
+		String message = "Schilde +" + (shup * shieldfactor) + "<br />";
 
 		ship.setShields(ship.getShields() + shup * shieldfactor);
 		if (ship.getShields() > shiptype.getShields())
@@ -678,7 +646,7 @@ public class SchiffController extends TemplateController
 
 		ship.recalculateShipStatus();
 
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage(message);
 	}
 
 	/**
@@ -692,8 +660,6 @@ public class SchiffController extends TemplateController
 	public RedirectViewResult scriptAction(Ship ship, String script, boolean reset)
 	{
 		validiereSchiff(ship);
-
-		TemplateEngine t = getTemplateEngine();
 
 		if (!script.trim().equals(""))
 		{
@@ -709,9 +675,7 @@ public class SchiffController extends TemplateController
 			ship.setScript(null);
 		}
 
-		t.setVar("ship.message", "Script gespeichert<br />");
-
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage("Script gespeichert<br />");
 	}
 
 	/**
@@ -726,7 +690,6 @@ public class SchiffController extends TemplateController
 		validiereSchiff(ship);
 
 		org.hibernate.Session db = getDB();
-		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
 
 		ScriptEngine scriptparser = getContext().get(ContextCommon.class).getScriptParser("DSQuestScript");
@@ -751,8 +714,7 @@ public class SchiffController extends TemplateController
 		Ship targetship = (Ship) db.get(Ship.class, communicate);
 		if ((targetship == null) || (targetship.getId() < 0) || !targetship.getLocation().sameSector(0, ship.getLocation(), 0))
 		{
-			t.setVar("ship.message", "<span style=\"color:red\">Sie k&ouml;nnen nur mit Schiffen im selben Sektor kommunizieren</span><br />");
-			return new RedirectViewResult("default");
+			return new RedirectViewResult("default").withMessage("<span style=\"color:red\">Sie können nur mit Schiffen im selben Sektor kommunizieren</span><br />");
 		}
 		Quests.executeEvent(scriptparser, targetship.getOnCommunicate(), user, execparameter, false);
 
@@ -769,7 +731,6 @@ public class SchiffController extends TemplateController
 	{
 		validiereSchiff(ship);
 
-		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
 
 		if (!user.hasFlag(UserFlag.NPC_ISLAND))
@@ -781,9 +742,7 @@ public class SchiffController extends TemplateController
 		ship.setY(10);
 		ship.setSystem(99);
 
-		t.setVar("ship.message", "<span style=\"color:green\">Willkommen auf der Insel</span><br />");
-
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage("<span style=\"color:green\">Willkommen auf der Insel</span><br />");
 	}
 
 	private static final Map<String, String> moduleOutputList = new HashMap<>();
@@ -827,15 +786,17 @@ public class SchiffController extends TemplateController
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(Ship ship) throws ReflectiveOperationException
+	public TemplateEngine defaultAction(Ship ship, RedirectViewResult redirect) throws ReflectiveOperationException
 	{
 		validiereSchiff(ship);
 
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		org.hibernate.Session db = getDB();
 
 		db.flush();
+
+		t.setVar("ship.message", redirect != null ? redirect.getMessage() : null);
 
 		Quests.currentEventURLBase.set("./ds?module=schiff&ship=" + ship.getId());
 
@@ -850,7 +811,7 @@ public class SchiffController extends TemplateController
 			{
 				throw new ValidierungException("Das Schiff existiert nicht mehr oder geh&ouml;rt nicht mehr ihnen");
 			}
-			return;
+			return t;
 		}
 
 		ShipTypeData shiptype = ship.getTypeData();
@@ -1209,6 +1170,7 @@ public class SchiffController extends TemplateController
 		caller.ship = ship;
 		caller.shiptype = shiptype;
 		caller.offizier = offizier;
+		caller.t = t;
 
 		Map<String, SchiffPlugin> pluginMapper = ermittlePluginsFuer(shiptype);
 		if (pluginMapper.containsKey("navigation"))
@@ -1266,5 +1228,7 @@ public class SchiffController extends TemplateController
 
 			t.parse("plugins.list", "plugins.listitem", true);
 		}
+
+		return t;
 	}
 }

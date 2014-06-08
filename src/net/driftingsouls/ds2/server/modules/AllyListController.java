@@ -28,10 +28,12 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
@@ -41,26 +43,23 @@ import java.util.List;
  *
  */
 @Module(name="allylist")
-public class AllyListController extends TemplateController
+public class AllyListController extends Controller
 {
-	/**
-	 * Konstruktor.
-	 */
-	public AllyListController() {
-		super();
-		
+	private TemplateViewResultFactory templateViewResultFactory;
+
+	@Autowired
+	public AllyListController(TemplateViewResultFactory templateViewResultFactory)
+	{
+		this.templateViewResultFactory = templateViewResultFactory;
+
 		setPageTitle("Allianzliste");
 	}
 	
 	@Override
 	protected boolean validateAndPrepare() {
 		User user = (User)getUser();
-		TemplateEngine t = getTemplateEngine();
 
 		if( user.getAlly() != null ) {
-			t.setVar(	"user.ally.name",		Common._title(user.getAlly().getName()),
-						"user.ally.president",	(user.getId() == user.getAlly().getPresident().getId() ));
-			
 			addPageMenuEntry("Allgemeines", Common.buildUrl("default"));
 			addPageMenuEntry("Mitglieder", Common.buildUrl("showMembers"));
 			if( user.getId() == user.getAlly().getPresident().getId() ) {
@@ -88,7 +87,6 @@ public class AllyListController extends TemplateController
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult changeRelationAction(@UrlParam(name = "details") Ally ally, User.Relation relation) {
 		User user = (User)getUser();
-		TemplateEngine t = getTemplateEngine();
 
 		if( ally == null ) {
 			addError("Die angegebene Allianz existiert nicht");
@@ -105,9 +103,7 @@ public class AllyListController extends TemplateController
 			user.setRelation(allymember.getId(), relation);
 		}
 
-		t.setVar("ally.message", "Beziehungsstatus ge&auml;ndert");
-
-		return new RedirectViewResult("details");
+		return new RedirectViewResult("details").withMessage("Beziehungsstatus geändert");
 	}
 
 	/**
@@ -118,7 +114,6 @@ public class AllyListController extends TemplateController
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult changeRelationAllyAction(@UrlParam(name = "details") Ally ally, User.Relation relation) {
 		User user = (User)getUser();
-		TemplateEngine t = getTemplateEngine();
 
 		if( user.getAlly() == null ) {
 			addError("Sie sind in keiner Allianz");
@@ -148,9 +143,7 @@ public class AllyListController extends TemplateController
 			}
 		}
 			
-		t.setVar("ally.message", "Beziehungsstatus ge&auml;ndert");
-
-		return new RedirectViewResult("details");
+		return new RedirectViewResult("details").withMessage("Beziehungsstatus geändert");
 	}
 	
 	/**
@@ -158,15 +151,23 @@ public class AllyListController extends TemplateController
 	 * @param ally Die Allianz
 	 */
 	@Action(ActionType.DEFAULT)
-	public void detailsAction(@UrlParam(name="details") Ally ally) {
+	public TemplateEngine detailsAction(@UrlParam(name="details") Ally ally, RedirectViewResult redirect) {
 		User user = (User)getUser();
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 
 		if( ally == null ) {
 			t.setVar( "ally.message", "Die angegebene Allianz existiert nicht" );
 			
-			return;
+			return t;
 		}
+
+		if( user.getAlly() != null )
+		{
+			t.setVar("user.ally.name", Common._title(user.getAlly().getName()),
+					"user.ally.president", (user.getId() == user.getAlly().getPresident().getId()));
+		}
+
+		t.setVar("ally.message", redirect != null ? redirect.getMessage() : null);
 		
 		if( user.getAlly() != ally ) {
 			t.setVar("user.changerelations", 1);
@@ -245,16 +246,25 @@ public class AllyListController extends TemplateController
 				t.parse("ally.addmembers.list", "ally.addmembers.listitem", true);
 			}
 		}
+
+		return t;
 	}
 	
 	/**
 	 * Zeigt die Liste der Allianzen in DS an.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() {
-		TemplateEngine t = getTemplateEngine();
+	public TemplateEngine defaultAction() {
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		
-		t.setVar("allylist.showlist", 1);	
+		t.setVar("allylist.showlist", 1);
+
+		User user = (User)getUser();
+		if( user.getAlly() != null )
+		{
+			t.setVar("user.ally.name", Common._title(user.getAlly().getName()),
+					"user.ally.president", (user.getId() == user.getAlly().getPresident().getId()));
+		}
 		
 		t.setBlock( "_ALLYLIST", "allylist.ally.listitem", "allylist.ally.list" );
 	
@@ -275,5 +285,7 @@ public class AllyListController extends TemplateController
 
 			t.parse("allylist.ally.list", "allylist.ally.listitem", true);
 		}
+
+		return t;
 	}
 }

@@ -42,7 +42,7 @@ public class UnitsDefault implements SchiffPlugin {
 		Ship ship = caller.ship;
 		ShipTypeData shiptype = caller.shiptype;
 
-		TemplateEngine t = caller.controller.getTemplateEngine();
+		TemplateEngine t = caller.t;
 		t.setFile("_PLUGIN_"+pluginid, "schiff.unitcargo.default.html");
 
 		UnitCargo unitcargo = ship.getUnits();

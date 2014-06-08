@@ -31,9 +31,11 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -49,15 +51,14 @@ import java.util.Map;
  *
  */
 @Module(name="techliste")
-public class TechListeController extends TemplateController
+public class TechListeController extends Controller
 {
+	private TemplateViewResultFactory templateViewResultFactory;
 
-	/**
-	 * Konstruktor.
-	 */
-	public TechListeController() {
-		super();
-
+	@Autowired
+	public TechListeController(TemplateViewResultFactory templateViewResultFactory)
+	{
+		this.templateViewResultFactory = templateViewResultFactory;
 		setPageTitle("Forschungen");
 	}
 
@@ -66,9 +67,9 @@ public class TechListeController extends TemplateController
 	 * @param rasse Die Rasse, deren Technologien angezeigt werden sollen
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(int rasse) {
+	public TemplateEngine defaultAction(int rasse) {
 		org.hibernate.Session db = getDB();
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User)getUser();
 
 		if( rasse == 0 )
@@ -89,7 +90,7 @@ public class TechListeController extends TemplateController
 		for( Rasse aRasse : Rassen.get() ) {
 			if( aRasse.isExtPlayable() || aRasse.isPlayable() ) {
 				rassenliste.append("<a href='").append(Common.buildUrl("default", "rasse", aRasse.getId())).append("'>");
-				rassenliste.append("<img style='border:0px' src='./data/interface/rassen/"+aRasse.getId()+".png' />");
+				rassenliste.append("<img style='border:0px' src='./data/interface/rassen/").append(aRasse.getId()).append(".png' />");
 				rassenliste.append("</a>");
 			}
 		}
@@ -126,6 +127,8 @@ public class TechListeController extends TemplateController
 
 			gruppeVonForschungenAnzeigen(t, currentResearches, mykey, var);
 		}
+
+		return t;
 	}
 
 	private void gruppeVonForschungenAnzeigen(TemplateEngine t, Map<Integer, Integer> currentResearches, String gruppenname, Collection<Forschung> forschungsliste)

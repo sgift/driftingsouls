@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.modules.schiffplugins;
 
 import net.driftingsouls.ds2.server.entities.Offizier;
+import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -41,6 +42,10 @@ public class Parameters {
 	 * Die Zielvariable im Template.
 	 */
 	public String target;
+	/**
+	 * Das Template in dem die Ausgabe erfolgen soll.
+	 */
+	public TemplateEngine t;
 	/**
 	 * Das Schiff.
 	 */

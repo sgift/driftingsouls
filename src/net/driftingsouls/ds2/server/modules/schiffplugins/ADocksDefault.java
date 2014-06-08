@@ -18,17 +18,16 @@
  */
 package net.driftingsouls.ds2.server.modules.schiffplugins;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.modules.SchiffController;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Schiffsmodul fuer die Anzeige von externen Docks.
@@ -76,9 +75,8 @@ public class ADocksDefault implements SchiffPlugin {
 		String pluginid = caller.pluginId;
 		Ship ship = caller.ship;
 		ShipTypeData shiptype = caller.shiptype;
-		SchiffController controller = caller.controller;
 
-		TemplateEngine t = controller.getTemplateEngine();
+		TemplateEngine t = caller.t;
 		t.setFile("_PLUGIN_"+pluginid, "schiff.adocks.default.html");
 
 		List<Ship> dockedShips = new ArrayList<>();

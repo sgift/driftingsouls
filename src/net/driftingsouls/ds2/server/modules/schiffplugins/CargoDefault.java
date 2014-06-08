@@ -221,7 +221,7 @@ public class CargoDefault implements SchiffPlugin {
 		Ship ship = caller.ship;
 		ShipTypeData shiptype = caller.shiptype;
 
-		TemplateEngine t = caller.controller.getTemplateEngine();
+		TemplateEngine t = caller.t;
 		t.setFile("_PLUGIN_"+pluginid, "schiff.cargo.default.html");
 
 		Cargo cargo = ship.getCargo();

@@ -52,7 +52,7 @@ public class WerftDefault implements SchiffPlugin {
 			.uniqueResult();
 
 		if( werft != null ) {
-			TemplateEngine t = controller.getTemplateEngine();
+			TemplateEngine t = caller.t;
 			t.setFile("_PLUGIN_"+pluginid, "schiff.werft.default.html");
 
 			if( werft.getKomplex() != null ) {

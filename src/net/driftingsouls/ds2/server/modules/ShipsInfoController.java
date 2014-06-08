@@ -10,10 +10,12 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import java.util.Comparator;
@@ -28,25 +30,28 @@ import java.util.TreeSet;
  */
 @Configurable
 @Module(name = "shipsinfo")
-public class ShipsInfoController extends TemplateController
+public class ShipsInfoController extends Controller
 {
-	public ShipsInfoController()
+	private TemplateViewResultFactory templateViewResultFactory;
+
+	@Autowired
+	public ShipsInfoController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 		setPageTitle("Schiffsliste");
 	}
 
 	@Action(ActionType.DEFAULT)
-	public void defaultAction()
+	public TemplateEngine defaultAction()
 	{
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) ContextMap.getContext().getActiveUser();
 		org.hibernate.Session db = getDB();
 
 		List<ShipType> ships = Common.cast(db.createQuery("from ShipType where hide=:hide").setParameter("hide", false).list());
 		if (ships.size() == 0)
 		{
-			return;
+			return t;
 		}
 
 		List<ShipBaubar> buildableShipList = Common.cast(db.createCriteria(ShipBaubar.class).list());
@@ -62,6 +67,8 @@ public class ShipsInfoController extends TemplateController
 		writeList(t, buildableShips, sortedShipTypes.get(BuildKind.LACKING_RESEARCH), "_SHIPSINFO", "researchableinfo.shiplist.list", "researchableinfo.shiplist.listitem", "ship.buildcosts.researchable.list");
 		writeList(t, buildableShips, sortedShipTypes.get(BuildKind.OTHER_SPECIES), "_SHIPSINFO", "otherinfo.shiplist.list", "otherinfo.shiplist.listitem", "ship.buildcosts.others.list");
 		writeList(t, buildableShips, sortedShipTypes.get(BuildKind.NOWHERE), "_SHIPSINFO", "restinfo.shiplist.list", "restinfo.shiplist.listitem", null);
+
+		return t;
 	}
 
 	private void writeList(TemplateEngine t, Map<Integer, ShipBaubar> buildableShips, Set<ShipType> shipTypes, String blockName, String listName, String itemName, String reslistName)

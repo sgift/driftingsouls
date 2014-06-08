@@ -85,7 +85,7 @@ public class SensorsDefault implements SchiffPlugin {
 
 		org.hibernate.Session db = controller.getDB();
 		User user = (User)controller.getUser();
-		TemplateEngine t = controller.getTemplateEngine();
+		TemplateEngine t = caller.t;
 
 		t.setFile("_PLUGIN_"+pluginid, "schiff.sensors.default.html");
 

@@ -14,14 +14,16 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.SchiffEinstellungen;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.TradepostVisibility;
 import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,15 +33,14 @@ import java.util.Map;
  * Erlaubt die Einstellungen fuer Handelsposten.
  */
 @Module(name = "tradepost")
-public class TradepostController extends TemplateController
+public class TradepostController extends Controller
 {
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public TradepostController()
+	private TemplateViewResultFactory templateViewResultFactory;
+
+	@Autowired
+	public TradepostController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Tradepost");
 	}
@@ -65,9 +66,9 @@ public class TradepostController extends TemplateController
 	 * @param ship the ship-id
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(Ship ship)
+	public TemplateEngine defaultAction(Ship ship)
 	{
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
 
@@ -88,7 +89,7 @@ public class TradepostController extends TemplateController
 		{
 			// not a tradepost, sent message to user and stop script
 			t.setVar("tradepost.message", "Dieses Schiff ist kein Handelsposten. Bitte bestellen Sie die entsprechende Software beim Handelsunternehmen Ihres vertrauens");
-			return;
+			return t;
 		}
 
 		t.setVar("ship.owner.isnpc", user.isNPC());
@@ -120,7 +121,7 @@ public class TradepostController extends TemplateController
 					"tradepostvisibility.selected", (ship.getEinstellungen().getShowtradepost() == visibility));
 			t.parse("tradepostvisibility.post", "tradepostvisibility.list", true);
 		}
-
+		return t;
 	}
 
 	private void itemAnzeigen(TemplateEngine t, User user, Map<ResourceID, SellLimit> selllistmap, Map<ResourceID, ResourceLimit> buylistmap, Cargo buylistgtu, Item aitem)
@@ -253,7 +254,7 @@ public class TradepostController extends TemplateController
 	 * @param tradepostvisibility Die Sichtbarkeit des Handelspostens
 	 */
 	@Action(ActionType.DEFAULT)
-	public void updateAction(Ship ship,
+	public TemplateEngine updateAction(Ship ship,
 			TradepostVisibility tradepostvisibility,
 			@UrlParam(name="i#salesprice") Map<Integer,Long> salesprice,
 			@UrlParam(name="i#buyprice") Map<Integer,Double> buyprice,
@@ -265,7 +266,7 @@ public class TradepostController extends TemplateController
 			@UrlParam(name="i#buybool") Map<Integer,Boolean> buybool,
 			@UrlParam(name="i#fill") Map<Integer,Boolean> fill)
 	{
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
 
@@ -286,7 +287,7 @@ public class TradepostController extends TemplateController
 		{
 			// not a tradepost, sent message to user and stop script
 			t.setVar("tradepost.message", "Dieses Schiff ist kein Handelsposten. Bitte bestellen Sie die entsprechende Software beim Handelsunternehmen Ihres vertrauens");
-			return;
+			return t;
 		}
 		// generate Maps which contain the SellLimits and den ResourceLimits of the Tradepost
 		Map<ResourceID, SellLimit> selllistmap = new LinkedHashMap<>();
@@ -311,11 +312,18 @@ public class TradepostController extends TemplateController
 			{
 				continue;
 			}
-			processItem(ship, kurse, selllistmap, buylistmap, aitem, salesprice, buyprice, saleslimit, buylimit, sellrank, buyrank, salebool, buybool, fill);
+			processItem(t, ship, kurse, selllistmap, buylistmap, aitem, salesprice, buyprice, saleslimit, buylimit, sellrank, buyrank, salebool, buybool, fill);
 		}
+
+		return t;
 	}
 
-	private void processItem(Ship ship, GtuWarenKurse kurse, Map<ResourceID, SellLimit> selllistmap, Map<ResourceID, ResourceLimit> buylistmap, Item aitem,
+	private void processItem(TemplateEngine t,
+							 Ship ship,
+							 GtuWarenKurse kurse,
+							 Map<ResourceID, SellLimit> selllistmap,
+							 Map<ResourceID, ResourceLimit> buylistmap,
+							 Item aitem,
 							 Map<Integer,Long> salesprices,
 							 Map<Integer,Double> buyprices,
 							 Map<Integer,Long> saleslimits,
@@ -326,7 +334,6 @@ public class TradepostController extends TemplateController
 							 Map<Integer,Boolean> buybools,
 							 Map<Integer,Boolean> fills)
 	{
-		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 

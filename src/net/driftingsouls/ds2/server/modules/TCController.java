@@ -26,14 +26,16 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Iterator;
 import java.util.List;
@@ -44,15 +46,14 @@ import java.util.List;
  * @author Christopher Jung
  */
 @Module(name = "tc")
-public class TCController extends TemplateController
+public class TCController extends Controller
 {
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public TCController()
+	private TemplateViewResultFactory templateViewResultFactory;
+
+	@Autowired
+	public TCController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Offizierstransfer");
 	}
@@ -76,10 +77,8 @@ public class TCController extends TemplateController
 	 * @param mode Transfermodus (shipToShip, baseToShip usw)
 	 * @param ziel Der Aufenthaltsort der Offiziere
 	 */
-	private void echoOffiList(String mode, Object ziel)
+	private void echoOffiList(TemplateEngine t, String mode, Object ziel)
 	{
-		TemplateEngine t = getTemplateEngine();
-
 		t.setVar("tc.selectoffizier", 1,
 				"tc.mode", mode);
 
@@ -115,10 +114,10 @@ public class TCController extends TemplateController
 	 * @param tarShip Die ID des Ziels des Transfers
 	 */
 	@Action(ActionType.DEFAULT)
-	public void shipToShipAction(Ship ship, String conf, int off, @UrlParam(name = "target") Ship tarShip)
+	public TemplateEngine shipToShipAction(Ship ship, String conf, int off, @UrlParam(name = "target") Ship tarShip)
 	{
 		org.hibernate.Session db = getDB();
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 
 		validiereSchiff(ship);
@@ -194,8 +193,8 @@ public class TCController extends TemplateController
 		// Offiziersliste bei bedarf ausgeben
 		if ((officount > 1) && (off == 0))
 		{
-			echoOffiList("shipToShip", ship);
-			return;
+			echoOffiList(t, "shipToShip", ship);
+			return t;
 		}
 
 		// Offizier laden
@@ -226,7 +225,7 @@ public class TCController extends TemplateController
 		{
 			t.setVar("tc.confirm", 1);
 
-			return;
+			return t;
 		}
 
 		User tarUser = tarShip.getOwner();
@@ -242,6 +241,8 @@ public class TCController extends TemplateController
 			String msg = "Die " + ship.getName() + " ("+ship.getId()+") hat den Offizier " + offizier.getName() + " (" + offizier.getID() + ") an die [ship="+tarShip.getId()+"]"+tarShip.getName() + " ("+tarShip.getId()+")[/ship] &uuml;bergeben.";
 			PM.send(user, tarUser.getId(), "Offizier &uuml;bergeben", msg);
 		}
+
+		return t;
 	}
 
 	/**
@@ -253,10 +254,10 @@ public class TCController extends TemplateController
 	 * @param tarBase Die ID des Ziels des Transfers
 	 */
 	@Action(ActionType.DEFAULT)
-	public void shipToBaseAction(Ship ship, int off, String conf, @UrlParam(name = "target") Base tarBase)
+	public TemplateEngine shipToBaseAction(Ship ship, int off, String conf, @UrlParam(name = "target") Base tarBase)
 	{
 		org.hibernate.Session db = getDB();
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 
 		validiereSchiff(ship);
@@ -290,8 +291,8 @@ public class TCController extends TemplateController
 		// bei bedarf offiliste ausgeben
 		if ((officount > 1) && (off == 0))
 		{
-			echoOffiList("shipToBase", ship);
-			return;
+			echoOffiList(t, "shipToBase", ship);
+			return t;
 		}
 
 		// Offi laden
@@ -322,7 +323,7 @@ public class TCController extends TemplateController
 		{
 			t.setVar("tc.confirm", 1);
 
-			return;
+			return t;
 		}
 
 		User tarUser = tarBase.getOwner();
@@ -332,6 +333,8 @@ public class TCController extends TemplateController
 		offizier.setOwner(tarUser);
 
 		ship.recalculateShipStatus();
+
+		return t;
 	}
 
 	/**
@@ -342,10 +345,10 @@ public class TCController extends TemplateController
 	 * @param upBase Die ID des Ziels des Transfers
 	 */
 	@Action(ActionType.DEFAULT)
-	public void baseToFleetAction(Ship ship, @UrlParam(name = "target") Base upBase)
+	public TemplateEngine baseToFleetAction(Ship ship, @UrlParam(name = "target") Base upBase)
 	{
 		org.hibernate.Session db = getDB();
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 
 		validiereSchiff(ship);
@@ -414,6 +417,8 @@ public class TCController extends TemplateController
 		}
 
 		t.setVar("tc.message", shipcount + " Offiziere wurden transferiert");
+
+		return t;
 	}
 
 	/**
@@ -424,10 +429,10 @@ public class TCController extends TemplateController
 	 * @param upBase Die ID des Ziels des Transfers
 	 */
 	@Action(ActionType.DEFAULT)
-	public void baseToShipAction(Ship ship, int off, @UrlParam(name = "target") Base upBase)
+	public TemplateEngine baseToShipAction(Ship ship, int off, @UrlParam(name = "target") Base upBase)
 	{
 		org.hibernate.Session db = getDB();
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 
 		validiereSchiff(ship);
@@ -462,7 +467,7 @@ public class TCController extends TemplateController
 		// Wenn noch kein Offizier ausgewaehlt wurde -> Liste der Offiziere in der Basis anzeigen
 		if (off == 0)
 		{
-			echoOffiList("baseToShip", upBase);
+			echoOffiList(t, "baseToShip", upBase);
 
 			if (ship.getFleet() != null)
 			{
@@ -521,6 +526,8 @@ public class TCController extends TemplateController
 
 			ship.recalculateShipStatus();
 		}
+
+		return t;
 	}
 
 	@Action(ActionType.DEFAULT)

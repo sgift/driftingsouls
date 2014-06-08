@@ -125,7 +125,7 @@ public class NavigationDefault implements SchiffPlugin {
 		User user = (User)controller.getUser();
 		org.hibernate.Session db = controller.getDB();
 
-		TemplateEngine t = controller.getTemplateEngine();
+		TemplateEngine t = caller.t;
 		t.setFile("_PLUGIN_"+pluginid, "schiff.navigation.default.html");
 
 		t.setVar(	"global.pluginid",					pluginid,
