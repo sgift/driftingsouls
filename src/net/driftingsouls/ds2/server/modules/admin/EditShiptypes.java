@@ -60,6 +60,7 @@ public class EditShiptypes implements EntityEditor<ShipType>
 	public void configureFor(@Nonnull EditorForm8<ShipType> form)
 	{
 		form.allowAdd();
+		form.allowDelete(this::isDeleteAllowed);
 		form.ifUpdating().label("Anzahl vorhandener Schiffe", (ship) -> {
 			Context context = ContextMap.getContext();
 			org.hibernate.Session db = context.getDB();
@@ -130,6 +131,95 @@ public class EditShiptypes implements EntityEditor<ShipType>
 								.list()),
 				this::aktualisiereSchiffInSchlacht
 		);
+	}
+
+	private boolean isDeleteAllowed(ShipType st)
+	{
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+		long count = (long) db
+				.createQuery("select count(*) from Ship s where s.shiptype=:type")
+				.setEntity("type", st)
+				.uniqueResult();
+
+		if( count > 0 )
+		{
+			return false;
+		}
+
+		Object type = db.createQuery("from ShipBaubar where type=:type")
+				.setMaxResults(1)
+				.setEntity("type", st)
+				.uniqueResult();
+		if( type != null )
+		{
+			return false;
+		}
+
+		type = db.createQuery("from ConfigFelsbrocken where shiptype=:type")
+				.setMaxResults(1)
+				.setEntity("type", st)
+				.uniqueResult();
+		if( type != null )
+		{
+			return false;
+		}
+
+		type = db.createQuery("from Schiffsbauplan where schiffstyp=:type")
+				.setMaxResults(1)
+				.setEntity("type", st)
+				.uniqueResult();
+		if( type != null )
+		{
+			return false;
+		}
+
+		type = db.createQuery("from Schiffsverbot where schiffstyp=:type")
+				.setMaxResults(1)
+				.setEntity("type", st)
+				.uniqueResult();
+		if( type != null )
+		{
+			return false;
+		}
+
+		type = db.createQuery("from OrderableShip where shipType=:type")
+				.setMaxResults(1)
+				.setEntity("type", st)
+				.uniqueResult();
+		if( type != null )
+		{
+			return false;
+		}
+
+		type = db.createQuery("from OrderShip where shipType=:type")
+				.setMaxResults(1)
+				.setEntity("type", st)
+				.uniqueResult();
+		if( type != null )
+		{
+			return false;
+		}
+
+		type = db.createQuery("from ShipType where oneWayWerft=:type")
+				.setMaxResults(1)
+				.setEntity("type", st)
+				.uniqueResult();
+		if( type != null )
+		{
+			return false;
+		}
+
+		type = db.createQuery("from ShipModules where oneWayWerft=:type")
+				.setMaxResults(1)
+				.setEntity("type", st)
+				.uniqueResult();
+		if( type != null )
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	private void aktualisiereSchiffInSchlacht(ShipType oldShiptype, ShipType shiptype, Integer battleShipId)
