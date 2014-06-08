@@ -30,8 +30,10 @@ import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.util.List;
@@ -42,17 +44,16 @@ import java.util.List;
  * @author Christopher Jung
  */
 @Module(name = "main")
-public class MainController extends TemplateController
+public class MainController extends Controller
 {
 	private static final String SCRIPT_FORUM = "http://forum.drifting-souls.net/phpbb3/";
 
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public MainController()
+	private TemplateViewResultFactory templateViewResultFactory;
+
+	@Autowired
+	public MainController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 
 		setDisableDebugOutput(true);
 	}
@@ -118,10 +119,10 @@ public class MainController extends TemplateController
 	 * Generiert das Hauptframe.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction()
+	public TemplateEngine defaultAction()
 	{
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		org.hibernate.Session db = getDB();
 
 		t.setVar("SCRIPT_FORUM", SCRIPT_FORUM);
@@ -149,5 +150,7 @@ public class MainController extends TemplateController
 
 			t.parse("bases.list", "bases.listitem", true);
 		}
+
+		return t;
 	}
 }

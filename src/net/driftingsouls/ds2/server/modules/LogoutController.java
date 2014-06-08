@@ -22,9 +22,10 @@ import net.driftingsouls.ds2.server.framework.authentication.AuthenticationManag
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
+import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Die Logoutfunktion.
@@ -32,32 +33,26 @@ import org.springframework.beans.factory.annotation.Required;
  *
  */
 @Module(name="logout")
-public class LogoutController extends TemplateController
+public class LogoutController extends Controller
 {
 	private AuthenticationManager authManager;
-	
-	/**
-	 * Konstruktor.
-	 */
-	public LogoutController() {
-		super();
-	}
-	
-	/**
-	 * Injiziert den DS-AuthenticationManager zum einloggen von Benutzern.
-	 * @param authManager Der AuthenticationManager
-	 */
+	private TemplateViewResultFactory templateViewResultFactory;
+
 	@Autowired
-	@Required
-	public void setAuthenticationManager(AuthenticationManager authManager) {
+	public LogoutController(AuthenticationManager authManager, TemplateViewResultFactory templateViewResultFactory)
+	{
 		this.authManager = authManager;
+		this.templateViewResultFactory = templateViewResultFactory;
 	}
 
 	/**
 	 * Loggt den Spieler aus.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() {
+	public TemplateEngine defaultAction()
+	{
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		this.authManager.logout();
+		return t;
 	}
 }

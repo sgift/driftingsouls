@@ -5,9 +5,11 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.EmptyHeaderOutputHandler;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 
@@ -17,24 +19,23 @@ import java.io.IOException;
  * @author Sebastian Gift
  */
 @Module(name = "newsdetail")
-public class NewsDetailController extends TemplateController
+public class NewsDetailController extends Controller
 {
-	/**
-	 * Legt den News Detail Eintrag an.
-	 *
-	 */
-	public NewsDetailController()
+	private TemplateViewResultFactory templateViewResultFactory;
+
+	@Autowired
+	public NewsDetailController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 	}
 
 	/**
 	 * Zeigt den Newseintrag an.
 	 */
 	@Action(value = ActionType.DEFAULT, outputHandler = EmptyHeaderOutputHandler.class)
-	public void defaultAction(NewsEntry newsid) throws IOException
+	public TemplateEngine defaultAction(NewsEntry newsid) throws IOException
 	{
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 
 		if (newsid != null)
 		{
@@ -46,5 +47,7 @@ public class NewsDetailController extends TemplateController
 		{
 			t.setVar("news.headline", "ES EXISTIERT KEIN EINTRAG MIT DIESER ID");
 		}
+
+		return t;
 	}
 }

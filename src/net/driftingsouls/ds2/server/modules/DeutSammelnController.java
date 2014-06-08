@@ -27,13 +27,15 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -45,15 +47,14 @@ import java.util.List;
  * @author Christopher Jung
  */
 @Module(name = "deutsammeln")
-public class DeutSammelnController extends TemplateController
+public class DeutSammelnController extends Controller
 {
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public DeutSammelnController()
+	private TemplateViewResultFactory templateViewResultFactory;
+
+	@Autowired
+	public DeutSammelnController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Deut. sammeln");
 	}
@@ -152,8 +153,6 @@ public class DeutSammelnController extends TemplateController
 		Nebel nebel = ermittleNebelFuerSchiffsliste(shipList);
 		filtereSchiffsliste(shipList, nebel);
 
-		TemplateEngine t = getTemplateEngine();
-
 		String message = "";
 
 		for (Ship aship : shipList)
@@ -168,31 +167,30 @@ public class DeutSammelnController extends TemplateController
 			else
 			{
 				message += "<img src=\"" + Cargo.getResourceImage(Resources.DEUTERIUM) + "\" alt=\"\" />" + saugdeut +
-						" f&uuml;r <img src=\"./data/interface/energie.gif\" alt=\"Energie\" />" + e +
+						" für <img src=\"./data/interface/energie.gif\" alt=\"Energie\" />" + e +
 						" gesammelt<br />";
 			}
 		}
 
-		t.setVar("deutsammeln.message", message);
-
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage(message);
 	}
 
 	/**
 	 * Zeigt eine Eingabemaske an, in der angegeben werden kann,
 	 * fuer wieviel Energie Deuterium gesammelt werden soll.
 	 *
-	 * @param fleet Die Tankerflotte
 	 * @param ship Der Tanker
+	 * @param fleet Die Tankerflotte
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(Ship ship, ShipFleet fleet)
+	public TemplateEngine defaultAction(Ship ship, ShipFleet fleet, RedirectViewResult redirect)
 	{
 		List<Ship> shipList = erzeugeSchiffsliste(ship, fleet);
 		Nebel nebel = ermittleNebelFuerSchiffsliste(shipList);
 		filtereSchiffsliste(shipList, nebel);
 
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
+		t.setVar("deutsammeln.message", redirect != null ? redirect.getMessage() : null);
 
 		int deutfactorSum = 0;
 		int maxE = 0;
@@ -212,5 +210,7 @@ public class DeutSammelnController extends TemplateController
 				"ship.id", shipList.get(0).getId(),
 				"fleet.id", shipList.size() > 1 ? shipList.get(0).getFleet().getId() : 0,
 				"ship.e", maxE);
+
+		return t;
 	}
 }

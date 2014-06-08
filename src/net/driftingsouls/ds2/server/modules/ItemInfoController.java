@@ -49,10 +49,11 @@ import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.modules.viewmodels.ItemViewModel;
 import net.driftingsouls.ds2.server.ships.SchiffstypModifikation;
 import net.driftingsouls.ds2.server.ships.Schiffswaffenkonfiguration;
@@ -61,6 +62,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -75,15 +77,14 @@ import java.util.stream.Collectors;
  * @author Christopher Jung
  */
 @Module(name = "iteminfo")
-public class ItemInfoController extends TemplateController
+public class ItemInfoController extends Controller
 {
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public ItemInfoController()
+	private TemplateViewResultFactory templateViewResultFactory;
+
+	@Autowired
+	public ItemInfoController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Item");
 	}
@@ -316,9 +317,9 @@ public class ItemInfoController extends TemplateController
 	 * @param itemStr Die ID des anzuzeigenden Items
 	 */
 	@Action(ActionType.DEFAULT)
-	public void detailsAction(@UrlParam(name = "item") String itemStr, @UrlParam(name = "itemlist") String itemlistStr)
+	public TemplateEngine detailsAction(@UrlParam(name = "item") String itemStr, @UrlParam(name = "itemlist") String itemlistStr)
 	{
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
 
@@ -343,21 +344,21 @@ public class ItemInfoController extends TemplateController
 		{
 			t.setVar("iteminfo.message", "Es ist kein Item mit dieser Identifikationsnummer bekannt");
 
-			return;
+			return t;
 		}
 
 		if (item.getAccessLevel() > user.getAccessLevel())
 		{
 			t.setVar("iteminfo.message", "Es ist kein Item mit dieser Identifikationsnummer bekannt");
 
-			return;
+			return t;
 		}
 
 		if (item.isUnknownItem() && !user.isKnownItem(itemid) && !hasPermission(WellKnownPermission.ITEM_UNBEKANNTE_SICHTBAR))
 		{
 			t.setVar("iteminfo.message", "Es ist kein Item mit dieser Identifikationsnummer bekannt");
 
-			return;
+			return t;
 		}
 
 		String name = Common._plaintitle(item.getName());
@@ -709,7 +710,7 @@ public class ItemInfoController extends TemplateController
 			{
 				if (hasPermission(WellKnownPermission.ITEM_MODULESETMETA_SICHTBAR))
 				{
-					return;
+					return t;
 				}
 				Cargo setitemlist = new Cargo();
 
@@ -741,15 +742,17 @@ public class ItemInfoController extends TemplateController
 				break;
 			}
 		} // Ende switch
+
+		return t;
 	}
 
 	/**
 	 * Zeigt die Liste aller bekannten Items sowie ihren Aufenthaltsort, sofern man sie besitzt, an.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void knownAction()
+	public TemplateEngine knownAction()
 	{
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
 		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
@@ -863,6 +866,8 @@ public class ItemInfoController extends TemplateController
 
 			t.parse("knownlist.list", "knownlist.listitem", true);
 		}
+
+		return t;
 	}
 
 	@ViewModel

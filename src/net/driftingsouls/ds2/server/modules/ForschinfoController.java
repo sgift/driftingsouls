@@ -33,14 +33,16 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Iterator;
 import java.util.List;
@@ -51,15 +53,14 @@ import java.util.List;
  * @author Christopher Jung
  */
 @Module(name = "forschinfo")
-public class ForschinfoController extends TemplateController
+public class ForschinfoController extends Controller
 {
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public ForschinfoController()
+	private TemplateViewResultFactory templateViewResultFactory;
+
+	@Autowired
+	public ForschinfoController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Forschung");
 	}
@@ -98,11 +99,11 @@ public class ForschinfoController extends TemplateController
 	}
 
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(@UrlParam(name = "res") Forschung research)
+	public TemplateEngine defaultAction(@UrlParam(name = "res") Forschung research)
 	{
 		validiereForschung(research);
 
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
 
@@ -189,6 +190,8 @@ public class ForschinfoController extends TemplateController
 		{
 			t.setVar("tech.dropable", 1);
 		}
+
+		return t;
 	}
 
 	private void benoetigteForschungenAnzeigen(TemplateEngine t, Forschung research)

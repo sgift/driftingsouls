@@ -32,10 +32,12 @@ import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Map;
@@ -46,15 +48,14 @@ import java.util.Map;
  * @author Christopher Jung
  */
 @Module(name = "handel")
-public class HandelController extends TemplateController
+public class HandelController extends Controller
 {
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public HandelController()
+	private TemplateViewResultFactory templateViewResultFactory;
+
+	@Autowired
+	public HandelController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Handel");
 		addPageMenuEntry("Angebote", Common.buildUrl("default"));
@@ -146,9 +147,9 @@ public class HandelController extends TemplateController
 	 * Zeigt die Seite zur Eingabe eines Handelsangebots an.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void addAction()
+	public TemplateEngine addAction()
 	{
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		org.hibernate.Session db = getDB();
 
 		t.setVar("handel.add", 1);
@@ -172,6 +173,8 @@ public class HandelController extends TemplateController
 		}
 
 		t.setVar("trade.runningcost", new ConfigService().getValue(WellKnownConfigValue.AD_COST));
+
+		return t;
 	}
 
 	/**
@@ -183,33 +186,34 @@ public class HandelController extends TemplateController
 	public RedirectViewResult deleteAction(@UrlParam(name = "del") Handel entry)
 	{
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 
+		String message = null;
 		if ((entry != null) && (entry.getWho().equals(user) || hasPermission(WellKnownPermission.HANDEL_ANGEBOTE_LOESCHEN)))
 		{
 			db.delete(entry);
-			t.setVar("handel.message", "Angebot gel&ouml;scht");
+			message = "Angebot gelöscht";
 		}
 		else
 		{
-			addError("Sie haben keine Berechtigung das Angebot zu l&ouml;schen");
+			addError("Sie haben keine Berechtigung das Angebot zu löschen");
 		}
 
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage(message);
 	}
 
 	/**
 	 * Zeigt die vorhandenen Handelsangebote an.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction()
+	public TemplateEngine defaultAction(RedirectViewResult redirect)
 	{
 		org.hibernate.Session db = getDB();
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 
 		t.setVar("handel.view", 1);
+		t.setVar("handel.message", redirect != null ? redirect.getMessage() : null);
 
 		int count = 0;
 
@@ -284,5 +288,7 @@ public class HandelController extends TemplateController
 			t.parse("emptyangebote.list", "emptyangebote.listitem", true);
 			count++;
 		}
+
+		return t;
 	}
 }

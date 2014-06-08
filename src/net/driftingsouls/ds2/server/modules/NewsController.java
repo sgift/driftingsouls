@@ -13,8 +13,8 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.EmptyHeaderFooterOutputHandler;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 
@@ -30,18 +30,9 @@ import java.util.List;
  * @author Sebastian Gift
  */
 @Module(name="news")
-public class NewsController extends TemplateController
+public class NewsController extends Controller
 {
 	private Logger log = Logger.getLogger(NewsController.class);
-
-	/**
-	 * Legt den RSS Feed an.
-	 *
-	 */
-	public NewsController()
-	{
-		super();
-	}
 
 	/**
 	 * Gibt den News RSS Feed aus.

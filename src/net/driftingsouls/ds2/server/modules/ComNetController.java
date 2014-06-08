@@ -31,11 +31,11 @@ import net.driftingsouls.ds2.server.framework.bbcode.Smilie;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -49,17 +49,14 @@ import java.util.Map;
  * @author Christopher Jung
  */
 @Module(name = "comnet")
-public class ComNetController extends TemplateController
+public class ComNetController extends Controller
 {
-	private static final Log log = LogFactory.getLog(ComNetController.class);
+	private TemplateViewResultFactory templateViewResultFactory;
 
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public ComNetController()
+	@Autowired
+	public ComNetController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Com-Net");
 	}
@@ -75,18 +72,16 @@ public class ComNetController extends TemplateController
 	/**
 	 * Sucht im aktuell ausgewaehlten ComNet-Kanal Posts nach bestimmten Kriterien.
 	 * Sollten keine Kriterien angegeben sein, so wird das Eingabefenster fuer die Suche angezeigt.
-	 *
+	 *  @param search Der Suchbegriff, abhaengig vom Suchmodus
 	 * @param searchtype der Suchmodus.
-	 * @param search Der Suchbegriff, abhaengig vom Suchmodus
 	 * @param back Der Offset der anzuzeigenden Posts. Ein Offset
-	 * von 0 bedeutet der neuste Post. Je groesser der Wert umso aelter der Post
 	 */
 	@Action(ActionType.DEFAULT)
-	public void searchAction(ComNetChannel channel, String search, ComNetService.Suchmodus searchtype, int back)
+	public TemplateEngine searchAction(ComNetChannel channel, String search, ComNetService.Suchmodus searchtype, int back)
 	{
 		validiereComNetChannel(channel);
 
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 
 		t.setVar("channel.id", channel.getId(),
@@ -100,7 +95,7 @@ public class ComNetController extends TemplateController
 		if (searchtype == null)
 		{
 			t.setVar("show.searchform", 1);
-			return;
+			return t;
 		}
 
 		t.setVar("show.read", 1);
@@ -182,6 +177,8 @@ public class ComNetController extends TemplateController
 			t.setVar("show.searchform", 1);
 			addError(e.getMessage());
 		}
+
+		return t;
 	}
 
 	/**
@@ -192,11 +189,11 @@ public class ComNetController extends TemplateController
 	 * von 0 bedeutet der neuste Post. Je groesser der Wert umso aelter der Post
 	 */
 	@Action(ActionType.DEFAULT)
-	public void readAction(ComNetChannel channel, int back)
+	public TemplateEngine readAction(ComNetChannel channel, int back)
 	{
 		validiereComNetChannel(channel);
 
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 
@@ -287,21 +284,21 @@ public class ComNetController extends TemplateController
 			t.stop_record();
 			t.clear_record();
 		}
+
+		return t;
 	}
 
 	/**
 	 * Postet einen ComNet-Post im aktuell ausgewaehlten ComNet-Kanal.
-	 *
-	 * @param text Der Text des Posts
-	 * @param head Der Titel des Posts
-	 */
+	 *  @param text Der Text des Posts
+	 * @param head Der Titel des Posts*/
 	@Action(ActionType.DEFAULT)
-	public void sendenAction(ComNetChannel channel, String text, String head)
+	public TemplateEngine sendenAction(ComNetChannel channel, String text, String head)
 	{
 		validiereComNetChannel(channel);
 
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		org.hibernate.Session db = getDB();
 
 		t.setVar("channel.id", channel.getId(),
@@ -319,6 +316,7 @@ public class ComNetController extends TemplateController
 		db.persist(entry);
 
 		t.setVar("show.submit", 1);
+		return t;
 	}
 
 	/**
@@ -326,12 +324,12 @@ public class ComNetController extends TemplateController
 	 * ausgewaehlten ComNet-Kanal, an.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void writeAction(ComNetChannel channel)
+	public TemplateEngine writeAction(ComNetChannel channel)
 	{
 		validiereComNetChannel(channel);
 
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 
 		t.setVar("channel.id", channel.getId(),
 				"channel.name", Common._title(channel.getName()));
@@ -344,22 +342,23 @@ public class ComNetController extends TemplateController
 		t.setVar("show.inputform", 1,
 				"post.raw.title", "",
 				"post.raw.text", "");
+
+		return t;
 	}
 
 	/**
 	 * Zeigt eine Vorschau fuer einen geschriebenen, jedoch noch nicht geposteten, ComNet-Post an.
 	 * Nach einer Vorschau kann der Post im aktuell ausgewaehlten ComNet-Kanal gepostet werden.
-	 *
-	 * @param text Der Text des Posts
+	 *  @param text Der Text des Posts
 	 * @param head Der Titel des Posts
 	 */
 	@Action(ActionType.DEFAULT)
-	public void vorschauAction(ComNetChannel channel, String text, String head)
+	public TemplateEngine vorschauAction(ComNetChannel channel, String text, String head)
 	{
 		validiereComNetChannel(channel);
 
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 
 		t.setVar("channel.id", channel.getId(),
 				"channel.name", Common._title(channel.getName()));
@@ -392,15 +391,17 @@ public class ComNetController extends TemplateController
 				"post.allypic", user.getAlly() != null ? user.getAlly().getId() : 0,
 				"post.time", Common.date("Y-m-d H:i:s"),
 				"post.ingametime", Common.getIngameTime(tick));
+
+		return t;
 	}
 
 	/**
 	 * Zeigt die Liste aller lesbaren ComNet-Kanaele an.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(ComNetChannel channel)
+	public TemplateEngine defaultAction(ComNetChannel channel)
 	{
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 
@@ -501,5 +502,7 @@ public class ComNetController extends TemplateController
 			t.stop_record();
 			t.clear_record();
 		}
+
+		return t;
 	}
 }

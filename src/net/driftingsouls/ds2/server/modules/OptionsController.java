@@ -32,9 +32,10 @@ import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
 import net.driftingsouls.ds2.server.namegenerator.SchiffsKlassenNamenGenerator;
 import net.driftingsouls.ds2.server.namegenerator.SchiffsNamenGenerator;
@@ -44,6 +45,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -55,30 +57,27 @@ import java.util.List;
  * @author Christopher Jung
  */
 @Module(name = "options")
-public class OptionsController extends TemplateController
+public class OptionsController extends Controller
 {
 	private static final Log log = LogFactory.getLog(OptionsController.class);
+	private TemplateViewResultFactory templateViewResultFactory;
 
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public OptionsController()
+	@Autowired
+	public OptionsController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 	}
 
 	/**
 	 * Aendert den Namen und das Passwort des Benutzers.
-	 *
-	 * @param name Der neue Benutzername
+	 *  @param name Der neue Benutzername
 	 * @param pw Das neue Passwort
 	 * @param pw2 Die Wiederholung des neuen Passworts
 	 */
 	@Action(ActionType.DEFAULT)
-	public void changeNamePassAction(String name, String pw, String pw2)
+	public TemplateEngine changeNamePassAction(String name, String pw, String pw2)
 	{
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 
 		String changemsg = "";
@@ -142,18 +141,19 @@ public class OptionsController extends TemplateController
 		t.setVar("options.changenamepwd", 1,
 				"options.changenamepwd.nickname", Common._plaintitle(user.getNickname()),
 				"options.message", changemsg);
+
+		return t;
 	}
 
 	/**
 	 * Sendet die Löschanfrage des Spielers.
-	 *
-	 * @param del Der Interaktionsschritt. Bei 0 wird das Eingabeformular angezeigt. Andernfalls wird versucht die Anfrage zu senden
+	 *  @param del Der Interaktionsschritt. Bei 0 wird das Eingabeformular angezeigt. Andernfalls wird versucht die Anfrage zu senden
 	 * @param reason Die schluessige Begruendung. Muss mindestens die Laenge 5 haben
 	 */
 	@Action(ActionType.DEFAULT)
-	public void delAccountAction(int del, String reason)
+	public TemplateEngine delAccountAction(int del, String reason)
 	{
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 
 		if (del == 0)
@@ -189,6 +189,8 @@ public class OptionsController extends TemplateController
 					"delaccountresp.admins", new ConfigService().getValue(WellKnownConfigValue.ADMIN_PMS_ACCOUNT));
 
 		}
+
+		return t;
 	}
 
 	/**
@@ -210,7 +212,6 @@ public class OptionsController extends TemplateController
 											   SchiffsNamenGenerator schiffsNamenGenerator)
 	{
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
 
 		String changemsg = "";
 
@@ -267,9 +268,7 @@ public class OptionsController extends TemplateController
 		user.setSchiffsKlassenNamenGenerator(schiffsKlassenNamenGenerator);
 		user.setSchiffsNamenGenerator(schiffsNamenGenerator);
 
-		t.setVar("options.message", changemsg);
-
-		return new RedirectViewResult("xtra");
+		return new RedirectViewResult("xtra").withMessage(changemsg);
 	}
 
 	@ViewModel
@@ -369,10 +368,12 @@ public class OptionsController extends TemplateController
 	 * Zeigt die erweiterten Einstellungen des Spielers.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void xtraAction()
+	public TemplateEngine xtraAction(RedirectViewResult redirect)
 	{
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
+
+		t.setVar("options.message", redirect != null ? redirect.getMessage() : null);
 
 		t.setVar("options.xtra", 1,
 				"user.wrapfactor", user.getUserValue("TBLORDER/schiff/wrapfactor"),
@@ -407,6 +408,8 @@ public class OptionsController extends TemplateController
 					"schiffsNamenGenerator.selected", skng == user.getSchiffsNamenGenerator());
 			t.parse("schiffsNamenGenerator.list", "schiffsNamenGenerator.listitem", true);
 		}
+
+		return t;
 	}
 
 	private static final int MAX_UPLOAD_SIZE = 307200;
@@ -417,8 +420,6 @@ public class OptionsController extends TemplateController
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult logoAction()
 	{
-		TemplateEngine t = getTemplateEngine();
-
 		List<FileItem> list = getContext().getRequest().getUploadedFiles();
 		if (list.size() == 0)
 		{
@@ -427,23 +428,23 @@ public class OptionsController extends TemplateController
 
 		if (list.get(0).getSize() > MAX_UPLOAD_SIZE)
 		{
-			t.setVar("options.message", "Das Logo ist leider zu gro&szlig;. Bitte w&auml;hle eine Datei mit maximal 300kB Gr&ouml;&stlig;e<br />");
-			return new RedirectViewResult("default");
+			return new RedirectViewResult("default").withMessage("Das Logo ist leider zu gro&szlig;. Bitte wähle eine Datei mit maximal 300kB Größe<br />");
 		}
 
+		String message = null;
 		String uploaddir = Configuration.getAbsolutePath() + "data/logos/user/";
 		try
 		{
 			File uploadedFile = new File(uploaddir + getUser().getId() + ".gif");
 			list.get(0).write(uploadedFile);
-			t.setVar("options.message", "Das neue Logo wurde auf dem Server gespeichert<br />");
+			message = "Das neue Logo wurde auf dem Server gespeichert<br />";
 		}
 		catch (Exception e)
 		{
-			t.setVar("options.message", "Offenbar ging beim Upload etwas schief (Ist die Datei evt. zu gro&szlig;?)<br />");
+			message = "Offenbar ging beim Upload etwas schief (Ist die Datei evt. zu groß?)<br />";
 			log.warn(e);
 		}
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage(message);
 	}
 
 	/**
@@ -454,20 +455,17 @@ public class OptionsController extends TemplateController
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult vacModeAction(int vacdays)
 	{
-		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
 
 		int vacTicks = Common.daysToTicks(vacdays);
 
 		if (!user.checkVacationRequest(vacTicks))
 		{
-			t.setVar("options.message", "Dein Urlaubskonto reicht nicht aus f&uuml;r soviele Tage Urlaub.");
-			return new RedirectViewResult("default");
+			return new RedirectViewResult("default").withMessage("Dein Urlaubskonto reicht nicht aus für soviele Tage Urlaub.");
 		}
 
 		user.activateVacation(vacTicks);
-		t.setVar("options.message", "Der Vorlauf f&uuml;r deinen Urlaub wurde gestartet.");
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage("Der Vorlauf für deinen Urlaub wurde gestartet.");
 	}
 
 	/**
@@ -479,7 +477,6 @@ public class OptionsController extends TemplateController
 	public RedirectViewResult saveOptionsAction(boolean showtooltip, int wrapfactor)
 	{
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
 
 		String changemsg = "";
 
@@ -497,9 +494,7 @@ public class OptionsController extends TemplateController
 			changemsg += "Schiffsgruppierungen " + (wrapfactor != 0 ? "aktiviert" : "deaktiviert") + "<br />\n";
 		}
 
-		t.setVar("options.message", changemsg);
-
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage(changemsg);
 	}
 
 	/**
@@ -509,30 +504,33 @@ public class OptionsController extends TemplateController
 	public RedirectViewResult dropNoobProtectionAction()
 	{
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
 
+		String message = null;
 		if (user.isNoob())
 		{
 			user.setFlag(UserFlag.NOOB, false);
-			t.setVar("options.message", "GCP-Schutz wurde vorzeitig aufgehoben.<br />");
+			message = "GCP-Schutz wurde vorzeitig aufgehoben.<br />";
 		}
 
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage(message);
 	}
 
 	/**
 	 * Uebersicht ueber die Einstellungen.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction()
+	public TemplateEngine defaultAction(RedirectViewResult redirect)
 	{
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 
+		t.setVar("options.message", redirect != null ? redirect.getMessage() : null);
 		t.setVar("options.general", 1,
 				"user.wrapfactor", user.getUserValue("TBLORDER/schiff/wrapfactor"),
 				"user.tooltip", user.getUserValue("TBLORDER/schiff/tooltips"),
 				"user.noob", user.isNoob(),
 				"vacation.maxtime", Common.ticks2DaysInDays(user.maxVacTicks()));
+
+		return t;
 	}
 }

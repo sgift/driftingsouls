@@ -28,10 +28,12 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
@@ -42,14 +44,13 @@ import java.util.List;
  *
  */
 @Module(name="deutall")
-public class DeutAllController extends TemplateController
+public class DeutAllController extends Controller
 {
+	private TemplateViewResultFactory templateViewResultFactory;
 
-	/**
-	 * Konstruktor.
-	 */
-	public DeutAllController() {
-		super();
+	@Autowired
+	public DeutAllController(TemplateViewResultFactory templateViewResultFactory) {
+		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Deut. sammeln");
 	}
@@ -58,8 +59,8 @@ public class DeutAllController extends TemplateController
 	 * Sammelt das Deuterium auf den Tankern.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction() {
-		TemplateEngine t = getTemplateEngine();
+	public TemplateEngine defaultAction() {
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User)getUser();
 		org.hibernate.Session db = getDB();
 
@@ -135,5 +136,7 @@ public class DeutAllController extends TemplateController
 			t.stop_record();
 			t.clear_record();
 		}
+
+		return t;
 	}
 }
