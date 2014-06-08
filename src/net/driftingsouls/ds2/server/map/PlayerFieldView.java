@@ -232,16 +232,7 @@ public class PlayerFieldView implements FieldView
 	@Override
 	public List<JumpNode> getJumpNodes()
 	{
-		List<JumpNode> result = new ArrayList<>();
-		for (JumpNode jumpNode : this.field.getNodes())
-		{
-			if( !jumpNode.isHidden() )
-			{
-				result.add(jumpNode);
-			}
-		}
-
-		return result;
+		return this.field.getNodes().stream().filter(jumpNode -> !jumpNode.isHidden() || this.inScanRange).collect(Collectors.toList());
 	}
 
 	@Override
