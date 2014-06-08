@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.units.UnitType;
 
 import javax.persistence.DiscriminatorValue;
@@ -154,7 +155,8 @@ public class KasernenBuilding extends DefaultBuilding {
 		int newunit = context.getRequest().getParameterInt("unitid");
 		int newcount = context.getRequest().getParameterInt("count");
 
-		TemplateEngine t = new TemplateEngine();
+		TemplateViewResultFactory templateViewResultFactory = context.getBean(TemplateViewResultFactory.class, null);
+		TemplateEngine t = templateViewResultFactory.createEmpty();
 		if( !t.setFile( "_BUILDING", "buildings.kaserne.html" ) ) {
 			context.addError("Konnte das Template-Engine nicht initialisieren");
 			return "";

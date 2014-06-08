@@ -45,6 +45,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.werften.BaseWerft;
 
@@ -192,8 +193,10 @@ public class Kommandozentrale extends DefaultBuilding {
 			show = "general";
 		}
 
-		TemplateEngine t = new TemplateEngine();
-		if( !t.setFile( "_BUILDING", "buildings.kommandozentrale.html" ) ) {
+		TemplateViewResultFactory templateViewResultFactory = context.getBean(TemplateViewResultFactory.class, null);
+		TemplateEngine t = templateViewResultFactory.createEmpty();
+		if( !t.setFile( "_BUILDING", "buildings.kommandozentrale.html" ) )
+		{
 			context.addError("Konnte das Template-Engine nicht initialisieren");
 			return "";
 		}

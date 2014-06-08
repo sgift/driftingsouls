@@ -52,6 +52,15 @@ public class TemplateViewResultFactory
 	}
 
 	/**
+	 * Erzeugt eine leere Templateinstanz ohne geladenes Haupttemplate.
+	 * @return Die Templateinstanz
+	 */
+	public TemplateEngine createEmpty()
+	{
+		return createTemplateEngine(MASTERTEMPLATE);
+	}
+
+	/**
 	 * Erzeugt eine Templateinstanz fuer die angegebene Controllerklasse.
 	 * Der Templatename wird aus dem Namen des Controllers abgeleitet.
 	 * @param controller Der Controller
