@@ -1285,7 +1285,7 @@ public class User extends BasicUser {
 	 */
 	private int getVacationPrerun(int ticks)
 	{
-		return ticks / Common.TICKS_PER_DAY;
+		return Math.max(4,ticks / Common.TICKS_PER_DAY);
 	}
 
 	/**
