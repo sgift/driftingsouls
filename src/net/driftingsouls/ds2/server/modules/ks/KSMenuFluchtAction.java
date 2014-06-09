@@ -23,6 +23,7 @@ import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
@@ -39,8 +40,8 @@ import java.util.Map;
  */
 public class KSMenuFluchtAction extends BasicKSMenuAction {
 	@Override
-	public Result execute(Battle battle) throws IOException {
-		Result result = super.execute(battle);
+	public Result execute(TemplateEngine t, Battle battle) throws IOException {
+		Result result = super.execute(t, battle);
 		if( result != Result.OK ) {
 			return result;
 		}
@@ -65,7 +66,7 @@ public class KSMenuFluchtAction extends BasicKSMenuAction {
 		Map<String,String> nextfluchtmode = new HashMap<>();
 		nextfluchtmode.put("next", "current");
 							  
-		this.menuEntry( "<span style=\"font-size:3px\">&nbsp;<br /></span>Fluchtzeitpunkt: "+fluchtmodes.get(fluchtmode)+"<br />\n"+
+		this.menuEntry(t, "<span style=\"font-size:3px\">&nbsp;<br /></span>Fluchtzeitpunkt: "+fluchtmodes.get(fluchtmode)+"<br />\n"+
 						"<span style=\"font-size:12px\">&lt; Klicken um Fluchtzeitpunkt zu &auml;ndern &gt;</span><span style=\"font-size:4px\"><br />&nbsp;</span>",
 						"ship",		ownShip.getId(),
 						"attack",	enemyShip.getId(),
@@ -100,7 +101,7 @@ public class KSMenuFluchtAction extends BasicKSMenuAction {
 				gotone && ( (action & Battle.BS_FLUCHTNEXT) == 0 || fluchtmode.equals("current")) ) {
 					
 				if( ownShip.getEngine() > 0 ) {
-					this.menuEntry("Flucht",
+					this.menuEntry(t, "Flucht",
 							"ship",		ownShip.getId(),
 							"attack",	enemyShip.getId(),
 							"ksaction",	"flucht_single",
@@ -127,7 +128,7 @@ public class KSMenuFluchtAction extends BasicKSMenuAction {
 			}
 									
 			if( fluchtidlist > 0 ) {
-				this.menuEntryAsk( "Alle Fl&uuml;chten",
+				this.menuEntryAsk(t, "Alle Fl&uuml;chten",
 						new Object[] {
 							"ship",		ownShip.getId(),
 							"attack",	enemyShip.getId(),
@@ -142,7 +143,7 @@ public class KSMenuFluchtAction extends BasicKSMenuAction {
 				if( idlist == 0 ) {
 					continue;
 				} 
-				this.menuEntryAsk( "Alle "+classID.getPlural()+" fl&uuml;chten lassen",
+				this.menuEntryAsk(t, "Alle "+classID.getPlural()+" fl&uuml;chten lassen",
 						new Object[] {
 							"ship",		ownShip.getId(),
 							"attack",	enemyShip.getId(),
@@ -153,7 +154,7 @@ public class KSMenuFluchtAction extends BasicKSMenuAction {
 			}
 		}
 				
-		this.menuEntry( "zur&uuml;ck",
+		this.menuEntry(t, "zur&uuml;ck",
 				"ship",		ownShip.getId(),
 				"attack",	enemyShip.getId() );
 												

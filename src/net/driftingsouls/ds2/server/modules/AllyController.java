@@ -33,10 +33,11 @@ import net.driftingsouls.ds2.server.framework.DynamicContentManager;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipLost;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -47,6 +48,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -59,20 +61,18 @@ import java.util.stream.Collectors;
  * @author Christopher Jung
  */
 @Module(name = "ally")
-public class AllyController extends TemplateController
+public class AllyController extends Controller
 {
 	private static final Log log = LogFactory.getLog(AllyController.class);
 	private static final double MAX_POSTENCOUNT = 0.3;
 
+	private TemplateViewResultFactory templateViewResultFactory;
 	private Ally ally = null;
 
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public AllyController()
+	@Autowired
+	public AllyController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Allianz");
 	}
@@ -81,20 +81,11 @@ public class AllyController extends TemplateController
 	protected boolean validateAndPrepare()
 	{
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
 
 		this.ally = user.getAlly();
 
-		t.setVar("ally", user.getAlly() != null ? user.getAlly().getId() : 0);
-
 		if (this.ally != null)
 		{
-			t.setVar(
-					"ally.name", Common._title(this.ally.getName()),
-					"user.president", (user.getId() == this.ally.getPresident().getId()),
-					"user.president.npc", (user.getId() == this.ally.getPresident().getId() && user.isNPC()),
-					"ally.id", this.ally.getId());
-
 			addPageMenuEntry("Allgemeines", Common.buildUrl("default"));
 			addPageMenuEntry("Mitglieder", Common.buildUrl("showMembers"));
 			if (user.getId() == this.ally.getPresident().getId())
@@ -114,6 +105,27 @@ public class AllyController extends TemplateController
 		}
 
 		return true;
+	}
+
+	private void setDefaultTemplateVars(TemplateEngine t)
+	{
+		User user = (User) getUser();
+		t.setVar("ally", user.getAlly() != null ? user.getAlly().getId() : 0);
+		if (this.ally != null)
+		{
+			t.setVar(
+					"ally.name", Common._title(this.ally.getName()),
+					"user.president", (user.getId() == this.ally.getPresident().getId()),
+					"user.president.npc", (user.getId() == this.ally.getPresident().getId() && user.isNPC()),
+					"ally.id", this.ally.getId());
+		}
+		else {
+			t.setVar(
+					"ally.name", null,
+					"user.president", false,
+					"user.president.npc", false,
+					"ally.id", 0);
+		}
 	}
 
 	private boolean isUserInAllyFoundBlock(User user)
@@ -151,14 +163,10 @@ public class AllyController extends TemplateController
 	public RedirectViewResult foundAction(String name, User confuser1, User confuser2, String show)
 	{
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
-		t.setVar("show", show);
 
 		if (user.getAlly() != null)
 		{
-			t.setVar("ally.message", "Fehler: Sie sind bereits Mitglied in einer Allianz und k&ouml;nnen daher keine neue Allianz gr&uuml;nden");
-
-			return new RedirectViewResult("default");
+			return new RedirectViewResult("default").withMessage("Fehler: Sie sind bereits Mitglied in einer Allianz und können daher keine neue Allianz gründen");
 		}
 
 		Taskmanager taskmanager = Taskmanager.getInstance();
@@ -166,24 +174,18 @@ public class AllyController extends TemplateController
 		Task[] tasks = taskmanager.getTasksByData(Taskmanager.Types.ALLY_NEW_MEMBER, "*", Integer.toString(user.getId()), "*");
 		if (tasks.length > 0)
 		{
-			t.setVar("ally.message", "Fehler: Sie haben bereits einen Aufnahmeantrag bei einer Allianz gestellt");
-
-			return new RedirectViewResult("defaultNoAlly");
+			return new RedirectViewResult("defaultNoAlly").withMessage("Fehler: Sie haben bereits einen Aufnahmeantrag bei einer Allianz gestellt");
 		}
 
 		if (confuser1 == confuser2)
 		{
-			t.setVar("ally.statusmessage", "<span style=\"color:red\">Einer der angegebenen Unterst&uuml;tzer ist ung&uuml;ltig</span>\n");
-
-			return new RedirectViewResult("showCreateAlly");
+			return new RedirectViewResult("showCreateAlly").withMessage("<span style=\"color:red\">Einer der angegebenen Unterstützer ist ungültig</span>\n");
 		}
 
 		if ((confuser1 == null) || (confuser1.getAlly() != null) ||
 				(confuser2 == null) || (confuser2.getAlly() != null))
 		{
-			t.setVar("ally.statusmessage", "<span style=\"color:red\">Einer der angegebenen Unterst&uuml;tzer ist ung&uuml;ltig</span>\n");
-
-			return new RedirectViewResult("showCreateAlly");
+			return new RedirectViewResult("showCreateAlly").withMessage("<span style=\"color:red\">Einer der angegebenen Unterstützer ist ungültig</span>\n");
 		}
 
 		if (isUserInAllyFoundBlock(confuser1))
@@ -216,9 +218,7 @@ public class AllyController extends TemplateController
 
 		if ((confuser1 == null) || (confuser2 == null))
 		{
-			t.setVar("ally.statusmessage", "<span style=\"color:red\">Einer der angegebenen Unterst&uuml;tzer ist versucht bereits in einer anderen Allianz Mitglied zu werden</span>\n");
-
-			return new RedirectViewResult("showCreateAlly");
+			return new RedirectViewResult("showCreateAlly").withMessage("<span style=\"color:red\">Einer der angegebenen Unterstützer ist versucht bereits in einer anderen Allianz Mitglied zu werden</span>\n");
 		}
 
 		String mastertaskid = taskmanager.addTask(
@@ -234,9 +234,7 @@ public class AllyController extends TemplateController
 		PM.send(user, confuser1.getId(), "Allianzgr&uuml;ndung", "[automatische Nachricht]\nIch habe vor die Allianz " + name + " zu gr&uuml;nden. Da zwei Spieler dieses vorhaben unterst&uuml;tzen m&uuml;ssen habe ich mich an dich gewendet.\nAchtung: Durch die Unterst&uuml;tzung wirst du automatisch Mitglied!\n\n[_intrnlConfTask=" + conf1taskid + "]Willst du die Allianzgr&uuml;ndung unterst&uuml;tzen?[/_intrnlConfTask]", PM.FLAGS_IMPORTANT);
 		PM.send(user, confuser2.getId(), "Allianzgr&uuml;ndung", "[automatische Nachricht]\nIch habe vor die Allianz " + name + " zu gr&uuml;nden. Da zwei Spieler dieses vorhaben unterst&uuml;tzen m&uuml;ssen habe ich mich an dich gewendet.\nAchtung: Durch die Unterst&uuml;tzung wirst du automatisch Mitglied!\n\n[_intrnlConfTask=" + conf2taskid + "]Willst du die Allianzgr&uuml;ndung unterst&uuml;tzen?[/_intrnlConfTask]", PM.FLAGS_IMPORTANT);
 
-		t.setVar("ally.statusmessage", "Die beiden angegebenen Spieler wurden via PM benachrichtigt. Sollten sich beide zur Unterst&uuml;tzung entschlossen haben, wird die Allianz augenblicklich gegr&uuml;ndet. Du wirst au&szlig;erdem via PM benachrichtigt.");
-
-		return null;
+		return new RedirectViewResult("defaultNoAlly").withMessage("Die beiden angegebenen Spieler wurden via PM benachrichtigt. Sollten sich beide zur Unterst&uuml;tzung entschlossen haben, wird die Allianz augenblicklich gegr&uuml;ndet. Du wirst au&szlig;erdem via PM benachrichtigt.");
 	}
 
 	/**
@@ -248,31 +246,23 @@ public class AllyController extends TemplateController
 	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public RedirectViewResult joinAction(String conf, @UrlParam(name = "join") Ally zielAllianz, String show)
+	public Object joinAction(String conf, @UrlParam(name = "join") Ally zielAllianz, String show)
 	{
-		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
-		t.setVar("show", show);
 
 		if (user.getAlly() != null)
 		{
-			t.setVar("ally.message", "Sie sind bereits in einer Allianz. Sie m&uuml;ssen diese erst verlassen um in eine andere Allianz eintreten zu k&ouml;nnen!");
-
-			return new RedirectViewResult("defaultNoAlly");
+			return new RedirectViewResult("defaultNoAlly").withMessage("Sie sind bereits in einer Allianz. Sie müssen diese erst verlassen um in eine andere Allianz eintreten zu können!");
 		}
 
 		if (zielAllianz == null)
 		{
-			t.setVar("ally.message", "Die angegebene Allianz existiert nicht");
-
-			return new RedirectViewResult("defaultNoAlly");
+			return new RedirectViewResult("defaultNoAlly").withMessage("Die angegebene Allianz existiert nicht");
 		}
 
 		if (isUserInAllyFoundBlock(user))
 		{
-			t.setVar("ally.message", "Es gibt eine oder mehrere Anfragen an sie zwecks Unterst&uuml;tzung einer Allianzgr&uuml;ndung. Sie m&uuml;ssen diese Anfragen erst bearbeiten bevor sie einer Allianz beitreten k&ouml;nnen.");
-
-			return new RedirectViewResult("defaultNoAlly");
+			return new RedirectViewResult("defaultNoAlly").withMessage("Es gibt eine oder mehrere Anfragen an sie zwecks Unterstützung einer Allianzgründung. Sie m&uuml;ssen diese Anfragen erst bearbeiten bevor sie einer Allianz beitreten können.");
 		}
 
 		Session db = getDB();
@@ -282,9 +272,7 @@ public class AllyController extends TemplateController
 				.uniqueResult();
 		if (battlesAgainstAlly > 0)
 		{
-			t.setVar("ally.message", "Sie k&ouml;nnen keiner Allianz beitreten gegen die Sie k&auml;mpfen.");
-
-			return new RedirectViewResult("defaultNoAlly");
+			return new RedirectViewResult("defaultNoAlly").withMessage("Sie können keiner Allianz beitreten gegen die Sie kämpfen.");
 		}
 
 		Taskmanager taskmanager = Taskmanager.getInstance();
@@ -292,18 +280,19 @@ public class AllyController extends TemplateController
 		Task[] tasks = taskmanager.getTasksByData(Taskmanager.Types.ALLY_NEW_MEMBER, "*", Integer.toString(user.getId()), "*");
 		if (tasks.length > 0)
 		{
-			t.setVar("ally.message", "Fehler: Sie haben bereits einen Aufnahmeantrag bei einer Allianz gestellt");
-
-			return new RedirectViewResult("defaultNoAlly");
+			return new RedirectViewResult("defaultNoAlly").withMessage("Fehler: Sie haben bereits einen Aufnahmeantrag bei einer Allianz gestellt");
 		}
 
 		if (!conf.equals("ok"))
 		{
+			TemplateEngine t = templateViewResultFactory.createFor(this);
+			setDefaultTemplateVars(t);
+			t.setVar("show", show);
 			t.setVar("ally.statusmessage", "Wollen sie der Allianz &gt;" + Common._title(zielAllianz.getName()) + "&lt; wirklich beitreten?",
 					"ally.statusmessage.ask.url1", "&amp;action=join&amp;join=" + zielAllianz.getId() + "&amp;conf=ok",
 					"ally.statusmessage.ask.url2", "");
 
-			return new RedirectViewResult("defaultNoAlly");
+			return t;
 		}
 
 		String taskid = taskmanager.addTask(Taskmanager.Types.ALLY_NEW_MEMBER, 35, Integer.toString(zielAllianz.getId()), Integer.toString(user.getId()), "");
@@ -315,9 +304,7 @@ public class AllyController extends TemplateController
 					"Aufnahmeantrag", "[Automatische Nachricht]\nHiermit beantrage ich die Aufnahme in die Allianz.\n\n[_intrnlConfTask=" + taskid + "]Wollen sie dem Aufnahmeantrag zustimmen?[/_intrnlConfTask]", PM.FLAGS_IMPORTANT);
 		}
 
-		t.setVar("ally.statusmessage", "Der Aufnahmeantrag wurde weitergeleitet. Die Bearbeitung kann jedoch abh&auml;ngig von der Allianz l&auml;ngere Zeit in anspruch nehmen. Sollten sie aufgenommen werden, wird automatisch eine PM an sie gesendet.");
-
-		return null;
+		return new RedirectViewResult("defaultNoAlly").withMessage("Der Aufnahmeantrag wurde weitergeleitet. Die Bearbeitung kann jedoch abhängig von der Allianz längere Zeit in anspruch nehmen. Sollten sie aufgenommen werden, wird automatisch eine PM an sie gesendet.");
 	}
 
 	/**
@@ -328,18 +315,16 @@ public class AllyController extends TemplateController
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult deleteRangAction(int rangnr, String show)
 	{
-		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
-		t.setVar("show", show);
 
 		if (this.ally.getPresident().getId() != user.getId() || !user.isNPC())
 		{
-			t.setVar("ally.message", "Fehler: Nur der Pr&auml;sident einer NPC-Allianz kann diese Aktion durchf&uuml;hren");
-			return new RedirectViewResult("showPosten");
+			return new RedirectViewResult("showPosten").withMessage("Fehler: Nur der Präsident einer NPC-Allianz kann diese Aktion durchführen");
 		}
 
 		AllyRangDescriptor rang = findeAllianzRangMitNummer(rangnr);
 
+		String message = null;
 		if (rang != null)
 		{
 			if (rang.getCustomImg() != null)
@@ -349,10 +334,10 @@ public class AllyController extends TemplateController
 			getDB().delete(rang);
 			this.ally.getRangDescriptors().remove(rang);
 
-			t.setVar("ally.statusmessage", "Rang gel&ouml;scht");
+			message = "Rang gelöscht";
 		}
 
-		return new RedirectViewResult("showRaenge");
+		return new RedirectViewResult("showRaenge").withMessage(message);
 	}
 
 	private AllyRangDescriptor findeAllianzRangMitNummer(int rangnr)
@@ -378,21 +363,16 @@ public class AllyController extends TemplateController
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult addOrEditRangAction(String rangname, int rangnr, String show)
 	{
-		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
-
-		t.setVar("show", show);
 
 		if (this.ally.getPresident().getId() != user.getId() || !user.isNPC())
 		{
-			t.setVar("ally.message", "Fehler: Nur der Pr&auml;sident einer NPC-Allianz kann diese Aktion durchf&uuml;hren");
-			return new RedirectViewResult("showPosten");
+			return new RedirectViewResult("showPosten").withMessage("Fehler: Nur der Präsident einer NPC-Allianz kann diese Aktion durchführen");
 		}
 
 		if (rangname.length() == 0 || rangnr < 0)
 		{
-			t.setVar("ally.message", "Fehler: Sie m&uuml;ssen g&uuml;ltige Angaben machen.");
-			return new RedirectViewResult("showPosten");
+			return new RedirectViewResult("showPosten").withMessage("Fehler: Sie müssen gültige Angaben machen.");
 		}
 
 		AllyRangDescriptor rang = findeAllianzRangMitNummer(rangnr);
@@ -423,13 +403,11 @@ public class AllyController extends TemplateController
 			}
 			catch (Exception e)
 			{
-				t.setVar("ally.statusmessage", "Offenbar ging beim Upload etwas schief");
 				log.warn(e);
 			}
 		}
 
-		t.setVar("ally.statusmessage", "Der Rang " + rangname + " wurde erstellt und zugewiesen");
-		return new RedirectViewResult("showRaenge");
+		return new RedirectViewResult("showRaenge").withMessage("Der Rang " + rangname + " wurde erstellt und zugewiesen");
 	}
 
 	/**
@@ -440,20 +418,17 @@ public class AllyController extends TemplateController
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult deletePostenAction(@UrlParam(name = "postenid") AllyPosten posten, String show)
 	{
-		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
-		t.setVar("show", show);
+
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
-			t.setVar("ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren");
-			return new RedirectViewResult("showPosten");
+			return new RedirectViewResult("showPosten").withMessage("Fehler: Nur der Präsident der Allianz kann diese Aktion durchführen");
 		}
 
 		if (posten == null || posten.getAlly() != this.ally)
 		{
-			t.setVar("ally.message", "Fehler: Der angegebene Posten ist ungueltig");
-			return new RedirectViewResult("showPosten");
+			return new RedirectViewResult("showPosten").withMessage("Fehler: Der angegebene Posten ist ungueltig");
 		}
 
 		if (posten.getUser() != null)
@@ -462,9 +437,7 @@ public class AllyController extends TemplateController
 		}
 		getDB().delete(posten);
 
-		t.setVar("ally.statusmessage", "Posten gel&ouml;scht");
-
-		return new RedirectViewResult("showPosten");
+		return new RedirectViewResult("showPosten").withMessage("Posten gelöscht");
 	}
 
 	/**
@@ -476,32 +449,26 @@ public class AllyController extends TemplateController
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult editPostenAction(@UrlParam(name = "user") User formuser, @UrlParam(name = "id") AllyPosten posten, String show)
 	{
-		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
-		t.setVar("show", show);
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
-			t.setVar("ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren");
-			return new RedirectViewResult("showPosten");
+			return new RedirectViewResult("showPosten").withMessage("Fehler: Nur der Präsident der Allianz kann diese Aktion durchführen");
 		}
 
 		if (formuser == null || formuser.getAlly() == null || formuser.getAlly() != this.ally)
 		{
-			t.setVar("ally.message", "Fehler: Sie m&uuml;ssen den Posten jemandem zuweisen");
-			return new RedirectViewResult("showPosten");
+			return new RedirectViewResult("showPosten").withMessage("Fehler: Sie müssen den Posten jemandem zuweisen");
 		}
 
 		if (formuser.getAllyPosten() != null)
 		{
-			t.setVar("ally.message", "Fehler: Jedem Mitglied darf maximal ein Posten zugewiesen werden");
-			return new RedirectViewResult("showPosten");
+			return new RedirectViewResult("showPosten").withMessage("Fehler: Jedem Mitglied darf maximal ein Posten zugewiesen werden");
 		}
 
 		if (posten == null || posten.getAlly() != this.ally)
 		{
-			t.setVar("ally.message", "Fehler: Der angegebene Posten ist ungueltig");
-			return new RedirectViewResult("showPosten");
+			return new RedirectViewResult("showPosten").withMessage("Fehler: Der angegebene Posten ist ungültig");
 		}
 
 		if (posten.getUser() != null)
@@ -510,8 +477,7 @@ public class AllyController extends TemplateController
 		}
 		formuser.setAllyPosten(posten);
 
-		t.setVar("ally.statusmessage", "&Auml;nderungen gespeichert");
-		return new RedirectViewResult("showPosten");
+		return new RedirectViewResult("showPosten").withMessage("Änderungen gespeichert");
 	}
 
 	/**
@@ -523,26 +489,21 @@ public class AllyController extends TemplateController
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult addPostenAction(String name, @UrlParam(name = "user") User formuser, String show)
 	{
-		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
-		t.setVar("show", show);
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
-			t.setVar("ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren");
-			return new RedirectViewResult("showPosten");
+			return new RedirectViewResult("showPosten").withMessage("Fehler: Nur der Präsident der Allianz kann diese Aktion durchführen");
 		}
 
 		if (name.length() == 0)
 		{
-			t.setVar("ally.message", "Fehler: Sie m&uuml;ssen dem Posten einen Namen geben");
-			return new RedirectViewResult("showPosten");
+			return new RedirectViewResult("showPosten").withMessage("Fehler: Sie müssen dem Posten einen Namen geben");
 		}
 
 		if (formuser.getAllyPosten() != null)
 		{
-			t.setVar("ally.message", "Fehler: Jedem Mitglied darf maximal ein Posten zugewiesen werden");
-			return new RedirectViewResult("showPosten");
+			return new RedirectViewResult("showPosten").withMessage("Fehler: Jedem Mitglied darf maximal ein Posten zugewiesen werden");
 		}
 
 		long postencount = (Long) getDB()
@@ -557,16 +518,14 @@ public class AllyController extends TemplateController
 
 		if (maxposten <= postencount)
 		{
-			t.setVar("ally.message", "Fehler: Sie haben bereits die maximale Anzahl an Posten erreicht");
-			return new RedirectViewResult("showPosten");
+			return new RedirectViewResult("showPosten").withMessage("Fehler: Sie haben bereits die maximale Anzahl an Posten erreicht");
 		}
 
 		AllyPosten posten = new AllyPosten(this.ally, name);
 		getDB().persist(posten);
 		formuser.setAllyPosten(posten);
 
-		t.setVar("ally.statusmessage", "Der Posten " + Common._plaintitle(name) + " wurde erstellt und zugewiesen");
-		return new RedirectViewResult("showPosten");
+		return new RedirectViewResult("showPosten").withMessage("Der Posten " + Common._plaintitle(name) + " wurde erstellt und zugewiesen");
 	}
 
 	/**
@@ -580,15 +539,12 @@ public class AllyController extends TemplateController
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult createChannelAction(String name, String read, String readids, String write, String writeids, String show)
 	{
-		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
-		t.setVar("show", show);
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
-			t.setVar("ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren");
-			return new RedirectViewResult("showAllySettings");
+			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchführen");
 		}
 
 		int count = ((Number) db.createQuery("select count(*) from ComNetChannel where allyOwner=:owner")
@@ -597,14 +553,12 @@ public class AllyController extends TemplateController
 
 		if (count >= 2)
 		{
-			t.setVar("ally.message", "Fehler: Ihre Allianz besitzt bereits zwei Frequenzen");
-			return new RedirectViewResult("showAllySettings");
+			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Ihre Allianz besitzt bereits zwei Frequenzen");
 		}
 
 		if (name.length() == 0)
 		{
-			t.setVar("ally.message", "Fehler: Sie haben keinen Namen f&uuml;r die Frequenz eingegeben");
-			return new RedirectViewResult("showAllySettings");
+			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Sie haben keinen Namen für die Frequenz eingegeben");
 		}
 
 		ComNetChannel channel = new ComNetChannel(name);
@@ -639,8 +593,7 @@ public class AllyController extends TemplateController
 		}
 		db.persist(channel);
 
-		t.setVar("ally.statusmessage", "Frequenz " + Common._title(name) + " hinzugef&uuml;gt");
-		return new RedirectViewResult("showAllySettings");
+		return new RedirectViewResult("showAllySettings").withMessage("Frequenz " + Common._title(name) + " hinzugefügt");
 	}
 
 	/**
@@ -655,26 +608,21 @@ public class AllyController extends TemplateController
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult editChannelAction(@UrlParam(name = "edit") ComNetChannel channel, String name, String read, String write, String readids, String writeids, String show)
 	{
-		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
-		t.setVar("show", show);
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
-			t.setVar("ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren");
-			return new RedirectViewResult("showAllySettings");
+			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Nur der Präsident der Allianz kann diese Aktion durchführen");
 		}
 
 		if ((channel == null) || (channel.getAllyOwner() != this.ally.getId()))
 		{
-			t.setVar("ally.message", "Fehler: Diese Frequenz geh&ouml;rt nicht ihrer Allianz");
-			return new RedirectViewResult("showAllySettings");
+			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Diese Frequenz gehört nicht ihrer Allianz");
 		}
 
 		if (name.length() == 0)
 		{
-			t.setVar("ally.message", "Fehler: Sie haben keinen Namen f&uuml;r die Frequenz eingegeben");
-			return new RedirectViewResult("showAllySettings");
+			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Sie haben keinen Namen für die Frequenz eingegeben");
 		}
 
 		channel.setName(name);
@@ -713,8 +661,7 @@ public class AllyController extends TemplateController
 				break;
 		}
 
-		t.setVar("ally.statusmessage", "Frequenz " + Common._plaintitle(name) + " ge&auml;ndert");
-		return new RedirectViewResult("showAllySettings");
+		return new RedirectViewResult("showAllySettings").withMessage("Frequenz " + Common._plaintitle(name) + " geändert");
 	}
 
 	/**
@@ -724,31 +671,30 @@ public class AllyController extends TemplateController
 	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public RedirectViewResult deleteChannelAction(ComNetChannel channel, String conf, String show)
+	public Object deleteChannelAction(ComNetChannel channel, String conf, String show)
 	{
-		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
-		t.setVar("show", show);
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
-			t.setVar("ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren");
-			return new RedirectViewResult("showAllySettings");
+			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Nur der Präsident der Allianz kann diese Aktion durchführen");
 		}
 
 		if ((channel == null) || (channel.getAllyOwner() != this.ally.getId()))
 		{
-			t.setVar("ally.message", "Fehler: Diese Frequenz geh&ouml;rt nicht ihrer Allianz");
-			return new RedirectViewResult("showAllySettings");
+			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Diese Frequenz gehört nicht ihrer Allianz");
 		}
 
 		if (!conf.equals("ok"))
 		{
+			TemplateEngine t = templateViewResultFactory.createFor(this);
+			setDefaultTemplateVars(t);
+			t.setVar("show", show);
 			t.setVar("ally.statusmessage", "Wollen sie die Frequenz \"" + Common._title(channel.getName()) + "\" wirklich l&ouml;schen?",
 					"ally.statusmessage.ask.url1", "&amp;action=deleteChannel&amp;channel=" + channel.getId() + "&amp;conf=ok&amp;show=" + show,
 					"ally.statusmessage.ask.url2", "&amp;show=" + show);
-			return null;
+			return t;
 		}
 
 		db.createQuery("delete from ComNetVisit where channel=:channel")
@@ -761,8 +707,7 @@ public class AllyController extends TemplateController
 
 		db.delete(channel);
 
-		t.setVar("ally.statusmessage", "Die Frequenz wurde gel&ouml;scht");
-		return new RedirectViewResult("showAllySettings");
+		return new RedirectViewResult("showAllySettings").withMessage("Die Frequenz wurde gelöscht");
 	}
 
 	private static final int MAX_UPLOAD_SIZE = 307200;
@@ -774,14 +719,11 @@ public class AllyController extends TemplateController
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult uploadLogoAction(String show)
 	{
-		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
-		t.setVar("show", show);
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
-			t.setVar("ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren");
-			return new RedirectViewResult("showAllySettings");
+			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Nur der Präsident der Allianz kann diese Aktion durchführen");
 		}
 
 		List<FileItem> list = getContext().getRequest().getUploadedFiles();
@@ -792,24 +734,24 @@ public class AllyController extends TemplateController
 
 		if (list.get(0).getSize() > MAX_UPLOAD_SIZE)
 		{
-			t.setVar("options.message", "Das Logo ist leider zu gro&szlig;. Bitte w&auml;hle eine Datei mit maximal 300kB Gr&ouml;&stlig;e<br />");
-			return new RedirectViewResult("showAllySettings");
+			return new RedirectViewResult("showAllySettings").withMessage("Das Logo ist leider zu groß. Bitte w&auml;hle eine Datei mit maximal 300kB Größe<br />");
 		}
 
+		String message = null;
 		String uploaddir = Configuration.getAbsolutePath() + "data/logos/ally/";
 		try
 		{
 			File uploadedFile = new File(uploaddir + this.ally.getId() + ".gif");
 			list.get(0).write(uploadedFile);
-			t.setVar("options.message", "Das neue Logo wurde auf dem Server gespeichert<br />");
+			message = "Das neue Logo wurde auf dem Server gespeichert<br />";
 		}
 		catch (Exception e)
 		{
-			t.setVar("options.message", "Offenbar ging beim Upload etwas schief (Ist die Datei evt. zu gro&szlig;?)<br />");
+			message = "Offenbar ging beim Upload etwas schief (Ist die Datei evt. zu groß?)<br />";
 			log.warn("", e);
 		}
 
-		return new RedirectViewResult("showAllySettings");
+		return new RedirectViewResult("showAllySettings").withMessage(message);
 	}
 
 	/**
@@ -827,33 +769,27 @@ public class AllyController extends TemplateController
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult changeSettingsAction(String name, String desc, String allytag, String hp, String praesi, boolean showastis, boolean showGtuBieter, boolean showlrs, String show)
 	{
-		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
-		t.setVar("show", show);
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
-			t.setVar("ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren");
-			return new RedirectViewResult("showAllySettings");
+			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Nur der Präsident der Allianz kann diese Aktion durchführen");
 		}
 
 		// Wurde der [name]-Tag vergessen?
 		if (!allytag.contains("[name]"))
 		{
-			t.setVar("ally.message", "Warnung: Der [name]-tag wurde vergessen. Dieser wird nun automatisch angeh&auml;ngt!");
 			allytag += "[name]";
 		}
 
 		if (name.length() == 0)
 		{
-			t.setVar("ally.message", "Fehler: Sie m&uuml;ssen einen Allianznamen angeben");
-			return new RedirectViewResult("showAllySettings");
+			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Sie müssen einen Allianznamen angeben");
 		}
 
 		if (praesi.length() == 0)
 		{
-			t.setVar("ally.message", "Fehler: Sie m&uuml;ssen dem Pr&auml;sidentenamt einen Namen geben");
-			return new RedirectViewResult("showAllySettings");
+			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Sie müssen dem Präsidentenamt einen Namen geben");
 		}
 
 		this.ally.setName(name);
@@ -877,9 +813,7 @@ public class AllyController extends TemplateController
 			}
 		}
 
-		t.setVar("ally.statusmessage", "Neue Daten gespeichert...");
-
-		return new RedirectViewResult("showAllySettings");
+		return new RedirectViewResult("showAllySettings").withMessage("Neue Daten gespeichert...");
 	}
 
 	/**
@@ -888,37 +822,33 @@ public class AllyController extends TemplateController
 	 * @param show Die nach der Bestaetigung anzuzeigende Aktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public RedirectViewResult partAction(String conf, String show)
+	public Object partAction(String conf, String show)
 	{
-		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
-		t.setVar("show", show);
 
 		if (this.ally.getPresident().getId() == user.getId())
 		{
-			t.setVar("ally.message", "<span style=\"color:red\">Sie k&ouml;nnen erst austreten, wenn ein anderer Pr&auml;sident bestimmt wurde");
-			return new RedirectViewResult("default");
+			return new RedirectViewResult("default").withMessage("<span style=\"color:red\">Sie können erst austreten, wenn ein anderer Präsident bestimmt wurde");
 		}
 
 		if (!conf.equals("ok"))
 		{
+			TemplateEngine t = templateViewResultFactory.createFor(this);
+			setDefaultTemplateVars(t);
+			t.setVar("show", show);
 			t.setVar("ally.statusmessage", "Wollen sie wirklich aus der Allianz austreten?",
 					"ally.statusmessage.ask.url1", "&amp;action=part&amp;conf=ok&amp;show=" + show,
 					"ally.statusmessage.ask.url2", "&amp;show=" + show);
-			return null;
+			return t;
 		}
 
 		PM.send(user, this.ally.getPresident().getId(), "Allianz verlassen",
 				"Ich habe die Allianz verlassen");
 
 		ally.removeUser(user);
-
-		t.setVar("ally.showmessage", "Allianz verlassen");
-
 		this.ally = null;
-		t.setVar("ally", 0);
 
-		return new RedirectViewResult("defaultNoAlly");
+		return new RedirectViewResult("defaultNoAlly").withMessage("Allianz verlassen");
 	}
 
 	/**
@@ -927,38 +857,35 @@ public class AllyController extends TemplateController
 	 * @param show Die nach der Bestaetigung anzuzeigende Aktion
 	 */
 	@Action(ActionType.DEFAULT)
-	public RedirectViewResult killAction(String conf, String show)
+	public Object killAction(String conf, String show)
 	{
-		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
-		t.setVar("show", show);
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
-			t.setVar("ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren");
-			return new RedirectViewResult("default");
+			return new RedirectViewResult("default").withMessage("Fehler: Nur der Präsident der Allianz kann diese Aktion durchf&uuml;hren");
 		}
 
 		if (!conf.equals("ok"))
 		{
+			TemplateEngine t = templateViewResultFactory.createFor(this);
+			setDefaultTemplateVars(t);
+			t.setVar("show", show);
 			t.setVar("ally.statusmessage", "Wollen sie die Allianz wirklich aufl&ouml;sen?",
 					"ally.statusmessage.ask.url1", "&amp;action=kill&amp;conf=ok&amp;show=" + show,
 					"ally.statusmessage.ask.url2", "&amp;show=" + show);
+
+			return t;
 		}
 		else
 		{
 			PM.sendToAlly(user, this.ally, "Allianz aufgel&ouml;st", "Die Allianz wurde mit sofortiger Wirkung aufgel&ouml;st");
 
 			this.ally.destroy();
-
-			t.setVar("ally.statusmessage", "Die Allianz wurde aufgel&ouml;st");
-
 			this.ally = null;
-			t.setVar("ally", 0);
 
-			return new RedirectViewResult("defaultNoAlly");
+			return new RedirectViewResult("defaultNoAlly").withMessage("Die Allianz wurde aufgelöst");
 		}
-		return null;
 	}
 
 	/**
@@ -969,29 +896,23 @@ public class AllyController extends TemplateController
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult newPraesiAction(int presn, String show)
 	{
-		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
-		t.setVar("show", show);
 
 		if (this.ally.getPresident() != user)
 		{
-			t.setVar("ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren");
-			return new RedirectViewResult("showMembers");
+			return new RedirectViewResult("showMembers").withMessage("Fehler: Nur der Präsident der Allianz kann diese Aktion durchführen");
 		}
 
 		User presnuser = (User) getContext().getDB().get(User.class, presn);
 		if (presnuser.getAlly() != this.ally)
 		{
-			t.setVar("ally.message", "Dieser Spieler ist nicht Mitglied ihrer Allianz");
-			return new RedirectViewResult("showMembers");
+			return new RedirectViewResult("showMembers").withMessage("Dieser Spieler ist nicht Mitglied ihrer Allianz");
 		}
 
 		this.ally.setPresident(presnuser);
-		t.setVar("ally.statusmessage", presnuser.getProfileLink() + " zum Pr&auml;sidenten ernannt");
+		PM.send(this.ally.getPresident(), presnuser.getId(), "Zum Pr&auml;sidenten ernannt", "Ich habe dich zum Präsidenten der Allianz ernannt");
 
-		PM.send(this.ally.getPresident(), presnuser.getId(), "Zum Pr&auml;sidenten ernannt", "Ich habe dich zum Pr&auml;sidenten der Allianz ernannt");
-
-		return new RedirectViewResult("showMembers");
+		return new RedirectViewResult("showMembers").withMessage(presnuser.getProfileLink() + " zum Präsidenten ernannt");
 	}
 
 	/**
@@ -1002,36 +923,29 @@ public class AllyController extends TemplateController
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult kickAction(int kick, String show)
 	{
-		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
-		t.setVar("show", show);
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
-			t.setVar("ally.message", "Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchf&uuml;hren");
-			return new RedirectViewResult("showMembers");
+			return new RedirectViewResult("showMembers").withMessage("Fehler: Nur der Präsident der Allianz kann diese Aktion durchführen");
 		}
 
 		if (kick == user.getId())
 		{
-			t.setVar("ally.message", "Sie k&ouml;nnen sich nicht selber aus der Allianz werfen");
-			return new RedirectViewResult("showMembers");
+			return new RedirectViewResult("showMembers").withMessage("Sie können sich nicht selber aus der Allianz werfen");
 		}
 
 		User kickuser = (User) getContext().getDB().get(User.class, kick);
 		if (!this.ally.equals(kickuser.getAlly()))
 		{
-			t.setVar("ally.message", "Dieser Spieler ist nicht Mitglied ihrer Allianz");
-			return new RedirectViewResult("showMembers");
+			return new RedirectViewResult("showMembers").withMessage("Dieser Spieler ist nicht Mitglied ihrer Allianz");
 		}
 
 		this.ally.removeUser(kickuser);
 
-		t.setVar("ally.statusmessage", Common._title(kickuser.getName()) + " aus der Allianz geworfen");
-
 		PM.send(this.ally.getPresident(), kickuser.getId(), "Aus der Allianz geworfen", "Ich habe dich aus der Allianz geworfen.");
 
-		return new RedirectViewResult("showMembers");
+		return new RedirectViewResult("showMembers").withMessage(Common._title(kickuser.getName()) + " aus der Allianz geworfen");
 	}
 
 	/**
@@ -1039,9 +953,12 @@ public class AllyController extends TemplateController
 	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultNoAllyAction(String show)
+	public TemplateEngine defaultNoAllyAction(String show, RedirectViewResult redirect)
 	{
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
+		setDefaultTemplateVars(t);
+		t.setVar("ally.message", redirect != null ? redirect.getMessage() : null);
+
 		t.setVar("show", show);
 
 		t.setVar("show.join", 1);
@@ -1057,6 +974,7 @@ public class AllyController extends TemplateController
 
 			t.parse("show.join.allylist.list", "show.join.allylist.listitem", true);
 		}
+		return t;
 	}
 
 	/**
@@ -1064,9 +982,13 @@ public class AllyController extends TemplateController
 	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public void showCreateAllyAction(String show)
+	public TemplateEngine showCreateAllyAction(String show, RedirectViewResult redirect)
 	{
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
+		setDefaultTemplateVars(t);
+
+		t.setVar("ally.statusmessage", redirect != null ? redirect.getMessage() : null);
+
 		User user = (User) getUser();
 		t.setVar("show", show);
 
@@ -1078,6 +1000,8 @@ public class AllyController extends TemplateController
 		{
 			t.setVar("show.create", 1);
 		}
+
+		return t;
 	}
 
 	/**
@@ -1085,10 +1009,8 @@ public class AllyController extends TemplateController
 	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public RedirectViewResult showRaengeAction(String show)
+	public Object showRaengeAction(String show, RedirectViewResult redirect)
 	{
-		TemplateEngine t = getTemplateEngine();
-		t.setVar("show", show);
 		if (this.ally == null)
 		{
 			return new RedirectViewResult("defaultNoAlly");
@@ -1100,6 +1022,10 @@ public class AllyController extends TemplateController
 			return new RedirectViewResult("default");
 		}
 
+		TemplateEngine t = templateViewResultFactory.createFor(this);
+		setDefaultTemplateVars(t);
+		t.setVar("show", show);
+		t.setVar("ally.message", redirect != null ? redirect.getMessage() : null);
 
 		t.setVar("show.raenge", 1,
 				"show.raenge.modify.list", "");
@@ -1116,7 +1042,7 @@ public class AllyController extends TemplateController
 
 			t.parse("show.raenge.modify.list", "show.raenge.modify.listitem", true);
 		}
-		return null;
+		return t;
 	}
 
 	/**
@@ -1124,14 +1050,17 @@ public class AllyController extends TemplateController
 	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public RedirectViewResult showPostenAction(String show)
+	public Object showPostenAction(String show, RedirectViewResult redirect)
 	{
-		TemplateEngine t = getTemplateEngine();
-		t.setVar("show", show);
 		if (this.ally == null)
 		{
 			return new RedirectViewResult("defaultNoAlly");
 		}
+
+		TemplateEngine t = templateViewResultFactory.createFor(this);
+		setDefaultTemplateVars(t);
+		t.setVar("show", show);
+		t.setVar("ally.message", redirect != null ? redirect.getMessage() : null);
 
 		org.hibernate.Session db = getDB();
 
@@ -1199,7 +1128,7 @@ public class AllyController extends TemplateController
 				t.parse("show.posten.addposten.userlist.list", "show.posten.addposten.userlist.listitem", true);
 			}
 		}
-		return null;
+		return t;
 	}
 
 	/**
@@ -1209,9 +1138,10 @@ public class AllyController extends TemplateController
 	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public RedirectViewResult showBattlesAction(long destpos, long lostpos, String show)
+	public Object showBattlesAction(long destpos, long lostpos, String show)
 	{
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
+		setDefaultTemplateVars(t);
 		t.setVar("show", show);
 		if (this.ally == null)
 		{
@@ -1366,7 +1296,7 @@ public class AllyController extends TemplateController
 			t.parse("show.lostships.linefiller.list", "show.lostships.linefiller.listitem", true);
 			counter++;
 		}
-		return null;
+		return t;
 	}
 
 	/**
@@ -1374,9 +1304,10 @@ public class AllyController extends TemplateController
 	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public RedirectViewResult showAllySettingsAction(String show)
+	public Object showAllySettingsAction(String show, RedirectViewResult redirect)
 	{
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
+		setDefaultTemplateVars(t);
 		t.setVar("show", show);
 		if (this.ally == null)
 		{
@@ -1389,6 +1320,8 @@ public class AllyController extends TemplateController
 		{
 			return new RedirectViewResult("default");
 		}
+
+		t.setVar("ally.message", redirect != null ? redirect.getMessage() : null);
 
 		org.hibernate.Session db = getDB();
 
@@ -1449,7 +1382,7 @@ public class AllyController extends TemplateController
 				break;
 			}
 		}
-		return null;
+		return t;
 	}
 
 	/**
@@ -1457,15 +1390,17 @@ public class AllyController extends TemplateController
 	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public RedirectViewResult showMembersAction(String show)
+	public Object showMembersAction(String show, RedirectViewResult redirect)
 	{
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
+		setDefaultTemplateVars(t);
 		t.setVar("show", show);
 		if (this.ally == null)
 		{
 			return new RedirectViewResult("defaultNoAlly");
 		}
 
+		t.setVar("ally.message", redirect != null ? redirect.getMessage() : null);
 		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
 
@@ -1519,7 +1454,7 @@ public class AllyController extends TemplateController
 
 			t.parse("show.members.list", "show.members.listitem", true);
 		}
-		return null;
+		return t;
 	}
 
 	/**
@@ -1528,15 +1463,18 @@ public class AllyController extends TemplateController
 	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public RedirectViewResult defaultAction(String show)
+	public Object defaultAction(String show, RedirectViewResult redirect)
 	{
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
+		setDefaultTemplateVars(t);
 		t.setVar("show", show);
 
 		if (this.ally == null)
 		{
 			return new RedirectViewResult("defaultNoAlly");
 		}
+
+		t.setVar("ally.message", redirect != null ? redirect.getMessage() : null);
 
 		/*
 			Allgemeines
@@ -1609,6 +1547,6 @@ public class AllyController extends TemplateController
 				t.parse("ally.addmembers.list", "ally.addmembers.listitem", true);
 			}
 		}
-		return null;
+		return t;
 	}
 }

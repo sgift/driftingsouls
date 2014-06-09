@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import java.io.IOException;
 import java.util.LinkedHashSet;
@@ -39,8 +40,8 @@ import java.util.Set;
  */
 public class KSMenuBattleConsignAction extends BasicKSMenuAction {
 	@Override
-	public Result execute(Battle battle) throws IOException {		
-		Result result = super.execute(battle);
+	public Result execute(TemplateEngine t, Battle battle) throws IOException {
+		Result result = super.execute(t, battle);
 		if( result != Result.OK ) {
 			return result;
 		}
@@ -76,7 +77,7 @@ public class KSMenuBattleConsignAction extends BasicKSMenuAction {
 			if( member.getId() == user.getId() ) {
 				continue;
 			}
-			this.menuEntryAsk( Common._titleNoFormat(member.getName()),
+			this.menuEntryAsk(t, Common._titleNoFormat(member.getName()),
 								new Object[] {	"ship",		ownShip.getId(),
 												"attack",	enemyShip.getId(),
 												"ksaction",	"new_commander2",
@@ -84,7 +85,7 @@ public class KSMenuBattleConsignAction extends BasicKSMenuAction {
 								"Wollen sie das Kommando wirklich an "+Common._titleNoFormat(member.getName())+" &uuml;bergeben?" );
 		}
 		
-		this.menuEntry("zur&uuml;ck",
+		this.menuEntry(t, "zur&uuml;ck",
 				"ship",		ownShip.getId(),
 				"attack",	enemyShip.getId(),
 				"ksaction",	"other" );

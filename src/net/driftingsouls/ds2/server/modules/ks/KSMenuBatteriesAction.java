@@ -23,6 +23,7 @@ import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
@@ -66,8 +67,8 @@ public class KSMenuBatteriesAction extends BasicKSMenuAction {
 	}
 
 	@Override
-	public Result execute(Battle battle) throws IOException {
-		Result result = super.execute(battle);
+	public Result execute(TemplateEngine t, Battle battle) throws IOException {
+		Result result = super.execute(t, battle);
 		if( result != Result.OK ) {
 			return result;
 		}
@@ -76,7 +77,7 @@ public class KSMenuBatteriesAction extends BasicKSMenuAction {
 		BattleShip enemyShip = battle.getEnemyShip();
 	
 		if( this.isPossible(battle, new KSDischargeBatteriesSingleAction() ) == Result.OK ) {
-			this.menuEntry( "Batterien entladen", 
+			this.menuEntry(t, "Batterien entladen",
 								"ship",		ownShip.getId(),
 								"attack",	enemyShip.getId(),
 								"ksaction",	"batterien_single" );
@@ -103,7 +104,7 @@ public class KSMenuBatteriesAction extends BasicKSMenuAction {
 		}
 								
 		if( battsidlist > 0 ) {
-			this.menuEntryAsk( "Alle Batterien entladen",
+			this.menuEntryAsk(t, "Alle Batterien entladen",
 								new Object[] {	"ship",		ownShip.getId(),
 												"attack",	enemyShip.getId(),
 												"ksaction",	"batterien_all" },
@@ -117,7 +118,7 @@ public class KSMenuBatteriesAction extends BasicKSMenuAction {
 			if( idlist == 0 ) {
 				continue;
 			} 
-			this.menuEntryAsk( "Bei allen "+classID.getPlural()+"n die Batterien entladen",
+			this.menuEntryAsk(t, "Bei allen "+classID.getPlural()+"n die Batterien entladen",
 								new Object[] { 	"ship",			ownShip.getId(),
 												"attack",		enemyShip.getId(),
 												"ksaction",		"batterien_class",
@@ -125,7 +126,7 @@ public class KSMenuBatteriesAction extends BasicKSMenuAction {
 								"Wollen sie wirklich bei allen Schiffen der Klasse '"+classID.getSingular()+"' die Batterien entladen?" );
 		}
 				
-		this.menuEntry("zur&uuml;ck",	
+		this.menuEntry(t, "zur&uuml;ck",
 				"ship",		ownShip.getId(),
 				"attack",	enemyShip.getId(),
 				"ksaction",	"other" );

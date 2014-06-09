@@ -18,10 +18,11 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import java.io.IOException;
-
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+
+import java.io.IOException;
 
 /**
  * Zeigt das Hauptmenue des KS an.
@@ -30,8 +31,8 @@ import net.driftingsouls.ds2.server.battles.BattleShip;
  */
 public class KSMenuDefaultAction extends BasicKSMenuAction {
 	@Override
-	public Result execute( Battle battle ) throws IOException {	
-		Result result = super.execute(battle);
+	public Result execute(TemplateEngine t, Battle battle) throws IOException {
+		Result result = super.execute(t, battle);
 		if( result != Result.OK ) {
 			return result;
 		}
@@ -40,18 +41,18 @@ public class KSMenuDefaultAction extends BasicKSMenuAction {
 		BattleShip enemyShip = battle.getEnemyShip();
 		
 		if( this.isPossible(battle, new KSMenuAttackAction()) == Result.OK ) {
-			this.menuEntry("Angriff",	"ship",		ownShip.getId(),
+			this.menuEntry(t, "Angriff",	"ship",		ownShip.getId(),
 										"attack",	enemyShip.getId(),
 										"ksaction",	"attack" );
 		}
 		
-		this.menuEntry("Flucht",	"ship",		ownShip.getId(),
+		this.menuEntry(t, "Flucht",	"ship",		ownShip.getId(),
 									"attack",	enemyShip.getId(),
 									"ksaction",	"flucht" );
 
 		// Kampf beenden weil nur noch Zivilschiffe uebrig?
 		if( this.isPossible(battle, new KSEndBattleCivilAction()) == Result.OK ) {
-			this.menuEntry("Kampf beenden",	"ship",		ownShip.getId(),
+			this.menuEntry(t, "Kampf beenden",	"ship",		ownShip.getId(),
 											"attack",	enemyShip.getId(),
 											"ksaction",	"endbattle" );
 		}
@@ -59,7 +60,7 @@ public class KSMenuDefaultAction extends BasicKSMenuAction {
 		
 		// Kampf beenden weil die eigene Streitmacht deutlich groesser ist?
 		if( this.isPossible(battle, new KSEndBattleEqualAction()) == Result.OK ) {
-			this.menuEntryAsk("Durchbrechen", 
+			this.menuEntryAsk(t, "Durchbrechen",
 								new Object[] {	"ship",		ownShip.getId(),
 												"attack",	enemyShip.getId(),
 												"ksaction",	"endbattleequal" },
@@ -69,7 +70,7 @@ public class KSMenuDefaultAction extends BasicKSMenuAction {
 		
 		// Kapern?
 		if( this.isPossible(battle, new KSKapernAction()) == Result.OK ) {
-			this.menuEntry("Kapern", 
+			this.menuEntry(t, "Kapern",
 									"ship",			ownShip.getId(),
 									"attack",		enemyShip.getId(),
 									"ksaction",		"kapern" );
@@ -77,7 +78,7 @@ public class KSMenuDefaultAction extends BasicKSMenuAction {
 		
 		// Die zweiten Reihe stuermen
 		if( this.isPossible(battle, new KSSecondRowAttackAction()) == Result.OK ) {
-			this.menuEntry("Sturmangriff", 
+			this.menuEntry(t, "Sturmangriff",
 									"ship",			ownShip.getId(),
 									"attack",		enemyShip.getId(),
 									"ksaction",		"secondrowattack" );
@@ -85,7 +86,7 @@ public class KSMenuDefaultAction extends BasicKSMenuAction {
 		
 		// Zur zweiten Reihe vorruecken
 		if( this.isPossible(battle, new KSSecondRowEngageAction()) == Result.OK ) {
-			this.menuEntry("Vorr&uuml;cken", 
+			this.menuEntry(t, "Vorr&uuml;cken",
 									"ship",			ownShip.getId(),
 									"attack",		enemyShip.getId(),
 									"ksaction",		"secondrowengage" );
@@ -93,7 +94,7 @@ public class KSMenuDefaultAction extends BasicKSMenuAction {
 		
 		// Zweite Reihe verlassen
 		if( this.isPossible(battle, new KSLeaveSecondRowAction()) == Result.OK ) {
-			this.menuEntry("Zweite Reihe verlassen", 
+			this.menuEntry(t, "Zweite Reihe verlassen",
 									"ship",			ownShip.getId(),
 									"attack",		enemyShip.getId(),
 									"ksaction",		"leavesecondrow" );
@@ -101,13 +102,13 @@ public class KSMenuDefaultAction extends BasicKSMenuAction {
 		
 		// Zweite Reihe
 		if( this.isPossible(battle, new KSSecondRowAction()) == Result.OK ) {
-			this.menuEntry("In zweite Reihe verlegen", 
+			this.menuEntry(t, "In zweite Reihe verlegen",
 									"ship",			ownShip.getId(),
 									"attack",		enemyShip.getId(),
 									"ksaction",		"secondrow" );
 		}
 
-		menuEntry("sonstiges",	"ship",		ownShip.getId(),
+		menuEntry(t, "sonstiges",	"ship",		ownShip.getId(),
 								"attack",	enemyShip.getId(),
 								"ksaction",	"other" );
 	

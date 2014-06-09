@@ -124,7 +124,7 @@ public class AutoFire
                             try
                             {
                                 log.info("\t\tFiring at ship: " + firingAction.getAttackedShip().getId() + " Shields: " + firingAction.getAttackedShip().getShields() + " Ablative Armor: " + firingAction.getAttackedShip().getAblativeArmor() + " Hull: " + firingAction.getAttackedShip().getHull());
-                                result = firingAction.attack(battle);
+                                result = firingAction.attack(null, battle);
                                 heat += weapon.getValue();
                                 db.merge(firingAction.getAttackedShip());
                                 db.merge(firingShip);

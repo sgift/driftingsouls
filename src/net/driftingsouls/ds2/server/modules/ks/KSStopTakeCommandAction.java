@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 /**
  * Bricht die Uebernahme des Kommandos durch einen anderen Spieler ab.
@@ -41,8 +42,8 @@ public class KSStopTakeCommandAction extends BasicKSAction {
 	}
 	
 	@Override
-	public Result execute(Battle battle) throws IOException {
-		Result result = super.execute(battle);
+	public Result execute(TemplateEngine t, Battle battle) throws IOException {
+		Result result = super.execute(t, battle);
 		if( result != Result.OK ) {
 			return result;
 		}

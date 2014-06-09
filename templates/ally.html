@@ -33,7 +33,7 @@
 	</div>
 	{if ally.message}
 		<div class="gfxbox" style="width:440px;text-align:center">
-			<span style="color:red">{ally.message}</span>
+			<span>{ally.message}</span>
 		</div>
 		<div class="smallfont">
 			<br />
@@ -53,13 +53,14 @@
 		</div>
 	{/endif}
 	{if show.allgemein}
-		<div class="smallfont">
+		<div class="gfxbox" style="width:740px">
+		<div>
 			<img src="data/logos/ally/{ally.id}.gif" width="75" height="75" alt="Kein Allylogo vorhanden" /><br /><br />
 			<span style="color:#cccccc">{ally.description}</span><br /><br />
 		</div>
-		<table class="noBorder">
+		<table>
 		<tr>
-			<td class="noBorderS" valign="top">
+			<td valign="top">
 				Gegr&uuml;ndet: {ally.founded}<br />
 				Gewonnene Schlachten: {ally.wonBattles}<br />
 				Verlorene Schlachten: {ally.lostBattles}<br />
@@ -67,8 +68,8 @@
 				Verlorene Schiffe: {ally.lostShips}<br />
 				Mitglieder: {ally.membercount}<br /><br />
 			</td>
-			<td class="noBorderS" style="width:50px">&nbsp;&nbsp;&nbsp;&nbsp;</td>
-			<td class="noBorderS" valign="top">
+			<td style="width:50px">&nbsp;&nbsp;&nbsp;&nbsp;</td>
+			<td valign="top">
 				{if ally.items.list}
 					Items:<br />
 					<!-- BEGIN ally.items.listitem -->
@@ -83,18 +84,18 @@
 			<br />
 		</div>
 		
-		<table class="ally" cellspacing="2" cellpadding="2">
+		<table cellspacing="2" cellpadding="2">
  		<tr>
- 			<td class="allyData"><span style="font-weight:bold">{ally.pname}:</span></td>
- 			<td class="allyData">
+ 			<td><span style="font-weight:bold">{ally.pname}:</span></td>
+ 			<td>
  				{!link_to $ally.president.name, default, module:userprofile, css_class:profile, user:$ally.president.id}
  			</td>
  		</tr>
  		{if ally.posten.list}
  			<!-- BEGIN ally.posten.listitem -->
  				<tr>
-	 				<td class="allyData">{ally.posten.name}:</td>
- 					<td class="allyData">
+	 				<td>{ally.posten.name}:</td>
+ 					<td>
  						{!link_to $ally.posten.user.name, default, module:userprofile, css_class:profile, user:$ally.posten.user.id}
  					</td>
  				</tr>
@@ -103,8 +104,8 @@
  		
  		{if ally.addmembers.list}
  			<tr>
- 				<td class="allyData" valign="top">Weitere Mitglieder:</td>
- 				<td class="allyData">
+ 				<td valign="top">Weitere Mitglieder:</td>
+ 				<td>
  					<!-- BEGIN ally.addmembers.listitem -->
  						{!link_to $ally.addmembers.name, default, module:userprofile, css_class:profile, user:$ally.addmembers.id}
  						<br />
@@ -113,9 +114,7 @@
  			</tr>
  		{/endif}
  		</table>
- 		<div class="smallfont">
- 			<br />
- 		</div>
+		</div>
 	{/endif}
 	{if show.members}
 		{if user.president}

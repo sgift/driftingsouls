@@ -24,6 +24,7 @@ import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import java.io.IOException;
 
@@ -34,8 +35,8 @@ import java.io.IOException;
  */
 public class KSMenuCheatsAction extends BasicKSMenuAction {
 	@Override
-	public Result execute(Battle battle) throws IOException {
-		Result result = super.execute(battle);
+	public Result execute(TemplateEngine t, Battle battle) throws IOException {
+		Result result = super.execute(t, battle);
 		if( result != Result.OK ) {
 			return result;
 		}
@@ -50,17 +51,17 @@ public class KSMenuCheatsAction extends BasicKSMenuAction {
 		BattleShip ownShip = battle.getOwnShip();
 		BattleShip enemyShip = battle.getEnemyShip();
 			
-		this.menuEntry("Schiff regenerieren",
+		this.menuEntry(t, "Schiff regenerieren",
 				"ship",		ownShip.getId(),
 				"attack",	enemyShip.getId(),
 				"ksaction",	"cheat_regenerate" );
 														
-		this.menuEntry("Gegner regenerieren",
+		this.menuEntry(t, "Gegner regenerieren",
 				"ship",		ownShip.getId(),
 				"attack",	enemyShip.getId(),
 				"ksaction",	"cheat_regenerateenemy" );
 														
-		this.menuEntry("zur&uuml;ck",
+		this.menuEntry(t, "zur&uuml;ck",
 				"ship",		ownShip.getId(),
 				"attack",	enemyShip.getId(),
 				"ksaction",	"other" );

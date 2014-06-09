@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 
@@ -137,8 +138,8 @@ public class KSMenuAttackAction extends BasicKSMenuAction {
 	}
 	
 	@Override
-	public Result execute(Battle battle) throws IOException {
-		Result result = super.execute(battle);
+	public Result execute(TemplateEngine t, Battle battle) throws IOException {
+		Result result = super.execute(t, battle);
 		if( result != Result.OK ) {
 			return result;
 		}
@@ -166,7 +167,7 @@ public class KSMenuAttackAction extends BasicKSMenuAction {
 		ShipTypeData ownShipType = ownShip.getTypeData();
 		ShipTypeData enemyShipType = enemyShip.getTypeData();
 									
-		menuEntry( "<span style=\"font-size:3px\">&nbsp;<br /></span>Feuermodus: "+ATTMODES.get(attmode)+"<br /> "+
+		menuEntry( t, "<span style=\"font-size:3px\">&nbsp;<br /></span>Feuermodus: "+ATTMODES.get(attmode)+"<br /> "+
 							"<span style=\"font-size:12px\">&lt; Klicken um Feuermodus zu wechseln &gt;</span><span style=\"font-size:4px\"><br />&nbsp;</span>",
 							"ship",		ownShip.getId(),
 						 	"attack",	enemyShip.getId(),
@@ -225,7 +226,7 @@ public class KSMenuAttackAction extends BasicKSMenuAction {
 			}
 			
 			if( ask.length() != 0 ) {
-				menuEntryAsk( weaponcount+" "+weapon.getName()+"<br /><span style=\"font-weight:normal;font-size:14px\"> "+
+				menuEntryAsk( t, weaponcount+" "+weapon.getName()+"<br /><span style=\"font-weight:normal;font-size:14px\"> "+
 							  		"Schaden: "+schaden+"<br /> "+
 							 		"Kosten: n*"+weapon.getECost()+"Energie</span>",
 							 		new Object[] {	
@@ -237,7 +238,7 @@ public class KSMenuAttackAction extends BasicKSMenuAction {
 						 			ask);
 			}
 			else {
-				menuEntry( weaponcount+" "+weapon.getName()+"<span style=\"font-weight:normal;font-size:14px\"><br /> "+
+				menuEntry( t, weaponcount+" "+weapon.getName()+"<span style=\"font-weight:normal;font-size:14px\"><br /> "+
 							  		"Schaden: "+schaden+"<br /> "+
 							 		"Kosten: n*"+weapon.getECost()+"Energie</span>",
 							 		"ship",		ownShip.getId(),
@@ -248,7 +249,7 @@ public class KSMenuAttackAction extends BasicKSMenuAction {
 			}
 		}
 	
-		this.menuEntry("zur&uuml;ck",	"ship",		ownShip.getId(),
+		this.menuEntry(t, "zur&uuml;ck",	"ship",		ownShip.getId(),
 										"attack",	enemyShip.getId() );
 
 		return Result.OK;		

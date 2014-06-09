@@ -32,6 +32,7 @@ import net.driftingsouls.ds2.server.entities.Weapon;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 
@@ -144,8 +145,8 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 	}
 	
 	@Override
-	public Result execute(Battle battle) throws IOException {
-		Result result = super.execute(battle);
+	public Result execute(TemplateEngine t, Battle battle) throws IOException {
+		Result result = super.execute(t, battle);
 		if( result != Result.OK ) {
 			return result;
 		}
@@ -187,7 +188,7 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 		 * 	Feuermodusauswahl
 		 */
 									
-		menuEntry( "<span style=\"font-size:3px\">&nbsp;<br /></span>Feuermodus: "+ATTMODES.get(attmode)+"<br /> "+
+		menuEntry( t, "<span style=\"font-size:3px\">&nbsp;<br /></span>Feuermodus: "+ATTMODES.get(attmode)+"<br /> "+
 				"<span style=\"font-size:12px\">&lt; Klicken um Feuermodus zu wechseln &gt;</span><span style=\"font-size:4px\"><br />&nbsp;</span>",
 				"ship",		ownShip.getId(),
 			 	"attack",	enemyShip.getId(),
@@ -221,7 +222,7 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 
 				if (ammoids.contains(effect.getAmmo().getId()))
 				{
-					menuEntry(itemobject.getName(), "ship", ownShip.getId(),
+					menuEntry(t, itemobject.getName(), "ship", ownShip.getId(),
 							"attack", enemyShip.getId(),
 							"ksaction", "attack2",
 							"weapon", weapon,
@@ -231,7 +232,7 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 			}
 		}
 		
-		menuEntry("zur&uuml;ck",	"ship",		ownShip.getId(),
+		menuEntry(t, "zur&uuml;ck",	"ship",		ownShip.getId(),
 									"attack",	enemyShip.getId(),
 									"ksaction",	"attack",
 									"attmode",	attmode );

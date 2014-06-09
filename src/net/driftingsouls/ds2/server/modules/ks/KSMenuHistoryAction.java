@@ -303,13 +303,12 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 	}
 	
 	@Override
-	public Result execute(Battle battle) throws IOException {
-		Result result = super.execute(battle);
+	public Result execute(TemplateEngine t, Battle battle) throws IOException {
+		Result result = super.execute(t, battle);
 		if( result != Result.OK ) {
 			return result;
 		}
 		
-		TemplateEngine t = this.getController().getTemplateEngine();
 		Context context = ContextMap.getContext();
 		
 		/*

@@ -18,13 +18,14 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import java.io.IOException;
-
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.AngriffController;
+
+import java.io.IOException;
 
 /**
  * Basisklasse fuer KS-Aktionen.
@@ -124,11 +125,13 @@ public abstract class BasicKSAction {
 	
 	/**
 	 * Fueht die Aktion aus.
+	 *
+	 * @param t
 	 * @param battle Die Schlacht in deren Kontext die Aktion ausgefuert werden soll
 	 * @return Das Ergebnis
 	 * @throws IOException 
 	 */
-	public Result execute( Battle battle ) throws IOException
+	public Result execute(TemplateEngine t, Battle battle) throws IOException
 	{
         User user = this.commander;
         if(user == null)

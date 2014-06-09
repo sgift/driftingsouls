@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.modules.ks;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
@@ -58,8 +59,8 @@ public class KSMenuShieldsAction extends BasicKSMenuAction {
 	}
 
 	@Override
-	public Result execute(Battle battle) throws IOException {
-		Result result = super.execute(battle);
+	public Result execute(TemplateEngine t, Battle battle) throws IOException {
+		Result result = super.execute(t, battle);
 		if( result != Result.OK ) {
 			return result;
 		}
@@ -74,7 +75,7 @@ public class KSMenuShieldsAction extends BasicKSMenuAction {
 		ShipTypeData ownShipType = ownShip.getTypeData();
 	
 		if( (ownShipType.getShields() > 0) && (ownShip.getShip().getShields() < ownShipType.getShields()) ) {
-			this.menuEntry("Schilde aufladen", 
+			this.menuEntry(t, "Schilde aufladen",
 					"ship",		ownShip.getId(),
 					"attack",	enemyShip.getId(),
 					"ksaction",	"shields_single" );
@@ -95,7 +96,7 @@ public class KSMenuShieldsAction extends BasicKSMenuAction {
 		}
 								
 		if( shieldidlist > 0 ) {
-			this.menuEntryAsk( "Alle Schilde aufladen",
+			this.menuEntryAsk(t, "Alle Schilde aufladen",
 					new Object[] {
 						"ship",		ownShip.getId(),
 						"attack",	enemyShip.getId(),
@@ -110,7 +111,7 @@ public class KSMenuShieldsAction extends BasicKSMenuAction {
 			if( idlist == 0 ) {
 				continue;
 			} 
-			this.menuEntryAsk( "Alle "+classID.getPlural()+"-Schilde aufladen",
+			this.menuEntryAsk(t, "Alle "+classID.getPlural()+"-Schilde aufladen",
 					new Object[] {
 						"ship",		ownShip.getId(),
 						"attack",	enemyShip.getId(),
@@ -119,7 +120,7 @@ public class KSMenuShieldsAction extends BasicKSMenuAction {
 					"Wollen sie wirklich bei allen Schiffen der Klasse '"+classID.getSingular()+"' die Schilde aufladen?" );
 		}
 				
-		this.menuEntry("zur&uuml;ck",
+		this.menuEntry(t, "zur&uuml;ck",
 				"ship",		ownShip.getId(),
 				"attack",	enemyShip.getId(),
 				"ksaction",	"other" );

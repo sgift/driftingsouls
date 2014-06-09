@@ -22,6 +22,7 @@ import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.ConfigService;
+import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import java.io.IOException;
 
@@ -32,8 +33,8 @@ import java.io.IOException;
  */
 public class KSMenuOtherAction extends BasicKSMenuAction {
 	@Override
-	public Result execute(Battle battle) throws IOException {
-		Result result = super.execute(battle);
+	public Result execute(TemplateEngine t, Battle battle) throws IOException {
+		Result result = super.execute(t, battle);
 		if( result != Result.OK ) {
 			return result;
 		}
@@ -43,14 +44,14 @@ public class KSMenuOtherAction extends BasicKSMenuAction {
 		
 		//Cheat-Menue
 		if( new ConfigService().getValue(WellKnownConfigValue.ENABLE_CHEATS) ) {
-			menuEntry("Cheats",	"ship",		ownShip.getId(),
+			menuEntry(t, "Cheats",	"ship",		ownShip.getId(),
 								"attack",	enemyShip.getId(),
 								"ksaction",	"cheats" );
 		}
 
 		//Alle Abdocken
 		if( this.isPossible(battle, new KSUndockAllAction()) == Result.OK ) {
-			menuEntry("Alle Abdocken", 
+			menuEntry(t, "Alle Abdocken",
 						"ship",		ownShip.getId(),
 						"attack",	enemyShip.getId(),
 						"ksaction",	"alleabdocken" );
@@ -58,30 +59,30 @@ public class KSMenuOtherAction extends BasicKSMenuAction {
 
 		//Schilde aufladen
 		if( this.isPossible(battle, new KSMenuShieldsAction()) == Result.OK ) {
-			menuEntry("Schilde aufladen",
+			menuEntry(t, "Schilde aufladen",
 						"ship",			ownShip.getId(),
 						"attack",		enemyShip.getId(),
 						"ksaction",		"shields" );
 		}
 
 		if( this.isPossible(battle, new KSMenuBatteriesAction()) == Result.OK ) {
-			menuEntry("Batterien entladen",
+			menuEntry(t, "Batterien entladen",
 						"ship",			ownShip.getId(),
 						"attack",		enemyShip.getId(),
 						"ksaction",		"batterien" );
 		}
 
 		//Kampf uebergeben
-		menuEntry("Kampf &uuml;bergeben",	"ship",		ownShip.getId(),
+		menuEntry(t, "Kampf &uuml;bergeben",	"ship",		ownShip.getId(),
 											"attack",	enemyShip.getId(),
 											"ksaction",	"new_commander" );
 
 		//History
-		menuEntry("Logbuch",	"ship",		ownShip.getId(),
+		menuEntry(t, "Logbuch",	"ship",		ownShip.getId(),
 								"attack",	enemyShip.getId(),
 								"ksaction",	"history" );
 
-		menuEntry("zur&uuml;ck",	"ship",		ownShip.getId(),
+		menuEntry(t, "zur&uuml;ck",	"ship",		ownShip.getId(),
 									"attack",	enemyShip.getId() );
 		
 		return Result.OK;

@@ -36,6 +36,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -1198,7 +1199,7 @@ public class KSAttackAction extends BasicKSAction {
 	}
 
 	@Override
-	public Result execute(Battle battle) throws IOException
+	public Result execute(TemplateEngine t, Battle battle) throws IOException
 	{
         Context context = ContextMap.getContext();
         final String weaponName = context.getRequest().getParameterString("weapon");
@@ -1206,7 +1207,7 @@ public class KSAttackAction extends BasicKSAction {
 
         init(battle, weaponName, ammoId != 0 ? (Munition) context.getDB().get(Munition.class, ammoId) : null);
 
-        return attack(battle);
+        return attack(t, battle);
 	}
 
     public boolean init(Battle battle, String weaponName, Munition munition)
@@ -1251,12 +1252,12 @@ public class KSAttackAction extends BasicKSAction {
         return true;
     }
 
-    public Result attack(Battle battle) throws IOException
+    public Result attack(TemplateEngine t, Battle battle) throws IOException
     {
         Context context = ContextMap.getContext();
         Session db = context.getDB();
 
-        Result result = super.execute(battle);
+        Result result = super.execute(t, battle);
         if( result != Result.OK )
         {
             return result;

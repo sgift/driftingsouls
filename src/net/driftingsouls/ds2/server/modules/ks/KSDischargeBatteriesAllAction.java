@@ -26,6 +26,7 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 import java.io.IOException;
@@ -56,8 +57,8 @@ public class KSDischargeBatteriesAllAction extends BasicKSAction {
 	}
 
 	@Override
-	public final Result execute(Battle battle) throws IOException {
-		Result result = super.execute(battle);
+	public final Result execute(TemplateEngine t, Battle battle) throws IOException {
+		Result result = super.execute(t, battle);
 		if( result != Result.OK ) {
 			return result;
 		}

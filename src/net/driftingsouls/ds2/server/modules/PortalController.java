@@ -47,9 +47,10 @@ import net.driftingsouls.ds2.server.framework.authentication.WrongPasswordExcept
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.EmptyHeaderOutputHandler;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.units.TransientUnitCargo;
 import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeException;
 import org.apache.commons.lang.math.RandomUtils;
@@ -69,29 +70,16 @@ import java.util.List;
  * @author Christopher Jung
  */
 @Module(name = "portal", defaultModule = true, outputHandler = EmptyHeaderOutputHandler.class)
-public class PortalController extends TemplateController
+public class PortalController extends Controller
 {
 	private AuthenticationManager authManager;
+	private TemplateViewResultFactory templateViewResultFactory;
 
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public PortalController()
-	{
-		super();
-	}
-
-	/**
-	 * Injiziert den DS-AuthenticationManager zum einloggen von Benutzern.
-	 *
-	 * @param authManager Der AuthenticationManager
-	 */
-	@Required
 	@Autowired
-	public void setAuthenticationManager(AuthenticationManager authManager)
+	public PortalController(AuthenticationManager authManager, TemplateViewResultFactory templateViewResultFactory)
 	{
 		this.authManager = authManager;
+		this.templateViewResultFactory = templateViewResultFactory;
 	}
 
 	/**
@@ -101,10 +89,10 @@ public class PortalController extends TemplateController
 	 * @param username der Benutzername des Accounts
 	 */
 	@Action(ActionType.DEFAULT)
-	public void passwordLostAction(String username)
+	public TemplateEngine passwordLostAction(String username)
 	{
 		org.hibernate.Session db = getDB();
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 
 		if ("".equals(username))
 		{
@@ -157,6 +145,7 @@ public class PortalController extends TemplateController
 				Common.writeLog("login.log", Common.date("j.m.Y H:i:s") + ": <" + getRequest().getRemoteAddress() + "> <" + username + "> Passwortanforderung von Browser <" + getRequest().getUserAgent() + ">\n");
 			}
 		}
+		return t;
 	}
 
 
@@ -164,27 +153,33 @@ public class PortalController extends TemplateController
 	 * Zeigt die Banner Seite an an.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void bannerAction()
+	public TemplateEngine bannerAction()
 	{
-		getTemplateEngine().setVar("show.banner", 1);
+		TemplateEngine t = templateViewResultFactory.createFor(this);
+		t.setVar("show.banner", 1);
+		return t;
 	}
 
 	/**
 	 * Zeigt die AGB an.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void infosAgbAction()
+	public TemplateEngine infosAgbAction()
 	{
-		getTemplateEngine().setVar("show.agb", 1);
+		TemplateEngine t = templateViewResultFactory.createFor(this);
+		t.setVar("show.agb", 1);
+		return t;
 	}
 
 	/**
 	 * Zeigt das Impressum an.
 	 */
 	@Action(ActionType.DEFAULT)
-	public void impressumAction()
+	public TemplateEngine impressumAction()
 	{
-		getTemplateEngine().setVar("show.impressum", 1);
+		TemplateEngine t = templateViewResultFactory.createFor(this);
+		t.setVar("show.impressum", 1);
+		return t;
 	}
 
 	private static class StartLocations
@@ -267,10 +262,9 @@ public class PortalController extends TemplateController
 		return new StartLocations(systemID, orderLocationID, minsysdistance);
 	}
 
-	private boolean register(String username, String email, int race, StarSystem system, String key, ConfigValue keys)
+	private boolean register(TemplateEngine t, String username, String email, int race, StarSystem system, String key, ConfigValue keys)
 	{
 		Session db = getDB();
-		TemplateEngine t = getTemplateEngine();
 
 		if ("".equals(username) || "".equals(email))
 		{
@@ -562,9 +556,9 @@ public class PortalController extends TemplateController
 	 * @param system Das Startsystem
 	 */
 	@Action(ActionType.DEFAULT)
-	public void registerAction(String username, int race, String email, String key, StarSystem system)
+	public TemplateEngine registerAction(String username, int race, String email, String key, StarSystem system)
 	{
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 
 		boolean showform;
 
@@ -574,7 +568,7 @@ public class PortalController extends TemplateController
 			t.setVar("show.register.registerdisabled", 1,
 					"register.registerdisabled.msg", Common._text(disableregister));
 
-			return;
+			return t;
 		}
 
 		ConfigValue keys = new ConfigService().get(WellKnownConfigValue.KEYS);
@@ -592,7 +586,7 @@ public class PortalController extends TemplateController
 				"register.system.id", system != null ? system.getID() : 1,
 				"register.system.name", (system != null ? system.getName() : ""));
 
-		showform = !register(username, email, race, system, key, keys);
+		showform = !register(t, username, email, race, system, key, keys);
 
 		if (showform)
 		{
@@ -623,6 +617,8 @@ public class PortalController extends TemplateController
 			t.setVar("show.register", 1,
 					"register.rassen.selected", first);
 		}
+
+		return t;
 	}
 
 	/**
@@ -633,9 +629,9 @@ public class PortalController extends TemplateController
 	 * @param password Das Passwort
 	 */
 	@Action(ActionType.DEFAULT)
-	public void loginAction(String username, String password, String rememberMe)
+	public TemplateEngine loginAction(String username, String password, String rememberMe)
 	{
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 
 		if (!username.isEmpty() && !password.isEmpty())
 		{
@@ -643,16 +639,16 @@ public class PortalController extends TemplateController
 			{
 				this.authManager.login(username, password, Boolean.parseBoolean(rememberMe));
 
-				doLogin();
+				doLogin(t);
 
-				return;
+				return t;
 			}
 			catch (LoginDisabledException e)
 			{
 				t.setVar("show.login.logindisabled", 1,
 						"login.logindisabled.msg", Common._text(e.getMessage()));
 
-				return;
+				return t;
 			}
 			catch (AccountInVacationModeException e)
 			{
@@ -662,7 +658,7 @@ public class PortalController extends TemplateController
 						"login.vacmode.username", username,
 						"login.vacmode.password", password);
 
-				return;
+				return t;
 			}
 			catch (WrongPasswordException e)
 			{
@@ -685,13 +681,13 @@ public class PortalController extends TemplateController
 		t.setVar("show.login", 1,
 				"login.username", username);
 
-		zeigeNewsListeAn(false);
+		zeigeNewsListeAn(t, false);
+
+		return t;
 	}
 
-	private void doLogin()
+	private void doLogin(TemplateEngine t)
 	{
-		TemplateEngine t = getTemplateEngine();
-
 		t.setVar("show.login.msg.ok", 1);
 
 		getResponse().redirectTo("ds?module=main&action=default");
@@ -705,9 +701,9 @@ public class PortalController extends TemplateController
 	 * @param reason Der Grund fuer eine vorzeitige Deaktivierung
 	 */
 	@Action(ActionType.DEFAULT)
-	public void loginVacmodeDeakAction(String username, String pw, String reason)
+	public TemplateEngine loginVacmodeDeakAction(String username, String pw, String reason)
 	{
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		org.hibernate.Session db = getDB();
 
 		User user = (User) db.createQuery("from User where un=:username")
@@ -719,13 +715,15 @@ public class PortalController extends TemplateController
 		if (user == null || !encPw.equals(user.getPassword()))
 		{
 			t.setVar("show.login.vacmode.msg.accerror", 1);
-			return;
+			return t;
 		}
 
 		PM.sendToAdmins(user, "VACMODE-DEAK",
 				"[VACMODE-DEAK]\nMY ID: " + user.getId() + "\nREASON:\n" + reason, 0);
 
 		t.setVar("show.login.vacmode.msg.send", 1);
+
+		return t;
 	}
 
 	/**
@@ -743,23 +741,23 @@ public class PortalController extends TemplateController
 	 * @param archiv <code>true</code>, falls alte News angezeigt werden sollen
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(boolean archiv)
+	public TemplateEngine defaultAction(boolean archiv)
 	{
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 
 		if (this.authManager.isRemembered())
 		{
 			t.setVar("is.logged.in", 1);
 		}
 
-		zeigeNewsListeAn(archiv);
+		zeigeNewsListeAn(t, archiv);
+
+		return t;
 	}
 
-	private void zeigeNewsListeAn(boolean archiv)
+	private void zeigeNewsListeAn(TemplateEngine t, boolean archiv)
 	{
 		org.hibernate.Session db = getDB();
-		TemplateEngine t = getTemplateEngine();
-
 		t.setVar(
 				"show.news", 1,
 				"show.overview", !archiv,

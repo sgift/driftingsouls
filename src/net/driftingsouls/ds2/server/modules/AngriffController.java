@@ -37,10 +37,11 @@ import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.modules.ks.BasicKSAction;
 import net.driftingsouls.ds2.server.modules.ks.BasicKSMenuAction;
 import net.driftingsouls.ds2.server.modules.ks.KSAttackAction;
@@ -83,6 +84,7 @@ import net.driftingsouls.ds2.server.units.UnitCargo;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -95,7 +97,7 @@ import java.util.Map;
  *
  */
 @Module(name="angriff")
-public class AngriffController extends TemplateController
+public class AngriffController extends Controller
 {
 	private static final Log log = LogFactory.getLog(AngriffController.class);
 	
@@ -104,11 +106,11 @@ public class AngriffController extends TemplateController
 	private final Map<String,Class<? extends BasicKSAction>> actions = new HashMap<>();
 	private final Map<String,Class<? extends BasicKSMenuAction>> menuActions = new HashMap<>();
 
-	/**
-	 * Konstruktor.
-	 */
-	public AngriffController() {
-		super();
+	private TemplateViewResultFactory templateViewResultFactory;
+
+	@Autowired
+	public AngriffController(TemplateViewResultFactory templateViewResultFactory) {
+		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Schlacht");
 
@@ -158,9 +160,7 @@ public class AngriffController extends TemplateController
 		return true;
 	}
 	
-	private void showInfo(String tag, BattleShip ship, boolean enemy, String jscriptid, boolean show) {
-		TemplateEngine t = getTemplateEngine();
-		
+	private void showInfo(TemplateEngine t, String tag, BattleShip ship, boolean enemy, String jscriptid, boolean show) {
 		if( ship == null ) {
 			addError("FATAL ERROR: Kein gueltiges Schiff vorhanden");
 			return;	
@@ -372,9 +372,8 @@ public class AngriffController extends TemplateController
 		t.clear_record();
 	}
 	
-	private boolean showMenu( Battle battle, StringBuilder action ) throws IOException {
+	private boolean showMenu(TemplateEngine t, Battle battle, StringBuilder action ) throws IOException {
 		User user = (User)this.getUser();
-		TemplateEngine t = this.getTemplateEngine();		
 		
 		BattleShip ownShip = battle.getOwnShip();
 		BattleShip enemyShip = battle.getEnemyShip();
@@ -398,7 +397,7 @@ public class AngriffController extends TemplateController
 								 "Bitte warten sie bis ihr Gegner ebenfalls seinen Zug beendet hat. Die Runde wird dann automatisch beendet.");
 					historyobj.showOK(false);
 					
-					historyobj.execute(battle);
+					historyobj.execute(t, battle);
 				}
 				else {
 					t.setBlock("_ANGRIFF","menu.entry","menu");
@@ -420,7 +419,7 @@ public class AngriffController extends TemplateController
 							BasicKSMenuAction actionobj = menuActions.get(action.toString()).newInstance();
 							actionobj.setController(this);
 							
-							BasicKSAction.Result result = actionobj.execute(battle);
+							BasicKSAction.Result result = actionobj.execute(t, battle);
 							if( result == BasicKSAction.Result.HALT ) {
 								return false;
 							}
@@ -458,7 +457,7 @@ public class AngriffController extends TemplateController
 				historyobj.setText("<div style=\"text-align:center\">Nur der Oberkommandierende einer Seite kann Befehle erteilen.</div>\n");
 				historyobj.showOK(false);
 					
-				if( historyobj.execute(battle) == BasicKSAction.Result.HALT ) {
+				if( historyobj.execute(t, battle) == BasicKSAction.Result.HALT ) {
 					return false;
 				}
 			}
@@ -511,7 +510,7 @@ public class AngriffController extends TemplateController
 	 * @param weapon Die ID der gerade ausgewaehlten Waffe
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(@UrlParam(name="ship") int ownShipID,
+	public TemplateEngine defaultAction(@UrlParam(name="ship") int ownShipID,
 			@UrlParam(name="addship") int addShipID,
 			@UrlParam(name="attack") int enemyShipID,
 			String ksaction,
@@ -522,7 +521,7 @@ public class AngriffController extends TemplateController
 			String enemyshipgroup,
 			String weapon) throws IOException {
 		User user = (User)getUser();
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		org.hibernate.Session db = getDB();
 
 		if( ownShipID < 0 ) {
@@ -571,8 +570,7 @@ public class AngriffController extends TemplateController
 		}
 		
 		if( (battle == null) || !battle.load(user, (Ship)db.get(Ship.class, ownShipID), (Ship)db.get(Ship.class, enemyShipID), forcejoin) ) {
-			this.setTemplate("");
-			return;
+			return null;
 		}
 		
 		battle.setOwnShipGroup(ownshipgroup);
@@ -585,8 +583,7 @@ public class AngriffController extends TemplateController
 			if( !battle.addShip( user.getId(), addShipID ) ) {
 				// Wenn das Schiff offenbar von jemandem ausserhalb der Kriegfhrenden Allys stammt - Laden abbrechen bei fehlschlag
 				if( forcejoin != 0 ) {
-					this.setTemplate("");
-					return;
+					return null;
 				}
 			}
 		}
@@ -602,9 +599,8 @@ public class AngriffController extends TemplateController
 				BasicKSAction actionobj = actions.get(ksaction).newInstance();
 				actionobj.setController(this);
 				
-				if( actionobj.execute(battle) == BasicKSAction.Result.HALT ) {
-					this.setTemplate("");
-					return;	
+				if( actionobj.execute(t, battle) == BasicKSAction.Result.HALT ) {
+					return null;
 				}
 				
 				ksaction = "";
@@ -733,9 +729,8 @@ public class AngriffController extends TemplateController
 		}
 		
 		StringBuilder actionBuilder = new StringBuilder(ksaction);
-		if( !this.showMenu( battle, actionBuilder ) ) {
-			this.setTemplate("");
-			return;
+		if( !this.showMenu( t, battle, actionBuilder ) ) {
+			return null;
 		}
 		
 		ksaction = actionBuilder.toString();
@@ -745,8 +740,8 @@ public class AngriffController extends TemplateController
 		t.setBlock("ship.info","shipinfo.ammo.listitem","shipinfo.ammo.list");
 		t.setBlock("ship.info","shipinfo.weapons.listitem","shipinfo.weapons.list");
 		t.setBlock("ship.info","shipinfo.units.listitem","shipinfo.units.list");
-		showInfo("ownship.info", ownShip, battle.isGuest(), "Own", scan.equals("own") );
-		showInfo("enemyship.info", enemyShip, true, "Enemy", scan.equals("enemy") );
+		showInfo(t, "ownship.info", ownShip, battle.isGuest(), "Own", scan.equals("own") );
+		showInfo(t, "enemyship.info", enemyShip, true, "Enemy", scan.equals("enemy") );
 		
 		if( scan.equals("own") ) {
 			t.setVar("infobox.active", "Own");
@@ -1249,5 +1244,7 @@ public class AngriffController extends TemplateController
 		User auser = battle.getCommander(enemySide);
 		t.setVar(	"battle.enemycom.name",		auser.getProfileLink(),
 					"battle.enemycom.ready",	battle.isReady(battle.getEnemySide()) );
+
+		return t;
 	}
 }

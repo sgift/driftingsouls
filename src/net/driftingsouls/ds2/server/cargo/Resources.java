@@ -18,13 +18,14 @@
  */
 package net.driftingsouls.ds2.server.cargo;
 
-import java.util.List;
-
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Liste von gaengigen Resourcen sowie einigen Hilfsfunktionen fuer Resourcen-IDs.
@@ -163,6 +164,16 @@ public class Resources {
 			return null;
 		}
 		return ItemID.fromString(rid);
+	}
+
+	public static String resourceListToBBCode(ResourceList reslist)
+	{
+		return resourceListToBBCode(reslist, "\n");
+	}
+
+	public static String resourceListToBBCode(ResourceList reslist, String separator)
+	{
+		return reslist.stream().map(res -> "[resource="+res.getId().toString()+"]"+res.getCount1()+"[/resource]").collect(Collectors.joining(separator));
 	}
 	
 	/**

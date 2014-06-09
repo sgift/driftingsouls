@@ -29,14 +29,16 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
@@ -58,15 +60,14 @@ import java.util.List;
  */
 // TODO: Die ID des Handelspostens sollte per URL spezifiziert werden
 @Module(name = "gtuzwischenlager")
-public class GtuZwischenLagerController extends TemplateController
+public class GtuZwischenLagerController extends Controller
 {
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public GtuZwischenLagerController()
+	private TemplateViewResultFactory templateViewResultFactory;
+
+	@Autowired
+	public GtuZwischenLagerController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("GTU-Lager");
 	}
@@ -103,15 +104,12 @@ public class GtuZwischenLagerController extends TemplateController
 	 * @param tradeentry Die ID des Zwischenlager-Eintrags
 	 */
 	@Action(ActionType.DEFAULT)
-	public RedirectViewResult transportOwnAction(Ship ship, @UrlParam(name = "entry") GtuZwischenlager tradeentry)
+	public Object transportOwnAction(Ship ship, @UrlParam(name = "entry") GtuZwischenlager tradeentry)
 	{
 		org.hibernate.Session db = getDB();
 		User user = (User) this.getUser();
-		TemplateEngine t = this.getTemplateEngine();
 
 		validiereSchiff(ship);
-
-		t.setVar("global.shipid", ship.getId());
 
 		validiereGtuZwischenlager(tradeentry, ship);
 
@@ -136,7 +134,7 @@ public class GtuZwischenLagerController extends TemplateController
 		tmpowncargoneed.substractCargo(owncargo);
 		if (!tmpowncargoneed.isEmpty())
 		{
-			throw new ValidierungException("Sie m&uuml;ssen die Waren erst komplett bezahlen", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
+			throw new ValidierungException("Sie müssen die Waren erst komplett bezahlen", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
 		}
 
 		ShipTypeData shiptype = ship.getTypeData();
@@ -147,7 +145,7 @@ public class GtuZwischenLagerController extends TemplateController
 		Cargo transportcargo;
 		if (freecargo <= 0)
 		{
-			addError("Sie verf&uuml;gen nicht &uuml;ber genug freien Cargo um Waren abholen zu k&ouml;nnen");
+			addError("Sie verf&uuml;gen nicht über genug freien Cargo um Waren abholen zu k&ouml;nnen");
 			return new RedirectViewResult("viewEntry");
 		}
 		else if (freecargo < tradecargo.getMass())
@@ -159,15 +157,11 @@ public class GtuZwischenLagerController extends TemplateController
 			transportcargo = new Cargo(tradecargo);
 		}
 
-		t.setBlock("_GTUZWISCHENLAGER", "transferlist.res.listitem", "transferlist.res.list");
-
 		ResourceList reslist = transportcargo.getResourceList();
-		Resources.echoResList(t, reslist, "transferlist.res.list");
-
-		t.setVar("global.transferlist", 1);
 
 		shipCargo.addCargo(transportcargo);
 		tradecargoneed.substractCargo(transportcargo);
+		tradecargo.substractCargo(transportcargo);
 
 		ship.setCargo(shipCargo);
 
@@ -175,9 +169,14 @@ public class GtuZwischenLagerController extends TemplateController
 		{
 			db.delete(tradeentry);
 
+			TemplateEngine t = templateViewResultFactory.createFor(this);
+			t.setVar("global.shipid", ship.getId());
+			t.setBlock("_GTUZWISCHENLAGER", "transferlist.res.listitem", "transferlist.res.list");
+			Resources.echoResList(t, reslist, "transferlist.res.list");
+			t.setVar("global.transferlist", 1);
 			t.setVar("transferlist.backlink", 1);
 
-			return null;
+			return t;
 		}
 
 		if (tradeentry.getUser1() == user)
@@ -191,7 +190,7 @@ public class GtuZwischenLagerController extends TemplateController
 			tradeentry.setCargo2Need(tradecargoneed);
 		}
 
-		return new RedirectViewResult("viewEntry");
+		return new RedirectViewResult("viewEntry").withMessage("Transferiere Waren\n\n"+Resources.resourceListToBBCode(reslist));
 	}
 
 	private void validiereGtuZwischenlager(GtuZwischenlager tradeentry, Ship ship)
@@ -217,18 +216,21 @@ public class GtuZwischenLagerController extends TemplateController
 
 	/**
 	 * Zeigt einen Handelsuebereinkommen an.
-	 *
-	 * @param ship Die ID des Schiffes, welches auf das GTU-Zwischenlager zugreifen will
+	 *  @param ship Die ID des Schiffes, welches auf das GTU-Zwischenlager zugreifen will
 	 * @param tradeentry Die ID des Zwischenlager-Eintrags
 	 */
 	@Action(ActionType.DEFAULT)
-	public void viewEntryAction(Ship ship, @UrlParam(name = "entry") GtuZwischenlager tradeentry)
+	public TemplateEngine viewEntryAction(Ship ship, @UrlParam(name = "entry") GtuZwischenlager tradeentry, RedirectViewResult redirect)
 	{
 		User user = (User) this.getUser();
-		TemplateEngine t = this.getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 
 		validiereSchiff(ship);
 
+		if( redirect != null )
+		{
+			t.setVar("global.message", Common._text(redirect.getMessage()));
+		}
 		t.setVar("global.shipid", ship.getId());
 
 		validiereGtuZwischenlager(tradeentry, ship);
@@ -270,6 +272,8 @@ public class GtuZwischenLagerController extends TemplateController
 			reslist = owncargoneed.getResourceList();
 			Resources.echoResList(t, reslist, "tradeentry.missingcargo", "res.listitem");
 		}
+
+		return t;
 	}
 
 	/**
@@ -278,11 +282,11 @@ public class GtuZwischenLagerController extends TemplateController
 	 * @param ship Die ID des Schiffes, welches auf das GTU-Zwischenlager zugreifen will
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(Ship ship)
+	public TemplateEngine defaultAction(Ship ship)
 	{
 		org.hibernate.Session db = getDB();
 		User user = (User) this.getUser();
-		TemplateEngine t = this.getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 
 		validiereSchiff(ship);
 
@@ -346,5 +350,6 @@ public class GtuZwischenLagerController extends TemplateController
 
 			t.parse("tradelist.list", "tradelist.listitem", true);
 		}
+		return t;
 	}
 }

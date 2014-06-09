@@ -67,7 +67,7 @@ public abstract class BasicKSMenuAction extends BasicKSAction {
 		t.parse("menu","menu.entry",true);
 	}
 	
-	protected void menuEntryAsk( String title, Object[] params, String ask ) {
+	protected void menuEntryAsk(TemplateEngine t, String title, Object[] params, String ask ) {
 		String paramStr = "";
 		if( params != null && params.length > 1 ) {
 			StringBuilder paramBuilder = new StringBuilder(params.length*5);
@@ -78,10 +78,10 @@ public abstract class BasicKSMenuAction extends BasicKSAction {
 			paramStr = paramBuilder.toString();
 		}
 	
-		menuEntryAsk(getController().getTemplateEngine(), title, paramStr, ask);
+		menuEntryAsk(t, title, paramStr, ask);
 	}
 	
-	protected void menuEntry( String title, Object ... params ) {
+	protected void menuEntry(TemplateEngine t, String title, Object ... params ) {
 		String paramStr = "";
 		if( params != null && params.length > 1 ) {
 			StringBuilder paramBuilder = new StringBuilder(params.length*5);
@@ -92,7 +92,7 @@ public abstract class BasicKSMenuAction extends BasicKSAction {
 			paramStr = paramBuilder.toString();
 		}
 		
-		menuEntry(getController().getTemplateEngine(), title, paramStr);
+		menuEntry(t, title, paramStr);
 	}
 	
 	/**
