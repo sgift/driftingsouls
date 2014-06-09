@@ -1747,7 +1747,7 @@ public class Battle implements Locatable
 
 				User com = (User)context.getDB().get(User.class, this.getTakeCommands()[i]);
 
-				PM.send(com, this.getCommanders()[i].getId(), "Schlacht &uuml;bernommen", "Ich habe die Leitung der Schlacht bei "+this.getLocation()+" &uuml;bernommen.");
+				PM.send(com, this.getCommanders()[i].getId(), "Schlacht &uuml;bernommen", "Ich habe die Leitung der Schlacht bei "+this.getLocation().displayCoordinates(false)+" &uuml;bernommen.");
 
 				this.logenemy("[Automatisch] "+Common._titleNoFormat(com.getName())+" kommandiert nun die gegnerischen Truppen\n\n");
 
