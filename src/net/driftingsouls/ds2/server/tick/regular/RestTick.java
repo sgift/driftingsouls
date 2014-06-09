@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.tick.regular;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -85,7 +86,7 @@ public class RestTick extends TickController {
 			{
 				Jump jump = (Jump) jump1;
 
-				this.log(jump.getShip().getId() + " springt nach " + jump.getLocation());
+				this.log(jump.getShip().getId() + " springt nach " + jump.getSystem() + ":" + jump.getX() + "/" + jump.getY());
 
 				jump.getShip().setSystem(jump.getSystem());
 				jump.getShip().setX(jump.getX());
@@ -201,7 +202,7 @@ public class RestTick extends TickController {
 
 						battle.logenemy("<action side=\"" + battle.getOwnSide() + "\" time=\"" + Common.time() + "\" tick=\"" + getContext().get(ContextCommon.class).getTick() + "\"><![CDATA[\n");
 
-						PM.send(user, newcommander.getId(), "Schlacht &uuml;bernommen", "Die Leitung der Schlacht bei " + battle.getLocation() + " wurde dir automatisch &uuml;bergeben, da der bisherige Kommandant in den Vacationmodus gewechselt ist");
+						PM.send(user, newcommander.getId(), "Schlacht &uuml;bernommen", "Die Leitung der Schlacht bei " + battle.getLocation().displayCoordinates(false) + " wurde dir automatisch &uuml;bergeben, da der bisherige Kommandant in den Vacationmodus gewechselt ist");
 
 						battle.logenemy(Common._titleNoFormat(newcommander.getName()) + " kommandiert nun die gegnerischen Truppen\n\n");
 
@@ -220,7 +221,7 @@ public class RestTick extends TickController {
 						this.log("\t\tUser" + user.getId() + ": Die Schlacht " + battle.getId() + " wurde beendet");
 
 						battle.endBattle(0, 0, true);
-						PM.send(battle.getCommander(battle.getOwnSide()), battle.getCommander(battle.getEnemySide()).getId(), "Schlacht beendet", "Die Schlacht bei " + battle.getLocation() + " wurde automatisch beim wechseln in den Vacation-Modus beendet, da kein Ersatzkommandant ermittelt werden konnte!");
+						PM.send(battle.getCommander(battle.getOwnSide()), battle.getCommander(battle.getEnemySide()).getId(), "Schlacht beendet", "Die Schlacht bei " + battle.getLocation().displayCoordinates(false) + " wurde automatisch beim wechseln in den Vacation-Modus beendet, da kein Ersatzkommandant ermittelt werden konnte!");
 					}
 				}
 

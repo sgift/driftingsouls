@@ -146,7 +146,7 @@ public class MainController extends Controller
 					"base.id", base.getId(),
 					"base.name", base.getName(),
 					"base.klasse", base.getKlasse().getId(),
-					"base.location", base.getLocation());
+					"base.location", base.getLocation().displayCoordinates(false));
 
 			t.parse("bases.list", "bases.listitem", true);
 		}
