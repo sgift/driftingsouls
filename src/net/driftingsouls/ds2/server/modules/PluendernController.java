@@ -28,15 +28,17 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
 
@@ -46,15 +48,14 @@ import java.util.Map;
  * @author Christopher Jung
  */
 @Module(name = "pluendern")
-public class PluendernController extends TemplateController
+public class PluendernController extends Controller
 {
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public PluendernController()
+	private TemplateViewResultFactory templateViewResultFactory;
+
+	@Autowired
+	public PluendernController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Pluendern");
 	}
@@ -176,18 +177,10 @@ public class PluendernController extends TemplateController
 											 @UrlParam(name = "to") Ship shipTo,
 											 boolean fromkapern)
 	{
-		TemplateEngine t = this.getTemplateEngine();
 		User user = (User) this.getUser();
 		org.hibernate.Session db = getDB();
 
 		validiereEigenesUndZielschiff(shipFrom, shipTo);
-
-		t.setVar(
-				"fromship.name", shipFrom.getName(),
-				"fromship.id", shipFrom.getId(),
-				"toship.name", shipTo.getName(),
-				"toship.id", shipTo.getId(),
-				"frompage.kapern", fromkapern);
 
 		Cargo cargofrom = shipFrom.getCargo();
 		Cargo cargoto = shipTo.getCargo();
@@ -205,38 +198,30 @@ public class PluendernController extends TemplateController
 		long totaltransferfcount = 0;
 		boolean transfer = false;
 
-		t.setBlock("_PLUENDERN", "transfer.listitem", "transfer.list");
-
+		String message = "";
 		ResourceList reslist = cargofrom.compare(cargoto, true);
 		for (ResourceEntry res : reslist)
 		{
 			Long transt = toMap.get(res.getId().toString());
 			Long transf = fromMap.get(res.getId().toString());
 
-			t.start_record();
-
-			t.setVar("res.image", res.getImage());
-
 			// Transfer vom Ausgangsschiff zum Zielschiff
 			if (transt != null && transt > 0)
 			{
-				t.setVar("transfer.target", shipTo.getName(),
-						"transfer.count", Common.ln(transt));
+				message += "Transportiere [resource="+res.getId()+"]"+transt+"[/resource] zu "+shipTo.getName();
 
 				if (transt > res.getCount1())
 				{
 					transt = res.getCount1();
 
-					t.setVar("transfer.notenoughcargo", 1,
-							"transfer.cargo", Common.ln(res.getCount1()));
+					message += " - Nur [resource="+res.getId()+"]"+res.getCount1()+"[/resource] vorhanden";
 				}
 
 				if (curcargoto - transt < 0)
 				{
 					transt = (long) (curcargoto / (double) Cargo.getResourceMass(res.getId(), 1));
 
-					t.setVar("transfer.notenoughspace", 1,
-							"transfer.newcount", Common.ln(transt));
+					message += " - Nur noch Platz für [resource="+res.getId()+"]"+transt+"[/resource] vorhanden";
 				}
 
 				// Falls es sich um ein unbekanntes Item handelt, dann dem Besitzer des Zielschiffes bekannt machen
@@ -256,36 +241,33 @@ public class PluendernController extends TemplateController
 				curcargoto = shipTypeTo.getCargo() - newCargoTo.getMass();
 				curcargofrom = shipTypeFrom.getCargo() - newCargoFrom.getMass();
 
-				t.setVar("transfer.totalcargo", Common.ln(newCargoTo.getResourceCount(res.getId())));
+				message += " - jetzt [resource="+res.getId()+"]"+newCargoTo.getResourceCount(res.getId())+"[/resource] auf "+shipTo.getName()+" vorhanden";
 
 				if (transt > 0)
 				{
 					transfer = true;
-					msg.append("[resource=").append(res.getId()).append(")").append(Common.ln(transt)).append("[/resource] zur&uuml;ckgegeben.\n");
+					msg.append("[resource=").append(res.getId()).append(")").append(Common.ln(transt)).append("[/resource] zurückgegeben.\n");
 				}
 
-				t.parse("transfer.list", "transfer.listitem", true);
+				message += "\n";
 			}
 			// Transfer vom Zielschiff zum Ausgangsschiff
 			else if (transf != null && transf > 0)
 			{
-				t.setVar("transfer.target", shipFrom.getName(),
-						"transfer.count", Common.ln(transf));
+				message += "Transportiere [resource="+res.getId()+"]"+transf+"[/resource] zu "+shipFrom.getName();
 
 				if (transf > res.getCount2())
 				{
 					transf = res.getCount2();
 
-					t.setVar("transfer.notenoughcargo", 1,
-							"transfer.cargo", Common.ln(res.getCount2()));
+					message += " - Nur [resource="+res.getId()+"]"+res.getCount2()+"[/resource] vorhanden";
 				}
 
 				if (curcargofrom - transf < 0)
 				{
 					transf = (long) (curcargofrom / (double) Cargo.getResourceMass(res.getId(), 1));
 
-					t.setVar("transfer.notenoughspace", 1,
-							"transfer.newcount", Common.ln(transf));
+					message += " - Nur noch Platz für [resource="+res.getId()+"]"+transf+"[/resource] vorhanden";
 				}
 
 				// Falls es sich um ein unbekanntes Item handelt, dann dieses dem Spieler bekannt machen
@@ -307,7 +289,7 @@ public class PluendernController extends TemplateController
 				curcargoto = shipTypeTo.getCargo() - newCargoTo.getMass();
 				curcargofrom = shipTypeFrom.getCargo() - newCargoFrom.getMass();
 
-				t.setVar("transfer.totalcargo", Common.ln(newCargoFrom.getResourceCount(res.getId())));
+				message += " - jetzt [resource="+res.getId()+"]"+newCargoFrom.getResourceCount(res.getId())+"[/resource] auf "+shipFrom.getName()+" vorhanden";
 
 				if (transf > 0)
 				{
@@ -315,11 +297,8 @@ public class PluendernController extends TemplateController
 					msg.append("[resource=").append(res.getId()).append(")").append(Common.ln(transf)).append("[/resource] gestohlen.\n");
 				}
 
-				t.parse("transfer.list", "transfer.listitem", true);
+				message += "\n";
 			}
-
-			t.stop_record();
-			t.clear_record();
 		}
 
 		// Schiffe aktuallisieren
@@ -328,10 +307,12 @@ public class PluendernController extends TemplateController
 			// Transmission versenden
 			versendeNachrichtNachTransfer(msg, shipFrom, shipTo);
 
-			aktualisiereSchiffNachWarentransfer(t, shipTypeTo, newCargoTo, newCargoFrom, totaltransferfcount, shipFrom, shipTo);
+			if( aktualisiereSchiffNachWarentransfer(shipTypeTo, newCargoTo, newCargoFrom, totaltransferfcount, shipFrom, shipTo) ) {
+				message += "[color=red]Das geplünderte Schiff beginnt zu zerfallen[/color]";
+			}
 		}
 
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage(message);
 	}
 
 	private void versendeNachrichtNachTransfer(StringBuilder msg, Ship shipFrom, Ship shipTo)
@@ -346,7 +327,7 @@ public class PluendernController extends TemplateController
 		}
 	}
 
-	private void aktualisiereSchiffNachWarentransfer(TemplateEngine t, ShipTypeData shipTypeTo, Cargo newCargoTo, Cargo newCargoFrom, long totaltransferfcount, Ship shipFrom, Ship shipTo)
+	private boolean aktualisiereSchiffNachWarentransfer(ShipTypeData shipTypeTo, Cargo newCargoTo, Cargo newCargoFrom, long totaltransferfcount, Ship shipFrom, Ship shipTo)
 	{
 		shipFrom.setCargo(newCargoFrom);
 		shipTo.setCargo(newCargoTo);
@@ -358,8 +339,6 @@ public class PluendernController extends TemplateController
 		// damit der Schiffstick dieses zerstoert
 		if ((totaltransferfcount > 0) && shipTypeTo.hasFlag(ShipTypeFlag.INSTABIL))
 		{
-			t.setVar("toship.isinstabil", 1);
-
 			String statust = status;
 
 			if (statust.length() > 0)
@@ -372,7 +351,10 @@ public class PluendernController extends TemplateController
 			}
 
 			shipTo.setStatus(statust);
+
+			return true;
 		}
+		return false;
 	}
 
 	/**
@@ -382,11 +364,16 @@ public class PluendernController extends TemplateController
 	 * @param shipTo Die ID des zu pluendernden Schiffes
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(@UrlParam(name="from") Ship shipFrom, @UrlParam(name="to") Ship shipTo, boolean fromkapern)
+	public TemplateEngine defaultAction(@UrlParam(name="from") Ship shipFrom, @UrlParam(name="to") Ship shipTo, boolean fromkapern, RedirectViewResult redirect)
 	{
-		TemplateEngine t = this.getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 
 		validiereEigenesUndZielschiff(shipFrom, shipTo);
+
+		if( redirect != null )
+		{
+			t.setVar("pluendern.message", Common._text(redirect.getMessage()));
+		}
 
 		t.setVar(
 				"fromship.name", shipFrom.getName(),
@@ -421,5 +408,6 @@ public class PluendernController extends TemplateController
 
 			t.parse("res.list", "res.listitem", true);
 		}
+		return t;
 	}
 }

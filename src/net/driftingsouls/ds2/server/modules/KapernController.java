@@ -36,10 +36,11 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -51,6 +52,7 @@ import net.driftingsouls.ds2.server.units.UnitType;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -66,15 +68,14 @@ import java.util.Map.Entry;
  * @author Christopher Jung
  */
 @Module(name = "kapern")
-public class KapernController extends TemplateController
+public class KapernController extends Controller
 {
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public KapernController()
+	private TemplateViewResultFactory templateViewResultFactory;
+
+	@Autowired
+	public KapernController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 	}
 
 	private void validiereEigenesUndZielschiff(Ship eigenesSchiff, Ship zielSchiff)
@@ -174,10 +175,10 @@ public class KapernController extends TemplateController
 	 * @param zielSchiff Die ID des zu kapernden/pluendernden Schiffes
 	 */
 	@Action(ActionType.DEFAULT)
-	public void erobernAction(@UrlParam(name = "ship") Ship eigenesSchiff, @UrlParam(name = "tar") Ship zielSchiff)
+	public TemplateEngine erobernAction(@UrlParam(name = "ship") Ship eigenesSchiff, @UrlParam(name = "tar") Ship zielSchiff)
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) this.getUser();
 
 		validiereEigenesUndZielschiff(eigenesSchiff, zielSchiff);
@@ -241,7 +242,7 @@ public class KapernController extends TemplateController
 			{
 				if (!checkAlliedShipsReaction(db, t, targetUser, eigenesSchiff, zielSchiff))
 				{
-					return;
+					return t;
 				}
 			}
 
@@ -279,6 +280,8 @@ public class KapernController extends TemplateController
 
 		eigenesSchiff.recalculateShipStatus();
 		zielSchiff.recalculateShipStatus();
+
+		return t;
 	}
 
 	private void transferShipToNewOwner(Session db, User user, Ship targetShip)
@@ -536,14 +539,13 @@ public class KapernController extends TemplateController
 
 	/**
 	 * Zeigt die Auswahl ab, ob das Schiff gekapert oder gepluendert werden soll.
-	 *
-	 * @param eigenesSchiff Die ID des Schiffes, mit dem der Spieler kapern moechte
+	 *  @param eigenesSchiff Die ID des Schiffes, mit dem der Spieler kapern moechte
 	 * @param zielSchiff Die ID des zu kapernden/pluendernden Schiffes
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(@UrlParam(name = "ship") Ship eigenesSchiff, @UrlParam(name = "tar") Ship zielSchiff)
+	public TemplateEngine defaultAction(@UrlParam(name = "ship") Ship eigenesSchiff, @UrlParam(name = "tar") Ship zielSchiff)
 	{
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 
 		validiereEigenesUndZielschiff(eigenesSchiff, zielSchiff);
 
@@ -574,5 +576,6 @@ public class KapernController extends TemplateController
 					"menu.showpluendern", (zielSchiff.getCrew() == 0),
 					"menu.showkapern", !zielSchiff.getTypeData().hasFlag(ShipTypeFlag.NICHT_KAPERBAR));
 		}
+		return t;
 	}
 }

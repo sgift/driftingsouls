@@ -1,58 +1,6 @@
-{if transfer.list}
+{if unittausch.message}
 	<span class="smallfont">
-		<!-- BEGIN transfer.listitem -->
-			{if transfer.multitarget.list}
-				Transportiere je <img src="{transfer.res.image}" alt="" />{transfer.count}<br />
-				<!-- BEGIN transfer.multitarget.listitem -->
-					{if transfer.notenoughcargo}
-						 - Nur <img src="{transfer.res.image}" alt="" />{transfer.from.cargo} vorhanden
-					{/endif}
-					{if transfer.notenoughspace}
-						- Nur noch Platz f&uuml;r <img src="{transfer.res.image}" alt="" />{transfer.count.new} vorhanden
-					{/endif}
-					{if transfer.notenoughsize}
-						- Diese Einheit ist zu gro&szlig; f&uuml;r dieses Schiff.
-					{/endif}
-					{if transfer.reportnew}
-						{if transfer.mode.to}
-					 		- jetzt <img src="{transfer.res.image}" alt="" />{transfer.count.complete} auf {transfer.target.name} vorhanden
-						{else}
-					  		- jetzt <img src="{transfer.res.image}" alt="" />{transfer.count.complete} auf {transfer.source.name} vorhanden
-						{/endif}
-						 <br />
-					{else}
-						{if transfer.notenoughcargo}
-							<br />
-						{/endif}
-						{if transfer.notenoughspace}
-							<br />
-						{/endif}
-					{/endif}
-				<!-- END transfer.multitarget.listitem -->
-			{else}
-				Transportiere <img src="{transfer.res.image}" alt="" />{transfer.count} {if transfer.mode.to}zu{else}von{/endif} {transfer.target.name}
-				{if transfer.notenoughcargo}
-					 - Nur <img src="{transfer.res.image}" alt="" />{transfer.from.cargo} vorhanden
-				{/endif}
-				{if transfer.notenoughspace}
-					- Nur noch Platz f&uuml;r <img src="{transfer.res.image}" alt="" />{transfer.count.new} vorhanden
-				{/endif}
-				{if transfer.notenoughsize}
-						- Diese Einheit ist zu gro&szlig; f&uuml;r dieses Schiff.
-					{/endif}
-				{if transfer.reportnew}
-					{if transfer.mode.to}
-					 	- jetzt <img src="{transfer.res.image}" alt="" />{transfer.count.complete} auf {transfer.target.name} vorhanden
-					{else}
-					  	- jetzt <img src="{transfer.res.image}" alt="" />{transfer.count.complete} auf {transfer.source.name} vorhanden
-					{/endif}
-				{/endif}
-				<br />
-			{/endif}
-		<!-- END transfer.listitem -->
-	{if transfer.pm}
-		Transmission versandt<br />
-	{/endif}
+		{unittausch.message}
 	</span>
 	<br />
 {/endif}

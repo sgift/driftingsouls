@@ -28,11 +28,13 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Iterator;
 
@@ -42,15 +44,14 @@ import java.util.Iterator;
  * @author Christopher Jung
  */
 @Module(name = "core")
-public class CoreController extends TemplateController
+public class CoreController extends Controller
 {
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public CoreController()
+	private TemplateViewResultFactory templateViewResultFactory;
+
+	@Autowired
+	public CoreController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Core");
 	}
@@ -71,18 +72,18 @@ public class CoreController extends TemplateController
 	 * @param core Die zu bauende Core
 	 */
 	@Action(ActionType.DEFAULT)
-	public RedirectViewResult buildAction(@UrlParam(name = "col") Base base, @UrlParam(name = "build") Core core)
+	public TemplateEngine buildAction(@UrlParam(name = "col") Base base, @UrlParam(name = "build") Core core)
 	{
 		validiereBasis(base);
 
 		User user = (User) getUser();
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 
 		t.setVar("base.id", base.getId());
 
 		if (base.getCore() != null)
 		{
-			throw new ValidierungException("Sie k&ouml;nnen nur eine Core pro Asteroid bauen", Common.buildUrl("default", "module", "base", "col", base.getId()));
+			throw new ValidierungException("Sie können nur eine Core pro Asteroid bauen", Common.buildUrl("default", "module", "base", "col", base.getId()));
 		}
 
 		if (core == null)
@@ -92,7 +93,7 @@ public class CoreController extends TemplateController
 
 		if (!user.hasResearched(core.getTechRequired()))
 		{
-			throw new ValidierungException("Sie haben nicht alle ben&ouml;tigten Forschungen", Common.buildUrl("default", "module", "base", "col", base.getId()));
+			throw new ValidierungException("Sie haben nicht alle benötigten Forschungen", Common.buildUrl("default", "module", "base", "col", base.getId()));
 		}
 
 		if (core.getAstiType() != base.getKlasse())
@@ -151,9 +152,14 @@ public class CoreController extends TemplateController
 				base.setArbeiter(base.getArbeiter() + core.getArbeiter());
 				base.setBewohner(base.getBewohner() + core.getBewohner());
 			}
+
+			showCore(t, base);
+		}
+		else {
+			showCoreBuildList(t, base);
 		}
 
-		return new RedirectViewResult("default");
+		return t;
 	}
 
 	/**
@@ -166,9 +172,6 @@ public class CoreController extends TemplateController
 	{
 		validiereBasis(base);
 
-		TemplateEngine t = getTemplateEngine();
-		t.setVar("base.id", base.getId());
-
 		if (!base.isCoreActive())
 		{
 			return new RedirectViewResult("default");
@@ -179,9 +182,7 @@ public class CoreController extends TemplateController
 		base.setArbeiter(base.getArbeiter() - core.getArbeiter());
 		base.setCoreActive(false);
 
-		t.setVar("core.message", "<span class=\"error\">Core deaktiviert</span>");
-
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage("<span class=\"error\">Core deaktiviert</span>");
 	}
 
 	/**
@@ -195,37 +196,35 @@ public class CoreController extends TemplateController
 	{
 		validiereBasis(base);
 
-		TemplateEngine t = getTemplateEngine();
-		t.setVar("base.id", base.getId());
-
 		if (base.isCoreActive())
 		{
 			return new RedirectViewResult("default");
 		}
 
+		String message;
 		Core core = base.getCore();
 		if (core.getArbeiter() + base.getArbeiter() > base.getBewohner())
 		{
-			t.setVar("core.message", "<span style=\"color:#ff0000\">Nicht gen&uuml;gend Arbeiter</span>");
+			message = "<span style=\"color:#ff0000\">Nicht gen&uuml;gend Arbeiter</span>";
 		}
 		else if (core.isShutDown() && !base.getOwner().hasResearched(core.getTechRequired()))
 		{
-			t.setVar("core.message", "<span sytel=\"color:#ff0000\">Sie haben nicht die notwendigen Voraussetzungen um dieses Geb&auml;ude aktivieren zu k&ouml;nnen.</span>");
+			message = "<span sytel=\"color:#ff0000\">Sie haben nicht die notwendigen Voraussetzungen um dieses Geb&auml;ude aktivieren zu k&ouml;nnen.</span>";
 		}
 		else
 		{
 			base.setArbeiter(base.getArbeiter() + core.getArbeiter());
 			base.setCoreActive(true);
 
-			t.setVar("core.message", "<span class=\"ok\">Core aktiviert</span>");
+			message = "<span class=\"ok\">Core aktiviert</span>";
 		}
 
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage(message);
 	}
 
-	private void showCore(Base base)
+	private void showCore(TemplateEngine t, Base base)
 	{
-		TemplateEngine t = getTemplateEngine();
+		t.setVar("base.core", base.getCore().getId());
 
 		Core core = base.getCore();
 
@@ -260,10 +259,11 @@ public class CoreController extends TemplateController
 		}
 	}
 
-	private void showCoreBuildList(Base base)
+	private void showCoreBuildList(TemplateEngine t, Base base)
 	{
+		t.setVar("base.core", 0);
+
 		org.hibernate.Session db = getDB();
-		TemplateEngine t = getTemplateEngine();
 		User user = (User) getUser();
 
 		// Keine Core vorhanden
@@ -348,21 +348,22 @@ public class CoreController extends TemplateController
 	 * @param base Die Basis
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(@UrlParam(name = "col") Base base)
+	public TemplateEngine defaultAction(@UrlParam(name = "col") Base base, RedirectViewResult redirect)
 	{
 		validiereBasis(base);
 
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
+		t.setVar("core.message", redirect != null ? redirect.getMessage() : null);
 		t.setVar("base.id", base.getId());
-		t.setVar("base.core", base.getCore() != null ? base.getCore().getId() : 0);
 
 		if (base.getCore() != null)
 		{
-			showCore(base);
+			showCore(t, base);
 		}
 		else
 		{
-			showCoreBuildList(base);
+			showCoreBuildList(t, base);
 		}
+		return t;
 	}
 }

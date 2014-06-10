@@ -33,15 +33,17 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.Ship;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -53,17 +55,16 @@ import java.util.Map;
  * @author Christopher Jung
  */
 @Module(name = "trade")
-public class TradeController extends TemplateController
+public class TradeController extends Controller
 {
 	private static final Log log = LogFactory.getLog(TradeController.class);
 
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public TradeController()
+	private TemplateViewResultFactory templateViewResultFactory;
+
+	@Autowired
+	public TradeController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Handelsposten");
 	}
@@ -211,7 +212,6 @@ public class TradeController extends TemplateController
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult sellAction(@UrlParam(name = "#to") Map<String, Long> toMap, Ship tradepost, Ship ship)
 	{
-		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 
@@ -219,11 +219,6 @@ public class TradeController extends TemplateController
 		validiereHandelsposten(ship, tradepost);
 
 		GtuWarenKurse kurse = ermittleWarenKurseFuerHandelsposten(db, ship, tradepost);
-
-		getTemplateEngine().setVar("global.shipid", ship.getId());
-		getTemplateEngine().setVar("global.tradepost", tradepost.getId());
-
-		getTemplateEngine().setBlock("_TRADE", "msgs.listitem", "msgs.list");
 
 		int MIN_TICKS_TO_SURVIVE = 7;
 		Cargo shipCargo = ship.getCargo();
@@ -249,6 +244,8 @@ public class TradeController extends TemplateController
 
 		BigInteger totalRE = BigInteger.ZERO;
 		boolean changed = false;
+
+		String message = "";
 
 		Cargo kurseCargo = new Cargo(kurse.getKurse());
 		kurseCargo.setOption(Cargo.Option.SHOWMASS, false);
@@ -292,12 +289,7 @@ public class TradeController extends TemplateController
 					long nichtVerkauft = tmp - limit;
 					tmp = limit;
 
-					t.setVar("waren.count", Common.ln(nichtVerkauft),
-							"waren.name", res.getName(),
-							"waren.img", res.getImage(),
-							"waren.fehler", "Es besteht kein Interesse mehr an dieser Ware");
-
-					t.parse("msgs.list", "msgs.listitem", true);
+					message += "[resource="+res.getId()+"]"+nichtVerkauft+"[/resource] nicht verkauft - Es besteht kein Interesse mehr an dieser Ware\n";
 				}
 
 				//Nicht mehr ankaufen als Platz da ist
@@ -306,12 +298,7 @@ public class TradeController extends TemplateController
 					long nichtVerkauft = tmp - freeSpace / resourceMass;
 					tmp = freeSpace / resourceMass;
 
-					t.setVar("waren.count", Common.ln(nichtVerkauft),
-							"waren.name", res.getName(),
-							"waren.img", res.getImage(),
-							"waren.fehler", "Alle Lager sind voll");
-
-					t.parse("msgs.list", "msgs.listitem", true);
+					message += "[resource="+res.getId()+"]"+nichtVerkauft+"[/resource] nicht verkauft - Alle Lager sind voll\n";
 				}
 
 				BigDecimal get = BigDecimal.valueOf(tmp).multiply(new BigDecimal(res.getCount1() / 1000d));
@@ -328,12 +315,7 @@ public class TradeController extends TemplateController
 								.multiply(BigInteger.valueOf(1000))
 								.divide(BigInteger.valueOf(res.getCount1())).longValue();
 
-						t.setVar("waren.count", Common.ln(tmp - maximum),
-								"waren.name", res.getName(),
-								"waren.img", res.getImage(),
-								"waren.fehler", "Ihr Handelspartner ist pleite");
-
-						t.parse("msgs.list", "msgs.listitem", true);
+						message += "[resource="+res.getId()+"]"+(tmp-maximum)+"[/resource] nicht verkauft - Ihr Handelspartner ist pleite\n";
 
 						tmp = maximum;
 					}
@@ -346,13 +328,7 @@ public class TradeController extends TemplateController
 
 				get = BigDecimal.valueOf(tmp).multiply(new BigDecimal(res.getCount1() / 1000d));
 
-				t.setVar("waren.count", Common.ln(tmp),
-						"waren.name", res.getName(),
-						"waren.img", res.getImage(),
-						"waren.re", Common.ln(get),
-						"waren.fehler", "");
-
-				t.parse("msgs.list", "msgs.listitem", true);
+				message += "[resource="+res.getId()+"]"+tmp+"[/resource] für "+Common.ln(get)+" RE verkauft\n";
 
 				totalRE = totalRE.add(get.toBigInteger());
 				changed = true;
@@ -380,7 +356,7 @@ public class TradeController extends TemplateController
 					UserMoneyTransfer.Transfer.SEMIAUTO);
 		}
 
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage(message);
 	}
 
 	private boolean isFull(Ship handelsposten)
@@ -391,13 +367,13 @@ public class TradeController extends TemplateController
 	/**
 	 * Zeigt die eigenen Waren sowie die Warenkurse am Handelsposten an.
 	 *
-	 * @param ship die ID des Schiffes, das Waren verkaufen moechte
 	 * @param tradepost die ID des Handelspostens, an dem die Waren verkauft werden sollen
+	 * @param ship die ID des Schiffes, das Waren verkaufen moechte
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(Ship tradepost, Ship ship)
+	public TemplateEngine defaultAction(Ship tradepost, Ship ship, RedirectViewResult redirect)
 	{
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 		org.hibernate.Session db = getDB();
 
 		validiereSchiff(ship);
@@ -405,8 +381,13 @@ public class TradeController extends TemplateController
 
 		GtuWarenKurse kurse = ermittleWarenKurseFuerHandelsposten(db, ship, tradepost);
 
-		getTemplateEngine().setVar("global.shipid", ship.getId());
-		getTemplateEngine().setVar("global.tradepost", tradepost.getId());
+		if( redirect != null )
+		{
+			t.setVar("trade.message", Common._text(redirect.getMessage()));
+		}
+
+		t.setVar("global.shipid", ship.getId());
+		t.setVar("global.tradepost", tradepost.getId());
 
 		t.setVar("error.none", 1);
 		t.setBlock("_TRADE", "res.listitem", "res.list");
@@ -494,5 +475,7 @@ public class TradeController extends TemplateController
 					"resbuy.re", limit.getPrice());
 			t.parse("resbuy.list", "resbuy.listitem", true);
 		}
+
+		return t;
 	}
 }

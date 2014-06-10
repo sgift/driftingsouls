@@ -1,13 +1,6 @@
 <span class="smallfont">
-<!-- BEGIN msgs.listitem -->
-	<img src="{waren.img}" alt="" />{waren.count}
-	{if waren.fehler}
-		nicht verkauft - {waren.fehler}<br />
-	{else}
-		f&uuml;r {waren.re} RE verkauft<br />
-	{/endif}
-<!-- END msgs.listitem -->
-{if msgs.list}
+{if trade.message}
+	{trade.message}
 	<br />
 {/endif}
 {if res.list}

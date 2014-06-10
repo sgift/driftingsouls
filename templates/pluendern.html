@@ -1,20 +1,8 @@
-{if transfer.list}
+{if pluendern.message}
 	<span class="smallfont">
-		<!-- BEGIN transfer.listitem -->
-			Transportiere <img src="{res.image}" alt="" />{transfer.count} zu {transfer.target}
-			{if transfer.notenoughcargo}
-				 - Nur <img src="{res.image}" alt="" />{transfer.cargo} vorhanden
-			{/endif}
-			{if transfer.notenoughspace}
-				 - Nur noch Platz f&uuml;r <img src="{res.image}" alt="" />{transfer.newcount} vorhanden
-			{/endif}
-			 - jetzt <img src="{res.image}" alt="" />{transfer.totalcargo} auf {transfer.target} vorhanden
-			 <br />
-		<!-- END transfer.listitem -->
-		{if toship.isinstabil}
-			<span style="color:red">Das gepl&uuml;nderte Schiff beginnt zu zerfallen</span><br />
-		{/endif}
+		{pluendern.message}
 	</span>
+	<br />
 	<br />
 {/endif}
 

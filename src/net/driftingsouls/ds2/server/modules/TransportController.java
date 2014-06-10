@@ -31,11 +31,12 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -44,11 +45,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Transfer von Waren zwischen Basen und Schiffen.
@@ -56,7 +59,7 @@ import java.util.Map;
  * @author Christopher Jung
  */
 @Module(name = "transport")
-public class TransportController extends TemplateController
+public class TransportController extends Controller
 {
 	private static class MultiTarget
 	{
@@ -528,14 +531,12 @@ public class TransportController extends TemplateController
 	}
 
 	private Map<String, TransportFactory> wayhandler;
+	private TemplateViewResultFactory templateViewResultFactory;
 
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public TransportController()
+	@Autowired
+	public TransportController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Warentransfer");
 
@@ -638,20 +639,17 @@ public class TransportController extends TemplateController
 		}
 	}
 
-	private long transferSingleResource(TransportTarget fromItem, TransportTarget toItem, ResourceEntry res, long count, Cargo newfromc, Cargo newtoc, MutableLong cargofrom, MutableLong cargoto, StringBuilder msg, char mode, String rawFrom, String rawTo, String rawWay)
+	private long transferSingleResource(StringBuilder message, TransportTarget fromItem, TransportTarget toItem, ResourceEntry res, long count, Cargo newfromc, Cargo newtoc, MutableLong cargofrom, MutableLong cargoto, StringBuilder msg, char mode, String rawFrom, String rawTo, String rawWay)
 	{
-		TemplateEngine t = getTemplateEngine();
-
-		t.setVar(
-				"transfer.notenoughcargo", 0,
-				"transfer.notenoughspace", 0);
+		boolean out = false;
 
 		if (count > newfromc.getResourceCount(res.getId()))
 		{
-			t.setVar("transfer.notenoughcargo", 1,
-					"transfer.from.cargo", Common.ln(newfromc.getResourceCount(res.getId())));
-
 			count = newfromc.getResourceCount(res.getId());
+
+			out = true;
+			message.append(" - Nur [resource=").append(res.getId()).append("]").append(count).append("[/resource] vorhanden");
+
 			if (count < 0)
 			{
 				count = 0;
@@ -668,8 +666,8 @@ public class TransportController extends TemplateController
 				count = 0;
 			}
 
-			t.setVar("transfer.notenoughspace", 1,
-					"transfer.count.new", Common.ln(count));
+			out = true;
+			message.append(" - Nur noch Platz für [resource=").append(res.getId()).append("]").append(count).append("[/resource] vorhanden");
 		}
 
 		newtoc.addResource(res.getId(), count);
@@ -694,8 +692,18 @@ public class TransportController extends TemplateController
 
 		if ((fromItem.getOwner() == toItem.getOwner()) || (toItem.getOwner() == 0))
 		{
-			t.setVar("transfer.reportnew", 1,
-					"transfer.count.complete", Common.ln(newtoc.getResourceCount(res.getId())));
+			out = true;
+			if( mode == 't' ) {
+				message.append(" - jetzt [resource=").append(res.getId()).append("]").append(newtoc.getResourceCount(res.getId())).append("[/resource] auf ").append(Common._plaintitle(toItem.getObjectName())).append(" vorhanden");
+			}
+			else {
+				message.append(" - jetzt [resource=").append(res.getId()).append("]").append(newtoc.getResourceCount(res.getId())).append("[/resource] auf ").append(Common._plaintitle(fromItem.getObjectName())).append(" vorhanden");
+			}
+		}
+
+		if( out )
+		{
+			message.append("\n");
 		}
 
 		return count;
@@ -720,16 +728,10 @@ public class TransportController extends TemplateController
 		List<TransportTarget> to = parseListeDerTransportZiele(way[1], toString);
 		validiereWarenKoennenZwischenQuelleUndZielTransferiertWerden(from, to, way[0], way[1]);
 
-		TemplateEngine t = getTemplateEngine();
+		StringBuilder message = new StringBuilder();
 		org.hibernate.Session db = getDB();
-		t.setBlock("_TRANSPORT", "transfer.listitem", "transfer.list");
 
 		boolean transfer = false;
-
-		if (to.size() == 1)
-		{
-			t.setVar("transfer.multitarget", 0);
-		}
 
 		List<Cargo> newtoclist = new ArrayList<>();
 		List<Long> cargotolist = new ArrayList<>();
@@ -756,40 +758,29 @@ public class TransportController extends TemplateController
 
 		Map<Integer, StringBuilder> msg = new HashMap<>();
 
-		if ((to.size() > 1) || (from.size() > 1))
-		{
-			t.setBlock("_TRANSPORT", "transfer.multitarget.listitem", "transfer.multitarget.list");
-		}
-
 		ResourceList reslist = totalfromcargo.compare(totaltocargo, true);
 		for (ResourceEntry res : reslist)
 		{
 			Integer transt = toMap.get(res.getId().toString());
 			Integer transf = fromMap.get(res.getId().toString());
 
-			t.setVar("transfer.multitarget.list", "");
-
 			if (transt != null && transt > 0)
 			{
-				t.setVar("transfer.count", Common.ln(transt),
-						"transfer.mode.to", 1,
-						"transfer.res.image", res.getImage());
+				if( to.size() > 1 )
+				{
+					message.append("Transportiere je [resource=").append(res.getId()).append("]").append(transt).append("[/resource]\n");
+				}
+				else {
+					message.append("Transportiere [resource=").append(res.getId()).append("]").append(transt).append("[/resource] zu ").append(Common._plaintitle(to.get(0).getObjectName())).append("\n");
+				}
 
 				for (int k = 0; k < from.size(); k++)
 				{
 					TransportTarget fromTarget = from.get(k);
-					t.setVar("transfer.source.name", Common._plaintitle(fromTarget.getObjectName()));
 
 					for (int j = 0; j < to.size(); j++)
 					{
 						TransportTarget toTarget = to.get(j);
-						if ((to.size() > 1) || (from.size() > 1))
-						{
-							t.start_record();
-						}
-
-						t.setVar("transfer.target.name", Common._plaintitle(toTarget.getObjectName()));
-
 						if (!msg.containsKey(toTarget.getOwner()))
 						{
 							msg.put(toTarget.getOwner(), new StringBuilder());
@@ -797,7 +788,7 @@ public class TransportController extends TemplateController
 
 						MutableLong mCargoFrom = new MutableLong(cargofromlist.get(k));
 						MutableLong mCargoTo = new MutableLong(cargotolist.get(j));
-						if (transferSingleResource(fromTarget, toTarget, res, transt, newfromclist.get(k), newtoclist.get(j), mCargoFrom, mCargoTo, msg.get(toTarget.getOwner()), 't', fromString, toString, rawWay) != 0)
+						if (transferSingleResource(message, fromTarget, toTarget, res, transt, newfromclist.get(k), newtoclist.get(j), mCargoFrom, mCargoTo, msg.get(toTarget.getOwner()), 't', fromString, toString, rawWay) != 0)
 						{
 							transfer = true;
 
@@ -814,44 +805,33 @@ public class TransportController extends TemplateController
 						}
 						cargofromlist.set(k, mCargoFrom.longValue());
 						cargotolist.set(j, mCargoTo.longValue());
-
-						if ((to.size() > 1) || (from.size() > 1))
-						{
-							t.parse("transfer.multitarget.list", "transfer.multitarget.listitem", true);
-
-							t.stop_record();
-							t.clear_record();
-						}
 					}
 				}
-				t.parse("transfer.list", "transfer.listitem", true);
 			}
 			else if (transf != null && transf > 0)
 			{
-				t.setVar("transfer.count", Common.ln(transf),
-						"transfer.res.image", res.getImage(),
-						"transfer.mode.to", 0);
+				if( from.size() > 1 )
+				{
+					message.append("Transportiere je [resource=").append(res.getId()).append("]").append(transt).append("[/resource]\n");
+				}
+				else {
+					message.append("Transportiere [resource=").append(res.getId()).append("]").append(transt).append("[/resource] von ").append(Common._plaintitle(to.get(0).getObjectName())).append("\n");
+				}
+
 				for (int k = 0; k < from.size(); k++)
 				{
 					TransportTarget fromTarget = from.get(k);
-					t.setVar("transfer.source.name", Common._plaintitle(fromTarget.getObjectName()));
 
 					for (int j = 0; j < to.size(); j++)
 					{
 						TransportTarget toTarget = to.get(j);
-						if ((to.size() > 1) || (from.size() > 1))
-						{
-							t.start_record();
-						}
 
 						if ((toTarget.getOwner() != getUser().getId()) && (toTarget.getOwner() != 0))
 						{
-							addError("Das geh&ouml;rt dir nicht!");
+							addError("Das gehört dir nicht!");
 
 							return new RedirectViewResult("default");
 						}
-
-						t.setVar("transfer.target.name", Common._plaintitle(toTarget.getObjectName()));
 
 						if (!msg.containsKey(toTarget.getOwner()))
 						{
@@ -859,33 +839,20 @@ public class TransportController extends TemplateController
 						}
 						MutableLong mCargoFrom = new MutableLong(cargofromlist.get(k));
 						MutableLong mCargoTo = new MutableLong(cargotolist.get(j));
-						if (transferSingleResource(fromTarget, toTarget, res, transf, newtoclist.get(j), newfromclist.get(k), mCargoTo, mCargoFrom, msg.get(toTarget.getOwner()), 'f', fromString, toString, rawWay) != 0)
+						if (transferSingleResource(message, fromTarget, toTarget, res, transf, newtoclist.get(j), newfromclist.get(k), mCargoTo, mCargoFrom, msg.get(toTarget.getOwner()), 'f', fromString, toString, rawWay) != 0)
 						{
 							transfer = true;
 						}
 						cargofromlist.set(k, mCargoFrom.longValue());
 						cargotolist.set(j, mCargoTo.longValue());
-
-						if ((to.size() > 1) || (from.size() > 1))
-						{
-							t.parse("transfer.multitarget.list", "transfer.multitarget.listitem", true);
-
-							t.stop_record();
-							t.clear_record();
-						}
 					}
 				}
-				t.parse("transfer.list", "transfer.listitem", true);
 			}
 		}
 
 		Map<Integer, String> ownerpmlist = new HashMap<>();
 
-		List<String> sourceshiplist = new ArrayList<>();
-		for (TransportTarget aFrom : from)
-		{
-			sourceshiplist.add(aFrom.getObjectName() + " (" + aFrom.getId() + ")");
-		}
+		List<String> sourceshiplist = from.stream().map(aFrom -> aFrom.getObjectName() + " (" + aFrom.getId() + ")").collect(Collectors.toList());
 
 		for (int j = 0; j < to.size(); j++)
 		{
@@ -896,7 +863,7 @@ public class TransportController extends TemplateController
 				{
 					Common.writeLog("transport.log", Common.date("d.m.y H:i:s") + ": " + getUser().getId() + " -> " + toTarget.getOwner() + " | " + fromString + " -> " + toString + " [" + rawWay + "] : " + "\n" + msg + "---------\n");
 
-					t.setVar("transfer.pm", 1);
+					message.append("Transmission versandt\n");
 
 					List<String> shiplist = new ArrayList<>();
 
@@ -918,7 +885,7 @@ public class TransportController extends TemplateController
 
 		if (!transfer)
 		{
-			return new RedirectViewResult("default");
+			return new RedirectViewResult("default").withMessage(message.toString());
 		}
 
 		/*
@@ -949,11 +916,11 @@ public class TransportController extends TemplateController
 			to.get(k).write();
 		}
 
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage(message.toString());
 	}
 
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(@UrlParam(name = "way") String rawWay, @UrlParam(name = "from") String fromString, @UrlParam(name = "to") String toString)
+	public TemplateEngine defaultAction(@UrlParam(name = "way") String rawWay, @UrlParam(name = "from") String fromString, @UrlParam(name = "to") String toString, RedirectViewResult redirect)
 	{
 		String[] way = StringUtils.split(rawWay, "to");
 
@@ -961,7 +928,12 @@ public class TransportController extends TemplateController
 		List<TransportTarget> to = parseListeDerTransportZiele(way[1], toString);
 		validiereWarenKoennenZwischenQuelleUndZielTransferiertWerden(from, to, way[0], way[1]);
 
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
+
+		if( redirect != null )
+		{
+			t.setVar("transport.message", Common._text(redirect.getMessage()));
+		}
 
 		t.setVar("global.rawway", rawWay,
 				"source.isbase", way[0].equals("b"),
@@ -979,6 +951,8 @@ public class TransportController extends TemplateController
 
 		// Soll der Zielcargo gezeigt werden?
 		gegenstandsListeAnzeigen(t, from, to);
+
+		return t;
 	}
 
 	private void gegenstandsListeAnzeigen(TemplateEngine t, List<TransportTarget> from, List<TransportTarget> to)

@@ -24,11 +24,13 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.Ship;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Transfer von Crew von Schiffen zu Schiffen/Basen (und umgekehrt).
@@ -36,7 +38,7 @@ import net.driftingsouls.ds2.server.ships.Ship;
  * @author Christopher Jung
  */
 @Module(name = "crewtausch")
-public class CrewtauschController extends TemplateController
+public class CrewtauschController extends Controller
 {
 	/**
 	 * Das Ziel fuer einen Crewtransfer.
@@ -201,13 +203,12 @@ public class CrewtauschController extends TemplateController
 		}
 	}
 
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public CrewtauschController()
+	private TemplateViewResultFactory templateViewResultFactory;
+
+	@Autowired
+	public CrewtauschController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Crewtransfer");
 	}
@@ -290,8 +291,6 @@ public class CrewtauschController extends TemplateController
 
 		Target datat = ladeCrewtauschZiel(mode, tar, ship);
 
-		TemplateEngine t = getTemplateEngine();
-
 		if (send < 0)
 		{
 			send = 0;
@@ -305,11 +304,10 @@ public class CrewtauschController extends TemplateController
 			send = ship.getCrew();
 		}
 
+		String message = null;
 		if (send > 0)
 		{
-			t.setVar("crewtausch.transfer", 1,
-					"transfer.way.to", 1,
-					"transfer.count", send);
+			message = "<img src=\"data/interface/besatzung.gif\" alt=\"Crew\" />"+send+" zur "+datat.getName()+" transferiert";
 
 			ship.setCrew(ship.getCrew() - send);
 			datat.setCrew(datat.getCrew() + send);
@@ -317,7 +315,7 @@ public class CrewtauschController extends TemplateController
 			ship.recalculateShipStatus();
 		}
 
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage(message);
 	}
 
 	/**
@@ -334,7 +332,6 @@ public class CrewtauschController extends TemplateController
 
 		Target datat = ladeCrewtauschZiel(mode, tar, ship);
 
-		TemplateEngine t = getTemplateEngine();
 
 		if (rec < 0)
 		{
@@ -350,11 +347,10 @@ public class CrewtauschController extends TemplateController
 			rec = datat.getCrew();
 		}
 
+		String message = null;
 		if (rec > 0)
 		{
-			t.setVar("crewtausch.transfer", 1,
-					"transfer.way.to", 0,
-					"transfer.count", rec);
+			message = "<img src=\"data/interface/besatzung.gif\" alt=\"Crew\" />"+rec+" von "+datat.getName()+" transferiert";
 
 			ship.setCrew(ship.getCrew() + rec);
 			datat.setCrew(datat.getCrew() - rec);
@@ -362,7 +358,7 @@ public class CrewtauschController extends TemplateController
 			ship.recalculateShipStatus();
 		}
 
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage(message);
 	}
 
 	/**
@@ -373,13 +369,13 @@ public class CrewtauschController extends TemplateController
 	 * @param mode Der Transfermodus. Entweder ss (Schiff zu Schiff) oder sb (Schiff zu Basis)
 	 */
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(Ship ship, int tar, String mode)
+	public TemplateEngine defaultAction(Ship ship, int tar, String mode, RedirectViewResult redirect)
 	{
 		validiereSchiff(ship);
 
 		Target datat = ladeCrewtauschZiel(mode, tar, ship);
 
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
 
 		t.setVar("ship.id", ship.getId(),
 				"ship.name", Common._plaintitle(ship.getName()),
@@ -393,6 +389,9 @@ public class CrewtauschController extends TemplateController
 				"global.mode.ss", mode.equals("ss"),
 				"global.mode.sb", mode.equals("sb"),
 				"target.send", datat.getMaxCrew() > -1 ? datat.getMaxCrew() - datat.getCrew() : 0,
-				"ship.receive", ship.getTypeData().getCrew() - ship.getCrew());
+				"ship.receive", ship.getTypeData().getCrew() - ship.getCrew(),
+				"crewtausch.message", redirect != null ? redirect.getMessage() : null);
+
+		return t;
 	}
 }

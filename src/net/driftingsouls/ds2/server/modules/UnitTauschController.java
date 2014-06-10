@@ -27,11 +27,12 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.TemplateController;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -42,18 +43,20 @@ import net.driftingsouls.ds2.server.units.UnitType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 /**
  * Transfer von Einheiten zwischen Basen und Schiffen.
  */
 @Module(name = "unittausch")
-public class UnitTauschController extends TemplateController
+public class UnitTauschController extends Controller
 {
 	private static class MultiTarget
 	{
@@ -544,15 +547,13 @@ public class UnitTauschController extends TemplateController
 		}
 	}
 
+	private TemplateViewResultFactory templateViewResultFactory;
 	private Map<String, TransportFactory> wayhandler;
 
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public UnitTauschController()
+	@Autowired
+	public UnitTauschController(TemplateViewResultFactory templateViewResultFactory)
 	{
-		super();
+		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Einheitentransfer");
 
@@ -656,9 +657,8 @@ public class UnitTauschController extends TemplateController
 		}
 	}
 
-	private long transferSingleUnit(TransportTarget fromUnit, TransportTarget toUnit, int unitid, long count, UnitCargo newfromc, UnitCargo newtoc, MutableLong cargofrom, MutableLong cargoto, StringBuilder msg, char mode, String rawFrom, String rawTo, String rawWay)
+	private long transferSingleUnit(StringBuilder message, TransportTarget fromUnit, TransportTarget toUnit, int unitid, long count, UnitCargo newfromc, UnitCargo newtoc, MutableLong cargofrom, MutableLong cargoto, StringBuilder msg, char mode, String rawFrom, String rawTo, String rawWay)
 	{
-		TemplateEngine t = getTemplateEngine();
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		UnitType unittype = (UnitType) db.get(UnitType.class, unitid);
 
@@ -666,7 +666,7 @@ public class UnitTauschController extends TemplateController
 		{
 			if (unittype.getSize() > toUnit.getMaxUnitSize() && toUnit.getMaxUnitSize() != -1)
 			{
-				t.setVar("transfer.notenoughsize", 1);
+				message.append(" - Diese Einheit ist zu groß für dieses Schiff.\n");
 				return 0;
 			}
 		}
@@ -674,22 +674,19 @@ public class UnitTauschController extends TemplateController
 		{
 			if (unittype.getSize() > fromUnit.getMaxUnitSize() && fromUnit.getMaxUnitSize() != -1)
 			{
-				t.setVar("transfer.notenoughsize", 1);
+				message.append(" - Diese Einheit ist zu groß für dieses Schiff.\n");
 				return 0;
 			}
 		}
 
-
-		t.setVar(
-				"transfer.notenoughcargo", 0,
-				"transfer.notenoughspace", 0);
+		boolean out = false;
 
 		if (count > newfromc.getUnitCount(unittype))
 		{
-			t.setVar("transfer.notenoughcargo", 1,
-					"transfer.from.cargo", Common.ln(newfromc.getUnitCount(unittype)));
-
 			count = newfromc.getUnitCount(unittype);
+
+			out = true;
+			message.append(" - Nur [unit=").append(unittype.getId()).append("]").append(count).append("[/unit] vorhanden");
 			if (count < 0)
 			{
 				count = 0;
@@ -706,8 +703,8 @@ public class UnitTauschController extends TemplateController
 				count = 0;
 			}
 
-			t.setVar("transfer.notenoughspace", 1,
-					"transfer.count.new", Common.ln(count));
+			out = true;
+			message.append(" - Nur noch Platz für [unit=").append(unittype.getId()).append("]").append(count).append("[/unit] vorhanden");
 		}
 
 		newtoc.addUnit(unittype, count);
@@ -743,8 +740,18 @@ public class UnitTauschController extends TemplateController
 
 		if ((fromUnit.getOwner() == toUnit.getOwner()) || (toUnit.getOwner() == 0))
 		{
-			t.setVar("transfer.reportnew", 1,
-					"transfer.count.complete", Common.ln(newtoc.getUnitCount(unittype)));
+			out = true;
+			if( mode == 't' ) {
+				message.append(" - jetzt [unit=").append(unittype.getId()).append("]").append(newtoc.getUnitCount(unittype)).append("[/unit]auf ").append(Common._plaintitle(toUnit.getObjectName())).append(" vorhanden");
+			}
+			else {
+				message.append(" - jetzt [unit=").append(unittype.getId()).append("]").append(newtoc.getUnitCount(unittype)).append("[/unit] auf ").append(Common._plaintitle(fromUnit.getObjectName())).append(" vorhanden");
+			}
+		}
+
+		if( out )
+		{
+			message.append("\n");
 		}
 
 		return count;
@@ -769,15 +776,9 @@ public class UnitTauschController extends TemplateController
 
 		validiereEinheitenKoennenZwischenQuelleUndZielTransferiertWerden(from, to, way[0], way[1]);
 
-		TemplateEngine t = getTemplateEngine();
-		t.setBlock("_TRANSPORT", "transfer.listitem", "transfer.list");
+		StringBuilder message = new StringBuilder();
 
 		boolean transfer = false;
-
-		if (to.size() == 1)
-		{
-			t.setVar("transfer.multitarget", 0);
-		}
 
 		List<UnitCargo> newtoclist = new ArrayList<>();
 		List<Long> cargotolist = new ArrayList<>();
@@ -818,11 +819,6 @@ public class UnitTauschController extends TemplateController
 
 		Map<Integer, StringBuilder> msg = new HashMap<>();
 
-		if ((to.size() > 1) || (from.size() > 1))
-		{
-			t.setBlock("_TRANSPORT", "transfer.multitarget.listitem", "transfer.multitarget.list");
-		}
-
 		Map<UnitType, Long[]> unitlist = totalfromcargo.compare(totaltocargo);
 		for (Map.Entry<UnitType, Long[]> unit : unitlist.entrySet())
 		{
@@ -830,29 +826,23 @@ public class UnitTauschController extends TemplateController
 			Integer transt = toMap.get(unittype.getId());
 			Integer transf = fromMap.get(unittype.getId());
 
-			t.setVar("transfer.multitarget.list", "");
-
 			if (transt != null && transt > 0)
 			{
-				t.setVar("transfer.count", Common.ln(transt),
-						"transfer.mode.to", 1,
-						"transfer.res.image", unittype.getPicture());
+				if( to.size() > 1 )
+				{
+					message.append("Transportiere je [unit=").append(unittype.getId()).append("]").append(transt).append("[/unit]\n");
+				}
+				else {
+					message.append("Transportiere [unit=").append(unittype.getId()).append("]").append(transt).append("[/unit] zu ").append(Common._plaintitle(to.get(0).getObjectName())).append("\n");
+				}
 
 				for (int k = 0; k < from.size(); k++)
 				{
 					TransportTarget fromTarget = from.get(k);
-					t.setVar("transfer.source.name", Common._plaintitle(fromTarget.getObjectName()));
 
 					for (int j = 0; j < to.size(); j++)
 					{
 						TransportTarget toTarget = to.get(j);
-						if ((to.size() > 1) || (from.size() > 1))
-						{
-							t.start_record();
-						}
-
-						t.setVar("transfer.target.name", Common._plaintitle(toTarget.getObjectName()));
-
 						if (!msg.containsKey(toTarget.getOwner()))
 						{
 							msg.put(toTarget.getOwner(), new StringBuilder());
@@ -860,84 +850,59 @@ public class UnitTauschController extends TemplateController
 
 						MutableLong mCargoFrom = new MutableLong(cargofromlist.get(k));
 						MutableLong mCargoTo = new MutableLong(cargotolist.get(j));
-						if (transferSingleUnit(fromTarget, toTarget, unittype.getId(), transt, newfromclist.get(k), newtoclist.get(j), mCargoFrom, mCargoTo, msg.get(toTarget.getOwner()), 't', rawFrom, rawTo, rawWay) != 0)
+						if (transferSingleUnit(message, fromTarget, toTarget, unittype.getId(), transt, newfromclist.get(k), newtoclist.get(j), mCargoFrom, mCargoTo, msg.get(toTarget.getOwner()), 't', rawFrom, rawTo, rawWay) != 0)
 						{
 							transfer = true;
 						}
 						cargofromlist.set(k, mCargoFrom.longValue());
 						cargotolist.set(j, mCargoTo.longValue());
-
-						if ((to.size() > 1) || (from.size() > 1))
-						{
-							t.parse("transfer.multitarget.list", "transfer.multitarget.listitem", true);
-
-							t.stop_record();
-							t.clear_record();
-						}
 					}
 				}
-				t.parse("transfer.list", "transfer.listitem", true);
 			}
 			else if (transf != null && transf > 0)
 			{
-				t.setVar("transfer.count", Common.ln(transf),
-						"transfer.res.image", unittype.getPicture(),
-						"transfer.mode.to", 0);
+				if( to.size() > 1 )
+				{
+					message.append("Transportiere je [unit=").append(unittype.getId()).append("]").append(transt).append("[/unit]\n");
+				}
+				else {
+					message.append("Transportiere [unit=").append(unittype.getId()).append("]").append(transt).append("[/unit] von ").append(Common._plaintitle(to.get(0).getObjectName())).append("\n");
+				}
+
 				for (int k = 0; k < from.size(); k++)
 				{
 					TransportTarget fromTarget = from.get(k);
-					t.setVar("transfer.source.name", Common._plaintitle(fromTarget.getObjectName()));
 
 					for (int j = 0; j < to.size(); j++)
 					{
 						TransportTarget toTarget = to.get(j);
-						if ((to.size() > 1) || (from.size() > 1))
-						{
-							t.start_record();
-						}
-
 						if ((toTarget.getOwner() != getUser().getId()) && (toTarget.getOwner() != 0))
 						{
-							addError("Das geh&ouml;rt dir nicht!");
+							addError("Das gehört dir nicht!");
 
 							return new RedirectViewResult("default");
 						}
 
-						t.setVar("transfer.target.name", Common._plaintitle(toTarget.getObjectName()));
-
 						if (!msg.containsKey(toTarget.getOwner()))
 						{
 							msg.put(toTarget.getOwner(), new StringBuilder());
 						}
 						MutableLong mCargoFrom = new MutableLong(cargofromlist.get(k));
 						MutableLong mCargoTo = new MutableLong(cargotolist.get(j));
-						if (transferSingleUnit(fromTarget, toTarget, unittype.getId(), transf, newtoclist.get(j), newfromclist.get(k), mCargoTo, mCargoFrom, msg.get(toTarget.getOwner()), 'f', rawFrom, rawTo, rawWay) != 0)
+						if (transferSingleUnit(message, fromTarget, toTarget, unittype.getId(), transf, newtoclist.get(j), newfromclist.get(k), mCargoTo, mCargoFrom, msg.get(toTarget.getOwner()), 'f', rawFrom, rawTo, rawWay) != 0)
 						{
 							transfer = true;
 						}
 						cargofromlist.set(k, mCargoFrom.longValue());
 						cargotolist.set(j, mCargoTo.longValue());
-
-						if ((to.size() > 1) || (from.size() > 1))
-						{
-							t.parse("transfer.multitarget.list", "transfer.multitarget.listitem", true);
-
-							t.stop_record();
-							t.clear_record();
-						}
 					}
 				}
-				t.parse("transfer.list", "transfer.listitem", true);
 			}
 		}
 
 		Map<Integer, String> ownerpmlist = new HashMap<>();
 
-		List<String> sourceshiplist = new ArrayList<>();
-		for (TransportTarget aFrom : from)
-		{
-			sourceshiplist.add(aFrom.getObjectName() + " (" + aFrom.getId() + ")");
-		}
+		List<String> sourceshiplist = from.stream().map(aFrom -> aFrom.getObjectName() + " (" + aFrom.getId() + ")").collect(Collectors.toList());
 
 		for (int j = 0; j < to.size(); j++)
 		{
@@ -948,7 +913,7 @@ public class UnitTauschController extends TemplateController
 				{
 					Common.writeLog("transport.log", Common.date("d.m.y H:i:s") + ": " + getUser().getId() + " -> " + toTarget.getOwner() + " | " + rawFrom + " -> " + rawTo + " [" + rawWay + "] : " + "\n" + msg + "---------\n");
 
-					t.setVar("transfer.pm", 1);
+					message.append("Transmission versandt\n");
 
 					List<String> shiplist = new ArrayList<>();
 
@@ -970,7 +935,7 @@ public class UnitTauschController extends TemplateController
 
 		if (!transfer)
 		{
-			return new RedirectViewResult("default");
+			return new RedirectViewResult("default").withMessage(message.toString());
 		}
 
 		/*
@@ -993,11 +958,11 @@ public class UnitTauschController extends TemplateController
 			to.get(k).write();
 		}
 
-		return new RedirectViewResult("default");
+		return new RedirectViewResult("default").withMessage(message.toString());
 	}
 
 	@Action(ActionType.DEFAULT)
-	public void defaultAction(@UrlParam(name = "way") String rawWay, @UrlParam(name = "from") String rawFrom, @UrlParam(name = "to") String rawTo)
+	public TemplateEngine defaultAction(@UrlParam(name = "way") String rawWay, @UrlParam(name = "from") String rawFrom, @UrlParam(name = "to") String rawTo, RedirectViewResult redirect)
 	{
 		String[] way = StringUtils.split(rawWay, "to");
 
@@ -1006,7 +971,12 @@ public class UnitTauschController extends TemplateController
 
 		validiereEinheitenKoennenZwischenQuelleUndZielTransferiertWerden(from, to, way[0], way[1]);
 
-		TemplateEngine t = getTemplateEngine();
+		TemplateEngine t = templateViewResultFactory.createFor(this);
+
+		if( redirect != null )
+		{
+			t.setVar("unittausch.message", Common._text(redirect.getMessage()));
+		}
 
 		t.setVar("global.rawway", rawWay,
 				"source.isbase", way[0].equals("b"),
@@ -1023,6 +993,8 @@ public class UnitTauschController extends TemplateController
 
 		// Soll der Zielcargo gezeigt werden?
 		einheitenListeAnzeigen(t, from, to);
+
+		return t;
 	}
 
 	private void einheitenListeAnzeigen(TemplateEngine t, List<TransportTarget> from, List<TransportTarget> to)
@@ -1041,13 +1013,9 @@ public class UnitTauschController extends TemplateController
 			showtarget = true;
 
 			Map<UnitType, Long> unitlist = toTarget.getUnits().getUnitMap();
-			for (Entry<UnitType, Long> unit : unitlist.entrySet())
-			{
-				if (unit.getValue() > tocargo.getUnitCount(unit.getKey()))
-				{
-					tocargo.setUnit(unit.getKey(), unit.getValue());
-				}
-			}
+			unitlist.entrySet().stream()
+					.filter(unit -> unit.getValue() > tocargo.getUnitCount(unit.getKey()))
+					.forEach(unit -> tocargo.setUnit(unit.getKey(), unit.getValue()));
 		}
 
 		t.setVar("target.show", showtarget);
@@ -1056,13 +1024,9 @@ public class UnitTauschController extends TemplateController
 		for (TransportTarget afrom : from)
 		{
 			Map<UnitType, Long> unitlist = afrom.getUnits().getUnitMap();
-			for (Entry<UnitType, Long> unit : unitlist.entrySet())
-			{
-				if (unit.getValue() > fromcargo.getUnitCount(unit.getKey()))
-				{
-					fromcargo.setUnit(unit.getKey(), unit.getValue());
-				}
-			}
+			unitlist.entrySet().stream()
+					.filter(unit -> unit.getValue() > fromcargo.getUnitCount(unit.getKey()))
+					.forEach(unit -> fromcargo.setUnit(unit.getKey(), unit.getValue()));
 		}
 
 		// Muss verglichen werden oder reicht unsere eigene Resliste?
