@@ -1,6 +1,7 @@
 package net.driftingsouls.ds2.server.framework.pipeline.generators;
 
 import net.driftingsouls.ds2.server.framework.Configuration;
+import net.driftingsouls.ds2.server.framework.pipeline.Module;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -10,16 +11,19 @@ import java.io.InputStreamReader;
 import java.io.Writer;
 
 /**
- * Generator fuer auf AngularJS aufbauende DS-Module.
+ * Standardmodul fuer den Angular-Client. Dient
+ * als Einstiegsmodul in den Javascript-Client.
  * @author Christopher Jung
  *
  */
-public abstract class AngularController extends Controller
-{	
-	public AngularController()
-	{
+@Module(name="client")
+public class ClientController extends Controller
+{
+	/**
+	 * Konstruktor.
+	 */
+	public ClientController() {
 		super();
-		
 		this.addBodyParameter("ng-app", "ds.application");
 		this.setDisableDebugOutput(true);
 	}

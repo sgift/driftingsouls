@@ -24,7 +24,7 @@ import net.driftingsouls.ds2.server.framework.ViewMessage;
 import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.AngularController;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.ships.RouteFactory;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -40,7 +40,7 @@ import java.util.List;
  * @author Christopher Jung
  */
 @net.driftingsouls.ds2.server.framework.pipeline.Module(name = "schiffAjax")
-public class SchiffAjaxController extends AngularController
+public class SchiffAjaxController extends Controller
 {
 	@ViewModel
 	public static class SchiffsLogViewModel

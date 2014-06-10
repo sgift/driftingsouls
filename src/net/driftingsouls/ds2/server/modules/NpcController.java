@@ -26,7 +26,7 @@ import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.AngularController;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.modules.viewmodels.FraktionAktionsMeldungViewModel;
@@ -57,7 +57,7 @@ import java.util.stream.Collectors;
  * @author Christopher Jung
  */
 @Module(name = "npc")
-public class NpcController extends AngularController
+public class NpcController extends Controller
 {
 	private boolean isHead = false;
 	private boolean shop = false;
@@ -69,8 +69,6 @@ public class NpcController extends AngularController
 	public NpcController()
 	{
 		super();
-
-		setPageTitle("NPC-Menue");
 	}
 
 	@Override

@@ -18,7 +18,7 @@ import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.AngularController;
+import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.map.AdminFieldView;
 import net.driftingsouls.ds2.server.map.AdminStarmap;
@@ -57,17 +57,8 @@ import java.util.Set;
  * @author Drifting-Souls Team
  */
 @Module(name = "map")
-public class MapController extends AngularController
+public class MapController extends Controller
 {
-	/**
-	 * Legt den MapController an.
-	 *
-	 */
-	public MapController()
-	{
-		setPageTitle("Sternenkarte");
-	}
-
 	public void validiereSystem(StarSystem system)
 	{
 		User user = (User) getUser();
