@@ -55,9 +55,6 @@ public abstract class Controller implements PermissionResolver
 {
 	private static final Log log = LogFactory.getLog(Controller.class);
 
-	private ActionType actionType;
-	private OutputHandler actionTypeHandler;
-
 	private boolean disableDebugOutput;
 	private long startTime;
 	private Map<String, String> bodyParameters;
@@ -88,11 +85,6 @@ public abstract class Controller implements PermissionResolver
 		this.pageTitle = null;
 		this.pageMenuEntries = new ArrayList<>();
 		this.disablePageMenu = false;
-	}
-
-	protected final String getModule()
-	{
-		return this.parameterReader.getString("module");
 	}
 
 	/**
@@ -292,25 +284,27 @@ public abstract class Controller implements PermissionResolver
 			action = "default";
 		}
 
+		OutputHandler actionTypeHandler = "JSON".equals(parameterReader.getString("FORMAT")) ? new AjaxOutputHandler() : new HtmlOutputHandler();
+
 		try
 		{
 			Method method = getMethodForAction(this, action);
 
 			Action actionDescriptor = method.getAnnotation(Action.class);
-			setActionType(actionDescriptor);
+			actionTypeHandler = determineOutputHandler(actionDescriptor);
 
 			try
 			{
 				if ((getErrorList().length != 0) || !validateAndPrepare())
 				{
-					printErrorListOnly();
+					printErrorListOnly(actionTypeHandler);
 
 					return;
 				}
 
 				if (actionDescriptor.value() == ActionType.DEFAULT)
 				{
-					printHeader();
+					printHeader(actionTypeHandler);
 				}
 
 				try
@@ -343,7 +337,7 @@ public abstract class Controller implements PermissionResolver
 			catch (ValidierungException e)
 			{
 				addError(e.getMessage(), e.getUrl());
-				printErrorListOnly();
+				printErrorListOnly(actionTypeHandler);
 				return;
 			}
 		}
@@ -363,9 +357,9 @@ public abstract class Controller implements PermissionResolver
 
 		this.parameterReader.parseSubParameter("");
 
-		printErrorList();
+		printErrorList(actionTypeHandler);
 
-		printFooter(action);
+		printFooter(actionTypeHandler);
 	}
 
 	private Object invokeActionMethod(Method method, RedirectViewResult viewResult) throws InvocationTargetException, IllegalAccessException
@@ -439,40 +433,40 @@ public abstract class Controller implements PermissionResolver
 		}
 	}
 
-	private void printErrorList() throws IOException
+	private void printErrorList(OutputHandler handler) throws IOException
 	{
 		if (getErrorList().length > 0)
 		{
-			actionTypeHandler.printErrorList();
+			handler.printErrorList();
 		}
 	}
 
-	private void printErrorListOnly() throws IOException
+	private void printErrorListOnly(OutputHandler handler) throws IOException
 	{
-		actionTypeHandler.printHeader();
+		handler.printHeader();
 
-		printErrorList();
+		printErrorList(handler);
 
-		actionTypeHandler.printFooter();
+		handler.printFooter();
 	}
 
-	private void printHeader() throws IOException
+	private void printHeader(OutputHandler handler) throws IOException
 	{
-		actionTypeHandler.setAttribute("module", this.parameterReader.getString("module"));
-		actionTypeHandler.setAttribute("bodyParameters", this.getBodyParameters());
-		actionTypeHandler.setAttribute("startTime", this.startTime);
-		actionTypeHandler.printHeader();
+		handler.setAttribute("module", this.parameterReader.getString("module"));
+		handler.setAttribute("bodyParameters", this.getBodyParameters());
+		handler.setAttribute("startTime", this.startTime);
+		handler.printHeader();
 	}
 
-	protected void printFooter(String action) throws IOException
+	private void printFooter(OutputHandler handler) throws IOException
 	{
-		actionTypeHandler.setAttribute("enableDebugOutput", !this.disableDebugOutput ? true : null);
+		handler.setAttribute("enableDebugOutput", !this.disableDebugOutput ? true : null);
 		if (!this.disablePageMenu)
 		{
-			actionTypeHandler.setAttribute("pagetitle", this.pageTitle);
-			actionTypeHandler.setAttribute("pagemenu", this.pageMenuEntries.toArray(new PageMenuEntry[this.pageMenuEntries.size()]));
+			handler.setAttribute("pagetitle", this.pageTitle);
+			handler.setAttribute("pagemenu", this.pageMenuEntries.toArray(new PageMenuEntry[this.pageMenuEntries.size()]));
 		}
-		actionTypeHandler.printFooter();
+		handler.printFooter();
 	}
 
 	/**
@@ -549,8 +543,9 @@ public abstract class Controller implements PermissionResolver
 		bodyParameters.put(parameter, value);
 	}
 
-	private void setActionType(Action type) throws IllegalAccessException, InstantiationException
+	private OutputHandler determineOutputHandler(Action type) throws IllegalAccessException, InstantiationException
 	{
+		OutputHandler actionTypeHandler = null;
 		if (type.value() == ActionType.DEFAULT)
 		{
 			actionTypeHandler = new HtmlOutputHandler();
@@ -587,17 +582,7 @@ public abstract class Controller implements PermissionResolver
 
 		getContext().autowireBean(actionTypeHandler);
 
-		actionType = type.value();
-	}
-
-	/**
-	 * Gibt den aktuellen Aktionstyp zurueck.
-	 *
-	 * @return Der Aktionstyp
-	 */
-	protected final ActionType getActionType()
-	{
-		return actionType;
+		return actionTypeHandler;
 	}
 
 	protected boolean validateAndPrepare()
