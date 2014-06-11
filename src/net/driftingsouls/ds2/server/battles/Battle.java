@@ -984,6 +984,47 @@ public class Battle implements Locatable
 			}
 		}
 
+        // PM Wegen Schlachteröffnung schicken, sofern die Spieler dies wollen.
+        String eparty;
+        String eparty2;
+        if (battle.getAlly(0) == 0)
+        {
+            final User commander1 = battle.getCommander(0);
+            eparty = commander1.getNickname();
+        }
+        else
+        {
+            final Ally ally = (Ally) db.get(Ally.class, battle.getAlly(0));
+            eparty = ally.getName();
+        }
+
+        if (battle.getAlly(1) == 0)
+        {
+            final User commander2 = battle.getCommander(1);
+            eparty2 = commander2.getNickname();
+        }
+        else
+        {
+            final Ally ally = (Ally) db.get(Ally.class, battle.getAlly(1));
+            eparty2 = ally.getName();
+        }
+        User niemand = (User)db.get(User.class, -1);
+        String msg = "Es wurde eine Schlacht bei "+ownShip.getLocation().displayCoordinates(false)+" eröffnet.\n" +
+                "Es kämpfen "+eparty+" und "+eparty2+" gegeneinander.";
+        for(User auser : ownUsers)
+        {
+            if(Boolean.parseBoolean(auser.getUserValue("GAMEPLAY/user/battle_pm")))
+            {
+                PM.send(niemand, auser.getId(), "Schlacht eröffnet", msg);
+            }
+        }
+        for(User auser : enemyUsers)
+        {
+            if(Boolean.parseBoolean(auser.getUserValue("GAMEPLAY/user/battle_pm")))
+            {
+                PM.send(niemand, auser.getId(), "Schlacht eröffnet", msg);
+            }
+        }
 		db.setFlushMode(FlushMode.AUTO);
 
 		return battle;
