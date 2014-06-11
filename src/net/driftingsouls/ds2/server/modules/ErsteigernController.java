@@ -2653,6 +2653,8 @@ public class ErsteigernController extends Controller
 		meldung.setMeldungstext(meldungstext);
 		db.persist(meldung);
 
+        PM.send(user, factionUser.getId(), "LP Meldung", "Es ist eine neue Meldung zum Erhalt von Loyalitätspunkten eingegangen.");
+
 		return new RedirectViewResult("aktionMelden").withMessage("Die Aktionsmeldung wurde der Fraktion erfolgreich übermittelt");
 	}
 
