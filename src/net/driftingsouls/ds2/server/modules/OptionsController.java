@@ -209,7 +209,7 @@ public class OptionsController extends Controller
 	public RedirectViewResult changeXtraAction(int shipgroupmulti, int inttutorial, int scriptdebug, boolean scriptdebugstatus, User.Relation defrelation,
 											   PersonenNamenGenerator personenNamenGenerator,
 											   SchiffsKlassenNamenGenerator schiffsKlassenNamenGenerator,
-											   SchiffsNamenGenerator schiffsNamenGenerator)
+											   SchiffsNamenGenerator schiffsNamenGenerator, boolean battle_pm)
 	{
 		User user = (User) getUser();
 
@@ -267,6 +267,7 @@ public class OptionsController extends Controller
 		user.setPersonenNamenGenerator(personenNamenGenerator);
 		user.setSchiffsKlassenNamenGenerator(schiffsKlassenNamenGenerator);
 		user.setSchiffsNamenGenerator(schiffsNamenGenerator);
+        user.setUserValue("GAMEPLAY/user/battle_pm", Boolean.toString(battle_pm));
 
 		return new RedirectViewResult("xtra").withMessage(changemsg);
 	}
@@ -380,7 +381,8 @@ public class OptionsController extends Controller
 				"user.inttutorial", user.getUserValue("TBLORDER/uebersicht/inttutorial"),
 				"user.showScriptDebug", hasPermission(WellKnownPermission.SCHIFF_SCRIPT),
 				"user.scriptdebug", user.hasFlag(UserFlag.SCRIPT_DEBUGGING),
-				"user.defrelation", user.getRelation(null).ordinal());
+				"user.defrelation", user.getRelation(null).ordinal(),
+                "user.battlepm", Boolean.parseBoolean(user.getUserValue("GAMEPLAY/user/battle_pm")));
 
 		t.setBlock("_OPTIONS", "personenNamenGenerator.listitem", "personenNamenGenerator.list");
 		for (PersonenNamenGenerator png : PersonenNamenGenerator.values())
