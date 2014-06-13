@@ -178,8 +178,8 @@ public class StarSystemContentGenerator
 		int size = sys.getWidth() * sys.getHeight();
 		for (int i = 0; i < anzahlBerechnung.apply(size); i++)
 		{
-			int x = RandomUtils.nextInt(sys.getWidth() + 1);
-			int y = RandomUtils.nextInt(sys.getHeight() + 1);
+			int x = RandomUtils.nextInt(sys.getWidth() - 1)+1;
+			int y = RandomUtils.nextInt(sys.getHeight() - 1)+1;
 			BaseType type = baseTypes.get(RandomUtils.nextInt(baseTypes.size()));
 
 			erzeugeBasisBei(sys, x, y, type);
