@@ -88,7 +88,9 @@ public class ForschungsTick extends TickController {
 				}
 
 				final User sourceUser = (User)db.get(User.class, -1);
-				PM.send(sourceUser, base.getOwner().getId(), "Forschung abgeschlossen", msg);
+                if(Boolean.parseBoolean(base.getOwner().getUserValue("GAMEPLAY/user/research_pm"))) {
+                    PM.send(sourceUser, base.getOwner().getId(), "Forschung abgeschlossen", msg);
+                }
 
 				fz.setForschung(null);
 				fz.setDauer(0);

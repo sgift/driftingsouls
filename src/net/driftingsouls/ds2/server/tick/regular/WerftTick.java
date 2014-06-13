@@ -144,12 +144,14 @@ public class WerftTick extends TickController
 						// MSG
 						String msg = "Auf " + bbcode(werft) + " wurde eine [ship=" + shipid + "]" + shipd.getNickname() + "[/ship] gebaut. Sie steht bei [map]" + werft.getLocation().displayCoordinates(false) + "[/map].";
 
-						PM.send(sourceUser, werft.getOwner().getId(), "Schiff gebaut", msg);
+                        if(Boolean.parseBoolean(werft.getOwner().getUserValue("GAMEPLAY/ship_build_pm"))) {
+                            PM.send(sourceUser, werft.getOwner().getId(), "Schiff gebaut", msg);
+                        }
 					}
 
 					if (--maxCompleted <= 0)
 					{
-						this.log("Maximum an fertige Schiffen erreicht - abbruch");
+						this.log("Maximum an fertigen Schiffen erreicht - abbruch");
 						PM.send(sourceUser, werft.getOwner().getId(), "Geplante Auslieferungen",
 							   "Auf " + bbcode(werft) + " wurde die maximale Anzahl an gleichzeig zu produzierenden Schiffen erreicht. " +
 							   "Weitere Fertigstellungen wurden von der Raumsicherheit als auch vom Arbeitsschutzbeauftragten der auf den " +

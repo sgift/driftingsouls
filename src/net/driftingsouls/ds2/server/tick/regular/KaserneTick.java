@@ -91,7 +91,9 @@ public class KaserneTick extends TickController {
 				if( build )
 				{
 					// Nachricht versenden
-					PM.send(sourceUser, base.getOwner().getId(), "Ausbildung abgeschlossen", msg);
+                    if(Boolean.parseBoolean(base.getOwner().getUserValue("GAMEPLAY/user/unit_build_pm"))) {
+                        PM.send(sourceUser, base.getOwner().getId(), "Ausbildung abgeschlossen", msg);
+                    }
 				}
 			}
 		}

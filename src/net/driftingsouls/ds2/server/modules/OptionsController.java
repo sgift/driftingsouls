@@ -206,10 +206,10 @@ public class OptionsController extends Controller
 	 * @param schiffsNamenGenerator Der zu verwendende {@link net.driftingsouls.ds2.server.namegenerator.SchiffsNamenGenerator}
 	 */
 	@Action(ActionType.DEFAULT)
-	public RedirectViewResult changeXtraAction(int shipgroupmulti, int inttutorial, int scriptdebug, boolean scriptdebugstatus, User.Relation defrelation,
+	public RedirectViewResult changeXtraAction(int shipgroupmulti, int inttutorial, int scriptdebug, boolean scriptdebugstatus, boolean battle_pm, boolean research_pm, boolean ship_build_pm, boolean base_down_pm, boolean officer_build_pm, boolean unit_build_pm, User.Relation defrelation,
 											   PersonenNamenGenerator personenNamenGenerator,
 											   SchiffsKlassenNamenGenerator schiffsKlassenNamenGenerator,
-											   SchiffsNamenGenerator schiffsNamenGenerator, boolean battle_pm)
+											   SchiffsNamenGenerator schiffsNamenGenerator)
 	{
 		User user = (User) getUser();
 
@@ -268,6 +268,11 @@ public class OptionsController extends Controller
 		user.setSchiffsKlassenNamenGenerator(schiffsKlassenNamenGenerator);
 		user.setSchiffsNamenGenerator(schiffsNamenGenerator);
         user.setUserValue("GAMEPLAY/user/battle_pm", Boolean.toString(battle_pm));
+        user.setUserValue("GAMEPLAY/user/research_pm", Boolean.toString(research_pm));
+        user.setUserValue("GAMEPLAY/user/ship_build_pm", Boolean.toString(ship_build_pm));
+        user.setUserValue("GAMEPLAY/user/base_down_pm", Boolean.toString(base_down_pm));
+        user.setUserValue("GAMEPLAY/user/officer_build_pm", Boolean.toString(officer_build_pm));
+        user.setUserValue("GAMEPLAY/user/unit_build_pm", Boolean.toString(unit_build_pm));
 
 		return new RedirectViewResult("xtra").withMessage(changemsg);
 	}
@@ -382,7 +387,12 @@ public class OptionsController extends Controller
 				"user.showScriptDebug", hasPermission(WellKnownPermission.SCHIFF_SCRIPT),
 				"user.scriptdebug", user.hasFlag(UserFlag.SCRIPT_DEBUGGING),
 				"user.defrelation", user.getRelation(null).ordinal(),
-                "user.battlepm", Boolean.parseBoolean(user.getUserValue("GAMEPLAY/user/battle_pm")));
+                "user.battlepm", Boolean.parseBoolean(user.getUserValue("GAMEPLAY/user/battle_pm")),
+                "user.researchpm", Boolean.parseBoolean(user.getUserValue("GAMEPLAY/user/research_pm")),
+                "user.shipbuildpm", Boolean.parseBoolean(user.getUserValue("GAMEPLAY/user/ship_build_pm")),
+                "user.basedownpm", Boolean.parseBoolean(user.getUserValue("GAMEPLAY/user/base_down_pm")),
+                "user.officerbuildpm", Boolean.parseBoolean(user.getUserValue("GAMEPLAY/user/officer_build_pm")),
+                "user.unitbuildpm", Boolean.parseBoolean(user.getUserValue("GAMEPLAY/user/unit_build_pm")));
 
 		t.setBlock("_OPTIONS", "personenNamenGenerator.listitem", "personenNamenGenerator.list");
 		for (PersonenNamenGenerator png : PersonenNamenGenerator.values())
