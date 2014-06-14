@@ -144,7 +144,7 @@ public class WerftTick extends TickController
 						// MSG
 						String msg = "Auf " + bbcode(werft) + " wurde eine [ship=" + shipid + "]" + shipd.getNickname() + "[/ship] gebaut. Sie steht bei [map]" + werft.getLocation().displayCoordinates(false) + "[/map].";
 
-                        if(Boolean.parseBoolean(werft.getOwner().getUserValue("GAMEPLAY/ship_build_pm"))) {
+                        if(Boolean.parseBoolean(werft.getOwner().getUserValue("GAMEPLAY/user/ship_build_pm"))) {
                             PM.send(sourceUser, werft.getOwner().getId(), "Schiff gebaut", msg);
                         }
 					}
