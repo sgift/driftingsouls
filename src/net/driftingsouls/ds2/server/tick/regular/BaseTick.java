@@ -67,8 +67,11 @@ public class BaseTick extends TickController
 				if(!messages.trim().equals(""))
 				{
 					User sourceUser = (User)getDB().get(User.class, -1);
-					
-					PM.send(sourceUser, userId, "Basis-Tick", messages);
+                    User baseUser = (User)getDB().get(User.class, userId);
+
+					if(Boolean.parseBoolean(baseUser.getUserValue("GAMEPLAY/user/base_down_pm"))) {
+                        PM.send(sourceUser, userId, "Basis-Tick", messages);
+                    }
 					messages = "";
 				}
 			}

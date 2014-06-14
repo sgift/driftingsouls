@@ -140,6 +140,26 @@
             <td>Mitteilung bei Schlachter&ouml;ffnung:</td>
             <td><input name="battle_pm" type="checkbox" value="1" {if user.battlepm}checked="checked"{/endif} /></td>
         </tr>
+        <tr>
+            <td>Mitteilung bei fertiggesteller Forschung:</td>
+            <td><input name="research_pm" type="checkbox" value="1" {if user.researchpm}checked="checked"{/endif} /></td>
+        </tr>
+        <tr>
+            <td>Mitteilung bei fertiggestellten Schiffen:</td>
+            <td><input name="ship_build_pm" type="checkbox" value="1" {if user.shipbuildpm}checked="checked"{/endif} /></td>
+        </tr>
+        <tr>
+            <td>Mitteilung bei fertiggestellten Offizieren:</td>
+            <td><input name="officer_build_pm" type="checkbox" value="1" {if user.officerbuildpm}checked="checked"{/endif} /></td>
+        </tr>
+        <tr>
+            <td>Mitteilung bei fertiggestellten Einheiten:</td>
+            <td><input name="unit_build_pm" type="checkbox" value="1" {if user.unitbuildpm}checked="checked"{/endif} /></td>
+        </tr>
+        <tr>
+            <td>Mitteilung bei ausgefallenen Basen:</td>
+            <td><input name="base_down_pm" type="checkbox" value="1" {if user.basedownpm}checked="checked"{/endif} /></td>
+        </tr>
 		<tr>
 			<td colspan="2" align="center"><br />
 				{!form_create_hidden changeXtra}

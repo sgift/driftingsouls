@@ -126,7 +126,10 @@ public class AcademyTick extends TickController {
 						acc.rescheduleQueue();
 						// Nachricht versenden
 						final User sourceUser = (User)db.get(User.class, -1);
-						PM.send(sourceUser,base.getOwner().getId(), "Ausbildung abgeschlossen", msg);
+                        User accUser = base.getOwner();
+                        if(Boolean.parseBoolean(accUser.getUserValue("GAMEPLAY/user/officer_build_pm"))) {
+                            PM.send(sourceUser, base.getOwner().getId(), "Ausbildung abgeschlossen", msg);
+                        }
 					}
 
 					if( acc.getNumberScheduledQueueEntries() == 0 )
