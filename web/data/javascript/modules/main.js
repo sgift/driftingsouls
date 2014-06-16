@@ -194,6 +194,7 @@ var InfoBox = {
 		$.getJSON(DS.getUrl(), {module:'main', action: 'loadLastCommits'})
 			.done(function(data) {
 				var $commits = $('#infobox').find('#commits');
+				$commits.find('tbody').empty();
 				$.each(data.values, function(idx,val) {
 					var msg = val.message;
 					if( msg.indexOf('Merge pull request') === 0 ) {
