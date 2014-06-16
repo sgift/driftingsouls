@@ -24,7 +24,6 @@ public class ClientController extends Controller
 	 */
 	public ClientController() {
 		super();
-		this.setDisableDebugOutput(true);
 	}
 
 	@Action(value = ActionType.DEFAULT, outputHandler = NgAppHtmlOutputHandler.class)

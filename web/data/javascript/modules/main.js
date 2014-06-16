@@ -188,7 +188,7 @@ var InfoBox = {
 			.done(function(data) {
 				var $infobox = $('#infobox');
 				$infobox.find('#lastBuild').text(data.buildTime);
-				$infobox.find('#build').empty().append('<a href="'+data.buildUrl+'">'+data.build+'</a>');
+				$infobox.find('#build').empty().append('<a target="_empty" href="'+data.buildUrl+'">'+data.build+'</a>');
 				$infobox.find('#commit').text(data.commit);
 			});
 

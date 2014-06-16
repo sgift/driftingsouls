@@ -134,22 +134,6 @@ public class HtmlOutputHandler extends OutputHandler
 	public void printFooter() throws IOException
 	{
 		Writer sb = getContext().getResponse().getWriter();
-		if( getAttribute("enableDebugOutput") != null )
-		{
-			sb.append("<div style=\"text-align:center; font-size:11px;color:#c7c7c7; font-family:arial, helvetica;\">\n");
-			sb.append("<br /><br /><br />\n");
-			Long startTime = (Long)getAttribute("startTime");
-			if( startTime != null )
-			{
-				sb.append("Execution-Time: ").append(Double.toString((System.currentTimeMillis() - startTime) / 1000d)).append("s");
-			}
-			if( this.version.getBuildTime() != null )
-			{
-				sb.append(" -- Version: ").append(this.version.getVersion()).append(", ").append(this.version.getBuildTime());
-			}
-			//	echo "<a class=\"forschinfo\" target=\"none\" style=\"font-size:11px\" href=\"http://ds2.drifting-souls.net/mantis/\">Zum Bugtracker</a><br />\n";
-			sb.append("</div>\n");
-		}
 		if( this.getAttribute("pagemenu") != null ) {
 			sb.append("<script type=\"text/javascript\">\n");
 			sb.append("<!--\n");

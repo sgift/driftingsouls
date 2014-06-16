@@ -53,8 +53,6 @@ public abstract class Controller implements PermissionResolver
 {
 	private static final Log log = LogFactory.getLog(Controller.class);
 
-	private boolean disableDebugOutput;
-	private long startTime;
 	private ParameterReader parameterReader;
 	private String pageTitle;
 	private List<PageMenuEntry> pageMenuEntries;
@@ -71,10 +69,6 @@ public abstract class Controller implements PermissionResolver
 
 		this.parameterReader.parameterString("module");
 		this.parameterReader.parameterString("action");
-
-		this.startTime = System.currentTimeMillis();
-
-		this.disableDebugOutput = false;
 
 		this.pageTitle = null;
 		this.pageMenuEntries = new ArrayList<>();
@@ -446,26 +440,14 @@ public abstract class Controller implements PermissionResolver
 	private void printHeader(OutputHandler handler) throws IOException
 	{
 		handler.setAttribute("module", this.parameterReader.getString("module"));
-		handler.setAttribute("startTime", this.startTime);
 		handler.printHeader();
 	}
 
 	private void printFooter(OutputHandler handler) throws IOException
 	{
-		handler.setAttribute("enableDebugOutput", !this.disableDebugOutput ? true : null);
 		handler.setAttribute("pagetitle", this.pageTitle);
 		handler.setAttribute("pagemenu", this.pageMenuEntries.toArray(new PageMenuEntry[this.pageMenuEntries.size()]));
 		handler.printFooter();
-	}
-
-	/**
-	 * (De)aktiviert die Debug-Ausgaben.
-	 *
-	 * @param value <code>true</code> zur Deaktivierung
-	 */
-	public final void setDisableDebugOutput(boolean value)
-	{
-		disableDebugOutput = value;
 	}
 
 	/**

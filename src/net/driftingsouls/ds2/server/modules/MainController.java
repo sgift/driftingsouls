@@ -65,8 +65,6 @@ public class MainController extends Controller
 	{
 		this.version = version;
 		this.templateViewResultFactory = templateViewResultFactory;
-
-		setDisableDebugOutput(true);
 	}
 
 	/**
