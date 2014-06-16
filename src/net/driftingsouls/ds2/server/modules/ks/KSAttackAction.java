@@ -470,61 +470,6 @@ public class KSAttackAction extends BasicKSAction {
 		return trefferWS;
 	}
 
-	private int getSmallTrefferWS( Battle battle, int defTrefferWS, BattleShip eShip, ShipTypeData eShipType, int defensivskill, int navskill ) {
-		ShipTypeData ownShipType = this.ownShip.getTypeData();
-
-		if( (eShip.getCrew() == 0) && (eShipType.getMinCrew() > 0) ) {
-            log.info("\t\tTarget has no crew.");
-			return 100;
-		}
-		if( (defTrefferWS <= 0) && (eShipType.getCost() > 0) && (eShip.getShip().getEngine() > 0) ) {
-            log.info("\t\tBase hit chance zero and ship can move.");
-			return 0;
-		}
-
-		// Das Objekt kann sich nicht bewegen - also 100% trefferws
-		int trefferWS = 100;
-
-		// Das Objekt hat einen Antrieb - also TrefferWS anpassen
-		if( ( eShipType.getCost() > 0 ) && ( eShip.getShip().getEngine() > 0 ) ) {
-			trefferWS = calcTWSthroughDifference(defensivskill, navskill, eShip, eShipType, defTrefferWS, ownShipType);
-            log.info("\t\tShip has engine - new hit chance: " + trefferWS);
-		}
-
-		if( trefferWS < 0 ) {
-			trefferWS = 0;
-		}
-		if( trefferWS > 100 ) {
-			trefferWS = 100;
-		}
-
-		// Nun die TrefferWS anteilig senken, wenn Crew/Sensoren nicht auf 100 sind
-		trefferWS *= (this.ownShip.getShip().getSensors()/100d);
-        log.info("Hit chance after sensor adjustment: " + trefferWS);
-		if( (ownShipType.getMinCrew() > 0) && (this.ownShip.getCrew() < ownShipType.getMinCrew()) ) {
-			trefferWS *= this.ownShip.getCrew()/(double)ownShipType.getMinCrew();
-            log.info("\t\tNot enough crew - new hit chance: " + trefferWS);
-		}
-
-		// Und nun die TrefferWS anteilig steigern, wenn die Gegnerische Crew/Antrie nicht auf 100 sind
-		int restws = 100-trefferWS;
-		trefferWS += restws*((100-eShip.getShip().getEngine())/100d);
-        log.info("Hit chance after adjusting for damaged enemy engine: " + trefferWS);
-		if( eShip.getCrew() < eShipType.getMinCrew() ) {
-			trefferWS += restws*((eShipType.getMinCrew()-eShip.getCrew())/(double)eShipType.getMinCrew());
-            log.info("\t\tEnemy  ship has not enough crew - new hit chance: " + trefferWS);
-		}
-
-		if( trefferWS < 0 ) {
-			trefferWS = 0;
-		}
-		if( trefferWS > 100 ) {
-			trefferWS = 100;
-		}
-
-		return trefferWS;
-	}
-
 	private int calcTWSthroughDifference(double defensivskill, double navskill, BattleShip eShip, ShipTypeData eShipType, int defTrefferWS, ShipTypeData ownShipType) {
 		double differenceSkillz;
 		double differenceSize;
@@ -942,7 +887,7 @@ public class KSAttackAction extends BasicKSAction {
 
 			// check if ship has to be defended
 			if (shipHasToBeDefended(selectedShip))
-		{
+		    {
 				defcount = defcount + 1;
 			}
 
@@ -991,11 +936,10 @@ public class KSAttackAction extends BasicKSAction {
 		// Rechnen wir mal die endgueltige Verteidigung aus
 		if (docksuse > docks)
 		{
-			if ( docks != 0)
-			{
-				docks = (int)Math.floor(docks * (fighter / docksuse));
-			}
-			fighterdefcount = (int)Math.floor( ( (double)fighterdefcount / (double)fighter ) * docks );
+            if(fighter != 0)
+            {
+                fighterdefcount = (int) Math.floor(((fighter - (docksuse - docks)) / (double) fighter) * fighterdefcount);
+            }
 		}
 		int fighterdef = (int)Math.round( (double)(fighterdefcount + gksdefcount ) / (double)defcount );
 		if( fighterdef > 100 )
@@ -1408,6 +1352,7 @@ public class KSAttackAction extends BasicKSAction {
         // Die innere Scheife feuernt n Mal auf das gerade ausgewaehlte gegnerische Schiff
 
         Offizier attoffizier = ownShip.getShip().getOffizier();
+        int fighterdef = getFighterDefense(battle);
 
         result = Result.OK;
         for( int outerloop=0; outerloop < nextShipLoop; outerloop++ )
@@ -1498,16 +1443,14 @@ public class KSAttackAction extends BasicKSAction {
                 }
 
                 /*
-                     * 	Anti-Torp-Verteidigungswerte ermitteln
-                     */
-                int fighterdef = this.getFighterDefense(battle);
+                 * 	Anti-Torp-Verteidigungswerte ermitteln
+                 */
                 int antitorptrefferws = this.getAntiTorpTrefferWS( enemyShipType, this.enemyShip);
 
-                if( this.localweapon.getDestroyable() > 0 )
+                if( antitorptrefferws > 0 )
                 {
                     battle.logme("AntiTorp-TrefferWS: "+ this.getTWSText(antitorptrefferws) +"%\n");
                 }
-
                 if( fighterdef > 0 )
                 {
                     battle.logme("Verteidigung durch Schiffe: "+ this.getTWSText(fighterdef) +"%\n");
@@ -1531,8 +1474,8 @@ public class KSAttackAction extends BasicKSAction {
                 }
 
                 /*
-                     * 	Schadenswerte, Panzerung & TrefferWS ermitteln
-                     */
+                 * 	Schadenswerte, Panzerung & TrefferWS ermitteln
+                 */
                 int absSchaden = this.getDamage(this.localweapon.getBaseDamage(), offensivskill, enemyShipType);
                 int shieldSchaden = this.getDamage(this.localweapon.getShieldDamage(), offensivskill, enemyShipType);
 
@@ -1557,23 +1500,23 @@ public class KSAttackAction extends BasicKSAction {
                 }
 
                 /*
-                     * 	Treffer berechnen
-                     */
+                 * 	Treffer berechnen
+                 */
                 int hit = calculateHits(battle, fighterdef, trefferWS, attoffizier);
 
                 boolean savedamage = this.calcDamage( battle, this.enemyShip, enemyShipType, hit, shieldSchaden, schaden, subdmgs, "" );
 
                 /*
-                     *  Areadamage - falls notwendig - berechnen
-                     */
+                 *  Areadamage - falls notwendig - berechnen
+                 */
                 if( (this.localweapon.getAreaDamage() != 0) && (hit != 0) )
                 {
                     doAreaDamage(battle, navskill, shieldSchaden, schaden, trefferWS, hit);
                 }
 
                 /*
-                     * 	E, Muni usw in die DB schreiben
-                     */
+                 * 	E, Muni usw in die DB schreiben
+                 */
                 heat += this.localweapon.getCount();
                 this.ownShip.getShip().setEnergy(this.ownShip.getShip().getEnergy() - this.weapon.getECost()*this.localweapon.getCount());
 
@@ -1589,8 +1532,8 @@ public class KSAttackAction extends BasicKSAction {
 
 
                 /*
-                     *  BETAK - Check
-                     */
+                 *  BETAK - Check
+                 */
                 if( battle.getBetakStatus(battle.getOwnSide()) && !enemyShipType.isMilitary() )
                 {
                     battle.setBetakStatus(battle.getOwnSide(), false);
@@ -1599,8 +1542,8 @@ public class KSAttackAction extends BasicKSAction {
                 }
 
                 /*
-                     *	Schiff falls notwendig zerstoeren
-                     */
+                 *	Schiff falls notwendig zerstoeren
+                 */
                 if( !savedamage && new ConfigService().getValue(WellKnownConfigValue.DESTROYABLE_SHIPS) )
                 {
                     this.destroyShip(this.ownShip.getOwner().getId(), battle, this.enemyShip);
@@ -1617,8 +1560,8 @@ public class KSAttackAction extends BasicKSAction {
                 }
 
                 /*
-                     * 	Wenn das angreifende Schiff auch zerstoert werden muss tun wir das jetzt mal
-                     */
+                 * 	Wenn das angreifende Schiff auch zerstoert werden muss tun wir das jetzt mal
+                 */
                 if( this.localweapon.isDestroyAfter() )
                 {
                     battle.logme( "[color=red]+ Angreifer zerst&ouml;rt[/color]\n" );
@@ -1719,7 +1662,7 @@ public class KSAttackAction extends BasicKSAction {
 				hit++;
 				if( attoffizier != null)
 				{
-					int rnd2 = RandomUtils.nextInt(101);
+					int rnd2 = RandomUtils.nextInt(100)+1;
 					if( rnd2 <= 38)
 					{
 						attoffizier.gainExperience(Offizier.Ability.WAF, 1);
@@ -1734,7 +1677,7 @@ public class KSAttackAction extends BasicKSAction {
 					}
 				}
 			}
-			if( (rnd > trefferWS) && (rnd <= trefferWS+fighterdef) && (this.localweapon.getDestroyable() > 0) )
+			else if((rnd <= trefferWS+fighterdef) && (this.localweapon.getDestroyable() > 0) )
 			{
 				def++;
 			}
@@ -1787,17 +1730,7 @@ public class KSAttackAction extends BasicKSAction {
 	public int calculateTrefferWS(Battle battle, ShipTypeData enemyShipType, int fighterdef,
 			int antitorptrefferws, int navskill, int defensivskill, boolean useBattleLog)
 	{
-		int trefferWS;
-		if( enemyShipType.getSize() <= ShipType.SMALL_SHIP_MAXSIZE )
-		{
-            log.info("\t\tTargeted ship is small ship.");
-			trefferWS = this.getSmallTrefferWS( battle, this.localweapon.getDefTrefferWs(), this.enemyShip, enemyShipType, defensivskill, navskill );
-		}
-		else
-		{
-            log.info("\t\tTargeted ship is big ship.");
-			trefferWS = this.getTrefferWS( battle, this.localweapon.getDefTrefferWs(), this.enemyShip, enemyShipType, defensivskill, navskill );
-		}
+		int trefferWS = this.getTrefferWS(battle, this.localweapon.getDefTrefferWs(), this.enemyShip, enemyShipType, defensivskill, navskill);
 
         if(useBattleLog)
         {
@@ -1812,13 +1745,15 @@ public class KSAttackAction extends BasicKSAction {
             }
         }
 
-		trefferWS -= antitorptrefferws;
+
 		// Minimum bei 5% bei zerstoerbaren Waffen
-		if( (trefferWS - fighterdef < 5) && (fighterdef > 0) ) {
-			trefferWS = 5;
-		}
-		else {
-			trefferWS -= fighterdef;
+		if( this.localweapon.getDestroyable() > 0 ) {
+            trefferWS -= antitorptrefferws;
+            trefferWS -= fighterdef;
+            if(trefferWS < 5)
+            {
+                trefferWS = 5;
+            }
 		}
 		if( battle.getCommander(ownShip.getSide()).hasFlag( UserFlag.KS_DEBUG )) {
 			battle.logme( "TrefferWS: "+ trefferWS +"%\n" );
