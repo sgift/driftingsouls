@@ -303,6 +303,10 @@ public class KSKapernAction extends BasicKSAction {
 			enemyShip.getShip().setOwner(user);
 			enemyShip.getShip().setBattleAction(true);
 			enemyShip.setSide(battle.getOwnSide());
+            if(enemyShip.getShip().isDocked())
+            {
+                enemyShip.getShip().setDocked("");
+            }
 
 			List<Integer> kaperlist = new ArrayList<>();
 			kaperlist.add(enemyShip.getId());
@@ -392,8 +396,6 @@ public class KSKapernAction extends BasicKSAction {
 			}
 
 			enemyShip.getShip().recalculateShipStatus();
-
-			enemyShip = battle.getEnemyShip();
 		}
 		// Das Schiff konnte offenbar nicht gekapert werden....
 		else {

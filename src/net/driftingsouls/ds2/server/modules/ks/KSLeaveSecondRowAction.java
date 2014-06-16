@@ -50,7 +50,7 @@ public class KSLeaveSecondRowAction extends BasicKSAction {
 		BattleShip ownShip = battle.getOwnShip();
 		
 		if( (ownShip.getAction() & Battle.BS_SECONDROW) == 0 || (ownShip.getAction() & Battle.BS_DESTROYED) != 0 ||
-			( ownShip.getAction() == 0 ) || ownShip.getShip().isLanded() || ownShip.getShip().isDocked() || (ownShip.getAction() & Battle.BS_FLUCHT) != 0 ||
+			 ownShip.getShip().isLanded() || ownShip.getShip().isDocked() || (ownShip.getAction() & Battle.BS_FLUCHT) != 0 ||
 			( ownShip.getAction() & Battle.BS_JOIN ) != 0 ) {
 			return Result.ERROR;
 		}

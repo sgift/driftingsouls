@@ -41,7 +41,7 @@ public class KSFluchtClassAction extends KSFluchtAllAction {
 	}
 	
 	@Override
-	protected boolean validateShipExt(String fluchtmode, BattleShip ship, ShipTypeData shiptype) {
+	protected boolean validateShipExt( BattleShip ship, ShipTypeData shiptype) {
 		if( shiptype.getShipClass() != this.fluchtclass ) {
 			return false;
 		}
