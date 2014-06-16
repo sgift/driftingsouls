@@ -70,6 +70,8 @@ public class EditItem implements EntityEditor<Item>
 	@Override
 	public void configureFor(@Nonnull EditorForm8<Item> form)
 	{
+		form.allowAdd();
+
 		form.entityClass("Typ", Ware.class, IffDeaktivierenItem.class, Munition.class, Munitionsbauplan.class, Schiffsbauplan.class, Schiffsmodul.class, SchiffsmodulSet.class, Schiffsverbot.class);
 		form.field("Name", String.class, Item::getName, Item::setName);
 		form.picture("Bild", Item::getPicture);

@@ -21,10 +21,12 @@ package net.driftingsouls.ds2.server.config.items;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
@@ -43,8 +45,8 @@ import javax.persistence.Table;
 @DiscriminatorColumn(name = "typ", length=255)
 @Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 public abstract class Item {
-
-	@Id
+	@Id @GeneratedValue(generator="ds-itemid")
+	@GenericGenerator(name="ds-itemid", strategy = "net.driftingsouls.ds2.server.config.items.ItemIdGenerator")
 	private int id;
 	@Column(nullable = false)
 	private String name;

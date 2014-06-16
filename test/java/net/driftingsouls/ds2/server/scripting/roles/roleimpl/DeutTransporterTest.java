@@ -67,7 +67,7 @@ public class DeutTransporterTest extends DBSingleTransactionTest
 	
 	@Before
 	public void setUp() throws Exception {
-		persist(new Ware(Resources.DEUTERIUM.getItemID(), "Deuterium"));
+		getDB().merge(new Ware(Resources.DEUTERIUM.getItemID(), "Deuterium"));
 
 		sys = persist(new StarSystem());
 		sys.setWidth(200);

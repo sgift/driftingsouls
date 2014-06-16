@@ -28,6 +28,7 @@ public class EditSchiffstypModifikation implements EntityEditor<SchiffstypModifi
 	@Override
 	public void configureFor(@Nonnull EditorForm8<SchiffstypModifikation> form)
 	{
+		form.allowAdd();
 		form.field("Name", String.class, SchiffstypModifikation::getNickname, SchiffstypModifikation::setNickname);
 		form.field("Bild", String.class, SchiffstypModifikation::getPicture, SchiffstypModifikation::setPicture);
 		form.field("Uranreaktor", Integer.class, SchiffstypModifikation::getRu, SchiffstypModifikation::setRu);

@@ -3,6 +3,7 @@ package net.driftingsouls.ds2.server.ships;
 import net.driftingsouls.ds2.server.DBSingleTransactionTest;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemID;
+import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.Ware;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
@@ -31,7 +32,7 @@ public class ShipTest extends DBSingleTransactionTest
 	@Before
 	public void loadShips()
 	{
-		this.testWare = new ItemID(persist(new Ware(1, "Deuteriumfass")));
+		this.testWare = new ItemID((Item) getDB().merge(new Ware(1, "Deuteriumfass")));
 		User user1 = persist(new User("testUser1", "***", 0, "", new Cargo(), "test@localhost"));
 		this.user2 = persist(new User("testUser2", "***", 0, "", new Cargo(), "test@localhost"));
 		this.user2.setFlag(UserFlag.SUPER_DOCK);
