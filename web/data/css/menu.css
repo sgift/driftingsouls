@@ -57,6 +57,7 @@ img {
 	z-index:100;
 	text-align:right;
 	white-space: nowrap;
+	width: auto;
 }
 #menu li {
 	float:left;
@@ -179,6 +180,23 @@ img {
 #menu li dd a.low:hover		{color: #ff0000; font-family: verdana, helvetica; font-size:11px; font-weight: bold; text-decoration: none; margin-bottom:2px}
 #menu li dd a.low:active	{color: #ff0000; font-family: verdana, helvetica; font-size:11px; font-weight: bold; text-decoration: none; margin-bottom:2px}
 
+#menu #infoicon {
+	color: green;
+	display: inline-block;
+	border: 1px solid green;
+	border-radius: 50%;
+	width: 14px;
+	height: 15px;
+	text-align: center;
+	font-weight: bold;
+	vertical-align: middle;
+}
+
+#menu #infoicon.highlight {
+	color: #FEB626;
+	border-color: #FEB626;
+}
+
 #mailicon { display:none }
 
 #page_currentpage {display:none}
@@ -287,4 +305,33 @@ img {
 
 #searchbox .datatable img {
 	width:25px;
+}
+
+/* Info */
+#infobox table {
+	margin-bottom:10px;
+	margin-top: 5px;
+}
+#infobox #commits td {
+	vertical-align: top;
+	font-size:11px;
+}
+#infobox #commits td:nth-child(4) {
+	white-space: nowrap;
+}
+
+#infobox #commits .bug {
+	background-color: rgba(255,0,0,0.2);
+}
+
+#infobox #commits .bug .symbol {
+	color:red;
+}
+
+#infobox #commits .feature {
+	background-color: rgba(0,255,0,0.1);
+}
+
+#infobox #commits .feature .symbol {
+	color:green;
 }

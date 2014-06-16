@@ -173,6 +173,22 @@ public class WellKnownConfigValue<T> implements ConfigValueDescriptor<T>
 	 * Der Cargo der beim Registrieren automatisch zugewiesenen Basis.
 	 */
 	public static final ConfigValueDescriptor<String> REGISTER_BASECARGO = new WellKnownConfigValue<>(String.class, "register_basecargo", "16|3500|0|0;17|1500|0|0;18|2500|0|0;19|3500|0|0;20|3500|0|0;22|1000|0|0;23|2500|0|0;24|2500|0|0;25|500|0|0", "Der Cargo der beim Registrieren automatisch zugewiesenen Basis.");
+	/**
+	 * Die URL zum Stash-Repository.
+	 */
+	public static final ConfigValueDescriptor<String> STASH_URL = new WellKnownConfigValue<>(String.class, "stash_url", "http://dev.drifting-souls.net/stash/", "Die URL zum Stash-Repository");
+	/**
+	 * Der Name des Projekts im Stash-Repository.
+	 */
+	public static final ConfigValueDescriptor<String> STASH_PROJECT_NAME = new WellKnownConfigValue<>(String.class, "stash_project", "DS", "Der Name des Projekts im Stash-Repository");
+	/**
+	 * Der Name des DS-Repositories im Stash-Repository.
+	 */
+	public static final ConfigValueDescriptor<String> STASH_REPO_NAME = new WellKnownConfigValue<>(String.class, "stash_repo", "rds", "Der Name des DS-Repositories im Stash-Repository");
+	/**
+	 * Die URL zur Bamboo-Installation.
+	 */
+	public static final ConfigValueDescriptor<String> BAMBOO_URL = new WellKnownConfigValue<>(String.class, "bamboo_url", "http://dev.drifting-souls.net/bamboo/", "Die URL zur Bamboo-Installation.");
 
 	private String name;
 	private String description;

@@ -4,6 +4,47 @@
 
 var checkPMStatusCanceled = false;
 function checkPMStatus() {
+	var lastVersion = null;
+
+	function updatePMStatus( data ) {
+		if( typeof data.errors !== 'undefined' && data.errors.length > 0 ) {
+			angular.forEach(messageContainer.errors, function(error) {
+				toastr.error(error.description);
+			});
+			return false;
+		}
+		else if( typeof data.message !== 'undefined' &&
+			data.message.type === 'error' ) {
+			var msg = data.message;
+
+			if( msg.type === 'error' ) {
+				toastr.error(data.message.description);
+				if( typeof msg.redirect !== 'undefined' && msg.redirect ) {
+					if( parent ) {
+						parent.location.href=DS.getUrl();
+					}
+					else {
+						location.href=DS.getUrl();
+					}
+				}
+				return false;
+			}
+		}
+
+		if( DS.istNichtEingeloggtFehler(data) ) {
+			checkPMStatusCanceled = true;
+			return;
+		}
+
+		if( lastVersion != null && lastVersion !== data.version ) {
+			$('#infoicon').addClass('highlight');
+		}
+		lastVersion = data.version;
+
+		$('#mailicon').css('display', data.pm ? 'inline' : 'none');
+		$('#comneticon').css('display', data.comNet ? 'inline' : 'none');
+	}
+
 	if( !checkPMStatusCanceled ) {
 		setTimeout(function() {
 			checkPMStatus()
@@ -11,47 +52,12 @@ function checkPMStatus() {
 		);
 	}
 	var params = {
-			module:'main',
-			action:'statusUpdate'
+		module:'main',
+		action:'statusUpdate'
 	};
 
 	DS.getJSON( params, updatePMStatus );
 }
-
-function updatePMStatus( data ) {
-	if( typeof data.errors !== 'undefined' && data.errors.length > 0 ) {
-		angular.forEach(messageContainer.errors, function(error) {
-			toastr.error(error.description);
-		});
-		return false;
-	}
-	else if( typeof data.message !== 'undefined' &&
-		data.message.type === 'error' ) {
-		var msg = data.message;
-
-		if( msg.type === 'error' ) {
-			toastr.error(data.message.description);
-			if( typeof msg.redirect !== 'undefined' && msg.redirect ) {
-				if( parent ) {
-					parent.location.href=DS.getUrl();
-				}
-				else {
-					location.href=DS.getUrl();
-				}
-			}
-			return false;
-		}
-	}
-
-	if( DS.istNichtEingeloggtFehler(data) ) {
-		checkPMStatusCanceled = true;
-		return;
-	}
-
-	document.getElementById('mailicon').style.display= data.pm ? 'inline' : 'none';
-	document.getElementById('comneticon').style.display= data.comNet ? 'inline' : 'none';
-}
-
 
 /*
 	Boxfunktionen
@@ -103,7 +109,7 @@ var helpBox = {
 
 		$('#helpboxtext').append(response);
 	}
-}
+};
 
 var SearchBox = {
 	open: function() {
@@ -174,6 +180,41 @@ var SearchBox = {
 	}
 };
 
+var InfoBox = {
+	open: function() {
+		$('#infoicon').removeClass('highlight');
+		$('#infobox').dialog({title: 'Über Drifting Souls', width:700, height:400});
+		$.getJSON(DS.getUrl(), {module:'main', action: 'loadVersionInfo'})
+			.done(function(data) {
+				var $infobox = $('#infobox');
+				$infobox.find('#lastBuild').text(data.buildTime);
+				$infobox.find('#build').empty().append('<a href="'+data.buildUrl+'">'+data.build+'</a>');
+				$infobox.find('#commit').text(data.commit);
+			});
+
+		$.getJSON(DS.getUrl(), {module:'main', action: 'loadLastCommits'})
+			.done(function(data) {
+				var $commits = $('#infobox').find('#commits');
+				$.each(data.values, function(idx,val) {
+					var msg = val.message;
+					if( msg.indexOf('Merge pull request') === 0 ) {
+						msg = msg.substring(0, msg.indexOf('\n'));
+					}
+					var symbol = '';
+					var cls = ''
+					if( msg.indexOf('[bug]') === 0 ) {
+						cls = 'bug';
+						symbol = '<span class="symbol">&#8226;</span>';
+					}
+					else if( msg.indexOf('[feature]') === 0 ) {
+						cls = 'feature';
+						symbol = '<span class="symbol">+</span>';
+					}
+					$commits.find('tbody').append('<tr class="'+cls+'"><td>'+symbol+'</td><td>'+val.displayId+'</td><td>'+msg+'</td><td>'+val.author.displayName+'</td></tr>')
+				});
+			});
+	}
+};
 
 
 var adminBox = {
