@@ -3,9 +3,8 @@
 */
 
 var checkPMStatusCanceled = false;
+var lastDsVersion = null;
 function checkPMStatus() {
-	var lastVersion = null;
-
 	function updatePMStatus( data ) {
 		if( typeof data.errors !== 'undefined' && data.errors.length > 0 ) {
 			angular.forEach(messageContainer.errors, function(error) {
@@ -36,10 +35,10 @@ function checkPMStatus() {
 			return;
 		}
 
-		if( lastVersion != null && lastVersion !== data.version ) {
+		if( lastDsVersion != null && lastDsVersion !== data.version ) {
 			$('#infoicon').addClass('highlight');
 		}
-		lastVersion = data.version;
+		lastDsVersion = data.version;
 
 		$('#mailicon').css('display', data.pm ? 'inline' : 'none');
 		$('#comneticon').css('display', data.comNet ? 'inline' : 'none');
