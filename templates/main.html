@@ -348,6 +348,7 @@
 	<a href="#" onclick="boxOpen('#noticebox')">
 		<img id="noticeicon" src="./data/interface/menubar/notice.png" alt="Notizen" title="Notizen verwalten" />
 	</a>
+	<a id="infoicon" href="#" onclick="InfoBox.open()">i</a>
 	&nbsp;
 	<a href="./ds?module=logout" target="main">
 		<img src="./data/interface/menubar/logout.png" alt="Logout" title="Ausloggen" />
@@ -392,6 +393,25 @@
 		<input id="searchInput" type="text" name="search" style="width:300px" />
 		<button class="submit" type="button" style="width:60px" onclick="SearchBox.execute()">Suchen</button>
 		<div id="searchResult"></div>
+	</div>
+</div>
+
+<!-- Info -->
+<div id="infobox" class="gfxbox" style="display:none">
+	<div class="content">
+		<h3>Version</h3>
+		<table>
+			<tbody>
+				<tr><td>Datum</td><td id="lastBuild"></td></tr>
+				<tr><td>Build</td><td id="build"></td></tr>
+				<tr><td>Commit</td><td id="commit"></td></tr>
+			</tbody>
+		</table>
+		<h3>Letzte Änderungen</h3>
+		<table id="commits" class="datatable">
+			<thead><tr><th></th><th>Commit</th><th>Beschreibung</th><th>von</th></tr></thead>
+			<tbody></tbody>
+		</table>
 	</div>
 </div>
 

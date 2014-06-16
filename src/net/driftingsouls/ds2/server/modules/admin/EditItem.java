@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.config.ModuleSlot;
 import net.driftingsouls.ds2.server.config.items.IffDeaktivierenItem;
 import net.driftingsouls.ds2.server.config.items.Item;
@@ -35,6 +36,7 @@ import net.driftingsouls.ds2.server.entities.FactoryEntry;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
 import net.driftingsouls.ds2.server.entities.Rasse;
+import net.driftingsouls.ds2.server.entities.statistik.StatCargo;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
@@ -43,6 +45,7 @@ import net.driftingsouls.ds2.server.ships.SchiffstypModifikation;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import org.hibernate.Session;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -67,6 +70,8 @@ public class EditItem implements EntityEditor<Item>
 	@Override
 	public void configureFor(@Nonnull EditorForm8<Item> form)
 	{
+		form.allowAdd();
+
 		form.entityClass("Typ", Ware.class, IffDeaktivierenItem.class, Munition.class, Munitionsbauplan.class, Schiffsbauplan.class, Schiffsmodul.class, SchiffsmodulSet.class, Schiffsverbot.class);
 		form.field("Name", String.class, Item::getName, Item::setName);
 		form.picture("Bild", Item::getPicture);
@@ -78,6 +83,15 @@ public class EditItem implements EntityEditor<Item>
 		form.field("Unbekanntes Item?", Boolean.class, Item::isUnknownItem, Item::setUnknownItem);
 		form.field("Darf auf Basen spawnen", Boolean.class, Item::isSpawnableRess, Item::setSpawnableRess);
 		form.textArea("Beschreibung", Item::getDescription, Item::setDescription);
+		form.label("~ im Spielerbesitz", (item) -> {
+			Session db = ContextMap.getContext().getDB();
+			StatCargo statCargo = (StatCargo) db.createQuery("from StatCargo order by tick desc").setMaxResults(1).uniqueResult();
+			if( statCargo == null )
+			{
+				return 0;
+			}
+			return statCargo.getCargo().getResourceCount(new ItemID(item));
+		});
 		form.ifEntityClass(Munition.class).field("Munitionsdefinition", Munitionsdefinition.class, Munition::getMunitionsdefinition, Munition::setMunitionsdefinition);
 		form.ifEntityClass(Munitionsbauplan.class).field("Ermöglicht Fabrikeintrag", FactoryEntry.class, Munitionsbauplan::getFabrikeintrag, Munitionsbauplan::setFabrikeintrag);
 		form.ifEntityClass(Munitionsbauplan.class).field("Als Allianzbauplan verwendbar", Boolean.class, Munitionsbauplan::isAllianzEffekt, Munitionsbauplan::setAllianzEffekt);

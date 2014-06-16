@@ -42,9 +42,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Basisklasse fuer alle DS-spezifischen Generatoren.
@@ -55,13 +53,9 @@ public abstract class Controller implements PermissionResolver
 {
 	private static final Log log = LogFactory.getLog(Controller.class);
 
-	private boolean disableDebugOutput;
-	private long startTime;
-	private Map<String, String> bodyParameters;
 	private ParameterReader parameterReader;
 	private String pageTitle;
 	private List<PageMenuEntry> pageMenuEntries;
-	private boolean disablePageMenu;
 	private Context context;
 
 	/**
@@ -76,15 +70,8 @@ public abstract class Controller implements PermissionResolver
 		this.parameterReader.parameterString("module");
 		this.parameterReader.parameterString("action");
 
-		this.startTime = System.currentTimeMillis();
-
-		this.disableDebugOutput = false;
-
-		this.bodyParameters = new HashMap<>();
-
 		this.pageTitle = null;
 		this.pageMenuEntries = new ArrayList<>();
-		this.disablePageMenu = false;
 	}
 
 	/**
@@ -453,30 +440,14 @@ public abstract class Controller implements PermissionResolver
 	private void printHeader(OutputHandler handler) throws IOException
 	{
 		handler.setAttribute("module", this.parameterReader.getString("module"));
-		handler.setAttribute("bodyParameters", this.getBodyParameters());
-		handler.setAttribute("startTime", this.startTime);
 		handler.printHeader();
 	}
 
 	private void printFooter(OutputHandler handler) throws IOException
 	{
-		handler.setAttribute("enableDebugOutput", !this.disableDebugOutput ? true : null);
-		if (!this.disablePageMenu)
-		{
-			handler.setAttribute("pagetitle", this.pageTitle);
-			handler.setAttribute("pagemenu", this.pageMenuEntries.toArray(new PageMenuEntry[this.pageMenuEntries.size()]));
-		}
+		handler.setAttribute("pagetitle", this.pageTitle);
+		handler.setAttribute("pagemenu", this.pageMenuEntries.toArray(new PageMenuEntry[this.pageMenuEntries.size()]));
 		handler.printFooter();
-	}
-
-	/**
-	 * (De)aktiviert die Debug-Ausgaben.
-	 *
-	 * @param value <code>true</code> zur Deaktivierung
-	 */
-	public final void setDisableDebugOutput(boolean value)
-	{
-		disableDebugOutput = value;
 	}
 
 	/**
@@ -498,49 +469,6 @@ public abstract class Controller implements PermissionResolver
 	public final void addPageMenuEntry(String title, String url)
 	{
 		this.pageMenuEntries.add(new PageMenuEntry(title, url));
-	}
-
-	/**
-	 * Setzt, ob das Seitenmenue nicht verwendet werden soll.
-	 *
-	 * @param value <code>true</code>, falls es nicht verwendet werden soll
-	 */
-	public final void setDisablePageMenu(boolean value)
-	{
-		this.disablePageMenu = value;
-	}
-
-	/**
-	 * Gibt weitere HTML-Body-Tag-Attribute zurueck.
-	 *
-	 * @return Weitere HTML-Body-Tag-Attribute
-	 */
-	private String getBodyParameters()
-	{
-		StringBuilder text = new StringBuilder();
-
-		if (bodyParameters.size() > 0)
-		{
-			for (String key : bodyParameters.keySet())
-			{
-				text.append(key).append("=\"").append(bodyParameters.get(key)).append("\" ");
-			}
-		}
-
-		return text.toString();
-	}
-
-	/**
-	 * Fuegt ein weiteres HTML-Body-Tag-Attribut hinzu.
-	 * Sollte das Attribut bereits gesetzt seit, so wird es
-	 * ueberschrieben.
-	 *
-	 * @param parameter Der Name des Attributs
-	 * @param value Der Wert
-	 */
-	public final void addBodyParameter(String parameter, String value)
-	{
-		bodyParameters.put(parameter, value);
 	}
 
 	private OutputHandler determineOutputHandler(Action type) throws IllegalAccessException, InstantiationException

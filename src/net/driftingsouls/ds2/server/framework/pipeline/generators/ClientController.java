@@ -24,11 +24,9 @@ public class ClientController extends Controller
 	 */
 	public ClientController() {
 		super();
-		this.addBodyParameter("ng-app", "ds.application");
-		this.setDisableDebugOutput(true);
 	}
 
-	@Action(ActionType.DEFAULT)
+	@Action(value = ActionType.DEFAULT, outputHandler = NgAppHtmlOutputHandler.class)
 	public final void defaultAction() throws IOException
 	{
 		Writer echo = getResponse().getWriter();

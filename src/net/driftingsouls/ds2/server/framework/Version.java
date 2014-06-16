@@ -38,8 +38,9 @@ public class Version
 {
 	private static final Log log = LogFactory.getLog(Version.class);
 	
-	private String VERSION = "000000000000";
-	private String BUILD_TIME = "1970-01-01 00:00";
+	private String version = null;
+	private String buildTime = "1970-01-01 00:00";
+	private String build = "DEV";
 	
 	/**
 	 * Konstruktor.
@@ -80,25 +81,37 @@ public class Version
 		}
 		String key = line.substring(0, index);
 		String value = line.substring(index+1,line.length());
-		
-		if( "hg-version".equals(key) && value.matches("[a-zA-Z0-9]+") ) {
-			VERSION = value;
-		}
-		else if( "git-version".equals(key) && value.matches("[a-zA-Z0-9]+") ) {
-			VERSION = value;
+
+		if( "git-version".equals(key) && value.matches("[a-zA-Z0-9]+") ) {
+			version = value;
 		}
 		else if ( "build-time".equals(key) ) {
-			BUILD_TIME = value;
+			buildTime = value;
+		}
+		else if ( "bamboo-build".equals(key) ) {
+			build = value;
 		}
 	}
 	
 	/**
-	 * Gibt die Versions-ID zurueck.
+	 * Gibt die Versions-ID zurueck. Diese kann eine echte Commit-ID sein sofern es sich
+	 * um ein regulaeres Build handelt. Fuer Entwicklungsbuilds wird keine echte Commit-ID zurueckgegeben.
 	 * @return Die Versions-ID
+	 * @see #isVersioned()
 	 */
 	public String getVersion()
 	{
-		return VERSION;
+		return version != null ? version : "000000000000";
+	}
+
+	/**
+	 * Gibt zurueck, ob eine gueltige Versionsnummer (d.h. eine gueltige Commit-ID) vorhanden ist
+	 * oder ob es sich nur um ein Entwicklungsbuild handelt.
+	 * @return <code>true</code>, falls eine gueltige Commit-ID vorhanden ist
+	 */
+	public boolean isVersioned()
+	{
+		return version != null;
 	}
 	
 	/**
@@ -107,6 +120,15 @@ public class Version
 	 */
 	public String getBuildTime()
 	{
-		return BUILD_TIME;
+		return buildTime;
+	}
+
+	/**
+	 * Gibt die Build-ID des Builds zurueck.
+	 * @return Die Build-ID
+	 */
+	public String getBuild()
+	{
+		return build;
 	}
 }

@@ -45,6 +45,7 @@ public class EditShipCosts implements EntityEditor<ShipBaubar>
 	public void configureFor(@Nonnull EditorForm8<ShipBaubar> form)
 	{
 		form.allowAdd();
+		form.allowDelete();
 		form.ifAdding().field("Schiffstyp", ShipType.class, ShipBaubar::getType, ShipBaubar::setType);
 		form.ifUpdating().label("Schiffstyp", ShipBaubar::getType);
 		form.field("Energiekosten", Integer.class, ShipBaubar::getEKosten, ShipBaubar::setEKosten);
