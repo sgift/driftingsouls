@@ -1129,10 +1129,6 @@ public class FleetMgntController extends Controller
 			for (Base base : user.getBases())
 			{
 				amount -= base.transferCrew(ship, amount);
-				if (amount <= 0)
-				{
-					break;
-				}
 			}
 		}
 

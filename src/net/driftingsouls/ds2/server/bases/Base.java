@@ -1289,10 +1289,6 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		int workless = getBewohner() - getArbeiter();
 		amount = Math.min(amount, maxAmount);
 		amount = Math.min(amount, workless);
-		if( amount <= 0 )
-		{
-			return 0;
-		}
 		ship.setCrew(ship.getCrew() + amount);
 		setBewohner(getBewohner() - amount);
 
