@@ -1172,7 +1172,7 @@ public class AllyController extends Controller
         t.setBlock("show.destships.listitem", "show.destships.ships.listitem", "show.destships.ships.list");
 		t.setBlock("_ALLY", "show.destships.linefiller.listitem", "show.destships.linefiller.list");
 		t.setBlock("_ALLY", "show.lostships.listitem", "show.lostships.list");
-        t.setBlock("show.lodtships.listitem", "show.lostships.ships.listitem", "show.lostships.ships.list");
+        t.setBlock("show.lostships.listitem", "show.lostships.ships.listitem", "show.lostships.ships.list");
 		t.setBlock("_ALLY", "show.lostships.linefiller.listitem", "show.lostships.linefiller.list");
 
 		t.setVar("show.battles", 1,
