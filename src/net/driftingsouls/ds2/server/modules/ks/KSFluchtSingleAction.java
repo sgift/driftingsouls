@@ -52,9 +52,7 @@ public class KSFluchtSingleAction extends BasicKSAction {
 		
 		Context context = ContextMap.getContext();
 		BattleShip ownShip = battle.getOwnShip();
-		
-		String fluchtmode = context.getRequest().getParameterString("fluchtmode");
-	
+
 		if( (ownShip.getAction() & Battle.BS_DESTROYED) != 0 ) {
 			battle.logme( "Dieses Schiff explodiert am Ende der Runde\n" );
 			return Result.ERROR;
@@ -103,13 +101,10 @@ public class KSFluchtSingleAction extends BasicKSAction {
 			battle.logme( "Sie ben&ouml;tigen ein Drohnen-Kontrollschiff um fliehen zu k&ouml;nnen\n" );
 			return Result.ERROR;
 		}
-		
-		
-		int fluchtflag = 0;
+
 		battle.logme( ownShip.getName()+" wird n&auml;chste Runde fl&uuml;chten\n" );
 			
 		ownShip.setAction(ownShip.getAction() | Battle.BS_FLUCHTNEXT);
-		fluchtflag = Battle.BS_FLUCHTNEXT;
 
 		int remove = 1;
 		List<BattleShip> ownShips = battle.getOwnShips();
@@ -117,13 +112,13 @@ public class KSFluchtSingleAction extends BasicKSAction {
 		{
 			if (s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == ownShip.getId())
 			{
-				s.setAction(s.getAction() | fluchtflag);
+				s.setAction(s.getAction() | Battle.BS_FLUCHTNEXT);
 
 				remove++;
 			}
 		}
 		
-		if( fluchtmode.equals("next") && (remove > 1) ) {
+		if( remove > 1 ) {
 			battle.logme( (remove-1)+" an "+ownShip.getName()+" gedockte Schiffe werden n&auml;chste Runde fliehen\n" );
 		}
 	

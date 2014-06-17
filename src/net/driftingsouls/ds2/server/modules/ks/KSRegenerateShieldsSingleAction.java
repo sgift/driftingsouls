@@ -73,13 +73,10 @@ public class KSRegenerateShieldsSingleAction extends BasicKSAction {
 			shieldfactor = 100;
 		}
 
-		int load = 0;
-		if( ownShip.getShip().getEnergy() < Math.ceil((ownShipType.getShields()-ownShip.getShip().getShields())/(double)shieldfactor) ) {
+		int load = (int)Math.ceil((ownShipType.getShields()-ownShip.getShip().getShields())/(double)shieldfactor);
+		if( ownShip.getShip().getEnergy() < load) {
 			battle.logme( "Nicht genug Energie um die Schilde vollst&auml;ndig aufzuladen\n\n" );
 			load = ownShip.getShip().getEnergy();
-		}
-		else {
-			load = (int)Math.ceil((ownShipType.getShields()-ownShip.getShip().getShields())/(double)shieldfactor);
 		}
 
 		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");

@@ -50,11 +50,11 @@ public class KSMenuOtherAction extends BasicKSMenuAction {
 		}
 
 		//Alle Abdocken
-		if( this.isPossible(battle, new KSUndockAllAction()) == Result.OK ) {
-			menuEntry(t, "Alle Abdocken",
+		if( this.isPossible(battle, new KSMenuUndockAction()) == Result.OK ) {
+			menuEntry(t, "Abdocken",
 						"ship",		ownShip.getId(),
 						"attack",	enemyShip.getId(),
-						"ksaction",	"alleabdocken" );
+						"ksaction",	"undock" );
 		}
 
 		//Schilde aufladen

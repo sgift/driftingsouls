@@ -25,9 +25,12 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,6 +45,17 @@ public class KSUndockAllAction extends BasicKSAction {
 	 */
 	public KSUndockAllAction() {
 	}
+
+    /**
+     * Prueft, ob das Schiff gestartet werden soll oder nicht.
+     * @param ship Das Schiff
+     * @param shiptype Der Schiffstyp
+     * @return <code>true</code>, wenn das Schiff gestartet werden soll
+     */
+    protected boolean validateShipExt( BattleShip ship, ShipTypeData shiptype ) {
+        // Extension Point
+        return true;
+    }
 
 	@Override
 	public Result validate(Battle battle) {
@@ -79,14 +93,36 @@ public class KSUndockAllAction extends BasicKSAction {
 
 		ownShip.getShip().setBattleAction(true);
 
-		int counter = db.createQuery("update Ship set battleaction=:act where docked in (:docked,:landed)")
-			.setParameter("act", true)
-			.setString("landed", "l " + ownShip.getId())
-			.setString("docked", "" + ownShip.getId())
-			.executeUpdate();
+        List<Ship> startList = new ArrayList<>();
+        List<Ship> undockList = new ArrayList<>();
 
-        ownShip.getShip().start();
-        ownShip.getShip().undock();
+        for(BattleShip aship : battle.getOwnShips())
+        {
+            if(!validateShipExt(aship, aship.getTypeData()))
+            {
+                continue;
+            }
+
+            if(aship.getShip().getBaseShip() != null && aship.getShip().getBaseShip().getId() == ownShip.getShip().getId())
+            {
+                if(aship.getShip().isLanded())
+                {
+                    startList.add(aship.getShip());
+                }
+                else
+                {
+                    undockList.add(aship.getShip());
+                }
+            }
+        }
+
+        Ship[] startArray = new Ship[startList.size()];
+        Ship[] undockArray = new Ship[undockList.size()];
+        startList.toArray(startArray);
+        undockList.toArray(undockArray);
+
+        ownShip.getShip().start(startArray);
+        ownShip.getShip().undock(undockArray);
 
 		List<BattleShip> ownShips = battle.getOwnShips();
 		for (BattleShip s : ownShips)
@@ -97,8 +133,8 @@ public class KSUndockAllAction extends BasicKSAction {
 			}
 		}
 
-		battle.logme(counter+" Schiffe wurden abgedockt");
-		battle.logenemy(counter+" Schiffe wurden von der "+Battle.log_shiplink(ownShip.getShip())+" abgedockt\n");
+		battle.logme((startList.size()+undockList.size())+" Schiffe wurden abgedockt");
+		battle.logenemy((startList.size()+undockList.size())+" Schiffe wurden von der "+Battle.log_shiplink(ownShip.getShip())+" abgedockt\n");
 
 		battle.logenemy("]]></action>\n");
 

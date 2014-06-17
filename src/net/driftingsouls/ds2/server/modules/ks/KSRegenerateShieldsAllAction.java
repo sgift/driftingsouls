@@ -90,14 +90,10 @@ public class KSRegenerateShieldsAllAction extends BasicKSAction {
 				shieldfactor = 100;
 			}
 
-			int load = 0;
-			if (ownShip.getShip().getEnergy() < Math.ceil((ownShipType.getShields() - ownShip.getShip().getShields()) / (double) shieldfactor))
+			int load = (int)Math.ceil((ownShipType.getShields() - ownShip.getShip().getShields()) / (double) shieldfactor);
+			if (ownShip.getShip().getEnergy() < load)
 			{
 				load = ownShip.getShip().getEnergy();
-			}
-			else
-			{
-				load = (int) Math.ceil((ownShipType.getShields() - ownShip.getShip().getShields()) / (double) shieldfactor);
 			}
 
 			ownShip.getShip().setEnergy(ownShip.getShip().getEnergy() - load);

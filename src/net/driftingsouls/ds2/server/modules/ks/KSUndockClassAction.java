@@ -24,28 +24,30 @@ import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
- * Laesst alle Schiffe einer bestimmten Klasse auf der eigenen Seite fliehen.
+ * Dockt alle Schiffe vom gerade ausgewaehlten Schiff ab.
  * @author Christopher Jung
  *
  */
-public class KSFluchtClassAction extends KSFluchtAllAction {
-	private ShipClasses fluchtclass;
+public class KSUndockClassAction extends KSUndockAllAction {
+    private ShipClasses undockclass;
+    /**
+     * Konstruktor.
+     *
+     */
+    public KSUndockClassAction() {
+        this.undockclass  = ShipClasses.values()[ContextMap.getContext().getRequest().getParameterInt("undockclass")];
+    }
 
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public KSFluchtClassAction() 
-	{
-		this.fluchtclass  = ShipClasses.values()[ContextMap.getContext().getRequest().getParameterInt("fluchtclass")];
-	}
-	
-	@Override
-	protected boolean validateShipExt( BattleShip ship, ShipTypeData shiptype) {
-		if( shiptype.getShipClass() != this.fluchtclass ) {
-			return false;
-		}
-		return true;
-	}
-	
+    /**
+     * Prueft, ob das Schiff gestartet werden soll oder nicht.
+     * @param ship Das Schiff
+     * @param shiptype Der Schiffstyp
+     * @return <code>true</code>, wenn das Schiff gestartet werden soll
+     */
+    protected boolean validateShipExt( BattleShip ship, ShipTypeData shiptype ) {
+        if( shiptype.getShipClass() != this.undockclass ) {
+            return false;
+        }
+        return true;
+    }
 }

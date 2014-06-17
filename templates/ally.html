@@ -510,14 +510,13 @@
 		<tr>
 		<!-- BEGIN show.destships.listitem -->
 			<td class="schiffWaren" style="width:100px">
-				{show.destships.name}<br />
-				<a title="{show.destships.type.name}" target="_blank" 
-					onclick="ShiptypeBox.show({show.destships.type});return false;"
-					href="./ds?module=schiffinfo&amp;ship={show.destships.type}">
-					<img src="{show.destships.type.picture}" alt="" />
-				</a><br />
-				{show.destships.owner}<br />
-				{show.destships.time}
+				{show.destships.time}<br />
+                <!-- BEGIN show.destships.ships.listitem -->
+                {show.destships.ships.count} <a title="{show.destships.ships.type.name}" target="_blank"
+					onclick="ShiptypeBox.show({show.destships.ships.type});return false;"
+					href="./ds?module=schiffinfo&amp;ship={show.destships.ships.type}">{show.destships.ships.type.name}
+				</a> von: {show.destships.ships.owner}
+                <!-- END show.destships.ships.listitem -->
 			</td>
 			{if show.destships.newrow}
 				</tr>
@@ -543,23 +542,21 @@
 		</div>
 		<table class="show" cellpadding="3" width="90%">
 		<tr>
-		<!-- BEGIN show.lostships.listitem -->
-			<td class="schiffWaren" style="width:100px">
-				{show.lostships.name}<br />
-				<a title="{show.lostships.type.name}" target="_blank" 
-					onclick="ShiptypeBox.show({show.lostships.type});return false;"
-					href="./ds?module=schiffinfo&amp;ship={show.lostships.type}">
-					<img src="{show.lostships.type.picture}" alt="" />
-				</a><br />
-				{show.lostships.owner}<br />
-				[{show.lostships.destroyer}]<br />
-				{show.lostships.time}
-			</td>
-			{if show.lostships.newrow}
-				</tr>
-				<tr>
-			{/endif}
-		<!-- END show.lostships.listitem -->
+        <!-- BEGIN show.lostships.listitem -->
+        <td class="schiffWaren" style="width:100px">
+            {show.lostships.time}<br />
+            <!-- BEGIN show.lostships.ships.listitem -->
+            {show.lostships.ships.count} <a title="{show.lostships.ships.type.name}" target="_blank"
+                                            onclick="ShiptypeBox.show({show.lostships.ships.type});return false;"
+                                            href="./ds?module=schiffinfo&amp;ship={show.lostships.ships.type}">{show.lostships.ships.type.name}
+        </a> durch: {show.lostships.ships.owner}
+            <!-- END show.lostships.ships.listitem -->
+        </td>
+        {if show.lostships.newrow}
+        </tr>
+        <tr>
+        {/endif}
+        <!-- END show.lostships.listitem -->
 		<!-- BEGIN show.lostships.linefiller.listitem -->
 			<td class="schiffWaren" style="width:100px">&nbsp;</td>
 		<!-- END show.lostships.linefiller.listitem -->

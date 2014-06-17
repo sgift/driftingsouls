@@ -45,6 +45,12 @@ public class KSMenuDefaultAction extends BasicKSMenuAction {
 										"attack",	enemyShip.getId(),
 										"ksaction",	"attack" );
 		}
+
+        if( this.isPossible(battle, new KSMenuGroupAttackAction()) == Result.OK) {
+            this.menuEntry(t, "Gruppen-Angriff", "ship", ownShip.getId(),
+                                        "attack", enemyShip.getId(),
+                                        "ksaction", "groupattack" );
+        }
 		
 		this.menuEntry(t, "Flucht",	"ship",		ownShip.getId(),
 									"attack",	enemyShip.getId(),

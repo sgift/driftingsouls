@@ -38,12 +38,11 @@ public class KSFluchtAllAction extends BasicKSAction {
 	
 	/**
 	 * Prueft, ob das Schiff fliehen kann oder nicht.
-	 * @param fluchtmode Der Zeitpunkt der Flucht (<code>current</code> oder <code>next</code>) - dieser Parameter ist nur noch aus historischen Gruenden vorhanden und hat keinen Effekt mehr
 	 * @param ship Das Schiff
 	 * @param shiptype Der Schiffstyp
 	 * @return <code>true</code>, wenn das Schiff fliehen kann
 	 */
-	protected boolean validateShipExt( String fluchtmode, BattleShip ship, ShipTypeData shiptype ) {
+	protected boolean validateShipExt( BattleShip ship, ShipTypeData shiptype ) {
 		// Extension Point
 		return true;
 	}
@@ -54,15 +53,9 @@ public class KSFluchtAllAction extends BasicKSAction {
 		if( result != Result.OK ) {
 			return result;
 		}
-		
-		Context context = ContextMap.getContext();
-
-		String fluchtmode = context.getRequest().getParameterString("fluchtmode");
 
 		Boolean gotone = null;
-		
-		int fluchtflag = Battle.BS_FLUCHTNEXT;
-		
+
 		List<BattleShip> ownShips = battle.getOwnShips();
 		for( int i=0; i < ownShips.size(); i++ ) {
 			BattleShip aship = ownShips.get(i);
@@ -72,10 +65,6 @@ public class KSFluchtAllAction extends BasicKSAction {
 			}
 			
 			if( (aship.getAction() & Battle.BS_FLUCHT) != 0 ) {
-				continue;
-			}
-			
-			if( fluchtmode.equals("next") && (aship.getAction() & Battle.BS_FLUCHTNEXT) != 0 ) {
 				continue;
 			}
 			
@@ -97,7 +86,7 @@ public class KSFluchtAllAction extends BasicKSAction {
 			
 			ShipTypeData ashipType = aship.getTypeData();
 			 
-			if( (ashipType.getCrew() > 0) && (aship.getCrew() < (int)(ashipType.getCrew()/4d)) ) {
+			if( (ashipType.getCrew() > 0) && (aship.getCrew() < (int)(ashipType.getMinCrew()/4d)) ) {
 				continue;
 			}
 	
@@ -117,7 +106,7 @@ public class KSFluchtAllAction extends BasicKSAction {
 				continue;
 			}
 			
-			if( !validateShipExt(fluchtmode, aship, ashipType) ) {
+			if( !validateShipExt( aship, ashipType) ) {
 				continue;
 			}
 
@@ -130,7 +119,7 @@ public class KSFluchtAllAction extends BasicKSAction {
 			{
 				if (s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == aship.getId())
 				{
-					s.setAction(s.getAction() | fluchtflag);
+					s.setAction(s.getAction() | Battle.BS_FLUCHTNEXT);
 
 					remove++;
 				}

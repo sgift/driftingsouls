@@ -42,42 +42,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
-import net.driftingsouls.ds2.server.modules.ks.BasicKSAction;
-import net.driftingsouls.ds2.server.modules.ks.BasicKSMenuAction;
-import net.driftingsouls.ds2.server.modules.ks.KSAttackAction;
-import net.driftingsouls.ds2.server.modules.ks.KSCheatRegenerateEnemyAction;
-import net.driftingsouls.ds2.server.modules.ks.KSCheatRegenerateOwnAction;
-import net.driftingsouls.ds2.server.modules.ks.KSDischargeBatteriesAllAction;
-import net.driftingsouls.ds2.server.modules.ks.KSDischargeBatteriesClassAction;
-import net.driftingsouls.ds2.server.modules.ks.KSDischargeBatteriesSingleAction;
-import net.driftingsouls.ds2.server.modules.ks.KSEndBattleCivilAction;
-import net.driftingsouls.ds2.server.modules.ks.KSEndBattleEqualAction;
-import net.driftingsouls.ds2.server.modules.ks.KSEndTurnAction;
-import net.driftingsouls.ds2.server.modules.ks.KSFluchtAllAction;
-import net.driftingsouls.ds2.server.modules.ks.KSFluchtClassAction;
-import net.driftingsouls.ds2.server.modules.ks.KSFluchtSingleAction;
-import net.driftingsouls.ds2.server.modules.ks.KSKapernAction;
-import net.driftingsouls.ds2.server.modules.ks.KSLeaveSecondRowAction;
-import net.driftingsouls.ds2.server.modules.ks.KSMenuAttackAction;
-import net.driftingsouls.ds2.server.modules.ks.KSMenuAttackMuniSelectAction;
-import net.driftingsouls.ds2.server.modules.ks.KSMenuBatteriesAction;
-import net.driftingsouls.ds2.server.modules.ks.KSMenuBattleConsignAction;
-import net.driftingsouls.ds2.server.modules.ks.KSMenuCheatsAction;
-import net.driftingsouls.ds2.server.modules.ks.KSMenuDefaultAction;
-import net.driftingsouls.ds2.server.modules.ks.KSMenuFluchtAction;
-import net.driftingsouls.ds2.server.modules.ks.KSMenuHistoryAction;
-import net.driftingsouls.ds2.server.modules.ks.KSMenuOtherAction;
-import net.driftingsouls.ds2.server.modules.ks.KSMenuShieldsAction;
-import net.driftingsouls.ds2.server.modules.ks.KSNewCommanderAction;
-import net.driftingsouls.ds2.server.modules.ks.KSRegenerateShieldsAllAction;
-import net.driftingsouls.ds2.server.modules.ks.KSRegenerateShieldsClassAction;
-import net.driftingsouls.ds2.server.modules.ks.KSRegenerateShieldsSingleAction;
-import net.driftingsouls.ds2.server.modules.ks.KSSecondRowAction;
-import net.driftingsouls.ds2.server.modules.ks.KSSecondRowAttackAction;
-import net.driftingsouls.ds2.server.modules.ks.KSSecondRowEngageAction;
-import net.driftingsouls.ds2.server.modules.ks.KSStopTakeCommandAction;
-import net.driftingsouls.ds2.server.modules.ks.KSTakeCommandAction;
-import net.driftingsouls.ds2.server.modules.ks.KSUndockAllAction;
+import net.driftingsouls.ds2.server.modules.ks.*;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.units.UnitCargo;
@@ -116,6 +81,8 @@ public class AngriffController extends Controller
 
 		menuActions.put("attack", KSMenuAttackAction.class);
 		menuActions.put("attack_select", KSMenuAttackMuniSelectAction.class);
+        menuActions.put("groupattack", KSMenuGroupAttackAction.class);
+        menuActions.put("groupattack_select", KSMenuGroupAttackMuniSelectAction.class);
 		menuActions.put("batterien", KSMenuBatteriesAction.class);
 		menuActions.put("default", KSMenuDefaultAction.class);
 		menuActions.put("flucht", KSMenuFluchtAction.class);
@@ -123,6 +90,7 @@ public class AngriffController extends Controller
 		menuActions.put("new_commander", KSMenuBattleConsignAction.class);
 		menuActions.put("other", KSMenuOtherAction.class);
 		menuActions.put("shields", KSMenuShieldsAction.class);
+        menuActions.put("undock", KSMenuUndockAction.class);
 		if( new ConfigService().getValue(WellKnownConfigValue.ENABLE_CHEATS) ) {
 			menuActions.put("cheats", KSMenuCheatsAction.class);
 		}
@@ -130,6 +98,10 @@ public class AngriffController extends Controller
 		actions.put("flucht_single", KSFluchtSingleAction.class);
 		actions.put("flucht_all", KSFluchtAllAction.class);
 		actions.put("flucht_class", KSFluchtClassAction.class);
+        actions.put("undock_single", KSUndockAction.class);
+        actions.put("undock_class", KSUndockClassAction.class);
+        actions.put("undock_all", KSUndockAllAction.class);
+        actions.put("groupattack2", KSGroupAttackAction.class);
 		actions.put("attack2", KSAttackAction.class);
 		actions.put("kapern", KSKapernAction.class);
 		actions.put("secondrow", KSSecondRowAction.class);
@@ -138,7 +110,6 @@ public class AngriffController extends Controller
 		actions.put("secondrowattack", KSSecondRowAttackAction.class);
 		actions.put("endbattleequal", KSEndBattleEqualAction.class);
 		actions.put("endturn", KSEndTurnAction.class);
-		actions.put("alleabdocken", KSUndockAllAction.class);
 		actions.put("new_commander2", KSNewCommanderAction.class);
 		actions.put("take_command", KSTakeCommandAction.class);
 		actions.put("stop_take_command", KSStopTakeCommandAction.class);
@@ -405,7 +376,7 @@ public class AngriffController extends Controller
 					t.setVar("global.showmenu", 1);
 		
 					// Ist das gegnerische Schiff zerstoert? Falls ja, dass Angriffsmenue deaktivieren
-					if( ( action.toString().equals("attack") ) &&
+					if( ( action.toString().equals("attack") || action.toString().equals("groupattack") ) &&
 						((enemyShip.getAction() & Battle.BS_DESTROYED) != 0 || (ownShip.getAction() & Battle.BS_FLUCHT) != 0 || ownShip.getShip().isLanded()) ) {
 						action.setLength(0);
 					}
