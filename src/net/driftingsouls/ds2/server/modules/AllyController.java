@@ -39,7 +39,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipLost;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
@@ -1156,7 +1155,7 @@ public class AllyController extends Controller
 
 		int counter = 0;
 
-		long destcount = (Long) db.createQuery("select count(*) from ShipLost where destAlly=:ally")
+		long destcount = (Long) db.createQuery("select count(distinct tick) from ShipLost where destAlly=:ally")
 				.setInteger("ally", this.ally.getId())
 				.iterate().next();
 		if (destpos > destcount)
@@ -1170,8 +1169,10 @@ public class AllyController extends Controller
 		}
 
 		t.setBlock("_ALLY", "show.destships.listitem", "show.destships.list");
+        t.setBlock("show.destships.listitem", "show.destships.ships.listitem", "show.destships.ships.list");
 		t.setBlock("_ALLY", "show.destships.linefiller.listitem", "show.destships.linefiller.list");
 		t.setBlock("_ALLY", "show.lostships.listitem", "show.lostships.list");
+        t.setBlock("show.lodtships.listitem", "show.lostships.ships.listitem", "show.lostships.ships.list");
 		t.setBlock("_ALLY", "show.lostships.linefiller.listitem", "show.lostships.linefiller.list");
 
 		t.setVar("show.battles", 1,
@@ -1182,38 +1183,60 @@ public class AllyController extends Controller
 				"show.destpos.back", destpos - 10,
 				"show.destpos.forward", destpos + 10);
 
-		List<?> sList = db.createQuery("from ShipLost where destAlly=:ally order by tick desc")
-				.setInteger("ally", this.ally.getId())
-				.setMaxResults(10)
-				.setFirstResult((int) destpos)
-				.list();
-		for (Object aSList : sList)
-		{
-			ShipLost s = (ShipLost) aSList;
-			ShipTypeData shiptype = Ship.getShipType(s.getType());
+        List<?> ticks = db.createQuery("SELECT distinct tick FROM ShipLost WHERE destAlly=:ally ORDER BY tick DESC")
+                .setInteger("ally", this.ally.getId())
+                .setMaxResults(10)
+                .setFirstResult((int) destpos)
+                .list();
+        for( Object o : ticks )
+        {
+            int tick = (Integer)o;
+            List<?> s = db.createQuery("SELECT distinct count(*),type,owner FROM ShipLost WHERE destAlly=:ally AND tick=:tick GROUP BY type,owner")
+                    .setInteger("ally", ally.getId())
+                    .setInteger("tick", tick)
+                    .list();
 
 			counter++;
 
-			User auser = (User) getContext().getDB().get(User.class, s.getOwner());
-			String ownername;
-			if (auser != null)
-			{
-				ownername = auser.getName();
-			}
-			else
-			{
-				ownername = "Unbekannter Spieler (" + s.getOwner() + ")";
-			}
+            t.setVar("show.destships.time", Common.getIngameTime(tick),
+                     "show.destships.newrow", (counter % 5) == 0);
 
-			t.setVar("show.destships.name", s.getName(),
-					"show.destships.type.name", shiptype.getNickname(),
-					"show.destships.type", s.getType(),
-					"show.destships.type.picture", shiptype.getPicture(),
-					"show.destships.owner", Common._title(ownername),
-					"show.destships.time", s.getTime(),
-					"show.destships.newrow", (counter % 5) == 0);
+            for( Object o2 : s ) {
+                Object[] data = (Object[]) o2;
+                ShipTypeData shiptype = Ship.getShipType((Integer) data[1]);
+                User auser = (User) db.get(User.class, (Integer) data[2]);
 
-			t.parse("show.destships.list", "show.destships.listitem", true);
+                long count = (Long) data[0];
+                String shiptypename;
+                String shiptypepicture;
+                String ownername;
+
+                if (shiptype != null) {
+                    shiptypename = shiptype.getNickname();
+                    shiptypepicture = shiptype.getPicture();
+                } else {
+                    shiptypename = "Unbekannter Schiffstyp";
+                    shiptypepicture = "";
+                }
+
+
+                if (auser != null) {
+                    ownername = auser.getName();
+                } else {
+                    ownername = "Unbekannter Spieler (" + data[2] + ")";
+                }
+
+
+                t.setVar("show.destships.ships.count", count,
+                        "show.destships.ships.type.name", shiptypename,
+                        "show.destships.ships.type", data[1],
+                        "show.destships.ships.type.picture", shiptypepicture,
+                        "show.destships.ships.owner", Common._title(ownername));
+
+
+                t.parse("show.destships.ships.list", "show.destships.ships.listitem", false);
+            }
+            t.parse("show.destships.list", "show.destships.listitem", true);
 		}
 
 		while (counter % 5 != 0)
@@ -1228,68 +1251,81 @@ public class AllyController extends Controller
 
 		counter = 0;
 
-		long lostcount = (Long) db.createQuery("select count(*) from ShipLost where ally=:ally")
-				.setInteger("ally", this.ally.getId())
-				.iterate().next();
-		if (lostpos > lostcount)
-		{
-			lostpos = lostcount - 10;
-		}
+        long lostcount = (Long) db.createQuery("select count(distinct tick) from ShipLost where ally=:ally")
+                .setInteger("ally", this.ally.getId())
+                .iterate().next();
+        if (lostpos > lostcount)
+        {
+            lostpos = lostcount - 10;
+        }
 
-		if (lostpos < 0)
-		{
-			lostpos = 0;
-		}
+        if (lostpos < 0)
+        {
+            lostpos = 0;
+        }
 
-		t.setVar("show.lostpos.back", lostpos - 10,
-				"show.lostpos.forward", lostpos + 10);
+        t.setVar("show.battles", 1,
+                "show.lostships.list", "",
+                "show.lostships.linefiller.list", "",
+                "show.lostships.list", "",
+                "show.lostships.linefiller.list", "",
+                "show.lostpos.back", lostpos - 10,
+                "show.lostpos.forward", lostpos + 10);
 
-		sList = db.createQuery("from ShipLost where ally=:ally order by tick desc")
-				.setInteger("ally", this.ally.getId())
-				.setMaxResults(10)
-				.setFirstResult((int) lostpos)
-				.list();
-		for (Object aSList : sList)
-		{
-			ShipLost s = (ShipLost) aSList;
-			ShipTypeData shiptype = Ship.getShipType(s.getType());
+        ticks = db.createQuery("SELECT distinct tick FROM ShipLost WHERE ally=:ally ORDER BY tick DESC")
+                .setInteger("ally", this.ally.getId())
+                .setMaxResults(10)
+                .setFirstResult((int) lostpos)
+                .list();
+        for( Object o : ticks )
+        {
+            int tick = (Integer)o;
+            List<?> s = db.createQuery("SELECT distinct count(*),type,destOwner FROM ShipLost WHERE ally=:ally AND tick=:tick GROUP BY type,destOwner")
+                    .setInteger("ally", ally.getId())
+                    .setInteger("tick", tick)
+                    .list();
 
-			counter++;
+            counter++;
 
-			User destowner = (User) getContext().getDB().get(User.class, s.getDestOwner());
-			User owner = (User) getContext().getDB().get(User.class, s.getOwner());
+            t.setVar("show.lostships.time", Common.getIngameTime(tick),
+                     "show.lostships.newrow", (counter % 5) == 0);
 
-			String ownername;
-			if (owner != null)
-			{
-				ownername = owner.getName();
-			}
-			else
-			{
-				ownername = "Unbekannter Spieler (" + s.getOwner() + ")";
-			}
+            for( Object o2 : s ) {
+                Object[] data = (Object[]) o2;
+                ShipTypeData shiptype = Ship.getShipType((Integer) data[1]);
+                User auser = (User) db.get(User.class, (Integer) data[2]);
 
-			String destownername;
-			if (destowner != null)
-			{
-				destownername = destowner.getName();
-			}
-			else
-			{
-				destownername = "Unbekannter Spieler (" + s.getDestOwner() + ")";
-			}
+                long count = (Long) data[0];
+                String shiptypename;
+                String shiptypepicture;
+                String ownername;
 
-			t.setVar("show.lostships.name", s.getName(),
-					"show.lostships.type.name", shiptype.getNickname(),
-					"show.lostships.type", s.getType(),
-					"show.lostships.type.picture", shiptype.getPicture(),
-					"show.lostships.owner", Common._title(destownername),
-					"show.lostships.destroyer", Common._title(ownername),
-					"show.lostships.time", s.getTime(),
-					"show.lostships.newrow", (counter % 5) == 0);
+                if (shiptype != null) {
+                    shiptypename = shiptype.getNickname();
+                    shiptypepicture = shiptype.getPicture();
+                } else {
+                    shiptypename = "Unbekannter Schiffstyp";
+                    shiptypepicture = "";
+                }
 
-			t.parse("show.lostships.list", "show.lostships.listitem", true);
-		}
+
+                if (auser != null) {
+                    ownername = auser.getName();
+                } else {
+                    ownername = "Unbekannter Spieler (" + data[2] + ")";
+                }
+
+
+                t.setVar("show.lostships.ships.count", count,
+                        "show.lostships.ships.type.name", shiptypename,
+                        "show.lostships.ships.type", data[1],
+                        "show.lostships.ships.type.picture", shiptypepicture,
+                        "show.lostships.ships.owner", Common._title(ownername));
+
+                t.parse("show.lostships.ships.list", "show.lostships.ships.listitem", false);
+            }
+            t.parse("show.lostships.list", "show.lostships.ships.listitem", true);
+        }
 
 		while (counter % 5 != 0)
 		{
