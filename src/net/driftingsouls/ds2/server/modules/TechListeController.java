@@ -180,7 +180,7 @@ public class TechListeController extends Controller
 					if( forschung != null && (forschung.isVisibile((User)getUser()) || hasPermission(WellKnownPermission.FORSCHUNG_ALLES_SICHTBAR)) ) {
 						String req = forschung.getName();
 
-						t.setVar(	"tech.req"+i+".id", forschung,
+						t.setVar(	"tech.req"+i+".id", forschung.getID(),
 									"tech.req"+i+".name",	req );
 
 						resentry = true;
