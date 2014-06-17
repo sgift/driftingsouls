@@ -515,7 +515,7 @@
                 {show.destships.ships.count} <a title="{show.destships.ships.type.name}" target="_blank"
 					onclick="ShiptypeBox.show({show.destships.ships.type});return false;"
 					href="./ds?module=schiffinfo&amp;ship={show.destships.ships.type}">{show.destships.ships.type.name}
-				</a> von: {show.destships.ships.owner}
+				</a> von: {show.destships.ships.owner}<br />
                 <!-- END show.destships.ships.listitem -->
 			</td>
 			{if show.destships.newrow}
@@ -549,7 +549,7 @@
             {show.lostships.ships.count} <a title="{show.lostships.ships.type.name}" target="_blank"
                                             onclick="ShiptypeBox.show({show.lostships.ships.type});return false;"
                                             href="./ds?module=schiffinfo&amp;ship={show.lostships.ships.type}">{show.lostships.ships.type.name}
-        </a> durch: {show.lostships.ships.owner}
+        </a> durch: {show.lostships.ships.owner}<br />
             <!-- END show.lostships.ships.listitem -->
         </td>
         {if show.lostships.newrow}
