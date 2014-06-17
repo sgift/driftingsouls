@@ -34,11 +34,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
-import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipFleet;
-import net.driftingsouls.ds2.server.ships.ShipType;
-import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
+import net.driftingsouls.ds2.server.ships.*;
 import net.driftingsouls.ds2.server.werften.SchiffBauinformationen;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 import org.apache.commons.lang.StringUtils;
@@ -1212,6 +1208,58 @@ public class FleetMgntController extends Controller
 		return new RedirectViewResult("default");
 	}
 
+    @Action(value = ActionType.DEFAULT)
+    public RedirectViewResult activateTanker(ShipFleet fleet)
+    {
+        validiereGueltigeFlotteVorhanden(fleet);
+
+        org.hibernate.Session db = getDB();
+        User user = (User) getUser();
+
+        List<Ship> ships = Common.cast(db.createQuery("from Ship " +
+                "where id>0 and owner=:owner and fleet=:fleet order by id")
+                .setEntity("owner", user)
+                .setEntity("fleet", fleet)
+                .list());
+
+        for(Ship ship : ships)
+        {
+            if(ship.getTypeData().getDeutFactor() > 0)
+            {
+                SchiffEinstellungen einstellungen = ship.getEinstellungen();
+                einstellungen.setAutoDeut(true);
+                einstellungen.persistIfNecessary(ship);
+            }
+        }
+        return new RedirectViewResult("default").withMessage("Alle Tanker angestellt.");
+    }
+
+    @Action(value = ActionType.DEFAULT)
+    public RedirectViewResult deactivateTanker(ShipFleet fleet)
+    {
+        validiereGueltigeFlotteVorhanden(fleet);
+
+        org.hibernate.Session db = getDB();
+        User user = (User) getUser();
+
+        List<Ship> ships = Common.cast(db.createQuery("from Ship " +
+                "where id>0 and owner=:owner and fleet=:fleet order by id")
+                .setEntity("owner", user)
+                .setEntity("fleet", fleet)
+                .list());
+
+        for(Ship ship : ships)
+        {
+            if(ship.getTypeData().getDeutFactor() > 0)
+            {
+                SchiffEinstellungen einstellungen = ship.getEinstellungen();
+                einstellungen.setAutoDeut(false);
+                einstellungen.persistIfNecessary(ship);
+            }
+        }
+        return new RedirectViewResult("default").withMessage("Alle Tanker ausgestellt.");
+    }
+
 	@Action(value = ActionType.DEFAULT, readOnly = true)
 	public TemplateEngine defaultAction(ShipFleet fleet, RedirectViewResult redirect)
 	{
@@ -1257,6 +1305,7 @@ public class FleetMgntController extends Controller
 				.list();
 
 		Set<WerftObject> werften = new HashSet<>();
+        boolean hasTanker = false;
 		for (Object ship1 : ships)
 		{
 			Ship ship = (Ship) ship1;
@@ -1279,6 +1328,12 @@ public class FleetMgntController extends Controller
 					werften.add(werft);
 				}
 			}
+
+            //Finde Tanker
+            if( shiptype.getDeutFactor() > 0)
+            {
+                hasTanker = true;
+            }
 
 			t.setVar("ship.id", ship.getId(),
 					"ship.name", Common._plaintitle(ship.getName()),
@@ -1327,6 +1382,10 @@ public class FleetMgntController extends Controller
 			t.setVar("astiinsector", 1);
 		}
 
+        if(hasTanker)
+        {
+            t.setVar("hastanker", 1);
+        }
 		//Find shipyards in sector
 		long ganymedCount = getGanymedCount(fleet);
 
