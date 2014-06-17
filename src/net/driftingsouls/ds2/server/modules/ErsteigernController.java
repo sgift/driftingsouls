@@ -37,6 +37,7 @@ import net.driftingsouls.ds2.server.entities.Loyalitaetspunkte;
 import net.driftingsouls.ds2.server.entities.ResourceLimit;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
+import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FactionOffer;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FactionShopEntry;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FactionShopOrder;
@@ -877,7 +878,7 @@ public class ErsteigernController extends Controller
 
 		if ((type >= 0) && (type < 3))
 		{
-			user.setUserValue("TBLORDER/factions/konto_maxtype", Integer.toString(type));
+			user.setUserValue(WellKnownUserValue.TBLORDER_FACTIONS_KONTO_MAXTYPE, type);
 		}
 		return new RedirectViewResult("bank");
 	}
@@ -907,7 +908,7 @@ public class ErsteigernController extends Controller
 		t.setVar("show.bank", 1);
 
 		// Auwahl max. Transaktionstyp in der Kontoanzeige generieren
-		int transtype = Integer.parseInt(user.getUserValue("TBLORDER/factions/konto_maxtype"));
+		int transtype = user.getUserValue(WellKnownUserValue.TBLORDER_FACTIONS_KONTO_MAXTYPE);
 
 		String newtypetext;
 		switch (transtype - 1 % 3)

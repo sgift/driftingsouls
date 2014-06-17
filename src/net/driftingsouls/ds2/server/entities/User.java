@@ -37,6 +37,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.UserValue;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.utils.StringToTypeConverter;
 import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
 import net.driftingsouls.ds2.server.namegenerator.SchiffsKlassenNamenGenerator;
 import net.driftingsouls.ds2.server.namegenerator.SchiffsNamenGenerator;
@@ -1690,7 +1691,9 @@ public class User extends BasicUser {
 	 *
 	 * @param valuename Name des User-Values
 	 * @return Wert des User-Values
+	 * @deprecated Bitte die typisierte Variante benutzen
 	 */
+	@Deprecated
 	public String getUserValue( String valuename ) {
 		UserValue value = (UserValue)context.getDB()
 				.createQuery("from UserValue where user in (:id,0) and name=:name order by abs(user) desc,id")
@@ -1706,20 +1709,43 @@ public class User extends BasicUser {
 	}
 
 	/**
+	 * Liefert den Wert einer Benutzereinstellung zurueck. Sofern mehrere Eintraege zu diesem
+	 * User-Value existieren wird der aelteste zurueckgegeben.
+	 *
+	 * @param valueDesc Die Beschreibung der Einstellung
+	 * @return Wert des User-Values
+	 */
+	public <T> T getUserValue( WellKnownUserValue<T> valueDesc ) {
+		UserValue value = (UserValue)context.getDB()
+				.createQuery("from UserValue where user=:user and name=:name order by id")
+				.setEntity("user", this)
+				.setString("name", valueDesc.getName())
+				.setMaxResults(1)
+				.uniqueResult();
+
+		return StringToTypeConverter.convert(valueDesc.getType(), value != null ? value.getValue() : valueDesc.getDefaultValue());
+	}
+
+	/**
 	 * Liefert alle Werte eines User-Values zurueck.
 	 * User-Values sind die Eintraege, welche sich in der Tabelle user_values befinden.
 	 *
-	 * @param valuename Name des User-Values
+	 * @param valueDesc Die Beschreibung der Einstellung
 	 * @return Werte des User-Values
 	 */
-	public List<String> getUserValues( String valuename ) {
+	public <T> List<T> getUserValues( WellKnownUserValue<T> valueDesc ) {
 		List<UserValue> values = Common.cast(context.getDB()
-				.createQuery("from UserValue where user in (:id,0) and name=:name order by abs(user) desc,id")
-				.setInteger("id", this.getId())
-				.setString("name", valuename)
+				.createQuery("from UserValue where user=:user and name=:name order by id")
+				.setEntity("user", this)
+				.setString("name", valueDesc.getName())
 				.list());
 
-		return values.stream().map(UserValue::getValue).collect(Collectors.toList());
+		if( values.isEmpty() )
+		{
+			return Arrays.asList(StringToTypeConverter.convert(valueDesc.getType(), valueDesc.getDefaultValue()));
+		}
+
+		return values.stream().map(UserValue::getValue).map(v -> StringToTypeConverter.convert(valueDesc.getType(), v)).collect(Collectors.toList());
 	}
 
 	/**
@@ -1727,22 +1753,25 @@ public class User extends BasicUser {
 	 * existieren wird nur der aelteste aktualisiert.
 	 * @see #getUserValue(String)
 	 *
-	 * @param valuename Name des User-Values
+	 * @param valueDesc Die Beschreibung der Einstellung
 	 * @param newvalue neuer Wert des User-Values
 	 */
-	public void setUserValue( String valuename, String newvalue ) {
+	public <T> void setUserValue( WellKnownUserValue<T> valueDesc, T newvalue ) {
 		UserValue valuen = (UserValue)context.getDB().createQuery("from UserValue where user=:user and name=:name order by id")
-				.setInteger("user", this.getId())
-				.setString("name", valuename)
+				.setEntity("user", this)
+				.setString("name", valueDesc.getName())
 				.uniqueResult();
 
 		// Existiert noch kein Eintag?
-		if( valuen == null ) {
-			valuen = new UserValue(this, valuename, newvalue);
+		if( valuen == null && newvalue != null) {
+			valuen = new UserValue(this, valueDesc.getName(), newvalue.toString());
 			context.getDB().persist(valuen);
 		}
+		else if( newvalue != null ) {
+			valuen.setValue(newvalue.toString());
+		}
 		else {
-			valuen.setValue(newvalue);
+			context.getDB().delete(valuen);
 		}
 	}
 

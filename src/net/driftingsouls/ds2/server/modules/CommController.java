@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.comm.Ordner;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.bbcode.Smilie;
@@ -907,7 +908,7 @@ public class CommController extends Controller
 			t.setVar("pm.sender.name", Common._title(pm.getSender().getName()));
 			t.setVar("pm.text", Smilie.parseSmilies(Common._text(pm.getInhalt())));
 			t.setVar("system.time", Common.getIngameTime(getContext().get(ContextCommon.class).getTick()));
-			t.setVar("user.signature", user.getUserValue("PMS/signatur"));
+			t.setVar("user.signature", user.getUserValue(WellKnownUserValue.PMS_SIGNATURE));
 		}
 
 		return t;
@@ -1024,7 +1025,7 @@ public class CommController extends Controller
 				"write.message", msg,
 				"write.to", toStr,
 				"system.time", Common.getIngameTime(getContext().get(ContextCommon.class).getTick()),
-				"user.signature", user.getUserValue("PMS/signature"));
+				"user.signature", user.getUserValue(WellKnownUserValue.PMS_SIGNATURE));
 
 		t.setBlock("_COMM", "write.specialui.listitem", "write.specialui.list");
 		if (specialuilist.size() > 1)

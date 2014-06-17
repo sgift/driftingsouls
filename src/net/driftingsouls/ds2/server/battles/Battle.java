@@ -27,6 +27,7 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
+import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
@@ -1013,14 +1014,14 @@ public class Battle implements Locatable
                 "Es kämpfen "+eparty+" und "+eparty2+" gegeneinander.";
         for(User auser : ownUsers)
         {
-            if(Boolean.parseBoolean(auser.getUserValue("GAMEPLAY/user/battle_pm")))
+            if(auser.getUserValue(WellKnownUserValue.GAMEPLAY_USER_BATTLE_PM))
             {
                 PM.send(niemand, auser.getId(), "Schlacht eröffnet", msg);
             }
         }
         for(User auser : enemyUsers)
         {
-            if(Boolean.parseBoolean(auser.getUserValue("GAMEPLAY/user/battle_pm")))
+            if(auser.getUserValue(WellKnownUserValue.GAMEPLAY_USER_BATTLE_PM))
             {
                 PM.send(niemand, auser.getId(), "Schlacht eröffnet", msg);
             }

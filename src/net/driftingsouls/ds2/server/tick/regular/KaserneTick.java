@@ -18,17 +18,18 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
-import java.util.List;
-
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.Kaserne;
 import net.driftingsouls.ds2.server.entities.KaserneEntry;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.units.UnitType;
+
+import java.util.List;
 
 /**
  * <h1>Berechnung des Ticks fuer Kasernen.</h1>
@@ -91,7 +92,7 @@ public class KaserneTick extends TickController {
 				if( build )
 				{
 					// Nachricht versenden
-                    if(Boolean.parseBoolean(base.getOwner().getUserValue("GAMEPLAY/user/unit_build_pm"))) {
+                    if(base.getOwner().getUserValue(WellKnownUserValue.GAMEPLAY_USER_UNIT_BUILD_PM)) {
                         PM.send(sourceUser, base.getOwner().getId(), "Ausbildung abgeschlossen", msg);
                     }
 				}

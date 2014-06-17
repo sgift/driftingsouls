@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.config.Offiziere;
 import net.driftingsouls.ds2.server.entities.Academy;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.framework.db.batch.SingleUnitOfWork;
@@ -127,7 +128,7 @@ public class AcademyTick extends TickController {
 						// Nachricht versenden
 						final User sourceUser = (User)db.get(User.class, -1);
                         User accUser = base.getOwner();
-                        if(Boolean.parseBoolean(accUser.getUserValue("GAMEPLAY/user/officer_build_pm"))) {
+                        if(accUser.getUserValue(WellKnownUserValue.GAMEPLAY_USER_OFFICER_BUILD_PM)) {
                             PM.send(sourceUser, base.getOwner().getId(), "Ausbildung abgeschlossen", msg);
                         }
 					}

@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
+import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -70,7 +71,7 @@ public class SensorsDefault implements SchiffPlugin {
 				order = "id";
 			}
 			User user = (User)controller.getUser();
-			user.setUserValue("TBLORDER/schiff/sensororder", order);
+			user.setUserValue(WellKnownUserValue.TBLORDER_SCHIFF_SENSORORDER, order);
 		}
 
 		return "";
@@ -115,7 +116,7 @@ public class SensorsDefault implements SchiffPlugin {
 			}
 		}
 
-		String order = user.getUserValue("TBLORDER/schiff/sensororder");
+		String order = user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFF_SENSORORDER);
 
 		if( ( ship.getSensors() > 30 ) && ( ship.getCrew() >= shiptype.getMinCrew() / 4 ) )
 		{
@@ -199,7 +200,7 @@ public class SensorsDefault implements SchiffPlugin {
 			currentDockID = baseShip.getId();
 		}
 
-		int user_wrapfactor = Integer.parseInt(user.getUserValue("TBLORDER/schiff/wrapfactor"));
+		int user_wrapfactor = user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFF_WRAPFACTOR);
 
 		// dockCount - die Anzahl der aktuell angedockten Schiffe
 		final long dockCount = ship.getDockedCount();

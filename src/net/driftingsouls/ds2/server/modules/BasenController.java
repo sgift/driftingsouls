@@ -26,6 +26,7 @@ import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -81,12 +82,12 @@ public class BasenController extends Controller
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		org.hibernate.Session db = getDB();
 
-		String ordSetting = user.getUserValue("TBLORDER/basen/order");
-		int orderSetting = Integer.parseInt(user.getUserValue("TBLORDER/basen/order_mode"));
-		int lSetting = Integer.parseInt(user.getUserValue("TBLORDER/basen/showcargo"));
+		String ordSetting = user.getUserValue(WellKnownUserValue.TBLORDER_BASEN_ORDER);
+		int orderSetting = user.getUserValue(WellKnownUserValue.TBLORDER_BASEN_ORDER_MODE);
+		int lSetting = user.getUserValue(WellKnownUserValue.TBLORDER_BASEN_SHOWCARGO);
 		if (ord != null && !ord.isEmpty())
 		{
-			user.setUserValue("TBLORDER/basen/order", ord);
+			user.setUserValue(WellKnownUserValue.TBLORDER_BASEN_ORDER, ord);
 		}
 		else
 		{
@@ -95,7 +96,7 @@ public class BasenController extends Controller
 
 		if (order != null)
 		{
-			user.setUserValue("TBLORDER/basen/order_mode", Integer.toString(order));
+			user.setUserValue(WellKnownUserValue.TBLORDER_BASEN_ORDER_MODE, order);
 		}
 		else
 		{
@@ -104,7 +105,7 @@ public class BasenController extends Controller
 
 		if (l != null)
 		{
-			user.setUserValue("TBLORDER/basen/showcargo", Integer.toString(l));
+			user.setUserValue(WellKnownUserValue.TBLORDER_BASEN_SHOWCARGO, l);
 		}
 		else
 		{

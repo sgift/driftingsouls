@@ -26,6 +26,7 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -82,7 +83,7 @@ public class SchiffeController extends Controller
 		if (mode.equals("carg") || mode.equals("norm"))
 		{
 			User user = (User)getUser();
-			user.setUserValue("TBLORDER/schiffe/mode", mode);
+			user.setUserValue(WellKnownUserValue.TBLORDER_SCHIFFE_MODE, mode);
 		}
 
 		return new RedirectViewResult("default");
@@ -99,7 +100,7 @@ public class SchiffeController extends Controller
 		if (Common.inArray(order, new String[]{"id", "name", "type", "sys", "crew", "hull", "e"}))
 		{
 			User user = (User)getUser();
-			user.setUserValue("TBLORDER/schiffe/order", order);
+			user.setUserValue(WellKnownUserValue.TBLORDER_SCHIFFE_ORDER, order);
 		}
 
 		return new RedirectViewResult("default");
@@ -114,7 +115,7 @@ public class SchiffeController extends Controller
 	public RedirectViewResult changeJDockedAction(int showLJaeger)
 	{
 		User user = (User)getUser();
-		user.setUserValue("TBLORDER/schiffe/showjaeger", Integer.toString(showLJaeger));
+		user.setUserValue(WellKnownUserValue.TBLORDER_SCHIFFE_SHOWJAEGER, showLJaeger);
 
 		return new RedirectViewResult("default");
 	}
@@ -142,8 +143,8 @@ public class SchiffeController extends Controller
 				"global.only", only,
 				"user.race", user.getRace());
 
-		String ord = user.getUserValue("TBLORDER/schiffe/order");
-		String showjaeger = user.getUserValue("TBLORDER/schiffe/showjaeger");
+		String ord = user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFFE_ORDER);
+		int showjaeger = user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFFE_SHOWJAEGER);
 
 		Map<String, String> ordermapper = new HashMap<>();
 		ordermapper.put("id", "s.id");
@@ -168,7 +169,7 @@ public class SchiffeController extends Controller
 			query += "((s.modules is not null and s.crew < (select crew from ShipModules where id=s.modules)) or s.crew < (select crew from ShipType where id = s.shiptype)) and ";
 		}
 
-		if (only.equals("kampf") && (showjaeger.equals("0")))
+		if (only.equals("kampf") && (showjaeger == 0))
 		{
 			query += "locate('l ',s.docked)=0 and ";
 		}
@@ -225,7 +226,7 @@ public class SchiffeController extends Controller
 				break;
 			case "kampf":
 				t.setVar("only.kampf", 1,
-						"only.kampf.showljaeger", (showjaeger.equals("1") ? "checked=\"checked\"" : ""));
+						"only.kampf.showljaeger", (showjaeger == 1 ? "checked=\"checked\"" : ""));
 
 				if (kampfOnly == 0)
 				{

@@ -24,6 +24,7 @@ import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeInfo;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeJob;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeType;
@@ -118,7 +119,7 @@ class HandleUpgradeJob implements TaskHandler
 
 				basecount += base.getMaxTiles();
 
-				if( basecount > Integer.parseInt(user.getUserValue("GAMEPLAY/bases/maxtiles")) ) {
+				if( basecount > user.getUserValue(WellKnownUserValue.GAMEPLAY_BASES_MAXTILES) ) {
 
 					sendFinishedWarningMessage(db, order, faction);
 					base.setOwner(nullUser);

@@ -32,6 +32,7 @@ import net.driftingsouls.ds2.server.entities.IntTutorial;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.entities.UserRank;
+import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -113,13 +114,13 @@ public class UeberController extends Controller
 
 		if (tutorial == 1)
 		{
-			int inttutorial = Integer.parseInt(user.getUserValue("TBLORDER/uebersicht/inttutorial"));
+			int inttutorial = user.getUserValue(WellKnownUserValue.TBLORDER_UEBERSICHT_INTTUTORIAL);
 
-			user.setUserValue("TBLORDER/uebersicht/inttutorial", Integer.toString(inttutorial + 1));
+			user.setUserValue(WellKnownUserValue.TBLORDER_UEBERSICHT_INTTUTORIAL, inttutorial + 1);
 		}
 		else if (tutorial == -1)
 		{
-			user.setUserValue("TBLORDER/uebersicht/inttutorial", "0");
+			user.setUserValue(WellKnownUserValue.TBLORDER_UEBERSICHT_INTTUTORIAL, 0);
 		}
 
 		return new RedirectViewResult("default");
@@ -134,10 +135,10 @@ public class UeberController extends Controller
 	public RedirectViewResult boxAction(String box)
 	{
 		User user = (User)getUser();
-		String boxSetting = user.getUserValue("TBLORDER/uebersicht/box");
+		String boxSetting = user.getUserValue(WellKnownUserValue.TBLORDER_UEBERSICHT_BOX);
 		if (box != null && !box.equals(boxSetting))
 		{
-			user.setUserValue("TBLORDER/uebersicht/box", box);
+			user.setUserValue(WellKnownUserValue.TBLORDER_UEBERSICHT_BOX, box);
 		}
 
 		return new RedirectViewResult("default");
@@ -276,7 +277,7 @@ public class UeberController extends Controller
 		// Interaktives Tutorial
 		//------------------------------
 
-		int inttutorial = Integer.parseInt(user.getUserValue("TBLORDER/uebersicht/inttutorial"));
+		int inttutorial = user.getUserValue(WellKnownUserValue.TBLORDER_UEBERSICHT_INTTUTORIAL);
 
 		if (inttutorial != 0)
 		{
@@ -644,13 +645,13 @@ public class UeberController extends Controller
 
 			if (sheet == null)
 			{
-				user.setUserValue("TBLORDER/uebersicht/inttutorial", "0");
+				user.setUserValue(WellKnownUserValue.TBLORDER_UEBERSICHT_INTTUTORIAL, 0);
 				return;
 			}
 
 			// Neue Tutorialseite speichern
 			inttutorial = sheet.getId();
-			user.setUserValue("TBLORDER/uebersicht/inttutorial", Integer.toString(inttutorial));
+			user.setUserValue(WellKnownUserValue.TBLORDER_UEBERSICHT_INTTUTORIAL, inttutorial);
 		}
 
 		// Existiert eine Nachfolgerseite?

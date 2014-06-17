@@ -18,14 +18,15 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
-import java.util.List;
-
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
+
+import java.util.List;
 
 /**
  * <h1>Berechnung des Ticks fuer Basen.</h1>
@@ -69,7 +70,7 @@ public class BaseTick extends TickController
 					User sourceUser = (User)getDB().get(User.class, -1);
                     User baseUser = (User)getDB().get(User.class, userId);
 
-					if(Boolean.parseBoolean(baseUser.getUserValue("GAMEPLAY/user/base_down_pm"))) {
+					if(baseUser.getUserValue(WellKnownUserValue.GAMEPLAY_USER_BASE_DOWN_PM)) {
                         PM.send(sourceUser, userId, "Basis-Tick", messages);
                     }
 					messages = "";

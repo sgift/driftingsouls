@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.entities.ComNetService;
 import net.driftingsouls.ds2.server.entities.GuiHelpText;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
+import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Version;
@@ -76,7 +77,7 @@ public class MainController extends Controller
 	public ViewMessage speicherNotizen(String notizen)
 	{
 		User user = (User) getUser();
-		user.setUserValue("TBLORDER/main/notizen", notizen.trim());
+		user.setUserValue(WellKnownUserValue.TBLORDER_MAIN_NOTIZEN, notizen.trim());
 
 		return ViewMessage.success("gespeichert");
 	}
@@ -142,7 +143,7 @@ public class MainController extends Controller
 				"user.npc", user.hasFlag(UserFlag.ORDER_MENU),
 				"user.adminSichtbar", hasPermission(WellKnownAdminPermission.SICHTBAR),
 				"admin.showconsole", hasPermission(WellKnownAdminPermission.CONSOLE),
-				"user.notizen", user.getUserValue("TBLORDER/main/notizen"));
+				"user.notizen", user.getUserValue(WellKnownUserValue.TBLORDER_MAIN_NOTIZEN));
 
 		t.setBlock("_MAIN", "bases.listitem", "bases.list");
 
