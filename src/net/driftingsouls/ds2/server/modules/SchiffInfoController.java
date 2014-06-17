@@ -106,7 +106,7 @@ public class SchiffInfoController extends Controller
 						cssClass = "ok";
 					}
 
-					t.setVar("shiptype.tr" + i, shipBuildData.getRes(i),
+					t.setVar("shiptype.tr" + i, research.getID(),
 							"shiptype.tr" + i + ".name", Common._title(research.getName()),
 							"shiptype.tr" + i + ".status", cssClass);
 				}
@@ -120,7 +120,7 @@ public class SchiffInfoController extends Controller
 				{
 					Forschung f = shipBuildData.getRes(i);
 
-					t.setVar("shiptype.tr" + i, shipBuildData.getRes(i),
+					t.setVar("shiptype.tr" + i, f.getID(),
 							"shiptype.tr" + i + ".name", Common._title(f.getName()));
 				}
 			}
