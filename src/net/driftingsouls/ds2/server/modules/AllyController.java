@@ -1199,7 +1199,8 @@ public class AllyController extends Controller
 			counter++;
 
             t.setVar("show.destships.time", Common.getIngameTime(tick),
-                     "show.destships.newrow", (counter % 5) == 0);
+                     "show.destships.newrow", (counter % 5) == 0,
+                     "show.destships.ships.list", "");
 
             for( Object o2 : s ) {
                 Object[] data = (Object[]) o2;
@@ -1234,7 +1235,7 @@ public class AllyController extends Controller
                         "show.destships.ships.owner", Common._title(ownername));
 
 
-                t.parse("show.destships.ships.list", "show.destships.ships.listitem", false);
+                t.parse("show.destships.ships.list", "show.destships.ships.listitem", true);
             }
             t.parse("show.destships.list", "show.destships.listitem", true);
 		}
@@ -1288,7 +1289,8 @@ public class AllyController extends Controller
             counter++;
 
             t.setVar("show.lostships.time", Common.getIngameTime(tick),
-                     "show.lostships.newrow", (counter % 5) == 0);
+                    "show.lostships.newrow", (counter % 5) == 0,
+                    "show.lostships.ships.list", "");
 
             for( Object o2 : s ) {
                 Object[] data = (Object[]) o2;
@@ -1322,9 +1324,9 @@ public class AllyController extends Controller
                         "show.lostships.ships.type.picture", shiptypepicture,
                         "show.lostships.ships.owner", Common._title(ownername));
 
-                t.parse("show.lostships.ships.list", "show.lostships.ships.listitem", false);
+                t.parse("show.lostships.ships.list", "show.lostships.ships.listitem", true);
             }
-            t.parse("show.lostships.list", "show.lostships.ships.listitem", true);
+            t.parse("show.lostships.list", "show.lostships.listitem", true);
         }
 
 		while (counter % 5 != 0)
