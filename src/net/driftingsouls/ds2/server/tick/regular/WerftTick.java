@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.tick.regular;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
@@ -144,7 +145,7 @@ public class WerftTick extends TickController
 						// MSG
 						String msg = "Auf " + bbcode(werft) + " wurde eine [ship=" + shipid + "]" + shipd.getNickname() + "[/ship] gebaut. Sie steht bei [map]" + werft.getLocation().displayCoordinates(false) + "[/map].";
 
-                        if(Boolean.parseBoolean(werft.getOwner().getUserValue("GAMEPLAY/user/ship_build_pm"))) {
+                        if(werft.getOwner().getUserValue(WellKnownUserValue.GAMEPLAY_USER_SHIP_BUILD_PM)) {
                             PM.send(sourceUser, werft.getOwner().getId(), "Schiff gebaut", msg);
                         }
 					}

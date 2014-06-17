@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.comm;
 
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
@@ -183,10 +184,10 @@ public class PM {
 				pm.setFlags(flags);
 				db.persist(pm);
 
-				for( String forward : user.getUserValues("TBLORDER/pms/forward") )
+				for( int forward : user.getUserValues(WellKnownUserValue.TBLORDER_PMS_FORWARD) )
 				{
-					if( !"".equals(forward) && (Integer.parseInt(forward) != 0) ) {
-						send(user, Integer.parseInt(forward), "Fwd: "+title,
+					if( forward != 0 ) {
+						send(user, forward, "Fwd: "+title,
 								"[align=center][color=green]- Folgende Nachricht ist soeben eingegangen -[/color][/align]\n" +
 								"[b]Absender:[/b] [userprofile="+from.getId()+"]"+from.getName()+"[/userprofile] ("+from.getId()+")\n\n"+
 								txt, flags);

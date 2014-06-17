@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
+import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.Versteigerung;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.VersteigerungResource;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.VersteigerungSchiff;
@@ -115,10 +116,10 @@ public class RTCTick extends TickController {
 				{
 					targetuser = entry.getOwner();
 
-					gtucost = Integer.parseInt(targetuser.getUserValue("GTU_AUCTION_USER_COST"));
+					gtucost = targetuser.getUserValue(WellKnownUserValue.GTU_AUCTION_USER_COST);
 				}
 
-				String entryname = "";
+				String entryname;
 
 				if (entry instanceof VersteigerungSchiff)
 				{

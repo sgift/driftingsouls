@@ -23,6 +23,7 @@ import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.Weapon;
+import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
@@ -121,7 +122,7 @@ public class KSMenuGroupAttackAction extends BasicKSMenuAction {
 		
 		if( attmode.length() == 0 ) {
 			User user = (User)context.getActiveUser();
-			attmode = userattmode = user.getUserValue("TBLORDER/ks/attackmode");
+			attmode = userattmode = user.getUserValue(WellKnownUserValue.TBLORDER_KS_ATTACKMODE);
 		}
 		
 		if( !ATTMODES.containsKey(attmode) ) {
@@ -130,7 +131,7 @@ public class KSMenuGroupAttackAction extends BasicKSMenuAction {
 		
 		if( !attmode.equals(userattmode) ) {
 			User user = (User)context.getActiveUser();
-			user.setUserValue("TBLORDER/ks/attackmode", attmode);
+			user.setUserValue(WellKnownUserValue.TBLORDER_KS_ATTACKMODE, attmode);
 		}
 		
 		return attmode;

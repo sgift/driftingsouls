@@ -24,6 +24,7 @@ import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
+import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -215,11 +216,11 @@ public class OptionsController extends Controller
 
 		String changemsg = "";
 
-		if (shipgroupmulti != Integer.parseInt(user.getUserValue("TBLORDER/schiff/wrapfactor")))
+		if (shipgroupmulti != user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFF_WRAPFACTOR))
 		{
 			changemsg += "Neuer Schiffsgruppenmultiplikator gespeichert...<br />\n";
 
-			user.setUserValue("TBLORDER/schiff/wrapfactor", Integer.toString(shipgroupmulti));
+			user.setUserValue(WellKnownUserValue.TBLORDER_SCHIFF_WRAPFACTOR, shipgroupmulti);
 		}
 
 		if ((scriptdebug != 0) && hasPermission(WellKnownPermission.SCHIFF_SCRIPT))
@@ -232,7 +233,7 @@ public class OptionsController extends Controller
 			}
 		}
 
-		if (inttutorial != Integer.parseInt(user.getUserValue("TBLORDER/uebersicht/inttutorial")))
+		if (inttutorial != user.getUserValue(WellKnownUserValue.TBLORDER_UEBERSICHT_INTTUTORIAL))
 		{
 			if (inttutorial != 0)
 			{
@@ -242,7 +243,7 @@ public class OptionsController extends Controller
 			{
 				changemsg += "Tutorial deaktiviert...<br />\n";
 			}
-			user.setUserValue("TBLORDER/uebersicht/inttutorial", Integer.toString(inttutorial));
+			user.setUserValue(WellKnownUserValue.TBLORDER_UEBERSICHT_INTTUTORIAL, inttutorial);
 		}
 
 		if (defrelation != user.getRelation(null))
@@ -267,12 +268,12 @@ public class OptionsController extends Controller
 		user.setPersonenNamenGenerator(personenNamenGenerator);
 		user.setSchiffsKlassenNamenGenerator(schiffsKlassenNamenGenerator);
 		user.setSchiffsNamenGenerator(schiffsNamenGenerator);
-        user.setUserValue("GAMEPLAY/user/battle_pm", Boolean.toString(battle_pm));
-        user.setUserValue("GAMEPLAY/user/research_pm", Boolean.toString(research_pm));
-        user.setUserValue("GAMEPLAY/user/ship_build_pm", Boolean.toString(ship_build_pm));
-        user.setUserValue("GAMEPLAY/user/base_down_pm", Boolean.toString(base_down_pm));
-        user.setUserValue("GAMEPLAY/user/officer_build_pm", Boolean.toString(officer_build_pm));
-        user.setUserValue("GAMEPLAY/user/unit_build_pm", Boolean.toString(unit_build_pm));
+        user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_BATTLE_PM, battle_pm);
+        user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_RESEARCH_PM, research_pm);
+        user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_SHIP_BUILD_PM, ship_build_pm);
+        user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_BASE_DOWN_PM, base_down_pm);
+        user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_OFFICER_BUILD_PM, officer_build_pm);
+        user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_UNIT_BUILD_PM, unit_build_pm);
 
 		return new RedirectViewResult("xtra").withMessage(changemsg);
 	}
@@ -382,17 +383,17 @@ public class OptionsController extends Controller
 		t.setVar("options.message", redirect != null ? redirect.getMessage() : null);
 
 		t.setVar("options.xtra", 1,
-				"user.wrapfactor", user.getUserValue("TBLORDER/schiff/wrapfactor"),
-				"user.inttutorial", user.getUserValue("TBLORDER/uebersicht/inttutorial"),
+				"user.wrapfactor", user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFF_WRAPFACTOR),
+				"user.inttutorial", user.getUserValue(WellKnownUserValue.TBLORDER_UEBERSICHT_INTTUTORIAL),
 				"user.showScriptDebug", hasPermission(WellKnownPermission.SCHIFF_SCRIPT),
 				"user.scriptdebug", user.hasFlag(UserFlag.SCRIPT_DEBUGGING),
 				"user.defrelation", user.getRelation(null).ordinal(),
-                "user.battlepm", Boolean.parseBoolean(user.getUserValue("GAMEPLAY/user/battle_pm")),
-                "user.researchpm", Boolean.parseBoolean(user.getUserValue("GAMEPLAY/user/research_pm")),
-                "user.shipbuildpm", Boolean.parseBoolean(user.getUserValue("GAMEPLAY/user/ship_build_pm")),
-                "user.basedownpm", Boolean.parseBoolean(user.getUserValue("GAMEPLAY/user/base_down_pm")),
-                "user.officerbuildpm", Boolean.parseBoolean(user.getUserValue("GAMEPLAY/user/officer_build_pm")),
-                "user.unitbuildpm", Boolean.parseBoolean(user.getUserValue("GAMEPLAY/user/unit_build_pm")));
+                "user.battlepm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_BATTLE_PM),
+                "user.researchpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_RESEARCH_PM),
+                "user.shipbuildpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_SHIP_BUILD_PM),
+                "user.basedownpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_BASE_DOWN_PM),
+                "user.officerbuildpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_OFFICER_BUILD_PM),
+                "user.unitbuildpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_UNIT_BUILD_PM));
 
 		t.setBlock("_OPTIONS", "personenNamenGenerator.listitem", "personenNamenGenerator.list");
 		for (PersonenNamenGenerator png : PersonenNamenGenerator.values())
@@ -492,16 +493,16 @@ public class OptionsController extends Controller
 
 		String changemsg = "";
 
-		if (showtooltip == (Integer.parseInt(user.getUserValue("TBLORDER/schiff/tooltips")) == 0))
+		if (showtooltip == (user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFF_TOOLTIPS) == 0))
 		{
-			user.setUserValue("TBLORDER/schiff/tooltips", showtooltip ? "1" : "0");
+			user.setUserValue(WellKnownUserValue.TBLORDER_SCHIFF_TOOLTIPS, showtooltip ? 1 : 0);
 
 			changemsg += "Anzeige der Tooltips " + (showtooltip ? "" : "de") + "aktiviert<br />\n";
 		}
 
-		if (wrapfactor != Integer.parseInt(user.getUserValue("TBLORDER/schiff/wrapfactor")))
+		if (wrapfactor != user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFF_WRAPFACTOR))
 		{
-			user.setUserValue("TBLORDER/schiff/wrapfactor", Integer.toString(wrapfactor));
+			user.setUserValue(WellKnownUserValue.TBLORDER_SCHIFF_WRAPFACTOR, wrapfactor);
 
 			changemsg += "Schiffsgruppierungen " + (wrapfactor != 0 ? "aktiviert" : "deaktiviert") + "<br />\n";
 		}
@@ -538,8 +539,8 @@ public class OptionsController extends Controller
 
 		t.setVar("options.message", redirect != null ? redirect.getMessage() : null);
 		t.setVar("options.general", 1,
-				"user.wrapfactor", user.getUserValue("TBLORDER/schiff/wrapfactor"),
-				"user.tooltip", user.getUserValue("TBLORDER/schiff/tooltips"),
+				"user.wrapfactor", user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFF_WRAPFACTOR),
+				"user.tooltip", user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFF_TOOLTIPS),
 				"user.noob", user.isNoob(),
 				"vacation.maxtime", Common.ticks2DaysInDays(user.maxVacTicks()));
 

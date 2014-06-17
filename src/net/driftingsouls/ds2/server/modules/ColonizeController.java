@@ -26,6 +26,7 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
@@ -119,9 +120,9 @@ public class ColonizeController extends Controller
 		}
 		basecount += base.getMaxTiles();
 
-		if (basecount > Integer.parseInt(user.getUserValue("GAMEPLAY/bases/maxtiles")))
+		if (basecount > user.getUserValue(WellKnownUserValue.GAMEPLAY_BASES_MAXTILES))
 		{
-			t.setVar("colonize.message", "<span style=\"color:#ff0000; font-weight:bold\">Kolonisierung unzul&auml;ssig, da dies die Gesamtzahl an zul&auml;ssigen Oberfl&auml;chenfeldern " + user.getUserValue("GAMEPLAY/bases/maxtiles") + " &uuml;bersteigen w&uuml;rde.</span>");
+			t.setVar("colonize.message", "<span style=\"color:#ff0000; font-weight:bold\">Kolonisierung unzul&auml;ssig, da dies die Gesamtzahl an zul&auml;ssigen Oberfl&auml;chenfeldern " + user.getUserValue(WellKnownUserValue.GAMEPLAY_BASES_MAXTILES) + " &uuml;bersteigen w&uuml;rde.</span>");
 
 			return t;
 		}

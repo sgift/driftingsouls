@@ -24,6 +24,7 @@ import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
+import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
@@ -88,7 +89,7 @@ public class ForschungsTick extends TickController {
 				}
 
 				final User sourceUser = (User)db.get(User.class, -1);
-                if(Boolean.parseBoolean(base.getOwner().getUserValue("GAMEPLAY/user/research_pm"))) {
+                if(base.getOwner().getUserValue(WellKnownUserValue.GAMEPLAY_USER_RESEARCH_PM)) {
                     PM.send(sourceUser, base.getOwner().getId(), "Forschung abgeschlossen", msg);
                 }
 
