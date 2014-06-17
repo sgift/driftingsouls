@@ -81,6 +81,8 @@ public class AngriffController extends Controller
 
 		menuActions.put("attack", KSMenuAttackAction.class);
 		menuActions.put("attack_select", KSMenuAttackMuniSelectAction.class);
+        menuActions.put("groupattack", KSMenuGroupAttackAction.class);
+        menuActions.put("groupattack_select", KSMenuGroupAttackMuniSelectAction.class);
 		menuActions.put("batterien", KSMenuBatteriesAction.class);
 		menuActions.put("default", KSMenuDefaultAction.class);
 		menuActions.put("flucht", KSMenuFluchtAction.class);
@@ -99,6 +101,7 @@ public class AngriffController extends Controller
         actions.put("undock_single", KSUndockAction.class);
         actions.put("undock_class", KSUndockClassAction.class);
         actions.put("undock_all", KSUndockAllAction.class);
+        actions.put("groupattack2", KSGroupAttackAction.class);
 		actions.put("attack2", KSAttackAction.class);
 		actions.put("kapern", KSKapernAction.class);
 		actions.put("secondrow", KSSecondRowAction.class);
@@ -373,7 +376,7 @@ public class AngriffController extends Controller
 					t.setVar("global.showmenu", 1);
 		
 					// Ist das gegnerische Schiff zerstoert? Falls ja, dass Angriffsmenue deaktivieren
-					if( ( action.toString().equals("attack") ) &&
+					if( ( action.toString().equals("attack") || action.toString().equals("groupattack") ) &&
 						((enemyShip.getAction() & Battle.BS_DESTROYED) != 0 || (ownShip.getAction() & Battle.BS_FLUCHT) != 0 || ownShip.getShip().isLanded()) ) {
 						action.setLength(0);
 					}
