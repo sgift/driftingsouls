@@ -196,20 +196,26 @@ var InfoBox = {
 				var $commits = $('#infobox').find('#commits');
 				$commits.find('tbody').empty();
 				$.each(data.values, function(idx,val) {
+					if( val.parents.length > 1 ) {
+						// merges ignorieren
+						return;
+					}
+
 					var msg = val.message;
-					if( msg.indexOf('Merge pull request') === 0 ) {
-						msg = msg.substring(0, msg.indexOf('\n'));
-					}
 					var symbol = '';
-					var cls = ''
-					if( msg.indexOf('[bug]') === 0 ) {
-						cls = 'bug';
-						symbol = '<span class="symbol">&#8226;</span>';
+					var cls = '';
+					if( msg.indexOf('[') === 0 && msg.indexOf(']') !== -1 ) {
+						var type = msg.substring(1, msg.indexOf(']'))
+						if( type.indexOf('feature') !== -1 ) {
+							cls = 'feature';
+							symbol = '<span class="symbol">+</span>';
+						}
+						else if( type.indexOf('bug') !== -1 ) {
+							cls = 'bug';
+							symbol = '<span class="symbol">&#8226;</span>';
+						}
 					}
-					else if( msg.indexOf('[feature]') === 0 ) {
-						cls = 'feature';
-						symbol = '<span class="symbol">+</span>';
-					}
+
 					$commits.find('tbody').append('<tr class="'+cls+'"><td>'+symbol+'</td><td>'+val.displayId+'</td><td>'+msg+'</td><td>'+val.author.displayName+'</td></tr>')
 				});
 			});
