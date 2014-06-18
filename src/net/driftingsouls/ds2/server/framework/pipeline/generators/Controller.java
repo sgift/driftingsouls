@@ -43,6 +43,7 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Basisklasse fuer alle DS-spezifischen Generatoren.
@@ -87,18 +88,15 @@ public abstract class Controller implements PermissionResolver
 
 	/**
 	 * Ruft die angegebene Methode des angegebenen Objekts als verschachtelte Actionmethode (SubAction) auf.
-	 * Im Gegensatz zu normalen Actions kann hier ein fester Satz zusaetzlicher Argumente uebergeben werden,
-	 * der <b>genau</b> in dieser Reihenfolge auf die ersten Argumente der Actionmethode angewandt wird.
-	 * Alle nachfolgenden Argumente werden ueber die URL-Parameter gefuellt.
 	 *
 	 * @param subparam Der Prefix fuer die URL-Parameter zwecks Schaffung eines eigenen Namensraums. Falls <code>null</code> oder Leerstring wird kein Prefix verwendet
 	 * @param objekt Das Objekt dessen Methode aufgerufen werden soll
 	 * @param methode Der Name der Actionmethode
-	 * @param args Die ersten Argumente der Methode
+	 * @param args Die zusaetzlich zu uebergebenden Argumente (haben vorrang vor URL-Parametern)
 	 * @return Das Ergebnis der Methode
 	 * @throws ReflectiveOperationException Falls die Reflection-Operation schief laeuft
 	 */
-	protected final Object rufeAlsSubActionAuf(String subparam, Object objekt, String methode, Object... args) throws ReflectiveOperationException
+	protected final Object rufeAlsSubActionAuf(String subparam, Object objekt, String methode, Map<String,Object> args) throws ReflectiveOperationException
 	{
 		if (subparam != null)
 		{
@@ -115,12 +113,6 @@ public abstract class Controller implements PermissionResolver
 			Object[] params = new Object[annotations.length];
 			for (int i = 0; i < params.length; i++)
 			{
-				if (i < args.length)
-				{
-					params[i] = args[i];
-					continue;
-				}
-
 				UrlParam paramAnnotation = null;
 				for (Annotation annotation : annotations[i])
 				{
@@ -131,8 +123,16 @@ public abstract class Controller implements PermissionResolver
 					}
 				}
 
-				Type type = parameterTypes[i];
-				params[i] = this.parameterReader.readParameterAsType(paramAnnotation == null ? parameterNames[i].getName() : paramAnnotation.name(), type);
+				String paramName = paramAnnotation == null ? parameterNames[i].getName() : paramAnnotation.name();
+				if( args.containsKey(paramName) )
+				{
+					params[i] = args.get(paramName);
+				}
+				else
+				{
+					Type type = parameterTypes[i];
+					params[i] = this.parameterReader.readParameterAsType(paramName, type);
+				}
 			}
 
 			return method.invoke(objekt, params);

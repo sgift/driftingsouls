@@ -23,6 +23,7 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.bases.Werft;
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
@@ -516,32 +517,9 @@ public class SensorsDefault implements SchiffPlugin {
 				}
 
 				// Anfunken
-				if (aship.getOnCommunicate() != null && !aship.getOnCommunicate().isEmpty())
+				if (aship.isTradepost() && aship.getOwner().getRace() == Faction.GTU_RASSE && aship.isTradepostVisible(user, user.getRelations()))
 				{
-					boolean found;
-					if (!aship.getOnCommunicate().contains("*:"))
-					{
-						found = false;
-						String[] comlist = StringUtils.split(aship.getOnCommunicate(), ';');
-						for (String aComlist : comlist)
-						{
-							String[] comentry = aComlist.split(":");
-							if (Integer.parseInt(comentry[0]) == user.getId())
-							{
-								found = true;
-								break;
-							}
-						}
-					}
-					else
-					{
-						found = true;
-					}
-
-					if (found)
-					{
-						t.setVar("sships.action.communicate", 1);
-					}
+					t.setVar("sships.action.communicate", aship.getId());
 				}
 
 				// Springen (Knossosportal)

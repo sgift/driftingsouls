@@ -1,0 +1,24 @@
+<div class="gfxbox" style="width:95%">
+	<table>
+		<tr>
+			<td valign="top">
+				<img src="{schiff.handelsposten.headimg}" alt="" />
+			</td>
+			<td valign="top">
+				{schiff.handelsposten.text}
+				<br /><br />
+				<!-- BEGIN schiff.handelsposten.option.listitem -->
+					{if schiff.handelsposten.option.url}
+						<a class="forschinfo" href="{schiff.handelsposten.option.url}">{schiff.handelsposten.option.text}</a><br />
+					{else}
+						{if schiff.handelsposten.option.dialog}
+							<a class="forschinfo" href="./ds?module=schiff&amp;ship={ship.id}&amp;communicate={global.communicate}&amp;{global.pluginid}_ops[option]={schiff.handelsposten.option.id}">{schiff.handelsposten.option.text}</a><br />
+						{else}
+							<a class="forschinfo" href="./ds?module=schiff&amp;ship={ship.id}&amp;communicate={global.communicate}&amp;action=plugin&amp;plugin={global.pluginid}&amp;{global.pluginid}_ops[option]={schiff.handelsposten.option.id}">{schiff.handelsposten.option.text}</a><br />
+						{/endif}
+					{/endif}
+				<!-- END schiff.handelsposten.option.listitem -->
+			</td>
+		</tr>
+	</table>
+</div>

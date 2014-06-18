@@ -139,11 +139,16 @@ public class SchiffController extends Controller
 		}
 	}
 
-	private Map<String, SchiffPlugin> ermittlePluginsFuer(ShipTypeData shiptype)
+	private Map<String, SchiffPlugin> ermittlePluginsFuer(ShipTypeData shiptype, Ship communicate)
 	{
 		Map<String, SchiffPlugin> pluginMapper = new LinkedHashMap<>();
 		pluginMapper.put("navigation", getPluginByName("NavigationDefault"));
 		pluginMapper.put("cargo", getPluginByName("CargoDefault"));
+
+		if( communicate != null )
+		{
+			pluginMapper.put("handelsposten", getPluginByName("Handelsposten"));
+		}
 
 		if (shiptype.getWerft() != 0)
 		{
@@ -379,7 +384,7 @@ public class SchiffController extends Controller
 	 * @param plugin Der Name des Plugins
 	 */
 	@Action(ActionType.DEFAULT)
-	public RedirectViewResult pluginAction(Ship ship, String plugin) throws ReflectiveOperationException
+	public Object pluginAction(Ship ship, String plugin, Ship communicate) throws ReflectiveOperationException
 	{
 		validiereSchiff(ship);
 
@@ -391,13 +396,24 @@ public class SchiffController extends Controller
 		caller.shiptype = shiptype;
 		caller.offizier = ship.getOffizier();
 
-		Map<String, SchiffPlugin> pluginMapper = ermittlePluginsFuer(shiptype);
+		Map<String,Object> parameters = new HashMap<>();
+		parameters.put("caller", caller);
+		parameters.put("communicate", communicate);
+
+		Map<String, SchiffPlugin> pluginMapper = ermittlePluginsFuer(shiptype, communicate);
 		if (!pluginMapper.containsKey(plugin))
 		{
 			return new RedirectViewResult("default");
 		}
 
-		String ergebnis = (String)rufeAlsSubActionAuf(plugin+"_ops", pluginMapper.get(plugin), "action", caller);
+		String ergebnis = (String)rufeAlsSubActionAuf(plugin+"_ops", pluginMapper.get(plugin), "action", parameters);
+
+		if( ship.isDestroyed() )
+		{
+			TemplateEngine t = templateViewResultFactory.createFor(this);
+			t.setVar("ship.message", ergebnis);
+			return t;
+		}
 
 		return new RedirectViewResult("default").withMessage(ergebnis);
 	}
@@ -569,7 +585,7 @@ public class SchiffController extends Controller
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 
-		String message = null;
+		String message;
 		// Austreten
 		if (join == 0)
 		{
@@ -786,7 +802,7 @@ public class SchiffController extends Controller
 	 *
 	 */
 	@Action(ActionType.DEFAULT)
-	public TemplateEngine defaultAction(Ship ship, RedirectViewResult redirect) throws ReflectiveOperationException
+	public TemplateEngine defaultAction(Ship ship, Ship communicate, RedirectViewResult redirect) throws ReflectiveOperationException
 	{
 		validiereSchiff(ship);
 
@@ -1172,13 +1188,17 @@ public class SchiffController extends Controller
 		caller.offizier = offizier;
 		caller.t = t;
 
-		Map<String, SchiffPlugin> pluginMapper = ermittlePluginsFuer(shiptype);
+		Map<String,Object> parameters = new HashMap<>();
+		parameters.put("caller", caller);
+		parameters.put("communicate", communicate);
+
+		Map<String, SchiffPlugin> pluginMapper = ermittlePluginsFuer(shiptype, communicate);
 		if (pluginMapper.containsKey("navigation"))
 		{
 			SchiffPlugin plugin = pluginMapper.get("navigation");
 			caller.pluginId = "navigation";
 			caller.target = "plugin.navigation";
-			rufeAlsSubActionAuf(caller.pluginId+"_ops", plugin, "output", caller);
+			rufeAlsSubActionAuf(caller.pluginId+"_ops", plugin, "output", parameters);
 
 			pluginMapper.remove("navigation");
 		}
@@ -1188,7 +1208,7 @@ public class SchiffController extends Controller
 			SchiffPlugin plugin = pluginMapper.get("cargo");
 			caller.pluginId = "cargo";
 			caller.target = "plugin.cargo";
-			rufeAlsSubActionAuf(caller.pluginId+"_ops", plugin, "output", caller);
+			rufeAlsSubActionAuf(caller.pluginId+"_ops", plugin, "output", parameters);
 
 			pluginMapper.remove("cargo");
 		}
@@ -1198,7 +1218,7 @@ public class SchiffController extends Controller
 			SchiffPlugin plugin = pluginMapper.get("units");
 			caller.pluginId = "units";
 			caller.target = "plugin.units";
-			rufeAlsSubActionAuf(caller.pluginId+"_ops", plugin, "output", caller);
+			rufeAlsSubActionAuf(caller.pluginId+"_ops", plugin, "output", parameters);
 
 			pluginMapper.remove("units");
 		}
@@ -1224,7 +1244,7 @@ public class SchiffController extends Controller
 			caller.pluginId = pluginName;
 
 			//Aufruf der entsprechenden Funktion
-			rufeAlsSubActionAuf(caller.pluginId+"_ops", plugin, "output", caller);
+			rufeAlsSubActionAuf(caller.pluginId+"_ops", plugin, "output", parameters);
 
 			t.parse("plugins.list", "plugins.listitem", true);
 		}
