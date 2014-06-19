@@ -352,9 +352,6 @@ public class QuestFunctions {
 						case "scriptexedata":
 							val = ship.getScriptExeData();
 							break;
-						case "oncommunicate":
-							val = ship.getOnCommunicate();
-							break;
 					}
 					break;
 				case "tick":
@@ -866,21 +863,6 @@ public class QuestFunctions {
 				// On-Communicate
 				switch (event)
 				{
-					case "oncommunicate":
-						Ship ship = (Ship) db.get(Ship.class, Value.Int(objid));
-						if (ship != null && ship.getId() > 0)
-						{
-							String comm = ship.getOnCommunicate();
-							if (comm.length() > 0)
-							{
-								comm += ";";
-							}
-							comm += userid + ":" + scriptid + ":" + questid;
-							ship.setOnCommunicate(comm);
-
-							removescript.append("!REMOVEHANDLER ").append(event).append(" ").append(objid).append(" ").append(userid).append(" ").append(scriptid).append(" ").append(questid).append("\n");
-						}
-						break;
 					// On-Enter
 					case "onenter":
 						Location loc = Location.fromString(objid);
@@ -984,7 +966,7 @@ public class QuestFunctions {
 			String questid;
 			int userid;
 
-			if( event.equals("oncommunicate") || event.equals("onenter") ) {
+			if( event.equals("onenter") ) {
 				// Object-ID
 				String objid = command[2];
 				if( objid.charAt(0) == '#' ) {
@@ -1014,62 +996,34 @@ public class QuestFunctions {
 				questid = command[5];
 				scriptparser.log("questid: "+questid+"\n");
 
-				if( event.equals("oncommunicate") ) {
-					Ship ship = (Ship)db.get(Ship.class, Value.Int(objid));
 
-					if( ship != null && ship.getId() > 0  ) {
-						List<String> newcom = new ArrayList<>();
+				Location loc = Location.fromString(objid);
 
-						String[] com = StringUtils.split(ship.getOnCommunicate(), ';');
-						for (String aCom : com)
+				Sector sector = (Sector)db.get(Sector.class, new MutableLocation(loc));
+				if( sector != null ) {
+					List<String> newenter = new ArrayList<>();
+
+					String[] enter = StringUtils.split(sector.getOnEnter(), ';');
+					for (String anEnter : enter)
+					{
+						String[] tmp = StringUtils.split(anEnter, ':');
+						int usr = Value.Int(tmp[0]);
+						int script = Value.Int(tmp[1]);
+						String quest = tmp[2];
+						if ((usr != userid) || (script != scriptid) || !quest.equals(questid))
 						{
-							String[] tmp = StringUtils.split(aCom, ':');
-							int usr = Value.Int(tmp[0]);
-							int script = Value.Int(tmp[1]);
-							String quest = tmp[2];
-							if ((usr != userid) || (script != scriptid) || !quest.equals(questid))
-							{
-								newcom.add(aCom);
-							}
-						}
-
-						if( newcom.size() > 0 ) {
-							ship.setOnCommunicate(Common.implode(";", newcom));
-						}
-						else {
-							ship.setOnCommunicate(null);
+							newenter.add(anEnter);
 						}
 					}
-				}
-				else {
-					Location loc = Location.fromString(objid);
 
-					Sector sector = (Sector)db.get(Sector.class, new MutableLocation(loc));
-					if( sector != null ) {
-						List<String> newenter = new ArrayList<>();
-
-						String[] enter = StringUtils.split(sector.getOnEnter(), ';');
-						for (String anEnter : enter)
-						{
-							String[] tmp = StringUtils.split(anEnter, ':');
-							int usr = Value.Int(tmp[0]);
-							int script = Value.Int(tmp[1]);
-							String quest = tmp[2];
-							if ((usr != userid) || (script != scriptid) || !quest.equals(questid))
-							{
-								newenter.add(anEnter);
-							}
-						}
-
-						if( newenter.size() > 0 ) {
-							sector.setOnEnter(Common.implode(";", newenter));
-						}
-						else if( sector.getObjects() != 0 ) {
-							sector.setOnEnter(null);
-						}
-						else {
-							db.delete(sector);
-						}
+					if( newenter.size() > 0 ) {
+						sector.setOnEnter(Common.implode(";", newenter));
+					}
+					else if( sector.getObjects() != 0 ) {
+						sector.setOnEnter(null);
+					}
+					else {
+						db.delete(sector);
 					}
 				}
 			}

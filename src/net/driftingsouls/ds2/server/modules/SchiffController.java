@@ -42,7 +42,6 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.modules.schiffplugins.Parameters;
 import net.driftingsouls.ds2.server.modules.schiffplugins.SchiffPlugin;
-import net.driftingsouls.ds2.server.scripting.NullLogger;
 import net.driftingsouls.ds2.server.scripting.Quests;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
@@ -54,8 +53,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.script.Bindings;
-import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -695,49 +692,6 @@ public class SchiffController extends Controller
 	}
 
 	/**
-	 * Behandelt ein OnCommunicate-Ereigniss.
-	 *  @param ship Die ID des anzuzeigenden Schiffes
-	 * @param communicate Die ID des Schiffes, mit dem kommuniziert werden soll
-	 * @param execparameter Weitere Ausfuehrungsdaten
-	 */
-	@Action(ActionType.DEFAULT)
-	public RedirectViewResult communicateAction(Ship ship, int communicate, String execparameter)
-	{
-		validiereSchiff(ship);
-
-		org.hibernate.Session db = getDB();
-		User user = (User) getUser();
-
-		ScriptEngine scriptparser = getContext().get(ContextCommon.class).getScriptParser("DSQuestScript");
-		final Bindings engineBindings = scriptparser.getContext().getBindings(ScriptContext.ENGINE_SCOPE);
-
-		engineBindings.put("_SHIP", ship);
-		if (!user.hasFlag(UserFlag.SCRIPT_DEBUGGING))
-		{
-			scriptparser.getContext().setErrorWriter(new NullLogger());
-		}
-
-		Quests.currentEventURLBase.set("./ds?module=schiff&ship=" + ship.getId());
-		Quests.currentEventURL.set("&action=communicate&communicate=" + communicate);
-
-		engineBindings.put("TARGETSHIP", Integer.toString(communicate));
-
-		if (execparameter.equals(""))
-		{
-			execparameter = "0";
-		}
-
-		Ship targetship = (Ship) db.get(Ship.class, communicate);
-		if ((targetship == null) || (targetship.getId() < 0) || !targetship.getLocation().sameSector(0, ship.getLocation(), 0))
-		{
-			return new RedirectViewResult("default").withMessage("<span style=\"color:red\">Sie können nur mit Schiffen im selben Sektor kommunizieren</span><br />");
-		}
-		Quests.executeEvent(scriptparser, targetship.getOnCommunicate(), user, execparameter, false);
-
-		return new RedirectViewResult("default");
-	}
-
-	/**
 	 * Transferiert das Schiff ins System 99.
 	 * @param ship Die ID des anzuzeigenden Schiffes
 	 *
@@ -952,10 +906,7 @@ public class SchiffController extends Controller
 		// Tooltip: Schiffsstatusfeld
 		if (hasPermission(WellKnownPermission.SCHIFF_STATUSFELD))
 		{
-			StringBuilder tooltiptext = new StringBuilder(100);
-			tooltiptext.append("<span style='text-decoration:underline'>Schiffsstatus:</span><br />").append(ship.getStatus().trim().replace(" ", "<br />"));
-
-			t.setVar("tooltip.admin", tooltiptext.toString());
+			t.setVar("tooltip.admin", "<span style='text-decoration:underline'>Schiffsstatus:</span><br />" + ship.getStatus().trim().replace(" ", "<br />"));
 		}
 
 		if (user.hasFlag(UserFlag.NPC_ISLAND))

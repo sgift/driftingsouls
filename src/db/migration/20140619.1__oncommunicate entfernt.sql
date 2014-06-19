@@ -1,0 +1,1 @@
+ALTER TABLE ships DROP COLUMN oncommunicate;

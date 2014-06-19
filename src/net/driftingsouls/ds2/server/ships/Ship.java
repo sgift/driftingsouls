@@ -219,8 +219,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 	@PrimaryKeyJoinColumn(name="id", referencedColumnName="id")
 	private ShipHistory history;
 
-	@Lob
-	private String oncommunicate;
 	private int ablativeArmor;
 
 	@OneToMany(
@@ -784,22 +782,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	public void setJumpTarget(String jumptarget) {
 		this.jumptarget = jumptarget;
-	}
-
-	/**
-	 * Gibt die Daten des OnCommunicate-Ereignisses zurueck.
-	 * @return Die Ausfuehrungsdaten
-	 */
-	public String getOnCommunicate() {
-		return oncommunicate;
-	}
-
-	/**
-	 * Setzt die Ausfuehrungsdaten des OnCommunicate-Ereignisses.
-	 * @param oncommunicate Die neuen Ausfuehrungsdaten
-	 */
-	public void setOnCommunicate(String oncommunicate) {
-		this.oncommunicate = oncommunicate;
 	}
 
 	/**
