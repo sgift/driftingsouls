@@ -35,8 +35,6 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
-import net.driftingsouls.ds2.server.scripting.NullLogger;
-import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -57,10 +55,6 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.imageio.ImageIO;
-import javax.script.Bindings;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-import javax.script.ScriptException;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
@@ -1107,7 +1101,7 @@ public class AdminCommands {
 				PM.send(sourceUser, battle.getCommander(1).getId(), "Schlacht beendet", "Die Schlacht bei "+battle.getLocation().displayCoordinates(false)+" wurde durch die Administratoren beendet");
 
 				battle.load(battle.getCommander(0), null, null, 0);
-				battle.endBattle(0, 0, false);
+				battle.endBattle(0, 0);
 			}
 			else {
 				throw new CommandFailedException("Unknown battle sub-command >"+cmd+"<");

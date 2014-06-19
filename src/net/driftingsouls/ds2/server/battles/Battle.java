@@ -26,7 +26,6 @@ import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -34,8 +33,6 @@ import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.scripting.NullLogger;
-import net.driftingsouls.ds2.server.scripting.Quests;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipLost;
@@ -69,7 +66,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
-import javax.script.ScriptEngine;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -191,8 +187,6 @@ public class Battle implements Locatable
 	private long lastturn;
 	private int flags;
 	@Lob
-	private String onend;
-	@Lob
 	private String visibility;
 
 	@Version
@@ -261,24 +255,6 @@ public class Battle implements Locatable
 	 */
 	public int getId() {
 		return this.id;
-	}
-
-	/**
-	 * Gibt den Inhalt des OnEnd-Events zurueck.
-	 * @return Der String
-	 */
-	public String getOnEnd()
-	{
-		return onend;
-	}
-
-	/**
-	 * Setzt den Inhalt des OnEnd-Events.
-	 * @param onend Der String
-	 */
-	public void setOnEnd(String onend)
-	{
-		this.onend = onend;
 	}
 
 	/**
@@ -1694,7 +1670,7 @@ public class Battle implements Locatable
 			PM.send(this.getCommanders()[this.ownSide], this.getCommanders()[this.enemySide].getId(), "Schlacht unentschieden", "Die Schlacht bei "+this.getLocation().displayCoordinates(false)+" gegen "+this.getCommanders()[this.ownSide].getName()+" wurde mit einem Unentschieden beendet!");
 
 			// Schlacht beenden - unendschieden
-			this.endBattle(0,0, true);
+			this.endBattle(0,0);
 
 			this.ownShips.clear();
 			this.enemyShips.clear();
@@ -1719,11 +1695,11 @@ public class Battle implements Locatable
 
 			// Schlacht beenden - eine siegreiche Schlacht fuer den aktive Seite verbuchen sowie eine verlorene fuer den Gegner
 			if( this.ownSide == 0 ) {
-				this.endBattle(-1,1, true);
+				this.endBattle(-1,1);
 			}
 			else
             {
-				this.endBattle(1,-1, true);
+				this.endBattle(1,-1);
 			}
 
 			this.ownShips.clear();
@@ -1750,11 +1726,11 @@ public class Battle implements Locatable
 
 			// Schlacht beenden - eine siegreiche Schlacht fuer den aktive Seite verbuchen sowie eine verlorene fuer den Gegner
 			if( this.ownSide == 0 ) {
-				this.endBattle(1,-1, true);
+				this.endBattle(1,-1);
 			}
 			else
             {
-				this.endBattle(-1,1, true);
+				this.endBattle(-1,1);
 			}
 
 			this.ownShips.clear();
@@ -1844,9 +1820,8 @@ public class Battle implements Locatable
 	 * Beendet die Schlacht.
 	 * @param side1points Die Punkte, die die erste Seite bekommen soll (Positiv meint Schlacht gewonnen; Negativ meint Schlacht verloren)
 	 * @param side2points Die Punkte, die die zweite Seite bekommen soll (Positiv meint Schlacht gewonnen; Negativ meint Schlacht verloren)
-	 * @param executeScripts Sollen ggf vorhandene Scripte, welche auf das Ende der Schlacht "lauschen" ausgefuehrt werden (<code>true</code>)?
 	 */
-	public void endBattle( int side1points, int side2points, boolean executeScripts ) {
+	public void endBattle(int side1points, int side2points) {
 		this.writeLog();
 
 		Context context = ContextMap.getContext();
@@ -1858,29 +1833,6 @@ public class Battle implements Locatable
 		}
 
 		deleted = true;
-
-		if( executeScripts ) {
-			String onendhandler = this.onend;
-			if( (onendhandler != null) && (onendhandler.length() > 0) ) {
-				ScriptEngine scriptparser = context.get(ContextCommon.class).getScriptParser("DSQuestScript");
-				if( context.getActiveUser() != null ) {
-					User activeuser = (User)context.getActiveUser();
-					if( !activeuser.hasFlag(UserFlag.SCRIPT_DEBUGGING) ) {
-						scriptparser.getContext().setErrorWriter(new NullLogger());
-					}
-				}
-				else
-                {
-					scriptparser.getContext().setErrorWriter(new NullLogger());
-				}
-
-				User questUser = (User)context.getActiveUser();
-				if( questUser == null ) {
-					questUser = (User)db.get(User.class, 0);
-				}
-				Quests.executeEvent( scriptparser, onendhandler, questUser, "", false );
-			}
-		}
 
 		db.createQuery("delete from BattleShip where battle=:battle")
 			.setEntity("battle", this)
@@ -1941,25 +1893,6 @@ public class Battle implements Locatable
         {
 			visibility = Integer.toString(userid);
 		}
-	}
-
-	/**
-	 * Prueft, ob die Schlacht fuer einen Benutzer sichtbar ist.
-	 * @param user Der Benutzer
-	 * @return <code>true</code>, falls sie sichtbar ist
-	 */
-	public boolean isVisibleToUser(User user) {
-		if( isCommander(user) ) {
-			return true;
-		}
-
-		if( (this.visibility != null) && (this.visibility.length() > 0) ) {
-			Integer[] visibility = Common.explodeToInteger(",", this.visibility);
-			if( !Common.inArray(user.getId(),visibility) ) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	/**

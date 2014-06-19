@@ -173,7 +173,7 @@ public class EditSystem implements EntityEditor<StarSystem>
 		Battle battle = (Battle)db.get(Battle.class, battleid);
 
 		battle.load(battle.getCommander(0), null, null, 0);
-		battle.endBattle(0, 0, false);
+		battle.endBattle(0, 0);
 	}
 
 	private void destroyJump(StarSystem oldsystem, StarSystem system, Serializable jumpid)

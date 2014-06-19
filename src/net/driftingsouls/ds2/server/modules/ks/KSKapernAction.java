@@ -376,7 +376,7 @@ public class KSKapernAction extends BasicKSAction {
 			}
 
 			if( enemyShips.size() < 1 ) {
-				battle.endBattle(1, 0, true);
+				battle.endBattle(1, 0);
 
 				User commander = battle.getCommander(battle.getOwnSide());
 

@@ -78,7 +78,7 @@ public class KSEndBattleCivilAction extends BasicKSAction {
 
 		// Schlacht beenden -> +1 Siege fuer mich; +1 Niederlagen fuer den Gegner
 		battle.endTurn(true);
-		battle.endBattle( 1, -1, true );
+		battle.endBattle( 1, -1);
 
 		return Result.HALT;
 	}

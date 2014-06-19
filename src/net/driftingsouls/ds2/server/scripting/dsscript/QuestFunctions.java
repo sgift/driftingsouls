@@ -829,48 +829,7 @@ public class QuestFunctions {
 			String questid = "";
 			int userid = 0;
 
-			if( event.equals("oncommunicate") || event.equals("onendbattle") || event.equals("onenter") ) {
-				// Object-ID
-				String objid = command[2];
-				if( objid.charAt(0) == '#' ) {
-					objid = scriptparser.getRegister(objid);
-				}
-				scriptparser.log("objid: "+objid+"\n");
-
-				// User-ID
-				if( command[3].charAt(0) == '#' ) {
-					command[3] = scriptparser.getRegister(command[3]);
-				}
-				userid = Value.Int(command[3]);
-
-				scriptparser.log("userid: "+userid+"\n");
-
-				// Script-ID
-				if( command[4].charAt(0) == '#' ) {
-					command[4] = scriptparser.getRegister(command[4]);
-				}
-				int scriptid = Value.Int( command[4] );
-				scriptparser.log("scriptid: "+scriptid+"\n");
-
-				// Quest-ID
-				if( command[5].charAt(0) == '#' ) {
-					command[5] = scriptparser.getRegister(command[5]);
-				}
-				questid = command[5];
-				scriptparser.log("questid: "+questid+"\n");
-
-				// On-Communicate
-				switch (event)
-				{
-					// Battle-OnEnd
-					default:
-						Battle battle = (Battle) db.get(Battle.class, Value.Int("objid"));
-						battle.setOnEnd("userid+\":\"+scriptid+\":\"+questid");
-						break;
-				}
-			}
-			// OnTick
-			else if( event.equals("ontick") ) {
+			if( event.equals("ontick") ) {
 				// User-ID
 				if( command[2].charAt(0) == '#' ) {
 					command[2]= scriptparser.getRegister(command[2]);
@@ -1948,7 +1907,7 @@ public class QuestFunctions {
 
 			Battle battle = (Battle)db.get(Battle.class, battleid);
 			battle.load( battle.getCommander(0), null, null, 1 );
-			battle.endBattle( side1points, side2points, executescripts != 0 );
+			battle.endBattle( side1points, side2points);
 
 			return CONTINUE;
 		}

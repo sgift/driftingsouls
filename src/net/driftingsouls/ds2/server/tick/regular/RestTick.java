@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.tick.regular;
 
 import net.driftingsouls.ds2.server.ContextCommon;
-import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -54,7 +53,6 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -220,7 +218,7 @@ public class RestTick extends TickController {
 					{
 						this.log("\t\tUser" + user.getId() + ": Die Schlacht " + battle.getId() + " wurde beendet");
 
-						battle.endBattle(0, 0, true);
+						battle.endBattle(0, 0);
 						PM.send(battle.getCommander(battle.getOwnSide()), battle.getCommander(battle.getEnemySide()).getId(), "Schlacht beendet", "Die Schlacht bei " + battle.getLocation().displayCoordinates(false) + " wurde automatisch beim wechseln in den Vacation-Modus beendet, da kein Ersatzkommandant ermittelt werden konnte!");
 					}
 				}
