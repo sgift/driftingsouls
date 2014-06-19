@@ -61,7 +61,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -186,8 +185,6 @@ public class Battle implements Locatable
 	private long lastaction;
 	private long lastturn;
 	private int flags;
-	@Lob
-	private String visibility;
 
 	@Version
 	private int version;
@@ -1044,16 +1041,6 @@ public class Battle implements Locatable
 			return false;
 		}
 
-		if( this.visibility != null )
-		{
-			Integer[] visibility = Common.explodeToInteger(",",this.visibility);
-			if( !Common.inArray(id,visibility) )
-			{
-				context.addError("Sie k&ouml;nnen dieser Schlacht nicht beitreten!");
-				return false;
-			}
-		}
-
 		User userobj = (User)context.getDB().get(User.class, id);
 		if( userobj.isNoob() )
 		{
@@ -1878,22 +1865,6 @@ public class Battle implements Locatable
 		this.ownShips.clear();
 
 		db.delete(this);
-	}
-
-	/**
-	 * Fuegt einen Benutzer der Sichtbarkeit der Schlacht hinzu.
-	 * Der Benutzer kann somit die Schlacht fortan sehen.
-	 * @param userid Die ID des hinzuzufuegenden Benutzers
-	 */
-	@Deprecated
-	public void addToVisibility( int userid ) {
-		if( visibility.length() > 0 ) {
-			visibility += ","+userid;
-		}
-		else
-        {
-			visibility = Integer.toString(userid);
-		}
 	}
 
 	/**
