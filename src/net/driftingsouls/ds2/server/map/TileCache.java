@@ -198,6 +198,10 @@ public class TileCache
 	 */
 	public File getTile(int tileX, int tileY) throws IOException
 	{
+		if( this.system == null )
+		{
+			throw new IOException("Es kann keine Kachel für ein unbekanntes Sternensystem erzeugt werden");
+		}
 		final File cacheDir = new File(getTilePath());
 		if( !cacheDir.isDirectory() ) {
 			cacheDir.mkdir();
@@ -221,6 +225,11 @@ public class TileCache
 	 */
 	public void resetCache()
 	{
+		if( this.system == null )
+		{
+			return;
+		}
+
 		final File cacheDir = new File(getTilePath());
 		if( !cacheDir.isDirectory() ) {
 			LOG.error("Konnte TileCache-Verzeichnis nicht finden: "+cacheDir.getAbsolutePath());
