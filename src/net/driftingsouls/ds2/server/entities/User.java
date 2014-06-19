@@ -1685,30 +1685,6 @@ public class User extends BasicUser {
 	}
 
 	/**
-	 * Liefert den Wert eines User-Values zurueck. Sofern mehrere Eintraege zu diesem
-	 * User-Value existieren wird der aelteste zurueckgegeben.
-	 * User-Values sind die Eintraege, welche sich in der Tabelle user_values befinden.
-	 *
-	 * @param valuename Name des User-Values
-	 * @return Wert des User-Values
-	 * @deprecated Bitte die typisierte Variante benutzen
-	 */
-	@Deprecated
-	public String getUserValue( String valuename ) {
-		UserValue value = (UserValue)context.getDB()
-				.createQuery("from UserValue where user in (:id,0) and name=:name order by abs(user) desc,id")
-				.setInteger("id", this.getId())
-				.setString("name", valuename)
-				.setMaxResults(1)
-				.uniqueResult();
-
-		if( value == null ) {
-			return "";
-		}
-		return value.getValue();
-	}
-
-	/**
 	 * Liefert den Wert einer Benutzereinstellung zurueck. Sofern mehrere Eintraege zu diesem
 	 * User-Value existieren wird der aelteste zurueckgegeben.
 	 *
@@ -1751,7 +1727,7 @@ public class User extends BasicUser {
 	/**
 	 * Setzt ein User-Value auf einen bestimmten Wert. Sollten mehrere Eintraege
 	 * existieren wird nur der aelteste aktualisiert.
-	 * @see #getUserValue(String)
+	 * @see #getUserValue(WellKnownUserValue)
 	 *
 	 * @param valueDesc Die Beschreibung der Einstellung
 	 * @param newvalue neuer Wert des User-Values

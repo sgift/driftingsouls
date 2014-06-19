@@ -127,7 +127,6 @@ public class QuestFunctions {
 		parser.registerCommand( "ADDBATTLEVISIBILITY", new AddBattleVisibility(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "ENDBATTLE", new EndBattle(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "GETNOOBSTATUS", new GetNoobStatus(), ScriptParser.Args.PLAIN_REG );
-		parser.registerCommand( "GETUSERVALUE", new GetUserValue(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "GETSECTORPROPERTY", new GetSectorProperty(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "GETSYSTEMPROPERTY", new GetSystemProperty(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "GTUAUCTIONSHIP", new GtuAuctionShip(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
@@ -2100,34 +2099,6 @@ public class QuestFunctions {
 			else {
 				scriptparser.setRegister("A","0");
 			}
-
-			return CONTINUE;
-		}
-	}
-
-
-
-	static class GetUserValue implements SPFunction {
-		@Override
-		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
-			int userid = Integer.parseInt(command[1]);
-			scriptparser.log("userid: "+userid+"\n");
-
-			String valuename = command[2];
-			scriptparser.log("value(key): "+valuename+"\n");
-
-			User user = (User)ContextMap.getContext().getDB().get(User.class, userid);
-
-			String value = user.getUserValue(valuename);
-
-			if( value.length() == 0 ) {
-				scriptparser.log("Uservalue ist nicht gesetzt - #cmp = -1\n");
-				scriptparser.setRegister("cmp",-1);
-			}
-			else {
-				scriptparser.setRegister("cmp",0);
-			}
-			scriptparser.setRegister("A",value);
 
 			return CONTINUE;
 		}
