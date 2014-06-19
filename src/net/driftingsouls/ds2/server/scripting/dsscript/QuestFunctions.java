@@ -89,8 +89,6 @@ public class QuestFunctions {
 		parser.registerCommand( "INITQUEST", new InitQuest(), ScriptParser.Args.PLAIN_REG, ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "ENDQUEST", new EndQuest(), ScriptParser.Args.PLAIN_VARIABLE );
 		parser.registerCommand( "GETQUESTID", new GetQuestID(), ScriptParser.Args.PLAIN_REG );
-		parser.registerCommand( "INSTALLHANDLER", new InstallHandler(), ScriptParser.Args.PLAIN_VARIABLE );
-		parser.registerCommand( "REMOVEHANDLER", new RemoveHandler(), ScriptParser.Args.PLAIN_VARIABLE );
 		parser.registerCommand( "ADDUNINSTALLCMD", new AddUninstallCmd(), ScriptParser.Args.PLAIN_VARIABLE );
 		parser.registerCommand( "COMPLETEQUEST", new CompleteQuest(), ScriptParser.Args.PLAIN_REG );
 		parser.registerCommand( "HASQUESTCOMPLETED", new HasQuestCompleted(), ScriptParser.Args.PLAIN_REG );
@@ -811,125 +809,6 @@ public class QuestFunctions {
 			}
 			else {
 				scriptparser.setRegister("A",Integer.toString(runningQuest.getQuest().getId()));
-			}
-
-			return CONTINUE;
-		}
-	}
-
-	static class InstallHandler implements SPFunction {
-		@Override
-		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
-			org.hibernate.Session db = ContextMap.getContext().getDB();
-
-			String event = command[1];
-			scriptparser.log("event: "+event+"\n");
-
-			StringBuilder removescript = new StringBuilder();
-			String questid = "";
-			int userid = 0;
-
-			if( event.equals("ontick") ) {
-				// User-ID
-				if( command[2].charAt(0) == '#' ) {
-					command[2]= scriptparser.getRegister(command[2]);
-				}
-				userid = Value.Int(command[2]);
-				scriptparser.log("userid: "+userid+"\n");
-
-				// Script-ID
-				if( command[3].charAt(0) == '#' ) {
-					command[3] = scriptparser.getRegister(command[3]);
-				}
-				int scriptid = Value.Int( command[3] );
-				scriptparser.log("scriptid: "+scriptid+"\n");
-
-				// Quest-ID
-				if( command[4].charAt(0) == '#' ) {
-					command[4] = scriptparser.getRegister(command[4]);
-				}
-				questid = command[4];
-				scriptparser.log("questid: "+questid+"\n");
-
-				RunningQuest runningdata = (RunningQuest)db
-						.createQuery("from RunningQuest  where quest=:questid and user=:userid")
-						.setInteger("questid", Value.Int(questid))
-						.setInteger("userid", userid)
-						.uniqueResult();
-				runningdata.setOnTick(scriptid);
-
-				removescript.append("!REMOVEHANDLER ").append(event).append(" ").append(userid).append(" ").append(questid).append("\n");
-			}
-
-			if( removescript.length() > 0 ) {
-				RunningQuest runningdata;
-				if( questid.charAt(0) != 'r' ) {
-					runningdata = (RunningQuest)db
-							.createQuery("from RunningQuest  where quest=:questid and user=:userid")
-							.setInteger("questid", Value.Int(questid))
-							.setInteger("userid", userid)
-							.uniqueResult();
-				}
-				else {
-					int rquestid = Value.Int(questid.substring(1));
-					runningdata = (RunningQuest)db.get(RunningQuest.class, rquestid);
-				}
-
-				if( runningdata != null ) {
-					String uninstall = runningdata.getUninstall();
-					if( uninstall.length() == 0 ) {
-						uninstall = ":0\n";
-					}
-					uninstall += removescript;
-
-					runningdata.setUninstall(uninstall);
-				}
-			}
-
-			return CONTINUE;
-		}
-	}
-
-	static class RemoveHandler implements SPFunction {
-		@Override
-		public boolean[] execute( ScriptParser scriptparser, String[] command ) {
-			org.hibernate.Session db = ContextMap.getContext().getDB();
-
-			String event = command[1];
-			scriptparser.log("event: "+event+"\n");
-
-			String questid;
-			int userid;
-
-			if( event.equals("ontick") ) {
-				// User-ID
-				if( command[2].charAt(0) == '#' ) {
-					command[2]= scriptparser.getRegister(command[2]);
-				}
-				userid = Value.Int(command[2]);
-				scriptparser.log("userid: "+userid+"\n");
-
-				// Quest-ID
-				if( command[3].charAt(0) == '#' ) {
-					command[3] = scriptparser.getRegister(command[3]);
-				}
-				questid = command[3];
-				scriptparser.log("questid: "+questid+"\n");
-
-				if( questid.charAt(0) != 'r' ) {
-					RunningQuest rquest = (RunningQuest)db
-							.createQuery("from RunningQuest  where quest=:questid and user=:userid")
-							.setInteger("questid", Value.Int(questid))
-							.setInteger("userid", userid)
-							.uniqueResult();
-
-					rquest.setOnTick(null);
-				}
-				else {
-					int rquestid = Value.Int(questid.substring(1));
-					RunningQuest rquest = (RunningQuest)db.get(RunningQuest.class, rquestid);
-					rquest.setOnTick(null);
-				}
 			}
 
 			return CONTINUE;

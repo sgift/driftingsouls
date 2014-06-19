@@ -35,10 +35,6 @@ import net.driftingsouls.ds2.server.entities.statistik.StatShips;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
-import net.driftingsouls.ds2.server.scripting.NullLogger;
-import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
-import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
-import net.driftingsouls.ds2.server.scripting.entities.Script;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.tasks.Task;
@@ -48,11 +44,6 @@ import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.Transaction;
 
-import javax.script.Bindings;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Set;
 
@@ -435,75 +426,6 @@ public class RestTick extends TickController {
 	}
 
 	/*
-		Quests bearbeiten
-	*/
-	private void doQuests()
-	{
-		try
-		{
-			org.hibernate.Session db = getDB();
-
-			this.log("Bearbeite Quests [ontick]");
-			List<?> runningQuestList = db
-				.createQuery("from RunningQuest where onTick is not null order by questid")
-				.list();
-
-			ScriptEngine scriptparser = getContext().get(ContextCommon.class).getScriptParser("DSQuestScript");
-			scriptparser.getContext().setErrorWriter(new NullLogger());
-
-			for( Object obj : runningQuestList )
-			{
-				RunningQuest rquest = (RunningQuest)obj;
-				try
-				{
-					byte[] execdata = rquest.getExecData();
-					if( (execdata != null) && (execdata.length > 0) )
-					{
-						scriptparser.setContext(ScriptParserContext.fromStream(new ByteArrayInputStream(execdata)));
-					}
-					else
-					{
-						scriptparser.setContext(new ScriptParserContext());
-					}
-
-					this.log("* quest: "+rquest.getQuest()+" - user:"+rquest.getUser()+" - script: "+rquest.getOnTick());
-
-					Script script = (Script)db.get(Script.class, rquest.getOnTick());
-
-					final Bindings engineBindings = scriptparser.getContext().getBindings(ScriptContext.ENGINE_SCOPE);
-
-					engineBindings.put("USER", Integer.toString(rquest.getUser().getId()) );
-					engineBindings.put("QUEST", "r"+rquest.getId());
-					engineBindings.put("SCRIPT", Integer.toString(rquest.getOnTick()) );
-					engineBindings.put("_PARAMETERS", "0");
-					scriptparser.eval(script.getScript());
-
-					int usequest = Integer.parseInt((String)engineBindings.get("QUEST"));
-
-					if( usequest != 0 )
-					{
-						ByteArrayOutputStream out = new ByteArrayOutputStream();
-						ScriptParserContext.toStream(scriptparser.getContext(), out);
-						rquest.setExecData(out.toByteArray());
-					}
-				}
-				catch( Exception e )
-				{
-					this.log("[FEHLER] Konnte Quest-Tick fuehr Quest "+rquest.getQuest()+" (Running-ID: "+rquest.getId()+") nicht ausfuehren."+e);
-					e.printStackTrace();
-					Common.mailThrowable(e, "RestTick Exception", "Quest failed: "+rquest.getQuest()+"\nRunning-ID: "+rquest.getId());
-				}
-			}
-		}
-		catch( RuntimeException e )
-		{
-			this.log("Fehler beim Verarbeiten der Quests: "+e);
-			e.printStackTrace();
-			Common.mailThrowable(e, "RestTick Exception", "doQuests failed");
-		}
-	}
-
-	/*
 	 *
  	 * Tasks bearbeiteten (Timeouts)
 	 *
@@ -575,7 +497,6 @@ public class RestTick extends TickController {
 		this.doVacation();
 		this.doNoobProtection();
 		this.doFelsbrocken();
-		this.doQuests();
 		this.doTasks();
 	}
 }
