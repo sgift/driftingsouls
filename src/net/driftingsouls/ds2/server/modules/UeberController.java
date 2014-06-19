@@ -43,7 +43,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
-import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -304,33 +303,7 @@ public class UeberController extends Controller
 			t.parse("fleets.list", "fleets.listitem", true);
 		}
 
-		//------------------------------------
-		// Die Quests
-		//------------------------------------
-		questsAnzeigen(db, user, t);
-
 		return t;
-	}
-
-	private void questsAnzeigen(Session db, User user, TemplateEngine t)
-	{
-		t.setBlock("_UEBER", "quests.listitem", "quests.list");
-		t.setVar("quests.list", "");
-
-		List<?> quests = db.createQuery("from RunningQuest rq inner join fetch rq.quest " +
-				"where rq.user= :user and rq.publish=1")
-				.setEntity("user", user)
-				.list();
-		for (Object quest1 : quests)
-		{
-			RunningQuest quest = (RunningQuest) quest1;
-
-			t.setVar("quest.name", quest.getQuest().getName(),
-					"quest.statustext", quest.getStatusText(),
-					"quest.id", quest.getId());
-
-			t.parse("quests.list", "quests.listitem", true);
-		}
 	}
 
 	private void mangelAufSchiffenAnzeigen(Session db, User user, TemplateEngine t)
