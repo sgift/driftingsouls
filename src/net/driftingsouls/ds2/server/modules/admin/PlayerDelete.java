@@ -18,7 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
@@ -29,17 +28,11 @@ import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
-import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.script.Bindings;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -102,35 +95,6 @@ public class PlayerDelete implements AdminPlugin
 			echo.append("</div>");
 
 			return;
-		}
-
-		ScriptEngine scriptparser = context.get(ContextCommon.class).getScriptParser("DSQuestScript");
-
-		echo.append("Beende Quests....<br />\n");
-		List<?> rquestList = db.createQuery("from RunningQuest where user= :user")
-			.setEntity("user",user)
-			.list();
-		for (Object aRquestList : rquestList)
-		{
-			RunningQuest rquest = (RunningQuest) aRquestList;
-
-			try
-			{
-				scriptparser.setContext(ScriptParserContext.fromStream(new ByteArrayInputStream(rquest.getExecData())));
-				final Bindings engineBindings = scriptparser.getContext().getBindings(
-						ScriptContext.ENGINE_SCOPE);
-
-				engineBindings.put("USER", userid);
-				engineBindings.put("QUEST", "r" + rquest.getId());
-				engineBindings.put("_PARAMETERS", "0");
-				scriptparser.eval(":0\n!ENDQUEST\n!QUIT");
-			}
-			catch (Exception e)
-			{
-				echo.append("Fehler beim Beenden des Quests ").append(rquest.getQuest().getId()).append(": ").append(e);
-				log.error(e, e);
-				echo.append("</div>");
-			}
 		}
 
 		long count;

@@ -50,21 +50,6 @@ import java.util.Stack;
  */
 public class ScriptParser extends AbstractScriptEngine {
 	/**
-	 * Die verschiedenen, dem ScriptParser bekannten, Namespaces.
-	 *
-	 */
-	public enum NameSpace {
-		/**
-		 * Schiffsaktions-Scripte.
-		 */
-		ACTION,
-		/**
-		 * Quest-Scripte.
-		 */
-		QUEST
-	}
-	
-	/**
 	 * Die verschiedenen Argumenttypen.
 	 *
 	 */
@@ -122,8 +107,7 @@ public class ScriptParser extends AbstractScriptEngine {
 		JUMP_FUNCTIONS.put("!JLE", new Integer[] {-1,0});
 		JUMP_FUNCTIONS.put("!JGE", new Integer[] {0,1});
 	}
-	
-	private NameSpace namespace = null;
+
 	private Map<String,SPFunction> funcregister = null;
 	private Map<String,Args[]> funcargregister = null;
 	private ScriptEngineFactory factory;
@@ -131,23 +115,15 @@ public class ScriptParser extends AbstractScriptEngine {
 	/**
 	 * Konstruktor.
 	 * @param factory Die Factory, welche die Instanz erzeugt hat
-	 * @param namespace Der Namespace, in dem der ScriptParser arbeiten soll
 	 */
-	public ScriptParser(ScriptEngineFactory factory, NameSpace namespace) {
+	public ScriptParser(ScriptEngineFactory factory) {
 		this.factory = factory;
 		
-		this.namespace = namespace;
 		this.funcregister = new HashMap<>();
 		this.funcargregister = new HashMap<>();
 		
 		new CommonFunctions().registerFunctions(this);
-		
-		if( namespace == NameSpace.ACTION ) {
-			new ActionFunctions().registerFunctions(this);
-		}
-		else if( namespace == NameSpace.QUEST ) {
-			new QuestFunctions().registerFunctions(this);
-		}
+		new ActionFunctions().registerFunctions(this);
 	}
 
 	/**
@@ -456,8 +432,7 @@ public class ScriptParser extends AbstractScriptEngine {
 		}
 		
 		// Wurde die Ausfuehrung des Scripts beendet?
-		if( (this.namespace == NameSpace.ACTION) && 
-			(getLastCommand() == -1) && (parameter.length() == 0) ) {
+		if( (getLastCommand() == -1) && (parameter.length() == 0) ) {
 			this.log("Ausfuehrung des scripts bereits beendet\n");
 			
 			// TODO: Sollte nicht hier sein...
@@ -583,16 +558,13 @@ public class ScriptParser extends AbstractScriptEngine {
 			while( true ) {
 				// Falls der Befehlszeiger am Ende angekommen ist die Ausfuehrung beenden
 				if( getLastCommand() >= commands.size() ) {
-					// Wenn es sich um ein Aktionsscript handelt, dann den Besitzer des
-					// zugehoerigen Schiffes informieren
-					if( this.namespace == NameSpace.ACTION ) {
-						Ship ship = this.getShip();
-						User source = (User)ContextMap.getContext().getDB().get(User.class, -1);
-						
-						PM.send(source, ship.getOwner().getId(), "Script beendet", "[Scriptsystem:"+ship.getId()+"]\nDie "+ship.getName()+
-						" hat ihre Befehle abgearbeitet!");
-					}
-					
+					// Den Besitzer des zugehoerigen Schiffes informieren
+					Ship ship = this.getShip();
+					User source = (User)ContextMap.getContext().getDB().get(User.class, -1);
+
+					PM.send(source, ship.getOwner().getId(), "Script beendet", "[Scriptsystem:"+ship.getId()+"]\nDie "+ship.getName()+
+					" hat ihre Befehle abgearbeitet!");
+
 					this.log("+++ Ausfuehrung beendet\n\n");
 					setLastCommand(-1);
 					
@@ -823,29 +795,20 @@ public class ScriptParser extends AbstractScriptEngine {
 			}
 		}
 		catch( Exception e ) {
-			if( this.namespace == NameSpace.ACTION ) {
-				StringBuilder text = new StringBuilder();
-				
-				StackTraceElement[] trace = e.getStackTrace();
-				for( int i=0; i < Math.min(trace.length,5); i++ ) {
-					text.append(trace[i].toString()+"\n");
-				}
-				
-				Ship ship = this.getShip();
-				User source = (User)ContextMap.getContext().getDB().get(User.class, -1);
-				
-				PM.send(source, ship.getOwner().getId(), "Scriptfehler", "[Scriptsystem:"+ship.getId()+"]\nDas Script der "+ship.getName()+
-				" konnte nicht korrekt ausgefuehrt werden!\n\n" +
-				"Befehl: "+Common.implode(" ", commands.get(getLastCommand()))+"\n\n"+
-				e+"\n"+text);
+			StringBuilder text = new StringBuilder();
+
+			StackTraceElement[] trace = e.getStackTrace();
+			for( int i=0; i < Math.min(trace.length,5); i++ ) {
+				text.append(trace[i].toString()+"\n");
 			}
-			else {
-				if( e instanceof RuntimeException ) {
-					throw (RuntimeException)e;
-				}
-				
-				throw new RuntimeException("Script execution failed", e);
-			}
+
+			Ship ship = this.getShip();
+			User source = (User)ContextMap.getContext().getDB().get(User.class, -1);
+
+			PM.send(source, ship.getOwner().getId(), "Scriptfehler", "[Scriptsystem:"+ship.getId()+"]\nDas Script der "+ship.getName()+
+			" konnte nicht korrekt ausgefuehrt werden!\n\n" +
+			"Befehl: "+Common.implode(" ", commands.get(getLastCommand()))+"\n\n"+
+			e+"\n"+text);
 		}
 		
 		// TODO: Sollte nicht hier sein...
@@ -873,10 +836,10 @@ public class ScriptParser extends AbstractScriptEngine {
 	public Object eval(Reader reader, ScriptContext context) throws ScriptException {
 		StringBuilder builder = new StringBuilder();
 		BufferedReader bf = new BufferedReader(reader);
-		String line = null;
+		String line;
 		try {
 			while( (line = bf.readLine()) != null ) {
-				builder.append(line+"\n");
+				builder.append(line).append("\n");
 			}
 		}
 		catch( IOException e ) {

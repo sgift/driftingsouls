@@ -42,11 +42,7 @@ public class EngineIdentifier {
 		if( !script.contains("!") && !script.contains("#") ) {
 			return null;
 		}
-		
-		if( script.contains("!LOADDIALOG") || script.contains("!COPYVAR") ) {
-			return "DSQuestScript";
-		}
-		
+
 		return "DSActionScript";
 	}
 }

@@ -18,11 +18,10 @@
  */
 package net.driftingsouls.ds2.server.scripting.dsscript;
 
+import javax.script.ScriptEngine;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import javax.script.ScriptEngine;
 
 
 /**
@@ -42,6 +41,6 @@ public class DSActionScriptFactory extends DSScriptFactory {
 	
 	@Override
 	public ScriptEngine getScriptEngine() {
-		return new ScriptParser(this, ScriptParser.NameSpace.ACTION);
+		return new ScriptParser(this);
 	}
 }

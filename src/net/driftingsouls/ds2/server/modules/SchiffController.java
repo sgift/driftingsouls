@@ -18,7 +18,6 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
@@ -42,7 +41,6 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.modules.schiffplugins.Parameters;
 import net.driftingsouls.ds2.server.modules.schiffplugins.SchiffPlugin;
-import net.driftingsouls.ds2.server.scripting.Quests;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
@@ -53,7 +51,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.script.ScriptEngine;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -768,31 +765,10 @@ public class SchiffController extends Controller
 
 		t.setVar("ship.message", redirect != null ? redirect.getMessage() : null);
 
-		Quests.currentEventURLBase.set("./ds?module=schiff&ship=" + ship.getId());
-
-		ScriptEngine scriptparser = getContext().get(ContextCommon.class).getScriptParser("DSQuestScript");
-		if (ship.isDestroyed())
-		{
-			if ((scriptparser != null) && (scriptparser.getContext().getWriter().toString().length() != 0))
-			{
-				t.setVar("ship.scriptparseroutput", scriptparser.getContext().getWriter().toString());
-			}
-			else
-			{
-				throw new ValidierungException("Das Schiff existiert nicht mehr oder geh&ouml;rt nicht mehr ihnen");
-			}
-			return t;
-		}
-
 		ShipTypeData shiptype = ship.getTypeData();
 
 		if (ship.getBattle() != null)
 		{
-			if ((scriptparser != null) && (scriptparser.getContext().getWriter().toString().length() > 0))
-			{
-				t.setVar("ship.scriptparseroutput", scriptparser.getContext().getWriter().toString());
-			}
-
 			throw new ValidierungException("Das Schiff ist in einen Kampf verwickelt (hier klicken um zu diesem zu gelangen)!", Common.buildUrl("default", "module", "angriff", "battle", ship.getBattle().getId(), "ship", ship.getId()));
 		}
 
@@ -1172,15 +1148,6 @@ public class SchiffController extends Controller
 			rufeAlsSubActionAuf(caller.pluginId+"_ops", plugin, "output", parameters);
 
 			pluginMapper.remove("units");
-		}
-
-		/*
-			Ok...das ist kein Plugin, es gehoert aber trotzdem zwischen die ganzen Plugins (Questoutput)
-		*/
-
-		if ((scriptparser != null))
-		{
-			t.setVar("ship.scriptparseroutput", scriptparser.getContext().getWriter().toString());
 		}
 
 		caller.target = "plugin.output";

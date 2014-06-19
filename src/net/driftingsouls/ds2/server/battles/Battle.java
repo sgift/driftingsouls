@@ -1885,6 +1885,7 @@ public class Battle implements Locatable
 	 * Der Benutzer kann somit die Schlacht fortan sehen.
 	 * @param userid Die ID des hinzuzufuegenden Benutzers
 	 */
+	@Deprecated
 	public void addToVisibility( int userid ) {
 		if( visibility.length() > 0 ) {
 			visibility += ","+userid;

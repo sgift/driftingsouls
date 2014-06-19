@@ -41,11 +41,8 @@ import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
-import net.driftingsouls.ds2.server.scripting.NullLogger;
-import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
 import net.driftingsouls.ds2.server.scripting.entities.RunningQuest;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
@@ -56,13 +53,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.script.Bindings;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedHashSet;
@@ -139,57 +130,6 @@ public class UeberController extends Controller
 		if (box != null && !box.equals(boxSetting))
 		{
 			user.setUserValue(WellKnownUserValue.TBLORDER_UEBERSICHT_BOX, box);
-		}
-
-		return new RedirectViewResult("default");
-	}
-
-	/**
-	 * Beendet das angegebene Quest.
-	 *
-	 * @param questdata Die ID des zu beendenden Quests
-	 */
-	@Action(ActionType.DEFAULT)
-	public RedirectViewResult stopQuestAction(@UrlParam(name = "questid") RunningQuest questdata)
-	{
-		User user = (User)getUser();
-		if ((questdata == null) || (questdata.getUser().getId() != user.getId()))
-		{
-			addError("Sie k&ouml;nnen dieses Quest nicht abbrechen");
-			return new RedirectViewResult("default");
-		}
-
-		ScriptEngine scriptparser = new ScriptEngineManager().getEngineByName("DSQuestScript");
-		if (!user.hasFlag(UserFlag.SCRIPT_DEBUGGING))
-		{
-			scriptparser.getContext().setErrorWriter(new NullLogger());
-		}
-
-		try
-		{
-			byte[] execdata = questdata.getExecData();
-			if ((execdata != null) && (execdata.length > 0))
-			{
-				scriptparser.setContext(ScriptParserContext.fromStream(new ByteArrayInputStream(execdata)));
-			}
-		}
-		catch (Exception e)
-		{
-			log.warn("Loading Script-ExecData failed (Quest: " + questdata.getId() + ": ", e);
-			return new RedirectViewResult("default");
-		}
-		final Bindings engineBindings = scriptparser.getContext().getBindings(ScriptContext.ENGINE_SCOPE);
-
-		engineBindings.put("USER", Integer.toString(user.getId()));
-		engineBindings.put("QUEST", "r" + questdata.getId());
-		engineBindings.put("_PARAMETERS", "0");
-		try
-		{
-			scriptparser.eval(":0\n!ENDQUEST\n!QUIT");
-		}
-		catch (ScriptException e)
-		{
-			throw new RuntimeException(e);
 		}
 
 		return new RedirectViewResult("default");

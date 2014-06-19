@@ -18,10 +18,10 @@
  */
 package net.driftingsouls.ds2.server.scripting;
 
+import org.junit.Test;
+
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
-
-import org.junit.Test;
 
 /**
  * Testfaelle fuer {@link EngineIdentifier}
@@ -38,15 +38,6 @@ public class EngineIdentifierTest {
 	public void testIdentifyEngine() {
 		assertNull(EngineIdentifier.identifyEngine("abcdef"));
 		assertThat(EngineIdentifier.identifyEngine("!SHIPMOVE 1:2/3"), is("DSActionScript"));
-		
-		final String questScript = "§parameter quit _quick_quests\n" +
-				"!LOADDIALOG 123\n" +
-				"!COPYVAR #A shipsource.name\n" +
-				"!SETDIALOGTEXTVAR schiffsname #A" +
-				"!ADDANSWER 567 2\n" +
-				"!INITDIALOG\n" +
-				"!PAUSE";
-		assertThat(EngineIdentifier.identifyEngine(questScript), is("DSQuestScript"));
 	}
 	
 	/**
