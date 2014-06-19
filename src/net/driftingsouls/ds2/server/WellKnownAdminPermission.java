@@ -59,9 +59,6 @@ public enum WellKnownAdminPermission implements PermissionDescriptor
 	PLAYER_LOGIN_SUPER("PlayerLoginSuper"),
 	PLAYER_STATISTICS("PlayerStatistics"),
 	PORTAL_NEWS("PortalNews"),
-	QUESTS_FILES("QuestsFiles"),
-	QUESTS_HANDLER("QuestsHandler"),
-	QUESTS_QUICK("QuestsQuick"),
 	QUESTS_STM("QuestsSTM");
 
 	private final String action;

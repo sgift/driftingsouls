@@ -102,10 +102,6 @@ public class AdminCommands {
 			cmds.put("addunits", AddUnitsCommand.class);
 		}
 
-		if( context.hasPermission(WellKnownAdminPermission.QUESTS_FILES) || context.hasPermission(WellKnownAdminPermission.QUESTS_QUICK) )
-		{
-			cmds.put("quest", QuestCommand.class);
-		}
 		if( context.hasPermission(WellKnownAdminPermission.BATTLE_END) )
 		{
 			cmds.put("battle", BattleCommand.class);
@@ -1086,66 +1082,6 @@ public class AdminCommands {
 		public List<String> autoComplete(String[] command)
 		{
 			return Arrays.asList(getTargetAutoComplete(command)+" "+getItemAutoComplete(command)+" <Menge>");
-		}
-	}
-
-	protected static class QuestCommand implements Command {
-		@Override
-		public String execute(Context context, String[] command) {
-			String output = "";
-			org.hibernate.Session db = context.getDB();
-
-			String cmd = command[1];
-			switch (cmd)
-			{
-				case "end":
-					int rqid = Integer.parseInt(command[2]);
-
-					ScriptEngine scriptparser = context.get(ContextCommon.class).getScriptParser("DSQuestScript");
-					final Bindings engineBindings = scriptparser.getContext().getBindings(ScriptContext.ENGINE_SCOPE);
-
-					scriptparser.getContext().setErrorWriter(new NullLogger());
-
-					RunningQuest runningquest = (RunningQuest) db.get(RunningQuest.class, rqid);
-
-					if (!runningquest.getUninstall().isEmpty())
-					{
-						engineBindings.put("USER", runningquest.getUser().getId());
-						engineBindings.put("QUEST", "r" + rqid);
-						engineBindings.put("_PARAMETERS", "0");
-
-						try
-						{
-							scriptparser.eval(runningquest.getUninstall());
-						}
-						catch (ScriptException e)
-						{
-							throw new RuntimeException(e);
-						}
-					}
-
-					db.delete(runningquest);
-					break;
-				case "list":
-					output = "Laufende Quests:\n";
-					List<?> rquestList = db.createQuery("from RunningQuest rq inner join fetch rq.quest").list();
-					for (Object aRquestList : rquestList)
-					{
-						RunningQuest rquest = (RunningQuest) aRquestList;
-
-						output += "* " + rquest.getId() + " - " + rquest.getQuest().getName() + " (" + rquest.getQuest().getId() + ") - userid " + rquest.getUser().getId() + "\n";
-					}
-					break;
-				default:
-					throw new CommandFailedException("Unknown quest sub-command >" + cmd + "<");
-			}
-			return output;
-		}
-
-		@Override
-		public List<String> autoComplete(String[] command)
-		{
-			return Arrays.asList("end <QuestID>", "list");
 		}
 	}
 
