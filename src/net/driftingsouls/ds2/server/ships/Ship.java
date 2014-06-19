@@ -43,7 +43,6 @@ import net.driftingsouls.ds2.server.entities.Feeding;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.Offizier;
-import net.driftingsouls.ds2.server.entities.Sector;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -51,8 +50,6 @@ import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.scripting.NullLogger;
-import net.driftingsouls.ds2.server.scripting.Quests;
 import net.driftingsouls.ds2.server.scripting.ShipScriptData;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
@@ -89,9 +86,6 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
-import javax.script.Bindings;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -2232,10 +2226,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 *
 	 * @param route Die Flugroute
 	 * @param forceLowHeat Soll bei Ueberhitzung sofort abgebrochen werden?
-	 * @param disableQuests Sollen Questhandler ignoriert werden?
 	 * @return Der Status, der zum Ende des Fluges gefuehrt hat
 	 */
-	public MovementStatus move(List<Waypoint> route, boolean forceLowHeat, boolean disableQuests) {
+	public MovementStatus move(List<Waypoint> route, boolean forceLowHeat) {
 		StringBuilder out = MESSAGE.get();
 
 		org.hibernate.Session db = ContextMap.getContext().getDB();
@@ -2265,7 +2258,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 					route = route.subList(0, moving.getSafeTravelDistance());
 				}
 
-				return moving.move(route, forceLowHeat, disableQuests);
+				return moving.move(route, forceLowHeat);
 			}
 		}
 
@@ -2341,25 +2334,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 				xoffset++;
 			}
 
-			// Alle potentiell relevanten Sektoren (ok..und ein wenig ueberfluessiges Zeug bei schraegen Bewegungen) auslesen
-			Map<Location,Sector> sectorlist = new HashMap<>();
-			List<?> sectors = db.createQuery("from Sector " +
-					"where loc.system in (:system,-1) and " +
-						"(loc.x=-1 or loc.x between :lowerx and :upperx) and " +
-						"(loc.y=-1 or loc.y between :lowery and :uppery) order by loc.system desc")
-					.setInteger("system", this.system)
-					.setInteger("lowerx", (waypoint.direction-1) % 3 == 0 ? this.x-waypoint.distance : this.x )
-					.setInteger("upperx", (waypoint.direction) % 3 == 0 ? this.x+waypoint.distance : this.x )
-					.setInteger("lowery", waypoint.direction <= 3 ? this.y-waypoint.distance : this.y )
-					.setInteger("uppery", waypoint.direction >= 7 ? this.y+waypoint.distance : this.y )
-					.list();
-
-			for (Object sector1 : sectors)
-			{
-				Sector sector = (Sector) sector1;
-				sectorlist.put(sector.getLocation(), sector);
-			}
-
 			List<Ship> sectorList = Common.cast(db.createQuery("from Ship " +
 			"where owner!=:owner and system=:system and x between :lowerx and :upperx and y between :lowery and :uppery")
 			.setEntity("owner", this.owner)
@@ -2370,11 +2344,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			.setInteger("uppery", waypoint.direction >= 7 ? this.y+waypoint.distance : this.y )
 			.list());
 
-			List<Location> locations = new ArrayList<>();
-			for(Ship ship: sectorList)
-			{
-				locations.add(ship.getLocation());
-			}
+			List<Location> locations = sectorList.stream().map(Ship::getLocation).collect(Collectors.toList());
 
 			Map<Location, List<Ship>> alertList = alertCheck(owner, locations.toArray(new Location[locations.size()]));
 
@@ -2474,18 +2444,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 						tmpxoff++;
 					}
 
-					sectors = db.createQuery("from Sector "+
-							"where loc.system in (:sys,-1) AND loc.x in (-1,:x) and loc.y in (-1,:y) order by loc.system desc")
-							.setInteger("sys", this.system)
-							.setInteger("x", this.x+tmpxoff)
-							.setInteger("y", this.y+tmpyoff)
-							.list();
-					for (Object sector1 : sectors)
-					{
-						Sector sector = (Sector) sector1;
-						sectorlist.put(sector.getLocation(), sector);
-					}
-
 					alertList.putAll(alertCheck(owner, new Location(this.system, this.x+tmpxoff, this.y+tmpyoff)));
 				}
 
@@ -2506,73 +2464,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 					}
 
 					moved = true;
-					if( !disableQuests && (sectorlist.size() != 0) ) {
-						// Schauen wir mal, ob es ein onenter-ereigniss gab
-						Location loc = this.getLocation();
-
-						Sector sector = sectorlist.get(new Location(loc.getSystem(), -1, -1));
-						if( sectorlist.containsKey(loc) ) {
-							sector = sectorlist.get(loc);
-						}
-						else if( sectorlist.containsKey(loc.setX(-1)) ) {
-							sector = sectorlist.get(loc.setX(-1));
-						}
-						else if( sectorlist.containsKey(loc.setY(-1)) ) {
-							sector = sectorlist.get(loc.setY(-1));
-						}
-
-						if( (sector != null) && sector.getOnEnter().length() > 0 ) {
-							this.docked = "";
-							if( docked != 0 ) {
-								for( Ship dship : this.getDockedShips() )
-								{
-									dship.setX(this.x);
-									dship.setY(this.y);
-									dship.setSystem(this.system);
-								}
-								for( Ship dship : this.getLandedShips() )
-								{
-									dship.setX(this.x);
-									dship.setY(this.y);
-									dship.setSystem(this.system);
-								}
-							}
-							saveFleetShips();
-
-							ScriptEngine scriptparser = ContextMap.getContext().get(ContextCommon.class).getScriptParser("DSQuestScript");
-							final Bindings engineBindings = scriptparser.getContext().getBindings(ScriptContext.ENGINE_SCOPE);
-
-							engineBindings.put("_SHIP", this);
-							if( !user.hasFlag(UserFlag.SCRIPT_DEBUGGING) ) {
-								scriptparser.getContext().setErrorWriter(new NullLogger());
-							}
-
-							engineBindings.put("SECTOR", loc.toString() );
-
-							Quests.currentEventURL.set("&action=onenter");
-
-							if( docked != 0 ) {
-								for( Ship dship : this.getDockedShips() )
-								{
-									dship.setX(this.x);
-									dship.setY(this.y);
-									dship.setSystem(this.system);
-								}
-								for( Ship dship : this.getLandedShips() )
-								{
-									dship.setX(this.x);
-									dship.setY(this.y);
-									dship.setSystem(this.system);
-								}
-							}
-
-							if( Quests.executeEvent(scriptparser, sector.getOnEnter(), this.owner, "", false ) ) {
-								if( scriptparser.getContext().getWriter().toString().length()!= 0 ) {
-									waypoint.distance = 0;
-								}
-							}
-						}
-					}
 
 					if( alertList.containsKey(this.getLocation()) ) {
 						this.docked = "";

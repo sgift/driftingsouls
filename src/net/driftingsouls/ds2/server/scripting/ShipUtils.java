@@ -83,7 +83,7 @@ public class ShipUtils {
 			RouteFactory router = new RouteFactory();
 			List<Waypoint> route = router.findRoute(ship.getLocation(), target, maxcount);
 			
-			result = ship.move(route, true, false); 
+			result = ship.move(route, true);
 			MESSAGE.get().append(Common._stripHTML(Ship.MESSAGE.getMessage()));
 			
 			if( result == Ship.MovementStatus.BLOCKED_BY_EMP ) {

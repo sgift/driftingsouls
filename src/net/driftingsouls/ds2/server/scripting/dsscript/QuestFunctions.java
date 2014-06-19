@@ -21,9 +21,6 @@ package net.driftingsouls.ds2.server.scripting.dsscript;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.MutableLocation;
-import net.driftingsouls.ds2.server.config.Weapons;
-import net.driftingsouls.ds2.server.entities.Offizier;
-import net.driftingsouls.ds2.server.entities.Offizier.Ability;
 import net.driftingsouls.ds2.server.SectorTemplateManager;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
@@ -36,9 +33,11 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
+import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
-import net.driftingsouls.ds2.server.entities.Sector;
+import net.driftingsouls.ds2.server.entities.Offizier;
+import net.driftingsouls.ds2.server.entities.Offizier.Ability;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.VersteigerungResource;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.VersteigerungSchiff;
@@ -863,29 +862,6 @@ public class QuestFunctions {
 				// On-Communicate
 				switch (event)
 				{
-					// On-Enter
-					case "onenter":
-						Location loc = Location.fromString(objid);
-
-						Sector sector = (Sector) db.get(Sector.class, new MutableLocation(loc));
-						if (sector == null)
-						{
-							sector = new Sector(new MutableLocation(loc));
-							sector.setOnEnter("");
-							db.persist(sector);
-						}
-
-						String onenter = sector.getOnEnter();
-						if (onenter.length() > 0)
-						{
-							onenter += ";";
-						}
-						onenter += userid + ":" + scriptid + ":" + questid;
-
-						sector.setOnEnter(onenter);
-
-						removescript.append("!REMOVEHANDLER ").append(event).append(" ").append(objid).append(" ").append(userid).append(" ").append(scriptid).append(" ").append(questid).append("\n");
-						break;
 					// Battle-OnEnd
 					default:
 						Battle battle = (Battle) db.get(Battle.class, Value.Int("objid"));
@@ -966,68 +942,7 @@ public class QuestFunctions {
 			String questid;
 			int userid;
 
-			if( event.equals("onenter") ) {
-				// Object-ID
-				String objid = command[2];
-				if( objid.charAt(0) == '#' ) {
-					objid = scriptparser.getRegister(objid);
-				}
-				scriptparser.log("objid: "+objid+"\n");
-
-				// User-ID
-				if( command[3].charAt(0) == '#' ) {
-					command[3] = scriptparser.getRegister(command[3]);
-				}
-				userid = Value.Int(command[3]);
-
-				scriptparser.log("userid: "+userid+"\n");
-
-				// Script-ID
-				if( command[4].charAt(0) == '#' ) {
-					command[4] = scriptparser.getRegister(command[4]);
-				}
-				int scriptid = Value.Int( command[4] );
-				scriptparser.log("scriptid: "+scriptid+"\n");
-
-				// Quest-ID
-				if( command[5].charAt(0) == '#' ) {
-					command[5] = scriptparser.getRegister(command[5]);
-				}
-				questid = command[5];
-				scriptparser.log("questid: "+questid+"\n");
-
-
-				Location loc = Location.fromString(objid);
-
-				Sector sector = (Sector)db.get(Sector.class, new MutableLocation(loc));
-				if( sector != null ) {
-					List<String> newenter = new ArrayList<>();
-
-					String[] enter = StringUtils.split(sector.getOnEnter(), ';');
-					for (String anEnter : enter)
-					{
-						String[] tmp = StringUtils.split(anEnter, ':');
-						int usr = Value.Int(tmp[0]);
-						int script = Value.Int(tmp[1]);
-						String quest = tmp[2];
-						if ((usr != userid) || (script != scriptid) || !quest.equals(questid))
-						{
-							newenter.add(anEnter);
-						}
-					}
-
-					if( newenter.size() > 0 ) {
-						sector.setOnEnter(Common.implode(";", newenter));
-					}
-					else if( sector.getObjects() != 0 ) {
-						sector.setOnEnter(null);
-					}
-					else {
-						db.delete(sector);
-					}
-				}
-			}
-			else if( event.equals("ontick") ) {
+			if( event.equals("ontick") ) {
 				// User-ID
 				if( command[2].charAt(0) == '#' ) {
 					command[2]= scriptparser.getRegister(command[2]);

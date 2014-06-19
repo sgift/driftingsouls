@@ -188,7 +188,7 @@ public class SchiffAjaxController extends Controller
 			forceLowHeat = true;
 		}
 
-		schiff.move(route, forceLowHeat, false);
+		schiff.move(route, forceLowHeat);
 
 		SchiffsLogViewModel result = new SchiffsLogViewModel();
 		result.log = Ship.MESSAGE.getMessage().trim();

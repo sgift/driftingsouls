@@ -88,7 +88,7 @@ public class NavigationDefault implements SchiffPlugin {
 		}
 
 		//Das Schiff soll sich offenbar bewegen
-		ship.move(route, forceLowHeat, false);
+		ship.move(route, forceLowHeat);
 		output += Ship.MESSAGE.getMessage();
 
 		return output;
