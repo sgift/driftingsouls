@@ -49,6 +49,8 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.EmptyHeaderOutputHandler;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.KeinLoginNotwendig;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.KeineTicksperre;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.units.TransientUnitCargo;
@@ -68,6 +70,8 @@ import java.util.List;
  *
  * @author Christopher Jung
  */
+@KeinLoginNotwendig
+@KeineTicksperre
 @Module(name = "portal", defaultModule = true, outputHandler = EmptyHeaderOutputHandler.class)
 public class PortalController extends Controller
 {

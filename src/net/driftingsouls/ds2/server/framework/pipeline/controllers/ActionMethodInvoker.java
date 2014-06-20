@@ -6,6 +6,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.ViewResult;
+import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.FlushMode;
@@ -18,6 +19,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,6 +30,12 @@ import java.util.Map;
 public class ActionMethodInvoker
 {
 	private static final Log log = LogFactory.getLog(ActionMethodInvoker.class);
+	private static List<Class<? extends ActionMethodInterceptor>> DEFAULT_INTERCEPTORS = new ArrayList<>();
+	static {
+		DEFAULT_INTERCEPTORS.add(AccountVacationMethodInterceptor.class);
+		DEFAULT_INTERCEPTORS.add(UserAuthenticationMethodInterceptor.class);
+		DEFAULT_INTERCEPTORS.add(TickMethodInterceptor.class);
+	}
 
 	private static final class RedirectInvocationException extends RuntimeException
 	{
@@ -72,7 +81,24 @@ public class ActionMethodInvoker
 			}
 		}
 
-		return method.invoke(controller, params);
+		MethodInvocation methodInvocation = new ActionMethodInvocation(controller, method, params);
+		for (Class<? extends ActionMethodInterceptor> interceptorCls : DEFAULT_INTERCEPTORS)
+		{
+			ActionMethodInterceptor interceptor = ContextMap.getContext().getBean(interceptorCls, null);
+			methodInvocation = new InterceptingActionMethodInvocation(interceptor, methodInvocation);
+		}
+
+		try
+		{
+			return methodInvocation.proceed();
+		}
+		catch (InvocationTargetException | IllegalAccessException e)
+		{
+			throw e;
+		}
+		catch( Throwable t ) {
+			throw new InvocationTargetException(t);
+		}
 	}
 
 	private void writeResultObject(Object result) throws IOException

@@ -59,21 +59,6 @@
 	</filter>
 
 	<filter>
-		<filter-name>TickInProgress</filter-name>
-		<filter-class>net.driftingsouls.ds2.server.tick.TickFilter</filter-class>
-	</filter>
-
-	<filter>
-		<filter-name>LoginRequired</filter-name>
-		<filter-class>net.driftingsouls.ds2.server.framework.UserAuthenticationFilter</filter-class>
-	</filter>
-
-	<filter>
-		<filter-name>AccountInVacation</filter-name>
-		<filter-class>net.driftingsouls.ds2.server.framework.AccountVacationFilter</filter-class>
-	</filter>
-
-	<filter>
 		<filter-name>DSRequestFilter</filter-name>
 		<filter-class>net.driftingsouls.ds2.server.framework.pipeline.DefaultServletRequestFilter</filter-class>
 	</filter>
@@ -90,21 +75,6 @@
 
 	<filter-mapping>
 		<filter-name>Context</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping>
-
-	<filter-mapping>
-		<filter-name>TickInProgress</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping>
-
-	<filter-mapping>
-		<filter-name>LoginRequired</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping>
-
-	<filter-mapping>
-		<filter-name>AccountInVacation</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
 

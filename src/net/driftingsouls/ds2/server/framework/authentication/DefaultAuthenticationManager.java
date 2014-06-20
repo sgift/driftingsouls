@@ -31,6 +31,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -54,6 +55,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 
 	private ConfigService configService;
 
+	@Autowired
 	public DefaultAuthenticationManager(ConfigService configService)
 	{
 		this.configService = configService;

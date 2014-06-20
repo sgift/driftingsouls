@@ -15,6 +15,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.EmptyHeaderFooterOutputHandler;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.KeinLoginNotwendig;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 
@@ -29,6 +30,7 @@ import java.util.List;
  * 
  * @author Sebastian Gift
  */
+@KeinLoginNotwendig
 @Module(name="news")
 public class NewsController extends Controller
 {
