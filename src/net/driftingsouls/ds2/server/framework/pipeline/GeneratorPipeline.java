@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.framework.pipeline;
 
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionMethodInvoker;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import org.w3c.dom.Node;
 
@@ -42,7 +43,7 @@ public class GeneratorPipeline implements Pipeline {
 	private void generateContent(Context context, Class<? extends Controller> generator) throws Exception {
 		Controller cntl = context.getBean(generator, null);
 
-		cntl.handleAction(context.getRequest().getParameter("action"));
+		new ActionMethodInvoker().rufeActionAuf(cntl, context.getRequest().getParameter("action"));
 	}
 
 	@Override

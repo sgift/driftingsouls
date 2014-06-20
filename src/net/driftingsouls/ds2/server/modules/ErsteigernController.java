@@ -1458,10 +1458,10 @@ public class ErsteigernController extends Controller
 				gany.getType() != ShopGanyTransportEntry.SHIPTYPE_GANYMEDE)
 		{
 			addError("Die angegebene Ganymede konnte im Ausgangssystem nicht lokalisiert werden");
-			unsetParameter("sourcesystem");
-			unsetParameter("ganymedeid");
 
-			return new RedirectViewResult("shopOrderGanymede");
+			return new RedirectViewResult("shopOrderGanymede")
+					.setParameter("sourcesystem", 0)
+					.setParameter("ganymedeid", 0);
 		}
 
 		FactionShopOrder sameorder = (FactionShopOrder) db
@@ -1472,29 +1472,28 @@ public class ErsteigernController extends Controller
 		if (sameorder != null)
 		{
 			addError("Es existiert bereits ein Transport-Auftrag f&uuml;r diese Ganymede");
-			unsetParameter("sourcesystem");
-			unsetParameter("ganymedeid");
-
-			return new RedirectViewResult("shopOrderGanymede");
+			return new RedirectViewResult("shopOrderGanymede")
+					.setParameter("sourcesystem", 0)
+					.setParameter("ganymedeid", 0);
 		}
 
 		StarSystem system = (StarSystem) db.get(StarSystem.class, targetsystem);
 		if (system.isVisibleFor(user))
 		{
 			addError("Die angegebene Zielsystem konnte nicht lokalisiert werden");
-			unsetParameter("targetsystem");
 
-			return new RedirectViewResult("shopOrderGanymede");
+			return new RedirectViewResult("shopOrderGanymede")
+					.setParameter("targetsystem", 0);
 		}
 
 		if ((targetx < 1) || (targetx > system.getWidth()) || (targety < 1)
 				|| (targety > system.getHeight()))
 		{
 			addError("Die angegebene Zielkoordinaten konnten im Zielsystem nicht lokalisiert werden");
-			unsetParameter("targetx");
-			unsetParameter("targety");
 
-			return new RedirectViewResult("shopOrderGanymede");
+			return new RedirectViewResult("shopOrderGanymede")
+					.setParameter("targetx", 0)
+					.setParameter("targety", 0);
 		}
 
 		// Weg finden und Preis ausrechnen
