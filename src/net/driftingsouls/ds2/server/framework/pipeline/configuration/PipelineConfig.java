@@ -33,7 +33,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
 import javax.annotation.PostConstruct;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
@@ -104,21 +106,31 @@ public class PipelineConfig {
 		if( !this.rules.isEmpty() ) {
 			throw new IllegalStateException("Die Pipeline wurde bereits geladen");
 		}
-		log.info("Reading "+Configuration.getConfigPath()+"pipeline.xml");
-		
-		Document doc = XMLUtils.readFile(Configuration.getConfigPath()+"pipeline.xml");
-	
-		// Module
-		scanForModules();
-		
-		// Regeln
-		NodeList nodes = XMLUtils.getNodesByXPath(doc, "/pipeline/rules/*");
-		for( int i=0; i < nodes.getLength(); i++ ) {
-			if("match".equals(nodes.item(i).getNodeName())) {
-				rules.add(new MatchRule(this, nodes.item(i)));
+		log.info("Reading pipeline.xml");
+
+		try( InputStream stream = getClass().getResourceAsStream("/META-INF/pipeline.xml") )
+		{
+			if( stream == null )
+			{
+				throw new FileNotFoundException("Konnte pipeline.xml nicht finden");
 			}
-			else {
-				throw new Exception("Unhandled pipeline rule '"+nodes.item(i).getNodeName()+"'");
+			Document doc = XMLUtils.readStream(stream);
+
+			// Module
+			scanForModules();
+
+			// Regeln
+			NodeList nodes = XMLUtils.getNodesByXPath(doc, "/pipeline/rules/*");
+			for (int i = 0; i < nodes.getLength(); i++)
+			{
+				if ("match".equals(nodes.item(i).getNodeName()))
+				{
+					rules.add(new MatchRule(this, nodes.item(i)));
+				}
+				else
+				{
+					throw new Exception("Unhandled pipeline rule '" + nodes.item(i).getNodeName() + "'");
+				}
 			}
 		}
 	}

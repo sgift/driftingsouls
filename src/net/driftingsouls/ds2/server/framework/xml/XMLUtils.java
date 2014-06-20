@@ -18,8 +18,10 @@
  */
 package net.driftingsouls.ds2.server.framework.xml;
 
-import java.io.File;
-import java.io.IOException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -32,11 +34,9 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Hilfsfunktionen fuer XML-Daten.
@@ -61,6 +61,18 @@ public class XMLUtils {
 	 */
 	public static Document readFile(String file) throws SAXException, IOException, ParserConfigurationException {
 		return factory.newDocumentBuilder().parse(new File(file));
+	}
+
+	/**
+	 * Liesst einen Stream als XML-Dokument ein.
+	 * @param stream Der Pfad zur Datei
+	 * @return Das XML-Dokument
+	 * @throws SAXException
+	 * @throws IOException
+	 * @throws ParserConfigurationException
+	 */
+	public static Document readStream(InputStream stream) throws SAXException, IOException, ParserConfigurationException {
+		return factory.newDocumentBuilder().parse(stream);
 	}
 
 	/**
