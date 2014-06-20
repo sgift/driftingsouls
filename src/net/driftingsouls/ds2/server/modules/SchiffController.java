@@ -249,7 +249,7 @@ public class SchiffController extends Controller
 			TemplateEngine t = templateViewResultFactory.createFor(this);
 
 			ShipTypeData shiptype = ship.getTypeData();
-			String msg = "Ich habe dir die " + ship.getName() + " (" + ship.getId() + "), ein Schiff der " + shiptype.getNickname() + "-Klasse, &uuml;bergeben\nSie steht bei " + ship.getLocation().displayCoordinates(false);
+			String msg = "Ich habe dir die [ship="+ship.getId()+"]" + ship.getName() + "[/ship], ein Schiff der " + shiptype.getNickname() + "-Klasse, &uuml;bergeben\nSie steht bei " + ship.getLocation().displayCoordinates(false);
 			PM.send(user, newowner.getId(), "Schiff &uuml;bergeben", msg);
 
 			String consMessage = Ship.MESSAGE.getMessage();
