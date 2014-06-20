@@ -19,14 +19,14 @@
 package net.driftingsouls.ds2.server.modules.schiffplugins;
 
 import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.entities.JumpNode;
-import net.driftingsouls.ds2.server.entities.Nebel;
+import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.map.PlayerStarmap;
+import net.driftingsouls.ds2.server.map.SectorImage;
 import net.driftingsouls.ds2.server.modules.SchiffController;
 import net.driftingsouls.ds2.server.ships.RouteFactory;
 import net.driftingsouls.ds2.server.ships.SchiffEinstellungen;
@@ -94,27 +94,6 @@ public class NavigationDefault implements SchiffPlugin {
 		return output;
 	}
 
-	private static class SectorImage
-	{
-		private final String image;
-		private final int x;
-		private final int y;
-		private final int size;
-
-		private SectorImage(String image)
-		{
-			this(image, 0, 0, 0);
-		}
-
-		private SectorImage(String image, int size, int x, int y)
-		{
-			this.image = image;
-			this.x = x;
-			this.y = y;
-			this.size = size;
-		}
-	}
-
 	@Action(ActionType.DEFAULT)
 	public void output(Parameters caller)
     {
@@ -162,65 +141,10 @@ public class NavigationDefault implements SchiffPlugin {
 			int y = data.getY();
 			int sys = data.getSystem();
 
-			SectorImage[][] sectorimgs = new SectorImage[3][3];
-			List<?> jnlist = db.createQuery("from JumpNode where system=:sys and (x between :xstart and :xend) and (y between :ystart and :yend)")
-				.setInteger("sys", sys)
-				.setInteger("xstart", x-1)
-				.setInteger("xend", x+1)
-				.setInteger("ystart", y-1)
-				.setInteger("yend", y+1)
-				.list();
-
-			for (Object aJnlist : jnlist)
-			{
-				JumpNode jn = (JumpNode) aJnlist;
-				sectorimgs[jn.getX() - x + 1][jn.getY() - y + 1] = new SectorImage("./data/starmap/jumpnode/jumpnode.png");
-			}
-
-			List<Base> baselist = Common.cast(db.createQuery("select distinct b from Base b where b.system=:sys and floor(sqrt(pow(:x-b.x,2)+pow(:y-b.y,2))) <= b.size+1")
-				.setInteger("sys", sys)
-				.setInteger("x", x)
-				.setInteger("y", y)
-				.list());
-
-			for (int ny = 0; ny <= 2; ny++)
-			{
-				for (int nx = 0; nx <= 2; nx++)
-				{
-					Location curLoc = new Location(sys, x + nx - 1, y + ny - 1);
-
-					int cx = nx;
-					int cy = ny;
-					baselist.stream()
-						.filter(b -> b.getOwner() != user)
-						.filter(b -> curLoc.sameSector(0, b.getLocation(), b.getSize()))
-						.forEach(aBase -> {
-							int[] offset = aBase.getBaseImageOffset(curLoc);
-							sectorimgs[cx][cy] = new SectorImage(aBase.getBaseImage(aBase.getLocation()), aBase.getSize(), offset[0], offset[1]);
-						});
-
-					baselist.stream()
-							.filter(b -> b.getOwner() == user)
-							.filter(b -> curLoc.sameSector(0, b.getLocation(), b.getSize()))
-							.forEach(aBase -> sectorimgs[cx][cy] = new SectorImage("./data/starmap/asti_own/asti_own.png"));
-				}
-			}
-
-			List<?> nebellist = db.createQuery("from Nebel where loc.system=:sys and (loc.x between :xstart and :xend) and (loc.y between :ystart and :yend)")
-				.setInteger("sys", sys)
-				.setInteger("xstart", x-1)
-				.setInteger("xend", x+1)
-				.setInteger("ystart", y-1)
-				.setInteger("yend", y+1)
-				.list();
-			for (Object aNebellist : nebellist)
-			{
-				Nebel nebel = (Nebel) aNebellist;
-				sectorimgs[nebel.getX() - x + 1][nebel.getY() - y + 1] = new SectorImage(nebel.getImage());
-			}
+			StarSystem system = (StarSystem) db.get(StarSystem.class, sys);
+			PlayerStarmap map = new PlayerStarmap(user, system, new int[] {x-1, y-1, 3, 3});
 
 			int tmp = 0;
-			t.setVar("schiff.navigation.size",37);
 
 			Location[] locs = new Location[8];
 			for( int ny = 0, index=0; ny <= 2; ny++ ) {
@@ -242,25 +166,23 @@ public class NavigationDefault implements SchiffPlugin {
 				for( int nx = 0; nx <= 2; nx++ ) {
 					tmp++;
 
-					SectorImage img = sectorimgs[nx][ny];
-					if( img == null )
-					{
-						img = new SectorImage("./data/starmap/space/space.png");
-					}
-
-					int sizeX = (img.size*2+1)*37;
-					int sizeY = (img.size*2+1)*37;
-
 					Location sector = new Location(sys, x + nx - 1, y + ny - 1);
-					t.setVar(	"schiff.navigation.nav.direction",		tmp,
-								"schiff.navigation.nav.location",		sector.displayCoordinates(true),
-								"schiff.navigation.nav.sectorimage",	img.image,
-								"schiff.navigation.nav.sectorimage.x",	img.x*37,
-								"schiff.navigation.nav.sectorimage.y",	img.y*37,
-								"schiff.navigation.nav.sectorimage.w",	sizeX,
-								"schiff.navigation.nav.sectorimage.h",	sizeY,
-								"schiff.navigation.nav.newrow",			newrow,
-								"schiff.navigation.nav.warn",			((1 != nx || 1 != ny) && alertStatus.contains(sector)) );
+					SectorImage sectorOverlayImage = map.getUserSectorBaseImage(sector);
+					if( sectorOverlayImage != null ) {
+						t.setVar("schiff.navigation.nav.sectorimage", sectorOverlayImage.getImage(),
+								"schiff.navigation.nav.sectorimage.x", sectorOverlayImage.getX(),
+								"schiff.navigation.nav.sectorimage.y", sectorOverlayImage.getY());
+					}
+					else {
+						t.setVar("schiff.navigation.nav.sectorimage", "");
+					}
+					t.setVar( "schiff.navigation.nav.direction", tmp,
+							"schiff.navigation.nav.location", sector.displayCoordinates(true),
+							"schiff.navigation.nav.tile", "./ds?module=map&action=tile&sys="+sys+"&tileX="+(sector.getX()-1)/20+"&tileY="+(sector.getY()-1)/20,
+							"schiff.navigation.nav.tile.x", ((sector.getX()-1)%20)*25,
+							"schiff.navigation.nav.tile.y", ((sector.getY()-1)%20)*25,
+							"schiff.navigation.nav.newrow", newrow,
+							"schiff.navigation.nav.warn", ((1 != nx || 1 != ny) && alertStatus.contains(sector)) );
 
 					t.parse( "schiff.navigation.nav.list", "schiff.navigation.nav.listitem", true );
 					newrow = false;

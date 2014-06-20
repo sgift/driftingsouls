@@ -1,0 +1,65 @@
+#modul-schiff .navigation {
+	color: white;
+	font-family: arial, helvetica, serif;
+	border: 1px solid;
+	border-spacing:0;
+	margin-left: auto;
+	margin-right: auto;
+}
+#modul-schiff .navigation td {
+	background-color: #c0c0c0;
+	border: 0 solid #c0c0c0;
+	font-size:16px;
+	width:37px;
+	height:37px;
+	text-align:center;
+}
+
+#modul-schiff .navigation .imgcontainer {
+	position:relative;
+	top:0;
+	left:0;
+	width:25px;
+	height:25px;
+	-moz-transform: scale(1.48);
+	-webkit-transform: scale(1.48);
+	transform: scale(1.48);
+	margin: 0 auto;
+}
+
+#modul-schiff .navigation .sectorimg,
+#modul-schiff .navigation .tile,
+#modul-schiff .navigation .sectorlabel {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+
+#modul-schiff .navigation .tile {
+	z-index:1;
+}
+
+#modul-schiff .navigation .sectorimg {
+	z-index:2;
+}
+
+#modul-schiff .navigation .sectorlabel {
+	z-index:3;
+}
+
+#modul-schiff .navigation .label {
+	display:table-cell;
+	width:25px;
+	height:25px;
+	text-align:center;
+	vertical-align:middle;
+	font-size:7px;
+	color:white;
+	cursor:pointer;
+}
+
+#modul-schiff .navigation .warn .label {
+	color:red;
+}
