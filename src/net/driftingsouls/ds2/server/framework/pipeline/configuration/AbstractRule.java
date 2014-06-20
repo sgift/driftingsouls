@@ -21,44 +21,14 @@ package net.driftingsouls.ds2.server.framework.pipeline.configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Pipeline;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-
-// TODO: Behandlung Module, Reader und Servlet in eigene Klassen auslagern
 abstract class AbstractRule implements Rule
 {
-	private final Node config;
-
 	private final Executer executer;
-
-	private final ParameterMap parameterMap;
 
 	AbstractRule(PipelineConfig pipelineConfig, Node matchNode) throws Exception
 	{
-		Node config = XMLUtils.getNodeByXPath(matchNode, "config");
-		if (config != null)
-		{
-			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-			doc.appendChild(doc.importNode(config, true));
-			this.config = doc.getFirstChild();
-		}
-		else
-		{
-			this.config = null;
-		}
-
-		Node paramMap = XMLUtils.getNodeByXPath(matchNode, "parameter-map");
-		if (paramMap != null)
-		{
-			this.parameterMap = new ParameterMap(paramMap);
-		}
-		else
-		{
-			this.parameterMap = null;
-		}
-
 		Node node = XMLUtils.getNodeByXPath(matchNode, "execute-module");
 		if (node != null)
 		{
@@ -90,18 +60,6 @@ abstract class AbstractRule implements Rule
 			return null;
 		}
 
-		if (parameterMap != null)
-		{
-			parameterMap.apply(context);
-		}
-
-		Pipeline pipe = this.executer.execute(context);
-
-		if (pipe != null)
-		{
-			pipe.setConfiguration(config);
-		}
-
-		return pipe;
+		return this.executer.execute(context);
 	}
 }

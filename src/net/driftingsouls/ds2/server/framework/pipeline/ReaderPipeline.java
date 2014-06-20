@@ -21,8 +21,6 @@ package net.driftingsouls.ds2.server.framework.pipeline;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.reader.Reader;
 
-import org.w3c.dom.Node;
-
 /**
  * Eine Pipeline basierend auf Reader.
  * @author Christopher Jung
@@ -31,7 +29,6 @@ import org.w3c.dom.Node;
 public class ReaderPipeline implements Pipeline {
 	private Class<? extends Reader> reader;
 	private String file;
-	private Node config;
 	
 	/**
 	 * Konstruktor.
@@ -50,19 +47,6 @@ public class ReaderPipeline implements Pipeline {
 		reader.read(context, this);
 	}
 
-	@Override
-	public void setConfiguration(Node node) {
-		this.config = node;
-	}
-	
-	/**
-	 * Gibt den XML-Konfigurationsknoten oder <code>null</code> zurueck.
-	 * @return Der XML-Konfigurationsknoten oder <code>null</code>
-	 */
-	public Node getConfiguration() {
-		return this.config;
-	}
-	
 	/**
 	 * Gibt die zu lesende Datei zurueck.
 	 * @return Die zu lesende Datei

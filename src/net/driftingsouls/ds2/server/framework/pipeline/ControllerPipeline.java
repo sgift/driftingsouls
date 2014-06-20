@@ -21,7 +21,6 @@ package net.driftingsouls.ds2.server.framework.pipeline;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionMethodInvoker;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
-import org.w3c.dom.Node;
 
 /**
  * Eine Generator-basierte Pipeline bestehend aus Generator, Transformer und Serializer,
@@ -29,14 +28,14 @@ import org.w3c.dom.Node;
  * @author Christopher Jung
  *
  */
-public class GeneratorPipeline implements Pipeline {
+public class ControllerPipeline implements Pipeline {
 	private Class<? extends Controller> generator;
 
 	/**
 	 * Konstruktor.
 	 * @param generator Der zu verwendende Generator
 	 */
-	public GeneratorPipeline( Class<? extends Controller> generator ) {
+	public ControllerPipeline(Class<? extends Controller> generator) {
 		this.generator = generator;
 	}
 	
@@ -49,10 +48,5 @@ public class GeneratorPipeline implements Pipeline {
 	@Override
 	public void execute(Context context) throws Exception {
 		generateContent(context, generator);
-	}
-
-	@Override
-	public void setConfiguration(Node node)  {
-		//Won't used - only to fulfill contract - wrong interface?	
 	}
 }

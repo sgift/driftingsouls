@@ -20,8 +20,6 @@ package net.driftingsouls.ds2.server.framework.pipeline;
 
 import net.driftingsouls.ds2.server.framework.Context;
 
-import org.w3c.dom.Node;
-
 /**
  * Standardinterface fuer Pipelines.
  * @author Christopher Jung
@@ -34,11 +32,4 @@ public interface Pipeline {
 	 * @throws Exception
 	 */
 	public void execute(Context context) throws Exception;
-	
-	/**
-	 * Setzt den XML-Konfigurationsknoten der Pipeline. Wenn dieser <code>null</code> ist, wird
-	 * kein Konfigurationsknoten verwendet.
-	 * @param node Der XML-Konfigurationsknoten der Pipeline oder <code>null</code>
-	 */
-	public void setConfiguration(Node node);
 }
