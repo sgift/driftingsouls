@@ -2,9 +2,9 @@ package net.driftingsouls.ds2.server.comm;
 
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.ParameterReader;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamKonverter;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.UrlParamKonverterFuer;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.ParameterReader;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParamKonverter;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParamKonverterFuer;
 
 /**
  * Konvertiert einen URL-Parameter in einen Ordner mittels der Ordner-ID.

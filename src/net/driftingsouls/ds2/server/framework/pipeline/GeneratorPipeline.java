@@ -19,10 +19,8 @@
 package net.driftingsouls.ds2.server.framework.pipeline;
 
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import org.w3c.dom.Node;
-
-import java.lang.reflect.Constructor;
 
 /**
  * Eine Generator-basierte Pipeline bestehend aus Generator, Transformer und Serializer,

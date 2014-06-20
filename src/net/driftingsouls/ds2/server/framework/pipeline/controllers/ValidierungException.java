@@ -1,4 +1,4 @@
-package net.driftingsouls.ds2.server.framework.pipeline.generators;
+package net.driftingsouls.ds2.server.framework.pipeline.controllers;
 
 /**
  * Spezieller Fehler zum Anzeigen von Validierungsfehlern.

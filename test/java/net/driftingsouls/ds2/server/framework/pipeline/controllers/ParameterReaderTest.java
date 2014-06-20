@@ -1,4 +1,4 @@
-package net.driftingsouls.ds2.server.framework.pipeline.generators;
+package net.driftingsouls.ds2.server.framework.pipeline.controllers;
 
 import net.driftingsouls.ds2.server.DBSingleTransactionTest;
 import net.driftingsouls.ds2.server.config.Medal;

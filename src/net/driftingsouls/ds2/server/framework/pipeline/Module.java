@@ -18,7 +18,7 @@
  */
 package net.driftingsouls.ds2.server.framework.pipeline;
 
-import net.driftingsouls.ds2.server.framework.pipeline.generators.OutputHandler;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.OutputHandler;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
 
 /**
  * Marker fuer Pipeline-Module. Eine hiermit annotierte Klasse muss
- * von {@link net.driftingsouls.ds2.server.framework.pipeline.generators.Controller} abgeleitet sein.
+ * von {@link net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller} abgeleitet sein.
  * @author Christopher Jung
  *
  */
@@ -54,8 +54,8 @@ public @interface Module
 	/**
 	 * Die fuer die Ausgabe von Header, Footer und Fehlern zustaendige Implementierung.
 	 * Standardmaessig waehlt das Framework selbst die passende Implementierung in
-	 * Abhaengigkeit von gewaehlten {@link net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType}.
-	 * Der hier angegebene Handler kann noch durch eine explizite Angabe von {@link net.driftingsouls.ds2.server.framework.pipeline.generators.Action#outputHandler}
+	 * Abhaengigkeit von gewaehlten {@link net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType}.
+	 * Der hier angegebene Handler kann noch durch eine explizite Angabe von {@link net.driftingsouls.ds2.server.framework.pipeline.controllers.Action#outputHandler}
 	 * ueberschrieben werden.
 	 */
 	Class<? extends OutputHandler> outputHandler() default OutputHandler.class;

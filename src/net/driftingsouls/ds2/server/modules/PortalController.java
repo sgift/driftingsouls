@@ -45,10 +45,10 @@ import net.driftingsouls.ds2.server.framework.authentication.LoginDisabledExcept
 import net.driftingsouls.ds2.server.framework.authentication.TickInProgressException;
 import net.driftingsouls.ds2.server.framework.authentication.WrongPasswordException;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.Action;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.Controller;
-import net.driftingsouls.ds2.server.framework.pipeline.generators.EmptyHeaderOutputHandler;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.EmptyHeaderOutputHandler;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.units.TransientUnitCargo;

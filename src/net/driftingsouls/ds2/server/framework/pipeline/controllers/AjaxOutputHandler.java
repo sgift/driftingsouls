@@ -1,4 +1,4 @@
-package net.driftingsouls.ds2.server.framework.pipeline.generators;
+package net.driftingsouls.ds2.server.framework.pipeline.controllers;
 
 import com.google.gson.Gson;
 import net.driftingsouls.ds2.server.framework.ContextMap;
