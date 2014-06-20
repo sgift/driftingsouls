@@ -166,15 +166,6 @@ public class Configuration
 	}
 
 	/**
-	 * Gibt den Pfad zum Questverzeichnis zurueck.
-	 * @return Der Pfad
-	 */
-	public static String getQuestPath()
-	{
-		return config.get("QUESTPATH");
-	}
-
-	/**
 	 * Gibt die Email-Adresse zurueck, an die Fehler- oder Statusmeldungen
 	 * gesendet werden sollen. Mehrere Adressen koennen ueber ein <code>;</code>
 	 * separiert werden.

@@ -27,7 +27,6 @@
 	<setting type="string" name="SMTP-SERVER" value="localhost" />
 	<!-- [Optional; default false] <setting type="string" name="PRODUCTION" value="true" />-->
 	<setting type="string" name="ABSOLUTE_PATH" value="/home/bktheg/Projects/dsj/web/" />
-	<setting type="string" name="QUESTPATH" value="/home/bktheg/public_html/ds2/quests/" />
 	<setting type="string" name="LOXPATH" value="/home/bktheg/public_html/ds2/lox/" />
 	<setting type="string" name="EXCEPTION_MAIL" value="bktheg@web.de" />
 	<setting type="string" name="EXCEPTION_MAIL_PREFIX" value="[DS2J]" />
