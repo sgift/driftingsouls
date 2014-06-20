@@ -51,11 +51,13 @@ import java.util.Map;
 public class HandelController extends Controller
 {
 	private TemplateViewResultFactory templateViewResultFactory;
+	private ConfigService configService;
 
 	@Autowired
-	public HandelController(TemplateViewResultFactory templateViewResultFactory)
+	public HandelController(TemplateViewResultFactory templateViewResultFactory, ConfigService configService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.configService = configService;
 
 		setPageTitle("Handel");
 		addPageMenuEntry("Angebote", Common.buildUrl("default"));
@@ -172,7 +174,7 @@ public class HandelController extends Controller
 			t.parse("addresources.list", "addresources.listitem", true);
 		}
 
-		t.setVar("trade.runningcost", new ConfigService().getValue(WellKnownConfigValue.AD_COST));
+		t.setVar("trade.runningcost", configService.getValue(WellKnownConfigValue.AD_COST));
 
 		return t;
 	}

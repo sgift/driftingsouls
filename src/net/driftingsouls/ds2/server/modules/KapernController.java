@@ -71,11 +71,13 @@ import java.util.Map.Entry;
 public class KapernController extends Controller
 {
 	private TemplateViewResultFactory templateViewResultFactory;
+	private ConfigService configService;
 
 	@Autowired
-	public KapernController(TemplateViewResultFactory templateViewResultFactory)
+	public KapernController(TemplateViewResultFactory templateViewResultFactory, ConfigService configService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.configService = configService;
 	}
 
 	private void validiereEigenesUndZielschiff(Ship eigenesSchiff, Ship zielSchiff)
@@ -216,7 +218,7 @@ public class KapernController extends Controller
 			{
 				user.addBounty(shipBounty);
 				//Make it public that there's a new bounty on a player, so others can go to hunt
-				int bountyChannel = new ConfigService().getValue(WellKnownConfigValue.BOUNTY_CHANNEL);
+				int bountyChannel = configService.getValue(WellKnownConfigValue.BOUNTY_CHANNEL);
 				ComNetChannel channel = (ComNetChannel) db.get(ComNetChannel.class, bountyChannel);
 				if( channel != null )
 				{

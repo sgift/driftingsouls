@@ -60,12 +60,14 @@ public class MainController extends Controller
 
 	private Version version;
 	private TemplateViewResultFactory templateViewResultFactory;
+	private ConfigService configService;
 
 	@Autowired
-	public MainController(Version version, TemplateViewResultFactory templateViewResultFactory)
+	public MainController(Version version, TemplateViewResultFactory templateViewResultFactory, ConfigService configService)
 	{
 		this.version = version;
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.configService = configService;
 	}
 
 	/**
@@ -181,23 +183,22 @@ public class MainController extends Controller
 		info.commit = version.getVersion();
 		info.buildTime = version.getBuildTime();
 		info.build = version.getBuild();
-		info.buildUrl = new ConfigService().getValue(WellKnownConfigValue.BAMBOO_URL)+"browse/"+version.getBuild();
+		info.buildUrl = configService.getValue(WellKnownConfigValue.BAMBOO_URL)+"browse/"+version.getBuild();
 		return info;
 	}
 
 	@Action(ActionType.AJAX)
 	public String loadLastCommits() throws IOException
 	{
-		ConfigService config = new ConfigService();
-		String stashUrl = config.getValue(WellKnownConfigValue.STASH_URL);
+		String stashUrl = configService.getValue(WellKnownConfigValue.STASH_URL);
 		if( !stashUrl.endsWith("/") )
 		{
 			stashUrl += "/";
 		}
 		String urlStr = String.format("%srest/api/1.0/projects/%s/repos/%s/commits",
 				stashUrl,
-				config.getValue(WellKnownConfigValue.STASH_PROJECT_NAME),
-				config.getValue(WellKnownConfigValue.STASH_REPO_NAME));
+				configService.getValue(WellKnownConfigValue.STASH_PROJECT_NAME),
+				configService.getValue(WellKnownConfigValue.STASH_REPO_NAME));
 		if( version.isVersioned() )
 		{
 			urlStr += "?until="+version.getVersion();

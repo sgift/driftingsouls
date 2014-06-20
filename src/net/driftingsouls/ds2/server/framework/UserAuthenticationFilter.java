@@ -57,6 +57,6 @@ public class UserAuthenticationFilter extends SessionBasedFilter
 	@Override
 	protected void initFilterBean() throws ServletException
 	{
-		this.manager = new DefaultAuthenticationManager();
+		this.manager = new DefaultAuthenticationManager(new ConfigService());
 	}
 }

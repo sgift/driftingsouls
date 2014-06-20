@@ -74,7 +74,7 @@ public class AngriffController extends Controller
 	private TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
-	public AngriffController(TemplateViewResultFactory templateViewResultFactory) {
+	public AngriffController(ConfigService configService, TemplateViewResultFactory templateViewResultFactory) {
 		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Schlacht");
@@ -91,7 +91,7 @@ public class AngriffController extends Controller
 		menuActions.put("other", KSMenuOtherAction.class);
 		menuActions.put("shields", KSMenuShieldsAction.class);
         menuActions.put("undock", KSMenuUndockAction.class);
-		if( new ConfigService().getValue(WellKnownConfigValue.ENABLE_CHEATS) ) {
+		if( configService.getValue(WellKnownConfigValue.ENABLE_CHEATS) ) {
 			menuActions.put("cheats", KSMenuCheatsAction.class);
 		}
 
@@ -120,7 +120,7 @@ public class AngriffController extends Controller
 		actions.put("batterien_single", KSDischargeBatteriesSingleAction.class);
 		actions.put("batterien_all", KSDischargeBatteriesAllAction.class);
 		actions.put("batterien_class", KSDischargeBatteriesClassAction.class);
-		if( new ConfigService().getValue(WellKnownConfigValue.ENABLE_CHEATS) ) {
+		if( configService.getValue(WellKnownConfigValue.ENABLE_CHEATS) ) {
 			actions.put("cheat_regenerate", KSCheatRegenerateOwnAction.class);
 			actions.put("cheat_regenerateenemy", KSCheatRegenerateEnemyAction.class);
 		}

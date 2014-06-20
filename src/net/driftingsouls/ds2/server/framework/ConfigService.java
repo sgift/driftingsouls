@@ -2,11 +2,13 @@ package net.driftingsouls.ds2.server.framework;
 
 import net.driftingsouls.ds2.server.framework.utils.StringToTypeConverter;
 import org.hibernate.Session;
+import org.springframework.stereotype.Service;
 
 /**
  * Service zum Zugriff auf Konfigurationswerte. Die Konfigurationswerte werden durch {@link net.driftingsouls.ds2.server.framework.ConfigValue}s
  * repraesentiert und besitzen primaer einen Schluessel (key bzw name) und einen Wert in Form eines Strings.
  */
+@Service
 public class ConfigService
 {
 	/**

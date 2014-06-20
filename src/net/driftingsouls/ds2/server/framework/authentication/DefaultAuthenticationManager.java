@@ -52,6 +52,13 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	private static final ServiceLoader<AuthenticateEventListener> authListenerList = ServiceLoader.load(AuthenticateEventListener.class);
 	private static final boolean DEV_MODE = !Configuration.isProduction();
 
+	private ConfigService configService;
+
+	public DefaultAuthenticationManager(ConfigService configService)
+	{
+		this.configService = configService;
+	}
+
 	@Override
 	public BasicUser login(String username, String password, boolean rememberMe) throws AuthenticationException {
 		Context context = ContextMap.getContext();
@@ -126,7 +133,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	}
 
 	private void checkLoginDisabled() throws LoginDisabledException {
-		String disablelogin = new ConfigService().getValue(WellKnownConfigValue.DISABLE_LOGIN);
+		String disablelogin = configService.getValue(WellKnownConfigValue.DISABLE_LOGIN);
 		if( !disablelogin.isEmpty() ) {
 			throw new LoginDisabledException(disablelogin);
 		}

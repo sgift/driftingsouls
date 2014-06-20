@@ -466,11 +466,13 @@ public class ErsteigernController extends Controller
 	}
 
 	private TemplateViewResultFactory templateViewResultFactory;
+	private ConfigService configService;
 
 	@Autowired
-	public ErsteigernController(TemplateViewResultFactory templateViewResultFactory)
+	public ErsteigernController(TemplateViewResultFactory templateViewResultFactory, ConfigService configService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.configService = configService;
 
 		setPageTitle("Fraktionen");
 	}
@@ -1368,7 +1370,7 @@ public class ErsteigernController extends Controller
 
 		List<StarSystem> result = new ArrayList<>();
 
-		int defaultDropZone = new ConfigService().getValue(WellKnownConfigValue.GTU_DEFAULT_DROPZONE);
+		int defaultDropZone = configService.getValue(WellKnownConfigValue.GTU_DEFAULT_DROPZONE);
 
 		List<?> systems = db.createCriteria(StarSystem.class).addOrder(Order.asc("id")).list();
 		for (Object system1 : systems)
@@ -2279,8 +2281,8 @@ public class ErsteigernController extends Controller
         t.setBlock("_ERSTEIGERN", "ausbau.upgradetypes.javascript.2.listitem", "ausbau.upgradetypes.javascript.2.list");
         t.setBlock("ausbau.upgradetypes.listitem", "ausbau.upgradetypes.mods.listitem", "ausbau.upgradetypes.mods.list");
 
-        ConfigValue configrabattfaktor = new ConfigService().get(WellKnownConfigValue.DI_FAKTOR_RABATT);
-        ConfigValue configzeitfaktor = new ConfigService().get(WellKnownConfigValue.DI_FAKTOR_ZEIT);
+        ConfigValue configrabattfaktor = configService.get(WellKnownConfigValue.DI_FAKTOR_RABATT);
+        ConfigValue configzeitfaktor = configService.get(WellKnownConfigValue.DI_FAKTOR_ZEIT);
         double rabattfaktor = Double.valueOf(configrabattfaktor.getValue());
         double zeitfaktor = Double.valueOf(configzeitfaktor.getValue());
 

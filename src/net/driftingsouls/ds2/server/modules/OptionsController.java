@@ -62,11 +62,13 @@ public class OptionsController extends Controller
 {
 	private static final Log log = LogFactory.getLog(OptionsController.class);
 	private TemplateViewResultFactory templateViewResultFactory;
+	private ConfigService configService;
 
 	@Autowired
-	public OptionsController(TemplateViewResultFactory templateViewResultFactory)
+	public OptionsController(TemplateViewResultFactory templateViewResultFactory, ConfigService configService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.configService = configService;
 	}
 
 	/**
@@ -187,7 +189,7 @@ public class OptionsController extends Controller
 			PM.sendToAdmins(user, "Account l&ouml;schen", msg.toString(), 0);
 
 			t.setVar("options.delaccountresp", 1,
-					"delaccountresp.admins", new ConfigService().getValue(WellKnownConfigValue.ADMIN_PMS_ACCOUNT));
+					"delaccountresp.admins", configService.getValue(WellKnownConfigValue.ADMIN_PMS_ACCOUNT));
 
 		}
 

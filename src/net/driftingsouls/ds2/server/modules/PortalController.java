@@ -56,7 +56,6 @@ import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeExc
 import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -74,12 +73,14 @@ public class PortalController extends Controller
 {
 	private AuthenticationManager authManager;
 	private TemplateViewResultFactory templateViewResultFactory;
+	private ConfigService configService;
 
 	@Autowired
-	public PortalController(AuthenticationManager authManager, TemplateViewResultFactory templateViewResultFactory)
+	public PortalController(AuthenticationManager authManager, TemplateViewResultFactory templateViewResultFactory, ConfigService configService)
 	{
 		this.authManager = authManager;
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.configService = configService;
 	}
 
 	/**
@@ -427,7 +428,7 @@ public class PortalController extends Controller
 		}
 
 		//Willkommens-PM versenden
-		User source = (User) db.get(User.class, new ConfigService().getValue(WellKnownConfigValue.REGISTER_PM_SENDER));
+		User source = (User) db.get(User.class, configService.getValue(WellKnownConfigValue.REGISTER_PM_SENDER));
 		PM.send(source, newid, "Willkommen bei Drifting Souls 2",
 				"[font=arial]Herzlich willkommen bei Drifting Souls 2.\n" +
 						"Diese PM wird automatisch an alle neuen Spieler versandt, um\n" +
@@ -476,7 +477,7 @@ public class PortalController extends Controller
 
 	private void erstelleStartBasis(Session db, User newuser, Base base)
 	{
-		String[] baselayoutStr = new ConfigService().getValue(WellKnownConfigValue.REGISTER_BASELAYOUT).split(",");
+		String[] baselayoutStr = configService.getValue(WellKnownConfigValue.REGISTER_BASELAYOUT).split(",");
 		Integer[] activebuildings = new Integer[baselayoutStr.length];
 		Integer[] baselayout = new Integer[baselayoutStr.length];
 		int bewohner = 0;
@@ -524,7 +525,7 @@ public class PortalController extends Controller
 		base.setWidth(basetype.getWidth());
 		base.setHeight(basetype.getHeight());
 		base.setMaxCargo(basetype.getCargo());
-		base.setCargo(new Cargo(Cargo.Type.AUTO, new ConfigService().getValue(WellKnownConfigValue.REGISTER_BASECARGO)));
+		base.setCargo(new Cargo(Cargo.Type.AUTO, configService.getValue(WellKnownConfigValue.REGISTER_BASECARGO)));
 		base.setCore(null);
 		base.setUnits(new TransientUnitCargo());
 		base.setCoreActive(false);
@@ -562,7 +563,7 @@ public class PortalController extends Controller
 
 		boolean showform;
 
-		String disableregister = new ConfigService().getValue(WellKnownConfigValue.DISABLE_REGISTER);
+		String disableregister = configService.getValue(WellKnownConfigValue.DISABLE_REGISTER);
 		if (!"".equals(disableregister))
 		{
 			t.setVar("show.register.registerdisabled", 1,
@@ -571,7 +572,7 @@ public class PortalController extends Controller
 			return t;
 		}
 
-		ConfigValue keys = new ConfigService().get(WellKnownConfigValue.KEYS);
+		ConfigValue keys = configService.get(WellKnownConfigValue.KEYS);
 		boolean needkey = false;
 		if (keys.getValue().indexOf('*') == -1)
 		{
