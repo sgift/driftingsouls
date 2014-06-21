@@ -280,17 +280,7 @@ public abstract class AbstractShipTypeDataWrapper implements ShipTypeData {
 	public boolean hasSrs() {
 		return inner.hasSrs();
 	}
-	
-	@Override
-	public int getScanCost() {
-		return inner.getScanCost();
-	}
-	
-	@Override
-	public int getPickingCost() {
-		return inner.getPickingCost();
-	}
-	
+
 	@Override
 	public int getMinCrew()
 	{

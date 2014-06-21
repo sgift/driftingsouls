@@ -94,8 +94,6 @@ public class SchiffstypModifikation
 	@ForeignKey(name="schiffstypmodifikation_fk_schiffstyp")
 	private ShipType oneWayWerft;
 	private Boolean srs;
-	private int scanCost;
-	private int pickingCost;
 	private int minCrew;
 	private double lostInEmpChance;
 	private int maxunitsize;
@@ -666,40 +664,6 @@ public class SchiffstypModifikation
 	}
 
 	/**
-	 * Gibt zurueck, wieviel ein LRS-Scan an Energie kosten soll.
-	 * @return Die Energiekosten
-	 */
-	public int getScanCost() {
-		return scanCost;
-	}
-
-	/**
-	 * Setzt, wieviel ein LRS-Scan an Energie kosten soll.
-	 * @param scanCost Die Energiekosten
-	 */
-	public void setScanCost(int scanCost)
-	{
-		this.scanCost = scanCost;
-	}
-
-	/**
-	 * Gibt zurueck, wieviel ein LRS-Sektorscan (Scannen des Inhalts eines Sektors) kosten soll.
-	 * @return Die Energiekosten
-	 */
-	public int getPickingCost() {
-		return pickingCost;
-	}
-
-	/**
-	 * Setzt, wieviel ein LRS-Sektorscan (Scannen des Inhalts eines Sektors) kosten soll.
-	 * @param pickingCost Die Energiekosten
-	 */
-	public void setPickingCost(int pickingCost)
-	{
-		this.pickingCost = pickingCost;
-	}
-
-	/**
 	 * @return Crewwert bei dem das Schiff noch normal funktioniert.
 	 */
 	public int getMinCrew()
@@ -822,12 +786,6 @@ public class SchiffstypModifikation
 		}
 		if ( this.oneWayWerft != null) {
 			effekte.add("onewaywerft=" + this.oneWayWerft.getId());
-		}
-		if ( scanCost != 0) {
-			effekte.add("scancost=" + scanCost);
-		}
-		if ( pickingCost != 0) {
-			effekte.add("pickingcost=" + pickingCost);
 		}
 		if ( this.minCrew != 0) {
 			effekte.add("mincrew=" + this.minCrew);
@@ -1334,17 +1292,6 @@ public class SchiffstypModifikation
 				return inner.hasSrs();
 			}
 			return inner.hasSrs() && SchiffstypModifikation.this.hasSrs();
-		}
-
-		@Override
-		public int getPickingCost() {
-			return SchiffstypModifikation.this.getPickingCost() + inner.getPickingCost();
-		}
-
-
-		@Override
-		public int getScanCost() {
-			return SchiffstypModifikation.this.getScanCost() + inner.getScanCost();
 		}
 
 		@Override

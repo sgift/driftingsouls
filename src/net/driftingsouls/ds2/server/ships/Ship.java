@@ -1473,8 +1473,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 		shipModules.setOneWayWerft(type.getOneWayWerft());
 		shipModules.setAblativeArmor(type.getAblativeArmor());
 		shipModules.setSrs(type.hasSrs());
-		shipModules.setPickingCost(type.getPickingCost());
-		shipModules.setScanCost(type.getScanCost());
 		shipModules.setMinCrew(type.getMinCrew());
 		shipModules.setVersorger(type.isVersorger());
 		shipModules.setLostInEmpChance(type.getLostInEmpChance());

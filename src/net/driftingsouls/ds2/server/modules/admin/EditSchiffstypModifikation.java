@@ -62,8 +62,6 @@ public class EditSchiffstypModifikation implements EntityEditor<SchiffstypModifi
 		srsOptions.put(Boolean.TRUE, "Ja");
 		srsOptions.put(Boolean.FALSE, "Nein");
 		form.field("Besitzt SRS", Boolean.class, SchiffstypModifikation::hasSrs, SchiffstypModifikation::setSrs).withOptions(srsOptions).withNullOption("Keine Änderung");
-		form.field("Scankosten", Integer.class, SchiffstypModifikation::getScanCost, SchiffstypModifikation::setScanCost);
-		form.field("Picking-Kosten", Integer.class, SchiffstypModifikation::getPickingCost, SchiffstypModifikation::setPickingCost);
 		form.field("Mindest-Crew", Integer.class, SchiffstypModifikation::getMinCrew, SchiffstypModifikation::setMinCrew);
 		form.field("EMP verfliegen", Double.class, SchiffstypModifikation::getLostInEmpChance, SchiffstypModifikation::setLostInEmpChance);
 		form.field("Kopfgeld", BigInteger.class, SchiffstypModifikation::getBounty, SchiffstypModifikation::setBounty);

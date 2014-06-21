@@ -110,8 +110,6 @@ public class EditShiptypes implements EntityEditor<ShipType>
 		form.field("Verstecken", Boolean.class, ShipType::isHide, ShipType::setHide);
 		form.field("Ablative Panzerung", Integer.class, ShipType::getAblativeArmor, ShipType::setAblativeArmor);
 		form.field("Besitzt SRS", Boolean.class, ShipType::hasSrs, ShipType::setSrs);
-		form.field("Scankosten", Integer.class, ShipType::getScanCost, ShipType::setScanCost);
-		form.field("Picking-Kosten", Integer.class, ShipType::getPickingCost, ShipType::setPickingCost);
 		form.field("Mindest-Crew", Integer.class, ShipType::getMinCrew, ShipType::setMinCrew);
 		form.field("EMP verfliegen", Double.class, ShipType::getLostInEmpChance, ShipType::setLostInEmpChance);
 		form.field("Kopfgeld", BigInteger.class, ShipType::getBounty, ShipType::setBounty);

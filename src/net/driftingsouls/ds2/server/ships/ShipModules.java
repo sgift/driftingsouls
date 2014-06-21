@@ -104,8 +104,6 @@ public class ShipModules implements ShipTypeData {
 	private ShipType oneWayWerft;
 	private int ablativeArmor;
 	private boolean srs;
-	private int scanCost;
-	private int pickingCost;
 	private int minCrew;
 	private double lostInEmpChance;
 	private int maxunitsize;
@@ -659,32 +657,6 @@ public class ShipModules implements ShipTypeData {
 	 */
 	public void setSrs(boolean srs) {
 		this.srs = srs;
-	}
-	
-	@Override
-	public int getScanCost() {
-		return scanCost;
-	}
-
-	/**
-	 * Setzt die Energiekosten pro LRS-Scan (Gesamtuebersicht).
-	 * @param scanCost Die Energiekosten
-	 */
-	public void setScanCost(int scanCost) {
-		this.scanCost = scanCost;
-	}
-	
-	@Override
-	public int getPickingCost() {
-		return pickingCost;
-	}
-
-	/**
-	 * Setzt die Energiekosten pro LRS-Sektorscan (Scannen des Inhalts eines Sektors).
-	 * @param pickingCost Die Energiekosten
-	 */
-	public void setPickingCost(int pickingCost) {
-		this.pickingCost = pickingCost;
 	}
 	
 	@Override

@@ -294,19 +294,6 @@ public interface ShipTypeData extends Cloneable {
 	 * @return <code>True</code>, wenn es ein SRS hat, <code>false</code> ansonsten.
 	 */
 	public boolean hasSrs();
-	
-	/**
-	 * Gibt die Energiekosten pro LRS-Scan (Gesamtuebersicht) zurueck.
-	 * @return Die Energiekosten
-	 */
-	public int getScanCost();
-	
-	/**
-	 * Gibt die Energiekosten pro LRS-Sektorscan (Scannen des Inhalts eines Sektors) zurueck.
-	 * @return Die Energiekosten
-	 */
-	public int getPickingCost();
-	
 
 	/**
 	 * @return Crewwert bei dem das Schiff noch normal funktioniert.

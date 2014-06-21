@@ -111,8 +111,6 @@ public class ShipType implements ShipTypeData {
 	private boolean hide;
 	private int ablativeArmor;
 	private boolean srs;
-	private int scanCost;
-	private int pickingCost;
 	private int minCrew;
 	private double lostInEmpChance;
 	private int maxunitsize;
@@ -405,16 +403,6 @@ public class ShipType implements ShipTypeData {
 		return srs;
 	}
 
-	@Override
-	public int getScanCost() {
-		return scanCost;
-	}
-
-	@Override
-	public int getPickingCost() {
-		return pickingCost;
-	}
-
 	/**
 	 * Setzt die ablative Panzerung.
 	 * @param ablativeArmor Die Panzerung
@@ -601,14 +589,6 @@ public class ShipType implements ShipTypeData {
 	}
 
 	/**
-	 * Setzt die Energiekosten pro LRS-Sektorscan.
-	 * @param pickingCost Die Kosten
-	 */
-	public void setPickingCost(int pickingCost) {
-		this.pickingCost = pickingCost;
-	}
-
-	/**
 	 * Setzt das Bild des Schiffstyps.
 	 * @param picture Das Bild
 	 */
@@ -654,14 +634,6 @@ public class ShipType implements ShipTypeData {
 	 */
 	public void setRu(int ru) {
 		this.ru = ru;
-	}
-
-	/**
-	 * Setzt die Energiekosten pro LRS-Scan.
-	 * @param scanCost Die Kosten
-	 */
-	public void setScanCost(int scanCost) {
-		this.scanCost = scanCost;
 	}
 
 	/**
