@@ -98,11 +98,6 @@ public class PlayerDelete implements AdminPlugin
 		}
 
 		long count;
-		echo.append("Loesche 'Abgeschlossen'-Status bei Quests");
-		count = db.createQuery("delete from CompletedQuest where user= :user")
-			.setEntity("user", user)
-			.executeUpdate();
-		echo.append(count).append("<br />\n");
 
 		if( user.getAlly() != null )
 		{
