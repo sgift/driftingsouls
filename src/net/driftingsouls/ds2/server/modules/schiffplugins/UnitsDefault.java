@@ -25,11 +25,13 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.units.UnitCargo;
+import org.springframework.stereotype.Component;
 
 /**
  * Schiffsmodul fuer die Anzeige des Unitcargos.
  *
  */
+@Component
 public class UnitsDefault implements SchiffPlugin {
 	@Action(ActionType.DEFAULT)
 	public String action(Parameters caller) {

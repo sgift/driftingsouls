@@ -31,6 +31,8 @@ import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
@@ -39,8 +41,17 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.modules.schiffplugins.ADocksDefault;
+import net.driftingsouls.ds2.server.modules.schiffplugins.CargoDefault;
+import net.driftingsouls.ds2.server.modules.schiffplugins.Handelsposten;
+import net.driftingsouls.ds2.server.modules.schiffplugins.JDocksDefault;
+import net.driftingsouls.ds2.server.modules.schiffplugins.JumpdriveShivan;
+import net.driftingsouls.ds2.server.modules.schiffplugins.NavigationDefault;
 import net.driftingsouls.ds2.server.modules.schiffplugins.Parameters;
 import net.driftingsouls.ds2.server.modules.schiffplugins.SchiffPlugin;
+import net.driftingsouls.ds2.server.modules.schiffplugins.SensorsDefault;
+import net.driftingsouls.ds2.server.modules.schiffplugins.UnitsDefault;
+import net.driftingsouls.ds2.server.modules.schiffplugins.WerftDefault;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
@@ -103,22 +114,6 @@ public class SchiffController extends Controller
 		}
 	}
 
-	private SchiffPlugin getPluginByName(String name)
-	{
-		String clsName = getClass().getPackage().getName() + ".schiffplugins." + name;
-		try
-		{
-			Class<?> cls = Class.forName(clsName);
-			Class<? extends SchiffPlugin> spClass = cls.asSubclass(SchiffPlugin.class);
-			return spClass.newInstance();
-		}
-		catch (Exception e)
-		{
-			log.error(e, e);
-			return null;
-		}
-	}
-
 	private void validiereSchiff(Ship ship)
 	{
 		User user = (User) getUser();
@@ -135,40 +130,41 @@ public class SchiffController extends Controller
 
 	private Map<String, SchiffPlugin> ermittlePluginsFuer(ShipTypeData shiptype, Ship communicate)
 	{
+		Context context = ContextMap.getContext();
 		Map<String, SchiffPlugin> pluginMapper = new LinkedHashMap<>();
-		pluginMapper.put("navigation", getPluginByName("NavigationDefault"));
-		pluginMapper.put("cargo", getPluginByName("CargoDefault"));
+		pluginMapper.put("navigation", context.getBean(NavigationDefault.class, null));
+		pluginMapper.put("cargo", context.getBean(CargoDefault.class, null));
 
 		if( communicate != null )
 		{
-			pluginMapper.put("handelsposten", getPluginByName("Handelsposten"));
+			pluginMapper.put("handelsposten", context.getBean(Handelsposten.class, null));
 		}
 
 		if (shiptype.getWerft() != 0)
 		{
-			pluginMapper.put("werft", getPluginByName("WerftDefault"));
+			pluginMapper.put("werft", context.getBean(WerftDefault.class, null));
 		}
 
 		if (shiptype.hasFlag(ShipTypeFlag.JUMPDRIVE_SHIVAN))
 		{
-			pluginMapper.put("jumpdrive", getPluginByName("JumpdriveShivan"));
+			pluginMapper.put("jumpdrive", context.getBean(JumpdriveShivan.class, null));
 		}
 
-		pluginMapper.put("sensors", getPluginByName("SensorsDefault"));
+		pluginMapper.put("sensors", context.getBean(SensorsDefault.class, null));
 
 		if (shiptype.getADocks() > 0)
 		{
-			pluginMapper.put("adocks", getPluginByName("ADocksDefault"));
+			pluginMapper.put("adocks", context.getBean(ADocksDefault.class, null));
 		}
 
 		if (shiptype.getJDocks() > 0)
 		{
-			pluginMapper.put("jdocks", getPluginByName("JDocksDefault"));
+			pluginMapper.put("jdocks", context.getBean(JDocksDefault.class, null));
 		}
 
 		if (shiptype.getUnitSpace() > 0)
 		{
-			pluginMapper.put("units", getPluginByName("UnitsDefault"));
+			pluginMapper.put("units", context.getBean(UnitsDefault.class, null));
 		}
 		return pluginMapper;
 	}

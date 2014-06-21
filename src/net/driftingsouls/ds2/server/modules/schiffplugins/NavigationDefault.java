@@ -30,11 +30,14 @@ import net.driftingsouls.ds2.server.map.SectorImage;
 import net.driftingsouls.ds2.server.modules.SchiffController;
 import net.driftingsouls.ds2.server.ships.RouteFactory;
 import net.driftingsouls.ds2.server.ships.SchiffEinstellungen;
+import net.driftingsouls.ds2.server.ships.SchiffFlugService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.Waypoint;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Set;
@@ -44,8 +47,17 @@ import java.util.Set;
  * @author Christopher Jung
  *
  */
+@Component
 public class NavigationDefault implements SchiffPlugin {
 	private static final Log log = LogFactory.getLog(NavigationDefault.class);
+
+	private SchiffFlugService schiffFlugService;
+
+	@Autowired
+	public NavigationDefault(SchiffFlugService schiffFlugService)
+	{
+		this.schiffFlugService = schiffFlugService;
+	}
 
 	@Action(ActionType.DEFAULT)
 	public String action(Parameters caller, String setdest, int system, int x, int y, String com, boolean bookmark, int act, int count, int targetx, int targety) {
@@ -88,8 +100,8 @@ public class NavigationDefault implements SchiffPlugin {
 		}
 
 		//Das Schiff soll sich offenbar bewegen
-		ship.move(route, forceLowHeat);
-		output += Ship.MESSAGE.getMessage();
+		SchiffFlugService.FlugErgebnis ergebnis = schiffFlugService.fliege(ship, route, forceLowHeat);
+		output += ergebnis.getMeldungen();
 
 		return output;
 	}

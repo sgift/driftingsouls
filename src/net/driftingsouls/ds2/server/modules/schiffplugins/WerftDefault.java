@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.modules.SchiffController;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -33,6 +34,7 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
+@Component
 public class WerftDefault implements SchiffPlugin {
 	@Action(ActionType.DEFAULT)
 	public String action(Parameters parameters) {

@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,7 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
+@Component
 public class JDocksDefault implements SchiffPlugin {
 	@Action(ActionType.DEFAULT)
 	public String action(Parameters caller, String act) {

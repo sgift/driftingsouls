@@ -27,10 +27,12 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
 import net.driftingsouls.ds2.server.ships.RouteFactory;
+import net.driftingsouls.ds2.server.ships.SchiffFlugService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.Waypoint;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
@@ -48,13 +50,17 @@ public class SchiffAjaxController extends Controller
 		public String log;
 	}
 
+	private SchiffFlugService schiffFlugService;
+
 	/**
 	 * Konstruktor.
 	 *
+	 * @param schiffFlugService
 	 */
-	public SchiffAjaxController()
+	@Autowired
+	public SchiffAjaxController(SchiffFlugService schiffFlugService)
 	{
-		super();
+		this.schiffFlugService = schiffFlugService;
 	}
 
 	private void validiereSchiff(Ship ship)
@@ -188,10 +194,10 @@ public class SchiffAjaxController extends Controller
 			forceLowHeat = true;
 		}
 
-		schiff.move(route, forceLowHeat);
+		SchiffFlugService.FlugErgebnis ergebnis = schiffFlugService.fliege(schiff, route, forceLowHeat);
 
 		SchiffsLogViewModel result = new SchiffsLogViewModel();
-		result.log = Ship.MESSAGE.getMessage().trim();
+		result.log = ergebnis.getMeldungen().trim();
 		return result;
 	}
 

@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.modules.SchiffController;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +39,7 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
+@Component
 public class JumpdriveShivan implements SchiffPlugin
 {
 	@Action(ActionType.DEFAULT)

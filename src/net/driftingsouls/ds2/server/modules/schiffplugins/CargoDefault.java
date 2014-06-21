@@ -29,12 +29,14 @@ import net.driftingsouls.ds2.server.ships.SchiffEinstellungen;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
+import org.springframework.stereotype.Component;
 
 /**
  * Schiffsmodul fuer die Anzeige des Schiffscargos.
  * @author Christopher Jung
  *
  */
+@Component
 public class CargoDefault implements SchiffPlugin {
 	@Action(ActionType.DEFAULT)
 	public String action(Parameters caller,

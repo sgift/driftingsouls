@@ -49,6 +49,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.FlushMode;
 import org.hibernate.Query;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,6 +61,7 @@ import java.util.Map;
  * @author Christopher Jung
  *
  */
+@Component
 public class SensorsDefault implements SchiffPlugin {
 	private static final Log log = LogFactory.getLog(SensorsDefault.class);
 

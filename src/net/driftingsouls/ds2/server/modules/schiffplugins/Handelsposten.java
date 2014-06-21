@@ -12,7 +12,12 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import org.hibernate.Session;
+import org.springframework.stereotype.Component;
 
+/**
+ * Das Handelsposteninterface in der Schiffsansicht.
+ */
+@Component
 public class Handelsposten implements SchiffPlugin
 {
 	@Action(ActionType.DEFAULT)

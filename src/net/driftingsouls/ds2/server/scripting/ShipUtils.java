@@ -18,14 +18,16 @@
  */
 package net.driftingsouls.ds2.server.scripting;
 
-import java.util.List;
-
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.RouteFactory;
+import net.driftingsouls.ds2.server.ships.SchiffFlugService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.Waypoint;
+
+import java.util.List;
 
 /**
  * <p>Hilfsfunktionen zum Umgang mit Schiffen fuer das Scripting-System.</p>
@@ -64,8 +66,9 @@ public class ShipUtils {
 		// TODO maxcount wird beim Flug durch EMP-Nebel falsch interpretiert
 		
 		int oldMaxCount = maxcount;
-		Ship.MovementStatus result;
-		
+		SchiffFlugService.FlugErgebnis result;
+		SchiffFlugService flugService = ContextMap.getContext().getBean(SchiffFlugService.class, null);
+
 		while( true ) {
 			int deltax = target.getX()-ship.getX();
 			int deltay = target.getY()-ship.getY();
@@ -83,13 +86,13 @@ public class ShipUtils {
 			RouteFactory router = new RouteFactory();
 			List<Waypoint> route = router.findRoute(ship.getLocation(), target, maxcount);
 			
-			result = ship.move(route, true);
-			MESSAGE.get().append(Common._stripHTML(Ship.MESSAGE.getMessage()));
+			result = flugService.fliege(ship, route, true);
+			MESSAGE.get().append(Common._stripHTML(result.getMeldungen()));
 			
-			if( result == Ship.MovementStatus.BLOCKED_BY_EMP ) {
+			if( result.getStatus() == SchiffFlugService.FlugStatus.BLOCKED_BY_EMP ) {
 				maxcount = 1;
 			}
-			else if( result != Ship.MovementStatus.SUCCESS ) {
+			else if( result.getStatus() != SchiffFlugService.FlugStatus.SUCCESS ) {
 				MESSAGE.get().append("Ausfuehrung bis zum naechsten Tick angehalten\n\n");
 				return false;
 			}
