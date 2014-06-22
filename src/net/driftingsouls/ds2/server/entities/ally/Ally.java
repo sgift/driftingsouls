@@ -46,7 +46,9 @@ import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Version;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -101,6 +103,9 @@ public class Ally {
 	@OrderBy("rang")
 	private Set<AllyRangDescriptor> rangDescriptors;
 
+	@OneToMany(mappedBy = "ally")
+	private Set<User> members;
+
 	@Version
 	private int version;
 
@@ -129,6 +134,7 @@ public class Ally {
 		this.showlrs = 1;
 		this.items = "";
 		this.rangDescriptors = new TreeSet<>();
+		this.members = new HashSet<>();
 
 		this.name = name;
 		this.plainname = Common._titleNoFormat(name);
@@ -428,10 +434,7 @@ public class Ally {
 	 */
 	@SuppressWarnings("unchecked")
 	public List<User> getMembers() {
-		return ContextMap.getContext().getDB()
-			.createQuery("from User where ally= :ally")
-			.setEntity("ally", this)
-			.list();
+		return new ArrayList<>(members);
 	}
 
 	/**
@@ -439,11 +442,7 @@ public class Ally {
 	 * @return Die Anzahl der Allymitglieder
 	 */
 	public long getMemberCount() {
-		return (Long)ContextMap.getContext().getDB()
-			.createQuery("select count(*) from User where ally= :ally")
-			.setEntity("ally", this)
-			.iterate()
-			.next();
+		return members.size();
 	}
 
 	/**
@@ -515,6 +514,7 @@ public class Ally {
 			}
 		}
 
+		this.members.clear();
 		db.delete(this);
 	}
 
@@ -526,6 +526,7 @@ public class Ally {
 		final Context context = ContextMap.getContext();
 		final org.hibernate.Session db = context.getDB();
 
+		members.remove(user);
 		user.setAlly(null);
 		user.setAllyPosten(null);
 		user.setName(user.getNickname());
@@ -544,6 +545,18 @@ public class Ally {
 		user.addHistory(Common.getIngameTime(tick)+": Verlassen der Allianz "+this.name);
 
 		checkForLowMemberCount();
+	}
+
+	/**
+	 * Fuegt einen User zu dieser Allianz hinzu.
+	 * Achtung: Der User wird ausschliesslich hinzugefuegt, weitere Verwaltungsmassnahmen
+	 * (z.B. Namensaenderungen) sind gesondert durchzufuehren.
+	 * @param user Der User
+	 */
+	public void addUser(User user)
+	{
+		user.setAlly(this);
+		members.add(user);
 	}
 
 	/**

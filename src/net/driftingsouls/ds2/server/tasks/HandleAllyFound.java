@@ -71,7 +71,7 @@ class HandleAllyFound implements TaskHandler {
 
 						PM.send(source, anAllymember.getId(), "Allianzgr&uuml;ndung", "Die Allianz " + allyname + " wurde erfolgreich gegr&uuml;ndet.\n\nHerzlichen Gl&uuml;ckwunsch!");
 
-						anAllymember.setAlly(ally);
+						ally.addUser(anAllymember);
 						anAllymember.setAllyPosten(null);
 						anAllymember.addHistory(Common.getIngameTime(ticks) + ": Gr&uuml;ndung der Allianz " + allyname);
 

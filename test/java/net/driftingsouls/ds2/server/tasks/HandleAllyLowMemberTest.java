@@ -60,14 +60,14 @@ public class HandleAllyLowMemberTest extends DBSingleTransactionTest
 
 		this.user1 = persist(new User("testUser1", "***", 0, "", new Cargo(), "test1@localhost"));
 		this.ally = persist(new Ally("TestAlly", this.user1));
-		user1.setAlly(this.ally);
+		this.ally.addUser(user1);
 
 		this.posten = persist(new AllyPosten(this.ally, "Testposten"));
 
 		this.user2 = persist(new User("testUser2", "***", 0, "", new Cargo(), "test2@localhost"));
-		this.user2.setAlly(ally);
+		ally.addUser(user2);
 		this.user3 = persist(new User("testUser3", "***", 0, "", new Cargo(), "test3@localhost"));
-		this.user3.setAlly(ally);
+		ally.addUser(user3);
 		this.user3.setAllyPosten(posten);
 
 		this.task = persist(new Task(Taskmanager.Types.ALLY_LOW_MEMBER));

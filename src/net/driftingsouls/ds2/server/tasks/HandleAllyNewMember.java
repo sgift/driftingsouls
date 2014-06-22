@@ -18,8 +18,6 @@
  */
 package net.driftingsouls.ds2.server.tasks;
 
-import java.util.List;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
@@ -27,8 +25,9 @@ import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-
 import org.apache.commons.lang.StringUtils;
+
+import java.util.List;
 
 /**
  * TASK_ALLY_NEW_MEMBER
@@ -57,7 +56,7 @@ class HandleAllyNewMember implements TaskHandler {
 				User player = (User) context.getDB().get(User.class, playerID);
 				String newname = ally.getAllyTag();
 				newname = StringUtils.replace(newname, "[name]", player.getNickname());
-				player.setAlly(ally);
+				ally.addUser(player);
 				player.setName(newname);
 
 				int tick = context.get(ContextCommon.class).getTick();
