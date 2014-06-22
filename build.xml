@@ -384,15 +384,8 @@
 			<classpath>
 				<pathelement location="${build.home}/test/classes"/>
 				<pathelement location="${build.home}/WEB-INF/classes"/>
-
-				<fileset dir="${build.home}/WEB-INF/lib">
-					<include name="*.jar"/>
-				</fileset>
-
-				<fileset dir="${build.home}/test/lib">
-					<include name="*.jar"/>
-				</fileset>
 			</classpath>
+			<classpath refid="test.classpath" />
 
 			<batchtest todir="${build.home}/test-output" skipNonTests="true">
 				<fileset dir="${build.home}/test/classes">
