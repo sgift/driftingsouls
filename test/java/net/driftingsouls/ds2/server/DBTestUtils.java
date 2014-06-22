@@ -10,14 +10,14 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import javax.persistence.EntityManager;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.SQLNonTransientConnectionException;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * Hilfsmethoden fuer DB-Tests.
@@ -33,7 +33,7 @@ final class DBTestUtils
 
 	public static void erzeugeContext()
 	{
-		ApplicationContext springContext = new FileSystemXmlApplicationContext("test/cfg/spring.xml");
+		ApplicationContext springContext = new AnnotationConfigApplicationContext(TestAppConfig.class);
 
 		BasicContext context = new BasicContext(new CmdLineRequest(new String[0]), new SimpleResponse(), new EmptyPermissionResolver(), springContext);
 		ContextMap.addContext(context);
