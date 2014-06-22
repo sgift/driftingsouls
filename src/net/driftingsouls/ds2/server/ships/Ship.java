@@ -21,7 +21,6 @@ package net.driftingsouls.ds2.server.ships;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -44,7 +43,6 @@ import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -56,7 +54,6 @@ import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargoEntry;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.BatchSize;
@@ -972,7 +969,8 @@ public class Ship implements Locatable,Transfering,Feeding {
                     }
                 }
             }
-			else if( werft == null ) {
+			else
+			{
 				log.error("Das Schiff "+this.id+" besitzt keinen Werfteintrag");
 			}
 		}
@@ -2539,104 +2537,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 
   		return false;
   	}
-
-
-
-	/**
-	 * Generiert ein Truemmerteil mit Loot fuer das Schiff unter Beruecksichtigung desjenigen,
-	 * der es zerstoert hat. Wenn fuer das Schiff kein Loot existiert oder keiner generiert wurde (Zufall spielt eine
-	 * Rolle!), dann wird kein Truemmerteil erzeugt.
-	 * @param destroyer Die ID des Spielers, der es zerstoert hat
-	 */
-	public void generateLoot( int destroyer ) {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
-		ShipTypeData shiptype = this.getTypeData();
-
-		int rnd = RandomUtils.nextInt(101);
-
-		// Gibts was zu looten?
-		if( rnd > shiptype.getChance4Loot() ) {
-			return;
-		}
-
-		// History analysieren (Alle Schiffe die erst kuerzlich uebergeben wurden, haben kein Loot)
-		long lastUebergabeTick = this.history.getLastUebergabeTick();
-		if( lastUebergabeTick > -1 && ContextMap.getContext().get(ContextCommon.class).getTick() - lastUebergabeTick < 49 )
-		{
-			return;
-		}
-
-		// Moeglichen Loot zusammensuchen
-		List<ShipLoot> loot = new ArrayList<>();
-		int maxchance = 0;
-
-		User nullUser = (User)db.get(User.class, 0);
-		List<?> lootList = db.createQuery("from ShipLoot where owner=:owner and shipType in (:type,:negtype) and targetUser in (:nullUser,:destroyer) and totalMax!=0")
-		.setInteger("owner", this.owner.getId())
-		.setInteger("type", this.shiptype.getId())
-		.setInteger("negtype", -this.id)
-		.setEntity("nullUser", nullUser)
-		.setInteger("destroyer", destroyer)
-		.list();
-
-		for (Object aLootList : lootList)
-		{
-			ShipLoot lootEntry = (ShipLoot) aLootList;
-
-			maxchance += lootEntry.getChance();
-			loot.add(lootEntry);
-		}
-
-		if( loot.size() == 0 ) {
-			return;
-		}
-
-		int truemmerMaxItems = new ConfigService().getValue(WellKnownConfigValue.TRUEMMER_MAX_ITEMS);
-
-		// Und nun den Loot generieren
-		Cargo cargo = new Cargo();
-
-		for( int i=0; i <= truemmerMaxItems; i++ ) {
-			rnd = RandomUtils.nextInt(maxchance+1);
-			int currentchance = 0;
-			for (ShipLoot aloot : loot)
-			{
-				if (aloot.getChance() + currentchance > rnd)
-				{
-					if (aloot.getTotalMax() > 0)
-					{
-						aloot.setTotalMax(aloot.getTotalMax() - 1);
-					}
-					cargo.addResource(Resources.fromString(aloot.getResource()), aloot.getCount());
-					break;
-				}
-
-				currentchance += aloot.getChance();
-			}
-
-			rnd = RandomUtils.nextInt(101);
-
-			// Gibts nichts mehr zu looten?
-			if( rnd > shiptype.getChance4Loot() ) {
-				break;
-			}
-		}
-
-		// Truemmer-Schiff hinzufuegen und entfernen-Task setzen
-		ShipType truemmertype = (ShipType) db.get(ShipType.class, new ConfigService().getValue(WellKnownConfigValue.TRUEMMER_SHIPTYPE));
-		User truemmerbesitzer = (User) db.get(User.class, -1);
-
-		Ship truemmer = new Ship(truemmerbesitzer, truemmertype, this.system, this.x, this.y);
-		truemmer.setName("Trümmerteile");
-		truemmer.setCargo(cargo);
-		truemmer.setHull(truemmertype.getHull());
-		int id = (Integer)db.save(truemmer);
-
-
-		Taskmanager.getInstance().addTask(Taskmanager.Types.SHIP_DESTROY_COUNTDOWN, 21, Integer.toString(id), "", "" );
-
-	}
 
 	/**
 	 * Entfernt das Schiff aus der Datenbank.
