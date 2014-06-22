@@ -44,8 +44,6 @@ import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.LockOptions;
-import org.hibernate.Session;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -1199,7 +1197,6 @@ public class KSAttackAction extends BasicKSAction {
     public Result attack(TemplateEngine t, Battle battle) throws IOException
     {
         Context context = ContextMap.getContext();
-        Session db = context.getDB();
 
         Result result = super.execute(t, battle);
         if( result != Result.OK )
@@ -1359,7 +1356,6 @@ public class KSAttackAction extends BasicKSAction {
         {
             // Nun das gegnerische Schiff laden und checken
             this.enemyShip = battle.getEnemyShip();
-            db.refresh(this.enemyShip, LockOptions.READ);
 
             for( int innerloop=0; innerloop < sameShipLoop; innerloop++ )
             {

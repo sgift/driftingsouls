@@ -21,11 +21,9 @@ package net.driftingsouls.ds2.server.modules.ks;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
 
 import java.io.IOException;
 import java.util.List;
@@ -57,30 +55,17 @@ public class KSGroupAttackAction extends BasicKSAction {
     @Override
     public Result execute(TemplateEngine t, Battle battle) throws IOException
     {
-        Session db = ContextMap.getContext().getDB();
         int typeid = battle.getOwnShip().getTypeData().getTypeId();
         int enemytypeid = battle.getEnemyShip().getTypeData().getTypeId();
 
         List<BattleShip> togoShips = battle.getOwnShips().stream().filter(bship -> bship.getTypeData().getTypeId() == typeid).collect(Collectors.toList());
         battle.logme(togoShips.size() + " Schiffe zu feuern.\n");
-        BattleShip oldenemyShip = null;
-        BattleShip enemyShip = null;
 
         for(BattleShip aship : togoShips)
         {
-            oldenemyShip = enemyShip;
-            enemyShip = battle.getEnemyShip();
+            BattleShip enemyShip = battle.getEnemyShip();
             battle.setFiringShip(aship.getShip());
             battle.logme("Schiff: "+Battle.log_shiplink(aship.getShip())+"\n");
-            if(battle.getCommander(battle.getOwnSide()).isNPC())
-            {
-                battle.logme("Werte vor Schuss: \n");
-                battle.logme("Zielschiff:" + enemyShip.getName() + "("+enemyShip.getId()+")\n");
-                battle.logme("Hülle: " + enemyShip.getHull()+"/"+enemyShip.getTypeData().getHull()+"\n");
-                battle.logme("Ablative Panzerung: " + enemyShip.getAblativeArmor()+"/"+enemyShip.getTypeData().getAblativeArmor()+"\n");
-                battle.logme("Schilde: "+enemyShip.getShields()+"/"+enemyShip.getTypeData().getShields()+"\n");
-                battle.logme("Schiff gewechselt:"+(enemyShip != oldenemyShip)+"\n");
-            }
 
             if(enemyShip.getTypeData().getTypeId() != enemytypeid)
             {
@@ -89,19 +74,6 @@ public class KSGroupAttackAction extends BasicKSAction {
             KSAttackAction act = new KSAttackAction();
             act.setController(getController());
             Result result = act.execute(t, battle);
-            db.flush();
-
-            oldenemyShip = enemyShip;
-            enemyShip = battle.getEnemyShip();
-            if(battle.getCommander(battle.getOwnSide()).isNPC())
-            {
-                battle.logme("Werte nach Schuss: \n");
-                battle.logme("Zielschiff:" + enemyShip.getName() + "("+enemyShip.getId()+")\n");
-                battle.logme("Hülle: " + enemyShip.getHull()+"/"+enemyShip.getTypeData().getHull()+"\n");
-                battle.logme("Ablative Panzerung: " + enemyShip.getAblativeArmor()+"/"+enemyShip.getTypeData().getAblativeArmor()+"\n");
-                battle.logme("Schilde: "+enemyShip.getShields()+"/"+enemyShip.getTypeData().getShields()+"\n");
-                battle.logme("Schiff gewechselt: "+(enemyShip != oldenemyShip)+"\n");
-            }
 
             if(result == Result.HALT)
             {
