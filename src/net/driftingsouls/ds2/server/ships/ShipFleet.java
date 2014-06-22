@@ -181,7 +181,7 @@ public class ShipFleet {
 	 * Setzt die Alarmstufe der Schiffe in der Flotte.
 	 * @param alarm Die Alarmstufe
 	 */
-	public void setAlarm(int alarm) {
+	public void setAlarm(Alarmstufe alarm) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		List<?> ships = db.createQuery("from Ship where id>0 and fleet=:fleet and battle is null" )

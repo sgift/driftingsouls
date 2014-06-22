@@ -23,13 +23,12 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
+import net.driftingsouls.ds2.server.ships.Alarmstufe;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.Ship_;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Aktualisierungstool fuer die Werte eines Schiffes.
@@ -66,11 +65,7 @@ public class EditShip implements EntityEditor<Ship>
 		form.field("Waffen", Integer.class, Ship::getWeapons, Ship::setWeapons);
 		form.field("Hitze", Integer.class, Ship::getHeat, Ship::setHeat);
 
-		Map<Integer, String> alarms = new HashMap<>();
-		alarms.put(0, "Grün");
-		alarms.put(1, "Gelb");
-		alarms.put(2, "Rot");
-		form.field("Alarm", Integer.class, Ship::getAlarm, Ship::setAlarm).withOptions(alarms);
+		form.field("Alarm", Alarmstufe.class, Ship::getAlarm, Ship::setAlarm);
 		form.field("Statusflags", String.class, Ship::getStatus, Ship::setStatus);
 		form.field("Cargo", Cargo.class, Ship::getCargo, Ship::setCargo);
 	}

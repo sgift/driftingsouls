@@ -801,7 +801,7 @@ public class FleetMgntController extends Controller
 	 * @param alarm Die neue Alarmstufe
 	 */
 	@Action(ActionType.DEFAULT)
-	public RedirectViewResult alarmAction(ShipFleet fleet, int alarm)
+	public RedirectViewResult alarmAction(ShipFleet fleet, Alarmstufe alarm)
 	{
 		validiereGueltigeFlotteVorhanden(fleet);
 

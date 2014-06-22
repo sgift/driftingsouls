@@ -27,6 +27,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
+import net.driftingsouls.ds2.server.ships.Alarmstufe;
 import net.driftingsouls.ds2.server.ships.RouteFactory;
 import net.driftingsouls.ds2.server.ships.SchiffFlugService;
 import net.driftingsouls.ds2.server.ships.SchiffSprungService;
@@ -84,7 +85,7 @@ public class SchiffAjaxController extends Controller
 	 * @param alarm Die neue Alarmstufe
 	 */
 	@Action(ActionType.AJAX)
-	public ViewMessage alarmAction(Ship schiff, int alarm)
+	public ViewMessage alarmAction(Ship schiff, Alarmstufe alarm)
 	{
 		validiereSchiff(schiff);
 
@@ -100,7 +101,7 @@ public class SchiffAjaxController extends Controller
 			return ViewMessage.failure("Du kannst die Alarmstufe dieses Schiffs nicht ändern.");
 		}
 
-		if ((alarm >= Ship.Alert.GREEN.getCode()) && (alarm <= Ship.Alert.RED.getCode()))
+		if (alarm != null)
 		{
 			schiff.setAlarm(alarm);
 			schiff.recalculateShipStatus();

@@ -422,7 +422,7 @@ public class SchiffsTick extends TickController {
 			return;
 		}
 		//Faktor fuer den Verbrauch
-		double scaleFactor = shipd.getAlertScaleFactor();
+		double scaleFactor = shipd.getAlarm().getAlertScaleFactor();
 
 		//Basencargo, VersorgerCargo, Basisschiffcargo, eigener Cargo - Leerfuttern in der Reihenfolge
 		for(Base feedingBase: bases)

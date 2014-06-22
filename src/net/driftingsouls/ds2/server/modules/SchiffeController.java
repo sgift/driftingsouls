@@ -276,12 +276,12 @@ public class SchiffeController extends Controller
 				break;
 			}
 
-			gibSchiffAus(only, low, t, db, alarms, ship);
+			gibSchiffAus(only, low, t, db, ship);
 		}
 		return t;
 	}
 
-	private void gibSchiffAus(String only, int low, TemplateEngine t, Session db, String[] alarms, Ship ship)
+	private void gibSchiffAus(String only, int low, TemplateEngine t, Session db, Ship ship)
 	{
 		ShipTypeData shiptype = ship.getTypeData();
 
@@ -409,7 +409,7 @@ public class SchiffeController extends Controller
 					"ship.versorger", shiptype.hasFlag(ShipTypeFlag.VERSORGER),
 					"ship.feedingstatus", (ship.getEinstellungen().isFeeding() && !ship.getEinstellungen().isAllyFeeding()) ? 1 : (ship.getEinstellungen().isFeeding()) ? 2 : 3,
 					"ship.unitspace", Common.ln(shiptype.getUnitSpace()),
-					"ship.alarm", alarms[ship.getAlarm()],
+					"ship.alarm", ship.getAlarm().name().toLowerCase(),
 					"ship.offi", offi,
 					"ship.crewcolor", crewcolor,
 					"ship.fleet", ship.getFleet() != null ? ship.getFleet().getId() : 0,

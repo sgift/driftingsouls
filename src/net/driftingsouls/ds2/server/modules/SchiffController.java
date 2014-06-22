@@ -53,6 +53,7 @@ import net.driftingsouls.ds2.server.modules.schiffplugins.SchiffPlugin;
 import net.driftingsouls.ds2.server.modules.schiffplugins.SensorsDefault;
 import net.driftingsouls.ds2.server.modules.schiffplugins.UnitsDefault;
 import net.driftingsouls.ds2.server.modules.schiffplugins.WerftDefault;
+import net.driftingsouls.ds2.server.ships.Alarmstufe;
 import net.driftingsouls.ds2.server.ships.SchiffSprungService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
@@ -179,7 +180,7 @@ public class SchiffController extends Controller
 	 * @param alarm Die neue Alarmstufe
 	 */
 	@Action(ActionType.DEFAULT)
-	public RedirectViewResult alarmAction(Ship ship, int alarm)
+	public RedirectViewResult alarmAction(Ship ship, Alarmstufe alarm)
 	{
 		validiereSchiff(ship);
 
@@ -196,7 +197,7 @@ public class SchiffController extends Controller
 		}
 
 		String message = null;
-		if ((alarm >= Ship.Alert.GREEN.getCode()) && (alarm <= Ship.Alert.RED.getCode()))
+		if (alarm != null)
 		{
 			ship.setAlarm(alarm);
 
@@ -1085,14 +1086,12 @@ public class SchiffController extends Controller
 			t.setVar("ship.shields.reloade", Common.ln((int) Math.ceil((shiptype.getShields() - ship.getShields()) / (double) shieldfactor)));
 		}
 
-		String[] alarmn = {"gr&uuml;n", "gelb", "rot"};
-
 		// Alarmstufe aendern
 		t.setBlock("_SCHIFF", "ship.alarms.listitem", "ship.alarms.list");
-		for (int a = 0; a < alarmn.length; a++)
+		for( Alarmstufe a : Alarmstufe.values())
 		{
 			t.setVar("alarm.id", a,
-					"alarm.name", alarmn[a],
+					"alarm.name", a.getName(),
 					"alarm.selected", (ship.getAlarm() == a));
 			t.parse("ship.alarms.list", "ship.alarms.listitem", true);
 		}

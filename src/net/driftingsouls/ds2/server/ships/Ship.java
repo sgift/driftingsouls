@@ -67,6 +67,8 @@ import org.hibernate.annotations.Type;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -174,7 +176,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 	@Index(name = "ship_docked")
 	private String docked;
 
-	private int alarm;
+	@Enumerated(EnumType.ORDINAL)
+	private Alarmstufe alarm;
 
 	@OneToOne(fetch=FetchType.LAZY)
 	@BatchSize(size=100)
@@ -469,7 +472,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * Gibt die Alarmstufe des Schiffes zurueck.
 	 * @return Die Alarmstufe
 	 */
-	public int getAlarm() {
+	public Alarmstufe getAlarm() {
 		return alarm;
 	}
 
@@ -477,7 +480,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * Setzt die Alarmstufe des Schiffes.
 	 * @param alarm Die neue Alarmstufe
 	 */
-	public void setAlarm(int alarm) {
+	public void setAlarm(Alarmstufe alarm) {
 		this.alarm = alarm;
 	}
 
@@ -935,7 +938,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			long er = ep/type.getRm();
 
 			int turns = 2;
-			if( (this.alarm != Alert.GREEN.getCode()) && (type.getShipClass() != ShipClasses.GESCHUETZ) ) {
+			if( (this.alarm != Alarmstufe.GREEN) && (type.getShipClass() != ShipClasses.GESCHUETZ) ) {
 				turns = 4;
 			}
 
@@ -1193,25 +1196,13 @@ public class Ship implements Locatable,Transfering,Feeding {
 	}
 
 	/**
-	 * Gibt den Skalierungsfaktor fuer aktiven Alarm zurueck.
-	 *
-	 * @return Skalierungsfaktor, je nach Alarmstufe.
-	 */
-	public double getAlertScaleFactor()
-	{
-		double[] factors = new double[] { 1, 1.1, 1.1 };
-
-		return factors[getAlarm()];
-	}
-
-	/**
 	 * Returns the crew scaled by a factor according to alert.
 	 * Ships with active alert consume more food.
 	 *
 	 * @return Crew scaled by a factor according to shiptype.
 	 */
 	private int getScaledCrew() {
-		double scale = getAlertScaleFactor();
+		double scale = alarm.getAlertScaleFactor();
 		return (int)Math.ceil(this.crew*scale);
 	}
 
@@ -1224,7 +1215,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	private int getScaledUnits() {
 		if(getUnits() != null)
 		{
-			double scale = getAlertScaleFactor();
+			double scale = alarm.getAlertScaleFactor();
 			return (int)Math.ceil(this.getUnits().getNahrung()*scale);
 		}
 		return 0;
@@ -1686,7 +1677,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 				"	s.crew!=0 and s.system=:system and s.owner!=:owner and " +
 				"   (s.owner.vaccount=0 or s.owner.wait4vac>0) and " +
 				"	s.x in (:xSektoren) and s.y in (:ySektoren)")
-			.setParameter("green", Alert.GREEN.getCode())
+			.setParameter("green", Alarmstufe.GREEN)
 			.setParameter("system", locs[0].getSystem())
 			.setParameter("owner", user)
 			.setParameterList("xSektoren", xSektoren)
@@ -1703,9 +1694,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 			}
 
 			User owner = ship.getOwner();
-			int alert = ship.getAlarm();
+			Alarmstufe alert = ship.getAlarm();
 			boolean attack = false;
-			if(alert == Alert.RED.getCode())
+			if(alert == Alarmstufe.RED)
 			{
 				if(relationlist.beziehungVon(owner) != User.Relation.FRIEND)
 				{
@@ -1716,7 +1707,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 					attack = true;
 				}
 			}
-			else if(alert == Alert.YELLOW.getCode())
+			else if(alert == Alarmstufe.YELLOW)
 			{
 				if(relationlist.beziehungVon(owner) == User.Relation.ENEMY)
 				{
@@ -1731,42 +1722,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		return results;
-	}
-
-	/**
-	 * Die verschiedenen Alarmstufen eines Schiffes.
-	 *
-	 * @author Sebastian Gift
-	 */
-	public static enum Alert
-	{
-		/**
-		 * Keine Reaktion.
-		 */
-		GREEN(0),
-		/**
-		 * Reaktion bei feindlichen Schiffen.
-		 */
-		YELLOW(1),
-		/**
-		 * Reaktion bei Schiffen, die nicht freundlich eingestellt sind.
-		 */
-		RED(2);
-
-		private Alert(int code)
-		{
-			this.code = code;
-		}
-
-		/**
-		 * @return Der zugehoerige Code als int.
-		 */
-		public int getCode()
-		{
-			return this.code;
-		}
-
-		private final int code;
 	}
 
 	/**
@@ -2750,9 +2705,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	public int getAlertEnergyCost()
 	{
-		double[] alertFactor = new double[] { 0, 0.5d, 0.75d };
-
-		return (int)Math.ceil(this.getTypeData().getRm() * alertFactor[getAlarm()]);
+		return (int)Math.ceil(this.getTypeData().getRm() * alarm.getEnergiekostenFaktor());
 	}
 
 	/**
