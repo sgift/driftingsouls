@@ -14,6 +14,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -405,9 +406,7 @@ public class SchiffFlugService
 				for (Object aDockedList : dockedList)
 				{
 					Ship dockedShip = (Ship) aDockedList;
-					dockedShip.setSystem(loc.getSystem());
-					dockedShip.setX(loc.getX());
-					dockedShip.setY(loc.getY());
+					dockedShip.setLocation(loc);
 				}
 			}
 		}
@@ -422,7 +421,7 @@ public class SchiffFlugService
 		private final FlugStatus status;
 		private final String messages;
 
-		public FlugErgebnis(FlugStatus status, String messages)
+		public FlugErgebnis(FlugStatus status, @Nonnull String messages)
 		{
 			this.status = status;
 			this.messages = messages;
@@ -441,7 +440,7 @@ public class SchiffFlugService
 		 * Die Statusmeldungen der Flugbewegung.
 		 * @return Die Statusmeldungen
 		 */
-		public String getMeldungen()
+		public @Nonnull String getMeldungen()
 		{
 			return messages;
 		}
@@ -470,7 +469,7 @@ public class SchiffFlugService
 			List<Ship> ships = schiff.getFleet().getShips();
 			for(Ship ship: ships)
 			{
-				if(ship.getSafeTravelDistance() < moving.getSafeTravelDistance())
+				if(getSafeTravelDistance(ship) < getSafeTravelDistance(moving))
 				{
 					moving = ship;
 				}
@@ -480,9 +479,9 @@ public class SchiffFlugService
 			if(moving != schiff)
 			{
 				//Maximum distance is safe travel distance
-				if(route.size() > moving.getSafeTravelDistance())
+				if(route.size() > getSafeTravelDistance(moving))
 				{
-					route = route.subList(0, moving.getSafeTravelDistance());
+					route = route.subList(0, getSafeTravelDistance(moving));
 				}
 
 				return fliege(moving, route, forceLowHeat);
@@ -694,15 +693,11 @@ public class SchiffFlugService
 						if( docked != 0 ) {
 							for( Ship dship : schiff.getDockedShips() )
 							{
-								dship.setX(schiff.getX());
-								dship.setY(schiff.getY());
-								dship.setSystem(schiff.getSystem());
+								dship.setLocation(schiff);
 							}
 							for( Ship dship : schiff.getLandedShips() )
 							{
-								dship.setX(schiff.getX());
-								dship.setY(schiff.getY());
-								dship.setSystem(schiff.getSystem());
+								dship.setLocation(schiff);
 							}
 						}
 						saveFleetShips();
@@ -730,9 +725,7 @@ public class SchiffFlugService
 			if( docked != 0 ) {
 				for (Ship dockedShip : schiff.getGedockteUndGelandeteSchiffe())
 				{
-					dockedShip.setSystem(schiff.getSystem());
-					dockedShip.setX(schiff.getX());
-					dockedShip.setY(schiff.getY());
+					dockedShip.setLocation(schiff);
 				}
 			}
 		}
@@ -778,5 +771,36 @@ public class SchiffFlugService
 
 		Ship ship = attackShips.get(0); //Take some ship .. no special mechanism here.
 		Battle.create(ship.getOwner().getId(), ship.getId(), schiff.getId(), true);
+	}
+
+	/**
+	 * @return Die Felder, die das Schiff zuruecklegen kann ohne zu ueberhitzen / keine Energie mehr zu haben.
+	 */
+	public int getSafeTravelDistance(Ship ship)
+	{
+
+		int energy = ship.getEnergy();
+		int heat = ship.getHeat();
+
+		ShipTypeData typeData = ship.getTypeData();
+		int consumption = typeData.getCost();
+		int heatBuildup = typeData.getHeat();
+
+		if(consumption == 0 || heatBuildup == 0)
+		{
+			if(ship.isDocked() || ship.isLanded())
+			{
+				return Integer.MAX_VALUE;
+			}
+			return 0;
+		}
+
+		int distance = Math.min(energy/consumption, (100-heat)/heatBuildup);
+		if(distance < 0)
+		{
+			distance = 0;
+		}
+
+		return distance;
 	}
 }

@@ -32,12 +32,10 @@ import net.driftingsouls.ds2.server.cargo.Transfering;
 import net.driftingsouls.ds2.server.cargo.modules.Module;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleType;
-import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.config.items.IffDeaktivierenItem;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.Feeding;
-import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
@@ -453,6 +451,18 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	public void setSystem(int system) {
 		this.system = system;
+	}
+
+	/**
+	 * Setzt die Position des Schiffes.
+	 * @param locatable Die Position
+	 */
+	public void setLocation(Locatable locatable)
+	{
+		Location loc = locatable.getLocation();
+		this.system = loc.getSystem();
+		this.x = loc.getX();
+		this.y = loc.getY();
 	}
 
 	/**
@@ -1770,294 +1780,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 	}
 
 	/**
-	 * <p>Laesst das Schiff durch einen Sprungpunkt springen.
-	 * Der Sprungpunkt kann entweder ein normaler Sprungpunkt
-	 * oder ein "Knossos"-Sprungpunkt (als ein mit einem Schiff verbundener
-	 * Sprungpunkt) sein.</p>
-	 * <p>Bei letzterem kann der Sprung scheitern, wenn keine Sprungberechtigung
-	 * vorliegt.</p>
-	 *
-	 * @param nodeID Die ID des Sprungpunkts/Des Schiffes mit dem Sprungpunkt
-	 * @param knode <code>true</code>, falls es sich um einen "Knossos"-Sprungpunkt handelt
-	 * @return <code>true</code>, falls ein Fehler aufgetreten ist
-	 */
-	public boolean jump(int nodeID, boolean knode)
-	{
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
-		StringBuilder outputbuffer = MESSAGE.get();
-
-		String nodetypename;
-		String nodetarget = "";
-
-		User user = this.owner;
-
-		if(this.getBattle() != null)
-		{
-			outputbuffer.append("Fehler: Sie k&ouml;nnen nicht mit einem Schiff springen, dass in einem Kampf ist.<br />\n");
-			return true;
-		}
-
-		//
-		// Daten der Sprungpunkte laden
-		//
-
-		Location nodeLoc;
-		Location outLoc = null;
-		Object nodeObj = null;
-
-		if( !knode ) {
-			JumpNode node = (JumpNode)db.get(JumpNode.class, nodeID);
-			nodetypename = "Der Sprungpunkt";
-
-			if( node == null ) {
-				outputbuffer.append("Fehler: Der angegebene Sprungpunkt existiert nicht<br />\n");
-				return true;
-			}
-
-			nodetarget = node.getName()+" ("+node.getSystemOut()+")";
-
-			if( (user.getId() > 0) && node.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn( 0 ) && !user.hasFlag(UserFlag.NO_JUMPNODE_BLOCK) ) {
-				outputbuffer.append("<span style=\"color:red\">Die GCP hat diesen Sprungpunkt f&uuml;r Kolonisten gesperrt</span><br />\n");
-				return true;
-			}
-
-			nodeLoc = node.getLocation();
-			outLoc = new Location(node.getSystemOut(), node.getXOut(), node.getYOut());
-
-			nodeObj = node;
-		}
-		else {
-			/* Behandlung Knossosportale:
-			 *
-			 * Ziel wird mit ships.jumptarget festgelegt - Format: art|koords/id|user/ally/gruppe
-			 * Beispiele:
-			 * fix|2:35/35|all:
-			 * ship|id:10000|ally:1
-			 * base|id:255|group:-15,455,1200
-			 * fix|8:20/100|default <--- diese Einstellung entspricht der bisherigen Praxis
-			 */
-
-			Ship shipNode = (Ship)db.get(Ship.class, nodeID);
-			if( shipNode == null ) {
-				outputbuffer.append("Fehler: Der angegebene Sprungpunkt existiert nicht<br />\n");
-				return true;
-			}
-
-			nodetypename = shipNode.getTypeData().getNickname();
-
-			/*
-			 * Ermittlung der Zielkoordinaten
-			 * geprueft wird bei Schiffen und Basen das Vorhandensein der Gegenstation
-			 * existiert keine, findet kein Sprung statt
-			 */
-
-			String[] target = StringUtils.split(shipNode.getJumpTarget(), '|');
-			switch (target[0])
-			{
-				case "fix":
-					outLoc = Location.fromString(target[1]);
-
-					nodetarget = target[1];
-					break;
-				case "ship":
-				{
-					String[] shiptarget = StringUtils.split(target[1], ':');
-					Ship jmptarget = (Ship) db.get(Ship.class, Integer.valueOf(shiptarget[1]));
-					if (jmptarget == null)
-					{
-						outputbuffer.append("<span style=\"color:red\">Die Empfangsstation existiert nicht!</span><br />\n");
-						return true;
-					}
-
-					outLoc = new Location(jmptarget.getSystem(), jmptarget.getX(), jmptarget.getY());
-					nodetarget = outLoc.getSystem() + ":" + outLoc.getX() + "/" + outLoc.getY();
-					break;
-				}
-				case "base":
-				{
-					String[] shiptarget = StringUtils.split(target[1], ':');
-					Base jmptarget = (Base) db.get(Base.class, Integer.valueOf(shiptarget[1]));
-					if (jmptarget == null)
-					{
-						outputbuffer.append("<span style=\"color:red\">Die Empfangsbasis existiert nicht!</span><br />\n");
-						return true;
-					}
-
-					outLoc = jmptarget.getLocation();
-					nodetarget = outLoc.toString();
-					break;
-				}
-			}
-
-			// Einmalig das aktuelle Schiff ueberpruefen.
-			// Evt vorhandene Schiffe in einer Flotte werden spaeter separat gecheckt
-			if( shipNode.getId() == this.id ) {
-				outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen nicht mit dem ").append(nodetypename).append(" durch sich selbst springen</span><br />\n");
-				return true;
-			}
-
-			/*
-			 * Ermittlung der Sprungberechtigten
-			 */
-			String[] jmpnodeuser = StringUtils.split(target[2], ':'); // Format art:ids aufgespalten
-
-			switch (jmpnodeuser[0])
-			{
-				case "all":
-					// Keine Einschraenkungen
-					break;
-				// die alte variante
-				case "default":
-				case "ownally":
-					if (((user.getAlly() != null) && (shipNode.getOwner().getAlly() != user.getAlly())) ||
-							(user.getAlly() == null && (shipNode.getOwner() != user)))
-					{
-						outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes ").append(nodetypename).append(" benutzen - default</span><br />\n");
-						return true;
-					}
-					break;
-				// user:$userid
-				case "user":
-					if (Integer.parseInt(jmpnodeuser[1]) != user.getId())
-					{
-						outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes ").append(nodetypename).append(" benutzen - owner</span><br />\n");
-						return true;
-					}
-					break;
-				// ally:$allyid
-				case "ally":
-					if ((user.getAlly() == null) || (Integer.parseInt(jmpnodeuser[1]) != user.getAlly().getId()))
-					{
-						outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes ").append(nodetypename).append(" benutzen - ally</span><br />\n");
-						return true;
-					}
-					break;
-				// group:userid1,userid2, ...,useridn
-				case "group":
-					Integer[] userlist = Common.explodeToInteger(",", jmpnodeuser[1]);
-					if (!Common.inArray(user.getId(), userlist))
-					{
-						outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes ").append(nodetypename).append(" benutzen - group</span><br />\n");
-						return true;
-					}
-					break;
-			}
-
-			nodeLoc = new Location(shipNode.getSystem(), shipNode.getX(), shipNode.getY());
-		}
-
-		Location shipLoc = new Location(this.system, this.x, this.y);
-
-		if( !shipLoc.sameSector(0, nodeLoc, 0) ) {
-			outputbuffer.append("<span style=\"color:red\">Fehler: ").append(nodetypename).append(" befindet sich nicht im selben Sektor wie das Schiff</span><br />\n");
-			return true;
-		}
-
-		//
-		// Liste der Schiffe ermitteln, welche springen sollen
-		//
-
-		List<Ship> shiplist = new ArrayList<>();
-		// Falls vorhanden die Schiffe der Flotte einfuegen
-		if( this.fleet != null ) {
-			List<?> fleetships = db.createQuery("from Ship where id>0 and fleet=:fleet AND x=:x AND y=:y AND system=:sys and docked='' AND battle is null")
-			.setEntity("fleet", this.fleet)
-			.setInteger("x", this.x)
-			.setInteger("y", this.y)
-			.setInteger("sys", this.system)
-			.list();
-
-			for (Object fleetship1 : fleetships)
-			{
-				Ship fleetship = (Ship) fleetship1;
-
-				// Bei Knossossprungpunkten darauf achten, dass das Portal nicht selbst mitspringt
-				if (knode && (fleetship.getId() == nodeID))
-				{
-					continue;
-				}
-
-				shiplist.add(fleetship);
-			}
-		}
-		// Keine Flotte -> nur das aktuelle Schiff einfuegen
-		else {
-			shiplist.add(this);
-		}
-
-		//
-		// Jedes Schiff in der Liste springen lassen
-		//
-		for( Ship ship : shiplist ) {
-			ShipTypeData shiptype = ship.getTypeData();
-
-			// Liste der gedockten Schiffe laden
-			List<Ship> docked = new ArrayList<>();
-			if( (shiptype.getADocks() > 0) || (shiptype.getJDocks() > 0) ) {
-				List<?> line = db.createQuery("from Ship where id>0 and docked in (:docked,:landed)")
-					.setString("docked", Integer.toString(ship.getId()))
-					.setString("landed", "l "+ship.getId())
-					.list();
-				for (Object aLine : line)
-				{
-					Ship aship = (Ship) aLine;
-					docked.add(aship);
-				}
-			}
-
-			if( !knode ) {
-				JumpNode node = (JumpNode)nodeObj;
-
-				if( node.isWeaponBlock() && !user.hasFlag(UserFlag.MILITARY_JUMPS) ) {
-					//Schiff ueberprfen
-					if( shiptype.isMilitary() ) {
-						outputbuffer.append("<span style=\"color:red\">").append(ship.getName()).append(" (").append(ship.getId()).append("): Die GCP verwehrt ihrem Kriegsschiff den Einflug nach ").append(node.getName()).append("</span><br />\n");
-						return true;
-					}
-
-					//Angedockte Schiffe ueberprfen
-					if( shiptype.getADocks()>0 || shiptype.getJDocks()>0 ) {
-						boolean wpnfound = false;
-						for( Ship aship : docked ) {
-							ShipTypeData checktype = aship.getTypeData();
-							if( checktype.isMilitary() ) {
-								wpnfound = true;
-								break;
-							}
-						}
-
-						if(	wpnfound ) {
-							outputbuffer.append("<span style=\"color:red\">").append(ship.getName()).append(" (").append(ship.getId()).append("): Die GCP verwehrt einem/mehreren ihrer angedockten Kriegsschiffe den Einflug nach ").append(node.getName()).append("</span><br />\n");
-							return true;
-						}
-					}
-				}
-			}
-
-			if( ship.getEnergy() < 5 ) {
-				outputbuffer.append("<span style=\"color:red\">").append(ship.getName()).append(" (").append(ship.getId()).append("): Zuwenig Energie zum Springen</span><br />\n");
-				return true;
-			}
-
-			outputbuffer.append(ship.getName()).append(" (").append(ship.getId()).append(") springt nach ").append(nodetarget).append("<br />\n");
-			ship.setSystem(outLoc.getSystem());
-			ship.setX(outLoc.getX());
-			ship.setY(outLoc.getY());
-			ship.setEnergy(ship.getEnergy()-5);
-
-			for( Ship aship : docked ) {
-				aship.setX(outLoc.getX());
-				aship.setY(outLoc.getY());
-				aship.setSystem(outLoc.getSystem());
-			}
-		}
-
-		return false;
-	}
-
-	/**
 	 * Die verschiedenen Dock-Aktionen.
 	 */
 	public static enum DockMode {
@@ -3041,37 +2763,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public int getNahrungsBalance()
 	{
 		return getFoodConsumption();
-	}
-
-	/**
-	 * @return Die Felder, die das Schiff zuruecklegen kann ohne zu ueberhitzen / keine Energie mehr zu haben.
-	 */
-	public int getSafeTravelDistance()
-	{
-
-		int energy = getEnergy();
-		int heat = getHeat();
-
-		ShipTypeData typeData = getTypeData();
-		int consumption = typeData.getCost();
-		int heatBuildup = typeData.getHeat();
-
-		if(consumption == 0 || heatBuildup == 0)
-		{
-			if(isDocked() || isLanded())
-			{
-				return Integer.MAX_VALUE;
-			}
-			return 0;
-		}
-
-		int distance = Math.min(energy/consumption, (100-heat)/heatBuildup);
-		if(distance < 0)
-		{
-			distance = 0;
-		}
-
-		return distance;
 	}
 
 	/**

@@ -27,6 +27,7 @@ import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleItemModule;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Weapons;
+import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
@@ -52,6 +53,7 @@ import net.driftingsouls.ds2.server.modules.schiffplugins.SchiffPlugin;
 import net.driftingsouls.ds2.server.modules.schiffplugins.SensorsDefault;
 import net.driftingsouls.ds2.server.modules.schiffplugins.UnitsDefault;
 import net.driftingsouls.ds2.server.modules.schiffplugins.WerftDefault;
+import net.driftingsouls.ds2.server.ships.SchiffSprungService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
@@ -84,11 +86,13 @@ public class SchiffController extends Controller
 {
 	private Log log = LogFactory.getLog(SchiffController.class);
 	private TemplateViewResultFactory templateViewResultFactory;
+	private SchiffSprungService schiffSprungService;
 
 	@Autowired
-	public SchiffController(TemplateViewResultFactory templateViewResultFactory)
+	public SchiffController(TemplateViewResultFactory templateViewResultFactory, SchiffSprungService schiffSprungService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.schiffSprungService = schiffSprungService;
 
 		setPageTitle("Schiff");
 	}
@@ -306,7 +310,7 @@ public class SchiffController extends Controller
 	 * @param node Die ID des Sprungpunkts
 	 */
 	@Action(ActionType.DEFAULT)
-	public RedirectViewResult jumpAction(Ship ship, int node)
+	public RedirectViewResult jumpAction(Ship ship, JumpNode node)
 	{
 		validiereSchiff(ship);
 
@@ -317,10 +321,10 @@ public class SchiffController extends Controller
 		}
 
 		String message = null;
-		if (node != 0)
+		if (node != null)
 		{
-			ship.jump(node, false);
-			message = Ship.MESSAGE.getMessage();
+			SchiffSprungService.SprungErgebnis ergebnis = schiffSprungService.sprungViaSprungpunkt(ship, node);
+			message = ergebnis.getMeldungen();
 		}
 
 		return new RedirectViewResult("default").withMessage(message);
@@ -332,7 +336,7 @@ public class SchiffController extends Controller
 	 * @param knode Die ID des Schiffes mit dem Sprungpunkt
 	 */
 	@Action(ActionType.DEFAULT)
-	public RedirectViewResult kjumpAction(Ship ship, int knode)
+	public RedirectViewResult kjumpAction(Ship ship, Ship knode)
 	{
 		validiereSchiff(ship);
 
@@ -343,10 +347,10 @@ public class SchiffController extends Controller
 		}
 
 		String message = null;
-		if (knode != 0)
+		if (knode != null)
 		{
-			ship.jump(knode, true);
-			message = Ship.MESSAGE.getMessage();
+			SchiffSprungService.SprungErgebnis ergebnis = schiffSprungService.sprungViaSchiff(ship, knode);
+			message = ergebnis.getMeldungen();
 		}
 
 		return new RedirectViewResult("default").withMessage(message);

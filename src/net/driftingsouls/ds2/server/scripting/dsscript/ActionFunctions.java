@@ -25,12 +25,15 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.scripting.ShipUtils;
 import net.driftingsouls.ds2.server.scripting.transfer.TransferStrategy;
 import net.driftingsouls.ds2.server.scripting.transfer.TransferStrategyFactory;
+import net.driftingsouls.ds2.server.ships.SchiffSprungService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 
@@ -148,9 +151,14 @@ public class ActionFunctions {
 
 			int nodeid = Integer.parseInt(command[1]);
 			scriptparser.log("knodeid: "+nodeid+"\n");
-			boolean result = ship.jump(nodeid, true);
-			scriptparser.log(Common._stripHTML(Ship.MESSAGE.getMessage()));
-			if( result ) {
+
+			Context context = ContextMap.getContext();
+			Ship knode = (Ship) context.getDB().get(Ship.class, nodeid);
+			SchiffSprungService schiffSprungService = context.getBean(SchiffSprungService.class, null);
+
+			SchiffSprungService.SprungErgebnis result = schiffSprungService.sprungViaSchiff(ship, knode);
+			scriptparser.log(Common._stripHTML(result.getMeldungen()));
+			if( !result.isErfolgreich() ) {
 				scriptparser.log("Ausfuehrung bis zum naechsten Tick angehalten\n\n");
 				return STOP;
 			}
@@ -169,10 +177,16 @@ public class ActionFunctions {
 			Ship ship = scriptparser.getShip();
 
 			int nodeid = Integer.parseInt(command[1]);
+			Context context = ContextMap.getContext();
+
+			SchiffSprungService schiffSprungService = context.getBean(SchiffSprungService.class, null);
+
 			scriptparser.log("nodeid: "+nodeid+"\n");
-			boolean result = ship.jump(nodeid, false);
-			scriptparser.log(Common._stripHTML(Ship.MESSAGE.getMessage()));
-			if( result ) {
+			JumpNode node = (JumpNode)context.getDB().get(JumpNode.class, nodeid);
+
+			SchiffSprungService.SprungErgebnis result = schiffSprungService.sprungViaSprungpunkt(ship, node);
+			scriptparser.log(Common._stripHTML(result.getMeldungen()));
+			if( !result.isErfolgreich() ) {
 				scriptparser.log("Ausfuehrung bis zum naechsten Tick angehalten\n\n");
 				return STOP;
 			}

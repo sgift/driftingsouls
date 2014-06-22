@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.ViewMessage;
 import net.driftingsouls.ds2.server.framework.ViewModel;
@@ -28,6 +29,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
 import net.driftingsouls.ds2.server.ships.RouteFactory;
 import net.driftingsouls.ds2.server.ships.SchiffFlugService;
+import net.driftingsouls.ds2.server.ships.SchiffSprungService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -51,16 +53,13 @@ public class SchiffAjaxController extends Controller
 	}
 
 	private SchiffFlugService schiffFlugService;
+	private SchiffSprungService schiffSprungService;
 
-	/**
-	 * Konstruktor.
-	 *
-	 * @param schiffFlugService
-	 */
 	@Autowired
-	public SchiffAjaxController(SchiffFlugService schiffFlugService)
+	public SchiffAjaxController(SchiffFlugService schiffFlugService, SchiffSprungService schiffSprungService)
 	{
 		this.schiffFlugService = schiffFlugService;
+		this.schiffSprungService = schiffSprungService;
 	}
 
 	private void validiereSchiff(Ship ship)
@@ -117,7 +116,7 @@ public class SchiffAjaxController extends Controller
 	 * @param sprungpunkt Die ID des Sprungpunkts
 	 */
 	@Action(ActionType.AJAX)
-	public Object springenAction(Ship schiff, int sprungpunkt)
+	public Object springenAction(Ship schiff, JumpNode sprungpunkt)
 	{
 		validiereSchiff(schiff);
 
@@ -127,14 +126,14 @@ public class SchiffAjaxController extends Controller
 			return ViewMessage.failure("Das Schiff besitzt keinen Antrieb");
 		}
 
-		if (sprungpunkt == 0)
+		if (sprungpunkt == null)
 		{
 			return ViewMessage.error("Es wurde kein Sprungpunkt angegeben.");
 		}
 
-		schiff.jump(sprungpunkt, false);
+		SchiffSprungService.SprungErgebnis sprungErgebnis = schiffSprungService.sprungViaSprungpunkt(schiff, sprungpunkt);
 		SchiffsLogViewModel result = new SchiffsLogViewModel();
-		result.log = Ship.MESSAGE.getMessage().trim();
+		result.log = sprungErgebnis.getMeldungen().trim();
 		return result;
 	}
 
@@ -145,7 +144,7 @@ public class SchiffAjaxController extends Controller
 	 * @param sprungpunktSchiff Die ID des Schiffes mit dem Sprungpunkt
 	 */
 	@Action(ActionType.AJAX)
-	public Object springenViaSchiffAction(Ship schiff, int sprungpunktSchiff)
+	public Object springenViaSchiffAction(Ship schiff, Ship sprungpunktSchiff)
 	{
 		validiereSchiff(schiff);
 
@@ -155,12 +154,12 @@ public class SchiffAjaxController extends Controller
 			return ViewMessage.failure("Das Schiff besitzt keinen Antrieb");
 		}
 
-		if (sprungpunktSchiff == 0)
+		if (sprungpunktSchiff == null)
 		{
 			return ViewMessage.error("Es wurde kein Sprungpunkt angegeben.");
 		}
 
-		schiff.jump(sprungpunktSchiff, true);
+		schiffSprungService.sprungViaSchiff(schiff, sprungpunktSchiff);
 		SchiffsLogViewModel result = new SchiffsLogViewModel();
 		result.log = Ship.MESSAGE.getMessage().trim();
 		return result;
