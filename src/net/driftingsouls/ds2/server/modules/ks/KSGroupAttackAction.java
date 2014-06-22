@@ -57,6 +57,7 @@ public class KSGroupAttackAction extends BasicKSAction {
     @Override
     public Result execute(TemplateEngine t, Battle battle) throws IOException
     {
+        Session db = ContextMap.getContext().getDB();
         int typeid = battle.getOwnShip().getTypeData().getTypeId();
         int enemytypeid = battle.getEnemyShip().getTypeData().getTypeId();
 
@@ -88,6 +89,7 @@ public class KSGroupAttackAction extends BasicKSAction {
             KSAttackAction act = new KSAttackAction();
             act.setController(getController());
             Result result = act.execute(t, battle);
+            db.flush();
 
             oldenemyShip = enemyShip;
             enemyShip = battle.getEnemyShip();
