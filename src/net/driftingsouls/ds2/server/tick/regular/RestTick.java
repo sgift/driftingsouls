@@ -77,9 +77,7 @@ public class RestTick extends TickController {
 
 				this.log(jump.getShip().getId() + " springt nach " + jump.getSystem() + ":" + jump.getX() + "/" + jump.getY());
 
-				jump.getShip().setSystem(jump.getSystem());
-				jump.getShip().setX(jump.getX());
-				jump.getShip().setY(jump.getY());
+				jump.getShip().setLocation(jump);
 
 				db.createQuery("update Ship set x= :x, y= :y, system= :system where docked in (:dock,:land)")
 						.setInteger("x", jump.getX())

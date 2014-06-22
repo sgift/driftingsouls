@@ -1181,14 +1181,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		if( shiptype.getJDocks() > 0 || shiptype.getADocks() > 0 ) {
 			//Angehaengte Schiffe beruecksichtigen
-			List<?> dockedShips = db.createQuery("from Ship as ship where ship.docked in (:docked,:landed)")
-				.setString("docked", Integer.toString(this.id))
-				.setString("landed", "l "+this.id)
-				.list();
-			for (Object dockedShip1 : dockedShips)
+			for (Ship dockedShip : getGedockteUndGelandeteSchiffe())
 			{
-				Ship dockedShip = (Ship) dockedShip1;
-
 				dockedcrew += dockedShip.getScaledCrew();
 				dockedunits += dockedShip.getScaledUnits();
 				dockedhydro += dockedShip.getTypeData().getHydro();
@@ -1569,18 +1563,14 @@ public class Ship implements Locatable,Transfering,Feeding {
 		ShipTypeData type = this.getTypeData();
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		List<Ship> dockshipList = Common.cast(db.createQuery("from Ship where id>0 and docked= :docked")
-				.setString("docked", Integer.toString(this.id))
-				.list());
+		List<Ship> dockshipList = getDockedShips();
 		if( dockshipList.size() > type.getADocks() )
 		{
 			List<Ship> undock = dockshipList.subList(0, dockshipList.size()-type.getADocks());
 			this.undock(undock.toArray(new Ship[undock.size()]));
 		}
 
-		List<Ship> jdockshipList = Common.cast(db.createQuery("from Ship where id>0 and docked= :docked")
-				.setString("docked", "l "+Integer.toString(this.id))
-				.list());
+		List<Ship> jdockshipList = getLandedShips();
 		if( jdockshipList.size() > type.getJDocks() )
 		{
 			List<Ship> undock = jdockshipList.subList(0, jdockshipList.size()-type.getJDocks());
@@ -1847,9 +1837,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			errors = true;
 		}
 
-		long landedShips = (Long)db.createQuery("select count(*) from Ship where docked=:landed")
-			.setParameter("landed", "l "+getId())
-			.uniqueResult();
+		long landedShips = getLandedCount();
 		if(landedShips + dockships.length > this.getTypeData().getJDocks())
 		{
 			outputbuffer.append("<span style=\"color:red\">Fehler: Nicht gen&uuml;gend freier Landepl&auml;tze vorhanden</span><br />\n");
@@ -1917,9 +1905,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 			for( Ship dockship : dockships ) {
 				dockship.setDocked("");
-				dockship.setX(x);
-				dockship.setY(y);
-				dockship.setSystem(system);
+				dockship.setLocation(this);
 			}
 		}
 	}
@@ -2077,9 +2063,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			return errors;
 		}
 
-		long dockedShips = (Long)db.createQuery("select count(*) from Ship where docked=:docked")
-			.setParameter("docked", ""+getId())
-			.uniqueResult();
+		long dockedShips = getDockedCount();
 		if(!superdock)
 		{
 			//Check for size
@@ -2461,13 +2445,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		StringBuilder message = MESSAGE.get();
-		List<?> s = db.createQuery("from Ship where id>0 and docked in (:docked,:landed)")
-			.setString("docked", Integer.toString(this.id))
-			.setString("landed", "l "+this.id)
-			.list();
-		for (Object value : s)
+		List<Ship> s = getGedockteUndGelandeteSchiffe();
+		for (Ship aship : s)
 		{
-			Ship aship = (Ship) value;
 			int oldlength = message.length();
 			boolean tmp = aship.consign(newowner, testonly);
 			if (tmp && !testonly)

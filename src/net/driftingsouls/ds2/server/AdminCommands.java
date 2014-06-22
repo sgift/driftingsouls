@@ -397,20 +397,14 @@ public class AdminCommands {
 
 					for (Ship ship : fleet.getShips())
 					{
-						ship.setSystem(loc.getSystem());
-						ship.setX(loc.getX());
-						ship.setY(loc.getY());
+						ship.setLocation(loc);
 						for (Ship lship : ship.getLandedShips())
 						{
-							lship.setSystem(loc.getSystem());
-							lship.setX(loc.getX());
-							lship.setY(loc.getY());
+							lship.setLocation(loc);
 						}
 						for (Ship lship : ship.getDockedShips())
 						{
-							lship.setSystem(loc.getSystem());
-							lship.setX(loc.getX());
-							lship.setY(loc.getY());
+							lship.setLocation(loc);
 						}
 					}
 					break;
@@ -650,21 +644,15 @@ public class AdminCommands {
 				case "pos":
 					Location loc = Location.fromString(command[3]);
 
-					ship.setSystem(loc.getSystem());
-					ship.setX(loc.getX());
-					ship.setY(loc.getY());
+					ship.setLocation(loc);
 
 					for (Ship lship : ship.getLandedShips())
 					{
-						lship.setSystem(loc.getSystem());
-						lship.setX(loc.getX());
-						lship.setY(loc.getY());
+						lship.setLocation(loc);
 					}
 					for (Ship lship : ship.getDockedShips())
 					{
-						lship.setSystem(loc.getSystem());
-						lship.setX(loc.getX());
-						lship.setY(loc.getY());
+						lship.setLocation(loc);
 					}
 					break;
 				case "hull":

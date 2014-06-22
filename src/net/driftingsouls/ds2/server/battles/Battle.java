@@ -2262,10 +2262,7 @@ public class Battle implements Locatable
             }
 		}
 
-		long dockcount = (Long)db.createQuery("select count(*) from Ship where docked IN (:docked,:landed)")
-			.setString("docked", Integer.toString(ship.getId()))
-			.setString("landed", "l "+ship.getId())
-			.iterate().next();
+		long dockcount = ship.getShip().getAnzahlGedockterUndGelandeterSchiffe();
 
 		ship.getShip().setBattle(null);
 		ship.getShip().setX(loc.getX());

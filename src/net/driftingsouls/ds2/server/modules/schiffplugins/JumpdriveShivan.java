@@ -100,9 +100,7 @@ public class JumpdriveShivan implements SchiffPlugin
 				{
 					for( Ship aship : ships )
 					{
-						aship.setSystem(system.getID());
-						aship.setX(x);
-						aship.setY(y);
+						aship.setLocation(targetLoc);
 					}
 				}
 				else
