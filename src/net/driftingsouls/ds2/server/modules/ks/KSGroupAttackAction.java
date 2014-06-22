@@ -59,12 +59,21 @@ public class KSGroupAttackAction extends BasicKSAction {
         int enemytypeid = battle.getEnemyShip().getTypeData().getTypeId();
 
         List<BattleShip> togoShips = battle.getOwnShips().stream().filter(bship -> bship.getTypeData().getTypeId() == typeid).collect(Collectors.toList());
+        battle.logme(togoShips.size() + " Schiffe zu feuern.\n");
 
         for(BattleShip aship : togoShips)
         {
             BattleShip enemyShip = battle.getEnemyShip();
             battle.setFiringShip(aship.getShip());
             battle.logme("Schiff: "+Battle.log_shiplink(aship.getShip())+"\n");
+            if(battle.getCommander(battle.getOwnSide()).isNPC())
+            {
+                battle.logme("Werte vor Schuss: \n");
+                battle.logme("Zielschiff:" + enemyShip.getName() + "("+enemyShip.getId()+")\n");
+                battle.logme("Hülle: " + enemyShip.getHull()+"/"+enemyShip.getTypeData().getHull()+"\n");
+                battle.logme("Ablative Panzerung: " + enemyShip.getAblativeArmor()+"/"+enemyShip.getTypeData().getAblativeArmor()+"\n");
+                battle.logme("Schilde: "+enemyShip.getShields()+"/"+enemyShip.getTypeData().getShields()+"\n");
+            }
 
             if(enemyShip.getTypeData().getTypeId() != enemytypeid)
             {
@@ -73,6 +82,15 @@ public class KSGroupAttackAction extends BasicKSAction {
             KSAttackAction act = new KSAttackAction();
             act.setController(getController());
             Result result = act.execute(t, battle);
+
+            if(battle.getCommander(battle.getOwnSide()).isNPC())
+            {
+                battle.logme("Werte nach Schuss: \n");
+                battle.logme("Zielschiff:" + enemyShip.getName() + "("+enemyShip.getId()+")\n");
+                battle.logme("Hülle: " + enemyShip.getHull()+"/"+enemyShip.getTypeData().getHull()+"\n");
+                battle.logme("Ablative Panzerung: " + enemyShip.getAblativeArmor()+"/"+enemyShip.getTypeData().getAblativeArmor()+"\n");
+                battle.logme("Schilde: "+enemyShip.getShields()+"/"+enemyShip.getTypeData().getShields()+"\n");
+            }
 
             if(result == Result.HALT)
             {
