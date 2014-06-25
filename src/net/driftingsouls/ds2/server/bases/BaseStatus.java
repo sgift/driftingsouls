@@ -30,15 +30,19 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
  */
 public class BaseStatus {
 	private Cargo status;
+    private Cargo nettoproductionstatus;
+    private Cargo nettoconsumptionstatus;
 	private int e;
 	private int livingSpace;
 	private int arbeiter;
 	private Map<Integer,Integer> blocations;
 	private Integer[] active;
 	
-	protected BaseStatus(Cargo status, int e, int bewohner, int arbeiter, Map<Integer,Integer> blocations, Integer[] active ) {
+	protected BaseStatus(Cargo status, Cargo nettoproductionstatus, Cargo nettoconsumptionstatus, int e, int bewohner, int arbeiter, Map<Integer,Integer> blocations, Integer[] active ) {
 		super();
 		this.status = status;
+        this.nettoproductionstatus = nettoproductionstatus;
+        this.nettoconsumptionstatus = nettoconsumptionstatus;
 		this.e = e;
 		this.livingSpace = bewohner;
 		this.arbeiter = arbeiter;
@@ -103,4 +107,18 @@ public class BaseStatus {
 	public Cargo getProduction() {
 		return status;
 	}
+
+    /**
+     * Gibt den pro Tick produzierten Cargo zurueck.
+     *
+     * @return Der produzierte Cargo
+     */
+    public Cargo getNettoProduction() { return nettoproductionstatus; }
+
+    /**
+     * Gibt den pro Tick verbrauchten Cargo zurueck.
+     *
+     * @return Der verbrauchte Cargo
+     */
+    public Cargo getNettoConsumption() { return nettoconsumptionstatus; }
 }
