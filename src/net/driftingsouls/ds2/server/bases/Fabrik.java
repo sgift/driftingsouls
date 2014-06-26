@@ -57,34 +57,21 @@ public class Fabrik extends DefaultBuilding
 	private static final Log log = LogFactory.getLog(Fabrik.class);
 
 	/**
-	 * Daten von einer oder mehreren Fabriken-Typen.
-	 */
-	@ContextInstance(ContextInstance.Scope.REQUEST)
-	public static class AllContextVars
-	{
-		Map<Integer, ContextVars> allvars = new HashMap<>();
-
-		/**
-		 * Konstruktor.
-		 */
-		public AllContextVars()
-		{
-			// EMPTY
-		}
-	}
-
-	/**
 	 * Daten von einer oder mehreren Fabriken.
 	 */
+    @ContextInstance(ContextInstance.Scope.REQUEST)
 	public static class ContextVars
 	{
+        List<Integer> buildingidlist = new ArrayList<>();
 		Set<FactoryEntry> owneritemsbase = new HashSet<>();
 		Map<Integer, Cargo> stats = new HashMap<>();
 		Map<Integer, Cargo> productionstats = new HashMap<>();
 		Map<Integer, Cargo> consumptionstats = new HashMap<>();
 		Map<Integer, BigDecimal> usedcapacity = new HashMap<>();
-
-		boolean init = false;
+        List<Integer> modified = new ArrayList<>();
+        List<Integer> prodmodified = new ArrayList<>();
+        List<Integer> conmodified = new ArrayList<>();
+        boolean init = false;
 
 		/**
 		 * Konstruktor.
@@ -93,6 +80,20 @@ public class Fabrik extends DefaultBuilding
 		{
 			// EMPTY
 		}
+
+        public void clear()
+        {
+            buildingidlist.clear();
+            consumptionstats.clear();
+            productionstats.clear();
+            stats.clear();
+            usedcapacity.clear();
+            owneritemsbase.clear();
+            modified.clear();
+            prodmodified.clear();
+            conmodified.clear();
+            init = false;
+        }
 	}
 
 	/**
@@ -109,52 +110,44 @@ public class Fabrik extends DefaultBuilding
 
 		User user = base.getOwner();
 
-		AllContextVars vars = context.get(AllContextVars.class);
-		Integer lastUser = (Integer) context.getVariable(getClass(), "last_user");
-		if (lastUser != null && user.getId() != lastUser.intValue())
+		ContextVars vars = context.get(ContextVars.class);
+
+		if (!vars.init)
 		{
-			vars.allvars.clear();
+			loadOwnerBase(user, vars);
+            vars.init = true;
 		}
 
-		if (!vars.allvars.containsKey(buildingid) || !vars.allvars.get(buildingid).init)
-		{
-			vars.allvars.put(buildingid, new ContextVars());
-			vars.allvars.get(buildingid).init = true;
-			context.putVariable(getClass(), "last_user", user.getId());
-
-			loadOwnerBase(user, vars, buildingid);
-		}
-
-		if (!vars.allvars.get(buildingid).usedcapacity.containsKey(base.getId()))
-		{
-			return loadAmmoTasks(base, vars, buildingid);
-		}
-
-		return "";
+        if(!vars.buildingidlist.contains(buildingid))
+        {
+            vars.buildingidlist.add(buildingid);
+            return loadAmmoTasks(base, vars, buildingid);
+        }
+        return "";
 	}
 
-	private String loadAmmoTasks(Base base, AllContextVars vars, int buildingid)
+	private String loadAmmoTasks(Base base, ContextVars vars, int buildingid)
 	{
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 
 		StringBuilder wfreason = new StringBuilder(100);
 
-		if (!vars.allvars.get(buildingid).stats.containsKey(base.getId()))
+		if (!vars.stats.containsKey(buildingid))
 		{
-			vars.allvars.get(buildingid).stats.put(base.getId(), new Cargo());
+			vars.stats.put(buildingid, new Cargo());
 		}
-		if (!vars.allvars.get(buildingid).productionstats.containsKey(base.getId()))
+		if (!vars.productionstats.containsKey(buildingid))
 		{
-			vars.allvars.get(buildingid).productionstats.put(base.getId(), new Cargo());
+			vars.productionstats.put(buildingid, new Cargo());
 		}
-		if (!vars.allvars.get(buildingid).consumptionstats.containsKey(base.getId()))
+		if (!vars.consumptionstats.containsKey(buildingid))
 		{
-			vars.allvars.get(buildingid).consumptionstats.put(base.getId(), new Cargo());
+			vars.consumptionstats.put(buildingid, new Cargo());
 		}
 
 		boolean ok = true;
-		Set<FactoryEntry> thisitemslist = vars.allvars.get(buildingid).owneritemsbase;
+		Set<FactoryEntry> thisitemslist = vars.owneritemsbase;
 
 		Cargo cargo = base.getCargo();
 
@@ -170,7 +163,7 @@ public class Fabrik extends DefaultBuilding
 
 		if (wf == null)
 		{
-			vars.allvars.get(buildingid).usedcapacity.put(base.getId(), BigDecimal.valueOf(-1));
+			vars.usedcapacity.put(buildingid, BigDecimal.valueOf(-1));
 
 			log.warn("Basis " + base.getId() + " verfuegt ueber keinen Fabrik-Eintrag, obwohl es eine Fabrik hat");
 			return "Basis " + base.getId() + " verfuegt ueber keinen Fabrik-Eintrag, obwohl es eine Fabrik hat";
@@ -194,7 +187,7 @@ public class Fabrik extends DefaultBuilding
 			if ((count > 0) && !thisitemslist.contains(entry))
 			{
 				ok = false;
-				wfreason.append("Es existieren nicht die n&ouml;tigen Baupl&auml;ne f&uuml;r " + entry.getName() + "\n");
+				wfreason.append("Es existieren nicht die n&ouml;tigen Baupl&auml;ne f&uuml;r ").append(entry.getName()).append("\n");
 				break;
 			}
 		}
@@ -208,11 +201,11 @@ public class Fabrik extends DefaultBuilding
 
 				FactoryEntry entry = (FactoryEntry) db.get(FactoryEntry.class, id);
 
-				if (!vars.allvars.get(buildingid).usedcapacity.containsKey(base.getId()))
+				if (!vars.usedcapacity.containsKey(buildingid))
 				{
-					vars.allvars.get(buildingid).usedcapacity.put(base.getId(), new BigDecimal(0, MathContext.DECIMAL32));
+					vars.usedcapacity.put(buildingid, new BigDecimal(0, MathContext.DECIMAL32));
 				}
-				vars.allvars.get(buildingid).usedcapacity.put(base.getId(), vars.allvars.get(buildingid).usedcapacity.get(base.getId()).add(entry.getDauer().multiply((new BigDecimal(count)))));
+				vars.usedcapacity.put(buildingid, vars.usedcapacity.get(buildingid).add(entry.getDauer().multiply((new BigDecimal(count)))));
 				if (count > 0)
 				{
 					Cargo tmpcargo = new Cargo(entry.getBuildCosts());
@@ -220,12 +213,12 @@ public class Fabrik extends DefaultBuilding
 					{
 						tmpcargo.multiply(count, Cargo.Round.NONE);
 					}
-					vars.allvars.get(buildingid).consumptionstats.get(base.getId()).addCargo(tmpcargo);
-					vars.allvars.get(buildingid).stats.get(base.getId()).substractCargo(tmpcargo);
+					vars.consumptionstats.get(buildingid).addCargo(tmpcargo);
+					vars.stats.get(buildingid).substractCargo(tmpcargo);
 					Cargo addCargo = entry.getProduce();
 					addCargo.multiply(count, Cargo.Round.FLOOR);
-					vars.allvars.get(buildingid).stats.get(base.getId()).addCargo(addCargo);
-					vars.allvars.get(buildingid).productionstats.get(base.getId()).addCargo(addCargo);
+					vars.stats.get(buildingid).addCargo(addCargo);
+					vars.productionstats.get(buildingid).addCargo(addCargo);
 				}
 			}
 		}
@@ -235,9 +228,9 @@ public class Fabrik extends DefaultBuilding
 			wfreason.insert(0, "[b]" + basename + "[/b] - Die Arbeiten in der Fabrik zeitweise eingestellt.\nGrund:\n");
 		}
 
-		if (!vars.allvars.get(buildingid).usedcapacity.containsKey(base.getId()) || (vars.allvars.get(buildingid).usedcapacity.get(base.getId()).doubleValue() <= 0))
+		if (!vars.usedcapacity.containsKey(buildingid) || (vars.usedcapacity.get(buildingid).doubleValue() <= 0))
 		{
-			vars.allvars.get(buildingid).usedcapacity.put(base.getId(), new BigDecimal(-1));
+			vars.usedcapacity.put(buildingid, new BigDecimal(-1));
 		}
 
 		return wfreason.toString();
@@ -255,19 +248,20 @@ public class Fabrik extends DefaultBuilding
 		return null;
 	}
 
-	private void loadOwnerBase(User user, AllContextVars vars, int buildingid)
+	private void loadOwnerBase(User user, ContextVars vars)
 	{
+
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 
 		List<FactoryEntry> entrylist = Common.cast(db.createQuery("from FactoryEntry").list());
 		for (FactoryEntry entry : entrylist)
 		{
-			if (!user.hasResearched(entry.getBenoetigteForschungen()) || !entry.hasBuildingId(buildingid))
+			if (!user.hasResearched(entry.getBenoetigteForschungen()))
 			{
 				continue;
 			}
-			vars.allvars.get(buildingid).owneritemsbase.add(entry);
+			vars.owneritemsbase.add(entry);
 		}
 
 		if (user.getAlly() != null)
@@ -279,7 +273,7 @@ public class Fabrik extends DefaultBuilding
 			{
 				FactoryEntry entry = item.getItem().getFabrikeintrag();
 
-				vars.allvars.get(buildingid).owneritemsbase.add(entry);
+				vars.owneritemsbase.add(entry);
 			}
 		}
 	}
@@ -390,9 +384,9 @@ public class Fabrik extends DefaultBuilding
 		StringBuilder result = new StringBuilder(200);
 
 		loaddata(base, building);
-		AllContextVars vars = ContextMap.getContext().get(AllContextVars.class);
+		ContextVars vars = ContextMap.getContext().get(ContextVars.class);
 
-		if (vars.allvars.get(building).usedcapacity.get(base.getId()).doubleValue() > 0)
+		if (vars.usedcapacity.get(building).doubleValue() > 0)
 		{
 			Factory wf = loadFactoryEntity(base, building);
 			Factory.Task[] prodlist = wf.getProduces();
@@ -400,7 +394,7 @@ public class Fabrik extends DefaultBuilding
 			StringBuilder popup = new StringBuilder(200);
 
 			Building buildingobj = (Building) db.get(Building.class, building);
-			popup.append(buildingobj.getName() + "<br /><br />");
+			popup.append(buildingobj.getName()).append("<br /><br />");
 
 			for (Factory.Task aProdlist : prodlist)
 			{
@@ -408,15 +402,15 @@ public class Fabrik extends DefaultBuilding
 				int count = aProdlist.getCount();
 				FactoryEntry entry = (FactoryEntry) db.get(FactoryEntry.class, id);
 
-				if ((count > 0) && vars.allvars.get(building).owneritemsbase.contains(entry))
+				if ((count > 0) && vars.owneritemsbase.contains(entry))
 				{
 					Cargo production = new Cargo(entry.getProduce());
 					production.setOption(Cargo.Option.SHOWMASS, false);
 					ResourceList reslist = production.getResourceList();
-					popup.append("[" + count + "x]  ");
+					popup.append("[").append(count).append("x]  ");
 					for (ResourceEntry res : reslist)
 					{
-						popup.append("<img style='vertical-align:middle' src='" + res.getImage() + "' alt='' />" + res.getCount1());
+						popup.append("<img style='vertical-align:middle' src='").append(res.getImage()).append("' alt='' />").append(res.getCount1());
 					}
 					popup.append("<br />");
 				}
@@ -424,12 +418,12 @@ public class Fabrik extends DefaultBuilding
 
 
 			result.append("<a class=\"error tooltip\" " +
-						  "href=\"./ds?module=building&amp;col=" + base.getId() + "&amp;field=" + field + "\">[FA]<span class='ttcontent'>" + popup + "</span></a>");
+						  "href=\"./ds?module=building&amp;col=").append(base.getId()).append("&amp;field=").append(field).append("\">[FA]<span class='ttcontent'>").append(popup).append("</span></a>");
 		}
 		else
 		{
-			result.append("<a class=\"back tooltip\" href=\"./ds?module=building&amp;col=" + base.getId() + "&amp;field=" + field + "\">[FA]" +
-						  "<span class='ttcontent'>" + this.getName() + "</span></a>");
+			result.append("<a class=\"back tooltip\" href=\"./ds?module=building&amp;col=").append(base.getId()).append("&amp;field=").append(field).append("\">[FA]" +
+						  "<span class='ttcontent'>").append(this.getName()).append("</span></a>");
 		}
 
 		return result.toString();
@@ -439,8 +433,8 @@ public class Fabrik extends DefaultBuilding
 	public boolean isActive(Base base, int status, int field)
 	{
 		loaddata(base, base.getBebauung()[field]);
-		AllContextVars vars = ContextMap.getContext().get(AllContextVars.class);
-		return vars.allvars.get(base.getBebauung()[field]).usedcapacity.get(base.getId()).doubleValue() > 0;
+		ContextVars vars = ContextMap.getContext().get(ContextVars.class);
+		return vars.usedcapacity.get(base.getBebauung()[field]).doubleValue() > 0;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -450,18 +444,12 @@ public class Fabrik extends DefaultBuilding
 		String msg = loaddata(base, building);
 
 		Context context = ContextMap.getContext();
-		AllContextVars vars = context.get(AllContextVars.class);
-		Map<String, Boolean> colcomplete = (Map<String, Boolean>) context.getVariable(getClass(), "colcomplete");
-		if (colcomplete == null)
-		{
-			colcomplete = new HashMap<>();
-			context.putVariable(getClass(), "colcomplete", colcomplete);
-		}
+		ContextVars vars = context.get(ContextVars.class);
 
-		if ((vars.allvars.get(building).usedcapacity.get(base.getId()).compareTo(new BigDecimal(0)) > 0) && !colcomplete.containsKey(base.getId() + ":" + building))
+		if ((vars.usedcapacity.get(building).compareTo(new BigDecimal(0)) > 0) && !vars.modified.contains(building))
 		{
-			stats.addCargo(vars.allvars.get(building).stats.get(base.getId()));
-			colcomplete.put(base.getId() + ":" + building, true);
+			stats.addCargo(vars.stats.get(building));
+            vars.modified.add(building);
 		}
 
 		return msg;
@@ -474,19 +462,13 @@ public class Fabrik extends DefaultBuilding
 		String msg = loaddata(base, building);
 
 		Context context = ContextMap.getContext();
-		AllContextVars vars = context.get(AllContextVars.class);
-		Map<String, Boolean> colcomplete = (Map<String, Boolean>) context.getVariable(getClass(), "colprodcomplete");
-		if (colcomplete == null)
-		{
-			colcomplete = new HashMap<>();
-			context.putVariable(getClass(), "colprodcomplete", colcomplete);
-		}
+		ContextVars vars = context.get(ContextVars.class);
 
-		if ((vars.allvars.get(building).usedcapacity.get(base.getId()).compareTo(new BigDecimal(0)) > 0) && !colcomplete.containsKey(base.getId() + ":" + building))
-		{
-			stats.addCargo(vars.allvars.get(building).productionstats.get(base.getId()));
-			colcomplete.put(base.getId() + ":" + building, true);
-		}
+        if ((vars.usedcapacity.get(building).compareTo(new BigDecimal(0)) > 0) && !vars.prodmodified.contains(building))
+        {
+            stats.addCargo(vars.productionstats.get(building));
+            vars.prodmodified.add(building);
+        }
 
 		return msg;
 	}
@@ -498,19 +480,13 @@ public class Fabrik extends DefaultBuilding
 		String msg = loaddata(base, building);
 
 		Context context = ContextMap.getContext();
-		AllContextVars vars = context.get(AllContextVars.class);
-		Map<String, Boolean> colcomplete = (Map<String, Boolean>) context.getVariable(getClass(), "colconscomplete");
-		if (colcomplete == null)
-		{
-			colcomplete = new HashMap<>();
-			context.putVariable(getClass(), "colconscomplete", colcomplete);
-		}
+		ContextVars vars = context.get(ContextVars.class);
 
-		if ((vars.allvars.get(building).usedcapacity.get(base.getId()).compareTo(new BigDecimal(0)) > 0) && !colcomplete.containsKey(base.getId() + ":" + building))
-		{
-			stats.addCargo(vars.allvars.get(building).consumptionstats.get(base.getId()));
-			colcomplete.put(base.getId() + ":" + building, true);
-		}
+        if ((vars.usedcapacity.get(building).compareTo(new BigDecimal(0)) > 0) && !vars.conmodified.contains(building))
+        {
+            stats.addCargo(vars.consumptionstats.get(building));
+            vars.conmodified.add(building);
+        }
 
 		return msg;
 	}
@@ -538,7 +514,6 @@ public class Fabrik extends DefaultBuilding
 		*/
 
 		Set<FactoryEntry> itemslist = new HashSet<>();
-		Map<FactoryEntry, String> bPlanMap = new HashMap<>();
 
 		Iterator<?> itemsIter = db.createQuery("from FactoryEntry").list().iterator();
 		for (; itemsIter.hasNext(); )
@@ -564,7 +539,6 @@ public class Fabrik extends DefaultBuilding
 
 			if (!itemslist.contains(entry))
 			{
-				bPlanMap.put(entry, "<span class=\"smallfont\" style=\"color:#EECC44\">[Item]</span> ");
 				itemslist.add(entry);
 			}
 		}
@@ -582,7 +556,6 @@ public class Fabrik extends DefaultBuilding
 
 				if (!itemslist.contains(entry))
 				{
-					bPlanMap.put(entry, "<span class=\"smallfont\" style=\"color:#EECC44\">[Item]</span> ");
 					itemslist.add(entry);
 				}
 			}
@@ -669,12 +642,12 @@ public class Fabrik extends DefaultBuilding
 
 					wf.setProduces(producelist.toArray(new Factory.Task[producelist.size()]));
 
-					echo.append(Math.abs(count) + " " + entry.getName() + " wurden " + (count >= 0 ? "hinzugef&uuml;gt" : "abgezogen") + "<br /><br />");
+					echo.append(Math.abs(count)).append(" ").append(entry.getName()).append(" wurden ").append((count >= 0 ? "hinzugef&uuml;gt" : "abgezogen")).append("<br /><br />");
 				}
 			}
 			else
 			{
-				echo.append("Sie haben nicht alle ben&ouml;tigten Forschungen f&uuml;r " + entry.getName() + "<br /><br />");
+				echo.append("Sie haben nicht alle ben&ouml;tigten Forschungen f&uuml;r ").append(entry.getName()).append("<br /><br />");
 			}
 		}
 
@@ -701,7 +674,7 @@ public class Fabrik extends DefaultBuilding
 
 				if (!itemslist.contains(entry))
 				{
-					echo.append("WARNUNG: Ungueltiges Item >" + entry.getId() + "< (count: " + ammoCount + ") in der Produktionsliste entdeckt<br />\n");
+					echo.append("WARNUNG: Ungueltiges Item >").append(entry.getId()).append("< (count: ").append(ammoCount).append(") in der Produktionsliste entdeckt<br />\n");
 					continue;
 				}
 
@@ -729,19 +702,19 @@ public class Fabrik extends DefaultBuilding
 		*/
 		echo.append("<div class='gfxbox' style='width:1100px'>");
 
-		echo.append("<img style=\"vertical-align:middle\" src=\"./data/interface/time.gif\" alt=\"Zeiteinheiten\" />" + Common.ln(usedcapacity) + "/" + wf.getCount() + " ausgelastet<br />\n");
+		echo.append("<img style=\"vertical-align:middle\" src=\"./data/interface/time.gif\" alt=\"Zeiteinheiten\" />").append(Common.ln(usedcapacity)).append("/").append(wf.getCount()).append(" ausgelastet<br />\n");
 		echo.append("Verbrauch: ");
 		ResourceList reslist = consumes.getResourceList();
 		for (ResourceEntry res : reslist)
 		{
-			echo.append("<img style=\"vertical-align:middle\" src=\"" + res.getImage() + "\" alt=\"\" />" + res.getCargo1() + "&nbsp;");
+			echo.append("<img style=\"vertical-align:middle\" src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCargo1()).append("&nbsp;");
 		}
 		echo.append("<br/>");
 		echo.append("Produktion: ");
 		reslist = produceCargo.getResourceList();
 		for (ResourceEntry res : reslist)
 		{
-			echo.append("<img style=\"vertical-align:middle\" src=\"" + res.getImage() + "\" alt=\"\" />" + res.getCargo1() + "&nbsp;");
+			echo.append("<img style=\"vertical-align:middle\" src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCargo1()).append("&nbsp;");
 		}
 		echo.append("<br /><br />\n");
 		echo.append("<table class=\"noBorderX\" cellpadding=\"2\">");
@@ -770,7 +743,7 @@ public class Fabrik extends DefaultBuilding
 			echo.append("<tr>\n");
 			if (productlist.containsKey(entry))
 			{
-				echo.append("<td class=\"noBorderX\" valign=\"top\">" + productlist.get(entry) + "x</td>\n");
+				echo.append("<td class=\"noBorderX\" valign=\"top\">").append(productlist.get(entry)).append("x</td>\n");
 			}
 			else
 			{
@@ -778,14 +751,14 @@ public class Fabrik extends DefaultBuilding
 			}
 
 			echo.append("<td class=\"noBorderX\" valign=\"top\">\n");
-			echo.append("<img style=\"vertical-align:middle\" src=\"./data/interface/time.gif\" alt=\"Dauer\" />" + Common.ln(entry.getDauer()) + " \n");
+			echo.append("<img style=\"vertical-align:middle\" src=\"./data/interface/time.gif\" alt=\"Dauer\" />").append(Common.ln(entry.getDauer())).append(" \n");
 
 			Cargo buildcosts = new Cargo(entry.getBuildCosts());
 			buildcosts.setOption(Cargo.Option.SHOWMASS, false);
 			reslist = buildcosts.getResourceList();
 			for (ResourceEntry res : reslist)
 			{
-				echo.append("<span class=\"nobr\"><img style=\"vertical-align:middle\" src=\"" + res.getImage() + "\" alt=\"\" />" + res.getCargo1() + "</span>\n");
+				echo.append("<span class=\"nobr\"><img style=\"vertical-align:middle\" src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCargo1()).append("</span>\n");
 			}
 
 			echo.append("</td>\n");
@@ -796,7 +769,7 @@ public class Fabrik extends DefaultBuilding
 			reslist = produceCosts.getResourceList();
 			for (ResourceEntry res : reslist)
 			{
-				echo.append("<span class=\"nobr\"><img style=\"vertical-align:middle\" src=\"" + res.getImage() + "\" alt=\"\" />" + res.getCargo1() + "</span>\n");
+				echo.append("<span class=\"nobr\"><img style=\"vertical-align:middle\" src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCargo1()).append("</span>\n");
 			}
 
 			echo.append("</td>\n");
@@ -804,9 +777,9 @@ public class Fabrik extends DefaultBuilding
 			echo.append("<form action=\"./ds\" method=\"post\">\n");
 			echo.append("<div>\n");
 			echo.append("<input name=\"count\" type=\"text\" size=\"2\" value=\"0\" />\n");
-			echo.append("<input name=\"produce\" type=\"hidden\" value=\"" + entry.getId() + "\" />\n");
-			echo.append("<input name=\"col\" type=\"hidden\" value=\"" + base.getId() + "\" />\n");
-			echo.append("<input name=\"field\" type=\"hidden\" value=\"" + field + "\" />\n");
+			echo.append("<input name=\"produce\" type=\"hidden\" value=\"").append(entry.getId()).append("\" />\n");
+			echo.append("<input name=\"col\" type=\"hidden\" value=\"").append(base.getId()).append("\" />\n");
+			echo.append("<input name=\"field\" type=\"hidden\" value=\"").append(field).append("\" />\n");
 			echo.append("<input name=\"module\" type=\"hidden\" value=\"building\" />\n");
 			echo.append("<input type=\"submit\" value=\"herstellen\" />\n");
 			echo.append("</div>\n");

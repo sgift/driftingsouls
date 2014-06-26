@@ -954,89 +954,20 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	}
 
 	/**
-	 * Gibt den Nettoverbrauch der Basis aus.
-	 * @return Der Nettoverbrauch
-	 */
-	private Cargo getNettoConsumption()
-	{
-		Cargo stat = new Cargo();
-		if( (this.core != null) && isCoreActive() ) {
-			stat.addCargo(core.getConsumes());
-		}
-
-		Integer[] bebauung = getBebauung();
-		Integer[] bebon = getActive();
-
-		for( int o=0; o < getWidth() * getHeight(); o++ )
-		{
-			if( bebauung[o] == 0 )
-			{
-				continue;
-			}
-
-			Building building = Building.getBuilding(bebauung[o]);
-
-			bebon[o] = building.isActive( this, bebon[o], o ) ? 1 : 0;
-
-			if( bebon[o] == 0 )
-			{
-				continue;
-			}
-
-			building.modifyConsumptionStats( this, stat, bebauung[o] );
-
-			stat.addCargo(building.getConsumes());
-		}
-
-		return stat;
-	}
-
-	/**
-	 * Gibt die Nettoproduktion der Basis aus.
-	 * @return Die Nettoproduktion
-	 */
-	private Cargo getNettoProduction()
-	{
-		Cargo stat = new Cargo();
-		if( (this.core != null) && isCoreActive() ) {
-			stat.addCargo(core.getProduces());
-		}
-
-		Integer[] bebauung = getBebauung();
-		Integer[] bebon = getActive();
-
-		for( int o=0; o < getWidth() * getHeight(); o++ )
-		{
-			if( bebauung[o] == 0 )
-			{
-				continue;
-			}
-
-			Building building = Building.getBuilding(bebauung[o]);
-
-			bebon[o] = building.isActive( this, bebon[o], o ) ? 1 : 0;
-
-			if( bebon[o] == 0 )
-			{
-				continue;
-			}
-
-			building.modifyProductionStats( this, stat, bebauung[o] );
-
-			stat.addCargo(building.getProduces());
-		}
-
-		return stat;
-	}
-
-	/**
 	 * Generiert den aktuellen Verbrauch/Produktion-Status einer Basis.
 	 * @param base die Basis
 	 * @return der aktuelle Verbrauchs/Produktions-Status
 	 */
 	public static BaseStatus getStatus( Base base )
 	{
+
+        Fabrik.ContextVars vars = ContextMap.getContext().get(Fabrik.ContextVars.class);
+        vars.clear();
+
 		Cargo stat = new Cargo();
+        Cargo prodstat = new Cargo();
+        Cargo constat = new Cargo();
+
 		int e = 0;
 		int arbeiter = 0;
 		int bewohner = 0;
@@ -1046,7 +977,9 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 			Core core = base.getCore();
 
 			stat.substractCargo(core.getConsumes());
+            constat.addCargo(core.getConsumes());
 			stat.addCargo(core.getProduces());
+            prodstat.addCargo(core.getProduces());
 
 			e = e - core.getEVerbrauch() + core.getEProduktion();
 			arbeiter += core.getArbeiter();
@@ -1077,21 +1010,27 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 			}
 
 			building.modifyStats( base, stat, bebauung[o] );
+            building.modifyProductionStats(base, prodstat, bebauung[o]);
+            building.modifyConsumptionStats(base, constat, bebauung[o]);
 
 			stat.substractCargo(building.getConsumes());
+            constat.addCargo(building.getConsumes());
 			stat.addCargo(building.getAllProduces());
+            prodstat.addCargo(building.getProduces());
 
 			e = e - building.getEVerbrauch() + building.getEProduktion();
 			arbeiter += building.getArbeiter();
 			bewohner += building.getBewohner();
 		}
 
-		stat.substractResource( Resources.NAHRUNG, (long)Math.ceil(base.getBewohner()/10) );
+        // Nahrung nicht mit in constat rein. Dies wird im Tick benutzt, der betrachtet Nahrungsverbrauch aber separat.
+		stat.substractResource( Resources.NAHRUNG, (long)Math.ceil(base.getBewohner()/10.0) );
 
-		stat.substractResource( Resources.NAHRUNG, (long)Math.ceil(base.getUnits().getNahrung()/10) );
+		stat.substractResource( Resources.NAHRUNG, base.getUnits().getNahrung() );
 		stat.substractResource( Resources.RE, base.getUnits().getRE() );
+        constat.addResource( Resources.RE, base.getUnits().getRE());
 
-		return new BaseStatus(stat, e, bewohner, arbeiter, Collections.unmodifiableMap(buildinglocs), bebon);
+		return new BaseStatus(stat, prodstat, constat, e, bewohner, arbeiter, Collections.unmodifiableMap(buildinglocs), bebon);
 	}
 
 	private BaseStatus getStatus()
@@ -1563,14 +1502,15 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 
 		immigrate(state);
 
-		if(!rebalanceEnergy(state))
+        int newenergy = rebalanceEnergy(state);
+		if(newenergy < 0)
 		{
 			message += "Zu wenig Energie. Die Produktion f&auml;llt aus.\n";
 			usefullMessage = true;
 		}
 		else
 		{
-			String prodmsg = produce(state);
+			String prodmsg = produce(state, newenergy);
 			if(!prodmsg.equals(""))
 			{
 				message += prodmsg;
@@ -1781,16 +1721,16 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		return Math.round(price * count);
 	}
 
-	private boolean rebalanceEnergy(BaseStatus state)
+	private int rebalanceEnergy(BaseStatus state)
 	{
 		int energy = getEnergy();
 		int eps = getMaxEnergy();
-		int production = state.getEnergy();
+        int production = state.getEnergy();
 
 		energy = energy + production;
 		if(energy < 0)
 		{
-			return false;
+			return -1;
 		}
 
 		if(energy > eps)
@@ -1802,21 +1742,20 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 				overflow = emptyBatteries;
 			}
 
-			cargo.substractResource(Resources.LBATTERIEN, overflow);
-			cargo.addResource(Resources.BATTERIEN, overflow);
+			state.getNettoConsumption().addResource(Resources.LBATTERIEN, overflow);
+			state.getNettoProduction().addResource(Resources.BATTERIEN, overflow);
 			energy = eps;
 		}
 
-		setEnergy(energy);
-		return true;
+		return energy;
 	}
 
-	private String produce(BaseStatus state)
+	private String produce(BaseStatus state, int newenergy)
 	{
 		String msg = "";
 		Cargo baseCargo = (Cargo)cargo.clone();
-		Cargo nettoproduction = getNettoProduction();
-		Cargo nettoconsumption = getNettoConsumption();
+		Cargo nettoproduction = state.getNettoProduction();
+		Cargo nettoconsumption = state.getNettoConsumption();
 		org.hibernate.Session db = getDB();
 		boolean ok = true;
 
@@ -1882,22 +1821,6 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 			}
 		}
 
-		//Try to take all of the RE from the pool
-		//Only use the asteroid cargo if there's no choice
-		long baseRE = cargo.getResourceCount(Resources.RE);
-
-		long newRE = baseCargo.getResourceCount(Resources.RE);
-
-		if(newRE > baseRE)
-		{
-			getOwner().setKonto(BigInteger.valueOf(newRE - baseRE));
-			baseCargo.setResource(Resources.RE, baseRE);
-		}
-		else
-		{
-			getOwner().setKonto(BigInteger.ZERO);
-		}
-
 		if(!feedInhabitants(baseCargo))
 		{
 			msg += "Wegen einer Hungersnot fliehen ihre Einwohner. Die Produktion f&auml;llt aus.\n";
@@ -1912,6 +1835,21 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 
 		if(ok)
 		{
+            // Alles OK ggf müssen wir Konto anpassen und darauf achten das Produktion der Basis auch Bargeld liefert
+            long baseRE = cargo.getResourceCount(Resources.RE) + nettoproduction.getResourceCount(Resources.RE);
+
+            long newRE = baseCargo.getResourceCount(Resources.RE);
+
+            if(newRE > baseRE)
+            {
+                getOwner().setKonto(BigInteger.valueOf(newRE - baseRE));
+                baseCargo.setResource(Resources.RE, baseRE);
+            }
+            else
+            {
+                getOwner().setKonto(BigInteger.ZERO);
+            }
+            this.setEnergy(newenergy);
 			this.cargo = baseCargo;
 		}
 		return msg;
@@ -1945,7 +1883,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 
 	private boolean feedMarines(Cargo baseCargo)
 	{
-		int hungryPeople = (int)Math.ceil(getUnits().getNahrung() / 10);
+		int hungryPeople = (int)Math.ceil(getUnits().getNahrung());
 		int fleeingPeople = feedPeople(hungryPeople, baseCargo);
 
 		if(fleeingPeople > 0)
@@ -1965,7 +1903,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 
 		if(fleeingPeople > 0)
 		{
-			setBewohner(getBewohner() - fleeingPeople);
+			setBewohner(getBewohner() - fleeingPeople*10);
 			return false;
 		}
 
