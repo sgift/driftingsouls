@@ -339,9 +339,6 @@ public class Install
 			el = (Element)XMLUtils.getNodeByXPath(doc, "/config/setting[@name='ABSOLUTE_PATH']");
 			el.setAttribute("value", new File("web").getAbsolutePath() + "/");
 
-			el = (Element)XMLUtils.getNodeByXPath(doc, "/config/setting[@name='QUESTPATH']");
-			el.setAttribute("value", new File("quests").getAbsolutePath() + "/");
-
 			el = (Element)XMLUtils.getNodeByXPath(doc, "/config/setting[@name='LOXPATH']");
 			el.setAttribute("value", new File("lox").getAbsolutePath() + "/");
 
