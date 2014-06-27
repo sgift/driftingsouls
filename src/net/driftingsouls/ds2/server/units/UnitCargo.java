@@ -671,7 +671,6 @@ public abstract class UnitCargo implements Cloneable {
 				{
 					toteUnits.addUnit(unit, (long)Math.ceil(totekapervalue / unit.getKaperValue()));
 					substractUnit(unit, (long)Math.ceil(totekapervalue / unit.getKaperValue()));
-					totekapervalue = 0;
 					return;
 				}
 			}
@@ -712,7 +711,7 @@ public abstract class UnitCargo implements Cloneable {
 	 * @param restre Die RE die noch zur Versorgung da sind
 	 * @return Ein UnitCargo mit den Einheiten die nicht mehr versorgt werden konnten
 	 */
-	public UnitCargo getMeuterer(int restre)
+	public UnitCargo getMeuterer(long restre)
 	{
 		UnitCargo meuterer = createEmptyCargo();
 		org.hibernate.Session db = ContextMap.getContext().getDB();

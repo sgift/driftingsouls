@@ -1025,10 +1025,9 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 
         // Nahrung nicht mit in constat rein. Dies wird im Tick benutzt, der betrachtet Nahrungsverbrauch aber separat.
 		stat.substractResource( Resources.NAHRUNG, (long)Math.ceil(base.getBewohner()/10.0) );
-
 		stat.substractResource( Resources.NAHRUNG, base.getUnits().getNahrung() );
+        // RE nicht mit in constat rein. Dies wird im Tick benutzt, der betrachtet RE-Verbrauch aber separat.
 		stat.substractResource( Resources.RE, base.getUnits().getRE() );
-        constat.addResource( Resources.RE, base.getUnits().getRE());
 
 		return new BaseStatus(stat, prodstat, constat, e, bewohner, arbeiter, Collections.unmodifiableMap(buildinglocs), bebon);
 	}
@@ -1833,6 +1832,12 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 			msg += "Wegen Unterern&auml;hrung desertieren ihre Truppen.\n";
 		}
 
+        // Ja, Marines futtern erstmal bevor Sie abhauen ...
+        if(!payMarines(baseCargo))
+        {
+            msg += "Wegen fehlendem Sold desertieren ihre Truppen.\n";
+        }
+
 		if(ok)
 		{
             // Alles OK ggf müssen wir Konto anpassen und darauf achten das Produktion der Basis auch Bargeld liefert
@@ -1894,6 +1899,24 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 
 		return true;
 	}
+
+    private boolean payMarines(Cargo baseCargo)
+    {
+        long marinesold = getUnits().getRE();
+        long re = baseCargo.getResourceCount(Resources.RE);
+
+        if(marinesold > re)
+        {
+            getUnits().getMeuterer(re);
+            baseCargo.setResource(Resources.RE, 0);
+            return false;
+        }
+        else
+        {
+            baseCargo.substractResource(Resources.RE, marinesold);
+        }
+        return true;
+    }
 
 
 	private boolean feedInhabitants(Cargo baseCargo)
