@@ -10,7 +10,8 @@ public class JqGridColumnViewModel
 	public Integer width;
 	public String align;
 	public boolean sortable;
-	private String formatter;
+	public String formatter;
+	public boolean search;
 
 	public JqGridColumnViewModel(String name, String formatter)
 	{

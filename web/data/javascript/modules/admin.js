@@ -124,6 +124,13 @@ Admin.createEntityTable = function(params) {
 			updateCargos();
 		};
 		$('#entityList').jqGrid(params);
+		var searchColumn = false;
+		$.each(params.colModel, function(idx, val) {
+			searchColumn |= val.search || false;
+		});
+		if( searchColumn ) {
+			$('#entityList').jqGrid('filterToolbar', {});
+		}
 	});
 };
 

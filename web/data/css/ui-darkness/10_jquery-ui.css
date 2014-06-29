@@ -115,3 +115,12 @@
 .ui-jqgrid .loading {
 	background: #0F1513;
 }
+
+.ui-jqgrid input[type=text] {
+	border: 1px #A7A7A7 solid;
+	margin: 0px;
+	color: #C7C7C7;
+	font-size:13px;
+	background-color: #202020;
+	padding:1px;
+}

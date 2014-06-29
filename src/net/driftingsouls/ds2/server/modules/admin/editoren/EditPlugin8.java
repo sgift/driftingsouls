@@ -9,18 +9,23 @@ import net.driftingsouls.ds2.server.framework.db.batch.SingleUnitOfWork;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.utils.StringToTypeConverter;
 import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 
 import javax.annotation.Nonnull;
+import javax.persistence.Entity;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.SingularAttribute;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +40,8 @@ import java.util.stream.Collectors;
  */
 public class EditPlugin8<T> implements AdminPlugin
 {
+	private static final Logger LOG = LogManager.getLogger(EditPlugin8.class);
+
 	private EntityEditor<T> entityEditor;
 	private Class<? extends T> clazz;
 	private Class<T> baseClass;
@@ -237,6 +244,7 @@ public class EditPlugin8<T> implements AdminPlugin
 			model.colNames.add(columnDefinition.getLabel());
 			JqGridColumnViewModel colModel = new JqGridColumnViewModel(columnDefinition.getId(), columnDefinition.getFormatter());
 			colModel.sortable = columnDefinition.getDbColumn() != null;
+			colModel.search = columnDefinition.getDbColumn() != null;
 			model.colModel.add(colModel);
 		}
 
@@ -542,7 +550,9 @@ public class EditPlugin8<T> implements AdminPlugin
 
 		CriteriaBuilder builder = getEM().getCriteriaBuilder();
 		CriteriaQuery<Long> countQuery = builder.createQuery(Long.class);
-		countQuery.select(builder.count(countQuery.from(baseClass)));
+		Root<T> countRoot = countQuery.from(baseClass);
+		countQuery.select(builder.count(countRoot));
+		countQuery = addRestrictionsToTableQuery(form, builder, countQuery, countRoot);
 		Number rowCount = getEM().createQuery(countQuery).getSingleResult();
 
 		JqGridTableDataViewModel model = new JqGridTableDataViewModel();
@@ -569,6 +579,8 @@ public class EditPlugin8<T> implements AdminPlugin
 			}
 		}
 
+		entityQuery = addRestrictionsToTableQuery(form, builder, entityQuery, entityRoot);
+
 		List<T> entities = getEM().createQuery(entityQuery)
 				.setFirstResult((page-1)*rows)
 				.setMaxResults(rows)
@@ -582,6 +594,44 @@ public class EditPlugin8<T> implements AdminPlugin
 		}
 
 		return model;
+	}
+
+	private <V> CriteriaQuery<V> addRestrictionsToTableQuery(EditorForm8<T> form, CriteriaBuilder builder, CriteriaQuery<V> entityQuery, Root<T> entityRoot)
+	{
+		List<Predicate> predicates = new ArrayList<>();
+		Request request = ContextMap.getContext().getRequest();
+		for (ColumnDefinition<T> columnDefinition : form.getColumnDefinitions())
+		{
+			String val = request.getParameter(columnDefinition.getId());
+			if( val == null )
+			{
+				continue;
+			}
+			try
+			{
+				Object typedVal;
+				Class<?> javaType = columnDefinition.getDbColumn().getJavaType();
+				if( javaType.isAnnotationPresent(Entity.class) )
+				{
+					Class<?> idClass = getDB().getSessionFactory().getClassMetadata(javaType).getIdentifierType().getReturnedClass();
+					typedVal = getEM().find(javaType, StringToTypeConverter.convert(idClass, val));
+					if( typedVal == null )
+					{
+						throw new IllegalArgumentException("Unbekannter Wert: " + val);
+					}
+				}
+				else
+				{
+					typedVal = StringToTypeConverter.convert(javaType, val);
+				}
+				predicates.add(builder.equal(entityRoot.get(columnDefinition.getDbColumn()), typedVal));
+			}
+			catch( RuntimeException e  ) {
+				LOG.warn("Konnte Suchkriterium nicht erzeugen", e);
+			}
+		}
+		entityQuery.where(predicates.toArray(new Predicate[predicates.size()]));
+		return entityQuery;
 	}
 
 	protected void configureFor(@Nonnull EditorForm8<T> form)
