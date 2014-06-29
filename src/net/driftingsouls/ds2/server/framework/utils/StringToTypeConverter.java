@@ -5,12 +5,27 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Hilfsklasse zum Konvertieren von Strings in eine Reihe von bekannten Datentypen.
  */
 public final class StringToTypeConverter
 {
+	private static final Map<Class<?>,Class<?>> PRIMITIVE_TYPE_MAP = new HashMap<>();
+	static {
+		PRIMITIVE_TYPE_MAP.put(Void.TYPE, Void.class);
+		PRIMITIVE_TYPE_MAP.put(Byte.TYPE, Byte.class);
+		PRIMITIVE_TYPE_MAP.put(Short.TYPE, Short.class);
+		PRIMITIVE_TYPE_MAP.put(Integer.TYPE, Integer.class);
+		PRIMITIVE_TYPE_MAP.put(Long.TYPE, Long.class);
+		PRIMITIVE_TYPE_MAP.put(Float.TYPE, Float.class);
+		PRIMITIVE_TYPE_MAP.put(Double.TYPE, Double.class);
+		PRIMITIVE_TYPE_MAP.put(Character.TYPE, Character.class);
+		PRIMITIVE_TYPE_MAP.put(Boolean.TYPE, Boolean.class);
+	}
+
 	private StringToTypeConverter()
 	{
 		// EMPTY
@@ -32,6 +47,10 @@ public final class StringToTypeConverter
 		{
 			// Null kann immer konvertiert werden
 			return null;
+		}
+		if( type.isPrimitive() )
+		{
+			type = (Class<T>) PRIMITIVE_TYPE_MAP.get(type);
 		}
 		if( type == String.class )
 		{

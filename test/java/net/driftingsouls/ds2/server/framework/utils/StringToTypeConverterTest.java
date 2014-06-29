@@ -106,4 +106,30 @@ public class StringToTypeConverterTest
 		// assert
 		assertEquals(BigInteger.valueOf(4242), convert);
 	}
+
+	@Test
+	public void gegebenEinEinfachesIntAlsWert_convert_sollteEinIntegerZurueckgeben() throws Exception
+	{
+		// setup
+		String valueStr = "42";
+
+		// run
+		Integer value = StringToTypeConverter.convert(Integer.TYPE, valueStr);
+
+		// assert
+		assertEquals((Integer)42, value);
+	}
+
+	@Test
+	public void gegebenEinEinfachesBooleanAlsWert_convert_sollteEinBooleanZurueckgeben() throws Exception
+	{
+		// setup
+		String valueStr = Boolean.TRUE.toString();
+
+		// run
+		Boolean value = StringToTypeConverter.convert(Boolean.TYPE, valueStr);
+
+		// assert
+		assertTrue(value);
+	}
 }
