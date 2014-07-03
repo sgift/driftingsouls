@@ -728,6 +728,17 @@ public class SchiffFlugService
 					dockedShip.setLocation(schiff);
 				}
 			}
+            if(schiff.getFleet() != null)
+            {
+                for(Ship ship : schiff.getFleet().getShips())
+                {
+                    ship.recalculateShipStatus(false);
+                }
+            }
+            else
+            {
+                schiff.recalculateShipStatus(false);
+            }
 		}
 		saveFleetShips();
 

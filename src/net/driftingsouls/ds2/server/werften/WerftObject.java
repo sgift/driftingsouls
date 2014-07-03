@@ -562,6 +562,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 				ship.setCargo(shipCargo);
 			}
 		}
+        setCargo(cargo, false);
 
 		MESSAGE.get().append(Ship.MESSAGE.get());
 		MESSAGE.get().append(ship.getName()).append(" - Modul ausgebaut\n");
@@ -684,6 +685,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 				ship.setCargo(shipCargo);
 			}
 		}
+        setCargo(cargo,false);
 
 		MESSAGE.get().append(Ship.MESSAGE.get());
 
