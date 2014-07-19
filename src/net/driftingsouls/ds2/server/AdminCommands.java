@@ -1431,10 +1431,18 @@ public class AdminCommands {
 
 			db.getTransaction().commit();
 
-			List<Integer> ships = Common.cast(db
-				.createQuery("select s.id from Ship as s join s.modules " +
-					"where s.id>0 order by s.owner.id,s.docked,s.shiptype.id asc")
-				.list());
+			List<Integer> ships;
+			if( command.length < 2 )
+			{
+				ships = Common.cast(db
+						.createQuery("select s.id from Ship as s join s.modules " +
+								"where s.id>0 order by s.owner.id,s.docked,s.shiptype.id asc")
+						.list());
+			}
+			else {
+				ships = new ArrayList<>();
+				ships.add(Integer.parseInt(command[1]));
+			}
 
 			new EvictableUnitOfWork<Integer>("AdminCommand: RecalculateShipModules") {
 
@@ -1462,7 +1470,7 @@ public class AdminCommands {
 		@Override
 		public List<String> autoComplete(String[] command)
 		{
-			return Arrays.asList("");
+			return Arrays.asList("[shipId]");
 		}
 	}
 
