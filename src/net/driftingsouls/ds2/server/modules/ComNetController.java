@@ -26,6 +26,7 @@ import net.driftingsouls.ds2.server.entities.ComNetEntry;
 import net.driftingsouls.ds2.server.entities.ComNetService;
 import net.driftingsouls.ds2.server.entities.ComNetVisit;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.bbcode.Smilie;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
@@ -439,9 +440,9 @@ public class ComNetController extends Controller
 
 		t.setBlock("_COMNET", "channels.listitem", "channels.list");
 
-		int lastowner = 0;
+		Ally lastowner = null;
 
-		Iterator<?> chnlIter = db.createQuery("from ComNetChannel order by allyOwner").iterate();
+		Iterator<?> chnlIter = db.createQuery("from ComNetChannel order by allyOwner.id").iterate();
 		while (chnlIter.hasNext())
 		{
 			ComNetChannel achannel = (ComNetChannel) chnlIter.next();
@@ -461,7 +462,7 @@ public class ComNetController extends Controller
 				t.setVar("thischannel.writeable", 1);
 			}
 
-			if ((lastowner == 0) && (lastowner != achannel.getAllyOwner()))
+			if ((lastowner == null) && (achannel.getAllyOwner() != null))
 			{
 				t.setVar("thischannel.showprivateinfo", 1);
 				lastowner = achannel.getAllyOwner();

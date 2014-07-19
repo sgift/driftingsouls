@@ -19,18 +19,25 @@
 package net.driftingsouls.ds2.server.entities;
 
 import net.driftingsouls.ds2.server.WellKnownPermission;
+import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.PermissionResolver;
-import org.hibernate.annotations.Index;
+import org.hibernate.Session;
+import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * <p>Ein ComNet-Kanal.</p>
@@ -47,9 +54,10 @@ public class ComNetChannel {
 	private int id;
 	@Column(nullable = false)
 	private String name;
-	@Index(name="allyowner")
-	@Column(name="allyowner", nullable = false)
-	private int allyOwner;
+	@ManyToOne
+	@JoinColumn
+	@ForeignKey(name = "comnet_channel_fk_ally")
+	private Ally allyOwner;
 	@Column(name="writeall", nullable = false)
 	private boolean writeAll;
 	@Column(name="readall", nullable = false)
@@ -58,10 +66,14 @@ public class ComNetChannel {
 	private boolean readNpc;
 	@Column(name="writenpc", nullable = false)
 	private boolean writeNpc;
-	@Column(name="writeally", nullable = false)
-	private int writeAlly;
-	@Column(name="readally", nullable = false)
-	private int readAlly;
+	@ManyToOne
+	@JoinColumn
+	@ForeignKey(name = "comnet_channel_fk_ally2")
+	private Ally writeAlly;
+	@ManyToOne
+	@JoinColumn
+	@ForeignKey(name = "comnet_channel_fk_ally3")
+	private Ally readAlly;
 	@Lob
 	@Column(name="readplayer", nullable = false)
 	private String readPlayer;
@@ -94,7 +106,7 @@ public class ComNetChannel {
 	 * Gibt die Ally zurueck, die den Channel besitzt.
 	 * @return Die Allianz
 	 */
-	public int getAllyOwner() {
+	public Ally getAllyOwner() {
 		return allyOwner;
 	}
 
@@ -102,7 +114,7 @@ public class ComNetChannel {
 	 * Setzt den Allianzbesitzer des Channels.
 	 * @param allyOwner Die Allianz
 	 */
-	public void setAllyOwner(int allyOwner) {
+	public void setAllyOwner(Ally allyOwner) {
 		this.allyOwner = allyOwner;
 	}
 
@@ -142,7 +154,7 @@ public class ComNetChannel {
 	 * Gibt die Allianz zurueck, die den Kanal lesen kann.
 	 * @return Die Allianz
 	 */
-	public int getReadAlly() {
+	public Ally getReadAlly() {
 		return readAlly;
 	}
 
@@ -150,7 +162,7 @@ public class ComNetChannel {
 	 * Setzt die Allianz, die den Kanal lesen kann.
 	 * @param readAlly Die Allianz
 	 */
-	public void setReadAlly(int readAlly) {
+	public void setReadAlly(Ally readAlly) {
 		this.readAlly = readAlly;
 	}
 
@@ -172,18 +184,27 @@ public class ComNetChannel {
 
 	/**
 	 * Gibt die Spieler zurueck, die den Kanal lesen koennen.
-	 * @return die IDs (Komma-separiert)
+	 * @return die User
 	 */
-	public String getReadPlayer() {
-		return readPlayer;
+	public Set<User> getReadPlayer() {
+		Session db = ContextMap.getContext().getDB();
+		return Arrays.stream(Common.explodeToInt(",", readPlayer)).mapToObj(id -> (User) db.get(User.class, id)).collect(Collectors.toSet());
 	}
 
 	/**
 	 * Setzt die Spieler, die den Kanal lesen koennen.
-	 * @param readPlayer DIe IDs (Komman-separiert)
+	 * @param readPlayer Die IDs
 	 */
-	public void setReadPlayer(String readPlayer) {
-		this.readPlayer = readPlayer;
+	public void setReadPlayer(int[] readPlayer) {
+		this.readPlayer = Common.implode(",",readPlayer);
+	}
+
+	/**
+	 * Setzt die Spieler, die den Kanal lesen koennen.
+	 * @param readPlayer Die User
+	 */
+	public void setReadPlayer(Set<User> readPlayer) {
+		this.readPlayer = readPlayer.stream().map(User::getId).map(Object::toString).collect(Collectors.joining(","));
 	}
 
 	/**
@@ -206,7 +227,7 @@ public class ComNetChannel {
 	 * Gibt die Allianz zurueck, deren Mitglieder im Kanal posten koennen.
 	 * @return Die Allianz
 	 */
-	public int getWriteAlly() {
+	public Ally getWriteAlly() {
 		return writeAlly;
 	}
 
@@ -214,7 +235,7 @@ public class ComNetChannel {
 	 * Setzt die Allianz, deren Mitglieder im Kanal posten koennen.
 	 * @param writeAlly Die Allianz
 	 */
-	public void setWriteAlly(int writeAlly) {
+	public void setWriteAlly(Ally writeAlly) {
 		this.writeAlly = writeAlly;
 	}
 
@@ -236,18 +257,27 @@ public class ComNetChannel {
 
 	/**
 	 * Gibt die Spieler zurueck, die im Kanal posten koennen.
-	 * @return Die Spieler (Komma-separiert)
+	 * @return Die User
 	 */
-	public String getWritePlayer() {
-		return writePlayer;
+	public Set<User> getWritePlayer() {
+		Session db = ContextMap.getContext().getDB();
+		return Arrays.stream(Common.explodeToInt(",", writePlayer)).mapToObj(id -> (User) db.get(User.class, id)).collect(Collectors.toSet());
 	}
 
 	/**
 	 * Setzt die Spieler, die im Kanal posten koennen.
-	 * @param writePlayer Die IDs (Komma-separiert)
+	 * @param writePlayer Die IDs
 	 */
-	public void setWritePlayer(String writePlayer) {
-		this.writePlayer = writePlayer;
+	public void setWritePlayer(int[] writePlayer) {
+		this.writePlayer = Common.implode(",", writePlayer);
+	}
+
+	/**
+	 * Setzt die Spieler, die im Kanal posten koennen.
+	 * @param writePlayer Die Spieler
+	 */
+	public void setWritePlayer(Set<User> writePlayer) {
+		this.writePlayer = writePlayer.stream().map(User::getId).map(Object::toString).collect(Collectors.joining(","));
 	}
 
 	/**
@@ -266,14 +296,14 @@ public class ComNetChannel {
 	 */
 	public boolean isReadable( User user, PermissionResolver presolver ) {
 		if( this.readAll || ((user.getId() < 0) && this.readNpc) ||
-			((user.getAlly() != null) && (this.readAlly == user.getAlly().getId())) ||
+			((user.getAlly() != null) && (this.readAlly == user.getAlly())) ||
 			presolver.hasPermission(WellKnownPermission.COMNET_ALLES_LESBAR) ) {
 
 			return true;
 		}
 
 		if( this.writeAll || ((user.getId() < 0) && this.writeNpc) ||
-			((user.getAlly() != null) && (this.writeAlly == user.getAlly().getId())) ||
+			((user.getAlly() != null) && (this.writeAlly == user.getAlly())) ||
 			presolver.hasPermission(WellKnownPermission.COMNET_ALLES_LESBAR) ) {
 
 			return true;
@@ -304,7 +334,7 @@ public class ComNetChannel {
 	 */
 	public boolean isWriteable( User user, PermissionResolver presolver ) {
 		if( this.writeAll || ((user.getId() < 0) && this.writeNpc) ||
-				((user.getAlly() != null) && (this.writeAlly == user.getAlly().getId())) ||
+				((user.getAlly() != null) && (this.writeAlly == user.getAlly())) ||
 				presolver.hasPermission(WellKnownPermission.COMNET_ALLES_SCHREIBBAR) ) {
 
 				return true;

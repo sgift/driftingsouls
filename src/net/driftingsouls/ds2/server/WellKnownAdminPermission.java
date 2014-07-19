@@ -22,6 +22,7 @@ public enum WellKnownAdminPermission implements PermissionDescriptor
 	EDIT_BASE_TYPE("EditBaseType"),
 	EDIT_BUILDING("EditBuilding"),
 	EDIT_BUILDING_PICTURE("EditBuildingPicture"),
+	EDIT_COMNET_CHANNEL("EditComnetChannel"),
 	EDIT_CONFIG_FELSBROCKEN("EditConfigFelsbrocken"),
 	EDIT_CONFIG_FELSBROCKEN_SYSTEM("EditConfigFelsbrockenSystem"),
 	EDIT_CONFIG_VALUES("EditConfigValues"),

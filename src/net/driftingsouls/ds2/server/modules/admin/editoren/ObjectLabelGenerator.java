@@ -6,9 +6,10 @@ import net.driftingsouls.ds2.server.config.ConfigFelsbrockenSystem;
 import net.driftingsouls.ds2.server.entities.GuiHelpText;
 import net.driftingsouls.ds2.server.entities.IntTutorial;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.ally.Ally;
+import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeInfo;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeMaxValues;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.SchiffstypModifikation;
@@ -45,6 +46,7 @@ public class ObjectLabelGenerator
 	    registerSpecialGenerator(UpgradeMaxValues.class, (umv) -> umv.getType().getName()+"#"+umv.getUpgradeType());
         registerSpecialGenerator(UpgradeInfo.class, (ui) -> ui.getType().getName()+"#"+ui.getUpgradeType());
 		registerSpecialGenerator(SchiffstypModifikation.class, (sm) -> "["+sm.getId()+"] "+sm.toString());
+		registerSpecialGenerator(Ally.class, Ally::getPlainname);
     }
 
 	@SuppressWarnings("unchecked")

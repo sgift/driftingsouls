@@ -51,6 +51,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -561,7 +562,7 @@ public class AllyController extends Controller
 		}
 
 		ComNetChannel channel = new ComNetChannel(name);
-		channel.setAllyOwner(this.ally.getId());
+		channel.setAllyOwner(this.ally);
 
 		switch (read)
 		{
@@ -569,11 +570,10 @@ public class AllyController extends Controller
 				channel.setReadAll(true);
 				break;
 			case "ally":
-				channel.setReadAlly(this.ally.getId());
+				channel.setReadAlly(this.ally);
 				break;
 			case "player":
-				readids = Common.implode(",", Common.explodeToInteger(",", readids));
-				channel.setReadPlayer(readids);
+				channel.setReadPlayer(Common.explodeToInt(",", readids));
 				break;
 		}
 
@@ -583,11 +583,10 @@ public class AllyController extends Controller
 				channel.setWriteAll(true);
 				break;
 			case "ally":
-				channel.setWriteAlly(this.ally.getId());
+				channel.setWriteAlly(this.ally);
 				break;
 			case "player":
-				writeids = Common.implode(",", Common.explodeToInteger(",", writeids));
-				channel.setWritePlayer(writeids);
+				channel.setWritePlayer(Common.explodeToInt(",", writeids));
 				break;
 		}
 		db.persist(channel);
@@ -614,7 +613,7 @@ public class AllyController extends Controller
 			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Nur der Präsident der Allianz kann diese Aktion durchführen");
 		}
 
-		if ((channel == null) || (channel.getAllyOwner() != this.ally.getId()))
+		if ((channel == null) || (channel.getAllyOwner() != this.ally))
 		{
 			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Diese Frequenz gehört nicht ihrer Allianz");
 		}
@@ -626,11 +625,11 @@ public class AllyController extends Controller
 
 		channel.setName(name);
 		channel.setReadAll(false);
-		channel.setReadAlly(0);
-		channel.setReadPlayer("");
+		channel.setReadAlly(null);
+		channel.setReadPlayer(new int[0]);
 		channel.setWriteAll(false);
-		channel.setWriteAlly(0);
-		channel.setWritePlayer("");
+		channel.setWriteAlly(null);
+		channel.setWritePlayer(new HashSet<>());
 
 		switch (read)
 		{
@@ -638,11 +637,10 @@ public class AllyController extends Controller
 				channel.setReadAll(true);
 				break;
 			case "ally":
-				channel.setReadAlly(this.ally.getId());
+				channel.setReadAlly(this.ally);
 				break;
 			case "player":
-				readids = Common.implode(",", Common.explodeToInteger(",", readids));
-				channel.setReadPlayer(readids);
+				channel.setReadPlayer(Common.explodeToInt(",", readids));
 				break;
 		}
 
@@ -652,11 +650,10 @@ public class AllyController extends Controller
 				channel.setWriteAll(true);
 				break;
 			case "ally":
-				channel.setWriteAlly(this.ally.getId());
+				channel.setWriteAlly(this.ally);
 				break;
 			case "player":
-				writeids = Common.implode(",", Common.explodeToInteger(",", writeids));
-				channel.setWritePlayer(writeids);
+				channel.setWritePlayer(Common.explodeToInt(",", writeids));
 				break;
 		}
 
@@ -680,7 +677,7 @@ public class AllyController extends Controller
 			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Nur der Präsident der Allianz kann diese Aktion durchführen");
 		}
 
-		if ((channel == null) || (channel.getAllyOwner() != this.ally.getId()))
+		if ((channel == null) || (channel.getAllyOwner() != this.ally))
 		{
 			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Diese Frequenz gehört nicht ihrer Allianz");
 		}
@@ -1377,7 +1374,7 @@ public class AllyController extends Controller
 		// Zuerst alle vorhandenen Channels dieser Allianz auslesen (max 2)
 		List<ComNetChannel> channels = new ArrayList<>();
 		List<?> channelList = db.createQuery("from ComNetChannel where allyOwner=:ally")
-				.setInteger("ally", this.ally.getId())
+				.setEntity("ally", this.ally)
 				.setMaxResults(2)
 				.list();
 		channels.addAll(channelList.stream().map(aChannelList -> (ComNetChannel) aChannelList).collect(Collectors.toList()));
@@ -1389,18 +1386,19 @@ public class AllyController extends Controller
 		for (int i = 0; i <= 1; i++)
 		{
 			t.start_record();
-			t.setVar("show.einstellungen.channels.id", channels.get(i) == null ? 0 : channels.get(i).getId(),
+			ComNetChannel comNetChannel = channels.get(i);
+			t.setVar("show.einstellungen.channels.id", comNetChannel == null ? 0 : comNetChannel.getId(),
 					"show.einstellungen.channels.index", i + 1);
 
-			if (channels.get(i) != null)
+			if (comNetChannel != null)
 			{
-				t.setVar("show.einstellungen.channels.name", Common._plaintitle(channels.get(i).getName()),
-						"show.einstellungen.channels.readall", channels.get(i).isReadAll(),
-						"show.einstellungen.channels.writeall", channels.get(i).isWriteAll(),
-						"show.einstellungen.channels.readally", channels.get(i).getReadAlly(),
-						"show.einstellungen.channels.writeally", channels.get(i).getWriteAlly(),
-						"show.einstellungen.channels.readids", channels.get(i).getReadPlayer(),
-						"show.einstellungen.channels.writeids", channels.get(i).getWritePlayer());
+				t.setVar("show.einstellungen.channels.name", Common._plaintitle(comNetChannel.getName()),
+						"show.einstellungen.channels.readall", comNetChannel.isReadAll(),
+						"show.einstellungen.channels.writeall", comNetChannel.isWriteAll(),
+						"show.einstellungen.channels.readally", comNetChannel.getReadAlly() != null ? comNetChannel.getReadAlly().getId() : 0,
+						"show.einstellungen.channels.writeally", comNetChannel.getWriteAlly() != null ? comNetChannel.getWriteAlly().getId() : 0,
+						"show.einstellungen.channels.readids", comNetChannel.getReadPlayer().stream().map(User::getId).map(Object::toString).collect(Collectors.joining(",")),
+						"show.einstellungen.channels.writeids", comNetChannel.getWritePlayer().stream().map(User::getId).map(Object::toString).collect(Collectors.joining(",")));
 			}
 			else
 			{
@@ -1415,7 +1413,7 @@ public class AllyController extends Controller
 			t.clear_record();
 
 			// Maximal eine Eingabemaske anzeigen
-			if (channels.get(i) == null)
+			if (comNetChannel == null)
 			{
 				break;
 			}
