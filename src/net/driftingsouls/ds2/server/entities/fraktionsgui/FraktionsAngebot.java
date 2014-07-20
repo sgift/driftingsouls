@@ -38,7 +38,8 @@ import javax.persistence.Version;
  */
 @Entity
 @Table(name="factions_angebote")
-public class FactionOffer {
+public class FraktionsAngebot
+{
 	@Id @GeneratedValue
 	private int id;
 	@ManyToOne(optional = false)
@@ -60,8 +61,10 @@ public class FactionOffer {
 	 * Konstruktor.
 	 *
 	 */
-	public FactionOffer() {
-		// EMPTY
+	public FraktionsAngebot() {
+		this.title = "";
+		this.image = "";
+		this.description = "";
 	}
 	
 	/**
@@ -69,7 +72,7 @@ public class FactionOffer {
 	 * @param faction Die Fraktion, der das Angebot gehoert
 	 * @param title Der Titel des Angebots
 	 */
-	public FactionOffer(User faction, String title) {
+	public FraktionsAngebot(User faction, String title) {
 		setFaction(faction);
 		setTitle(title);
 	}

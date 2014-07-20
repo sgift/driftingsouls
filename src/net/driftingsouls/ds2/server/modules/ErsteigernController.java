@@ -38,7 +38,7 @@ import net.driftingsouls.ds2.server.entities.ResourceLimit;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.FactionOffer;
+import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsAngebot;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FactionShopEntry;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FactionShopOrder;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionAktionsMeldung;
@@ -1182,12 +1182,12 @@ public class ErsteigernController extends Controller
 		t.setVar("none", "");
 
 		int count = 0;
-		List<?> angebote = db.createQuery("from FactionOffer where faction=:faction")
+		List<?> angebote = db.createQuery("from FraktionsAngebot where faction=:faction")
 				.setEntity("faction", factionObj.getUser())
 				.list();
 		for (Object anAngebote : angebote)
 		{
-			FactionOffer offer = (FactionOffer) anAngebote;
+			FraktionsAngebot offer = (FraktionsAngebot) anAngebote;
 
 			count++;
 			t.setVar("angebot.title", Common._title(offer.getTitle()), "angebot.image", offer
