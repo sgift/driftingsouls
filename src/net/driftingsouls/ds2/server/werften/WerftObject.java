@@ -1179,7 +1179,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			ship.setSensors(100);
 			ship.setComm(100);
 			ship.setWeapons(100);
-            ship.addFlag(Ship.FLAG_RECENTLY_REPAIRED, 7);
+            ship.addFlag(Ship.FLAG_RECENTLY_REPAIRED, 5);
 		}
 		return true;
 	}
