@@ -56,6 +56,15 @@
 		{!link_to Ja, dismantle, css_class:error, fleet:$fleet.id}
 	</div>
 {/endif}
+{if show.repair}
+	<div class="gfxbox" style="width:390px;text-align:center">
+        <span style="font-weight:bold; font-style: italic">Flotte reparieren</span><br />
+        <span style="font-style:italic">&gt; {fleet.name} &lt;</span><br /><br />
+        Wollen sie die Flotte wirklich reparieren?<br />
+        {!link_to Nein, default, css_class:ok, fleet:$fleet.id} -
+        {!link_to Ja, repair, css_class:error, fleet:$fleet.id}
+    </div>
+{/endif}
 {if show.newowner}
 	<div class="gfxbox" style="width:390px;text-align:center">
 		<span style="font-weight:bold; font-style: italic">Flotte &uuml;bergeben</span><br />
@@ -210,6 +219,7 @@
 					{/endif}
 					{if shipyardinsector}
 						<option value="askDismantle">Flotte demontieren</option>
+                        <option value="askRepair">Flotte reparieren</option>
 					{/endif}
                     {if hastanker}
                         <option value="activateTanker">Tanker anschalten</option>

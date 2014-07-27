@@ -1208,6 +1208,83 @@ public class FleetMgntController extends Controller
 		return new RedirectViewResult("default");
 	}
 
+    /**
+     * Bestaetigungsanfrage fuers reparieren.
+     */
+    @Action(ActionType.DEFAULT)
+    public TemplateEngine askRepairAction(ShipFleet fleet)
+    {
+        validiereGueltigeFlotteVorhanden(fleet);
+
+        TemplateEngine t = templateViewResultFactory.createFor(this);
+
+        t.setVar("fleet.name", Common._plaintitle(fleet.getName()),
+                "fleet.id", fleet.getId(),
+                "show.repair", 1);
+
+        return t;
+    }
+
+    /**
+     * Repariert die Flotte.
+     */
+    @Action(ActionType.DEFAULT)
+    public Object repairAction(ShipFleet fleet)
+    {
+        validiereGueltigeFlotteVorhanden(fleet);
+
+        List<WerftObject> shipyards = new ArrayList<>();
+
+        org.hibernate.Session db = getDB();
+        if (getGanymedCount(fleet) > 0)
+        {
+            Ship aship = getOneFleetShip(fleet);
+            shipyards = Common.cast(db.createQuery("from ShipWerft where ship.system=:system and ship.x=:x and ship.y=:y and ship.owner=:owner")
+                    .setParameter("system", aship.getSystem())
+                    .setParameter("x", aship.getX())
+                    .setParameter("y", aship.getY())
+                    .setParameter("owner", aship.getOwner())
+                    .list());
+        }
+
+        List<Base> bases = getOwnerAsteroids(fleet);
+        if (!bases.isEmpty())
+        {
+            for (Base base : bases)
+            {
+                WerftObject shipyard = base.getShipyard();
+                if (shipyard != null)
+                {
+                    shipyards.add(shipyard);
+                }
+            }
+        }
+
+        if (!shipyards.isEmpty())
+        {
+            for (WerftObject shipyard : shipyards)
+            {
+                if (fleet.repairFleet(shipyard))
+                {
+                    TemplateEngine t = templateViewResultFactory.createFor(this);
+                    int shipid = ermittleIdEinesGeeignetenSchiffsDerFlotte(fleet);
+
+                    t.setVar("jscript.reloadmain.ship", shipid);
+                    t.setVar("fleetmgnt.message", "Die Flotte '" + fleet.getName() + "' wurde reapriert.",
+                            "jscript.reloadmain", 1);
+
+                    return t;
+                }
+            }
+        }
+        else
+        {
+            addError("Keine Werft im Sektor gefunden.");
+        }
+
+        return new RedirectViewResult("default");
+    }
+
     @Action(value = ActionType.DEFAULT)
     public RedirectViewResult activateTanker(ShipFleet fleet)
     {
