@@ -2674,6 +2674,29 @@ public class Ship implements Locatable,Transfering,Feeding {
 		return getTypeData().getReCost();
 	}
 
+    /**
+     * Gibt zurueck, ob dieses Schiff eine Reparatur benötigt und diese durchführen kann.
+     * @return <code>true</code>, falls das Schiff eine Reparatur benötigt
+     */
+    public boolean needRepair()
+    {
+        if(hasFlag(Ship.FLAG_RECENTLY_REPAIRED))
+        {
+            return false;
+        }
+        if(getBattle() != null)
+        {
+            return false;
+        }
+        ShipTypeData type = getTypeData();
+        if(getHull() < type.getHull() || getAblativeArmor() < type.getAblativeArmor() ||
+                getEngine() < 100 || getSensors() < 100 || getWeapons() < 100 || getComm() < 100)
+        {
+            return true;
+        }
+        return false;
+    }
+
 	/**
 	 *
 	 * @return The effective scan range caused by sensors subsystem

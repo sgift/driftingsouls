@@ -423,29 +423,6 @@ public class ShipFleet {
 
 	}
 
-    /**
-     * Schickt die Flotte in die Werft zur Reparatur.
-     *
-     * @param shipyard Werft, in der die Schiffe repariert werden sollen.
-     * @return <code>true</code>, wenn alle Schiffe repariert wurden.
-     */
-    public boolean repairFleet(WerftObject shipyard)
-    {
-        org.hibernate.Session db = ContextMap.getContext().getDB();
-        Location shipyardLocation = shipyard.getLocation();
-        List<Ship> ships = Common.cast(db.createQuery("from Ship where fleet=:fleet and system=:system and x=:x and y=:y")
-                .setParameter("fleet", this)
-                .setParameter("system", shipyardLocation.getSystem())
-                .setParameter("x", shipyardLocation.getX())
-                .setParameter("y", shipyardLocation.getY())
-                .list());
-        log.debug("Ships to repair in fleet " + getId() + ": " + ships.size());
-        int repaired = shipyard.repairShips(ships);
-        log.debug("Ships repaired in fleet " + getId() + ": " + repaired);
-        return repaired == ships.size();
-
-    }
-
 	/**
 	 * Fuegt das angegebene Schiff zur Flotte hinzu.
 	 * @param ship Das Schiff das hinzugefuegt werden soll

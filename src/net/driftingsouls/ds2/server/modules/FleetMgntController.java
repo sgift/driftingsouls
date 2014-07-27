@@ -36,6 +36,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.*;
 import net.driftingsouls.ds2.server.werften.SchiffBauinformationen;
+import net.driftingsouls.ds2.server.werften.ShipWerft;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1239,13 +1240,27 @@ public class FleetMgntController extends Controller
         if (getGanymedCount(fleet) > 0)
         {
             Ship aship = getOneFleetShip(fleet);
-            shipyards = Common.cast(db.createQuery("from ShipWerft where ship.system=:system and ship.x=:x and ship.y=:y and ship.owner=:owner")
+            List<ShipWerft> tshipyards = Common.cast(db.createQuery("from ShipWerft where ship.system=:system and ship.x=:x and ship.y=:y and ship.owner=:owner")
                     .setParameter("system", aship.getSystem())
                     .setParameter("x", aship.getX())
                     .setParameter("y", aship.getY())
                     .setParameter("owner", aship.getOwner())
                     .list());
+
+            for(ShipWerft shipyard : tshipyards)
+            {
+                if(shipyard.getKomplex() != null && !shipyards.contains(shipyard.getKomplex()))
+                {
+                    shipyards.add(shipyard.getKomplex());
+                }
+                else if(shipyard.getKomplex() == null)
+                {
+                    shipyards.add(shipyard);
+                }
+            }
         }
+
+
 
         List<Base> bases = getOwnerAsteroids(fleet);
         if (!bases.isEmpty())
@@ -1262,20 +1277,30 @@ public class FleetMgntController extends Controller
 
         if (!shipyards.isEmpty())
         {
-            for (WerftObject shipyard : shipyards)
+            TemplateEngine t = templateViewResultFactory.createFor(this);
+            int repaired = 0;
+
+            for (Ship aship : fleet.getShips())
             {
-                if (fleet.repairFleet(shipyard))
+                if(aship.needRepair())
                 {
-                    TemplateEngine t = templateViewResultFactory.createFor(this);
-                    int shipid = ermittleIdEinesGeeignetenSchiffsDerFlotte(fleet);
-
-                    t.setVar("jscript.reloadmain.ship", shipid);
-                    t.setVar("fleetmgnt.message", "Die Flotte '" + fleet.getName() + "' wurde reapriert.",
-                            "jscript.reloadmain", 1);
-
-                    return t;
+                    for (WerftObject shipyard : shipyards)
+                    {
+                        if (shipyard.repairShip(aship, false))
+                        {
+                            repaired++;
+                            continue;
+                        }
+                    }
                 }
             }
+
+            int shipid = ermittleIdEinesGeeignetenSchiffsDerFlotte(fleet);
+
+            t.setVar("jscript.reloadmain.ship", shipid);
+            t.setVar("fleetmgnt.message", "Es wurden " + repaired + " Schiffe repariert.");
+
+            return t;
         }
         else
         {

@@ -1115,26 +1115,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		*/
 	}
 
-    /**
-     * Repariert mehrere Schiffe auf einmal.
-     *
-     * @param ships Schiffe, die repariert werden sollten.
-     * @return Anzahl der Schiffe, die wirklich reapriert wurden.
-     */
-    public int repairShips(@Nonnull Collection<Ship> ships)
-    {
-        int repairedShips = 0;
-        for(Ship ship: ships)
-        {
-            if(repairShip(ship, false))
-            {
-                repairedShips++;
-            }
-        }
-
-        return repairedShips;
-    }
-
 	/**
 	 * Repariert ein Schiff auf einer Werft.
 	 * Es werden nur Dinge geprueft, die unmittelbar mit dem Repariervorgang selbst
@@ -1199,7 +1179,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			ship.setSensors(100);
 			ship.setComm(100);
 			ship.setWeapons(100);
-            ship.addFlag(Ship.FLAG_RECENTLY_REPAIRED, 7);
+            ship.addFlag(Ship.FLAG_RECENTLY_REPAIRED, 5);
 		}
 		return true;
 	}
